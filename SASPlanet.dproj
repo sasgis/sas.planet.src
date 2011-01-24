@@ -133,6 +133,7 @@
     <DCCReference Include="i_IMapViewGoto.pas" />
     <DCCReference Include="i_IMarkPicture.pas" />
     <DCCReference Include="i_IMemObjCache.pas" />
+    <DCCReference Include="i_IMiniMapLayerConfig.pas" />
     <DCCReference Include="i_INavigationToPoint.pas" />
     <DCCReference Include="i_IObjectWithTTL.pas" />
     <DCCReference Include="i_IPathDetalizeProvider.pas" />
@@ -488,6 +489,7 @@
     <DCCReference Include="u_MarksSubset.pas" />
     <DCCReference Include="u_MarkTemplates.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
+    <DCCReference Include="u_MiniMapLayerConfig.pas" />
     <DCCReference Include="u_MiniMapMenuItemsFactory.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />

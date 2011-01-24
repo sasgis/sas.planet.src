@@ -10,6 +10,7 @@ uses
   i_IMapLayerNavToPointMarkerConfig,
   i_IUsedMarksConfig,
   i_IKmlLayerConfig,
+  i_IMiniMapLayerConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -23,6 +24,7 @@ type
     FNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
     FMarksShowConfig: IUsedMarksConfig;
     FKmlLayerConfig: IKmlLayerConfig;
+    FMiniMapLayerConfig: IMiniMapLayerConfig;
   protected
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;
@@ -31,6 +33,7 @@ type
     function GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
     function GetMarksShowConfig: IUsedMarksConfig;
     function GetKmlLayerConfig: IKmlLayerConfig;
+    function GetMiniMapLayerConfig: IMiniMapLayerConfig;
   public
     constructor Create;
   end;
@@ -46,6 +49,7 @@ uses
   u_MapLayerGPSTrackConfig,
   u_UsedMarksConfig,
   u_KmlLayerConfig,
+  u_MiniMapLayerConfig,
   u_MapLayerNavToPointMarkerConfig;
 
 { TMainFormLayersConfig }
@@ -67,6 +71,8 @@ begin
   Add(FMarksShowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
   FKmlLayerConfig := TKmlLayerConfig.Create;
   Add(FKmlLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('WikiLayer'));
+//  FMiniMapLayerConfig := TMiniMapLayerConfig.Create();
+//  Add(FMiniMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MiniMap'));
 end;
 
 function TMainFormLayersConfig.GetGPSMarker: IMapLayerGPSMarkerConfig;
@@ -92,6 +98,11 @@ end;
 function TMainFormLayersConfig.GetMarksShowConfig: IUsedMarksConfig;
 begin
   Result := FMarksShowConfig;
+end;
+
+function TMainFormLayersConfig.GetMiniMapLayerConfig: IMiniMapLayerConfig;
+begin
+  Result := FMiniMapLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;

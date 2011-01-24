@@ -103,6 +103,8 @@ uses
   i_IKmlLayerConfig in 'i_IKmlLayerConfig.pas',
   u_KmlLayerConfig in 'u_KmlLayerConfig.pas',
   u_MapLayerWiki in 'MapLayers\u_MapLayerWiki.pas',
+  i_IMiniMapLayerConfig in 'i_IMiniMapLayerConfig.pas',
+  u_MiniMapLayerConfig in 'u_MiniMapLayerConfig.pas',
   UPLT in 'UPLT.pas',
   Ugeofun in 'Ugeofun.pas',
   u_GlobalCahceConfig in 'u_GlobalCahceConfig.pas',

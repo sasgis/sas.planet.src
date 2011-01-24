@@ -13,6 +13,7 @@ uses
   i_IMainGeoCoderConfig,
   i_IUsedMarksConfig,
   i_IKmlLayerConfig,
+  i_IMiniMapLayerConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -71,6 +72,9 @@ type
 
     function GetKmlLayerConfig: IKmlLayerConfig;
     property KmlLayerConfig: IKmlLayerConfig read GetKmlLayerConfig;
+
+    function GetMiniMapLayerConfig: IMiniMapLayerConfig;
+    property MiniMapLayerConfig: IMiniMapLayerConfig read GetMiniMapLayerConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)
