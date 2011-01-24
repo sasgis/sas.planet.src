@@ -35,8 +35,6 @@ type
     FBitmapCoordConverter: ILocalCoordConverter;
     FBitmapCoordConverterFactory: ILocalCoordConverterFactorySimpe;
 
-    FWidth: Integer;
-
     FMapsActive: IActiveMapWithHybrConfig;
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
@@ -201,6 +199,8 @@ end;
 { TMapMainLayer }
 
 constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+var
+  VWidth: Integer;
 begin
   inherited;
   FBitmapCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
@@ -224,8 +224,8 @@ begin
 
   LoadBitmaps;
   BuildPopUpMenu;
-  FWidth := 100;
-  UpdateLayerSize(Point(FWidth, FWidth));
+  VWidth := 100;
+  UpdateLayerSize(Point(VWidth, VWidth));
 end;
 
 destructor TMiniMapLayer.Destroy;
