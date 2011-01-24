@@ -62,10 +62,7 @@ uses
   i_MarksSimple,
   u_GlobalState,
   u_GeoCodeResult,
-  u_GeoCodePalcemark,
-  u_MarksSimple,
-  u_MarksReadWriteSimple,
-  unit1;
+  u_GeoCodePalcemark;
 
 {$R *.dfm}
 

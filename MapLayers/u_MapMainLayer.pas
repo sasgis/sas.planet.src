@@ -6,7 +6,6 @@ uses
   Windows,
   Types,
   GR32,
-  GR32_Image,
   t_GeoTypes,
   u_MapViewPortState,
   u_MapLayerShowError,

@@ -5,7 +5,6 @@ interface
 uses
   Types,
   GR32,
-  i_ICoordConverter,
   i_ILocalCoordConverter;
 
 type

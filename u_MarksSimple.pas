@@ -2,12 +2,6 @@ unit u_MarksSimple;
 
 interface
 
-uses
-  GR32,
-  t_GeoTypes,
-  i_MarksSimple,
-  i_IMarkPicture;
-
 type
   TCategoryId = class
     id: integer;
@@ -18,25 +12,5 @@ type
   end;
 
 implementation
-
-uses
-  SysUtils;
-
-{ TMarkFull }
-
-//procedure TMarkFull.ClosePoly;
-//var
-//  VPointCount: Integer;
-//begin
-//  VPointCount := Length(Points);
-//  if VPointCount > 1 then begin
-//    if (Points[0].X <> Points[VPointCount - 1].X) or
-//      (Points[0].Y <> Points[VPointCount - 1].Y) then begin
-//      SetLength(Points, VPointCount + 1);
-//      Points[VPointCount] := Points[0];
-//    end;
-//  end;
-//end;
-//
 
 end.

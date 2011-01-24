@@ -3,7 +3,6 @@ unit u_ImportConfig;
 interface
 
 uses
-  i_IMarkPicture,
   i_MarksSimple,
   i_IImportConfig,
   u_MarksOnlyDb;

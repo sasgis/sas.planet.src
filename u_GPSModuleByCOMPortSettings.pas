@@ -49,7 +49,6 @@ type
 implementation
 
 uses
-  u_GlobalState,
   u_GPSModuleByCOMPortConfigSatic;
 
 { TGPSModuleByCOMPortSettings }

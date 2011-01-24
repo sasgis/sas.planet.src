@@ -93,16 +93,9 @@ var
 implementation
 
 uses
-  t_CommonTypes,
   u_GlobalState,
-  i_ICoordConverter,
   i_IImportConfig,
   i_IUsedMarksConfig,
-  u_MarksReadWriteSimple,
-  USaveas,
-  UaddPoint,
-  UaddPoly,
-  UaddLine,
   UImport,
   UAddCategory;
 

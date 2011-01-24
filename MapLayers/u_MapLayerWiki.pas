@@ -59,7 +59,6 @@ uses
   i_ICoordConverter,
   i_ITileIterator,
   i_MapTypes,
-  u_GlobalState,
   u_NotifyEventListener,
   u_TileIteratorByRect;
 

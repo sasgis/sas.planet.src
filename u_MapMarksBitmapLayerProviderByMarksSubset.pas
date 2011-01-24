@@ -66,11 +66,7 @@ uses
   ActiveX,
   SysUtils,
   GR32_Resamplers,
-  GR32_Polygons,
-  t_CommonTypes,
-  u_GlobalState,
-  u_MarksSimple,
-  u_MarksReadWriteSimple;
+  GR32_Polygons;
 
 const
   CMaxFontSize = 20;

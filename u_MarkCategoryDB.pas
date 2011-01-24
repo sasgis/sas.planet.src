@@ -5,13 +5,7 @@ interface
 uses
   Windows,
   Classes,
-  t_GeoTypes,
-  t_CommonTypes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   dm_MarksDb,
-  i_IMarkPicture,
-  i_MarksSimple,
   u_MarksOnlyDb,
   u_MarksSimple;
 
@@ -45,9 +39,7 @@ implementation
 uses
   DB,
   SysUtils,
-  Contnrs,
-  GR32,
-  u_MarksSimpleNew;
+  Contnrs;
 
 procedure TMarkCategoryDB.ReadCurrentCategory(ACategory: TCategoryId);
 begin

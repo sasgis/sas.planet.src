@@ -41,16 +41,12 @@ implementation
 uses
   ActiveX,
   Types,
-  Graphics,
   Classes,
   SysUtils,
   t_GeoTypes,
-  t_CommonTypes,
-  u_GlobalState,
   i_ICoordConverter,
   i_IBitmapLayerProvider,
   u_MapMarksBitmapLayerProviderByMarksSubset,
-  u_MarksSimple,
   u_NotifyEventListener;
 
 { TMapMarksLayer }

@@ -43,9 +43,6 @@ type
 
 implementation
 
-uses
-  u_GlobalState;
-
 constructor TECWWrite.Create(ALibPath: string);
 var _NCSEcwCompressAllocClient:NCSEcwCompressAllocClient;
 begin
