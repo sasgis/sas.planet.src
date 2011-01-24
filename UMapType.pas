@@ -983,7 +983,6 @@ var
   VTileRect: TRect;
   VTargetImageSize: TPoint;
   VPixelRectCurrTile: TRect;
-  VAllTilesExits: Boolean;
   i, j: Integer;
   VTile: TPoint;
   VSpr:TCustomBitmap32;
