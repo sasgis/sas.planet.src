@@ -52,7 +52,7 @@ var
   VHybrList: IMapTypeList;
 begin
   inherited;
-  FLayer.Bitmap.Clear(Color32(GState.BGround));
+  FLayer.Bitmap.Clear(0);
   DrawMap(FViewPortState.GetCurrentMap, dmOpaque);
 
   VHybrList := FViewPortState.HybrList;

@@ -962,11 +962,7 @@ begin
       try
         bSpr.Assign(spr);
         spr.SetSize(VSize.X, VSize.Y);
-        if asLayer then begin
-          spr.Clear(SetAlpha(Color32(GState.BGround),0));
-        end else begin
-          spr.Clear(Color32(GState.BGround));
-        end;
+        spr.Clear(0);
         spr.Draw(0,0,bSpr);
       finally
         bSpr.Free;
@@ -1017,11 +1013,7 @@ begin
   end;
 
   spr.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
-  if asLayer then begin
-    spr.Clear(SetAlpha(Color32(GState.BGround),0));
-  end else begin
-    spr.Clear(Color32(GState.BGround));
-  end;
+  spr.Clear(0);
 
   VSpr := TCustomBitmap32.Create;
   try
@@ -1123,12 +1115,7 @@ begin
     VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top;
 
     spr.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
-
-    if asLayer then begin
-      spr.Clear(SetAlpha(Color32(GState.BGround),0));
-    end else begin
-      spr.Clear(Color32(GState.BGround));
-    end;
+    spr.Clear(0);
 
     VLonLatRectTarget := ACoordConverterTarget.PixelRect2LonLatRect(APixelRectTarget, Azoom);
     VPixelRectOfTargetPixelRectInSource := FCoordConverter.LonLatRect2PixelRect(VLonLatRectTarget, Azoom);
