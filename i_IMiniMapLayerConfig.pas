@@ -4,6 +4,7 @@ interface
 
 uses
   GR32,
+  i_MapTypes,
   i_IActiveMapsConfig,
   i_IConfigDataElement;
 
@@ -37,6 +38,8 @@ type
 
     function GetMapsConfig: IActivMapWithLayers;
     property MapsConfig: IActivMapWithLayers read GetMapsConfig;
+
+    function GetActiveMiniMap: IMapType;
   end;
 
 implementation
