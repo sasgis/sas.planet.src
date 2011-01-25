@@ -28,8 +28,9 @@ type
     FMainMapChangeListener: IJclListener;
     function GetMiniMapMapsList: IMapTypeList;
     procedure OnMainMapChange(Sender: TObject);
+    procedure SetActiveMiniMap(AValue: IMapType);
   protected
-    procedure SetChanged; override;
+    procedure DoSubItemChange; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -125,6 +126,20 @@ begin
     FMasterAlpha := AConfigData.ReadInteger('Alpha', FMasterAlpha);
     FVisible := AConfigData.ReadBool('Visible', FVisible);
     SetChanged;
+  end;
+end;
+
+procedure TMiniMapLayerConfig.DoSubItemChange;
+var
+  VGUID: TGUID;
+begin
+  inherited;
+  VGUID := FMapsConfig.GetActiveMap.GetSelectedGUID;
+  if IsEqualGUID(VGUID, CGUID_Zero) then begin
+    VGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
+    SetActiveMiniMap(FMainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID));
+  end else begin
+    SetActiveMiniMap(FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID));
   end;
 end;
 
@@ -225,25 +240,19 @@ end;
 
 procedure TMiniMapLayerConfig.OnMainMapChange(Sender: TObject);
 begin
-  LockWrite;
-  try
-    SetChanged;
-  finally
-    UnlockWrite;
-  end;
+  DoSubItemChange
 end;
 
-procedure TMiniMapLayerConfig.SetChanged;
-var
-  VGUID: TGUID;
+procedure TMiniMapLayerConfig.SetActiveMiniMap(AValue: IMapType);
 begin
-  inherited;
-  VGUID := FMapsConfig.GetActiveMap.GetSelectedGUID;
-  if IsEqualGUID(VGUID, CGUID_Zero) then begin
-    VGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
-    FActiveMiniMap := FMainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID);
-  end else begin
-    FActiveMiniMap := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID);
+  LockWrite;
+  try
+    if FActiveMiniMap <> AValue then begin
+      FActiveMiniMap := AValue;
+      inherited SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

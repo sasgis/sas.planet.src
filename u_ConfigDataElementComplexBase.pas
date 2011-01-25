@@ -17,8 +17,9 @@ type
     FList: IInterfaceList;
     FStrategyList: IInterfaceList;
     FItemChangeListener: IJclListener;
-  protected
     procedure OnItemChange(Sender: TObject);
+  protected
+    procedure DoSubItemChange; virtual;
     procedure Add(AItem: IConfigDataElement; ASaveLoadStrategy: IConfigSaveLoadStrategy);
     function GetItemsCount: Integer;
     function GetItem(AIndex: Integer): IConfigDataElement;
@@ -91,6 +92,10 @@ begin
   end;
 end;
 
+procedure TConfigDataElementComplexBase.DoSubItemChange;
+begin
+end;
+
 procedure TConfigDataElementComplexBase.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 var
@@ -143,11 +148,15 @@ begin
   Result := FList.Count;
 end;
 
-procedure TConfigDataElementComplexBase.OnItemChange;
+procedure TConfigDataElementComplexBase.OnItemChange(Sender: TObject);
 begin
   inherited StopNotify;
-  SetChanged;
-  inherited StartNotify;
+  try
+    DoSubItemChange;
+    SetChanged;
+  finally
+    inherited StartNotify;
+  end;
 end;
 
 procedure TConfigDataElementComplexBase.StartNotify;
