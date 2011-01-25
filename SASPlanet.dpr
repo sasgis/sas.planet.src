@@ -41,6 +41,8 @@ uses
   c_GeoCoderGUIDSimple in 'c_GeoCoderGUIDSimple.pas',
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
+  i_IDatum in 'i_IDatum.pas',
+  u_Datum in 'u_Datum.pas',
   UTimeZones in 'UTimeZones.pas',
   UResStrings in 'UResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',

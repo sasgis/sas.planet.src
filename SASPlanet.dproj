@@ -97,6 +97,7 @@
     <DCCReference Include="i_IContentTypeManager.pas" />
     <DCCReference Include="i_ICoordConverter.pas" />
     <DCCReference Include="i_ICoordConverterFactory.pas" />
+    <DCCReference Include="i_IDatum.pas" />
     <DCCReference Include="i_IDownloadInfoSimple.pas" />
     <DCCReference Include="i_IGeoCoderList.pas" />
     <DCCReference Include="i_IGPSModule.pas" />
@@ -387,6 +388,7 @@
     <DCCReference Include="u_CoordConverterMercatorOnEllipsoid.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnSphere.pas" />
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />
+    <DCCReference Include="u_Datum.pas" />
     <DCCReference Include="u_DownloadInfoSimple.pas" />
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
