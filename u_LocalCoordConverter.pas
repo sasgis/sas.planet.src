@@ -19,6 +19,8 @@ type
     FMapScale: TDoublePoint;
     FLocalTopLeftAtMap: TDoublePoint;
   protected
+    function GetIsSameConverter(AConverter: ILocalCoordConverter): Boolean;
+
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
     function GetLocalRectCenter: TDoublePoint;
@@ -102,6 +104,21 @@ end;
 function TLocalCoordConverter.GetGeoConverter: ICoordConverter;
 begin
   Result := FGeoConverter;
+end;
+
+function TLocalCoordConverter.GetIsSameConverter(
+  AConverter: ILocalCoordConverter): Boolean;
+begin
+  Result := False;
+  if EqualRect(FLocalRect, AConverter.GetLocalRect) then begin
+    if FZoom = AConverter.GetZoom then begin
+      if FGeoConverter.IsSameConverter(AConverter.GetGeoConverter) then begin
+        if EqualRect(AConverter.GetRectInMapPixel, GetRectInMapPixel) then begin
+          Result := True;
+        end;
+      end;
+    end;
+  end;
 end;
 
 function TLocalCoordConverter.GetLocalRect: TRect;

@@ -10,6 +10,8 @@ uses
 type
   ILocalCoordConverter = interface
     ['{48CD8E96-6EB3-4162-B321-B8B64D71B0AB}']
+    function GetIsSameConverter(AConverter: ILocalCoordConverter): Boolean;
+
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
     function GetLocalRectCenter: TDoublePoint;
