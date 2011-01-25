@@ -12,45 +12,36 @@ type
   TCoordConverterMercatorOnSphere = class(TCoordConverterBasic)
   protected
     function LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint; override;
-    function LonLat2MetrS(ALL: TDoublePoint): TDoublePoint; override;
     function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
     constructor Create(Aradiusa: Double);
-    function CalcDist(AStart: TDoublePoint; AFinish: TDoublePoint): Double; override;
   end;
 
 implementation
+
+uses
+  u_Datum;
 
 { TCoordConverterMercatorOnSphere }
 
 constructor TCoordConverterMercatorOnSphere.Create(Aradiusa: Double);
 begin
-  inherited Create;
-  Fradiusa := Aradiusa;
-  if Abs(FRadiusa - 6378137) < 1 then begin
-    FDatumEPSG := 7059;
+  ARadiusa := Aradiusa;
+  if Abs(ARadiusa - 6378137) < 1 then begin
+    inherited Create(TDatum.Create(7059, Aradiusa));
     FProjEPSG := 3785;
     FCellSizeUnits := CELL_UNITS_METERS;
-  end else if Abs(FRadiusa - 6371000) < 1 then begin
-    FDatumEPSG := 53004;
+  end else if Abs(ARadiusa - 6371000) < 1 then begin
+    inherited Create(TDatum.Create(53004, Aradiusa));
     FProjEPSG := 53004;
     FCellSizeUnits := CELL_UNITS_METERS;
   end else begin
-    FDatumEPSG := 0;
+    inherited Create(TDatum.Create(0, Aradiusa));
     FProjEPSG := 0;
     FCellSizeUnits := CELL_UNITS_UNKNOWN;
   end;
 
-end;
-
-function TCoordConverterMercatorOnSphere.LonLat2MetrS(ALL: TDoublePoint): TDoublePoint;
-begin
-  All.x := All.x * (Pi / 180);
-  All.Y := All.y * (Pi / 180);
-  result.x := FRadiusa * All.x / 2;
-  result.y := FRadiusa * Ln(Tan(PI / 4 + All.y / 2) *
-    Power((1 - 0 * Sin(all.y)) / (1 + 0 * Sin(All.y)), 0 / 2)) / 2;
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
@@ -60,34 +51,8 @@ begin
   VLl := ALl;
   Vll.x := Vll.x * (Pi / 180);
   Vll.y := Vll.y * (Pi / 180);
-  result.x := Fradiusa * Vll.x;
-  result.y := Fradiusa * Ln(Tan(PI / 4 + Vll.y / 2));
-end;
-
-function TCoordConverterMercatorOnSphere.CalcDist(AStart,
-  AFinish: TDoublePoint): Double;
-const
-  D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
-var
-  fdLambda, fdPhi, fz, a: Double;
-  VStart, VFinish: TDoublePoint; // Координаты в радианах
-begin
-  result := 0;
-  if (AStart.X = AFinish.X) and (AStart.Y = AFinish.Y) then begin
-    exit;
-  end;
-  a := FRadiusa;
-
-  VStart.X := AStart.X * D2R;
-  VStart.Y := AStart.Y * D2R;
-  VFinish.X := AFinish.X * D2R;
-  VFinish.Y := AFinish.Y * D2R;
-
-  fdLambda := VStart.X - VFinish.X;
-  fdPhi := VStart.Y - VFinish.Y;
-  fz := Sqrt(Power(Sin(fdPhi / 2), 2) + Cos(VFinish.Y) * Cos(VStart.Y) * Power(Sin(fdLambda / 2), 2));
-  fz := 2 * ArcSin(fz);
-  result := (fz * a);
+  result.x := FDatum.GetSpheroidRadiusA * Vll.x;
+  result.y := FDatum.GetSpheroidRadiusA * Ln(Tan(PI / 4 + Vll.y / 2));
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint;

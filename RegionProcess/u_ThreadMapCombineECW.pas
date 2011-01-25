@@ -184,7 +184,7 @@ begin
     for k := 0 to 255 do begin
       getmem(Barr[k], (FMapSize.X + 1) * sizeof(byte));
     end;
-    Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetDatumEPSG);
+    Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.Datum.EPSG);
     Proj := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetProjectionEPSG);
     Units := FTypeMap.GeoConvert.GetCellSizeUnits;
     CalculateWFileParams(

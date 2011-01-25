@@ -44,6 +44,7 @@ implementation
 uses
   SysUtils,
   Dialogs,
+  i_IDatum,
   UResStrings,
   USaveas,
   UaddPoint,
@@ -216,14 +217,16 @@ var
   VMark: IMarkFull;
   VLen: Double;
   VMessage: string;
+  VDatum: IDatum;
 begin
   VMark := FMarksDb.MarksDb.GetMarkByID(AId);
   if VMark <> nil then begin
     VPointCount := Length(VMark.Points);
     if (VPointCount > 1) then begin
       VLen:=0;
+      VDatum := AConverter.Datum;
       for i:=0 to VPointCount-2 do begin
-        VLen:=VLen+ AConverter.CalcDist(VMark.Points[i], VMark.Points[i+1]);
+        VLen:=VLen+ VDatum.CalcDist(VMark.Points[i], VMark.Points[i+1]);
       end;
       if VMark.IsPoly then begin
         VMessage := SAS_STR_P+' - '+
@@ -258,7 +261,7 @@ begin
   VMark := FMarksDb.MarksDb.GetMarkByID(AId);
   if VMark <> nil then begin
     if (Length(VMark.Points) > 1) then begin
-      VArea:= AConverter.CalcPoligonArea(VMark.Points);
+      VArea:= AConverter.Datum.CalcPoligonArea(VMark.Points);
       VMessage := SAS_STR_S+' - '+FValueToStringConverterConfig.GetStaticConverter.AreaConvert(VArea);
       MessageBox(AHandle,pchar(VMessage),pchar(VMark.name),0);
     end;

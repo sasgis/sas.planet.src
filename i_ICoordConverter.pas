@@ -4,7 +4,8 @@ interface
 
 uses
   Types,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_IDatum;
 
 type
   ICoordConverterSimple = interface
@@ -30,6 +31,9 @@ type
 
   ICoordConverter = interface
     ['{E8884111-C538-424F-92BC-1BC9843EA6BB}']
+    function GetDatum: IDatum; stdcall;
+    property Datum: IDatum read GetDatum;
+
     // Возвращает количество тайлов в заданном зуме
     function TilesAtZoom(AZoom: byte): Longint; stdcall;
     function TilesAtZoomFloat(AZoom: byte): Double; stdcall;
@@ -136,8 +140,6 @@ type
 
     function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; stdcall;
     function PixelPos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; stdcall;
-    function CalcPoligonArea(polygon: TDoublePointArray): Double;
-    function CalcDist(AStart: TDoublePoint; AFinish: TDoublePoint): Double;
 
     function CheckZoom(var AZoom: Byte): boolean; stdcall;
     function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
@@ -159,10 +161,6 @@ type
 
     // Возвращает код EPSG для этой проекции. Для нестандартных проекций и сфероидов будет возвращать 0
     function GetProjectionEPSG: Integer; stdcall;
-    // Возвращает код EPSG для этого датума. Для нестандартных проекций и сфероидов будет возвращать 0
-    function GetDatumEPSG: integer; stdcall;
-    // Возвращает радиус сфероида.
-    function GetSpheroidRadius: Double; stdcall;
     // Возвращает единицы измерения используемые в спроецированной карте
     function GetCellSizeUnits: TCellSizeUnits; stdcall;
     // Возвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)

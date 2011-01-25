@@ -162,7 +162,7 @@ begin
     sspeed:=allspeed/sspeednumentr;
     altitude:=VPosition.Altitude;
     if (VPointPrev.x<>0)or(VPointPrev.y<>0) then begin
-      VDistToPrev := VConverter.CalcDist(VPointPrev, VPointCurr);
+      VDistToPrev := VConverter.Datum.CalcDist(VPointPrev, VPointCurr);
       len:=len+VDistToPrev;
       Odometr:=Odometr+VDistToPrev;
       Odometr2:=Odometr2+VDistToPrev;

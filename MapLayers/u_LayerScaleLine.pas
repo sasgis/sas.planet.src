@@ -82,7 +82,7 @@ begin
   VZoom := VVisualCoordConverter.GetZoom;
   LL := VVisualCoordConverter.GetCenterLonLat;
 
-  VRad := VConverter.GetSpheroidRadius;
+  VRad := VConverter.Datum.GetSpheroidRadiusA;
   VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoom);
   num := 106 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(LL.y * D2R)));
   if num > 10000 then begin

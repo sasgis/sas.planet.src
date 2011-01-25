@@ -88,6 +88,7 @@ uses
   Graphics,
   SysUtils,
   Ugeofun,
+  i_IDatum,
   i_ICoordConverter,
   i_ILocalCoordConverter,
   i_IValueToStringConverter,
@@ -157,12 +158,14 @@ var
   VLocalConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
   VValueConverter: IValueToStringConverter;
+  VDatum: IDatum;
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
     VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
     VLocalConverter := FBitmapCoordConverter;
     VGeoConvert := VLocalConverter.GetGeoConverter;
+    VDatum := VGeoConvert.Datum;
     SetLength(VPointsOnBitmap, VPointsCount);
     for i := 0 to VPointsCount - 1 do begin
       VLonLat := FPath[i];
@@ -205,7 +208,7 @@ begin
         if i = VPointsCount - 2 then begin
           len := 0;
           for j := 0 to i do begin
-            len := len + VGeoConvert.CalcDist(FPath[j], FPath[j + 1]);
+            len := len + VDatum.CalcDist(FPath[j], FPath[j + 1]);
           end;
           text := SAS_STR_Whole + ': ' + VValueConverter.DistConvert(len);
           FLayer.Bitmap.Font.Size := 9;
@@ -226,7 +229,7 @@ begin
           );
         end else begin
           if FLenShow then begin
-            text := VValueConverter.DistConvert(VGeoConvert.CalcDist(FPath[i], FPath[i + 1]));
+            text := VValueConverter.DistConvert(VDatum.CalcDist(FPath[i], FPath[i + 1]));
             FLayer.Bitmap.Font.Size := 7;
             textW := FLayer.Bitmap.TextWidth(text) + 11;
             FLayer.Bitmap.FillRectS(

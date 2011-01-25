@@ -4,15 +4,15 @@ interface
 
 uses
   Types,
-  i_ICoordConverter,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_IDatum,
+  i_ICoordConverter;
 
 type
   TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)
   protected
-    FRadiusa: Double;
+    FDatum: IDatum;
     FProjEPSG: integer;
-    FDatumEPSG: integer;
     FCellSizeUnits: TCellSizeUnits;
 
     procedure CheckZoomInternal(var AZoom: Byte); virtual; stdcall; abstract;
@@ -36,7 +36,6 @@ type
     procedure CheckLonLatRectInternal(var XY: TDoubleRect); virtual; stdcall; abstract;
 
     function LonLat2MetrInternal(const Ll: TDoublePoint): TDoublePoint; virtual; stdcall; abstract;
-    function LonLat2MetrS(Ll: TDoublePoint): TDoublePoint; virtual; stdcall; abstract;
 
     function TilesAtZoomInternal(AZoom: byte): Longint; virtual; stdcall; abstract;
     function TilesAtZoomFloatInternal(AZoom: byte): Double; virtual; stdcall; abstract;
@@ -114,6 +113,9 @@ type
     function LonLatRect2TileRectInternal(const XY: TDoubleRect; Azoom: byte): TRect; virtual; stdcall; abstract;
     function LonLatRect2TileRectFloatInternal(const XY: TDoubleRect; Azoom: byte): TDoubleRect; virtual; stdcall; abstract;
   public
+    constructor Create(ADatum: IDatum);
+    function GetDatum: IDatum; stdcall;
+
     function TilesAtZoom(AZoom: byte): Longint; stdcall;
     function TilesAtZoomFloat(AZoom: byte): Double; stdcall;
     function PixelsAtZoom(AZoom: byte): Longint; stdcall;
@@ -194,8 +196,6 @@ type
 
     function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
     function PixelPos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; virtual; stdcall;
-    function CalcPoligonArea(polygon: TDoublePointArray): Double; virtual;
-    function CalcDist(AStart: TDoublePoint; AFinish: TDoublePoint): Double; virtual; abstract;
 
     function CheckZoom(var AZoom: Byte): boolean; virtual; stdcall; abstract;
     function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
@@ -216,8 +216,6 @@ type
     function CheckLonLatRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
 
     function GetProjectionEPSG: Integer; virtual; stdcall;
-    function GetDatumEPSG: integer; virtual; stdcall;
-    function GetSpheroidRadius: Double; virtual; stdcall;
     function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
     function GetTileSplitCode: Integer; virtual; stdcall; abstract;
     function IsSameConverter(AOtherMapCoordConv: ICoordConverter): Boolean; virtual; stdcall;
@@ -231,23 +229,6 @@ uses
   SysUtils;
 
 { TCoordConverterAbstract }
-
-function TCoordConverterAbstract.CalcPoligonArea(
-  polygon: TDoublePointArray): Double;
-var
-  L, i: integer;
-  LLPrev, LLCurr: TDoublePoint;
-begin
-  result := 0;
-  l := length(polygon);
-  LLPrev := LonLat2MetrS(polygon[0]);
-  for i := 1 to L - 1 do begin
-    LLCurr := LonLat2MetrS(polygon[i]);
-    result := result + (LLPrev.x + LLCurr.x) * (LLPrev.y - LLCurr.y);
-    LLPrev := LLCurr;
-  end;
-  result := 0.5 * abs(result) / 1000000;
-end;
 
 function TCoordConverterAbstract.LonLatArray2PixelArray(
   APolyg: TDoublePointArray; AZoom: byte): TPointArray;
@@ -1034,9 +1015,9 @@ begin
   Result := LonLatRect2PixelRectFloatInternal(VXY, Vzoom);
 end;
 
-function TCoordConverterAbstract.GetDatumEPSG: integer;
+function TCoordConverterAbstract.GetDatum: IDatum;
 begin
-  Result := FDatumEPSG;
+  Result := FDatum;
 end;
 
 function TCoordConverterAbstract.GetProjectionEPSG: Integer;
@@ -1044,9 +1025,9 @@ begin
   Result := FProjEPSG;
 end;
 
-function TCoordConverterAbstract.GetSpheroidRadius: Double;
+constructor TCoordConverterAbstract.Create(ADatum: IDatum);
 begin
-  Result := FRadiusa;
+  FDatum := ADatum;
 end;
 
 function TCoordConverterAbstract.GetCellSizeUnits: TCellSizeUnits;

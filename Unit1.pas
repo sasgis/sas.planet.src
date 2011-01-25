@@ -1602,7 +1602,7 @@ begin
    //расстояние до метки
    if (FConfig.NavToPoint.IsActive) then begin
      VPoint := GState.ViewState.GetCenterLonLat;
-     VDist := GState.ViewState.GetCurrentCoordConverter.CalcDist(FConfig.NavToPoint.LonLat, VPoint);
+     VDist := GState.ViewState.GetCurrentCoordConverter.Datum.CalcDist(FConfig.NavToPoint.LonLat, VPoint);
      n_len:=VValueConverter.DistConvert(VDist);
      TBXSensorLenToMark.Caption:=n_len;
    end else begin

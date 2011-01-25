@@ -162,7 +162,7 @@ begin
     FLayer.Bitmap.RenderText(4, 1, 'z' + inttostr(VZoomCurr + 1), 0, VTextColor);
     FLayer.Bitmap.RenderText(29, 1, '| ' + SAS_STR_coordinates + ' ' + VLonLatStr, 0, VTextColor);
 
-    VRad := VConverter.GetSpheroidRadius;
+    VRad := VConverter.Datum.GetSpheroidRadiusA;
     VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
     subs2 := VValueConverter.DistConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(ll.y * D2R)))) + SAS_UNITS_mperp;
     FLayer.Bitmap.RenderText(278, 1, ' | ' + SAS_STR_Scale + ' ' + subs2, 0, VTextColor);

@@ -122,7 +122,7 @@ begin
     writeln(f, 'MMPLL,3, ' + FloatToStr(lon[3], VFormat) + ', ' + FloatToStr(lat[3], VFormat));
     writeln(f, 'MMPLL,4, ' + FloatToStr(lon[1], VFormat) + ', ' + FloatToStr(lat[3], VFormat));
 
-    rad := AConverter.GetSpheroidRadius;
+    rad := AConverter.Datum.GetSpheroidRadiusA;
 
     writeln(f, 'MM1B,' + FloatToStr(1 / ((AConverter.PixelsAtZoomFloat(Azoom) / (2 * PI)) / (rad * cos(lat[2] * D2R))), VFormat));
     writeln(f, 'MOP,Map Open Position,0,0');
