@@ -6,7 +6,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-    <DCC_DependencyCheckOutputName>..\.bin\SASPlanet.exe</DCC_DependencyCheckOutputName>
+    <DCC_DependencyCheckOutputName>.bin\SASPlanet.exe</DCC_DependencyCheckOutputName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Version>7.0</Version>
@@ -15,7 +15,7 @@
     <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
     <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
     <DCC_MapFile>3</DCC_MapFile>
-    <DCC_ExeOutput>$(SAS_BIN)</DCC_ExeOutput>
+    <DCC_ExeOutput>.\.bin</DCC_ExeOutput>
     <DCC_DcuOutput>.\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
@@ -24,11 +24,12 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
     <DCC_MapFile>3</DCC_MapFile>
-    <DCC_ExeOutput>$(SAS_BIN)</DCC_ExeOutput>
+    <DCC_ExeOutput>.\.bin</DCC_ExeOutput>
     <DCC_DcuOutput>.\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
     <DCC_Define>DEBUG</DCC_Define>
+    <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
@@ -277,7 +278,6 @@
     <DCCReference Include="src\u_JclNotify.pas" />
     <DCCReference Include="src\u_UseNewFonts.pas" />
     <DCCReference Include="src\u_WideStrings.pas" />
-    <DCCReference Include="src\VCLFixPack.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UAbout.pas">

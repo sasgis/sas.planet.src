@@ -2,8 +2,6 @@
 program SASPlanet;
 
 uses
-  FastMM4,
-  VCLFixPack in 'src\VCLFixPack.pas',
   Forms,
   iniFiles,
   sysutils,
@@ -463,7 +461,7 @@ begin
   Application.CreateForm(TFEditMap, FEditMap);
   Application.CreateForm(TFShortcutChange, FShortcutChange);
   Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
-  frmInvisibleBrowser.NavigateAndWait('about:blank');
+    frmInvisibleBrowser.NavigateAndWait('about:blank');
     Fbrowser.Navigate('about:blank');
     Application.Run;
   finally
