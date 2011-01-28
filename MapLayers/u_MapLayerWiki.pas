@@ -315,7 +315,6 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   inherited;
-  Clear;
   VLocalConverter := BitmapCoordConverter;
   VHybrList := FViewPortState.HybrList;
   VEnum := VHybrList.GetIterator;
@@ -330,6 +329,7 @@ begin
   end;
   FLayer.Bitmap.BeginUpdate;
   try
+    Clear;
     for ii := 0 to Length(FWikiLayerElments) - 1 do begin
       DrawWikiElement(FWikiLayerElments[ii], VLocalConverter);
     end;
