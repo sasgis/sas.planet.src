@@ -225,7 +225,7 @@ begin
   LoadBitmaps;
   BuildPopUpMenu;
   VWidth := 100;
-  UpdateLayerSize(Point(VWidth, VWidth));
+  DoUpdateLayerSize(Point(VWidth, VWidth));
 end;
 
 destructor TMiniMapLayer.Destroy;
@@ -264,7 +264,7 @@ begin
   VVisualMapCenterInRelative := VConverter.PixelPosFloat2Relative(VVisualMapCenter, VSourceZoom);
   VZoom := GetActualZoom(ANewVisualCoordConverter);
   VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);
-  VLayerSize := LayerSize;
+  VLayerSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   VLocalTopLeftAtMap.X := VVisualMapCenterInLayerMap.X - (VLayerSize.X / 2);
   VLocalTopLeftAtMap.Y := VVisualMapCenterInLayerMap.Y - (VLayerSize.Y / 2);
 
@@ -381,7 +381,7 @@ begin
   inherited;
   VConfigProvider := AConfigProvider.GetSubItem('MINIMAP');
   if VConfigProvider <> nil then begin
-    VBitmapSize := LayerSize;
+    VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
     VBitmapSize.X := VConfigProvider.ReadInteger('Width', VBitmapSize.X);
     VBitmapSize.Y := VConfigProvider.ReadInteger('Height', VBitmapSize.Y);
     FZoomDelta := VConfigProvider.ReadInteger('ZoomDelta', FZoomDelta);
@@ -480,8 +480,8 @@ var
 begin
   inherited;
   VConfigProvider := AConfigProvider.GetOrCreateSubItem('MINIMAP');
-  VConfigProvider.WriteInteger('Width', LayerSize.X);
-  VConfigProvider.WriteInteger('Height', LayerSize.Y);
+  VConfigProvider.WriteInteger('Width', FLayer.Bitmap.Width);
+  VConfigProvider.WriteInteger('Height', FLayer.Bitmap.Height);
   VConfigProvider.WriteInteger('ZoomDelta', FZoomDelta);
   VConfigProvider.WriteInteger('Alpha', MasterAlpha);
   VConfigProvider.WriteBool('Visible', Visible);
@@ -560,7 +560,7 @@ begin
       VBitmapRect.Right := VBitmapRect.Right + FViewRectMoveDelta.X;
       VBitmapRect.Bottom := VBitmapRect.Bottom + FViewRectMoveDelta.Y;
 
-      VBitmapSize := LayerSize;
+      VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
       if (VBitmapRect.Left >= 0) or (VBitmapRect.Top >= 0)
         or (VBitmapRect.Right <= VBitmapSize.X)
         or (VBitmapRect.Bottom <= VBitmapSize.Y)
@@ -754,7 +754,7 @@ var
   VSize: TPoint;
   VViewSize: TPoint;
 begin
-  VSize := LayerSize;
+  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   VViewSize := FVisualCoordConverter.GetLocalRectSize;
   Result.Right := VViewSize.X;
   Result.Bottom := VViewSize.Y - FBottomMargin;
@@ -799,7 +799,7 @@ begin
   case button of
     mbRight: FParentMap.PopupMenu := FPopup;
     mbLeft: begin
-      VLayerSize := LayerSize;
+      VLayerSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
       VBitmapCenter := DoublePoint(VLayerSize.X / 2, VLayerSize.Y / 2);
       Vlocation := FLayer.Location;
       VVisibleCenter.X := VBitmapCenter.X + Vlocation.Left;
@@ -820,7 +820,7 @@ var
   VLocation: TFloatRect;
 begin
   if FPosMoved then begin
-    VBitmapSize := LayerSize;
+    VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
     VBitmapCenter := DoublePoint(VBitmapSize.X / 2, VBitmapSize.Y / 2);
 
     VLocation := FLayer.Location;
@@ -909,7 +909,7 @@ begin
     if VNewWidth > VVisibleSize.Y then begin
       VNewWidth := VVisibleSize.Y;
     end;
-    UpdateLayerSize(Point(VNewWidth, VNewWidth));
+    DoUpdateLayerSize(Point(VNewWidth, VNewWidth));
     Redraw;
   end;
 end;
@@ -1027,16 +1027,7 @@ var
   Polygon: TPolygon32;
 begin
   inherited;
-  VBitmapSizeInPixel := LayerSize;
-  FLayer.Bitmap.Lock;
-  try
-    if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X) or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
-      FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
-    end;
-  finally
-    FLayer.Bitmap.Unlock;
-  end;
-
+  VBitmapSizeInPixel := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   FViewRectDrawLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
   if (FLeftBorder.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
     FLeftBorder.Bitmap.Lock;

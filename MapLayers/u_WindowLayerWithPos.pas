@@ -52,14 +52,11 @@ type
   end;
 
   TWindowLayerWithBitmap = class(TWindowLayerBasic)
-  private
-    FLayerSize: TPoint;
   protected
     FLayer: TBitmapLayer;
-    procedure UpdateLayerSize(ANewSize: TPoint); virtual;
+    procedure UpdateLayerSize(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
     function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
-    property LayerSize: TPoint read FLayerSize;
   protected
     procedure DoShow; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
@@ -235,25 +232,33 @@ procedure TWindowLayerWithBitmap.DoPosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
   inherited;
-  UpdateLayerSize(GetLayerSizeForViewSize(ANewVisualCoordConverter));
+  UpdateLayerSize(FVisualCoordConverter);
 end;
 
 procedure TWindowLayerWithBitmap.DoShow;
 begin
   inherited;
-  UpdateLayerSize(GetLayerSizeForViewSize(FVisualCoordConverter));
+  UpdateLayerSize(FVisualCoordConverter);
 end;
 
 procedure TWindowLayerWithBitmap.DoUpdateLayerSize(ANewSize: TPoint);
 begin
-  FLayerSize := ANewSize;
+  FLayer.Bitmap.Lock;
+  try
+    FLayer.Bitmap.SetSize(ANewSize.X, ANewSize.Y);
+  finally
+    FLayer.Bitmap.Unlock;
+  end;
 end;
 
-procedure TWindowLayerWithBitmap.UpdateLayerSize(ANewSize: TPoint);
+procedure TWindowLayerWithBitmap.UpdateLayerSize(ANewVisualCoordConverter: ILocalCoordConverter);
+var
+  VNewSize: TPoint;
 begin
   if FVisible then begin
-    if (FLayerSize.X <> ANewSize.X) or (FLayerSize.Y <> ANewSize.Y) then begin
-      DoUpdateLayerSize(ANewSize);
+    VNewSize := GetLayerSizeForViewSize(ANewVisualCoordConverter);
+    if (FLayer.Bitmap.Width <> VNewSize.X) or (FLayer.Bitmap.Height <> VNewSize.Y) then begin
+      DoUpdateLayerSize(VNewSize);
       UpdateLayerLocation(GetMapLayerLocationRect);
     end;
   end;
@@ -269,7 +274,7 @@ end;
 function TWindowLayerFixedSizeWithBitmap.GetLayerSizeForViewSize(
   ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
-  Result := LayerSize;
+  Result := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
 end;
 
 end.

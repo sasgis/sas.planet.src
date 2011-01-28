@@ -56,7 +56,7 @@ var
   VSize: TPoint;
   VViewSize: TPoint;
 begin
-  VSize := LayerSize;
+  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   VViewSize := FVisualCoordConverter.GetLocalRectSize;
   Result.Left := VViewSize.X / 2 - VSize.X / 2;
   Result.Top := VViewSize.Y / 2 - VSize.Y / 2;
@@ -93,7 +93,7 @@ var
   VSize: TPoint;
 begin
   inherited;
-  VSize := LayerSize;
+  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   VHalfSize := Point(VSize.X div 2, VSize.Y div 2);
 
   i := 0;

@@ -9,7 +9,6 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_ILocalCoordConverter,
-  i_ILocalCoordConverterFactorySimpe,
   u_MapViewPortState,
   u_WindowLayerWithPos;
 
@@ -50,7 +49,6 @@ type
 
   TMapLayerBasic = class(TMapLayerBasicFullView)
   private
-    FBitmapCoordConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapCoordConverter: ILocalCoordConverter;
   protected
     FLayer: TBitmapLayer;
@@ -73,7 +71,6 @@ uses
   Types,
   Graphics,
   u_NotifyEventListener,
-  u_LocalCoordConverterFactorySimpe,
   Ugeofun;
 
 { TMapLayerBase }
@@ -177,19 +174,16 @@ var
   VFixedVisualPixel: TDoublePoint;
   VBitmapSize: TPoint;
 begin
-  VBitmapSize := FLayerSize;
   if FVisualCoordConverter <> nil then begin
     VFixedVisualPixel := FVisualCoordConverter.LonLat2LocalPixelFloat(FFixedLonLat);
     if (Abs(VFixedVisualPixel.X) < (1 shl 15)) and (Abs(VFixedVisualPixel.Y) < (1 shl 15)) then begin
+      VBitmapSize := FLayerSize;
       Result.Left := VFixedVisualPixel.X - FFixedOnBitmap.X;
       Result.Top := VFixedVisualPixel.Y - FFixedOnBitmap.Y;
       Result.Right := Result.Left + VBitmapSize.X;
       Result.Bottom := Result.Top + VBitmapSize.Y;
     end else begin
-      Result.Left := - VBitmapSize.X;
-      Result.Top := - VBitmapSize.Y;
-      Result.Right := 0;
-      Result.Bottom := 0;
+      Result := FloatRect(0, 0, 0, 0);
     end;
   end else begin
     Result := FloatRect(0, 0, 0, 0);
@@ -211,7 +205,6 @@ end;
 constructor TMapLayerBasic.Create(AParentMap: TImage32;
   AViewPortState: TMapViewPortState);
 begin
-  FBitmapCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
@@ -220,25 +213,6 @@ begin
   FBitmapCoordConverter := FVisualCoordConverter;
 end;
 
-//procedure TMapLayerBasic.DoUpdateLayerSize(ANewSize: TPoint);
-//var
-//  VBitmapSizeInPixel: TPoint;
-//begin
-//  inherited;
-//  VBitmapSizeInPixel := LayerSize;
-//  if (ANewSize.X = 0) or (ANewSize.Y = 0) then begin
-//    FBitmapCoordConverter := nil;
-//  end;
-//  FLayer.Bitmap.Lock;
-//  try
-//    if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X) or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
-//      FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
-//    end;
-//  finally
-//    FLayer.Bitmap.Unlock;
-//  end;
-//end;
-//
 function TMapLayerBasic.GetMapLayerLocationRect: TFloatRect;
 var
   VBitmapOnMapRect: TDoubleRect;
@@ -282,23 +256,6 @@ begin
   end;
 end;
 
-//procedure TMapLayerBasic.UpdateBitmapCoordConverter(
-//  ANewVisualCoordConverter: ILocalCoordConverter);
-//var
-//  VNewBitmapCoordConverter: ILocalCoordConverter;
-//  VLayerSize: TPoint;
-//begin
-//  VLayerSize := LayerSize;
-//  VNewBitmapCoordConverter :=
-//    FBitmapCoordConverterFactory.CreateConverter(
-//      Rect(0, 0, VLayerSize.X, VLayerSize.Y),
-//      ANewVisualCoordConverter.GetZoom,
-//      ANewVisualCoordConverter.GetGeoConverter,
-//      DoublePoint(1, 1),
-//      DoublePoint(0, 0)
-//    );
-//end;
-//
 function TMapLayerBasic.CreateBitmapCoordConverter(
   ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
 begin

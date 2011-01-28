@@ -77,7 +77,7 @@ var
 begin
   inherited;
   VVisualCoordConverter := FVisualCoordConverter;
-  VBitmapSize := LayerSize;
+  VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   VConverter := VVisualCoordConverter.GetGeoConverter;
   VZoom := VVisualCoordConverter.GetZoom;
   LL := VVisualCoordConverter.GetCenterLonLat;
@@ -126,7 +126,7 @@ function TLayerScaleLine.GetMapLayerLocationRect: TFloatRect;
 var
   VSize: TPoint;
 begin
-  VSize := LayerSize;
+  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   Result.Left := 6;
   Result.Bottom := FVisualCoordConverter.GetLocalRectSize.Y - 6 - FBottomMargin;
   Result.Right := Result.Left + VSize.X;

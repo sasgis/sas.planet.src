@@ -24,8 +24,6 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
     function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); override;
-    procedure DoHide; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IStatBarConfig);
   end;
@@ -71,8 +69,8 @@ function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
 begin
   Result.Left := 0;
   Result.Bottom := FVisualCoordConverter.GetLocalRectSize.Y;
-  Result.Right := Result.Left + LayerSize.X;
-  Result.Top := Result.Bottom - LayerSize.Y;
+  Result.Right := Result.Left + FLayer.Bitmap.Width;
+  Result.Top := Result.Bottom - FLayer.Bitmap.Height;
 end;
 
 function TLayerStatBar.GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
@@ -98,12 +96,6 @@ begin
   end else begin
     Hide;
   end;
-end;
-
-procedure TLayerStatBar.DoHide;
-begin
-  inherited;
-  UpdateLayerSize(Point(0,0));
 end;
 
 procedure TLayerStatBar.DoRedraw;
@@ -145,7 +137,7 @@ begin
     VMousePos := Fmain.MouseCursorPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;
-    VSize := LayerSize;
+    VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
     VMap := GState.ViewState.GetCurrentMap;
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
@@ -180,22 +172,6 @@ begin
        0, VTextColor
     );
     FLastUpdateTick := GetTickCount;
-  end;
-end;
-
-procedure TLayerStatBar.DoUpdateLayerSize(ANewSize: TPoint);
-var
-  VBitmapSizeInPixel: TPoint;
-begin
-  inherited;
-  VBitmapSizeInPixel := LayerSize;
-  FLayer.Bitmap.Lock;
-  try
-    if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X) or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
-      FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
-    end;
-  finally
-    FLayer.Bitmap.Unlock;
   end;
 end;
 
