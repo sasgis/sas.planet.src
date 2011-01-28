@@ -83,7 +83,7 @@ var
   VMarker: TCustomBitmap32;
 begin
   inherited;
-  VSize := LayerSize;
+  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   if FSpeed > FConfig.MinMoveSpeed then begin
     FTransform.SrcRect := FloatRect(0, 0, VSize.X, VSize.Y);
     FTransform.Clear;

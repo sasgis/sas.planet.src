@@ -27,7 +27,6 @@ type
     procedure DoHide; override;
     procedure DoShow; override;
     function GetMapLayerLocationRect: TFloatRect; override;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; ATaskFactory: IBackgroundTaskLayerDrawFactory);
@@ -53,14 +52,7 @@ begin
   if Visible then begin
     Result := ANewVisualCoordConverter;
   end else begin
-    Result :=
-      FBitmapCoordConverterFactory.CreateConverter(
-        Rect(0, 0, 0, 0),
-        0,
-        nil,
-        DoublePoint(1, 1),
-        DoublePoint(0, 0)
-      );
+    Result := nil;
   end;
 end;
 
@@ -85,7 +77,8 @@ end;
 procedure TMapLayerWithThreadDraw.DoHide;
 begin
   inherited;
-  DoUpdateLayerSize(Point(0, 0));
+  FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
+  FDrawTask.ChangePos(FBitmapCoordConverter);
 end;
 
 procedure TMapLayerWithThreadDraw.DoPosChange(
@@ -108,29 +101,26 @@ procedure TMapLayerWithThreadDraw.DoShow;
 begin
   inherited;
   FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
-  DoUpdateLayerSize(FBitmapCoordConverter.GetLocalRectSize);
-end;
-
-procedure TMapLayerWithThreadDraw.DoUpdateLayerSize(ANewSize: TPoint);
-begin
-  inherited;
-  FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
-  FDrawTask.StopExecute;
-  try
-    FDrawTask.ChangePos(FBitmapCoordConverter);
-  finally
-    FDrawTask.StartExecute;
-  end;
+  FDrawTask.ChangePos(FBitmapCoordConverter);
+  UpdateLayerLocation(GetMapLayerLocationRect);
 end;
 
 function TMapLayerWithThreadDraw.GetMapLayerLocationRect: TFloatRect;
 var
   VBitmapOnMapRect: TDoubleRect;
   VBitmapOnVisualRect: TDoubleRect;
+  VBitmapConverter: ILocalCoordConverter;
+  VVisualConverter: ILocalCoordConverter;
 begin
-  VBitmapOnMapRect := FBitmapCoordConverter.GetRectInMapPixelFloat;
-  VBitmapOnVisualRect := FVisualCoordConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
-  Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);
+  VBitmapConverter := FBitmapCoordConverter;
+  VVisualConverter := FVisualCoordConverter;
+  if (VBitmapConverter <> nil) and (VVisualConverter <> nil) then begin
+    VBitmapOnMapRect := FBitmapCoordConverter.GetRectInMapPixelFloat;
+    VBitmapOnVisualRect := FVisualCoordConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
+    Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);
+  end else begin
+    Result := FloatRect(0, 0, 0, 0);
+  end;
 end;
 
 procedure TMapLayerWithThreadDraw.SendTerminateToThreads;

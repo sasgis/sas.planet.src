@@ -53,13 +53,15 @@ procedure TBackgroundTaskLayerDrawBase.ExecuteTask;
 var
   VBitmapSize: TPoint;
 begin
+  inherited;
   if FConverter <> nil then begin
-    inherited;
     VBitmapSize := FConverter.GetLocalRectSize;
-    ResizeBitmap(VBitmapSize);
-    if (VBitmapSize.X <> 0) and (VBitmapSize.Y <> 0) then begin
-      DrawBitmap;
-    end;
+  end else begin
+    VBitmapSize := Point(0, 0);
+  end;
+  ResizeBitmap(VBitmapSize);
+  if (VBitmapSize.X <> 0) and (VBitmapSize.Y <> 0) then begin
+    DrawBitmap;
   end;
 end;
 

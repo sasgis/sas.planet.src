@@ -78,7 +78,7 @@ var
   VTextWidth: integer;
   VSize: TPoint;
 begin
-  VSize := LayerSize;
+  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   FLayer.Bitmap.Clear(clBlack);
   if AMapType <> nil then begin
     VTextWidth := FLayer.Bitmap.TextWidth(AMapType.name);

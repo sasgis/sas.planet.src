@@ -83,7 +83,7 @@ begin
       FLayer.Bitmap.DrawMode:=dmBlend;
       FLayer.Bitmap.CombineMode:=cmMerge;
       FLayer.Bitmap.Clear(0);
-      VProv.GetBitmapRect(FLayer.Bitmap, FBitmapCoordConverter);
+      VProv.GetBitmapRect(FLayer.Bitmap, BitmapCoordConverter);
     finally
       FLayer.EndUpdate;
       FLayer.Changed;
@@ -124,7 +124,7 @@ begin
       VRect.Top := xy.Y - 16;
       VRect.Right := xy.X + 8;
       VRect.Bottom := xy.Y + 16;
-      VLocalConverter := FBitmapCoordConverter;
+      VLocalConverter := BitmapCoordConverter;
       VConverter := VLocalConverter.GetGeoConverter;
       VZoom := VLocalConverter.GetZoom;
       VMapRect := FVisualCoordConverter.LocalRect2MapRectFloat(VRect);
@@ -199,7 +199,7 @@ var
 begin
   VList := nil;
   if FConfigStatic.IsUseMarks then begin
-    VConverter := FBitmapCoordConverter;
+    VConverter := BitmapCoordConverter;
     if VConverter <> nil then begin
       VZoom := VConverter.GetZoom;
       if not FConfigStatic.IgnoreCategoriesVisible then begin

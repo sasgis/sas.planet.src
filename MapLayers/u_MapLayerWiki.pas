@@ -204,7 +204,7 @@ var
   VLen: integer;
   VXY: TDoublePoint;
 begin
-  VXY := FBitmapCoordConverter.MapPixelFloat2LocalPixelFloat(FVisualCoordConverter.LocalPixelFloat2MapPixelFloat(DoublePoint(xy)));
+  VXY := BitmapCoordConverter.MapPixelFloat2LocalPixelFloat(FVisualCoordConverter.LocalPixelFloat2MapPixelFloat(DoublePoint(xy)));
   for i := 0 to length(FWikiLayerElments) - 1 do begin
     if (VXY.x > FWikiLayerElments[i].FBounds.Left - 5) and (VXY.x < FWikiLayerElments[i].FBounds.Right + 5) and
       (VXY.y > FWikiLayerElments[i].FBounds.Left - 5) and (VXY.y < FWikiLayerElments[i].FBounds.Bottom + 5) then begin
@@ -316,7 +316,7 @@ var
 begin
   inherited;
   Clear;
-  VLocalConverter := FBitmapCoordConverter;
+  VLocalConverter := BitmapCoordConverter;
   VHybrList := FViewPortState.HybrList;
   VEnum := VHybrList.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin

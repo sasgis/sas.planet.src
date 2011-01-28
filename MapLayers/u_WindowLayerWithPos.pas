@@ -19,7 +19,6 @@ type
   private
     FVisible: Boolean;
     FVisibleChangeNotifier: IJclNotifier;
-    FLayerSize: TPoint;
     FLayer: TPositionedLayer;
   protected
     FVisualCoordConverter: ILocalCoordConverter;
@@ -31,9 +30,6 @@ type
     procedure OnPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-    procedure UpdateLayerSize(ANewSize: TPoint); virtual;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
-    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
 
     procedure UpdateLayerLocation(ANewLocation: TFloatRect); virtual;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); virtual;
@@ -43,7 +39,6 @@ type
     function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
 
     property LayerPositioned: TPositionedLayer read FLayer;
-    property LayerSize: TPoint read FLayerSize;
     property Visible: Boolean read GetVisible write SetVisible;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
@@ -57,8 +52,17 @@ type
   end;
 
   TWindowLayerWithBitmap = class(TWindowLayerBasic)
+  private
+    FLayerSize: TPoint;
   protected
     FLayer: TBitmapLayer;
+    procedure UpdateLayerSize(ANewSize: TPoint); virtual;
+    procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
+    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
+    property LayerSize: TPoint read FLayerSize;
+  protected
+    procedure DoShow; override;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
   end;
@@ -130,11 +134,6 @@ begin
   FLayer.Location := ANewLocation;
 end;
 
-procedure TWindowLayerBasic.DoUpdateLayerSize(ANewSize: TPoint);
-begin
-  FLayerSize := ANewSize;
-end;
-
 function TWindowLayerBasic.GetVisible: Boolean;
 begin
   Result := FVisible;
@@ -155,7 +154,6 @@ end;
 
 procedure TWindowLayerBasic.OnPosChange(ANewVisualCoordConverter: ILocalCoordConverter);
 begin
-  UpdateLayerSize(GetLayerSizeForViewSize(ANewVisualCoordConverter));
   PosChange(ANewVisualCoordConverter);
 end;
 
@@ -172,16 +170,6 @@ procedure TWindowLayerBasic.UpdateLayerLocation(ANewLocation: TFloatRect);
 begin
   if FVisible then begin
     DoUpdateLayerLocation(ANewLocation);
-  end;
-end;
-
-procedure TWindowLayerBasic.UpdateLayerSize(ANewSize: TPoint);
-begin
-  if FVisible then begin
-    if (FLayerSize.X <> ANewSize.X) or (FLayerSize.Y <> ANewSize.Y) then begin
-      DoUpdateLayerSize(ANewSize);
-      UpdateLayerLocation(GetMapLayerLocationRect);
-    end;
   end;
 end;
 
@@ -224,7 +212,6 @@ procedure TWindowLayerBasic.Show;
 begin
   if not Visible then begin
     DoShow;
-    UpdateLayerSize(GetLayerSizeForViewSize(FVisualCoordConverter));
     UpdateLayerLocation(GetMapLayerLocationRect);
     Redraw;
     FVisibleChangeNotifier.Notify(nil);
@@ -242,6 +229,34 @@ begin
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
+end;
+
+procedure TWindowLayerWithBitmap.DoPosChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  inherited;
+  UpdateLayerSize(GetLayerSizeForViewSize(ANewVisualCoordConverter));
+end;
+
+procedure TWindowLayerWithBitmap.DoShow;
+begin
+  inherited;
+  UpdateLayerSize(GetLayerSizeForViewSize(FVisualCoordConverter));
+end;
+
+procedure TWindowLayerWithBitmap.DoUpdateLayerSize(ANewSize: TPoint);
+begin
+  FLayerSize := ANewSize;
+end;
+
+procedure TWindowLayerWithBitmap.UpdateLayerSize(ANewSize: TPoint);
+begin
+  if FVisible then begin
+    if (FLayerSize.X <> ANewSize.X) or (FLayerSize.Y <> ANewSize.Y) then begin
+      DoUpdateLayerSize(ANewSize);
+      UpdateLayerLocation(GetMapLayerLocationRect);
+    end;
+  end;
 end;
 
 { TWindowLayerFixedSizeWithBitmap }

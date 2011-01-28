@@ -136,7 +136,7 @@ begin
   end;
   VRecolorConfig := GState.BitmapPostProcessingConfig.GetStatic;
 
-  VLocalConverter := FBitmapCoordConverter;
+  VLocalConverter := BitmapCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VSourceMapType := AMapType;

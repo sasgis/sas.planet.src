@@ -80,7 +80,7 @@ begin
     FConfig.UnlockRead
   end;
   VPoints := FGPSRecorder.LastPoints(VPointsCount);
-  VLocalConverter := FBitmapCoordConverter;
+  VLocalConverter := BitmapCoordConverter;
   VPointsCount := length(VPoints);
   with FLayer.Bitmap do begin
     if (VPointsCount > 1) then begin

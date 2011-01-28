@@ -68,7 +68,6 @@ type
     procedure DoDrawNewPath(AIsPoly: Boolean);
   protected
     procedure DoRedraw; override;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
     destructor Destroy; override;
@@ -163,7 +162,7 @@ begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
     VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-    VLocalConverter := FBitmapCoordConverter;
+    VLocalConverter := BitmapCoordConverter;
     VGeoConvert := VLocalConverter.GetGeoConverter;
     VDatum := VGeoConvert.Datum;
     SetLength(VPointsOnBitmap, VPointsCount);
@@ -275,7 +274,7 @@ var
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
-    VLocalConverter := FBitmapCoordConverter;
+    VLocalConverter := BitmapCoordConverter;
     VGeoConvert := VLocalConverter.GetGeoConverter;
     SetLength(VPointsOnBitmap, VPointsCount + 1);
     for i := 0 to VPointsCount - 1 do begin
@@ -349,7 +348,7 @@ var
 begin
   VPointsCount := Length(FPath);
   if VPointsCount > 0 then begin
-    VLocalConverter := FBitmapCoordConverter;
+    VLocalConverter := BitmapCoordConverter;
     VGeoConvert := VLocalConverter.GetGeoConverter;
     SetLength(VPointsOnBitmap, VPointsCount);
     for i := 0 to VPointsCount - 1 do begin
@@ -410,7 +409,7 @@ var
   VGeoConvert: ICoordConverter;
   VZoom: Byte;
 begin
-  VLocalConverter := FBitmapCoordConverter;
+  VLocalConverter := BitmapCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VSelectedPixels := VGeoConvert.LonLatRect2PixelRect(FSelectedLonLat, VZoom);
@@ -459,6 +458,9 @@ procedure TMapNalLayer.DoRedraw;
 begin
   inherited;
   FLayer.Bitmap.Clear(clBlack);
+  if FDrawType <> mndtNothing then begin
+    FBitmapClip := TPolyClipByRect.Create(BitmapCoordConverter.GetLocalRect);
+  end;
   case FDrawType of
     mndtNothing:;
     mndtSelectRect: DoDrawSelectionRect;
@@ -467,12 +469,6 @@ begin
     mndtNewPath: DoDrawNewPath(False);
     mndtNewPoly: DoDrawNewPath(True);
   end;
-end;
-
-procedure TMapNalLayer.DoUpdateLayerSize(ANewSize: TPoint);
-begin
-  inherited;
-  FBitmapClip := TPolyClipByRect.Create(MakeRect(-10, -10, LayerSize.X + 10, LayerSize.Y + 10));
 end;
 
 procedure TMapNalLayer.DrawLineCalc(APathLonLat: TDoublePointArray; ALenShow: Boolean; AActiveIndex: Integer);

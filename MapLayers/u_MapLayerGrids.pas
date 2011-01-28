@@ -119,7 +119,7 @@ begin
     exit;
   end;
   z := GetGhBordersStepByScale(VScale);
-  VLocalConverter := FBitmapCoordConverter;
+  VLocalConverter := BitmapCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
@@ -251,7 +251,7 @@ var
   VBitmapRect: TDoubleRect;
   VShowText: Boolean;
 begin
-  VLocalConverter := FBitmapCoordConverter;
+  VLocalConverter := BitmapCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VCurrentZoom := VLocalConverter.GetZoom;
 
