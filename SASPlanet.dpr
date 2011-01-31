@@ -312,6 +312,8 @@ uses
   i_ActiveMapsConfigSaveLoad in 'i_ActiveMapsConfigSaveLoad.pas',
   u_MapsConfigByConfigDataProvider in 'u_MapsConfigByConfigDataProvider.pas',
   u_MapViewPortState in 'u_MapViewPortState.pas',
+  i_IViewPortState in 'i_IViewPortState.pas',
+  u_MapViewPortStateNew in 'u_MapViewPortStateNew.pas',
   u_ShortcutManager in 'u_ShortcutManager.pas',
   i_ILanguageManager in 'i_ILanguageManager.pas',
   u_LanguageManager in 'u_LanguageManager.pas',
