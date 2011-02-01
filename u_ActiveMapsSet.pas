@@ -58,8 +58,10 @@ constructor TActiveMapsSet.Create(AMapsList: IMapTypeList;
   ASingeMapsList: IGUIDInterfaceList; AMainMapChangeNotyfier,
   ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier);
 begin
+  inherited Create;
   FMapsList := AMapsList;
   FSingeMapsList := ASingeMapsList;
+  FSelectedMapsList := TMapTypeList.Create(True);
 
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;
   if FMainMapChangeNotyfier <> nil then begin

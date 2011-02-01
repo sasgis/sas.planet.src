@@ -53,6 +53,7 @@ var
   VMapType: IMapType;
   VSingleMap: IActiveMapSingle;
 begin
+  inherited Create;
   FMapsList := AMapsList;
   FMainMapChangeNotyfier := TNotifierWithGUID.Create;
   FSingeMapsList := TGUIDInterfaceList.Create(False);

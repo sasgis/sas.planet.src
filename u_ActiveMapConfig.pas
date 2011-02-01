@@ -149,6 +149,7 @@ constructor TActiveMapConfigNew.Create(AMainMapChangeNotyfier: IJclNotifier;
 var
   i: Cardinal;
 begin
+  inherited Create;
   FMapsList := AMapsList;
   FSingeMapsList := ASingeMapsList;
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;

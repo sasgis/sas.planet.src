@@ -66,6 +66,7 @@ uses
 
 constructor TActiveMapSingleAbstract.Create(AMapType: IMapType);
 begin
+  inherited Create;
   FMapType := AMapType;
   if FMapType <> nil then begin
     FMapGUID := FMapType.MapType.GUID;

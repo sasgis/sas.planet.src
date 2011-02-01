@@ -63,7 +63,7 @@ begin
   );
   Add(FBitmapLayersSet, nil);
 
-  FBitmapLayersSet := TActiveMapsSet.Create(
+  FKmlLayersSet := TActiveMapsSet.Create(
     VKmlLayersList,
     AllMapsSingleList,
     nil,
