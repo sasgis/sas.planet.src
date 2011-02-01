@@ -594,7 +594,7 @@ type
     procedure InitSearchers;
     procedure zooming(ANewZoom: byte; move: boolean);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
-    procedure ProcessPosChangeMessage(AMessage: IPosChangeMessage);
+    procedure ProcessPosChangeMessage(Sender: TObject);
     procedure ProcessMapChangeMessage(AMessage: IMapChangeMessage);
     procedure ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
     procedure CopyBtmToClipboard(btm: TBitmap);
@@ -646,6 +646,7 @@ uses
   Ubrowser,
   UMarksExplorer,
   UFDGAvailablePic,
+  c_ZeroGUID,
   c_SasVersion,
   c_GeoCoderGUIDSimple,
   u_JclListenerNotifierLinksList,
@@ -802,6 +803,7 @@ var
   VMapLayersVsibleChangeListener: IJclListener;
   VMainFormMainConfigChangeListener: IJclListener;
   VScale: Integer;
+  VZoom: Byte;
 begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
@@ -832,42 +834,42 @@ begin
     Label1.Visible := GState.ShowDebugInfo;
 
 
-    FMainLayer := TMapMainLayer.Create(map, GState.ViewState);
+    FMainLayer := TMapMainLayer.Create(map, FConfig.ViewPortState, FConfig.MainMapsConfig);
     FLayersList.Add(FMainLayer);
-    FLayerGrids := TMapLayerGrids.Create(map, GState.ViewState, FConfig.LayersConfig.MapLayerGridsConfig);
+    FLayerGrids := TMapLayerGrids.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig);
     FLayersList.Add(FLayerGrids);
-    FWikiLayer := TWikiLayer.Create(map, GState.ViewState, FConfig.LayersConfig.KmlLayerConfig);
+    FWikiLayer := TWikiLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.KmlLayerConfig, FConfig.MainMapsConfig.GetKmlLayersSet);
     FLayersList.Add(FWikiLayer);
-    FLayerFillingMap:=TMapLayerFillingMap.create(map, GState.ViewState);
+    FLayerFillingMap:=TMapLayerFillingMap.create(map, FConfig.ViewPortState, FConfig.MainMapsConfig);
     FLayersList.Add(FLayerFillingMap);
-    FLayerMapMarks:= TMapMarksLayer.Create(map, GState.ViewState, FConfig.LayersConfig.MarksShowConfig, FMarkDBGUI);
+    FLayerMapMarks:= TMapMarksLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarksShowConfig, FMarkDBGUI);
     FLayersList.Add(FLayerMapMarks);
-    FLayerMapGPS:= TMapGPSLayer.Create(map, GState.ViewState, FConfig.LayersConfig.GPSTrackConfig, GState.GPSpar.GPSRecorder);
+    FLayerMapGPS:= TMapGPSLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.GPSTrackConfig, GState.GPSpar.GPSRecorder);
     FLayersList.Add(FLayerMapGPS);
-    FLayerGPSMarker := TMapLayerGPSMarker.Create(map, GState.ViewState, FConfig.LayersConfig.GPSMarker, GState.GPSpar.GPSModule);
+    FLayerGPSMarker := TMapLayerGPSMarker.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.GPSMarker, GState.GPSpar.GPSModule);
     FLayersList.Add(FLayerGPSMarker);
-    FLayerSelection := TSelectionLayer.Create(map, GState.ViewState);
+    FLayerSelection := TSelectionLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerSelection);
-    FLayerMapNal:=TMapNalLayer.Create(map, GState.ViewState);
+    FLayerMapNal:=TMapNalLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerMapNal);
-    FLayerGoto := TGotoLayer.Create(map, GState.ViewState);
+    FLayerGoto := TGotoLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerGoto);
-    LayerMapNavToMark := TNavToMarkLayer.Create(map, GState.ViewState, FConfig.NavToPoint, FConfig.LayersConfig.NavToPointMarkerConfig);
+    LayerMapNavToMark := TNavToMarkLayer.Create(map, FConfig.ViewPortState, FConfig.NavToPoint, FConfig.LayersConfig.NavToPointMarkerConfig);
     FLayersList.Add(LayerMapNavToMark);
-    FShowErrorLayer := TTileErrorInfoLayer.Create(map, GState.ViewState);
+    FShowErrorLayer := TTileErrorInfoLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FShowErrorLayer);
-    FLayerMapCenterScale := TCenterScale.Create(map, GState.ViewState);
+    FLayerMapCenterScale := TCenterScale.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerMapCenterScale);
-    FLayerScaleLine := TLayerScaleLine.Create(map, GState.ViewState);
+    FLayerScaleLine := TLayerScaleLine.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerScaleLine);
-    FLayerStatBar:=TLayerStatBar.Create(map, GState.ViewState, FConfig.LayersConfig.StatBar);
+    FLayerStatBar:=TLayerStatBar.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.StatBar);
     FLayersList.Add(FLayerStatBar);
-    FLayerMiniMap := TMiniMapLayer.Create(map, GState.ViewState);
+    FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerMiniMap);
 
     FMainLayer.ErrorShowLayer := FShowErrorLayer;
 
-    FUIDownLoader := TTileDownloaderUI.Create(GState.ViewState, Self.OnMapTileUpdate, FShowErrorLayer);
+    FUIDownLoader := TTileDownloaderUI.Create(FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FShowErrorLayer);
 
     CreateMapUI;
     FSettings.InitMapsList;
@@ -894,20 +896,20 @@ begin
 
     map.Color:=GState.BGround;
     FLinksList.Add(
-      TPosChangeListener.Create(Self.ProcessPosChangeMessage),
-      GState.ViewState.PosChangeNotifier
+      TNotifyEventListener.Create(Self.ProcessPosChangeMessage),
+      FConfig.ViewPortState.GetChangeNotifier
     );
 
-    FLinksList.Add(
-      TMainMapChangeListenerOfMainForm.Create(Self),
-      GState.ViewState.MapChangeNotifier
-    );
-
-    FLinksList.Add(
-      THybrChangeListenerOfMainForm.Create(Self),
-      GState.ViewState.HybrChangeNotifier
-    );
-
+//    FLinksList.Add(
+//      TMainMapChangeListenerOfMainForm.Create(Self),
+//      GState.ViewState.MapChangeNotifier
+//    );
+//
+//    FLinksList.Add(
+//      THybrChangeListenerOfMainForm.Create(Self),
+//      GState.ViewState.HybrChangeNotifier
+//    );
+//
     VMapLayersVsibleChangeListener := TNotifyEventListener.Create(Self.MapLayersVisibleChange);
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
@@ -973,37 +975,32 @@ begin
       FConfig.MainGeoCoderConfig.GetChangeNotifier
     );
 
-    GState.ViewState.LoadViewPortState(GState.MainConfigProvider);
-
     FLayersList.LoadConfig(GState.MainConfigProvider);
     FUIDownLoader.LoadConfig(GState.MainConfigProvider);
     ProgramStart:=false;
-
-    GState.ViewState.ChangeViewSize(Point(map.Width, map.Height));
-    GState.ViewState.LockWrite;
-    GState.ViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
 
     if ParamCount > 1 then begin
       try
         param:=paramstr(1);
         if param<>'' then begin
-          VGUID := StringToGUID(param);
-          VMapType := GState.MapType.GetMapFromID(VGUID);
-          if VMapType <> nil then begin
-            GState.ViewState.ChangeMainMapAtCurrentPoint(VMapType);
+          try
+            VGUID := StringToGUID(param);
+          except
+            VGUID := CGUID_Zero;
+          end;
+          if not IsEqualGUID(VGUID, CGUID_Zero) then begin
+            FConfig.MainMapsConfig.SelectMainByGUID(VGUID);
           end;
         end;
         if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
-          GState.ViewState.LockWrite;
           VZoom := strtoint(paramstr(2)) - 1;
-          GState.ViewState.GetCurrentCoordConverter.CheckZoom(VZoom);
+          FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
           VLonLat.X := str2r(paramstr(3));
           VLonLat.Y := str2r(paramstr(4));
-          GState.ViewState.GetCurrentCoordConverter.CheckLonLatPos(VLonLat);
-          GState.ViewState.ChangeZoomAndUnlock(VZoom, VLonLat);
+          FConfig.ViewPortState.ChangeLonLat(VLonLat);
         end else if paramstr(2)<>'' then begin
           VZoom := strtoint(paramstr(2)) - 1;
-          GState.ViewState.ChangeZoomWithFreezeAtCenter(VZoom);
+          FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
         end;
       except
       end;
@@ -1134,7 +1131,6 @@ procedure TFmain.ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
 var
   i:integer;
   VMapType: TMapType;
-  VWikiLayersVisible: Boolean;
 begin
   VWikiLayersVisible := False;
   for i:=0 to GState.MapType.Count-1 do begin
@@ -1142,16 +1138,12 @@ begin
     if VMapType.asLayer then begin
       if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
         TTBXItem(FMainToolbarItemList.GetByGUID(VMapType.GUID)).Checked := True;
-        if VMapType.IsKmlTiles then begin
-          VWikiLayersVisible := True;
-        end;
       end else begin
         TTBXItem(FMainToolbarItemList.GetByGUID(VMapType.GUID)).Checked := False;
       end;
     end;
   end;
   generate_im;
-  FWikiLayer.Visible := VWikiLayersVisible;
 end;
 
 procedure TFmain.ProcessMapChangeMessage(AMessage: IMapChangeMessage);
@@ -1177,7 +1169,7 @@ begin
   generate_im;
 end;
 
-procedure TFmain.ProcessPosChangeMessage(AMessage: IPosChangeMessage);
+procedure TFmain.ProcessPosChangeMessage(Sender: TObject);
 var
   VZoomCurr: Byte;
   VGPSLonLat: TDoublePoint;
@@ -1185,7 +1177,7 @@ var
   VCenterMapPoint: TDoublePoint;
   VConverter: ILocalCoordConverter;
 begin
-  VConverter := AMessage.GetVisualCoordConverter;
+  VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VZoomCurr := VConverter.GetZoom;
   VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
   VGPSLonLat := GState.GPSpar.GPSRecorder.GetLastPoint;

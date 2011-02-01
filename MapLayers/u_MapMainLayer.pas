@@ -6,8 +6,11 @@ uses
   Windows,
   Types,
   GR32,
+  GR32_Image,
   t_GeoTypes,
-  u_MapViewPortState,
+  i_MapTypes,
+  i_IActiveMapsConfig,
+  i_IViewPortState,
   u_MapLayerShowError,
   UMapType,
   u_MapLayerBasic;
@@ -16,10 +19,16 @@ type
   TMapMainLayer = class(TMapLayerBasic)
   private
     FErrorShowLayer: TTileErrorInfoLayer;
+    FMapsConfig: IMainMapsConfig;
+    FMainMap: IMapType;
+    FLayersList: IMapTypeList;
   protected
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
     procedure DoRedraw; override;
+    procedure OnMainMapChange(Sender: TObject);
+    procedure OnLayerSetChange(Sender: TObject);
   public
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig);
     procedure StartThreads; override;
     property ErrorShowLayer: TTileErrorInfoLayer read FErrorShowLayer write FErrorShowLayer;
   end;
@@ -33,13 +42,30 @@ uses
   i_ILocalCoordConverter,
   i_ITileIterator,
   i_IBitmapPostProcessingConfig,
-  i_MapTypes,
   Uimgfun,
   UResStrings,
   u_TileIteratorByRect,
+  u_NotifyEventListener,
   u_GlobalState;
 
 { TMapMainLayer }
+
+constructor TMapMainLayer.Create(AParentMap: TImage32;
+  AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig);
+begin
+  inherited Create(AParentMap, AViewPortState);
+  FMapsConfig := AMapsConfig;
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnMainMapChange),
+    FMapsConfig.GetActiveMap.GetChangeNotifier
+  );
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnLayerSetChange),
+    FMapsConfig.GetBitmapLayersSet.GetChangeNotifier
+  );
+end;
 
 procedure TMapMainLayer.DoRedraw;
 var
@@ -52,12 +78,14 @@ var
 begin
   inherited;
   FLayer.Bitmap.Clear(0);
-  DrawMap(FViewPortState.GetCurrentMap, dmOpaque);
+  if FMainMap <> nil then begin
+    DrawMap(FMainMap.MapType, dmOpaque);
+  end;
 
-  VHybrList := FViewPortState.HybrList;
-  VEnum := VHybrList.GetIterator;
-  while VEnum.Next(1, VGUID, i) = S_OK do begin
-    if FViewPortState.IsHybrGUIDSelected(VGUID) then begin
+  VHybrList := FLayersList;
+  if VHybrList <> nil then begin
+    VEnum := VHybrList.GetIterator;
+    while VEnum.Next(1, VGUID, i) = S_OK do begin
       VItem := VHybrList.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsBitmapTiles then begin
@@ -202,6 +230,18 @@ begin
   finally
     VBmp.Free;
   end;
+end;
+
+procedure TMapMainLayer.OnLayerSetChange(Sender: TObject);
+begin
+  FMainMap := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FMapsConfig.GetActiveMap.GetSelectedGUID);
+  Redraw;
+end;
+
+procedure TMapMainLayer.OnMainMapChange(Sender: TObject);
+begin
+  FLayersList := FMapsConfig.GetBitmapLayersSet.GetSelectedMapsList;
+  Redraw;
 end;
 
 procedure TMapMainLayer.StartThreads;

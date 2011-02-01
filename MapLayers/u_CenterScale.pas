@@ -8,7 +8,7 @@ uses
   GR32_Image,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_WindowLayerWithPos;
 
 type
@@ -21,7 +21,7 @@ type
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property Visible: Boolean read GetVisible write SetVisible;
@@ -35,7 +35,7 @@ uses
 
 { TCenterScale }
 
-constructor TCenterScale.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TCenterScale.Create(AParentMap: TImage32; AViewPortState: IViewPortState);
 var
  textWdth: integer;
  VSize: TPoint;

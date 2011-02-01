@@ -8,10 +8,8 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_IGPSRecorder,
-  
-  
   i_IMapLayerGPSTrackConfig,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_MapLayerBasic;
 
 type
@@ -26,7 +24,7 @@ type
   public
     constructor Create(
       AParentMap: TImage32;
-      AViewPortState: TMapViewPortState;
+      AViewPortState: IViewPortState;
       AConfig: IMapLayerGPSTrackConfig;
       AGPSRecorder: IGPSRecorder
     );
@@ -45,7 +43,7 @@ uses
 
 constructor TMapGPSLayer.Create(
   AParentMap: TImage32;
-  AViewPortState: TMapViewPortState;
+  AViewPortState: IViewPortState;
   AConfig: IMapLayerGPSTrackConfig;
   AGPSRecorder: IGPSRecorder
 );

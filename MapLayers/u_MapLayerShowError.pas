@@ -6,7 +6,7 @@ uses
   Windows,
   GR32,
   GR32_Image,
-  u_MapViewPortState,
+  i_IViewPortState,
   UMapType,
   u_MapLayerBasic;
 
@@ -19,7 +19,7 @@ type
   protected
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     procedure ShowError(ATile: TPoint; AZoom: Byte; AMapType: TMapType; AText: string);
     property Visible: Boolean read GetVisible write SetVisible;
   end;
@@ -36,7 +36,7 @@ uses
 { TTileErrorInfoLayer }
 
 constructor TTileErrorInfoLayer.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState);
+  AViewPortState: IViewPortState);
 var
   VBitmapSize: TPoint;
 begin

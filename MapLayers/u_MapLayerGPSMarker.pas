@@ -10,7 +10,7 @@ uses
   GR32_Image,
   i_IMapLayerGPSMarkerConfig,
   i_IGPSModule,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_MapLayerBasic;
 
 
@@ -30,7 +30,7 @@ type
   public
     constructor Create(
       AParentMap: TImage32;
-      AViewPortState: TMapViewPortState;
+      AViewPortState: IViewPortState;
       AConfig: IMapLayerGPSMarkerConfig;
       AGPSModule: IGPSModule
     );
@@ -48,7 +48,7 @@ uses
 
 constructor TMapLayerGPSMarker.Create(
   AParentMap: TImage32;
-  AViewPortState: TMapViewPortState;
+  AViewPortState: IViewPortState;
   AConfig: IMapLayerGPSMarkerConfig;
   AGPSModule: IGPSModule
 );

@@ -24,7 +24,7 @@ uses
   i_IConfigDataWriteProvider,
   i_ILocalCoordConverter,
   i_ILocalCoordConverterFactorySimpe,
-  u_MapViewPortState,
+  i_IViewPortState,
   UMapType,
   u_WindowLayerWithPos;
 
@@ -106,7 +106,7 @@ type
     procedure DoUpdateLayerSize(ANewSize: TPoint); override;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
@@ -198,7 +198,7 @@ end;
 
 { TMapMainLayer }
 
-constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState);
 var
   VWidth: Integer;
 begin
@@ -233,7 +233,7 @@ begin
   FreeAndNil(FDefoultMap);
   FMapsActive.MapChangeNotifier.Remove(FMapChangeListener);
   FMapsActive.HybrChangeNotifier.Remove(FHybrChangeListener);
-  FViewPortState.MapChangeNotifier.Remove(FMainMapChangeListener);
+//  FViewPortState.MapChangeNotifier.Remove(FMainMapChangeListener);
   FMapChangeListener := nil;
   FHybrChangeListener := nil;
   FMainMapChangeListener := nil;
@@ -452,8 +452,8 @@ begin
   FMapsActive.MapChangeNotifier.Add(FMapChangeListener);
   FHybrChangeListener := TMiniMapHybrChangeListener.Create(Self);
   FMapsActive.HybrChangeNotifier.Add(FHybrChangeListener);
-  FMainMapChangeListener := TMiniMapMainMapChangeListener.Create(Self);
-  FViewPortState.MapChangeNotifier.Add(FMainMapChangeListener);
+//  FMainMapChangeListener := TMiniMapMainMapChangeListener.Create(Self);
+//  FViewPortState.MapChangeNotifier.Add(FMainMapChangeListener);
 end;
 
 procedure TMiniMapLayer.AdjustFont(Item: TTBCustomItem;
@@ -507,7 +507,7 @@ begin
   FLayer.Bitmap.Clear(Color32(GState.BGround));
   VGUID := FMapsActive.SelectedMapGUID;
   if IsEqualGUID(VGUID, CGUID_Zero) then begin
-    VMapType := FViewPortState.GetCurrentMap;
+//    VMapType := FViewPortState.GetCurrentMap;
   end else begin
     VItem := FMapsActive.MapsList.GetMapTypeByGUID(VGUID);
     VMapType := VItem.MapType;
@@ -872,8 +872,7 @@ begin
       VLonLat := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoom);
       FViewRectMoveDelta := DoublePoint(0, 0);
 
-      FViewPortState.LockWrite;
-      FViewPortState.ChangeLonLatAndUnlock(VLonLat);
+      FViewPortState.ChangeLonLat(VLonLat);
     end else begin
       FViewRectMoveDelta := DoublePoint(0, 0);
       DrawMainViewRect;
@@ -1087,10 +1086,10 @@ procedure TMiniMapLayer.OnNotifyMapChange(msg: IMapChangeMessage);
 begin
   if msg.GetNewMap = nil then begin
     FMiniMapSameAsMain.Checked := True;
-    FViewPortState.MapChangeNotifier.Add(FMainMapChangeListener);
+//    FViewPortState.MapChangeNotifier.Add(FMainMapChangeListener);
   end else begin
     FMiniMapSameAsMain.Checked := False;
-    FViewPortState.MapChangeNotifier.Remove(FMainMapChangeListener);
+//    FViewPortState.MapChangeNotifier.Remove(FMainMapChangeListener);
   end;
   Redraw;
 end;

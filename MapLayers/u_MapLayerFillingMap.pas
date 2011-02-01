@@ -11,8 +11,9 @@ uses
   i_IConfigDataWriteProvider,
   i_IBackgroundTaskLayerDraw,
   i_ILocalCoordConverter,
+  i_IActiveMapsConfig,
   u_BackgroundTaskLayerDrawBase,
-  u_MapViewPortState,
+  i_IViewPortState,
   UMapType,
   u_MapLayerWithThreadDraw;
 
@@ -42,17 +43,17 @@ type
 
   TMapLayerFillingMap = class(TMapLayerWithThreadDraw)
   private
+    FMapsConfig: IMainMapsConfig;
     FDrawTask: IBackgroundTaskFillingMap;
     FSourceMapType: TMapType;
     FSourceSelected: TMapType;
     FSourceZoom: integer;
-    FMainMapChangeListener: IJclListener;
     FSourceMapChangeNotifier: IJclNotifier;
     procedure OnMainMapchange(Sender: TObject);
   protected
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig);
     destructor Destroy; override;
 
     procedure SetSourceMap(AMapType: TMapType; AZoom: integer);
@@ -243,25 +244,26 @@ end;
 { TMapLayerFillingMap }
 
 constructor TMapLayerFillingMap.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState);
+  AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig);
 var
   VFactory: IBackgroundTaskLayerDrawFactory;
 begin
   VFactory := TBackgroundTaskFillingMapFactory.Create;
   inherited Create(AParentMap, AViewPortState, VFactory);
+  FMapsConfig := AMapsConfig;
   FDrawTask := (inherited DrawTask) as IBackgroundTaskFillingMap;
-  FSourceMapType := FViewPortState.GetCurrentMap;
+  FSourceMapType := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
   FSourceSelected := nil;
   FSourceZoom := -1;
-  FMainMapChangeListener := TNotifyEventListener.Create(OnMainMapchange);
-  FViewPortState.MapChangeNotifier.Add(FMainMapChangeListener);
+  LinksList.Add(
+    TNotifyEventListener.Create(OnMainMapchange),
+    FMapsConfig.GetActiveMap.GetChangeNotifier
+  );
   FSourceMapChangeNotifier := TJclBaseNotifier.Create;
 end;
 
 destructor TMapLayerFillingMap.Destroy;
 begin
-  FViewPortState.MapChangeNotifier.Remove(FMainMapChangeListener);
-  FMainMapChangeListener := nil;
   inherited;
 end;
 
@@ -312,7 +314,7 @@ var
   VMapType: TMapType;
 begin
   if FSourceSelected = nil then begin
-    VMapType := FViewPortState.GetCurrentMap;
+    VMapType := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
     if FSourceMapType <> VMapType then begin
       FSourceMapType := VMapType;
       FDrawTask.ChangeSoureMap(FSourceMapType);
@@ -346,7 +348,7 @@ begin
   if (AMapType <> nil) then begin
     VNewSource := AMapType;
   end else begin
-    VNewSource := FViewPortState.GetCurrentMap;
+    VNewSource := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
   end;
   if (FSourceSelected <> VNewSource) then begin
     VFullRedraw := True;

@@ -13,7 +13,7 @@ uses
   i_ILocalCoordConverter,
   i_INavigationToPoint,
   i_IMapLayerNavToPointMarkerConfig,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_MapLayerBasic;
 
 type
@@ -33,7 +33,7 @@ type
   public
     constructor Create(
       AParentMap: TImage32;
-      AViewPortState: TMapViewPortState;
+      AViewPortState: IViewPortState;
       ANavToPoint: INavigationToPoint;
       AConfig: IMapLayerNavToPointMarkerConfig
     );
@@ -52,7 +52,7 @@ uses
 
 constructor TNavToMarkLayer.Create(
   AParentMap: TImage32;
-  AViewPortState: TMapViewPortState;
+  AViewPortState: IViewPortState;
   ANavToPoint: INavigationToPoint;
   AConfig: IMapLayerNavToPointMarkerConfig
 );

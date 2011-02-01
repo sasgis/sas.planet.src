@@ -11,7 +11,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_ClipPolygonByRect,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_MapLayerBasic;
 
 type
@@ -28,7 +28,7 @@ type
   protected
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
@@ -44,6 +44,7 @@ uses
   GR32_PolygonsEx,
   GR32_Layers,
   GR32_VectorUtils,
+  i_ILocalCoordConverter,
   u_ConfigProviderHelpers,
   u_NotifyEventListener,
   u_GlobalState,
@@ -58,7 +59,7 @@ begin
 end;
 
 constructor TSelectionLayer.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState);
+  AViewPortState: IViewPortState);
 begin
   inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
   FLineColor := SetAlpha(Color32(clBlack), 210);
@@ -89,18 +90,16 @@ var
   i: Integer;
   VPointsCount: Integer;
   VViewRect: TDoubleRect;
+  VLocalConverter: ILocalCoordConverter;
 begin
   VPointsCount := Length(APolygon);
   SetLength(Result, VPointsCount);
-  FViewPortState.LockRead;
-  try
-    for i := 0 to VPointsCount - 1 do begin
-      Result[i] := FViewPortState.LonLat2VisiblePixel(APolygon[i]);
-    end;
-    VViewRect := DoubleRect(FViewPortState.GetViewRectInVisualPixel);
-  finally
-    FViewPortState.UnLockRead;
+  VLocalConverter := FViewPortState.GetVisualCoordConverter;
+
+  for i := 0 to VPointsCount - 1 do begin
+    Result[i] := VLocalConverter.LonLat2LocalPixelFloat(APolygon[i]);
   end;
+  VViewRect := DoubleRect(VLocalConverter.GetLocalRect);
 end;
 
 procedure TSelectionLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);

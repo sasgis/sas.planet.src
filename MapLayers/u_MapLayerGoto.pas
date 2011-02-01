@@ -8,7 +8,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_MapLayerBasic;
 
 type
@@ -19,7 +19,7 @@ type
   protected
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     destructor Destroy; override;
     procedure ShowGotoIcon(APoint: TDoublePoint);
   end;
@@ -34,7 +34,7 @@ uses
 
 { TGotoLayer }
 
-constructor TGotoLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TGotoLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState);
 var
   VBitmapSize: TPoint;
 begin

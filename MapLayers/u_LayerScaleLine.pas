@@ -9,7 +9,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_ILocalCoordConverter,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_WindowLayerWithPos;
 
 type
@@ -21,7 +21,7 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
@@ -42,7 +42,7 @@ const
 
 { TLayerScaleLine }
 
-constructor TLayerScaleLine.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TLayerScaleLine.Create(AParentMap: TImage32; AViewPortState: IViewPortState);
 var
   VSize: TPoint;
 begin

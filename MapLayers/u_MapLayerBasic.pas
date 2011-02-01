@@ -9,7 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_ILocalCoordConverter,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_WindowLayerWithPos;
 
 type
@@ -20,7 +20,7 @@ type
     procedure ScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
   public
-    constructor Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
+    constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
   end;
 
   TMapLayerBasicFullView = class(TMapLayerBase)
@@ -44,7 +44,7 @@ type
     procedure DoShow; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
   end;
 
   TMapLayerBasic = class(TMapLayerBasicFullView)
@@ -62,7 +62,7 @@ type
     procedure DoShow; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
   end;
 
 implementation
@@ -76,7 +76,7 @@ uses
 { TMapLayerBase }
 
 constructor TMapLayerBase.Create(ALayer: TPositionedLayer;
-  AViewPortState: TMapViewPortState);
+  AViewPortState: IViewPortState);
 begin
   inherited;
   LinksList.Add(
@@ -119,7 +119,7 @@ end;
 { TMapLayerFixedWithBitmap }
 
 constructor TMapLayerFixedWithBitmap.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState);
+  AViewPortState: IViewPortState);
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
@@ -203,7 +203,7 @@ end;
 { TMapLayerBasic }
 
 constructor TMapLayerBasic.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState);
+  AViewPortState: IViewPortState);
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);

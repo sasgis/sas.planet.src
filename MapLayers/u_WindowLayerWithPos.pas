@@ -11,7 +11,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_ILocalCoordConverter,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_WindowLayerBasic;
 
 type
@@ -22,7 +22,7 @@ type
     FLayer: TPositionedLayer;
   protected
     FVisualCoordConverter: ILocalCoordConverter;
-    FViewPortState: TMapViewPortState;
+    FViewPortState: IViewPortState;
 
     function GetVisible: Boolean; override;
     procedure SetVisible(const Value: Boolean); virtual;
@@ -41,7 +41,7 @@ type
     property LayerPositioned: TPositionedLayer read FLayer;
     property Visible: Boolean read GetVisible write SetVisible;
   public
-    constructor Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
+    constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
@@ -61,7 +61,7 @@ type
     procedure DoShow; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
   end;
 
   TWindowLayerFixedSizeWithBitmap = class(TWindowLayerWithBitmap)
@@ -80,7 +80,7 @@ uses
 
 { TWindowLayerBasic }
 
-constructor TWindowLayerBasic.Create(ALayer: TPositionedLayer; AViewPortState: TMapViewPortState);
+constructor TWindowLayerBasic.Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
 begin
   inherited Create;
   FViewPortState := AViewPortState;
@@ -95,7 +95,7 @@ begin
 
   LinksList.Add(
     TPosChangeNotifyEventListener.Create(Self.OnPosChange),
-    FViewPortState.PosChangeNotifier
+    FViewPortState.GetChangeNotifier
   );
 end;
 
@@ -218,7 +218,7 @@ end;
 { TWindowLayerWithBitmap }
 
 constructor TWindowLayerWithBitmap.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState);
+  AViewPortState: IViewPortState);
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);

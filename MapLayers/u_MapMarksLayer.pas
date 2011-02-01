@@ -8,7 +8,7 @@ uses
   i_IUsedMarksConfig,
   i_MarksSimple,
   Ugeofun,
-  u_MapViewPortState,
+  i_IViewPortState,
   i_ILocalCoordConverter,
   u_MarksDbGUIHelper,
   u_MapLayerBasic;
@@ -29,7 +29,7 @@ type
   public
     constructor Create(
       AParentMap: TImage32;
-      AViewPortState: TMapViewPortState;
+      AViewPortState: IViewPortState;
       AConfig: IUsedMarksConfig;
       AMarkDBGUI: TMarksDbGUIHelper
     );
@@ -53,7 +53,7 @@ uses
 
 constructor TMapMarksLayer.Create(
   AParentMap: TImage32;
-  AViewPortState: TMapViewPortState;
+  AViewPortState: IViewPortState;
   AConfig: IUsedMarksConfig;
   AMarkDBGUI: TMarksDbGUIHelper
 );

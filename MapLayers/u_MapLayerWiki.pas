@@ -12,9 +12,11 @@ uses
   UMapType,
   u_MapLayerBasic,
   t_GeoTypes,
+  i_MapTypes,
+  i_IActiveMapsConfig,
   i_IKmlLayerConfig,
   i_ILocalCoordConverter,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_KmlInfoSimple;
 
 type
@@ -32,6 +34,9 @@ type
   TWikiLayer = class(TMapLayerBasic)
   private
     FConfig: IKmlLayerConfig;
+    FLayersSet: IActiveMapsSet;
+
+    FMapsList: IMapTypeList;
     FFixedPointArray: TArrayOfFixedPoint;
     FWikiLayerElments: array of TWikiLayerElement;
     procedure addWL(var AData: TKMLData; ALocalConverter: ILocalCoordConverter);
@@ -39,13 +44,13 @@ type
     procedure Clear;
     procedure AddFromLayer(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
     procedure OnConfigChange(Sender: TObject);
+    procedure OnLayerSetChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IKmlLayerConfig);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IKmlLayerConfig; ALayersSet: IActiveMapsSet);
     destructor Destroy; override;
     procedure MouseOnReg(var APWL: TResObj; xy: TPoint);
-    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation
@@ -58,7 +63,6 @@ uses
   GR32_Polygons,
   i_ICoordConverter,
   i_ITileIterator,
-  i_MapTypes,
   u_NotifyEventListener,
   u_TileIteratorByRect;
 
@@ -83,13 +87,20 @@ end;
 
 { TWikiLayer }
 
-constructor TWikiLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IKmlLayerConfig);
+constructor TWikiLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IKmlLayerConfig; ALayersSet: IActiveMapsSet);
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
+  FLayersSet := ALayersSet;
+
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
+  );
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnLayerSetChange),
+    FLayersSet.GetChangeNotifier
   );
 
   FLayer.Bitmap.DrawMode := dmTransparent;
@@ -257,6 +268,20 @@ begin
   Redraw;
 end;
 
+procedure TWikiLayer.OnLayerSetChange(Sender: TObject);
+var
+  VGUID: TGUID;
+  i: Cardinal;
+begin
+  FMapsList := FLayersSet.GetSelectedMapsList;
+  if FMapsList.GetIterator.Next(1, VGUID, i) = S_OK then begin
+    Redraw;
+    Show;
+  end else begin
+    Hide;
+  end;
+end;
+
 procedure TWikiLayer.DrawWikiElement(var AData: TWikiLayerElement; ALocalConverter: ILocalCoordConverter);
 var
   VPolygon: TPolygon32;
@@ -315,26 +340,26 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   inherited;
-  VLocalConverter := BitmapCoordConverter;
-  VHybrList := FViewPortState.HybrList;
-  VEnum := VHybrList.GetIterator;
-  while VEnum.Next(1, VGUID, i) = S_OK do begin
-    if FViewPortState.IsHybrGUIDSelected(VGUID) then begin
+  Clear;
+  if FMapsList <> nil then begin
+    VLocalConverter := BitmapCoordConverter;
+    VHybrList := FMapsList;
+    VEnum := VHybrList.GetIterator;
+    while VEnum.Next(1, VGUID, i) = S_OK do begin
       VItem := VHybrList.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsKmlTiles then begin
         AddFromLayer(VMapType, VLocalConverter);
       end;
     end;
-  end;
-  FLayer.Bitmap.BeginUpdate;
-  try
-    Clear;
-    for ii := 0 to Length(FWikiLayerElments) - 1 do begin
-      DrawWikiElement(FWikiLayerElments[ii], VLocalConverter);
+    FLayer.Bitmap.BeginUpdate;
+    try
+      for ii := 0 to Length(FWikiLayerElments) - 1 do begin
+        DrawWikiElement(FWikiLayerElments[ii], VLocalConverter);
+      end;
+    finally
+      FLayer.Bitmap.EndUpdate;
     end;
-  finally
-    FLayer.Bitmap.EndUpdate;
   end;
 end;
 

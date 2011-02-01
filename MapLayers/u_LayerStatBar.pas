@@ -10,7 +10,7 @@ uses
   t_GeoTypes,
   i_ILocalCoordConverter,
   i_IStatBarConfig,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_WindowLayerWithPos;
 
 type
@@ -25,7 +25,7 @@ type
     procedure DoRedraw; override;
     function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IStatBarConfig);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IStatBarConfig);
   end;
 
 implementation
@@ -47,7 +47,7 @@ const
 
 { TLayerStatBar }
 
-constructor TLayerStatBar.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IStatBarConfig);
+constructor TLayerStatBar.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IStatBarConfig);
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;

@@ -10,7 +10,7 @@ uses
   t_GeoTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_ClipPolygonByRect,
   u_MapLayerBasic;
 
@@ -69,7 +69,7 @@ type
   protected
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
@@ -97,7 +97,7 @@ uses
 
 { TMapNalLayer }
 
-constructor TMapNalLayer.Create(AParentMap: TImage32; AViewPortState: TMapViewPortState);
+constructor TMapNalLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState);
 var
   i: Integer;
   kz: Integer;

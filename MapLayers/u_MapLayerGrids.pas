@@ -11,7 +11,7 @@ uses
   t_GeoTypes,
   i_ILocalCoordConverter,
   i_MapLayerGridsConfig,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_MapLayerBasic;
 
 type
@@ -27,7 +27,7 @@ type
     procedure DoRedraw; override;
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; AConfig: IMapLayerGridsConfig);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMapLayerGridsConfig);
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
   end;
@@ -47,7 +47,7 @@ const
 { TMapLayerGrids }
 
 constructor TMapLayerGrids.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState; AConfig: IMapLayerGridsConfig);
+  AViewPortState: IViewPortState; AConfig: IMapLayerGridsConfig);
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;

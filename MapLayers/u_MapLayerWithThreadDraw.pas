@@ -10,7 +10,7 @@ uses
   i_ILocalCoordConverter,
   i_ILocalCoordConverterFactorySimpe,
   i_IBackgroundTaskLayerDraw,
-  u_MapViewPortState,
+  i_IViewPortState,
   u_MapLayerBasic;
 
 type
@@ -29,7 +29,7 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: TMapViewPortState; ATaskFactory: IBackgroundTaskLayerDrawFactory);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; ATaskFactory: IBackgroundTaskLayerDrawFactory);
     destructor Destroy; override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
@@ -57,7 +57,7 @@ begin
 end;
 
 constructor TMapLayerWithThreadDraw.Create(AParentMap: TImage32;
-  AViewPortState: TMapViewPortState;  ATaskFactory: IBackgroundTaskLayerDrawFactory);
+  AViewPortState: IViewPortState;  ATaskFactory: IBackgroundTaskLayerDrawFactory);
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
