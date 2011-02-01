@@ -260,7 +260,6 @@ begin
   GPSpar := TGPSpar.Create(TrackLogPath);
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
-  FMainFormConfig := TMainFormConfig.Create(FGeoCoderList);
   FMarkPictureList := TMarkPictureListSimple.Create(MarkIconsPath, FBitmapTypeManager);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList);
 end;
@@ -361,6 +360,11 @@ begin
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
   FMainMapsList.LoadMaps(VLocalMapsConfig, MapsPath);
+  FMainFormConfig := TMainFormConfig.Create(
+    FGeoCoderList,
+    FMainMapsList.MapsList,
+    FMainMapsList.LayersList
+  );
   FCacheConfig.LoadConfig(FMainConfigProvider);
   LoadMapIconsList;
   GPSpar.LoadConfig(MainConfigProvider);

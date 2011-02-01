@@ -3,6 +3,9 @@ unit u_MainFormConfig;
 interface
 
 uses
+  i_MapTypes,
+  i_IActiveMapsConfig,
+  i_IViewPortState,
   i_INavigationToPoint,
   i_MainFormConfig,
   i_IMainFormBehaviourByGPSConfig,
@@ -19,6 +22,8 @@ type
     FNavToPoint: INavigationToPoint;
     FGPSBehaviour: IMainFormBehaviourByGPSConfig;
     FMainGeoCoderConfig: IMainGeoCoderConfig;
+    FMainMapsConfig: IMainMapsConfig;
+    FViewPortState: IViewPortState;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
@@ -26,8 +31,10 @@ type
     function GetNavToPoint: INavigationToPoint;
     function GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
     function GetMainGeoCoderConfig: IMainGeoCoderConfig;
+    function GetMainMapsConfig: IMainMapsConfig;
+    function GetViewPortState: IViewPortState;
   public
-    constructor Create(AList: IGeoCoderList);
+    constructor Create(AGeoCoderList: IGeoCoderList; AMapsList, ALayersList: IMapTypeList);
   end;
 
 implementation
@@ -35,6 +42,8 @@ implementation
 uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_MainMapsConfig,
+  u_MapViewPortStateNew,
   u_MainWindowToolbarsLock,
   u_NavigationToPoint,
   u_MainFormLayersConfig,
@@ -44,7 +53,7 @@ uses
 
 { TMainFormConfig }
 
-constructor TMainFormConfig.Create(AList: IGeoCoderList);
+constructor TMainFormConfig.Create(AGeoCoderList: IGeoCoderList; AMapsList, ALayersList: IMapTypeList);
 begin
   inherited Create;
   FMainConfig := TMainFormMainConfig.Create;
@@ -57,8 +66,12 @@ begin
   Add(FNavToPoint, TConfigSaveLoadStrategyBasicProviderSubItem.Create('NavToPoint'));
   FGPSBehaviour := TMainFormBehaviourByGPSConfig.Create;
   Add(FGPSBehaviour, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MainFormGPSEvents'));
-  FMainGeoCoderConfig := TMainGeoCoderConfig.Create(AList);
+  FMainGeoCoderConfig := TMainGeoCoderConfig.Create(AGeoCoderList);
   Add(FMainGeoCoderConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'));
+  FMainMapsConfig := TMainMapsConfig.Create(AMapsList, ALayersList);
+  Add(FMainMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
+  FViewPortState := TMapViewPortStateNew.Create(FMainMapsConfig);
+  Add(FViewPortState, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Position'));
 end;
 
 function TMainFormConfig.GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
@@ -81,6 +94,11 @@ begin
   Result := FMainGeoCoderConfig;
 end;
 
+function TMainFormConfig.GetMainMapsConfig: IMainMapsConfig;
+begin
+  Result := FMainMapsConfig;
+end;
+
 function TMainFormConfig.GetNavToPoint: INavigationToPoint;
 begin
   Result := FNavToPoint;
@@ -89,6 +107,11 @@ end;
 function TMainFormConfig.GetToolbarsLock: IMainWindowToolbarsLock;
 begin
   Result := FToolbarsLock;
+end;
+
+function TMainFormConfig.GetViewPortState: IViewPortState;
+begin
+  Result := FViewPortState;
 end;
 
 end.

@@ -4,6 +4,8 @@ interface
 
 uses
   i_IConfigDataElement,
+  i_IActiveMapsConfig,
+  i_IViewPortState,
   i_INavigationToPoint,
   i_IStatBarConfig,
   i_IMapLayerGPSMarkerConfig,
@@ -96,6 +98,12 @@ type
 
     function GetMainGeoCoderConfig: IMainGeoCoderConfig;
     property MainGeoCoderConfig: IMainGeoCoderConfig read GetMainGeoCoderConfig;
+
+    function GetMainMapsConfig: IMainMapsConfig;
+    property MainMapsConfig: IMainMapsConfig read GetMainMapsConfig;
+
+    function GetViewPortState: IViewPortState;
+    property ViewPortState: IViewPortState read GetViewPortState;
   end;
 
 implementation
