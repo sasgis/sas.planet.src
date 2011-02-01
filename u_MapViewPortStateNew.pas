@@ -38,6 +38,7 @@ type
     procedure CreateVisibleCoordConverter;
     procedure OnMainMapChange(Sender: TObject);
     procedure ResetScaleAndMove;
+    procedure NotifyChangeScale;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -74,8 +75,10 @@ implementation
 uses
   SysUtils,
   u_JclNotify,
+  i_MapTypes,
   u_NotifyEventListener,
-  u_LocalCoordConverterFactorySimpe;
+  u_LocalCoordConverterFactorySimpe,
+  Ugeofun;
 
 { TMapViewPortStateNew }
 
@@ -247,10 +250,8 @@ var
   VRelativeFreezePoint: TDoublePoint;
   VMapFreezPointAtNewZoom: TDoublePoint;
   VNewCenterPos: TPoint;
-  VFreezeDelta: TDoublePoint;
   VChanged: Boolean;
   VViewCenter: TPoint;
-  VTempMapPoint: TPoint;
 begin
   VChanged := False;
   LockWrite;
@@ -302,16 +303,36 @@ begin
 end;
 
 procedure TMapViewPortStateNew.DoReadConfig(AConfigData: IConfigDataProvider);
+var
+  VLonLat: TDoublePoint;
+  VZoom: Byte;
 begin
   inherited;
-
+  if AConfigData <> nil then begin
+    VZoom := AConfigData.ReadInteger('Zoom', FZoom);
+    FActiveCoordConverter.CheckZoom(VZoom);
+    VLonLat := FVisibleCoordConverter.GetCenterLonLat;
+    VLonLat.X := AConfigData.ReadFloat('X', VLonLat.X);
+    VLonLat.Y := AConfigData.ReadFloat('Y', VLonLat.Y);
+    FActiveCoordConverter.CheckLonLatPos(VLonLat);
+    if FZoom <> VZoom then begin
+      FZoom := VZoom;
+      SetChanged;
+    end;
+    ChangeLonLat(VLonLat);
+  end;
 end;
 
 procedure TMapViewPortStateNew.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
+var
+  VLonLat: TDoublePoint;
 begin
   inherited;
-
+  VLonLat := FVisibleCoordConverter.GetCenterLonLat;
+  AConfigData.WriteInteger('Zoom', FZoom);
+  AConfigData.WriteFloat('X', VLonLat.X);
+  AConfigData.WriteFloat('Y', VLonLat.Y);
 end;
 
 function TMapViewPortStateNew.GetCurrentCoordConverter: ICoordConverter;
@@ -360,13 +381,43 @@ begin
 end;
 
 procedure TMapViewPortStateNew.MoveTo(Pnt: TPoint);
+var
+  VChanged: Boolean;
+  VVisibleMove: TDoublePoint;
 begin
+  VChanged := False;
+  LockWrite;
+  try
+    if not compare2EP(FMapScale, FBaseScale) then begin
+      FMapScale := FBaseScale;
+      VChanged := True;
+    end;
+    VVisibleMove.X := Pnt.X;
+    VVisibleMove.Y := Pnt.Y;
+    if not compare2EP(FVisibleMove, VVisibleMove) then begin
+      FVisibleMove := VVisibleMove;
+      VChanged := True;
+    end;
 
+    if VChanged then begin
+      CreateVisibleCoordConverter;
+    end;
+  finally
+    UnlockWrite;
+  end;
+  if VChanged then begin
+    NotifyChangeScale;
+  end;
+end;
+
+procedure TMapViewPortStateNew.NotifyChangeScale;
+begin
+  FScaleChangeNotifier.Notify(nil);
 end;
 
 procedure TMapViewPortStateNew.OnMainMapChange(Sender: TObject);
 begin
-
+  SetActiveCoordConverter;
 end;
 
 procedure TMapViewPortStateNew.ResetScaleAndMove;
@@ -377,23 +428,147 @@ begin
 end;
 
 procedure TMapViewPortStateNew.ScaleTo(AScale: Double; ACenterPoint: TPoint);
+var
+  VVisiblePointFixed: TDoublePoint;
+  VMapPointFixed: TDoublePoint;
+  VNewVisualPoint: TDoublePoint;
+  VNewMapScale: TDoublePoint;
+  VNewVisibleMove: TDoublePoint;
+  VChanged: Boolean;
+  VViewCenter: TPoint;
 begin
+  VChanged := False;
+  VVisiblePointFixed.X := ACenterPoint.X;
+  VVisiblePointFixed.Y := ACenterPoint.Y;
+  LockWrite;
+  try
+    if not compare2EP(FVisibleMove, DoublePoint(0,0)) then begin
+      FVisibleMove.X := 0;
+      FVisibleMove.Y := 0;
+      VChanged := True;
+    end;
 
+    VNewMapScale.X := FBaseScale.X * AScale;
+    VNewMapScale.Y := FBaseScale.X * AScale;
+    if not compare2EP(FMapScale, VNewMapScale) then begin
+      FMapScale := VNewMapScale;
+      VChanged := True;
+    end;
+    VMapPointFixed := FVisibleCoordConverter.LocalPixelFloat2MapPixelFloat(VVisiblePointFixed);
+    VViewCenter := Point(FViewSize.X div 2, FViewSize.Y div 2);
+    VNewVisualPoint.X := (VMapPointFixed.X - FCenterPos.X) * FMapScale.X + VViewCenter.X;
+    VNewVisualPoint.Y := (VMapPointFixed.Y - FCenterPos.Y) * FMapScale.Y + VViewCenter.Y;
+
+    VNewVisibleMove.X := VNewVisualPoint.X - VVisiblePointFixed.X;
+    VNewVisibleMove.Y := VNewVisualPoint.Y - VVisiblePointFixed.Y;
+    if not compare2EP(FVisibleMove, VNewVisibleMove) then begin
+      FVisibleMove := VNewVisibleMove;
+      VChanged := True;
+    end;
+    if VChanged then begin
+      CreateVisibleCoordConverter;
+    end;
+  finally
+    UnlockWrite;
+  end;
+  if VChanged then begin
+    NotifyChangeScale;
+  end;
 end;
 
 procedure TMapViewPortStateNew.ScaleTo(AScale: Double);
+var
+  VVisiblePointFixed: TDoublePoint;
+  VMapPointFixed: TDoublePoint;
+  VNewVisualPoint: TDoublePoint;
+  VViewCenter: TPoint;
+  VNewMapScale: TDoublePoint;
+  VNewVisibleMove: TDoublePoint;
+  VChanged: Boolean;
 begin
+  VChanged := False;
+  LockWrite;
+  try
+    VViewCenter := Point(FViewSize.X div 2, FViewSize.Y div 2);
+    VVisiblePointFixed.X := VViewCenter.X;
+    VVisiblePointFixed.Y := VViewCenter.Y;
+    VMapPointFixed := FVisibleCoordConverter.LocalPixelFloat2MapPixelFloat(VVisiblePointFixed);
+    if not compare2EP(FVisibleMove, DoublePoint(0,0)) then begin
+      FVisibleMove.X := 0;
+      FVisibleMove.Y := 0;
+      VChanged := True;
+    end;
 
+    VNewMapScale.X := FBaseScale.X * AScale;
+    VNewMapScale.Y := FBaseScale.X * AScale;
+    if not compare2EP(FMapScale, VNewMapScale) then begin
+      FMapScale := VNewMapScale;
+      VChanged := True;
+    end;
+
+    VNewVisualPoint.X := (VMapPointFixed.X - FCenterPos.X) * FMapScale.X + VViewCenter.X;
+    VNewVisualPoint.Y := (VMapPointFixed.Y - FCenterPos.Y) * FMapScale.Y + VViewCenter.Y;
+    VNewVisibleMove.X := VNewVisualPoint.X - VVisiblePointFixed.X;
+    VNewVisibleMove.Y := VNewVisualPoint.Y - VVisiblePointFixed.Y;
+    if not compare2EP(FVisibleMove, VNewVisibleMove) then begin
+      FVisibleMove := VNewVisibleMove;
+      VChanged := True;
+    end;
+    if VChanged then begin
+      CreateVisibleCoordConverter;
+    end;
+  finally
+    UnlockWrite;
+  end;
+  if VChanged then begin
+    NotifyChangeScale;
+  end;
 end;
 
 procedure TMapViewPortStateNew.SetActiveCoordConverter;
+var
+  VNewConverter: ICoordConverter;
+  VGUID: TGUID;
+  VMap: IMapType;
 begin
-
+  LockWrite;
+  try
+    if FMainCoordConverter <> nil then begin
+      VNewConverter := FMainCoordConverter;
+    end else begin
+      VGUID := FMainMapConfig.GetActiveMap.GetSelectedGUID;
+      VMap := FMainMapConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID);
+      if VMap <> nil then begin
+        VNewConverter := VMap.MapType.GeoConvert;
+      end;
+    end;
+    if VNewConverter <> nil then begin
+      if FActiveCoordConverter <> nil then begin
+        if not FActiveCoordConverter.IsSameConverter(VNewConverter) then begin
+          FActiveCoordConverter := VNewConverter;
+          SetChanged;
+        end;
+      end else begin
+        FActiveCoordConverter := VNewConverter;
+        SetChanged;
+      end;
+    end;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TMapViewPortStateNew.SetMainCoordConverter(AValue: ICoordConverter);
 begin
-
+  LockWrite;
+  try
+    if FMainCoordConverter <> AValue then begin
+      FMainCoordConverter := AValue;
+      SetActiveCoordConverter;
+    end;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 end.
