@@ -72,7 +72,7 @@ procedure TfrExportYaMaps.Init;
 var
   i: integer;
   VMapType: TMapType;
-  VActiveMap: TMapType;
+  VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
 begin
   chklstZooms.Items.Clear;
@@ -80,7 +80,7 @@ begin
     chklstZooms.Items.Add(inttostr(i));
   end;
 
-  VActiveMap := GState.ViewState.GetCurrentMap;
+  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
   cbbSat.items.Clear;
   cbbMap.items.Clear;
   cbbHybr.items.Clear;
@@ -92,17 +92,17 @@ begin
     if VMapType.IsBitmapTiles then begin
       if (not(VMapType.asLayer)) then begin
         VAddedIndex := cbbSat.Items.AddObject(VMapType.name,VMapType);
-        if VMapType = VActiveMap then begin
+        if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
           cbbSat.ItemIndex:=VAddedIndex;
         end;
         VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
-        if VMapType = VActiveMap then begin
+        if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
           cbbMap.ItemIndex:=VAddedIndex;
         end;
       end else if(VMapType.IsHybridLayer) then begin
         VAddedIndex := cbbHybr.Items.AddObject(VMapType.name,VMapType);
         if (cbbHybr.ItemIndex=-1) then begin
-          if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
+          if GState.MainFormConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMapType.GUID) then begin
             cbbHybr.ItemIndex:=VAddedIndex;
           end;
         end;

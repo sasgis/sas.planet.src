@@ -225,7 +225,7 @@ var
 begin
   VMark := GetSelectedMarkId;
   if VMark <> nil then begin
-    if FMarkDBGUI.OperationMark(VMark.Id, GState.ViewState.GetCurrentZoom) then begin
+    if FMarkDBGUI.OperationMark(VMark.Id, GState.MainFormConfig.ViewPortState.GetCurrentZoom) then begin
       close;
     end;
   end;
@@ -237,7 +237,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    Fmain.topos(VMark.GetGoToLonLat, GState.ViewState.GetCurrentZoom, True);
+    Fmain.topos(VMark.GetGoToLonLat, GState.MainFormConfig.ViewPortState.GetCurrentZoom, True);
   end;
 end;
 

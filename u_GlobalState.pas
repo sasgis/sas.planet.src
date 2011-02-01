@@ -44,7 +44,6 @@ type
   private
     // Ini-файл с основными настройками
     MainIni: TMeminifile;
-    FViewState: TMapViewPortState;
     FScreenSize: TPoint;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
@@ -151,7 +150,6 @@ type
     property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
 
     property GCThread: TGarbageCollectorThread read FGCThread;
-    property ViewState: TMapViewPortState read FViewState;
     property LanguageManager: ILanguageManager read FLanguageManager;
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
@@ -174,7 +172,6 @@ type
     procedure SaveMainParams;
     procedure StartThreads;
     procedure SendTerminateToThreads;
-    procedure InitViewState(AScreenSize: TPoint);
     procedure LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
     procedure LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
   end;
@@ -287,7 +284,6 @@ begin
   FMapTypeIcons24List := nil;
   FLastSelectionInfo := nil;
   FreeAndNil(GPSpar);
-  FreeAndNil(FViewState);
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
   FProxySettings := nil;
@@ -444,24 +440,12 @@ end;
 
 procedure TGlobalState.SaveMainParams;
 var
-  VZoom: Byte;
-  VScreenCenterPos: TPoint;
   Ini: TMeminifile;
   VLocalMapsConfig: IConfigDataWriteProvider;
 begin
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
-  ViewState.LockRead;
-  try
-    VZoom := ViewState.GetCurrentZoom;
-    VScreenCenterPos := ViewState.GetCenterMapPixel;
-  finally
-    ViewState.UnLockRead;
-  end;
-  MainIni.WriteInteger('POSITION','zoom_size',VZoom + 1);
-  MainIni.WriteInteger('POSITION','x',VScreenCenterPos.x);
-  MainIni.WriteInteger('POSITION','y',VScreenCenterPos.y);
   MainIni.WriteInteger('VIEW','TilesOut',TilesOut);
   MainIni.Writebool('VIEW','back_load',UsePrevZoom);
   MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
@@ -496,35 +480,6 @@ procedure TGlobalState.SendTerminateToThreads;
 begin
   GPSpar.SendTerminateToThreads;
   FGCThread.Terminate;
-end;
-
-procedure TGlobalState.InitViewState(AScreenSize: TPoint);
-var
-  VScreenCenterPos: TPoint;
-  VZoom: Byte;
-  VConverter: ICoordConverter;
-begin
-  if FViewState = nil then begin
-    FViewState := TMapViewPortState.Create(
-      FMainMapsList.MapsList,
-      FMainMapsList.LayersList,
-      AScreenSize
-    );
-  end else begin
-    raise Exception.Create('Повторная инициализация объекта состояния отображаемого окна карты');
-  end;
-  FViewState.LockWrite;
-  VConverter := FViewState.GetCurrentCoordConverter;
-  VZoom := MainIni.ReadInteger('POSITION','zoom_size',1) - 1;
-  VConverter.CheckZoom(VZoom);
-  VScreenCenterPos.X := VConverter.PixelsAtZoom(VZoom) div 2;
-  VScreenCenterPos.Y := VScreenCenterPos.X;
-  VScreenCenterPos := Point(
-    MainIni.ReadInteger('POSITION','x',VScreenCenterPos.X),
-    MainIni.ReadInteger('POSITION','y',VScreenCenterPos.Y)
-  );
-  VConverter.CheckPixelPosStrict(VScreenCenterPos, VZoom, True);
-  FViewState.ChangeZoomAndUnlock(VZoom, VScreenCenterPos);
 end;
 
 end.

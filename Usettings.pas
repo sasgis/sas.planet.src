@@ -263,7 +263,6 @@ uses
 procedure TFSettings.Save(AProvider: IConfigDataWriteProvider);
 begin
   try
-    GState.ViewState.SaveViewPortState(AProvider);
     GState.SaveMainParams;
     Fmain.ShortCutManager.Save(AProvider.GetOrCreateSubItem('HOTKEY'));
     Fmain.SaveWindowConfigToIni(AProvider);

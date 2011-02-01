@@ -40,6 +40,7 @@ type
     procedure Lat1Click(Sender: TObject);
     procedure cbbAllMarksEnter(Sender: TObject);
   private
+    FLonLat: TDoublePoint;
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
     FMarkDBGUI: TMarksDbGUIHelper;
@@ -47,7 +48,12 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function ShowGeocodeModal(var AResult: IGeoCodeResult; var AZoom: Byte; AMarkDBGUI: TMarksDbGUIHelper): Boolean;
+    function ShowGeocodeModal(
+      ALonLat: TDoublePoint;
+      var AResult: IGeoCodeResult;
+      var AZoom: Byte;
+      AMarkDBGUI: TMarksDbGUIHelper
+    ): Boolean;
     procedure RefreshTranslation; override;
   end;
 
@@ -105,7 +111,7 @@ begin
     textsrch:= Trim(edtGeoCode.Text);
     VGeoCoderItem := GState.MainFormConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
     if VGeoCoderItem <> nil then begin
-      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, GState.ViewState.GetCenterLonLat);
+      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, FLonLat);
       ModalResult := mrOk;
     end else begin
       ModalResult := mrCancel;
@@ -114,7 +120,7 @@ begin
     textsrch:= Trim(edtGeoCode.Text);
     VGeoCoderItem := GState.MainFormConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
     if VGeoCoderItem <> nil then begin
-      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, GState.ViewState.GetCenterLonLat);
+      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, FLonLat);
       ModalResult := mrOk;
     end else begin
       ModalResult := mrCancel;
@@ -134,6 +140,7 @@ begin
 end;
 
 function TfrmGoTo.ShowGeocodeModal(
+  ALonLat: TDoublePoint;
   var AResult: IGeoCodeResult;
   var AZoom: Byte;
   AMarkDBGUI: TMarksDbGUIHelper
@@ -141,10 +148,11 @@ function TfrmGoTo.ShowGeocodeModal(
 var
   VMarksList: IInterfaceList;
 begin
+  FLonLat := ALonLat;
   FMarkDBGUI := AMarkDBGUI;
   frLonLatPoint.Parent := pnlLonLat;
   cbbZoom.ItemIndex := Azoom;
-  frLonLatPoint.LonLat := GState.ViewState.GetCenterLonLat;
+  frLonLatPoint.LonLat := FLonLat;
   VMarksList := FMarkDBGUI.MarksDB.MarksDb.GetAllMarskIdList;
   try
     FMarkDBGUI.MarksListToStrings(VMarksList, cbbAllMarks.Items);

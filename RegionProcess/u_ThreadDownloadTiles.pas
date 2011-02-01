@@ -51,7 +51,7 @@ type
       Atypemap: TMapType;
       AReplaceOlderDate: TDateTime
     );overload;
-    constructor Create(ALog: ILogSimple; FileName:string;LastSuccessful:boolean); overload;
+    constructor Create(ALog: ILogSimple; FileName:string;LastSuccessful:boolean; AZoom: Byte); overload;
     destructor Destroy; override;
 
     procedure SaveToFile(AFileName: string);
@@ -107,7 +107,7 @@ begin
   randomize;
 end;
 
-constructor TThreadDownloadTiles.Create(ALog: ILogSimple; FileName:string;LastSuccessful:boolean);
+constructor TThreadDownloadTiles.Create(ALog: ILogSimple; FileName:string; LastSuccessful:boolean; AZoom: Byte);
 var
   Ini: Tinifile;
   i: integer;
@@ -121,7 +121,7 @@ begin
   try
     VGuids:=Ini.ReadString('Session','MapGUID','');
     VGuid := StringToGUID(VGuids);
-    Fzoom := Ini.ReadInteger('Session', 'zoom', GState.ViewState.GetCurrentZoom) - 1;
+    Fzoom := Ini.ReadInteger('Session', 'zoom', AZoom + 1) - 1;
     FReplaceExistTiles := Ini.ReadBool('Session', 'zamena', false);
     FCheckExistTileSize := Ini.ReadBool('Session','raz', false);
     FCheckExistTileDate := Ini.ReadBool('Session','zdate', false);

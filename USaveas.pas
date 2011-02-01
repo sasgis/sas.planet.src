@@ -246,8 +246,6 @@ end;
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TDoublePointArray);
 var
   i:integer;
-  vramkah,zagran:boolean;
-  VConverter: ICoordConverter;
   VPoint: TPoint;
   VZoom: Byte;
   VExportProvider: TExportProviderAbstract;
@@ -255,25 +253,7 @@ begin
   FZoom_rect:=Azoom;
   FPolygonLL := copy(polygon_);
   GState.LastSelectionInfo.SetPolygon(FPolygonLL, FZoom_rect);
-  vramkah:=false;
-  zagran:=false;
-  VConverter := GState.ViewState.GetCurrentCoordConverter;
   VZoom := FZoom_rect;
-  for i:=0 to length(FPolygonLL)-1 do begin
-    VPoint := VConverter.LonLat2PixelPos(FPolygonLL[i], VZoom);
-    if VConverter.CheckPixelPos(VPoint , VZoom, False)
-    then begin
-      vramkah:=true;
-    end else begin
-      zagran:=true;
-    end;
-  end;
-  if not(vramkah) then begin
-    showmessage(SAS_ERR_SelectArea);
-    exit;
-  end else if zagran then begin
-    showmessage(SAS_MSG_SelectArea);
-  end;
   for i := 0 to CBFormat.Items.Count - 1 do begin
     VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
     if VExportProvider <> nil then begin

@@ -93,7 +93,7 @@ procedure TfrTilesGenPrev.Init(AZoom: Byte);
 var
   i: integer;
   VMapType: TMapType;
-  VActiveMap: TMapType;
+  VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
 begin
   cbbFromZoom.Items.Clear;
@@ -103,14 +103,14 @@ begin
   cbbFromZoom.ItemIndex := AZoom;
   cbbFromZoomChange(cbbFromZoom);
 
-  VActiveMap := GState.ViewState.GetCurrentMap;
+  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
   cbbMap.items.Clear;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if VMapType.IsBitmapTiles then begin
       if VMapType.UseGenPrevious then begin
         VAddedIndex := cbbMap.Items.AddObject(VMapType.name, VMapType);
-        if VMapType = VActiveMap then begin
+        if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
           cbbMap.ItemIndex:=VAddedIndex;
         end;
       end;

@@ -68,7 +68,7 @@ procedure TfrExportGEKml.Init;
 var
   i: integer;
   VMapType: TMapType;
-  VActiveMap: TMapType;
+  VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
 begin
   chklstZooms.Items.Clear;
@@ -76,13 +76,13 @@ begin
     chklstZooms.Items.Add(inttostr(i));
   end;
 
-  VActiveMap := GState.ViewState.GetCurrentMap;
+  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
   cbbMap.items.Clear;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if VMapType.IsBitmapTiles and VMapType.TileStorage.GetIsStoreFileCache then begin
       VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
-      if VMapType = VActiveMap then begin
+      if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
         cbbMap.ItemIndex:=VAddedIndex;
       end;
     end;

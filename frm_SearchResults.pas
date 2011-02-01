@@ -77,7 +77,7 @@ begin
   VListItem := lvResults.Selected;
   if VListItem <> nil then begin
     VPlacemark := IGeoCodePalcemark(VListItem.Data);
-    FMapGoto.GotoPos(VPlacemark.GetPoint, GState.ViewState.GetCurrentZoom);
+    FMapGoto.GotoPos(VPlacemark.GetPoint, GState.MainFormConfig.ViewPortState.GetCurrentZoom);
   end;
 end;
 

@@ -18,6 +18,7 @@ uses
   CommCtrl,
   ExtCtrls,
   u_CommonFormAndFrameParents,
+  i_ILocalCoordConverter,
   UResStrings,
   t_GeoTypes;
 
@@ -57,7 +58,7 @@ type
     procedure FormTidList;
     procedure CopyStringToClipboard(s: Widestring);
   public
-    procedure setup(ALonLat: TDoublePoint; AViewSize: TPoint);
+    procedure setup(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
   end;
 
 var
@@ -393,26 +394,24 @@ begin
  pltstr.Free;
 end;
 
-procedure TFDGAvailablePic.setup(ALonLat: TDoublePoint; AViewSize: TPoint);
+procedure TFDGAvailablePic.setup(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
 var
   VSize: TPoint;
   VRad: Extended;
   VPixelsAtZoom: Double;
   VConverter: ICoordConverter;
   VZoom: Byte;
+  VMapPixel: TDoublePoint;
 begin
   Show;
-  VSize := AViewSize;
-  GState.ViewState.LockRead;
-  try
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-    VZoom := GState.ViewState.GetCurrentZoom;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
+  VSize := ALocalConverter.GetLocalRectSize;
+  VConverter := ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VMapPixel := ALocalConverter.LocalPixel2MapPixelFloat(AVisualPoint);
+  VConverter.CheckPixelPosFloatStrict(VMapPixel, VZoom, True);
+  FLonLat := VConverter.PixelPosFloat2LonLat(VMapPixel, VZoom);
   VRad := VConverter.Datum.GetSpheroidRadiusA;
   VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoom);
-  FLonLat:= ALonLat;
  mpp:=1/((VPixelsAtZoom/(2*PI))/(VRad*cos(FLonLat.y*D2R)));
  hi:=round(mpp*15);
  wi:=round(mpp*15);

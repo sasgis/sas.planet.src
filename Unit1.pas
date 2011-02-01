@@ -797,8 +797,6 @@ procedure TFmain.FormActivate(Sender: TObject);
 var
   param:string;
   VGUID: TGUID;
-  VScreenCenterPos: TPoint;
-  VZoom: Byte;
   VLonLat: TDoublePoint;
   VMapType: TMapType;
   VMapLayersVsibleChangeListener: IJclListener;
@@ -808,10 +806,7 @@ begin
   GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
   BuildImageListMapZapSelect;
-
-  GState.InitViewState(Point(map.Width, map.Height));
-  VScreenCenterPos := GState.ViewState.GetCenterMapPixel;
-  VZoom := GState.ViewState.GetCurrentZoom;
+  FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
   Enabled:=false;
   try
     OnWinPositionChange(nil);

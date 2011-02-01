@@ -11,6 +11,10 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_ICoordConverter,
+  i_ILocalCoordConverter,
+  i_IActiveMapsConfig,
+  i_IViewPortState,
+  i_MapTypes,
   i_ITileDownlodSession,
   u_MapViewPortState,
   u_MapLayerShowError,
@@ -19,10 +23,11 @@ uses
 type
   TTileDownloaderUI = class(TThread)
   private
-    FCoordConverter: ICoordConverter;
-    FZoom: byte;
-    FPixelRect: TRect;
-    FMainMap: TMapType;
+    FMapsSet: IActiveMapsSet;
+    FViewPortState: IViewPortState;
+
+    FVisualCoordConverter: ILocalCoordConverter;
+    FActiveMapsList: IMapTypeList;
     FMapType: TMapType;
 
     change_scene: boolean;
@@ -31,7 +36,6 @@ type
     FTileMaxAgeInInternet: TDateTime;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorShowLayer: TTileErrorInfoLayer;
-    FViewPortState: TMapViewPortState;
     FUseDownloadChangeNotifier: IJclNotifier;
     FUseDownload: TTileSource;
     FChangePosListener: IJclListener;
@@ -49,7 +53,8 @@ type
     procedure Execute; override;
   public
     constructor Create(
-      AViewPortState: TMapViewPortState;
+      AViewPortState: IViewPortState;
+      AMapsSet: IActiveMapsSet;
       AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorShowLayer: TTileErrorInfoLayer
     ); overload;
@@ -67,7 +72,9 @@ implementation
 
 uses
   SysUtils,
+  ActiveX,
   u_JclNotify,
+  t_GeoTypes,
   u_GlobalState,
   u_NotifyEventListener,
   i_ITileIterator,
@@ -75,12 +82,15 @@ uses
   UResStrings;
 
 constructor TTileDownloaderUI.Create(
-  AViewPortState: TMapViewPortState;
+  AViewPortState: IViewPortState;
+  AMapsSet: IActiveMapsSet;
   AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorShowLayer: TTileErrorInfoLayer
 );
 begin
   inherited Create(True);
+  FViewPortState := AViewPortState;
+  FMapsSet := AMapsSet;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorShowLayer := AErrorShowLayer;
   FViewPortState := AViewPortState;
@@ -90,24 +100,24 @@ begin
   FTileMaxAgeInInternet :=  1/24/60;
   FUseDownloadChangeNotifier := TJclBaseNotifier.Create;
   FChangePosListener := TNotifyEventListener.Create(ChangePos);
-  FViewPortState.PosChangeNotifier.Add(FChangePosListener);
-  FViewPortState.MapChangeNotifier.Add(FChangePosListener);
-  FViewPortState.HybrChangeNotifier.Add(FChangePosListener);
+  FViewPortState.GetChangeNotifier.Add(FChangePosListener);
+  FMapsSet.GetChangeNotifier.Add(FChangePosListener);
 end;
 
 destructor TTileDownloaderUI.Destroy;
 var
   VWaitResult: DWORD;
 begin
-  FViewPortState.PosChangeNotifier.Remove(FChangePosListener);
-  FViewPortState.MapChangeNotifier.Remove(FChangePosListener);
-  FViewPortState.HybrChangeNotifier.Remove(FChangePosListener);
-  FChangePosListener := nil;
+  FViewPortState.GetChangeNotifier.Remove(FChangePosListener);
+  FMapsSet.GetChangeNotifier.Remove(FChangePosListener);
+
   VWaitResult := WaitForSingleObject(Handle, 10000);
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(Handle, 0);
   end;
   FUseDownloadChangeNotifier := nil;
+  FChangePosListener := nil;
+  FMapsSet := nil;
   inherited;
 end;
 
@@ -119,15 +129,8 @@ end;
 
 procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
-  GState.ViewState.LockRead;
-  try
-    FCoordConverter := GState.ViewState.GetCurrentCoordConverter;
-    FMainMap := GState.ViewState.GetCurrentMap;
-    FZoom := GState.ViewState.GetCurrentZoom;
-    FPixelRect := GState.ViewState.GetViewRectInMapPixel;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
+  FActiveMapsList := FMapsSet.GetSelectedMapsList;
 end;
 
 class function TTileDownloaderUI.GetErrStr(Aerr: TDownloadTileResult): string;
@@ -226,14 +229,14 @@ procedure TTileDownloaderUI.AfterWriteToFile;
 begin
   if FErrorString <> '' then begin
     if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.ShowError(FLoadXY, FZoom, FMapType, FErrorString);
+      FErrorShowLayer.ShowError(FLoadXY, FVisualCoordConverter.GetZoom, FMapType, FErrorString);
     end;
   end else begin
     if FErrorShowLayer <> nil then begin
       FErrorShowLayer.Visible := False;
     end;
     if Addr(FMapTileUpdateEvent) <> nil then begin
-      FMapTileUpdateEvent(FMapType, FZoom, FLoadXY);
+      FMapTileUpdateEvent(FMapType, FVisualCoordConverter.GetZoom, FLoadXY);
     end;
   end;
 end;
@@ -248,6 +251,15 @@ var
   VNeedDownload: Boolean;
   VIterator: ITileIterator;
   VTile: TPoint;
+  VLocalConverter: ILocalCoordConverter;
+  VGeoConverter: ICoordConverter;
+  VMapPixelRect: TDoubleRect;
+  VZoom: Byte;
+  VActiveMapsList: IMapTypeList;
+  VEnum: IEnumGUID;
+  VGUID: TGUID;
+  i: Cardinal;
+  VMap: IMapType;
 begin
   repeat
     if FUseDownload = tsCache then begin
@@ -276,13 +288,19 @@ begin
         if Terminated then begin
           break;
         end;
-        if FCoordConverter = nil then begin
+        VLocalConverter := FVisualCoordConverter;
+        if VLocalConverter = nil then begin
           if Terminated then begin
             break;
           end;
           Sleep(1000);
         end else begin
-          VIterator := TTileIteratorSpiralByRect.Create(FCoordConverter.PixelRect2TileRect(FPixelRect, FZoom));
+          VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
+          VZoom := VLocalConverter.GetZoom;
+          VActiveMapsList := FActiveMapsList;
+          VGeoConverter := VLocalConverter.GetGeoConverter;
+          VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+          VIterator := TTileIteratorSpiralByRect.Create(VGeoConverter.PixelRectFloat2TileRect(VMapPixelRect, VZoom));
           try
             while VIterator.Next(VTile) do begin
               if Terminated then begin
@@ -291,32 +309,34 @@ begin
               if change_scene then begin
                 Break;
               end;
-              for ii := 0 to GState.MapType.Count - 1 do begin
+              VEnum := VActiveMapsList.GetIterator;
+              while VEnum.Next(1, VGUID, i) = S_OK do begin
+                VMap := VActiveMapsList.GetMapTypeByGUID(VGUID);
                 if Terminated then begin
                   break;
                 end;
                 if change_scene then begin
                   Break;
                 end;
-                FMapType := GState.MapType[ii];
-                if (FMapType = FMainMap) or (FMapType.asLayer and GState.ViewState.IsHybrGUIDSelected(FMapType.GUID)) then begin
+                if VMap <> nil then begin
+                  FMapType := VMap.MapType;
                   if FMapType.UseDwn then begin
-                    VPixelInTargetMap := FCoordConverter.PixelPos2OtherMap(
-                      FCoordConverter.TilePos2PixelPos(VTile, FZoom),
-                      Fzoom,
+                    VPixelInTargetMap := VGeoConverter.PixelPos2OtherMap(
+                      VGeoConverter.TilePos2PixelPos(VTile, VZoom),
+                      VZoom,
                       FMapType.GeoConvert
                     );
-                    FLoadXY := FMapType.GeoConvert.PixelPos2TilePos(VPixelInTargetMap, FZoom);
+                    FLoadXY := FMapType.GeoConvert.PixelPos2TilePos(VPixelInTargetMap, VZoom);
                     VNeedDownload := False;
-                    if FMapType.TileExists(FLoadXY, Fzoom) then begin
+                    if FMapType.TileExists(FLoadXY, VZoom) then begin
                       if FUseDownload = tsInternet then begin
-                        if Now - FMapType.TileLoadDate(FLoadXY, FZoom) > FTileMaxAgeInInternet then begin
+                        if Now - FMapType.TileLoadDate(FLoadXY, VZoom) > FTileMaxAgeInInternet then begin
                           VNeedDownload := True;
                         end;
                       end;
                     end else begin
                       if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
-                        if not(FMapType.TileNotExistsOnServer(FLoadXY, Fzoom)) then begin
+                        if not(FMapType.TileNotExistsOnServer(FLoadXY, VZoom)) then begin
                           VNeedDownload := True;
                         end;
                       end;
@@ -325,7 +345,7 @@ begin
                       FileBuf := TMemoryStream.Create;
                       try
                         try
-                          res := FMapType.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+                          res := FMapType.DownloadTile(Self, FLoadXY, VZoom, false, 0, FLoadUrl, ty, fileBuf);
                           FErrorString := GetErrStr(res);
                           if (res = dtrOK) or (res = dtrSameTileSize) then begin
                             GState.DownloadInfo.Add(1, fileBuf.Size);

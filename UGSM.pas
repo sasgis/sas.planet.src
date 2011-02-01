@@ -24,6 +24,7 @@ type
   TPosFromGPS = class
   private
     FToPos:TToPos;
+    FZoom: Byte;
     CommPortDriver:TCommPortDriver;
     LAC:string;
     CellID:string;
@@ -33,7 +34,7 @@ type
     function GetCoordFromGoogle(var LL:TDoublePoint): boolean;
   public
     constructor Create(AOnToPos: TToPos);
-    function GetPos:boolean;
+    function GetPos(AZoom: Byte):boolean;
   end;
 
 implementation
@@ -174,7 +175,7 @@ begin
  CommPortDriver.SendString('AT+CREG=1'+#13);
  CommPortDriver.Disconnect;
  if GetCoordFromGoogle(LL) then begin
-    FToPos(LL, GState.ViewState.GetCurrentZoom, true);
+    FToPos(LL, FZoom, true);
  end;
 end;
 
@@ -200,7 +201,7 @@ begin
 end;
 
 
-function TPosFromGPS.GetPos:boolean;
+function TPosFromGPS.GetPos(AZoom: Byte):boolean;
 var
   paramss:string;
   LL:TDoublePoint;
@@ -209,6 +210,7 @@ var
   VRate: Cardinal;
   VWait: Cardinal;
 begin
+  FZoom := AZoom;
   GState.GSMpar.LockRead;
   try
     VUseGSM := GState.GSMpar.GetUseGSMByCOM;
@@ -244,7 +246,7 @@ begin
      LAC:= IntToHex(strtoint(GetWord(paramss,',',3)),4);
      CellID:= IntToHex(strtoint(GetWord(paramss,',',4)),4);
      if GetCoordFromGoogle(LL) then begin
-        FToPos(LL,GState.ViewState.GetCurrentZoom,true);
+        FToPos(LL, FZoom,true);
         Result:=true;
      end else begin
         Result:=false;

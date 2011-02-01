@@ -138,7 +138,7 @@ procedure TfrMapCombine.Init(AZoom: Byte; APolygLL: TDoublePointArray);
 var
   i: Integer;
   VMapType: TMapType;
-  VActiveMap: TMapType;
+  VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
   VMapCalibration: IMapCalibration;
 begin
@@ -149,7 +149,7 @@ begin
   end;
   cbbZoom.ItemIndex := AZoom;
 
-  VActiveMap := GState.ViewState.GetCurrentMap;
+  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
   cbbMap.Items.Clear;
   cbbHybr.Items.Clear;
   cbbHybr.Items.Add(SAS_STR_No);
@@ -158,13 +158,13 @@ begin
     if VMapType.UseStick and VMapType.IsBitmapTiles then begin
       if not VMapType.asLayer then begin
         VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
-        if VMapType = VActiveMap then begin
+        if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
           cbbMap.ItemIndex:=VAddedIndex;
         end;
       end else begin
         VAddedIndex := cbbHybr.Items.AddObject(VMapType.name,VMapType);
         if (cbbHybr.ItemIndex=-1) then begin
-          if GState.ViewState.IsHybrGUIDSelected(VMapType.GUID) then begin
+          if GState.MainFormConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMapType.GUID) then begin
             cbbHybr.ItemIndex:=VAddedIndex;
           end;
         end;

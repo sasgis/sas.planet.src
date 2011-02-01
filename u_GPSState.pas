@@ -5,6 +5,7 @@ interface
 uses
   SysUtils,
   i_JclNotify,
+  i_IDatum,
   i_IGPSRecorder,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
@@ -16,6 +17,7 @@ uses
 type
   TGPSpar = class
   private
+    FDatum: IDatum;
     FLogPath: string;
     FGPSRecorder: IGPSRecorder;
     FSettings: IGPSModuleByCOMPortConfig;
@@ -65,11 +67,13 @@ uses
   i_ICoordConverter,
   u_NotifyEventListener,
   u_GlobalState,
+  u_Datum,
   u_GPSModuleByZylGPS,
   u_GPSRecorderStuped;
 
 constructor TGPSpar.Create(ALogPath: string);
 begin
+  FDatum := TDatum.Create(3395, 6378137, 6356752);
   FLogPath := ALogPath;
   FGPSRecorder := TGPSRecorderStuped.Create;
   FSettings := TGPSModuleByCOMPortSettings.Create(FLogPath);
@@ -142,7 +146,6 @@ var
   VPointPrev: TDoublePoint;
   VTrackPoint: TGPSTrackPoint;
   VDistToPrev: Double;
-  VConverter: ICoordConverter;
 begin
   VPosition := FGPSModule.Position;
   if (VPosition.IsFix=0) then exit;
@@ -152,7 +155,6 @@ begin
     VTrackPoint.Point := VPointCurr;
     VTrackPoint.Speed := VPosition.Speed_KMH;
     GPSRecorder.AddPoint(VTrackPoint);
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
     speed:=VTrackPoint.Speed;
     if maxspeed < speed then begin
       maxspeed:=speed;
@@ -162,7 +164,7 @@ begin
     sspeed:=allspeed/sspeednumentr;
     altitude:=VPosition.Altitude;
     if (VPointPrev.x<>0)or(VPointPrev.y<>0) then begin
-      VDistToPrev := VConverter.Datum.CalcDist(VPointPrev, VPointCurr);
+      VDistToPrev := FDatum.CalcDist(VPointPrev, VPointCurr);
       len:=len+VDistToPrev;
       Odometr:=Odometr+VDistToPrev;
       Odometr2:=Odometr2+VDistToPrev;

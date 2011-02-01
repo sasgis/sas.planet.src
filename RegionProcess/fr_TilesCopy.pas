@@ -92,7 +92,7 @@ procedure TfrTilesCopy.Init;
 var
   i: integer;
   VMapType: TMapType;
-  VActiveMap: TMapType;
+  VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
 begin
   chklstZooms.Items.Clear;
@@ -100,12 +100,12 @@ begin
     chklstZooms.Items.Add(inttostr(i));
   end;
 
-  VActiveMap := GState.ViewState.GetCurrentMap;
+  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
   chklstMaps.Items.Clear;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     VAddedIndex := chklstMaps.Items.AddObject(VMapType.name, VMapType);
-    if VMapType = VActiveMap then begin
+    if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
       chklstMaps.ItemIndex := VAddedIndex;
     end;
   end;

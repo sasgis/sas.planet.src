@@ -233,7 +233,7 @@ begin
   FreeAndNil(FDefoultMap);
   FMapsActive.MapChangeNotifier.Remove(FMapChangeListener);
   FMapsActive.HybrChangeNotifier.Remove(FHybrChangeListener);
-  GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
+  FViewPortState.MapChangeNotifier.Remove(FMainMapChangeListener);
   FMapChangeListener := nil;
   FHybrChangeListener := nil;
   FMainMapChangeListener := nil;
@@ -453,7 +453,7 @@ begin
   FHybrChangeListener := TMiniMapHybrChangeListener.Create(Self);
   FMapsActive.HybrChangeNotifier.Add(FHybrChangeListener);
   FMainMapChangeListener := TMiniMapMainMapChangeListener.Create(Self);
-  GState.ViewState.MapChangeNotifier.Add(FMainMapChangeListener);
+  FViewPortState.MapChangeNotifier.Add(FMainMapChangeListener);
 end;
 
 procedure TMiniMapLayer.AdjustFont(Item: TTBCustomItem;
@@ -507,7 +507,7 @@ begin
   FLayer.Bitmap.Clear(Color32(GState.BGround));
   VGUID := FMapsActive.SelectedMapGUID;
   if IsEqualGUID(VGUID, CGUID_Zero) then begin
-    VMapType := GState.ViewState.GetCurrentMap;
+    VMapType := FViewPortState.GetCurrentMap;
   end else begin
     VItem := FMapsActive.MapsList.GetMapTypeByGUID(VGUID);
     VMapType := VItem.MapType;
@@ -1087,10 +1087,10 @@ procedure TMiniMapLayer.OnNotifyMapChange(msg: IMapChangeMessage);
 begin
   if msg.GetNewMap = nil then begin
     FMiniMapSameAsMain.Checked := True;
-    GState.ViewState.MapChangeNotifier.Add(FMainMapChangeListener);
+    FViewPortState.MapChangeNotifier.Add(FMainMapChangeListener);
   end else begin
     FMiniMapSameAsMain.Checked := False;
-    GState.ViewState.MapChangeNotifier.Remove(FMainMapChangeListener);
+    FViewPortState.MapChangeNotifier.Remove(FMainMapChangeListener);
   end;
   Redraw;
 end;
