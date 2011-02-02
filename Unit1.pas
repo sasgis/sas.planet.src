@@ -482,7 +482,7 @@ type
     procedure NMapParamsClick(Sender: TObject);
     procedure mapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure mapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
-    procedure mapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
+    procedure mapMouseMove(Sender: TObject; Shift: TShiftState; AX, AY: Integer; Layer: TCustomLayer);
     procedure N35Click(Sender: TObject);
     procedure TBItemDelTrackClick(Sender: TObject);
     procedure NGShScale01Click(Sender: TObject);
@@ -2298,7 +2298,7 @@ begin
   VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
   if VMap.TileStorage.GetIsStoreFileCache then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(MouseCursorPos);
+    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
     VZoomCurr := VLocalConverter.GetZoom;
     VConverter := VLocalConverter.GetGeoConverter;
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
@@ -2325,7 +2325,7 @@ begin
   VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
   if VMap.TileStorage.GetIsStoreFileCache then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(MouseCursorPos);
+    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
     VZoomCurr := VLocalConverter.GetZoom;
     VConverter := VLocalConverter.GetGeoConverter;
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
@@ -2954,6 +2954,9 @@ begin
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
   Screen.ActiveForm.SetFocusedControl(map);
   FMouseDownPoint := Point(x, y);
+  FmoveTrue := FMouseDownPoint;
+  FMouseUpPoint := FMouseDownPoint;
+  MouseCursorPos := FMouseDownPoint;
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
@@ -3048,7 +3051,6 @@ procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
 var
   VPWL:TResObj;
   stw:String;
-  VPoint: TPoint;
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VMapMoving: Boolean;
@@ -3057,60 +3059,57 @@ var
   VConverter: ICoordConverter;
   VTile: TPoint;
   VLonLat: TDoublePoint;
-  VVisibleSizeInPixel: TPoint;
+  VLocalConverter: ILocalCoordConverter;
+  VMouseMapPoint: TDoublePoint;
+  VMouseMoveDelta: TPoint;
 begin
   if (Layer <> nil) then begin
     exit;
   end;
- if (ssDouble in Shift) then exit;
- VMapMoving := FMapMoving;
- FMapMoving:=false;
+  if (ssDouble in Shift) then exit;
+  VMapMoving := FMapMoving;
+  FMapMoving:=false;
+  FMouseUpPoint := Point(x, y);
+  VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoomCurr := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseUpPoint);
+  VValidPoint := VConverter.CheckPixelPosFloat(VMouseMapPoint, VZoomCurr, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
 
- GState.ViewState.LockRead;
- try
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(Point(x, y));
-    VLonLat := GState.ViewState.VisiblePixel2LonLat(FmoveTrue);
-    VMap := GState.ViewState.GetCurrentMap;
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-    VVisibleSizeInPixel := GState.ViewState.GetViewSizeInVisiblePixel;
- finally
-   GState.ViewState.UnLockRead;
- end;
- VValidPoint := VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, False);
- VTile := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
- if HiWord(GetKeyState(VK_DELETE))<>0 then begin
   if VValidPoint then begin
-   VMap.DeleteTile(VTile, VZoomCurr);
-   OnMapTileUpdate(VMap, VZoomCurr, VTile);
-  end;
-  exit;
- end;
- if HiWord(GetKeyState(VK_INSERT))<>0 then begin
-  if VValidPoint then begin
-    TTileDownloaderUIOneTile.Create(
-      VTile,
-      VZoomCurr,
-      VMap,
-      Self.OnMapTileUpdate,
-      FShowErrorLayer
-    );
-  end;
-  exit;
- end;
- if HiWord(GetKeyState(VK_F6))<>0 then begin
-   FDGAvailablePic.setup(VLonLat, VVisibleSizeInPixel);
-   exit;
+    VTile := VMap.GeoConvert.LonLat2TilePos(VLonLat, VZoomCurr);
+    if HiWord(GetKeyState(VK_DELETE))<>0 then begin
+      VMap.DeleteTile(VTile, VZoomCurr);
+      OnMapTileUpdate(VMap, VZoomCurr, VTile);
+      exit;
+    end;
+    if HiWord(GetKeyState(VK_INSERT))<>0 then begin
+      TTileDownloaderUIOneTile.Create(
+        VTile,
+        VZoomCurr,
+        VMap,
+        Self.OnMapTileUpdate,
+        FShowErrorLayer
+      );
+      exit;
+    end;
+    if HiWord(GetKeyState(VK_F6))<>0 then begin
+      FDGAvailablePic.setup(VLocalConverter, FMouseUpPoint);
+      exit;
+    end;
   end;
 
- movepoint:=false;
+  movepoint:=false;
 
- if (((FCurrentOper<>ao_movemap)and(Button=mbLeft))or
+  if (((FCurrentOper<>ao_movemap)and(Button=mbLeft))or
      ((FCurrentOper=ao_movemap)and(Button=mbRight))) then exit;
- if (FMapZoomAnimtion) then exit;
- map.Enabled:=false;
- map.Enabled:=true;
- if button=mbMiddle then begin
+  if (FMapZoomAnimtion) then exit;
+
+  map.Enabled:=false;
+  map.Enabled:=true;
+  if button=mbMiddle then begin
     FWinPosition.LockWrite;
     try
       if FWinPosition.GetIsFullScreen then begin
@@ -3122,40 +3121,39 @@ begin
       FWinPosition.UnlockWrite;
     end;
     exit;
- end;
-
- if VMapMoving then begin
-   GState.ViewState.ChangeMapPixelByDelta(Point(FMouseDownPoint.x-x, FMouseDownPoint.y-y));
- end;
-
- FMouseUpPoint:=Point(x,y);
- if (y=FMouseDownPoint.y)and(x=FMouseDownPoint.x) then begin
-   FLayerStatBar.Redraw;
-   FLayerScaleLine.Redraw;
-   if FCurrentOper=ao_select_rect then begin
-     VSelectionRect := FSelectionRect;
-     PrepareSelectionRect(Shift, VSelectionRect);
-     FLayerMapNal.DrawSelectionRect(VSelectionRect);
-   end;
-   if GState.GPSpar.GPSModule.IsConnected then begin
-     UpdateGPSsensors;
-   end;
   end;
- if (y=FMouseDownPoint.y)and(x=FMouseDownPoint.x)and(FCurrentOper=ao_movemap)and(button=mbLeft) then begin
-    VPWL.S:=0;
-    VPWL.find:=false;
-    if (FWikiLayer.Visible) then
-     FWikiLayer.MouseOnReg(VPWL, Point(x,y));
-    if (FLayerMapMarks.Visible) then
-     FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
-    if VPWL.find then begin
-      stw:='<HTML><BODY>';
-      stw:=VPWL.descr;
-      stw:=stw+'</BODY></HTML>';
-      Fbrowser.TextToWebBrowser(stw);
-      Fbrowser.Visible:=true;
+  VMouseMoveDelta := Point(FMouseDownPoint.x-FMouseUpPoint.X, FMouseDownPoint.y-FMouseUpPoint.y);
+
+  if VMapMoving then begin
+    FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
+  end;
+
+  if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
+    if FCurrentOper=ao_select_rect then begin
+      VSelectionRect := FSelectionRect;
+      PrepareSelectionRect(Shift, VSelectionRect);
+      FLayerMapNal.DrawSelectionRect(VSelectionRect);
     end;
-    exit;
+    if GState.GPSpar.GPSModule.IsConnected then begin
+      UpdateGPSsensors;
+    end;
+    if (FCurrentOper=ao_movemap)and(button=mbLeft) then begin
+      VPWL.S:=0;
+      VPWL.find:=false;
+      if (FWikiLayer.Visible) then
+        FWikiLayer.MouseOnReg(VPWL, Point(x,y));
+      if (FLayerMapMarks.Visible) then
+        FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
+      if VPWL.find then begin
+        if VPWL.descr <> '' then begin
+          stw:='<HTML><BODY>';
+          stw:=VPWL.descr;
+          stw:=stw+'</BODY></HTML>';
+          Fbrowser.TextToWebBrowser(stw);
+          Fbrowser.Visible:=true;
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -3237,52 +3235,53 @@ begin
 end;
 
 
-procedure TFmain.mapMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
+procedure TFmain.mapMouseMove(Sender: TObject; Shift: TShiftState; AX, AY: Integer; Layer: TCustomLayer);
 var
   i,j:integer;
   nms:string;
   hintrect:TRect;
   CState: Integer;
-  VPoint: TPoint;
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VConverter: ICoordConverter;
   VLonLat: TDoublePoint;
   VPWL: TResObj;
+  VLocalConverter: ILocalCoordConverter;
+  VMouseMapPoint: TDoublePoint;
+  VMouseMoveDelta: TPoint;
+  VLastMouseMove: TPoint;
 begin
   if ProgramClose then begin
     exit;
   end;
+  VLastMouseMove := FmoveTrue;
+  FmoveTrue:=point(Ax,Ay);
+  MouseCursorPos:=FmoveTrue;
+  VMouseMoveDelta := Point(FMouseDownPoint.X-FmoveTrue.X, FMouseDownPoint.Y-FmoveTrue.Y);
   if (Layer <> nil) then begin
-    FmoveTrue:=point(x,y);
     exit;
   end;
   if (FMapZoomAnimtion)or(
     (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
     or(HiWord(GetKeyState(VK_F6))<>0)
   then begin
-    FmoveTrue:=point(x,y);
     exit;
   end;
- CState:=ShowCursor(True);
- while CState < 0 do begin
-  CState:= ShowCursor(true);
- end;
- sleep(5);
- GState.ViewState.LockRead;
- try
-  VConverter := GState.ViewState.GetCurrentCoordConverter;
-  VZoomCurr := GState.ViewState.GetCurrentZoom;
-  VPoint := GState.ViewState.VisiblePixel2MapPixel(Point(x,y));
-  VLonLat := GState.ViewState.VisiblePixel2LonLat(Point(x,y));
- finally
-  GState.ViewState.UnLockRead;
- end;
- VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, False);
- if (movepoint) then begin
-  FLineOnMapEdit.MoveActivePoint(VLonLat);
-  exit;
- end;
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoomCurr := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FmoveTrue);
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+// CState:=ShowCursor(True);
+// while CState < 0 do begin
+//  CState:= ShowCursor(true);
+// end;
+// sleep(5);
+  if (movepoint) then begin
+    FLineOnMapEdit.MoveActivePoint(VLonLat);
+    exit;
+  end;
  if (FCurrentOper=ao_select_rect)and(Frect_dwn)and(not(ssRight in Shift)) then begin
    FSelectionRect.BottomRight:=VLonLat;
    VSelectionRect := FSelectionRect;
@@ -3290,7 +3289,7 @@ begin
    FLayerMapNal.DrawSelectionRect(VSelectionRect);
  end;
  if FWinPosition.GetIsFullScreen then begin
-                       if y<10 then begin
+                       if FmoveTrue.y<10 then begin
                                      TBDock.Parent:=map;
                                      TBDock.Visible:=true;
                                     end
@@ -3298,7 +3297,7 @@ begin
                                      TBDock.Visible:=false;
                                      TBDock.Parent:=Self;
                                     end;
-                       if x<10 then begin
+                       if FmoveTrue.x<10 then begin
                                      TBDockLeft.Parent:=map;
                                      TBDockLeft.Visible:=true;
                                     end
@@ -3306,7 +3305,7 @@ begin
                                      TBDockLeft.Visible:=false;
                                      TBDockLeft.Parent:=Self;
                                     end;
-                       if y>Map.Height-10 then begin
+                       if FmoveTrue.y>Map.Height-10 then begin
                                      TBDockBottom.Parent:=map;
                                      TBDockBottom.Visible:=true;
                                     end
@@ -3314,7 +3313,7 @@ begin
                                      TBDockBottom.Visible:=false;
                                      TBDockBottom.Parent:=Self;
                                     end;
-                       if x>Map.Width-10 then begin
+                       if FmoveTrue.x>Map.Width-10 then begin
                                      TBDockRight.Parent:=map;
                                      TBDockRight.Visible:=true;
                                     end
@@ -3325,15 +3324,13 @@ begin
  end;
  if FMapZoomAnimtion then exit;
  if FMapMoving then begin
-              map.BeginUpdate;
-              try
-              GState.ViewState.MoveTo(Point(FMouseDownPoint.X-x, FMouseDownPoint.Y-y));
-              finally
-                map.EndUpdate;
-                map.Changed;
-              end;
- end else begin
-  MouseCursorPos:=point(x,y);
+  map.BeginUpdate;
+  try
+    FConfig.ViewPortState.MoveTo(VMouseMoveDelta);
+  finally
+    map.EndUpdate;
+    map.Changed;
+  end;
  end;
  if not(FMapMoving) then begin
     FLayerStatBar.Redraw;
@@ -3346,13 +3343,13 @@ begin
     end;
  end;
  FShowActivHint:=false;
- if not(FMapMoving)and((FmoveTrue.x<>X)or(FmoveTrue.y<>y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
+ if not(FMapMoving)and((FmoveTrue.x<>VLastMouseMove.X)or(FmoveTrue.y<>VLastMouseMove.y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
    VPWL.S:=0;
    VPWL.find:=false;
    if (FWikiLayer.Visible) then
-     FWikiLayer.MouseOnReg(VPWL,Point(x,y));
+     FWikiLayer.MouseOnReg(VPWL,FmoveTrue);
    if (FLayerMapMarks.Visible) then
-     FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
+     FLayerMapMarks.MouseOnMyReg(VPWL,FmoveTrue);
    if (VPWL.find) then begin
      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
      if (length(VPWL.name)>0) then begin
@@ -3395,7 +3392,6 @@ begin
      FShowActivHint:=true;
     end;
   end;
- FmoveTrue:=point(x,y);
 end;
 
 procedure CreateLink(const PathObj,PathLink, Desc, Param: string);
