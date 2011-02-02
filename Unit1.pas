@@ -2755,7 +2755,7 @@ begin
   end;
   FMapMoving:=false;
   if (FCurrentOper=ao_movemap) then begin
-    GState.ViewState.ChangeMapPixelToVisualPoint(r);
+    FConfig.ViewPortState.ChangeMapPixelToVisualPoint(r);
   end;
 end;
 
@@ -2831,42 +2831,39 @@ begin
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
-    FMarkDBGUI.OperationMark(VId, GState.ViewState.GetCurrentZoom);
+    FMarkDBGUI.OperationMark(VId, FConfig.ViewPortState.GetCurrentZoom);
   end;
 end;
 
 procedure TFmain.N13Click(Sender: TObject);
 var
-  VPoint: TPoint;
   VZoomCurr: Byte;
   VMap: TMapType;
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VMouseMapPoint: TDoublePoint;
+  VMouseLonLat: TDoublePoint;
+  VTile: TPoint;
 begin
-  GState.ViewState.LockRead;
-  try
-    VMap := GState.ViewState.GetCurrentMap;
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(FMouseDownPoint);
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-  finally
-    GState.ViewState.UnLockRead;
+  VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  if VMap.UseDwn then begin
+    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VConverter := VLocalConverter.GetGeoConverter;
+    VZoomCurr := VLocalConverter.GetZoom;
+    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
+    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+    VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+    VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
+    CopyStringToClipboard(VMap.GetLink(VTile, VZoomCurr));
   end;
-  VMap.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, True);
-  VPoint := VMap.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
-  CopyStringToClipboard(VMap.GetLink(VPoint, VZoomCurr));
 end;
 
 procedure TFmain.DigitalGlobe1Click(Sender: TObject);
 var
-  VPos: TDoublePoint;
-  VSize: TPoint;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  GState.ViewState.LockRead;
-  try
-    VSize := GState.ViewState.GetViewSizeInVisiblePixel;
-    VPos:=GState.ViewState.VisiblePixel2LonLat(FmoveTrue);
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  FDGAvailablePic.setup(VPos, VSize);
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  FDGAvailablePic.setup(VLocalConverter, FMouseDownPoint);
 end;
 
 procedure TFmain.mapMouseLeave(Sender: TObject);
@@ -2919,7 +2916,7 @@ var
   VMapType: TMapType;
 begin
   if TTBXItem(sender).Tag=0 then begin
-    VMapType := GState.ViewState.GetCurrentMap;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
   end else begin
     VMapType := TMapType(TTBXItem(sender).Tag);
   end;
@@ -2939,6 +2936,12 @@ var
   VPoly:  TDoublePointArray;
   VPWL: TResObj;
   Vlastpoint: Integer;
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VClickMapRect: TDoubleRect;
+  VIsClickInMap: Boolean;
 begin
   if (FHintWindow<>nil) then begin
     FHintWindow.ReleaseHandle;
@@ -2950,22 +2953,28 @@ begin
   if (ssDouble in Shift)or(FMapZoomAnimtion)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
   Screen.ActiveForm.SetFocusedControl(map);
-  GState.ViewState.LockRead;
-  try
-    VClickLonLat := GState.ViewState.VisiblePixel2LonLat(Point(x, y));
-    VClickRect.Left := x - 5;
-    VClickRect.Top := y - 5;
-    VClickRect.Right := x + 5;
-    VClickRect.Bottom := y + 5;
-    VClickLonLatRect.TopLeft := GState.ViewState.VisiblePixel2LonLat(VClickRect.TopLeft);
-    VClickLonLatRect.BottomRight := GState.ViewState.VisiblePixel2LonLat(VClickRect.BottomRight);
-  finally
-    GState.ViewState.UnLockRead;
-  end;
+  FMouseDownPoint := Point(x, y);
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
+  VIsClickInMap := VConverter.CheckPixelPosFloat(VMouseMapPoint, VZoom, False);
+  VClickLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+
   if (Button=mbLeft)and(FCurrentOper<>ao_movemap) then begin
     if (FCurrentOper in [ao_select_poly, ao_calc_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly])then begin
       movepoint:=true;
-      Vlastpoint := FLineOnMapEdit.GetPointIndexInLonLatRect(VClickLonLatRect);
+      Vlastpoint := -1;
+      if VIsClickInMap then begin
+        VClickRect.Left := FMouseDownPoint.X - 5;
+        VClickRect.Top := FMouseDownPoint.Y - 5;
+        VClickRect.Right := FMouseDownPoint.X + 5;
+        VClickRect.Bottom := FMouseDownPoint.Y + 5;
+        VClickMapRect := VLocalConverter.LocalRect2MapRectFloat(VClickRect);
+        VConverter.CheckPixelRectFloat(VClickMapRect, VZoom);
+        VClickLonLatRect := VConverter.PixelRectFloat2LonLatRect(VClickMapRect, VZoom);
+        Vlastpoint := FLineOnMapEdit.GetPointIndexInLonLatRect(VClickLonLatRect);
+      end;
       if Vlastpoint < 0 then begin
         FLineOnMapEdit.InsertPoint(VClickLonLat);
       end else begin
@@ -2986,7 +2995,7 @@ begin
       FLayerMapNal.DrawSelectionRect(VSelectionRect);
       if (Frect_p2) then begin
         VPoly := PolygonFromRect(VSelectionRect);
-        fsaveas.Show_(GState.ViewState.GetCurrentZoom, VPoly);
+        fsaveas.Show_(VZoom, VPoly);
         FLayerMapNal.DrawNothing;
         VPoly := nil;
         Frect_p2:=false;
@@ -3001,12 +3010,13 @@ begin
     exit;
   end;
   if FMapMoving then exit;
-  if (Button=mbright)and(FCurrentOper=ao_movemap) then begin
-    FMouseUpPoint:=point(x,y);
+  
+  if (VIsClickInMap)and (Button=mbright)and(FCurrentOper=ao_movemap) then begin
+    FMouseUpPoint:=FMouseDownPoint;
     VPWL.find:=false;
     VPWL.S:=0;
     if FLayerMapMarks.Visible then begin
-      FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
+      FLayerMapMarks.MouseOnMyReg(VPWL, FMouseDownPoint);
     end;
     NMarkEdit.Visible:=VPWL.find;
     NMarkDel.Visible:=VPWL.find;
@@ -3031,7 +3041,6 @@ begin
     FMapMoving:=true;
     map.PopupMenu:=nil;
   end;
-  FMouseDownPoint:=Point(x,y);
 end;
 
 procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
