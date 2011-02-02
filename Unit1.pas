@@ -800,7 +800,6 @@ var
   param:string;
   VGUID: TGUID;
   VLonLat: TDoublePoint;
-  VMapType: TMapType;
   VMapLayersVsibleChangeListener: IJclListener;
   VMainFormMainConfigChangeListener: IJclListener;
   VScale: Integer;
@@ -2220,13 +2219,13 @@ end;
 
 procedure TFmain.N15Click(Sender: TObject);
 var
-  VMouseLonLat: TDoublePoint;
-  VTile: TPoint;
   VZoomCurr: Byte;
+  VMap: TMapType;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
-  VMap: TMapType;
   VMouseMapPoint: TDoublePoint;
+  VMouseLonLat: TDoublePoint;
+  VTile: TPoint;
 begin
   VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
   if VMap.TileStorage.GetIsStoreFileCache then begin
@@ -2249,37 +2248,33 @@ procedure TFmain.N21Click(Sender: TObject);
 var
   path:string;
   VMapType:TMapType;
-  VMapMain: TMapType;
-  VLoadPoint: TPoint;
   VZoomCurr: Byte;
-  VPoint: TPoint;
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VMouseMapPoint: TDoublePoint;
+  VMouseLonLat: TDoublePoint;
+  VTile: TPoint;
 begin
   VMapType := nil;
   if TMenuItem(sender).Tag<>0 then begin
     VMapType := TMapType(TMenuItem(sender).Tag);
   end;
-  GState.ViewState.LockRead;
-  try
-    VMapMain := GState.ViewState.GetCurrentMap;
-    if VMapType = nil then begin
-      VMapType := GState.ViewState.GetCurrentMap;
-    end;
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(FMouseUpPoint);
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
 
-  VMapMain.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, False);
-  VLoadPoint := VMapMain.GeoConvert.PixelPos2OtherMap(VPoint, VZoomCurr, VMapType.GeoConvert);
-  VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VLoadPoint, VZoomCurr);
-  path := VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseUpPoint);
+  VZoomCurr := VLocalConverter.GetZoom;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+  VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
 
-  if ((not(VMapType.tileExists(VLoadPoint, VZoomCurr)))or
+  path := VMapType.GetTileShowName(VTile, VZoomCurr);
+
+  if ((not(VMapType.tileExists(VTile, VZoomCurr)))or
       (MessageBox(handle,pchar(Format(SAS_MSG_FileExists, [path])),pchar(SAS_MSG_coution),36)=IDYES))
   then begin
     TTileDownloaderUIOneTile.Create(
-      VLoadPoint,
+      VTile,
       VZoomCurr,
       VMapType,
       Self.OnMapTileUpdate,
@@ -2290,50 +2285,51 @@ end;
 
 procedure TFmain.NopendirClick(Sender: TObject);
 var
-  VPoint: TPoint;
   VZoomCurr: Byte;
+  VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
+  VMouseMapPoint: TDoublePoint;
+  VMouseLonLat: TDoublePoint;
+  VTile: TPoint;
   VMap: TMapType;
 begin
-  GState.ViewState.LockRead;
-  try
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseCursorPos);
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VMap := GState.ViewState.GetCurrentMap;
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
+  VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
   if VMap.TileStorage.GetIsStoreFileCache then begin
-    VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
-    VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
+    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(MouseCursorPos);
+    VZoomCurr := VLocalConverter.GetZoom;
+    VConverter := VLocalConverter.GetGeoConverter;
+    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+    VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+    VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
     // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
-    ShellExecute(0,'open',PChar(VMap.GetTileFileName(VPoint, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
+    ShellExecute(0,'open',PChar(VMap.GetTileFileName(VTile, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
   end else begin
     ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
 end;
 
 procedure TFmain.N25Click(Sender: TObject);
-var s:string;
-  VPoint: TPoint;
+var
+  s:string;
   VZoomCurr: Byte;
+  VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
+  VMouseMapPoint: TDoublePoint;
+  VMouseLonLat: TDoublePoint;
+  VTile: TPoint;
   VMap: TMapType;
 begin
-  GState.ViewState.LockRead;
-  try
-    VPoint := GState.ViewState.VisiblePixel2MapPixel(MouseCursorPos);
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VMap := GState.ViewState.GetCurrentMap;
-    VConverter := GState.ViewState.GetCurrentCoordConverter;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
+  VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
   if VMap.TileStorage.GetIsStoreFileCache then begin
-    VConverter.CheckPixelPosStrict(VPoint, VZoomCurr, True);
-    VPoint := VConverter.PixelPos2TilePos(VPoint, VZoomCurr);
-    s:=VMap.GetTileFileName(VPoint, VZoomCurr);
+    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(MouseCursorPos);
+    VZoomCurr := VLocalConverter.GetZoom;
+    VConverter := VLocalConverter.GetGeoConverter;
+    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+    VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+    VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
+    s := VMap.GetTileFileName(VTile, VZoomCurr);
     s := ExtractFilePath(s);
     ShellExecute(0,'open',PChar(s),nil,nil,SW_SHOWNORMAL);
   end else begin
