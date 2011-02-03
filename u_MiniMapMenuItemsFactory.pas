@@ -6,7 +6,9 @@ uses
   Classes,
   TB2Item,
   TBX,
+  i_MapTypes,
   UMapType,
+  i_IJclListenerNotifierLinksList,
   i_MapTypeIconsList,
   i_IActiveMapsConfig,
   i_IMapTypeMenuItem;
@@ -15,19 +17,16 @@ type
   TMiniMapMenuItemsFactory = class(TInterfacedObject, IMapTypeMenuItemFactory)
   private
     FRootMenu: TTBCustomItem;
-    FItemOnAdjustFont: TAdjustFontEvent;
     FIconsList: IMapTypeIconsList;
-    FMapsActive: IActiveMapWithHybrConfig;
   protected
-    function CreateSubMenuItem(AMapType: TMapType): TTBCustomItem; virtual;
-    function GetParentMenuItem(AMapType: TMapType): TTBCustomItem; virtual;
-    function CreateMenuItem(AMapType: TMapType): TTBCustomItem; virtual;
-    function CreateItem(AMap: TMapType): IMapTypeMenuItem;
+    function CreateSubMenuItem(AMapType: IMapType): TTBCustomItem; virtual;
+    function GetParentMenuItem(AMapType: IMapType): TTBCustomItem; virtual;
+    function CreateMenuItem(AMapActive: IActiveMapSingle): TTBXItem; virtual;
+  protected
+    function CreateItem(AMapActive: IActiveMapSingle): TTBCustomItem;
   public
     constructor Create(
-      AMapsActive: IActiveMapWithHybrConfig;
       ARootMenu: TTBCustomItem;
-      AItemOnAdjustFont: TAdjustFontEvent;
       AIconsList: IMapTypeIconsList);
     destructor Destroy; override;
   end;
@@ -36,73 +35,75 @@ implementation
 
 uses
   SysUtils,
+  c_ZeroGUID,
+  UResStrings,
   u_MapTypeMenuItemBasic;
 
 { TMiniMapMenuItemsFactory }
 
 constructor TMiniMapMenuItemsFactory.Create(
-  AMapsActive: IActiveMapWithHybrConfig;
   ARootMenu: TTBCustomItem;
-  AItemOnAdjustFont: TAdjustFontEvent;
   AIconsList: IMapTypeIconsList);
 begin
-  FMapsActive := AMapsActive;
   FRootMenu := ARootMenu;
-  FItemOnAdjustFont := AItemOnAdjustFont;
   FIconsList := AIconsList;
 end;
 
 function TMiniMapMenuItemsFactory.CreateItem(
-  AMap: TMapType): IMapTypeMenuItem;
+  AMapActive: IActiveMapSingle): TTBCustomItem;
 var
   VSubMenu: TTBCustomItem;
-  VMenuItem: TTBCustomItem;
+  VMenuItem: TTBXItem;
 begin
-  VSubMenu := GetParentMenuItem(AMap);
-  VMenuItem := CreateMenuItem(AMap);
+  VSubMenu := GetParentMenuItem(AMapActive.GetMapType);
+  VMenuItem := CreateMenuItem(AMapActive);
   VSubMenu.Add(VMenuItem);
-  Result := TMapTypeMenuItemBasic.Create(FMapsActive, AMap, VMenuItem);
+  Result := VMenuItem;
 end;
 
 function TMiniMapMenuItemsFactory.CreateMenuItem(
-  AMapType: TMapType): TTBCustomItem;
+  AMapActive: IActiveMapSingle): TTBXItem;
 var
-  VItem: TTBXItem;
+  VGUID: TGUID;
+  VMapType: TMapType;
 begin
-  VItem := TTBXItem.Create(FRootMenu);
-  VItem.ImageIndex := FIconsList.GetIconIndexByGUID(AMapType.GUID);
-  VItem.Caption := AMapType.name;
-  VItem.OnAdjustFont := FItemOnAdjustFont;
-  VItem.Tag := Integer(AMapType);
-  Result := VItem;
+  Result := TMiniMapTBXITem.Create(FRootMenu, AMapActive);
+  VMapType := AMapActive.GetMapType.MapType;
+  if VMapType <> nil then begin
+    VGUID := VMapType.GUID;
+    Result.Caption := VMapType.name;
+  end else begin
+    VGUID := CGUID_Zero;
+    Result.Caption := SAS_STR_MiniMapAsMainMap;
+  end;
+  Result.ImageIndex := FIconsList.GetIconIndexByGUID(VGUID);
+  Result.Tag := Integer(AMapActive);
 end;
 
 function TMiniMapMenuItemsFactory.CreateSubMenuItem(
-  AMapType: TMapType): TTBCustomItem;
+  AMapType: IMapType): TTBCustomItem;
 begin
   Result := TTBXSubmenuItem.Create(FRootMenu);
-  Result.Caption := AMapType.ParentSubMenu;
+  Result.Caption := AMapType.MapType.ParentSubMenu;
   Result.Images := FIconsList.GetImageList;
-  Result.Tag := Integer(AMapType);
 end;
 
 destructor TMiniMapMenuItemsFactory.Destroy;
 begin
-  FMapsActive := nil;
   inherited;
 end;
 
 function TMiniMapMenuItemsFactory.GetParentMenuItem(
-  AMapType: TMapType): TTBCustomItem;
+  AMapType: IMapType): TTBCustomItem;
 var
   i: Integer;
 begin
-  if AMapType.ParentSubMenu = '' then begin
+  if (AMapType.MapType = nil) or (AMapType.MapType.ParentSubMenu = '') then begin
     Result := FRootMenu;
   end else begin
     Result := nil;
     for i := 0 to FRootMenu.Count - 1 do begin
-      if SameText(FRootMenu.Items[i].Caption, AMapType.ParentSubMenu) then begin
+      if SameText(FRootMenu.Items[i].Caption, AMapType.MapType.ParentSubMenu) then begin
         Result := FRootMenu.Items[i];
       end;
     end;

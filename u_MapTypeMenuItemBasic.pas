@@ -3,8 +3,12 @@ unit u_MapTypeMenuItemBasic;
 interface
 
 uses
+  Graphics,
+  Classes,
   TB2Item,
+  TBX,
   i_JclNotify,
+  i_MapTypes,
   UMapType,
   i_IMapChangeMessage,
   i_IHybrChangeMessage,
@@ -12,147 +16,57 @@ uses
   i_IMapTypeMenuItem;
 
 type
-  TMapTypeMenuItemBasic = class(TInterfacedObject, IMapTypeMenuItem)
+  TMiniMapTBXITem = class(TTBXItem)
   private
-    FMapsActive: IActiveMapWithHybrConfig;
+    FMapActive: IActiveMapSingle;
     FListener: IJclListener;
-  private
-    FMapType: TMapType;
-    FMenuItem: TTBCustomItem;
-    function GetMapType: TMapType;
-    function GetMenuItem: TTBCustomItem;
-    procedure OnNotifyMapChange(msg: IMapChangeMessage); virtual;
-    procedure OnNotifyHybrChange(msg: IHybrChangeMessage); virtual;
-    procedure OnItemClick(Sender: TObject);
+    procedure OnMapChangeState(Sender: TObject);
+    procedure AdjustFont(Item: TTBCustomItem;
+      Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
   public
-    constructor Create(AMapsActive: IActiveMapWithHybrConfig; AMapType: TMapType; AMenuItem: TTBCustomItem);
+    constructor Create(AOwner: TComponent; AMapActive: IActiveMapSingle); reintroduce;
     destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  u_JclNotify,
-  c_ZeroGUID;
+  c_ZeroGUID,
+  u_NotifyEventListener;
 
-type
-  TMapTypeMenuItemListener = class(TJclBaseListener)
-  private
-    FOwnerItem: TMapTypeMenuItemBasic;
-  public
-    constructor Create(AOwnerItem: TMapTypeMenuItemBasic);
-  end;
+{ TMiniMapTBXITem }
 
-{ TMapTypeMenuItemListener }
-
-constructor TMapTypeMenuItemListener.Create(
-  AOwnerItem: TMapTypeMenuItemBasic);
+constructor TMiniMapTBXITem.Create(AOwner: TComponent;
+  AMapActive: IActiveMapSingle);
 begin
-  FOwnerItem := AOwnerItem;
+  inherited Create(AOwner);
+  FMapActive := AMapActive;
+  Self.OnAdjustFont := Self.AdjustFont;
+  FListener := TNotifyEventListener.Create(Self.OnMapChangeState);
+  FMapActive.GetChangeNotifier.Add(FListener);
+  OnMapChangeState(nil);
 end;
 
-type
-  TMapTypeMenuItemMapChangeListener = class(TMapTypeMenuItemListener)
-  public
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-{ TMapTypeMenuItemMapChangeListener }
-
-procedure TMapTypeMenuItemMapChangeListener.Notification(
-  msg: IJclNotificationMessage);
+destructor TMiniMapTBXITem.Destroy;
 begin
-  FOwnerItem.OnNotifyMapChange(msg as IMapChangeMessage);
-end;
-
-type
-  TMapTypeMenuItemHybrChangeListener = class(TMapTypeMenuItemListener)
-  public
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-{ TMapTypeMenuItemHybrChangeListener }
-
-procedure TMapTypeMenuItemHybrChangeListener.Notification(
-  msg: IJclNotificationMessage);
-begin
-  FOwnerItem.OnNotifyHybrChange(msg as IHybrChangeMessage);
-end;
-
-
-{ TMapTypeMenuItemBasic }
-
-constructor TMapTypeMenuItemBasic.Create(AMapsActive: IActiveMapWithHybrConfig; AMapType: TMapType; AMenuItem: TTBCustomItem);
-begin
-  FMapType := AMapType;
-  FMenuItem := AMenuItem;
-  FMapsActive := AMapsActive;
-  FMenuItem.OnClick := OnItemClick;
-  if FMapType.IsHybridLayer then begin
-    FListener := TMapTypeMenuItemHybrChangeListener.Create(Self);
-    FMapsActive.HybrChangeNotifier.Add(FListener);
-  end else begin
-    FListener := TMapTypeMenuItemMapChangeListener.Create(Self);
-    FMapsActive.MapChangeNotifier.Add(FListener);
-  end;
-end;
-
-destructor TMapTypeMenuItemBasic.Destroy;
-begin
-  FMenuItem.OnClick := nil;
-  FMapsActive.MapChangeNotifier.Remove(FListener);
-  FMapsActive.HybrChangeNotifier.Remove(FListener);
+  FMapActive.GetChangeNotifier.Remove(FListener);
   FListener := nil;
   inherited;
 end;
 
-function TMapTypeMenuItemBasic.GetMapType: TMapType;
+procedure TMiniMapTBXITem.AdjustFont(Item: TTBCustomItem; Viewer: TTBItemViewer;
+  Font: TFont; StateFlags: Integer);
 begin
-  Result := FMapType;
-end;
-
-function TMapTypeMenuItemBasic.GetMenuItem: TTBCustomItem;
-begin
-  Result := FMenuItem;
-end;
-
-procedure TMapTypeMenuItemBasic.OnItemClick(Sender: TObject);
-begin
-  if FMapType.IsHybridLayer then begin
-    if FMapsActive.IsHybrGUIDSelected(FMapType.GUID) then begin
-      FMapsActive.UnSelectHybrByGUID(FMapType.GUID);
-    end else begin
-      FMapsActive.SelectHybrByGUID(FMapType.GUID);
-    end;
+  if Item.Checked then begin
+    TTBXItem(Item).FontSettings.Bold := tsTrue;
   end else begin
-    if FMapType <> nil then begin
-      FMapsActive.SelectMapByGUID(FMapType.GUID);
-    end else begin
-      FMapsActive.SelectMapByGUID(CGUID_Zero);
-    end;
+    TTBXItem(Item).FontSettings.Bold := tsDefault;
   end;
 end;
 
-procedure TMapTypeMenuItemBasic.OnNotifyHybrChange(
-  msg: IHybrChangeMessage);
+procedure TMiniMapTBXITem.OnMapChangeState(Sender: TObject);
 begin
-  if msg.GetMap = FMapType then begin
-    if msg.GetAction = hcaSelect then begin
-      FMenuItem.Checked := True;
-    end else begin
-      FMenuItem.Checked := False;
-    end;
-  end;
-end;
-
-procedure TMapTypeMenuItemBasic.OnNotifyMapChange(msg: IMapChangeMessage);
-begin
-  if msg.GetSorurceMap = FMapType then begin
-    FMenuItem.Checked := False;
-  end;
-  if msg.GetNewMap = FMapType then begin
-    FMenuItem.Checked := True;
-  end;
+  Self.Checked := FMapActive.GetIsActive;
 end;
 
 end.

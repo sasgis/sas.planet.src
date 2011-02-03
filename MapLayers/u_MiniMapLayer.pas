@@ -25,21 +25,20 @@ uses
   i_ILocalCoordConverter,
   i_ILocalCoordConverterFactorySimpe,
   i_IViewPortState,
+  i_IMiniMapLayerConfig,
   UMapType,
   u_WindowLayerWithPos;
 
 type
   TMiniMapLayer = class(TWindowLayerFixedSizeWithBitmap)
   private
+    FConfig: IMiniMapLayerConfig;
     FParentMap: TImage32;
     FBitmapCoordConverter: ILocalCoordConverter;
     FBitmapCoordConverterFactory: ILocalCoordConverterFactorySimpe;
 
-    FMapsActive: IActiveMapWithHybrConfig;
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
-    FMasterAlpha: Integer;
-    FZoomDelta: integer;
     FPlusButton: TBitmapLayer;
     FPlusButtonPressed: Boolean;
     FMinusButton: TBitmapLayer;
@@ -52,15 +51,7 @@ type
     FPosMoved: Boolean;
     FViewRectMoveDelta: TDoublePoint;
 
-    FDefoultMap: TCustomBitmap32;
     FMiniMapSameAsMain: TTBXItem;
-    FMapsList: IMapTypeList;
-    FLayersList: IMapTypeList;
-    FMapsItemsList: IMapTypeMenuItmesList;
-    FLayersItemsList: IMapTypeMenuItmesList;
-    FMainMapChangeListener: IJclListener;
-    FMapChangeListener: IJclListener;
-    FHybrChangeListener: IJclListener;
     FBottomMargin: Integer;
 
 
@@ -91,11 +82,9 @@ type
     procedure AdjustFont(Item: TTBCustomItem;
       Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
     procedure SameAsMainClick(Sender: TObject);
-    procedure OnNotifyMapChange(msg: IMapChangeMessage); virtual;
-    procedure OnNotifyHybrChange(msg: IHybrChangeMessage); virtual;
-    procedure OnNotifyMainMapChange(msg: IMapChangeMessage); virtual;
-    procedure SetMasterAlpha(value:integer);
-    procedure BuildMapsLists;
+    procedure OnClickMapItem(Sender: TObject);
+    procedure OnClickLayerItem(Sender: TObject);
+    procedure OnMapChangeState(Sender: TObject);
     function BuildBitmapCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
@@ -106,13 +95,9 @@ type
     procedure DoUpdateLayerSize(ANewSize: TPoint); override;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig);
     destructor Destroy; override;
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
-    property MasterAlpha: integer read FMasterAlpha write SetMasterAlpha;
-    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation
@@ -138,110 +123,34 @@ uses
   u_MapsConfigByConfigDataProvider,
   u_MiniMapMenuItemsFactory;
 
-type
-  TMiniMapListener = class(TJclBaseListener)
-  private
-    FOwnerItem: TMiniMapLayer;
-  public
-    constructor Create(AOwnerItem: TMiniMapLayer);
-  end;
-
-{ TMiniMapListener }
-
-constructor TMiniMapListener.Create(
-  AOwnerItem: TMiniMapLayer);
-begin
-  FOwnerItem := AOwnerItem;
-end;
-
-type
-  TMiniMapMapChangeListener = class(TMiniMapListener)
-  public
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-{ TMiniMapMapChangeListener }
-
-procedure TMiniMapMapChangeListener.Notification(
-  msg: IJclNotificationMessage);
-begin
-  FOwnerItem.OnNotifyMapChange(msg as IMapChangeMessage);
-end;
-
-type
-  TMiniMapHybrChangeListener = class(TMiniMapListener)
-  public
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-{ TMiniMapHybrChangeListener }
-
-procedure TMiniMapHybrChangeListener.Notification(
-  msg: IJclNotificationMessage);
-begin
-  FOwnerItem.OnNotifyHybrChange(msg as IHybrChangeMessage);
-end;
-
-type
-  TMiniMapMainMapChangeListener = class(TMiniMapListener)
-  public
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-{ TMiniMapMainMapChangeListener }
-
-procedure TMiniMapMainMapChangeListener.Notification(
-  msg: IJclNotificationMessage);
-begin
-  FOwnerItem.OnNotifyMainMapChange(msg as IMapChangeMessage);
-end;
-
 { TMapMainLayer }
 
-constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig);
 var
   VWidth: Integer;
 begin
-  inherited;
+  inherited Create(AParentMap, AViewPortState);
+  FConfig := AConfig;
   FBitmapCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
   FParentMap := AParentMap;
   FIconsList := GState.MapTypeIcons18List;
 
   FViewRectMoveDelta := DoublePoint(0, 0);
 
-  BuildMapsLists;
-
-  FMapsActive := TActiveMapWithHybrConfig.Create(True, FMapsList, FLayersList);
-
-  FZoomDelta := 4;
-
   FPopup := TTBXPopupMenu.Create(AParentMap);
   FPopup.Name := 'PopupMiniMap';
   FPopup.Images := FIconsList.GetImageList;
 
   CreateLayers(AParentMap);
-  MasterAlpha := 150;
 
   LoadBitmaps;
   BuildPopUpMenu;
-  VWidth := 100;
+  VWidth := FConfig.Width;
   DoUpdateLayerSize(Point(VWidth, VWidth));
 end;
 
 destructor TMiniMapLayer.Destroy;
 begin
-  FreeAndNil(FDefoultMap);
-  FMapsActive.MapChangeNotifier.Remove(FMapChangeListener);
-  FMapsActive.HybrChangeNotifier.Remove(FHybrChangeListener);
-//  FViewPortState.MapChangeNotifier.Remove(FMainMapChangeListener);
-  FMapChangeListener := nil;
-  FHybrChangeListener := nil;
-  FMainMapChangeListener := nil;
-  FMapsItemsList := nil;
-  FLayersItemsList := nil;
-  FMapsList := nil;
-  FLayersList := nil;
-  FMapsActive := nil;
   FBitmapCoordConverterFactory := nil;
   inherited;
 end;
@@ -276,41 +185,6 @@ begin
     DoublePoint(1, 1),
     VLocalTopLeftAtMap
   );
-end;
-
-procedure TMiniMapLayer.BuildMapsLists;
-var
-  VSourceList: IMapTypeList;
-  VList: TMapTypeList;
-  VGUID: TGUID;
-  VEnum: IEnumGUID;
-  i: Cardinal;
-  VMapType: IMapType;
-  VMap: TMapType;
-begin
-  VList := TMapTypeList.Create(True);
-  FMapsList := VList;
-  VSourceList := GState.MapType.MapsList;
-  VEnum := VSourceList.GetIterator;
-  while VEnum.Next(1, VGUID, i) = S_OK do begin
-    VMapType := VSourceList.GetMapTypeByGUID(VGUID);
-    VMap := VMapType.MapType;
-    if VMap.IsBitmapTiles and VMap.IsCanShowOnSmMap then begin
-      VList.Add(VMapType);
-    end;
-  end;
-
-  VList := TMapTypeList.Create(False);
-  FLayersList := VList;
-  VSourceList := GState.MapType.LayersList;
-  VEnum := VSourceList.GetIterator;
-  while VEnum.Next(1, VGUID, i) = S_OK do begin
-    VMapType := VSourceList.GetMapTypeByGUID(VGUID);
-    VMap := VMapType.MapType;
-    if VMap.IsBitmapTiles and VMap.IsCanShowOnSmMap then begin
-      VList.Add(VMapType);
-    end;
-  end;
 end;
 
 procedure TMiniMapLayer.CreateLayers(AParentMap: TImage32);
@@ -364,39 +238,10 @@ end;
 
 procedure TMiniMapLayer.LoadBitmaps;
 begin
-  FDefoultMap := TCustomBitmap32.Create;
-  GState.LoadBitmapFromRes('MAINMAP', FDefoultMap);
   GState.LoadBitmapFromRes('ICONI', FPlusButton.Bitmap);
   FPlusButton.Bitmap.DrawMode := dmTransparent;
   GState.LoadBitmapFromRes('ICONII', FMinusButton.Bitmap);
   FMinusButton.Bitmap.DrawMode := dmTransparent;
-end;
-
-procedure TMiniMapLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
-var
-  VConfigProvider: IConfigDataProvider;
-  VMapConfigLoader: IActiveMapsConfigLoader;
-  VBitmapSize: TPoint;
-begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetSubItem('MINIMAP');
-  if VConfigProvider <> nil then begin
-    VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-    VBitmapSize.X := VConfigProvider.ReadInteger('Width', VBitmapSize.X);
-    VBitmapSize.Y := VConfigProvider.ReadInteger('Height', VBitmapSize.Y);
-    FZoomDelta := VConfigProvider.ReadInteger('ZoomDelta', FZoomDelta);
-    MasterAlpha := VConfigProvider.ReadInteger('Alpha', 150);
-    VMapConfigLoader := TMapsConfigLoaderByConfigDataProvider.Create(VConfigProvider.GetSubItem('Maps'));
-    try
-      VMapConfigLoader.Load(FMapsActive);
-    finally
-      VMapConfigLoader := nil;
-    end;
-    DoUpdateLayerSize(VBitmapSize);
-    Visible := VConfigProvider.ReadBool('Visible', True);
-  end else begin
-    Visible := True;
-  end;
 end;
 
 procedure TMiniMapLayer.BuildPopUpMenu;
@@ -430,30 +275,26 @@ procedure TMiniMapLayer.BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustom
 var
   VGenerator: TMapMenuGeneratorBasic;
 begin
-  VGenerator := TMapMenuGeneratorBasic.Create;
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.MapsConfig.GetActiveMap.GetMapsList,
+    AMapssSubMenu,
+    TMiniMapMenuItemsFactory.Create(AMapssSubMenu, FIconsList)
+  );
   try
-    VGenerator.List := FMapsList;
-    VGenerator.RootMenu := AMapssSubMenu;
-    VGenerator.ItemsFactory := TMiniMapMenuItemsFactory.Create(FMapsActive, AMapssSubMenu, AdjustFont, FIconsList);
-    FMapsItemsList := VGenerator.BuildControls;
+    VGenerator.BuildControls;
   finally
     FreeAndNil(VGenerator);
   end;
-  VGenerator := TMapMenuGeneratorBasic.Create;
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.MapsConfig.GetActiveMap.GetMapsList,
+    ALayersSubMenu,
+    TMiniMapMenuItemsFactory.Create(ALayersSubMenu, FIconsList)
+  );
   try
-    VGenerator.List := FLayersList;
-    VGenerator.RootMenu := ALayersSubMenu;
-    VGenerator.ItemsFactory := TMiniMapMenuItemsFactory.Create(FMapsActive, ALayersSubMenu, AdjustFont, FIconsList);
-    FLayersItemsList := VGenerator.BuildControls;
+   VGenerator.BuildControls;
   finally
     FreeAndNil(VGenerator);
   end;
-  FMapChangeListener := TMiniMapMapChangeListener.Create(Self);
-  FMapsActive.MapChangeNotifier.Add(FMapChangeListener);
-  FHybrChangeListener := TMiniMapHybrChangeListener.Create(Self);
-  FMapsActive.HybrChangeNotifier.Add(FHybrChangeListener);
-//  FMainMapChangeListener := TMiniMapMainMapChangeListener.Create(Self);
-//  FViewPortState.MapChangeNotifier.Add(FMainMapChangeListener);
 end;
 
 procedure TMiniMapLayer.AdjustFont(Item: TTBCustomItem;
@@ -469,35 +310,14 @@ end;
 procedure TMiniMapLayer.SameAsMainClick(Sender: TObject);
 begin
   Assert(Sender is TTBXItem, 'Глюки однако. Этот обработчик не предназначен для этого контрола');
-  FMapsActive.SelectMapByGUID(CGUID_Zero);
-end;
-
-
-procedure TMiniMapLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
-var
-  VConfigProvider: IConfigDataWriteProvider;
-  VMapConfigSaver: IActiveMapsConfigSaver;
-begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetOrCreateSubItem('MINIMAP');
-  VConfigProvider.WriteInteger('Width', FLayer.Bitmap.Width);
-  VConfigProvider.WriteInteger('Height', FLayer.Bitmap.Height);
-  VConfigProvider.WriteInteger('ZoomDelta', FZoomDelta);
-  VConfigProvider.WriteInteger('Alpha', MasterAlpha);
-  VConfigProvider.WriteBool('Visible', Visible);
-
-  VMapConfigSaver := TMapsConfigSaverByConfigDataProvider.Create(VConfigProvider.GetOrCreateSubItem('Maps'));
-  try
-    VMapConfigSaver.Save(FMapsActive);
-  finally
-    VMapConfigSaver := nil;
-  end;
+  FConfig.MapsConfig.SelectMainByGUID(CGUID_Zero);
 end;
 
 procedure TMiniMapLayer.DoRedraw;
 var
   i: Cardinal;
   VMapType: TMapType;
+  VActiveMaps: IMapTypeList;
   VGUID: TGUID;
   VItem: IMapType;
   VEnum: IEnumGUID;
@@ -505,22 +325,15 @@ begin
   inherited;
   FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
   FLayer.Bitmap.Clear(Color32(GState.BGround));
-  VGUID := FMapsActive.SelectedMapGUID;
-  if IsEqualGUID(VGUID, CGUID_Zero) then begin
-//    VMapType := FViewPortState.GetCurrentMap;
-  end else begin
-    VItem := FMapsActive.MapsList.GetMapTypeByGUID(VGUID);
-    VMapType := VItem.MapType;
-  end;
+  VMapType := FConfig.GetActiveMiniMap.MapType;
+  VActiveMaps := FConfig.MapsConfig.GetLayers.GetSelectedMapsList;
 
   DrawMap(VMapType, dmOpaque);
-  VEnum := FLayersList.GetIterator;
+  VEnum := VActiveMaps.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
-    if FMapsActive.IsHybrGUIDSelected(VGUID) then begin
-      VItem := FLayersList.GetMapTypeByGUID(VGUID);
-      VMapType := VItem.GetMapType;
-      DrawMap(VMapType, dmBlend);
-    end;
+    VItem := VActiveMaps.GetMapTypeByGUID(VGUID);
+    VMapType := VItem.GetMapType;
+    DrawMap(VMapType, dmBlend);
   end;
   DrawMainViewRect;
 end;

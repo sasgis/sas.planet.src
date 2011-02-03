@@ -6,6 +6,7 @@ uses
   Classes,
   TB2Item,
   i_MapTypes,
+  i_IActiveMapsConfig,
   i_IMapTypeMenuItem,
   i_IMapTypeMenuItmesList,
   u_MapTypeMenuItmesList,
@@ -17,13 +18,12 @@ type
     FList: IMapTypeList;
     FRootMenu: TTBCustomItem;
     FItemsFactory: IMapTypeMenuItemFactory;
+    FMapsSet: IActiveMapsSet;
     procedure ClearLists; virtual;
-    procedure ProcessSubItemsCreate(AList: TMapTypeMenuItmesList); virtual;
+    procedure ProcessSubItemsCreate; virtual;
   public
-    function BuildControls: IMapTypeMenuItmesList;
-    property List: IMapTypeList read FList write FList;
-    property RootMenu: TTBCustomItem read FRootMenu write FRootMenu;
-    property ItemsFactory: IMapTypeMenuItemFactory read FItemsFactory write FItemsFactory;
+    constructor Create(AList: IMapTypeList; ARootMenu: TTBCustomItem; AItemsFactory: IMapTypeMenuItemFactory);
+    procedure BuildControls;
   end;
 
 implementation
@@ -34,14 +34,12 @@ uses
 
 { TMapMenuGeneratorBasic }
 
-function TMapMenuGeneratorBasic.BuildControls: IMapTypeMenuItmesList;
-var
-  VList: TMapTypeMenuItmesList;
+procedure TMapMenuGeneratorBasic.BuildControls;
 begin
-  VList := TMapTypeMenuItmesList.Create;
-  Result := VList;
+//  VList := TMapTypeMenuItmesList.Create;
+//  Result := VList;
   ClearLists;
-  ProcessSubItemsCreate(VList);
+  ProcessSubItemsCreate;
 end;
 
 procedure TMapMenuGeneratorBasic.ClearLists;
@@ -55,17 +53,27 @@ begin
   end;
 end;
 
-procedure TMapMenuGeneratorBasic.ProcessSubItemsCreate(AList: TMapTypeMenuItmesList);
+constructor TMapMenuGeneratorBasic.Create(AList: IMapTypeList;
+  ARootMenu: TTBCustomItem; AItemsFactory: IMapTypeMenuItemFactory);
+begin
+  FList := AList;
+  FRootMenu := ARootMenu;
+  FItemsFactory := AItemsFactory;
+end;
+
+procedure TMapMenuGeneratorBasic.ProcessSubItemsCreate;
 var
   i: Integer;
   VMapType: TMapType;
   VGUID: TGUID;
+  VMap: IActiveMapSingle;
 begin
   for i := 0 to GState.MapType.Count - 1 do begin
     VMapType := GState.MapType[i];
     VGUID := VMapType.GUID;
-    if FList.GetMapTypeByGUID(VGUID) <> nil then begin
-      AList.Add(FItemsFactory.CreateItem(VMapType));
+    VMap := FMapsSet.GetMapSingle(VGUID);
+    if VMap <> nil then begin
+//      AList.Add(FItemsFactory.CreateItem(VMap));
     end;
   end;
 end;

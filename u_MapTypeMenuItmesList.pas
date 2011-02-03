@@ -8,17 +8,17 @@ uses
   i_IMapTypeMenuItem,
   i_IMapTypeMenuItmesList;
 
-type
-  TMapTypeMenuItmesList = class(TInterfacedObject, IMapTypeMenuItmesList)
-  private
-    FList: IGUIDInterfaceList;
-    function GetMapTypeItemByGUID(AGUID: TGUID): IMapTypeMenuItem;
-    function GetIterator: IEnumGUID;
-  public
-    procedure Add(AMapItem: IMapTypeMenuItem);
-    constructor Create;
-    destructor Destroy; override;
-  end;
+//type
+//  TMapTypeMenuItmesList = class(TInterfacedObject, IMapTypeMenuItmesList)
+//  private
+//    FList: IGUIDInterfaceList;
+////    function GetMapTypeItemByGUID(AGUID: TGUID): IMapTypeMenuItem;
+//    function GetIterator: IEnumGUID;
+//  public
+////    procedure Add(AMapItem: IMapTypeMenuItem);
+//    constructor Create;
+//    destructor Destroy; override;
+//  end;
 
 
 implementation
@@ -28,30 +28,30 @@ uses
 
 { TMapTypeMenuItmesList }
 
-procedure TMapTypeMenuItmesList.Add(AMapItem: IMapTypeMenuItem);
-begin
-  FList.Add(AMapItem.GetMapType.GUID, AMapItem);
-end;
+//procedure TMapTypeMenuItmesList.Add(AMapItem: IMapTypeMenuItem);
+//begin
+//  FList.Add(AMapItem.GetMapType.MapType.GUID, AMapItem);
+//end;
 
-constructor TMapTypeMenuItmesList.Create;
-begin
-  FList := TGUIDInterfaceList.Create(False);
-end;
-
-destructor TMapTypeMenuItmesList.Destroy;
-begin
-  FList := nil;
-  inherited;
-end;
-
-function TMapTypeMenuItmesList.GetIterator: IEnumGUID;
-begin
-  Result := FList.GetGUIDEnum;
-end;
-
-function TMapTypeMenuItmesList.GetMapTypeItemByGUID(AGUID: TGUID): IMapTypeMenuItem;
-begin
-  Result := Flist.GetByGUID(AGUID) as IMapTypeMenuItem;
-end;
+//constructor TMapTypeMenuItmesList.Create;
+//begin
+//  FList := TGUIDInterfaceList.Create(False);
+//end;
+//
+//destructor TMapTypeMenuItmesList.Destroy;
+//begin
+//  FList := nil;
+//  inherited;
+//end;
+//
+//function TMapTypeMenuItmesList.GetIterator: IEnumGUID;
+//begin
+//  Result := FList.GetGUIDEnum;
+//end;
+//
+//function TMapTypeMenuItmesList.GetMapTypeItemByGUID(AGUID: TGUID): IMapTypeMenuItem;
+//begin
+//  Result := Flist.GetByGUID(AGUID) as IMapTypeMenuItem;
+//end;
 
 end.

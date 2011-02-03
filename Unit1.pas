@@ -864,7 +864,7 @@ begin
     FLayersList.Add(FLayerScaleLine);
     FLayerStatBar:=TLayerStatBar.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.StatBar);
     FLayersList.Add(FLayerStatBar);
-    FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState);
+    FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MiniMapLayerConfig);
     FLayersList.Add(FLayerMiniMap);
 
     FMainLayer.ErrorShowLayer := FShowErrorLayer;
