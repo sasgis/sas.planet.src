@@ -3418,18 +3418,15 @@ var
   param:string;
   VZoomCurr: Byte;
   VMap: TMapType;
+  VLocalConverter: ILocalCoordConverter;
 begin
   if SaveLink.Execute then begin
-    GState.ViewState.LockRead;
-    try
-      VZoomCurr := GState.ViewState.GetCurrentZoom;
-      VLonLat := GState.ViewState.GetCenterLonLat;
-      VMap := GState.ViewState.GetCurrentMap;
-    finally
-      GState.ViewState.UnLockRead;
-    end;
-    param:=' '+VMap.GUIDString+' '+inttostr(VZoomCurr + 1)+' '+floattostr(VLonLat.x)+' '+floattostr(VLonLat.y);
-    CreateLink(ParamStr(0),SaveLink.filename, '', param)
+    VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VZoomCurr := VLocalConverter.GetZoom;
+    VLonLat := VLocalConverter.GetCenterLonLat;
+    param:=' '+VMap.GUIDString+' '+IntToStr(VZoomCurr + 1)+' '+FloatToStr(VLonLat.x)+' '+FloatToStr(VLonLat.y);
+    CreateLink(ParamStr(0), SaveLink.filename, '', param)
   end;
 end;
 
@@ -3549,12 +3546,14 @@ var
   i:Integer;
   VMapType: TMapType;
   VLayerIsActive: Boolean;
+  VActiveLayersList: IMapTypeList;
 begin
   NLayerParams.Visible:=false;
+  VActiveLayersList := FConfig.MainMapsConfig.GetLayers.GetSelectedMapsList;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
-      VLayerIsActive := GState.ViewState.IsHybrGUIDSelected(VMapType.GUID);
+      VLayerIsActive := VActiveLayersList.GetMapTypeByGUID(VMapType.GUID) <> nil;
       TTBXItem(FNLayerParamsItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
         NLayerParams.Visible:=true;
@@ -3587,7 +3586,7 @@ begin
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
-    FMarkDBGUI.ShowMarkLength(VId, GState.ViewState.GetCurrentCoordConverter, Self.Handle);
+    FMarkDBGUI.ShowMarkLength(VId, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
 end;
 
@@ -3601,7 +3600,7 @@ begin
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
-    FMarkDBGUI.ShowMarkSq(VId, GState.ViewState.GetCurrentCoordConverter, Self.Handle);
+    FMarkDBGUI.ShowMarkSq(VId, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
 end;
 
@@ -3615,7 +3614,7 @@ begin
   FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
   if VPWL.find then begin
     VId := strtoint(VPWL.numid);
-    FMarkDBGUI.ShowMarkLength(VId, GState.ViewState.GetCurrentCoordConverter, Self.Handle);
+    FMarkDBGUI.ShowMarkLength(VId, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
 end;
 
@@ -3623,7 +3622,7 @@ procedure TFmain.TBEditPathOkClick(Sender: TObject);
 begin
   case FCurrentOper of
    ao_select_poly: begin
-         Fsaveas.Show_(GState.ViewState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
+         Fsaveas.Show_(FConfig.ViewPortState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
          setalloperationfalse(ao_movemap);
         end;
   end;
@@ -3641,8 +3640,8 @@ procedure TFmain.NMapInfoClick(Sender: TObject);
 var
   VMap: TMapType;
 begin
- VMap := GState.ViewState.GetCurrentMap;
- ShowMessageFmt(SAS_MSG_MapInfoShow,[VMap.zmpfilename, VMap.MapInfo]);
+  VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  ShowMessageFmt(SAS_MSG_MapInfoShow,[VMap.zmpfilename, VMap.MapInfo]);
 end;
 
 procedure TFmain.NanimateClick(Sender: TObject);
@@ -3712,7 +3711,7 @@ var
 begin
  PosFromGSM:=TPosFromGPS.Create(Self.topos);
  try
-   PosFromGSM.GetPos;
+   PosFromGSM.GetPos(FConfig.ViewPortState.GetCurrentZoom);
  finally
    PosFromGSM.Free;
  end;
@@ -3734,7 +3733,7 @@ begin
         VLog := TLogForTaskThread.Create(5000, 0);
         VSimpleLog := VLog;
         VThreadLog := VLog;
-        VThread := TThreadDownloadTiles.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess);
+        VThread := TThreadDownloadTiles.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess, FConfig.ViewPortState.GetCurrentZoom);
         TFProgress.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
       end else if ExtractFileExt(OpenSessionDialog.FileName)='.hlg' then begin
         Fsaveas.LoadSelFromFile(OpenSessionDialog.FileName);
@@ -3821,10 +3820,12 @@ procedure TFmain.TBXSearchEditAcceptText(Sender: TObject;
 var
   VItem: IGeoCoderListEntity;
   VResult: IGeoCodeResult;
+  VLocalConverter: ILocalCoordConverter;
 begin
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
-  VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
-  FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
+  VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), VLocalConverter.GetCenterLonLat);
+  FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
 end;
 
 procedure TFmain.tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
@@ -3832,13 +3833,15 @@ var
   VResult: IGeoCodeResult;
   VToolbarItem: TTBCustomItem;
   VItem: IGeoCoderListEntity;
+  VLocalConverter: ILocalCoordConverter;
 begin
   if Sender is TTBCustomItem then begin
     VToolbarItem := TTBCustomItem(Sender);
     VItem := IGeoCoderListEntity(VToolbarItem.Tag);
     if VItem <> nil then begin
-      VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), GState.ViewState.GetCenterLonLat);
-      FSearchPresenter.ShowSearchResults(VResult, GState.ViewState.GetCurrentZoom);
+      VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+      VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), VLocalConverter.GetCenterLonLat);
+      FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
     end;
   end;
 end;
@@ -3846,19 +3849,30 @@ end;
 procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
 var
   VResult: IGeoCodeResult;
+  VLocalConverter: ILocalCoordConverter;
   VZoom: Byte;
 begin
-  VZoom := GState.ViewState.GetCurrentZoom;
-  if frmGoTo.ShowGeocodeModal(VResult, VZoom, FMarkDBGUI) then begin
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VZoom := VLocalConverter.GetZoom;
+  if frmGoTo.ShowGeocodeModal(VLocalConverter.GetCenterLonLat, VResult, VZoom, FMarkDBGUI) then begin
     FSearchPresenter.ShowSearchResults(VResult, VZoom);
   end;
 end;
 
 procedure TFmain.NSRTM3Click(Sender: TObject);
 var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   Fbrowser.TextToWebBrowser(SAS_STR_WiteLoad);
   Fbrowser.Visible := true;
   Fbrowser.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
@@ -3866,9 +3880,18 @@ end;
 
 procedure TFmain.NGTOPO30Click(Sender: TObject);
 var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLonLat := GState.ViewState.VisiblePixel2LonLat(FMouseDownPoint);
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   Fbrowser.TextToWebBrowser(SAS_STR_WiteLoad);
   Fbrowser.Visible:=true;
   Fbrowser.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
@@ -3876,86 +3899,101 @@ end;
 
 procedure TFmain.Google1Click(Sender: TObject);
 var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
-  VZoomCurr: Byte;
 begin
-  GState.ViewState.LockRead;
-  try
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VLonLat := GState.ViewState.GetCenterLonLat;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(VLonLat.y)+','+R2StrPoint(VLonLat.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(VZoomCurr));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(VLonLat.y)+','+R2StrPoint(VLonLat.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(VZoom));
 end;
 
 procedure TFmain.YaLinkClick(Sender: TObject);
 var
-  Vpos:TDoublePoint;
-  VExtRect: TDoubleRect;
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat:TDoublePoint;
+  VMapRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
 begin
-  GState.ViewState.LockRead;
-  try
-    Vpos := GState.ViewState.GetCenterLonLat;
-    VExtRect := GState.ViewState.GetViewLonLatRect;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  VMapRect := VLocalConverter.GetRectInMapPixelFloat;
+  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   CopyStringToClipboard(
     'http://beta-maps.yandex.ru/?ll='+
-    R2StrPoint(round(Vpos.x*100000)/100000)+'%2C'+
-    R2StrPoint(round(Vpos.y*100000)/100000)+
-    '&spn='+R2StrPoint(abs(VExtRect.Left-VExtRect.Right))+'%2C'+
-    R2StrPoint(abs(VExtRect.Top-VExtRect.Bottom))+'&l=sat'
+    R2StrPoint(round(VLonLat.x*100000)/100000)+'%2C'+
+    R2StrPoint(round(VLonLat.y*100000)/100000)+
+    '&spn='+R2StrPoint(abs(VLonLatRect.Left-VLonLatRect.Right))+'%2C'+
+    R2StrPoint(abs(VLonLatRect.Top-VLonLatRect.Bottom))+'&l=sat'
   );
 end;
 
 procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
 var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
-  VZoomCurr: Byte;
 begin
-  GState.ViewState.LockRead;
-  try
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VLonLat := GState.ViewState.GetCenterLonLat;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(VLonLat.x)+'&y='+R2StrPoint(VLonLat.y)+'&z='+inttostr(VZoomCurr)+'&fullscreen=false&mode=satellite');
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(VLonLat.x)+'&y='+R2StrPoint(VLonLat.y)+'&z='+inttostr(VZoom)+'&fullscreen=false&mode=satellite');
 end;
 
 procedure TFmain.livecom1Click(Sender: TObject);
 var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
-  VZoomCurr: Byte;
 begin
-  GState.ViewState.LockRead;
-  try
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VLonLat := GState.ViewState.GetCenterLonLat;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
-  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoomCurr));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoom));
 end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
 var
-  VLonLat: TDoublePoint;
-  VZoomCurr: Byte;
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat:TDoublePoint;
 begin
-  GState.ViewState.LockRead;
-  try
-    VZoomCurr := GState.ViewState.GetCurrentZoom;
-    VLonLat:=GState.ViewState.GetCenterLonLat;
-  finally
-    GState.ViewState.UnLockRead;
-  end;
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
     'http://imageatlas.digitalglobe.com/ia-webapp/?lat='+
     R2StrPoint(VLonLat.y)+'&lon='+R2StrPoint(VLonLat.x)+
-    '&zoom='+inttostr(VZoomCurr)
+    '&zoom='+inttostr(VZoom)
   );
 end;
 
