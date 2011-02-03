@@ -138,7 +138,7 @@ begin
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;
     VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-    VMap := GState.ViewState.GetCurrentMap;
+    VMap := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
     VMap.GeoConvert.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
