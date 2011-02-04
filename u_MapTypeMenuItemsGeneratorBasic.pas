@@ -5,8 +5,10 @@ interface
 uses
   Classes,
   TB2Item,
+  TBX,
   i_MapTypes,
   i_IActiveMapsConfig,
+  i_MapTypeIconsList,
   i_IMapTypeMenuItem,
   i_IMapTypeMenuItmesList,
   u_MapTypeMenuItmesList,
@@ -14,15 +16,25 @@ uses
 
 type
   TMapMenuGeneratorBasic = class
-  protected
+  private
+    FIconsList: IMapTypeIconsList;
     FList: IMapTypeList;
     FRootMenu: TTBCustomItem;
-    FItemsFactory: IMapTypeMenuItemFactory;
     FMapsSet: IActiveMapsSet;
+    FOnClick: TNotifyEvent;
     procedure ClearLists; virtual;
     procedure ProcessSubItemsCreate; virtual;
+    procedure ProcessSubItemGUID(AGUID: TGUID); virtual;
+    function CreateSubMenuItem(AName: string): TTBCustomItem; virtual;
+    function GetParentMenuItem(AName: string): TTBCustomItem; virtual;
+    function CreateMenuItem(AMapActive: IActiveMapSingle): TTBXCustomItem; virtual;
   public
-    constructor Create(AList: IMapTypeList; ARootMenu: TTBCustomItem; AItemsFactory: IMapTypeMenuItemFactory);
+    constructor Create(
+      AList: IMapTypeList;
+      ARootMenu: TTBCustomItem;
+      AOnClick: TNotifyEvent;
+      AIconsList: IMapTypeIconsList
+    );
     procedure BuildControls;
   end;
 
@@ -30,14 +42,80 @@ implementation
 
 uses
   SysUtils,
+  c_ZeroGUID,
+  u_MapTypeMenuItemBasic,
+  UResStrings,
   u_GlobalState;
 
 { TMapMenuGeneratorBasic }
 
+constructor TMapMenuGeneratorBasic.Create(
+  AList: IMapTypeList;
+  ARootMenu: TTBCustomItem;
+  AOnClick: TNotifyEvent;
+  AIconsList: IMapTypeIconsList
+);
+begin
+  FList := AList;
+  FRootMenu := ARootMenu;
+  FIconsList := AIconsList;
+  FOnClick := AOnClick;
+end;
+
+function TMapMenuGeneratorBasic.CreateMenuItem(
+  AMapActive: IActiveMapSingle): TTBXCustomItem;
+var
+  VGUID: TGUID;
+  VMapType: TMapType;
+begin
+  Result := TMiniMapTBXITem.Create(FRootMenu, AMapActive);
+  VMapType := nil;
+  if AMapActive.GetMapType <> nil then begin
+    VMapType := AMapActive.GetMapType.MapType;
+  end;
+  if VMapType <> nil then begin
+    VGUID := VMapType.GUID;
+    Result.Caption := VMapType.name;
+  end else begin
+    VGUID := CGUID_Zero;
+    Result.Caption := SAS_STR_MiniMapAsMainMap;
+  end;
+  Result.ImageIndex := FIconsList.GetIconIndexByGUID(VGUID);
+  Result.Tag := Integer(AMapActive);
+  Result.OnClick := FOnClick;
+end;
+
+function TMapMenuGeneratorBasic.CreateSubMenuItem(
+  AName: string): TTBCustomItem;
+begin
+  Result := TTBXSubmenuItem.Create(FRootMenu);
+  Result.Caption := AName;
+  Result.Images := FIconsList.GetImageList;
+end;
+
+function TMapMenuGeneratorBasic.GetParentMenuItem(
+  AName: string): TTBCustomItem;
+var
+  i: Integer;
+begin
+  if (AName = '') then begin
+    Result := FRootMenu;
+  end else begin
+    Result := nil;
+    for i := 0 to FRootMenu.Count - 1 do begin
+      if SameText(FRootMenu.Items[i].Caption, AName) then begin
+        Result := FRootMenu.Items[i];
+      end;
+    end;
+    if Result = nil then begin
+      Result := CreateSubMenuItem(AName);
+      FRootMenu.Add(Result);
+    end;
+  end;
+end;
+
 procedure TMapMenuGeneratorBasic.BuildControls;
 begin
-//  VList := TMapTypeMenuItmesList.Create;
-//  Result := VList;
   ClearLists;
   ProcessSubItemsCreate;
 end;
@@ -53,28 +131,33 @@ begin
   end;
 end;
 
-constructor TMapMenuGeneratorBasic.Create(AList: IMapTypeList;
-  ARootMenu: TTBCustomItem; AItemsFactory: IMapTypeMenuItemFactory);
+procedure TMapMenuGeneratorBasic.ProcessSubItemGUID(AGUID: TGUID);
+var
+  VActiveMap: IActiveMapSingle;
+  VSubMenu: TTBCustomItem;
+  VMenuItem: TTBXCustomItem;
+  VSubMenuName: string;
 begin
-  FList := AList;
-  FRootMenu := ARootMenu;
-  FItemsFactory := AItemsFactory;
+  VActiveMap := FMapsSet.GetMapSingle(AGUID);
+  if VActiveMap <> nil then begin
+    VSubMenuName := '';
+    if VActiveMap.GetMapType <> nil then begin
+      VSubMenuName := VActiveMap.GetMapType.MapType.ParentSubMenu;
+    end;
+    VSubMenu := GetParentMenuItem(VSubMenuName);
+    Assert(VSubMenu <> nil);
+    VMenuItem := CreateMenuItem(VActiveMap);
+    VSubMenu.Add(VMenuItem);
+  end;
 end;
 
 procedure TMapMenuGeneratorBasic.ProcessSubItemsCreate;
 var
   i: Integer;
-  VMapType: TMapType;
-  VGUID: TGUID;
-  VMap: IActiveMapSingle;
 begin
+  ProcessSubItemGUID(CGUID_Zero);
   for i := 0 to GState.MapType.Count - 1 do begin
-    VMapType := GState.MapType[i];
-    VGUID := VMapType.GUID;
-    VMap := FMapsSet.GetMapSingle(VGUID);
-    if VMap <> nil then begin
-//      AList.Add(FItemsFactory.CreateItem(VMap));
-    end;
+    ProcessSubItemGUID(GState.MapType[i].GUID);
   end;
 end;
 

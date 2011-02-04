@@ -3,6 +3,7 @@ unit u_MainFormLayersConfig;
 interface
 
 uses
+  i_IActiveMapsConfig,
   i_MapLayerGridsConfig,
   i_IStatBarConfig,
   i_IMapLayerGPSMarkerConfig,
@@ -35,7 +36,7 @@ type
     function GetKmlLayerConfig: IKmlLayerConfig;
     function GetMiniMapLayerConfig: IMiniMapLayerConfig;
   public
-    constructor Create;
+    constructor Create(AMapsConfig: IMainMapsConfig);
   end;
 
 implementation
@@ -54,9 +55,9 @@ uses
 
 { TMainFormLayersConfig }
 
-constructor TMainFormLayersConfig.Create;
+constructor TMainFormLayersConfig.Create(AMapsConfig: IMainMapsConfig);
 begin
-  inherited;
+  inherited Create;
   FMapLayerGridsConfig := TMapLayerGridsConfig.Create;
   Add(FMapLayerGridsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FStatBar := TStatBarConfig.Create;
@@ -71,8 +72,8 @@ begin
   Add(FMarksShowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
   FKmlLayerConfig := TKmlLayerConfig.Create;
   Add(FKmlLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('WikiLayer'));
-//  FMiniMapLayerConfig := TMiniMapLayerConfig.Create();
-//  Add(FMiniMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MiniMap'));
+  FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AMapsConfig);
+  Add(FMiniMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MiniMap'));
 end;
 
 function TMainFormLayersConfig.GetGPSMarker: IMapLayerGPSMarkerConfig;

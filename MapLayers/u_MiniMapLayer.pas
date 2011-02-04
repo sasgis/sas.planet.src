@@ -79,7 +79,6 @@ type
     procedure CreateLayers(AParentMap: TImage32);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
-    procedure OnMapChangeState(Sender: TObject);
     function BuildBitmapCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
     procedure OnConfigChange(Sender: TObject);
   protected
@@ -255,7 +254,8 @@ begin
   VGenerator := TMapMenuGeneratorBasic.Create(
     FConfig.MapsConfig.GetActiveMap.GetMapsList,
     AMapssSubMenu,
-    TMiniMapMenuItemsFactory.Create(AMapssSubMenu, FIconsList)
+    Self.OnClickMapItem,
+    FIconsList
   );
   try
     VGenerator.BuildControls;
@@ -265,7 +265,8 @@ begin
   VGenerator := TMapMenuGeneratorBasic.Create(
     FConfig.MapsConfig.GetActiveMap.GetMapsList,
     ALayersSubMenu,
-    TMiniMapMenuItemsFactory.Create(ALayersSubMenu, FIconsList)
+    Self.OnClickLayerItem,
+    FIconsList
   );
   try
    VGenerator.BuildControls;
@@ -725,13 +726,45 @@ begin
 end;
 
 procedure TMiniMapLayer.OnClickLayerItem(Sender: TObject);
+var
+  VSender: TTBCustomItem;
+  VAtiveMap: IActiveMapSingle;
+  VMap: IMapType;
 begin
-
+  if Sender is TTBCustomItem then begin
+    VSender := TTBCustomItem(Sender);
+    VAtiveMap := IActiveMapSingle(VSender.Tag);
+    if VAtiveMap <> nil then begin
+      VMap := VAtiveMap.GetMapType;
+      if VMap <> nil then begin
+        if VSender.Checked then begin
+          FConfig.MapsConfig.SelectLayerByGUID(VMap.GUID);
+        end else begin
+          FConfig.MapsConfig.UnSelectLayerByGUID(VMap.GUID);
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TMiniMapLayer.OnClickMapItem(Sender: TObject);
+var
+  VSender: TComponent;
+  VAtiveMap: IActiveMapSingle;
+  VMap: IMapType;
 begin
-
+  if Sender is TComponent then begin
+    VSender := TComponent(Sender);
+    VAtiveMap := IActiveMapSingle(VSender.Tag);
+    if VAtiveMap <> nil then begin
+      VMap := VAtiveMap.GetMapType;
+      if VMap <> nil then begin
+        FConfig.MapsConfig.SelectMainByGUID(VMap.GUID);
+      end else begin
+        FConfig.MapsConfig.SelectMainByGUID(CGUID_Zero);
+      end;
+    end;
+  end;
 end;
 
 procedure TMiniMapLayer.OnConfigChange(Sender: TObject);
@@ -746,11 +779,6 @@ begin
   FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
   FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
   FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-end;
-
-procedure TMiniMapLayer.OnMapChangeState(Sender: TObject);
-begin
-
 end;
 
 procedure TMiniMapLayer.PlusButtonMouseDown(Sender: TObject;

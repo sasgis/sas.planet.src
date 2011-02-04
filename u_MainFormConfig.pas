@@ -58,8 +58,6 @@ begin
   inherited Create;
   FMainConfig := TMainFormMainConfig.Create;
   Add(FMainConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'));
-  FLayersConfig := TMainFormLayersConfig.Create;
-  Add(FLayersConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FToolbarsLock := TMainWindowToolbarsLock.Create;
   Add(FToolbarsLock, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PANEL'));
   FNavToPoint := TNavigationToPoint.Create;
@@ -72,6 +70,8 @@ begin
   Add(FMainMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
   FViewPortState := TMapViewPortStateNew.Create(FMainMapsConfig);
   Add(FViewPortState, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Position'));
+  FLayersConfig := TMainFormLayersConfig.Create(FMainMapsConfig);
+  Add(FLayersConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
 function TMainFormConfig.GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
