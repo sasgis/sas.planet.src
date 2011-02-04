@@ -141,7 +141,9 @@ begin
   if VActiveMap <> nil then begin
     VSubMenuName := '';
     if VActiveMap.GetMapType <> nil then begin
-      VSubMenuName := VActiveMap.GetMapType.MapType.ParentSubMenu;
+      if VActiveMap.GetMapType.MapType <> nil then begin
+        VSubMenuName := VActiveMap.GetMapType.MapType.ParentSubMenu;
+      end;
     end;
     VSubMenu := GetParentMenuItem(VSubMenuName);
     Assert(VSubMenu <> nil);

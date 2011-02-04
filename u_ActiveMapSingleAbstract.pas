@@ -69,7 +69,7 @@ begin
   inherited Create;
   FMapType := AMapType;
   if FMapType <> nil then begin
-    FMapGUID := FMapType.MapType.GUID;
+    FMapGUID := FMapType.GUID;
   end else begin
     FMapGUID := CGUID_Zero;
   end;

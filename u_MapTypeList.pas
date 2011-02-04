@@ -32,7 +32,7 @@ var
   VGUID: TGUID;
 begin
   if AMap <> nil then begin
-    VGUID := AMap.GetMapType.GUID;
+    VGUID := AMap.GUID;
   end else begin
     VGUID := CGUID_Zero;
   end;

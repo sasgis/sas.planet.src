@@ -27,7 +27,7 @@ type
     function GetVisible: Boolean; override;
     procedure SetVisible(const Value: Boolean); virtual;
 
-    procedure OnPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure OnPosChange(Sender: TObject); virtual;
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
 
@@ -76,6 +76,7 @@ uses
   Types,
   Graphics,
   u_JclNotify,
+  u_NotifyEventListener,
   u_NotifyEventPosChangeListener;
 
 { TWindowLayerBasic }
@@ -94,7 +95,7 @@ begin
   FVisibleChangeNotifier := TJclBaseNotifier.Create;
 
   LinksList.Add(
-    TPosChangeNotifyEventListener.Create(Self.OnPosChange),
+    TNotifyEventListener.Create(Self.OnPosChange),
     FViewPortState.GetChangeNotifier
   );
 end;
@@ -149,9 +150,9 @@ begin
   // По умолчанию ничего не делаем
 end;
 
-procedure TWindowLayerBasic.OnPosChange(ANewVisualCoordConverter: ILocalCoordConverter);
+procedure TWindowLayerBasic.OnPosChange(Sender: TObject);
 begin
-  PosChange(ANewVisualCoordConverter);
+  PosChange(FViewPortState.GetVisualCoordConverter);
 end;
 
 procedure TWindowLayerBasic.PosChange(
