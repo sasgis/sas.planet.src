@@ -18,12 +18,14 @@ type
     FMainMapChangeNotyfier: INotifierWithGUID;
     FSingeMapsList: IGUIDInterfaceList;
     FActiveMap: IActiveMap;
+    FMapsSet: IActiveMapsSet;
   protected
     property MainMapChangeNotyfier: INotifierWithGUID read FMainMapChangeNotyfier;
     property SingeMapsList: IGUIDInterfaceList read FSingeMapsList;
   protected
     procedure SelectMainByGUID(AMapGUID: TGUID);
     function GetActiveMap: IActiveMap;
+    function GetMapsSet: IActiveMapsSet;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -38,6 +40,7 @@ uses
   ActiveX,
   u_GUIDInterfaceList,
   u_ActiveMapSingleAbstract,
+  u_ActiveMapsSet,
   u_ActiveMapConfig;
 
 const
@@ -67,6 +70,15 @@ begin
   end;
   FActiveMap := TActiveMapConfigNew.Create(FMainMapChangeNotyfier, FSingeMapsList, FMapsList);
   Add(FActiveMap, nil);
+
+  FMapsSet :=  TActiveMapsSet.Create(
+    FMapsList,
+    FSingeMapsList,
+    MainMapChangeNotyfier,
+    nil,
+    nil
+  );
+  Add(FMapsSet, nil);
 end;
 
 destructor TMainActiveMap.Destroy;
@@ -117,6 +129,11 @@ end;
 function TMainActiveMap.GetActiveMap: IActiveMap;
 begin
   Result := FActiveMap;
+end;
+
+function TMainActiveMap.GetMapsSet: IActiveMapsSet;
+begin
+  Result := FMapsSet;
 end;
 
 procedure TMainActiveMap.SelectMainByGUID(AMapGUID: TGUID);

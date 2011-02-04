@@ -56,6 +56,7 @@ type
   IMainActiveMap = interface(IConfigDataElement)
     procedure SelectMainByGUID(AMapGUID: TGUID);
     function GetActiveMap: IActiveMap;
+    function GetMapsSet: IActiveMapsSet;
   end;
 
   IActivMapWithLayers = interface(IMainActiveMap)

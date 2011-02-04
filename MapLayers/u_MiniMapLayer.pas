@@ -252,7 +252,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.MapsConfig.GetActiveMap.GetMapsList,
+    FConfig.MapsConfig.GetMapsSet,
     AMapssSubMenu,
     Self.OnClickMapItem,
     FIconsList
@@ -263,7 +263,7 @@ begin
     FreeAndNil(VGenerator);
   end;
   VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.MapsConfig.GetActiveMap.GetMapsList,
+    FConfig.MapsConfig.GetLayers,
     ALayersSubMenu,
     Self.OnClickLayerItem,
     FIconsList

@@ -18,7 +18,6 @@ type
   TMapMenuGeneratorBasic = class
   private
     FIconsList: IMapTypeIconsList;
-    FList: IMapTypeList;
     FRootMenu: TTBCustomItem;
     FMapsSet: IActiveMapsSet;
     FOnClick: TNotifyEvent;
@@ -30,7 +29,7 @@ type
     function CreateMenuItem(AMapActive: IActiveMapSingle): TTBXCustomItem; virtual;
   public
     constructor Create(
-      AList: IMapTypeList;
+      AMapsSet: IActiveMapsSet;
       ARootMenu: TTBCustomItem;
       AOnClick: TNotifyEvent;
       AIconsList: IMapTypeIconsList
@@ -50,13 +49,13 @@ uses
 { TMapMenuGeneratorBasic }
 
 constructor TMapMenuGeneratorBasic.Create(
-  AList: IMapTypeList;
+  AMapsSet: IActiveMapsSet;
   ARootMenu: TTBCustomItem;
   AOnClick: TNotifyEvent;
   AIconsList: IMapTypeIconsList
 );
 begin
-  FList := AList;
+  FMapsSet := AMapsSet;
   FRootMenu := ARootMenu;
   FIconsList := AIconsList;
   FOnClick := AOnClick;

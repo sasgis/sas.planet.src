@@ -36,7 +36,7 @@ begin
   end else begin
     VGUID := CGUID_Zero;
   end;
-  FList.Add(AMap.GetMapType.GUID, AMap);
+  FList.Add(VGUID, AMap);
 end;
 
 constructor TMapTypeList.Create(AAllowNil: Boolean);
