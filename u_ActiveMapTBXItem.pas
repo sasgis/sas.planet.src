@@ -1,4 +1,4 @@
-unit u_MapTypeMenuItemBasic;
+unit u_ActiveMapTBXItem;
 
 interface
 
