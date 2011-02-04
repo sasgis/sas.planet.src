@@ -68,7 +68,7 @@ begin
     FSingeMapsList.Add(VGUID, VSingleMap);
     Add(VSingleMap, nil);
   end;
-  FActiveMap := TActiveMapConfigNew.Create(FMainMapChangeNotyfier, FSingeMapsList, FMapsList);
+  FActiveMap := TActiveMapConfig.Create(FMainMapChangeNotyfier, FSingeMapsList, FMapsList);
   Add(FActiveMap, nil);
 
   FMapsSet :=  TActiveMapsSet.Create(

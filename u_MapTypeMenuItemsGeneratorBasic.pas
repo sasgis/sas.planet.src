@@ -42,7 +42,7 @@ implementation
 uses
   SysUtils,
   c_ZeroGUID,
-  u_MapTypeMenuItemBasic,
+  u_ActiveMapTBXItem,
   UResStrings,
   u_GlobalState;
 
