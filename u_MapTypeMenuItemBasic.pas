@@ -8,12 +8,7 @@ uses
   TB2Item,
   TBX,
   i_JclNotify,
-  i_MapTypes,
-  UMapType,
-  i_IMapChangeMessage,
-  i_IHybrChangeMessage,
-  i_IActiveMapsConfig,
-  i_IMapTypeMenuItem;
+  i_IActiveMapsConfig;
 
 type
   TActiveMapTBXItem = class(TTBXCustomItem)
@@ -31,7 +26,6 @@ type
 implementation
 
 uses
-  c_ZeroGUID,
   u_NotifyEventListener;
 
 { TMiniMapTBXITem }
