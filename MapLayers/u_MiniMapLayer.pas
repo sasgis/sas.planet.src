@@ -92,6 +92,7 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig);
     destructor Destroy; override;
+    procedure StartThreads; override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
   end;
 
@@ -816,6 +817,12 @@ begin
       FPlusButtonPressed := False;
     end;
   end;
+end;
+
+procedure TMiniMapLayer.StartThreads;
+begin
+  inherited;
+  OnConfigChange(nil);
 end;
 
 procedure TMiniMapLayer.DoShow;
