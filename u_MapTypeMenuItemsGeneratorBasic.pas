@@ -67,7 +67,7 @@ var
   VGUID: TGUID;
   VMapType: TMapType;
 begin
-  Result := TMiniMapTBXITem.Create(FRootMenu, AMapActive);
+  Result := TActiveMapTBXItem.Create(FRootMenu, AMapActive);
   VMapType := nil;
   if AMapActive.GetMapType <> nil then begin
     VMapType := AMapActive.GetMapType.MapType;

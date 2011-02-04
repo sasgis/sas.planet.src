@@ -16,7 +16,7 @@ uses
   i_IMapTypeMenuItem;
 
 type
-  TMiniMapTBXITem = class(TTBXCustomItem)
+  TActiveMapTBXItem = class(TTBXCustomItem)
   private
     FMapActive: IActiveMapSingle;
     FListener: IJclListener;
@@ -36,7 +36,7 @@ uses
 
 { TMiniMapTBXITem }
 
-constructor TMiniMapTBXITem.Create(AOwner: TComponent;
+constructor TActiveMapTBXItem.Create(AOwner: TComponent;
   AMapActive: IActiveMapSingle);
 begin
   inherited Create(AOwner);
@@ -47,14 +47,14 @@ begin
   OnMapChangeState(nil);
 end;
 
-destructor TMiniMapTBXITem.Destroy;
+destructor TActiveMapTBXItem.Destroy;
 begin
   FMapActive.GetChangeNotifier.Remove(FListener);
   FListener := nil;
   inherited;
 end;
 
-procedure TMiniMapTBXITem.AdjustFont(Item: TTBCustomItem; Viewer: TTBItemViewer;
+procedure TActiveMapTBXItem.AdjustFont(Item: TTBCustomItem; Viewer: TTBItemViewer;
   Font: TFont; StateFlags: Integer);
 begin
   if Self.Checked then begin
@@ -64,7 +64,7 @@ begin
   end;
 end;
 
-procedure TMiniMapTBXITem.OnMapChangeState(Sender: TObject);
+procedure TActiveMapTBXItem.OnMapChangeState(Sender: TObject);
 begin
   Self.Checked := FMapActive.GetIsActive;
 end;
