@@ -2,8 +2,6 @@
 program SASPlanet;
 
 uses
-  FastMM4,
-  VCLFixPack in 'src\VCLFixPack.pas',
   Forms,
   iniFiles,
   sysutils,
