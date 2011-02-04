@@ -21,7 +21,7 @@ type
   protected
     function CreateSubMenuItem(AMapType: IMapType): TTBCustomItem; virtual;
     function GetParentMenuItem(AMapType: IMapType): TTBCustomItem; virtual;
-    function CreateMenuItem(AMapActive: IActiveMapSingle): TTBXItem; virtual;
+    function CreateMenuItem(AMapActive: IActiveMapSingle): TTBXCustomItem; virtual;
   protected
     function CreateItem(AMapActive: IActiveMapSingle): TTBCustomItem;
   public
@@ -53,7 +53,7 @@ function TMiniMapMenuItemsFactory.CreateItem(
   AMapActive: IActiveMapSingle): TTBCustomItem;
 var
   VSubMenu: TTBCustomItem;
-  VMenuItem: TTBXItem;
+  VMenuItem: TTBXCustomItem;
 begin
   VSubMenu := GetParentMenuItem(AMapActive.GetMapType);
   VMenuItem := CreateMenuItem(AMapActive);
@@ -62,7 +62,7 @@ begin
 end;
 
 function TMiniMapMenuItemsFactory.CreateMenuItem(
-  AMapActive: IActiveMapSingle): TTBXItem;
+  AMapActive: IActiveMapSingle): TTBXCustomItem;
 var
   VGUID: TGUID;
   VMapType: TMapType;

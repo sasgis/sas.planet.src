@@ -16,7 +16,7 @@ uses
   i_IMapTypeMenuItem;
 
 type
-  TMiniMapTBXITem = class(TTBXItem)
+  TMiniMapTBXITem = class(TTBXCustomItem)
   private
     FMapActive: IActiveMapSingle;
     FListener: IJclListener;
@@ -41,7 +41,7 @@ constructor TMiniMapTBXITem.Create(AOwner: TComponent;
 begin
   inherited Create(AOwner);
   FMapActive := AMapActive;
-  Self.OnAdjustFont := Self.AdjustFont;
+  OnAdjustFont := Self.AdjustFont;
   FListener := TNotifyEventListener.Create(Self.OnMapChangeState);
   FMapActive.GetChangeNotifier.Add(FListener);
   OnMapChangeState(nil);
@@ -57,10 +57,10 @@ end;
 procedure TMiniMapTBXITem.AdjustFont(Item: TTBCustomItem; Viewer: TTBItemViewer;
   Font: TFont; StateFlags: Integer);
 begin
-  if Item.Checked then begin
-    TTBXItem(Item).FontSettings.Bold := tsTrue;
+  if Self.Checked then begin
+    Self.FontSettings.Bold := tsTrue;
   end else begin
-    TTBXItem(Item).FontSettings.Bold := tsDefault;
+    Self.FontSettings.Bold := tsDefault;
   end;
 end;
 

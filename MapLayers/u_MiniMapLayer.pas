@@ -51,7 +51,6 @@ type
     FPosMoved: Boolean;
     FViewRectMoveDelta: TDoublePoint;
 
-    FMiniMapSameAsMain: TTBXItem;
     FBottomMargin: Integer;
 
 
@@ -75,17 +74,14 @@ type
 
     function GetActualZoom(AVisualCoordConverter: ILocalCoordConverter): Byte;
 
-    procedure LoadBitmaps;
     procedure BuildPopUpMenu;
     procedure BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
     procedure CreateLayers(AParentMap: TImage32);
-    procedure AdjustFont(Item: TTBCustomItem;
-      Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
-    procedure SameAsMainClick(Sender: TObject);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMapChangeState(Sender: TObject);
     function BuildBitmapCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
+    procedure OnConfigChange(Sender: TObject);
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoShow; override;
@@ -117,6 +113,7 @@ uses
   i_IBitmapPostProcessingConfig,
   u_GlobalState,
   u_LocalCoordConverterFactorySimpe,
+  u_NotifyEventListener,
   u_MapTypeList,
   u_MapTypeMenuItemsGeneratorBasic,
   u_ActiveMapWithHybrConfig,
@@ -126,8 +123,6 @@ uses
 { TMapMainLayer }
 
 constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig);
-var
-  VWidth: Integer;
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
@@ -143,10 +138,11 @@ begin
 
   CreateLayers(AParentMap);
 
-  LoadBitmaps;
   BuildPopUpMenu;
-  VWidth := FConfig.Width;
-  DoUpdateLayerSize(Point(VWidth, VWidth));
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
 end;
 
 destructor TMiniMapLayer.Destroy;
@@ -236,30 +232,11 @@ begin
   FMinusButtonPressed := False;
 end;
 
-procedure TMiniMapLayer.LoadBitmaps;
-begin
-  GState.LoadBitmapFromRes('ICONI', FPlusButton.Bitmap);
-  FPlusButton.Bitmap.DrawMode := dmTransparent;
-  GState.LoadBitmapFromRes('ICONII', FMinusButton.Bitmap);
-  FMinusButton.Bitmap.DrawMode := dmTransparent;
-end;
-
 procedure TMiniMapLayer.BuildPopUpMenu;
 var
-  VMenuItem: TTBXItem;
   VSubMenuItem: TTBXSubmenuItem;
   VLayersSubMenu: TTBXSubmenuItem;
 begin
-  VMenuItem := TTBXItem.Create(FPopup);
-  VMenuItem.Name := 'MiniMapSameAsMain';
-  VMenuItem.OnAdjustFont := AdjustFont;
-  VMenuItem.OnClick := SameAsMainClick;
-  VMenuItem.Caption := SAS_STR_MiniMapAsMainMap;
-  VMenuItem.Hint := '';
-  VMenuItem.Checked := true;
-  FPopup.Items.Add(VMenuItem);
-  FMiniMapSameAsMain := VMenuItem;
-
   VSubMenuItem := TTBXSubmenuItem.Create(FPopup);
   VSubMenuItem.Name := 'MiniMapLayers';
   VSubMenuItem.Caption := SAS_STR_Layers;
@@ -297,22 +274,6 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.AdjustFont(Item: TTBCustomItem;
-  Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
-begin
-  if TTBXItem(Item).Checked then begin
-    TTBXItem(Item).FontSettings.Bold := tsTrue;
-  end else begin
-    TTBXItem(Item).FontSettings.Bold := tsDefault;
-  end;
-end;
-
-procedure TMiniMapLayer.SameAsMainClick(Sender: TObject);
-begin
-  Assert(Sender is TTBXItem, 'Глюки однако. Этот обработчик не предназначен для этого контрола');
-  FConfig.MapsConfig.SelectMainByGUID(CGUID_Zero);
-end;
-
 procedure TMiniMapLayer.DoRedraw;
 var
   i: Cardinal;
@@ -325,7 +286,7 @@ begin
   inherited;
   FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
   FLayer.Bitmap.Clear(Color32(GState.BGround));
-  VMapType := FConfig.GetActiveMiniMap.MapType;
+  VMapType := FConfig.MapsConfig.GetActiveMiniMap.MapType;
   VActiveMaps := FConfig.MapsConfig.GetLayers.GetSelectedMapsList;
 
   DrawMap(VMapType, dmOpaque);
@@ -354,13 +315,15 @@ var
   VVisualCoordConverter: ILocalCoordConverter;
   VBitmapCoordConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
+  VZoomDelta: Integer;
 begin
   FViewRectDrawLayer.Bitmap.Clear(clBlack);
   VVisualCoordConverter := FVisualCoordConverter;
   VBitmapCoordConverter := FBitmapCoordConverter;
-  VGeoConvert := VVisualCoordConverter.GetGeoConverter;
-  if VGeoConvert <> nil then begin
-    if FZoomDelta > 0 then begin
+  if (VVisualCoordConverter <> nil) and (FBitmapCoordConverter <> nil) then begin
+    VGeoConvert := VVisualCoordConverter.GetGeoConverter;
+    VZoomDelta := FConfig.ZoomDelta;
+    if VZoomDelta > 0 then begin
       VLoadedRect := VVisualCoordConverter.GetRectInMapPixelFloat;
       VZoomSource := VBitmapCoordConverter.GetZoom;
       VZoom := VVisualCoordConverter.GetZoom;
@@ -388,14 +351,14 @@ begin
           with VPolygon.Outline do try
             with Grow(Fixed(3.2 / 2), 0.5) do try
               FillMode := pfWinding;
-              DrawFill(FViewRectDrawLayer.Bitmap, SetAlpha(clNavy32, (FZoomDelta)*43));
+              DrawFill(FViewRectDrawLayer.Bitmap, SetAlpha(clNavy32, (VZoomDelta)*43));
             finally
               Free;
             end;
           finally
             Free;
           end;
-          VPolygon.DrawFill(FViewRectDrawLayer.Bitmap, SetAlpha(clWhite32, (FZoomDelta) * 35));
+          VPolygon.DrawFill(FViewRectDrawLayer.Bitmap, SetAlpha(clWhite32, (VZoomDelta) * 35));
         finally
           VPolygon.Free;
         end;
@@ -547,7 +510,7 @@ var
 begin
   VZoom := AVisualCoordConverter.GetZoom;
   VGeoConvert := AVisualCoordConverter.GetGeoConverter;
-  VZoomDelta := FZoomDelta;
+  VZoomDelta := FConfig.ZoomDelta;
   if VZoomDelta = 0 then begin
     Result := VZoom;
   end else if VZoomDelta > 0 then begin
@@ -749,14 +712,45 @@ begin
   if Button = mbLeft then begin
     if FMinusButtonPressed then begin
       if FMinusButton.HitTest(X, Y) then begin
-        if (FZoomDelta < 10) then begin
-          Inc(FZoomDelta);
-          Redraw;
+        FConfig.LockWrite;
+        try
+          FConfig.ZoomDelta := FConfig.ZoomDelta + 1;
+        finally
+          FConfig.UnlockWrite;
         end;
       end;
       FMinusButtonPressed := False;
     end;
   end;
+end;
+
+procedure TMiniMapLayer.OnClickLayerItem(Sender: TObject);
+begin
+
+end;
+
+procedure TMiniMapLayer.OnClickMapItem(Sender: TObject);
+begin
+
+end;
+
+procedure TMiniMapLayer.OnConfigChange(Sender: TObject);
+begin
+  FPlusButton.Bitmap.Assign(FConfig.PlusButton);
+  FPlusButton.Bitmap.DrawMode := dmTransparent;
+  FMinusButton.Bitmap.Assign(FConfig.MinusButton);
+  FMinusButton.Bitmap.DrawMode := dmTransparent;
+
+  FMinusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+  FPlusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+  FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+  FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+  FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+end;
+
+procedure TMiniMapLayer.OnMapChangeState(Sender: TObject);
+begin
+
 end;
 
 procedure TMiniMapLayer.PlusButtonMouseDown(Sender: TObject;
@@ -773,9 +767,11 @@ begin
   if Button = mbLeft then begin
     if FPlusButtonPressed then begin
       if FPlusButton.HitTest(X, Y) then begin
-        if (FZoomDelta > -2) then begin
-          Dec(FZoomDelta);
-          Redraw;
+        FConfig.LockWrite;
+        try
+          FConfig.ZoomDelta := FConfig.ZoomDelta - 1;
+        finally
+          FConfig.UnlockWrite;
         end;
       end;
       FPlusButtonPressed := False;
@@ -888,40 +884,6 @@ begin
       FTopBorder.Bitmap.Unlock;
     end;
   end;
-end;
-
-procedure TMiniMapLayer.OnNotifyHybrChange(msg: IHybrChangeMessage);
-begin
-  Redraw;
-end;
-
-procedure TMiniMapLayer.OnNotifyMapChange(msg: IMapChangeMessage);
-begin
-  if msg.GetNewMap = nil then begin
-    FMiniMapSameAsMain.Checked := True;
-//    FViewPortState.MapChangeNotifier.Add(FMainMapChangeListener);
-  end else begin
-    FMiniMapSameAsMain.Checked := False;
-//    FViewPortState.MapChangeNotifier.Remove(FMainMapChangeListener);
-  end;
-  Redraw;
-end;
-
-procedure TMiniMapLayer.OnNotifyMainMapChange(msg: IMapChangeMessage);
-begin
-  if IsEqualGUID(FMapsActive.SelectedMapGUID, CGUID_Zero) then begin
-    Redraw;
-  end;
-end;
-
-procedure TMiniMapLayer.SetMasterAlpha(value:integer);
-begin
-  FMasterAlpha:=value;
-  FMinusButton.Bitmap.MasterAlpha:=FMasterAlpha;
-  FPlusButton.Bitmap.MasterAlpha:=FMasterAlpha;
-  FTopBorder.Bitmap.MasterAlpha:=FMasterAlpha;
-  FLeftBorder.Bitmap.MasterAlpha:=FMasterAlpha;
-  FLayer.Bitmap.MasterAlpha:=FMasterAlpha;
 end;
 
 end.

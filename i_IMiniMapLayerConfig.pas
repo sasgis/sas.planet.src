@@ -9,6 +9,11 @@ uses
   i_IConfigDataElement;
 
 type
+  IMiniMapMapsConfig = interface(IActivMapWithLayers)
+    ['{13A59AC2-947D-452F-A816-06E78602DFFA}']
+    function GetActiveMiniMap: IMapType;
+  end;
+
   IMiniMapLayerConfig = interface(IConfigDataElement)
     ['{52CF4419-A937-47E1-9A07-966736ACAA86}']
     function GetWidth: Integer;
@@ -36,10 +41,8 @@ type
     function GetMinusButton: TCustomBitmap32;
     property MinusButton: TCustomBitmap32 read GetMinusButton;
 
-    function GetMapsConfig: IActivMapWithLayers;
-    property MapsConfig: IActivMapWithLayers read GetMapsConfig;
-
-    function GetActiveMiniMap: IMapType;
+    function GetMapsConfig: IMiniMapMapsConfig;
+    property MapsConfig: IMiniMapMapsConfig read GetMapsConfig;
   end;
 
 implementation

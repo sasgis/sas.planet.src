@@ -494,6 +494,7 @@
     <DCCReference Include="u_MarkTemplates.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
     <DCCReference Include="u_MiniMapLayerConfig.pas" />
+    <DCCReference Include="u_MiniMapMapsConfig.pas" />
     <DCCReference Include="u_MiniMapMenuItemsFactory.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />

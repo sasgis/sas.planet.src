@@ -2600,7 +2600,7 @@ end;
 
 procedure TFmain.ShowMiniMapClick(Sender: TObject);
 begin
-  FLayerMiniMap.Visible := TTBXItem(Sender).Checked;
+  GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.ShowLineClick(Sender: TObject);

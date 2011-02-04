@@ -10,18 +10,17 @@ type
   TMapTypeBasic = class(TInterfacedObject, IMapType)
   private
     FMapType: TMapType;
+  protected
     function GetMapType: TMapType;
+    function GetGUID: TGUID;
   public
     constructor Create(AMapType: TMapType);
   end;
 
-  TMapTypeBasicFactory = class(TInterfacedObject, IMapTypeFactory)
-  private
-    function CreateItem(AMap: TMapType): IMapType;
-  end;
-
-
 implementation
+
+uses
+  c_ZeroGUID;
 
 { TMapTypeBasic }
 
@@ -30,18 +29,18 @@ begin
   FMapType := AMapType;
 end;
 
+function TMapTypeBasic.GetGUID: TGUID;
+begin
+  if FMapType <> nil then begin
+    Result := FMapType.GUID;
+  end else begin
+    Result := CGUID_Zero;
+  end;
+end;
+
 function TMapTypeBasic.GetMapType: TMapType;
 begin
   Result := FMapType;
-end;
-
-
-
-{ TMapTypeBasicFactory }
-
-function TMapTypeBasicFactory.CreateItem(AMap: TMapType): IMapType;
-begin
-  Result := TMapTypeBasic.Create(AMap);
 end;
 
 end.

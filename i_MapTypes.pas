@@ -11,6 +11,9 @@ type
     ['{85957D2C-19D7-4F44-A183-F3679B2A5973}']
     function GetMapType: TMapType;
     property MapType: TMapType read GetMapType;
+
+    function GetGUID: TGUID;
+    property GUID: TGUID read GetGUID;
   end;
 
   IMapTypeFactory = interface

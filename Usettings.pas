@@ -322,7 +322,7 @@ begin
   end;
  GState.MapType.SortList;
 
- Fmain.LayerMiniMap.MasterAlpha:=MiniMapAlphaEdit.Value;
+ GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
 
  GState.SessionLastSuccess:=CBLastSuccess.Checked;
  GState.BGround:=ColorBoxBackGround.Selected;
@@ -549,7 +549,7 @@ begin
  GState.LanguageManager.GetLangNames(CBoxLocal.Items);
  CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLangIndex;
 
- MiniMapAlphaEdit.Value:=Fmain.LayerMiniMap.MasterAlpha;
+ MiniMapAlphaEdit.Value:=GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
 
  CBLastSuccess.Checked:=GState.SessionLastSuccess;
  ColorBoxBackGround.Selected:=GState.BGround;

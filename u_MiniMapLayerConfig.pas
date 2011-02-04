@@ -22,15 +22,8 @@ type
     FDefoultMap: TCustomBitmap32;
     FPlusButton: TCustomBitmap32;
     FMinusButton: TCustomBitmap32;
-    FMapsConfig: IActivMapWithLayers;
-    FActiveMiniMap: IMapType;
-    FMainMapsConfig: IMainMapsConfig;
-    FMainMapChangeListener: IJclListener;
-    function GetMiniMapMapsList: IMapTypeList;
-    procedure OnMainMapChange(Sender: TObject);
-    procedure SetActiveMiniMap(AValue: IMapType);
+    FMapsConfig: IMiniMapMapsConfig;
   protected
-    procedure DoSubItemChange; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -50,8 +43,7 @@ type
     function GetPlusButton: TCustomBitmap32;
     function GetMinusButton: TCustomBitmap32;
 
-    function GetMapsConfig: IActivMapWithLayers;
-    function GetActiveMiniMap: IMapType;
+    function GetMapsConfig: IMiniMapMapsConfig;
   public
     constructor Create(AMapsConfig: IMainMapsConfig);
     destructor Destroy; override;
@@ -66,14 +58,14 @@ uses
   u_MapTypeList,
   u_NotifyEventListener,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
-  u_ActivMapWithLayers;
+  u_GlobalState,
+  u_MiniMapMapsConfig;
 
 { TMiniMapLayerConfig }
 
 constructor TMiniMapLayerConfig.Create(AMapsConfig: IMainMapsConfig);
 begin
   inherited Create;
-  FMainMapsConfig := AMapsConfig;
   FWidth := 100;
   FZoomDelta := 4;
   FMasterAlpha := 150;
@@ -82,10 +74,8 @@ begin
   FPlusButton := TCustomBitmap32.Create;
   FMinusButton := TCustomBitmap32.Create;
 
-  FMapsConfig := TActivMapWithLayers.Create(GetMiniMapMapsList, FMainMapsConfig.GetBitmapLayersSet.GetMapsList);
+  FMapsConfig := TMiniMapMapsConfig.Create(AMapsConfig);
   Add(FMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
-  FMainMapChangeListener := TNotifyEventListener.Create(Self.OnMainMapChange);
-  FMainMapsConfig.GetActiveMap.GetChangeNotifier.Add(FMainMapChangeListener);
 end;
 
 destructor TMiniMapLayerConfig.Destroy;
@@ -93,28 +83,7 @@ begin
   FreeAndNil(FDefoultMap);
   FreeAndNil(FPlusButton);
   FreeAndNil(FMinusButton);
-  FMainMapsConfig.GetActiveMap.GetChangeNotifier.Remove(FMainMapChangeListener);
-  FMainMapChangeListener := nil;
-  FMainMapsConfig := nil;
   inherited;
-end;
-
-function TMiniMapLayerConfig.GetMiniMapMapsList: IMapTypeList;
-var
-  VMap: IMapType;
-  VList: TMapTypeList;
-  VEnun: IEnumGUID;
-  VGUID: TGUID;
-  i: Cardinal;
-begin
-  VList := TMapTypeList.Create(True);
-  Result := VList;
-  VList.Add(nil);
-  VEnun := FMainMapsConfig.GetActiveMap.GetMapsList.GetIterator;
-  while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VMap := FMainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID);
-    VList.Add(VMap);
-  end;
 end;
 
 procedure TMiniMapLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -125,21 +94,9 @@ begin
     FZoomDelta := AConfigData.ReadInteger('ZoomDelta', FZoomDelta);
     FMasterAlpha := AConfigData.ReadInteger('Alpha', FMasterAlpha);
     FVisible := AConfigData.ReadBool('Visible', FVisible);
+    GState.LoadBitmapFromRes('ICONI', FPlusButton);
+    GState.LoadBitmapFromRes('ICONII', FMinusButton);
     SetChanged;
-  end;
-end;
-
-procedure TMiniMapLayerConfig.DoSubItemChange;
-var
-  VGUID: TGUID;
-begin
-  inherited;
-  VGUID := FMapsConfig.GetActiveMap.GetSelectedGUID;
-  if IsEqualGUID(VGUID, CGUID_Zero) then begin
-    VGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
-    SetActiveMiniMap(FMainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID));
-  end else begin
-    SetActiveMiniMap(FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID));
   end;
 end;
 
@@ -153,16 +110,6 @@ begin
   AConfigData.WriteBool('Visible', FVisible);
 end;
 
-function TMiniMapLayerConfig.GetActiveMiniMap: IMapType;
-begin
-  LockRead;
-  try
-    Result := FActiveMiniMap;
-  finally
-    UnlockRead;
-  end;
-end;
-
 function TMiniMapLayerConfig.GetDefoultMap: TCustomBitmap32;
 begin
   LockRead;
@@ -173,7 +120,7 @@ begin
   end;
 end;
 
-function TMiniMapLayerConfig.GetMapsConfig: IActivMapWithLayers;
+function TMiniMapLayerConfig.GetMapsConfig: IMiniMapMapsConfig;
 begin
   Result := FMapsConfig;
 end;
@@ -238,24 +185,6 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerConfig.OnMainMapChange(Sender: TObject);
-begin
-  DoSubItemChange
-end;
-
-procedure TMiniMapLayerConfig.SetActiveMiniMap(AValue: IMapType);
-begin
-  LockWrite;
-  try
-    if FActiveMiniMap <> AValue then begin
-      FActiveMiniMap := AValue;
-      inherited SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
 procedure TMiniMapLayerConfig.SetMasterAlpha(AValue: Integer);
 begin
   LockWrite;
@@ -296,11 +225,21 @@ begin
 end;
 
 procedure TMiniMapLayerConfig.SetZoomDelta(AValue: Integer);
+var
+  VZoomDelta: Integer;
 begin
+  VZoomDelta := AValue;
+  if VZoomDelta > 10 then begin
+    VZoomDelta := 10;
+  end else begin
+    if VZoomDelta < -2 then begin
+      VZoomDelta := -2;
+    end;
+  end;
   LockWrite;
   try
-    if FZoomDelta <> AValue then begin
-      FZoomDelta := AValue;
+    if FZoomDelta <> VZoomDelta then begin
+      FZoomDelta := VZoomDelta;
       SetChanged;
     end;
   finally
