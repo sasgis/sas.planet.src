@@ -116,8 +116,7 @@ uses
   u_MapTypeList,
   u_MapTypeMenuItemsGeneratorBasic,
   u_ActiveMapWithHybrConfig,
-  u_MapsConfigByConfigDataProvider,
-  u_MiniMapMenuItemsFactory;
+  u_MapsConfigByConfigDataProvider;
 
 { TMapMainLayer }
 
@@ -685,8 +684,7 @@ begin
     if VNewWidth > VVisibleSize.Y then begin
       VNewWidth := VVisibleSize.Y;
     end;
-    DoUpdateLayerSize(Point(VNewWidth, VNewWidth));
-    Redraw;
+    FConfig.Width := VNewWidth;
   end;
 end;
 
@@ -769,16 +767,29 @@ end;
 
 procedure TMiniMapLayer.OnConfigChange(Sender: TObject);
 begin
-  FPlusButton.Bitmap.Assign(FConfig.PlusButton);
-  FPlusButton.Bitmap.DrawMode := dmTransparent;
-  FMinusButton.Bitmap.Assign(FConfig.MinusButton);
-  FMinusButton.Bitmap.DrawMode := dmTransparent;
+  FConfig.LockRead;
+  try
+    FPlusButton.Bitmap.Assign(FConfig.PlusButton);
+    FPlusButton.Bitmap.DrawMode := dmTransparent;
+    FMinusButton.Bitmap.Assign(FConfig.MinusButton);
+    FMinusButton.Bitmap.DrawMode := dmTransparent;
 
-  FMinusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-  FPlusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-  FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-  FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-  FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+    FMinusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+    FPlusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+    FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+    FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+    FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+
+    DoUpdateLayerSize(Point(FConfig.Width, FConfig.Width));
+    Redraw;
+    if FConfig.Visible then begin
+      Show;
+    end else begin
+      Hide;
+    end;
+  finally
+    FConfig.UnlockRead;
+  end;
 end;
 
 procedure TMiniMapLayer.PlusButtonMouseDown(Sender: TObject;
