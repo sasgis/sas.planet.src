@@ -247,6 +247,8 @@ end;
 procedure TMapMainLayer.StartThreads;
 begin
   inherited;
+  OnMainMapChange(nil);
+  OnLayerSetChange(nil);
   Visible := True;
 end;
 

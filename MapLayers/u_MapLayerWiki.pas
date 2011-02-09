@@ -50,6 +50,7 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IKmlLayerConfig; ALayersSet: IActiveMapsSet);
     destructor Destroy; override;
+    procedure StartThreads; override;
     procedure MouseOnReg(var APWL: TResObj; xy: TPoint);
   end;
 
@@ -280,6 +281,12 @@ begin
   end else begin
     Hide;
   end;
+end;
+
+procedure TWikiLayer.StartThreads;
+begin
+  inherited;
+  OnLayerSetChange(nil);
 end;
 
 procedure TWikiLayer.DrawWikiElement(var AData: TWikiLayerElement; ALocalConverter: ILocalCoordConverter);
