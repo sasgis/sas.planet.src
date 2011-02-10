@@ -1800,7 +1800,7 @@ begin
     for i:=0 to GState.MapType.Count-1 do begin
       VMapType := GState.MapType[i];
       VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
-      With VMapType do begin
+//      With VMapType do begin
         MainToolbarItem:=TTBXItem.Create(TBSMB);
         FMainToolbarItemList.Add(VMapType.GUID, MainToolbarItem);
         if VMapType.ParentSubMenu='' then begin
@@ -1865,7 +1865,7 @@ begin
           NDelItem.Tag:=longint(VMapType);
           NLayerParamsItem.Tag:=longint(VMapType);
         end;
-        if (VMapType.asLayer)and(FConfig.MainMapsConfig.GetLayers.IsGUIDSelected(GUID)) then begin
+        if (VMapType.asLayer)and(FConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMapType.GUID)) then begin
           MainToolbarItem.Checked:=true;
         end;
         if VMapType.separator then begin
@@ -1874,7 +1874,7 @@ begin
         end;
         MainToolbarItem.Tag:=Longint(VMapType);
         TBFillingItem.Tag:=Longint(VMapType);
-      end;
+//      end;
     end;
   end;
   VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
