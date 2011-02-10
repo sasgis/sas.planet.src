@@ -1803,21 +1803,21 @@ begin
       With VMapType do begin
         MainToolbarItem:=TTBXItem.Create(TBSMB);
         FMainToolbarItemList.Add(VMapType.GUID, MainToolbarItem);
-        if ParentSubMenu='' then begin
-          if asLayer then begin
+        if VMapType.ParentSubMenu='' then begin
+          if VMapType.asLayer then begin
             TBLayerSel.Add(MainToolbarItem);
           end else begin
             TBSMB.Add(MainToolbarItem);
           end;
         end else begin
           j:=0;
-          While GState.MapType[j].ParentSubMenu<>ParentSubMenu do inc(j);
+          While GState.MapType[j].ParentSubMenu<>VMapType.ParentSubMenu do inc(j);
           if j=i then begin
             MainToolbarSubMenuItem:=TTBXSubmenuItem.Create(TBSMB);
             FMainToolbarSubMenuItemList.Add(VMapType.GUID, MainToolbarSubMenuItem);
-            MainToolbarSubMenuItem.caption:=ParentSubMenu;
+            MainToolbarSubMenuItem.caption:=VMapType.ParentSubMenu;
             MainToolbarSubMenuItem.Images:= GState.MapTypeIcons18List.GetImageList;
-            if asLayer then begin
+            if VMapType.asLayer then begin
               TBLayerSel.Add(MainToolbarSubMenuItem)
             end else begin
               TBSMB.Add(MainToolbarSubMenuItem);
@@ -1826,38 +1826,38 @@ begin
           MainToolbarSubMenuItem := TTBXSubmenuItem(FMainToolbarSubMenuItemList.GetByGUID(GState.MapType[j].GUID));
           MainToolbarSubMenuItem.Add(MainToolbarItem);
         end;
-        MainToolbarItem.Name:='TBMapN'+inttostr(FSortIndex);
-        MainToolbarItem.ShortCut:=HotKey;
+        MainToolbarItem.Name:='TBMapN'+inttostr(VMapType.FSortIndex);
+        MainToolbarItem.ShortCut:=VMapType.HotKey;
         MainToolbarItem.ImageIndex:= VIcon18Index;
-        MainToolbarItem.Caption:=name;
+        MainToolbarItem.Caption:=VMapType.name;
         MainToolbarItem.OnAdjustFont:=AdjustFont;
         MainToolbarItem.OnClick:=TBmap1Click;
 
         TBFillingItem:=TTBXItem.Create(TBFillingTypeMap);
         FTBFillingItemList.Add(VMapType.GUID, TBFillingItem);
-        TBFillingItem.name:='TBMapFM'+inttostr(FSortIndex);
+        TBFillingItem.name:='TBMapFM'+inttostr(VMapType.FSortIndex);
         TBFillingItem.ImageIndex:=VIcon18Index;
-        TBFillingItem.Caption:=name;
+        TBFillingItem.Caption:=VMapType.name;
         TBFillingItem.OnAdjustFont:=AdjustFont;
         TBFillingItem.OnClick:=TBfillMapAsMainClick;
         TBFillingTypeMap.Add(TBFillingItem);
 
-        if asLayer then begin
+        if VMapType.asLayer then begin
           NDwnItem:=TMenuItem.Create(nil);
           FNDwnItemList.Add(VMapType.GUID, NDwnItem);
-          NDwnItem.Caption:=name;
+          NDwnItem.Caption:=VMapType.name;
           NDwnItem.ImageIndex:=VIcon18Index;
           NDwnItem.OnClick:=N21Click;
           ldm.Add(NDwnItem);
           NDelItem:=TMenuItem.Create(nil);
           FNDelItemList.Add(VMapType.GUID, NDelItem);
-          NDelItem.Caption:=name;
+          NDelItem.Caption:=VMapType.name;
           NDelItem.ImageIndex:=VIcon18Index;
           NDelItem.OnClick:=NDelClick;
           dlm.Add(NDelItem);
           NLayerParamsItem:=TTBXItem.Create(NLayerParams);
           FNLayerParamsItemList.Add(VMapType.GUID, NLayerParamsItem);
-          NLayerParamsItem.Caption:=name;
+          NLayerParamsItem.Caption:=VMapType.name;
           NLayerParamsItem.ImageIndex:=VIcon18Index;
           NLayerParamsItem.OnClick:=NMapParamsClick;
           NLayerParams.Add(NLayerParamsItem);
@@ -1865,10 +1865,10 @@ begin
           NDelItem.Tag:=longint(VMapType);
           NLayerParamsItem.Tag:=longint(VMapType);
         end;
-        if (asLayer)and(FConfig.MainMapsConfig.GetLayers.IsGUIDSelected(GUID)) then begin
+        if (VMapType.asLayer)and(FConfig.MainMapsConfig.GetLayers.IsGUIDSelected(GUID)) then begin
           MainToolbarItem.Checked:=true;
         end;
-        if separator then begin
+        if VMapType.separator then begin
           MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(TBSMB));
           TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(TBFillingItem.Parent));
         end;
@@ -1905,19 +1905,6 @@ begin
   Result.Add(N007);
   Result.Add(NFillMap);
 end;
-
-//function TFmain.GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
-//  AShowType: TMarksShowType): TMarksIteratorBase;
-//var
-//  VIgnoredID: Integer;
-//begin
-//  if (FCurrentOper = ao_edit_line) or (FCurrentOper = ao_edit_poly) then begin
-//    VIgnoredID := FEditMarkId;
-//  end else begin
-//    VIgnoredID := -1;
-//  end;
-////  Result := GState.MarksDb.GetMarksIteratorWithIgnore(AZoom, ARect, AShowType, VIgnoredID);
-//end;
 
 procedure TFmain.zooming(ANewZoom:byte;move:boolean);
   procedure usleep(mils:integer);
