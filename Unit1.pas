@@ -607,6 +607,10 @@ type
     procedure setalloperationfalse(newop: TAOperation);
     procedure BuildImageListMapZapSelect;
     procedure UpdateGPSSatellites;
+    procedure CreateMapUIMapsList;
+    procedure CreateMapUILayersList;
+    procedure CreateMapUIFillingList;
+    procedure CreateMapUILayerSubMenu;
   public
     LayerMapNavToMark: TNavToMarkLayer;
     MouseCursorPos: Tpoint;
@@ -1771,36 +1775,22 @@ var
 
   MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
   MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
-  TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
-
-  NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
-  NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
-  NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
 
   VIcon18Index: Integer;
 begin
   TBSMB.Clear;
   NSMB.Clear;
-  ldm.Clear;
-  dlm.Clear;
-  NLayerParams.Clear;
 
   FMainToolbarItemList.Clear;
   FMainToolbarSubMenuItemList.Clear;
-  FTBFillingItemList.Clear;
-  FNLayerParamsItemList.Clear;
-  FNDwnItemList.Clear;
-  FNDelItemList.Clear;
 
   for i:=0 to NLayerSel.Count-1 do NLayerSel.Items[0].Free;
   for i:=0 to TBLayerSel.Count-1 do TBLayerSel.Items[0].Free;
-  for i:=0 to TBFillingTypeMap.Count-2 do TBFillingTypeMap.Items[1].Free;
 
   if GState.MapType.Count>0 then begin
     for i:=0 to GState.MapType.Count-1 do begin
       VMapType := GState.MapType[i];
       VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
-//      With VMapType do begin
         MainToolbarItem:=TTBXItem.Create(TBSMB);
         FMainToolbarItemList.Add(VMapType.GUID, MainToolbarItem);
         if VMapType.ParentSubMenu='' then begin
@@ -1833,48 +1823,13 @@ begin
         MainToolbarItem.OnAdjustFont:=AdjustFont;
         MainToolbarItem.OnClick:=TBmap1Click;
 
-        TBFillingItem:=TTBXItem.Create(TBFillingTypeMap);
-        FTBFillingItemList.Add(VMapType.GUID, TBFillingItem);
-        TBFillingItem.name:='TBMapFM'+inttostr(VMapType.FSortIndex);
-        TBFillingItem.ImageIndex:=VIcon18Index;
-        TBFillingItem.Caption:=VMapType.name;
-        TBFillingItem.OnAdjustFont:=AdjustFont;
-        TBFillingItem.OnClick:=TBfillMapAsMainClick;
-        TBFillingTypeMap.Add(TBFillingItem);
-
-        if VMapType.asLayer then begin
-          NDwnItem:=TMenuItem.Create(nil);
-          FNDwnItemList.Add(VMapType.GUID, NDwnItem);
-          NDwnItem.Caption:=VMapType.name;
-          NDwnItem.ImageIndex:=VIcon18Index;
-          NDwnItem.OnClick:=N21Click;
-          ldm.Add(NDwnItem);
-          NDelItem:=TMenuItem.Create(nil);
-          FNDelItemList.Add(VMapType.GUID, NDelItem);
-          NDelItem.Caption:=VMapType.name;
-          NDelItem.ImageIndex:=VIcon18Index;
-          NDelItem.OnClick:=NDelClick;
-          dlm.Add(NDelItem);
-          NLayerParamsItem:=TTBXItem.Create(NLayerParams);
-          FNLayerParamsItemList.Add(VMapType.GUID, NLayerParamsItem);
-          NLayerParamsItem.Caption:=VMapType.name;
-          NLayerParamsItem.ImageIndex:=VIcon18Index;
-          NLayerParamsItem.OnClick:=NMapParamsClick;
-          NLayerParams.Add(NLayerParamsItem);
-          NDwnItem.Tag:=longint(VMapType);
-          NDelItem.Tag:=longint(VMapType);
-          NLayerParamsItem.Tag:=longint(VMapType);
-        end;
         if (VMapType.asLayer)and(FConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMapType.GUID)) then begin
           MainToolbarItem.Checked:=true;
         end;
         if VMapType.separator then begin
           MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(TBSMB));
-          TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(TBFillingItem.Parent));
         end;
         MainToolbarItem.Tag:=Longint(VMapType);
-        TBFillingItem.Tag:=Longint(VMapType);
-//      end;
     end;
   end;
   VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
@@ -1886,6 +1841,127 @@ begin
     TBSMB.Caption:= VMapType.Name;
   end else begin
     TBSMB.Caption:='';
+  end;
+  CreateMapUIFillingList;
+  CreateMapUILayerSubMenu;
+end;
+
+procedure TFmain.CreateMapUIFillingList;
+var
+  i: integer;
+  VMapType: TMapType;
+  TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
+  VIcon18Index: Integer;
+begin
+  FTBFillingItemList.Clear;
+  for i:=0 to TBFillingTypeMap.Count-2 do TBFillingTypeMap.Items[1].Free;
+  if GState.MapType.Count>0 then begin
+    for i:=0 to GState.MapType.Count-1 do begin
+      VMapType := GState.MapType[i];
+      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
+      TBFillingItem:=TTBXItem.Create(TBFillingTypeMap);
+      FTBFillingItemList.Add(VMapType.GUID, TBFillingItem);
+      TBFillingItem.name:='TBMapFM'+inttostr(VMapType.FSortIndex);
+      TBFillingItem.ImageIndex:=VIcon18Index;
+      TBFillingItem.Caption:=VMapType.name;
+      TBFillingItem.OnAdjustFont:=AdjustFont;
+      TBFillingItem.OnClick:=TBfillMapAsMainClick;
+      TBFillingTypeMap.Add(TBFillingItem);
+
+      if VMapType.separator then begin
+        TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(TBFillingItem.Parent));
+      end;
+      TBFillingItem.Tag:=Longint(VMapType);
+    end;
+  end;
+end;
+
+procedure TFmain.CreateMapUILayersList;
+var
+  i,j: integer;
+  VMapType: TMapType;
+
+  MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
+  MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
+
+  VIcon18Index: Integer;
+begin
+  if GState.MapType.Count>0 then begin
+    for i:=0 to GState.MapType.Count-1 do begin
+      VMapType := GState.MapType[i];
+      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
+    end;
+  end;
+end;
+
+procedure TFmain.CreateMapUILayerSubMenu;
+var
+  i,j: integer;
+  VMapType: TMapType;
+
+  NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
+  NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
+  NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
+
+  VIcon18Index: Integer;
+begin
+  ldm.Clear;
+  dlm.Clear;
+  NLayerParams.Clear;
+
+
+  FNLayerParamsItemList.Clear;
+  FNDwnItemList.Clear;
+  FNDelItemList.Clear;
+
+  if GState.MapType.Count>0 then begin
+    for i:=0 to GState.MapType.Count-1 do begin
+      VMapType := GState.MapType[i];
+      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
+      if VMapType.asLayer then begin
+        NDwnItem:=TMenuItem.Create(nil);
+        FNDwnItemList.Add(VMapType.GUID, NDwnItem);
+        NDwnItem.Caption:=VMapType.name;
+        NDwnItem.ImageIndex:=VIcon18Index;
+        NDwnItem.OnClick:=N21Click;
+        NDwnItem.Tag:=longint(VMapType);
+        ldm.Add(NDwnItem);
+
+        NDelItem:=TMenuItem.Create(nil);
+        FNDelItemList.Add(VMapType.GUID, NDelItem);
+        NDelItem.Caption:=VMapType.name;
+        NDelItem.ImageIndex:=VIcon18Index;
+        NDelItem.OnClick:=NDelClick;
+        NDelItem.Tag:=longint(VMapType);
+        dlm.Add(NDelItem);
+
+        NLayerParamsItem:=TTBXItem.Create(NLayerParams);
+        FNLayerParamsItemList.Add(VMapType.GUID, NLayerParamsItem);
+        NLayerParamsItem.Caption:=VMapType.name;
+        NLayerParamsItem.ImageIndex:=VIcon18Index;
+        NLayerParamsItem.OnClick:=NMapParamsClick;
+        NLayerParamsItem.Tag:=longint(VMapType);
+        NLayerParams.Add(NLayerParamsItem);
+      end;
+    end;
+  end;
+end;
+
+procedure TFmain.CreateMapUIMapsList;
+var
+  i,j: integer;
+  VMapType: TMapType;
+
+  MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
+  MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
+  VIcon18Index: Integer;
+begin
+  TBSMB.Clear;
+  if GState.MapType.Count>0 then begin
+    for i:=0 to GState.MapType.Count-1 do begin
+      VMapType := GState.MapType[i];
+      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
+    end;
   end;
 end;
 
