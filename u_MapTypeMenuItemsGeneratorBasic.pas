@@ -90,6 +90,7 @@ begin
   Result := TTBXSubmenuItem.Create(FRootMenu);
   Result.Caption := AName;
   Result.Images := FIconsList.GetImageList;
+  Result.tag := -1;
 end;
 
 function TMapMenuGeneratorBasic.GetParentMenuItem(

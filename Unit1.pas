@@ -413,7 +413,6 @@ type
     procedure N6Click(Sender: TObject);
     procedure ZoomToolBarDockChanging(Sender: TObject; Floating: Boolean; DockingTo: TTBDock);
     procedure N8Click(Sender: TObject);
-    procedure TBmap1Click(Sender: TObject);
     procedure NbackloadClick(Sender: TObject);
     procedure NaddPointClick(Sender: TObject);
     procedure N20Click(Sender: TObject);
@@ -613,6 +612,9 @@ type
     procedure CreateMapUILayersList;
     procedure CreateMapUIFillingList;
     procedure CreateMapUILayerSubMenu;
+    procedure OnClickMapItem(Sender: TObject);
+    procedure OnClickLayerItem(Sender: TObject);
+    procedure TBmap1Click(Sender: TObject);
   public
     LayerMapNavToMark: TNavToMarkLayer;
     MouseCursorPos: Tpoint;
@@ -627,8 +629,6 @@ type
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
     procedure OnMapUpdate(AMapType: TMapType);
-//    function GetMarksIterator(AZoom: Byte; ARect: TDoubleRect;
-//      AShowType: TMarksShowType): TMarksIteratorBase;
   end;
 
 var
@@ -669,6 +669,7 @@ uses
   i_ILocalCoordConverter,
   i_IValueToStringConverter,
   i_MarksSimple,
+  i_IActiveMapsConfig,
   u_MainWindowPositionConfig,
   u_LineOnMapEdit,
   i_IMapViewGoto,
@@ -1313,6 +1314,46 @@ begin
  FCurrentOper:=newop;
 end;
 
+procedure TFmain.OnClickLayerItem(Sender: TObject);
+var
+  VSender: TTBCustomItem;
+  VAtiveMap: IActiveMapSingle;
+  VMap: IMapType;
+begin
+  if Sender is TTBCustomItem then begin
+    VSender := TTBCustomItem(Sender);
+    VAtiveMap := IActiveMapSingle(VSender.Tag);
+    if VAtiveMap <> nil then begin
+      VMap := VAtiveMap.GetMapType;
+      if VMap <> nil then begin
+        if VSender.Checked then begin
+          FConfig.MainMapsConfig.SelectLayerByGUID(VMap.GUID);
+        end else begin
+          FConfig.MainMapsConfig.UnSelectLayerByGUID(VMap.GUID);
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TFmain.OnClickMapItem(Sender: TObject);
+var
+  VSender: TComponent;
+  VAtiveMap: IActiveMapSingle;
+  VMap: IMapType;
+begin
+  if Sender is TComponent then begin
+    VSender := TComponent(Sender);
+    VAtiveMap := IActiveMapSingle(VSender.Tag);
+    if VAtiveMap <> nil then begin
+      VMap := VAtiveMap.GetMapType;
+      if VMap <> nil then begin
+        FConfig.MainMapsConfig.SelectMainByGUID(VMap.GUID);
+      end;
+    end;
+  end;
+end;
+
 procedure TFmain.OnLineOnMapEditChange(Sender: TObject);
 begin
   FLineOnMapEdit.LockRead;
@@ -1827,7 +1868,6 @@ begin
   FMainToolbarLayerItemList.Clear;
   FMainToolbarLayerSubMenuItemList.Clear;
 
-  for i:=0 to NLayerSel.Count-1 do NLayerSel.Items[0].Free;
   for i:=0 to TBLayerSel.Count-1 do TBLayerSel.Items[0].Free;
 
   for i:=0 to GState.MapType.Count-1 do begin
@@ -1937,7 +1977,6 @@ var
   VIcon18Index: Integer;
 begin
   TBSMB.Clear;
-  NSMB.Clear;
 
   FMainToolbarMapItemList.Clear;
   FMainToolbarMapSubMenuItemList.Clear;
