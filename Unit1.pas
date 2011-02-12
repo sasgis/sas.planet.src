@@ -850,17 +850,11 @@ begin
       TNotifyEventListener.Create(Self.ProcessPosChangeMessage),
       FConfig.ViewPortState.GetChangeNotifier
     );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnMainMapChange),
+      FConfig.MainMapsConfig.GetActiveMap.GetChangeNotifier
+    );
 
-//    FLinksList.Add(
-//      TMainMapChangeListenerOfMainForm.Create(Self),
-//      GState.ViewState.MapChangeNotifier
-//    );
-//
-//    FLinksList.Add(
-//      THybrChangeListenerOfMainForm.Create(Self),
-//      GState.ViewState.HybrChangeNotifier
-//    );
-//
     VMapLayersVsibleChangeListener := TNotifyEventListener.Create(Self.MapLayersVisibleChange);
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
@@ -868,7 +862,7 @@ begin
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
-      FLayerMiniMap.VisibleChangeNotifier
+      FConfig.LayersConfig.MiniMapLayerConfig.GetChangeNotifier
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
