@@ -234,13 +234,13 @@ end;
 
 procedure TMapMainLayer.OnLayerSetChange(Sender: TObject);
 begin
-  FMainMap := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FMapsConfig.GetActiveMap.GetSelectedGUID);
+  FLayersList := FMapsConfig.GetBitmapLayersSet.GetSelectedMapsList;
   Redraw;
 end;
 
 procedure TMapMainLayer.OnMainMapChange(Sender: TObject);
 begin
-  FLayersList := FMapsConfig.GetBitmapLayersSet.GetSelectedMapsList;
+  FMainMap := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FMapsConfig.GetActiveMap.GetSelectedGUID);
   Redraw;
 end;
 
