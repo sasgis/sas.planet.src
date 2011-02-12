@@ -725,10 +725,15 @@ begin
     if VAtiveMap <> nil then begin
       VMap := VAtiveMap.GetMapType;
       if VMap <> nil then begin
-        if VSender.Checked then begin
-          FConfig.MapsConfig.SelectLayerByGUID(VMap.GUID);
-        end else begin
-          FConfig.MapsConfig.UnSelectLayerByGUID(VMap.GUID);
+        FConfig.MapsConfig.LockWrite;
+        try
+          if not FConfig.MapsConfig.GetLayers.IsGUIDSelected(VMap.GUID) then begin
+            FConfig.MapsConfig.SelectLayerByGUID(VMap.GUID);
+          end else begin
+            FConfig.MapsConfig.UnSelectLayerByGUID(VMap.GUID);
+          end;
+        finally
+          FConfig.MapsConfig.UnlockWrite;
         end;
       end;
     end;

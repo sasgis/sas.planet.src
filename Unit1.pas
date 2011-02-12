@@ -561,10 +561,6 @@ type
     ProgramStart: Boolean;
     ProgramClose: Boolean;
 
-    FMainToolbarMapItemList: IGUIDObjectList; //Пункт списка в главном тулбаре
-    FMainToolbarMapSubMenuItemList: IGUIDObjectList; //Подпункт списка в главном тулбаре
-    FMainToolbarLayerItemList: IGUIDObjectList; //Пункт списка в главном тулбаре
-    FMainToolbarLayerSubMenuItemList: IGUIDObjectList; //Подпункт списка в главном тулбаре
     FTBFillingItemList: IGUIDObjectList; //Пункт главного меню Вид/Карта заполнения/Формировать для
     FNLayerParamsItemList: IGUIDObjectList; //Пункт гланого меню Параметры/Параметры слоя
     FNDwnItemList: IGUIDObjectList; //Пункт контекстного меню Загрузить тайл слоя
@@ -613,7 +609,6 @@ type
     procedure CreateMapUILayerSubMenu;
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
-    procedure TBmap1Click(Sender: TObject);
   public
     LayerMapNavToMark: TNavToMarkLayer;
     MouseCursorPos: Tpoint;
@@ -680,6 +675,7 @@ uses
   u_PathDetalizeProviderMailRu,
   u_PathDetalizeProviderYourNavigation,
   u_SaveLoadTBConfigByConfigProvider,
+  u_MapTypeMenuItemsGeneratorBasic,
   UGSM,
   UImport,
   u_MapViewPortState;
@@ -704,10 +700,6 @@ begin
   ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
   dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
 
-  FMainToolbarMapItemList := TGUIDObjectList.Create(False);
-  FMainToolbarMapSubMenuItemList := TGUIDObjectList.Create(False);
-  FMainToolbarLayerItemList := TGUIDObjectList.Create(False);
-  FMainToolbarLayerSubMenuItemList := TGUIDObjectList.Create(False);
   FTBFillingItemList := TGUIDObjectList.Create(False);
   FNLayerParamsItemList := TGUIDObjectList.Create(False);
   FNDwnItemList := TGUIDObjectList.Create(False);
@@ -1018,10 +1010,6 @@ begin
   FLineOnMapEdit := nil;
   FWinPosition := nil;
   FSearchPresenter := nil;
-  FMainToolbarMapItemList := nil;
-  FMainToolbarMapSubMenuItemList := nil;
-  FMainToolbarLayerItemList := nil;
-  FMainToolbarLayerSubMenuItemList := nil;
   FTBFillingItemList := nil;
   FNLayerParamsItemList := nil;
   FNDwnItemList := nil;
@@ -1097,10 +1085,10 @@ begin
   VMainMapNew := AMessage.GetNewMap;
   VMainMapOld := AMessage.GetSorurceMap;
 
-  VMainToolbarItem := TTBXItem(FMainToolbarMapItemList.GetByGUID(VMainMapOld.GUID));
+//  VMainToolbarItem := TTBXItem(FMainToolbarMapItemList.GetByGUID(VMainMapOld.GUID));
   VMainToolbarItem.Checked:=false;
 
-  VMainToolbarItem := TTBXItem(FMainToolbarMapItemList.GetByGUID(VMainMapNew.GUID));
+//  VMainToolbarItem := TTBXItem(FMainToolbarMapItemList.GetByGUID(VMainMapNew.GUID));
   VMainToolbarItem.Checked:=true;
   TBSMB.ImageIndex := GState.MapTypeIcons24List.GetIconIndexByGUID(VMainMapNew.GUID);
   if FConfig.MainConfig.ShowMapName then begin
@@ -1257,10 +1245,15 @@ begin
     if VAtiveMap <> nil then begin
       VMap := VAtiveMap.GetMapType;
       if VMap <> nil then begin
-        if VSender.Checked then begin
-          FConfig.MainMapsConfig.SelectLayerByGUID(VMap.GUID);
-        end else begin
-          FConfig.MainMapsConfig.UnSelectLayerByGUID(VMap.GUID);
+        FConfig.MainMapsConfig.LockWrite;
+        try
+          if not FConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMap.GUID) then begin
+            FConfig.MainMapsConfig.SelectLayerByGUID(VMap.GUID);
+          end else begin
+            FConfig.MainMapsConfig.UnSelectLayerByGUID(VMap.GUID);
+          end;
+        finally
+          FConfig.MainMapsConfig.UnlockWrite;
         end;
       end;
     end;
@@ -1788,60 +1781,18 @@ end;
 
 procedure TFmain.CreateMapUILayersList;
 var
-  i,j: integer;
-  VMapType: TMapType;
-
-  MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
-  MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
-
-  VIcon18Index: Integer;
+  VGenerator: TMapMenuGeneratorBasic;
 begin
-  FMainToolbarLayerItemList.Clear;
-  FMainToolbarLayerSubMenuItemList.Clear;
-
-  for i:=0 to TBLayerSel.Count-1 do TBLayerSel.Items[0].Free;
-
-  for i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
-    VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
-    if VMapType.asLayer then begin
-      MainToolbarItem:=TTBXItem.Create(TBLayerSel);
-      FMainToolbarLayerItemList.Add(VMapType.GUID, MainToolbarItem);
-      if VMapType.ParentSubMenu='' then begin
-        TBLayerSel.Add(MainToolbarItem);
-      end else begin
-        j:=0;
-        While
-          (GState.MapType[j].ParentSubMenu<>VMapType.ParentSubMenu) or
-          (GState.MapType[j].asLayer<>true)
-        do begin
-          inc(j);
-        end;
-        if j=i then begin
-          MainToolbarSubMenuItem:=TTBXSubmenuItem.Create(TBLayerSel);
-          FMainToolbarLayerSubMenuItemList.Add(VMapType.GUID, MainToolbarSubMenuItem);
-          MainToolbarSubMenuItem.caption:=VMapType.ParentSubMenu;
-          MainToolbarSubMenuItem.Images:= GState.MapTypeIcons18List.GetImageList;
-          TBLayerSel.Add(MainToolbarSubMenuItem)
-        end;
-        MainToolbarSubMenuItem := TTBXSubmenuItem(FMainToolbarLayerSubMenuItemList.GetByGUID(GState.MapType[j].GUID));
-        MainToolbarSubMenuItem.Add(MainToolbarItem);
-      end;
-      MainToolbarItem.Name:='TBMapN'+inttostr(VMapType.FSortIndex);
-      MainToolbarItem.ShortCut:=VMapType.HotKey;
-      MainToolbarItem.ImageIndex:= VIcon18Index;
-      MainToolbarItem.Caption:=VMapType.name;
-      MainToolbarItem.OnAdjustFont:=AdjustFont;
-      MainToolbarItem.OnClick:=TBmap1Click;
-      MainToolbarItem.Tag:=Longint(VMapType);
-
-      if (FConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMapType.GUID)) then begin
-        MainToolbarItem.Checked:=true;
-      end;
-      if VMapType.separator then begin
-        MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(TBLayerSel));
-      end;
-    end;
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.MainMapsConfig.GetLayers,
+    TBLayerSel,
+    Self.OnClickLayerItem,
+    GState.MapTypeIcons18List
+  );
+  try
+   VGenerator.BuildControls;
+  finally
+    FreeAndNil(VGenerator);
   end;
 end;
 
@@ -1900,65 +1851,18 @@ end;
 
 procedure TFmain.CreateMapUIMapsList;
 var
-  i,j: integer;
-  VMapType: TMapType;
-
-  MainToolbarItem: TTBXItem; //Пункт списка в главном тулбаре
-  MainToolbarSubMenuItem: TTBXSubmenuItem; //Подпункт списка в главном тулбаре
-  VIcon18Index: Integer;
+  VGenerator: TMapMenuGeneratorBasic;
 begin
-  TBSMB.Clear;
-
-  FMainToolbarMapItemList.Clear;
-  FMainToolbarMapSubMenuItemList.Clear;
-  for i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
-    if not VMapType.asLayer then begin
-      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
-      MainToolbarItem:=TTBXItem.Create(TBSMB);
-      FMainToolbarMapItemList.Add(VMapType.GUID, MainToolbarItem);
-      if VMapType.ParentSubMenu='' then begin
-        TBSMB.Add(MainToolbarItem);
-      end else begin
-        j:=0;
-        While
-          (GState.MapType[j].ParentSubMenu<>VMapType.ParentSubMenu) or
-          (GState.MapType[j].asLayer<>false)
-        do begin
-          inc(j);
-        end;
-        if j=i then begin
-          MainToolbarSubMenuItem:=TTBXSubmenuItem.Create(TBSMB);
-          FMainToolbarMapSubMenuItemList.Add(VMapType.GUID, MainToolbarSubMenuItem);
-          MainToolbarSubMenuItem.caption:=VMapType.ParentSubMenu;
-          MainToolbarSubMenuItem.Images:= GState.MapTypeIcons18List.GetImageList;
-          TBSMB.Add(MainToolbarSubMenuItem);
-        end;
-        MainToolbarSubMenuItem := TTBXSubmenuItem(FMainToolbarMapSubMenuItemList.GetByGUID(GState.MapType[j].GUID));
-        MainToolbarSubMenuItem.Add(MainToolbarItem);
-      end;
-      MainToolbarItem.Name:='TBMapN'+inttostr(VMapType.FSortIndex);
-      MainToolbarItem.ShortCut:=VMapType.HotKey;
-      MainToolbarItem.ImageIndex:= VIcon18Index;
-      MainToolbarItem.Caption:=VMapType.name;
-      MainToolbarItem.OnAdjustFont:=AdjustFont;
-      MainToolbarItem.OnClick:=TBmap1Click;
-      MainToolbarItem.Tag:=Longint(VMapType);
-
-      if VMapType.separator then begin
-        MainToolbarItem.Parent.Add(TTBXSeparatorItem.Create(TBSMB));
-      end;
-    end;
-  end;
-  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
-  MainToolbarItem := TTBXItem(FMainToolbarMapItemList.GetByGUID(VMapType.GUID));
-  MainToolbarItem.Checked:=true;
-
-  TBSMB.ImageIndex := GState.MapTypeIcons24List.GetIconIndexByGUID(VMapType.GUID);
-  if FConfig.MainConfig.ShowMapName then begin
-    TBSMB.Caption:= VMapType.Name;
-  end else begin
-    TBSMB.Caption:='';
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.MainMapsConfig.GetMapsSet,
+    TBSMB,
+    Self.OnClickMapItem,
+    GState.MapTypeIcons18List
+  );
+  try
+    VGenerator.BuildControls;
+  finally
+    FreeAndNil(VGenerator);
   end;
 end;
 
@@ -2164,22 +2068,6 @@ end;
 procedure TFmain.N6Click(Sender: TObject);
 begin
  close;
-end;
-
-procedure TFmain.TBmap1Click(Sender: TObject);
-var
-  VMapType: TMapType;
-begin
-  VMapType := TMapType(TTBXItem(sender).tag);
-  if not(VMapType.asLayer) then begin
-    if (VMapType.showinfo)and(VMapType.MapInfo<>'') then begin
-      ShowMessage(VMapType.MapInfo);
-      VMapType.showinfo:=false;
-    end;
-    FConfig.MainMapsConfig.SelectMainByGUID(VMapType.GUID);
-  end else begin
-    FConfig.MainMapsConfig.SelectLayerByGUID(VMapType.GUID);
-  end;
 end;
 
 procedure TFmain.N8Click(Sender: TObject);
