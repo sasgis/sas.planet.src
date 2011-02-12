@@ -592,7 +592,6 @@ type
     procedure zooming(ANewZoom: byte; move: boolean);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
     procedure ProcessPosChangeMessage(Sender: TObject);
-    procedure ProcessMapChangeMessage(AMessage: IMapChangeMessage);
     procedure CopyBtmToClipboard(btm: TBitmap);
     function GetIgnoredMenuItemsList: TList;
     procedure MapLayersVisibleChange(Sender: TObject);
@@ -609,6 +608,7 @@ type
     procedure CreateMapUILayerSubMenu;
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
+    procedure OnMainMapChange(Sender: TObject);
   public
     LayerMapNavToMark: TNavToMarkLayer;
     MouseCursorPos: Tpoint;
@@ -1076,29 +1076,6 @@ begin
   mapResize(nil);
 end;
 
-procedure TFmain.ProcessMapChangeMessage(AMessage: IMapChangeMessage);
-var
-  VMainMapOld: TMapType;
-  VMainMapNew: TMapType;
-  VMainToolbarItem: TTBXItem;
-begin
-  VMainMapNew := AMessage.GetNewMap;
-  VMainMapOld := AMessage.GetSorurceMap;
-
-//  VMainToolbarItem := TTBXItem(FMainToolbarMapItemList.GetByGUID(VMainMapOld.GUID));
-  VMainToolbarItem.Checked:=false;
-
-//  VMainToolbarItem := TTBXItem(FMainToolbarMapItemList.GetByGUID(VMainMapNew.GUID));
-  VMainToolbarItem.Checked:=true;
-  TBSMB.ImageIndex := GState.MapTypeIcons24List.GetIconIndexByGUID(VMainMapNew.GUID);
-  if FConfig.MainConfig.ShowMapName then begin
-    TBSMB.Caption:=VMainMapNew.name;
-  end else begin
-    TBSMB.Caption:='';
-  end;
-  generate_im;
-end;
-
 procedure TFmain.ProcessPosChangeMessage(Sender: TObject);
 var
   VZoomCurr: Byte;
@@ -1355,6 +1332,22 @@ begin
         TBXSelectSrchType.Caption := VToolbarItem.Caption;
       end;
     end;
+  end;
+end;
+
+procedure TFmain.OnMainMapChange(Sender: TObject);
+var
+  VGUID: TGUID;
+  VMapType: IMapType;
+begin
+  VGUID := FConfig.MainMapsConfig. GetActiveMap.GetSelectedGUID;
+
+  TBSMB.ImageIndex := GState.MapTypeIcons24List.GetIconIndexByGUID(VGUID);
+  if FConfig.MainConfig.ShowMapName then begin
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID);
+    TBSMB.Caption := VMapType.MapType.Name;
+  end else begin
+    TBSMB.Caption := '';
   end;
 end;
 
