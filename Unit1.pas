@@ -597,7 +597,6 @@ type
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
     procedure ProcessPosChangeMessage(Sender: TObject);
     procedure ProcessMapChangeMessage(AMessage: IMapChangeMessage);
-    procedure ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
     procedure CopyBtmToClipboard(btm: TBitmap);
     function GetIgnoredMenuItemsList: TList;
     procedure MapLayersVisibleChange(Sender: TObject);
@@ -686,55 +685,6 @@ uses
   u_MapViewPortState;
 
 {$R *.dfm}
-
-{ TListenerOfMainForm }
-
-type
-  TListenerOfMainForm = class(TJclBaseListener)
-  protected
-    FMainForm: TFmain;
-  public
-    constructor Create(AMainForm: TFmain);
-  end;
-
-constructor TListenerOfMainForm.Create(AMainForm: TFmain);
-begin
-  FMainForm := AMainForm;
-end;
-
-{ TMainMapChangeListenerOfMainForm }
-
-type
-  TMainMapChangeListenerOfMainForm = class(TListenerOfMainForm)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure TMainMapChangeListenerOfMainForm.Notification(
-  msg: IJclNotificationMessage);
-var
-  VMessage: IMapChangeMessage;
-begin
-  VMessage := msg as IMapChangeMessage;
-  FMainForm.ProcessMapChangeMessage(VMessage);
-end;
-
-{ TChangeHybrChangeListenerOfMainForm }
-
-type
-  THybrChangeListenerOfMainForm = class(TListenerOfMainForm)
-  protected
-    procedure Notification(msg: IJclNotificationMessage); override;
-  end;
-
-procedure THybrChangeListenerOfMainForm.Notification(
-  msg: IJclNotificationMessage);
-var
-  VMessage: IHybrChangeMessage;
-begin
-  VMessage := msg as IHybrChangeMessage;
-  FMainForm.ProcessHybrChangeMessage(VMessage);
-end;
 
 constructor TFmain.Create(AOwner: TComponent);
 begin
@@ -1136,25 +1086,6 @@ begin
   end;
 
   mapResize(nil);
-end;
-
-procedure TFmain.ProcessHybrChangeMessage(AMessage: IHybrChangeMessage);
-var
-  i:integer;
-  VMapType: TMapType;
-  VActiveMapsList: IMapTypeList;
-begin
-  VActiveMapsList := FConfig.MainMapsConfig.GetLayers.GetSelectedMapsList;
-  for i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
-    if VMapType.asLayer then begin
-      if VActiveMapsList.GetMapTypeByGUID(VMapType.GUID) <> nil then begin
-        TTBXItem(FMainToolbarLayerItemList.GetByGUID(VMapType.GUID)).Checked := True;
-      end else begin
-        TTBXItem(FMainToolbarLayerItemList.GetByGUID(VMapType.GUID)).Checked := False;
-      end;
-    end;
-  end;
 end;
 
 procedure TFmain.ProcessMapChangeMessage(AMessage: IMapChangeMessage);
