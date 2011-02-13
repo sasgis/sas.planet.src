@@ -809,7 +809,7 @@ begin
     FLayersList.Add(LayerMapNavToMark);
     FShowErrorLayer := TTileErrorInfoLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FShowErrorLayer);
-    FLayerMapCenterScale := TCenterScale.Create(map, FConfig.ViewPortState);
+    FLayerMapCenterScale := TCenterScale.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CenterScaleConfig);
     FLayersList.Add(FLayerMapCenterScale);
     FLayerScaleLine := TLayerScaleLine.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerScaleLine);
@@ -2545,7 +2545,7 @@ end;
 
 procedure TFmain.N32Click(Sender: TObject);
 begin
- FLayerMapCenterScale.Visible := TTBXItem(Sender).Checked;
+ FConfig.LayersConfig.CenterScaleConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.TBItem3Click(Sender: TObject);

@@ -9,46 +9,37 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IViewPortState,
+  i_ICenterScaleConfig,
   u_WindowLayerWithPos;
 
 type
   TCenterScale = class(TWindowLayerFixedSizeWithBitmap)
   private
-    FRadius: Integer;
-    FFontSize: Integer;
-    FDigitsOffset: Integer;
-    procedure DrawScale;
+    FConfig: ICenterScaleConfig;
+    procedure OnConfigChange(Sender: TObject);
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
-    property Visible: Boolean read GetVisible write SetVisible;
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ICenterScaleConfig);
+    procedure StartThreads; override;
   end;
 
 implementation
 
 uses
-  Graphics,
-  SysUtils;
+  SysUtils,
+  u_NotifyEventListener;
 
 { TCenterScale }
 
-constructor TCenterScale.Create(AParentMap: TImage32; AViewPortState: IViewPortState);
-var
- textWdth: integer;
- VSize: TPoint;
+constructor TCenterScale.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ICenterScaleConfig);
 begin
-  inherited;
-  FRadius := 115;
-  FDigitsOffset := 20;
-  FFontSize := 12;
-  textWdth := FLayer.Bitmap.TextWidth('270°');
-  VSize := Point((FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2), (FRadius * 2) + (FDigitsOffset * 2) + (textWdth * 2));
-  FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
-  DoUpdateLayerSize(VSize);
-  DrawScale;
+  inherited Create(AParentMap, AViewPortState);
+  FConfig := AConfig;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
 end;
 
 function TCenterScale.GetMapLayerLocationRect: TFloatRect;
@@ -64,65 +55,28 @@ begin
   Result.Bottom := Result.Top + VSize.Y;
 end;
 
-procedure TCenterScale.LoadConfig(AConfigProvider: IConfigDataProvider);
+procedure TCenterScale.OnConfigChange(Sender: TObject);
 var
-  VConfigProvider: IConfigDataProvider;
+  VBitmap: TCustomBitmap32;
 begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
-  if VConfigProvider <> nil then begin
-    Visible := VConfigProvider.ReadBool('showscale',false);
+  VBitmap := FConfig.Bitmap;
+  try
+    FLayer.Bitmap.Assign(VBitmap);
+  finally
+    VBitmap.Free;
+  end;
+  Redraw;
+  if FConfig.Visible then begin
+    Show;
+  end else begin
+    Hide;
   end;
 end;
 
-procedure TCenterScale.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
-var
-  VConfigProvider: IConfigDataWriteProvider;
+procedure TCenterScale.StartThreads;
 begin
   inherited;
-  VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
-  VConfigProvider.WriteBool('showscale', Visible);
-end;
-
-procedure TCenterScale.DrawScale;
-var
-  VHalfSize: TPoint;
-  i: integer;
-  r: Double;
-  xy, xy1: TPoint;
-  VSize: TPoint;
-begin
-  inherited;
-  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-  VHalfSize := Point(VSize.X div 2, VSize.Y div 2);
-
-  i := 0;
-  FLayer.Bitmap.Clear(clBlack);
-  FLayer.Bitmap.Font.Size := FFontSize - 3;
-  While i < 360 do begin
-    FLayer.Bitmap.Font.Size := FFontSize - 3;
-    if (i mod 90) = 0 then begin
-      r := 0;
-      FLayer.Bitmap.Font.Size := FFontSize;
-    end else if (i mod 45) = 0 then begin
-      r := FRadius - 40;
-      FLayer.Bitmap.Font.Size := FFontSize - 1;
-    end else begin
-      r := FRadius - 10;
-    end;
-    xy.x := round(VHalfSize.X + FRadius * cos(i * (Pi / 180)));
-    xy.y := round(VHalfSize.Y + FRadius * sin(i * (Pi / 180)));
-    xy1.x := round(VHalfSize.X + r * cos(i * (Pi / 180)));
-    xy1.y := round(VHalfSize.Y + r * sin(i * (Pi / 180)));
-    FLayer.Bitmap.LineFS(xy.x, xy.y, xy1.x, xy1.y, SetAlpha(clRed32, 180));
-    if (i mod 15) = 0 then begin
-      xy1.x := round(VHalfSize.X + (FRadius + FDigitsOffset) * cos(i * (Pi / 180))) - FLayer.Bitmap.TextWidth(inttostr((i + 90) mod 360) + '°') div 2;
-      xy1.y := round(VHalfSize.X + (FRadius + FDigitsOffset) * sin(i * (Pi / 180))) - 2 - FLayer.Bitmap.Font.size div 2;
-      FLayer.Bitmap.RenderText(xy1.x + 1, xy1.y + 1, inttostr((i + 90) mod 360) + '°', 3, SetAlpha(clWhite32, 150));
-      FLayer.Bitmap.RenderText(xy1.x, xy1.y, inttostr((i + 90) mod 360) + '°', 3, SetAlpha(clBlue32, 210));
-    end;
-    inc(i, 5);
-  end;
+  OnConfigChange(nil);
 end;
 
 end.
