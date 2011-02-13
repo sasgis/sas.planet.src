@@ -18,6 +18,7 @@ uses
   i_IMiniMapLayerConfig,
   i_ICenterScaleConfig,
   i_IScaleLineConfig,
+  i_ILastSelectionLayerConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -85,6 +86,9 @@ type
 
     function GetScaleLineConfig: IScaleLineConfig;
     property ScaleLineConfig: IScaleLineConfig read GetScaleLineConfig;
+
+    function GetLastSelectionLayerConfig: ILastSelectionLayerConfig;
+    property LastSelectionLayerConfig: ILastSelectionLayerConfig read GetLastSelectionLayerConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)

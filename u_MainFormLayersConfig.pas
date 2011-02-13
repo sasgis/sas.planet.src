@@ -14,6 +14,7 @@ uses
   i_IMiniMapLayerConfig,
   i_ICenterScaleConfig,
   i_IScaleLineConfig,
+  i_ILastSelectionLayerConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -30,6 +31,7 @@ type
     FMiniMapLayerConfig: IMiniMapLayerConfig;
     FCenterScaleConfig: ICenterScaleConfig;
     FScaleLineConfig: IScaleLineConfig;
+    FLastSelectionLayerConfig: ILastSelectionLayerConfig;
   protected
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;
@@ -41,6 +43,7 @@ type
     function GetMiniMapLayerConfig: IMiniMapLayerConfig;
     function GetCenterScaleConfig: ICenterScaleConfig;
     function GetScaleLineConfig: IScaleLineConfig;
+    function GetLastSelectionLayerConfig: ILastSelectionLayerConfig;
   public
     constructor Create(AMapsConfig: IMainMapsConfig);
   end;
@@ -59,6 +62,7 @@ uses
   u_MiniMapLayerConfig,
   u_CenterScaleConfig,
   u_ScaleLineConfig,
+  u_LastSelectionLayerConfig,
   u_MapLayerNavToPointMarkerConfig;
 
 { TMainFormLayersConfig }
@@ -86,6 +90,8 @@ begin
   Add(FCenterScaleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CenterScale'));
   FScaleLineConfig := TScaleLineConfig.Create;
   Add(FScaleLineConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ScaleLine'));
+  FLastSelectionLayerConfig := TLastSelectionLayerConfig.Create;
+  Add(FLastSelectionLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('LastSelection'));
 end;
 
 function TMainFormLayersConfig.GetCenterScaleConfig: ICenterScaleConfig;
@@ -106,6 +112,11 @@ end;
 function TMainFormLayersConfig.GetKmlLayerConfig: IKmlLayerConfig;
 begin
   Result := FKmlLayerConfig;
+end;
+
+function TMainFormLayersConfig.GetLastSelectionLayerConfig: ILastSelectionLayerConfig;
+begin
+  Result := FLastSelectionLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetMapLayerGridsConfig: IMapLayerGridsConfig;
