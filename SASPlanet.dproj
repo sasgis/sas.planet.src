@@ -89,6 +89,7 @@
     <DCCReference Include="i_IBitmapLayerProvider.pas" />
     <DCCReference Include="i_IBitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_IBitmapTypeExtManager.pas" />
+    <DCCReference Include="i_ICenterScaleConfig.pas" />
     <DCCReference Include="i_IConfigDataElement.pas" />
     <DCCReference Include="i_IConfigDataProvider.pas" />
     <DCCReference Include="i_IConfigDataWriteProvider.pas" />
@@ -356,6 +357,7 @@
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
+    <DCCReference Include="u_CenterScaleConfig.pas" />
     <DCCReference Include="u_ClipPolygonByRect.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="u_ConfigDataElementBase.pas" />

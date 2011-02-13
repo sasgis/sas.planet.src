@@ -344,6 +344,8 @@ uses
   u_NavigationToPoint in 'u_NavigationToPoint.pas',
   i_IMapLayerGPSTrackConfig in 'i_IMapLayerGPSTrackConfig.pas',
   u_MapLayerGPSTrackConfig in 'u_MapLayerGPSTrackConfig.pas',
+  i_ICenterScaleConfig in 'i_ICenterScaleConfig.pas',
+  u_CenterScaleConfig in 'u_CenterScaleConfig.pas',
   i_MapLayerGridsConfig in 'i_MapLayerGridsConfig.pas',
   u_BaseGridConfig in 'u_BaseGridConfig.pas',
   u_TileGridConfig in 'u_TileGridConfig.pas',
