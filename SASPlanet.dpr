@@ -348,6 +348,8 @@ uses
   u_CenterScaleConfig in 'u_CenterScaleConfig.pas',
   i_IScaleLineConfig in 'i_IScaleLineConfig.pas',
   u_ScaleLineConfig in 'u_ScaleLineConfig.pas',
+  i_ILastSelectionLayerConfig in 'i_ILastSelectionLayerConfig.pas',
+  u_LastSelectionLayerConfig in 'u_LastSelectionLayerConfig.pas',
   i_MapLayerGridsConfig in 'i_MapLayerGridsConfig.pas',
   u_BaseGridConfig in 'u_BaseGridConfig.pas',
   u_TileGridConfig in 'u_TileGridConfig.pas',

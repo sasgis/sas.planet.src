@@ -115,6 +115,7 @@
     <DCCReference Include="i_IKmlLayerConfig.pas" />
     <DCCReference Include="i_ILanguageManager.pas" />
     <DCCReference Include="i_ILastSelectionInfo.pas" />
+    <DCCReference Include="i_ILastSelectionLayerConfig.pas" />
     <DCCReference Include="i_ILineOnMapEdit.pas" />
     <DCCReference Include="i_IListOfObjectsWithTTL.pas" />
     <DCCReference Include="i_ILocalCoordConverter.pas" />
@@ -444,6 +445,7 @@
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
+    <DCCReference Include="u_LastSelectionLayerConfig.pas" />
     <DCCReference Include="u_LineOnMapEdit.pas" />
     <DCCReference Include="u_ListOfObjectsWithTTL.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
