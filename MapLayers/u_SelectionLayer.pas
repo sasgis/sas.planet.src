@@ -13,12 +13,14 @@ uses
   u_ClipPolygonByRect,
   i_IViewPortState,
   i_ILastSelectionLayerConfig,
+  i_ILastSelectionInfo,
   u_MapLayerBasic;
 
 type
   TSelectionLayer = class(TMapLayerBasicFullView)
   private
     FConfig: ILastSelectionLayerConfig;
+    FLastSelectionInfo: ILastSelectionInfo;
     FBitmapClip: IPolyClip;
     FLineColor: TColor32;
     FLineWidth: Integer;
@@ -27,10 +29,11 @@ type
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
     function LonLatArrayToVisualFloatArray(APolygon: TDoublePointArray): TDoublePointArray;
     procedure ChangeSelection(Sender: TObject);
+    procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ILastSelectionLayerConfig);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ILastSelectionLayerConfig; ALastSelectionInfo: ILastSelectionInfo);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
@@ -60,11 +63,16 @@ begin
   LayerPositioned.Changed;
 end;
 
-constructor TSelectionLayer.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AConfig: ILastSelectionLayerConfig);
+constructor TSelectionLayer.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConfig: ILastSelectionLayerConfig;
+  ALastSelectionInfo: ILastSelectionInfo
+);
 begin
   inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
   FConfig := AConfig;
+  FLastSelectionInfo := ALastSelectionInfo;
   FLineColor := SetAlpha(Color32(clBlack), 210);
   FLineWidth := 2;
   FBitmapClip := TPolyClipByRect.Create(MakeRect(-1000, -1000, 10000, 10000));
@@ -103,6 +111,11 @@ begin
     Result[i] := VLocalConverter.LonLat2LocalPixelFloat(APolygon[i]);
   end;
   VViewRect := DoubleRect(VLocalConverter.GetLocalRect);
+end;
+
+procedure TSelectionLayer.OnConfigChange(Sender: TObject);
+begin
+
 end;
 
 procedure TSelectionLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);

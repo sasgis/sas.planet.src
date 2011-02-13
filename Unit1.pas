@@ -799,7 +799,7 @@ begin
     FLayersList.Add(FLayerMapGPS);
     FLayerGPSMarker := TMapLayerGPSMarker.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.GPSMarker, GState.GPSpar.GPSModule);
     FLayersList.Add(FLayerGPSMarker);
-    FLayerSelection := TSelectionLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.LastSelectionLayerConfig);
+    FLayerSelection := TSelectionLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.LastSelectionLayerConfig, GState.LastSelectionInfo);
     FLayersList.Add(FLayerSelection);
     FLayerMapNal:=TMapNalLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerMapNal);
