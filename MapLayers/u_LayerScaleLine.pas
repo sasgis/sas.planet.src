@@ -10,18 +10,20 @@ uses
   i_IConfigDataWriteProvider,
   i_ILocalCoordConverter,
   i_IViewPortState,
+  i_IScaleLineConfig,
   u_WindowLayerWithPos;
 
 type
   TLayerScaleLine = class(TWindowLayerFixedSizeWithBitmap)
   private
+    FConfig: IScaleLineConfig;
     FBottomMargin: Integer;
   protected
     procedure DoRedraw; override;
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IScaleLineConfig);
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
@@ -42,11 +44,12 @@ const
 
 { TLayerScaleLine }
 
-constructor TLayerScaleLine.Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+constructor TLayerScaleLine.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IScaleLineConfig);
 var
   VSize: TPoint;
 begin
-  inherited;
+  inherited Create(AParentMap, AViewPortState);
+  FConfig := AConfig;
   FLayer.Bitmap.Font.Name := 'arial';
   FLayer.Bitmap.Font.Size := 10;
   VSize.X := 128;

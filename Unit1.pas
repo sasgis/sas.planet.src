@@ -811,7 +811,7 @@ begin
     FLayersList.Add(FShowErrorLayer);
     FLayerMapCenterScale := TCenterScale.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CenterScaleConfig);
     FLayersList.Add(FLayerMapCenterScale);
-    FLayerScaleLine := TLayerScaleLine.Create(map, FConfig.ViewPortState);
+    FLayerScaleLine := TLayerScaleLine.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.ScaleLineConfig);
     FLayersList.Add(FLayerScaleLine);
     FLayerStatBar:=TLayerStatBar.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.StatBar);
     FLayersList.Add(FLayerStatBar);
