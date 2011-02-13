@@ -16,6 +16,7 @@ uses
   i_IUsedMarksConfig,
   i_IKmlLayerConfig,
   i_IMiniMapLayerConfig,
+  i_ICenterScaleConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -77,6 +78,9 @@ type
 
     function GetMiniMapLayerConfig: IMiniMapLayerConfig;
     property MiniMapLayerConfig: IMiniMapLayerConfig read GetMiniMapLayerConfig;
+
+    function GetCenterScaleConfig: ICenterScaleConfig;
+    property CenterScaleConfig: ICenterScaleConfig read GetCenterScaleConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)
