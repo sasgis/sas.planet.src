@@ -12,11 +12,13 @@ uses
   i_IConfigDataWriteProvider,
   u_ClipPolygonByRect,
   i_IViewPortState,
+  i_ILastSelectionLayerConfig,
   u_MapLayerBasic;
 
 type
   TSelectionLayer = class(TMapLayerBasicFullView)
   private
+    FConfig: ILastSelectionLayerConfig;
     FBitmapClip: IPolyClip;
     FLineColor: TColor32;
     FLineWidth: Integer;
@@ -28,7 +30,7 @@ type
   protected
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ILastSelectionLayerConfig);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
@@ -59,9 +61,10 @@ begin
 end;
 
 constructor TSelectionLayer.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState);
+  AViewPortState: IViewPortState; AConfig: ILastSelectionLayerConfig);
 begin
   inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+  FConfig := AConfig;
   FLineColor := SetAlpha(Color32(clBlack), 210);
   FLineWidth := 2;
   FBitmapClip := TPolyClipByRect.Create(MakeRect(-1000, -1000, 10000, 10000));
