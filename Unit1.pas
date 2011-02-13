@@ -2545,7 +2545,7 @@ end;
 
 procedure TFmain.N32Click(Sender: TObject);
 begin
- FConfig.LayersConfig.CenterScaleConfig.Visible := TTBXItem(Sender).Checked;
+  FConfig.LayersConfig.CenterScaleConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.TBItem3Click(Sender: TObject);

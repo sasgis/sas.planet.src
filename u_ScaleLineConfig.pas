@@ -29,7 +29,7 @@ implementation
 constructor TScaleLineConfig.Create;
 begin
   inherited;
-  FVisible := False;
+  FVisible := True;
 end;
 
 procedure TScaleLineConfig.DoReadConfig(AConfigData: IConfigDataProvider);
