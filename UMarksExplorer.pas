@@ -17,7 +17,9 @@ uses
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   u_MarksSimple,
-  Unit1, ComCtrls, ImgList;
+  Unit1,
+  ComCtrls,
+  ImgList;
 
 type
   TFMarksExplorer = class(TCommonFormParent)
@@ -52,6 +54,7 @@ type
     splCatMarks: TSplitter;
     pnlMarksTop: TPanel;
     pnlCategoriesTop: TPanel;
+    Button4: TButton;
     procedure FormShow(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure BtnDelMarkClick(Sender: TObject);
@@ -74,6 +77,7 @@ type
     procedure TreeView1KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
+    procedure Button4Click(Sender: TObject);
   private
   public
   end;
@@ -103,7 +107,8 @@ uses
   UaddPoly,
   UaddLine,
   UImport,
-  UAddCategory;
+  UAddCategory,
+  u_KMLExport;
 
 {$R *.dfm}
 
@@ -680,6 +685,18 @@ procedure TFMarksExplorer.Button3Click(Sender: TObject);
 begin
   GState.MarksDb.SaveMarks2File;
   fmain.generate_im;
+end;
+
+procedure TFMarksExplorer.Button4Click(Sender: TObject);
+var KMLExport:TKMLExport;
+    Category:TStringList;
+begin
+  KMLExport:=TKMLExport.Create;
+  Category:=TStringList.create;
+  GState.MarksDb.Kategory2StringsWithObjects(Category);
+  KMLExport.ExportToKML(Category,'c:\test.kml');
+  KMLExport.free;
+//
 end;
 
 procedure TFMarksExplorer.BtnAddCategoryClick(Sender: TObject);

@@ -25,8 +25,6 @@ object FMarksExplorer: TFMarksExplorer
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 381
-    ExplicitWidth = 571
     object RBall: TRadioButton
       Left = 0
       Top = 17
@@ -35,8 +33,6 @@ object FMarksExplorer: TFMarksExplorer
       Align = alTop
       Caption = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
       TabOrder = 0
-      ExplicitTop = 19
-      ExplicitWidth = 145
     end
     object RBchecked: TRadioButton
       Left = 0
@@ -46,9 +42,6 @@ object FMarksExplorer: TFMarksExplorer
       Align = alTop
       Caption = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1091#1082#1072#1079#1072#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
       TabOrder = 1
-      ExplicitLeft = 8
-      ExplicitTop = 11
-      ExplicitWidth = 225
     end
     object RBnot: TRadioButton
       Left = 0
@@ -58,9 +51,6 @@ object FMarksExplorer: TFMarksExplorer
       Align = alTop
       Caption = #1053#1077' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1084#1077#1090#1082#1080
       TabOrder = 2
-      ExplicitLeft = -3
-      ExplicitTop = 40
-      ExplicitWidth = 571
     end
   end
   object pnlMainWithButtons: TPanel
@@ -71,10 +61,6 @@ object FMarksExplorer: TFMarksExplorer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 68
-    ExplicitTop = 375
-    ExplicitWidth = 185
-    ExplicitHeight = 41
     object pnlButtons: TPanel
       AlignWithMargins = True
       Left = 494
@@ -84,9 +70,6 @@ object FMarksExplorer: TFMarksExplorer
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 495
-      ExplicitTop = -1
-      ExplicitHeight = 224
       object Button1: TButton
         AlignWithMargins = True
         Left = 3
@@ -101,7 +84,7 @@ object FMarksExplorer: TFMarksExplorer
       object Button2: TButton
         AlignWithMargins = True
         Left = 3
-        Top = 65
+        Top = 96
         Width = 75
         Height = 25
         Align = alTop
@@ -113,13 +96,24 @@ object FMarksExplorer: TFMarksExplorer
       object Button3: TButton
         AlignWithMargins = True
         Left = 3
-        Top = 34
+        Top = 65
         Width = 75
         Height = 25
         Align = alTop
         Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
         TabOrder = 2
         OnClick = Button3Click
+      end
+      object Button4: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 34
+        Width = 75
+        Height = 25
+        Align = alTop
+        Caption = #1069#1082#1089#1087#1086#1088#1090
+        TabOrder = 3
+        OnClick = Button4Click
       end
     end
     object pnlMain: TPanel
@@ -130,10 +124,6 @@ object FMarksExplorer: TFMarksExplorer
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 140
-      ExplicitTop = 375
-      ExplicitWidth = 185
-      ExplicitHeight = 41
       object splCatMarks: TSplitter
         Left = 178
         Top = 0
@@ -150,10 +140,6 @@ object FMarksExplorer: TFMarksExplorer
         Align = alClient
         Caption = #1052#1077#1090#1082#1080
         TabOrder = 0
-        ExplicitLeft = 216
-        ExplicitTop = 8
-        ExplicitWidth = 273
-        ExplicitHeight = 345
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
@@ -166,10 +152,6 @@ object FMarksExplorer: TFMarksExplorer
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
-          ExplicitLeft = 6
-          ExplicitTop = 56
-          ExplicitWidth = 257
-          ExplicitHeight = 265
         end
         object CheckBox1: TCheckBox
           AlignWithMargins = True
@@ -181,9 +163,6 @@ object FMarksExplorer: TFMarksExplorer
           Caption = #1042#1089#1077
           TabOrder = 1
           OnClick = CheckBox1Click
-          ExplicitLeft = 34
-          ExplicitTop = 360
-          ExplicitWidth = 41
         end
         object pnlMarksTop: TPanel
           AlignWithMargins = True
@@ -194,7 +173,6 @@ object FMarksExplorer: TFMarksExplorer
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 2
-          ExplicitWidth = 358
           object Bevel2: TBevel
             AlignWithMargins = True
             Left = 61
@@ -293,8 +271,7 @@ object FMarksExplorer: TFMarksExplorer
             ParentShowHint = False
             ShowHint = True
             OnClick = BtnGotoMarkClick
-            ExplicitLeft = 80
-            ExplicitTop = 12
+            ExplicitLeft = 70
           end
           object BtnOpMark: TSpeedButton
             Left = 96
@@ -524,9 +501,6 @@ object FMarksExplorer: TFMarksExplorer
           Caption = #1042#1089#1077
           TabOrder = 0
           OnClick = CheckBox2Click
-          ExplicitLeft = 13
-          ExplicitTop = 320
-          ExplicitWidth = 41
         end
         object TreeView1: TTreeView
           AlignWithMargins = True
@@ -542,10 +516,6 @@ object FMarksExplorer: TFMarksExplorer
           OnChange = TreeView1Change
           OnKeyUp = TreeView1KeyUp
           OnMouseUp = TreeView1MouseUp
-          ExplicitLeft = 8
-          ExplicitTop = 51
-          ExplicitWidth = 185
-          ExplicitHeight = 263
         end
         object pnlCategoriesTop: TPanel
           AlignWithMargins = True
@@ -556,7 +526,6 @@ object FMarksExplorer: TFMarksExplorer
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 2
-          ExplicitWidth = 251
           object BtnAddCategory: TSpeedButton
             Left = 8
             Top = 0

@@ -270,7 +270,8 @@ uses
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange};
+  UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange},
+  u_KMLExport in 'u_KMLExport.pas';
 
 {$R *.res} {$R *Pics.res}
 begin

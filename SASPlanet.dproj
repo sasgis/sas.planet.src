@@ -327,6 +327,7 @@
     <DCCReference Include="u_GPSSatellitesInView.pas" />
     <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_HybrChangeMessage.pas" />
+    <DCCReference Include="u_KMLExport.pas" />
     <DCCReference Include="u_KmlInfoSimple.pas" />
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />
     <DCCReference Include="u_KmzInfoSimpleParser.pas" />
