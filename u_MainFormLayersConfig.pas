@@ -13,6 +13,7 @@ uses
   i_IKmlLayerConfig,
   i_IMiniMapLayerConfig,
   i_ICenterScaleConfig,
+  i_IScaleLineConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -28,6 +29,7 @@ type
     FKmlLayerConfig: IKmlLayerConfig;
     FMiniMapLayerConfig: IMiniMapLayerConfig;
     FCenterScaleConfig: ICenterScaleConfig;
+    FScaleLineConfig: IScaleLineConfig;
   protected
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;
@@ -38,6 +40,7 @@ type
     function GetKmlLayerConfig: IKmlLayerConfig;
     function GetMiniMapLayerConfig: IMiniMapLayerConfig;
     function GetCenterScaleConfig: ICenterScaleConfig;
+    function GetScaleLineConfig: IScaleLineConfig;
   public
     constructor Create(AMapsConfig: IMainMapsConfig);
   end;
@@ -55,6 +58,7 @@ uses
   u_KmlLayerConfig,
   u_MiniMapLayerConfig,
   u_CenterScaleConfig,
+  u_ScaleLineConfig,
   u_MapLayerNavToPointMarkerConfig;
 
 { TMainFormLayersConfig }
@@ -80,6 +84,8 @@ begin
   Add(FMiniMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MiniMap'));
   FCenterScaleConfig := TCenterScaleConfig.Create;
   Add(FCenterScaleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CenterScale'));
+  FScaleLineConfig := TScaleLineConfig.Create;
+  Add(FScaleLineConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ScaleLine'));
 end;
 
 function TMainFormLayersConfig.GetCenterScaleConfig: ICenterScaleConfig;
@@ -120,6 +126,11 @@ end;
 function TMainFormLayersConfig.GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
 begin
   Result := FNavToPointMarkerConfig;
+end;
+
+function TMainFormLayersConfig.GetScaleLineConfig: IScaleLineConfig;
+begin
+  Result := FScaleLineConfig;
 end;
 
 function TMainFormLayersConfig.GetStatBar: IStatBarConfig;

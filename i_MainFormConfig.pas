@@ -17,6 +17,7 @@ uses
   i_IKmlLayerConfig,
   i_IMiniMapLayerConfig,
   i_ICenterScaleConfig,
+  i_IScaleLineConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -81,6 +82,9 @@ type
 
     function GetCenterScaleConfig: ICenterScaleConfig;
     property CenterScaleConfig: ICenterScaleConfig read GetCenterScaleConfig;
+
+    function GetScaleLineConfig: IScaleLineConfig;
+    property ScaleLineConfig: IScaleLineConfig read GetScaleLineConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)
