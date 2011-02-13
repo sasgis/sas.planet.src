@@ -2540,7 +2540,7 @@ end;
 
 procedure TFmain.ShowLineClick(Sender: TObject);
 begin
-  FLayerScaleLine.Visible := TTBXItem(Sender).Checked;
+  FConfig.LayersConfig.ScaleLineConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TFmain.N32Click(Sender: TObject);

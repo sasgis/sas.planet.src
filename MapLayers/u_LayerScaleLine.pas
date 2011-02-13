@@ -18,16 +18,14 @@ type
   private
     FConfig: IScaleLineConfig;
     FBottomMargin: Integer;
+    procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IScaleLineConfig);
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
-    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 implementation
@@ -36,6 +34,7 @@ uses
   Math,
   SysUtils,
   i_ICoordConverter,
+  u_NotifyEventListener,
   UResStrings,
   t_GeoTypes;
 
@@ -50,6 +49,11 @@ var
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
+
   FLayer.Bitmap.Font.Name := 'arial';
   FLayer.Bitmap.Font.Size := 10;
   VSize.X := 128;
@@ -136,26 +140,14 @@ begin
   Result.Top := Result.Bottom - VSize.Y;
 end;
 
-procedure TLayerScaleLine.LoadConfig(AConfigProvider: IConfigDataProvider);
-var
-  VConfigProvider: IConfigDataProvider;
+procedure TLayerScaleLine.OnConfigChange(Sender: TObject);
 begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
-  if VConfigProvider <> nil then begin
-    Visible := VConfigProvider.ReadBool('ScaleLine', True);
+  if FConfig.Visible then begin
+    Redraw;
+    Show;
   end else begin
-    Visible := True;
+    Hide;
   end;
-end;
-
-procedure TLayerScaleLine.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
-var
-  VConfigProvider: IConfigDataWriteProvider;
-begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
-  VConfigProvider.WriteBool('ScaleLine', Visible);
 end;
 
 end.
