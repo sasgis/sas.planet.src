@@ -22,22 +22,16 @@ type
     FConfig: ILastSelectionLayerConfig;
     FLastSelectionInfo: ILastSelectionInfo;
     FBitmapClip: IPolyClip;
-    FLineColor: TColor32;
-    FLineWidth: Integer;
     FPolygon: TDoublePointArray;
-    FSelectionChangeListener: IJclListener;
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
     function LonLatArrayToVisualFloatArray(APolygon: TDoublePointArray): TDoublePointArray;
-    procedure ChangeSelection(Sender: TObject);
+    procedure OnChangeSelection(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ILastSelectionLayerConfig; ALastSelectionInfo: ILastSelectionInfo);
     destructor Destroy; override;
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
-    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
 
@@ -57,12 +51,6 @@ uses
 
 { TSelectionLayer }
 
-procedure TSelectionLayer.ChangeSelection(Sender: TObject);
-begin
-  FPolygon := GState.LastSelectionInfo.Polygon;
-  LayerPositioned.Changed;
-end;
-
 constructor TSelectionLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
@@ -73,18 +61,20 @@ begin
   inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
   FConfig := AConfig;
   FLastSelectionInfo := ALastSelectionInfo;
-  FLineColor := SetAlpha(Color32(clBlack), 210);
-  FLineWidth := 2;
   FBitmapClip := TPolyClipByRect.Create(MakeRect(-1000, -1000, 10000, 10000));
   LayerPositioned.OnPaint := PaintLayer;
-  FSelectionChangeListener := TNotifyEventListener.Create(ChangeSelection);
-  GState.LastSelectionInfo.GetChangeNotifier.Add(FSelectionChangeListener);
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnChangeSelection),
+    FLastSelectionInfo.GetChangeNotifier
+  );
 end;
 
 destructor TSelectionLayer.Destroy;
 begin
-  GState.LastSelectionInfo.GetChangeNotifier.Remove(FSelectionChangeListener);
-  FSelectionChangeListener := nil;
   FBitmapClip := nil;
   inherited;
 end;
@@ -115,7 +105,18 @@ end;
 
 procedure TSelectionLayer.OnConfigChange(Sender: TObject);
 begin
+  if FConfig.Visible then begin
+    Redraw;
+    Show;
+  end else begin
+    Hide;
+  end;
+end;
 
+procedure TSelectionLayer.OnChangeSelection(Sender: TObject);
+begin
+  FPolygon := GState.LastSelectionInfo.Polygon;
+  LayerPositioned.Changed;
 end;
 
 procedure TSelectionLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
@@ -124,45 +125,26 @@ var
   VFloatPoints: TArrayOfFloatPoint;
   VPointCount: Integer;
   i: Integer;
+  VLineColor: TColor32;
+  VLineWidth: Integer;
 begin
   VPointCount := Length(FPolygon);
   if VPointCount > 0 then begin
+    FConfig.LockRead;
+    try
+      VLineColor := FConfig.LineColor;
+      VLineWidth := FConfig.LineWidth;
+    finally
+      FConfig.UnlockRead;
+    end;
     VVisualPolygon := LonLatArrayToVisualFloatArray(FPolygon);
 
     SetLength(VFloatPoints, VPointCount);
     for i := 0 to VPointCount - 1 do begin
       VFloatPoints[i] := FloatPoint(VVisualPolygon[i].X, VVisualPolygon[i].Y);
     end;
-    PolylineFS(Buffer, VFloatPoints, FLineColor, True, FLineWidth, jsBevel);
+    PolylineFS(Buffer, VFloatPoints, VLineColor, True, VLineWidth, jsBevel);
   end;
-end;
-
-procedure TSelectionLayer.LoadConfig(AConfigProvider: IConfigDataProvider);
-var
-  VConfigProvider: IConfigDataProvider;
-begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
-  if VConfigProvider <> nil then begin
-    VConfigProvider := VConfigProvider.GetSubItem('LastSelection');
-    if VConfigProvider <> nil then begin
-      FLineColor := LoadColor32(VConfigProvider, 'LineColor', FLineColor);
-      FLineWidth := VConfigProvider.ReadInteger('LineWidth', FLineWidth);
-      Visible := VConfigProvider.ReadBool('Visible',false);
-    end;
-  end;
-end;
-
-procedure TSelectionLayer.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
-var
-  VConfigProvider: IConfigDataWriteProvider;
-begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
-  VConfigProvider := VConfigProvider.GetOrCreateSubItem('LastSelection');
-  VConfigProvider.WriteBool('Visible', Visible);
-  WriteColor32(VConfigProvider, 'LineColor', FLineColor);
-  VConfigProvider.WriteInteger('LineWidth', FLineWidth);
 end;
 
 end.

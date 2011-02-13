@@ -3694,7 +3694,7 @@ end;
 
 procedure TFmain.NShowSelectionClick(Sender: TObject);
 begin
-  FLayerSelection.Visible := TTBXItem(sender).Checked;
+  FConfig.LayersConfig.LastSelectionLayerConfig.Visible := TTBXItem(sender).Checked;
 end;
 
 procedure TFmain.NGoToCurClick(Sender: TObject);
