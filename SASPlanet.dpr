@@ -295,8 +295,6 @@ uses
   i_IPosChangeMessage in 'i_IPosChangeMessage.pas',
   u_PosChangeMessage in 'u_PosChangeMessage.pas',
   u_PosChangeListener in 'u_PosChangeListener.pas',
-  u_MapChangeMessage in 'u_MapChangeMessage.pas',
-  i_IMapChangeMessage in 'i_IMapChangeMessage.pas',
   u_HybrChangeMessage in 'u_HybrChangeMessage.pas',
   i_IHybrChangeMessage in 'i_IHybrChangeMessage.pas',
   u_ActiveMapConfig in 'u_ActiveMapConfig.pas',
