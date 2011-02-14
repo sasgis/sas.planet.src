@@ -5,19 +5,27 @@ interface
 uses
   Types,
   GR32,
+  GR32_Polygons,
   GR32_Image,
   t_GeoTypes,
   i_IViewPortState,
   i_ILocalCoordConverter,
   i_ICalcLineLayerConfig,
+  u_ClipPolygonByRect,
   u_MapLayerBasic;
 
 type
   TCalcLineLayer = class(TMapLayerBasicFullView)
   private
     FConfig: ICalcLineLayerConfig;
-    FPolygon: TDoublePointArray;
+
+    FSourcePolygon: TDoublePointArray;
+    FDistArray: TDoubleDynArray;
     FPolyActivePointIndex: integer;
+    FBitmapSize: TPoint;
+    FPointsOnBitmap: TDoublePointArray;
+    FPolygon: TPolygon32;
+
 
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
     function LonLatArrayToVisualFloatArray(ALocalConverter: ILocalCoordConverter; APolygon: TDoublePointArray): TDoublePointArray;
@@ -31,10 +39,14 @@ type
       const AFillColor: TColor32;
       const ARectColor: TColor32
     );
+    procedure PreparePolygon;
   protected
     procedure DoRedraw; override;
+    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ICalcLineLayerConfig);
+    destructor Destroy; override;
     procedure DrawLineCalc(APathLonLat: TDoublePointArray; AActiveIndex: Integer);
     procedure DrawNothing;
   end;
@@ -42,14 +54,11 @@ type
 implementation
 
 uses
-  Classes,
-  Graphics,
-  GR32_PolygonsEx,
+  SysUtils,
   GR32_Layers,
-  GR32_VectorUtils,
   i_ICoordConverter,
-  i_IDatum,
   i_IValueToStringConverter,
+  i_IDatum,
   u_NotifyEventListener,
   u_GlobalState,
   UResStrings;
@@ -68,18 +77,43 @@ begin
   );
 end;
 
+destructor TCalcLineLayer.Destroy;
+begin
+  FreeAndNil(FPolygon);
+  inherited;
+end;
+
+procedure TCalcLineLayer.DoPosChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  inherited;
+  Redraw;
+end;
+
 procedure TCalcLineLayer.DoRedraw;
 begin
   inherited;
+  PreparePolygon;
   LayerPositioned.Changed;
+end;
+
+procedure TCalcLineLayer.DoScaleChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  inherited;
+  Redraw;
 end;
 
 procedure TCalcLineLayer.DrawLineCalc(APathLonLat: TDoublePointArray;
   AActiveIndex: Integer);
+var
+  VPointsCount: Integer;
 begin
-  if Length(APathLonLat) > 0 then begin
-    FPolygon := Copy(APathLonLat);
-    FPolyActivePointIndex := AActiveIndex;
+  FSourcePolygon := Copy(APathLonLat);
+  FPolyActivePointIndex := AActiveIndex;
+
+  VPointsCount := Length(FSourcePolygon);
+  if VPointsCount > 0 then begin
     Redraw;
     Show;
   end else begin
@@ -158,22 +192,15 @@ end;
 
 procedure TCalcLineLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
 var
-  i, j, textW: integer;
+  i, textW: integer;
   k1: TDoublePoint;
   len: Double;
   text: string;
-  VBitmapSize: TPoint;
-  VPointsOnBitmap: TDoublePointArray;
   VPointsCount: Integer;
-  VFloatPoints: TArrayOfFloatPoint;
-  VLocalConverter: ILocalCoordConverter;
-  VGeoConvert: ICoordConverter;
   VValueConverter: IValueToStringConverter;
-  VDatum: IDatum;
 
   VLenShow: Boolean;
   VLineColor: TColor32;
-  VLineWidth: integer;
   VPointFillColor: TColor32;
   VPointRectColor: TColor32;
   VPointFirstColor: TColor32;
@@ -182,13 +209,12 @@ var
   VTextColor: TColor32;
   VTextBGColor: TColor32;
 begin
-  VPointsCount := Length(FPolygon);
+  VPointsCount := Length(FSourcePolygon);
   if VPointsCount > 0 then begin
     FConfig.LockRead;
     try
       VLenShow := FConfig.LenShow;
       VLineColor := FConfig.LineColor;
-      VLineWidth := FConfig.LineWidth;
       VPointFillColor := FConfig.PointFillColor;
       VPointRectColor := FConfig.PointRectColor;
       VPointFirstColor := FConfig.PointFirstColor;
@@ -201,26 +227,14 @@ begin
     end;
 
     VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-    VLocalConverter := FVisualCoordConverter;
-    VGeoConvert := VLocalConverter.GetGeoConverter;
-    VDatum := VGeoConvert.Datum;
-    VPointsOnBitmap := LonLatArrayToVisualFloatArray(VLocalConverter, FPolygon);
+    FPolygon.DrawFill(Buffer, VLineColor);
 
-    SetLength(VFloatPoints, VPointsCount);
-    for i := 0 to VPointsCount - 1 do begin
-      VFloatPoints[i] := FloatPoint(VPointsOnBitmap[i].X, VPointsOnBitmap[i].Y);
-    end;
-    PolylineFS(Buffer, VFloatPoints, VLineColor, True, VLineWidth, jsBevel);
 
-    VBitmapSize := VLocalConverter.GetLocalRectSize;
     for i := 0 to VPointsCount - 2 do begin
-      k1 := VPointsOnBitmap[i + 1];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < VBitmapSize.X) and (k1.y < VBitmapSize.Y)) then begin
+      k1 := FPointsOnBitmap[i + 1];
+      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < FBitmapSize.X) and (k1.y < FBitmapSize.Y)) then begin
         if i = VPointsCount - 2 then begin
-          len := 0;
-          for j := 0 to i do begin
-            len := len + VDatum.CalcDist(FPolygon[j], FPolygon[j + 1]);
-          end;
+          len := FDistArray[VPointsCount - 1];
           text := SAS_STR_Whole + ': ' + VValueConverter.DistConvert(len);
           Buffer.Font.Size := 9;
           textW := Buffer.TextWidth(text) + 11;
@@ -240,7 +254,7 @@ begin
           );
         end else begin
           if VLenShow then begin
-            text := VValueConverter.DistConvert(VDatum.CalcDist(FPolygon[i], FPolygon[i + 1]));
+            text := VValueConverter.DistConvert(FDistArray[i + 1] - FDistArray[i]);
             Buffer.Font.Size := 7;
             textW := Buffer.TextWidth(text) + 11;
             Buffer.FillRectS(
@@ -259,13 +273,65 @@ begin
             );
           end;
         end;
-        DrawPolyPoint(Buffer, VBitmapSize, k1, VPointSize, VPointFillColor, VPointRectColor);
+        DrawPolyPoint(Buffer, FBitmapSize, k1, VPointSize, VPointFillColor, VPointRectColor);
       end;
     end;
-    k1 := VPointsOnBitmap[0];
-    DrawPolyPoint(Buffer, VBitmapSize, k1, VPointSize, VPointFirstColor, VPointFirstColor);
-    k1 := VPointsOnBitmap[FPolyActivePointIndex];
-    DrawPolyPoint(Buffer, VBitmapSize, k1, VPointSize, VPointActiveColor, VPointActiveColor);
+    k1 := FPointsOnBitmap[0];
+    DrawPolyPoint(Buffer, FBitmapSize, k1, VPointSize, VPointFirstColor, VPointFirstColor);
+    k1 := FPointsOnBitmap[FPolyActivePointIndex];
+    DrawPolyPoint(Buffer, FBitmapSize, k1, VPointSize, VPointActiveColor, VPointActiveColor);
+  end;
+end;
+
+procedure TCalcLineLayer.PreparePolygon;
+var
+  VPointsCount: Integer;
+  VLocalConverter: ILocalCoordConverter;
+  VPolygon: TPolygon32;
+  i: Integer;
+  VPathFixedPoints: TArrayOfFixedPoint;
+  VBitmapClip: IPolyClip;
+  VPointsProcessedCount: Integer;
+  VPointsOnBitmapPrepared: TDoublePointArray;
+  VDatum: IDatum;
+begin
+  VPointsCount := Length(FSourcePolygon);
+  if VPointsCount > 0 then begin
+    VLocalConverter := FVisualCoordConverter;
+    VBitmapClip := TPolyClipByRect.Create(VLocalConverter.GetLocalRect);
+
+    VDatum := VLocalConverter.GetGeoConverter.Datum;
+    SetLength(FDistArray, VPointsCount);
+    FDistArray[0] := 0;
+    for i := 1 to VPointsCount - 1 do begin
+      FDistArray[i] := FDistArray[i - 1] + VDatum.CalcDist(FSourcePolygon[i - 1], FSourcePolygon[i]);
+    end;
+
+    FPointsOnBitmap := LonLatArrayToVisualFloatArray(VLocalConverter, FSourcePolygon);
+    FBitmapSize := VLocalConverter.GetLocalRectSize;
+
+    VPointsProcessedCount := VBitmapClip.Clip(FPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
+    if VPointsProcessedCount > 0 then begin
+      SetLength(VPathFixedPoints, VPointsProcessedCount);
+      for i := 0 to VPointsProcessedCount - 1 do begin
+        VPathFixedPoints[i] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
+      end;
+      VPolygon := TPolygon32.Create;
+      try
+        VPolygon.Antialiased := true;
+        VPolygon.AntialiasMode := am4times;
+        VPolygon.Closed := False;
+        VPolygon.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
+        with VPolygon.Outline do try
+          FreeAndNil(FPolygon);
+          FPolygon := Grow(Fixed(FConfig.LineWidth / 2), 0.5);
+        finally
+          free;
+        end;
+      finally
+        VPolygon.Free;
+      end;
+    end;
   end;
 end;
 
