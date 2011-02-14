@@ -74,6 +74,7 @@ uses
   u_MapLayerShowError,
   u_CenterScale,
   u_SelectionLayer,
+  u_CalcLineLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
   u_TileDownloaderUI,
@@ -537,13 +538,13 @@ type
     FShowErrorLayer: TTileErrorInfoLayer;
     FWikiLayer: TWikiLayer;
     FdWhenMovingButton: integer;
-    FLenShow: boolean;
     FMarshrutComment: string;
     movepoint: boolean;
     FSelectionRect: TDoubleRect;
 
     FLayerScaleLine: TLayerScaleLine;
     FLayerMapNal: TMapNalLayer;
+    FCalcLineLayer: TCalcLineLayer;
     FLayerMapGPS: TMapGPSLayer;
     FLayerGoto: TGotoLayer;
     FLayerFillingMap: TMapLayerFillingMap;
@@ -763,7 +764,6 @@ begin
     Enabled:=true;
     Application.OnMessage := DoMessageEvent;
     Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
-    FLenShow:=true;
     Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
     Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
     Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
@@ -797,6 +797,8 @@ begin
     FLayersList.Add(FLayerSelection);
     FLayerMapNal:=TMapNalLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerMapNal);
+    FCalcLineLayer := TCalcLineLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CalcLineLayerConfig);
+    FLayersList.Add(FCalcLineLayer);
     FLayerGoto := TGotoLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerGoto);
     LayerMapNavToMark := TNavToMarkLayer.Create(map, FConfig.ViewPortState, FConfig.NavToPoint, FConfig.LayersConfig.NavToPointMarkerConfig);
@@ -1249,35 +1251,37 @@ begin
   try
     TBEditPath.Visible:=(FLineOnMapEdit.GetCount > 1);
     if FLineOnMapEdit.GetCount > 0 then begin
-      case FCurrentOper of
-        ao_calc_line: begin
-          FLayerMapNal.DrawLineCalc(
-            FLineOnMapEdit.GetPoints,
-            FLenShow,
-            FLineOnMapEdit.GetActiveIndex
-          );
-        end;
-        ao_edit_line,
-        ao_add_line: begin
-          FLayerMapNal.DrawNewPath(
-            FLineOnMapEdit.GetPoints,
-            false,
-            FLineOnMapEdit.GetActiveIndex
-          );
-        end;
-        ao_edit_poly,
-        ao_add_poly: begin
-          FLayerMapNal.DrawNewPath(
-            FLineOnMapEdit.GetPoints,
-            True,
-            FLineOnMapEdit.GetActiveIndex
-          );
-        end;
-        ao_select_poly: begin
-          FLayerMapNal.DrawReg(FLineOnMapEdit.GetPoints);
+      if FCurrentOper = ao_calc_line then begin
+        FCalcLineLayer.DrawLineCalc(
+          FLineOnMapEdit.GetPoints,
+          FLineOnMapEdit.GetActiveIndex
+        );
+      end else begin
+        FCalcLineLayer.DrawNothing;
+        case FCurrentOper of
+          ao_edit_line,
+          ao_add_line: begin
+            FLayerMapNal.DrawNewPath(
+              FLineOnMapEdit.GetPoints,
+              false,
+              FLineOnMapEdit.GetActiveIndex
+            );
+          end;
+          ao_edit_poly,
+          ao_add_poly: begin
+            FLayerMapNal.DrawNewPath(
+              FLineOnMapEdit.GetPoints,
+              True,
+              FLineOnMapEdit.GetActiveIndex
+            );
+          end;
+          ao_select_poly: begin
+            FLayerMapNal.DrawReg(FLineOnMapEdit.GetPoints);
+          end;
         end;
       end;
     end else begin
+      FCalcLineLayer.DrawNothing;
       FLayerMapNal.DrawNothing;
     end;
   finally
@@ -3399,8 +3403,13 @@ end;
 procedure TFmain.TBEditPathLabelClick(Sender: TObject);
 begin
   if FCurrentOper = ao_calc_line then begin
-    FLenShow:=not(FLenShow);
-    FLayerMapNal.DrawLineCalc(FLineOnMapEdit.GetPoints, FLenShow, FLineOnMapEdit.GetActiveIndex);
+    FConfig.LayersConfig.CalcLineLayerConfig.LockWrite;
+    try
+      FConfig.LayersConfig.CalcLineLayerConfig.LenShow :=
+        not FConfig.LayersConfig.CalcLineLayerConfig.LenShow;
+    finally
+      FConfig.LayersConfig.CalcLineLayerConfig.UnlockWrite;
+    end;
   end;
 end;
 
