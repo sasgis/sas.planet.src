@@ -339,6 +339,8 @@ uses
   u_ScaleLineConfig in 'u_ScaleLineConfig.pas',
   i_ILastSelectionLayerConfig in 'i_ILastSelectionLayerConfig.pas',
   u_LastSelectionLayerConfig in 'u_LastSelectionLayerConfig.pas',
+  i_ICalcLineLayerConfig in 'i_ICalcLineLayerConfig.pas',
+  u_CalcLineLayerConfig in 'u_CalcLineLayerConfig.pas',
   i_MapLayerGridsConfig in 'i_MapLayerGridsConfig.pas',
   u_BaseGridConfig in 'u_BaseGridConfig.pas',
   u_TileGridConfig in 'u_TileGridConfig.pas',
