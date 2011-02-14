@@ -12,6 +12,7 @@ uses
 type
   TCalcLineLayerConfig = class(TConfigDataElementBase, ICalcLineLayerConfig)
   private
+    FLenShow: Boolean;
     FLineColor: TColor32;
     FLineWidth: integer;
     FPointFillColor: TColor32;
@@ -25,6 +26,9 @@ type
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
+    function GetLenShow: Boolean;
+    procedure SetLenShow(AValue: Boolean);
+
     function GetLineColor: TColor32;
     procedure SetLineColor(AValue: TColor32);
 
@@ -65,6 +69,8 @@ uses
 constructor TCalcLineLayerConfig.Create;
 begin
   inherited;
+  FLenShow := True;
+
   FLineColor := SetAlpha(ClRed32, 150);
   FLineWidth := 3;
 
@@ -82,6 +88,8 @@ procedure TCalcLineLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
+    FLenShow := AConfigData.ReadBool('LenShow', FLenShow);
+
     FLineColor := LoadColor32(AConfigData, 'LineColor', FLineColor);
     FLineWidth := AConfigData.ReadInteger('LineWidth', FLineWidth);
 
@@ -102,6 +110,8 @@ procedure TCalcLineLayerConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
+  AConfigData.WriteBool('LenShow', FLenShow);
+
   WriteColor32(AConfigData, 'LineColor', FLineColor);
   AConfigData.WriteInteger('LineWidth', FLineWidth);
 
@@ -113,6 +123,16 @@ begin
 
   WriteColor32(AConfigData, 'TextColor', FTextColor);
   WriteColor32(AConfigData, 'TextBGColor', FTextBGColor);
+end;
+
+function TCalcLineLayerConfig.GetLenShow: Boolean;
+begin
+  LockRead;
+  try
+    Result := FLenShow;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TCalcLineLayerConfig.GetLineColor: TColor32;
@@ -202,6 +222,19 @@ begin
     Result := FTextColor;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TCalcLineLayerConfig.SetLenShow(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FLenShow <> AValue then begin
+      FLenShow := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

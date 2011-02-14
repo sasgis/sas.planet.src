@@ -9,6 +9,10 @@ uses
 type
   ICalcLineLayerConfig = interface(IConfigDataElement)
     ['{D3B5B8D5-B389-4406-9881-9704030CDD1E}']
+    function GetLenShow: Boolean;
+    procedure SetLenShow(AValue: Boolean);
+    property LenShow: Boolean read GetLenShow write SetLenShow;
+
     function GetLineColor: TColor32;
     procedure SetLineColor(AValue: TColor32);
     property LineColor: TColor32 read GetLineColor write SetLineColor;
