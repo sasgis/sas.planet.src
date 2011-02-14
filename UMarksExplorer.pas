@@ -19,7 +19,7 @@ uses
   u_MarksSimple,
   Unit1,
   ComCtrls,
-  ImgList;
+  ImgList, Menus, TBXControls;
 
 type
   TFMarksExplorer = class(TCommonFormParent)
@@ -30,8 +30,6 @@ type
     grpCategory: TGroupBox;
     BtnDelKat: TSpeedButton;
     OpenDialog: TOpenDialog;
-    Button1: TButton;
-    Button2: TButton;
     BtnDelMark: TSpeedButton;
     RBall: TRadioButton;
     RBchecked: TRadioButton;
@@ -41,7 +39,6 @@ type
     BtnEditCategory: TSpeedButton;
     CheckBox2: TCheckBox;
     CheckBox1: TCheckBox;
-    Button3: TButton;
     BtnAddCategory: TSpeedButton;
     SBNavOnMark: TSpeedButton;
     OpenDialog1: TOpenDialog;
@@ -54,22 +51,29 @@ type
     splCatMarks: TSplitter;
     pnlMarksTop: TPanel;
     pnlCategoriesTop: TPanel;
-    Button4: TButton;
     ExportDialog: TSaveDialog;
+    btnExport: TTBXButton;
+    PopupMenuExport: TPopupMenu;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    btnAccept: TTBXButton;
+    btnClose: TTBXButton;
+    btnImport: TTBXButton;
+    Bevel1: TBevel;
+    btnExportMark: TSpeedButton;
+    Bevel3: TBevel;
+    btnExportCategory: TSpeedButton;
     procedure FormShow(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
     procedure BtnDelMarkClick(Sender: TObject);
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnOpMarkClick(Sender: TObject);
     procedure BtnGotoMarkClick(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
     procedure MarksListBoxKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CheckBox2Click(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure SBNavOnMarkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -78,7 +82,12 @@ type
     procedure TreeView1KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
-    procedure Button4Click(Sender: TObject);
+    procedure btnExportClick(Sender: TObject);
+    procedure btnImportClick(Sender: TObject);
+    procedure btnAcceptClick(Sender: TObject);
+    procedure btnCloseClick(Sender: TObject);
+    procedure btnExportMarkClick(Sender: TObject);
+    procedure btnExportCategoryClick(Sender: TObject);
   private
   public
   end;
@@ -109,7 +118,7 @@ uses
   UaddLine,
   UImport,
   UAddCategory,
-  u_KMLExport;
+  u_ExportMarks2KML;
 
 {$R *.dfm}
 
@@ -353,15 +362,6 @@ begin
  SBNavOnMark.Down:= Fmain.LayerMapNavToMark.Visible;
 end;
 
-procedure TFMarksExplorer.Button2Click(Sender: TObject);
-begin
- GState.MarksDb.SaveMarks2File;
- if RBall.Checked then GState.show_point := mshAll;
- if RBchecked.Checked then GState.show_point := mshChecked;
- if RBnot.Checked then GState.show_point := mshNone;
- close;
-end;
-
 function DeleteMarkModal(id:integer;handle:THandle):boolean;
 var
   VMarkId: TMarkId;
@@ -482,6 +482,16 @@ begin
   end;
 end;
 
+procedure TFMarksExplorer.btnImportClick(Sender: TObject);
+begin
+ If (OpenDialog1.Execute) then
+  if (FileExists(OpenDialog1.FileName)) then
+   begin
+    FImport.ImportFile(OpenDialog1.FileName);
+    Self.FormShow(sender);
+   end;
+end;
+
 procedure TFMarksExplorer.BtnDelKatClick(Sender: TObject);
 var
   VCategory: TCategoryId;
@@ -529,6 +539,59 @@ begin
         end;
       finally
         VMark.Free;
+      end;
+    end;
+  end;
+end;
+
+procedure TFMarksExplorer.btnExportCategoryClick(Sender: TObject);
+var KMLExport:TExportMarks2KML;
+    VCategory:TCategoryId;
+begin
+  VCategory := TCategoryId(TreeView1.Selected.data);
+  if VCategory<>nil then begin
+    KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
+    try
+      if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
+        KMLExport.ExportCategoryToKML(VCategory,ExportDialog.FileName);
+      end;
+    finally
+      KMLExport.free;
+    end;
+  end;
+end;
+
+procedure TFMarksExplorer.btnExportClick(Sender: TObject);
+var KMLExport:TExportMarks2KML;
+begin
+  KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
+  try
+    if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
+      KMLExport.ExportToKML(ExportDialog.FileName);
+    end;
+  finally
+    KMLExport.free;
+  end;
+end;
+
+procedure TFMarksExplorer.btnExportMarkClick(Sender: TObject);
+var KMLExport:TExportMarks2KML;
+    VId:integer;
+    VMark: TMarkFull;
+    VIndex:integer;
+begin
+  VIndex := MarksListBox.ItemIndex;
+  if (VIndex >= 0) then begin
+    VId:=TMarkId(MarksListBox.Items.Objects[VIndex]).Id;
+    VMark := GState.MarksDb.GetMarkByID(VId);
+    if VMark <> nil then begin
+      KMLExport:=TExportMarks2KML.Create(false);
+      try
+        if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
+          KMLExport.ExportMarkToKML(VMark,ExportDialog.FileName);
+        end;
+      finally
+        KMLExport.free;
       end;
     end;
   end;
@@ -597,16 +660,6 @@ begin
     end;
     GState.MarksDb.WriteCategory(VCategory);
   end;
-end;
-
-procedure TFMarksExplorer.Button1Click(Sender: TObject);
-begin
- If (OpenDialog1.Execute) then
-  if (FileExists(OpenDialog1.FileName)) then
-   begin
-    FImport.ImportFile(OpenDialog1.FileName);
-    Self.FormShow(sender);
-   end;
 end;
 
 procedure TFMarksExplorer.BtnEditCategoryClick(Sender: TObject);
@@ -682,21 +735,10 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.Button3Click(Sender: TObject);
+procedure TFMarksExplorer.btnAcceptClick(Sender: TObject);
 begin
   GState.MarksDb.SaveMarks2File;
   fmain.generate_im;
-end;
-
-procedure TFMarksExplorer.Button4Click(Sender: TObject);
-var KMLExport:TKMLExport;
-begin
-  KMLExport:=TKMLExport.Create;
-  if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-    KMLExport.ExportToKML(ExportDialog.FileName);
-    KMLExport.free;
-  end;
-//
 end;
 
 procedure TFMarksExplorer.BtnAddCategoryClick(Sender: TObject);
@@ -713,6 +755,15 @@ begin
   end else begin
     VCategory.Free;
   end;
+end;
+
+procedure TFMarksExplorer.btnCloseClick(Sender: TObject);
+begin
+ GState.MarksDb.SaveMarks2File;
+ if RBall.Checked then GState.show_point := mshAll;
+ if RBchecked.Checked then GState.show_point := mshChecked;
+ if RBnot.Checked then GState.show_point := mshNone;
+ close;
 end;
 
 procedure TFMarksExplorer.SBNavOnMarkClick(Sender: TObject);

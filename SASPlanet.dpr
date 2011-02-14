@@ -271,7 +271,7 @@ uses
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
   UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange},
-  u_KMLExport in 'u_KMLExport.pas';
+  u_ExportMarks2KML in 'u_ExportMarks2KML.pas';
 
 {$R *.res} {$R *Pics.res}
 begin

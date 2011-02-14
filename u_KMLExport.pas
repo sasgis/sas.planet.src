@@ -6,20 +6,30 @@ uses
   Forms,
   Classes,
   SysUtils,
+  Windows,
   GR32,
   xmldom,
   XMLIntf,
   msxmldom,
   XMLDoc,
+  KaZip,
   u_MarksSimple,
   u_GlobalState,
-  u_GeoToStr;
+  u_GeoToStr,
+  u_BitmapTileVampyreSaver,
+  i_BitmapTileSaveLoad,
+  i_IBitmapTypeExtManager,
+  u_BitmapTypeExtManagerSimple;
 
 type
   TKMLExport = class
     kmldoc:TXMLDocument;
+    filename:string;
+    inKMZ:boolean;
     doc:iXMLNode;
-    function ExportToKML(ACategory:TStrings;FileName:string):boolean;
+    Zip: TKaZip;
+    function ExportToKML(AFileName:string):boolean;
+    procedure SaveMarkIcon(Mark:TMarkFull);
     procedure AddFolders(ACategory:TStrings);
     procedure AddMarks(CategoryID:TCategoryId; inNode:iXMLNode);
     constructor Create;
@@ -41,15 +51,34 @@ begin
   doc:=child.AddChild('Document');
 end;
 
-function TKMLExport.ExportToKML(ACategory:TStrings;FileName:string):boolean;
+function TKMLExport.ExportToKML(AFileName:string):boolean;
+var Category:TStringList;
+    KMLStream:TMemoryStream;
 begin
-  AddFolders(ACategory);
-  kmldoc.SaveToFile(FileName);
+  filename:=Afilename;
+  inKMZ:=ExtractFileExt(filename)='.kmz';
+  Category:=TStringList.create;
+  GState.MarksDb.Kategory2StringsWithObjects(Category);
+  AddFolders(Category);
+  KMLStream:=TMemoryStream.Create;
+  kmldoc.SaveToStream(KMLStream);
+
+  if inKMZ then begin
+    Zip := TKaZip.Create(nil);
+    Zip.FileName := filename;
+    Zip.CreateZip(filename);
+    Zip.CompressionType := ctFast;
+    Zip.Active := true;
+    Zip.AddStream('doc.kml',KMLStream);
+    Zip.Active := false;
+    Zip.Close;
+    Zip.Free;
+  end else begin
+    kmldoc.SaveToFile(FileName);
+  end;
 end;
 
 procedure TKMLExport.AddFolders(ACategory:TStrings);
-var
-  CachedStrs: TStringList;
 
   procedure AddItem(Lev: Integer; ParentNode: IXMLNode; S: string; Data:TObject);
     function FindNodeWithText(AParent: iXMLNode; const S: string): IXMLNode;
@@ -101,14 +130,19 @@ var
 var
   K: Integer;
 begin
-  CachedStrs := TStringList.Create;
-  CachedStrs.Duplicates := dupIgnore;
-  CachedStrs.Sorted := True;
-  try
-    for K := 0 to ACategory.Count - 1 do
-      AddItem(0, doc, ACategory[K], ACategory.Objects[K]);
-  finally
-    CachedStrs.Free;
+  for K := 0 to ACategory.Count - 1 do begin
+    AddItem(0, doc, ACategory[K], ACategory.Objects[K]);
+  end;
+end;
+
+procedure TKMLExport.SaveMarkIcon(Mark:TMarkFull);
+begin
+  if inKMZ then begin
+    Zip.CreateFolder('files',now);
+    Zip.AddFile(GState.ProgramPath+'marksicons'+PathDelim+Mark.PicName,'files\'+Mark.PicName);
+  end else begin
+    CreateDir(ExtractFilePath(filename)+'files\');
+    CopyFile(PChar(GState.ProgramPath+'marksicons'+PathDelim+Mark.PicName),PChar(ExtractFilePath(filename)+'files\'+Mark.PicName),false);
   end;
 end;
 
@@ -118,7 +152,6 @@ var MarksList:TStringList;
     i,j:integer;
     currNode:IXMLNode;
     coordinates:string;
-    Bitmap: TCustomBitmap32;
 begin
   MarksList:=TStringList.Create;
   GState.MarksDb.Marsk2StringsWithMarkId(CategoryID, MarksList);
@@ -152,12 +185,10 @@ begin
         j:=GState.MarkIcons.IndexOf(Mark.PicName);
         if j>=0 then begin
           with AddChild('IconStyle') do begin
-            Bitmap:=TCustomBitmap32.Create;
-            Bitmap.Assign(TCustomBitmap32(GState.MarkIcons.Objects[j]));
-            ChildValues['scale']:=Mark.Scale2/Bitmap.Width;
-            Bitmap.Free;
+            SaveMarkIcon(Mark);
+            ChildValues['scale']:=Mark.Scale2/TCustomBitmap32(GState.MarkIcons.Objects[j]).Width;
             with AddChild('Icon') do begin
-              ChildValues['href']:=Mark.PicName;
+              ChildValues['href']:='files\'+Mark.PicName;
             end;
             with AddChild('hotSpot') do begin
               Attributes['x']:=0.5;

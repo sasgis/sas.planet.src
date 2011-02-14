@@ -399,6 +399,7 @@ type
     tbitmGPSToPointCenter: TTBXItem;
     tmrMapUpdate: TTimer;
     tbtmHelpBugTrack: TTBItem;
+    NMarkExport: TMenuItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -530,6 +531,7 @@ type
     procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure tmrMapUpdateTimer(Sender: TObject);
     procedure tbtmHelpBugTrackClick(Sender: TObject);
+    procedure NMarkExportClick(Sender: TObject);
   private
     nilLastLoad: TLastLoad;
     ShowActivHint: boolean;
@@ -679,7 +681,8 @@ uses
   u_SaveLoadTBConfigByConfigProvider,
   UGSM,
   UImport,
-  u_MapViewPortState;
+  u_MapViewPortState,
+  u_ExportMarks2KML;
 
 {$R *.dfm}
 
@@ -2924,6 +2927,31 @@ begin
   end;
 end;
 
+procedure TFmain.NMarkExportClick(Sender: TObject);
+var KMLExport:TExportMarks2KML;
+    VMark: TMarkFull;
+    VIndex:integer;
+    VPWL: TResObj;
+begin
+  VPWL.S:=0;
+  VPWL.find:=false;
+  MouseOnMyReg(VPWL, moveTrue);
+  if VPWL.find then begin
+    KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
+    try
+      if (FMarksExplorer.ExportDialog.Execute)and(FMarksExplorer.ExportDialog.FileName<>'') then begin
+        VIndex:=strtoint(VPWL.numid);
+        VMark := GState.MarksDb.GetMarkByID(VIndex);
+        if VMark <> nil then begin
+          KMLExport.ExportMarkToKML(VMark,FMarksExplorer.ExportDialog.FileName);
+        end;
+      end;
+    finally
+      KMLExport.free;
+    end;
+  end;
+end;
+
 procedure TFmain.NMarkDelClick(Sender: TObject);
 var
   VPWL: TResObj;
@@ -3237,6 +3265,7 @@ begin
       MouseOnMyReg(VPWL,Point(x,y));
     end;  
     NMarkEdit.Visible:=VPWL.find;
+    NMarkExport.Visible:=VPWL.find;
     NMarkDel.Visible:=VPWL.find;
     NMarkSep.Visible:=VPWL.find;
     NMarkOper.Visible:=VPWL.find;
