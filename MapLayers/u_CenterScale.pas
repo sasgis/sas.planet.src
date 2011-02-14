@@ -6,8 +6,6 @@ uses
   Types,
   GR32,
   GR32_Image,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   i_IViewPortState,
   i_ICenterScaleConfig,
   u_WindowLayerWithPos;

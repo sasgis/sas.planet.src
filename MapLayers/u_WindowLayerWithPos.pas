@@ -76,8 +76,7 @@ uses
   Types,
   Graphics,
   u_JclNotify,
-  u_NotifyEventListener,
-  u_NotifyEventPosChangeListener;
+  u_NotifyEventListener;
 
 { TWindowLayerBasic }
 

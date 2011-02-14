@@ -64,9 +64,7 @@ implementation
 uses
   t_GeoTypes,
   i_GPS,
-  i_ICoordConverter,
   u_NotifyEventListener,
-  u_GlobalState,
   u_Datum,
   u_GPSModuleByZylGPS,
   u_GPSRecorderStuped;

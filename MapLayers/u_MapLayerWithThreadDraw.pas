@@ -41,8 +41,7 @@ uses
   Types,
   SysUtils,
   t_GeoTypes,
-  u_LocalCoordConverterFactorySimpe,
-  Ugeofun;
+  u_LocalCoordConverterFactorySimpe;
 
 { TMapLayerWithThreadDraw }
 

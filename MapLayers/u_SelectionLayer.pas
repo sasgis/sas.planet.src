@@ -8,8 +8,6 @@ uses
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   u_ClipPolygonByRect,
   i_IViewPortState,
   i_ILastSelectionLayerConfig,
@@ -44,7 +42,6 @@ uses
   GR32_Layers,
   GR32_VectorUtils,
   i_ILocalCoordConverter,
-  u_ConfigProviderHelpers,
   u_NotifyEventListener,
   u_GlobalState,
   Ugeofun;

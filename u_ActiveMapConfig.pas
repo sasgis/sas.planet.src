@@ -9,8 +9,7 @@ uses
   i_IGUIDList,
   i_MapTypes,
   i_IActiveMapsConfig,
-  u_ConfigDataElementBase,
-  UMapType;
+  u_ConfigDataElementBase;
 
 type
   TActiveMapConfig = class(TConfigDataElementBaseEmptySaveLoad, IActiveMap)
@@ -35,10 +34,7 @@ implementation
 
 uses
   ActiveX,
-  u_JclNotify,
-  c_ZeroGUID,
-  u_NotifyWithGUIDEvent,
-  u_MapChangeMessage;
+  u_NotifyWithGUIDEvent;
 
 { TActiveMapConfigNew }
 

@@ -17,7 +17,6 @@ uses
   GR32,
   u_CommonFormAndFrameParents,
   u_ExportProviderAbstract,
-  UResStrings,
   t_GeoTypes,
   u_GeoTostr;
 
@@ -78,7 +77,6 @@ implementation
 uses
   gnugettext,
   u_GlobalState,
-  i_ICoordConverter,
   u_ExportProviderYaMaps,
   u_ExportProviderGEKml,
   u_ExportProviderIPhone,

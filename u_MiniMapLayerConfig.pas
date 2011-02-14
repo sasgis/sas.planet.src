@@ -4,12 +4,10 @@ interface
 
 uses
   GR32,
-  i_JclNotify,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IMiniMapLayerConfig,
   i_IActiveMapsConfig,
-  i_MapTypes,
   u_ConfigDataElementComplexBase;
 
 type
@@ -52,11 +50,7 @@ type
 implementation
 
 uses
-  ActiveX,
   SysUtils,
-  c_ZeroGUID,
-  u_MapTypeList,
-  u_NotifyEventListener,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_GlobalState,
   u_MiniMapMapsConfig;

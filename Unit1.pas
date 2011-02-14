@@ -42,9 +42,6 @@ uses
   i_JclNotify,
   i_IGUIDList,
   i_IJclListenerNotifierLinksList,
-  i_IMapChangeMessage,
-  i_IHybrChangeMessage,
-  i_IPosChangeMessage,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   u_GeoToStr,
@@ -632,7 +629,6 @@ implementation
 
 uses
   StrUtils,
-  u_JclNotify,
   u_GUIDObjectList,
   u_GlobalState,
   frm_GoTo,
@@ -653,7 +649,6 @@ uses
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
   u_NotifyEventListener,
-  u_PosChangeListener,
   i_MapTypes,
   i_GPS,
   i_IGeoCoderList,

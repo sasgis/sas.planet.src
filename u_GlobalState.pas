@@ -184,7 +184,6 @@ uses
   Types,
   SysUtils,
   i_BitmapTileSaveLoad,
-  i_ICoordConverter,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   i_IListOfObjectsWithTTL,

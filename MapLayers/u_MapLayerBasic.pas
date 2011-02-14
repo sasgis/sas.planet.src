@@ -70,8 +70,7 @@ implementation
 uses
   Types,
   Graphics,
-  u_NotifyEventListener,
-  Ugeofun;
+  u_NotifyEventListener;
 
 { TMapLayerBase }
 
