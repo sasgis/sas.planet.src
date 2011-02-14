@@ -8,7 +8,6 @@ uses
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
-  u_ClipPolygonByRect,
   i_IViewPortState,
   i_ILastSelectionLayerConfig,
   i_ILastSelectionInfo,
@@ -19,7 +18,6 @@ type
   private
     FConfig: ILastSelectionLayerConfig;
     FLastSelectionInfo: ILastSelectionInfo;
-    FBitmapClip: IPolyClip;
     FPolygon: TDoublePointArray;
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
     function LonLatArrayToVisualFloatArray(APolygon: TDoublePointArray): TDoublePointArray;
@@ -29,15 +27,12 @@ type
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ILastSelectionLayerConfig; ALastSelectionInfo: ILastSelectionInfo);
-    destructor Destroy; override;
   end;
 
 
 implementation
 
 uses
-  Classes,
-  Graphics,
   GR32_PolygonsEx,
   GR32_Layers,
   GR32_VectorUtils,
@@ -58,7 +53,6 @@ begin
   inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
   FConfig := AConfig;
   FLastSelectionInfo := ALastSelectionInfo;
-  FBitmapClip := TPolyClipByRect.Create(MakeRect(-1000, -1000, 10000, 10000));
   LayerPositioned.OnPaint := PaintLayer;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
@@ -68,12 +62,6 @@ begin
     TNotifyEventListener.Create(Self.OnChangeSelection),
     FLastSelectionInfo.GetChangeNotifier
   );
-end;
-
-destructor TSelectionLayer.Destroy;
-begin
-  FBitmapClip := nil;
-  inherited;
 end;
 
 procedure TSelectionLayer.DoRedraw;
