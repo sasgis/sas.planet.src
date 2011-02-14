@@ -55,6 +55,7 @@ type
     pnlMarksTop: TPanel;
     pnlCategoriesTop: TPanel;
     Button4: TButton;
+    ExportDialog: TSaveDialog;
     procedure FormShow(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure BtnDelMarkClick(Sender: TObject);
@@ -689,13 +690,12 @@ end;
 
 procedure TFMarksExplorer.Button4Click(Sender: TObject);
 var KMLExport:TKMLExport;
-    Category:TStringList;
 begin
   KMLExport:=TKMLExport.Create;
-  Category:=TStringList.create;
-  GState.MarksDb.Kategory2StringsWithObjects(Category);
-  KMLExport.ExportToKML(Category,'c:\test.kml');
-  KMLExport.free;
+  if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
+    KMLExport.ExportToKML(ExportDialog.FileName);
+    KMLExport.free;
+  end;
 //
 end;
 

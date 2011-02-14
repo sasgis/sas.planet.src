@@ -816,4 +816,12 @@ object FMarksExplorer: TFMarksExplorer
       800C006002000000800C006002000000800C006002000000800C006002000000
       FFFFFFFFFE000000}
   end
+  object ExportDialog: TSaveDialog
+    DefaultExt = 'kmz'
+    Filter = 
+      'Keyhole Markup Language (kml)|*.kml|'#1059#1087#1072#1082#1086#1074#1072#1085#1085#1099#1081' Keyhole Markup L' +
+      'anguage (kmz)|*.kmz'
+    Left = 392
+    Top = 208
+  end
 end
