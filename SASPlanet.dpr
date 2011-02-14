@@ -302,8 +302,6 @@ uses
   u_ActivMapWithLayers in 'u_ActivMapWithLayers.pas',
   u_MainMapsConfig in 'u_MainMapsConfig.pas',
   i_IActiveMapsConfig in 'i_IActiveMapsConfig.pas',
-  i_ActiveMapsConfigSaveLoad in 'i_ActiveMapsConfigSaveLoad.pas',
-  u_MapsConfigByConfigDataProvider in 'u_MapsConfigByConfigDataProvider.pas',
   i_IViewPortState in 'i_IViewPortState.pas',
   u_MapViewPortStateNew in 'u_MapViewPortStateNew.pas',
   u_ShortcutManager in 'u_ShortcutManager.pas',

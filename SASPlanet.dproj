@@ -77,7 +77,6 @@
       <Form>frShortCutList</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
-    <DCCReference Include="i_ActiveMapsConfigSaveLoad.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="i_ContentTypeInfo.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
@@ -466,7 +465,6 @@
     <DCCReference Include="u_MapLayerGridsConfig.pas" />
     <DCCReference Include="u_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="u_MapMarksBitmapLayerProviderByMarksSubset.pas" />
-    <DCCReference Include="u_MapsConfigByConfigDataProvider.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeCacheConfig.pas" />
     <DCCReference Include="u_MapTypeIconsList.pas" />
