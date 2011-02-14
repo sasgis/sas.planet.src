@@ -131,8 +131,6 @@
     <DCCReference Include="i_IMapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="i_IMapLayerGPSTrackConfig.pas" />
     <DCCReference Include="i_IMapLayerNavToPointMarkerConfig.pas" />
-    <DCCReference Include="i_IMapTypeMenuItem.pas" />
-    <DCCReference Include="i_IMapTypeMenuItmesList.pas" />
     <DCCReference Include="i_IMapViewGoto.pas" />
     <DCCReference Include="i_IMarkPicture.pas" />
     <DCCReference Include="i_IMemObjCache.pas" />
@@ -351,7 +349,6 @@
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
     <DCCReference Include="u_ActiveMapsSet.pas" />
     <DCCReference Include="u_ActiveMapTBXItem.pas" />
-    <DCCReference Include="u_ActiveMapWithHybrConfig.pas" />
     <DCCReference Include="u_ActivMapWithLayers.pas" />
     <DCCReference Include="u_AntiBanStuped.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
@@ -479,10 +476,8 @@
     <DCCReference Include="u_MapTypeIconsList.pas" />
     <DCCReference Include="u_MapTypeList.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
-    <DCCReference Include="u_MapTypeMenuItmesList.pas" />
     <DCCReference Include="u_MapTypesMainList.pas" />
     <DCCReference Include="u_MapViewGotoOnFMain.pas" />
-    <DCCReference Include="u_MapViewPortState.pas" />
     <DCCReference Include="u_MapViewPortStateNew.pas" />
     <DCCReference Include="u_MarkBasic.pas" />
     <DCCReference Include="u_MarkCategory.pas" />
@@ -500,7 +495,6 @@
     <DCCReference Include="u_MemFileCache.pas" />
     <DCCReference Include="u_MiniMapLayerConfig.pas" />
     <DCCReference Include="u_MiniMapMapsConfig.pas" />
-    <DCCReference Include="u_MiniMapMenuItemsFactory.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_NotifyEventPosChangeListener.pas" />

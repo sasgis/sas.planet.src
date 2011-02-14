@@ -24,7 +24,6 @@ uses
   i_IBitmapPostProcessingConfig,
   i_IValueToStringConverter,
   u_GarbageCollectorThread,
-  u_MapViewPortState,
   i_ILastSelectionInfo,
   i_IDownloadInfoSimple,
   i_IImageResamplerConfig,

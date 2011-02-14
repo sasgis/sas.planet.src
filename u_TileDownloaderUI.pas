@@ -16,7 +16,6 @@ uses
   i_IViewPortState,
   i_MapTypes,
   i_ITileDownlodSession,
-  u_MapViewPortState,
   u_MapLayerShowError,
   UMapType;
 

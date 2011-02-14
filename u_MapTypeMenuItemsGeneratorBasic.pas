@@ -9,9 +9,6 @@ uses
   i_MapTypes,
   i_IActiveMapsConfig,
   i_MapTypeIconsList,
-  i_IMapTypeMenuItem,
-  i_IMapTypeMenuItmesList,
-  u_MapTypeMenuItmesList,
   UMapType;
 
 type

@@ -677,8 +677,7 @@ uses
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
   UGSM,
-  UImport,
-  u_MapViewPortState;
+  UImport;
 
 {$R *.dfm}
 
