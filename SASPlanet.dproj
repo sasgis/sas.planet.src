@@ -165,6 +165,7 @@
     <DCCReference Include="i_Marks.pas" />
     <DCCReference Include="i_MarksSimple.pas" />
     <DCCReference Include="i_MemCache.pas" />
+    <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
     <DCCReference Include="MapLayers\u_LayerScaleLine.pas" />
     <DCCReference Include="MapLayers\u_LayerStatBar.pas" />
