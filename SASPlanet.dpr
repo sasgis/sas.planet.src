@@ -342,6 +342,8 @@ uses
   u_LastSelectionLayerConfig in 'u_LastSelectionLayerConfig.pas',
   i_IPolyLineLayerConfig in 'i_IPolyLineLayerConfig.pas',
   u_PolyLineLayerConfig in 'u_PolyLineLayerConfig.pas',
+  i_IPolygonLayerConfig in 'i_IPolygonLayerConfig.pas',
+  u_PolygonLayerConfig in 'u_PolygonLayerConfig.pas',
   i_ICalcLineLayerConfig in 'i_ICalcLineLayerConfig.pas',
   u_CalcLineLayerConfig in 'u_CalcLineLayerConfig.pas',
   i_IMarkPolygonLayerConfig in 'i_IMarkPolygonLayerConfig.pas',
