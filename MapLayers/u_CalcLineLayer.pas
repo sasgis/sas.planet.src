@@ -78,7 +78,7 @@ type
     );
     destructor Destroy; override;
     procedure StartThreads; override;
-    procedure DrawLineCalc(APathLonLat: TDoublePointArray; AActiveIndex: Integer);
+    procedure DrawLine(APathLonLat: TDoublePointArray; AActiveIndex: Integer);
     procedure DrawNothing;
   end;
 
@@ -145,7 +145,7 @@ begin
   Redraw;
 end;
 
-procedure TCalcLineLayer.DrawLineCalc(APathLonLat: TDoublePointArray;
+procedure TCalcLineLayer.DrawLine(APathLonLat: TDoublePointArray;
   AActiveIndex: Integer);
 var
   VPointsCount: Integer;

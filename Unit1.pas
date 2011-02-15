@@ -1252,7 +1252,7 @@ begin
     TBEditPath.Visible:=(FLineOnMapEdit.GetCount > 1);
     if FLineOnMapEdit.GetCount > 0 then begin
       if FCurrentOper = ao_calc_line then begin
-        FCalcLineLayer.DrawLineCalc(
+        FCalcLineLayer.DrawLine(
           FLineOnMapEdit.GetPoints,
           FLineOnMapEdit.GetActiveIndex
         );
