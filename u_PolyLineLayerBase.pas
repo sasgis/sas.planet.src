@@ -37,7 +37,6 @@ type
 
 
     function LonLatArrayToVisualFloatArray(ALocalConverter: ILocalCoordConverter; APolygon: TDoublePointArray): TDoublePointArray;
-    procedure OnConfigChange(Sender: TObject);
 
     procedure DrawPolyPoint(
       ABuffer: TBitmap32;
@@ -48,8 +47,13 @@ type
       const ARectColor: TColor32
     );
   protected
+    procedure OnConfigChange(Sender: TObject); virtual;
+    procedure DoConfigChange; virtual;
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32); virtual;
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter); virtual;
+    property BitmapSize: TPoint read FBitmapSize;
+    property PointsOnBitmap: TDoublePointArray read FPointsOnBitmap;
+    property SourcePolygon: TDoublePointArray read FSourcePolygon;
   protected
     procedure DoRedraw; override;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
@@ -101,6 +105,17 @@ begin
   FreeAndNil(FLinePolygon);
   FreeAndNil(FPolygon);
   inherited;
+end;
+
+procedure TPolyLineLayerBase.DoConfigChange;
+begin
+  FLineColor := FConfig.LineColor;
+  FLineWidth := FConfig.LineWidth;
+  FPointFillColor := FConfig.PointFillColor;
+  FPointRectColor := FConfig.PointRectColor;
+  FPointFirstColor := FConfig.PointFirstColor;
+  FPointActiveColor := FConfig.PointActiveColor;
+  FPointSize := FConfig.PointSize;
 end;
 
 procedure TPolyLineLayerBase.DoPosChange(
@@ -204,13 +219,7 @@ procedure TPolyLineLayerBase.OnConfigChange(Sender: TObject);
 begin
   FConfig.LockRead;
   try
-    FLineColor := FConfig.LineColor;
-    FLineWidth := FConfig.LineWidth;
-    FPointFillColor := FConfig.PointFillColor;
-    FPointRectColor := FConfig.PointRectColor;
-    FPointFirstColor := FConfig.PointFirstColor;
-    FPointActiveColor := FConfig.PointActiveColor;
-    FPointSize := FConfig.PointSize;
+    DoConfigChange;
   finally
     FConfig.UnlockRead;
   end;
