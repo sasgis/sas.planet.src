@@ -20,6 +20,10 @@ uses
   i_IScaleLineConfig,
   i_ILastSelectionLayerConfig,
   i_ICalcLineLayerConfig,
+  i_ISelectionRectLayerConfig,
+  i_ISelectionPolygonLayerConfig,
+  i_IMarkPolygonLayerConfig,
+  i_IMarkPolyLineLayerConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -93,6 +97,18 @@ type
 
     function GetCalcLineLayerConfig: ICalcLineLayerConfig;
     property CalcLineLayerConfig: ICalcLineLayerConfig read GetCalcLineLayerConfig;
+
+    function GetSelectionRectLayerConfig: ISelectionRectLayerConfig;
+    property SelectionRectLayerConfig: ISelectionRectLayerConfig read GetSelectionRectLayerConfig;
+
+    function GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
+    property SelectionPolygonLayerConfig: ISelectionPolygonLayerConfig read GetSelectionPolygonLayerConfig;
+
+    function GetMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
+    property MarkPolygonLayerConfig: IMarkPolygonLayerConfig read GetMarkPolygonLayerConfig;
+
+    function GetMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
+    property MarkPolyLineLayerConfig: IMarkPolyLineLayerConfig read GetMarkPolyLineLayerConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)

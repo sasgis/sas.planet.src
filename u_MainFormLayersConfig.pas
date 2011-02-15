@@ -16,6 +16,10 @@ uses
   i_IScaleLineConfig,
   i_ILastSelectionLayerConfig,
   i_ICalcLineLayerConfig,
+  i_ISelectionRectLayerConfig,
+  i_ISelectionPolygonLayerConfig,
+  i_IMarkPolygonLayerConfig,
+  i_IMarkPolyLineLayerConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -34,6 +38,10 @@ type
     FScaleLineConfig: IScaleLineConfig;
     FLastSelectionLayerConfig: ILastSelectionLayerConfig;
     FCalcLineLayerConfig: ICalcLineLayerConfig;
+    FSelectionRectLayerConfig: ISelectionRectLayerConfig;
+    FSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
+    FMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
+    FMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
   protected
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;
@@ -47,6 +55,10 @@ type
     function GetScaleLineConfig: IScaleLineConfig;
     function GetLastSelectionLayerConfig: ILastSelectionLayerConfig;
     function GetCalcLineLayerConfig: ICalcLineLayerConfig;
+    function GetSelectionRectLayerConfig: ISelectionRectLayerConfig;
+    function GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
+    function GetMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
+    function GetMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
   public
     constructor Create(AMapsConfig: IMainMapsConfig);
   end;
@@ -67,6 +79,10 @@ uses
   u_ScaleLineConfig,
   u_LastSelectionLayerConfig,
   u_CalcLineLayerConfig,
+  u_SelectionRectLayerConfig,
+  u_SelectionPolygonLayerConfig,
+  u_MarkPolygonLayerConfig,
+  u_MarkPolyLineLayerConfig,
   u_MapLayerNavToPointMarkerConfig;
 
 { TMainFormLayersConfig }
@@ -98,6 +114,14 @@ begin
   Add(FLastSelectionLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('LastSelection'));
   FCalcLineLayerConfig := TCalcLineLayerConfig.Create;
   Add(FCalcLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CalcLine'));
+  FSelectionRectLayerConfig := TSelectionRectLayerConfig.Create;
+  Add(FSelectionRectLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SelectionRect'));
+  FSelectionPolygonLayerConfig := TSelectionPolygonLayerConfig.Create;
+  Add(FSelectionPolygonLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SelectionPolygon'));
+  FMarkPolygonLayerConfig := TMarkPolygonLayerConfig.Create;
+  Add(FMarkPolygonLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolygon'));
+  FMarkPolyLineLayerConfig := TMarkPolyLineLayerConfig.Create;
+  Add(FMarkPolyLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolyLine'));
 end;
 
 function TMainFormLayersConfig.GetCalcLineLayerConfig: ICalcLineLayerConfig;
@@ -135,6 +159,16 @@ begin
   Result := FMapLayerGridsConfig;
 end;
 
+function TMainFormLayersConfig.GetMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
+begin
+  Result := FMarkPolygonLayerConfig;
+end;
+
+function TMainFormLayersConfig.GetMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
+begin
+  Result := FMarkPolyLineLayerConfig;
+end;
+
 function TMainFormLayersConfig.GetMarksShowConfig: IUsedMarksConfig;
 begin
   Result := FMarksShowConfig;
@@ -153,6 +187,16 @@ end;
 function TMainFormLayersConfig.GetScaleLineConfig: IScaleLineConfig;
 begin
   Result := FScaleLineConfig;
+end;
+
+function TMainFormLayersConfig.GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
+begin
+  Result := FSelectionPolygonLayerConfig;
+end;
+
+function TMainFormLayersConfig.GetSelectionRectLayerConfig: ISelectionRectLayerConfig;
+begin
+  Result := FSelectionRectLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetStatBar: IStatBarConfig;
