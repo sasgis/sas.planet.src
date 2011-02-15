@@ -81,8 +81,7 @@ var
   VMapType: TMapType;
   VSaver: IBitmapTileSaver;
   Vmt: Byte;
-  VTileIterators: array [0..2] of array of TTileIteratorAbstract;
-  VTileIterator: TTileIteratorAbstract;
+  VTileIterators: array of TTileIteratorAbstract;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -104,17 +103,14 @@ begin
       bmp32crop.Height := sizeim;
       VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);
       FTilesToProcess := 0;
-      SetLength(VTileIterators[0], Length(FZooms));
-      SetLength(VTileIterators[1], Length(FZooms));
-      SetLength(VTileIterators[2], Length(FZooms));
+      SetLength(VTileIterators,Length(FZooms));
 
-      VTileIterator :=TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
         for j := 0 to 2 do begin
           if (FMapTypeArr[j] <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-            VTileIterators[j,i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
-            FTilesToProcess := FTilesToProcess + VTileIterator.TilesTotal;
+            VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+            FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
           end;
         end;
       end;
@@ -127,13 +123,13 @@ begin
         tc := GetTickCount;
         for i := 0 to Length(FZooms) - 1 do begin
           VZoom := FZooms[i];
-          for j := 0 to 2 do begin
-            VMapType := FMapTypeArr[j];
-            if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-              while VTileIterator.Next(VTile) do begin
-                if IsCancel then begin
-                  exit;
-                end;
+          while VTileIterators[i].Next(VTile) do begin
+            if IsCancel then begin
+              exit;
+            end;
+            for j := 0 to 2 do begin
+              VMapType := FMapTypeArr[j];
+              if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
                 bmp322.Clear;
                 if (j = 2) and (FMapTypeArr[0] <> nil) then begin
                   FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, False, VGeoConvert, False, False, True);
@@ -172,15 +168,8 @@ begin
         end;
       finally
         for i := 0 to Length(FZooms)-1 do begin
-          for j := 0 to 2 do begin
-            if VTileIterators[j][i]<>nil then begin
-              VTileIterators[j][i].Free;
-            end;
-          end;
+          FreeAndNil(VTileIterators[i]);
         end;
-        VTileIterators[0]:=nil;
-        VTileIterators[1]:=nil;
-        VTileIterators[2]:=nil;
       end;
       ProgressFormUpdateOnProgress
     finally
