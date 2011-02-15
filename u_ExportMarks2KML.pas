@@ -136,7 +136,7 @@ end;
 
 procedure TExportMarks2KML.AddFolders(ACategory:TStrings);
 
-  procedure AddItem(Lev: Integer; ParentNode: IXMLNode; S: string; Data:TObject);
+  function AddItem(Lev: Integer; ParentNode: IXMLNode; S: string; Data:TObject):boolean;
     function FindNodeWithText(AParent: iXMLNode; const S: string): IXMLNode;
     var
       i: Integer;
@@ -170,8 +170,9 @@ procedure TExportMarks2KML.AddFolders(ACategory:TStrings);
       S := '';
     end;
     aNode := FindNodeWithText(ParentNode, prefix);
-    if (TXMLNode(aNode) = nil)and((TCategoryId(Data).visible)or(not OnlyVisible)) then begin
-      aNode := ParentNode.AddChild('Folder');
+    if (TXMLNode(aNode) = nil) then begin
+    aNode := ParentNode.AddChild('Folder');
+    if ((TCategoryId(Data).visible)or(not OnlyVisible)) then begin
       aNode.ChildValues['name']:=prefix;
       aNode.ChildValues['open']:=1;
       with aNode.AddChild('Style').AddChild('ListStyle') do begin
@@ -181,8 +182,14 @@ procedure TExportMarks2KML.AddFolders(ACategory:TStrings);
       if ID=0 then begin
         AddMarks(TCategoryId(Data),aNode);
       end;
+      result:=true;
+    end else begin
+      Result:=false;
     end;
-    AddItem(Lev + 1, aNode, Copy(S, ID + 1, Length(S)),Data);
+    end;
+    if (not AddItem(Lev + 1, aNode, Copy(S, ID + 1, Length(S)),Data))and(not Result) then begin
+      ParentNode.ChildNodes.Remove(aNode);
+    end;
   end;
 
 var
