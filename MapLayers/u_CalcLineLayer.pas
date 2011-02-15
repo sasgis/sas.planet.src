@@ -154,6 +154,7 @@ var
   i: Integer;
   VDatum: IDatum;
 begin
+  inherited;
   VPointsCount := Length(FDistArray);
   if VPointsCount > 0 then begin
     VDatum := ALocalConverter.GetGeoConverter.Datum;
