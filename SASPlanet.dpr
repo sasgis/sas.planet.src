@@ -237,6 +237,7 @@ uses
   u_MapNalLayer in 'MapLayers\u_MapNalLayer.pas',
   u_MapLayerGoto in 'MapLayers\u_MapLayerGoto.pas',
   u_MapLayerGPSMarker in 'MapLayers\u_MapLayerGPSMarker.pas',
+  u_PolyLineLayerBase in 'u_PolyLineLayerBase.pas',
   u_CalcLineLayer in 'MapLayers\u_CalcLineLayer.pas',
   i_IThread in 'i_IThread.pas',
   u_InterfacedThread in 'u_InterfacedThread.pas',
