@@ -35,11 +35,12 @@ type
 
 
     FSourcePolygon: TDoublePointArray;
-    FDistArray: TDoubleDynArray;
     FPolyActivePointIndex: integer;
+
+    FDistArray: TDoubleDynArray;
     FBitmapSize: TPoint;
     FPointsOnBitmap: TDoublePointArray;
-    FPolygon: TPolygon32;
+    FLinePolygon: TPolygon32;
 
 
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
@@ -104,7 +105,7 @@ begin
   FConfig := AConfig;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
-  LayerPositioned.OnPaint := PaintLayer;
+  FLinePolygon := nil;
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
@@ -119,7 +120,7 @@ end;
 
 destructor TCalcLineLayer.Destroy;
 begin
-  FreeAndNil(FPolygon);
+  FreeAndNil(FLinePolygon);
   inherited;
 end;
 
@@ -206,23 +207,18 @@ procedure TCalcLineLayer.DrawPolyPoint(
 var
   VHalfSize: Double;
   VRect: TRect;
-  VRectFloat: TDoubleRect;
 begin
-  VHalfSize := ASize / 2;
-  VRectFloat.Left := APosOnBitmap.X - VHalfSize;
-  VRectFloat.Top := APosOnBitmap.Y - VHalfSize;
-  VRectFloat.Right := VRectFloat.Left + ASize;
-  VRectFloat.Bottom := VRectFloat.Top + ASize;
   if
-    (VRectFloat.Left > 0) and
-    (VRectFloat.Top > 0) and
-    (VRectFloat.Right < ABitmapSize.X) and
-    (VRectFloat.Bottom < ABitmapSize.Y)
+    (APosOnBitmap.x > 0) and
+    (APosOnBitmap.y > 0) and
+    (APosOnBitmap.x < ABitmapSize.X) and
+    (APosOnBitmap.y < ABitmapSize.Y)
   then begin
-    VRect.Left := Trunc(VRectFloat.Left);
-    VRect.Top := Trunc(VRectFloat.Top);
-    VRect.Right := Trunc(VRectFloat.Right);
-    VRect.Bottom := Trunc(VRectFloat.Bottom);
+    VHalfSize := ASize / 2;
+    VRect.Left := Trunc(APosOnBitmap.X - VHalfSize);
+    VRect.Top := Trunc(APosOnBitmap.Y - VHalfSize);
+    VRect.Right := VRect.Left + ASize;
+    VRect.Bottom := VRect.Top + ASize;
     ABuffer.FillRectS(VRect, ARectColor);
     if AFillColor <> ARectColor then begin
       Inc(VRect.Left);
@@ -287,17 +283,17 @@ var
 begin
   VPointsCount := Length(FSourcePolygon);
   if VPointsCount > 0 then begin
-    FPolygon.DrawFill(Buffer, FLineColor);
+    if FLinePolygon <> nil then begin
+      FLinePolygon.DrawFill(Buffer, FLineColor);
+    end;
 
     for VIndex := 1 to VPointsCount - 2 do begin
       VPosOnBitmap := FPointsOnBitmap[VIndex];
-      if ((VPosOnBitmap.x > 0) and (VPosOnBitmap.y > 0)) and ((VPosOnBitmap.x < FBitmapSize.X) and (VPosOnBitmap.y < FBitmapSize.Y)) then begin
-        if FLenShow then begin
-          text := FValueConverter.DistConvert(FDistArray[VIndex] - FDistArray[VIndex - 1]);
-          DrawPointText(Buffer, FBitmapSize, text, VPosOnBitmap, 7, FTextBGColor, FTextColor);
-        end;
-        DrawPolyPoint(Buffer, FBitmapSize, VPosOnBitmap, FPointSize, FPointFillColor, FPointRectColor);
+      if FLenShow then begin
+        text := FValueConverter.DistConvert(FDistArray[VIndex] - FDistArray[VIndex - 1]);
+        DrawPointText(Buffer, FBitmapSize, text, VPosOnBitmap, 7, FTextBGColor, FTextColor);
       end;
+      DrawPolyPoint(Buffer, FBitmapSize, VPosOnBitmap, FPointSize, FPointFillColor, FPointRectColor);
     end;
 
     if VPointsCount > 1 then begin
@@ -351,8 +347,8 @@ begin
         VPolygon.Closed := False;
         VPolygon.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
         with VPolygon.Outline do try
-          FreeAndNil(FPolygon);
-          FPolygon := Grow(Fixed(FLineWidth / 2), 0.5);
+          FreeAndNil(FLinePolygon);
+          FLinePolygon := Grow(Fixed(FLineWidth / 2), 0.5);
         finally
           free;
         end;
@@ -367,6 +363,7 @@ procedure TCalcLineLayer.StartThreads;
 begin
   inherited;
   OnConfigChange(nil);
+  LayerPositioned.OnPaint := PaintLayer;
 end;
 
 end.
