@@ -2939,6 +2939,7 @@ begin
   if VPWL.find then begin
     KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
     try
+      FMarksExplorer.ExportDialog.FileName:=VPWL.name;
       if (FMarksExplorer.ExportDialog.Execute)and(FMarksExplorer.ExportDialog.FileName<>'') then begin
         VIndex:=strtoint(VPWL.numid);
         VMark := GState.MarksDb.GetMarkByID(VIndex);

@@ -552,6 +552,7 @@ begin
   if VCategory<>nil then begin
     KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
     try
+      FMarksExplorer.ExportDialog.FileName:=VCategory.name;
       if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
         KMLExport.ExportCategoryToKML(VCategory,ExportDialog.FileName);
       end;
@@ -587,6 +588,7 @@ begin
     if VMark <> nil then begin
       KMLExport:=TExportMarks2KML.Create(false);
       try
+        FMarksExplorer.ExportDialog.FileName:=VMark.name;
         if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
           KMLExport.ExportMarkToKML(VMark,ExportDialog.FileName);
         end;

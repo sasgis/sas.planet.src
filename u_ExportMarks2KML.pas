@@ -290,7 +290,7 @@ end;
 
 function TExportMarks2KML.Color32toKMLColor(Color32:TColor32):string;
 begin
-  result:=IntToHex(255-AlphaComponent(Color32),2)+
+  result:=IntToHex(AlphaComponent(Color32),2)+
           IntToHex(BlueComponent(Color32),2)+
           IntToHex(GreenComponent(Color32),2)+
           IntToHex(RedComponent(Color32),2);
