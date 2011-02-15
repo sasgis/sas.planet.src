@@ -15,7 +15,7 @@ uses
   u_MapLayerBasic;
 
 type
-  TMapNalDrawType = (mndtNothing, mndtSelectRect, mndtSelectPoly, mndtCalcLen, mndtNewPath, mndtNewPoly);
+  TMapNalDrawType = (mndtNothing, mndtSelectRect, mndtSelectPoly, mndtNewPath, mndtNewPoly);
 
   TMapNalLayer = class(TMapLayerBasic)
   private
@@ -74,13 +74,9 @@ uses
   Graphics,
   SysUtils,
   Ugeofun,
-  i_IDatum,
   i_ICoordConverter,
   i_ILocalCoordConverter,
-  i_IValueToStringConverter,
-  u_ConfigProviderHelpers,
-  UResStrings,
-  u_GlobalState;
+  u_ConfigProviderHelpers;
 
 { TMapNalLayer }
 
