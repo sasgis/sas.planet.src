@@ -8,7 +8,7 @@ uses
 
 type
   ILastSelectionLayerConfig = interface(IConfigDataElement)
-    ['{D3B5B8D5-B389-4406-9881-9704030CDD1E}']
+    ['{C4E88481-E628-473D-88A5-F85577E76416}']
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;

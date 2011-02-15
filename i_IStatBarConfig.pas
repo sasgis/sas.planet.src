@@ -8,7 +8,7 @@ uses
 
 type
   IStatBarConfig = interface(IConfigDataElement)
-    ['{D3B5B8D5-B389-4406-9881-9704030CDD1E}']
+    ['{473782BB-AD89-4745-8CBA-93B38EA851E6}']
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
