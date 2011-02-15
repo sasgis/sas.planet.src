@@ -309,6 +309,7 @@ begin
   Zip.Close;
   Zip.Free;
   kmldoc.Free;
+  inherited;
 end;
 
 end.
