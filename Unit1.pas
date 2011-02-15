@@ -2377,7 +2377,7 @@ begin
   if VMapMain.GeoConvert.CheckPixelPosStrict(VPoint, VZoomCurr, False) then begin
     VLoadPoint := VMapMain.GeoConvert.PixelPos2OtherMap(VPoint, VZoomCurr, VMapType.GeoConvert);
     VMapType.GeoConvert.CheckPixelPosStrict(VLoadPoint, VZoomCurr, False);
-    VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VPoint, VZoomCurr);
+    VLoadPoint := VMapType.GeoConvert.PixelPos2TilePos(VLoadPoint, VZoomCurr);
     s:=VMapType.GetTileShowName(VLoadPoint, VZoomCurr);
     if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
       VMapType.DeleteTile(VLoadPoint, VZoomCurr);
