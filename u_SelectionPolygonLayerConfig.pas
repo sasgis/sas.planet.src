@@ -1,13 +1,13 @@
-unit u_MarkPolygonLayerConfig;
+unit u_SelectionPolygonLayerConfig;
 
 interface
 
 uses
-  i_IMarkPolygonLayerConfig,
+  i_ISelectionPolygonLayerConfig,
   u_PolygonLayerConfig;
 
 type
-  TMarkPolygonLayerConfig = class(TPolygonLayerConfig, IMarkPolygonLayerConfig)
+  TSelectionPolygonLayerConfig = class(TPolygonLayerConfig, ISelectionPolygonLayerConfig)
   public
     constructor Create;
   end;
@@ -17,23 +17,23 @@ implementation
 uses
   GR32;
 
-{ TMarkPolygonLayerConfig }
+{ TSelectionPolygonLayerConfig }
 
-constructor TMarkPolygonLayerConfig.Create;
+constructor TSelectionPolygonLayerConfig.Create;
 begin
   inherited;
   LockWrite;
   try
-    SetLineColor(SetAlpha(ClRed32, 150));
+    SetLineColor(SetAlpha(clBlue32, 180));
     SetLineWidth(3);
 
     SetPointFillColor(SetAlpha(clYellow32, 150));
     SetPointRectColor(SetAlpha(ClRed32, 150));
     SetPointFirstColor(SetAlpha(ClGreen32, 255));
     SetPointActiveColor(SetAlpha(ClRed32, 255));
-    SetPointSize(8);
+    SetPointSize(3);
 
-    SetFillColor(SetAlpha(ClWhite32, 50));
+    SetFillColor(SetAlpha(clWhite32, 40));
   finally
     UnlockWrite;
   end;

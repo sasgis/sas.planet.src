@@ -145,6 +145,8 @@
     <DCCReference Include="i_IProxySettings.pas" />
     <DCCReference Include="i_IScaleLineConfig.pas" />
     <DCCReference Include="i_ISearchResultPresenter.pas" />
+    <DCCReference Include="i_ISelectionPolygonLayerConfig.pas" />
+    <DCCReference Include="i_ISelectionRectLayerConfig.pas" />
     <DCCReference Include="i_ISensor.pas" />
     <DCCReference Include="i_ISimpleFactory.pas" />
     <DCCReference Include="i_IStatBarConfig.pas" />
@@ -514,6 +516,8 @@
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_ScaleLineConfig.pas" />
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
+    <DCCReference Include="u_SelectionPolygonLayerConfig.pas" />
+    <DCCReference Include="u_SelectionRectLayerConfig.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_StatBarConfig.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
