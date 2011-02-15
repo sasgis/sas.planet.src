@@ -107,12 +107,14 @@ begin
       SetLength(VTileIterators[0], Length(FZooms));
       SetLength(VTileIterators[1], Length(FZooms));
       SetLength(VTileIterators[2], Length(FZooms));
+
+      VTileIterator :=TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
         for j := 0 to 2 do begin
           if (FMapTypeArr[j] <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-            VTileIterators[j,i] := TTileIteratorStuped.Create(VZoom, FPolygLL, FMapTypeArr[j].GeoConvert);
-            FTilesToProcess := FTilesToProcess + VTileIterators[j][i].TilesTotal;
+            VTileIterators[j,i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+            FTilesToProcess := FTilesToProcess + VTileIterator.TilesTotal;
           end;
         end;
       end;
@@ -128,7 +130,6 @@ begin
           for j := 0 to 2 do begin
             VMapType := FMapTypeArr[j];
             if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-              VTileIterator := VTileIterators[j][i];
               while VTileIterator.Next(VTile) do begin
                 if IsCancel then begin
                   exit;
