@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_IViewPortState,
   i_ILocalCoordConverter,
+  i_IValueToStringConverter,
   i_ICalcLineLayerConfig,
   u_ClipPolygonByRect,
   u_MapLayerBasic;
@@ -18,6 +19,20 @@ type
   TCalcLineLayer = class(TMapLayerBasicFullView)
   private
     FConfig: ICalcLineLayerConfig;
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
+
+    FLenShow: Boolean;
+    FLineColor: TColor32;
+    FLineWidth: Integer;
+    FPointFillColor: TColor32;
+    FPointRectColor: TColor32;
+    FPointFirstColor: TColor32;
+    FPointActiveColor: TColor32;
+    FPointSize: integer;
+    FTextColor: TColor32;
+    FTextBGColor: TColor32;
+    FValueConverter: IValueToStringConverter;
+
 
     FSourcePolygon: TDoublePointArray;
     FDistArray: TDoubleDynArray;
@@ -39,14 +54,29 @@ type
       const AFillColor: TColor32;
       const ARectColor: TColor32
     );
+    procedure DrawPointText(
+      ABuffer: TBitmap32;
+      const ABitmapSize: TPoint;
+      const AText: string;
+      const APosOnBitmap: TDoublePoint;
+      const AFontSize: Integer;
+      const ATextBGColor: TColor32;
+      const ATextColor: TColor32
+    );
     procedure PreparePolygon;
   protected
     procedure DoRedraw; override;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ICalcLineLayerConfig);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConfig: ICalcLineLayerConfig;
+      AValueToStringConverterConfig: IValueToStringConverterConfig
+    );
     destructor Destroy; override;
+    procedure StartThreads; override;
     procedure DrawLineCalc(APathLonLat: TDoublePointArray; AActiveIndex: Integer);
     procedure DrawNothing;
   end;
@@ -57,7 +87,6 @@ uses
   SysUtils,
   GR32_Layers,
   i_ICoordConverter,
-  i_IValueToStringConverter,
   i_IDatum,
   u_NotifyEventListener,
   u_GlobalState,
@@ -65,15 +94,27 @@ uses
 
 { TCalcLineLayer }
 
-constructor TCalcLineLayer.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AConfig: ICalcLineLayerConfig);
+constructor TCalcLineLayer.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConfig: ICalcLineLayerConfig;
+  AValueToStringConverterConfig: IValueToStringConverterConfig
+);
 begin
   inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
   FConfig := AConfig;
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
+
   LayerPositioned.OnPaint := PaintLayer;
+
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
+  );
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FValueToStringConverterConfig.GetChangeNotifier
   );
 end;
 
@@ -124,6 +165,36 @@ end;
 procedure TCalcLineLayer.DrawNothing;
 begin
   Hide;
+end;
+
+procedure TCalcLineLayer.DrawPointText(
+  ABuffer: TBitmap32;
+  const ABitmapSize: TPoint;
+  const AText: string;
+  const APosOnBitmap: TDoublePoint;
+  const AFontSize: Integer;
+  const ATextBGColor: TColor32;
+  const ATextColor: TColor32
+);
+var
+  VTextSize: TSize;
+  VRect: TRect;
+begin
+  if
+    (APosOnBitmap.x > 0) and
+    (APosOnBitmap.y > 0) and
+    (APosOnBitmap.x < ABitmapSize.X) and
+    (APosOnBitmap.y < ABitmapSize.Y)
+  then begin
+    ABuffer.Font.Size := AFontSize;
+    VTextSize := ABuffer.TextExtent(AText);
+    VRect.Left := Trunc(APosOnBitmap.x + 12);
+    VRect.Top := Trunc(APosOnBitmap.Y);
+    VRect.Right := VRect.Left + VTextSize.cx + 4;
+    VRect.Bottom := VRect.Top + VTextSize.cy + 4;
+    ABuffer.FillRectS(VRect, ATextBGColor );
+    ABuffer.RenderText(VRect.Left + 2, VRect.Top + 2, AText, 3, ATextColor);
+  end;
 end;
 
 procedure TCalcLineLayer.DrawPolyPoint(
@@ -187,99 +258,57 @@ end;
 
 procedure TCalcLineLayer.OnConfigChange(Sender: TObject);
 begin
+  FConfig.LockRead;
+  try
+    FLenShow := FConfig.LenShow;
+    FLineColor := FConfig.LineColor;
+    FLineWidth := FConfig.LineWidth;
+    FPointFillColor := FConfig.PointFillColor;
+    FPointRectColor := FConfig.PointRectColor;
+    FPointFirstColor := FConfig.PointFirstColor;
+    FPointActiveColor := FConfig.PointActiveColor;
+    FPointSize := FConfig.PointSize;
+    FTextColor := FConfig.TextColor;
+    FTextBGColor := FConfig.TextBGColor;
+  finally
+    FConfig.UnlockRead;
+  end;
+  FValueConverter := FValueToStringConverterConfig.GetStaticConverter;
+
   Redraw;
 end;
 
 procedure TCalcLineLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
 var
-  i, textW: integer;
-  k1: TDoublePoint;
-  len: Double;
+  VIndex: integer;
+  VPosOnBitmap: TDoublePoint;
   text: string;
   VPointsCount: Integer;
-  VValueConverter: IValueToStringConverter;
 
-  VLenShow: Boolean;
-  VLineColor: TColor32;
-  VPointFillColor: TColor32;
-  VPointRectColor: TColor32;
-  VPointFirstColor: TColor32;
-  VPointActiveColor: TColor32;
-  VPointSize: integer;
-  VTextColor: TColor32;
-  VTextBGColor: TColor32;
 begin
   VPointsCount := Length(FSourcePolygon);
   if VPointsCount > 0 then begin
-    FConfig.LockRead;
-    try
-      VLenShow := FConfig.LenShow;
-      VLineColor := FConfig.LineColor;
-      VPointFillColor := FConfig.PointFillColor;
-      VPointRectColor := FConfig.PointRectColor;
-      VPointFirstColor := FConfig.PointFirstColor;
-      VPointActiveColor := FConfig.PointActiveColor;
-      VPointSize := FConfig.PointSize;
-      VTextColor := FConfig.TextColor;
-      VTextBGColor := FConfig.TextBGColor;
-    finally
-      FConfig.UnlockRead;
-    end;
+    FPolygon.DrawFill(Buffer, FLineColor);
 
-    VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-    FPolygon.DrawFill(Buffer, VLineColor);
-
-
-    for i := 0 to VPointsCount - 2 do begin
-      k1 := FPointsOnBitmap[i + 1];
-      if ((k1.x > 0) and (k1.y > 0)) and ((k1.x < FBitmapSize.X) and (k1.y < FBitmapSize.Y)) then begin
-        if i = VPointsCount - 2 then begin
-          len := FDistArray[VPointsCount - 1];
-          text := SAS_STR_Whole + ': ' + VValueConverter.DistConvert(len);
-          Buffer.Font.Size := 9;
-          textW := Buffer.TextWidth(text) + 11;
-          Buffer.FillRectS(
-            Trunc(k1.x + 12),
-            Trunc(k1.y),
-            Trunc(k1.X + textW),
-            Trunc(k1.y + 15),
-            VTextBGColor
-          );
-          Buffer.RenderText(
-            Trunc(k1.X + 15),
-            Trunc(k1.y),
-            text,
-            3,
-            VTextColor
-          );
-        end else begin
-          if VLenShow then begin
-            text := VValueConverter.DistConvert(FDistArray[i + 1] - FDistArray[i]);
-            Buffer.Font.Size := 7;
-            textW := Buffer.TextWidth(text) + 11;
-            Buffer.FillRectS(
-              Trunc(k1.x + 5),
-              Trunc(k1.y + 5),
-              Trunc(k1.X + textW),
-              Trunc(k1.y + 16),
-              VTextBGColor
-            );
-            Buffer.RenderText(
-              Trunc(k1.X + 8),
-              Trunc(k1.y + 5),
-              text,
-              0,
-              VTextColor
-            );
-          end;
+    for VIndex := 1 to VPointsCount - 2 do begin
+      VPosOnBitmap := FPointsOnBitmap[VIndex];
+      if ((VPosOnBitmap.x > 0) and (VPosOnBitmap.y > 0)) and ((VPosOnBitmap.x < FBitmapSize.X) and (VPosOnBitmap.y < FBitmapSize.Y)) then begin
+        if FLenShow then begin
+          text := FValueConverter.DistConvert(FDistArray[VIndex] - FDistArray[VIndex - 1]);
+          DrawPointText(Buffer, FBitmapSize, text, VPosOnBitmap, 7, FTextBGColor, FTextColor);
         end;
-        DrawPolyPoint(Buffer, FBitmapSize, k1, VPointSize, VPointFillColor, VPointRectColor);
+        DrawPolyPoint(Buffer, FBitmapSize, VPosOnBitmap, FPointSize, FPointFillColor, FPointRectColor);
       end;
     end;
-    k1 := FPointsOnBitmap[0];
-    DrawPolyPoint(Buffer, FBitmapSize, k1, VPointSize, VPointFirstColor, VPointFirstColor);
-    k1 := FPointsOnBitmap[FPolyActivePointIndex];
-    DrawPolyPoint(Buffer, FBitmapSize, k1, VPointSize, VPointActiveColor, VPointActiveColor);
+
+    if VPointsCount > 1 then begin
+      text := SAS_STR_Whole + ': ' + FValueConverter.DistConvert(FDistArray[VPointsCount - 1]);
+      DrawPointText(Buffer, FBitmapSize, text, FPointsOnBitmap[VPointsCount - 1], 9, FTextBGColor, FTextColor);
+    end;
+    DrawPolyPoint(Buffer, FBitmapSize, FPointsOnBitmap[VPointsCount - 1], FPointSize, FPointFillColor, FPointRectColor);
+
+    DrawPolyPoint(Buffer, FBitmapSize, FPointsOnBitmap[0], FPointSize, FPointFirstColor, FPointFirstColor);
+    DrawPolyPoint(Buffer, FBitmapSize, FPointsOnBitmap[FPolyActivePointIndex], FPointSize, FPointActiveColor, FPointActiveColor);
   end;
 end;
 
@@ -324,7 +353,7 @@ begin
         VPolygon.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
         with VPolygon.Outline do try
           FreeAndNil(FPolygon);
-          FPolygon := Grow(Fixed(FConfig.LineWidth / 2), 0.5);
+          FPolygon := Grow(Fixed(FLineWidth / 2), 0.5);
         finally
           free;
         end;
@@ -333,6 +362,12 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TCalcLineLayer.StartThreads;
+begin
+  inherited;
+  OnConfigChange(nil);
 end;
 
 end.

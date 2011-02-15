@@ -797,7 +797,7 @@ begin
     FLayersList.Add(FLayerSelection);
     FLayerMapNal:=TMapNalLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerMapNal);
-    FCalcLineLayer := TCalcLineLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CalcLineLayerConfig);
+    FCalcLineLayer := TCalcLineLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CalcLineLayerConfig, GState.ValueToStringConverterConfig);
     FLayersList.Add(FCalcLineLayer);
     FLayerGoto := TGotoLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerGoto);
