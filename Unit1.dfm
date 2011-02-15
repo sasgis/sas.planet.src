@@ -22,6 +22,7 @@ object Fmain: TFmain
     Width = 850
     Height = 562
     TabOrder = 5
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
@@ -5254,6 +5255,7 @@ object Fmain: TFmain
   object SaveLink: TSaveDialog
     DefaultExt = 'lnk'
     Filter = #1071#1088#1083#1099#1082'|*.lnk'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 113
     Top = 212
   end

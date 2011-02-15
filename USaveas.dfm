@@ -179,6 +179,7 @@ object Fsaveas: TFsaveas
   object SaveSelDialog: TSaveDialog
     DefaultExt = '*.hlg'
     Filter = #1060#1072#1081#1083' '#1074#1099#1076#1077#1083#1077#1085#1080#1103'|*.hlg'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 32
     Top = 48
   end
