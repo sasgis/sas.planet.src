@@ -89,7 +89,6 @@ uses
   i_ICoordConverter,
   i_IDatum,
   u_NotifyEventListener,
-  u_GlobalState,
   UResStrings;
 
 { TCalcLineLayer }
