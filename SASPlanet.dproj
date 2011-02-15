@@ -131,11 +131,14 @@
     <DCCReference Include="i_IMapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="i_IMapViewGoto.pas" />
     <DCCReference Include="i_IMarkPicture.pas" />
+    <DCCReference Include="i_IMarkPolygonLayerConfig.pas" />
+    <DCCReference Include="i_IMarkPolyLineLayerConfig.pas" />
     <DCCReference Include="i_IMemObjCache.pas" />
     <DCCReference Include="i_IMiniMapLayerConfig.pas" />
     <DCCReference Include="i_INavigationToPoint.pas" />
     <DCCReference Include="i_IObjectWithTTL.pas" />
     <DCCReference Include="i_IPathDetalizeProvider.pas" />
+    <DCCReference Include="i_IPolyLineLayerConfig.pas" />
     <DCCReference Include="i_IPoolElement.pas" />
     <DCCReference Include="i_IPosChangeMessage.pas" />
     <DCCReference Include="i_IProxySettings.pas" />
@@ -482,6 +485,8 @@
     <DCCReference Include="u_MarkFactory.pas" />
     <DCCReference Include="u_MarkPictureListSimple.pas" />
     <DCCReference Include="u_MarkPictureSimple.pas" />
+    <DCCReference Include="u_MarkPolygonLayerConfig.pas" />
+    <DCCReference Include="u_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="u_MarksDbGUIHelper.pas" />
     <DCCReference Include="u_MarksOnlyDb.pas" />
     <DCCReference Include="u_MarksReadWriteSimple.pas" />
@@ -498,6 +503,7 @@
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_PathDetalizeProviderMailRu.pas" />
     <DCCReference Include="u_PathDetalizeProviderYourNavigation.pas" />
+    <DCCReference Include="u_PolyLineLayerConfig.pas" />
     <DCCReference Include="u_PoolElement.pas" />
     <DCCReference Include="u_PoolOfObjectsSimple.pas" />
     <DCCReference Include="u_PosChangeListener.pas" />
