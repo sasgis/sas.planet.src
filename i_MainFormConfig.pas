@@ -24,6 +24,7 @@ uses
   i_ISelectionPolygonLayerConfig,
   i_IMarkPolygonLayerConfig,
   i_IMarkPolyLineLayerConfig,
+  i_IFillingMapLayerConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -109,6 +110,9 @@ type
 
     function GetMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     property MarkPolyLineLayerConfig: IMarkPolyLineLayerConfig read GetMarkPolyLineLayerConfig;
+
+    function GetFillingMapLayerConfig: IFillingMapLayerConfig;
+    property FillingMapLayerConfig: IFillingMapLayerConfig read GetFillingMapLayerConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)

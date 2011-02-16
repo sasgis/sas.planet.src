@@ -20,6 +20,7 @@ uses
   i_ISelectionPolygonLayerConfig,
   i_IMarkPolygonLayerConfig,
   i_IMarkPolyLineLayerConfig,
+  i_IFillingMapLayerConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -42,6 +43,7 @@ type
     FSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
     FMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     FMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
+    FFillingMapLayerConfig: IFillingMapLayerConfig;
   protected
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;
@@ -59,6 +61,7 @@ type
     function GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
     function GetMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     function GetMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
+    function GetFillingMapLayerConfig: IFillingMapLayerConfig;
   public
     constructor Create(AMapsConfig: IMainMapsConfig);
   end;
@@ -83,6 +86,7 @@ uses
   u_SelectionPolygonLayerConfig,
   u_MarkPolygonLayerConfig,
   u_MarkPolyLineLayerConfig,
+  u_FillingMapLayerConfig,
   u_MapLayerNavToPointMarkerConfig;
 
 { TMainFormLayersConfig }
@@ -122,6 +126,8 @@ begin
   Add(FMarkPolygonLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolygon'));
   FMarkPolyLineLayerConfig := TMarkPolyLineLayerConfig.Create;
   Add(FMarkPolyLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolyLine'));
+  FFillingMapLayerConfig := TFillingMapLayerConfig.Create(AMapsConfig);
+  Add(FFillingMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FillingLayer'));
 end;
 
 function TMainFormLayersConfig.GetCalcLineLayerConfig: ICalcLineLayerConfig;
@@ -132,6 +138,11 @@ end;
 function TMainFormLayersConfig.GetCenterScaleConfig: ICenterScaleConfig;
 begin
   Result := FCenterScaleConfig;
+end;
+
+function TMainFormLayersConfig.GetFillingMapLayerConfig: IFillingMapLayerConfig;
+begin
+  Result := FFillingMapLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetGPSMarker: IMapLayerGPSMarkerConfig;
