@@ -160,7 +160,6 @@ begin
     Sender.AddUsedVariable('GetRMetr', t);
     Sender.AddUsedVariable('GetTMetr', t);
     Sender.AddUsedVariable('GetBMetr', t);
-    Sender.AddDelphiFunction('function Random(x:integer):integer');
     Sender.AddDelphiFunction('function GetUnixTime:int64');
     Sender.AddDelphiFunction('function RoundEx(chislo: Extended; Precision: Integer): string');
     Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
@@ -169,11 +168,6 @@ begin
   end else begin
     Result := False;
   end;
-end;
-
-function Rand(x: integer): integer;
-begin
-  Result := Random(x);
 end;
 
 function GetUnixTime(x: integer): int64;
@@ -213,7 +207,6 @@ begin
 
   FExec.RegisterDelphiFunction(@RoundEx, 'RoundEx', cdRegister);
   FExec.RegisterDelphiFunction(@IntPower, 'IntPower', cdRegister);
-  FExec.RegisterDelphiFunction(@Rand, 'Random', cdRegister);
   FExec.RegisterDelphiFunction(@IntToHex, 'IntToHex', cdRegister);
 
   if not FExec.LoadData(VData) then begin // Load the data from the Data string.
