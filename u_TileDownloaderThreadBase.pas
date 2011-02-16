@@ -51,7 +51,7 @@ begin
     dtrErrorMIMEType:
     begin
       result := SAS_ERR_TileDownloadContentTypeUnexpcted;
-    end; //TODO: Заменить на ресурсную строку
+    end;
     dtrUnknownError:
     begin
       Result := SAS_ERR_TileDownloadUnexpectedError;
