@@ -107,9 +107,9 @@ begin
 
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
+        VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
         for j := 0 to 2 do begin
           if (FMapTypeArr[j] <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-            VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
             FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
           end;
         end;
