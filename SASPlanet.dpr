@@ -377,6 +377,8 @@ uses
   u_MainFormLayersConfig in 'u_MainFormLayersConfig.pas',
   i_IMapLayerNavToPointMarkerConfig in 'i_IMapLayerNavToPointMarkerConfig.pas',
   u_MapLayerNavToPointMarkerConfig in 'u_MapLayerNavToPointMarkerConfig.pas',
+  i_IDownloadUIConfig in 'i_IDownloadUIConfig.pas',
+  u_DownloadUIConfig in 'u_DownloadUIConfig.pas',
   i_IMainWindowPosition in 'i_IMainWindowPosition.pas',
   u_MainWindowPositionConfig in 'u_MainWindowPositionConfig.pas',
   u_MainWindowToolbarsLock in 'u_MainWindowToolbarsLock.pas',
