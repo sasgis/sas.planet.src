@@ -98,15 +98,6 @@ type
 
     GPSpar: TGPSpar;
 
-    // Цвет для отсутствующих тайлов в слое заполнения карты
-    MapZapColor: TColor;
-    // Показывать tne на слое заполнения карты
-    MapZapShowTNE: Boolean;
-    // Цвет для тайлов отсутсвтующих на сервере в слое заполнения карты
-    MapZapTneColor: TColor;
-    // Прозрачность слоя заполнения карты
-    MapZapAlpha: byte;
-
     // Количество тайлов отображаемых за границей экрана
     TilesOut: Integer;
 
@@ -399,10 +390,6 @@ begin
 
   UsePrevZoom := MainIni.Readbool('VIEW','back_load',true);
   UsePrevZoomLayer := MainIni.Readbool('VIEW','back_load_layer',true);
-  MapZapColor:=MainIni.Readinteger('VIEW','MapZapColor',clBlack);
-  MapZapShowTNE:=MainIni.ReadBool('VIEW','MapZapShowTNE', True);
-  MapZapTneColor:=MainIni.Readinteger('VIEW','MapZapTneColor',clRed);
-  MapZapAlpha:=MainIni.Readinteger('VIEW','MapZapAlpha',110);
 
   BGround:=MainIni.ReadInteger('VIEW','Background',clSilver);
 end;
@@ -443,10 +430,6 @@ begin
   MainIni.WriteInteger('VIEW','TilesOut',TilesOut);
   MainIni.Writebool('VIEW','back_load',UsePrevZoom);
   MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
-  MainIni.Writeinteger('VIEW','MapZapColor',MapZapColor);
-  MainIni.WriteBool('VIEW','MapZapShowTNE',MapZapShowTNE);
-  MainIni.Writeinteger('VIEW','MapZapTneColor',MapZapTneColor);
-  MainIni.Writeinteger('VIEW','MapZapAlpha',MapZapAlpha);
   MainIni.WriteInteger('VIEW','Background',BGround);
 
   MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);

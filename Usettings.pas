@@ -338,8 +338,9 @@ begin
  end;
 
   GState.MainMemCacheConfig.MaxSize := SETilesOCache.value;
- GState.MapZapColor:=MapZapColorBox.Selected;
- GState.MapZapAlpha:=MapZapAlphaEdit.Value;
+
+  GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
+
  GState.TwoDownloadAttempt:=CBDblDwnl.Checked;
  GState.GoNextTileIfDownloadError:=CkBGoNextTile.Checked;
  GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
@@ -577,8 +578,13 @@ begin
     VInetConfig.UnlockRead;
   end;
   SETilesOCache.Value := GState.MainMemCacheConfig.MaxSize;
- MapZapColorBox.Selected:=GState.MapZapColor;
- MapZapAlphaEdit.Value:=GState.MapZapAlpha;
+  GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.LockRead;
+  try
+    MapZapColorBox.Selected := WinColor(GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor);
+    MapZapAlphaEdit.Value := AlphaComponent(GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor);
+  finally
+    GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
+  end;
  CBDblDwnl.Checked:=GState.TwoDownloadAttempt;
  CBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
  CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
