@@ -52,7 +52,17 @@ type
     procedure SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream); override;
     procedure SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant); override;
 
-    function LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; AVersion: Variant; IsStop: PBoolean): boolean; override;
+    function LoadFillingMap(
+      btm: TCustomBitmap32;
+      AXY: TPoint;
+      Azoom: byte;
+      ASourceZoom: byte;
+      AVersion: Variant;
+      IsStop: PBoolean;
+      ANoTileColor: TColor32;
+      AShowTNE: Boolean;
+      ATNEColor: TColor32
+    ): boolean; override;
   end;
 
 implementation
@@ -223,9 +233,16 @@ begin
   Result := FUseSave;
 end;
 
-function TTileStorageFileSystem.LoadFillingMap(btm: TCustomBitmap32;
-  AXY: TPoint; Azoom, ASourceZoom: byte; AVersion: Variant;
-  IsStop: PBoolean): boolean;
+function TTileStorageFileSystem.LoadFillingMap(
+  btm: TCustomBitmap32;
+  AXY: TPoint;
+  Azoom, ASourceZoom: byte;
+  AVersion: Variant;
+  IsStop: PBoolean;
+  ANoTileColor: TColor32;
+  AShowTNE: Boolean;
+  ATNEColor: TColor32
+): boolean;
 var
   VPixelsRect: TRect;
   VRelativeRect: TDoubleRect;
@@ -233,8 +250,6 @@ var
   VCurrTile: TPoint;
   VTileSize: TPoint;
   VSourceTilePixels: TRect;
-  VClMZ: TColor32;
-  VClTne: TColor32;
   VSolidDrow: Boolean;
   VIterator: ITileIterator;
   VFileName: string;
@@ -267,8 +282,6 @@ begin
     begin
       VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
         or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
-      VClMZ := SetAlpha(Color32(GState.MapZapColor), GState.MapZapAlpha);
-      VClTne := SetAlpha(Color32(GState.MapZapTneColor), GState.MapZapAlpha);
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
       while VIterator.Next(VCurrTile) do begin
         if IsStop^ then break;
@@ -311,19 +324,19 @@ begin
             Dec(VSourceTilePixels.Right);
             Dec(VSourceTilePixels.Bottom);
           end;
-          if GState.MapZapShowTNE then begin
+          if AShowTNE then begin
             if VFolderExists then begin
               VFileName := ChangeFileExt(VFileName, '.tne');
               if FileExists(VFileName) then begin
-                VTileColor := VClTne;
+                VTileColor := ATNEColor;
               end else begin
-                VTileColor := VClMZ;
+                VTileColor := ANoTileColor;
               end;
             end else begin
-              VTileColor := VClMZ;
+              VTileColor := ANoTileColor;
             end;
           end else begin
-            VTileColor := VClMZ;
+            VTileColor := ANoTileColor;
           end;
           if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
              ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin

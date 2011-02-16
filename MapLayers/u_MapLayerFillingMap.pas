@@ -28,6 +28,9 @@ type
   private
     FSourceMap: TMapType;
     FSourceZoom: Byte;
+    FNoTileColor: TColor32;
+    FShowTNE: Boolean;
+    FTNEColor: TColor32;
   protected
     procedure DrawBitmap; override;
     procedure ExecuteTask; override;
@@ -156,9 +159,14 @@ var
   VTileIterator: ITileIterator;
 begin
   inherited;
+
+  FShowTNE := GState.SaveTileNotExists;
+  FNoTileColor := SetAlpha(GState.MapZapColor, GState.MapZapAlpha);
+  FTNEColor := SetAlpha(GState.MapZapTneColor, GState.MapZapAlpha);
+
   Bitmap.Lock;
   try
-    Bitmap.Clear(clBlack);
+    Bitmap.Clear(0);
   finally
     Bitmap.UnLock;
   end;
@@ -219,7 +227,7 @@ begin
         if FNeedStopExecute then begin
           break;
         end;
-        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedStopExecute) then begin
+        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedStopExecute, FNoTileColor, FShowTNE, FTNEColor) then begin
           Bitmap.Lock;
           try
             Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);

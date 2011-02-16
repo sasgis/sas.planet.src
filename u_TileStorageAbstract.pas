@@ -34,7 +34,17 @@ type
     procedure SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream); virtual; abstract;
     procedure SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant); virtual; abstract;
 
-    function LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; AVersion: Variant; IsStop: PBoolean): boolean; virtual;
+    function LoadFillingMap(
+      btm: TCustomBitmap32;
+      AXY: TPoint;
+      Azoom: byte;
+      ASourceZoom: byte;
+      AVersion: Variant;
+      IsStop: PBoolean;
+      ANoTileColor: TColor32;
+      AShowTNE: Boolean;
+      ATNEColor: TColor32
+    ): boolean; virtual;
 
     property CacheConfig: TMapTypeCacheConfigAbstract read GetCacheConfig;
     property TileFileExt: string read GetTileFileExt;
@@ -44,16 +54,22 @@ type
 implementation
 
 uses
-  Graphics,
   t_GeoTypes,
   i_ITileIterator,
-  u_TileIteratorByRect,
-  u_GlobalState;
+  u_TileIteratorByRect;
 
 { TTileStorageAbstract }
 
-function TTileStorageAbstract.LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint;
-  Azoom, ASourceZoom: byte; AVersion: Variant; IsStop: PBoolean): boolean;
+function TTileStorageAbstract.LoadFillingMap(
+  btm: TCustomBitmap32;
+  AXY: TPoint;
+  Azoom, ASourceZoom: byte;
+  AVersion: Variant;
+  IsStop: PBoolean;
+  ANoTileColor: TColor32;
+  AShowTNE: Boolean;
+  ATNEColor: TColor32
+): boolean;
 var
   VPixelsRect: TRect;
   VRelativeRect: TDoubleRect;
@@ -61,8 +77,6 @@ var
   VCurrTile: TPoint;
   VTileSize: TPoint;
   VSourceTilePixels: TRect;
-  VClMZ: TColor32;
-  VClTne: TColor32;
   VSolidDrow: Boolean;
   VIterator: ITileIterator;
   VTileInfo: ITileInfoBasic;
@@ -82,7 +96,7 @@ begin
 
     btm.Width := VTileSize.X;
     btm.Height := VTileSize.Y;
-    btm.Clear(clBlack);
+    btm.Clear(0);
 
     VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
     VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
@@ -91,8 +105,6 @@ begin
     begin
       VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
         or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
-      VClMZ := SetAlpha(Color32(GState.MapZapColor), GState.MapZapAlpha);
-      VClTne := SetAlpha(Color32(GState.MapZapTneColor), GState.MapZapAlpha);
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
       while VIterator.Next(VCurrTile) do begin
         if IsStop^ then break;
@@ -121,14 +133,14 @@ begin
             Dec(VSourceTilePixels.Right);
             Dec(VSourceTilePixels.Bottom);
           end;
-          if GState.MapZapShowTNE then begin
+          if AShowTNE then begin
             if VTileInfo.GetIsExistsTNE then begin
-              VTileColor := VClTne;
+              VTileColor := ATNEColor;
             end else begin
-              VTileColor := VClMZ;
+              VTileColor := ANoTileColor;
             end;
           end else begin
-            VTileColor := VClMZ;
+            VTileColor := ANoTileColor;
           end;
 
           if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and

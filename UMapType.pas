@@ -123,7 +123,16 @@ type
     function TileExportToFile(AXY: TPoint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean;
     // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
     // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
-    function LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; ASourceZoom: byte; IsStop: PBoolean): boolean;
+    function LoadFillingMap(
+      btm: TCustomBitmap32;
+      AXY: TPoint;
+      Azoom: byte;
+      ASourceZoom: byte;
+      IsStop: PBoolean;
+      ANoTileColor: TColor32;
+      AShowTNE: Boolean;
+      ATNEColor: TColor32
+    ): boolean;
     function GetShortFolderName: string;
     function DownloadTile(AThread: TThread; ATile: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult; overload;
 
@@ -636,10 +645,17 @@ begin
   end;
 end;
 
-function TMapType.LoadFillingMap(btm: TCustomBitmap32; AXY: TPoint; Azoom,
-  ASourceZoom: byte; IsStop: PBoolean): boolean;
+function TMapType.LoadFillingMap(
+  btm: TCustomBitmap32;
+  AXY: TPoint;
+  Azoom, ASourceZoom: byte;
+  IsStop: PBoolean;
+  ANoTileColor: TColor32;
+  AShowTNE: Boolean;
+  ATNEColor: TColor32
+): boolean;
 begin
-  Result := FStorage.LoadFillingMap(btm, AXY, Azoom, ASourceZoom, FVersion, IsStop);
+  Result := FStorage.LoadFillingMap(btm, AXY, Azoom, ASourceZoom, FVersion, IsStop, ANoTileColor, AShowTNE, ATNEColor);
 end;
 
 function TMapType.GetShortFolderName: string;
