@@ -130,12 +130,8 @@ type
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
-    // Путь к иконкам меток
-    property MarkIconsPath: string read GetMarkIconsPath;
     // Путь к папке с картами
     property MapsPath: string read GetMapsPath;
-    // Путь к папке с треками
-    property TrackLogPath: string read GetTrackLogPath;
     // Имя файла со справкой по программе
     property HelpFileName: string read GetHelpFileName;
     // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
@@ -252,10 +248,10 @@ begin
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
-  GPSpar := TGPSpar.Create(TrackLogPath);
+  GPSpar := TGPSpar.Create(GetTrackLogPath);
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
-  FMarkPictureList := TMarkPictureListSimple.Create(MarkIconsPath, FBitmapTypeManager);
+  FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList);
 end;
 
