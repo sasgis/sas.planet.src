@@ -187,7 +187,6 @@
     <DCCReference Include="MapLayers\u_MapLayerWithThreadDraw.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayer.pas" />
     <DCCReference Include="MapLayers\u_MapMarksLayer.pas" />
-    <DCCReference Include="MapLayers\u_MapNalLayer.pas" />
     <DCCReference Include="MapLayers\u_MarkPolygonLayer.pas" />
     <DCCReference Include="MapLayers\u_MarkPolyLineLayer.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
