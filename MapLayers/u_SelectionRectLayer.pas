@@ -30,6 +30,7 @@ type
     procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ISelectionRectLayerConfig);
+    procedure StartThreads; override;
     procedure DrawNothing;
     procedure DrawSelectionRect(ASelectedLonLat: TDoubleRect);
   end;
@@ -58,7 +59,6 @@ constructor TSelectionRectLayer.Create(
 begin
   inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
   FConfig := AConfig;
-  LayerPositioned.OnPaint := PaintLayer;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
@@ -120,9 +120,9 @@ begin
     xy1 := VLocalConverter.LonLat2LocalPixel(FSelectedLonLat.TopLeft);
     xy2 := VLocalConverter.LonLat2LocalPixel(FSelectedLonLat.BottomRight);
 
-    Buffer.FillRectS(xy1.x, xy1.y, xy2.x, xy2.y, FFillColor);
-    Buffer.FrameRectS(xy1.x, xy1.y, xy2.x, xy2.y, FBorderColor);
-    Buffer.FrameRectS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, FBorderColor);
+    Buffer.FillRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FFillColor);
+    Buffer.FrameRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FBorderColor);
+    Buffer.FrameRectTS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, FBorderColor);
 
     VSelectedRelative := VGeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoom);
 
@@ -140,7 +140,7 @@ begin
 
       VColor := FZoomDeltaColors[VZoomDelta];
 
-      Buffer.FrameRectS(
+      Buffer.FrameRectTS(
         xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
         xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
         VColor
@@ -156,6 +156,13 @@ begin
       Inc(VZoomDelta);
     end;
   end;
+end;
+
+procedure TSelectionRectLayer.StartThreads;
+begin
+  inherited;
+  OnConfigChange(nil);
+  LayerPositioned.OnPaint := PaintLayer;
 end;
 
 end.

@@ -108,7 +108,7 @@ begin
     VRect.Top := Trunc(APosOnBitmap.Y);
     VRect.Right := VRect.Left + VTextSize.cx + 4;
     VRect.Bottom := VRect.Top + VTextSize.cy + 4;
-    ABuffer.FillRectS(VRect, ATextBGColor );
+    ABuffer.FillRectTS(VRect, ATextBGColor );
     ABuffer.RenderText(VRect.Left + 2, VRect.Top + 2, AText, 3, ATextColor);
   end;
 end;
@@ -155,7 +155,7 @@ var
   VDatum: IDatum;
 begin
   inherited;
-  VPointsCount := Length(FDistArray);
+  VPointsCount := Length(SourcePolygon);
   if VPointsCount > 0 then begin
     VDatum := ALocalConverter.GetGeoConverter.Datum;
     SetLength(FDistArray, VPointsCount);

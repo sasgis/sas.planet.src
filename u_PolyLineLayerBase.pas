@@ -183,7 +183,7 @@ begin
     VRect.Top := Trunc(APosOnBitmap.Y - VHalfSize);
     VRect.Right := VRect.Left + ASize;
     VRect.Bottom := VRect.Top + ASize;
-    ABuffer.FillRectS(VRect, ARectColor);
+    ABuffer.FillRectTS(VRect, ARectColor);
     if AFillColor <> ARectColor then begin
       Inc(VRect.Left);
       Inc(VRect.Top);
