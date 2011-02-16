@@ -69,12 +69,15 @@ uses
   u_MapLayerFillingMap,
   u_MiniMapLayer,
   u_MapLayerGrids,
-  u_MapNalLayer,
   u_MapLayerGoto,
   u_MapLayerShowError,
   u_CenterScale,
   u_SelectionLayer,
   u_CalcLineLayer,
+  u_MarkPolyLineLayer,
+  u_MarkPolygonLayer,
+  u_SelectionPolygonLayer,
+  u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
   u_TileDownloaderUI,
@@ -543,8 +546,12 @@ type
     FSelectionRect: TDoubleRect;
 
     FLayerScaleLine: TLayerScaleLine;
-    FLayerMapNal: TMapNalLayer;
     FCalcLineLayer: TCalcLineLayer;
+    FMarkPolyLineLayer: TMarkPolyLineLayer;
+    FMarkPolygonLayer: TMarkPolygonLayer;
+    FSelectionPolygonLayer: TSelectionPolygonLayer;
+    FSelectionRectLayer: TSelectionRectLayer;
+
     FLayerMapGPS: TMapGPSLayer;
     FLayerGoto: TGotoLayer;
     FLayerFillingMap: TMapLayerFillingMap;
@@ -795,10 +802,16 @@ begin
     FLayersList.Add(FLayerGPSMarker);
     FLayerSelection := TSelectionLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.LastSelectionLayerConfig, GState.LastSelectionInfo);
     FLayersList.Add(FLayerSelection);
-    FLayerMapNal:=TMapNalLayer.Create(map, FConfig.ViewPortState);
-    FLayersList.Add(FLayerMapNal);
     FCalcLineLayer := TCalcLineLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CalcLineLayerConfig, GState.ValueToStringConverterConfig);
     FLayersList.Add(FCalcLineLayer);
+    FMarkPolyLineLayer := TMarkPolyLineLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarkPolyLineLayerConfig);
+    FLayersList.Add(FMarkPolyLineLayer);
+    FMarkPolygonLayer := TMarkPolygonLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarkPolygonLayerConfig);
+    FLayersList.Add(FMarkPolygonLayer);
+    FSelectionPolygonLayer := TSelectionPolygonLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.SelectionPolygonLayerConfig);
+    FLayersList.Add(FSelectionPolygonLayer);
+    FSelectionRectLayer := TSelectionRectLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.SelectionRectLayerConfig);
+    FLayersList.Add(FSelectionRectLayer);
     FLayerGoto := TGotoLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerGoto);
     LayerMapNavToMark := TNavToMarkLayer.Create(map, FConfig.ViewPortState, FConfig.NavToPoint, FConfig.LayersConfig.NavToPointMarkerConfig);
@@ -1193,11 +1206,25 @@ begin
   ao_select_poly,ao_select_rect: map.Cursor:=crDrag;
   ao_Add_Point,ao_Add_Poly,ao_Add_Line,ao_edit_Line,ao_edit_poly: map.Cursor:=4;
  end;
- if (FCurrentOper=ao_edit_line)or(FCurrentOper=ao_edit_poly) then begin
-   FEditMarkId:=-1;
-   FLayerMapMarks.Redraw;
- end;
- FCurrentOper:=newop;
+  FCurrentOper:=newop;
+  if not(FCurrentOper in[ao_edit_line,ao_edit_poly]) then begin
+    FEditMarkId:=-1;
+  end;
+  if FCurrentOper <> ao_calc_line then begin
+    FCalcLineLayer.DrawNothing;
+  end;
+  if not(FCurrentOper in [ao_edit_line, ao_add_line]) then begin
+    FMarkPolyLineLayer.DrawNothing;
+  end;
+  if not(FCurrentOper in [ao_edit_poly, ao_add_poly]) then begin
+    FMarkPolygonLayer.DrawNothing;
+  end;
+  if FCurrentOper <> ao_select_poly then begin
+    FSelectionPolygonLayer.DrawNothing;
+  end;
+  if FCurrentOper <> ao_select_rect then begin
+    FSelectionRectLayer.DrawNothing;
+  end;
 end;
 
 procedure TFmain.OnClickLayerItem(Sender: TObject);
@@ -1250,39 +1277,17 @@ begin
   FLineOnMapEdit.LockRead;
   try
     TBEditPath.Visible:=(FLineOnMapEdit.GetCount > 1);
-    if FLineOnMapEdit.GetCount > 0 then begin
-      if FCurrentOper = ao_calc_line then begin
-        FCalcLineLayer.DrawLine(
-          FLineOnMapEdit.GetPoints,
-          FLineOnMapEdit.GetActiveIndex
-        );
-      end else begin
-        FCalcLineLayer.DrawNothing;
-        case FCurrentOper of
-          ao_edit_line,
-          ao_add_line: begin
-            FLayerMapNal.DrawNewPath(
-              FLineOnMapEdit.GetPoints,
-              false,
-              FLineOnMapEdit.GetActiveIndex
-            );
-          end;
-          ao_edit_poly,
-          ao_add_poly: begin
-            FLayerMapNal.DrawNewPath(
-              FLineOnMapEdit.GetPoints,
-              True,
-              FLineOnMapEdit.GetActiveIndex
-            );
-          end;
-          ao_select_poly: begin
-            FLayerMapNal.DrawReg(FLineOnMapEdit.GetPoints);
-          end;
-        end;
-      end;
-    end else begin
-      FCalcLineLayer.DrawNothing;
-      FLayerMapNal.DrawNothing;
+    case FCurrentOper of
+      ao_select_poly:
+        FSelectionPolygonLayer.DrawLine(FLineOnMapEdit.GetPoints, FLineOnMapEdit.GetActiveIndex);
+      ao_calc_line:
+        FCalcLineLayer.DrawLine(FLineOnMapEdit.GetPoints, FLineOnMapEdit.GetActiveIndex);
+      ao_add_poly,
+      ao_edit_poly:
+        FMarkPolygonLayer.DrawLine(FLineOnMapEdit.GetPoints, FLineOnMapEdit.GetActiveIndex);
+      ao_edit_line,
+      ao_add_line:
+        FMarkPolyLineLayer.DrawLine(FLineOnMapEdit.GetPoints, FLineOnMapEdit.GetActiveIndex);
     end;
   finally
     FLineOnMapEdit.UnlockRead;
@@ -2928,11 +2933,11 @@ begin
       Frect_dwn:=not(Frect_dwn);
       VSelectionRect := FSelectionRect;
       PrepareSelectionRect(Shift, VSelectionRect);
-      FLayerMapNal.DrawSelectionRect(VSelectionRect);
+      FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
       if (Frect_p2) then begin
         VPoly := PolygonFromRect(VSelectionRect);
         fsaveas.Show_(VZoom, VPoly);
-        FLayerMapNal.DrawNothing;
+        FSelectionRectLayer.DrawNothing;
         VPoly := nil;
         Frect_p2:=false;
       end;
@@ -3065,7 +3070,7 @@ begin
     if FCurrentOper=ao_select_rect then begin
       VSelectionRect := FSelectionRect;
       PrepareSelectionRect(Shift, VSelectionRect);
-      FLayerMapNal.DrawSelectionRect(VSelectionRect);
+      FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
     end;
     if GState.GPSpar.GPSModule.IsConnected then begin
       UpdateGPSsensors;
@@ -3219,7 +3224,7 @@ begin
    FSelectionRect.BottomRight:=VLonLat;
    VSelectionRect := FSelectionRect;
    PrepareSelectionRect(Shift,VSelectionRect);
-   FLayerMapNal.DrawSelectionRect(VSelectionRect);
+   FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
  end;
  if FWinPosition.GetIsFullScreen then begin
                        if FmoveTrue.y<10 then begin
