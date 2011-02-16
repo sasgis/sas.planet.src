@@ -974,6 +974,7 @@ begin
     OnMainFormMainConfigChange(nil);
     MapLayersVisibleChange(nil);
     FLinksList.ActivateLinks;
+    ProcessPosChangeMessage(nil);
     tmrMapUpdate.Enabled := True;
   finally
     Enabled:=true;
