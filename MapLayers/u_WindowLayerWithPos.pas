@@ -43,8 +43,6 @@ type
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
     destructor Destroy; override;
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
     procedure Show; virtual;
     procedure Hide; virtual;
     procedure Redraw; override;
@@ -144,11 +142,6 @@ begin
   end;
 end;
 
-procedure TWindowLayerBasic.LoadConfig(AConfigProvider: IConfigDataProvider);
-begin
-  // По умолчанию ничего не делаем
-end;
-
 procedure TWindowLayerBasic.OnPosChange(Sender: TObject);
 begin
   PosChange(FViewPortState.GetVisualCoordConverter);
@@ -188,12 +181,6 @@ begin
       IncRedrawCounter(VUpdateTime);
     end;
   end;
-end;
-
-procedure TWindowLayerBasic.SaveConfig(
-  AConfigProvider: IConfigDataWriteProvider);
-begin
-  // По умолчанию ничего не делаем
 end;
 
 procedure TWindowLayerBasic.SetVisible(const Value: Boolean);

@@ -25,10 +25,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual; abstract;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual; abstract;
     procedure Redraw; virtual; abstract;
     property Visible: Boolean read GetVisible;
     property RedrawCounter: Cardinal read FRedrawCounter;

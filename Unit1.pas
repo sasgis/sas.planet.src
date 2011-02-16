@@ -930,7 +930,6 @@ begin
       FConfig.LayersConfig.FillingMapLayerConfig.GetChangeNotifier
     );
 
-    FLayersList.LoadConfig(GState.MainConfigProvider);
     FUIDownLoader.LoadConfig(GState.MainConfigProvider);
     ProgramStart:=false;
 
@@ -3587,7 +3586,6 @@ var
 begin
   VProvider := AProvider.GetOrCreateSubItem('MainForm');
   FWinPosition.WriteConfig(VProvider);
-  FLayersList.SaveConfig(AProvider);
   FUIDownLoader.SaveConfig(AProvider);
 
   VProvider := AProvider.GetOrCreateSubItem('PANEL');

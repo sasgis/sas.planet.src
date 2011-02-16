@@ -18,10 +18,8 @@ type
     constructor Create;
     destructor Destroy; override;
     function Add(AItem: TWindowLayerAbstract): Integer;
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider);
     procedure StartThreads;
     procedure SendTerminateToThreads;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider);
     property Items[Index: Integer]: TWindowLayerAbstract read Get; default;
   end;
 
@@ -56,25 +54,6 @@ end;
 function TWindowLayerBasicList.Get(AIndex: Integer): TWindowLayerAbstract;
 begin
   Result := TWindowLayerAbstract(FList.Items[AIndex]);
-end;
-
-procedure TWindowLayerBasicList.LoadConfig(AConfigProvider: IConfigDataProvider);
-var
-  i: Integer;
-begin
-  for i := 0 to FList.Count - 1 do begin
-    Items[i].LoadConfig(AConfigProvider);
-  end;
-end;
-
-procedure TWindowLayerBasicList.SaveConfig(
-  AConfigProvider: IConfigDataWriteProvider);
-var
-  i: Integer;
-begin
-  for i := 0 to FList.Count - 1 do begin
-    Items[i].SaveConfig(AConfigProvider);
-  end;
 end;
 
 procedure TWindowLayerBasicList.SendTerminateToThreads;
