@@ -249,7 +249,6 @@ type
     N31: TTBXSubmenuItem;
     NFillMap: TTBXSubmenuItem;
     TBFillingTypeMap: TTBXSubmenuItem;
-    TBfillMapAsMain: TTBXItem;
     TBXToolPalette1: TTBXToolPalette;
     NShowGran: TTBXSubmenuItem;
     N40: TTBXSubmenuItem;
@@ -614,6 +613,7 @@ type
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange(Sender: TObject);
+    procedure OnFillingMapChange(Sender: TObject);
   public
     LayerMapNavToMark: TNavToMarkLayer;
     MouseCursorPos: Tpoint;
@@ -792,7 +792,7 @@ begin
     FLayersList.Add(FLayerGrids);
     FWikiLayer := TWikiLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.KmlLayerConfig, FConfig.MainMapsConfig.GetKmlLayersSet);
     FLayersList.Add(FWikiLayer);
-    FLayerFillingMap:=TMapLayerFillingMap.create(map, FConfig.ViewPortState, FConfig.MainMapsConfig);
+    FLayerFillingMap:=TMapLayerFillingMap.create(map, FConfig.ViewPortState, FConfig.LayersConfig.FillingMapLayerConfig);
     FLayersList.Add(FLayerFillingMap);
     FLayerMapMarks:= TMapMarksLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarksShowConfig, FMarkDBGUI);
     FLayersList.Add(FLayerMapMarks);
@@ -883,10 +883,6 @@ begin
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
-      FLayerFillingMap.SourceMapChangeNotifier
-    );
-    FLinksList.Add(
-      VMapLayersVsibleChangeListener,
       FConfig.LayersConfig.GPSTrackConfig.GetChangeNotifier
     );
     FLinksList.Add(
@@ -927,6 +923,11 @@ begin
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
       FConfig.MainGeoCoderConfig.GetChangeNotifier
+    );
+
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnFillingMapChange),
+      FConfig.LayersConfig.FillingMapLayerConfig.GetChangeNotifier
     );
 
     FLayersList.LoadConfig(GState.MainConfigProvider);
@@ -973,6 +974,7 @@ begin
     FUIDownLoader.StartThreads;
     OnMainFormMainConfigChange(nil);
     MapLayersVisibleChange(nil);
+    OnFillingMapChange(nil);
     FLinksList.ActivateLinks;
     ProcessPosChangeMessage(nil);
     tmrMapUpdate.Enabled := True;
@@ -1023,11 +1025,6 @@ begin
 end;
 
 procedure TFmain.MapLayersVisibleChange(Sender: TObject);
-var
-  VGUID: TGUID;
-  VEnumGUID: IEnumGUID;
-  i: Cardinal;
-  VMapType: TMapType;
 begin
   Showstatus.Checked := FConfig.LayersConfig.StatBar.Visible;
   if Showstatus.Checked then begin
@@ -1050,31 +1047,6 @@ begin
     tsInternet: NSRCinet.Checked:=true;
     tsCache: NSRCesh.Checked:=true;
     tsCacheInternet: NSRCic.Checked:=true;
-  end;
-
-  if FLayerFillingMap.SourceZoom >-1 then begin
-    TBMapZap.Caption:='z'+inttostr(FLayerFillingMap.SourceZoom+1);
-  end else begin
-    TBMapZap.Caption:='';
-  end;
-
-  VMapType := FLayerFillingMap.SourceSelected;
-  if VMapType <> nil then begin
-    TBfillMapAsMain.Checked:=false;
-    VEnumGUID := FTBFillingItemList.GetGUIDEnum;
-    while VEnumGUID.Next(1, VGUID, i) = S_OK  do begin
-      if IsEqualGUID(VMapType.GUID, VGUID) then begin
-        TTBXItem(FTBFillingItemList.GetByGUID(VGUID)).Checked := True;
-      end else begin
-        TTBXItem(FTBFillingItemList.GetByGUID(VGUID)).Checked := False;
-      end;
-    end;
-  end else begin
-    TBfillMapAsMain.Checked:=true;
-    VEnumGUID := FTBFillingItemList.GetGUIDEnum;
-    while VEnumGUID.Next(1, VGUID, i) = S_OK  do begin
-      TTBXItem(FTBFillingItemList.GetByGUID(VGUID)).Checked := False;
-    end;
   end;
 
   mapResize(nil);
@@ -1104,7 +1076,6 @@ begin
   NZoomOut.Enabled:=TBZoom_Out.Enabled;
   RxSlider1.Value:=VZoomCurr;
   labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
-
 end;
 
 procedure TFmain.BuildImageListMapZapSelect;
@@ -1270,6 +1241,15 @@ begin
         FConfig.MainMapsConfig.SelectMainByGUID(VMap.GUID);
       end;
     end;
+  end;
+end;
+
+procedure TFmain.OnFillingMapChange(Sender: TObject);
+begin
+  if FConfig.LayersConfig.FillingMapLayerConfig.Visible then begin
+    TBMapZap.Caption:='z'+inttostr(FConfig.LayersConfig.FillingMapLayerConfig.SourceZoom + 1);
+  end else begin
+    TBMapZap.Caption:='';
   end;
 end;
 
@@ -1742,31 +1722,18 @@ end;
 
 procedure TFmain.CreateMapUIFillingList;
 var
-  i: integer;
-  VMapType: TMapType;
-  TBFillingItem: TTBXItem; //Пункт главного меню Вид/Карта заполнения/Формировать для
-  VIcon18Index: Integer;
+  VGenerator: TMapMenuGeneratorBasic;
 begin
-  FTBFillingItemList.Clear;
-  for i:=0 to TBFillingTypeMap.Count-2 do TBFillingTypeMap.Items[1].Free;
-  if GState.MapType.Count>0 then begin
-    for i:=0 to GState.MapType.Count-1 do begin
-      VMapType := GState.MapType[i];
-      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
-      TBFillingItem:=TTBXItem.Create(TBFillingTypeMap);
-      FTBFillingItemList.Add(VMapType.GUID, TBFillingItem);
-      TBFillingItem.name:='TBMapFM'+inttostr(VMapType.FSortIndex);
-      TBFillingItem.ImageIndex:=VIcon18Index;
-      TBFillingItem.Caption:=VMapType.name;
-      TBFillingItem.OnAdjustFont:=AdjustFont;
-      TBFillingItem.OnClick:=TBfillMapAsMainClick;
-      TBFillingTypeMap.Add(TBFillingItem);
-
-      if VMapType.separator then begin
-        TBFillingItem.Parent.Add(TTBXSeparatorItem.Create(TBFillingItem.Parent));
-      end;
-      TBFillingItem.Tag:=Longint(VMapType);
-    end;
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetMapsSet,
+    TBFillingTypeMap,
+    Self.TBfillMapAsMainClick,
+    GState.MapTypeIcons18List
+  );
+  try
+    VGenerator.BuildControls;
+  finally
+    FreeAndNil(VGenerator);
   end;
 end;
 
@@ -2362,7 +2329,10 @@ procedure TFmain.NFillMapClick(Sender: TObject);
 var
   VZoom: Integer;
 begin
-  VZoom := FLayerFillingMap.SourceZoom;
+  VZoom := -1;
+  if FConfig.LayersConfig.FillingMapLayerConfig.Visible then begin
+    VZoom := FConfig.LayersConfig.FillingMapLayerConfig.SourceZoom;
+  end;
   if VZoom > -1 then begin
     TBXToolPalette1.SelectedCell:=Point((VZoom + 1) mod 5,(VZoom + 1) div 5);
   end else begin
@@ -2375,7 +2345,17 @@ var
   Vzoom_mapzap: integer;
 begin
   Vzoom_mapzap:=((5*ARow)+ACol)-1;
-  FLayerFillingMap.SetSourceMap(FLayerFillingMap.SourceSelected, Vzoom_mapzap);
+  if Vzoom_mapzap < 0 then begin
+    FConfig.LayersConfig.FillingMapLayerConfig.Visible := False;
+  end else begin
+    FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
+    try
+      FConfig.LayersConfig.FillingMapLayerConfig.Visible := True;
+      FConfig.LayersConfig.FillingMapLayerConfig.SourceZoom := Vzoom_mapzap;
+    finally
+      FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
+    end;
+  end;
 end;
 //X-карта заполнения в основном окне
 
@@ -3508,16 +3488,23 @@ end;
 
 procedure TFmain.TBfillMapAsMainClick(Sender: TObject);
 var
-  VItem: TTBXItem;
-  VFillingMapType: TMapType;
+  VSender: TComponent;
+  VAtiveMap: IActiveMapSingle;
+  VMap: IMapType;
+  VGUID: TGUID;
 begin
-  VItem := Sender as TTBXItem;
-  if VItem.Tag = 0 then begin
-    VFillingMapType := nil;
-  end else begin
-    VFillingMapType := TMapType(VItem.Tag);
+  if Sender is TComponent then begin
+    VSender := TComponent(Sender);
+    VAtiveMap := IActiveMapSingle(VSender.Tag);
+    if VAtiveMap <> nil then begin
+      VMap := VAtiveMap.GetMapType;
+      VGUID := CGUID_Zero;
+      if VMap <> nil then begin
+        VGUID := VMap.GUID;
+      end;
+      FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.SelectMainByGUID(VGUID);
+    end;
   end;
-  FLayerFillingMap.SetSourceMap(VFillingMapType, FLayerFillingMap.SourceZoom);
 end;
 
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);

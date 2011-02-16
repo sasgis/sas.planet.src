@@ -560,11 +560,6 @@ object Fmain: TFmain
             Options = [tboDropdownArrow]
             Caption = #1060#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100' '#1076#1083#1103'...'
             Hint = ''
-            object TBfillMapAsMain: TTBXItem
-              OnClick = TBfillMapAsMainClick
-              Caption = #1042#1099#1073#1088#1072#1085#1085#1086#1081' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
-              Hint = ''
-            end
           end
           object TBXSeparatorItem11: TTBXSeparatorItem
             Caption = ''

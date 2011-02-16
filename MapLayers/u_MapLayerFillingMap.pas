@@ -14,29 +14,24 @@ uses
   i_IActiveMapsConfig,
   u_BackgroundTaskLayerDrawBase,
   i_IViewPortState,
+  i_IFillingMapLayerConfig,
   UMapType,
   u_MapLayerWithThreadDraw;
 
 type
   IBackgroundTaskFillingMap = interface(IBackgroundTaskLayerDraw)
     ['{3BE65F32-4F6F-41F0-83CC-5B4E6646B3FF}']
-    procedure ChangeSoureMap(AMapType: TMapType);
-    procedure ChangeSoureZoom(AZoom: Byte);
+    procedure ChangeConfig(AConfig: IFillingMapLayerConfigStatic);
   end;
 
   TBackgroundTaskFillingMap = class(TBackgroundTaskLayerDrawBase, IBackgroundTaskFillingMap)
   private
-    FSourceMap: TMapType;
-    FSourceZoom: Byte;
-    FNoTileColor: TColor32;
-    FShowTNE: Boolean;
-    FTNEColor: TColor32;
+    FConfig: IFillingMapLayerConfigStatic;
   protected
     procedure DrawBitmap; override;
     procedure ExecuteTask; override;
   protected
-    procedure ChangeSoureMap(AMapType: TMapType);
-    procedure ChangeSoureZoom(AZoom: Byte);
+    procedure ChangeConfig(AConfig: IFillingMapLayerConfigStatic);
   end;
 
   TBackgroundTaskFillingMapFactory = class(TInterfacedObject, IBackgroundTaskLayerDrawFactory)
@@ -46,25 +41,15 @@ type
 
   TMapLayerFillingMap = class(TMapLayerWithThreadDraw)
   private
-    FMapsConfig: IMainMapsConfig;
+    FConfig: IFillingMapLayerConfig;
+    FConfigStatic: IFillingMapLayerConfigStatic;
     FDrawTask: IBackgroundTaskFillingMap;
-    FSourceMapType: TMapType;
-    FSourceSelected: TMapType;
-    FSourceZoom: integer;
-    FSourceMapChangeNotifier: IJclNotifier;
-    procedure OnMainMapchange(Sender: TObject);
+    procedure OnConfigChange(Sender: TObject);
   protected
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig);
-    destructor Destroy; override;
-
-    procedure SetSourceMap(AMapType: TMapType; AZoom: integer);
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); override;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); override;
-    property SourceSelected: TMapType read FSourceSelected;
-    property SourceZoom: integer read FSourceZoom;
-    property SourceMapChangeNotifier: IJclNotifier read FSourceMapChangeNotifier;
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IFillingMapLayerConfig);
+    procedure StartThreads; override;
   end;
 
 implementation
@@ -82,21 +67,12 @@ uses
 
 { TBackgroundTaskFillingMap }
 
-procedure TBackgroundTaskFillingMap.ChangeSoureMap(AMapType: TMapType);
+procedure TBackgroundTaskFillingMap.ChangeConfig(
+  AConfig: IFillingMapLayerConfigStatic);
 begin
   StopExecute;
   try
-    FSourceMap := AMapType;
-  finally
-    StartExecute;
-  end;
-end;
-
-procedure TBackgroundTaskFillingMap.ChangeSoureZoom(AZoom: Byte);
-begin
-  StopExecute;
-  try
-    FSourceZoom := AZoom;
+    FConfig := AConfig;
   finally
     StartExecute;
   end;
@@ -157,12 +133,9 @@ var
   VSourceGeoConvert: ICoordConverter;
   VGeoConvert: ICoordConverter;
   VTileIterator: ITileIterator;
+  VConfig: IFillingMapLayerConfigStatic;
 begin
   inherited;
-
-  FShowTNE := GState.SaveTileNotExists;
-  FNoTileColor := SetAlpha(GState.MapZapColor, GState.MapZapAlpha);
-  FTNEColor := SetAlpha(GState.MapZapTneColor, GState.MapZapAlpha);
 
   Bitmap.Lock;
   try
@@ -173,10 +146,11 @@ begin
 
   VBmp := TCustomBitmap32.Create;
   try
+    VConfig := FConfig;
     VLocalConverter := Converter;
     VZoom := VLocalConverter.GetZoom;
-    VZoomSource := FSourceZoom;
-    VSourceMapType := FSourceMap;
+    VZoomSource := VConfig.SourceZoom;
+    VSourceMapType := VConfig.SourceMap.MapType;
     VSourceGeoConvert := VSourceMapType.GeoConvert;
     VGeoConvert := VLocalConverter.GetGeoConverter;
 
@@ -227,7 +201,7 @@ begin
         if FNeedStopExecute then begin
           break;
         end;
-        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedStopExecute, FNoTileColor, FShowTNE, FTNEColor) then begin
+        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedStopExecute, VConfig.NoTileColor, VConfig.ShowTNE, VConfig.TNEColor) then begin
           Bitmap.Lock;
           try
             Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
@@ -244,7 +218,7 @@ end;
 
 procedure TBackgroundTaskFillingMap.ExecuteTask;
 begin
-  if FSourceMap <> nil then begin
+  if FConfig <> nil then begin
     inherited;
   end;
 end;
@@ -252,63 +226,28 @@ end;
 { TMapLayerFillingMap }
 
 constructor TMapLayerFillingMap.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig);
+  AViewPortState: IViewPortState; AConfig: IFillingMapLayerConfig);
 var
   VFactory: IBackgroundTaskLayerDrawFactory;
 begin
   VFactory := TBackgroundTaskFillingMapFactory.Create;
   inherited Create(AParentMap, AViewPortState, VFactory);
-  FMapsConfig := AMapsConfig;
+  FConfig := AConfig;
   FDrawTask := (inherited DrawTask) as IBackgroundTaskFillingMap;
-  FSourceMapType := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
-  FSourceSelected := nil;
-  FSourceZoom := -1;
+
   LinksList.Add(
-    TNotifyEventListener.Create(OnMainMapchange),
-    FMapsConfig.GetActiveMap.GetChangeNotifier
+    TNotifyEventListener.Create(OnConfigChange),
+    FConfig.GetChangeNotifier
   );
-  FSourceMapChangeNotifier := TJclBaseNotifier.Create;
-end;
-
-destructor TMapLayerFillingMap.Destroy;
-begin
-  inherited;
-end;
-
-procedure TMapLayerFillingMap.LoadConfig(AConfigProvider: IConfigDataProvider);
-var
-  VConfigProvider: IConfigDataProvider;
-  VGUID: TGUID;
-  VGUIDString: string;
-  VFillingmaptype: TMapType;
-  VZoom: Integer;
-begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetSubItem('FillingMap');
-  if VConfigProvider <> nil then begin
-    try
-      VGUIDString := VConfigProvider.ReadString('Map','');
-      if VGUIDString <> '' then begin
-        VGUID := StringToGUID(VGUIDString);
-        VFillingmaptype:=GState.MapType.GetMapFromID(VGUID);
-      end else begin
-        VFillingmaptype := nil;
-      end;
-    except
-      VFillingmaptype := nil;
-    end;
-    VZoom := VConfigProvider.ReadInteger('Zoom', SourceZoom);
-    SetSourceMap(VFillingmaptype, Vzoom);
-  end;
 end;
 
 procedure TMapLayerFillingMap.PosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
-  if FSourceZoom < 0 then begin
+  if not FConfigStatic.Visible then begin
     Hide;
   end else begin
-    if ANewVisualCoordConverter.GetZoom > FSourceZoom then begin
+    if ANewVisualCoordConverter.GetZoom > FConfigStatic.SourceZoom then begin
       Hide;
     end else begin
       Show;
@@ -317,76 +256,29 @@ begin
   end;
 end;
 
-procedure TMapLayerFillingMap.OnMainMapchange(Sender: TObject);
-var
-  VMapType: TMapType;
-begin
-  if FSourceSelected = nil then begin
-    VMapType := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
-    if FSourceMapType <> VMapType then begin
-      FSourceMapType := VMapType;
-      FDrawTask.ChangeSoureMap(FSourceMapType);
-    end;
-  end;
-end;
-
-procedure TMapLayerFillingMap.SaveConfig(
-  AConfigProvider: IConfigDataWriteProvider);
-var
-  VConfigProvider: IConfigDataWriteProvider;
+procedure TMapLayerFillingMap.StartThreads;
 begin
   inherited;
-  VConfigProvider := AConfigProvider.GetOrCreateSubItem('FillingMap');
-
-  VConfigProvider.WriteInteger('Zoom', Self.SourceZoom);
-  if Self.SourceSelected = nil then begin
-    VConfigProvider.WriteString('Map','')
-  end else begin
-    VConfigProvider.WriteString('Map', Self.SourceSelected.GUIDString);
-  end;
+  OnConfigChange(nil);
 end;
 
-procedure TMapLayerFillingMap.SetSourceMap(AMapType: TMapType; AZoom: integer);
-var
-  VFullRedraw: Boolean;
-  VNewSource: TMapType;
-  VVisualConverter: ILocalCoordConverter;
+procedure TMapLayerFillingMap.OnConfigChange(Sender: TObject);
 begin
-  VFullRedraw := false;
-  if (AMapType <> nil) then begin
-    VNewSource := AMapType;
-  end else begin
-    VNewSource := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
-  end;
-  if (FSourceSelected <> VNewSource) then begin
-    VFullRedraw := True;
-  end;
-  if FSourceZoom <> AZoom then begin
-    VFullRedraw := True;
-  end;
-  if VFullRedraw then begin
-    FSourceSelected := AMapType;
-    FSourceMapType := VNewSource;
-    FSourceZoom := AZoom;
-
-    if FSourceZoom < 0 then begin
-      Hide;
-    end else begin
-      VVisualConverter := FViewPortState.GetVisualCoordConverter;
-      if VVisualConverter.GetZoom > FSourceZoom then begin
-        Hide;
-      end else begin
-        FDrawTask.StopExecute;
-        try
-          Show;
-          FDrawTask.ChangeSoureMap(VNewSource);
-          FDrawTask.ChangeSoureZoom(FSourceZoom);
-        finally
-          FDrawTask.StartExecute;
-        end;
+  FConfigStatic := FConfig.GetStatic;
+  if FConfigStatic.Visible then begin
+    if FConfig.SourceZoom > FViewPortState.GetCurrentZoom then begin
+      FDrawTask.StopExecute;
+      try
+        Show;
+        FDrawTask.ChangeConfig(FConfigStatic);
+      finally
+        FDrawTask.StartExecute;
       end;
+    end else begin
+      Hide;
     end;
-    FSourceMapChangeNotifier.Notify(nil);
+  end else begin
+    Hide;
   end;
 end;
 
