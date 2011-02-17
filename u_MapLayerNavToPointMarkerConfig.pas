@@ -61,12 +61,12 @@ uses
 constructor TMapLayerNavToPointMarkerConfig.Create;
 begin
   inherited;
-  FCrossDistInPixels := 1;
+  FCrossDistInPixels := 100;
 
   FMarkerArrowSize := 25;
   FMarkerArrowColor := SetAlpha(clRed32, 150);
 
-  FMarkerCrossSize := FMarkerArrowSize div 3;
+  FMarkerCrossSize := 20;
   FMarkerCrossColor := SetAlpha(clRed32, 200);
 
   FMarkerArrow := TCustomBitmap32.Create;
@@ -90,7 +90,7 @@ procedure TMapLayerNavToPointMarkerConfig.DoReadConfig(
 begin
   inherited;
   if AConfigData <> nil then begin
-    FCrossDistInPixels := AConfigData.ReadFloat('MinSpeed', FCrossDistInPixels);
+    FCrossDistInPixels := AConfigData.ReadFloat('CrossDistInPixels', FCrossDistInPixels);
     FMarkerArrowSize := AConfigData.ReadInteger('MarkerArrowSize', FMarkerArrowSize);
     LoadColor32(AConfigData, 'MarkerArrowColor', FMarkerArrowColor);
     FMarkerCrossSize := AConfigData.ReadInteger('MarkerCrossSize', FMarkerCrossSize);
@@ -103,7 +103,7 @@ procedure TMapLayerNavToPointMarkerConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteFloat('MinSpeed', FCrossDistInPixels);
+  AConfigData.WriteFloat('CrossDistInPixels', FCrossDistInPixels);
   AConfigData.WriteInteger('MarkerArrowSize', FMarkerArrowSize);
   WriteColor32(AConfigData, 'MarkerArrowColor', FMarkerArrowColor);
   AConfigData.WriteInteger('MarkerCrossSize', FMarkerCrossSize);
@@ -188,26 +188,26 @@ var
   VRect: TRect;
   VCenterPoint: TDoublePoint;
 begin
-  VSize := Point(FMarkerArrowSize * 2, FMarkerArrowSize * 2);
+  VSize := Point(FMarkerArrowSize, FMarkerArrowSize);
 
   VCenterPoint.X := VSize.X / 2;
   VCenterPoint.Y := VSize.Y / 2;
 
-  FMarkerArrow.SetSize(VSize.Y, VSize.Y);
+  FMarkerArrow.SetSize(VSize.X, VSize.Y);
   FMarkerArrow.Clear(0);
   VPolygon := TPolygon32.Create;
   try
     VPolygon.Antialiased := true;
     VPolygon.AntialiasMode := am32times;
-    VPolygon.Add(FixedPoint(VCenterPoint.X, VCenterPoint.Y - FMarkerArrowSize));
-    VPolygon.Add(FixedPoint(VCenterPoint.X - FMarkerArrowSize / 3, VCenterPoint.Y));
-    VPolygon.Add(FixedPoint(VCenterPoint.X + FMarkerArrowSize / 3, VCenterPoint.Y));
+    VPolygon.Add(FixedPoint(VCenterPoint.X, 0));
+    VPolygon.Add(FixedPoint(VCenterPoint.X - FMarkerArrowSize / 3, VSize.Y));
+    VPolygon.Add(FixedPoint(VCenterPoint.X + FMarkerArrowSize / 3, VSize.Y));
     VPolygon.DrawFill(FMarkerArrow, FMarkerArrowColor);
   finally
     FreeAndNil(VPolygon);
   end;
 
-  VSize := Point(FMarkerCrossSize * 2, FMarkerCrossSize * 2);
+  VSize := Point(FMarkerCrossSize, FMarkerCrossSize);
   VPointHalfSize := FMarkerCrossSize / 2;
   FMarkerCross.SetSize(VSize.Y, VSize.Y);
   FMarkerCross.Clear(0);

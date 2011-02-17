@@ -110,7 +110,7 @@ begin
     VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
     FFixedLonLat := VConverter.PixelPosFloat2LonLat(VMarkMapPos, VZoom);
     FAngle := ArcSin(VDelta.X/FDistInPixel) / Pi * 180;
-    if VDelta.Y < 0 then begin
+    if VDelta.Y > 0 then begin
       FAngle := 180 - FAngle;
     end;
   end;
@@ -131,9 +131,7 @@ begin
     FConfig.LockRead;
     try
       VMarker := FConfig.GetMarkerArrow;
-      FTransform.Translate(-VSize.X / 2, -VSize.Y / 2);
-      FTransform.Rotate(0, 0, FAngle);
-      FTransform.Translate(VSize.X / 2, VSize.Y / 2);
+      FTransform.Rotate(VSize.X / 2, VSize.Y / 2, -FAngle);
       FLayer.Bitmap.Lock;
       try
         FLayer.Bitmap.Clear(0);
@@ -184,6 +182,8 @@ begin
   finally
     FConfig.UnlockRead;
   end;
+  FFixedOnBitmap.X := VSize.X / 2;
+  FFixedOnBitmap.Y := VSize.Y / 2;
   DoUpdateLayerSize(VSize);
   Redraw;
 end;
