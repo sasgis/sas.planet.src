@@ -941,6 +941,7 @@ begin
           VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left;
           VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top;
           try
+            VBmp.DrawMode := dmOpaque;
             spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
             spr.Draw(VTileTargetBounds, VTileSourceBounds, VBmp);
             Result := true;
