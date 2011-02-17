@@ -16,12 +16,14 @@ uses
   i_IViewPortState,
   i_MapTypes,
   i_ITileDownlodSession,
+  i_IDownloadUIConfig,
   u_MapLayerShowError,
   UMapType;
 
 type
   TTileDownloaderUI = class(TThread)
   private
+    FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
     FViewPortState: IViewPortState;
 
@@ -32,39 +34,33 @@ type
     change_scene: boolean;
 
     FErrorString: string;
-    FTileMaxAgeInInternet: TDateTime;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorShowLayer: TTileErrorInfoLayer;
-    FUseDownloadChangeNotifier: IJclNotifier;
+
+    FTileMaxAgeInInternet: TDateTime;
     FUseDownload: TTileSource;
     FChangePosListener: IJclListener;
 
     FLoadXY: TPoint;
-    FLoadUrl: string;
 
     class function GetErrStr(Aerr: TDownloadTileResult): string; virtual;
     procedure GetCurrentMapAndPos;
     procedure AfterWriteToFile;
-    function GetUseDownload: TTileSource;
-    procedure SetUseDownload(const Value: TTileSource);
     procedure ChangePos(Sender: TObject);
+    procedure OnConfigChange(Sender: TObject);
   protected
     procedure Execute; override;
   public
     constructor Create(
+      AConfig: IDownloadUIConfig;
       AViewPortState: IViewPortState;
       AMapsSet: IActiveMapsSet;
       AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorShowLayer: TTileErrorInfoLayer
     ); overload;
     destructor Destroy; override;
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider);
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider);
     procedure StartThreads;
     procedure SendTerminateToThreads;
-    property TileMaxAgeInInternet: TDateTime read FTileMaxAgeInInternet;
-    property UseDownload: TTileSource read GetUseDownload write SetUseDownload;
-    property UseDownloadChangeNotifier: IJclNotifier read FUseDownloadChangeNotifier;
   end;
 
 implementation
@@ -81,6 +77,7 @@ uses
   UResStrings;
 
 constructor TTileDownloaderUI.Create(
+  AConfig: IDownloadUIConfig;
   AViewPortState: IViewPortState;
   AMapsSet: IActiveMapsSet;
   AMapTileUpdateEvent: TMapTileUpdateEvent;
@@ -88,6 +85,7 @@ constructor TTileDownloaderUI.Create(
 );
 begin
   inherited Create(True);
+  FConfig := AConfig;
   FViewPortState := AViewPortState;
   FMapsSet := AMapsSet;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
@@ -97,7 +95,6 @@ begin
   FUseDownload := tsCache;
   randomize;
   FTileMaxAgeInInternet :=  1/24/60;
-  FUseDownloadChangeNotifier := TJclBaseNotifier.Create;
   FChangePosListener := TNotifyEventListener.Create(ChangePos);
   FViewPortState.GetChangeNotifier.Add(FChangePosListener);
   FMapsSet.GetChangeNotifier.Add(FChangePosListener);
@@ -114,7 +111,6 @@ begin
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(Handle, 0);
   end;
-  FUseDownloadChangeNotifier := nil;
   FChangePosListener := nil;
   FMapsSet := nil;
   inherited;
@@ -166,40 +162,15 @@ begin
   end;
 end;
 
-function TTileDownloaderUI.GetUseDownload: TTileSource;
+procedure TTileDownloaderUI.OnConfigChange(Sender: TObject);
 begin
-  Result := FUseDownload;
-end;
-
-procedure TTileDownloaderUI.LoadConfig(AConfigProvider: IConfigDataProvider);
-var
-  VConfigProvider: IConfigDataProvider;
-begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetSubItem('VIEW');
-  if VConfigProvider <> nil then begin
-    case VConfigProvider.ReadInteger('TileSource',1) of
-      0: UseDownload := tsInternet;
-      2: UseDownload := tsCacheInternet;
-    else
-      UseDownload := tsCache;
-    end;
-  end else begin
-    UseDownload := tsCache;
-  end;
-end;
-
-procedure TTileDownloaderUI.SaveConfig(
-  AConfigProvider: IConfigDataWriteProvider);
-var
-  VConfigProvider: IConfigDataWriteProvider;
-begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetOrCreateSubItem('VIEW');
-  case UseDownload of
-    tsInternet: VConfigProvider.WriteInteger('TileSource', 0);
-    tsCache: VConfigProvider.WriteInteger('TileSource', 1);
-    tsCacheInternet: VConfigProvider.WriteInteger('TileSource', 2);
+  FConfig.LockRead;
+  try
+    FUseDownload := FConfig.UseDownload;
+    FTileMaxAgeInInternet := FConfig.TileMaxAgeInInternet;
+    change_scene := True;
+  finally
+    FConfig.UnlockRead;
   end;
 end;
 
@@ -207,15 +178,6 @@ procedure TTileDownloaderUI.SendTerminateToThreads;
 begin
   inherited;
   Terminate;
-end;
-
-procedure TTileDownloaderUI.SetUseDownload(const Value: TTileSource);
-begin
-  if FUseDownload <> Value then begin
-    FUseDownload := Value;
-    change_scene := True;
-    FUseDownloadChangeNotifier.Notify(nil);
-  end;
 end;
 
 procedure TTileDownloaderUI.StartThreads;
@@ -242,7 +204,6 @@ end;
 
 procedure TTileDownloaderUI.Execute;
 var
-  ii: integer;
   VPixelInTargetMap: TPoint;
   ty: string;
   fileBuf: TMemoryStream;
@@ -259,6 +220,7 @@ var
   VGUID: TGUID;
   i: Cardinal;
   VMap: IMapType;
+  VLoadUrl: string;
 begin
   repeat
     if FUseDownload = tsCache then begin
@@ -344,7 +306,7 @@ begin
                       FileBuf := TMemoryStream.Create;
                       try
                         try
-                          res := FMapType.DownloadTile(Self, FLoadXY, VZoom, false, 0, FLoadUrl, ty, fileBuf);
+                          res := FMapType.DownloadTile(Self, FLoadXY, VZoom, false, 0, VLoadUrl, ty, fileBuf);
                           FErrorString := GetErrStr(res);
                           if (res = dtrOK) or (res = dtrSameTileSize) then begin
                             GState.DownloadInfo.Add(1, fileBuf.Size);

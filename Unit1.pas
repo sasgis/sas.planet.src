@@ -829,7 +829,7 @@ begin
 
     FMainLayer.ErrorShowLayer := FShowErrorLayer;
 
-    FUIDownLoader := TTileDownloaderUI.Create(FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FShowErrorLayer);
+    FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FShowErrorLayer);
 
     CreateMapUI;
     FSettings.InitMapsList;
