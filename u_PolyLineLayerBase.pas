@@ -59,6 +59,8 @@ type
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
+    procedure StartThreads; override;
+  public
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
@@ -66,7 +68,6 @@ type
       APolygon: TPolygon32
     );
     destructor Destroy; override;
-    procedure StartThreads; override;
     procedure DrawLine(APathLonLat: TDoublePointArray; AActiveIndex: Integer); virtual;
     procedure DrawNothing; virtual;
   end;

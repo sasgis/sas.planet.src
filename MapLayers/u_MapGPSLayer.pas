@@ -22,6 +22,8 @@ type
   protected
     procedure DoRedraw; override;
   public
+    procedure StartThreads; override;
+  public
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
@@ -137,6 +139,12 @@ begin
   end else begin
     Hide;
   end;
+end;
+
+procedure TMapGPSLayer.StartThreads;
+begin
+  inherited;
+  OnConfigChange(nil);
 end;
 
 procedure TMapGPSLayer.DoRedraw;

@@ -29,8 +29,9 @@ type
   protected
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ISelectionRectLayerConfig);
     procedure StartThreads; override;
+  public
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ISelectionRectLayerConfig);
     procedure DrawNothing;
     procedure DrawSelectionRect(ASelectedLonLat: TDoubleRect);
   end;

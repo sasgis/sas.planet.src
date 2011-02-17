@@ -18,7 +18,6 @@ type
   TMapLayerGrids = class(TMapLayerBasic)
   private
     FConfig: IMapLayerGridsConfig;
-    FConfigListener: IJclListener;
     procedure generate_granica;
     procedure DrawGenShBorders;
     function CheckVisible(ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
@@ -27,9 +26,9 @@ type
     procedure DoRedraw; override;
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMapLayerGridsConfig);
     procedure StartThreads; override;
-    procedure SendTerminateToThreads; override;
+  public
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMapLayerGridsConfig);
   end;
 
 implementation
@@ -51,7 +50,10 @@ constructor TMapLayerGrids.Create(AParentMap: TImage32;
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
-  FConfigListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
 end;
 
 procedure TMapLayerGrids.DoRedraw;
@@ -397,16 +399,10 @@ begin
   end;
 end;
 
-procedure TMapLayerGrids.SendTerminateToThreads;
-begin
-  inherited;
-  FConfig.GetChangeNotifier.Remove(FConfigListener);
-end;
-
 procedure TMapLayerGrids.StartThreads;
 begin
   inherited;
-  FConfig.GetChangeNotifier.Add(FConfigListener);
+  OnConfigChange(nil);
 end;
 
 end.

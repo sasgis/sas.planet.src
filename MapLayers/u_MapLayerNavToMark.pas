@@ -31,6 +31,8 @@ type
     procedure DoRedraw; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
+    procedure StartThreads; override;
+  public
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
@@ -195,6 +197,12 @@ begin
   end else begin
     Hide;
   end;
+end;
+
+procedure TNavToMarkLayer.StartThreads;
+begin
+  inherited;
+  OnConfigChange(nil);
 end;
 
 end.

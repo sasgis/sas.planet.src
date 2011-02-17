@@ -84,9 +84,10 @@ type
     procedure DoUpdateLayerSize(ANewSize: TPoint); override;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
+    procedure StartThreads; override;
+  public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig);
     destructor Destroy; override;
-    procedure StartThreads; override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
   end;
 

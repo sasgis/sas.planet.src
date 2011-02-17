@@ -26,6 +26,8 @@ type
   protected
     procedure DoRedraw; override;
   public
+    procedure StartThreads; override;
+  public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ILastSelectionLayerConfig; ALastSelectionInfo: ILastSelectionInfo);
   end;
 
@@ -130,6 +132,12 @@ begin
     end;
     PolylineFS(Buffer, VFloatPoints, VLineColor, True, VLineWidth, jsBevel);
   end;
+end;
+
+procedure TSelectionLayer.StartThreads;
+begin
+  inherited;
+  OnConfigChange(nil);
 end;
 
 end.

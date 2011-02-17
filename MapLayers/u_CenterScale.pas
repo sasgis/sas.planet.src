@@ -18,8 +18,9 @@ type
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ICenterScaleConfig);
     procedure StartThreads; override;
+  public
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ICenterScaleConfig);
   end;
 
 implementation
