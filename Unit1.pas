@@ -875,11 +875,11 @@ begin
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
-      FLayerScaleLine.VisibleChangeNotifier
+      FConfig.LayersConfig.ScaleLineConfig.GetChangeNotifier
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
-      FUIDownLoader.UseDownloadChangeNotifier
+      FConfig.DownloadUIConfig.GetChangeNotifier
     );
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
@@ -930,7 +930,6 @@ begin
       FConfig.LayersConfig.FillingMapLayerConfig.GetChangeNotifier
     );
 
-    FUIDownLoader.LoadConfig(GState.MainConfigProvider);
     ProgramStart:=false;
 
     if ParamCount > 1 then begin
@@ -1024,6 +1023,8 @@ begin
 end;
 
 procedure TFmain.MapLayersVisibleChange(Sender: TObject);
+var
+  VUseDownload: TTileSource;
 begin
   Showstatus.Checked := FConfig.LayersConfig.StatBar.Visible;
   if Showstatus.Checked then begin
@@ -1033,16 +1034,16 @@ begin
     FLayerScaleLine.BottomMargin := 0;
     FLayerMiniMap.BottomMargin := 0;
   end;
-  ShowMiniMap.Checked := FLayerMiniMap.Visible;
-  ShowLine.Checked := FLayerScaleLine.Visible;
-  NShowSelection.Checked := FLayerSelection.Visible;
-  N32.Checked:=FLayerMapCenterScale.Visible;
+  ShowMiniMap.Checked := FConfig.LayersConfig.MiniMapLayerConfig.Visible;
+  ShowLine.Checked := FConfig.LayersConfig.ScaleLineConfig.Visible;
+  NShowSelection.Checked := FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
+  N32.Checked := FConfig.LayersConfig.CenterScaleConfig.Visible;
 
   TBGPSPath.Checked := FConfig.LayersConfig.GPSTrackConfig.Visible;
   tbitmGPSTrackShow.Checked := TBGPSPath.Checked;
-
-  TBSrc.ImageIndex := integer(FUIDownLoader.UseDownload);
-  case FUIDownLoader.UseDownload of
+  VUseDownload := FConfig.DownloadUIConfig.UseDownload;
+  TBSrc.ImageIndex := integer(VUseDownload);
+  case VUseDownload of
     tsInternet: NSRCinet.Checked:=true;
     tsCache: NSRCesh.Checked:=true;
     tsCacheInternet: NSRCic.Checked:=true;
@@ -2278,7 +2279,7 @@ end;
 
 procedure TFmain.NSRCinetClick(Sender: TObject);
 begin
-  FUIDownLoader.UseDownload := TTileSource(TTBXItem(Sender).Tag);
+  FConfig.DownloadUIConfig.UseDownload := TTileSource(TTBXItem(Sender).Tag);
 end;
 
 procedure TFmain.N16Click(Sender: TObject);
@@ -2936,7 +2937,8 @@ begin
     FMouseUpPoint:=FMouseDownPoint;
     VPWL.find:=false;
     VPWL.S:=0;
-    if FLayerMapMarks.Visible then begin
+
+    if FConfig.LayersConfig.MarksShowConfig.IsUseMarks then begin
       FLayerMapMarks.MouseOnMyReg(VPWL, FMouseDownPoint);
     end;
     NMarkEdit.Visible:=VPWL.find;
@@ -3060,7 +3062,7 @@ begin
       VPWL.find:=false;
       if (FWikiLayer.Visible) then
         FWikiLayer.MouseOnReg(VPWL, Point(x,y));
-      if (FLayerMapMarks.Visible) then
+      if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
         FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
       if VPWL.find then begin
         if VPWL.descr <> '' then begin
@@ -3266,7 +3268,7 @@ begin
    VPWL.find:=false;
    if (FWikiLayer.Visible) then
      FWikiLayer.MouseOnReg(VPWL,FmoveTrue);
-   if (FLayerMapMarks.Visible) then
+   if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
      FLayerMapMarks.MouseOnMyReg(VPWL,FmoveTrue);
    if (VPWL.find) then begin
      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
@@ -3586,7 +3588,6 @@ var
 begin
   VProvider := AProvider.GetOrCreateSubItem('MainForm');
   FWinPosition.WriteConfig(VProvider);
-  FUIDownLoader.SaveConfig(AProvider);
 
   VProvider := AProvider.GetOrCreateSubItem('PANEL');
   FConfig.ToolbarsLock.LockWrite;

@@ -20,15 +20,12 @@ type
     FLinksList: IJclListenerNotifierLinksList;
   protected
     procedure IncRedrawCounter(ATime: TDateTime);
-    function GetVisible: Boolean; virtual; abstract;
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
   public
     constructor Create;
     destructor Destroy; override;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
-    procedure Redraw; virtual; abstract;
-    property Visible: Boolean read GetVisible;
     property RedrawCounter: Cardinal read FRedrawCounter;
     property RedrawTime: TDateTime read FRedrawTime;
   end;

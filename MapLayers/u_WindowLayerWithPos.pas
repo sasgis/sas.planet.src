@@ -18,13 +18,12 @@ type
   TWindowLayerBasic = class(TWindowLayerAbstract)
   private
     FVisible: Boolean;
-    FVisibleChangeNotifier: IJclNotifier;
     FLayer: TPositionedLayer;
   protected
     FVisualCoordConverter: ILocalCoordConverter;
     FViewPortState: IViewPortState;
 
-    function GetVisible: Boolean; override;
+    function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
     procedure OnPosChange(Sender: TObject); virtual;
@@ -43,10 +42,9 @@ type
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
     destructor Destroy; override;
+    procedure Redraw; virtual;
     procedure Show; virtual;
     procedure Hide; virtual;
-    procedure Redraw; override;
-    property VisibleChangeNotifier: IJclNotifier read FVisibleChangeNotifier;
   end;
 
   TWindowLayerWithBitmap = class(TWindowLayerBasic)
@@ -89,8 +87,6 @@ begin
   FLayer.Visible := false;
   FVisible := False;
 
-  FVisibleChangeNotifier := TJclBaseNotifier.Create;
-
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnPosChange),
     FViewPortState.GetChangeNotifier
@@ -101,7 +97,6 @@ destructor TWindowLayerBasic.Destroy;
 begin
   FViewPortState := nil;
   FLayer := nil;
-  FVisibleChangeNotifier := nil;
   inherited;
 end;
 
@@ -138,7 +133,6 @@ procedure TWindowLayerBasic.Hide;
 begin
   if FVisible then begin
     DoHide;
-    FVisibleChangeNotifier.Notify(nil);
   end;
 end;
 
@@ -198,7 +192,6 @@ begin
     DoShow;
     UpdateLayerLocation(GetMapLayerLocationRect);
     Redraw;
-    FVisibleChangeNotifier.Notify(nil);
   end;
 end;
 

@@ -52,6 +52,7 @@ type
     destructor Destroy; override;
     procedure StartThreads; override;
     procedure MouseOnReg(var APWL: TResObj; xy: TPoint);
+    property Visible: Boolean read GetVisible;
   end;
 
 implementation
