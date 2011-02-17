@@ -7,6 +7,7 @@ uses
   Classes,
   Types,
   i_JclNotify,
+  i_IJclListenerNotifierLinksList,
   t_CommonTypes,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
@@ -26,27 +27,26 @@ type
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
     FViewPortState: IViewPortState;
-
-    FVisualCoordConverter: ILocalCoordConverter;
-    FActiveMapsList: IMapTypeList;
-    FMapType: TMapType;
-
-    change_scene: boolean;
-
-    FErrorString: string;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorShowLayer: TTileErrorInfoLayer;
 
     FTileMaxAgeInInternet: TDateTime;
     FUseDownload: TTileSource;
-    FChangePosListener: IJclListener;
+    FLinksList: IJclListenerNotifierLinksList;
 
+    FVisualCoordConverter: ILocalCoordConverter;
+    FActiveMapsList: IMapTypeList;
+
+    change_scene: boolean;
+
+    FMapType: TMapType;
     FLoadXY: TPoint;
+    FErrorString: string;
 
     class function GetErrStr(Aerr: TDownloadTileResult): string; virtual;
     procedure GetCurrentMapAndPos;
     procedure AfterWriteToFile;
-    procedure ChangePos(Sender: TObject);
+    procedure OnPosChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure Execute; override;
@@ -71,6 +71,7 @@ uses
   u_JclNotify,
   t_GeoTypes,
   u_GlobalState,
+  u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   i_ITileIterator,
   u_TileIteratorSpiralByRect,
@@ -83,6 +84,8 @@ constructor TTileDownloaderUI.Create(
   AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorShowLayer: TTileErrorInfoLayer
 );
+var
+  VChangePosListener: IJclListener;
 begin
   inherited Create(True);
   FConfig := AConfig;
@@ -91,33 +94,44 @@ begin
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorShowLayer := AErrorShowLayer;
   FViewPortState := AViewPortState;
+  FLinksList := TJclListenerNotifierLinksList.Create;
+
   Priority := tpLower;
   FUseDownload := tsCache;
   randomize;
   FTileMaxAgeInInternet :=  1/24/60;
-  FChangePosListener := TNotifyEventListener.Create(ChangePos);
-  FViewPortState.GetChangeNotifier.Add(FChangePosListener);
-  FMapsSet.GetChangeNotifier.Add(FChangePosListener);
+
+  VChangePosListener := TNotifyEventListener.Create(Self.OnPosChange);
+  FLinksList.Add(
+    VChangePosListener,
+    FViewPortState.GetChangeNotifier
+  );
+  FLinksList.Add(
+    VChangePosListener,
+    FMapsSet.GetChangeNotifier
+  );
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
 end;
 
 destructor TTileDownloaderUI.Destroy;
 var
   VWaitResult: DWORD;
 begin
-  FViewPortState.GetChangeNotifier.Remove(FChangePosListener);
-  FMapsSet.GetChangeNotifier.Remove(FChangePosListener);
+  FLinksList := nil;
 
   VWaitResult := WaitForSingleObject(Handle, 10000);
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(Handle, 0);
   end;
-  FChangePosListener := nil;
   FMapsSet := nil;
   inherited;
 end;
 
 
-procedure TTileDownloaderUI.ChangePos(Sender: TObject);
+procedure TTileDownloaderUI.OnPosChange(Sender: TObject);
 begin
   change_scene := True;
 end;
@@ -177,12 +191,14 @@ end;
 procedure TTileDownloaderUI.SendTerminateToThreads;
 begin
   inherited;
+  FLinksList.DeactivateLinks;
   Terminate;
 end;
 
 procedure TTileDownloaderUI.StartThreads;
 begin
   inherited;
+  FLinksList.ActivateLinks;
   Resume;
 end;
 
