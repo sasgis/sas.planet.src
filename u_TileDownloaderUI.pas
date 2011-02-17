@@ -199,6 +199,7 @@ procedure TTileDownloaderUI.StartThreads;
 begin
   inherited;
   FLinksList.ActivateLinks;
+  OnConfigChange(nil);
   Resume;
 end;
 
