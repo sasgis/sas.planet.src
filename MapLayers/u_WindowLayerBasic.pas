@@ -76,7 +76,6 @@ end;
 procedure TWindowLayerAbstract.DoPosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
-  FVisualCoordConverter := ANewVisualCoordConverter;
 end;
 
 procedure TWindowLayerAbstract.IncRedrawCounter(ATime: TDateTime);

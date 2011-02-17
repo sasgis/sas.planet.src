@@ -119,6 +119,7 @@ end;
 procedure TWindowLayerBasic.PosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
+  VisualCoordConverter := ANewVisualCoordConverter;
   if Visible then begin
     DoPosChange(ANewVisualCoordConverter);
     UpdateLayerLocation(GetMapLayerLocationRect);
@@ -166,7 +167,6 @@ begin
   if not Visible then begin
     DoShow;
     UpdateLayerLocation(GetMapLayerLocationRect);
-    Redraw;
   end;
 end;
 

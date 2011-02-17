@@ -970,10 +970,11 @@ begin
     FLayersList.StartThreads;
     GState.StartThreads;
     FUIDownLoader.StartThreads;
+    FLinksList.ActivateLinks;
     OnMainFormMainConfigChange(nil);
     MapLayersVisibleChange(nil);
     OnFillingMapChange(nil);
-    FLinksList.ActivateLinks;
+    OnMainMapChange(nil);
     ProcessPosChangeMessage(nil);
     tmrMapUpdate.Enabled := True;
   finally
@@ -1434,6 +1435,8 @@ var
   dWMB: integer;
   VZoom: Byte;
   VNewZoom: integer;
+  VMoveByDelta: Boolean;
+  VPointDelta: TDoublePoint;
 begin
 
  if Active then
@@ -1449,14 +1452,31 @@ begin
                   zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
                  end;
    WM_KEYFIRST: begin
-                 if (FdWhenMovingButton<35) then begin
-                  inc(FdWhenMovingButton);
+                 VMoveByDelta := False;
+                 case Msg.wParam of
+                  VK_RIGHT, VK_LEFT, VK_DOWN, VK_UP: VMoveByDelta := True;
                  end;
-                 dWMB:=trunc(Power(FdWhenMovingButton,1.5));
-                 if Msg.wParam=VK_RIGHT then FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(dWMB, 0));
-                 if Msg.wParam=VK_Left then FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(-dWMB, 0));
-                 if Msg.wParam=VK_Down then FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(0, dWMB));
-                 if Msg.wParam=VK_Up then FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(0, -dWMB));
+                 if VMoveByDelta then begin
+                   if (FdWhenMovingButton<35) then begin
+                    inc(FdWhenMovingButton);
+                   end;
+                   dWMB:=trunc(Power(FdWhenMovingButton,1.5));
+                   case Msg.wParam of
+                    VK_RIGHT: VPointDelta := DoublePoint(dWMB, 0);
+                    VK_LEFT: VPointDelta := DoublePoint(-dWMB, 0);
+                    VK_DOWN: VPointDelta := DoublePoint(0, dWMB);
+                    VK_UP: VPointDelta := DoublePoint(0, -dWMB);
+                   else
+                    VPointDelta := DoublePoint(0, 0);
+                   end;
+                   map.BeginUpdate;
+                   try
+                     FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
+                   finally
+                     map.EndUpdate;
+                     map.Changed;
+                   end;
+                 end;
                 end;
    WM_KEYUP: begin
              FdWhenMovingButton:=5;
