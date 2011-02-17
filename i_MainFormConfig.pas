@@ -25,6 +25,7 @@ uses
   i_IMarkPolygonLayerConfig,
   i_IMarkPolyLineLayerConfig,
   i_IFillingMapLayerConfig,
+  i_IDownloadUIConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -140,6 +141,9 @@ type
 
     function GetViewPortState: IViewPortState;
     property ViewPortState: IViewPortState read GetViewPortState;
+
+    function GetDownloadUIConfig: IDownloadUIConfig;
+    property DownloadUIConfig: IDownloadUIConfig read GetDownloadUIConfig;
   end;
 
 implementation

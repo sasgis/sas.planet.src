@@ -11,6 +11,7 @@ uses
   i_IMainFormBehaviourByGPSConfig,
   i_IMainGeoCoderConfig,
   i_IGeoCoderList,
+  i_IDownloadUIConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -24,6 +25,7 @@ type
     FMainGeoCoderConfig: IMainGeoCoderConfig;
     FMainMapsConfig: IMainMapsConfig;
     FViewPortState: IViewPortState;
+    FDownloadUIConfig: IDownloadUIConfig;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
@@ -33,6 +35,7 @@ type
     function GetMainGeoCoderConfig: IMainGeoCoderConfig;
     function GetMainMapsConfig: IMainMapsConfig;
     function GetViewPortState: IViewPortState;
+    function GetDownloadUIConfig: IDownloadUIConfig;
   public
     constructor Create(AGeoCoderList: IGeoCoderList; AMapsList, ALayersList: IMapTypeList);
   end;
@@ -49,6 +52,7 @@ uses
   u_MainFormLayersConfig,
   u_MainFormBehaviourByGPSConfig,
   u_MainGeoCoderConfig,
+  u_DownloadUIConfig,
   u_MainFormMainConfig;
 
 { TMainFormConfig }
@@ -72,6 +76,13 @@ begin
   Add(FViewPortState, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Position'));
   FLayersConfig := TMainFormLayersConfig.Create(FMainMapsConfig);
   Add(FLayersConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+  FDownloadUIConfig := TDownloadUIConfig.Create;
+  Add(FDownloadUIConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ViewDownload'));
+end;
+
+function TMainFormConfig.GetDownloadUIConfig: IDownloadUIConfig;
+begin
+  Result := FDownloadUIConfig;
 end;
 
 function TMainFormConfig.GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
