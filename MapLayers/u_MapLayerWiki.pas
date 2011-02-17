@@ -204,7 +204,6 @@ procedure TWikiLayer.Clear;
 var
   i: integer;
 begin
-  FLayer.Bitmap.Clear(clBlack);
   for i := 0 to length(FWikiLayerElments) - 1 do begin
     FreeAndNil(FWikiLayerElments[i]);
   end;
@@ -220,7 +219,7 @@ begin
   VXY := BitmapCoordConverter.MapPixelFloat2LocalPixelFloat(VisualCoordConverter.LocalPixelFloat2MapPixelFloat(DoublePoint(xy)));
   for i := 0 to length(FWikiLayerElments) - 1 do begin
     if (VXY.x > FWikiLayerElments[i].FBounds.Left - 5) and (VXY.x < FWikiLayerElments[i].FBounds.Right + 5) and
-      (VXY.y > FWikiLayerElments[i].FBounds.Left - 5) and (VXY.y < FWikiLayerElments[i].FBounds.Bottom + 5) then begin
+      (VXY.y > FWikiLayerElments[i].FBounds.Top - 5) and (VXY.y < FWikiLayerElments[i].FBounds.Bottom + 5) then begin
       VLen := length(FWikiLayerElments[i].FPolygonOnBitmap);
       if VLen > 0 then begin
         if VLen = 1 then begin
@@ -349,6 +348,7 @@ var
 begin
   inherited;
   Clear;
+  FLayer.Bitmap.Clear(clBlack);
   if FMapsList <> nil then begin
     VLocalConverter := BitmapCoordConverter;
     VHybrList := FMapsList;
