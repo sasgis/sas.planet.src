@@ -217,7 +217,7 @@ var
   VLen: integer;
   VXY: TDoublePoint;
 begin
-  VXY := BitmapCoordConverter.MapPixelFloat2LocalPixelFloat(FVisualCoordConverter.LocalPixelFloat2MapPixelFloat(DoublePoint(xy)));
+  VXY := BitmapCoordConverter.MapPixelFloat2LocalPixelFloat(VisualCoordConverter.LocalPixelFloat2MapPixelFloat(DoublePoint(xy)));
   for i := 0 to length(FWikiLayerElments) - 1 do begin
     if (VXY.x > FWikiLayerElments[i].FBounds.Left - 5) and (VXY.x < FWikiLayerElments[i].FBounds.Right + 5) and
       (VXY.y > FWikiLayerElments[i].FBounds.Left - 5) and (VXY.y < FWikiLayerElments[i].FBounds.Bottom + 5) then begin

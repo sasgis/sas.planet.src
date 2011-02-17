@@ -76,7 +76,7 @@ end;
 procedure TMapLayerWithThreadDraw.DoHide;
 begin
   inherited;
-  FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
+  FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
   FDrawTask.ChangePos(FBitmapCoordConverter);
 end;
 
@@ -84,7 +84,7 @@ procedure TMapLayerWithThreadDraw.DoPosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
   inherited;
-  FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
+  FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
   FDrawTask.ChangePos(FBitmapCoordConverter);
   UpdateLayerLocation(GetMapLayerLocationRect);
 end;
@@ -99,7 +99,7 @@ end;
 procedure TMapLayerWithThreadDraw.DoShow;
 begin
   inherited;
-  FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
+  FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
   FDrawTask.ChangePos(FBitmapCoordConverter);
   UpdateLayerLocation(GetMapLayerLocationRect);
 end;
@@ -112,10 +112,10 @@ var
   VVisualConverter: ILocalCoordConverter;
 begin
   VBitmapConverter := FBitmapCoordConverter;
-  VVisualConverter := FVisualCoordConverter;
+  VVisualConverter := VisualCoordConverter;
   if (VBitmapConverter <> nil) and (VVisualConverter <> nil) then begin
-    VBitmapOnMapRect := FBitmapCoordConverter.GetRectInMapPixelFloat;
-    VBitmapOnVisualRect := FVisualCoordConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
+    VBitmapOnMapRect := VBitmapConverter.GetRectInMapPixelFloat;
+    VBitmapOnVisualRect := VVisualConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
     Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);
   end else begin
     Result := FloatRect(0, 0, 0, 0);

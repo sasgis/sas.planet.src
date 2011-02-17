@@ -57,7 +57,7 @@ begin
     VCurrTime := GetTickCount;
     if (VCurrTime < FHideAfterTime) then begin
       if (VCurrTime < FHideAfterTime) then begin
-        if FZoom = FVisualCoordConverter.GetZoom then begin
+        if FZoom = VisualCoordConverter.GetZoom then begin
           inherited;
         end else begin
           Visible := False;

@@ -112,6 +112,7 @@ var
   VMark: IMarkFull;
   VMapRect: TDoubleRect;
   VLocalConverter: ILocalCoordConverter;
+  VVisualConverter: ILocalCoordConverter;
   VMarksSubset: IMarksSubset;
   VMarksEnum: IEnumUnknown;
   VSquare:Double;
@@ -127,10 +128,11 @@ begin
       VLocalConverter := BitmapCoordConverter;
       VConverter := VLocalConverter.GetGeoConverter;
       VZoom := VLocalConverter.GetZoom;
-      VMapRect := FVisualCoordConverter.LocalRect2MapRectFloat(VRect);
+      VVisualConverter := VisualCoordConverter;
+      VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
       VConverter.CheckPixelRectFloat(VMapRect, VZoom);
       VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-      VPixelPos := FVisualCoordConverter.LocalPixel2MapPixel(xy);
+      VPixelPos := VVisualConverter.LocalPixel2MapPixel(xy);
       VMarksEnum := VMarksSubset.GetEnum;
       while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
         VMarkLonLatRect := VMark.LLRect;

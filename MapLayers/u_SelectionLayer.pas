@@ -80,7 +80,7 @@ var
 begin
   VPointsCount := Length(APolygon);
   SetLength(Result, VPointsCount);
-  VLocalConverter := FViewPortState.GetVisualCoordConverter;
+  VLocalConverter := ViewPortState.GetVisualCoordConverter;
 
   for i := 0 to VPointsCount - 1 do begin
     Result[i] := VLocalConverter.LonLat2LocalPixelFloat(APolygon[i]);

@@ -128,7 +128,7 @@ end;
 procedure TPolyLineLayerBase.DoRedraw;
 begin
   inherited;
-  PreparePolygon(FVisualCoordConverter);
+  PreparePolygon(VisualCoordConverter);
   LayerPositioned.Changed;
 end;
 

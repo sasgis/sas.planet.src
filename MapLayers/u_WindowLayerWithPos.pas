@@ -20,15 +20,10 @@ type
     FVisible: Boolean;
     FLayer: TPositionedLayer;
   protected
-    FVisualCoordConverter: ILocalCoordConverter;
-    FViewPortState: IViewPortState;
-
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
-    procedure OnPosChange(Sender: TObject); virtual;
-    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
 
     procedure UpdateLayerLocation(ANewLocation: TFloatRect); virtual;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); virtual;
@@ -78,24 +73,16 @@ uses
 
 constructor TWindowLayerBasic.Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
 begin
-  inherited Create;
-  FViewPortState := AViewPortState;
-
+  inherited Create(AViewPortState);
   FLayer := ALayer;
 
   FLayer.MouseEvents := false;
   FLayer.Visible := false;
   FVisible := False;
-
-  LinksList.Add(
-    TNotifyEventListener.Create(Self.OnPosChange),
-    FViewPortState.GetChangeNotifier
-  );
 end;
 
 destructor TWindowLayerBasic.Destroy;
 begin
-  FViewPortState := nil;
   FLayer := nil;
   inherited;
 end;
@@ -106,17 +93,10 @@ begin
   FLayer.Visible := False;
 end;
 
-procedure TWindowLayerBasic.DoPosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-begin
-  FVisualCoordConverter := ANewVisualCoordConverter;
-end;
-
 procedure TWindowLayerBasic.DoShow;
 begin
   FVisible := True;
   FLayer.Visible := True;
-  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
 end;
 
 procedure TWindowLayerBasic.DoUpdateLayerLocation(ANewLocation: TFloatRect);
@@ -134,11 +114,6 @@ begin
   if FVisible then begin
     DoHide;
   end;
-end;
-
-procedure TWindowLayerBasic.OnPosChange(Sender: TObject);
-begin
-  PosChange(FViewPortState.GetVisualCoordConverter);
 end;
 
 procedure TWindowLayerBasic.PosChange(
@@ -212,13 +187,13 @@ procedure TWindowLayerWithBitmap.DoPosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
   inherited;
-  UpdateLayerSize(FVisualCoordConverter);
+  UpdateLayerSize(VisualCoordConverter);
 end;
 
 procedure TWindowLayerWithBitmap.DoShow;
 begin
   inherited;
-  UpdateLayerSize(FVisualCoordConverter);
+  UpdateLayerSize(VisualCoordConverter);
 end;
 
 procedure TWindowLayerWithBitmap.DoUpdateLayerSize(ANewSize: TPoint);

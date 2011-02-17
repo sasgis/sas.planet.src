@@ -111,7 +111,7 @@ var
   VGeoConvert: ICoordConverter;
   VZoom: Byte;
 begin
-  VLocalConverter := FVisualCoordConverter;
+  VLocalConverter := VisualCoordConverter;
   if VLocalConverter <> nil then begin
     VGeoConvert := VLocalConverter.GetGeoConverter;
     VZoom := VLocalConverter.GetZoom;

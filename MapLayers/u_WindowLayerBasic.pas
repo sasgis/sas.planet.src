@@ -7,8 +7,10 @@ uses
   SyncObjs,
   GR32,
   i_IJclListenerNotifierLinksList,
+  i_ILocalCoordConverter,
   i_IConfigDataProvider,
-  i_IConfigDataWriteProvider;
+  i_IConfigDataWriteProvider,
+  i_IViewPortState;
 
 type
   TWindowLayerAbstract = class
@@ -18,11 +20,19 @@ type
     FRedrawTime: TDateTime;
   private
     FLinksList: IJclListenerNotifierLinksList;
+    FViewPortState: IViewPortState;
+    FVisualCoordConverter: ILocalCoordConverter;
+    procedure OnPosChange(Sender: TObject); virtual;
   protected
+    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual; abstract;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+
     procedure IncRedrawCounter(ATime: TDateTime);
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
+    property ViewPortState: IViewPortState read FViewPortState;
+    property VisualCoordConverter: ILocalCoordConverter read FVisualCoordConverter write FVisualCoordConverter;
   public
-    constructor Create;
+    constructor Create(AViewPortState: IViewPortState);
     destructor Destroy; override;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
@@ -36,24 +46,37 @@ uses
   SysUtils,
   Forms,
   Types,
-  u_JclListenerNotifierLinksList;
+  u_JclListenerNotifierLinksList,
+  u_NotifyEventListener;
 
 { TWindowLayerAbstract }
 
-constructor TWindowLayerAbstract.Create;
+constructor TWindowLayerAbstract.Create(AViewPortState: IViewPortState);
 begin
   FCS := TCriticalSection.Create;
   FRedrawCounter := 0;
   FRedrawTime  := 0;
+  FViewPortState := AViewPortState;
   FLinksList := TJclListenerNotifierLinksList.Create;
-  FLinksList.ActivateLinks;
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnPosChange),
+    FViewPortState.GetChangeNotifier
+  );
 end;
 
 destructor TWindowLayerAbstract.Destroy;
 begin
   FLinksList := nil;
+  FViewPortState := nil;
   FreeAndNil(FCS);
   inherited;
+end;
+
+procedure TWindowLayerAbstract.DoPosChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  FVisualCoordConverter := ANewVisualCoordConverter;
 end;
 
 procedure TWindowLayerAbstract.IncRedrawCounter(ATime: TDateTime);
@@ -67,12 +90,19 @@ begin
   end;
 end;
 
+procedure TWindowLayerAbstract.OnPosChange(Sender: TObject);
+begin
+  PosChange(FViewPortState.GetVisualCoordConverter);
+end;
+
 procedure TWindowLayerAbstract.SendTerminateToThreads;
 begin
+  FLinksList.DeactivateLinks;
 end;
 
 procedure TWindowLayerAbstract.StartThreads;
 begin
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
   FLinksList.ActivateLinks;
 end;
 

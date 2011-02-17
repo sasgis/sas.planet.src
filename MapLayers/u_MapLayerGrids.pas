@@ -373,7 +373,7 @@ procedure TMapLayerGrids.OnConfigChange(Sender: TObject);
 var
   VVisible: Boolean;
 begin
-  VVisible := CheckVisible(FViewPortState.GetVisualCoordConverter);
+  VVisible := CheckVisible(ViewPortState.GetVisualCoordConverter);
   if VVisible then begin
     Redraw;
     Show;

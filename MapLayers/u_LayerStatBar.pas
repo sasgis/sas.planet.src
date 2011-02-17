@@ -25,6 +25,8 @@ type
     procedure DoRedraw; override;
     function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
   public
+    procedure StartThreads; override;
+  public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IStatBarConfig);
   end;
 
@@ -56,7 +58,6 @@ begin
     FConfig.GetChangeNotifier
   );
   FLastUpdateTick := 0;
-  OnConfigChange(nil);
 end;
 
 function TLayerStatBar.GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
@@ -68,7 +69,7 @@ end;
 function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
 begin
   Result.Left := 0;
-  Result.Bottom := FVisualCoordConverter.GetLocalRectSize.Y;
+  Result.Bottom := VisualCoordConverter.GetLocalRectSize.Y;
   Result.Right := Result.Left + FLayer.Bitmap.Width;
   Result.Top := Result.Bottom - FLayer.Bitmap.Height;
 end;
@@ -96,6 +97,12 @@ begin
   end else begin
     Hide;
   end;
+end;
+
+procedure TLayerStatBar.StartThreads;
+begin
+  inherited;
+  OnConfigChange(nil);
 end;
 
 procedure TLayerStatBar.DoRedraw;
@@ -133,7 +140,7 @@ begin
   VCurrentTick := GetTickCount;
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + VMinUpdate) then begin
     VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-    VVisualCoordConverter := FVisualCoordConverter;
+    VVisualCoordConverter := VisualCoordConverter;
     VMousePos := Fmain.MouseCursorPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;

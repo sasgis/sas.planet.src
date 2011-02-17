@@ -22,6 +22,8 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
+    procedure StartThreads; override;
+  public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IScaleLineConfig);
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
   end;
@@ -81,7 +83,7 @@ var
   VVisualCoordConverter: ILocalCoordConverter;
 begin
   inherited;
-  VVisualCoordConverter := FVisualCoordConverter;
+  VVisualCoordConverter := VisualCoordConverter;
   VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   VConverter := VVisualCoordConverter.GetGeoConverter;
   VZoom := VVisualCoordConverter.GetZoom;
@@ -133,7 +135,7 @@ var
 begin
   VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   Result.Left := 6;
-  Result.Bottom := FVisualCoordConverter.GetLocalRectSize.Y - 6 - FBottomMargin;
+  Result.Bottom := VisualCoordConverter.GetLocalRectSize.Y - 6 - FBottomMargin;
   Result.Right := Result.Left + VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;
@@ -146,6 +148,12 @@ begin
   end else begin
     Hide;
   end;
+end;
+
+procedure TLayerScaleLine.StartThreads;
+begin
+  inherited;
+  OnConfigChange(nil);
 end;
 
 end.

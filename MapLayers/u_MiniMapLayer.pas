@@ -274,7 +274,7 @@ var
   VEnum: IEnumGUID;
 begin
   inherited;
-  FBitmapCoordConverter := BuildBitmapCoordConverter(FVisualCoordConverter);
+  FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
   FLayer.Bitmap.Clear(Color32(GState.BGround));
   VMapType := FConfig.MapsConfig.GetActiveMiniMap.MapType;
   VActiveMaps := FConfig.MapsConfig.GetLayers.GetSelectedMapsList;
@@ -308,7 +308,7 @@ var
   VZoomDelta: Integer;
 begin
   FViewRectDrawLayer.Bitmap.Clear(clBlack);
-  VVisualCoordConverter := FVisualCoordConverter;
+  VVisualCoordConverter := VisualCoordConverter;
   VBitmapCoordConverter := FBitmapCoordConverter;
   if (VVisualCoordConverter <> nil) and (FBitmapCoordConverter <> nil) then begin
     VGeoConvert := VVisualCoordConverter.GetGeoConverter;
@@ -521,7 +521,7 @@ var
   VViewSize: TPoint;
 begin
   VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-  VViewSize := FVisualCoordConverter.GetLocalRectSize;
+  VViewSize := VisualCoordConverter.GetLocalRectSize;
   Result.Right := VViewSize.X;
   Result.Bottom := VViewSize.Y - FBottomMargin;
   Result.Left := Result.Right - VSize.X;
@@ -638,7 +638,7 @@ begin
       VLonLat := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoom);
       FViewRectMoveDelta := DoublePoint(0, 0);
 
-      FViewPortState.ChangeLonLat(VLonLat);
+      ViewPortState.ChangeLonLat(VLonLat);
     end else begin
       FViewRectMoveDelta := DoublePoint(0, 0);
       DrawMainViewRect;
@@ -663,7 +663,7 @@ var
   VVisibleSize: TPoint;
 begin
   if FLeftBorderMoved then begin
-    VVisibleSize := FVisualCoordConverter.GetLocalRectSize;
+    VVisibleSize := VisualCoordConverter.GetLocalRectSize;
     VNewWidth := Trunc(FLayer.Location.Right - X - FLeftBorderMovedClickDelta);
     if VNewWidth < 40 then begin
       VNewWidth := 40;
