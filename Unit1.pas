@@ -3703,7 +3703,7 @@ var
   VTBXItem: TTBXItem;
   VTBEditItem: TTBEditItem;
 begin
-  VGoto := TMapViewGotoOnFMain.Create;
+  VGoto := TMapViewGotoOnFMain.Create(Self.topos);
   FSearchPresenter := TSearchResultPresenterWithForm.Create(VGoto);
   VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
   VTBXItem := TBXSelectGoogleSrch;

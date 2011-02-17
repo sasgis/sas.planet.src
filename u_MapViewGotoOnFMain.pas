@@ -7,25 +7,31 @@ uses
   i_IMapViewGoto;
 
 type
+  TToPosEvent = procedure (ALonLat: TDoublePoint; AZoom: byte; AShowMarker: boolean) of object;
+
+type
   TMapViewGotoOnFMain = class(TInterfacedObject, IMapViewGoto)
   private
+    FToPosEvent: TToPosEvent;
+  protected
     procedure GotoPos(ALonLat: TDoublePoint; AZoom: Byte);
+  public
+    constructor Create(AToPosEvent: TToPosEvent);
   end;
 
 implementation
 
-uses
-  Unit1;
-
 { TMapViewGotoOnFMain }
 
-procedure TMapViewGotoOnFMain.GotoPos(ALonLat: TDoublePoint; AZoom: Byte);
-var
-  VPoint: TDoublePoint;
+constructor TMapViewGotoOnFMain.Create(AToPosEvent: TToPosEvent);
 begin
-  VPoint.X := ALonLat.X;
-  VPoint.Y := ALonLat.Y;
-  Fmain.topos(VPoint, AZoom, True);
+  inherited Create;
+  FToPosEvent := AToPosEvent;
+end;
+
+procedure TMapViewGotoOnFMain.GotoPos(ALonLat: TDoublePoint; AZoom: Byte);
+begin
+  FToPosEvent(ALonLat, AZoom, True);
 end;
 
 end.
