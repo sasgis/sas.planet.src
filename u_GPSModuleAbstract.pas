@@ -33,9 +33,13 @@ type
     FSatellites: IInterfaceList;
 
     FDataReciveNotifier: IJclNotifier;
+
+    FConnectingNotifier: IJclNotifier;
+    FConnectedNotifier: IJclNotifier;
+    FDisconnectingNotifier: IJclNotifier;
+    FDisconnectedNotifier: IJclNotifier;
+
     FConnectErrorNotifier: IJclNotifier;
-    FConnectNotifier: IJclNotifier;
-    FDisconnectNotifier: IJclNotifier;
     FTimeOutNotifier: IJclNotifier;
   protected
     function _GetSatellitesCopy: IInterfaceList;
@@ -67,15 +71,16 @@ type
     procedure Lock;
     procedure UnLock;
   protected
-    procedure Connect; virtual; safecall; abstract;
-    procedure Disconnect; virtual; safecall; abstract;
-    function GetIsConnected: Boolean; virtual; safecall; abstract;
     function GetPosition: IGPSPosition; virtual; safecall;
 
     function GetDataReciveNotifier: IJclNotifier; virtual; safecall;
+
+    function GetConnectingNotifier: IJclNotifier; virtual; safecall;
+    function GetConnectedNotifier: IJclNotifier; virtual; safecall;
+    function GetDisconnectingNotifier: IJclNotifier; virtual; safecall;
+    function GetDisconnectedNotifier: IJclNotifier; virtual; safecall;
+
     function GetConnectErrorNotifier: IJclNotifier; virtual; safecall;
-    function GetConnectNotifier: IJclNotifier; virtual; safecall;
-    function GetDisconnectNotifier: IJclNotifier; virtual; safecall;
     function GetTimeOutNotifier: IJclNotifier; virtual; safecall;
   public
     constructor Create();
@@ -104,10 +109,14 @@ begin
   FSatellitesChanged := True;
   FLastStaticPosition := nil;
   FConnectErrorNotifier := TJclBaseNotifier.Create;
-  FConnectNotifier := TJclBaseNotifier.Create;
+
+  FConnectingNotifier := TJclBaseNotifier.Create;
+  FConnectedNotifier := TJclBaseNotifier.Create;
+  FDisconnectingNotifier := TJclBaseNotifier.Create;
+  FDisconnectedNotifier := TJclBaseNotifier.Create;
+
   FDataReciveNotifier := TJclBaseNotifier.Create;
   FTimeOutNotifier := TJclBaseNotifier.Create;
-  FDisconnectNotifier := TJclBaseNotifier.Create;
   VPoint.X := 0;
   VPoint.Y := 0;
   FEmptyDataPosition := TGPSPositionStatic.Create(
@@ -121,11 +130,15 @@ begin
   FSatellites := nil;
   FLastStaticPosition := nil;
   FEmptyDataPosition := nil;
+
+  FConnectingNotifier := nil;
+  FConnectedNotifier := nil;
+  FDisconnectingNotifier := nil;
+  FDisconnectedNotifier := nil;
+
   FConnectErrorNotifier := nil;
-  FConnectNotifier := nil;
   FDataReciveNotifier := nil;
   FTimeOutNotifier := nil;
-  FDisconnectNotifier := nil;
   inherited;
 end;
 
@@ -134,19 +147,29 @@ begin
   Result := FConnectErrorNotifier;
 end;
 
-function TGPSModuleAbstract.GetConnectNotifier: IJclNotifier;
+function TGPSModuleAbstract.GetConnectingNotifier: IJclNotifier;
 begin
-  Result := FConnectNotifier;
+  Result := FConnectingNotifier;
+end;
+
+function TGPSModuleAbstract.GetConnectedNotifier: IJclNotifier;
+begin
+  Result := FConnectedNotifier;
+end;
+
+function TGPSModuleAbstract.GetDisconnectingNotifier: IJclNotifier;
+begin
+  Result := FDisconnectingNotifier;
+end;
+
+function TGPSModuleAbstract.GetDisconnectedNotifier: IJclNotifier;
+begin
+  Result := FDisconnectedNotifier;
 end;
 
 function TGPSModuleAbstract.GetDataReciveNotifier: IJclNotifier;
 begin
   Result := FDataReciveNotifier;
-end;
-
-function TGPSModuleAbstract.GetDisconnectNotifier: IJclNotifier;
-begin
-  Result := FDisconnectNotifier;
 end;
 
 function TGPSModuleAbstract.GetPosition: IGPSPosition;

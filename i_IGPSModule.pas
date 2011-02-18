@@ -4,29 +4,35 @@ interface
 
 uses
   i_JclNotify,
+  i_IGPSModuleByCOMPortSettings,
   i_GPS;
 
 type
   IGPSModule = interface
-    ['{8A43A950-69A9-42FC-B894-0C29E77A3415}']
-    procedure Connect; safecall;
-    procedure Disconnect; safecall;
-    function GetIsConnected: Boolean; safecall;
+    ['{B477FFBD-C36D-40C6-AF7F-B118E47A6815}']
     function GetPosition: IGPSPosition; safecall;
+    property Position: IGPSPosition read GetPosition;
 
     function GetDataReciveNotifier: IJclNotifier; safecall;
-    function GetConnectErrorNotifier: IJclNotifier; safecall;
-    function GetConnectNotifier: IJclNotifier; safecall;
-    function GetDisconnectNotifier: IJclNotifier; safecall;
-    function GetTimeOutNotifier: IJclNotifier; safecall;
-
-    property IsConnected: Boolean read GetIsConnected;
-    property Position: IGPSPosition read GetPosition;
     property DataReciveNotifier: IJclNotifier read GetDataReciveNotifier;
-    property ConnectErrorNotifier: IJclNotifier read GetConnectErrorNotifier;
-    property ConnectNotifier: IJclNotifier read GetConnectNotifier;
-    property DisconnectNotifier: IJclNotifier read GetDisconnectNotifier;
+
+    function GetConnectingNotifier: IJclNotifier; safecall;
+    property ConnectingNotifier: IJclNotifier read GetConnectingNotifier;
+
+    function GetConnectedNotifier: IJclNotifier; safecall;
+    property ConnectedNotifier: IJclNotifier read GetConnectedNotifier;
+
+    function GetDisconnectingNotifier: IJclNotifier; safecall;
+    property DisconnectingNotifier: IJclNotifier read GetDisconnectingNotifier;
+
+    function GetDisconnectedNotifier: IJclNotifier; safecall;
+    property DisconnectedNotifier: IJclNotifier read GetDisconnectedNotifier;
+
+    function GetTimeOutNotifier: IJclNotifier; safecall;
     property TimeOutNotifier: IJclNotifier read GetTimeOutNotifier;
+
+    function GetConnectErrorNotifier: IJclNotifier; safecall;
+    property ConnectErrorNotifier: IJclNotifier read GetConnectErrorNotifier;
   end;
 
 implementation

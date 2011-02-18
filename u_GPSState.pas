@@ -4,12 +4,13 @@ interface
 
 uses
   SysUtils,
-  i_JclNotify,
+  i_IJclListenerNotifierLinksList,
   i_IDatum,
   i_IGPSRecorder,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IGPSModule,
+  i_IGPSModuleByCOM,
   i_IGPSModuleByCOMPortSettings,
   u_GPSModuleByCOMPortSettings,
   u_GPSLogWriterToPlt;
@@ -22,11 +23,11 @@ type
     FGPSRecorder: IGPSRecorder;
     FSettings: IGPSModuleByCOMPortConfig;
     FGPSModule: IGPSModule;
+    FGPSModuleByCOM: IGPSModuleByCOM;
     GPS_enab: Boolean;
 
-    FGpsConnectListener: IJclListener;
-    FGpsDataReceiveListener: IJclListener;
-    FGpsDisconnectListener: IJclListener;
+    FLinksList: IJclListenerNotifierLinksList;
+
     FLogWriter: TPltLogWriter;
 
     procedure OnGpsConnect(Sender: TObject);
@@ -53,6 +54,8 @@ type
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
+    procedure Connect;
+    procedure Disconnect;
 
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GPSSettings: IGPSModuleByCOMPortConfig read FSettings;
@@ -64,10 +67,17 @@ implementation
 uses
   t_GeoTypes,
   i_GPS,
+  u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   u_Datum,
   u_GPSModuleByZylGPS,
   u_GPSRecorderStuped;
+
+procedure TGPSpar.Connect;
+begin
+  GPS_enab := True;
+  FGPSModuleByCOM.Connect(FSettings.GetStatic);
+end;
 
 constructor TGPSpar.Create(ALogPath: string);
 begin
@@ -75,29 +85,38 @@ begin
   FLogPath := ALogPath;
   FGPSRecorder := TGPSRecorderStuped.Create;
   FSettings := TGPSModuleByCOMPortSettings.Create(FLogPath);
-  FGPSModule := TGPSModuleByZylGPS.Create(FSettings.GetStatic);
+  FGPSModuleByCOM := TGPSModuleByZylGPS.Create;
+  FGPSModule := FGPSModuleByCOM;
+  FLinksList := TJclListenerNotifierLinksList.Create;
 
-  FGpsConnectListener := TNotifyEventListener.Create(OnGpsConnect);
-  FGPSModule.ConnectNotifier.Add(FGpsConnectListener);
-  FGpsDataReceiveListener := TNotifyEventListener.Create(OnGpsDataReceive);
-  FGPSModule.DataReciveNotifier.Add(FGpsDataReceiveListener);
-  FGpsDisconnectListener := TNotifyEventListener.Create(OnGpsDisconnect);
-  FGPSModule.DisconnectNotifier.Add(FGpsDisconnectListener);
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnGpsConnect),
+    FGPSModule.ConnectedNotifier
+  );
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnGpsDataReceive),
+    FGPSModule.DataReciveNotifier
+  );
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnGpsDisconnect),
+    FGPSModule.DisconnectedNotifier
+  );
 end;
 
 destructor TGPSpar.Destroy;
 begin
+  FLinksList := nil;
   FGPSRecorder := nil;
   FSettings := nil;
-  FGPSModule.ConnectNotifier.Remove(FGpsConnectListener);
-  FGPSModule.DataReciveNotifier.Remove(FGpsDataReceiveListener);
-  FGPSModule.DisconnectNotifier.Remove(FGpsDisconnectListener);
-  FGpsConnectListener := nil;
-  FGpsDataReceiveListener := nil;
-  FGpsDisconnectListener := nil;
   FGPSModule := nil;
   FreeAndNil(FLogWriter);
   inherited;
+end;
+
+procedure TGPSpar.Disconnect;
+begin
+  GPS_enab := False;
+  FGPSModuleByCOM.Disconnect;
 end;
 
 procedure TGPSpar.LoadConfig(AConfigProvider: IConfigDataProvider);
@@ -198,18 +217,15 @@ end;
 
 procedure TGPSpar.SendTerminateToThreads;
 begin
-  if FGPSModule.IsConnected then begin
-    GPS_enab := True;
-    FGPSModule.Disconnect;
-  end else begin
-    GPS_enab := False;
-  end;
+  FLinksList.DeactivateLinks;
+  FGPSModuleByCOM.Disconnect;
 end;
 
 procedure TGPSpar.StartThreads;
 begin
+  FLinksList.ActivateLinks;
   if GPS_enab then begin
-    FGPSModule.Connect;
+    FGPSModuleByCOM.Connect(FSettings.GetStatic);
   end;
 end;
 

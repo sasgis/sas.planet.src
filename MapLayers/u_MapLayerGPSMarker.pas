@@ -65,7 +65,7 @@ begin
   );
   LinksList.Add(
     TNotifyEventListenerSync.Create(Self.GPSReceiverDisconnect),
-    FGPSModule.DisconnectNotifier
+    FGPSModule.DisconnectedNotifier
   );
   LinksList.Add(
     TNotifyEventListenerSync.Create(Self.GPSReceiverReceive),

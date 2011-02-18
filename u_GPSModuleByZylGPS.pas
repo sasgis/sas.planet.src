@@ -6,16 +6,17 @@ uses
   SysUtils,
   ZylGPSReceiver,
   i_IGPSModuleByCOMPortSettings,
+  i_IGPSModuleByCOM,
   u_GPSModuleAbstract;
 
 type
   TConnectState = (csDisconnected, csConnecting, csConnected, csDisconnecting);
 
-  TGPSModuleByZylGPS = class(TGPSModuleAbstract)
+  TGPSModuleByZylGPS = class(TGPSModuleAbstract, IGPSModuleByCOM)
   protected
     FGPSReceiver: TZylGPSReceiver;
     FConnectState: TConnectState;
-    FSettings: IGPSModuleByCOMPortConfigSatic;
+
     FFormatSettings: TFormatSettings;
     procedure GPSReceiver1SatellitesReceive(Sender: TObject);
     procedure GPSReceiverReceive(Sender: TObject; Buffer: string);
@@ -24,13 +25,13 @@ type
     procedure GPSReceiverTimeout(Sender: TObject);
   protected
     function GetSatActive(pcode:integer;NMEA:string):boolean;
-    procedure _UpdateReceiverSettings;
+    procedure _UpdateReceiverSettings(ASettings: IGPSModuleByCOMPortConfigSatic);
   protected
-    procedure Connect; override;
-    procedure Disconnect; override;
-    function GetIsConnected: Boolean; override;
+    procedure Connect(AConfig: IGPSModuleByCOMPortConfigSatic); safecall;
+    procedure Disconnect; safecall;
+    function GetIsReadyToConnect: Boolean; safecall;
   public
-    constructor Create(ASettings: IGPSModuleByCOMPortConfigSatic);
+    constructor Create;
     destructor Destroy; override;
   end;
 implementation
@@ -45,10 +46,9 @@ uses
 const
   CMaxSatCount = 32;
 
-constructor TGPSModuleByZylGPS.Create(ASettings: IGPSModuleByCOMPortConfigSatic);
+constructor TGPSModuleByZylGPS.Create;
 begin
   inherited Create;
-  FSettings := ASettings;
 
   FFormatSettings.DecimalSeparator := '.';
   FFormatSettings.DateSeparator := '.';
@@ -70,7 +70,7 @@ begin
   FGPSReceiver.OnReceive := GPSReceiverReceive;
   FGPSReceiver.OnSatellitesReceive := GPSReceiver1SatellitesReceive;
   FGPSReceiver.NeedSynchronization := False;
-  _UpdateReceiverSettings;
+
   FConnectState := csDisconnected;
 end;
 
@@ -81,20 +81,20 @@ begin
   inherited;
 end;
 
-procedure TGPSModuleByZylGPS._UpdateReceiverSettings;
+procedure TGPSModuleByZylGPS._UpdateReceiverSettings(ASettings: IGPSModuleByCOMPortConfigSatic);
 var
   VLogFile: string;
 begin
-  VLogFile := FSettings.LogPath + DateTimeToStr(Now, FFormatSettings) +'.nmea';
+  VLogFile := ASettings.LogPath + DateTimeToStr(Now, FFormatSettings) +'.nmea';
   FGPSReceiver.LogFile := VLogFile;
-  FGPSReceiver.NMEALog := FSettings.NMEALog;
-  FGPSReceiver.Delay := FSettings.Delay;
-  FGPSReceiver.ConnectionTimeout := FSettings.ConnectionTimeout;
-  FGPSReceiver.Port :=  FGPSReceiver.StringToCommPort('COM' + IntToStr(FSettings.Port));
-  FGPSReceiver.BaudRate := FGPSReceiver.IntToBaudRate(FSettings.BaudRate);
+  FGPSReceiver.NMEALog := ASettings.NMEALog;
+  FGPSReceiver.Delay := ASettings.Delay;
+  FGPSReceiver.ConnectionTimeout := ASettings.ConnectionTimeout;
+  FGPSReceiver.Port :=  FGPSReceiver.StringToCommPort('COM' + IntToStr(ASettings.Port));
+  FGPSReceiver.BaudRate := FGPSReceiver.IntToBaudRate(ASettings.BaudRate);
 end;
 
-procedure TGPSModuleByZylGPS.Connect;
+procedure TGPSModuleByZylGPS.Connect(AConfig: IGPSModuleByCOMPortConfigSatic);
 var
   VState: TConnectState;
 begin
@@ -109,7 +109,8 @@ begin
     UnLock;
   end;
   if VState = csDisconnected then begin
-    _UpdateReceiverSettings;
+    GetConnectingNotifier.Notify(nil);
+    _UpdateReceiverSettings(AConfig);
     try
       FGPSReceiver.Open;
     except
@@ -122,6 +123,7 @@ begin
       finally
         UnLock;
       end;
+      GetDisconnectingNotifier.Notify(nil);
       FGPSReceiver.Close;
       GPSReceiverDisconnect(FGPSReceiver, spNone);
     end;
@@ -141,7 +143,7 @@ begin
     UnLock;
   end;
   if VState = csConnecting then begin
-    GetConnectNotifier.Notify(nil);
+    GetConnectedNotifier.Notify(nil);
   end;
 end;
 
@@ -160,6 +162,7 @@ begin
     UnLock;
   end;
   if VState = csConnected then begin
+    GetDisconnectingNotifier.Notify(nil);
     FGPSReceiver.Close;
   end;
 end;
@@ -178,7 +181,7 @@ begin
     UnLock;
   end;
   if VState = csDisconnecting then begin
-    GetDisconnectNotifier.Notify(nil);
+    GetDisconnectedNotifier.Notify(nil);
   end;
 end;
 
@@ -189,11 +192,11 @@ begin
   GPSReceiverDisconnect(FGPSReceiver, spNone);
 end;
 
-function TGPSModuleByZylGPS.GetIsConnected: Boolean;
+function TGPSModuleByZylGPS.GetIsReadyToConnect: Boolean;
 begin
   Lock;
   try
-    Result := FConnectState = csConnected;
+    Result := FConnectState = csDisconnected;
   finally
     UnLock;
   end;

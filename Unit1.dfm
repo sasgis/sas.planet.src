@@ -178,7 +178,6 @@ object Fmain: TFmain
       OnClose = TBMainToolBarClose
       Caption = #1055#1072#1085#1077#1083#1100' GPS'
       object TBGPSconn: TTBXItem
-        AutoCheck = True
         ImageIndex = 10
         OnClick = TBGPSconnClick
         Caption = ''
@@ -877,7 +876,6 @@ object Fmain: TFmain
         Caption = 'GPS'
         Hint = ''
         object tbitmGPSConnect: TTBXItem
-          AutoCheck = True
           ShortCut = 49223
           OnClick = TBGPSconnClick
           Caption = #1055#1086#1076#1082#1083#1102#1095#1080#1090#1100' '#1087#1088#1080#1077#1084#1085#1080#1082

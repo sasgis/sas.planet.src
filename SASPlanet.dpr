@@ -388,6 +388,7 @@ uses
   u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
   i_GPS in 'i_GPS.pas',
   i_IGPSModule in 'i_IGPSModule.pas',
+  i_IGPSModuleByCOM in 'i_IGPSModuleByCOM.pas',
   i_IGPSModuleByCOMPortSettings in 'i_IGPSModuleByCOMPortSettings.pas',
   u_GPSModuleByCOMPortSettings in 'u_GPSModuleByCOMPortSettings.pas',
   u_GPSModuleByCOMPortConfigSatic in 'u_GPSModuleByCOMPortConfigSatic.pas',
