@@ -1647,6 +1647,7 @@ var
   VMapMoveCentred: Boolean;
   VMinDelta: Double;
   VDelta: Double;
+  VNeedTrackRedraw: Boolean;
 begin
   if FIsGPSPosChanged then begin
     FIsGPSPosChanged := False;
@@ -1655,6 +1656,7 @@ begin
     if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
     if (VPosition.IsFix=0) then exit;
     if not((FMapMoving)or(FMapZoomAnimtion))and(Screen.ActiveForm=Self) then begin
+      VNeedTrackRedraw := True;
       FConfig.GPSBehaviour.LockRead;
       try
         VMapMove := FConfig.GPSBehaviour.MapMove;
@@ -1674,6 +1676,7 @@ begin
           VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
           if VDelta > VMinDelta then begin
             FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
+            VNeedTrackRedraw := False;
           end;
         end else begin
             VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
@@ -1688,10 +1691,12 @@ begin
               VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
               if VDelta > VMinDelta then begin
                 FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
+                VNeedTrackRedraw := False;
               end;
             end;
         end;
-      end else begin
+      end;
+      if VNeedTrackRedraw then begin
         FLayerMapGPS.Redraw;
       end;
     end;
