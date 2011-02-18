@@ -85,6 +85,7 @@ begin
   FLogPath := ALogPath;
   FGPSRecorder := TGPSRecorderStuped.Create;
   FSettings := TGPSModuleByCOMPortSettings.Create(FLogPath);
+  FLogWriter := TPltLogWriter.Create(FLogPath);
   FGPSModuleByCOM := TGPSModuleByZylGPS.Create;
   FGPSModule := FGPSModuleByCOM;
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -101,6 +102,10 @@ begin
     TNotifyEventListener.Create(Self.OnGpsDisconnect),
     FGPSModule.DisconnectedNotifier
   );
+  GPS_enab := False;
+  GPS_WriteLog := true;
+  Odometr := 0;
+  Odometr2 := 0;
 end;
 
 destructor TGPSpar.Destroy;
@@ -123,20 +128,15 @@ procedure TGPSpar.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   VConfigProvider: IConfigDataProvider;
 begin
-  FLogWriter := TPltLogWriter.Create(FLogPath);
   VConfigProvider := AConfigProvider.GetSubItem('GPS');
   if VConfigProvider <> nil then begin
-    GPS_enab := VConfigProvider.ReadBool('enbl', false);
+    GPS_enab := VConfigProvider.ReadBool('enbl',  GPS_enab);
 
-    GPS_WriteLog:=VConfigProvider.ReadBool('log',true);
-    Odometr:=VConfigProvider.ReadFloat('Odometr',0);
-    Odometr2:=VConfigProvider.ReadFloat('Odometr2',0);
-  end else begin
-    GPS_enab := False;
-    GPS_WriteLog:=true;
-    Odometr:=0;
-    Odometr2:=0;
+    GPS_WriteLog := VConfigProvider.ReadBool('log', GPS_WriteLog);
+    Odometr := VConfigProvider.ReadFloat('Odometr', Odometr);
+    Odometr2 := VConfigProvider.ReadFloat('Odometr2', Odometr2);
   end;
+  FSettings.ReadConfig(VConfigProvider);
 end;
 
 procedure TGPSpar.OnGpsConnect;
@@ -213,6 +213,7 @@ begin
 
   VConfigProvider.WriteFloat('Odometr', Odometr);
   VConfigProvider.WriteFloat('Odometr2', Odometr2);
+  FSettings.WriteConfig(VConfigProvider);
 end;
 
 procedure TGPSpar.SendTerminateToThreads;

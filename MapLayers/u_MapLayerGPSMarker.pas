@@ -85,18 +85,18 @@ var
   VMarker: TCustomBitmap32;
 begin
   inherited;
-  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   if FSpeed > FConfig.MinMoveSpeed then begin
-    FTransform.SrcRect := FloatRect(0, 0, VSize.X, VSize.Y);
-    FTransform.Clear;
     FConfig.LockRead;
     try
       VMarker := FConfig.GetMarkerMoved;
+      FTransform.SrcRect := FloatRect(0, 0, VMarker.Width, VMarker.Height);
+      FTransform.Clear;
       FTransform.Translate(-VMarker.Width / 2, -VMarker.Height / 2);
       FTransform.Rotate(0, 0, -FAngle);
-      FTransform.Translate(VSize.X / 2, VSize.Y / 2);
       FLayer.Bitmap.Lock;
       try
+        VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+        FTransform.Translate(VSize.X / 2, VSize.Y / 2);
         FLayer.Bitmap.Clear(0);
         Transform(FLayer.Bitmap, VMarker, FTransform);
       finally
@@ -111,11 +111,17 @@ begin
       FConfig.LockRead;
       try
         VMarker := FConfig.GetMarkerStoped;
-        VMarker.DrawTo(
-          FLayer.Bitmap,
-          trunc(VSize.X / 2 - VMarker.Width / 2),
-          trunc(VSize.Y / 2 - VMarker.Height / 2)
-        );
+        FLayer.Bitmap.Lock;
+        try
+          VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+          VMarker.DrawTo(
+            FLayer.Bitmap,
+            trunc(VSize.X / 2 - VMarker.Width / 2),
+            trunc(VSize.Y / 2 - VMarker.Height / 2)
+          );
+        finally
+          FLayer.Bitmap.Unlock;
+        end;
       finally
         FConfig.UnlockRead;
       end;
@@ -163,6 +169,8 @@ begin
     if VSize.Y < VMarker.Height then begin
       VSize.Y := VMarker.Height;
     end;
+    FFixedOnBitmap.X := VSize.X / 2;
+    FFixedOnBitmap.Y := VSize.Y / 2;
   finally
     FConfig.UnlockRead;
   end;

@@ -980,10 +980,10 @@ begin
       frmInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
     end;
 
+    FLinksList.ActivateLinks;
     FLayersList.StartThreads;
     GState.StartThreads;
     FUIDownLoader.StartThreads;
-    FLinksList.ActivateLinks;
     OnMainFormMainConfigChange(nil);
     MapLayersVisibleChange(nil);
     OnFillingMapChange(nil);

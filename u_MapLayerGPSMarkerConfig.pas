@@ -189,7 +189,7 @@ var
   VMarkRect: TRect;
   VCenterPoint: TDoublePoint;
 begin
-  VSize := Point(FMarkerMovedSize * 2, FMarkerMovedSize * 2);
+  VSize := Point(FMarkerMovedSize, FMarkerMovedSize);
 
   VCenterPoint.X := VSize.X / 2;
   VCenterPoint.Y := VSize.Y / 2;
@@ -200,9 +200,9 @@ begin
   try
     VPolygon.Antialiased := true;
     VPolygon.AntialiasMode := am32times;
-    VPolygon.Add(FixedPoint(VCenterPoint.X, VCenterPoint.Y - FMarkerMovedSize));
-    VPolygon.Add(FixedPoint(VCenterPoint.X - FMarkerMovedSize / 3, VCenterPoint.Y));
-    VPolygon.Add(FixedPoint(VCenterPoint.X + FMarkerMovedSize / 3, VCenterPoint.Y));
+    VPolygon.Add(FixedPoint(VCenterPoint.X, 0));
+    VPolygon.Add(FixedPoint(VCenterPoint.X - FMarkerMovedSize / 3, VSize.Y));
+    VPolygon.Add(FixedPoint(VCenterPoint.X + FMarkerMovedSize / 3, VSize.Y));
     VPolygon.DrawFill(FMarkerMoved, FMarkerMovedColor);
   finally
     FreeAndNil(VPolygon);
