@@ -43,7 +43,8 @@ type
   function PtInRgn(Polyg:TPointArray; P:TPoint):boolean; overload;
   function PtInRgn(Polyg:TDoublePointArray; P:TDoublePoint):boolean; overload;
   function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
-  function PointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
+  function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
+  function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
   function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 
@@ -535,10 +536,16 @@ begin
   end;
 end;
 
-function PointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
+function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
 begin
   result:=(APoint.X<=ARect.Right)and(APoint.X>=ARect.Left)and
           (APoint.Y<=ARect.Top)and(APoint.Y>=ARect.Bottom);
+end;
+
+function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
+begin
+  result:=(APoint.X<=ARect.Right)and(APoint.X>=ARect.Left)and
+          (APoint.Y>=ARect.Top)and(APoint.Y<=ARect.Bottom);
 end;
 
 function DoublePoint(APoint: TPoint): TDoublePoint; overload;

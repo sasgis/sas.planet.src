@@ -118,7 +118,7 @@ begin
   LockRead;
   try
     for i := FCount - 1 downto 0 do begin
-      if PointInRect(FPoints[i], ARect) then begin
+      if LonLatPointInRect(FPoints[i], ARect) then begin
         Result := i;
         Break;
       end;

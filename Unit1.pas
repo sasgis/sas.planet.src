@@ -1681,7 +1681,7 @@ begin
         end else begin
             VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
             VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
-            if PointInRect(VGPSMapPoint, VConverter.GetRectInMapPixelFloat) then  begin
+            if PixelPointInRect(VGPSMapPoint, VConverter.GetRectInMapPixelFloat) then  begin
               VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
               VCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
               VCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
