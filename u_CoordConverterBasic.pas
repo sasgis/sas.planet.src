@@ -281,7 +281,7 @@ begin
     Assert(False, 'Координата Y тайла не может быть меньше нуля');
     XY.Bottom := 0;
   end else begin
-    if XY.Bottom >= VTilesAtZoom then begin
+    if XY.Bottom > VTilesAtZoom then begin
       Assert(False, 'Координата Y тайла на этом зуме не может быть больше ' + IntToStr(VTilesAtZoom));
       XY.Bottom := VTilesAtZoom;
     end;
