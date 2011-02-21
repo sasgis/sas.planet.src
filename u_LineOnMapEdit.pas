@@ -154,6 +154,7 @@ begin
         FActiveIndex := 0;
       end;
       Move(FPoints[FActiveIndex + 1], FPoints[FActiveIndex + 2], (FCount - FActiveIndex - 1) * SizeOf(FPoints[0]));
+      FPoints[FActiveIndex + 1] := APoint;
       Inc(FActiveIndex);
       Inc(FCount);
     end;
@@ -203,11 +204,16 @@ procedure TLineOnMapEdit.SetPoints(AValue: TDoublePointArray);
 var
   VNewCount: Integer;
 begin
+  VNewCount := Length(AValue);
+  if VNewCount > 1 then begin
+    if compare2EP(AValue[0], AValue[VNewCount - 1]) then begin
+      Dec(VNewCount);
+    end;
+  end;
   LockWrite;
   try
-    VNewCount := Length(AValue);
     if VNewCount > 0 then begin
-      if Length(FPoints) < VNewCount then begin
+    if Length(FPoints) < VNewCount then begin
         SetLength(FPoints, VNewCount);
       end;
       FCount := VNewCount;
