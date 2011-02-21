@@ -2,7 +2,6 @@ unit i_IDownloadUIConfig;
 
 interface
 
-
 uses
   t_CommonTypes,
   i_IConfigDataElement;
