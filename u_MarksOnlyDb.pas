@@ -131,6 +131,7 @@ end;
 
 destructor TMarksOnlyDb.Destroy;
 begin
+  FreeAndNil(FFactory);
   FSync := nil;
   inherited;
 end;
