@@ -25,7 +25,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  GR32_LowLevel;
 
 { TMarkPictureSimple }
 
@@ -60,7 +61,9 @@ end;
 
 procedure TMarkPictureSimple.LoadBitmap(ABmp: TCustomBitmap32);
 begin
-  ABmp.Assign(FBitmap);
+  ABmp.SetSize(FBitmap.Width, FBitmap.Height);
+  if not FBitmap.Empty then
+    MoveLongword(FBitmap.Bits[0], ABmp.Bits[0], FBitmap.Width * FBitmap.Height);
 end;
 
 end.
