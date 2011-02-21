@@ -55,6 +55,7 @@ type
     property PointsOnBitmap: TDoublePointArray read FPointsOnBitmap;
     property SourcePolygon: TDoublePointArray read FSourcePolygon;
   protected
+    procedure DoShow; override;
     procedure DoRedraw; override;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
     procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
@@ -135,6 +136,12 @@ end;
 
 procedure TPolyLineLayerBase.DoScaleChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  inherited;
+  Redraw;
+end;
+
+procedure TPolyLineLayerBase.DoShow;
 begin
   inherited;
   Redraw;
@@ -233,7 +240,7 @@ var
   VPosOnBitmap: TDoublePoint;
   VPointsCount: Integer;
 begin
-  VPointsCount := Length(FSourcePolygon);
+  VPointsCount := Length(FPointsOnBitmap);
   if VPointsCount > 0 then begin
     if FLinePolygon <> nil then begin
       FLinePolygon.DrawFill(Buffer, FLineColor);

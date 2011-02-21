@@ -126,6 +126,7 @@ begin
   FMarkPictureList := AMarkPictureList;
   FDMMarksDb := ADMMarksDb;
   FSync := TSimpleRWSync.Create;
+  FFactory := TMarkFactory.Create(FMarkPictureList);
 end;
 
 destructor TMarksOnlyDb.Destroy;
