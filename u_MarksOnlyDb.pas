@@ -215,13 +215,13 @@ end;
 procedure TMarksOnlyDb.WriteCurrentMarkId(AMark: IMarkId);
 begin
   FDMMarksDb.CDSmarks.FieldByName('name').AsString := AMark.name;
-  FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := False;
+  FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := GetMarkVisible(AMark);
 end;
 
 procedure TMarksOnlyDb.WriteCurrentMark(AMark: IMarkFull);
 begin
   FDMMarksDb.CDSmarks.FieldByName('name').AsString := AMark.name;
-  FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := False;
+  FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := GetMarkVisible(AMark);
   BlobFromExtArr(AMark.Points, FDMMarksDb.CDSmarks.FieldByName('LonLatArr'));
   FDMMarksDb.CDSmarkscategoryid.AsInteger := AMark.CategoryId;
   FDMMarksDb.CDSmarks.FieldByName('descr').AsString := AMark.Desc;
@@ -377,19 +377,25 @@ begin
 end;
 
 procedure TMarksOnlyDb.SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
+var
+  VMarkVisible: IMarkVisible;
 begin
-  (AMark as IMarkVisible).Visible := AVisible;
-  if AMark.id >= 0 then begin
-    LockWrite;
-    try
-      FDMMarksDb.CDSmarks.Filtered := false;
-      if FDMMarksDb.CDSmarks.Locate('id', AMark.id, []) then begin
-        FDMMarksDb.CDSmarks.Edit;
-        WriteCurrentMarkId(AMark);
-        FDMMarksDb.CDSmarks.Post;
+  if AMark <> nil then begin
+    if Supports(AMark, IMarkVisible, VMarkVisible) then begin
+      VMarkVisible.Visible := AVisible;
+    end;
+    if AMark.id >= 0 then begin
+      LockWrite;
+      try
+        FDMMarksDb.CDSmarks.Filtered := false;
+        if FDMMarksDb.CDSmarks.Locate('id', AMark.id, []) then begin
+          FDMMarksDb.CDSmarks.Edit;
+          WriteCurrentMarkId(AMark);
+          FDMMarksDb.CDSmarks.Post;
+        end;
+      finally
+        UnlockWrite;
       end;
-    finally
-      UnlockWrite;
     end;
   end;
 end;
