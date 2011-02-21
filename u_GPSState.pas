@@ -161,22 +161,19 @@ var
   VPosition: IGPSPosition;
   VPointCurr: TDoublePoint;
   VPointPrev: TDoublePoint;
-  VTrackPoint: TGPSTrackPoint;
   VDistToPrev: Double;
 begin
   VPosition := FGPSModule.Position;
   if FLogWriter.Started then begin
     FLogWriter.AddPoint(VPosition);
   end;
-  VPointCurr := VPosition.Position;
   VPointPrev := FGPSRecorder.GetLastPoint;
-  VTrackPoint.Point := VPointCurr;
-  VTrackPoint.Speed := VPosition.Speed_KMH;
-  FGPSRecorder.AddPoint(VTrackPoint);
+  FGPSRecorder.AddPoint(VPosition);
 
   if (VPosition.IsFix=0) then exit;
+  VPointCurr := VPosition.Position;
   if (VPointCurr.x<>0)or(VPointCurr.y<>0) then begin
-    speed:=VTrackPoint.Speed;
+    speed:=VPosition.Speed_KMH;
     if maxspeed < speed then begin
       maxspeed:=speed;
     end;

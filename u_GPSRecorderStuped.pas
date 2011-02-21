@@ -5,6 +5,7 @@ interface
 uses
   SysUtils,
   t_GeoTypes,
+  i_GPS,
   i_IGPSRecorder;
 
 type
@@ -15,7 +16,7 @@ type
     FAllocatedPoints: Integer;
     FLock: IReadWriteSync;
   protected
-    procedure AddPoint(APoint: TGPSTrackPoint);
+    procedure AddPoint(APosition: IGPSPosition);
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function GetLastPoint: TDoublePoint;
@@ -32,12 +33,12 @@ implementation
 
 { TGPSRecorderStuped }
 
-procedure TGPSRecorderStuped.AddPoint(APoint: TGPSTrackPoint);
+procedure TGPSRecorderStuped.AddPoint(APosition: IGPSPosition);
 var
   VIsAddPointEmpty: Boolean;
   VIsLastPointEmpty: Boolean;
 begin
-  VIsAddPointEmpty := (APoint.Point.X = 0) and (APoint.Point.Y = 0);
+  VIsAddPointEmpty := APosition.IsFix = 0;
   VIsLastPointEmpty := True;
   FLock.BeginWrite;
   try
@@ -53,7 +54,8 @@ begin
         end;
         SetLength(FTrack, FAllocatedPoints);
       end;
-      FTrack[FPointsCount] := APoint;
+      FTrack[FPointsCount].Point := APosition.Position;
+      FTrack[FPointsCount].Speed := APosition.Speed_KMH;
       Inc(FPointsCount);
     end;
   finally
