@@ -25,8 +25,6 @@ type
     FGPSRecorder: IGPSRecorder;
     FGPSModule: IGPSModule;
     FGPSModuleByCOM: IGPSModuleByCOM;
-    GPS_enab: Boolean;
-
     FLinksList: IJclListenerNotifierLinksList;
 
     FLogWriter: TPltLogWriter;
@@ -48,16 +46,12 @@ type
     Odometr: Double;
     Odometr2: Double;
 
-    //Заисывать GPS трек в файл
-    GPS_WriteLog: boolean;
     constructor Create(ALogPath: string; AConfig: IGPSConfig);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
-    procedure Connect;
-    procedure Disconnect;
 
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GPSModule: IGPSModule read FGPSModule;
@@ -73,12 +67,6 @@ uses
   u_Datum,
   u_GPSModuleByZylGPS,
   u_GPSRecorderStuped;
-
-procedure TGPSpar.Connect;
-begin
-  GPS_enab := True;
-  FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic);
-end;
 
 constructor TGPSpar.Create(ALogPath: string; AConfig: IGPSConfig);
 begin
@@ -109,8 +97,6 @@ begin
     FConfig.GetChangeNotifier
   );
 
-  GPS_enab := False;
-  GPS_WriteLog := true;
   Odometr := 0;
   Odometr2 := 0;
 end;
@@ -124,21 +110,12 @@ begin
   inherited;
 end;
 
-procedure TGPSpar.Disconnect;
-begin
-  GPS_enab := False;
-  FGPSModuleByCOM.Disconnect;
-end;
-
 procedure TGPSpar.LoadConfig(AConfigProvider: IConfigDataProvider);
 var
   VConfigProvider: IConfigDataProvider;
 begin
   VConfigProvider := AConfigProvider.GetSubItem('GPS');
   if VConfigProvider <> nil then begin
-    GPS_enab := VConfigProvider.ReadBool('enbl',  GPS_enab);
-
-    GPS_WriteLog := VConfigProvider.ReadBool('log', GPS_WriteLog);
     Odometr := VConfigProvider.ReadFloat('Odometr', Odometr);
     Odometr2 := VConfigProvider.ReadFloat('Odometr2', Odometr2);
   end;
@@ -146,7 +123,13 @@ end;
 
 procedure TGPSpar.OnConfigChange(Sender: TObject);
 begin
-
+  if FConfig.GPSEnabled then begin
+    if FGPSModuleByCOM.IsReadyToConnect then begin
+      FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic);
+    end;
+  end else begin
+    FGPSModuleByCOM.Disconnect;
+  end;
 end;
 
 procedure TGPSpar.OnGpsConnect;
@@ -157,11 +140,11 @@ begin
   maxspeed:=0;
   sspeednumentr:=0;
 
-  if GPS_WriteLog then begin
+  if FConfig.WriteLog then begin
     try
       FLogWriter.StartWrite;
     except
-      GPS_WriteLog := false;
+      FConfig.WriteLog := false;
     end;
   end;
 end;
@@ -215,10 +198,6 @@ var
 begin
   inherited;
   VConfigProvider := AConfigProvider.GetOrCreateSubItem('GPS');
-  VConfigProvider.WriteBool('enbl', GPS_enab);
-
-  VConfigProvider.WriteBool('log',GPS_WriteLog);
-
   VConfigProvider.WriteFloat('Odometr', Odometr);
   VConfigProvider.WriteFloat('Odometr2', Odometr2);
 end;
@@ -232,9 +211,7 @@ end;
 procedure TGPSpar.StartThreads;
 begin
   FLinksList.ActivateLinks;
-  if GPS_enab then begin
-    Connect;
-  end;
+  OnConfigChange(nil);
 end;
 
 end.

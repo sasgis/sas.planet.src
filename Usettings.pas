@@ -391,8 +391,7 @@ begin
     GState.GPSConfig.ModuleConfig.Delay:=SpinEdit1.Value;
     GState.GPSConfig.ModuleConfig.Port := StrToInt(Copy(ComboBoxCOM.Text, 4, 2));
     GState.GPSConfig.ModuleConfig.BaudRate:=StrToint(ComboBoxBoudRate.Text);
-
-    GState.GPSpar.GPS_WriteLog:=CB_GPSlog.Checked;
+    GState.GPSConfig.WriteLog:=CB_GPSlog.Checked;
   finally
     GState.GPSConfig.UnlockWrite;
   end;
@@ -643,7 +642,7 @@ begin
     SpinEdit1.Value:=GState.GPSConfig.ModuleConfig.Delay;
     ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSConfig.ModuleConfig.Port);
     ComboBoxBoudRate.Text:=inttostr(GState.GPSConfig.ModuleConfig.BaudRate);
-    CB_GPSlog.Checked:=GState.GPSpar.GPS_WriteLog;
+    CB_GPSlog.Checked:=GState.GPSConfig.WriteLog;
   finally
     GState.GPSConfig.UnlockRead;
   end;

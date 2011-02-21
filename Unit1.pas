@@ -2508,11 +2508,7 @@ end;
 
 procedure TFmain.TBGPSconnClick(Sender: TObject);
 begin
-  if TTBXitem(sender).Checked then begin
-    GState.GPSpar.Disconnect;
-  end else begin
-    GState.GPSpar.Connect;
-  end;
+  GState.GPSConfig.GPSEnabled := TTBXitem(sender).Checked;
 end;
 
 procedure TFmain.TBGPSPathClick(Sender: TObject);
