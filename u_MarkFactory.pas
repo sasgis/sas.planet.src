@@ -23,7 +23,7 @@ type
     function GetLLRectFromPoints(APoints: TDoublePointArray): TDoubleRect;
     function GetLLRectFromPoint(APoint: TDoublePoint): TDoubleRect;
     function GetArrayFromPoint(APoint: TDoublePoint): TDoublePointArray;
-    procedure ClosePolyPoints(APoints: TDoublePointArray);
+    procedure ClosePolyPoints(var APoints: TDoublePointArray);
   public
     function CreateNewPoint(
       APoint: TDoublePoint;
@@ -554,7 +554,7 @@ begin
   end;
 end;
 
-procedure TMarkFactory.ClosePolyPoints(APoints: TDoublePointArray);
+procedure TMarkFactory.ClosePolyPoints(var APoints: TDoublePointArray);
 var
   VCount: Integer;
 begin

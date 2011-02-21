@@ -302,6 +302,7 @@ begin
     VMark := FaddLine.EditMark(VMark, Self);
     if VMark <> nil then begin
       FMarksDb.MarksDb.WriteMark(VMark);
+      Result := True;
     end;
   end;
 end;
@@ -324,6 +325,7 @@ begin
     VMark := FaddPoly.EditMark(VMark, Self);
     if VMark <> nil then begin
       FMarksDb.MarksDb.WriteMark(VMark);
+      Result := True;
     end;
   end;
 end;
