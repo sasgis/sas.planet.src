@@ -89,7 +89,7 @@ begin
   FVisibleCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
   FMainMapConfig := AMainMapConfig;
   FMainCoordConverter := nil;
-  FCenterPos := Point(0, 0);
+  FCenterPos := Point(128, 128);
   FZoom := 0;
   FViewSize := Point(1024, 768);
   FBaseScale.X := 1;

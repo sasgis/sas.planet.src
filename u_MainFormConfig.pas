@@ -37,7 +37,7 @@ type
     function GetViewPortState: IViewPortState;
     function GetDownloadUIConfig: IDownloadUIConfig;
   public
-    constructor Create(AGeoCoderList: IGeoCoderList; AMapsList, ALayersList: IMapTypeList);
+    constructor Create(AGeoCoderList: IGeoCoderList; AMapsList, ALayersList: IMapTypeList; ADefaultMapGUID: TGUID);
   end;
 
 implementation
@@ -57,7 +57,7 @@ uses
 
 { TMainFormConfig }
 
-constructor TMainFormConfig.Create(AGeoCoderList: IGeoCoderList; AMapsList, ALayersList: IMapTypeList);
+constructor TMainFormConfig.Create(AGeoCoderList: IGeoCoderList; AMapsList, ALayersList: IMapTypeList; ADefaultMapGUID: TGUID);
 begin
   inherited Create;
   FMainConfig := TMainFormMainConfig.Create;
@@ -70,7 +70,7 @@ begin
   Add(FGPSBehaviour, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MainFormGPSEvents'));
   FMainGeoCoderConfig := TMainGeoCoderConfig.Create(AGeoCoderList);
   Add(FMainGeoCoderConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'));
-  FMainMapsConfig := TMainMapsConfig.Create(AMapsList, ALayersList);
+  FMainMapsConfig := TMainMapsConfig.Create(AMapsList, ALayersList, ADefaultMapGUID);
   Add(FMainMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
   FViewPortState := TMapViewPortStateNew.Create(FMainMapsConfig);
   Add(FViewPortState, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Position'));

@@ -341,7 +341,8 @@ begin
   FMainFormConfig := TMainFormConfig.Create(
     FGeoCoderList,
     FMainMapsList.MapsList,
-    FMainMapsList.LayersList
+    FMainMapsList.LayersList,
+    FMainMapsList[0].GUID
   );
   FCacheConfig.LoadConfig(FMainConfigProvider);
   LoadMapIconsList;

@@ -16,7 +16,7 @@ type
     function GetBitmapLayersSet: IActiveMapsSet;
     function GetKmlLayersSet: IActiveMapsSet;
   public
-    constructor Create(AMapsList, ALayersList: IMapTypeList);
+    constructor Create(AMapsList, ALayersList: IMapTypeList; ADefaultMapGUID: TGUID);
     destructor Destroy; override;
   end;
 
@@ -29,7 +29,7 @@ uses
 
 { TMainMapsConfig }
 
-constructor TMainMapsConfig.Create(AMapsList, ALayersList: IMapTypeList);
+constructor TMainMapsConfig.Create(AMapsList, ALayersList: IMapTypeList; ADefaultMapGUID: TGUID);
 var
   VEnun: IEnumGUID;
   VGUID: TGUID;
@@ -71,6 +71,7 @@ begin
     LayerSetUnselectNotyfier
   );
   Add(FKmlLayersSet, nil);
+  SelectMainByGUID(ADefaultMapGUID);
 end;
 
 destructor TMainMapsConfig.Destroy;

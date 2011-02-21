@@ -69,6 +69,7 @@ begin
 
   FSourceMap := TFillingMapMapsConfig.Create(AMapsConfig);
   Add(FSourceMap, TConfigSaveLoadStrategyBasicUseProvider.Create);
+  FStatic := CreateStatic;
 end;
 
 function TFillingMapLayerConfig.CreateStatic: IFillingMapLayerConfigStatic;

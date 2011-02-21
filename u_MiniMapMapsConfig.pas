@@ -50,6 +50,8 @@ begin
 
   FSelectedMapChangeListener := TNotifyWithGUIDEventListener.Create(Self.OnSelectedChange);
   MainMapChangeNotyfier.Add(FSelectedMapChangeListener);
+
+  OnSelectedChange(GetActiveMap.GetSelectedGUID);
 end;
 
 destructor TMiniMapMapsConfig.Destroy;
