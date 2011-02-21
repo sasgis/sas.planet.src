@@ -165,13 +165,17 @@ var
   VDistToPrev: Double;
 begin
   VPosition := FGPSModule.Position;
-  if (VPosition.IsFix=0) then exit;
+  if FLogWriter.Started then begin
+    FLogWriter.AddPoint(VPosition);
+  end;
   VPointCurr := VPosition.Position;
+  VPointPrev := FGPSRecorder.GetLastPoint;
+  VTrackPoint.Point := VPointCurr;
+  VTrackPoint.Speed := VPosition.Speed_KMH;
+  FGPSRecorder.AddPoint(VTrackPoint);
+
+  if (VPosition.IsFix=0) then exit;
   if (VPointCurr.x<>0)or(VPointCurr.y<>0) then begin
-    VPointPrev := GPSRecorder.GetLastPoint;
-    VTrackPoint.Point := VPointCurr;
-    VTrackPoint.Speed := VPosition.Speed_KMH;
-    GPSRecorder.AddPoint(VTrackPoint);
     speed:=VTrackPoint.Speed;
     if maxspeed < speed then begin
       maxspeed:=speed;
@@ -187,9 +191,6 @@ begin
       Odometr2:=Odometr2+VDistToPrev;
       azimut:=VPosition.Heading;
     end;
-  end;
-  if FLogWriter.Started then begin
-    FLogWriter.AddPoint(VPosition);
   end;
 end;
 

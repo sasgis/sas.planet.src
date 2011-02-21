@@ -33,19 +33,29 @@ implementation
 { TGPSRecorderStuped }
 
 procedure TGPSRecorderStuped.AddPoint(APoint: TGPSTrackPoint);
+var
+  VIsAddPointEmpty: Boolean;
+  VIsLastPointEmpty: Boolean;
 begin
+  VIsAddPointEmpty := (APoint.Point.X = 0) and (APoint.Point.Y = 0);
+  VIsLastPointEmpty := True;
   FLock.BeginWrite;
   try
-    if FPointsCount >= FAllocatedPoints then begin
-      if FAllocatedPoints <= 0 then begin
-        FAllocatedPoints := 4096;
-      end else begin
-        Inc(FAllocatedPoints, 4096);
-      end;
-      SetLength(FTrack, FAllocatedPoints);
+    if FPointsCount > 0 then begin
+      VIsLastPointEmpty := (FTrack[FPointsCount - 1].Point.X = 0) and (FTrack[FPointsCount - 1].Point.Y = 0);
     end;
-    FTrack[FPointsCount] := APoint;
-    Inc(FPointsCount);
+    if (not VIsLastPointEmpty) or (not VIsAddPointEmpty) then begin
+      if FPointsCount >= FAllocatedPoints then begin
+        if FAllocatedPoints <= 0 then begin
+          FAllocatedPoints := 4096;
+        end else begin
+          Inc(FAllocatedPoints, 4096);
+        end;
+        SetLength(FTrack, FAllocatedPoints);
+      end;
+      FTrack[FPointsCount] := APoint;
+      Inc(FPointsCount);
+    end;
   finally
     FLock.EndWrite;
   end;
@@ -117,24 +127,26 @@ function TGPSRecorderStuped.GetTwoLastPoints(var APointLast,
   APointPrev: TDoublePoint): Boolean;
 begin
   Result := False;
+  APointLast.X := 0;
+  APointLast.Y := 0;
+  APointPrev := APointLast;
   FLock.BeginRead;
   try
-    if FPointsCount = 0 then begin
-      APointLast.X := 0;
-      APointLast.Y := 0;
-      APointPrev := APointLast;
-    end else begin
+    if FPointsCount > 0 then begin
+      APointLast := FTrack[FPointsCount - 1].Point;
       if FPointsCount > 1 then begin
-        APointLast := FTrack[FPointsCount - 1].Point;
         APointPrev := FTrack[FPointsCount - 2].Point;
-        Result := True;
       end else begin
-        APointLast := FTrack[FPointsCount - 1].Point;
         APointPrev := APointLast;
       end;
     end;
   finally
     FLock.EndRead;
+  end;
+  if (APointLast.X = 0) and (APointLast.Y = 0) then begin
+    APointPrev := APointLast;
+  end else if not((APointPrev.X = 0) and (APointPrev.Y = 0)) then begin
+    Result := True;
   end;
 end;
 
