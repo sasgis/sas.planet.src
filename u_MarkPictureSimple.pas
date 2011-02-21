@@ -61,9 +61,9 @@ end;
 
 procedure TMarkPictureSimple.LoadBitmap(ABmp: TCustomBitmap32);
 begin
-  ABmp.SetSize(FBitmap.Width, FBitmap.Height);
+  ABmp.SetSize(FBitmapSize.X, FBitmapSize.Y);
   if not FBitmap.Empty then
-    MoveLongword(FBitmap.Bits[0], ABmp.Bits[0], FBitmap.Width * FBitmap.Height);
+    MoveLongword(FBitmap.Bits[0], ABmp.Bits[0], FBitmapSize.X * FBitmapSize.Y);
 end;
 
 end.
