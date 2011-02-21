@@ -384,13 +384,20 @@ begin
   finally
     GState.MainFormConfig.LayersConfig.GPSTrackConfig.UnlockWrite;
   end;
- GState.GPSpar.GPSSettings.ConnectionTimeout:=SpinEdit2.Value;
- GState.GPSpar.GPS_WriteLog:=CB_GPSlog.Checked;
- GState.GPSpar.GPSSettings.NMEALog:=CB_GPSlogNmea.Checked;
- GState.GPSpar.GPSSettings.Delay:=SpinEdit1.Value;
- GState.MainFormConfig.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
- GState.GPSpar.GPSSettings.Port := StrToInt(Copy(ComboBoxCOM.Text, 4, 2));
- GState.GPSpar.GPSSettings.BaudRate:=StrToint(ComboBoxBoudRate.Text);
+  GState.GPSConfig.LockWrite;
+  try
+    GState.GPSConfig.ModuleConfig.ConnectionTimeout:=SpinEdit2.Value;
+    GState.GPSConfig.ModuleConfig.NMEALog:=CB_GPSlogNmea.Checked;
+    GState.GPSConfig.ModuleConfig.Delay:=SpinEdit1.Value;
+    GState.GPSConfig.ModuleConfig.Port := StrToInt(Copy(ComboBoxCOM.Text, 4, 2));
+    GState.GPSConfig.ModuleConfig.BaudRate:=StrToint(ComboBoxBoudRate.Text);
+
+    GState.GPSpar.GPS_WriteLog:=CB_GPSlog.Checked;
+  finally
+    GState.GPSConfig.UnlockWrite;
+  end;
+
+  GState.MainFormConfig.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
   GState.MainFormConfig.GPSBehaviour.SensorsAutoShow := CBSensorsBarAutoShow.Checked;
   VInetConfig :=GState.InetConfig;
   VInetConfig.LockWrite;
@@ -629,10 +636,17 @@ begin
  ESCPath.text:=GState.CacheConfig.ESCPath;
  GMTilesPath.text:=GState.CacheConfig.GMTilesPath;
  GECachePath.text:=GState.CacheConfig.GECachePath;
- SpinEdit2.Value:=GState.GPSpar.GPSSettings.ConnectionTimeout;
- CB_GPSlog.Checked:=GState.GPSpar.GPS_WriteLog;
- CB_GPSlogNmea.Checked:=GState.GPSpar.GPSSettings.NMEALog;
- SpinEdit1.Value:=GState.GPSpar.GPSSettings.Delay;
+  GState.GPSConfig.LockRead;
+  try
+    SpinEdit2.Value:=GState.GPSConfig.ModuleConfig.ConnectionTimeout;
+    CB_GPSlogNmea.Checked:=GState.GPSConfig.ModuleConfig.NMEALog;
+    SpinEdit1.Value:=GState.GPSConfig.ModuleConfig.Delay;
+    ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSConfig.ModuleConfig.Port);
+    ComboBoxBoudRate.Text:=inttostr(GState.GPSConfig.ModuleConfig.BaudRate);
+    CB_GPSlog.Checked:=GState.GPSpar.GPS_WriteLog;
+  finally
+    GState.GPSConfig.UnlockRead;
+  end;
   SESizeStr.Value:=GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedSize;
   GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockRead;
   try
@@ -644,8 +658,6 @@ begin
   CBSensorsBarAutoShow.Checked := GState.MainFormConfig.GPSBehaviour.SensorsAutoShow;
   InitResamplersList(GState.ImageResamplerConfig.GetList, ComboBox2);
   ComboBox2.ItemIndex := GState.ImageResamplerConfig.ActiveIndex;
-  ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSpar.GPSSettings.Port);
-  ComboBoxBoudRate.Text:=inttostr(GState.GPSpar.GPSSettings.BaudRate);
   GState.ValueToStringConverterConfig.LockRead;
   try
     ChBoxFirstLat.Checked:=GState.ValueToStringConverterConfig.IsLatitudeFirst;

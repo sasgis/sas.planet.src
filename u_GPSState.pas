@@ -23,7 +23,6 @@ type
     FDatum: IDatum;
     FLogPath: string;
     FGPSRecorder: IGPSRecorder;
-    FSettings: IGPSModuleByCOMPortConfig;
     FGPSModule: IGPSModule;
     FGPSModuleByCOM: IGPSModuleByCOM;
     GPS_enab: Boolean;
@@ -35,6 +34,7 @@ type
     procedure OnGpsConnect(Sender: TObject);
     procedure OnGpsDataReceive(Sender: TObject);
     procedure OnGpsDisconnect(Sender: TObject);
+    procedure OnConfigChange(Sender: TObject);
   public
     speed: Double;
     len: Double;
@@ -60,7 +60,6 @@ type
     procedure Disconnect;
 
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
-    property GPSSettings: IGPSModuleByCOMPortConfig read FSettings;
     property GPSModule: IGPSModule read FGPSModule;
   end;
 
@@ -78,7 +77,7 @@ uses
 procedure TGPSpar.Connect;
 begin
   GPS_enab := True;
-  FGPSModuleByCOM.Connect(FSettings.GetStatic);
+  FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic);
 end;
 
 constructor TGPSpar.Create(ALogPath: string; AConfig: IGPSConfig);
@@ -87,7 +86,6 @@ begin
   FDatum := TDatum.Create(3395, 6378137, 6356752);
   FLogPath := ALogPath;
   FGPSRecorder := TGPSRecorderStuped.Create;
-  FSettings := TGPSModuleByCOMPortSettings.Create(FLogPath);
   FLogWriter := TPltLogWriter.Create(FLogPath);
   FGPSModuleByCOM := TGPSModuleByZylGPS.Create;
   FGPSModule := FGPSModuleByCOM;
@@ -105,6 +103,12 @@ begin
     TNotifyEventListener.Create(Self.OnGpsDisconnect),
     FGPSModule.DisconnectedNotifier
   );
+
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
+
   GPS_enab := False;
   GPS_WriteLog := true;
   Odometr := 0;
@@ -115,7 +119,6 @@ destructor TGPSpar.Destroy;
 begin
   FLinksList := nil;
   FGPSRecorder := nil;
-  FSettings := nil;
   FGPSModule := nil;
   FreeAndNil(FLogWriter);
   inherited;
@@ -139,7 +142,11 @@ begin
     Odometr := VConfigProvider.ReadFloat('Odometr', Odometr);
     Odometr2 := VConfigProvider.ReadFloat('Odometr2', Odometr2);
   end;
-  FSettings.ReadConfig(VConfigProvider);
+end;
+
+procedure TGPSpar.OnConfigChange(Sender: TObject);
+begin
+
 end;
 
 procedure TGPSpar.OnGpsConnect;
@@ -214,7 +221,6 @@ begin
 
   VConfigProvider.WriteFloat('Odometr', Odometr);
   VConfigProvider.WriteFloat('Odometr2', Odometr2);
-  FSettings.WriteConfig(VConfigProvider);
 end;
 
 procedure TGPSpar.SendTerminateToThreads;
@@ -227,7 +233,7 @@ procedure TGPSpar.StartThreads;
 begin
   FLinksList.ActivateLinks;
   if GPS_enab then begin
-    FGPSModuleByCOM.Connect(FSettings.GetStatic);
+    Connect;
   end;
 end;
 
