@@ -80,7 +80,6 @@ begin
   FDeltaSizeInPixel := Point(128, 128);
 
   FTempBmp := TCustomBitmap32.Create;
-  FTempBmp.DrawMode := dmBlend;
   FTempBmp.Resampler := TLinearResampler.Create;
 
   FBitmapWithText := TBitmap32.Create;
@@ -183,6 +182,8 @@ begin
     APic.LoadBitmap(FTempBmp);
     VDstRect := bounds(xy.x - (AMarkSize div 2), xy.y - AMarkSize, AMarkSize, AMarkSize);
     VSrcRect := bounds(0, 0, FTempBmp.Width, FTempBmp.Height);
+    FTempBmp.DrawMode := dmBlend;
+    FTempBmp.CombineMode := cmMerge;
     ATargetBmp.Draw(VDstRect, VSrcRect, FTempBmp);
   end;
   if AFontSize > 0 then begin
