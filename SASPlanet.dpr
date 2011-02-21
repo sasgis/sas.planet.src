@@ -391,6 +391,8 @@ uses
   i_IGPSModuleByCOMPortSettings in 'i_IGPSModuleByCOMPortSettings.pas',
   u_GPSModuleByCOMPortSettings in 'u_GPSModuleByCOMPortSettings.pas',
   u_GPSModuleByCOMPortConfigSatic in 'u_GPSModuleByCOMPortConfigSatic.pas',
+  i_IGPSConfig in 'i_IGPSConfig.pas',
+  u_GPSConfig in 'u_GPSConfig.pas',
   u_GPSSatelliteInfo in 'u_GPSSatelliteInfo.pas',
   u_GPSSatellitesInView in 'u_GPSSatellitesInView.pas',
   u_GPSPositionStatic in 'u_GPSPositionStatic.pas',

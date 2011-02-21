@@ -103,6 +103,7 @@
     <DCCReference Include="i_IDownloadUIConfig.pas" />
     <DCCReference Include="i_IFillingMapLayerConfig.pas" />
     <DCCReference Include="i_IGeoCoderList.pas" />
+    <DCCReference Include="i_IGPSConfig.pas" />
     <DCCReference Include="i_IGPSModule.pas" />
     <DCCReference Include="i_IGPSModuleByCOM.pas" />
     <DCCReference Include="i_IGPSModuleByCOMPortSettings.pas" />
@@ -428,6 +429,7 @@
     <DCCReference Include="u_GETexture.pas" />
     <DCCReference Include="u_GlobalCahceConfig.pas" />
     <DCCReference Include="u_GlobalState.pas" />
+    <DCCReference Include="u_GPSConfig.pas" />
     <DCCReference Include="u_GPSLogWriterToPlt.pas" />
     <DCCReference Include="u_GPSModuleAbstract.pas" />
     <DCCReference Include="u_GPSModuleByCOMPortConfigSatic.pas" />
