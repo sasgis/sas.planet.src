@@ -35,6 +35,7 @@ uses
   UMapType,
   u_MapTypesMainList,
   u_MemFileCache,
+  i_IGPSConfig,
   u_GPSState,
   u_GlobalCahceConfig;
 
@@ -62,6 +63,7 @@ type
     FMainMapsList: TMapTypesMainList;
     FInetConfig: IInetConfig;
     FProxySettings: IProxySettings;
+    FGPSConfig: IGPSConfig;
     FGSMpar: IGSMGeoCodeConfig;
     FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
@@ -148,6 +150,7 @@ type
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
     property MainMemCache: IMemObjCache read FMainMemCache;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
+    property GPSConfig: IGPSConfig read FGPSConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -183,6 +186,7 @@ uses
   u_DownloadInfoSimple,
   u_InetConfig,
   u_GSMGeoCodeConfig,
+  u_GPSConfig,
   u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,
   u_ValueToStringConverterConfig,
@@ -221,6 +225,7 @@ begin
     );
   FInetConfig := TInetConfig.Create;
   FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
+  FGPSConfig := TGPSConfig.Create(GetTrackLogPath);
   FGSMpar := TGSMGeoCodeConfig.Create;
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
@@ -236,7 +241,7 @@ begin
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
-  GPSpar := TGPSpar.Create(GetTrackLogPath);
+  GPSpar := TGPSpar.Create(GetTrackLogPath, FGPSConfig);
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
@@ -265,6 +270,7 @@ begin
   FMapTypeIcons18List := nil;
   FMapTypeIcons24List := nil;
   FLastSelectionInfo := nil;
+  FGPSConfig := nil;
   FreeAndNil(GPSpar);
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
@@ -346,6 +352,7 @@ begin
   );
   FCacheConfig.LoadConfig(FMainConfigProvider);
   LoadMapIconsList;
+  FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   GPSpar.LoadConfig(MainConfigProvider);
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
@@ -434,6 +441,7 @@ begin
   MainIni.WriteBool('INTERNET','SessionLastSuccess',SessionLastSuccess);
 
   MainIni.Writebool('NPARAM','stat',WebReportToAuthor);
+  FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   GPSpar.SaveConfig(MainConfigProvider);
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));

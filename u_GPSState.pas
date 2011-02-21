@@ -9,6 +9,7 @@ uses
   i_IGPSRecorder,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
+  i_IGPSConfig,
   i_IGPSModule,
   i_IGPSModuleByCOM,
   i_IGPSModuleByCOMPortSettings,
@@ -18,6 +19,7 @@ uses
 type
   TGPSpar = class
   private
+    FConfig: IGPSConfig;
     FDatum: IDatum;
     FLogPath: string;
     FGPSRecorder: IGPSRecorder;
@@ -48,7 +50,7 @@ type
 
     //Заисывать GPS трек в файл
     GPS_WriteLog: boolean;
-    constructor Create(ALogPath: string);
+    constructor Create(ALogPath: string; AConfig: IGPSConfig);
     destructor Destroy; override;
     procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure StartThreads; virtual;
@@ -79,8 +81,9 @@ begin
   FGPSModuleByCOM.Connect(FSettings.GetStatic);
 end;
 
-constructor TGPSpar.Create(ALogPath: string);
+constructor TGPSpar.Create(ALogPath: string; AConfig: IGPSConfig);
 begin
+  FConfig := AConfig;
   FDatum := TDatum.Create(3395, 6378137, 6356752);
   FLogPath := ALogPath;
   FGPSRecorder := TGPSRecorderStuped.Create;
