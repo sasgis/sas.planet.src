@@ -63,7 +63,12 @@ procedure TMapGPSLayer.DrawPath;
 var
   j, speed: integer;
   VPolygon: TPolygon32;
-  VPointPrev, VPointCurr: TDoublePoint;
+  VMapPointCurr: TDoublePoint;
+  VMapPointPrev: TDoublePoint;
+  VPointCurrIsEmpty: Boolean;
+  VPointPrevIsEmpty: Boolean;
+  VPointPrev: TDoublePoint;
+  VPointCurr: TDoublePoint;
   VPointsCount: Integer;
   VSegmentColor: TColor32;
   VSpeed: Extended;
@@ -71,6 +76,7 @@ var
   VPoints: TGPSTrackPointArray;
   VLocalConverter: ILocalCoordConverter;
   VLineWidth: Double;
+  VIsChangePrevPoint: Boolean;
 begin
   FConfig.LockRead;
   try
@@ -96,33 +102,48 @@ begin
         VPolygon.Antialiased := true;
         VPolygon.AntialiasMode := am4times;
         VPolygon.Closed := false;
-        VPointPrev := VLocalConverter.LonLat2LocalPixelFloat(VPoints[0].Point);
+        VMapPointPrev := VPoints[0].Point;
+        VPointPrevIsEmpty := (VMapPointPrev.X = 0) and (VMapPointPrev.Y = 0);
+        VPointPrev := VLocalConverter.LonLat2LocalPixelFloat(VMapPointPrev);
         for j := 1 to VPointsCount - 1 do begin
-          VPointCurr := VLocalConverter.LonLat2LocalPixelFloat(VPoints[j].Point);
-          VSpeed := VPoints[j - 1].Speed;
-          if (VMaxSpeed > 0) then begin
-            speed := round((255 * VSpeed) / VMaxSpeed);
-          end else begin
-            speed := 0;
-          end;
-          VSegmentColor := Color32(speed, 0, 256 - speed, 150);
-          if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
-            if (VPointPrev.x < 32767) and (VPointPrev.x > -32767) and (VPointPrev.y < 32767) and (VPointPrev.y > -32767) then begin
-              VPolygon.Add(FixedPoint(VPointPrev.X, VPointPrev.Y));
-              VPolygon.Add(FixedPoint(VPointCurr.X, VPointCurr.Y));
-              with VPolygon.Outline do try
-                with Grow(Fixed(VLineWidth / 2), 0.5) do try
-                  DrawFill(FLayer.Bitmap, VSegmentColor);
+          VMapPointCurr := VPoints[j].Point;
+          VPointCurrIsEmpty := (VMapPointCurr.X = 0) and (VMapPointCurr.Y = 0);
+          if (not VPointCurrIsEmpty) and (not VPointPrevIsEmpty) then begin
+            VPointCurr := VLocalConverter.LonLat2LocalPixelFloat(VMapPointCurr);
+            if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
+              if (VPointPrev.x < 32767) and (VPointPrev.x > -32767) and (VPointPrev.y < 32767) and (VPointPrev.y > -32767) then begin
+                VPolygon.Add(FixedPoint(VPointPrev.X, VPointPrev.Y));
+                VPolygon.Add(FixedPoint(VPointCurr.X, VPointCurr.Y));
+                with VPolygon.Outline do try
+                  with Grow(Fixed(VLineWidth / 2), 0.5) do try
+                    VSpeed := VPoints[j - 1].Speed;
+                    if (VMaxSpeed > 0) then begin
+                      speed := round((255 * VSpeed) / VMaxSpeed);
+                    end else begin
+                      speed := 0;
+                    end;
+                    VSegmentColor := Color32(speed, 0, 256 - speed, 150);
+                    DrawFill(FLayer.Bitmap, VSegmentColor);
+                  finally
+                    free;
+                  end;
                 finally
                   free;
                 end;
-              finally
-                free;
+                VPolygon.Clear;
               end;
-              VPolygon.Clear;
+              VIsChangePrevPoint := True;
+            end else begin
+              VIsChangePrevPoint := False;
             end;
+          end else begin
+            VIsChangePrevPoint := True;
           end;
-          VPointPrev := VPointCurr;
+          if VIsChangePrevPoint then begin
+            VMapPointPrev := VMapPointCurr;
+            VPointPrev := VPointCurr;
+            VPointPrevIsEmpty := VPointCurrIsEmpty;
+          end;
         end;
       finally
         VPolygon.Free;
