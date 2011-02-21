@@ -98,9 +98,6 @@ type
 
     GPSpar: TGPSpar;
 
-    // Количество тайлов отображаемых за границей экрана
-    TilesOut: Integer;
-
     //Использовать тайлы предыдущих уровней для отображения
     UsePrevZoom: Boolean;
     //Использовать тайлы предыдущих уровней для отображения (для слоев)
@@ -381,7 +378,6 @@ end;
 procedure TGlobalState.LoadMainParams;
 begin
   WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
-  TilesOut:=MainIni.readInteger('VIEW','TilesOut',0);
   SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', false);
 
   TwoDownloadAttempt:=MainIni.ReadBool('INTERNET','DblDwnl',true);
@@ -427,7 +423,6 @@ begin
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
-  MainIni.WriteInteger('VIEW','TilesOut',TilesOut);
   MainIni.Writebool('VIEW','back_load',UsePrevZoom);
   MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
   MainIni.WriteInteger('VIEW','Background',BGround);

@@ -444,7 +444,7 @@ begin
 
  GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
 
- GState.TilesOut:=TilesOverScreenEdit.Value;
+  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
  SetProxy;
 
@@ -662,7 +662,8 @@ begin
     GState.MainFormConfig.LayersConfig.KmlLayerConfig.UnlockRead;
   end;
 
- TilesOverScreenEdit.Value:=GState.TilesOut;
+  TilesOverScreenEdit.Value := GState.MainFormConfig.DownloadUIConfig.TilesOut;
+
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
  frShortCutList.SetShortCutManager(Fmain.ShortCutManager);
