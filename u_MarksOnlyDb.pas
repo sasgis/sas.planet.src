@@ -65,8 +65,7 @@ uses
   DB,
   GR32,
   Ugeofun,
-  u_MarksSubset,
-  u_MarksSimpleNew;
+  u_MarksSubset;
 
 type
   TExtendedPoint = record
