@@ -208,7 +208,7 @@ begin
             VPicName := cbbPointIcon.Items.Strings[VIndex];
           end;
           VMarkTemplatePoint :=
-            FMarkDBGUI.MarksDB.MarksDb.Factory.CreatePointTemplate(
+            FMarkDBGUI.MarksDB.MarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
               VPicName,
               VPic,
               VId,
@@ -221,7 +221,7 @@ begin
         VMarkTemplateLine := nil;
         if not chkLineIgnore.Checked then begin
           VMarkTemplateLine :=
-            FMarkDBGUI.MarksDB.MarksDb.Factory.CreateLineTemplate(
+            FMarkDBGUI.MarksDB.MarksDb.Factory.Config.LineTemplateConfig.CreateTemplate(
               VId,
               SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
               seLineWidth.Value
@@ -230,7 +230,7 @@ begin
         VMarkTemplatePoly := nil;
         if not chkPolyIgnore.Checked then begin
           VMarkTemplatePoly :=
-            FMarkDBGUI.MarksDB.MarksDb.Factory.CreatePolyTemplate(
+            FMarkDBGUI.MarksDB.MarksDb.Factory.Config.PolyTemplateConfig.CreateTemplate(
               VId,
               SetAlpha(Color32(clrbxPolyLineColor.Selected),round(((100-sePolyLineTransp.Value)/100)*256)),
               SetAlpha(Color32(clrbxPolyFillColor.Selected),round(((100-sePolyFillTransp.Value)/100)*256)),

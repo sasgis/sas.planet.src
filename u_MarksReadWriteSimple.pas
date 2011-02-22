@@ -9,6 +9,7 @@ uses
   i_IConfigDataWriteProvider,
   dm_MarksDb,
   i_IMarkPicture,
+  i_IMarksFactoryConfig,
   u_MarksOnlyDb,
   u_MarkCategoryDB,
   u_MarksSimple;
@@ -22,7 +23,7 @@ type
     FMarksDb: TMarksOnlyDb;
     FCategoryDB: TMarkCategoryDB;
   public
-    constructor Create(ABasePath: string; AMarkPictureList: IMarkPictureList);
+    constructor Create(ABasePath: string; AMarkPictureList: IMarkPictureList; AFactoryConfig: IMarksFactoryConfig);
     destructor Destroy; override;
 
     procedure ReadConfig(AConfigData: IConfigDataProvider);
@@ -41,11 +42,11 @@ uses
 
 { TMarksDB }
 
-constructor TMarksDB.Create(ABasePath: string; AMarkPictureList: IMarkPictureList);
+constructor TMarksDB.Create(ABasePath: string; AMarkPictureList: IMarkPictureList; AFactoryConfig: IMarksFactoryConfig);
 begin
   FBasePath := ABasePath;
   FDMMarksDb := TDMMarksDb.Create(nil);
-  FMarksDb := TMarksOnlyDb.Create(ABasePath, AMarkPictureList, FDMMarksDb);
+  FMarksDb := TMarksOnlyDb.Create(ABasePath, AMarkPictureList, FDMMarksDb, AFactoryConfig);
   FCategoryDB := TMarkCategoryDB.Create(ABasePath, FMarksDb, FDMMarksDb);
 end;
 
