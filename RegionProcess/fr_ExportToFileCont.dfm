@@ -173,6 +173,7 @@ object frExportToFileCont: TfrExportToFileCont
   object dlgSaveTargetFile: TSaveDialog
     DefaultExt = 'zip'
     Filter = 'Zip |*.zip'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 40
     Top = 128
   end

@@ -5195,6 +5195,7 @@ object Fmain: TFmain
   object SaveLink: TSaveDialog
     DefaultExt = 'lnk'
     Filter = #1071#1088#1083#1099#1082'|*.lnk'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 113
     Top = 212
   end
