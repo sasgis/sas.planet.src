@@ -36,6 +36,7 @@ uses
   u_MapTypesMainList,
   u_MemFileCache,
   i_IGPSConfig,
+  i_IMarksFactoryConfig,
   u_GPSState,
   u_GlobalCahceConfig;
 
@@ -75,6 +76,7 @@ type
     FMainMemCache: IMemObjCache;
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
+    FMarksFactoryConfig: IMarksFactoryConfig;
     function GetMarkIconsPath: string;
     function GetMapsPath: string;
     function GetTrackLogPath: string;
@@ -151,6 +153,7 @@ type
     property MainMemCache: IMemObjCache read FMainMemCache;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
+    property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -187,6 +190,7 @@ uses
   u_InetConfig,
   u_GSMGeoCodeConfig,
   u_GPSConfig,
+  u_MarksFactoryConfig,
   u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,
   u_ValueToStringConverterConfig,
@@ -245,6 +249,7 @@ begin
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
+  FMarksFactoryConfig := TMarksFactoryConfig.Create(FMarkPictureList);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList);
 end;
 
@@ -282,6 +287,7 @@ begin
   FBitmapPostProcessingConfig := nil;
   FValueToStringConverterConfig := nil;
   FMainMemCacheConfig := nil;
+  FMarksFactoryConfig := nil;
   FMarkPictureList := nil;
   FreeAndNil(FCacheConfig);
   inherited;
@@ -363,6 +369,7 @@ begin
   FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FMarkPictureList.ReadConfig(MainConfigProvider);
+  FMarksFactoryConfig.ReadConfig(MainConfigProvider);
   FMarksDb.ReadConfig(MainConfigProvider);
 end;
 
@@ -454,6 +461,7 @@ begin
   FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMarkPictureList.WriteConfig(MainConfigProvider);
+  FMarksFactoryConfig.WriteConfig(MainConfigProvider);
   FMarksDb.WriteConfig(MainConfigProvider);
 end;
 
