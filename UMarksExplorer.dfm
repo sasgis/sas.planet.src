@@ -3,7 +3,7 @@ object FMarksExplorer: TFMarksExplorer
   Top = 186
   Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
   ClientHeight = 406
-  ClientWidth = 578
+  ClientWidth = 577
   Color = clBtnFace
   Constraints.MinHeight = 309
   Constraints.MinWidth = 406
@@ -17,113 +17,105 @@ object FMarksExplorer: TFMarksExplorer
     AlignWithMargins = True
     Left = 3
     Top = 352
-    Width = 572
+    Width = 571
     Height = 51
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 381
-    ExplicitWidth = 571
+    ExplicitWidth = 572
     object RBall: TRadioButton
       Left = 0
       Top = 17
-      Width = 572
+      Width = 571
       Height = 17
       Align = alTop
       Caption = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
       TabOrder = 0
-      ExplicitTop = 19
-      ExplicitWidth = 145
+      ExplicitWidth = 572
     end
     object RBchecked: TRadioButton
       Left = 0
       Top = 0
-      Width = 572
+      Width = 571
       Height = 17
       Align = alTop
       Caption = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1091#1082#1072#1079#1072#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
       TabOrder = 1
-      ExplicitLeft = 8
-      ExplicitTop = 11
-      ExplicitWidth = 225
+      ExplicitWidth = 572
     end
     object RBnot: TRadioButton
       Left = 0
       Top = 34
-      Width = 572
+      Width = 571
       Height = 17
       Align = alTop
       Caption = #1053#1077' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1084#1077#1090#1082#1080
       TabOrder = 2
-      ExplicitLeft = -3
-      ExplicitTop = 40
-      ExplicitWidth = 571
+      ExplicitWidth = 572
     end
   end
   object pnlMainWithButtons: TPanel
     Left = 0
     Top = 0
-    Width = 578
+    Width = 577
     Height = 349
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 578
     object pnlButtons: TPanel
       AlignWithMargins = True
-      Left = 494
+      Left = 497
       Top = 3
-      Width = 81
+      Width = 77
       Height = 343
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
       ExplicitLeft = 495
-      ExplicitTop = -1
-      ExplicitHeight = 224
-      object Button1: TButton
-        AlignWithMargins = True
+      object btnExport: TTBXButton
         Left = 3
-        Top = 3
-        Width = 75
-        Height = 25
-        Align = alTop
-        Caption = #1048#1084#1087#1086#1088#1090
+        Top = 56
+        Width = 70
+        Height = 21
+        DropDownCombo = True
+        DropDownMenu = PopupExport
+        ImageIndex = 0
         TabOrder = 0
-        OnClick = Button1Click
+        OnClick = btnExportClick
+        Caption = #1069#1082#1089#1087#1086#1088#1090
       end
-      object Button2: TButton
-        AlignWithMargins = True
+      object btnAccept: TTBXButton
         Left = 3
-        Top = 65
-        Width = 75
-        Height = 25
-        Align = alTop
-        Cancel = True
-        Caption = #1047#1072#1082#1088#1099#1090#1100
+        Top = 2
+        Width = 70
+        Height = 21
+        ImageIndex = 0
         TabOrder = 1
-        OnClick = Button2Click
-      end
-      object Button3: TButton
-        AlignWithMargins = True
-        Left = 3
-        Top = 34
-        Width = 75
-        Height = 25
-        Align = alTop
+        OnClick = btnAcceptClick
         Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
+      end
+      object btn_Close: TTBXButton
+        Left = 3
+        Top = 91
+        Width = 70
+        Height = 21
+        ImageIndex = 0
         TabOrder = 2
-        OnClick = Button3Click
+        OnClick = btn_CloseClick
+        Caption = #1047#1072#1082#1088#1099#1090#1100
       end
     end
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 491
+      Width = 494
       Height = 349
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitWidth = 491
       object splCatMarks: TSplitter
         Left = 178
         Top = 0
@@ -135,16 +127,17 @@ object FMarksExplorer: TFMarksExplorer
       object grpMarks: TGroupBox
         Left = 181
         Top = 0
-        Width = 310
+        Width = 313
         Height = 349
         Align = alClient
         Caption = #1052#1077#1090#1082#1080
         TabOrder = 0
+        ExplicitWidth = 310
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
           Top = 53
-          Width = 300
+          Width = 303
           Height = 268
           OnClickCheck = MarksListBoxClickCheck
           Align = alClient
@@ -152,31 +145,31 @@ object FMarksExplorer: TFMarksExplorer
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
+          ExplicitWidth = 300
         end
         object CheckBox1: TCheckBox
           AlignWithMargins = True
           Left = 5
           Top = 327
-          Width = 300
+          Width = 303
           Height = 17
           Align = alBottom
           Caption = #1042#1089#1077
           TabOrder = 1
           OnClick = CheckBox1Click
-          ExplicitLeft = 34
-          ExplicitTop = 360
-          ExplicitWidth = 41
+          ExplicitWidth = 300
         end
         object pnlMarksTop: TPanel
           AlignWithMargins = True
           Left = 5
           Top = 18
-          Width = 300
+          Width = 303
           Height = 29
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 2
-          ExplicitWidth = 358
+          ExplicitLeft = 6
+          ExplicitWidth = 300
           object Bevel2: TBevel
             AlignWithMargins = True
             Left = 61
@@ -486,6 +479,88 @@ object FMarksExplorer: TFMarksExplorer
             ExplicitLeft = 8
             ExplicitTop = 12
           end
+          object Bevel1: TBevel
+            AlignWithMargins = True
+            Left = 157
+            Top = 3
+            Width = 3
+            Height = 23
+            Align = alLeft
+            Shape = bsLeftLine
+            ExplicitLeft = 169
+            ExplicitTop = 6
+          end
+          object btnExportMark: TSpeedButton
+            Left = 163
+            Top = 0
+            Width = 29
+            Height = 29
+            Hint = #1053#1072#1074#1080#1075#1072#1094#1080#1103' '#1085#1072' '#1074#1099#1073#1088#1072#1085#1085#1091#1102' '#1084#1077#1090#1082#1091
+            Align = alLeft
+            AllowAllUp = True
+            GroupIndex = 1
+            Glyph.Data = {
+              F6060000424DF606000000000000360000002800000018000000180000000100
+              180000000000C006000000000000000000000000000000000000FFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFF80008040008040008040008040008040008040008040
+              00FF8000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8000FF8000FFFFFF804000804000FF8000
+              FF8000804000FFFFFFFF8000FF8000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFF06071A000000FFFFFFFFFFFFFFFFFF804000FFFFFFFFFFFF80
+              4000804000804000804000804000FFFFFFFFFFFF804000FFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF03030C000000FFFFFFFFFFFFFFFFFF8040
+              00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF804000FF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF080A1F020209FFFFFF
+              FFFFFFFFFFFF804000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFF804000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF16
+              1B4E10133BFFFFFFFFFFFFFFFFFF804000FFFFFF804000804000804000804000
+              804000804000804000FFFFFF804000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFF1E2461202665FFFFFFFFFFFFFFFFFF804000FFFFFF804000FF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFF804000FFFFFF804000FFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFF0000002C3488333DA1000001FFFFFFFFFFFF8040
+              00FFFFFF804000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF804000FFFFFF804000FF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF04050B3E49BD4754E1020309
+              FFFFFFFFFFFF804000FFFFFF804000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8040
+              00FF8000804000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF15183B53
+              61F45463FF181D4B0A0C1FFFFFFFFF8000FF8000804000FFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFF804000FF8000FF8000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FF0000023B439F5B6AFF5563FE3B46B6000000FFFFFFFFFFFFFF800080400080
+              4000804000804000804000804000804000FF8000FFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFF0000002125536271FD5562F8515EF65766FF1F245E000000FFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFF03040B181B39626FE95F6DFE5D6BFF5A68FF5360FB
+              5160F0121536010106FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0E101F5B66D26A77FF6370FB45
+              4FBC3E47B25766FA5563FF4856DD070917FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0101003D42727D89
+              FF626EF76B79FD2B307020255C606FFF515DF35968FF272F7A000000FFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              0000006369A78792FD6773F77482FF333982262B686270FE5461F55867FE3A44
+              AE000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFF0000006E74AC949EFE747EF94D57B72A2F6A292F6D6573FE
+              5764F65B6AFE3D48B3020202FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000005B6089A4ADFF848EFD3F468A00
+              00012B306E6875FF5965F4606FFF343C92000000FFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF232534A1A9
+              F5939CFF8691FF4047943941926774FC5E6BFD606EFD131634FFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFF0102043F425DA6AEF9949EFF7F8BFF6E7BFF6B78FF6B78FE282E630000
+              00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFF090A12323448757BB07C85DC6B75DD525BB5
+              202347000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF05060E00000014
+              161D12131E000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
+            ParentShowHint = False
+            ShowHint = True
+            OnClick = btnExportMarkClick
+            ExplicitLeft = 160
+          end
         end
       end
       object grpCategory: TGroupBox
@@ -506,9 +581,6 @@ object FMarksExplorer: TFMarksExplorer
           Caption = #1042#1089#1077
           TabOrder = 0
           OnClick = CheckBox2Click
-          ExplicitLeft = 13
-          ExplicitTop = 320
-          ExplicitWidth = 41
         end
         object TreeView1: TTreeView
           AlignWithMargins = True
@@ -524,6 +596,7 @@ object FMarksExplorer: TFMarksExplorer
           OnChange = TreeView1Change
           OnKeyUp = TreeView1KeyUp
           OnMouseUp = TreeView1MouseUp
+          ExplicitLeft = 7
         end
         object pnlCategoriesTop: TPanel
           AlignWithMargins = True
@@ -534,13 +607,13 @@ object FMarksExplorer: TFMarksExplorer
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 2
-          ExplicitWidth = 251
           object BtnAddCategory: TSpeedButton
-            Left = 8
+            Left = 0
             Top = 0
             Width = 29
             Height = 29
             Hint = #1044#1086#1073#1072#1074#1080#1090#1100
+            Align = alLeft
             Glyph.Data = {
               B6050000424DB605000000000000360000002800000015000000160000000100
               1800000000008005000000000000000000000000000000000000FF00FFFF00FF
@@ -593,13 +666,15 @@ object FMarksExplorer: TFMarksExplorer
             ShowHint = True
             Spacing = 0
             OnClick = BtnAddCategoryClick
+            ExplicitLeft = 8
           end
           object BtnDelKat: TSpeedButton
-            Left = 72
+            Left = 58
             Top = 0
             Width = 29
             Height = 29
             Hint = #1059#1076#1072#1083#1080#1090#1100
+            Align = alLeft
             Glyph.Data = {
               26040000424D2604000000000000360000002800000012000000120000000100
               180000000000F003000000000000000000000000000000000000FF00FFFF00FF
@@ -639,13 +714,15 @@ object FMarksExplorer: TFMarksExplorer
             ParentShowHint = False
             ShowHint = True
             OnClick = BtnDelKatClick
+            ExplicitLeft = 72
           end
           object BtnEditCategory: TSpeedButton
-            Left = 40
+            Left = 29
             Top = 0
             Width = 29
             Height = 29
             Hint = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100
+            Align = alLeft
             Glyph.Data = {
               F6060000424DF606000000000000360000002800000018000000180000000100
               180000000000C006000000000000000000000000000000000000FFFFFFFFFFFF
@@ -708,10 +785,62 @@ object FMarksExplorer: TFMarksExplorer
             ShowHint = True
             Spacing = 0
             OnClick = BtnEditCategoryClick
+            ExplicitLeft = 40
+          end
+          object Bevel3: TBevel
+            AlignWithMargins = True
+            Left = 90
+            Top = 3
+            Width = 3
+            Height = 23
+            Align = alLeft
+            Shape = bsLeftLine
+            ExplicitLeft = 169
+            ExplicitTop = 6
+          end
+          object btnExportCategory: TSpeedButton
+            Left = 96
+            Top = 0
+            Width = 29
+            Height = 29
+            Hint = #1053#1072#1074#1080#1075#1072#1094#1080#1103' '#1085#1072' '#1074#1099#1073#1088#1072#1085#1085#1091#1102' '#1084#1077#1090#1082#1091
+            Align = alLeft
+            AllowAllUp = True
+            GroupIndex = 1
+            Glyph.Data = {
+              C2010000424DC20100000000000036000000280000000B0000000B0000000100
+              1800000000008C01000000000000000000000000000000000000FFFFFFFF8000
+              804000804000804000804000804000804000804000FF8000FFFFFF000000FF80
+              00FF8000FFFFFF804000804000FF8000FF8000804000FFFFFFFF8000FF800000
+              0000804000FFFFFFFFFFFF804000804000804000804000804000FFFFFFFFFFFF
+              804000000000804000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFF804000000000804000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+              FFFFFFFFFFFFFFFF804000000000804000FFFFFF804000804000804000804000
+              804000804000804000FFFFFF804000000000804000FFFFFF804000FFFFFFFFFF
+              FFFFFFFFFFFFFFFFFFFF804000FFFFFF804000000000804000FFFFFF804000FF
+              FFFFFFFFFFFFFFFFFFFFFFFFFFFF804000FFFFFF804000000000804000FFFFFF
+              804000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF804000FF8000804000000000FF80
+              00FF8000804000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF804000FF8000FF800000
+              0000FFFFFFFF8000804000804000804000804000804000804000804000FF8000
+              FFFFFF000000}
+            ParentShowHint = False
+            ShowHint = True
+            OnClick = btnExportCategoryClick
+            ExplicitLeft = 186
           end
         end
       end
     end
+  end
+  object btnImport: TTBXButton
+    Left = 500
+    Top = 32
+    Width = 70
+    Height = 21
+    ImageIndex = 0
+    TabOrder = 2
+    OnClick = btnImportClick
+    Caption = #1048#1084#1087#1086#1088#1090
   end
   object OpenDialog: TOpenDialog
     Left = 392
@@ -824,5 +953,27 @@ object FMarksExplorer: TFMarksExplorer
       800C006002000000800C006002000000800C006002000000800C006002000000
       800C006002000000800C006002000000800C006002000000800C006002000000
       FFFFFFFFFE000000}
+  end
+  object ExportDialog: TSaveDialog
+    DefaultExt = '.kmz'
+    Filter = 
+      #1059#1087#1072#1082#1086#1074#1072#1085#1085#1099#1081' Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup L' +
+      'anguage (kml)|*.kml'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    Left = 256
+    Top = 208
+  end
+  object PopupExport: TPopupMenu
+    Left = 376
+    Top = 224
+    object NExportAll: TMenuItem
+      Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1089#1077#1093' '#1084#1077#1090#1086#1082' '#1080' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
+      OnClick = btnExportClick
+    end
+    object NExportVisible: TMenuItem
+      Tag = 1
+      Caption = #1069#1082#1089#1087#1086#1088#1090' '#1090#1086#1083#1100#1082#1086' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1093
+      OnClick = btnExportClick
+    end
   end
 end

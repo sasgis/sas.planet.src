@@ -17,6 +17,7 @@ type
     function GetPointInPicture: TPoint;
     function GetTextAlignment: TAlignment;
     function GetTextVerticalAlignment: TVerticalAlignment;
+    function GetBitmapSize: TPoint;
   public
     constructor Create(ABitmap: TCustomBitmap32);
     destructor Destroy; override;
@@ -29,7 +30,6 @@ uses
   GR32_LowLevel;
 
 { TMarkPictureSimple }
-
 constructor TMarkPictureSimple.Create(ABitmap: TCustomBitmap32);
 begin
   FBitmap := TCustomBitmap32.Create;
@@ -65,5 +65,11 @@ begin
   if not FBitmap.Empty then
     MoveLongword(FBitmap.Bits[0], ABmp.Bits[0], FBitmapSize.X * FBitmapSize.Y);
 end;
+
+function TMarkPictureSimple.GetBitmapSize: TPoint;
+begin
+  result:=FBitmapSize;
+end;
+
 
 end.

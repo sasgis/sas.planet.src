@@ -19,7 +19,7 @@ uses
   i_MarksSimple,
   u_MarksSimple,
   u_MarksDbGUIHelper,
-  Unit1, ComCtrls, ImgList;
+  Unit1, ComCtrls, ImgList, TBXControls, Menus;
 
 type
   TFMarksExplorer = class(TCommonFormParent)
@@ -30,8 +30,6 @@ type
     grpCategory: TGroupBox;
     BtnDelKat: TSpeedButton;
     OpenDialog: TOpenDialog;
-    Button1: TButton;
-    Button2: TButton;
     BtnDelMark: TSpeedButton;
     RBall: TRadioButton;
     RBchecked: TRadioButton;
@@ -41,7 +39,6 @@ type
     BtnEditCategory: TSpeedButton;
     CheckBox2: TCheckBox;
     CheckBox1: TCheckBox;
-    Button3: TButton;
     BtnAddCategory: TSpeedButton;
     SBNavOnMark: TSpeedButton;
     OpenDialog1: TOpenDialog;
@@ -54,19 +51,28 @@ type
     splCatMarks: TSplitter;
     pnlMarksTop: TPanel;
     pnlCategoriesTop: TPanel;
-    procedure Button2Click(Sender: TObject);
+    btnExport: TTBXButton;
+    ExportDialog: TSaveDialog;
+    PopupExport: TPopupMenu;
+    NExportAll: TMenuItem;
+    NExportVisible: TMenuItem;
+    Bevel1: TBevel;
+    btnExportMark: TSpeedButton;
+    Bevel3: TBevel;
+    btnExportCategory: TSpeedButton;
+    btnImport: TTBXButton;
+    btnAccept: TTBXButton;
+    btn_Close: TTBXButton;
     procedure BtnDelMarkClick(Sender: TObject);
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnOpMarkClick(Sender: TObject);
     procedure BtnGotoMarkClick(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
     procedure MarksListBoxKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CheckBox2Click(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure SBNavOnMarkClick(Sender: TObject);
     procedure TreeView1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -74,6 +80,12 @@ type
     procedure TreeView1KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
+    procedure btnExportClick(Sender: TObject);
+    procedure btnExportMarkClick(Sender: TObject);
+    procedure btnExportCategoryClick(Sender: TObject);
+    procedure btnImportClick(Sender: TObject);
+    procedure btnAcceptClick(Sender: TObject);
+    procedure btn_CloseClick(Sender: TObject);
   private
     FCategoryList: TList;
     FMarksList: IInterfaceList;
@@ -97,6 +109,7 @@ uses
   i_IImportConfig,
   i_IUsedMarksConfig,
   UImport,
+  u_ExportMarks2KML,
   UAddCategory;
 
 {$R *.dfm}
@@ -172,28 +185,6 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.Button2Click(Sender: TObject);
-begin
-  GState.MainFormConfig.LayersConfig.MarksShowConfig.LockWrite;
-  try
-    if RBnot.Checked then begin
-      GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := False;
-    end else begin
-      GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := True;
-      if RBall.Checked then begin
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := True;
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := True;
-      end else begin
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := False;
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := False;
-      end;
-    end;
-  finally
-    GState.MainFormConfig.LayersConfig.MarksShowConfig.UnlockWrite;
-  end;
-  close;
-end;
-
 procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
 var
   VMarkId: IMarkId;
@@ -241,6 +232,24 @@ begin
   end;
 end;
 
+procedure TFMarksExplorer.btnImportClick(Sender: TObject);
+var
+  VImportConfig: IImportConfig;
+  VFileName: string;
+begin
+  If (OpenDialog1.Execute) then begin
+    VFileName := OpenDialog1.FileName;
+    if (FileExists(VFileName)) then begin
+      VImportConfig := FImport.GetImportConfig(FMarkDBGUI);
+      if VImportConfig <> nil then begin
+        //Todo Доделать
+      end;
+      UpdateCategoryTree;
+      UpdateMarksList;
+    end;
+  end;
+end;
+
 procedure TFMarksExplorer.BtnDelKatClick(Sender: TObject);
 var
   VCategory: TCategoryId;
@@ -267,6 +276,46 @@ begin
       UpdateMarksList;
     end;
   end;
+end;
+
+procedure TFMarksExplorer.btnExportClick(Sender: TObject);
+var KMLExport:TExportMarks2KML;
+begin
+  KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
+  try
+    if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
+      KMLExport.ExportToKML(ExportDialog.FileName);
+    end;
+  finally
+    KMLExport.free;
+  end;
+end;
+
+procedure TFMarksExplorer.btnAcceptClick(Sender: TObject);
+begin
+  fmain.generate_im;
+end;
+
+procedure TFMarksExplorer.btn_CloseClick(Sender: TObject);
+begin
+  GState.MainFormConfig.LayersConfig.MarksShowConfig.LockWrite;
+  try
+    if RBnot.Checked then begin
+      GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := False;
+    end else begin
+      GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := True;
+      if RBall.Checked then begin
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := True;
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := True;
+      end else begin
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := False;
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := False;
+      end;
+    end;
+  finally
+    GState.MainFormConfig.LayersConfig.MarksShowConfig.UnlockWrite;
+  end;
+  close;
 end;
 
 procedure TFMarksExplorer.TreeView1Change(Sender: TObject; Node: TTreeNode);
@@ -325,24 +374,6 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.Button1Click(Sender: TObject);
-var
-  VImportConfig: IImportConfig;
-  VFileName: string;
-begin
-  If (OpenDialog1.Execute) then begin
-    VFileName := OpenDialog1.FileName;
-    if (FileExists(VFileName)) then begin
-      VImportConfig := FImport.GetImportConfig(FMarkDBGUI);
-      if VImportConfig <> nil then begin
-        //Todo Доделать
-      end;
-      UpdateCategoryTree;
-      UpdateMarksList;
-    end;
-  end;
-end;
-
 procedure TFMarksExplorer.BtnEditCategoryClick(Sender: TObject);
 var
   VCategory: TCategoryId;
@@ -354,6 +385,42 @@ begin
       UpdateCategoryTree;
     end;
   end;
+end;
+
+procedure TFMarksExplorer.btnExportCategoryClick(Sender: TObject);
+var KMLExport:TExportMarks2KML;
+    VCategory:TCategoryId;
+begin
+  VCategory := GetSelectedCategory;
+  if VCategory<>nil then begin
+    KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
+    try
+      FMarksExplorer.ExportDialog.FileName:=StringReplace(VCategory.name,'\','-',[rfReplaceAll]);
+      if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
+        KMLExport.ExportCategoryToKML(VCategory,ExportDialog.FileName);
+      end;
+    finally
+      KMLExport.free;
+    end;
+  end;
+end;
+
+procedure TFMarksExplorer.btnExportMarkClick(Sender: TObject);
+var KMLExport:TExportMarks2KML;
+    VMark: iMarkFull;
+begin
+    VMark := GetSelectedMarkFull;
+    if VMark <> nil then begin
+      KMLExport:=TExportMarks2KML.Create(false);
+      try
+        FMarksExplorer.ExportDialog.FileName:=VMark.name;
+        if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
+          KMLExport.ExportMarkToKML(VMark,ExportDialog.FileName);
+        end;
+      finally
+        KMLExport.free;
+      end;
+    end;
 end;
 
 procedure TFMarksExplorer.MarksListBoxKeyUp(Sender: TObject; var Key: Word;
@@ -422,11 +489,6 @@ begin
     FMarkDBGUI.MarksDB.MarksDb.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
     UpdateMarksList;
   end;
-end;
-
-procedure TFMarksExplorer.Button3Click(Sender: TObject);
-begin
-  fmain.generate_im;
 end;
 
 procedure TFMarksExplorer.BtnAddCategoryClick(Sender: TObject);

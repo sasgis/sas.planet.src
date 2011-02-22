@@ -443,7 +443,8 @@ uses
   UImport in 'UImport.pas' {FImport},
   UAddCategory in 'UAddCategory.pas' {FAddCategory},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange};
+  UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange},
+  u_ExportMarks2KML in 'u_ExportMarks2KML.pas';
 
 {$R *.res} {$R *Pics.res}
 begin
