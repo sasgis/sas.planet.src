@@ -19,7 +19,6 @@ type
   private
     FSync: IReadWriteSync;
     FBasePath: string;
-    FMarkPictureList: IMarkPictureList;
     FDMMarksDb: TDMMarksDb;
     FFactory: TMarkFactory;
     function ReadCurrentMark: IMarkFull;
@@ -38,7 +37,7 @@ type
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
   public
-    constructor Create(ABasePath: string; AMarkPictureList: IMarkPictureList; ADMMarksDb: TDMMarksDb; AFactoryConfig: IMarksFactoryConfig);
+    constructor Create(ABasePath: string; ADMMarksDb: TDMMarksDb; AFactoryConfig: IMarksFactoryConfig);
     destructor Destroy; override;
     
     function GetMarkByID(id: integer): IMarkFull;
@@ -49,7 +48,6 @@ type
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(AMark: IMarkFull): Boolean; overload;
-    property MarkPictureList: IMarkPictureList read FMarkPictureList;
     property Factory: TMarkFactory read FFactory;
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(AId: Integer): IInterfaceList;
@@ -120,11 +118,13 @@ begin
   end;
 end;
 
-constructor TMarksOnlyDb.Create(ABasePath: string;
-  AMarkPictureList: IMarkPictureList; ADMMarksDb: TDMMarksDb; AFactoryConfig: IMarksFactoryConfig);
+constructor TMarksOnlyDb.Create(
+  ABasePath: string;
+  ADMMarksDb: TDMMarksDb;
+  AFactoryConfig: IMarksFactoryConfig
+);
 begin
   FBasePath := ABasePath;
-  FMarkPictureList := AMarkPictureList;
   FDMMarksDb := ADMMarksDb;
   FSync := TSimpleRWSync.Create;
   FFactory := TMarkFactory.Create(AFactoryConfig);

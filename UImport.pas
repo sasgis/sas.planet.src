@@ -172,7 +172,7 @@ var
   i: Integer;
 begin
   FMarkDBGUI := AMarkDBGUI;
-  VPictureList := FMarkDBGUI.MarksDB.MarksDb.MarkPictureList;
+  VPictureList := FMarkDBGUI.MarkPictureList;
   cbbPointIcon.Items.Clear;
   for i := 0 to VPictureList.Count - 1 do begin
     cbbPointIcon.Items.AddObject(VPictureList.GetName(i), Pointer(VPictureList.Get(i)));

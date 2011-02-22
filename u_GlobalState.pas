@@ -250,7 +250,7 @@ begin
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
   FMarksFactoryConfig := TMarksFactoryConfig.Create(FMarkPictureList);
-  FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksFactoryConfig);
+  FMarksDB := TMarksDB.Create(FProgramPath, FMarksFactoryConfig);
 end;
 
 destructor TGlobalState.Destroy;

@@ -124,7 +124,7 @@ begin
     FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
     CBKateg.Sorted:=true;
     CBKateg.Text:=VLastUsedCategoryName;
-    VPictureList := FMarkDBGUI.MarksDB.MarksDb.MarkPictureList;
+    VPictureList := FMarkDBGUI.MarkPictureList;
     VPicCount := VPictureList.Count;
     VColCount := drwgrdIcons.ColCount;
     VRowCount := VPicCount div VColCount;
@@ -292,7 +292,7 @@ var
   VPictureList: IMarkPictureList;
 begin
   i:=(Arow*drwgrdIcons.ColCount)+ACol;
-  VPictureList := FMarkDBGUI.MarksDB.MarksDb.MarkPictureList;
+  VPictureList := FMarkDBGUI.MarkPictureList;
   if i < VPictureList.Count then
     DrawFromMarkIcons(drwgrdIcons.Canvas, VPictureList.Get(i), drwgrdIcons.CellRect(ACol,ARow));
 end;
@@ -320,7 +320,7 @@ var
 begin
  drwgrdIcons.MouseToCell(X,Y,ACol,ARow);
  i:=(ARow*drwgrdIcons.ColCount)+ACol;
- VPictureList := FMarkDBGUI.MarksDB.MarksDb.MarkPictureList;
+ VPictureList := FMarkDBGUI.MarkPictureList;
  if (ARow>-1)and(ACol>-1) and (i < VPictureList.Count) then begin
    FPic := VPictureList.Get(i);
    FPicName := VPictureList.GetName(i);

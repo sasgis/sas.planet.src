@@ -9,6 +9,7 @@ uses
   t_GeoTypes,
   i_ICoordConverter,
   i_IValueToStringConverter,
+  i_IMarkPicture,
   i_MarksSimple,
   u_MarksSimple,
   u_MarksReadWriteSimple;
@@ -17,6 +18,7 @@ type
   TMarksDbGUIHelper = class
   private
     FMarksDB: TMarksDB;
+    FMarkPictureList: IMarkPictureList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
   public
     procedure CategoryListToStrings(AList: TList; AStrings: TStrings);
@@ -35,8 +37,9 @@ type
 //    function GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible: Boolean; AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
 
     property MarksDB: TMarksDB read FMarksDB;
+    property MarkPictureList: IMarkPictureList read FMarkPictureList;
   public
-    constructor Create(AMarksDB: TMarksDB; AValueToStringConverterConfig: IValueToStringConverterConfig);
+    constructor Create(AMarksDB: TMarksDB; AValueToStringConverterConfig: IValueToStringConverterConfig; AMarkPictureList: IMarkPictureList);
   end;
 
 implementation
@@ -178,8 +181,13 @@ begin
   end;
 end;
 
-constructor TMarksDbGUIHelper.Create(AMarksDB: TMarksDB; AValueToStringConverterConfig: IValueToStringConverterConfig);
+constructor TMarksDbGUIHelper.Create(
+  AMarksDB: TMarksDB;
+  AValueToStringConverterConfig: IValueToStringConverterConfig;
+  AMarkPictureList: IMarkPictureList
+);
 begin
+  FMarkPictureList := AMarkPictureList;
   FMarksDB := AMarksDB;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
