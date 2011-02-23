@@ -15,6 +15,7 @@ type
     FMapMoveCentered: Boolean;
     FMinMoveDelta: Double;
     FSensorsAutoShow: Boolean;
+    FProcessGPSIfActive: Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -27,6 +28,8 @@ type
     procedure SetMinMoveDelta(AValue: Double);
     function GetSensorsAutoShow: Boolean;
     procedure SetSensorsAutoShow(AValue: Boolean);
+    function GetProcessGPSIfActive: Boolean;
+    procedure SetProcessGPSIfActive(AValue: Boolean);
   public
     constructor Create;
   end;
@@ -42,6 +45,7 @@ begin
   FMapMoveCentered := False;
   FMinMoveDelta := 10;
   FSensorsAutoShow := True;
+  FProcessGPSIfActive := True;
 end;
 
 procedure TMainFormBehaviourByGPSConfig.DoReadConfig(
@@ -53,6 +57,7 @@ begin
     FMapMoveCentered := AConfigData.ReadBool('GPSPosInCenter', FMapMoveCentered);
     FMinMoveDelta := AConfigData.ReadFloat('MinGPSMoveDelta', FMinMoveDelta);
     FSensorsAutoShow := AConfigData.ReadBool('SensorsAutoShow', FSensorsAutoShow);
+    FProcessGPSIfActive := AConfigData.ReadBool('ProcessGpsIfFormActive', FProcessGPSIfActive);
     SetChanged;
   end;
 end;
@@ -65,6 +70,7 @@ begin
   AConfigData.WriteBool('GPSPosInCenter', FMapMoveCentered);
   AConfigData.WriteFloat('MinGPSMoveDelta', FMinMoveDelta);
   AConfigData.WriteBool('SensorsAutoShow', FSensorsAutoShow);
+  AConfigData.WriteBool('ProcessGpsIfFormActive', FProcessGPSIfActive);
 end;
 
 function TMainFormBehaviourByGPSConfig.GetMapMove: Boolean;
@@ -92,6 +98,16 @@ begin
   LockRead;
   try
     Result := FMinMoveDelta;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMainFormBehaviourByGPSConfig.GetProcessGPSIfActive: Boolean;
+begin
+  LockRead;
+  try
+    Result := FProcessGPSIfActive;
   finally
     UnlockRead;
   end;
@@ -139,6 +155,19 @@ begin
   try
     if FMinMoveDelta <> AValue then begin
       FMinMoveDelta := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMainFormBehaviourByGPSConfig.SetProcessGPSIfActive(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FProcessGPSIfActive <> AValue then begin
+      FProcessGPSIfActive := AValue;
       SetChanged;
     end;
   finally

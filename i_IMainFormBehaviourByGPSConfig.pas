@@ -27,6 +27,11 @@ type
     function GetSensorsAutoShow: Boolean;
     procedure SetSensorsAutoShow(AValue: Boolean);
     property SensorsAutoShow: Boolean read GetSensorsAutoShow write SetSensorsAutoShow;
+
+    // Двигать карту и перерисовывать трек только если главное окно активно
+    function GetProcessGPSIfActive: Boolean;
+    procedure SetProcessGPSIfActive(AValue: Boolean);
+    property ProcessGPSIfActive: Boolean read GetProcessGPSIfActive write SetProcessGPSIfActive;
   end;
 
 implementation
