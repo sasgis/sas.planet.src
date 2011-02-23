@@ -178,6 +178,7 @@ object Fmain: TFmain
       OnClose = TBMainToolBarClose
       Caption = #1055#1072#1085#1077#1083#1100' GPS'
       object TBGPSconn: TTBXItem
+        AutoCheck = True
         ImageIndex = 10
         OnClick = TBGPSconnClick
         Caption = ''

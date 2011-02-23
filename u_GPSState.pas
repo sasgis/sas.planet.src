@@ -186,6 +186,7 @@ end;
 
 procedure TGPSpar.OnGpsDisconnect;
 begin
+  FConfig.GPSEnabled := False;
   try
     FLogWriter.CloseLog;
   except
