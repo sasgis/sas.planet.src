@@ -432,6 +432,7 @@ uses
   fr_LonLat in 'fr_LonLat.pas' {frLonLat: TFrame},
   Unit1 in 'Unit1.pas' {Fmain},
   frm_GoTo in 'frm_GoTo.pas' {frmGoTo},
+  frm_DebugInfo in 'frm_DebugInfo.pas' {frmDebugInfo},
   UAbout in 'UAbout.pas' {Fabout},
   Usettings in 'Usettings.pas' {FSettings},
   USaveas in 'USaveas.pas' {Fsaveas},
@@ -493,6 +494,9 @@ begin
   Application.CreateForm(TFEditMap, FEditMap);
   Application.CreateForm(TFShortcutChange, FShortcutChange);
   Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
+  if GState.ShowDebugInfo then begin
+    Application.CreateForm(TfrmDebugInfo, frmDebugInfo);
+  end;
   frmInvisibleBrowser.NavigateAndWait('about:blank');
     Fbrowser.Navigate('about:blank');
     Application.Run;

@@ -240,19 +240,6 @@ object Fmain: TFmain
           Hint = ''
         end
       end
-      object TBControlItem3: TTBControlItem
-        Control = Label1
-        Caption = ''
-        Hint = ''
-      end
-      object Label1: TLabel
-        Left = 115
-        Top = 8
-        Width = 31
-        Height = 13
-        Caption = 'Label1'
-        Visible = False
-      end
     end
     object TBExit: TTBXToolbar
       Left = 807
@@ -778,6 +765,12 @@ object Fmain: TFmain
           AutoCheck = True
           OnClick = NShowSelectionClick
           Caption = #1055#1086#1089#1083#1077#1076#1085#1077#1077' '#1074#1099#1076#1077#1083#1077#1085#1080#1077
+          Hint = ''
+        end
+        object tbitmShowDebugInfo: TTBXItem
+          Visible = False
+          OnClick = tbitmShowDebugInfoClick
+          Caption = 'ShowDebugInfo'
           Hint = ''
         end
       end

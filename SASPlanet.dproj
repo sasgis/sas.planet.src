@@ -56,6 +56,9 @@
       <Form>DMMarksDb</Form>
       <DesignClass>TDataModule</DesignClass>
     </DCCReference>
+    <DCCReference Include="frm_DebugInfo.pas">
+      <Form>frmDebugInfo</Form>
+    </DCCReference>
     <DCCReference Include="frm_GoTo.pas">
       <Form>frmGoTo</Form>
     </DCCReference>

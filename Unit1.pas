@@ -386,8 +386,6 @@ type
     TBXSeparatorItem19: TTBXSeparatorItem;
     TBXItem8: TTBXItem;
     TBXItem9: TTBXItem;
-    TBControlItem3: TTBControlItem;
-    Label1: TLabel;
     TBXsensorOdometr2Bar: TTBXToolWindow;
     SpeedButton1: TSpeedButton;
     TBXSensorOdometr2: TTBXLabel;
@@ -398,6 +396,7 @@ type
     tbitmGPSToPointCenter: TTBXItem;
     tmrMapUpdate: TTimer;
     tbtmHelpBugTrack: TTBItem;
+    tbitmShowDebugInfo: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -527,6 +526,7 @@ type
     procedure tmrMapUpdateTimer(Sender: TObject);
     procedure tbtmHelpBugTrackClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure tbitmShowDebugInfoClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -674,6 +674,7 @@ uses
   u_MapViewGotoOnFMain,
   frm_SearchResults,
   frm_InvisibleBrowser,
+  frm_DebugInfo,
   i_IImportConfig,
   u_ThreadDownloadTiles,
   u_PathDetalizeProviderMailRu,
@@ -784,8 +785,7 @@ begin
     FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, GetIgnoredMenuItemsList);
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
-    Label1.Visible := GState.ShowDebugInfo;
-
+    tbitmShowDebugInfo.Visible := GState.ShowDebugInfo;
 
     FMainLayer := TMapMainLayer.Create(map, FConfig.ViewPortState, FConfig.MainMapsConfig);
     FLayersList.Add(FMainLayer);
@@ -1742,7 +1742,7 @@ begin
   end;
   QueryPerformanceCounter(ts3);
   QueryPerformanceFrequency(fr);
-  Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
+//  Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
 end;
 
 procedure TFmain.CreateMapUI;
@@ -3681,6 +3681,13 @@ begin
  finally
    PosFromGSM.Free;
  end;
+end;
+
+procedure TFmain.tbitmShowDebugInfoClick(Sender: TObject);
+begin
+  if frmDebugInfo <> nil then begin
+    frmDebugInfo.ShowStatistic(FLayersList);
+  end;
 end;
 
 procedure TFmain.TBXItem6Click(Sender: TObject);
