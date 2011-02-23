@@ -147,7 +147,7 @@ begin
     finally
       QueryPerformanceCounter(VPerformanceCounterEnd);
       QueryPerformanceFrequency(VPerformanceCounterFr);
-      VUpdateTime := (VPerformanceCounterEnd - VPerformanceCounterBegin) / VPerformanceCounterFr;
+      VUpdateTime := (VPerformanceCounterEnd - VPerformanceCounterBegin) / VPerformanceCounterFr/24/60/60;
       IncRedrawCounter(VUpdateTime);
     end;
   end;
