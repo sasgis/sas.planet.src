@@ -46,7 +46,6 @@ type
   private
     // Ini-файл с основными настройками
     MainIni: TMeminifile;
-    FScreenSize: TPoint;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
     FBitmapTypeManager: IBitmapTypeExtManager;
@@ -87,7 +86,6 @@ type
     function GetHelpFileName: string;
     function GetMainConfigFileName: string;
     procedure LoadMainParams;
-    procedure SetScreenSize(const Value: TPoint);
     procedure LoadMapIconsList;
   public
     // Отображать окошко с логотипом при запуске
@@ -118,9 +116,6 @@ type
     property MapType: TMapTypesMainList read FMainMapsList;
 
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
-
-    // Размеры экрана, что бы не дергать каждый раз объект TScreen
-    property ScreenSize: TPoint read FScreenSize write SetScreenSize;
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
@@ -430,11 +425,6 @@ begin
     VList18.Add(VMapType.GUID, VMapType.bmp18);
     VList24.Add(VMapType.GUID, VMapType.bmp24);
   end;
-end;
-
-procedure TGlobalState.SetScreenSize(const Value: TPoint);
-begin
-  FScreenSize := Value;
 end;
 
 procedure TGlobalState.SaveMainParams;

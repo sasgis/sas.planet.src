@@ -760,7 +760,6 @@ var
   VScale: Integer;
   VZoom: Byte;
 begin
-  GState.ScreenSize := Point(Screen.Width, Screen.Height);
   if not ProgramStart then exit;
   BuildImageListMapZapSelect;
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
