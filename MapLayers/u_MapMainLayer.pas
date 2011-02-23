@@ -22,11 +22,14 @@ type
     FMapsConfig: IMainMapsConfig;
     FMainMap: IMapType;
     FLayersList: IMapTypeList;
+    FUsePrevZoomAtMap: Boolean;
+    FUsePrevZoomAtLayer: Boolean;
   protected
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
     procedure DoRedraw; override;
     procedure OnMainMapChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
+    procedure OnConfigChange(Sender: TObject);
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig);
     procedure StartThreads; override;
@@ -64,6 +67,11 @@ begin
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnLayerSetChange),
     FMapsConfig.GetBitmapLayersSet.GetChangeNotifier
+  );
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    GState.ViewConfig.GetChangeNotifier
   );
 end;
 
@@ -158,9 +166,9 @@ var
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
 begin
   if AMapType.asLayer then begin
-    VUsePre := GState.UsePrevZoomLayer;
+    VUsePre := FUsePrevZoomAtLayer;
   end else begin
-    VUsePre := GState.UsePrevZoom;
+    VUsePre := FUsePrevZoomAtMap;
   end;
   VRecolorConfig := GState.BitmapPostProcessingConfig.GetStatic;
 
@@ -232,6 +240,18 @@ begin
   end;
 end;
 
+procedure TMapMainLayer.OnConfigChange(Sender: TObject);
+begin
+  GState.ViewConfig.LockRead;
+  try
+    FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
+    FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
+  finally
+    GState.ViewConfig.UnlockRead;
+  end;
+  Redraw;
+end;
+
 procedure TMapMainLayer.OnLayerSetChange(Sender: TObject);
 begin
   FLayersList := FMapsConfig.GetBitmapLayersSet.GetSelectedMapsList;
@@ -247,6 +267,7 @@ end;
 procedure TMapMainLayer.StartThreads;
 begin
   inherited;
+  OnConfigChange(nil);
   OnMainMapChange(nil);
   OnLayerSetChange(nil);
   Visible := True;

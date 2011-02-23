@@ -845,9 +845,6 @@ begin
     NGShScale1000000.Checked := VScale = 1000000;
     NGShScale0.Checked := VScale = 0;
 
-    Nbackload.Checked:=GState.UsePrevZoom;
-    NbackloadLayer.Checked:=GState.UsePrevZoomLayer;
-
     NMainToolBarShow.Checked:=TBMainToolBar.Visible;
     NZoomToolBarShow.Checked:=ZoomToolBar.Visible;
     NsrcToolBarShow.Checked:=SrcToolbar.Visible;
@@ -855,7 +852,6 @@ begin
     NMarksBarShow.Checked:=TBMarksToolBar.Visible;
 
 
-    map.Color:=GState.BGround;
     FLinksList.Add(
       TNotifyEventListener.Create(Self.ProcessPosChangeMessage),
       FConfig.ViewPortState.GetChangeNotifier
@@ -931,11 +927,15 @@ begin
       VMainFormMainConfigChangeListener,
       FConfig.GPSBehaviour.GetChangeNotifier
     );
-
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
       FConfig.MainGeoCoderConfig.GetChangeNotifier
     );
+    FLinksList.Add(
+      VMainFormMainConfigChangeListener,
+      GState.ViewConfig.GetChangeNotifier
+    );
+
 
     FLinksList.Add(
       TNotifyEventListener.Create(Self.OnFillingMapChange),
@@ -1295,6 +1295,10 @@ var
   VToolbarItem: TTBCustomItem;
   VItem: IGeoCoderListEntity;
 begin
+  Nbackload.Checked := GState.ViewConfig.UsePrevZoomAtMap;
+  NbackloadLayer.Checked := GState.ViewConfig.UsePrevZoomAtLayer;
+  map.Color := GState.ViewConfig.BackGroundColor;
+
   NGoToCur.Checked := FConfig.MainConfig.GetZoomingAtMousePos;
   Ninvertcolor.Checked:=GState.BitmapPostProcessingConfig.InvertColor;
   TBGPSToPoint.Checked:=FConfig.GPSBehaviour.MapMove;
@@ -2074,14 +2078,12 @@ end;
 
 procedure TFmain.NbackloadClick(Sender: TObject);
 begin
- GState.UsePrevZoom := Nbackload.Checked;
- FMainLayer.Redraw;
+  GState.ViewConfig.UsePrevZoomAtMap := Nbackload.Checked;
 end;
 
 procedure TFmain.NbackloadLayerClick(Sender: TObject);
 begin
- GState.UsePrevZoomLayer := NbackloadLayer.Checked;
- FMainLayer.Redraw;
+  GState.ViewConfig.UsePrevZoomAtLayer := NbackloadLayer.Checked;
 end;
 
 procedure TFmain.NaddPointClick(Sender: TObject);

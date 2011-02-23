@@ -325,8 +325,7 @@ begin
  GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
 
  GState.SessionLastSuccess:=CBLastSuccess.Checked;
- GState.BGround:=ColorBoxBackGround.Selected;
- FMain.map.Color:=GState.BGround;
+ GState.ViewConfig.BackGroundColor := Color32(ColorBoxBackGround.Selected);
  GState.GSMpar.LockWrite;
  try
    GState.GSMpar.SetUseGSMByCOM(chkPosFromGSM.Checked);
@@ -559,7 +558,7 @@ begin
  MiniMapAlphaEdit.Value:=GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
 
  CBLastSuccess.Checked:=GState.SessionLastSuccess;
- ColorBoxBackGround.Selected:=GState.BGround;
+ ColorBoxBackGround.Selected:=WinColor(GState.ViewConfig.BackGroundColor);
   GState.GSMpar.LockRead;
   try
     chkPosFromGSM.Checked := GState.GSMpar.GetUseGSMByCOM;

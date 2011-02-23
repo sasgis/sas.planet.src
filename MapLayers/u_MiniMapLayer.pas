@@ -46,7 +46,9 @@ type
     FViewRectMoveDelta: TDoublePoint;
 
     FBottomMargin: Integer;
-
+    FUsePrevZoomAtMap: Boolean;
+    FUsePrevZoomAtLayer: Boolean;
+    FBackGroundColor: TColor32;
 
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
     procedure DrawMainViewRect;
@@ -131,6 +133,10 @@ begin
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    GState.ViewConfig.GetChangeNotifier
   );
 end;
 
@@ -276,7 +282,7 @@ var
 begin
   inherited;
   FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
-  FLayer.Bitmap.Clear(Color32(GState.BGround));
+  FLayer.Bitmap.Clear(FBackGroundColor);
   VMapType := FConfig.MapsConfig.GetActiveMiniMap.MapType;
   VActiveMaps := FConfig.MapsConfig.GetLayers.GetSelectedMapsList;
 
@@ -422,9 +428,9 @@ var
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
 begin
   if AMapType.asLayer then begin
-    VUsePre := GState.UsePrevZoomLayer;
+    VUsePre := FUsePrevZoomAtLayer;
   end else begin
-    VUsePre := GState.UsePrevZoom;
+    VUsePre := FUsePrevZoomAtMap;
   end;
   VRecolorConfig := GState.BitmapPostProcessingConfig.GetStatic;
   VBmp := TCustomBitmap32.Create;
@@ -763,6 +769,14 @@ end;
 
 procedure TMiniMapLayer.OnConfigChange(Sender: TObject);
 begin
+  GState.ViewConfig.LockRead;
+  try
+    FBackGroundColor := GState.ViewConfig.BackGroundColor;
+    FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
+    FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
+  finally
+    GState.ViewConfig.UnlockRead;
+  end;
   FConfig.LockRead;
   try
     FPlusButton.Bitmap.Assign(FConfig.PlusButton);

@@ -122,7 +122,7 @@ begin
       // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
       FLastTile := Point(p_x shr 8, p_y shr 8);
       if not (RgnAndRgn(FPoly, p_x + 128, p_y + 128, false)) then begin
-        btmm.Clear(Color32(GState.BGround));
+        btmm.Clear(FBackGroundColor);
       end else begin
         FLastTile := Point(p_x shr 8, p_y shr 8);
         VConverter := CreateConverterForTileImage(FLastTile);

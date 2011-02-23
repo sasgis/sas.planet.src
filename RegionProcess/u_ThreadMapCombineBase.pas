@@ -44,6 +44,10 @@ type
     FNumImgs: integer;
     FNumImgsSaved: integer;
 
+    FUsePrevZoomAtMap: Boolean;
+    FUsePrevZoomAtLayer: Boolean;
+    FBackGroundColor: TColor32;
+
     function CreateConverterForTileImage(ATile: TPoint): ILocalCoordConverter;
     procedure PrepareTileBitmap(ATargetBitmap: TCustomBitmap32; AConverter: ILocalCoordConverter);
     procedure ProgressFormUpdateOnProgress; virtual;
@@ -111,6 +115,9 @@ begin
   FMapCalibrationList := AMapCalibrationList;
   FConverterFactory := TLocalCoordConverterFactorySimpe.Create;
   FTempBitmap := TCustomBitmap32.Create;
+  FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
+  FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
+  FBackGroundColor := GState.ViewConfig.BackGroundColor;
 end;
 
 procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress;
@@ -146,9 +153,9 @@ var
   VSize: TPoint;
 begin
   VSize := AConverter.GetLocalRectSize;
-  FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, False, AConverter.GetGeoConverter, GState.UsePrevZoom, True, True);
+  FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, False, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
   if FHTypeMap <> nil then begin
-    FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, False, AConverter.GetGeoConverter, GState.UsePrevZoom, True, True);
+    FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, False, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
     FTempBitmap.DrawMode := dmBlend;
     ATargetBitmap.Draw(0, 0, FTempBitmap);
   end;

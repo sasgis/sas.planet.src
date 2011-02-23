@@ -104,14 +104,6 @@ type
     // Переходить к следующему тайлу если произошла ошибка закачки
     GoNextTileIfDownloadError: Boolean;
 
-    //Использовать тайлы предыдущих уровней для отображения
-    UsePrevZoom: Boolean;
-    //Использовать тайлы предыдущих уровней для отображения (для слоев)
-    UsePrevZoomLayer: Boolean;
-
-    //Цвет фона
-    BGround: TColor;
-
     //Начать сохраненную сессию загрузки с последнего удачно загруженного тайла
     SessionLastSuccess: boolean;
 
@@ -407,11 +399,6 @@ begin
   TwoDownloadAttempt:=MainIni.ReadBool('INTERNET','DblDwnl',true);
   GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
   SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
-
-  UsePrevZoom := MainIni.Readbool('VIEW','back_load',true);
-  UsePrevZoomLayer := MainIni.Readbool('VIEW','back_load_layer',true);
-
-  BGround:=MainIni.ReadInteger('VIEW','Background',clSilver);
 end;
 
 procedure TGlobalState.LoadMapIconsList;
@@ -442,10 +429,6 @@ begin
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
-  MainIni.Writebool('VIEW','back_load',UsePrevZoom);
-  MainIni.Writebool('VIEW','back_load_layer',UsePrevZoomLayer);
-  MainIni.WriteInteger('VIEW','Background',BGround);
-
   MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
   MainIni.WriteBool('INTERNET','DblDwnl',TwoDownloadAttempt);
   MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);

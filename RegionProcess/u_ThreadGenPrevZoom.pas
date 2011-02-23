@@ -26,6 +26,7 @@ type
     FResamplerFactory: IImageResamplerFactory;
 
     FTileInProc: integer;
+    FBackGroundColor: TColor32;
   protected
     procedure ProcessRegion; override;
     procedure ProgressFormUpdateOnProgress;
@@ -72,6 +73,7 @@ begin
   FSourceZoom := Azoom;
   FMapType := Atypemap;
   FResamplerFactory := AResamplerFactory;
+  FBackGroundColor := GState.ViewConfig.BackGroundColor;
 end;
 
 procedure TThreadGenPrevZoom.ProcessRegion;
@@ -145,7 +147,7 @@ begin
               VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
               VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top
             );
-            bmp_ex.Clear(Color32(GState.BGround));
+            bmp_ex.Clear(FBackGroundColor);
           end;
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, VZoom);
           VRectOfSubTiles := VGeoConvert.RelativeRect2TileRect(VRelativeRect, VZoomPrev);
