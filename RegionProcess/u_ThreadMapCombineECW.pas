@@ -89,7 +89,6 @@ function TThreadMapCombineECW.ReadLineECW(Line: cardinal; var LineR, LineG,
   LineB: PLineRGB): boolean;
 var
   i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
-  p_h: TPoint;
   p: PColor32array;
   VConverter: ILocalCoordConverter;
 begin
@@ -104,7 +103,6 @@ begin
     ProgressFormUpdateOnProgress;
     p_y := (FCurrentPieceRect.Top + line) - ((FCurrentPieceRect.Top + line) mod 256);
     p_x := FCurrentPieceRect.Left - (FCurrentPieceRect.Left mod 256);
-    p_h := FTypeMap.GeoConvert.PixelPos2OtherMap(Point(p_x, p_y), FZoom, FHTypeMap.GeoConvert);
     lrarri := 0;
     if line > (255 - sy) then begin
       Asy := 0;
@@ -144,7 +142,6 @@ begin
       lrarri := rarri;
       Asx := 0;
       inc(p_x, 256);
-      inc(p_h.x, 256);
     end;
   end;
   for i := 0 to (FCurrentPieceRect.Right - FCurrentPieceRect.Left) - 1 do begin
