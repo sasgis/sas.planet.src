@@ -37,6 +37,7 @@ uses
   u_MemFileCache,
   i_IGPSConfig,
   i_IMarksFactoryConfig,
+  i_IGlobalViewMainConfig,
   i_IImportFile,
   u_GPSState,
   u_GlobalCahceConfig;
@@ -79,6 +80,7 @@ type
     FMarksFactoryConfig: IMarksFactoryConfig;
     FGPSpar: TGPSpar;
     FImportFileByExt: IImportFile;
+    FViewConfig: IGlobalViewMainConfig;
 
     function GetMarkIconsPath: string;
     function GetMapsPath: string;
@@ -153,6 +155,7 @@ type
     property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
     property GPSpar: TGPSpar read FGPSpar;
     property ImportFileByExt: IImportFile read FImportFileByExt;
+    property ViewConfig: IGlobalViewMainConfig read FViewConfig;
 
 
     constructor Create;
@@ -199,6 +202,7 @@ uses
   u_ImageResamplerConfig,
   u_ImageResamplerFactoryListStaticSimple,
   u_ImportByFileExt,
+  u_GlobalViewMainConfig,
   u_MainFormConfig,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -234,6 +238,7 @@ begin
   FGSMpar := TGSMGeoCodeConfig.Create;
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
+  FViewConfig := TGlobalViewMainConfig.Create;
 
   FMainMemCache := TMemFileCache.Create(FMainMemCacheConfig);
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
@@ -284,6 +289,7 @@ begin
   FProxySettings := nil;
   FGSMpar := nil;
   FInetConfig := nil;
+  FViewConfig := nil;
   FImageResamplerConfig := nil;
   FMainFormConfig := nil;
   FBitmapPostProcessingConfig := nil;
@@ -360,6 +366,7 @@ begin
   );
   FCacheConfig.LoadConfig(FMainConfigProvider);
   LoadMapIconsList;
+  FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   GPSpar.LoadConfig(MainConfigProvider);
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
@@ -449,6 +456,7 @@ begin
   GPSpar.SaveConfig(MainConfigProvider);
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
+  FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FLastSelectionInfo.WriteConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
