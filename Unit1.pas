@@ -3700,19 +3700,14 @@ begin
         VLog := TLogForTaskThread.Create(5000, 0);
         VSimpleLog := VLog;
         VThreadLog := VLog;
-        VThread := TThreadDownloadTiles.Create(VSimpleLog, OpenSessionDialog.FileName, GState.SessionLastSuccess, FConfig.ViewPortState.GetCurrentZoom);
+        VThread := TThreadDownloadTiles.Create(VSimpleLog, VFileName, GState.SessionLastSuccess, FConfig.ViewPortState.GetCurrentZoom);
         TFProgress.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
-      end else if ExtractFileExt(OpenSessionDialog.FileName)='.hlg' then begin
-        Fsaveas.LoadSelFromFile(OpenSessionDialog.FileName);
+      end else if ExtractFileExt(VFileName)='.hlg' then begin
+        Fsaveas.LoadSelFromFile(VFileName);
       end else begin
-        if (ExtractFileExt(OpenSessionDialog.FileName)='.kml')or
-           (ExtractFileExt(OpenSessionDialog.FileName)='.kmz')or
-           (ExtractFileExt(OpenSessionDialog.FileName)='.plt')
-        then begin
-          VImportConfig := FImport.GetImportConfig(FMarkDBGUI);
-          if VImportConfig <> nil then begin
-            //Todo Доделать
-          end;
+        VImportConfig := FImport.GetImportConfig(FMarkDBGUI);
+        if VImportConfig <> nil then begin
+          GState.ImportFileByExt.ProcessImport(VFileName, VImportConfig);
         end;
       end;
     end;

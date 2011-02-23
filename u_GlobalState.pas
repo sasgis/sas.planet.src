@@ -37,6 +37,7 @@ uses
   u_MemFileCache,
   i_IGPSConfig,
   i_IMarksFactoryConfig,
+  i_IImportFile,
   u_GPSState,
   u_GlobalCahceConfig;
 
@@ -77,6 +78,9 @@ type
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
     FMarksFactoryConfig: IMarksFactoryConfig;
+    FGPSpar: TGPSpar;
+    FImportFileByExt: IImportFile;
+
     function GetMarkIconsPath: string;
     function GetMapsPath: string;
     function GetTrackLogPath: string;
@@ -99,8 +103,6 @@ type
     TwoDownloadAttempt: Boolean;
     // Переходить к следующему тайлу если произошла ошибка закачки
     GoNextTileIfDownloadError: Boolean;
-
-    GPSpar: TGPSpar;
 
     //Использовать тайлы предыдущих уровней для отображения
     UsePrevZoom: Boolean;
@@ -154,6 +156,9 @@ type
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
     property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
+    property GPSpar: TGPSpar read FGPSpar;
+    property ImportFileByExt: IImportFile read FImportFileByExt;
+
 
     constructor Create;
     destructor Destroy; override;
@@ -198,6 +203,7 @@ uses
   u_MarkPictureListSimple,
   u_ImageResamplerConfig,
   u_ImageResamplerFactoryListStaticSimple,
+  u_ImportByFileExt,
   u_MainFormConfig,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -241,11 +247,12 @@ begin
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   FKmlLoader := TKmlInfoSimpleParser.Create;
   FKmzLoader := TKmzInfoSimpleParser.Create;
+  FImportFileByExt := TImportByFileExt.Create(FKmlLoader, FKmzLoader);
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
-  GPSpar := TGPSpar.Create(GetTrackLogPath, FGPSConfig);
+  FGPSpar := TGPSpar.Create(GetTrackLogPath, FGPSConfig);
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
@@ -276,7 +283,7 @@ begin
   FMapTypeIcons24List := nil;
   FLastSelectionInfo := nil;
   FGPSConfig := nil;
-  FreeAndNil(GPSpar);
+  FreeAndNil(FGPSpar);
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
   FProxySettings := nil;

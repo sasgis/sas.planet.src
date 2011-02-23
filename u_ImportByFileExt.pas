@@ -4,6 +4,7 @@ interface
 
 uses
   i_IImportFile,
+  i_IKmlInfoSimpleLoader,
   i_IImportConfig;
 
 type
@@ -15,7 +16,7 @@ type
   protected
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
   public
-    constructor Create;
+    constructor Create(AKmlLoader: IKmlInfoSimpleLoader; AKmzLoader: IKmlInfoSimpleLoader);
   end;
 
 implementation
@@ -23,16 +24,15 @@ implementation
 uses
   SysUtils,
   u_ImportKML,
-  u_ImportPLT,
-  u_GlobalState;
+  u_ImportPLT;
 
 { TImportByFileExt }
 
-constructor TImportByFileExt.Create;
+constructor TImportByFileExt.Create(AKmlLoader: IKmlInfoSimpleLoader; AKmzLoader: IKmlInfoSimpleLoader);
 begin
   FImportPLT := TImportPLT.Create;
-  FImportKML := TImportKML.Create(GState.KmlLoader);
-  FImportKMZ := TImportKML.Create(GState.KmzLoader);
+  FImportKML := TImportKML.Create(AKmlLoader);
+  FImportKMZ := TImportKML.Create(AKmzLoader);
 end;
 
 function TImportByFileExt.ProcessImport(AFileName: string;
