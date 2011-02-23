@@ -1645,6 +1645,7 @@ var
   VMapMove: Boolean;
   VMapMoveCentred: Boolean;
   VMinDelta: Double;
+  VProcessGPSIfActive: Boolean;
   VDelta: Double;
   VNeedTrackRedraw: Boolean;
 begin
@@ -1654,49 +1655,52 @@ begin
     if FSettings.Visible then FSettings.SatellitePaint;
     if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
     if (VPosition.IsFix=0) then exit;
-    if not((FMapMoving)or(FMapZoomAnimtion))and(Screen.ActiveForm=Self) then begin
-      VNeedTrackRedraw := True;
+    if not((FMapMoving)or(FMapZoomAnimtion)) then begin
       FConfig.GPSBehaviour.LockRead;
       try
         VMapMove := FConfig.GPSBehaviour.MapMove;
         VMapMoveCentred := FConfig.GPSBehaviour.MapMoveCentered;
         VMinDelta := FConfig.GPSBehaviour.MinMoveDelta;
+        VProcessGPSIfActive := FConfig.GPSBehaviour.ProcessGPSIfActive;
       finally
         FConfig.GPSBehaviour.UnlockRead;
       end;
-      if (VMapMove) then begin
-        VGPSNewPos := GState.GPSpar.GPSRecorder.GetLastPoint;
-        if VMapMoveCentred then begin
-          VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-          VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
-          VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
-          VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
-          VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
-          VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
-          if VDelta > VMinDelta then begin
-            FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
-            VNeedTrackRedraw := False;
-          end;
-        end else begin
+      if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
+        VNeedTrackRedraw := True;
+        if (VMapMove) then begin
+          VGPSNewPos := GState.GPSpar.GPSRecorder.GetLastPoint;
+          if VMapMoveCentred then begin
             VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+            VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
             VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
-            if PixelPointInRect(VGPSMapPoint, VConverter.GetRectInMapPixelFloat) then  begin
-              VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
-              VCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
-              VCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
-              VPointDelta := FCenterToGPSDelta;
-              VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
-              VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
-              VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
-              if VDelta > VMinDelta then begin
-                FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
-                VNeedTrackRedraw := False;
-              end;
+            VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
+            VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
+            VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+            if VDelta > VMinDelta then begin
+              FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
+              VNeedTrackRedraw := False;
             end;
+          end else begin
+              VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+              VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
+              if PixelPointInRect(VGPSMapPoint, VConverter.GetRectInMapPixelFloat) then  begin
+                VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
+                VCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
+                VCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
+                VPointDelta := FCenterToGPSDelta;
+                VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
+                VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
+                VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+                if VDelta > VMinDelta then begin
+                  FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
+                  VNeedTrackRedraw := False;
+                end;
+              end;
+          end;
         end;
-      end;
-      if VNeedTrackRedraw then begin
-        FLayerMapGPS.Redraw;
+        if VNeedTrackRedraw then begin
+          FLayerMapGPS.Redraw;
+        end;
       end;
     end;
   end;
