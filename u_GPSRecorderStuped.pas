@@ -5,33 +5,90 @@ interface
 uses
   SysUtils,
   t_GeoTypes,
+  i_IConfigDataProvider,
+  i_IConfigDataWriteProvider,
   i_GPS,
-  i_IGPSRecorder;
+  i_IGPSModule,
+  i_IGPSRecorder,
+  u_ConfigDataElementBase;
 
 type
-  TGPSRecorderStuped = class(TInterfacedObject, IGPSRecorder)
+  TGPSRecorderStuped = class(TConfigDataElementBase, IGPSRecorder)
   private
+    FGPSModule: IGPSModule;
     FTrack: TGPSTrackPointArray;
     FPointsCount: Integer;
     FAllocatedPoints: Integer;
-    FLock: IReadWriteSync;
-  protected
+
+    FOdometer1: Double;
+    FOdometer2: Double;
+    FMaxSpeed: Double;
+    FAvgSpeed: Double;
+    FDist: Double;
+    FLastSpeed: Double;
+    FLastAltitude: Double;
+    FLastHeading: Double;
+
+    procedure OnGpsDataReceive(Sender: TObject);
+    procedure OnGpsDisconnect(Sender: TObject);
     procedure AddPoint(APosition: IGPSPosition);
+  protected
+    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+  protected
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function GetLastPoint: TDoublePoint;
-    function GetTwoLastPoints(var APointLast, APointPrev: TDoublePoint): Boolean;
     function LastPoints(ACount: Integer): TGPSTrackPointArray;
     function GetAllPoints: TDoublePointArray;
     function GetAllTracPoints: TGPSTrackPointArray;
+
+    function GetOdometer1: Double;
+    procedure ResetOdometer1;
+    function GetOdometer2: Double;
+    procedure ResetOdometer2;
+    function GetMaxSpeed: Double;
+    procedure ResetMaxSpeed;
+    function GetAvgSpeed: Double;
+    procedure ResetAvgSpeed;
+    function GetDist: Double;
+    function GetLastSpeed: Double;
+    function GetLastAltitude: Double;
+    function GetLastHeading: Double;
   public
-    constructor Create;
+    constructor Create(AGPSModule: IGPSModule);
     destructor Destroy; override;
   end;
 
 implementation
 
 { TGPSRecorderStuped }
+
+constructor TGPSRecorderStuped.Create(AGPSModule: IGPSModule);
+begin
+  inherited Create;
+  FGPSModule := AGPSModule;
+
+end;
+
+destructor TGPSRecorderStuped.Destroy;
+begin
+  FTrack := nil;
+  inherited;
+end;
+
+procedure TGPSRecorderStuped.DoReadConfig(AConfigData: IConfigDataProvider);
+begin
+  inherited;
+
+end;
+
+procedure TGPSRecorderStuped.DoWriteConfig(
+  AConfigData: IConfigDataWriteProvider);
+begin
+  inherited;
+
+end;
 
 procedure TGPSRecorderStuped.AddPoint(APosition: IGPSPosition);
 var
@@ -40,7 +97,7 @@ var
 begin
   VIsAddPointEmpty := APosition.IsFix = 0;
   VIsLastPointEmpty := True;
-  FLock.BeginWrite;
+  LockWrite;
   try
     if FPointsCount > 0 then begin
       VIsLastPointEmpty := (FTrack[FPointsCount - 1].Point.X = 0) and (FTrack[FPointsCount - 1].Point.Y = 0);
@@ -59,60 +116,88 @@ begin
       Inc(FPointsCount);
     end;
   finally
-    FLock.EndWrite;
+    UnlockWrite;
   end;
 end;
 
 procedure TGPSRecorderStuped.ClearTrack;
 begin
-  FLock.BeginWrite;
+  LockWrite;
   try
     FPointsCount := 0;
   finally
-    FLock.EndWrite;
+    UnlockWrite;
   end;
-end;
-
-constructor TGPSRecorderStuped.Create;
-begin
-  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
-end;
-
-destructor TGPSRecorderStuped.Destroy;
-begin
-  FLock := nil;
-  FTrack := nil;
-  inherited;
 end;
 
 function TGPSRecorderStuped.GetAllPoints: TDoublePointArray;
 var
   i: Cardinal;
 begin
-  FLock.BeginRead;
+  LockRead;
   try
     SetLength(Result, FPointsCount);
     for i := 0 to FPointsCount - 1 do begin
       Result[i] := FTrack[i].Point;
     end;
   finally
-    FLock.EndRead;
+    UnlockRead;
   end;
 end;
 
 function TGPSRecorderStuped.GetAllTracPoints: TGPSTrackPointArray;
 begin
-  FLock.BeginRead;
+  LockRead;
   try
     Result := Copy(FTrack, 0, FPointsCount);
   finally
-    FLock.EndRead;
+    UnlockRead;
+  end;
+end;
+
+function TGPSRecorderStuped.GetAvgSpeed: Double;
+begin
+  LockRead;
+  try
+    Result := FAvgSpeed;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TGPSRecorderStuped.GetDist: Double;
+begin
+  LockRead;
+  try
+    Result := FDist;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TGPSRecorderStuped.GetLastAltitude: Double;
+begin
+  LockRead;
+  try
+    Result := FLastAltitude;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TGPSRecorderStuped.GetLastHeading: Double;
+begin
+  LockRead;
+  try
+    Result := FLastHeading;
+  finally
+    UnlockRead;
   end;
 end;
 
 function TGPSRecorderStuped.GetLastPoint: TDoublePoint;
 begin
-  FLock.BeginRead;
+  LockRead;
   try
     if FPointsCount = 0 then begin
       Result.X := 0;
@@ -121,44 +206,57 @@ begin
       Result := FTrack[FPointsCount - 1].Point;
     end;
   finally
-    FLock.EndRead;
+    UnlockRead;
   end;
 end;
 
-function TGPSRecorderStuped.GetTwoLastPoints(var APointLast,
-  APointPrev: TDoublePoint): Boolean;
+function TGPSRecorderStuped.GetLastSpeed: Double;
 begin
-  Result := False;
-  APointLast.X := 0;
-  APointLast.Y := 0;
-  APointPrev := APointLast;
-  FLock.BeginRead;
+  LockRead;
   try
-    if FPointsCount > 0 then begin
-      APointLast := FTrack[FPointsCount - 1].Point;
-      if FPointsCount > 1 then begin
-        APointPrev := FTrack[FPointsCount - 2].Point;
-      end else begin
-        APointPrev := APointLast;
-      end;
-    end;
+    Result := FLastSpeed;
   finally
-    FLock.EndRead;
+    UnlockRead;
   end;
-  if (APointLast.X = 0) and (APointLast.Y = 0) then begin
-    APointPrev := APointLast;
-  end else if not((APointPrev.X = 0) and (APointPrev.Y = 0)) then begin
-    Result := True;
+end;
+
+function TGPSRecorderStuped.GetMaxSpeed: Double;
+begin
+  LockRead;
+  try
+    Result := FMaxSpeed;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TGPSRecorderStuped.GetOdometer1: Double;
+begin
+  LockRead;
+  try
+    Result := FOdometer1;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TGPSRecorderStuped.GetOdometer2: Double;
+begin
+  LockRead;
+  try
+    Result := FOdometer2;
+  finally
+    UnlockRead;
   end;
 end;
 
 function TGPSRecorderStuped.IsEmpty: Boolean;
 begin
-  FLock.BeginRead;
+  LockRead;
   try
     Result := FPointsCount > 0;
   finally
-    FLock.EndRead;
+    UnlockRead;
   end;
 end;
 
@@ -167,7 +265,7 @@ var
   VPointsToCopyCount: Integer;
   VStartIndex: Integer;
 begin
-  FLock.BeginRead;
+  LockRead;
   try
     VPointsToCopyCount := ACount;
     if FPointsCount <= VPointsToCopyCount then begin
@@ -178,7 +276,69 @@ begin
     end;
     Result := Copy(FTrack, VStartIndex, VPointsToCopyCount);
   finally
-    FLock.EndRead;
+    UnlockRead;
+  end;
+end;
+
+procedure TGPSRecorderStuped.OnGpsDataReceive(Sender: TObject);
+begin
+
+end;
+
+procedure TGPSRecorderStuped.OnGpsDisconnect(Sender: TObject);
+begin
+
+end;
+
+procedure TGPSRecorderStuped.ResetAvgSpeed;
+begin
+  LockWrite;
+  try
+    if FAvgSpeed <> 0 then begin
+      FAvgSpeed := 0;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TGPSRecorderStuped.ResetMaxSpeed;
+begin
+  LockWrite;
+  try
+    if FMaxSpeed <> 0 then begin
+      FMaxSpeed := 0;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TGPSRecorderStuped.ResetOdometer1;
+begin
+  LockWrite;
+  try
+    if FOdometer1 <> 0 then begin
+      FOdometer1 := 0;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TGPSRecorderStuped.ResetOdometer2;
+begin
+  LockWrite;
+  try
+    if FOdometer2 <> 0 then begin
+      FOdometer2 := 0;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

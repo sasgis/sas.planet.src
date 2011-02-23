@@ -41,7 +41,6 @@ type
     sspeednumentr: integer;
     altitude: Double;
     maxspeed: Double;
-    nap: integer;
     azimut: Double;
     Odometr: Double;
     Odometr2: Double;
@@ -73,10 +72,10 @@ begin
   FConfig := AConfig;
   FDatum := TDatum.Create(3395, 6378137, 6356752);
   FLogPath := ALogPath;
-  FGPSRecorder := TGPSRecorderStuped.Create;
   FLogWriter := TPltLogWriter.Create(FLogPath);
   FGPSModuleByCOM := TGPSModuleByZylGPS.Create;
   FGPSModule := FGPSModuleByCOM;
+  FGPSRecorder := TGPSRecorderStuped.Create(FGPSModule);
   FLinksList := TJclListenerNotifierLinksList.Create;
 
   FLinksList.Add(
@@ -161,7 +160,7 @@ begin
     FLogWriter.AddPoint(VPosition);
   end;
   VPointPrev := FGPSRecorder.GetLastPoint;
-  FGPSRecorder.AddPoint(VPosition);
+//  FGPSRecorder.AddPoint(VPosition);
 
   if (VPosition.IsFix=0) then exit;
   VPointCurr := VPosition.Position;
