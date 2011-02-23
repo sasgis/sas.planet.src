@@ -12,6 +12,7 @@ type
   TWindowLayerBasicList = class
   private
     FList: TList;
+    function GetCount: Integer;
   protected
     function Get(AIndex: Integer): TWindowLayerAbstract;
   public
@@ -21,6 +22,7 @@ type
     procedure StartThreads;
     procedure SendTerminateToThreads;
     property Items[Index: Integer]: TWindowLayerAbstract read Get; default;
+    property Count: Integer read GetCount;
   end;
 
 implementation
@@ -54,6 +56,11 @@ end;
 function TWindowLayerBasicList.Get(AIndex: Integer): TWindowLayerAbstract;
 begin
   Result := TWindowLayerAbstract(FList.Items[AIndex]);
+end;
+
+function TWindowLayerBasicList.GetCount: Integer;
+begin
+  Result := FList.Count;
 end;
 
 procedure TWindowLayerBasicList.SendTerminateToThreads;
