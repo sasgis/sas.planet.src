@@ -121,6 +121,7 @@ begin
       FConfig.WriteLog := false;
     end;
   end;
+  FConfig.GPSEnabled := True;
 end;
 
 procedure TGPSpar.OnGpsDataReceive;
