@@ -5,8 +5,10 @@ interface
 uses
   SysUtils,
   t_GeoTypes,
+  i_IJclListenerNotifierLinksList,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
+  i_IDatum,
   i_GPS,
   i_IGPSModule,
   i_IGPSRecorder,
@@ -16,6 +18,8 @@ type
   TGPSRecorderStuped = class(TConfigDataElementBase, IGPSRecorder)
   private
     FGPSModule: IGPSModule;
+    FDatum: IDatum;
+    FLinksList: IJclListenerNotifierLinksList;
     FTrack: TGPSTrackPointArray;
     FPointsCount: Integer;
     FAllocatedPoints: Integer;
@@ -28,8 +32,11 @@ type
     FLastSpeed: Double;
     FLastAltitude: Double;
     FLastHeading: Double;
+    FLastPosition: TDoublePoint;
+
     FAvgSpeedTickCount: Double;
     FLastPointIsEmpty: Boolean;
+
 
     procedure OnGpsConnect(Sender: TObject);
     procedure OnGpsDataReceive(Sender: TObject);
@@ -41,7 +48,6 @@ type
   protected
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    function GetLastPoint: TDoublePoint;
     function LastPoints(ACount: Integer): TGPSTrackPointArray;
     function GetAllPoints: TDoublePointArray;
     function GetAllTracPoints: TGPSTrackPointArray;
@@ -50,14 +56,16 @@ type
     procedure ResetOdometer1;
     function GetOdometer2: Double;
     procedure ResetOdometer2;
+    function GetDist: Double;
+    procedure ResetDist;
     function GetMaxSpeed: Double;
     procedure ResetMaxSpeed;
     function GetAvgSpeed: Double;
     procedure ResetAvgSpeed;
-    function GetDist: Double;
     function GetLastSpeed: Double;
     function GetLastAltitude: Double;
     function GetLastHeading: Double;
+    function GetLastPosition: TDoublePoint;
   public
     constructor Create(AGPSModule: IGPSModule);
     destructor Destroy; override;
@@ -65,13 +73,33 @@ type
 
 implementation
 
+uses
+  u_JclListenerNotifierLinksList,
+  u_NotifyEventListener,
+  u_Datum;
+
 { TGPSRecorderStuped }
 
 constructor TGPSRecorderStuped.Create(AGPSModule: IGPSModule);
 begin
   inherited Create;
   FGPSModule := AGPSModule;
+  FDatum := TDatum.Create(3395, 6378137, 6356752);
   FLastPointIsEmpty := True;
+  FLinksList := TJclListenerNotifierLinksList.Create;
+
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnGpsConnect),
+    FGPSModule.ConnectedNotifier
+  );
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnGpsDataReceive),
+    FGPSModule.DataReciveNotifier
+  );
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnGpsDisconnect),
+    FGPSModule.DisconnectedNotifier
+  );
 end;
 
 destructor TGPSRecorderStuped.Destroy;
@@ -100,16 +128,15 @@ end;
 procedure TGPSRecorderStuped.AddPoint(APosition: IGPSPosition);
 var
   VIsAddPointEmpty: Boolean;
-  VIsLastPointEmpty: Boolean;
+  VAlfa: Double;
+  VBeta: Double;
+  VDistToPrev: Double;
+  VPointPrev: TDoublePoint;
 begin
   VIsAddPointEmpty := APosition.IsFix = 0;
-  VIsLastPointEmpty := True;
   LockWrite;
   try
-    if FPointsCount > 0 then begin
-      VIsLastPointEmpty := (FTrack[FPointsCount - 1].Point.X = 0) and (FTrack[FPointsCount - 1].Point.Y = 0);
-    end;
-    if (not VIsLastPointEmpty) or (not VIsAddPointEmpty) then begin
+    if (not FLastPointIsEmpty) or (not VIsAddPointEmpty) then begin
       if FPointsCount >= FAllocatedPoints then begin
         if FAllocatedPoints <= 0 then begin
           FAllocatedPoints := 4096;
@@ -118,9 +145,35 @@ begin
         end;
         SetLength(FTrack, FAllocatedPoints);
       end;
-      FTrack[FPointsCount].Point := APosition.Position;
-      FTrack[FPointsCount].Speed := APosition.Speed_KMH;
+      if (not VIsAddPointEmpty) then begin
+        FLastPosition := APosition.Position;
+        FLastAltitude := APosition.Altitude;
+        FLastHeading := APosition.Heading;
+        FLastSpeed := APosition.Speed_KMH;
+        if FLastSpeed > FMaxSpeed then begin
+          FMaxSpeed := FLastSpeed;
+        end;
+        FAvgSpeedTickCount := FAvgSpeedTickCount + 1;
+        VAlfa := 1 / FAvgSpeedTickCount;
+        VBeta := 1 - VAlfa;
+        FAvgSpeed := VAlfa * FLastSpeed + VBeta * FAvgSpeed;
+
+        if not FLastPointIsEmpty then begin
+          VPointPrev := FTrack[FPointsCount - 1].Point;
+          VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
+          FDist := FDist + VDistToPrev;
+          FOdometer1 := FOdometer1 + VDistToPrev;
+          FOdometer2 := FOdometer2 + VDistToPrev;
+        end;
+        FTrack[FPointsCount].Point := FLastPosition;
+        FTrack[FPointsCount].Speed := FLastSpeed;
+      end else begin
+        FTrack[FPointsCount].Point.X := 0;
+        FTrack[FPointsCount].Point.Y := 0;
+        FTrack[FPointsCount].Speed := 0;
+      end;
       Inc(FPointsCount);
+      FLastPointIsEmpty := VIsAddPointEmpty;
     end;
   finally
     UnlockWrite;
@@ -132,6 +185,7 @@ begin
   LockWrite;
   try
     FPointsCount := 0;
+    FLastPointIsEmpty := True;
   finally
     UnlockWrite;
   end;
@@ -202,16 +256,11 @@ begin
   end;
 end;
 
-function TGPSRecorderStuped.GetLastPoint: TDoublePoint;
+function TGPSRecorderStuped.GetLastPosition: TDoublePoint;
 begin
   LockRead;
   try
-    if FPointsCount = 0 then begin
-      Result.X := 0;
-      Result.Y := 0;
-    end else begin
-      Result := FTrack[FPointsCount - 1].Point;
-    end;
+    Result := FLastPosition;
   finally
     UnlockRead;
   end;
@@ -298,12 +347,12 @@ end;
 
 procedure TGPSRecorderStuped.OnGpsDataReceive(Sender: TObject);
 begin
-
+  AddPoint(FGPSModule.Position);
 end;
 
 procedure TGPSRecorderStuped.OnGpsDisconnect(Sender: TObject);
 begin
-
+  AddPoint(FGPSModule.Position);
 end;
 
 procedure TGPSRecorderStuped.ResetAvgSpeed;
@@ -312,6 +361,19 @@ begin
   try
     if FAvgSpeed <> 0 then begin
       FAvgSpeed := 0;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TGPSRecorderStuped.ResetDist;
+begin
+  LockWrite;
+  try
+    if FDist <> 0 then begin
+      FDist := 0;
       SetChanged;
     end;
   finally

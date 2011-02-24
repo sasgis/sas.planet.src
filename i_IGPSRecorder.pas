@@ -19,7 +19,6 @@ type
     ['{E8525CFD-243B-4454-82AA-C66108A74B8F}']
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    function GetLastPoint: TDoublePoint;
     function LastPoints(ACount: Integer): TGPSTrackPointArray;
     function GetAllPoints: TDoublePointArray;
     function GetAllTracPoints: TGPSTrackPointArray;
@@ -28,14 +27,16 @@ type
     procedure ResetOdometer1;
     function GetOdometer2: Double;
     procedure ResetOdometer2;
+    function GetDist: Double;
+    procedure ResetDist;
     function GetMaxSpeed: Double;
     procedure ResetMaxSpeed;
     function GetAvgSpeed: Double;
     procedure ResetAvgSpeed;
-    function GetDist: Double;
     function GetLastSpeed: Double;
     function GetLastAltitude: Double;
     function GetLastHeading: Double;
+    function GetLastPosition: TDoublePoint;
   end;
 
 implementation

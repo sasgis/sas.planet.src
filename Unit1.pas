@@ -1076,7 +1076,7 @@ begin
   VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VZoomCurr := VConverter.GetZoom;
   VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
-  VGPSLonLat := GState.GPSpar.GPSRecorder.GetLastPoint;
+  VGPSLonLat := GState.GPSpar.GPSRecorder.GetLastPosition;
   VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSLonLat, VConverter.GetZoom);
   FCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
   FCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
@@ -1562,16 +1562,26 @@ var
 begin
  try
    VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-   //скорость
-   TBXSensorSpeed.Caption:=RoundEx(GState.GPSpar.speed,2);
-   //средн€€ скорость
-   TBXSensorSpeedAvg.Caption:=RoundEx(GState.GPSpar.sspeed,2);
-   //максимальна€ скорость
-   TBXSensorSpeedMax.Caption:=RoundEx(GState.GPSpar.maxspeed,2);
-   //высота
-   TBXSensorAltitude.Caption:=RoundEx(GState.GPSpar.altitude,2);
-   //пройденный путь
-   TBXOdometrNow.Caption:=VValueConverter.DistConvert(GState.GPSpar.len);
+   GState.GPSpar.GPSRecorder.LockRead;
+   try
+     //скорость
+     TBXSensorSpeed.Caption:=RoundEx(GState.GPSpar.GPSRecorder.GetLastSpeed,2);
+     //средн€€ скорость
+     TBXSensorSpeedAvg.Caption:=RoundEx(GState.GPSpar.GPSRecorder.GetAvgSpeed,2);
+     //максимальна€ скорость
+     TBXSensorSpeedMax.Caption:=RoundEx(GState.GPSpar.GPSRecorder.GetMaxSpeed,2);
+     //высота
+     TBXSensorAltitude.Caption:=RoundEx(GState.GPSpar.GPSRecorder.GetLastAltitude,2);
+     //пройденный путь
+     TBXOdometrNow.Caption:=VValueConverter.DistConvert(GState.GPSpar.GPSRecorder.GetDist);
+     //одометр
+     TBXSensorOdometr.Caption:=VValueConverter.DistConvert(GState.GPSpar.GPSRecorder.GetOdometer1);
+     TBXSensorOdometr2.Caption:=VValueConverter.DistConvert(GState.GPSpar.GPSRecorder.GetOdometer2);
+     //јзимут
+     TBXSensorAzimut.Caption:=RoundEx(GState.GPSpar.GPSRecorder.GetLastHeading,2)+'∞';
+   finally
+     GState.GPSpar.GPSRecorder.UnlockRead;
+   end;
    //рассто€ние до метки
    if (FConfig.NavToPoint.IsActive) then begin
      VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
@@ -1582,9 +1592,6 @@ begin
    end else begin
      TBXSensorLenToMark.Caption:='-';
    end;
-   //одометр
-   TBXSensorOdometr.Caption:=VValueConverter.DistConvert(GState.GPSpar.Odometr);
-   TBXSensorOdometr2.Caption:=VValueConverter.DistConvert(GState.GPSpar.Odometr2);
    //батаре€
    GetSystemPowerStatus(sps);
    if sps.ACLineStatus=0 then begin
@@ -1598,9 +1605,6 @@ begin
    else begin
      TBXSensorBattary.Caption:=SAS_STR_BattaryStateOnLine;
    end;
-   //јзимут
-   TBXSensorAzimut.Caption:=RoundEx(GState.GPSpar.azimut,2)+'∞';
-   //—ила сигнала, кол-во спутников
  except
  end;
 end;
@@ -1672,7 +1676,7 @@ begin
       if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
         VNeedTrackRedraw := True;
         if (VMapMove) then begin
-          VGPSNewPos := GState.GPSpar.GPSRecorder.GetLastPoint;
+          VGPSNewPos := GState.GPSpar.GPSRecorder.GetLastPosition;
           if VMapMoveCentred then begin
             VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
             VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
@@ -3391,8 +3395,13 @@ end;
 
 procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
-  GState.GPSpar.GPSRecorder.ClearTrack;
-  GState.GPSpar.maxspeed:=0;
+  GState.GPSpar.GPSRecorder.LockWrite;
+  try
+    GState.GPSpar.GPSRecorder.ClearTrack;
+    GState.GPSpar.GPSRecorder.ResetMaxSpeed;
+  finally
+    GState.GPSpar.GPSRecorder.UnlockWrite;
+  end;
 end;
 
 procedure TFmain.NGShScale01Click(Sender: TObject);
@@ -3644,11 +3653,11 @@ procedure TFmain.SBClearSensorClick(Sender: TObject);
 begin
  if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
    case TSpeedButton(sender).Tag of
-    1: GState.GPSpar.sspeed:=0;
-    2: GState.GPSpar.len:=0;
-    3: GState.GPSpar.Odometr:=0;
-    4: GState.GPSpar.maxspeed:=0;
-    5: GState.GPSpar.Odometr2:=0;
+    1: GState.GPSpar.GPSRecorder.ResetAvgSpeed;
+    2: GState.GPSpar.GPSRecorder.ResetDist;
+    3: GState.GPSpar.GPSRecorder.ResetOdometer1;
+    4: GState.GPSpar.GPSRecorder.ResetMaxSpeed;
+    5: GState.GPSpar.GPSRecorder.ResetOdometer2;
    end;
    UpdateGPSsensors;
  end;
