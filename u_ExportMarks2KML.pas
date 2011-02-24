@@ -15,7 +15,6 @@ uses
   KaZip,
   ActiveX,
   u_MarksSimple,
-  u_MarksSimpleNew,
   i_MarksSimple,
   u_GlobalState,
   u_GeoToStr,
@@ -223,7 +222,7 @@ procedure TExportMarks2KML.AddMarks(CategoryIDList:TList; inNode:iXMLNode);
 var MarksList:IMarksSubset;
     Mark:iMarkFull;
     VEnumMarks:IEnumUnknown;
-    i,j:integer;
+    i:integer;
     currNode:IXMLNode;
     coordinates:string;
 begin
@@ -259,11 +258,10 @@ begin
             ChildValues['color']:=Color32toKMLColor(Mark.Color1);
             ChildValues['scale']:=R2StrPoint(Mark.Scale1/14);
           end;
-          j:=GState.MarksDB.MarksDb.MarkPictureList.GetIndexByName(Mark.PicName);
-          if j>=0 then begin
+          if Mark.Pic <> nil then begin
             with AddChild('IconStyle') do begin
               SaveMarkIcon(Mark);
-              width:=GState.MarksDB.MarksDb.MarkPictureList.Get(j).GetBitmapSize.X;
+              width:=Mark.Pic.GetBitmapSize.X;
               ChildValues['scale']:=R2StrPoint(Mark.Scale2/width);
               with AddChild('Icon') do begin
                 ChildValues['href']:='files\'+Mark.PicName;
