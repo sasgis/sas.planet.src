@@ -414,6 +414,7 @@
     <DCCReference Include="u_DownloadUIConfig.pas" />
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
+    <DCCReference Include="u_ExportMarks2KML.pas" />
     <DCCReference Include="u_FillingMapLayerConfig.pas" />
     <DCCReference Include="u_FillingMapLayerConfigStatic.pas" />
     <DCCReference Include="u_FillingMapMapsConfig.pas" />

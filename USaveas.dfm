@@ -28,46 +28,26 @@ object Fsaveas: TFsaveas
     TabWidth = 83
     object TabSheet1: TTabSheet
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet2: TTabSheet
       Tag = 1
       Caption = #1057#1082#1083#1077#1080#1090#1100
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 565
-      ExplicitHeight = 247
     end
     object TabSheet3: TTabSheet
       Tag = 2
       Caption = #1057#1092#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 565
-      ExplicitHeight = 247
     end
     object TabSheet4: TTabSheet
       Tag = 3
       Caption = #1059#1076#1072#1083#1080#1090#1100
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 565
-      ExplicitHeight = 247
     end
     object TabSheet5: TTabSheet
       Tag = 4
       Caption = #1069#1082#1089#1087#1086#1088#1090
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Bevel5: TBevel
         Left = 0
         Top = 0
@@ -90,7 +70,7 @@ object Fsaveas: TFsaveas
         Width = 249
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         OnChange = CBFormatChange
       end
@@ -102,19 +82,12 @@ object Fsaveas: TFsaveas
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 33
-        ExplicitWidth = 565
-        ExplicitHeight = 214
       end
     end
     object TabSheet6: TTabSheet
       Tag = 5
       Caption = #1057#1082#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 565
-      ExplicitHeight = 247
     end
   end
   object pnlBottomButtons: TPanel
@@ -206,6 +179,7 @@ object Fsaveas: TFsaveas
   object SaveSelDialog: TSaveDialog
     DefaultExt = '*.hlg'
     Filter = #1060#1072#1081#1083' '#1074#1099#1076#1077#1083#1077#1085#1080#1103'|*.hlg'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 32
     Top = 48
   end

@@ -200,6 +200,7 @@ object FProgress: TFProgress
   object SaveSessionDialog: TSaveDialog
     DefaultExt = '*.sls'
     Filter = #1057#1077#1089#1089#1080#1103' '#1079#1072#1075#1088#1091#1079#1082#1080' (*.sls)|*.sls'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 280
     Top = 184
   end

@@ -168,6 +168,7 @@ object frExportGEKml: TfrExportGEKml
   object dlgSaveKML: TSaveDialog
     DefaultExt = 'kml'
     Filter = 'KML |*.kml'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 184
     Top = 136
   end

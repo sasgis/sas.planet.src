@@ -380,6 +380,7 @@ object frMapCombine: TfrMapCombine
   object dlgSaveTargetFile: TSaveDialog
     DefaultExt = 'zip'
     Filter = 'Zip |*.zip'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 48
     Top = 232
   end

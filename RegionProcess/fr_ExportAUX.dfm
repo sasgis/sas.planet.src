@@ -128,6 +128,7 @@ object frExportAUX: TfrExportAUX
   object dlgTargetFileSelect: TSaveDialog
     DefaultExt = 'aux'
     Filter = 'AUX |*.aux'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 312
     Top = 88
   end

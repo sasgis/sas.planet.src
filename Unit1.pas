@@ -397,6 +397,7 @@ type
     tmrMapUpdate: TTimer;
     tbtmHelpBugTrack: TTBItem;
     tbitmShowDebugInfo: TTBXItem;
+    NMarkExport: TMenuItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -527,6 +528,7 @@ type
     procedure tbtmHelpBugTrackClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure tbitmShowDebugInfoClick(Sender: TObject);
+    procedure NMarkExportClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -682,7 +684,8 @@ uses
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
   UGSM,
-  UImport;
+  UImport,
+  u_ExportMarks2KML;
 
 {$R *.dfm}
 
@@ -2761,6 +2764,32 @@ begin
   end;
 end;
 
+procedure TFmain.NMarkExportClick(Sender: TObject);
+var KMLExport:TExportMarks2KML;
+    VMark: iMarkFull;
+    VIndex:integer;
+    VPWL: TResObj;
+begin
+  VPWL.S:=0;
+  VPWL.find:=false;
+  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
+  if VPWL.find then begin
+    KMLExport:=TExportMarks2KML.Create(false);
+    try
+      FMarksExplorer.ExportDialog.FileName:=VPWL.name;
+      if (FMarksExplorer.ExportDialog.Execute)and(FMarksExplorer.ExportDialog.FileName<>'') then begin
+        VIndex:=strtoint(VPWL.numid);
+        VMark := GState.MarksDb.MarksDb.GetMarkByID(VIndex);
+        if VMark <> nil then begin
+          KMLExport.ExportMarkToKML(VMark,FMarksExplorer.ExportDialog.FileName);
+        end;
+      end;
+    finally
+      KMLExport.free;
+    end;
+  end;
+end;
+
 procedure TFmain.NMarkDelClick(Sender: TObject);
 var
   VPWL: TResObj;
@@ -2987,6 +3016,7 @@ begin
       FLayerMapMarks.MouseOnMyReg(VPWL, FMouseDownPoint);
     end;
     NMarkEdit.Visible:=VPWL.find;
+    NMarkExport.Visible:=VPWL.find;
     NMarkDel.Visible:=VPWL.find;
     NMarkSep.Visible:=VPWL.find;
     NMarkOper.Visible:=VPWL.find;

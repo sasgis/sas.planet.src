@@ -125,7 +125,7 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 238
+      Left = 242
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -156,7 +156,7 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 365
+      Left = 369
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -168,7 +168,7 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 505
+      Left = 509
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -2687,6 +2687,10 @@ object Fmain: TFmain
       Caption = #1053#1072#1074#1080#1075#1072#1094#1080#1103' '#1085#1072' '#1084#1077#1090#1082#1091
       OnClick = NMarkNavClick
     end
+    object NMarkExport: TMenuItem
+      Caption = #1069#1082#1089#1087#1086#1088#1090' '#1084#1077#1090#1082#1080
+      OnClick = NMarkExportClick
+    end
     object NMarksCalcs: TMenuItem
       Caption = #1048#1079#1084#1077#1088#1077#1085#1080#1103
       object NMarksCalcsLen: TMenuItem
@@ -5185,6 +5189,7 @@ object Fmain: TFmain
   object SaveLink: TSaveDialog
     DefaultExt = 'lnk'
     Filter = #1071#1088#1083#1099#1082'|*.lnk'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 113
     Top = 212
   end
