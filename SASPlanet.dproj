@@ -168,7 +168,9 @@
     <DCCReference Include="i_ITileObjCache.pas" />
     <DCCReference Include="i_ITileStorage.pas" />
     <DCCReference Include="i_ITileStorageType.pas" />
+    <DCCReference Include="i_ITileStorageTypeConfig.pas" />
     <DCCReference Include="i_ITileStorageTypeInfo.pas" />
+    <DCCReference Include="i_ITileStorageTypeList.pas" />
     <DCCReference Include="i_IUrlByCoordProvider.pas" />
     <DCCReference Include="i_IUsedMarksConfig.pas" />
     <DCCReference Include="i_IValueToStringConverter.pas" />
@@ -569,6 +571,8 @@
     <DCCReference Include="u_TileStorageGE.pas" />
     <DCCReference Include="u_TileStorageGEStuped.pas" />
     <DCCReference Include="u_TileStorageTypeInfo.pas" />
+    <DCCReference Include="u_TileStorageTypeList.pas" />
+    <DCCReference Include="u_TileStorageTypeListSimple.pas" />
     <DCCReference Include="u_UrlGenerator.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
