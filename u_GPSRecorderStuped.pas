@@ -28,7 +28,10 @@ type
     FLastSpeed: Double;
     FLastAltitude: Double;
     FLastHeading: Double;
+    FAvgSpeedTickCount: Double;
+    FLastPointIsEmpty: Boolean;
 
+    procedure OnGpsConnect(Sender: TObject);
     procedure OnGpsDataReceive(Sender: TObject);
     procedure OnGpsDisconnect(Sender: TObject);
     procedure AddPoint(APosition: IGPSPosition);
@@ -68,7 +71,7 @@ constructor TGPSRecorderStuped.Create(AGPSModule: IGPSModule);
 begin
   inherited Create;
   FGPSModule := AGPSModule;
-
+  FLastPointIsEmpty := True;
 end;
 
 destructor TGPSRecorderStuped.Destroy;
@@ -80,14 +83,18 @@ end;
 procedure TGPSRecorderStuped.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
-
+  if AConfigData <> nil then begin
+    FOdometer1 := AConfigData.ReadFloat('Odometer1', FOdometer1);
+    FOdometer2 := AConfigData.ReadFloat('Odometer2', FOdometer2);
+  end;
 end;
 
 procedure TGPSRecorderStuped.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-
+  AConfigData.WriteFloat('Odometer1', FOdometer1);
+  AConfigData.WriteFloat('Odometer2', FOdometer2);
 end;
 
 procedure TGPSRecorderStuped.AddPoint(APosition: IGPSPosition);
@@ -278,6 +285,15 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+procedure TGPSRecorderStuped.OnGpsConnect(Sender: TObject);
+begin
+  FMaxSpeed := 0;
+  FLastSpeed := 0;
+  FLastAltitude := 0;
+  FAvgSpeed := 0;
+  FAvgSpeedTickCount := 0;
 end;
 
 procedure TGPSRecorderStuped.OnGpsDataReceive(Sender: TObject);
