@@ -100,6 +100,7 @@ begin
     TNotifyEventListener.Create(Self.OnGpsDisconnect),
     FGPSModule.DisconnectedNotifier
   );
+  FLinksList.ActivateLinks;
 end;
 
 destructor TGPSRecorderStuped.Destroy;
