@@ -82,7 +82,7 @@ var
   VMapType: TMapType;
   VSaver: IBitmapTileSaver;
   Vmt: Byte;
-  VTileIterators: array of TTileIteratorAbstract;
+  VTileIterators: array of ITileIterator;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -169,7 +169,7 @@ begin
         end;
       finally
         for i := 0 to Length(FZooms)-1 do begin
-          FreeAndNil(VTileIterators[i]);
+          VTileIterators[i] := nil;
         end;
       end;
       ProgressFormUpdateOnProgress
