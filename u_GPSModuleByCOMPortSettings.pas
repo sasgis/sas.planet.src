@@ -10,7 +10,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TGPSModuleByCOMPortSettings = class(TConfigDataElementBase, IGPSModuleByCOMPortConfig)
+  TGPSModuleByCOMPortConfig = class(TConfigDataElementBase, IGPSModuleByCOMPortConfig)
   private
     FPort: Integer;
     FBaudRate: Integer;
@@ -52,9 +52,9 @@ implementation
 uses
   u_GPSModuleByCOMPortConfigSatic;
 
-{ TGPSModuleByCOMPortSettings }
+{ TGPSModuleByCOMPortConfig }
 
-constructor TGPSModuleByCOMPortSettings.Create(ALogPath: string);
+constructor TGPSModuleByCOMPortConfig.Create(ALogPath: string);
 begin
   inherited Create;
   FLogPath := ALogPath;
@@ -66,7 +66,7 @@ begin
   FStatic := CreateStatic;
 end;
 
-function TGPSModuleByCOMPortSettings.CreateStatic: IGPSModuleByCOMPortSettings;
+function TGPSModuleByCOMPortConfig.CreateStatic: IGPSModuleByCOMPortSettings;
 begin
   Result :=
     TGPSModuleByCOMPortConfigSatic.Create(
@@ -79,7 +79,7 @@ begin
     );
 end;
 
-procedure TGPSModuleByCOMPortSettings.DoReadConfig(
+procedure TGPSModuleByCOMPortConfig.DoReadConfig(
   AConfigData: IConfigDataProvider);
 begin
   inherited;
@@ -92,7 +92,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortSettings.DoWriteConfig(
+procedure TGPSModuleByCOMPortConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
@@ -103,7 +103,7 @@ begin
   AConfigData.WriteBool('NMEAlog', FNMEALog);
 end;
 
-function TGPSModuleByCOMPortSettings.GetBaudRate: Integer;
+function TGPSModuleByCOMPortConfig.GetBaudRate: Integer;
 begin
   LockRead;
   try
@@ -113,7 +113,7 @@ begin
   end;
 end;
 
-function TGPSModuleByCOMPortSettings.GetConnectionTimeout: Integer;
+function TGPSModuleByCOMPortConfig.GetConnectionTimeout: Integer;
 begin
   LockRead;
   try
@@ -123,7 +123,7 @@ begin
   end;
 end;
 
-function TGPSModuleByCOMPortSettings.GetDelay: Integer;
+function TGPSModuleByCOMPortConfig.GetDelay: Integer;
 begin
   LockRead;
   try
@@ -133,7 +133,7 @@ begin
   end;
 end;
 
-function TGPSModuleByCOMPortSettings.GetLogPath: WideString;
+function TGPSModuleByCOMPortConfig.GetLogPath: WideString;
 begin
   LockRead;
   try
@@ -143,7 +143,7 @@ begin
   end;
 end;
 
-function TGPSModuleByCOMPortSettings.GetNMEALog: Boolean;
+function TGPSModuleByCOMPortConfig.GetNMEALog: Boolean;
 begin
   LockRead;
   try
@@ -153,7 +153,7 @@ begin
   end;
 end;
 
-function TGPSModuleByCOMPortSettings.GetPort: Integer;
+function TGPSModuleByCOMPortConfig.GetPort: Integer;
 begin
   LockRead;
   try
@@ -163,7 +163,7 @@ begin
   end;
 end;
 
-function TGPSModuleByCOMPortSettings.GetStatic: IGPSModuleByCOMPortSettings;
+function TGPSModuleByCOMPortConfig.GetStatic: IGPSModuleByCOMPortSettings;
 begin
   LockRead;
   try
@@ -173,7 +173,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortSettings.SetBaudRate(AValue: Integer);
+procedure TGPSModuleByCOMPortConfig.SetBaudRate(AValue: Integer);
 begin
   if (AValue > 0) and (AValue <= 1000000) then begin
     LockWrite;
@@ -188,7 +188,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortSettings.SetChanged;
+procedure TGPSModuleByCOMPortConfig.SetChanged;
 begin
   inherited;
   LockWrite;
@@ -199,7 +199,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortSettings.SetConnectionTimeout(AValue: Integer);
+procedure TGPSModuleByCOMPortConfig.SetConnectionTimeout(AValue: Integer);
 begin
   if (AValue >= 0) and (AValue <= 600) then begin
     LockWrite;
@@ -214,7 +214,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortSettings.SetDelay(AValue: Integer);
+procedure TGPSModuleByCOMPortConfig.SetDelay(AValue: Integer);
 begin
   if (AValue >= 0) and (AValue <= 300000) then begin
     LockWrite;
@@ -229,7 +229,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortSettings.SetNMEALog(AValue: Boolean);
+procedure TGPSModuleByCOMPortConfig.SetNMEALog(AValue: Boolean);
 begin
   LockWrite;
   try
@@ -242,7 +242,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortSettings.SetPort(AValue: Integer);
+procedure TGPSModuleByCOMPortConfig.SetPort(AValue: Integer);
 begin
   if (AValue >= 1) and (AValue <= 255) then begin
     LockWrite;

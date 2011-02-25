@@ -46,7 +46,7 @@ begin
   FLogPath := ALogPath;
   FGPSEnabled := False;
   FWriteLog := True;
-  FModuleConfig := TGPSModuleByCOMPortSettings.Create(FLogPath);
+  FModuleConfig := TGPSModuleByCOMPortConfig.Create(FLogPath);
   Add(FModuleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Module'));
 end;
 
