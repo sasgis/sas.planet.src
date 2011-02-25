@@ -6,7 +6,7 @@ uses
   i_IGPSModuleByCOMPortSettings;
 
 type
-  TGPSModuleByCOMPortConfigSatic = class(TInterfacedObject, IGPSModuleByCOMPortSettings)
+  TGPSModuleByCOMPortSettings = class(TInterfacedObject, IGPSModuleByCOMPortSettings)
   private
     FPort: Integer;
     FBaudRate: Integer;
@@ -34,9 +34,9 @@ type
 
 implementation
 
-{ TGPSModuleByCOMPortConfigSatic }
+{ TGPSModuleByCOMPortSettings }
 
-constructor TGPSModuleByCOMPortConfigSatic.Create(
+constructor TGPSModuleByCOMPortSettings.Create(
   APort,
   ABaudRate,
   AConnectionTimeout,
@@ -54,32 +54,32 @@ begin
   FLogPath := ALogPath;
 end;
 
-function TGPSModuleByCOMPortConfigSatic.GetBaudRate: Integer;
+function TGPSModuleByCOMPortSettings.GetBaudRate: Integer;
 begin
   Result := FBaudRate;
 end;
 
-function TGPSModuleByCOMPortConfigSatic.GetConnectionTimeout: Integer;
+function TGPSModuleByCOMPortSettings.GetConnectionTimeout: Integer;
 begin
   Result := FConnectionTimeout;
 end;
 
-function TGPSModuleByCOMPortConfigSatic.GetDelay: Integer;
+function TGPSModuleByCOMPortSettings.GetDelay: Integer;
 begin
   Result := FDelay;
 end;
 
-function TGPSModuleByCOMPortConfigSatic.GetLogPath: WideString;
+function TGPSModuleByCOMPortSettings.GetLogPath: WideString;
 begin
   Result := FLogPath;
 end;
 
-function TGPSModuleByCOMPortConfigSatic.GetNMEALog: Boolean;
+function TGPSModuleByCOMPortSettings.GetNMEALog: Boolean;
 begin
   Result := FNMEALog;
 end;
 
-function TGPSModuleByCOMPortConfigSatic.GetPort: Integer;
+function TGPSModuleByCOMPortSettings.GetPort: Integer;
 begin
   Result := FPort;
 end;

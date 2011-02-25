@@ -69,7 +69,7 @@ end;
 function TGPSModuleByCOMPortConfig.CreateStatic: IGPSModuleByCOMPortSettings;
 begin
   Result :=
-    TGPSModuleByCOMPortConfigSatic.Create(
+    TGPSModuleByCOMPortSettings.Create(
       FPort,
       FBaudRate,
       FConnectionTimeout,
