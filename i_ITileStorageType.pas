@@ -11,7 +11,7 @@ type
   ITileStorageType = interface(IConfigDataElement)
     ['{EBB122FB-5382-49CA-A265-3BEA89694B0E}']
     function GetInfo: ITileStorageTypeInfo;
-    function BuildStorage(AName: string): ITileStorage;
+    function BuildStorage(APath: string): ITileStorage;
     function GetCaption: string;
   end;
 
