@@ -297,6 +297,7 @@ var
   VColorMain: TColor32;
   VColorBG: TColor32;
   VPointColor: TColor32;
+  VRect: TRect;
 begin
   FConfig.LockRead;
   try
@@ -323,12 +324,16 @@ begin
       VPolygon.Offset(Fixed(0.9), Fixed(0.9));
       VPolygon.DrawEdge(FLayer.Bitmap, VColorMain);
     end else begin
-      FFixedPointArray[0] := FixedPoint(AData.FPolygonOnBitmap[0].X - 3, AData.FPolygonOnBitmap[0].Y + 3);
-      FFixedPointArray[1] := FixedPoint(AData.FPolygonOnBitmap[0].X + 2, AData.FPolygonOnBitmap[0].Y + 3);
-      FFixedPointArray[2] := FixedPoint(AData.FPolygonOnBitmap[0].X + 2, AData.FPolygonOnBitmap[0].Y - 2);
-      FFixedPointArray[3] := FixedPoint(AData.FPolygonOnBitmap[0].X - 3, AData.FPolygonOnBitmap[0].Y - 2);
-      VPolygon.AddPoints(FFixedPointArray[0], 4);
-      VPolygon.Draw(FLayer.Bitmap, VColorBG, VPointColor);
+      VRect.Left := Trunc(AData.FPolygonOnBitmap[0].X - 3);
+      VRect.Top := Trunc(AData.FPolygonOnBitmap[0].Y - 3);
+      VRect.Right := VRect.Left + 5;
+      VRect.Bottom := VRect.Top + 5;
+      FLayer.Bitmap.FillRectS(VRect, VColorBG);
+      Inc(VRect.Left);
+      Inc(VRect.Top);
+      Dec(VRect.Right);
+      Dec(VRect.Bottom);
+      FLayer.Bitmap.FillRectS(VRect, VPointColor);
     end;
   finally
     FreeAndNil(VPolygon);
