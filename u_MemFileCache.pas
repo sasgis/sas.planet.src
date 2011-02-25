@@ -124,7 +124,7 @@ begin
   try
     i := FCacheList.IndexOf(APath);
     if i < 0 then begin
-      if FCacheList.Count >= FCacheList.Capacity then begin
+      if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
         FCacheList.Objects[0].Free;
         FCacheList.Delete(0);
       end;
