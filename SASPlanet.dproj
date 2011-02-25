@@ -443,7 +443,7 @@
     <DCCReference Include="u_GPSLogWriterToPlt.pas" />
     <DCCReference Include="u_GPSModuleAbstract.pas" />
     <DCCReference Include="u_GPSModuleByCOMPortConfig.pas" />
-    <DCCReference Include="u_GPSModuleByCOMPortConfigSatic.pas" />
+    <DCCReference Include="u_GPSModuleByCOMPortSettings.pas" />
     <DCCReference Include="u_GPSModuleByZylGPS.pas" />
     <DCCReference Include="u_GPSPositionStatic.pas" />
     <DCCReference Include="u_GPSRecorderStuped.pas" />

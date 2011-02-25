@@ -1,4 +1,4 @@
-unit u_GPSModuleByCOMPortConfigSatic;
+unit u_GPSModuleByCOMPortSettings;
 
 interface
 

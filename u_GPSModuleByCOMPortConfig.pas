@@ -50,7 +50,7 @@ type
 implementation
 
 uses
-  u_GPSModuleByCOMPortConfigSatic;
+  u_GPSModuleByCOMPortSettings;
 
 { TGPSModuleByCOMPortConfig }
 
