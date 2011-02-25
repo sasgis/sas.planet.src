@@ -77,6 +77,7 @@ var
   VLocalConverter: ILocalCoordConverter;
   VLineWidth: Double;
   VIsChangePrevPoint: Boolean;
+  VFixedPointsPair: array [0..1] of TFixedPoint;
 begin
   FConfig.LockRead;
   try
@@ -108,33 +109,38 @@ begin
         for j := 1 to VPointsCount - 1 do begin
           VMapPointCurr := VPoints[j].Point;
           VPointCurrIsEmpty := (VMapPointCurr.X = 0) and (VMapPointCurr.Y = 0);
-          if (not VPointCurrIsEmpty) and (not VPointPrevIsEmpty) then begin
+          if not VPointCurrIsEmpty then begin
             VPointCurr := VLocalConverter.LonLat2LocalPixelFloat(VMapPointCurr);
-            if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
-              if (VPointPrev.x < 32767) and (VPointPrev.x > -32767) and (VPointPrev.y < 32767) and (VPointPrev.y > -32767) then begin
-                VPolygon.Add(FixedPoint(VPointPrev.X, VPointPrev.Y));
-                VPolygon.Add(FixedPoint(VPointCurr.X, VPointCurr.Y));
-                with VPolygon.Outline do try
-                  with Grow(Fixed(VLineWidth / 2), 0.5) do try
-                    VSpeed := VPoints[j - 1].Speed;
-                    if (VMaxSpeed > 0) then begin
-                      speed := round((255 * VSpeed) / VMaxSpeed);
-                    end else begin
-                      speed := 0;
+            if not VPointPrevIsEmpty then begin
+              if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
+                if (VPointPrev.x < 32767) and (VPointPrev.x > -32767) and (VPointPrev.y < 32767) and (VPointPrev.y > -32767) then begin
+                  VFixedPointsPair[0] := FixedPoint(VPointPrev.X, VPointPrev.Y);
+                  VFixedPointsPair[1] := FixedPoint(VPointCurr.X, VPointCurr.Y);
+                  VPolygon.AddPoints(VFixedPointsPair[0], 2);
+                  with VPolygon.Outline do try
+                    with Grow(Fixed(VLineWidth / 2), 0.5) do try
+                      VSpeed := VPoints[j - 1].Speed;
+                      if (VMaxSpeed > 0) then begin
+                        speed := round((255 * VSpeed) / VMaxSpeed);
+                      end else begin
+                        speed := 0;
+                      end;
+                      VSegmentColor := Color32(speed, 0, 256 - speed, 150);
+                      DrawFill(FLayer.Bitmap, VSegmentColor);
+                    finally
+                      free;
                     end;
-                    VSegmentColor := Color32(speed, 0, 256 - speed, 150);
-                    DrawFill(FLayer.Bitmap, VSegmentColor);
                   finally
                     free;
                   end;
-                finally
-                  free;
+                  VPolygon.Clear;
                 end;
-                VPolygon.Clear;
+                VIsChangePrevPoint := True;
+              end else begin
+                VIsChangePrevPoint := False;
               end;
-              VIsChangePrevPoint := True;
             end else begin
-              VIsChangePrevPoint := False;
+              VIsChangePrevPoint := True;
             end;
           end else begin
             VIsChangePrevPoint := True;
