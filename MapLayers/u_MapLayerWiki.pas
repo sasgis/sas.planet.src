@@ -326,8 +326,8 @@ begin
     end else begin
       VRect.Left := Trunc(AData.FPolygonOnBitmap[0].X - 3);
       VRect.Top := Trunc(AData.FPolygonOnBitmap[0].Y - 3);
-      VRect.Right := VRect.Left + 5;
-      VRect.Bottom := VRect.Top + 5;
+      VRect.Right := VRect.Left + 7;
+      VRect.Bottom := VRect.Top + 7;
       FLayer.Bitmap.FillRectS(VRect, VColorBG);
       Inc(VRect.Left);
       Inc(VRect.Top);
