@@ -36,7 +36,7 @@ implementation
 
 uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
-  u_GPSModuleByCOMPortSettings;
+  u_GPSModuleByCOMPortConfig;
 
 { TGPSConfig }
 

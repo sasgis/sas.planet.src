@@ -11,8 +11,6 @@ uses
   i_IGPSConfig,
   i_IGPSModule,
   i_IGPSModuleByCOM,
-  i_IGPSModuleByCOMPortSettings,
-  u_GPSModuleByCOMPortSettings,
   u_GPSLogWriterToPlt;
 
 type
@@ -46,8 +44,6 @@ type
 implementation
 
 uses
-  t_GeoTypes,
-  i_GPS,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   u_GPSModuleByZylGPS,

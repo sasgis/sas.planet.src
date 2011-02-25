@@ -403,7 +403,7 @@ uses
   i_IGPSModuleByCOM in 'i_IGPSModuleByCOM.pas',
   i_IGPSModuleByCOMPortSettings in 'i_IGPSModuleByCOMPortSettings.pas',
   i_IGPSModuleByCOMPortConfig in 'i_IGPSModuleByCOMPortConfig.pas',
-  u_GPSModuleByCOMPortSettings in 'u_GPSModuleByCOMPortSettings.pas',
+  u_GPSModuleByCOMPortConfig in 'u_GPSModuleByCOMPortConfig.pas',
   u_GPSModuleByCOMPortConfigSatic in 'u_GPSModuleByCOMPortConfigSatic.pas',
   i_IGPSConfig in 'i_IGPSConfig.pas',
   u_GPSConfig in 'u_GPSConfig.pas',
