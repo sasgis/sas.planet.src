@@ -6,6 +6,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IGPSModuleByCOMPortSettings,
+  i_IGPSModuleByCOMPortConfig,
   u_ConfigDataElementBase;
 
 type
@@ -17,8 +18,8 @@ type
     FDelay: Integer;
     FNMEALog: Boolean;
     FLogPath: WideString;
-    FStatic: IGPSModuleByCOMPortConfigSatic;
-    function CreateStatic: IGPSModuleByCOMPortConfigSatic;
+    FStatic: IGPSModuleByCOMPortSettings;
+    function CreateStatic: IGPSModuleByCOMPortSettings;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -41,7 +42,7 @@ type
 
     function GetLogPath: WideString;
 
-    function GetStatic: IGPSModuleByCOMPortConfigSatic;
+    function GetStatic: IGPSModuleByCOMPortSettings;
   public
     constructor Create(ALogPath: string);
   end;
@@ -65,7 +66,7 @@ begin
   FStatic := CreateStatic;
 end;
 
-function TGPSModuleByCOMPortSettings.CreateStatic: IGPSModuleByCOMPortConfigSatic;
+function TGPSModuleByCOMPortSettings.CreateStatic: IGPSModuleByCOMPortSettings;
 begin
   Result :=
     TGPSModuleByCOMPortConfigSatic.Create(
@@ -162,7 +163,7 @@ begin
   end;
 end;
 
-function TGPSModuleByCOMPortSettings.GetStatic: IGPSModuleByCOMPortConfigSatic;
+function TGPSModuleByCOMPortSettings.GetStatic: IGPSModuleByCOMPortSettings;
 begin
   LockRead;
   try

@@ -6,7 +6,7 @@ uses
   i_IGPSModuleByCOMPortSettings;
 
 type
-  TGPSModuleByCOMPortConfigSatic = class(TInterfacedObject, IGPSModuleByCOMPortConfigSatic)
+  TGPSModuleByCOMPortConfigSatic = class(TInterfacedObject, IGPSModuleByCOMPortSettings)
   private
     FPort: Integer;
     FBaudRate: Integer;

@@ -25,9 +25,9 @@ type
     procedure GPSReceiverTimeout(Sender: TObject);
   protected
     function GetSatActive(pcode:integer;NMEA:string):boolean;
-    procedure _UpdateReceiverSettings(ASettings: IGPSModuleByCOMPortConfigSatic);
+    procedure _UpdateReceiverSettings(ASettings: IGPSModuleByCOMPortSettings);
   protected
-    procedure Connect(AConfig: IGPSModuleByCOMPortConfigSatic); safecall;
+    procedure Connect(AConfig: IGPSModuleByCOMPortSettings); safecall;
     procedure Disconnect; safecall;
     function GetIsReadyToConnect: Boolean; safecall;
   public
@@ -81,7 +81,7 @@ begin
   inherited;
 end;
 
-procedure TGPSModuleByZylGPS._UpdateReceiverSettings(ASettings: IGPSModuleByCOMPortConfigSatic);
+procedure TGPSModuleByZylGPS._UpdateReceiverSettings(ASettings: IGPSModuleByCOMPortSettings);
 var
   VLogFile: string;
 begin
@@ -94,7 +94,7 @@ begin
   FGPSReceiver.BaudRate := FGPSReceiver.IntToBaudRate(ASettings.BaudRate);
 end;
 
-procedure TGPSModuleByZylGPS.Connect(AConfig: IGPSModuleByCOMPortConfigSatic);
+procedure TGPSModuleByZylGPS.Connect(AConfig: IGPSModuleByCOMPortSettings);
 var
   VState: TConnectState;
 begin

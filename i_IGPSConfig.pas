@@ -3,7 +3,7 @@ unit i_IGPSConfig;
 interface
 
 uses
-  i_IGPSModuleByCOMPortSettings,
+  i_IGPSModuleByCOMPortConfig,
   i_IConfigDataElement;
 
 type
