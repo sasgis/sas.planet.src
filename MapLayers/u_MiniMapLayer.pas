@@ -771,7 +771,7 @@ procedure TMiniMapLayer.OnConfigChange(Sender: TObject);
 begin
   GState.ViewConfig.LockRead;
   try
-    FBackGroundColor := GState.ViewConfig.BackGroundColor;
+    FBackGroundColor := Color32(GState.ViewConfig.BackGroundColor);
     FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
     FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
   finally

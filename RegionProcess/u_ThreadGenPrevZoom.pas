@@ -73,7 +73,7 @@ begin
   FSourceZoom := Azoom;
   FMapType := Atypemap;
   FResamplerFactory := AResamplerFactory;
-  FBackGroundColor := GState.ViewConfig.BackGroundColor;
+  FBackGroundColor := Color32(GState.ViewConfig.BackGroundColor);
 end;
 
 procedure TThreadGenPrevZoom.ProcessRegion;

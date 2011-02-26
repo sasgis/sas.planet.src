@@ -117,7 +117,7 @@ begin
   FTempBitmap := TCustomBitmap32.Create;
   FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
   FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
-  FBackGroundColor := GState.ViewConfig.BackGroundColor;
+  FBackGroundColor := Color32(GState.ViewConfig.BackGroundColor);
 end;
 
 procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress;

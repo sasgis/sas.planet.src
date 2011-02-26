@@ -3,7 +3,7 @@ unit u_GlobalViewMainConfig;
 interface
 
 uses
-  GR32,
+  Graphics,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IGlobalViewMainConfig,
@@ -12,15 +12,15 @@ uses
 type
   TGlobalViewMainConfig = class(TConfigDataElementBase, IGlobalViewMainConfig)
   private
-    FBackGroundColor: TColor32;
+    FBackGroundColor: TColor;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetBackGroundColor: TColor32;
-    procedure SetBackGroundColor(AValue: TColor32);
+    function GetBackGroundColor: TColor;
+    procedure SetBackGroundColor(AValue: TColor);
 
     function GetUsePrevZoomAtMap: Boolean;
     procedure SetUsePrevZoomAtMap(AValue: Boolean);
@@ -33,15 +33,12 @@ type
 
 implementation
 
-uses
-  u_ConfigProviderHelpers;
-
 { TGlobalViewMainConfig }
 
 constructor TGlobalViewMainConfig.Create;
 begin
   inherited;
-  FBackGroundColor := TColor32($FFC0C0C0);
+  FBackGroundColor := clSilver;
   FUsePrevZoomAtMap := True;
   FUsePrevZoomAtLayer := True;
 end;
@@ -52,7 +49,7 @@ begin
   if AConfigData <> nil then begin
     FUsePrevZoomAtMap := AConfigData.ReadBool('UsePrevZoomAtMap', FUsePrevZoomAtMap);
     FUsePrevZoomAtLayer := AConfigData.ReadBool('UsePrevZoomAtLayer', FUsePrevZoomAtLayer);
-    FBackGroundColor := LoadColor32(AConfigData, 'BackgroundColor', FBackGroundColor);
+    FBackGroundColor := TColor(AConfigData.ReadInteger('BackgroundColor', FBackGroundColor));
     SetChanged;
   end;
 end;
@@ -63,10 +60,10 @@ begin
   inherited;
   AConfigData.WriteBool('UsePrevZoomAtMap', FUsePrevZoomAtMap);
   AConfigData.WriteBool('UsePrevZoomAtLayer', FUsePrevZoomAtLayer);
-  WriteColor32(AConfigData, 'BackgroundColor', FBackGroundColor);
+  AConfigData.WriteInteger('BackgroundColor', Integer(FBackGroundColor));
 end;
 
-function TGlobalViewMainConfig.GetBackGroundColor: TColor32;
+function TGlobalViewMainConfig.GetBackGroundColor: TColor;
 begin
   LockRead;
   try
@@ -96,7 +93,7 @@ begin
   end;
 end;
 
-procedure TGlobalViewMainConfig.SetBackGroundColor(AValue: TColor32);
+procedure TGlobalViewMainConfig.SetBackGroundColor(AValue: TColor);
 begin
   LockWrite;
   try
