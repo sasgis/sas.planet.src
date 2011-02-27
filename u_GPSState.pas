@@ -6,8 +6,6 @@ uses
   SysUtils,
   i_IJclListenerNotifierLinksList,
   i_IGPSRecorder,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   i_IGPSConfig,
   i_IGPSModule,
   i_IGPSModuleByCOM,
@@ -43,8 +41,7 @@ implementation
 uses
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
-  u_GPSModuleByZylGPS,
-  u_GPSRecorderStuped;
+  u_GPSModuleByZylGPS;
 
 constructor TGPSpar.Create(ALogPath: string; AConfig: IGPSConfig; AGPSRecorder: IGPSRecorder);
 begin
