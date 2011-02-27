@@ -56,7 +56,7 @@ begin
   FLogWriter := TPltLogWriter.Create(FLogPath);
   FGPSModuleByCOM := TGPSModuleByZylGPS.Create;
   FGPSModule := FGPSModuleByCOM;
-  FGPSRecorder := TGPSRecorderStuped.Create(FGPSModule);
+  FGPSRecorder := TGPSRecorderStuped.Create;
   FLinksList := TJclListenerNotifierLinksList.Create;
 
   FLinksList.Add(
@@ -118,10 +118,18 @@ begin
     end;
   end;
   FConfig.GPSEnabled := True;
+  FGPSRecorder.LockWrite;
+  try
+    FGPSRecorder.ResetMaxSpeed;
+    FGPSRecorder.ResetAvgSpeed;
+  finally
+    FGPSRecorder.UnlockWrite;
+  end;
 end;
 
 procedure TGPSpar.OnGpsDataReceive;
 begin
+  FGPSRecorder.AddPoint(FGPSModule.Position);
   if FLogWriter.Started then begin
     FLogWriter.AddPoint(FGPSModule.Position);
   end;
@@ -130,6 +138,7 @@ end;
 procedure TGPSpar.OnGpsDisconnect;
 begin
   FConfig.GPSEnabled := False;
+  FGPSRecorder.AddPoint(FGPSModule.Position);
   try
     FLogWriter.CloseLog;
   except

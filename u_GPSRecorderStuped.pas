@@ -5,21 +5,17 @@ interface
 uses
   SysUtils,
   t_GeoTypes,
-  i_IJclListenerNotifierLinksList,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IDatum,
   i_GPS,
-  i_IGPSModule,
   i_IGPSRecorder,
   u_ConfigDataElementBase;
 
 type
   TGPSRecorderStuped = class(TConfigDataElementBase, IGPSRecorder)
   private
-    FGPSModule: IGPSModule;
     FDatum: IDatum;
-    FLinksList: IJclListenerNotifierLinksList;
     FTrack: TGPSTrackPointArray;
     FPointsCount: Integer;
     FAllocatedPoints: Integer;
@@ -36,16 +32,11 @@ type
 
     FAvgSpeedTickCount: Double;
     FLastPointIsEmpty: Boolean;
-
-
-    procedure OnGpsConnect(Sender: TObject);
-    procedure OnGpsDataReceive(Sender: TObject);
-    procedure OnGpsDisconnect(Sender: TObject);
-    procedure AddPoint(APosition: IGPSPosition);
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
+    procedure AddPoint(APosition: IGPSPosition);
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function LastPoints(ACount: Integer): TGPSTrackPointArray;
@@ -67,40 +58,22 @@ type
     function GetLastHeading: Double;
     function GetLastPosition: TDoublePoint;
   public
-    constructor Create(AGPSModule: IGPSModule);
+    constructor Create;
     destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  u_JclListenerNotifierLinksList,
-  u_NotifyEventListener,
   u_Datum;
 
 { TGPSRecorderStuped }
 
-constructor TGPSRecorderStuped.Create(AGPSModule: IGPSModule);
+constructor TGPSRecorderStuped.Create;
 begin
   inherited Create;
-  FGPSModule := AGPSModule;
   FDatum := TDatum.Create(3395, 6378137, 6356752);
   FLastPointIsEmpty := True;
-  FLinksList := TJclListenerNotifierLinksList.Create;
-
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnGpsConnect),
-    FGPSModule.ConnectedNotifier
-  );
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnGpsDataReceive),
-    FGPSModule.DataReciveNotifier
-  );
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnGpsDisconnect),
-    FGPSModule.DisconnectedNotifier
-  );
-  FLinksList.ActivateLinks;
 end;
 
 destructor TGPSRecorderStuped.Destroy;
@@ -337,31 +310,13 @@ begin
   end;
 end;
 
-procedure TGPSRecorderStuped.OnGpsConnect(Sender: TObject);
-begin
-  FMaxSpeed := 0;
-  FLastSpeed := 0;
-  FLastAltitude := 0;
-  FAvgSpeed := 0;
-  FAvgSpeedTickCount := 0;
-end;
-
-procedure TGPSRecorderStuped.OnGpsDataReceive(Sender: TObject);
-begin
-  AddPoint(FGPSModule.Position);
-end;
-
-procedure TGPSRecorderStuped.OnGpsDisconnect(Sender: TObject);
-begin
-  AddPoint(FGPSModule.Position);
-end;
-
 procedure TGPSRecorderStuped.ResetAvgSpeed;
 begin
   LockWrite;
   try
     if FAvgSpeed <> 0 then begin
       FAvgSpeed := 0;
+      FAvgSpeedTickCount := 0;
       SetChanged;
     end;
   finally
