@@ -249,7 +249,7 @@ begin
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
-  FGPSpar := TGPSpar.Create(GetTrackLogPath, FGPSConfig);
+  FGPSpar := TGPSpar.Create(GetTrackLogPath, FGPSConfig, FGPSRecorder);
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
@@ -367,7 +367,6 @@ begin
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorder.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
-  GPSpar.LoadConfig(MainConfigProvider);
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
@@ -444,7 +443,6 @@ begin
   MainIni.Writebool('NPARAM','stat',WebReportToAuthor);
   FGPSRecorder.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
-  GPSpar.SaveConfig(MainConfigProvider);
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));

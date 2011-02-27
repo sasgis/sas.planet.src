@@ -30,14 +30,11 @@ type
     procedure OnGpsDisconnect(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   public
-    constructor Create(ALogPath: string; AConfig: IGPSConfig);
+    constructor Create(ALogPath: string; AConfig: IGPSConfig; AGPSRecorder: IGPSRecorder);
     destructor Destroy; override;
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider); virtual;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider); virtual;
 
-    property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GPSModule: IGPSModule read FGPSModule;
   end;
 
@@ -49,14 +46,14 @@ uses
   u_GPSModuleByZylGPS,
   u_GPSRecorderStuped;
 
-constructor TGPSpar.Create(ALogPath: string; AConfig: IGPSConfig);
+constructor TGPSpar.Create(ALogPath: string; AConfig: IGPSConfig; AGPSRecorder: IGPSRecorder);
 begin
   FConfig := AConfig;
   FLogPath := ALogPath;
+  FGPSRecorder := AGPSRecorder;
   FLogWriter := TPltLogWriter.Create(FLogPath);
   FGPSModuleByCOM := TGPSModuleByZylGPS.Create;
   FGPSModule := FGPSModuleByCOM;
-  FGPSRecorder := TGPSRecorderStuped.Create;
   FLinksList := TJclListenerNotifierLinksList.Create;
 
   FLinksList.Add(
@@ -85,16 +82,6 @@ begin
   FGPSModule := nil;
   FreeAndNil(FLogWriter);
   inherited;
-end;
-
-procedure TGPSpar.LoadConfig(AConfigProvider: IConfigDataProvider);
-var
-  VConfigProvider: IConfigDataProvider;
-begin
-  VConfigProvider := AConfigProvider.GetSubItem('GPS');
-  if VConfigProvider <> nil then begin
-    FGPSRecorder.ReadConfig(VConfigProvider);
-  end;
 end;
 
 procedure TGPSpar.OnConfigChange(Sender: TObject);
@@ -143,15 +130,6 @@ begin
     FLogWriter.CloseLog;
   except
   end;
-end;
-
-procedure TGPSpar.SaveConfig(AConfigProvider: IConfigDataWriteProvider);
-var
-  VConfigProvider: IConfigDataWriteProvider;
-begin
-  inherited;
-  VConfigProvider := AConfigProvider.GetOrCreateSubItem('GPS');
-  FGPSRecorder.WriteConfig(VConfigProvider);
 end;
 
 procedure TGPSpar.SendTerminateToThreads;

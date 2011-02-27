@@ -800,7 +800,7 @@ begin
     FLayersList.Add(FLayerFillingMap);
     FLayerMapMarks:= TMapMarksLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarksShowConfig, FMarkDBGUI);
     FLayersList.Add(FLayerMapMarks);
-    FLayerMapGPS:= TMapGPSLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.GPSTrackConfig, GState.GPSpar.GPSRecorder);
+    FLayerMapGPS:= TMapGPSLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.GPSTrackConfig, GState.GPSRecorder);
     FLayersList.Add(FLayerMapGPS);
     FLayerGPSMarker := TMapLayerGPSMarker.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.GPSMarker, GState.GPSpar.GPSModule);
     FLayersList.Add(FLayerGPSMarker);
@@ -1079,7 +1079,7 @@ begin
   VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VZoomCurr := VConverter.GetZoom;
   VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
-  VGPSLonLat := GState.GPSpar.GPSRecorder.GetLastPosition;
+  VGPSLonLat := GState.GPSRecorder.GetLastPosition;
   VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSLonLat, VConverter.GetZoom);
   FCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
   FCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
@@ -1565,25 +1565,25 @@ var
 begin
  try
    VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-   GState.GPSpar.GPSRecorder.LockRead;
+   GState.GPSRecorder.LockRead;
    try
      //скорость
-     TBXSensorSpeed.Caption:=RoundEx(GState.GPSpar.GPSRecorder.GetLastSpeed,2);
+     TBXSensorSpeed.Caption:=RoundEx(GState.GPSRecorder.GetLastSpeed,2);
      //средн€€ скорость
-     TBXSensorSpeedAvg.Caption:=RoundEx(GState.GPSpar.GPSRecorder.GetAvgSpeed,2);
+     TBXSensorSpeedAvg.Caption:=RoundEx(GState.GPSRecorder.GetAvgSpeed,2);
      //максимальна€ скорость
-     TBXSensorSpeedMax.Caption:=RoundEx(GState.GPSpar.GPSRecorder.GetMaxSpeed,2);
+     TBXSensorSpeedMax.Caption:=RoundEx(GState.GPSRecorder.GetMaxSpeed,2);
      //высота
-     TBXSensorAltitude.Caption:=RoundEx(GState.GPSpar.GPSRecorder.GetLastAltitude,2);
+     TBXSensorAltitude.Caption:=RoundEx(GState.GPSRecorder.GetLastAltitude,2);
      //пройденный путь
-     TBXOdometrNow.Caption:=VValueConverter.DistConvert(GState.GPSpar.GPSRecorder.GetDist);
+     TBXOdometrNow.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.GetDist);
      //одометр
-     TBXSensorOdometr.Caption:=VValueConverter.DistConvert(GState.GPSpar.GPSRecorder.GetOdometer1);
-     TBXSensorOdometr2.Caption:=VValueConverter.DistConvert(GState.GPSpar.GPSRecorder.GetOdometer2);
+     TBXSensorOdometr.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.GetOdometer1);
+     TBXSensorOdometr2.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.GetOdometer2);
      //јзимут
-     TBXSensorAzimut.Caption:=RoundEx(GState.GPSpar.GPSRecorder.GetLastHeading,2)+'∞';
+     TBXSensorAzimut.Caption:=RoundEx(GState.GPSRecorder.GetLastHeading,2)+'∞';
    finally
-     GState.GPSpar.GPSRecorder.UnlockRead;
+     GState.GPSRecorder.UnlockRead;
    end;
    //рассто€ние до метки
    if (FConfig.NavToPoint.IsActive) then begin
@@ -1679,7 +1679,7 @@ begin
       if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
         VNeedTrackRedraw := True;
         if (VMapMove) then begin
-          VGPSNewPos := GState.GPSpar.GPSRecorder.GetLastPosition;
+          VGPSNewPos := GState.GPSRecorder.GetLastPosition;
           if VMapMoveCentred then begin
             VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
             VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
@@ -2593,7 +2593,7 @@ begin
         AssignFile(f,SaveDlg.FileName);
         rewrite(f);
         Fprogress2.ProgressBar1.Progress1:=10;
-        VAllPoints := GState.GPSpar.GPSRecorder.GetAllPoints;
+        VAllPoints := GState.GPSRecorder.GetAllPoints;
         Writeln(f,'<?xml version="1.0" encoding="UTF-8"?>');
         Writeln(f,'<kml xmlns="http://earth.google.com/kml/2.1">');
         Writeln(f,'<Folder>');
@@ -2645,7 +2645,7 @@ procedure TFmain.TBItem5Click(Sender: TObject);
 var
   VAllPoints: TDoublePointArray;
 begin
-  VAllPoints := GState.GPSpar.GPSRecorder.GetAllPoints;
+  VAllPoints := GState.GPSRecorder.GetAllPoints;
   if length(VAllPoints)>1 then begin
     if FMarkDBGUI.SaveLineModal(-1, VAllPoints, '') then begin
       setalloperationfalse(ao_movemap);
@@ -3425,12 +3425,12 @@ end;
 
 procedure TFmain.TBItemDelTrackClick(Sender: TObject);
 begin
-  GState.GPSpar.GPSRecorder.LockWrite;
+  GState.GPSRecorder.LockWrite;
   try
-    GState.GPSpar.GPSRecorder.ClearTrack;
-    GState.GPSpar.GPSRecorder.ResetMaxSpeed;
+    GState.GPSRecorder.ClearTrack;
+    GState.GPSRecorder.ResetMaxSpeed;
   finally
-    GState.GPSpar.GPSRecorder.UnlockWrite;
+    GState.GPSRecorder.UnlockWrite;
   end;
 end;
 
@@ -3683,11 +3683,11 @@ procedure TFmain.SBClearSensorClick(Sender: TObject);
 begin
  if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
    case TSpeedButton(sender).Tag of
-    1: GState.GPSpar.GPSRecorder.ResetAvgSpeed;
-    2: GState.GPSpar.GPSRecorder.ResetDist;
-    3: GState.GPSpar.GPSRecorder.ResetOdometer1;
-    4: GState.GPSpar.GPSRecorder.ResetMaxSpeed;
-    5: GState.GPSpar.GPSRecorder.ResetOdometer2;
+    1: GState.GPSRecorder.ResetAvgSpeed;
+    2: GState.GPSRecorder.ResetDist;
+    3: GState.GPSRecorder.ResetOdometer1;
+    4: GState.GPSRecorder.ResetMaxSpeed;
+    5: GState.GPSRecorder.ResetOdometer2;
    end;
    UpdateGPSsensors;
  end;
