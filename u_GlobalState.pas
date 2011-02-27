@@ -39,6 +39,7 @@ uses
   i_IMarksFactoryConfig,
   i_IGlobalViewMainConfig,
   i_IImportFile,
+  i_IGPSRecorder,
   u_GPSState,
   u_GlobalCahceConfig;
 
@@ -81,6 +82,7 @@ type
     FGPSpar: TGPSpar;
     FImportFileByExt: IImportFile;
     FViewConfig: IGlobalViewMainConfig;
+    FGPSRecorder: IGPSRecorder;
 
     function GetMarkIconsPath: string;
     function GetMapsPath: string;
@@ -148,6 +150,7 @@ type
     property GPSpar: TGPSpar read FGPSpar;
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property ViewConfig: IGlobalViewMainConfig read FViewConfig;
+    property GPSRecorder: IGPSRecorder read FGPSRecorder;
 
 
     constructor Create;
@@ -195,6 +198,7 @@ uses
   u_ImageResamplerFactoryListStaticSimple,
   u_ImportByFileExt,
   u_GlobalViewMainConfig,
+  u_GPSRecorderStuped,
   u_MainFormConfig,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -227,6 +231,7 @@ begin
   FInetConfig := TInetConfig.Create;
   FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
   FGPSConfig := TGPSConfig.Create(GetTrackLogPath);
+  FGPSRecorder := TGPSRecorderStuped.Create;
   FGSMpar := TGSMGeoCodeConfig.Create;
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
@@ -275,6 +280,7 @@ begin
   FMapTypeIcons24List := nil;
   FLastSelectionInfo := nil;
   FGPSConfig := nil;
+  FGPSRecorder := nil;
   FreeAndNil(FGPSpar);
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
@@ -359,6 +365,7 @@ begin
   FCacheConfig.LoadConfig(FMainConfigProvider);
   LoadMapIconsList;
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
+  FGPSRecorder.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   GPSpar.LoadConfig(MainConfigProvider);
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
@@ -435,6 +442,7 @@ begin
   MainIni.WriteBool('INTERNET','SessionLastSuccess',SessionLastSuccess);
 
   MainIni.Writebool('NPARAM','stat',WebReportToAuthor);
+  FGPSRecorder.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   GPSpar.SaveConfig(MainConfigProvider);
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
