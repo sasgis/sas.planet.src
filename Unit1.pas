@@ -3145,8 +3145,7 @@ begin
           stw:='<HTML><BODY>';
           stw:=VPWL.descr;
           stw:=stw+'</BODY></HTML>';
-          Fbrowser.TextToWebBrowser(stw);
-          Fbrowser.Visible:=true;
+          Fbrowser.showmessage(VPWL.name,stw);
         end;
       end;
     end;
@@ -3654,7 +3653,7 @@ var
   VMap: TMapType;
 begin
   VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
-  ShowMessageFmt(SAS_MSG_MapInfoShow,[VMap.zmpfilename, VMap.MapInfo]);
+  Fbrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
 end;
 
 procedure TFmain.NanimateClick(Sender: TObject);
@@ -3889,8 +3888,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  Fbrowser.TextToWebBrowser(SAS_STR_WiteLoad);
-  Fbrowser.Visible := true;
+  Fbrowser.showmessage('',SAS_STR_WiteLoad);
   Fbrowser.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
@@ -3908,8 +3906,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  Fbrowser.TextToWebBrowser(SAS_STR_WiteLoad);
-  Fbrowser.Visible:=true;
+  Fbrowser.showmessage('',SAS_STR_WiteLoad);
   Fbrowser.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 

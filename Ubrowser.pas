@@ -25,6 +25,7 @@ type
   private
   protected
   public
+    procedure showmessage(ACaption,AText: string);
     procedure TextToWebBrowser(Text: string);
     procedure Navigate(AUrl: string);
   end;
@@ -88,6 +89,13 @@ begin
   finally
    Document.Close;
   end;
+end;
+
+procedure TFbrowser.showmessage(ACaption,AText: string);
+begin
+  TextToWebBrowser(AText);
+  Caption:=ACaption;
+  show;
 end;
 
 procedure TFbrowser.EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;

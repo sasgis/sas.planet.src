@@ -26,7 +26,6 @@ ResourceString
   SAS_MSG_NotDelWhereHasChildren = 'Категория не пуста! Удалите все дочерние категории.';
   SAS_MSG_HotKeyExists = 'Горячая клавиша уже используется, пожалуйста, выберите другую';
   SAS_MSG_CantGetTileFileName = 'Это не тайловый кеш, невозможно получить имя файла с тайлом.';
-  SAS_MSG_MapInfoShow = 'Файл: %0:s'#13#10'%1:s';  
 
   SAS_ERR_Nopoints = 'Необходимый набор точек отсутствует!';
   SAS_ERR_ProxyStrFormat = 'Неверный формат записи прокси-сервера';
