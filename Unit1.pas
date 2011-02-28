@@ -1778,7 +1778,8 @@ begin
     FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetMapsSet,
     TBFillingTypeMap,
     Self.TBfillMapAsMainClick,
-    GState.MapTypeIcons18List
+    GState.MapTypeIcons18List,
+    false
   );
   try
     VGenerator.BuildControls;
@@ -1795,7 +1796,8 @@ begin
     FConfig.MainMapsConfig.GetLayers,
     TBLayerSel,
     Self.OnClickLayerItem,
-    GState.MapTypeIcons18List
+    GState.MapTypeIcons18List,
+    true
   );
   try
    VGenerator.BuildControls;
@@ -1865,7 +1867,8 @@ begin
     FConfig.MainMapsConfig.GetMapsSet,
     TBSMB,
     Self.OnClickMapItem,
-    GState.MapTypeIcons18List
+    GState.MapTypeIcons18List,
+    true
   );
   try
     VGenerator.BuildControls;
