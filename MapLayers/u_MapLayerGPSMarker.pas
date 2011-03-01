@@ -64,11 +64,11 @@ begin
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListenerSync.Create(Self.GPSReceiverDisconnect),
+    TNotifyEventListener.Create(Self.GPSReceiverDisconnect),
     FGPSModule.DisconnectedNotifier
   );
   LinksList.Add(
-    TNotifyEventListenerSync.Create(Self.GPSReceiverReceive),
+    TNotifyEventListener.Create(Self.GPSReceiverReceive),
     FGPSModule.DataReciveNotifier
   );
 end;

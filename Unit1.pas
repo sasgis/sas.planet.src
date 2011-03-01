@@ -913,7 +913,7 @@ begin
       GState.GPSpar.GPSModule.TimeOutNotifier
     );
     FLinksList.Add(
-      TNotifyEventListenerSync.Create(Self.GPSReceiverReceive),
+      TNotifyEventListener.Create(Self.GPSReceiverReceive),
       GState.GPSpar.GPSModule.DataReciveNotifier
     );
 
