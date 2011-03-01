@@ -40,6 +40,7 @@ uses
   i_IGlobalViewMainConfig,
   i_IImportFile,
   i_IGPSRecorder,
+  i_ISatellitesInViewMapDraw,
   u_GPSState,
   u_GlobalCahceConfig;
 
@@ -83,6 +84,7 @@ type
     FImportFileByExt: IImportFile;
     FViewConfig: IGlobalViewMainConfig;
     FGPSRecorder: IGPSRecorder;
+    FSkyMapDraw: ISatellitesInViewMapDraw;
 
     function GetMarkIconsPath: string;
     function GetMapsPath: string;
@@ -151,7 +153,7 @@ type
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property ViewConfig: IGlobalViewMainConfig read FViewConfig;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
-
+    property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
 
     constructor Create;
     destructor Destroy; override;
@@ -199,6 +201,7 @@ uses
   u_ImportByFileExt,
   u_GlobalViewMainConfig,
   u_GPSRecorderStuped,
+  u_SatellitesInViewMapDrawSimple,
   u_MainFormConfig,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -255,6 +258,7 @@ begin
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
   FMarksFactoryConfig := TMarksFactoryConfig.Create(FMarkPictureList);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarksFactoryConfig);
+  FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
 end;
 
 destructor TGlobalState.Destroy;
@@ -296,6 +300,7 @@ begin
   FMarksFactoryConfig := nil;
   FMarkPictureList := nil;
   FreeAndNil(FCacheConfig);
+  FSkyMapDraw := nil;
   inherited;
 end;
 

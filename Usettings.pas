@@ -762,96 +762,18 @@ begin
 end;
 
 procedure TFSettings.SatellitePaint;
-var
-  i,bar_width,bar_height,bar_x1,bar_dy,Ellipse_d,Ellipse_r,padd:integer;
-  Ellipse_XY1,Ellipse_XY2,Ellipse_center:TPoint;
-  VPosition: IGPSPosition;
-  VSattelite: IGPSSatelliteInfo;
 begin
- with SatellitePaintBox.Bitmap do begin
-  Clear(clWhite);
-  Canvas.Pen.Color:=clBlack;
-  Canvas.Brush.Color:=clWhite;
-  padd:=20;
-  Ellipse_r:=(Width div 2)-padd;
-  Ellipse_center:=Point(Width div 2,Ellipse_r+5);
-  for I := 0 to 8 do begin
-    Ellipse_d:=Ellipse_r-(((Ellipse_r) div 9)*i);
-    Ellipse_XY1.x:=round(Ellipse_center.x + Ellipse_d * cos((0) * (Pi/180)));
-    Ellipse_XY1.y:=round(Ellipse_center.y + Ellipse_d * sin((270) * (Pi/180)));
-    Ellipse_XY2.x:=round(Ellipse_center.x + Ellipse_d * cos((180) * (Pi/180)));
-    Ellipse_XY2.y:=round(Ellipse_center.y + Ellipse_d * sin((90) * (Pi/180)));
-    Canvas.Ellipse(Ellipse_XY1.x,Ellipse_XY1.y,Ellipse_XY2.x,Ellipse_XY2.y);
-  end;
-  for I := 0 to 15 do begin
-    Ellipse_XY1.x := round(Ellipse_center.x + Ellipse_r * cos((i*22.5) * (Pi / 180)));
-    Ellipse_XY1.y := round(Ellipse_center.y + Ellipse_r * sin((i*22.5) * (Pi / 180)));
-    Canvas.MoveTo(Ellipse_center.x,Ellipse_center.y);
-    Canvas.LineTo(Ellipse_XY1.x,Ellipse_XY1.y);
-  end;
-
-  VPosition := GState.GPSpar.GPSModule.Position;
-
-  for I := 0 to VPosition.Satellites.Count-1 do begin
-    VSattelite := VPosition.Satellites.Item[i];
-    Ellipse_r:=trunc(((Width div 2)-padd)*((90-VSattelite.Elevation)/90));
-    Ellipse_XY1.x:=round(Ellipse_center.x + Ellipse_r * cos((VSattelite.Azimuth-90) * (Pi / 180)));
-    Ellipse_XY1.y:=round(Ellipse_center.y + Ellipse_r * sin((VSattelite.Azimuth-90) * (Pi / 180)));
-    if VSattelite.IsFix then begin
-      Canvas.Brush.Color:=clGreen;
-    end else begin
-      if VSattelite.SignalToNoiseRatio=0 then begin
-        Canvas.Brush.Color:=clRed;
-      end else begin
-        Canvas.Brush.Color:=clYellow;
-      end;
-    end;
-    Canvas.Ellipse(Ellipse_XY1.x-10,Ellipse_XY1.y-10,Ellipse_XY1.x+10,Ellipse_XY1.y+10);
-    Canvas.TextOut(Ellipse_XY1.x-5,Ellipse_XY1.y-7,inttostr(VSattelite.PseudoRandomCode));
-  end;
-
-  bar_width:=(Width div 16);
-  bar_height:=42;
-  Canvas.Brush.Color:=clWhite;
-  Canvas.Pen.Color:=clBlack;
-
-  bar_dy:=65;
-  for I := 0 to 31 do begin
-   bar_x1:=(i mod 16)*bar_width;
-   if i=16 then begin
-     bar_dy:=11;
-   end;
-   Canvas.TextOut(bar_x1+1,Height-bar_dy-1,inttostr(i+1));
-   Canvas.Rectangle(bar_x1+1,Height-bar_dy-bar_height,bar_x1+bar_width-1,Height-bar_dy);
-  end;
-  for I := 0 to VPosition.Satellites.Count-1 do begin
-   VSattelite := VPosition.Satellites.Item[i];
-   if VSattelite.PseudoRandomCode>16 then begin
-     bar_dy:=12;
-   end else begin
-     bar_dy:=66;
-   end;
-   bar_x1:=(bar_width*((VSattelite.PseudoRandomCode-1) mod 16));
-   bar_height:=trunc((VSattelite.SignalToNoiseRatio)/2.5);
-   if VSattelite.IsFix then begin
-      Canvas.Brush.Color:=clGreen;
-   end else begin
-     if VSattelite.SignalToNoiseRatio=0 then begin
-       Canvas.Brush.Color:=clRed;
-     end else begin
-       Canvas.Brush.Color:=clYellow;
-     end;
-   end;
-   Canvas.Pen.Color:=clWhite;
-   Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
- end;
- end;
+  GState.SkyMapDraw.Draw(SatellitePaintBox.Bitmap, GState.GPSpar.GPSModule.Position.Satellites);
 end;
 
 procedure TFSettings.SatellitePaintBoxResize(Sender: TObject);
 begin
-  SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox);
-  SatellitePaintBox.Bitmap.Clear(clWhite32);
+  SatellitePaintBox.Bitmap.Lock;
+  try
+    SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox);
+  finally
+    SatellitePaintBox.Bitmap.Unlock;
+  end;
 end;
 
 procedure TFSettings.RefreshTranslation;

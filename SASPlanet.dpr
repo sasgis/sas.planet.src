@@ -405,6 +405,8 @@ uses
   i_IGPSModuleByCOMPortConfig in 'i_IGPSModuleByCOMPortConfig.pas',
   u_GPSModuleByCOMPortConfig in 'u_GPSModuleByCOMPortConfig.pas',
   u_GPSModuleByCOMPortSettings in 'u_GPSModuleByCOMPortSettings.pas',
+  i_ISatellitesInViewMapDraw in 'i_ISatellitesInViewMapDraw.pas',
+  u_SatellitesInViewMapDrawSimple in 'u_SatellitesInViewMapDrawSimple.pas',
   i_IGPSConfig in 'i_IGPSConfig.pas',
   u_GPSConfig in 'u_GPSConfig.pas',
   u_GPSSatelliteInfo in 'u_GPSSatelliteInfo.pas',

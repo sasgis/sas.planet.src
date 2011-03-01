@@ -153,6 +153,7 @@
     <DCCReference Include="i_IPoolElement.pas" />
     <DCCReference Include="i_IPosChangeMessage.pas" />
     <DCCReference Include="i_IProxySettings.pas" />
+    <DCCReference Include="i_ISatellitesInViewMapDraw.pas" />
     <DCCReference Include="i_IScaleLineConfig.pas" />
     <DCCReference Include="i_ISearchResultPresenter.pas" />
     <DCCReference Include="i_ISelectionPolygonLayerConfig.pas" />
@@ -542,6 +543,7 @@
     <DCCReference Include="u_PosChangeListener.pas" />
     <DCCReference Include="u_PosChangeMessage.pas" />
     <DCCReference Include="u_ProxyConfig.pas" />
+    <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_ScaleLineConfig.pas" />
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
