@@ -19,26 +19,26 @@ uses
 type
 
   TfrmGoTo = class(TCommonFormParent)
-    RB1: TRadioButton;
     grpMarks: TGroupBox;
-    RB3: TRadioButton;
     lblZoom: TLabel;
     btnGoTo: TButton;
     grpGeoCode: TGroupBox;
-    RB2: TRadioButton;
     edtGeoCode: TEdit;
     grpLonLat: TGroupBox;
     cbbZoom: TComboBox;
-    RB4: TRadioButton;
     cbbAllMarks: TComboBox;
     btnCancel: TButton;
     pnlBottomButtons: TPanel;
-    pnlLonLat: TPanel;
+    RB3: TRadioButton;
+    RB2: TRadioButton;
+    RB4: TRadioButton;
+    RB1: TRadioButton;
     procedure btnGoToClick(Sender: TObject);
     procedure lat_nsClick(Sender: TObject);
     procedure edtGeoCodeClick(Sender: TObject);
     procedure Lat1Click(Sender: TObject);
     procedure cbbAllMarksEnter(Sender: TObject);
+    procedure cbbAllMarksDropDown(Sender: TObject);
   private
     FLonLat: TDoublePoint;
     FResult: IGeoCodeResult;
@@ -145,30 +145,22 @@ function TfrmGoTo.ShowGeocodeModal(
   var AZoom: Byte;
   AMarkDBGUI: TMarksDbGUIHelper
 ): Boolean;
-var
-  VMarksList: IInterfaceList;
 begin
   FLonLat := ALonLat;
   FMarkDBGUI := AMarkDBGUI;
-  frLonLatPoint.Parent := pnlLonLat;
+  frLonLatPoint.Parent := grpLonLat;// pnlLonLat;
   cbbZoom.ItemIndex := Azoom;
   frLonLatPoint.LonLat := FLonLat;
-  VMarksList := FMarkDBGUI.MarksDB.MarksDb.GetAllMarskIdList;
-  try
-    FMarkDBGUI.MarksListToStrings(VMarksList, cbbAllMarks.Items);
-    if ShowModal = mrOk then begin
-      Result := true;
-      AResult := FResult;
-      AZoom := cbbZoom.ItemIndex;
-    end else begin
-      Result := False;
-      AResult := nil;
-      AZoom := 0;
-    end;
-    cbbAllMarks.Clear;
-  finally
-    FreeAndNil(VMarksList);
+  if ShowModal = mrOk then begin
+    Result := true;
+    AResult := FResult;
+    AZoom := cbbZoom.ItemIndex;
+  end else begin
+    Result := False;
+    AResult := nil;
+    AZoom := 0;
   end;
+  cbbAllMarks.Clear;
 end;
 
 procedure TfrmGoTo.edtGeoCodeClick(Sender: TObject);
@@ -181,6 +173,20 @@ begin
  if (not(RB1.Checked)) then RB1.Checked:=true;
 end;
 
+procedure TfrmGoTo.cbbAllMarksDropDown(Sender: TObject);
+var
+  VMarksList: IInterfaceList;
+begin
+  if cbbAllMarks.Items.Count=0 then begin
+    VMarksList := FMarkDBGUI.MarksDB.MarksDb.GetAllMarskIdList;
+    try
+      FMarkDBGUI.MarksListToStrings(VMarksList, cbbAllMarks.Items);
+    finally
+      VMarksList:=nil;
+    end;
+  end;
+end;
+
 procedure TfrmGoTo.cbbAllMarksEnter(Sender: TObject);
 begin
  if (not(RB3.Checked)) then RB3.Checked:=true;
@@ -190,6 +196,8 @@ constructor TfrmGoTo.Create(AOwner: TComponent);
 begin
   inherited;
   frLonLatPoint := TfrLonLat.Create(nil);
+  frLonLatPoint.Width:= grpLonLat.Width;
+  frLonLatPoint.Height:= grpLonLat.Height;
 end;
 
 destructor TfrmGoTo.Destroy;
