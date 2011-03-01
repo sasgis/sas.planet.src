@@ -530,7 +530,10 @@ var
   VNewConverter: ICoordConverter;
   VGUID: TGUID;
   VMap: IMapType;
+  VCenterLonLat: TDoublePoint;
+  VChanged: Boolean;
 begin
+  VChanged := False;
   LockWrite;
   try
     if FMainCoordConverter <> nil then begin
@@ -545,13 +548,20 @@ begin
     if VNewConverter <> nil then begin
       if FActiveCoordConverter <> nil then begin
         if not FActiveCoordConverter.IsSameConverter(VNewConverter) then begin
+          VCenterLonLat := FActiveCoordConverter.PixelPos2LonLat(FCenterPos, FZoom);
+          VNewConverter.CheckLonLatPos(VCenterLonLat);
+          FCenterPos := VNewConverter.LonLat2PixelPos(VCenterLonLat, FZoom);
           FActiveCoordConverter := VNewConverter;
-          SetChanged;
+          VChanged := True;
         end;
       end else begin
         FActiveCoordConverter := VNewConverter;
-        SetChanged;
+        VChanged := True;
       end;
+    end;
+    if VChanged then begin
+      CreateVisibleCoordConverter;
+      SetChanged;
     end;
   finally
     UnlockWrite;
