@@ -176,7 +176,7 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 509
+      Left = 540
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -271,7 +271,7 @@ object Fmain: TFmain
       Left = 0
       Top = 0
       CloseButton = False
-      DockPos = 0
+      DockPos = -6
       Stretch = True
       TabOrder = 5
       Caption = #1043#1083#1072#1074#1085#1086#1077' '#1084#1077#1085#1102
@@ -876,6 +876,14 @@ object Fmain: TFmain
           OnClick = TBItem6Click
           Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
           Hint = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
+        end
+        object TBHideMarks: TTBXItem
+          AutoCheck = True
+          ImageIndex = 15
+          Images = PanelsImageList
+          OnClick = TBHideMarksClick
+          Caption = #1057#1082#1088#1099#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
+          Hint = #1057#1082#1088#1099#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
         end
       end
       object tbsbmGPS: TTBXSubmenuItem

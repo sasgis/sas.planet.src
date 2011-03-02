@@ -398,6 +398,7 @@ type
     NMarkExport: TMenuItem;
     PanelsImageList: TTBXImageList;
     ImagesSrc24: TTBXImageList;
+    TBHideMarks: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -529,6 +530,7 @@ type
     procedure FormResize(Sender: TObject);
     procedure tbitmShowDebugInfoClick(Sender: TObject);
     procedure NMarkExportClick(Sender: TObject);
+    procedure TBHideMarksClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -853,7 +855,7 @@ begin
     NsrcToolBarShow.Checked:=SrcToolbar.Visible;
     NGPSToolBarShow.Checked:=GPSToolBar.Visible;
     NMarksBarShow.Checked:=TBMarksToolBar.Visible;
-
+    TBHideMarks.Checked:=not(GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks);
 
     FLinksList.Add(
       TNotifyEventListener.Create(Self.ProcessPosChangeMessage),
@@ -2534,6 +2536,11 @@ end;
 procedure TFmain.TBGPSToPointClick(Sender: TObject);
 begin
   FConfig.GPSBehaviour.MapMove := TTBXitem(sender).Checked;
+end;
+
+procedure TFmain.TBHideMarksClick(Sender: TObject);
+begin
+  GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := not(TBHideMarks.Checked);
 end;
 
 procedure TFmain.TBCOORDClick(Sender: TObject);
