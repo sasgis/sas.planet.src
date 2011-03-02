@@ -9,7 +9,7 @@ uses
   GR32_Transforms,
   GR32_Image,
   i_IMapLayerGPSMarkerConfig,
-  i_IGPSModule,
+  i_IGPSRecorder,
   i_IViewPortState,
   u_MapLayerBasic;
 
@@ -18,12 +18,11 @@ type
   TMapLayerGPSMarker = class(TMapLayerFixedWithBitmap)
   private
     FConfig: IMapLayerGPSMarkerConfig;
-    FGPSModule: IGPSModule;
+    FGPSRecorder: IGPSRecorder;
     FTransform: TAffineTransformation;
     FAngle: Double;
     FSpeed: Double;
     procedure GPSReceiverReceive(Sender: TObject);
-    procedure GPSReceiverDisconnect(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
@@ -34,7 +33,7 @@ type
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AConfig: IMapLayerGPSMarkerConfig;
-      AGPSModule: IGPSModule
+      AGPSRecorder: IGPSRecorder
     );
     destructor Destroy; override;
   end;
@@ -52,24 +51,20 @@ constructor TMapLayerGPSMarker.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AConfig: IMapLayerGPSMarkerConfig;
-  AGPSModule: IGPSModule
+  AGPSRecorder: IGPSRecorder
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
-  FGPSModule := AGPSModule;
+  FGPSRecorder := AGPSRecorder;
   FTransform := TAffineTransformation.Create;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.GPSReceiverDisconnect),
-    FGPSModule.DisconnectedNotifier
-  );
-  LinksList.Add(
     TNotifyEventListener.Create(Self.GPSReceiverReceive),
-    FGPSModule.DataReciveNotifier
+    FGPSRecorder.GetChangeNotifier
   );
 end;
 
@@ -131,16 +126,11 @@ begin
   end;
 end;
 
-procedure TMapLayerGPSMarker.GPSReceiverDisconnect(Sender: TObject);
-begin
-  Hide;
-end;
-
 procedure TMapLayerGPSMarker.GPSReceiverReceive(Sender: TObject);
 var
   VGPSPosition: IGPSPosition;
 begin
-  VGPSPosition := FGPSModule.Position;
+  VGPSPosition := FGPSRecorder.CurrentPosition;
   if VGPSPosition.IsFix = 0 then begin
     Hide;
   end else begin
