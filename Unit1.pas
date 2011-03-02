@@ -381,9 +381,6 @@ type
     TBXSignalStrengthBar: TTBXToolWindow;
     TBXLabel5: TTBXLabel;
     NSignalStrengthBar: TTBXItem;
-    TBXSeparatorItem19: TTBXSeparatorItem;
-    TBXItem8: TTBXItem;
-    TBXItem9: TTBXItem;
     TBXsensorOdometr2Bar: TTBXToolWindow;
     SpeedButton1: TSpeedButton;
     TBXSensorOdometr2: TTBXLabel;
@@ -522,8 +519,6 @@ type
     procedure TBXItem6Click(Sender: TObject);
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
-    procedure TBXItem8Click(Sender: TObject);
-    procedure TBXItem9Click(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure tmrMapUpdateTimer(Sender: TObject);
     procedure tbtmHelpBugTrackClick(Sender: TObject);
@@ -4030,16 +4025,6 @@ end;
 procedure TFmain.tbtmHelpBugTrackClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru/mantis/');
-end;
-
-procedure TFmain.TBXItem8Click(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://z.sasgis.ru/show_zmp/sas.zmp');
-end;
-
-procedure TFmain.TBXItem9Click(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://z.sasgis.ru/show_zmp/plus.zmp');
 end;
 
 procedure TFmain.TBEditPathMarshClick(Sender: TObject);

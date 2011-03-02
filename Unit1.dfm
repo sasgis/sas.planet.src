@@ -38,8 +38,6 @@ object Fmain: TFmain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
-    ExplicitLeft = 30
-    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -1029,20 +1027,6 @@ object Fmain: TFmain
         object NGoToForum: TTBXItem
           OnClick = NGoToForumClick
           Caption = #1054#1073#1089#1091#1078#1076#1077#1085#1080#1077' (http://sasgis.ru/forum)'
-          Hint = ''
-        end
-        object TBXSeparatorItem19: TTBXSeparatorItem
-          Caption = ''
-          Hint = ''
-        end
-        object TBXItem8: TTBXItem
-          OnClick = TBXItem8Click
-          Caption = #1054#1089#1085#1086#1074#1085#1086#1081' '#1085#1072#1073#1086#1088' '#1087#1086#1076#1082#1083#1102#1095#1072#1077#1084#1099#1093' '#1082#1072#1088#1090
-          Hint = ''
-        end
-        object TBXItem9: TTBXItem
-          OnClick = TBXItem9Click
-          Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1099#1081' '#1085#1072#1073#1086#1088' '#1087#1086#1076#1082#1083#1102#1095#1072#1077#1084#1099#1093' '#1082#1072#1088#1090
           Hint = ''
         end
       end
