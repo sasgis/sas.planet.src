@@ -81,7 +81,7 @@ uses
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
   u_TileDownloaderUI,
-  t_GeoTypes;
+  t_GeoTypes, TBXGraphics;
 
 type
   TAOperation = (
@@ -139,7 +139,6 @@ type
     N30: TMenuItem;
     Google1: TMenuItem;
     N43: TMenuItem;
-    TBImageList2: TTBImageList;
     OpenDialog1: TOpenDialog;
     YaLink: TMenuItem;
     kosmosnimkiru1: TMenuItem;
@@ -210,7 +209,6 @@ type
     TBSrc: TTBXSubmenuItem;
     TBSMB: TTBXSubmenuItem;
     TBLayerSel: TTBXSubmenuItem;
-    ImagesSrc24: TTBImageList;
     TBFullSize: TTBXItem;
     TBmove: TTBXItem;
     TBCalcRas: TTBXItem;
@@ -383,9 +381,6 @@ type
     TBXSignalStrengthBar: TTBXToolWindow;
     TBXLabel5: TTBXLabel;
     NSignalStrengthBar: TTBXItem;
-    TBXSeparatorItem19: TTBXSeparatorItem;
-    TBXItem8: TTBXItem;
-    TBXItem9: TTBXItem;
     TBXsensorOdometr2Bar: TTBXToolWindow;
     SpeedButton1: TSpeedButton;
     TBXSensorOdometr2: TTBXLabel;
@@ -398,6 +393,9 @@ type
     tbtmHelpBugTrack: TTBItem;
     tbitmShowDebugInfo: TTBXItem;
     NMarkExport: TMenuItem;
+    PanelsImageList: TTBXImageList;
+    ImagesSrc24: TTBXImageList;
+    TBHideMarks: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -521,14 +519,13 @@ type
     procedure TBXItem6Click(Sender: TObject);
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
-    procedure TBXItem8Click(Sender: TObject);
-    procedure TBXItem9Click(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure tmrMapUpdateTimer(Sender: TObject);
     procedure tbtmHelpBugTrackClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure tbitmShowDebugInfoClick(Sender: TObject);
     procedure NMarkExportClick(Sender: TObject);
+    procedure TBHideMarksClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -853,7 +850,7 @@ begin
     NsrcToolBarShow.Checked:=SrcToolbar.Visible;
     NGPSToolBarShow.Checked:=GPSToolBar.Visible;
     NMarksBarShow.Checked:=TBMarksToolBar.Visible;
-
+    TBHideMarks.Checked:=not(GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks);
 
     FLinksList.Add(
       TNotifyEventListener.Create(Self.ProcessPosChangeMessage),
@@ -2536,6 +2533,11 @@ begin
   FConfig.GPSBehaviour.MapMove := TTBXitem(sender).Checked;
 end;
 
+procedure TFmain.TBHideMarksClick(Sender: TObject);
+begin
+  GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := not(TBHideMarks.Checked);
+end;
+
 procedure TFmain.TBCOORDClick(Sender: TObject);
 var
   Poly: TDoublePointArray;
@@ -4023,16 +4025,6 @@ end;
 procedure TFmain.tbtmHelpBugTrackClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru/mantis/');
-end;
-
-procedure TFmain.TBXItem8Click(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://z.sasgis.ru/show_zmp/sas.zmp');
-end;
-
-procedure TFmain.TBXItem9Click(Sender: TObject);
-begin
-  OpenUrlInBrowser('http://z.sasgis.ru/show_zmp/plus.zmp');
 end;
 
 procedure TFmain.TBEditPathMarshClick(Sender: TObject);
