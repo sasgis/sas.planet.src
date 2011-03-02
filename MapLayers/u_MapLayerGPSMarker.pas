@@ -69,7 +69,8 @@ begin
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   FMarker := TCustomBitmap32.Create;
-  FMarker.DrawMode := dmTransparent;
+  FMarker.DrawMode := dmBlend;
+  FMarker.CombineMode := cmMerge;
   FTransform := TAffineTransformation.Create;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
