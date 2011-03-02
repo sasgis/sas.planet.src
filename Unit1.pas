@@ -3438,6 +3438,7 @@ begin
   try
     GState.GPSRecorder.ClearTrack;
     GState.GPSRecorder.ResetMaxSpeed;
+    FLayerMapGPS.Redraw;
   finally
     GState.GPSRecorder.UnlockWrite;
   end;
