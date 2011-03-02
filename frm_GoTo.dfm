@@ -27,9 +27,6 @@ object frmGoTo: TfrmGoTo
     Align = alTop
     Caption = ' '
     TabOrder = 0
-    ExplicitLeft = 8
-    ExplicitTop = 8
-    ExplicitWidth = 270
     object cbbAllMarks: TComboBox
       AlignWithMargins = True
       Left = 5
@@ -39,9 +36,9 @@ object frmGoTo: TfrmGoTo
       Align = alClient
       ItemHeight = 13
       TabOrder = 0
+      OnChange = cbbAllMarksDropDown
       OnDropDown = cbbAllMarksDropDown
       OnEnter = cbbAllMarksEnter
-      ExplicitWidth = 260
     end
   end
   object grpGeoCode: TGroupBox
@@ -53,7 +50,6 @@ object frmGoTo: TfrmGoTo
     Align = alTop
     Caption = ' '
     TabOrder = 1
-    ExplicitLeft = 8
     object edtGeoCode: TEdit
       AlignWithMargins = True
       Left = 7
@@ -66,7 +62,6 @@ object frmGoTo: TfrmGoTo
       Align = alClient
       TabOrder = 0
       OnClick = edtGeoCodeClick
-      ExplicitWidth = 256
       ExplicitHeight = 21
     end
   end
@@ -79,8 +74,6 @@ object frmGoTo: TfrmGoTo
     Align = alClient
     Caption = ' '
     TabOrder = 2
-    ExplicitLeft = -2
-    ExplicitHeight = 91
   end
   object pnlBottomButtons: TPanel
     Left = 0
@@ -91,14 +84,13 @@ object frmGoTo: TfrmGoTo
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitTop = 176
-    ExplicitWidth = 276
     object lblZoom: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 58
-      Height = 25
+      Height = 20
+      Margins.Bottom = 8
       Align = alLeft
       Alignment = taRightJustify
       Caption = #1052#1072#1089#1096#1090#1072#1073': x'
@@ -153,7 +145,6 @@ object frmGoTo: TfrmGoTo
       Caption = #1054#1090#1084#1077#1085#1072
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 198
     end
     object btnGoTo: TButton
       AlignWithMargins = True
@@ -169,7 +160,6 @@ object frmGoTo: TfrmGoTo
       ShowHint = True
       TabOrder = 2
       OnClick = btnGoToClick
-      ExplicitLeft = 117
     end
   end
   object RB3: TRadioButton

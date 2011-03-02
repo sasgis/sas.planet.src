@@ -36,6 +36,8 @@ type
     function SpeedConvert(AKmph: Double): string;
     function AltitudeConvert(AMeters: Double): string;
     function LonLatConvert(ALonLat: TDoublePoint): string;
+    function LonConvert(ALon: Double): string;
+    function LatConvert(ALat: Double): string;
   public
     constructor Create(
       ADistStrFormat: TDistStrFormat;
@@ -200,6 +202,16 @@ begin
   end else begin
     Result := VLonStr + ' ' + VLatStr;
   end;
+end;
+
+function TValueToStringConverter.LonConvert(ALon: Double): string;
+begin
+  result := GetLongitudeMarker(ALon) + DegrToStr(ALon);
+end;
+
+function TValueToStringConverter.LatConvert(ALat: Double): string;
+begin
+  result := GetLongitudeMarker(ALat) + DegrToStr(ALat);
 end;
 
 function TValueToStringConverter.SpeedConvert(AKmph: Double): string;

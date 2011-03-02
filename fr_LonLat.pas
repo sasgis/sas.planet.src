@@ -23,8 +23,6 @@ type
   TfrLonLat = class(TFrame)
     lblLat: TLabel;
     lblLon: TLabel;
-    flwpnlLat: TFlowPanel;
-    flwpnlLon: TFlowPanel;
     grdpnlMain: TGridPanel;
     EditLat: TEdit;
     EditLon: TEdit;
@@ -40,7 +38,9 @@ implementation
 
 uses
   Ugeofun,
-  u_GeoToStr;
+  i_IValueToStringConverter,
+  u_GeoToStr,
+  u_GlobalState;
 
 {$R *.dfm}
 
@@ -65,8 +65,13 @@ begin
 
   i:=1;
   while i<=length(text) do begin
-    if (not(text[i] in ['0'..'9','-','+','.',',',' ']))or
-       ((i=1)and(text[i]=' '))or
+    if (not(text[i] in ['0'..'9','-','+','.',',',' '])) then begin
+      text[i]:=' ';
+      dec(i);
+    end;
+
+    if ((i=1)and(text[i]=' '))or
+       ((i=length(text))and(text[i]=' '))or
        ((i<length(text)-1)and(text[i]=' ')and(text[i+1]=' '))or
        ((i>1) and (text[i]=' ') and (not(text[i-1] in ['0'..'9'])))or
        ((i<length(text)-1)and(text[i]=',')and(text[i+1]=' ')) then begin
@@ -92,7 +97,11 @@ begin
         ((delitel=1)and(not lat)and(abs(gms)>180)) then begin
        Result:=false;
      end;
-     res:=res+gms/delitel;
+     if res<0 then begin
+       res:=res-gms/delitel;
+     end else begin
+       res:=res+gms/delitel;
+     end;
      delitel:=delitel*60;
     until (i=0)or(delitel>3600)or(result=false);
   except
@@ -111,9 +120,13 @@ begin
 end;
 
 procedure TfrLonLat.SetLonLat(const Value: TDoublePoint);
+var
+  DMS:TDMS;
+  VValueConverter: IValueToStringConverter;
 begin
-  EditLat.Text:=RoundEx(Value.y,6);
-  EditLon.Text:=RoundEx(Value.x,6);
+  VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
+  EditLon.Text:=VValueConverter.LonConvert(Value.x);
+  EditLat.Text:=VValueConverter.LatConvert(Value.y);
 end;
 
 end.
