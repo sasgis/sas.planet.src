@@ -5,29 +5,10 @@ interface
 uses
   i_ITileStorageTypeConfig,
   i_ITileStorageType,
+  i_ITileStorageTypeListItem,
   u_TileStorageTypeList;
 
 type
-  TInternalTileStorageTypeInternal = class(TInterfacedObject, IInternalTileStorageTypeInternal)
-  private
-    FGUID: TGUID;
-    FStorageType: ITileStorageType;
-    FCanUseAsDefault: Boolean;
-    FConfig: ITileStorageTypeConfig;
-  protected
-    function GetGUID: TGUID;
-    function GetStorageType: ITileStorageType;
-    function GetCanUseAsDefault: Boolean;
-    function GetConfig: ITileStorageTypeConfig;
-  public
-    constructor Create(
-      AGUID: TGUID;
-      AStorageType: ITileStorageType;
-      ACanUseAsDefault: Boolean;
-      AConfig: ITileStorageTypeConfig
-    );
-  end;
-
   TTileStorageTypeListSimple = class(TTileStorageTypeList)
   public
     constructor Create;
@@ -35,43 +16,20 @@ type
 
 implementation
 
-{ TInternalTileStorageTypeInternal }
-
-constructor TInternalTileStorageTypeInternal.Create(AGUID: TGUID;
-  AStorageType: ITileStorageType; ACanUseAsDefault: Boolean;
-  AConfig: ITileStorageTypeConfig);
-begin
-  FGUID := AGUID;
-  FStorageType := AStorageType;
-  FCanUseAsDefault := ACanUseAsDefault;
-  FConfig := AConfig;
-end;
-
-function TInternalTileStorageTypeInternal.GetCanUseAsDefault: Boolean;
-begin
-  Result := FCanUseAsDefault;
-end;
-
-function TInternalTileStorageTypeInternal.GetConfig: ITileStorageTypeConfig;
-begin
-  Result := FConfig;
-end;
-
-function TInternalTileStorageTypeInternal.GetGUID: TGUID;
-begin
-  Result := FGUID;
-end;
-
-function TInternalTileStorageTypeInternal.GetStorageType: ITileStorageType;
-begin
-  Result := FStorageType;
-end;
+uses
+  u_TileStorageTypeListItem;
 
 { TTileStorageTypeListSimple }
 
 constructor TTileStorageTypeListSimple.Create;
+var
+  VItem: ITileStorageTypeListItem;
 begin
-
+//  VItem := TTileStorageTypeListItem.Create(
+//    ['{C66C56C5-43AC-490A-B3A1-34898B13BD79}'],
+//    
+//  );
+  inherited Create(VItem);
 end;
 
 end.

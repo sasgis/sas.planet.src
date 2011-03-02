@@ -184,6 +184,8 @@ uses
   u_TileIteratorByRect in 'u_TileIteratorByRect.pas',
   i_ITileStorageTypeConfig in 'i_ITileStorageTypeConfig.pas',
   i_ITileStorageTypeList in 'i_ITileStorageTypeList.pas',
+  i_ITileStorageTypeListItem in 'i_ITileStorageTypeListItem.pas',
+  u_TileStorageTypeListItem in 'u_TileStorageTypeListItem.pas',
   i_ITileStorage in 'i_ITileStorage.pas',
   i_ITileStorageType in 'i_ITileStorageType.pas',
   i_ITileStorageTypeInfo in 'i_ITileStorageTypeInfo.pas',
