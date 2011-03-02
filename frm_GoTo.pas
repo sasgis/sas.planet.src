@@ -39,6 +39,7 @@ type
     procedure Lat1Click(Sender: TObject);
     procedure cbbAllMarksEnter(Sender: TObject);
     procedure cbbAllMarksDropDown(Sender: TObject);
+    procedure grpLonLatEnter(Sender: TObject);
   private
     FLonLat: TDoublePoint;
     FResult: IGeoCodeResult;
@@ -82,6 +83,11 @@ begin
   VList := TInterfaceList.Create;
   VList.Add(VPlace);
   Result := TGeoCodeResult.Create(ASearch, 203, '', VList);
+end;
+
+procedure TfrmGoTo.grpLonLatEnter(Sender: TObject);
+begin
+ if (not(RB1.Checked)) then RB1.Checked:=true;
 end;
 
 procedure TfrmGoTo.btnGoToClick(Sender: TObject);

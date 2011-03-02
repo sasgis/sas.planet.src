@@ -74,6 +74,8 @@ object frmGoTo: TfrmGoTo
     Align = alClient
     Caption = ' '
     TabOrder = 2
+    OnEnter = grpLonLatEnter
+    ExplicitLeft = 8
   end
   object pnlBottomButtons: TPanel
     Left = 0
