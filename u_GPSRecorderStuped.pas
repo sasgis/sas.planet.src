@@ -22,15 +22,17 @@ type
 
     FOdometer1: Double;
     FOdometer2: Double;
+    FDist: Double;
     FMaxSpeed: Double;
     FAvgSpeed: Double;
-    FDist: Double;
+    FAvgSpeedTickCount: Double;
+
     FLastSpeed: Double;
     FLastAltitude: Double;
     FLastHeading: Double;
     FLastPosition: TDoublePoint;
 
-    FAvgSpeedTickCount: Double;
+    FCurrentPosition: IGPSPosition;
     FLastPointIsEmpty: Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -57,6 +59,7 @@ type
     function GetLastAltitude: Double;
     function GetLastHeading: Double;
     function GetLastPosition: TDoublePoint;
+    function GetCurrentPosition: IGPSPosition;
   public
     constructor Create;
     destructor Destroy; override;
@@ -65,7 +68,10 @@ type
 implementation
 
 uses
-  u_Datum;
+  u_GPSPositionStatic,
+  u_GPSSatellitesInView,
+  u_Datum,
+  Ugeofun;
 
 { TGPSRecorderStuped }
 
@@ -74,6 +80,9 @@ begin
   inherited Create;
   FDatum := TDatum.Create(3395, 6378137, 6356752);
   FLastPointIsEmpty := True;
+  FCurrentPosition := TGPSPositionStatic.Create(
+    DoublePoint(0, 0), 0, 0, 0, 0, 0, 0, 0, 0, 0, TGPSSatellitesInView.Create(0, nil)
+  );
 end;
 
 destructor TGPSRecorderStuped.Destroy;
@@ -148,6 +157,7 @@ begin
       end;
       Inc(FPointsCount);
       FLastPointIsEmpty := VIsAddPointEmpty;
+      FCurrentPosition := APosition;
     end;
   finally
     UnlockWrite;
@@ -195,6 +205,16 @@ begin
   LockRead;
   try
     Result := FAvgSpeed;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TGPSRecorderStuped.GetCurrentPosition: IGPSPosition;
+begin
+  LockRead;
+  try
+    Result := FCurrentPosition;
   finally
     UnlockRead;
   end;

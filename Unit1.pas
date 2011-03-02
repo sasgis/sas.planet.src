@@ -1079,7 +1079,7 @@ begin
   VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VZoomCurr := VConverter.GetZoom;
   VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
-  VGPSLonLat := GState.GPSRecorder.GetLastPosition;
+  VGPSLonLat := GState.GPSRecorder.LastPosition;
   VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSLonLat, VConverter.GetZoom);
   FCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
   FCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
@@ -1568,20 +1568,20 @@ begin
    GState.GPSRecorder.LockRead;
    try
      //скорость
-     TBXSensorSpeed.Caption:=RoundEx(GState.GPSRecorder.GetLastSpeed,2);
+     TBXSensorSpeed.Caption:=RoundEx(GState.GPSRecorder.LastSpeed,2);
      //средн€€ скорость
-     TBXSensorSpeedAvg.Caption:=RoundEx(GState.GPSRecorder.GetAvgSpeed,2);
+     TBXSensorSpeedAvg.Caption:=RoundEx(GState.GPSRecorder.AvgSpeed,2);
      //максимальна€ скорость
-     TBXSensorSpeedMax.Caption:=RoundEx(GState.GPSRecorder.GetMaxSpeed,2);
+     TBXSensorSpeedMax.Caption:=RoundEx(GState.GPSRecorder.MaxSpeed,2);
      //высота
-     TBXSensorAltitude.Caption:=RoundEx(GState.GPSRecorder.GetLastAltitude,2);
+     TBXSensorAltitude.Caption:=RoundEx(GState.GPSRecorder.LastAltitude,2);
      //пройденный путь
-     TBXOdometrNow.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.GetDist);
+     TBXOdometrNow.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.Dist);
      //одометр
-     TBXSensorOdometr.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.GetOdometer1);
-     TBXSensorOdometr2.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.GetOdometer2);
+     TBXSensorOdometr.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.Odometer1);
+     TBXSensorOdometr2.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.Odometer2);
      //јзимут
-     TBXSensorAzimut.Caption:=RoundEx(GState.GPSRecorder.GetLastHeading,2)+'∞';
+     TBXSensorAzimut.Caption:=RoundEx(GState.GPSRecorder.LastHeading,2)+'∞';
    finally
      GState.GPSRecorder.UnlockRead;
    end;
@@ -1619,7 +1619,7 @@ var
   VSattelite: IGPSSatelliteInfo;
 begin
    TBXSignalStrengthBar.Repaint;
-   VPosition := GState.GPSpar.GPSModule.Position;
+   VPosition := GState.GPSRecorder.CurrentPosition;
    if VPosition.Satellites.FixCount > 0 then begin
     with TBXSignalStrengthBar do begin
        Canvas.Lock;
@@ -1662,7 +1662,7 @@ var
 begin
   if FIsGPSPosChanged then begin
     FIsGPSPosChanged := False;
-    VPosition := GState.GPSpar.GPSModule.Position;
+    VPosition := GState.GPSRecorder.CurrentPosition;
     if FSettings.Visible then FSettings.SatellitePaint;
     if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
     if (VPosition.IsFix=0) then exit;
@@ -1679,7 +1679,7 @@ begin
       if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
         VNeedTrackRedraw := True;
         if (VMapMove) then begin
-          VGPSNewPos := GState.GPSRecorder.GetLastPosition;
+          VGPSNewPos := GState.GPSRecorder.LastPosition;
           if VMapMoveCentred then begin
             VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
             VCenterMapPoint := VConverter.GetCenterMapPixelFloat;

@@ -763,7 +763,7 @@ end;
 
 procedure TFSettings.SatellitePaint;
 begin
-  GState.SkyMapDraw.Draw(SatellitePaintBox.Bitmap, GState.GPSpar.GPSModule.Position.Satellites);
+  GState.SkyMapDraw.Draw(SatellitePaintBox.Bitmap, GState.GPSRecorder.CurrentPosition.Satellites);
 end;
 
 procedure TFSettings.SatellitePaintBoxResize(Sender: TObject);
