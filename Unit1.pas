@@ -622,7 +622,6 @@ type
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure generate_im;
     procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
     procedure CreateMapUI;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
@@ -850,7 +849,6 @@ begin
     NsrcToolBarShow.Checked:=SrcToolbar.Visible;
     NGPSToolBarShow.Checked:=GPSToolBar.Visible;
     NMarksBarShow.Checked:=TBMarksToolBar.Visible;
-    TBHideMarks.Checked:=not(GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks);
 
     FLinksList.Add(
       TNotifyEventListener.Create(Self.ProcessPosChangeMessage),
@@ -934,6 +932,10 @@ begin
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
       GState.ViewConfig.GetChangeNotifier
+    );
+    FLinksList.Add(
+      VMainFormMainConfigChangeListener,
+      FConfig.LayersConfig.MarksShowConfig.GetChangeNotifier
     );
 
 
@@ -1305,6 +1307,8 @@ begin
   tbitmGPSCenterMap.Checked:=TBGPSToPoint.Checked;
   TBGPSToPointCenter.Checked:=FConfig.GPSBehaviour.MapMoveCentered;
   tbitmGPSToPointCenter.Checked:=TBGPSToPointCenter.Checked;
+
+  TBHideMarks.Checked := not(FConfig.LayersConfig.MarksShowConfig.IsUseMarks);
 
   if FConfig.MainConfig.ShowMapName then begin
     TBSMB.Caption:=
@@ -1728,33 +1732,6 @@ begin
   if draw then begin
     FLayerGoto.ShowGotoIcon(LL);
   end;
-end;
-
-procedure TFmain.generate_im;
-var
-  ts2,ts3,fr:int64;
-begin
-  if not Enabled then Exit;
-  if FMapMoving then Exit;
-  if FMapZoomAnimtion then Exit;
-
-  QueryPerformanceCounter(ts2);
-  map.BeginUpdate;
-  try
-    FMainLayer.Redraw;
-    FLayerScaleLine.Redraw;
-    FLayerMapMarks.Redraw;
-    FWikiLayer.Redraw;
-    FLayerMapGPS.Redraw;
-    UpdateGPSsensors;
-    FLayerStatBar.Redraw;
-  finally
-    map.EndUpdate;
-    map.Changed;
-  end;
-  QueryPerformanceCounter(ts3);
-  QueryPerformanceFrequency(fr);
-//  Label1.caption :=FloatToStr((ts3-ts2)/(fr/1000));
 end;
 
 procedure TFmain.CreateMapUI;
@@ -2535,7 +2512,7 @@ end;
 
 procedure TFmain.TBHideMarksClick(Sender: TObject);
 begin
-  GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := not(TBHideMarks.Checked);
+  FConfig.LayersConfig.MarksShowConfig.IsUseMarks := not(TBHideMarks.Checked);
 end;
 
 procedure TFmain.TBCOORDClick(Sender: TObject);
@@ -3436,6 +3413,7 @@ begin
   finally
     GState.GPSRecorder.UnlockWrite;
   end;
+  FLayerMapGPS.Redraw;
 end;
 
 procedure TFmain.NGShScale01Click(Sender: TObject);

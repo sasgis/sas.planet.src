@@ -169,8 +169,11 @@ procedure TGPSRecorderStuped.ClearTrack;
 begin
   LockWrite;
   try
-    FPointsCount := 0;
-    FLastPointIsEmpty := True;
+    if FPointsCount <> 0 then begin
+      FPointsCount := 0;
+      FLastPointIsEmpty := True;
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;

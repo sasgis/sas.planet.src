@@ -7,19 +7,23 @@ uses
   SysUtils,
   Classes,
   Controls,
+  ComCtrls,
+  ImgList,
+  Menus,
   Forms,
   Dialogs,
   StdCtrls,
   CheckLst,
   Buttons,
   ExtCtrls,
+  TBXControls,
   UResStrings,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   i_MarksSimple,
   u_MarksSimple,
   u_MarksDbGUIHelper,
-  Unit1, ComCtrls, ImgList, TBXControls, Menus;
+  Unit1;
 
 type
   TFMarksExplorer = class(TCommonFormParent)
@@ -31,9 +35,6 @@ type
     BtnDelKat: TSpeedButton;
     OpenDialog: TOpenDialog;
     BtnDelMark: TSpeedButton;
-    RBall: TRadioButton;
-    RBchecked: TRadioButton;
-    RBnot: TRadioButton;
     SpeedButton1: TSpeedButton;
     Bevel2: TBevel;
     BtnEditCategory: TSpeedButton;
@@ -44,7 +45,6 @@ type
     OpenDialog1: TOpenDialog;
     TreeView1: TTreeView;
     imlStates: TImageList;
-    pnlBottom: TPanel;
     pnlButtons: TPanel;
     pnlMainWithButtons: TPanel;
     pnlMain: TPanel;
@@ -63,6 +63,7 @@ type
     btnImport: TTBXButton;
     btnAccept: TTBXButton;
     btn_Close: TTBXButton;
+    rgMarksShowMode: TRadioGroup;
     procedure BtnDelMarkClick(Sender: TObject);
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnOpMarkClick(Sender: TObject);
@@ -86,6 +87,7 @@ type
     procedure btnImportClick(Sender: TObject);
     procedure btnAcceptClick(Sender: TObject);
     procedure btn_CloseClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
   private
     FCategoryList: TList;
     FMarksList: IInterfaceList;
@@ -293,28 +295,31 @@ end;
 
 procedure TFMarksExplorer.btnAcceptClick(Sender: TObject);
 begin
-  fmain.generate_im;
-end;
-
-procedure TFMarksExplorer.btn_CloseClick(Sender: TObject);
-begin
   GState.MainFormConfig.LayersConfig.MarksShowConfig.LockWrite;
   try
-    if RBnot.Checked then begin
-      GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := False;
-    end else begin
-      GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := True;
-      if RBall.Checked then begin
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := True;
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := True;
-      end else begin
+    case rgMarksShowMode.ItemIndex of
+      0: begin
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := True;
         GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := False;
         GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := False;
+
       end;
+      1: begin
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := True;
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := True;
+        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := True;
+      end;
+    else
+      GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := False;
     end;
   finally
     GState.MainFormConfig.LayersConfig.MarksShowConfig.UnlockWrite;
   end;
+end;
+
+procedure TFMarksExplorer.btn_CloseClick(Sender: TObject);
+begin
+  btnAcceptClick(nil);
   close;
 end;
 
@@ -450,20 +455,8 @@ begin
 end;
 
 procedure TFMarksExplorer.EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
-var
-  VMarksConfig: IUsedMarksConfigStatic;
 begin
   FMarkDBGUI := AMarkDBGUI;
-  VMarksConfig := GState.MainFormConfig.LayersConfig.MarksShowConfig.GetStatic;
-  if VMarksConfig.IsUseMarks then begin
-    if VMarksConfig.IgnoreCategoriesVisible and VMarksConfig.IgnoreMarksVisible then begin
-      RBall.Checked := true;
-    end else begin
-      RBchecked.Checked := true;
-    end;
-  end else begin
-    RBnot.Checked := true;
-  end;
   UpdateCategoryTree;
   UpdateMarksList;
   SBNavOnMark.Down:= GState.MainFormConfig.NavToPoint.IsActive;
@@ -475,6 +468,22 @@ begin
     MarksListBox.Clear;
     FreeAndNil(FCategoryList);
     FMarksList := nil;
+  end;
+end;
+
+procedure TFMarksExplorer.FormActivate(Sender: TObject);
+var
+  VMarksConfig: IUsedMarksConfigStatic;
+begin
+  VMarksConfig := GState.MainFormConfig.LayersConfig.MarksShowConfig.GetStatic;
+  if VMarksConfig.IsUseMarks then begin
+    if VMarksConfig.IgnoreCategoriesVisible and VMarksConfig.IgnoreMarksVisible then begin
+      rgMarksShowMode.ItemIndex := 1;
+    end else begin
+      rgMarksShowMode.ItemIndex := 0;
+    end;
+  end else begin
+    rgMarksShowMode.ItemIndex := 2;
   end;
 end;
 

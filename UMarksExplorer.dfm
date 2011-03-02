@@ -2,7 +2,7 @@ object FMarksExplorer: TFMarksExplorer
   Left = 341
   Top = 186
   Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
-  ClientHeight = 406
+  ClientHeight = 481
   ClientWidth = 577
   Color = clBtnFace
   Constraints.MinHeight = 309
@@ -11,69 +11,28 @@ object FMarksExplorer: TFMarksExplorer
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
+  OnActivate = FormActivate
   PixelsPerInch = 96
   TextHeight = 13
-  object pnlBottom: TPanel
-    AlignWithMargins = True
-    Left = 3
-    Top = 352
-    Width = 571
-    Height = 51
-    Align = alBottom
-    AutoSize = True
-    BevelOuter = bvNone
-    TabOrder = 0
-    ExplicitWidth = 572
-    object RBall: TRadioButton
-      Left = 0
-      Top = 17
-      Width = 571
-      Height = 17
-      Align = alTop
-      Caption = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
-      TabOrder = 0
-      ExplicitWidth = 572
-    end
-    object RBchecked: TRadioButton
-      Left = 0
-      Top = 0
-      Width = 571
-      Height = 17
-      Align = alTop
-      Caption = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1091#1082#1072#1079#1072#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
-      TabOrder = 1
-      ExplicitWidth = 572
-    end
-    object RBnot: TRadioButton
-      Left = 0
-      Top = 34
-      Width = 571
-      Height = 17
-      Align = alTop
-      Caption = #1053#1077' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1084#1077#1090#1082#1080
-      TabOrder = 2
-      ExplicitWidth = 572
-    end
-  end
   object pnlMainWithButtons: TPanel
     Left = 0
     Top = 0
     Width = 577
-    Height = 349
+    Height = 412
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 1
-    ExplicitWidth = 578
+    TabOrder = 0
+    ExplicitHeight = 349
     object pnlButtons: TPanel
       AlignWithMargins = True
       Left = 497
       Top = 3
       Width = 77
-      Height = 343
+      Height = 406
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 495
+      ExplicitHeight = 343
       object btnExport: TTBXButton
         Left = 3
         Top = 56
@@ -111,15 +70,15 @@ object FMarksExplorer: TFMarksExplorer
       Left = 0
       Top = 0
       Width = 494
-      Height = 349
+      Height = 412
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitWidth = 491
+      ExplicitHeight = 349
       object splCatMarks: TSplitter
         Left = 178
         Top = 0
-        Height = 349
+        Height = 412
         ExplicitLeft = 237
         ExplicitTop = 14
         ExplicitHeight = 331
@@ -128,36 +87,36 @@ object FMarksExplorer: TFMarksExplorer
         Left = 181
         Top = 0
         Width = 313
-        Height = 349
+        Height = 412
         Align = alClient
         Caption = #1052#1077#1090#1082#1080
         TabOrder = 0
-        ExplicitWidth = 310
+        ExplicitHeight = 349
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
           Top = 53
           Width = 303
-          Height = 268
+          Height = 331
           OnClickCheck = MarksListBoxClickCheck
           Align = alClient
           ItemHeight = 13
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
-          ExplicitWidth = 300
+          ExplicitHeight = 268
         end
         object CheckBox1: TCheckBox
           AlignWithMargins = True
           Left = 5
-          Top = 327
+          Top = 390
           Width = 303
           Height = 17
           Align = alBottom
           Caption = #1042#1089#1077
           TabOrder = 1
           OnClick = CheckBox1Click
-          ExplicitWidth = 300
+          ExplicitTop = 327
         end
         object pnlMarksTop: TPanel
           AlignWithMargins = True
@@ -168,8 +127,6 @@ object FMarksExplorer: TFMarksExplorer
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 2
-          ExplicitLeft = 6
-          ExplicitWidth = 300
           object Bevel2: TBevel
             AlignWithMargins = True
             Left = 61
@@ -567,27 +524,29 @@ object FMarksExplorer: TFMarksExplorer
         Left = 0
         Top = 0
         Width = 178
-        Height = 349
+        Height = 412
         Align = alLeft
         Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1080' '#1084#1077#1090#1086#1082
         TabOrder = 1
+        ExplicitHeight = 349
         object CheckBox2: TCheckBox
           AlignWithMargins = True
           Left = 5
-          Top = 327
+          Top = 390
           Width = 168
           Height = 17
           Align = alBottom
           Caption = #1042#1089#1077
           TabOrder = 0
           OnClick = CheckBox2Click
+          ExplicitTop = 327
         end
         object TreeView1: TTreeView
           AlignWithMargins = True
           Left = 5
           Top = 53
           Width = 168
-          Height = 268
+          Height = 331
           Align = alClient
           Indent = 19
           ReadOnly = True
@@ -596,7 +555,7 @@ object FMarksExplorer: TFMarksExplorer
           OnChange = TreeView1Change
           OnKeyUp = TreeView1KeyUp
           OnMouseUp = TreeView1MouseUp
-          ExplicitLeft = 7
+          ExplicitHeight = 268
         end
         object pnlCategoriesTop: TPanel
           AlignWithMargins = True
@@ -838,9 +797,22 @@ object FMarksExplorer: TFMarksExplorer
     Width = 70
     Height = 21
     ImageIndex = 0
-    TabOrder = 2
+    TabOrder = 1
     OnClick = btnImportClick
     Caption = #1048#1084#1087#1086#1088#1090
+  end
+  object rgMarksShowMode: TRadioGroup
+    Left = 0
+    Top = 412
+    Width = 577
+    Height = 69
+    Align = alBottom
+    ItemIndex = 0
+    Items.Strings = (
+      #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1091#1082#1072#1079#1072#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
+      #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
+      #1053#1077' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1084#1077#1090#1082#1080)
+    TabOrder = 2
   end
   object OpenDialog: TOpenDialog
     Left = 392
