@@ -39,6 +39,7 @@ begin
   inherited;
   FUseDownload := tsCache;
   FTilesOut := 0;
+  FTileMaxAgeInInternet := 1/24/60;
 end;
 
 procedure TDownloadUIConfig.DoReadConfig(AConfigData: IConfigDataProvider);
