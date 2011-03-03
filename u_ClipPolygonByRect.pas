@@ -12,12 +12,23 @@ type
     function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
   end;
 
-  TPolygonClipByLineAbstract = class(TInterfacedObject, IPolygonClip)
+  TPolygonClipAbstract = class(TInterfacedObject, IPolygonClip)
+  protected
+    procedure AppendPointToResult(
+      const APoint: TDoublePoint;
+      var AResultPoints: TArrayOfDoublePoint;
+      var AOutPointsCount, AOutPointsCapacity: Integer
+    );
+  protected
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer; virtual; abstract;
+  end;
+
+  TPolygonClipByLineAbstract = class(TPolygonClipAbstract)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; virtual; abstract;
     function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; virtual; abstract;
   public
-    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer; override;
   end;
 
   TPolygonClipByVerticalLine = class(TPolygonClipByLineAbstract)
@@ -58,6 +69,11 @@ type
     function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
+  TPolygonClipEqualPoints = class(TPolygonClipAbstract)
+  protected
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer; override;
+  end;
+
   TPolygonClipByRect = class(TInterfacedObject, IPolygonClip)
   private
     FClipLeft: IPolygonClip;
@@ -75,6 +91,26 @@ implementation
 uses
   SysUtils,
   Ugeofun;
+
+{ TPolygonClipAbstract }
+
+procedure TPolygonClipAbstract.AppendPointToResult(
+  const APoint: TDoublePoint;
+  var AResultPoints: TArrayOfDoublePoint;
+  var AOutPointsCount, AOutPointsCapacity: Integer
+);
+begin
+  if AOutPointsCount >= AOutPointsCapacity then begin
+    if AOutPointsCapacity  >= 32 then begin
+      AOutPointsCapacity := AOutPointsCapacity * 2;
+    end else begin
+      AOutPointsCapacity := 32;
+    end;
+    SetLength(AResultPoints, AOutPointsCapacity);
+  end;
+  AResultPoints[AOutPointsCount] := APoint;
+  Inc(AOutPointsCount);
+end;
 
 { TPolygonClipByLineAbstract }
 
@@ -117,91 +153,28 @@ begin
         case VLineCode of
           1, 4, 5, 7, 8: begin
             if Result = 0 then begin
-              if Result >= VOutPointsCapacity then begin
-                if VOutPointsCapacity  >= 32 then begin
-                  VOutPointsCapacity := VOutPointsCapacity * 2;
-                end else begin
-                  VOutPointsCapacity := 32;
-                end;
-                SetLength(AResultPoints, VOutPointsCapacity);
-              end;
-              AResultPoints[Result] := VPrevPoint;
-              Inc(Result);
+              AppendPointToResult(VPrevPoint, AResultPoints, Result, VOutPointsCapacity);
             end;
-            if Result >= VOutPointsCapacity then begin
-              if VOutPointsCapacity  >= 32 then begin
-                VOutPointsCapacity := VOutPointsCapacity * 2;
-              end else begin
-                VOutPointsCapacity := 32;
-              end;
-              SetLength(AResultPoints, VOutPointsCapacity);
-            end;
-            AResultPoints[Result] := VCurrPoint;
-            Inc(Result);
+            AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
           2: begin
             VIntersectPoint := GetIntersectPoint(VPrevPoint, VCurrPoint);
-            if Result >= VOutPointsCapacity then begin
-              if VOutPointsCapacity  >= 32 then begin
-                VOutPointsCapacity := VOutPointsCapacity * 2;
-              end else begin
-                VOutPointsCapacity := 32;
-              end;
-              SetLength(AResultPoints, VOutPointsCapacity);
-            end;
-            AResultPoints[Result] := VIntersectPoint;
-            Inc(Result);
-            if Result >= VOutPointsCapacity then begin
-              if VOutPointsCapacity  >= 32 then begin
-                VOutPointsCapacity := VOutPointsCapacity * 2;
-              end else begin
-                VOutPointsCapacity := 32;
-              end;
-              SetLength(AResultPoints, VOutPointsCapacity);
-            end;
-            AResultPoints[Result] := VCurrPoint;
-            Inc(Result);
+            AppendPointToResult(VIntersectPoint, AResultPoints, Result, VOutPointsCapacity);
+            AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
           6: begin
             if Result = 0 then begin
-              if Result >= VOutPointsCapacity then begin
-                if VOutPointsCapacity  >= 32 then begin
-                  VOutPointsCapacity := VOutPointsCapacity * 2;
-                end else begin
-                  VOutPointsCapacity := 32;
-                end;
-                SetLength(AResultPoints, VOutPointsCapacity);
-              end;
-              AResultPoints[Result] := VPrevPoint;
-              Inc(Result);
+              AppendPointToResult(VPrevPoint, AResultPoints, Result, VOutPointsCapacity);
             end;
             VIntersectPoint := GetIntersectPoint(VPrevPoint, VCurrPoint);
-            if Result >= VOutPointsCapacity then begin
-              if VOutPointsCapacity  >= 32 then begin
-                VOutPointsCapacity := VOutPointsCapacity * 2;
-              end else begin
-                VOutPointsCapacity := 32;
-              end;
-              SetLength(AResultPoints, VOutPointsCapacity);
-            end;
-            AResultPoints[Result] := VIntersectPoint;
-            Inc(Result);
+            AppendPointToResult(VIntersectPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
         end;
       end;
       if Result > 0 then begin
         if compare2EP(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
           if not compare2EP(AResultPoints[0], AResultPoints[Result - 1]) then begin
-            if Result >= VOutPointsCapacity then begin
-              if VOutPointsCapacity  >= 32 then begin
-                VOutPointsCapacity := VOutPointsCapacity * 2;
-              end else begin
-                VOutPointsCapacity := 32;
-              end;
-              SetLength(AResultPoints, VOutPointsCapacity);
-            end;
-            AResultPoints[Result] := AResultPoints[0];
-            Inc(Result);
+            AppendPointToResult(AResultPoints[0], AResultPoints, Result, VOutPointsCapacity);
           end;
         end;
       end;
@@ -336,6 +309,66 @@ begin
   FClipRight := nil;
   FClipBottom := nil;
   inherited;
+end;
+
+{ TPolygonClipEqualPoints }
+
+function TPolygonClipEqualPoints.Clip(var AFirstPoint: TDoublePoint;
+  APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
+var
+  VOutPointsCapacity: Integer;
+  VPrevPoint: TDoublePoint;
+  VPrevEmpty: Boolean;
+  VCurrPoint: TDoublePoint;
+  VCurrEmpty: Boolean;
+  i: Integer;
+  VNeedAddPoint: Boolean;
+begin
+  Result := 0;
+  if APointsCount > 0 then begin
+    VOutPointsCapacity := Length(AResultPoints);
+    VCurrPoint := PDoublePointArray(@AFirstPoint)[0];
+    VCurrEmpty := PointIsEmpty(VCurrPoint);
+    if APointsCount > 1 then begin
+      if not VCurrEmpty then begin
+        AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
+      end;
+      for i := 1 to APointsCount - 1 do begin
+        VPrevPoint := VCurrPoint;
+        VPrevEmpty := VCurrEmpty;
+        VCurrPoint := PDoublePointArray(@AFirstPoint)[i];
+        VCurrEmpty := PointIsEmpty(VCurrPoint);
+        VNeedAddPoint := True;
+        if VPrevEmpty then begin
+          if VCurrEmpty then begin
+            VNeedAddPoint := False;
+          end;
+        end else begin
+          if not VCurrEmpty then begin
+            if (abs(VCurrPoint.X - VPrevPoint.X) < 1) and (abs(VCurrPoint.X - VPrevPoint.X) < 1) then begin
+              VNeedAddPoint := False;
+            end;
+          end;
+        end;
+        if VNeedAddPoint then begin
+          AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
+        end else begin
+          VCurrPoint := VPrevPoint;
+          VCurrEmpty := VPrevEmpty;
+        end;
+      end;
+    end else begin
+      if not VCurrEmpty then begin
+        if Result >= VOutPointsCapacity then begin
+          VOutPointsCapacity := 1;
+          SetLength(AResultPoints, VOutPointsCapacity);
+        end;
+        AResultPoints[Result] := VCurrPoint;
+        Inc(Result);
+      end;
+    end;
+
+  end;
 end;
 
 end.
