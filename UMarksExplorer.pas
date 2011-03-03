@@ -244,7 +244,7 @@ begin
     if (FileExists(VFileName)) then begin
       VImportConfig := FImport.GetImportConfig(FMarkDBGUI);
       if VImportConfig <> nil then begin
-        //Todo Доделать
+        GState.ImportFileByExt.ProcessImport(VFileName, VImportConfig);
       end;
       UpdateCategoryTree;
       UpdateMarksList;
