@@ -76,6 +76,7 @@ type
 
   TPolygonClipByRect = class(TInterfacedObject, IPolygonClip)
   private
+    FClipEqual: IPolygonClip;
     FClipLeft: IPolygonClip;
     FClipTop: IPolygonClip;
     FClipRight: IPolygonClip;
@@ -132,40 +133,39 @@ begin
     VCurrPoint := PDoublePointArray(@AFirstPoint)[0];
     VCurrPointCode := GetPointCode(VCurrPoint);
     if APointsCount > 1 then begin
+      case VCurrPointCode of
+        1, 2: begin
+          AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
+        end;
+      end;
       for i := 1 to APointsCount - 1 do begin
         VPrevPoint := VCurrPoint;
         VPrevPointCode := VCurrPointCode;
         VCurrPoint := PDoublePointArray(@AFirstPoint)[i];
         VCurrPointCode := GetPointCode(VCurrPoint);
-        VLineCode := VPrevPointCode * 3 + VCurrPointCode;
+        VLineCode := VPrevPointCode * 16 + VCurrPointCode;
         {
-         од   —тар Ќов ¬ыход
-        0:     вне-вне нет
-        1:     вне-на  конечна€
-        2:     вне-вну перес,кон
-        3:     на -вне нет
-        4:     на -на  конечна€
-        5:     на -вну конечна€
-        6:     вну-вне пересечен
-        7:     вну-на  конечна€
-        8:     вну-вну конечна€
+         од      —тар Ќов ¬ыход
+        $00:     вне-вне нет
+        $01:     вне-на  конечна€
+        $02:     вне-вну перес,кон
+        $10:     на -вне нет
+        $11:     на -на  конечна€
+        $12:     на -вну конечна€
+        $20:     вну-вне пересечен
+        $21:     вну-на  конечна€
+        $22:     вну-вну конечна€
         }
         case VLineCode of
-          1, 4, 5, 7, 8: begin
-            if Result = 0 then begin
-              AppendPointToResult(VPrevPoint, AResultPoints, Result, VOutPointsCapacity);
-            end;
+          $01, $10, $12, $21, $22: begin
             AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
-          2: begin
+          $02: begin
             VIntersectPoint := GetIntersectPoint(VPrevPoint, VCurrPoint);
             AppendPointToResult(VIntersectPoint, AResultPoints, Result, VOutPointsCapacity);
             AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
-          6: begin
-            if Result = 0 then begin
-              AppendPointToResult(VPrevPoint, AResultPoints, Result, VOutPointsCapacity);
-            end;
+          $20: begin
             VIntersectPoint := GetIntersectPoint(VPrevPoint, VCurrPoint);
             AppendPointToResult(VIntersectPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
@@ -281,13 +281,17 @@ begin
   Result := 0;
   if APointsCount > 0 then begin
     SetLength(VTempArray, Length(AResultPoints));
-    Result := FClipLeft.Clip(AFirstPoint, APointsCount, VTempArray);
+
+    Result := FClipEqual.Clip(AFirstPoint, APointsCount, AResultPoints);
     if Result > 0 then begin
-      Result := FClipTop.Clip(VTempArray[0], Result, AResultPoints);
+      Result := FClipLeft.Clip(AResultPoints[0], Result, VTempArray);
       if Result > 0 then begin
-        Result := FClipRight.Clip(AResultPoints[0], Result, VTempArray);
+        Result := FClipTop.Clip(VTempArray[0], Result, AResultPoints);
         if Result > 0 then begin
-          Result := FClipBottom.Clip(VTempArray[0], Result, AResultPoints);
+          Result := FClipRight.Clip(AResultPoints[0], Result, VTempArray);
+          if Result > 0 then begin
+            Result := FClipBottom.Clip(VTempArray[0], Result, AResultPoints);
+          end;
         end;
       end;
     end;
@@ -296,6 +300,7 @@ end;
 
 constructor TPolygonClipByRect.Create(ARect: TRect);
 begin
+  FClipEqual := TPolygonClipEqualPoints.Create;
   FClipLeft := TPolygonClipByLeftBorder.Create(ARect.Left);
   FClipTop := TPolygonClipByTopBorder.Create(ARect.Top);
   FClipRight := TPolygonClipByRightBorder.Create(ARect.Right);
@@ -304,6 +309,7 @@ end;
 
 destructor TPolygonClipByRect.Destroy;
 begin
+  FClipEqual := nil;
   FClipLeft := nil;
   FClipTop := nil;
   FClipRight := nil;
@@ -345,7 +351,7 @@ begin
           end;
         end else begin
           if not VCurrEmpty then begin
-            if (abs(VCurrPoint.X - VPrevPoint.X) < 1) and (abs(VCurrPoint.X - VPrevPoint.X) < 1) then begin
+            if (abs(VCurrPoint.X - VPrevPoint.X) < 1) and (abs(VCurrPoint.Y - VPrevPoint.Y) < 1) then begin
               VNeedAddPoint := False;
             end;
           end;
@@ -355,6 +361,13 @@ begin
         end else begin
           VCurrPoint := VPrevPoint;
           VCurrEmpty := VPrevEmpty;
+        end;
+      end;
+      if Result > 0 then begin
+        if compare2EP(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
+          if not compare2EP(AResultPoints[0], AResultPoints[Result - 1]) then begin
+            AppendPointToResult(AResultPoints[0], AResultPoints, Result, VOutPointsCapacity);
+          end;
         end;
       end;
     end else begin
