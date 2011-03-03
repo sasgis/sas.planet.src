@@ -16,7 +16,7 @@ type
     MenuItem: TTBCustomItem;
   public
     ShortCut:TShortCut;
-    Icon: TIcon;
+    Bitmap: TBitmap;
     constructor Create(AMenuItem: TTBCustomItem);
     destructor Destroy; override;
   end;
@@ -27,7 +27,7 @@ type
     FIgnoredItems: TList;
     FItemsList: TList;
     procedure LoadItems(Menu: TTBCustomItem);
-    function GetIcon(aMenu: TTBCustomItem): TIcon;
+    function GetBitmap(aMenu: TTBCustomItem): TBitmap;
     function GetCaption(aMenu:TTBCustomItem): String;
   public
     constructor Create(AMainMenu: TTBCustomItem; AIgnoredItems: TList);
@@ -53,7 +53,7 @@ end;
 
 destructor TShortCutInfo.Destroy;
 begin
-  FreeAndNil(Icon);
+  FreeAndNil(Bitmap);
   inherited;
 end;
 
@@ -121,15 +121,15 @@ begin
   until Menu.HasParent = False;
 end;
 
-function TShortcutManager.GetIcon(AMenu: TTBCustomItem): TIcon;
+function TShortcutManager.GetBitmap(AMenu: TTBCustomItem): TBitmap;
 begin
   Result := nil;
   if AMenu.ImageIndex >= 0 then begin
-    Result := TIcon.Create;
+    Result := TBitmap.Create;
     if Assigned(fMainMenu.Images) then begin
-      fMainMenu.Images.GetIcon(AMenu.ImageIndex, Result);
+      fMainMenu.Images.GetBitmap(AMenu.ImageIndex, Result);
     end else begin
-      AMenu.Images.GetIcon(AMenu.ImageIndex, Result);
+      AMenu.Images.GetBitmap(AMenu.ImageIndex, Result);
     end;
   end;
 end;
@@ -178,7 +178,7 @@ begin
           VShortCutInfo := TShortCutInfo.Create(VMenuItem);
           VShortCutInfo.MenuItem := VMenuItem;
           VShortCutInfo.ShortCut := VMenuItem.ShortCut;
-          VShortCutInfo.Icon := GetIcon(VMenuItem);
+          VShortCutInfo.Bitmap := GetBitmap(VMenuItem);
           FItemsList.Add(VShortCutInfo);
         end;
         if VMenuItem.Count > 0 then begin

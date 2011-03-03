@@ -80,8 +80,8 @@ begin
     FillRect(Rect);
     VTempShortCut := TShortCutInfo(lstShortCutList.Items.Objects[Index]);
     ShortCut := ShortCutToText(VTempShortCut.ShortCut);
-    if VTempShortCut.Icon <> nil then begin
-      Draw(2,Rect.Top+2, VTempShortCut.Icon);
+    if VTempShortCut.Bitmap <> nil then begin
+      CopyRect(Bounds(2,Rect.Top+1,18,18),VTempShortCut.Bitmap.Canvas,bounds(0,0,VTempShortCut.Bitmap.Width,VTempShortCut.Bitmap.Height));
     end;
     TextOut(22,Rect.Top+3, lstShortCutList.Items[Index]);
     TextOut(Rect.Right-TextWidth(ShortCut)-9,Rect.Top+3, ShortCut);
