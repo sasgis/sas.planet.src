@@ -22,7 +22,8 @@ type
     FMarkPictureList: IMarkPictureList;
     function GetLLRectFromPoints(APoints: TArrayOfDoublePoint): TDoubleRect;
     function GetLLRectFromPoint(APoint: TDoublePoint): TDoubleRect;
-    procedure ClosePolyPoints(var APoints: TArrayOfDoublePoint);
+    procedure PreparePolyPoints(var APoints: TArrayOfDoublePoint);
+    procedure PreparePathPoints(var APoints: TArrayOfDoublePoint);
   public
     function CreateNewPoint(
       APoint: TDoublePoint;
@@ -304,20 +305,23 @@ function TMarkFactory.CreateLine(
 ): IMarkFull;
 var
   VID: Integer;
+  VPoints: TArrayOfDoublePoint;
 begin
   if ASource <> nil then begin
     VID := ASource.Id;
   end else begin
     VID := -1;
   end;
+  VPoints := Copy(APoints);
+  PreparePathPoints(VPoints);
   Result := TMarkLine.Create(
     AName,
     VId,
     AVisible,
     ACategoryId,
     ADesc,
-    GetLLRectFromPoints(APoints),
-    APoints,
+    GetLLRectFromPoints(VPoints),
+    VPoints,
     AColor1,
     AScale1
   );
@@ -456,14 +460,14 @@ begin
     VID := -1;
   end;
   VPoints := Copy(APoints);
-  ClosePolyPoints(VPoints);
+  PreparePolyPoints(VPoints);
   Result := TMarkPoly.Create(
     AName,
     VID,
     AVisible,
     ACategoryId,
     ADesc,
-    GetLLRectFromPoints(APoints),
+    GetLLRectFromPoints(VPoints),
     VPoints,
     AColor1,
     AColor2,
@@ -488,17 +492,19 @@ begin
     Result.TopLeft := APoints[0];
     Result.BottomRight := APoints[0];
     for i := 1 to VCount - 1 do begin
-      if Result.Left > APoints[i].X then begin
-        Result.Left := APoints[i].X;
-      end;
-      if Result.Top < APoints[i].Y then begin
-        Result.Top := APoints[i].Y;
-      end;
-      if Result.Right < APoints[i].X then begin
-        Result.Right := APoints[i].X;
-      end;
-      if Result.Bottom > APoints[i].Y then begin
-        Result.Bottom := APoints[i].Y;
+      if not PointIsEmpty(APoints[i]) then begin
+        if Result.Left > APoints[i].X then begin
+          Result.Left := APoints[i].X;
+        end;
+        if Result.Top < APoints[i].Y then begin
+          Result.Top := APoints[i].Y;
+        end;
+        if Result.Right < APoints[i].X then begin
+          Result.Right := APoints[i].X;
+        end;
+        if Result.Bottom > APoints[i].Y then begin
+          Result.Bottom := APoints[i].Y;
+        end;
       end;
     end;
   end else begin
@@ -509,7 +515,19 @@ begin
   end;
 end;
 
-procedure TMarkFactory.ClosePolyPoints(var APoints: TArrayOfDoublePoint);
+procedure TMarkFactory.PreparePathPoints(var APoints: TArrayOfDoublePoint);
+var
+  VCount: Integer;
+begin
+  VCount := Length(APoints);
+  while (VCount > 0) and PointIsEmpty(APoints[VCount - 1]) do begin
+    Dec(VCount);
+  end;
+  SetLength(APoints, VCount);
+  Assert(VCount > 1, 'В пути должно быть хотя бы 2 точки');
+end;
+
+procedure TMarkFactory.PreparePolyPoints(var APoints: TArrayOfDoublePoint);
 var
   VCount: Integer;
 begin

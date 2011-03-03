@@ -226,6 +226,7 @@ type
 implementation
 
 uses
+  Ugeofun,
   SysUtils;
 
 { TCoordConverterAbstract }
@@ -239,8 +240,12 @@ begin
   SetLength(Result, length(APolyg));
   for i := 0 to length(APolyg) - 1 do begin
     VPoint := Apolyg[i];
-    CheckLonLatPosInternal(VPoint);
-    Result[i] := LonLat2PixelPosInternal(VPoint, AZoom);
+    if PointIsEmpty(VPoint) then begin
+      Result[i] := Point(MaxInt, MaxInt);
+    end else begin
+      CheckLonLatPosInternal(VPoint);
+      Result[i] := LonLat2PixelPosInternal(VPoint, AZoom);
+    end;
   end;
 end;
 
@@ -253,8 +258,12 @@ begin
   SetLength(Result, length(APolyg));
   for i := 0 to length(APolyg) - 1 do begin
     VPoint := Apolyg[i];
-    CheckLonLatPosInternal(VPoint);
-    Result[i] := LonLat2PixelPosFloatInternal(VPoint, AZoom);
+    if PointIsEmpty(VPoint) then begin
+      Result[i] := VPoint;
+    end else begin
+      CheckLonLatPosInternal(VPoint);
+      Result[i] := LonLat2PixelPosFloatInternal(VPoint, AZoom);
+    end;
   end;
 end;
 
