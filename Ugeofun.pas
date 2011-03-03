@@ -62,9 +62,12 @@ type
   function RgnAndRect(Polyg:TPointArray; ARect: TRect):boolean;
   function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
   function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
+  function PointIsEmpty(APoint: TDoublePoint): Boolean;
 
 implementation
 
+uses
+  Math;
 
 function GetProj(AConverter: ICoordConverter): string;
 begin
@@ -608,6 +611,11 @@ begin
   if R2.Bottom < R1.Bottom then Rect.Bottom := R2.Bottom;
   Result := not IsDoubleRectEmpty(Rect);
   if not Result then FillChar(Rect, SizeOf(Rect), 0);
+end;
+
+function PointIsEmpty(APoint: TDoublePoint): Boolean;
+begin
+  Result := IsNan(APoint.X) or IsNan(APoint.Y);
 end;
 
 {

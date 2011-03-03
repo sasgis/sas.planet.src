@@ -38,6 +38,7 @@ uses
   Graphics,
   SysUtils,
   GR32_Polygons,
+  Ugeofun,
   i_ILocalCoordConverter,
   u_NotifyEventListener;
 
@@ -104,11 +105,11 @@ begin
         VPolygon.AntialiasMode := am4times;
         VPolygon.Closed := false;
         VMapPointPrev := VPoints[0].Point;
-        VPointPrevIsEmpty := (VMapPointPrev.X = 0) and (VMapPointPrev.Y = 0);
+        VPointPrevIsEmpty := PointIsEmpty(VMapPointPrev);
         VPointPrev := VLocalConverter.LonLat2LocalPixelFloat(VMapPointPrev);
         for j := 1 to VPointsCount - 1 do begin
           VMapPointCurr := VPoints[j].Point;
-          VPointCurrIsEmpty := (VMapPointCurr.X = 0) and (VMapPointCurr.Y = 0);
+          VPointCurrIsEmpty := PointIsEmpty(VMapPointCurr);
           if not VPointCurrIsEmpty then begin
             VPointCurr := VLocalConverter.LonLat2LocalPixelFloat(VMapPointCurr);
             if not VPointPrevIsEmpty then begin

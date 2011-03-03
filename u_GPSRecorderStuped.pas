@@ -68,6 +68,7 @@ type
 implementation
 
 uses
+  Math,
   u_GPSPositionStatic,
   u_GPSSatellitesInView,
   u_Datum,
@@ -151,8 +152,8 @@ begin
         FTrack[FPointsCount].Point := FLastPosition;
         FTrack[FPointsCount].Speed := FLastSpeed;
       end else begin
-        FTrack[FPointsCount].Point.X := 0;
-        FTrack[FPointsCount].Point.Y := 0;
+        FTrack[FPointsCount].Point.X := NaN;
+        FTrack[FPointsCount].Point.Y := NaN;
         FTrack[FPointsCount].Speed := 0;
       end;
       Inc(FPointsCount);
