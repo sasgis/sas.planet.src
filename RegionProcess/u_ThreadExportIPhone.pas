@@ -35,7 +35,7 @@ type
   public
     constructor Create(
       APath: string;
-      APolygon: TDoublePointArray;
+      APolygon: TArrayOfDoublePoint;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
       AActiveMapIndex: Integer;
@@ -61,7 +61,7 @@ uses
 
 constructor TThreadExportIPhone.Create(
   APath: string;
-  APolygon: TDoublePointArray;
+  APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   AActiveMapIndex: Integer;
@@ -119,7 +119,7 @@ procedure TThreadExportIPhone.WritePListFile(AGeoConvert: ICoordConverter);
 var
   PList: Text;
   VLLCenter: TDoublePoint;
-  VPolyg: TPointArray;
+  VPolyg: TArrayOfPoint;
   max, min: TPoint;
   VZoom: Integer;
 begin

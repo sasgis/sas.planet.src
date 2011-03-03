@@ -29,7 +29,7 @@ type
   function GetProj(AConverter: ICoordConverter): string;
   function DMS2G(D,M,S:Double;N:boolean): Double;
   function D2DMS(G:Double):TDMS;
-  function PolygonFromRect(ARect: TDoubleRect): TDoublePointArray;
+  function PolygonFromRect(ARect: TDoubleRect): TArrayOfDoublePoint;
   function DoublePoint(APoint: TPoint): TDoublePoint; overload;
   function DoublePoint(X, Y: Double): TDoublePoint; overload;
   function DoubleRect(ARect: TRect): TDoubleRect; overload;
@@ -40,27 +40,27 @@ type
 
 
   function compare2P(p1,p2:TPoint):boolean;
-  function PtInRgn(Polyg:TPointArray; P:TPoint):boolean; overload;
-  function PtInRgn(Polyg:TDoublePointArray; P:TDoublePoint):boolean; overload;
-  function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
+  function PtInRgn(Polyg:TArrayOfPoint; P:TPoint):boolean; overload;
+  function PtInRgn(Polyg:TArrayOfDoublePoint; P:TDoublePoint):boolean; overload;
+  function PtInPolygon(const Pt: TPoint; const Points:TArrayOfPoint): Boolean;
   function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
   function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 
   function compare2EP(p1,p2:TDoublePoint):boolean;
-  function PolygonSquare(Poly:TPointArray): Double; overload;
-  function PolygonSquare(Poly:TDoublePointArray): Double; overload;
+  function PolygonSquare(Poly:TArrayOfPoint): Double; overload;
+  function PolygonSquare(Poly:TArrayOfDoublePoint): Double; overload;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
   procedure CalculateWFileParams(LL1,LL2:TDoublePoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:Double);
-  Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean); overload;
-  Procedure GetMinMax(var ARect:TRect; Polyg:TPointArray;round_:boolean); overload;
-  Procedure GetMinMax(var ARect:TDoubleRect; Polyg:TDoublePointArray); overload;
-  function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64; overload;
-  function GetDwnlNum(var ARect: TRect; Polyg:TPointArray; getNum:boolean):Int64; overload;
-  function RgnAndRect(Polyg:TPointArray; ARect: TRect):boolean;
-  function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
+  Procedure GetMinMax(var min,max:TPoint; Polyg:TArrayOfPoint;round_:boolean); overload;
+  Procedure GetMinMax(var ARect:TRect; Polyg:TArrayOfPoint;round_:boolean); overload;
+  Procedure GetMinMax(var ARect:TDoubleRect; Polyg:TArrayOfDoublePoint); overload;
+  function GetDwnlNum(var min,max:TPoint; Polyg:TArrayOfPoint; getNum:boolean):Int64; overload;
+  function GetDwnlNum(var ARect: TRect; Polyg:TArrayOfPoint; getNum:boolean):Int64; overload;
+  function RgnAndRect(Polyg:TArrayOfPoint; ARect: TRect):boolean;
+  function RgnAndRgn(Polyg:TArrayOfPoint;x,y:integer;prefalse:boolean):boolean;
   function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
   function PointIsEmpty(APoint: TDoublePoint): Boolean;
 
@@ -155,7 +155,7 @@ begin
   end;
 end;
 
-function RgnAndRect(Polyg:TPointArray; ARect: TRect):boolean;
+function RgnAndRect(Polyg:TArrayOfPoint; ARect: TRect):boolean;
 var
   i: integer;
 begin
@@ -184,7 +184,7 @@ begin
   end;
 end;
 
-function RgnAndRgn(Polyg:TPointArray;x,y:integer;prefalse:boolean):boolean;
+function RgnAndRgn(Polyg:TArrayOfPoint;x,y:integer;prefalse:boolean):boolean;
 var i,xm128,ym128,xp128,yp128:integer;
 begin
   xm128:=x-128;
@@ -216,7 +216,7 @@ begin
   end;
 end;
 
-Procedure GetMinMax(var min,max:TPoint; Polyg:TPointArray;round_:boolean);
+Procedure GetMinMax(var min,max:TPoint; Polyg:TArrayOfPoint;round_:boolean);
 var i:integer;
 begin
  max:=Polyg[0];
@@ -241,7 +241,7 @@ begin
   end;
 end;
 
-Procedure GetMinMax(var ARect: TRect; Polyg:TPointArray;round_:boolean);
+Procedure GetMinMax(var ARect: TRect; Polyg:TArrayOfPoint;round_:boolean);
 var i:integer;
 begin
  ARect.TopLeft:=Polyg[0];
@@ -266,7 +266,7 @@ begin
   end;
 end;
 
-function GetDwnlNum(var min,max:TPoint; Polyg:TPointArray; getNum:boolean):Int64;
+function GetDwnlNum(var min,max:TPoint; Polyg:TArrayOfPoint; getNum:boolean):Int64;
 var i,j:integer;
     prefalse:boolean;
 begin
@@ -297,7 +297,7 @@ begin
  max.Y:=max.Y+1;
 end;
 
-function GetDwnlNum(var ARect: TRect; Polyg:TPointArray; getNum:boolean):Int64;
+function GetDwnlNum(var ARect: TRect; Polyg:TArrayOfPoint; getNum:boolean):Int64;
 var i,j:integer;
     prefalse:boolean;
 begin
@@ -378,7 +378,7 @@ begin
   Result:=((dy>-d)and(dy<d)and(dx>-d)and(dx<len+d));
 end;
 
-function PolygonSquare(Poly:TPointArray): Double;
+function PolygonSquare(Poly:TArrayOfPoint): Double;
 var
   I, J, HP: Integer;
 begin
@@ -395,7 +395,7 @@ begin
   Result := Abs(Result) / 2;
 end;
 
-function PolygonSquare(Poly:TDoublePointArray): Double; overload;
+function PolygonSquare(Poly:TArrayOfDoublePoint): Double; overload;
 var
   I, J, HP: Integer;
 begin
@@ -411,7 +411,7 @@ begin
   Result := Abs(Result) / 2;
 end;
 
-function PtInPolygon(const Pt: TPoint; const Points:TPointArray): Boolean;
+function PtInPolygon(const Pt: TPoint; const Points:TArrayOfPoint): Boolean;
 var I:Integer;
     iPt,jPt:PPoint;
 begin
@@ -427,7 +427,7 @@ begin
   end;
 end;
 
-function PtInRgn(Polyg:TPointArray;P:TPoint):boolean;
+function PtInRgn(Polyg:TArrayOfPoint;P:TPoint):boolean;
 var i,j:integer;
 begin
   result:=false;
@@ -444,7 +444,7 @@ begin
    end;
 end;
 
-function PtInRgn(Polyg:TDoublePointArray; P:TDoublePoint):boolean; overload;
+function PtInRgn(Polyg:TArrayOfDoublePoint; P:TDoublePoint):boolean; overload;
 var i,j:integer;
 begin
   result:=false;
@@ -473,7 +473,7 @@ begin
                               else result:=false;
 end;
 
-function PolygonFromRect(ARect: TDoubleRect): TDoublePointArray;
+function PolygonFromRect(ARect: TDoubleRect): TArrayOfDoublePoint;
 begin
   SetLength(Result, 5);
   Result[0] := ARect.TopLeft;
@@ -483,7 +483,7 @@ begin
   Result[4] := ARect.TopLeft;
 end;
 
-Procedure GetMinMax(var ARect:TDoubleRect; Polyg:TDoublePointArray); overload;
+Procedure GetMinMax(var ARect:TDoubleRect; Polyg:TArrayOfDoublePoint); overload;
 var
   i: Integer;
 begin

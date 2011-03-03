@@ -20,7 +20,7 @@ type
     function GetSpheroidRadiusB: Double; stdcall;
     function IsSameDatum(ADatum: IDatum): Boolean; stdcall;
 
-    function CalcPoligonArea(polygon: TDoublePointArray): Double;
+    function CalcPoligonArea(polygon: TArrayOfDoublePoint): Double;
     function CalcDist(AStart: TDoublePoint; AFinish: TDoublePoint): Double;
   public
     constructor Create(
@@ -82,7 +82,7 @@ begin
   result := (fz * fR);
 end;
 
-function TDatum.CalcPoligonArea(polygon: TDoublePointArray): Double;
+function TDatum.CalcPoligonArea(polygon: TArrayOfDoublePoint): Double;
 var
   L, i: integer;
   LLPrev, LLCurr: TDoublePoint;

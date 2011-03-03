@@ -22,12 +22,12 @@ type
 
   TTileIteratorByPolygonAbstract = class(TTileIteratorAbstract)
   protected
-    FPolygLL: TDoublePointArray;
+    FPolygLL: TArrayOfDoublePoint;
     FZoom: byte;
     FGeoConvert: ICoordConverter;
     FCurrent: TPoint;
   public
-    constructor Create(AZoom: byte; APolygLL: TDoublePointArray; AGeoConvert: ICoordConverter); virtual;
+    constructor Create(AZoom: byte; APolygLL: TArrayOfDoublePoint; AGeoConvert: ICoordConverter); virtual;
     destructor Destroy; override;
   end;
 
@@ -38,7 +38,7 @@ implementation
 { TTileIteratorByPolygonAbstract }
 
 constructor TTileIteratorByPolygonAbstract.Create(AZoom: byte;
-  APolygLL: TDoublePointArray; AGeoConvert: ICoordConverter);
+  APolygLL: TArrayOfDoublePoint; AGeoConvert: ICoordConverter);
 begin
   FZoom := AZoom;
   FPolygLL := Copy(APolygLL);

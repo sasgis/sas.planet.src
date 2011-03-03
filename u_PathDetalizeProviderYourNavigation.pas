@@ -11,7 +11,7 @@ type
   private
     FBaseUrl: string;
   protected
-    function GetPath(ASource: TDoublePointArray; var AComment: string): TDoublePointArray;
+    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint;
     constructor Create(ABaseUrl: string);
   end;
 
@@ -55,8 +55,8 @@ begin
   FBaseUrl := ABaseUrl;
 end;
 
-function TPathDetalizeProviderYourNavigation.GetPath(ASource: TDoublePointArray;
-  var AComment: string): TDoublePointArray;
+function TPathDetalizeProviderYourNavigation.GetPath(ASource: TArrayOfDoublePoint;
+  var AComment: string): TArrayOfDoublePoint;
 var
   ms:TMemoryStream;
   url:string;
@@ -64,7 +64,7 @@ var
   kml:TKmlInfoSimple;
   s,l:integer;
   conerr:boolean;
-  add_line_arr_b:TDoublePointArray;
+  add_line_arr_b:TArrayOfDoublePoint;
 begin
   AComment := '';
   ms:=TMemoryStream.Create;

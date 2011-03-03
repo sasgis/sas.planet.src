@@ -42,7 +42,7 @@ type
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function LastPoints(ACount: Integer): TGPSTrackPointArray;
-    function GetAllPoints: TDoublePointArray;
+    function GetAllPoints: TArrayOfDoublePoint;
     function GetAllTracPoints: TGPSTrackPointArray;
 
     function GetOdometer1: Double;
@@ -180,7 +180,7 @@ begin
   end;
 end;
 
-function TGPSRecorderStuped.GetAllPoints: TDoublePointArray;
+function TGPSRecorderStuped.GetAllPoints: TArrayOfDoublePoint;
 var
   i: Cardinal;
 begin

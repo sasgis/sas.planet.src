@@ -12,7 +12,7 @@ type
   TTileIteratorStuped = class(TTileIteratorByPolygonAbstract)
   private
     p_x, p_y: Integer;
-    FPolyg: TPointArray;
+    FPolyg: TArrayOfPoint;
     FPixelRect: TRect;
 
     FTilesTotal: Int64;
@@ -21,7 +21,7 @@ type
     function GetTilesTotal: Int64; override;
     function GetTilesRect: TRect; override;
   public
-    constructor Create(AZoom: byte; APolygLL: TDoublePointArray; AGeoConvert: ICoordConverter); override;
+    constructor Create(AZoom: byte; APolygLL: TArrayOfDoublePoint; AGeoConvert: ICoordConverter); override;
     destructor Destroy; override;
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset; override;
@@ -35,7 +35,7 @@ uses
 { TTileIteratorStuped }
 
 constructor TTileIteratorStuped.Create(AZoom: byte;
-  APolygLL: TDoublePointArray; AGeoConvert: ICoordConverter);
+  APolygLL: TArrayOfDoublePoint; AGeoConvert: ICoordConverter);
 begin
   inherited;
   FPolyg := FGeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);

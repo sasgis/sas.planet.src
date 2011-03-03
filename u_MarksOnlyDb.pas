@@ -71,7 +71,7 @@ type
   end;
 
 
-procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TDoublePointArray);
+procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TArrayOfDoublePoint);
 var
   VSize: Integer;
   VPointsCount: Integer;
@@ -96,7 +96,7 @@ begin
   end;
 end;
 
-procedure BlobFromExtArr(AArr: TDoublePointArray; Blobfield: Tfield);
+procedure BlobFromExtArr(AArr: TArrayOfDoublePoint; Blobfield: Tfield);
 var
   VField: TBlobfield;
   VStream: TStream;
@@ -179,7 +179,7 @@ var
   VId: Integer;
   VName: string;
   VVisible: Boolean;
-  VPoints: TDoublePointArray;
+  VPoints: TArrayOfDoublePoint;
   VCategoryId: Integer;
   VDesc: string;
   VLLRect: TDoubleRect;

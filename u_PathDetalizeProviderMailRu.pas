@@ -12,7 +12,7 @@ type
     FBaseUrl: string;
     function SecondToTime(const Seconds: Cardinal): Double;
   protected
-    function GetPath(ASource: TDoublePointArray; var AComment: string): TDoublePointArray;
+    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint;
     constructor Create(ABaseUrl: string);
   end;
 
@@ -52,8 +52,8 @@ begin
   FBaseUrl := ABaseUrl;
 end;
 
-function TPathDetalizeProviderMailRu.GetPath(ASource: TDoublePointArray;
-  var AComment: string): TDoublePointArray;
+function TPathDetalizeProviderMailRu.GetPath(ASource: TArrayOfDoublePoint;
+  var AComment: string): TArrayOfDoublePoint;
 var ms:TMemoryStream;
     pathstr,timeT1:string;
     url:string;

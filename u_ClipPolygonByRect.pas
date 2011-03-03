@@ -7,20 +7,20 @@ uses
   t_GeoTypes;
 
 type
-  IPolyClip = interface
+  IPolygonClip = interface
     ['{DD70326E-B6E0-4550-91B4-8AA974AD2DE5}']
-    function Clip(const APoints: TDoublePointArray; APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
+    function Clip(const APoints: TArrayOfDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
   end;
 
-  TPolyClipByLineAbstract = class(TInterfacedObject, IPolyClip)
+  TPolygonClipByLineAbstract = class(TInterfacedObject, IPolygonClip)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; virtual; abstract;
     function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; virtual; abstract;
   public
-    function Clip(const APoints: TDoublePointArray; APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
+    function Clip(const APoints: TArrayOfDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
   end;
 
-  TPolyClipByVerticalLine = class(TPolyClipByLineAbstract)
+  TPolygonClipByVerticalLine = class(TPolygonClipByLineAbstract)
   protected
     FX: Double;
   protected
@@ -29,17 +29,17 @@ type
     constructor Create(AX: Double);
   end;
 
-  TPolyClipByLeftBorder = class(TPolyClipByVerticalLine)
+  TPolygonClipByLeftBorder = class(TPolygonClipByVerticalLine)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
-  TPolyClipByRightBorder = class(TPolyClipByVerticalLine)
+  TPolygonClipByRightBorder = class(TPolygonClipByVerticalLine)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
-  TPolyClipByHorizontalLine = class(TPolyClipByLineAbstract)
+  TPolygonClipByHorizontalLine = class(TPolygonClipByLineAbstract)
   protected
     FY: Double;
   protected
@@ -48,26 +48,26 @@ type
     constructor Create(AY: Double);
   end;
 
-  TPolyClipByTopBorder = class(TPolyClipByHorizontalLine)
+  TPolygonClipByTopBorder = class(TPolygonClipByHorizontalLine)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
-  TPolyClipByBottomBorder = class(TPolyClipByHorizontalLine)
+  TPolygonClipByBottomBorder = class(TPolygonClipByHorizontalLine)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
-  TPolyClipByRect = class(TInterfacedObject, IPolyClip)
+  TPolygonClipByRect = class(TInterfacedObject, IPolygonClip)
   private
-    FClipLeft: IPolyClip;
-    FClipTop: IPolyClip;
-    FClipRight: IPolyClip;
-    FClipBottom: IPolyClip;
+    FClipLeft: IPolygonClip;
+    FClipTop: IPolygonClip;
+    FClipRight: IPolygonClip;
+    FClipBottom: IPolygonClip;
   public
     constructor Create(ARect: TRect);
     destructor Destroy; override;
-    function Clip(const APoints: TDoublePointArray; APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
+    function Clip(const APoints: TArrayOfDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
   end;
 
 implementation
@@ -76,10 +76,10 @@ uses
   SysUtils,
   Ugeofun;
 
-{ TPolyClipByLineAbstract }
+{ TPolygonClipByLineAbstract }
 
-function TPolyClipByLineAbstract.Clip(const APoints: TDoublePointArray;
-  APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
+function TPolygonClipByLineAbstract.Clip(const APoints: TArrayOfDoublePoint;
+  APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
 var
   VPrevPoint: TDoublePoint;
   VPrevPointCode: Byte;
@@ -221,23 +221,23 @@ begin
   end;
 end;
 
-{ TPolyClipByVerticalLine }
+{ TPolygonClipByVerticalLine }
 
-constructor TPolyClipByVerticalLine.Create(AX: Double);
+constructor TPolygonClipByVerticalLine.Create(AX: Double);
 begin
   FX := AX;
 end;
 
-function TPolyClipByVerticalLine.GetIntersectPoint(APrevPoint,
+function TPolygonClipByVerticalLine.GetIntersectPoint(APrevPoint,
   ACurrPoint: TDoublePoint): TDoublePoint;
 begin
   Result.X := FX;
   Result.Y := (ACurrPoint.Y - APrevPoint.Y) / (ACurrPoint.X - APrevPoint.X) * (FX - APrevPoint.X) + APrevPoint.Y;
 end;
 
-{ TPolyClipByLeftBorder }
+{ TPolygonClipByLeftBorder }
 
-function TPolyClipByLeftBorder.GetPointCode(APoint: TDoublePoint): Byte;
+function TPolygonClipByLeftBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
   if APoint.X < FX then begin
     Result := 0;
@@ -250,7 +250,7 @@ end;
 
 { TPolyClipByRightBorder }
 
-function TPolyClipByRightBorder.GetPointCode(APoint: TDoublePoint): Byte;
+function TPolygonClipByRightBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
   if APoint.X > FX then begin
     Result := 0;
@@ -261,23 +261,23 @@ begin
   end;
 end;
 
-{ TPolyClipByHorizontalLine }
+{ TPolygonClipByHorizontalLine }
 
-constructor TPolyClipByHorizontalLine.Create(AY: Double);
+constructor TPolygonClipByHorizontalLine.Create(AY: Double);
 begin
   FY := AY;
 end;
 
-function TPolyClipByHorizontalLine.GetIntersectPoint(APrevPoint,
+function TPolygonClipByHorizontalLine.GetIntersectPoint(APrevPoint,
   ACurrPoint: TDoublePoint): TDoublePoint;
 begin
   Result.X := (ACurrPoint.X - APrevPoint.X) / (ACurrPoint.Y - APrevPoint.Y) * (FY - APrevPoint.Y) + APrevPoint.X;
   Result.Y := FY;
 end;
 
-{ TPolyClipByTopBorder }
+{ TPolygonClipByTopBorder }
 
-function TPolyClipByTopBorder.GetPointCode(APoint: TDoublePoint): Byte;
+function TPolygonClipByTopBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
   if APoint.Y < FY then begin
     Result := 0;
@@ -288,9 +288,9 @@ begin
   end;
 end;
 
-{ TPolyClipByBottomBorder }
+{ TPolygonClipByBottomBorder }
 
-function TPolyClipByBottomBorder.GetPointCode(APoint: TDoublePoint): Byte;
+function TPolygonClipByBottomBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
   if APoint.Y > FY then begin
     Result := 0;
@@ -301,12 +301,12 @@ begin
   end;
 end;
 
-{ TPolyClipByRect }
+{ TPolygonClipByRect }
 
-function TPolyClipByRect.Clip(const APoints: TDoublePointArray;
-  APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
+function TPolygonClipByRect.Clip(const APoints: TArrayOfDoublePoint;
+  APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
 var
-  VTempArray: TDoublePointArray;
+  VTempArray: TArrayOfDoublePoint;
 begin
   Result := 0;
   if APointsCount > 0 then begin
@@ -324,15 +324,15 @@ begin
   end;
 end;
 
-constructor TPolyClipByRect.Create(ARect: TRect);
+constructor TPolygonClipByRect.Create(ARect: TRect);
 begin
-  FClipLeft := TPolyClipByLeftBorder.Create(ARect.Left);
-  FClipTop := TPolyClipByTopBorder.Create(ARect.Top);
-  FClipRight := TPolyClipByRightBorder.Create(ARect.Right);
-  FClipBottom := TPolyClipByBottomBorder.Create(ARect.Bottom);
+  FClipLeft := TPolygonClipByLeftBorder.Create(ARect.Left);
+  FClipTop := TPolygonClipByTopBorder.Create(ARect.Top);
+  FClipRight := TPolygonClipByRightBorder.Create(ARect.Right);
+  FClipBottom := TPolygonClipByBottomBorder.Create(ARect.Bottom);
 end;
 
-destructor TPolyClipByRect.Destroy;
+destructor TPolygonClipByRect.Destroy;
 begin
   FClipLeft := nil;
   FClipTop := nil;
@@ -342,3 +342,4 @@ begin
 end;
 
 end.
+

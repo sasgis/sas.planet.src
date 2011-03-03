@@ -26,7 +26,7 @@ type
     FTypeMap: TMapType;
     FHTypeMap: TMapType;
     FZoom: byte;
-    FPoly: TPointArray;
+    FPoly: TArrayOfPoint;
     FMapCalibrationList: IInterfaceList;
     FSplitCount: TPoint;
 
@@ -60,7 +60,7 @@ type
     constructor Create(
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: TDoublePointArray;
+      APolygon: TArrayOfDoublePoint;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -89,7 +89,7 @@ uses
 constructor TThreadMapCombineBase.Create(
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
-  APolygon: TDoublePointArray;
+  APolygon: TArrayOfDoublePoint;
   ASplitCount: TPoint;
   Azoom: byte;
   Atypemap: TMapType;

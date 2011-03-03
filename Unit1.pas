@@ -2338,7 +2338,7 @@ end;
 procedure TFmain.TBPreviousClick(Sender: TObject);
 var
   VZoom: Byte;
-  VPolygon: TDoublePointArray;
+  VPolygon: TArrayOfDoublePoint;
 begin
   VZoom := GState.LastSelectionInfo.Zoom;
   VPolygon := Copy(GState.LastSelectionInfo.Polygon);
@@ -2517,7 +2517,7 @@ end;
 
 procedure TFmain.TBCOORDClick(Sender: TObject);
 var
-  Poly: TDoublePointArray;
+  Poly: TArrayOfDoublePoint;
   VSelLonLat: TFSelLonLat;
   VLonLatRect: TDoubleRect;
 begin
@@ -2560,7 +2560,7 @@ procedure TFmain.TBItem3Click(Sender: TObject);
 var F:TextFile;
     i:integer;
     SaveDlg: TSaveDialog;
-    VAllPoints: TDoublePointArray;
+    VAllPoints: TArrayOfDoublePoint;
 begin
   Fprogress2.Visible:=true;
   try
@@ -2625,7 +2625,7 @@ end;
 
 procedure TFmain.TBItem5Click(Sender: TObject);
 var
-  VAllPoints: TDoublePointArray;
+  VAllPoints: TArrayOfDoublePoint;
 begin
   VAllPoints := GState.GPSRecorder.GetAllPoints;
   if length(VAllPoints)>1 then begin
@@ -2908,7 +2908,7 @@ var
   VClickLonLat: TDoublePoint;
   VClickRect: TRect;
   VClickLonLatRect: TDoubleRect;
-  VPoly:  TDoublePointArray;
+  VPoly:  TArrayOfDoublePoint;
   VPWL: TResObj;
   Vlastpoint: Integer;
   VLocalConverter: ILocalCoordConverter;
@@ -4007,7 +4007,7 @@ end;
 
 procedure TFmain.TBEditPathMarshClick(Sender: TObject);
 var
-  VResult: TDoublePointArray;
+  VResult: TArrayOfDoublePoint;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
 begin
@@ -4038,7 +4038,7 @@ end;
 
 procedure TFmain.TBXItem1Click(Sender: TObject);
 var
-  VResult: TDoublePointArray;
+  VResult: TArrayOfDoublePoint;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
 begin
@@ -4069,6 +4069,7 @@ begin
 end;
 
 end.
+
 
 
 

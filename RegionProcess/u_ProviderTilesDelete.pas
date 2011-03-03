@@ -16,11 +16,11 @@ type
   public
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TDoublePointArray); override;
+    procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TDoublePointArray); override;
+    procedure StartProcess(APolygon: TArrayOfDoublePoint); override;
   end;
 
 
@@ -45,7 +45,7 @@ begin
   Result := SAS_STR_OperationDeleteCaption;
 end;
 
-procedure TProviderTilesDelete.InitFrame(Azoom: byte; APolygon: TDoublePointArray);
+procedure TProviderTilesDelete.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
     FFrame := TfrTilesDelete.Create(nil);
@@ -83,7 +83,7 @@ begin
   end;
 end;
 
-procedure TProviderTilesDelete.StartProcess(APolygon: TDoublePointArray);
+procedure TProviderTilesDelete.StartProcess(APolygon: TArrayOfDoublePoint);
 var
   VMapType: TMapType;
   VDelBySize: Boolean;

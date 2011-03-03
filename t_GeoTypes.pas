@@ -17,9 +17,9 @@ type
       1: (TopLeft, BottomRight: TDoublePoint);
   end;
 
-  TPointArray = array of TPoint;
+  TArrayOfPoint = array of TPoint;
 
-  TDoublePointArray = array of TDoublePoint;
+  TArrayOfDoublePoint = array of TDoublePoint;
 
 // Скопировал из ECWReader что бы не добавлять лишние зависимости от того юнита.
 {$MINENUMSIZE 4}

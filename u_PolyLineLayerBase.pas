@@ -27,16 +27,16 @@ type
     FPointActiveColor: TColor32;
     FPointSize: integer;
 
-    FSourcePolygon: TDoublePointArray;
+    FSourcePolygon: TArrayOfDoublePoint;
     FPolyActivePointIndex: integer;
 
     FBitmapSize: TPoint;
-    FPointsOnBitmap: TDoublePointArray;
+    FPointsOnBitmap: TArrayOfDoublePoint;
     FPolygon: TPolygon32;
     FLinePolygon: TPolygon32;
 
 
-    function LonLatArrayToVisualFloatArray(ALocalConverter: ILocalCoordConverter; APolygon: TDoublePointArray): TDoublePointArray;
+    function LonLatArrayToVisualFloatArray(ALocalConverter: ILocalCoordConverter; APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
 
     procedure DrawPolyPoint(
       ABuffer: TBitmap32;
@@ -52,8 +52,8 @@ type
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32); virtual;
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter); virtual;
     property BitmapSize: TPoint read FBitmapSize;
-    property PointsOnBitmap: TDoublePointArray read FPointsOnBitmap;
-    property SourcePolygon: TDoublePointArray read FSourcePolygon;
+    property PointsOnBitmap: TArrayOfDoublePoint read FPointsOnBitmap;
+    property SourcePolygon: TArrayOfDoublePoint read FSourcePolygon;
   protected
     procedure DoShow; override;
     procedure DoRedraw; override;
@@ -69,7 +69,7 @@ type
       APolygon: TPolygon32
     );
     destructor Destroy; override;
-    procedure DrawLine(APathLonLat: TDoublePointArray; AActiveIndex: Integer); virtual;
+    procedure DrawLine(APathLonLat: TArrayOfDoublePoint; AActiveIndex: Integer); virtual;
     procedure DrawNothing; virtual;
   end;
 
@@ -147,7 +147,7 @@ begin
   Redraw;
 end;
 
-procedure TPolyLineLayerBase.DrawLine(APathLonLat: TDoublePointArray;
+procedure TPolyLineLayerBase.DrawLine(APathLonLat: TArrayOfDoublePoint;
   AActiveIndex: Integer);
 var
   VPointsCount: Integer;
@@ -204,8 +204,8 @@ end;
 
 function TPolyLineLayerBase.LonLatArrayToVisualFloatArray(
   ALocalConverter: ILocalCoordConverter;
-  APolygon: TDoublePointArray
-): TDoublePointArray;
+  APolygon: TArrayOfDoublePoint
+): TArrayOfDoublePoint;
 var
   i: Integer;
   VPointsCount: Integer;
@@ -263,13 +263,13 @@ var
   VPolygonGrow: TPolygon32;
   i: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
-  VBitmapClip: IPolyClip;
+  VBitmapClip: IPolygonClip;
   VPointsProcessedCount: Integer;
-  VPointsOnBitmapPrepared: TDoublePointArray;
+  VPointsOnBitmapPrepared: TArrayOfDoublePoint;
 begin
   VPointsCount := Length(FSourcePolygon);
   if VPointsCount > 0 then begin
-    VBitmapClip := TPolyClipByRect.Create(ALocalConverter.GetLocalRect);
+    VBitmapClip := TPolygonClipByRect.Create(ALocalConverter.GetLocalRect);
 
     FPointsOnBitmap := LonLatArrayToVisualFloatArray(ALocalConverter, FSourcePolygon);
     FBitmapSize := ALocalConverter.GetLocalRectSize;
@@ -306,3 +306,4 @@ begin
 end;
 
 end.
+

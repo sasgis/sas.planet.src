@@ -102,7 +102,7 @@ end;
 procedure TMapMarksLayer.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
 var
   j:integer;
-  VLineOnBitmap: TPointArray;
+  VLineOnBitmap: TArrayOfPoint;
   VLonLatRect: TDoubleRect;
   VRect: TRect;
   VConverter: ICoordConverter;

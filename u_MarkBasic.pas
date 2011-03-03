@@ -13,7 +13,7 @@ type
     FDescr: string;
     FScale1: integer;
     FScale2: integer;
-    FLonLatArr: TDoublePointArray;
+    FLonLatArr: TArrayOfDoublePoint;
     FRect: TDoubleRect;
     FColor1: integer;
     FColor2: integer;
@@ -25,7 +25,7 @@ type
     function GetColor1: integer; virtual; stdcall;
     function GetColor2: integer; virtual; stdcall;
     function GetDescr: string; virtual; stdcall;
-    function GetLonLatArr: TDoublePointArray; virtual; stdcall;
+    function GetLonLatArr: TArrayOfDoublePoint; virtual; stdcall;
     function GetName: string; virtual; stdcall;
     function GetPicName: string; virtual; stdcall;
     function GetRect: TDoubleRect; virtual; stdcall;
@@ -39,7 +39,7 @@ type
     property Descr: string read GetDescr;
     property Scale1: integer read GetScale1;
     property Scale2: integer read GetScale2;
-    property LonLatArr: TDoublePointArray read GetLonLatArr;
+    property LonLatArr: TArrayOfDoublePoint read GetLonLatArr;
     property Rect: TDoubleRect read GetRect;
     property Color1: integer read GetColor1;
     property Color2: integer read GetColor2;
@@ -100,7 +100,7 @@ begin
   Result := FId;
 end;
 
-function TMarkBasic.GetLonLatArr: TDoublePointArray;
+function TMarkBasic.GetLonLatArr: TArrayOfDoublePoint;
 begin
   Result := FLonLatArr;
 end;

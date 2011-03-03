@@ -28,7 +28,7 @@ type
   public
     constructor Create(
       APath: string;
-      APolygon: TDoublePointArray;
+      APolygon: TArrayOfDoublePoint;
       Azoomarr: array of boolean;
       Atypemap: TMapType;
       ANotSaveNotExists: boolean;
@@ -45,7 +45,7 @@ uses
 
 constructor TThreadExportKML.Create(
   APath: string;
-  APolygon: TDoublePointArray;
+  APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean;
   Atypemap: TMapType;
   ANotSaveNotExists: boolean;
@@ -123,7 +123,7 @@ procedure TThreadExportKML.ProcessRegion;
 var
   p_x, p_y, i: integer;
   VZoom: Byte;
-  polyg: TPointArray;
+  polyg: TArrayOfPoint;
   ToFile: string;
   max, min: TPoint;
 begin

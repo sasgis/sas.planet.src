@@ -48,24 +48,24 @@ type
     procedure FormActivate(Sender: TObject);
   private
     FZoom_rect:byte;
-    FPolygonLL: TDoublePointArray;
+    FPolygonLL: TArrayOfDoublePoint;
     FProviderTilesDelte: TExportProviderAbstract;
     FProviderTilesGenPrev: TExportProviderAbstract;
     FProviderTilesCopy: TExportProviderAbstract;
     FProviderTilesDownload: TExportProviderAbstract;
     FProviderMapCombine: TExportProviderAbstract;
-    procedure LoadRegion(APolyLL: TDoublePointArray);
-    procedure DelRegion(APolyLL: TDoublePointArray);
-    procedure genbacksatREG(APolyLL: TDoublePointArray);
-    procedure scleitRECT(APolyLL: TDoublePointArray);
-    procedure savefilesREG(APolyLL: TDoublePointArray);
-    procedure ExportREG(APolyLL: TDoublePointArray);
+    procedure LoadRegion(APolyLL: TArrayOfDoublePoint);
+    procedure DelRegion(APolyLL: TArrayOfDoublePoint);
+    procedure genbacksatREG(APolyLL: TArrayOfDoublePoint);
+    procedure scleitRECT(APolyLL: TArrayOfDoublePoint);
+    procedure savefilesREG(APolyLL: TArrayOfDoublePoint);
+    procedure ExportREG(APolyLL: TArrayOfDoublePoint);
     procedure InitExportsList;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure LoadSelFromFile(FileName:string);
-    procedure Show_(Azoom:byte;Polygon_: TDoublePointArray);
+    procedure Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
     procedure RefreshTranslation; override;
   end;
 
@@ -125,7 +125,7 @@ procedure TFsaveas.LoadSelFromFile(FileName:string);
 var
   ini:TMemIniFile;
   i:integer;
-  VPolygon: TDoublePointArray;
+  VPolygon: TArrayOfDoublePoint;
   VZoom: Byte;
 begin
  if FileExists(FileName) then
@@ -168,12 +168,12 @@ begin
   FProviderMapCombine.RefreshTranslation;
 end;
 
-procedure TFsaveas.DelRegion(APolyLL: TDoublePointArray);
+procedure TFsaveas.DelRegion(APolyLL: TArrayOfDoublePoint);
 begin
   FProviderTilesDelte.StartProcess(APolyLL);
 end;
 
-procedure TFsaveas.ExportREG(APolyLL: TDoublePointArray);
+procedure TFsaveas.ExportREG(APolyLL: TArrayOfDoublePoint);
 var
   VExportProvider: TExportProviderAbstract;
 begin
@@ -184,17 +184,17 @@ begin
 end;
 
 
-procedure TFsaveas.savefilesREG(APolyLL: TDoublePointArray);
+procedure TFsaveas.savefilesREG(APolyLL: TArrayOfDoublePoint);
 begin
   FProviderTilesCopy.StartProcess(APolyLL);
 end;
 
-procedure TFsaveas.LoadRegion(APolyLL: TDoublePointArray);
+procedure TFsaveas.LoadRegion(APolyLL: TArrayOfDoublePoint);
 begin
   FProviderTilesDownload.StartProcess(APolyLL);
 end;
 
-procedure TFsaveas.genbacksatREG(APolyLL: TDoublePointArray);
+procedure TFsaveas.genbacksatREG(APolyLL: TArrayOfDoublePoint);
 begin
   FProviderTilesGenPrev.StartProcess(APolyLL);
 end;
@@ -218,7 +218,7 @@ begin
   CBFormat.ItemIndex := 0;
 end;
 
-procedure TFsaveas.scleitRECT(APolyLL: TDoublePointArray);
+procedure TFsaveas.scleitRECT(APolyLL: TArrayOfDoublePoint);
 begin
   FProviderMapCombine.StartProcess(APolyLL);
 end;
@@ -241,7 +241,7 @@ begin
   end;
 end;
 
-procedure TFsaveas.Show_(Azoom:byte;Polygon_: TDoublePointArray);
+procedure TFsaveas.Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
 var
   i:integer;
   VPoint: TPoint;
@@ -299,7 +299,7 @@ var
   Ini: Tinifile;
   i:integer;
   VZoom: Byte;
-  VPolygon: TDoublePointArray;
+  VPolygon: TArrayOfDoublePoint;
 begin
  if (SaveSelDialog.Execute)and(SaveSelDialog.FileName<>'') then
   begin

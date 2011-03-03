@@ -26,7 +26,7 @@ type
   public
     constructor Create(
       APath: string;
-      APolygon: TDoublePointArray;
+      APolygon: TArrayOfDoublePoint;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
       Areplace: boolean;
@@ -49,7 +49,7 @@ uses
 
 constructor TThreadExportYaMaps.Create(
   APath: string;
-  APolygon: TDoublePointArray;
+  APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   Areplace: boolean;

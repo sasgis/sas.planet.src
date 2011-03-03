@@ -19,10 +19,11 @@ type
     // Возвращает является ли другой конвертер эквивалентным текущему
     function IsSameDatum(ADatum: IDatum): Boolean; stdcall;
 
-    function CalcPoligonArea(polygon: TDoublePointArray): Double;
+    function CalcPoligonArea(polygon: TArrayOfDoublePoint): Double;
     function CalcDist(AStart: TDoublePoint; AFinish: TDoublePoint): Double;
   end;
 
 implementation
 
 end.
+

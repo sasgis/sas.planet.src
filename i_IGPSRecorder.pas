@@ -21,7 +21,7 @@ type
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function LastPoints(ACount: Integer): TGPSTrackPointArray;
-    function GetAllPoints: TDoublePointArray;
+    function GetAllPoints: TArrayOfDoublePoint;
     function GetAllTracPoints: TGPSTrackPointArray;
 
     function GetOdometer1: Double;

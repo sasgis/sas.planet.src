@@ -13,7 +13,7 @@ type
   TLastSelectionInfo = class(TConfigDataElementBase, ILastSelectionInfo)
   private
     // Полигон последнего выделения при операциях с областью.
-    FPolygon: TDoublePointArray;
+    FPolygon: TArrayOfDoublePoint;
     // Масштаб, на котором было последнее выделение
     FZoom: Byte;
   protected
@@ -21,8 +21,8 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetZoom: Byte;
-    function GetPolygon: TDoublePointArray;
-    procedure SetPolygon(ALonLatPolygon: TDoublePointArray; AZoom: Byte);
+    function GetPolygon: TArrayOfDoublePoint;
+    procedure SetPolygon(ALonLatPolygon: TArrayOfDoublePoint; AZoom: Byte);
   public
     constructor Create();
   end;
@@ -84,7 +84,7 @@ begin
   end;
 end;
 
-function TLastSelectionInfo.GetPolygon: TDoublePointArray;
+function TLastSelectionInfo.GetPolygon: TArrayOfDoublePoint;
 begin
   LockRead;
   try
@@ -104,7 +104,7 @@ begin
   end;
 end;
 
-procedure TLastSelectionInfo.SetPolygon(ALonLatPolygon: TDoublePointArray;
+procedure TLastSelectionInfo.SetPolygon(ALonLatPolygon: TArrayOfDoublePoint;
   AZoom: Byte);
 begin
   LockWrite;
