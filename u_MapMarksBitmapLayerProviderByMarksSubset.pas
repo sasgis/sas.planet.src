@@ -138,7 +138,7 @@ begin
       end;
     end;
     try
-      VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap, VPointsCount, FPathPointsOnBitmapPrepared);
+      VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap[0], VPointsCount, FPathPointsOnBitmapPrepared);
       if VPointsProcessedCount > 0 then begin
         polygon := TPolygon32.Create;
         try
@@ -198,7 +198,7 @@ begin
       FPathPointsOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
     end;
     try
-      VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap, VPointsCount, FPathPointsOnBitmapPrepared);
+      VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap[0], VPointsCount, FPathPointsOnBitmapPrepared);
       if VPointsProcessedCount > 0 then begin
         polygon := TPolygon32.Create;
         try

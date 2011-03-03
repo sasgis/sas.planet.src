@@ -9,7 +9,7 @@ uses
 type
   IPolygonClip = interface
     ['{DD70326E-B6E0-4550-91B4-8AA974AD2DE5}']
-    function Clip(const APoints: TArrayOfDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
   end;
 
   TPolygonClipByLineAbstract = class(TInterfacedObject, IPolygonClip)
@@ -17,7 +17,7 @@ type
     function GetPointCode(APoint: TDoublePoint): Byte; virtual; abstract;
     function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; virtual; abstract;
   public
-    function Clip(const APoints: TArrayOfDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
   end;
 
   TPolygonClipByVerticalLine = class(TPolygonClipByLineAbstract)
@@ -67,7 +67,7 @@ type
   public
     constructor Create(ARect: TRect);
     destructor Destroy; override;
-    function Clip(const APoints: TArrayOfDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
   end;
 
 implementation
@@ -78,7 +78,7 @@ uses
 
 { TPolygonClipByLineAbstract }
 
-function TPolygonClipByLineAbstract.Clip(const APoints: TArrayOfDoublePoint;
+function TPolygonClipByLineAbstract.Clip(var AFirstPoint: TDoublePoint;
   APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
 var
   VPrevPoint: TDoublePoint;
@@ -92,17 +92,14 @@ var
 begin
   Result := 0;
   if APointsCount > 0 then begin
-    if Length(APoints)< APointsCount then begin
-      raise EAccessViolation.Create('¬ переданном массиве меньше точек чем ожидалось');
-    end;
     VOutPointsCapacity := Length(AResultPoints);
-    VCurrPoint := APoints[0];
+    VCurrPoint := PDoublePointArray(@AFirstPoint)[0];
     VCurrPointCode := GetPointCode(VCurrPoint);
     if APointsCount > 1 then begin
       for i := 1 to APointsCount - 1 do begin
         VPrevPoint := VCurrPoint;
         VPrevPointCode := VCurrPointCode;
-        VCurrPoint := APoints[i];
+        VCurrPoint := PDoublePointArray(@AFirstPoint)[i];
         VCurrPointCode := GetPointCode(VCurrPoint);
         VLineCode := VPrevPointCode * 3 + VCurrPointCode;
         {
@@ -193,7 +190,7 @@ begin
         end;
       end;
       if Result > 0 then begin
-        if compare2EP(APoints[0], APoints[APointsCount - 1]) then begin
+        if compare2EP(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
           if not compare2EP(AResultPoints[0], AResultPoints[Result - 1]) then begin
             if Result >= VOutPointsCapacity then begin
               if VOutPointsCapacity  >= 32 then begin
@@ -303,7 +300,7 @@ end;
 
 { TPolygonClipByRect }
 
-function TPolygonClipByRect.Clip(const APoints: TArrayOfDoublePoint;
+function TPolygonClipByRect.Clip(var AFirstPoint: TDoublePoint;
   APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
 var
   VTempArray: TArrayOfDoublePoint;
@@ -311,13 +308,13 @@ begin
   Result := 0;
   if APointsCount > 0 then begin
     SetLength(VTempArray, Length(AResultPoints));
-    Result := FClipLeft.Clip(APoints, APointsCount, VTempArray);
+    Result := FClipLeft.Clip(AFirstPoint, APointsCount, VTempArray);
     if Result > 0 then begin
-      Result := FClipTop.Clip(VTempArray, Result, AResultPoints);
+      Result := FClipTop.Clip(VTempArray[0], Result, AResultPoints);
       if Result > 0 then begin
-        Result := FClipRight.Clip(AResultPoints, Result, VTempArray);
+        Result := FClipRight.Clip(AResultPoints[0], Result, VTempArray);
         if Result > 0 then begin
-          Result := FClipBottom.Clip(VTempArray, Result, AResultPoints);
+          Result := FClipBottom.Clip(VTempArray[0], Result, AResultPoints);
         end;
       end;
     end;

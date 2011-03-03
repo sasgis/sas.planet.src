@@ -274,7 +274,7 @@ begin
     FPointsOnBitmap := LonLatArrayToVisualFloatArray(ALocalConverter, FSourcePolygon);
     FBitmapSize := ALocalConverter.GetLocalRectSize;
 
-    VPointsProcessedCount := VBitmapClip.Clip(FPointsOnBitmap, VPointsCount, VPointsOnBitmapPrepared);
+    VPointsProcessedCount := VBitmapClip.Clip(FPointsOnBitmap[0], VPointsCount, VPointsOnBitmapPrepared);
     if VPointsProcessedCount > 0 then begin
       SetLength(VPathFixedPoints, VPointsProcessedCount);
       for i := 0 to VPointsProcessedCount - 1 do begin
