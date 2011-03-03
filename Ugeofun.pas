@@ -10,11 +10,6 @@ uses
   i_ICoordConverter;
 
 type
- TDMS = record
-  D,M,S: Double;
-  N:boolean;
- end;
-
  TResObjType = (ROTpoint,ROTline,ROTPoly);
 
   TResObj = record
@@ -27,8 +22,6 @@ type
   end;
 
   function GetProj(AConverter: ICoordConverter): string;
-  function DMS2G(D,M,S:Double;N:boolean): Double;
-  function D2DMS(G:Double):TDMS;
   function PolygonFromRect(ARect: TDoubleRect): TArrayOfDoublePoint;
   function DoublePoint(APoint: TPoint): TDoublePoint; overload;
   function DoublePoint(X, Y: Double): TDoublePoint; overload;
@@ -508,21 +501,6 @@ begin
     ARect.TopLeft := DoublePoint(0, 0);
     ARect.BottomRight := DoublePoint(0, 0);
   end;
-end;
-
-function DMS2G(D,M,S:Double;N:boolean):Double;
-begin
-  result:=D+M/60+S/3600;
-  if N then result:=-result;
-end;
-
-function D2DMS(G:Double):TDMS;
-begin
-  result.N:=G<0;
-  G:=abs(G);
-  result.D:=int(G);
-  result.M:=int(Frac(G)*60);
-  result.S:=Frac(Frac(G)*60)*60;
 end;
 
 function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
