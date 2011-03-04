@@ -32,7 +32,6 @@ uses
   TB2Dock,
   TB2Toolbar,
   TB2ExtItems,
-  RXSlider,
   TB2ToolWindow,
   TBXToolPals,
   TBX,
@@ -170,8 +169,6 @@ type
     GPSToolbar: TTBXToolbar;
     TBExit: TTBXToolbar;
     ZoomToolBar: TTBXToolbar;
-    TBControlItem1: TTBControlItem;
-    RxSlider1: TRxSlider;
     TBControlItem2: TTBControlItem;
     labZoom: TLabel;
     TBEditPath: TTBXToolbar;
@@ -396,6 +393,8 @@ type
     PanelsImageList: TTBXImageList;
     ImagesSrc24: TTBXImageList;
     TBHideMarks: TTBXItem;
+    ZSlider: TImage;
+    TBControlItem3: TTBControlItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -405,7 +404,6 @@ type
     procedure TBZoomInClick(Sender: TObject);
     procedure TBmoveClick(Sender: TObject);
     procedure TBFullSizeClick(Sender: TObject);
-    procedure RxSlider1Change(Sender: TObject);
     procedure NCalcRastClick(Sender: TObject);
     procedure NFoolSizeClick(Sender: TObject);
     procedure N6Click(Sender: TObject);
@@ -469,7 +467,6 @@ type
     procedure N13Click(Sender: TObject);
     procedure ImageAtlas1Click(Sender: TObject);
     procedure DigitalGlobe1Click(Sender: TObject);
-    procedure RxSlider1Changed(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
     procedure GPSReceiverDisconnect(Sender: TObject);
     procedure GPSReceiverStateChange(Sender: TObject);
@@ -526,6 +523,10 @@ type
     procedure tbitmShowDebugInfoClick(Sender: TObject);
     procedure NMarkExportClick(Sender: TObject);
     procedure TBHideMarksClick(Sender: TObject);
+    procedure ZSliderMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -587,6 +588,9 @@ type
     FLineOnMapEdit: ILineOnMapEdit;
     FMarkDBGUI: TMarksDbGUIHelper;
 
+    FRuller:TBitmap32;
+    FTumbler:TBitmap32;
+
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
     procedure OnLineOnMapEditChange(Sender: TObject);
@@ -614,6 +618,8 @@ type
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange(Sender: TObject);
     procedure OnFillingMapChange(Sender: TObject);
+
+    procedure PaintZSlider(zoom:integer);
   public
     LayerMapNavToMark: TNavToMarkLayer;
     MouseCursorPos: Tpoint;
@@ -725,6 +731,11 @@ begin
     TNotifyEventListener.Create(Self.OnLineOnMapEditChange),
     FLineOnMapEdit.GetChangeNotifier
   );
+
+  FRuller:=TBitmap32.Create;
+  GState.LoadBitmapFromRes('VRULLER', FRuller);
+  FTumbler:=TBitmap32.Create;
+  GState.LoadBitmapFromRes('VTUMBLER', FTumbler);
 end;
 
 procedure TFmain.FormCreate(Sender: TObject);
@@ -991,6 +1002,8 @@ begin
     OnMainMapChange(nil);
     ProcessPosChangeMessage(nil);
     tmrMapUpdate.Enabled := True;
+
+    PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
   finally
     Enabled:=true;
     map.SetFocus;
@@ -1089,7 +1102,6 @@ begin
         else TBZoomIn.Enabled:=true;
   NZoomIn.Enabled:=TBZoomIn.Enabled;
   NZoomOut.Enabled:=TBZoom_Out.Enabled;
-  RxSlider1.Value:=VZoomCurr;
   labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
 end;
 
@@ -1889,7 +1901,6 @@ begin
   TBZoomIn.Enabled := False;
   NZoomIn.Enabled := False;
   NZoomOut.Enabled := False;
-  RxSlider1.Value:=ANewZoom;
   VZoom := FConfig.ViewPortState.GetCurrentZoom;
   if (FMapZoomAnimtion)or(FMapMoving)or(ANewZoom>23) then exit;
   FMapZoomAnimtion:=True;
@@ -1932,6 +1943,7 @@ begin
     FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
   end;
   FMapZoomAnimtion:=False;
+  PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
 end;
 
 procedure TFmain.NzoomInClick(Sender: TObject);
@@ -1993,26 +2005,21 @@ end;
 procedure TFmain.ZoomToolBarDockChanging(Sender: TObject; Floating: Boolean; DockingTo: TTBDock);
 begin
   if (DockingTo=TBDockLeft)or(DockingTo=TBDockRight) then begin
-    RxSlider1.Orientation:=RxSlider.soVertical;
+    if FRuller.Width>FRuller.Height then begin
+        FRuller.Rotate270();
+        FTumbler.Rotate270();
+    end;
     TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),4);
     TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),0);
   end else begin
-    RxSlider1.Orientation:=RxSlider.soHorizontal;
+    if FRuller.Width<FRuller.Height then begin
+        FRuller.Rotate90();
+        FTumbler.Rotate90();
+    end;
     TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),0);
     TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),4);
   end;
-end;
-
-
-procedure TFmain.RxSlider1Change(Sender: TObject);
-begin
- labZoom.Caption:= 'z' + inttostr(RxSlider1.Value+1);
-end;
-
-procedure TFmain.RxSlider1Changed(Sender: TObject);
-begin
- zooming(RxSlider1.Value, false);
- SetFocusedControl(map);
+  PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
 end;
 
 procedure TFmain.NMainToolBarShowClick(Sender: TObject);
@@ -4066,6 +4073,47 @@ begin
       FMarshrutComment := '';
     end;
   end;
+end;
+
+procedure TFmain.ZSliderMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+var h,xy:integer;
+begin
+  if ssLeft in Shift then begin
+    if FRuller.Width<FRuller.Height then begin
+      XY:=ZSlider.Height-Y;
+      h:=(ZSlider.Height div 24);
+    end else begin
+      XY:=X;
+      h:=(ZSlider.Width div 24);
+    end;
+    if XY in [h..h*24] then begin
+      Tag:=(XY div h)-1;
+      PaintZSlider(Tag);
+      labZoom.Caption:='z'+inttostr(Tag+1);
+    end;
+  end;
+end;
+
+procedure TFmain.ZSliderMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Button=mbLeft then begin
+    zooming(Tag,false);
+  end;
+end;
+
+procedure TFmain.PaintZSlider(zoom:integer);
+var tumbpos:TPoint;
+begin
+  if FRuller.Height>FRuller.Width then begin
+    tumbpos.Y:=FRuller.Height-((FRuller.Height div 24)*(zoom+1))-(FTumbler.Height div 2);
+    tumbpos.X:=(FRuller.Width div 2) - (FTumbler.Width div 2);
+  end else begin
+    tumbpos.X:=(FRuller.Width div 24)*(zoom+1)-(FTumbler.Width div 2);
+    tumbpos.Y:=(FRuller.Height div 2) - (FTumbler.Height div 2);
+  end;
+  ZSlider.Picture.Bitmap.Assign(FRuller);
+  FTumbler.DrawTo(ZSlider.Picture.Bitmap.Canvas.Handle,tumbpos.X,tumbpos.Y);
+  ZSlider.Repaint;
 end;
 
 end.
