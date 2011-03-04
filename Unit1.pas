@@ -4116,7 +4116,6 @@ begin
   end;
   ZSlider.Bitmap.Assign(FRuller);
   FTumbler.DrawTo(ZSlider.Bitmap,tumbpos.X,tumbpos.Y);
-  ZSlider.Repaint;
 end;
 
 end.
