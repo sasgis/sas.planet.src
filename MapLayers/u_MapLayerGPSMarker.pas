@@ -52,6 +52,7 @@ uses
   SysUtils,
   GR32_Layers,
   GR32_Math,
+  Ugeofun,
   i_GPS,
   i_ILocalCoordConverter,
   u_NotifyEventListener;
@@ -133,7 +134,9 @@ begin
       VTargetPoint := VConverter.LonLat2LocalPixelFloat(FFixedLonLat);
       VTargetPoint.X := VTargetPoint.X - FFixedOnBitmap.X;
       VTargetPoint.Y := VTargetPoint.Y - FFixedOnBitmap.Y;
-      Buffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), FMarker);
+      if PixelPointInRect(VTargetPoint, DoubleRect(VConverter.GetLocalRect)) then begin
+        Buffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), FMarker);
+      end;
     finally
       FMarker.Unlock;
     end;
