@@ -45,6 +45,8 @@ type
   function PolygonSquare(Poly:TArrayOfPoint): Double; overload;
   function PolygonSquare(Poly:TArrayOfDoublePoint): Double; overload;
   function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
+  function PointOnPath(APoint:TDoublePoint; APath: TArrayOfDoublePoint; ADist: Double): Boolean;
+
   procedure CalculateWFileParams(LL1,LL2:TDoublePoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:Double);
   Procedure GetMinMax(var min,max:TPoint; Polyg:TArrayOfPoint;round_:boolean); overload;
@@ -370,6 +372,57 @@ begin
   len:=Round(cosinus*(x2-x1)+sine*(y2-y1)); // length of line
   Result:=((dy>-d)and(dy<d)and(dx>-d)and(dx<len+d));
 end;
+
+function PointOnPath(APoint:TDoublePoint; APath: TArrayOfDoublePoint; ADist: Double): Boolean;
+var
+  i: Integer;
+  VCurrPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VPoinsCount: Integer;
+  VCurrEmpty: Boolean;
+  VPrevEmpty: Boolean;
+  VVectorW: TDoublePoint;
+  VVectorV: TDoublePoint;
+  C1: Double;
+  C2: Double;
+  B: Double;
+  VVectorDist: TDoublePoint;
+  VDistSQR: Double;
+begin
+  Result := False;
+  VPoinsCount := Length(APath);
+  if VPoinsCount > 1 then begin
+    VDistSQR := ADist * ADist;
+    VCurrPoint := APath[0];
+    VCurrEmpty := PointIsEmpty(VPrevPoint);
+    for i := 1 to VPoinsCount - 1 do begin
+      VPrevPoint := VCurrPoint;
+      VPrevEmpty := VCurrEmpty;
+      VCurrPoint := APath[i];
+      VCurrEmpty := PointIsEmpty(VCurrPoint);
+      if not(VPrevEmpty or VCurrEmpty) then begin
+        VVectorW.X := APoint.X - VPrevPoint.X;
+        VVectorW.Y := APoint.Y - VPrevPoint.Y;
+        VVectorV.X := VCurrPoint.X - VPrevPoint.X;
+        VVectorV.Y := VCurrPoint.Y - VPrevPoint.Y;
+        C1 := VVectorW.X * VVectorV.X + VVectorW.Y * VVectorV.Y;
+        if C1 > 0 then begin
+          C2 := VVectorV.X * VVectorV.X + VVectorV.Y * VVectorV.Y;
+          if C2 > C1 then begin
+            B := C1 / C2;
+            VVectorDist.X := VVectorW.X - B * VVectorV.X;
+            VVectorDist.Y := VVectorW.Y - B * VVectorV.Y;
+            if (VVectorDist.X * VVectorDist.X + VVectorDist.Y * VVectorDist.Y) < VDistSQR then begin
+              Result := True;
+              Break;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
 
 function PolygonSquare(Poly:TArrayOfPoint): Double;
 var

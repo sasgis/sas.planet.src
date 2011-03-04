@@ -212,7 +212,7 @@ end;
 
 procedure TWikiLayer.MouseOnReg(var APWL: TResObj; xy: TPoint);
 var
-  i, j: integer;
+  i: integer;
   VLen: integer;
   VXY: TDoublePoint;
 begin
@@ -229,24 +229,14 @@ begin
           APWL.find := true;
           Break;
         end else begin
-          j := 1;
           if (FWikiLayerElments[i].FPolygonOnBitmap[0].X <> FWikiLayerElments[i].FPolygonOnBitmap[VLen - 1].x) or
             (FWikiLayerElments[i].FPolygonOnBitmap[0].y <> FWikiLayerElments[i].FPolygonOnBitmap[VLen - 1].y) then begin
-            while (j < length(FWikiLayerElments[i].FPolygonOnBitmap)) do begin
-              if CursorOnLinie(
-                Trunc(VXY.x), Trunc(VXY.Y),
-                trunc(FWikiLayerElments[i].FPolygonOnBitmap[j - 1].x), trunc(FWikiLayerElments[i].FPolygonOnBitmap[j - 1].y),
-                trunc(FWikiLayerElments[i].FPolygonOnBitmap[j].x), trunc(FWikiLayerElments[i].FPolygonOnBitmap[j].y),
-                3
-                )
-              then begin
-                APWL.name := FWikiLayerElments[i].name_blok;
-                APWL.descr := FWikiLayerElments[i].description;
-                APWL.numid := FWikiLayerElments[i].num_blok;
-                APWL.find := true;
-                exit;
-              end;
-              inc(j);
+            if PointOnPath(VXY, FWikiLayerElments[i].FPolygonOnBitmap, 3) then begin
+              APWL.name := FWikiLayerElments[i].name_blok;
+              APWL.descr := FWikiLayerElments[i].description;
+              APWL.numid := FWikiLayerElments[i].num_blok;
+              APWL.find := true;
+              exit;
             end;
           end else if PtInRgn(FWikiLayerElments[i].FPolygonOnBitmap, VXY) then begin
             if (PolygonSquare(FWikiLayerElments[i].FPolygonOnBitmap) > APWL.S) and (APWL.S <> 0) then begin

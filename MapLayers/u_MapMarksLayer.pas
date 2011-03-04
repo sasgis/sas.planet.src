@@ -101,13 +101,12 @@ end;
 
 procedure TMapMarksLayer.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
 var
-  j:integer;
-  VLineOnBitmap: TArrayOfPoint;
+  VLineOnBitmap: TArrayOfDoublePoint;
   VLonLatRect: TDoubleRect;
   VRect: TRect;
   VConverter: ICoordConverter;
   VMarkLonLatRect: TDoubleRect;
-  VPixelPos: TPoint;
+  VPixelPos: TDoublePoint;
   VZoom: Byte;
   VMark: IMarkFull;
   VMapRect: TDoubleRect;
@@ -132,7 +131,7 @@ begin
       VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
       VConverter.CheckPixelRectFloat(VMapRect, VZoom);
       VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-      VPixelPos := VVisualConverter.LocalPixel2MapPixel(xy);
+      VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
       VMarksEnum := VMarksSubset.GetEnum;
       while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
         VMarkLonLatRect := VMark.LLRect;
@@ -146,27 +145,15 @@ begin
             APWL.type_:=ROTpoint;
             exit;
           end else begin
-            VLineOnBitmap := VConverter.LonLatArray2PixelArray(VMark.Points, VZoom);
+            VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VMark.Points, VZoom);
             if VMark.IsLine then begin
-              for j := 1 to Length(VLineOnBitmap) - 1 do begin
-                if
-                  CursorOnLinie(
-                    VPixelPos.x,
-                    VPixelPos.Y,
-                    VLineOnBitmap[j-1].x,
-                    VLineOnBitmap[j-1].y,
-                    VLineOnBitmap[j].x,
-                    VLineOnBitmap[j].y,
-                    (VMark.Scale1 div 2)+1
-                  )
-                then begin
-                  APWL.name:=VMark.name;
-                  APWL.descr:=VMark.Desc;
-                  APWL.numid:=IntToStr(VMark.id);
-                  APWL.find:=true;
-                  APWL.type_:=ROTline;
-                  exit;
-                end;
+              if PointOnPath(VPixelPos, VLineOnBitmap, (VMark.Scale1 / 2) + 1) then begin
+                APWL.name:=VMark.name;
+                APWL.descr:=VMark.Desc;
+                APWL.numid:=IntToStr(VMark.id);
+                APWL.find:=true;
+                APWL.type_:=ROTline;
+                exit;
               end;
             end else begin
               if (PtInRgn(VLineOnBitmap,VPixelPos)) then begin
