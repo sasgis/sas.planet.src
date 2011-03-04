@@ -93,6 +93,7 @@ var
   VMapPixel: TDoublePoint;
 begin
   VMapPixel := LocalPixelFloat2MapPixelFloat(GetLocalRectCenter);
+  FGeoConverter.CheckPixelPosFloat(VMapPixel, FZoom, True);
   Result := FGeoConverter.PixelPosFloat2LonLat(VMapPixel, FZoom);
 end;
 
