@@ -183,7 +183,7 @@ begin
   FPoly := FTypeMap.GeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
 
   VProcessTiles := GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, FPoly, true);
-  GetMinMax(FMapRect.TopLeft, FMapRect.BottomRight, FPoly, false);
+  GetMinMax(FMapRect, FPoly, false);
 
   FMapSize.X := FMapRect.Right - FMapRect.Left;
   FMapSize.Y := FMapRect.Bottom - FMapRect.Top;
