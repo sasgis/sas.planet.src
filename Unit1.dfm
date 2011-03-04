@@ -38,8 +38,6 @@ object Fmain: TFmain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
-    ExplicitLeft = 36
-    ExplicitWidth = 642
   end
   object TBDock: TTBXDock
     Left = 0
@@ -1106,7 +1104,7 @@ object Fmain: TFmain
         Caption = ''
         Hint = ''
       end
-      object TBControlItem3: TTBControlItem
+      object TBControlItem1: TTBControlItem
         Control = ZSlider
         Caption = ''
         Hint = ''
@@ -1139,7 +1137,7 @@ object Fmain: TFmain
       end
       object labZoom: TLabel
         Left = 8
-        Top = 226
+        Top = 221
         Width = 14
         Height = 13
         Hint = #1052#1072#1089#1096#1090#1072#1073' '#1082#1072#1088#1090#1099' '#1085#1072' '#1082#1086#1090#1086#1088#1086#1084' '#1074#1099' '#1085#1072#1093#1086#1076#1080#1090#1077#1089#1100
@@ -1157,12 +1155,17 @@ object Fmain: TFmain
         ShowHint = True
         Transparent = True
       end
-      object ZSlider: TImage
+      object ZSlider: TImage32
         Left = 2
         Top = 32
         Width = 25
-        Height = 158
+        Height = 153
         AutoSize = True
+        Bitmap.ResamplerClassName = 'TNearestResampler'
+        BitmapAlign = baTopLeft
+        Scale = 1.000000000000000000
+        ScaleMode = smNormal
+        TabOrder = 0
         OnMouseMove = ZSliderMouseMove
         OnMouseUp = ZSliderMouseUp
       end

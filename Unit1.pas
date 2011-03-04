@@ -80,7 +80,8 @@ uses
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
   u_TileDownloaderUI,
-  t_GeoTypes, TBXGraphics;
+  t_GeoTypes,
+  TBXGraphics;
 
 type
   TAOperation = (
@@ -393,8 +394,8 @@ type
     PanelsImageList: TTBXImageList;
     ImagesSrc24: TTBXImageList;
     TBHideMarks: TTBXItem;
-    ZSlider: TImage;
-    TBControlItem3: TTBControlItem;
+    ZSlider: TImage32;
+    TBControlItem1: TTBControlItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -524,9 +525,9 @@ type
     procedure NMarkExportClick(Sender: TObject);
     procedure TBHideMarksClick(Sender: TObject);
     procedure ZSliderMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
+      Y: Integer; Layer: TCustomLayer);
     procedure ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+      Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4075,7 +4076,8 @@ begin
   end;
 end;
 
-procedure TFmain.ZSliderMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+procedure TFmain.ZSliderMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer; Layer: TCustomLayer);
 var h,xy:integer;
 begin
   if ssLeft in Shift then begin
@@ -4094,7 +4096,8 @@ begin
   end;
 end;
 
-procedure TFmain.ZSliderMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TFmain.ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 begin
   if Button=mbLeft then begin
     zooming(Tag,false);
@@ -4111,8 +4114,8 @@ begin
     tumbpos.X:=(FRuller.Width div 24)*(zoom+1)-(FTumbler.Width div 2);
     tumbpos.Y:=(FRuller.Height div 2) - (FTumbler.Height div 2);
   end;
-  ZSlider.Picture.Bitmap.Assign(FRuller);
-  FTumbler.DrawTo(ZSlider.Picture.Bitmap.Canvas.Handle,tumbpos.X,tumbpos.Y);
+  ZSlider.Bitmap.Assign(FRuller);
+  FTumbler.DrawTo(ZSlider.Bitmap,tumbpos.X,tumbpos.Y);
   ZSlider.Repaint;
 end;
 
