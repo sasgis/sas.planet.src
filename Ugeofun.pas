@@ -44,7 +44,6 @@ type
   function compare2EP(p1,p2:TDoublePoint):boolean;
   function PolygonSquare(Poly:TArrayOfPoint): Double; overload;
   function PolygonSquare(Poly:TArrayOfDoublePoint): Double; overload;
-  function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
   function PointOnPath(APoint:TDoublePoint; APath: TArrayOfDoublePoint; ADist: Double): Boolean;
 
   procedure CalculateWFileParams(LL1,LL2:TDoublePoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
@@ -351,26 +350,6 @@ begin
       CellIncrementY:=-CellIncrementX;
     end;
   end;
-end;
-
-function CursorOnLinie(X, Y, x1, y1, x2, y2, d: Integer): Boolean;
-var sine,cosinus: Double;
-    dx,dy,len: Integer;
-begin
-  asm
-   fild(y2)
-   fisub(y1) // Y-Difference
-   fild(x2)
-   fisub(x1) // X-Difference
-   fpatan    // Angle of the line in st(0)
-   fsincos   // Cosinus in st(0), Sinus in st(1)
-   fstp cosinus
-   fstp sine
-  end;
-  dx:=Round(cosinus*(x-x1)+sine*(y-y1));
-  dy:=Round(cosinus*(y-y1)-sine*(x-x1));
-  len:=Round(cosinus*(x2-x1)+sine*(y2-y1)); // length of line
-  Result:=((dy>-d)and(dy<d)and(dx>-d)and(dx<len+d));
 end;
 
 function PointOnPath(APoint:TDoublePoint; APath: TArrayOfDoublePoint; ADist: Double): Boolean;
