@@ -562,6 +562,7 @@ type
     FLayerSelection: TSelectionLayer;
     FLayerGPSMarker: TMapLayerGPSMarker;
     FLayerGrids: TMapLayerGrids;
+    LayerMapNavToMark: TNavToMarkLayer;
     FUIDownLoader: TTileDownloaderUI;
 
     ProgramStart: Boolean;
@@ -622,10 +623,8 @@ type
 
     procedure PaintZSlider(zoom:integer);
   public
-    LayerMapNavToMark: TNavToMarkLayer;
     MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
-    property LayerMiniMap: TMiniMapLayer read FLayerMiniMap;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -3704,7 +3703,7 @@ procedure TFmain.TBXItem5Click(Sender: TObject);
 var
   VPosition: IGPSPosition;
 begin
-  VPosition := GState.GPSpar.GPSModule.Position;
+  VPosition := GState.GPSRecorder.CurrentPosition;
   if VPosition.IsFix > 0 then begin
     if FMarkDBGUI.AddNewPointModal(VPosition.Position) then begin
       setalloperationfalse(ao_movemap);
