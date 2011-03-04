@@ -568,7 +568,6 @@ type
     ProgramStart: Boolean;
     ProgramClose: Boolean;
 
-    FTBFillingItemList: IGUIDObjectList; //Пункт главного меню Вид/Карта заполнения/Формировать для
     FNLayerParamsItemList: IGUIDObjectList; //Пункт гланого меню Параметры/Параметры слоя
     FNDwnItemList: IGUIDObjectList; //Пункт контекстного меню Загрузить тайл слоя
     FNDelItemList: IGUIDObjectList; //Пункт контекстного меню Удалить тайл слоя
@@ -709,7 +708,6 @@ begin
   ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
   dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
 
-  FTBFillingItemList := TGUIDObjectList.Create(False);
   FNLayerParamsItemList := TGUIDObjectList.Create(False);
   FNDwnItemList := TGUIDObjectList.Create(False);
   FNDelItemList := TGUIDObjectList.Create(False);
@@ -1042,7 +1040,6 @@ begin
   FLineOnMapEdit := nil;
   FWinPosition := nil;
   FSearchPresenter := nil;
-  FTBFillingItemList := nil;
   FNLayerParamsItemList := nil;
   FNDwnItemList := nil;
   FNDelItemList := nil;
