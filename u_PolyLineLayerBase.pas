@@ -78,6 +78,7 @@ implementation
 uses
   SysUtils,
   GR32_Layers,
+  Ugeofun,
   i_ICoordConverter,
   u_NotifyEventListener;
 
@@ -218,8 +219,12 @@ begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   for i := 0 to VPointsCount - 1 do begin
     VLonLat := APolygon[i];
-    VGeoConvert.CheckLonLatPos(VLonLat);
-    Result[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
+    if PointIsEmpty(VLonLat) then begin
+      Result[i] := VLonLat;
+    end else begin
+      VGeoConvert.CheckLonLatPos(VLonLat);
+      Result[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
+    end;
   end;
 end;
 
@@ -266,6 +271,7 @@ var
   VBitmapClip: IPolygonClip;
   VPointsProcessedCount: Integer;
   VPointsOnBitmapPrepared: TArrayOfDoublePoint;
+  VIndex: Integer;
 begin
   VPointsCount := Length(FSourcePolygon);
   if VPointsCount > 0 then begin
@@ -277,12 +283,20 @@ begin
     VPointsProcessedCount := VBitmapClip.Clip(FPointsOnBitmap[0], VPointsCount, VPointsOnBitmapPrepared);
     if VPointsProcessedCount > 0 then begin
       SetLength(VPathFixedPoints, VPointsProcessedCount);
-      for i := 0 to VPointsProcessedCount - 1 do begin
-        VPathFixedPoints[i] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
-      end;
-
+      VIndex := 0;
       FPolygon.Clear;
-      FPolygon.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
+      for i := 0 to VPointsProcessedCount - 1 do begin
+        if PointIsEmpty(VPointsOnBitmapPrepared[i]) then begin
+          FPolygon.AddPoints(VPathFixedPoints[0], VIndex);
+          FPolygon.NewLine;
+          VIndex := 0;
+        end else begin
+          VPathFixedPoints[VIndex] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
+          Inc(VIndex);
+        end;
+      end;
+      FPolygon.AddPoints(VPathFixedPoints[0], VIndex);
+
       VPolygonOutline := FPolygon.Outline;
       try
         VPolygonGrow := VPolygonOutline.Grow(Fixed(FLineWidth / 2), 0.5);

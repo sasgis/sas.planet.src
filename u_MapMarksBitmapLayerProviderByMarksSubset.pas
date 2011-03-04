@@ -121,6 +121,7 @@ var
   VPointsProcessedCount: Integer;
   VLonLat: TDoublePoint;
   VGeoConvert: ICoordConverter;
+  VIndex: Integer;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VPointsCount := Length(APointsLonLat);
@@ -145,23 +146,31 @@ begin
           polygon.Antialiased := true;
           polygon.AntialiasMode := am4times;
           polygon.Closed := False;
-            if Length(FPathFixedPoints) < VPointsProcessedCount then begin
-              SetLength(FPathFixedPoints, VPointsProcessedCount);
+          if Length(FPathFixedPoints) < VPointsProcessedCount then begin
+            SetLength(FPathFixedPoints, VPointsProcessedCount);
+          end;
+          VIndex := 0;
+          for i := 0 to VPointsProcessedCount - 1 do begin
+            if PointIsEmpty(FPathPointsOnBitmapPrepared[i]) then begin
+              polygon.AddPoints(FPathFixedPoints[0], VIndex);
+              polygon.NewLine;
+              VIndex := 0;
+            end else begin
+              FPathFixedPoints[VIndex] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
+              Inc(VIndex);
             end;
-            for i := 0 to VPointsProcessedCount - 1 do begin
-              FPathFixedPoints[i] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
-            end;
-            polygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
-            with Polygon.Outline do try
-              with Grow(GR32.Fixed(linew / 2), 0.5) do try
-                FillMode := pfWinding;
-                DrawFill(ATargetBmp, color1);
-              finally
-                free;
-              end;
+          end;
+          polygon.AddPoints(FPathFixedPoints[0], VIndex);
+          with Polygon.Outline do try
+            with Grow(GR32.Fixed(linew / 2), 0.5) do try
+              FillMode := pfWinding;
+              DrawFill(ATargetBmp, color1);
             finally
               free;
             end;
+          finally
+            free;
+          end;
         finally
           polygon.Free;
         end;

@@ -149,15 +149,22 @@ begin
         $00:     вне-вне нет
         $01:     вне-на  конечная
         $02:     вне-вну перес,кон
+        $03:
         $10:     на -вне нет
         $11:     на -на  конечная
         $12:     на -вну конечная
+        $13:
         $20:     вну-вне пересечен
         $21:     вну-на  конечная
         $22:     вну-вну конечная
+        $23:
+        $30:
+        $31:
+        $32:
+        $33:
         }
         case VLineCode of
-          $01, $10, $12, $21, $22: begin
+          $01, $10, $12, $21, $22, $03, $13, $23, $31, $32: begin
             AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
           $02: begin
@@ -209,7 +216,9 @@ end;
 
 function TPolygonClipByLeftBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
-  if APoint.X < FX then begin
+  if PointIsEmpty(APoint) then begin
+    Result := 3;
+  end else if APoint.X < FX then begin
     Result := 0;
   end else if APoint.X > FX then begin
     Result := 2;
@@ -222,7 +231,9 @@ end;
 
 function TPolygonClipByRightBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
-  if APoint.X > FX then begin
+  if PointIsEmpty(APoint) then begin
+    Result := 3;
+  end else if APoint.X > FX then begin
     Result := 0;
   end else if APoint.X < FX then begin
     Result := 2;
@@ -249,7 +260,9 @@ end;
 
 function TPolygonClipByTopBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
-  if APoint.Y < FY then begin
+  if PointIsEmpty(APoint) then begin
+    Result := 3;
+  end else   if APoint.Y < FY then begin
     Result := 0;
   end else if APoint.Y > FY then begin
     Result := 2;
@@ -262,7 +275,9 @@ end;
 
 function TPolygonClipByBottomBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
-  if APoint.Y > FY then begin
+  if PointIsEmpty(APoint) then begin
+    Result := 3;
+  end else   if APoint.Y > FY then begin
     Result := 0;
   end else if APoint.Y < FY then begin
     Result := 2;
@@ -282,15 +297,18 @@ begin
   if APointsCount > 0 then begin
     SetLength(VTempArray, Length(AResultPoints));
 
-    Result := FClipEqual.Clip(AFirstPoint, APointsCount, AResultPoints);
+    Result := FClipEqual.Clip(AFirstPoint, APointsCount, VTempArray);
     if Result > 0 then begin
-      Result := FClipLeft.Clip(AResultPoints[0], Result, VTempArray);
+      Result := FClipLeft.Clip(VTempArray[0], Result, AResultPoints);
       if Result > 0 then begin
-        Result := FClipTop.Clip(VTempArray[0], Result, AResultPoints);
+        Result := FClipTop.Clip(AResultPoints[0], Result, VTempArray);
         if Result > 0 then begin
-          Result := FClipRight.Clip(AResultPoints[0], Result, VTempArray);
+          Result := FClipRight.Clip(VTempArray[0], Result, AResultPoints);
           if Result > 0 then begin
-            Result := FClipBottom.Clip(VTempArray[0], Result, AResultPoints);
+            Result := FClipBottom.Clip(AResultPoints[0], Result, VTempArray);
+            if Result > 0 then begin
+              Result := FClipEqual.Clip(VTempArray[0], Result, AResultPoints);
+            end;
           end;
         end;
       end;
