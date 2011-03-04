@@ -215,6 +215,7 @@ var
   i: integer;
   VLen: integer;
   VXY: TDoublePoint;
+  VSquare: Double;
 begin
   VXY := BitmapCoordConverter.MapPixelFloat2LocalPixelFloat(VisualCoordConverter.LocalPixelFloat2MapPixelFloat(DoublePoint(xy)));
   for i := 0 to length(FWikiLayerElments) - 1 do begin
@@ -239,10 +240,11 @@ begin
               exit;
             end;
           end else if PtInRgn(FWikiLayerElments[i].FPolygonOnBitmap, VXY) then begin
-            if (PolygonSquare(FWikiLayerElments[i].FPolygonOnBitmap) > APWL.S) and (APWL.S <> 0) then begin
+            VSquare := PolygonSquare(FWikiLayerElments[i].FPolygonOnBitmap);
+            if (VSquare > APWL.S) and (APWL.S <> 0) then begin
               continue;
             end;
-            APWL.S := PolygonSquare(FWikiLayerElments[i].FPolygonOnBitmap);
+            APWL.S := VSquare;
             APWL.name := FWikiLayerElments[i].name_blok;
             APWL.descr := FWikiLayerElments[i].description;
             APWL.numid := FWikiLayerElments[i].num_blok;
