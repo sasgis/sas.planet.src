@@ -11,7 +11,7 @@ uses
 type
   TLineOnMapEdit = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEdit)
   private
-    FPoints: TDoublePointArray;
+    FPoints: TArrayOfDoublePoint;
     FCount: Integer;
     FActiveIndex: Integer;
   public
@@ -19,14 +19,14 @@ type
     destructor Destroy; override;
     function GetCount: Integer;
     function GetActiveIndex: Integer;
-    function GetPoints: TDoublePointArray;
+    function GetPoints: TArrayOfDoublePoint;
     function GetPointIndexInLonLatRect(ARect: TDoubleRect): Integer;
     procedure Empty;
     procedure SetActiveIndex(AValue: Integer);
     procedure DeleteActivePoint;
     procedure InsertPoint(APoint: TDoublePoint);
     procedure MoveActivePoint(APoint: TDoublePoint);
-    procedure SetPoints(AValue: TDoublePointArray);
+    procedure SetPoints(AValue: TArrayOfDoublePoint);
   end;
 
 implementation
@@ -128,7 +128,7 @@ begin
   end;
 end;
 
-function TLineOnMapEdit.GetPoints: TDoublePointArray;
+function TLineOnMapEdit.GetPoints: TArrayOfDoublePoint;
 begin
   LockRead;
   try
@@ -200,7 +200,7 @@ begin
   end;
 end;
 
-procedure TLineOnMapEdit.SetPoints(AValue: TDoublePointArray);
+procedure TLineOnMapEdit.SetPoints(AValue: TArrayOfDoublePoint);
 var
   VNewCount: Integer;
 begin

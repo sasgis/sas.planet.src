@@ -15,11 +15,11 @@ type
   public
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TDoublePointArray); override;
+    procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TDoublePointArray); override;
+    procedure StartProcess(APolygon: TArrayOfDoublePoint); override;
   end;
 
 
@@ -44,7 +44,7 @@ begin
   Result := SAS_STR_ExportAUXGeoServerCaption;
 end;
 
-procedure TExportProviderAUX.InitFrame(Azoom: byte; APolygon: TDoublePointArray);
+procedure TExportProviderAUX.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportAUX.Create(nil);
@@ -82,7 +82,7 @@ begin
   end;
 end;
 
-procedure TExportProviderAUX.StartProcess(APolygon: TDoublePointArray);
+procedure TExportProviderAUX.StartProcess(APolygon: TArrayOfDoublePoint);
 var
   path:string;
   VMapType: TMapType;

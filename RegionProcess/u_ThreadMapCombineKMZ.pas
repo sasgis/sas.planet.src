@@ -39,7 +39,7 @@ type
     constructor Create(
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: TDoublePointArray;
+      APolygon: TArrayOfDoublePoint;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -64,7 +64,7 @@ uses
 constructor TThreadMapCombineKMZ.Create(
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
-  APolygon: TDoublePointArray;
+  APolygon: TArrayOfDoublePoint;
   ASplitCount: TPoint;
   Azoom: byte;
   Atypemap, AHtypemap: TMapType;

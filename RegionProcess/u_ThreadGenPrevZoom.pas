@@ -34,7 +34,7 @@ type
     constructor Create(
       Azoom: byte;
       AInZooms: TArrayOfByte;
-      APolygLL: TDoublePointArray;
+      APolygLL: TArrayOfDoublePoint;
       Atypemap: TMapType;
       AReplace: boolean;
       Asavefull: boolean;
@@ -55,7 +55,7 @@ uses
 constructor TThreadGenPrevZoom.Create(
   Azoom: byte;
   AInZooms: TArrayOfByte;
-  APolygLL: TDoublePointArray;
+  APolygLL: TArrayOfDoublePoint;
   Atypemap: TMapType;
   AReplace: boolean;
   Asavefull: boolean;

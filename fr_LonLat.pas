@@ -121,7 +121,6 @@ end;
 
 procedure TfrLonLat.SetLonLat(const Value: TDoublePoint);
 var
-  DMS:TDMS;
   VValueConverter: IValueToStringConverter;
 begin
   VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;

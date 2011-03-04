@@ -76,8 +76,8 @@ type
     property Desc: string read GetDesc;
     function GetLLRect: TDoubleRect;
     property LLRect: TDoubleRect read GetLLRect;
-    function GetPoints: TDoublePointArray;
-    property Points: TDoublePointArray read GetPoints;
+    function GetPoints: TArrayOfDoublePoint;
+    property Points: TArrayOfDoublePoint read GetPoints;
     function GetColor1: TColor32;
     property Color1: TColor32 read GetColor1;
     function GetColor2: TColor32;

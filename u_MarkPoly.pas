@@ -15,7 +15,7 @@ type
     FCategoryId: Integer;
     FDesc: string;
     FLLRect: TDoubleRect;
-    FPoints: TDoublePointArray;
+    FPoints: TArrayOfDoublePoint;
     FColor1: TColor32;
     FColor2: TColor32;
     FScale1: Integer;
@@ -23,7 +23,7 @@ type
     function GetCategoryId: Integer;
     function GetDesc: string;
     function GetLLRect: TDoubleRect;
-    function GetPoints: TDoublePointArray;
+    function GetPoints: TArrayOfDoublePoint;
     function GetColor1: TColor32;
     function GetColor2: TColor32;
     function GetScale1: Integer;
@@ -43,7 +43,7 @@ type
       ACategoryId: Integer;
       ADesc: string;
       ALLRect: TDoubleRect;
-      APoints: TDoublePointArray;
+      APoints: TArrayOfDoublePoint;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer
@@ -61,7 +61,7 @@ constructor TMarkPoly.Create(
   ACategoryId: Integer;
   ADesc: string;
   ALLRect: TDoubleRect;
-  APoints: TDoublePointArray;
+  APoints: TArrayOfDoublePoint;
   AColor1, AColor2: TColor32;
   AScale1: Integer
 );
@@ -117,7 +117,7 @@ begin
   Result := '';
 end;
 
-function TMarkPoly.GetPoints: TDoublePointArray;
+function TMarkPoly.GetPoints: TArrayOfDoublePoint;
 begin
   Result := FPoints;
 end;

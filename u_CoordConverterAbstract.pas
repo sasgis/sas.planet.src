@@ -191,8 +191,8 @@ type
     function RelativeRect2PixelRect(const AXY: TDoubleRect; Azoom: byte): TRect; virtual; stdcall;
     function RelativeRect2PixelRectFloat(const AXY: TDoubleRect; Azoom: byte): TDoubleRect; virtual; stdcall;
 
-    function LonLatArray2PixelArray(APolyg: TDoublePointArray; AZoom: byte): TPointArray; virtual; stdcall;
-    function LonLatArray2PixelArrayFloat(APolyg: TDoublePointArray; AZoom: byte): TDoublePointArray; virtual; stdcall;
+    function LonLatArray2PixelArray(APolyg: TArrayOfDoublePoint; AZoom: byte): TArrayOfPoint; virtual; stdcall;
+    function LonLatArray2PixelArrayFloat(APolyg: TArrayOfDoublePoint; AZoom: byte): TArrayOfDoublePoint; virtual; stdcall;
 
     function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
     function PixelPos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; virtual; stdcall;
@@ -226,12 +226,13 @@ type
 implementation
 
 uses
+  Ugeofun,
   SysUtils;
 
 { TCoordConverterAbstract }
 
 function TCoordConverterAbstract.LonLatArray2PixelArray(
-  APolyg: TDoublePointArray; AZoom: byte): TPointArray;
+  APolyg: TArrayOfDoublePoint; AZoom: byte): TArrayOfPoint;
 var
   i: integer;
   VPoint: TDoublePoint;
@@ -239,13 +240,17 @@ begin
   SetLength(Result, length(APolyg));
   for i := 0 to length(APolyg) - 1 do begin
     VPoint := Apolyg[i];
-    CheckLonLatPosInternal(VPoint);
-    Result[i] := LonLat2PixelPosInternal(VPoint, AZoom);
+    if PointIsEmpty(VPoint) then begin
+      Result[i] := Point(MaxInt, MaxInt);
+    end else begin
+      CheckLonLatPosInternal(VPoint);
+      Result[i] := LonLat2PixelPosInternal(VPoint, AZoom);
+    end;
   end;
 end;
 
 function TCoordConverterAbstract.LonLatArray2PixelArrayFloat(
-  APolyg: TDoublePointArray; AZoom: byte): TDoublePointArray;
+  APolyg: TArrayOfDoublePoint; AZoom: byte): TArrayOfDoublePoint;
 var
   i: integer;
   VPoint: TDoublePoint;
@@ -253,8 +258,12 @@ begin
   SetLength(Result, length(APolyg));
   for i := 0 to length(APolyg) - 1 do begin
     VPoint := Apolyg[i];
-    CheckLonLatPosInternal(VPoint);
-    Result[i] := LonLat2PixelPosFloatInternal(VPoint, AZoom);
+    if PointIsEmpty(VPoint) then begin
+      Result[i] := VPoint;
+    end else begin
+      CheckLonLatPosInternal(VPoint);
+      Result[i] := LonLat2PixelPosFloatInternal(VPoint, AZoom);
+    end;
   end;
 end;
 

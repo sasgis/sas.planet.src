@@ -15,11 +15,11 @@ type
   public
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TDoublePointArray); override;
+    procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TDoublePointArray); override;
+    procedure StartProcess(APolygon: TArrayOfDoublePoint); override;
   end;
 
 
@@ -46,7 +46,7 @@ begin
   Result := SAS_STR_ExportZipPackCaption;
 end;
 
-procedure TExportProviderZip.InitFrame(Azoom: byte; APolygon: TDoublePointArray);
+procedure TExportProviderZip.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportToFileCont.CreateForFileType(nil, 'Zip |*.zip', 'zip');
@@ -84,7 +84,7 @@ begin
   end;
 end;
 
-procedure TExportProviderZip.StartProcess(APolygon: TDoublePointArray);
+procedure TExportProviderZip.StartProcess(APolygon: TArrayOfDoublePoint);
 var
   i:integer;
   path:string;

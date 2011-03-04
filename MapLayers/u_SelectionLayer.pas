@@ -18,9 +18,9 @@ type
   private
     FConfig: ILastSelectionLayerConfig;
     FLastSelectionInfo: ILastSelectionInfo;
-    FPolygon: TDoublePointArray;
+    FPolygon: TArrayOfDoublePoint;
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
-    function LonLatArrayToVisualFloatArray(APolygon: TDoublePointArray): TDoublePointArray;
+    function LonLatArrayToVisualFloatArray(APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
     procedure OnChangeSelection(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
@@ -73,7 +73,7 @@ begin
 end;
 
 function TSelectionLayer.LonLatArrayToVisualFloatArray(
-  APolygon: TDoublePointArray): TDoublePointArray;
+  APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
 var
   i: Integer;
   VPointsCount: Integer;
@@ -108,7 +108,7 @@ end;
 
 procedure TSelectionLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
 var
-  VVisualPolygon: TDoublePointArray;
+  VVisualPolygon: TArrayOfDoublePoint;
   VFloatPoints: TArrayOfFloatPoint;
   VPointCount: Integer;
   i: Integer;

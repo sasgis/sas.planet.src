@@ -66,7 +66,7 @@ type
     function GetColor1: integer; stdcall;
     function GetColor2: integer; stdcall;
     function GetDescr: string; stdcall;
-    function GetLonLatArr: TDoublePointArray; stdcall;
+    function GetLonLatArr: TArrayOfDoublePoint; stdcall;
     function GetName: string; stdcall;
     function GetPicName: string; stdcall;
     function GetRect: TDoubleRect; stdcall;
@@ -79,7 +79,7 @@ type
     property Descr: string read GetDescr;
     property Scale1: integer read GetScale1;
     property Scale2: integer read GetScale2;
-    property LonLatArr: TDoublePointArray read GetLonLatArr;
+    property LonLatArr: TArrayOfDoublePoint read GetLonLatArr;
     property Rect: TDoubleRect read GetRect;
     property Color1: integer read GetColor1;
     property Color2: integer read GetColor2;

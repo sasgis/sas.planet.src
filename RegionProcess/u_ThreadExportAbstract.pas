@@ -16,7 +16,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      APolygon: TDoublePointArray;
+      APolygon: TArrayOfDoublePoint;
       Azoomarr: array of boolean
     );
     destructor Destroy; override;
@@ -27,7 +27,7 @@ implementation
 uses
   SysUtils;
 
-constructor TThreadExportAbstract.Create(APolygon: TDoublePointArray;
+constructor TThreadExportAbstract.Create(APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean);
 var
   i: Integer;

@@ -26,7 +26,7 @@ type
     num_blok: string;
     description: string;
     FBounds: TDoubleRect;
-    FPolygonOnBitmap: TDoublePointArray;
+    FPolygonOnBitmap: TArrayOfDoublePoint;
     constructor Create;
     destructor Destroy; override;
   end;

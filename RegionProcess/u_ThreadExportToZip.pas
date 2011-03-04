@@ -27,7 +27,7 @@ type
   public
     constructor Create(
       ATargetFile: string;
-      APolygon: TDoublePointArray;
+      APolygon: TArrayOfDoublePoint;
       Azoomarr: array of boolean;
       AMapType: TMapType;
       ATileNameGen: ITileFileNameGenerator
@@ -46,7 +46,7 @@ uses
 
 constructor TThreadExportToZip.Create(
   ATargetFile: string;
-  APolygon: TDoublePointArray;
+  APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean;
   AMapType: TMapType;
   ATileNameGen: ITileFileNameGenerator);

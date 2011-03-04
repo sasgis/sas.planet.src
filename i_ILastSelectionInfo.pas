@@ -12,10 +12,10 @@ type
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
 
-    function GetPolygon: TDoublePointArray;
-    property Polygon: TDoublePointArray read GetPolygon;
+    function GetPolygon: TArrayOfDoublePoint;
+    property Polygon: TArrayOfDoublePoint read GetPolygon;
 
-    procedure SetPolygon(ALonLatPolygon: TDoublePointArray; AZoom: Byte);
+    procedure SetPolygon(ALonLatPolygon: TArrayOfDoublePoint; AZoom: Byte);
   end;
 
 implementation

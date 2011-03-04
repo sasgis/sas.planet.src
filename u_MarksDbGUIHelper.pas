@@ -32,8 +32,8 @@ type
     procedure ShowMarkSq(AID: Integer; AConverter: ICoordConverter; AHandle: THandle);
     function EditMarkModal(AMark: IMarkFull): IMarkFull;
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
-    function SavePolyModal(AID: Integer; ANewArrLL: TDoublePointArray): Boolean;
-    function SaveLineModal(AID: Integer; ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
+    function SavePolyModal(AID: Integer; ANewArrLL: TArrayOfDoublePoint): Boolean;
+    function SaveLineModal(AID: Integer; ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
 //    function GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible: Boolean; AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
 
     property MarksDB: TMarksDB read FMarksDB;
@@ -293,7 +293,7 @@ begin
 end;
 
 function TMarksDbGUIHelper.SaveLineModal(AID: Integer;
-  ANewArrLL: TDoublePointArray; ADescription: string): Boolean;
+  ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
 var
   VMark: IMarkFull;
 begin
@@ -316,7 +316,7 @@ begin
 end;
 
 function TMarksDbGUIHelper.SavePolyModal(AID: Integer;
-  ANewArrLL: TDoublePointArray): Boolean;
+  ANewArrLL: TArrayOfDoublePoint): Boolean;
 var
   VMark: IMarkFull;
 begin

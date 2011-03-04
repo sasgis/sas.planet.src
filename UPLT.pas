@@ -11,7 +11,7 @@ type
  TPLTData = record
   Name:string;
   description:string;
-  coordinates:TDoublePointArray;
+  coordinates:TArrayOfDoublePoint;
   coordinatesLT:TDoublePoint;
   coordinatesRD:TDoublePoint;
   function IsEmpty: Boolean;

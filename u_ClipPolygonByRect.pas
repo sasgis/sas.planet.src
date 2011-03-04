@@ -7,20 +7,31 @@ uses
   t_GeoTypes;
 
 type
-  IPolyClip = interface
+  IPolygonClip = interface
     ['{DD70326E-B6E0-4550-91B4-8AA974AD2DE5}']
-    function Clip(const APoints: TDoublePointArray; APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
   end;
 
-  TPolyClipByLineAbstract = class(TInterfacedObject, IPolyClip)
+  TPolygonClipAbstract = class(TInterfacedObject, IPolygonClip)
+  protected
+    procedure AppendPointToResult(
+      const APoint: TDoublePoint;
+      var AResultPoints: TArrayOfDoublePoint;
+      var AOutPointsCount, AOutPointsCapacity: Integer
+    );
+  protected
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer; virtual; abstract;
+  end;
+
+  TPolygonClipByLineAbstract = class(TPolygonClipAbstract)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; virtual; abstract;
     function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; virtual; abstract;
   public
-    function Clip(const APoints: TDoublePointArray; APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer; override;
   end;
 
-  TPolyClipByVerticalLine = class(TPolyClipByLineAbstract)
+  TPolygonClipByVerticalLine = class(TPolygonClipByLineAbstract)
   protected
     FX: Double;
   protected
@@ -29,17 +40,17 @@ type
     constructor Create(AX: Double);
   end;
 
-  TPolyClipByLeftBorder = class(TPolyClipByVerticalLine)
+  TPolygonClipByLeftBorder = class(TPolygonClipByVerticalLine)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
-  TPolyClipByRightBorder = class(TPolyClipByVerticalLine)
+  TPolygonClipByRightBorder = class(TPolygonClipByVerticalLine)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
-  TPolyClipByHorizontalLine = class(TPolyClipByLineAbstract)
+  TPolygonClipByHorizontalLine = class(TPolygonClipByLineAbstract)
   protected
     FY: Double;
   protected
@@ -48,26 +59,32 @@ type
     constructor Create(AY: Double);
   end;
 
-  TPolyClipByTopBorder = class(TPolyClipByHorizontalLine)
+  TPolygonClipByTopBorder = class(TPolygonClipByHorizontalLine)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
-  TPolyClipByBottomBorder = class(TPolyClipByHorizontalLine)
+  TPolygonClipByBottomBorder = class(TPolygonClipByHorizontalLine)
   protected
     function GetPointCode(APoint: TDoublePoint): Byte; override;
   end;
 
-  TPolyClipByRect = class(TInterfacedObject, IPolyClip)
+  TPolygonClipEqualPoints = class(TPolygonClipAbstract)
+  protected
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer; override;
+  end;
+
+  TPolygonClipByRect = class(TInterfacedObject, IPolygonClip)
   private
-    FClipLeft: IPolyClip;
-    FClipTop: IPolyClip;
-    FClipRight: IPolyClip;
-    FClipBottom: IPolyClip;
+    FClipEqual: IPolygonClip;
+    FClipLeft: IPolygonClip;
+    FClipTop: IPolygonClip;
+    FClipRight: IPolygonClip;
+    FClipBottom: IPolygonClip;
   public
     constructor Create(ARect: TRect);
     destructor Destroy; override;
-    function Clip(const APoints: TDoublePointArray; APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
+    function Clip(var AFirstPoint: TDoublePoint; APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
   end;
 
 implementation
@@ -76,10 +93,30 @@ uses
   SysUtils,
   Ugeofun;
 
-{ TPolyClipByLineAbstract }
+{ TPolygonClipAbstract }
 
-function TPolyClipByLineAbstract.Clip(const APoints: TDoublePointArray;
-  APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
+procedure TPolygonClipAbstract.AppendPointToResult(
+  const APoint: TDoublePoint;
+  var AResultPoints: TArrayOfDoublePoint;
+  var AOutPointsCount, AOutPointsCapacity: Integer
+);
+begin
+  if AOutPointsCount >= AOutPointsCapacity then begin
+    if AOutPointsCapacity  >= 32 then begin
+      AOutPointsCapacity := AOutPointsCapacity * 2;
+    end else begin
+      AOutPointsCapacity := 32;
+    end;
+    SetLength(AResultPoints, AOutPointsCapacity);
+  end;
+  AResultPoints[AOutPointsCount] := APoint;
+  Inc(AOutPointsCount);
+end;
+
+{ TPolygonClipByLineAbstract }
+
+function TPolygonClipByLineAbstract.Clip(var AFirstPoint: TDoublePoint;
+  APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
 var
   VPrevPoint: TDoublePoint;
   VPrevPointCode: Byte;
@@ -92,119 +129,59 @@ var
 begin
   Result := 0;
   if APointsCount > 0 then begin
-    if Length(APoints)< APointsCount then begin
-      raise EAccessViolation.Create('¬ переданном массиве меньше точек чем ожидалось');
-    end;
     VOutPointsCapacity := Length(AResultPoints);
-    VCurrPoint := APoints[0];
+    VCurrPoint := PDoublePointArray(@AFirstPoint)[0];
     VCurrPointCode := GetPointCode(VCurrPoint);
     if APointsCount > 1 then begin
+      case VCurrPointCode of
+        1, 2: begin
+          AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
+        end;
+      end;
       for i := 1 to APointsCount - 1 do begin
         VPrevPoint := VCurrPoint;
         VPrevPointCode := VCurrPointCode;
-        VCurrPoint := APoints[i];
+        VCurrPoint := PDoublePointArray(@AFirstPoint)[i];
         VCurrPointCode := GetPointCode(VCurrPoint);
-        VLineCode := VPrevPointCode * 3 + VCurrPointCode;
+        VLineCode := VPrevPointCode * 16 + VCurrPointCode;
         {
-         од   —тар Ќов ¬ыход
-        0:     вне-вне нет
-        1:     вне-на  конечна€
-        2:     вне-вну перес,кон
-        3:     на -вне нет
-        4:     на -на  конечна€
-        5:     на -вну конечна€
-        6:     вну-вне пересечен
-        7:     вну-на  конечна€
-        8:     вну-вну конечна€
+         од      —тар Ќов ¬ыход
+        $00:     вне-вне нет
+        $01:     вне-на  конечна€
+        $02:     вне-вну перес,кон
+        $03:
+        $10:     на -вне нет
+        $11:     на -на  конечна€
+        $12:     на -вну конечна€
+        $13:
+        $20:     вну-вне пересечен
+        $21:     вну-на  конечна€
+        $22:     вну-вну конечна€
+        $23:
+        $30:
+        $31:
+        $32:
+        $33:
         }
         case VLineCode of
-          1, 4, 5, 7, 8: begin
-            if Result = 0 then begin
-              if Result >= VOutPointsCapacity then begin
-                if VOutPointsCapacity  >= 32 then begin
-                  VOutPointsCapacity := VOutPointsCapacity * 2;
-                end else begin
-                  VOutPointsCapacity := 32;
-                end;
-                SetLength(AResultPoints, VOutPointsCapacity);
-              end;
-              AResultPoints[Result] := VPrevPoint;
-              Inc(Result);
-            end;
-            if Result >= VOutPointsCapacity then begin
-              if VOutPointsCapacity  >= 32 then begin
-                VOutPointsCapacity := VOutPointsCapacity * 2;
-              end else begin
-                VOutPointsCapacity := 32;
-              end;
-              SetLength(AResultPoints, VOutPointsCapacity);
-            end;
-            AResultPoints[Result] := VCurrPoint;
-            Inc(Result);
+          $01, $10, $12, $21, $22, $03, $13, $23, $31, $32: begin
+            AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
-          2: begin
+          $02: begin
             VIntersectPoint := GetIntersectPoint(VPrevPoint, VCurrPoint);
-            if Result >= VOutPointsCapacity then begin
-              if VOutPointsCapacity  >= 32 then begin
-                VOutPointsCapacity := VOutPointsCapacity * 2;
-              end else begin
-                VOutPointsCapacity := 32;
-              end;
-              SetLength(AResultPoints, VOutPointsCapacity);
-            end;
-            AResultPoints[Result] := VIntersectPoint;
-            Inc(Result);
-            if Result >= VOutPointsCapacity then begin
-              if VOutPointsCapacity  >= 32 then begin
-                VOutPointsCapacity := VOutPointsCapacity * 2;
-              end else begin
-                VOutPointsCapacity := 32;
-              end;
-              SetLength(AResultPoints, VOutPointsCapacity);
-            end;
-            AResultPoints[Result] := VCurrPoint;
-            Inc(Result);
+            AppendPointToResult(VIntersectPoint, AResultPoints, Result, VOutPointsCapacity);
+            AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
-          6: begin
-            if Result = 0 then begin
-              if Result >= VOutPointsCapacity then begin
-                if VOutPointsCapacity  >= 32 then begin
-                  VOutPointsCapacity := VOutPointsCapacity * 2;
-                end else begin
-                  VOutPointsCapacity := 32;
-                end;
-                SetLength(AResultPoints, VOutPointsCapacity);
-              end;
-              AResultPoints[Result] := VPrevPoint;
-              Inc(Result);
-            end;
+          $20: begin
             VIntersectPoint := GetIntersectPoint(VPrevPoint, VCurrPoint);
-            if Result >= VOutPointsCapacity then begin
-              if VOutPointsCapacity  >= 32 then begin
-                VOutPointsCapacity := VOutPointsCapacity * 2;
-              end else begin
-                VOutPointsCapacity := 32;
-              end;
-              SetLength(AResultPoints, VOutPointsCapacity);
-            end;
-            AResultPoints[Result] := VIntersectPoint;
-            Inc(Result);
+            AppendPointToResult(VIntersectPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
         end;
       end;
       if Result > 0 then begin
-        if compare2EP(APoints[0], APoints[APointsCount - 1]) then begin
+        if compare2EP(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
           if not compare2EP(AResultPoints[0], AResultPoints[Result - 1]) then begin
-            if Result >= VOutPointsCapacity then begin
-              if VOutPointsCapacity  >= 32 then begin
-                VOutPointsCapacity := VOutPointsCapacity * 2;
-              end else begin
-                VOutPointsCapacity := 32;
-              end;
-              SetLength(AResultPoints, VOutPointsCapacity);
-            end;
-            AResultPoints[Result] := AResultPoints[0];
-            Inc(Result);
+            AppendPointToResult(AResultPoints[0], AResultPoints, Result, VOutPointsCapacity);
           end;
         end;
       end;
@@ -221,25 +198,27 @@ begin
   end;
 end;
 
-{ TPolyClipByVerticalLine }
+{ TPolygonClipByVerticalLine }
 
-constructor TPolyClipByVerticalLine.Create(AX: Double);
+constructor TPolygonClipByVerticalLine.Create(AX: Double);
 begin
   FX := AX;
 end;
 
-function TPolyClipByVerticalLine.GetIntersectPoint(APrevPoint,
+function TPolygonClipByVerticalLine.GetIntersectPoint(APrevPoint,
   ACurrPoint: TDoublePoint): TDoublePoint;
 begin
   Result.X := FX;
   Result.Y := (ACurrPoint.Y - APrevPoint.Y) / (ACurrPoint.X - APrevPoint.X) * (FX - APrevPoint.X) + APrevPoint.Y;
 end;
 
-{ TPolyClipByLeftBorder }
+{ TPolygonClipByLeftBorder }
 
-function TPolyClipByLeftBorder.GetPointCode(APoint: TDoublePoint): Byte;
+function TPolygonClipByLeftBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
-  if APoint.X < FX then begin
+  if PointIsEmpty(APoint) then begin
+    Result := 3;
+  end else if APoint.X < FX then begin
     Result := 0;
   end else if APoint.X > FX then begin
     Result := 2;
@@ -250,9 +229,11 @@ end;
 
 { TPolyClipByRightBorder }
 
-function TPolyClipByRightBorder.GetPointCode(APoint: TDoublePoint): Byte;
+function TPolygonClipByRightBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
-  if APoint.X > FX then begin
+  if PointIsEmpty(APoint) then begin
+    Result := 3;
+  end else if APoint.X > FX then begin
     Result := 0;
   end else if APoint.X < FX then begin
     Result := 2;
@@ -261,25 +242,27 @@ begin
   end;
 end;
 
-{ TPolyClipByHorizontalLine }
+{ TPolygonClipByHorizontalLine }
 
-constructor TPolyClipByHorizontalLine.Create(AY: Double);
+constructor TPolygonClipByHorizontalLine.Create(AY: Double);
 begin
   FY := AY;
 end;
 
-function TPolyClipByHorizontalLine.GetIntersectPoint(APrevPoint,
+function TPolygonClipByHorizontalLine.GetIntersectPoint(APrevPoint,
   ACurrPoint: TDoublePoint): TDoublePoint;
 begin
   Result.X := (ACurrPoint.X - APrevPoint.X) / (ACurrPoint.Y - APrevPoint.Y) * (FY - APrevPoint.Y) + APrevPoint.X;
   Result.Y := FY;
 end;
 
-{ TPolyClipByTopBorder }
+{ TPolygonClipByTopBorder }
 
-function TPolyClipByTopBorder.GetPointCode(APoint: TDoublePoint): Byte;
+function TPolygonClipByTopBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
-  if APoint.Y < FY then begin
+  if PointIsEmpty(APoint) then begin
+    Result := 3;
+  end else   if APoint.Y < FY then begin
     Result := 0;
   end else if APoint.Y > FY then begin
     Result := 2;
@@ -288,11 +271,13 @@ begin
   end;
 end;
 
-{ TPolyClipByBottomBorder }
+{ TPolygonClipByBottomBorder }
 
-function TPolyClipByBottomBorder.GetPointCode(APoint: TDoublePoint): Byte;
+function TPolygonClipByBottomBorder.GetPointCode(APoint: TDoublePoint): Byte;
 begin
-  if APoint.Y > FY then begin
+  if PointIsEmpty(APoint) then begin
+    Result := 3;
+  end else   if APoint.Y > FY then begin
     Result := 0;
   end else if APoint.Y < FY then begin
     Result := 2;
@@ -301,39 +286,48 @@ begin
   end;
 end;
 
-{ TPolyClipByRect }
+{ TPolygonClipByRect }
 
-function TPolyClipByRect.Clip(const APoints: TDoublePointArray;
-  APointsCount: Integer; var AResultPoints: TDoublePointArray): Integer;
+function TPolygonClipByRect.Clip(var AFirstPoint: TDoublePoint;
+  APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
 var
-  VTempArray: TDoublePointArray;
+  VTempArray: TArrayOfDoublePoint;
 begin
   Result := 0;
   if APointsCount > 0 then begin
     SetLength(VTempArray, Length(AResultPoints));
-    Result := FClipLeft.Clip(APoints, APointsCount, VTempArray);
+
+    Result := FClipEqual.Clip(AFirstPoint, APointsCount, VTempArray);
     if Result > 0 then begin
-      Result := FClipTop.Clip(VTempArray, Result, AResultPoints);
+      Result := FClipLeft.Clip(VTempArray[0], Result, AResultPoints);
       if Result > 0 then begin
-        Result := FClipRight.Clip(AResultPoints, Result, VTempArray);
+        Result := FClipTop.Clip(AResultPoints[0], Result, VTempArray);
         if Result > 0 then begin
-          Result := FClipBottom.Clip(VTempArray, Result, AResultPoints);
+          Result := FClipRight.Clip(VTempArray[0], Result, AResultPoints);
+          if Result > 0 then begin
+            Result := FClipBottom.Clip(AResultPoints[0], Result, VTempArray);
+            if Result > 0 then begin
+              Result := FClipEqual.Clip(VTempArray[0], Result, AResultPoints);
+            end;
+          end;
         end;
       end;
     end;
   end;
 end;
 
-constructor TPolyClipByRect.Create(ARect: TRect);
+constructor TPolygonClipByRect.Create(ARect: TRect);
 begin
-  FClipLeft := TPolyClipByLeftBorder.Create(ARect.Left);
-  FClipTop := TPolyClipByTopBorder.Create(ARect.Top);
-  FClipRight := TPolyClipByRightBorder.Create(ARect.Right);
-  FClipBottom := TPolyClipByBottomBorder.Create(ARect.Bottom);
+  FClipEqual := TPolygonClipEqualPoints.Create;
+  FClipLeft := TPolygonClipByLeftBorder.Create(ARect.Left);
+  FClipTop := TPolygonClipByTopBorder.Create(ARect.Top);
+  FClipRight := TPolygonClipByRightBorder.Create(ARect.Right);
+  FClipBottom := TPolygonClipByBottomBorder.Create(ARect.Bottom);
 end;
 
-destructor TPolyClipByRect.Destroy;
+destructor TPolygonClipByRect.Destroy;
 begin
+  FClipEqual := nil;
   FClipLeft := nil;
   FClipTop := nil;
   FClipRight := nil;
@@ -341,4 +335,72 @@ begin
   inherited;
 end;
 
+{ TPolygonClipEqualPoints }
+
+function TPolygonClipEqualPoints.Clip(var AFirstPoint: TDoublePoint;
+  APointsCount: Integer; var AResultPoints: TArrayOfDoublePoint): Integer;
+var
+  VOutPointsCapacity: Integer;
+  VPrevPoint: TDoublePoint;
+  VPrevEmpty: Boolean;
+  VCurrPoint: TDoublePoint;
+  VCurrEmpty: Boolean;
+  i: Integer;
+  VNeedAddPoint: Boolean;
+begin
+  Result := 0;
+  if APointsCount > 0 then begin
+    VOutPointsCapacity := Length(AResultPoints);
+    VCurrPoint := PDoublePointArray(@AFirstPoint)[0];
+    VCurrEmpty := PointIsEmpty(VCurrPoint);
+    if APointsCount > 1 then begin
+      if not VCurrEmpty then begin
+        AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
+      end;
+      for i := 1 to APointsCount - 1 do begin
+        VPrevPoint := VCurrPoint;
+        VPrevEmpty := VCurrEmpty;
+        VCurrPoint := PDoublePointArray(@AFirstPoint)[i];
+        VCurrEmpty := PointIsEmpty(VCurrPoint);
+        VNeedAddPoint := True;
+        if VPrevEmpty then begin
+          if VCurrEmpty then begin
+            VNeedAddPoint := False;
+          end;
+        end else begin
+          if not VCurrEmpty then begin
+            if (abs(VCurrPoint.X - VPrevPoint.X) < 1) and (abs(VCurrPoint.Y - VPrevPoint.Y) < 1) then begin
+              VNeedAddPoint := False;
+            end;
+          end;
+        end;
+        if VNeedAddPoint then begin
+          AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
+        end else begin
+          VCurrPoint := VPrevPoint;
+          VCurrEmpty := VPrevEmpty;
+        end;
+      end;
+      if Result > 0 then begin
+        if compare2EP(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
+          if not compare2EP(AResultPoints[0], AResultPoints[Result - 1]) then begin
+            AppendPointToResult(AResultPoints[0], AResultPoints, Result, VOutPointsCapacity);
+          end;
+        end;
+      end;
+    end else begin
+      if not VCurrEmpty then begin
+        if Result >= VOutPointsCapacity then begin
+          VOutPointsCapacity := 1;
+          SetLength(AResultPoints, VOutPointsCapacity);
+        end;
+        AResultPoints[Result] := VCurrPoint;
+        Inc(Result);
+      end;
+    end;
+
+  end;
+end;
+
 end.
+

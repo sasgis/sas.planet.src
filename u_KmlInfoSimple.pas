@@ -10,7 +10,7 @@ type
     PlacemarkID: string;
     Name: string;
     description: string;
-    coordinates: TDoublePointArray;
+    coordinates: TArrayOfDoublePoint;
     Bounds: TDoubleRect;
     function IsEmpty: Boolean;
     function IsPoint: Boolean;

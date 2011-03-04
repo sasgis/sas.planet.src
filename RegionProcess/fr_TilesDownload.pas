@@ -42,9 +42,9 @@ type
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
   private
-    FPolygLL: TDoublePointArray;
+    FPolygLL: TArrayOfDoublePoint;
   public
-    procedure Init(AZoom: Byte; APolygLL: TDoublePointArray);
+    procedure Init(AZoom: Byte; APolygLL: TArrayOfDoublePoint);
   end;
 
 implementation
@@ -59,7 +59,7 @@ uses
 
 procedure TfrTilesDownload.cbbZoomChange(Sender: TObject);
 var
-  polyg:TPointArray;
+  polyg:TArrayOfPoint;
   min,max:TPoint;
   numd:int64 ;
   Vmt: TMapType;
@@ -93,7 +93,7 @@ begin
   dtpReplaceOlderDate.Enabled := chkReplaceOlder.Enabled and chkReplaceOlder.Checked;
 end;
 
-procedure TfrTilesDownload.Init(AZoom: Byte; APolygLL: TDoublePointArray);
+procedure TfrTilesDownload.Init(AZoom: Byte; APolygLL: TArrayOfDoublePoint);
 var
   i: integer;
   VMapType: TMapType;
