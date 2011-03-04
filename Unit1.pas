@@ -1048,6 +1048,8 @@ begin
   FNDwnItemList := nil;
   FNDelItemList := nil;
   FLinksList := nil;
+  FreeAndNil(FTumbler);
+  FreeAndNil(FRuller);
   inherited;
 end;
 
@@ -1097,10 +1099,6 @@ begin
   FCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
   FCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
 
-  if VZoomCurr<=0  then TBZoom_Out.Enabled:=false
-        else TBZoom_Out.Enabled:=true;
-  if VZoomCurr>=23 then TBZoomIn.Enabled:=false
-        else TBZoomIn.Enabled:=true;
   NZoomIn.Enabled:=TBZoomIn.Enabled;
   NZoomOut.Enabled:=TBZoom_Out.Enabled;
   labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
@@ -1942,6 +1940,15 @@ begin
     FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, MouseCursorPos);
   end else begin
     FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
+  end;
+
+  if ANewZoom>0 then begin
+    TBZoom_Out.Enabled:=true;
+    NZoomOut.Enabled:=true;
+  end;
+  if ANewZoom<23 then begin
+    TBZoomIn.Enabled:=true;
+    NZoomIn.Enabled:=true;
   end;
   FMapZoomAnimtion:=False;
   PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
@@ -4089,9 +4096,9 @@ begin
       h:=(ZSlider.Width div 24);
     end;
     if XY in [h..h*24] then begin
-      Tag:=(XY div h)-1;
-      PaintZSlider(Tag);
-      labZoom.Caption:='z'+inttostr(Tag+1);
+      ZSlider.Tag:=(XY div h)-1;
+      PaintZSlider(ZSlider.Tag);
+      labZoom.Caption:='z'+inttostr(ZSlider.Tag+1);
     end;
   end;
 end;
@@ -4100,7 +4107,8 @@ procedure TFmain.ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 begin
   if Button=mbLeft then begin
-    zooming(Tag,false);
+    ZSliderMouseMove(Sender,[ssLeft],X,Y,Layer);
+    zooming(ZSlider.Tag,false);
   end;
 end;
 
