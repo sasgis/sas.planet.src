@@ -110,7 +110,6 @@ type
     Nopendir: TMenuItem;
     N25: TMenuItem;
     NDel: TMenuItem;
-    TBImageList1: TTBImageList;
     N28: TMenuItem;
     N012: TMenuItem;
     N022: TMenuItem;
@@ -395,6 +394,7 @@ type
     ZSlider: TImage32;
     TBControlItem1: TTBControlItem;
     TBXPopupPanels: TTBXPopupMenu;
+    MenusImageList: TTBXImageList;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
