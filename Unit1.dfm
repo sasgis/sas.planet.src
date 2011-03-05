@@ -44,6 +44,7 @@ object Fmain: TFmain
     Top = 0
     Width = 842
     Height = 59
+    PopupMenu = TBXPopupPanels
     object TBMainToolBar: TTBXToolbar
       Left = 0
       Top = 25
@@ -390,7 +391,7 @@ object Fmain: TFmain
         SubMenuImages = TBImageList1
         Caption = '&'#1042#1080#1076
         Hint = ''
-        object N4: TTBXSubmenuItem
+        object NPanels: TTBXSubmenuItem
           Caption = #1055#1072#1085#1077#1083#1080
           Hint = ''
           object NMainToolBarShow: TTBXItem
@@ -1072,6 +1073,7 @@ object Fmain: TFmain
     Top = 526
     Width = 842
     Height = 9
+    PopupMenu = TBXPopupPanels
     Position = dpBottom
   end
   object TBDockLeft: TTBXDock
@@ -1079,6 +1081,7 @@ object Fmain: TFmain
     Top = 59
     Width = 33
     Height = 467
+    PopupMenu = TBXPopupPanels
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
@@ -1276,6 +1279,7 @@ object Fmain: TFmain
     Top = 59
     Width = 164
     Height = 467
+    PopupMenu = TBXPopupPanels
     Position = dpRight
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
@@ -5434,5 +5438,10 @@ object Fmain: TFmain
       A198DC4BA178BA9F283ED441143BA588626D8CC08230E7E25DE65593AEE88274
       2B40448BF18905F0033523A0452BCB15C9D32B560C55F6F6FF005C491AE07F05
       6EC30000000049454E4400000000}
+  end
+  object TBXPopupPanels: TTBXPopupMenu
+    LinkSubitems = NPanels
+    Left = 208
+    Top = 136
   end
 end

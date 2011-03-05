@@ -241,7 +241,7 @@ type
     Nanimate: TTBXItem;
     N32: TTBXItem;
     Ninvertcolor: TTBXItem;
-    N4: TTBXSubmenuItem;
+    NPanels: TTBXSubmenuItem;
     N31: TTBXSubmenuItem;
     NFillMap: TTBXSubmenuItem;
     TBFillingTypeMap: TTBXSubmenuItem;
@@ -395,6 +395,7 @@ type
     TBHideMarks: TTBXItem;
     ZSlider: TImage32;
     TBControlItem1: TTBControlItem;
+    TBXPopupPanels: TTBXPopupMenu;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
