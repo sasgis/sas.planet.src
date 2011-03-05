@@ -210,13 +210,6 @@ object Fmain: TFmain
           Caption = ''
           Hint = ''
         end
-        object TBItem3: TTBXItem
-          ImageIndex = 18
-          Images = TBImageList1
-          OnClick = TBItem3Click
-          Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1074' KML'
-          Hint = ''
-        end
         object TBItem5: TTBXItem
           ImageIndex = 18
           Images = TBImageList1
@@ -922,7 +915,6 @@ object Fmain: TFmain
           ImageIndex = 18
           Images = TBImageList1
           ShortCut = 49235
-          OnClick = TBItem3Click
           Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1088#1077#1082
           Hint = ''
         end

@@ -231,7 +231,6 @@ type
     TBItem8: TTBXItem;
     TBItem9: TTBXItem;
     TBItem7: TTBXItem;
-    TBItem3: TTBXItem;
     TBItem5: TTBXItem;
     TBItemDelTrack: TTBXItem;
     NFoolSize: TTBXItem;
@@ -447,7 +446,6 @@ type
     procedure ShowMiniMapClick(Sender: TObject);
     procedure ShowLineClick(Sender: TObject);
     procedure N32Click(Sender: TObject);
-    procedure TBItem3Click(Sender: TObject);
     procedure Google1Click(Sender: TObject);
     procedure mapResize(Sender: TObject);
     procedure TBLoadSelFromFileClick(Sender: TObject);
@@ -2565,73 +2563,6 @@ end;
 procedure TFmain.N32Click(Sender: TObject);
 begin
   FConfig.LayersConfig.CenterScaleConfig.Visible := TTBXItem(Sender).Checked;
-end;
-
-procedure TFmain.TBItem3Click(Sender: TObject);
-var F:TextFile;
-    i:integer;
-    SaveDlg: TSaveDialog;
-    VAllPoints: TArrayOfDoublePoint;
-begin
-  Fprogress2.Visible:=true;
-  try
-    fprogress2.MemoInfo.Lines[0]:=SAS_STR_savetreck;
-    Fprogress2.ProgressBar1.Max:=100;
-    SaveDlg := TSaveDialog.Create(nil);
-    try
-      SaveDlg.DefaultExt:='*.kml';
-      SaveDlg.Filter:='KML|*.kml';
-      Fprogress2.ProgressBar1.Progress1:=0;
-      if (SaveDlg.Execute)and(SaveDlg.FileName<>'') then begin
-        AssignFile(f,SaveDlg.FileName);
-        rewrite(f);
-        Fprogress2.ProgressBar1.Progress1:=10;
-        VAllPoints := GState.GPSRecorder.GetAllPoints;
-        Writeln(f,'<?xml version="1.0" encoding="UTF-8"?>');
-        Writeln(f,'<kml xmlns="http://earth.google.com/kml/2.1">');
-        Writeln(f,'<Folder>');
-        Fprogress2.ProgressBar1.Progress1:=20;
-        Writeln(f,'	<name>'+ ExtractFileName(SaveDlg.FileName)+'</name>');
-        Writeln(f,'	<open>0</open>');
-        Writeln(f,'<Style>');
-        Writeln(f,'	<ListStyle>');
-        Fprogress2.ProgressBar1.Progress1:=30;
-        Writeln(f,'		<listItemType>checkHideChildren</listItemType>');
-        Writeln(f,'		<bgColor>00ffffff</bgColor>');
-        Writeln(f,'	</ListStyle>');
-        Fprogress2.ProgressBar1.Progress1:=40;
-        Writeln(f,'</Style>');
-        Writeln(f,'<Placemark>');
-        Writeln(f,'<name>'+ExtractFileName(SaveDlg.FileName)+'</name>');
-        Fprogress2.ProgressBar1.Progress1:=50;
-        Writeln(f,'<Style>');
-        Writeln(f,'	<LineStyle>');
-        Writeln(f,'		<color>ff000000</color>');
-        Fprogress2.ProgressBar1.Progress1:=60;
-        Writeln(f,'	</LineStyle>');
-        Writeln(f,'</Style>');
-        Writeln(f,'<LineString>');
-        Fprogress2.ProgressBar1.Progress1:=70;
-        Writeln(f,'	<tessellate>1</tessellate>');
-        Writeln(f,'	<altitudeMode>absolute</altitudeMode>');
-        Writeln(f,' <coordinates>');
-        Fprogress2.ProgressBar1.Progress1:=80;
-        for i:=0 to length(VAllPoints)-1 do
-          Writeln(f,R2strPoint(VAllPoints[i].x),',',R2strPoint(VAllPoints[i].y),',0');
-        Writeln(f,' </coordinates>');
-        Fprogress2.ProgressBar1.Progress1:=90;
-        Writeln(f,'</LineString>');
-        Writeln(f,'</Placemark>');
-        Writeln(f,'</Folder>'+#13#10+'</kml>');
-        CloseFile(f);
-      end;
-      Fprogress2.ProgressBar1.Progress1:=100;
-    finally
-      SaveDlg.Free;
-    end;
-  finally
-    Fprogress2.Visible:=false;
-  end;
 end;
 
 procedure TFmain.TBItem5Click(Sender: TObject);
