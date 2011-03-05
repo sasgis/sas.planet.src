@@ -392,7 +392,6 @@ type
     tbitmShowDebugInfo: TTBXItem;
     NMarkExport: TMenuItem;
     PanelsImageList: TTBXImageList;
-    ImagesSrc24: TTBXImageList;
     TBHideMarks: TTBXItem;
     ZSlider: TImage32;
     TBControlItem1: TTBControlItem;
@@ -2329,21 +2328,21 @@ end;
 
 procedure TFmain.TBREGIONClick(Sender: TObject);
 begin
- TBRectSave.ImageIndex:=9;
+ TBRectSave.ImageIndex:=13;
  TBRectSave.Checked:=true;
  setalloperationfalse(ao_select_poly);
 end;
 
 procedure TFmain.TBRECTClick(Sender: TObject);
 begin
- TBRectSave.ImageIndex:=6;
+ TBRectSave.ImageIndex:=10;
  TBRectSave.Checked:=true;
  setalloperationfalse(ao_select_rect);
 end;
 
 procedure TFmain.TBRectSaveClick(Sender: TObject);
 begin
-  if TBRectSave.ImageIndex=6 then begin
+  if TBRectSave.ImageIndex=10 then begin
     setalloperationfalse(ao_select_rect);
   end else begin
     setalloperationfalse(ao_select_poly);
