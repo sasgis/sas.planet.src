@@ -280,7 +280,7 @@ begin
   VTilesLineRect.Right := VTilesRect.Right;
   for i := VTilesRect.Top to VTilesRect.Bottom do begin
     VTilesLineRect.Top := i;
-    VTilesLineRect.Bottom := i + 1;
+    VTilesLineRect.Bottom := i;
 
     VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
     VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
@@ -294,7 +294,7 @@ begin
   VTilesLineRect.Bottom := VTilesRect.Bottom;
   for j := VTilesRect.Left to VTilesRect.Right do begin
     VTilesLineRect.Left := j;
-    VTilesLineRect.Right := j + 1;
+    VTilesLineRect.Right := j;
 
     VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
     VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);

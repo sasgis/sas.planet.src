@@ -561,12 +561,12 @@ type
     FLayerSelection: TSelectionLayer;
     FLayerGPSMarker: TMapLayerGPSMarker;
     FLayerGrids: TMapLayerGrids;
+    LayerMapNavToMark: TNavToMarkLayer;
     FUIDownLoader: TTileDownloaderUI;
 
     ProgramStart: Boolean;
     ProgramClose: Boolean;
 
-    FTBFillingItemList: IGUIDObjectList; //Пункт главного меню Вид/Карта заполнения/Формировать для
     FNLayerParamsItemList: IGUIDObjectList; //Пункт гланого меню Параметры/Параметры слоя
     FNDwnItemList: IGUIDObjectList; //Пункт контекстного меню Загрузить тайл слоя
     FNDelItemList: IGUIDObjectList; //Пункт контекстного меню Удалить тайл слоя
@@ -621,10 +621,8 @@ type
 
     procedure PaintZSlider(zoom:integer);
   public
-    LayerMapNavToMark: TNavToMarkLayer;
     MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
-    property LayerMiniMap: TMiniMapLayer read FLayerMiniMap;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -709,7 +707,6 @@ begin
   ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
   dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
 
-  FTBFillingItemList := TGUIDObjectList.Create(False);
   FNLayerParamsItemList := TGUIDObjectList.Create(False);
   FNDwnItemList := TGUIDObjectList.Create(False);
   FNDelItemList := TGUIDObjectList.Create(False);
@@ -1042,7 +1039,6 @@ begin
   FLineOnMapEdit := nil;
   FWinPosition := nil;
   FSearchPresenter := nil;
-  FTBFillingItemList := nil;
   FNLayerParamsItemList := nil;
   FNDwnItemList := nil;
   FNDelItemList := nil;
@@ -3703,7 +3699,7 @@ procedure TFmain.TBXItem5Click(Sender: TObject);
 var
   VPosition: IGPSPosition;
 begin
-  VPosition := GState.GPSpar.GPSModule.Position;
+  VPosition := GState.GPSRecorder.CurrentPosition;
   if VPosition.IsFix > 0 then begin
     if FMarkDBGUI.AddNewPointModal(VPosition.Position) then begin
       setalloperationfalse(ao_movemap);

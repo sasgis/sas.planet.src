@@ -266,7 +266,9 @@ procedure TMapLayerFillingMap.OnConfigChange(Sender: TObject);
 begin
   FConfigStatic := FConfig.GetStatic;
   if FConfigStatic.Visible then begin
-    if FConfig.SourceZoom > ViewPortState.GetCurrentZoom then begin
+    if ViewPortState.GetCurrentZoom > FConfigStatic.SourceZoom then begin
+      Hide;
+    end else begin
       FDrawTask.StopExecute;
       try
         Show;
@@ -274,8 +276,6 @@ begin
       finally
         FDrawTask.StartExecute;
       end;
-    end else begin
-      Hide;
     end;
   end else begin
     Hide;
