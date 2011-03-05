@@ -256,7 +256,8 @@ object Fmain: TFmain
       TabOrder = 4
       Visible = False
       object TBXExit: TTBXItem
-        ImageIndex = 16
+        ImageIndex = 29
+        Images = MenusImageList
         OnClick = TBItem2Click
         Caption = ''
         Hint = #1042#1099#1081#1090#1080' '#1080#1079' '#1087#1088#1086#1075#1088#1072#1084#1084#1099

@@ -23,25 +23,16 @@ uses
   i_MarksSimple,
   u_MarksSimple,
   u_MarksDbGUIHelper,
-  Unit1;
+  Unit1, TB2Item, TBX, TB2Dock, TB2Toolbar;
 
 type
   TFMarksExplorer = class(TCommonFormParent)
     grpMarks: TGroupBox;
-    BtnGotoMark: TSpeedButton;
-    BtnOpMark: TSpeedButton;
     MarksListBox: TCheckListBox;
     grpCategory: TGroupBox;
-    BtnDelKat: TSpeedButton;
     OpenDialog: TOpenDialog;
-    BtnDelMark: TSpeedButton;
-    SpeedButton1: TSpeedButton;
-    Bevel2: TBevel;
-    BtnEditCategory: TSpeedButton;
     CheckBox2: TCheckBox;
     CheckBox1: TCheckBox;
-    BtnAddCategory: TSpeedButton;
-    SBNavOnMark: TSpeedButton;
     OpenDialog1: TOpenDialog;
     TreeView1: TTreeView;
     imlStates: TImageList;
@@ -49,45 +40,56 @@ type
     pnlMainWithButtons: TPanel;
     pnlMain: TPanel;
     splCatMarks: TSplitter;
-    pnlMarksTop: TPanel;
-    pnlCategoriesTop: TPanel;
     btnExport: TTBXButton;
     ExportDialog: TSaveDialog;
     PopupExport: TPopupMenu;
     NExportAll: TMenuItem;
     NExportVisible: TMenuItem;
-    Bevel1: TBevel;
-    btnExportMark: TSpeedButton;
-    Bevel3: TBevel;
-    btnExportCategory: TSpeedButton;
     btnImport: TTBXButton;
     btnAccept: TTBXButton;
     btn_Close: TTBXButton;
     rgMarksShowMode: TRadioGroup;
-    procedure BtnDelMarkClick(Sender: TObject);
+    TBXDockMark: TTBXDock;
+    TBXToolbar1: TTBXToolbar;
+    btnEditMark: TTBXItem;
+    btnDelMark: TTBXItem;
+    TBXSeparatorItem1: TTBXSeparatorItem;
+    btnGoToMark: TTBXItem;
+    btnOpSelectMark: TTBXItem;
+    btnNavOnMark: TTBXItem;
+    TBXSeparatorItem2: TTBXSeparatorItem;
+    btnSaveMark: TTBXItem;
+    TBXDockCategory: TTBXDock;
+    TBXToolbar2: TTBXToolbar;
+    BtnAddCategory: TTBXItem;
+    BtnDelKat: TTBXItem;
+    TBXSeparatorItem3: TTBXSeparatorItem;
+    BtnEditCategory: TTBXItem;
+    btnExportCategory: TTBXItem;
     procedure MarksListBoxClickCheck(Sender: TObject);
-    procedure BtnOpMarkClick(Sender: TObject);
-    procedure BtnGotoMarkClick(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
     procedure MarksListBoxKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CheckBox2Click(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
-    procedure BtnAddCategoryClick(Sender: TObject);
-    procedure SBNavOnMarkClick(Sender: TObject);
     procedure TreeView1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure TreeView1KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
     procedure btnExportClick(Sender: TObject);
-    procedure btnExportMarkClick(Sender: TObject);
     procedure btnExportCategoryClick(Sender: TObject);
     procedure btnImportClick(Sender: TObject);
     procedure btnAcceptClick(Sender: TObject);
     procedure btn_CloseClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure btnEditMarkClick(Sender: TObject);
+    procedure btnDelMarkClick(Sender: TObject);
+    procedure btnGoToMarkClick(Sender: TObject);
+    procedure btnOpSelectMarkClick(Sender: TObject);
+    procedure btnNavOnMarkClick(Sender: TObject);
+    procedure btnSaveMarkClick(Sender: TObject);
+    procedure TBXItem4Click(Sender: TObject);
   private
     FCategoryList: TList;
     FMarksList: IInterfaceList;
@@ -187,18 +189,6 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.BtnDelMarkClick(Sender: TObject);
-var
-  VMarkId: IMarkId;
-begin
-  VMarkId := GetSelectedMarkId;
-  if VMarkId <> nil then begin
-    if FMarkDBGUI.DeleteMarkModal(VMarkId.id, Self.Handle) then begin
-      UpdateMarksList;
-    end;
-  end;
-end;
-
 procedure TFMarksExplorer.MarksListBoxClickCheck(Sender: TObject);
 var
   VMark: IMarkId;
@@ -209,28 +199,6 @@ begin
       VMark,
       MarksListBox.Checked[MarksListBox.ItemIndex]
     );
-  end;
-end;
-
-procedure TFMarksExplorer.BtnOpMarkClick(Sender: TObject);
-var
-  VMark: IMarkID;
-begin
-  VMark := GetSelectedMarkId;
-  if VMark <> nil then begin
-    if FMarkDBGUI.OperationMark(VMark.Id, GState.MainFormConfig.ViewPortState.GetCurrentZoom) then begin
-      close;
-    end;
-  end;
-end;
-
-procedure TFMarksExplorer.BtnGotoMarkClick(Sender: TObject);
-var
-  VMark: IMarkFull;
-begin
-  VMark := GetSelectedMarkFull;
-  if VMark <> nil then begin
-    Fmain.topos(VMark.GetGoToLonLat, GState.MainFormConfig.ViewPortState.GetCurrentZoom, True);
   end;
 end;
 
@@ -261,20 +229,6 @@ begin
     if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
       FMarkDBGUI.MarksDb.CategoryDB.DeleteCategoryWithMarks(VCategory);
       UpdateCategoryTree;
-      UpdateMarksList;
-    end;
-  end;
-end;
-
-procedure TFMarksExplorer.SpeedButton1Click(Sender: TObject);
-var
-  VMark: IMarkFull;
-begin
-  VMark := GetSelectedMarkFull;
-  if VMark <> nil then begin
-    VMark := FMarkDBGUI.EditMarkModal(VMark);
-    if VMark <> nil then begin
-      FMarkDBGUI.MarksDb.MarksDb.WriteMark(VMark);
       UpdateMarksList;
     end;
   end;
@@ -321,6 +275,104 @@ procedure TFMarksExplorer.btn_CloseClick(Sender: TObject);
 begin
   btnAcceptClick(nil);
   close;
+end;
+
+procedure TFMarksExplorer.btnDelMarkClick(Sender: TObject);
+var
+  VMarkId: IMarkId;
+begin
+  VMarkId := GetSelectedMarkId;
+  if VMarkId <> nil then begin
+    if FMarkDBGUI.DeleteMarkModal(VMarkId.id, Self.Handle) then begin
+      UpdateMarksList;
+    end;
+  end;
+end;
+
+procedure TFMarksExplorer.btnEditMarkClick(Sender: TObject);
+var
+  VMark: IMarkFull;
+begin
+  VMark := GetSelectedMarkFull;
+  if VMark <> nil then begin
+    VMark := FMarkDBGUI.EditMarkModal(VMark);
+    if VMark <> nil then begin
+      FMarkDBGUI.MarksDb.MarksDb.WriteMark(VMark);
+      UpdateMarksList;
+    end;
+  end;
+end;
+
+procedure TFMarksExplorer.btnGoToMarkClick(Sender: TObject);
+var
+  VMark: IMarkFull;
+begin
+  VMark := GetSelectedMarkFull;
+  if VMark <> nil then begin
+    Fmain.topos(VMark.GetGoToLonLat, GState.MainFormConfig.ViewPortState.GetCurrentZoom, True);
+  end;
+end;
+
+procedure TFMarksExplorer.TBXItem4Click(Sender: TObject);
+var
+  VCategory: TCategoryId;
+begin
+  VCategory := TCategoryId.Create;
+  VCategory.id := -1;
+  if FaddCategory.EditCategory(VCategory) then begin
+    FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
+    UpdateCategoryTree;
+  end else begin
+    VCategory.Free;
+  end;
+end;
+
+procedure TFMarksExplorer.btnNavOnMarkClick(Sender: TObject);
+var
+  VMark: IMarkFull;
+  LL: TDoublePoint;
+begin
+  if (btnNavOnMark.Checked) then begin
+    VMark := GetSelectedMarkFull;
+    if VMark <> nil then begin
+      LL := VMark.GetGoToLonLat;
+      GState.MainFormConfig.NavToPoint.StartNavToMark(VMark.id, LL);
+    end else begin
+      btnNavOnMark.Checked:=not btnNavOnMark.Checked;
+    end;
+  end else begin
+    GState.MainFormConfig.NavToPoint.StopNav;
+  end;
+end;
+
+procedure TFMarksExplorer.btnOpSelectMarkClick(Sender: TObject);
+var
+  VMark: IMarkID;
+begin
+  VMark := GetSelectedMarkId;
+  if VMark <> nil then begin
+    if FMarkDBGUI.OperationMark(VMark.Id, GState.MainFormConfig.ViewPortState.GetCurrentZoom) then begin
+      close;
+    end;
+  end;
+end;
+
+procedure TFMarksExplorer.btnSaveMarkClick(Sender: TObject);
+var KMLExport:TExportMarks2KML;
+    VMark: iMarkFull;
+begin
+    VMark := GetSelectedMarkFull;
+    if VMark <> nil then begin
+      KMLExport:=TExportMarks2KML.Create(false);
+      try
+        FMarksExplorer.ExportDialog.FileName:=VMark.name;
+        if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
+          KMLExport.ExportMarkToKML(VMark,ExportDialog.FileName);
+        end;
+      finally
+        KMLExport.free;
+      end;
+    end;
 end;
 
 procedure TFMarksExplorer.TreeView1Change(Sender: TObject; Node: TTreeNode);
@@ -410,24 +462,6 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btnExportMarkClick(Sender: TObject);
-var KMLExport:TExportMarks2KML;
-    VMark: iMarkFull;
-begin
-    VMark := GetSelectedMarkFull;
-    if VMark <> nil then begin
-      KMLExport:=TExportMarks2KML.Create(false);
-      try
-        FMarksExplorer.ExportDialog.FileName:=VMark.name;
-        if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-          KMLExport.ExportMarkToKML(VMark,ExportDialog.FileName);
-        end;
-      finally
-        KMLExport.free;
-      end;
-    end;
-end;
-
 procedure TFMarksExplorer.MarksListBoxKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
@@ -459,7 +493,7 @@ begin
   FMarkDBGUI := AMarkDBGUI;
   UpdateCategoryTree;
   UpdateMarksList;
-  SBNavOnMark.Down:= GState.MainFormConfig.NavToPoint.IsActive;
+  btnNavOnMark.Checked:= GState.MainFormConfig.NavToPoint.IsActive;
   try
     ShowModal;
   finally
@@ -497,38 +531,6 @@ begin
     VNewVisible := CheckBox1.Checked;
     FMarkDBGUI.MarksDB.MarksDb.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
     UpdateMarksList;
-  end;
-end;
-
-procedure TFMarksExplorer.BtnAddCategoryClick(Sender: TObject);
-var
-  VCategory: TCategoryId;
-begin
-  VCategory := TCategoryId.Create;
-  VCategory.id := -1;
-  if FaddCategory.EditCategory(VCategory) then begin
-    FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
-    UpdateCategoryTree;
-  end else begin
-    VCategory.Free;
-  end;
-end;
-
-procedure TFMarksExplorer.SBNavOnMarkClick(Sender: TObject);
-var
-  VMark: IMarkFull;
-  LL: TDoublePoint;
-begin
-  if (SBNavOnMark.Down) then begin
-    VMark := GetSelectedMarkFull;
-    if VMark <> nil then begin
-      LL := VMark.GetGoToLonLat;
-      GState.MainFormConfig.NavToPoint.StartNavToMark(VMark.id, LL);
-    end else begin
-      SBNavOnMark.Down:=not SBNavOnMark.Down
-    end;
-  end else begin
-    GState.MainFormConfig.NavToPoint.StopNav;
   end;
 end;
 
