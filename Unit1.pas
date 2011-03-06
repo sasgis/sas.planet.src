@@ -193,7 +193,6 @@ type
     NMarksCalcsPer: TMenuItem;
     N1: TMenuItem;
     NMapInfo: TMenuItem;
-    TBImageList1_24: TTBImageList;
     NSRCic: TTBXItem;
     NSRCinet: TTBXItem;
     NSRCesh: TTBXItem;
@@ -299,7 +298,6 @@ type
     tbsprtGPS1: TTBXSeparatorItem;
     TBXSeparatorItem14: TTBXSeparatorItem;
     TBXSeparatorItem15: TTBXSeparatorItem;
-    EditCommentsImgs: TImageList;
     OpenPictureDialog: TOpenPictureDialog;
     TBXSensorsBar: TTBXToolWindow;
     ScrollBox1: TScrollBox;
@@ -395,6 +393,8 @@ type
     TBControlItem1: TTBControlItem;
     TBXPopupPanels: TTBXPopupMenu;
     MenusImageList: TTBXImageList;
+    ScalesImageList: TTBXImageList;
+    EditCommentsImgs: TTBXImageList;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -607,7 +607,6 @@ type
     procedure CopyStringToClipboard(s: Widestring);
     procedure UpdateGPSsensors;
     procedure setalloperationfalse(newop: TAOperation);
-    procedure BuildImageListMapZapSelect;
     procedure UpdateGPSSatellites;
     procedure CreateMapUIMapsList;
     procedure CreateMapUILayersList;
@@ -768,7 +767,6 @@ var
   VZoom: Byte;
 begin
   if not ProgramStart then exit;
-  BuildImageListMapZapSelect;
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
   Enabled:=false;
   try
@@ -1096,37 +1094,6 @@ begin
   NZoomIn.Enabled:=TBZoomIn.Enabled;
   NZoomOut.Enabled:=TBZoom_Out.Enabled;
   labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
-end;
-
-procedure TFmain.BuildImageListMapZapSelect;
-var
-  i: Integer;
-  VBmp: TBitmap;
-  VMaskColor: TColor;
-  VTextSize: Types.tagSIZE;
-  VText: string;
-  VBmpSize: TPoint;
-begin
-  VBmp := TBitmap.Create;
-  try
-    VBmpSize := Point(TBImageList1_24.Width, TBImageList1_24.Height);
-    VBmp.SetSize(VBmpSize.X, VBmpSize.Y);
-    VMaskColor := TBImageList1_24.ImagesBitmapMaskColor;
-    VBmp.Canvas.Brush.Color := VMaskColor;
-    VBmp.Canvas.Pen.Color := clBlack;
-    VBmp.Canvas.Font.Color := Self.Font.Color;
-    VBmp.Canvas.Font.Name := Self.Font.Name;
-    VBmp.Canvas.Font.Size := 8;
-    for i := 1 to TBImageList1_24.Count - 1 do begin
-      VBmp.Canvas.FillRect(MakeRect(0,0,VBmpSize.X, VBmpSize.Y));
-      VText := 'z' + IntToStr(i);
-      VTextSize := VBmp.Canvas.TextExtent(VText);
-      VBmp.Canvas.TextOut((VBmpSize.X div 2) - (VTextSize.cx div 2), (VBmpSize.Y div 2) - (VTextSize.cy div 2), VText);
-      TBImageList1_24.ReplaceMasked(i, VBmp, VMaskColor);
-    end;
-  finally
-    VBmp.Free;
-  end;
 end;
 
 procedure TFmain.CopyBtmToClipboard(btm: TBitmap);
