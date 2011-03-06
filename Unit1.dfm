@@ -1014,7 +1014,7 @@ object Fmain: TFmain
           Caption = #1057#1072#1081#1090' '#1087#1088#1086#1075#1088#1072#1084#1084#1099' (http://sasgis.ru)'
           Hint = ''
         end
-        object tbtmHelpBugTrack: TTBItem
+        object tbtmHelpBugTrack: TTBXItem
           OnClick = tbtmHelpBugTrackClick
           Caption = #1041#1072#1075#1090#1088#1077#1082#1077#1088' http://sasgis.ru/mantis/'
           Hint = ''
@@ -1974,297 +1974,6 @@ object Fmain: TFmain
           end
         end
       end
-    end
-  end
-  object PopupMenu1: TPopupMenu
-    Images = MenusImageList
-    OnPopup = PopupMenu1Popup
-    Left = 208
-    Top = 168
-    object NMarkEdit: TMenuItem
-      Caption = #1048#1079#1084#1077#1085#1080#1090#1100
-      ImageIndex = 31
-      OnClick = NMarkEditClick
-    end
-    object NMarkDel: TMenuItem
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      ImageIndex = 30
-      OnClick = NMarkDelClick
-    end
-    object NMarkOper: TMenuItem
-      Caption = #1054#1087#1077#1088#1072#1094#1080#1080' '#1089' '#1086#1073#1083#1072#1089#1090#1100#1102
-      ImageIndex = 10
-      OnClick = NMarkOperClick
-    end
-    object NMarkNav: TMenuItem
-      Caption = #1053#1072#1074#1080#1075#1072#1094#1080#1103' '#1085#1072' '#1084#1077#1090#1082#1091
-      ImageIndex = 33
-      OnClick = NMarkNavClick
-    end
-    object NMarkExport: TMenuItem
-      Caption = #1069#1082#1089#1087#1086#1088#1090' '#1084#1077#1090#1082#1080
-      ImageIndex = 25
-      OnClick = NMarkExportClick
-    end
-    object NMarksCalcs: TMenuItem
-      Caption = #1048#1079#1084#1077#1088#1077#1085#1080#1103
-      ImageIndex = 9
-      object NMarksCalcsLen: TMenuItem
-        Caption = #1044#1083#1080#1085#1072
-        OnClick = NMarksCalcsLenClick
-      end
-      object NMarksCalcsPer: TMenuItem
-        Caption = #1055#1077#1088#1080#1084#1077#1090#1088
-        OnClick = NMarksCalcsPerClick
-      end
-      object NMarksCalcsSq: TMenuItem
-        Caption = #1055#1083#1086#1097#1072#1076#1100
-        OnClick = NMarksCalcsSqClick
-      end
-    end
-    object NMarkSep: TMenuItem
-      Caption = '-'
-    end
-    object NaddPoint: TMenuItem
-      Caption = #1055#1086#1089#1090#1072#1074#1080#1090#1100' '#1084#1077#1090#1082#1091
-      ImageIndex = 15
-      OnClick = NaddPointClick
-    end
-    object N47: TMenuItem
-      Caption = '-'
-    end
-    object N28: TMenuItem
-      Caption = #1062#1077#1085#1090#1088#1080#1088#1086#1074#1072#1090#1100' '#1089' '#1084#1072#1089#1096#1090#1072#1073#1086#1084
-      object N012: TMenuItem
-        Tag = 1
-        Caption = '01'
-        OnClick = N012Click
-      end
-      object N022: TMenuItem
-        Tag = 2
-        Caption = '02'
-        OnClick = N012Click
-      end
-      object N032: TMenuItem
-        Tag = 3
-        Caption = '03'
-        OnClick = N012Click
-      end
-      object N042: TMenuItem
-        Tag = 4
-        Caption = '04'
-        OnClick = N012Click
-      end
-      object N052: TMenuItem
-        Tag = 5
-        Caption = '05'
-        OnClick = N012Click
-      end
-      object N062: TMenuItem
-        Tag = 6
-        Caption = '06'
-        OnClick = N012Click
-      end
-      object N072: TMenuItem
-        Tag = 7
-        Caption = '07'
-        OnClick = N012Click
-      end
-      object N082: TMenuItem
-        Tag = 8
-        Caption = '08'
-        OnClick = N012Click
-      end
-      object N091: TMenuItem
-        Tag = 9
-        Caption = '09'
-        OnClick = N012Click
-      end
-      object N101: TMenuItem
-        Tag = 10
-        Caption = '10'
-        OnClick = N012Click
-      end
-      object N111: TMenuItem
-        Tag = 11
-        Caption = '11'
-        OnClick = N012Click
-      end
-      object N121: TMenuItem
-        Tag = 12
-        Caption = '12'
-        OnClick = N012Click
-      end
-      object N131: TMenuItem
-        Tag = 13
-        Caption = '13'
-        OnClick = N012Click
-      end
-      object N141: TMenuItem
-        Tag = 14
-        Caption = '14'
-        OnClick = N012Click
-      end
-      object N151: TMenuItem
-        Tag = 15
-        Caption = '15'
-        OnClick = N012Click
-      end
-      object N161: TMenuItem
-        Tag = 16
-        Caption = '16'
-        OnClick = N012Click
-      end
-      object N171: TMenuItem
-        Tag = 17
-        Caption = '17'
-        OnClick = N012Click
-      end
-      object N181: TMenuItem
-        Tag = 18
-        Caption = '18'
-        OnClick = N012Click
-      end
-      object N191: TMenuItem
-        Tag = 19
-        Caption = '19'
-        OnClick = N012Click
-      end
-      object N201: TMenuItem
-        Tag = 20
-        Caption = '20'
-        OnClick = N012Click
-      end
-      object N211: TMenuItem
-        Tag = 21
-        Caption = '21'
-        OnClick = N012Click
-      end
-      object N221: TMenuItem
-        Tag = 22
-        Caption = '22'
-        OnClick = N012Click
-      end
-      object N231: TMenuItem
-        Tag = 23
-        Caption = '23'
-        OnClick = N012Click
-      end
-      object N241: TMenuItem
-        Tag = 24
-        Caption = '24'
-        OnClick = N012Click
-      end
-    end
-    object N22: TMenuItem
-      Caption = '-'
-    end
-    object N43: TMenuItem
-      Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100' '#1074' '#1073#1091#1092#1077#1088' '#1086#1073#1084#1077#1085#1072
-      ImageIndex = 28
-      object Google1: TMenuItem
-        Caption = #1057#1089#1099#1083#1082#1091' '#1076#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1074' google maps'
-        OnClick = Google1Click
-      end
-      object YaLink: TMenuItem
-        Caption = #1057#1089#1099#1083#1082#1091' '#1076#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1074' '#1071#1085#1076#1077#1082#1089'.'#1050#1072#1088#1090#1099
-        OnClick = YaLinkClick
-      end
-      object kosmosnimkiru1: TMenuItem
-        Caption = #1057#1089#1099#1083#1082#1091' '#1076#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1074' kosmosnimki.ru'
-        OnClick = kosmosnimkiru1Click
-      end
-      object livecom1: TMenuItem
-        Caption = #1057#1089#1099#1083#1082#1091' '#1076#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1085#1072' maps.live.com'
-        OnClick = livecom1Click
-      end
-      object ImageAtlas1: TMenuItem
-        Caption = #1057#1089#1099#1083#1082#1091' '#1076#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1074' imageatlas.digitalglobe.com'
-        OnClick = ImageAtlas1Click
-      end
-      object N51: TMenuItem
-        Caption = '-'
-      end
-      object N13: TMenuItem
-        Caption = #1057#1089#1099#1083#1082#1091' '#1085#1072' '#1090#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
-        OnClick = N13Click
-      end
-      object N30: TMenuItem
-        Caption = #1050#1086#1086#1088#1076#1080#1085#1072#1090#1099
-        OnClick = N30Click
-      end
-      object N20: TMenuItem
-        Caption = #1058#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
-        OnClick = N20Click
-      end
-      object N15: TMenuItem
-        Caption = #1054#1090#1085#1086#1089#1080#1090#1077#1083#1100#1085#1099#1081' '#1087#1091#1090#1100' '#1082' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1102
-        OnClick = N15Click
-      end
-    end
-    object Nopendir: TMenuItem
-      Caption = #1055#1088#1086#1089#1084#1086#1090#1088' '#1090#1072#1081#1083#1072' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
-      OnClick = NopendirClick
-    end
-    object N25: TMenuItem
-      Caption = #1054#1090#1082#1088#1099#1090#1100' '#1087#1072#1087#1082#1091' '#1089#1086#1076#1077#1088#1078#1072#1097#1091#1102' '#1090#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
-      ImageIndex = 34
-      OnClick = N25Click
-    end
-    object N23: TMenuItem
-      Caption = '-'
-    end
-    object N26: TMenuItem
-      Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1099#1077' '#1086#1087#1077#1088#1072#1094#1080#1080
-      object NGTOPO30: TMenuItem
-        Caption = #1042#1099#1089#1086#1090#1072' '#1085#1072#1076' '#1091#1088#1086#1074#1085#1077#1084' '#1084#1086#1088#1103' GTOPO30 ('#1088#1072#1079#1088#1077#1096#1077#1085#1080#1077' ~1'#1082#1084')'
-        OnClick = NGTOPO30Click
-      end
-      object NSRTM3: TMenuItem
-        Caption = #1042#1099#1089#1086#1090#1072' '#1085#1072#1076' '#1091#1088#1086#1074#1085#1077#1084' '#1084#1086#1088#1103' SRTM3 ('#1088#1072#1079#1088#1077#1096#1077#1085#1080#1077' ~90'#1084')'
-        OnClick = NSRTM3Click
-      end
-      object N49: TMenuItem
-        Caption = '-'
-      end
-      object DigitalGlobe1: TMenuItem
-        Caption = 
-          #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1085#1092#1086#1088#1084#1072#1094#1080#1102' '#1086' '#1076#1086#1089#1090#1091#1087#1085#1099#1093' '#1082#1072#1088#1090#1072#1093' '#1101#1090#1086#1075#1086' '#1084#1077#1089#1090#1072' '#1085#1072' DigitalGl' +
-          'obe'
-        OnClick = DigitalGlobe1Click
-      end
-      object N27: TMenuItem
-        Caption = '-'
-      end
-    end
-    object N24: TMenuItem
-      Caption = '-'
-    end
-    object N21: TMenuItem
-      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099' (Ins+MLeft)'
-      ImageIndex = 21
-      OnClick = N21Click
-    end
-    object NDel: TMenuItem
-      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099' (Del+MLeft)'
-      ImageIndex = 22
-      OnClick = NDelClick
-    end
-    object ldm: TMenuItem
-      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1089#1083#1086#1103
-      ImageIndex = 21
-    end
-    object dlm: TMenuItem
-      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1072#1081#1083' '#1089#1083#1086#1103
-      ImageIndex = 22
-    end
-    object N1: TMenuItem
-      Caption = '-'
-    end
-    object NMapInfo: TMenuItem
-      Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1082#1072#1088#1090#1077
-      ImageIndex = 27
-      OnClick = NMapInfoClick
     end
   end
   object OpenDialog1: TOpenDialog
@@ -3844,5 +3553,226 @@ object Fmain: TFmain
       1FB1B13AAAEB014C0EAAED6ED7D3E47EA56CBBA3159C5AE980C1364834F833D1
       6B61FB77406F175B0B486FA04627E6791359B3B740FDD1DE0120B5321FEB0CA9
       6C0000000049454E4400000000}
+  end
+  object MainPopupMenu: TTBXPopupMenu
+    Images = MenusImageList
+    OnPopup = MainPopupMenuPopup
+    Left = 208
+    Top = 168
+    object NMarkEdit: TTBXItem
+      ImageIndex = 31
+      OnClick = NMarkEditClick
+      Caption = #1048#1079#1084#1077#1085#1080#1090#1100
+      Hint = ''
+    end
+    object NMarkDel: TTBXItem
+      ImageIndex = 30
+      OnClick = NMarkDelClick
+      Caption = #1059#1076#1072#1083#1080#1090#1100
+      Hint = ''
+    end
+    object NMarkOper: TTBXItem
+      ImageIndex = 10
+      OnClick = NMarkOperClick
+      Caption = #1054#1087#1077#1088#1072#1094#1080#1080' '#1089' '#1086#1073#1083#1072#1089#1090#1100#1102
+      Hint = ''
+    end
+    object NMarkNav: TTBXItem
+      ImageIndex = 33
+      OnClick = NMarkNavClick
+      Caption = #1053#1072#1074#1080#1075#1072#1094#1080#1103' '#1085#1072' '#1084#1077#1090#1082#1091
+      Hint = ''
+    end
+    object NMarkExport: TTBXItem
+      ImageIndex = 25
+      OnClick = NMarkExportClick
+      Caption = #1069#1082#1089#1087#1086#1088#1090' '#1084#1077#1090#1082#1080
+      Hint = ''
+    end
+    object NMarksCalcs: TTBXSubmenuItem
+      ImageIndex = 9
+      Caption = #1048#1079#1084#1077#1088#1077#1085#1080#1103
+      Hint = ''
+      object NMarksCalcsLen: TTBXItem
+        OnClick = NMarksCalcsLenClick
+        Caption = #1044#1083#1080#1085#1072
+        Hint = ''
+      end
+      object NMarksCalcsPer: TTBXItem
+        OnClick = NMarksCalcsPerClick
+        Caption = #1055#1077#1088#1080#1084#1077#1090#1088
+        Hint = ''
+      end
+      object NMarksCalcsSq: TTBXItem
+        OnClick = NMarksCalcsSqClick
+        Caption = #1055#1083#1086#1097#1072#1076#1100
+        Hint = ''
+      end
+    end
+    object NMarkSep: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object NaddPoint: TTBXItem
+      ImageIndex = 15
+      OnClick = NaddPointClick
+      Caption = #1055#1086#1089#1090#1072#1074#1080#1090#1100' '#1084#1077#1090#1082#1091
+      Hint = ''
+    end
+    object N47: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object N28: TTBXSubmenuItem
+      Caption = #1062#1077#1085#1090#1088#1080#1088#1086#1074#1072#1090#1100' '#1089' '#1084#1072#1089#1096#1090#1072#1073#1086#1084
+      Hint = ''
+      object TBXToolPalette2: TTBXToolPalette
+        ColCount = 5
+        Images = ScalesImageList
+        PaletteOptions = []
+        RowCount = 5
+        OnCellClick = TBXToolPalette2CellClick
+        Caption = ''
+        Hint = ''
+      end
+    end
+    object N22: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object N43: TTBXSubmenuItem
+      ImageIndex = 28
+      Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100' '#1074' '#1073#1091#1092#1077#1088' '#1086#1073#1084#1077#1085#1072
+      Hint = ''
+      object Google1: TTBXItem
+        OnClick = Google1Click
+        Caption = #1057#1089#1099#1083#1082#1091' '#1076#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1074' google maps'
+        Hint = ''
+      end
+      object YaLink: TTBXItem
+        OnClick = YaLinkClick
+        Caption = #1057#1089#1099#1083#1082#1091' '#1076#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1074' '#1071#1085#1076#1077#1082#1089'.'#1050#1072#1088#1090#1099
+        Hint = ''
+      end
+      object kosmosnimkiru1: TTBXItem
+        OnClick = kosmosnimkiru1Click
+        Caption = #1057#1089#1099#1083#1082#1091' '#1076#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1074' kosmosnimki.ru'
+        Hint = ''
+      end
+      object livecom1: TTBXItem
+        OnClick = livecom1Click
+        Caption = #1057#1089#1099#1083#1082#1091' '#1076#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1085#1072' maps.live.com'
+        Hint = ''
+      end
+      object ImageAtlas1: TTBXItem
+        OnClick = ImageAtlas1Click
+        Caption = #1057#1089#1099#1083#1082#1091' '#1076#1083#1103' '#1087#1088#1086#1089#1084#1086#1090#1088#1072' '#1074' imageatlas.digitalglobe.com'
+        Hint = ''
+      end
+      object N51: TTBXSeparatorItem
+        Caption = ''
+        Hint = ''
+      end
+      object N13: TTBXItem
+        OnClick = N13Click
+        Caption = #1057#1089#1099#1083#1082#1091' '#1085#1072' '#1090#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
+        Hint = ''
+      end
+      object N30: TTBXItem
+        OnClick = N30Click
+        Caption = #1050#1086#1086#1088#1076#1080#1085#1072#1090#1099
+        Hint = ''
+      end
+      object N20: TTBXItem
+        OnClick = N20Click
+        Caption = #1058#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
+        Hint = ''
+      end
+      object N15: TTBXItem
+        OnClick = N15Click
+        Caption = #1054#1090#1085#1086#1089#1080#1090#1077#1083#1100#1085#1099#1081' '#1087#1091#1090#1100' '#1082' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1102
+        Hint = ''
+      end
+    end
+    object Nopendir: TTBXItem
+      OnClick = NopendirClick
+      Caption = #1055#1088#1086#1089#1084#1086#1090#1088' '#1090#1072#1081#1083#1072' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
+      Hint = ''
+    end
+    object N25: TTBXItem
+      ImageIndex = 34
+      OnClick = N25Click
+      Caption = #1054#1090#1082#1088#1099#1090#1100' '#1087#1072#1087#1082#1091' '#1089#1086#1076#1077#1088#1078#1072#1097#1091#1102' '#1090#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
+      Hint = ''
+    end
+    object N23: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object N26: TTBXSubmenuItem
+      Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1099#1077' '#1086#1087#1077#1088#1072#1094#1080#1080
+      Hint = ''
+      object NGTOPO30: TTBXItem
+        OnClick = NGTOPO30Click
+        Caption = #1042#1099#1089#1086#1090#1072' '#1085#1072#1076' '#1091#1088#1086#1074#1085#1077#1084' '#1084#1086#1088#1103' GTOPO30 ('#1088#1072#1079#1088#1077#1096#1077#1085#1080#1077' ~1'#1082#1084')'
+        Hint = ''
+      end
+      object NSRTM3: TTBXItem
+        OnClick = NSRTM3Click
+        Caption = #1042#1099#1089#1086#1090#1072' '#1085#1072#1076' '#1091#1088#1086#1074#1085#1077#1084' '#1084#1086#1088#1103' SRTM3 ('#1088#1072#1079#1088#1077#1096#1077#1085#1080#1077' ~90'#1084')'
+        Hint = ''
+      end
+      object N49: TTBXSeparatorItem
+        Caption = ''
+        Hint = ''
+      end
+      object DigitalGlobe1: TTBXItem
+        OnClick = DigitalGlobe1Click
+        Caption = 
+          #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1085#1092#1086#1088#1084#1072#1094#1080#1102' '#1086' '#1076#1086#1089#1090#1091#1087#1085#1099#1093' '#1082#1072#1088#1090#1072#1093' '#1101#1090#1086#1075#1086' '#1084#1077#1089#1090#1072' '#1085#1072' DigitalGl' +
+          'obe'
+        Hint = ''
+      end
+      object N27: TTBXSeparatorItem
+        Caption = ''
+        Hint = ''
+      end
+    end
+    object N24: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object N21: TTBXItem
+      ImageIndex = 21
+      OnClick = N21Click
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099' (Ins+MLeft)'
+      Hint = ''
+    end
+    object NDel: TTBXItem
+      ImageIndex = 22
+      OnClick = NDelClick
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099' (Del+MLeft)'
+      Hint = ''
+    end
+    object ldm: TTBXSubmenuItem
+      ImageIndex = 21
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1089#1083#1086#1103
+      Hint = ''
+    end
+    object dlm: TTBXSubmenuItem
+      ImageIndex = 22
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1090#1072#1081#1083' '#1089#1083#1086#1103
+      Hint = ''
+    end
+    object N1: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object NMapInfo: TTBXItem
+      ImageIndex = 27
+      OnClick = NMapInfoClick
+      Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1082#1072#1088#1090#1077
+      Hint = ''
+    end
   end
 end

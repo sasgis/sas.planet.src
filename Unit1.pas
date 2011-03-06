@@ -99,67 +99,8 @@ type
 
   TFmain = class(TCommonFormParent)
     map: TImage32;
-    PopupMenu1: TPopupMenu;
-    NaddPoint: TMenuItem;
-    N15: TMenuItem;
-    N20: TMenuItem;
-    N21: TMenuItem;
-    N22: TMenuItem;
-    N23: TMenuItem;
-    N24: TMenuItem;
-    Nopendir: TMenuItem;
-    N25: TMenuItem;
-    NDel: TMenuItem;
-    N28: TMenuItem;
-    N012: TMenuItem;
-    N022: TMenuItem;
-    N032: TMenuItem;
-    N042: TMenuItem;
-    N052: TMenuItem;
-    N062: TMenuItem;
-    N072: TMenuItem;
-    N082: TMenuItem;
-    N091: TMenuItem;
-    N101: TMenuItem;
-    N111: TMenuItem;
-    N121: TMenuItem;
-    N131: TMenuItem;
-    N141: TMenuItem;
-    N151: TMenuItem;
-    N161: TMenuItem;
-    N171: TMenuItem;
-    N181: TMenuItem;
-    N191: TMenuItem;
-    N201: TMenuItem;
-    N211: TMenuItem;
-    N221: TMenuItem;
-    N231: TMenuItem;
-    N241: TMenuItem;
-    N30: TMenuItem;
-    Google1: TMenuItem;
-    N43: TMenuItem;
     OpenDialog1: TOpenDialog;
-    YaLink: TMenuItem;
-    kosmosnimkiru1: TMenuItem;
-    N51: TMenuItem;
-    NMarkDel: TMenuItem;
-    NMarkEdit: TMenuItem;
-    NMarkSep: TMenuItem;
-    NMarkOper: TMenuItem;
-    livecom1: TMenuItem;
-    N13: TMenuItem;
-    ImageAtlas1: TMenuItem;
-    N26: TMenuItem;
-    N27: TMenuItem;
-    DigitalGlobe1: TMenuItem;
-    ldm: TMenuItem;
-    dlm: TMenuItem;
     SaveLink: TSaveDialog;
-    NSRTM3: TMenuItem;
-    N47: TMenuItem;
-    N49: TMenuItem;
-    NGTOPO30: TMenuItem;
-    NMarkNav: TMenuItem;
     TBDock: TTBXDock;
     TBMainToolBar: TTBXToolbar;
     TBDockBottom: TTBXDock;
@@ -187,12 +128,6 @@ type
     NParams: TTBXSubmenuItem;
     NLayerParams: TTBXSubmenuItem;
     NHelp: TTBXSubmenuItem;
-    NMarksCalcs: TMenuItem;
-    NMarksCalcsLen: TMenuItem;
-    NMarksCalcsSq: TMenuItem;
-    NMarksCalcsPer: TMenuItem;
-    N1: TMenuItem;
-    NMapInfo: TMenuItem;
     NSRCic: TTBXItem;
     NSRCinet: TTBXItem;
     NSRCesh: TTBXItem;
@@ -384,9 +319,8 @@ type
     TBGPSToPointCenter: TTBXItem;
     tbitmGPSToPointCenter: TTBXItem;
     tmrMapUpdate: TTimer;
-    tbtmHelpBugTrack: TTBItem;
+    tbtmHelpBugTrack: TTBXItem;
     tbitmShowDebugInfo: TTBXItem;
-    NMarkExport: TMenuItem;
     PanelsImageList: TTBXImageList;
     TBHideMarks: TTBXItem;
     ZSlider: TImage32;
@@ -395,6 +329,49 @@ type
     MenusImageList: TTBXImageList;
     ScalesImageList: TTBXImageList;
     EditCommentsImgs: TTBXImageList;
+    MainPopupMenu: TTBXPopupMenu;
+    NMarkEdit: TTBXItem;
+    NMarkDel: TTBXItem;
+    NMarkOper: TTBXItem;
+    NMarkNav: TTBXItem;
+    NMarkExport: TTBXItem;
+    NMarksCalcs: TTBXSubmenuItem;
+    NMarksCalcsLen: TTBXItem;
+    NMarksCalcsPer: TTBXItem;
+    NMarksCalcsSq: TTBXItem;
+    NMarkSep: TTBXSeparatorItem;
+    NaddPoint: TTBXItem;
+    N47: TTBXSeparatorItem;
+    N28: TTBXSubmenuItem;
+    N22: TTBXSeparatorItem;
+    N43: TTBXSubmenuItem;
+    Google1: TTBXItem;
+    YaLink: TTBXItem;
+    kosmosnimkiru1: TTBXItem;
+    livecom1: TTBXItem;
+    ImageAtlas1: TTBXItem;
+    N51: TTBXSeparatorItem;
+    N13: TTBXItem;
+    N30: TTBXItem;
+    N20: TTBXItem;
+    N15: TTBXItem;
+    Nopendir: TTBXItem;
+    N25: TTBXItem;
+    N23: TTBXSeparatorItem;
+    N26: TTBXSubmenuItem;
+    NGTOPO30: TTBXItem;
+    NSRTM3: TTBXItem;
+    N49: TTBXSeparatorItem;
+    DigitalGlobe1: TTBXItem;
+    N27: TTBXSeparatorItem;
+    N24: TTBXSeparatorItem;
+    N21: TTBXItem;
+    NDel: TTBXItem;
+    N1: TTBXSeparatorItem;
+    NMapInfo: TTBXItem;
+    ldm: TTBXSubmenuItem;
+    dlm: TTBXSubmenuItem;
+    TBXToolPalette2: TTBXToolPalette;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -426,7 +403,6 @@ type
     procedure TBRectSaveClick(Sender: TObject);
     procedure TBPreviousClick(Sender: TObject);
     procedure TBCalcRasClick(Sender: TObject);
-    procedure N012Click(Sender: TObject);
     procedure N29Click(Sender: TObject);
     procedure NMainToolBarShowClick(Sender: TObject);
     procedure NZoomToolBarShowClick(Sender: TObject);
@@ -451,7 +427,6 @@ type
     procedure TBLoadSelFromFileClick(Sender: TObject);
     procedure YaLinkClick(Sender: TObject);
     procedure kosmosnimkiru1Click(Sender: TObject);
-    procedure PopupMenu1Popup(Sender: TObject);
     procedure NinvertcolorClick(Sender: TObject);
     procedure mapDblClick(Sender: TObject);
     procedure TBAdd_PointClick(Sender: TObject);
@@ -526,6 +501,9 @@ type
       Y: Integer; Layer: TCustomLayer);
     procedure ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
+    procedure MainPopupMenuPopup(Sender: TObject);
+    procedure TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette; var ACol,
+      ARow: Integer; var AllowChange: Boolean);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1758,8 +1736,8 @@ var
   VMapType: TMapType;
 
   NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
-  NDwnItem: TMenuItem; //Пункт контекстного меню Загрузить тайл слоя
-  NDelItem: TMenuItem; //Пункт контекстного меню Удалить тайл слоя
+  NDwnItem: TTBXItem; //Пункт контекстного меню Загрузить тайл слоя
+  NDelItem: TTBXItem; //Пункт контекстного меню Удалить тайл слоя
 
   VIcon18Index: Integer;
 begin
@@ -1777,7 +1755,7 @@ begin
       VMapType := GState.MapType[i];
       VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
       if VMapType.asLayer then begin
-        NDwnItem:=TMenuItem.Create(nil);
+        NDwnItem:=TTBXItem.Create(ldm);
         FNDwnItemList.Add(VMapType.GUID, NDwnItem);
         NDwnItem.Caption:=VMapType.name;
         NDwnItem.ImageIndex:=VIcon18Index;
@@ -1785,7 +1763,7 @@ begin
         NDwnItem.Tag:=longint(VMapType);
         ldm.Add(NDwnItem);
 
-        NDelItem:=TMenuItem.Create(nil);
+        NDelItem:=TTBXItem.Create(dlm);
         FNDelItemList.Add(VMapType.GUID, NDelItem);
         NDelItem.Caption:=VMapType.name;
         NDelItem.ImageIndex:=VIcon18Index;
@@ -2358,14 +2336,8 @@ begin
     end;
   end;
 end;
-//X-карта заполнения в основном окне
-
-procedure TFmain.TBCalcRasClick(Sender: TObject);
-begin
-  setalloperationfalse(ao_calc_line);
-end;
-
-procedure TFmain.N012Click(Sender: TObject);
+procedure TFmain.TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette;
+  var ACol, ARow: Integer; var AllowChange: Boolean);
 var
   VZoom: Byte;
   VZoomCurr: Byte;
@@ -2374,14 +2346,24 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
-  VZoomCurr := VLocalConverter.GetZoom;
-  VConverter := VLocalConverter.GetGeoConverter;
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
-  VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-  VZoom := TMenuItem(sender).tag - 1;
-  topos(VMouseLonLat,VZoom,true);
+  AllowChange:=false;
+  VZoom := ((5*ARow)+ACol);
+  if VZoom>0 then begin
+    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
+    VZoomCurr := VLocalConverter.GetZoom;
+    VConverter := VLocalConverter.GetGeoConverter;
+    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+    VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+    topos(VMouseLonLat,VZoom-1,true);
+  end;
+end;
+
+//X-карта заполнения в основном окне
+
+procedure TFmain.TBCalcRasClick(Sender: TObject);
+begin
+  setalloperationfalse(ao_calc_line);
 end;
 
 procedure TFmain.N29Click(Sender: TObject);
@@ -2559,30 +2541,6 @@ begin
   if (OpenDialog1.Execute) then begin
     Fsaveas.LoadSelFromFile(OpenDialog1.FileName);
   end
-end;
-
-procedure TFmain.PopupMenu1Popup(Sender: TObject);
-var
-  i:Integer;
-  VMapType: TMapType;
-  VLayerIsActive: Boolean;
-  VActiveLayers: IMapTypeList;
-begin
-  ldm.Visible:=false;
-  dlm.Visible:=false;
-  VActiveLayers := FConfig.MainMapsConfig.GetLayers.GetSelectedMapsList;
-  For i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
-    if (VMapType.asLayer) then begin
-      VLayerIsActive := VActiveLayers.GetMapTypeByGUID(VMapType.GUID) <> nil;
-      TMenuItem(FNDwnItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
-      TMenuItem(FNDelItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
-      if VLayerIsActive then begin
-        ldm.Visible:=true;
-        dlm.Visible:=true;
-      end
-    end;
-  end;
 end;
 
 procedure TFmain.NinvertcolorClick(Sender: TObject);
@@ -2925,7 +2883,7 @@ begin
     end else begin
       NMarkNav.Checked:=false;
     end;
-    map.PopupMenu:=PopupMenu1;
+    map.PopupMenu:=MainPopupMenu;
   end else begin
     FMapMoving:=true;
     map.PopupMenu:=nil;
@@ -3876,6 +3834,30 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoom));
+end;
+
+procedure TFmain.MainPopupMenuPopup(Sender: TObject);
+var
+  i:Integer;
+  VMapType: TMapType;
+  VLayerIsActive: Boolean;
+  VActiveLayers: IMapTypeList;
+begin
+  ldm.Visible:=false;
+  dlm.Visible:=false;
+  VActiveLayers := FConfig.MainMapsConfig.GetLayers.GetSelectedMapsList;
+  For i:=0 to GState.MapType.Count-1 do begin
+    VMapType := GState.MapType[i];
+    if (VMapType.asLayer) then begin
+      VLayerIsActive := VActiveLayers.GetMapTypeByGUID(VMapType.GUID) <> nil;
+      TTBXItem(FNDwnItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
+      TTBXItem(FNDelItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
+      if VLayerIsActive then begin
+        ldm.Visible:=true;
+        dlm.Visible:=true;
+      end
+    end;
+  end;
 end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
