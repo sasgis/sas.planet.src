@@ -7,6 +7,7 @@ uses
   GR32,
   GR32_Polygons,
   GR32_Image,
+  t_GeoTypes,
   i_IViewPortState,
   i_IMarkPolygonLayerConfig,
   u_PolyLineLayerBase,
@@ -27,12 +28,14 @@ type
       AViewPortState: IViewPortState;
       AConfig: IMarkPolygonLayerConfig
     );
+    procedure DrawLine(APathLonLat: TArrayOfDoublePoint; AActiveIndex: Integer); override;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  Ugeofun;
 
 { TMarkPolyLineLayer }
 
@@ -54,6 +57,30 @@ procedure TMarkPolygonLayer.DoConfigChange;
 begin
   inherited;
   FFillColor := FConfig.FillColor;
+end;
+
+procedure TMarkPolygonLayer.DrawLine(APathLonLat: TArrayOfDoublePoint;
+  AActiveIndex: Integer);
+var
+  VPathLonLat: TArrayOfDoublePoint;
+  VPointsCount: Integer;
+  i: Integer;
+begin
+  VPointsCount := Length(APathLonLat);
+  if VPointsCount > 2 then begin
+    if compare2EP(APathLonLat[0], APathLonLat[VPointsCount - 1]) then begin
+      VPathLonLat := APathLonLat;
+    end else begin
+      SetLength(VPathLonLat, VPointsCount + 1);
+      for i := 0 to VPointsCount - 1 do begin
+        VPathLonLat[i] := APathLonLat[i];
+      end;
+      VPathLonLat[VPointsCount] := VPathLonLat[0];
+    end;
+  end else begin
+    VPathLonLat := APathLonLat;
+  end;
+  inherited DrawLine(VPathLonLat, AActiveIndex);
 end;
 
 procedure TMarkPolygonLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);

@@ -272,13 +272,19 @@ var
   VPointsProcessedCount: Integer;
   VPointsOnBitmapPrepared: TArrayOfDoublePoint;
   VIndex: Integer;
+  VLocalRect: TRect;
 begin
   VPointsCount := Length(FSourcePolygon);
   if VPointsCount > 0 then begin
-    VBitmapClip := TPolygonClipByRect.Create(ALocalConverter.GetLocalRect);
-
+    VLocalRect := ALocalConverter.GetLocalRect;
+    FBitmapSize.X := VLocalRect.Right - VLocalRect.Left;
+    FBitmapSize.Y := VLocalRect.Bottom - VLocalRect.Top;
+    Dec(VLocalRect.Left, 10);
+    Dec(VLocalRect.Top, 10);
+    Inc(VLocalRect.Right, 10);
+    Inc(VLocalRect.Bottom, 10);
+    VBitmapClip := TPolygonClipByRect.Create(VLocalRect);
     FPointsOnBitmap := LonLatArrayToVisualFloatArray(ALocalConverter, FSourcePolygon);
-    FBitmapSize := ALocalConverter.GetLocalRectSize;
 
     VPointsProcessedCount := VBitmapClip.Clip(FPointsOnBitmap[0], VPointsCount, VPointsOnBitmapPrepared);
     if VPointsProcessedCount > 0 then begin

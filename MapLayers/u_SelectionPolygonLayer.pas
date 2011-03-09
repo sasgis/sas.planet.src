@@ -7,7 +7,9 @@ uses
   GR32,
   GR32_Polygons,
   GR32_Image,
+  t_GeoTypes,
   i_IViewPortState,
+  i_ILocalCoordConverter,
   i_ISelectionPolygonLayerConfig,
   u_PolyLineLayerBase,
   u_MapLayerBasic;
@@ -27,12 +29,14 @@ type
       AViewPortState: IViewPortState;
       AConfig: ISelectionPolygonLayerConfig
     );
+    procedure DrawLine(APathLonLat: TArrayOfDoublePoint; AActiveIndex: Integer); override;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  Ugeofun;
 
 { TMarkPolyLineLayer }
 
@@ -54,6 +58,30 @@ procedure TSelectionPolygonLayer.DoConfigChange;
 begin
   inherited;
   FFillColor := FConfig.FillColor;
+end;
+
+procedure TSelectionPolygonLayer.DrawLine(APathLonLat: TArrayOfDoublePoint;
+  AActiveIndex: Integer);
+var
+  VPathLonLat: TArrayOfDoublePoint;
+  VPointsCount: Integer;
+  i: Integer;
+begin
+  VPointsCount := Length(APathLonLat);
+  if VPointsCount > 2 then begin
+    if compare2EP(APathLonLat[0], APathLonLat[VPointsCount - 1]) then begin
+      VPathLonLat := APathLonLat;
+    end else begin
+      SetLength(VPathLonLat, VPointsCount + 1);
+      for i := 0 to VPointsCount - 1 do begin
+        VPathLonLat[i] := APathLonLat[i];
+      end;
+      VPathLonLat[VPointsCount] := VPathLonLat[0]; 
+    end;
+  end else begin
+    VPathLonLat := APathLonLat;
+  end;
+  inherited DrawLine(VPathLonLat, AActiveIndex);
 end;
 
 procedure TSelectionPolygonLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
