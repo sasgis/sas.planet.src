@@ -201,6 +201,7 @@ uses
   u_ImportByFileExt,
   u_GlobalViewMainConfig,
   u_GPSRecorderStuped,
+  u_GPSLogWriterToPlt,
   u_SatellitesInViewMapDrawSimple,
   u_MainFormConfig,
   u_TileFileNameGeneratorsSimpleList;
@@ -252,7 +253,7 @@ begin
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
-  FGPSpar := TGPSpar.Create(GetTrackLogPath, FGPSConfig, FGPSRecorder);
+  FGPSpar := TGPSpar.Create(TPltLogWriter.Create(GetTrackLogPath), FGPSConfig, FGPSRecorder);
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);

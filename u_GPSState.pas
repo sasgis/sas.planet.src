@@ -8,27 +8,26 @@ uses
   i_IGPSRecorder,
   i_IGPSConfig,
   i_IGPSModule,
-  i_IGPSModuleByCOM,
-  u_GPSLogWriterToPlt;
+  i_ITrackWriter,
+  i_IGPSModuleByCOM;
 
 type
   TGPSpar = class
   private
     FConfig: IGPSConfig;
-    FLogPath: string;
+    FLogWriter: ITrackWriter;
     FGPSRecorder: IGPSRecorder;
     FGPSModule: IGPSModule;
     FGPSModuleByCOM: IGPSModuleByCOM;
     FLinksList: IJclListenerNotifierLinksList;
 
-    FLogWriter: TPltLogWriter;
 
     procedure OnGpsConnect(Sender: TObject);
     procedure OnGpsDataReceive(Sender: TObject);
     procedure OnGpsDisconnect(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   public
-    constructor Create(ALogPath: string; AConfig: IGPSConfig; AGPSRecorder: IGPSRecorder);
+    constructor Create(ATrackWriter: ITrackWriter; AConfig: IGPSConfig; AGPSRecorder: IGPSRecorder);
     destructor Destroy; override;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
@@ -43,12 +42,11 @@ uses
   u_NotifyEventListener,
   u_GPSModuleByZylGPS;
 
-constructor TGPSpar.Create(ALogPath: string; AConfig: IGPSConfig; AGPSRecorder: IGPSRecorder);
+constructor TGPSpar.Create(ATrackWriter: ITrackWriter; AConfig: IGPSConfig; AGPSRecorder: IGPSRecorder);
 begin
   FConfig := AConfig;
-  FLogPath := ALogPath;
+  FLogWriter := ATrackWriter;
   FGPSRecorder := AGPSRecorder;
-  FLogWriter := TPltLogWriter.Create(FLogPath);
   FGPSModuleByCOM := TGPSModuleByZylGPS.Create;
   FGPSModule := FGPSModuleByCOM;
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -77,7 +75,7 @@ begin
   FLinksList := nil;
   FGPSRecorder := nil;
   FGPSModule := nil;
-  FreeAndNil(FLogWriter);
+  FLogWriter := nil;
   inherited;
 end;
 
@@ -114,9 +112,7 @@ end;
 procedure TGPSpar.OnGpsDataReceive;
 begin
   FGPSRecorder.AddPoint(FGPSModule.Position);
-  if FLogWriter.Started then begin
-    FLogWriter.AddPoint(FGPSModule.Position);
-  end;
+  FLogWriter.AddPoint(FGPSModule.Position);
 end;
 
 procedure TGPSpar.OnGpsDisconnect;

@@ -5,10 +5,11 @@ interface
 uses
   SyncObjs,
   SysUtils,
-  i_GPS;
+  i_GPS,
+  i_ITrackWriter;
 
 type
-  TPltLogWriter = class
+  TPltLogWriter = class(TInterfacedObject, ITrackWriter)
   private
     FCS: TCriticalSection;
     FStarted: Boolean;
@@ -18,14 +19,13 @@ type
     //Файл для записи GPS трека (Нужно будет заменить отдельным объектом)
     GPS_LogFile: TextFile;
     FTrackPartStart: Boolean;
-  public
-    constructor Create(APath: string);
-    destructor Destroy; override;
-
+  protected
     procedure StartWrite;
     procedure AddPoint(APosition: IGPSPosition);
     procedure CloseLog;
-    property Started: Boolean read FStarted;
+  public
+    constructor Create(APath: string);
+    destructor Destroy; override;
   end;
 
 implementation
@@ -101,26 +101,28 @@ var
 begin
   FCS.Acquire;
   try
-    VNow := Now;
-    if APosition.IsFix = 0 then begin
-      FTrackPartStart := True;
-    end else begin
-      VPoint := APosition.Position;
-      VAltitude := APosition.Altitude;
-      if FTrackPartStart then begin
-        sb:='1';
+    if FStarted then begin
+      VNow := Now;
+      if APosition.IsFix = 0 then begin
+        FTrackPartStart := True;
       end else begin
-        sb:='0';
+        VPoint := APosition.Position;
+        VAltitude := APosition.Altitude;
+        if FTrackPartStart then begin
+          sb:='1';
+        end else begin
+          sb:='0';
+        end;
+        FTrackPartStart := False;
+        VPltString:=FloatToStr(VPoint.Y, FPltFormatSettings)+','
+          +FloatToStr(VPoint.X, FPltFormatSettings)+','
+          +sb+','
+          +FloatToStr(VAltitude*3.2808399, FPltFormatSettings)+','
+          +FloatToStr(VNow, FPltFormatSettings)+','
+          +DateToStr(VNow, FPltFormatSettings)+','
+          +TimeToStr(VNow, FPltFormatSettings);
+        Writeln(GPS_LogFile,VPltString);
       end;
-      FTrackPartStart := False;
-      VPltString:=FloatToStr(VPoint.Y, FPltFormatSettings)+','
-        +FloatToStr(VPoint.X, FPltFormatSettings)+','
-        +sb+','
-        +FloatToStr(VAltitude*3.2808399, FPltFormatSettings)+','
-        +FloatToStr(VNow, FPltFormatSettings)+','
-        +DateToStr(VNow, FPltFormatSettings)+','
-        +TimeToStr(VNow, FPltFormatSettings);
-      Writeln(GPS_LogFile,VPltString);
     end;
   finally
     FCS.Release;
