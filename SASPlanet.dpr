@@ -500,7 +500,6 @@ begin
   Application.CreateForm(TFAddCategory, FAddCategory);
   Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
   Application.CreateForm(TFaddPoint, FaddPoint);
-  Application.CreateForm(TFprogress2, Fprogress2);
   Application.CreateForm(TFbrowser, Fbrowser);
   Application.CreateForm(TFaddLine, FaddLine);
   Application.CreateForm(TFAddPoly, FAddPoly);

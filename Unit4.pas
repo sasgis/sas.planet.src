@@ -22,11 +22,7 @@ type
   public
   end;
 
-var Fprogress2: TFprogress2;
-
 implementation
-
-
 
 {$R *.dfm}
 
