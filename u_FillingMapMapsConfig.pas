@@ -16,6 +16,7 @@ type
     FSelectedMapChangeListener: IJclListener;
     FMainMapsConfig: IMainMapsConfig;
     FMainMapChangeListener: IJclListener;
+    function CreateMapsList: IMapTypeList;
     procedure OnMainMapChange(Sender: TObject);
     procedure OnSelectedChange(AGUID: TGUID);
     procedure SetActualMap(AValue: IMapType);
@@ -41,7 +42,7 @@ uses
 constructor TFillingMapMapsConfig.Create(AMapsConfig: IMainMapsConfig);
 begin
   FMainMapsConfig := AMapsConfig;
-  inherited Create(FMainMapsConfig.GetAllActiveMapsSet.GetMapsList);
+  inherited Create(CreateMapsList);
 
   FMainMapChangeListener := TNotifyEventListener.Create(Self.OnMainMapChange);
   FMainMapsConfig.GetActiveMap.GetChangeNotifier.Add(FMainMapChangeListener);
@@ -60,6 +61,26 @@ begin
 
   FMainMapsConfig := nil;
   inherited;
+end;
+
+function TFillingMapMapsConfig.CreateMapsList: IMapTypeList;
+var
+  VSourceList: IMapTypeList;
+  VMap: IMapType;
+  VList: TMapTypeList;
+  VEnun: IEnumGUID;
+  VGUID: TGUID;
+  i: Cardinal;
+begin
+  VSourceList := FMainMapsConfig.GetAllActiveMapsSet.GetMapsList;
+  VList := TMapTypeList.Create(True);
+  Result := VList;
+  VList.Add(TMapTypeBasic.Create(nil));
+  VEnun := VSourceList.GetIterator;
+  while VEnun.Next(1, VGUID, i) = S_OK do begin
+    VMap := VSourceList.GetMapTypeByGUID(VGUID);
+    VList.Add(VMap);
+  end;
 end;
 
 function TFillingMapMapsConfig.GetActualMap: IMapType;
