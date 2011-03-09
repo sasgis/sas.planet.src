@@ -109,7 +109,7 @@ begin
 
       repeat
         err := not (internetReadFile(hFile, @Buffer, SizeOf(Buffer), BufferLen));
-        s := s + Buffer;
+        s := s + copy(Buffer,1,BufferLen);
       until (BufferLen = 0) and (BufferLen < SizeOf(Buffer)) and (err = false);
     finally
       InternetCloseHandle(hFile);
