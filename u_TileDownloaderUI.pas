@@ -31,6 +31,7 @@ type
     FErrorShowLayer: TTileErrorInfoLayer;
 
     FTileMaxAgeInInternet: TDateTime;
+    FTilesOut: Integer;
     FUseDownload: TTileSource;
     FLinksList: IJclListenerNotifierLinksList;
 
@@ -182,6 +183,7 @@ begin
   try
     FUseDownload := FConfig.UseDownload;
     FTileMaxAgeInInternet := FConfig.TileMaxAgeInInternet;
+    FTilesOut := FConfig.TilesOut;
     change_scene := True;
   finally
     FConfig.UnlockRead;
@@ -231,6 +233,7 @@ var
   VLocalConverter: ILocalCoordConverter;
   VGeoConverter: ICoordConverter;
   VMapPixelRect: TDoubleRect;
+  VMapTileRect: TRect;
   VZoom: Byte;
   VActiveMapsList: IMapTypeList;
   VEnum: IEnumGUID;
@@ -278,7 +281,13 @@ begin
           VActiveMapsList := FActiveMapsList;
           VGeoConverter := VLocalConverter.GetGeoConverter;
           VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
-          VIterator := TTileIteratorSpiralByRect.Create(VGeoConverter.PixelRectFloat2TileRect(VMapPixelRect, VZoom));
+          VMapTileRect := VGeoConverter.PixelRectFloat2TileRect(VMapPixelRect, VZoom);
+          Dec(VMapTileRect.Left, FTilesOut);
+          Dec(VMapTileRect.Top, FTilesOut);
+          Inc(VMapTileRect.Right, FTilesOut);
+          Inc(VMapTileRect.Bottom, FTilesOut);
+          VGeoConverter.CheckTileRect(VMapTileRect, VZoom);
+          VIterator := TTileIteratorSpiralByRect.Create(VMapTileRect);
           try
             while VIterator.Next(VTile) do begin
               if Terminated then begin
