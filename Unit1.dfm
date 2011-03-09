@@ -38,6 +38,7 @@ object Fmain: TFmain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
+    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -3678,6 +3679,10 @@ object Fmain: TFmain
         Caption = #1057#1089#1099#1083#1082#1091' '#1085#1072' '#1090#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
         Hint = ''
       end
+      object TBCopyLinkLayer: TTBXSubmenuItem
+        Caption = #1057#1089#1099#1083#1082#1091' '#1085#1072' '#1090#1072#1081#1083' '#1089#1083#1086#1103
+        Hint = ''
+      end
       object N30: TTBXItem
         OnClick = N30Click
         Caption = #1050#1086#1086#1088#1076#1080#1085#1072#1090#1099
@@ -3703,6 +3708,11 @@ object Fmain: TFmain
       ImageIndex = 34
       OnClick = N25Click
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1087#1072#1087#1082#1091' '#1089#1086#1076#1077#1088#1078#1072#1097#1091#1102' '#1090#1072#1081#1083' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
+      Hint = ''
+    end
+    object TBOpenDirLayer: TTBXSubmenuItem
+      ImageIndex = 34
+      Caption = #1054#1090#1082#1088#1099#1090#1100' '#1087#1072#1087#1082#1091' '#1089#1086#1076#1077#1088#1078#1072#1097#1091#1102' '#1090#1072#1081#1083' '#1089#1083#1086#1103
       Hint = ''
     end
     object N23: TTBXSeparatorItem
