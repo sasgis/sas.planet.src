@@ -627,7 +627,6 @@ uses
   Usettings,
   USaveas,
   UProgress,
-  Unit4,
   USelLonLat,
   UEditMap,
   Ubrowser,

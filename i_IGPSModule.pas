@@ -4,7 +4,6 @@ interface
 
 uses
   i_JclNotify,
-  i_IGPSModuleByCOMPortSettings,
   i_GPS;
 
 type

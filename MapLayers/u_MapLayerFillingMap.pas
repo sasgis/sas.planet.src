@@ -6,12 +6,8 @@ uses
   Types,
   GR32,
   GR32_Image,
-  i_JclNotify,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   i_IBackgroundTaskLayerDraw,
   i_ILocalCoordConverter,
-  i_IActiveMapsConfig,
   u_BackgroundTaskLayerDrawBase,
   i_IViewPortState,
   i_IFillingMapLayerConfig,
@@ -57,11 +53,9 @@ implementation
 uses
   Graphics,
   SysUtils,
-  u_JclNotify,
   t_GeoTypes,
   i_ICoordConverter,
   i_ITileIterator,
-  u_GlobalState,
   u_NotifyEventListener,
   u_TileIteratorSpiralByRect;
 

@@ -9,8 +9,6 @@ uses
   i_JclNotify,
   i_IJclListenerNotifierLinksList,
   t_CommonTypes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   i_ICoordConverter,
   i_ILocalCoordConverter,
   i_IActiveMapsConfig,
@@ -69,7 +67,6 @@ implementation
 uses
   SysUtils,
   ActiveX,
-  u_JclNotify,
   t_GeoTypes,
   u_GlobalState,
   u_JclListenerNotifierLinksList,
