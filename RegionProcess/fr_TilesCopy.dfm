@@ -165,14 +165,13 @@ object frTilesCopy: TfrTilesCopy
       Left = 3
       Top = 3
       Width = 86
-      Height = 21
+      Height = 13
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
       Left = 92

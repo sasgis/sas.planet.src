@@ -29,14 +29,13 @@ object frExportToFileCont: TfrExportToFileCont
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 69
+        Width = 57
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
-        ExplicitWidth = 57
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
@@ -105,7 +104,7 @@ object frExportToFileCont: TfrExportToFileCont
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
       object cbbNamesType: TComboBox
@@ -141,7 +140,7 @@ object frExportToFileCont: TfrExportToFileCont
       Left = 3
       Top = 3
       Width = 86
-      Height = 21
+      Height = 13
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
@@ -149,7 +148,6 @@ object frExportToFileCont: TfrExportToFileCont
       Alignment = taRightJustify
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 92

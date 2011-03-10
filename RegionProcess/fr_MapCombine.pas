@@ -156,7 +156,7 @@ begin
   cbbHybr.Items.Add(SAS_STR_No);
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
-    if VMapType.UseStick and VMapType.IsBitmapTiles then begin
+    if (VMapType.UseStick)and(VMapType.IsBitmapTiles)and(VMapType.Enabled) then begin
       if not VMapType.asLayer then begin
         VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
         if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin

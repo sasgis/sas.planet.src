@@ -58,7 +58,7 @@ object frTilesDelete: TfrTilesDelete
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
     end
@@ -102,7 +102,7 @@ object frTilesDelete: TfrTilesDelete
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
       object flwpnlDelBySize: TFlowPanel

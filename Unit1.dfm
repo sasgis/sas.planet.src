@@ -38,7 +38,6 @@ object Fmain: TFmain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
-    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -3781,6 +3780,11 @@ object Fmain: TFmain
       ImageIndex = 27
       OnClick = NMapInfoClick
       Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1082#1072#1088#1090#1077
+      Hint = ''
+    end
+    object TBLayerInfo: TTBXSubmenuItem
+      ImageIndex = 27
+      Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1089#1083#1086#1077
       Hint = ''
     end
   end

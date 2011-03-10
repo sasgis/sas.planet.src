@@ -21,7 +21,7 @@ object FSettings: TFSettings
     Top = 0
     Width = 646
     Height = 409
-    ActivePage = TabSheet4
+    ActivePage = TabSheet9
     Align = alClient
     TabOrder = 0
     object TabSheet9: TTabSheet
@@ -37,7 +37,7 @@ object FSettings: TFSettings
         Columns = <
           item
             Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1082#1072#1088#1090#1099
-            Width = 140
+            Width = 130
           end
           item
             Caption = #1055#1072#1087#1082#1072' '#1074' '#1082#1101#1096#1077
@@ -49,11 +49,14 @@ object FSettings: TFSettings
           end
           item
             Caption = #1043#1086#1088'. '#1082#1083'.'
-            Width = 55
+            Width = 53
           end
           item
             Caption = #1055#1091#1090#1100' '#1082' '#1092#1072#1081#1083#1091
-            Width = 118
+            Width = 100
+          end
+          item
+            Caption = #1048#1089#1087#1086#1083#1100#1079#1091#1077#1090#1089#1103
           end>
         FlatScrollBars = True
         HideSelection = False
@@ -63,6 +66,7 @@ object FSettings: TFSettings
         ViewStyle = vsReport
         OnCustomDrawSubItem = MapListCustomDrawSubItem
         OnDblClick = Button15Click
+        ExplicitLeft = -3
       end
       object pnlMapsRightButtons: TPanel
         Left = 535

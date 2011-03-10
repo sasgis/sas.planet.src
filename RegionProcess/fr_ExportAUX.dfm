@@ -28,14 +28,13 @@ object frExportAUX: TfrExportAUX
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 370
+        Width = 31
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
         Caption = #1050#1072#1088#1090#1072
-        ExplicitWidth = 31
       end
       object cbbMap: TComboBox
         Left = 3
@@ -45,7 +44,7 @@ object frExportAUX: TfrExportAUX
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
     end
@@ -62,14 +61,13 @@ object frExportAUX: TfrExportAUX
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 69
+        Width = 49
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
         Caption = #1052#1072#1089#1096#1090#1072#1073':'
-        ExplicitWidth = 49
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -78,7 +76,7 @@ object frExportAUX: TfrExportAUX
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
     end
@@ -97,14 +95,13 @@ object frExportAUX: TfrExportAUX
       Left = 3
       Top = 3
       Width = 86
-      Height = 21
+      Height = 13
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 92

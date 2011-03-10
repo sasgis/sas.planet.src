@@ -38,14 +38,13 @@ object frMapCombine: TfrMapCombine
       Left = 3
       Top = 3
       Width = 86
-      Height = 19
+      Height = 13
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
       Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 92
@@ -184,7 +183,7 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         ExplicitWidth = 371
       end
@@ -236,7 +235,7 @@ object frMapCombine: TfrMapCombine
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         OnChange = cbbZoomChange
         ExplicitWidth = 72
