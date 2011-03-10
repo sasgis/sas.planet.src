@@ -154,7 +154,7 @@ object Fmain: TFmain
         Images = PanelsImageList
         Options = [tboDropdownArrow]
         Caption = ''
-        Hint = #1042#1099#1073#1088#1072#1090#1100' '#1090#1080#1087' '#1082#1072#1088#1090#1099
+        Hint = #1042#1099#1073#1086#1088' '#1086#1089#1085#1086#1074#1085#1086#1081' '#1082#1072#1088#1090#1099
       end
       object TBLayerSel: TTBXSubmenuItem
         ImageIndex = 3
