@@ -296,6 +296,7 @@ uses
   i_IImportFile in 'i_IImportFile.pas',
   u_ImportKML in 'u_ImportKML.pas',
   u_ImportPLT in 'u_ImportPLT.pas',
+  u_ImportHLG in 'u_ImportHLG.pas',
   u_ImportByFileExt in 'u_ImportByFileExt.pas',
   i_IUrlByCoordProvider in 'i_IUrlByCoordProvider.pas',
   i_IPathDetalizeProvider in 'i_IPathDetalizeProvider.pas',

@@ -22,7 +22,6 @@ object FMarksExplorer: TFMarksExplorer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitHeight = 412
     object pnlButtons: TPanel
       AlignWithMargins = True
       Left = 497
@@ -32,7 +31,6 @@ object FMarksExplorer: TFMarksExplorer
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 406
       object btnExport: TTBXButton
         Left = 3
         Top = 56
@@ -74,7 +72,6 @@ object FMarksExplorer: TFMarksExplorer
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 412
       object splCatMarks: TSplitter
         Left = 178
         Top = 0
@@ -91,7 +88,6 @@ object FMarksExplorer: TFMarksExplorer
         Align = alClient
         Caption = ' '#1052#1077#1090#1082#1080' '
         TabOrder = 0
-        ExplicitHeight = 412
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
@@ -104,8 +100,6 @@ object FMarksExplorer: TFMarksExplorer
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
-          ExplicitTop = 48
-          ExplicitHeight = 336
         end
         object CheckBox1: TCheckBox
           AlignWithMargins = True
@@ -117,7 +111,6 @@ object FMarksExplorer: TFMarksExplorer
           Caption = #1042#1089#1077
           TabOrder = 1
           OnClick = CheckBox1Click
-          ExplicitTop = 390
         end
         object TBXDockMark: TTBXDock
           Left = 2
@@ -195,7 +188,6 @@ object FMarksExplorer: TFMarksExplorer
         Align = alLeft
         Caption = ' '#1050#1072#1090#1077#1075#1086#1088#1080#1080' '#1084#1077#1090#1086#1082' '
         TabOrder = 1
-        ExplicitHeight = 412
         object CheckBox2: TCheckBox
           AlignWithMargins = True
           Left = 5
@@ -206,7 +198,6 @@ object FMarksExplorer: TFMarksExplorer
           Caption = #1042#1089#1077
           TabOrder = 0
           OnClick = CheckBox2Click
-          ExplicitTop = 390
         end
         object TreeView1: TTreeView
           AlignWithMargins = True
@@ -222,9 +213,6 @@ object FMarksExplorer: TFMarksExplorer
           OnChange = TreeView1Change
           OnKeyUp = TreeView1KeyUp
           OnMouseUp = TreeView1MouseUp
-          ExplicitLeft = 4
-          ExplicitTop = 53
-          ExplicitHeight = 331
         end
         object TBXDockCategory: TTBXDock
           Left = 2
@@ -301,17 +289,13 @@ object FMarksExplorer: TFMarksExplorer
       #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
       #1053#1077' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1084#1077#1090#1082#1080)
     TabOrder = 2
-    ExplicitTop = 412
-  end
-  object OpenDialog: TOpenDialog
-    Left = 392
-    Top = 152
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*.kml'
     Filter = 
       'Google KML files (*.kml)|*.kml|OziExplorer Track Point File Vers' +
-      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz'
+      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|'#1060#1072#1081#1083' '#1074#1099#1076#1077#1083#1077 +
+      #1085#1080#1103' (*.hlg)|*.hlg'
     Left = 352
     Top = 144
   end

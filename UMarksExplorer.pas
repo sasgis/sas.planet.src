@@ -30,7 +30,6 @@ type
     grpMarks: TGroupBox;
     MarksListBox: TCheckListBox;
     grpCategory: TGroupBox;
-    OpenDialog: TOpenDialog;
     CheckBox2: TCheckBox;
     CheckBox1: TCheckBox;
     OpenDialog1: TOpenDialog;

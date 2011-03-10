@@ -13,6 +13,7 @@ type
     FImportPLT: IImportFile;
     FImportKML: IImportFile;
     FImportKMZ: IImportFile;
+    FImportHLG: IImportFile;
   protected
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
   public
@@ -24,6 +25,7 @@ implementation
 uses
   SysUtils,
   u_ImportKML,
+  u_ImportHLG,
   u_ImportPLT;
 
 { TImportByFileExt }
@@ -31,6 +33,7 @@ uses
 constructor TImportByFileExt.Create(AKmlLoader: IKmlInfoSimpleLoader; AKmzLoader: IKmlInfoSimpleLoader);
 begin
   FImportPLT := TImportPLT.Create;
+  FImportHLG := TImportHLG.Create;
   FImportKML := TImportKML.Create(AKmlLoader);
   FImportKMZ := TImportKML.Create(AKmzLoader);
 end;
@@ -45,6 +48,8 @@ begin
     Result := FImportKMZ.ProcessImport(AFileName, AConfig);
   end else if (LowerCase(ExtractFileExt(AFileName))='.plt') then begin
     Result := FImportPLT.ProcessImport(AFileName, AConfig);
+  end else if (LowerCase(ExtractFileExt(AFileName))='.hlg') then begin
+    Result := FImportHLG.ProcessImport(AFileName, AConfig);
   end;
 end;
 
