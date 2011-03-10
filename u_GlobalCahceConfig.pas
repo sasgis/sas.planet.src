@@ -10,10 +10,10 @@ uses
 type
   TGlobalCahceConfig = class
   private
-    //Способ храения кеша по-умолчанию.
+    //Способ храения кэша по-умолчанию.
     FDefCache: byte;
 
-    //Пути к кешам разных типов
+    //Пути к кэшам разных типов
     FNewCPath: string;
     FOldCPath: string;
     FESCpath: string;
@@ -34,10 +34,10 @@ type
     procedure LoadConfig(AConfigProvider: IConfigDataProvider);
     procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider);
 
-    //Способ храения кеша по-умолчанию.
+    //Способ храения кэша по-умолчанию.
     property DefCache: byte read FDefCache write SetDefCache;
 
-    //Пути к кешам разных типов
+    //Пути к кэшам разных типов
     property NewCPath: string read FNewCPath write SetNewCPath;
     property OldCPath: string read FOldCPath write SetOldCPath;
     property ESCpath: string read FESCpath write SetESCpath;

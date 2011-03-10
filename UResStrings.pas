@@ -10,7 +10,7 @@ ResourceString
   SAS_MSG_youasurerefrsensor = 'Вы действительно хотите обнулить датчик';
   SAS_MSG_SelectArea = 'Часть выделенной области находится вне карты.'#13#10 +
     'Область будет ограничена по размерам карты.';
-  SAS_MSG_FileExists = 'Файл %0:s уже есть у вас в кеше.'#13#10 +
+  SAS_MSG_FileExists = 'Файл %0:s уже есть у вас в кэше.'#13#10 +
     'Заменить этот файл вновь скачанным?';
   SAS_MSG_NeedHL = 'Сначала необходимо выделить хотябы один раз область!';
   SAS_MSG_FunExForPoly = 'В данной версии функция доступна только для полигонов';
@@ -25,7 +25,7 @@ ResourceString
     'и используйте полученные kmz по отдельности';
   SAS_MSG_NotDelWhereHasChildren = 'Категория не пуста! Удалите все дочерние категории.';
   SAS_MSG_HotKeyExists = 'Горячая клавиша уже используется, пожалуйста, выберите другую';
-  SAS_MSG_CantGetTileFileName = 'Это не тайловый кеш, невозможно получить имя файла с тайлом.';
+  SAS_MSG_CantGetTileFileName = 'Это не тайловый кэш, невозможно получить имя файла с тайлом.';
 
   SAS_ERR_Nopoints = 'Необходимый набор точек отсутствует!';
   SAS_ERR_ProxyStrFormat = 'Неверный формат записи прокси-сервера';
@@ -52,7 +52,7 @@ ResourceString
   SAS_ERR_TileNotExists = 'Такого изображения нет на сервере!';
   SAS_ERR_Noconnectionstointernet = 'Отсутствует подключение к интернет!';
   SAS_ERR_RepeatProcess = 'Пытаемся повторить обработку';
-  SAS_ERR_FileExistsShort = 'Данный файл уже имеется в кеше';
+  SAS_ERR_FileExistsShort = 'Данный файл уже имеется в кэше';
   SAS_ERR_Memory = 'Невозможно выделить память для данной операции';
   SAS_ERR_UseADifferentFormat = 'Для склейки больших размеров используйте другой формат (ecw,bmp,jp2)';
   SAS_ERR_BadMIMEForDownloadRastr  =  'Сервис вернул тип "%0:s", это не растровое изображение';
