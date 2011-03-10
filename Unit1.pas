@@ -3924,6 +3924,8 @@ begin
       end
     end;
   end;
+  VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  NMapInfo.Enabled:=VMapType.MapInfo<>'';
 end;
 
 procedure TFmain.ImageAtlas1Click(Sender: TObject);
