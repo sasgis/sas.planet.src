@@ -549,6 +549,8 @@ var
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
 begin
+ InitMapsList;
+
  FMapsEdit:=false;
  CBoxLocal.Clear;
  frShortCutList.Parent := GroupBox5;
@@ -684,12 +686,12 @@ procedure TFSettings.FormCreate(Sender: TObject);
 var i:integer;
 begin
   SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox);
-
   ComboBoxCOM.Items.Clear;
   for i:=1 to 64 do begin
     CBGSMComPort.Items.Add('COM'+inttostr(i));
     ComboBoxCOM.Items.Add('COM'+inttostr(i));
   end;
+  MapList.DoubleBuffered:=true;
 end;
 
 procedure TFSettings.TrBarGammaChange(Sender: TObject);
@@ -745,6 +747,7 @@ begin
   VMapType := TMapType(MapList.Selected.Data);
   if FEditMap.EditMapModadl(VMapType) then begin
     FMapsEdit := True;
+    InitMapsList;
   end;
 end;
 
@@ -817,6 +820,11 @@ begin
       end;
       MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.HotKey));
       MapList.Items.Item[i].SubItems.Add(VMapType.ZmpFileName);
+      if VMapType.Enabled then begin
+        MapList.Items.Item[i].SubItems.Add(SAS_STR_Yes)
+      end else begin
+        MapList.Items.Item[i].SubItems.Add(SAS_STR_No)
+      end;
     end;
   end;
   if MapList.Items.Count>0 then begin

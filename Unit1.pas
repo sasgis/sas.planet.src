@@ -822,7 +822,7 @@ begin
     FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FShowErrorLayer);
 
     CreateMapUI;
-    FSettings.InitMapsList;
+//    FSettings.InitMapsList;
 
     VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
     NGShScale10000.Checked := VScale = 10000;

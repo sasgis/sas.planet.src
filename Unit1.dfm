@@ -38,7 +38,6 @@ object Fmain: TFmain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
-    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0

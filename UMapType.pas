@@ -42,6 +42,7 @@ type
     FDefSleep: Integer;
     FDefseparator: boolean;
     FDefParentSubMenu: string;
+    FDefEnabled: boolean;
     FUseDwn: boolean;
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
@@ -104,6 +105,7 @@ type
     separator: boolean;
     ParentSubMenu: string;
     showinfo: boolean;
+    Enabled: boolean;
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -161,6 +163,7 @@ type
     property DefSleep: Integer read FDefSleep;
     property Defseparator: boolean read FDefseparator;
     property DefParentSubMenu: string read FDefParentSubMenu;
+    property DefEnabled: boolean read FDefEnabled;
     property DownloaderFactory: ITileDownlodSessionFactory read FTileDownlodSessionFactory;
     property Cache: ITileObjCache read FCache;
 
@@ -365,6 +368,8 @@ begin
   FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu_'+GState.LanguageManager.GetCurrentLanguageCode, FDefParentSubMenu);
   separator:=VParams.ReadBool('separator',false);
   FDefseparator:=VParams.ReadBool('MAIN:separator',false);
+  Enabled:=VParams.ReadBool('Enabled',true);
+  FDefEnabled:=VParams.ReadBool('MAIN:Enabled',true);
   FSortIndex:=VParams.ReadInteger('pnum',-1);
 end;
 

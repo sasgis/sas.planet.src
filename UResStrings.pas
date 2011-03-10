@@ -102,6 +102,7 @@ ResourceString
   SAS_STR_files = 'файлов';
   SAS_STR_file = 'файл';
   SAS_STR_No = 'Нет';
+  SAS_STR_Yes = 'Да';
   SAS_STR_Deleted = 'Удаляет:';
   SAS_STR_Gamma = 'Цветовая гамма';
   SAS_STR_Contrast = 'Контраст';

@@ -163,7 +163,9 @@ var
 begin
   ProcessSubItemGUID(CGUID_Zero);
   for i := 0 to GState.MapType.Count - 1 do begin
-    ProcessSubItemGUID(GState.MapType[i].GUID);
+    if GState.MapType[i].Enabled then begin
+      ProcessSubItemGUID(GState.MapType[i].GUID);
+    end;
   end;
 end;
 

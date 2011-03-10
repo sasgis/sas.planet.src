@@ -53,6 +53,7 @@ type
     pnlUrl: TPanel;
     pnlUrlRight: TPanel;
     Label4: TLabel;
+    CheckEnabled: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
@@ -83,6 +84,7 @@ begin
  FmapType.ParentSubMenu:=EditParSubMenu.Text;
  FmapType.DownloaderFactory.WaitInterval:=SESleep.Value;
  FmapType.HotKey:=EditHotKey.HotKey;
+ FMapType.Enabled:=CheckEnabled.Checked;
  if CBCacheType.ItemIndex > 0 then begin
    FmapType.TileStorage.CacheConfig.cachetype:=CBCacheType.ItemIndex;
  end else begin
@@ -111,6 +113,7 @@ begin
  EditHotKey.HotKey:=FmapType.DefHotKey;
  CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
  CheckBox1.Checked:=FmapType.Defseparator;
+ CheckEnabled.Checked:=FMapType.Enabled;
 end;
 
 procedure TFEditMap.Button6Click(Sender: TObject);
@@ -155,6 +158,7 @@ begin
   EditHotKey.HotKey:=FMapType.HotKey;
   CBCacheType.ItemIndex:=FMapType.TileStorage.CacheConfig.cachetype;
   CheckBox1.Checked:=FMapType.separator;
+  CheckEnabled.Checked:=FMapType.Enabled;
 
   Result := ShowModal = mrOk;
 end;

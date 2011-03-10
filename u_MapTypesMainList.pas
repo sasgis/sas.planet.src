@@ -263,6 +263,12 @@ begin
     end else begin
       VSubItem.DeleteValue('ParentSubMenu');
     end;
+
+    if VMapType.Enabled <> VMapType.DefEnabled then begin
+      VSubItem.WriteBool('Enabled', VMapType.Enabled);
+    end else begin
+      VSubItem.DeleteValue('Enabled');
+    end;
   end;
 end;
 
