@@ -41,14 +41,14 @@ object frShortCutList: TfrShortCutList
     end
     object lblHotKey: TLabel
       AlignWithMargins = True
-      Left = 407
+      Left = 359
       Top = 3
-      Width = 41
+      Width = 89
       Height = 19
       Align = alRight
-      Caption = #1043#1086#1088'. '#1082#1083'.'
+      Caption = #1043#1086#1088#1103#1095#1072#1103' '#1082#1083#1072#1074#1080#1096#1072
       Layout = tlCenter
-      ExplicitLeft = 405
+      ExplicitLeft = 365
       ExplicitHeight = 13
     end
   end

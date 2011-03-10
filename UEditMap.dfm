@@ -21,6 +21,7 @@ object FEditMap: TFEditMap
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 0
+    ExplicitTop = 240
     object Button3: TButton
       AlignWithMargins = True
       Left = 6
@@ -117,8 +118,6 @@ object FEditMap: TFEditMap
         'EarthSlicer 1.95'
         'Googe maps tiles'
         'Google Earth')
-      ExplicitLeft = 60
-      ExplicitWidth = 415
     end
     object Button9: TButton
       AlignWithMargins = True
@@ -163,8 +162,6 @@ object FEditMap: TFEditMap
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 146
-      ExplicitWidth = 329
     end
     object Button5: TButton
       AlignWithMargins = True
@@ -209,8 +206,6 @@ object FEditMap: TFEditMap
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 100
-      ExplicitWidth = 375
     end
     object Button4: TButton
       AlignWithMargins = True
@@ -279,8 +274,6 @@ object FEditMap: TFEditMap
       ScrollBars = ssVertical
       TabOrder = 1
       WantReturns = False
-      ExplicitLeft = 34
-      ExplicitWidth = 441
     end
   end
   object grdpnlSleepAndKey: TGridPanel
@@ -314,18 +307,20 @@ object FEditMap: TFEditMap
         Value = 100.000000000000000000
       end>
     TabOrder = 6
+    ExplicitLeft = -8
     object grdpnlHotKey: TGridPanel
       Left = 3
       Top = 3
-      Width = 201
+      Width = 222
       Height = 25
       BevelOuter = bvNone
       ColumnCollection = <
         item
           SizeStyle = ssAuto
-          Value = 50.000000000000000000
+          Value = 100.000000000000000000
         end
         item
+          SizeStyle = ssAuto
           Value = 100.000000000000000000
         end
         item
@@ -333,11 +328,6 @@ object FEditMap: TFEditMap
           Value = 27.000000000000000000
         end>
       ControlCollection = <
-        item
-          Column = 0
-          Control = Label4
-          Row = 0
-        end
         item
           Column = 1
           Control = EditHotKey
@@ -347,6 +337,11 @@ object FEditMap: TFEditMap
           Column = 2
           Control = Button7
           Row = 0
+        end
+        item
+          Column = 0
+          Control = Label4
+          Row = 0
         end>
       RowCollection = <
         item
@@ -354,29 +349,22 @@ object FEditMap: TFEditMap
         end>
       TabOrder = 0
       DesignSize = (
-        201
+        222
         25)
-      object Label4: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 59
-        Height = 13
-        Caption = #1043#1086#1088#1103#1095#1072#1103' '#1082#1083'.'
-      end
       object EditHotKey: THotKey
-        Left = 67
+        Left = 94
         Top = 2
-        Width = 105
+        Width = 96
         Height = 21
         Anchors = []
         HotKey = 0
         Modifiers = []
         TabOrder = 0
+        ExplicitLeft = 80
       end
       object Button7: TButton
         AlignWithMargins = True
-        Left = 177
+        Left = 193
         Top = 3
         Width = 21
         Height = 19
@@ -386,6 +374,16 @@ object FEditMap: TFEditMap
         ShowHint = True
         TabOrder = 1
         OnClick = Button7Click
+      end
+      object Label4: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 6
+        Width = 88
+        Height = 13
+        Anchors = []
+        Caption = #1043#1086#1088#1103#1095#1072#1103' '#1082#1083#1072#1074#1080#1096#1072
+        ExplicitLeft = 0
       end
     end
     object grdpnlSleep: TGridPanel
@@ -438,10 +436,12 @@ object FEditMap: TFEditMap
         Height = 13
         Anchors = []
         Caption = #1055#1072#1091#1079#1072
+        ExplicitLeft = -3
+        ExplicitTop = 3
       end
       object SESleep: TSpinEdit
         AlignWithMargins = True
-        Left = 34
+        Left = 33
         Top = 3
         Width = 89
         Height = 22

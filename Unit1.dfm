@@ -38,6 +38,7 @@ object Fmain: TFmain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
+    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -335,7 +336,7 @@ object Fmain: TFmain
           Hint = ''
           object TBRECT: TTBXItem
             ImageIndex = 10
-            Images = MenusImageList
+            Images = PanelsImageList
             ShortCut = 32850
             OnClick = TBRECTClick
             Caption = #1055#1088#1103#1084#1086#1091#1075#1086#1083#1100#1085#1072#1103' '#1086#1073#1083#1072#1089#1090#1100
@@ -343,7 +344,7 @@ object Fmain: TFmain
           end
           object TBREGION: TTBXItem
             ImageIndex = 13
-            Images = MenusImageList
+            Images = PanelsImageList
             ShortCut = 32848
             OnClick = TBREGIONClick
             Caption = #1055#1086#1083#1080#1075#1086#1085#1072#1083#1100#1085#1072#1103' '#1086#1073#1083#1072#1089#1090#1100
@@ -351,18 +352,20 @@ object Fmain: TFmain
           end
           object TBCOORD: TTBXItem
             ImageIndex = 12
-            Images = MenusImageList
+            Images = PanelsImageList
             OnClick = TBCOORDClick
             Caption = #1055#1086' '#1082#1086#1086#1088#1076#1080#1085#1072#1090#1072#1084
             Hint = ''
           end
           object TBPrevious: TTBXItem
+            Images = PanelsImageList
             ShortCut = 16450
             OnClick = TBPreviousClick
             Caption = #1055#1088#1077#1076#1099#1076#1091#1097#1077#1077' '#1074#1099#1076#1077#1083#1077#1085#1080#1077
             Hint = ''
           end
           object TBLoadSelFromFile: TTBXItem
+            Images = PanelsImageList
             OnClick = TBLoadSelFromFileClick
             Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1092#1072#1081#1083#1072
             Hint = ''
@@ -785,7 +788,7 @@ object Fmain: TFmain
           AutoCheck = True
           GroupIndex = 1
           ImageIndex = 1
-          Images = MenusImageList
+          Images = PanelsImageList
           RadioItem = True
           ShortCut = 32835
           OnClick = NSRCinetClick
@@ -796,7 +799,7 @@ object Fmain: TFmain
           AutoCheck = True
           GroupIndex = 1
           ImageIndex = 0
-          Images = MenusImageList
+          Images = PanelsImageList
           RadioItem = True
           ShortCut = 32841
           OnClick = NSRCinetClick
@@ -808,7 +811,7 @@ object Fmain: TFmain
           AutoCheck = True
           GroupIndex = 1
           ImageIndex = 2
-          Images = MenusImageList
+          Images = PanelsImageList
           RadioItem = True
           ShortCut = 32834
           OnClick = NSRCinetClick

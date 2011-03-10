@@ -21,7 +21,7 @@ object FSettings: TFSettings
     Top = 0
     Width = 646
     Height = 409
-    ActivePage = TabSheet9
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 0
     object TabSheet9: TTabSheet
@@ -776,7 +776,7 @@ object FSettings: TFSettings
         Width = 638
         Height = 42
         Align = alTop
-        Caption = #1050#1086#1083#1077#1089#1080#1082#1086' '#1084#1099#1096#1080
+        Caption = #1050#1086#1083#1105#1089#1080#1082#1086' '#1084#1099#1096#1080
         TabOrder = 0
         object ScrolInvert: TCheckBox
           AlignWithMargins = True
@@ -795,7 +795,7 @@ object FSettings: TFSettings
         Width = 638
         Height = 339
         Align = alClient
-        Caption = #1043#1086#1088#1103#1095#1080#1077' '#1082#1083'.'
+        Caption = #1043#1086#1088#1103#1095#1080#1077' '#1082#1083#1072#1074#1080#1096#1080
         TabOrder = 1
       end
     end
@@ -1206,13 +1206,13 @@ object FSettings: TFSettings
               AlignWithMargins = True
               Left = 6
               Top = 6
-              Width = 255
+              Width = 251
               Height = 13
               Alignment = taRightJustify
-              Caption = #1050#1086#1083'-'#1074#1086' '#1090#1072#1081#1083#1086#1074' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1093' '#1079#1072' '#1075#1088#1072#1085#1080#1094#1077#1081' '#1101#1082#1088#1072#1085#1072
+              Caption = #1050#1086#1083'-'#1074#1086' '#1090#1072#1081#1083#1086#1074', '#1079#1072#1075#1088#1091#1078#1072#1077#1084#1099#1093' '#1079#1072' '#1075#1088#1072#1085#1080#1094#1077#1081' '#1101#1082#1088#1072#1085#1072
             end
             object TilesOverScreenEdit: TSpinEdit
-              Left = 264
+              Left = 260
               Top = 3
               Width = 37
               Height = 22
@@ -1773,8 +1773,6 @@ object FSettings: TFSettings
     object TabSheet8: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
-      ExplicitLeft = 5
-      ExplicitTop = 25
       object grdpnlWiki: TGridPanel
         Left = 0
         Top = 0

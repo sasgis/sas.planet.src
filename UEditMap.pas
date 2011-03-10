@@ -27,7 +27,6 @@ type
     Label2: TLabel;
     Label3: TLabel;
     CheckBox1: TCheckBox;
-    Label4: TLabel;
     EditHotKey: THotKey;
     Button1: TButton;
     Button2: TButton;
@@ -53,6 +52,7 @@ type
     pnlCacheName: TPanel;
     pnlUrl: TPanel;
     pnlUrlRight: TPanel;
+    Label4: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
