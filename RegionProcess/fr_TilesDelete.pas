@@ -64,7 +64,7 @@ begin
   cbbMap.items.Clear;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
-    if VMapType.TileStorage.GetUseDel then begin
+    if (VMapType.TileStorage.GetUseDel)and(VMapType.Enabled) then begin
       VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
       if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
         cbbMap.ItemIndex:=VAddedIndex;

@@ -104,9 +104,11 @@ begin
   chklstMaps.Items.Clear;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
-    VAddedIndex := chklstMaps.Items.AddObject(VMapType.name, VMapType);
-    if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
-      chklstMaps.ItemIndex := VAddedIndex;
+    if (VMapType.Enabled) then begin
+      VAddedIndex := chklstMaps.Items.AddObject(VMapType.name, VMapType);
+      if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
+        chklstMaps.ItemIndex := VAddedIndex;
+      end;
     end;
   end;
 end;

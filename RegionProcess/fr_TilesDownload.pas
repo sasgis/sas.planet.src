@@ -111,7 +111,7 @@ begin
   cbbMap.items.Clear;
   For i:=0 to GState.MapType.Count - 1 do begin
     VMapType := GState.MapType[i];
-    if VMapType.UseDwn then begin
+    if (VMapType.UseDwn)and(VMapType.Enabled) then begin
       VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
       if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
         cbbMap.ItemIndex:=VAddedIndex;

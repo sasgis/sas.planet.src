@@ -816,13 +816,11 @@ begin
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MiniMapLayerConfig);
     FLayersList.Add(FLayerMiniMap);
-
     FMainLayer.ErrorShowLayer := FShowErrorLayer;
 
     FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FShowErrorLayer);
 
     CreateMapUI;
-//    FSettings.InitMapsList;
 
     VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
     NGShScale10000.Checked := VScale = 10000;
