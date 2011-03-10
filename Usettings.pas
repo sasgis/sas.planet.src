@@ -256,6 +256,7 @@ uses
   i_GPS,
   u_GlobalState,
   Unit1,
+  Ubrowser,
   UEditMap;
 
 {$R *.dfm}
@@ -787,8 +788,13 @@ begin
 end;
 
 procedure TFSettings.Button18Click(Sender: TObject);
+var
+  VMap: TMapType;
 begin
- showMessage(TMapType(MapList.Selected.Data).MapInfo);
+  VMap := TMapType(MapList.Selected.Data);
+  if VMap.MapInfo <> '' then begin
+    Fbrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
+  end;
 end;
 
 procedure TFSettings.SBGetComNumClick(Sender: TObject);

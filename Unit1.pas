@@ -3557,7 +3557,9 @@ begin
   end else begin
     VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
   end;
-  Fbrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
+  if VMap.MapInfo <> '' then begin
+    Fbrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
+  end;
 end;
 
 procedure TFmain.NanimateClick(Sender: TObject);
@@ -3899,6 +3901,7 @@ var
   VMapType: TMapType;
   VLayerIsActive: Boolean;
   VActiveLayers: IMapTypeList;
+  VMenuItem: TTBXItem;
 begin
   ldm.Visible:=false;
   dlm.Visible:=false;
@@ -3914,7 +3917,11 @@ begin
       TTBXItem(FNDelItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       TTBXItem(FNOpenDirItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       TTBXItem(FNCopyLinkItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
-      TTBXItem(FNLayerInfoItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
+      VMenuItem := TTBXItem(FNLayerInfoItemList.GetByGUID(VMapType.GUID));
+      VMenuItem.Visible := VLayerIsActive;
+      if VLayerIsActive then begin
+        VMenuItem.Enabled := VMapType.MapInfo <> '';
+      end;
       if VLayerIsActive then begin
         ldm.Visible:=true;
         dlm.Visible:=true;
