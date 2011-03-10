@@ -69,6 +69,7 @@ type
       AMapUpdateEvent: TMapUpdateEvent
     ); reintroduce; virtual;
     destructor Destroy; override;
+    procedure RefreshTranslation; override;
 
     property DownloadThread: TThreadDownloadTiles read FDownloadThread;
   public
@@ -86,7 +87,7 @@ uses
 
 procedure TFProgress.Button2Click(Sender: TObject);
 begin
-  StopThread;
+  FDownloadThread.Terminate;
   UpdateTimer.Enabled := false;
   close;
 end;
@@ -147,6 +148,16 @@ begin
   LabelName3.Caption := SAS_STR_TimeRemained;
   LabelName4.Caption := SAS_STR_LoadRemained;
   Visible:=true;
+end;
+
+procedure TFProgress.RefreshTranslation;
+begin
+  inherited;
+  LabelName0.Caption := SAS_STR_ProcessedNoMore+':';
+  LabelName1.Caption := SAS_STR_AllProcessed;
+  LabelName2.Caption := SAS_STR_AllLoad;
+  LabelName3.Caption := SAS_STR_TimeRemained;
+  LabelName4.Caption := SAS_STR_LoadRemained;
 end;
 
 procedure TFProgress.UpdateProgressForm;
@@ -270,7 +281,7 @@ var
 begin
   FDownloadThread.Terminate;
   Application.ProcessMessages;
-  VWaitResult := WaitForSingleObject(FDownloadThread.Handle, 10000);
+  VWaitResult := WaitForSingleObject(FDownloadThread.Handle, 1000);
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(FDownloadThread.Handle, 0);
   end;
