@@ -2417,7 +2417,7 @@ end;
 
 procedure TFmain.N29Click(Sender: TObject);
 begin
-  ShellExecute(0,'open',PChar(GState.HelpFileName),nil,nil,SW_SHOWNORMAL);
+  OpenUrlInBrowser('http://sasgis.ru/wikisasiya/');
 end;
 
 procedure TFmain.TBMainToolBarClose(Sender: TObject);

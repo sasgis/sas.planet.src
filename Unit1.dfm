@@ -997,7 +997,7 @@ object Fmain: TFmain
           Images = MenusImageList
           ShortCut = 112
           OnClick = N29Click
-          Caption = #1057#1087#1088#1072#1074#1082#1072
+          Caption = #1057#1087#1088#1072#1074#1082#1072' (http://sasgis.ru/wikisasiya)'
           Hint = ''
         end
         object N16: TTBXItem
@@ -1018,7 +1018,7 @@ object Fmain: TFmain
         end
         object tbtmHelpBugTrack: TTBXItem
           OnClick = tbtmHelpBugTrackClick
-          Caption = #1041#1072#1075#1090#1088#1077#1082#1077#1088' http://sasgis.ru/mantis/'
+          Caption = #1041#1072#1075#1090#1088#1077#1082#1077#1088' (http://sasgis.ru/mantis)'
           Hint = ''
         end
         object NGoToForum: TTBXItem
