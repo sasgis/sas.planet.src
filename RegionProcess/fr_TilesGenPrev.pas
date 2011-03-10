@@ -40,6 +40,8 @@ type
     Bevel1: TBevel;
     procedure cbbFromZoomChange(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
+    procedure chkFromPrevZoomClick(Sender: TObject);
+    procedure chklstZoomsClickCheck(Sender: TObject);
   private
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
   public
@@ -56,17 +58,18 @@ uses
 
 {$R *.dfm}
 
+const
+  CZommDeltaMax = 8;
+
 procedure TfrTilesGenPrev.cbbFromZoomChange(Sender: TObject);
 var
   i: integer;
 begin
   chklstZooms.Items.Clear;
-  for i:= cbbFromZoom.ItemIndex+1 downto 1 do begin
+  for i := cbbFromZoom.ItemIndex+1 downto 1 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
-  for i:=8 to chklstZooms.Items.Count-1 do begin
-    chklstZooms.ItemEnabled[i]:=false;
-  end;
+  chklstZoomsClickCheck(nil);
   chklstZooms.Repaint;
 end;
 
@@ -74,10 +77,71 @@ procedure TfrTilesGenPrev.chkAllZoomsClick(Sender: TObject);
 var
   i: integer;
 begin
-  for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.ItemEnabled[i] then begin
-      chklstZooms.Checked[i] := chkAllZooms.Checked;
+  if chkAllZooms.State <> cbGrayed then begin
+    for i := 0 to chklstZooms.Count - 1 do begin
+      if chklstZooms.ItemEnabled[i] then begin
+        chklstZooms.Checked[i] := chkAllZooms.Checked;
+      end;
     end;
+  end;
+end;
+
+procedure TfrTilesGenPrev.chkFromPrevZoomClick(Sender: TObject);
+begin
+  chklstZoomsClickCheck(nil);
+end;
+
+procedure TfrTilesGenPrev.chklstZoomsClickCheck(Sender: TObject);
+var
+  i: Integer;
+  VLastCheckedZoom: Integer;
+  VZoom: Integer;
+  VSourceZoom: Integer;
+  VAllChecked: Boolean;
+  VAllUnChecked: Boolean;
+begin
+  if chkFromPrevZoom.Checked then begin
+    VSourceZoom := cbbFromZoom.ItemIndex + 1;
+    VLastCheckedZoom := VSourceZoom;
+    i := 0;
+    while i < chklstZooms.Items.Count do begin
+      VZoom := VSourceZoom - i - 1;
+      if VLastCheckedZoom - VZoom > CZommDeltaMax then begin
+        Break;
+      end else begin
+        chklstZooms.ItemEnabled[i] := True;
+        if chklstZooms.Checked[i] then begin
+          VLastCheckedZoom := VZoom;
+        end;
+      end;
+      Inc(i);
+    end;
+    while i < chklstZooms.Items.Count do begin
+      chklstZooms.ItemEnabled[i] := False;
+      Inc(i);
+    end;
+  end else begin
+    for i := CZommDeltaMax to chklstZooms.Items.Count - 1 do begin
+      chklstZooms.ItemEnabled[i] := false;
+    end;
+  end;
+  VAllChecked := True;
+  VAllUnChecked := True;
+  for i := 0 to chklstZooms.Items.Count - 1 do begin
+    if chklstZooms.ItemEnabled[i] then begin
+      if chklstZooms.Checked[i] then begin
+        VAllUnChecked := False;
+      end else begin
+        VAllChecked := False;
+      end;
+    end;
+  end;
+  if VAllChecked then begin
+    chkAllZooms.State := cbChecked;
+  end else if VAllUnChecked then begin
+    chkAllZooms.State := cbUnchecked;
+  end else begin
+    chkAllZooms.State := cbGrayed;
   end;
 end;
 
@@ -86,7 +150,6 @@ begin
   TP_Ignore(Self, 'cbbResampler.Items');
   TP_Ignore(Self, 'cbbResampler.Text');
   inherited;
-
 end;
 
 procedure TfrTilesGenPrev.Init(AZoom: Byte);

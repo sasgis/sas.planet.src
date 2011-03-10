@@ -75,6 +75,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Top = 59
         Width = 108
         Height = 203
+        OnClickCheck = chklstZoomsClickCheck
         Align = alClient
         ItemHeight = 13
         TabOrder = 2
@@ -211,6 +212,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Align = alTop
         Caption = #1060#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100' '#1082#1072#1078#1076#1099#1081' '#1074#1099#1073#1088#1072#1085#1085#1099#1081' '#1084#1072#1089#1096#1090#1072#1073' '#1080#1079' '#1087#1088#1077#1076#1099#1076#1091#1097#1077#1075#1086' '#1074#1099#1073#1088#1072#1085#1085#1086#1075#1086
         TabOrder = 4
+        OnClick = chkFromPrevZoomClick
       end
     end
   end

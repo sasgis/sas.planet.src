@@ -100,10 +100,12 @@ begin
   VFromZoom := FFrame.cbbFromZoom.ItemIndex + 1;
   VZoomsCount := 0;
   for i:=0 to FFrame.cbbFromZoom.ItemIndex do begin
-    if FFrame.chklstZooms.Checked[i] then begin
-      SetLength(VInZooms, VZoomsCount + 1);
-      VInZooms[VZoomsCount] := FFrame.cbbFromZoom.ItemIndex - i;
-      Inc(VZoomsCount);
+    if FFrame.chklstZooms.ItemEnabled[i] then begin
+      if FFrame.chklstZooms.Checked[i] then begin
+        SetLength(VInZooms, VZoomsCount + 1);
+        VInZooms[VZoomsCount] := FFrame.cbbFromZoom.ItemIndex - i;
+        Inc(VZoomsCount);
+      end;
     end;
   end;
   try
