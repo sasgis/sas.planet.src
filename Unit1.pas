@@ -374,6 +374,7 @@ type
     TBXToolPalette2: TTBXToolPalette;
     TBOpenDirLayer: TTBXSubmenuItem;
     TBCopyLinkLayer: TTBXSubmenuItem;
+    TBLayerInfo: TTBXSubmenuItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -551,6 +552,7 @@ type
     FNDelItemList: IGUIDObjectList; //Пункт контекстного меню Удалить тайл слоя
     FNOpenDirItemList: IGUIDObjectList; //Пункт контекстного меню Открыть папку слоя
     FNCopyLinkItemList: IGUIDObjectList; //Пункт контекстного меню копировать ссылку на тайл слоя
+    FNLayerInfoItemList: IGUIDObjectList; //Пункт контекстного меню информация о слое
 
     FShortCutManager: TShortcutManager;
     FLayersList: TWindowLayerBasicList;
@@ -687,12 +689,14 @@ begin
   dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
   TBOpenDirLayer.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
   TBCopyLinkLayer.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  TBLayerInfo.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
 
   FNLayerParamsItemList := TGUIDObjectList.Create(False);
   FNDwnItemList := TGUIDObjectList.Create(False);
   FNDelItemList := TGUIDObjectList.Create(False);
   FNOpenDirItemList := TGUIDObjectList.Create(False);
   FNCopyLinkItemList := TGUIDObjectList.Create(False);
+  FNLayerInfoItemList := TGUIDObjectList.Create(False);
 
   FLayersList := TWindowLayerBasicList.Create;
   FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
@@ -1020,6 +1024,7 @@ begin
   FWinPosition := nil;
   FSearchPresenter := nil;
   FNLayerParamsItemList := nil;
+  FNLayerInfoItemList := nil;
   FNDwnItemList := nil;
   FNDelItemList := nil;
   FNOpenDirItemList := nil;
@@ -1747,6 +1752,7 @@ var
   NDelItem: TTBXItem; //Пункт контекстного меню Удалить тайл слоя
   NOpenDirItem: TTBXItem;
   NCopyLinkItem: TTBXItem;
+  NLayerInfoItem: TTBXItem;
 
   VIcon18Index: Integer;
 begin
@@ -1755,8 +1761,10 @@ begin
   TBOpenDirLayer.Clear;
   NLayerParams.Clear;
   TBCopyLinkLayer.Clear;
+  TBLayerInfo.Clear;
 
   FNLayerParamsItemList.Clear;
+  FNLayerInfoItemList.Clear;
   FNDwnItemList.Clear;
   FNDelItemList.Clear;
   FNOpenDirItemList.Clear;
@@ -1791,7 +1799,7 @@ begin
         NOpenDirItem.Tag:=longint(VMapType);
         TBOpenDirLayer.Add(NOpenDirItem);
 
-        NCopyLinkItem:=TTBXItem.Create(TBOpenDirLayer);
+        NCopyLinkItem:=TTBXItem.Create(TBCopyLinkLayer);
         FNCopyLinkItemList.Add(VMapType.GUID, NCopyLinkItem);
         NCopyLinkItem.Caption:=VMapType.name;
         NCopyLinkItem.ImageIndex:=VIcon18Index;
@@ -1806,6 +1814,14 @@ begin
         NLayerParamsItem.OnClick:=NMapParamsClick;
         NLayerParamsItem.Tag:=longint(VMapType);
         NLayerParams.Add(NLayerParamsItem);
+
+        NLayerInfoItem:=TTBXItem.Create(TBLayerInfo);
+        FNLayerInfoItemList.Add(VMapType.GUID, NLayerInfoItem);
+        NLayerInfoItem.Caption:=VMapType.name;
+        NLayerInfoItem.ImageIndex:=VIcon18Index;
+        NLayerInfoItem.OnClick:=NMapInfoClick;
+        NLayerInfoItem.Tag:=longint(VMapType);
+        TBLayerInfo.Add(NLayerInfoItem);
       end;
     end;
   end;
@@ -2238,7 +2254,6 @@ begin
   if TMenuItem(sender).Tag<>0 then begin
     VMap := TMapType(TMenuItem(sender).Tag);
   end else begin
-    //VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
     VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
   end;
 
@@ -3537,7 +3552,11 @@ procedure TFmain.NMapInfoClick(Sender: TObject);
 var
   VMap: TMapType;
 begin
-  VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  if TMenuItem(sender).Tag<>0 then begin
+    VMap := TMapType(TMenuItem(sender).Tag);
+  end else begin
+    VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  end;
   Fbrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
 end;
 
@@ -3885,6 +3904,7 @@ begin
   dlm.Visible:=false;
   TBOpenDirLayer.Visible:=false;
   TBCopyLinkLayer.Visible:=false;
+  TBLayerInfo.Visible:=false;
   VActiveLayers := FConfig.MainMapsConfig.GetLayers.GetSelectedMapsList;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
@@ -3894,11 +3914,13 @@ begin
       TTBXItem(FNDelItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       TTBXItem(FNOpenDirItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       TTBXItem(FNCopyLinkItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
+      TTBXItem(FNLayerInfoItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
         ldm.Visible:=true;
         dlm.Visible:=true;
         TBCopyLinkLayer.Visible:=true;
         TBOpenDirLayer.Visible:=true;
+        TBLayerInfo.Visible:=true;
       end
     end;
   end;
