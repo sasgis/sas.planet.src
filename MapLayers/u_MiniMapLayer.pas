@@ -793,6 +793,7 @@ begin
     FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
 
     DoUpdateLayerSize(Point(FConfig.Width, FConfig.Width));
+    UpdateLayerLocation(GetMapLayerLocationRect);
     Redraw;
     if FConfig.Visible then begin
       Show;
@@ -890,32 +891,24 @@ procedure TMiniMapLayer.DoUpdateLayerSize(ANewSize: TPoint);
 var
   VBitmapSizeInPixel: TPoint;
   Polygon: TPolygon32;
+  VBorderWidth: Integer;
 begin
   inherited;
+  VBorderWidth := 5;
   VBitmapSizeInPixel := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   FViewRectDrawLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
-  if (FLeftBorder.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
+  if (FLeftBorder.Bitmap.Height <> VBitmapSizeInPixel.Y + VBorderWidth) then begin
     FLeftBorder.Bitmap.Lock;
     try
-      FLeftBorder.Bitmap.SetSize(5, VBitmapSizeInPixel.Y + 5);
+      FLeftBorder.Bitmap.SetSize(VBorderWidth, VBitmapSizeInPixel.Y + VBorderWidth);
       FLeftBorder.Bitmap.Clear(clLightGray32);
-      Polygon := TPolygon32.Create;
-      try
-        Polygon.Antialiased := False;
-        Polygon.Closed := false;
-        Polygon.Add(FixedPoint(4, 0));
-        Polygon.Add(FixedPoint(0, 0));
-        Polygon.Add(FixedPoint(0, VBitmapSizeInPixel.Y + 5));
-        Polygon.Add(FixedPoint(4, VBitmapSizeInPixel.Y + 5));
-        Polygon.Add(FixedPoint(4, 3));
-        Polygon.DrawEdge(FLeftBorder.Bitmap, clBlack32);
-      finally
-        Polygon.Free;
-      end;
-      FLeftBorder.bitmap.Pixel[2, 5 + (VBitmapSizeInPixel.Y div 2) - 6] := clBlack;
-      FLeftBorder.bitmap.Pixel[2, 5 + (VBitmapSizeInPixel.Y div 2) - 2] := clBlack;
-      FLeftBorder.bitmap.Pixel[2, 5 + (VBitmapSizeInPixel.Y div 2) + 2] := clBlack;
-      FLeftBorder.bitmap.Pixel[2, 5 + (VBitmapSizeInPixel.Y div 2) + 6] := clBlack;
+      FLeftBorder.Bitmap.VertLineS(0, 0, VBitmapSizeInPixel.Y + VBorderWidth - 1, clBlack32);
+      FLeftBorder.Bitmap.VertLineS(VBorderWidth - 1, VBorderWidth - 1, VBitmapSizeInPixel.Y + VBorderWidth - 1, clBlack32);
+      FLeftBorder.Bitmap.HorzLineS(0, 0, VBorderWidth - 1, clBlack32);
+      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) - 6] := clBlack;
+      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) - 2] := clBlack;
+      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) + 2] := clBlack;
+      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) + 6] := clBlack;
     finally
       FLeftBorder.Bitmap.Unlock;
     end;
@@ -923,20 +916,10 @@ begin
   if (FTopBorder.Bitmap.Width <> VBitmapSizeInPixel.X) then begin
     FTopBorder.Bitmap.Lock;
     try
-      FTopBorder.Bitmap.SetSize(VBitmapSizeInPixel.X, 5);
+      FTopBorder.Bitmap.SetSize(VBitmapSizeInPixel.X, VBorderWidth);
       FTopBorder.Bitmap.Clear(clLightGray32);
-      Polygon := TPolygon32.Create;
-      try
-        Polygon.Antialiased := False;
-        Polygon.Closed := false;
-        Polygon.Add(FixedPoint(0, 0));
-        Polygon.Add(FixedPoint(VBitmapSizeInPixel.X, 0));
-        Polygon.Add(FixedPoint(VBitmapSizeInPixel.X, 4));
-        Polygon.Add(FixedPoint(-1, 4));
-        Polygon.DrawEdge(FTopBorder.Bitmap, clBlack32);
-      finally
-        Polygon.Free;
-      end;
+      FTopBorder.Bitmap.HorzLineS(0, 0, VBitmapSizeInPixel.X, clBlack32);
+      FTopBorder.Bitmap.HorzLineS(0, VBorderWidth - 1, VBitmapSizeInPixel.X, clBlack32);
     finally
       FTopBorder.Bitmap.Unlock;
     end;
