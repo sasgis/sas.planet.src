@@ -411,7 +411,7 @@ var
   VParams: IConfigDataProvider;
 begin
   FName:='map#'+inttostr(Apnum);
-  FZMPFileName := AConfig.ReadString('::FileName', FName);
+  FZMPFileName := AConfig.ReadString(':::FileName', FName);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FasLayer:= VParams.ReadBool('asLayer', false);
   LoadUIParams(AConfig);
