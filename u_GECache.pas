@@ -9,13 +9,16 @@ uses
   SysUtils,
   Graphics,
   Math,
-  IJL,
   GR32,
   GR32_Resamplers,
   i_ICoordConverter,
   t_GeoTypes,
   u_GECrypt,
-  u_GETexture;
+  u_GETexture,
+  Imaging,
+  ImagingTypes,
+  ImagingJpeg,
+  ImagingGraphics32;
 
 type
 TBMPbuf = record BMPTile: array [1..2] of TCustomBitmap32;
@@ -129,75 +132,29 @@ begin
 end;
 
 function LoadJPG32(jpg_file: TMemoryStream; Btm: TCustomBitmap32): boolean;
-  procedure RGBA2BGRA2(pData : Pointer; Width, Height : Integer);
-  var W, H : Integer;
-      p : PIntegerArray;
-  begin
-    p := PIntegerArray(pData);
-    for H := 0 to Height-1 do begin
-      for W := 0 to Width-1 do begin
-        p^[W]:=(p^[W] and $FF000000)or((p^[W] and $00FF0000) shr 16)or(p^[W] and $0000FF00)or((p^[W] and $000000FF) shl 16);
-      end;
-      inc(p,width)
-    end;
-  end;
 var
-  iWidth, iHeight, iNChannels : Integer;
-  iStatus : Integer;
-  jcprops : TJPEG_CORE_PROPERTIES;
+  i: Integer;
+  VImage: TImageData;
+  VFormat: TJpegFileFormat;
+  IArray: TDynImageDataArray;
 begin
- try
-    result:=true;
-    iStatus := ijlInit(@jcprops);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-    jcprops.JPGBytes:=PByte(jpg_file.Memory);
-    jcprops.JPGSizeBytes:=jpg_file.Size;
-    iStatus := ijlRead(@jcprops,IJL_JBUFF_READPARAMS);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-    iWidth := jcprops.JPGWidth;
-    iHeight := jcprops.JPGHeight;
-    iNChannels := 4;
-    Btm.SetSize(iWidth,iHeight);
-    jcprops.DIBWidth := iWidth;
-    jcprops.DIBHeight := iHeight;
-    jcprops.DIBChannels := iNChannels;
-    jcprops.DIBColor := IJL_RGBA_FPX;
-    jcprops.DIBPadBytes := ((((iWidth*iNChannels)+3) div 4)*4)-(iWidth*iNChannels);
-    jcprops.DIBBytes := PByte(Btm.Bits);
-
-    if (jcprops.JPGChannels = 3) then
-      jcprops.JPGColor := IJL_YCBCR
-    else if (jcprops.JPGChannels = 4) then
-      jcprops.JPGColor := IJL_YCBCRA_FPX
-    else if (jcprops.JPGChannels = 1) then
-      jcprops.JPGColor := IJL_G
-    else
-    begin
-      jcprops.DIBColor := TIJL_COLOR (IJL_OTHER);
-      jcprops.JPGColor := TIJL_COLOR (IJL_OTHER);
+  InitImage(VImage);
+  VFormat := TJpegFileFormat.Create();
+  try
+    if not VFormat.LoadFromStream(jpg_file, IArray, True) then begin
+      raise Exception.Create('Ошибка загрузки файла');
     end;
-    iStatus := ijlRead(@jcprops,IJL_JBUFF_READWHOLEIMAGE);
-    if iStatus < 0 then
-     begin
-      result:=false;
-      exit;
-     end;
-    RGBA2BGRA2(jcprops.DIBBytes,iWidth,iHeight);
-    ijlFree(@jcprops);
-  except
-    on E: Exception do
-    begin
-      result:=false;
-      ijlFree(@jcprops);
+    if Length(IArray) = 0 then begin
+      raise Exception.Create('В файле не найдено изображений');
     end;
+    VImage := IArray[0];
+    for I := 1 to Length(IArray) - 1 do begin
+      FreeImage(IArray[I]);
+    end;
+    ConvertImageDataToBitmap32(VImage, Btm);
+  Finally
+    VFormat.Free;
+    FreeImage(VImage);
   end;
 end;
 

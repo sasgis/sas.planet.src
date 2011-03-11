@@ -159,8 +159,8 @@ var
   VFormat: TJpegFileFormat;
   IArray: TDynImageDataArray;
 begin
-  nim.X := (FMapPieceSize.X div 1024) + 1;
-  nim.Y := (FMapPieceSize.Y div 1024) + 1;
+  nim.X := ((FMapPieceSize.X-1) div 1024) + 1;
+  nim.Y := ((FMapPieceSize.Y-1) div 1024) + 1;
 
   bFMapPieceSizey := FMapPieceSize.y;
 
