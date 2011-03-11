@@ -31,8 +31,6 @@ uses
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,
   u_ContentConverterKml2Kmz,
-  u_BitmapTileJpegLoader,
-  u_BitmapTileJpegSaverIJL,
   u_BitmapTileVampyreLoader,
   u_BitmapTileVampyreSaver,
   u_BitmapTileGELoader,
@@ -56,8 +54,8 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/jpg',
     '.jpg',
-    TJpegBitmapTileLoader.Create,
-    TJpegBitmapTileSaverIJL.Create(85)
+    TVampyreBasicBitmapTileLoaderJPEG.Create,
+    TVampyreBasicBitmapTileSaverJPG.Create(85)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByType(VContentType, 'image/jpeg');

@@ -24,7 +24,7 @@ type
 implementation
 
 uses
-  u_BitmapTileJpegLoader,
+  u_BitmapTileVampyreLoader,
   u_BitmapTileGEDXTextureLoader,
   u_GECrypt;
 
@@ -32,7 +32,7 @@ uses
 
 constructor TBitmapTileGELoader.Create;
 begin
-  FJpegLoader := TJpegBitmapTileLoader.Create;
+  FJpegLoader := TVampyreBasicBitmapTileLoaderJPEG.Create;
   FDXTextureLoader := TBitmapTileGEDXTextureLoader.Create;
 end;
 

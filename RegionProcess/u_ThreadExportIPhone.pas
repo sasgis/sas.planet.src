@@ -56,7 +56,6 @@ uses
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
-  u_BitmapTileJpegSaverIJL,
   u_CoordConverterMercatorOnSphere;
 
 constructor TThreadExportIPhone.Create(
@@ -184,9 +183,9 @@ begin
   VBitmaps[2].DrawMode := dmBlend;
 
   SetLength(VSavers, 3);
-  VSavers[0] := TJpegBitmapTileSaverIJL.Create(cSat);
+  VSavers[0] := TVampyreBasicBitmapTileSaverJPG.Create(cSat);
   VSavers[1] := TVampyreBasicBitmapTileSaverPNGRGB.Create(cMap);
-  VSavers[2] := TJpegBitmapTileSaverIJL.Create(chib);
+  VSavers[2] := TVampyreBasicBitmapTileSaverJPG.Create(chib);
 
   SetLength(VFlags, 3);
   VFlags[0] := 3;

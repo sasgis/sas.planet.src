@@ -44,7 +44,6 @@ uses
   u_TileIteratorAbstract,
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
-  u_BitmapTileJpegSaverIJL,
   u_BitmapTileVampyreSaver;
 
 constructor TThreadExportYaMaps.Create(
@@ -93,7 +92,7 @@ begin
   try
     hxyi := 1;
     sizeim := 128;
-    JPGSaver := TJpegBitmapTileSaverIJL.create(cSat);
+    JPGSaver := TVampyreBasicBitmapTileSaverJPG.create(cSat);
     PNGSaver := TVampyreBasicBitmapTileSaverPNGPalette.create(cMap);
     TileStream := TMemoryStream.Create;
     try
