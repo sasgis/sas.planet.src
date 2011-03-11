@@ -8,7 +8,6 @@ uses
   SysUtils,
   Classes,
   GR32,
-  ijl,
   UMapType,
   UGeoFun,
   bmpUtil,
@@ -16,7 +15,10 @@ uses
   i_MarksSimple,
   i_IBitmapPostProcessingConfig,
   UResStrings,
-  u_ThreadMapCombineBase;
+  u_ThreadMapCombineBase,
+  Imaging,
+  ImagingTypes,
+  ImagingJpeg;
 
 type
   PArrayBGR = ^TArrayBGR;
@@ -138,9 +140,8 @@ end;
 
 procedure TThreadMapCombineKMZ.saveRECT;
 var
-  iNChannels, iWidth, iHeight: integer;
+  iWidth, iHeight: integer;
   k, i, j: integer;
-  jcprops: TJPEG_CORE_PROPERTIES;
   Ckml: TMapCalibrationKml;
   BufRect: TRect;
   FileName: string;
@@ -153,6 +154,10 @@ var
   nim: TPoint;
 
   Zip: TKaZip;
+
+  VImage: TImageData;
+  VFormat: TJpegFileFormat;
+  IArray: TDynImageDataArray;
 begin
   nim.X := (FMapPieceSize.X div 1024) + 1;
   nim.Y := (FMapPieceSize.Y div 1024) + 1;
@@ -182,9 +187,9 @@ begin
   for i := 1 to nim.X do begin
     for j := 1 to nim.Y do begin
       jpgm := TMemoryStream.Create;
-      FileName := ChangeFileExt(FCurrentFileName, inttostr(i) + inttostr(j) + '.jpg');
-      VFileName := 'files/' + ExtractFileName(FileName);
       try
+        FileName := ChangeFileExt(FCurrentFileName, inttostr(i) + inttostr(j) + '.jpg');
+        VFileName := 'files/' + ExtractFileName(FileName);
         str := str + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + ExtractFileName(FileName) + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
         str := str + ansiToUTF8('<Icon><href>' + VFileName + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
 
@@ -207,52 +212,56 @@ begin
         str := str + ansiToUTF8('<west>' + R2StrPoint(LL1.x) + '</west>' + #13#10);
         str := str + ansiToUTF8('</LatLonBox>' + #13#10 + '</GroundOverlay>' + #13#10);
 
-        getmem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
-        for k := 0 to 255 do begin
-          getmem(FArray256BGR[k], (iWidth + 1) * 3);
-        end;
-        btmm := TCustomBitmap32.Create;
-        btmm.Width := 256;
-        btmm.Height := 256;
 
-        ijlInit(@jcprops);
-        iNChannels := 3;
-        jcprops.DIBWidth := iWidth;
-        jcprops.DIBHeight := -iHeight;
-        jcprops.DIBChannels := iNChannels;
-        jcprops.DIBColor := IJL_BGR;
-        jcprops.DIBPadBytes := ((((iWidth * iNChannels) + 3) div 4) * 4) - (iWidth * 3);
-        GetMem(jcprops.DIBBytes, (iWidth * 3 + (iWidth mod 4)) * iHeight);
-        jcprops.JPGSizeBytes := iWidth * iHeight * 3;
-        GetMem(jcprops.JPGBytes, jcprops.JPGSizeBytes);
-        if jcprops.DIBBytes <> nil then begin
-          for k := 0 to iHeight - 1 do begin
-            ReadLineBMP(k, Pointer(integer(jcprops.DIBBytes) + (((iWidth * 3 + (iWidth mod 4)) * iHeight) - (iWidth * 3 + (iWidth mod 4)) * (k + 1))));
-            if IsCancel then begin
-              break;
-            end;
+        InitImage(VImage);
+        VFormat := TJpegFileFormat.Create();
+        try
+          getmem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
+          for k := 0 to 255 do begin
+            getmem(FArray256BGR[k], (iWidth + 1) * 3);
           end;
-        end else begin
-          ShowMessageSync(SAS_ERR_Memory + '.' + #13#10 + SAS_ERR_UseADifferentFormat);
-          exit;
+          try
+            btmm := TCustomBitmap32.Create;
+            try
+              btmm.Width := 256;
+              btmm.Height := 256;
+
+              VFormat.Quality := FQuality;
+              NewImage(iWidth, iHeight, ifR8G8B8, VImage);
+              if VImage.Bits <> nil then begin
+                for k := 0 to iHeight - 1 do begin
+                  ReadLineBMP(k, Pointer(integer(VImage.Bits) + ((iWidth * 3) * k)));
+                  if IsCancel then begin
+                    break;
+                  end;
+                end;
+                if not IsCancel then begin
+                  SetLength(IArray, 1);
+                  IArray[0] := VImage;
+                  if not VFormat.SaveToStream(jpgm, IArray, True) then begin
+                    ShowMessageSync('Ошибка записи файла');
+                  end else begin
+                    jpgm.Position := 0;
+                    Zip.AddStream(VFileName, jpgm);
+                  end;
+                end;
+              end else begin
+                ShowMessageSync(SAS_ERR_Memory + '.' + #13#10 + SAS_ERR_UseADifferentFormat);
+              end;
+            finally
+              btmm.Free;
+            end;
+          finally
+            for k := 0 to 255 do begin
+              freemem(FArray256BGR[k], (iWidth + 1) * 3);
+            end;
+            freemem(FArray256BGR, 256 * ((iWidth + 1) * 3));
+          end;
+        Finally
+          VFormat.Free;
+          FreeImage(VImage);
         end;
-        jcprops.JPGWidth := iWidth;
-        jcprops.JPGHeight := iHeight;
-        jcprops.JPGChannels := 3;
-        jcprops.JPGColor := IJL_YCBCR;
-        jcprops.jquality := FQuality;
-        ijlWrite(@jcprops, IJL_JBUFF_WRITEWHOLEIMAGE);
-        jpgm.Write(jcprops.JPGBytes^, jcprops.JPGSizeBytes);
-        jpgm.Position := 0;
-        Zip.AddStream(VFileName, jpgm);
       Finally
-        freemem(jcprops.DIBBytes, iWidth * iHeight * 3);
-        for k := 0 to 255 do begin
-          freemem(FArray256BGR[k], (iWidth + 1) * 3);
-        end;
-        freemem(FArray256BGR, 256 * ((iWidth + 1) * 3));
-        ijlFree(@jcprops);
-        btmm.Free;
         jpgm.Free;
       end;
     end;
