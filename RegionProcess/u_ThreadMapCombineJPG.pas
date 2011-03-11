@@ -157,37 +157,43 @@ begin
     for k := 0 to 255 do begin
       getmem(FArray256BGR[k], (iWidth + 1) * 3);
     end;
-    btmm := TCustomBitmap32.Create;
-    btmm.Width := 256;
-    btmm.Height := 256;
+    try
+      btmm := TCustomBitmap32.Create;
+      try
+        btmm.Width := 256;
+        btmm.Height := 256;
 
-    VFormat.Quality := FQuality;
-    NewImage(iWidth, iHeight, ifR8G8B8, VImage);
-
-    if VImage.Bits <> nil then begin
-      for k := 0 to iHeight - 1 do begin
-        ReadLineBMP(k, Pointer(integer(VImage.Bits) + ((iWidth * 3) * k)));
-        if IsCancel then begin
-          break;
+        VFormat.Quality := FQuality;
+        NewImage(iWidth, iHeight, ifR8G8B8, VImage);
+        if VImage.Bits <> nil then begin
+          for k := 0 to iHeight - 1 do begin
+            ReadLineBMP(k, Pointer(integer(VImage.Bits) + ((iWidth * 3) * k)));
+            if IsCancel then begin
+              break;
+            end;
+          end;
+          if not IsCancel then begin
+            SetLength(IArray, 1);
+            IArray[0] := VImage;
+            if not VFormat.SaveToFile(FCurrentFileName, IArray, True) then begin
+              ShowMessageSync('Ошибка записи файла');
+            end;
+          end;
+        end else begin
+          ShowMessageSync(SAS_ERR_Memory + '.' + #13#10 + SAS_ERR_UseADifferentFormat);
         end;
+      finally
+        btmm.Free;
       end;
-    end else begin
-      ShowMessageSync(SAS_ERR_Memory + '.' + #13#10 + SAS_ERR_UseADifferentFormat);
-      exit;
-    end;
-    SetLength(IArray, 1);
-    IArray[0] := VImage;
-    if not VFormat.SaveToFile(FCurrentFileName, IArray, True) then begin
-      ShowMessageSync('Ошибка записи файла');
+    finally
+      for k := 0 to 255 do begin
+        freemem(FArray256BGR[k], (iWidth + 1) * 3);
+      end;
+      freemem(FArray256BGR, 256 * ((iWidth + 1) * 3));
     end;
   Finally
-    for k := 0 to 255 do begin
-      freemem(FArray256BGR[k], (iWidth + 1) * 3);
-    end;
-    freemem(FArray256BGR, 256 * ((iWidth + 1) * 3));
     VFormat.Free;
     FreeImage(VImage);
-    btmm.Free;
   end;
 end;
 
