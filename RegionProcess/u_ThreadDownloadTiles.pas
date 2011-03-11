@@ -33,6 +33,28 @@ type
     FDownloadPause: Boolean;
     FFinished: Boolean;
     FZoom: Byte;
+
+    FPausedSleepTime: Cardinal;
+    FBanSleepTime: Cardinal;
+    FProxyAuthErrorSleepTime: Cardinal;
+    FDownloadErrorSleepTime: Cardinal;
+
+    FRES_UserStop: string;
+    FRES_ProcessedFile: string;
+    FRES_LoadProcessRepl: string;
+    FRES_LoadProcess: string;
+    FRES_FileBeCreateTime: string;
+    FRES_FileBeCreateLen: string;
+    FRES_Authorization: string;
+    FRES_WaitTime: string;
+    FRES_Ban: string;
+    FRES_BadMIME: string;
+    FRES_TileNotExists: string;
+    FRES_Noconnectionstointernet: string;
+    FRES_FileExistsShort: string;
+    FRES_ProcessFilesComplete: string;
+    procedure PrepareStrings;
+
     function GetElapsedTime: TDateTime;
     function GetDownloaded: Int64;
     function GetDownloadSize: Double;
@@ -90,6 +112,13 @@ constructor TThreadDownloadTiles.Create(
 );
 begin
   inherited Create(false);
+
+  FPausedSleepTime := 100;
+  FBanSleepTime := 5000;
+  FProxyAuthErrorSleepTime := 10000;
+  FDownloadErrorSleepTime := 5000;
+  PrepareStrings;
+
   FDownloadInfo := TDownloadInfoSimple.Create(GState.DownloadInfo);
   FLog := ALog;
   Priority := tpLower;
@@ -115,6 +144,12 @@ var
   VGuid: TGUID;
 begin
   inherited Create(false);
+  FPausedSleepTime := 100;
+  FBanSleepTime := 5000;
+  FProxyAuthErrorSleepTime := 10000;
+  FDownloadErrorSleepTime := 5000;
+  PrepareStrings;
+  
   FLog := ALog;
   Priority := tpLower;
   Ini:=TiniFile.Create(FileName);
@@ -242,25 +277,25 @@ begin
         while not VGotoNextTile do begin
           if (FDownloadPause) then begin
             FElapsedTime := FElapsedTime + (Now - FStartTime);
-            FLog.WriteText(SAS_STR_UserStop, 10);
-            While (FDownloadPause)and (not Terminated) do sleep(100);
+            FLog.WriteText(FRES_UserStop, 10);
+            While (FDownloadPause)and (not Terminated) do sleep(FPausedSleepTime);
             FStartTime := now;
           end;
           FLoadXY := VTile;
 
-          FLog.WriteText(SAS_STR_ProcessedFile + ': ' + FMapType.GetTileShowName(VTile, Fzoom) + '...', 0);
+          FLog.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, Fzoom)]), 0);
           VTileExists := FMapType.TileExists(VTile, Fzoom);
           if (FReplaceExistTiles) or not(VTileExists) then begin
             if VTileExists then begin
-              FLog.WriteText(SAS_STR_LoadProcessRepl+' ...', 0);
+              FLog.WriteText(FRES_LoadProcessRepl, 0);
             end else begin
-              FLog.WriteText(SAS_STR_LoadProcess+'...', 0);
+              FLog.WriteText(FRES_LoadProcess+'...', 0);
             end;
             if (FCheckExistTileDate)
               and (VTileExists)
               and (FMapType.TileLoadDate(VTile, Fzoom) >= FCheckTileDate) then
             begin
-              FLog.WriteText(SAS_MSG_FileBeCreateTime, 0);
+              FLog.WriteText(FRES_FileBeCreateTime, 0);
               VGotoNextTile := True;
             end else begin
               razlen := FMapType.TileSize(VTile, Fzoom);
@@ -284,42 +319,39 @@ begin
                     dtrSameTileSize: begin
                       FLastSuccessfulPoint := FLoadXY;
                       FDownloadInfo.Add(1, fileBuf.Size);
-                      FLog.WriteText(SAS_MSG_FileBeCreateLen, 0);
+                      FLog.WriteText(FRES_FileBeCreateLen, 0);
                       VGotoNextTile := True;
                     end;
                     dtrProxyAuthError: begin
-                      FLog.WriteText(SAS_ERR_Authorization+#13#13+SAS_STR_Wite+'5'+SAS_UNITS_Secund+'...', 10);
-                      sleep(5000);
+                      FLog.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime,[FProxyAuthErrorSleepTime div 1000]), 10);
+                      sleep(FProxyAuthErrorSleepTime);
                       VGotoNextTile := false;
                     end;
                     dtrBanError: begin
-                      FLog.WriteText(SAS_ERR_Ban+#13#13+SAS_STR_Wite+' 10 '+SAS_UNITS_Secund+'...', 10);
-                      sleep(10000);
+                      FLog.WriteText(FRES_Ban + #13#10 + Format(FRES_WaitTime, [FBanSleepTime div 1000]), 10);
+                      sleep(FBanSleepTime);
                       VGotoNextTile := false;
                     end;
                     dtrErrorMIMEType: begin
-                      FLog.WriteText(Format(SAS_ERR_BadMIME, [ty]), 1);
+                      FLog.WriteText(Format(FRES_BadMIME, [ty]), 1);
                       VGotoNextTile := True;
                     end;
                     dtrTileNotExists: begin
-                      FLog.WriteText(SAS_ERR_TileNotExists, 1);
+                      FLog.WriteText(FRES_TileNotExists, 1);
                       VGotoNextTile := True;
                     end;
                     dtrDownloadError: begin
-                      FLog.WriteText(SAS_ERR_Noconnectionstointernet, 10);
+                      FLog.WriteText(FRES_Noconnectionstointernet + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
+                      sleep(FDownloadErrorSleepTime);
                       if GState.GoNextTileIfDownloadError then begin
                         VGotoNextTile := True;
                       end else begin
-                        FLog.WriteText(SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...', 10);
-                        sleep(5000);
                         VGotoNextTile := false;
                       end;
-                      continue;
                     end;
                     else begin
-                      FLog.WriteText(GetErrStr(res), 10);
-                      FLog.WriteText(SAS_STR_Wite+' 5 '+SAS_UNITS_Secund+'...', 10);
-                      sleep(5000);
+                      FLog.WriteText(GetErrStr(res) + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
+                      sleep(FDownloadErrorSleepTime);
                       VGotoNextTile := false;
                     end;
                   end;
@@ -334,7 +366,7 @@ begin
               end;
             end;
           end else begin
-            FLog.WriteText(SAS_ERR_FileExistsShort+';', 0);
+            FLog.WriteText(FRES_FileExistsShort, 0);
             VGotoNextTile := True;
           end;
           if VGotoNextTile then begin
@@ -350,7 +382,7 @@ begin
     VTileIterator := nil;
   end;
   if not Terminated then begin
-    FLog.WriteText(SAS_MSG_ProcessFilesComplete, 0);
+    FLog.WriteText(FRES_ProcessFilesComplete, 0);
     FFinished := true;
   end;
 end;
@@ -382,6 +414,24 @@ begin
   end else begin
     Result := FElapsedTime + (Now - FStartTime);
   end;
+end;
+
+procedure TThreadDownloadTiles.PrepareStrings;
+begin
+  FRES_UserStop := SAS_STR_UserStop;
+  FRES_ProcessedFile := SAS_STR_ProcessedFile;
+  FRES_LoadProcessRepl := SAS_STR_LoadProcessRepl;
+  FRES_LoadProcess := SAS_STR_LoadProcess;
+  FRES_FileBeCreateTime := SAS_MSG_FileBeCreateTime;
+  FRES_FileBeCreateLen := SAS_MSG_FileBeCreateLen;
+  FRES_Authorization := SAS_ERR_Authorization;
+  FRES_WaitTime := SAS_ERR_WaitTime;
+  FRES_Ban := SAS_ERR_Ban;
+  FRES_BadMIME := SAS_ERR_BadMIME;
+  FRES_TileNotExists := SAS_ERR_TileNotExists;
+  FRES_Noconnectionstointernet := SAS_ERR_Noconnectionstointernet;
+  FRES_FileExistsShort := SAS_ERR_FileExistsShort;
+  FRES_ProcessFilesComplete := SAS_MSG_ProcessFilesComplete;
 end;
 
 end.

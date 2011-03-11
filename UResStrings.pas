@@ -48,6 +48,7 @@ ResourceString
   SAS_ERR_CreateArh = 'Ошибка создания архива!';
   SAS_ERR_NotLoads = 'Карта не позволяет загружать';
   SAS_ERR_Authorization = 'Ошибка авторизации на прокси!';
+  SAS_ERR_WaitTime = 'Ждем %0:d секунд...';
   SAS_ERR_Ban = 'Высока вероятность того, что вас забанили!';
   SAS_ERR_TileNotExists = 'Такого изображения нет на сервере!';
   SAS_ERR_Noconnectionstointernet = 'Отсутствует подключение к интернет!';
@@ -129,8 +130,8 @@ ResourceString
   SAS_STR_Resolution = 'Разрешение';
   SAS_STR_UserStop = 'Приостановлено пользователем...';
   SAS_STR_LoadProcess = 'Загрузка';
-  SAS_STR_LoadProcessRepl = 'Загрузка с заменой';
-  SAS_STR_ProcessedFile = 'Обработка файла';
+  SAS_STR_LoadProcessRepl = 'Загрузка с заменой ...';
+  SAS_STR_ProcessedFile = 'Обработка файла: %0:s ...';
   SAS_STR_Wite = 'Ждем';
   SAS_STR_S = 'Площадь';
   SAS_STR_L = 'Длина';
