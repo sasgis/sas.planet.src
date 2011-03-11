@@ -2884,13 +2884,13 @@ begin
   if (Layer <> nil) then begin
     exit;
   end;
-  if (ssDouble in Shift)or
+  if (FMapZoomAnimtion)or
+     (ssDouble in Shift)or
      (button=mbMiddle)or
-     (ssRight in Shift)and(ssLeft in Shift) then begin
-    exit;
-  end;
-  if (FMapZoomAnimtion)or(HiWord(GetKeyState(VK_DELETE))<>0)or
-     (HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then begin
+     (ssRight in Shift)and(ssLeft in Shift)or
+     (HiWord(GetKeyState(VK_DELETE))<>0)or
+     (HiWord(GetKeyState(VK_INSERT))<>0)or
+     (HiWord(GetKeyState(VK_F6))<>0) then begin
     exit;
   end;
   Screen.ActiveForm.SetFocusedControl(map);
@@ -3030,7 +3030,7 @@ begin
     if HiWord(GetKeyState(VK_DELETE))<>0 then begin
       VMap.DeleteTile(VTile, VZoomCurr);
       OnMapTileUpdate(VMap, VZoomCurr, VTile);
-      exit;
+      //exit;
     end;
     if HiWord(GetKeyState(VK_INSERT))<>0 then begin
       TTileDownloaderUIOneTile.Create(
@@ -3040,11 +3040,11 @@ begin
         Self.OnMapTileUpdate,
         FShowErrorLayer
       );
-      exit;
+      //exit;
     end;
     if HiWord(GetKeyState(VK_F6))<>0 then begin
       FDGAvailablePic.setup(VLocalConverter, FMouseUpPoint);
-      exit;
+      //exit;
     end;
   end;
 
@@ -3206,8 +3206,8 @@ begin
     exit;
   end;
   if (FMapZoomAnimtion)or(
-    (ssDouble in Shift)or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
-    or(HiWord(GetKeyState(VK_F6))<>0)
+    (ssDouble in Shift){or(HiWord(GetKeyState(VK_DELETE))<>0)or(HiWord(GetKeyState(VK_INSERT))<>0))
+    or(HiWord(GetKeyState(VK_F6))<>0})
   then begin
     exit;
   end;
