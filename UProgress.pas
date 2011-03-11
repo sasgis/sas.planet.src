@@ -271,6 +271,7 @@ end;
 
 procedure TFProgress.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  FDownloadThread.Terminate;
   UpdateTimer.Enabled := false;
   Action := caFree;
 end;
