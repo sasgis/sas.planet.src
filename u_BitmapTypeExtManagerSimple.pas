@@ -27,8 +27,6 @@ implementation
 
 uses
   SysUtils,
-  u_BitmapTileJpegLoader,
-  u_BitmapTileJpegSaverIJL,
   u_BitmapTileVampyreLoader,
   u_BitmapTileVampyreSaver;
 
@@ -38,13 +36,12 @@ uses
 constructor TBitmapTypeExtManagerSimple.Create;
 begin
   SetLength(FLoaders, 4);
-  FLoaders[0] := TJpegBitmapTileLoader.Create;
+  FLoaders[0] := TVampyreBasicBitmapTileLoaderJPEG.Create;
   FLoaders[1] := TVampyreBasicBitmapTileLoaderPNG.Create;
   FLoaders[2] := TVampyreBasicBitmapTileLoaderGIF.Create;
   FLoaders[3] := TVampyreBasicBitmapTileLoaderBMP.Create;
   SetLength(FSavers, 4);
-  FSavers[0] := TJpegBitmapTileSaverIJL.Create(85);
-//  FSavers[1] := TPngBitmapTileSaver.Create;
+  FSavers[0] := TVampyreBasicBitmapTileSaverJPG.Create(85);
   FSavers[1] := TVampyreBasicBitmapTileSaverPNG.Create;
   FSavers[2] := TVampyreBasicBitmapTileSaverGIF.Create;
   FSavers[3] := TVampyreBasicBitmapTileSaverBMP.Create;
