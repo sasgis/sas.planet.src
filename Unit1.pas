@@ -2845,6 +2845,9 @@ begin
   if (Layer <> nil) then begin
     exit;
   end;
+  if ((Button=mbRight)and(ssLeft in Shift))or((Button=mbLeft)and(ssRight in Shift)) then begin
+    exit;
+  end;
   if (ssDouble in Shift)or(FMapZoomAnimtion)or(button=mbMiddle)or(HiWord(GetKeyState(VK_DELETE))<>0)
   or(HiWord(GetKeyState(VK_INSERT))<>0)or(HiWord(GetKeyState(VK_F5))<>0) then exit;
   Screen.ActiveForm.SetFocusedControl(map);
@@ -2964,6 +2967,9 @@ begin
     exit;
   end;
   if (ssDouble in Shift) then exit;
+  if ((Button=mbRight)and(ssLeft in Shift))or((Button=mbLeft)and(ssRight in Shift)) then begin
+    exit;
+  end;
   VMapMoving := FMapMoving;
   FMapMoving:=false;
   FMouseUpPoint := Point(x, y);
