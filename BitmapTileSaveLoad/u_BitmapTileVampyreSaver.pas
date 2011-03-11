@@ -48,12 +48,18 @@ type
     constructor Create;
   end;
 
+  TVampyreBasicBitmapTileSaverJPG = class(TVampyreBasicBitmapTileSaver)
+  public
+    constructor Create(ACompressionQuality: Byte);
+  end;
+
 implementation
 
 uses
   SysUtils,
   ImagingGraphics32,
   ImagingNetworkGraphics,
+  ImagingJpeg,
   ImagingGif,
   ImagingBitmap;
 
@@ -184,6 +190,17 @@ procedure TVampyreBasicBitmapTileSaverPNGPalette.PrepareData(
   var AImage: TImageData);
 begin
   ConvertImage(AImage, ifIndex8);
+end;
+
+{ TVampyreBasicBitmapTileSaverJPG }
+
+constructor TVampyreBasicBitmapTileSaverJPG.Create(ACompressionQuality: byte);
+var
+  VFormat: TJpegFileFormat;
+begin
+  VFormat := TJpegFileFormat.Create();
+  VFormat.Quality := ACompressionQuality;
+  inherited Create(VFormat);
 end;
 
 end.

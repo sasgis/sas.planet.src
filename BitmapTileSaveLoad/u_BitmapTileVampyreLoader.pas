@@ -33,12 +33,18 @@ type
     constructor Create;
   end;
 
+  TVampyreBasicBitmapTileLoaderJPEG = class(TVampyreBasicBitmapTileLoader)
+  public
+    constructor Create;
+  end;
+
 implementation
 
 uses
   SysUtils,
   ImagingTypes,
   ImagingGraphics32,
+  ImagingJpeg,
   ImagingNetworkGraphics,
   ImagingGif,
   ImagingBitmap;
@@ -137,6 +143,13 @@ end;
 constructor TVampyreBasicBitmapTileLoaderBMP.Create;
 begin
   inherited Create(FindImageFileFormatByClass(TBitmapFileFormat))
+end;
+
+{ TVampyreBasicBitmapTileLoaderJPEG }
+
+constructor TVampyreBasicBitmapTileLoaderJPEG.Create;
+begin
+  inherited Create(FindImageFileFormatByClass(TJpegFileFormat))
 end;
 
 end.
