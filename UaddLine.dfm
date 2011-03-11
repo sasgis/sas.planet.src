@@ -18,12 +18,14 @@ object FaddLine: TFaddLine
   object chkVisible: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 249
+    Top = 279
     Width = 322
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 4
+    ExplicitLeft = 8
+    ExplicitTop = 291
   end
   object pnlCategory: TPanel
     Left = 0
@@ -98,7 +100,7 @@ object FaddLine: TFaddLine
   end
   object flwpnlStyle: TFlowPanel
     Left = 0
-    Top = 269
+    Top = 246
     Width = 328
     Height = 30
     Align = alBottom
@@ -108,6 +110,7 @@ object FaddLine: TFaddLine
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitTop = 241
     object lblLineColor: TLabel
       AlignWithMargins = True
       Left = 3

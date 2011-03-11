@@ -373,7 +373,7 @@ object FaddPoint: TFaddPoint
     Height = 47
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 1
   end
   object pnlTop: TPanel
     Left = 0
@@ -442,6 +442,7 @@ object FaddPoint: TFaddPoint
           ItemHeight = 13
           TabOrder = 0
           Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
+          ExplicitTop = 2
         end
       end
       object pnlName: TPanel
@@ -489,7 +490,7 @@ object FaddPoint: TFaddPoint
     GridLineWidth = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goThumbTracking]
     ParentCtl3D = False
-    TabOrder = 1
+    TabOrder = 2
     Visible = False
     OnDrawCell = drwgrdIconsDrawCell
     OnMouseUp = drwgrdIconsMouseUp
