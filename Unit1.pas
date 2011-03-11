@@ -1462,7 +1462,7 @@ begin
                 end;
    WM_KEYUP: begin
              FdWhenMovingButton:=5;
-             if (Msg.wParam=VK_Delete)and(FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
+             if (Msg.wParam=VK_BACK)and(FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly]) then begin
                FLineOnMapEdit.DeleteActivePoint;
              end;
              if (Msg.wParam=VK_ESCAPE)and(FCurrentOper=ao_select_rect) then begin
@@ -1481,7 +1481,7 @@ begin
                 setalloperationfalse(ao_movemap);
                end;
              end;
-             if (Msg.wParam=13)and(FCurrentOper in [ao_add_Poly,ao_add_line,ao_edit_Poly,ao_edit_line])and(FLineOnMapEdit.GetCount>1) then begin
+             if (Msg.wParam=VK_RETURN)and(FCurrentOper in [ao_add_Poly,ao_add_line,ao_edit_Poly,ao_edit_line])and(FLineOnMapEdit.GetCount>1) then begin
                TBEditPathSaveClick(Self);
              end;
             end;
