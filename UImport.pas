@@ -159,7 +159,6 @@ end;
 
 function TFImport.GetImportConfig(AMarkDBGUI: TMarksDbGUIHelper): IImportConfig;
 var
-  VCategoryList: TList;
   VCategory: TCategoryId;
   VIndex: Integer;
   VId: Integer;
@@ -181,9 +180,9 @@ begin
     cbbPointIcon.Repaint;
     cbbPointIcon.ItemIndex:=0;
 
-    VCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
+    FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
     try
-      FMarkDBGUI.CategoryListToStrings(VCategoryList, CBKateg.Items);
+      FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
       if ShowModal = mrOk then begin
         VCategory := nil;
         VIndex := CBKateg.ItemIndex;
@@ -248,7 +247,7 @@ begin
         Result := nil;
       end;
     finally
-      FreeAndNil(VCategoryList);
+      FreeAndNil(FCategoryList);
     end;
   finally
     cbbPointIcon.Items.Clear;
@@ -257,19 +256,21 @@ end;
 
 procedure TFImport.btnOkClick(Sender: TObject);
 var
+  VCategoryText: string;
   VCategory: TCategoryId;
   VIndex: Integer;
 begin
   VCategory := nil;
+  VCategoryText := CBKateg.Text;
   VIndex := CBKateg.ItemIndex;
   if VIndex < 0 then begin
-    VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
+    VIndex:= CBKateg.Items.IndexOf(VCategoryText);
   end;
   if VIndex >= 0 then begin
     VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
   end;
   if VCategory = nil then begin
-    VCategory := FMarkDBGUI.AddKategory(CBKateg.Text);
+    VCategory := FMarkDBGUI.AddKategory(VCategoryText);
     if VCategory <> nil then begin
       FCategoryList.Add(VCategory);
       FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
