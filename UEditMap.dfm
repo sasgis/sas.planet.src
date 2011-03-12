@@ -33,7 +33,6 @@ object FEditMap: TFEditMap
       Caption = #1042#1089#1077' '#1087#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
       TabOrder = 0
       OnClick = Button3Click
-      ExplicitHeight = 25
     end
     object Button1: TButton
       AlignWithMargins = True
@@ -46,7 +45,6 @@ object FEditMap: TFEditMap
       ModalResult = 1
       TabOrder = 1
       OnClick = Button1Click
-      ExplicitHeight = 25
     end
     object Button2: TButton
       AlignWithMargins = True
@@ -60,7 +58,6 @@ object FEditMap: TFEditMap
       ModalResult = 2
       TabOrder = 2
       OnClick = Button2Click
-      ExplicitHeight = 25
     end
   end
   object pnlSeparator: TPanel
@@ -74,7 +71,6 @@ object FEditMap: TFEditMap
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
-    ExplicitTop = 223
     object CheckBox1: TCheckBox
       AlignWithMargins = True
       Left = 6
@@ -85,7 +81,6 @@ object FEditMap: TFEditMap
       Align = alTop
       Caption = #1044#1086#1073#1072#1074#1083#1103#1090#1100' '#1074' '#1084#1077#1085#1102' '#1088#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' '#1087#1086#1089#1083#1077' '#1085#1072#1079#1074#1072#1085#1080#1103' '#1101#1090#1086#1081' '#1082#1072#1088#1090#1099
       TabOrder = 0
-      ExplicitTop = 6
     end
     object CheckEnabled: TCheckBox
       AlignWithMargins = True
@@ -97,8 +92,6 @@ object FEditMap: TFEditMap
       Align = alTop
       Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
       TabOrder = 1
-      ExplicitLeft = 9
-      ExplicitTop = 25
     end
   end
   object pnlCacheType: TPanel
@@ -110,7 +103,6 @@ object FEditMap: TFEditMap
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 2
-    ExplicitTop = 178
     object Label5: TLabel
       AlignWithMargins = True
       Left = 6
@@ -146,7 +138,7 @@ object FEditMap: TFEditMap
       Top = 6
       Width = 21
       Height = 21
-      Hint = #1055#1086' '#1091#1084#1086#1083#1095#1085#1080#1102
+      Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
       Align = alRight
       Caption = '<>'
       ParentShowHint = False
@@ -164,7 +156,6 @@ object FEditMap: TFEditMap
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 3
-    ExplicitTop = 145
     object Label3: TLabel
       AlignWithMargins = True
       Left = 6
@@ -191,7 +182,7 @@ object FEditMap: TFEditMap
       Top = 6
       Width = 21
       Height = 21
-      Hint = #1055#1086' '#1091#1084#1086#1083#1095#1085#1080#1102
+      Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
       Align = alRight
       Caption = '<>'
       ParentShowHint = False
@@ -209,7 +200,6 @@ object FEditMap: TFEditMap
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 4
-    ExplicitTop = 112
     object Label2: TLabel
       AlignWithMargins = True
       Left = 6
@@ -236,7 +226,7 @@ object FEditMap: TFEditMap
       Top = 6
       Width = 21
       Height = 21
-      Hint = #1055#1086' '#1091#1084#1086#1083#1095#1085#1080#1102
+      Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
       Align = alRight
       Caption = '<>'
       ParentShowHint = False
@@ -254,7 +244,6 @@ object FEditMap: TFEditMap
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 5
-    ExplicitHeight = 79
     object Label1: TLabel
       AlignWithMargins = True
       Left = 6
@@ -273,14 +262,13 @@ object FEditMap: TFEditMap
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 73
       object Button6: TButton
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 21
         Height = 21
-        Hint = #1055#1086' '#1091#1084#1086#1083#1095#1085#1080#1102
+        Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
         Align = alTop
         Caption = '<>'
         ParentShowHint = False
@@ -299,7 +287,6 @@ object FEditMap: TFEditMap
       ScrollBars = ssVertical
       TabOrder = 1
       WantReturns = False
-      ExplicitHeight = 67
     end
   end
   object grdpnlSleepAndKey: TGridPanel
@@ -333,7 +320,6 @@ object FEditMap: TFEditMap
         Value = 100.000000000000000000
       end>
     TabOrder = 6
-    ExplicitTop = 79
     object grdpnlHotKey: TGridPanel
       Left = 3
       Top = 3
@@ -393,7 +379,7 @@ object FEditMap: TFEditMap
         Top = 3
         Width = 21
         Height = 19
-        Hint = #1055#1086' '#1091#1084#1086#1083#1095#1085#1080#1102
+        Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
         Caption = '<>'
         ParentShowHint = False
         ShowHint = True
@@ -481,7 +467,7 @@ object FEditMap: TFEditMap
         Top = 3
         Width = 21
         Height = 21
-        Hint = #1055#1086' '#1091#1084#1086#1083#1095#1085#1080#1102
+        Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
         Anchors = []
         Caption = '<>'
         ParentShowHint = False
