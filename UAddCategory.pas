@@ -67,7 +67,7 @@ end;
 
 procedure TFAddCategory.BaddClick(Sender: TObject);
 begin
-  FCategory.name:=EditName.Text;
+  FCategory.name:=ExcludeTrailingBackslash(EditName.Text);
   FCategory.AfterScale:=EditS1.Value;
   FCategory.BeforeScale:=EditS2.Value;
   FCategory.visible:=CBShow.Checked;

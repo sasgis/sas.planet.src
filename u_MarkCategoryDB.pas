@@ -25,6 +25,7 @@ type
   public
     constructor Create(ABasePath: string; AMarksDb: TMarksOnlyDb; ADMMarksDb: TDMMarksDb);
 
+    function GetCategoryByName(AName: string): TCategoryId;
     function GetCategoryByID(id: integer): TCategoryId;
     procedure WriteCategory(ACategory: TCategoryId);
     procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
@@ -99,6 +100,15 @@ function TMarkCategoryDB.GetCategoryByID(id: integer): TCategoryId;
 begin
   Result := nil;
   if FDMMarksDb.CDSKategory.Locate('id', id, []) then begin
+    Result := TCategoryId.Create;
+    ReadCurrentCategory(Result);
+  end;
+end;
+
+function TMarkCategoryDB.GetCategoryByName(AName: string): TCategoryId;
+begin
+  Result := nil;
+  if FDMMarksDb.CDSKategory.Locate('name', AName, []) then begin
     Result := TCategoryId.Create;
     ReadCurrentCategory(Result);
   end;

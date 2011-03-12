@@ -59,14 +59,24 @@ uses
 function TMarksDbGUIHelper.AddKategory(name: string): TCategoryId;
 var
   VCategory: TCategoryId;
+  VName: string;
+  VId: Integer;
 begin
-  VCategory := TCategoryId.Create;
-  VCategory.id := -1;
-  VCategory.name := name;
-  VCategory.visible := True;
-  VCategory.AfterScale := 3;
-  VCategory.BeforeScale := 19;
-  FMarksDb.CategoryDB.WriteCategory(VCategory);
+  VName := name;
+  VName := ExcludeTrailingBackslash(VName);
+  if VName = '' then begin
+    VName := SAS_STR_NewCategory;
+  end;
+  VCategory := FMarksDb.CategoryDB.GetCategoryByName(VName);
+  if VCategory = nil then begin
+    VCategory := TCategoryId.Create;
+    VCategory.id := -1;
+    VCategory.name := VName;
+    VCategory.visible := True;
+    VCategory.AfterScale := 3;
+    VCategory.BeforeScale := 19;
+    FMarksDb.CategoryDB.WriteCategory(VCategory);
+  end;
   Result := VCategory;
 end;
 
@@ -112,19 +122,27 @@ procedure TMarksDbGUIHelper.CategoryListToTree(AList: TList; ATreeItems: TTreeNo
 var
   VNodesCached: TStringList;
 
-  function FindNodeWithText(AParent: TTreeNode; const VNamePart: string): TTreeNode;
+  function GetKey(AParent: TTreeNode; const VNamePart: string): string;
+  begin
+    Result := VNamePart + IntToStr(Integer(AParent));
+  end;
+
+  function CreateNodeWithText(AParent: TTreeNode; const VNamePart: string; const AKey: string): TTreeNode;
+  begin
+    Result := ATreeItems.AddChildObject(AParent, VNamePart, nil);
+    Result.StateIndex:=0;
+    VNodesCached.AddObject(AKey, Result);
+  end;
+
+  function FindNodeWithText(AParent: TTreeNode; const VNamePart: string; const AKey: string): TTreeNode;
   var
     i: Integer;
-    VKey: string;
   begin
-    VKey := VNamePart + IntToStr(Integer(AParent));
-    i := VNodesCached.IndexOf(VKey);
+    i := VNodesCached.IndexOf(AKey);
     if i > -1 then begin
       Result := Pointer(VNodesCached.Objects[i])
     end else begin
-      Result := ATreeItems.AddChildObject(AParent, VNamePart, nil);
-      Result.StateIndex:=0;
-      VNodesCached.AddObject(VKey, Result);
+      Result := CreateNodeWithText(AParent, VNamePart, AKey);
     end
   end;
   
@@ -135,25 +153,29 @@ var
     aNode: TTreeNode;
     VNameSufix: string;
   begin
-    if AName <> '' then begin
-      VDelimPos:=Pos('\', AName);
-      VNamePrefix:='';
-      if VDelimPos > 0 then begin
-        VNamePrefix := Copy(AName, 1, VDelimPos - 1);
-        VNameSufix := Copy(AName, VDelimPos + 1, Length(AName));
-      end else begin
-        VNamePrefix:=AName;
-        VNameSufix := '';
+    VDelimPos:=Pos('\', AName);
+    VNamePrefix:='';
+    if VDelimPos > 0 then begin
+      VNamePrefix := Copy(AName, 1, VDelimPos - 1);
+      if VNamePrefix = '' then begin
+        VNamePrefix := '(NoName)';
       end;
-      aNode := FindNodeWithText(AParentNode, VNamePrefix);
-      if VDelimPos > 0 then begin
-        AddItem(aNode, VNameSufix, Data);
-      end else begin
-        aNode.Data := Data;
-        aNode.StateIndex := 2;
-        if Data.visible then begin
-          aNode.StateIndex := 1
-        end;
+      VNameSufix := Copy(AName, VDelimPos + 1, Length(AName));
+      if VNameSufix = '' then begin
+        VNameSufix := '(NoName)';
+      end;
+      aNode := FindNodeWithText(AParentNode, VNamePrefix, GetKey(AParentNode, VNamePrefix));
+      AddItem(aNode, VNameSufix, Data);
+    end else begin
+      VNamePrefix := AName;
+      if VNamePrefix = '' then begin
+        VNamePrefix := '(NoName)';
+      end;
+      aNode := CreateNodeWithText(AParentNode, VNamePrefix, GetKey(AParentNode, VNamePrefix));
+      aNode.Data := Data;
+      aNode.StateIndex := 2;
+      if Data.visible then begin
+        aNode.StateIndex := 1
       end;
     end;
   end;
