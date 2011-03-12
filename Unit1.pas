@@ -602,6 +602,7 @@ type
     procedure OnFillingMapChange(Sender: TObject);
 
     procedure PaintZSlider(zoom:integer);
+    procedure SetToolbarsLock(AValue: Boolean);
   public
     MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
@@ -1345,15 +1346,19 @@ begin
   end;
 end;
 
+procedure TFmain.SetToolbarsLock(AValue: Boolean);
+begin
+  TBDock.AllowDrag := not AValue;
+  TBDockLeft.AllowDrag := not AValue;
+  TBDockRight.AllowDrag := not AValue;
+  TBDockBottom.AllowDrag := not AValue;
+end;
+
 procedure TFmain.OnToolbarsLockChange(Sender: TObject);
 var
   VValue: Boolean;
 begin
-  VValue := FConfig.ToolbarsLock.GetIsLock;
-  TBDock.AllowDrag:=not VValue;
-  TBDockLeft.AllowDrag:=not VValue;
-  TBDockRight.AllowDrag:=not VValue;
-  TBDockBottom.AllowDrag:=not VValue;
+  SetToolbarsLock(FConfig.ToolbarsLock.GetIsLock);
 end;
 
 procedure TFmain.OnWinPositionChange(Sender: TObject);
@@ -3626,15 +3631,10 @@ begin
   FWinPosition.WriteConfig(VProvider);
 
   VProvider := AProvider.GetOrCreateSubItem('PANEL');
-  FConfig.ToolbarsLock.LockWrite;
-  try
-    lock_tb_b:=FConfig.ToolbarsLock.GetIsLock;
-    FConfig.ToolbarsLock.SetLock(False);
-  finally
-    FConfig.ToolbarsLock.UnlockWrite;
-  end;
+  lock_tb_b:=FConfig.ToolbarsLock.GetIsLock;
+  SetToolbarsLock(False);
   TBConfigProviderSavePositions(Self, VProvider);
-  FConfig.ToolbarsLock.SetLock(lock_tb_b);
+  SetToolbarsLock(lock_tb_b);
 end;
 
 procedure TFmain.SBClearSensorClick(Sender: TObject);
