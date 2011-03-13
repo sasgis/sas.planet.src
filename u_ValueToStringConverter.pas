@@ -211,7 +211,7 @@ end;
 
 function TValueToStringConverter.LatConvert(ALat: Double): string;
 begin
-  result := GetLongitudeMarker(ALat) + DegrToStr(ALat);
+  result := GetLatitudeMarker(ALat) + DegrToStr(ALat);
 end;
 
 function TValueToStringConverter.SpeedConvert(AKmph: Double): string;
