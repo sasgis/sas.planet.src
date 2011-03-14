@@ -23,6 +23,7 @@ type
 
     FSignalBarsCount: Integer;
     FSignalBarsBGColor: TColor32;
+    FSignalBarsFontColor: TColor32;
     FSignalBarBorderColor: TColor32;
     FSignalBarMinHeight: Integer;
     FSignalBarMinWidth: Integer;
@@ -105,8 +106,9 @@ begin
   FSkyMapSatRdius := 8;
 
   FSignalBarsCount := 12;
-  FSignalBarsBGColor := clLightGray32;
+  FSignalBarsBGColor := clWhite32;
   FSignalBarBorderColor := clBlue32;
+  FSignalBarsFontColor := clBlack32;
   FSignalBarMinHeight := 32;
   FSignalBarMinWidth := 4;
   FSignalBarVertSpaces := 10;
@@ -220,10 +222,30 @@ begin
       VTextSize := ABitmap.TextExtent(VText);
       VTextPos.X := Trunc((VRect.Left + VRect.Right) / 2 - VTextSize.cx / 2);
       VTextPos.Y := VRect.Bottom;
-      ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, 4, VColor);
+      ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, 4, clBlack32);
 
       VRect.Top := VRect.Bottom - Trunc((VRect.Bottom - VRect.Top) * VSatellite.SignalToNoiseRatio /100);
       ABitmap.FillRectS(VRect, VColor);
+      Inc(VIndex);
+    end;
+    if VIndex >= FSignalBarsCount then begin
+      Break;
+    end;
+  end;
+  for i := 0 to ASatellites.Count - 1 do begin
+    VSatellite := ASatellites.Item[i];
+    if VSatellite.SignalToNoiseRatio <=0 then begin
+      VRect := GetSignalBarRect(ABitmap, VIndex, ARowCount, ABarHeight, AWidth, AHorizSpace);
+      Inc(VRect.Left);
+      Inc(VRect.Top);
+      Dec(VRect.Right);
+      Dec(VRect.Bottom);
+      VText := IntToStr(VSatellite.PseudoRandomCode);
+      VTextSize := ABitmap.TextExtent(VText);
+      VTextPos.X := Trunc((VRect.Left + VRect.Right) / 2 - VTextSize.cx / 2);
+      VTextPos.Y := VRect.Bottom;
+      ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, 4, clBlack32);
+
       Inc(VIndex);
     end;
     if VIndex >= FSignalBarsCount then begin
