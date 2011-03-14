@@ -110,11 +110,7 @@ end;
 procedure TFillingMapMapsConfig.OnSelectedChange(AGUID: TGUID);
 begin
   if IsEqualGUID(AGUID, CGUID_Zero) then begin
-    SetActualMap(
-      FMainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(
-        FMainMapsConfig.GetActiveMap.GetSelectedGUID
-      )
-    );
+    SetActualMap(FMainMapsConfig.GetSelectedMapType);
   end else begin
     SetActualMap(GetActiveMap.GetMapsList.GetMapTypeByGUID(AGUID));
   end;

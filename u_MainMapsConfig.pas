@@ -3,6 +3,7 @@ unit u_MainMapsConfig;
 interface
 
 uses
+  i_JclNotify,
   i_IActiveMapsConfig,
   i_MapTypes,
   u_ActivMapWithLayers;
@@ -10,9 +11,14 @@ uses
 type
   TMainMapsConfig = class(TActivMapWithLayers, IMainMapsConfig)
   private
+    FDefaultMapGUID: TGUID;
+    FSelectedMapType: IMapType;
     FBitmapLayersSet: IActiveMapsSet;
     FKmlLayersSet: IActiveMapsSet;
+    FSelectedMapChangeListener: IJclListener;
+    procedure OnSelectedChange(AGUID: TGUID);
   protected
+    function GetSelectedMapType: IMapType;
     function GetBitmapLayersSet: IActiveMapsSet;
     function GetKmlLayersSet: IActiveMapsSet;
   public
@@ -24,6 +30,7 @@ implementation
 
 uses
   ActiveX,
+  u_NotifyWithGUIDEvent,
   u_MapTypeList,
   u_ActiveMapsSet;
 
@@ -38,6 +45,7 @@ var
   VBitmapLayersList: TMapTypeList;
   VKmlLayersList: TMapTypeList;
 begin
+  FDefaultMapGUID := ADefaultMapGUID;
   inherited Create(AMapsList, ALayersList);
 
   VBitmapLayersList := TMapTypeList.Create(True);
@@ -71,11 +79,20 @@ begin
     LayerSetUnselectNotyfier
   );
   Add(FKmlLayersSet, nil);
-  SelectMainByGUID(ADefaultMapGUID);
+
+  FSelectedMapChangeListener := TNotifyWithGUIDEventListener.Create(Self.OnSelectedChange);
+  MainMapChangeNotyfier.Add(FSelectedMapChangeListener);
+
+  SelectMainByGUID(FDefaultMapGUID);
+  FDefaultMapGUID := GetActiveMap.GetSelectedGUID;
+  OnSelectedChange(FDefaultMapGUID);
 end;
 
 destructor TMainMapsConfig.Destroy;
 begin
+  MainMapChangeNotyfier.Remove(FSelectedMapChangeListener);
+  FSelectedMapChangeListener := nil;
+
   FBitmapLayersSet := nil;
   FKmlLayersSet := nil;
   inherited;
@@ -89,6 +106,27 @@ end;
 function TMainMapsConfig.GetKmlLayersSet: IActiveMapsSet;
 begin
   Result := FKmlLayersSet;
+end;
+
+function TMainMapsConfig.GetSelectedMapType: IMapType;
+begin
+  LockRead;
+  try
+    Result := FSelectedMapType;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TMainMapsConfig.OnSelectedChange(AGUID: TGUID);
+begin
+  LockWrite;
+  try
+    FSelectedMapType := GetActiveMap.GetMapsList.GetMapTypeByGUID(AGUID);
+    Assert(FSelectedMapType <> nil);
+  finally
+    UnlockWrite;
+  end;
 end;
 
 end.
