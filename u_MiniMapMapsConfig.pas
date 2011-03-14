@@ -125,22 +125,14 @@ var
 begin
   VGUID := GetActiveMap.GetSelectedGUID;
   if IsEqualGUID(VGUID, CGUID_Zero) then begin
-    SetActiveMiniMap(
-      FMainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(
-        FMainMapsConfig.GetActiveMap.GetSelectedGUID
-      )
-    );
+    SetActiveMiniMap(FMainMapsConfig.GetSelectedMapType);
   end;
 end;
 
 procedure TMiniMapMapsConfig.OnSelectedChange(AGUID: TGUID);
 begin
   if IsEqualGUID(AGUID, CGUID_Zero) then begin
-    SetActiveMiniMap(
-      FMainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(
-        FMainMapsConfig.GetActiveMap.GetSelectedGUID
-      )
-    );
+    SetActiveMiniMap(FMainMapsConfig.GetSelectedMapType);
   end else begin
     SetActiveMiniMap(GetActiveMap.GetMapsList.GetMapTypeByGUID(AGUID));
   end;

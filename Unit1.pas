@@ -1274,12 +1274,9 @@ begin
   TBHideMarks.Checked := not(FConfig.LayersConfig.MarksShowConfig.IsUseMarks);
 
   if FConfig.MainConfig.ShowMapName then begin
-    TBSMB.Caption:=
-      FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(
-        FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID
-      ).MapType.Name;
+    TBSMB.Caption := FConfig.MainMapsConfig.GetSelectedMapType.MapType.Name;
   end else begin
-    TBSMB.Caption:='';
+    TBSMB.Caption := '';
   end;
 
   Nanimate.Checked := FConfig.MainConfig.AnimateZoom;
@@ -1355,8 +1352,6 @@ begin
 end;
 
 procedure TFmain.OnToolbarsLockChange(Sender: TObject);
-var
-  VValue: Boolean;
 begin
   SetToolbarsLock(FConfig.ToolbarsLock.GetIsLock);
 end;
@@ -2148,7 +2143,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
-  VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
 
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
@@ -2200,7 +2195,7 @@ var
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
 begin
-  VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   if VMap.TileStorage.GetIsStoreFileCache then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
@@ -2231,7 +2226,7 @@ begin
   if TMenuItem(sender).Tag<>0 then begin
     VMapType := TMapType(TMenuItem(sender).Tag);
   end else begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+    VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
 
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
@@ -2268,7 +2263,7 @@ var
   VTile: TPoint;
   VMap: TMapType;
 begin
-  VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   if VMap.TileStorage.GetIsStoreFileCache then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
@@ -2298,7 +2293,7 @@ begin
   if TMenuItem(sender).Tag<>0 then begin
     VMap := TMapType(TMenuItem(sender).Tag);
   end else begin
-    VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+    VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
 
   if VMap.TileStorage.GetIsStoreFileCache then begin
@@ -2331,7 +2326,7 @@ begin
   if TMenuItem(sender).Tag<>0 then begin
     VMapType := TMapType(TMenuItem(sender).Tag);
   end else begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+    VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
 
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
@@ -2777,7 +2772,7 @@ begin
   if TMenuItem(sender).Tag<>0 then begin
     VMap := TMapType(TMenuItem(sender).Tag);
   end else begin
-    VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+    VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
   if VMap.UseDwn then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
@@ -2855,7 +2850,7 @@ var
   VMapType: TMapType;
 begin
   if TTBXItem(sender).Tag=0 then begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+    VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end else begin
     VMapType := TMapType(TTBXItem(sender).Tag);
   end;
@@ -3022,7 +3017,7 @@ begin
   VMapMoving := FMapMoving;
   FMapMoving:=false;
   FMouseUpPoint := Point(x, y);
-  VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoomCurr := VLocalConverter.GetZoom;
@@ -3370,7 +3365,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   if SaveLink.Execute then begin
-    VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+    VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VLonLat := VLocalConverter.GetCenterLonLat;
@@ -3610,7 +3605,7 @@ begin
   if TMenuItem(sender).Tag<>0 then begin
     VMap := TMapType(TMenuItem(sender).Tag);
   end else begin
-    VMap := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+    VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
   if VMap.MapInfo <> '' then begin
     Fbrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
@@ -3981,7 +3976,7 @@ begin
       end
     end;
   end;
-  VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID).MapType;
+  VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   NMapInfo.Enabled:=VMapType.MapInfo<>'';
 end;
 

@@ -60,7 +60,6 @@ function TMarksDbGUIHelper.AddKategory(name: string): TCategoryId;
 var
   VCategory: TCategoryId;
   VName: string;
-  VId: Integer;
 begin
   VName := name;
   VName := ExcludeTrailingBackslash(VName);

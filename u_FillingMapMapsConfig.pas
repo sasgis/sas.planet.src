@@ -99,11 +99,7 @@ var
 begin
   VGUID := GetActiveMap.GetSelectedGUID;
   if IsEqualGUID(VGUID, CGUID_Zero) then begin
-    SetActualMap(
-      FMainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(
-        FMainMapsConfig.GetActiveMap.GetSelectedGUID
-      )
-    );
+    SetActualMap(FMainMapsConfig.GetSelectedMapType);
   end;
 end;
 

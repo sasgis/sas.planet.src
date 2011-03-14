@@ -260,7 +260,7 @@ end;
 
 procedure TMapMainLayer.OnMainMapChange(Sender: TObject);
 begin
-  FMainMap := FMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(FMapsConfig.GetActiveMap.GetSelectedGUID);
+  FMainMap := FMapsConfig.GetSelectedMapType;
   Redraw;
 end;
 

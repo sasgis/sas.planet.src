@@ -22,7 +22,7 @@ type
     FMainCoordConverter: ICoordConverter;
     FVisibleCoordConverter: ILocalCoordConverter;
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
-    FMainMapConfig: IMainActiveMap;
+    FMainMapConfig: IMainMapsConfig;
 
     FActiveCoordConverter: ICoordConverter;
     FCenterPos: TPoint;
@@ -539,8 +539,7 @@ begin
     if FMainCoordConverter <> nil then begin
       VNewConverter := FMainCoordConverter;
     end else begin
-      VGUID := FMainMapConfig.GetActiveMap.GetSelectedGUID;
-      VMap := FMainMapConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID);
+      VMap := FMainMapConfig.GetSelectedMapType;
       if VMap <> nil then begin
         VNewConverter := VMap.MapType.MainGeoConvert;
       end;

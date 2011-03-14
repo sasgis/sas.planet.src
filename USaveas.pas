@@ -244,7 +244,6 @@ end;
 procedure TFsaveas.Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
 var
   i:integer;
-  VPoint: TPoint;
   VZoom: Byte;
   VExportProvider: TExportProviderAbstract;
 begin
