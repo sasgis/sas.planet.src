@@ -3,7 +3,6 @@ unit i_IActiveMapsConfig;
 interface
 
 uses
-  i_JclNotify,
   i_MapTypes,
   i_IConfigDataElement;
 

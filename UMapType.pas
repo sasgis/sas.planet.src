@@ -194,8 +194,7 @@ uses
   u_KmzInfoSimpleParser,
   u_GECache,
   u_TileStorageGEStuped,
-  u_TileStorageFileSystem,
-  u_CoordConverterBasic;
+  u_TileStorageFileSystem;
 
 procedure TMapType.LoadMapIcons(AConfig: IConfigDataProvider);
 var
