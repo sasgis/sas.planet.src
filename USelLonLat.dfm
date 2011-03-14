@@ -3,7 +3,7 @@ object FSelLonLat: TFSelLonLat
   Top = 289
   BorderStyle = bsSizeToolWin
   Caption = #1042#1099#1076#1077#1083#1077#1085#1080#1077' '#1087#1086' '#1082#1086#1086#1088#1076#1080#1085#1072#1090#1072#1084
-  ClientHeight = 174
+  ClientHeight = 217
   ClientWidth = 252
   Color = clBtnFace
   Constraints.MinHeight = 198
@@ -17,12 +17,13 @@ object FSelLonLat: TFSelLonLat
   TextHeight = 13
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 143
+    Top = 186
     Width = 252
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 143
     object Button2: TButton
       AlignWithMargins = True
       Left = 174
@@ -52,7 +53,7 @@ object FSelLonLat: TFSelLonLat
     Left = 0
     Top = 0
     Width = 252
-    Height = 143
+    Height = 186
     Align = alClient
     BevelOuter = bvNone
     ColumnCollection = <
@@ -78,25 +79,29 @@ object FSelLonLat: TFSelLonLat
         Value = 50.000000000000000000
       end>
     TabOrder = 1
+    ExplicitHeight = 143
     object grpTopLeft: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 246
-      Height = 65
+      Height = 87
       Align = alClient
       Caption = #1051#1077#1074#1099#1081' '#1074#1077#1088#1093#1085#1080#1081' '#1091#1075#1086#1083
       TabOrder = 0
+      ExplicitHeight = 65
     end
     object grpBottomRight: TGroupBox
       AlignWithMargins = True
       Left = 3
-      Top = 74
+      Top = 96
       Width = 246
-      Height = 66
+      Height = 87
       Align = alClient
       Caption = #1055#1088#1072#1074#1099#1081' '#1085#1080#1078#1085#1080#1081' '#1091#1075#1086#1083
       TabOrder = 1
+      ExplicitTop = 74
+      ExplicitHeight = 66
     end
   end
 end

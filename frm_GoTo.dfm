@@ -5,7 +5,7 @@ object frmGoTo: TfrmGoTo
   AlphaBlendValue = 220
   BorderStyle = bsToolWindow
   Caption = #1055#1077#1088#1077#1081#1090#1080' '#1082'...'
-  ClientHeight = 217
+  ClientHeight = 230
   ClientWidth = 337
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -70,22 +70,23 @@ object frmGoTo: TfrmGoTo
     Left = 3
     Top = 109
     Width = 331
-    Height = 74
+    Height = 87
     Align = alClient
     Caption = ' '
     TabOrder = 2
     OnEnter = grpLonLatEnter
-    ExplicitLeft = 8
+    ExplicitHeight = 109
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 186
+    Top = 199
     Width = 337
     Height = 31
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitTop = 221
     object lblZoom: TLabel
       AlignWithMargins = True
       Left = 3

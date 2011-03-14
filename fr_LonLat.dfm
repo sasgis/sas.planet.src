@@ -1,20 +1,18 @@
 object frLonLat: TfrLonLat
   Left = 0
   Top = 0
-  Width = 197
-  Height = 50
+  Width = 451
+  Height = 304
   VertScrollBar.Visible = False
   Align = alClient
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
-  ExplicitWidth = 451
-  ExplicitHeight = 304
   object grdpnlMain: TGridPanel
     Left = 0
-    Top = 0
-    Width = 197
-    Height = 50
+    Top = 24
+    Width = 451
+    Height = 280
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 3
@@ -23,7 +21,7 @@ object frLonLat: TfrLonLat
         Value = 31.676816935065850000
       end
       item
-        Value = 68.323183064934140000
+        Value = 68.323183064934160000
       end>
     ControlCollection = <
       item
@@ -54,45 +52,44 @@ object frLonLat: TfrLonLat
         Value = 50.000000000000000000
       end>
     TabOrder = 0
-    ExplicitWidth = 451
-    ExplicitHeight = 304
+    ExplicitTop = 30
     DesignSize = (
-      197
-      50)
+      451
+      280)
     object lblLat: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 3
-      Width = 54
-      Height = 19
+      Width = 134
+      Height = 134
       Margins.Top = 0
       Align = alClient
       Alignment = taRightJustify
       Caption = #1064#1080#1088#1086#1090#1072':'
       Layout = tlCenter
-      ExplicitLeft = 24
+      ExplicitLeft = 96
       ExplicitWidth = 44
       ExplicitHeight = 13
     end
     object lblLon: TLabel
       AlignWithMargins = True
       Left = 6
-      Top = 25
-      Width = 54
-      Height = 19
+      Top = 140
+      Width = 134
+      Height = 134
       Margins.Top = 0
       Align = alClient
       Alignment = taRightJustify
       Caption = #1044#1086#1083#1075#1086#1090#1072':'
       Layout = tlCenter
-      ExplicitLeft = 21
-      ExplicitTop = 30
+      ExplicitLeft = 93
+      ExplicitTop = 135
       ExplicitWidth = 47
       ExplicitHeight = 13
     end
     object EditLat: TEdit
-      Left = 63
-      Top = 5
+      Left = 143
+      Top = 62
       Width = 131
       Height = 18
       Anchors = [akLeft]
@@ -101,11 +98,11 @@ object frLonLat: TfrLonLat
       Ctl3D = False
       ParentCtl3D = False
       TabOrder = 0
-      ExplicitTop = 68
+      ExplicitTop = 60
     end
     object EditLon: TEdit
-      Left = 63
-      Top = 27
+      Left = 143
+      Top = 199
       Width = 131
       Height = 18
       Anchors = [akLeft]
@@ -114,7 +111,32 @@ object frLonLat: TfrLonLat
       Ctl3D = False
       ParentCtl3D = False
       TabOrder = 1
-      ExplicitTop = 217
+      ExplicitTop = 192
+    end
+  end
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 451
+    Height = 24
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 1
+    object ComboBoxCoordType: TComboBox
+      Left = 6
+      Top = 3
+      Width = 123
+      Height = 21
+      Style = csDropDownList
+      ItemHeight = 13
+      ItemIndex = 0
+      TabOrder = 0
+      Text = #1043#1077#1086#1075#1088#1072#1092#1080#1095#1077#1089#1082#1080#1077
+      OnSelect = ComboBoxCoordTypeSelect
+      Items.Strings = (
+        #1043#1077#1086#1075#1088#1072#1092#1080#1095#1077#1089#1082#1080#1077
+        #1055#1080#1082#1089#1077#1083#1100#1085#1099#1077
+        #1058#1072#1081#1083#1086#1074#1099#1077)
     end
   end
 end

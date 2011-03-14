@@ -17,7 +17,9 @@ uses
   StdCtrls,
   Mask,
   u_CommonFormAndFrameParents,
-  t_GeoTypes;
+  i_ILocalCoordConverter,
+  t_GeoTypes,
+  unit1;
 
 type
   TfrLonLat = class(TFrame)
@@ -26,7 +28,12 @@ type
     grdpnlMain: TGridPanel;
     EditLat: TEdit;
     EditLon: TEdit;
+    Panel1: TPanel;
+    ComboBoxCoordType: TComboBox;
+    procedure ComboBoxCoordTypeSelect(Sender: TObject);
   private
+    FCoordinates: TDoublePoint;
+    FBitmapCoordConverter: ILocalCoordConverter;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
     function Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
@@ -40,11 +47,27 @@ uses
   Ugeofun,
   i_IValueToStringConverter,
   u_GeoToStr,
-  u_GlobalState;
+  u_GlobalState,
+  UResStrings;
 
 {$R *.dfm}
 
 { TfrLonLat }
+procedure TfrLonLat.ComboBoxCoordTypeSelect(Sender: TObject);
+begin
+  SetLonLat(FCoordinates);
+  case ComboBoxCoordType.ItemIndex of
+   0:   begin
+          lblLat.Caption:=SAS_STR_Lat+':';
+          lblLon.Caption:=SAS_STR_Lon+':'
+        end;
+   1,2: begin
+          lblLat.Caption:=SAS_STR_OnHorizontal+':';
+          lblLon.Caption:=SAS_STR_OnVertical+':'
+        end;
+  end;
+end;
+
 function TfrLonLat.Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
 var i,delitel:integer;
     gms:double;
@@ -110,22 +133,79 @@ begin
 end;
 
 function TfrLonLat.GetLonLat: TDoublePoint;
+var  VLocalConverter: ILocalCoordConverter;
+     XYPoint:TPoint;
+     XYRect:TRect;
+     CurrZoom:integer;
 begin
-  if not(Edit2Digit(EditLat.Text,true,Result.y)) then begin
-    ShowMessage('Неверный формат ввода широты!');
-  end;
-  if not(Edit2Digit(EditLon.Text,false,Result.x)) then begin
-    ShowMessage('Неверный формат ввода широты!');
+  case ComboBoxCoordType.ItemIndex of
+   0: begin
+        if not(Edit2Digit(EditLat.Text,true,Result.y))or
+           not(Edit2Digit(EditLon.Text,false,Result.x)) then begin
+          ShowMessage(SAS_ERR_CoordinatesInput);
+        end;
+      end;
+   1: begin
+        try
+          XYPoint.X:=strtoint(EditLon.Text);
+          XYPoint.Y:=strtoint(EditLat.Text);
+        except
+          ShowMessage(SAS_ERR_CoordinatesInput);
+        end;
+        CurrZoom:=GState.MainFormConfig.ViewPortState.GetCurrentZoom;
+        VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+        Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,CurrZoom);
+      end;
+   2: begin
+        try
+          XYPoint.X:=strtoint(EditLon.Text);
+          XYPoint.Y:=strtoint(EditLat.Text);
+        except
+          ShowMessage(SAS_ERR_CoordinatesInput);
+        end;
+        CurrZoom:=GState.MainFormConfig.ViewPortState.GetCurrentZoom;
+        VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+        XYRect:=VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,CurrZoom);
+        XYPoint:=Point(XYRect.Right-(XYRect.Right-XYRect.Left)div 2,
+                       XYRect.Bottom-(XYRect.Bottom-XYRect.top)div 2);
+        Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,CurrZoom);
+      end;
   end;
 end;
 
 procedure TfrLonLat.SetLonLat(const Value: TDoublePoint);
 var
   VValueConverter: IValueToStringConverter;
+  XYPoint:TPoint;
+  CurrZoom:integer;
+  VLocalConverter: ILocalCoordConverter;
 begin
+  FCoordinates:=Value;
   VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-  EditLon.Text:=VValueConverter.LonConvert(Value.x);
-  EditLat.Text:=VValueConverter.LatConvert(Value.y);
+  if ComboBoxCoordType.ItemIndex=-1 then begin
+    ComboBoxCoordType.ItemIndex:=0;
+  end;
+
+  case ComboBoxCoordType.ItemIndex of
+   0: begin
+        EditLon.Text:=VValueConverter.LonConvert(Value.x);
+        EditLat.Text:=VValueConverter.LatConvert(Value.y);
+      end;
+   1: begin
+        CurrZoom:=GState.MainFormConfig.ViewPortState.GetCurrentZoom;
+        VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+        XYPoint:=VLocalConverter.GetGeoConverter.LonLat2PixelPos(Value,CurrZoom);
+        EditLon.Text:=inttostr(XYPoint.x);
+        EditLat.Text:=inttostr(XYPoint.y);
+      end;
+   2: begin
+        CurrZoom:=GState.MainFormConfig.ViewPortState.GetCurrentZoom;
+        VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+        XYPoint:=VLocalConverter.GetGeoConverter.LonLat2TilePos(Value,CurrZoom);
+        EditLon.Text:=inttostr(XYPoint.x);
+        EditLat.Text:=inttostr(XYPoint.y);
+      end;
+  end;
 end;
 
 end.

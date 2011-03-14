@@ -72,6 +72,7 @@ ResourceString
   SAS_ERR_MapDownloadByError = 'Для карты %0:s отключена загрузка тайлов из-за ошибки: %1:s';
   SAS_ERR_TileDownloadContentTypeUnexpcted = 'Ошибочный тип данных';
   SAS_ERR_TileDownloadUnexpectedError = 'Неизвестная ошибка при скачивании';
+  SAS_ERR_CoordinatesInput='Ошибка ввода координат';
 
   SAS_STR_MarshLen = 'Длина маршрута: ';
   SAS_STR_Marshtime = 'Время в пути: ';
@@ -135,6 +136,10 @@ ResourceString
   SAS_STR_Wite = 'Ждем';
   SAS_STR_S = 'Площадь';
   SAS_STR_L = 'Длина';
+  SAS_STR_Lat = 'Широта';
+  SAS_STR_Lon = 'Долгота';
+  SAS_STR_OnVertical = 'По вертикали';
+  SAS_STR_OnHorizontal = 'По горизонтали';
   SAS_STR_P = 'Периметр';
   SAS_STR_Whole = 'Всего';
   SAS_STR_Maps = 'Карты';
