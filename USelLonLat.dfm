@@ -4,7 +4,7 @@ object FSelLonLat: TFSelLonLat
   BorderStyle = bsSizeToolWin
   Caption = #1042#1099#1076#1077#1083#1077#1085#1080#1077' '#1087#1086' '#1082#1086#1086#1088#1076#1080#1085#1072#1090#1072#1084
   ClientHeight = 217
-  ClientWidth = 252
+  ClientWidth = 291
   Color = clBtnFace
   Constraints.MinHeight = 198
   Constraints.MinWidth = 260
@@ -18,15 +18,15 @@ object FSelLonLat: TFSelLonLat
   object pnlBottomButtons: TPanel
     Left = 0
     Top = 186
-    Width = 252
+    Width = 291
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 143
+    ExplicitWidth = 252
     object Button2: TButton
       AlignWithMargins = True
-      Left = 174
+      Left = 213
       Top = 3
       Width = 75
       Height = 25
@@ -35,10 +35,11 @@ object FSelLonLat: TFSelLonLat
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 0
+      ExplicitLeft = 174
     end
     object Button1: TButton
       AlignWithMargins = True
-      Left = 93
+      Left = 132
       Top = 3
       Width = 75
       Height = 25
@@ -47,12 +48,13 @@ object FSelLonLat: TFSelLonLat
       Default = True
       ModalResult = 1
       TabOrder = 1
+      ExplicitLeft = 93
     end
   end
   object grdpnlMain: TGridPanel
     Left = 0
     Top = 0
-    Width = 252
+    Width = 291
     Height = 186
     Align = alClient
     BevelOuter = bvNone
@@ -79,29 +81,28 @@ object FSelLonLat: TFSelLonLat
         Value = 50.000000000000000000
       end>
     TabOrder = 1
-    ExplicitHeight = 143
+    ExplicitWidth = 252
     object grpTopLeft: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 246
+      Width = 285
       Height = 87
       Align = alClient
       Caption = #1051#1077#1074#1099#1081' '#1074#1077#1088#1093#1085#1080#1081' '#1091#1075#1086#1083
       TabOrder = 0
-      ExplicitHeight = 65
+      ExplicitWidth = 246
     end
     object grpBottomRight: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 96
-      Width = 246
+      Width = 285
       Height = 87
       Align = alClient
       Caption = #1055#1088#1072#1074#1099#1081' '#1085#1080#1078#1085#1080#1081' '#1091#1075#1086#1083
       TabOrder = 1
-      ExplicitTop = 74
-      ExplicitHeight = 66
+      ExplicitWidth = 246
     end
   end
 end

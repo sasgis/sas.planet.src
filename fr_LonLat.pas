@@ -23,13 +23,18 @@ uses
 
 type
   TfrLonLat = class(TFrame)
-    lblLat: TLabel;
-    lblLon: TLabel;
-    grdpnlMain: TGridPanel;
-    EditLat: TEdit;
-    EditLon: TEdit;
     Panel1: TPanel;
     ComboBoxCoordType: TComboBox;
+    grdpnlFull: TGridPanel;
+    Panel2: TPanel;
+    grdpnlMain: TGridPanel;
+    lblLat: TLabel;
+    lblLon: TLabel;
+    EditLat: TEdit;
+    EditLon: TEdit;
+    pnlZoom: TPanel;
+    lblZoom: TLabel;
+    cbbZoom: TComboBox;
     procedure ComboBoxCoordTypeSelect(Sender: TObject);
   private
     FCoordinates: TDoublePoint;
@@ -59,13 +64,16 @@ begin
   case ComboBoxCoordType.ItemIndex of
    0:   begin
           lblLat.Caption:=SAS_STR_Lat+':';
-          lblLon.Caption:=SAS_STR_Lon+':'
+          lblLon.Caption:=SAS_STR_Lon+':';
+          pnlZoom.Visible:=false;
         end;
    1,2: begin
           lblLat.Caption:=SAS_STR_OnHorizontal+':';
-          lblLon.Caption:=SAS_STR_OnVertical+':'
+          lblLon.Caption:=SAS_STR_OnVertical+':';
+          pnlZoom.Visible:=true;
         end;
   end;
+  grdpnlMain.Realign;
 end;
 
 function TfrLonLat.Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
@@ -136,7 +144,6 @@ function TfrLonLat.GetLonLat: TDoublePoint;
 var  VLocalConverter: ILocalCoordConverter;
      XYPoint:TPoint;
      XYRect:TRect;
-     CurrZoom:integer;
 begin
   case ComboBoxCoordType.ItemIndex of
    0: begin
@@ -152,9 +159,8 @@ begin
         except
           ShowMessage(SAS_ERR_CoordinatesInput);
         end;
-        CurrZoom:=GState.MainFormConfig.ViewPortState.GetCurrentZoom;
         VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
-        Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,CurrZoom);
+        Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,cbbZoom.ItemIndex);
       end;
    2: begin
         try
@@ -163,12 +169,11 @@ begin
         except
           ShowMessage(SAS_ERR_CoordinatesInput);
         end;
-        CurrZoom:=GState.MainFormConfig.ViewPortState.GetCurrentZoom;
         VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
-        XYRect:=VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,CurrZoom);
+        XYRect:=VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,cbbZoom.ItemIndex);
         XYPoint:=Point(XYRect.Right-(XYRect.Right-XYRect.Left)div 2,
                        XYRect.Bottom-(XYRect.Bottom-XYRect.top)div 2);
-        Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,CurrZoom);
+        Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,cbbZoom.ItemIndex);
       end;
   end;
 end;
@@ -182,6 +187,8 @@ var
 begin
   FCoordinates:=Value;
   VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
+  CurrZoom:=GState.MainFormConfig.ViewPortState.GetCurrentZoom;
+  cbbZoom.ItemIndex:=CurrZoom;
   if ComboBoxCoordType.ItemIndex=-1 then begin
     ComboBoxCoordType.ItemIndex:=0;
   end;
@@ -192,14 +199,12 @@ begin
         EditLat.Text:=VValueConverter.LatConvert(Value.y);
       end;
    1: begin
-        CurrZoom:=GState.MainFormConfig.ViewPortState.GetCurrentZoom;
         VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
         XYPoint:=VLocalConverter.GetGeoConverter.LonLat2PixelPos(Value,CurrZoom);
         EditLon.Text:=inttostr(XYPoint.x);
         EditLat.Text:=inttostr(XYPoint.y);
       end;
    2: begin
-        CurrZoom:=GState.MainFormConfig.ViewPortState.GetCurrentZoom;
         VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
         XYPoint:=VLocalConverter.GetGeoConverter.LonLat2TilePos(Value,CurrZoom);
         EditLon.Text:=inttostr(XYPoint.x);
