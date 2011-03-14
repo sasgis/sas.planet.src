@@ -34,7 +34,7 @@ type
   end;
 
   TUrlGenerator = class(TUrlGeneratorBasic)
-  protected
+  private
     FCoordConverter: ICoordConverterSimple;
     FGetURLScript: string;
 
@@ -55,10 +55,10 @@ type
     FpGetBMetr: PPSVariantDouble;
     FpConverter: PPSVariantInterface;
     procedure SetVar(AXY: TPoint; AZoom: Byte);
+    procedure LoadProjectionInfo(AConfig : IConfigDataProvider);
   public
     constructor Create(
-      AConfig: IConfigDataProvider;
-      ACoordConverter: ICoordConverterSimple
+      AConfig: IConfigDataProvider
       );
     destructor Destroy; override;
     function GenLink(Ax, Ay: longint; Azoom: byte): string; override;
@@ -73,7 +73,8 @@ uses
   uPSUtils,
   u_GeoToStr,
   UResStrings,
-  t_GeoTypes;
+  t_GeoTypes,
+  u_GlobalState;
 
 { TUrlGeneratorBasic }
 
@@ -183,9 +184,7 @@ begin
 end;
 
 { TUrlGenerator }
-constructor TUrlGenerator.Create(
-  AConfig: IConfigDataProvider;
-  ACoordConverter: ICoordConverterSimple);
+constructor TUrlGenerator.Create(AConfig: IConfigDataProvider);
 var
   i: integer;
   Msg: string;
@@ -193,8 +192,7 @@ var
   VData: string;
 begin
   inherited Create(AConfig);
-  FCoordConverter := ACoordConverter;
-
+  LoadProjectionInfo(AConfig);
   FGetURLScript := AConfig.ReadString('GetUrlScript.txt', '');
 
   VCompiler := TPSPascalCompiler.Create;       // create an instance of the compiler.
@@ -293,6 +291,16 @@ begin
   finally
     FCS.Release;
   end;
+end;
+
+procedure TUrlGenerator.LoadProjectionInfo(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
+  VCoordConverter: ICoordConverter;
+begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  VCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
+  FCoordConverter := VCoordConverter as ICoordConverterSimple;
 end;
 
 end.

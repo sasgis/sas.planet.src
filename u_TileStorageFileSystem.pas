@@ -79,9 +79,14 @@ uses
 
 constructor TTileStorageFileSystem.Create(AConfig: IConfigDataProvider);
 var
+  VParamsTXT: IConfigDataProvider;
   VParams: IConfigDataProvider;
 begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  VParamsTXT := AConfig.GetSubItem('params.txt');
+  VParams := VParamsTXT.GetSubItem('Storage');
+  if VParams = nil then begin
+    VParams := VParamsTXT.GetSubItem('PARAMS');
+  end;
   FUseDel:=VParams.ReadBool('Usedel',true);
   FIsStoreReadOnly:=VParams.ReadBool('ReadOnly', false);
   FUseSave:=VParams.ReadBool('Usesave',true);

@@ -62,12 +62,11 @@ type
     FCSSaveTile: TCriticalSection;
     FCSSaveTNF: TCriticalSection;
     FCoordConverter : ICoordConverter;
-    FConverterForUrlGenerator: ICoordConverterSimple;
+    FMainCoordConverter : ICoordConverter;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
     FTileDownlodSessionFactory: ITileDownlodSessionFactory;
     FLoadPrevMaxZoomDelta: Integer;
 
-    function GetCoordConverter: ICoordConverter;
     function GetUseDwn: Boolean;
     function GetZmpFileName: string;
     function GetIsCanShowOnSmMap: boolean;
@@ -138,7 +137,8 @@ type
     function GetShortFolderName: string;
     function DownloadTile(AThread: TThread; ATile: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult; overload;
 
-    property GeoConvert: ICoordConverter read GetCoordConverter;
+    property GeoConvert: ICoordConverter read FCoordConverter;
+    property MainGeoConvert: ICoordConverter read FMainCoordConverter;
     property GUID: TGUID read FGuid;
     property GUIDString: string read GetGUIDString;
 
@@ -195,10 +195,7 @@ uses
   u_GECache,
   u_TileStorageGEStuped,
   u_TileStorageFileSystem,
-  u_CoordConverterBasic,
-  u_CoordConverterMercatorOnSphere,
-  u_CoordConverterMercatorOnEllipsoid,
-  u_CoordConverterSimpleLonLat;
+  u_CoordConverterBasic;
 
 procedure TMapType.LoadMapIcons(AConfig: IConfigDataProvider);
 var
@@ -242,7 +239,7 @@ procedure TMapType.LoadUrlScript(AConfig: IConfigDataProvider);
 begin
   if FUseDwn then begin
     try
-      FUrlGenerator := TUrlGenerator.Create(AConfig, FConverterForUrlGenerator);
+      FUrlGenerator := TUrlGenerator.Create(AConfig);
       //GetLink(0,0,0);
     except
       on E: Exception do begin
@@ -297,25 +294,16 @@ end;
 
 procedure TMapType.LoadProjectionInfo(AConfig: IConfigDataProvider);
 var
-  projection: byte;
-  VConverter: TCoordConverterBasic;
+  VParamsTXT: IConfigDataProvider;
   VParams: IConfigDataProvider;
-  VRadiusA: Double;
-  VRadiusB: Double;
 begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-
-  projection:= VParams.ReadInteger('projection',1);
-  VRadiusA := VParams.ReadFloat('sradiusa',6378137);
-  VRadiusB := VParams.ReadFloat('sradiusb',VRadiusA);
-  case projection of
-    1: VConverter := TCoordConverterMercatorOnSphere.Create(VRadiusA);
-    2: VConverter := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
-    3: VConverter := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
-    else raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(projection)]);
+  FCoordConverter := FStorage.GetCoordConverter;
+  VParamsTXT := AConfig.GetSubItem('params.txt');
+  VParams := VParamsTXT.GetSubItem('ViewInfo');
+  if VParams = nil then begin
+    VParams := VParamsTXT.GetSubItem('PARAMS');
   end;
-  FCoordConverter := VConverter;
-  FConverterForUrlGenerator := VConverter;
+  FMainCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
 end;
 
 procedure TMapType.LoadMimeTypeSubstList(AConfig: IConfigDataProvider);
@@ -423,8 +411,8 @@ begin
   end;
 
   LoadMapInfo(AConfig);
-  LoadProjectionInfo(AConfig);
   LoadStorageParams(AConfig);
+  LoadProjectionInfo(AConfig);
   LoadMapIcons(AConfig);
   LoadWebSourceParams(AConfig);
   FUsestick:=VParams.ReadBool('Usestick',true);
@@ -666,14 +654,6 @@ end;
 function TMapType.GetShortFolderName: string;
 begin
   Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FStorage.CacheConfig.NameInCache)));
-end;
-
-
-function TMapType.GetCoordConverter: ICoordConverter;
-begin
- if Self=nil
-  then Result:= nil
-  else Result:= FCoordConverter;
 end;
 
 constructor TMapType.Create(AGUID: TGUID; AConfig: IConfigDataProvider; Apnum: Integer);

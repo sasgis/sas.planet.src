@@ -21,7 +21,8 @@ uses
   c_CoordConverter,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
-  u_CoordConverterSimpleLonLat;
+  u_CoordConverterSimpleLonLat,
+  UResStrings;
 
 { TCoordConverterFactorySimple }
 
@@ -52,7 +53,7 @@ begin
         Result := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
       end;
       else
-        raise Exception.Create('Неизвестный код проекции');
+        raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(AProjectionEPSG)]);
     end;
   end else begin
     raise Exception.Create('Неизвестный тип разделения карты на тайлы');
@@ -65,20 +66,35 @@ var
   VProjection: byte;
   VRadiusA: Double;
   VRadiusB: Double;
+  VEPSG: Integer;
+  VTileSplitCode: Integer;
 begin
+  VTileSplitCode := CTileSplitQuadrate256x256;
+  VEPSG := 0;
   VProjection := 1;
   VRadiusA := 6378137;
   VRadiusB := VRadiusA;
   if AConfig <> nil then begin
+    VEPSG := AConfig.ReadInteger('EPSG', VEPSG);
     VProjection := AConfig.ReadInteger('projection', VProjection);
     VRadiusA := AConfig.ReadFloat('sradiusa', VRadiusA);
     VRadiusB := AConfig.ReadFloat('sradiusb', VRadiusA);
   end;
-  case VProjection of
-    1: Result := TCoordConverterMercatorOnSphere.Create(VRadiusA);
-    2: Result := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
-    3: Result := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
-    else raise Exception.Create('Ошибочный тип проэкции карты ' + IntToStr(VProjection));
+  if VEPSG <> 0 then begin
+    try
+      Result := GetCoordConverterByCode(VEPSG, VTileSplitCode);
+    except
+      Result := nil;
+    end;
+  end;
+  if Result = nil then begin
+    case VProjection of
+      1: Result := TCoordConverterMercatorOnSphere.Create(VRadiusA);
+      2: Result := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
+      3: Result := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
+      else
+        raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);
+    end;
   end;
 end;
 

@@ -542,7 +542,7 @@ begin
       VGUID := FMainMapConfig.GetActiveMap.GetSelectedGUID;
       VMap := FMainMapConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID);
       if VMap <> nil then begin
-        VNewConverter := VMap.MapType.GeoConvert;
+        VNewConverter := VMap.MapType.MainGeoConvert;
       end;
     end;
     if VNewConverter <> nil then begin
