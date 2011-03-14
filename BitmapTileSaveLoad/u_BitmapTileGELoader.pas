@@ -82,6 +82,7 @@ var
 begin
   AStream.Position := 0;
   AStream.ReadBuffer(VTileStart, SizeOf(VTileStart));
+  AStream.Position := 0;
   case VTileStart of
     CRYPTED_JPEG: begin
       GEcrypt(AStream.Memory, AStream.Size);

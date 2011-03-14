@@ -143,17 +143,17 @@ begin
   if AStream.Size <> DXT_FILE_SIZE then begin
     raise Exception.Create('Ошибочный размер DXT тайла.');
   end;
-  VSize.X := PGETexture(AStream.Memory).GE_HEAD.Xrez;
-  VSize.Y := PGETexture(AStream.Memory).GE_HEAD.Yrez;
+  VSize.X := PGETexture(AStream.Memory).GE_HEAD.Xrez div 4;
+  VSize.Y := PGETexture(AStream.Memory).GE_HEAD.Yrez div 4;
   ABtm.SetSize(VSize.X * 4, VSize.Y * 4);
-  for i := 0 to VSize.Y do begin
-    for j := 0 to VSize.X do begin
+  for i := 0 to VSize.Y - 1 do begin
+    for j := 0 to VSize.X - 1 do begin
       VDXT1 := PGETexture(AStream.Memory).DXT1[i, j];
       GetColors(VDXT1.Color0, VDXT1.Color1, VColors);
       pix := 0;
       for k := 0 to 3 do begin
         for n := 0 to 3 do begin
-          VPosition := (i * 4 + k) * VSize.X + 4 * j + n;
+          VPosition := (255 - (i * 4 + k)) * VSize.X * 4 + 4 * j + n;
           ABtm.Bits[VPosition] := VColors[GetColorIndex(VDXT1.BitMask, pix)].ARGB;
           inc(pix);
         end;

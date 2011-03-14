@@ -192,6 +192,7 @@ constructor TMapTypeCacheConfigGE.Create(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
 begin
+  inherited Create;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FTileFileExt := '';
   FCacheType := 5;

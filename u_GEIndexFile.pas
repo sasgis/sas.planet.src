@@ -13,14 +13,14 @@ type
     Magic  : LongWord;  // число-идентификатор =  D5 BF 93 75
     Ver    : Word;      // версия тайла
     TileID : Byte;      // тип тайла
-    Res1   : Byte;
+    Res1   : Byte;      // ?
     Zoom   : Byte;      // уровень зума
-    Res2   : Byte;
+    Res2   : Byte;      // ?
     Layer  : Word;      // номер слоя (только для слоя, иначе = 0)
     NameLo : LongWord;  // первая часть имени
     NameHi : LongWord;  // вторая часть имени
-    ServID : Word;      // номер сервера из списка в dbCache.dat
-    Unk    : Word;
+    ServID : Word;      // номер сервера из списка в dbCache.dat 
+    Unk    : Word;      // ? наличие поля зависит от ОС (в Win - есть, в Linux - нет)
     Offset : LongWord;  // позиция тайла в кэше dbCache.dat
     Size   : LongWord;  // размер тайла
   end;
@@ -88,21 +88,21 @@ begin
     for i := 1 to AZoom do begin
       if (APoint.X and VMask) > 0 then begin
         if (APoint.y and VMask) > 0 then begin
-          VValue := 3;
-        end else begin
           VValue := 0;
+        end else begin
+          VValue := 3;
         end;
       end else begin
         if (APoint.y and VMask) > 0 then begin
-          VValue := 2;
-        end else begin
           VValue := 1;
+        end else begin
+          VValue := 2;
         end;
       end;
       if i < 16 then begin
-        ANameHi := ANameHi or (LongWord(VValue) shl (30 - i * 2));
+        ANameLo := ANameLo or (LongWord(VValue) shl (32 - i * 2));
       end else begin
-        ANameLo := ANameLo or (LongWord(VValue) shl (30 - (i - 16) * 2));
+        ANameHi := ANameHi or (LongWord(VValue) shl (30 - (i - 16) * 2));
       end;
       VMask := VMask shr 1;
     end;
@@ -138,14 +138,17 @@ begin
       if FFileInited then begin
         if Length(FIndexInfo) > 0 then begin
           GEXYZtoHexTileName(APoint, AZoom, VNameHi, VNameLo);
-          for i := 0 to Length(FIndexInfo) - 1 do begin
-            if FIndexInfo[i].TileID = 130 then begin
-              if FIndexInfo[i].Zoom = AZoom then begin
-                if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
-                  AOffset := FIndexInfo[i].Offset;
-                  ASize := FIndexInfo[i].Size;
-                  AVersion := FIndexInfo[i].Ver;
-                  Result := True;
+          for i := Length(FIndexInfo) - 1 downto 0 do begin
+            if FIndexInfo[i].Magic = $7593BFD5 then begin
+              if FIndexInfo[i].TileID = 130 then begin
+                if FIndexInfo[i].Zoom = AZoom then begin
+                  if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
+                    AOffset := FIndexInfo[i].Offset;
+                    ASize := FIndexInfo[i].Size;
+                    AVersion := FIndexInfo[i].Ver;
+                    Result := True;
+                    Break;
+                  end;
                 end;
               end;
             end;
