@@ -88,21 +88,21 @@ begin
     for i := 1 to AZoom do begin
       if (APoint.X and VMask) > 0 then begin
         if (APoint.y and VMask) > 0 then begin
-          VValue := 0;
-        end else begin
-          VValue := 3;
-        end;
-      end else begin
-        if (APoint.y and VMask) > 0 then begin
           VValue := 1;
         end else begin
           VValue := 2;
         end;
+      end else begin
+        if (APoint.y and VMask) > 0 then begin
+          VValue := 0;
+        end else begin
+          VValue := 3;
+        end;
       end;
-      if i < 16 then begin
+      if i <= 16 then begin
         ANameLo := ANameLo or (LongWord(VValue) shl (32 - i * 2));
       end else begin
-        ANameHi := ANameHi or (LongWord(VValue) shl (30 - (i - 16) * 2));
+        ANameHi := ANameHi or (LongWord(VValue) shl (32 - (i - 16) * 2));
       end;
       VMask := VMask shr 1;
     end;
