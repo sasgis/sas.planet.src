@@ -93,7 +93,9 @@ end;
 
 procedure TFbrowser.showmessage(ACaption,AText: string);
 begin
-  TextToWebBrowser(AText);
+  EmbeddedWB1.HostNS:='sasgis.ru';
+  EmbeddedWB1.HTMLCode.Text:=AText;
+//  TextToWebBrowser(AText);
   Caption:=ACaption;
   show;
 end;

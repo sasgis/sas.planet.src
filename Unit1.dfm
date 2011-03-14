@@ -819,7 +819,7 @@ object Fmain: TFmain
         end
       end
       object NSMB: TTBXSubmenuItem
-        LinkSubitems = TBSMB
+        LinkSubitems = tbsprtGPS1
         Caption = '&'#1050#1072#1088#1090#1099
         Hint = ''
       end

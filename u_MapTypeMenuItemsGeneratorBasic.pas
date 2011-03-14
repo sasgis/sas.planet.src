@@ -141,6 +141,7 @@ var
   VSubMenu: TTBCustomItem;
   VMenuItem: TTBXCustomItem;
   VSubMenuName: string;
+  VMapType: TMapType;
 begin
   VActiveMap := FMapsSet.GetMapSingle(AGUID);
   if VActiveMap <> nil then begin
@@ -154,6 +155,12 @@ begin
     Assert(VSubMenu <> nil);
     VMenuItem := CreateMenuItem(VActiveMap);
     VSubMenu.Add(VMenuItem);
+    if VActiveMap.GetMapType <> nil then begin
+      VMapType:=VActiveMap.GetMapType.MapType;
+    end;
+    if (VMapType<>nil)and(VActiveMap.GetMapType.MapType.separator) then begin
+      VSubMenu.Add(TTBSeparatorItem.Create(FRootMenu));
+    end;
   end;
 end;
 
