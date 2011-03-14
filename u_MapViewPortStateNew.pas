@@ -528,7 +528,6 @@ end;
 procedure TMapViewPortStateNew.SetActiveCoordConverter;
 var
   VNewConverter: ICoordConverter;
-  VGUID: TGUID;
   VMap: IMapType;
   VCenterLonLat: TDoublePoint;
   VChanged: Boolean;
