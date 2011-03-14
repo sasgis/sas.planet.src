@@ -11,6 +11,7 @@ uses
   SyncObjs,
   GR32,
   t_GeoTypes,
+  i_ContentTypeInfo,
   i_IConfigDataProvider,
   i_ITileObjCache,
   i_ICoordConverter,
@@ -66,6 +67,7 @@ type
     FPoolOfDownloaders: IPoolOfObjectsSimple;
     FTileDownlodSessionFactory: ITileDownlodSessionFactory;
     FLoadPrevMaxZoomDelta: Integer;
+    FContentType: IContentTypeInfoBasic;
 
     function GetUseDwn: Boolean;
     function GetZmpFileName: string;
@@ -192,8 +194,7 @@ uses
   u_TileCacheSimpleGlobal,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
-  u_GECache,
-  u_TileStorageGEStuped,
+  u_TileStorageGE,
   u_TileStorageFileSystem;
 
 procedure TMapType.LoadMapIcons(AConfig: IConfigDataProvider);
@@ -268,27 +269,25 @@ end;
 procedure TMapType.LoadStorageParams(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
+  VContentTypeBitmap: IContentTypeInfoBitmap;
+  VContentTypeKml: IContentTypeInfoKml;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   if VParams.ReadInteger('CacheType', 0) = 5  then begin
-    FStorage := TTileStorageGEStuped.Create(AConfig);
+    FStorage := TTileStorageGE.Create(AConfig);
   end else begin
     FStorage := TTileStorageFileSystem.Create(AConfig);
   end;
-
-  FCache := TTileCacheSimpleGlobal.Create(Self, GState.MainMemCache);
-  FBitmapLoaderFromStorage := GState.BitmapTypeManager.GetBitmapLoaderForExt(TileStorage.TileFileExt);
-  if FBitmapLoaderFromStorage <> nil then begin
+  FContentType := FStorage.GetMainContentType;
+  if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+    FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
     if FStorage.GetUseSave then begin
-      FBitmapSaverToStorage := GState.BitmapTypeManager.GetBitmapSaverForExt(TileStorage.TileFileExt);
+      FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
     end;
-  end else begin
-    if TileStorage.TileFileExt = '.kmz' then begin
-      FKmlLoaderFromStorage := TKmzInfoSimpleParser.Create;
-    end else if TileStorage.TileFileExt = '.kml' then begin
-      FKmlLoaderFromStorage := TKmlInfoSimpleParser.Create;
-    end;
+  end else if Supports(FContentType, IContentTypeInfoKml, VContentTypeKml) then begin
+    FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
   end;
+  FCache := TTileCacheSimpleGlobal.Create(Self, GState.MainMemCache);
 end;
 
 procedure TMapType.LoadProjectionInfo(AConfig: IConfigDataProvider);
@@ -844,11 +843,7 @@ function TMapType.LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte;
 begin
   try
     if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-      if FStorage.CacheConfig.EffectiveCacheType = 5 then begin
-        result:=GetGETile(btm, FStorage.CacheConfig.BasePath+'dbCache.dat',AXY.X, AXY.Y, Azoom + 1, FCoordConverter);
-      end else begin
-        result:=LoadBitmapTileFromStorage(AXY, Azoom, btm);
-      end;
+      result:=LoadBitmapTileFromStorage(AXY, Azoom, btm);
       if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
     end else begin
       result:=true;
