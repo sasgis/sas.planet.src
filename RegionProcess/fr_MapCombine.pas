@@ -56,11 +56,13 @@ type
     seJpgQuality: TSpinEdit;
     lblStat: TLabel;
     pnlBottom: TPanel;
+    pnlCenterMain: TPanel;
     procedure cbbOutputFormatChange(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
     FPolygLL: TArrayOfDoublePoint;
+    procedure UpdatePanelSizes;
   public
     constructor Create(AOwner: TComponent); override;
     procedure RefreshTranslation; override;
@@ -133,6 +135,7 @@ constructor TfrMapCombine.Create(AOwner: TComponent);
 begin
   inherited;
   cbbOutputFormat.ItemIndex := 0;
+  UpdatePanelSizes;
 end;
 
 procedure TfrMapCombine.Init(AZoom: Byte; APolygLL: TArrayOfDoublePoint);
@@ -200,6 +203,12 @@ begin
   i := cbbOutputFormat.ItemIndex;
   inherited;
   cbbOutputFormat.ItemIndex := i;
+  UpdatePanelSizes;
+end;
+
+procedure TfrMapCombine.UpdatePanelSizes;
+begin
+  pnlCenter.ClientHeight := pnlMapSource.Height;
 end;
 
 end.
