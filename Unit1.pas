@@ -375,6 +375,7 @@ type
     TBOpenDirLayer: TTBXSubmenuItem;
     TBCopyLinkLayer: TTBXSubmenuItem;
     TBLayerInfo: TTBXSubmenuItem;
+    TBScreenSelect: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -507,6 +508,7 @@ type
     procedure MainPopupMenuPopup(Sender: TObject);
     procedure TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette; var ACol,
       ARow: Integer; var AllowChange: Boolean);
+    procedure TBScreenSelectClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3715,6 +3717,36 @@ begin
         end;
       end;
     end;
+  end;
+end;
+
+procedure TFmain.TBScreenSelectClick(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMapRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VPolygon: TArrayOfDoublePoint;
+begin
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMapRect := VLocalConverter.GetRectInMapPixelFloat;
+  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+
+  SetLength(VPolygon,5);
+  VPolygon[0]:=VLonLatRect.TopLeft;
+  VPolygon[1]:=DoublePoint(VLonLatRect.Right,VLonLatRect.Top);
+  VPolygon[2]:=VLonLatRect.BottomRight;
+  VPolygon[3]:=DoublePoint(VLonLatRect.Left,VLonLatRect.Bottom);
+  VPolygon[4]:=VLonLatRect.TopLeft;
+
+  if length(VPolygon)>0 then begin
+    fsaveas.Show_(VZoom, VPolygon);
+  end else begin
+    showmessage(SAS_MSG_NeedHL);
   end;
 end;
 

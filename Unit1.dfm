@@ -356,6 +356,12 @@ object Fmain: TFmain
             Caption = #1055#1086' '#1082#1086#1086#1088#1076#1080#1085#1072#1090#1072#1084
             Hint = ''
           end
+          object TBScreenSelect: TTBXItem
+            Images = PanelsImageList
+            OnClick = TBScreenSelectClick
+            Caption = #1055#1086' '#1088#1072#1079#1084#1077#1088#1091' '#1101#1082#1088#1072#1085#1072
+            Hint = ''
+          end
           object TBPrevious: TTBXItem
             Images = PanelsImageList
             ShortCut = 16450
