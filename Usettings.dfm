@@ -21,7 +21,7 @@ object FSettings: TFSettings
     Top = 0
     Width = 646
     Height = 409
-    ActivePage = TabSheet9
+    ActivePage = TabSheet6
     Align = alClient
     TabOrder = 0
     object TabSheet9: TTabSheet
@@ -66,7 +66,6 @@ object FSettings: TFSettings
         ViewStyle = vsReport
         OnCustomDrawSubItem = MapListCustomDrawSubItem
         OnDblClick = Button15Click
-        ExplicitLeft = -3
       end
       object pnlMapsRightButtons: TPanel
         Left = 535
@@ -1709,67 +1708,156 @@ object FSettings: TFSettings
           Align = alClient
           Caption = #1057#1087#1091#1090#1085#1080#1082#1080
           TabOrder = 0
-          object Label13: TLabel
-            Left = 21
-            Top = 351
-            Width = 45
-            Height = 13
-            Caption = #1042#1080#1076#1080#1084#1099#1077
-          end
-          object Label18: TLabel
-            Left = 21
-            Top = 364
-            Width = 121
-            Height = 13
-            Caption = #1042#1080#1076#1080#1084#1099#1077' '#1089' 0-'#1084' '#1089#1080#1075#1085#1072#1083#1086#1084
-          end
-          object Label9: TLabel
-            Left = 21
-            Top = 338
-            Width = 101
-            Height = 13
-            Caption = #1040#1082#1090#1080#1074#1085#1099#1077' '#1089#1087#1091#1090#1085#1080#1082#1080
-          end
-          object Shape1: TShape
-            Left = 5
-            Top = 338
-            Width = 12
-            Height = 12
-            Brush.Color = clGreen
-          end
-          object Shape2: TShape
-            Left = 5
-            Top = 351
-            Width = 12
-            Height = 12
-            Brush.Color = clYellow
-          end
-          object Shape3: TShape
-            Left = 5
-            Top = 364
-            Width = 12
-            Height = 12
-            Brush.Color = clRed
-          end
-          object Bevel1: TBevel
-            Left = 5
-            Top = 334
-            Width = 240
-            Height = 4
-            Shape = bsTopLine
-          end
           object SatellitePaintBox: TImage32
             AlignWithMargins = True
             Left = 5
-            Top = 14
+            Top = 18
             Width = 240
-            Height = 318
+            Height = 296
+            Align = alClient
             Bitmap.ResamplerClassName = 'TNearestResampler'
             BitmapAlign = baTopLeft
             Scale = 1.000000000000000000
             ScaleMode = smNormal
             TabOrder = 0
             OnResize = SatellitePaintBoxResize
+            ExplicitTop = 14
+            ExplicitHeight = 239
+          end
+          object pnlSatInfoLegend: TPanel
+            Left = 2
+            Top = 317
+            Width = 246
+            Height = 62
+            Align = alBottom
+            AutoSize = True
+            BevelEdges = [beTop]
+            BevelKind = bkTile
+            BevelOuter = bvNone
+            TabOrder = 1
+            ExplicitTop = 319
+            object pnlSatInfoActive: TPanel
+              Left = 0
+              Top = 0
+              Width = 246
+              Height = 20
+              Align = alTop
+              BevelOuter = bvNone
+              BorderWidth = 3
+              TabOrder = 0
+              ExplicitLeft = 1
+              ExplicitTop = 1
+              ExplicitWidth = 239
+              object lblSatInfoActive: TLabel
+                AlignWithMargins = True
+                Left = 31
+                Top = 3
+                Width = 101
+                Height = 14
+                Margins.Left = 10
+                Margins.Top = 0
+                Margins.Right = 0
+                Margins.Bottom = 0
+                Align = alLeft
+                Caption = #1040#1082#1090#1080#1074#1085#1099#1077' '#1089#1087#1091#1090#1085#1080#1082#1080
+                ExplicitLeft = 39
+                ExplicitTop = 17
+              end
+              object shpSatInfoActive: TShape
+                AlignWithMargins = True
+                Left = 6
+                Top = 4
+                Width = 12
+                Height = 12
+                Margins.Top = 1
+                Margins.Bottom = 1
+                Align = alLeft
+                Brush.Color = clGreen
+                ExplicitLeft = 5
+                ExplicitTop = 1
+              end
+            end
+            object pnlSatInfoVisible: TPanel
+              Left = 0
+              Top = 20
+              Width = 246
+              Height = 20
+              Align = alTop
+              BevelOuter = bvNone
+              BorderWidth = 3
+              TabOrder = 1
+              ExplicitLeft = 1
+              ExplicitTop = 21
+              ExplicitWidth = 239
+              object shpSatInfoVisible: TShape
+                AlignWithMargins = True
+                Left = 6
+                Top = 4
+                Width = 12
+                Height = 12
+                Margins.Top = 1
+                Margins.Bottom = 1
+                Align = alLeft
+                Brush.Color = clYellow
+                ExplicitLeft = -1
+                ExplicitTop = 6
+                ExplicitHeight = 55
+              end
+              object lblSatInfoVisible: TLabel
+                AlignWithMargins = True
+                Left = 31
+                Top = 3
+                Width = 45
+                Height = 14
+                Margins.Left = 10
+                Margins.Top = 0
+                Margins.Right = 0
+                Margins.Bottom = 0
+                Align = alLeft
+                Caption = #1042#1080#1076#1080#1084#1099#1077
+                ExplicitHeight = 13
+              end
+            end
+            object pnlSatInfoZeroSignal: TPanel
+              Left = 0
+              Top = 40
+              Width = 246
+              Height = 20
+              Align = alTop
+              BevelOuter = bvNone
+              BorderWidth = 3
+              TabOrder = 2
+              ExplicitLeft = 9
+              ExplicitTop = 67
+              ExplicitWidth = 239
+              object lblSatInfoZeroSignal: TLabel
+                AlignWithMargins = True
+                Left = 31
+                Top = 3
+                Width = 121
+                Height = 14
+                Margins.Left = 10
+                Margins.Top = 0
+                Margins.Right = 0
+                Margins.Bottom = 0
+                Align = alLeft
+                Caption = #1042#1080#1076#1080#1084#1099#1077' '#1089' 0-'#1084' '#1089#1080#1075#1085#1072#1083#1086#1084
+                ExplicitHeight = 12
+              end
+              object shpSatInfoZeroSignal: TShape
+                AlignWithMargins = True
+                Left = 6
+                Top = 4
+                Width = 12
+                Height = 12
+                Margins.Top = 1
+                Margins.Bottom = 1
+                Align = alLeft
+                Brush.Color = clRed
+                ExplicitLeft = 5
+                ExplicitTop = 8
+              end
+            end
           end
         end
       end
@@ -1781,22 +1869,21 @@ object FSettings: TFSettings
         Left = 0
         Top = 0
         Width = 638
-        Height = 73
+        Height = 63
         Align = alTop
-        BorderWidth = 3
+        BevelOuter = bvNone
         ColumnCollection = <
           item
-            SizeStyle = ssAuto
-            Value = 14.602903501280960000
+            SizeStyle = ssAbsolute
+            Value = 150.000000000000000000
           end
           item
-            SizeStyle = ssAuto
             Value = 100.000000000000000000
           end>
         ControlCollection = <
           item
             Column = 0
-            Control = Label76
+            Control = lblWikiMainColor
             Row = 0
           end
           item
@@ -1806,82 +1893,62 @@ object FSettings: TFSettings
           end
           item
             Column = 0
-            Control = Label77
+            Control = lblWikiBgColor
             Row = 1
           end
           item
             Column = 1
             Control = CBWFonColor
             Row = 1
-          end
-          item
-            Column = 1
-            Control = Label78
-            Row = 2
           end>
         RowCollection = <
           item
-            Value = 49.975574010747430000
+            Value = 50.000000000000000000
           end
           item
-            Value = 50.024425989252580000
-          end
-          item
-            SizeStyle = ssAuto
+            Value = 50.000000000000000000
           end>
         TabOrder = 0
         DesignSize = (
           638
-          73)
-        object Label76: TLabel
-          Left = 10
-          Top = 10
+          63)
+        object lblWikiMainColor: TLabel
+          Left = 37
+          Top = 9
           Width = 76
           Height = 13
-          Alignment = taRightJustify
           Anchors = []
           Caption = #1054#1089#1085#1086#1074#1085#1086#1081' '#1094#1074#1077#1090
           ExplicitLeft = 6
           ExplicitTop = 4
         end
         object CBWMainColor: TColorBox
-          Left = 143
-          Top = 1
-          Width = 145
+          Left = 150
+          Top = 0
+          Width = 159
           Height = 22
-          Align = alCustom
           Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
           ItemHeight = 16
           TabOrder = 0
         end
-        object Label77: TLabel
-          Left = 4
-          Top = 35
+        object lblWikiBgColor: TLabel
+          Left = 30
+          Top = 40
           Width = 89
           Height = 13
-          Alignment = taRightJustify
           Anchors = []
           Caption = #1062#1074#1077#1090' '#1086#1082#1072#1081#1084#1083#1077#1085#1080#1103
           ExplicitLeft = 5
           ExplicitTop = 36
         end
         object CBWFonColor: TColorBox
-          Left = 143
-          Top = 29
-          Width = 145
+          Left = 150
+          Top = 31
+          Width = 159
           Height = 22
-          Align = alCustom
           Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
           ItemHeight = 16
           TabOrder = 1
-        end
-        object Label78: TLabel
-          Left = 143
-          Top = 57
-          Width = 312
-          Height = 13
-          Align = alCustom
-          Caption = '*'#1055#1088#1080' '#1074#1099#1073#1086#1088#1077' '#1095#1077#1088#1085#1086#1075#1086' '#1094#1074#1077#1090#1072' '#1074#1099' '#1087#1086#1083#1091#1095#1080#1090#1077' '#1087#1088#1086#1079#1088#1072#1095#1085#1091#1102' '#1083#1080#1085#1080#1102
         end
       end
     end
@@ -1897,12 +1964,6 @@ object FSettings: TFSettings
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
-        object PaintBox1: TPaintBox
-          Left = 108
-          Top = 79
-          Width = 301
-          Height = 282
-        end
         object chkPosFromGSM: TCheckBox
           Left = 3
           Top = 3
