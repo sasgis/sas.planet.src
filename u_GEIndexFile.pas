@@ -141,13 +141,15 @@ begin
           for i := Length(FIndexInfo) - 1 downto 0 do begin
             if FIndexInfo[i].Magic = $7593BFD5 then begin
               if FIndexInfo[i].TileID = 130 then begin
-                if FIndexInfo[i].Zoom = AZoom then begin
-                  if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
-                    AOffset := FIndexInfo[i].Offset;
-                    ASize := FIndexInfo[i].Size;
-                    AVersion := FIndexInfo[i].Ver;
-                    Result := True;
-                    Break;
+                if FIndexInfo[i].ServID = 0 then begin
+                  if FIndexInfo[i].Zoom = AZoom then begin
+                    if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
+                      AOffset := FIndexInfo[i].Offset;
+                      ASize := FIndexInfo[i].Size;
+                      AVersion := FIndexInfo[i].Ver;
+                      Result := True;
+                      Break;
+                    end;
                   end;
                 end;
               end;
