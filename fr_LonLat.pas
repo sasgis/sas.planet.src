@@ -38,7 +38,6 @@ type
     procedure ComboBoxCoordTypeSelect(Sender: TObject);
   private
     FCoordinates: TDoublePoint;
-    FBitmapCoordConverter: ILocalCoordConverter;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
     function Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;

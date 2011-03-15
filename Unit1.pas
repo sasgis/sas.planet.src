@@ -3736,18 +3736,8 @@ begin
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
-  SetLength(VPolygon,5);
-  VPolygon[0]:=VLonLatRect.TopLeft;
-  VPolygon[1]:=DoublePoint(VLonLatRect.Right,VLonLatRect.Top);
-  VPolygon[2]:=VLonLatRect.BottomRight;
-  VPolygon[3]:=DoublePoint(VLonLatRect.Left,VLonLatRect.Bottom);
-  VPolygon[4]:=VLonLatRect.TopLeft;
-
-  if length(VPolygon)>0 then begin
-    fsaveas.Show_(VZoom, VPolygon);
-  end else begin
-    showmessage(SAS_MSG_NeedHL);
-  end;
+  VPolygon := PolygonFromRect(VLonLatRect);
+  fsaveas.Show_(VZoom, VPolygon);
 end;
 
 procedure TFmain.TBGPSToPointCenterClick(Sender: TObject);

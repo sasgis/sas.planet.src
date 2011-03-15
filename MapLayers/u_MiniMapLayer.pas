@@ -890,7 +890,6 @@ end;
 procedure TMiniMapLayer.DoUpdateLayerSize(ANewSize: TPoint);
 var
   VBitmapSizeInPixel: TPoint;
-  Polygon: TPolygon32;
   VBorderWidth: Integer;
 begin
   inherited;

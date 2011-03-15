@@ -155,6 +155,7 @@ begin
     Assert(VSubMenu <> nil);
     VMenuItem := CreateMenuItem(VActiveMap);
     VSubMenu.Add(VMenuItem);
+    VMapType := nil;
     if VActiveMap.GetMapType <> nil then begin
       VMapType:=VActiveMap.GetMapType.MapType;
     end;
