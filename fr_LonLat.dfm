@@ -219,7 +219,7 @@ object frLonLat: TfrLonLat
           Top = 13
           Width = 36
           Height = 21
-          Hint = #1042#1099#1073#1086#1088' '#1084#1072#1089#1090#1072#1073#1072
+          Hint = #1042#1099#1073#1086#1088' '#1084#1072#1089#1096#1090#1072#1073#1072
           Style = csDropDownList
           Anchors = [akTop, akRight]
           ItemHeight = 13
