@@ -8,7 +8,6 @@ uses
   SysUtils,
   Windows,
   GR32,
-  xmldom,
   XMLIntf,
   msxmldom,
   XMLDoc,
@@ -18,10 +17,6 @@ uses
   i_MarksSimple,
   u_GlobalState,
   u_GeoToStr,
-  u_BitmapTileVampyreSaver,
-  i_BitmapTileSaveLoad,
-  i_IBitmapTypeExtManager,
-  u_BitmapTypeExtManagerSimple,
   Ugeofun;
 
 type

@@ -60,8 +60,7 @@ uses
   i_ICoordConverter,
   i_ILocalCoordConverter,
   u_MapCalibrationKml,
-  u_GeoToStr,
-  u_GlobalState;
+  u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(
   AMapCalibrationList: IInterfaceList;

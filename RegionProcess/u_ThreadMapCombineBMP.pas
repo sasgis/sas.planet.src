@@ -8,7 +8,6 @@ uses
   SysUtils,
   Classes,
   GR32,
-  UMapType,
   UGeoFun,
   bmpUtil,
   u_ThreadMapCombineBase;
@@ -35,9 +34,7 @@ type
 implementation
 
 uses
-  i_ICoordConverter,
-  i_ILocalCoordConverter,
-  u_GlobalState;
+  i_ILocalCoordConverter;
 
 procedure TThreadMapCombineBMP.ReadLineBMP(Line: cardinal;
   LineRGB: PLineRGBb);

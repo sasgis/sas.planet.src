@@ -4,7 +4,6 @@ interface
 
 uses
   GR32,
-  i_MapTypes,
   i_IActiveMapsConfig,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,

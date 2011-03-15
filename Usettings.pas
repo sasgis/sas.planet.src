@@ -20,9 +20,7 @@ uses
   wininet,
   GR32,
   GR32_Image,
-  GR32_Backends,
   XPMan,
-  ZylGPSReceiver,
   u_CommonFormAndFrameParents,
   i_IConfigDataWriteProvider,
   i_IImageResamplerFactory,
@@ -253,7 +251,6 @@ uses
   Menus,
   t_CommonTypes,
   i_IProxySettings,
-  i_GPS,
   u_GlobalState,
   Unit1,
   Ubrowser,
@@ -798,9 +795,6 @@ begin
 end;
 
 procedure TFSettings.SBGetComNumClick(Sender: TObject);
-var
-  pPort: TCommPort;
-  pBaudRate: TBaudRate;
 begin
  SBGetComNum.Enabled:=false;
  ShowMessage(SAS_MSG_NoGPSdetected);

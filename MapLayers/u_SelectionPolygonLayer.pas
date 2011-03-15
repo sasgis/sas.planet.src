@@ -9,7 +9,6 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_IViewPortState,
-  i_ILocalCoordConverter,
   i_ISelectionPolygonLayerConfig,
   u_PolyLineLayerBase,
   u_MapLayerBasic;

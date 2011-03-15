@@ -2,9 +2,6 @@ unit i_IGPSModuleByCOMPortSettings;
 
 interface
 
-uses
-  i_IConfigDataElement;
-
 type
   IGPSModuleByCOMPortSettings = interface
     ['{1E9AF59D-8988-4747-9952-5D17A0B0DB33}']

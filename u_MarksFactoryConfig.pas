@@ -5,10 +5,7 @@ interface
 uses
   Classes,
   GR32,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   i_IMarkPicture,
-  i_MarksSimple,
   i_IMarksFactoryConfig,
   u_ConfigDataElementComplexBase;
 

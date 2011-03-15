@@ -192,8 +192,6 @@ uses
   u_TileDownloaderBaseFactory,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
-  u_KmlInfoSimpleParser,
-  u_KmzInfoSimpleParser,
   u_TileStorageGE,
   u_TileStorageFileSystem;
 

@@ -135,7 +135,6 @@ uses
   SysUtils,
   UResStrings,
   Ugeofun,
-  u_MarkTemplates,
   u_MarkPoint,
   u_MarkLine,
   u_MarkPoly;

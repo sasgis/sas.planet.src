@@ -41,7 +41,6 @@ uses
   i_ICoordConverter,
   u_CoordConverterMercatorOnEllipsoid,
   i_ITileIterator,
-  u_TileIteratorAbstract,
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver;

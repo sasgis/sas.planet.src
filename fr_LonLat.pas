@@ -15,11 +15,9 @@ uses
   Dialogs,
   ExtCtrls,
   StdCtrls,
-  Mask,
   u_CommonFormAndFrameParents,
   i_ILocalCoordConverter,
-  t_GeoTypes,
-  unit1;
+  t_GeoTypes;
 
 type
   TfrLonLat = class(TFrame)
@@ -48,7 +46,6 @@ type
 implementation
 
 uses
-  Ugeofun,
   i_IValueToStringConverter,
   u_GeoToStr,
   u_GlobalState,

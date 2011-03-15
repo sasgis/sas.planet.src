@@ -7,9 +7,6 @@ uses
   GR32,
   GR32_Layers,
   GR32_Image,
-  i_JclNotify,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   i_ILocalCoordConverter,
   i_IViewPortState,
   u_WindowLayerBasic;
@@ -65,9 +62,7 @@ implementation
 
 uses
   Types,
-  Graphics,
-  u_JclNotify,
-  u_NotifyEventListener;
+  Graphics;
 
 { TWindowLayerBasic }
 

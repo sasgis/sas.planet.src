@@ -4,8 +4,6 @@ interface
 
 uses
   Classes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   u_WindowLayerBasic;
 
 type

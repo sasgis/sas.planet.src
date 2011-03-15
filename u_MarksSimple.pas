@@ -4,9 +4,7 @@ interface
 
 uses
   GR32,
-  t_GeoTypes,
-  i_MarksSimple,
-  i_IMarkPicture;
+  i_MarksSimple;
 
 type
   TCategoryId = class

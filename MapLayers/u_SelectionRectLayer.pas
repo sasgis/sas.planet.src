@@ -6,11 +6,9 @@ uses
   Types,
   GR32,
   GR32_Image,
-  i_JclNotify,
   t_GeoTypes,
   i_IViewPortState,
   i_ISelectionRectLayerConfig,
-  i_ILastSelectionInfo,
   u_MapLayerBasic;
 
 type
@@ -43,12 +41,9 @@ uses
   SysUtils,
   GR32_PolygonsEx,
   GR32_Layers,
-  GR32_VectorUtils,
   i_ILocalCoordConverter,
   i_ICoordConverter,
-  u_NotifyEventListener,
-  u_GlobalState,
-  Ugeofun;
+  u_NotifyEventListener;
 
 { TSelectionRectLayer }
 

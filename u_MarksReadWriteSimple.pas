@@ -8,7 +8,6 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   dm_MarksDb,
-  i_IMarkPicture,
   i_IMarksFactoryConfig,
   u_MarksOnlyDb,
   u_MarkCategoryDB,

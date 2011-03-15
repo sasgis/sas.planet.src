@@ -7,7 +7,6 @@ uses
   Types,
   GR32,
   GR32_Image,
-  i_JclNotify,
   t_GeoTypes,
   i_ILocalCoordConverter,
   i_MapLayerGridsConfig,

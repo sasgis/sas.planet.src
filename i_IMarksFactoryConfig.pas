@@ -6,7 +6,6 @@ uses
   Classes,
   GR32,
   i_IConfigDataElement,
-  t_GeoTypes,
   i_IMarkPicture,
   i_MarksSimple;
 

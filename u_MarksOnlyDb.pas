@@ -8,7 +8,6 @@ uses
   Classes,
   t_GeoTypes,
   dm_MarksDb,
-  i_IMarkPicture,
   i_IMarksFactoryConfig,
   i_MarksSimple,
   u_MarkFactory,

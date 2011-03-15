@@ -8,8 +8,6 @@ uses
   GR32,
   i_IJclListenerNotifierLinksList,
   i_ILocalCoordConverter,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
   i_IViewPortState;
 
 type
