@@ -423,7 +423,6 @@
     <DCCReference Include="u_FillingMapLayerConfigStatic.pas" />
     <DCCReference Include="u_FillingMapMapsConfig.pas" />
     <DCCReference Include="u_GarbageCollectorThread.pas" />
-    <DCCReference Include="u_GECache.pas" />
     <DCCReference Include="u_GECrypt.pas" />
     <DCCReference Include="u_GEIndexFile.pas" />
     <DCCReference Include="u_GenShtabGridConfig.pas" />
@@ -436,7 +435,6 @@
     <DCCReference Include="u_GeoCoderListEntity.pas" />
     <DCCReference Include="u_GeoCoderListSimple.pas" />
     <DCCReference Include="u_GeoToStr.pas" />
-    <DCCReference Include="u_GETexture.pas" />
     <DCCReference Include="u_GlobalCahceConfig.pas" />
     <DCCReference Include="u_GlobalState.pas" />
     <DCCReference Include="u_GlobalViewMainConfig.pas" />
@@ -573,7 +571,6 @@
     <DCCReference Include="u_TileStorageAbstract.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />
-    <DCCReference Include="u_TileStorageGEStuped.pas" />
     <DCCReference Include="u_TileStorageTypeInfo.pas" />
     <DCCReference Include="u_TileStorageTypeList.pas" />
     <DCCReference Include="u_TileStorageTypeListItem.pas" />
