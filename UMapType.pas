@@ -974,6 +974,7 @@ function TMapType.LoadBtimap(spr: TCustomBitmap32; APixelRectTarget: TRect;
   Azoom: byte; caching, AUsePre, AAllowPartial,
   IgnoreError: Boolean): boolean;
 var
+  VPixelRectTarget: TRect;
   VTileRect: TRect;
   VTargetImageSize: TPoint;
   VPixelRectCurrTile: TRect;
@@ -989,7 +990,9 @@ begin
   VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left;
   VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top;
 
-  VTileRect := FCoordConverter.PixelRect2TileRect(APixelRectTarget, Azoom);
+  VPixelRectTarget := APixelRectTarget;
+  FCoordConverter.CheckPixelRect(VPixelRectTarget, Azoom);
+  VTileRect := FCoordConverter.PixelRect2TileRect(VPixelRectTarget, Azoom);
   if (VTileRect.Left = VTileRect.Right - 1) and
     (VTileRect.Top = VTileRect.Bottom - 1)
   then begin
@@ -1084,6 +1087,7 @@ function TMapType.LoadBtimapUni(spr: TCustomBitmap32; APixelRectTarget: TRect;
   Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
 var
+  VPixelRectTarget: TRect;
   VLonLatRectTarget: TDoubleRect;
   VTileRectInSource: TRect;
   VPixelRectOfTargetPixelRectInSource: TRect;
@@ -1109,8 +1113,10 @@ begin
 
     spr.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
     spr.Clear(0);
-
-    VLonLatRectTarget := ACoordConverterTarget.PixelRect2LonLatRect(APixelRectTarget, Azoom);
+    VPixelRectTarget := APixelRectTarget;
+    ACoordConverterTarget.CheckPixelRect(VPixelRectTarget, Azoom);
+    VLonLatRectTarget := ACoordConverterTarget.PixelRect2LonLatRect(VPixelRectTarget, Azoom);
+    FCoordConverter.CheckLonLatRect(VLonLatRectTarget);
     VPixelRectOfTargetPixelRectInSource := FCoordConverter.LonLatRect2PixelRect(VLonLatRectTarget, Azoom);
     VTileRectInSource := FCoordConverter.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource, Azoom);
 
@@ -1124,6 +1130,7 @@ begin
           if VLoadResult then begin
             VPixelRectCurTileInSource := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
             VLonLatRectCurTile := FCoordConverter.PixelRect2LonLatRect(VPixelRectCurTileInSource, Azoom);
+            ACoordConverterTarget.CheckLonLatRect(VLonLatRectCurTile);
             VPixelRectCurTileInTarget := ACoordConverterTarget.LonLatRect2PixelRect(VLonLatRectCurTile, Azoom);
 
             if VPixelRectCurTileInSource.Top < VPixelRectOfTargetPixelRectInSource.Top then begin
