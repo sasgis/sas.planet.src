@@ -2149,6 +2149,7 @@ begin
 
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+  VMap.GeoConvert.CheckLonLatPos(VMouseLonLat);
   VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
   btm:=TBitmap32.Create;
   try
@@ -2205,6 +2206,7 @@ begin
     VConverter := VLocalConverter.GetGeoConverter;
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+    VMap.GeoConvert.CheckLonLatPos(VMouseLonLat);
     VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
 
    // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
@@ -2237,20 +2239,22 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   if VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True) then begin
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
+    if VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat) then begin
+      VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
 
-    path := VMapType.GetTileShowName(VTile, VZoomCurr);
+      path := VMapType.GetTileShowName(VTile, VZoomCurr);
 
-    if ((not(VMapType.tileExists(VTile, VZoomCurr)))or
-        (MessageBox(handle,pchar(Format(SAS_MSG_FileExists, [path])),pchar(SAS_MSG_coution),36)=IDYES))
-    then begin
-      TTileDownloaderUIOneTile.Create(
-        VTile,
-        VZoomCurr,
-        VMapType,
-        Self.OnMapTileUpdate,
-        FShowErrorLayer
-      );
+      if ((not(VMapType.tileExists(VTile, VZoomCurr)))or
+          (MessageBox(handle,pchar(Format(SAS_MSG_FileExists, [path])),pchar(SAS_MSG_coution),36)=IDYES))
+      then begin
+        TTileDownloaderUIOneTile.Create(
+          VTile,
+          VZoomCurr,
+          VMapType,
+          Self.OnMapTileUpdate,
+          FShowErrorLayer
+        );
+      end;
     end;
   end;
 end;
@@ -2273,6 +2277,7 @@ begin
     VConverter := VLocalConverter.GetGeoConverter;
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+    VMap.GeoConvert.CheckLonLatPos(VMouseLonLat);
     VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
     // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
     ShellExecute(0,'open',PChar(VMap.GetTileFileName(VTile, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
@@ -2305,6 +2310,7 @@ begin
     VConverter := VLocalConverter.GetGeoConverter;
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+    VMap.GeoConvert.CheckLonLatPos(VMouseLonLat);
     VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
     s := VMap.GetTileFileName(VTile, VZoomCurr);
     s := ExtractFilePath(s);
@@ -2337,11 +2343,13 @@ begin
   VConverter := VLocalConverter.GetGeoConverter;
   if VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True) then begin
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
-    s:=VMapType.GetTileShowName(VTile, VZoomCurr);
-    if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
-      VMapType.DeleteTile(VTile, VZoomCurr);
-      OnMapTileUpdate(VMapType, VZoomCurr, VTile);
+    if VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat) then begin
+      VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
+      s:=VMapType.GetTileShowName(VTile, VZoomCurr);
+      if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
+        VMapType.DeleteTile(VTile, VZoomCurr);
+        OnMapTileUpdate(VMapType, VZoomCurr, VTile);
+      end;
     end;
   end;
 end;
@@ -2783,6 +2791,7 @@ begin
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+    VMap.GeoConvert.CheckLonLatPos(VMouseLonLat);
     VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
     CopyStringToClipboard(VMap.GetLink(VTile, VZoomCurr));
   end;
@@ -3028,25 +3037,24 @@ begin
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
 
   if VValidPoint then begin
-    VTile := VMap.GeoConvert.LonLat2TilePos(VLonLat, VZoomCurr);
-    if HiWord(GetKeyState(VK_DELETE))<>0 then begin
-      VMap.DeleteTile(VTile, VZoomCurr);
-      OnMapTileUpdate(VMap, VZoomCurr, VTile);
-      //exit;
-    end;
-    if HiWord(GetKeyState(VK_INSERT))<>0 then begin
-      TTileDownloaderUIOneTile.Create(
-        VTile,
-        VZoomCurr,
-        VMap,
-        Self.OnMapTileUpdate,
-        FShowErrorLayer
-      );
-      //exit;
+    if VMap.GeoConvert.CheckLonLatPos(VLonLat) then begin
+      VTile := VMap.GeoConvert.LonLat2TilePos(VLonLat, VZoomCurr);
+      if HiWord(GetKeyState(VK_DELETE))<>0 then begin
+        VMap.DeleteTile(VTile, VZoomCurr);
+        OnMapTileUpdate(VMap, VZoomCurr, VTile);
+      end;
+      if HiWord(GetKeyState(VK_INSERT))<>0 then begin
+        TTileDownloaderUIOneTile.Create(
+          VTile,
+          VZoomCurr,
+          VMap,
+          Self.OnMapTileUpdate,
+          FShowErrorLayer
+        );
+      end;
     end;
     if HiWord(GetKeyState(VK_F6))<>0 then begin
       FDGAvailablePic.setup(VLocalConverter, FMouseUpPoint);
-      //exit;
     end;
   end;
 
