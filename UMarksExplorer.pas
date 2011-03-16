@@ -46,7 +46,7 @@ type
     NExportVisible: TMenuItem;
     btnImport: TTBXButton;
     btnAccept: TTBXButton;
-    btn_Close: TTBXButton;
+    btnOk: TTBXButton;
     rgMarksShowMode: TRadioGroup;
     TBXDockMark: TTBXDock;
     TBXToolbar1: TTBXToolbar;
@@ -80,7 +80,7 @@ type
     procedure btnExportCategoryClick(Sender: TObject);
     procedure btnImportClick(Sender: TObject);
     procedure btnAcceptClick(Sender: TObject);
-    procedure btn_CloseClick(Sender: TObject);
+    procedure btnOkClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure btnEditMarkClick(Sender: TObject);
     procedure btnDelMarkClick(Sender: TObject);
@@ -270,7 +270,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btn_CloseClick(Sender: TObject);
+procedure TFMarksExplorer.btnOkClick(Sender: TObject);
 begin
   btnAcceptClick(nil);
   close;

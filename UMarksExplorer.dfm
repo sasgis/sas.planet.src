@@ -32,36 +32,63 @@ object FMarksExplorer: TFMarksExplorer
       BevelOuter = bvNone
       TabOrder = 0
       object btnExport: TTBXButton
+        AlignWithMargins = True
         Left = 3
-        Top = 56
-        Width = 70
+        Top = 30
+        Width = 71
         Height = 21
+        Align = alTop
         DropDownCombo = True
         DropDownMenu = PopupExport
         ImageIndex = 0
         TabOrder = 0
         OnClick = btnExportClick
+        ExplicitTop = 56
+        ExplicitWidth = 70
         Caption = #1069#1082#1089#1087#1086#1088#1090
       end
       object btnAccept: TTBXButton
+        AlignWithMargins = True
         Left = 3
-        Top = 2
-        Width = 70
+        Top = 57
+        Width = 71
         Height = 21
+        Align = alTop
         ImageIndex = 0
         TabOrder = 1
         OnClick = btnAcceptClick
+        ExplicitLeft = -2
+        ExplicitTop = 67
         Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
       end
-      object btn_Close: TTBXButton
+      object btnOk: TTBXButton
+        AlignWithMargins = True
         Left = 3
-        Top = 91
-        Width = 70
+        Top = 84
+        Width = 71
         Height = 21
+        Align = alTop
         ImageIndex = 0
         TabOrder = 2
-        OnClick = btn_CloseClick
-        Caption = #1047#1072#1082#1088#1099#1090#1100
+        OnClick = btnOkClick
+        ExplicitTop = 91
+        ExplicitWidth = 70
+        Caption = #1054#1050
+      end
+      object btnImport: TTBXButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 71
+        Height = 21
+        Align = alTop
+        ImageIndex = 0
+        TabOrder = 3
+        OnClick = btnImportClick
+        ExplicitLeft = 7
+        ExplicitTop = 32
+        ExplicitWidth = 70
+        Caption = #1048#1084#1087#1086#1088#1090
       end
     end
     object pnlMain: TPanel
@@ -267,16 +294,6 @@ object FMarksExplorer: TFMarksExplorer
       end
     end
   end
-  object btnImport: TTBXButton
-    Left = 500
-    Top = 32
-    Width = 70
-    Height = 21
-    ImageIndex = 0
-    TabOrder = 1
-    OnClick = btnImportClick
-    Caption = #1048#1084#1087#1086#1088#1090
-  end
   object rgMarksShowMode: TRadioGroup
     Left = 0
     Top = 358
@@ -288,7 +305,7 @@ object FMarksExplorer: TFMarksExplorer
       #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1091#1082#1072#1079#1072#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
       #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
       #1053#1077' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1084#1077#1090#1082#1080)
-    TabOrder = 2
+    TabOrder = 1
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*.kml'
