@@ -1183,20 +1183,20 @@ procedure TFmain.OnClickLayerItem(Sender: TObject);
 var
   VSender: TTBCustomItem;
   VAtiveMap: IActiveMapSingle;
-  VMap: IMapType;
+  VMapType: IMapType;
 begin
   if Sender is TTBCustomItem then begin
     VSender := TTBCustomItem(Sender);
     VAtiveMap := IActiveMapSingle(VSender.Tag);
     if VAtiveMap <> nil then begin
-      VMap := VAtiveMap.GetMapType;
-      if VMap <> nil then begin
+      VMapType := VAtiveMap.GetMapType;
+      if VMapType <> nil then begin
         FConfig.MainMapsConfig.LockWrite;
         try
-          if not FConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMap.GUID) then begin
-            FConfig.MainMapsConfig.SelectLayerByGUID(VMap.GUID);
+          if not FConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMapType.GUID) then begin
+            FConfig.MainMapsConfig.SelectLayerByGUID(VMapType.GUID);
           end else begin
-            FConfig.MainMapsConfig.UnSelectLayerByGUID(VMap.GUID);
+            FConfig.MainMapsConfig.UnSelectLayerByGUID(VMapType.GUID);
           end;
         finally
           FConfig.MainMapsConfig.UnlockWrite;
@@ -1210,15 +1210,15 @@ procedure TFmain.OnClickMapItem(Sender: TObject);
 var
   VSender: TComponent;
   VAtiveMap: IActiveMapSingle;
-  VMap: IMapType;
+  VMapType: IMapType;
 begin
   if Sender is TComponent then begin
     VSender := TComponent(Sender);
     VAtiveMap := IActiveMapSingle(VSender.Tag);
     if VAtiveMap <> nil then begin
-      VMap := VAtiveMap.GetMapType;
-      if VMap <> nil then begin
-        FConfig.MainMapsConfig.SelectMainByGUID(VMap.GUID);
+      VMapType := VAtiveMap.GetMapType;
+      if VMapType <> nil then begin
+        FConfig.MainMapsConfig.SelectMainByGUID(VMapType.GUID);
       end;
     end;
   end;
@@ -2136,7 +2136,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VZoomCurr: Byte;
   VConverter: ICoordConverter;
-  VMap: TMapType;
+  VMapType: TMapType;
   VLocalConverter: ILocalCoordConverter;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
@@ -2145,15 +2145,15 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
-  VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+  VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
 
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-  VMap.GeoConvert.CheckLonLatPos(VMouseLonLat);
-  VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
+  VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+  VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
   btm:=TBitmap32.Create;
   try
-    if VMap.LoadTile(btm, VTile, VZoomCurr, false, False) then begin
+    if VMapType.LoadTile(btm, VTile, VZoomCurr, false, False) then begin
       btm1:=TBitmap.Create;
       try
         btm1.Width:=btm.Width;
@@ -2191,26 +2191,26 @@ end;
 procedure TFmain.N15Click(Sender: TObject);
 var
   VZoomCurr: Byte;
-  VMap: TMapType;
+  VMapType: TMapType;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
 begin
-  VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-  if VMap.TileStorage.GetIsStoreFileCache then begin
+  VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+  if VMapType.TileStorage.GetIsStoreFileCache then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
     VZoomCurr := VLocalConverter.GetZoom;
     VConverter := VLocalConverter.GetGeoConverter;
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    VMap.GeoConvert.CheckLonLatPos(VMouseLonLat);
-    VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
+    VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+    VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
 
    // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
-   CopyStringToClipboard(VMap.GetTileFileName(VTile, VZoomCurr));
+   CopyStringToClipboard(VMapType.GetTileFileName(VTile, VZoomCurr));
   end else begin
     ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
@@ -2267,20 +2267,20 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
-  VMap: TMapType;
+  VMapType: TMapType;
 begin
-  VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-  if VMap.TileStorage.GetIsStoreFileCache then begin
+  VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+  if VMapType.TileStorage.GetIsStoreFileCache then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
     VZoomCurr := VLocalConverter.GetZoom;
     VConverter := VLocalConverter.GetGeoConverter;
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    VMap.GeoConvert.CheckLonLatPos(VMouseLonLat);
-    VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
+    VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+    VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
     // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
-    ShellExecute(0,'open',PChar(VMap.GetTileFileName(VTile, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
+    ShellExecute(0,'open',PChar(VMapType.GetTileFileName(VTile, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
   end else begin
     ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
@@ -2295,24 +2295,24 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
-  VMap: TMapType;
+  VMapType: TMapType;
 begin
   if TMenuItem(sender).Tag<>0 then begin
-    VMap := TMapType(TMenuItem(sender).Tag);
+    VMapType := TMapType(TMenuItem(sender).Tag);
   end else begin
-    VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+    VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
 
-  if VMap.TileStorage.GetIsStoreFileCache then begin
+  if VMapType.TileStorage.GetIsStoreFileCache then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
     VZoomCurr := VLocalConverter.GetZoom;
     VConverter := VLocalConverter.GetGeoConverter;
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    VMap.GeoConvert.CheckLonLatPos(VMouseLonLat);
-    VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
-    s := VMap.GetTileFileName(VTile, VZoomCurr);
+    VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+    VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
+    s := VMapType.GetTileFileName(VTile, VZoomCurr);
     s := ExtractFilePath(s);
     ShellExecute(0,'open',PChar(s),nil,nil,SW_SHOWNORMAL);
   end else begin
@@ -2772,7 +2772,7 @@ end;
 procedure TFmain.N13Click(Sender: TObject);
 var
   VZoomCurr: Byte;
-  VMap: TMapType;
+  VMapType: TMapType;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
   VMouseMapPoint: TDoublePoint;
@@ -2780,20 +2780,20 @@ var
   VTile: TPoint;
 begin
   if TMenuItem(sender).Tag<>0 then begin
-    VMap := TMapType(TMenuItem(sender).Tag);
+    VMapType := TMapType(TMenuItem(sender).Tag);
   end else begin
-    VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+    VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
-  if VMap.UseDwn then begin
+  if VMapType.UseDwn then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    VMap.GeoConvert.CheckLonLatPos(VMouseLonLat);
-    VTile := VMap.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
-    CopyStringToClipboard(VMap.GetLink(VTile, VZoomCurr));
+    VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+    VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
+    CopyStringToClipboard(VMapType.GetLink(VTile, VZoomCurr));
   end;
 end;
 
@@ -3008,7 +3008,7 @@ var
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VMapMoving: Boolean;
-  VMap: TMapType;
+  VMapType: TMapType;
   VValidPoint: Boolean;
   VConverter: ICoordConverter;
   VTile: TPoint;
@@ -3028,7 +3028,7 @@ begin
   VMapMoving := FMapMoving;
   FMapMoving:=false;
   FMouseUpPoint := Point(x, y);
-  VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+  VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoomCurr := VLocalConverter.GetZoom;
@@ -3037,17 +3037,17 @@ begin
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
 
   if VValidPoint then begin
-    if VMap.GeoConvert.CheckLonLatPos(VLonLat) then begin
-      VTile := VMap.GeoConvert.LonLat2TilePos(VLonLat, VZoomCurr);
+    if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
+      VTile := VMapType.GeoConvert.LonLat2TilePos(VLonLat, VZoomCurr);
       if HiWord(GetKeyState(VK_DELETE))<>0 then begin
-        VMap.DeleteTile(VTile, VZoomCurr);
-        OnMapTileUpdate(VMap, VZoomCurr, VTile);
+        VMapType.DeleteTile(VTile, VZoomCurr);
+        OnMapTileUpdate(VMapType, VZoomCurr, VTile);
       end;
       if HiWord(GetKeyState(VK_INSERT))<>0 then begin
         TTileDownloaderUIOneTile.Create(
           VTile,
           VZoomCurr,
-          VMap,
+          VMapType,
           Self.OnMapTileUpdate,
           FShowErrorLayer
         );
@@ -3371,15 +3371,15 @@ var
   VLonLat:TDoublePoint;
   param:string;
   VZoomCurr: Byte;
-  VMap: TMapType;
+  VMapType: TMapType;
   VLocalConverter: ILocalCoordConverter;
 begin
   if SaveLink.Execute then begin
-    VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+    VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VLonLat := VLocalConverter.GetCenterLonLat;
-    param:=' '+VMap.GUIDString+' '+IntToStr(VZoomCurr + 1)+' '+FloatToStr(VLonLat.x)+' '+FloatToStr(VLonLat.y);
+    param:=' '+VMapType.GUIDString+' '+IntToStr(VZoomCurr + 1)+' '+FloatToStr(VLonLat.x)+' '+FloatToStr(VLonLat.y);
     CreateLink(ParamStr(0), SaveLink.filename, '', param)
   end;
 end;
@@ -3531,17 +3531,17 @@ procedure TFmain.TBfillMapAsMainClick(Sender: TObject);
 var
   VSender: TComponent;
   VAtiveMap: IActiveMapSingle;
-  VMap: IMapType;
+  VMapType: IMapType;
   VGUID: TGUID;
 begin
   if Sender is TComponent then begin
     VSender := TComponent(Sender);
     VAtiveMap := IActiveMapSingle(VSender.Tag);
     if VAtiveMap <> nil then begin
-      VMap := VAtiveMap.GetMapType;
+      VMapType := VAtiveMap.GetMapType;
       VGUID := CGUID_Zero;
-      if VMap <> nil then begin
-        VGUID := VMap.GUID;
+      if VMapType <> nil then begin
+        VGUID := VMapType.GUID;
       end;
       FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.SelectMainByGUID(VGUID);
     end;
@@ -3610,15 +3610,15 @@ end;
 
 procedure TFmain.NMapInfoClick(Sender: TObject);
 var
-  VMap: TMapType;
+  VMapType: TMapType;
 begin
   if TMenuItem(sender).Tag<>0 then begin
-    VMap := TMapType(TMenuItem(sender).Tag);
+    VMapType := TMapType(TMenuItem(sender).Tag);
   end else begin
-    VMap := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+    VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
-  if VMap.MapInfo <> '' then begin
-    Fbrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
+  if VMapType.MapInfo <> '' then begin
+    Fbrowser.showmessage(VMapType.zmpfilename,VMapType.MapInfo);
   end;
 end;
 
