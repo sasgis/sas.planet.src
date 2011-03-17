@@ -106,7 +106,6 @@ end;
 procedure TMapMainLayer.DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
 var
   VZoom: Byte;
-  VSourceMapType: TMapType;
   VBmp: TCustomBitmap32;
 
   { Прямоугольник пикселей растра в координатах основного конвертера }
@@ -125,7 +124,7 @@ var
 
   VGeoConvert: ICoordConverter;
   VUsePre: Boolean;
-  VLocalConverter: ILocalCoordConverter;
+  VBitmapConverter: ILocalCoordConverter;
   VTileIterator: ITileIterator;
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
 begin
@@ -136,17 +135,16 @@ begin
   end;
   VRecolorConfig := GState.BitmapPostProcessingConfig.GetStatic;
 
-  VLocalConverter := BitmapCoordConverter;
-  VGeoConvert := VLocalConverter.GetGeoConverter;
-  VZoom := VLocalConverter.GetZoom;
-  VSourceMapType := AMapType;
+  VBitmapConverter := BitmapCoordConverter;
+  VGeoConvert := VBitmapConverter.GetGeoConverter;
+  VZoom := VBitmapConverter.GetZoom;
 
-  VBitmapOnMapPixelRect := VLocalConverter.GetRectInMapPixel;
+  VBitmapOnMapPixelRect := VBitmapConverter.GetRectInMapPixel;
   VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
 
   VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
   VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
-  VBitmapOnMapPixelRect := VLocalConverter.GetRectInMapPixel;
+  VBitmapOnMapPixelRect := VBitmapConverter.GetRectInMapPixel;
 
   VBmp := TCustomBitmap32.Create;
   try
@@ -176,10 +174,10 @@ begin
           VTilePixelsToDraw.Bottom := VTilePixelsToDraw.Bottom - (VCurrTilePixelRect.Bottom - VBitmapOnMapPixelRect.Bottom);
           VCurrTilePixelRect.Bottom := VBitmapOnMapPixelRect.Bottom;
         end;
-        VCurrTileOnBitmapRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
-        VCurrTileOnBitmapRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+        VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
+        VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
         try
-          if VSourceMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, VUsePre, True, False) then begin
+          if AMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, VUsePre, True, False) then begin
             Gamma(VBmp, VRecolorConfig.ContrastN, VRecolorConfig.GammaN, VRecolorConfig.InvertColor);
             FLayer.Bitmap.Lock;
             try
@@ -192,7 +190,7 @@ begin
             end;
           end;
         except
-          FErrorShowLayer.ShowError(VTile, VZoom, VSourceMapType, SAS_ERR_BadFile);
+          FErrorShowLayer.ShowError(VTile, VZoom, AMapType, SAS_ERR_BadFile);
         end;
     end;
   finally
