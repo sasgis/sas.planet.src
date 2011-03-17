@@ -1133,7 +1133,7 @@ begin
             for ei := 0 to (VPixelRectCurTileInSource.Bottom-VPixelRectCurTileInSource.Top)-1 do begin
               VPixelRectElementCurTileInSource:=bounds(
                 VPixelRectCurTileInSource.Left,
-                (VPixelRectCurTileInSource.Top+ei*1),
+                (VPixelRectCurTileInSource.Top+ei),
                 (VPixelRectCurTileInSource.Right-VPixelRectCurTileInSource.Left),
                 1
               );
