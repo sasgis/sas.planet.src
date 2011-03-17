@@ -38,12 +38,13 @@ type
 implementation
 
 uses
+  c_CoordConverter,
   i_ICoordConverter,
-  u_CoordConverterMercatorOnEllipsoid,
   i_ITileIterator,
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
-  u_BitmapTileVampyreSaver;
+  u_BitmapTileVampyreSaver,
+  u_GlobalState;
 
 constructor TThreadExportYaMaps.Create(
   APath: string;
@@ -100,7 +101,7 @@ begin
       bmp32crop := TCustomBitmap32.Create;
       bmp32crop.Width := sizeim;
       bmp32crop.Height := sizeim;
-      VGeoConvert := TCoordConverterMercatorOnEllipsoid.Create(6378137, 6356752);
+      VGeoConvert := GState.CoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
       FTilesToProcess := 0;
       SetLength(VTileIterators,Length(FZooms));
 

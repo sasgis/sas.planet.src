@@ -50,13 +50,14 @@ type
 implementation
 
 uses
+  c_CoordConverter,
   u_GeoToStr,
   UResStrings,
   i_ITileIterator,
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
-  u_CoordConverterMercatorOnSphere;
+  u_GlobalState;
 
 constructor TThreadExportIPhone.Create(
   APath: string;
@@ -163,7 +164,7 @@ begin
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
     exit;
   end;
-  VGeoConvert := TCoordConverterMercatorOnSphere.Create(6378137);
+  VGeoConvert := GState.CoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 
   WritePListFile(VGeoConvert);
 
