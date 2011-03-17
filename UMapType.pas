@@ -1093,12 +1093,14 @@ var
   VPixelRectOfTargetPixelRectInSource: TRect;
   VAllTilesExits: Boolean;
   i, j: Integer;
+  ei,ej: integer;
   VTile: TPoint;
   VSpr:TCustomBitmap32;
   VLoadResult: Boolean;
   VPixelRectCurTileInSource:  TRect;
+  VPixelRectElementCurTileInSource:  TRect;
   VLonLatRectCurTile:  TDoubleRect;
-  VPixelRectCurTileInTarget:  TRect;
+  VPixelRectElementCurTileInTarget:  TRect;
   VSourceBounds: TRect;
   VTargetBounds: TRect;
   VTargetImageSize: TPoint;
@@ -1129,59 +1131,34 @@ begin
           VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError, AUsePre);
           if VLoadResult then begin
             VPixelRectCurTileInSource := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
-            VLonLatRectCurTile := FCoordConverter.PixelRect2LonLatRect(VPixelRectCurTileInSource, Azoom);
-            ACoordConverterTarget.CheckLonLatRect(VLonLatRectCurTile);
-            VPixelRectCurTileInTarget := ACoordConverterTarget.LonLatRect2PixelRect(VLonLatRectCurTile, Azoom);
+            for ei := 0 to ((VPixelRectCurTileInSource.Bottom-VPixelRectCurTileInSource.Top) div 1)-1 do begin
+              VPixelRectElementCurTileInSource:=bounds(
+                VPixelRectCurTileInSource.Left,
+                (VPixelRectCurTileInSource.Top+ei*1),
+                (VPixelRectCurTileInSource.Right-VPixelRectCurTileInSource.Left),
+                1
+              );
 
-            if VPixelRectCurTileInSource.Top < VPixelRectOfTargetPixelRectInSource.Top then begin
-              VSourceBounds.Top := VPixelRectOfTargetPixelRectInSource.Top - VPixelRectCurTileInSource.Top;
-            end else begin
-              VSourceBounds.Top := 0;
+              VLonLatRectCurTile := FCoordConverter.PixelRect2LonLatRect(VPixelRectElementCurTileInSource, Azoom);
+              ACoordConverterTarget.CheckLonLatRect(VLonLatRectCurTile);
+              VPixelRectElementCurTileInTarget := ACoordConverterTarget.LonLatRect2PixelRect(VLonLatRectCurTile, Azoom);
+
+              VSourceBounds:= bounds(
+                VPixelRectElementCurTileInSource.Left-VPixelRectCurTileInSource.Left,
+                VPixelRectElementCurTileInSource.Top-VPixelRectCurTileInSource.Top,
+                VPixelRectElementCurTileInSource.Right-VPixelRectElementCurTileInSource.Left,
+                VPixelRectElementCurTileInSource.Bottom-VPixelRectElementCurTileInSource.Top
+              );
+
+              VTargetBounds:= bounds(
+                VPixelRectElementCurTileInTarget.Left-APixelRectTarget.Left,
+                VPixelRectElementCurTileInTarget.Top-APixelRectTarget.Top,
+                VPixelRectElementCurTileInTarget.Right-VPixelRectElementCurTileInTarget.Left,
+                VPixelRectElementCurTileInTarget.Bottom-VPixelRectElementCurTileInTarget.Top
+              );
+
+              spr.Draw(VTargetBounds, VSourceBounds, VSpr);
             end;
-
-            if VPixelRectCurTileInSource.Left < VPixelRectOfTargetPixelRectInSource.Left then begin
-              VSourceBounds.Left := VPixelRectOfTargetPixelRectInSource.Left - VPixelRectCurTileInSource.Left;
-            end else begin
-              VSourceBounds.Left := 0;
-            end;
-
-            if VPixelRectCurTileInSource.Bottom < VPixelRectOfTargetPixelRectInSource.Bottom then begin
-              VSourceBounds.Bottom := VPixelRectCurTileInSource.Bottom - VPixelRectCurTileInSource.Top;
-            end else begin
-              VSourceBounds.Bottom := VPixelRectOfTargetPixelRectInSource.Bottom - VPixelRectCurTileInSource.Top;
-            end;
-
-            if VPixelRectCurTileInSource.Right < VPixelRectOfTargetPixelRectInSource.Right then begin
-              VSourceBounds.Right := VPixelRectCurTileInSource.Right - VPixelRectCurTileInSource.Left;
-            end else begin
-              VSourceBounds.Right := VPixelRectOfTargetPixelRectInSource.Right - VPixelRectCurTileInSource.Left;
-            end;
-
-            if VPixelRectCurTileInTarget.Top < APixelRectTarget.Top then begin
-              VTargetBounds.Top := 0;
-            end else begin
-              VTargetBounds.Top := VPixelRectCurTileInTarget.Top - APixelRectTarget.Top;
-            end;
-
-            if VPixelRectCurTileInTarget.Left < APixelRectTarget.Left then begin
-              VTargetBounds.Left := 0;
-            end else begin
-              VTargetBounds.Left := VPixelRectCurTileInTarget.Left - APixelRectTarget.Left;
-            end;
-
-            if VPixelRectCurTileInTarget.Bottom < APixelRectTarget.Bottom then begin
-              VTargetBounds.Bottom := VPixelRectCurTileInTarget.Bottom - APixelRectTarget.Top;
-            end else begin
-              VTargetBounds.Bottom := APixelRectTarget.Bottom - APixelRectTarget.Top;
-            end;
-
-            if VPixelRectCurTileInTarget.Right < APixelRectTarget.Right then begin
-              VTargetBounds.Right := VPixelRectCurTileInTarget.Right - APixelRectTarget.Left;
-            end else begin
-              VTargetBounds.Right := APixelRectTarget.Right - APixelRectTarget.Left;
-            end;
-
-            spr.Draw(VTargetBounds, VSourceBounds, VSpr);
           end else begin
             if not AAllowPartial then begin
               Exit;
