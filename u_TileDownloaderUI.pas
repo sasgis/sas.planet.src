@@ -229,7 +229,10 @@ var
   VTile: TPoint;
   VLocalConverter: ILocalCoordConverter;
   VGeoConverter: ICoordConverter;
+  VMapGeoConverter: ICoordConverter;
   VMapPixelRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VLonLatRectInMap: TDoubleRect;
   VMapTileRect: TRect;
   VZoom: Byte;
   VActiveMapsList: IMapTypeList;
@@ -238,7 +241,12 @@ var
   i: Cardinal;
   VMap: IMapType;
   VLoadUrl: string;
+  VIteratorsList: IInterfaceList;
+  VMapsList: IInterfaceList;
+  VAllIteratorsFinished: Boolean;
 begin
+  VIteratorsList := TInterfaceList.Create;
+  VMapsList := TInterfaceList.Create;
   repeat
     if FUseDownload = tsCache then begin
       if Terminated then begin
@@ -273,86 +281,96 @@ begin
           end;
           Sleep(1000);
         end else begin
+          VActiveMapsList := FActiveMapsList;
           VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
           VZoom := VLocalConverter.GetZoom;
-          VActiveMapsList := FActiveMapsList;
           VGeoConverter := VLocalConverter.GetGeoConverter;
           VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
-          VMapTileRect := VGeoConverter.PixelRectFloat2TileRect(VMapPixelRect, VZoom);
-          Dec(VMapTileRect.Left, FTilesOut);
-          Dec(VMapTileRect.Top, FTilesOut);
-          Inc(VMapTileRect.Right, FTilesOut);
-          Inc(VMapTileRect.Bottom, FTilesOut);
-          VGeoConverter.CheckTileRect(VMapTileRect, VZoom);
-          VIterator := TTileIteratorSpiralByRect.Create(VMapTileRect);
-          try
-            while VIterator.Next(VTile) do begin
+          VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+          VIteratorsList.Clear;
+          VMapsList.Clear;
+          VEnum := VActiveMapsList.GetIterator;
+          while VEnum.Next(1, VGUID, i) = S_OK do begin
+            VMap := VActiveMapsList.GetMapTypeByGUID(VGUID);
+            if VMap <> nil then begin
+              FMapType := VMap.MapType;
+              if FMapType.UseDwn then begin
+                VMapGeoConverter := FMapType.GeoConvert;
+                VLonLatRectInMap := VLonLatRect;
+                VMapGeoConverter.CheckLonLatRect(VLonLatRectInMap);
+
+                VMapTileRect := VMapGeoConverter.LonLatRect2TileRect(VLonLatRectInMap, VZoom);
+                Dec(VMapTileRect.Left, FTilesOut);
+                Dec(VMapTileRect.Top, FTilesOut);
+                Inc(VMapTileRect.Right, FTilesOut);
+                Inc(VMapTileRect.Bottom, FTilesOut);
+                VMapGeoConverter.CheckTileRect(VMapTileRect, VZoom);
+                VIterator := TTileIteratorSpiralByRect.Create(VMapTileRect);
+                VIteratorsList.Add(VIterator);
+                VMapsList.Add(VMap);
+              end;
+            end;
+          end;
+          VAllIteratorsFinished := not(VIteratorsList.Count > 0);
+          while not VAllIteratorsFinished do begin
+            VAllIteratorsFinished := True;
+            for i := 0 to VIteratorsList.Count - 1 do begin
               if Terminated then begin
                 break;
               end;
               if change_scene then begin
-                Break;
+                break;
               end;
-              VEnum := VActiveMapsList.GetIterator;
-              while VEnum.Next(1, VGUID, i) = S_OK do begin
-                VMap := VActiveMapsList.GetMapTypeByGUID(VGUID);
-                if Terminated then begin
-                  break;
+              VIterator := ITileIterator(VIteratorsList.Items[i]);
+              if VIterator.Next(VTile) then begin
+                VAllIteratorsFinished := False;
+                VMap := IMapType(VMapsList.Items[i]);
+                FMapType := VMap.MapType;
+                FLoadXY := VTile;
+                VNeedDownload := False;
+                if FMapType.TileExists(FLoadXY, VZoom) then begin
+                  if FUseDownload = tsInternet then begin
+                    if Now - FMapType.TileLoadDate(FLoadXY, VZoom) > FTileMaxAgeInInternet then begin
+                      VNeedDownload := True;
+                    end;
+                  end;
+                end else begin
+                  if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
+                    if not(FMapType.TileNotExistsOnServer(FLoadXY, VZoom)) then begin
+                      VNeedDownload := True;
+                    end;
+                  end;
                 end;
-                if change_scene then begin
-                  Break;
-                end;
-                if VMap <> nil then begin
-                  FMapType := VMap.MapType;
-                  if FMapType.UseDwn then begin
-                    VPixelInTargetMap := VGeoConverter.PixelPos2OtherMap(
-                      VGeoConverter.TilePos2PixelPos(VTile, VZoom),
-                      VZoom,
-                      FMapType.GeoConvert
-                    );
-                    FLoadXY := FMapType.GeoConvert.PixelPos2TilePos(VPixelInTargetMap, VZoom);
-                    VNeedDownload := False;
-                    if FMapType.TileExists(FLoadXY, VZoom) then begin
-                      if FUseDownload = tsInternet then begin
-                        if Now - FMapType.TileLoadDate(FLoadXY, VZoom) > FTileMaxAgeInInternet then begin
-                          VNeedDownload := True;
-                        end;
+                if VNeedDownload then begin
+                  FileBuf := TMemoryStream.Create;
+                  try
+                    try
+                      res := FMapType.DownloadTile(Self, FLoadXY, VZoom, false, 0, VLoadUrl, ty, fileBuf);
+                      FErrorString := GetErrStr(res);
+                      if (res = dtrOK) or (res = dtrSameTileSize) then begin
+                        GState.DownloadInfo.Add(1, fileBuf.Size);
                       end;
-                    end else begin
-                      if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
-                        if not(FMapType.TileNotExistsOnServer(FLoadXY, VZoom)) then begin
-                          VNeedDownload := True;
-                        end;
+                    except
+                      on E: Exception do begin
+                        FErrorString := E.Message;
                       end;
                     end;
-                    if VNeedDownload then begin
-                      FileBuf := TMemoryStream.Create;
-                      try
-                        try
-                          res := FMapType.DownloadTile(Self, FLoadXY, VZoom, false, 0, VLoadUrl, ty, fileBuf);
-                          FErrorString := GetErrStr(res);
-                          if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                            GState.DownloadInfo.Add(1, fileBuf.Size);
-                          end;
-                        except
-                          on E: Exception do begin
-                            FErrorString := E.Message;
-                          end;
-                        end;
-                        if Terminated then begin
-                          break;
-                        end;
-                        Synchronize(AfterWriteToFile);
-                      finally
-                        FileBuf.Free;
-                      end;
+                    if Terminated then begin
+                      break;
                     end;
+                    Synchronize(AfterWriteToFile);
+                  finally
+                    FileBuf.Free;
                   end;
                 end;
               end;
             end;
-          finally
-            VIterator := nil;
+            if Terminated then begin
+              break;
+            end;
+            if change_scene then begin
+              break;
+            end;
           end;
         end;
       end;
