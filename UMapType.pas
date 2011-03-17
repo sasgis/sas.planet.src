@@ -908,7 +908,6 @@ begin
           VTileTargetBounds.Top := 0;
           VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left;
           VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top;
-
           VBmp.Resampler := GState.ImageResamplerConfig.GetActiveFactory.CreateResampler;
 
           VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
@@ -1131,7 +1130,7 @@ begin
           VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError, AUsePre);
           if VLoadResult then begin
             VPixelRectCurTileInSource := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
-            for ei := 0 to ((VPixelRectCurTileInSource.Bottom-VPixelRectCurTileInSource.Top) div 1)-1 do begin
+            for ei := 0 to (VPixelRectCurTileInSource.Bottom-VPixelRectCurTileInSource.Top)-1 do begin
               VPixelRectElementCurTileInSource:=bounds(
                 VPixelRectCurTileInSource.Left,
                 (VPixelRectCurTileInSource.Top+ei*1),
