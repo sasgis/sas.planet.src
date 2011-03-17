@@ -18,7 +18,7 @@ type
   private
     FConfig: ILastSelectionLayerConfig;
     FLastSelectionInfo: ILastSelectionInfo;
-    FPolygon: TArrayOfDoublePoint;
+    FSourcePolygon: TArrayOfDoublePoint;
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
     function LonLatArrayToVisualFloatArray(APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
     procedure OnChangeSelection(Sender: TObject);
@@ -69,7 +69,7 @@ end;
 procedure TSelectionLayer.DoRedraw;
 begin
   inherited;
-  FPolygon := Copy(GState.LastSelectionInfo.Polygon);
+  FSourcePolygon := Copy(GState.LastSelectionInfo.Polygon);
 end;
 
 function TSelectionLayer.LonLatArrayToVisualFloatArray(
@@ -102,7 +102,7 @@ end;
 
 procedure TSelectionLayer.OnChangeSelection(Sender: TObject);
 begin
-  FPolygon := GState.LastSelectionInfo.Polygon;
+  FSourcePolygon := GState.LastSelectionInfo.Polygon;
   LayerPositioned.Changed;
 end;
 
@@ -115,7 +115,7 @@ var
   VLineColor: TColor32;
   VLineWidth: Integer;
 begin
-  VPointCount := Length(FPolygon);
+  VPointCount := Length(FSourcePolygon);
   if VPointCount > 0 then begin
     FConfig.LockRead;
     try
@@ -124,7 +124,7 @@ begin
     finally
       FConfig.UnlockRead;
     end;
-    VVisualPolygon := LonLatArrayToVisualFloatArray(FPolygon);
+    VVisualPolygon := LonLatArrayToVisualFloatArray(FSourcePolygon);
 
     SetLength(VFloatPoints, VPointCount);
     for i := 0 to VPointCount - 1 do begin
