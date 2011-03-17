@@ -194,6 +194,7 @@ begin
   end;
   cbbOutputFormatChange(cbbOutputFormat);
   cbbZoomChange(nil);
+  UpdatePanelSizes;
 end;
 
 procedure TfrMapCombine.RefreshTranslation;

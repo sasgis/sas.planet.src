@@ -125,13 +125,14 @@ object frMapCombine: TfrMapCombine
       Height = 71
       Align = alRight
       BevelOuter = bvNone
+      BorderWidth = 3
       Constraints.MinWidth = 56
       TabOrder = 0
       object lblZoom: TLabel
         AlignWithMargins = True
-        Left = 0
-        Top = 0
-        Width = 56
+        Left = 3
+        Top = 3
+        Width = 50
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
@@ -139,18 +140,23 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         AutoSize = False
         Caption = #1052#1072#1089#1096#1090#1072#1073':'
+        ExplicitLeft = 0
+        ExplicitTop = 0
         ExplicitWidth = 72
       end
       object cbbZoom: TComboBox
-        Left = 0
-        Top = 16
-        Width = 56
+        Left = 3
+        Top = 19
+        Width = 50
         Height = 21
         Align = alTop
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 0
         OnChange = cbbZoomChange
+        ExplicitLeft = 0
+        ExplicitTop = 16
+        ExplicitWidth = 56
       end
     end
     object pnlCenterMain: TPanel
