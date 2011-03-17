@@ -88,7 +88,7 @@ begin
   VScale1 := FDefaultTemplate.Scale1;
   if AConfigData <> nil then begin
     VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
-    VColor1 := LoadColor32(AConfigData, 'LineColor', VColor1);
+    VColor1 := ReadColor32(AConfigData, 'LineColor', VColor1);
     VScale1 := AConfigData.ReadInteger('LineWidth', VScale1);
   end;
   SetDefaultTemplate(

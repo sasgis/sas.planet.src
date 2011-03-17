@@ -52,7 +52,7 @@ begin
   if AConfigData <> nil then begin
     FVisible := AConfigData.ReadBool('Visible', FVisible);
     FShowText := AConfigData.ReadBool('ShowText', FShowText);
-    LoadColor32(AConfigData, 'GridColor', FGridColor);
+    FGridColor := ReadColor32(AConfigData, 'GridColor', FGridColor);
     SetChanged;
   end;
 end;

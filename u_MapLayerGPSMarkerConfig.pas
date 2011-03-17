@@ -93,9 +93,9 @@ begin
   if AConfigData <> nil then begin
     FMinMoveSpeed := AConfigData.ReadFloat('MinSpeed', FMinMoveSpeed);
     FMarkerMovedSize := AConfigData.ReadInteger('MarkerMovedSize', FMarkerMovedSize);
-    LoadColor32(AConfigData, 'MarkerMovedColor', FMarkerMovedColor);
+    FMarkerMovedColor := ReadColor32(AConfigData, 'MarkerMovedColor', FMarkerMovedColor);
     FMarkerStopedSize := AConfigData.ReadInteger('MarkerStopedSize', FMarkerStopedSize);
-    LoadColor32(AConfigData, 'MarkerStopedColor', FMarkerStopedColor);
+    FMarkerStopedColor := ReadColor32(AConfigData, 'MarkerStopedColor', FMarkerStopedColor);
     SetChanged;
   end;
 end;

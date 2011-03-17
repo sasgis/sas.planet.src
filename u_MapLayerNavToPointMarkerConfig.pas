@@ -92,9 +92,9 @@ begin
   if AConfigData <> nil then begin
     FCrossDistInPixels := AConfigData.ReadFloat('CrossDistInPixels', FCrossDistInPixels);
     FMarkerArrowSize := AConfigData.ReadInteger('MarkerArrowSize', FMarkerArrowSize);
-    LoadColor32(AConfigData, 'MarkerArrowColor', FMarkerArrowColor);
+    FMarkerArrowColor := ReadColor32(AConfigData, 'MarkerArrowColor', FMarkerArrowColor);
     FMarkerCrossSize := AConfigData.ReadInteger('MarkerCrossSize', FMarkerCrossSize);
-    LoadColor32(AConfigData, 'MarkerCrossColor', FMarkerCrossColor);
+    FMarkerCrossColor := ReadColor32(AConfigData, 'MarkerCrossColor', FMarkerCrossColor);
     SetChanged;
   end;
 end;

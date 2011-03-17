@@ -142,8 +142,8 @@ begin
       end;
     end;
     VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
-    VColor1 := LoadColor32(AConfigData, 'TextColor', VColor1);
-    VColor2 := LoadColor32(AConfigData, 'ShadowColor', VColor2);
+    VColor1 := ReadColor32(AConfigData, 'TextColor', VColor1);
+    VColor2 := ReadColor32(AConfigData, 'ShadowColor', VColor2);
     VScale1 := AConfigData.ReadInteger('FontSize', VScale1);
     VScale2 := AConfigData.ReadInteger('IconSize', VScale2);
   end;

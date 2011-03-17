@@ -73,8 +73,8 @@ begin
     FVisible := AConfigData.ReadBool('Visible', FVisible);
     FHeight := AConfigData.ReadInteger('Height', FHeight);
     FMinUpdateTickCount := AConfigData.ReadInteger('MinRedrawTime', FMinUpdateTickCount);
-    LoadColor32(AConfigData, 'BackgroundColor', FBgColor);
-    LoadColor32(AConfigData, 'TextColor', FTextColor);
+    FBgColor := ReadColor32(AConfigData, 'BackgroundColor', FBgColor);
+    FTextColor := ReadColor32(AConfigData, 'TextColor', FTextColor);
     FFontName := AConfigData.ReadString('FontName', FFontName);
     FFontSize := AConfigData.ReadInteger('FontSize', FFontSize)
   end;

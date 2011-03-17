@@ -91,8 +91,8 @@ begin
     FVisible := AConfigData.ReadBool('Visible', FVisible);
     FSourceZoom := AConfigData.ReadInteger('SourceZoom', FSourceZoom);
     FShowTNE := AConfigData.ReadBool('ShowTNE', FShowTNE);
-    FNoTileColor := LoadColor32(AConfigData, 'NoTileColor', FNoTileColor);
-    FTNEColor := LoadColor32(AConfigData, 'TNEColor', FTNEColor);
+    FNoTileColor := ReadColor32(AConfigData, 'NoTileColor', FNoTileColor);
+    FTNEColor := ReadColor32(AConfigData, 'TNEColor', FTNEColor);
 
     SetChanged;
   end;

@@ -68,8 +68,8 @@ begin
   if AConfigData <> nil then begin
     FLenShow := AConfigData.ReadBool('LenShow', FLenShow);
 
-    FTextColor := LoadColor32(AConfigData, 'TextColor', FTextColor);
-    FTextBGColor := LoadColor32(AConfigData, 'TextBGColor', FTextBGColor);
+    FTextColor := ReadColor32(AConfigData, 'TextColor', FTextColor);
+    FTextBGColor := ReadColor32(AConfigData, 'TextBGColor', FTextBGColor);
 
     SetChanged;
   end;

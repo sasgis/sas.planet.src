@@ -68,8 +68,8 @@ procedure TSelectionRectLayerConfig.DoReadConfig(
 begin
   inherited;
   if AConfigData <> nil then begin
-    FFillColor := LoadColor32(AConfigData, 'FillColor', FFillColor);
-    FBorderColor := LoadColor32(AConfigData, 'BorderColor', FBorderColor);
+    FFillColor := ReadColor32(AConfigData, 'FillColor', FFillColor);
+    FBorderColor := ReadColor32(AConfigData, 'BorderColor', FBorderColor);
     FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
 
     SetChanged;

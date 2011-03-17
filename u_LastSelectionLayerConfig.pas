@@ -52,7 +52,7 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FVisible := AConfigData.ReadBool('Visible', FVisible);
-    FLineColor := LoadColor32(AConfigData, 'LineColor', FLineColor);
+    FLineColor := ReadColor32(AConfigData, 'LineColor', FLineColor);
     FLineWidth := AConfigData.ReadInteger('LineWidth', FLineWidth);
     SetChanged;
   end;

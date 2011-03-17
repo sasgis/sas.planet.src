@@ -49,9 +49,9 @@ procedure TKmlLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    LoadColor32(AConfigData, 'MainColor', FMainColor);
-    LoadColor32(AConfigData, 'PointColor', FPointColor);
-    LoadColor32(AConfigData, 'ShadowColor', FShadowColor);
+    FMainColor := ReadColor32(AConfigData, 'MainColor', FMainColor);
+    FPointColor := ReadColor32(AConfigData, 'PointColor', FPointColor);
+    FShadowColor := ReadColor32(AConfigData, 'ShadowColor', FShadowColor);
     SetChanged;
   end;
 end;

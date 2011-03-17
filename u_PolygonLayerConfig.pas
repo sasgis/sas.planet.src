@@ -55,7 +55,7 @@ procedure TPolygonLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FFillColor := LoadColor32(AConfigData, 'FillColor', FFillColor);
+    FFillColor := ReadColor32(AConfigData, 'FillColor', FFillColor);
     SetChanged;
   end;
 end;

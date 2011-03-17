@@ -12,7 +12,7 @@ procedure WriteColor32(
   AIdent: string;
   AValue: TColor32
 );
-function LoadColor32(
+function ReadColor32(
   AConfigProvider: IConfigDataProvider;
   AIdent: string;
   ADefault: TColor32
@@ -23,7 +23,7 @@ implementation
 uses
   Graphics;
   
-function LoadColor32(
+function ReadColor32(
   AConfigProvider: IConfigDataProvider;
   AIdent: string;
   ADefault: TColor32

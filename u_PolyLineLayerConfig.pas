@@ -71,13 +71,13 @@ procedure TPolyLineLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FLineColor := LoadColor32(AConfigData, 'LineColor', FLineColor);
+    FLineColor := ReadColor32(AConfigData, 'LineColor', FLineColor);
     FLineWidth := AConfigData.ReadInteger('LineWidth', FLineWidth);
 
-    FPointFillColor := LoadColor32(AConfigData, 'PointFillColor', FPointFillColor);
-    FPointRectColor := LoadColor32(AConfigData, 'PointRectColor', FPointRectColor);
-    FPointFirstColor := LoadColor32(AConfigData, 'PointFirstColor', FPointFirstColor);
-    FPointActiveColor := LoadColor32(AConfigData, 'PointActiveColor', FPointActiveColor);
+    FPointFillColor := ReadColor32(AConfigData, 'PointFillColor', FPointFillColor);
+    FPointRectColor := ReadColor32(AConfigData, 'PointRectColor', FPointRectColor);
+    FPointFirstColor := ReadColor32(AConfigData, 'PointFirstColor', FPointFirstColor);
+    FPointActiveColor := ReadColor32(AConfigData, 'PointActiveColor', FPointActiveColor);
     FPointSize := AConfigData.ReadInteger('PointSize', FPointSize);
 
     SetChanged;
