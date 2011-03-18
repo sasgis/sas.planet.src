@@ -39,7 +39,6 @@ implementation
 
 uses
   SysUtils,
-  GR32_PolygonsEx,
   GR32_Layers,
   i_ILocalCoordConverter,
   i_ICoordConverter,
