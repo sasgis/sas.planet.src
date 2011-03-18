@@ -128,6 +128,8 @@ begin
   VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
 
   VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
+  if VLoadedLonLatRect.Top>90 then VLoadedLonLatRect.Top:=90;
+  if VLoadedLonLatRect.Bottom<-90 then VLoadedLonLatRect.Bottom:=-90;
 
   VGridLonLatRect.Left := VLoadedLonLatRect.Left - z.X;
   VGridLonLatRect.Top := VLoadedLonLatRect.Top + z.Y;
