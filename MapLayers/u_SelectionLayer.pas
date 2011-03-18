@@ -75,7 +75,6 @@ begin
 
   FLinePolygon := TPolygon32.Create;
 
-  LayerPositioned.OnPaint := PaintLayer;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
@@ -218,6 +217,7 @@ procedure TSelectionLayer.StartThreads;
 begin
   inherited;
   OnConfigChange(nil);
+  LayerPositioned.OnPaint := PaintLayer;
 end;
 
 end.
