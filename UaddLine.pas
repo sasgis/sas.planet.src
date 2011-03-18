@@ -167,6 +167,7 @@ begin
     if VCategory <> nil then begin
       FCategoryList.Add(VCategory);
       FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
+      CBKateg.Text := VCategory.name;
     end;
   end;
   ModalResult:=mrOk;
