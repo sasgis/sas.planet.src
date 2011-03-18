@@ -87,6 +87,7 @@ uses
   u_ProviderTilesCopy,
   u_ProviderTilesDownload,
   u_ProviderMapCombine,
+  Ugeofun,
   unit1;
 
 {$R *.dfm}
@@ -245,9 +246,18 @@ procedure TFsaveas.Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
 var
   i:integer;
   VExportProvider: TExportProviderAbstract;
+  VPointsCount: Integer;
 begin
   FZoom_rect:=Azoom;
   FPolygonLL := copy(polygon_);
+  VPointsCount := Length(FPolygonLL);
+  if VPointsCount > 1 then begin
+    if not compare2EP(FPolygonLL[0], FPolygonLL[VPointsCount - 1]) then begin
+      SetLength(FPolygonLL, VPointsCount + 1);
+      FPolygonLL[VPointsCount] := FPolygonLL[0];
+    end;
+  end;
+
   GState.LastSelectionInfo.SetPolygon(FPolygonLL, FZoom_rect);
   for i := 0 to CBFormat.Items.Count - 1 do begin
     VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
