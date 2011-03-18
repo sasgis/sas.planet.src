@@ -72,6 +72,8 @@ begin
 
   FPolygon := TPolygon32.Create;
   FPolygon.Closed := True;
+  FPolygon.Antialiased := true;
+  FPolygon.AntialiasMode := am4times;
 
   FLinePolygon := TPolygon32.Create;
 
@@ -188,11 +190,11 @@ begin
     Inc(VLocalRect.Bottom, 10);
     VBitmapClip := TPolygonClipByRect.Create(VLocalRect);
     FPointsOnBitmap := LonLatArrayToVisualFloatArray(ALocalConverter, FSourcePolygon);
-
+    FPolygon.Clear;
+    FLinePolygon.Clear;
     VPointsProcessedCount := VBitmapClip.Clip(FPointsOnBitmap[0], VPointsCount, VPointsOnBitmapPrepared);
     if VPointsProcessedCount > 0 then begin
       SetLength(VPathFixedPoints, VPointsProcessedCount);
-      FPolygon.Clear;
       for i := 0 to VPointsProcessedCount - 1 do begin
         VPathFixedPoints[i] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
       end;
