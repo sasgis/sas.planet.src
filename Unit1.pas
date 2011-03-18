@@ -616,6 +616,7 @@ type
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
     procedure OnMapUpdate(AMapType: TMapType);
+    procedure LayerMapMarksRedraw;
   end;
 
 var
@@ -3472,7 +3473,11 @@ end;
 procedure TFmain.TBItem6Click(Sender: TObject);
 begin
  FMarksExplorer.EditMarks(FMarkDBGUI);
- FLayerMapMarks.Redraw;
+end;
+
+procedure TFmain.LayerMapMarksRedraw;
+begin
+  FLayerMapMarks.Redraw;
 end;
 
 procedure TFmain.NMarkNavClick(Sender: TObject);

@@ -268,6 +268,7 @@ begin
   finally
     GState.MainFormConfig.LayersConfig.MarksShowConfig.UnlockWrite;
   end;
+  Fmain.LayerMapMarksRedraw;
 end;
 
 procedure TFMarksExplorer.btnOkClick(Sender: TObject);

@@ -43,8 +43,6 @@ object FMarksExplorer: TFMarksExplorer
         ImageIndex = 0
         TabOrder = 0
         OnClick = btnExportClick
-        ExplicitTop = 56
-        ExplicitWidth = 70
         Caption = #1069#1082#1089#1087#1086#1088#1090
       end
       object btnAccept: TTBXButton
@@ -58,7 +56,6 @@ object FMarksExplorer: TFMarksExplorer
         TabOrder = 1
         OnClick = btnAcceptClick
         ExplicitLeft = -2
-        ExplicitTop = 67
         Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
       end
       object btnOk: TTBXButton
@@ -71,8 +68,6 @@ object FMarksExplorer: TFMarksExplorer
         ImageIndex = 0
         TabOrder = 2
         OnClick = btnOkClick
-        ExplicitTop = 91
-        ExplicitWidth = 70
         Caption = #1054#1050
       end
       object btnImport: TTBXButton
@@ -85,9 +80,6 @@ object FMarksExplorer: TFMarksExplorer
         ImageIndex = 0
         TabOrder = 3
         OnClick = btnImportClick
-        ExplicitLeft = 7
-        ExplicitTop = 32
-        ExplicitWidth = 70
         Caption = #1048#1084#1087#1086#1088#1090
       end
     end
