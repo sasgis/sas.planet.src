@@ -45,6 +45,7 @@ type
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
     FMarkDBGUI: TMarksDbGUIHelper;
+    FMarksList: IInterfaceList;
     function GeocodeResultFromLonLat(ASearch: WideString; ALonLat: TDoublePoint; AMessage: WideString): IGeoCodeResult;
   public
     constructor Create(AOwner: TComponent); override;
@@ -93,14 +94,18 @@ end;
 procedure TfrmGoTo.btnGoToClick(Sender: TObject);
 var
   textsrch:String;
+  VIndex: Integer;
   VId: Integer;
+  VMarkId: IMarkID;
   VMark: IMarkFull;
   VLonLat: TDoublePoint;
   VGeoCoderItem: IGeoCoderListEntity;
 begin
   if RB3.Checked then begin
-    if cbbAllMarks.ItemIndex>-1 then begin
-      VId := IMarkId(Pointer(cbbAllMarks.Items.Objects[cbbAllMarks.ItemIndex])).id;
+    VIndex := cbbAllMarks.ItemIndex;
+    if VIndex >= 0 then begin
+      VMarkId := IMarkId(Pointer(cbbAllMarks.Items.Objects[VIndex]));
+      VId := VMarkId.id;
       VMark := GState.MarksDb.MarksDb.GetMarkByID(VId);
         VLonLat := VMark.GetGoToLonLat;
         FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.name);
@@ -167,6 +172,7 @@ begin
     AZoom := 0;
   end;
   cbbAllMarks.Clear;
+  FMarksList:=nil;
 end;
 
 procedure TfrmGoTo.edtGeoCodeClick(Sender: TObject);
@@ -180,16 +186,10 @@ begin
 end;
 
 procedure TfrmGoTo.cbbAllMarksDropDown(Sender: TObject);
-var
-  VMarksList: IInterfaceList;
 begin
   if cbbAllMarks.Items.Count=0 then begin
-    VMarksList := FMarkDBGUI.MarksDB.MarksDb.GetAllMarskIdList;
-    try
-      FMarkDBGUI.MarksListToStrings(VMarksList, cbbAllMarks.Items);
-    finally
-      VMarksList:=nil;
-    end;
+    FMarksList := FMarkDBGUI.MarksDB.MarksDb.GetAllMarskIdList;
+    FMarkDBGUI.MarksListToStrings(FMarksList, cbbAllMarks.Items);
   end;
 end;
 
