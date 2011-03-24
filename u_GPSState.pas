@@ -14,7 +14,9 @@ uses
   i_IGPSModuleByCOM;
 
 type
-  TConnectState = (csDisconnected, csConnecting, csConnected, csDisconnecting, csTimeOut, csConnectError);
+  TModuleState = (msDisconnected, msConnecting, msConnected, msDisconnecting);
+
+  TInternalState = (isDisconnected, isConnecting, isConnected, isDisconnecting, isTimeOut, isConnectError);
 
 type
   TGPSpar = class
@@ -22,19 +24,23 @@ type
     FConfig: IGPSConfig;
     FLogWriter: ITrackWriter;
     FGPSRecorder: IGPSRecorder;
-    FGPSModule: IGPSModule;
     FGPSModuleByCOM: IGPSModuleByCOM;
 
     FCS: TCriticalSection;
     FLinksList: IJclListenerNotifierLinksList;
+    FDataReciveNotifier: IJclNotifier;
     FConnectingNotifier: IJclNotifier;
     FConnectedNotifier: IJclNotifier;
     FDisconnectingNotifier: IJclNotifier;
     FDisconnectedNotifier: IJclNotifier;
     FTimeOutNotifier: IJclNotifier;
     FConnectErrorNotifier: IJclNotifier;
-    FStateFromModule: TConnectState;
-    FStateReported: TConnectState;
+
+    FModuleState: TModuleState;
+    FWasError: Boolean;
+    FWasTimeOut: Boolean;
+    FDataRecived: Boolean;
+    FInternalState: TInternalState;
 
     procedure OnTimer(Sender: TObject);
     procedure OnGpsConnecting(Sender: TObject);
@@ -51,13 +57,13 @@ type
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
 
-    property GPSModule: IGPSModule read FGPSModule;
     property ConnectingNotifier: IJclNotifier read FConnectingNotifier;
     property ConnectedNotifier: IJclNotifier read FConnectedNotifier;
     property DisconnectingNotifier: IJclNotifier read FDisconnectingNotifier;
     property DisconnectedNotifier: IJclNotifier read FDisconnectedNotifier;
     property TimeOutNotifier: IJclNotifier read FTimeOutNotifier;
     property ConnectErrorNotifier: IJclNotifier read FConnectErrorNotifier;
+    property DataReciveNotifier: IJclNotifier read FDataReciveNotifier;
   end;
 
 implementation
@@ -80,11 +86,13 @@ begin
   FGPSRecorder := AGPSRecorder;
 
   FGPSModuleByCOM := TGPSModuleByZylGPS.Create;
-  FGPSModule := FGPSModuleByCOM;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FCS := TCriticalSection.Create;
-  FStateFromModule := csDisconnected;
-  FStateReported := csDisconnected;
+  FModuleState := msDisconnected;
+  FWasError := False;
+  FWasTimeOut := False;
+  FDataRecived := False;
+  FInternalState := isDisconnected;
 
   FConnectingNotifier := TJclBaseNotifier.Create;
   FConnectedNotifier := TJclBaseNotifier.Create;
@@ -92,34 +100,35 @@ begin
   FDisconnectedNotifier := TJclBaseNotifier.Create;
   FTimeOutNotifier := TJclBaseNotifier.Create;
   FConnectErrorNotifier := TJclBaseNotifier.Create;
+  FDataReciveNotifier := TJclBaseNotifier.Create;
 
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnGpsConnecting),
-    FGPSModule.ConnectingNotifier
+    FGPSModuleByCOM.ConnectingNotifier
   );
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnGpsConnected),
-    FGPSModule.ConnectedNotifier
+    FGPSModuleByCOM.ConnectedNotifier
   );
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnGpsDataReceive),
-    FGPSModule.DataReciveNotifier
+    FGPSModuleByCOM.DataReciveNotifier
   );
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnGpsDisconnecting),
-    FGPSModule.DisconnectingNotifier
+    FGPSModuleByCOM.DisconnectingNotifier
   );
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnGpsDisconnected),
-    FGPSModule.DisconnectedNotifier
+    FGPSModuleByCOM.DisconnectedNotifier
   );
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnGpsTimeout),
-    FGPSModule.TimeOutNotifier
+    FGPSModuleByCOM.TimeOutNotifier
   );
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnGpsConnectError),
-    FGPSModule.ConnectErrorNotifier
+    FGPSModuleByCOM.ConnectErrorNotifier
   );
 
   FLinksList.Add(
@@ -138,7 +147,7 @@ begin
   FreeAndNil(FCS);
   FLinksList := nil;
   FGPSRecorder := nil;
-  FGPSModule := nil;
+  FGPSModuleByCOM := nil;
   FLogWriter := nil;
   inherited;
 end;
@@ -150,7 +159,9 @@ begin
       FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic);
     end;
   end else begin
-    FGPSModuleByCOM.Disconnect;
+    if FGPSModuleByCOM <> nil then begin
+      FGPSModuleByCOM.Disconnect;
+    end;
   end;
 end;
 
@@ -173,7 +184,7 @@ begin
   end;
   FCS.Acquire;
   try
-    FStateFromModule := csConnected;
+    FModuleState := msConnected;
   finally
     FCS.Release;
   end;
@@ -183,7 +194,7 @@ procedure TGPSpar.OnGpsConnectError(Sender: TObject);
 begin
   FCS.Acquire;
   try
-    FStateFromModule := csConnectError;
+    FWasError := True;
   finally
     FCS.Release;
   end;
@@ -193,7 +204,7 @@ procedure TGPSpar.OnGpsConnecting(Sender: TObject);
 begin
   FCS.Acquire;
   try
-    FStateFromModule := csConnecting;
+    FModuleState := msConnecting;
   finally
     FCS.Release;
   end;
@@ -201,21 +212,27 @@ end;
 
 procedure TGPSpar.OnGpsDataReceive;
 begin
-  FGPSRecorder.AddPoint(FGPSModule.Position);
-  FLogWriter.AddPoint(FGPSModule.Position);
+  FGPSRecorder.AddPoint(FGPSModuleByCOM.Position);
+  FLogWriter.AddPoint(FGPSModuleByCOM.Position);
+  FCS.Acquire;
+  try
+    FDataRecived := True;
+  finally
+    FCS.Release;
+  end;
 end;
 
 procedure TGPSpar.OnGpsDisconnected;
 begin
   FConfig.GPSEnabled := False;
-  FGPSRecorder.AddPoint(FGPSModule.Position);
+  FGPSRecorder.AddPoint(FGPSModuleByCOM.Position);
   try
     FLogWriter.CloseLog;
   except
   end;
   FCS.Acquire;
   try
-    FStateFromModule := csDisconnected;
+    FModuleState := msDisconnected;
   finally
     FCS.Release;
   end;
@@ -225,7 +242,7 @@ procedure TGPSpar.OnGpsDisconnecting(Sender: TObject);
 begin
   FCS.Acquire;
   try
-    FStateFromModule := csDisconnecting;
+    FModuleState := msDisconnecting;
   finally
     FCS.Release;
   end;
@@ -235,7 +252,7 @@ procedure TGPSpar.OnGpsTimeout(Sender: TObject);
 begin
   FCS.Acquire;
   try
-    FStateFromModule := csTimeOut;
+    FWasTimeOut := True;
   finally
     FCS.Release;
   end;
@@ -244,90 +261,101 @@ end;
 procedure TGPSpar.OnTimer(Sender: TObject);
 var
   VNeedNotify: Boolean;
-  VStateToReport: TConnectState;
+  VInternalStateNew: TInternalState;
+  VInternalStatePrev: TInternalState;
+  VDataRecived: Boolean;
 begin
+  VInternalStatePrev := isDisconnected;
+  VInternalStateNew := isDisconnected;
   repeat
+    VDataRecived := False;
     FCS.Acquire;
     try
-      case FStateReported of
-        csDisconnected: begin
-          case FStateFromModule of
-            csDisconnected: VStateToReport := csDisconnected;
-            csConnecting: VStateToReport := csConnecting;
-            csConnected: VStateToReport := csConnecting;
-            csDisconnecting: VStateToReport := csConnecting;
-            csTimeOut: VStateToReport := csDisconnected;
-            csConnectError: VStateToReport := csDisconnected;
-          end;
+      if FWasError then begin
+        if FInternalState = isDisconnected then begin
+          VInternalStateNew := isConnecting;
+        end else begin
+          VInternalStateNew := isConnectError;
+          FWasError := False;
         end;
-        csConnecting:  begin
-          case FStateFromModule of
-            csDisconnected: VStateToReport := csDisconnecting;
-            csConnecting: VStateToReport := csConnecting;
-            csConnected: VStateToReport := csConnected;
-            csDisconnecting: VStateToReport := csDisconnecting;
-            csTimeOut: VStateToReport := csTimeOut;
-            csConnectError: VStateToReport := csConnectError;
+      end else if FWasTimeOut then begin
+        VInternalStateNew := isTimeOut;
+        FWasTimeOut := False;
+      end else begin
+        case FInternalState of
+          isDisconnected: begin
+            case FModuleState of
+              msDisconnected: VInternalStateNew := isDisconnected;
+              msConnecting: VInternalStateNew := isConnecting;
+              msConnected: VInternalStateNew := isConnecting;
+              msDisconnecting: VInternalStateNew := isConnecting;
+            end;
           end;
-        end;
-        csConnected:  begin
-          case FStateFromModule of
-            csDisconnected: VStateToReport := csDisconnecting;
-            csConnecting: VStateToReport := csDisconnecting;
-            csConnected: VStateToReport := csConnected;
-            csDisconnecting: VStateToReport := csDisconnecting;
-            csTimeOut: VStateToReport := csTimeOut;
-            csConnectError: VStateToReport := csConnectError;
+          isConnecting:  begin
+            case FModuleState of
+              msDisconnected: VInternalStateNew := isDisconnecting;
+              msConnecting: VInternalStateNew := isConnecting;
+              msConnected: VInternalStateNew := isConnected;
+              msDisconnecting: VInternalStateNew := isDisconnecting;
+            end;
           end;
-        end;
-        csDisconnecting:  begin
-          case FStateFromModule of
-            csDisconnected: VStateToReport := csDisconnected;
-            csConnecting: VStateToReport := csConnecting;
-            csConnected: ;
-            csDisconnecting: ;
-            csTimeOut: ;
-            csConnectError: ;
+          isConnected:  begin
+            case FModuleState of
+              msDisconnected: VInternalStateNew := isDisconnecting;
+              msConnecting: VInternalStateNew := isDisconnecting;
+              msConnected: VInternalStateNew := isConnected;
+              msDisconnecting: VInternalStateNew := isDisconnecting;
+            end;
           end;
-        end;
-        csTimeOut:  begin
-          case FStateFromModule of
-            csDisconnected: ;
-            csConnecting: ;
-            csConnected: ;
-            csDisconnecting: ;
-            csTimeOut: ;
-            csConnectError: ;
+          isDisconnecting:  begin
+            case FModuleState of
+              msDisconnected: VInternalStateNew := isDisconnected;
+              msConnecting: VInternalStateNew := isConnecting;
+              msConnected: VInternalStateNew := isConnecting;
+              msDisconnecting: VInternalStateNew := isDisconnecting;
+            end;
           end;
-        end;
-        csConnectError:  begin
-          case FStateFromModule of
-            csDisconnected: ;
-            csConnecting: ;
-            csConnected: ;
-            csDisconnecting: ;
-            csTimeOut: ;
-            csConnectError: ;
+          isTimeOut:  begin
+            VInternalStateNew := VInternalStatePrev;
+          end;
+          isConnectError:  begin
+            VInternalStateNew := VInternalStatePrev;
           end;
         end;
       end;
-      if FStateReported <> VStateToReport then begin
+      if VInternalStateNew in [isConnectError, isTimeOut] then begin
+        if not(FInternalState in [isConnectError, isTimeOut]) then begin
+          VInternalStatePrev := FInternalState;
+        end;
+      end;
+      if FInternalState <> VInternalStateNew then begin
+        FInternalState := VInternalStateNew;
         VNeedNotify := True;
       end else begin
         VNeedNotify := False;
+      end;
+      if (FInternalState = isConnected) and FDataRecived then begin
+        VDataRecived := True;
+        FDataRecived := False;
+      end else if FInternalState = isDisconnecting then begin
+        VDataRecived := True;
+        FDataRecived := False;
       end;
     finally
       FCS.Release;
     end;
     if VNeedNotify then begin
-      case VStateToReport of
-        csDisconnected: FDisconnectedNotifier.Notify(nil);
-        csConnecting: FConnectingNotifier.Notify(nil);
-        csConnected: FConnectedNotifier.Notify(nil);
-        csDisconnecting: FDisconnectingNotifier.Notify(nil);
-        csTimeOut: FTimeOutNotifier.Notify(nil);
-        csConnectError: FConnectErrorNotifier.Notify(nil);
+      case VInternalStateNew of
+        isDisconnected: FDisconnectedNotifier.Notify(nil);
+        isConnecting: FConnectingNotifier.Notify(nil);
+        isConnected: FConnectedNotifier.Notify(nil);
+        isDisconnecting: FDisconnectingNotifier.Notify(nil);
+        isTimeOut: FTimeOutNotifier.Notify(nil);
+        isConnectError: FConnectErrorNotifier.Notify(nil);
       end;
+    end;
+    if VDataRecived then begin
+      FDataReciveNotifier.Notify(nil);
     end;
   until not VNeedNotify;
 end;
@@ -335,7 +363,9 @@ end;
 procedure TGPSpar.SendTerminateToThreads;
 begin
   FLinksList.DeactivateLinks;
-  FGPSModuleByCOM.Disconnect;
+  if FGPSModuleByCOM <> nil then begin
+    FGPSModuleByCOM.Disconnect;
+  end;
 end;
 
 procedure TGPSpar.StartThreads;
