@@ -412,6 +412,7 @@ uses
   u_GPSPositionStatic in 'u_GPSPositionStatic.pas',
   u_GPSModuleAbstract in 'u_GPSModuleAbstract.pas',
   u_GPSModuleByZylGPS in 'u_GPSModuleByZylGPS.pas',
+  u_GPSModuleFactoryByZylGPS in 'u_GPSModuleFactoryByZylGPS.pas',
   i_ITrackWriter in 'i_ITrackWriter.pas',
   u_GPSLogWriterToPlt in 'u_GPSLogWriterToPlt.pas',
   u_ExportProviderAbstract in 'RegionProcess\u_ExportProviderAbstract.pas',

@@ -445,6 +445,7 @@
     <DCCReference Include="u_GPSModuleByCOMPortConfig.pas" />
     <DCCReference Include="u_GPSModuleByCOMPortSettings.pas" />
     <DCCReference Include="u_GPSModuleByZylGPS.pas" />
+    <DCCReference Include="u_GPSModuleFactoryByZylGPS.pas" />
     <DCCReference Include="u_GPSPositionStatic.pas" />
     <DCCReference Include="u_GPSRecorderStuped.pas" />
     <DCCReference Include="u_GPSSatelliteInfo.pas" />
