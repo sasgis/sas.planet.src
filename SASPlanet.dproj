@@ -109,6 +109,7 @@
     <DCCReference Include="i_IGPSConfig.pas" />
     <DCCReference Include="i_IGPSModule.pas" />
     <DCCReference Include="i_IGPSModuleByCOM.pas" />
+    <DCCReference Include="i_IGPSModuleByCOMFactory.pas" />
     <DCCReference Include="i_IGPSModuleByCOMPortConfig.pas" />
     <DCCReference Include="i_IGPSModuleByCOMPortSettings.pas" />
     <DCCReference Include="i_IGPSRecorder.pas" />

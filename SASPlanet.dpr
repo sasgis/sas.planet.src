@@ -398,6 +398,7 @@ uses
   i_GPS in 'i_GPS.pas',
   i_IGPSModule in 'i_IGPSModule.pas',
   i_IGPSModuleByCOM in 'i_IGPSModuleByCOM.pas',
+  i_IGPSModuleByCOMFactory in 'i_IGPSModuleByCOMFactory.pas',
   i_IGPSModuleByCOMPortSettings in 'i_IGPSModuleByCOMPortSettings.pas',
   i_IGPSModuleByCOMPortConfig in 'i_IGPSModuleByCOMPortConfig.pas',
   u_GPSModuleByCOMPortConfig in 'u_GPSModuleByCOMPortConfig.pas',
