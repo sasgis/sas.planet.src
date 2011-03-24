@@ -4,7 +4,6 @@ interface
 
 
 uses
-  i_IGPSModuleByCOMPortSettings,
   i_IGPSModuleByCOM;
 
 type
