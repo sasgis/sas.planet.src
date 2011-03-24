@@ -158,9 +158,9 @@ begin
       end;
       Inc(FPointsCount);
       FLastPointIsEmpty := VIsAddPointEmpty;
-      FCurrentPosition := APosition;
       SetChanged;
     end;
+    FCurrentPosition := APosition;
   finally
     UnlockWrite;
   end;

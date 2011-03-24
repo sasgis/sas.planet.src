@@ -132,7 +132,7 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 242
+      Left = 238
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -165,7 +165,7 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 369
+      Left = 365
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -177,7 +177,7 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 540
+      Left = 536
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -2016,13 +2016,6 @@ object Fmain: TFmain
       '*.hlg'
     Left = 208
     Top = 208
-  end
-  object tmrMapUpdate: TTimer
-    Enabled = False
-    Interval = 500
-    OnTimer = tmrMapUpdateTimer
-    Left = 48
-    Top = 72
   end
   object PanelsImageList: TTBXImageList
     Height = 24

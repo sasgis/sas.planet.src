@@ -4,10 +4,12 @@ interface
 
 uses
   Windows,
+  ExtCtrls,
   Graphics,
   Classes,
   IniFiles,
   GR32,
+  i_JclNotify,
   i_ILanguageManager,
   i_IMemObjCache,
   i_IConfigDataWriteProvider,
@@ -85,7 +87,10 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FGPSRecorder: IGPSRecorder;
     FSkyMapDraw: ISatellitesInViewMapDraw;
+    FGUISyncronizedTimer: TTimer;
+    FGUISyncronizedTimerNotifier: IJclNotifier;
 
+    procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
     function GetMapsPath: string;
     function GetTrackLogPath: string;
@@ -154,6 +159,7 @@ type
     property ViewConfig: IGlobalViewMainConfig read FViewConfig;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
+    property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
 
     constructor Create;
     destructor Destroy; override;
@@ -173,6 +179,7 @@ implementation
 uses
   Types,
   SysUtils,
+  u_JclNotify,
   i_BitmapTileSaveLoad,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
@@ -203,6 +210,7 @@ uses
   u_GPSRecorderStuped,
   u_GPSLogWriterToPlt,
   u_SatellitesInViewMapDrawSimple,
+  u_GPSModuleFactoryByZylGPS,
   u_MainFormConfig,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -213,6 +221,12 @@ var
   VList: IListOfObjectsWithTTL;
   VViewCnonfig: IConfigDataProvider;
 begin
+  FGUISyncronizedTimer := TTimer.Create(nil);
+  FGUISyncronizedTimer.Enabled := False;
+  FGUISyncronizedTimer.Interval := 500;
+  FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
+
+  FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
   Show_logo := True;
   ShowDebugInfo := False;
   FCacheConfig := TGlobalCahceConfig.Create;
@@ -253,7 +267,14 @@ begin
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
-  FGPSpar := TGPSpar.Create(TPltLogWriter.Create(GetTrackLogPath), FGPSConfig, FGPSRecorder);
+  FGPSpar :=
+    TGPSpar.Create(
+      TGPSModuleFactoryByZylGPS.Create,
+      TPltLogWriter.Create(GetTrackLogPath),
+      FGPSConfig,
+      FGPSRecorder,
+      GUISyncronizedTimerNotifier
+    );
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
@@ -302,12 +323,15 @@ begin
   FMarkPictureList := nil;
   FreeAndNil(FCacheConfig);
   FSkyMapDraw := nil;
+  FreeAndNil(FGUISyncronizedTimer);
+  FGUISyncronizedTimerNotifier := nil;
   inherited;
 end;
 
 procedure TGlobalState.StartThreads;
 begin
   GPSpar.StartThreads;
+  FGUISyncronizedTimer.Enabled := True;
 end;
 
 function TGlobalState.GetMarkIconsPath: string;
@@ -433,6 +457,11 @@ begin
   end;
 end;
 
+procedure TGlobalState.OnGUISyncronizedTimer(Sender: TObject);
+begin
+  FGUISyncronizedTimerNotifier.Notify(nil);
+end;
+
 procedure TGlobalState.SaveMainParams;
 var
   Ini: TMeminifile;
@@ -467,6 +496,7 @@ end;
 
 procedure TGlobalState.SendTerminateToThreads;
 begin
+  FGUISyncronizedTimer.Enabled := False;
   GPSpar.SendTerminateToThreads;
   FGCThread.Terminate;
 end;

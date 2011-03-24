@@ -383,8 +383,9 @@ begin
       end;
       if Result > 0 then begin
         if compare2EP(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
-          if not compare2EP(AResultPoints[0], AResultPoints[Result - 1]) then begin
-            AppendPointToResult(AResultPoints[0], AResultPoints, Result, VOutPointsCapacity);
+          VCurrPoint := AResultPoints[0];
+          if not compare2EP(VCurrPoint, AResultPoints[Result - 1]) then begin
+            AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
         end;
       end;

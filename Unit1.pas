@@ -318,7 +318,6 @@ type
     TBGPSToPoint: TTBXSubmenuItem;
     TBGPSToPointCenter: TTBXItem;
     tbitmGPSToPointCenter: TTBXItem;
-    tmrMapUpdate: TTimer;
     tbtmHelpBugTrack: TTBXItem;
     tbitmShowDebugInfo: TTBXItem;
     PanelsImageList: TTBXImageList;
@@ -495,7 +494,6 @@ type
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
-    procedure tmrMapUpdateTimer(Sender: TObject);
     procedure tbtmHelpBugTrackClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure tbitmShowDebugInfoClick(Sender: TObject);
@@ -589,6 +587,7 @@ type
     function GetIgnoredMenuItemsList: TList;
     procedure MapLayersVisibleChange(Sender: TObject);
     procedure OnMainFormMainConfigChange(Sender: TObject);
+    procedure OnTimerEvent(Sender: TObject);
 
     procedure CopyStringToClipboard(s: Widestring);
     procedure UpdateGPSsensors;
@@ -880,32 +879,32 @@ begin
     VGPSReceiverStateChangeListener := TNotifyEventListenerSync.Create(Self.GPSReceiverStateChange);
     FLinksList.Add(
       VGPSReceiverStateChangeListener,
-      GState.GPSpar.GPSModule.ConnectingNotifier
+      GState.GPSpar.ConnectingNotifier
     );
     FLinksList.Add(
       VGPSReceiverStateChangeListener,
-      GState.GPSpar.GPSModule.DisconnectedNotifier
+      GState.GPSpar.DisconnectedNotifier
     );
 
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverConnect),
-      GState.GPSpar.GPSModule.ConnectedNotifier
+      GState.GPSpar.ConnectedNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverDisconnect),
-      GState.GPSpar.GPSModule.DisconnectedNotifier
+      GState.GPSpar.DisconnectedNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverConnectError),
-      GState.GPSpar.GPSModule.ConnectErrorNotifier
+      GState.GPSpar.ConnectErrorNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(Self.GPSReceiverTimeout),
-      GState.GPSpar.GPSModule.TimeOutNotifier
+      GState.GPSpar.TimeOutNotifier
     );
     FLinksList.Add(
       TNotifyEventListener.Create(Self.GPSReceiverReceive),
-      GState.GPSpar.GPSModule.DataReciveNotifier
+      GState.GPSpar.DataReciveNotifier
     );
 
     VMainFormMainConfigChangeListener := TNotifyEventListenerSync.Create(Self.OnMainFormMainConfigChange);
@@ -938,6 +937,11 @@ begin
     FLinksList.Add(
       TNotifyEventListener.Create(Self.OnFillingMapChange),
       FConfig.LayersConfig.FillingMapLayerConfig.GetChangeNotifier
+    );
+
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnTimerEvent),
+      GState.GUISyncronizedTimerNotifier
     );
 
     ProgramStart:=false;
@@ -986,7 +990,6 @@ begin
     OnFillingMapChange(nil);
     OnMainMapChange(nil);
     ProcessPosChangeMessage(nil);
-    tmrMapUpdate.Enabled := True;
 
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
   finally
@@ -1003,7 +1006,6 @@ var
 begin
   ProgramClose:=true;
   FLinksList.DeactivateLinks;
-  tmrMapUpdate.Enabled := false;
   //останавливаем GPS
   GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
@@ -1649,7 +1651,7 @@ begin
    end;
 end;
 
-procedure TFmain.tmrMapUpdateTimer(Sender: TObject);
+procedure TFmain.OnTimerEvent(Sender: TObject);
 var
   VGPSNewPos: TDoublePoint;
   VCenterToGPSDelta: TDoublePoint;
