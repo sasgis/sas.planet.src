@@ -32,7 +32,7 @@ type
   protected
     function DataSizeConvert(ASizeInKb: Double): string;
     function DistConvert(ADistInMeters: Double): string;
-    function AreaConvert(AAreaInSqKm: Double): string;
+    function AreaConvert(AAreaInSqm: Double): string;
     function SpeedConvert(AKmph: Double): string;
     function AltitudeConvert(AMeters: Double): string;
     function LonLatConvert(ALonLat: TDoublePoint): string;
@@ -79,12 +79,12 @@ begin
   Result := FormatFloat('0.0', AMeters) + ' ' + FUnitsMeters; 
 end;
 
-function TValueToStringConverter.AreaConvert(AAreaInSqKm: Double): string;
+function TValueToStringConverter.AreaConvert(AAreaInSqm: Double): string;
 begin
-  if AAreaInSqKm < 0.1 then begin
-    Result := FormatFloat('0.00', AAreaInSqKm * 1000000) + ' ' + FUnitsSqMeters;
+  if AAreaInSqm <= 1000000 then begin
+    Result := FormatFloat('0.00', AAreaInSqm) + ' ' + FUnitsSqMeters;
   end else begin
-    Result := FormatFloat('0.00', AAreaInSqKm) + ' ' + FUnitsSqKm;
+    Result := FormatFloat('0.00', AAreaInSqm / 1000000) + ' ' + FUnitsSqKm;
   end;
 end;
 
