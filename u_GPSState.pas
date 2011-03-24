@@ -9,8 +9,8 @@ uses
   i_IJclListenerNotifierLinksList,
   i_IGPSRecorder,
   i_IGPSConfig,
-  i_IGPSModule,
   i_ITrackWriter,
+  i_IGPSModuleByCOMFactory,
   i_IGPSModuleByCOM;
 
 type
@@ -24,6 +24,7 @@ type
     FConfig: IGPSConfig;
     FLogWriter: ITrackWriter;
     FGPSRecorder: IGPSRecorder;
+    FGPSModuleFactory: IGPSModuleByCOMFactory;
     FGPSModuleByCOM: IGPSModuleByCOM;
 
     FCS: TCriticalSection;
@@ -51,8 +52,10 @@ type
     procedure OnGpsTimeout(Sender: TObject);
     procedure OnGpsConnectError(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
+
+    procedure CreateModuleAndLinks;
   public
-    constructor Create(ATrackWriter: ITrackWriter; AConfig: IGPSConfig; AGPSRecorder: IGPSRecorder; ATimerNoifier: IJclNotifier);
+    constructor Create(AGPSModuleFactory: IGPSModuleByCOMFactory; ATrackWriter: ITrackWriter; AConfig: IGPSConfig; AGPSRecorder: IGPSRecorder; ATimerNoifier: IJclNotifier);
     destructor Destroy; override;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
@@ -71,10 +74,10 @@ implementation
 uses
   u_JclNotify,
   u_JclListenerNotifierLinksList,
-  u_NotifyEventListener,
-  u_GPSModuleByZylGPS;
+  u_NotifyEventListener;
 
 constructor TGPSpar.Create(
+  AGPSModuleFactory: IGPSModuleByCOMFactory;
   ATrackWriter: ITrackWriter;
   AConfig: IGPSConfig;
   AGPSRecorder: IGPSRecorder;
@@ -84,8 +87,8 @@ begin
   FConfig := AConfig;
   FLogWriter := ATrackWriter;
   FGPSRecorder := AGPSRecorder;
+  FGPSModuleFactory := AGPSModuleFactory;
 
-  FGPSModuleByCOM := TGPSModuleByZylGPS.Create;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FCS := TCriticalSection.Create;
   FModuleState := msDisconnected;
@@ -101,6 +104,33 @@ begin
   FTimeOutNotifier := TJclBaseNotifier.Create;
   FConnectErrorNotifier := TJclBaseNotifier.Create;
   FDataReciveNotifier := TJclBaseNotifier.Create;
+
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
+
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimer),
+    ATimerNoifier
+  );
+
+  CreateModuleAndLinks;
+end;
+
+destructor TGPSpar.Destroy;
+begin
+  FreeAndNil(FCS);
+  FLinksList := nil;
+  FGPSRecorder := nil;
+  FGPSModuleByCOM := nil;
+  FLogWriter := nil;
+  inherited;
+end;
+
+procedure TGPSpar.CreateModuleAndLinks;
+begin
+  FGPSModuleByCOM := FGPSModuleFactory.CreateGPSModule;
 
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnGpsConnecting),
@@ -130,26 +160,6 @@ begin
     TNotifyEventListener.Create(Self.OnGpsConnectError),
     FGPSModuleByCOM.ConnectErrorNotifier
   );
-
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
-  );
-
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
-    ATimerNoifier
-  );
-end;
-
-destructor TGPSpar.Destroy;
-begin
-  FreeAndNil(FCS);
-  FLinksList := nil;
-  FGPSRecorder := nil;
-  FGPSModuleByCOM := nil;
-  FLogWriter := nil;
-  inherited;
 end;
 
 procedure TGPSpar.OnConfigChange(Sender: TObject);
