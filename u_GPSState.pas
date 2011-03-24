@@ -72,6 +72,7 @@ type
 implementation
 
 uses
+  i_GPS,
   u_JclNotify,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener;
@@ -130,46 +131,48 @@ end;
 
 procedure TGPSpar.CreateModuleAndLinks;
 begin
-  FGPSModuleByCOM := FGPSModuleFactory.CreateGPSModule;
+  if FGPSModuleFactory <> nil then begin
+    FGPSModuleByCOM := FGPSModuleFactory.CreateGPSModule;
 
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnGpsConnecting),
-    FGPSModuleByCOM.ConnectingNotifier
-  );
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnGpsConnected),
-    FGPSModuleByCOM.ConnectedNotifier
-  );
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnGpsDataReceive),
-    FGPSModuleByCOM.DataReciveNotifier
-  );
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnGpsDisconnecting),
-    FGPSModuleByCOM.DisconnectingNotifier
-  );
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnGpsDisconnected),
-    FGPSModuleByCOM.DisconnectedNotifier
-  );
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnGpsTimeout),
-    FGPSModuleByCOM.TimeOutNotifier
-  );
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnGpsConnectError),
-    FGPSModuleByCOM.ConnectErrorNotifier
-  );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnGpsConnecting),
+      FGPSModuleByCOM.ConnectingNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnGpsConnected),
+      FGPSModuleByCOM.ConnectedNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnGpsDataReceive),
+      FGPSModuleByCOM.DataReciveNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnGpsDisconnecting),
+      FGPSModuleByCOM.DisconnectingNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnGpsDisconnected),
+      FGPSModuleByCOM.DisconnectedNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnGpsTimeout),
+      FGPSModuleByCOM.TimeOutNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnGpsConnectError),
+      FGPSModuleByCOM.ConnectErrorNotifier
+    );
+  end;
 end;
 
 procedure TGPSpar.OnConfigChange(Sender: TObject);
 begin
-  if FConfig.GPSEnabled then begin
-    if FGPSModuleByCOM.IsReadyToConnect then begin
-      FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic);
-    end;
-  end else begin
-    if FGPSModuleByCOM <> nil then begin
+  if FGPSModuleByCOM <> nil then begin
+    if FConfig.GPSEnabled then begin
+      if FGPSModuleByCOM.IsReadyToConnect then begin
+        FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic);
+      end;
+    end else begin
       FGPSModuleByCOM.Disconnect;
     end;
   end;
@@ -221,9 +224,12 @@ begin
 end;
 
 procedure TGPSpar.OnGpsDataReceive;
+var
+  VPosition: IGPSPosition;
 begin
-  FGPSRecorder.AddPoint(FGPSModuleByCOM.Position);
-  FLogWriter.AddPoint(FGPSModuleByCOM.Position);
+  VPosition := FGPSModuleByCOM.Position;
+  FGPSRecorder.AddPoint(VPosition);
+  FLogWriter.AddPoint(VPosition);
   FCS.Acquire;
   try
     FDataRecived := True;
