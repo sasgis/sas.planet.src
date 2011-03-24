@@ -220,12 +220,21 @@ begin
 end;
 
 procedure TExportMarks2KML.SaveMarkIcon(Mark:iMarkFull);
+var
+  VSourceFileName: string;
+  VTargetPath: string;
+  VTargetFullName: string;
 begin
+  VSourceFileName := GState.ProgramPath + 'marksicons' + PathDelim + Mark.PicName;
+  VTargetPath := 'files' + PathDelim;
   if inKMZ then begin
-    Zip.AddFile(GState.ProgramPath+'marksicons'+PathDelim+Mark.PicName,'files\'+Mark.PicName);
+    VTargetFullName := VTargetPath + Mark.PicName;
+    Zip.AddFile(VSourceFileName, VTargetFullName);
   end else begin
-    CreateDir(ExtractFilePath(filename)+'files\');
-    CopyFile(PChar(GState.ProgramPath+'marksicons'+PathDelim+Mark.PicName),PChar(ExtractFilePath(filename)+'files\'+Mark.PicName),false);
+    VTargetPath := ExtractFilePath(filename) + VTargetPath;
+    VTargetFullName := VTargetPath + Mark.PicName;
+    CreateDir(VTargetPath);
+    CopyFile(PChar(VSourceFileName),PChar(VTargetFullName),false);
   end;
 end;
 
