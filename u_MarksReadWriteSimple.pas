@@ -53,7 +53,7 @@ end;
 
 procedure TMarksDB.DeleteCategoryWithMarks(ACategory: IMarkCategory);
 begin
-  FMarksDb.DeleteMarksByCategoryID(ACategory.id);
+  FMarksDb.DeleteMarksByCategoryID(ACategory);
   FCategoryDB.DeleteCategory(ACategory);
 end;
 

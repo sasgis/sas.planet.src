@@ -146,7 +146,7 @@ begin
   FMarksList := nil;
   VCategory := GetSelectedCategory;
   if (VCategory <> nil) then begin
-    FMarksList := FMarkDBGUI.MarksDb.MarksDb.GetMarskIdListByCategory(VCategory.id);
+    FMarksList := FMarkDBGUI.MarksDb.MarksDb.GetMarskIdListByCategory(VCategory);
     MarksListBox.Items.BeginUpdate;
     try
       FMarkDBGUI.MarksListToStrings(FMarksList, MarksListBox.Items);

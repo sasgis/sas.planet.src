@@ -43,7 +43,7 @@ type
     function GetMarkByID(id: integer): IMarkFull;
     function GetMarkIdByID(id: integer): IMarkId;
     function DeleteMark(AMarkId: IMarkId): Boolean;
-    procedure DeleteMarksByCategoryID(ACategoryID: integer);
+    procedure DeleteMarksByCategoryID(ACategory: IMarkCategory);
     procedure WriteMark(AMark: IMarkFull);
     procedure WriteMarksList(AMarkList: IInterfaceList);
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
@@ -51,9 +51,9 @@ type
     function GetMarkVisible(AMark: IMarkFull): Boolean; overload;
     property Factory: TMarkFactory read FFactory;
     function GetAllMarskIdList: IInterfaceList;
-    function GetMarskIdListByCategory(AId: Integer): IInterfaceList;
+    function GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
 
-    procedure SetAllMarksInCategoryVisible(ACategoryId: IMarkCategory; ANewVisible: Boolean);
+    procedure SetAllMarksInCategoryVisible(ACategory: IMarkCategory; ANewVisible: Boolean);
 
     function GetMarksSubset(ARect: TDoubleRect; ACategoryIDList: TList; AIgnoreVisible: Boolean): IMarksSubset;
   end;
@@ -366,7 +366,7 @@ begin
   end;
 end;
 
-procedure TMarksOnlyDb.DeleteMarksByCategoryID(ACategoryID: integer);
+procedure TMarksOnlyDb.DeleteMarksByCategoryID(ACategory: IMarkCategory);
 var
   VDeleted: Boolean;
 begin
@@ -374,7 +374,7 @@ begin
   LockWrite;
   try
     FDMMarksDb.CDSmarks.Filtered := false;
-    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategoryID);
+    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.Id);
     FDMMarksDb.CDSmarks.Filtered := true;
     FDMMarksDb.CDSmarks.First;
     while not (FDMMarksDb.CDSmarks.Eof) do begin
@@ -389,7 +389,7 @@ begin
   end;
 end;
 
-procedure TMarksOnlyDb.SetAllMarksInCategoryVisible(ACategoryId: IMarkCategory;
+procedure TMarksOnlyDb.SetAllMarksInCategoryVisible(ACategory: IMarkCategory;
   ANewVisible: Boolean);
 var
   VVisible: Boolean;
@@ -397,7 +397,7 @@ begin
   LockRead;
   try
     FDMMarksDb.CDSmarks.Filtered := false;
-    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategoryId.id);
+    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.id);
     FDMMarksDb.CDSmarks.Filtered := true;
     FDMMarksDb.CDSmarks.First;
     while not (FDMMarksDb.CDSmarks.Eof) do begin
@@ -457,7 +457,7 @@ begin
   end;
 end;
 
-function TMarksOnlyDb.GetMarskIdListByCategory(AId: Integer): IInterfaceList;
+function TMarksOnlyDb.GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
 var
   VMarkId: IMarkId;
 begin
@@ -465,7 +465,7 @@ begin
   LockRead;
   try
     FDMMarksDb.CDSmarks.Filtered := false;
-    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(AId);
+    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.Id);
     FDMMarksDb.CDSmarks.Filtered := true;
     FDMMarksDb.CDSmarks.First;
     while not (FDMMarksDb.CDSmarks.Eof) do begin
