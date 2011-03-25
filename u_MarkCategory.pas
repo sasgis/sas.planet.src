@@ -3,30 +3,33 @@ unit u_MarkCategory;
 interface
 
 uses
-  i_Marks;
+  i_IMarkCategory;
 
 type
   TMarkCategory = class(TInterfacedObject, IMarkCategory)
-  public
+  private
     FId: Integer;
     FName: string;
     FVisible: Boolean;
     FAfterScale: integer;
     FBeforeScale: integer;
-
-    constructor Create(ACategory: IMarkCategory);
+  protected
     function GetId: integer; stdcall;
     function GetName: string; stdcall;
     function GetVisible: boolean; stdcall;
     function GetAfterScale: integer; stdcall;
     function GetBeforeScale: integer; stdcall;
-
-    property Id: integer read GetId;
-    property Name: string read GetName;
-    property Visible: boolean read GetVisible;
-    property AfterScale: integer read GetAfterScale;
-    property BeforeScale: integer read GetBeforeScale;
+  public
+    constructor Create(
+      AId: Integer;
+      AName: string;
+      AVisible: Boolean;
+      AAfterScale: integer;
+      ABeforeScale: integer
+    ); overload;
+    constructor Create(ACategory: IMarkCategory); overload;
   end;
+
 implementation
 
 { TMarkCategory }
@@ -38,6 +41,16 @@ begin
   FVisible := ACategory.Visible;
   FAfterScale := ACategory.AfterScale;
   FBeforeScale := ACategory.BeforeScale;
+end;
+
+constructor TMarkCategory.Create(AId: Integer; AName: string; AVisible: Boolean;
+  AAfterScale, ABeforeScale: integer);
+begin
+  FId := AId;
+  FName := AName;
+  FVisible := AVisible;
+  FAfterScale := AAfterScale;
+  FBeforeScale := ABeforeScale;
 end;
 
 function TMarkCategory.GetAfterScale: integer;

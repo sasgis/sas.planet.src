@@ -4,7 +4,8 @@ interface
 
 uses
   ActiveX,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_IMarkCategory;
 
 
 type
@@ -88,24 +89,6 @@ type
     property CategoryId: integer read GetCategoryId;
   end;
 
-  IMarkCategory = interface
-  ['{00226B68-9915-41AA-90B7-3F2348E53527}']
-    function GetId: integer; stdcall;
-    property Id: integer read GetId;
-
-    function GetName: string; stdcall;
-    property Name: string read GetName;
-
-    function GetVisible: boolean; stdcall;
-    property Visible: boolean read GetVisible;
-
-    function GetAfterScale: integer; stdcall;
-    property AfterScale: integer read GetAfterScale;
-
-    function GetBeforeScale: integer; stdcall;
-    property BeforeScale: integer read GetBeforeScale;
-  end;
-
   IMarksDb = interface
   ['{ADAC52ED-3FB2-4D87-950A-595EF2073C03}']
     function AddMark(AMark: IMarkBasic): integer;
@@ -123,6 +106,7 @@ type
     function GetAllMarksOfCategory(ACategoryId: integer): IEnumUnknown;
     function GetMarksVisibleInRect(ALonLat: TDoubleRect): IEnumUnknown;
   end;
+
 implementation
 
 

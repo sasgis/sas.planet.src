@@ -139,6 +139,7 @@
     <DCCReference Include="i_IMapLayerGPSTrackConfig.pas" />
     <DCCReference Include="i_IMapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="i_IMapViewGoto.pas" />
+    <DCCReference Include="i_IMarkCategory.pas" />
     <DCCReference Include="i_IMarkPicture.pas" />
     <DCCReference Include="i_IMarkPolygonLayerConfig.pas" />
     <DCCReference Include="i_IMarkPolyLineLayerConfig.pas" />
