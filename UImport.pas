@@ -18,6 +18,7 @@ uses
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
   i_MarksSimple,
+  i_IMarkCategory,
   i_IImportConfig,
   u_MarksDbGUIHelper;
 
@@ -81,6 +82,7 @@ type
     { Private declarations }
     FMarkDBGUI: TMarksDbGUIHelper;
     FCategoryList: IInterfaceList;
+    FCategory: IMarkCategory;
   public
     function GetImportConfig(AMarkDBGUI: TMarksDbGUIHelper): IImportConfig;
   end;
@@ -92,7 +94,6 @@ implementation
 
 uses
   i_IMarkPicture,
-  i_IMarkCategory,
   u_MarksSimple,
   u_ImportConfig;
 
@@ -160,7 +161,6 @@ end;
 
 function TFImport.GetImportConfig(AMarkDBGUI: TMarksDbGUIHelper): IImportConfig;
 var
-  VCategory: IMarkCategory;
   VIndex: Integer;
   VId: Integer;
   VPic: IMarkPicture;
@@ -185,16 +185,8 @@ begin
     try
       FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
       if ShowModal = mrOk then begin
-        VCategory := nil;
-        VIndex := CBKateg.ItemIndex;
-        if VIndex < 0 then begin
-          VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
-        end;
-        if VIndex >= 0 then begin
-          VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
-        end;
-        if VCategory <> nil then begin
-          VId := VCategory.id;
+        if FCategory <> nil then begin
+          VId := FCategory.id;
         end else begin
           VId := -1;
         end;
@@ -258,25 +250,19 @@ end;
 procedure TFImport.btnOkClick(Sender: TObject);
 var
   VCategoryText: string;
-  VCategory: IMarkCategory;
   VIndex: Integer;
 begin
-  VCategory := nil;
+  FCategory := nil;
   VCategoryText := CBKateg.Text;
   VIndex := CBKateg.ItemIndex;
   if VIndex < 0 then begin
     VIndex:= CBKateg.Items.IndexOf(VCategoryText);
   end;
   if VIndex >= 0 then begin
-    VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
+    FCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
   end;
-  if VCategory = nil then begin
-    VCategory := FMarkDBGUI.AddKategory(VCategoryText);
-    if VCategory <> nil then begin
-      FCategoryList.Add(VCategory);
-      FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
-      CBKateg.Text := VCategory.name;
-    end;
+  if FCategory = nil then begin
+    FCategory := FMarkDBGUI.AddKategory(VCategoryText);
   end;
   ModalResult := mrOk;
 end;

@@ -17,6 +17,7 @@ uses
   u_CommonFormAndFrameParents,
   UResStrings,
   i_MarksSimple,
+  i_IMarkCategory,
   u_MarksSimple,
   u_MarksDbGUIHelper,
   fr_MarkDescription,
@@ -63,6 +64,7 @@ type
     frMarkDescription: TfrMarkDescription;
     FMarkDBGUI: TMarksDbGUIHelper;
     FCategoryList: IInterfaceList;
+    FCategory: IMarkCategory;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -75,9 +77,6 @@ var
 
 implementation
 
-uses
-  i_IMarkCategory;
-
 {$R *.dfm}
 
 function TFAddPoly.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
@@ -86,7 +85,6 @@ var
   i: Integer;
   VCategory: IMarkCategory;
   VId: integer;
-  VIndex: Integer;
 begin
   FMarkDBGUI := AMarkDBGUI;
   VLastUsedCategoryName:=CBKateg.Text;
@@ -121,16 +119,8 @@ begin
       btnOk.Caption:=SAS_STR_Edit;
     end;
     if ShowModal=mrOk then begin
-      VCategory := nil;
-      VIndex := CBKateg.ItemIndex;
-      if VIndex < 0 then begin
-        VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
-      end;
-      if VIndex >= 0 then begin
-        VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
-      end;
-      if VCategory <> nil then begin
-        VId := VCategory.id;
+      if FCategory <> nil then begin
+        VId := FCategory.id;
       end else begin
         VId := -1;
       end;
@@ -167,26 +157,22 @@ end;
 
 procedure TFAddPoly.btnOkClick(Sender: TObject);
 var
-  VCategory: IMarkCategory;
   VIndex: Integer;
+  VCategoryText: string;
 begin
-  VCategory := nil;
+  FCategory := nil;
+  VCategoryText := CBKateg.Text;
   VIndex := CBKateg.ItemIndex;
   if VIndex < 0 then begin
-    VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
+    VIndex:= CBKateg.Items.IndexOf(VCategoryText);
   end;
   if VIndex >= 0 then begin
-    VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
+    FCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
   end;
-  if VCategory = nil then begin
-    VCategory := FMarkDBGUI.AddKategory(CBKateg.Text);
-    if VCategory <> nil then begin
-      FCategoryList.Add(VCategory);
-      FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
-      CBKateg.Text := VCategory.name;
-    end;
+  if FCategory = nil then begin
+    FCategory := FMarkDBGUI.AddKategory(VCategoryText);
   end;
-  ModalResult:=mrOk;
+  ModalResult := mrOk;
 end;
 
 constructor TFAddPoly.Create(AOwner: TComponent);
