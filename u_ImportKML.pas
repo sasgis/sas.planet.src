@@ -3,16 +3,18 @@ unit u_ImportKML;
 interface
 
 uses
+  Classes,
   i_IImportFile,
   i_IKmlInfoSimpleLoader,
-  i_IImportConfig;
+  i_IImportConfig,
+  u_MarksImportBase;
 
 type
-  TImportKML = class(TInterfacedObject, IImportFile)
+  TImportKML = class(TMarksImportBase)
   private
     FKmlLoader: IKmlInfoSimpleLoader;
   protected
-    function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+    function DoImport(AFileName: string; AConfig: IImportConfig): IInterfaceList; override;
   public
     constructor Create(AKmlLoader: IKmlInfoSimpleLoader);
   end;
@@ -31,14 +33,14 @@ begin
   FKmlLoader := AKmlLoader;
 end;
 
-function TImportKML.ProcessImport(AFileName: string;
-  AConfig: IImportConfig): Boolean;
+function TImportKML.DoImport(AFileName: string;
+  AConfig: IImportConfig): IInterfaceList;
 var
   KML:TKmlInfoSimple;
   VMark: IMarkFull;
   i: Integer;
 begin
-  Result := False;
+  Result := TInterfaceList.Create;
   KML:=TKmlInfoSimple.Create;
   try
     FKmlLoader.LoadFromFile(AFileName, KML);
@@ -73,8 +75,7 @@ begin
         end;
       end;
       if VMark <> nil then begin
-        AConfig.MarkDB.WriteMark(VMark);
-        Result := True;
+        Result.Add(VMark);
       end;
     end;
   finally

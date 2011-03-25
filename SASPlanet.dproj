@@ -523,6 +523,7 @@
     <DCCReference Include="u_MarkPolyTemplateConfig.pas" />
     <DCCReference Include="u_MarksDbGUIHelper.pas" />
     <DCCReference Include="u_MarksFactoryConfig.pas" />
+    <DCCReference Include="u_MarksImportBase.pas" />
     <DCCReference Include="u_MarksOnlyDb.pas" />
     <DCCReference Include="u_MarksReadWriteSimple.pas" />
     <DCCReference Include="u_MarksSimple.pas" />

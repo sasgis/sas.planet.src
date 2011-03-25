@@ -289,6 +289,7 @@ uses
   i_IImportConfig in 'i_IImportConfig.pas',
   u_ImportConfig in 'u_ImportConfig.pas',
   i_IImportFile in 'i_IImportFile.pas',
+  u_MarksImportBase in 'u_MarksImportBase.pas',
   u_ImportKML in 'u_ImportKML.pas',
   u_ImportPLT in 'u_ImportPLT.pas',
   u_ImportHLG in 'u_ImportHLG.pas',

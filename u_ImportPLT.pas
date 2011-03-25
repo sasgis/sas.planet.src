@@ -3,13 +3,15 @@ unit u_ImportPLT;
 interface
 
 uses
+  Classes,
   i_IImportFile,
-  i_IImportConfig;
+  i_IImportConfig,
+  u_MarksImportBase;
 
 type
-  TImportPLT = class(TInterfacedObject, IImportFile)
+  TImportPLT = class(TMarksImportBase)
   protected
-    function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+    function DoImport(AFileName: string; AConfig: IImportConfig): IInterfaceList; override;
   end;
 
 implementation
@@ -21,14 +23,14 @@ uses
 
 { TImportKML }
 
-function TImportPLT.ProcessImport(AFileName: string;
-  AConfig: IImportConfig): Boolean;
+function TImportPLT.DoImport(AFileName: string;
+  AConfig: IImportConfig): IInterfaceList;
 var
   PLT:TPLT;
   VMark: IMarkFull;
   i: Integer;
 begin
-  Result := False;
+  Result := TInterfaceList.Create;
   PLT:=TPLT.Create;
   try
     PLT.loadFromFile(AFileName);
@@ -63,8 +65,7 @@ begin
         end;
       end;
       if VMark <> nil then begin
-        AConfig.MarkDB.WriteMark(VMark);
-        Result := True;
+        Result.Add(VMark);
       end;
     end;
   finally
