@@ -248,7 +248,7 @@ begin
         Result := nil;
       end;
     finally
-      FreeAndNil(FCategoryList);
+      FCategoryList := nil;
     end;
   finally
     cbbPointIcon.Items.Clear;
