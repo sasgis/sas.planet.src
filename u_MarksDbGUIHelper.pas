@@ -60,7 +60,6 @@ uses
 
 function TMarksDbGUIHelper.AddKategory(name: string): IMarkCategory;
 var
-  VCategory: IMarkCategory;
   VName: string;
 begin
   VName := name;
@@ -68,12 +67,11 @@ begin
   if VName = '' then begin
     VName := SAS_STR_NewCategory;
   end;
-  VCategory := FMarksDb.CategoryDB.GetCategoryByName(VName);
-  if VCategory = nil then begin
-    VCategory := TMarkCategory.Create(-1, VName, True, 3, 19);
-    FMarksDb.CategoryDB.WriteCategory(VCategory);
+  Result := FMarksDb.CategoryDB.GetCategoryByName(VName);
+  if Result = nil then begin
+    Result := TMarkCategory.Create(-1, VName, True, 3, 19);
+    Result := FMarksDb.CategoryDB.WriteCategory(Result);
   end;
-  Result := VCategory;
 end;
 
 function TMarksDbGUIHelper.AddNewPointModal(ALonLat: TDoublePoint): Boolean;
