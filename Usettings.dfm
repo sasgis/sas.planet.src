@@ -21,7 +21,7 @@ object FSettings: TFSettings
     Top = 0
     Width = 646
     Height = 409
-    ActivePage = TabSheet6
+    ActivePage = TabSheet9
     Align = alClient
     TabOrder = 0
     object TabSheet9: TTabSheet
@@ -64,6 +64,7 @@ object FSettings: TFSettings
         RowSelect = True
         TabOrder = 0
         ViewStyle = vsReport
+        OnChange = MapListChange
         OnCustomDrawSubItem = MapListCustomDrawSubItem
         OnDblClick = Button15Click
       end
@@ -108,7 +109,7 @@ object FSettings: TFSettings
           TabOrder = 2
           OnClick = Button12Click
         end
-        object Button18: TButton
+        object btnMapInfo: TButton
           AlignWithMargins = True
           Left = 3
           Top = 96
@@ -117,7 +118,8 @@ object FSettings: TFSettings
           Align = alTop
           Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103
           TabOrder = 3
-          OnClick = Button18Click
+          OnClick = btnMapInfoClick
+          ExplicitLeft = 6
         end
       end
     end
@@ -1721,8 +1723,6 @@ object FSettings: TFSettings
             ScaleMode = smNormal
             TabOrder = 0
             OnResize = SatellitePaintBoxResize
-            ExplicitTop = 14
-            ExplicitHeight = 239
           end
           object pnlSatInfoLegend: TPanel
             Left = 2
@@ -1735,7 +1735,6 @@ object FSettings: TFSettings
             BevelKind = bkTile
             BevelOuter = bvNone
             TabOrder = 1
-            ExplicitTop = 319
             object pnlSatInfoActive: TPanel
               Left = 0
               Top = 0
@@ -1745,9 +1744,6 @@ object FSettings: TFSettings
               BevelOuter = bvNone
               BorderWidth = 3
               TabOrder = 0
-              ExplicitLeft = 1
-              ExplicitTop = 1
-              ExplicitWidth = 239
               object lblSatInfoActive: TLabel
                 AlignWithMargins = True
                 Left = 31
@@ -1760,8 +1756,7 @@ object FSettings: TFSettings
                 Margins.Bottom = 0
                 Align = alLeft
                 Caption = #1040#1082#1090#1080#1074#1085#1099#1077' '#1089#1087#1091#1090#1085#1080#1082#1080
-                ExplicitLeft = 39
-                ExplicitTop = 17
+                ExplicitHeight = 13
               end
               object shpSatInfoActive: TShape
                 AlignWithMargins = True
@@ -1786,9 +1781,6 @@ object FSettings: TFSettings
               BevelOuter = bvNone
               BorderWidth = 3
               TabOrder = 1
-              ExplicitLeft = 1
-              ExplicitTop = 21
-              ExplicitWidth = 239
               object shpSatInfoVisible: TShape
                 AlignWithMargins = True
                 Left = 6
@@ -1827,9 +1819,6 @@ object FSettings: TFSettings
               BevelOuter = bvNone
               BorderWidth = 3
               TabOrder = 2
-              ExplicitLeft = 9
-              ExplicitTop = 67
-              ExplicitWidth = 239
               object lblSatInfoZeroSignal: TLabel
                 AlignWithMargins = True
                 Left = 31
@@ -1842,7 +1831,7 @@ object FSettings: TFSettings
                 Margins.Bottom = 0
                 Align = alLeft
                 Caption = #1042#1080#1076#1080#1084#1099#1077' '#1089' 0-'#1084' '#1089#1080#1075#1085#1072#1083#1086#1084
-                ExplicitHeight = 12
+                ExplicitHeight = 13
               end
               object shpSatInfoZeroSignal: TShape
                 AlignWithMargins = True
@@ -2093,6 +2082,7 @@ object FSettings: TFSettings
       ModalResult = 1
       TabOrder = 1
       OnClick = btnApplyClick
+      ExplicitTop = 6
     end
     object btnApply: TButton
       AlignWithMargins = True
