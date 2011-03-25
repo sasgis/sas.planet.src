@@ -127,7 +127,7 @@ begin
     if VMarksConfigStatic.IsUseMarks then begin
       VList := nil;
       if not VMarksConfigStatic.IgnoreCategoriesVisible then begin
-        VList := VMarkDB.GetVisibleCateroriesIDList(VZoom);
+        VList := VMarkDB.GetVisibleCategoriesIDList(VZoom);
       end;
       try
         if (VList <> nil) and (VList.Count = 0) then begin

@@ -30,7 +30,7 @@ type
 
     property MarksDb: TMarksOnlyDb read FMarksDb;
     property CategoryDB: TMarkCategoryDB read FCategoryDB;
-    function GetVisibleCateroriesIDList(AZoom: Byte): TList;
+    function GetVisibleCategoriesIDList(AZoom: Byte): TList;
   end;
 
 
@@ -58,7 +58,7 @@ begin
   inherited;
 end;
 
-function TMarksDB.GetVisibleCateroriesIDList(AZoom: Byte): TList;
+function TMarksDB.GetVisibleCategoriesIDList(AZoom: Byte): TList;
 var
   VList: IInterfaceList;
   VCategory: IMarkCategory;

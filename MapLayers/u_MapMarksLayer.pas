@@ -192,7 +192,7 @@ begin
     if VConverter <> nil then begin
       VZoom := VConverter.GetZoom;
       if not FConfigStatic.IgnoreCategoriesVisible then begin
-        VList := FMarkDBGUI.MarksDB.GetVisibleCateroriesIDList(VZoom);
+        VList := FMarkDBGUI.MarksDB.GetVisibleCategoriesIDList(VZoom);
       end;
       try
         if (VList <> nil) and (VList.Count = 0) then begin
