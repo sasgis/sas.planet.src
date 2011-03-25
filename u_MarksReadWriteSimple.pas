@@ -31,7 +31,7 @@ type
 
     property MarksDb: TMarksOnlyDb read FMarksDb;
     property CategoryDB: TMarkCategoryDB read FCategoryDB;
-    function GetVisibleCategoriesIDList(AZoom: Byte): TList;
+    function GetVisibleCategories(AZoom: Byte): IInterfaceList;
     procedure DeleteCategoryWithMarks(ACategory: IMarkCategory);
   end;
 
@@ -65,13 +65,13 @@ begin
   inherited;
 end;
 
-function TMarksDB.GetVisibleCategoriesIDList(AZoom: Byte): TList;
+function TMarksDB.GetVisibleCategories(AZoom: Byte): IInterfaceList;
 var
   VList: IInterfaceList;
   VCategory: IMarkCategory;
   i: Integer;
 begin
-  Result := TList.Create;
+  Result := TInterfaceList.Create;
   VList := FCategoryDB.GetCategoriesList;
   for i := 0 to VList.Count - 1 do begin
     VCategory := IMarkCategory(VList[i]);
@@ -80,7 +80,7 @@ begin
       (VCategory.AfterScale <= AZoom + 1) and
       (VCategory.BeforeScale >= AZoom + 1)
     then begin
-      Result.Add(Pointer(VCategory.id));
+      Result.Add(VCategory);
     end;
   end;
 end;

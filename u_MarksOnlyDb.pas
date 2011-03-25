@@ -55,7 +55,7 @@ type
 
     procedure SetAllMarksInCategoryVisible(ACategory: IMarkCategory; ANewVisible: Boolean);
 
-    function GetMarksSubset(ARect: TDoubleRect; ACategoryIDList: TList; AIgnoreVisible: Boolean): IMarksSubset;
+    function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
   end;
 
 implementation
@@ -479,11 +479,11 @@ begin
 end;
 
 function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
-  ACategoryIDList: TList; AIgnoreVisible: Boolean): IMarksSubset;
+  ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
 
   function GetFilterText(
     ARect: TDoubleRect;
-    ACategoryIDList: TList;
+    ACategoryList: IInterfaceList;
     AIgnoreVisible: Boolean
   ): string;
   var
@@ -495,10 +495,10 @@ function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
       Result := Result + '(visible=1)';
       Result := Result + ' and ';
     end;
-    if (ACategoryIDList <> nil) and (ACategoryIDList.Count > 0) then begin
-      VCategoryFilter := IntToStr(integer(ACategoryIDList[0]));
-      for i :=  1 to ACategoryIDList.Count - 1 do begin
-        VCategoryFilter := VCategoryFilter + ', ' + IntToStr(integer(ACategoryIDList[i]));
+    if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
+      VCategoryFilter := IntToStr(IMarkCategory(ACategoryList[0]).Id);
+      for i :=  1 to ACategoryList.Count - 1 do begin
+        VCategoryFilter := VCategoryFilter + ', ' + IntToStr(IMarkCategory(ACategoryList[i]).Id);
       end;
       VCategoryFilter := '(categoryid in (' + VCategoryFilter + ')) and';
       Result := Result + VCategoryFilter;
@@ -521,7 +521,7 @@ begin
     LockRead;
     try
       FDMMarksDb.CDSmarks.Filtered := false;
-      FDMMarksDb.CDSmarks.Filter := GetFilterText(ARect, ACategoryIDList, AIgnoreVisible);
+      FDMMarksDb.CDSmarks.Filter := GetFilterText(ARect, ACategoryList, AIgnoreVisible);
       FDMMarksDb.CDSmarks.Filtered := true;
       FDMMarksDb.CDSmarks.First;
       while not (FDMMarksDb.CDSmarks.Eof) do begin

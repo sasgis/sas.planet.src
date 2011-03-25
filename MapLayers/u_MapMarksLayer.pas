@@ -179,7 +179,7 @@ end;
 
 function TMapMarksLayer.GetMarksSubset: IMarksSubset;
 var
-  VList: TList;
+  VList: IInterfaceList;
   VConverter: ILocalCoordConverter;
   VZoom: Byte;
   VMapPixelRect: TDoubleRect;
@@ -192,7 +192,7 @@ begin
     if VConverter <> nil then begin
       VZoom := VConverter.GetZoom;
       if not FConfigStatic.IgnoreCategoriesVisible then begin
-        VList := FMarkDBGUI.MarksDB.GetVisibleCategoriesIDList(VZoom);
+        VList := FMarkDBGUI.MarksDB.GetVisibleCategories(VZoom);
       end;
       try
         if (VList <> nil) and (VList.Count = 0) then begin
@@ -205,7 +205,7 @@ begin
           Result := FMarkDBGUI.MarksDB.MarksDb.GetMarksSubset(VLonLatRect, VList, FConfigStatic.IgnoreMarksVisible);
         end;
       finally
-        VList.Free;
+        VList := nil;
       end;
     end;
   end else begin

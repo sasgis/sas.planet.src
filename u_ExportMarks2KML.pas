@@ -32,7 +32,7 @@ type
     procedure AddMark(Mark:iMarkFull;inNode:iXMLNode);
     procedure SaveMarkIcon(Mark:IMarkFull);
     procedure AddFolders(ACategoryList: IInterfaceList);
-    procedure AddMarks(CategoryIDList:TList; inNode:iXMLNode);
+    procedure AddMarks(ACategoryList: IInterfaceList; inNode:iXMLNode);
     function Color32toKMLColor(Color32:TColor32):string;
   public
     constructor Create(AOnlyVisible:boolean);
@@ -165,7 +165,7 @@ procedure TExportMarks2KML.AddFolders(ACategoryList: IInterfaceList);
     prefix: string;
     ID: Integer;
     aNode: IXMLNode;
-    CatIdList:TList;
+    CatIdList:IInterfaceList;
   begin
     Result := False;
     if S='' then begin
@@ -191,10 +191,10 @@ procedure TExportMarks2KML.AddFolders(ACategoryList: IInterfaceList);
         ChildValues['bgColor']:='00ffffff';
       end;
       if ID=0 then begin
-        CatIdList:=TList.Create;
-        CatIdList.Add(Pointer(Data.id));
-        AddMarks(CatIdList,aNode);
-        CatIdList.Free;
+        CatIdList:=TInterfaceList.Create;
+        CatIdList.Add(Data);
+        AddMarks(CatIdList, aNode);
+        CatIdList := nil;
       end;
       result:=true;
     end else begin
@@ -235,13 +235,13 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.AddMarks(CategoryIDList:TList; inNode:iXMLNode);
+procedure TExportMarks2KML.AddMarks(ACategoryList: IInterfaceList; inNode:iXMLNode);
 var MarksList:IMarksSubset;
     Mark:iMarkFull;
     VEnumMarks:IEnumUnknown;
     i:integer;
 begin
-  MarksList:=GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90),CategoryIDList, (not OnlyVisible));
+  MarksList:=GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), ACategoryList, (not OnlyVisible));
   VEnumMarks := MarksList.GetEnum;
   while (VEnumMarks.Next(1, Mark, @i) = S_OK) do begin
     AddMark(Mark,inNode);

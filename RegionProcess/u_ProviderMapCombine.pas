@@ -104,7 +104,7 @@ var
   VLonLatRect: TDoubleRect;
   VMarksConfigStatic: IUsedMarksConfigStatic;
   VZoom: Byte;
-  VList: TList;
+  VList: IInterfaceList;
   VMarkDB: TMarksDb;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
@@ -127,7 +127,7 @@ begin
     if VMarksConfigStatic.IsUseMarks then begin
       VList := nil;
       if not VMarksConfigStatic.IgnoreCategoriesVisible then begin
-        VList := VMarkDB.GetVisibleCategoriesIDList(VZoom);
+        VList := VMarkDB.GetVisibleCategories(VZoom);
       end;
       try
         if (VList <> nil) and (VList.Count = 0) then begin
@@ -152,7 +152,7 @@ begin
           VMarksSubset := VMarkDB.MarksDb.GetMarksSubset(VLonLatRect, VList, VMarksConfigStatic.IgnoreMarksVisible);
         end;
       finally
-        VList.Free;
+        VList := nil;
       end;
     end;
   end else begin
