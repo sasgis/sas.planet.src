@@ -227,7 +227,7 @@ begin
   VCategory := GetSelectedCategory;
   if VCategory <> nil then begin
     if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-      FMarkDBGUI.MarksDb.CategoryDB.DeleteCategoryWithMarks(VCategory);
+      FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategory);
       UpdateCategoryTree;
       UpdateMarksList;
     end;
@@ -388,7 +388,7 @@ begin
     VCategory := GetSelectedCategory;
     if VCategory <> nil then begin
       if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-        FMarkDBGUI.MarksDb.CategoryDB.DeleteCategoryWithMarks(VCategory);
+        FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategory);
         UpdateCategoryTree;
         UpdateMarksList;
       end;

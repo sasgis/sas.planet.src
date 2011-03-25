@@ -9,6 +9,7 @@ uses
   i_IConfigDataWriteProvider,
   dm_MarksDb,
   i_IMarksFactoryConfig,
+  i_IMarkCategory,
   u_MarksOnlyDb,
   u_MarkCategoryDB,
   u_MarksSimple;
@@ -31,14 +32,14 @@ type
     property MarksDb: TMarksOnlyDb read FMarksDb;
     property CategoryDB: TMarkCategoryDB read FCategoryDB;
     function GetVisibleCategoriesIDList(AZoom: Byte): TList;
+    procedure DeleteCategoryWithMarks(ACategory: IMarkCategory);
   end;
 
 
 implementation
 
 uses
-  SysUtils,
-  i_IMarkCategory;
+  SysUtils;
 
 { TMarksDB }
 
@@ -47,7 +48,13 @@ begin
   FBasePath := ABasePath;
   FDMMarksDb := TDMMarksDb.Create(nil);
   FMarksDb := TMarksOnlyDb.Create(ABasePath, FDMMarksDb, AFactoryConfig);
-  FCategoryDB := TMarkCategoryDB.Create(ABasePath, FMarksDb, FDMMarksDb);
+  FCategoryDB := TMarkCategoryDB.Create(ABasePath, FDMMarksDb);
+end;
+
+procedure TMarksDB.DeleteCategoryWithMarks(ACategory: IMarkCategory);
+begin
+  FMarksDb.DeleteMarksByCategoryID(ACategory.id);
+  FCategoryDB.DeleteCategory(ACategory);
 end;
 
 destructor TMarksDB.Destroy;

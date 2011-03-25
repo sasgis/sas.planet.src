@@ -6,16 +6,13 @@ uses
   Windows,
   Classes,
   i_IMarkCategory,
-  dm_MarksDb,
-  u_MarksOnlyDb,
-  u_MarksSimple;
+  dm_MarksDb;
 
 type
   TMarkCategoryDB = class
   private
     FBasePath: string;
     FDMMarksDb: TDMMarksDb;
-    FMarksDb: TMarksOnlyDb;
     function ReadCurrentCategory: IMarkCategory;
     procedure WriteCurrentCategory(ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
@@ -24,12 +21,12 @@ type
     function SaveCategory2File: boolean;
     procedure LoadCategoriesFromFile;
   public
-    constructor Create(ABasePath: string; AMarksDb: TMarksOnlyDb; ADMMarksDb: TDMMarksDb);
+    constructor Create(ABasePath: string; ADMMarksDb: TDMMarksDb);
 
     function GetCategoryByName(AName: string): IMarkCategory;
     function GetCategoryByID(id: integer): IMarkCategory;
     function WriteCategory(ACategory: IMarkCategory): IMarkCategory;
-    procedure DeleteCategoryWithMarks(ACategory: IMarkCategory);
+    procedure DeleteCategory(ACategory: IMarkCategory);
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
@@ -41,7 +38,6 @@ implementation
 uses
   DB,
   SysUtils,
-  Contnrs,
   u_MarkCategory;
 
 function TMarkCategoryDB.ReadCurrentCategory: IMarkCategory;
@@ -81,18 +77,16 @@ begin
   Result := TMarkCategory.Create(FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger, ACategory);
 end;
 
-constructor TMarkCategoryDB.Create(ABasePath: string; AMarksDb: TMarksOnlyDb;
+constructor TMarkCategoryDB.Create(ABasePath: string;
   ADMMarksDb: TDMMarksDb);
 begin
   FBasePath := ABasePath;
-  FMarksDb := AMarksDb;
   FDMMarksDb := ADMMarksDb;
 end;
 
-procedure TMarkCategoryDB.DeleteCategoryWithMarks(ACategory: IMarkCategory);
+procedure TMarkCategoryDB.DeleteCategory(ACategory: IMarkCategory);
 begin
   if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
-    FMarksDb.DeleteMarksByCategoryID(ACategory.id);
     FDMMarksDb.CDSKategory.DisableControls;
     try
       if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
