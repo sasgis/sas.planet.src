@@ -132,7 +132,7 @@ type
     Button10: TButton;
     Button17: TButton;
     Label31: TLabel;
-    Button18: TButton;
+    btnMapInfo: TButton;
     CBSensorsBarAutoShow: TCheckBox;
     SBGetComNum: TSpeedButton;
     Label32: TLabel;
@@ -219,7 +219,7 @@ type
     procedure MapListCustomDrawSubItem(Sender: TCustomListView;
       Item: TListItem; SubItem: Integer; State: TCustomDrawState;
       var DefaultDraw: Boolean);
-    procedure Button18Click(Sender: TObject);
+    procedure btnMapInfoClick(Sender: TObject);
     procedure SBGetComNumClick(Sender: TObject);
     procedure chkUseIEProxyClick(Sender: TObject);
     procedure CBProxyusedClick(Sender: TObject);
@@ -228,6 +228,8 @@ type
     procedure CBoxLocalChange(Sender: TObject);
     procedure SatellitePaintBoxResize(Sender: TObject);
     procedure TabSheet5Show(Sender: TObject);
+    procedure MapListChange(Sender: TObject; Item: TListItem;
+      Change: TItemChange);
   private
     FMapsEdit: boolean;
     frShortCutList: TfrShortCutList;
@@ -750,6 +752,17 @@ begin
   end;
 end;
 
+procedure TFSettings.MapListChange(Sender: TObject; Item: TListItem;
+  Change: TItemChange);
+var
+  VMap: TMapType;
+begin
+  if Item.Data<>nil then begin
+    VMap := TMapType(Item.Data);
+    btnMapInfo.Enabled:=VMap.MapInfo<>'';
+  end;
+end;
+
 procedure TFSettings.MapListCustomDrawSubItem(Sender:TCustomListView; Item:TListItem; SubItem:Integer; State:TCustomDrawState; var DefaultDraw:Boolean);
 begin
  if item = nil then EXIT;
@@ -785,7 +798,7 @@ begin
   frShortCutList.RefreshTranslation;
 end;
 
-procedure TFSettings.Button18Click(Sender: TObject);
+procedure TFSettings.btnMapInfoClick(Sender: TObject);
 var
   VMap: TMapType;
 begin
