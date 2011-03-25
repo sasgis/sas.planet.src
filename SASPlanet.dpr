@@ -257,7 +257,6 @@ uses
   u_BackgroundTaskLayerDrawBase in 'u_BackgroundTaskLayerDrawBase.pas',
   u_MapLayerFillingMap in 'MapLayers\u_MapLayerFillingMap.pas',
   i_Marks in 'i_Marks.pas',
-  u_MarkBasic in 'u_MarkBasic.pas',
   i_IMarkCategory in 'i_IMarkCategory.pas',
   u_MarkCategory in 'u_MarkCategory.pas',
   dm_MarksDb in 'dm_MarksDb.pas' {DMMarksDb: TDataModule},

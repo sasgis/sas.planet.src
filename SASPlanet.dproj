@@ -507,7 +507,6 @@
     <DCCReference Include="u_MapTypesMainList.pas" />
     <DCCReference Include="u_MapViewGotoOnFMain.pas" />
     <DCCReference Include="u_MapViewPortStateNew.pas" />
-    <DCCReference Include="u_MarkBasic.pas" />
     <DCCReference Include="u_MarkCategory.pas" />
     <DCCReference Include="u_MarkCategoryDB.pas" />
     <DCCReference Include="u_MarkFactory.pas" />
