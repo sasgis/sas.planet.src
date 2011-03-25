@@ -39,7 +39,7 @@ type
     destructor Destroy; override;
 
     procedure ExportToKML(AFileName:string);
-    procedure ExportCategoryToKML(CategoryID: IMarkCategory; AFileName: string);
+    procedure ExportCategoryToKML(ACategory: IMarkCategory; AFileName: string);
     procedure ExportMarkToKML(Mark:iMarkFull;AFileName:string);
   end;
 
@@ -88,7 +88,7 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.ExportCategoryToKML(CategoryID: IMarkCategory; AFileName: string);
+procedure TExportMarks2KML.ExportCategoryToKML(ACategory: IMarkCategory; AFileName: string);
 var
   VCategoryList: IInterfaceList;
   KMLStream:TMemoryStream;
@@ -96,7 +96,7 @@ begin
   filename:=Afilename;
   inKMZ:=ExtractFileExt(filename)='.kmz';
   VCategoryList:=TInterfaceList.Create;
-  VCategoryList.Add(CategoryID);
+  VCategoryList.Add(ACategory);
   if inKMZ then begin
     Zip.FileName := filename;
     Zip.CreateZip(filename);
