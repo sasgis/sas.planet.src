@@ -365,11 +365,10 @@ function TTileStorageFileSystem.LoadTile(AXY: TPoint; Azoom: byte; AVersion: Var
 var
   VPath: String;
   VMemStream: TMemoryStream;
-  VTileInfo: ITileInfoBasic;
 begin
   VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  VTileInfo := GetTileInfoByPath(VPath, AVersion);
-  if VTileInfo.GetIsExists then begin
+  ATileInfo := GetTileInfoByPath(VPath, AVersion);
+  if ATileInfo.GetIsExists then begin
     if AStream is TMemoryStream then begin
       VMemStream := TMemoryStream(AStream);
       VMemStream.LoadFromFile(VPath);
