@@ -62,7 +62,7 @@ type
   private
     frMarkDescription: TfrMarkDescription;
     FMarkDBGUI: TMarksDbGUIHelper;
-    FCategoryList: TList;
+    FCategoryList: IInterfaceList;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -75,13 +75,16 @@ var
 
 implementation
 
+uses
+  i_IMarkCategory;
+
 {$R *.dfm}
 
 function TFAddPoly.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
 var
   VLastUsedCategoryName: string;
   i: Integer;
-  VCategory: TCategoryId;
+  VCategory: IMarkCategory;
   VId: integer;
   VIndex: Integer;
 begin
@@ -102,7 +105,7 @@ begin
     chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);
     VId := AMark.CategoryId;
     for i := 0 to CBKateg.Items.Count - 1 do begin
-      VCategory := TCategoryId(CBKateg.Items.Objects[i]);
+      VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[i]));
       if VCategory <> nil then begin
         if VCategory.id = VId then begin
           CBKateg.ItemIndex := i;
@@ -124,7 +127,7 @@ begin
         VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
       end;
       if VIndex >= 0 then begin
-        VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
+        VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
       end;
       if VCategory <> nil then begin
         VId := VCategory.id;
@@ -146,7 +149,7 @@ begin
       Result := nil;
     end;
   finally
-    FreeAndNil(FCategoryList);
+    FCategoryList := nil;
   end;
 end;
 
@@ -164,7 +167,7 @@ end;
 
 procedure TFAddPoly.btnOkClick(Sender: TObject);
 var
-  VCategory: TCategoryId;
+  VCategory: IMarkCategory;
   VIndex: Integer;
 begin
   VCategory := nil;
@@ -173,7 +176,7 @@ begin
     VIndex:= CBKateg.Items.IndexOf(CBKateg.Text);
   end;
   if VIndex >= 0 then begin
-    VCategory := TCategoryId(CBKateg.Items.Objects[VIndex]);
+    VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
   end;
   if VCategory = nil then begin
     VCategory := FMarkDBGUI.AddKategory(CBKateg.Text);

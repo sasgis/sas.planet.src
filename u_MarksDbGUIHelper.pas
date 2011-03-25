@@ -11,6 +11,7 @@ uses
   i_IValueToStringConverter,
   i_IMarkPicture,
   i_MarksSimple,
+  i_IMarkCategory,
   u_MarksSimple,
   u_MarksReadWriteSimple;
 
@@ -21,13 +22,13 @@ type
     FMarkPictureList: IMarkPictureList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
   public
-    procedure CategoryListToStrings(AList: TList; AStrings: TStrings);
-    procedure CategoryListToTree(AList: TList; ATreeItems: TTreeNodes);
+    procedure CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
+    procedure CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
     procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
 
     function DeleteMarkModal(id:integer;handle:THandle):boolean;
     function OperationMark(AID: Integer; AZoom: Byte):boolean;
-    function AddKategory(name:string): TCategoryId;
+    function AddKategory(name:string): IMarkCategory;
     procedure ShowMarkLength(AID: Integer; AConverter: ICoordConverter; AHandle: THandle);
     procedure ShowMarkSq(AID: Integer; AConverter: ICoordConverter; AHandle: THandle);
     function EditMarkModal(AMark: IMarkFull): IMarkFull;
@@ -48,6 +49,7 @@ uses
   SysUtils,
   Dialogs,
   i_IDatum,
+  u_MarkCategory,
   UResStrings,
   USaveas,
   UaddPoint,
@@ -56,9 +58,9 @@ uses
 
 { TMarksDbGUIHelper }
 
-function TMarksDbGUIHelper.AddKategory(name: string): TCategoryId;
+function TMarksDbGUIHelper.AddKategory(name: string): IMarkCategory;
 var
-  VCategory: TCategoryId;
+  VCategory: IMarkCategory;
   VName: string;
 begin
   VName := name;
@@ -68,12 +70,7 @@ begin
   end;
   VCategory := FMarksDb.CategoryDB.GetCategoryByName(VName);
   if VCategory = nil then begin
-    VCategory := TCategoryId.Create;
-    VCategory.id := -1;
-    VCategory.name := VName;
-    VCategory.visible := True;
-    VCategory.AfterScale := 3;
-    VCategory.BeforeScale := 19;
+    VCategory := TMarkCategory.Create(-1, VName, True, 3, 19);
     FMarksDb.CategoryDB.WriteCategory(VCategory);
   end;
   Result := VCategory;
@@ -105,19 +102,19 @@ begin
   end;
 end;
 
-procedure TMarksDbGUIHelper.CategoryListToStrings(AList: TList; AStrings: TStrings);
+procedure TMarksDbGUIHelper.CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
 var
   i: Integer;
-  VCategory: TCategoryId;
+  VCategory: IMarkCategory;
 begin
   AStrings.Clear;
   for i := 0 to AList.Count - 1 do begin
-    VCategory := TCategoryId(AList[i]);
-    AStrings.AddObject(VCategory.name, VCategory);
+    VCategory := IMarkCategory(AList[i]);
+    AStrings.AddObject(VCategory.name, Pointer(VCategory));
   end;
 end;
 
-procedure TMarksDbGUIHelper.CategoryListToTree(AList: TList; ATreeItems: TTreeNodes);
+procedure TMarksDbGUIHelper.CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
 var
   VNodesCached: TStringList;
 
@@ -145,7 +142,7 @@ var
     end
   end;
   
-  procedure AddItem(AParentNode: TTreeNode; const AName: string; Data: TCategoryId);
+  procedure AddItem(AParentNode: TTreeNode; const AName: string; Data: IMarkCategory);
   var
     VNamePrefix: string;
     VDelimPos: Integer;
@@ -171,7 +168,7 @@ var
         VNamePrefix := '(NoName)';
       end;
       aNode := CreateNodeWithText(AParentNode, VNamePrefix, GetKey(AParentNode, VNamePrefix));
-      aNode.Data := Data;
+      aNode.Data := Pointer(Data);
       aNode.StateIndex := 2;
       if Data.visible then begin
         aNode.StateIndex := 1
@@ -181,7 +178,7 @@ var
 
 var
   i: Integer;
-  VCategory: TCategoryId;
+  VCategory: IMarkCategory;
 begin
   VNodesCached := TStringList.Create;
   try
@@ -191,7 +188,7 @@ begin
     ATreeItems.BeginUpdate;
     try
       for i := 0 to AList.Count - 1 do begin
-        VCategory := TCategoryId(AList[i]);
+        VCategory := IMarkCategory(AList[i]);
         AddItem(nil, VCategory.name, VCategory);
       end;
     finally

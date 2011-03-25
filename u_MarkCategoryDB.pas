@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   Classes,
+  i_IMarkCategory,
   dm_MarksDb,
   u_MarksOnlyDb,
   u_MarksSimple;
@@ -15,8 +16,8 @@ type
     FBasePath: string;
     FDMMarksDb: TDMMarksDb;
     FMarksDb: TMarksOnlyDb;
-    procedure ReadCurrentCategory(ACategory: TCategoryId);
-    procedure WriteCurrentCategory(ACategory: TCategoryId);
+    function ReadCurrentCategory: IMarkCategory;
+    procedure WriteCurrentCategory(ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
   public
@@ -25,12 +26,12 @@ type
   public
     constructor Create(ABasePath: string; AMarksDb: TMarksOnlyDb; ADMMarksDb: TDMMarksDb);
 
-    function GetCategoryByName(AName: string): TCategoryId;
-    function GetCategoryByID(id: integer): TCategoryId;
-    procedure WriteCategory(ACategory: TCategoryId);
-    procedure DeleteCategoryWithMarks(ACategory: TCategoryId);
+    function GetCategoryByName(AName: string): IMarkCategory;
+    function GetCategoryByID(id: integer): IMarkCategory;
+    function WriteCategory(ACategory: IMarkCategory): IMarkCategory;
+    procedure DeleteCategoryWithMarks(ACategory: IMarkCategory);
 
-    function GetCategoriesList: TList;
+    function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
   end;
 
@@ -40,18 +41,26 @@ implementation
 uses
   DB,
   SysUtils,
-  Contnrs;
+  Contnrs,
+  u_MarkCategory;
 
-procedure TMarkCategoryDB.ReadCurrentCategory(ACategory: TCategoryId);
+function TMarkCategoryDB.ReadCurrentCategory: IMarkCategory;
+var
+  VId: Integer;
+  VName: string;
+  VVisible: Boolean;
+  VAfterScale: Integer;
+  VBeforeScale: Integer;
 begin
-  ACategory.name := FDMMarksDb.CDSKategory.fieldbyname('name').AsString;
-  ACategory.id := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
-  ACategory.visible := FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean;
-  ACategory.AfterScale := FDMMarksDb.CDSKategory.fieldbyname('AfterScale').AsInteger;
-  ACategory.BeforeScale := FDMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger;
+  VName := FDMMarksDb.CDSKategory.fieldbyname('name').AsString;
+  VId := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
+  VVisible := FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean;
+  VAfterScale := FDMMarksDb.CDSKategory.fieldbyname('AfterScale').AsInteger;
+  VBeforeScale := FDMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger;
+  Result := TMarkCategory.Create(VId, VName, VVisible, VAfterScale, VBeforeScale);
 end;
 
-procedure TMarkCategoryDB.WriteCurrentCategory(ACategory: TCategoryId);
+procedure TMarkCategoryDB.WriteCurrentCategory(ACategory: IMarkCategory);
 begin
   FDMMarksDb.CDSKategory.fieldbyname('name').AsString := ACategory.name;
   FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean := ACategory.visible;
@@ -59,7 +68,7 @@ begin
   FDMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
 end;
 
-procedure TMarkCategoryDB.WriteCategory(ACategory: TCategoryId);
+function TMarkCategoryDB.WriteCategory(ACategory: IMarkCategory): IMarkCategory;
 begin
   if ACategory.id < 0 then begin
     FDMMarksDb.CDSKategory.Insert;
@@ -69,7 +78,7 @@ begin
   end;
   WriteCurrentCategory(ACategory);
   FDMMarksDb.CDSKategory.post;
-  ACategory.id := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
+  Result := TMarkCategory.Create(FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger, ACategory);
 end;
 
 constructor TMarkCategoryDB.Create(ABasePath: string; AMarksDb: TMarksOnlyDb;
@@ -80,7 +89,7 @@ begin
   FDMMarksDb := ADMMarksDb;
 end;
 
-procedure TMarkCategoryDB.DeleteCategoryWithMarks(ACategory: TCategoryId);
+procedure TMarkCategoryDB.DeleteCategoryWithMarks(ACategory: IMarkCategory);
 begin
   if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
     FMarksDb.DeleteMarksByCategoryID(ACategory.id);
@@ -96,64 +105,52 @@ begin
   end;
 end;
 
-function TMarkCategoryDB.GetCategoryByID(id: integer): TCategoryId;
+function TMarkCategoryDB.GetCategoryByID(id: integer): IMarkCategory;
 begin
   Result := nil;
   if FDMMarksDb.CDSKategory.Locate('id', id, []) then begin
-    Result := TCategoryId.Create;
-    ReadCurrentCategory(Result);
+    Result := ReadCurrentCategory;
   end;
 end;
 
-function TMarkCategoryDB.GetCategoryByName(AName: string): TCategoryId;
+function TMarkCategoryDB.GetCategoryByName(AName: string): IMarkCategory;
 begin
   Result := nil;
   if FDMMarksDb.CDSKategory.Locate('name', AName, []) then begin
-    Result := TCategoryId.Create;
-    ReadCurrentCategory(Result);
+    Result := ReadCurrentCategory;
   end;
 end;
 
 procedure TMarkCategoryDB.SetAllCategoriesVisible(ANewVisible: Boolean);
-var
-  VKategoryId: TCategoryId;
 begin
   FDMMarksDb.CDSKategory.DisableControls;
   try
     FDMMarksDb.CDSKategory.Filtered := false;
     FDMMarksDb.CDSKategory.First;
-    VKategoryId := TCategoryId.Create;
-    try
       while not (FDMMarksDb.CDSKategory.Eof) do begin
-        ReadCurrentCategory(VKategoryId);
-        if VKategoryId.visible <> ANewVisible then begin
-          VKategoryId.visible := ANewVisible;
+        if FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean <> ANewVisible then begin
           FDMMarksDb.CDSKategory.Edit;
-          WriteCurrentCategory(VKategoryId);
+          FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean := ANewVisible;
           FDMMarksDb.CDSKategory.post;
         end;
         FDMMarksDb.CDSKategory.Next;
       end;
-    finally
-      VKategoryId.Free;
-    end;
   finally
     FDMMarksDb.CDSKategory.EnableControls;
   end;
 end;
 
-function TMarkCategoryDB.GetCategoriesList: TList;
+function TMarkCategoryDB.GetCategoriesList: IInterfaceList;
 var
-  VKategory: TCategoryId;
+  VKategory: IMarkCategory;
 begin
-  Result := TObjectList.Create(True);
+  Result := TInterfaceList.Create;
   FDMMarksDb.CDSKategory.DisableControls;
   try
     FDMMarksDb.CDSKategory.Filtered := false;
     FDMMarksDb.CDSKategory.First;
     while not (FDMMarksDb.CDSKategory.Eof) do begin
-      VKategory := TCategoryId.Create;
-      ReadCurrentCategory(VKategory);
+      VKategory := ReadCurrentCategory;
       Result.Add(VKategory);
       FDMMarksDb.CDSKategory.Next;
     end;

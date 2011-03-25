@@ -15,6 +15,7 @@ uses
   ActiveX,
   u_MarksSimple,
   i_MarksSimple,
+  i_IMarkCategory,
   u_GlobalState,
   u_GeoToStr,
   Ugeofun;
@@ -30,7 +31,7 @@ type
     OnlyVisible:boolean;
     procedure AddMark(Mark:iMarkFull;inNode:iXMLNode);
     procedure SaveMarkIcon(Mark:IMarkFull);
-    procedure AddFolders(ACategory:TList);
+    procedure AddFolders(ACategoryList: IInterfaceList);
     procedure AddMarks(CategoryIDList:TList; inNode:iXMLNode);
     function Color32toKMLColor(Color32:TColor32):string;
   public
@@ -38,7 +39,7 @@ type
     destructor Destroy; override;
 
     procedure ExportToKML(AFileName:string);
-    procedure ExportCategoryToKML(CategoryID:TCategoryID;AFileName:string);
+    procedure ExportCategoryToKML(CategoryID: IMarkCategory; AFileName: string);
     procedure ExportMarkToKML(Mark:iMarkFull;AFileName:string);
   end;
 
@@ -60,65 +61,59 @@ begin
 end;
 
 procedure TExportMarks2KML.ExportToKML(AFileName:string);
-var Category:TList;
-    KMLStream:TMemoryStream;
+var
+  VCategoryList: IInterfaceList;
+  KMLStream:TMemoryStream;
 begin
   filename:=Afilename;
   inKMZ:=ExtractFileExt(filename)='.kmz';
-  Category:=GState.MarksDb.CategoryDB.GetCategoriesList;
-  try
-    if inKMZ then begin
-      Zip.FileName := filename;
-      Zip.CreateZip(filename);
-      Zip.CompressionType := ctFast;
-      Zip.Active := true;
-      AddFolders(Category);
-      KMLStream:=TMemoryStream.Create;
-      try
-        kmldoc.SaveToStream(KMLStream);
-        KMLStream.Position:=0;
-        Zip.AddStream('doc.kml',KMLStream);
-      finally
-        KMLStream.Free;
-      end;
-    end else begin
-      AddFolders(Category);
-      kmldoc.SaveToFile(FileName);
+  VCategoryList := GState.MarksDb.CategoryDB.GetCategoriesList;
+  if inKMZ then begin
+    Zip.FileName := filename;
+    Zip.CreateZip(filename);
+    Zip.CompressionType := ctFast;
+    Zip.Active := true;
+    AddFolders(VCategoryList);
+    KMLStream:=TMemoryStream.Create;
+    try
+      kmldoc.SaveToStream(KMLStream);
+      KMLStream.Position:=0;
+      Zip.AddStream('doc.kml',KMLStream);
+    finally
+      KMLStream.Free;
     end;
-  finally
-    Category.Free;
+  end else begin
+    AddFolders(VCategoryList);
+    kmldoc.SaveToFile(FileName);
   end;
 end;
 
-procedure TExportMarks2KML.ExportCategoryToKML(CategoryID:TCategoryID;AFileName:string);
-var Category:TList;
-    KMLStream:TMemoryStream;
+procedure TExportMarks2KML.ExportCategoryToKML(CategoryID: IMarkCategory; AFileName: string);
+var
+  VCategoryList: IInterfaceList;
+  KMLStream:TMemoryStream;
 begin
   filename:=Afilename;
   inKMZ:=ExtractFileExt(filename)='.kmz';
-  Category:=TList.create;
-  try
-    Category.Add(CategoryID);
-    if inKMZ then begin
-      Zip.FileName := filename;
-      Zip.CreateZip(filename);
-      Zip.CompressionType := ctFast;
-      Zip.Active := true;
-      AddFolders(Category);
-      KMLStream:=TMemoryStream.Create;
-      try
-        kmldoc.SaveToStream(KMLStream);
-        KMLStream.Position:=0;
-        Zip.AddStream('doc.kml',KMLStream);
-      finally
-        KMLStream.Free;
-      end;
-    end else begin
-      AddFolders(Category);
-      kmldoc.SaveToFile(FileName);
+  VCategoryList:=TInterfaceList.Create;
+  VCategoryList.Add(CategoryID);
+  if inKMZ then begin
+    Zip.FileName := filename;
+    Zip.CreateZip(filename);
+    Zip.CompressionType := ctFast;
+    Zip.Active := true;
+    AddFolders(VCategoryList);
+    KMLStream:=TMemoryStream.Create;
+    try
+      kmldoc.SaveToStream(KMLStream);
+      KMLStream.Position:=0;
+      Zip.AddStream('doc.kml',KMLStream);
+    finally
+      KMLStream.Free;
     end;
-  finally
-    Category.Free;
+  end else begin
+    AddFolders(VCategoryList);
+    kmldoc.SaveToFile(FileName);
   end;
 end;
 
@@ -147,9 +142,9 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.AddFolders(ACategory:TList);
+procedure TExportMarks2KML.AddFolders(ACategoryList: IInterfaceList);
 
-  function AddItem(Lev: Integer; ParentNode: IXMLNode; S: string; Data:TObject):boolean;
+  function AddItem(Lev: Integer; ParentNode: IXMLNode; S: string; Data: IMarkCategory):boolean;
     function FindNodeWithText(AParent: iXMLNode; const S: string): IXMLNode;
     var
       i: Integer;
@@ -188,7 +183,7 @@ procedure TExportMarks2KML.AddFolders(ACategory:TList);
 
     if (TXMLNode(aNode) = nil) then begin
     aNode := ParentNode.AddChild('Folder');
-    if ((TCategoryId(Data).visible)or(not OnlyVisible)) then begin
+    if ((Data.visible)or(not OnlyVisible)) then begin
       aNode.ChildValues['name']:=prefix;
       aNode.ChildValues['open']:=1;
       with aNode.AddChild('Style').AddChild('ListStyle') do begin
@@ -197,7 +192,7 @@ procedure TExportMarks2KML.AddFolders(ACategory:TList);
       end;
       if ID=0 then begin
         CatIdList:=TList.Create;
-        CatIdList.Add(Pointer(TCategoryId(Data).id));
+        CatIdList.Add(Pointer(Data.id));
         AddMarks(CatIdList,aNode);
         CatIdList.Free;
       end;
@@ -213,9 +208,11 @@ procedure TExportMarks2KML.AddFolders(ACategory:TList);
 
 var
   K: Integer;
+  VCategory: IMarkCategory;
 begin
-  for K := 0 to ACategory.Count - 1 do begin
-    AddItem(0, doc, TCategoryId(ACategory.Items[K]).name, ACategory.Items[K]);
+  for K := 0 to ACategoryList.Count - 1 do begin
+    VCategory := IMarkCategory(Pointer(ACategoryList.Items[K]));
+    AddItem(0, doc, VCategory.name, VCategory);
   end;
 end;
 

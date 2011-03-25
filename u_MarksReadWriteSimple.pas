@@ -37,7 +37,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  i_IMarkCategory;
 
 { TMarksDB }
 
@@ -59,25 +60,21 @@ end;
 
 function TMarksDB.GetVisibleCateroriesIDList(AZoom: Byte): TList;
 var
-  VList: TList;
-  VCategory: TCategoryId;
+  VList: IInterfaceList;
+  VCategory: IMarkCategory;
   i: Integer;
 begin
   Result := TList.Create;
   VList := FCategoryDB.GetCategoriesList;
-  try
-    for i := 0 to VList.Count - 1 do begin
-      VCategory := TCategoryId(VList[i]);
-      if
-        (VCategory.visible) and
-        (VCategory.AfterScale <= AZoom + 1) and
-        (VCategory.BeforeScale >= AZoom + 1)
-      then begin
-        Result.Add(Pointer(VCategory.id));
-      end;
+  for i := 0 to VList.Count - 1 do begin
+    VCategory := IMarkCategory(VList[i]);
+    if
+      (VCategory.visible) and
+      (VCategory.AfterScale <= AZoom + 1) and
+      (VCategory.BeforeScale >= AZoom + 1)
+    then begin
+      Result.Add(Pointer(VCategory.id));
     end;
-  finally
-    VList.Free;
   end;
 end;
 

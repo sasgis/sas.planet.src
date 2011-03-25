@@ -20,6 +20,7 @@ type
     function GetAfterScale: integer; stdcall;
     function GetBeforeScale: integer; stdcall;
   public
+    constructor Create; overload;
     constructor Create(
       AId: Integer;
       AName: string;
@@ -28,6 +29,8 @@ type
       ABeforeScale: integer
     ); overload;
     constructor Create(ACategory: IMarkCategory); overload;
+    constructor Create(AId: Integer; ACategory: IMarkCategory); overload;
+    constructor Create(AVisible: Boolean; ACategory: IMarkCategory); overload;
   end;
 
 implementation
@@ -51,6 +54,33 @@ begin
   FVisible := AVisible;
   FAfterScale := AAfterScale;
   FBeforeScale := ABeforeScale;
+end;
+
+constructor TMarkCategory.Create(AId: Integer; ACategory: IMarkCategory);
+begin
+  FId := AId;
+  FName := ACategory.Name;
+  FVisible := ACategory.Visible;
+  FAfterScale := ACategory.AfterScale;
+  FBeforeScale := ACategory.BeforeScale;
+end;
+
+constructor TMarkCategory.Create;
+begin
+  FId := - 1;
+  FVisible := True;
+  FAfterScale := 3;
+  FBeforeScale := 24;
+  FName := '';
+end;
+
+constructor TMarkCategory.Create(AVisible: Boolean; ACategory: IMarkCategory);
+begin
+  FId := ACategory.Id;
+  FName := ACategory.Name;
+  FVisible := AVisible;
+  FAfterScale := ACategory.AfterScale;
+  FBeforeScale := ACategory.BeforeScale;
 end;
 
 function TMarkCategory.GetAfterScale: integer;

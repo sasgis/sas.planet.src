@@ -7,15 +7,6 @@ uses
   i_MarksSimple;
 
 type
-  TCategoryId = class
-    id: integer;
-    name: string;
-    AfterScale: Integer;
-    BeforeScale: Integer;
-    visible: boolean;
-  end;
-
-type
   TMarkId = class(TInterfacedObject, IMarkID, IMarkVisible)
   private
     FName: string;

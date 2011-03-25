@@ -9,6 +9,7 @@ uses
   t_GeoTypes,
   dm_MarksDb,
   i_IMarksFactoryConfig,
+  i_IMarkCategory,
   i_MarksSimple,
   u_MarkFactory,
   u_MarksSimple;
@@ -51,7 +52,7 @@ type
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(AId: Integer): IInterfaceList;
 
-    procedure SetAllMarksInCategoryVisible(ACategoryId: TCategoryId; ANewVisible: Boolean);
+    procedure SetAllMarksInCategoryVisible(ACategoryId: IMarkCategory; ANewVisible: Boolean);
 
     function GetMarksSubset(ARect: TDoubleRect; ACategoryIDList: TList; AIgnoreVisible: Boolean): IMarksSubset;
   end;
@@ -359,7 +360,7 @@ begin
   end;
 end;
 
-procedure TMarksOnlyDb.SetAllMarksInCategoryVisible(ACategoryId: TCategoryId;
+procedure TMarksOnlyDb.SetAllMarksInCategoryVisible(ACategoryId: IMarkCategory;
   ANewVisible: Boolean);
 var
   VVisible: Boolean;
