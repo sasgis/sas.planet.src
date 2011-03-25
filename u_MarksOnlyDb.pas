@@ -45,6 +45,7 @@ type
     function DeleteMark(AMarkId: IMarkId): Boolean;
     procedure DeleteMarksByCategoryID(ACategoryID: integer);
     procedure WriteMark(AMark: IMarkFull);
+    procedure WriteMarksList(AMarkList: IInterfaceList);
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(AMark: IMarkFull): Boolean; overload;
@@ -313,6 +314,34 @@ begin
     end;
     WriteCurrentMark(AMark);
     FDMMarksDb.CDSmarks.Post;
+  finally
+    UnlockWrite;
+  end;
+  SaveMarks2File;
+end;
+
+procedure TMarksOnlyDb.WriteMarksList(AMarkList: IInterfaceList);
+var
+  i: Integer;
+  VMark: IMarkFull;
+begin
+  LockWrite;
+  try
+    FDMMarksDb.CDSmarks.Filtered := false;
+    for i := 0 to AMarkList.Count - 1 do begin
+      VMark := IMarkFull(AMarkList.Items[i]);
+      if VMark.id >= 0 then begin
+        if FDMMarksDb.CDSmarks.Locate('id', VMark.id, []) then begin
+          FDMMarksDb.CDSmarks.Edit;
+        end else begin
+          FDMMarksDb.CDSmarks.Insert;
+        end;
+      end else begin
+        FDMMarksDb.CDSmarks.Insert;
+      end;
+      WriteCurrentMark(VMark);
+      FDMMarksDb.CDSmarks.Post;
+    end;
   finally
     UnlockWrite;
   end;
