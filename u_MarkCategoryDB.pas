@@ -180,22 +180,21 @@ end;
 
 function TMarkCategoryDB.SaveCategory2File: boolean;
 var
-  ms: TMemoryStream;
+  VStream: TFileStream;
   XML: string;
 begin
   result := true;
-  ms := TMemoryStream.Create;
+  VStream := TFileStream.Create(GetMarksCategoryFileName, fmCreate);;
   try
     try
       FDMMarksDb.CDSKategory.MergeChangeLog;
       XML := FDMMarksDb.CDSKategory.XMLData;
-      ms.Write(XML[1], length(XML));
-      ms.SaveToFile(GetMarksCategoryFileName);
+      VStream.Write(XML[1], length(XML));
     except
       result := false;
     end;
   finally
-    ms.Free;
+    VStream.Free;
   end;
 end;
 

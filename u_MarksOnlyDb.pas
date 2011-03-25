@@ -569,19 +569,18 @@ end;
 
 function TMarksOnlyDb.SaveMarks2File: boolean;
 var
-  ms: TMemoryStream;
+  VStream: TFileStream;
   XML: string;
 begin
   result := true;
-  ms := TMemoryStream.Create;
+  VStream := TFileStream.Create(GetMarksFileName, fmCreate);;
   try
     try
       LockRead;
       try
         FDMMarksDb.CDSmarks.MergeChangeLog;
         XML := FDMMarksDb.CDSmarks.XMLData;
-        ms.Write(XML[1], length(XML));
-        ms.SaveToFile(GetMarksFileName);
+        VStream.WriteBuffer(XML[1], length(XML));
       finally
         UnlockRead;
       end;
@@ -589,7 +588,7 @@ begin
       result := false;
     end;
   finally
-    ms.Free;
+    VStream.Free;
   end;
 end;
 
