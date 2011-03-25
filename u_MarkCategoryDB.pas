@@ -75,6 +75,7 @@ begin
   WriteCurrentCategory(ACategory);
   FDMMarksDb.CDSKategory.post;
   Result := TMarkCategory.Create(FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger, ACategory);
+  SaveCategory2File;
 end;
 
 constructor TMarkCategoryDB.Create(ABasePath: string;
