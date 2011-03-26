@@ -7,6 +7,9 @@ uses
   sysutils,
   windows,
   MidasLib,
+  {$IFDEF SasDebugWithJcl}
+  JclDebug,
+  {$ENDIF SasDebugWithJcl}
   KAZip in 'src\KAZip.pas',
   ECWReader in 'src\ECWReader.pas',
   ECWwriter in 'src\ECWwriter.pas',
@@ -504,12 +507,23 @@ begin
   Application.CreateForm(TFEditMap, FEditMap);
   Application.CreateForm(TFShortcutChange, FShortcutChange);
   Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
-  if GState.ShowDebugInfo then begin
-    Application.CreateForm(TfrmDebugInfo, frmDebugInfo);
-  end;
-  frmInvisibleBrowser.NavigateAndWait('about:blank');
-    Fbrowser.Navigate('about:blank');
-    Application.Run;
+    if GState.ShowDebugInfo then begin
+      Application.CreateForm(TfrmDebugInfo, frmDebugInfo);
+    end;
+    {$IFDEF SasDebugWithJcl}
+    JclStackTrackingOptions := JclStackTrackingOptions + [stRAWMode];
+    JclStartExceptionTracking;
+    try
+      Application.OnException := Fmain.DoException;
+    {$ENDIF SasDebugWithJcl}
+      frmInvisibleBrowser.NavigateAndWait('about:blank');
+      Fbrowser.Navigate('about:blank');
+      Application.Run;
+    {$IFDEF SasDebugWithJcl}
+    finally
+      JclStopExceptionTracking;
+    end;
+    {$ENDIF SasDebugWithJcl}
   finally
     GState.Free;
   end;
