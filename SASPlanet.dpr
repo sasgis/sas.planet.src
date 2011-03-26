@@ -213,6 +213,8 @@ uses
   u_MarksSubset in 'u_MarksSubset.pas',
   u_MarksOnlyDb in 'u_MarksOnlyDb.pas',
   u_MarkTemplates in 'u_MarkTemplates.pas',
+  i_IMarkNameGenerator in 'i_IMarkNameGenerator.pas',
+  u_MarkNameGenerator in 'u_MarkNameGenerator.pas',
   i_IMarksFactoryConfig in 'i_IMarksFactoryConfig.pas',
   u_MarksFactoryConfig in 'u_MarksFactoryConfig.pas',
   u_MarkPolyTemplateConfig in 'u_MarkPolyTemplateConfig.pas',

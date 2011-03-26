@@ -140,6 +140,7 @@
     <DCCReference Include="i_IMapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="i_IMapViewGoto.pas" />
     <DCCReference Include="i_IMarkCategory.pas" />
+    <DCCReference Include="i_IMarkNameGenerator.pas" />
     <DCCReference Include="i_IMarkPicture.pas" />
     <DCCReference Include="i_IMarkPolygonLayerConfig.pas" />
     <DCCReference Include="i_IMarkPolyLineLayerConfig.pas" />
@@ -512,6 +513,7 @@
     <DCCReference Include="u_MarkFactory.pas" />
     <DCCReference Include="u_MarkLine.pas" />
     <DCCReference Include="u_MarkLineTemplateConfig.pas" />
+    <DCCReference Include="u_MarkNameGenerator.pas" />
     <DCCReference Include="u_MarkPictureListSimple.pas" />
     <DCCReference Include="u_MarkPictureSimple.pas" />
     <DCCReference Include="u_MarkPoint.pas" />
