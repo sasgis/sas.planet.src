@@ -54,6 +54,7 @@ implementation
 uses
   SysUtils,
   GR32_Layers,
+  i_ICoordConverter,
   u_NotifyEventListener,
   u_ClipPolygonByRect;
 
@@ -123,11 +124,16 @@ function TSelectionLayer.LonLatArrayToVisualFloatArray(
 var
   i: Integer;
   VPointsCount: Integer;
+  VCoordConverter: ICoordConverter;
+  VLonLat: TDoublePoint;
 begin
+  VCoordConverter := ALocalConverter.GetGeoConverter;
   VPointsCount := Length(APolygon);
   SetLength(Result, VPointsCount);
   for i := 0 to VPointsCount - 1 do begin
-    Result[i] := ALocalConverter.LonLat2LocalPixelFloat(APolygon[i]);
+    VLonLat := APolygon[i];
+    VCoordConverter.CheckLonLatPos(VLonLat);
+    Result[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
   end;
 end;
 
