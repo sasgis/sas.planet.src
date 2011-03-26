@@ -284,7 +284,7 @@ var
 begin
   VMarkId := GetSelectedMarkId;
   if VMarkId <> nil then begin
-    if FMarkDBGUI.DeleteMarkModal(VMarkId.id, Self.Handle) then begin
+    if FMarkDBGUI.DeleteMarkModal(VMarkId, Self.Handle) then begin
       UpdateMarksList;
     end;
   end;
@@ -346,11 +346,11 @@ end;
 
 procedure TFMarksExplorer.btnOpSelectMarkClick(Sender: TObject);
 var
-  VMark: IMarkID;
+  VMark: IMarkFull;
 begin
-  VMark := GetSelectedMarkId;
+  VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    if FMarkDBGUI.OperationMark(VMark.Id, GState.MainFormConfig.ViewPortState.GetCurrentZoom) then begin
+    if FMarkDBGUI.OperationMark(VMark, GState.MainFormConfig.ViewPortState.GetCurrentZoom) then begin
       close;
     end;
   end;
@@ -479,7 +479,7 @@ begin
   If key=VK_DELETE then begin
     VMarkId := GetSelectedMarkId;
     if VMarkId <> nil then begin
-      if FMarkDBGUI.DeleteMarkModal(VMarkId.id, Self.Handle) then begin
+      if FMarkDBGUI.DeleteMarkModal(VMarkId, Self.Handle) then begin
         UpdateMarksList;
       end;
     end;

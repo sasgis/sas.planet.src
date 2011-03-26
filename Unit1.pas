@@ -2709,51 +2709,39 @@ end;
 procedure TFmain.NMarkEditClick(Sender: TObject);
 var
   VMark: IMarkFull;
-  VPWL: TResObj;
 begin
-  VPWL.S:=0;
-  VPWL.find:=false;
-  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
-  if VPWL.find then begin
-    FEditMarkId:=strtoint(VPWL.numid);
-    VMark := GState.MarksDb.MarksDb.GetMarkByID(FEditMarkId);
-    if VMark <> nil then begin
-      if VMark.IsPoint then begin
-        VMark := FMarkDBGUI.EditMarkModal(VMark);
-        if VMark <> nil then begin
-          GState.MarksDB.MarksDb.WriteMark(VMark);
-          FLayerMapMarks.Redraw;
-        end;
-      end else if VMark.IsPoly then begin
-        setalloperationfalse(ao_edit_poly);
-        FLineOnMapEdit.SetPoints(VMark.Points);
-      end else if VMark.IsLine then begin
-        setalloperationfalse(ao_edit_line);
-        FLineOnMapEdit.SetPoints(VMark.Points);
+  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  if VMark <> nil then begin
+    if VMark.IsPoint then begin
+      VMark := FMarkDBGUI.EditMarkModal(VMark);
+      if VMark <> nil then begin
+        GState.MarksDB.MarksDb.WriteMark(VMark);
+        FLayerMapMarks.Redraw;
       end;
+    end else if VMark.IsPoly then begin
+      setalloperationfalse(ao_edit_poly);
+      FEditMarkId := VMark.Id;
+      FLineOnMapEdit.SetPoints(VMark.Points);
+    end else if VMark.IsLine then begin
+      setalloperationfalse(ao_edit_line);
+      FEditMarkId := VMark.Id;
+      FLineOnMapEdit.SetPoints(VMark.Points);
     end;
   end;
 end;
 
 procedure TFmain.NMarkExportClick(Sender: TObject);
-var KMLExport:TExportMarks2KML;
-    VMark: iMarkFull;
-    VIndex:integer;
-    VPWL: TResObj;
+var
+  KMLExport:TExportMarks2KML;
+  VMark: IMarkFull;
 begin
-  VPWL.S:=0;
-  VPWL.find:=false;
-  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
-  if VPWL.find then begin
+  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  if VMark <> nil then begin
     KMLExport:=TExportMarks2KML.Create(false);
     try
-      FMarksExplorer.ExportDialog.FileName:=VPWL.name;
+      FMarksExplorer.ExportDialog.FileName := VMark.Name;
       if (FMarksExplorer.ExportDialog.Execute)and(FMarksExplorer.ExportDialog.FileName<>'') then begin
-        VIndex:=strtoint(VPWL.numid);
-        VMark := GState.MarksDb.MarksDb.GetMarkByID(VIndex);
-        if VMark <> nil then begin
-          KMLExport.ExportMarkToKML(VMark,FMarksExplorer.ExportDialog.FileName);
-        end;
+        KMLExport.ExportMarkToKML(VMark,FMarksExplorer.ExportDialog.FileName);
       end;
     finally
       KMLExport.free;
@@ -2763,13 +2751,11 @@ end;
 
 procedure TFmain.NMarkDelClick(Sender: TObject);
 var
-  VPWL: TResObj;
+  VMark: IMarkFull;
 begin
-  VPWL.S:=0;
-  VPWL.find:=false;
-  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
-  if VPWL.find then begin
-    if FMarkDBGUI.DeleteMarkModal(StrToInt(VPWL.numid),Handle) then
+  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  if VMark <> nil then begin
+    if FMarkDBGUI.DeleteMarkModal(VMark as IMarkID, Handle) then
       FLayerMapMarks.Redraw;
   end;
 end;
@@ -2781,15 +2767,11 @@ end;
 
 procedure TFmain.NMarkOperClick(Sender: TObject);
 var
-  VId: Integer;
-  VPWL: TResObj;
+  VMark: IMarkFull;
 begin
-  VPWL.S:=0;
-  VPWL.find:=false;
-  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
-  if VPWL.find then begin
-    VId := strtoint(VPWL.numid);
-    FMarkDBGUI.OperationMark(VId, FConfig.ViewPortState.GetCurrentZoom);
+  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  if VMark <> nil then begin
+    FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.GetCurrentZoom);
   end;
 end;
 
@@ -2903,7 +2885,6 @@ var
   VClickRect: TRect;
   VClickLonLatRect: TDoubleRect;
   VPoly:  TArrayOfDoublePoint;
-  VPWL: TResObj;
   Vlastpoint: Integer;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -2911,6 +2892,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VClickMapRect: TDoubleRect;
   VIsClickInMap: Boolean;
+  VMark: IMarkFull;
 begin
   if (FHintWindow<>nil) then begin
     FHintWindow.ReleaseHandle;
@@ -2992,27 +2974,25 @@ begin
   
   if (VIsClickInMap)and (Button=mbright)and(FCurrentOper=ao_movemap) then begin
     FMouseUpPoint:=FMouseDownPoint;
-    VPWL.find:=false;
-    VPWL.S:=0;
-
+    VMark := nil;
     if FConfig.LayersConfig.MarksShowConfig.IsUseMarks then begin
-      FLayerMapMarks.MouseOnMyReg(VPWL, FMouseDownPoint);
+      FLayerMapMarks.MouseOnMyReg(FMouseDownPoint, VMark);
     end;
-    NMarkEdit.Visible:=VPWL.find;
-    NMarkExport.Visible:=VPWL.find;
-    NMarkDel.Visible:=VPWL.find;
-    NMarkSep.Visible:=VPWL.find;
-    NMarkOper.Visible:=VPWL.find;
-    NMarkNav.Visible:=VPWL.find;
-    if (VPWL.find)and(VPWL.type_<>ROTpoint) then begin
-      NMarksCalcsSq.Visible:=(VPWL.type_=ROTPoly);
-      NMarksCalcsPer.Visible:=(VPWL.type_=ROTPoly);
-      NMarksCalcsLen.Visible:=(VPWL.type_=ROTline);
-      NMarksCalcs.Visible:=true;
+    NMarkEdit.Visible := VMark <> nil;
+    NMarkExport.Visible := VMark <> nil;
+    NMarkDel.Visible := VMark <> nil;
+    NMarkSep.Visible := VMark <> nil;
+    NMarkOper.Visible := VMark <> nil;
+    NMarkNav.Visible := VMark <> nil;
+    if (VMark <> nil) and (not VMark.IsPoint) then begin
+      NMarksCalcsSq.Visible := VMark.IsPoly;
+      NMarksCalcsPer.Visible := VMark.IsPoly;
+      NMarksCalcsLen.Visible:= VMark.IsLine;
+      NMarksCalcs.Visible := true;
     end else begin
-      NMarksCalcs.Visible:=false;
+      NMarksCalcs.Visible := false;
     end;
-    if (FConfig.NavToPoint.IsActive)and(inttostr(FConfig.NavToPoint.Id)=VPWL.numid) then begin
+    if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and (FConfig.NavToPoint.Id = VMark.Id) then begin
       NMarkNav.Checked:=true
     end else begin
       NMarkNav.Checked:=false;
@@ -3040,6 +3020,8 @@ var
   VLocalConverter: ILocalCoordConverter;
   VMouseMapPoint: TDoublePoint;
   VMouseMoveDelta: TPoint;
+  VMark: IMarkFull;
+  VMarkS: Double;
 begin
   if (Layer <> nil) then begin
     exit;
@@ -3121,9 +3103,18 @@ begin
       VPWL.find:=false;
       if (FWikiLayer.Visible) then
         FWikiLayer.MouseOnReg(VPWL, Point(x,y));
+      VMark := nil;
       if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
-        FLayerMapMarks.MouseOnMyReg(VPWL,Point(x,y));
-      if VPWL.find then begin
+        FLayerMapMarks.MouseOnMyReg(Point(x,y), VMark, VMarkS);
+      if VMark <> nil then begin
+        if (not VPWL.find) or (not VMark.IsPoly) or (VPWL.S >= VMarkS) then begin
+          VPWL.find := True;
+          VPWL.name := VMark.Name;
+          VPWL.descr := VMark.Desc;
+          VPWL.S := VMarkS;
+        end;
+      end;
+      if VPWL.find  then begin
         if VPWL.descr <> '' then begin
           stw:='<HTML><BODY>';
           stw:=VPWL.descr;
@@ -3228,6 +3219,8 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseMoveDelta: TPoint;
   VLastMouseMove: TPoint;
+  VMark: IMarkFull;
+  VMarkS: Double;
 begin
   if ProgramClose then begin
     exit;
@@ -3322,12 +3315,21 @@ begin
  end;
  FShowActivHint:=false;
  if not(FMapMoving)and((FmoveTrue.x<>VLastMouseMove.X)or(FmoveTrue.y<>VLastMouseMove.y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
-   VPWL.S:=0;
-   VPWL.find:=false;
-   if (FWikiLayer.Visible) then
-     FWikiLayer.MouseOnReg(VPWL,FmoveTrue);
-   if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
-     FLayerMapMarks.MouseOnMyReg(VPWL,FmoveTrue);
+    VPWL.S:=0;
+    VPWL.find:=false;
+    if (FWikiLayer.Visible) then
+      FWikiLayer.MouseOnReg(VPWL,FmoveTrue);
+    VMark := nil;
+    if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
+      FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark, VMarkS);
+    if VMark <> nil then begin
+      if (not VPWL.find) or (not VMark.IsPoly) or (VPWL.S >= VMarkS) then begin
+        VPWL.find := True;
+        VPWL.name := VMark.Name;
+        VPWL.descr := VMark.Desc;
+        VPWL.S := VMarkS;
+      end;
+    end;
    if (VPWL.find) then begin
      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
      if (length(VPWL.name)>0) then begin
@@ -3506,21 +3508,13 @@ end;
 procedure TFmain.NMarkNavClick(Sender: TObject);
 var
   LL:TDoublePoint;
-  id:integer;
   VMark: IMarkFull;
-  VPWL: TResObj;
 begin
-  VPWL.S:=0;
-  VPWL.find:=false;
-  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
-  if VPWL.find then begin
+  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
-      id:=strtoint(VPWL.numid);
-      VMark := GState.MarksDb.MarksDb.GetMarkByID(id);
-      if VMark <> nil then begin
-        LL := VMark.GetGoToLonLat;
-        FConfig.NavToPoint.StartNavToMark(id, ll);
-      end;
+      LL := VMark.GetGoToLonLat;
+      FConfig.NavToPoint.StartNavToMark(VMark.Id, ll);
     end else begin
       FConfig.NavToPoint.StopNav;
     end;
@@ -3578,43 +3572,31 @@ end;
 
 procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
 var
-  VId: Integer;
-  VPWL: TResObj;
+  VMark: IMarkFull;
 begin
-  VPWL.S:=0;
-  VPWL.find:=false;
-  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
-  if VPWL.find then begin
-    VId := strtoint(VPWL.numid);
-    FMarkDBGUI.ShowMarkLength(VId, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
+  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  if VMark <> nil then begin
+    FMarkDBGUI.ShowMarkLength(VMark, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
 end;
 
 procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
 var
-  VId: Integer;
-  VPWL: TResObj;
+  VMark: IMarkFull;
 begin
-  VPWL.S:=0;
-  VPWL.find:=false;
-  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
-  if VPWL.find then begin
-    VId := strtoint(VPWL.numid);
-    FMarkDBGUI.ShowMarkSq(VId, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
+  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  if VMark <> nil then begin
+    FMarkDBGUI.ShowMarkSq(VMark, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
 end;
 
 procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
 var
-  VId: Integer;
-  VPWL: TResObj;
+  VMark: IMarkFull;
 begin
-  VPWL.S:=0;
-  VPWL.find:=false;
-  FLayerMapMarks.MouseOnMyReg(VPWL, FmoveTrue);
-  if VPWL.find then begin
-    VId := strtoint(VPWL.numid);
-    FMarkDBGUI.ShowMarkLength(VId, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
+  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  if VMark <> nil then begin
+    FMarkDBGUI.ShowMarkLength(VMark, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
 end;
 

@@ -33,7 +33,8 @@ type
       AConfig: IUsedMarksConfig;
       AMarkDBGUI: TMarksDbGUIHelper
     );
-    procedure MouseOnMyReg(var APWL: TResObj; xy: TPoint);
+    procedure MouseOnMyReg(xy: TPoint; out AMark: IMarkFull; out AMarkS: Double); overload;
+    procedure MouseOnMyReg(xy: TPoint; out AMark: IMarkFull); overload;
   end;
 
 implementation
@@ -99,7 +100,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.MouseOnMyReg(var APWL: TResObj; xy: TPoint);
+procedure TMapMarksLayer.MouseOnMyReg(xy: TPoint; out AMark: IMarkFull; out AMarkS: Double);
 var
   VLineOnBitmap: TArrayOfDoublePoint;
   VLonLatRect: TDoubleRect;
@@ -117,6 +118,8 @@ var
   VSquare:Double;
   i: Cardinal;
 begin
+  AMark := nil;
+  AMarkS := 0;
   VMarksSubset := FMarksSubset;
   if VMarksSubset <> nil then begin
     if not VMarksSubset.IsEmpty then begin
@@ -138,35 +141,23 @@ begin
         if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
         (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
           if VMark.IsPoint then begin
-            APWL.name:=VMark.name;
-            APWL.descr:=VMark.Desc;
-            APWL.numid:=IntToStr(VMark.id);
-            APWL.find:=true;
-            APWL.type_:=ROTpoint;
+            AMark := VMark;
+            AMarkS := 0;
             exit;
           end else begin
             VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VMark.Points, VZoom);
             if VMark.IsLine then begin
               if PointOnPath(VPixelPos, VLineOnBitmap, (VMark.Scale1 / 2) + 1) then begin
-                APWL.name:=VMark.name;
-                APWL.descr:=VMark.Desc;
-                APWL.numid:=IntToStr(VMark.id);
-                APWL.find:=true;
-                APWL.type_:=ROTline;
+                AMark := VMark;
+                AMarkS := 0;
                 exit;
               end;
             end else begin
               if (PtInRgn(VLineOnBitmap,VPixelPos)) then begin
-                if ((not(APWL.find))or(APWL.S <> 0)) then begin
-                  VSquare := PolygonSquare(VLineOnBitmap);
-                  if (not APWL.find) or (VSquare<APWL.S) then begin
-                    APWL.S:=VSquare;
-                    APWL.name:=VMark.name;
-                    APWL.descr:=VMark.Desc;
-                    APWL.numid:=IntToStr(VMark.id);
-                    APWL.find:=true;
-                    APWL.type_:=ROTPoly;
-                  end;
+                VSquare := PolygonSquare(VLineOnBitmap);
+                if (AMark = nil) or (VSquare<AMarkS) then begin
+                  AMark := VMark;
+                  AMarkS := VSquare;
                 end;
               end;
             end;
@@ -211,6 +202,13 @@ begin
   end else begin
     Result := nil;
   end;
+end;
+
+procedure TMapMarksLayer.MouseOnMyReg(xy: TPoint; out AMark: IMarkFull);
+var
+  VMarkS: Double;
+begin
+  MouseOnMyReg(xy, AMark, VMarkS);
 end;
 
 procedure TMapMarksLayer.OnConfigChange(Sender: TObject);
