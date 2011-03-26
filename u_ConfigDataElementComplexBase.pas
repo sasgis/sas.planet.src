@@ -20,7 +20,15 @@ type
     procedure OnItemChange(Sender: TObject);
   protected
     procedure DoSubItemChange; virtual;
-    procedure Add(AItem: IConfigDataElement; ASaveLoadStrategy: IConfigSaveLoadStrategy);
+    procedure Add(AItem: IConfigDataElement; ASaveLoadStrategy: IConfigSaveLoadStrategy); overload;
+    procedure Add(
+      AItem: IConfigDataElement;
+      ASaveLoadStrategy: IConfigSaveLoadStrategy;
+      ANeedReadLock: Boolean;
+      ANeedWriteLock: Boolean;
+      ANeedStopNotify: Boolean;
+      ANeedChangedListen: Boolean
+    ); overload;
     function GetItemsCount: Integer;
     function GetItem(AIndex: Integer): IConfigDataElement;
     function GetSaveLoadStrategy(AIndex: Integer): IConfigSaveLoadStrategy;
@@ -118,25 +126,32 @@ begin
   inherited;
 end;
 
-procedure TConfigDataElementComplexBase.Add(
-  AItem: IConfigDataElement;
-  ASaveLoadStrategy: IConfigSaveLoadStrategy
-);
+procedure TConfigDataElementComplexBase.Add(AItem: IConfigDataElement;
+  ASaveLoadStrategy: IConfigSaveLoadStrategy; ANeedReadLock, ANeedWriteLock,
+  ANeedStopNotify, ANeedChangedListen: Boolean);
 var
   VItem: TSubItemInfo;
 begin
   VItem := TSubItemInfo.Create(
     AItem,
     ASaveLoadStrategy,
-    True,
-    True,
-    True,
-    True
+    ANeedReadLock,
+    ANeedWriteLock,
+    ANeedStopNotify,
+    ANeedChangedListen
   );
   FList.Add(VItem);
   if VItem.NeedChangedListen then begin
     VItem.Item.GetChangeNotifier.Add(FItemChangeListener);
   end;
+end;
+
+procedure TConfigDataElementComplexBase.Add(
+  AItem: IConfigDataElement;
+  ASaveLoadStrategy: IConfigSaveLoadStrategy
+);
+begin
+  Add(AItem, ASaveLoadStrategy, True, True, True, True);
 end;
 
 procedure TConfigDataElementComplexBase.DoReadConfig(
