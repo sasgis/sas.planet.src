@@ -119,16 +119,11 @@ begin
       btnOk.Caption:=SAS_STR_Edit;
     end;
     if ShowModal=mrOk then begin
-      if FCategory <> nil then begin
-        VId := FCategory.id;
-      end else begin
-        VId := -1;
-      end;
       Result := AMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoly(
         AMark,
         edtName.Text,
         chkVisible.Checked,
-        VId,
+        FCategory,
         frMarkDescription.Description,
         AMark.Points,
         SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),

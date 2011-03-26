@@ -165,18 +165,13 @@ begin
     frLonLatPoint.LonLat := AMark.Points[0];
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
-      if FCategory <> nil then begin
-        VId := FCategory.id;
-      end else begin
-        VId := -1;
-      end;
       Result := AMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoint(
         AMark,
         edtName.Text,
         chkVisible.Checked,
         FPicName,
         FPic,
-        VId,
+        FCategory,
         frMarkDescription.Description,
         VLonLat,
         SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
