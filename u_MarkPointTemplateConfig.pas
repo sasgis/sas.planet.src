@@ -9,6 +9,7 @@ uses
   i_IConfigDataWriteProvider,
   i_IMarkPicture,
   i_MarksSimple,
+  i_IMarkCategory,
   i_IMarkNameGenerator,
   i_IMarksFactoryConfig,
   u_ConfigDataElementComplexBase;
@@ -28,15 +29,12 @@ type
     function CreateTemplate(
       APicName: string;
       APic: IMarkPicture;
-      ACategoryId: Integer;
+      ACategory: IMarkCategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
       AScale2: Integer
-    ): IMarkTemplatePoint; overload;
-    function CreateTemplate(
-      ASource: IMarkFull
-    ): IMarkTemplatePoint; overload;
+    ): IMarkTemplatePoint;
 
     function GetMarkPictureList: IMarkPictureList;
 
@@ -81,7 +79,7 @@ begin
   FDefaultTemplate := CreateTemplate(
     VPicName,
     VPic,
-    -1,
+    nil,
     SetAlpha(clYellow32, 166),
     SetAlpha(clBlack32, 166),
     11,
@@ -90,32 +88,27 @@ begin
 end;
 
 function TMarkPointTemplateConfig.CreateTemplate(APicName: string;
-  APic: IMarkPicture; ACategoryId: Integer; AColor1, AColor2: TColor32; AScale1,
+  APic: IMarkPicture;
+  ACategory: IMarkCategory;
+  AColor1, AColor2: TColor32; AScale1,
   AScale2: Integer): IMarkTemplatePoint;
+var
+  VCategoryId: Integer;
 begin
+  if ACategory <> nil then begin
+    VCategoryId := ACategory.Id;
+  end else begin
+    VCategoryId := -1;
+  end;
   Result := TMarkTemplatePoint.Create(
     FNameGenerator,
-    ACategoryId,
+    VCategoryId,
     AColor1,
     AColor2,
     AScale1,
     AScale2,
     APicName,
     APic
-  );
-end;
-
-function TMarkPointTemplateConfig.CreateTemplate(
-  ASource: IMarkFull): IMarkTemplatePoint;
-begin
-  Result := CreateTemplate(
-    ASource.PicName,
-    ASource.Pic,
-    ASource.CategoryId,
-    ASource.Color1,
-    ASource.Color2,
-    ASource.Scale1,
-    ASource.Scale2
   );
 end;
 
@@ -162,14 +155,15 @@ begin
     VScale2 := AConfigData.ReadInteger('IconSize', VScale2);
   end;
   SetDefaultTemplate(
-    CreateTemplate(
-      VPicName,
-      VPic,
+    TMarkTemplatePoint.Create(
+      FNameGenerator,
       VCategoryId,
       VColor1,
       VColor2,
       VScale1,
-      VScale2
+      VScale2,
+      VPicName,
+      VPic
     )
   );
 end;

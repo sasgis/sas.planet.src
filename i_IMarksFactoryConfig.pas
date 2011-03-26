@@ -7,6 +7,7 @@ uses
   GR32,
   i_IConfigDataElement,
   i_IMarkPicture,
+  i_IMarkCategory,
   i_IMarkNameGenerator,
   i_MarksSimple;
 
@@ -16,15 +17,12 @@ type
     function CreateTemplate(
       APicName: string;
       APic: IMarkPicture;
-      ACategoryId: Integer;
+      ACategory: IMarkCategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
       AScale2: Integer
-    ): IMarkTemplatePoint; overload;
-    function CreateTemplate(
-      ASource: IMarkFull
-    ): IMarkTemplatePoint; overload;
+    ): IMarkTemplatePoint;
 
     function GetMarkPictureList: IMarkPictureList;
     property MarkPictureList: IMarkPictureList read GetMarkPictureList;
@@ -39,13 +37,10 @@ type
   IMarkLineTemplateConfig = interface(IConfigDataElement)
     ['{0F7596F4-1BA2-4581-9509-77627F50B1AF}']
     function CreateTemplate(
-      ACategoryId: Integer;
+      ACategory: IMarkCategory;
       AColor1: TColor32;
       AScale1: Integer
-    ): IMarkTemplateLine; overload;
-    function CreateTemplate(
-      ASource: IMarkFull
-    ): IMarkTemplateLine; overload;
+    ): IMarkTemplateLine;
 
     function GetDefaultTemplate: IMarkTemplateLine;
     procedure SetDefaultTemplate(AValue: IMarkTemplateLine);
@@ -57,14 +52,11 @@ type
   IMarkPolyTemplateConfig = interface(IConfigDataElement)
     ['{149D8DC1-7848-4D34-ABCA-2B7F8D3A22EF}']
     function CreateTemplate(
-      ACategoryId: Integer;
+      ACategory: IMarkCategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer
-    ): IMarkTemplatePoly; overload;
-    function CreateTemplate(
-      ASource: IMarkFull
-    ): IMarkTemplatePoly; overload;
+    ): IMarkTemplatePoly;
 
     function GetDefaultTemplate: IMarkTemplatePoly;
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoly);

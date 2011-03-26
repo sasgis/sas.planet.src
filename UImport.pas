@@ -162,7 +162,6 @@ end;
 function TFImport.GetImportConfig(AMarkDBGUI: TMarksDbGUIHelper): IImportConfig;
 var
   VIndex: Integer;
-  VId: Integer;
   VPic: IMarkPicture;
   VPicName: string;
   VMarkTemplatePoint: IMarkTemplatePoint;
@@ -185,11 +184,6 @@ begin
     try
       FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
       if ShowModal = mrOk then begin
-        if FCategory <> nil then begin
-          VId := FCategory.id;
-        end else begin
-          VId := -1;
-        end;
         if not chkPointIgnore.Checked then begin
           VIndex := cbbPointIcon.ItemIndex;
           if VIndex < 0 then begin
@@ -203,7 +197,7 @@ begin
             FMarkDBGUI.MarksDB.MarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
               VPicName,
               VPic,
-              VId,
+              FCategory,
               SetAlpha(Color32(clrbxPointTextColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
               SetAlpha(Color32(clrbxPointShadowColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
               sePointFontSize.Value,
@@ -214,7 +208,7 @@ begin
         if not chkLineIgnore.Checked then begin
           VMarkTemplateLine :=
             FMarkDBGUI.MarksDB.MarksDb.Factory.Config.LineTemplateConfig.CreateTemplate(
-              VId,
+              FCategory,
               SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
               seLineWidth.Value
             );
@@ -223,7 +217,7 @@ begin
         if not chkPolyIgnore.Checked then begin
           VMarkTemplatePoly :=
             FMarkDBGUI.MarksDB.MarksDb.Factory.Config.PolyTemplateConfig.CreateTemplate(
-              VId,
+              FCategory,
               SetAlpha(Color32(clrbxPolyLineColor.Selected),round(((100-sePolyLineTransp.Value)/100)*256)),
               SetAlpha(Color32(clrbxPolyFillColor.Selected),round(((100-sePolyFillTransp.Value)/100)*256)),
               sePolyLineWidth.Value

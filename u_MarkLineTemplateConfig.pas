@@ -8,6 +8,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_MarksSimple,
+  i_IMarkCategory,
   i_IMarkNameGenerator,
   i_IMarksFactoryConfig,
   u_ConfigDataElementComplexBase;
@@ -24,13 +25,10 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      ACategoryId: Integer;
+      ACategory: IMarkCategory;
       AColor1: TColor32;
       AScale1: Integer
-    ): IMarkTemplateLine; overload;
-    function CreateTemplate(
-      ASource: IMarkFull
-    ): IMarkTemplateLine; overload;
+    ): IMarkTemplateLine;
 
     function GetDefaultTemplate: IMarkTemplateLine;
     procedure SetDefaultTemplate(AValue: IMarkTemplateLine);
@@ -59,33 +57,30 @@ begin
   Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
 
   FDefaultTemplate := CreateTemplate(
-    -1,
+    nil,
     SetAlpha(clRed32, 166),
     2
   );
 end;
 
 function TMarkLineTemplateConfig.CreateTemplate(
-  ACategoryId: Integer;
+  ACategory: IMarkCategory;
   AColor1: TColor32;
   AScale1: Integer
 ): IMarkTemplateLine;
+var
+  VCategoryId: Integer;
 begin
+  if ACategory <> nil then begin
+    VCategoryId := ACategory.Id;
+  end else begin
+    VCategoryId := -1;
+  end;
   Result := TMarkTemplateLine.Create(
     FNameGenerator,
-    ACategoryId,
+    VCategoryId,
     AColor1,
     AScale1
-  );
-end;
-
-function TMarkLineTemplateConfig.CreateTemplate(
-  ASource: IMarkFull): IMarkTemplateLine;
-begin
-  Result := CreateTemplate(
-    ASource.CategoryId,
-    ASource.Color1,
-    ASource.Scale1
   );
 end;
 
@@ -106,7 +101,8 @@ begin
     VScale1 := AConfigData.ReadInteger('LineWidth', VScale1);
   end;
   SetDefaultTemplate(
-    CreateTemplate(
+    TMarkTemplateLine.Create(
+      FNameGenerator,
       VCategoryId,
       VColor1,
       VScale1

@@ -8,6 +8,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_MarksSimple,
+  i_IMarkCategory,
   i_IMarkNameGenerator,
   i_IMarksFactoryConfig,
   u_ConfigDataElementComplexBase;
@@ -24,14 +25,11 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      ACategoryId: Integer;
+      ACategory: IMarkCategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer
-    ): IMarkTemplatePoly; overload;
-    function CreateTemplate(
-      ASource: IMarkFull
-    ): IMarkTemplatePoly; overload;
+    ): IMarkTemplatePoly;
 
     function GetDefaultTemplate: IMarkTemplatePoly;
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoly);
@@ -60,7 +58,7 @@ begin
   Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
 
   FDefaultTemplate := CreateTemplate(
-    -1,
+    nil,
     SetAlpha(clBlack32, 166),
     SetAlpha(clWhite32, 51),
     2
@@ -68,29 +66,25 @@ begin
 end;
 
 function TMarkPolyTemplateConfig.CreateTemplate(
-  ACategoryId: Integer;
+  ACategory: IMarkCategory;
   AColor1: TColor32;
   AColor2: TColor32;
   AScale1: Integer
 ): IMarkTemplatePoly;
+var
+  VCategoryId: Integer;
 begin
+  if ACategory <> nil then begin
+    VCategoryId := ACategory.Id;
+  end else begin
+    VCategoryId := -1;
+  end;
   Result := TMarkTemplatePoly.Create(
     FNameGenerator,
-    ACategoryId,
+    VCategoryId,
     AColor1,
     AColor2,
     AScale1
-  );
-end;
-
-function TMarkPolyTemplateConfig.CreateTemplate(
-  ASource: IMarkFull): IMarkTemplatePoly;
-begin
-  Result := CreateTemplate(
-    ASource.CategoryId,
-    ASource.Color1,
-    ASource.Color2,
-    ASource.Scale1
   );
 end;
 
@@ -113,7 +107,8 @@ begin
     VScale1 := AConfigData.ReadInteger('LineWidth', VScale1);
   end;
   SetDefaultTemplate(
-    CreateTemplate(
+    TMarkTemplatePoly.Create(
+      FNameGenerator,
       VCategoryId,
       VColor1,
       VColor2,
