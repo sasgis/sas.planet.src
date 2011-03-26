@@ -292,7 +292,7 @@ var
 begin
   Result := False;
   if AMark <> nil then begin
-    VMark := FMarksDB.MarksDb.Factory.CreateModifedLine(ANewArrLL, ADescription, AMark);
+    VMark := FMarksDB.MarksDb.Factory.SimpleModifyLine(AMark, ANewArrLL, ADescription);
   end else begin
     VMark := FMarksDB.MarksDb.Factory.CreateNewLine(ANewArrLL, '', ADescription);
   end;
@@ -312,7 +312,7 @@ var
 begin
   Result := False;
   if AMark <> nil then begin
-    VMark := FMarksDB.MarksDb.Factory.CreateModifedPoly(ANewArrLL, AMark);
+    VMark := FMarksDB.MarksDb.Factory.SimpleModifyPoly(AMark, ANewArrLL);
   end else begin
     VMark := FMarksDB.MarksDb.Factory.CreateNewPoly(ANewArrLL, '', '');
   end;

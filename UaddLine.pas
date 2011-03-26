@@ -111,15 +111,15 @@ begin
       end else begin
         VId := -1;
       end;
-      Result := AMarkDBGUI.MarksDB.MarksDb.Factory.CreateLine(
+      Result := AMarkDBGUI.MarksDB.MarksDb.Factory.ModifyLine(
+        AMark,
         edtName.Text,
         chkVisible.Checked,
         VId,
         frMarkDescription.Description,
         AMark.Points,
         SetAlpha(Color32(clrbxLineColor.Selected),round(((100-SEtransp.Value)/100)*256)),
-        seWidth.Value,
-        AMark
+        seWidth.Value
       );
     end else begin
       Result := nil;

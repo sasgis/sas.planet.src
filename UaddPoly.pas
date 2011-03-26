@@ -124,7 +124,8 @@ begin
       end else begin
         VId := -1;
       end;
-      Result := AMarkDBGUI.MarksDB.MarksDb.Factory.CreatePoly(
+      Result := AMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoly(
+        AMark,
         edtName.Text,
         chkVisible.Checked,
         VId,
@@ -132,8 +133,7 @@ begin
         AMark.Points,
         SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
         SetAlpha(Color32(clrbxFillColor.Selected),round(((100-seFillTransp.Value)/100)*256)),
-        seLineWidth.Value,
-        AMark
+        seLineWidth.Value
       )
     end else begin
       Result := nil;

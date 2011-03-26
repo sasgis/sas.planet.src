@@ -11,7 +11,8 @@ uses
   i_IMarksFactoryConfig,
   i_IMarkCategory,
   i_MarksSimple,
-  u_MarkFactory,
+  i_IMarkFactory,
+  i_IMarkFactoryDbInternal,
   u_MarksSimple;
 
 type
@@ -20,7 +21,8 @@ type
     FSync: IReadWriteSync;
     FBasePath: string;
     FDMMarksDb: TDMMarksDb;
-    FFactory: TMarkFactory;
+    FFactoryDbInternal: IMarkFactoryDbInternal;
+    FFactory: IMarkFactory;
     function ReadCurrentMark: IMarkFull;
     function ReadCurrentMarkId: IMarkId;
     procedure WriteCurrentMarkId(AMark: IMarkId);
@@ -48,7 +50,7 @@ type
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(AMark: IMarkFull): Boolean; overload;
-    property Factory: TMarkFactory read FFactory;
+    property Factory: IMarkFactory read FFactory;
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
 
@@ -63,6 +65,7 @@ uses
   DB,
   GR32,
   Ugeofun,
+  u_MarkFactory,
   u_MarksSubset;
 
 type
@@ -123,16 +126,21 @@ constructor TMarksOnlyDb.Create(
   ADMMarksDb: TDMMarksDb;
   AFactoryConfig: IMarksFactoryConfig
 );
+var
+  VFactory: TMarkFactory;
 begin
   FBasePath := ABasePath;
   FDMMarksDb := ADMMarksDb;
   FSync := TSimpleRWSync.Create;
-  FFactory := TMarkFactory.Create(AFactoryConfig);
+  VFactory := TMarkFactory.Create(AFactoryConfig);
+  FFactory := VFactory;
+  FFactoryDbInternal := VFactory;
 end;
 
 destructor TMarksOnlyDb.Destroy;
 begin
-  FreeAndNil(FFactory);
+  FFactory := nil;
+  FFactoryDbInternal := nil;
   FSync := nil;
   inherited;
 end;
@@ -187,7 +195,6 @@ var
   VColor2: TColor32;
   VScale1: Integer;
   VScale2: Integer;
-  VPointCount: Integer;
 begin
   VId := FDMMarksDb.CDSmarks.fieldbyname('id').AsInteger;
   VName := FDMMarksDb.CDSmarks.FieldByName('name').AsString;
@@ -205,20 +212,7 @@ begin
   VScale1 := FDMMarksDb.CDSmarks.FieldByName('Scale1').AsInteger;
   VScale2 := FDMMarksDb.CDSmarks.FieldByName('Scale2').AsInteger;
 
-  Result := nil;
-  
-  VPointCount := Length(VPoints);
-  if VPointCount > 0 then begin
-    if VPointCount = 1 then begin
-      Result := FFactory.CreatePoint(VId, VName, VVisible, VPicName, VCategoryId, VDesc, VPoints[0], VColor1, VColor2, VScale1, VScale2)
-    end else begin
-      if compare2EP(VPoints[0], VPoints[VPointCount - 1]) then begin
-        Result := FFactory.CreatePoly(VId, VName, VVisible, VCategoryId, VDesc, VPoints, VColor1, VColor2, VScale1);
-      end else begin
-        Result := FFactory.CreateLine(VId, VName, VVisible, VCategoryId, VDesc, VPoints, VColor1, VScale1);
-      end;
-    end;
-  end;
+  Result := FFactoryDbInternal.CreateMark(VId, VName, VVisible, VPicName, VCategoryId, VDesc, VPoints, VColor1, VColor2, VScale1, VScale2);
 end;
 
 procedure TMarksOnlyDb.WriteCurrentMarkId(AMark: IMarkId);
