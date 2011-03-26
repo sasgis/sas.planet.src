@@ -33,9 +33,8 @@ type
     procedure ShowMarkSq(AMark: IMarkFull; AConverter: ICoordConverter; AHandle: THandle);
     function EditMarkModal(AMark: IMarkFull): IMarkFull;
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
-    function SavePolyModal(AID: Integer; ANewArrLL: TArrayOfDoublePoint): Boolean;
-    function SaveLineModal(AID: Integer; ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
-//    function GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible: Boolean; AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
+    function SavePolyModal(AMark: IMarkFull; ANewArrLL: TArrayOfDoublePoint): Boolean;
+    function SaveLineModal(AMark: IMarkFull; ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
 
     property MarksDB: TMarksDB read FMarksDB;
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
@@ -259,18 +258,6 @@ begin
   end;
 end;
 
-//function TMarksDbGUIHelper.GetMarksIterator(ARect: TDoubleRect; AZoom: Byte; AIgnoreMarksVisible,
-//  AIgnoreCategoriesVisible: Boolean): TMarksIteratorBase;
-//var
-//  VList: TList;
-//begin
-//  VList := nil;
-//  if not AIgnoreCategoriesVisible then begin
-//    VList := GetVisibleCateroriesIDList(AZoom);
-//  end;
-//  Result := FMarksDB.MarksDb.GetMarksIteratorByCategoryIdList(ARect, VList, AIgnoreMarksVisible, True);
-//end;
-
 procedure TMarksDbGUIHelper.ShowMarkSq(AMark: IMarkFull; AConverter: ICoordConverter; AHandle: THandle);
 var
   VArea: Double;
@@ -298,17 +285,14 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.SaveLineModal(AID: Integer;
+function TMarksDbGUIHelper.SaveLineModal(AMark: IMarkFull;
   ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
 var
   VMark: IMarkFull;
 begin
   Result := False;
-  if AID >= 0 then begin
-    VMark := FMarksDb.MarksDb.GetMarkByID(AID);
-    if VMark <> nil then begin
-      VMark := FMarksDB.MarksDb.Factory.CreateModifedLine(ANewArrLL, ADescription, VMark);
-    end;
+  if AMark <> nil then begin
+    VMark := FMarksDB.MarksDb.Factory.CreateModifedLine(ANewArrLL, ADescription, AMark);
   end else begin
     VMark := FMarksDB.MarksDb.Factory.CreateNewLine(ANewArrLL, '', ADescription);
   end;
@@ -321,17 +305,14 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.SavePolyModal(AID: Integer;
+function TMarksDbGUIHelper.SavePolyModal(AMark: IMarkFull;
   ANewArrLL: TArrayOfDoublePoint): Boolean;
 var
   VMark: IMarkFull;
 begin
   Result := False;
-  if AID >= 0 then begin
-    VMark := FMarksDb.MarksDb.GetMarkByID(AID);
-    if VMark <> nil then begin
-      VMark := FMarksDB.MarksDb.Factory.CreateModifedPoly(ANewArrLL, VMark);
-    end;
+  if AMark <> nil then begin
+    VMark := FMarksDB.MarksDb.Factory.CreateModifedPoly(ANewArrLL, AMark);
   end else begin
     VMark := FMarksDB.MarksDb.Factory.CreateNewPoly(ANewArrLL, '', '');
   end;

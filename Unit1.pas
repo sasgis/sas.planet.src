@@ -50,6 +50,7 @@ uses
   t_CommonTypes,
   i_IGPSRecorder,
   i_GeoCoder,
+  i_MarksSimple,
   i_MainFormConfig,
   i_ISearchResultPresenter,
   i_IMainWindowPosition,
@@ -567,7 +568,7 @@ type
     FmoveTrue: Tpoint;
     FMapMoving: Boolean;
     FMapZoomAnimtion: Boolean;
-    FEditMarkId:integer;
+    FEditMark: IMarkFull;
     FCurrentOper: TAOperation;
 
     FWinPosition: IMainWindowPosition;
@@ -656,7 +657,6 @@ uses
   i_ICoordConverter,
   i_ILocalCoordConverter,
   i_IValueToStringConverter,
-  i_MarksSimple,
   i_IActiveMapsConfig,
   u_MainWindowPositionConfig,
   u_LineOnMapEdit,
@@ -1167,7 +1167,7 @@ begin
  end;
   FCurrentOper:=newop;
   if not(FCurrentOper in[ao_edit_line,ao_edit_poly]) then begin
-    FEditMarkId:=-1;
+    FEditMark := nil;
   end;
   if FCurrentOper <> ao_calc_line then begin
     FCalcLineLayer.DrawNothing;
@@ -2642,7 +2642,7 @@ var
 begin
   VAllPoints := GState.GPSRecorder.GetAllPoints;
   if length(VAllPoints)>1 then begin
-    if FMarkDBGUI.SaveLineModal(-1, VAllPoints, '') then begin
+    if FMarkDBGUI.SaveLineModal(nil, VAllPoints, '') then begin
       setalloperationfalse(ao_movemap);
       FLayerMapMarks.Redraw;
     end;
@@ -2720,11 +2720,11 @@ begin
       end;
     end else if VMark.IsPoly then begin
       setalloperationfalse(ao_edit_poly);
-      FEditMarkId := VMark.Id;
+      FEditMark := VMark;
       FLineOnMapEdit.SetPoints(VMark.Points);
     end else if VMark.IsLine then begin
       setalloperationfalse(ao_edit_line);
-      FEditMarkId := VMark.Id;
+      FEditMark := VMark;
       FLineOnMapEdit.SetPoints(VMark.Points);
     end;
   end;
@@ -3472,16 +3472,16 @@ begin
   result := false;
   case FCurrentOper of
     ao_add_Poly: begin
-      result:=FMarkDBGUI.SavePolyModal(-1, FLineOnMapEdit.GetPoints);
+      result:=FMarkDBGUI.SavePolyModal(nil, FLineOnMapEdit.GetPoints);
     end;
     ao_edit_poly: begin
-      result:=FMarkDBGUI.SavePolyModal(FEditMarkId, FLineOnMapEdit.GetPoints);
+      result:=FMarkDBGUI.SavePolyModal(FEditMark, FLineOnMapEdit.GetPoints);
     end;
     ao_add_Line: begin
-      result:=FMarkDBGUI.SaveLineModal(-1, FLineOnMapEdit.GetPoints, FMarshrutComment);
+      result:=FMarkDBGUI.SaveLineModal(nil, FLineOnMapEdit.GetPoints, FMarshrutComment);
     end;
     ao_edit_line: begin
-      result:=FMarkDBGUI.SaveLineModal(FEditMarkId, FLineOnMapEdit.GetPoints, '');
+      result:=FMarkDBGUI.SaveLineModal(FEditMark, FLineOnMapEdit.GetPoints, '');
     end;
   end;
   if result then begin
