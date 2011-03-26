@@ -95,7 +95,6 @@ procedure TfrmGoTo.btnGoToClick(Sender: TObject);
 var
   textsrch:String;
   VIndex: Integer;
-  VId: Integer;
   VMarkId: IMarkID;
   VMark: IMarkFull;
   VLonLat: TDoublePoint;
@@ -105,8 +104,7 @@ begin
     VIndex := cbbAllMarks.ItemIndex;
     if VIndex >= 0 then begin
       VMarkId := IMarkId(Pointer(cbbAllMarks.Items.Objects[VIndex]));
-      VId := VMarkId.id;
-      VMark := GState.MarksDb.MarksDb.GetMarkByID(VId);
+      VMark := GState.MarksDb.MarksDb.GetMarkByID(VMarkId);
         VLonLat := VMark.GetGoToLonLat;
         FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.name);
       ModalResult := mrOk;

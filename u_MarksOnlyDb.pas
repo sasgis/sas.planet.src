@@ -40,8 +40,7 @@ type
     constructor Create(ABasePath: string; ADMMarksDb: TDMMarksDb; AFactoryConfig: IMarksFactoryConfig);
     destructor Destroy; override;
     
-    function GetMarkByID(id: integer): IMarkFull;
-    function GetMarkIdByID(id: integer): IMarkId;
+    function GetMarkByID(AMarkId: IMarkId): IMarkFull;
     function DeleteMark(AMarkId: IMarkId): Boolean;
     procedure DeleteMarksByCategoryID(ACategory: IMarkCategory);
     procedure WriteMark(AMark: IMarkFull);
@@ -246,31 +245,19 @@ begin
   FDMMarksDb.CDSmarks.FieldByName('Scale2').AsInteger := AMark.Scale2;
 end;
 
-function TMarksOnlyDb.GetMarkByID(id: integer): IMarkFull;
+function TMarksOnlyDb.GetMarkByID(AMarkId: IMarkId): IMarkFull;
 begin
   Result := nil;
-  LockRead;
-  try
-    FDMMarksDb.CDSmarks.Filtered := false;
-    if FDMMarksDb.CDSmarks.Locate('id', id, []) then begin
-      Result := ReadCurrentMark;
+  if AMarkId <> nil then begin
+    LockRead;
+    try
+      FDMMarksDb.CDSmarks.Filtered := false;
+      if FDMMarksDb.CDSmarks.Locate('id', AMarkId.Id, []) then begin
+        Result := ReadCurrentMark;
+      end;
+    finally
+      UnlockRead;
     end;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMarksOnlyDb.GetMarkIdByID(id: integer): IMarkId;
-begin
-  Result := nil;
-  LockRead;
-  try
-    FDMMarksDb.CDSmarks.Filtered := false;
-    if FDMMarksDb.CDSmarks.Locate('id', id, []) then begin
-      Result := ReadCurrentMarkId;
-    end;
-  finally
-    UnlockRead;
   end;
 end;
 

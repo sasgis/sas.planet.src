@@ -174,7 +174,7 @@ begin
   Result := nil;
   VMarkId := GetSelectedMarkId;
   if VMarkId <> nil then begin
-    Result := FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(VMarkId.id);
+    Result := FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(VMarkId);
   end;
 end;
 
