@@ -48,8 +48,7 @@ implementation
 uses
   DB,
   SysUtils,
-  u_MarkCategoryFactory,
-  u_MarkCategory;
+  u_MarkCategoryFactory;
 
 constructor TMarkCategoryDB.Create(
   ABasePath: string;
@@ -79,7 +78,7 @@ begin
   VVisible := FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean;
   VAfterScale := FDMMarksDb.CDSKategory.fieldbyname('AfterScale').AsInteger;
   VBeforeScale := FDMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger;
-  Result := TMarkCategory.Create(VId, VName, VVisible, VAfterScale, VBeforeScale);
+  Result := FFactoryDbInternal.CreateCategory(VId, VName, VVisible, VAfterScale, VBeforeScale);
 end;
 
 procedure TMarkCategoryDB.WriteCurrentCategory(ACategory: IMarkCategory);
@@ -91,16 +90,30 @@ begin
 end;
 
 function TMarkCategoryDB.WriteCategory(ACategory: IMarkCategory): IMarkCategory;
+var
+  VId: Integer;
 begin
-  if ACategory.id < 0 then begin
+  VId := ACategory.id;
+  if VId < 0 then begin
     FDMMarksDb.CDSKategory.Insert;
   end else begin
-    FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []);
+    FDMMarksDb.CDSKategory.Locate('id', VId, []);
     FDMMarksDb.CDSKategory.Edit;
   end;
   WriteCurrentCategory(ACategory);
   FDMMarksDb.CDSKategory.post;
-  Result := TMarkCategory.Create(FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger, ACategory);
+  if VId < 0 then begin
+    VId := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
+    Result := FFactoryDbInternal.CreateCategory(
+      VId,
+      ACategory.Name,
+      ACategory.Visible,
+      ACategory.AfterScale,
+      ACategory.BeforeScale
+    );
+  end else begin
+    Result := ACategory;
+  end;
   SaveCategory2File;
 end;
 

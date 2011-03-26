@@ -48,7 +48,6 @@ uses
   SysUtils,
   Dialogs,
   i_IDatum,
-  u_MarkCategory,
   UResStrings,
   USaveas,
   UaddPoint,
@@ -59,17 +58,12 @@ uses
 
 function TMarksDbGUIHelper.AddKategory(name: string): IMarkCategory;
 var
-  VName: string;
+  VCategory: IMarkCategory;
 begin
-  VName := name;
-  VName := ExcludeTrailingBackslash(VName);
-  if VName = '' then begin
-    VName := SAS_STR_NewCategory;
-  end;
-  Result := FMarksDb.CategoryDB.GetCategoryByName(VName);
+  VCategory := FMarksDB.CategoryDB.Factory.CreateNew(name);
+  Result := FMarksDb.CategoryDB.GetCategoryByName(VCategory.Name);
   if Result = nil then begin
-    Result := TMarkCategory.Create(-1, VName, True, 3, 19);
-    Result := FMarksDb.CategoryDB.WriteCategory(Result);
+    Result := FMarksDb.CategoryDB.WriteCategory(VCategory);
   end;
 end;
 

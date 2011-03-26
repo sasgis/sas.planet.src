@@ -13,6 +13,7 @@ uses
   Spin,
   i_IMarkCategory,
   u_CommonFormAndFrameParents,
+  u_MarksDbGUIHelper,
   u_MarksSimple,
   UResStrings;
 
@@ -35,8 +36,9 @@ type
     procedure BaddClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
+    FMarkDBGUI: TMarksDbGUIHelper;
   public
-   function EditCategory(ACategory: IMarkCategory): IMarkCategory;
+   function EditCategory(ACategory: IMarkCategory; AMarkDBGUI: TMarksDbGUIHelper): IMarkCategory;
   end;
 
 var
@@ -44,32 +46,27 @@ var
 
 implementation
 
-uses
-  u_MarkCategory;
-
 {$R *.dfm}
 
-function TFAddCategory.EditCategory(ACategory: IMarkCategory): IMarkCategory;
+function TFAddCategory.EditCategory(ACategory: IMarkCategory; AMarkDBGUI: TMarksDbGUIHelper): IMarkCategory;
 begin
+  FMarkDBGUI := AMarkDBGUI;
   EditName.Text:=SAS_STR_NewPoly;
   if ACategory.id < 0 then begin
-    EditName.Text:=SAS_STR_NewCategory;
     FaddCategory.Caption:=SAS_STR_AddNewCategory;
     Badd.Caption:=SAS_STR_Add;
-    CBShow.Checked:=true;
   end else begin
     FaddCategory.Caption:=SAS_STR_EditCategory;
     Badd.Caption:=SAS_STR_Edit;
-    EditName.Text:=ACategory.name;
-    EditS1.Value:=ACategory.AfterScale;
-    EditS2.Value:=ACategory.BeforeScale;
-    CBShow.Checked:=ACategory.visible;
   end;
+  EditName.Text:=ACategory.name;
+  EditS1.Value:=ACategory.AfterScale;
+  EditS2.Value:=ACategory.BeforeScale;
+  CBShow.Checked:=ACategory.visible;
   if ShowModal = mrOk then begin
-    Result :=
-      TMarkCategory.Create(
-        ACategory.Id,
-        ExcludeTrailingBackslash(EditName.Text),
+    Result := FMarkDBGUI.MarksDB.CategoryDB.Factory.Modify(
+        ACategory,
+        EditName.Text,
         CBShow.Checked,
         EditS1.Value,
         EditS2.Value

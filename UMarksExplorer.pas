@@ -112,7 +112,6 @@ uses
   u_GlobalState,
   i_IImportConfig,
   i_IUsedMarksConfig,
-  u_MarkCategory,
   UImport,
   u_ExportMarks2KML,
   UAddCategory;
@@ -318,8 +317,8 @@ procedure TFMarksExplorer.TBXItem4Click(Sender: TObject);
 var
   VCategory: IMarkCategory;
 begin
-  VCategory := TMarkCategory.Create;
-  VCategory := FaddCategory.EditCategory(VCategory);
+  VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.CreateNew('');
+  VCategory := FaddCategory.EditCategory(VCategory, FMarkDBGUI);
   if VCategory <> nil then begin
     FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
     UpdateCategoryTree;
@@ -400,10 +399,10 @@ begin
     if VCategory <> nil then begin
       FCategoryList.Remove(VCategory);
       if TreeView1.Selected.StateIndex = 1 then begin
-        VCategory := TMarkCategory.Create(False, VCategory);
+        VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategory, False);
         TreeView1.Selected.StateIndex:=2;
       end else begin
-        VCategory := TMarkCategory.Create(True, VCategory);
+        VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategory, True);
         TreeView1.Selected.StateIndex:=1;
       end;
       FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
@@ -425,10 +424,10 @@ begin
     if VCategory <> nil then begin
       FCategoryList.Remove(VCategory);
       if VTreeNode.StateIndex=1 then begin
-        VCategory := TMarkCategory.Create(False, VCategory);
+        VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategory, False);
         VTreeNode.StateIndex:=2;
       end else begin
-        VCategory := TMarkCategory.Create(True, VCategory);
+        VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategory, True);
         VTreeNode.StateIndex:=1;
       end;
       FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
@@ -444,7 +443,7 @@ var
 begin
   VCategory := GetSelectedCategory;
   if VCategory <> nil then begin
-    VCategory := FaddCategory.EditCategory(VCategory);
+    VCategory := FaddCategory.EditCategory(VCategory, FMarkDBGUI);
     if VCategory <> nil then begin
       FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
       UpdateCategoryTree;
