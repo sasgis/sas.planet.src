@@ -1,19 +1,23 @@
 unit u_MarkPolyTemplateConfig;
 
 interface
+
 uses
   Classes,
   GR32,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_MarksSimple,
+  i_IMarkNameGenerator,
   i_IMarksFactoryConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementComplexBase;
 
 type
-  TMarkPolyTemplateConfig = class(TConfigDataElementBase, IMarkPolyTemplateConfig)
+  TMarkPolyTemplateConfig = class(TConfigDataElementComplexBase, IMarkPolyTemplateConfig)
   private
     FDefaultTemplate: IMarkTemplatePoly;
+    FNameGenerator: IMarkNameGenerator;
+
     function IsSameTempalte(lhs, rhs: IMarkTemplatePoly): Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -31,6 +35,8 @@ type
 
     function GetDefaultTemplate: IMarkTemplatePoly;
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoly);
+
+    function GetNameGenerator: IMarkNameGenerator;
   public
     constructor Create;
   end;
@@ -38,7 +44,10 @@ type
 implementation
 
 uses
+  u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigProviderHelpers,
+  u_MarkNameGenerator,
+  UResStrings,
   u_MarkTemplates;
 
 { TMarkPolyTemplateConfig }
@@ -46,6 +55,10 @@ uses
 constructor TMarkPolyTemplateConfig.Create;
 begin
   inherited Create;
+
+  FNameGenerator := TMarkNameGenerator.Create(SAS_STR_NewPoly);
+  Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
+
   FDefaultTemplate := CreateTemplate(
     -1,
     SetAlpha(clBlack32, 166),
@@ -62,6 +75,7 @@ function TMarkPolyTemplateConfig.CreateTemplate(
 ): IMarkTemplatePoly;
 begin
   Result := TMarkTemplatePoly.Create(
+    FNameGenerator,
     ACategoryId,
     AColor1,
     AColor2,
@@ -126,6 +140,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TMarkPolyTemplateConfig.GetNameGenerator: IMarkNameGenerator;
+begin
+  Result := FNameGenerator;
 end;
 
 function TMarkPolyTemplateConfig.IsSameTempalte(lhs,

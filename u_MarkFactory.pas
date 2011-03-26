@@ -15,9 +15,6 @@ type
   TMarkFactory =  class
   private
     FConfig: IMarksFactoryConfig;
-    FNewPointCounter: Integer;
-    FNewLineCounter: Integer;
-    FNewPolyCounter: Integer;
 
     FMarkPictureList: IMarkPictureList;
     function GetLLRectFromPoints(APoints: TArrayOfDoublePoint): TDoubleRect;
@@ -144,11 +141,7 @@ uses
 constructor TMarkFactory.Create(AConfig: IMarksFactoryConfig);
 begin
   FConfig := AConfig;
-
   FMarkPictureList := FConfig.PointTemplateConfig.MarkPictureList;
-  FNewPointCounter := 0;
-  FNewLineCounter := 0;
-  FNewPolyCounter := 0;
 end;
 
 function TMarkFactory.CreateNewLine(APoints: TArrayOfDoublePoint; AName,
@@ -156,7 +149,6 @@ function TMarkFactory.CreateNewLine(APoints: TArrayOfDoublePoint; AName,
 var
   VTemplate: IMarkTemplateLine;
   VName: string;
-  VCounter: Integer;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -165,8 +157,7 @@ begin
 
   VName := AName;
   if VName = '' then begin
-    VCounter := InterlockedIncrement(FNewLineCounter);
-    VName := Format('%0:s %.2d', [SAS_STR_NewPath, VCounter]);
+    VName := VTemplate.GetNewName;
   end;
 
   Result := CreateLine(
@@ -194,7 +185,7 @@ begin
 
   VName := AName;
   if VName = '' then begin
-    VName := SAS_STR_NewMark;
+    VName := VTemplate.GetNewName;
   end;
 
   Result := CreatePoint(
@@ -226,7 +217,7 @@ begin
 
   VName := AName;
   if VName = '' then begin
-    VName := SAS_STR_NewPoly;
+    VName := VTemplate.GetNewName;
   end;
 
   Result := CreatePoly(

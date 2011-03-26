@@ -7,6 +7,7 @@ uses
   GR32,
   i_IConfigDataElement,
   i_IMarkPicture,
+  i_IMarkNameGenerator,
   i_MarksSimple;
 
 type
@@ -31,6 +32,8 @@ type
     function GetDefaultTemplate: IMarkTemplatePoint;
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoint);
     property DefaultTemplate: IMarkTemplatePoint read GetDefaultTemplate write SetDefaultTemplate;
+
+    function GetNameGenerator: IMarkNameGenerator;
   end;
 
   IMarkLineTemplateConfig = interface(IConfigDataElement)
@@ -47,6 +50,8 @@ type
     function GetDefaultTemplate: IMarkTemplateLine;
     procedure SetDefaultTemplate(AValue: IMarkTemplateLine);
     property DefaultTemplate: IMarkTemplateLine read GetDefaultTemplate write SetDefaultTemplate;
+
+    function GetNameGenerator: IMarkNameGenerator;
   end;
 
   IMarkPolyTemplateConfig = interface(IConfigDataElement)
@@ -64,6 +69,8 @@ type
     function GetDefaultTemplate: IMarkTemplatePoly;
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoly);
     property TemplateDefault: IMarkTemplatePoly read GetDefaultTemplate write SetDefaultTemplate;
+
+    function GetNameGenerator: IMarkNameGenerator;
   end;
 
 

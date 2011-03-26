@@ -25,7 +25,8 @@ type
   end;
 
   IMarkTemplatePoint = interface
-    ['{6D769EB1-7D5C-4652-8DC7-BF07166EAB21}']
+    ['{B36731B8-7D98-4D56-996F-E6B77AA6FAB3}']
+    function GetNewName: string;
     function GetCategoryId: Integer;
     property CategoryId: Integer read GetCategoryId;
     function GetColor1: TColor32;
@@ -43,7 +44,8 @@ type
   end;
 
   IMarkTemplateLine = interface
-    ['{99D4D68F-B3E5-4A5D-8E3B-F27D8C44C013}']
+    ['{BF4FF116-98E1-43C5-A7FD-DCE3BF26E8D4}']
+    function GetNewName: string;
     function GetCategoryId: Integer;
     property CategoryId: Integer read GetCategoryId;
     function GetColor1: TColor32;
@@ -53,6 +55,8 @@ type
   end;
 
   IMarkTemplatePoly = interface
+    ['{81CB621A-112D-4914-B801-BBBAAE11C797}']
+    function GetNewName: string;
     function GetCategoryId: Integer;
     property CategoryId: Integer read GetCategoryId;
     function GetColor1: TColor32;

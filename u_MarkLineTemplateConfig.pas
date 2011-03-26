@@ -1,19 +1,23 @@
 unit u_MarkLineTemplateConfig;
 
 interface
+
 uses
   Classes,
   GR32,
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_MarksSimple,
+  i_IMarkNameGenerator,
   i_IMarksFactoryConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementComplexBase;
 
 type
-  TMarkLineTemplateConfig = class(TConfigDataElementBase, IMarkLineTemplateConfig)
+  TMarkLineTemplateConfig = class(TConfigDataElementComplexBase, IMarkLineTemplateConfig)
   private
     FDefaultTemplate: IMarkTemplateLine;
+    FNameGenerator: IMarkNameGenerator;
+
     function IsSameTempalte(lhs, rhs: IMarkTemplateLine): Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -30,6 +34,8 @@ type
 
     function GetDefaultTemplate: IMarkTemplateLine;
     procedure SetDefaultTemplate(AValue: IMarkTemplateLine);
+
+    function GetNameGenerator: IMarkNameGenerator;
   public
     constructor Create;
   end;
@@ -37,7 +43,10 @@ type
 implementation
 
 uses
+  u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigProviderHelpers,
+  u_MarkNameGenerator,
+  UResStrings,
   u_MarkTemplates;
 
 { TMarkLineTemplateConfig }
@@ -45,6 +54,10 @@ uses
 constructor TMarkLineTemplateConfig.Create;
 begin
   inherited;
+
+  FNameGenerator := TMarkNameGenerator.Create(SAS_STR_NewPath);
+  Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
+
   FDefaultTemplate := CreateTemplate(
     -1,
     SetAlpha(clRed32, 166),
@@ -59,6 +72,7 @@ function TMarkLineTemplateConfig.CreateTemplate(
 ): IMarkTemplateLine;
 begin
   Result := TMarkTemplateLine.Create(
+    FNameGenerator,
     ACategoryId,
     AColor1,
     AScale1
@@ -117,6 +131,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TMarkLineTemplateConfig.GetNameGenerator: IMarkNameGenerator;
+begin
+  Result := FNameGenerator;
 end;
 
 function TMarkLineTemplateConfig.IsSameTempalte(lhs,

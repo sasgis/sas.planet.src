@@ -5,12 +5,27 @@ interface
 uses
   GR32,
   i_IMarkPicture,
+  i_IMarkNameGenerator,
   i_MarksSimple;
 
 type
-  TMarkTemplatePoint = class(TInterfacedObject, IMarkTemplatePoint)
+  FMarkTemplateBase = class(TInterfacedObject)
   private
+    FNameGenerator: IMarkNameGenerator;
     FCategoryId: Integer;
+  protected
+    function GetNewName: string;
+    function GetCategoryId: Integer;
+  public
+    constructor Create(
+      ANameGenerator: IMarkNameGenerator;
+      ACategoryId: Integer
+    );
+
+  end;
+
+  TMarkTemplatePoint = class(FMarkTemplateBase, IMarkTemplatePoint)
+  private
     FColor1: TColor32;
     FColor2: TColor32;
     FScale1: Integer;
@@ -18,7 +33,6 @@ type
     FPicName: string;
     FPic: IMarkPicture;
   protected
-    function GetCategoryId: Integer;
     function GetColor1: TColor32;
     function GetColor2: TColor32;
     function GetScale1: Integer;
@@ -27,6 +41,7 @@ type
     function GetPic: IMarkPicture;
   public
     constructor Create(
+      ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
       AColor1: TColor32;
       AColor2: TColor32;
@@ -37,36 +52,34 @@ type
     );
   end;
 
-  TMarkTemplateLine = class(TInterfacedObject, IMarkTemplateLine)
+  TMarkTemplateLine = class(FMarkTemplateBase, IMarkTemplateLine)
   private
-    FCategoryId: Integer;
     FColor1: TColor32;
     FScale1: Integer;
   protected
-    function GetCategoryId: Integer;
     function GetColor1: TColor32;
     function GetScale1: Integer;
   public
     constructor Create(
+      ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
       AColor1: TColor32;
       AScale1: Integer
     );
   end;
 
-  TMarkTemplatePoly = class(TInterfacedObject, IMarkTemplatePoly)
+  TMarkTemplatePoly = class(FMarkTemplateBase, IMarkTemplatePoly)
   private
-    FCategoryId: Integer;
     FColor1: TColor32;
     FColor2: TColor32;
     FScale1: Integer;
   protected
-    function GetCategoryId: Integer;
     function GetColor1: TColor32;
     function GetColor2: TColor32;
     function GetScale1: Integer;
   public
     constructor Create(
+      ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
       AColor1: TColor32;
       AColor2: TColor32;
@@ -76,24 +89,41 @@ type
 
 implementation
 
+{ FMarkTemplateBase }
+
+constructor FMarkTemplateBase.Create(ANameGenerator: IMarkNameGenerator;
+  ACategoryId: Integer);
+begin
+  inherited Create;
+  FNameGenerator := ANameGenerator;
+  FCategoryId := ACategoryId;
+end;
+
+function FMarkTemplateBase.GetCategoryId: Integer;
+begin
+  Result := FCategoryId;
+end;
+
+function FMarkTemplateBase.GetNewName: string;
+begin
+  Result := FNameGenerator.GetNewName;
+end;
+
 { TMarkTemplatePoint }
 
-constructor TMarkTemplatePoint.Create(ACategoryId: Integer; AColor1,
+constructor TMarkTemplatePoint.Create(
+  ANameGenerator: IMarkNameGenerator;
+  ACategoryId: Integer; AColor1,
   AColor2: TColor32; AScale1, AScale2: Integer; APicName: string;
   APic: IMarkPicture);
 begin
-  FCategoryId := ACategoryId;
+  inherited Create(ANameGenerator, ACategoryId);
   FColor1 := AColor1;
   FColor2 := AColor2;
   FScale1 := AScale1;
   FScale2 := AScale2;
   FPicName := APicName;
   FPic := APic;
-end;
-
-function TMarkTemplatePoint.GetCategoryId: Integer;
-begin
-  Result := FCategoryId;
 end;
 
 function TMarkTemplatePoint.GetColor1: TColor32;
@@ -128,17 +158,14 @@ end;
 
 { TMarkTemplateLine }
 
-constructor TMarkTemplateLine.Create(ACategoryId: Integer; AColor1: TColor32;
+constructor TMarkTemplateLine.Create(
+  ANameGenerator: IMarkNameGenerator;
+  ACategoryId: Integer; AColor1: TColor32;
   AScale1: Integer);
 begin
-  FCategoryId := ACategoryId;
+  inherited Create(ANameGenerator, ACategoryId);
   FColor1 := AColor1;
   FScale1 := AScale1;
-end;
-
-function TMarkTemplateLine.GetCategoryId: Integer;
-begin
-  Result := FCategoryId;
 end;
 
 function TMarkTemplateLine.GetColor1: TColor32;
@@ -153,18 +180,15 @@ end;
 
 { TMarkTemplatePoly }
 
-constructor TMarkTemplatePoly.Create(ACategoryId: Integer; AColor1,
+constructor TMarkTemplatePoly.Create(
+  ANameGenerator: IMarkNameGenerator;
+  ACategoryId: Integer; AColor1,
   AColor2: TColor32; AScale1: Integer);
 begin
-  FCategoryId := ACategoryId;
+  inherited Create(ANameGenerator, ACategoryId);
   FColor1 := AColor1;
   FColor2 := AColor2;
   FScale1 := AScale1;
-end;
-
-function TMarkTemplatePoly.GetCategoryId: Integer;
-begin
-  Result := FCategoryId;
 end;
 
 function TMarkTemplatePoly.GetColor1: TColor32;

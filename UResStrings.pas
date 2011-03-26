@@ -108,9 +108,9 @@ ResourceString
   SAS_STR_Deleted = 'Удаляет:';
   SAS_STR_Gamma = 'Цветовая гамма';
   SAS_STR_Contrast = 'Контраст';
-  SAS_STR_NewPath = 'Новый путь';
-  SAS_STR_NewMark = 'Новая метка';
-  SAS_STR_NewPoly = 'Новый полигон';
+  SAS_STR_NewPath = 'Путь %0:d';
+  SAS_STR_NewMark = 'Метка %0:d';
+  SAS_STR_NewPoly = 'Полигон %0:d';
   SAS_STR_NewCategory = 'Новая категория';
   SAS_STR_AddNewPath = 'Добавить новый путь';
   SAS_STR_AddNewMark = 'Добавить новую метку';

@@ -1,6 +1,7 @@
 unit u_MarkPointTemplateConfig;
 
 interface
+
 uses
   Classes,
   GR32,
@@ -8,14 +9,17 @@ uses
   i_IConfigDataWriteProvider,
   i_IMarkPicture,
   i_MarksSimple,
+  i_IMarkNameGenerator,
   i_IMarksFactoryConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementComplexBase;
 
 type
-  TMarkPointTemplateConfig = class(TConfigDataElementBase, IMarkPointTemplateConfig)
+  TMarkPointTemplateConfig = class(TConfigDataElementComplexBase, IMarkPointTemplateConfig)
   private
     FDefaultTemplate: IMarkTemplatePoint;
     FMarkPictureList: IMarkPictureList;
+    FNameGenerator: IMarkNameGenerator;
+
     function IsSameTempalte(lhs, rhs: IMarkTemplatePoint): Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -38,6 +42,8 @@ type
 
     function GetDefaultTemplate: IMarkTemplatePoint;
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoint);
+
+    function GetNameGenerator: IMarkNameGenerator;
   public
     constructor Create(AMarkPictureList: IMarkPictureList);
   end;
@@ -45,7 +51,10 @@ type
 implementation
 
 uses
+  u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigProviderHelpers,
+  u_MarkNameGenerator,
+  UResStrings,
   u_MarkTemplates;
 
 { TMarkPointTemplateConfig }
@@ -56,6 +65,10 @@ var
   VPic: IMarkPicture;
 begin
   inherited Create;
+
+  FNameGenerator := TMarkNameGenerator.Create(SAS_STR_NewMark);
+  Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
+
   FMarkPictureList := AMarkPictureList;
   if FMarkPictureList.Count > 0 then begin
     VPicName := FMarkPictureList.GetName(0);
@@ -81,6 +94,7 @@ function TMarkPointTemplateConfig.CreateTemplate(APicName: string;
   AScale2: Integer): IMarkTemplatePoint;
 begin
   Result := TMarkTemplatePoint.Create(
+    FNameGenerator,
     ACategoryId,
     AColor1,
     AColor2,
@@ -185,6 +199,11 @@ end;
 function TMarkPointTemplateConfig.GetMarkPictureList: IMarkPictureList;
 begin
   Result := FMarkPictureList;
+end;
+
+function TMarkPointTemplateConfig.GetNameGenerator: IMarkNameGenerator;
+begin
+  Result := FNameGenerator;
 end;
 
 function TMarkPointTemplateConfig.IsSameTempalte(lhs,
