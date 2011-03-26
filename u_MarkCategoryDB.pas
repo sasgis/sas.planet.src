@@ -6,6 +6,9 @@ uses
   Windows,
   Classes,
   i_IMarkCategory,
+  i_IMarkCategoryFactory,
+  i_IMarkCategoryFactoryDbInternal,
+  i_IMarkCategoryFactoryConfig,
   dm_MarksDb;
 
 type
@@ -13,6 +16,8 @@ type
   private
     FBasePath: string;
     FDMMarksDb: TDMMarksDb;
+    FFactoryDbInternal: IMarkCategoryFactoryDbInternal;
+    FFactory: IMarkCategoryFactory;
     function ReadCurrentCategory: IMarkCategory;
     procedure WriteCurrentCategory(ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
@@ -21,7 +26,11 @@ type
     function SaveCategory2File: boolean;
     procedure LoadCategoriesFromFile;
   public
-    constructor Create(ABasePath: string; ADMMarksDb: TDMMarksDb);
+    constructor Create(
+      ABasePath: string;
+      ADMMarksDb: TDMMarksDb;
+      AFactoryConfig: IMarkCategoryFactoryConfig
+    );
 
     function GetCategoryByName(AName: string): IMarkCategory;
     function GetCategoryByID(id: integer): IMarkCategory;
@@ -30,15 +39,32 @@ type
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
-  end;
 
+    property Factory: IMarkCategoryFactory read FFactory;
+  end;
 
 implementation
 
 uses
   DB,
   SysUtils,
+  u_MarkCategoryFactory,
   u_MarkCategory;
+
+constructor TMarkCategoryDB.Create(
+  ABasePath: string;
+  ADMMarksDb: TDMMarksDb;
+  AFactoryConfig: IMarkCategoryFactoryConfig
+);
+var
+  VFactory: TMarkCategoryFactory;
+begin
+  FBasePath := ABasePath;
+  FDMMarksDb := ADMMarksDb;
+  VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
+  FFactoryDbInternal := VFactory;
+  FFactory := VFactory;
+end;
 
 function TMarkCategoryDB.ReadCurrentCategory: IMarkCategory;
 var
@@ -76,13 +102,6 @@ begin
   FDMMarksDb.CDSKategory.post;
   Result := TMarkCategory.Create(FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger, ACategory);
   SaveCategory2File;
-end;
-
-constructor TMarkCategoryDB.Create(ABasePath: string;
-  ADMMarksDb: TDMMarksDb);
-begin
-  FBasePath := ABasePath;
-  FDMMarksDb := ADMMarksDb;
 end;
 
 procedure TMarkCategoryDB.DeleteCategory(ACategory: IMarkCategory);

@@ -31,7 +31,7 @@ type
       ABeforeScale: integer
     ): IMarkCategory;
   public
-
+    constructor Create(AConfig: IMarkCategoryFactoryConfig);
   end;
 
 implementation
@@ -40,6 +40,11 @@ uses
   u_MarkCategory;
 
 { TMarkCategoryFactory }
+
+constructor TMarkCategoryFactory.Create(AConfig: IMarkCategoryFactoryConfig);
+begin
+  FConfig := AConfig;
+end;
 
 function TMarkCategoryFactory.CreateCategory(
   AId: Integer;

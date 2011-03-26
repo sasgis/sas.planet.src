@@ -39,6 +39,7 @@ uses
   u_MemFileCache,
   i_IGPSConfig,
   i_IMarksFactoryConfig,
+  i_IMarkCategoryFactoryConfig,
   i_IGlobalViewMainConfig,
   i_IImportFile,
   i_IGPSRecorder,
@@ -82,6 +83,7 @@ type
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
     FMarksFactoryConfig: IMarksFactoryConfig;
+    FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     FGPSpar: TGPSpar;
     FImportFileByExt: IImportFile;
     FViewConfig: IGlobalViewMainConfig;
@@ -154,6 +156,7 @@ type
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
     property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
+    property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
     property GPSpar: TGPSpar read FGPSpar;
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property ViewConfig: IGlobalViewMainConfig read FViewConfig;
@@ -198,6 +201,7 @@ uses
   u_GSMGeoCodeConfig,
   u_GPSConfig,
   u_MarksFactoryConfig,
+  u_MarkCategoryFactoryConfig,
   u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,
   u_ValueToStringConverterConfig,
@@ -212,6 +216,7 @@ uses
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByZylGPS,
   u_MainFormConfig,
+  UResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -279,7 +284,8 @@ begin
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
   FMarksFactoryConfig := TMarksFactoryConfig.Create(FMarkPictureList);
-  FMarksDB := TMarksDB.Create(FProgramPath, FMarksFactoryConfig);
+  FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
+  FMarksDB := TMarksDB.Create(FProgramPath, FMarksFactoryConfig, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
 end;
 
@@ -320,6 +326,7 @@ begin
   FValueToStringConverterConfig := nil;
   FMainMemCacheConfig := nil;
   FMarksFactoryConfig := nil;
+  FMarksCategoryFactoryConfig := nil;
   FMarkPictureList := nil;
   FreeAndNil(FCacheConfig);
   FSkyMapDraw := nil;
@@ -407,6 +414,7 @@ begin
   FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FMarkPictureList.ReadConfig(MainConfigProvider);
   FMarksFactoryConfig.ReadConfig(MainConfigProvider);
+  FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
   FMarksDb.ReadConfig(MainConfigProvider);
 end;
 
@@ -491,6 +499,7 @@ begin
   FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMarkPictureList.WriteConfig(MainConfigProvider);
   FMarksFactoryConfig.WriteConfig(MainConfigProvider);
+  FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));
   FMarksDb.WriteConfig(MainConfigProvider);
 end;
 

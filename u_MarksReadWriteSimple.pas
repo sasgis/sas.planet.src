@@ -10,6 +10,7 @@ uses
   dm_MarksDb,
   i_IMarksFactoryConfig,
   i_IMarkCategory,
+  i_IMarkCategoryFactoryConfig,
   u_MarksOnlyDb,
   u_MarkCategoryDB,
   u_MarksSimple;
@@ -23,7 +24,11 @@ type
     FMarksDb: TMarksOnlyDb;
     FCategoryDB: TMarkCategoryDB;
   public
-    constructor Create(ABasePath: string; AFactoryConfig: IMarksFactoryConfig);
+    constructor Create(
+      ABasePath: string;
+      AMarkFactoryConfig: IMarksFactoryConfig;
+      ACategoryFactoryConfig: IMarkCategoryFactoryConfig
+    );
     destructor Destroy; override;
 
     procedure ReadConfig(AConfigData: IConfigDataProvider);
@@ -43,12 +48,16 @@ uses
 
 { TMarksDB }
 
-constructor TMarksDB.Create(ABasePath: string; AFactoryConfig: IMarksFactoryConfig);
+constructor TMarksDB.Create(
+  ABasePath: string;
+  AMarkFactoryConfig: IMarksFactoryConfig;
+  ACategoryFactoryConfig: IMarkCategoryFactoryConfig
+);
 begin
   FBasePath := ABasePath;
   FDMMarksDb := TDMMarksDb.Create(nil);
-  FMarksDb := TMarksOnlyDb.Create(ABasePath, FDMMarksDb, AFactoryConfig);
-  FCategoryDB := TMarkCategoryDB.Create(ABasePath, FDMMarksDb);
+  FMarksDb := TMarksOnlyDb.Create(ABasePath, FDMMarksDb, AMarkFactoryConfig);
+  FCategoryDB := TMarkCategoryDB.Create(ABasePath, FDMMarksDb, ACategoryFactoryConfig);
 end;
 
 procedure TMarksDB.DeleteCategoryWithMarks(ACategory: IMarkCategory);
