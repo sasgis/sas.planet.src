@@ -253,10 +253,10 @@ type
     TBXLabel8: TTBXLabel;
     TBXLabel9: TTBXLabel;
     TBXLabel10: TTBXLabel;
-    TBXLabel11: TTBXLabel;
+    lblSensorOdometr: TTBXLabel;
     TBXLabel13: TTBXLabel;
     TBXLabel14: TTBXLabel;
-    SpeedButton2: TSpeedButton;
+    btnSensorOdometrReset: TSpeedButton;
     SpeedButton3: TSpeedButton;
     SBClearSensor: TSpeedButton;
     NSensorsBar: TTBXItem;
@@ -376,6 +376,7 @@ type
     TBCopyLinkLayer: TTBXSubmenuItem;
     TBLayerInfo: TTBXSubmenuItem;
     TBScreenSelect: TTBXItem;
+    pnlSensorOdometrTop: TTBXAlignmentPanel;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
