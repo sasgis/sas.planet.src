@@ -8,7 +8,11 @@ uses
   Graphics,
   Classes,
   IniFiles,
+  SysUtils,
   GR32,
+  {$IFDEF SasDebugWithJcl}
+  JclDebug,
+  {$ENDIF SasDebugWithJcl}
   i_JclNotify,
   i_ILanguageManager,
   i_IMemObjCache,
@@ -100,6 +104,7 @@ type
     function GetMainConfigFileName: string;
     procedure LoadMainParams;
     procedure LoadMapIconsList;
+    procedure DoException(Sender: TObject; E: Exception);
   public
     // Отображать окошко с логотипом при запуске
     Show_logo: Boolean;
@@ -170,6 +175,10 @@ type
     procedure SaveMainParams;
     procedure StartThreads;
     procedure SendTerminateToThreads;
+
+    procedure StartExceptionTracking;
+    procedure StopExceptionTracking;
+
     procedure LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
     procedure LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
   end;
@@ -181,7 +190,7 @@ implementation
 
 uses
   Types,
-  SysUtils,
+  Forms,
   u_JclNotify,
   i_BitmapTileSaveLoad,
   u_ConfigDataProviderByIniFile,
@@ -335,10 +344,44 @@ begin
   inherited;
 end;
 
+procedure TGlobalState.DoException(Sender: TObject; E: Exception);
+var
+  Str: TStringList;
+begin
+  {$IFDEF SasDebugWithJcl}
+  Str := TStringList.Create;
+  try
+    JclLastExceptStackListToStrings(Str, True, True, True, True);
+    Str.Insert(0, E.Message);
+    Str.Insert(1, '');
+    Application.MessageBox(PChar(Str.Text), 'Ошибка', MB_OK or MB_ICONSTOP);
+  finally
+    FreeAndNil(Str);
+  end;
+  {$ENDIF SasDebugWithJcl}
+end;
+
+procedure TGlobalState.StartExceptionTracking;
+begin
+  {$IFDEF SasDebugWithJcl}
+  JclStackTrackingOptions := JclStackTrackingOptions + [stRAWMode];
+  JclStartExceptionTracking;
+  Application.OnException := DoException;
+  {$ENDIF SasDebugWithJcl}
+end;
+
 procedure TGlobalState.StartThreads;
 begin
   GPSpar.StartThreads;
   FGUISyncronizedTimer.Enabled := True;
+end;
+
+procedure TGlobalState.StopExceptionTracking;
+begin
+  {$IFDEF SasDebugWithJcl}
+  Application.OnException := nil;
+  JclStopExceptionTracking;
+  {$ENDIF SasDebugWithJcl}
 end;
 
 function TGlobalState.GetMarkIconsPath: string;

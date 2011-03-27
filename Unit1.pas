@@ -37,9 +37,6 @@ uses
   TBX,
   TBXControls,
   TBXExtItems,
-  {$IFDEF SasDebugWithJcl}
-  JclDebug,
-  {$ENDIF SasDebugWithJcl}
   u_CommonFormAndFrameParents,
   i_JclNotify,
   i_IGUIDList,
@@ -511,7 +508,6 @@ type
     procedure TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette; var ACol,
       ARow: Integer; var AllowChange: Boolean);
     procedure TBScreenSelectClick(Sender: TObject);
-    procedure DoException(Sender: TObject; E: Exception);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1417,23 +1413,6 @@ begin
       Self.BoundsRect:= VRect;
     end;
   end;
-end;
-
-procedure TFmain.DoException(Sender: TObject; E: Exception);
-var
-  Str: TStringList;
-begin
-  {$IFDEF SasDebugWithJcl}
-  Str := TStringList.Create;
-  try
-    JclLastExceptStackListToStrings(Str, True, True, True, True);
-    Str.Insert(0, E.Message);
-    Str.Insert(1, '');
-    Application.MessageBox(PChar(Str.Text), 'Ошибка', MB_OK or MB_ICONSTOP);
-  finally
-    FreeAndNil(Str);
-  end;
-  {$ENDIF SasDebugWithJcl}
 end;
 
 //Обработка нажатий кнопоки и калесика
