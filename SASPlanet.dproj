@@ -292,8 +292,10 @@
     <DCCReference Include="src\ECWReader.pas" />
     <DCCReference Include="src\ECWwriter.pas" />
     <DCCReference Include="src\gnugettext.pas" />
+    <DCCReference Include="src\i_EnumID.pas" />
     <DCCReference Include="src\i_IFileNameIterator.pas" />
     <DCCReference Include="src\i_IGUIDList.pas" />
+    <DCCReference Include="src\i_IIDList.pas" />
     <DCCReference Include="src\i_JclNotify.pas" />
     <DCCReference Include="src\KAZip.pas" />
     <DCCReference Include="src\Langs.pas" />
@@ -306,6 +308,8 @@
     <DCCReference Include="src\u_GUIDInterfaceList.pas" />
     <DCCReference Include="src\u_GUIDList.pas" />
     <DCCReference Include="src\u_GUIDObjectList.pas" />
+    <DCCReference Include="src\u_IDInterfaceList.pas" />
+    <DCCReference Include="src\u_IdListBase.pas" />
     <DCCReference Include="src\u_JclNotify.pas" />
     <DCCReference Include="src\u_UseNewFonts.pas" />
     <DCCReference Include="src\u_WideStrings.pas" />
