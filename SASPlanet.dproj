@@ -366,7 +366,7 @@
       <Form>Fsaveas</Form>
     </DCCReference>
     <DCCReference Include="USelLonLat.pas">
-      <Form>FSelLonLat</Form>
+      <Form>frmLonLatRectEdit</Form>
     </DCCReference>
     <DCCReference Include="Usettings.pas">
       <Form>FSettings</Form>

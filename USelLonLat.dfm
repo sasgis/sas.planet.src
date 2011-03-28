@@ -1,4 +1,4 @@
-object FSelLonLat: TFSelLonLat
+object frmLonLatRectEdit: TfrmLonLatRectEdit
   Left = 192
   Top = 289
   BorderStyle = bsSizeToolWin
@@ -23,8 +23,7 @@ object FSelLonLat: TFSelLonLat
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 252
-    object Button2: TButton
+    object btnCancel: TButton
       AlignWithMargins = True
       Left = 213
       Top = 3
@@ -35,9 +34,8 @@ object FSelLonLat: TFSelLonLat
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 0
-      ExplicitLeft = 174
     end
-    object Button1: TButton
+    object btnOk: TButton
       AlignWithMargins = True
       Left = 132
       Top = 3
@@ -48,7 +46,6 @@ object FSelLonLat: TFSelLonLat
       Default = True
       ModalResult = 1
       TabOrder = 1
-      ExplicitLeft = 93
     end
   end
   object grdpnlMain: TGridPanel
@@ -81,7 +78,6 @@ object FSelLonLat: TFSelLonLat
         Value = 50.000000000000000000
       end>
     TabOrder = 1
-    ExplicitWidth = 252
     object grpTopLeft: TGroupBox
       AlignWithMargins = True
       Left = 3
@@ -91,7 +87,6 @@ object FSelLonLat: TFSelLonLat
       Align = alClient
       Caption = #1051#1077#1074#1099#1081' '#1074#1077#1088#1093#1085#1080#1081' '#1091#1075#1086#1083
       TabOrder = 0
-      ExplicitWidth = 246
     end
     object grpBottomRight: TGroupBox
       AlignWithMargins = True
@@ -102,7 +97,6 @@ object FSelLonLat: TFSelLonLat
       Align = alClient
       Caption = #1055#1088#1072#1074#1099#1081' '#1085#1080#1078#1085#1080#1081' '#1091#1075#1086#1083
       TabOrder = 1
-      ExplicitWidth = 246
     end
   end
 end

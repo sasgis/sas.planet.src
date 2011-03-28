@@ -16,9 +16,9 @@ uses
   fr_LonLat;
 
 type
-  TFSelLonLat = class(TCommonFormParent)
-    Button1: TButton;
-    Button2: TButton;
+  TfrmLonLatRectEdit = class(TCommonFormParent)
+    btnOk: TButton;
+    btnCancel: TButton;
     grpTopLeft: TGroupBox;
     grpBottomRight: TGroupBox;
     pnlBottomButtons: TPanel;
@@ -41,21 +41,21 @@ uses
 
 {$R *.dfm}
 
-constructor TFSelLonLat.Create(AOwner: TComponent);
+constructor TfrmLonLatRectEdit.Create(AOwner: TComponent);
 begin
   inherited;
   FfrLonLatTopLeft := TfrLonLat.Create(nil);
   FfrLonLatBottomRight := TfrLonLat.Create(nil);
 end;
 
-destructor TFSelLonLat.Destroy;
+destructor TfrmLonLatRectEdit.Destroy;
 begin
   FreeAndNil(FfrLonLatTopLeft);
   FreeAndNil(FfrLonLatBottomRight);
   inherited;
 end;
 
-function TFSelLonLat.Execute(var ALonLatRect: TDoubleRect): Boolean;
+function TfrmLonLatRectEdit.Execute(var ALonLatRect: TDoubleRect): Boolean;
 begin
   FfrLonLatTopLeft.LonLat := ALonLatRect.TopLeft;
   FfrLonLatBottomRight.LonLat := ALonLatRect.BottomRight;
@@ -73,13 +73,13 @@ begin
   end;
 end;
 
-procedure TFSelLonLat.FormShow(Sender: TObject);
+procedure TfrmLonLatRectEdit.FormShow(Sender: TObject);
 begin
   FfrLonLatTopLeft.Parent := grpTopLeft;
   FfrLonLatBottomRight.Parent := grpBottomRight;
 end;
 
-procedure TFSelLonLat.RefreshTranslation;
+procedure TfrmLonLatRectEdit.RefreshTranslation;
 begin
   inherited;
   FfrLonLatTopLeft.RefreshTranslation;

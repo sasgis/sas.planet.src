@@ -2578,10 +2578,10 @@ end;
 procedure TFmain.TBCOORDClick(Sender: TObject);
 var
   Poly: TArrayOfDoublePoint;
-  VSelLonLat: TFSelLonLat;
+  VSelLonLat: TfrmLonLatRectEdit;
   VLonLatRect: TDoubleRect;
 begin
-  VSelLonLat:= TFSelLonLat.Create(Self);
+  VSelLonLat:= TfrmLonLatRectEdit.Create(Self);
   Try
     Poly := GState.LastSelectionInfo.Polygon;
     GetMinMax(VLonLatRect, Poly);
