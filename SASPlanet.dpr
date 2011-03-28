@@ -456,7 +456,7 @@ uses
   Unit1 in 'Unit1.pas' {Fmain},
   frm_GoTo in 'frm_GoTo.pas' {frmGoTo},
   frm_DebugInfo in 'frm_DebugInfo.pas' {frmDebugInfo},
-  UAbout in 'UAbout.pas' {frmAbout},
+  frm_About in 'frm_About.pas' {frmAbout},
   Usettings in 'Usettings.pas' {FSettings},
   USaveas in 'USaveas.pas' {Fsaveas},
   UProgress in 'UProgress.pas' {FProgress},

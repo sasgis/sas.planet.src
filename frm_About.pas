@@ -1,4 +1,4 @@
-unit UAbout;
+unit frm_About;
 
 interface
 

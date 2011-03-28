@@ -630,7 +630,7 @@ uses
   u_GUIDObjectList,
   u_GlobalState,
   frm_GoTo,
-  UAbout,
+  frm_About,
   Usettings,
   USaveas,
   UProgress,

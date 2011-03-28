@@ -54,6 +54,9 @@
       <Form>DMMarksDb</Form>
       <DesignClass>TDataModule</DesignClass>
     </DCCReference>
+    <DCCReference Include="frm_About.pas">
+      <Form>frmAbout</Form>
+    </DCCReference>
     <DCCReference Include="frm_DebugInfo.pas">
       <Form>frmDebugInfo</Form>
     </DCCReference>
@@ -314,9 +317,6 @@
     <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
-    <DCCReference Include="UAbout.pas">
-      <Form>frmAbout</Form>
-    </DCCReference>
     <DCCReference Include="UAddCategory.pas">
       <Form>FAddCategory</Form>
     </DCCReference>
