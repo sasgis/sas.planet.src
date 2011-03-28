@@ -94,7 +94,6 @@ implementation
 
 uses
   i_MarkPicture,
-  u_MarksSimple,
   u_ImportConfig;
 
 {$R *.dfm}
