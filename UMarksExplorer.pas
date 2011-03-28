@@ -114,7 +114,7 @@ uses
   i_UsedMarksConfig,
   UImport,
   u_ExportMarks2KML,
-  UAddCategory;
+  frm_MarkCategoryEdit;
 
 {$R *.dfm}
 

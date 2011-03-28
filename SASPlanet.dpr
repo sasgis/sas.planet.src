@@ -472,7 +472,7 @@ uses
   UEditMap in 'UEditMap.pas' {FEditMap},
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},
-  UAddCategory in 'UAddCategory.pas' {frmMarkCategoryEdit},
+  frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
   UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange},
   u_ExportMarks2KML in 'u_ExportMarks2KML.pas';
