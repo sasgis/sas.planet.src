@@ -93,6 +93,9 @@
     <DCCReference Include="frm_MarksExplorer.pas">
       <Form>frmMarksExplorer</Form>
     </DCCReference>
+    <DCCReference Include="frm_RegionProcess.pas">
+      <Form>frmRegionProcess</Form>
+    </DCCReference>
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
@@ -365,9 +368,6 @@
       <Form>FProgress</Form>
     </DCCReference>
     <DCCReference Include="UResStrings.pas" />
-    <DCCReference Include="USaveas.pas">
-      <Form>frmRegionProcess</Form>
-    </DCCReference>
     <DCCReference Include="Usettings.pas">
       <Form>FSettings</Form>
     </DCCReference>
