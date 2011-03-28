@@ -28,9 +28,9 @@ type
     Label3: TLabel;
     CheckBox1: TCheckBox;
     EditHotKey: THotKey;
-    Button1: TButton;
-    Button2: TButton;
-    Button3: TButton;
+    btnOk: TButton;
+    btnCancel: TButton;
+    btnByDefault: TButton;
     Button6: TButton;
     Button4: TButton;
     Button5: TButton;
@@ -54,10 +54,9 @@ type
     pnlUrlRight: TPanel;
     Label4: TLabel;
     CheckEnabled: TCheckBox;
-    procedure Button1Click(Sender: TObject);
+    procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure Button2Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
+    procedure btnByDefaultClick(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
@@ -77,7 +76,7 @@ implementation
 
 {$R *.dfm}
 
-procedure TFEditMap.Button1Click(Sender: TObject);
+procedure TFEditMap.btnOkClick(Sender: TObject);
 begin
  FmapType.UrlGenerator.URLBase:=EditURL.Text;
  FmapType.TileStorage.CacheConfig.NameInCache:=EditNameinCache.Text;
@@ -99,12 +98,7 @@ begin
   FmapType:=nil;
 end;
 
-procedure TFEditMap.Button2Click(Sender: TObject);
-begin
-  ModalResult := mrCancel;
-end;
-
-procedure TFEditMap.Button3Click(Sender: TObject);
+procedure TFEditMap.btnByDefaultClick(Sender: TObject);
 begin
  EditURL.Text:=FmapType.UrlGenerator.DefURLBase;
  EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;

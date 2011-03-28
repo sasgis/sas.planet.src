@@ -23,7 +23,7 @@ object FEditMap: TFEditMap
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 0
-    object Button3: TButton
+    object btnByDefault: TButton
       AlignWithMargins = True
       Left = 6
       Top = 6
@@ -32,9 +32,9 @@ object FEditMap: TFEditMap
       Align = alLeft
       Caption = #1042#1089#1077' '#1087#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
       TabOrder = 0
-      OnClick = Button3Click
+      OnClick = btnByDefaultClick
     end
-    object Button1: TButton
+    object btnOk: TButton
       AlignWithMargins = True
       Left = 346
       Top = 6
@@ -44,9 +44,9 @@ object FEditMap: TFEditMap
       Caption = #1055#1088#1080#1085#1103#1090#1100
       ModalResult = 1
       TabOrder = 1
-      OnClick = Button1Click
+      OnClick = btnOkClick
     end
-    object Button2: TButton
+    object btnCancel: TButton
       AlignWithMargins = True
       Left = 427
       Top = 6
@@ -57,7 +57,6 @@ object FEditMap: TFEditMap
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 2
-      OnClick = Button2Click
     end
   end
   object pnlSeparator: TPanel
