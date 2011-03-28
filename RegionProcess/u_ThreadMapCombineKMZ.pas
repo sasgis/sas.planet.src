@@ -10,7 +10,7 @@ uses
   GR32,
   UMapType,
   UGeoFun,
-  bmpUtil,
+  u_BmpUtil,
   t_GeoTypes,
   i_MarksSimple,
   i_BitmapPostProcessingConfig,

@@ -9,7 +9,7 @@ uses
   Classes,
   GR32,
   UGeoFun,
-  bmpUtil,
+  u_BmpUtil,
   u_ThreadMapCombineBase;
 
 type

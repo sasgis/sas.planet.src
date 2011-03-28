@@ -124,7 +124,7 @@ uses
   u_KmlInfoSimpleParser in 'u_KmlInfoSimpleParser.pas',
   u_KmzInfoSimpleParser in 'u_KmzInfoSimpleParser.pas',
   UECWWrite in 'UECWWrite.pas',
-  bmpUtil in 'bmpUtil.pas',
+  u_BmpUtil in 'u_BmpUtil.pas',
   Uimgfun in 'Uimgfun.pas',
   i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',
   u_BitmapTileVampyreLoader in 'BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas',

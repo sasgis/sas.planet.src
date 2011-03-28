@@ -1,4 +1,4 @@
-unit bmpUtil;
+unit u_BmpUtil;
 
 interface
 
