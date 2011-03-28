@@ -84,12 +84,12 @@
     <DCCReference Include="i_BackgroundTask.pas" />
     <DCCReference Include="i_BackgroundTaskLayerDraw.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
+    <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
+    <DCCReference Include="i_BitmapTypeExtManager.pas" />
     <DCCReference Include="i_ContentTypeInfo.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
     <DCCReference Include="i_GPS.pas" />
-    <DCCReference Include="i_IBitmapPostProcessingConfig.pas" />
-    <DCCReference Include="i_IBitmapTypeExtManager.pas" />
     <DCCReference Include="i_ICalcLineLayerConfig.pas" />
     <DCCReference Include="i_ICenterScaleConfig.pas" />
     <DCCReference Include="i_IConfigDataElement.pas" />

@@ -13,7 +13,7 @@ uses
   bmpUtil,
   t_GeoTypes,
   i_MarksSimple,
-  i_IBitmapPostProcessingConfig,
+  i_BitmapPostProcessingConfig,
   UResStrings,
   u_ThreadMapCombineBase;
 

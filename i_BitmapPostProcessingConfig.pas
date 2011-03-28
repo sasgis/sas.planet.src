@@ -1,4 +1,4 @@
-unit i_IBitmapPostProcessingConfig;
+unit i_BitmapPostProcessingConfig;
 
 interface
 

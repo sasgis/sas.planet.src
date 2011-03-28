@@ -105,7 +105,7 @@ uses
   Uimgfun,
   Ugeofun,
   UResStrings,
-  i_IBitmapPostProcessingConfig,
+  i_BitmapPostProcessingConfig,
   i_ITileIterator,
   u_GlobalState,
   u_LocalCoordConverterFactorySimpe,

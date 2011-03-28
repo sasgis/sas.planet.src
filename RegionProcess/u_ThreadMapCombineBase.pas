@@ -9,7 +9,7 @@ uses
   t_GeoTypes,
   i_MarksSimple,
   i_BitmapLayerProvider,
-  i_IBitmapPostProcessingConfig,
+  i_BitmapPostProcessingConfig,
   i_ILocalCoordConverter,
   i_ILocalCoordConverterFactorySimpe,
   UMapType,

@@ -1,4 +1,4 @@
-unit i_IBitmapTypeExtManager;
+unit i_BitmapTypeExtManager;
 
 interface
 

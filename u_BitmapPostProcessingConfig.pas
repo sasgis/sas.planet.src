@@ -5,7 +5,7 @@ interface
 uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
-  i_IBitmapPostProcessingConfig,
+  i_BitmapPostProcessingConfig,
   u_ConfigDataElementBase;
 
 type

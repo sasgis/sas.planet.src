@@ -44,7 +44,7 @@ uses
   i_ICoordConverter,
   i_ILocalCoordConverter,
   i_ITileIterator,
-  i_IBitmapPostProcessingConfig,
+  i_BitmapPostProcessingConfig,
   Uimgfun,
   UResStrings,
   u_TileIteratorByRect,

@@ -17,7 +17,7 @@ uses
   i_ICoordConverter,
   i_ITileDownlodSession,
   i_IPoolOfObjectsSimple,
-  i_IBitmapTypeExtManager,
+  i_BitmapTypeExtManager,
   i_BitmapTileSaveLoad,
   i_IKmlInfoSimpleLoader,
   i_AntiBan,

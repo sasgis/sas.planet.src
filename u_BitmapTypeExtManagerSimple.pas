@@ -4,7 +4,7 @@ interface
 
 uses
   i_BitmapTileSaveLoad,
-  i_IBitmapTypeExtManager;
+  i_BitmapTypeExtManager;
 
 type
   TBitmapTypeExtManagerSimple = class(TInterfacedObject, IBitmapTypeExtManager)

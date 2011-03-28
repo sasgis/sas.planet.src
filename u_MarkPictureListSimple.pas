@@ -7,7 +7,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IMarkPicture,
-  i_IBitmapTypeExtManager,
+  i_BitmapTypeExtManager,
   u_ConfigDataElementBase;
 
 type
