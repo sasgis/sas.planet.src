@@ -78,6 +78,9 @@
     <DCCReference Include="frm_MarkEditPoly.pas">
       <Form>frmMarkEditPoly</Form>
     </DCCReference>
+    <DCCReference Include="frm_MarksExplorer.pas">
+      <Form>frmMarksExplorer</Form>
+    </DCCReference>
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
@@ -351,9 +354,6 @@
       <Form>FLogo</Form>
     </DCCReference>
     <DCCReference Include="UMapType.pas" />
-    <DCCReference Include="UMarksExplorer.pas">
-      <Form>frmMarksExplorer</Form>
-    </DCCReference>
     <DCCReference Include="Unit1.pas">
       <Form>Fmain</Form>
     </DCCReference>

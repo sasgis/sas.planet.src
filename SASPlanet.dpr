@@ -470,7 +470,7 @@ uses
   frm_MarkEditPath in 'frm_MarkEditPath.pas' {frmMarkEditPath},
   frm_MarkEditPoly in 'frm_MarkEditPoly.pas' {frmMarkEditPoly},
   UEditMap in 'UEditMap.pas' {FEditMap},
-  UMarksExplorer in 'UMarksExplorer.pas' {frmMarksExplorer},
+  frm_MarksExplorer in 'frm_MarksExplorer.pas' {frmMarksExplorer},
   UImport in 'UImport.pas' {FImport},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},

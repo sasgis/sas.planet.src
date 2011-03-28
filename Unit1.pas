@@ -637,7 +637,7 @@ uses
   USelLonLat,
   UEditMap,
   Ubrowser,
-  UMarksExplorer,
+  frm_MarksExplorer,
   UFDGAvailablePic,
   c_ZeroGUID,
   c_SasVersion,
