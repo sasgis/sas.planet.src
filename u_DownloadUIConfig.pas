@@ -6,7 +6,7 @@ uses
   t_CommonTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IDownloadUIConfig,
+  i_DownloadUIConfig,
   u_ConfigDataElementBase;
 
 type

@@ -19,7 +19,7 @@ uses
   u_CommonFormAndFrameParents,
   i_MarksSimple,
   i_IMarkCategory,
-  i_IImportConfig,
+  i_ImportConfig,
   u_MarksDbGUIHelper;
 
 type

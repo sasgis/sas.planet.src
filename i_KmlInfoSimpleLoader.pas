@@ -1,4 +1,4 @@
-unit i_IKmlInfoSimpleLoader;
+unit i_KmlInfoSimpleLoader;
 
 interface
 

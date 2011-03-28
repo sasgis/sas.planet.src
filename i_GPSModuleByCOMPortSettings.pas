@@ -1,4 +1,4 @@
-unit i_IGPSModuleByCOMPortSettings;
+unit i_GPSModuleByCOMPortSettings;
 
 interface
 

@@ -5,7 +5,7 @@ interface
 uses
   GR32,
   GR32_Resamplers,
-  i_IImageResamplerFactory;
+  i_ImageResamplerFactory;
 
 type
   TImageResamplerFactoryLinear = class(TInterfacedObject, IImageResamplerFactory)

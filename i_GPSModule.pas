@@ -1,4 +1,4 @@
-unit i_IGPSModule;
+unit i_GPSModule;
 
 interface
 

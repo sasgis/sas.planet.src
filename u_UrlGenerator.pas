@@ -12,7 +12,7 @@ Uses
   uPSRuntime,
   uPSCompiler,
   i_ConfigDataProvider,
-  i_ICoordConverter;
+  i_CoordConverter;
 
 type
   EUrlGeneratorScriptCompileError = class(Exception);

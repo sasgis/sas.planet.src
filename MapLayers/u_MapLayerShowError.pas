@@ -29,7 +29,7 @@ implementation
 uses
   Graphics,
   Types,
-  i_ICoordConverter,
+  i_CoordConverter,
   Ugeofun;
 
 

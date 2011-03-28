@@ -3,9 +3,9 @@ unit u_CoordConverterFactorySimple;
 interface
 
 uses
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ConfigDataProvider,
-  i_ICoordConverterFactory;
+  i_CoordConverterFactory;
 
 type
   TCoordConverterFactorySimple = class(TInterfacedObject, ICoordConverterFactory)

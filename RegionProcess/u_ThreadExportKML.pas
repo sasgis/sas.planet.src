@@ -41,7 +41,7 @@ implementation
 uses
   Math,
   u_GeoToStr,
-  i_ICoordConverter;
+  i_CoordConverter;
 
 constructor TThreadExportKML.Create(
   APath: string;

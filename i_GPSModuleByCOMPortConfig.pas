@@ -1,9 +1,9 @@
-unit i_IGPSModuleByCOMPortConfig;
+unit i_GPSModuleByCOMPortConfig;
 
 interface
 
 uses
-  i_IGPSModuleByCOMPortSettings,
+  i_GPSModuleByCOMPortSettings,
   i_ConfigDataElement;
 
 type

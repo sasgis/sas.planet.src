@@ -6,7 +6,7 @@ uses
   Types,
   i_JclNotify,
   t_GeoTypes,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ILocalCoordConverter,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

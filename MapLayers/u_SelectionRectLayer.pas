@@ -41,7 +41,7 @@ uses
   SysUtils,
   GR32_Layers,
   i_ILocalCoordConverter,
-  i_ICoordConverter,
+  i_CoordConverter,
   u_NotifyEventListener;
 
 { TSelectionRectLayer }

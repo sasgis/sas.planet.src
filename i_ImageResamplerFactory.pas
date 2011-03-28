@@ -1,4 +1,4 @@
-unit i_IImageResamplerFactory;
+unit i_ImageResamplerFactory;
 
 interface
 

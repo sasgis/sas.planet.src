@@ -5,8 +5,8 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IGPSModuleByCOMPortConfig,
-  i_IGPSConfig,
+  i_GPSModuleByCOMPortConfig,
+  i_GPSConfig,
   u_ConfigDataElementComplexBase;
 
 type

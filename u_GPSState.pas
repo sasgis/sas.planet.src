@@ -6,12 +6,12 @@ uses
   SysUtils,
   SyncObjs,
   i_JclNotify,
-  i_IJclListenerNotifierLinksList,
-  i_IGPSRecorder,
-  i_IGPSConfig,
+  i_JclListenerNotifierLinksList,
+  i_GPSRecorder,
+  i_GPSConfig,
   i_ITrackWriter,
-  i_IGPSModuleByCOMFactory,
-  i_IGPSModuleByCOM;
+  i_GPSModuleByCOMFactory,
+  i_GPSModuleByCOM;
 
 type
   TModuleState = (msDisconnected, msConnecting, msConnected, msDisconnecting);

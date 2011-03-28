@@ -47,7 +47,7 @@ implementation
 uses
   SysUtils,
   Math,
-  i_ICoordConverter,
+  i_CoordConverter,
   u_NotifyEventListener;
 
 { TNavToMarkLayer }

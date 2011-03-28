@@ -7,7 +7,7 @@ uses
   SysUtils,
   t_GeoTypes,
   u_KmlInfoSimple,
-  i_IKmlInfoSimpleLoader,
+  i_KmlInfoSimpleLoader,
   BMSEARCH;
 
 type

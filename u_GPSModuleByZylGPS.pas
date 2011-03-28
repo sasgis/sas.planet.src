@@ -5,8 +5,8 @@ interface
 uses
   SysUtils,
   ZylGPSReceiver,
-  i_IGPSModuleByCOMPortSettings,
-  i_IGPSModuleByCOM,
+  i_GPSModuleByCOMPortSettings,
+  i_GPSModuleByCOM,
   u_GPSModuleAbstract;
 
 type

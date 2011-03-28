@@ -1,10 +1,10 @@
-unit i_IGPSModuleByCOM;
+unit i_GPSModuleByCOM;
 
 interface
 
 uses
-  i_IGPSModuleByCOMPortSettings,
-  i_IGPSModule;
+  i_GPSModuleByCOMPortSettings,
+  i_GPSModule;
 
 type
   IGPSModuleByCOM = interface(IGPSModule)

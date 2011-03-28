@@ -1,4 +1,4 @@
-unit i_IGPSRecorder;
+unit i_GPSRecorder;
 
 interface
 

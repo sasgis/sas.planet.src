@@ -3,7 +3,7 @@ unit i_IMainGeoCoderConfig;
 interface
 
 uses
-  i_IGeoCoderList,
+  i_GeoCoderList,
   i_ConfigDataElement;
 
 type

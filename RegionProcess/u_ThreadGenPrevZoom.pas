@@ -10,7 +10,7 @@ uses
   GR32,
   UMapType,
   u_ThreadRegionProcessAbstract,
-  i_IImageResamplerFactory,
+  i_ImageResamplerFactory,
   UResStrings,
   t_GeoTypes;
 
@@ -46,7 +46,7 @@ type
 implementation
 
 uses
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ITileIterator,
   u_TileIteratorStuped,
   u_TileIteratorByRect,

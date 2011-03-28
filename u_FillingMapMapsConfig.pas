@@ -6,7 +6,7 @@ uses
   i_JclNotify,
   i_ActiveMapsConfig,
   i_MapTypes,
-  i_IFillingMapLayerConfig,
+  i_FillingMapLayerConfig,
   u_MainActiveMap;
 
 type

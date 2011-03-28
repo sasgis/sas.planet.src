@@ -35,7 +35,7 @@ type
 implementation
 
 uses
-  i_ICoordConverter;
+  i_CoordConverter;
 
 { TTileGridConfig }
 

@@ -29,7 +29,7 @@ implementation
 uses
   SysUtils,
   GR32,
-  i_IImageResamplerFactory,
+  i_ImageResamplerFactory,
   u_ThreadGenPrevZoom,
   u_GlobalState,
   UResStrings,

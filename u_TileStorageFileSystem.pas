@@ -8,7 +8,7 @@ uses
   Classes,
   GR32,
   i_ConfigDataProvider,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ContentTypeInfo,
   i_ITileInfoBasic,
   u_MapTypeCacheConfig,

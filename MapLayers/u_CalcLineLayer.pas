@@ -54,7 +54,7 @@ implementation
 
 uses
   SysUtils,
-  i_IDatum,
+  i_Datum,
   u_NotifyEventListener,
   UResStrings;
 

@@ -5,7 +5,7 @@ interface
 uses
   GR32,
   i_MapTypes,
-  i_IFillingMapLayerConfig;
+  i_FillingMapLayerConfig;
 
 type
   TFillingMapLayerConfigStatic = class(TInterfacedObject, IFillingMapLayerConfigStatic)

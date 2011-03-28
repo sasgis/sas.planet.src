@@ -6,7 +6,7 @@ uses
   SyncObjs,
   Classes,
   GR32,
-  i_IImageResamplerFactory;
+  i_ImageResamplerFactory;
 
 type
   TImageResamplerFactoryListStatic = class(TInterfacedObject, IImageResamplerFactoryList)

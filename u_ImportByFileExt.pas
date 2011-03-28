@@ -3,9 +3,9 @@ unit u_ImportByFileExt;
 interface
 
 uses
-  i_IImportFile,
-  i_IKmlInfoSimpleLoader,
-  i_IImportConfig;
+  i_ImportFile,
+  i_KmlInfoSimpleLoader,
+  i_ImportConfig;
 
 type
   TImportByFileExt = class(TInterfacedObject, IImportFile)

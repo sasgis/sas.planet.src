@@ -34,7 +34,7 @@ implementation
 
 uses
   SysUtils,
-  i_ICoordConverter,
+  i_CoordConverter,
   Ugeofun,
   u_NotifyEventListener,
   u_GeoToStr;

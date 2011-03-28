@@ -6,7 +6,7 @@ uses
   SyncObjs,
   ActiveX,
   i_JclNotify,
-  i_IGeoCoderList,
+  i_GeoCoderList,
   i_IGUIDList;
 
 type

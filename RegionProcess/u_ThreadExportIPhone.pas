@@ -10,7 +10,7 @@ uses
   DISQLite3Database,
   DISQLite3Api,
   GR32,
-  i_ICoordConverter,
+  i_CoordConverter,
   UMapType,
   UGeoFun,
   t_GeoTypes,

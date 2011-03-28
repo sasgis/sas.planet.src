@@ -66,7 +66,7 @@ implementation
 
 uses
   c_GeoCoderGUIDSimple,
-  i_IGeoCoderList,
+  i_GeoCoderList,
   i_MarksSimple,
   u_GlobalState,
   u_GeoCodeResult,

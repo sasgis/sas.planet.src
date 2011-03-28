@@ -5,8 +5,8 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_IDatum,
-  i_ICoordConverter;
+  i_Datum,
+  i_CoordConverter;
 
 type
   TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)

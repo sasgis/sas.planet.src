@@ -6,7 +6,7 @@ uses
   Graphics,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IGlobalViewMainConfig,
+  i_GlobalViewMainConfig,
   u_ConfigDataElementBase;
 
 type

@@ -6,7 +6,7 @@ uses
   Classes,
   i_ILogSimple,
   t_GeoTypes,
-  i_IDownloadInfoSimple,
+  i_DownloadInfoSimple,
   UMapType,
   u_TileDownloaderThreadBase;
 

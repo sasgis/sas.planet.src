@@ -10,7 +10,7 @@ uses
   i_ILocalCoordConverter,
   u_BackgroundTaskLayerDrawBase,
   i_IViewPortState,
-  i_IFillingMapLayerConfig,
+  i_FillingMapLayerConfig,
   UMapType,
   u_MapLayerWithThreadDraw;
 
@@ -54,7 +54,7 @@ uses
   Graphics,
   SysUtils,
   t_GeoTypes,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ITileIterator,
   u_NotifyEventListener,
   u_TileIteratorSpiralByRect;

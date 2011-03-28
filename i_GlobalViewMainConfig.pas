@@ -1,4 +1,4 @@
-unit i_IGlobalViewMainConfig;
+unit i_GlobalViewMainConfig;
 
 interface
 

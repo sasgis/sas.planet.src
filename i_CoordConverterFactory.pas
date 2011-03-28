@@ -1,9 +1,9 @@
-unit i_ICoordConverterFactory;
+unit i_CoordConverterFactory;
 
 interface
 
 uses
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ConfigDataProvider;
 
 type

@@ -4,7 +4,7 @@ interface
 
 uses
   SyncObjs,
-  i_IDownloadInfoSimple;
+  i_DownloadInfoSimple;
 
 type
   TDownloadInfoSimple = class(TInterfacedObject, IDownloadInfoSimple)

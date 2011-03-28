@@ -79,7 +79,7 @@ uses
   SysUtils,
   GR32_Layers,
   Ugeofun,
-  i_ICoordConverter,
+  i_CoordConverter,
   u_NotifyEventListener;
 
 { TPolyLineLayerBase }

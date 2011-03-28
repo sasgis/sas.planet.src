@@ -38,7 +38,7 @@ type
 implementation
 
 uses
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ITileIterator,
   u_TileIteratorStuped;
 

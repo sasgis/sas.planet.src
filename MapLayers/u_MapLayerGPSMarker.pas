@@ -10,7 +10,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_IMapLayerGPSMarkerConfig,
-  i_IGPSRecorder,
+  i_GPSRecorder,
   i_IViewPortState,
   u_MapLayerBasic;
 

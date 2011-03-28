@@ -6,7 +6,7 @@ uses
   Types,
   Classes,
   GR32,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ContentTypeInfo,
   i_ITileInfoBasic,
   i_ITileStorageTypeInfo,

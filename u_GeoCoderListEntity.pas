@@ -4,7 +4,7 @@ interface
 
 uses
   i_GeoCoder,
-  i_IGeoCoderList;
+  i_GeoCoderList;
 
 type
   TGeoCoderListEntity = class(TInterfacedObject, IGeoCoderListEntity)

@@ -3,8 +3,8 @@ unit u_ImportHLG;
 interface
 
 uses
-  i_IImportFile,
-  i_IImportConfig;
+  i_ImportFile,
+  i_ImportConfig;
 
 type
   TImportHLG = class(TInterfacedObject, IImportFile)

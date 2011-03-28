@@ -1,4 +1,4 @@
-unit i_IFillingMapLayerConfig;
+unit i_FillingMapLayerConfig;
 
 interface
 

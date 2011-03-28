@@ -4,8 +4,8 @@ interface
 
 uses
   Classes,
-  i_IImportFile,
-  i_IImportConfig,
+  i_ImportFile,
+  i_ImportConfig,
   u_MarksImportBase;
 
 type

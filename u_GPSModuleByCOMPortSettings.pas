@@ -3,7 +3,7 @@ unit u_GPSModuleByCOMPortSettings;
 interface
 
 uses
-  i_IGPSModuleByCOMPortSettings;
+  i_GPSModuleByCOMPortSettings;
 
 type
   TGPSModuleByCOMPortSettings = class(TInterfacedObject, IGPSModuleByCOMPortSettings)

@@ -110,7 +110,7 @@ implementation
 
 uses
   u_GlobalState,
-  i_IImportConfig,
+  i_ImportConfig,
   i_IUsedMarksConfig,
   UImport,
   u_ExportMarks2KML,

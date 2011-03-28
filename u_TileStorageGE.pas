@@ -5,7 +5,7 @@ interface
 uses
   Types,
   Classes,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ConfigDataProvider,
   i_ContentTypeInfo,
   i_ITileInfoBasic,

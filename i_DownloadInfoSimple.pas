@@ -1,4 +1,4 @@
-unit i_IDownloadInfoSimple;
+unit i_DownloadInfoSimple;
 
 interface
 

@@ -5,7 +5,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IGeoCoderList,
+  i_GeoCoderList,
   i_IMainGeoCoderConfig,
   u_ConfigDataElementBase;
 

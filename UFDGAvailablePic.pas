@@ -121,7 +121,7 @@ var
 implementation
 
 uses
-  i_ICoordConverter,
+  i_CoordConverter,
   i_IProxySettings,
   u_GlobalState,
   u_GeoToStr;

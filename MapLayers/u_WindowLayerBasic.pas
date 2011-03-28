@@ -6,7 +6,7 @@ uses
   Windows,
   SyncObjs,
   GR32,
-  i_IJclListenerNotifierLinksList,
+  i_JclListenerNotifierLinksList,
   i_ILocalCoordConverter,
   i_IViewPortState;
 

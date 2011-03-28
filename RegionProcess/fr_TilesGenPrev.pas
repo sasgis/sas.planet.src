@@ -15,7 +15,7 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
-  i_IImageResamplerFactory,
+  i_ImageResamplerFactory,
   u_CommonFormAndFrameParents;
 
 type

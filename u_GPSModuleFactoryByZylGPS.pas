@@ -3,8 +3,8 @@ unit u_GPSModuleFactoryByZylGPS;
 interface
 
 uses
-  i_IGPSModuleByCOM,
-  i_IGPSModuleByCOMFactory;
+  i_GPSModuleByCOM,
+  i_GPSModuleByCOMFactory;
 
 type
   TGPSModuleFactoryByZylGPS = class(TInterfacedObject, IGPSModuleByCOMFactory)

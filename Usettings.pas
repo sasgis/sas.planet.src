@@ -23,7 +23,7 @@ uses
   XPMan,
   u_CommonFormAndFrameParents,
   i_ConfigDataWriteProvider,
-  i_IImageResamplerFactory,
+  i_ImageResamplerFactory,
   fr_ShortCutList,
   UMapType,
   UResStrings;

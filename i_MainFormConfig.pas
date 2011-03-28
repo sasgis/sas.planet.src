@@ -14,7 +14,7 @@ uses
   i_IMainFormBehaviourByGPSConfig,
   i_IMainGeoCoderConfig,
   i_IUsedMarksConfig,
-  i_IKmlLayerConfig,
+  i_KmlLayerConfig,
   i_IMiniMapLayerConfig,
   i_CenterScaleConfig,
   i_IScaleLineConfig,
@@ -24,8 +24,8 @@ uses
   i_ISelectionPolygonLayerConfig,
   i_IMarkPolygonLayerConfig,
   i_IMarkPolyLineLayerConfig,
-  i_IFillingMapLayerConfig,
-  i_IDownloadUIConfig,
+  i_FillingMapLayerConfig,
+  i_DownloadUIConfig,
   i_MapLayerGridsConfig;
 
 type

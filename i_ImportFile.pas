@@ -1,9 +1,9 @@
-unit i_IImportFile;
+unit i_ImportFile;
 
 interface
 
 uses
-  i_IImportConfig;
+  i_ImportConfig;
 
 type
   IImportFile = interface

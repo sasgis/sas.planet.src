@@ -101,7 +101,7 @@ uses
   Types,
   GR32_Polygons,
   c_ZeroGUID,
-  i_ICoordConverter,
+  i_CoordConverter,
   Uimgfun,
   Ugeofun,
   UResStrings,

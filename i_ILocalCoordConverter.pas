@@ -5,7 +5,7 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_ICoordConverter;
+  i_CoordConverter;
 
 type
   ILocalCoordConverter = interface

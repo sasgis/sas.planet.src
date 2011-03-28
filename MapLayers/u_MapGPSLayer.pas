@@ -7,7 +7,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
-  i_IGPSRecorder,
+  i_GPSRecorder,
   i_IMapLayerGPSTrackConfig,
   i_IViewPortState,
   u_MapLayerBasic;

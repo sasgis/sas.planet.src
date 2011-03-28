@@ -14,7 +14,7 @@ uses
   t_GeoTypes,
   i_MapTypes,
   i_ActiveMapsConfig,
-  i_IKmlLayerConfig,
+  i_KmlLayerConfig,
   i_ILocalCoordConverter,
   i_IViewPortState,
   u_KmlInfoSimple;
@@ -63,7 +63,7 @@ uses
   StrUtils,
   Graphics,
   GR32_Polygons,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ITileIterator,
   u_NotifyEventListener,
   u_TileIteratorByRect;

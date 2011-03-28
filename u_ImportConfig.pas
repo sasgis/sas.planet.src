@@ -4,7 +4,7 @@ interface
 
 uses
   i_MarksSimple,
-  i_IImportConfig,
+  i_ImportConfig,
   u_MarksOnlyDb;
 
 type

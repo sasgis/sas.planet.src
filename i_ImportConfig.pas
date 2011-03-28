@@ -1,4 +1,4 @@
-unit i_IImportConfig;
+unit i_ImportConfig;
 
 interface
 

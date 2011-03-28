@@ -5,8 +5,8 @@ interface
 uses
   Classes,
   i_MarksSimple,
-  i_IImportFile,
-  i_IImportConfig;
+  i_ImportFile,
+  i_ImportConfig;
 
 type
   TMarksImportBase = class(TInterfacedObject, IImportFile)

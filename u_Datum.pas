@@ -4,7 +4,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_IDatum;
+  i_Datum;
 
 type
   TDatum = class(TInterfacedObject, IDatum)

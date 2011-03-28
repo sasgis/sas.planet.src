@@ -7,7 +7,7 @@ uses
   Classes,
   ComCtrls,
   t_GeoTypes,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_IValueToStringConverter,
   i_IMarkPicture,
   i_MarksSimple,
@@ -47,7 +47,7 @@ implementation
 uses
   SysUtils,
   Dialogs,
-  i_IDatum,
+  i_Datum,
   UResStrings,
   USaveas,
   UaddPoint,

@@ -30,7 +30,7 @@ implementation
 
 uses
   Classes,
-  i_ICoordConverter,
+  i_CoordConverter,
   UResStrings,
   i_ITileIterator,
   u_TileIteratorStuped;

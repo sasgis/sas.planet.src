@@ -10,8 +10,8 @@ uses
   i_MainFormConfig,
   i_IMainFormBehaviourByGPSConfig,
   i_IMainGeoCoderConfig,
-  i_IGeoCoderList,
-  i_IDownloadUIConfig,
+  i_GeoCoderList,
+  i_DownloadUIConfig,
   u_ConfigDataElementComplexBase;
 
 type

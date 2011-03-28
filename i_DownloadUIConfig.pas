@@ -1,4 +1,4 @@
-unit i_IDownloadUIConfig;
+unit i_DownloadUIConfig;
 
 interface
 

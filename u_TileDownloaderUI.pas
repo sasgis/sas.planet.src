@@ -7,15 +7,15 @@ uses
   Classes,
   Types,
   i_JclNotify,
-  i_IJclListenerNotifierLinksList,
+  i_JclListenerNotifierLinksList,
   t_CommonTypes,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ILocalCoordConverter,
   i_ActiveMapsConfig,
   i_IViewPortState,
   i_MapTypes,
   i_ITileDownlodSession,
-  i_IDownloadUIConfig,
+  i_DownloadUIConfig,
   u_MapLayerShowError,
   UMapType;
 

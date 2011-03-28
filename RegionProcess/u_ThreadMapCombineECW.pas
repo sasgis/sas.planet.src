@@ -63,7 +63,7 @@ implementation
 
 uses
   ECWWriter,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ILocalCoordConverter,
   u_GlobalState;
 

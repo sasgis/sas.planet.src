@@ -8,7 +8,7 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_GPS,
-  i_IGPSModule;
+  i_GPSModule;
 
 type
   TGPSModuleAbstract = class(TInterfacedObject, IGPSModule)

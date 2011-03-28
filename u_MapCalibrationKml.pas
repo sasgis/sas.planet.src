@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_IMapCalibration;
 
 type

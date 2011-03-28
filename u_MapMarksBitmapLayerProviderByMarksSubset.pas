@@ -8,7 +8,7 @@ uses
   Graphics,
   WinTypes,
   t_GeoTypes,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ILocalCoordConverter,
   i_IMarkPicture,
   i_MarksSimple,

@@ -1,4 +1,4 @@
-unit i_IGeoCoderList;
+unit i_GeoCoderList;
 
 interface
 

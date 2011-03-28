@@ -7,9 +7,9 @@ uses
   t_GeoTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IDatum,
+  i_Datum,
   i_GPS,
-  i_IGPSRecorder,
+  i_GPSRecorder,
   u_ConfigDataElementBase;
 
 type

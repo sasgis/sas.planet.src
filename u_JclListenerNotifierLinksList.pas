@@ -6,7 +6,7 @@ uses
   Classes,
   SyncObjs,
   i_JclNotify,
-  i_IJclListenerNotifierLinksList;
+  i_JclListenerNotifierLinksList;
 
 type
   TJclListenerNotifierLinksList = class(TInterfacedObject, IJclListenerNotifierLinksList)

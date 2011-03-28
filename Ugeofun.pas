@@ -7,7 +7,7 @@ uses
   Types,
   GR32,
   t_GeoTypes,
-  i_ICoordConverter;
+  i_CoordConverter;
 
 type
  TResObjType = (ROTpoint,ROTline,ROTPoly);

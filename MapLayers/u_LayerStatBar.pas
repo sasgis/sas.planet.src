@@ -35,7 +35,7 @@ implementation
 uses
   SysUtils,
   u_GeoToStr,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_IValueToStringConverter,
   u_NotifyEventListener,
   UResStrings,

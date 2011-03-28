@@ -41,7 +41,7 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  i_ICoordConverter,
+  i_CoordConverter,
   i_ILocalCoordConverter,
   i_ITileIterator,
   i_BitmapPostProcessingConfig,

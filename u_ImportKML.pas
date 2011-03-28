@@ -4,9 +4,9 @@ interface
 
 uses
   Classes,
-  i_IImportFile,
-  i_IKmlInfoSimpleLoader,
-  i_IImportConfig,
+  i_ImportFile,
+  i_KmlInfoSimpleLoader,
+  i_ImportConfig,
   u_MarksImportBase;
 
 type

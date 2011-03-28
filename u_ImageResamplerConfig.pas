@@ -5,8 +5,8 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IImageResamplerFactory,
-  i_IImageResamplerConfig,
+  i_ImageResamplerFactory,
+  i_ImageResamplerConfig,
   u_ConfigDataElementBase;
 
 type

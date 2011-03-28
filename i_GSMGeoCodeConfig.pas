@@ -1,4 +1,4 @@
-unit i_IGSMGeoCodeConfig;
+unit i_GSMGeoCodeConfig;
 
 interface
 

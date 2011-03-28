@@ -1,10 +1,10 @@
-unit i_IImageResamplerConfig;
+unit i_ImageResamplerConfig;
 
 interface
 
 uses
   i_ConfigDataElement,
-  i_IImageResamplerFactory;
+  i_ImageResamplerFactory;
 
 type
   IImageResamplerConfig = interface(IConfigDataElement)

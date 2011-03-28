@@ -1,11 +1,11 @@
-unit i_ICoordConverter;
+unit i_CoordConverter;
 
 interface
 
 uses
   Types,
   t_GeoTypes,
-  i_IDatum;
+  i_Datum;
 
 type
   ICoordConverterSimple = interface

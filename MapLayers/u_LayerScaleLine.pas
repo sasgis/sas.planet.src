@@ -33,7 +33,7 @@ implementation
 uses
   Math,
   SysUtils,
-  i_ICoordConverter,
+  i_CoordConverter,
   u_NotifyEventListener,
   UResStrings,
   t_GeoTypes;
