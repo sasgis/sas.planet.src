@@ -1,4 +1,4 @@
-unit UProgress;
+unit frm_ProgressDownload;
 
 interface
 
@@ -20,7 +20,7 @@ uses
   u_ThreadDownloadTiles;
 
 type
-  TFProgress = class(TCommonFormParent)
+  TfrmProgressDownload = class(TCommonFormParent)
     Panel1: TPanel;
     Memo1: TMemo;
     Button1: TButton;
@@ -85,19 +85,19 @@ uses
 {$R *.dfm}
 
 
-procedure TFProgress.Button2Click(Sender: TObject);
+procedure TfrmProgressDownload.Button2Click(Sender: TObject);
 begin
   FDownloadThread.Terminate;
   UpdateTimer.Enabled := false;
   close;
 end;
 
-procedure TFProgress.Button3Click(Sender: TObject);
+procedure TfrmProgressDownload.Button3Click(Sender: TObject);
 begin
   Perform(wm_SysCommand, SC_MINIMIZE, 0)
 end;
 
-procedure TFProgress.Button1Click(Sender: TObject);
+procedure TfrmProgressDownload.Button1Click(Sender: TObject);
 begin
   if FStoped then begin
     FDownloadThread.DownloadResume;
@@ -110,13 +110,13 @@ begin
   end
 end;
 
-procedure TFProgress.FormCreate(Sender: TObject);
+procedure TfrmProgressDownload.FormCreate(Sender: TObject);
 begin
   FStoped := false;
   FFinished := False;
 end;
 
-constructor TFProgress.Create(
+constructor TfrmProgressDownload.Create(
   AOwner: TComponent;
   ADownloadThread: TThreadDownloadTiles;
   ALog: ILogForTaskThread;
@@ -130,14 +130,14 @@ begin
   InitProgressForm;
 end;
 
-destructor TFProgress.Destroy;
+destructor TfrmProgressDownload.Destroy;
 begin
   StopThread;
   FreeAndNil(FDownloadThread);
   FLog := nil;
   inherited;
 end;
-procedure TFProgress.InitProgressForm;
+procedure TfrmProgressDownload.InitProgressForm;
 begin
   RProgr.Max := FDownloadThread.TotalInRegion;
   RProgr.Progress1 := FDownloadThread.Downloaded;
@@ -150,7 +150,7 @@ begin
   Visible:=true;
 end;
 
-procedure TFProgress.RefreshTranslation;
+procedure TfrmProgressDownload.RefreshTranslation;
 begin
   inherited;
   LabelName0.Caption := SAS_STR_ProcessedNoMore+':';
@@ -160,7 +160,7 @@ begin
   LabelName4.Caption := SAS_STR_LoadRemained;
 end;
 
-procedure TFProgress.UpdateProgressForm;
+procedure TfrmProgressDownload.UpdateProgressForm;
 var
   VComplete: string;
   VValueConverter: IValueToStringConverter;
@@ -208,7 +208,7 @@ begin
   end;
 end;
 
-procedure TFProgress.UpdateMemoProgressForm;
+procedure TfrmProgressDownload.UpdateMemoProgressForm;
 var
   i: Cardinal;
   VAddToMemo: String;
@@ -222,7 +222,7 @@ begin
   end;
 end;
 
-function TFProgress.GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
+function TfrmProgressDownload.GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
 var
   VValueConverter: IValueToStringConverter;
 begin
@@ -234,7 +234,7 @@ begin
   end;
 end;
 
-function TFProgress.GetTimeEnd(loadAll,load:integer; AElapsedTime: TDateTime):String;
+function TfrmProgressDownload.GetTimeEnd(loadAll,load:integer; AElapsedTime: TDateTime):String;
 var
   dd:integer;
   VExpectedTime: TDateTime;
@@ -250,33 +250,33 @@ begin
   end;
 end;
 
-procedure TFProgress.UpdateTimerTimer(Sender: TObject);
+procedure TfrmProgressDownload.UpdateTimerTimer(Sender: TObject);
 begin
   UpdateProgressForm
 end;
 
-procedure TFProgress.ButtonSaveClick(Sender: TObject);
+procedure TfrmProgressDownload.ButtonSaveClick(Sender: TObject);
 begin
   if (SaveSessionDialog.Execute)and(SaveSessionDialog.FileName<>'') then begin
     FDownloadThread.SaveToFile(SaveSessionDialog.FileName);
   end;
 end;
 
-procedure TFProgress.ThreadFinish;
+procedure TfrmProgressDownload.ThreadFinish;
 begin
   if Addr(FMapUpdateEvent) <> nil then begin
     FMapUpdateEvent(FDownloadThread.MapType);
   end;
 end;
 
-procedure TFProgress.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmProgressDownload.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   FDownloadThread.Terminate;
   UpdateTimer.Enabled := false;
   Action := caFree;
 end;
 
-procedure TFProgress.StopThread;
+procedure TfrmProgressDownload.StopThread;
 var
   VWaitResult: DWORD;
 begin

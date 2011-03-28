@@ -633,7 +633,6 @@ uses
   frm_About,
   frm_Settings,
   frm_RegionProcess,
-  UProgress,
   frm_LonLatRectEdit,
   frm_MapTypeEdit,
   frm_IntrnalBrowser,
@@ -660,6 +659,7 @@ uses
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
   frm_SearchResults,
+  frm_ProgressDownload,
   frm_InvisibleBrowser,
   frm_DebugInfo,
   i_ImportConfig,
@@ -3705,7 +3705,7 @@ begin
         VSimpleLog := VLog;
         VThreadLog := VLog;
         VThread := TThreadDownloadTiles.Create(VSimpleLog, VFileName, GState.SessionLastSuccess, FConfig.ViewPortState.GetCurrentZoom);
-        TFProgress.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
+        TfrmProgressDownload.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
       end else if ExtractFileExt(VFileName)='.hlg' then begin
         frmRegionProcess.LoadSelFromFile(VFileName);
       end else begin

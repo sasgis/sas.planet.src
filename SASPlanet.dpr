@@ -459,7 +459,7 @@ uses
   frm_About in 'frm_About.pas' {frmAbout},
   frm_Settings in 'frm_Settings.pas' {frmSettings},
   frm_RegionProcess in 'frm_RegionProcess.pas' {frmRegionProcess},
-  UProgress in 'UProgress.pas' {FProgress},
+  frm_ProgressDownload in 'frm_ProgressDownload.pas' {frmProgressDownload},
   frm_SearchResults in 'frm_SearchResults.pas' {frmSearchResults},
   frm_InvisibleBrowser in 'frm_InvisibleBrowser.pas' {frmInvisibleBrowser},
   frm_MarkEditPoint in 'frm_MarkEditPoint.pas' {frmMarkEditPoint},

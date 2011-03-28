@@ -1,4 +1,4 @@
-object FProgress: TFProgress
+object frmProgressDownload: TfrmProgressDownload
   Left = 226
   Top = 306
   BorderStyle = bsToolWindow
