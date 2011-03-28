@@ -6,7 +6,7 @@ uses
   Types,
   Classes,
   GR32,
-  i_IMarkPicture;
+  i_MarkPicture;
 
 type
   TMarkPictureSimple = class(TInterfacedObject, IMarkPicture)

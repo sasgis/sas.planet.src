@@ -1,4 +1,4 @@
-unit i_IMarkCategoryFactoryConfig;
+unit i_MarkCategoryFactoryConfig;
 
 interface
 

@@ -657,7 +657,7 @@ uses
   i_ActiveMapsConfig,
   u_MainWindowPositionConfig,
   u_LineOnMapEdit,
-  i_IMapViewGoto,
+  i_MapViewGoto,
   u_MapViewGotoOnFMain,
   frm_SearchResults,
   frm_InvisibleBrowser,

@@ -15,7 +15,7 @@ uses
   ActiveX,
   u_MarksSimple,
   i_MarksSimple,
-  i_IMarkCategory,
+  i_MarkCategory,
   u_GlobalState,
   u_GeoToStr,
   Ugeofun;

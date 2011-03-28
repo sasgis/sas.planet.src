@@ -1,4 +1,4 @@
-unit i_IMarkPicture;
+unit i_MarkPicture;
 
 interface
 

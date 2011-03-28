@@ -11,7 +11,7 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
-  i_IMarkCategory,
+  i_MarkCategory,
   u_CommonFormAndFrameParents,
   u_MarksDbGUIHelper,
   u_MarksSimple,

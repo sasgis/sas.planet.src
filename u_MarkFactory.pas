@@ -6,12 +6,12 @@ uses
   Windows,
   GR32,
   t_GeoTypes,
-  i_IMarkPicture,
-  i_IMarksFactoryConfig,
-  i_IMarkCategory,
+  i_MarkPicture,
+  i_MarksFactoryConfig,
+  i_MarkCategory,
   i_MarksSimple,
-  i_IMarkFactory,
-  i_IMarkFactoryDbInternal;
+  i_MarkFactory,
+  i_MarkFactoryDbInternal;
 
 type
 

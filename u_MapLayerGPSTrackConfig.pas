@@ -5,7 +5,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IMapLayerGPSTrackConfig,
+  i_MapLayerGPSTrackConfig,
   u_ConfigDataElementBase;
 
 type

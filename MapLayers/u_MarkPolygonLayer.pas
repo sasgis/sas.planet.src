@@ -9,7 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_IViewPortState,
-  i_IMarkPolygonLayerConfig,
+  i_MarkPolygonLayerConfig,
   u_PolyLineLayerBase,
   u_MapLayerBasic;
 

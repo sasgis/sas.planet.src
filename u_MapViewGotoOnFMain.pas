@@ -4,7 +4,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_IMapViewGoto;
+  i_MapViewGoto;
 
 type
   TToPosEvent = procedure (ALonLat: TDoublePoint; AZoom: byte; AShowMarker: boolean) of object;

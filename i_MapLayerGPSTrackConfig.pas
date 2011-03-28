@@ -1,4 +1,4 @@
-unit i_IMapLayerGPSTrackConfig;
+unit i_MapLayerGPSTrackConfig;
 
 interface
 

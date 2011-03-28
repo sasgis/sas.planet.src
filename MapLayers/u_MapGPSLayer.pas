@@ -8,7 +8,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_GPSRecorder,
-  i_IMapLayerGPSTrackConfig,
+  i_MapLayerGPSTrackConfig,
   i_IViewPortState,
   u_MapLayerBasic;
 

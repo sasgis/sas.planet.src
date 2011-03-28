@@ -6,7 +6,7 @@ uses
   Classes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IMarkPicture,
+  i_MarkPicture,
   i_BitmapTypeExtManager,
   u_ConfigDataElementBase;
 

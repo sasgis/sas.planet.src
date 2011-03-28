@@ -9,9 +9,9 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_IValueToStringConverter,
-  i_IMarkPicture,
+  i_MarkPicture,
   i_MarksSimple,
-  i_IMarkCategory,
+  i_MarkCategory,
   u_MarksSimple,
   u_MarksReadWriteSimple;
 

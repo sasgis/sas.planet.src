@@ -5,8 +5,8 @@ interface
 uses
   Classes,
   GR32,
-  i_IMarkPicture,
-  i_IMarksFactoryConfig,
+  i_MarkPicture,
+  i_MarksFactoryConfig,
   u_ConfigDataElementComplexBase;
 
 type

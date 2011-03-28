@@ -18,7 +18,7 @@ uses
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
   i_MarksSimple,
-  i_IMarkCategory,
+  i_MarkCategory,
   i_ImportConfig,
   u_MarksDbGUIHelper;
 
@@ -93,7 +93,7 @@ var
 implementation
 
 uses
-  i_IMarkPicture,
+  i_MarkPicture,
   u_MarksSimple,
   u_ImportConfig;
 

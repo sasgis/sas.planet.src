@@ -1,9 +1,9 @@
-unit i_IMarkCategoryFactory;
+unit i_MarkCategoryFactory;
 
 interface
 
 uses
-  i_IMarkCategory;
+  i_MarkCategory;
 
 type
   IMarkCategoryFactory = interface

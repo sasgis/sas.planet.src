@@ -1,4 +1,4 @@
-unit i_IMarkCategory;
+unit i_MarkCategory;
 
 interface
 

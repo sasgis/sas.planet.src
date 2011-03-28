@@ -8,9 +8,9 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   dm_MarksDb,
-  i_IMarksFactoryConfig,
-  i_IMarkCategory,
-  i_IMarkCategoryFactoryConfig,
+  i_MarksFactoryConfig,
+  i_MarkCategory,
+  i_MarkCategoryFactoryConfig,
   u_MarksOnlyDb,
   u_MarkCategoryDB,
   u_MarksSimple;

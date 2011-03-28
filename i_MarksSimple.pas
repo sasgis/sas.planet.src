@@ -6,7 +6,7 @@ uses
   ActiveX,
   GR32,
   t_GeoTypes,
-  i_IMarkPicture;
+  i_MarkPicture;
 
 type
   IMarkVisible = interface

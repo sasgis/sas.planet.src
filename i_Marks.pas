@@ -5,7 +5,7 @@ interface
 uses
   ActiveX,
   t_GeoTypes,
-  i_IMarkCategory;
+  i_MarkCategory;
 
 
 type

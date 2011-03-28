@@ -1,4 +1,4 @@
-unit i_IMarkPolyLineLayerConfig;
+unit i_MarkPolyLineLayerConfig;
 
 interface
 

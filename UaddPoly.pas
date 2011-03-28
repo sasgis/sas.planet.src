@@ -17,7 +17,7 @@ uses
   u_CommonFormAndFrameParents,
   UResStrings,
   i_MarksSimple,
-  i_IMarkCategory,
+  i_MarkCategory,
   u_MarksSimple,
   u_MarksDbGUIHelper,
   fr_MarkDescription,

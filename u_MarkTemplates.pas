@@ -4,8 +4,8 @@ interface
 
 uses
   GR32,
-  i_IMarkPicture,
-  i_IMarkNameGenerator,
+  i_MarkPicture,
+  i_MarkNameGenerator,
   i_MarksSimple;
 
 type

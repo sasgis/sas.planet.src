@@ -3,10 +3,10 @@ unit u_MarkCategoryFactory;
 interface
 
 uses
-  i_IMarkCategory,
-  i_IMarkCategoryFactoryConfig,
-  i_IMarkCategoryFactory,
-  i_IMarkCategoryFactoryDbInternal;
+  i_MarkCategory,
+  i_MarkCategoryFactoryConfig,
+  i_MarkCategoryFactory,
+  i_MarkCategoryFactoryDbInternal;
 
 type
   TMarkCategoryFactory = class(TInterfacedObject, IMarkCategoryFactory, IMarkCategoryFactoryDbInternal)

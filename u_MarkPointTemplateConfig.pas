@@ -7,11 +7,11 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IMarkPicture,
+  i_MarkPicture,
   i_MarksSimple,
-  i_IMarkCategory,
-  i_IMarkNameGenerator,
-  i_IMarksFactoryConfig,
+  i_MarkCategory,
+  i_MarkNameGenerator,
+  i_MarksFactoryConfig,
   u_ConfigDataElementComplexBase;
 
 type

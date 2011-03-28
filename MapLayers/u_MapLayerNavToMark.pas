@@ -12,7 +12,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_INavigationToPoint,
-  i_IMapLayerNavToPointMarkerConfig,
+  i_MapLayerNavToPointMarkerConfig,
   i_IViewPortState,
   u_MapLayerBasic;
 

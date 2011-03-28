@@ -1,4 +1,4 @@
-unit i_IMapLayerNavToPointMarkerConfig;
+unit i_MapLayerNavToPointMarkerConfig;
 
 interface
 

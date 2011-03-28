@@ -1,4 +1,4 @@
-unit i_IMarksFactoryConfig;
+unit i_MarksFactoryConfig;
 
 interface
 
@@ -6,9 +6,9 @@ uses
   Classes,
   GR32,
   i_ConfigDataElement,
-  i_IMarkPicture,
-  i_IMarkCategory,
-  i_IMarkNameGenerator,
+  i_MarkPicture,
+  i_MarkCategory,
+  i_MarkNameGenerator,
   i_MarksSimple;
 
 type

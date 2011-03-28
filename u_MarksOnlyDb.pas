@@ -8,11 +8,11 @@ uses
   Classes,
   t_GeoTypes,
   dm_MarksDb,
-  i_IMarksFactoryConfig,
-  i_IMarkCategory,
+  i_MarksFactoryConfig,
+  i_MarkCategory,
   i_MarksSimple,
-  i_IMarkFactory,
-  i_IMarkFactoryDbInternal,
+  i_MarkFactory,
+  i_MarkFactoryDbInternal,
   u_MarksSimple;
 
 type

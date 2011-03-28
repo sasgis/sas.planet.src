@@ -3,7 +3,7 @@ unit u_SearchResultPresenterStuped;
 interface
 
 uses
-  i_IMapViewGoto,
+  i_MapViewGoto,
   i_GeoCoder,
   i_ISearchResultPresenter;
 

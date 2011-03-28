@@ -6,7 +6,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IMarkNameGenerator,
+  i_MarkNameGenerator,
   u_ConfigDataElementBase;
 
 type

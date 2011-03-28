@@ -2,7 +2,7 @@ unit u_MarkPolyLineLayerConfig;
 
 interface
 uses
-  i_IMarkPolyLineLayerConfig,
+  i_MarkPolyLineLayerConfig,
   u_PolyLineLayerConfig;
 
 type

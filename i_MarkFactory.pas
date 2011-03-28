@@ -1,13 +1,13 @@
-unit i_IMarkFactory;
+unit i_MarkFactory;
 
 interface
 
 uses
   GR32,
   t_GeoTypes,
-  i_IMarkCategory,
-  i_IMarkPicture,
-  i_IMarksFactoryConfig,
+  i_MarkCategory,
+  i_MarkPicture,
+  i_MarksFactoryConfig,
   i_MarksSimple;
 
 type

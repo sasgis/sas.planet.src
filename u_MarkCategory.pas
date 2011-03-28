@@ -3,7 +3,7 @@ unit u_MarkCategory;
 interface
 
 uses
-  i_IMarkCategory;
+  i_MarkCategory;
 
 type
   TMarkCategory = class(TInterfacedObject, IMarkCategory)

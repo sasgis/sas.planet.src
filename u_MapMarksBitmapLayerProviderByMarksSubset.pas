@@ -10,7 +10,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_LocalCoordConverter,
-  i_IMarkPicture,
+  i_MarkPicture,
   i_MarksSimple,
   i_BitmapLayerProvider,
   u_ClipPolygonByRect;

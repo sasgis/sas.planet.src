@@ -8,7 +8,7 @@ uses
   GR32_Polygons,
   GR32_Image,
   i_IViewPortState,
-  i_IMarkPolyLineLayerConfig,
+  i_MarkPolyLineLayerConfig,
   u_PolyLineLayerBase,
   u_MapLayerBasic;
 

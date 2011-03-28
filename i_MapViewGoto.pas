@@ -1,4 +1,4 @@
-unit i_IMapViewGoto;
+unit i_MapViewGoto;
 
 interface
 

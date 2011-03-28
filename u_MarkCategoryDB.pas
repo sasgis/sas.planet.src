@@ -5,10 +5,10 @@ interface
 uses
   Windows,
   Classes,
-  i_IMarkCategory,
-  i_IMarkCategoryFactory,
-  i_IMarkCategoryFactoryDbInternal,
-  i_IMarkCategoryFactoryConfig,
+  i_MarkCategory,
+  i_MarkCategoryFactory,
+  i_MarkCategoryFactoryDbInternal,
+  i_MarkCategoryFactoryConfig,
   dm_MarksDb;
 
 type

@@ -1,9 +1,9 @@
-unit i_IMarkCategoryFactoryDbInternal;
+unit i_MarkCategoryFactoryDbInternal;
 
 interface
 
 uses
-  i_IMarkCategory;
+  i_MarkCategory;
 
 type
   IMarkCategoryFactoryDbInternal = interface

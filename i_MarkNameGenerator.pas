@@ -1,4 +1,4 @@
-unit i_IMarkNameGenerator;
+unit i_MarkNameGenerator;
 
 interface
 

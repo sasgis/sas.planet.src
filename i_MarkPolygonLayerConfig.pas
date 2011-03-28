@@ -1,4 +1,4 @@
-unit i_IMarkPolygonLayerConfig;
+unit i_MarkPolygonLayerConfig;
 
 interface
 

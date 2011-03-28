@@ -14,7 +14,7 @@ uses
   Forms,
   Dialogs,
   u_CommonFormAndFrameParents,
-  i_IMapViewGoto,
+  i_MapViewGoto,
   i_GeoCoder,
   i_ISearchResultPresenter;
 

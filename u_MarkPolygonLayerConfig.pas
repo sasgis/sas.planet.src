@@ -3,7 +3,7 @@ unit u_MarkPolygonLayerConfig;
 interface
 
 uses
-  i_IMarkPolygonLayerConfig,
+  i_MarkPolygonLayerConfig,
   u_PolygonLayerConfig;
 
 type
