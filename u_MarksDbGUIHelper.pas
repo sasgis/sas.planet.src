@@ -50,7 +50,7 @@ uses
   i_Datum,
   UResStrings,
   USaveas,
-  UaddPoint,
+  frm_MarkEditPoint,
   UaddPoly,
   frm_MarkEditPath;
 

@@ -462,7 +462,7 @@ uses
   UProgress in 'UProgress.pas' {FProgress},
   frm_SearchResults in 'frm_SearchResults.pas' {frmSearchResults},
   frm_InvisibleBrowser in 'frm_InvisibleBrowser.pas' {frmInvisibleBrowser},
-  UaddPoint in 'UaddPoint.pas' {frmMarkEditPoint},
+  frm_MarkEditPoint in 'frm_MarkEditPoint.pas' {frmMarkEditPoint},
   Unit4 in 'Unit4.pas' {Fprogress2},
   ULogo in 'ULogo.pas' {FLogo},
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
