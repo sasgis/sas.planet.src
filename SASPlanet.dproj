@@ -321,7 +321,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UaddLine.pas">
-      <Form>FaddLine</Form>
+      <Form>frmMarkEditPath</Form>
     </DCCReference>
     <DCCReference Include="UaddPoint.pas">
       <Form>FaddPoint</Form>

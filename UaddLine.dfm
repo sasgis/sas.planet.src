@@ -1,4 +1,4 @@
-object FaddLine: TFaddLine
+object frmMarkEditPath: TfrmMarkEditPath
   Left = 187
   Top = 189
   BorderStyle = bsSizeToolWin

@@ -24,7 +24,7 @@ uses
   t_GeoTypes;
 
 type
-  TFaddLine = class(TCommonFormParent)
+  TfrmMarkEditPath = class(TCommonFormParent)
     lblName: TLabel;
     lblLineColor: TLabel;
     lblWidth: TLabel;
@@ -61,13 +61,13 @@ type
   end;
 
 var
-  FaddLine: TFaddLine;
+  frmMarkEditPath: TfrmMarkEditPath;
 
 implementation
 
 {$R *.dfm}
 
-function TFaddLine.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
+function TfrmMarkEditPath.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
 var
   VLastUsedCategoryName: string;
   i: Integer;
@@ -123,19 +123,19 @@ begin
   end;
 end;
 
-procedure TFaddLine.FormShow(Sender: TObject);
+procedure TfrmMarkEditPath.FormShow(Sender: TObject);
 begin
   frMarkDescription.Parent := pnlDescription;
   edtName.SetFocus;
 end;
 
-procedure TFaddLine.RefreshTranslation;
+procedure TfrmMarkEditPath.RefreshTranslation;
 begin
   inherited;
   frMarkDescription.RefreshTranslation;
 end;
 
-procedure TFaddLine.btnOkClick(Sender: TObject);
+procedure TfrmMarkEditPath.btnOkClick(Sender: TObject);
 var
   VIndex: Integer;
   VCategoryText: string;
@@ -155,19 +155,19 @@ begin
   ModalResult := mrOk;
 end;
 
-constructor TFaddLine.Create(AOwner: TComponent);
+constructor TfrmMarkEditPath.Create(AOwner: TComponent);
 begin
   inherited;
   frMarkDescription := TfrMarkDescription.Create(nil);
 end;
 
-destructor TFaddLine.Destroy;
+destructor TfrmMarkEditPath.Destroy;
 begin
   FreeAndNil(frMarkDescription);
   inherited;
 end;
 
-procedure TFaddLine.btnLineColorClick(Sender: TObject);
+procedure TfrmMarkEditPath.btnLineColorClick(Sender: TObject);
 begin
  if ColorDialog1.Execute then clrbxLineColor.Selected:=ColorDialog1.Color;
 end;

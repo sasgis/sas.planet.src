@@ -467,7 +467,7 @@ uses
   ULogo in 'ULogo.pas' {FLogo},
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
   Ubrowser in 'Ubrowser.pas' {Fbrowser},
-  UaddLine in 'UaddLine.pas' {FaddLine},
+  UaddLine in 'UaddLine.pas' {frmMarkEditPath},
   UaddPoly in 'UaddPoly.pas' {FAddPoly},
   UEditMap in 'UEditMap.pas' {FEditMap},
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
@@ -512,7 +512,7 @@ begin
   Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
   Application.CreateForm(TFaddPoint, FaddPoint);
   Application.CreateForm(TFbrowser, Fbrowser);
-  Application.CreateForm(TFaddLine, FaddLine);
+  Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
   Application.CreateForm(TFAddPoly, FAddPoly);
   Application.CreateForm(TFEditMap, FEditMap);
   Application.CreateForm(TFShortcutChange, FShortcutChange);
