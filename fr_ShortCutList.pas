@@ -38,7 +38,7 @@ implementation
 uses
   Menus,
   UResStrings,
-  UShortcutEditor;
+  frm_ShortCutEdit;
 
 {$R *.dfm}
 

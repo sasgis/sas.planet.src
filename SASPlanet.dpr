@@ -474,7 +474,7 @@ uses
   UImport in 'UImport.pas' {FImport},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  UShortcutEditor in 'UShortcutEditor.pas' {frmShortCutEdit},
+  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
   u_ExportMarks2KML in 'u_ExportMarks2KML.pas';
 
 {$R *.res} {$R *Pics.res}

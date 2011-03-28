@@ -1,4 +1,4 @@
-unit UShortcutEditor;
+unit frm_ShortCutEdit;
 
 interface
 

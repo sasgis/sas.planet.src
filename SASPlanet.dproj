@@ -81,6 +81,9 @@
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
+    <DCCReference Include="frm_ShortCutEdit.pas">
+      <Form>frmShortCutEdit</Form>
+    </DCCReference>
     <DCCReference Include="fr_LonLat.pas">
       <Form>frLonLat</Form>
       <DesignClass>TFrame</DesignClass>
@@ -370,9 +373,6 @@
     </DCCReference>
     <DCCReference Include="Usettings.pas">
       <Form>FSettings</Form>
-    </DCCReference>
-    <DCCReference Include="UShortcutEditor.pas">
-      <Form>frmShortCutEdit</Form>
     </DCCReference>
     <DCCReference Include="UTimeZones.pas" />
     <DCCReference Include="UYaMobile.pas" />
