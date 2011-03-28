@@ -1,4 +1,4 @@
-unit i_IActiveMapsConfig;
+unit i_ActiveMapsConfig;
 
 interface
 

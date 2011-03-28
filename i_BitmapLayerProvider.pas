@@ -1,4 +1,4 @@
-unit i_IBitmapLayerProvider;
+unit i_BitmapLayerProvider;
 
 interface
 

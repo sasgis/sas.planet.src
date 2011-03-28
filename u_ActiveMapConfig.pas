@@ -8,7 +8,7 @@ uses
   i_JclNotify,
   i_IGUIDList,
   i_MapTypes,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   u_ConfigDataElementBase;
 
 type

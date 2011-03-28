@@ -9,7 +9,7 @@ uses
   GR32_Layers,
   i_ILocalCoordConverter,
   i_ILocalCoordConverterFactorySimpe,
-  i_IBackgroundTaskLayerDraw,
+  i_BackgroundTaskLayerDraw,
   i_IViewPortState,
   u_MapLayerBasic;
 

@@ -9,7 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_MapTypes,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   i_IViewPortState,
   u_MapLayerShowError,
   UMapType,

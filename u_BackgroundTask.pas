@@ -6,7 +6,7 @@ uses
   Windows,
   SyncObjs,
   Classes,
-  i_IBackgroundTask,
+  i_BackgroundTask,
   u_InterfacedThread;
 
 type

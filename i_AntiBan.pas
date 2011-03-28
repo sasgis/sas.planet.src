@@ -1,4 +1,4 @@
-unit i_IAntiBan;
+unit i_AntiBan;
 
 interface
 

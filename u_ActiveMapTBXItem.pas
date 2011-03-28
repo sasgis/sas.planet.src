@@ -8,7 +8,7 @@ uses
   TB2Item,
   TBX,
   i_JclNotify,
-  i_IActiveMapsConfig;
+  i_ActiveMapsConfig;
 
 type
   TActiveMapTBXItem = class(TTBXCustomItem)

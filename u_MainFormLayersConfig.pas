@@ -3,7 +3,7 @@ unit u_MainFormLayersConfig;
 interface
 
 uses
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   i_MapLayerGridsConfig,
   i_IStatBarConfig,
   i_IMapLayerGPSMarkerConfig,

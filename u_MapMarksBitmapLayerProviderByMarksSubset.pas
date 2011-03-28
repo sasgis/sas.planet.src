@@ -12,7 +12,7 @@ uses
   i_ILocalCoordConverter,
   i_IMarkPicture,
   i_MarksSimple,
-  i_IBitmapLayerProvider,
+  i_BitmapLayerProvider,
   u_ClipPolygonByRect;
 
 type

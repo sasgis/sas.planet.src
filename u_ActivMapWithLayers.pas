@@ -7,7 +7,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_MapTypes,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   u_NotifyWithGUIDEvent,
   u_MainActiveMap;
 

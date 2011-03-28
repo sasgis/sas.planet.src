@@ -6,7 +6,7 @@ uses
   Types,
   GR32,
   GR32_Image,
-  i_IBackgroundTaskLayerDraw,
+  i_BackgroundTaskLayerDraw,
   i_ILocalCoordConverter,
   u_BackgroundTaskLayerDrawBase,
   i_IViewPortState,

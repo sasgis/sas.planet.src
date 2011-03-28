@@ -11,7 +11,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IViewPortState,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   i_ILocalCoordConverterFactorySimpe,
   u_ConfigDataElementBase;
 

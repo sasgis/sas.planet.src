@@ -11,7 +11,7 @@ uses
   t_CommonTypes,
   i_ICoordConverter,
   i_ILocalCoordConverter,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   i_IViewPortState,
   i_MapTypes,
   i_ITileDownlodSession,

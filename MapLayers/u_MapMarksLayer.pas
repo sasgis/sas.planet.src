@@ -46,7 +46,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_ICoordConverter,
-  i_IBitmapLayerProvider,
+  i_BitmapLayerProvider,
   u_MapMarksBitmapLayerProviderByMarksSubset,
   u_NotifyEventListener;
 

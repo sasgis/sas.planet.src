@@ -5,7 +5,7 @@ interface
 uses
   GR32,
   i_ILocalCoordConverter,
-  i_IBackgroundTaskLayerDraw,
+  i_BackgroundTaskLayerDraw,
   u_BackgroundTask;
 
 type

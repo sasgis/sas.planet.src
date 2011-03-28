@@ -79,15 +79,15 @@
       <Form>frShortCutList</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="i_ActiveMapsConfig.pas" />
+    <DCCReference Include="i_AntiBan.pas" />
+    <DCCReference Include="i_BackgroundTask.pas" />
+    <DCCReference Include="i_BackgroundTaskLayerDraw.pas" />
+    <DCCReference Include="i_BitmapLayerProvider.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="i_ContentTypeInfo.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
     <DCCReference Include="i_GPS.pas" />
-    <DCCReference Include="i_IActiveMapsConfig.pas" />
-    <DCCReference Include="i_IAntiBan.pas" />
-    <DCCReference Include="i_IBackgroundTask.pas" />
-    <DCCReference Include="i_IBackgroundTaskLayerDraw.pas" />
-    <DCCReference Include="i_IBitmapLayerProvider.pas" />
     <DCCReference Include="i_IBitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_IBitmapTypeExtManager.pas" />
     <DCCReference Include="i_ICalcLineLayerConfig.pas" />

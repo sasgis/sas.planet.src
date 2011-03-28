@@ -4,7 +4,7 @@ interface
 
 uses
   i_JclNotify,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   i_MapTypes,
   i_IMiniMapLayerConfig,
   u_ActivMapWithLayers;

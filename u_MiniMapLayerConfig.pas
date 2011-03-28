@@ -7,7 +7,7 @@ uses
   i_IConfigDataProvider,
   i_IConfigDataWriteProvider,
   i_IMiniMapLayerConfig,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   u_ConfigDataElementComplexBase;
 
 type

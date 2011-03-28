@@ -20,7 +20,7 @@ uses
   i_IBitmapTypeExtManager,
   i_BitmapTileSaveLoad,
   i_IKmlInfoSimpleLoader,
-  i_IAntiBan,
+  i_AntiBan,
   u_KmlInfoSimple,
   u_UrlGenerator,
   u_MapTypeCacheConfig,

@@ -1,4 +1,4 @@
-unit i_IBackgroundTaskLayerDraw;
+unit i_BackgroundTaskLayerDraw;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   Types,
   GR32,
   i_ILocalCoordConverter,
-  i_IBackgroundTask;
+  i_BackgroundTask;
 
 type
   IBackgroundTaskLayerDraw = interface(IBackgroundTask)

@@ -6,7 +6,7 @@ uses
   Windows,
   i_JclNotify,
   i_MapTypes,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   u_ConfigDataElementBase;
 
 type

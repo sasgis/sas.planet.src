@@ -4,7 +4,7 @@ interface
 
 uses
   i_IConfigDataElement,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   i_IViewPortState,
   i_INavigationToPoint,
   i_IStatBarConfig,

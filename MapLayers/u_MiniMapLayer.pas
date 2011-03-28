@@ -15,7 +15,7 @@ uses
   t_GeoTypes,
   i_MapTypes,
   i_MapTypeIconsList,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   i_ILocalCoordConverter,
   i_ILocalCoordConverterFactorySimpe,
   i_IViewPortState,

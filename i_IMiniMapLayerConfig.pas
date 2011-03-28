@@ -5,7 +5,7 @@ interface
 uses
   GR32,
   i_MapTypes,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   i_IConfigDataElement;
 
 type

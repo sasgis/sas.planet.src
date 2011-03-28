@@ -654,7 +654,7 @@ uses
   i_ICoordConverter,
   i_ILocalCoordConverter,
   i_IValueToStringConverter,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   u_MainWindowPositionConfig,
   u_LineOnMapEdit,
   i_IMapViewGoto,

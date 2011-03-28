@@ -13,7 +13,7 @@ uses
   u_MapLayerBasic,
   t_GeoTypes,
   i_MapTypes,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   i_IKmlLayerConfig,
   i_ILocalCoordConverter,
   i_IViewPortState,

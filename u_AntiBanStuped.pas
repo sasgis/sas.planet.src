@@ -6,7 +6,7 @@ uses
   Windows,
   SyncObjs,
   i_IConfigDataProvider,
-  i_IAntiBan,
+  i_AntiBan,
   i_ITileDownlodSession;
 
 type

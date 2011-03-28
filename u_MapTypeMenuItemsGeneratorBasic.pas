@@ -7,7 +7,7 @@ uses
   TB2Item,
   TBX,
   i_MapTypes,
-  i_IActiveMapsConfig,
+  i_ActiveMapsConfig,
   i_MapTypeIconsList,
   UMapType;
 

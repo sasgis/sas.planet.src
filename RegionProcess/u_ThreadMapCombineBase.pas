@@ -8,7 +8,7 @@ uses
   GR32,
   t_GeoTypes,
   i_MarksSimple,
-  i_IBitmapLayerProvider,
+  i_BitmapLayerProvider,
   i_IBitmapPostProcessingConfig,
   i_ILocalCoordConverter,
   i_ILocalCoordConverterFactorySimpe,
