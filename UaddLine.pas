@@ -34,7 +34,6 @@ type
     chkVisible: TCheckBox;
     clrbxLineColor: TColorBox;
     seWidth: TSpinEdit;
-    OpenDialog1: TOpenDialog;
     SEtransp: TSpinEdit;
     lblTransp: TLabel;
     ColorDialog1: TColorDialog;

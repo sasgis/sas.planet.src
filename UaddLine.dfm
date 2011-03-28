@@ -24,8 +24,6 @@ object FaddLine: TFaddLine
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 4
-    ExplicitLeft = 8
-    ExplicitTop = 291
   end
   object pnlCategory: TPanel
     Left = 0
@@ -110,7 +108,6 @@ object FaddLine: TFaddLine
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitTop = 241
     object lblLineColor: TLabel
       AlignWithMargins = True
       Left = 3
@@ -217,11 +214,6 @@ object FaddLine: TFaddLine
       ModalResult = 2
       TabOrder = 1
     end
-  end
-  object OpenDialog1: TOpenDialog
-    Filter = 'PNG|*.png'
-    Left = 8
-    Top = 280
   end
   object ColorDialog1: TColorDialog
     Left = 56

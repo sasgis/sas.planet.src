@@ -307,11 +307,6 @@ object FAddPoly: TFAddPoly
       TabOrder = 0
     end
   end
-  object OpenDialog1: TOpenDialog
-    Filter = 'PNG|*.png'
-    Left = 40
-    Top = 248
-  end
   object ColorDialog1: TColorDialog
     Left = 88
     Top = 264

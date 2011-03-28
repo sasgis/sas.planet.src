@@ -30,7 +30,6 @@ type
     btnOk: TButton;
     btnCancel: TButton;
     chkVisible: TCheckBox;
-    OpenDialog1: TOpenDialog;
     lblLineColor: TLabel;
     lblLineWidth: TLabel;
     clrbxLineColor: TColorBox;
