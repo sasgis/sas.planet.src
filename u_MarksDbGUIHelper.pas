@@ -52,7 +52,7 @@ uses
   USaveas,
   UaddPoint,
   UaddPoly,
-  UaddLine;
+  frm_MarkEditPath;
 
 { TMarksDbGUIHelper }
 

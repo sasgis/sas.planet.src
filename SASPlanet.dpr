@@ -467,7 +467,7 @@ uses
   ULogo in 'ULogo.pas' {FLogo},
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
   Ubrowser in 'Ubrowser.pas' {Fbrowser},
-  UaddLine in 'UaddLine.pas' {frmMarkEditPath},
+  frm_MarkEditPath in 'frm_MarkEditPath.pas' {frmMarkEditPath},
   UaddPoly in 'UaddPoly.pas' {FAddPoly},
   UEditMap in 'UEditMap.pas' {FEditMap},
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},

@@ -69,6 +69,9 @@
     <DCCReference Include="frm_MarkCategoryEdit.pas">
       <Form>frmMarkCategoryEdit</Form>
     </DCCReference>
+    <DCCReference Include="frm_MarkEditPath.pas">
+      <Form>frmMarkEditPath</Form>
+    </DCCReference>
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
@@ -320,9 +323,6 @@
     <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
-    <DCCReference Include="UaddLine.pas">
-      <Form>frmMarkEditPath</Form>
-    </DCCReference>
     <DCCReference Include="UaddPoint.pas">
       <Form>FaddPoint</Form>
     </DCCReference>
