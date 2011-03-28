@@ -14,7 +14,7 @@ object FLogo: TFLogo
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object Image321: TImage32
+  object imgLogo: TImage32
     Left = 0
     Top = 0
     Width = 480
@@ -25,8 +25,8 @@ object FLogo: TFLogo
     Scale = 1.000000000000000000
     ScaleMode = smResize
     TabOrder = 0
-    OnClick = Image321Click
-    object Label1: TLabel
+    OnClick = imgLogoClick
+    object lblVersion: TLabel
       Left = 398
       Top = 249
       Width = 69
@@ -37,7 +37,7 @@ object FLogo: TFLogo
       ParentColor = False
       Transparent = True
     end
-    object Label2: TLabel
+    object lblWebSite: TLabel
       Left = 8
       Top = 254
       Width = 91
@@ -53,10 +53,10 @@ object FLogo: TFLogo
       Layout = tlCenter
     end
   end
-  object Timer1: TTimer
+  object tmrLogo: TTimer
     Enabled = False
     Interval = 500
-    OnTimer = Timer1Timer
+    OnTimer = tmrLogoTimer
     Left = 8
     Top = 8
   end

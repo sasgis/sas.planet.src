@@ -486,10 +486,7 @@ begin
     Application.Title := SAS_STR_ApplicationTitle;
     //logo
     if GState.Show_logo then begin
-      FLogo:=TFLogo.Create(application);
-      FLogo.Label1.Caption:='v '+SASVersion;
-      FLogo.Show;
-      Application.ProcessMessages;
+      TFLogo.ShowLogo;
     end;
     try
       GState.LoadConfig;

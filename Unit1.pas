@@ -996,7 +996,7 @@ begin
   finally
     Enabled:=true;
     map.SetFocus;
-    if (FLogo<>nil)and(FLogo.Visible) then FLogo.Timer1.Enabled:=true;
+    TFLogo.ReadyToHideLogo;
   end;
   TBXMainMenu.ProcessShortCuts:=true;
 end;

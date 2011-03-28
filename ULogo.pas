@@ -13,40 +13,66 @@ uses
 
 type
   TFLogo = class(TCommonFormParent)
-    Timer1: TTimer;
-    Image321: TImage32;
-    Label1: TLabel;
-    Label2: TLabel;
-    procedure Timer1Timer(Sender: TObject);
+    tmrLogo: TTimer;
+    imgLogo: TImage32;
+    lblVersion: TLabel;
+    lblWebSite: TLabel;
+    procedure tmrLogoTimer(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure Image321Click(Sender: TObject);
+    procedure imgLogoClick(Sender: TObject);
   private
+    FReadyToHide: Boolean;
   public
+    class procedure ShowLogo;
+    class procedure ReadyToHideLogo;
   end;
+
+
+implementation
+
+uses
+  c_SasVersion,
+  u_GlobalState;
 
 var
   FLogo: TFLogo;
 
-implementation
 {$R *.dfm}
-uses
-  u_GlobalState;
 
-procedure TFLogo.Timer1Timer(Sender: TObject);
+procedure TFLogo.tmrLogoTimer(Sender: TObject);
 begin
- timer1.Enabled:=false;
- FLogo.Close;
+  tmrLogo.Enabled:=false;
+  Self.Close;
 end;
 
 procedure TFLogo.FormShow(Sender: TObject);
 begin
-  GState.LoadBitmapFromJpegRes('LOGOI', Image321.Bitmap);
+  GState.LoadBitmapFromJpegRes('LOGOI', imgLogo.Bitmap);
+  lblVersion.Caption:='v '+SASVersion;
+  FReadyToHide := False;
 end;
 
-procedure TFLogo.Image321Click(Sender: TObject);
+procedure TFLogo.imgLogoClick(Sender: TObject);
 begin
-   FLogo.Close;
-   timer1.Enabled:=false;
+  if FReadyToHide then begin
+    tmrLogo.Enabled := false;
+    Self.Close;
+  end;
+end;
+
+class procedure TFLogo.ReadyToHideLogo;
+begin
+  if FLogo <> nil then begin
+    FLogo.FReadyToHide := True;
+    FLogo.tmrLogo.Enabled := True;
+  end;
+end;
+
+class procedure TFLogo.ShowLogo;
+begin
+  FLogo := TFLogo.Create(Application);
+  FLogo.Show;
+  Application.ProcessMessages;
 end;
 
 end.
