@@ -175,7 +175,7 @@ begin
       if FActiveIndex >= FCount then begin
         FActiveIndex := FCount - 1;
       end;
-      if not compare2EP(APoint, FPoints[FActiveIndex]) then begin
+      if not DoublePoitnsEqual(APoint, FPoints[FActiveIndex]) then begin
         FPoints[FActiveIndex] := APoint;
         SetChanged;
       end;
@@ -206,7 +206,7 @@ var
 begin
   VNewCount := Length(AValue);
   if VNewCount > 1 then begin
-    if compare2EP(AValue[0], AValue[VNewCount - 1]) then begin
+    if DoublePoitnsEqual(AValue[0], AValue[VNewCount - 1]) then begin
       Dec(VNewCount);
     end;
   end;

@@ -339,7 +339,7 @@ begin
     if VPointCount = 1 then begin
       Result := CreatePoint(AId, AName, AVisible, APicName, nil, ACategoryId, ADesc, APoints[0], AColor1, AColor2, AScale1, AScale2)
     end else begin
-      if compare2EP(APoints[0], APoints[VPointCount - 1]) then begin
+      if DoublePoitnsEqual(APoints[0], APoints[VPointCount - 1]) then begin
         Result := CreatePoly(AId, AName, AVisible, ACategoryId, ADesc, ARect, APoints, AColor1, AColor2, AScale1);
       end else begin
         Result := CreateLine(AId, AName, AVisible, ACategoryId, ADesc, ARect, APoints, AColor1, AScale1);
@@ -630,7 +630,7 @@ begin
   VCount := Length(APoints);
   Assert(VCount > 2, 'В полигоне должно быть хотя бы 3 точки');
   if VCount > 0 then begin
-    if not compare2EP(APoints[0], APoints[VCount - 1]) then begin
+    if not DoublePoitnsEqual(APoints[0], APoints[VCount - 1]) then begin
       SetLength(APoints, VCount + 1);
       APoints[VCount] := APoints[0];
     end;

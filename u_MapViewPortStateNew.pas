@@ -388,13 +388,13 @@ begin
   VChanged := False;
   LockWrite;
   try
-    if not compare2EP(FMapScale, FBaseScale) then begin
+    if not DoublePoitnsEqual(FMapScale, FBaseScale) then begin
       FMapScale := FBaseScale;
       VChanged := True;
     end;
     VVisibleMove.X := Pnt.X;
     VVisibleMove.Y := Pnt.Y;
-    if not compare2EP(FVisibleMove, VVisibleMove) then begin
+    if not DoublePoitnsEqual(FVisibleMove, VVisibleMove) then begin
       FVisibleMove := VVisibleMove;
       VChanged := True;
     end;
@@ -442,7 +442,7 @@ begin
   VVisiblePointFixed.Y := ACenterPoint.Y;
   LockWrite;
   try
-    if not compare2EP(FVisibleMove, DoublePoint(0,0)) then begin
+    if not DoublePoitnsEqual(FVisibleMove, DoublePoint(0,0)) then begin
       FVisibleMove.X := 0;
       FVisibleMove.Y := 0;
       VChanged := True;
@@ -450,7 +450,7 @@ begin
 
     VNewMapScale.X := FBaseScale.X * AScale;
     VNewMapScale.Y := FBaseScale.X * AScale;
-    if not compare2EP(FMapScale, VNewMapScale) then begin
+    if not DoublePoitnsEqual(FMapScale, VNewMapScale) then begin
       FMapScale := VNewMapScale;
       VChanged := True;
     end;
@@ -461,7 +461,7 @@ begin
 
     VNewVisibleMove.X := VNewVisualPoint.X - VVisiblePointFixed.X;
     VNewVisibleMove.Y := VNewVisualPoint.Y - VVisiblePointFixed.Y;
-    if not compare2EP(FVisibleMove, VNewVisibleMove) then begin
+    if not DoublePoitnsEqual(FVisibleMove, VNewVisibleMove) then begin
       FVisibleMove := VNewVisibleMove;
       VChanged := True;
     end;
@@ -493,7 +493,7 @@ begin
     VVisiblePointFixed.X := VViewCenter.X;
     VVisiblePointFixed.Y := VViewCenter.Y;
     VMapPointFixed := FVisibleCoordConverter.LocalPixelFloat2MapPixelFloat(VVisiblePointFixed);
-    if not compare2EP(FVisibleMove, DoublePoint(0,0)) then begin
+    if not DoublePoitnsEqual(FVisibleMove, DoublePoint(0,0)) then begin
       FVisibleMove.X := 0;
       FVisibleMove.Y := 0;
       VChanged := True;
@@ -501,7 +501,7 @@ begin
 
     VNewMapScale.X := FBaseScale.X * AScale;
     VNewMapScale.Y := FBaseScale.X * AScale;
-    if not compare2EP(FMapScale, VNewMapScale) then begin
+    if not DoublePoitnsEqual(FMapScale, VNewMapScale) then begin
       FMapScale := VNewMapScale;
       VChanged := True;
     end;
@@ -510,7 +510,7 @@ begin
     VNewVisualPoint.Y := (VMapPointFixed.Y - FCenterPos.Y) * FMapScale.Y + VViewCenter.Y;
     VNewVisibleMove.X := VNewVisualPoint.X - VVisiblePointFixed.X;
     VNewVisibleMove.Y := VNewVisualPoint.Y - VVisiblePointFixed.Y;
-    if not compare2EP(FVisibleMove, VNewVisibleMove) then begin
+    if not DoublePoitnsEqual(FVisibleMove, VNewVisibleMove) then begin
       FVisibleMove := VNewVisibleMove;
       VChanged := True;
     end;

@@ -68,7 +68,7 @@ var
 begin
   VPointsCount := Length(APathLonLat);
   if VPointsCount > 2 then begin
-    if compare2EP(APathLonLat[0], APathLonLat[VPointsCount - 1]) then begin
+    if DoublePoitnsEqual(APathLonLat[0], APathLonLat[VPointsCount - 1]) then begin
       VPathLonLat := APathLonLat;
     end else begin
       SetLength(VPathLonLat, VPointsCount + 1);
