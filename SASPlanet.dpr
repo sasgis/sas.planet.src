@@ -143,7 +143,7 @@ uses
   u_InetConfig in 'u_InetConfig.pas',
   i_GSMGeoCodeConfig in 'i_GSMGeoCodeConfig.pas',
   u_GSMGeoCodeConfig in 'u_GSMGeoCodeConfig.pas',
-  UYaMobile in 'UYaMobile.pas',
+  u_YaMobileWrite in 'u_YaMobileWrite.pas',
   UGSM in 'UGSM.pas',
   i_DownloadInfoSimple in 'i_DownloadInfoSimple.pas',
   u_DownloadInfoSimple in 'u_DownloadInfoSimple.pas',

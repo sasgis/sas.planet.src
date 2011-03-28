@@ -10,7 +10,7 @@ uses
   GR32,
   UMapType,
   UResStrings,
-  UYaMobile,
+  u_YaMobileWrite,
   t_GeoTypes,
   u_ThreadExportAbstract;
 

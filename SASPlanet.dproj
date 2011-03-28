@@ -374,7 +374,6 @@
       <Form>FSettings</Form>
     </DCCReference>
     <DCCReference Include="UTimeZones.pas" />
-    <DCCReference Include="UYaMobile.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
     <DCCReference Include="u_ActiveMapsSet.pas" />
@@ -597,6 +596,7 @@
     <DCCReference Include="u_ValueToStringConverter.pas" />
     <DCCReference Include="u_ValueToStringConverterConfig.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
+    <DCCReference Include="u_YaMobileWrite.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
   </ItemGroup>
 </Project>
