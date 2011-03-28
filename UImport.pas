@@ -23,7 +23,7 @@ uses
   u_MarksDbGUIHelper;
 
 type
-  TFImport = class(TCommonFormParent)
+  TfrmImportConfigEdit = class(TCommonFormParent)
     lblCategory: TLabel;
     CBKateg: TComboBox;
     grpPoint: TGroupBox;
@@ -88,7 +88,7 @@ type
   end;
 
 var
-  FImport: TFImport;
+  frmImportConfigEdit: TfrmImportConfigEdit;
 
 implementation
 
@@ -98,32 +98,32 @@ uses
 
 {$R *.dfm}
 
-procedure TFImport.btnPointTextColorClick(Sender: TObject);
+procedure TfrmImportConfigEdit.btnPointTextColorClick(Sender: TObject);
 begin
   if ColorDialog1.Execute then clrbxPointTextColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFImport.btnPointShadowColorClick(Sender: TObject);
+procedure TfrmImportConfigEdit.btnPointShadowColorClick(Sender: TObject);
 begin
   if ColorDialog1.Execute then clrbxPointShadowColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFImport.btnLineColorClick(Sender: TObject);
+procedure TfrmImportConfigEdit.btnLineColorClick(Sender: TObject);
 begin
   if ColorDialog1.Execute then clrbxLineColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFImport.btnPolyLineColorClick(Sender: TObject);
+procedure TfrmImportConfigEdit.btnPolyLineColorClick(Sender: TObject);
 begin
   if ColorDialog1.Execute then clrbxPolyLineColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFImport.btnPolyFillColorClick(Sender: TObject);
+procedure TfrmImportConfigEdit.btnPolyFillColorClick(Sender: TObject);
 begin
   if ColorDialog1.Execute then clrbxPolyFillColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFImport.cbbPointIconDrawItem(Control: TWinControl; Index: Integer;
+procedure TfrmImportConfigEdit.cbbPointIconDrawItem(Control: TWinControl; Index: Integer;
   Rect: TRect; State: TOwnerDrawState);
 var
   Bitmap: TCustomBitmap32;
@@ -158,7 +158,7 @@ begin
   end;
 end;
 
-function TFImport.GetImportConfig(AMarkDBGUI: TMarksDbGUIHelper): IImportConfig;
+function TfrmImportConfigEdit.GetImportConfig(AMarkDBGUI: TMarksDbGUIHelper): IImportConfig;
 var
   VIndex: Integer;
   VPic: IMarkPicture;
@@ -240,7 +240,7 @@ begin
   end;
 end;
 
-procedure TFImport.btnOkClick(Sender: TObject);
+procedure TfrmImportConfigEdit.btnOkClick(Sender: TObject);
 var
   VCategoryText: string;
   VIndex: Integer;

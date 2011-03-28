@@ -3709,7 +3709,7 @@ begin
       end else if ExtractFileExt(VFileName)='.hlg' then begin
         Fsaveas.LoadSelFromFile(VFileName);
       end else begin
-        VImportConfig := FImport.GetImportConfig(FMarkDBGUI);
+        VImportConfig := frmImportConfigEdit.GetImportConfig(FMarkDBGUI);
         if VImportConfig <> nil then begin
           GState.ImportFileByExt.ProcessImport(VFileName, VImportConfig);
         end;

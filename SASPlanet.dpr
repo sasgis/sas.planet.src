@@ -471,7 +471,7 @@ uses
   frm_MarkEditPoly in 'frm_MarkEditPoly.pas' {frmMarkEditPoly},
   frm_MapTypeEdit in 'frm_MapTypeEdit.pas' {frmMapTypeEdit},
   frm_MarksExplorer in 'frm_MarksExplorer.pas' {frmMarksExplorer},
-  UImport in 'UImport.pas' {FImport},
+  UImport in 'UImport.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
@@ -504,7 +504,7 @@ begin
   Application.CreateForm(TFSettings, FSettings);
   Application.CreateForm(TFsaveas, Fsaveas);
   Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
-  Application.CreateForm(TFImport, FImport);
+  Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
   Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
   Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
   Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);

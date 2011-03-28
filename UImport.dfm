@@ -1,4 +1,4 @@
-object FImport: TFImport
+object frmImportConfigEdit: TfrmImportConfigEdit
   Left = 245
   Top = 207
   BorderStyle = bsDialog

@@ -349,7 +349,7 @@
     </DCCReference>
     <DCCReference Include="Ugeofun.pas" />
     <DCCReference Include="UImport.pas">
-      <Form>FImport</Form>
+      <Form>frmImportConfigEdit</Form>
     </DCCReference>
     <DCCReference Include="UMapType.pas" />
     <DCCReference Include="Unit1.pas">
