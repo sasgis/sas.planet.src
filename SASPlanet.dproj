@@ -357,7 +357,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UFDGAvailablePic.pas">
-      <Form>FDGAvailablePic</Form>
+      <Form>frmDGAvailablePic</Form>
     </DCCReference>
     <DCCReference Include="Ugeofun.pas" />
     <DCCReference Include="UMapType.pas" />

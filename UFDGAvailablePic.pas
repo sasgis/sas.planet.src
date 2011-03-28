@@ -23,7 +23,7 @@ uses
   t_GeoTypes;
 
 type
-  TFDGAvailablePic = class(TCommonFormParent)
+  TfrmDGAvailablePic = class(TCommonFormParent)
     GroupBox1: TGroupBox;
     LabelDate: TLabel;
     LabelResolution: TLabel;
@@ -62,7 +62,7 @@ type
   end;
 
 var
-  FDGAvailablePic: TFDGAvailablePic;
+  frmDGAvailablePic: TfrmDGAvailablePic;
   Stacks : array [0..13,0..3] of string =
             (
              ('227400001','1','GlobeXplorer Premium Stack','020100S'),
@@ -170,6 +170,7 @@ type
     Link:string;
     ErrCode:integer;
   private
+    FForm: TfrmDGAvailablePic;
     list:TStringList;
     function GetStreamFromURL1(var ms:TMemoryStream;url:string;conttype:string):integer;
   protected
@@ -177,7 +178,7 @@ type
     procedure ShowList;
     procedure ShowError;
   public
-    constructor Create(ALink:string);
+    constructor Create(ALink:string; AForm: TfrmDGAvailablePic);
   end;
 
 const
@@ -211,12 +212,13 @@ begin
                    else Result := '';
 end;
 
-constructor TGetList.Create(ALink:string);
+constructor TGetList.Create(ALink:string; AForm: TfrmDGAvailablePic);
 begin
   inherited Create(True);
   FreeOnTerminate:=true;
   Priority:=tpLower;
   Link:=ALink;
+  FForm := AForm;
 end;
 
 procedure TGetList.ShowError;
@@ -312,15 +314,15 @@ begin
    datesat[5]:=DateSeparator;
    datesat[8]:=DateSeparator;
    added:=false;
-   for j:=0 to FDGAvailablePic.TreeView1.Items.Count-1 do
-    if FDGAvailablePic.TreeView1.Items.Item[j].Text=datesat then
+   for j:=0 to FForm.TreeView1.Items.Count-1 do
+    if FForm.TreeView1.Items.Item[j].Text=datesat then
      begin
-      node:=FDGAvailablePic.TreeView1.Items.AddChild(FDGAvailablePic.TreeView1.Items.Item[j],GetWord(list[i], ',', 1));
+      node:=FForm.TreeView1.Items.AddChild(FForm.TreeView1.Items.Item[j],GetWord(list[i], ',', 1));
       added:=true;
       break;
      end;
    if not(added) then
-    node:=FDGAvailablePic.TreeView1.Items.AddChild(FDGAvailablePic.TreeView1.Items.Add(nil,datesat),GetWord(List[i], ',', 1));
+    node:=FForm.TreeView1.Items.AddChild(FForm.TreeView1.Items.Add(nil,datesat),GetWord(List[i], ',', 1));
    node.Data:=TDGPicture.Create;
    with TDGPicture(node.Data) do
     begin
@@ -332,7 +334,7 @@ begin
     end;
   except
   end;
- FDGAvailablePic.TreeView1.AlphaSort();
+  FForm.TreeView1.AlphaSort();
  end;
 end;
 
@@ -355,7 +357,7 @@ begin
  List.Free;
 end;
 
-procedure TFDGAvailablePic.CreateTree;
+procedure TfrmDGAvailablePic.CreateTree;
 var pltstr:TStringList;
     datesat:string;
     i,j:integer;
@@ -394,7 +396,7 @@ begin
  pltstr.Free;
 end;
 
-procedure TFDGAvailablePic.setup(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
+procedure TfrmDGAvailablePic.setup(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
 var
   VSize: TPoint;
   VRad: Extended;
@@ -423,7 +425,7 @@ begin
  ComboBox2Change(nil);
 end;
 
-procedure TFDGAvailablePic.Button1Click(Sender: TObject);
+procedure TfrmDGAvailablePic.Button1Click(Sender: TObject);
 begin
  if TreeView1.Selected<>nil then
  if TreeView1.Selected.HasChildren
@@ -434,7 +436,7 @@ begin
         then TreeView1.Selected.MoveTo(TreeView1.Selected.GetPrev,naInsert)
 end;
 
-procedure TFDGAvailablePic.Button2Click(Sender: TObject);
+procedure TfrmDGAvailablePic.Button2Click(Sender: TObject);
 begin
  if TreeView1.Selected<>nil then
  if TreeView1.Selected.HasChildren
@@ -451,7 +453,7 @@ begin
    else TreeView1.Selected.MoveTo(TreeView1.Selected.GetNext,naAdd)
 end;
 
-procedure TFDGAvailablePic.FormTidList;
+procedure TfrmDGAvailablePic.FormTidList;
 var
     i:integer;
     added:boolean;
@@ -471,7 +473,7 @@ begin
 end;
 
 
-procedure TFDGAvailablePic.TreeView1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TfrmDGAvailablePic.TreeView1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var MH:THitTests;
     Node:TTreeNode;
     i:integer;
@@ -508,7 +510,7 @@ begin
    end;
 end;
 
-procedure TFDGAvailablePic.ComboBox2Change(Sender: TObject);
+procedure TfrmDGAvailablePic.ComboBox2Change(Sender: TObject);
 var
     encrypt:string;
 begin
@@ -522,14 +524,14 @@ begin
  GetWord(ComboBox2.Text, ',', 1);
  encrypt:= Encode64(EncodeDG('cmd=info&id='+stacks[ComboBox2.ItemIndex,0]+'&appid='+stacks[ComboBox2.ItemIndex,3]+'&ls='+ls+'&xc='+R2StrPoint(FLonLat.x)+'&yc='+R2StrPoint(FLonLat.y)+'&mpp='+R2StrPoint(mpp)+'&iw='+inttostr(wi)+'&ih='+inttostr(hi)+'&extentset=all'));
 
- with TGetList.Create('http://image.globexplorer.com/gexservlets/gex?encrypt='+encrypt) do
+ with TGetList.Create('http://image.globexplorer.com/gexservlets/gex?encrypt='+encrypt, Self) do
   begin
    GetListThId:=ThreadID;
    Resume;
   end;
 end;
 
-procedure TFDGAvailablePic.CopyStringToClipboard(s: Widestring);
+procedure TfrmDGAvailablePic.CopyStringToClipboard(s: Widestring);
 var hg: THandle;
     P: PChar;
 begin
@@ -556,12 +558,12 @@ begin
   end
 end;
 
-procedure TFDGAvailablePic.Button3Click(Sender: TObject);
+procedure TfrmDGAvailablePic.Button3Click(Sender: TObject);
 begin
   CopyStringToClipboard(TIDs);
 end;
 
-procedure TFDGAvailablePic.FormCreate(Sender: TObject);
+procedure TfrmDGAvailablePic.FormCreate(Sender: TObject);
 var i:integer;
 begin
  SetWindowLong(TreeView1.Handle,GWL_STYLE,GetWindowLong(TreeView1.Handle,GWL_STYLE) or TVS_CHECKBOXES);

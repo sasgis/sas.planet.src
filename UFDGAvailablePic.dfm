@@ -1,4 +1,4 @@
-object FDGAvailablePic: TFDGAvailablePic
+object frmDGAvailablePic: TfrmDGAvailablePic
   Left = 730
   Top = 247
   BorderStyle = bsDialog
