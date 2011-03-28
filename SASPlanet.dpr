@@ -464,7 +464,7 @@ uses
   frm_InvisibleBrowser in 'frm_InvisibleBrowser.pas' {frmInvisibleBrowser},
   frm_MarkEditPoint in 'frm_MarkEditPoint.pas' {frmMarkEditPoint},
   Unit4 in 'Unit4.pas' {Fprogress2},
-  ULogo in 'ULogo.pas' {FLogo},
+  ULogo in 'ULogo.pas' {frmStartLogo},
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
   frm_IntrnalBrowser in 'frm_IntrnalBrowser.pas' {frmIntrnalBrowser},
   frm_MarkEditPath in 'frm_MarkEditPath.pas' {frmMarkEditPath},
@@ -486,7 +486,7 @@ begin
     Application.Title := SAS_STR_ApplicationTitle;
     //logo
     if GState.Show_logo then begin
-      TFLogo.ShowLogo;
+      TfrmStartLogo.ShowLogo;
     end;
     try
       GState.LoadConfig;

@@ -349,7 +349,7 @@
       <Form>FImport</Form>
     </DCCReference>
     <DCCReference Include="ULogo.pas">
-      <Form>FLogo</Form>
+      <Form>frmStartLogo</Form>
     </DCCReference>
     <DCCReference Include="UMapType.pas" />
     <DCCReference Include="Unit1.pas">

@@ -12,7 +12,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TFLogo = class(TCommonFormParent)
+  TfrmStartLogo = class(TCommonFormParent)
     tmrLogo: TTimer;
     imgLogo: TImage32;
     lblVersion: TLabel;
@@ -35,24 +35,24 @@ uses
   u_GlobalState;
 
 var
-  FLogo: TFLogo;
+  frmStartLogo: TfrmStartLogo;
 
 {$R *.dfm}
 
-procedure TFLogo.tmrLogoTimer(Sender: TObject);
+procedure TfrmStartLogo.tmrLogoTimer(Sender: TObject);
 begin
   tmrLogo.Enabled:=false;
   Self.Close;
 end;
 
-procedure TFLogo.FormShow(Sender: TObject);
+procedure TfrmStartLogo.FormShow(Sender: TObject);
 begin
   GState.LoadBitmapFromJpegRes('LOGOI', imgLogo.Bitmap);
   lblVersion.Caption:='v '+SASVersion;
   FReadyToHide := False;
 end;
 
-procedure TFLogo.imgLogoClick(Sender: TObject);
+procedure TfrmStartLogo.imgLogoClick(Sender: TObject);
 begin
   if FReadyToHide then begin
     tmrLogo.Enabled := false;
@@ -60,18 +60,18 @@ begin
   end;
 end;
 
-class procedure TFLogo.ReadyToHideLogo;
+class procedure TfrmStartLogo.ReadyToHideLogo;
 begin
-  if FLogo <> nil then begin
-    FLogo.FReadyToHide := True;
-    FLogo.tmrLogo.Enabled := True;
+  if frmStartLogo <> nil then begin
+    frmStartLogo.FReadyToHide := True;
+    frmStartLogo.tmrLogo.Enabled := True;
   end;
 end;
 
-class procedure TFLogo.ShowLogo;
+class procedure TfrmStartLogo.ShowLogo;
 begin
-  FLogo := TFLogo.Create(Application);
-  FLogo.Show;
+  frmStartLogo := TfrmStartLogo.Create(Application);
+  frmStartLogo.Show;
   Application.ProcessMessages;
 end;
 

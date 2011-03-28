@@ -996,7 +996,7 @@ begin
   finally
     Enabled:=true;
     map.SetFocus;
-    TFLogo.ReadyToHideLogo;
+    TfrmStartLogo.ReadyToHideLogo;
   end;
   TBXMainMenu.ProcessShortCuts:=true;
 end;

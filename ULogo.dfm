@@ -1,4 +1,4 @@
-object FLogo: TFLogo
+object frmStartLogo: TfrmStartLogo
   Left = 269
   Top = 224
   AutoSize = True
