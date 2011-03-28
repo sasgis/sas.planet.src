@@ -324,7 +324,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UaddPoint.pas">
-      <Form>FaddPoint</Form>
+      <Form>frmMarkEditPoint</Form>
     </DCCReference>
     <DCCReference Include="UaddPoly.pas">
       <Form>FAddPoly</Form>

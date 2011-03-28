@@ -1,4 +1,4 @@
-object FaddPoint: TFaddPoint
+object frmMarkEditPoint: TfrmMarkEditPoint
   Left = 193
   Top = 178
   BorderStyle = bsSizeToolWin
@@ -36,7 +36,6 @@ object FaddPoint: TFaddPoint
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 5
-    ExplicitTop = 353
   end
   object pnlBottomButtons: TPanel
     Left = 0
@@ -48,7 +47,6 @@ object FaddPoint: TFaddPoint
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 6
-    ExplicitTop = 373
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 238
@@ -118,7 +116,6 @@ object FaddPoint: TFaddPoint
         Value = 100.000000000000000000
       end>
     TabOrder = 4
-    ExplicitTop = 259
     DesignSize = (
       314
       89)
@@ -368,9 +365,6 @@ object FaddPoint: TFaddPoint
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitLeft = 3
-    ExplicitTop = 135
-    ExplicitHeight = 154
   end
   object pnlLonLat: TPanel
     Left = 0

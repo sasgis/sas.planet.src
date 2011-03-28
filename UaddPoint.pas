@@ -29,7 +29,7 @@ uses
   t_GeoTypes;
 
 type
-  TFaddPoint = class(TCommonFormParent)
+  TfrmMarkEditPoint = class(TCommonFormParent)
     edtName: TEdit;
     lblName: TLabel;
     btnOk: TButton;
@@ -96,7 +96,7 @@ type
   end;
 
 var
-  FaddPoint: TFaddPoint;
+  frmMarkEditPoint: TfrmMarkEditPoint;
 
 implementation
 
@@ -105,7 +105,7 @@ uses
 
 {$R *.dfm}
 
-function TFaddPoint.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
+function TfrmMarkEditPoint.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
 var
   VLastUsedCategoryName:string;
   i: Integer;
@@ -187,7 +187,7 @@ begin
   end;
 end;
 
-procedure TFaddPoint.btnOkClick(Sender: TObject);
+procedure TfrmMarkEditPoint.btnOkClick(Sender: TObject);
 var
   VIndex: Integer;
   VCategoryText: string;
@@ -207,7 +207,7 @@ begin
   ModalResult := mrOk;
 end;
 
-procedure TFaddPoint.FormShow(Sender: TObject);
+procedure TfrmMarkEditPoint.FormShow(Sender: TObject);
 begin
   frLonLatPoint.Parent := pnlLonLat;
   frMarkDescription.Parent := pnlDescription;
@@ -215,31 +215,31 @@ begin
   drwgrdIcons.Visible:=false;
 end;
 
-procedure TFaddPoint.btnTextColorClick(Sender: TObject);
+procedure TfrmMarkEditPoint.btnTextColorClick(Sender: TObject);
 begin
  if ColorDialog1.Execute then clrbxTextColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFaddPoint.btnShadowColorClick(Sender: TObject);
+procedure TfrmMarkEditPoint.btnShadowColorClick(Sender: TObject);
 begin
  if ColorDialog1.Execute then clrbxShadowColor.Selected:=ColorDialog1.Color;
 end;
 
-constructor TFaddPoint.Create(AOwner: TComponent);
+constructor TfrmMarkEditPoint.Create(AOwner: TComponent);
 begin
   inherited;
   frMarkDescription := TfrMarkDescription.Create(nil);
   frLonLatPoint := TfrLonLat.Create(nil);
 end;
 
-destructor TFaddPoint.Destroy;
+destructor TfrmMarkEditPoint.Destroy;
 begin
   FreeAndNil(frMarkDescription);
   FreeAndNil(frLonLatPoint);
   inherited;
 end;
 
-procedure TFaddPoint.DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
+procedure TfrmMarkEditPoint.DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
 var
   Bitmap: TCustomBitmap32;
   Bitmap2: TBitmap32;
@@ -270,7 +270,7 @@ begin
   end;
 end;
 
-procedure TFaddPoint.drwgrdIconsDrawCell(Sender: TObject; ACol,
+procedure TfrmMarkEditPoint.drwgrdIconsDrawCell(Sender: TObject; ACol,
   ARow: Integer; Rect: TRect; State: TGridDrawState);
 var
   i:Integer;
@@ -282,21 +282,21 @@ begin
     DrawFromMarkIcons(drwgrdIcons.Canvas, VPictureList.Get(i), drwgrdIcons.CellRect(ACol,ARow));
 end;
 
-procedure TFaddPoint.imgIconMouseDown(Sender: TObject; Button: TMouseButton;
+procedure TfrmMarkEditPoint.imgIconMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
  drwgrdIcons.Visible:=not(drwgrdIcons.Visible);
  if drwgrdIcons.Visible then drwgrdIcons.SetFocus;
 end;
 
-procedure TFaddPoint.RefreshTranslation;
+procedure TfrmMarkEditPoint.RefreshTranslation;
 begin
   inherited;
   frLonLatPoint.RefreshTranslation;
   frMarkDescription.RefreshTranslation;
 end;
 
-procedure TFaddPoint.drwgrdIconsMouseUp(Sender: TObject;
+procedure TfrmMarkEditPoint.drwgrdIconsMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   i:integer;

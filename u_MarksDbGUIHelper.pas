@@ -73,7 +73,7 @@ var
 begin
   Result := False;
   VMark := FMarksDB.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
-  VMark := FaddPoint.EditMark(VMark, Self);
+  VMark := frmMarkEditPoint.EditMark(VMark, Self);
   if VMark <> nil then begin
     FMarksDb.MarksDb.WriteMark(VMark);
     Result := True;
@@ -216,7 +216,7 @@ function TMarksDbGUIHelper.EditMarkModal(AMark: IMarkFull): IMarkFull;
 begin
   Result := nil;
   if AMark.IsPoint then begin
-    result:=FaddPoint.EditMark(AMark, Self);
+    result:=frmMarkEditPoint.EditMark(AMark, Self);
   end else if AMark.IsPoly then begin
     result:=FaddPoly.EditMark(AMark, Self);
   end else if AMark.IsLine then begin

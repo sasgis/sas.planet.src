@@ -462,7 +462,7 @@ uses
   UProgress in 'UProgress.pas' {FProgress},
   frm_SearchResults in 'frm_SearchResults.pas' {frmSearchResults},
   frm_InvisibleBrowser in 'frm_InvisibleBrowser.pas' {frmInvisibleBrowser},
-  UaddPoint in 'UaddPoint.pas' {FaddPoint},
+  UaddPoint in 'UaddPoint.pas' {frmMarkEditPoint},
   Unit4 in 'Unit4.pas' {Fprogress2},
   ULogo in 'ULogo.pas' {FLogo},
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
@@ -510,7 +510,7 @@ begin
   Application.CreateForm(TFImport, FImport);
   Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
   Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
-  Application.CreateForm(TFaddPoint, FaddPoint);
+  Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);
   Application.CreateForm(TFbrowser, Fbrowser);
   Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
   Application.CreateForm(TFAddPoly, FAddPoly);
