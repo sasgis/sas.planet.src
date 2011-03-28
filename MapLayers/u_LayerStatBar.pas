@@ -40,7 +40,7 @@ uses
   u_NotifyEventListener,
   u_ResStrings,
   u_TimeZones,
-  Unit1,
+  frm_Main,
   uMapType,
   u_GlobalState;
 

@@ -78,6 +78,9 @@
     <DCCReference Include="frm_LonLatRectEdit.pas">
       <Form>frmLonLatRectEdit</Form>
     </DCCReference>
+    <DCCReference Include="frm_Main.pas">
+      <Form>frmMain</Form>
+    </DCCReference>
     <DCCReference Include="frm_MapTypeEdit.pas">
       <Form>frmMapTypeEdit</Form>
     </DCCReference>
@@ -360,9 +363,6 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UMapType.pas" />
-    <DCCReference Include="Unit1.pas">
-      <Form>frmMain</Form>
-    </DCCReference>
     <DCCReference Include="Unit4.pas">
       <Form>Fprogress2</Form>
     </DCCReference>

@@ -32,7 +32,7 @@ uses
   i_LogForTaskThread,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
-  Unit1,
+  frm_Main,
   UProgress,
   u_ResStrings,
   UMapType;

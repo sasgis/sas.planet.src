@@ -24,7 +24,7 @@ uses
   i_MarkCategory,
   u_MarksSimple,
   u_MarksDbGUIHelper,
-  Unit1, TB2Item, TBX, TB2Dock, TB2Toolbar;
+  frm_Main, TB2Item, TBX, TB2Dock, TB2Toolbar;
 
 type
   TfrmMarksExplorer = class(TCommonFormParent)

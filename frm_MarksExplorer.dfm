@@ -143,7 +143,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             Align = alTop
             BorderStyle = bsNone
             CloseButton = False
-            Images = Fmain.MenusImageList
+            Images = frmMain.MenusImageList
             ParentBackground = True
             ParentColor = True
             Stretch = True
@@ -245,7 +245,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             Align = alTop
             BorderStyle = bsNone
             CloseButton = False
-            Images = Fmain.MenusImageList
+            Images = frmMain.MenusImageList
             ParentBackground = True
             ParentColor = True
             Stretch = True

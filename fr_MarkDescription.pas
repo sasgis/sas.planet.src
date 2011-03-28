@@ -49,7 +49,7 @@ type
 implementation
 
 uses
-  Unit1;
+  frm_Main;
 
 {$R *.dfm}
 

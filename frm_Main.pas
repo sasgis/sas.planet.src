@@ -1,4 +1,4 @@
-unit Unit1;
+unit frm_Main;
 
 interface
 

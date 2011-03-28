@@ -44,8 +44,9 @@ object frMarkDescription: TfrMarkDescription
       Width = 196
       Height = 22
       Align = alRight
-      Images = Fmain.EditCommentsImgs
+      Images = frmMain.EditCommentsImgs
       TabOrder = 0
+      ExplicitLeft = 388
       object TBXItem3: TTBXItem
         ImageIndex = 0
         OnClick = TBXItem1Click

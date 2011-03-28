@@ -255,7 +255,7 @@ uses
   t_CommonTypes,
   i_ProxySettings,
   u_GlobalState,
-  Unit1,
+  frm_Main,
   frm_IntrnalBrowser,
   frm_MapTypeEdit;
 
