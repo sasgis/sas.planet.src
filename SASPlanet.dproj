@@ -369,7 +369,7 @@
     </DCCReference>
     <DCCReference Include="UResStrings.pas" />
     <DCCReference Include="Usettings.pas">
-      <Form>FSettings</Form>
+      <Form>frmSettings</Form>
     </DCCReference>
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />

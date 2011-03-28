@@ -1,4 +1,4 @@
-object FSettings: TFSettings
+object frmSettings: TfrmSettings
   Left = 293
   Top = 114
   BorderWidth = 3
@@ -119,13 +119,16 @@ object FSettings: TFSettings
           Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103
           TabOrder = 3
           OnClick = btnMapInfoClick
-          ExplicitLeft = 6
         end
       end
     end
     object TabSheet2: TTabSheet
       Caption = #1050#1101#1096
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
@@ -550,10 +553,10 @@ object FSettings: TFSettings
           Left = 153
           Top = 138
           Width = 442
-          Height = 21
+          Height = 19
           Align = alClient
           Style = csDropDownList
-          ItemHeight = 13
+          ItemHeight = 0
           ItemIndex = 1
           TabOrder = 15
           Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
@@ -569,6 +572,10 @@ object FSettings: TFSettings
       BorderWidth = 3
       Caption = #1048#1085#1090#1077#1088#1085#1077#1090
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlDownloadParams: TPanel
         Left = 0
         Top = 0
@@ -670,11 +677,10 @@ object FSettings: TFSettings
               Left = 24
               Top = 3
               Width = 152
-              Height = 17
+              Height = 13
               Align = alLeft
               Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1087#1088#1086#1082#1089#1080' (ip:port)'
               Layout = tlCenter
-              ExplicitHeight = 13
             end
             object CBProxyused: TCheckBox
               AlignWithMargins = True
@@ -775,6 +781,10 @@ object FSettings: TFSettings
     object TabSheet3: TTabSheet
       Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
@@ -807,6 +817,10 @@ object FSettings: TFSettings
     object TabSheet4: TTabSheet
       Caption = #1042#1085#1077#1096#1085#1080#1081' '#1074#1080#1076
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grdpnlUI: TGridPanel
         Left = 0
         Top = 0
@@ -877,7 +891,7 @@ object FSettings: TFSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               ItemIndex = 0
               TabOrder = 0
               Text = '12 '#1082#1084' 423 '#1084
@@ -925,7 +939,7 @@ object FSettings: TFSettings
                 Height = 21
                 Align = alClient
                 Style = csDropDownList
-                ItemHeight = 13
+                ItemHeight = 0
                 ItemIndex = 0
                 TabOrder = 0
                 Text = 'WS '#1075'.'#1084'.'#1089'. (W12'#176'23"43.35'#39')'
@@ -964,20 +978,18 @@ object FSettings: TFSettings
             object LabelGamma: TLabel
               Left = 3
               Top = 3
-              Width = 307
+              Width = 6
               Height = 13
               Align = alTop
               Caption = '_'
-              ExplicitWidth = 6
             end
             object LabelContrast: TLabel
               Left = 3
               Top = 41
-              Width = 307
+              Width = 6
               Height = 13
               Align = alTop
               Caption = '_'
-              ExplicitWidth = 6
             end
             object TrBarGamma: TTrackBar
               Left = 3
@@ -1053,7 +1065,7 @@ object FSettings: TFSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               ItemIndex = 0
               TabOrder = 0
               Text = 'Box'
@@ -1282,7 +1294,7 @@ object FSettings: TFSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               TabOrder = 0
               OnChange = CBoxLocalChange
             end
@@ -1443,6 +1455,10 @@ object FSettings: TFSettings
       Caption = 'GPS'
       ImageIndex = 4
       OnShow = TabSheet5Show
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlGPSLeft: TPanel
         Left = 0
         Top = 0
@@ -1477,7 +1493,7 @@ object FSettings: TFSettings
             Top = 3
             Width = 89
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 0
             Text = 'COM1'
           end
@@ -1504,7 +1520,7 @@ object FSettings: TFSettings
             Top = 3
             Width = 89
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             ItemIndex = 5
             TabOrder = 1
             Text = '4800'
@@ -1749,14 +1765,13 @@ object FSettings: TFSettings
                 Left = 31
                 Top = 3
                 Width = 101
-                Height = 14
+                Height = 13
                 Margins.Left = 10
                 Margins.Top = 0
                 Margins.Right = 0
                 Margins.Bottom = 0
                 Align = alLeft
                 Caption = #1040#1082#1090#1080#1074#1085#1099#1077' '#1089#1087#1091#1090#1085#1080#1082#1080
-                ExplicitHeight = 13
               end
               object shpSatInfoActive: TShape
                 AlignWithMargins = True
@@ -1800,14 +1815,13 @@ object FSettings: TFSettings
                 Left = 31
                 Top = 3
                 Width = 45
-                Height = 14
+                Height = 13
                 Margins.Left = 10
                 Margins.Top = 0
                 Margins.Right = 0
                 Margins.Bottom = 0
                 Align = alLeft
                 Caption = #1042#1080#1076#1080#1084#1099#1077
-                ExplicitHeight = 13
               end
             end
             object pnlSatInfoZeroSignal: TPanel
@@ -1824,14 +1838,13 @@ object FSettings: TFSettings
                 Left = 31
                 Top = 3
                 Width = 121
-                Height = 14
+                Height = 13
                 Margins.Left = 10
                 Margins.Top = 0
                 Margins.Right = 0
                 Margins.Bottom = 0
                 Align = alLeft
                 Caption = #1042#1080#1076#1080#1084#1099#1077' '#1089' 0-'#1084' '#1089#1080#1075#1085#1072#1083#1086#1084
-                ExplicitHeight = 13
               end
               object shpSatInfoZeroSignal: TShape
                 AlignWithMargins = True
@@ -1854,6 +1867,10 @@ object FSettings: TFSettings
     object TabSheet8: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grdpnlWiki: TGridPanel
         Left = 0
         Top = 0
@@ -1944,6 +1961,10 @@ object FSettings: TFSettings
     object TabSheet6: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlGSM: TPanel
         Left = 0
         Top = 0
@@ -1989,7 +2010,7 @@ object FSettings: TFSettings
             Top = 3
             Width = 89
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 0
             Text = 'COM1'
           end
@@ -2007,7 +2028,7 @@ object FSettings: TFSettings
             Top = 3
             Width = 89
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             ItemIndex = 5
             TabOrder = 1
             Text = '4800'
@@ -2082,7 +2103,6 @@ object FSettings: TFSettings
       ModalResult = 1
       TabOrder = 1
       OnClick = btnApplyClick
-      ExplicitTop = 6
     end
     object btnApply: TButton
       AlignWithMargins = True

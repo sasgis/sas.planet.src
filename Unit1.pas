@@ -1017,7 +1017,7 @@ begin
   FUIDownLoader.SendTerminateToThreads;
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
-  if GState.MapType.Count > 0 then FSettings.Save(GState.MainConfigProvider);
+  if GState.MapType.Count > 0 then frmSettings.Save(GState.MainConfigProvider);
   Application.ProcessMessages;
   FreeAndNil(FLayersList);
   FreeAndNil(FUIDownLoader);
@@ -1671,7 +1671,7 @@ begin
   if FIsGPSPosChanged then begin
     FIsGPSPosChanged := False;
     VPosition := GState.GPSRecorder.CurrentPosition;
-    if FSettings.Visible then FSettings.SatellitePaint;
+    if frmSettings.Visible then frmSettings.SatellitePaint;
     if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
     if (VPosition.IsFix=0) then exit;
     if not((FMapMoving)or(FMapZoomAnimtion)) then begin
@@ -2100,7 +2100,7 @@ end;
 
 procedure TFmain.N8Click(Sender: TObject);
 begin
-  fsettings.ShowModal;
+  frmSettings.ShowModal;
 end;
 
 procedure TFmain.NbackloadClick(Sender: TObject);

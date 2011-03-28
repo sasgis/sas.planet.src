@@ -29,7 +29,7 @@ uses
   UResStrings;
 
 type
-  TFSettings = class(TCommonFormParent)
+  TfrmSettings = class(TCommonFormParent)
     PageControl1: TPageControl;
     TabSheet2: TTabSheet;
     TabSheet1: TTabSheet;
@@ -244,7 +244,7 @@ type
   end;
 
 var
-  FSettings: TFSettings;
+  frmSettings: TfrmSettings;
   procedure SetProxy;
 
 implementation
@@ -261,7 +261,7 @@ uses
 
 {$R *.dfm}
 
-procedure TFSettings.Save(AProvider: IConfigDataWriteProvider);
+procedure TfrmSettings.Save(AProvider: IConfigDataWriteProvider);
 begin
   try
     GState.SaveMainParams;
@@ -271,7 +271,7 @@ begin
   end;
 end;
 
-procedure TFSettings.btnCancelClick(Sender: TObject);
+procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
   Close
 end;
@@ -311,7 +311,7 @@ begin
   Dispose (PIInfo) ;
 end;
 
-procedure TFSettings.btnApplyClick(Sender: TObject);
+procedure TfrmSettings.btnApplyClick(Sender: TObject);
 var
   i: integer;
   VProxyConfig: IProxyConfig;
@@ -461,7 +461,7 @@ begin
  ShowMessage(SAS_MSG_need_reload_application_curln);
 end;
 
-procedure TFSettings.Button4Click(Sender: TObject);
+procedure TfrmSettings.Button4Click(Sender: TObject);
 begin
  if (sender as TButton).Tag=1 then OldCpath.Text:='cache_old' + PathDelim;
  if (sender as TButton).Tag=2 then NewCpath.Text:='cache' + PathDelim;
@@ -470,7 +470,7 @@ begin
  if (sender as TButton).Tag=5 then GECachepath.Text:='cache_ge' + PathDelim;
 end;
 
-procedure TFSettings.Button5Click(Sender: TObject);
+procedure TfrmSettings.Button5Click(Sender: TObject);
 var  TempPath: string;
 begin
   if SelectDirectory('', '', TempPath) then
@@ -483,7 +483,7 @@ begin
   end;
 end;
 
-procedure TFSettings.CBLoginClick(Sender: TObject);
+procedure TfrmSettings.CBLoginClick(Sender: TObject);
 var
   VUseAuth: Boolean;
 begin
@@ -493,12 +493,12 @@ begin
   EditPass.Enabled := VUseAuth;
 end;
 
-procedure TFSettings.CBoxLocalChange(Sender: TObject);
+procedure TfrmSettings.CBoxLocalChange(Sender: TObject);
 begin
  GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
 end;
 
-procedure TFSettings.CBProxyusedClick(Sender: TObject);
+procedure TfrmSettings.CBProxyusedClick(Sender: TObject);
 var
   VUseProxy: Boolean;
 begin
@@ -509,7 +509,7 @@ begin
   CBLoginClick(CBLogin);
 end;
 
-procedure TFSettings.chkPosFromGSMClick(Sender: TObject);
+procedure TfrmSettings.chkPosFromGSMClick(Sender: TObject);
 var
   VUseGSM: Boolean;
   i: Integer;
@@ -522,7 +522,7 @@ begin
   end;
 end;
 
-procedure TFSettings.chkUseIEProxyClick(Sender: TObject);
+procedure TfrmSettings.chkUseIEProxyClick(Sender: TObject);
 var
   VUseIeProxy: Boolean;
 begin
@@ -532,20 +532,20 @@ begin
   CBProxyusedClick(CBProxyused);
 end;
 
-constructor TFSettings.Create(AOwner: TComponent);
+constructor TfrmSettings.Create(AOwner: TComponent);
 begin
   inherited;
   frShortCutList := TfrShortCutList.Create(nil);
   PageControl1.ActivePageIndex:=0;
 end;
 
-destructor TFSettings.Destroy;
+destructor TfrmSettings.Destroy;
 begin
   FreeAndNil(frShortCutList);
   inherited;
 end;
 
-procedure TFSettings.FormShow(Sender: TObject);
+procedure TfrmSettings.FormShow(Sender: TObject);
 var
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
@@ -683,7 +683,7 @@ begin
  SatellitePaint;
 end;
 
-procedure TFSettings.FormCreate(Sender: TObject);
+procedure TfrmSettings.FormCreate(Sender: TObject);
 var i:integer;
 begin
   SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox);
@@ -695,18 +695,18 @@ begin
   MapList.DoubleBuffered:=true;
 end;
 
-procedure TFSettings.TrBarGammaChange(Sender: TObject);
+procedure TfrmSettings.TrBarGammaChange(Sender: TObject);
 begin
  if TrBarGamma.Position<50 then LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position*2)/100)+')'
                            else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position-40)/10)+')';
 end;
 
-procedure TFSettings.TabSheet5Show(Sender: TObject);
+procedure TfrmSettings.TabSheet5Show(Sender: TObject);
 begin
  pnlGPSLeft.Repaint;
 end;
 
-procedure TFSettings.TrBarContrastChange(Sender: TObject);
+procedure TfrmSettings.TrBarContrastChange(Sender: TObject);
 begin
  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarcontrast.Position)+')';
 end;
@@ -727,21 +727,21 @@ begin
  end;
 end;
 
-procedure TFSettings.Button12Click(Sender: TObject);
+procedure TfrmSettings.Button12Click(Sender: TObject);
 begin
  FMapsEdit:=true;
  If (MapList.Selected<>nil)and(MapList.Selected.Index>0) then
   ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index-1);
 end;
 
-procedure TFSettings.Button11Click(Sender: TObject);
+procedure TfrmSettings.Button11Click(Sender: TObject);
 begin
  FMapsEdit:=true;
  If (MapList.Selected<>nil)and(MapList.Selected.Index<MapList.Items.Count-1) then
   ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index+1)
 end;
 
-procedure TFSettings.Button15Click(Sender: TObject);
+procedure TfrmSettings.Button15Click(Sender: TObject);
 var
   VMapType: TMapType;
 begin
@@ -752,7 +752,7 @@ begin
   end;
 end;
 
-procedure TFSettings.MapListChange(Sender: TObject; Item: TListItem;
+procedure TfrmSettings.MapListChange(Sender: TObject; Item: TListItem;
   Change: TItemChange);
 var
   VMap: TMapType;
@@ -763,7 +763,7 @@ begin
   end;
 end;
 
-procedure TFSettings.MapListCustomDrawSubItem(Sender:TCustomListView; Item:TListItem; SubItem:Integer; State:TCustomDrawState; var DefaultDraw:Boolean);
+procedure TfrmSettings.MapListCustomDrawSubItem(Sender:TCustomListView; Item:TListItem; SubItem:Integer; State:TCustomDrawState; var DefaultDraw:Boolean);
 begin
  if item = nil then EXIT;
  if TMapType(Item.Data).separator then
@@ -776,12 +776,12 @@ begin
                          else sender.canvas.brush.Color:=clwhite;
 end;
 
-procedure TFSettings.SatellitePaint;
+procedure TfrmSettings.SatellitePaint;
 begin
   GState.SkyMapDraw.Draw(SatellitePaintBox.Bitmap, GState.GPSRecorder.CurrentPosition.Satellites);
 end;
 
-procedure TFSettings.SatellitePaintBoxResize(Sender: TObject);
+procedure TfrmSettings.SatellitePaintBoxResize(Sender: TObject);
 begin
   SatellitePaintBox.Bitmap.Lock;
   try
@@ -791,14 +791,14 @@ begin
   end;
 end;
 
-procedure TFSettings.RefreshTranslation;
+procedure TfrmSettings.RefreshTranslation;
 begin
   inherited;
   FormShow(Self);
   frShortCutList.RefreshTranslation;
 end;
 
-procedure TFSettings.btnMapInfoClick(Sender: TObject);
+procedure TfrmSettings.btnMapInfoClick(Sender: TObject);
 var
   VMap: TMapType;
 begin
@@ -808,14 +808,14 @@ begin
   end;
 end;
 
-procedure TFSettings.SBGetComNumClick(Sender: TObject);
+procedure TfrmSettings.SBGetComNumClick(Sender: TObject);
 begin
  SBGetComNum.Enabled:=false;
  ShowMessage(SAS_MSG_NoGPSdetected);
  SBGetComNum.Enabled:=true;
 end;
 
-procedure TFSettings.InitMapsList;
+procedure TfrmSettings.InitMapsList;
 var
   i: integer;
   VMapType: TMapType;
@@ -846,7 +846,7 @@ begin
   end;
 end;
 
-procedure TFSettings.InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
+procedure TfrmSettings.InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
 var
   i: Integer;
 begin
