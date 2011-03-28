@@ -13,6 +13,8 @@ type
     FId: Integer;
     FVisible: Boolean;
   protected
+    function IsNew: Boolean;
+  protected
     function GetId: Integer;
     function GetName: string;
   protected
@@ -50,6 +52,11 @@ end;
 function TMarkId.GetVisible: Boolean;
 begin
   Result := FVisible;
+end;
+
+function TMarkId.IsNew: Boolean;
+begin
+  Result := FId < 0;
 end;
 
 procedure TMarkId.SetVisible(AValue: Boolean);

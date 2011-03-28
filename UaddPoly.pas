@@ -111,7 +111,7 @@ begin
         end;
       end;
     end;
-    if AMark.id < 0 then begin
+    if AMark.IsNew then begin
       Caption:=SAS_STR_AddNewPoly;
       btnOk.Caption:=SAS_STR_Add;
     end else begin

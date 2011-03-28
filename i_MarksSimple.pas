@@ -99,6 +99,8 @@ type
     function IsPoint: Boolean;
     function IsLine: Boolean;
     function IsPoly: Boolean;
+    function IsNew: Boolean;
+
     function GetGoToLonLat: TDoublePoint;
   end;
 
