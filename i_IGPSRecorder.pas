@@ -5,7 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_GPS,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   TGPSTrackPoint = record

@@ -3,7 +3,7 @@ unit i_IGSMGeoCodeConfig;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
   
 type
   IGSMGeoCodeConfig = interface(IConfigDataElement)

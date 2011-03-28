@@ -4,8 +4,8 @@ interface
 
 uses
   Graphics,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_IGlobalViewMainConfig,
   u_ConfigDataElementBase;
 

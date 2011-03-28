@@ -4,7 +4,7 @@ interface
 
 uses
   i_ICoordConverter,
-  i_IConfigDataProvider,
+  i_ConfigDataProvider,
   i_ICoordConverterFactory;
 
 type

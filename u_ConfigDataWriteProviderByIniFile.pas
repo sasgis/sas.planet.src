@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   IniFiles,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataWriteProvider,
   u_ConfigDataProviderByIniFile;
 
 type

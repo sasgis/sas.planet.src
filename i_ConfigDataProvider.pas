@@ -1,4 +1,4 @@
-unit i_IConfigDataProvider;
+unit i_ConfigDataProvider;
 
 interface
 

@@ -3,7 +3,7 @@ unit i_IMarkCategoryFactoryConfig;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IMarkCategoryFactoryConfig = interface(IConfigDataElement)

@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_IConfigDataProvider;
+  i_ConfigDataProvider;
 
 type
   TConfigDataProviderWithLocal = class(TInterfacedObject, IConfigDataProvider)

@@ -12,7 +12,7 @@ uses
   GR32,
   t_GeoTypes,
   i_ContentTypeInfo,
-  i_IConfigDataProvider,
+  i_ConfigDataProvider,
   i_ITileObjCache,
   i_ICoordConverter,
   i_ITileDownlodSession,

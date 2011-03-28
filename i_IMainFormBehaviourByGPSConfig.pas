@@ -3,7 +3,7 @@ unit i_IMainFormBehaviourByGPSConfig;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IMainFormBehaviourByGPSConfig = interface(IConfigDataElement)

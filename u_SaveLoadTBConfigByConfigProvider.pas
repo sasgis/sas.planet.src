@@ -4,8 +4,8 @@ interface
 
 uses
   Classes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider;
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider;
 
 procedure TBConfigProviderLoadPositions(const OwnerComponent: TComponent;
   const AConfigProvider: IConfigDataProvider);

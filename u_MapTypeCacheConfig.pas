@@ -5,7 +5,7 @@ interface
 uses
   Types,
   i_JclNotify,
-  i_IConfigDataProvider,
+  i_ConfigDataProvider,
   i_ITileFileNameGenerator;
 
 type

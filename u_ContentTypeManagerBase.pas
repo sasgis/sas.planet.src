@@ -4,8 +4,8 @@ interface
 
 uses
   i_ContentTypeInfo,
-  i_IContentConverter,
-  i_IContentTypeManager,
+  i_ContentConverter,
+  i_ContentTypeManager,
   u_ContentTypeListByKey,
   u_ContentConverterMatrix;
 

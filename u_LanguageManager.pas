@@ -5,8 +5,8 @@ interface
 uses
   Windows,
   Classes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_ILanguageManager,
   u_ConfigDataElementBase,
   u_LanguagesEx;

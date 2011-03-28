@@ -1,10 +1,10 @@
-unit i_IConfigDataWriteProvider;
+unit i_ConfigDataWriteProvider;
 
 interface
 
 uses
   Classes,
-  i_IConfigDataProvider;
+  i_ConfigDataProvider;
 
 type
   IConfigDataWriteProvider = interface(IConfigDataProvider)

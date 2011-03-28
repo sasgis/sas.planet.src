@@ -4,9 +4,9 @@ interface
 
 uses
   GR32,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
-  i_ICalcLineLayerConfig,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
+  i_CalcLineLayerConfig,
   u_ConfigDataElementBase,
   u_PolyLineLayerConfig;
 

@@ -1,11 +1,11 @@
-unit i_IConfigSaveLoadStrategy;
+unit i_ConfigSaveLoadStrategy;
 
 interface
 
 uses
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
-  i_IConfigDataElement;
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
+  i_ConfigDataElement;
 
 type
   IConfigSaveLoadStrategy = interface

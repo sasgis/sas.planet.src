@@ -3,8 +3,8 @@ unit u_MarkCategoryFactoryConfig;
 interface
 
 uses
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_IMarkCategoryFactoryConfig,
   u_ConfigDataElementBase;
 

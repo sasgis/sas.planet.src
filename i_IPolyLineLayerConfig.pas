@@ -4,7 +4,7 @@ interface
 
 uses
   GR32,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IPolyLineLayerConfig = interface(IConfigDataElement)

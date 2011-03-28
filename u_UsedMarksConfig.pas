@@ -3,8 +3,8 @@ unit u_UsedMarksConfig;
 interface
 
 uses
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_IUsedMarksConfig,
   u_ConfigDataElementBase;
 

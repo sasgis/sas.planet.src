@@ -3,10 +3,10 @@ unit u_ConfigSaveLoadStrategyBasicUseProvider;
 interface
 
 uses
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
-  i_IConfigDataElement,
-  i_IConfigSaveLoadStrategy;
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
+  i_ConfigDataElement,
+  i_ConfigSaveLoadStrategy;
 
 type
   TConfigSaveLoadStrategyBasicUseProvider = class(TInterfacedObject, IConfigSaveLoadStrategy)

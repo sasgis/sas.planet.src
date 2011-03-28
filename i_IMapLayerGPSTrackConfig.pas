@@ -3,7 +3,7 @@ unit i_IMapLayerGPSTrackConfig;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IMapLayerGPSTrackConfig = interface(IConfigDataElement)

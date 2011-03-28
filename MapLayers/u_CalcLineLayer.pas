@@ -11,7 +11,7 @@ uses
   i_IViewPortState,
   i_ILocalCoordConverter,
   i_IValueToStringConverter,
-  i_ICalcLineLayerConfig,
+  i_CalcLineLayerConfig,
   u_PolyLineLayerBase,
   u_MapLayerBasic;
 

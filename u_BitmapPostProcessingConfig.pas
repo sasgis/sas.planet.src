@@ -3,8 +3,8 @@ unit u_BitmapPostProcessingConfig;
 interface
 
 uses
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_BitmapPostProcessingConfig,
   u_ConfigDataElementBase;
 

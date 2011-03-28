@@ -3,7 +3,7 @@ unit i_IProxySettings;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
   
 type
   // Настройки прокси

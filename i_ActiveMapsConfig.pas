@@ -4,7 +4,7 @@ interface
 
 uses
   i_MapTypes,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IActiveMapSingle = interface(IConfigDataElement)

@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   KAZip,
-  i_IConfigDataProvider;
+  i_ConfigDataProvider;
 
 type
   TConfigDataProviderByKaZip = class(TInterfacedObject, IConfigDataProvider)

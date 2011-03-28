@@ -22,7 +22,7 @@ uses
   GR32_Image,
   XPMan,
   u_CommonFormAndFrameParents,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataWriteProvider,
   i_IImageResamplerFactory,
   fr_ShortCutList,
   UMapType,

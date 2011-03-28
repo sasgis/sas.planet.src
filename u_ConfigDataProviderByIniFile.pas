@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   IniFiles,
-  i_IConfigDataProvider;
+  i_ConfigDataProvider;
 
 type
   TConfigDataProviderByIniFile = class(TInterfacedObject, IConfigDataProvider)

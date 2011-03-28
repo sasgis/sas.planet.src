@@ -6,7 +6,7 @@ uses
   GR32,
   i_MapTypes,
   i_ActiveMapsConfig,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IMiniMapMapsConfig = interface(IActivMapWithLayers)

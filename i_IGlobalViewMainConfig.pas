@@ -4,7 +4,7 @@ interface
 
 uses
   Graphics,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IGlobalViewMainConfig = interface(IConfigDataElement)

@@ -3,8 +3,8 @@ unit u_ImageResamplerConfig;
 interface
 
 uses
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_IImageResamplerFactory,
   i_IImageResamplerConfig,
   u_ConfigDataElementBase;

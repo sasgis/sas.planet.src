@@ -4,7 +4,7 @@ interface
 
 uses
   t_CommonTypes,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IDownloadUIConfig = interface(IConfigDataElement)

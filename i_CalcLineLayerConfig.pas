@@ -1,4 +1,4 @@
-unit i_ICalcLineLayerConfig;
+unit i_CalcLineLayerConfig;
 
 interface
 

@@ -3,7 +3,7 @@ unit u_TileDownloaderBaseFactory;
 interface
 
 uses
-  i_IConfigDataProvider,
+  i_ConfigDataProvider,
   i_ITileDownlodSession,
   i_ISimpleFactory;
 

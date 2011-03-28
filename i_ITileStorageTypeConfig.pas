@@ -3,7 +3,7 @@ unit i_ITileStorageTypeConfig;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   ITileStorageTypeConfig = interface(IConfigDataElement)

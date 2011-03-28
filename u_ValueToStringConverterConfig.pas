@@ -5,9 +5,9 @@ interface
 uses
   i_JclNotify,
   t_CommonTypes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
-  i_IConfigDataElement,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
+  i_ConfigDataElement,
   i_IValueToStringConverter,
   u_ConfigDataElementBase;
 

@@ -3,8 +3,8 @@ unit u_GPSConfig;
 interface
 
 uses
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_IGPSModuleByCOMPortConfig,
   i_IGPSConfig,
   u_ConfigDataElementComplexBase;

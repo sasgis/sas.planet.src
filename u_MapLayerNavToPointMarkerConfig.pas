@@ -5,8 +5,8 @@ interface
 uses
   Types,
   GR32,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_IMapLayerNavToPointMarkerConfig,
   u_ConfigDataElementBase;
 

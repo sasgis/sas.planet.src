@@ -6,7 +6,7 @@ uses
   Types,
   Classes,
   i_ICoordConverter,
-  i_IConfigDataProvider,
+  i_ConfigDataProvider,
   i_ContentTypeInfo,
   i_ITileInfoBasic,
   u_MapTypeCacheConfig,

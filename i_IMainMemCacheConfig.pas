@@ -3,7 +3,7 @@ unit i_IMainMemCacheConfig;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
   
 type
   IMainMemCacheConfig = interface(IConfigDataElement)

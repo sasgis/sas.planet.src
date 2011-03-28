@@ -4,8 +4,8 @@ interface
 
 uses
   i_IGUIDList,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_MapTypes,
   i_ActiveMapsConfig,
   u_NotifyWithGUIDEvent,

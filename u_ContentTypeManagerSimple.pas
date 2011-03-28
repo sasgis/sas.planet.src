@@ -4,7 +4,7 @@ interface
 
 uses
   i_ContentTypeInfo,
-  i_IContentConverter,
+  i_ContentConverter,
   u_ContentTypeListByKey,
   u_ContentConverterMatrix,
   u_ContentTypeManagerBase;

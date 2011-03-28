@@ -3,7 +3,7 @@ unit i_IUsedMarksConfig;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IUsedMarksConfigStatic = interface

@@ -7,7 +7,7 @@ uses
   GR32,
   GR32_Image,
   i_IViewPortState,
-  i_ICenterScaleConfig,
+  i_CenterScaleConfig,
   u_WindowLayerWithPos;
 
 type

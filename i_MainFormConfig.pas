@@ -3,7 +3,7 @@ unit i_MainFormConfig;
 interface
 
 uses
-  i_IConfigDataElement,
+  i_ConfigDataElement,
   i_ActiveMapsConfig,
   i_IViewPortState,
   i_INavigationToPoint,
@@ -16,10 +16,10 @@ uses
   i_IUsedMarksConfig,
   i_IKmlLayerConfig,
   i_IMiniMapLayerConfig,
-  i_ICenterScaleConfig,
+  i_CenterScaleConfig,
   i_IScaleLineConfig,
   i_ILastSelectionLayerConfig,
-  i_ICalcLineLayerConfig,
+  i_CalcLineLayerConfig,
   i_ISelectionRectLayerConfig,
   i_ISelectionPolygonLayerConfig,
   i_IMarkPolygonLayerConfig,

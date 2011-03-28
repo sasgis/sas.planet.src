@@ -3,7 +3,7 @@ unit i_IMarkNameGenerator;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IMarkNameGenerator = interface(IConfigDataElement)

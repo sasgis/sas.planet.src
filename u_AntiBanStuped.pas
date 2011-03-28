@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   SyncObjs,
-  i_IConfigDataProvider,
+  i_ConfigDataProvider,
   i_AntiBan,
   i_ITileDownlodSession;
 

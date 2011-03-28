@@ -3,7 +3,7 @@ unit i_IImageResamplerConfig;
 interface
 
 uses
-  i_IConfigDataElement,
+  i_ConfigDataElement,
   i_IImageResamplerFactory;
 
 type

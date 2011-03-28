@@ -5,8 +5,8 @@ interface
 uses
   GR32,
   i_ActiveMapsConfig,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_IFillingMapLayerConfig,
   u_ConfigDataElementComplexBase;
 

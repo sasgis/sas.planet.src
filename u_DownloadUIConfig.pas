@@ -4,8 +4,8 @@ interface
 
 uses
   t_CommonTypes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_IDownloadUIConfig,
   u_ConfigDataElementBase;
 

@@ -3,7 +3,7 @@ unit u_ConfigDataProviderZmpComplex;
 interface
 
 uses
-  i_IConfigDataProvider,
+  i_ConfigDataProvider,
   u_ConfigDataProviderWithLocal;
 
 type

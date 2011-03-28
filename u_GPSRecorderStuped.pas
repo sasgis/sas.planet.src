@@ -5,8 +5,8 @@ interface
 uses
   SysUtils,
   t_GeoTypes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_IDatum,
   i_GPS,
   i_IGPSRecorder,

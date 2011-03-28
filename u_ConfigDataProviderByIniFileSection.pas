@@ -6,7 +6,7 @@ uses
   Classes,
   SysUtils,
   IniFiles,
-  i_IConfigDataProvider;
+  i_ConfigDataProvider;
 
 type
   TConfigDataProviderByIniFileSection = class(TInterfacedObject, IConfigDataProvider)

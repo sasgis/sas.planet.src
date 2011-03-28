@@ -3,7 +3,7 @@ unit i_IScaleLineConfig;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IScaleLineConfig = interface(IConfigDataElement)

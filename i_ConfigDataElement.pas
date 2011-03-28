@@ -1,11 +1,11 @@
-unit i_IConfigDataElement;
+unit i_ConfigDataElement;
 
 interface
 
 uses
   i_JclNotify,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider;
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider;
 
 type
   IConfigDataElement = interface

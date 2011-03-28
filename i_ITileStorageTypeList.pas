@@ -4,7 +4,7 @@ interface
 
 uses
   ActiveX,
-  i_IConfigDataElement,
+  i_ConfigDataElement,
   i_ITileStorageTypeConfig,
   i_ITileStorageType;
 

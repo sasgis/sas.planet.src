@@ -5,7 +5,7 @@ interface
 uses
   t_GeoTypes,
   t_CommonTypes,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IValueToStringConverter = interface

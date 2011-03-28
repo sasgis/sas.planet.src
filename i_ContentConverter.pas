@@ -1,4 +1,4 @@
-unit i_IContentConverter;
+unit i_ContentConverter;
 
 interface
 

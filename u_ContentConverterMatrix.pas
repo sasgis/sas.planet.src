@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_IContentConverter;
+  i_ContentConverter;
 
 type
   TContentConverterMatrix = class

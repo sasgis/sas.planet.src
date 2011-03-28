@@ -1,10 +1,10 @@
-unit i_IContentTypeManager;
+unit i_ContentTypeManager;
 
 interface
 
 uses
   i_ContentTypeInfo,
-  i_IContentConverter;
+  i_ContentConverter;
 
 type
   IContentTypeManager = interface

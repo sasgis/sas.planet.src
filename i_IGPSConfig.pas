@@ -4,7 +4,7 @@ interface
 
 uses
   i_IGPSModuleByCOMPortConfig,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IGPSConfig = interface(IConfigDataElement)

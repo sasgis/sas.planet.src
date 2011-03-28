@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   ILanguageManager = interface(IConfigDataElement)

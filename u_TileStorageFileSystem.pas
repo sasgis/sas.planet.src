@@ -7,7 +7,7 @@ uses
   Types,
   Classes,
   GR32,
-  i_IConfigDataProvider,
+  i_ConfigDataProvider,
   i_ICoordConverter,
   i_ContentTypeInfo,
   i_ITileInfoBasic,

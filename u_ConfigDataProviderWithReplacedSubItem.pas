@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_IConfigDataProvider;
+  i_ConfigDataProvider;
 
 type
   TConfigDataProviderWithReplacedSubItem = class(TInterfacedObject, IConfigDataProvider)

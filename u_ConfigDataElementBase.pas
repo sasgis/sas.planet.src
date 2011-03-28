@@ -6,9 +6,9 @@ uses
   Windows,
   SysUtils,
   i_JclNotify,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
-  i_IConfigDataElement;
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
+  i_ConfigDataElement;
 
 type
   TConfigDataElementBase = class(TInterfacedObject, IConfigDataElement)

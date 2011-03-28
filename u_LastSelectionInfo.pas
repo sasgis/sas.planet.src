@@ -4,8 +4,8 @@ interface
 
 uses
   t_GeoTypes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_ILastSelectionInfo,
   u_ConfigDataElementBase;
 

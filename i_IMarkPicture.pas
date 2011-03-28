@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   GR32,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IMarkPicture = interface

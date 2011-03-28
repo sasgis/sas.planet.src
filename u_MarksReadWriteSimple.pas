@@ -5,8 +5,8 @@ interface
 uses
   Windows,
   Classes,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   dm_MarksDb,
   i_IMarksFactoryConfig,
   i_IMarkCategory,

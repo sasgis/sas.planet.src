@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   i_ContentTypeInfo,
-  i_IContentConverter;
+  i_ContentConverter;
 
 type
 

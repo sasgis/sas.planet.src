@@ -3,7 +3,7 @@ unit i_ITileStorageType;
 interface
 
 uses
-  i_IConfigDataElement,
+  i_ConfigDataElement,
   i_ITileStorageTypeInfo,
   i_ITileStorage;
 

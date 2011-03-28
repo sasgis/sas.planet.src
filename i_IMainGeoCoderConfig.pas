@@ -4,7 +4,7 @@ interface
 
 uses
   i_IGeoCoderList,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IMainGeoCoderConfig = interface(IConfigDataElement)

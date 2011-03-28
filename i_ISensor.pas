@@ -3,8 +3,8 @@ unit i_ISensor;
 interface
 
 uses
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider;
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider;
 
 type
   ISensor = interface

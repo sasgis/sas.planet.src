@@ -4,7 +4,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   ILineOnMapEdit = interface(IConfigDataElement)

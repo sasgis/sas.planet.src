@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   GR32,
-  i_IConfigDataElement,
+  i_ConfigDataElement,
   i_IMarkPicture,
   i_IMarkCategory,
   i_IMarkNameGenerator,

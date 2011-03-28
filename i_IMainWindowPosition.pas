@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IMainWindowPosition = interface(IConfigDataElement)

@@ -7,8 +7,8 @@ uses
   Classes,
   Graphics,
   TB2Item,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider;
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider;
 
 type
   TShortCutInfo = class(TObject)

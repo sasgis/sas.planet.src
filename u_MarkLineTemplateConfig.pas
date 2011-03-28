@@ -5,8 +5,8 @@ interface
 uses
   Classes,
   GR32,
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_MarksSimple,
   i_IMarkCategory,
   i_IMarkNameGenerator,

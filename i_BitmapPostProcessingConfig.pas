@@ -3,7 +3,7 @@ unit i_BitmapPostProcessingConfig;
 interface
 
 uses
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IBitmapPostProcessingConfigStatic = interface

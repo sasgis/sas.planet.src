@@ -11,7 +11,7 @@ Uses
   uPSR_dll,
   uPSRuntime,
   uPSCompiler,
-  i_IConfigDataProvider,
+  i_ConfigDataProvider,
   i_ICoordConverter;
 
 type

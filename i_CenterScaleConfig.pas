@@ -1,10 +1,10 @@
-unit i_ICenterScaleConfig;
+unit i_CenterScaleConfig;
 
 interface
 
 uses
   GR32,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   ICenterScaleConfig = interface(IConfigDataElement)

@@ -3,8 +3,8 @@ unit u_MainGeoCoderConfig;
 interface
 
 uses
-  i_IConfigDataProvider,
-  i_IConfigDataWriteProvider,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_IGeoCoderList,
   i_IMainGeoCoderConfig,
   u_ConfigDataElementBase;

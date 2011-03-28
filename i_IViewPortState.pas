@@ -8,7 +8,7 @@ uses
   t_GeoTypes,
   i_ICoordConverter,
   i_ILocalCoordConverter,
-  i_IConfigDataElement;
+  i_ConfigDataElement;
 
 type
   IViewPortState = interface(IConfigDataElement)
