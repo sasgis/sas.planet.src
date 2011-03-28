@@ -327,7 +327,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UaddPoly.pas">
-      <Form>FAddPoly</Form>
+      <Form>frmMarkEditPoly</Form>
     </DCCReference>
     <DCCReference Include="Ubrowser.pas">
       <Form>Fbrowser</Form>

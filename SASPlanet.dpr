@@ -468,7 +468,7 @@ uses
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
   Ubrowser in 'Ubrowser.pas' {Fbrowser},
   frm_MarkEditPath in 'frm_MarkEditPath.pas' {frmMarkEditPath},
-  UaddPoly in 'UaddPoly.pas' {FAddPoly},
+  UaddPoly in 'UaddPoly.pas' {frmMarkEditPoly},
   UEditMap in 'UEditMap.pas' {FEditMap},
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},
@@ -513,7 +513,7 @@ begin
   Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);
   Application.CreateForm(TFbrowser, Fbrowser);
   Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
-  Application.CreateForm(TFAddPoly, FAddPoly);
+  Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
   Application.CreateForm(TFEditMap, FEditMap);
   Application.CreateForm(TFShortcutChange, FShortcutChange);
   Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);

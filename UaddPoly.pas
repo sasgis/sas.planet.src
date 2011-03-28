@@ -24,7 +24,7 @@ uses
   t_GeoTypes;
 
 type
-  TFAddPoly = class(TCommonFormParent)
+  TfrmMarkEditPoly = class(TCommonFormParent)
     lblName: TLabel;
     edtName: TEdit;
     btnOk: TButton;
@@ -72,13 +72,13 @@ type
   end;
 
 var
-  FAddPoly: TFAddPoly;
+  frmMarkEditPoly: TfrmMarkEditPoly;
 
 implementation
 
 {$R *.dfm}
 
-function TFAddPoly.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
+function TfrmMarkEditPoly.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
 var
   VLastUsedCategoryName: string;
   i: Integer;
@@ -137,19 +137,19 @@ begin
   end;
 end;
 
-procedure TFAddPoly.FormShow(Sender: TObject);
+procedure TfrmMarkEditPoly.FormShow(Sender: TObject);
 begin
   frMarkDescription.Parent := pnlDescription;
   edtName.SetFocus;
 end;
 
-procedure TFAddPoly.RefreshTranslation;
+procedure TfrmMarkEditPoly.RefreshTranslation;
 begin
   inherited;
   frMarkDescription.RefreshTranslation;
 end;
 
-procedure TFAddPoly.btnOkClick(Sender: TObject);
+procedure TfrmMarkEditPoly.btnOkClick(Sender: TObject);
 var
   VIndex: Integer;
   VCategoryText: string;
@@ -169,24 +169,24 @@ begin
   ModalResult := mrOk;
 end;
 
-constructor TFAddPoly.Create(AOwner: TComponent);
+constructor TfrmMarkEditPoly.Create(AOwner: TComponent);
 begin
   inherited;
   frMarkDescription := TfrMarkDescription.Create(nil);
 end;
 
-destructor TFAddPoly.Destroy;
+destructor TfrmMarkEditPoly.Destroy;
 begin
   FreeAndNil(frMarkDescription);
   inherited;
 end;
 
-procedure TFAddPoly.btnLineColorClick(Sender: TObject);
+procedure TfrmMarkEditPoly.btnLineColorClick(Sender: TObject);
 begin
  if ColorDialog1.Execute then clrbxLineColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TFAddPoly.btnFillColorClick(Sender: TObject);
+procedure TfrmMarkEditPoly.btnFillColorClick(Sender: TObject);
 begin
  if ColorDialog1.Execute then clrbxFillColor.Selected:=ColorDialog1.Color;
 end;

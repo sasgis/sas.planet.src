@@ -218,7 +218,7 @@ begin
   if AMark.IsPoint then begin
     result:=frmMarkEditPoint.EditMark(AMark, Self);
   end else if AMark.IsPoly then begin
-    result:=FaddPoly.EditMark(AMark, Self);
+    result:=frmMarkEditPoly.EditMark(AMark, Self);
   end else if AMark.IsLine then begin
     result:=frmMarkEditPath.EditMark(AMark, Self);
   end;
@@ -311,7 +311,7 @@ begin
     VMark := FMarksDB.MarksDb.Factory.CreateNewPoly(ANewArrLL, '', '');
   end;
   if VMark <> nil then begin
-    VMark := FaddPoly.EditMark(VMark, Self);
+    VMark := frmMarkEditPoly.EditMark(VMark, Self);
     if VMark <> nil then begin
       FMarksDb.MarksDb.WriteMark(VMark);
       Result := True;

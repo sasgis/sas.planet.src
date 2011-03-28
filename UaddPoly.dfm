@@ -1,4 +1,4 @@
-object FAddPoly: TFAddPoly
+object frmMarkEditPoly: TfrmMarkEditPoly
   Left = 360
   Top = 40
   BorderStyle = bsSizeToolWin
