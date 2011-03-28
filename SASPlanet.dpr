@@ -111,7 +111,7 @@ uses
   i_MiniMapLayerConfig in 'i_MiniMapLayerConfig.pas',
   u_MiniMapMapsConfig in 'u_MiniMapMapsConfig.pas',
   u_MiniMapLayerConfig in 'u_MiniMapLayerConfig.pas',
-  UPLT in 'UPLT.pas',
+  u_PLT in 'u_PLT.pas',
   Ugeofun in 'Ugeofun.pas',
   u_GlobalCahceConfig in 'u_GlobalCahceConfig.pas',
   u_GlobalState in 'u_GlobalState.pas',

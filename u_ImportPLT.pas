@@ -19,7 +19,7 @@ implementation
 uses
   SysUtils,
   i_MarksSimple,
-  UPLT;
+  u_PLT;
 
 { TImportKML }
 

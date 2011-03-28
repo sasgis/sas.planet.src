@@ -360,7 +360,6 @@
     <DCCReference Include="Unit4.pas">
       <Form>Fprogress2</Form>
     </DCCReference>
-    <DCCReference Include="UPLT.pas" />
     <DCCReference Include="UProgress.pas">
       <Form>FProgress</Form>
     </DCCReference>
@@ -550,6 +549,7 @@
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_PathDetalizeProviderMailRu.pas" />
     <DCCReference Include="u_PathDetalizeProviderYourNavigation.pas" />
+    <DCCReference Include="u_PLT.pas" />
     <DCCReference Include="u_PolygonLayerConfig.pas" />
     <DCCReference Include="u_PolyLineLayerBase.pas" />
     <DCCReference Include="u_PolyLineLayerConfig.pas" />
