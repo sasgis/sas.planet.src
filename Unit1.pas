@@ -631,7 +631,7 @@ uses
   u_GlobalState,
   frm_GoTo,
   frm_About,
-  Usettings,
+  frm_Settings,
   frm_RegionProcess,
   UProgress,
   frm_LonLatRectEdit,

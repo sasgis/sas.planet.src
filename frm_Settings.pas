@@ -1,4 +1,4 @@
-unit Usettings;
+unit frm_Settings;
 
 interface
 

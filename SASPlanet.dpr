@@ -457,7 +457,7 @@ uses
   frm_GoTo in 'frm_GoTo.pas' {frmGoTo},
   frm_DebugInfo in 'frm_DebugInfo.pas' {frmDebugInfo},
   frm_About in 'frm_About.pas' {frmAbout},
-  Usettings in 'Usettings.pas' {frmSettings},
+  frm_Settings in 'frm_Settings.pas' {frmSettings},
   frm_RegionProcess in 'frm_RegionProcess.pas' {frmRegionProcess},
   UProgress in 'UProgress.pas' {FProgress},
   frm_SearchResults in 'frm_SearchResults.pas' {frmSearchResults},

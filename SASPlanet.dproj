@@ -99,6 +99,9 @@
     <DCCReference Include="frm_SearchResults.pas">
       <Form>frmSearchResults</Form>
     </DCCReference>
+    <DCCReference Include="frm_Settings.pas">
+      <Form>frmSettings</Form>
+    </DCCReference>
     <DCCReference Include="frm_ShortCutEdit.pas">
       <Form>frmShortCutEdit</Form>
     </DCCReference>
@@ -368,9 +371,6 @@
       <Form>FProgress</Form>
     </DCCReference>
     <DCCReference Include="UResStrings.pas" />
-    <DCCReference Include="Usettings.pas">
-      <Form>frmSettings</Form>
-    </DCCReference>
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
     <DCCReference Include="u_ActiveMapsSet.pas" />
