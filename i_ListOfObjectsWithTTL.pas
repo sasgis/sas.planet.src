@@ -3,7 +3,7 @@ unit i_ListOfObjectsWithTTL;
 interface
 
 uses
-  i_IObjectWithTTL;
+  i_ObjectWithTTL;
 
 type
   IListOfObjectsWithTTL = interface

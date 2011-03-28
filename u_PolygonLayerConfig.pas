@@ -6,7 +6,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IPolygonLayerConfig,
+  i_PolygonLayerConfig,
   u_ConfigDataElementBase,
   u_PolyLineLayerConfig;
 

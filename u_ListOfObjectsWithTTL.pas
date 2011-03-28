@@ -6,7 +6,7 @@ uses
   Windows,
   Classes,
   SysUtils,
-  i_IObjectWithTTL,
+  i_ObjectWithTTL,
   i_ListOfObjectsWithTTL;
 
 type

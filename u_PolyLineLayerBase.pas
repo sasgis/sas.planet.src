@@ -10,7 +10,7 @@ uses
   t_GeoTypes,
   i_IViewPortState,
   i_LocalCoordConverter,
-  i_IPolyLineLayerConfig,
+  i_PolyLineLayerConfig,
   u_ClipPolygonByRect,
   u_MapLayerBasic;
 

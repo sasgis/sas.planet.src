@@ -8,7 +8,7 @@ uses
   Classes,
   GR32,
   i_JclNotify,
-  i_IMemObjCache,
+  i_MemObjCache,
   i_MainMemCacheConfig,
   u_KmlInfoSimple;
 

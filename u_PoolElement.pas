@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   i_ISimpleFactory,
-  i_IPoolElement;
+  i_PoolElement;
 
 type
   TPoolElement = class(TObject, IPoolElement)

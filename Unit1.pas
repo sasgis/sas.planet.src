@@ -52,7 +52,7 @@ uses
   i_ISearchResultPresenter,
   i_MainWindowPosition,
   i_LineOnMapEdit,
-  i_IPathDetalizeProvider,
+  i_PathDetalizeProvider,
   u_WindowLayerBasicList,
   Ugeofun,
   u_MapLayerWiki,

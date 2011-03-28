@@ -4,7 +4,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_IPathDetalizeProvider;
+  i_PathDetalizeProvider;
 
 type
   TPathDetalizeProviderYourNavigation = class(TInterfacedObject, IPathDetalizeProvider)

@@ -5,7 +5,7 @@ interface
 uses
   GR32,
   u_KmlInfoSimple,
-  i_IMemObjCache,
+  i_MemObjCache,
   i_ITileObjCache,
   UMapType;
 

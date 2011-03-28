@@ -1,4 +1,4 @@
-unit i_IPolyLineLayerConfig;
+unit i_PolyLineLayerConfig;
 
 interface
 

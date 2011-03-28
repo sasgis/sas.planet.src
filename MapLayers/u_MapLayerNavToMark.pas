@@ -11,7 +11,7 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_LocalCoordConverter,
-  i_INavigationToPoint,
+  i_NavigationToPoint,
   i_MapLayerNavToPointMarkerConfig,
   i_IViewPortState,
   u_MapLayerBasic;

@@ -4,7 +4,7 @@ interface
 
 uses
   GR32,
-  i_IPolyLineLayerConfig;
+  i_PolyLineLayerConfig;
 
 type
   ICalcLineLayerConfig = interface(IPolyLineLayerConfig)

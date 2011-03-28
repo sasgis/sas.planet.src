@@ -15,7 +15,7 @@ uses
   {$ENDIF SasDebugWithJcl}
   i_JclNotify,
   i_LanguageManager,
-  i_IMemObjCache,
+  i_MemObjCache,
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
   i_ITileFileNameGeneratorsList,

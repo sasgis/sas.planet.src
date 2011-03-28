@@ -1,4 +1,4 @@
-unit i_IPathDetalizeProvider;
+unit i_PathDetalizeProvider;
 
 interface
 

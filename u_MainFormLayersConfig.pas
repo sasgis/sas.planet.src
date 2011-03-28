@@ -11,7 +11,7 @@ uses
   i_MapLayerNavToPointMarkerConfig,
   i_IUsedMarksConfig,
   i_KmlLayerConfig,
-  i_IMiniMapLayerConfig,
+  i_MiniMapLayerConfig,
   i_CenterScaleConfig,
   i_IScaleLineConfig,
   i_LastSelectionLayerConfig,

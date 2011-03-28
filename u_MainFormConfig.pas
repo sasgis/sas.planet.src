@@ -6,7 +6,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_IViewPortState,
-  i_INavigationToPoint,
+  i_NavigationToPoint,
   i_MainFormConfig,
   i_MainFormBehaviourByGPSConfig,
   i_MainGeoCoderConfig,

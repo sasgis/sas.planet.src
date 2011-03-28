@@ -1,4 +1,4 @@
-unit i_INavigationToPoint;
+unit i_NavigationToPoint;
 
 interface
 

@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_IPoolElement;
+  i_PoolElement;
 
 type
   IPoolOfObjectsSimple = interface

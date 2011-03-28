@@ -1,4 +1,4 @@
-unit i_IObjectWithTTL;
+unit i_ObjectWithTTL;
 
 interface
 

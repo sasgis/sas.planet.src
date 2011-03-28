@@ -4,7 +4,7 @@ interface
 
 uses
   GR32,
-  i_IPolygonLayerConfig;
+  i_PolygonLayerConfig;
 
 type
   ISelectionPolygonLayerConfig = interface(IPolygonLayerConfig)

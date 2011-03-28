@@ -19,7 +19,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_IViewPortState,
-  i_IMiniMapLayerConfig,
+  i_MiniMapLayerConfig,
   UMapType,
   u_WindowLayerWithPos;
 

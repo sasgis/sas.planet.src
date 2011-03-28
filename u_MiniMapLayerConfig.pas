@@ -6,7 +6,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IMiniMapLayerConfig,
+  i_MiniMapLayerConfig,
   i_ActiveMapsConfig,
   u_ConfigDataElementComplexBase;
 

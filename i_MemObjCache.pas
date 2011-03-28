@@ -1,4 +1,4 @@
-unit i_IMemObjCache;
+unit i_MemObjCache;
 
 interface
 

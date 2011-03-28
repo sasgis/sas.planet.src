@@ -6,8 +6,8 @@ uses
   Windows,
   Classes,
   i_ISimpleFactory,
-  i_IObjectWithTTL,
-  i_IPoolElement,
+  i_ObjectWithTTL,
+  i_PoolElement,
   i_IPoolOfObjectsSimple;
 
 type

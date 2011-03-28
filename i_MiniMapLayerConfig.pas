@@ -1,4 +1,4 @@
-unit i_IMiniMapLayerConfig;
+unit i_MiniMapLayerConfig;
 
 interface
 

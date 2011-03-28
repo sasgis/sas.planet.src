@@ -6,7 +6,7 @@ uses
   t_GeoTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_INavigationToPoint,
+  i_NavigationToPoint,
   u_ConfigDataElementBase;
 
 type

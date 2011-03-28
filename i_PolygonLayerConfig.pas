@@ -1,10 +1,10 @@
-unit i_IPolygonLayerConfig;
+unit i_PolygonLayerConfig;
 
 interface
 
 uses
   GR32,
-  i_IPolyLineLayerConfig;
+  i_PolyLineLayerConfig;
 
 type
   IPolygonLayerConfig = interface(IPolyLineLayerConfig)

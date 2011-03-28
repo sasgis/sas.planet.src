@@ -1,4 +1,4 @@
-unit i_IPoolElement;
+unit i_PoolElement;
 
 interface
 
