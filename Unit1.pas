@@ -636,7 +636,7 @@ uses
   UProgress,
   USelLonLat,
   UEditMap,
-  Ubrowser,
+  frm_IntrnalBrowser,
   frm_MarksExplorer,
   UFDGAvailablePic,
   c_ZeroGUID,

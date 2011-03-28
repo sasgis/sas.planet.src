@@ -466,7 +466,7 @@ uses
   Unit4 in 'Unit4.pas' {Fprogress2},
   ULogo in 'ULogo.pas' {FLogo},
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
-  Ubrowser in 'Ubrowser.pas' {frmIntrnalBrowser},
+  frm_IntrnalBrowser in 'frm_IntrnalBrowser.pas' {frmIntrnalBrowser},
   frm_MarkEditPath in 'frm_MarkEditPath.pas' {frmMarkEditPath},
   frm_MarkEditPoly in 'frm_MarkEditPoly.pas' {frmMarkEditPoly},
   UEditMap in 'UEditMap.pas' {FEditMap},

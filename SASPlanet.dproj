@@ -63,6 +63,9 @@
     <DCCReference Include="frm_GoTo.pas">
       <Form>frmGoTo</Form>
     </DCCReference>
+    <DCCReference Include="frm_IntrnalBrowser.pas">
+      <Form>frmIntrnalBrowser</Form>
+    </DCCReference>
     <DCCReference Include="frm_InvisibleBrowser.pas">
       <Form>frmInvisibleBrowser</Form>
     </DCCReference>
@@ -335,9 +338,6 @@
     <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
-    <DCCReference Include="Ubrowser.pas">
-      <Form>frmIntrnalBrowser</Form>
-    </DCCReference>
     <DCCReference Include="UEditMap.pas">
       <Form>FEditMap</Form>
     </DCCReference>

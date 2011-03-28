@@ -256,7 +256,7 @@ uses
   i_ProxySettings,
   u_GlobalState,
   Unit1,
-  Ubrowser,
+  frm_IntrnalBrowser,
   UEditMap;
 
 {$R *.dfm}

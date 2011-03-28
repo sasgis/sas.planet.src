@@ -1,4 +1,4 @@
-unit Ubrowser;
+unit frm_IntrnalBrowser;
 
 interface
 
