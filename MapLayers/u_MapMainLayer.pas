@@ -45,7 +45,6 @@ uses
   i_LocalCoordConverter,
   i_TileIterator,
   i_BitmapPostProcessingConfig,
-  Uimgfun,
   UResStrings,
   u_TileIteratorByRect,
   u_NotifyEventListener,
@@ -178,7 +177,7 @@ begin
         VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
         try
           if AMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, VUsePre, True, False) then begin
-            Gamma(VBmp, VRecolorConfig.ContrastN, VRecolorConfig.GammaN, VRecolorConfig.InvertColor);
+            VRecolorConfig.ProcessBitmap(VBmp);
             FLayer.Bitmap.Lock;
             try
               VBmp.DrawMode := ADrawMode;

@@ -391,6 +391,7 @@ uses
   i_MapLayerGPSMarkerConfig in 'i_MapLayerGPSMarkerConfig.pas',
   u_MapLayerGPSMarkerConfig in 'u_MapLayerGPSMarkerConfig.pas',
   i_BitmapPostProcessingConfig in 'i_BitmapPostProcessingConfig.pas',
+  u_BitmapPostProcessingConfigStatic in 'u_BitmapPostProcessingConfigStatic.pas',
   u_BitmapPostProcessingConfig in 'u_BitmapPostProcessingConfig.pas',
   i_MainFormConfig in 'i_MainFormConfig.pas',
   u_MainFormMainConfig in 'u_MainFormMainConfig.pas',

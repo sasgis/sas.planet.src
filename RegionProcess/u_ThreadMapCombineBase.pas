@@ -81,7 +81,6 @@ uses
   u_LocalCoordConverterFactorySimpe,
   u_GlobalState,
   UResStrings,
-  Uimgfun,
   Ugeofun;
 
 { TMapCombineThreadBase }
@@ -170,7 +169,7 @@ end;
 procedure TThreadMapCombineBase.ProcessRecolor(Bitmap: TCustomBitmap32);
 begin
   if FUsedReColor then begin
-    Gamma(Bitmap, FRecolorConfig.ContrastN, FRecolorConfig.GammaN, FRecolorConfig.InvertColor);
+    FRecolorConfig.ProcessBitmap(Bitmap);
   end;
 end;
 

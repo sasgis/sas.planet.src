@@ -383,6 +383,7 @@
     <DCCReference Include="u_BackgroundTaskLayerDrawBase.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
+    <DCCReference Include="u_BitmapPostProcessingConfigStatic.pas" />
     <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
     <DCCReference Include="u_BmpUtil.pas" />
     <DCCReference Include="u_CalcLineLayerConfig.pas" />

@@ -33,48 +33,8 @@ type
 
 implementation
 
-{ TBitmapPostProcessingConfigStatic }
-
-type
-  TBitmapPostProcessingConfigStatic = class(TInterfacedObject, IBitmapPostProcessingConfigStatic)
-  private
-    FInvertColor: boolean;
-    FGammaN: Integer;
-    FContrastN: Integer;
-  protected
-    function GetInvertColor: boolean;
-    function GetGammaN: Integer;
-    function GetContrastN: Integer;
-  public
-    constructor Create(
-      AInvertColor: boolean;
-      AGammaN: Integer;
-      AContrastN: Integer
-    );
-  end;
-
-constructor TBitmapPostProcessingConfigStatic.Create(AInvertColor: boolean;
-  AGammaN, AContrastN: Integer);
-begin
-  FInvertColor := AInvertColor;
-  FContrastN := AContrastN;
-  FGammaN := AGammaN;
-end;
-
-function TBitmapPostProcessingConfigStatic.GetContrastN: Integer;
-begin
-  Result := FContrastN;
-end;
-
-function TBitmapPostProcessingConfigStatic.GetGammaN: Integer;
-begin
-  Result := FGammaN;
-end;
-
-function TBitmapPostProcessingConfigStatic.GetInvertColor: boolean;
-begin
-  Result := FInvertColor;
-end;
+uses
+  u_BitmapPostProcessingConfigStatic;
 
 { TBitmapPostProcessingConfig }
 

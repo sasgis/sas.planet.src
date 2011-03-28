@@ -3,6 +3,7 @@ unit i_BitmapPostProcessingConfig;
 interface
 
 uses
+  GR32,
   i_ConfigDataElement;
 
 type
@@ -18,6 +19,8 @@ type
     // Число для изменения контрастности тайлов перед отображением
     function GetContrastN: Integer;
     property ContrastN: Integer read GetContrastN;
+
+    procedure ProcessBitmap(Bitmap: TCustomBitmap32);
   end;
 
   IBitmapPostProcessingConfig = interface(IConfigDataElement)

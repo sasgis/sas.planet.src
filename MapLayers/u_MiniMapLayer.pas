@@ -102,7 +102,6 @@ uses
   GR32_Polygons,
   c_ZeroGUID,
   i_CoordConverter,
-  Uimgfun,
   Ugeofun,
   UResStrings,
   i_BitmapPostProcessingConfig,
@@ -442,7 +441,7 @@ begin
         VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
         VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
         if AMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, VUsePre, True, True) then begin
-          Gamma(VBmp, VRecolorConfig.ContrastN, VRecolorConfig.GammaN, VRecolorConfig.InvertColor);
+          VRecolorConfig.ProcessBitmap(VBmp);
           FLayer.Bitmap.Lock;
           try
             VBmp.DrawMode := ADrawMode;
