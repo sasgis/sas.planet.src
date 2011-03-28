@@ -2851,7 +2851,7 @@ begin
   end else begin
     VMapType := TMapType(TTBXItem(sender).Tag);
   end;
-  if FEditMap.EditMapModadl(VMapType) then begin
+  if frmMapTypeEdit.EditMapModadl(VMapType) then begin
     CreateMapUI;
     OnMapUpdate(VMapType);
   end;

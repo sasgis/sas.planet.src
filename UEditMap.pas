@@ -20,7 +20,7 @@ uses
   UResStrings;
 
 type
-  TFEditMap = class(TCommonFormParent)
+  TfrmMapTypeEdit = class(TCommonFormParent)
     EditNameinCache: TEdit;
     EditParSubMenu: TEdit;
     Label1: TLabel;
@@ -70,13 +70,13 @@ type
   end;
 
 var
-  FEditMap: TFEditMap;
+  frmMapTypeEdit: TfrmMapTypeEdit;
 
 implementation
 
 {$R *.dfm}
 
-procedure TFEditMap.btnOkClick(Sender: TObject);
+procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
 begin
  FmapType.UrlGenerator.URLBase:=EditURL.Text;
  FmapType.TileStorage.CacheConfig.NameInCache:=EditNameinCache.Text;
@@ -93,12 +93,12 @@ begin
  ModalResult := mrOk;
 end;
 
-procedure TFEditMap.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmMapTypeEdit.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   FmapType:=nil;
 end;
 
-procedure TFEditMap.btnByDefaultClick(Sender: TObject);
+procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
  EditURL.Text:=FmapType.UrlGenerator.DefURLBase;
  EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
@@ -110,41 +110,41 @@ begin
  CheckEnabled.Checked:=FMapType.Enabled;
 end;
 
-procedure TFEditMap.Button6Click(Sender: TObject);
+procedure TfrmMapTypeEdit.Button6Click(Sender: TObject);
 begin
  EditURL.Text := FMapType.UrlGenerator.DefURLBase;
 end;
 
-procedure TFEditMap.Button4Click(Sender: TObject);
+procedure TfrmMapTypeEdit.Button4Click(Sender: TObject);
 begin
  EditNameinCache.Text := FMapType.TileStorage.CacheConfig.DefNameInCache;
 end;
 
-procedure TFEditMap.Button5Click(Sender: TObject);
+procedure TfrmMapTypeEdit.Button5Click(Sender: TObject);
 begin
  EditParSubMenu.Text := FMapType.DefParentSubMenu;
 end;
 
-procedure TFEditMap.Button7Click(Sender: TObject);
+procedure TfrmMapTypeEdit.Button7Click(Sender: TObject);
 begin
  EditHotKey.HotKey := FMapType.DefHotKey;
 end;
 
-procedure TFEditMap.Button8Click(Sender: TObject);
+procedure TfrmMapTypeEdit.Button8Click(Sender: TObject);
 begin
  SESleep.Value := FMapType.DefSleep;
 end;
 
-procedure TFEditMap.Button9Click(Sender: TObject);
+procedure TfrmMapTypeEdit.Button9Click(Sender: TObject);
 begin
   CBCacheType.ItemIndex := FMapType.TileStorage.CacheConfig.defcachetype;
 end;
 
-function TFEditMap.EditMapModadl(AMapType: TMapType): Boolean;
+function TfrmMapTypeEdit.EditMapModadl(AMapType: TMapType): Boolean;
 begin
   FMapType := AMapType;
 
-  FEditMap.Caption:=SAS_STR_EditMap+' '+FmapType.name;
+  Caption:=SAS_STR_EditMap+' '+FmapType.name;
   EditURL.Text:=FMapType.UrlGenerator.URLBase;
   EditNameinCache.Text:=FMapType.TileStorage.CacheConfig.NameInCache;
   SESleep.Value:=FMapType.DownloaderFactory.WaitInterval;

@@ -746,7 +746,7 @@ var
   VMapType: TMapType;
 begin
   VMapType := TMapType(MapList.Selected.Data);
-  if FEditMap.EditMapModadl(VMapType) then begin
+  if frmMapTypeEdit.EditMapModadl(VMapType) then begin
     FMapsEdit := True;
     InitMapsList;
   end;

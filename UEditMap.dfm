@@ -1,4 +1,4 @@
-object FEditMap: TFEditMap
+object frmMapTypeEdit: TfrmMapTypeEdit
   Left = 198
   Top = 305
   BorderIcons = [biSystemMenu]

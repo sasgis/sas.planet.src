@@ -342,7 +342,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UEditMap.pas">
-      <Form>FEditMap</Form>
+      <Form>frmMapTypeEdit</Form>
     </DCCReference>
     <DCCReference Include="UFDGAvailablePic.pas">
       <Form>FDGAvailablePic</Form>
