@@ -19,7 +19,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 *******************************************************************************}
-unit i_IIDList;
+unit i_IDList;
 
 interface
 

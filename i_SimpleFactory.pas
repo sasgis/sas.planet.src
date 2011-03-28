@@ -1,4 +1,4 @@
-unit i_ISimpleFactory;
+unit i_SimpleFactory;
 
 interface
 

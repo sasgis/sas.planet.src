@@ -1,4 +1,4 @@
-unit i_ISensor;
+unit i_Sensor;
 
 interface
 

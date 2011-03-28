@@ -1,4 +1,4 @@
-unit i_ISearchResultPresenter;
+unit i_SearchResultPresenter;
 
 interface
 

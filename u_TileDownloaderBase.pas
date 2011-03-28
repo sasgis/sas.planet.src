@@ -7,8 +7,8 @@ uses
   WinInet,
   SyncObjs,
   Classes,
-  i_IProxySettings,
-  i_ITileDownlodSession;
+  i_ProxySettings,
+  i_TileDownlodSession;
 
 type
   TTileDownloaderBase = class(TInterfacedObject, ITileDownlodSession)

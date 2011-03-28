@@ -6,7 +6,7 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
-  i_ITileIterator;
+  i_TileIterator;
 
 type
   TTileIteratorAbstract = class(TInterfacedObject, ITileIterator)

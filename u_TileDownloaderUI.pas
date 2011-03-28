@@ -12,9 +12,9 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   i_ActiveMapsConfig,
-  i_IViewPortState,
+  i_ViewPortState,
   i_MapTypes,
-  i_ITileDownlodSession,
+  i_TileDownlodSession,
   i_DownloadUIConfig,
   u_MapLayerShowError,
   UMapType;
@@ -71,7 +71,7 @@ uses
   u_GlobalState,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
-  i_ITileIterator,
+  i_TileIterator,
   u_TileIteratorSpiralByRect,
   UResStrings;
 

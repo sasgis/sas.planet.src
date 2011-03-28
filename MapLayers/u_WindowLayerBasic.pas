@@ -8,7 +8,7 @@ uses
   GR32,
   i_JclListenerNotifierLinksList,
   i_LocalCoordConverter,
-  i_IViewPortState;
+  i_ViewPortState;
 
 type
   TWindowLayerAbstract = class

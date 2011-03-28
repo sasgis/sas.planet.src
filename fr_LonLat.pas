@@ -46,7 +46,7 @@ type
 implementation
 
 uses
-  i_IValueToStringConverter,
+  i_ValueToStringConverter,
   u_GeoToStr,
   u_GlobalState,
   UResStrings;

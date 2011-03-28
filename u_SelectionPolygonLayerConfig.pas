@@ -3,7 +3,7 @@ unit u_SelectionPolygonLayerConfig;
 interface
 
 uses
-  i_ISelectionPolygonLayerConfig,
+  i_SelectionPolygonLayerConfig,
   u_PolygonLayerConfig;
 
 type

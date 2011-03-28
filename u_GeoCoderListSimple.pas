@@ -3,7 +3,7 @@ unit u_GeoCoderListSimple;
 interface
 
 uses
-  i_IProxySettings,
+  i_ProxySettings,
   u_GeoCoderListBase;
 
 type

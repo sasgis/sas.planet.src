@@ -7,7 +7,7 @@ uses
   SysUtils,
   Classes,
   t_GeoTypes,
-  i_IProxySettings,
+  i_ProxySettings,
   i_GeoCoder;
 
 type

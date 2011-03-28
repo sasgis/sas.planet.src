@@ -1,4 +1,4 @@
-unit i_IFileNameIterator;
+unit i_FileNameIterator;
 
 interface
 

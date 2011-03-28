@@ -4,7 +4,7 @@ interface
 
 uses
   ActiveX,
-  i_IGUIDList,
+  i_GUIDList,
   i_MapTypes;
 
 type

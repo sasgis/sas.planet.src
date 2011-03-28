@@ -1,4 +1,4 @@
-unit i_ITileIterator;
+unit i_TileIterator;
 
 interface
 

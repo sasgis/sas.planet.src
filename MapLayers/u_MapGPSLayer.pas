@@ -9,7 +9,7 @@ uses
   t_GeoTypes,
   i_GPSRecorder,
   i_MapLayerGPSTrackConfig,
-  i_IViewPortState,
+  i_ViewPortState,
   u_MapLayerBasic;
 
 type

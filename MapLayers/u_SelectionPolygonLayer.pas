@@ -8,8 +8,8 @@ uses
   GR32_Polygons,
   GR32_Image,
   t_GeoTypes,
-  i_IViewPortState,
-  i_ISelectionPolygonLayerConfig,
+  i_ViewPortState,
+  i_SelectionPolygonLayerConfig,
   u_PolyLineLayerBase,
   u_MapLayerBasic;
 

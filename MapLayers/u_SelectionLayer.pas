@@ -9,7 +9,7 @@ uses
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
-  i_IViewPortState,
+  i_ViewPortState,
   i_LocalCoordConverter,
   i_LastSelectionLayerConfig,
   i_LastSelectionInfo,

@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_ITileIterator,
+  i_TileIterator,
   u_TileIteratorAbstract;
 
 type

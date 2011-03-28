@@ -5,10 +5,10 @@ interface
 uses
   GR32,
   GR32_Image,
-  i_IUsedMarksConfig,
+  i_UsedMarksConfig,
   i_MarksSimple,
   Ugeofun,
-  i_IViewPortState,
+  i_ViewPortState,
   i_LocalCoordConverter,
   u_MarksDbGUIHelper,
   u_MapLayerBasic;

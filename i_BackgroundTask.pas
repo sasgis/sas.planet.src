@@ -3,7 +3,7 @@ unit i_BackgroundTask;
 interface
 
 uses
-  i_IThread;
+  i_Thread;
 
 type
   IBackgroundTask = interface(IThread)

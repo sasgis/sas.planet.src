@@ -10,7 +10,7 @@ uses
   i_LocalCoordConverter,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IViewPortState,
+  i_ViewPortState,
   i_ActiveMapsConfig,
   i_LocalCoordConverterFactorySimpe,
   u_ConfigDataElementBase;

@@ -122,7 +122,7 @@ implementation
 
 uses
   i_CoordConverter,
-  i_IProxySettings,
+  i_ProxySettings,
   u_GlobalState,
   u_GeoToStr;
 function EncodeDG(S: string): string;

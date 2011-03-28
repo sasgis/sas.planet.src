@@ -1,4 +1,4 @@
-unit i_IProxySettings;
+unit i_ProxySettings;
 
 interface
 

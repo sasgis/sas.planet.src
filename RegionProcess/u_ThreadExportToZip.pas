@@ -8,7 +8,7 @@ uses
   Classes,
   KAZip,
   GR32,
-  i_ITileFileNameGenerator,
+  i_TileFileNameGenerator,
   UMapType,
   UResStrings,
   t_GeoTypes,
@@ -39,8 +39,8 @@ implementation
 
 uses
   Variants,
-  i_ITileIterator,
-  i_ITileInfoBasic,
+  i_TileIterator,
+  i_TileInfoBasic,
   u_TileIteratorStuped,
   u_TileStorageAbstract;
 

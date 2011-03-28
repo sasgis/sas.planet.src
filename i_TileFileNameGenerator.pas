@@ -1,4 +1,4 @@
-unit i_ITileFileNameGenerator;
+unit i_TileFileNameGenerator;
 
 interface
 

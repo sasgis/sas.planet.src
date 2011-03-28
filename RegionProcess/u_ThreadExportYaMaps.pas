@@ -40,7 +40,7 @@ implementation
 uses
   c_CoordConverter,
   i_CoordConverter,
-  i_ITileIterator,
+  i_TileIterator,
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,

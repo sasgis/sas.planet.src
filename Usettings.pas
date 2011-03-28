@@ -253,7 +253,7 @@ uses
   Types,
   Menus,
   t_CommonTypes,
-  i_IProxySettings,
+  i_ProxySettings,
   u_GlobalState,
   Unit1,
   Ubrowser,

@@ -36,7 +36,7 @@ var
 implementation
 
 uses
-  i_IProxySettings,
+  i_ProxySettings,
   u_GlobalState;
 
 {$R *.dfm}

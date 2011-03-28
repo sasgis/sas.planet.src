@@ -1,11 +1,11 @@
-unit i_ITileStorageType;
+unit i_TileStorageType;
 
 interface
 
 uses
   i_ConfigDataElement,
-  i_ITileStorageTypeInfo,
-  i_ITileStorage;
+  i_TileStorageTypeInfo,
+  i_TileStorage;
 
 type
   ITileStorageType = interface(IConfigDataElement)

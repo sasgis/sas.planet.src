@@ -5,7 +5,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IProxySettings,
+  i_ProxySettings,
   u_ConfigDataElementComplexBase;
 
 type

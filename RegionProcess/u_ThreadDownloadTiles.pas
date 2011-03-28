@@ -95,9 +95,9 @@ uses
   SysUtils,
   IniFiles,
   Types,
-  i_ITileDownlodSession,
+  i_TileDownlodSession,
   u_GlobalState,
-  i_ITileIterator,
+  i_TileIterator,
   u_DownloadInfoSimple,
   u_TileIteratorStuped,
   UResStrings;

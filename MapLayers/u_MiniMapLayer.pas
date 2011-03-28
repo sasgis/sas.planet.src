@@ -18,7 +18,7 @@ uses
   i_ActiveMapsConfig,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
-  i_IViewPortState,
+  i_ViewPortState,
   i_MiniMapLayerConfig,
   UMapType,
   u_WindowLayerWithPos;
@@ -106,7 +106,7 @@ uses
   Ugeofun,
   UResStrings,
   i_BitmapPostProcessingConfig,
-  i_ITileIterator,
+  i_TileIterator,
   u_GlobalState,
   u_LocalCoordConverterFactorySimpe,
   u_NotifyEventListener,

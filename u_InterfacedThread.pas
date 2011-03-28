@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   SyncObjs,
-  i_IThread;
+  i_Thread;
 
 type
   TInterfacedThread = class(TInterfacedObject, IThread)

@@ -5,7 +5,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IUsedMarksConfig,
+  i_UsedMarksConfig,
   u_ConfigDataElementBase;
 
 type

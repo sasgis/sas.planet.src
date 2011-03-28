@@ -8,7 +8,7 @@ uses
   GR32_Layers,
   GR32_Image,
   i_LocalCoordConverter,
-  i_IViewPortState,
+  i_ViewPortState,
   u_WindowLayerBasic;
 
 type

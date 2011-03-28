@@ -9,7 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_LocalCoordConverter,
-  i_IViewPortState,
+  i_ViewPortState,
   u_WindowLayerWithPos;
 
 type

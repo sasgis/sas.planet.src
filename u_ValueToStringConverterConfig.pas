@@ -8,7 +8,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ConfigDataElement,
-  i_IValueToStringConverter,
+  i_ValueToStringConverter,
   u_ConfigDataElementBase;
 
 type

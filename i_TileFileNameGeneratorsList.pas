@@ -1,9 +1,9 @@
-unit i_ITileFileNameGeneratorsList;
+unit i_TileFileNameGeneratorsList;
 
 interface
 
 uses
-  i_ITileFileNameGenerator;
+  i_TileFileNameGenerator;
 
 type
   ITileFileNameGeneratorsList = interface

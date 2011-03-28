@@ -4,8 +4,8 @@ interface
 
 uses
   i_ConfigDataProvider,
-  i_ITileDownlodSession,
-  i_ISimpleFactory;
+  i_TileDownlodSession,
+  i_SimpleFactory;
 
 type
   TTileDownloaderFactoryBase = class(TInterfacedObject, ITileDownlodSessionFactory)

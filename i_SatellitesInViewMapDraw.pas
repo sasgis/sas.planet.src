@@ -1,4 +1,4 @@
-unit i_ISatellitesInViewMapDraw;
+unit i_SatellitesInViewMapDraw;
 
 interface
 

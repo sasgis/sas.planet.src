@@ -3,9 +3,9 @@ unit u_TileStorageTypeListSimple;
 interface
 
 uses
-  i_ITileStorageTypeConfig,
-  i_ITileStorageType,
-  i_ITileStorageTypeListItem,
+  i_TileStorageTypeConfig,
+  i_TileStorageType,
+  i_TileStorageTypeListItem,
   u_TileStorageTypeList;
 
 type

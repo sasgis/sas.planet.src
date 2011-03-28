@@ -1,4 +1,4 @@
-unit i_IUsedMarksConfig;
+unit i_UsedMarksConfig;
 
 interface
 

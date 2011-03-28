@@ -6,7 +6,7 @@ uses
   Windows,
   SysUtils,
   Classes,
-  i_ITileFileNameGenerator,
+  i_TileFileNameGenerator,
   UMapType,
   UResStrings,
   t_GeoTypes,
@@ -39,7 +39,7 @@ implementation
 
 uses
   i_CoordConverter,
-  i_ITileIterator,
+  i_TileIterator,
   u_TileIteratorStuped;
 
 constructor TThreadExportToFileSystem.Create(

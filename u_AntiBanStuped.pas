@@ -7,7 +7,7 @@ uses
   SyncObjs,
   i_ConfigDataProvider,
   i_AntiBan,
-  i_ITileDownlodSession;
+  i_TileDownlodSession;
 
 type
   TAntiBanStuped = class(TInterfacedObject, IAntiBan)

@@ -6,7 +6,7 @@ uses
   GR32,
   u_KmlInfoSimple,
   i_MemObjCache,
-  i_ITileObjCache,
+  i_TileObjCache,
   UMapType;
 
 type

@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_ITileFileNameGenerator;
+  i_TileFileNameGenerator;
 
 type
   TTileFileNameES = class(TInterfacedObject, ITileFileNameGenerator)

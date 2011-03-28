@@ -8,7 +8,7 @@ uses
   ComCtrls,
   t_GeoTypes,
   i_CoordConverter,
-  i_IValueToStringConverter,
+  i_ValueToStringConverter,
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,

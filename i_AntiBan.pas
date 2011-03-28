@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_ITileDownlodSession;
+  i_TileDownlodSession;
 
 type
   IAntiBan = interface

@@ -11,7 +11,7 @@ uses
   t_GeoTypes,
   i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
-  i_IViewPortState,
+  i_ViewPortState,
   u_MapLayerBasic;
 
 

@@ -3,9 +3,9 @@ unit u_TileStorageTypeListItem;
 interface
 
 uses
-  i_ITileStorageTypeConfig,
-  i_ITileStorageType,
-  i_ITileStorageTypeListItem;
+  i_TileStorageTypeConfig,
+  i_TileStorageType,
+  i_TileStorageTypeListItem;
 
 type
   TTileStorageTypeListItem = class(TInterfacedObject, ITileStorageTypeListItem)

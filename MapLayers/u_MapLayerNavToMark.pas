@@ -13,7 +13,7 @@ uses
   i_LocalCoordConverter,
   i_NavigationToPoint,
   i_MapLayerNavToPointMarkerConfig,
-  i_IViewPortState,
+  i_ViewPortState,
   u_MapLayerBasic;
 
 type

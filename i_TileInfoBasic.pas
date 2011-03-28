@@ -1,4 +1,4 @@
-unit i_ITileInfoBasic;
+unit i_TileInfoBasic;
 
 interface
 

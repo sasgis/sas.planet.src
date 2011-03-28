@@ -4,7 +4,7 @@ interface
 
 uses
   i_JclNotify,
-  i_IGUIDList,
+  i_GUIDList,
   i_MapTypes,
   i_ActiveMapsConfig,
   u_ConfigDataElementBase;

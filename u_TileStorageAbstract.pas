@@ -8,7 +8,7 @@ uses
   GR32,
   i_CoordConverter,
   i_ContentTypeInfo,
-  i_ITileInfoBasic,
+  i_TileInfoBasic,
   u_MapTypeCacheConfig;
 
 type
@@ -55,7 +55,7 @@ implementation
 
 uses
   t_GeoTypes,
-  i_ITileIterator,
+  i_TileIterator,
   u_TileIteratorByRect;
 
 { TTileStorageAbstract }

@@ -5,7 +5,7 @@ interface
 uses
   i_JclNotify,
   u_JclNotify,
-  i_IPosChangeMessage;
+  i_PosChangeMessage;
 
 type
   TPosChangeEvent = procedure(AMessage: IPosChangeMessage) of object; 

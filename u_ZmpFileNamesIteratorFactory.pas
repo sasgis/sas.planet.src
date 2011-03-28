@@ -4,7 +4,7 @@ interface
 
 uses
   u_WideStrings,
-  i_IFileNameIterator;
+  i_FileNameIterator;
 
 type
   TZmpFileNamesIteratorFactory = class(TInterfacedObject, IFileNameIteratorFactory)

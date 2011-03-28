@@ -79,7 +79,7 @@ implementation
 
 uses
   SysUtils,
-  i_IValueToStringConverter,
+  i_ValueToStringConverter,
   u_GlobalState;
 
 {$R *.dfm}

@@ -1,10 +1,10 @@
-unit i_ITileStorageTypeListItem;
+unit i_TileStorageTypeListItem;
 
 interface
 
 uses
-  i_ITileStorageTypeConfig,
-  i_ITileStorageType;
+  i_TileStorageTypeConfig,
+  i_TileStorageType;
 
 type
   ITileStorageTypeListItem = interface

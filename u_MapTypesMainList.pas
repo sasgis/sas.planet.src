@@ -37,7 +37,7 @@ implementation
 uses
   SysUtils,
   Dialogs,
-  i_IFileNameIterator,
+  i_FileNameIterator,
   u_ZmpFileNamesIteratorFactory,
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByKaZip,

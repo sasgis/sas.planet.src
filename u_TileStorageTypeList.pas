@@ -4,14 +4,14 @@ interface
 
 uses
   ActiveX,
-  i_IGUIDList,
+  i_GUIDList,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ConfigDataElement,
-  i_ITileStorageTypeConfig,
-  i_ITileStorageType,
-  i_ITileStorageTypeList,
-  i_ITileStorageTypeListItem,
+  i_TileStorageTypeConfig,
+  i_TileStorageType,
+  i_TileStorageTypeList,
+  i_TileStorageTypeListItem,
   u_ConfigDataElementBase;
 
 type

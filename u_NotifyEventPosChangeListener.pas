@@ -6,7 +6,7 @@ uses
   i_JclNotify,
   u_JclNotify,
   i_LocalCoordConverter,
-  i_IPosChangeMessage;
+  i_PosChangeMessage;
 
 type
   TPosChangeNotifyEvent = procedure(ANewConverter: ILocalCoordConverter) of object;

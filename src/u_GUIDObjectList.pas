@@ -3,7 +3,7 @@ unit u_GUIDObjectList;
 interface
 
 uses
-  i_IGUIDList,
+  i_GUIDList,
   u_GUIDList;
 
 type

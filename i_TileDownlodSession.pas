@@ -1,4 +1,4 @@
-unit i_ITileDownlodSession;
+unit i_TileDownlodSession;
 
 interface
 

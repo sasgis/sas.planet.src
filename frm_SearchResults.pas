@@ -16,7 +16,7 @@ uses
   u_CommonFormAndFrameParents,
   i_MapViewGoto,
   i_GeoCoder,
-  i_ISearchResultPresenter;
+  i_SearchResultPresenter;
 
 type
   TfrmSearchResults = class(TCommonFormParent)

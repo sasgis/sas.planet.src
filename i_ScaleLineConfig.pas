@@ -1,4 +1,4 @@
-unit i_IScaleLineConfig;
+unit i_ScaleLineConfig;
 
 interface
 

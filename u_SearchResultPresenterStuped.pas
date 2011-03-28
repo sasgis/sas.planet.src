@@ -5,7 +5,7 @@ interface
 uses
   i_MapViewGoto,
   i_GeoCoder,
-  i_ISearchResultPresenter;
+  i_SearchResultPresenter;
 
 type
   TSearchResultPresenterStuped = class(TInterfacedObject, ISearchResultPresenter)

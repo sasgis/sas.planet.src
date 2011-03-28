@@ -27,7 +27,7 @@ implementation
 
 uses
   SysUtils,
-  i_ITileFileNameGenerator,
+  i_TileFileNameGenerator,
   u_GlobalState,
   u_ThreadExportToZip,
   UResStrings,

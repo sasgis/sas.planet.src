@@ -6,7 +6,7 @@ uses
   Windows,
   Classes,
   Types,
-  i_ITileDownlodSession,
+  i_TileDownlodSession,
   UMapType;
 
 type

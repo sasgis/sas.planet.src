@@ -10,7 +10,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_BackgroundTaskLayerDraw,
-  i_IViewPortState,
+  i_ViewPortState,
   u_MapLayerBasic;
 
 type

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  i_IFileNameIterator;
+  i_FileNameIterator;
 
 type
   TFileNameIteratorInFolderByMask = class(TInterfacedObject, IFileNameIterator)

@@ -31,7 +31,7 @@ uses
   Classes,
   SysUtils,
   i_MarksSimple,
-  i_IUsedMarksConfig,
+  i_UsedMarksConfig,
   u_MarksReadWriteSimple,
   u_GlobalState,
   u_ThreadMapCombineBMP,

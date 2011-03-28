@@ -47,7 +47,7 @@ implementation
 
 uses
   i_CoordConverter,
-  i_ITileIterator,
+  i_TileIterator,
   u_TileIteratorStuped,
   u_TileIteratorByRect,
   u_GlobalState;

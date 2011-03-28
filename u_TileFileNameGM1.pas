@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_ITileFileNameGenerator;
+  i_TileFileNameGenerator;
 
 type
   TTileFileNameGM1 = class(TInterfacedObject, ITileFileNameGenerator)

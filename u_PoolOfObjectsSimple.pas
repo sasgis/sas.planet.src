@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   Classes,
-  i_ISimpleFactory,
+  i_SimpleFactory,
   i_ObjectWithTTL,
   i_PoolElement,
   i_IPoolOfObjectsSimple;

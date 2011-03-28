@@ -4,7 +4,7 @@ interface
 
 uses
   i_ContentTypeInfo,
-  i_ITileInfoBasic;
+  i_TileInfoBasic;
 
 type
   TTileInfoBasicBase = class(TInterfacedObject, ITileInfoBasic)

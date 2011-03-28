@@ -1,4 +1,4 @@
-unit i_IViewPortState;
+unit i_ViewPortState;
 
 interface
 

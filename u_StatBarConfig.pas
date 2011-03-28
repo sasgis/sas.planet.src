@@ -6,7 +6,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IStatBarConfig,
+  i_StatBarConfig,
   u_ConfigDataElementBase;
 
 type

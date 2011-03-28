@@ -1,12 +1,12 @@
-unit i_ITileStorageTypeList;
+unit i_TileStorageTypeList;
 
 interface
 
 uses
   ActiveX,
   i_ConfigDataElement,
-  i_ITileStorageTypeConfig,
-  i_ITileStorageType;
+  i_TileStorageTypeConfig,
+  i_TileStorageType;
 
 type
   ITileStorageTypeList = interface(IConfigDataElement)

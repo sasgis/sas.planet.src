@@ -10,7 +10,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_MapLayerGridsConfig,
-  i_IViewPortState,
+  i_ViewPortState,
   u_MapLayerBasic;
 
 type

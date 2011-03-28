@@ -111,7 +111,7 @@ implementation
 uses
   u_GlobalState,
   i_ImportConfig,
-  i_IUsedMarksConfig,
+  i_UsedMarksConfig,
   UImport,
   u_ExportMarks2KML,
   UAddCategory;

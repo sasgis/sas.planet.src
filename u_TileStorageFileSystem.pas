@@ -10,7 +10,7 @@ uses
   i_ConfigDataProvider,
   i_CoordConverter,
   i_ContentTypeInfo,
-  i_ITileInfoBasic,
+  i_TileInfoBasic,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
 
@@ -70,7 +70,7 @@ implementation
 uses
   SysUtils,
   t_GeoTypes,
-  i_ITileIterator,
+  i_TileIterator,
   u_GlobalState,
   u_TileIteratorByRect,
   u_TileInfoBasic;

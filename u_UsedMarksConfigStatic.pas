@@ -3,7 +3,7 @@ unit u_UsedMarksConfigStatic;
 interface
 
 uses
-  i_IUsedMarksConfig;
+  i_UsedMarksConfig;
 
 type
   TUsedMarksConfigStatic = class(TInterfacedObject, IUsedMarksConfigStatic)

@@ -8,7 +8,7 @@ uses
   i_CoordConverter,
   i_ConfigDataProvider,
   i_ContentTypeInfo,
-  i_ITileInfoBasic,
+  i_TileInfoBasic,
   u_MapTypeCacheConfig,
   u_GEIndexFile,
   u_TileStorageAbstract;

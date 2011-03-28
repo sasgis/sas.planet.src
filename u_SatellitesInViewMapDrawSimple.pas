@@ -6,7 +6,7 @@ uses
   Windows,
   GR32,
   i_GPS,
-  i_ISatellitesInViewMapDraw;
+  i_SatellitesInViewMapDraw;
 
 type
   TSatellitesInViewMapDrawSimple = class(TInterfacedObject, ISatellitesInViewMapDraw)

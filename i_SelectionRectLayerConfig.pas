@@ -1,4 +1,4 @@
-unit i_ISelectionRectLayerConfig;
+unit i_SelectionRectLayerConfig;
 
 interface
 

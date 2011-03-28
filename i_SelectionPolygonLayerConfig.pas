@@ -1,4 +1,4 @@
-unit i_ISelectionPolygonLayerConfig;
+unit i_SelectionPolygonLayerConfig;
 
 interface
 

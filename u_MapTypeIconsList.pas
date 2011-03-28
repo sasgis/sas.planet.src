@@ -8,7 +8,7 @@ uses
   ActiveX,
   Graphics,
   ImgList,
-  i_IGUIDList,
+  i_GUIDList,
   i_MapTypeIconsList;
 
 type

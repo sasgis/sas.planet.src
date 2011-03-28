@@ -6,7 +6,7 @@ uses
   Windows,
   Classes,
   SysUtils,
-  i_IFileNameIterator;
+  i_FileNameIterator;
 
 type
   TFileNameIteratorFolderWithSubfolders = class(TInterfacedObject, IFileNameIterator)

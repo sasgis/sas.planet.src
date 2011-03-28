@@ -41,7 +41,7 @@ uses
   StrUtils,
   ShellAPI,
   WinInet,
-  i_IProxySettings,
+  i_ProxySettings,
   u_GlobalState;
 
 { TfrmInvisibleBrowser }

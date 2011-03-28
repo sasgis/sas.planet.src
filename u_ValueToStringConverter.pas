@@ -5,7 +5,7 @@ interface
 uses
   t_GeoTypes,
   t_CommonTypes,
-  i_IValueToStringConverter;
+  i_ValueToStringConverter;
 
 type
   TValueToStringConverter = class(TInterfacedObject, IValueToStringConverter)

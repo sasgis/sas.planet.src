@@ -1,4 +1,4 @@
-unit i_ITileObjCache;
+unit i_TileObjCache;
 
 interface
 

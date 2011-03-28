@@ -6,7 +6,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ISelectionRectLayerConfig,
+  i_SelectionRectLayerConfig,
   u_ConfigDataElementBase;
 
 type

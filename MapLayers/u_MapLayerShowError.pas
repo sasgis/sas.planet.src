@@ -6,7 +6,7 @@ uses
   Windows,
   GR32,
   GR32_Image,
-  i_IViewPortState,
+  i_ViewPortState,
   UMapType,
   u_MapLayerBasic;
 

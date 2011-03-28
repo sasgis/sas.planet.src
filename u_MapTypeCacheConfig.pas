@@ -6,7 +6,7 @@ uses
   Types,
   i_JclNotify,
   i_ConfigDataProvider,
-  i_ITileFileNameGenerator;
+  i_TileFileNameGenerator;
 
 type
   TMapTypeCacheConfigAbstract = class

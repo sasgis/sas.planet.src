@@ -1,4 +1,4 @@
-unit i_IThread;
+unit i_Thread;
 
 interface
 

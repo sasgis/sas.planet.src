@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  i_ISimpleFactory,
+  i_SimpleFactory,
   i_PoolElement;
 
 type

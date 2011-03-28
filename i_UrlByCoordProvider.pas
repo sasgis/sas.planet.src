@@ -1,4 +1,4 @@
-unit i_IUrlByCoordProvider;
+unit i_UrlByCoordProvider;
 
 interface
 

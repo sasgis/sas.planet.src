@@ -36,7 +36,7 @@ implementation
 uses
   SysUtils,
   u_GlobalState,
-  i_ITileDownlodSession,
+  i_TileDownlodSession,
   UResStrings;
 
 constructor TTileDownloaderUIOneTile.Create(

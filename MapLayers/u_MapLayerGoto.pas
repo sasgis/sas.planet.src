@@ -8,7 +8,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
-  i_IViewPortState,
+  i_ViewPortState,
   u_MapLayerBasic;
 
 type

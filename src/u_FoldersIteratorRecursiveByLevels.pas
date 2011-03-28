@@ -7,7 +7,7 @@ uses
   Classes,
   SysUtils,
   u_WideStrings,
-  i_IFileNameIterator;
+  i_FileNameIterator;
 
 type
   TFoldersIteratorRecursiveByLevels = class(TInterfacedObject, IFileNameIterator)

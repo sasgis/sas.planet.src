@@ -35,7 +35,7 @@ type
 implementation
 
 uses
-  i_ITileIterator,
+  i_TileIterator,
   u_TileIteratorStuped;
 
 constructor TThreadDeleteTiles.Create(

@@ -6,7 +6,7 @@ uses
   Windows,
   SysUtils,
   u_WideStrings,
-  i_IFileNameIterator;
+  i_FileNameIterator;
 
 type
   TFileNameIteratorInFolderByMaskList = class(TInterfacedObject, IFileNameIterator)

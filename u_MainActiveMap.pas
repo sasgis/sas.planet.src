@@ -3,7 +3,7 @@ unit u_MainActiveMap;
 interface
 
 uses
-  i_IGUIDList,
+  i_GUIDList,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapTypes,

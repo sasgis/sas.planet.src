@@ -1,4 +1,4 @@
-unit i_IValueToStringConverter;
+unit i_ValueToStringConverter;
 
 interface
 

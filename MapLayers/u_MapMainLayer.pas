@@ -10,7 +10,7 @@ uses
   t_GeoTypes,
   i_MapTypes,
   i_ActiveMapsConfig,
-  i_IViewPortState,
+  i_ViewPortState,
   u_MapLayerShowError,
   UMapType,
   u_MapLayerBasic;
@@ -43,7 +43,7 @@ uses
   SysUtils,
   i_CoordConverter,
   i_LocalCoordConverter,
-  i_ITileIterator,
+  i_TileIterator,
   i_BitmapPostProcessingConfig,
   Uimgfun,
   UResStrings,

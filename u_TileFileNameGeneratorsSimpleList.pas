@@ -6,8 +6,8 @@ unit u_TileFileNameGeneratorsSimpleList;
 interface
 
 uses
-  i_ITileFileNameGenerator,
-  i_ITileFileNameGeneratorsList;
+  i_TileFileNameGenerator,
+  i_TileFileNameGeneratorsList;
 
 type
   TTileFileNameGeneratorsSimpleList = class(TInterfacedObject, ITileFileNameGeneratorsList)

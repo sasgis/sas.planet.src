@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_IIDList,
+  i_IDList,
   u_IdListBase;
 
 type

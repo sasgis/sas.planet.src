@@ -9,7 +9,7 @@ uses
   i_JclListenerNotifierLinksList,
   i_GPSRecorder,
   i_GPSConfig,
-  i_ITrackWriter,
+  i_TrackWriter,
   i_GPSModuleByCOMFactory,
   i_GPSModuleByCOM;
 

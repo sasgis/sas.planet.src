@@ -6,7 +6,7 @@ uses
   Types,
   u_JclNotify,
   i_LocalCoordConverter,
-  i_IPosChangeMessage;
+  i_PosChangeMessage;
 
 type
   TPosChangeMessage = class(TJclBaseNotificationMessage, IPosChangeMessage)

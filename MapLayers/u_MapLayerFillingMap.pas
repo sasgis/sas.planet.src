@@ -9,7 +9,7 @@ uses
   i_BackgroundTaskLayerDraw,
   i_LocalCoordConverter,
   u_BackgroundTaskLayerDrawBase,
-  i_IViewPortState,
+  i_ViewPortState,
   i_FillingMapLayerConfig,
   UMapType,
   u_MapLayerWithThreadDraw;
@@ -55,7 +55,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_CoordConverter,
-  i_ITileIterator,
+  i_TileIterator,
   u_NotifyEventListener,
   u_TileIteratorSpiralByRect;
 

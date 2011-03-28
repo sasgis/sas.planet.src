@@ -8,7 +8,7 @@ uses
   GR32_Polygons,
   GR32_Image,
   t_GeoTypes,
-  i_IViewPortState,
+  i_ViewPortState,
   i_LocalCoordConverter,
   i_PolyLineLayerConfig,
   u_ClipPolygonByRect,

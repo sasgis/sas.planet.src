@@ -1,4 +1,4 @@
-unit i_ITileStorage;
+unit i_TileStorage;
 
 interface
 
@@ -8,8 +8,8 @@ uses
   GR32,
   i_CoordConverter,
   i_ContentTypeInfo,
-  i_ITileInfoBasic,
-  i_ITileStorageTypeInfo,
+  i_TileInfoBasic,
+  i_TileStorageTypeInfo,
   u_MapTypeCacheConfig;
 
 type

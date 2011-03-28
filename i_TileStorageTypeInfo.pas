@@ -1,4 +1,4 @@
-unit i_ITileStorageTypeInfo;
+unit i_TileStorageTypeInfo;
 
 interface
 

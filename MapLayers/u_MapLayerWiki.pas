@@ -16,7 +16,7 @@ uses
   i_ActiveMapsConfig,
   i_KmlLayerConfig,
   i_LocalCoordConverter,
-  i_IViewPortState,
+  i_ViewPortState,
   u_KmlInfoSimple;
 
 type
@@ -64,7 +64,7 @@ uses
   Graphics,
   GR32_Polygons,
   i_CoordConverter,
-  i_ITileIterator,
+  i_TileIterator,
   u_NotifyEventListener,
   u_TileIteratorByRect;
 

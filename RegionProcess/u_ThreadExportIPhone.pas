@@ -53,7 +53,7 @@ uses
   c_CoordConverter,
   u_GeoToStr,
   UResStrings,
-  i_ITileIterator,
+  i_TileIterator,
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,

@@ -7,7 +7,7 @@ uses
   ActiveX,
   i_JclNotify,
   i_GeoCoderList,
-  i_IGUIDList;
+  i_GUIDList;
 
 type
   TGeoCoderListBase = class(TInterfacedObject, IGeoCoderList)

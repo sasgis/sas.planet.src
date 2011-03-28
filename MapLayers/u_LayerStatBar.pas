@@ -9,8 +9,8 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_LocalCoordConverter,
-  i_IStatBarConfig,
-  i_IViewPortState,
+  i_StatBarConfig,
+  i_ViewPortState,
   u_WindowLayerWithPos;
 
 type
@@ -36,7 +36,7 @@ uses
   SysUtils,
   u_GeoToStr,
   i_CoordConverter,
-  i_IValueToStringConverter,
+  i_ValueToStringConverter,
   u_NotifyEventListener,
   UResStrings,
   UTimeZones,

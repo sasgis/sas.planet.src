@@ -6,7 +6,7 @@ uses
   SyncObjs,
   SysUtils,
   i_GPS,
-  i_ITrackWriter;
+  i_TrackWriter;
 
 type
   TPltLogWriter = class(TInterfacedObject, ITrackWriter)

@@ -1,4 +1,4 @@
-unit i_IPosChangeMessage;
+unit i_PosChangeMessage;
 
 interface
 

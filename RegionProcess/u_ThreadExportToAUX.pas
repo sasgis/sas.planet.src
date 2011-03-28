@@ -32,7 +32,7 @@ uses
   Classes,
   i_CoordConverter,
   UResStrings,
-  i_ITileIterator,
+  i_TileIterator,
   u_TileIteratorStuped;
 
 { TThreadExportToAUX }

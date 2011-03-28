@@ -5,7 +5,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IScaleLineConfig,
+  i_ScaleLineConfig,
   u_ConfigDataElementBase;
 
 type

@@ -3,7 +3,7 @@ unit u_TileStorageTypeInfo;
 interface
 
 uses
-  i_ITileStorageTypeInfo;
+  i_TileStorageTypeInfo;
 
 type
   TTileStorageTypeInfoFieFolder = class(TInterfacedObject, ITileStorageTypeInfo)

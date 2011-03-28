@@ -5,7 +5,7 @@ interface
 uses
   i_MapTypes,
   i_ActiveMapsConfig,
-  i_IViewPortState,
+  i_ViewPortState,
   i_NavigationToPoint,
   i_MainFormConfig,
   i_MainFormBehaviourByGPSConfig,
