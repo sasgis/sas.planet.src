@@ -345,7 +345,6 @@
       <Form>FDGAvailablePic</Form>
     </DCCReference>
     <DCCReference Include="Ugeofun.pas" />
-    <DCCReference Include="Uimgfun.pas" />
     <DCCReference Include="UImport.pas">
       <Form>FImport</Form>
     </DCCReference>
