@@ -39,7 +39,7 @@ uses
   i_ValueToStringConverter,
   u_NotifyEventListener,
   UResStrings,
-  UTimeZones,
+  u_TimeZones,
   Unit1,
   uMapType,
   u_GlobalState;

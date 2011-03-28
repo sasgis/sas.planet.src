@@ -371,7 +371,6 @@
     <DCCReference Include="Usettings.pas">
       <Form>FSettings</Form>
     </DCCReference>
-    <DCCReference Include="UTimeZones.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
     <DCCReference Include="u_ActiveMapsSet.pas" />
@@ -590,6 +589,7 @@
     <DCCReference Include="u_TileStorageTypeList.pas" />
     <DCCReference Include="u_TileStorageTypeListItem.pas" />
     <DCCReference Include="u_TileStorageTypeListSimple.pas" />
+    <DCCReference Include="u_TimeZones.pas" />
     <DCCReference Include="u_UrlGenerator.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />

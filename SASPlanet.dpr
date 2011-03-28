@@ -46,7 +46,7 @@ uses
   t_CommonTypes in 't_CommonTypes.pas',
   i_Datum in 'i_Datum.pas',
   u_Datum in 'u_Datum.pas',
-  UTimeZones in 'UTimeZones.pas',
+  u_TimeZones in 'u_TimeZones.pas',
   UResStrings in 'UResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
   i_ConfigDataProvider in 'i_ConfigDataProvider.pas',
