@@ -470,7 +470,7 @@ uses
   frm_MarkEditPath in 'frm_MarkEditPath.pas' {frmMarkEditPath},
   frm_MarkEditPoly in 'frm_MarkEditPoly.pas' {frmMarkEditPoly},
   UEditMap in 'UEditMap.pas' {FEditMap},
-  UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
+  UMarksExplorer in 'UMarksExplorer.pas' {frmMarksExplorer},
   UImport in 'UImport.pas' {FImport},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
@@ -506,7 +506,7 @@ begin
   Application.CreateForm(TfrmAbout, frmAbout);
   Application.CreateForm(TFSettings, FSettings);
   Application.CreateForm(TFsaveas, Fsaveas);
-  Application.CreateForm(TFMarksExplorer, FMarksExplorer);
+  Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
   Application.CreateForm(TFImport, FImport);
   Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
   Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);

@@ -352,7 +352,7 @@
     </DCCReference>
     <DCCReference Include="UMapType.pas" />
     <DCCReference Include="UMarksExplorer.pas">
-      <Form>FMarksExplorer</Form>
+      <Form>frmMarksExplorer</Form>
     </DCCReference>
     <DCCReference Include="Unit1.pas">
       <Form>Fmain</Form>

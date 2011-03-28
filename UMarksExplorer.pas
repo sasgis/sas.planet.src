@@ -27,7 +27,7 @@ uses
   Unit1, TB2Item, TBX, TB2Dock, TB2Toolbar;
 
 type
-  TFMarksExplorer = class(TCommonFormParent)
+  TfrmMarksExplorer = class(TCommonFormParent)
     grpMarks: TGroupBox;
     MarksListBox: TCheckListBox;
     grpCategory: TGroupBox;
@@ -104,7 +104,7 @@ type
   end;
 
 var
-  FMarksExplorer: TFMarksExplorer;
+  frmMarksExplorer: TfrmMarksExplorer;
 
 implementation
 
@@ -118,7 +118,7 @@ uses
 
 {$R *.dfm}
 
-procedure TFMarksExplorer.UpdateCategoryTree;
+procedure TfrmMarksExplorer.UpdateCategoryTree;
 begin
   TreeView1.OnChange:=nil;
   try
@@ -136,7 +136,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.UpdateMarksList;
+procedure TfrmMarksExplorer.UpdateMarksList;
 var
   VCategory: IMarkCategory;
   i: Integer;
@@ -158,7 +158,7 @@ begin
   end;
 end;
 
-function TFMarksExplorer.GetSelectedCategory: IMarkCategory;
+function TfrmMarksExplorer.GetSelectedCategory: IMarkCategory;
 begin
   Result := nil;
   if TreeView1.Selected <> nil then begin
@@ -166,7 +166,7 @@ begin
   end;
 end;
 
-function TFMarksExplorer.GetSelectedMarkFull: IMarkFull;
+function TfrmMarksExplorer.GetSelectedMarkFull: IMarkFull;
 var
   VMarkId: IMarkId;
 begin
@@ -177,7 +177,7 @@ begin
   end;
 end;
 
-function TFMarksExplorer.GetSelectedMarkId: IMarkId;
+function TfrmMarksExplorer.GetSelectedMarkId: IMarkId;
 var
   VIndex: Integer;
 begin
@@ -188,7 +188,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.MarksListBoxClickCheck(Sender: TObject);
+procedure TfrmMarksExplorer.MarksListBoxClickCheck(Sender: TObject);
 var
   VMark: IMarkId;
 begin
@@ -201,7 +201,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btnImportClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnImportClick(Sender: TObject);
 var
   VImportConfig: IImportConfig;
   VFileName: string;
@@ -219,7 +219,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.BtnDelKatClick(Sender: TObject);
+procedure TfrmMarksExplorer.BtnDelKatClick(Sender: TObject);
 var
   VCategory: IMarkCategory;
 begin
@@ -233,7 +233,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btnExportClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnExportClick(Sender: TObject);
 var KMLExport:TExportMarks2KML;
 begin
   KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
@@ -246,7 +246,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btnAcceptClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnAcceptClick(Sender: TObject);
 begin
   GState.MainFormConfig.LayersConfig.MarksShowConfig.LockWrite;
   try
@@ -271,13 +271,13 @@ begin
   Fmain.LayerMapMarksRedraw;
 end;
 
-procedure TFMarksExplorer.btnOkClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnOkClick(Sender: TObject);
 begin
   btnAcceptClick(nil);
   close;
 end;
 
-procedure TFMarksExplorer.btnDelMarkClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnDelMarkClick(Sender: TObject);
 var
   VMarkId: IMarkId;
 begin
@@ -289,7 +289,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btnEditMarkClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnEditMarkClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
@@ -303,7 +303,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btnGoToMarkClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnGoToMarkClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
@@ -313,7 +313,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.TBXItem4Click(Sender: TObject);
+procedure TfrmMarksExplorer.TBXItem4Click(Sender: TObject);
 var
   VCategory: IMarkCategory;
 begin
@@ -325,7 +325,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btnNavOnMarkClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnNavOnMarkClick(Sender: TObject);
 var
   VMark: IMarkFull;
   LL: TDoublePoint;
@@ -343,7 +343,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btnOpSelectMarkClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnOpSelectMarkClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
@@ -355,7 +355,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btnSaveMarkClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnSaveMarkClick(Sender: TObject);
 var KMLExport:TExportMarks2KML;
     VMark: iMarkFull;
 begin
@@ -363,7 +363,7 @@ begin
     if VMark <> nil then begin
       KMLExport:=TExportMarks2KML.Create(false);
       try
-        FMarksExplorer.ExportDialog.FileName:=VMark.name;
+        ExportDialog.FileName:=VMark.name;
         if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
           KMLExport.ExportMarkToKML(VMark,ExportDialog.FileName);
         end;
@@ -373,12 +373,12 @@ begin
     end;
 end;
 
-procedure TFMarksExplorer.TreeView1Change(Sender: TObject; Node: TTreeNode);
+procedure TfrmMarksExplorer.TreeView1Change(Sender: TObject; Node: TTreeNode);
 begin
   UpdateMarksList;
 end;
 
-procedure TFMarksExplorer.TreeView1KeyUp(Sender: TObject; var Key: Word;
+procedure TfrmMarksExplorer.TreeView1KeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
   VCategory: IMarkCategory;
@@ -412,7 +412,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.TreeView1MouseUp(Sender: TObject;
+procedure TfrmMarksExplorer.TreeView1MouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   VCategory: IMarkCategory;
@@ -437,7 +437,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.BtnEditCategoryClick(Sender: TObject);
+procedure TfrmMarksExplorer.BtnEditCategoryClick(Sender: TObject);
 var
   VCategory: IMarkCategory;
 begin
@@ -451,7 +451,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.btnExportCategoryClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnExportCategoryClick(Sender: TObject);
 var
   KMLExport: TExportMarks2KML;
   VCategory: IMarkCategory;
@@ -460,7 +460,7 @@ begin
   if VCategory<>nil then begin
     KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
     try
-      FMarksExplorer.ExportDialog.FileName:=StringReplace(VCategory.name,'\','-',[rfReplaceAll]);
+      ExportDialog.FileName:=StringReplace(VCategory.name,'\','-',[rfReplaceAll]);
       if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
         KMLExport.ExportCategoryToKML(VCategory,ExportDialog.FileName);
       end;
@@ -470,7 +470,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.MarksListBoxKeyUp(Sender: TObject; var Key: Word;
+procedure TfrmMarksExplorer.MarksListBoxKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
   VMarkId: IMarkId;
@@ -485,7 +485,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.CheckBox2Click(Sender: TObject);
+procedure TfrmMarksExplorer.CheckBox2Click(Sender: TObject);
 var
   VNewVisible: Boolean;
 begin
@@ -496,7 +496,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
+procedure TfrmMarksExplorer.EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
 begin
   FMarkDBGUI := AMarkDBGUI;
   UpdateCategoryTree;
@@ -513,7 +513,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.FormActivate(Sender: TObject);
+procedure TfrmMarksExplorer.FormActivate(Sender: TObject);
 var
   VMarksConfig: IUsedMarksConfigStatic;
 begin
@@ -529,7 +529,7 @@ begin
   end;
 end;
 
-procedure TFMarksExplorer.CheckBox1Click(Sender: TObject);
+procedure TfrmMarksExplorer.CheckBox1Click(Sender: TObject);
 var
   VNewVisible: Boolean;
   VCategory: IMarkCategory;

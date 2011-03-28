@@ -1,4 +1,4 @@
-object FMarksExplorer: TFMarksExplorer
+object frmMarksExplorer: TfrmMarksExplorer
   Left = 341
   Top = 186
   Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
@@ -55,7 +55,6 @@ object FMarksExplorer: TFMarksExplorer
         ImageIndex = 0
         TabOrder = 1
         OnClick = btnAcceptClick
-        ExplicitLeft = -2
         Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
       end
       object btnOk: TTBXButton

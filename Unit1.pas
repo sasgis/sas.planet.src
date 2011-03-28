@@ -2719,9 +2719,9 @@ begin
   if VMark <> nil then begin
     KMLExport:=TExportMarks2KML.Create(false);
     try
-      FMarksExplorer.ExportDialog.FileName := VMark.Name;
-      if (FMarksExplorer.ExportDialog.Execute)and(FMarksExplorer.ExportDialog.FileName<>'') then begin
-        KMLExport.ExportMarkToKML(VMark,FMarksExplorer.ExportDialog.FileName);
+      frmMarksExplorer.ExportDialog.FileName := VMark.Name;
+      if (frmMarksExplorer.ExportDialog.Execute)and(frmMarksExplorer.ExportDialog.FileName<>'') then begin
+        KMLExport.ExportMarkToKML(VMark,frmMarksExplorer.ExportDialog.FileName);
       end;
     finally
       KMLExport.free;
@@ -3477,7 +3477,7 @@ end;
 
 procedure TFmain.TBItem6Click(Sender: TObject);
 begin
- FMarksExplorer.EditMarks(FMarkDBGUI);
+  frmMarksExplorer.EditMarks(FMarkDBGUI);
 end;
 
 procedure TFmain.LayerMapMarksRedraw;
