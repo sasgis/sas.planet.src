@@ -15,7 +15,7 @@ uses
   Buttons,
   GR32,
   u_CommonFormAndFrameParents,
-  UResStrings,
+  u_ResStrings,
   i_MarksSimple,
   i_MarkCategory,
   u_MarksDbGUIHelper,

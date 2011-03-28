@@ -25,7 +25,7 @@ uses
   u_UrlGenerator,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract,
-  UResStrings;
+  u_ResStrings;
 
 type
   EBadGUID = class(Exception);

@@ -58,7 +58,7 @@ uses
   u_MapLayerWiki,
   frm_StartLogo,
   UMapType,
-  UResStrings,
+  u_ResStrings,
   u_ShortcutManager,
   u_MapMainLayer,
   u_LayerStatBar,

@@ -100,7 +100,7 @@ uses
   i_TileIterator,
   u_DownloadInfoSimple,
   u_TileIteratorStuped,
-  UResStrings;
+  u_ResStrings;
 
 constructor TThreadDownloadTiles.Create(
   ALog: ILogSimple;

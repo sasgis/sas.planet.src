@@ -52,7 +52,7 @@ implementation
 uses
   u_GlobalState,
   UGeoFun,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 {$R *.dfm}

@@ -34,7 +34,7 @@ uses
   u_ThreadDownloadTiles,
   Unit1,
   UProgress,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 { TProviderTilesDownload }

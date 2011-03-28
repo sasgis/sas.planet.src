@@ -9,7 +9,7 @@ uses
   t_GeoTypes,
   UMapType,
   u_ThreadRegionProcessAbstract,
-  UResStrings;
+  u_ResStrings;
 
 type
   TThreadDeleteTiles = class(TThreadRegionProcessAbstract)

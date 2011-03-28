@@ -42,7 +42,7 @@ uses
   SysUtils,
   c_ZeroGUID,
   u_ActiveMapTBXItem,
-  UResStrings,
+  u_ResStrings,
   u_GlobalState;
 
 { TMapMenuGeneratorBasic }

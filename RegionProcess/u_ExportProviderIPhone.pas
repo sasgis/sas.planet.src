@@ -32,7 +32,7 @@ implementation
 uses
   SysUtils,
   u_ThreadExportIPhone,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 { TExportProviderIPhone }

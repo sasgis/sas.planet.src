@@ -72,7 +72,7 @@ uses
   Types,
   uPSUtils,
   u_GeoToStr,
-  UResStrings,
+  u_ResStrings,
   t_GeoTypes,
   u_GlobalState;
 

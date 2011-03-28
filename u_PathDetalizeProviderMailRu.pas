@@ -42,7 +42,7 @@ uses
   StrUtils,
   DateUtils,
   u_GeoToStr,
-  UResStrings,
+  u_ResStrings,
   frm_InvisibleBrowser;
 
 { TPathDetalizeProviderMailRu }

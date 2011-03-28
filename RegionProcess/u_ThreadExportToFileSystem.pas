@@ -8,7 +8,7 @@ uses
   Classes,
   i_TileFileNameGenerator,
   UMapType,
-  UResStrings,
+  u_ResStrings,
   t_GeoTypes,
   u_ThreadExportAbstract;
 

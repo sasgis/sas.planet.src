@@ -44,7 +44,7 @@ uses
   u_ConfigDataProviderZmpComplex,
   u_MapTypeBasic,
   u_MapTypeList,
-  UResStrings;
+  u_ResStrings;
 
 { TMapTypesMainList }
 

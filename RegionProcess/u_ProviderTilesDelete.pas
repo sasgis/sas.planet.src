@@ -29,7 +29,7 @@ implementation
 uses
   SysUtils,
   u_ThreadDeleteTiles,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 { TProviderTilesDelete }

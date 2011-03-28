@@ -44,7 +44,7 @@ uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigProviderHelpers,
   u_MarkNameGenerator,
-  UResStrings,
+  u_ResStrings,
   u_MarkTemplates;
 
 { TMarkLineTemplateConfig }

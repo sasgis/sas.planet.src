@@ -35,7 +35,7 @@ uses
   SysUtils,
   i_CoordConverter,
   u_NotifyEventListener,
-  UResStrings,
+  u_ResStrings,
   t_GeoTypes;
 
 const

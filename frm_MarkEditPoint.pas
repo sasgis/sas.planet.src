@@ -18,7 +18,7 @@ uses
   GR32,
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
-  UResStrings,
+  u_ResStrings,
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,

@@ -50,7 +50,7 @@ implementation
 uses
   ActiveX,
   u_GlobalState,
-  UResStrings;
+  u_ResStrings;
 
 {$R *.dfm}
 

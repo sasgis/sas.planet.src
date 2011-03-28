@@ -49,7 +49,7 @@ implementation
 
 uses
   SysUtils,
-  UResStrings;
+  u_ResStrings;
 
 { TValueToStringConverter }
 

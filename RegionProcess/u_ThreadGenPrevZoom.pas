@@ -11,7 +11,7 @@ uses
   UMapType,
   u_ThreadRegionProcessAbstract,
   i_ImageResamplerFactory,
-  UResStrings,
+  u_ResStrings,
   t_GeoTypes;
 
 type

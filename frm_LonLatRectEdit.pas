@@ -37,7 +37,7 @@ type
 implementation
 
 uses
-  UResStrings;
+  u_ResStrings;
 
 {$R *.dfm}
 

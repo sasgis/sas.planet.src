@@ -26,7 +26,7 @@ uses
   i_ImageResamplerFactory,
   fr_ShortCutList,
   UMapType,
-  UResStrings;
+  u_ResStrings;
 
 type
   TfrmSettings = class(TCommonFormParent)

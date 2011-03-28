@@ -45,7 +45,7 @@ uses
   i_LocalCoordConverter,
   i_TileIterator,
   i_BitmapPostProcessingConfig,
-  UResStrings,
+  u_ResStrings,
   u_TileIteratorByRect,
   u_NotifyEventListener,
   u_GlobalState;

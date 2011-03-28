@@ -225,7 +225,7 @@ uses
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByZylGPS,
   u_MainFormConfig,
-  UResStrings,
+  u_ResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }

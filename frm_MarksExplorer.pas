@@ -17,7 +17,7 @@ uses
   Buttons,
   ExtCtrls,
   TBXControls,
-  UResStrings,
+  u_ResStrings,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   i_MarksSimple,

@@ -14,7 +14,7 @@ uses
   t_GeoTypes,
   i_MarksSimple,
   i_BitmapPostProcessingConfig,
-  UResStrings,
+  u_ResStrings,
   u_ThreadMapCombineBase;
 
 type

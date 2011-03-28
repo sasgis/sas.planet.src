@@ -22,7 +22,7 @@ uses
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat,
-  UResStrings;
+  u_ResStrings;
 
 { TCoordConverterFactorySimple }
 

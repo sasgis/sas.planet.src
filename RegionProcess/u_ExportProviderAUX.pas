@@ -28,7 +28,7 @@ implementation
 uses
   SysUtils,
   u_ThreadExportToAUX,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 { TExportProviderKml }

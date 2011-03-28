@@ -56,7 +56,7 @@ uses
   SysUtils,
   i_Datum,
   u_NotifyEventListener,
-  UResStrings;
+  u_ResStrings;
 
 { TCalcLineLayer }
 

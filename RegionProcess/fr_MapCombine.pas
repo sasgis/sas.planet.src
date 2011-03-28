@@ -75,7 +75,7 @@ uses
   i_MapCalibration,
   u_GlobalState,
   UGeoFun,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 {$R *.dfm}

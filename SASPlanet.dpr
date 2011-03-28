@@ -47,7 +47,7 @@ uses
   i_Datum in 'i_Datum.pas',
   u_Datum in 'u_Datum.pas',
   u_TimeZones in 'u_TimeZones.pas',
-  UResStrings in 'UResStrings.pas',
+  u_ResStrings in 'u_ResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
   i_ConfigDataProvider in 'i_ConfigDataProvider.pas',
   i_ConfigDataWriteProvider in 'i_ConfigDataWriteProvider.pas',

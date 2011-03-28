@@ -19,7 +19,7 @@ uses
   ExtCtrls,
   u_CommonFormAndFrameParents,
   i_LocalCoordConverter,
-  UResStrings,
+  u_ResStrings,
   t_GeoTypes;
 
 type

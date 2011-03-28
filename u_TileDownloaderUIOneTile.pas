@@ -37,7 +37,7 @@ uses
   SysUtils,
   u_GlobalState,
   i_TileDownlodSession,
-  UResStrings;
+  u_ResStrings;
 
 constructor TTileDownloaderUIOneTile.Create(
   AXY: TPoint;

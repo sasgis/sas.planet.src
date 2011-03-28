@@ -52,7 +52,7 @@ implementation
 uses
   c_CoordConverter,
   u_GeoToStr,
-  UResStrings,
+  u_ResStrings,
   i_TileIterator,
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,

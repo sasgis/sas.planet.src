@@ -6,7 +6,7 @@ uses
   Classes,
   t_GeoTypes,
   u_ThreadRegionProcessAbstract,
-  UResStrings;
+  u_ResStrings;
 
 type
   TThreadExportAbstract = class(TThreadRegionProcessAbstract)

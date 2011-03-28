@@ -28,7 +28,7 @@ implementation
 uses
   SysUtils,
   u_ThreadExportYaMaps,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 { TExportProviderYaMaps }

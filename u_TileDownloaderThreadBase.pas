@@ -25,7 +25,7 @@ implementation
 
 uses
   SysUtils,
-  UResStrings;
+  u_ResStrings;
 
 class function TTileDownloaderThreadBase.GetErrStr(Aerr: TDownloadTileResult): string;
 begin

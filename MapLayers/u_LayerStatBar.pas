@@ -38,7 +38,7 @@ uses
   i_CoordConverter,
   i_ValueToStringConverter,
   u_NotifyEventListener,
-  UResStrings,
+  u_ResStrings,
   u_TimeZones,
   Unit1,
   uMapType,

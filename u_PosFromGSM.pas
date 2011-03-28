@@ -17,7 +17,7 @@ uses
   CPDrv,
   t_GeoTypes,
   u_GlobalState,
-  UResStrings;
+  u_ResStrings;
 
 type
   TToPos = procedure (LL:TDoublePoint;zoom_:byte;draw:boolean) of object;

@@ -103,7 +103,7 @@ uses
   c_ZeroGUID,
   i_CoordConverter,
   Ugeofun,
-  UResStrings,
+  u_ResStrings,
   i_BitmapPostProcessingConfig,
   i_TileIterator,
   u_GlobalState,

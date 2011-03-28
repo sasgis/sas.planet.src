@@ -17,7 +17,7 @@ uses
   Spin,
   u_CommonFormAndFrameParents,
   UMapType,
-  UResStrings;
+  u_ResStrings;
 
 type
   TfrmMapTypeEdit = class(TCommonFormParent)

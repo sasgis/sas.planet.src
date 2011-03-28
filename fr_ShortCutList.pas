@@ -37,7 +37,7 @@ implementation
 
 uses
   Menus,
-  UResStrings,
+  u_ResStrings,
   frm_ShortCutEdit;
 
 {$R *.dfm}

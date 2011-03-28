@@ -16,7 +16,7 @@ uses
   u_CommonFormAndFrameParents,
   i_LogForTaskThread,
   UMapType,
-  UResStrings,
+  u_ResStrings,
   u_ThreadDownloadTiles;
 
 type

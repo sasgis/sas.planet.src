@@ -23,7 +23,7 @@ uses
   ActiveX,
   Dialogs,
   SysUtils,
-  UResStrings;
+  u_ResStrings;
 
 { TSearchResultPresenterStuped }
 

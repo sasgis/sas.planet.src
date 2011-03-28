@@ -31,7 +31,7 @@ implementation
 uses
   Classes,
   i_CoordConverter,
-  UResStrings,
+  u_ResStrings,
   i_TileIterator,
   u_TileIteratorStuped;
 

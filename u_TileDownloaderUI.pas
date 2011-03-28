@@ -73,7 +73,7 @@ uses
   u_NotifyEventListener,
   i_TileIterator,
   u_TileIteratorSpiralByRect,
-  UResStrings;
+  u_ResStrings;
 
 constructor TTileDownloaderUI.Create(
   AConfig: IDownloadUIConfig;

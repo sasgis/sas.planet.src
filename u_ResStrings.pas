@@ -1,4 +1,4 @@
-unit UResStrings;
+unit u_ResStrings;
 
 interface
 

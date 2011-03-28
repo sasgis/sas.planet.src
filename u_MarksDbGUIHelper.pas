@@ -47,7 +47,7 @@ uses
   SysUtils,
   Dialogs,
   i_Datum,
-  UResStrings,
+  u_ResStrings,
   frm_RegionProcess,
   frm_MarkEditPoint,
   frm_MarkEditPoly,

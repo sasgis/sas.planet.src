@@ -14,7 +14,7 @@ uses
   i_MarkCategory,
   u_CommonFormAndFrameParents,
   u_MarksDbGUIHelper,
-  UResStrings;
+  u_ResStrings;
 
 type
   TfrmMarkCategoryEdit = class(TCommonFormParent)

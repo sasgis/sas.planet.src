@@ -10,7 +10,7 @@ uses
   GR32,
   UMapType,
   UGeoFun,
-  UResStrings,
+  u_ResStrings,
   t_GeoTypes,
   u_ThreadExportAbstract;
 

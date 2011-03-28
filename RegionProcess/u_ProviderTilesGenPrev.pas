@@ -32,7 +32,7 @@ uses
   i_ImageResamplerFactory,
   u_ThreadGenPrevZoom,
   u_GlobalState,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 { TProviderTilesGenPrev }

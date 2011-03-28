@@ -54,7 +54,7 @@ implementation
 uses
   FileCtrl,
   u_GlobalState,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 {$R *.dfm}

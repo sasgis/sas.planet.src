@@ -38,7 +38,7 @@ uses
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,
   u_ThreadMapCombineKMZ,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 { TProviderTilesDelete }

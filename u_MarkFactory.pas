@@ -150,7 +150,7 @@ implementation
 uses
   Graphics,
   SysUtils,
-  UResStrings,
+  u_ResStrings,
   Ugeofun,
   u_MarkPoint,
   u_MarkLine,

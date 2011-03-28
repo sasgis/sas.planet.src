@@ -30,7 +30,7 @@ uses
   i_TileFileNameGenerator,
   u_GlobalState,
   u_ThreadExportToZip,
-  UResStrings,
+  u_ResStrings,
   UMapType;
 
 { TExportProviderKml }
