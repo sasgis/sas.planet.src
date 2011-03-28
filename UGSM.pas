@@ -21,7 +21,7 @@ uses
 
 type
   TToPos = procedure (LL:TDoublePoint;zoom_:byte;draw:boolean) of object;
-  TPosFromGPS = class
+  TPosFromGSM = class
   private
     FToPos:TToPos;
     FZoom: Byte;
@@ -39,12 +39,14 @@ type
 
 implementation
 
-constructor TPosFromGPS.Create(AOnToPos: TToPos);
+{ TPosFromGSM }
+
+constructor TPosFromGSM.Create(AOnToPos: TToPos);
 begin
   FToPos := AOnToPos;
 end;
 
-function TPosFromGPS.GetCoordFromGoogle(var LL:TDoublePoint): boolean;
+function TPosFromGSM.GetCoordFromGoogle(var LL:TDoublePoint): boolean;
 var
   strA, strB, strC, strAll: string;
   sResult: string;
@@ -122,7 +124,7 @@ begin
   end;
 end;
 
-procedure TPosFromGPS.CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
+procedure TPosFromGSM.CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
  function DelKov(s:string):string;
  var i:integer;
  begin
@@ -201,7 +203,7 @@ begin
 end;
 
 
-function TPosFromGPS.GetPos(AZoom: Byte):boolean;
+function TPosFromGSM.GetPos(AZoom: Byte):boolean;
 var
   paramss:string;
   LL:TDoublePoint;
