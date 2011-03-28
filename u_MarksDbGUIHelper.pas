@@ -12,7 +12,6 @@ uses
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
-  u_MarksSimple,
   u_MarksReadWriteSimple;
 
 type

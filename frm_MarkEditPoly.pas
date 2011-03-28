@@ -18,7 +18,6 @@ uses
   UResStrings,
   i_MarksSimple,
   i_MarkCategory,
-  u_MarksSimple,
   u_MarksDbGUIHelper,
   fr_MarkDescription,
   t_GeoTypes;
