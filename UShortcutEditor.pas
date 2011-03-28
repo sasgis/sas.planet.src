@@ -10,23 +10,26 @@ uses
   ComCtrls,
   StdCtrls,
   Buttons,
+  ExtCtrls,
   u_CommonFormAndFrameParents;
 
 type
-  TFShortcutChange = class(TCommonFormParent)
+  TfrmShortCutEdit = class(TCommonFormParent)
     GroupBox1: TGroupBox;
     HotKey: THotKey;
-    Button1: TButton;
-    Button2: TButton;
-    SpeedButton1: TSpeedButton;
+    btnOk: TButton;
+    btnCancel: TButton;
+    btnClear: TSpeedButton;
+    pnlBottom: TPanel;
     procedure FormShow(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
+    procedure btnClearClick(Sender: TObject);
   private
   public
+    
   end;
 
 var
-  FShortcutChange: TFShortcutChange;
+  frmShortCutEdit: TfrmShortCutEdit;
 
 implementation
 
@@ -34,12 +37,12 @@ implementation
 
 {$R *.dfm}
 
-procedure TFShortcutChange.Button3Click(Sender: TObject);
+procedure TfrmShortCutEdit.btnClearClick(Sender: TObject);
 begin
   HotKey.HotKey := 0;
 end;
 
-procedure TFShortcutChange.FormShow(Sender: TObject);
+procedure TfrmShortCutEdit.FormShow(Sender: TObject);
 begin
   HotKey.SetFocus;
 end;

@@ -58,12 +58,12 @@ procedure TfrShortCutList.lstShortCutListDblClick(Sender: TObject);
 
 begin
   if lstShortCutList.ItemIndex<>-1 then begin
-    FShortcutChange.HotKey.HotKey := TShortCutInfo(lstShortCutList.Items.Objects[lstShortCutList.ItemIndex]).ShortCut;
-    if FShortcutChange.ShowModal = mrOK then begin
-      if (ShortCutExists(FShortcutChange.HotKey.HotKey))and(FShortcutChange.HotKey.HotKey<>0) then begin
+    frmShortCutEdit.HotKey.HotKey := TShortCutInfo(lstShortCutList.Items.Objects[lstShortCutList.ItemIndex]).ShortCut;
+    if frmShortCutEdit.ShowModal = mrOK then begin
+      if (ShortCutExists(frmShortCutEdit.HotKey.HotKey))and(frmShortCutEdit.HotKey.HotKey<>0) then begin
         ShowMessage(SAS_MSG_HotKeyExists)
       end else begin
-        TShortCutInfo(lstShortCutList.Items.Objects[lstShortCutList.ItemIndex]).ShortCut := FShortcutChange.HotKey.HotKey;
+        TShortCutInfo(lstShortCutList.Items.Objects[lstShortCutList.ItemIndex]).ShortCut := frmShortCutEdit.HotKey.HotKey;
       end;
       lstShortCutList.Repaint;
     end;

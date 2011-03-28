@@ -474,7 +474,7 @@ uses
   UImport in 'UImport.pas' {FImport},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
-  UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange},
+  UShortcutEditor in 'UShortcutEditor.pas' {frmShortCutEdit},
   u_ExportMarks2KML in 'u_ExportMarks2KML.pas';
 
 {$R *.res} {$R *Pics.res}
@@ -515,7 +515,7 @@ begin
   Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
   Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
   Application.CreateForm(TFEditMap, FEditMap);
-  Application.CreateForm(TFShortcutChange, FShortcutChange);
+  Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
   Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
 
     if GState.ShowDebugInfo then begin
