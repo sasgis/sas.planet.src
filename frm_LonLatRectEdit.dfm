@@ -1,9 +1,8 @@
 object frmLonLatRectEdit: TfrmLonLatRectEdit
   Left = 192
   Top = 289
-  BorderStyle = bsSizeToolWin
   Caption = #1042#1099#1076#1077#1083#1077#1085#1080#1077' '#1087#1086' '#1082#1086#1086#1088#1076#1080#1085#1072#1090#1072#1084
-  ClientHeight = 217
+  ClientHeight = 214
   ClientWidth = 291
   Color = clBtnFace
   Constraints.MinHeight = 198
@@ -17,12 +16,13 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
   TextHeight = 13
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 186
+    Top = 183
     Width = 291
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 186
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 213
@@ -52,7 +52,7 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
     Left = 0
     Top = 0
     Width = 291
-    Height = 186
+    Height = 183
     Align = alClient
     BevelOuter = bvNone
     ColumnCollection = <
@@ -78,25 +78,29 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
         Value = 50.000000000000000000
       end>
     TabOrder = 1
+    ExplicitHeight = 186
     object grpTopLeft: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 285
-      Height = 87
+      Height = 85
       Align = alClient
       Caption = #1051#1077#1074#1099#1081' '#1074#1077#1088#1093#1085#1080#1081' '#1091#1075#1086#1083
       TabOrder = 0
+      ExplicitHeight = 87
     end
     object grpBottomRight: TGroupBox
       AlignWithMargins = True
       Left = 3
-      Top = 96
+      Top = 94
       Width = 285
-      Height = 87
+      Height = 86
       Align = alClient
       Caption = #1055#1088#1072#1074#1099#1081' '#1085#1080#1078#1085#1080#1081' '#1091#1075#1086#1083
       TabOrder = 1
+      ExplicitTop = 96
+      ExplicitHeight = 87
     end
   end
 end

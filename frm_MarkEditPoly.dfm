@@ -1,9 +1,8 @@
 object frmMarkEditPoly: TfrmMarkEditPoly
   Left = 360
   Top = 40
-  BorderStyle = bsSizeToolWin
   Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1099#1081' '#1087#1086#1083#1080#1075#1086#1085
-  ClientHeight = 351
+  ClientHeight = 348
   ClientWidth = 327
   Color = clBtnFace
   Constraints.MinHeight = 375
@@ -18,16 +17,17 @@ object frmMarkEditPoly: TfrmMarkEditPoly
   object chkVisible: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 300
+    Top = 297
     Width = 321
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 5
+    ExplicitTop = 300
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 320
+    Top = 317
     Width = 327
     Height = 31
     Align = alBottom
@@ -35,6 +35,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 6
+    ExplicitTop = 320
     object btnOk: TButton
       AlignWithMargins = True
       Left = 172
@@ -64,13 +65,14 @@ object frmMarkEditPoly: TfrmMarkEditPoly
   end
   object pnlFill: TPanel
     Left = 0
-    Top = 248
+    Top = 245
     Width = 327
     Height = 49
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 4
+    ExplicitTop = 248
     object lblFill: TLabel
       AlignWithMargins = True
       Left = 3
@@ -144,13 +146,14 @@ object frmMarkEditPoly: TfrmMarkEditPoly
   end
   object pnlLine: TPanel
     Left = 0
-    Top = 201
+    Top = 198
     Width = 327
     Height = 47
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitTop = 201
     object lblLine: TLabel
       AlignWithMargins = True
       Left = 3
@@ -242,12 +245,13 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     Left = 0
     Top = 52
     Width = 327
-    Height = 149
+    Height = 146
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitHeight = 149
   end
   object pnlCategory: TPanel
     Left = 0

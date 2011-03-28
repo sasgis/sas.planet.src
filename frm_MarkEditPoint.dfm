@@ -1,15 +1,13 @@
 object frmMarkEditPoint: TfrmMarkEditPoint
   Left = 193
   Top = 178
-  BorderStyle = bsSizeToolWin
   Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1091#1102' '#1084#1077#1090#1082#1091
-  ClientHeight = 427
+  ClientHeight = 424
   ClientWidth = 314
   Color = clBtnFace
   Constraints.MinHeight = 428
   Constraints.MinWidth = 322
   ParentFont = True
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
@@ -30,16 +28,17 @@ object frmMarkEditPoint: TfrmMarkEditPoint
   object chkVisible: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 376
+    Top = 373
     Width = 308
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 5
+    ExplicitTop = 376
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 396
+    Top = 393
     Width = 314
     Height = 31
     Align = alBottom
@@ -47,6 +46,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 6
+    ExplicitTop = 396
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 238
@@ -75,7 +75,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
   end
   object grdpnlStyleRows: TGridPanel
     Left = 0
-    Top = 282
+    Top = 279
     Width = 314
     Height = 91
     Align = alBottom
@@ -116,6 +116,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         Value = 100.000000000000000000
       end>
     TabOrder = 4
+    ExplicitTop = 282
     DesignSize = (
       314
       89)
@@ -359,12 +360,13 @@ object frmMarkEditPoint: TfrmMarkEditPoint
     Left = 0
     Top = 138
     Width = 314
-    Height = 144
+    Height = 141
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitHeight = 144
   end
   object pnlLonLat: TPanel
     Left = 0

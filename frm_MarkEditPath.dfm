@@ -1,9 +1,8 @@
 object frmMarkEditPath: TfrmMarkEditPath
   Left = 187
   Top = 189
-  BorderStyle = bsSizeToolWin
   Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1099#1081' '#1087#1091#1090#1100
-  ClientHeight = 330
+  ClientHeight = 327
   ClientWidth = 328
   Color = clBtnFace
   Constraints.MinHeight = 271
@@ -18,12 +17,13 @@ object frmMarkEditPath: TfrmMarkEditPath
   object chkVisible: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 279
+    Top = 276
     Width = 322
     Height = 17
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 4
+    ExplicitTop = 279
   end
   object pnlCategory: TPanel
     Left = 0
@@ -89,16 +89,17 @@ object frmMarkEditPath: TfrmMarkEditPath
     Left = 0
     Top = 52
     Width = 328
-    Height = 194
+    Height = 191
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitHeight = 194
   end
   object flwpnlStyle: TFlowPanel
     Left = 0
-    Top = 246
+    Top = 243
     Width = 328
     Height = 30
     Align = alBottom
@@ -108,6 +109,7 @@ object frmMarkEditPath: TfrmMarkEditPath
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitTop = 246
     object lblLineColor: TLabel
       AlignWithMargins = True
       Left = 3
@@ -181,7 +183,7 @@ object frmMarkEditPath: TfrmMarkEditPath
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 299
+    Top = 296
     Width = 328
     Height = 31
     Align = alBottom
@@ -189,6 +191,7 @@ object frmMarkEditPath: TfrmMarkEditPath
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 5
+    ExplicitTop = 299
     object btnOk: TButton
       AlignWithMargins = True
       Left = 173
