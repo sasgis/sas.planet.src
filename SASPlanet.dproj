@@ -315,7 +315,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UAbout.pas">
-      <Form>Fabout</Form>
+      <Form>frmAbout</Form>
     </DCCReference>
     <DCCReference Include="UAddCategory.pas">
       <Form>FAddCategory</Form>

@@ -12,35 +12,36 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TFabout = class(TCommonFormParent)
+  TfrmAbout = class(TCommonFormParent)
     Bevel1: TBevel;
-    Button1: TButton;
-    Label1: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    LabelName: TLabel;
-    Edit1: TEdit;
-    Edit2: TEdit;
-    Edit5: TEdit;
-    Edit6: TEdit;
-    Label7: TLabel;
-    LabelVer: TLabel;
-    Label2: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
-    Label10: TLabel;
-    procedure Button1Click(Sender: TObject);
+    btnClose: TButton;
+    lblVersionCatpion: TLabel;
+    lblAuthorCaption: TLabel;
+    lblWebSiteCaption: TLabel;
+    lblEMailCaption: TLabel;
+    lblDonateCaption: TLabel;
+    lblProgramName: TLabel;
+    edtWME: TEdit;
+    edtWMZ: TEdit;
+    edtYandexMoney: TEdit;
+    lblWMCaption: TLabel;
+    lblVersion: TLabel;
+    lblAuthor: TLabel;
+    lblEMail: TLabel;
+    lblYandexMoneyCaption: TLabel;
+    lblWebSite: TLabel;
+    edtWMR: TEdit;
+    pnlBottom: TPanel;
+    procedure btnCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure Label10Click(Sender: TObject);
-    procedure Label8Click(Sender: TObject);
+    procedure lblWebSiteClick(Sender: TObject);
+    procedure lblEMailClick(Sender: TObject);
   private
   public
   end;
 
 var
-  Fabout: TFabout;
+  frmAbout: TfrmAbout;
 
 implementation
 
@@ -50,24 +51,24 @@ uses
 
 {$R *.dfm}
 
-procedure TFabout.Button1Click(Sender: TObject);
+procedure TfrmAbout.btnCloseClick(Sender: TObject);
 begin
- close;
+  Close;
 end;
 
-procedure TFabout.FormCreate(Sender: TObject);
+procedure TfrmAbout.FormCreate(Sender: TObject);
 begin
- LabelVer.Caption:=SASVersion;
+ lblVersion.Caption:=SASVersion;
 end;
 
-procedure TFabout.Label10Click(Sender: TObject);
+procedure TfrmAbout.lblWebSiteClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru');
 end;
 
-procedure TFabout.Label8Click(Sender: TObject);
+procedure TfrmAbout.lblEMailClick(Sender: TObject);
 begin
-  OpenUrlInBrowser('mailto:'+Label8.Caption);
+  OpenUrlInBrowser('mailto:'+lblEMail.Caption);
 end;
 
 end.

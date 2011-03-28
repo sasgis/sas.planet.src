@@ -2365,7 +2365,7 @@ end;
 
 procedure TFmain.N16Click(Sender: TObject);
 begin
- fabout.ShowModal;
+  frmAbout.ShowModal;
 end;
 
 procedure TFmain.TBREGIONClick(Sender: TObject);
