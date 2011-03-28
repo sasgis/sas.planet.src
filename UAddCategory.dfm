@@ -1,4 +1,4 @@
-object FAddCategory: TFAddCategory
+object frmMarkCategoryEdit: TfrmMarkCategoryEdit
   Left = 208
   Top = 318
   BorderStyle = bsDialog

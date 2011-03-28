@@ -318,7 +318,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UAddCategory.pas">
-      <Form>FAddCategory</Form>
+      <Form>frmMarkCategoryEdit</Form>
     </DCCReference>
     <DCCReference Include="UaddLine.pas">
       <Form>FaddLine</Form>

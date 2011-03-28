@@ -472,7 +472,7 @@ uses
   UEditMap in 'UEditMap.pas' {FEditMap},
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},
-  UAddCategory in 'UAddCategory.pas' {FAddCategory},
+  UAddCategory in 'UAddCategory.pas' {frmMarkCategoryEdit},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
   UShortcutEditor in 'UShortcutEditor.pas' {FShortcutChange},
   u_ExportMarks2KML in 'u_ExportMarks2KML.pas';
@@ -508,7 +508,7 @@ begin
   Application.CreateForm(TFsaveas, Fsaveas);
   Application.CreateForm(TFMarksExplorer, FMarksExplorer);
   Application.CreateForm(TFImport, FImport);
-  Application.CreateForm(TFAddCategory, FAddCategory);
+  Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
   Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
   Application.CreateForm(TFaddPoint, FaddPoint);
   Application.CreateForm(TFbrowser, Fbrowser);

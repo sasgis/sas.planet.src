@@ -17,7 +17,7 @@ uses
   UResStrings;
 
 type
-  TFAddCategory = class(TCommonFormParent)
+  TfrmMarkCategoryEdit = class(TCommonFormParent)
     Label1: TLabel;
     EditName: TEdit;
     CBShow: TCheckBox;
@@ -39,21 +39,21 @@ type
   end;
 
 var
-  FAddCategory: TFAddCategory;
+  frmMarkCategoryEdit: TfrmMarkCategoryEdit;
 
 implementation
 
 {$R *.dfm}
 
-function TFAddCategory.EditCategory(ACategory: IMarkCategory; AMarkDBGUI: TMarksDbGUIHelper): IMarkCategory;
+function TfrmMarkCategoryEdit.EditCategory(ACategory: IMarkCategory; AMarkDBGUI: TMarksDbGUIHelper): IMarkCategory;
 begin
   FMarkDBGUI := AMarkDBGUI;
   EditName.Text:=SAS_STR_NewPoly;
   if ACategory.IsNew then begin
-    FaddCategory.Caption:=SAS_STR_AddNewCategory;
+    Self.Caption:=SAS_STR_AddNewCategory;
     btnOk.Caption:=SAS_STR_Add;
   end else begin
-    FaddCategory.Caption:=SAS_STR_EditCategory;
+    Self.Caption:=SAS_STR_EditCategory;
     btnOk.Caption:=SAS_STR_Edit;
   end;
   EditName.Text:=ACategory.name;
