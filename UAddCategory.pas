@@ -27,13 +27,11 @@ type
     EditS2: TSpinEdit;
     Label4: TLabel;
     Bevel5: TBevel;
-    Badd: TButton;
-    Button2: TButton;
+    btnOk: TButton;
+    btnCancel: TButton;
     pnlBottomButtons: TPanel;
     flwpnlZooms: TFlowPanel;
     pnlName: TPanel;
-    procedure BaddClick(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
   private
     FMarkDBGUI: TMarksDbGUIHelper;
   public
@@ -53,10 +51,10 @@ begin
   EditName.Text:=SAS_STR_NewPoly;
   if ACategory.IsNew then begin
     FaddCategory.Caption:=SAS_STR_AddNewCategory;
-    Badd.Caption:=SAS_STR_Add;
+    btnOk.Caption:=SAS_STR_Add;
   end else begin
     FaddCategory.Caption:=SAS_STR_EditCategory;
-    Badd.Caption:=SAS_STR_Edit;
+    btnOk.Caption:=SAS_STR_Edit;
   end;
   EditName.Text:=ACategory.name;
   EditS1.Value:=ACategory.AfterScale;
@@ -73,16 +71,6 @@ begin
   end else begin
     Result := nil;
   end;
-end;
-
-procedure TFAddCategory.BaddClick(Sender: TObject);
-begin
-  ModalResult := mrOk;
-end;
-
-procedure TFAddCategory.Button2Click(Sender: TObject);
-begin
-  ModalResult := mrCancel;
 end;
 
 end.

@@ -42,7 +42,6 @@ object FAddCategory: TFAddCategory
     Align = alBottom
     Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1085#1072' '#1082#1072#1088#1090#1077
     TabOrder = 0
-    ExplicitLeft = 4
   end
   object pnlBottomButtons: TPanel
     Left = 0
@@ -52,7 +51,7 @@ object FAddCategory: TFAddCategory
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    object Button2: TButton
+    object btnCancel: TButton
       AlignWithMargins = True
       Left = 219
       Top = 3
@@ -64,9 +63,8 @@ object FAddCategory: TFAddCategory
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 0
-      OnClick = Button2Click
     end
-    object Badd: TButton
+    object btnOk: TButton
       AlignWithMargins = True
       Left = 140
       Top = 3
@@ -74,9 +72,9 @@ object FAddCategory: TFAddCategory
       Height = 25
       Align = alRight
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+      Default = True
       ModalResult = 1
       TabOrder = 1
-      OnClick = BaddClick
     end
   end
   object flwpnlZooms: TFlowPanel
@@ -87,7 +85,6 @@ object FAddCategory: TFAddCategory
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitTop = 43
     object Label3: TLabel
       AlignWithMargins = True
       Left = 3
