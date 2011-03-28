@@ -220,7 +220,6 @@ end;
 
 procedure TTileDownloaderUI.Execute;
 var
-  VPixelInTargetMap: TPoint;
   ty: string;
   fileBuf: TMemoryStream;
   res: TDownloadTileResult;

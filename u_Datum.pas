@@ -13,7 +13,6 @@ type
     FRadiusA: Double;
     FRadiusB: Double;
     FExct: Double;
-    function LonLat2MetrS(ALL: TDoublePoint): TDoublePoint;
   protected
     function GetEPSG: integer; stdcall;
     function GetSpheroidRadiusA: Double; stdcall;
@@ -234,15 +233,6 @@ end;
 function TDatum.IsSameDatum(ADatum: IDatum): Boolean;
 begin
   Result := (ADatum.EPSG <> 0) and (FEPSG <> 0) and (FEPSG = ADatum.EPSG);
-end;
-
-function TDatum.LonLat2MetrS(ALL: TDoublePoint): TDoublePoint;
-begin
-  All.x := All.x * (Pi / 180);
-  All.Y := All.y * (Pi / 180);
-  result.x := FRadiusa * All.x / 2;
-  result.y := FRadiusa * Ln(Tan(PI / 4 + All.y / 2) *
-    Power((1 - FExct * Sin(all.y)) / (1 + FExct * Sin(All.y)), FExct / 2)) / 2;
 end;
 
 end.
