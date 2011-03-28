@@ -270,7 +270,7 @@ begin
   Result:=false;
   if AMark <> nil then begin
     if AMark.IsPoly then begin
-      Fsaveas.Show_(AZoom, AMark.Points);
+      frmRegionProcess.Show_(AZoom, AMark.Points);
       Result:=true;
     end else begin
       ShowMessage(SAS_MSG_FunExForPoly);

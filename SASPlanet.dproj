@@ -366,7 +366,7 @@
     </DCCReference>
     <DCCReference Include="UResStrings.pas" />
     <DCCReference Include="USaveas.pas">
-      <Form>Fsaveas</Form>
+      <Form>frmRegionProcess</Form>
     </DCCReference>
     <DCCReference Include="Usettings.pas">
       <Form>FSettings</Form>

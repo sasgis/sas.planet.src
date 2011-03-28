@@ -458,7 +458,7 @@ uses
   frm_DebugInfo in 'frm_DebugInfo.pas' {frmDebugInfo},
   frm_About in 'frm_About.pas' {frmAbout},
   Usettings in 'Usettings.pas' {FSettings},
-  USaveas in 'USaveas.pas' {Fsaveas},
+  USaveas in 'USaveas.pas' {frmRegionProcess},
   UProgress in 'UProgress.pas' {FProgress},
   frm_SearchResults in 'frm_SearchResults.pas' {frmSearchResults},
   frm_InvisibleBrowser in 'frm_InvisibleBrowser.pas' {frmInvisibleBrowser},
@@ -502,7 +502,7 @@ begin
   Application.CreateForm(TfrmGoTo, frmGoTo);
   Application.CreateForm(TfrmAbout, frmAbout);
   Application.CreateForm(TFSettings, FSettings);
-  Application.CreateForm(TFsaveas, Fsaveas);
+  Application.CreateForm(TfrmRegionProcess, frmRegionProcess);
   Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
   Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
   Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);

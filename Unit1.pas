@@ -2399,7 +2399,7 @@ begin
   VZoom := GState.LastSelectionInfo.Zoom;
   VPolygon := Copy(GState.LastSelectionInfo.Polygon);
   if length(VPolygon)>0 then begin
-    fsaveas.Show_(VZoom, VPolygon);
+    frmRegionProcess.Show_(VZoom, VPolygon);
   end else begin
     showmessage(SAS_MSG_NeedHL);
   end;
@@ -2587,7 +2587,7 @@ begin
     GetMinMax(VLonLatRect, Poly);
     if VSelLonLat.Execute(VLonLatRect) Then Begin
       Poly := PolygonFromRect(VLonLatRect);
-      fsaveas.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
+      frmRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
       Poly := nil;
     End;
   Finally
@@ -2641,7 +2641,7 @@ end;
 procedure TFmain.TBLoadSelFromFileClick(Sender: TObject);
 begin
   if (OpenDialog1.Execute) then begin
-    Fsaveas.LoadSelFromFile(OpenDialog1.FileName);
+    frmRegionProcess.LoadSelFromFile(OpenDialog1.FileName);
   end
 end;
 
@@ -2936,7 +2936,7 @@ begin
       FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
       if (Frect_p2) then begin
         VPoly := PolygonFromRect(VSelectionRect);
-        fsaveas.Show_(VZoom, VPoly);
+        frmRegionProcess.Show_(VZoom, VPoly);
         FSelectionRectLayer.DrawNothing;
         VPoly := nil;
         Frect_p2:=false;
@@ -3584,7 +3584,7 @@ procedure TFmain.TBEditPathOkClick(Sender: TObject);
 begin
   case FCurrentOper of
    ao_select_poly: begin
-         Fsaveas.Show_(FConfig.ViewPortState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
+         frmRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
          setalloperationfalse(ao_movemap);
         end;
   end;
@@ -3707,7 +3707,7 @@ begin
         VThread := TThreadDownloadTiles.Create(VSimpleLog, VFileName, GState.SessionLastSuccess, FConfig.ViewPortState.GetCurrentZoom);
         TFProgress.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
       end else if ExtractFileExt(VFileName)='.hlg' then begin
-        Fsaveas.LoadSelFromFile(VFileName);
+        frmRegionProcess.LoadSelFromFile(VFileName);
       end else begin
         VImportConfig := frmImportConfigEdit.GetImportConfig(FMarkDBGUI);
         if VImportConfig <> nil then begin
@@ -3735,7 +3735,7 @@ begin
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
   VPolygon := PolygonFromRect(VLonLatRect);
-  fsaveas.Show_(VZoom, VPolygon);
+  frmRegionProcess.Show_(VZoom, VPolygon);
 end;
 
 procedure TFmain.TBGPSToPointCenterClick(Sender: TObject);

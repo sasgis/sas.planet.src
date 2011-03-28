@@ -1,4 +1,4 @@
-object Fsaveas: TFsaveas
+object frmRegionProcess: TfrmRegionProcess
   Left = 234
   Top = 298
   Caption = #1054#1087#1077#1088#1072#1094#1080#1103' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
@@ -33,16 +33,28 @@ object Fsaveas: TFsaveas
       Tag = 1
       Caption = #1057#1082#1083#1077#1080#1090#1100
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet3: TTabSheet
       Tag = 2
       Caption = #1057#1092#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet4: TTabSheet
       Tag = 3
       Caption = #1059#1076#1072#1083#1080#1090#1100
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet5: TTabSheet
       Tag = 4
@@ -88,6 +100,10 @@ object Fsaveas: TFsaveas
       Tag = 5
       Caption = #1057#1082#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
   end
   object pnlBottomButtons: TPanel

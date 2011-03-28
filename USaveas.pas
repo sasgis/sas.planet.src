@@ -14,14 +14,13 @@ uses
   ExtCtrls,
   inifiles,
   ComCtrls,
-  GR32,
   u_CommonFormAndFrameParents,
   u_ExportProviderAbstract,
   t_GeoTypes,
   u_GeoTostr;
 
 type
-  TFsaveas = class(TCommonFormParent)
+  TfrmRegionProcess = class(TCommonFormParent)
     Button1: TButton;
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
@@ -70,7 +69,7 @@ type
   end;
 
 var
-  Fsaveas: TFsaveas;
+  frmRegionProcess: TfrmRegionProcess;
 
 implementation
 
@@ -92,7 +91,7 @@ uses
 
 {$R *.dfm}
 
-constructor TFsaveas.Create(AOwner: TComponent);
+constructor TfrmRegionProcess.Create(AOwner: TComponent);
 begin
   TP_Ignore(Self, 'CBFormat.Items');
   inherited;
@@ -106,7 +105,7 @@ begin
   FProviderMapCombine := TProviderMapCombine.Create(TabSheet2);
 end;
 
-destructor TFsaveas.Destroy;
+destructor TfrmRegionProcess.Destroy;
 var
   i: Integer;
 begin
@@ -122,7 +121,7 @@ begin
   inherited;
 end;
 
-procedure TFsaveas.LoadSelFromFile(FileName:string);
+procedure TfrmRegionProcess.LoadSelFromFile(FileName:string);
 var
   ini:TMemIniFile;
   i:integer;
@@ -143,12 +142,12 @@ begin
    if length(VPolygon)>0 then
     begin
      VZoom := Ini.Readinteger('HIGHLIGHTING','zoom',1) - 1;
-     fsaveas.Show_(VZoom, VPolygon);
+     Self.Show_(VZoom, VPolygon);
     end;
   end
 end;
 
-procedure TFsaveas.RefreshTranslation;
+procedure TfrmRegionProcess.RefreshTranslation;
 var
   i: Integer;
   VProvider: TExportProviderAbstract;
@@ -169,12 +168,12 @@ begin
   FProviderMapCombine.RefreshTranslation;
 end;
 
-procedure TFsaveas.DelRegion(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.DelRegion(APolyLL: TArrayOfDoublePoint);
 begin
   FProviderTilesDelte.StartProcess(APolyLL);
 end;
 
-procedure TFsaveas.ExportREG(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.ExportREG(APolyLL: TArrayOfDoublePoint);
 var
   VExportProvider: TExportProviderAbstract;
 begin
@@ -185,22 +184,22 @@ begin
 end;
 
 
-procedure TFsaveas.savefilesREG(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.savefilesREG(APolyLL: TArrayOfDoublePoint);
 begin
   FProviderTilesCopy.StartProcess(APolyLL);
 end;
 
-procedure TFsaveas.LoadRegion(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.LoadRegion(APolyLL: TArrayOfDoublePoint);
 begin
   FProviderTilesDownload.StartProcess(APolyLL);
 end;
 
-procedure TFsaveas.genbacksatREG(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.genbacksatREG(APolyLL: TArrayOfDoublePoint);
 begin
   FProviderTilesGenPrev.StartProcess(APolyLL);
 end;
 
-procedure TFsaveas.InitExportsList;
+procedure TfrmRegionProcess.InitExportsList;
 var
   VExportProvider: TExportProviderAbstract;
 begin
@@ -219,13 +218,13 @@ begin
   CBFormat.ItemIndex := 0;
 end;
 
-procedure TFsaveas.scleitRECT(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.scleitRECT(APolyLL: TArrayOfDoublePoint);
 begin
   FProviderMapCombine.StartProcess(APolyLL);
 end;
 
 
-procedure TFsaveas.Button1Click(Sender: TObject);
+procedure TfrmRegionProcess.Button1Click(Sender: TObject);
 begin
  case PageControl1.ActivePage.Tag of
   0: LoadRegion(FPolygonLL);
@@ -242,7 +241,7 @@ begin
   end;
 end;
 
-procedure TFsaveas.Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
 var
   i:integer;
   VExportProvider: TExportProviderAbstract;
@@ -265,22 +264,22 @@ begin
       VExportProvider.InitFrame(Azoom, FPolygonLL);
     end;
   end;
-  fSaveas.Show;
+  Self.Show;
 end;
 
 
-procedure TFsaveas.FormActivate(Sender: TObject);
+procedure TfrmRegionProcess.FormActivate(Sender: TObject);
 begin
   PageControl1.ActivePageIndex:=0;
 end;
 
-procedure TFsaveas.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmRegionProcess.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Fmain.TBmoveClick(Fmain);
   Fmain.Enabled:=true;
 end;
 
-procedure TFsaveas.FormShow(Sender: TObject);
+procedure TfrmRegionProcess.FormShow(Sender: TObject);
 begin
   CBFormatChange(CBFormat);
   FProviderTilesDelte.InitFrame(FZoom_rect, FPolygonLL);
@@ -296,12 +295,12 @@ begin
   Fmain.Enabled:=false;
 end;
 
-procedure TFsaveas.Button3Click(Sender: TObject);
+procedure TfrmRegionProcess.Button3Click(Sender: TObject);
 begin
   close;
 end;
 
-procedure TFsaveas.SpeedButton1Click(Sender: TObject);
+procedure TfrmRegionProcess.SpeedButton1Click(Sender: TObject);
 var
   Ini: Tinifile;
   i:integer;
@@ -330,7 +329,7 @@ begin
   end;
 end;
 
-procedure TFsaveas.CBFormatChange(Sender: TObject);
+procedure TfrmRegionProcess.CBFormatChange(Sender: TObject);
 var
   VExportProvider: TExportProviderAbstract;
   i: Integer;
