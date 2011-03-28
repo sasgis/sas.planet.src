@@ -1,4 +1,4 @@
-object Fbrowser: TFbrowser
+object frmIntrnalBrowser: TfrmIntrnalBrowser
   Left = 444
   Top = 208
   BorderStyle = bsSizeToolWin
@@ -19,7 +19,6 @@ object Fbrowser: TFbrowser
     Height = 306
     Align = alClient
     TabOrder = 0
-    Silent = False
     DisableCtrlShortcuts = 'N'
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
     OnAuthenticate = EmbeddedWB1Authenticate

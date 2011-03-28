@@ -336,7 +336,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="Ubrowser.pas">
-      <Form>Fbrowser</Form>
+      <Form>frmIntrnalBrowser</Form>
     </DCCReference>
     <DCCReference Include="UEditMap.pas">
       <Form>FEditMap</Form>

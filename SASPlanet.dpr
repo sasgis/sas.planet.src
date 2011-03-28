@@ -466,7 +466,7 @@ uses
   Unit4 in 'Unit4.pas' {Fprogress2},
   ULogo in 'ULogo.pas' {FLogo},
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
-  Ubrowser in 'Ubrowser.pas' {Fbrowser},
+  Ubrowser in 'Ubrowser.pas' {frmIntrnalBrowser},
   frm_MarkEditPath in 'frm_MarkEditPath.pas' {frmMarkEditPath},
   frm_MarkEditPoly in 'frm_MarkEditPoly.pas' {frmMarkEditPoly},
   UEditMap in 'UEditMap.pas' {FEditMap},
@@ -511,7 +511,7 @@ begin
   Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
   Application.CreateForm(TFDGAvailablePic, FDGAvailablePic);
   Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);
-  Application.CreateForm(TFbrowser, Fbrowser);
+  Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
   Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
   Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
   Application.CreateForm(TFEditMap, FEditMap);
@@ -524,7 +524,7 @@ begin
     GState.StartExceptionTracking;
     try
       frmInvisibleBrowser.NavigateAndWait('about:blank');
-      Fbrowser.Navigate('about:blank');
+      frmIntrnalBrowser.Navigate('about:blank');
       Application.Run;
     finally
       GState.StopExceptionTracking;

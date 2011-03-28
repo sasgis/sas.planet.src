@@ -14,7 +14,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TFbrowser = class(TCommonFormParent)
+  TfrmIntrnalBrowser = class(TCommonFormParent)
     EmbeddedWB1: TEmbeddedWB;
     procedure EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB;
       var hwnd: HWND; var szUserName, szPassWord: WideString;
@@ -31,7 +31,7 @@ type
   end;
 
 var
-  Fbrowser: TFbrowser;
+  frmIntrnalBrowser: TfrmIntrnalBrowser;
 
 implementation
 
@@ -41,7 +41,7 @@ uses
 
 {$R *.dfm}
 
-procedure TFbrowser.EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
+procedure TfrmIntrnalBrowser.EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
 var
   VProxyConfig: IProxyConfig;
   VUseLogin: Boolean;
@@ -59,29 +59,29 @@ begin
   end;
 end;
 
-procedure TFbrowser.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmIntrnalBrowser.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
  EmbeddedWB1.Stop;
 end;
 
-procedure TFbrowser.Navigate(AUrl: string);
+procedure TfrmIntrnalBrowser.Navigate(AUrl: string);
 begin
   EmbeddedWB1.Navigate(AUrl);
 end;
 
-procedure TFbrowser.TextToWebBrowser(Text: string);
+procedure TfrmIntrnalBrowser.TextToWebBrowser(Text: string);
 begin
   EmbeddedWB1.HTMLCode.Text:=Text;
 end;
 
-procedure TFbrowser.showmessage(ACaption,AText: string);
+procedure TfrmIntrnalBrowser.showmessage(ACaption,AText: string);
 begin
   TextToWebBrowser(AText);
   Caption:=ACaption;
   show;
 end;
 
-procedure TFbrowser.EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
+procedure TfrmIntrnalBrowser.EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
   ScanCode: Word; Shift: TShiftState);
 begin
   if Key = VK_ESCAPE then begin

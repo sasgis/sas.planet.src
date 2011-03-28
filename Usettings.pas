@@ -804,7 +804,7 @@ var
 begin
   VMap := TMapType(MapList.Selected.Data);
   if VMap.MapInfo <> '' then begin
-    Fbrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
+    frmIntrnalBrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
   end;
 end;
 

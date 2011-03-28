@@ -3099,7 +3099,7 @@ begin
           stw:='<HTML><BODY>';
           stw:=VPWL.descr;
           stw:=stw+'</BODY></HTML>';
-          Fbrowser.showmessage(VPWL.name,stw);
+          frmIntrnalBrowser.showmessage(VPWL.name,stw);
         end;
       end;
     end;
@@ -3608,7 +3608,7 @@ begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
   if VMapType.MapInfo <> '' then begin
-    Fbrowser.showmessage(VMapType.zmpfilename,VMapType.MapInfo);
+    frmIntrnalBrowser.showmessage(VMapType.zmpfilename,VMapType.MapInfo);
   end;
 end;
 
@@ -3859,8 +3859,8 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  Fbrowser.showmessage('',SAS_STR_WiteLoad);
-  Fbrowser.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  frmIntrnalBrowser.showmessage('',SAS_STR_WiteLoad);
+  frmIntrnalBrowser.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TFmain.NGTOPO30Click(Sender: TObject);
@@ -3877,8 +3877,8 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  Fbrowser.showmessage('',SAS_STR_WiteLoad);
-  Fbrowser.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  frmIntrnalBrowser.showmessage('',SAS_STR_WiteLoad);
+  frmIntrnalBrowser.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TFmain.Google1Click(Sender: TObject);
