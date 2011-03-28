@@ -5,7 +5,7 @@ interface
 uses
   Types,
   i_CoordConverter,
-  i_IMapCalibration;
+  i_MapCalibration;
 
 type
   TMapCalibrationDat = class(TInterfacedObject, IMapCalibration)

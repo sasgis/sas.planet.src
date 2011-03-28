@@ -1,4 +1,4 @@
-unit i_ILocalCoordConverterFactorySimpe;
+unit i_LocalCoordConverterFactorySimpe;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
-  i_ILocalCoordConverter;
+  i_LocalCoordConverter;
 
 type
   ILocalCoordConverterFactorySimpe = interface

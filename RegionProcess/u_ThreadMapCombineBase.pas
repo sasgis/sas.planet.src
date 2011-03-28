@@ -10,8 +10,8 @@ uses
   i_MarksSimple,
   i_BitmapLayerProvider,
   i_BitmapPostProcessingConfig,
-  i_ILocalCoordConverter,
-  i_ILocalCoordConverterFactorySimpe,
+  i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   UMapType,
   u_ThreadRegionProcessAbstract;
 
@@ -76,7 +76,7 @@ implementation
 
 uses
   SysUtils,
-  i_IMapCalibration,
+  i_MapCalibration,
   u_MapMarksBitmapLayerProviderByMarksSubset,
   u_LocalCoordConverterFactorySimpe,
   u_GlobalState,

@@ -1,4 +1,4 @@
-unit i_ILogSimple;
+unit i_LogSimple;
 
 interface
 

@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  i_ILocalCoordConverter;
+  i_LocalCoordConverter;
 
 procedure TThreadMapCombineBMP.ReadLineBMP(Line: cardinal;
   LineRGB: PLineRGBb);

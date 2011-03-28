@@ -7,7 +7,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IMapLayerGPSMarkerConfig,
+  i_MapLayerGPSMarkerConfig,
   u_ConfigDataElementBase;
 
 type

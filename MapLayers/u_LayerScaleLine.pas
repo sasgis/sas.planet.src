@@ -6,7 +6,7 @@ uses
   Types,
   GR32,
   GR32_Image,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_IViewPortState,
   i_IScaleLineConfig,
   u_WindowLayerWithPos;

@@ -14,7 +14,7 @@ uses
   DateUtils,
   RarProgress,
   u_CommonFormAndFrameParents,
-  i_ILogForTaskThread,
+  i_LogForTaskThread,
   UMapType,
   UResStrings,
   u_ThreadDownloadTiles;

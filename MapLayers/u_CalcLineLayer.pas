@@ -9,7 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_IViewPortState,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_IValueToStringConverter,
   i_CalcLineLayerConfig,
   u_PolyLineLayerBase,

@@ -7,12 +7,12 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_CoordConverter,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_IViewPortState,
   i_ActiveMapsConfig,
-  i_ILocalCoordConverterFactorySimpe,
+  i_LocalCoordConverterFactorySimpe,
   u_ConfigDataElementBase;
 
 type

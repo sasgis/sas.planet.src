@@ -1,4 +1,4 @@
-unit i_ILastSelectionInfo;
+unit i_LastSelectionInfo;
 
 interface
 

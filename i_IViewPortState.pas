@@ -7,7 +7,7 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_CoordConverter,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_ConfigDataElement;
 
 type

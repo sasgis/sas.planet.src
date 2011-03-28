@@ -7,8 +7,8 @@ uses
   GR32,
   GR32_Image,
   GR32_Layers,
-  i_ILocalCoordConverter,
-  i_ILocalCoordConverterFactorySimpe,
+  i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   i_BackgroundTaskLayerDraw,
   i_IViewPortState,
   u_MapLayerBasic;

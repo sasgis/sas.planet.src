@@ -1,4 +1,4 @@
-unit i_IListOfObjectsWithTTL;
+unit i_ListOfObjectsWithTTL;
 
 interface
 

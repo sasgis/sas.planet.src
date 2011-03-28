@@ -7,7 +7,7 @@ uses
   GR32,
   GR32_Image,
   i_BackgroundTaskLayerDraw,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   u_BackgroundTaskLayerDrawBase,
   i_IViewPortState,
   i_FillingMapLayerConfig,

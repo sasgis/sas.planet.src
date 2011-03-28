@@ -7,7 +7,7 @@ uses
   GR32,
   GR32_Layers,
   GR32_Image,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_IViewPortState,
   u_WindowLayerBasic;
 

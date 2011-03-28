@@ -10,9 +10,9 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_IViewPortState,
-  i_ILocalCoordConverter,
-  i_ILastSelectionLayerConfig,
-  i_ILastSelectionInfo,
+  i_LocalCoordConverter,
+  i_LastSelectionLayerConfig,
+  i_LastSelectionInfo,
   u_MapLayerBasic;
 
 type

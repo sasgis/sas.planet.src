@@ -5,8 +5,8 @@ interface
 uses
   SyncObjs,
   u_WideStrings,
-  i_ILogSimple,
-  i_ILogForTaskThread;
+  i_LogSimple,
+  i_LogForTaskThread;
 
 type
   TLogForTaskThread = class(TInterfacedObject, ILogForTaskThread, ILogSimple)

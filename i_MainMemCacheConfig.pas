@@ -1,4 +1,4 @@
-unit i_IMainMemCacheConfig;
+unit i_MainMemCacheConfig;
 
 interface
 

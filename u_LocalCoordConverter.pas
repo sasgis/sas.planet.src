@@ -6,7 +6,7 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
-  i_ILocalCoordConverter;
+  i_LocalCoordConverter;
 
 type
   TLocalCoordConverter = class(TInterfacedObject, ILocalCoordConverter)

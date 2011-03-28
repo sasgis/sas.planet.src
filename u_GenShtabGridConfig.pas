@@ -4,7 +4,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapLayerGridsConfig,

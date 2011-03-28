@@ -9,7 +9,7 @@ uses
   GR32_Transforms,
   GR32_Image,
   t_GeoTypes,
-  i_IMapLayerGPSMarkerConfig,
+  i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
   i_IViewPortState,
   u_MapLayerBasic;
@@ -54,7 +54,7 @@ uses
   GR32_Math,
   Ugeofun,
   i_GPS,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   u_NotifyEventListener;
 
 { TMapLayerGPSMarker }

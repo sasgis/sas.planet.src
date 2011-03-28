@@ -6,7 +6,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_GeoCoderList,
-  i_IMainGeoCoderConfig,
+  i_MainGeoCoderConfig,
   u_ConfigDataElementBase;
 
 type

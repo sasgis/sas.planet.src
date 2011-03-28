@@ -6,7 +6,7 @@ uses
   Types,
   t_GeoTypes,
   u_ConfigDataElementBase,
-  i_ILineOnMapEdit;
+  i_LineOnMapEdit;
 
 type
   TLineOnMapEdit = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEdit)

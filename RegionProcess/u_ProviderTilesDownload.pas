@@ -28,8 +28,8 @@ implementation
 
 uses
   SysUtils,
-  i_ILogSimple,
-  i_ILogForTaskThread,
+  i_LogSimple,
+  i_LogForTaskThread,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
   Unit1,

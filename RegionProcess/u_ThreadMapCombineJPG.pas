@@ -56,7 +56,7 @@ type
 implementation
 
 uses
-  i_ILocalCoordConverter;
+  i_LocalCoordConverter;
 
 constructor TThreadMapCombineJPG.Create(
   AMapCalibrationList: IInterfaceList;

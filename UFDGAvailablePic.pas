@@ -18,7 +18,7 @@ uses
   CommCtrl,
   ExtCtrls,
   u_CommonFormAndFrameParents,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   UResStrings,
   t_GeoTypes;
 

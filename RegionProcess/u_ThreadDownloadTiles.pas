@@ -4,7 +4,7 @@ interface
 uses
   Windows,
   Classes,
-  i_ILogSimple,
+  i_LogSimple,
   t_GeoTypes,
   i_DownloadInfoSimple,
   UMapType,

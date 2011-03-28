@@ -4,7 +4,7 @@ interface
 
 uses
   GR32,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_BackgroundTaskLayerDraw,
   u_BackgroundTask;
 

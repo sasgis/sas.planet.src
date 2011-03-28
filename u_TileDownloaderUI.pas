@@ -10,7 +10,7 @@ uses
   i_JclListenerNotifierLinksList,
   t_CommonTypes,
   i_CoordConverter,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_ActiveMapsConfig,
   i_IViewPortState,
   i_MapTypes,

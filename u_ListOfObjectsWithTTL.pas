@@ -7,7 +7,7 @@ uses
   Classes,
   SysUtils,
   i_IObjectWithTTL,
-  i_IListOfObjectsWithTTL;
+  i_ListOfObjectsWithTTL;
 
 type
   TListOfObjectsWithTTL = class(TInterfacedObject, IListOfObjectsWithTTL)

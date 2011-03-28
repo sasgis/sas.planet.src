@@ -1,4 +1,4 @@
-unit i_ILocalCoordConverter;
+unit i_LocalCoordConverter;
 
 interface
 

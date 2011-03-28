@@ -6,8 +6,8 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
-  i_ILocalCoordConverter,
-  i_ILocalCoordConverterFactorySimpe;
+  i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe;
 
 type
   TLocalCoordConverterFactorySimpe = class(TInterfacedObject, ILocalCoordConverterFactorySimpe)

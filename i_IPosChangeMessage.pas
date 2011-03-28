@@ -5,7 +5,7 @@ interface
 uses
   Types,
   i_JclNotify,
-  i_ILocalCoordConverter;
+  i_LocalCoordConverter;
 
 type
   IPosChangeMessage = interface(IJclNotificationMessage)

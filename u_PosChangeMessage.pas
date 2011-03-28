@@ -5,7 +5,7 @@ interface
 uses
   Types,
   u_JclNotify,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_IPosChangeMessage;
 
 type

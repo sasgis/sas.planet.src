@@ -1,4 +1,4 @@
-unit i_IMainGeoCoderConfig;
+unit i_MainGeoCoderConfig;
 
 interface
 

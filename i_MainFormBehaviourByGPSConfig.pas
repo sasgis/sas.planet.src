@@ -1,4 +1,4 @@
-unit i_IMainFormBehaviourByGPSConfig;
+unit i_MainFormBehaviourByGPSConfig;
 
 interface
 

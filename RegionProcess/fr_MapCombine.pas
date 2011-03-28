@@ -72,7 +72,7 @@ type
 implementation
 
 uses
-  i_IMapCalibration,
+  i_MapCalibration,
   u_GlobalState,
   UGeoFun,
   UResStrings,

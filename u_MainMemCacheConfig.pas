@@ -5,7 +5,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IMainMemCacheConfig,
+  i_MainMemCacheConfig,
   u_ConfigDataElementBase;
 
 type

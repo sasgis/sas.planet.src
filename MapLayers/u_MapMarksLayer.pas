@@ -9,7 +9,7 @@ uses
   i_MarksSimple,
   Ugeofun,
   i_IViewPortState,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   u_MarksDbGUIHelper,
   u_MapLayerBasic;
 

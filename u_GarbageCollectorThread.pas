@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   Classes,
-  i_IListOfObjectsWithTTL;
+  i_ListOfObjectsWithTTL;
 
 type
   TGarbageCollectorThread = class(TThread)

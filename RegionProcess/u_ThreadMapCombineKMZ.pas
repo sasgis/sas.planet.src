@@ -58,7 +58,7 @@ implementation
 uses
   KAZip,
   i_CoordConverter,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   u_MapCalibrationKml,
   u_GeoToStr;
 

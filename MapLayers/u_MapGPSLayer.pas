@@ -39,7 +39,7 @@ uses
   SysUtils,
   GR32_Polygons,
   Ugeofun,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   u_NotifyEventListener;
 
 { TMapGPSLayer }

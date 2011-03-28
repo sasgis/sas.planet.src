@@ -42,7 +42,7 @@ uses
   ActiveX,
   SysUtils,
   i_CoordConverter,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_ITileIterator,
   i_BitmapPostProcessingConfig,
   Uimgfun,

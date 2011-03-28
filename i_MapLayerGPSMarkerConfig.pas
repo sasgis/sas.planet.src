@@ -1,4 +1,4 @@
-unit i_IMapLayerGPSMarkerConfig;
+unit i_MapLayerGPSMarkerConfig;
 
 interface
 

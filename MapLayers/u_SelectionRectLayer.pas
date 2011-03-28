@@ -40,7 +40,7 @@ implementation
 uses
   SysUtils,
   GR32_Layers,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_CoordConverter,
   u_NotifyEventListener;
 

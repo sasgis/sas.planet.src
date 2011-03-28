@@ -1,4 +1,4 @@
-unit i_IMapCalibration;
+unit i_MapCalibration;
 
 interface
 

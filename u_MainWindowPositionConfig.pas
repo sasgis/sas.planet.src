@@ -7,7 +7,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   u_ConfigDataElementBase,
-  i_IMainWindowPosition;
+  i_MainWindowPosition;
 
 type
   TMainWindowPositionConfig = class(TConfigDataElementBase, IMainWindowPosition)

@@ -9,7 +9,7 @@ uses
   WinTypes,
   t_GeoTypes,
   i_CoordConverter,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_IMarkPicture,
   i_MarksSimple,
   i_BitmapLayerProvider,

@@ -7,7 +7,7 @@ uses
   SyncObjs,
   GR32,
   i_JclListenerNotifierLinksList,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_IViewPortState;
 
 type

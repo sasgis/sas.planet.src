@@ -64,7 +64,7 @@ implementation
 uses
   ECWWriter,
   i_CoordConverter,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   u_GlobalState;
 
 constructor TThreadMapCombineECW.Create(

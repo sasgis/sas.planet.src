@@ -8,8 +8,8 @@ uses
   i_IViewPortState,
   i_INavigationToPoint,
   i_MainFormConfig,
-  i_IMainFormBehaviourByGPSConfig,
-  i_IMainGeoCoderConfig,
+  i_MainFormBehaviourByGPSConfig,
+  i_MainGeoCoderConfig,
   i_GeoCoderList,
   i_DownloadUIConfig,
   u_ConfigDataElementComplexBase;

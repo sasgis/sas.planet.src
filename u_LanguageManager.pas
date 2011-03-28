@@ -7,7 +7,7 @@ uses
   Classes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ILanguageManager,
+  i_LanguageManager,
   u_ConfigDataElementBase,
   u_LanguagesEx;
 

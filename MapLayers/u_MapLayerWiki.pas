@@ -15,7 +15,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_KmlLayerConfig,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_IViewPortState,
   u_KmlInfoSimple;
 

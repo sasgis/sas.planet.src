@@ -9,7 +9,7 @@ uses
   GR32,
   i_JclNotify,
   i_IMemObjCache,
-  i_IMainMemCacheConfig,
+  i_MainMemCacheConfig,
   u_KmlInfoSimple;
 
 type

@@ -10,7 +10,7 @@ uses
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   i_INavigationToPoint,
   i_IMapLayerNavToPointMarkerConfig,
   i_IViewPortState,

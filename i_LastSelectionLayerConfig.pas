@@ -1,4 +1,4 @@
-unit i_ILastSelectionLayerConfig;
+unit i_LastSelectionLayerConfig;
 
 interface
 

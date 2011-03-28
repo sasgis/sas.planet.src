@@ -5,7 +5,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_IMainFormBehaviourByGPSConfig,
+  i_MainFormBehaviourByGPSConfig,
   u_ConfigDataElementBase;
 
 type

@@ -1,4 +1,4 @@
-unit i_IMainWindowPosition;
+unit i_MainWindowPosition;
 
 interface
 

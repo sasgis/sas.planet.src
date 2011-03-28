@@ -1,4 +1,4 @@
-unit i_ILineOnMapEdit;
+unit i_LineOnMapEdit;
 
 interface
 

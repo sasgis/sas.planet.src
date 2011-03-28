@@ -1,9 +1,9 @@
-unit i_ILogForTaskThread;
+unit i_LogForTaskThread;
 
 interface
 
 uses
-  i_ILogSimple;
+  i_LogSimple;
 
 type
   ILogForTaskThread = interface(ILogSimple)

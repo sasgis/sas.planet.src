@@ -16,7 +16,7 @@ uses
   ExtCtrls,
   StdCtrls,
   u_CommonFormAndFrameParents,
-  i_ILocalCoordConverter,
+  i_LocalCoordConverter,
   t_GeoTypes;
 
 type

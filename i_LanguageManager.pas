@@ -1,4 +1,4 @@
-unit i_ILanguageManager;
+unit i_LanguageManager;
 
 interface
 
