@@ -1,4 +1,4 @@
-unit UEditMap;
+unit frm_MapTypeEdit;
 
 interface
 

@@ -635,7 +635,7 @@ uses
   USaveas,
   UProgress,
   USelLonLat,
-  UEditMap,
+  frm_MapTypeEdit,
   frm_IntrnalBrowser,
   frm_MarksExplorer,
   UFDGAvailablePic,

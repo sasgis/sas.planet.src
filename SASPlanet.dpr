@@ -469,7 +469,7 @@ uses
   frm_IntrnalBrowser in 'frm_IntrnalBrowser.pas' {frmIntrnalBrowser},
   frm_MarkEditPath in 'frm_MarkEditPath.pas' {frmMarkEditPath},
   frm_MarkEditPoly in 'frm_MarkEditPoly.pas' {frmMarkEditPoly},
-  UEditMap in 'UEditMap.pas' {frmMapTypeEdit},
+  frm_MapTypeEdit in 'frm_MapTypeEdit.pas' {frmMapTypeEdit},
   frm_MarksExplorer in 'frm_MarksExplorer.pas' {frmMarksExplorer},
   UImport in 'UImport.pas' {FImport},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},

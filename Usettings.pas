@@ -257,7 +257,7 @@ uses
   u_GlobalState,
   Unit1,
   frm_IntrnalBrowser,
-  UEditMap;
+  frm_MapTypeEdit;
 
 {$R *.dfm}
 

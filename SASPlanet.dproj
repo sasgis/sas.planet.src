@@ -69,6 +69,9 @@
     <DCCReference Include="frm_InvisibleBrowser.pas">
       <Form>frmInvisibleBrowser</Form>
     </DCCReference>
+    <DCCReference Include="frm_MapTypeEdit.pas">
+      <Form>frmMapTypeEdit</Form>
+    </DCCReference>
     <DCCReference Include="frm_MarkCategoryEdit.pas">
       <Form>frmMarkCategoryEdit</Form>
     </DCCReference>
@@ -341,9 +344,6 @@
     <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
-    <DCCReference Include="UEditMap.pas">
-      <Form>frmMapTypeEdit</Form>
-    </DCCReference>
     <DCCReference Include="UFDGAvailablePic.pas">
       <Form>FDGAvailablePic</Form>
     </DCCReference>
