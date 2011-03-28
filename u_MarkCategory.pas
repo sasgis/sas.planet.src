@@ -19,32 +19,20 @@ type
     function GetVisible: boolean; stdcall;
     function GetAfterScale: integer; stdcall;
     function GetBeforeScale: integer; stdcall;
+    function IsNew: Boolean;
   public
-    constructor Create; overload;
     constructor Create(
       AId: Integer;
       AName: string;
       AVisible: Boolean;
       AAfterScale: integer;
       ABeforeScale: integer
-    ); overload;
-    constructor Create(ACategory: IMarkCategory); overload;
-    constructor Create(AId: Integer; ACategory: IMarkCategory); overload;
-    constructor Create(AVisible: Boolean; ACategory: IMarkCategory); overload;
+    );
   end;
 
 implementation
 
 { TMarkCategory }
-
-constructor TMarkCategory.Create(ACategory: IMarkCategory);
-begin
-  FId := ACategory.Id;
-  FName := ACategory.Name;
-  FVisible := ACategory.Visible;
-  FAfterScale := ACategory.AfterScale;
-  FBeforeScale := ACategory.BeforeScale;
-end;
 
 constructor TMarkCategory.Create(AId: Integer; AName: string; AVisible: Boolean;
   AAfterScale, ABeforeScale: integer);
@@ -54,33 +42,6 @@ begin
   FVisible := AVisible;
   FAfterScale := AAfterScale;
   FBeforeScale := ABeforeScale;
-end;
-
-constructor TMarkCategory.Create(AId: Integer; ACategory: IMarkCategory);
-begin
-  FId := AId;
-  FName := ACategory.Name;
-  FVisible := ACategory.Visible;
-  FAfterScale := ACategory.AfterScale;
-  FBeforeScale := ACategory.BeforeScale;
-end;
-
-constructor TMarkCategory.Create;
-begin
-  FId := - 1;
-  FVisible := True;
-  FAfterScale := 3;
-  FBeforeScale := 24;
-  FName := '';
-end;
-
-constructor TMarkCategory.Create(AVisible: Boolean; ACategory: IMarkCategory);
-begin
-  FId := ACategory.Id;
-  FName := ACategory.Name;
-  FVisible := AVisible;
-  FAfterScale := ACategory.AfterScale;
-  FBeforeScale := ACategory.BeforeScale;
 end;
 
 function TMarkCategory.GetAfterScale: integer;
@@ -106,6 +67,11 @@ end;
 function TMarkCategory.GetVisible: boolean;
 begin
   Result := FVisible;
+end;
+
+function TMarkCategory.IsNew: Boolean;
+begin
+  Result := FId < 0;
 end;
 
 end.

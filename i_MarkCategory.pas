@@ -19,6 +19,8 @@ type
 
     function GetBeforeScale: integer; stdcall;
     property BeforeScale: integer read GetBeforeScale;
+
+    function IsNew: Boolean;
   end;
 
 implementation

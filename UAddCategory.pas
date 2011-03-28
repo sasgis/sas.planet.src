@@ -14,7 +14,6 @@ uses
   i_MarkCategory,
   u_CommonFormAndFrameParents,
   u_MarksDbGUIHelper,
-  u_MarksSimple,
   UResStrings;
 
 type
@@ -52,7 +51,7 @@ function TFAddCategory.EditCategory(ACategory: IMarkCategory; AMarkDBGUI: TMarks
 begin
   FMarkDBGUI := AMarkDBGUI;
   EditName.Text:=SAS_STR_NewPoly;
-  if ACategory.id < 0 then begin
+  if ACategory.IsNew then begin
     FaddCategory.Caption:=SAS_STR_AddNewCategory;
     Badd.Caption:=SAS_STR_Add;
   end else begin
