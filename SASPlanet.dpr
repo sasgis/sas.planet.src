@@ -123,7 +123,7 @@ uses
   i_KmlInfoSimpleLoader in 'i_KmlInfoSimpleLoader.pas',
   u_KmlInfoSimpleParser in 'u_KmlInfoSimpleParser.pas',
   u_KmzInfoSimpleParser in 'u_KmzInfoSimpleParser.pas',
-  UECWWrite in 'UECWWrite.pas',
+  u_ECWWrite in 'u_ECWWrite.pas',
   u_BmpUtil in 'u_BmpUtil.pas',
   Uimgfun in 'Uimgfun.pas',
   i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',

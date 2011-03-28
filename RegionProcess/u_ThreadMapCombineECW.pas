@@ -7,7 +7,7 @@ uses
   SysUtils,
   Classes,
   GR32,
-  UECWWrite,
+  u_ECWWrite,
   UMapType,
   UGeoFun,
   u_BmpUtil,

@@ -332,7 +332,6 @@
     <DCCReference Include="Ubrowser.pas">
       <Form>Fbrowser</Form>
     </DCCReference>
-    <DCCReference Include="UECWWrite.pas" />
     <DCCReference Include="UEditMap.pas">
       <Form>FEditMap</Form>
     </DCCReference>
@@ -428,6 +427,7 @@
     <DCCReference Include="u_Datum.pas" />
     <DCCReference Include="u_DownloadInfoSimple.pas" />
     <DCCReference Include="u_DownloadUIConfig.pas" />
+    <DCCReference Include="u_ECWWrite.pas" />
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
     <DCCReference Include="u_ExportMarks2KML.pas" />
