@@ -72,7 +72,7 @@ uses
   u_GPSPositionStatic,
   u_GPSSatellitesInView,
   u_Datum,
-  Ugeofun;
+  u_GeoFun;
 
 { TGPSRecorderStuped }
 

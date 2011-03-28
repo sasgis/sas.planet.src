@@ -78,7 +78,7 @@ implementation
 uses
   SysUtils,
   GR32_Layers,
-  Ugeofun,
+  u_GeoFun,
   i_CoordConverter,
   u_NotifyEventListener;
 

@@ -9,7 +9,7 @@ uses
   GR32,
   u_ECWWrite,
   UMapType,
-  UGeoFun,
+  u_GeoFun,
   u_BmpUtil,
   t_GeoTypes,
   i_MarksSimple,

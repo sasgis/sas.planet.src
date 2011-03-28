@@ -30,7 +30,7 @@ type
 implementation
 
 uses
-  Ugeofun;
+  u_GeoFun;
 
 { TTileIteratorStuped }
 

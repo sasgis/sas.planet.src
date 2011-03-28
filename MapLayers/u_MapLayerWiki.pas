@@ -8,7 +8,7 @@ uses
   Classes,
   GR32,
   GR32_Image,
-  UgeoFun,
+  u_GeoFun,
   UMapType,
   u_MapLayerBasic,
   t_GeoTypes,

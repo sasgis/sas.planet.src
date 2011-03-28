@@ -41,7 +41,7 @@ implementation
 
 uses
   Math,
-  uGeoFun;
+  u_GeoFun;
 
 { TDatum }
 

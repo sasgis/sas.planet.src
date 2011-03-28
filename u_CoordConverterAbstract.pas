@@ -226,7 +226,7 @@ type
 implementation
 
 uses
-  Ugeofun,
+  u_GeoFun,
   SysUtils;
 
 { TCoordConverterAbstract }

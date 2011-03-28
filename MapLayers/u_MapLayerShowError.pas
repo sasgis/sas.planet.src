@@ -30,7 +30,7 @@ uses
   Graphics,
   Types,
   i_CoordConverter,
-  Ugeofun;
+  u_GeoFun;
 
 
 { TTileErrorInfoLayer }

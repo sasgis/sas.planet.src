@@ -54,7 +54,7 @@ uses
   i_LineOnMapEdit,
   i_PathDetalizeProvider,
   u_WindowLayerBasicList,
-  Ugeofun,
+  u_GeoFun,
   u_MapLayerWiki,
   frm_StartLogo,
   UMapType,

@@ -64,7 +64,7 @@ implementation
 uses
   DB,
   GR32,
-  Ugeofun,
+  u_GeoFun,
   u_MarkFactory,
   u_MarksSubset;
 

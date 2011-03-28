@@ -35,7 +35,7 @@ implementation
 
 uses
   SysUtils,
-  Ugeofun;
+  u_GeoFun;
 
 { TMarkPolyLineLayer }
 

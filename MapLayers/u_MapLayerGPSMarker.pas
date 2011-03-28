@@ -52,7 +52,7 @@ uses
   SysUtils,
   GR32_Layers,
   GR32_Math,
-  Ugeofun,
+  u_GeoFun,
   i_GPS,
   i_LocalCoordConverter,
   u_NotifyEventListener;

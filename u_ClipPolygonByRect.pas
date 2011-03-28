@@ -91,7 +91,7 @@ implementation
 
 uses
   SysUtils,
-  Ugeofun;
+  u_GeoFun;
 
 { TPolygonClipAbstract }
 

@@ -26,7 +26,7 @@ implementation
 uses
   Classes,
   SysUtils,
-  Ugeofun,
+  u_GeoFun,
   t_GeoTypes,
   u_GeoToStr;
 

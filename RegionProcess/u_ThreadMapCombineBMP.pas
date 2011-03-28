@@ -8,7 +8,7 @@ uses
   SysUtils,
   Classes,
   GR32,
-  UGeoFun,
+  u_GeoFun,
   u_BmpUtil,
   u_ThreadMapCombineBase;
 

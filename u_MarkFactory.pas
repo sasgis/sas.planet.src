@@ -151,7 +151,7 @@ uses
   Graphics,
   SysUtils,
   u_ResStrings,
-  Ugeofun,
+  u_GeoFun,
   u_MarkPoint,
   u_MarkLine,
   u_MarkPoly;

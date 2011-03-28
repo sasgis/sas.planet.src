@@ -74,7 +74,7 @@ implementation
 uses
   i_MapCalibration,
   u_GlobalState,
-  UGeoFun,
+  u_GeoFun,
   u_ResStrings,
   UMapType;
 

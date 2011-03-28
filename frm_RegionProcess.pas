@@ -86,7 +86,7 @@ uses
   u_ProviderTilesCopy,
   u_ProviderTilesDownload,
   u_ProviderMapCombine,
-  Ugeofun,
+  u_GeoFun,
   unit1;
 
 {$R *.dfm}

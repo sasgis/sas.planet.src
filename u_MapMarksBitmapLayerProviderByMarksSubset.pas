@@ -73,7 +73,7 @@ uses
   SysUtils,
   GR32_Resamplers,
   GR32_Polygons,
-  Ugeofun;
+  u_GeoFun;
 
 const
   CMaxFontSize = 20;

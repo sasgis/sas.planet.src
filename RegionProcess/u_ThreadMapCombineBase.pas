@@ -81,7 +81,7 @@ uses
   u_LocalCoordConverterFactorySimpe,
   u_GlobalState,
   u_ResStrings,
-  Ugeofun;
+  u_GeoFun;
 
 { TMapCombineThreadBase }
 

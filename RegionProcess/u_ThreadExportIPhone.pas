@@ -12,7 +12,7 @@ uses
   GR32,
   i_CoordConverter,
   UMapType,
-  UGeoFun,
+  u_GeoFun,
   t_GeoTypes,
   u_ThreadExportAbstract;
 

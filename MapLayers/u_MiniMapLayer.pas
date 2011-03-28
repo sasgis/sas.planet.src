@@ -102,7 +102,7 @@ uses
   GR32_Polygons,
   c_ZeroGUID,
   i_CoordConverter,
-  Ugeofun,
+  u_GeoFun,
   u_ResStrings,
   i_BitmapPostProcessingConfig,
   i_TileIterator,

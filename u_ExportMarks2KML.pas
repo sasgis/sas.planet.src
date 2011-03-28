@@ -18,7 +18,7 @@ uses
   i_MarkCategory,
   u_GlobalState,
   u_GeoToStr,
-  Ugeofun;
+  u_GeoFun;
 
 type
   TExportMarks2KML = class

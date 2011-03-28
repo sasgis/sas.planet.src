@@ -78,7 +78,7 @@ uses
   i_MapTypes,
   u_NotifyEventListener,
   u_LocalCoordConverterFactorySimpe,
-  Ugeofun;
+  u_GeoFun;
 
 { TMapViewPortStateNew }
 

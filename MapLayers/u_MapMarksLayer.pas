@@ -7,7 +7,7 @@ uses
   GR32_Image,
   i_UsedMarksConfig,
   i_MarksSimple,
-  Ugeofun,
+  u_GeoFun,
   i_ViewPortState,
   i_LocalCoordConverter,
   u_MarksDbGUIHelper,

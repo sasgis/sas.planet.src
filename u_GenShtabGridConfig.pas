@@ -28,7 +28,7 @@ type
 implementation
 
 uses
-  Ugeofun;
+  u_GeoFun;
 
 const
   GSHprec=100000000;

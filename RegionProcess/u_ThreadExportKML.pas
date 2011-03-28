@@ -9,7 +9,7 @@ uses
   Classes,
   GR32,
   UMapType,
-  UGeoFun,
+  u_GeoFun,
   u_ResStrings,
   t_GeoTypes,
   u_ThreadExportAbstract;

@@ -38,7 +38,7 @@ uses
   Graphics,
   SysUtils,
   GR32_Polygons,
-  Ugeofun,
+  u_GeoFun,
   i_LocalCoordConverter,
   u_NotifyEventListener;
 

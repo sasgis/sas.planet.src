@@ -51,7 +51,7 @@ implementation
 
 uses
   u_GlobalState,
-  UGeoFun,
+  u_GeoFun,
   u_ResStrings,
   UMapType;
 

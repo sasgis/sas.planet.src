@@ -359,7 +359,6 @@
     <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
-    <DCCReference Include="Ugeofun.pas" />
     <DCCReference Include="UMapType.pas" />
     <DCCReference Include="Unit1.pas">
       <Form>Fmain</Form>
@@ -441,6 +440,7 @@
     <DCCReference Include="u_GeoCoderListBase.pas" />
     <DCCReference Include="u_GeoCoderListEntity.pas" />
     <DCCReference Include="u_GeoCoderListSimple.pas" />
+    <DCCReference Include="u_GeoFun.pas" />
     <DCCReference Include="u_GeoToStr.pas" />
     <DCCReference Include="u_GlobalCahceConfig.pas" />
     <DCCReference Include="u_GlobalState.pas" />
