@@ -473,7 +473,7 @@ uses
   frm_MarksExplorer in 'frm_MarksExplorer.pas' {frmMarksExplorer},
   frm_ImportConfigEdit in 'frm_ImportConfigEdit.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
-  UFDGAvailablePic in 'UFDGAvailablePic.pas' {frmDGAvailablePic},
+  frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
   u_ExportMarks2KML in 'u_ExportMarks2KML.pas';
 

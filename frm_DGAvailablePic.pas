@@ -1,4 +1,4 @@
-unit UFDGAvailablePic;
+unit frm_DGAvailablePic;
 
 interface
 

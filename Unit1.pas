@@ -638,7 +638,7 @@ uses
   frm_MapTypeEdit,
   frm_IntrnalBrowser,
   frm_MarksExplorer,
-  UFDGAvailablePic,
+  frm_DGAvailablePic,
   c_ZeroGUID,
   c_SasVersion,
   c_GeoCoderGUIDSimple,

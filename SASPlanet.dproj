@@ -60,6 +60,9 @@
     <DCCReference Include="frm_DebugInfo.pas">
       <Form>frmDebugInfo</Form>
     </DCCReference>
+    <DCCReference Include="frm_DGAvailablePic.pas">
+      <Form>frmDGAvailablePic</Form>
+    </DCCReference>
     <DCCReference Include="frm_GoTo.pas">
       <Form>frmGoTo</Form>
     </DCCReference>
@@ -356,9 +359,6 @@
     <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
-    <DCCReference Include="UFDGAvailablePic.pas">
-      <Form>frmDGAvailablePic</Form>
-    </DCCReference>
     <DCCReference Include="Ugeofun.pas" />
     <DCCReference Include="UMapType.pas" />
     <DCCReference Include="Unit1.pas">
