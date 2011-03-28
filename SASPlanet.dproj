@@ -72,6 +72,9 @@
     <DCCReference Include="frm_InvisibleBrowser.pas">
       <Form>frmInvisibleBrowser</Form>
     </DCCReference>
+    <DCCReference Include="frm_LonLatRectEdit.pas">
+      <Form>frmLonLatRectEdit</Form>
+    </DCCReference>
     <DCCReference Include="frm_MapTypeEdit.pas">
       <Form>frmMapTypeEdit</Form>
     </DCCReference>
@@ -364,9 +367,6 @@
     <DCCReference Include="UResStrings.pas" />
     <DCCReference Include="USaveas.pas">
       <Form>Fsaveas</Form>
-    </DCCReference>
-    <DCCReference Include="USelLonLat.pas">
-      <Form>frmLonLatRectEdit</Form>
     </DCCReference>
     <DCCReference Include="Usettings.pas">
       <Form>FSettings</Form>

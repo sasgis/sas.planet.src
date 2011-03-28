@@ -1,4 +1,4 @@
-unit USelLonLat;
+unit frm_LonLatRectEdit;
 
 interface
 

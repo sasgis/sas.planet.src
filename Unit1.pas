@@ -634,7 +634,7 @@ uses
   Usettings,
   USaveas,
   UProgress,
-  USelLonLat,
+  frm_LonLatRectEdit,
   frm_MapTypeEdit,
   frm_IntrnalBrowser,
   frm_MarksExplorer,
