@@ -112,7 +112,7 @@ uses
   u_GlobalState,
   i_ImportConfig,
   i_UsedMarksConfig,
-  UImport,
+  frm_ImportConfigEdit,
   u_ExportMarks2KML,
   frm_MarkCategoryEdit;
 

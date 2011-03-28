@@ -471,7 +471,7 @@ uses
   frm_MarkEditPoly in 'frm_MarkEditPoly.pas' {frmMarkEditPoly},
   frm_MapTypeEdit in 'frm_MapTypeEdit.pas' {frmMapTypeEdit},
   frm_MarksExplorer in 'frm_MarksExplorer.pas' {frmMarksExplorer},
-  UImport in 'UImport.pas' {frmImportConfigEdit},
+  frm_ImportConfigEdit in 'frm_ImportConfigEdit.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   UFDGAvailablePic in 'UFDGAvailablePic.pas' {FDGAvailablePic},
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},

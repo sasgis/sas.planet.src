@@ -63,6 +63,9 @@
     <DCCReference Include="frm_GoTo.pas">
       <Form>frmGoTo</Form>
     </DCCReference>
+    <DCCReference Include="frm_ImportConfigEdit.pas">
+      <Form>frmImportConfigEdit</Form>
+    </DCCReference>
     <DCCReference Include="frm_IntrnalBrowser.pas">
       <Form>frmIntrnalBrowser</Form>
     </DCCReference>
@@ -348,9 +351,6 @@
       <Form>FDGAvailablePic</Form>
     </DCCReference>
     <DCCReference Include="Ugeofun.pas" />
-    <DCCReference Include="UImport.pas">
-      <Form>frmImportConfigEdit</Form>
-    </DCCReference>
     <DCCReference Include="UMapType.pas" />
     <DCCReference Include="Unit1.pas">
       <Form>Fmain</Form>

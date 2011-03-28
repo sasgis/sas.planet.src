@@ -669,7 +669,7 @@ uses
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
   u_PosFromGSM,
-  UImport,
+  frm_ImportConfigEdit,
   u_ExportMarks2KML;
 
 {$R *.dfm}

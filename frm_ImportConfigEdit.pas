@@ -1,4 +1,4 @@
-unit UImport;
+unit frm_ImportConfigEdit;
 
 interface
 
