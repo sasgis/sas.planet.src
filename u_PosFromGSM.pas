@@ -1,4 +1,4 @@
-unit UGSM;
+unit u_PosFromGSM;
 
 interface
 

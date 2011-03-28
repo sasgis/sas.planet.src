@@ -668,7 +668,7 @@ uses
   u_PathDetalizeProviderYourNavigation,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
-  UGSM,
+  u_PosFromGSM,
   UImport,
   u_ExportMarks2KML;
 

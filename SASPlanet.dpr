@@ -144,7 +144,7 @@ uses
   i_GSMGeoCodeConfig in 'i_GSMGeoCodeConfig.pas',
   u_GSMGeoCodeConfig in 'u_GSMGeoCodeConfig.pas',
   u_YaMobileWrite in 'u_YaMobileWrite.pas',
-  UGSM in 'UGSM.pas',
+  u_PosFromGSM in 'u_PosFromGSM.pas',
   i_DownloadInfoSimple in 'i_DownloadInfoSimple.pas',
   u_DownloadInfoSimple in 'u_DownloadInfoSimple.pas',
   i_LocalCoordConverter in 'i_LocalCoordConverter.pas',
