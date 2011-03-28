@@ -463,7 +463,7 @@ uses
   frm_SearchResults in 'frm_SearchResults.pas' {frmSearchResults},
   frm_InvisibleBrowser in 'frm_InvisibleBrowser.pas' {frmInvisibleBrowser},
   frm_MarkEditPoint in 'frm_MarkEditPoint.pas' {frmMarkEditPoint},
-  Unit4 in 'Unit4.pas' {Fprogress2},
+  frm_ProgressSimple in 'frm_ProgressSimple.pas' {frmProgressSimple},
   frm_StartLogo in 'frm_StartLogo.pas' {frmStartLogo},
   frm_LonLatRectEdit in 'frm_LonLatRectEdit.pas' {frmLonLatRectEdit},
   frm_IntrnalBrowser in 'frm_IntrnalBrowser.pas' {frmIntrnalBrowser},

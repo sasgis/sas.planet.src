@@ -1,4 +1,4 @@
-object Fprogress2: TFprogress2
+object frmProgressSimple: TfrmProgressSimple
   Left = 207
   Top = 161
   BorderStyle = bsToolWindow

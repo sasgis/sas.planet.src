@@ -1,4 +1,4 @@
-unit Unit4;
+unit frm_ProgressSimple;
 
 interface
 
@@ -12,7 +12,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TFprogress2 = class(TCommonFormParent)
+  TfrmProgressSimple = class(TCommonFormParent)
     ProgressBar1: TRarProgress;
     MemoInfo: TMemo;
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -26,13 +26,13 @@ implementation
 
 {$R *.dfm}
 
-procedure TFprogress2.FormKeyUp(Sender: TObject; var Key: Word;
+procedure TfrmProgressSimple.FormKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if Key=VK_ESCAPE then close;
 end;
 
-procedure TFprogress2.MemoInfoChange(Sender: TObject);
+procedure TfrmProgressSimple.MemoInfoChange(Sender: TObject);
 begin
   HideCaret(MemoInfo.Handle);
 end;

@@ -99,6 +99,9 @@
     <DCCReference Include="frm_MarksExplorer.pas">
       <Form>frmMarksExplorer</Form>
     </DCCReference>
+    <DCCReference Include="frm_ProgressSimple.pas">
+      <Form>frmProgressSimple</Form>
+    </DCCReference>
     <DCCReference Include="frm_RegionProcess.pas">
       <Form>frmRegionProcess</Form>
     </DCCReference>
@@ -362,9 +365,6 @@
     <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
-    <DCCReference Include="Unit4.pas">
-      <Form>Fprogress2</Form>
-    </DCCReference>
     <DCCReference Include="UProgress.pas">
       <Form>FProgress</Form>
     </DCCReference>

@@ -6,12 +6,12 @@ uses
   Classes,
   Forms,
   t_GeoTypes,
-  unit4;
+  frm_ProgressSimple;
 
 type
   TThreadRegionProcessAbstract = class(TThread)
   private
-    FProgressForm: TFprogress2;
+    FProgressForm: TfrmProgressSimple;
     FMessageForShow: string;
     FShowFormCaption: string;
     FShowOnFormLine0: string;
@@ -65,7 +65,7 @@ begin
   inherited Create(false);
   Priority := tpLowest;
   FreeOnTerminate := true;
-  Application.CreateForm(TFProgress2, FProgressForm);
+  Application.CreateForm(TfrmProgressSimple, FProgressForm);
   FProgressForm.OnClose := CloseFProgress;
   FProgressForm.ProgressBar1.Progress1 := 0;
   FProgressForm.ProgressBar1.Max := 100;
