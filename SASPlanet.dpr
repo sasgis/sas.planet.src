@@ -468,7 +468,7 @@ uses
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
   Ubrowser in 'Ubrowser.pas' {Fbrowser},
   frm_MarkEditPath in 'frm_MarkEditPath.pas' {frmMarkEditPath},
-  UaddPoly in 'UaddPoly.pas' {frmMarkEditPoly},
+  frm_MarkEditPoly in 'frm_MarkEditPoly.pas' {frmMarkEditPoly},
   UEditMap in 'UEditMap.pas' {FEditMap},
   UMarksExplorer in 'UMarksExplorer.pas' {FMarksExplorer},
   UImport in 'UImport.pas' {FImport},

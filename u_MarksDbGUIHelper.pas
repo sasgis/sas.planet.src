@@ -51,7 +51,7 @@ uses
   UResStrings,
   USaveas,
   frm_MarkEditPoint,
-  UaddPoly,
+  frm_MarkEditPoly,
   frm_MarkEditPath;
 
 { TMarksDbGUIHelper }
