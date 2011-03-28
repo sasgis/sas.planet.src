@@ -236,7 +236,7 @@ begin
  end;
  if CBCloseWithStart.Checked then
   begin
-   Fmain.Enabled:=true;
+   frmMain.Enabled:=true;
    close;
   end;
 end;
@@ -275,8 +275,8 @@ end;
 
 procedure TfrmRegionProcess.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  Fmain.TBmoveClick(Fmain);
-  Fmain.Enabled:=true;
+  frmMain.TBmoveClick(nil);
+  frmMain.Enabled:=true;
 end;
 
 procedure TfrmRegionProcess.FormShow(Sender: TObject);
@@ -292,7 +292,7 @@ begin
   FProviderTilesDownload.Show;
   FProviderMapCombine.InitFrame(FZoom_rect, FPolygonLL);
   FProviderMapCombine.Show;
-  Fmain.Enabled:=false;
+  frmMain.Enabled:=false;
 end;
 
 procedure TfrmRegionProcess.Button3Click(Sender: TObject);

@@ -265,8 +265,8 @@ procedure TfrmSettings.Save(AProvider: IConfigDataWriteProvider);
 begin
   try
     GState.SaveMainParams;
-    Fmain.ShortCutManager.Save(AProvider.GetOrCreateSubItem('HOTKEY'));
-    Fmain.SaveWindowConfigToIni(AProvider);
+    frmMain.ShortCutManager.Save(AProvider.GetOrCreateSubItem('HOTKEY'));
+    frmMain.SaveWindowConfigToIni(AProvider);
   except
   end;
 end;
@@ -456,7 +456,7 @@ begin
 
  save(GState.MainConfigProvider);
  if FMapsEdit then begin
-   Fmain.CreateMapUI;
+   frmMain.CreateMapUI;
  end;
  ShowMessage(SAS_MSG_need_reload_application_curln);
 end;
@@ -679,7 +679,7 @@ begin
 
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
- frShortCutList.SetShortCutManager(Fmain.ShortCutManager);
+ frShortCutList.SetShortCutManager(frmMain.ShortCutManager);
  SatellitePaint;
 end;
 

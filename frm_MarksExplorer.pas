@@ -268,7 +268,7 @@ begin
   finally
     GState.MainFormConfig.LayersConfig.MarksShowConfig.UnlockWrite;
   end;
-  Fmain.LayerMapMarksRedraw;
+  frmMain.LayerMapMarksRedraw;
 end;
 
 procedure TfrmMarksExplorer.btnOkClick(Sender: TObject);
@@ -309,7 +309,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    Fmain.topos(VMark.GetGoToLonLat, GState.MainFormConfig.ViewPortState.GetCurrentZoom, True);
+    frmMain.topos(VMark.GetGoToLonLat, GState.MainFormConfig.ViewPortState.GetCurrentZoom, True);
   end;
 end;
 

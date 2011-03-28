@@ -361,7 +361,7 @@
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UMapType.pas" />
     <DCCReference Include="Unit1.pas">
-      <Form>Fmain</Form>
+      <Form>frmMain</Form>
     </DCCReference>
     <DCCReference Include="Unit4.pas">
       <Form>Fprogress2</Form>

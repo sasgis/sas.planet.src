@@ -453,7 +453,7 @@ uses
   fr_ShortCutList in 'fr_ShortCutList.pas' {frShortCutList: TFrame},
   fr_MarkDescription in 'fr_MarkDescription.pas' {frMarkDescription: TFrame},
   fr_LonLat in 'fr_LonLat.pas' {frLonLat: TFrame},
-  Unit1 in 'Unit1.pas' {Fmain},
+  Unit1 in 'Unit1.pas' {frmMain},
   frm_GoTo in 'frm_GoTo.pas' {frmGoTo},
   frm_DebugInfo in 'frm_DebugInfo.pas' {frmDebugInfo},
   frm_About in 'frm_About.pas' {frmAbout},
@@ -498,7 +498,7 @@ begin
     end;
     //xLogo
     Application.HelpFile := '';
-    Application.CreateForm(TFmain, Fmain);
+    Application.CreateForm(TfrmMain, frmMain);
   Application.CreateForm(TfrmGoTo, frmGoTo);
   Application.CreateForm(TfrmAbout, frmAbout);
   Application.CreateForm(TfrmSettings, frmSettings);

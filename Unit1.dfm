@@ -1,4 +1,4 @@
-object Fmain: TFmain
+object frmMain: TfrmMain
   Left = 488
   Top = 165
   HorzScrollBar.Visible = False
@@ -132,7 +132,7 @@ object Fmain: TFmain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 242
+      Left = 238
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -165,7 +165,7 @@ object Fmain: TFmain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 369
+      Left = 365
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -177,7 +177,7 @@ object Fmain: TFmain
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
-      Left = 540
+      Left = 536
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -1788,10 +1788,6 @@ object Fmain: TFmain
               Font.Style = [fsBold]
               ParentFont = False
               Wrapping = twEndEllipsis
-              ExplicitLeft = 6
-              ExplicitTop = 42
-              ExplicitWidth = 145
-              ExplicitHeight = 19
               Caption = '-'
             end
             object pnlSensorOdometrTop: TTBXAlignmentPanel
@@ -1844,7 +1840,6 @@ object Fmain: TFmain
                 Height = 17
                 Align = alClient
                 Wrapping = twEndEllipsis
-                ExplicitHeight = 25
                 Caption = #1054#1076#1086#1084#1077#1090#1088', '#1082#1084':'
               end
             end

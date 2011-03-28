@@ -113,7 +113,7 @@ begin
     smb,
     FFrame.dtpReplaceOlderDate.DateTime
   );
-  TFProgress.Create(Application, VThread, VThreadLog, Fmain.OnMapUpdate);
+  TFProgress.Create(Application, VThread, VThreadLog, frmMain.OnMapUpdate);
 end;
 
 end.

@@ -126,8 +126,8 @@ begin
         end;
        end;
   ebImg:
-       if (FMain.OpenPictureDialog.Execute)and(FMain.OpenPictureDialog.FileName<>'') then begin
-          VTextBeforeSelection := '<img src="'+FMain.OpenPictureDialog.FileName+'"/>';
+       if (frmMain.OpenPictureDialog.Execute)and(frmMain.OpenPictureDialog.FileName<>'') then begin
+          VTextBeforeSelection := '<img src="'+frmMain.OpenPictureDialog.FileName+'"/>';
           VTextAfterSelection := '';
        end;
   ebCenter:

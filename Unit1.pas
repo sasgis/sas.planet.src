@@ -98,7 +98,7 @@ type
     ao_select_poly
   );
 
-  TFmain = class(TCommonFormParent)
+  TfrmMain = class(TCommonFormParent)
     map: TImage32;
     OpenDialog1: TOpenDialog;
     SaveLink: TSaveDialog;
@@ -621,7 +621,7 @@ type
   end;
 
 var
-  Fmain: TFmain;
+  frmMain: TfrmMain;
 
 implementation
 
@@ -674,7 +674,7 @@ uses
 
 {$R *.dfm}
 
-constructor TFmain.Create(AOwner: TComponent);
+constructor TfrmMain.Create(AOwner: TComponent);
 begin
   inherited;
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -726,7 +726,7 @@ begin
   GState.LoadBitmapFromRes('VTUMBLER', FTumbler);
 end;
 
-procedure TFmain.FormCreate(Sender: TObject);
+procedure TfrmMain.FormCreate(Sender: TObject);
 var
   VProvider: IConfigDataProvider;
 begin
@@ -748,7 +748,7 @@ begin
   FMarkDBGUI := TMarksDbGUIHelper.Create(GState.MarksDB, GState.ValueToStringConverterConfig, GState.MarksFactoryConfig.PointTemplateConfig.MarkPictureList);
 end;
 
-procedure TFmain.FormActivate(Sender: TObject);
+procedure TfrmMain.FormActivate(Sender: TObject);
 var
   param:string;
   VGUID: TGUID;
@@ -1001,7 +1001,7 @@ begin
   TBXMainMenu.ProcessShortCuts:=true;
 end;
 
-procedure TFmain.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   i:integer;
 begin
@@ -1025,7 +1025,7 @@ begin
   FreeAndNil(FMarkDBGUI);
 end;
 
-destructor TFmain.Destroy;
+destructor TfrmMain.Destroy;
 begin
   FLineOnMapEdit := nil;
   FWinPosition := nil;
@@ -1042,7 +1042,7 @@ begin
   inherited;
 end;
 
-procedure TFmain.MapLayersVisibleChange(Sender: TObject);
+procedure TfrmMain.MapLayersVisibleChange(Sender: TObject);
 var
   VUseDownload: TTileSource;
 begin
@@ -1072,7 +1072,7 @@ begin
   mapResize(nil);
 end;
 
-procedure TFmain.ProcessPosChangeMessage(Sender: TObject);
+procedure TfrmMain.ProcessPosChangeMessage(Sender: TObject);
 var
   VZoomCurr: Byte;
   VGPSLonLat: TDoublePoint;
@@ -1093,7 +1093,7 @@ begin
   labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
 end;
 
-procedure TFmain.CopyBtmToClipboard(btm: TBitmap);
+procedure TfrmMain.CopyBtmToClipboard(btm: TBitmap);
 var hSourcDC, hDestDC, hBM, hbmOld: THandle;
 begin
   hSourcDC := btm.Canvas.Handle;
@@ -1111,7 +1111,7 @@ begin
   DeleteDC(hSourcDC);
 end;
 
-procedure TFmain.CopyStringToClipboard(s: Widestring);
+procedure TfrmMain.CopyStringToClipboard(s: Widestring);
 var hg: THandle;
     P: PChar;
 begin
@@ -1138,7 +1138,7 @@ begin
   end
 end;
 
-procedure TFmain.setalloperationfalse(newop: TAOperation);
+procedure TfrmMain.setalloperationfalse(newop: TAOperation);
 begin
  if FCurrentOper=newop then newop:=ao_movemap;
  FMarshrutComment:='';
@@ -1183,7 +1183,7 @@ begin
   end;
 end;
 
-procedure TFmain.OnClickLayerItem(Sender: TObject);
+procedure TfrmMain.OnClickLayerItem(Sender: TObject);
 var
   VSender: TTBCustomItem;
   VAtiveMap: IActiveMapSingle;
@@ -1210,7 +1210,7 @@ begin
   end;
 end;
 
-procedure TFmain.OnClickMapItem(Sender: TObject);
+procedure TfrmMain.OnClickMapItem(Sender: TObject);
 var
   VSender: TComponent;
   VAtiveMap: IActiveMapSingle;
@@ -1228,7 +1228,7 @@ begin
   end;
 end;
 
-procedure TFmain.OnFillingMapChange(Sender: TObject);
+procedure TfrmMain.OnFillingMapChange(Sender: TObject);
 begin
   if FConfig.LayersConfig.FillingMapLayerConfig.Visible then begin
     TBMapZap.Caption:='z'+inttostr(FConfig.LayersConfig.FillingMapLayerConfig.SourceZoom + 1);
@@ -1237,7 +1237,7 @@ begin
   end;
 end;
 
-procedure TFmain.OnLineOnMapEditChange(Sender: TObject);
+procedure TfrmMain.OnLineOnMapEditChange(Sender: TObject);
 begin
   FLineOnMapEdit.LockRead;
   try
@@ -1259,7 +1259,7 @@ begin
   end;
 end;
 
-procedure TFmain.OnMainFormMainConfigChange(Sender: TObject);
+procedure TfrmMain.OnMainFormMainConfigChange(Sender: TObject);
 var
   VGUID: TGUID;
   i: Integer;
@@ -1300,7 +1300,7 @@ begin
   end;
 end;
 
-procedure TFmain.OnMainMapChange(Sender: TObject);
+procedure TfrmMain.OnMainMapChange(Sender: TObject);
 var
   VGUID: TGUID;
   VMapType: IMapType;
@@ -1316,7 +1316,7 @@ begin
   end;
 end;
 
-procedure TFmain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
+procedure TfrmMain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
   ATile: TPoint);
 begin
   if AMapType <> nil then begin
@@ -1333,7 +1333,7 @@ begin
   end;
 end;
 
-procedure TFmain.OnMapUpdate(AMapType: TMapType);
+procedure TfrmMain.OnMapUpdate(AMapType: TMapType);
 begin
   if AMapType <> nil then begin
     AMapType.Cache.Clear;
@@ -1349,7 +1349,7 @@ begin
   end;
 end;
 
-procedure TFmain.SetToolbarsLock(AValue: Boolean);
+procedure TfrmMain.SetToolbarsLock(AValue: Boolean);
 begin
   TBDock.AllowDrag := not AValue;
   TBDockLeft.AllowDrag := not AValue;
@@ -1357,12 +1357,12 @@ begin
   TBDockBottom.AllowDrag := not AValue;
 end;
 
-procedure TFmain.OnToolbarsLockChange(Sender: TObject);
+procedure TfrmMain.OnToolbarsLockChange(Sender: TObject);
 begin
   SetToolbarsLock(FConfig.ToolbarsLock.GetIsLock);
 end;
 
-procedure TFmain.OnWinPositionChange(Sender: TObject);
+procedure TfrmMain.OnWinPositionChange(Sender: TObject);
 var
   VIsFullScreen: Boolean;
   VIsMaximized: Boolean;
@@ -1417,7 +1417,7 @@ begin
 end;
 
 //Обработка нажатий кнопоки и калесика
-procedure TFmain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
+procedure TfrmMain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
 var
   z: integer;
   dWMB: integer;
@@ -1533,7 +1533,7 @@ begin
   end;
 end;
 
-procedure TFmain.PrepareSelectionRect(Shift: TShiftState;
+procedure TfrmMain.PrepareSelectionRect(Shift: TShiftState;
   var ASelectedLonLat: TDoubleRect);
 var
   VConverter: ICoordConverter;
@@ -1562,7 +1562,7 @@ begin
   end;
 end;
 
-procedure TFmain.UpdateGPSsensors;
+procedure TfrmMain.UpdateGPSsensors;
 var
   n_len: string;
   sps: _SYSTEM_POWER_STATUS;
@@ -1620,7 +1620,7 @@ begin
  end;
 end;
 
-procedure TFmain.UpdateGPSSatellites;
+procedure TfrmMain.UpdateGPSSatellites;
 var
   i,bar_width,bar_height,bar_x1,bar_dy:integer;
   VPosition: IGPSPosition;
@@ -1652,7 +1652,7 @@ begin
    end;
 end;
 
-procedure TFmain.OnTimerEvent(Sender: TObject);
+procedure TfrmMain.OnTimerEvent(Sender: TObject);
 var
   VGPSNewPos: TDoublePoint;
   VCenterToGPSDelta: TDoublePoint;
@@ -1727,7 +1727,7 @@ begin
   FLayerStatBar.Redraw;
 end;
 
-procedure TFmain.topos(LL:TDoublePoint;zoom_:byte;draw:boolean);
+procedure TfrmMain.topos(LL:TDoublePoint;zoom_:byte;draw:boolean);
 begin
   FConfig.ViewPortState.LockWrite;
   try
@@ -1741,7 +1741,7 @@ begin
   end;
 end;
 
-procedure TFmain.CreateMapUI;
+procedure TfrmMain.CreateMapUI;
 begin
   if GState.MapType.Count>0 then begin
     CreateMapUIMapsList;
@@ -1751,7 +1751,7 @@ begin
   end;
 end;
 
-procedure TFmain.CreateMapUIFillingList;
+procedure TfrmMain.CreateMapUIFillingList;
 var
   VGenerator: TMapMenuGeneratorBasic;
 begin
@@ -1769,7 +1769,7 @@ begin
   end;
 end;
 
-procedure TFmain.CreateMapUILayersList;
+procedure TfrmMain.CreateMapUILayersList;
 var
   VGenerator: TMapMenuGeneratorBasic;
 begin
@@ -1787,7 +1787,7 @@ begin
   end;
 end;
 
-procedure TFmain.CreateMapUILayerSubMenu;
+procedure TfrmMain.CreateMapUILayerSubMenu;
 var
   i: integer;
   VMapType: TMapType;
@@ -1872,7 +1872,7 @@ begin
   end;
 end;
 
-procedure TFmain.CreateMapUIMapsList;
+procedure TfrmMain.CreateMapUIMapsList;
 var
   VGenerator: TMapMenuGeneratorBasic;
 begin
@@ -1890,7 +1890,7 @@ begin
   end;
 end;
 
-function TFmain.GetIgnoredMenuItemsList: TList;
+function TfrmMain.GetIgnoredMenuItemsList: TList;
 begin
   Result := TList.Create;
   Result.Add(NSMB);
@@ -1907,7 +1907,7 @@ begin
   Result.Add(NFillMap);
 end;
 
-procedure TFmain.zooming(ANewZoom:byte;move:boolean);
+procedure TfrmMain.zooming(ANewZoom:byte;move:boolean);
   procedure usleep(mils:integer);
   var startTS,endTS,freqTS:int64;
   begin
@@ -1982,17 +1982,17 @@ begin
   PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
 end;
 
-procedure TFmain.NzoomInClick(Sender: TObject);
+procedure TfrmMain.NzoomInClick(Sender: TObject);
 begin
  zooming(FConfig.ViewPortState.GetCurrentZoom + 1, false);
 end;
 
-procedure TFmain.NZoomOutClick(Sender: TObject);
+procedure TfrmMain.NZoomOutClick(Sender: TObject);
 begin
  zooming(FConfig.ViewPortState.GetCurrentZoom - 1, false);
 end;
 
-procedure TFmain.FormResize(Sender: TObject);
+procedure TfrmMain.FormResize(Sender: TObject);
 begin
   if FWinPosition <> nil then begin
     if not FWinPosition.GetIsFullScreen then begin
@@ -2005,22 +2005,22 @@ begin
   end;
 end;
 
-procedure TFmain.TBmoveClick(Sender: TObject);
+procedure TfrmMain.TBmoveClick(Sender: TObject);
 begin
  setalloperationfalse(ao_movemap);
 end;
 
-procedure TFmain.TBZoom_outClick(Sender: TObject);
+procedure TfrmMain.TBZoom_outClick(Sender: TObject);
 begin
  zooming(FConfig.ViewPortState.GetCurrentZoom - 1, false);
 end;
 
-procedure TFmain.TBZoomInClick(Sender: TObject);
+procedure TfrmMain.TBZoomInClick(Sender: TObject);
 begin
  zooming(FConfig.ViewPortState.GetCurrentZoom + 1, false);
 end;
 
-procedure TFmain.WMGetMinMaxInfo(var msg:TWMGetMinMaxInfo);
+procedure TfrmMain.WMGetMinMaxInfo(var msg:TWMGetMinMaxInfo);
 begin
  inherited;
  with msg.MinMaxInfo^.ptMaxTrackSize do begin
@@ -2029,7 +2029,7 @@ begin
  end;
 end;
 
-procedure TFmain.TBFullSizeClick(Sender:TObject);
+procedure TfrmMain.TBFullSizeClick(Sender:TObject);
 begin
   if TBFullSize.Checked then begin
     FWinPosition.SetFullScreen;
@@ -2038,7 +2038,7 @@ begin
   end;
 end;
 
-procedure TFmain.ZoomToolBarDockChanging(Sender: TObject; Floating: Boolean; DockingTo: TTBDock);
+procedure TfrmMain.ZoomToolBarDockChanging(Sender: TObject; Floating: Boolean; DockingTo: TTBDock);
 begin
   if (DockingTo=TBDockLeft)or(DockingTo=TBDockRight) then begin
     if FRuller.Width>FRuller.Height then begin
@@ -2058,33 +2058,33 @@ begin
   PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
 end;
 
-procedure TFmain.NMainToolBarShowClick(Sender: TObject);
+procedure TfrmMain.NMainToolBarShowClick(Sender: TObject);
 begin
  TBMainToolBar.Visible:=NMainToolBarShow.Checked;
 end;
 
-procedure TFmain.NGPSToolBarShowClick(Sender: TObject);
+procedure TfrmMain.NGPSToolBarShowClick(Sender: TObject);
 begin
  GPSToolBar.Visible:=NGPSToolBarShow.Checked;
 end;
 
-procedure TFmain.NZoomToolBarShowClick(Sender: TObject);
+procedure TfrmMain.NZoomToolBarShowClick(Sender: TObject);
 begin
  ZoomToolBar.Visible:=NZoomToolBarShow.Checked;
 end;
 
-procedure TFmain.NsrcToolBarShowClick(Sender: TObject);
+procedure TfrmMain.NsrcToolBarShowClick(Sender: TObject);
 begin
  SrcToolbar.Visible:=NsrcToolBarShow.Checked;
 end;
 
-procedure TFmain.NCalcRastClick(Sender: TObject);
+procedure TfrmMain.NCalcRastClick(Sender: TObject);
 begin
  TBCalcRas.Checked:=true;
  TBCalcRasClick(self);
 end;
 
-procedure TFmain.NFoolSizeClick(Sender: TObject);
+procedure TfrmMain.NFoolSizeClick(Sender: TObject);
 begin
   if NFoolSize.Checked then begin
     FWinPosition.SetFullScreen;
@@ -2093,27 +2093,27 @@ begin
   end;
 end;
 
-procedure TFmain.N6Click(Sender: TObject);
+procedure TfrmMain.N6Click(Sender: TObject);
 begin
  close;
 end;
 
-procedure TFmain.N8Click(Sender: TObject);
+procedure TfrmMain.N8Click(Sender: TObject);
 begin
   frmSettings.ShowModal;
 end;
 
-procedure TFmain.NbackloadClick(Sender: TObject);
+procedure TfrmMain.NbackloadClick(Sender: TObject);
 begin
   GState.ViewConfig.UsePrevZoomAtMap := Nbackload.Checked;
 end;
 
-procedure TFmain.NbackloadLayerClick(Sender: TObject);
+procedure TfrmMain.NbackloadLayerClick(Sender: TObject);
 begin
   GState.ViewConfig.UsePrevZoomAtLayer := NbackloadLayer.Checked;
 end;
 
-procedure TFmain.NaddPointClick(Sender: TObject);
+procedure TfrmMain.NaddPointClick(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VMouseMapPoint: TDoublePoint;
@@ -2133,7 +2133,7 @@ begin
   end;
 end;
 
-procedure TFmain.N20Click(Sender: TObject);
+procedure TfrmMain.N20Click(Sender: TObject);
 var
   btm:TBitmap32;
   btm1:TBitmap;
@@ -2173,7 +2173,7 @@ begin
   end;
 end;
 
-procedure TFmain.N30Click(Sender: TObject);
+procedure TfrmMain.N30Click(Sender: TObject);
 var
   VMouseLonLat: TDoublePoint;
   VStr: string;
@@ -2192,7 +2192,7 @@ begin
   CopyStringToClipboard(VStr);
 end;
 
-procedure TFmain.N15Click(Sender: TObject);
+procedure TfrmMain.N15Click(Sender: TObject);
 var
   VZoomCurr: Byte;
   VMapType: TMapType;
@@ -2220,7 +2220,7 @@ begin
   end;
 end;
 
-procedure TFmain.N21Click(Sender: TObject);
+procedure TfrmMain.N21Click(Sender: TObject);
 var
   path:string;
   VMapType:TMapType;
@@ -2263,7 +2263,7 @@ begin
   end;
 end;
 
-procedure TFmain.NopendirClick(Sender: TObject);
+procedure TfrmMain.NopendirClick(Sender: TObject);
 var
   VZoomCurr: Byte;
   VLocalConverter: ILocalCoordConverter;
@@ -2290,7 +2290,7 @@ begin
   end;
 end;
 
-procedure TFmain.N25Click(Sender: TObject);
+procedure TfrmMain.N25Click(Sender: TObject);
 var
   s:string;
   VZoomCurr: Byte;
@@ -2324,7 +2324,7 @@ begin
   end;
 end;
 
-procedure TFmain.NDelClick(Sender: TObject);
+procedure TfrmMain.NDelClick(Sender: TObject);
 var
   s:string;
   VMapType:TMapType;
@@ -2358,31 +2358,31 @@ begin
   end;
 end;
 
-procedure TFmain.NSRCinetClick(Sender: TObject);
+procedure TfrmMain.NSRCinetClick(Sender: TObject);
 begin
   FConfig.DownloadUIConfig.UseDownload := TTileSource(TTBXItem(Sender).Tag);
 end;
 
-procedure TFmain.N16Click(Sender: TObject);
+procedure TfrmMain.N16Click(Sender: TObject);
 begin
   frmAbout.ShowModal;
 end;
 
-procedure TFmain.TBREGIONClick(Sender: TObject);
+procedure TfrmMain.TBREGIONClick(Sender: TObject);
 begin
  TBRectSave.ImageIndex:=13;
  TBRectSave.Checked:=true;
  setalloperationfalse(ao_select_poly);
 end;
 
-procedure TFmain.TBRECTClick(Sender: TObject);
+procedure TfrmMain.TBRECTClick(Sender: TObject);
 begin
  TBRectSave.ImageIndex:=10;
  TBRectSave.Checked:=true;
  setalloperationfalse(ao_select_rect);
 end;
 
-procedure TFmain.TBRectSaveClick(Sender: TObject);
+procedure TfrmMain.TBRectSaveClick(Sender: TObject);
 begin
   if TBRectSave.ImageIndex=10 then begin
     setalloperationfalse(ao_select_rect);
@@ -2391,7 +2391,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBPreviousClick(Sender: TObject);
+procedure TfrmMain.TBPreviousClick(Sender: TObject);
 var
   VZoom: Byte;
   VPolygon: TArrayOfDoublePoint;
@@ -2406,7 +2406,7 @@ begin
 end;
 
 //карта заполнения в основном окне
-procedure TFmain.NFillMapClick(Sender: TObject);
+procedure TfrmMain.NFillMapClick(Sender: TObject);
 var
   VZoom: Integer;
 begin
@@ -2421,7 +2421,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette; var ACol, ARow: Integer; var AllowChange: Boolean);
+procedure TfrmMain.TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette; var ACol, ARow: Integer; var AllowChange: Boolean);
 var
   Vzoom_mapzap: integer;
 begin
@@ -2438,7 +2438,7 @@ begin
     end;
   end;
 end;
-procedure TFmain.TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette;
+procedure TfrmMain.TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette;
   var ACol, ARow: Integer; var AllowChange: Boolean);
 var
   VZoom: Byte;
@@ -2463,17 +2463,17 @@ end;
 
 //X-карта заполнения в основном окне
 
-procedure TFmain.TBCalcRasClick(Sender: TObject);
+procedure TfrmMain.TBCalcRasClick(Sender: TObject);
 begin
   setalloperationfalse(ao_calc_line);
 end;
 
-procedure TFmain.N29Click(Sender: TObject);
+procedure TfrmMain.N29Click(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru/wikisasiya/');
 end;
 
-procedure TFmain.TBMainToolBarClose(Sender: TObject);
+procedure TfrmMain.TBMainToolBarClose(Sender: TObject);
 begin
  if sender=TBMainToolBar then NMainToolBarShow.Checked:=false;
  if sender=SrcToolbar then NsrcToolBarShow.Checked:=false;
@@ -2482,7 +2482,7 @@ begin
  if sender=TBMarksToolBar then NMarksBarShow.Checked:=false;
 end;
 
-procedure TFmain.N000Click(Sender: TObject);
+procedure TfrmMain.N000Click(Sender: TObject);
 var
   VTag: Integer;
 begin
@@ -2506,7 +2506,7 @@ begin
   end;
 end;
 
-procedure TFmain.NShowGranClick(Sender: TObject);
+procedure TfrmMain.NShowGranClick(Sender: TObject);
 var
   i:integer;
   VZoom: Byte;
@@ -2550,32 +2550,32 @@ begin
   end;
 end;
 
-procedure TFmain.TBItem2Click(Sender: TObject);
+procedure TfrmMain.TBItem2Click(Sender: TObject);
 begin
  close;
 end;
 
-procedure TFmain.TBGPSconnClick(Sender: TObject);
+procedure TfrmMain.TBGPSconnClick(Sender: TObject);
 begin
   GState.GPSConfig.GPSEnabled := TTBXitem(sender).Checked;
 end;
 
-procedure TFmain.TBGPSPathClick(Sender: TObject);
+procedure TfrmMain.TBGPSPathClick(Sender: TObject);
 begin
   FConfig.LayersConfig.GPSTrackConfig.Visible := TTBXitem(sender).Checked;
 end;
 
-procedure TFmain.TBGPSToPointClick(Sender: TObject);
+procedure TfrmMain.TBGPSToPointClick(Sender: TObject);
 begin
   FConfig.GPSBehaviour.MapMove := TTBXitem(sender).Checked;
 end;
 
-procedure TFmain.TBHideMarksClick(Sender: TObject);
+procedure TfrmMain.TBHideMarksClick(Sender: TObject);
 begin
   FConfig.LayersConfig.MarksShowConfig.IsUseMarks := not(TBHideMarks.Checked);
 end;
 
-procedure TFmain.TBCOORDClick(Sender: TObject);
+procedure TfrmMain.TBCOORDClick(Sender: TObject);
 var
   Poly: TArrayOfDoublePoint;
   VSelLonLat: TfrmLonLatRectEdit;
@@ -2596,27 +2596,27 @@ begin
   TBmoveClick(Sender);
 end;
 
-procedure TFmain.ShowstatusClick(Sender: TObject);
+procedure TfrmMain.ShowstatusClick(Sender: TObject);
 begin
   FConfig.LayersConfig.StatBar.Visible := TTBXItem(Sender).Checked;
 end;
 
-procedure TFmain.ShowMiniMapClick(Sender: TObject);
+procedure TfrmMain.ShowMiniMapClick(Sender: TObject);
 begin
   GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
-procedure TFmain.ShowLineClick(Sender: TObject);
+procedure TfrmMain.ShowLineClick(Sender: TObject);
 begin
   FConfig.LayersConfig.ScaleLineConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
-procedure TFmain.N32Click(Sender: TObject);
+procedure TfrmMain.N32Click(Sender: TObject);
 begin
   FConfig.LayersConfig.CenterScaleConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
-procedure TFmain.TBItem5Click(Sender: TObject);
+procedure TfrmMain.TBItem5Click(Sender: TObject);
 var
   VAllPoints: TArrayOfDoublePoint;
 begin
@@ -2631,26 +2631,26 @@ begin
   end;
 end;
 
-procedure TFmain.mapResize(Sender: TObject);
+procedure TfrmMain.mapResize(Sender: TObject);
 begin
   if (not ProgramClose)and(not ProgramStart)then begin
     FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
   end;
 end;
 
-procedure TFmain.TBLoadSelFromFileClick(Sender: TObject);
+procedure TfrmMain.TBLoadSelFromFileClick(Sender: TObject);
 begin
   if (OpenDialog1.Execute) then begin
     frmRegionProcess.LoadSelFromFile(OpenDialog1.FileName);
   end
 end;
 
-procedure TFmain.NinvertcolorClick(Sender: TObject);
+procedure TfrmMain.NinvertcolorClick(Sender: TObject);
 begin
  GState.BitmapPostProcessingConfig.InvertColor:=Ninvertcolor.Checked;
 end;
 
-procedure TFmain.mapDblClick(Sender: TObject);
+procedure TfrmMain.mapDblClick(Sender: TObject);
 var
   r: TPoint;
   i: Integer;
@@ -2671,22 +2671,22 @@ begin
   end;
 end;
 
-procedure TFmain.TBAdd_PointClick(Sender: TObject);
+procedure TfrmMain.TBAdd_PointClick(Sender: TObject);
 begin
  setalloperationfalse(ao_add_point);
 end;
 
-procedure TFmain.TBAdd_LineClick(Sender: TObject);
+procedure TfrmMain.TBAdd_LineClick(Sender: TObject);
 begin
  setalloperationfalse(ao_add_Line);
 end;
 
-procedure TFmain.TBAdd_PolyClick(Sender: TObject);
+procedure TfrmMain.TBAdd_PolyClick(Sender: TObject);
 begin
  setalloperationfalse(ao_add_poly);
 end;
 
-procedure TFmain.NMarkEditClick(Sender: TObject);
+procedure TfrmMain.NMarkEditClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
@@ -2710,7 +2710,7 @@ begin
   end;
 end;
 
-procedure TFmain.NMarkExportClick(Sender: TObject);
+procedure TfrmMain.NMarkExportClick(Sender: TObject);
 var
   KMLExport:TExportMarks2KML;
   VMark: IMarkFull;
@@ -2729,7 +2729,7 @@ begin
   end;
 end;
 
-procedure TFmain.NMarkDelClick(Sender: TObject);
+procedure TfrmMain.NMarkDelClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
@@ -2740,12 +2740,12 @@ begin
   end;
 end;
 
-procedure TFmain.NMarksBarShowClick(Sender: TObject);
+procedure TfrmMain.NMarksBarShowClick(Sender: TObject);
 begin
  TBMarksToolBar.Visible:=NMarksBarShow.Checked;
 end;
 
-procedure TFmain.NMarkOperClick(Sender: TObject);
+procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
@@ -2755,7 +2755,7 @@ begin
   end;
 end;
 
-procedure TFmain.N13Click(Sender: TObject);
+procedure TfrmMain.N13Click(Sender: TObject);
 var
   VZoomCurr: Byte;
   VMapType: TMapType;
@@ -2783,7 +2783,7 @@ begin
   end;
 end;
 
-procedure TFmain.DigitalGlobe1Click(Sender: TObject);
+procedure TfrmMain.DigitalGlobe1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
 begin
@@ -2791,7 +2791,7 @@ begin
   frmDGAvailablePic.setup(VLocalConverter, FMouseDownPoint);
 end;
 
-procedure TFmain.mapMouseLeave(Sender: TObject);
+procedure TfrmMain.mapMouseLeave(Sender: TObject);
 begin
  if (FHintWindow<>nil) then
   begin
@@ -2800,7 +2800,7 @@ begin
   end;
 end;
 
-procedure TFmain.GPSReceiverDisconnect(Sender: TObject);
+procedure TfrmMain.GPSReceiverDisconnect(Sender: TObject);
 begin
   if FConfig.GPSBehaviour.SensorsAutoShow then TBXSensorsBar.Visible:=false;
   if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
@@ -2810,18 +2810,18 @@ begin
   TBGPSconn.Checked:=false;
 end;
 
-procedure TFmain.GPSReceiverReceive(Sender: TObject);
+procedure TfrmMain.GPSReceiverReceive(Sender: TObject);
 begin
   FIsGPSPosChanged := True;
 end;
 
-procedure TFmain.GPSReceiverStateChange(Sender: TObject);
+procedure TfrmMain.GPSReceiverStateChange(Sender: TObject);
 begin
   tbitmGPSConnect.Enabled := False;
   TBGPSconn.Enabled := False;
 end;
 
-procedure TFmain.GPSReceiverConnect(Sender: TObject);
+procedure TfrmMain.GPSReceiverConnect(Sender: TObject);
 begin
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
@@ -2830,19 +2830,19 @@ begin
   if FConfig.GPSBehaviour.SensorsAutoShow then TBXSensorsBar.Visible:=true;
 end;
 
-procedure TFmain.GPSReceiverConnectError(Sender: TObject);
+procedure TfrmMain.GPSReceiverConnectError(Sender: TObject);
 begin
   ShowMessage(SAS_ERR_PortOpen);
 end;
 
-procedure TFmain.GPSReceiverTimeout(Sender: TObject);
+procedure TfrmMain.GPSReceiverTimeout(Sender: TObject);
 begin
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
   ShowMessage(SAS_ERR_Communication);
 end;
 
-procedure TFmain.NMapParamsClick(Sender: TObject);
+procedure TfrmMain.NMapParamsClick(Sender: TObject);
 var
   VMapType: TMapType;
 begin
@@ -2857,7 +2857,7 @@ begin
   end;
 end;
 
-procedure TFmain.mapMouseDown(Sender: TObject; Button: TMouseButton;
+procedure TfrmMain.mapMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
   VSelectionRect: TDoubleRect;
@@ -2984,7 +2984,7 @@ begin
   end;
 end;
 
-procedure TFmain.mapMouseUp(Sender: TObject; Button: TMouseButton;
+procedure TfrmMain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
   VPWL:TResObj;
@@ -3184,7 +3184,7 @@ begin
 end;
 
 
-procedure TFmain.mapMouseMove(Sender: TObject; Shift: TShiftState; AX, AY: Integer; Layer: TCustomLayer);
+procedure TfrmMain.mapMouseMove(Sender: TObject; Shift: TShiftState; AX, AY: Integer; Layer: TCustomLayer);
 var
   i,j:integer;
   nms:string;
@@ -3372,7 +3372,7 @@ begin
   PFile.Save(PWChar(WideString(PathLink)), FALSE);
 end;
 
-procedure TFmain.N35Click(Sender: TObject);
+procedure TfrmMain.N35Click(Sender: TObject);
 var
   VLonLat:TDoublePoint;
   param:string;
@@ -3390,7 +3390,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBItemDelTrackClick(Sender: TObject);
+procedure TfrmMain.TBItemDelTrackClick(Sender: TObject);
 begin
   GState.GPSRecorder.LockWrite;
   try
@@ -3402,7 +3402,7 @@ begin
   FLayerMapGPS.Redraw;
 end;
 
-procedure TFmain.NGShScale01Click(Sender: TObject);
+procedure TfrmMain.NGShScale01Click(Sender: TObject);
 var
   VTag: Integer;
 begin
@@ -3420,7 +3420,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBEditPathDelClick(Sender: TObject);
+procedure TfrmMain.TBEditPathDelClick(Sender: TObject);
 begin
  case FCurrentOper of
   ao_select_poly,
@@ -3433,7 +3433,7 @@ begin
  end;
 end;
 
-procedure TFmain.TBEditPathLabelClick(Sender: TObject);
+procedure TfrmMain.TBEditPathLabelClick(Sender: TObject);
 begin
   if FCurrentOper = ao_calc_line then begin
     FConfig.LayersConfig.CalcLineLayerConfig.LockWrite;
@@ -3446,7 +3446,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBEditPathSaveClick(Sender: TObject);
+procedure TfrmMain.TBEditPathSaveClick(Sender: TObject);
 var result:boolean;
 begin
   result := false;
@@ -3470,22 +3470,22 @@ begin
   end;
 end;
 
-procedure TFmain.TBEditPathClose(Sender: TObject);
+procedure TfrmMain.TBEditPathClose(Sender: TObject);
 begin
  setalloperationfalse(ao_movemap);
 end;
 
-procedure TFmain.TBItem6Click(Sender: TObject);
+procedure TfrmMain.TBItem6Click(Sender: TObject);
 begin
   frmMarksExplorer.EditMarks(FMarkDBGUI);
 end;
 
-procedure TFmain.LayerMapMarksRedraw;
+procedure TfrmMain.LayerMapMarksRedraw;
 begin
   FLayerMapMarks.Redraw;
 end;
 
-procedure TFmain.NMarkNavClick(Sender: TObject);
+procedure TfrmMain.NMarkNavClick(Sender: TObject);
 var
   LL:TDoublePoint;
   VMark: IMarkFull;
@@ -3501,14 +3501,14 @@ begin
   end;
 end;
 
-procedure TFmain.AdjustFont(Item: TTBCustomItem;
+procedure TfrmMain.AdjustFont(Item: TTBCustomItem;
   Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
 begin
  if TTBXItem(Item).Checked then TTBXItem(Item).FontSettings.Bold:=tsTrue
                            else TTBXItem(Item).FontSettings.Bold:=tsDefault;
 end;
 
-procedure TFmain.NParamsClick(Sender: TObject);
+procedure TfrmMain.NParamsClick(Sender: TObject);
 var
   i:Integer;
   VMapType: TMapType;
@@ -3529,7 +3529,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBfillMapAsMainClick(Sender: TObject);
+procedure TfrmMain.TBfillMapAsMainClick(Sender: TObject);
 var
   VSender: TComponent;
   VAtiveMap: IActiveMapSingle;
@@ -3550,7 +3550,7 @@ begin
   end;
 end;
 
-procedure TFmain.NMarksCalcsLenClick(Sender: TObject);
+procedure TfrmMain.NMarksCalcsLenClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
@@ -3560,7 +3560,7 @@ begin
   end;
 end;
 
-procedure TFmain.NMarksCalcsSqClick(Sender: TObject);
+procedure TfrmMain.NMarksCalcsSqClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
@@ -3570,7 +3570,7 @@ begin
   end;
 end;
 
-procedure TFmain.NMarksCalcsPerClick(Sender: TObject);
+procedure TfrmMain.NMarksCalcsPerClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
@@ -3580,7 +3580,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBEditPathOkClick(Sender: TObject);
+procedure TfrmMain.TBEditPathOkClick(Sender: TObject);
 begin
   case FCurrentOper of
    ao_select_poly: begin
@@ -3590,7 +3590,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBItem1Click(Sender: TObject);
+procedure TfrmMain.TBItem1Click(Sender: TObject);
 begin
  case TTBXItem(Sender).tag of
   0:GState.LanguageManager.SetCurrentLanguage('ru');
@@ -3598,7 +3598,7 @@ begin
  end;
 end;
 
-procedure TFmain.NMapInfoClick(Sender: TObject);
+procedure TfrmMain.NMapInfoClick(Sender: TObject);
 var
   VMapType: TMapType;
 begin
@@ -3612,12 +3612,12 @@ begin
   end;
 end;
 
-procedure TFmain.NanimateClick(Sender: TObject);
+procedure TfrmMain.NanimateClick(Sender: TObject);
 begin
   FConfig.MainConfig.AnimateZoom := Nanimate.Checked;
 end;
 
-procedure TFmain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
+procedure TfrmMain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
 var
   lock_tb_b:boolean;
   VProvider: IConfigDataWriteProvider;
@@ -3632,7 +3632,7 @@ begin
   SetToolbarsLock(lock_tb_b);
 end;
 
-procedure TFmain.SBClearSensorClick(Sender: TObject);
+procedure TfrmMain.SBClearSensorClick(Sender: TObject);
 begin
  if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
    case TSpeedButton(sender).Tag of
@@ -3646,17 +3646,17 @@ begin
  end;
 end;
 
-procedure TFmain.TBXSensorsBarVisibleChanged(Sender: TObject);
+procedure TfrmMain.TBXSensorsBarVisibleChanged(Sender: TObject);
 begin
   TTBXItem(FindComponent('N'+copy(TTBXToolWindow(sender).Name,4,length(TTBXItem(sender).Name)-3))).Checked:=TTBXToolWindow(sender).Visible;
 end;
 
-procedure TFmain.NSensorsBarClick(Sender: TObject);
+procedure TfrmMain.NSensorsBarClick(Sender: TObject);
 begin
   TTBXToolWindow(FindComponent('TBX'+copy(TTBXItem(sender).Name,2,length(TTBXItem(sender).Name)-1))).Visible:=TTBXItem(sender).Checked;
 end;
 
-procedure TFmain.TBXItem5Click(Sender: TObject);
+procedure TfrmMain.TBXItem5Click(Sender: TObject);
 var
   VPosition: IGPSPosition;
 begin
@@ -3669,7 +3669,7 @@ begin
   end;
 end;
 
-procedure TFmain.tbitmPositionByGSMClick(Sender: TObject);
+procedure TfrmMain.tbitmPositionByGSMClick(Sender: TObject);
 var
   PosFromGSM: TPosFromGSM;
 begin
@@ -3681,14 +3681,14 @@ begin
  end;
 end;
 
-procedure TFmain.tbitmShowDebugInfoClick(Sender: TObject);
+procedure TfrmMain.tbitmShowDebugInfoClick(Sender: TObject);
 begin
   if frmDebugInfo <> nil then begin
     frmDebugInfo.ShowStatistic(FLayersList);
   end;
 end;
 
-procedure TFmain.TBXItem6Click(Sender: TObject);
+procedure TfrmMain.TBXItem6Click(Sender: TObject);
 var
   VLog: TLogForTaskThread;
   VSimpleLog: ILogSimple;
@@ -3718,7 +3718,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBScreenSelectClick(Sender: TObject);
+procedure TfrmMain.TBScreenSelectClick(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -3738,22 +3738,22 @@ begin
   frmRegionProcess.Show_(VZoom, VPolygon);
 end;
 
-procedure TFmain.TBGPSToPointCenterClick(Sender: TObject);
+procedure TfrmMain.TBGPSToPointCenterClick(Sender: TObject);
 begin
   FConfig.GPSBehaviour.MapMoveCentered := TTBXitem(sender).Checked;
 end;
 
-procedure TFmain.NShowSelectionClick(Sender: TObject);
+procedure TfrmMain.NShowSelectionClick(Sender: TObject);
 begin
   FConfig.LayersConfig.LastSelectionLayerConfig.Visible := TTBXItem(sender).Checked;
 end;
 
-procedure TFmain.NGoToCurClick(Sender: TObject);
+procedure TfrmMain.NGoToCurClick(Sender: TObject);
 begin
   FConfig.MainConfig.ZoomingAtMousePos := (Sender as TTBXItem).Checked
 end;
 
-procedure TFmain.InitSearchers;
+procedure TfrmMain.InitSearchers;
 var
   VGoto: IMapViewGoto;
   VItem: IGeoCoderListEntity;
@@ -3787,7 +3787,7 @@ begin
   VTBXItem.Caption := VItem.GetCaption;
 end;
 
-procedure TFmain.TBXSelectSrchClick(Sender: TObject);
+procedure TfrmMain.TBXSelectSrchClick(Sender: TObject);
 var
   VToolbarItem: TTBXItem;
   VItem: IGeoCoderListEntity;
@@ -3801,7 +3801,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBXSearchEditAcceptText(Sender: TObject;
+procedure TfrmMain.TBXSearchEditAcceptText(Sender: TObject;
   var NewText: String; var Accept: Boolean);
 var
   VItem: IGeoCoderListEntity;
@@ -3814,7 +3814,7 @@ begin
   FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
 end;
 
-procedure TFmain.tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+procedure TfrmMain.tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
 var
   VResult: IGeoCodeResult;
   VToolbarItem: TTBCustomItem;
@@ -3832,7 +3832,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBSubmenuItem1Click(Sender: TObject);
+procedure TfrmMain.TBSubmenuItem1Click(Sender: TObject);
 var
   VResult: IGeoCodeResult;
   VLocalConverter: ILocalCoordConverter;
@@ -3845,7 +3845,7 @@ begin
   end;
 end;
 
-procedure TFmain.NSRTM3Click(Sender: TObject);
+procedure TfrmMain.NSRTM3Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -3863,7 +3863,7 @@ begin
   frmIntrnalBrowser.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
-procedure TFmain.NGTOPO30Click(Sender: TObject);
+procedure TfrmMain.NGTOPO30Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -3881,7 +3881,7 @@ begin
   frmIntrnalBrowser.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
-procedure TFmain.Google1Click(Sender: TObject);
+procedure TfrmMain.Google1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -3898,7 +3898,7 @@ begin
   CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(VLonLat.y)+','+R2StrPoint(VLonLat.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(VZoom));
 end;
 
-procedure TFmain.YaLinkClick(Sender: TObject);
+procedure TfrmMain.YaLinkClick(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -3926,7 +3926,7 @@ begin
   );
 end;
 
-procedure TFmain.kosmosnimkiru1Click(Sender: TObject);
+procedure TfrmMain.kosmosnimkiru1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -3943,7 +3943,7 @@ begin
   CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(VLonLat.x)+'&y='+R2StrPoint(VLonLat.y)+'&z='+inttostr(VZoom)+'&fullscreen=false&mode=satellite');
 end;
 
-procedure TFmain.livecom1Click(Sender: TObject);
+procedure TfrmMain.livecom1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -3960,7 +3960,7 @@ begin
   CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoom));
 end;
 
-procedure TFmain.MainPopupMenuPopup(Sender: TObject);
+procedure TfrmMain.MainPopupMenuPopup(Sender: TObject);
 var
   i:Integer;
   VMapType: TMapType;
@@ -4000,7 +4000,7 @@ begin
   NMapInfo.Enabled:=VMapType.MapInfo<>'';
 end;
 
-procedure TFmain.ImageAtlas1Click(Sender: TObject);
+procedure TfrmMain.ImageAtlas1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -4021,22 +4021,22 @@ begin
   );
 end;
 
-procedure TFmain.NGoToForumClick(Sender: TObject);
+procedure TfrmMain.NGoToForumClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru/forum');
 end;
 
-procedure TFmain.NGoToSiteClick(Sender: TObject);
+procedure TfrmMain.NGoToSiteClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru/');
 end;
 
-procedure TFmain.tbtmHelpBugTrackClick(Sender: TObject);
+procedure TfrmMain.tbtmHelpBugTrackClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru/mantis/');
 end;
 
-procedure TFmain.TBEditPathMarshClick(Sender: TObject);
+procedure TfrmMain.TBEditPathMarshClick(Sender: TObject);
 var
   VResult: TArrayOfDoublePoint;
   VProvider: IPathDetalizeProvider;
@@ -4067,7 +4067,7 @@ begin
   end;
 end;
 
-procedure TFmain.TBXItem1Click(Sender: TObject);
+procedure TfrmMain.TBXItem1Click(Sender: TObject);
 var
   VResult: TArrayOfDoublePoint;
   VProvider: IPathDetalizeProvider;
@@ -4099,7 +4099,7 @@ begin
   end;
 end;
 
-procedure TFmain.ZSliderMouseMove(Sender: TObject; Shift: TShiftState; X,
+procedure TfrmMain.ZSliderMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer; Layer: TCustomLayer);
 var h,xy:integer;
 begin
@@ -4119,7 +4119,7 @@ begin
   end;
 end;
 
-procedure TFmain.ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
+procedure TfrmMain.ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 begin
   if Button=mbLeft then begin
@@ -4128,7 +4128,7 @@ begin
   end;
 end;
 
-procedure TFmain.PaintZSlider(zoom:integer);
+procedure TfrmMain.PaintZSlider(zoom:integer);
 var tumbpos:TPoint;
 begin
   if FRuller.Height>FRuller.Width then begin

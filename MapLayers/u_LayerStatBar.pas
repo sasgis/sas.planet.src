@@ -141,7 +141,7 @@ begin
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + VMinUpdate) then begin
     VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
     VVisualCoordConverter := VisualCoordConverter;
-    VMousePos := Fmain.MouseCursorPos;
+    VMousePos := frmMain.MouseCursorPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;
     VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
