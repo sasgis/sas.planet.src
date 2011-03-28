@@ -4,7 +4,7 @@ interface
 
 uses
   ActiveX,
-  UMapType;
+  u_MapType;
 
 type
   IMapType = interface

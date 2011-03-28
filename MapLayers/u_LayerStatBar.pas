@@ -41,7 +41,7 @@ uses
   u_ResStrings,
   u_TimeZones,
   frm_Main,
-  uMapType,
+  u_MapType,
   u_GlobalState;
 
 const

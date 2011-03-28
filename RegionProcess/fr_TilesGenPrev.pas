@@ -54,7 +54,7 @@ implementation
 uses
   gnugettext,
   u_GlobalState,
-  UMapType;
+  u_MapType;
 
 {$R *.dfm}
 

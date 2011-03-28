@@ -15,7 +15,7 @@ uses
   RarProgress,
   u_CommonFormAndFrameParents,
   i_LogForTaskThread,
-  UMapType,
+  u_MapType,
   u_ResStrings,
   u_ThreadDownloadTiles;
 

@@ -29,7 +29,7 @@ uses
   SysUtils,
   u_ThreadExportKML,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 { TExportProviderKml }
 

@@ -362,7 +362,6 @@
     <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
-    <DCCReference Include="UMapType.pas" />
     <DCCReference Include="Unit4.pas">
       <Form>Fprogress2</Form>
     </DCCReference>
@@ -504,6 +503,7 @@
     <DCCReference Include="u_MapLayerGridsConfig.pas" />
     <DCCReference Include="u_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="u_MapMarksBitmapLayerProviderByMarksSubset.pas" />
+    <DCCReference Include="u_MapType.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeCacheConfig.pas" />
     <DCCReference Include="u_MapTypeIconsList.pas" />

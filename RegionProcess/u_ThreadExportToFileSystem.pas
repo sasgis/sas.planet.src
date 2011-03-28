@@ -7,7 +7,7 @@ uses
   SysUtils,
   Classes,
   i_TileFileNameGenerator,
-  UMapType,
+  u_MapType,
   u_ResStrings,
   t_GeoTypes,
   u_ThreadExportAbstract;

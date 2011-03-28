@@ -31,7 +31,7 @@ uses
   u_GlobalState,
   u_ThreadExportToFileSystem,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 { TProviderTilesDelete }
 

@@ -38,7 +38,7 @@ uses
   i_MarkPicture,
   u_LastSelectionInfo,
   u_MarksReadWriteSimple,
-  UMapType,
+  u_MapType,
   u_MapTypesMainList,
   u_MemFileCache,
   i_GPSConfig,

@@ -29,7 +29,7 @@ uses
   SysUtils,
   u_ThreadExportYaMaps,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 { TExportProviderYaMaps }
 

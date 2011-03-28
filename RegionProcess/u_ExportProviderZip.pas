@@ -31,7 +31,7 @@ uses
   u_GlobalState,
   u_ThreadExportToZip,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 { TExportProviderKml }
 

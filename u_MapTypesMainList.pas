@@ -6,7 +6,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapTypes,
-  UMapType;
+  u_MapType;
 
 type
   TMapTypesMainList = class

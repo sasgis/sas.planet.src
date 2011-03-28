@@ -25,7 +25,7 @@ uses
   i_ConfigDataWriteProvider,
   i_ImageResamplerFactory,
   fr_ShortCutList,
-  UMapType,
+  u_MapType,
   u_ResStrings;
 
 type

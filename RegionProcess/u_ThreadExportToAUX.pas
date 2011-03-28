@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   SysUtils,
-  UMapType,
+  u_MapType,
   t_GeoTypes,
   u_ThreadRegionProcessAbstract;
 

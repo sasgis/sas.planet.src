@@ -11,7 +11,7 @@ uses
   DISQLite3Api,
   GR32,
   i_CoordConverter,
-  UMapType,
+  u_MapType,
   u_GeoFun,
   t_GeoTypes,
   u_ThreadExportAbstract;

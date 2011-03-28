@@ -12,7 +12,7 @@ uses
   i_ActiveMapsConfig,
   i_ViewPortState,
   u_MapLayerShowError,
-  UMapType,
+  u_MapType,
   u_MapLayerBasic;
 
 type

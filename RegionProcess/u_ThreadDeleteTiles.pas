@@ -7,7 +7,7 @@ uses
   SysUtils,
   Classes,
   t_GeoTypes,
-  UMapType,
+  u_MapType,
   u_ThreadRegionProcessAbstract,
   u_ResStrings;
 

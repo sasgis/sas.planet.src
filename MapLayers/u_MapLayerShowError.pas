@@ -7,7 +7,7 @@ uses
   GR32,
   GR32_Image,
   i_ViewPortState,
-  UMapType,
+  u_MapType,
   u_MapLayerBasic;
 
 type

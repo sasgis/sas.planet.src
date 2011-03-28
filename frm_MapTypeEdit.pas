@@ -16,7 +16,7 @@ uses
   ComCtrls,
   Spin,
   u_CommonFormAndFrameParents,
-  UMapType,
+  u_MapType,
   u_ResStrings;
 
 type

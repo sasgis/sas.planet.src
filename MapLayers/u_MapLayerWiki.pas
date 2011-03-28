@@ -9,7 +9,7 @@ uses
   GR32,
   GR32_Image,
   u_GeoFun,
-  UMapType,
+  u_MapType,
   u_MapLayerBasic,
   t_GeoTypes,
   i_MapTypes,

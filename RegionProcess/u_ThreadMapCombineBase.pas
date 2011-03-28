@@ -12,7 +12,7 @@ uses
   i_BitmapPostProcessingConfig,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
-  UMapType,
+  u_MapType,
   u_ThreadRegionProcessAbstract;
 
 type

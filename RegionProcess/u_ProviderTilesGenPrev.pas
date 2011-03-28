@@ -33,7 +33,7 @@ uses
   u_ThreadGenPrevZoom,
   u_GlobalState,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 { TProviderTilesGenPrev }
 

@@ -7,7 +7,7 @@ uses
   u_KmlInfoSimple,
   i_MemObjCache,
   i_TileObjCache,
-  UMapType;
+  u_MapType;
 
 type
   TTileCacheSimpleGlobal = class(TInterfacedObject, ITileObjCache)

@@ -53,7 +53,7 @@ uses
   u_GlobalState,
   u_GeoFun,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 {$R *.dfm}
 

@@ -9,7 +9,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeIconsList,
-  UMapType;
+  u_MapType;
 
 type
   TMapMenuGeneratorBasic = class

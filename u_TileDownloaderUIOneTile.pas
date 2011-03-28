@@ -8,7 +8,7 @@ uses
   Types,
   u_TileDownloaderThreadBase,
   u_MapLayerShowError,
-  UMapType;
+  u_MapType;
 
 type
   TTileDownloaderUIOneTile = class(TTileDownloaderThreadBase)

@@ -39,7 +39,7 @@ uses
   u_ThreadMapCombineJPG,
   u_ThreadMapCombineKMZ,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 { TProviderTilesDelete }
 

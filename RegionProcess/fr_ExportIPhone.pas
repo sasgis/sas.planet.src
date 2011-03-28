@@ -62,7 +62,7 @@ uses
   FileCtrl,
   u_GlobalState,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 {$R *.dfm}
 

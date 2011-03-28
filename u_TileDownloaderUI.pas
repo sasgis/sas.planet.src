@@ -17,7 +17,7 @@ uses
   i_TileDownlodSession,
   i_DownloadUIConfig,
   u_MapLayerShowError,
-  UMapType;
+  u_MapType;
 
 type
   TTileDownloaderUI = class(TThread)

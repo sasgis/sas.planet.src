@@ -35,7 +35,7 @@ uses
   frm_Main,
   UProgress,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 { TProviderTilesDownload }
 

@@ -8,7 +8,7 @@ uses
   SysUtils,
   Classes,
   GR32,
-  UMapType,
+  u_MapType,
   u_ThreadRegionProcessAbstract,
   i_ImageResamplerFactory,
   u_ResStrings,

@@ -8,7 +8,7 @@ uses
   SysUtils,
   Classes,
   GR32,
-  UMapType,
+  u_MapType,
   u_GeoFun,
   u_ResStrings,
   t_GeoTypes,

@@ -8,7 +8,7 @@ uses
   Classes,
   GR32,
   u_ECWWrite,
-  UMapType,
+  u_MapType,
   u_GeoFun,
   u_BmpUtil,
   t_GeoTypes,

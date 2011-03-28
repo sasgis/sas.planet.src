@@ -3,7 +3,7 @@ unit u_MapTypeBasic;
 interface
 
 uses
-  UMapType,
+  u_MapType,
   i_MapTypes;
 
 type

@@ -7,7 +7,7 @@ uses
   i_LogSimple,
   t_GeoTypes,
   i_DownloadInfoSimple,
-  UMapType,
+  u_MapType,
   u_TileDownloaderThreadBase;
 
 type

@@ -20,7 +20,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
   i_MiniMapLayerConfig,
-  UMapType,
+  u_MapType,
   u_WindowLayerWithPos;
 
 type

@@ -7,7 +7,7 @@ uses
   Classes,
   Types,
   i_TileDownlodSession,
-  UMapType;
+  u_MapType;
 
 type
   TTileDownloaderThreadBase = class(TThread)

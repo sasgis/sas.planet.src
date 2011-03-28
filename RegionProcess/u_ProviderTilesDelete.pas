@@ -30,7 +30,7 @@ uses
   SysUtils,
   u_ThreadDeleteTiles,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 { TProviderTilesDelete }
 

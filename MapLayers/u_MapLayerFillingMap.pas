@@ -11,7 +11,7 @@ uses
   u_BackgroundTaskLayerDrawBase,
   i_ViewPortState,
   i_FillingMapLayerConfig,
-  UMapType,
+  u_MapType,
   u_MapLayerWithThreadDraw;
 
 type

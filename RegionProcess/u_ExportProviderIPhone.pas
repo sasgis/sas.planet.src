@@ -33,7 +33,7 @@ uses
   SysUtils,
   u_ThreadExportIPhone,
   u_ResStrings,
-  UMapType;
+  u_MapType;
 
 { TExportProviderIPhone }
 

@@ -133,7 +133,7 @@ uses
   i_BitmapTypeExtManager in 'i_BitmapTypeExtManager.pas',
   u_BitmapTypeExtManagerSimple in 'u_BitmapTypeExtManagerSimple.pas',
   u_MapTypeCacheConfig in 'u_MapTypeCacheConfig.pas',
-  UMapType in 'UMapType.pas',
+  u_MapType in 'u_MapType.pas',
   u_MapTypesMainList in 'u_MapTypesMainList.pas',
   i_MapTypeIconsList in 'i_MapTypeIconsList.pas',
   u_MapTypeIconsList in 'u_MapTypeIconsList.pas',

@@ -57,7 +57,7 @@ uses
   u_GeoFun,
   u_MapLayerWiki,
   frm_StartLogo,
-  UMapType,
+  u_MapType,
   u_ResStrings,
   u_ShortcutManager,
   u_MapMainLayer,

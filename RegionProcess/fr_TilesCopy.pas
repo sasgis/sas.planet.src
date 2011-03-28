@@ -51,7 +51,7 @@ implementation
 uses
   FileCtrl,
   u_GlobalState,
-  UMapType;
+  u_MapType;
 
 {$R *.dfm}
 
