@@ -56,7 +56,7 @@ uses
   u_WindowLayerBasicList,
   Ugeofun,
   u_MapLayerWiki,
-  ULogo,
+  frm_StartLogo,
   UMapType,
   UResStrings,
   u_ShortcutManager,

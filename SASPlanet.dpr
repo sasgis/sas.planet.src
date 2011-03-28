@@ -464,7 +464,7 @@ uses
   frm_InvisibleBrowser in 'frm_InvisibleBrowser.pas' {frmInvisibleBrowser},
   frm_MarkEditPoint in 'frm_MarkEditPoint.pas' {frmMarkEditPoint},
   Unit4 in 'Unit4.pas' {Fprogress2},
-  ULogo in 'ULogo.pas' {frmStartLogo},
+  frm_StartLogo in 'frm_StartLogo.pas' {frmStartLogo},
   USelLonLat in 'USelLonLat.pas' {FSelLonLat},
   frm_IntrnalBrowser in 'frm_IntrnalBrowser.pas' {frmIntrnalBrowser},
   frm_MarkEditPath in 'frm_MarkEditPath.pas' {frmMarkEditPath},

@@ -90,6 +90,9 @@
     <DCCReference Include="frm_ShortCutEdit.pas">
       <Form>frmShortCutEdit</Form>
     </DCCReference>
+    <DCCReference Include="frm_StartLogo.pas">
+      <Form>frmStartLogo</Form>
+    </DCCReference>
     <DCCReference Include="fr_LonLat.pas">
       <Form>frLonLat</Form>
       <DesignClass>TFrame</DesignClass>
@@ -347,9 +350,6 @@
     <DCCReference Include="Ugeofun.pas" />
     <DCCReference Include="UImport.pas">
       <Form>FImport</Form>
-    </DCCReference>
-    <DCCReference Include="ULogo.pas">
-      <Form>frmStartLogo</Form>
     </DCCReference>
     <DCCReference Include="UMapType.pas" />
     <DCCReference Include="Unit1.pas">

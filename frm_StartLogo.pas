@@ -1,4 +1,4 @@
-unit ULogo;
+unit frm_StartLogo;
 
 interface
 
