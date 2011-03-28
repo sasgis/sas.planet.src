@@ -21,6 +21,7 @@ type
     property BeforeScale: integer read GetBeforeScale;
 
     function IsNew: Boolean;
+    function IsSame(ACategory: IMarkCategory): Boolean;
   end;
 
 implementation

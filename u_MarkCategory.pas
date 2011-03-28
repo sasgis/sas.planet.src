@@ -20,6 +20,7 @@ type
     function GetAfterScale: integer; stdcall;
     function GetBeforeScale: integer; stdcall;
     function IsNew: Boolean;
+    function IsSame(ACategory: IMarkCategory): Boolean;
   public
     constructor Create(
       AId: Integer;
@@ -72,6 +73,14 @@ end;
 function TMarkCategory.IsNew: Boolean;
 begin
   Result := FId < 0;
+end;
+
+function TMarkCategory.IsSame(ACategory: IMarkCategory): Boolean;
+begin
+  Result := False;
+  if ACategory <> nil then begin
+    Result := FId = ACategory.Id;
+  end;
 end;
 
 end.
