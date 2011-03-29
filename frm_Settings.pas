@@ -316,7 +316,9 @@ var
   i: integer;
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
+  VNeedReboot: boolean;
 begin
+ VNeedReboot:=false;
  For i:=0 to MapList.Items.Count-1 do
   begin
    TMapType(MapList.Items.Item[i].data).FSortIndex:=i+1;
@@ -402,6 +404,9 @@ begin
   VInetConfig.LockWrite;
   try
     VProxyConfig := VInetConfig.ProxyConfig;
+    if (chkUseIEProxy.Checked)and(VProxyConfig.GetUseIESettings<>chkUseIEProxy.Checked) then begin
+      VNeedReboot:=true;
+    end;
     VProxyConfig.SetUseIESettings(chkUseIEProxy.Checked);
     VProxyConfig.SetUseProxy(CBProxyused.Checked);
     VProxyConfig.SetHost(EditIP.Text);
@@ -450,7 +455,7 @@ begin
 
  GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
 
-  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
+ GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
  SetProxy;
 
@@ -458,7 +463,9 @@ begin
  if FMapsEdit then begin
    frmMain.CreateMapUI;
  end;
- ShowMessage(SAS_MSG_need_reload_application_curln);
+ if VNeedReboot then begin
+   ShowMessage(SAS_MSG_need_reload_application_curln);
+ end;
 end;
 
 procedure TfrmSettings.Button4Click(Sender: TObject);
