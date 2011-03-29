@@ -354,6 +354,7 @@ object frmMain: TfrmMain
           end
           object TBScreenSelect: TTBXItem
             Images = PanelsImageList
+            ShortCut = 16449
             OnClick = TBScreenSelectClick
             Caption = #1055#1086' '#1088#1072#1079#1084#1077#1088#1091' '#1101#1082#1088#1072#1085#1072
             Hint = ''
