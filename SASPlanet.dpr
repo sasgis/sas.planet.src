@@ -305,6 +305,7 @@ uses
   u_ImportPLT in 'u_ImportPLT.pas',
   u_ImportHLG in 'u_ImportHLG.pas',
   u_ImportByFileExt in 'u_ImportByFileExt.pas',
+  u_ExportMarks2KML in 'u_ExportMarks2KML.pas',
   i_UrlByCoordProvider in 'i_UrlByCoordProvider.pas',
   i_PathDetalizeProvider in 'i_PathDetalizeProvider.pas',
   u_PathDetalizeProviderYourNavigation in 'u_PathDetalizeProviderYourNavigation.pas',
@@ -476,8 +477,7 @@ uses
   frm_ImportConfigEdit in 'frm_ImportConfigEdit.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
-  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
-  u_ExportMarks2KML in 'u_ExportMarks2KML.pas';
+  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
 
 {$R *.res} {$R *Pics.res}
 begin
