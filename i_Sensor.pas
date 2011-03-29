@@ -30,7 +30,7 @@ type
   ISensorView = interface
     ['{3D7823AF-17D9-495E-901C-BF6435E5C0E1}']
     function GetConfig: ISensorViewConfig;
-    function GetResetNotify: IJclNotifier;
+    function GetResetNotifier: IJclNotifier;
   end;
 
   ISensorViewText = interface(ISensorView)
