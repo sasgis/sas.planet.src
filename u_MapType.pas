@@ -1,5 +1,7 @@
 unit u_MapType;
 
+{.$DEFINE USE_PHP_SCRIPT}
+
 interface
 
 uses
@@ -69,6 +71,10 @@ type
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
 
+    {$IFDEF USE_PHP_SCRIPT}
+    FUsePHPScript: Boolean;
+    {$ENDIF}
+
     function GetUseDwn: Boolean;
     function GetZmpFileName: string;
     function GetIsCanShowOnSmMap: boolean;
@@ -95,6 +101,10 @@ type
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple): boolean;
     procedure LoadMapType(AConfig : IConfigDataProvider; Apnum : Integer);
+
+    {$IFDEF USE_PHP_SCRIPT}
+    procedure LoadPhpConf(AConfig : IConfigDataProvider);
+    {$ENDIF}
 
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
@@ -181,6 +191,9 @@ type
 implementation
 
 uses
+  {$IFDEF USE_PHP_SCRIPT}
+  u_TileDownloaderViaPHP,
+  {$ENDIF}
   Types,
   GR32_Resamplers,
   KAZip,
@@ -416,7 +429,27 @@ begin
   LoadMimeTypeSubstList(AConfig);
   LoadUrlScript(AConfig);
   LoadDownloader(AConfig);
+
+  {$IFDEF USE_PHP_SCRIPT}
+  LoadPhpConf(AConfig);
+  {$ENDIF}
+
 end;
+
+{$IFDEF USE_PHP_SCRIPT}
+procedure TMapType.LoadPhpConf(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
+begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+
+  FName:=VParams.ReadString('name',FName);
+  FName:=VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode,FName);
+
+  FUsePHPScript := VParams.ReadBool('UsePHPScript', False);
+end;
+{$ENDIF}
+
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
@@ -626,7 +659,10 @@ begin
     try
       Result := FStorage.LoadTile(AXY, Azoom, FVersion, VFileStream, VTileInfo);
       if Result then begin
-        FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileInfo.GetLoadDate));
+        {.$WARN SYMBOL_PLATFORM OFF}
+        //FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileInfo.GetLoadDate));
+        {.$WARN SYMBOL_PLATFORM ON}
+        FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
       end;
     finally
       VFileStream.Free;
@@ -692,6 +728,40 @@ var
   VDownloader: ITileDownlodSession;
 begin
   if Self.UseDwn then begin
+
+    {$IFDEF USE_PHP_SCRIPT}
+
+    if FUsePHPScript then begin
+
+      Result := DownloadTileViaPHP(ACheckTileSize, AOldTileSize, ATile, AZoom, AUrl, AContentType, fileBuf);
+
+    end else begin
+
+      AUrl := GetLink(ATile, AZoom);
+      VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
+      if VPoolElement = nil then begin
+        raise Exception.Create('No free connections');
+      end;
+      VDownloader := VPoolElement.GetObject as ITileDownlodSession;
+      if FAntiBan <> nil then begin
+        FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
+      end;
+      Result := VDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
+      if FAntiBan <> nil then begin
+        Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
+      end;
+      if Result = dtrOK then begin
+        SaveTileDownload(ATile, AZoom, fileBuf, AContentType);
+      end else if Result = dtrTileNotExists then begin
+        if GState.SaveTileNotExists then begin
+          SaveTileNotExists(ATile, AZoom);
+        end;
+      end;
+
+    end;
+
+    {$ELSE}
+
     AUrl := GetLink(ATile, AZoom);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin
@@ -712,6 +782,9 @@ begin
         SaveTileNotExists(ATile, AZoom);
       end;
     end;
+
+    {$ENDIF}
+
   end else begin
     raise Exception.Create('Для этой карты загрузка запрещена.');
   end;
