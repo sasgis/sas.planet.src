@@ -53,7 +53,6 @@ object frmMain: TfrmMain
       Images = PanelsImageList
       Stretch = True
       TabOrder = 0
-      OnClose = TBMainToolBarClose
       Caption = #1043#1083#1072#1074#1085#1072#1103' '#1087#1072#1085#1077#1083#1100
       object TBmove: TTBXItem
         Checked = True
@@ -138,7 +137,6 @@ object frmMain: TfrmMain
       DockRow = 1
       Stretch = True
       TabOrder = 1
-      OnClose = TBMainToolBarClose
       Caption = #1055#1072#1085#1077#1083#1100' '#1080#1089#1090#1086#1095#1085#1080#1082#1086#1074
       object TBSrc: TTBXSubmenuItem
         ImageIndex = 0
@@ -173,7 +171,6 @@ object frmMain: TfrmMain
       LinkSubitems = NMarks
       Stretch = True
       TabOrder = 2
-      OnClose = TBMainToolBarClose
       Caption = #1052#1077#1090#1082#1080
     end
     object GPSToolbar: TTBXToolbar
@@ -184,7 +181,6 @@ object frmMain: TfrmMain
       Images = PanelsImageList
       Stretch = True
       TabOrder = 3
-      OnClose = TBMainToolBarClose
       Caption = #1055#1072#1085#1077#1083#1100' GPS'
       object TBGPSconn: TTBXItem
         AutoCheck = True
@@ -394,54 +390,40 @@ object frmMain: TfrmMain
         object NPanels: TTBXSubmenuItem
           Caption = #1055#1072#1085#1077#1083#1080
           Hint = ''
-          object NMainToolBarShow: TTBXItem
-            AutoCheck = True
-            Checked = True
-            OnClick = NMainToolBarShowClick
+          object NMainToolBarShow: TTBXVisibilityToggleItem
+            Control = TBMainToolBar
             Caption = #1043#1083#1072#1074#1085#1072#1103
             Hint = ''
           end
-          object NZoomToolBarShow: TTBXItem
-            AutoCheck = True
-            Checked = True
-            OnClick = NZoomToolBarShowClick
+          object NZoomToolBarShow: TTBXVisibilityToggleItem
+            Control = ZoomToolBar
             Caption = #1052#1072#1089#1096#1090#1072#1073
             Hint = ''
           end
-          object NsrcToolBarShow: TTBXItem
-            AutoCheck = True
-            Checked = True
-            OnClick = NsrcToolBarShowClick
+          object NsrcToolBarShow: TTBXVisibilityToggleItem
+            Control = SrcToolbar
             Caption = #1048#1089#1090#1086#1095#1085#1080#1082#1080
             Hint = ''
           end
-          object NGPSToolBarShow: TTBXItem
-            AutoCheck = True
-            Checked = True
-            OnClick = NGPSToolBarShowClick
+          object NGPSToolBarShow: TTBXVisibilityToggleItem
+            Control = GPSToolbar
             Caption = 'GPS'
             Hint = ''
           end
-          object NMarksBarShow: TTBXItem
-            AutoCheck = True
-            Checked = True
-            OnClick = NMarksBarShowClick
+          object TBXVisibilityToggleItem1: TTBXVisibilityToggleItem
+            Control = TBMarksToolbar
             Caption = #1052#1077#1090#1082#1080
             Hint = ''
           end
-          object NToolBarSearch: TTBXItem
-            AutoCheck = True
-            OnClick = NSensorsBarClick
+          object TBXVisibilityToggleItem2: TTBXVisibilityToggleItem
+            Control = TBXToolBarSearch
             Caption = #1055#1086#1080#1089#1082
             Hint = ''
           end
-          object NSensorsBar: TTBXItem
-            AutoCheck = True
-            OnClick = NSensorsBarClick
-            Caption = #1044#1072#1090#1095#1080#1082#1080
-            Hint = ''
-          end
           object NSensors: TTBXSubmenuItem
+            AutoCheck = True
+            DropdownCombo = True
+            OnClick = NSensorsClick
             Caption = #1044#1072#1090#1095#1080#1082#1080
             Hint = ''
             object NSensorSpeedBar: TTBXItem
@@ -1041,7 +1023,6 @@ object frmMain: TfrmMain
       Stretch = True
       TabOrder = 6
       Visible = False
-      OnVisibleChanged = TBXSensorsBarVisibleChanged
       Caption = #1055#1072#1085#1077#1083#1100' '#1087#1086#1080#1089#1082#1072
       object TBXSelectSrchType: TTBXSubmenuItem
         Options = [tboDropdownArrow]
@@ -1091,7 +1072,6 @@ object frmMain: TfrmMain
       DockPos = 6
       Stretch = True
       TabOrder = 0
-      OnClose = TBMainToolBarClose
       OnDockChanging = ZoomToolBarDockChanging
       Caption = #1055#1072#1085#1077#1083#1100' '#1084#1072#1089#1096#1090#1072#1073#1072
       object TBZoomIn: TTBXItem
@@ -1324,7 +1304,7 @@ object frmMain: TfrmMain
             DockRow = 1
             Stretch = True
             TabOrder = 0
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1395,7 +1375,7 @@ object frmMain: TfrmMain
             ClientAreaWidth = 150
             Stretch = True
             TabOrder = 1
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1439,7 +1419,7 @@ object frmMain: TfrmMain
             DockRow = 3
             Stretch = True
             TabOrder = 2
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1513,7 +1493,7 @@ object frmMain: TfrmMain
             DockRow = 8
             Stretch = True
             TabOrder = 3
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1554,7 +1534,7 @@ object frmMain: TfrmMain
             DockRow = 6
             Stretch = True
             TabOrder = 4
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1594,7 +1574,7 @@ object frmMain: TfrmMain
             DockRow = 7
             Stretch = True
             TabOrder = 5
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1667,7 +1647,7 @@ object frmMain: TfrmMain
             DockRow = 2
             Stretch = True
             TabOrder = 6
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1773,7 +1753,7 @@ object frmMain: TfrmMain
             DockRow = 4
             Stretch = True
             TabOrder = 7
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             Caption = #1054#1076#1086#1084#1077#1090#1088
             object TBXSensorOdometr: TTBXLabel
               Left = 0
@@ -1855,7 +1835,7 @@ object frmMain: TfrmMain
             DockRow = 9
             Stretch = True
             TabOrder = 8
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1899,7 +1879,7 @@ object frmMain: TfrmMain
             DockRow = 10
             Stretch = True
             TabOrder = 9
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             DesignSize = (
               150
               32)
@@ -1925,7 +1905,7 @@ object frmMain: TfrmMain
             DockRow = 5
             Stretch = True
             TabOrder = 10
-            OnVisibleChanged = TBXSensorsBarVisibleChanged
+            OnVisibleChanged = TBXSensorBarVisibleChanged
             DesignSize = (
               150
               32)

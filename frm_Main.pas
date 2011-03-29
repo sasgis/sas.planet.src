@@ -204,11 +204,6 @@ type
     tbitmGPSTrackSave: TTBXItem;
     tbitmGPSTrackSaveToDb: TTBXItem;
     tbitmGPSTrackClear: TTBXItem;
-    NMainToolBarShow: TTBXItem;
-    NZoomToolBarShow: TTBXItem;
-    NsrcToolBarShow: TTBXItem;
-    NGPSToolBarShow: TTBXItem;
-    NMarksBarShow: TTBXItem;
     Showstatus: TTBXItem;
     ShowMiniMap: TTBXItem;
     ShowLine: TTBXItem;
@@ -259,7 +254,6 @@ type
     btnSensorOdometrReset: TSpeedButton;
     SpeedButton3: TSpeedButton;
     SBClearSensor: TSpeedButton;
-    NSensorsBar: TTBXItem;
     NSensors: TTBXSubmenuItem;
     NSensorLenToMarkBar: TTBXItem;
     NsensorOdometrBar: TTBXItem;
@@ -297,7 +291,6 @@ type
     TBXSelectSrchType: TTBXSubmenuItem;
     TBXSelectGoogleSrch: TTBXItem;
     TBXSelectYandexSrch: TTBXItem;
-    NToolBarSearch: TTBXItem;
     tbsprtGPS2: TTBXSeparatorItem;
     tbitmPositionByGSM: TTBXItem;
     TBXItem6: TTBXItem;
@@ -377,6 +370,12 @@ type
     TBLayerInfo: TTBXSubmenuItem;
     TBScreenSelect: TTBXItem;
     pnlSensorOdometrTop: TTBXAlignmentPanel;
+    NMainToolBarShow: TTBXVisibilityToggleItem;
+    NZoomToolBarShow: TTBXVisibilityToggleItem;
+    NsrcToolBarShow: TTBXVisibilityToggleItem;
+    NGPSToolBarShow: TTBXVisibilityToggleItem;
+    TBXVisibilityToggleItem1: TTBXVisibilityToggleItem;
+    TBXVisibilityToggleItem2: TTBXVisibilityToggleItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -409,16 +408,11 @@ type
     procedure TBPreviousClick(Sender: TObject);
     procedure TBCalcRasClick(Sender: TObject);
     procedure N29Click(Sender: TObject);
-    procedure NMainToolBarShowClick(Sender: TObject);
-    procedure NZoomToolBarShowClick(Sender: TObject);
-    procedure NsrcToolBarShowClick(Sender: TObject);
     procedure tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBSubmenuItem1Click(Sender: TObject);
-    procedure TBMainToolBarClose(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TBItem2Click(Sender: TObject);
     procedure TBGPSconnClick(Sender: TObject);
-    procedure NGPSToolBarShowClick(Sender: TObject);
     procedure TBGPSPathClick(Sender: TObject);
     procedure TBGPSToPointClick(Sender: TObject);
     procedure N30Click(Sender: TObject);
@@ -440,7 +434,6 @@ type
     procedure TBItem5Click(Sender: TObject);
     procedure NMarkEditClick(Sender: TObject);
     procedure NMarkDelClick(Sender: TObject);
-    procedure NMarksBarShowClick(Sender: TObject);
     procedure NMarkOperClick(Sender: TObject);
     procedure livecom1Click(Sender: TObject);
     procedure N13Click(Sender: TObject);
@@ -485,7 +478,7 @@ type
     procedure NbackloadLayerClick(Sender: TObject);
     procedure SBClearSensorClick(Sender: TObject);
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
-    procedure NSensorsBarClick(Sender: TObject);
+    procedure TBXSensorBarVisibleChanged(Sender: TObject);
     procedure TBXItem1Click(Sender: TObject);
     procedure TBXItem5Click(Sender: TObject);
     procedure TBXSelectSrchClick(Sender: TObject);
@@ -509,6 +502,8 @@ type
     procedure TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette; var ACol,
       ARow: Integer; var AllowChange: Boolean);
     procedure TBScreenSelectClick(Sender: TObject);
+    procedure NSensorsClick(Sender: TObject);
+    procedure NSensorsBarClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -839,12 +834,6 @@ begin
     NGShScale500000.Checked := VScale = 500000;
     NGShScale1000000.Checked := VScale = 1000000;
     NGShScale0.Checked := VScale = 0;
-
-    NMainToolBarShow.Checked:=TBMainToolBar.Visible;
-    NZoomToolBarShow.Checked:=ZoomToolBar.Visible;
-    NsrcToolBarShow.Checked:=SrcToolbar.Visible;
-    NGPSToolBarShow.Checked:=GPSToolBar.Visible;
-    NMarksBarShow.Checked:=TBMarksToolBar.Visible;
 
     FLinksList.Add(
       TNotifyEventListener.Create(Self.ProcessPosChangeMessage),
@@ -2058,26 +2047,6 @@ begin
   PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
 end;
 
-procedure TfrmMain.NMainToolBarShowClick(Sender: TObject);
-begin
- TBMainToolBar.Visible:=NMainToolBarShow.Checked;
-end;
-
-procedure TfrmMain.NGPSToolBarShowClick(Sender: TObject);
-begin
- GPSToolBar.Visible:=NGPSToolBarShow.Checked;
-end;
-
-procedure TfrmMain.NZoomToolBarShowClick(Sender: TObject);
-begin
- ZoomToolBar.Visible:=NZoomToolBarShow.Checked;
-end;
-
-procedure TfrmMain.NsrcToolBarShowClick(Sender: TObject);
-begin
- SrcToolbar.Visible:=NsrcToolBarShow.Checked;
-end;
-
 procedure TfrmMain.NCalcRastClick(Sender: TObject);
 begin
  TBCalcRas.Checked:=true;
@@ -2473,15 +2442,6 @@ begin
   OpenUrlInBrowser('http://sasgis.ru/wikisasiya/');
 end;
 
-procedure TfrmMain.TBMainToolBarClose(Sender: TObject);
-begin
- if sender=TBMainToolBar then NMainToolBarShow.Checked:=false;
- if sender=SrcToolbar then NsrcToolBarShow.Checked:=false;
- if sender=ZoomToolBar then NZoomToolBarShow.Checked:=false;
- if sender=GPSToolBar then NGPSToolBarShow.Checked:=false;
- if sender=TBMarksToolBar then NMarksBarShow.Checked:=false;
-end;
-
 procedure TfrmMain.N000Click(Sender: TObject);
 var
   VTag: Integer;
@@ -2738,11 +2698,6 @@ begin
     if FMarkDBGUI.DeleteMarkModal(VMark as IMarkID, Handle) then
       FLayerMapMarks.Redraw;
   end;
-end;
-
-procedure TfrmMain.NMarksBarShowClick(Sender: TObject);
-begin
- TBMarksToolBar.Visible:=NMarksBarShow.Checked;
 end;
 
 procedure TfrmMain.NMarkOperClick(Sender: TObject);
@@ -3646,14 +3601,24 @@ begin
  end;
 end;
 
-procedure TfrmMain.TBXSensorsBarVisibleChanged(Sender: TObject);
+procedure TfrmMain.TBXSensorBarVisibleChanged(Sender: TObject);
 begin
   TTBXItem(FindComponent('N'+copy(TTBXToolWindow(sender).Name,4,length(TTBXItem(sender).Name)-3))).Checked:=TTBXToolWindow(sender).Visible;
+end;
+
+procedure TfrmMain.TBXSensorsBarVisibleChanged(Sender: TObject);
+begin
+  NSensors.Checked := TTBXToolWindow(sender).Visible;
 end;
 
 procedure TfrmMain.NSensorsBarClick(Sender: TObject);
 begin
   TTBXToolWindow(FindComponent('TBX'+copy(TTBXItem(sender).Name,2,length(TTBXItem(sender).Name)-1))).Visible:=TTBXItem(sender).Checked;
+end;
+
+procedure TfrmMain.NSensorsClick(Sender: TObject);
+begin
+  TBXSensorsBar.Visible := TTBXItem(sender).Checked;
 end;
 
 procedure TfrmMain.TBXItem5Click(Sender: TObject);
