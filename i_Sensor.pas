@@ -4,6 +4,7 @@ interface
 
 uses
   GR32,
+  i_JclNotify,
   i_ConfigDataElement,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;
@@ -24,15 +25,12 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
-
-    function GetFontSize: Integer;
-    procedure SetFontSize(AValue: Integer);
-    property FontSize: Integer read GetFontSize write SetFontSize;
   end;
 
   ISensorView = interface
     ['{3D7823AF-17D9-495E-901C-BF6435E5C0E1}']
     function GetConfig: ISensorViewConfig;
+    function GetResetNotify: IJclNotifier;
   end;
 
   ISensorViewText = interface(ISensorView)
@@ -48,6 +46,8 @@ type
   ISensor = interface
     ['{F106BDDC-E596-47EE-99FC-C9A61C7868F4}']
     function GetInfo: ISensorInfo;
+
+    function GetView: ISensorView;
     procedure SetView(AView: ISensorView);
   end;
 

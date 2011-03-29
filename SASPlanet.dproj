@@ -562,6 +562,7 @@
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="u_SelectionRectLayerConfig.pas" />
+    <DCCReference Include="u_SensorViewTextTBXPanel.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_StatBarConfig.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
