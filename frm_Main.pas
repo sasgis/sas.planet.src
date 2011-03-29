@@ -376,6 +376,7 @@ type
     NGPSToolBarShow: TTBXVisibilityToggleItem;
     TBXVisibilityToggleItem1: TTBXVisibilityToggleItem;
     TBXVisibilityToggleItem2: TTBXVisibilityToggleItem;
+    TBXSeparatorItem13: TTBXSeparatorItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -2353,10 +2354,19 @@ end;
 
 procedure TfrmMain.TBRectSaveClick(Sender: TObject);
 begin
-  if TBRectSave.ImageIndex=10 then begin
-    setalloperationfalse(ao_select_rect);
-  end else begin
-    setalloperationfalse(ao_select_poly);
+  case TBRectSave.ImageIndex of
+   10: begin
+         setalloperationfalse(ao_select_rect);
+       end;
+   13: begin
+         setalloperationfalse(ao_select_poly);
+       end;
+   12: begin
+         TBCOORDClick(sender);
+       end;
+   20: begin
+         TBScreenSelectClick(sender);
+       end;
   end;
 end;
 
@@ -2541,6 +2551,7 @@ var
   VSelLonLat: TfrmLonLatRectEdit;
   VLonLatRect: TDoubleRect;
 begin
+  TBRectSave.ImageIndex:=12;
   VSelLonLat:= TfrmLonLatRectEdit.Create(Self);
   Try
     Poly := GState.LastSelectionInfo.Polygon;
@@ -3692,6 +3703,7 @@ var
   VLonLatRect: TDoubleRect;
   VPolygon: TArrayOfDoublePoint;
 begin
+  TBRectSave.ImageIndex:=20;
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
