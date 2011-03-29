@@ -1,24 +1,21 @@
 object frLonLat: TfrLonLat
   Left = 0
   Top = 0
-  Width = 314
-  Height = 160
+  Width = 451
+  Height = 304
   VertScrollBar.Visible = False
   Align = alClient
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
-  ExplicitWidth = 451
-  ExplicitHeight = 304
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 314
+    Width = 451
     Height = 24
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 451
     object ComboBoxCoordType: TComboBox
       Left = 6
       Top = 3
@@ -39,8 +36,8 @@ object frLonLat: TfrLonLat
   object grdpnlFull: TGridPanel
     Left = 0
     Top = 24
-    Width = 314
-    Height = 136
+    Width = 451
+    Height = 280
     Margins.Left = 0
     Margins.Top = 0
     Margins.Right = 0
@@ -65,14 +62,13 @@ object frLonLat: TfrLonLat
         SizeStyle = ssAuto
       end>
     TabOrder = 1
-    ExplicitTop = 27
     DesignSize = (
-      314
-      136)
+      451
+      280)
     object Panel2: TPanel
       AlignWithMargins = True
-      Left = 3
-      Top = 43
+      Left = 71
+      Top = 115
       Width = 308
       Height = 49
       Margins.Left = 0
@@ -82,7 +78,6 @@ object frLonLat: TfrLonLat
       Anchors = []
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 32
       object grdpnlMain: TGridPanel
         Left = 0
         Top = 0
@@ -127,8 +122,6 @@ object frLonLat: TfrLonLat
             Value = 50.000000000000000000
           end>
         TabOrder = 0
-        ExplicitWidth = 235
-        ExplicitHeight = 73
         DesignSize = (
           258
           49)
@@ -143,7 +136,7 @@ object frLonLat: TfrLonLat
           Alignment = taRightJustify
           Caption = #1064#1080#1088#1086#1090#1072':'
           Layout = tlCenter
-          ExplicitLeft = 23
+          ExplicitLeft = 68
           ExplicitWidth = 44
           ExplicitHeight = 13
         end
@@ -158,8 +151,7 @@ object frLonLat: TfrLonLat
           Alignment = taRightJustify
           Caption = #1044#1086#1083#1075#1086#1090#1072':'
           Layout = tlCenter
-          ExplicitLeft = 20
-          ExplicitTop = 20
+          ExplicitLeft = 65
           ExplicitWidth = 47
           ExplicitHeight = 13
         end
@@ -205,14 +197,13 @@ object frLonLat: TfrLonLat
           50
           49)
         object lblZoom: TLabel
-          Left = 1
+          Left = 0
           Top = 16
-          Width = 6
+          Width = 10
           Height = 13
           Margins.Left = 0
           Anchors = [akTop, akRight]
-          Caption = 'x'
-          ExplicitLeft = 3
+          Caption = ',x'
         end
         object cbbZoom: TComboBox
           Left = 10
@@ -251,7 +242,6 @@ object frLonLat: TfrLonLat
             '22'
             '23'
             '24')
-          ExplicitLeft = 12
         end
       end
     end

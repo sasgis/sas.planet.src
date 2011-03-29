@@ -64,8 +64,8 @@ begin
           pnlZoom.Visible:=false;
         end;
    1,2: begin
-          lblLat.Caption:=SAS_STR_OnHorizontal+':';
-          lblLon.Caption:=SAS_STR_OnVertical+':';
+          lblLat.Caption:=SAS_STR_OnVertical+':';
+          lblLon.Caption:=SAS_STR_OnHorizontal+':';
           pnlZoom.Visible:=true;
         end;
   end;
