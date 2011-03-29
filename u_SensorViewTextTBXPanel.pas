@@ -264,13 +264,16 @@ end;
 
 procedure TSensorViewTextTBXPanel.OnTimer(Sender: TObject);
 begin
-  FCS.Acquire;
-  try
-    if FTextChanged then begin
-      FlblValue.Caption := FTextToShow;
+  if FConfig.Visible then begin
+    FCS.Acquire;
+    try
+      if FTextChanged then begin
+        FlblValue.Caption := FTextToShow;
+        FTextChanged := False;
+      end;
+    finally
+      FCS.Release;
     end;
-  finally
-    FCS.Release;
   end;
 end;
 

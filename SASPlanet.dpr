@@ -311,6 +311,7 @@ uses
   u_PathDetalizeProviderMailRu in 'u_PathDetalizeProviderMailRu.pas',
   i_Sensor in 'i_Sensor.pas',
   u_SensorViewTextTBXPanel in 'u_SensorViewTextTBXPanel.pas',
+  u_SensorTextFromGPSRecorder in 'u_SensorTextFromGPSRecorder.pas',
   i_AntiBan in 'i_AntiBan.pas',
   u_AntiBanStuped in 'u_AntiBanStuped.pas',
   i_MapTypes in 'i_MapTypes.pas',
