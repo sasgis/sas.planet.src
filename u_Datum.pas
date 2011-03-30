@@ -54,7 +54,7 @@ end;
 
 function TDatum.CalcDist(AStart, AFinish: TDoublePoint): Double;
 var
-  fPhimean, fdLambda, fdPhi, fAlpha, fRho, fNu, fR, fz, fTemp, a, e2: Double;
+  fSinPhimean, fdLambda, fdPhi, fAlpha, fRho, fNu, fR, fz, fTemp, a, e2: Double;
   VStart, VFinish: TDoublePoint; // Координаты в радианах
 begin
   result := 0;
@@ -71,16 +71,21 @@ begin
 
   fdLambda := VStart.X - VFinish.X;
   fdPhi := VStart.Y - VFinish.Y;
-  fPhimean := (VStart.Y + VFinish.Y) / 2.0;
-  fTemp := 1 - e2 * (Power(Sin(fPhimean), 2));
-  fRho := (a * (1 - e2)) / Power(fTemp, 1.5);
-  fNu := a / (Sqrt(1 - e2 * (Sin(fPhimean) * Sin(fPhimean))));
-  fz := Sqrt(Power(Sin(fdPhi / 2), 2) + Cos(VFinish.Y) * Cos(VStart.Y) * Power(Sin(fdLambda / 2), 2));
+  fz := Sqrt(intPower(Sin(fdPhi / 2), 2) + Cos(VFinish.Y) * Cos(VStart.Y) * intPower(Sin(fdLambda / 2), 2));
   fz := 2 * ArcSin(fz);
+  fSinPhimean :=Sin((VStart.Y + VFinish.Y) / 2.0);
+  fTemp := 1 - e2 * (fSinPhimean*fSinPhimean);
+  fRho := (a * (1 - e2)) / Power(fTemp, 1.5);
+  fNu := a / (Sqrt(1 - e2 * (fSinPhimean * fSinPhimean)));
   fAlpha := Cos(VFinish.Y) * Sin(fdLambda) * 1 / Sin(fz);
   fAlpha := ArcSin(fAlpha);
-  fR := (fRho * fNu) / ((fRho * Power(Sin(fAlpha), 2)) + (fNu * Power(Cos(fAlpha), 2)));
-  result := (fz * fR);
+  fR := (fRho * fNu) / ((fRho * intPower(Sin(fAlpha), 2)) + (fNu * intPower(Cos(fAlpha), 2)));
+
+  if abs(fdLambda)<=Pi then begin
+    result := (fz * fR);
+  end else begin
+    result := (Pi * fR)+((Pi * fR)-(fz * fR));
+  end;
 end;
 
 function TDatum.SphericalTriangleSquare(points: array of TDoublePoint):Double;
@@ -109,13 +114,6 @@ begin
 end;
 
 function TDatum.CalcPoligonArea(polygon: TArrayOfDoublePoint): Double;
-
- function sign(s:Double):integer;
- begin
-   if s=0 then result:=0 else
-   if s>0 then result:=1 else
-               result:=-1;
- end;
 
  function Orientation(APoints: TArrayOfDoublePoint):extended;
  var i:integer;
