@@ -2,6 +2,7 @@
 program SASPlanet;
 
 uses
+  ExceptionLog,
   Forms,
   iniFiles,
   sysutils,

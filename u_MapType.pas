@@ -1,6 +1,6 @@
 unit u_MapType;
 
-{.$DEFINE USE_PHP_SCRIPT}
+{$DEFINE USE_PHP_SCRIPT}
 
 interface
 
@@ -28,6 +28,11 @@ uses
   u_MapTypeCacheConfig,
   u_TileStorageAbstract,
   u_ResStrings;
+
+{$IFDEF USE_PHP_SCRIPT}
+uses
+  u_TileDownloaderViaPHP;
+{$ENDIF}
 
 type
   EBadGUID = class(Exception);
@@ -73,6 +78,7 @@ type
 
     {$IFDEF USE_PHP_SCRIPT}
     FUsePHPScript: Boolean;
+    FPhpScript: TPhpScript;
     {$ENDIF}
 
     function GetUseDwn: Boolean;
@@ -191,9 +197,6 @@ type
 implementation
 
 uses
-  {$IFDEF USE_PHP_SCRIPT}
-  u_TileDownloaderViaPHP,
-  {$ENDIF}
   Types,
   GR32_Resamplers,
   KAZip,
@@ -403,6 +406,25 @@ begin
   end;
 end;
 
+{$IFDEF USE_PHP_SCRIPT}
+procedure TMapType.LoadPhpConf(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
+begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FUsePHPScript := VParams.ReadBool('UsePHPScript', False);
+
+  if FUsePHPScript and Assigned(FPhpScript) then
+  begin
+    if FileExists(FZMPFileName + '\downloader.php') then
+      FPhpScript.ScriptPath := FZMPFileName + '\downloader.php'
+    else
+      FUsePHPScript := False;
+  end;
+
+end;
+{$ENDIF}
+
 procedure TMapType.LoadMapType(AConfig: IConfigDataProvider; Apnum: Integer);
 var
   VParams: IConfigDataProvider;
@@ -429,27 +451,7 @@ begin
   LoadMimeTypeSubstList(AConfig);
   LoadUrlScript(AConfig);
   LoadDownloader(AConfig);
-
-  {$IFDEF USE_PHP_SCRIPT}
-  LoadPhpConf(AConfig);
-  {$ENDIF}
-
 end;
-
-{$IFDEF USE_PHP_SCRIPT}
-procedure TMapType.LoadPhpConf(AConfig: IConfigDataProvider);
-var
-  VParams: IConfigDataProvider;
-begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-
-  FName:=VParams.ReadString('name',FName);
-  FName:=VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode,FName);
-
-  FUsePHPScript := VParams.ReadBool('UsePHPScript', False);
-end;
-{$ENDIF}
-
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
@@ -695,12 +697,19 @@ begin
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;
   FMimeTypeSubstList := nil;
+
   LoadMapType(AConfig, Apnum);
   if FasLayer then begin
     FLoadPrevMaxZoomDelta := 4;
   end else begin
     FLoadPrevMaxZoomDelta := 6;
   end;
+
+  {$IFDEF USE_PHP_SCRIPT}
+  FPhpScript := TPhpScript.Create;
+  LoadPhpConf(AConfig);
+  {$ENDIF}
+
 end;
 
 destructor TMapType.Destroy;
@@ -716,6 +725,11 @@ begin
   FPoolOfDownloaders := nil;
   FCache := nil;
   FreeAndNil(FStorage);
+
+  {$IFDEF USE_PHP_SCRIPT}
+  FreeAndNil(FPhpScript);
+  {$ENDIF}
+
   inherited;
 end;
 
@@ -731,9 +745,9 @@ begin
 
     {$IFDEF USE_PHP_SCRIPT}
 
-    if FUsePHPScript then begin
+    if FUsePHPScript and Assigned(FPhpScript) then begin
 
-      Result := DownloadTileViaPHP(ACheckTileSize, AOldTileSize, ATile, AZoom, AUrl, AContentType, fileBuf);
+      Result := FPhpScript.DownloadTile(ACheckTileSize, AOldTileSize, ATile, AZoom, AUrl, AContentType, fileBuf);
 
     end else begin
 
@@ -750,14 +764,14 @@ begin
       if FAntiBan <> nil then begin
         Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
       end;
-      if Result = dtrOK then begin
-        SaveTileDownload(ATile, AZoom, fileBuf, AContentType);
-      end else if Result = dtrTileNotExists then begin
-        if GState.SaveTileNotExists then begin
-          SaveTileNotExists(ATile, AZoom);
-        end;
-      end;
+    end;
 
+    if Result = dtrOK then begin
+        SaveTileDownload(ATile, AZoom, fileBuf, AContentType);
+    end else if Result = dtrTileNotExists then begin
+      if GState.SaveTileNotExists then begin
+        SaveTileNotExists(ATile, AZoom);
+      end;
     end;
 
     {$ELSE}
