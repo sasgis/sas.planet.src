@@ -571,6 +571,7 @@ type
 
     FRuller:TBitmap32;
     FTumbler:TBitmap32;
+    FSensorViewList: IGUIDInterfaceList;
 
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
@@ -650,6 +651,8 @@ uses
   i_LocalCoordConverter,
   i_ValueToStringConverter,
   i_ActiveMapsConfig,
+  i_SensorViewListGenerator,
+  u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
   u_LineOnMapEdit,
   i_MapViewGoto,
@@ -725,6 +728,7 @@ end;
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
   VProvider: IConfigDataProvider;
+  VSensorViewGenerator: ISensorViewListGenerator;
 begin
   ProgramStart:=true;
   Application.Title:=Caption;
@@ -738,6 +742,8 @@ begin
   TBEditPath.Floating:=true;
   TBEditPath.MoveOnScreen(true);
   TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
+//  VSensorViewGenerator := TSensorViewListGeneratorStuped.Create(GState.GUISyncronizedTimerNotifier, TBXDock1, NSensors);
+//  FSensorViewList := VSensorViewGenerator.CreateSensorViewList(GState.SensorList);
   TBConfigProviderLoadPositions(Self, VProvider);
   OnToolbarsLockChange(nil);
   TBEditPath.Visible:=false;

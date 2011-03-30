@@ -14,6 +14,7 @@ uses
   JclDebug,
   {$ENDIF SasDebugWithJcl}
   i_JclNotify,
+  i_GUIDList,
   i_LanguageManager,
   i_MemObjCache,
   i_ConfigDataWriteProvider,
@@ -95,6 +96,7 @@ type
     FSkyMapDraw: ISatellitesInViewMapDraw;
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifier: IJclNotifier;
+    FSensorList: IGUIDInterfaceList;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -168,6 +170,7 @@ type
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
+    property SensorList: IGUIDInterfaceList read FSensorList;
 
     constructor Create;
     destructor Destroy; override;
@@ -193,6 +196,8 @@ uses
   Forms,
   u_JclNotify,
   i_BitmapTileSaveLoad,
+  i_SensorListGenerator,
+  u_SensorListGeneratorStuped,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   i_ListOfObjectsWithTTL,
@@ -234,6 +239,7 @@ constructor TGlobalState.Create;
 var
   VList: IListOfObjectsWithTTL;
   VViewCnonfig: IConfigDataProvider;
+  VSensorsGenerator: ISensorListGenerator;
 begin
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
@@ -296,6 +302,8 @@ begin
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarksFactoryConfig, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
+//  VSensorsGenerator := TSensorListGeneratorStuped.Create(FGPSRecorder);
+//  FSensorList := VSensorsGenerator.CreateSensorsList;
 end;
 
 destructor TGlobalState.Destroy;
