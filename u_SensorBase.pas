@@ -54,6 +54,7 @@ uses
 constructor TSensorBase.Create(AGUID: TGUID; ACaption, ADescription,
   AMenuItemName: string; ACanReset: Boolean; ASensorTypeIID: TGUID);
 begin
+  inherited Create;
   FGUID := AGUID;
   FCaption := ACaption;
   FDescription := ADescription;

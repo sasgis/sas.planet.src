@@ -17,6 +17,17 @@ type
     );
   end;
 
+  TSensorFromGPSRecorderAvgSpeed = class(TSensorTextFromGPSRecorder)
+  protected
+    function ValueToText(AValue: Double): string; override;
+    function GetValue: Double; override;
+    procedure Reset; override;
+  public
+    constructor Create(
+      AGPSRecorder: IGPSRecorder
+    );
+  end;
+
 implementation
 
 uses
@@ -36,6 +47,29 @@ begin
 end;
 
 function TSensorFromGPSRecorderLastSpeed.ValueToText(AValue: Double): string;
+begin
+  Result := RoundEx(AValue, 2);
+end;
+
+{ TSensorFromGPSRecorderAvgSpeed }
+
+constructor TSensorFromGPSRecorderAvgSpeed.Create(AGPSRecorder: IGPSRecorder);
+begin
+  inherited Create(CSensorAvgSpeedGUID, '—корость сред., км/ч:', 'ќтображает среднюю скорость движени€', '—корость средн€€', True, AGPSRecorder);
+end;
+
+function TSensorFromGPSRecorderAvgSpeed.GetValue: Double;
+begin
+  Result := GPSRecorder.AvgSpeed;
+end;
+
+procedure TSensorFromGPSRecorderAvgSpeed.Reset;
+begin
+  inherited;
+  GPSRecorder.ResetAvgSpeed;
+end;
+
+function TSensorFromGPSRecorderAvgSpeed.ValueToText(AValue: Double): string;
 begin
   Result := RoundEx(AValue, 2);
 end;

@@ -41,12 +41,15 @@ type
     procedure CreatePanel;
     procedure CreateMenu;
 
+    procedure UpdateControls;
+
     procedure OnBarVisibleChanged(Sender: TObject);
     procedure OnVisibleItemClick(Sender: TObject);
     procedure OnResetClick(Sender: TObject);
     procedure OnTimer(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
     procedure OnSensorChange(Sender: TObject);
+    procedure OnSensorDataUpdate(Sender: TObject);
   protected
     function GetConfig: ISensorViewConfig;
     function GetSensor: ISensor;
@@ -102,10 +105,18 @@ begin
     FSensor.GetChangeNotifier
   );
 
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnSensorDataUpdate),
+    FSensor.GetDataUpdateNotifier
+  );
+
   CreatePanel;
   CreateMenu;
+  UpdateControls;
 
   FLinksList.ActivateLinks;
+  OnConfigChange(nil);
+  OnSensorDataUpdate(nil);
 end;
 
 destructor TSensorViewTextTBXPanel.Destroy;
@@ -123,11 +134,7 @@ begin
   if FSensor.CanReset then begin
     FVisibleItemWithReset := TTBXSubmenuItem.Create(FBar);
 //    FVisibleItemWithReset.Name := '';
-    FVisibleItemWithReset.AutoCheck := True;
     FVisibleItemWithReset.DropdownCombo := True;
-    FVisibleItemWithReset.OnClick := Self.OnVisibleItemClick;
-    FVisibleItemWithReset.Caption := FSensor.GetMenuItemName;
-
     FVisibleItem := FVisibleItemWithReset;
 
     FResetItem := TTBXItem.Create(FBar);
@@ -144,7 +151,6 @@ begin
   end;
   FVisibleItem.AutoCheck := True;
   FVisibleItem.OnClick := Self.OnVisibleItemClick;
-  FVisibleItem.Caption := FSensor.GetMenuItemName;
   FParentMenu.Add(FVisibleItem);
 end;
 
@@ -154,23 +160,14 @@ begin
   FlblValue := TTBXLabel.Create(FBar);
   FpnlTop := TTBXAlignmentPanel.Create(FBar);
   FlblCaption := TTBXLabel.Create(FBar);
-  if FSensor.CanReset then begin
-    FbtnReset := TSpeedButton.Create(FBar);
-  end;
 
-//  FBar.Name := '';
-//  FBar.Parent := TBXDock1;
-  FBar.Left := 0;
-  FBar.Top := 144;
-  FBar.Hint := FSensor.GetDescription;
+  FBar.Name := 'Sensor' + IntToStr(FSensor.GetGUID.D1);
+  FBar.Parent := FDefaultDoc;
   FBar.ClientAreaHeight := 32;
   FBar.ClientAreaWidth := 150;
-//  FBar.DockPos := 18;
-//  FBar.DockRow := 4;
+  FBar.DockRow := FDefaultDoc.ToolbarCount;
   FBar.Stretch := True;
-  FBar.TabOrder := 7;
   FBar.OnVisibleChanged := Self.OnBarVisibleChanged;
-  FBar.Caption := FSensor.GetCaption;
   FBar.CurrentDock := FDefaultDoc;
 
 //  FpnlTop.Name := '';
@@ -180,12 +177,12 @@ begin
   FpnlTop.Width := 150;
   FpnlTop.Height := 17;
   FpnlTop.Align := alTop;
-  FpnlTop.TabOrder := 1;
+//  FpnlTop.TabOrder := 1;
 
-  if FbtnReset <> nil then begin
+  if FSensor.CanReset then begin
+    FbtnReset := TSpeedButton.Create(FBar);
 //    FbtnReset.Name := '';
     FbtnReset.Parent := FpnlTop;
-    FbtnReset.Tag := 3;
     FbtnReset.Left := 133;
     FbtnReset.Top := 0;
     FbtnReset.Width := 17;
@@ -207,7 +204,6 @@ begin
   FlblCaption.Height := 17;
   FlblCaption.Align := alClient;
   FlblCaption.Wrapping := twEndEllipsis;
-  FlblCaption.Caption := FSensor.GetCaption;
 
 //  FlblValue.Name := '';
   FlblValue.Parent := FBar;
@@ -257,10 +253,16 @@ procedure TSensorViewTextTBXPanel.OnResetClick(Sender: TObject);
 begin
   if FSensor.CanReset then begin
     FSensor.Reset;
+    OnTimer(nil);
   end;
 end;
 
 procedure TSensorViewTextTBXPanel.OnSensorChange(Sender: TObject);
+begin
+  UpdateControls;
+end;
+
+procedure TSensorViewTextTBXPanel.OnSensorDataUpdate(Sender: TObject);
 begin
   FCS.Acquire;
   try
@@ -294,6 +296,14 @@ end;
 procedure TSensorViewTextTBXPanel.OnVisibleItemClick(Sender: TObject);
 begin
   FConfig.Visible := FVisibleItem.Checked;
+end;
+
+procedure TSensorViewTextTBXPanel.UpdateControls;
+begin
+  FVisibleItem.Caption := FSensor.GetMenuItemName;
+  FBar.Caption := FSensor.GetCaption;
+  FBar.Hint := FSensor.GetDescription;
+  FlblCaption.Caption := FSensor.GetCaption;
 end;
 
 end.
