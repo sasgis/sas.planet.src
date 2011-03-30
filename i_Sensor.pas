@@ -10,14 +10,26 @@ uses
   i_ConfigDataWriteProvider;
 
 type
-  ISensorInfo = interface
+  ISensor = interface(IConfigDataElement)
     ['{EFD30054-5F65-49DF-8EB9-A4EF816D05D2}']
     function GetGUID: TGUID;
     function GetCaption: string;
     function GetDescription: string;
-    function CanReset: Boolean;
     function GetMenuItemName: string;
-    function GetSensorViewIID: TGUID;
+    function CanReset: Boolean;
+    procedure Reset;
+    function GetSensorTypeIID: TGUID;
+    function GetDataUpdateNotifier: IJclNotifier;
+  end;
+
+  ISensorText = interface(ISensor)
+  ['{9FBEF687-7C1E-4BA6-85D7-ECD16E2F1A7A}']
+    function GetText: string;
+  end;
+
+  ISensorBitmap = interface(ISensor)
+  ['{6A1BB26A-13DE-4533-BA3F-188769BF71D6}']
+    procedure GetBitmap(ATarget: TCustomBitmap32);
   end;
 
   ISensorViewConfig = interface(IConfigDataElement)
@@ -30,25 +42,7 @@ type
   ISensorView = interface
     ['{3D7823AF-17D9-495E-901C-BF6435E5C0E1}']
     function GetConfig: ISensorViewConfig;
-    function GetResetNotifier: IJclNotifier;
-  end;
-
-  ISensorViewText = interface(ISensorView)
-    ['{8345C7D4-BEAD-4242-9ACC-81FBEB571ADE}']
-    procedure SetText(AValue: string);
-  end;
-
-  ISensorViewBitmap = interface(ISensorView)
-    ['{B92A9CE8-82D0-4045-B931-4E85FA77070C}']
-    procedure SetBitmap(AValue: TCustomBitmap32);
-  end;
-
-  ISensor = interface
-    ['{F106BDDC-E596-47EE-99FC-C9A61C7868F4}']
-    function GetInfo: ISensorInfo;
-
-    function GetView: ISensorView;
-    procedure SetView(AView: ISensorView);
+    function GetSensor: ISensor;
   end;
 
 implementation

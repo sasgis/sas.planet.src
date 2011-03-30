@@ -50,6 +50,7 @@
     <DCCReference Include="c_CoordConverter.pas" />
     <DCCReference Include="c_GeoCoderGUIDSimple.pas" />
     <DCCReference Include="c_SasVersion.pas" />
+    <DCCReference Include="c_SensorsGUIDSimple.pas" />
     <DCCReference Include="dm_MarksDb.pas">
       <Form>DMMarksDb</Form>
       <DesignClass>TDataModule</DesignClass>
@@ -562,6 +563,8 @@
     <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="u_SelectionRectLayerConfig.pas" />
+    <DCCReference Include="u_SensorBase.pas" />
+    <DCCReference Include="u_SensorsFromGPSRecorder.pas" />
     <DCCReference Include="u_SensorTextFromGPSRecorder.pas" />
     <DCCReference Include="u_SensorViewTextTBXPanel.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />

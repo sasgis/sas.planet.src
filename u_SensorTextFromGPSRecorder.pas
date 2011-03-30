@@ -3,150 +3,91 @@ unit u_SensorTextFromGPSRecorder;
 interface
 
 uses
-  SyncObjs,
-  i_JclNotify,
-  i_JclListenerNotifierLinksList,
   i_GPSRecorder,
-  i_Sensor;
+  i_Sensor,
+  u_SensorBase;
 
 type
-  TSensorTextFromGPSRecorder = class(TInterfacedObject, ISensor)
+  TSensorTextFromGPSRecorder = class(TSensorBase, ISensorText)
   private
-    FInfo: ISensorInfo;
     FGPSRecorder: IGPSRecorder;
-
-    FViewText: ISensorViewText;
-    FCS: TCriticalSection;
-    FViewResetListener: IJclListener;
-    FLinksList: IJclListenerNotifierLinksList;
-
     FLastValue: Double;
-    procedure OnResetSensor(Sender: TObject);
     procedure OnRecorderChanged(Sender: TObject);
   protected
-    function GetInfo: ISensorInfo;
+    property GPSRecorder: IGPSRecorder read FGPSRecorder;
 
-    function GetView: ISensorView;
-    procedure SetView(AView: ISensorView);
+    function ValueToText(AValue: Double): string; virtual; abstract;
+    function GetValue: Double; virtual; abstract;
+  protected
+    function GetText: string;
   public
-    constructor Create(AInfo: ISensorInfo; AGPSRecorder: IGPSRecorder);
-    destructor Destroy; override;
+    constructor Create(
+      AGUID: TGUID;
+      ACaption: string;
+      ADescription: string;
+      AMenuItemName: string;
+      ACanReset: Boolean;
+      AGPSRecorder: IGPSRecorder
+    );
   end;
 
 implementation
 
 uses
   SysUtils,
-  u_JclListenerNotifierLinksList,
-  u_NotifyEventListener,
-  u_GeoToStr;
+  u_NotifyEventListener;
 
 { TSensorTextFromGPSRecorder }
 
-constructor TSensorTextFromGPSRecorder.Create(AInfo: ISensorInfo;
-  AGPSRecorder: IGPSRecorder);
+constructor TSensorTextFromGPSRecorder.Create(
+  AGUID: TGUID;
+  ACaption: string;
+  ADescription: string;
+  AMenuItemName: string;
+  ACanReset: Boolean;
+  AGPSRecorder: IGPSRecorder
+);
 begin
-  FInfo := AInfo;
+  inherited Create(AGUID, ACaption, ADescription, AMenuItemName, ACanReset, ISensorText);
   FGPSRecorder := AGPSRecorder;
 
-  FCS := TCriticalSection.Create;
-  FLinksList := TJclListenerNotifierLinksList.Create;
-
-  FViewResetListener := TNotifyEventListener.Create(Self.OnResetSensor);
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnRecorderChanged),
+    FGPSRecorder.GetChangeNotifier
+  );
 end;
 
-destructor TSensorTextFromGPSRecorder.Destroy;
+function TSensorTextFromGPSRecorder.GetText: string;
 var
-  VNotifier: IJclNotifier;
+  VValue: Double;
 begin
-  if FViewText <> nil then begin
-    if FInfo.CanReset then begin
-      VNotifier := FViewText.GetResetNotifier;
-      if VNotifier <> nil then begin
-        VNotifier.Remove(FViewResetListener);
-      end;
-    end;
-    FViewText := nil;
-  end;
-
-  FreeAndNil(FCS);
-  inherited;
-end;
-
-function TSensorTextFromGPSRecorder.GetInfo: ISensorInfo;
-begin
-  Result := FInfo;
-end;
-
-function TSensorTextFromGPSRecorder.GetView: ISensorView;
-begin
-  FCS.Acquire;
+  LockRead;
   try
-    Result := FViewText;
+    VValue := FLastValue;
   finally
-    FCS.Release;
+    UnlockRead;
   end;
+  Result := ValueToText(VValue);
 end;
 
 procedure TSensorTextFromGPSRecorder.OnRecorderChanged(Sender: TObject);
 var
   VValue: Double;
-  VNeedUpdate: Boolean;
-  VStr: string;
-  VView: ISensorViewText;
+  VNeedNotify: Boolean;
 begin
-  VValue := FGPSRecorder.LastSpeed;
-  VNeedUpdate := False;
-  FCS.Acquire;
+  VNeedNotify := False;
+  VValue := GetValue;
+  LockWrite;
   try
-    VView := FViewText;
-    if VView <> nil then begin
-      if Abs(FLastValue - VValue) > 0.001 then begin
-        FLastValue := VValue;
-        VNeedUpdate := True;
-      end;
+    if Abs(FLastValue - VValue) > 0.001 then begin
+      FLastValue := VValue;
+      VNeedNotify := True;
     end;
   finally
-    FCS.Release;
+    UnlockWrite;
   end;
-  if VNeedUpdate then begin
-    VStr := RoundEx(VValue, 2);
-    VView.SetText(VStr);
-  end;
-end;
-
-procedure TSensorTextFromGPSRecorder.OnResetSensor(Sender: TObject);
-begin
-end;
-
-procedure TSensorTextFromGPSRecorder.SetView(AView: ISensorView);
-var
-  VNotifier: IJclNotifier;
-  VView: ISensorViewText;
-begin
-  FCS.Acquire;
-  try
-    if Supports(AView, ISensorViewText, VView) then begin
-      if FViewText <> nil then begin
-        if FInfo.CanReset then begin
-          VNotifier := FViewText.GetResetNotifier;
-          if VNotifier <> nil then begin
-            VNotifier.Remove(FViewResetListener);
-          end;
-        end;
-      end;
-      FViewText := VView;
-      if FViewText <> nil then begin
-        if FInfo.CanReset then begin
-          VNotifier := FViewText.GetResetNotifier;
-          if VNotifier <> nil then begin
-            VNotifier.Add(FViewResetListener);
-          end;
-        end;
-      end;
-    end;
-  finally
-    FCS.Release;
+  if VNeedNotify then begin
+    NotifyDataUpdate;
   end;
 end;
 

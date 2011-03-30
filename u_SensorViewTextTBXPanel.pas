@@ -14,10 +14,11 @@ uses
   i_Sensor;
 
 type
-  TSensorViewTextTBXPanel = class(TInterfacedObject, ISensorView, ISensorViewText)
+  TSensorViewTextTBXPanel = class(TInterfacedObject, ISensorView)
   private
-    FSensorInfo: ISensorInfo;
+    FSensor: ISensorText;
     FConfig: ISensorViewConfig;
+
     FDefaultDoc: TTBDock;
     FParentMenu: TTBCustomItem;
 
@@ -34,10 +35,8 @@ type
     FVisibleItem: TTBXCustomItem;
     FVisibleItemWithReset: TTBXSubmenuItem;
 
-    FResetNotifier: IJclNotifier;
-
     FTextChanged: Boolean;
-    FTextToShow: string;
+    FLastText: string;
 
     procedure CreatePanel;
     procedure CreateMenu;
@@ -47,14 +46,13 @@ type
     procedure OnResetClick(Sender: TObject);
     procedure OnTimer(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
+    procedure OnSensorChange(Sender: TObject);
   protected
     function GetConfig: ISensorViewConfig;
-    function GetResetNotifier: IJclNotifier;
-  protected
-    procedure SetText(AValue: string);
+    function GetSensor: ISensor;
   public
     constructor Create(
-      ASensorInfo: ISensorInfo;
+      ASensor: ISensorText;
       AConfig: ISensorViewConfig;
       ATimerNoifier: IJclNotifier;
       ADefaultDoc: TTBDock;
@@ -74,14 +72,14 @@ uses
   u_NotifyEventListener;
 
 constructor TSensorViewTextTBXPanel.Create(
-  ASensorInfo: ISensorInfo;
+  ASensor: ISensorText;
   AConfig: ISensorViewConfig;
   ATimerNoifier: IJclNotifier;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem
 );
 begin
-  FSensorInfo := ASensorInfo;
+  FSensor := ASensor;
   FConfig := AConfig;
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;
@@ -99,9 +97,10 @@ begin
     ATimerNoifier
   );
 
-  if FSensorInfo.CanReset then begin
-    FResetNotifier := TJclBaseNotifier.Create;
-  end;
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnSensorChange),
+    FSensor.GetChangeNotifier
+  );
 
   CreatePanel;
   CreateMenu;
@@ -113,22 +112,21 @@ destructor TSensorViewTextTBXPanel.Destroy;
 begin
   FLinksList.DeactivateLinks;
   FLinksList := nil;
-  FResetNotifier := nil;
   FConfig := nil;
-  FSensorInfo := nil;
+  FSensor := nil;
   FreeAndNil(FCS);
   inherited;
 end;
 
 procedure TSensorViewTextTBXPanel.CreateMenu;
 begin
-  if FSensorInfo.CanReset then begin
+  if FSensor.CanReset then begin
     FVisibleItemWithReset := TTBXSubmenuItem.Create(FBar);
 //    FVisibleItemWithReset.Name := '';
     FVisibleItemWithReset.AutoCheck := True;
     FVisibleItemWithReset.DropdownCombo := True;
     FVisibleItemWithReset.OnClick := Self.OnVisibleItemClick;
-    FVisibleItemWithReset.Caption := FSensorInfo.GetMenuItemName;
+    FVisibleItemWithReset.Caption := FSensor.GetMenuItemName;
 
     FVisibleItem := FVisibleItemWithReset;
 
@@ -146,7 +144,7 @@ begin
   end;
   FVisibleItem.AutoCheck := True;
   FVisibleItem.OnClick := Self.OnVisibleItemClick;
-  FVisibleItem.Caption := FSensorInfo.GetMenuItemName;
+  FVisibleItem.Caption := FSensor.GetMenuItemName;
   FParentMenu.Add(FVisibleItem);
 end;
 
@@ -156,7 +154,7 @@ begin
   FlblValue := TTBXLabel.Create(FBar);
   FpnlTop := TTBXAlignmentPanel.Create(FBar);
   FlblCaption := TTBXLabel.Create(FBar);
-  if FSensorInfo.CanReset then begin
+  if FSensor.CanReset then begin
     FbtnReset := TSpeedButton.Create(FBar);
   end;
 
@@ -164,7 +162,7 @@ begin
 //  FBar.Parent := TBXDock1;
   FBar.Left := 0;
   FBar.Top := 144;
-  FBar.Hint := FSensorInfo.GetDescription;
+  FBar.Hint := FSensor.GetDescription;
   FBar.ClientAreaHeight := 32;
   FBar.ClientAreaWidth := 150;
 //  FBar.DockPos := 18;
@@ -172,7 +170,7 @@ begin
   FBar.Stretch := True;
   FBar.TabOrder := 7;
   FBar.OnVisibleChanged := Self.OnBarVisibleChanged;
-  FBar.Caption := FSensorInfo.GetCaption;
+  FBar.Caption := FSensor.GetCaption;
   FBar.CurrentDock := FDefaultDoc;
 
 //  FpnlTop.Name := '';
@@ -209,7 +207,7 @@ begin
   FlblCaption.Height := 17;
   FlblCaption.Align := alClient;
   FlblCaption.Wrapping := twEndEllipsis;
-  FlblCaption.Caption := FSensorInfo.GetCaption;
+  FlblCaption.Caption := FSensor.GetCaption;
 
 //  FlblValue.Name := '';
   FlblValue.Parent := FBar;
@@ -250,25 +248,41 @@ begin
   Result := FConfig;
 end;
 
-function TSensorViewTextTBXPanel.GetResetNotifier: IJclNotifier;
+function TSensorViewTextTBXPanel.GetSensor: ISensor;
 begin
-  Result := FResetNotifier;
+  Result := FSensor;
 end;
 
 procedure TSensorViewTextTBXPanel.OnResetClick(Sender: TObject);
 begin
-  if FSensorInfo.CanReset then begin
-    FResetNotifier.Notify(nil);
+  if FSensor.CanReset then begin
+    FSensor.Reset;
+  end;
+end;
+
+procedure TSensorViewTextTBXPanel.OnSensorChange(Sender: TObject);
+begin
+  FCS.Acquire;
+  try
+    FTextChanged := True;
+  finally
+    FCS.Release;
   end;
 end;
 
 procedure TSensorViewTextTBXPanel.OnTimer(Sender: TObject);
+var
+  VText: string;
 begin
   if FConfig.Visible then begin
     FCS.Acquire;
     try
       if FTextChanged then begin
-        FlblValue.Caption := FTextToShow;
+        VText := FSensor.GetText;
+        if FLastText <> VText then begin
+          FLastText := VText;
+          FlblValue.Caption := FLastText;
+        end;
         FTextChanged := False;
       end;
     finally
@@ -280,19 +294,6 @@ end;
 procedure TSensorViewTextTBXPanel.OnVisibleItemClick(Sender: TObject);
 begin
   FConfig.Visible := FVisibleItem.Checked;
-end;
-
-procedure TSensorViewTextTBXPanel.SetText(AValue: string);
-begin
-  FCS.Acquire;
-  try
-    if FTextToShow <> AValue then begin
-      FTextToShow := AValue;
-      FTextChanged := True;
-    end;
-  finally
-    FCS.Release;
-  end;
 end;
 
 end.
