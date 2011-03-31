@@ -3,7 +3,9 @@ unit u_SensorViewTextTBXPanel;
 interface
 
 uses
+  Windows,
   Classes,
+  ImgList,
   SyncObjs,
   Buttons,
   TB2Item,
@@ -23,6 +25,8 @@ type
     FOwner: TComponent;
     FDefaultDoc: TTBDock;
     FParentMenu: TTBCustomItem;
+    FImages: TCustomImageList;
+    FImageIndexReset: TImageIndex;
 
     FCS: TCriticalSection;
     FLinksList: IJclListenerNotifierLinksList;
@@ -63,7 +67,9 @@ type
       ATimerNoifier: IJclNotifier;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
-      AParentMenu: TTBCustomItem
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
     );
     destructor Destroy; override;
   end;
@@ -76,7 +82,8 @@ uses
   SysUtils,
   u_JclNotify,
   u_JclListenerNotifierLinksList,
-  u_NotifyEventListener;
+  u_NotifyEventListener,
+  u_ResStrings;
 
 constructor TSensorViewTextTBXPanel.Create(
   ASensor: ISensorText;
@@ -84,7 +91,9 @@ constructor TSensorViewTextTBXPanel.Create(
   ATimerNoifier: IJclNotifier;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
-  AParentMenu: TTBCustomItem
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
 );
 begin
   FSensor := ASensor;
@@ -92,6 +101,8 @@ begin
   FOwner := AOwner;
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;
+  FImages := AImages;
+  FImageIndexReset := AImageIndexReset;
 
   FCS := TCriticalSection.Create;
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -149,6 +160,8 @@ begin
     FResetItem.OnClick := Self.OnResetClick;
     FResetItem.Caption := '—бросить';
     FResetItem.Hint := '';
+    FResetItem.Images := FImages;
+    FResetItem.ImageIndex := FImageIndexReset;
     FVisibleItemWithReset.Add(FResetItem);
   end else begin
     FVisibleItem := TTBXItem.Create(FBar);
@@ -202,11 +215,12 @@ begin
     FbtnReset.Height := 17;
     FbtnReset.Hint := '—бросить';
     FbtnReset.Align := alRight;
-//    FbtnReset.Flat := True;
-//    FbtnReset.Margin := 0;
-//    FbtnReset.Spacing := 0;
+    FbtnReset.TabStop := False;
+    FbtnReset.Images := FImages;
+    FbtnReset.ImageIndex := FImageIndexReset;
+    FbtnReset.ButtonStyle := bsFlat;
+
     FbtnReset.OnClick := Self.OnResetClick;
-//    FbtnReset.Glyph.
   end;
 
 //  FlblCaption.Name := '';
@@ -277,8 +291,10 @@ end;
 procedure TSensorViewTextTBXPanel.OnResetClick(Sender: TObject);
 begin
   if FSensor.CanReset then begin
-    FSensor.Reset;
-    OnTimer(nil);
+    if (MessageBox(0, pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
+      FSensor.Reset;
+      OnTimer(nil);
+    end;
   end;
 end;
 

@@ -743,8 +743,8 @@ begin
   TBEditPath.Floating:=true;
   TBEditPath.MoveOnScreen(true);
   TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
-//  VSensorViewGenerator := TSensorViewListGeneratorStuped.Create(GState.GUISyncronizedTimerNotifier, Self, TBXDock1, NSensors);
-//  FSensorViewList := VSensorViewGenerator.CreateSensorViewList(GState.SensorList);
+  VSensorViewGenerator := TSensorViewListGeneratorStuped.Create(GState.GUISyncronizedTimerNotifier, Self, TBXDock1, NSensors, MenusImageList, 40);
+  FSensorViewList := VSensorViewGenerator.CreateSensorViewList(GState.SensorList);
   TBConfigProviderLoadPositions(Self, VProvider);
   OnToolbarsLockChange(nil);
   TBEditPath.Visible:=false;
@@ -3612,7 +3612,7 @@ end;
 
 procedure TfrmMain.SBClearSensorClick(Sender: TObject);
 begin
- if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
+ if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
    case TSpeedButton(sender).Tag of
     1: GState.GPSRecorder.ResetAvgSpeed;
     2: GState.GPSRecorder.ResetDist;

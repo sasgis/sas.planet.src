@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  ImgList,
   TB2Item,
   TB2Dock,
   i_JclNotify,
@@ -17,6 +18,8 @@ type
     FOwner: TComponent;
     FDefaultDoc: TTBDock;
     FParentMenu: TTBCustomItem;
+    FImages: TCustomImageList;
+    FImageIndexReset: TImageIndex;
   protected
     function CreateSensorViewList(ASensorList: IInterfaceList): IGUIDInterfaceList;
   public
@@ -24,7 +27,9 @@ type
       ATimerNoifier: IJclNotifier;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
-      AParentMenu: TTBCustomItem
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
     );
   end;
 
@@ -43,12 +48,18 @@ uses
 constructor TSensorViewListGeneratorStuped.Create(
   ATimerNoifier: IJclNotifier;
   AOwner: TComponent;
-  ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem);
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
+);
 begin
   FTimerNoifier := ATimerNoifier;
   FOwner := AOwner;
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;
+  FImages := AImages;
+  FImageIndexReset := AImageIndexReset;
 end;
 
 function TSensorViewListGeneratorStuped.CreateSensorViewList(
@@ -70,7 +81,17 @@ begin
       if IsEqualGUID(VSensor.GetSensorTypeIID, ISensorText) then begin
         VSensorText := VSensor as ISensorText;
         VSensorViewConfig := TSensorViewConfigSimple.Create;
-        VSensorView := TSensorViewTextTBXPanel.Create(VSensorText, VSensorViewConfig, FTimerNoifier, FOwner, FDefaultDoc, FParentMenu);
+        VSensorView :=
+          TSensorViewTextTBXPanel.Create(
+            VSensorText,
+            VSensorViewConfig,
+            FTimerNoifier,
+            FOwner,
+            FDefaultDoc,
+            FParentMenu,
+            FImages,
+            FImageIndexReset
+          );
         Result.Add(VGUID, VSensorView);
       end;
     end;
