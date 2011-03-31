@@ -96,7 +96,7 @@ type
     FSkyMapDraw: ISatellitesInViewMapDraw;
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifier: IJclNotifier;
-    FSensorList: IGUIDInterfaceList;
+    FSensorList: IInterfaceList;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -170,7 +170,7 @@ type
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
-    property SensorList: IGUIDInterfaceList read FSensorList;
+    property SensorList: IInterfaceList read FSensorList;
 
     constructor Create;
     destructor Destroy; override;
@@ -302,8 +302,8 @@ begin
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarksFactoryConfig, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
-//  VSensorsGenerator := TSensorListGeneratorStuped.Create(FGPSRecorder);
-//  FSensorList := VSensorsGenerator.CreateSensorsList;
+  VSensorsGenerator := TSensorListGeneratorStuped.Create(FGPSRecorder);
+  FSensorList := VSensorsGenerator.CreateSensorsList;
 end;
 
 destructor TGlobalState.Destroy;

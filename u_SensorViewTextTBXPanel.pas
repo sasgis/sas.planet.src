@@ -3,6 +3,7 @@ unit u_SensorViewTextTBXPanel;
 interface
 
 uses
+  Classes,
   SyncObjs,
   Buttons,
   TB2Item,
@@ -19,6 +20,7 @@ type
     FSensor: ISensorText;
     FConfig: ISensorViewConfig;
 
+    FOwner: TComponent;
     FDefaultDoc: TTBDock;
     FParentMenu: TTBCustomItem;
 
@@ -28,7 +30,7 @@ type
     FBar: TTBXToolWindow;
     FpnlTop: TTBXAlignmentPanel;
     FlblCaption: TTBXLabel;
-    FbtnReset: TSpeedButton;
+    FbtnReset: TTBXButton;
     FlblValue: TTBXLabel;
 
     FResetItem: TTBXItem;
@@ -38,6 +40,7 @@ type
     FTextChanged: Boolean;
     FLastText: string;
 
+    function GuidToComponentName(APrefix: string; AGUID: TGUID): string;
     procedure CreatePanel;
     procedure CreateMenu;
 
@@ -58,6 +61,7 @@ type
       ASensor: ISensorText;
       AConfig: ISensorViewConfig;
       ATimerNoifier: IJclNotifier;
+      AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem
     );
@@ -78,12 +82,14 @@ constructor TSensorViewTextTBXPanel.Create(
   ASensor: ISensorText;
   AConfig: ISensorViewConfig;
   ATimerNoifier: IJclNotifier;
+  AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem
 );
 begin
   FSensor := ASensor;
   FConfig := AConfig;
+  FOwner := AOwner;
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;
 
@@ -123,6 +129,7 @@ destructor TSensorViewTextTBXPanel.Destroy;
 begin
   FLinksList.DeactivateLinks;
   FLinksList := nil;
+  FreeAndNil(FBar);
   FConfig := nil;
   FSensor := nil;
   FreeAndNil(FCS);
@@ -133,13 +140,12 @@ procedure TSensorViewTextTBXPanel.CreateMenu;
 begin
   if FSensor.CanReset then begin
     FVisibleItemWithReset := TTBXSubmenuItem.Create(FBar);
-//    FVisibleItemWithReset.Name := '';
     FVisibleItemWithReset.DropdownCombo := True;
     FVisibleItem := FVisibleItemWithReset;
 
     FResetItem := TTBXItem.Create(FBar);
 
-//    FResetItem.Name := '';
+    FResetItem.Name := GuidToComponentName('SensorReset_', FSensor.GetGUID);
     FResetItem.OnClick := Self.OnResetClick;
     FResetItem.Caption := '—бросить';
     FResetItem.Hint := '';
@@ -149,6 +155,7 @@ begin
 //    FVisibleItem.Name := '';
     FVisibleItemWithReset := nil;
   end;
+  FVisibleItem.Name := GuidToComponentName('Sensor_', FSensor.GetGUID);
   FVisibleItem.AutoCheck := True;
   FVisibleItem.OnClick := Self.OnVisibleItemClick;
   FParentMenu.Add(FVisibleItem);
@@ -156,18 +163,24 @@ end;
 
 procedure TSensorViewTextTBXPanel.CreatePanel;
 begin
-  FBar := TTBXToolWindow.Create(nil);
+  FBar := TTBXToolWindow.Create(FOwner);
   FlblValue := TTBXLabel.Create(FBar);
   FpnlTop := TTBXAlignmentPanel.Create(FBar);
   FlblCaption := TTBXLabel.Create(FBar);
 
-  FBar.Name := 'Sensor' + IntToStr(FSensor.GetGUID.D1);
-  FBar.Parent := FDefaultDoc;
+  FBar.Name := GuidToComponentName('Sensor_', FSensor.GetGUID);
+  FBar.Align := alTop;
+  FBar.ActivateParent := True;
+  FBar.DefaultDock := FDefaultDoc;
+  FBar.UseLastDock := False;
   FBar.ClientAreaHeight := 32;
   FBar.ClientAreaWidth := 150;
-  FBar.DockRow := FDefaultDoc.ToolbarCount;
+  FBar.DockRow := FDefaultDoc.GetHighestRow(False) + 1;
+  FBar.DockPos := 0;
   FBar.Stretch := True;
   FBar.OnVisibleChanged := Self.OnBarVisibleChanged;
+  FBar.Visible := True;
+  FBar.Parent := FDefaultDoc;
   FBar.CurrentDock := FDefaultDoc;
 
 //  FpnlTop.Name := '';
@@ -180,7 +193,7 @@ begin
 //  FpnlTop.TabOrder := 1;
 
   if FSensor.CanReset then begin
-    FbtnReset := TSpeedButton.Create(FBar);
+    FbtnReset := TTBXButton.Create(FBar);
 //    FbtnReset.Name := '';
     FbtnReset.Parent := FpnlTop;
     FbtnReset.Left := 133;
@@ -189,9 +202,9 @@ begin
     FbtnReset.Height := 17;
     FbtnReset.Hint := '—бросить';
     FbtnReset.Align := alRight;
-    FbtnReset.Flat := True;
-    FbtnReset.Margin := 0;
-    FbtnReset.Spacing := 0;
+//    FbtnReset.Flat := True;
+//    FbtnReset.Margin := 0;
+//    FbtnReset.Spacing := 0;
     FbtnReset.OnClick := Self.OnResetClick;
 //    FbtnReset.Glyph.
   end;
@@ -247,6 +260,18 @@ end;
 function TSensorViewTextTBXPanel.GetSensor: ISensor;
 begin
   Result := FSensor;
+end;
+
+function TSensorViewTextTBXPanel.GuidToComponentName(APrefix: string;
+  AGUID: TGUID): string;
+var
+  VGUIDStr: string;
+begin
+  VGUIDStr := GUIDToString(AGUID);
+  VGUIDStr := StringReplace(VGUIDStr, '{', '', [rfReplaceAll]);
+  VGUIDStr := StringReplace(VGUIDStr, '}', '', [rfReplaceAll]);
+  VGUIDStr := StringReplace(VGUIDStr, '-', '_', [rfReplaceAll]);
+  Result := APrefix + VGUIDStr;
 end;
 
 procedure TSensorViewTextTBXPanel.OnResetClick(Sender: TObject);

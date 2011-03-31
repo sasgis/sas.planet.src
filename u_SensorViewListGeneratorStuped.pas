@@ -3,6 +3,7 @@ unit u_SensorViewListGeneratorStuped;
 interface
 
 uses
+  Classes,
   TB2Item,
   TB2Dock,
   i_JclNotify,
@@ -13,13 +14,15 @@ type
   TSensorViewListGeneratorStuped = class(TInterfacedObject, ISensorViewListGenerator)
   private
     FTimerNoifier: IJclNotifier;
+    FOwner: TComponent;
     FDefaultDoc: TTBDock;
     FParentMenu: TTBCustomItem;
   protected
-    function CreateSensorViewList(ASensorList: IGUIDInterfaceList): IGUIDInterfaceList;
+    function CreateSensorViewList(ASensorList: IInterfaceList): IGUIDInterfaceList;
   public
     constructor Create(
       ATimerNoifier: IJclNotifier;
+      AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem
     );
@@ -37,36 +40,44 @@ uses
 
 { TSensorViewListGeneratorStuped }
 
-constructor TSensorViewListGeneratorStuped.Create(ATimerNoifier: IJclNotifier;
+constructor TSensorViewListGeneratorStuped.Create(
+  ATimerNoifier: IJclNotifier;
+  AOwner: TComponent;
   ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem);
 begin
   FTimerNoifier := ATimerNoifier;
+  FOwner := AOwner;
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;
 end;
 
 function TSensorViewListGeneratorStuped.CreateSensorViewList(
-  ASensorList: IGUIDInterfaceList): IGUIDInterfaceList;
+  ASensorList: IInterfaceList): IGUIDInterfaceList;
 var
-  VEnumGUID: IEnumGUID;
   VGUID: TGUID;
-  i: Cardinal;
+  i: Integer;
   VSensor: ISensor;
   VSensorText: ISensorText;
   VSensorViewConfig: ISensorViewConfig;
   VSensorView: ISensorView;
 begin
-  Result := TGUIDInterfaceList.Create;
-
-  VEnumGUID := ASensorList.GetGUIDEnum;
-  while VEnumGUID.Next(1, VGUID, i) = S_OK do begin
-    VSensor := ISensor(ASensorList.GetByGUID(VGUID));
-    if IsEqualGUID(VSensor.GetSensorTypeIID, ISensorText) then begin
-      VSensorText := VSensor as ISensorText;
-      VSensorViewConfig := TSensorViewConfigSimple.Create;
-      VSensorView := TSensorViewTextTBXPanel.Create(VSensorText, VSensorViewConfig, FTimerNoifier, FDefaultDoc, FParentMenu);
-      Result.Add(VGUID, VSensorView);
+  FDefaultDoc.BeginUpdate;
+  try
+    Result := TGUIDInterfaceList.Create;
+    for i := 0 to ASensorList.Count - 1 do begin
+      VSensor := ISensor(ASensorList.Items[i]);
+      VGUID := VSensor.GetGUID;
+      if IsEqualGUID(VSensor.GetSensorTypeIID, ISensorText) then begin
+        VSensorText := VSensor as ISensorText;
+        VSensorViewConfig := TSensorViewConfigSimple.Create;
+        VSensorView := TSensorViewTextTBXPanel.Create(VSensorText, VSensorViewConfig, FTimerNoifier, FOwner, FDefaultDoc, FParentMenu);
+        Result.Add(VGUID, VSensorView);
+      end;
     end;
+  finally
+    FDefaultDoc.EndUpdate;
+    FDefaultDoc.CommitNewPositions := True;
+    FDefaultDoc.ArrangeToolbars;
   end;
 end;
 

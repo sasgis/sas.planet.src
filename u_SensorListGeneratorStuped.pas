@@ -3,7 +3,7 @@ unit u_SensorListGeneratorStuped;
 interface
 
 uses
-  i_GUIDList,
+  Classes,
   i_GPSRecorder,
   i_SensorListGenerator;
 
@@ -12,7 +12,7 @@ type
   private
     FGPSRecorder: IGPSRecorder;
   protected
-    function CreateSensorsList: IGUIDInterfaceList;
+    function CreateSensorsList: IInterfaceList;
   public
     constructor Create(AGPSRecorder: IGPSRecorder);
   end;
@@ -20,7 +20,6 @@ type
 implementation
 
 uses
-  u_GUIDInterfaceList,
   i_Sensor,
   u_SensorsFromGPSRecorder;
 
@@ -31,17 +30,17 @@ begin
   FGPSRecorder := AGPSRecorder;
 end;
 
-function TSensorListGeneratorStuped.CreateSensorsList: IGUIDInterfaceList;
+function TSensorListGeneratorStuped.CreateSensorsList: IInterfaceList;
 var
   VSensor: ISensorText;
 begin
-  Result := TGUIDInterfaceList.Create;
+  Result := TInterfaceList.Create;
 
   VSensor := TSensorFromGPSRecorderLastSpeed.Create(FGPSRecorder);
-  Result.Add(VSensor.GetGUID, VSensor);
+  Result.Add(VSensor);
 
   VSensor := TSensorFromGPSRecorderAvgSpeed.Create(FGPSRecorder);
-  Result.Add(VSensor.GetGUID, VSensor);
+  Result.Add(VSensor);
 end;
 
 end.
