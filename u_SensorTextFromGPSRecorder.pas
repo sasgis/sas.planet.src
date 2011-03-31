@@ -5,6 +5,7 @@ interface
 uses
   i_GPSRecorder,
   i_ValueToStringConverter,
+  i_LanguageManager,
   i_Sensor,
   u_SensorBase;
 
@@ -33,6 +34,7 @@ type
       ADescription: string;
       AMenuItemName: string;
       ACanReset: Boolean;
+      ALanguageManager: ILanguageManager;
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -52,11 +54,12 @@ constructor TSensorTextFromGPSRecorder.Create(
   ADescription: string;
   AMenuItemName: string;
   ACanReset: Boolean;
+  ALanguageManager: ILanguageManager;
   AGPSRecorder: IGPSRecorder;
   AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(AGUID, ACaption, ADescription, AMenuItemName, ACanReset, ISensorText);
+  inherited Create(AGUID, ACaption, ADescription, AMenuItemName, ACanReset, ISensorText, ALanguageManager);
   FGPSRecorder := AGPSRecorder;
   FValueConverterConfig := AValueConverterConfig;
 

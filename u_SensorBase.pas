@@ -5,6 +5,7 @@ interface
 uses
   i_JclNotify,
   i_JclListenerNotifierLinksList,
+  i_LanguageManager,
   i_Sensor,
   u_ConfigDataElementBase;
 
@@ -20,6 +21,7 @@ type
 
     FDataUpdateNotifier: IJclNotifier;
     FLinksList: IJclListenerNotifierLinksList;
+    procedure OnLangChange(Sender: TObject);
   protected
     procedure NotifyDataUpdate;
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
@@ -39,7 +41,8 @@ type
       ADescription: string;
       AMenuItemName: string;
       ACanReset: Boolean;
-      ASensorTypeIID: TGUID
+      ASensorTypeIID: TGUID;
+      ALanguageManager: ILanguageManager
     );
   end;
 
@@ -47,12 +50,17 @@ implementation
 
 uses
   u_JclNotify,
-  u_JclListenerNotifierLinksList;
+  u_JclListenerNotifierLinksList,
+  u_NotifyEventListener;
 
 { TSensorBase }
 
-constructor TSensorBase.Create(AGUID: TGUID; ACaption, ADescription,
-  AMenuItemName: string; ACanReset: Boolean; ASensorTypeIID: TGUID);
+constructor TSensorBase.Create(
+  AGUID: TGUID; ACaption, ADescription,
+  AMenuItemName: string; ACanReset: Boolean;
+  ASensorTypeIID: TGUID;
+  ALanguageManager: ILanguageManager
+);
 begin
   inherited Create;
   FGUID := AGUID;
@@ -65,6 +73,10 @@ begin
   FDataUpdateNotifier := TJclBaseNotifier.Create;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FLinksList.ActivateLinks;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnLangChange),
+    ALanguageManager.GetChangeNotifier
+  );
 end;
 
 function TSensorBase.CanReset: Boolean;
@@ -120,6 +132,11 @@ end;
 procedure TSensorBase.NotifyDataUpdate;
 begin
   FDataUpdateNotifier.Notify(nil);
+end;
+
+procedure TSensorBase.OnLangChange(Sender: TObject);
+begin
+  SetChanged;
 end;
 
 procedure TSensorBase.Reset;

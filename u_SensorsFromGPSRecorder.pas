@@ -5,6 +5,7 @@ interface
 uses
   i_GPSRecorder,
   i_ValueToStringConverter,
+  i_LanguageManager,
   u_SensorTextFromGPSRecorder;
 
 type
@@ -14,6 +15,7 @@ type
     function GetValue: Double; override;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -26,6 +28,7 @@ type
     procedure Reset; override;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -38,6 +41,7 @@ type
     procedure Reset; override;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -50,6 +54,7 @@ type
     procedure Reset; override;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -62,6 +67,7 @@ type
     procedure Reset; override;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -74,6 +80,7 @@ type
     procedure Reset; override;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -85,6 +92,7 @@ type
     function GetValue: Double; override;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -96,6 +104,7 @@ type
     function GetValue: Double; override;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -110,6 +119,7 @@ uses
 { TSensorFromGPSRecorderLastSpeed }
 
 constructor TSensorFromGPSRecorderLastSpeed.Create(
+  ALanguageManager: ILanguageManager;
   AGPSRecorder: IGPSRecorder;
   AValueConverterConfig: IValueToStringConverterConfig
 );
@@ -120,6 +130,7 @@ begin
     'Отображает текущую скорость движения',
     'Скорость',
     False,
+    ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
@@ -138,6 +149,7 @@ end;
 { TSensorFromGPSRecorderAvgSpeed }
 
 constructor TSensorFromGPSRecorderAvgSpeed.Create(
+  ALanguageManager: ILanguageManager;
   AGPSRecorder: IGPSRecorder;
   AValueConverterConfig: IValueToStringConverterConfig
 );
@@ -148,6 +160,7 @@ begin
     'Отображает среднюю скорость движения',
     'Скорость средняя',
     True,
+    ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
@@ -172,6 +185,7 @@ end;
 { TSensorFromGPSRecorderMaxSpeed }
 
 constructor TSensorFromGPSRecorderMaxSpeed.Create(
+  ALanguageManager: ILanguageManager;
   AGPSRecorder: IGPSRecorder;
   AValueConverterConfig: IValueToStringConverterConfig
 );
@@ -182,6 +196,7 @@ begin
     'Отображает максимальную скорость движения',
     'Скорость максимальная',
     True,
+    ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
@@ -206,6 +221,7 @@ end;
 { TSensorFromGPSRecorderDist }
 
 constructor TSensorFromGPSRecorderDist.Create(
+  ALanguageManager: ILanguageManager;
   AGPSRecorder: IGPSRecorder;
   AValueConverterConfig: IValueToStringConverterConfig
 );
@@ -216,6 +232,7 @@ begin
     'Отображает пройденный путь считаемый от подключения к GPS-приемнику',
     'Пройденный путь',
     True,
+    ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
@@ -239,8 +256,11 @@ end;
 
 { TSensorFromGPSRecorderOdometer1 }
 
-constructor TSensorFromGPSRecorderOdometer1.Create(AGPSRecorder: IGPSRecorder;
-  AValueConverterConfig: IValueToStringConverterConfig);
+constructor TSensorFromGPSRecorderOdometer1.Create(
+  ALanguageManager: ILanguageManager;
+  AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig
+);
 begin
   inherited Create(
     CSensorOdometer1GUID,
@@ -248,6 +268,7 @@ begin
     'Отображает весь пройденный путь',
     'Одометр',
     True,
+    ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
@@ -271,8 +292,11 @@ end;
 
 { TSensorFromGPSRecorderOdometer2 }
 
-constructor TSensorFromGPSRecorderOdometer2.Create(AGPSRecorder: IGPSRecorder;
-  AValueConverterConfig: IValueToStringConverterConfig);
+constructor TSensorFromGPSRecorderOdometer2.Create(
+  ALanguageManager: ILanguageManager;
+  AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig
+);
 begin
   inherited Create(
     CSensorOdometer2GUID,
@@ -280,6 +304,7 @@ begin
     'Отображает весь пройденный путь',
     'Одометр №2',
     True,
+    ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
@@ -303,8 +328,11 @@ end;
 
 { TSensorFromGPSRecorderAltitude }
 
-constructor TSensorFromGPSRecorderAltitude.Create(AGPSRecorder: IGPSRecorder;
-  AValueConverterConfig: IValueToStringConverterConfig);
+constructor TSensorFromGPSRecorderAltitude.Create(
+  ALanguageManager: ILanguageManager;
+  AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig
+);
 begin
   inherited Create(
     CSensorLastAltitudeGUID,
@@ -312,6 +340,7 @@ begin
     'Отображает высоту над уровнем моря по данным GPS-приемника',
     'Высота',
     False,
+    ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
@@ -329,8 +358,11 @@ end;
 
 { TSensorFromGPSRecorderHeading }
 
-constructor TSensorFromGPSRecorderHeading.Create(AGPSRecorder: IGPSRecorder;
-  AValueConverterConfig: IValueToStringConverterConfig);
+constructor TSensorFromGPSRecorderHeading.Create(
+  ALanguageManager: ILanguageManager;
+  AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig
+);
 begin
   inherited Create(
     CSensorHeadingGUID,
@@ -338,6 +370,7 @@ begin
     'Отображает азимут направления',
     'Азимут',
     False,
+    ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
