@@ -302,7 +302,7 @@ begin
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarksFactoryConfig, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
-  VSensorsGenerator := TSensorListGeneratorStuped.Create(FGPSRecorder, GState.ValueToStringConverterConfig);
+  VSensorsGenerator := TSensorListGeneratorStuped.Create(FGPSRecorder, FValueToStringConverterConfig);
   FSensorList := VSensorsGenerator.CreateSensorsList;
 end;
 

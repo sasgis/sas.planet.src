@@ -50,6 +50,24 @@ begin
 
   VSensor := TSensorFromGPSRecorderAvgSpeed.Create(FGPSRecorder, FValueConverterConfig);
   Result.Add(VSensor);
+
+  VSensor := TSensorFromGPSRecorderMaxSpeed.Create(FGPSRecorder, FValueConverterConfig);
+  Result.Add(VSensor);
+
+  VSensor := TSensorFromGPSRecorderDist.Create(FGPSRecorder, FValueConverterConfig);
+  Result.Add(VSensor);
+
+  VSensor := TSensorFromGPSRecorderOdometer1.Create(FGPSRecorder, FValueConverterConfig);
+  Result.Add(VSensor);
+
+  VSensor := TSensorFromGPSRecorderOdometer2.Create(FGPSRecorder, FValueConverterConfig);
+  Result.Add(VSensor);
+
+  VSensor := TSensorFromGPSRecorderAltitude.Create(FGPSRecorder, FValueConverterConfig);
+  Result.Add(VSensor);
+
+  VSensor := TSensorFromGPSRecorderHeading.Create(FGPSRecorder, FValueConverterConfig);
+  Result.Add(VSensor);
 end;
 
 end.

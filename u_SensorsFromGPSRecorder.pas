@@ -79,6 +79,28 @@ type
     );
   end;
 
+  TSensorFromGPSRecorderAltitude = class(TSensorTextFromGPSRecorder)
+  protected
+    function ValueToText(AValue: Double): string; override;
+    function GetValue: Double; override;
+  public
+    constructor Create(
+      AGPSRecorder: IGPSRecorder;
+      AValueConverterConfig: IValueToStringConverterConfig
+    );
+  end;
+
+  TSensorFromGPSRecorderHeading = class(TSensorTextFromGPSRecorder)
+  protected
+    function ValueToText(AValue: Double): string; override;
+    function GetValue: Double; override;
+  public
+    constructor Create(
+      AGPSRecorder: IGPSRecorder;
+      AValueConverterConfig: IValueToStringConverterConfig
+    );
+  end;
+
 implementation
 
 uses
@@ -221,7 +243,7 @@ constructor TSensorFromGPSRecorderOdometer1.Create(AGPSRecorder: IGPSRecorder;
   AValueConverterConfig: IValueToStringConverterConfig);
 begin
   inherited Create(
-    CSensorDistGUID,
+    CSensorOdometer1GUID,
     'Одометр, км:',
     'Отображает весь пройденный путь',
     'Одометр',
@@ -253,7 +275,7 @@ constructor TSensorFromGPSRecorderOdometer2.Create(AGPSRecorder: IGPSRecorder;
   AValueConverterConfig: IValueToStringConverterConfig);
 begin
   inherited Create(
-    CSensorDistGUID,
+    CSensorOdometer2GUID,
     'Одометр №2, км:',
     'Отображает весь пройденный путь',
     'Одометр №2',
@@ -277,6 +299,58 @@ end;
 function TSensorFromGPSRecorderOdometer2.ValueToText(AValue: Double): string;
 begin
   Result := ValueConverter.DistConvert(AValue)
+end;
+
+{ TSensorFromGPSRecorderAltitude }
+
+constructor TSensorFromGPSRecorderAltitude.Create(AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig);
+begin
+  inherited Create(
+    CSensorLastAltitudeGUID,
+    'Высота, м:',
+    'Отображает высоту над уровнем моря по данным GPS-приемника',
+    'Высота',
+    False,
+    AGPSRecorder,
+    AValueConverterConfig
+  );
+end;
+
+function TSensorFromGPSRecorderAltitude.GetValue: Double;
+begin
+  Result := GPSRecorder.LastAltitude;
+end;
+
+function TSensorFromGPSRecorderAltitude.ValueToText(AValue: Double): string;
+begin
+  Result := RoundEx(AValue, 2);
+end;
+
+{ TSensorFromGPSRecorderHeading }
+
+constructor TSensorFromGPSRecorderHeading.Create(AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig);
+begin
+  inherited Create(
+    CSensorHeadingGUID,
+    'Азимут:',
+    'Отображает азимут направления',
+    'Азимут',
+    False,
+    AGPSRecorder,
+    AValueConverterConfig
+  );
+end;
+
+function TSensorFromGPSRecorderHeading.GetValue: Double;
+begin
+  Result := GPSRecorder.LastHeading;
+end;
+
+function TSensorFromGPSRecorderHeading.ValueToText(AValue: Double): string;
+begin
+  Result := RoundEx(AValue, 2) + '°';;
 end;
 
 end.
