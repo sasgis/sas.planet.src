@@ -76,7 +76,8 @@ begin
     FBgColor := ReadColor32(AConfigData, 'BackgroundColor', FBgColor);
     FTextColor := ReadColor32(AConfigData, 'TextColor', FTextColor);
     FFontName := AConfigData.ReadString('FontName', FFontName);
-    FFontSize := AConfigData.ReadInteger('FontSize', FFontSize)
+    FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
+    SetChanged;
   end;
 end;
 

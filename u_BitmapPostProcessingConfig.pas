@@ -55,6 +55,7 @@ begin
     FInvertColor := AConfigData.ReadBool('InvertColor', FInvertColor);
     FGammaN := AConfigData.ReadInteger('Gamma', FGammaN);
     FContrastN := AConfigData.ReadInteger('Contrast', FContrastN);
+    SetChanged;
   end;
 end;
 

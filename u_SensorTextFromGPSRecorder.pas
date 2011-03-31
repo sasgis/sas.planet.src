@@ -71,6 +71,7 @@ begin
   );
 
   OnConverterConfigChange(nil);
+  OnRecorderChanged(nil);
 end;
 
 function TSensorTextFromGPSRecorder.GetText: string;

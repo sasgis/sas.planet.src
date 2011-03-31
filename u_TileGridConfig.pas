@@ -52,6 +52,7 @@ begin
   if AConfigData <> nil then begin
     FUseRelativeZoom := AConfigData.ReadBool('UseRelativeZoom', FUseRelativeZoom);
     FZoom := AConfigData.ReadInteger('Zoom', FZoom);
+    SetChanged;
   end;
 end;
 

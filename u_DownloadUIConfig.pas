@@ -54,6 +54,7 @@ begin
     end;
     FTileMaxAgeInInternet := AConfigData.ReadTime('TileMaxAgeInInternet', FTileMaxAgeInInternet);
     FTilesOut := AConfigData.ReadInteger('TilesOut', FTilesOut);
+    SetChanged;
   end;
 end;
 
