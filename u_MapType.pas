@@ -27,12 +27,13 @@ uses
   u_UrlGenerator,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract,
-  u_ResStrings;
+  u_ResStrings
 
 {$IFDEF USE_PHP_SCRIPT}
-uses
-  u_TileDownloaderViaPHP;
+  ,u_TileDownloaderViaPHP
 {$ENDIF}
+
+  ;
 
 type
   EBadGUID = class(Exception);
@@ -77,7 +78,6 @@ type
     FContentType: IContentTypeInfoBasic;
 
     {$IFDEF USE_PHP_SCRIPT}
-    FUsePHPScript: Boolean;
     FPhpScript: TPhpScript;
     {$ENDIF}
 
@@ -107,10 +107,6 @@ type
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple): boolean;
     procedure LoadMapType(AConfig : IConfigDataProvider; Apnum : Integer);
-
-    {$IFDEF USE_PHP_SCRIPT}
-    procedure LoadPhpConf(AConfig : IConfigDataProvider);
-    {$ENDIF}
 
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
@@ -406,25 +402,6 @@ begin
   end;
 end;
 
-{$IFDEF USE_PHP_SCRIPT}
-procedure TMapType.LoadPhpConf(AConfig: IConfigDataProvider);
-var
-  VParams: IConfigDataProvider;
-begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FUsePHPScript := VParams.ReadBool('UsePHPScript', False);
-
-  if FUsePHPScript and Assigned(FPhpScript) then
-  begin
-    if FileExists(FZMPFileName + '\downloader.php') then
-      FPhpScript.ScriptPath := FZMPFileName + '\downloader.php'
-    else
-      FUsePHPScript := False;
-  end;
-
-end;
-{$ENDIF}
-
 procedure TMapType.LoadMapType(AConfig: IConfigDataProvider; Apnum: Integer);
 var
   VParams: IConfigDataProvider;
@@ -706,8 +683,7 @@ begin
   end;
 
   {$IFDEF USE_PHP_SCRIPT}
-  FPhpScript := TPhpScript.Create;
-  LoadPhpConf(AConfig);
+  FPhpScript := TPhpScript.Create(AConfig, FZMPFileName);
   {$ENDIF}
 
 end;
@@ -745,8 +721,10 @@ begin
 
     {$IFDEF USE_PHP_SCRIPT}
 
-    if FUsePHPScript and Assigned(FPhpScript) then begin
+    if Assigned(FPhpScript) and FPhpScript.Enabled then begin
 
+      FPhpScript.UrlBase := FUrlGenerator.URLBase;
+      FPhpScript.DefUrlBase := FUrlGenerator.DefURLBase;
       Result := FPhpScript.DownloadTile(ACheckTileSize, AOldTileSize, ATile, AZoom, AUrl, AContentType, fileBuf);
 
     end else begin

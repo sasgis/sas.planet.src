@@ -29,7 +29,7 @@
     <DCC_DcuOutput>.\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
-    <DCC_Define>DEBUG;EUREKALOG;EUREKALOG_VER6</DCC_Define>
+    <DCC_Define>DEBUG;</DCC_Define>
     <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
     <DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
   </PropertyGroup>
@@ -604,11 +604,10 @@
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
   </ItemGroup>
 </Project>
-
 <!-- EurekaLog First Line
 [Exception Log]
-EurekaLog Version=6101
-Activate=1
+EurekaLog Version=6025
+Activate=0
 Activate Handle=1
 Save Log File=1
 Foreground Tab=0
