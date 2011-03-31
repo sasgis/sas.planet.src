@@ -5,16 +5,21 @@ interface
 uses
   Classes,
   i_GPSRecorder,
+  i_ValueToStringConverter,
   i_SensorListGenerator;
 
 type
   TSensorListGeneratorStuped = class(TInterfacedObject, ISensorListGenerator)
   private
     FGPSRecorder: IGPSRecorder;
+    FValueConverterConfig: IValueToStringConverterConfig;
   protected
     function CreateSensorsList: IInterfaceList;
   public
-    constructor Create(AGPSRecorder: IGPSRecorder);
+    constructor Create(
+      AGPSRecorder: IGPSRecorder;
+      AValueConverterConfig: IValueToStringConverterConfig
+    );
   end;
 
 implementation
@@ -25,9 +30,13 @@ uses
 
 { TSensorListGeneratorStuped }
 
-constructor TSensorListGeneratorStuped.Create(AGPSRecorder: IGPSRecorder);
+constructor TSensorListGeneratorStuped.Create(
+  AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig
+);
 begin
   FGPSRecorder := AGPSRecorder;
+  FValueConverterConfig := AValueConverterConfig;
 end;
 
 function TSensorListGeneratorStuped.CreateSensorsList: IInterfaceList;
@@ -36,10 +45,10 @@ var
 begin
   Result := TInterfaceList.Create;
 
-  VSensor := TSensorFromGPSRecorderLastSpeed.Create(FGPSRecorder);
+  VSensor := TSensorFromGPSRecorderLastSpeed.Create(FGPSRecorder, FValueConverterConfig);
   Result.Add(VSensor);
 
-  VSensor := TSensorFromGPSRecorderAvgSpeed.Create(FGPSRecorder);
+  VSensor := TSensorFromGPSRecorderAvgSpeed.Create(FGPSRecorder, FValueConverterConfig);
   Result.Add(VSensor);
 end;
 
