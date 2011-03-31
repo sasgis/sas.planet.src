@@ -174,7 +174,7 @@ begin
     VMenuItem := Menu.Items[i];
     if not(VMenuItem is TTBSeparatorItem) then begin
       if (FIgnoredItems = nil) or (FIgnoredItems.IndexOf(VMenuItem) < 0) then begin
-        if (VMenuItem.Count = 0) and (VMenuItem is TTBXItem) then begin
+        if Assigned(VMenuItem.OnClick) then begin
           VShortCutInfo := TShortCutInfo.Create(VMenuItem);
           VShortCutInfo.MenuItem := VMenuItem;
           VShortCutInfo.ShortCut := VMenuItem.ShortCut;

@@ -98,6 +98,7 @@ begin
   if AConfigData <> nil then begin
     FOdometer1 := AConfigData.ReadFloat('Odometer1', FOdometer1);
     FOdometer2 := AConfigData.ReadFloat('Odometer2', FOdometer2);
+    SetChanged;
   end;
 end;
 

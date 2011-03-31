@@ -505,6 +505,7 @@ type
     procedure TBScreenSelectClick(Sender: TObject);
     procedure NSensorsClick(Sender: TObject);
     procedure NSensorsBarClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -571,6 +572,7 @@ type
 
     FRuller:TBitmap32;
     FTumbler:TBitmap32;
+    FSensorViewList: IGUIDInterfaceList;
 
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
@@ -650,6 +652,8 @@ uses
   i_LocalCoordConverter,
   i_ValueToStringConverter,
   i_ActiveMapsConfig,
+  i_SensorViewListGenerator,
+  u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
   u_LineOnMapEdit,
   i_MapViewGoto,
@@ -725,6 +729,7 @@ end;
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
   VProvider: IConfigDataProvider;
+  VSensorViewGenerator: ISensorViewListGenerator;
 begin
   ProgramStart:=true;
   Application.Title:=Caption;
@@ -738,10 +743,17 @@ begin
   TBEditPath.Floating:=true;
   TBEditPath.MoveOnScreen(true);
   TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
+  VSensorViewGenerator := TSensorViewListGeneratorStuped.Create(GState.GUISyncronizedTimerNotifier, Self, TBXDock1, NSensors, MenusImageList, 40);
+  FSensorViewList := VSensorViewGenerator.CreateSensorViewList(GState.SensorList);
   TBConfigProviderLoadPositions(Self, VProvider);
   OnToolbarsLockChange(nil);
   TBEditPath.Visible:=false;
   FMarkDBGUI := TMarksDbGUIHelper.Create(GState.MarksDB, GState.ValueToStringConverterConfig, GState.MarksFactoryConfig.PointTemplateConfig.MarkPictureList);
+end;
+
+procedure TfrmMain.FormDestroy(Sender: TObject);
+begin
+  FSensorViewList := nil;
 end;
 
 procedure TfrmMain.FormActivate(Sender: TObject);
@@ -3600,7 +3612,7 @@ end;
 
 procedure TfrmMain.SBClearSensorClick(Sender: TObject);
 begin
- if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
+ if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
    case TSpeedButton(sender).Tag of
     1: GState.GPSRecorder.ResetAvgSpeed;
     2: GState.GPSRecorder.ResetDist;

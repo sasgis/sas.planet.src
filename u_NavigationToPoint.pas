@@ -48,6 +48,7 @@ begin
     FId := AConfigData.ReadInteger('ID', FId);
     FLonLat.X := AConfigData.ReadFloat('X', FLonLat.X);
     FLonLat.Y := AConfigData.ReadFloat('Y', FLonLat.Y);
+    SetChanged;
   end;
 end;
 

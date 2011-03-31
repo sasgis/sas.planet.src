@@ -3,8 +3,10 @@ unit u_SensorViewTextTBXPanel;
 interface
 
 uses
+  Windows,
+  Classes,
+  ImgList,
   SyncObjs,
-  Buttons,
   TB2Item,
   TB2Dock,
   TBX,
@@ -14,12 +16,16 @@ uses
   i_Sensor;
 
 type
-  TSensorViewTextTBXPanel = class(TInterfacedObject, ISensorView, ISensorViewText)
+  TSensorViewTextTBXPanel = class(TInterfacedObject, ISensorView)
   private
-    FSensorInfo: ISensorInfo;
+    FSensor: ISensorText;
     FConfig: ISensorViewConfig;
+
+    FOwner: TComponent;
     FDefaultDoc: TTBDock;
     FParentMenu: TTBCustomItem;
+    FImages: TCustomImageList;
+    FImageIndexReset: TImageIndex;
 
     FCS: TCriticalSection;
     FLinksList: IJclListenerNotifierLinksList;
@@ -27,38 +33,42 @@ type
     FBar: TTBXToolWindow;
     FpnlTop: TTBXAlignmentPanel;
     FlblCaption: TTBXLabel;
-    FbtnReset: TSpeedButton;
+    FbtnReset: TTBXButton;
     FlblValue: TTBXLabel;
 
     FResetItem: TTBXItem;
     FVisibleItem: TTBXCustomItem;
     FVisibleItemWithReset: TTBXSubmenuItem;
 
-    FResetNotifier: IJclNotifier;
-
     FTextChanged: Boolean;
-    FTextToShow: string;
+    FLastText: string;
 
+    function GuidToComponentName(APrefix: string; AGUID: TGUID): string;
     procedure CreatePanel;
     procedure CreateMenu;
+
+    procedure UpdateControls;
 
     procedure OnBarVisibleChanged(Sender: TObject);
     procedure OnVisibleItemClick(Sender: TObject);
     procedure OnResetClick(Sender: TObject);
     procedure OnTimer(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
+    procedure OnSensorChange(Sender: TObject);
+    procedure OnSensorDataUpdate(Sender: TObject);
   protected
     function GetConfig: ISensorViewConfig;
-    function GetResetNotifier: IJclNotifier;
-  protected
-    procedure SetText(AValue: string);
+    function GetSensor: ISensor;
   public
     constructor Create(
-      ASensorInfo: ISensorInfo;
+      ASensor: ISensorText;
       AConfig: ISensorViewConfig;
       ATimerNoifier: IJclNotifier;
+      AOwner: TComponent;
       ADefaultDoc: TTBDock;
-      AParentMenu: TTBCustomItem
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
     );
     destructor Destroy; override;
   end;
@@ -69,22 +79,29 @@ uses
   Graphics,
   Controls,
   SysUtils,
-  u_JclNotify,
   u_JclListenerNotifierLinksList,
-  u_NotifyEventListener;
+  u_NotifyEventListener,
+  u_ResStrings;
 
 constructor TSensorViewTextTBXPanel.Create(
-  ASensorInfo: ISensorInfo;
+  ASensor: ISensorText;
   AConfig: ISensorViewConfig;
   ATimerNoifier: IJclNotifier;
+  AOwner: TComponent;
   ADefaultDoc: TTBDock;
-  AParentMenu: TTBCustomItem
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
 );
 begin
-  FSensorInfo := ASensorInfo;
+  FSensor := ASensor;
   FConfig := AConfig;
+  FOwner := AOwner;
+  Assert(FOwner is TWinControl);
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;
+  FImages := AImages;
+  FImageIndexReset := AImageIndexReset;
 
   FCS := TCriticalSection.Create;
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -99,106 +116,104 @@ begin
     ATimerNoifier
   );
 
-  if FSensorInfo.CanReset then begin
-    FResetNotifier := TJclBaseNotifier.Create;
-  end;
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnSensorChange),
+    FSensor.GetChangeNotifier
+  );
+
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.OnSensorDataUpdate),
+    FSensor.GetDataUpdateNotifier
+  );
 
   CreatePanel;
   CreateMenu;
+  UpdateControls;
 
   FLinksList.ActivateLinks;
+  OnConfigChange(nil);
+  OnSensorDataUpdate(nil);
 end;
 
 destructor TSensorViewTextTBXPanel.Destroy;
 begin
   FLinksList.DeactivateLinks;
   FLinksList := nil;
-  FResetNotifier := nil;
+  FreeAndNil(FBar);
   FConfig := nil;
-  FSensorInfo := nil;
+  FSensor := nil;
   FreeAndNil(FCS);
   inherited;
 end;
 
 procedure TSensorViewTextTBXPanel.CreateMenu;
 begin
-  if FSensorInfo.CanReset then begin
+  if FSensor.CanReset then begin
     FVisibleItemWithReset := TTBXSubmenuItem.Create(FBar);
-//    FVisibleItemWithReset.Name := '';
-    FVisibleItemWithReset.AutoCheck := True;
     FVisibleItemWithReset.DropdownCombo := True;
-    FVisibleItemWithReset.OnClick := Self.OnVisibleItemClick;
-    FVisibleItemWithReset.Caption := FSensorInfo.GetMenuItemName;
-
     FVisibleItem := FVisibleItemWithReset;
 
     FResetItem := TTBXItem.Create(FBar);
 
-//    FResetItem.Name := '';
+    FResetItem.Name := GuidToComponentName('SensorReset_', FSensor.GetGUID);
     FResetItem.OnClick := Self.OnResetClick;
-    FResetItem.Caption := '—бросить';
     FResetItem.Hint := '';
+    FResetItem.Images := FImages;
+    FResetItem.ImageIndex := FImageIndexReset;
     FVisibleItemWithReset.Add(FResetItem);
   end else begin
     FVisibleItem := TTBXItem.Create(FBar);
-//    FVisibleItem.Name := '';
     FVisibleItemWithReset := nil;
   end;
+  FVisibleItem.Name := GuidToComponentName('Sensor_', FSensor.GetGUID);
   FVisibleItem.AutoCheck := True;
   FVisibleItem.OnClick := Self.OnVisibleItemClick;
-  FVisibleItem.Caption := FSensorInfo.GetMenuItemName;
   FParentMenu.Add(FVisibleItem);
 end;
 
 procedure TSensorViewTextTBXPanel.CreatePanel;
 begin
-  FBar := TTBXToolWindow.Create(nil);
+  FBar := TTBXToolWindow.Create(FOwner);
   FlblValue := TTBXLabel.Create(FBar);
   FpnlTop := TTBXAlignmentPanel.Create(FBar);
   FlblCaption := TTBXLabel.Create(FBar);
-  if FSensorInfo.CanReset then begin
-    FbtnReset := TSpeedButton.Create(FBar);
-  end;
 
-//  FBar.Name := '';
-//  FBar.Parent := TBXDock1;
-  FBar.Left := 0;
-  FBar.Top := 144;
-  FBar.Hint := FSensorInfo.GetDescription;
+  FBar.Name := GuidToComponentName('Sensor_', FSensor.GetGUID);
+  FBar.Align := alTop;
+  FBar.ActivateParent := True;
+  FBar.DefaultDock := FDefaultDoc;
+  FBar.UseLastDock := False;
   FBar.ClientAreaHeight := 32;
   FBar.ClientAreaWidth := 150;
-//  FBar.DockPos := 18;
-//  FBar.DockRow := 4;
+  FBar.DockRow := FDefaultDoc.GetHighestRow(False) + 1;
+  FBar.DockPos := 0;
   FBar.Stretch := True;
-  FBar.TabOrder := 7;
   FBar.OnVisibleChanged := Self.OnBarVisibleChanged;
-  FBar.Caption := FSensorInfo.GetCaption;
+  FBar.Visible := True;
+  FBar.Parent := FDefaultDoc;
   FBar.CurrentDock := FDefaultDoc;
 
-//  FpnlTop.Name := '';
   FpnlTop.Parent := FBar;
   FpnlTop.Left := 0;
   FpnlTop.Top := 0;
   FpnlTop.Width := 150;
-  FpnlTop.Height := 17;
+  FpnlTop.Height := 18;
   FpnlTop.Align := alTop;
-  FpnlTop.TabOrder := 1;
 
-  if FbtnReset <> nil then begin
-//    FbtnReset.Name := '';
+  if FSensor.CanReset then begin
+    FbtnReset := TTBXButton.Create(FBar);
     FbtnReset.Parent := FpnlTop;
-    FbtnReset.Tag := 3;
     FbtnReset.Left := 133;
     FbtnReset.Top := 0;
-    FbtnReset.Width := 17;
-    FbtnReset.Height := 17;
-    FbtnReset.Hint := '—бросить';
+    FbtnReset.Width := 18;
+    FbtnReset.Height := 18;
     FbtnReset.Align := alRight;
-    FbtnReset.Flat := True;
-    FbtnReset.Margin := 0;
-    FbtnReset.Spacing := 0;
+    FbtnReset.TabStop := False;
+    FbtnReset.Images := FImages;
+    FbtnReset.ImageIndex := FImageIndexReset;
+    FbtnReset.ButtonStyle := bsFlat;
+
     FbtnReset.OnClick := Self.OnResetClick;
-//    FbtnReset.Glyph.
   end;
 
 //  FlblCaption.Name := '';
@@ -206,20 +221,18 @@ begin
   FlblCaption.Left := 0;
   FlblCaption.Top := 0;
   FlblCaption.Width := 133;
-  FlblCaption.Height := 17;
+  FlblCaption.Height := 18;
   FlblCaption.Align := alClient;
   FlblCaption.Wrapping := twEndEllipsis;
-  FlblCaption.Caption := FSensorInfo.GetCaption;
 
 //  FlblValue.Name := '';
   FlblValue.Parent := FBar;
+  FlblValue.AutoSize := True;
   FlblValue.Left := 0;
   FlblValue.Top := 17;
   FlblValue.Width := 150;
   FlblValue.Height := 15;
-  FlblValue.Align := alClient;
-//  FlblValue.Font.Charset := RUSSIAN_CHARSET;
-//  FlblValue.Font.Color := clWindowText;
+  FlblValue.Align := alTop;
   FlblValue.Font.Height := -16;
   FlblValue.Font.Name := 'Arial';
   FlblValue.Font.Style := [fsBold];
@@ -227,6 +240,7 @@ begin
   FlblValue.Wrapping := twEndEllipsis;
   FlblValue.Caption := '';
 
+  FBar.ClientAreaHeight := FlblValue.Top + FlblValue.Height + 2;
 end;
 
 { TSensorViewTextTBXPanel }
@@ -250,25 +264,61 @@ begin
   Result := FConfig;
 end;
 
-function TSensorViewTextTBXPanel.GetResetNotifier: IJclNotifier;
+function TSensorViewTextTBXPanel.GetSensor: ISensor;
 begin
-  Result := FResetNotifier;
+  Result := FSensor;
+end;
+
+function TSensorViewTextTBXPanel.GuidToComponentName(APrefix: string;
+  AGUID: TGUID): string;
+var
+  VGUIDStr: string;
+begin
+  VGUIDStr := GUIDToString(AGUID);
+  VGUIDStr := StringReplace(VGUIDStr, '{', '', [rfReplaceAll]);
+  VGUIDStr := StringReplace(VGUIDStr, '}', '', [rfReplaceAll]);
+  VGUIDStr := StringReplace(VGUIDStr, '-', '_', [rfReplaceAll]);
+  Result := APrefix + VGUIDStr;
 end;
 
 procedure TSensorViewTextTBXPanel.OnResetClick(Sender: TObject);
 begin
-  if FSensorInfo.CanReset then begin
-    FResetNotifier.Notify(nil);
+  if FSensor.CanReset then begin
+    if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
+      FSensor.Reset;
+      OnTimer(nil);
+    end;
+  end;
+end;
+
+procedure TSensorViewTextTBXPanel.OnSensorChange(Sender: TObject);
+begin
+  UpdateControls;
+end;
+
+procedure TSensorViewTextTBXPanel.OnSensorDataUpdate(Sender: TObject);
+begin
+  FCS.Acquire;
+  try
+    FTextChanged := True;
+  finally
+    FCS.Release;
   end;
 end;
 
 procedure TSensorViewTextTBXPanel.OnTimer(Sender: TObject);
+var
+  VText: string;
 begin
   if FConfig.Visible then begin
     FCS.Acquire;
     try
       if FTextChanged then begin
-        FlblValue.Caption := FTextToShow;
+        VText := FSensor.GetText;
+        if FLastText <> VText then begin
+          FLastText := VText;
+          FlblValue.Caption := FLastText;
+        end;
         FTextChanged := False;
       end;
     finally
@@ -282,16 +332,17 @@ begin
   FConfig.Visible := FVisibleItem.Checked;
 end;
 
-procedure TSensorViewTextTBXPanel.SetText(AValue: string);
+procedure TSensorViewTextTBXPanel.UpdateControls;
 begin
-  FCS.Acquire;
-  try
-    if FTextToShow <> AValue then begin
-      FTextToShow := AValue;
-      FTextChanged := True;
-    end;
-  finally
-    FCS.Release;
+  FVisibleItem.Caption := FSensor.GetMenuItemName;
+  FBar.Caption := FSensor.GetCaption;
+  FBar.Hint := FSensor.GetDescription;
+  FlblCaption.Caption := FSensor.GetCaption;
+  if FResetItem <> nil then begin
+    FResetItem.Caption := SAS_STR_SensorReset;
+  end;
+  if FbtnReset <> nil then begin
+    FbtnReset.Hint := SAS_STR_SensorReset;
   end;
 end;
 
