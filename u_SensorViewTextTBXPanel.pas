@@ -160,14 +160,12 @@ begin
 
     FResetItem.Name := GuidToComponentName('SensorReset_', FSensor.GetGUID);
     FResetItem.OnClick := Self.OnResetClick;
-    FResetItem.Caption := '—бросить';
     FResetItem.Hint := '';
     FResetItem.Images := FImages;
     FResetItem.ImageIndex := FImageIndexReset;
     FVisibleItemWithReset.Add(FResetItem);
   end else begin
     FVisibleItem := TTBXItem.Create(FBar);
-//    FVisibleItem.Name := '';
     FVisibleItemWithReset := nil;
   end;
   FVisibleItem.Name := GuidToComponentName('Sensor_', FSensor.GetGUID);
@@ -198,24 +196,20 @@ begin
   FBar.Parent := FDefaultDoc;
   FBar.CurrentDock := FDefaultDoc;
 
-//  FpnlTop.Name := '';
   FpnlTop.Parent := FBar;
   FpnlTop.Left := 0;
   FpnlTop.Top := 0;
   FpnlTop.Width := 150;
-  FpnlTop.Height := 17;
+  FpnlTop.Height := 18;
   FpnlTop.Align := alTop;
-//  FpnlTop.TabOrder := 1;
 
   if FSensor.CanReset then begin
     FbtnReset := TTBXButton.Create(FBar);
-//    FbtnReset.Name := '';
     FbtnReset.Parent := FpnlTop;
     FbtnReset.Left := 133;
     FbtnReset.Top := 0;
-    FbtnReset.Width := 17;
-    FbtnReset.Height := 17;
-    FbtnReset.Hint := '—бросить';
+    FbtnReset.Width := 18;
+    FbtnReset.Height := 18;
     FbtnReset.Align := alRight;
     FbtnReset.TabStop := False;
     FbtnReset.Images := FImages;
@@ -230,19 +224,18 @@ begin
   FlblCaption.Left := 0;
   FlblCaption.Top := 0;
   FlblCaption.Width := 133;
-  FlblCaption.Height := 17;
+  FlblCaption.Height := 18;
   FlblCaption.Align := alClient;
   FlblCaption.Wrapping := twEndEllipsis;
 
 //  FlblValue.Name := '';
   FlblValue.Parent := FBar;
+  FlblValue.AutoSize := True;
   FlblValue.Left := 0;
   FlblValue.Top := 17;
   FlblValue.Width := 150;
   FlblValue.Height := 15;
-  FlblValue.Align := alClient;
-//  FlblValue.Font.Charset := RUSSIAN_CHARSET;
-//  FlblValue.Font.Color := clWindowText;
+  FlblValue.Align := alTop;
   FlblValue.Font.Height := -16;
   FlblValue.Font.Name := 'Arial';
   FlblValue.Font.Style := [fsBold];
@@ -250,6 +243,7 @@ begin
   FlblValue.Wrapping := twEndEllipsis;
   FlblValue.Caption := '';
 
+  FBar.ClientAreaHeight := FlblValue.Top + FlblValue.Height + 2;
 end;
 
 { TSensorViewTextTBXPanel }
@@ -347,6 +341,12 @@ begin
   FBar.Caption := FSensor.GetCaption;
   FBar.Hint := FSensor.GetDescription;
   FlblCaption.Caption := FSensor.GetCaption;
+  if FResetItem <> nil then begin
+    FResetItem.Caption := SAS_STR_SensorReset;
+  end;
+  if FbtnReset <> nil then begin
+    FbtnReset.Hint := SAS_STR_SensorReset;
+  end;
 end;
 
 end.
