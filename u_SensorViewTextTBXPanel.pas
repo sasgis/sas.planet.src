@@ -7,7 +7,6 @@ uses
   Classes,
   ImgList,
   SyncObjs,
-  Buttons,
   TB2Item,
   TB2Dock,
   TBX,
@@ -79,9 +78,7 @@ implementation
 uses
   Graphics,
   Controls,
-  Forms,
   SysUtils,
-  u_JclNotify,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   u_ResStrings;
