@@ -79,6 +79,7 @@ implementation
 uses
   Graphics,
   Controls,
+  Forms,
   SysUtils,
   u_JclNotify,
   u_JclListenerNotifierLinksList,
@@ -99,6 +100,7 @@ begin
   FSensor := ASensor;
   FConfig := AConfig;
   FOwner := AOwner;
+  Assert(FOwner is TWinControl);
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;
   FImages := AImages;
@@ -291,7 +293,7 @@ end;
 procedure TSensorViewTextTBXPanel.OnResetClick(Sender: TObject);
 begin
   if FSensor.CanReset then begin
-    if (MessageBox(0, pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
+    if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
       FSensor.Reset;
       OnTimer(nil);
     end;
