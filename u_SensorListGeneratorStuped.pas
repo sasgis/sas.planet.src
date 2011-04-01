@@ -36,6 +36,7 @@ implementation
 uses
   i_Sensor,
   u_SensorTextFromNavToPoint,
+  u_SensorBatteryStatus,
   u_SensorsFromGPSRecorder;
 
 { TSensorListGeneratorStuped }
@@ -80,6 +81,9 @@ begin
   Result.Add(VSensor);
 
   VSensor := TSensorTextFromNavToPoint.Create(FLanguageManager, FViewPortState, FNavigationToPoint, FValueConverterConfig);
+  Result.Add(VSensor);
+
+  VSensor := TSensorBatteryStatus.Create(FLanguageManager);
   Result.Add(VSensor);
 
   VSensor := TSensorFromGPSRecorderAltitude.Create(FLanguageManager, FGPSRecorder, FValueConverterConfig);

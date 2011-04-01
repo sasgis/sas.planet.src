@@ -2,7 +2,6 @@ unit u_SensorTextFromNavToPoint;
 
 interface
 
-
 uses
   i_NavigationToPoint,
   i_ViewPortState,

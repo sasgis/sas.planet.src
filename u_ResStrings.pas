@@ -202,6 +202,10 @@ ResourceString
   SAS_STR_SensorNavToPointDescription = 'Отображает расстояние до выбранной метки';
   SAS_STR_SensorNavToPointMenuItemName = 'Расстояние до метки';
 
+  SAS_STR_SensorBatteryStatusCaption = 'Батарея:';
+  SAS_STR_SensorBatteryStatusDescription = 'Отображает состояние питания';
+  SAS_STR_SensorBatteryStatusMenuItemName = 'Батарея';
+
   SAS_UNITS_kb = 'Кб';
   SAS_UNITS_mb = 'Мб';
   SAS_UNITS_gb = 'Гб';

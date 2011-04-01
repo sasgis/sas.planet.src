@@ -566,6 +566,7 @@
     <DCCReference Include="u_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="u_SelectionRectLayerConfig.pas" />
     <DCCReference Include="u_SensorBase.pas" />
+    <DCCReference Include="u_SensorBatteryStatus.pas" />
     <DCCReference Include="u_SensorListGeneratorStuped.pas" />
     <DCCReference Include="u_SensorsFromGPSRecorder.pas" />
     <DCCReference Include="u_SensorTextFromGPSRecorder.pas" />

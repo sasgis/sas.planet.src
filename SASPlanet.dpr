@@ -317,6 +317,7 @@ uses
   u_SensorTextFromGPSRecorder in 'u_SensorTextFromGPSRecorder.pas',
   u_SensorsFromGPSRecorder in 'u_SensorsFromGPSRecorder.pas',
   u_SensorTextFromNavToPoint in 'u_SensorTextFromNavToPoint.pas',
+  u_SensorBatteryStatus in 'u_SensorBatteryStatus.pas',
   i_SensorListGenerator in 'i_SensorListGenerator.pas',
   u_SensorListGeneratorStuped in 'u_SensorListGeneratorStuped.pas',
   i_SensorViewListGenerator in 'i_SensorViewListGenerator.pas',
