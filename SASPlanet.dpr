@@ -346,6 +346,7 @@ uses
   i_LanguageManager in 'i_LanguageManager.pas',
   u_LanguageManager in 'u_LanguageManager.pas',
   u_LanguagesEx in 'u_LanguagesEx.pas',
+  u_LanguageTBXItem in 'u_LanguageTBXItem.pas',
   i_ImageResamplerFactory in 'i_ImageResamplerFactory.pas',
   u_ImageResamplerFactory in 'u_ImageResamplerFactory.pas',
   u_ImageResamplerFactoryListStatic in 'u_ImageResamplerFactoryListStatic.pas',

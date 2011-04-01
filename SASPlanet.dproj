@@ -478,6 +478,7 @@
     <DCCReference Include="u_KmzInfoSimpleParser.pas" />
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
+    <DCCReference Include="u_LanguageTBXItem.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
     <DCCReference Include="u_LastSelectionLayerConfig.pas" />
     <DCCReference Include="u_LineOnMapEdit.pas" />
