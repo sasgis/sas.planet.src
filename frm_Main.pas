@@ -37,9 +37,11 @@ uses
   TBX,
   TBXControls,
   TBXExtItems,
+  TBXGraphics,
   u_CommonFormAndFrameParents,
   i_JclNotify,
   i_GUIDList,
+  t_GeoTypes,
   i_JclListenerNotifierLinksList,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -56,7 +58,6 @@ uses
   u_WindowLayerBasicList,
   u_GeoFun,
   u_MapLayerWiki,
-  frm_StartLogo,
   u_MapType,
   u_ResStrings,
   u_ShortcutManager,
@@ -80,9 +81,7 @@ uses
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
-  u_TileDownloaderUI,
-  t_GeoTypes,
-  TBXGraphics;
+  u_TileDownloaderUI;
 
 type
   TAOperation = (
@@ -607,10 +606,6 @@ uses
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
   u_LanguageTBXItem,
-  frm_SearchResults,
-  frm_ProgressDownload,
-  frm_InvisibleBrowser,
-  frm_DebugInfo,
   i_ImportConfig,
   u_ThreadDownloadTiles,
   u_PathDetalizeProviderMailRu,
@@ -618,8 +613,13 @@ uses
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
   u_PosFromGSM,
-  frm_ImportConfigEdit,
-  u_ExportMarks2KML;
+  u_ExportMarks2KML,
+  frm_SearchResults,
+  frm_ProgressDownload,
+  frm_InvisibleBrowser,
+  frm_DebugInfo,
+  frm_StartLogo,
+  frm_ImportConfigEdit;
 
 {$R *.dfm}
 
