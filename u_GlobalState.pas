@@ -239,7 +239,6 @@ constructor TGlobalState.Create;
 var
   VList: IListOfObjectsWithTTL;
   VViewCnonfig: IConfigDataProvider;
-  VSensorsGenerator: ISensorListGenerator;
 begin
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
@@ -302,8 +301,6 @@ begin
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarksFactoryConfig, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
-  VSensorsGenerator := TSensorListGeneratorStuped.Create(FLanguageManager, FGPSRecorder, FValueToStringConverterConfig);
-  FSensorList := VSensorsGenerator.CreateSensorsList;
 end;
 
 destructor TGlobalState.Destroy;
@@ -437,6 +434,7 @@ end;
 procedure TGlobalState.LoadConfig;
 var
   VLocalMapsConfig: IConfigDataProvider;
+  VSensorsGenerator: ISensorListGenerator;
   Ini: TMeminifile;
 begin
   LoadMainParams;
@@ -450,6 +448,17 @@ begin
     FMainMapsList.LayersList,
     FMainMapsList[0].GUID
   );
+
+  VSensorsGenerator :=
+    TSensorListGeneratorStuped.Create(
+      FLanguageManager,
+      FMainFormConfig.ViewPortState,
+      FMainFormConfig.NavToPoint,
+      FGPSRecorder,
+      FValueToStringConverterConfig
+    );
+  FSensorList := VSensorsGenerator.CreateSensorsList;
+
   FCacheConfig.LoadConfig(FMainConfigProvider);
   LoadMapIconsList;
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));

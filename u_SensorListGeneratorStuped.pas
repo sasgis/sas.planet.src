@@ -4,6 +4,8 @@ interface
 
 uses
   Classes,
+  i_NavigationToPoint,
+  i_ViewPortState,
   i_GPSRecorder,
   i_ValueToStringConverter,
   i_LanguageManager,
@@ -14,12 +16,16 @@ type
   private
     FLanguageManager: ILanguageManager;
     FGPSRecorder: IGPSRecorder;
+    FViewPortState: IViewPortState;
+    FNavigationToPoint: INavigationToPoint;
     FValueConverterConfig: IValueToStringConverterConfig;
   protected
     function CreateSensorsList: IInterfaceList;
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
+      AViewPortState: IViewPortState;
+      ANavigationToPoint: INavigationToPoint;
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -29,17 +35,22 @@ implementation
 
 uses
   i_Sensor,
+  u_SensorTextFromNavToPoint,
   u_SensorsFromGPSRecorder;
 
 { TSensorListGeneratorStuped }
 
 constructor TSensorListGeneratorStuped.Create(
   ALanguageManager: ILanguageManager;
+  AViewPortState: IViewPortState;
+  ANavigationToPoint: INavigationToPoint;
   AGPSRecorder: IGPSRecorder;
   AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
   FLanguageManager := ALanguageManager;
+  FViewPortState := AViewPortState;
+  FNavigationToPoint := ANavigationToPoint;
   FGPSRecorder := AGPSRecorder;
   FValueConverterConfig := AValueConverterConfig;
 end;
@@ -66,6 +77,9 @@ begin
   Result.Add(VSensor);
 
   VSensor := TSensorFromGPSRecorderOdometer2.Create(FLanguageManager, FGPSRecorder, FValueConverterConfig);
+  Result.Add(VSensor);
+
+  VSensor := TSensorTextFromNavToPoint.Create(FLanguageManager, FViewPortState, FNavigationToPoint, FValueConverterConfig);
   Result.Add(VSensor);
 
   VSensor := TSensorFromGPSRecorderAltitude.Create(FLanguageManager, FGPSRecorder, FValueConverterConfig);
