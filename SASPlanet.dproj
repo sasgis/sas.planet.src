@@ -3,7 +3,7 @@
   <PropertyGroup>
     <ProjectGuid>{162abc9c-8e53-40c3-868b-e8a4b2339ea6}</ProjectGuid>
     <MainSource>SASPlanet.dpr</MainSource>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
     <DCC_DependencyCheckOutputName>.bin\SASPlanet.exe</DCC_DependencyCheckOutputName>

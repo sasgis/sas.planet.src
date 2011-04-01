@@ -9,27 +9,39 @@ uses
   i_ConfigDataProvider,
   i_CoordConverter,
   i_TileDownlodSession,
-  php4delphi;
+  t_GeoTypes,
+  PHP4Delphi;
 
 type
+  TCustomParams = record
+    LLon  : Double;
+    TLat  : Double;
+    RLon  : Double;
+    BLat  : Double;
+    LMetr : Double;
+    TMetr : Double;
+    RMetr : Double;
+    BMetr : Double;
+  end;
+
   TPhpScript = class
     private
+      FCoordConverter: ICoordConverterSimple;
+      FEnableCoordConverter: Boolean;
       FURLBase: string;
       FDefUrlBase: string;
-      FZMPFileName: string; // путь к zmp
-      FScriptPath: string;  // путь к скрипту
-      FScriptStr: string;   // сам скрипт
-      FLastError: string;   // последняя ошибка ИЗ скрипта
-      FCookieStr: string;   // буферная строка для межскриптовых операции
+      FZMPFileName: string;
+      FScriptPath: string;
+      FScriptStr: string;
+      FCookieStr: string;
       FEngine: TPHPEngine;
       FEngineInitialized: Boolean;
-      FCoordConverter: ICoordConverterSimple;
       procedure Initialize(AConfig: IConfigDataProvider);
+      function GetCustomParams(AXY: TPoint; AZoom: Byte): TCustomParams;
     public
       constructor Create(AConfig: IConfigDataProvider; const ZmpFileName: string);
       destructor Destroy; override;
       function DownloadTile(ACheckTileSize: Boolean; AOldTileSize: Cardinal; ATile: TPoint; AZoom: Byte; out AUrl, AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
-
       property Enabled: Boolean read FEngineInitialized;
       property UrlBase: string write FURLBase;
       property DefUrlBase: string write FDefUrlBase;
@@ -41,7 +53,7 @@ const
 implementation
 
 uses
-  t_GeoTypes,
+  i_ProxySettings,
   u_GlobalState;
 
 type
@@ -57,12 +69,13 @@ type
       FBody: TMemoryStream;
       FPHP: TpsvPHP;
       FScript: string;
-      FCoordConverter: ICoordConverterSimple;
       procedure OnReadResult (Sender : TObject; Stream : TStream);
     public
       constructor Create(const AFileName: string; const AScript: string = '');
       destructor Destroy; override;
       function Exec (out ExecError: string): integer;
+      procedure SetCustomParams(AParams: TCustomParams);
+      procedure SetProxyConfig(AInetConfig: IInetConfig);
 
       property Tile: TPoint write FTile;
       property Zoom: Byte write FZoom;
@@ -72,17 +85,6 @@ type
       property Url: string read FUrl write FUrl;
       property DefUrl: string write FDefUrl;
       property MIMEType: string read FMIMEType;
-  end;
-
-  TSpetialParams = record
-    LLon  : TDoublePoint;
-    TLat  : TDoublePoint;
-    RLon  : TDoublePoint;
-    BLat  : TDoublePoint;
-    LMetr : TDoublePoint;
-    TMetr : TDoublePoint;
-    RMetr : TDoublePoint;
-    BMetr : TDoublePoint;
   end;
 
 var
@@ -97,17 +99,16 @@ begin
   FURLBase := '';
   FDefUrlBase := '';
   FScriptPath := '';
-  FLastError := '';
   FCookieStr := '';
   FZMPFileName := ZmpFileName;
+  FCoordConverter := nil;
   Initialize(AConfig);
-
 end;
 
 destructor TPhpScript.Destroy;
 begin
   try
-    if FEngineInitialized then    
+    if FEngineInitialized then
       FEngine.ShutdownEngine;
     FreeAndNil(FEngine);
   finally
@@ -122,10 +123,6 @@ var
   VMem: TMemoryStream;
 begin
   try
-    VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-    VCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
-    FCoordConverter := VCoordConverter as ICoordConverterSimple;
-
     VParams := AConfig.GetSubItem('params.txt').GetSubItem('PHP');
     if VParams <> nil then
       if VParams.ReadBool('Use', False) then
@@ -134,7 +131,7 @@ begin
           FScriptPath := FZMPFileName + '\' + ZmpScriptName;
 
           if VParams.ReadBool('Preload', False) then
-          begin  // загружаем скрипт в память, для экономии дисковых операций
+          begin
               VMem := TMemoryStream.Create;
             try
               VMem.LoadFromFile(FScriptPath);
@@ -156,7 +153,18 @@ begin
             FEngine.StartupEngine;
             FEngineInitialized := True;
           end;
+
+          FEnableCoordConverter := VParams.ReadBool('CustomParams', False);
+
         end;
+
+    if FEngineInitialized and FEnableCoordConverter then
+    begin
+      VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+      VCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
+      FCoordConverter := VCoordConverter as ICoordConverterSimple;
+    end;
+
   except
     FEngineInitialized := False;
   end;
@@ -167,55 +175,81 @@ var
   VPhpReader: TPHPReader;
   VErrStr: string;
 begin
+    VPhpReader := TPHPReader.Create(FScriptPath, FScriptStr);
   try
-      VPhpReader := TPHPReader.Create(FScriptPath, FScriptStr);
+    VPhpReader.Url := FURLBase;
+    VPhpReader.DefUrl := FDefUrlBase;
+    VPhpReader.Tile := ATile;
+    VPhpReader.Zoom := AZoom + 1;
+
+    if ACheckTileSize then
+      VPhpReader.OldTileSize := AOldTileSize
+    else
+      VPhpReader.OldTileSize := -1;
+
+    VPhpReader.FileBuf := fileBuf;
+
+      EnterCriticalSection(PhpThreadSafe);
     try
-      VPhpReader.Url := FURLBase;
-      VPhpReader.DefUrl := FDefUrlBase;
-      VPhpReader.Tile := ATile;
-      VPhpReader.Zoom := AZoom;
+      VPhpReader.Cookie := FCookieStr;
+      if FEnableCoordConverter and Assigned(FCoordConverter) then
+        VPhpReader.SetCustomParams(Self.GetCustomParams(ATile, AZoom));
+    finally
+      LeaveCriticalSection(PhpThreadSafe);
+    end;
 
-      if ACheckTileSize then
-        VPhpReader.OldTileSize := AOldTileSize
-      else
-        VPhpReader.OldTileSize := -1;
+    VPhpReader.SetProxyConfig(GState.InetConfig);
 
-      VPhpReader.FileBuf := fileBuf;
+    VErrStr := '';
+    Result := TDownloadTileResult( VPhpReader.Exec(VErrStr) );
+    if VErrStr <> '' then
+      raise Exception.Create(VErrStr);
+
+    if Result <> dtrUnknownError then
+    begin
+      AUrl := VPhpReader.FUrl;
+      AContentType := VPhpReader.MIMEType;
 
         EnterCriticalSection(PhpThreadSafe);
       try
-        VPhpReader.Cookie := FCookieStr;
+        FCookieStr := VPhpReader.Cookie;
       finally
         LeaveCriticalSection(PhpThreadSafe);
       end;
-
-      try
-        VErrStr := '';
-        Result := TDownloadTileResult( VPhpReader.Exec(VErrStr) );
-        if VErrStr <> '' then
-          raise Exception.Create(VErrStr);
-      except
-        Result := dtrUnknownError;
-      end;
-
-      if Result <> dtrUnknownError then
-      begin
-        AUrl := VPhpReader.FUrl;
-        AContentType := VPhpReader.MIMEType;
-
-          EnterCriticalSection(PhpThreadSafe);
-        try
-          FCookieStr := VPhpReader.Cookie;
-        finally
-          LeaveCriticalSection(PhpThreadSafe);
-        end;
-      end;
-
-    finally
-      FreeAndNil(VPhpReader);
     end;
-  except
-    Result := dtrUnknownError;
+
+  finally
+    FreeAndNil(VPhpReader);
+  end;
+end;
+
+function TPhpScript.GetCustomParams(AXY: TPoint; AZoom: Byte): TCustomParams;
+var
+  XY: TPoint;
+  LL: TDoublePoint;
+begin
+  ZeroMemory(@result, SizeOf(TCustomParams));
+  if Assigned(FCoordConverter) then
+  begin
+    LL := FCoordConverter.Pos2LonLat(AXY, AZoom);
+    Result.LLon := LL.X;
+    Result.TLat := LL.Y;
+
+    LL := FCoordConverter.LonLat2Metr(LL);
+    Result.LMetr := LL.X;
+    Result.TMetr := LL.Y;
+
+    XY := AXY;
+    Inc(XY.X);
+    Inc(XY.Y);
+
+    LL := FCoordConverter.Pos2LonLat(XY, AZoom);
+    Result.RLon := LL.X;
+    Result.BLat := LL.Y;
+
+    LL := FCoordConverter.LonLat2Metr(LL);
+    Result.RMetr := LL.X;
+    Result.BMetr := LL.Y;
   end;
 end;
 
@@ -254,91 +288,125 @@ function TPHPReader.Exec (out ExecError: string): integer;
 begin
   ExecError := '';
 
-  // служебные параметры:                    
-  FPHP.Variables.Add.Name := 'errstr';
-  FPHP.Variables.ByName('errstr').AsString := '';
+  FPHP.Variables.Add.Name := 'ErrStr';
+  FPHP.Variables.ByName('ErrStr').AsString := '';
 
-  FPHP.Variables.Add.Name := 'download_result';
-  FPHP.Variables.ByName('download_result').AsInteger := 0;
+  FPHP.Variables.Add.Name := 'DownloadResult';
+  FPHP.Variables.ByName('DownloadResult').AsInteger := 9;
 
-  FPHP.Variables.Add.Name := 'url';
-  FPHP.Variables.ByName('url').AsString := FUrl;
+  FPHP.Variables.Add.Name := 'Url';
+  FPHP.Variables.ByName('Url').AsString := FUrl;
 
-  FPHP.Variables.Add.Name := 'def_url';
-  FPHP.Variables.ByName('def_url').AsString := FDefUrl;
+  FPHP.Variables.Add.Name := 'DefUrl';
+  FPHP.Variables.ByName('DefUrl').AsString := FDefUrl;
 
-  FPHP.Variables.Add.Name := 'cookie';
-  FPHP.Variables.ByName('cookie').AsString := FCookieStr;
+  FPHP.Variables.Add.Name := 'CookieStr';
+  FPHP.Variables.ByName('CookieStr').AsString := FCookieStr;
 
-  FPHP.Variables.Add.Name := 'mime_type';
+  FPHP.Variables.Add.Name := 'MIMEType';
+  FPHP.Variables.ByName('MIMEType').AsString := '';
 
-  // параметры запроса
-  FPHP.Variables.Add.Name := 'x';
-  FPHP.Variables.ByName('x').AsInteger := FTile.X;
+  FPHP.Variables.Add.Name := 'X';
+  FPHP.Variables.ByName('X').AsInteger := FTile.X;
 
-  FPHP.Variables.Add.Name := 'y';
-  FPHP.Variables.ByName('y').AsInteger := FTile.Y;
+  FPHP.Variables.Add.Name := 'Y';
+  FPHP.Variables.ByName('Y').AsInteger := FTile.Y;
 
-  FPHP.Variables.Add.Name := 'z';
-  FPHP.Variables.ByName('z').AsInteger := FZoom;
+  FPHP.Variables.Add.Name := 'Z';
+  FPHP.Variables.ByName('Z').AsInteger := FZoom;
 
-  FPHP.Variables.Add.Name := 'old_tile_sz';
-  FPHP.Variables.ByName('old_tile_sz').AsInteger := FOldTileSize;
-
-  // дополнительные параметры
+  FPHP.Variables.Add.Name := 'OldTileSize';
+  FPHP.Variables.ByName('OldTileSize').AsInteger := FOldTileSize;
 
   try
-    // запускаем скрипт
     if FScript = '' then
       FPHP.Execute
     else
       FPHP.RunCode(FScript);
 
-    // забираем результат
-    ExecError := FPHP.Variables.ByName('errstr').AsString;
+    ExecError := FPHP.Variables.ByName('ErrStr').AsString;
 
-    Result := FPHP.Variables.ByName('download_result').AsInteger;
+    Result := FPHP.Variables.ByName('DownloadResult').AsInteger;
 
-    FUrl := FPHP.Variables.ByName('url').AsString;
+    FUrl := FPHP.Variables.ByName('Url').AsString;
 
-    FCookieStr := FPHP.Variables.ByName('cookie').AsString;
+    FCookieStr := FPHP.Variables.ByName('CookieStr').AsString;
 
-    FMIMEType := FPHP.Variables.ByName('mime_type').AsString;
+    FMIMEType := FPHP.Variables.ByName('MIMEType').AsString;
 
   except
     Result := Integer(dtrUnknownError);
   end;
 end;
 
-{
-procedure TUrlGenerator.SetVar(AXY: TPoint; AZoom: Byte);
+procedure TPHPReader.SetProxyConfig(AInetConfig: IInetConfig);
 var
-  XY: TPoint;
-  Ll: TDoublePoint;
+  VProxyConfig: IProxyConfig;
+  VUseIESettings: Boolean;
+  VUseProxy: Boolean;
+  VUseLogin: Boolean;
+  VLogin: string;
+  VPassword: string;
+  VHost: string;
 begin
-  FpGetX.Data := AXY.X;
-  FpGetY.Data := AXY.Y;
-  FpGetZ.Data := AZoom + 1;
-  Ll := FCoordConverter.Pos2LonLat(AXY, AZoom);
-  FpGetLlon.Data := Ll.X;
-  FpGetTLat.Data := Ll.Y;
-  Ll := FCoordConverter.LonLat2Metr(LL);
-  FpGetLMetr.Data := Ll.X;
-  FpGetTMetr.Data := Ll.Y;
-  XY := AXY;
-  Inc(XY.X);
-  Inc(XY.Y);
-  Ll := FCoordConverter.Pos2LonLat(XY, AZoom);
-  FpGetRLon.Data := Ll.X;
-  FpGetBLat.Data := Ll.Y;
-  Ll := FCoordConverter.LonLat2Metr(LL);
-  FpGetRMetr.Data := Ll.X;
-  FpGetBMetr.Data := Ll.Y;
-  FpConverter.Data := FCoordConverter;
-  FpGetURLBase.Data := FURLBase;
-end;
- }
+  VProxyConfig := AInetConfig.ProxyConfig;
+  VProxyConfig.LockRead;
+  try
+    VUseIESettings := VProxyConfig.GetUseIESettings;
+    VUseProxy := VProxyConfig.GetUseProxy;
+    VUseLogin := (not VUseIESettings) and VUseProxy and VProxyConfig.GetUseLogin;
+    VLogin := VProxyConfig.GetLogin;
+    VPassword := VProxyConfig.GetPassword;
+    VHost := VProxyConfig.GetHost;
+  finally
+    VProxyConfig.UnlockRead;
+  end;
 
+  FPHP.Variables.Add.Name := 'ProxyUseIESettings';
+  FPHP.Variables.ByName('ProxyUseIESettings').AsBoolean := VUseIESettings;
+
+  FPHP.Variables.Add.Name := 'UseProxy';
+  FPHP.Variables.ByName('UseProxy').AsBoolean := VUseProxy;
+
+  FPHP.Variables.Add.Name := 'ProxyUseLogin';
+  FPHP.Variables.ByName('ProxyUseLogin').AsBoolean := VUseLogin;
+
+  FPHP.Variables.Add.Name := 'ProxyLogin';
+  FPHP.Variables.ByName('ProxyLogin').AsString := VLogin;
+
+  FPHP.Variables.Add.Name := 'ProxyPassword';
+  FPHP.Variables.ByName('ProxyPassword').AsString := VPassword;
+
+  FPHP.Variables.Add.Name := 'ProxyHost';
+  FPHP.Variables.ByName('ProxyHost').AsString := VHost;
+end;
+
+procedure TPHPReader.SetCustomParams(AParams: TCustomParams);
+begin
+  FPHP.Variables.Add.Name := 'LLon';
+  FPHP.Variables.ByName('LLon').AsFloat := AParams.LLon;
+
+  FPHP.Variables.Add.Name := 'TLat';
+  FPHP.Variables.ByName('TLat').AsFloat := AParams.TLat;
+
+  FPHP.Variables.Add.Name := 'RLon';
+  FPHP.Variables.ByName('RLon').AsFloat := AParams.RLon;
+
+  FPHP.Variables.Add.Name := 'BLat';
+  FPHP.Variables.ByName('BLat').AsFloat := AParams.BLat;
+
+  FPHP.Variables.Add.Name := 'LMetr';
+  FPHP.Variables.ByName('LMetr').AsFloat := AParams.LMetr;
+
+  FPHP.Variables.Add.Name := 'TMetr';
+  FPHP.Variables.ByName('TMetr').AsFloat := AParams.TMetr;
+
+  FPHP.Variables.Add.Name := 'RMetr';
+  FPHP.Variables.ByName('RMetr').AsFloat := AParams.RMetr;
+
+  FPHP.Variables.Add.Name := 'BMetr';
+  FPHP.Variables.ByName('BMetr').AsFloat := AParams.BMetr;
+end;
 
 initialization
 InitializeCriticalSection(PhpThreadSafe);
