@@ -23,6 +23,9 @@ type
     FLinksList: IJclListenerNotifierLinksList;
     procedure OnLangChange(Sender: TObject);
   protected
+    function GetCaptionTranslated: string; virtual; abstract;
+    function GetDescriptionTranslated: string; virtual; abstract;
+    function GetMenuItemNameTranslated: string; virtual; abstract;
     procedure NotifyDataUpdate;
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
   protected
@@ -37,9 +40,6 @@ type
   public
     constructor Create(
       AGUID: TGUID;
-      ACaption: string;
-      ADescription: string;
-      AMenuItemName: string;
       ACanReset: Boolean;
       ASensorTypeIID: TGUID;
       ALanguageManager: ILanguageManager
@@ -56,17 +56,14 @@ uses
 { TSensorBase }
 
 constructor TSensorBase.Create(
-  AGUID: TGUID; ACaption, ADescription,
-  AMenuItemName: string; ACanReset: Boolean;
+  AGUID: TGUID;
+  ACanReset: Boolean;
   ASensorTypeIID: TGUID;
   ALanguageManager: ILanguageManager
 );
 begin
   inherited Create;
   FGUID := AGUID;
-  FCaption := ACaption;
-  FDescription := ADescription;
-  FMenuItemName := AMenuItemName;
   FCanReset := ACanReset;
   FSensorTypeIID := ASensorTypeIID;
 
@@ -77,6 +74,7 @@ begin
     TNotifyEventListener.Create(Self.OnLangChange),
     ALanguageManager.GetChangeNotifier
   );
+  OnLangChange(nil);
 end;
 
 function TSensorBase.CanReset: Boolean;
@@ -136,7 +134,15 @@ end;
 
 procedure TSensorBase.OnLangChange(Sender: TObject);
 begin
-  SetChanged;
+  LockWrite;
+  try
+    FCaption := GetCaptionTranslated;
+    FDescription := GetDescriptionTranslated;
+    FMenuItemName := GetMenuItemNameTranslated;
+    SetChanged;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TSensorBase.Reset;

@@ -134,7 +134,6 @@ type
     Label31: TLabel;
     btnMapInfo: TButton;
     CBSensorsBarAutoShow: TCheckBox;
-    SBGetComNum: TSpeedButton;
     Label32: TLabel;
     SETimeOut: TSpinEdit;
     TabSheet6: TTabSheet;
@@ -220,7 +219,6 @@ type
       Item: TListItem; SubItem: Integer; State: TCustomDrawState;
       var DefaultDraw: Boolean);
     procedure btnMapInfoClick(Sender: TObject);
-    procedure SBGetComNumClick(Sender: TObject);
     procedure chkUseIEProxyClick(Sender: TObject);
     procedure CBProxyusedClick(Sender: TObject);
     procedure CBLoginClick(Sender: TObject);
@@ -813,13 +811,6 @@ begin
   if VMap.MapInfo <> '' then begin
     frmIntrnalBrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
   end;
-end;
-
-procedure TfrmSettings.SBGetComNumClick(Sender: TObject);
-begin
- SBGetComNum.Enabled:=false;
- ShowMessage(SAS_MSG_NoGPSdetected);
- SBGetComNum.Enabled:=true;
 end;
 
 procedure TfrmSettings.InitMapsList;

@@ -37,9 +37,11 @@ uses
   TBX,
   TBXControls,
   TBXExtItems,
+  TBXGraphics,
   u_CommonFormAndFrameParents,
   i_JclNotify,
   i_GUIDList,
+  t_GeoTypes,
   i_JclListenerNotifierLinksList,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -56,7 +58,6 @@ uses
   u_WindowLayerBasicList,
   u_GeoFun,
   u_MapLayerWiki,
-  frm_StartLogo,
   u_MapType,
   u_ResStrings,
   u_ShortcutManager,
@@ -80,9 +81,7 @@ uses
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
-  u_TileDownloaderUI,
-  t_GeoTypes,
-  TBXGraphics;
+  u_TileDownloaderUI;
 
 type
   TAOperation = (
@@ -196,8 +195,6 @@ type
     NMapParams: TTBXItem;
     N8: TTBXItem;
     TBLang: TTBXSubmenuItem;
-    TBXLangRus: TTBXItem;
-    TBXLangEng: TTBXItem;
     tbitmGPSConnect: TTBXItem;
     tbitmGPSTrackShow: TTBXItem;
     tbitmGPSCenterMap: TTBXItem;
@@ -233,34 +230,7 @@ type
     TBXSensorsBar: TTBXToolWindow;
     ScrollBox1: TScrollBox;
     TBXDock1: TTBXDock;
-    TBXSensorSpeedAvgBar: TTBXToolWindow;
-    TBXSensorSpeedAvg: TTBXLabel;
-    TBXSensorSpeedBar: TTBXToolWindow;
-    TBXSensorSpeed: TTBXLabel;
-    TBXsensorOdometrBar: TTBXToolWindow;
-    TBXSensorOdometr: TTBXLabel;
-    TBXSensorPathBar: TTBXToolWindow;
-    TBXOdometrNow: TTBXLabel;
-    TBXSensorBattaryBar: TTBXToolWindow;
-    TBXSensorBattary: TTBXLabel;
-    TBXSensorLenToMarkBar: TTBXToolWindow;
-    TBXSensorLenToMark: TTBXLabel;
-    TBXLabel8: TTBXLabel;
-    TBXLabel9: TTBXLabel;
-    TBXLabel10: TTBXLabel;
-    lblSensorOdometr: TTBXLabel;
-    TBXLabel13: TTBXLabel;
-    TBXLabel14: TTBXLabel;
-    btnSensorOdometrReset: TSpeedButton;
-    SpeedButton3: TSpeedButton;
-    SBClearSensor: TSpeedButton;
     NSensors: TTBXSubmenuItem;
-    NSensorLenToMarkBar: TTBXItem;
-    NsensorOdometrBar: TTBXItem;
-    NSensorPathBar: TTBXItem;
-    NSensorSpeedAvgBar: TTBXItem;
-    NSensorSpeedBar: TTBXItem;
-    NSensorBattaryBar: TTBXItem;
     TBXPopupMenuSensors: TTBXPopupMenu;
     TBXItem1: TTBXItem;
     TBXLabelItem1: TTBXLabelItem;
@@ -268,24 +238,9 @@ type
     TBXItem2: TTBXItem;
     TBXItem3: TTBXItem;
     TBXItem4: TTBXItem;
-    TBXSensorAltitudeBar: TTBXToolWindow;
-    SpeedButton4: TSpeedButton;
-    TBXSensorAltitude: TTBXLabel;
-    TBXLabel2: TTBXLabel;
-    NSensorAltitudeBar: TTBXItem;
-    TBXSensorSpeedMaxBar: TTBXToolWindow;
-    SpeedButton5: TSpeedButton;
-    TBXSensorSpeedMax: TTBXLabel;
-    TBXLabel3: TTBXLabel;
-    NSensorSpeedMaxBar: TTBXItem;
-    SpeedButton6: TSpeedButton;
     TBXItem5: TTBXItem;
     TBXSeparatorItem16: TTBXSeparatorItem;
     TBXSeparatorItem17: TTBXSeparatorItem;
-    TBXSensorAzimutBar: TTBXToolWindow;
-    TBXSensorAzimut: TTBXLabel;
-    TBXLabel4: TTBXLabel;
-    NSensorAzimutBar: TTBXItem;
     TBXToolBarSearch: TTBXToolbar;
     TBXSearchEdit: TTBXEditItem;
     TBXSelectSrchType: TTBXSubmenuItem;
@@ -303,12 +258,6 @@ type
     TBLoadSelFromFile: TTBXItem;
     TBXSignalStrengthBar: TTBXToolWindow;
     TBXLabel5: TTBXLabel;
-    NSignalStrengthBar: TTBXItem;
-    TBXsensorOdometr2Bar: TTBXToolWindow;
-    SpeedButton1: TSpeedButton;
-    TBXSensorOdometr2: TTBXLabel;
-    TBXLabel6: TTBXLabel;
-    NsensorOdometr2Bar: TTBXItem;
     TBGPSToPoint: TTBXSubmenuItem;
     TBGPSToPointCenter: TTBXItem;
     tbitmGPSToPointCenter: TTBXItem;
@@ -369,7 +318,6 @@ type
     TBCopyLinkLayer: TTBXSubmenuItem;
     TBLayerInfo: TTBXSubmenuItem;
     TBScreenSelect: TTBXItem;
-    pnlSensorOdometrTop: TTBXAlignmentPanel;
     NMainToolBarShow: TTBXVisibilityToggleItem;
     NZoomToolBarShow: TTBXVisibilityToggleItem;
     NsrcToolBarShow: TTBXVisibilityToggleItem;
@@ -377,6 +325,7 @@ type
     TBXVisibilityToggleItem1: TTBXVisibilityToggleItem;
     TBXVisibilityToggleItem2: TTBXVisibilityToggleItem;
     TBXSeparatorItem13: TTBXSeparatorItem;
+    NSignalStrengthBar: TTBXVisibilityToggleItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -472,14 +421,11 @@ type
     procedure NMarksCalcsSqClick(Sender: TObject);
     procedure NMarksCalcsPerClick(Sender: TObject);
     procedure TBEditPathOkClick(Sender: TObject);
-    procedure TBItem1Click(Sender: TObject);
     procedure NMapInfoClick(Sender: TObject);
     procedure TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette;var ACol, ARow: Integer; var AllowChange: Boolean);
     procedure NanimateClick(Sender: TObject);
     procedure NbackloadLayerClick(Sender: TObject);
-    procedure SBClearSensorClick(Sender: TObject);
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
-    procedure TBXSensorBarVisibleChanged(Sender: TObject);
     procedure TBXItem1Click(Sender: TObject);
     procedure TBXItem5Click(Sender: TObject);
     procedure TBXSelectSrchClick(Sender: TObject);
@@ -504,7 +450,6 @@ type
       ARow: Integer; var AllowChange: Boolean);
     procedure TBScreenSelectClick(Sender: TObject);
     procedure NSensorsClick(Sender: TObject);
-    procedure NSensorsBarClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
@@ -574,12 +519,18 @@ type
     FTumbler:TBitmap32;
     FSensorViewList: IGUIDInterfaceList;
 
+    procedure InitSearchers;
+    procedure CreateMapUIMapsList;
+    procedure CreateMapUILayersList;
+    procedure CreateMapUIFillingList;
+    procedure CreateMapUILayerSubMenu;
+    procedure CreateLangMenu;
+
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
     procedure OnLineOnMapEditChange(Sender: TObject);
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
-    procedure InitSearchers;
     procedure zooming(ANewZoom: byte; move: boolean);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
     procedure ProcessPosChangeMessage(Sender: TObject);
@@ -590,13 +541,8 @@ type
     procedure OnTimerEvent(Sender: TObject);
 
     procedure CopyStringToClipboard(s: Widestring);
-    procedure UpdateGPSsensors;
     procedure setalloperationfalse(newop: TAOperation);
     procedure UpdateGPSSatellites;
-    procedure CreateMapUIMapsList;
-    procedure CreateMapUILayersList;
-    procedure CreateMapUIFillingList;
-    procedure CreateMapUILayerSubMenu;
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange(Sender: TObject);
@@ -652,16 +598,14 @@ uses
   i_LocalCoordConverter,
   i_ValueToStringConverter,
   i_ActiveMapsConfig,
+  i_LanguageManager,
   i_SensorViewListGenerator,
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
   u_LineOnMapEdit,
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
-  frm_SearchResults,
-  frm_ProgressDownload,
-  frm_InvisibleBrowser,
-  frm_DebugInfo,
+  u_LanguageTBXItem,
   i_ImportConfig,
   u_ThreadDownloadTiles,
   u_PathDetalizeProviderMailRu,
@@ -669,8 +613,13 @@ uses
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
   u_PosFromGSM,
-  frm_ImportConfigEdit,
-  u_ExportMarks2KML;
+  u_ExportMarks2KML,
+  frm_SearchResults,
+  frm_ProgressDownload,
+  frm_InvisibleBrowser,
+  frm_DebugInfo,
+  frm_StartLogo,
+  frm_ImportConfigEdit;
 
 {$R *.dfm}
 
@@ -976,6 +925,7 @@ begin
       end;
     end;
     InitSearchers;
+    CreateLangMenu;
     FMapMoving:=false;
 
     SetProxy;
@@ -1001,6 +951,217 @@ begin
     TfrmStartLogo.ReadyToHideLogo;
   end;
   TBXMainMenu.ProcessShortCuts:=true;
+end;
+
+procedure TfrmMain.InitSearchers;
+var
+  VGoto: IMapViewGoto;
+  VItem: IGeoCoderListEntity;
+  VTBXItem: TTBXItem;
+  VTBEditItem: TTBEditItem;
+begin
+  VGoto := TMapViewGotoOnFMain.Create(Self.topos);
+  FSearchPresenter := TSearchResultPresenterWithForm.Create(VGoto);
+  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
+  VTBXItem := TBXSelectGoogleSrch;
+  VTBEditItem := tbiEditGoogleSrch;
+
+  VTBEditItem.Tag := Integer(VItem);
+  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
+  VTBEditItem.EditCaption := VItem.GetCaption;
+  VTBEditItem.Caption := VItem.GetCaption;
+  VTBXItem.Tag := Integer(VItem);
+  VTBXItem.OnClick := Self.TBXSelectSrchClick;
+  VTBXItem.Caption := VItem.GetCaption;
+
+  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
+  VTBXItem := TBXSelectYandexSrch;
+  VTBEditItem := tbiEditYandexSrch;
+
+  VTBEditItem.Tag := Integer(VItem);
+  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
+  VTBEditItem.EditCaption := VItem.GetCaption;
+  VTBEditItem.Caption := VItem.GetCaption;
+  VTBXItem.Tag := Integer(VItem);
+  VTBXItem.OnClick := Self.TBXSelectSrchClick;
+  VTBXItem.Caption := VItem.GetCaption;
+end;
+
+procedure TfrmMain.CreateLangMenu;
+var
+  i: Integer;
+  VManager: ILanguageManager;
+begin
+  VManager := GState.LanguageManager;
+  for i := 0 to VManager.GetCount - 1 do begin
+    TLanguageTBXItem.Create(Self, TBLang, VManager, i);
+  end;
+end;
+
+procedure TfrmMain.CreateMapUI;
+begin
+  if GState.MapType.Count>0 then begin
+    CreateMapUIMapsList;
+    CreateMapUILayersList;
+    CreateMapUIFillingList;
+    CreateMapUILayerSubMenu;
+  end;
+end;
+
+procedure TfrmMain.CreateMapUIFillingList;
+var
+  VGenerator: TMapMenuGeneratorBasic;
+begin
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetMapsSet,
+    TBFillingTypeMap,
+    Self.TBfillMapAsMainClick,
+    GState.MapTypeIcons18List,
+    false
+  );
+  try
+    VGenerator.BuildControls;
+  finally
+    FreeAndNil(VGenerator);
+  end;
+end;
+
+procedure TfrmMain.CreateMapUILayersList;
+var
+  VGenerator: TMapMenuGeneratorBasic;
+begin
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.MainMapsConfig.GetLayers,
+    TBLayerSel,
+    Self.OnClickLayerItem,
+    GState.MapTypeIcons18List,
+    true
+  );
+  try
+   VGenerator.BuildControls;
+  finally
+    FreeAndNil(VGenerator);
+  end;
+end;
+
+procedure TfrmMain.CreateMapUILayerSubMenu;
+var
+  i: integer;
+  VMapType: TMapType;
+
+  NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
+  NDwnItem: TTBXItem; //Пункт контекстного меню Загрузить тайл слоя
+  NDelItem: TTBXItem; //Пункт контекстного меню Удалить тайл слоя
+  NOpenDirItem: TTBXItem;
+  NCopyLinkItem: TTBXItem;
+  NLayerInfoItem: TTBXItem;
+
+  VIcon18Index: Integer;
+begin
+  ldm.Clear;
+  dlm.Clear;
+  TBOpenDirLayer.Clear;
+  NLayerParams.Clear;
+  TBCopyLinkLayer.Clear;
+  TBLayerInfo.Clear;
+
+  FNLayerParamsItemList.Clear;
+  FNLayerInfoItemList.Clear;
+  FNDwnItemList.Clear;
+  FNDelItemList.Clear;
+  FNOpenDirItemList.Clear;
+  FNCopyLinkItemList.Clear;
+
+  if GState.MapType.Count>0 then begin
+    for i:=0 to GState.MapType.Count-1 do begin
+      VMapType := GState.MapType[i];
+      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
+      if VMapType.asLayer then begin
+        NDwnItem:=TTBXItem.Create(ldm);
+        FNDwnItemList.Add(VMapType.GUID, NDwnItem);
+        NDwnItem.Caption:=VMapType.name;
+        NDwnItem.ImageIndex:=VIcon18Index;
+        NDwnItem.OnClick:=N21Click;
+        NDwnItem.Tag:=longint(VMapType);
+        ldm.Add(NDwnItem);
+
+        NDelItem:=TTBXItem.Create(dlm);
+        FNDelItemList.Add(VMapType.GUID, NDelItem);
+        NDelItem.Caption:=VMapType.name;
+        NDelItem.ImageIndex:=VIcon18Index;
+        NDelItem.OnClick:=NDelClick;
+        NDelItem.Tag:=longint(VMapType);
+        dlm.Add(NDelItem);
+
+        NOpenDirItem:=TTBXItem.Create(TBOpenDirLayer);
+        FNOpenDirItemList.Add(VMapType.GUID, NOpenDirItem);
+        NOpenDirItem.Caption:=VMapType.name;
+        NOpenDirItem.ImageIndex:=VIcon18Index;
+        NOpenDirItem.OnClick:=N25Click;
+        NOpenDirItem.Tag:=longint(VMapType);
+        TBOpenDirLayer.Add(NOpenDirItem);
+
+        NCopyLinkItem:=TTBXItem.Create(TBCopyLinkLayer);
+        FNCopyLinkItemList.Add(VMapType.GUID, NCopyLinkItem);
+        NCopyLinkItem.Caption:=VMapType.name;
+        NCopyLinkItem.ImageIndex:=VIcon18Index;
+        NCopyLinkItem.OnClick:=N13Click;
+        NCopyLinkItem.Tag:=longint(VMapType);
+        TBCopyLinkLayer.Add(NCopyLinkItem);
+
+        NLayerParamsItem:=TTBXItem.Create(NLayerParams);
+        FNLayerParamsItemList.Add(VMapType.GUID, NLayerParamsItem);
+        NLayerParamsItem.Caption:=VMapType.name;
+        NLayerParamsItem.ImageIndex:=VIcon18Index;
+        NLayerParamsItem.OnClick:=NMapParamsClick;
+        NLayerParamsItem.Tag:=longint(VMapType);
+        NLayerParams.Add(NLayerParamsItem);
+
+        NLayerInfoItem:=TTBXItem.Create(TBLayerInfo);
+        FNLayerInfoItemList.Add(VMapType.GUID, NLayerInfoItem);
+        NLayerInfoItem.Caption:=VMapType.name;
+        NLayerInfoItem.ImageIndex:=VIcon18Index;
+        NLayerInfoItem.OnClick:=NMapInfoClick;
+        NLayerInfoItem.Tag:=longint(VMapType);
+        TBLayerInfo.Add(NLayerInfoItem);
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMain.CreateMapUIMapsList;
+var
+  VGenerator: TMapMenuGeneratorBasic;
+begin
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.MainMapsConfig.GetMapsSet,
+    TBSMB,
+    Self.OnClickMapItem,
+    GState.MapTypeIcons18List,
+    true
+  );
+  try
+    VGenerator.BuildControls;
+  finally
+    FreeAndNil(VGenerator);
+  end;
+end;
+
+function TfrmMain.GetIgnoredMenuItemsList: TList;
+begin
+  Result := TList.Create;
+  Result.Add(NSMB);
+  Result.Add(NLayerSel);
+  Result.Add(TBFillingTypeMap);
+  Result.Add(NLayerParams);
+  Result.Add(TBLang);
+  Result.Add(N002);
+  Result.Add(N003);
+  Result.Add(N004);
+  Result.Add(N005);
+  Result.Add(N006);
+  Result.Add(N007);
+  Result.Add(NFillMap);
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -1428,104 +1589,105 @@ var
   VMoveByDelta: Boolean;
   VPointDelta: TDoublePoint;
 begin
-  if Active then
-  case Msg.message of
-    WM_MOUSEWHEEL: begin
-      if not FMapZoomAnimtion then begin
-        MouseCursorPos:=FmoveTrue;
-        if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
-        VZoom := FConfig.ViewPortState.GetCurrentZoom;
-        if Msg.wParam<0 then begin
-          VNewZoom := VZoom-(1*z);
-        end else begin
-          VNewZoom := VZoom+(1*z);
-        end;
-        if VNewZoom < 0 then VNewZoom := 0;
-        zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
-      end;
-    end;
-    WM_KEYFIRST: begin
-      VMoveByDelta := False;
-      case Msg.wParam of
-        VK_RIGHT,
-        VK_LEFT,
-        VK_DOWN,
-        VK_UP: VMoveByDelta := True;
-      end;
-      if VMoveByDelta then begin
-        if (FdWhenMovingButton<35) then begin
-          inc(FdWhenMovingButton);
-        end;
-        dWMB:=trunc(Power(FdWhenMovingButton,1.5));
-        case Msg.wParam of
-          VK_RIGHT: VPointDelta := DoublePoint(dWMB, 0);
-          VK_LEFT: VPointDelta := DoublePoint(-dWMB, 0);
-          VK_DOWN: VPointDelta := DoublePoint(0, dWMB);
-          VK_UP: VPointDelta := DoublePoint(0, -dWMB);
-        else
-          VPointDelta := DoublePoint(0, 0);
-        end;
-        map.BeginUpdate;
-        try
-          FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
-        finally
-          map.EndUpdate;
-          map.Changed;
-        end;
-      end;
-    end;
-    WM_KEYUP: begin
-      FdWhenMovingButton:=5;
-      case Msg.wParam of
-        VK_BACK: begin
-          if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
-           FLineOnMapEdit.DeleteActivePoint;
+  if Active then begin
+    if not FMapZoomAnimtion then begin
+      case Msg.message of
+        WM_MOUSEWHEEL: begin
+          MouseCursorPos:=FmoveTrue;
+          if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
+          VZoom := FConfig.ViewPortState.GetCurrentZoom;
+          if Msg.wParam<0 then begin
+            VNewZoom := VZoom-(1*z);
+          end else begin
+            VNewZoom := VZoom+(1*z);
           end;
+          if VNewZoom < 0 then VNewZoom := 0;
+          zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
         end;
-        VK_ESCAPE: begin
-          case FCurrentOper of
-            ao_select_rect: begin
-              if Frect_dwn then begin
-                setalloperationfalse(ao_movemap);
-                setalloperationfalse(ao_select_rect);
-              end else begin
-                setalloperationfalse(ao_movemap);
-              end;
+        WM_KEYFIRST: begin
+          VMoveByDelta := False;
+          case Msg.wParam of
+            VK_RIGHT,
+            VK_LEFT,
+            VK_DOWN,
+            VK_UP: VMoveByDelta := True;
+          end;
+          if VMoveByDelta then begin
+            if (FdWhenMovingButton<35) then begin
+              inc(FdWhenMovingButton);
             end;
-            ao_Add_Point: begin
-              setalloperationfalse(ao_movemap);
+            dWMB:=trunc(Power(FdWhenMovingButton,1.5));
+            case Msg.wParam of
+              VK_RIGHT: VPointDelta := DoublePoint(dWMB, 0);
+              VK_LEFT: VPointDelta := DoublePoint(-dWMB, 0);
+              VK_DOWN: VPointDelta := DoublePoint(0, dWMB);
+              VK_UP: VPointDelta := DoublePoint(0, -dWMB);
+            else
+              VPointDelta := DoublePoint(0, 0);
             end;
-            ao_select_poly,
-            ao_calc_line,
-            ao_add_line,
-            ao_add_poly,
-            ao_edit_line,
-            ao_edit_poly: begin
-              if (FLineOnMapEdit.GetCount>0) then begin
-                FLineOnMapEdit.Empty;
-              end else begin
-                setalloperationfalse(ao_movemap);
-              end;
+            map.BeginUpdate;
+            try
+              FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
+            finally
+              map.EndUpdate;
+              map.Changed;
             end;
           end;
         end;
-        VK_RETURN: begin
-          case FCurrentOper of
-            ao_add_Poly,
-            ao_edit_Poly: begin
-              if FLineOnMapEdit.GetCount > 2 then begin
-                TBEditPathSaveClick(Self);
+        WM_KEYUP: begin
+          FdWhenMovingButton:=5;
+          case Msg.wParam of
+            VK_BACK: begin
+              if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
+               FLineOnMapEdit.DeleteActivePoint;
               end;
             end;
-            ao_add_line,
-            ao_edit_line: begin
-              if FLineOnMapEdit.GetCount > 1 then begin
-                TBEditPathSaveClick(Self);
+            VK_ESCAPE: begin
+              case FCurrentOper of
+                ao_select_rect: begin
+                  if Frect_dwn then begin
+                    setalloperationfalse(ao_movemap);
+                    setalloperationfalse(ao_select_rect);
+                  end else begin
+                    setalloperationfalse(ao_movemap);
+                  end;
+                end;
+                ao_Add_Point: begin
+                  setalloperationfalse(ao_movemap);
+                end;
+                ao_select_poly,
+                ao_calc_line,
+                ao_add_line,
+                ao_add_poly,
+                ao_edit_line,
+                ao_edit_poly: begin
+                  if (FLineOnMapEdit.GetCount>0) then begin
+                    FLineOnMapEdit.Empty;
+                  end else begin
+                    setalloperationfalse(ao_movemap);
+                  end;
+                end;
               end;
             end;
-            ao_select_poly: begin
-              if FLineOnMapEdit.GetCount > 2 then begin
-                TBEditPathOkClick(Self)
+            VK_RETURN: begin
+              case FCurrentOper of
+                ao_add_Poly,
+                ao_edit_Poly: begin
+                  if FLineOnMapEdit.GetCount > 2 then begin
+                    TBEditPathSaveClick(Self);
+                  end;
+                end;
+                ao_add_line,
+                ao_edit_line: begin
+                  if FLineOnMapEdit.GetCount > 1 then begin
+                    TBEditPathSaveClick(Self);
+                  end;
+                end;
+                ao_select_poly: begin
+                  if FLineOnMapEdit.GetCount > 2 then begin
+                    TBEditPathOkClick(Self)
+                  end;
+                end;
               end;
             end;
           end;
@@ -1562,64 +1724,6 @@ begin
   if (ssShift in Shift) then begin
     ASelectedLonLat := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GetRectStickToGrid(VLocalConverter, ASelectedLonLat);
   end;
-end;
-
-procedure TfrmMain.UpdateGPSsensors;
-var
-  n_len: string;
-  sps: _SYSTEM_POWER_STATUS;
-  VPoint: TDoublePoint;
-  VDist: Double;
-  VValueConverter: IValueToStringConverter;
-  VLocalConverter: ILocalCoordConverter;
-begin
- try
-   VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-   GState.GPSRecorder.LockRead;
-   try
-     //скорость
-     TBXSensorSpeed.Caption:=RoundEx(GState.GPSRecorder.LastSpeed,2);
-     //средняя скорость
-     TBXSensorSpeedAvg.Caption:=RoundEx(GState.GPSRecorder.AvgSpeed,2);
-     //максимальная скорость
-     TBXSensorSpeedMax.Caption:=RoundEx(GState.GPSRecorder.MaxSpeed,2);
-     //высота
-     TBXSensorAltitude.Caption:=RoundEx(GState.GPSRecorder.LastAltitude,2);
-     //пройденный путь
-     TBXOdometrNow.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.Dist);
-     //одометр
-     TBXSensorOdometr.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.Odometer1);
-     TBXSensorOdometr2.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.Odometer2);
-     //Азимут
-     TBXSensorAzimut.Caption:=RoundEx(GState.GPSRecorder.LastHeading,2)+'°';
-   finally
-     GState.GPSRecorder.UnlockRead;
-   end;
-   //расстояние до метки
-   if (FConfig.NavToPoint.IsActive) then begin
-     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-     VPoint := VLocalConverter.GetCenterLonLat;
-     VDist := VLocalConverter.GetGeoConverter.Datum.CalcDist(FConfig.NavToPoint.LonLat, VPoint);
-     n_len:=VValueConverter.DistConvert(VDist);
-     TBXSensorLenToMark.Caption:=n_len;
-   end else begin
-     TBXSensorLenToMark.Caption:='-';
-   end;
-   //батарея
-   GetSystemPowerStatus(sps);
-   if sps.ACLineStatus=0 then begin
-     case sps.BatteryFlag of
-       128: TBXSensorBattary.Caption:=SAS_STR_BattaryStateOnLine;
-         8: TBXSensorBattary.Caption:=SAS_STR_BattaryStateCharge;
-       else if sps.BatteryLifePercent=255 then TBXSensorBattary.Caption:=SAS_STR_BattaryStateUnknown
-                                          else TBXSensorBattary.Caption:=inttostr(sps.BatteryLifePercent)+'%';
-     end
-   end
-   else begin
-     TBXSensorBattary.Caption:=SAS_STR_BattaryStateOnLine;
-   end;
- except
- end;
 end;
 
 procedure TfrmMain.UpdateGPSSatellites;
@@ -1725,7 +1829,6 @@ begin
       end;
     end;
   end;
-  UpdateGPSsensors;
   FLayerStatBar.Redraw;
 end;
 
@@ -1741,172 +1844,6 @@ begin
   if draw then begin
     FLayerGoto.ShowGotoIcon(LL);
   end;
-end;
-
-procedure TfrmMain.CreateMapUI;
-begin
-  if GState.MapType.Count>0 then begin
-    CreateMapUIMapsList;
-    CreateMapUILayersList;
-    CreateMapUIFillingList;
-    CreateMapUILayerSubMenu;
-  end;
-end;
-
-procedure TfrmMain.CreateMapUIFillingList;
-var
-  VGenerator: TMapMenuGeneratorBasic;
-begin
-  VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetMapsSet,
-    TBFillingTypeMap,
-    Self.TBfillMapAsMainClick,
-    GState.MapTypeIcons18List,
-    false
-  );
-  try
-    VGenerator.BuildControls;
-  finally
-    FreeAndNil(VGenerator);
-  end;
-end;
-
-procedure TfrmMain.CreateMapUILayersList;
-var
-  VGenerator: TMapMenuGeneratorBasic;
-begin
-  VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.MainMapsConfig.GetLayers,
-    TBLayerSel,
-    Self.OnClickLayerItem,
-    GState.MapTypeIcons18List,
-    true
-  );
-  try
-   VGenerator.BuildControls;
-  finally
-    FreeAndNil(VGenerator);
-  end;
-end;
-
-procedure TfrmMain.CreateMapUILayerSubMenu;
-var
-  i: integer;
-  VMapType: TMapType;
-
-  NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
-  NDwnItem: TTBXItem; //Пункт контекстного меню Загрузить тайл слоя
-  NDelItem: TTBXItem; //Пункт контекстного меню Удалить тайл слоя
-  NOpenDirItem: TTBXItem;
-  NCopyLinkItem: TTBXItem;
-  NLayerInfoItem: TTBXItem;
-
-  VIcon18Index: Integer;
-begin
-  ldm.Clear;
-  dlm.Clear;
-  TBOpenDirLayer.Clear;
-  NLayerParams.Clear;
-  TBCopyLinkLayer.Clear;
-  TBLayerInfo.Clear;
-
-  FNLayerParamsItemList.Clear;
-  FNLayerInfoItemList.Clear;
-  FNDwnItemList.Clear;
-  FNDelItemList.Clear;
-  FNOpenDirItemList.Clear;
-  FNCopyLinkItemList.Clear;
-
-  if GState.MapType.Count>0 then begin
-    for i:=0 to GState.MapType.Count-1 do begin
-      VMapType := GState.MapType[i];
-      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
-      if VMapType.asLayer then begin
-        NDwnItem:=TTBXItem.Create(ldm);
-        FNDwnItemList.Add(VMapType.GUID, NDwnItem);
-        NDwnItem.Caption:=VMapType.name;
-        NDwnItem.ImageIndex:=VIcon18Index;
-        NDwnItem.OnClick:=N21Click;
-        NDwnItem.Tag:=longint(VMapType);
-        ldm.Add(NDwnItem);
-
-        NDelItem:=TTBXItem.Create(dlm);
-        FNDelItemList.Add(VMapType.GUID, NDelItem);
-        NDelItem.Caption:=VMapType.name;
-        NDelItem.ImageIndex:=VIcon18Index;
-        NDelItem.OnClick:=NDelClick;
-        NDelItem.Tag:=longint(VMapType);
-        dlm.Add(NDelItem);
-
-        NOpenDirItem:=TTBXItem.Create(TBOpenDirLayer);
-        FNOpenDirItemList.Add(VMapType.GUID, NOpenDirItem);
-        NOpenDirItem.Caption:=VMapType.name;
-        NOpenDirItem.ImageIndex:=VIcon18Index;
-        NOpenDirItem.OnClick:=N25Click;
-        NOpenDirItem.Tag:=longint(VMapType);
-        TBOpenDirLayer.Add(NOpenDirItem);
-
-        NCopyLinkItem:=TTBXItem.Create(TBCopyLinkLayer);
-        FNCopyLinkItemList.Add(VMapType.GUID, NCopyLinkItem);
-        NCopyLinkItem.Caption:=VMapType.name;
-        NCopyLinkItem.ImageIndex:=VIcon18Index;
-        NCopyLinkItem.OnClick:=N13Click;
-        NCopyLinkItem.Tag:=longint(VMapType);
-        TBCopyLinkLayer.Add(NCopyLinkItem);
-
-        NLayerParamsItem:=TTBXItem.Create(NLayerParams);
-        FNLayerParamsItemList.Add(VMapType.GUID, NLayerParamsItem);
-        NLayerParamsItem.Caption:=VMapType.name;
-        NLayerParamsItem.ImageIndex:=VIcon18Index;
-        NLayerParamsItem.OnClick:=NMapParamsClick;
-        NLayerParamsItem.Tag:=longint(VMapType);
-        NLayerParams.Add(NLayerParamsItem);
-
-        NLayerInfoItem:=TTBXItem.Create(TBLayerInfo);
-        FNLayerInfoItemList.Add(VMapType.GUID, NLayerInfoItem);
-        NLayerInfoItem.Caption:=VMapType.name;
-        NLayerInfoItem.ImageIndex:=VIcon18Index;
-        NLayerInfoItem.OnClick:=NMapInfoClick;
-        NLayerInfoItem.Tag:=longint(VMapType);
-        TBLayerInfo.Add(NLayerInfoItem);
-      end;
-    end;
-  end;
-end;
-
-procedure TfrmMain.CreateMapUIMapsList;
-var
-  VGenerator: TMapMenuGeneratorBasic;
-begin
-  VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.MainMapsConfig.GetMapsSet,
-    TBSMB,
-    Self.OnClickMapItem,
-    GState.MapTypeIcons18List,
-    true
-  );
-  try
-    VGenerator.BuildControls;
-  finally
-    FreeAndNil(VGenerator);
-  end;
-end;
-
-function TfrmMain.GetIgnoredMenuItemsList: TList;
-begin
-  Result := TList.Create;
-  Result.Add(NSMB);
-  Result.Add(NLayerSel);
-  Result.Add(TBFillingTypeMap);
-  Result.Add(NLayerParams);
-  Result.Add(TBLang);
-  Result.Add(N002);
-  Result.Add(N003);
-  Result.Add(N004);
-  Result.Add(N005);
-  Result.Add(N006);
-  Result.Add(N007);
-  Result.Add(NFillMap);
 end;
 
 procedure TfrmMain.zooming(ANewZoom:byte;move:boolean);
@@ -3055,7 +2992,6 @@ begin
       PrepareSelectionRect(Shift, VSelectionRect);
       FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
     end;
-    UpdateGPSsensors;
     if (FCurrentOper=ao_movemap)and(button=mbLeft) then begin
       VPWL.S:=0;
       VPWL.find:=false;
@@ -3568,14 +3504,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBItem1Click(Sender: TObject);
-begin
- case TTBXItem(Sender).tag of
-  0:GState.LanguageManager.SetCurrentLanguage('ru');
-  1:GState.LanguageManager.SetCurrentLanguage('en');
- end;
-end;
-
 procedure TfrmMain.NMapInfoClick(Sender: TObject);
 var
   VMapType: TMapType;
@@ -3610,33 +3538,9 @@ begin
   SetToolbarsLock(lock_tb_b);
 end;
 
-procedure TfrmMain.SBClearSensorClick(Sender: TObject);
-begin
- if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
-   case TSpeedButton(sender).Tag of
-    1: GState.GPSRecorder.ResetAvgSpeed;
-    2: GState.GPSRecorder.ResetDist;
-    3: GState.GPSRecorder.ResetOdometer1;
-    4: GState.GPSRecorder.ResetMaxSpeed;
-    5: GState.GPSRecorder.ResetOdometer2;
-   end;
-   UpdateGPSsensors;
- end;
-end;
-
-procedure TfrmMain.TBXSensorBarVisibleChanged(Sender: TObject);
-begin
-  TTBXItem(FindComponent('N'+copy(TTBXToolWindow(sender).Name,4,length(TTBXItem(sender).Name)-3))).Checked:=TTBXToolWindow(sender).Visible;
-end;
-
 procedure TfrmMain.TBXSensorsBarVisibleChanged(Sender: TObject);
 begin
   NSensors.Checked := TTBXToolWindow(sender).Visible;
-end;
-
-procedure TfrmMain.NSensorsBarClick(Sender: TObject);
-begin
-  TTBXToolWindow(FindComponent('TBX'+copy(TTBXItem(sender).Name,2,length(TTBXItem(sender).Name)-1))).Visible:=TTBXItem(sender).Checked;
 end;
 
 procedure TfrmMain.NSensorsClick(Sender: TObject);
@@ -3740,40 +3644,6 @@ end;
 procedure TfrmMain.NGoToCurClick(Sender: TObject);
 begin
   FConfig.MainConfig.ZoomingAtMousePos := (Sender as TTBXItem).Checked
-end;
-
-procedure TfrmMain.InitSearchers;
-var
-  VGoto: IMapViewGoto;
-  VItem: IGeoCoderListEntity;
-  VTBXItem: TTBXItem;
-  VTBEditItem: TTBEditItem;
-begin
-  VGoto := TMapViewGotoOnFMain.Create(Self.topos);
-  FSearchPresenter := TSearchResultPresenterWithForm.Create(VGoto);
-  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
-  VTBXItem := TBXSelectGoogleSrch;
-  VTBEditItem := tbiEditGoogleSrch;
-
-  VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
-  VTBEditItem.EditCaption := VItem.GetCaption;
-  VTBEditItem.Caption := VItem.GetCaption;
-  VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectSrchClick;
-  VTBXItem.Caption := VItem.GetCaption;
-
-  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
-  VTBXItem := TBXSelectYandexSrch;
-  VTBEditItem := tbiEditYandexSrch;
-
-  VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
-  VTBEditItem.EditCaption := VItem.GetCaption;
-  VTBEditItem.Caption := VItem.GetCaption;
-  VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectSrchClick;
-  VTBXItem.Caption := VItem.GetCaption;
 end;
 
 procedure TfrmMain.TBXSelectSrchClick(Sender: TObject);

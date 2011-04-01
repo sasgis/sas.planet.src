@@ -16,6 +16,10 @@ uses
   CheckLst,
   Buttons,
   ExtCtrls,
+  TB2Item,
+  TB2Dock,
+  TB2Toolbar,
+  TBX,
   TBXControls,
   u_ResStrings,
   u_CommonFormAndFrameParents,
@@ -24,7 +28,7 @@ uses
   i_MarkCategory,
   u_MarksSimple,
   u_MarksDbGUIHelper,
-  frm_Main, TB2Item, TBX, TB2Dock, TB2Toolbar;
+  frm_Main;
 
 type
   TfrmMarksExplorer = class(TCommonFormParent)
@@ -112,8 +116,8 @@ uses
   u_GlobalState,
   i_ImportConfig,
   i_UsedMarksConfig,
-  frm_ImportConfigEdit,
   u_ExportMarks2KML,
+  frm_ImportConfigEdit,
   frm_MarkCategoryEdit;
 
 {$R *.dfm}
