@@ -258,7 +258,7 @@ end;
 
 function TSensorFromGPSRecorderMaxSpeed.GetCaptionTranslated: string;
 begin
-  Result := SAS_STR_SensorGPSRecorderMaxSpeedDescription;
+  Result := SAS_STR_SensorGPSRecorderMaxSpeedCaption;
 end;
 
 function TSensorFromGPSRecorderMaxSpeed.GetDescriptionTranslated: string;
@@ -306,7 +306,7 @@ end;
 
 function TSensorFromGPSRecorderDist.GetCaptionTranslated: string;
 begin
-  Result := SAS_STR_SensorGPSRecorderDistDescription;
+  Result := SAS_STR_SensorGPSRecorderDistCaption;
 end;
 
 function TSensorFromGPSRecorderDist.GetDescriptionTranslated: string;
@@ -354,7 +354,7 @@ end;
 
 function TSensorFromGPSRecorderOdometer1.GetCaptionTranslated: string;
 begin
-  Result := SAS_STR_SensorGPSRecorderOdometer1Description;
+  Result := SAS_STR_SensorGPSRecorderOdometer1Caption;
 end;
 
 function TSensorFromGPSRecorderOdometer1.GetDescriptionTranslated: string;
@@ -402,7 +402,7 @@ end;
 
 function TSensorFromGPSRecorderOdometer2.GetCaptionTranslated: string;
 begin
-  Result := SAS_STR_SensorGPSRecorderOdometer2Description;
+  Result := SAS_STR_SensorGPSRecorderOdometer2Caption;
 end;
 
 function TSensorFromGPSRecorderOdometer2.GetDescriptionTranslated: string;
@@ -450,7 +450,7 @@ end;
 
 function TSensorFromGPSRecorderAltitude.GetCaptionTranslated: string;
 begin
-  Result := SAS_STR_SensorGPSRecorderAltitudeDescription;
+  Result := SAS_STR_SensorGPSRecorderAltitudeCaption;
 end;
 
 function TSensorFromGPSRecorderAltitude.GetDescriptionTranslated: string;
@@ -492,7 +492,7 @@ end;
 
 function TSensorFromGPSRecorderHeading.GetCaptionTranslated: string;
 begin
-  Result := SAS_STR_SensorGPSRecorderHeadingDescription;
+  Result := SAS_STR_SensorGPSRecorderHeadingCaption;
 end;
 
 function TSensorFromGPSRecorderHeading.GetDescriptionTranslated: string;
