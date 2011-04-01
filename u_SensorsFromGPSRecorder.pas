@@ -11,6 +11,10 @@ uses
 type
   TSensorFromGPSRecorderLastSpeed = class(TSensorTextFromGPSRecorder)
   protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
     function ValueToText(AValue: Double): string; override;
     function GetValue: Double; override;
   public
@@ -23,6 +27,10 @@ type
 
   TSensorFromGPSRecorderAvgSpeed = class(TSensorTextFromGPSRecorder)
   protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
     function ValueToText(AValue: Double): string; override;
     function GetValue: Double; override;
     procedure Reset; override;
@@ -36,6 +44,10 @@ type
 
   TSensorFromGPSRecorderMaxSpeed = class(TSensorTextFromGPSRecorder)
   protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
     function ValueToText(AValue: Double): string; override;
     function GetValue: Double; override;
     procedure Reset; override;
@@ -49,6 +61,10 @@ type
 
   TSensorFromGPSRecorderDist = class(TSensorTextFromGPSRecorder)
   protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
     function ValueToText(AValue: Double): string; override;
     function GetValue: Double; override;
     procedure Reset; override;
@@ -62,6 +78,10 @@ type
 
   TSensorFromGPSRecorderOdometer1 = class(TSensorTextFromGPSRecorder)
   protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
     function ValueToText(AValue: Double): string; override;
     function GetValue: Double; override;
     procedure Reset; override;
@@ -75,6 +95,10 @@ type
 
   TSensorFromGPSRecorderOdometer2 = class(TSensorTextFromGPSRecorder)
   protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
     function ValueToText(AValue: Double): string; override;
     function GetValue: Double; override;
     procedure Reset; override;
@@ -88,6 +112,10 @@ type
 
   TSensorFromGPSRecorderAltitude = class(TSensorTextFromGPSRecorder)
   protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
     function ValueToText(AValue: Double): string; override;
     function GetValue: Double; override;
   public
@@ -100,6 +128,10 @@ type
 
   TSensorFromGPSRecorderHeading = class(TSensorTextFromGPSRecorder)
   protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
     function ValueToText(AValue: Double): string; override;
     function GetValue: Double; override;
   public
@@ -114,6 +146,7 @@ implementation
 
 uses
   c_SensorsGUIDSimple,
+  u_ResStrings,
   u_GeoToStr;
 
 { TSensorFromGPSRecorderLastSpeed }
@@ -126,14 +159,26 @@ constructor TSensorFromGPSRecorderLastSpeed.Create(
 begin
   inherited Create(
     CSensorLastSpeedGUID,
-    'Скорость, км/ч:',
-    'Отображает текущую скорость движения',
-    'Скорость',
     False,
     ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
+end;
+
+function TSensorFromGPSRecorderLastSpeed.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderLastSpeedCaption;
+end;
+
+function TSensorFromGPSRecorderLastSpeed.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderLastSpeedDescription;
+end;
+
+function TSensorFromGPSRecorderLastSpeed.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderLastSpeedMenuItemName;
 end;
 
 function TSensorFromGPSRecorderLastSpeed.GetValue: Double;
@@ -156,14 +201,26 @@ constructor TSensorFromGPSRecorderAvgSpeed.Create(
 begin
   inherited Create(
     CSensorAvgSpeedGUID,
-    'Скорость сред., км/ч:',
-    'Отображает среднюю скорость движения',
-    'Скорость средняя',
     True,
     ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
+end;
+
+function TSensorFromGPSRecorderAvgSpeed.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderAvgSpeedDescription;
+end;
+
+function TSensorFromGPSRecorderAvgSpeed.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderAvgSpeedDescription;
+end;
+
+function TSensorFromGPSRecorderAvgSpeed.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderAvgSpeedMenuItemName;
 end;
 
 function TSensorFromGPSRecorderAvgSpeed.GetValue: Double;
@@ -192,14 +249,26 @@ constructor TSensorFromGPSRecorderMaxSpeed.Create(
 begin
   inherited Create(
     CSensorMaxSpeedGUID,
-    'Скорость макс., км/ч:',
-    'Отображает максимальную скорость движения',
-    'Скорость максимальная',
     True,
     ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
+end;
+
+function TSensorFromGPSRecorderMaxSpeed.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderMaxSpeedDescription;
+end;
+
+function TSensorFromGPSRecorderMaxSpeed.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderMaxSpeedDescription;
+end;
+
+function TSensorFromGPSRecorderMaxSpeed.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderMaxSpeedMenuItemName;
 end;
 
 function TSensorFromGPSRecorderMaxSpeed.GetValue: Double;
@@ -228,14 +297,26 @@ constructor TSensorFromGPSRecorderDist.Create(
 begin
   inherited Create(
     CSensorDistGUID,
-    'Пройденный путь:',
-    'Отображает пройденный путь считаемый от подключения к GPS-приемнику',
-    'Пройденный путь',
     True,
     ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
+end;
+
+function TSensorFromGPSRecorderDist.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderDistDescription;
+end;
+
+function TSensorFromGPSRecorderDist.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderDistDescription;
+end;
+
+function TSensorFromGPSRecorderDist.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderDistMenuItemName;
 end;
 
 function TSensorFromGPSRecorderDist.GetValue: Double;
@@ -264,14 +345,26 @@ constructor TSensorFromGPSRecorderOdometer1.Create(
 begin
   inherited Create(
     CSensorOdometer1GUID,
-    'Одометр, км:',
-    'Отображает весь пройденный путь',
-    'Одометр',
     True,
     ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
+end;
+
+function TSensorFromGPSRecorderOdometer1.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderOdometer1Description;
+end;
+
+function TSensorFromGPSRecorderOdometer1.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderOdometer1Description;
+end;
+
+function TSensorFromGPSRecorderOdometer1.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderOdometer1MenuItemName;
 end;
 
 function TSensorFromGPSRecorderOdometer1.GetValue: Double;
@@ -300,14 +393,26 @@ constructor TSensorFromGPSRecorderOdometer2.Create(
 begin
   inherited Create(
     CSensorOdometer2GUID,
-    'Одометр №2, км:',
-    'Отображает весь пройденный путь',
-    'Одометр №2',
     True,
     ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
+end;
+
+function TSensorFromGPSRecorderOdometer2.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderOdometer2Description;
+end;
+
+function TSensorFromGPSRecorderOdometer2.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderOdometer2Description;
+end;
+
+function TSensorFromGPSRecorderOdometer2.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderOdometer2MenuItemName;
 end;
 
 function TSensorFromGPSRecorderOdometer2.GetValue: Double;
@@ -336,14 +441,26 @@ constructor TSensorFromGPSRecorderAltitude.Create(
 begin
   inherited Create(
     CSensorLastAltitudeGUID,
-    'Высота, м:',
-    'Отображает высоту над уровнем моря по данным GPS-приемника',
-    'Высота',
     False,
     ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
+end;
+
+function TSensorFromGPSRecorderAltitude.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderAltitudeDescription;
+end;
+
+function TSensorFromGPSRecorderAltitude.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderAltitudeDescription;
+end;
+
+function TSensorFromGPSRecorderAltitude.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderAltitudeMenuItemName;
 end;
 
 function TSensorFromGPSRecorderAltitude.GetValue: Double;
@@ -366,14 +483,26 @@ constructor TSensorFromGPSRecorderHeading.Create(
 begin
   inherited Create(
     CSensorHeadingGUID,
-    'Азимут:',
-    'Отображает азимут направления',
-    'Азимут',
     False,
     ALanguageManager,
     AGPSRecorder,
     AValueConverterConfig
   );
+end;
+
+function TSensorFromGPSRecorderHeading.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderHeadingDescription;
+end;
+
+function TSensorFromGPSRecorderHeading.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderHeadingDescription;
+end;
+
+function TSensorFromGPSRecorderHeading.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderHeadingMenuItemName;
 end;
 
 function TSensorFromGPSRecorderHeading.GetValue: Double;

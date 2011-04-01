@@ -166,6 +166,38 @@ ResourceString
   SAS_STR_MiniMapAsMainMap = 'Как на главной карте';
   SAS_STR_SensorReset = 'Сбросить';
 
+  SAS_STR_SensorGPSRecorderLastSpeedCaption = 'Скорость, км/ч:';
+  SAS_STR_SensorGPSRecorderLastSpeedDescription = 'Отображает текущую скорость движения';
+  SAS_STR_SensorGPSRecorderLastSpeedMenuItemName = 'Скорость';
+
+  SAS_STR_SensorGPSRecorderAvgSpeedCaption = 'Скорость сред., км/ч:';
+  SAS_STR_SensorGPSRecorderAvgSpeedDescription = 'Отображает среднюю скорость движения';
+  SAS_STR_SensorGPSRecorderAvgSpeedMenuItemName = 'Скорость средняя';
+
+  SAS_STR_SensorGPSRecorderMaxSpeedCaption = 'Скорость макс., км/ч:';
+  SAS_STR_SensorGPSRecorderMaxSpeedDescription = 'Отображает максимальную скорость движения';
+  SAS_STR_SensorGPSRecorderMaxSpeedMenuItemName = 'Скорость максимальная';
+
+  SAS_STR_SensorGPSRecorderDistCaption = 'Пройденный путь:';
+  SAS_STR_SensorGPSRecorderDistDescription = 'Отображает пройденный путь считаемый от подключения к GPS-приемнику';
+  SAS_STR_SensorGPSRecorderDistMenuItemName = 'Пройденный путь';
+
+  SAS_STR_SensorGPSRecorderOdometer1Caption = 'Одометр, км:';
+  SAS_STR_SensorGPSRecorderOdometer1Description = 'Отображает весь пройденный путь';
+  SAS_STR_SensorGPSRecorderOdometer1MenuItemName = 'Одометр';
+
+  SAS_STR_SensorGPSRecorderOdometer2Caption = 'Одометр №2, км:';
+  SAS_STR_SensorGPSRecorderOdometer2Description = 'Отображает весь пройденный путь';
+  SAS_STR_SensorGPSRecorderOdometer2MenuItemName = 'Одометр №2';
+
+  SAS_STR_SensorGPSRecorderAltitudeCaption = 'Высота, м:';
+  SAS_STR_SensorGPSRecorderAltitudeDescription = 'Отображает высоту над уровнем моря по данным GPS-приемника';
+  SAS_STR_SensorGPSRecorderAltitudeMenuItemName = 'Высота';
+
+  SAS_STR_SensorGPSRecorderHeadingCaption = 'Азимут:';
+  SAS_STR_SensorGPSRecorderHeadingDescription = 'Отображает азимут направления';
+  SAS_STR_SensorGPSRecorderHeadingMenuItemName = 'Азимут';
+
   SAS_UNITS_kb = 'Кб';
   SAS_UNITS_mb = 'Мб';
   SAS_UNITS_gb = 'Гб';

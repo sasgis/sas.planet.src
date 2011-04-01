@@ -30,9 +30,6 @@ type
   public
     constructor Create(
       AGUID: TGUID;
-      ACaption: string;
-      ADescription: string;
-      AMenuItemName: string;
       ACanReset: Boolean;
       ALanguageManager: ILanguageManager;
       AGPSRecorder: IGPSRecorder;
@@ -50,16 +47,13 @@ uses
 
 constructor TSensorTextFromGPSRecorder.Create(
   AGUID: TGUID;
-  ACaption: string;
-  ADescription: string;
-  AMenuItemName: string;
   ACanReset: Boolean;
   ALanguageManager: ILanguageManager;
   AGPSRecorder: IGPSRecorder;
   AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(AGUID, ACaption, ADescription, AMenuItemName, ACanReset, ISensorText, ALanguageManager);
+  inherited Create(AGUID, ACanReset, ISensorText, ALanguageManager);
   FGPSRecorder := AGPSRecorder;
   FValueConverterConfig := AValueConverterConfig;
 
