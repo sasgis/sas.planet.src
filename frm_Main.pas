@@ -233,34 +233,7 @@ type
     TBXSensorsBar: TTBXToolWindow;
     ScrollBox1: TScrollBox;
     TBXDock1: TTBXDock;
-    TBXSensorSpeedAvgBar: TTBXToolWindow;
-    TBXSensorSpeedAvg: TTBXLabel;
-    TBXSensorSpeedBar: TTBXToolWindow;
-    TBXSensorSpeed: TTBXLabel;
-    TBXsensorOdometrBar: TTBXToolWindow;
-    TBXSensorOdometr: TTBXLabel;
-    TBXSensorPathBar: TTBXToolWindow;
-    TBXOdometrNow: TTBXLabel;
-    TBXSensorBattaryBar: TTBXToolWindow;
-    TBXSensorBattary: TTBXLabel;
-    TBXSensorLenToMarkBar: TTBXToolWindow;
-    TBXSensorLenToMark: TTBXLabel;
-    TBXLabel8: TTBXLabel;
-    TBXLabel9: TTBXLabel;
-    TBXLabel10: TTBXLabel;
-    lblSensorOdometr: TTBXLabel;
-    TBXLabel13: TTBXLabel;
-    TBXLabel14: TTBXLabel;
-    btnSensorOdometrReset: TSpeedButton;
-    SpeedButton3: TSpeedButton;
-    SBClearSensor: TSpeedButton;
     NSensors: TTBXSubmenuItem;
-    NSensorLenToMarkBar: TTBXItem;
-    NsensorOdometrBar: TTBXItem;
-    NSensorPathBar: TTBXItem;
-    NSensorSpeedAvgBar: TTBXItem;
-    NSensorSpeedBar: TTBXItem;
-    NSensorBattaryBar: TTBXItem;
     TBXPopupMenuSensors: TTBXPopupMenu;
     TBXItem1: TTBXItem;
     TBXLabelItem1: TTBXLabelItem;
@@ -268,24 +241,9 @@ type
     TBXItem2: TTBXItem;
     TBXItem3: TTBXItem;
     TBXItem4: TTBXItem;
-    TBXSensorAltitudeBar: TTBXToolWindow;
-    SpeedButton4: TSpeedButton;
-    TBXSensorAltitude: TTBXLabel;
-    TBXLabel2: TTBXLabel;
-    NSensorAltitudeBar: TTBXItem;
-    TBXSensorSpeedMaxBar: TTBXToolWindow;
-    SpeedButton5: TSpeedButton;
-    TBXSensorSpeedMax: TTBXLabel;
-    TBXLabel3: TTBXLabel;
-    NSensorSpeedMaxBar: TTBXItem;
-    SpeedButton6: TSpeedButton;
     TBXItem5: TTBXItem;
     TBXSeparatorItem16: TTBXSeparatorItem;
     TBXSeparatorItem17: TTBXSeparatorItem;
-    TBXSensorAzimutBar: TTBXToolWindow;
-    TBXSensorAzimut: TTBXLabel;
-    TBXLabel4: TTBXLabel;
-    NSensorAzimutBar: TTBXItem;
     TBXToolBarSearch: TTBXToolbar;
     TBXSearchEdit: TTBXEditItem;
     TBXSelectSrchType: TTBXSubmenuItem;
@@ -303,12 +261,6 @@ type
     TBLoadSelFromFile: TTBXItem;
     TBXSignalStrengthBar: TTBXToolWindow;
     TBXLabel5: TTBXLabel;
-    NSignalStrengthBar: TTBXItem;
-    TBXsensorOdometr2Bar: TTBXToolWindow;
-    SpeedButton1: TSpeedButton;
-    TBXSensorOdometr2: TTBXLabel;
-    TBXLabel6: TTBXLabel;
-    NsensorOdometr2Bar: TTBXItem;
     TBGPSToPoint: TTBXSubmenuItem;
     TBGPSToPointCenter: TTBXItem;
     tbitmGPSToPointCenter: TTBXItem;
@@ -369,7 +321,6 @@ type
     TBCopyLinkLayer: TTBXSubmenuItem;
     TBLayerInfo: TTBXSubmenuItem;
     TBScreenSelect: TTBXItem;
-    pnlSensorOdometrTop: TTBXAlignmentPanel;
     NMainToolBarShow: TTBXVisibilityToggleItem;
     NZoomToolBarShow: TTBXVisibilityToggleItem;
     NsrcToolBarShow: TTBXVisibilityToggleItem;
@@ -377,6 +328,7 @@ type
     TBXVisibilityToggleItem1: TTBXVisibilityToggleItem;
     TBXVisibilityToggleItem2: TTBXVisibilityToggleItem;
     TBXSeparatorItem13: TTBXSeparatorItem;
+    NSignalStrengthBar: TTBXVisibilityToggleItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -477,9 +429,7 @@ type
     procedure TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette;var ACol, ARow: Integer; var AllowChange: Boolean);
     procedure NanimateClick(Sender: TObject);
     procedure NbackloadLayerClick(Sender: TObject);
-    procedure SBClearSensorClick(Sender: TObject);
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
-    procedure TBXSensorBarVisibleChanged(Sender: TObject);
     procedure TBXItem1Click(Sender: TObject);
     procedure TBXItem5Click(Sender: TObject);
     procedure TBXSelectSrchClick(Sender: TObject);
@@ -504,7 +454,6 @@ type
       ARow: Integer; var AllowChange: Boolean);
     procedure TBScreenSelectClick(Sender: TObject);
     procedure NSensorsClick(Sender: TObject);
-    procedure NSensorsBarClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
@@ -590,7 +539,6 @@ type
     procedure OnTimerEvent(Sender: TObject);
 
     procedure CopyStringToClipboard(s: Widestring);
-    procedure UpdateGPSsensors;
     procedure setalloperationfalse(newop: TAOperation);
     procedure UpdateGPSSatellites;
     procedure CreateMapUIMapsList;
@@ -1564,64 +1512,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.UpdateGPSsensors;
-var
-  n_len: string;
-  sps: _SYSTEM_POWER_STATUS;
-  VPoint: TDoublePoint;
-  VDist: Double;
-  VValueConverter: IValueToStringConverter;
-  VLocalConverter: ILocalCoordConverter;
-begin
- try
-   VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-   GState.GPSRecorder.LockRead;
-   try
-     //скорость
-     TBXSensorSpeed.Caption:=RoundEx(GState.GPSRecorder.LastSpeed,2);
-     //средняя скорость
-     TBXSensorSpeedAvg.Caption:=RoundEx(GState.GPSRecorder.AvgSpeed,2);
-     //максимальная скорость
-     TBXSensorSpeedMax.Caption:=RoundEx(GState.GPSRecorder.MaxSpeed,2);
-     //высота
-     TBXSensorAltitude.Caption:=RoundEx(GState.GPSRecorder.LastAltitude,2);
-     //пройденный путь
-     TBXOdometrNow.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.Dist);
-     //одометр
-     TBXSensorOdometr.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.Odometer1);
-     TBXSensorOdometr2.Caption:=VValueConverter.DistConvert(GState.GPSRecorder.Odometer2);
-     //Азимут
-     TBXSensorAzimut.Caption:=RoundEx(GState.GPSRecorder.LastHeading,2)+'°';
-   finally
-     GState.GPSRecorder.UnlockRead;
-   end;
-   //расстояние до метки
-   if (FConfig.NavToPoint.IsActive) then begin
-     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-     VPoint := VLocalConverter.GetCenterLonLat;
-     VDist := VLocalConverter.GetGeoConverter.Datum.CalcDist(FConfig.NavToPoint.LonLat, VPoint);
-     n_len:=VValueConverter.DistConvert(VDist);
-     TBXSensorLenToMark.Caption:=n_len;
-   end else begin
-     TBXSensorLenToMark.Caption:='-';
-   end;
-   //батарея
-   GetSystemPowerStatus(sps);
-   if sps.ACLineStatus=0 then begin
-     case sps.BatteryFlag of
-       128: TBXSensorBattary.Caption:=SAS_STR_BattaryStateOnLine;
-         8: TBXSensorBattary.Caption:=SAS_STR_BattaryStateCharge;
-       else if sps.BatteryLifePercent=255 then TBXSensorBattary.Caption:=SAS_STR_BattaryStateUnknown
-                                          else TBXSensorBattary.Caption:=inttostr(sps.BatteryLifePercent)+'%';
-     end
-   end
-   else begin
-     TBXSensorBattary.Caption:=SAS_STR_BattaryStateOnLine;
-   end;
- except
- end;
-end;
-
 procedure TfrmMain.UpdateGPSSatellites;
 var
   i,bar_width,bar_height,bar_x1,bar_dy:integer;
@@ -1725,7 +1615,6 @@ begin
       end;
     end;
   end;
-  UpdateGPSsensors;
   FLayerStatBar.Redraw;
 end;
 
@@ -3055,7 +2944,6 @@ begin
       PrepareSelectionRect(Shift, VSelectionRect);
       FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
     end;
-    UpdateGPSsensors;
     if (FCurrentOper=ao_movemap)and(button=mbLeft) then begin
       VPWL.S:=0;
       VPWL.find:=false;
@@ -3610,33 +3498,9 @@ begin
   SetToolbarsLock(lock_tb_b);
 end;
 
-procedure TfrmMain.SBClearSensorClick(Sender: TObject);
-begin
- if (MessageBox(handle,pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
-   case TSpeedButton(sender).Tag of
-    1: GState.GPSRecorder.ResetAvgSpeed;
-    2: GState.GPSRecorder.ResetDist;
-    3: GState.GPSRecorder.ResetOdometer1;
-    4: GState.GPSRecorder.ResetMaxSpeed;
-    5: GState.GPSRecorder.ResetOdometer2;
-   end;
-   UpdateGPSsensors;
- end;
-end;
-
-procedure TfrmMain.TBXSensorBarVisibleChanged(Sender: TObject);
-begin
-  TTBXItem(FindComponent('N'+copy(TTBXToolWindow(sender).Name,4,length(TTBXItem(sender).Name)-3))).Checked:=TTBXToolWindow(sender).Visible;
-end;
-
 procedure TfrmMain.TBXSensorsBarVisibleChanged(Sender: TObject);
 begin
   NSensors.Checked := TTBXToolWindow(sender).Visible;
-end;
-
-procedure TfrmMain.NSensorsBarClick(Sender: TObject);
-begin
-  TTBXToolWindow(FindComponent('TBX'+copy(TTBXItem(sender).Name,2,length(TTBXItem(sender).Name)-1))).Visible:=TTBXItem(sender).Checked;
 end;
 
 procedure TfrmMain.NSensorsClick(Sender: TObject);
