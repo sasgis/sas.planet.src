@@ -196,8 +196,6 @@ type
     NMapParams: TTBXItem;
     N8: TTBXItem;
     TBLang: TTBXSubmenuItem;
-    TBXLangRus: TTBXItem;
-    TBXLangEng: TTBXItem;
     tbitmGPSConnect: TTBXItem;
     tbitmGPSTrackShow: TTBXItem;
     tbitmGPSCenterMap: TTBXItem;
@@ -424,7 +422,6 @@ type
     procedure NMarksCalcsSqClick(Sender: TObject);
     procedure NMarksCalcsPerClick(Sender: TObject);
     procedure TBEditPathOkClick(Sender: TObject);
-    procedure TBItem1Click(Sender: TObject);
     procedure NMapInfoClick(Sender: TObject);
     procedure TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette;var ACol, ARow: Integer; var AllowChange: Boolean);
     procedure NanimateClick(Sender: TObject);
@@ -524,6 +521,12 @@ type
     FSensorViewList: IGUIDInterfaceList;
 
     procedure InitSearchers;
+    procedure CreateMapUIMapsList;
+    procedure CreateMapUILayersList;
+    procedure CreateMapUIFillingList;
+    procedure CreateMapUILayerSubMenu;
+    procedure CreateLangMenu;
+
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
     procedure OnLineOnMapEditChange(Sender: TObject);
@@ -541,10 +544,6 @@ type
     procedure CopyStringToClipboard(s: Widestring);
     procedure setalloperationfalse(newop: TAOperation);
     procedure UpdateGPSSatellites;
-    procedure CreateMapUIMapsList;
-    procedure CreateMapUILayersList;
-    procedure CreateMapUIFillingList;
-    procedure CreateMapUILayerSubMenu;
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange(Sender: TObject);
@@ -600,12 +599,14 @@ uses
   i_LocalCoordConverter,
   i_ValueToStringConverter,
   i_ActiveMapsConfig,
+  i_LanguageManager,
   i_SensorViewListGenerator,
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
   u_LineOnMapEdit,
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
+  u_LanguageTBXItem,
   frm_SearchResults,
   frm_ProgressDownload,
   frm_InvisibleBrowser,
@@ -924,6 +925,7 @@ begin
       end;
     end;
     InitSearchers;
+    CreateLangMenu;
     FMapMoving:=false;
 
     SetProxy;
@@ -983,6 +985,17 @@ begin
   VTBXItem.Tag := Integer(VItem);
   VTBXItem.OnClick := Self.TBXSelectSrchClick;
   VTBXItem.Caption := VItem.GetCaption;
+end;
+
+procedure TfrmMain.CreateLangMenu;
+var
+  i: Integer;
+  VManager: ILanguageManager;
+begin
+  VManager := GState.LanguageManager;
+  for i := 0 to VManager.GetCount - 1 do begin
+    TLanguageTBXItem.Create(Self, TBLang, VManager, i);
+  end;
 end;
 
 procedure TfrmMain.CreateMapUI;
@@ -3489,14 +3502,6 @@ begin
          setalloperationfalse(ao_movemap);
         end;
   end;
-end;
-
-procedure TfrmMain.TBItem1Click(Sender: TObject);
-begin
- case TTBXItem(Sender).tag of
-  0:GState.LanguageManager.SetCurrentLanguage('ru');
-  1:GState.LanguageManager.SetCurrentLanguage('en');
- end;
 end;
 
 procedure TfrmMain.NMapInfoClick(Sender: TObject);

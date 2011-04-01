@@ -899,17 +899,6 @@ object frmMain: TfrmMain
         object TBLang: TTBXSubmenuItem
           Caption = #1071#1079#1099#1082
           Hint = ''
-          object TBXLangRus: TTBXItem
-            OnClick = TBItem1Click
-            Caption = #1056#1091#1089#1089#1082#1080#1081
-            Hint = ''
-          end
-          object TBXLangEng: TTBXItem
-            Tag = 1
-            OnClick = TBItem1Click
-            Caption = 'English'
-            Hint = ''
-          end
         end
       end
       object NHelp: TTBXSubmenuItem
