@@ -78,15 +78,21 @@ begin
   LockRead;
   try
     VValue := FLastValue;
+    Result := ValueToText(VValue);
   finally
     UnlockRead;
   end;
-  Result := ValueToText(VValue);
 end;
 
 procedure TSensorTextFromGPSRecorder.OnConverterConfigChange(Sender: TObject);
 begin
-  FValueConverter := FValueConverterConfig.GetStaticConverter;
+  LockWrite;
+  try
+    FValueConverter := FValueConverterConfig.GetStaticConverter;
+    SetChanged;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TSensorTextFromGPSRecorder.OnRecorderChanged(Sender: TObject);
