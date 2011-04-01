@@ -1376,104 +1376,105 @@ var
   VMoveByDelta: Boolean;
   VPointDelta: TDoublePoint;
 begin
-  if Active then
-  case Msg.message of
-    WM_MOUSEWHEEL: begin
-      if not FMapZoomAnimtion then begin
-        MouseCursorPos:=FmoveTrue;
-        if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
-        VZoom := FConfig.ViewPortState.GetCurrentZoom;
-        if Msg.wParam<0 then begin
-          VNewZoom := VZoom-(1*z);
-        end else begin
-          VNewZoom := VZoom+(1*z);
-        end;
-        if VNewZoom < 0 then VNewZoom := 0;
-        zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
-      end;
-    end;
-    WM_KEYFIRST: begin
-      VMoveByDelta := False;
-      case Msg.wParam of
-        VK_RIGHT,
-        VK_LEFT,
-        VK_DOWN,
-        VK_UP: VMoveByDelta := True;
-      end;
-      if VMoveByDelta then begin
-        if (FdWhenMovingButton<35) then begin
-          inc(FdWhenMovingButton);
-        end;
-        dWMB:=trunc(Power(FdWhenMovingButton,1.5));
-        case Msg.wParam of
-          VK_RIGHT: VPointDelta := DoublePoint(dWMB, 0);
-          VK_LEFT: VPointDelta := DoublePoint(-dWMB, 0);
-          VK_DOWN: VPointDelta := DoublePoint(0, dWMB);
-          VK_UP: VPointDelta := DoublePoint(0, -dWMB);
-        else
-          VPointDelta := DoublePoint(0, 0);
-        end;
-        map.BeginUpdate;
-        try
-          FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
-        finally
-          map.EndUpdate;
-          map.Changed;
-        end;
-      end;
-    end;
-    WM_KEYUP: begin
-      FdWhenMovingButton:=5;
-      case Msg.wParam of
-        VK_BACK: begin
-          if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
-           FLineOnMapEdit.DeleteActivePoint;
+  if Active then begin
+    if not FMapZoomAnimtion then begin
+      case Msg.message of
+        WM_MOUSEWHEEL: begin
+          MouseCursorPos:=FmoveTrue;
+          if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
+          VZoom := FConfig.ViewPortState.GetCurrentZoom;
+          if Msg.wParam<0 then begin
+            VNewZoom := VZoom-(1*z);
+          end else begin
+            VNewZoom := VZoom+(1*z);
           end;
+          if VNewZoom < 0 then VNewZoom := 0;
+          zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
         end;
-        VK_ESCAPE: begin
-          case FCurrentOper of
-            ao_select_rect: begin
-              if Frect_dwn then begin
-                setalloperationfalse(ao_movemap);
-                setalloperationfalse(ao_select_rect);
-              end else begin
-                setalloperationfalse(ao_movemap);
-              end;
+        WM_KEYFIRST: begin
+          VMoveByDelta := False;
+          case Msg.wParam of
+            VK_RIGHT,
+            VK_LEFT,
+            VK_DOWN,
+            VK_UP: VMoveByDelta := True;
+          end;
+          if VMoveByDelta then begin
+            if (FdWhenMovingButton<35) then begin
+              inc(FdWhenMovingButton);
             end;
-            ao_Add_Point: begin
-              setalloperationfalse(ao_movemap);
+            dWMB:=trunc(Power(FdWhenMovingButton,1.5));
+            case Msg.wParam of
+              VK_RIGHT: VPointDelta := DoublePoint(dWMB, 0);
+              VK_LEFT: VPointDelta := DoublePoint(-dWMB, 0);
+              VK_DOWN: VPointDelta := DoublePoint(0, dWMB);
+              VK_UP: VPointDelta := DoublePoint(0, -dWMB);
+            else
+              VPointDelta := DoublePoint(0, 0);
             end;
-            ao_select_poly,
-            ao_calc_line,
-            ao_add_line,
-            ao_add_poly,
-            ao_edit_line,
-            ao_edit_poly: begin
-              if (FLineOnMapEdit.GetCount>0) then begin
-                FLineOnMapEdit.Empty;
-              end else begin
-                setalloperationfalse(ao_movemap);
-              end;
+            map.BeginUpdate;
+            try
+              FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
+            finally
+              map.EndUpdate;
+              map.Changed;
             end;
           end;
         end;
-        VK_RETURN: begin
-          case FCurrentOper of
-            ao_add_Poly,
-            ao_edit_Poly: begin
-              if FLineOnMapEdit.GetCount > 2 then begin
-                TBEditPathSaveClick(Self);
+        WM_KEYUP: begin
+          FdWhenMovingButton:=5;
+          case Msg.wParam of
+            VK_BACK: begin
+              if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
+               FLineOnMapEdit.DeleteActivePoint;
               end;
             end;
-            ao_add_line,
-            ao_edit_line: begin
-              if FLineOnMapEdit.GetCount > 1 then begin
-                TBEditPathSaveClick(Self);
+            VK_ESCAPE: begin
+              case FCurrentOper of
+                ao_select_rect: begin
+                  if Frect_dwn then begin
+                    setalloperationfalse(ao_movemap);
+                    setalloperationfalse(ao_select_rect);
+                  end else begin
+                    setalloperationfalse(ao_movemap);
+                  end;
+                end;
+                ao_Add_Point: begin
+                  setalloperationfalse(ao_movemap);
+                end;
+                ao_select_poly,
+                ao_calc_line,
+                ao_add_line,
+                ao_add_poly,
+                ao_edit_line,
+                ao_edit_poly: begin
+                  if (FLineOnMapEdit.GetCount>0) then begin
+                    FLineOnMapEdit.Empty;
+                  end else begin
+                    setalloperationfalse(ao_movemap);
+                  end;
+                end;
               end;
             end;
-            ao_select_poly: begin
-              if FLineOnMapEdit.GetCount > 2 then begin
-                TBEditPathOkClick(Self)
+            VK_RETURN: begin
+              case FCurrentOper of
+                ao_add_Poly,
+                ao_edit_Poly: begin
+                  if FLineOnMapEdit.GetCount > 2 then begin
+                    TBEditPathSaveClick(Self);
+                  end;
+                end;
+                ao_add_line,
+                ao_edit_line: begin
+                  if FLineOnMapEdit.GetCount > 1 then begin
+                    TBEditPathSaveClick(Self);
+                  end;
+                end;
+                ao_select_poly: begin
+                  if FLineOnMapEdit.GetCount > 2 then begin
+                    TBEditPathOkClick(Self)
+                  end;
+                end;
               end;
             end;
           end;
