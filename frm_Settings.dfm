@@ -21,7 +21,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 646
     Height = 409
-    ActivePage = TabSheet5
+    ActivePage = TabSheet9
     Align = alClient
     TabOrder = 0
     object TabSheet9: TTabSheet
@@ -1813,14 +1813,14 @@ object frmSettings: TfrmSettings
                 AlignWithMargins = True
                 Left = 31
                 Top = 3
-                Width = 121
+                Width = 149
                 Height = 14
                 Margins.Left = 10
                 Margins.Top = 0
                 Margins.Right = 0
                 Margins.Bottom = 0
                 Align = alLeft
-                Caption = #1042#1080#1076#1080#1084#1099#1077' '#1089' 0-'#1084' '#1089#1080#1075#1085#1072#1083#1086#1084
+                Caption = #1042#1080#1076#1080#1084#1099#1077' '#1089' '#1085#1091#1083#1077#1074#1099#1084' '#1089#1080#1075#1085#1072#1083#1086#1084
                 ExplicitHeight = 13
               end
               object shpSatInfoZeroSignal: TShape
