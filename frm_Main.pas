@@ -523,12 +523,12 @@ type
     FTumbler:TBitmap32;
     FSensorViewList: IGUIDInterfaceList;
 
+    procedure InitSearchers;
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
     procedure OnLineOnMapEditChange(Sender: TObject);
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
-    procedure InitSearchers;
     procedure zooming(ANewZoom: byte; move: boolean);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
     procedure ProcessPosChangeMessage(Sender: TObject);
@@ -949,6 +949,206 @@ begin
     TfrmStartLogo.ReadyToHideLogo;
   end;
   TBXMainMenu.ProcessShortCuts:=true;
+end;
+
+procedure TfrmMain.InitSearchers;
+var
+  VGoto: IMapViewGoto;
+  VItem: IGeoCoderListEntity;
+  VTBXItem: TTBXItem;
+  VTBEditItem: TTBEditItem;
+begin
+  VGoto := TMapViewGotoOnFMain.Create(Self.topos);
+  FSearchPresenter := TSearchResultPresenterWithForm.Create(VGoto);
+  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
+  VTBXItem := TBXSelectGoogleSrch;
+  VTBEditItem := tbiEditGoogleSrch;
+
+  VTBEditItem.Tag := Integer(VItem);
+  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
+  VTBEditItem.EditCaption := VItem.GetCaption;
+  VTBEditItem.Caption := VItem.GetCaption;
+  VTBXItem.Tag := Integer(VItem);
+  VTBXItem.OnClick := Self.TBXSelectSrchClick;
+  VTBXItem.Caption := VItem.GetCaption;
+
+  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
+  VTBXItem := TBXSelectYandexSrch;
+  VTBEditItem := tbiEditYandexSrch;
+
+  VTBEditItem.Tag := Integer(VItem);
+  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
+  VTBEditItem.EditCaption := VItem.GetCaption;
+  VTBEditItem.Caption := VItem.GetCaption;
+  VTBXItem.Tag := Integer(VItem);
+  VTBXItem.OnClick := Self.TBXSelectSrchClick;
+  VTBXItem.Caption := VItem.GetCaption;
+end;
+
+procedure TfrmMain.CreateMapUI;
+begin
+  if GState.MapType.Count>0 then begin
+    CreateMapUIMapsList;
+    CreateMapUILayersList;
+    CreateMapUIFillingList;
+    CreateMapUILayerSubMenu;
+  end;
+end;
+
+procedure TfrmMain.CreateMapUIFillingList;
+var
+  VGenerator: TMapMenuGeneratorBasic;
+begin
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetMapsSet,
+    TBFillingTypeMap,
+    Self.TBfillMapAsMainClick,
+    GState.MapTypeIcons18List,
+    false
+  );
+  try
+    VGenerator.BuildControls;
+  finally
+    FreeAndNil(VGenerator);
+  end;
+end;
+
+procedure TfrmMain.CreateMapUILayersList;
+var
+  VGenerator: TMapMenuGeneratorBasic;
+begin
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.MainMapsConfig.GetLayers,
+    TBLayerSel,
+    Self.OnClickLayerItem,
+    GState.MapTypeIcons18List,
+    true
+  );
+  try
+   VGenerator.BuildControls;
+  finally
+    FreeAndNil(VGenerator);
+  end;
+end;
+
+procedure TfrmMain.CreateMapUILayerSubMenu;
+var
+  i: integer;
+  VMapType: TMapType;
+
+  NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
+  NDwnItem: TTBXItem; //Пункт контекстного меню Загрузить тайл слоя
+  NDelItem: TTBXItem; //Пункт контекстного меню Удалить тайл слоя
+  NOpenDirItem: TTBXItem;
+  NCopyLinkItem: TTBXItem;
+  NLayerInfoItem: TTBXItem;
+
+  VIcon18Index: Integer;
+begin
+  ldm.Clear;
+  dlm.Clear;
+  TBOpenDirLayer.Clear;
+  NLayerParams.Clear;
+  TBCopyLinkLayer.Clear;
+  TBLayerInfo.Clear;
+
+  FNLayerParamsItemList.Clear;
+  FNLayerInfoItemList.Clear;
+  FNDwnItemList.Clear;
+  FNDelItemList.Clear;
+  FNOpenDirItemList.Clear;
+  FNCopyLinkItemList.Clear;
+
+  if GState.MapType.Count>0 then begin
+    for i:=0 to GState.MapType.Count-1 do begin
+      VMapType := GState.MapType[i];
+      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
+      if VMapType.asLayer then begin
+        NDwnItem:=TTBXItem.Create(ldm);
+        FNDwnItemList.Add(VMapType.GUID, NDwnItem);
+        NDwnItem.Caption:=VMapType.name;
+        NDwnItem.ImageIndex:=VIcon18Index;
+        NDwnItem.OnClick:=N21Click;
+        NDwnItem.Tag:=longint(VMapType);
+        ldm.Add(NDwnItem);
+
+        NDelItem:=TTBXItem.Create(dlm);
+        FNDelItemList.Add(VMapType.GUID, NDelItem);
+        NDelItem.Caption:=VMapType.name;
+        NDelItem.ImageIndex:=VIcon18Index;
+        NDelItem.OnClick:=NDelClick;
+        NDelItem.Tag:=longint(VMapType);
+        dlm.Add(NDelItem);
+
+        NOpenDirItem:=TTBXItem.Create(TBOpenDirLayer);
+        FNOpenDirItemList.Add(VMapType.GUID, NOpenDirItem);
+        NOpenDirItem.Caption:=VMapType.name;
+        NOpenDirItem.ImageIndex:=VIcon18Index;
+        NOpenDirItem.OnClick:=N25Click;
+        NOpenDirItem.Tag:=longint(VMapType);
+        TBOpenDirLayer.Add(NOpenDirItem);
+
+        NCopyLinkItem:=TTBXItem.Create(TBCopyLinkLayer);
+        FNCopyLinkItemList.Add(VMapType.GUID, NCopyLinkItem);
+        NCopyLinkItem.Caption:=VMapType.name;
+        NCopyLinkItem.ImageIndex:=VIcon18Index;
+        NCopyLinkItem.OnClick:=N13Click;
+        NCopyLinkItem.Tag:=longint(VMapType);
+        TBCopyLinkLayer.Add(NCopyLinkItem);
+
+        NLayerParamsItem:=TTBXItem.Create(NLayerParams);
+        FNLayerParamsItemList.Add(VMapType.GUID, NLayerParamsItem);
+        NLayerParamsItem.Caption:=VMapType.name;
+        NLayerParamsItem.ImageIndex:=VIcon18Index;
+        NLayerParamsItem.OnClick:=NMapParamsClick;
+        NLayerParamsItem.Tag:=longint(VMapType);
+        NLayerParams.Add(NLayerParamsItem);
+
+        NLayerInfoItem:=TTBXItem.Create(TBLayerInfo);
+        FNLayerInfoItemList.Add(VMapType.GUID, NLayerInfoItem);
+        NLayerInfoItem.Caption:=VMapType.name;
+        NLayerInfoItem.ImageIndex:=VIcon18Index;
+        NLayerInfoItem.OnClick:=NMapInfoClick;
+        NLayerInfoItem.Tag:=longint(VMapType);
+        TBLayerInfo.Add(NLayerInfoItem);
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMain.CreateMapUIMapsList;
+var
+  VGenerator: TMapMenuGeneratorBasic;
+begin
+  VGenerator := TMapMenuGeneratorBasic.Create(
+    FConfig.MainMapsConfig.GetMapsSet,
+    TBSMB,
+    Self.OnClickMapItem,
+    GState.MapTypeIcons18List,
+    true
+  );
+  try
+    VGenerator.BuildControls;
+  finally
+    FreeAndNil(VGenerator);
+  end;
+end;
+
+function TfrmMain.GetIgnoredMenuItemsList: TList;
+begin
+  Result := TList.Create;
+  Result.Add(NSMB);
+  Result.Add(NLayerSel);
+  Result.Add(TBFillingTypeMap);
+  Result.Add(NLayerParams);
+  Result.Add(TBLang);
+  Result.Add(N002);
+  Result.Add(N003);
+  Result.Add(N004);
+  Result.Add(N005);
+  Result.Add(N006);
+  Result.Add(N007);
+  Result.Add(NFillMap);
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -1631,172 +1831,6 @@ begin
   if draw then begin
     FLayerGoto.ShowGotoIcon(LL);
   end;
-end;
-
-procedure TfrmMain.CreateMapUI;
-begin
-  if GState.MapType.Count>0 then begin
-    CreateMapUIMapsList;
-    CreateMapUILayersList;
-    CreateMapUIFillingList;
-    CreateMapUILayerSubMenu;
-  end;
-end;
-
-procedure TfrmMain.CreateMapUIFillingList;
-var
-  VGenerator: TMapMenuGeneratorBasic;
-begin
-  VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetMapsSet,
-    TBFillingTypeMap,
-    Self.TBfillMapAsMainClick,
-    GState.MapTypeIcons18List,
-    false
-  );
-  try
-    VGenerator.BuildControls;
-  finally
-    FreeAndNil(VGenerator);
-  end;
-end;
-
-procedure TfrmMain.CreateMapUILayersList;
-var
-  VGenerator: TMapMenuGeneratorBasic;
-begin
-  VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.MainMapsConfig.GetLayers,
-    TBLayerSel,
-    Self.OnClickLayerItem,
-    GState.MapTypeIcons18List,
-    true
-  );
-  try
-   VGenerator.BuildControls;
-  finally
-    FreeAndNil(VGenerator);
-  end;
-end;
-
-procedure TfrmMain.CreateMapUILayerSubMenu;
-var
-  i: integer;
-  VMapType: TMapType;
-
-  NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
-  NDwnItem: TTBXItem; //Пункт контекстного меню Загрузить тайл слоя
-  NDelItem: TTBXItem; //Пункт контекстного меню Удалить тайл слоя
-  NOpenDirItem: TTBXItem;
-  NCopyLinkItem: TTBXItem;
-  NLayerInfoItem: TTBXItem;
-
-  VIcon18Index: Integer;
-begin
-  ldm.Clear;
-  dlm.Clear;
-  TBOpenDirLayer.Clear;
-  NLayerParams.Clear;
-  TBCopyLinkLayer.Clear;
-  TBLayerInfo.Clear;
-
-  FNLayerParamsItemList.Clear;
-  FNLayerInfoItemList.Clear;
-  FNDwnItemList.Clear;
-  FNDelItemList.Clear;
-  FNOpenDirItemList.Clear;
-  FNCopyLinkItemList.Clear;
-
-  if GState.MapType.Count>0 then begin
-    for i:=0 to GState.MapType.Count-1 do begin
-      VMapType := GState.MapType[i];
-      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
-      if VMapType.asLayer then begin
-        NDwnItem:=TTBXItem.Create(ldm);
-        FNDwnItemList.Add(VMapType.GUID, NDwnItem);
-        NDwnItem.Caption:=VMapType.name;
-        NDwnItem.ImageIndex:=VIcon18Index;
-        NDwnItem.OnClick:=N21Click;
-        NDwnItem.Tag:=longint(VMapType);
-        ldm.Add(NDwnItem);
-
-        NDelItem:=TTBXItem.Create(dlm);
-        FNDelItemList.Add(VMapType.GUID, NDelItem);
-        NDelItem.Caption:=VMapType.name;
-        NDelItem.ImageIndex:=VIcon18Index;
-        NDelItem.OnClick:=NDelClick;
-        NDelItem.Tag:=longint(VMapType);
-        dlm.Add(NDelItem);
-
-        NOpenDirItem:=TTBXItem.Create(TBOpenDirLayer);
-        FNOpenDirItemList.Add(VMapType.GUID, NOpenDirItem);
-        NOpenDirItem.Caption:=VMapType.name;
-        NOpenDirItem.ImageIndex:=VIcon18Index;
-        NOpenDirItem.OnClick:=N25Click;
-        NOpenDirItem.Tag:=longint(VMapType);
-        TBOpenDirLayer.Add(NOpenDirItem);
-
-        NCopyLinkItem:=TTBXItem.Create(TBCopyLinkLayer);
-        FNCopyLinkItemList.Add(VMapType.GUID, NCopyLinkItem);
-        NCopyLinkItem.Caption:=VMapType.name;
-        NCopyLinkItem.ImageIndex:=VIcon18Index;
-        NCopyLinkItem.OnClick:=N13Click;
-        NCopyLinkItem.Tag:=longint(VMapType);
-        TBCopyLinkLayer.Add(NCopyLinkItem);
-
-        NLayerParamsItem:=TTBXItem.Create(NLayerParams);
-        FNLayerParamsItemList.Add(VMapType.GUID, NLayerParamsItem);
-        NLayerParamsItem.Caption:=VMapType.name;
-        NLayerParamsItem.ImageIndex:=VIcon18Index;
-        NLayerParamsItem.OnClick:=NMapParamsClick;
-        NLayerParamsItem.Tag:=longint(VMapType);
-        NLayerParams.Add(NLayerParamsItem);
-
-        NLayerInfoItem:=TTBXItem.Create(TBLayerInfo);
-        FNLayerInfoItemList.Add(VMapType.GUID, NLayerInfoItem);
-        NLayerInfoItem.Caption:=VMapType.name;
-        NLayerInfoItem.ImageIndex:=VIcon18Index;
-        NLayerInfoItem.OnClick:=NMapInfoClick;
-        NLayerInfoItem.Tag:=longint(VMapType);
-        TBLayerInfo.Add(NLayerInfoItem);
-      end;
-    end;
-  end;
-end;
-
-procedure TfrmMain.CreateMapUIMapsList;
-var
-  VGenerator: TMapMenuGeneratorBasic;
-begin
-  VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.MainMapsConfig.GetMapsSet,
-    TBSMB,
-    Self.OnClickMapItem,
-    GState.MapTypeIcons18List,
-    true
-  );
-  try
-    VGenerator.BuildControls;
-  finally
-    FreeAndNil(VGenerator);
-  end;
-end;
-
-function TfrmMain.GetIgnoredMenuItemsList: TList;
-begin
-  Result := TList.Create;
-  Result.Add(NSMB);
-  Result.Add(NLayerSel);
-  Result.Add(TBFillingTypeMap);
-  Result.Add(NLayerParams);
-  Result.Add(TBLang);
-  Result.Add(N002);
-  Result.Add(N003);
-  Result.Add(N004);
-  Result.Add(N005);
-  Result.Add(N006);
-  Result.Add(N007);
-  Result.Add(NFillMap);
 end;
 
 procedure TfrmMain.zooming(ANewZoom:byte;move:boolean);
@@ -3605,40 +3639,6 @@ end;
 procedure TfrmMain.NGoToCurClick(Sender: TObject);
 begin
   FConfig.MainConfig.ZoomingAtMousePos := (Sender as TTBXItem).Checked
-end;
-
-procedure TfrmMain.InitSearchers;
-var
-  VGoto: IMapViewGoto;
-  VItem: IGeoCoderListEntity;
-  VTBXItem: TTBXItem;
-  VTBEditItem: TTBEditItem;
-begin
-  VGoto := TMapViewGotoOnFMain.Create(Self.topos);
-  FSearchPresenter := TSearchResultPresenterWithForm.Create(VGoto);
-  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
-  VTBXItem := TBXSelectGoogleSrch;
-  VTBEditItem := tbiEditGoogleSrch;
-
-  VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
-  VTBEditItem.EditCaption := VItem.GetCaption;
-  VTBEditItem.Caption := VItem.GetCaption;
-  VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectSrchClick;
-  VTBXItem.Caption := VItem.GetCaption;
-
-  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
-  VTBXItem := TBXSelectYandexSrch;
-  VTBEditItem := tbiEditYandexSrch;
-
-  VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
-  VTBEditItem.EditCaption := VItem.GetCaption;
-  VTBEditItem.Caption := VItem.GetCaption;
-  VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectSrchClick;
-  VTBXItem.Caption := VItem.GetCaption;
 end;
 
 procedure TfrmMain.TBXSelectSrchClick(Sender: TObject);
