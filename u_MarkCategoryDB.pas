@@ -73,6 +73,14 @@ begin
   FFactory := VFactory;
 end;
 
+destructor TMarkCategoryDB.Destroy;
+begin
+  FSync := nil;
+  FFactory := nil;
+  FFactoryDbInternal := nil;
+  inherited;
+end;
+
 function TMarkCategoryDB.ReadCurrentCategory: IMarkCategory;
 var
   VId: Integer;
@@ -131,31 +139,27 @@ begin
 end;
 
 procedure TMarkCategoryDB.DeleteCategory(ACategory: IMarkCategory);
+var
+  VExist: Boolean;
 begin
   LockWrite;
   try
-    if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
-      FDMMarksDb.CDSKategory.DisableControls;
-      try
-        if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
-          FDMMarksDb.CDSKategory.Delete;
-        end;
-      finally
-        FDMMarksDb.CDSKategory.EnableControls;
+    VExist := False;
+    FDMMarksDb.CDSKategory.DisableControls;
+    try
+      if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
+        FDMMarksDb.CDSKategory.Delete;
+        VExist := True;
       end;
+    finally
+      FDMMarksDb.CDSKategory.EnableControls;
+    end;
+    if VExist then begin
       SaveCategory2File;
     end;
   finally
     UnlockWrite;
   end;
-end;
-
-destructor TMarkCategoryDB.Destroy;
-begin
-  FSync := nil;
-  FFactory := nil;
-  FFactoryDbInternal := nil;
-  inherited;
 end;
 
 function TMarkCategoryDB.GetCategoryByID(id: integer): IMarkCategory;
