@@ -38,7 +38,7 @@ uses
   i_MainMemCacheConfig,
   i_MarkPicture,
   u_LastSelectionInfo,
-  u_MarksReadWriteSimple,
+  u_MarksDb,
   u_MapType,
   u_MapTypesMainList,
   u_MemFileCache,
