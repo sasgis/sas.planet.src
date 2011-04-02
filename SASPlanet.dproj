@@ -534,11 +534,11 @@
     <DCCReference Include="u_MarkPolygonLayerConfig.pas" />
     <DCCReference Include="u_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="u_MarkPolyTemplateConfig.pas" />
+    <DCCReference Include="u_MarksDb.pas" />
     <DCCReference Include="u_MarksDbGUIHelper.pas" />
     <DCCReference Include="u_MarksFactoryConfig.pas" />
     <DCCReference Include="u_MarksImportBase.pas" />
     <DCCReference Include="u_MarksOnlyDb.pas" />
-    <DCCReference Include="u_MarksReadWriteSimple.pas" />
     <DCCReference Include="u_MarksSubset.pas" />
     <DCCReference Include="u_MarkTemplates.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
