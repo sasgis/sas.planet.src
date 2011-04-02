@@ -198,6 +198,7 @@
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_MapViewGoto.pas" />
     <DCCReference Include="i_MarkCategory.pas" />
+    <DCCReference Include="i_MarkCategoryDB.pas" />
     <DCCReference Include="i_MarkCategoryFactory.pas" />
     <DCCReference Include="i_MarkCategoryFactoryConfig.pas" />
     <DCCReference Include="i_MarkCategoryFactoryDbInternal.pas" />

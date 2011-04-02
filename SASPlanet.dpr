@@ -223,6 +223,7 @@ uses
   u_MarkPointTemplateConfig in 'u_MarkPointTemplateConfig.pas',
   u_MarkLineTemplateConfig in 'u_MarkLineTemplateConfig.pas',
   u_MarkFactory in 'u_MarkFactory.pas',
+  i_MarkCategoryDB in 'i_MarkCategoryDB.pas',
   u_MarkCategoryDB in 'u_MarkCategoryDB.pas',
   u_MarkId in 'u_MarkId.pas',
   u_MarkPoint in 'u_MarkPoint.pas',
