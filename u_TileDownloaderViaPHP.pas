@@ -34,21 +34,16 @@ type
       FScriptPath: string;
       FScriptStr: string;
       FCookieStr: string;
-      FEngine: TPHPEngine;
-      FEngineInitialized: Boolean;
+      FScriptEnabled: Boolean;
       procedure Initialize(AConfig: IConfigDataProvider);
       function GetCustomParams(AXY: TPoint; AZoom: Byte): TCustomParams;
     public
       constructor Create(AConfig: IConfigDataProvider; const ZmpFileName: string);
-      destructor Destroy; override;
       function DownloadTile(ACheckTileSize: Boolean; AOldTileSize: Cardinal; ATile: TPoint; AZoom: Byte; out AUrl, AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
-      property Enabled: Boolean read FEngineInitialized;
+      property Enabled: Boolean read FScriptEnabled;
       property UrlBase: string write FURLBase;
       property DefUrlBase: string write FDefUrlBase;
   end;
-
-const
-  ZmpScriptName = 'downloader.php';
 
 implementation
 
@@ -87,15 +82,42 @@ type
       property MIMEType: string read FMIMEType;
   end;
 
+const
+  ZmpScriptName = 'downloader.php';
+
 var
+  GEngine: TPHPEngine;
+  GEngineInitialized: Boolean = False;
   PhpThreadSafe: TRTLCriticalSection;
+
+function GlobalInitializeEngine(AHandleErrors: Boolean): Boolean;
+begin
+    EnterCriticalSection(PhpThreadSafe);
+  try
+    if not GEngineInitialized then
+    begin
+      GEngine := TPHPEngine.Create(nil);
+      GEngine.HandleErrors := AHandleErrors;
+      GEngine.StartupEngine;
+      GEngineInitialized := True;
+    end
+    else
+      if not GEngine.HandleErrors and AHandleErrors then
+        GEngine.HandleErrors := AHandleErrors;
+
+    Result := GEngineInitialized;
+
+  finally
+    LeaveCriticalSection(PhpThreadSafe);
+  end;
+end;
 
 { TPhpScript }
 
 constructor TPhpScript.Create(AConfig: IConfigDataProvider; const ZmpFileName: string);
 begin
   inherited Create;
-  FEngineInitialized := False;
+  FScriptEnabled := False;
   FURLBase := '';
   FDefUrlBase := '';
   FScriptPath := '';
@@ -103,17 +125,6 @@ begin
   FZMPFileName := ZmpFileName;
   FCoordConverter := nil;
   Initialize(AConfig);
-end;
-
-destructor TPhpScript.Destroy;
-begin
-  try
-    if FEngineInitialized then
-      FEngine.ShutdownEngine;
-    FreeAndNil(FEngine);
-  finally
-    inherited Destroy;
-  end;
 end;
 
 procedure TPhpScript.Initialize(AConfig: IConfigDataProvider);
@@ -147,18 +158,12 @@ begin
           end;
 
           if FScriptPath <> '' then
-          begin
-            FEngine := TPHPEngine.Create(nil);
-            FEngine.HandleErrors := VParams.ReadBool('Debug', False);
-            FEngine.StartupEngine;
-            FEngineInitialized := True;
-          end;
+            FScriptEnabled := GlobalInitializeEngine(VParams.ReadBool('Debug', False));
 
           FEnableCoordConverter := VParams.ReadBool('CustomParams', False);
-
         end;
 
-    if FEngineInitialized and FEnableCoordConverter then
+    if GEngineInitialized and FEnableCoordConverter then
     begin
       VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
       VCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
@@ -166,7 +171,7 @@ begin
     end;
 
   except
-    FEngineInitialized := False;
+    FScriptEnabled := False;
   end;
 end;
 
@@ -415,6 +420,8 @@ initialization
 InitializeCriticalSection(PhpThreadSafe);
 
 finalization
+if Assigned(GEngine) then
+   FreeAndNil(GEngine);
 DeleteCriticalSection(PhpThreadSafe);
 
 end.
