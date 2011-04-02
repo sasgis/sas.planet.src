@@ -274,13 +274,16 @@ begin
   end;
 end;
 
-procedure TPHPReader.OnReadResult (Sender : TObject; Stream : TStream);
+procedure TPHPReader.OnReadResult (Sender: TObject; Stream: TStream);
 begin
   if Assigned(Stream) and Assigned(FBody) then
-  if Stream.Size > 0 then  
+  if Stream.Size > 0 then
   begin
     FBody.Clear;
     FBody.LoadFromStream(Stream);
+    if FBody.Size > 2 then    
+      if Word (Pointer( LongWord(FBody.Memory) + (FBody.Size - 2) )^ ) = $0A0D then
+        FBody.SetSize(FBody.Size - 2);
   end;
 end;
 

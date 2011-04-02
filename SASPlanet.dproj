@@ -32,6 +32,7 @@
     <DCC_Define>DEBUG;</DCC_Define>
     <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
     <DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
+    <DCC_Optimize>False</DCC_Optimize>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
@@ -617,7 +618,7 @@
 </Project>
 <!-- EurekaLog First Line
 [Exception Log]
-EurekaLog Version=6025
+EurekaLog Version=6101
 Activate=0
 Activate Handle=1
 Save Log File=1
