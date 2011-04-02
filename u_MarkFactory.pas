@@ -141,6 +141,11 @@ type
       AScale1: Integer;
       AScale2: Integer
     ): IMarkFull;
+    function CreateMarkId(
+      AName: string;
+      AId: Integer;
+      AVisible: Boolean
+    ): IMarkID;
   public
     constructor Create(AConfig: IMarksFactoryConfig);
   end;
@@ -153,6 +158,7 @@ uses
   i_MarksDbSmlInternal,
   u_ResStrings,
   u_GeoFun,
+  u_MarkId,
   u_MarkPoint,
   u_MarkLine,
   u_MarkPoly;
@@ -347,6 +353,12 @@ begin
       end;
     end;
   end;
+end;
+
+function TMarkFactory.CreateMarkId(AName: string; AId: Integer;
+  AVisible: Boolean): IMarkID;
+begin
+  Result := TMarkId.Create(AName, AId, AVisible);
 end;
 
 function TMarkFactory.SimpleModifyLine(

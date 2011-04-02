@@ -26,6 +26,11 @@ type
       AScale1: Integer;
       AScale2: Integer
     ): IMarkFull;
+    function CreateMarkId(
+      AName: string;
+      AId: Integer;
+      AVisible: Boolean
+    ): IMarkID;
   end;
 
 implementation

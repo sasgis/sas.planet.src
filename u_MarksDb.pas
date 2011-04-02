@@ -12,8 +12,7 @@ uses
   i_MarkCategory,
   i_MarkCategoryFactoryConfig,
   u_MarksOnlyDb,
-  u_MarkCategoryDB,
-  u_MarkId;
+  u_MarkCategoryDB;
 
 type
 

@@ -12,8 +12,7 @@ uses
   i_MarkCategory,
   i_MarksSimple,
   i_MarkFactory,
-  i_MarkFactoryDbInternal,
-  u_MarkId;
+  i_MarkFactoryDbInternal;
 
 type
   TMarksOnlyDb =  class
@@ -179,7 +178,7 @@ begin
   VId := FDMMarksDb.CDSmarks.fieldbyname('id').AsInteger;
   VName := FDMMarksDb.CDSmarks.FieldByName('name').AsString;
   VVisible := FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean;
-  Result := TMarkId.Create(VName, VId, VVisible);
+  Result := FFactoryDbInternal.CreateMarkId(VName, VId, VVisible);
 end;
 
 function TMarksOnlyDb.ReadCurrentMark: IMarkFull;
