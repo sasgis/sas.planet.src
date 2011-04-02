@@ -1,13 +1,14 @@
-unit u_MarksSimple;
+unit u_MarkId;
 
 interface
 
 uses
   GR32,
-  i_MarksSimple;
+  i_MarksSimple,
+  i_MarksDbSmlInternal;
 
 type
-  TMarkId = class(TInterfacedObject, IMarkID, IMarkVisible)
+  TMarkId = class(TInterfacedObject, IMarkID, IMarkSMLInternal)
   private
     FName: string;
     FId: Integer;
@@ -15,9 +16,9 @@ type
   protected
     function IsNew: Boolean;
   protected
-    function GetId: Integer;
     function GetName: string;
   protected
+    function GetId: Integer;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
   public

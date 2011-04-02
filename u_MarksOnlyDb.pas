@@ -13,7 +13,7 @@ uses
   i_MarksSimple,
   i_MarkFactory,
   i_MarkFactoryDbInternal,
-  u_MarksSimple;
+  u_MarkId;
 
 type
   TMarksOnlyDb =  class
@@ -64,6 +64,7 @@ implementation
 uses
   DB,
   GR32,
+  i_MarksDbSmlInternal,
   u_GeoFun,
   u_MarkFactory,
   u_MarksSubset;
@@ -240,28 +241,37 @@ begin
 end;
 
 function TMarksOnlyDb.GetMarkByID(AMarkId: IMarkId): IMarkFull;
+var
+  VId: Integer;
+  VMarkVisible: IMarkSMLInternal;
 begin
   Result := nil;
   if AMarkId <> nil then begin
-    LockRead;
-    try
-      FDMMarksDb.CDSmarks.Filtered := false;
-      if FDMMarksDb.CDSmarks.Locate('id', AMarkId.Id, []) then begin
-        Result := ReadCurrentMark;
+    VId := -1;
+    if Supports(AMarkId, IMarkSMLInternal, VMarkVisible) then begin
+      VId := VMarkVisible.Id;
+    end;
+    if VId >= 0 then begin
+      LockRead;
+      try
+        FDMMarksDb.CDSmarks.Filtered := false;
+        if FDMMarksDb.CDSmarks.Locate('id', VId, []) then begin
+          Result := ReadCurrentMark;
+        end;
+      finally
+        UnlockRead;
       end;
-    finally
-      UnlockRead;
     end;
   end;
 end;
 
 function TMarksOnlyDb.GetMarkVisible(AMark: IMarkFull): Boolean;
 var
-  VMarkVisible: IMarkVisible;
+  VMarkVisible: IMarkSMLInternal;
 begin
   Result := True;
   if AMark <> nil then begin
-    if Supports(AMark, IMarkVisible, VMarkVisible) then begin
+    if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
       Result := VMarkVisible.Visible;
     end;
   end;
@@ -269,11 +279,11 @@ end;
 
 function TMarksOnlyDb.GetMarkVisible(AMark: IMarkId): Boolean;
 var
-  VMarkVisible: IMarkVisible;
+  VMarkVisible: IMarkSMLInternal;
 begin
   Result := True;
   if AMark <> nil then begin
-    if Supports(AMark, IMarkVisible, VMarkVisible) then begin
+    if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
       Result := VMarkVisible.Visible;
     end;
   end;
@@ -330,17 +340,26 @@ begin
 end;
 
 function TMarksOnlyDb.DeleteMark(AMarkId: IMarkId): Boolean;
+var
+  VId: Integer;
+  VMarkVisible: IMarkSMLInternal;
 begin
   result := false;
-  LockWrite;
-  try
-    FDMMarksDb.CDSmarks.Filtered := false;
-    if FDMMarksDb.CDSmarks.Locate('id', AMarkId.id, []) then begin
-      FDMMarksDb.CDSmarks.Delete;
-      result := true;
+  VId := -1;
+  if Supports(AMarkId, IMarkSMLInternal, VMarkVisible) then begin
+    VId := VMarkVisible.Id;
+  end;
+  if VId >= 0 then begin
+    LockWrite;
+    try
+      FDMMarksDb.CDSmarks.Filtered := false;
+      if FDMMarksDb.CDSmarks.Locate('id', VId, []) then begin
+        FDMMarksDb.CDSmarks.Delete;
+        result := true;
+      end;
+    finally
+      UnlockWrite;
     end;
-  finally
-    UnlockWrite;
   end;
   if Result then begin
     SaveMarks2File;
@@ -397,17 +416,20 @@ end;
 
 procedure TMarksOnlyDb.SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
 var
-  VMarkVisible: IMarkVisible;
+  VMarkVisible: IMarkSMLInternal;
+  VId: Integer;
 begin
   if AMark <> nil then begin
-    if Supports(AMark, IMarkVisible, VMarkVisible) then begin
+    VId := -1;
+    if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
+      VId := VMarkVisible.Id;
       VMarkVisible.Visible := AVisible;
     end;
-    if AMark.id >= 0 then begin
+    if VId >= 0 then begin
       LockWrite;
       try
         FDMMarksDb.CDSmarks.Filtered := false;
-        if FDMMarksDb.CDSmarks.Locate('id', AMark.id, []) then begin
+        if FDMMarksDb.CDSmarks.Locate('id', VId, []) then begin
           FDMMarksDb.CDSmarks.Edit;
           WriteCurrentMarkId(AMark);
           FDMMarksDb.CDSmarks.Post;

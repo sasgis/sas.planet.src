@@ -7,7 +7,7 @@ uses
   t_GeoTypes,
   i_MarksSimple,
   i_MarkPicture,
-  u_MarksSimple;
+  u_MarkId;
 
 type
   TMarkLine = class(TMarkId, IMarkFull)

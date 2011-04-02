@@ -9,17 +9,8 @@ uses
   i_MarkPicture;
 
 type
-  IMarkVisible = interface
-  ['{2611AAA5-10DA-472B-B3EE-31EA27EDD6CD}']
-    function GetVisible: Boolean;
-    procedure SetVisible(AValue: Boolean);
-    property Visible: Boolean read GetVisible write SetVisible;
-  end;
-
   IMarkID = interface
     ['{A3FE0170-8D32-4777-A3EA-53D678875B7B}']
-    function GetId: Integer;
-    property Id: Integer read GetId;
     function GetName: string;
     property Name: string read GetName;
   end;

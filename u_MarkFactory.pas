@@ -150,6 +150,7 @@ implementation
 uses
   Graphics,
   SysUtils,
+  i_MarksDbSmlInternal,
   u_ResStrings,
   u_GeoFun,
   u_MarkPoint,
@@ -354,14 +355,17 @@ function TMarkFactory.SimpleModifyLine(
   ADesc: string
 ): IMarkFull;
 var
+  VId: Integer;
   VDesc: string;
   VVisible: Boolean;
-  VMarkVisible: IMarkVisible;
+  VMarkVisible: IMarkSMLInternal;
   VPoints: TArrayOfDoublePoint;
 begin
   VVisible := True;
-  if Supports(ASource, IMarkVisible, VMarkVisible) then begin
+  VId := -1;
+  if Supports(ASource, IMarkSMLInternal, VMarkVisible) then begin
     VVisible := VMarkVisible.Visible;
+    VId := VMarkVisible.Id;
   end;
   VDesc := ADesc;
   if ADesc = '' then begin
@@ -372,7 +376,7 @@ begin
   PreparePathPoints(VPoints);
 
   Result := CreateLine(
-    ASource.Id,
+    VId,
     ASource.Name,
     VVisible,
     ASource.CategoryId,
@@ -390,19 +394,22 @@ function TMarkFactory.SimpleModifyPoly(
 ): IMarkFull;
 var
   VVisible: Boolean;
-  VMarkVisible: IMarkVisible;
+  VId: Integer;
+  VMarkVisible: IMarkSMLInternal;
   VPoints: TArrayOfDoublePoint;
 begin
   VVisible := True;
-  if Supports(ASource, IMarkVisible, VMarkVisible) then begin
+  VId := -1;
+  if Supports(ASource, IMarkSMLInternal, VMarkVisible) then begin
     VVisible := VMarkVisible.Visible;
+    VId := VMarkVisible.Id;
   end;
 
   VPoints := Copy(APoints);
   PreparePathPoints(VPoints);
 
   Result := CreatePoly(
-    ASource.Id,
+    VId,
     ASource.Name,
     VVisible,
     ASource.CategoryId,

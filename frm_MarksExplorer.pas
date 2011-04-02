@@ -26,7 +26,6 @@ uses
   t_GeoTypes,
   i_MarksSimple,
   i_MarkCategory,
-  u_MarksSimple,
   u_MarksDbGUIHelper,
   frm_Main;
 
