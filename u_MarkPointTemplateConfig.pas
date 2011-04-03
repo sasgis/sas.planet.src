@@ -12,14 +12,14 @@ uses
   i_MarkCategory,
   i_MarkNameGenerator,
   i_MarksFactoryConfig,
-  u_ConfigDataElementComplexBase;
+  i_MarkCategoryDBSmlInternal,
+  u_MarkTemplateConfigBase;
 
 type
-  TMarkPointTemplateConfig = class(TConfigDataElementComplexBase, IMarkPointTemplateConfig)
+  TMarkPointTemplateConfig = class(TMarkTemplateConfigBase, IMarkPointTemplateConfig)
   private
     FDefaultTemplate: IMarkTemplatePoint;
     FMarkPictureList: IMarkPictureList;
-    FNameGenerator: IMarkNameGenerator;
 
     function IsSameTempalte(lhs, rhs: IMarkTemplatePoint): Boolean;
   protected
@@ -40,10 +40,11 @@ type
 
     function GetDefaultTemplate: IMarkTemplatePoint;
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoint);
-
-    function GetNameGenerator: IMarkNameGenerator;
   public
-    constructor Create(AMarkPictureList: IMarkPictureList);
+    constructor Create(
+      ACategoryDb: IMarkCategoryDBSmlInternal;
+      AMarkPictureList: IMarkPictureList
+    );
   end;
 
 implementation
@@ -57,15 +58,15 @@ uses
 
 { TMarkPointTemplateConfig }
 
-constructor TMarkPointTemplateConfig.Create(AMarkPictureList: IMarkPictureList);
+constructor TMarkPointTemplateConfig.Create(
+  ACategoryDb: IMarkCategoryDBSmlInternal;
+  AMarkPictureList: IMarkPictureList
+);
 var
   VPicName: string;
   VPic: IMarkPicture;
 begin
-  inherited Create;
-
-  FNameGenerator := TMarkNameGenerator.Create(SAS_STR_NewMark);
-  Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
+  inherited Create(ACategoryDb, SAS_STR_NewMark);
 
   FMarkPictureList := AMarkPictureList;
   if FMarkPictureList.Count > 0 then begin
@@ -101,7 +102,8 @@ begin
     VCategoryId := -1;
   end;
   Result := TMarkTemplatePoint.Create(
-    FNameGenerator,
+    CategoryDb,
+    NameGenerator,
     VCategoryId,
     AColor1,
     AColor2,
@@ -156,7 +158,8 @@ begin
   end;
   SetDefaultTemplate(
     TMarkTemplatePoint.Create(
-      FNameGenerator,
+      CategoryDb,
+      NameGenerator,
       VCategoryId,
       VColor1,
       VColor2,
@@ -193,11 +196,6 @@ end;
 function TMarkPointTemplateConfig.GetMarkPictureList: IMarkPictureList;
 begin
   Result := FMarkPictureList;
-end;
-
-function TMarkPointTemplateConfig.GetNameGenerator: IMarkNameGenerator;
-begin
-  Result := FNameGenerator;
 end;
 
 function TMarkPointTemplateConfig.IsSameTempalte(lhs,

@@ -7,6 +7,7 @@ uses
   GR32,
   i_MarkPicture,
   i_MarksFactoryConfig,
+  i_MarkCategoryDBSmlInternal,
   u_ConfigDataElementComplexBase;
 
 type
@@ -20,7 +21,10 @@ type
     function GetLineTemplateConfig: IMarkLineTemplateConfig;
     function GetPolyTemplateConfig: IMarkPolyTemplateConfig;
   public
-    constructor Create(AMarkPictureList: IMarkPictureList);
+    constructor Create(
+      ACategoryDb: IMarkCategoryDBSmlInternal;
+      AMarkPictureList: IMarkPictureList
+    );
   end;
 
 implementation
@@ -33,17 +37,20 @@ uses
 
 { TMarksFactoryConfig }
 
-constructor TMarksFactoryConfig.Create(AMarkPictureList: IMarkPictureList);
+constructor TMarksFactoryConfig.Create(
+  ACategoryDb: IMarkCategoryDBSmlInternal;
+  AMarkPictureList: IMarkPictureList
+);
 begin
   inherited Create;
 
-  FPointTemplateConfig := TMarkPointTemplateConfig.Create(AMarkPictureList);
+  FPointTemplateConfig := TMarkPointTemplateConfig.Create(ACategoryDb, AMarkPictureList);
   Add(FPointTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewPoint'));
 
-  FLineTemplateConfig := TMarkLineTemplateConfig.Create;
+  FLineTemplateConfig := TMarkLineTemplateConfig.Create(ACategoryDb);
   Add(FLineTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewLine'));
 
-  FPolyTemplateConfig := TMarkPolyTemplateConfig.Create;
+  FPolyTemplateConfig := TMarkPolyTemplateConfig.Create(ACategoryDb);
   Add(FPolyTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewPoly'));
 end;
 

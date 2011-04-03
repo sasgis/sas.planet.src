@@ -542,6 +542,7 @@
     <DCCReference Include="u_MarksImportBase.pas" />
     <DCCReference Include="u_MarksOnlyDb.pas" />
     <DCCReference Include="u_MarksSubset.pas" />
+    <DCCReference Include="u_MarkTemplateConfigBase.pas" />
     <DCCReference Include="u_MarkTemplates.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
     <DCCReference Include="u_MiniMapLayerConfig.pas" />

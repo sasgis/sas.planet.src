@@ -11,13 +11,13 @@ uses
   i_MarkCategory,
   i_MarkNameGenerator,
   i_MarksFactoryConfig,
-  u_ConfigDataElementComplexBase;
+  i_MarkCategoryDBSmlInternal,
+  u_MarkTemplateConfigBase;
 
 type
-  TMarkPolyTemplateConfig = class(TConfigDataElementComplexBase, IMarkPolyTemplateConfig)
+  TMarkPolyTemplateConfig = class(TMarkTemplateConfigBase, IMarkPolyTemplateConfig)
   private
     FDefaultTemplate: IMarkTemplatePoly;
-    FNameGenerator: IMarkNameGenerator;
 
     function IsSameTempalte(lhs, rhs: IMarkTemplatePoly): Boolean;
   protected
@@ -33,10 +33,10 @@ type
 
     function GetDefaultTemplate: IMarkTemplatePoly;
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoly);
-
-    function GetNameGenerator: IMarkNameGenerator;
   public
-    constructor Create;
+    constructor Create(
+      ACategoryDb: IMarkCategoryDBSmlInternal
+    );
   end;
 
 implementation
@@ -50,12 +50,11 @@ uses
 
 { TMarkPolyTemplateConfig }
 
-constructor TMarkPolyTemplateConfig.Create;
+constructor TMarkPolyTemplateConfig.Create(
+  ACategoryDb: IMarkCategoryDBSmlInternal
+);
 begin
-  inherited Create;
-
-  FNameGenerator := TMarkNameGenerator.Create(SAS_STR_NewPoly);
-  Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
+  inherited Create(ACategoryDb, SAS_STR_NewPoly);
 
   FDefaultTemplate := CreateTemplate(
     nil,
@@ -80,7 +79,8 @@ begin
     VCategoryId := -1;
   end;
   Result := TMarkTemplatePoly.Create(
-    FNameGenerator,
+    CategoryDb,
+    NameGenerator,
     VCategoryId,
     AColor1,
     AColor2,
@@ -108,7 +108,8 @@ begin
   end;
   SetDefaultTemplate(
     TMarkTemplatePoly.Create(
-      FNameGenerator,
+      CategoryDb,
+      NameGenerator,
       VCategoryId,
       VColor1,
       VColor2,
@@ -135,11 +136,6 @@ begin
   finally
     UnlockRead;
   end;
-end;
-
-function TMarkPolyTemplateConfig.GetNameGenerator: IMarkNameGenerator;
-begin
-  Result := FNameGenerator;
 end;
 
 function TMarkPolyTemplateConfig.IsSameTempalte(lhs,

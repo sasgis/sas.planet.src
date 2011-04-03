@@ -6,6 +6,7 @@ uses
   ActiveX,
   GR32,
   t_GeoTypes,
+  i_MarkCategory,
   i_MarkPicture;
 
 type

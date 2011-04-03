@@ -8,6 +8,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   dm_MarksDb,
+  i_MarkPicture,
   i_MarksFactoryConfig,
   i_MarkCategory,
   i_MarkCategoryFactoryConfig,
@@ -22,13 +23,14 @@ type
   private
     FBasePath: string;
     FDMMarksDb: TDMMarksDb;
+    FMarksFactoryConfig: IMarksFactoryConfig;
     FMarksDb: TMarksOnlyDb;
     FCategoryDB: IMarkCategoryDB;
     FCategoryDBInternal: IMarkCategoryDBSmlInternal;
   public
     constructor Create(
       ABasePath: string;
-      AMarkFactoryConfig: IMarksFactoryConfig;
+      AMarkPictureList: IMarkPictureList;
       ACategoryFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
@@ -38,6 +40,8 @@ type
 
     property MarksDb: TMarksOnlyDb read FMarksDb;
     property CategoryDB: IMarkCategoryDB read FCategoryDB;
+    property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
+
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;
     procedure DeleteCategoryWithMarks(ACategory: IMarkCategory);
   end;
@@ -46,13 +50,14 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_MarksFactoryConfig;
 
 { TMarksDB }
 
 constructor TMarksDB.Create(
   ABasePath: string;
-  AMarkFactoryConfig: IMarksFactoryConfig;
+  AMarkPictureList: IMarkPictureList;
   ACategoryFactoryConfig: IMarkCategoryFactoryConfig
 );
 var
@@ -60,10 +65,11 @@ var
 begin
   FBasePath := ABasePath;
   FDMMarksDb := TDMMarksDb.Create(nil);
-  FMarksDb := TMarksOnlyDb.Create(ABasePath, FDMMarksDb, AMarkFactoryConfig);
   VCategoryDB := TMarkCategoryDB.Create(ABasePath, FDMMarksDb, ACategoryFactoryConfig);
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
+  FMarksFactoryConfig := TMarksFactoryConfig.Create(FCategoryDBInternal, AMarkPictureList);
+  FMarksDb := TMarksOnlyDb.Create(ABasePath, FDMMarksDb, FMarksFactoryConfig);
 end;
 
 destructor TMarksDB.Destroy;
@@ -71,6 +77,7 @@ begin
   FreeAndNil(FMarksDb);
   FCategoryDB := nil;
   FCategoryDBInternal := nil;
+  FMarksFactoryConfig := nil;
   FreeAndNil(FDMMarksDb);
   inherited;
 end;
@@ -105,10 +112,12 @@ procedure TMarksDB.ReadConfig(AConfigData: IConfigDataProvider);
 begin
   FMarksDb.LoadMarksFromFile;
   FCategoryDBInternal.LoadCategoriesFromFile;
+  FMarksFactoryConfig.ReadConfig(AConfigData);
 end;
 
 procedure TMarksDB.WriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
+  FMarksFactoryConfig.WriteConfig(AConfigData);
   FCategoryDBInternal.SaveCategory2File;
   FMarksDb.SaveMarks2File;
 end;

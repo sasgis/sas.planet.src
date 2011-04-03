@@ -11,13 +11,13 @@ uses
   i_MarkCategory,
   i_MarkNameGenerator,
   i_MarksFactoryConfig,
-  u_ConfigDataElementComplexBase;
+  i_MarkCategoryDBSmlInternal,
+  u_MarkTemplateConfigBase;
 
 type
-  TMarkLineTemplateConfig = class(TConfigDataElementComplexBase, IMarkLineTemplateConfig)
+  TMarkLineTemplateConfig = class(TMarkTemplateConfigBase, IMarkLineTemplateConfig)
   private
     FDefaultTemplate: IMarkTemplateLine;
-    FNameGenerator: IMarkNameGenerator;
 
     function IsSameTempalte(lhs, rhs: IMarkTemplateLine): Boolean;
   protected
@@ -32,10 +32,10 @@ type
 
     function GetDefaultTemplate: IMarkTemplateLine;
     procedure SetDefaultTemplate(AValue: IMarkTemplateLine);
-
-    function GetNameGenerator: IMarkNameGenerator;
   public
-    constructor Create;
+    constructor Create(
+      ACategoryDb: IMarkCategoryDBSmlInternal
+    );
   end;
 
 implementation
@@ -49,12 +49,11 @@ uses
 
 { TMarkLineTemplateConfig }
 
-constructor TMarkLineTemplateConfig.Create;
+constructor TMarkLineTemplateConfig.Create(
+  ACategoryDb: IMarkCategoryDBSmlInternal
+);
 begin
-  inherited;
-
-  FNameGenerator := TMarkNameGenerator.Create(SAS_STR_NewPath);
-  Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
+  inherited Create(ACategoryDb, SAS_STR_NewPath);
 
   FDefaultTemplate := CreateTemplate(
     nil,
@@ -77,7 +76,8 @@ begin
     VCategoryId := -1;
   end;
   Result := TMarkTemplateLine.Create(
-    FNameGenerator,
+    CategoryDb,
+    NameGenerator,
     VCategoryId,
     AColor1,
     AScale1
@@ -102,7 +102,8 @@ begin
   end;
   SetDefaultTemplate(
     TMarkTemplateLine.Create(
-      FNameGenerator,
+      CategoryDb,
+      NameGenerator,
       VCategoryId,
       VColor1,
       VScale1
@@ -127,11 +128,6 @@ begin
   finally
     UnlockRead;
   end;
-end;
-
-function TMarkLineTemplateConfig.GetNameGenerator: IMarkNameGenerator;
-begin
-  Result := FNameGenerator;
 end;
 
 function TMarkLineTemplateConfig.IsSameTempalte(lhs,

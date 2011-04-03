@@ -87,7 +87,6 @@ type
     FMainMemCache: IMemObjCache;
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
-    FMarksFactoryConfig: IMarksFactoryConfig;
     FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     FGPSpar: TGPSpar;
     FImportFileByExt: IImportFile;
@@ -162,7 +161,6 @@ type
     property MainMemCache: IMemObjCache read FMainMemCache;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
-    property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
     property GPSpar: TGPSpar read FGPSpar;
     property ImportFileByExt: IImportFile read FImportFileByExt;
@@ -297,9 +295,8 @@ begin
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
-  FMarksFactoryConfig := TMarksFactoryConfig.Create(FMarkPictureList);
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
-  FMarksDB := TMarksDB.Create(FProgramPath, FMarksFactoryConfig, FMarksCategoryFactoryConfig);
+  FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
 end;
 
@@ -339,7 +336,6 @@ begin
   FBitmapPostProcessingConfig := nil;
   FValueToStringConverterConfig := nil;
   FMainMemCacheConfig := nil;
-  FMarksFactoryConfig := nil;
   FMarksCategoryFactoryConfig := nil;
   FMarkPictureList := nil;
   FreeAndNil(FCacheConfig);
@@ -473,7 +469,6 @@ begin
   FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FMarkPictureList.ReadConfig(MainConfigProvider);
-  FMarksFactoryConfig.ReadConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
   FMarksDb.ReadConfig(MainConfigProvider);
 end;
@@ -558,7 +553,6 @@ begin
   FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMarkPictureList.WriteConfig(MainConfigProvider);
-  FMarksFactoryConfig.WriteConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));
   FMarksDb.WriteConfig(MainConfigProvider);
 end;

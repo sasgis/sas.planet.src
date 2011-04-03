@@ -219,6 +219,7 @@ uses
   u_MarkNameGenerator in 'u_MarkNameGenerator.pas',
   i_MarksFactoryConfig in 'i_MarksFactoryConfig.pas',
   u_MarksFactoryConfig in 'u_MarksFactoryConfig.pas',
+  u_MarkTemplateConfigBase in 'u_MarkTemplateConfigBase.pas',
   u_MarkPolyTemplateConfig in 'u_MarkPolyTemplateConfig.pas',
   u_MarkPointTemplateConfig in 'u_MarkPointTemplateConfig.pas',
   u_MarkLineTemplateConfig in 'u_MarkLineTemplateConfig.pas',
