@@ -697,7 +697,7 @@ begin
   TBConfigProviderLoadPositions(Self, VProvider);
   OnToolbarsLockChange(nil);
   TBEditPath.Visible:=false;
-  FMarkDBGUI := TMarksDbGUIHelper.Create(GState.MarksDB, GState.ValueToStringConverterConfig, GState.MarksFactoryConfig.PointTemplateConfig.MarkPictureList);
+  FMarkDBGUI := TMarksDbGUIHelper.Create(GState.MarksDB, GState.ValueToStringConverterConfig, GState.MarksDB.MarksFactoryConfig.PointTemplateConfig.MarkPictureList);
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);

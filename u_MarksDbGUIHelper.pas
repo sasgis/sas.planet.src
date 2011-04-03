@@ -12,7 +12,7 @@ uses
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
-  u_MarksReadWriteSimple;
+  u_MarksDb;
 
 type
   TMarksDbGUIHelper = class

@@ -1,4 +1,4 @@
-unit u_MarksReadWriteSimple;
+unit u_MarksDb;
 
 interface
 
@@ -8,12 +8,14 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   dm_MarksDb,
+  i_MarkPicture,
   i_MarksFactoryConfig,
   i_MarkCategory,
   i_MarkCategoryFactoryConfig,
+  i_MarkCategoryDB,
+  i_MarkCategoryDBSmlInternal,
   u_MarksOnlyDb,
-  u_MarkCategoryDB,
-  u_MarksSimple;
+  u_MarkCategoryDB;
 
 type
 
@@ -21,12 +23,14 @@ type
   private
     FBasePath: string;
     FDMMarksDb: TDMMarksDb;
+    FMarksFactoryConfig: IMarksFactoryConfig;
     FMarksDb: TMarksOnlyDb;
-    FCategoryDB: TMarkCategoryDB;
+    FCategoryDB: IMarkCategoryDB;
+    FCategoryDBInternal: IMarkCategoryDBSmlInternal;
   public
     constructor Create(
       ABasePath: string;
-      AMarkFactoryConfig: IMarksFactoryConfig;
+      AMarkPictureList: IMarkPictureList;
       ACategoryFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
@@ -35,7 +39,9 @@ type
     procedure WriteConfig(AConfigData: IConfigDataWriteProvider);
 
     property MarksDb: TMarksOnlyDb read FMarksDb;
-    property CategoryDB: TMarkCategoryDB read FCategoryDB;
+    property CategoryDB: IMarkCategoryDB read FCategoryDB;
+    property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
+
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;
     procedure DeleteCategoryWithMarks(ACategory: IMarkCategory);
   end;
@@ -44,34 +50,42 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_MarksFactoryConfig;
 
 { TMarksDB }
 
 constructor TMarksDB.Create(
   ABasePath: string;
-  AMarkFactoryConfig: IMarksFactoryConfig;
+  AMarkPictureList: IMarkPictureList;
   ACategoryFactoryConfig: IMarkCategoryFactoryConfig
 );
+var
+  VCategoryDb: TMarkCategoryDB;
 begin
   FBasePath := ABasePath;
   FDMMarksDb := TDMMarksDb.Create(nil);
-  FMarksDb := TMarksOnlyDb.Create(ABasePath, FDMMarksDb, AMarkFactoryConfig);
-  FCategoryDB := TMarkCategoryDB.Create(ABasePath, FDMMarksDb, ACategoryFactoryConfig);
+  VCategoryDB := TMarkCategoryDB.Create(ABasePath, FDMMarksDb, ACategoryFactoryConfig);
+  FCategoryDB := VCategoryDb;
+  FCategoryDBInternal := VCategoryDb;
+  FMarksFactoryConfig := TMarksFactoryConfig.Create(FCategoryDBInternal, AMarkPictureList);
+  FMarksDb := TMarksOnlyDb.Create(ABasePath, FDMMarksDb, FMarksFactoryConfig);
+end;
+
+destructor TMarksDB.Destroy;
+begin
+  FreeAndNil(FMarksDb);
+  FCategoryDB := nil;
+  FCategoryDBInternal := nil;
+  FMarksFactoryConfig := nil;
+  FreeAndNil(FDMMarksDb);
+  inherited;
 end;
 
 procedure TMarksDB.DeleteCategoryWithMarks(ACategory: IMarkCategory);
 begin
   FMarksDb.DeleteMarksByCategoryID(ACategory);
   FCategoryDB.DeleteCategory(ACategory);
-end;
-
-destructor TMarksDB.Destroy;
-begin
-  FreeAndNil(FMarksDb);
-  FreeAndNil(FCategoryDB);
-  FreeAndNil(FDMMarksDb);
-  inherited;
 end;
 
 function TMarksDB.GetVisibleCategories(AZoom: Byte): IInterfaceList;
@@ -97,12 +111,14 @@ end;
 procedure TMarksDB.ReadConfig(AConfigData: IConfigDataProvider);
 begin
   FMarksDb.LoadMarksFromFile;
-  FCategoryDB.LoadCategoriesFromFile;
+  FCategoryDBInternal.LoadCategoriesFromFile;
+  FMarksFactoryConfig.ReadConfig(AConfigData);
 end;
 
 procedure TMarksDB.WriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
-  FCategoryDB.SaveCategory2File;
+  FMarksFactoryConfig.WriteConfig(AConfigData);
+  FCategoryDBInternal.SaveCategory2File;
   FMarksDb.SaveMarks2File;
 end;
 

@@ -11,13 +11,13 @@ uses
   i_MarkCategory,
   i_MarkNameGenerator,
   i_MarksFactoryConfig,
-  u_ConfigDataElementComplexBase;
+  i_MarkCategoryDBSmlInternal,
+  u_MarkTemplateConfigBase;
 
 type
-  TMarkLineTemplateConfig = class(TConfigDataElementComplexBase, IMarkLineTemplateConfig)
+  TMarkLineTemplateConfig = class(TMarkTemplateConfigBase, IMarkLineTemplateConfig)
   private
     FDefaultTemplate: IMarkTemplateLine;
-    FNameGenerator: IMarkNameGenerator;
 
     function IsSameTempalte(lhs, rhs: IMarkTemplateLine): Boolean;
   protected
@@ -32,10 +32,10 @@ type
 
     function GetDefaultTemplate: IMarkTemplateLine;
     procedure SetDefaultTemplate(AValue: IMarkTemplateLine);
-
-    function GetNameGenerator: IMarkNameGenerator;
   public
-    constructor Create;
+    constructor Create(
+      ACategoryDb: IMarkCategoryDBSmlInternal
+    );
   end;
 
 implementation
@@ -49,12 +49,11 @@ uses
 
 { TMarkLineTemplateConfig }
 
-constructor TMarkLineTemplateConfig.Create;
+constructor TMarkLineTemplateConfig.Create(
+  ACategoryDb: IMarkCategoryDBSmlInternal
+);
 begin
-  inherited;
-
-  FNameGenerator := TMarkNameGenerator.Create(SAS_STR_NewPath);
-  Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
+  inherited Create(ACategoryDb, SAS_STR_NewPath);
 
   FDefaultTemplate := CreateTemplate(
     nil,
@@ -77,7 +76,8 @@ begin
     VCategoryId := -1;
   end;
   Result := TMarkTemplateLine.Create(
-    FNameGenerator,
+    CategoryDb,
+    NameGenerator,
     VCategoryId,
     AColor1,
     AScale1
@@ -88,11 +88,16 @@ procedure TMarkLineTemplateConfig.DoReadConfig(
   AConfigData: IConfigDataProvider);
 var
   VCategoryId: Integer;
+  VCategory: IMarkCategory;
   VColor1: TColor32;
   VScale1: Integer;
 begin
   inherited;
-  VCategoryId := FDefaultTemplate.CategoryId;
+  VCategoryID := -1;
+  VCategory := FDefaultTemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
   VColor1 := FDefaultTemplate.Color1;
   VScale1 := FDefaultTemplate.Scale1;
   if AConfigData <> nil then begin
@@ -102,7 +107,8 @@ begin
   end;
   SetDefaultTemplate(
     TMarkTemplateLine.Create(
-      FNameGenerator,
+      CategoryDb,
+      NameGenerator,
       VCategoryId,
       VColor1,
       VScale1
@@ -112,9 +118,17 @@ end;
 
 procedure TMarkLineTemplateConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
+var
+  VCategory: IMarkCategory;
+  VCategoryId: Integer;
 begin
   inherited;
-  AConfigData.WriteInteger('CategoryId', FDefaultTemplate.CategoryId);
+  VCategoryID := -1;
+  VCategory := FDefaultTemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
+  AConfigData.WriteInteger('CategoryId', VCategoryId);
   WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.Color1);
   AConfigData.WriteInteger('LineWidth', FDefaultTemplate.Scale1);
 end;
@@ -129,16 +143,24 @@ begin
   end;
 end;
 
-function TMarkLineTemplateConfig.GetNameGenerator: IMarkNameGenerator;
-begin
-  Result := FNameGenerator;
-end;
-
 function TMarkLineTemplateConfig.IsSameTempalte(lhs,
   rhs: IMarkTemplateLine): Boolean;
+var
+  VlhsCategory: IMarkCategory;
+  VrhsCategory: IMarkCategory;
 begin
+  VlhsCategory := lhs.Category;
+  VrhsCategory := rhs.Category;
   Result :=
-    (lhs.CategoryId = rhs.CategoryId) and
+    (
+      (
+        (VlhsCategory <> nil) and
+        (VrhsCategory <> nil) and
+        (VlhsCategory.Id = VrhsCategory.Id)
+      ) or
+        (VlhsCategory = nil) and
+        (VrhsCategory = nil)
+    )and
     (lhs.Color1 = rhs.Color1) and
     (lhs.Scale1 = rhs.Scale1);
 end;

@@ -32,7 +32,7 @@ uses
   SysUtils,
   i_MarksSimple,
   i_UsedMarksConfig,
-  u_MarksReadWriteSimple,
+  u_MarksDb,
   u_GlobalState,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,

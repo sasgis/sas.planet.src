@@ -6,29 +6,26 @@ uses
   ActiveX,
   GR32,
   t_GeoTypes,
+  i_MarkCategory,
   i_MarkPicture;
 
 type
-  IMarkVisible = interface
-  ['{2611AAA5-10DA-472B-B3EE-31EA27EDD6CD}']
-    function GetVisible: Boolean;
-    procedure SetVisible(AValue: Boolean);
-    property Visible: Boolean read GetVisible write SetVisible;
-  end;
-
   IMarkID = interface
     ['{A3FE0170-8D32-4777-A3EA-53D678875B7B}']
-    function GetId: Integer;
-    property Id: Integer read GetId;
     function GetName: string;
     property Name: string read GetName;
   end;
 
-  IMarkTemplatePoint = interface
-    ['{B36731B8-7D98-4D56-996F-E6B77AA6FAB3}']
+  IMarkTemplate = interface
+    ['{2D6A0C13-754C-4BC1-9003-361CA28D311E}']
     function GetNewName: string;
-    function GetCategoryId: Integer;
-    property CategoryId: Integer read GetCategoryId;
+
+    function GetCategory: IMarkCategory;
+    property Category: IMarkCategory read GetCategory;
+  end;
+
+  IMarkTemplatePoint = interface(IMarkTemplate)
+    ['{B36731B8-7D98-4D56-996F-E6B77AA6FAB3}']
     function GetColor1: TColor32;
     property Color1: TColor32 read GetColor1;
     function GetColor2: TColor32;
@@ -43,22 +40,16 @@ type
     property Pic: IMarkPicture read GetPic;
   end;
 
-  IMarkTemplateLine = interface
+  IMarkTemplateLine = interface(IMarkTemplate)
     ['{BF4FF116-98E1-43C5-A7FD-DCE3BF26E8D4}']
-    function GetNewName: string;
-    function GetCategoryId: Integer;
-    property CategoryId: Integer read GetCategoryId;
     function GetColor1: TColor32;
     property Color1: TColor32 read GetColor1;
     function GetScale1: Integer;
     property Scale1: Integer read GetScale1;
   end;
 
-  IMarkTemplatePoly = interface
+  IMarkTemplatePoly = interface(IMarkTemplate)
     ['{81CB621A-112D-4914-B801-BBBAAE11C797}']
-    function GetNewName: string;
-    function GetCategoryId: Integer;
-    property CategoryId: Integer read GetCategoryId;
     function GetColor1: TColor32;
     property Color1: TColor32 read GetColor1;
     function GetColor2: TColor32;

@@ -141,6 +141,12 @@ type
       AScale1: Integer;
       AScale2: Integer
     ): IMarkFull;
+    function CreateMarkId(
+      AName: string;
+      AId: Integer;
+      ACategoryId: Integer;
+      AVisible: Boolean
+    ): IMarkID;
   public
     constructor Create(AConfig: IMarksFactoryConfig);
   end;
@@ -150,8 +156,10 @@ implementation
 uses
   Graphics,
   SysUtils,
+  i_MarksDbSmlInternal,
   u_ResStrings,
   u_GeoFun,
+  u_MarkId,
   u_MarkPoint,
   u_MarkLine,
   u_MarkPoly;
@@ -168,6 +176,8 @@ function TMarkFactory.CreateNewLine(APoints: TArrayOfDoublePoint; AName,
   ADesc: string; ATemplate: IMarkTemplateLine): IMarkFull;
 var
   VTemplate: IMarkTemplateLine;
+  VCategory: IMarkCategory;
+  VCategoryID: Integer;
   VName: string;
   VPoints: TArrayOfDoublePoint;
 begin
@@ -181,6 +191,12 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
+  VCategoryID := -1;
+  VCategory := ATemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
+
   VPoints := Copy(APoints);
   PreparePathPoints(VPoints);
 
@@ -188,7 +204,7 @@ begin
     -1,
     VName,
     True,
-    VTemplate.CategoryId,
+    VCategoryId,
     ADesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
@@ -202,6 +218,8 @@ function TMarkFactory.CreateNewPoint(APoint: TDoublePoint; AName, ADesc: string;
 var
   VTemplate: IMarkTemplatePoint;
   VName: string;
+  VCategory: IMarkCategory;
+  VCategoryID: Integer;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -213,13 +231,19 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
+  VCategoryID := -1;
+  VCategory := ATemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
+
   Result := CreatePoint(
     -1,
     VName,
     True,
     VTemplate.PicName,
     VTemplate.Pic,
-    VTemplate.CategoryId,
+    VCategoryId,
     ADesc,
     APoint,
     VTemplate.Color1,
@@ -235,6 +259,8 @@ var
   VTemplate: IMarkTemplatePoly;
   VName: string;
   VPoints: TArrayOfDoublePoint;
+  VCategory: IMarkCategory;
+  VCategoryID: Integer;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -249,11 +275,17 @@ begin
   VPoints := Copy(APoints);
   PreparePolyPoints(VPoints);
 
+  VCategoryID := -1;
+  VCategory := ATemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
+
   Result := CreatePoly(
     -1,
     VName,
     True,
-    VTemplate.CategoryId,
+    VCategoryId,
     ADesc,
     GetLLRectFromPoints(APoints),
     VPoints,
@@ -348,20 +380,36 @@ begin
   end;
 end;
 
+function TMarkFactory.CreateMarkId(
+  AName: string;
+  AId: Integer;
+  ACategoryId: Integer;
+  AVisible: Boolean
+): IMarkID;
+begin
+  Result := TMarkId.Create(AName, AId, ACategoryId, AVisible);
+end;
+
 function TMarkFactory.SimpleModifyLine(
   ASource: IMarkFull;
   APoints: TArrayOfDoublePoint;
   ADesc: string
 ): IMarkFull;
 var
+  VId: Integer;
+  VCategoryId: Integer;
   VDesc: string;
   VVisible: Boolean;
-  VMarkVisible: IMarkVisible;
+  VMarkVisible: IMarkSMLInternal;
   VPoints: TArrayOfDoublePoint;
 begin
   VVisible := True;
-  if Supports(ASource, IMarkVisible, VMarkVisible) then begin
+  VId := -1;
+  VCategoryId := -1;
+  if Supports(ASource, IMarkSMLInternal, VMarkVisible) then begin
     VVisible := VMarkVisible.Visible;
+    VId := VMarkVisible.Id;
+    VCategoryId := VMarkVisible.CategoryId;
   end;
   VDesc := ADesc;
   if ADesc = '' then begin
@@ -372,10 +420,10 @@ begin
   PreparePathPoints(VPoints);
 
   Result := CreateLine(
-    ASource.Id,
+    VId,
     ASource.Name,
     VVisible,
-    ASource.CategoryId,
+    VCategoryId,
     VDesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
@@ -390,22 +438,28 @@ function TMarkFactory.SimpleModifyPoly(
 ): IMarkFull;
 var
   VVisible: Boolean;
-  VMarkVisible: IMarkVisible;
+  VId: Integer;
+  VCategoryId: Integer;
+  VMarkVisible: IMarkSMLInternal;
   VPoints: TArrayOfDoublePoint;
 begin
   VVisible := True;
-  if Supports(ASource, IMarkVisible, VMarkVisible) then begin
+  VId := -1;
+  VCategoryId := -1;
+  if Supports(ASource, IMarkSMLInternal, VMarkVisible) then begin
     VVisible := VMarkVisible.Visible;
+    VId := VMarkVisible.Id;
+    VCategoryId := VMarkVisible.CategoryId;
   end;
 
   VPoints := Copy(APoints);
   PreparePathPoints(VPoints);
 
   Result := CreatePoly(
-    ASource.Id,
+    VId,
     ASource.Name,
     VVisible,
-    ASource.CategoryId,
+    VCategoryId,
     ASource.Desc,
     GetLLRectFromPoints(VPoints),
     VPoints,

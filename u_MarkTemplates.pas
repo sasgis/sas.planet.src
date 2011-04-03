@@ -4,24 +4,28 @@ interface
 
 uses
   GR32,
+  i_MarkCategory,
   i_MarkPicture,
+  i_MarkCategoryDBSmlInternal,
   i_MarkNameGenerator,
   i_MarksSimple;
 
 type
-  FMarkTemplateBase = class(TInterfacedObject)
+  FMarkTemplateBase = class(TInterfacedObject, IMarkTemplate)
   private
+    FCategoryDb: IMarkCategoryDBSmlInternal;
     FNameGenerator: IMarkNameGenerator;
     FCategoryId: Integer;
   protected
     function GetNewName: string;
+    function GetCategory: IMarkCategory;
     function GetCategoryId: Integer;
   public
     constructor Create(
+      ACategoryDb: IMarkCategoryDBSmlInternal;
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer
     );
-
   end;
 
   TMarkTemplatePoint = class(FMarkTemplateBase, IMarkTemplatePoint)
@@ -41,6 +45,7 @@ type
     function GetPic: IMarkPicture;
   public
     constructor Create(
+      ACategoryDb: IMarkCategoryDBSmlInternal;
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
       AColor1: TColor32;
@@ -61,6 +66,7 @@ type
     function GetScale1: Integer;
   public
     constructor Create(
+      ACategoryDb: IMarkCategoryDBSmlInternal;
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
       AColor1: TColor32;
@@ -79,6 +85,7 @@ type
     function GetScale1: Integer;
   public
     constructor Create(
+      ACategoryDb: IMarkCategoryDBSmlInternal;
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
       AColor1: TColor32;
@@ -91,12 +98,21 @@ implementation
 
 { FMarkTemplateBase }
 
-constructor FMarkTemplateBase.Create(ANameGenerator: IMarkNameGenerator;
-  ACategoryId: Integer);
+constructor FMarkTemplateBase.Create(
+  ACategoryDb: IMarkCategoryDBSmlInternal;
+  ANameGenerator: IMarkNameGenerator;
+  ACategoryId: Integer
+);
 begin
   inherited Create;
   FNameGenerator := ANameGenerator;
+  FCategoryDb := ACategoryDb;
   FCategoryId := ACategoryId;
+end;
+
+function FMarkTemplateBase.GetCategory: IMarkCategory;
+begin
+  Result := FCategoryDb.GetCategoryByID(FCategoryId);
 end;
 
 function FMarkTemplateBase.GetCategoryId: Integer;
@@ -112,12 +128,13 @@ end;
 { TMarkTemplatePoint }
 
 constructor TMarkTemplatePoint.Create(
+  ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
   ACategoryId: Integer; AColor1,
   AColor2: TColor32; AScale1, AScale2: Integer; APicName: string;
   APic: IMarkPicture);
 begin
-  inherited Create(ANameGenerator, ACategoryId);
+  inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
   FColor1 := AColor1;
   FColor2 := AColor2;
   FScale1 := AScale1;
@@ -159,11 +176,12 @@ end;
 { TMarkTemplateLine }
 
 constructor TMarkTemplateLine.Create(
+  ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
   ACategoryId: Integer; AColor1: TColor32;
   AScale1: Integer);
 begin
-  inherited Create(ANameGenerator, ACategoryId);
+  inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
   FColor1 := AColor1;
   FScale1 := AScale1;
 end;
@@ -181,11 +199,12 @@ end;
 { TMarkTemplatePoly }
 
 constructor TMarkTemplatePoly.Create(
+  ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
   ACategoryId: Integer; AColor1,
   AColor2: TColor32; AScale1: Integer);
 begin
-  inherited Create(ANameGenerator, ACategoryId);
+  inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
   FColor1 := AColor1;
   FColor2 := AColor2;
   FScale1 := AScale1;

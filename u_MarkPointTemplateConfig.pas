@@ -12,14 +12,14 @@ uses
   i_MarkCategory,
   i_MarkNameGenerator,
   i_MarksFactoryConfig,
-  u_ConfigDataElementComplexBase;
+  i_MarkCategoryDBSmlInternal,
+  u_MarkTemplateConfigBase;
 
 type
-  TMarkPointTemplateConfig = class(TConfigDataElementComplexBase, IMarkPointTemplateConfig)
+  TMarkPointTemplateConfig = class(TMarkTemplateConfigBase, IMarkPointTemplateConfig)
   private
     FDefaultTemplate: IMarkTemplatePoint;
     FMarkPictureList: IMarkPictureList;
-    FNameGenerator: IMarkNameGenerator;
 
     function IsSameTempalte(lhs, rhs: IMarkTemplatePoint): Boolean;
   protected
@@ -40,10 +40,11 @@ type
 
     function GetDefaultTemplate: IMarkTemplatePoint;
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoint);
-
-    function GetNameGenerator: IMarkNameGenerator;
   public
-    constructor Create(AMarkPictureList: IMarkPictureList);
+    constructor Create(
+      ACategoryDb: IMarkCategoryDBSmlInternal;
+      AMarkPictureList: IMarkPictureList
+    );
   end;
 
 implementation
@@ -57,15 +58,15 @@ uses
 
 { TMarkPointTemplateConfig }
 
-constructor TMarkPointTemplateConfig.Create(AMarkPictureList: IMarkPictureList);
+constructor TMarkPointTemplateConfig.Create(
+  ACategoryDb: IMarkCategoryDBSmlInternal;
+  AMarkPictureList: IMarkPictureList
+);
 var
   VPicName: string;
   VPic: IMarkPicture;
 begin
-  inherited Create;
-
-  FNameGenerator := TMarkNameGenerator.Create(SAS_STR_NewMark);
-  Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
+  inherited Create(ACategoryDb, SAS_STR_NewMark);
 
   FMarkPictureList := AMarkPictureList;
   if FMarkPictureList.Count > 0 then begin
@@ -101,7 +102,8 @@ begin
     VCategoryId := -1;
   end;
   Result := TMarkTemplatePoint.Create(
-    FNameGenerator,
+    CategoryDb,
+    NameGenerator,
     VCategoryId,
     AColor1,
     AColor2,
@@ -118,12 +120,17 @@ var
   VPicName: string;
   VPic: IMarkPicture;
   VPicIndex: Integer;
+  VCategory: IMarkCategory;
   VCategoryId: Integer;
   VColor1, VColor2: TColor32;
   VScale1, VScale2: Integer;
 begin
   inherited;
-  VCategoryId := FDefaultTemplate.CategoryId;
+  VCategoryID := -1;
+  VCategory := FDefaultTemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
   VColor1 := FDefaultTemplate.Color1;
   VColor2 := FDefaultTemplate.Color2;
   VScale1 := FDefaultTemplate.Scale1;
@@ -156,7 +163,8 @@ begin
   end;
   SetDefaultTemplate(
     TMarkTemplatePoint.Create(
-      FNameGenerator,
+      CategoryDb,
+      NameGenerator,
       VCategoryId,
       VColor1,
       VColor2,
@@ -170,10 +178,18 @@ end;
 
 procedure TMarkPointTemplateConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
+var
+  VCategory: IMarkCategory;
+  VCategoryId: Integer;
 begin
   inherited;
+  VCategoryID := -1;
+  VCategory := FDefaultTemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
   AConfigData.WriteString('IconName', FDefaultTemplate.PicName);
-  AConfigData.WriteInteger('CategoryId', FDefaultTemplate.CategoryId);
+  AConfigData.WriteInteger('CategoryId', VCategoryId);
   WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.Color1);
   WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.Color2);
   AConfigData.WriteInteger('FontSize', FDefaultTemplate.Scale1);
@@ -195,16 +211,24 @@ begin
   Result := FMarkPictureList;
 end;
 
-function TMarkPointTemplateConfig.GetNameGenerator: IMarkNameGenerator;
-begin
-  Result := FNameGenerator;
-end;
-
 function TMarkPointTemplateConfig.IsSameTempalte(lhs,
   rhs: IMarkTemplatePoint): Boolean;
+var
+  VlhsCategory: IMarkCategory;
+  VrhsCategory: IMarkCategory;
 begin
+  VlhsCategory := lhs.Category;
+  VrhsCategory := rhs.Category;
   Result :=
-    (lhs.CategoryId = rhs.CategoryId) and
+    (
+      (
+        (VlhsCategory <> nil) and
+        (VrhsCategory <> nil) and
+        (VlhsCategory.Id = VrhsCategory.Id)
+      ) or
+        (VlhsCategory = nil) and
+        (VrhsCategory = nil)
+    )and
     (lhs.Color1 = rhs.Color1) and
     (lhs.Color2 = rhs.Color2) and
     (lhs.Scale1 = rhs.Scale1) and

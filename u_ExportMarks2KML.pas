@@ -13,7 +13,6 @@ uses
   XMLDoc,
   KaZip,
   ActiveX,
-  u_MarksSimple,
   i_MarksSimple,
   i_MarkCategory,
   u_GlobalState,
