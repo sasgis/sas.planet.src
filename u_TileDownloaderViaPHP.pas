@@ -48,12 +48,16 @@ type
 implementation
 
 uses
+  WinInet,
   i_ProxySettings,
   u_GlobalState;
 
 type
   TPHPReader = class
     private
+      FPHP: TpsvPHP;
+      FScript: string;
+      FBody: TMemoryStream;
       FTile: TPoint;
       FZoom: Byte;
       FOldTileSize: Integer;
@@ -61,9 +65,7 @@ type
       FUrl: string;
       FDefUrl: string;
       FMIMEType: string;
-      FBody: TMemoryStream;
-      FPHP: TpsvPHP;
-      FScript: string;
+      FLanguage: string;
       procedure OnReadResult (Sender : TObject; Stream : TStream);
     public
       constructor Create(const AFileName: string; const AScript: string = '');
@@ -80,6 +82,7 @@ type
       property Url: string read FUrl write FUrl;
       property DefUrl: string write FDefUrl;
       property MIMEType: string read FMIMEType;
+      property Language: string write FLanguage;
   end;
 
 const
@@ -197,6 +200,7 @@ begin
       EnterCriticalSection(PhpThreadSafe);
     try
       VPhpReader.Cookie := FCookieStr;
+      VPhpReader.Language := GState.LanguageManager.GetCurrentLanguageCode;
       if FEnableCoordConverter and Assigned(FCoordConverter) then
         VPhpReader.SetCustomParams(Self.GetCustomParams(ATile, AZoom));
     finally
@@ -314,6 +318,9 @@ begin
   FPHP.Variables.Add.Name := 'MIMEType';
   FPHP.Variables.ByName('MIMEType').AsString := '';
 
+  FPHP.Variables.Add.Name := 'SasLangCodeStr';
+  FPHP.Variables.ByName('SasLangCodeStr').AsString := FLanguage;
+
   FPHP.Variables.Add.Name := 'X';
   FPHP.Variables.ByName('X').AsInteger := FTile.X;
 
@@ -348,6 +355,40 @@ begin
 end;
 
 procedure TPHPReader.SetProxyConfig(AInetConfig: IInetConfig);
+
+  procedure GetProxyData(var ProxyEnabled: boolean; var ProxyServer: string);
+  var
+    ProxyInfo: PInternetProxyInfo;
+    Len: LongWord;
+    i, j: integer;
+  begin
+    Len := 4096;
+    ProxyEnabled := false;
+    GetMem(ProxyInfo, Len);
+    try
+      if InternetQueryOption(nil, INTERNET_OPTION_PROXY, ProxyInfo, Len)
+      then
+        if ProxyInfo^.dwAccessType = INTERNET_OPEN_TYPE_PROXY then
+        begin
+          ProxyServer := ProxyInfo^.lpszProxy;
+          if ProxyServer <> '' then
+          begin
+            ProxyEnabled:= True;
+            i := Pos('http=', ProxyServer);
+            if (i > 0) then
+            begin
+              Delete(ProxyServer, 1, i + 5);
+              j := Pos(';', ProxyServer);
+              if (j > 0) then
+                ProxyServer := Copy(ProxyServer, 1, j - 1);
+            end;
+          end;
+        end
+    finally
+      FreeMem(ProxyInfo);
+    end;
+  end;
+
 var
   VProxyConfig: IProxyConfig;
   VUseIESettings: Boolean;
@@ -368,6 +409,13 @@ begin
     VHost := VProxyConfig.GetHost;
   finally
     VProxyConfig.UnlockRead;
+  end;
+
+  if VUseIESettings then
+  begin
+    VLogin := '';
+    VPassword := '';
+    GetProxyData(VUseProxy, VHost);
   end;
 
   FPHP.Variables.Add.Name := 'ProxyUseIESettings';
