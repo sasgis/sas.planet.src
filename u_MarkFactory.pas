@@ -176,6 +176,8 @@ function TMarkFactory.CreateNewLine(APoints: TArrayOfDoublePoint; AName,
   ADesc: string; ATemplate: IMarkTemplateLine): IMarkFull;
 var
   VTemplate: IMarkTemplateLine;
+  VCategory: IMarkCategory;
+  VCategoryID: Integer;
   VName: string;
   VPoints: TArrayOfDoublePoint;
 begin
@@ -189,6 +191,12 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
+  VCategoryID := -1;
+  VCategory := ATemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
+
   VPoints := Copy(APoints);
   PreparePathPoints(VPoints);
 
@@ -196,7 +204,7 @@ begin
     -1,
     VName,
     True,
-    VTemplate.CategoryId,
+    VCategoryId,
     ADesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
@@ -210,6 +218,8 @@ function TMarkFactory.CreateNewPoint(APoint: TDoublePoint; AName, ADesc: string;
 var
   VTemplate: IMarkTemplatePoint;
   VName: string;
+  VCategory: IMarkCategory;
+  VCategoryID: Integer;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -221,13 +231,19 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
+  VCategoryID := -1;
+  VCategory := ATemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
+
   Result := CreatePoint(
     -1,
     VName,
     True,
     VTemplate.PicName,
     VTemplate.Pic,
-    VTemplate.CategoryId,
+    VCategoryId,
     ADesc,
     APoint,
     VTemplate.Color1,
@@ -243,6 +259,8 @@ var
   VTemplate: IMarkTemplatePoly;
   VName: string;
   VPoints: TArrayOfDoublePoint;
+  VCategory: IMarkCategory;
+  VCategoryID: Integer;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -257,11 +275,17 @@ begin
   VPoints := Copy(APoints);
   PreparePolyPoints(VPoints);
 
+  VCategoryID := -1;
+  VCategory := ATemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
+
   Result := CreatePoly(
     -1,
     VName,
     True,
-    VTemplate.CategoryId,
+    VCategoryId,
     ADesc,
     GetLLRectFromPoints(APoints),
     VPoints,

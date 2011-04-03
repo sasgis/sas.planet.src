@@ -91,12 +91,17 @@ end;
 procedure TMarkPolyTemplateConfig.DoReadConfig(
   AConfigData: IConfigDataProvider);
 var
+  VCategory: IMarkCategory;
   VCategoryId: Integer;
   VColor1, VColor2: TColor32;
   VScale1: Integer;
 begin
   inherited;
-  VCategoryId := FDefaultTemplate.CategoryId;
+  VCategoryID := -1;
+  VCategory := FDefaultTemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
   VColor1 := FDefaultTemplate.Color1;
   VColor2 := FDefaultTemplate.Color2;
   VScale1 := FDefaultTemplate.Scale1;
@@ -120,9 +125,17 @@ end;
 
 procedure TMarkPolyTemplateConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
+var
+  VCategory: IMarkCategory;
+  VCategoryId: Integer;
 begin
   inherited;
-  AConfigData.WriteInteger('CategoryId', FDefaultTemplate.CategoryId);
+  VCategoryID := -1;
+  VCategory := FDefaultTemplate.Category;
+  if VCategory <> nil then begin
+    VCategoryID := VCategory.Id;
+  end;
+  AConfigData.WriteInteger('CategoryId', VCategoryId);
   WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.Color1);
   WriteColor32(AConfigData, 'FillColor', FDefaultTemplate.Color2);
   AConfigData.WriteInteger('LineWidth', FDefaultTemplate.Scale1);
@@ -140,9 +153,22 @@ end;
 
 function TMarkPolyTemplateConfig.IsSameTempalte(lhs,
   rhs: IMarkTemplatePoly): Boolean;
+var
+  VlhsCategory: IMarkCategory;
+  VrhsCategory: IMarkCategory;
 begin
+  VlhsCategory := lhs.Category;
+  VrhsCategory := rhs.Category;
   Result :=
-    (lhs.CategoryId = rhs.CategoryId) and
+    (
+      (
+        (VlhsCategory <> nil) and
+        (VrhsCategory <> nil) and
+        (VlhsCategory.Id = VrhsCategory.Id)
+      ) or
+        (VlhsCategory = nil) and
+        (VrhsCategory = nil)
+    )and
     (lhs.Color1 = rhs.Color1) and
     (lhs.Color2 = rhs.Color2) and
     (lhs.Scale1 = rhs.Scale1)

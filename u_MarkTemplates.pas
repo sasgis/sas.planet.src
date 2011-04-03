@@ -4,6 +4,7 @@ interface
 
 uses
   GR32,
+  i_MarkCategory,
   i_MarkPicture,
   i_MarkCategoryDBSmlInternal,
   i_MarkNameGenerator,
@@ -17,6 +18,7 @@ type
     FCategoryId: Integer;
   protected
     function GetNewName: string;
+    function GetCategory: IMarkCategory;
     function GetCategoryId: Integer;
   public
     constructor Create(
@@ -106,6 +108,11 @@ begin
   FNameGenerator := ANameGenerator;
   FCategoryDb := ACategoryDb;
   FCategoryId := ACategoryId;
+end;
+
+function FMarkTemplateBase.GetCategory: IMarkCategory;
+begin
+  Result := FCategoryDb.GetCategoryByID(FCategoryId);
 end;
 
 function FMarkTemplateBase.GetCategoryId: Integer;

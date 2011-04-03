@@ -19,8 +19,9 @@ type
   IMarkTemplate = interface
     ['{2D6A0C13-754C-4BC1-9003-361CA28D311E}']
     function GetNewName: string;
-    function GetCategoryId: Integer;
-    property CategoryId: Integer read GetCategoryId;
+
+    function GetCategory: IMarkCategory;
+    property Category: IMarkCategory read GetCategory;
   end;
 
   IMarkTemplatePoint = interface(IMarkTemplate)
