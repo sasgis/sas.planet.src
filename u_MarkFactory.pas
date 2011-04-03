@@ -397,6 +397,7 @@ function TMarkFactory.SimpleModifyLine(
 ): IMarkFull;
 var
   VId: Integer;
+  VCategoryId: Integer;
   VDesc: string;
   VVisible: Boolean;
   VMarkVisible: IMarkSMLInternal;
@@ -404,9 +405,11 @@ var
 begin
   VVisible := True;
   VId := -1;
+  VCategoryId := -1;
   if Supports(ASource, IMarkSMLInternal, VMarkVisible) then begin
     VVisible := VMarkVisible.Visible;
     VId := VMarkVisible.Id;
+    VCategoryId := VMarkVisible.CategoryId;
   end;
   VDesc := ADesc;
   if ADesc = '' then begin
@@ -420,7 +423,7 @@ begin
     VId,
     ASource.Name,
     VVisible,
-    ASource.CategoryId,
+    VCategoryId,
     VDesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
@@ -436,14 +439,17 @@ function TMarkFactory.SimpleModifyPoly(
 var
   VVisible: Boolean;
   VId: Integer;
+  VCategoryId: Integer;
   VMarkVisible: IMarkSMLInternal;
   VPoints: TArrayOfDoublePoint;
 begin
   VVisible := True;
   VId := -1;
+  VCategoryId := -1;
   if Supports(ASource, IMarkSMLInternal, VMarkVisible) then begin
     VVisible := VMarkVisible.Visible;
     VId := VMarkVisible.Id;
+    VCategoryId := VMarkVisible.CategoryId;
   end;
 
   VPoints := Copy(APoints);
@@ -453,7 +459,7 @@ begin
     VId,
     ASource.Name,
     VVisible,
-    ASource.CategoryId,
+    VCategoryId,
     ASource.Desc,
     GetLLRectFromPoints(VPoints),
     VPoints,

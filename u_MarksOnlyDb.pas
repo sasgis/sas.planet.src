@@ -224,11 +224,21 @@ begin
 end;
 
 procedure TMarksOnlyDb.WriteCurrentMark(AMark: IMarkFull);
+var
+  VMarkVisible: IMarkSMLInternal;
+  VCategoryId: Integer;
+  VVisible: Boolean;
 begin
+  VVisible := True;
+  VCategoryId := -1;
+  if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
+    VVisible := VMarkVisible.Visible;
+    VCategoryId := VMarkVisible.CategoryId;
+  end;
   FDMMarksDb.CDSmarks.FieldByName('name').AsString := AMark.name;
-  FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := GetMarkVisible(AMark);
+  FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := VVisible;
   BlobFromExtArr(AMark.Points, FDMMarksDb.CDSmarks.FieldByName('LonLatArr'));
-  FDMMarksDb.CDSmarkscategoryid.AsInteger := AMark.CategoryId;
+  FDMMarksDb.CDSmarkscategoryid.AsInteger := VCategoryId;
   FDMMarksDb.CDSmarks.FieldByName('descr').AsString := AMark.Desc;
   FDMMarksDb.CDSmarks.FieldByName('LonL').AsFloat := AMark.LLRect.Left;
   FDMMarksDb.CDSmarks.FieldByName('LatT').AsFloat := AMark.LLRect.Top;
