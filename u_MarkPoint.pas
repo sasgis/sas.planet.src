@@ -14,7 +14,6 @@ type
   private
     FPicName: string;
     FPic: IMarkPicture;
-    FCategoryId: Integer;
     FDesc: string;
     FLLRect: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
@@ -23,7 +22,6 @@ type
     FScale1: Integer;
     FScale2: Integer;
   protected
-    function GetCategoryId: Integer;
     function GetDesc: string;
     function GetLLRect: TDoubleRect;
     function GetPoints: TArrayOfDoublePoint;
@@ -74,10 +72,9 @@ constructor TMarkPoint.Create(
   AScale1, AScale2: Integer
 );
 begin
-  inherited Create(AName, AId, AVisible);
+  inherited Create(AName, AId, ACategoryId, AVisible);
   FPicName := APicName;
   FPic := APic;
-  FCategoryId := ACategoryId;
   FDesc := ADesc;
   FLLRect := ALLRect;
   SetLength(FPoints, 1);
@@ -86,11 +83,6 @@ begin
   FColor2 := AColor2;
   FScale1 := AScale1;
   FScale2 := AScale2;
-end;
-
-function TMarkPoint.GetCategoryId: Integer;
-begin
-  Result := FCategoryId;
 end;
 
 function TMarkPoint.GetColor1: TColor32;

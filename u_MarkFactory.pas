@@ -144,6 +144,7 @@ type
     function CreateMarkId(
       AName: string;
       AId: Integer;
+      ACategoryId: Integer;
       AVisible: Boolean
     ): IMarkID;
   public
@@ -355,10 +356,14 @@ begin
   end;
 end;
 
-function TMarkFactory.CreateMarkId(AName: string; AId: Integer;
-  AVisible: Boolean): IMarkID;
+function TMarkFactory.CreateMarkId(
+  AName: string;
+  AId: Integer;
+  ACategoryId: Integer;
+  AVisible: Boolean
+): IMarkID;
 begin
-  Result := TMarkId.Create(AName, AId, AVisible);
+  Result := TMarkId.Create(AName, AId, ACategoryId, AVisible);
 end;
 
 function TMarkFactory.SimpleModifyLine(

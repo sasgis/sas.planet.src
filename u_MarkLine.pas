@@ -12,14 +12,12 @@ uses
 type
   TMarkLine = class(TMarkId, IMarkFull)
   private
-    FCategoryId: Integer;
     FDesc: string;
     FLLRect: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
     FColor1: TColor32;
     FScale1: Integer;
   protected
-    function GetCategoryId: Integer;
     function GetDesc: string;
     function GetLLRect: TDoubleRect;
     function GetPoints: TArrayOfDoublePoint;
@@ -64,18 +62,12 @@ constructor TMarkLine.Create(
   AScale1: Integer
 );
 begin
-  inherited Create(AName, AId, AVisible);
-  FCategoryId := ACategoryId;
+  inherited Create(AName, AId, ACategoryId, AVisible);
   FDesc := ADesc;
   FLLRect := ALLRect;
   FPoints := APoints;
   FColor1 := AColor1;
   FScale1 := AScale1;
-end;
-
-function TMarkLine.GetCategoryId: Integer;
-begin
-  Result := FCategoryId;
 end;
 
 function TMarkLine.GetColor1: TColor32;

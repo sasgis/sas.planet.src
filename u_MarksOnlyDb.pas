@@ -173,12 +173,14 @@ function TMarksOnlyDb.ReadCurrentMarkId: IMarkId;
 var
   VId: Integer;
   VName: string;
+  VCategoryId: Integer;
   VVisible: Boolean;
 begin
   VId := FDMMarksDb.CDSmarks.fieldbyname('id').AsInteger;
   VName := FDMMarksDb.CDSmarks.FieldByName('name').AsString;
+  VCategoryId := FDMMarksDb.CDSmarkscategoryid.AsInteger;
   VVisible := FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean;
-  Result := FFactoryDbInternal.CreateMarkId(VName, VId, VVisible);
+  Result := FFactoryDbInternal.CreateMarkId(VName, VId, VCategoryId, VVisible);
 end;
 
 function TMarksOnlyDb.ReadCurrentMark: IMarkFull;

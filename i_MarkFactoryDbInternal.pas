@@ -29,6 +29,7 @@ type
     function CreateMarkId(
       AName: string;
       AId: Integer;
+      ACategoryId: Integer;
       AVisible: Boolean
     ): IMarkID;
   end;

@@ -8,6 +8,9 @@ type
     function GetId: Integer;
     property Id: Integer read GetId;
 
+    function GetCategoryId: Integer;
+    property CategoryId: Integer read GetCategoryId;
+
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;

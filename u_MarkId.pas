@@ -12,6 +12,7 @@ type
   private
     FName: string;
     FId: Integer;
+    FCategoryId: Integer;
     FVisible: Boolean;
   protected
     function IsNew: Boolean;
@@ -19,12 +20,14 @@ type
     function GetName: string;
   protected
     function GetId: Integer;
+    function GetCategoryId: Integer;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
   public
     constructor Create(
       AName: string;
       AId: Integer;
+      ACategoryId: Integer;
       AVisible: Boolean
     );
   end;
@@ -33,11 +36,22 @@ implementation
 
 { TMarkId }
 
-constructor TMarkId.Create(AName: string; AId: Integer; AVisible: Boolean);
+constructor TMarkId.Create(
+  AName: string;
+  AId: Integer;
+  ACategoryId: Integer;
+  AVisible: Boolean
+);
 begin
   FName := AName;
   FId := AId;
+  FCategoryId := ACategoryId;
   FVisible := AVisible;
+end;
+
+function TMarkId.GetCategoryId: Integer;
+begin
+  Result := FCategoryId;
 end;
 
 function TMarkId.GetId: Integer;

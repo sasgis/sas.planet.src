@@ -12,7 +12,6 @@ uses
 type
   TMarkPoly = class(TMarkId, IMarkFull)
   private
-    FCategoryId: Integer;
     FDesc: string;
     FLLRect: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
@@ -20,7 +19,6 @@ type
     FColor2: TColor32;
     FScale1: Integer;
   protected
-    function GetCategoryId: Integer;
     function GetDesc: string;
     function GetLLRect: TDoubleRect;
     function GetPoints: TArrayOfDoublePoint;
@@ -66,19 +64,13 @@ constructor TMarkPoly.Create(
   AScale1: Integer
 );
 begin
-  inherited Create(AName, AId, AVisible);
-  FCategoryId := ACategoryId;
+  inherited Create(AName, AId, ACategoryId, AVisible);
   FDesc := ADesc;
   FLLRect := ALLRect;
   FPoints := APoints;
   FColor1 := AColor1;
   FColor2 := AColor2;
   FScale1 := AScale1;
-end;
-
-function TMarkPoly.GetCategoryId: Integer;
-begin
-  Result := FCategoryId;
 end;
 
 function TMarkPoly.GetColor1: TColor32;
