@@ -15,11 +15,15 @@ type
     property Name: string read GetName;
   end;
 
-  IMarkTemplatePoint = interface
-    ['{B36731B8-7D98-4D56-996F-E6B77AA6FAB3}']
+  IMarkTemplate = interface
+    ['{2D6A0C13-754C-4BC1-9003-361CA28D311E}']
     function GetNewName: string;
     function GetCategoryId: Integer;
     property CategoryId: Integer read GetCategoryId;
+  end;
+
+  IMarkTemplatePoint = interface(IMarkTemplate)
+    ['{B36731B8-7D98-4D56-996F-E6B77AA6FAB3}']
     function GetColor1: TColor32;
     property Color1: TColor32 read GetColor1;
     function GetColor2: TColor32;
@@ -34,22 +38,16 @@ type
     property Pic: IMarkPicture read GetPic;
   end;
 
-  IMarkTemplateLine = interface
+  IMarkTemplateLine = interface(IMarkTemplate)
     ['{BF4FF116-98E1-43C5-A7FD-DCE3BF26E8D4}']
-    function GetNewName: string;
-    function GetCategoryId: Integer;
-    property CategoryId: Integer read GetCategoryId;
     function GetColor1: TColor32;
     property Color1: TColor32 read GetColor1;
     function GetScale1: Integer;
     property Scale1: Integer read GetScale1;
   end;
 
-  IMarkTemplatePoly = interface
+  IMarkTemplatePoly = interface(IMarkTemplate)
     ['{81CB621A-112D-4914-B801-BBBAAE11C797}']
-    function GetNewName: string;
-    function GetCategoryId: Integer;
-    property CategoryId: Integer read GetCategoryId;
     function GetColor1: TColor32;
     property Color1: TColor32 read GetColor1;
     function GetColor2: TColor32;

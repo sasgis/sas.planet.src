@@ -9,7 +9,7 @@ uses
   i_MarksSimple;
 
 type
-  FMarkTemplateBase = class(TInterfacedObject)
+  FMarkTemplateBase = class(TInterfacedObject, IMarkTemplate)
   private
     FNameGenerator: IMarkNameGenerator;
     FCategoryId: Integer;
@@ -21,7 +21,6 @@ type
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer
     );
-
   end;
 
   TMarkTemplatePoint = class(FMarkTemplateBase, IMarkTemplatePoint)
