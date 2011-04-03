@@ -6,6 +6,7 @@ uses
   Windows,
   Classes,
   SysUtils,
+  i_IDList,
   i_MarkCategory,
   i_MarkCategoryFactory,
   i_MarkCategoryFactoryDbInternal,
@@ -18,6 +19,7 @@ type
     FSync: IReadWriteSync;
     FBasePath: string;
     FDMMarksDb: TDMMarksDb;
+    FList: IIDInterfaceList;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternal;
     FFactory: IMarkCategoryFactory;
     function ReadCurrentCategory: IMarkCategory;
@@ -55,6 +57,8 @@ implementation
 
 uses
   DB,
+  i_EnumID,
+  u_IDInterfaceList,
   u_MarkCategoryFactory;
 
 constructor TMarkCategoryDB.Create(
@@ -68,6 +72,7 @@ begin
   FBasePath := ABasePath;
   FDMMarksDb := ADMMarksDb;
   FSync := TSimpleRWSync.Create;
+  FList := TIDInterfaceList.Create;
   VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
   FFactoryDbInternal := VFactory;
   FFactory := VFactory;
@@ -76,6 +81,7 @@ end;
 destructor TMarkCategoryDB.Destroy;
 begin
   FSync := nil;
+  FList := nil;
   FFactory := nil;
   FFactoryDbInternal := nil;
   inherited;
@@ -108,19 +114,24 @@ end;
 function TMarkCategoryDB.WriteCategory(ACategory: IMarkCategory): IMarkCategory;
 var
   VId: Integer;
+  VExists: Boolean;
 begin
   VId := ACategory.id;
   LockRead;
   try
     if VId < 0 then begin
-      FDMMarksDb.CDSKategory.Insert;
+      VExists := False;
     end else begin
-      FDMMarksDb.CDSKategory.Locate('id', VId, []);
+      VExists := FDMMarksDb.CDSKategory.Locate('id', VId, []);
+    end;
+    if VExists then begin
       FDMMarksDb.CDSKategory.Edit;
+    end else begin
+      FDMMarksDb.CDSKategory.Insert;
     end;
     WriteCurrentCategory(ACategory);
     FDMMarksDb.CDSKategory.post;
-    if VId < 0 then begin
+    if not VExists then begin
       VId := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
       Result := FFactoryDbInternal.CreateCategory(
         VId,
@@ -133,6 +144,7 @@ begin
       Result := ACategory;
     end;
     SaveCategory2File;
+    FList.Replace(VId, Result);
   finally
     UnlockWrite;
   end;
@@ -140,22 +152,27 @@ end;
 
 procedure TMarkCategoryDB.DeleteCategory(ACategory: IMarkCategory);
 var
+  VId: Integer;
   VExist: Boolean;
 begin
+  VId := ACategory.id;
   LockWrite;
   try
     VExist := False;
-    FDMMarksDb.CDSKategory.DisableControls;
-    try
-      if FDMMarksDb.CDSKategory.Locate('id', ACategory.id, []) then begin
-        FDMMarksDb.CDSKategory.Delete;
-        VExist := True;
+    if VId >= 0 then begin
+      FDMMarksDb.CDSKategory.DisableControls;
+      try
+        if FDMMarksDb.CDSKategory.Locate('id', VId, []) then begin
+          FDMMarksDb.CDSKategory.Delete;
+          VExist := True;
+        end;
+      finally
+        FDMMarksDb.CDSKategory.EnableControls;
       end;
-    finally
-      FDMMarksDb.CDSKategory.EnableControls;
     end;
     if VExist then begin
       SaveCategory2File;
+      FList.Remove(VId);
     end;
   finally
     UnlockWrite;
@@ -167,21 +184,29 @@ begin
   Result := nil;
   LockRead;
   try
-    if FDMMarksDb.CDSKategory.Locate('id', id, []) then begin
-      Result := ReadCurrentCategory;
-    end;
+    Result := IMarkCategory(FList.GetByID(id));
   finally
     UnlockRead;
   end;
 end;
 
 function TMarkCategoryDB.GetCategoryByName(AName: string): IMarkCategory;
+var
+  VEnum: IEnumID;
+  i: Cardinal;
+  VId: Integer;
+  VCategory:  IMarkCategory;
 begin
   Result := nil;
   LockRead;
   try
-    if FDMMarksDb.CDSKategory.Locate('name', AName, []) then begin
-      Result := ReadCurrentCategory;
+    VEnum := FList.GetIDEnum;
+    while VEnum.Next(1, VId, i) = S_OK do begin
+      VCategory := IMarkCategory(FList.GetByID(VId));
+      if SameStr(VCategory.Name, AName) then begin
+        Result := VCategory;
+        Break;
+      end;
     end;
   finally
     UnlockRead;
@@ -189,6 +214,8 @@ begin
 end;
 
 procedure TMarkCategoryDB.SetAllCategoriesVisible(ANewVisible: Boolean);
+var
+  VCategory: IMarkCategory;
 begin
   LockWrite;
   try
@@ -201,6 +228,8 @@ begin
             FDMMarksDb.CDSKategory.Edit;
             FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean := ANewVisible;
             FDMMarksDb.CDSKategory.post;
+            VCategory := ReadCurrentCategory;
+            FList.Replace(VCategory.Id, VCategory);
           end;
           FDMMarksDb.CDSKategory.Next;
         end;
@@ -224,28 +253,23 @@ end;
 
 function TMarkCategoryDB.GetCategoriesList: IInterfaceList;
 var
-  VKategory: IMarkCategory;
+  VEnum: IEnumID;
+  i: Cardinal;
+  VId: Integer;
+  VCategory: IMarkCategory;
 begin
   Result := TInterfaceList.Create;
   LockRead;
   try
-    FDMMarksDb.CDSKategory.DisableControls;
-    try
-      FDMMarksDb.CDSKategory.Filtered := false;
-      FDMMarksDb.CDSKategory.First;
-      while not (FDMMarksDb.CDSKategory.Eof) do begin
-        VKategory := ReadCurrentCategory;
-        Result.Add(VKategory);
-        FDMMarksDb.CDSKategory.Next;
-      end;
-    finally
-      FDMMarksDb.CDSKategory.EnableControls;
+    VEnum := FList.GetIDEnum;
+    while VEnum.Next(1, VId, i) = S_OK do begin
+      VCategory := IMarkCategory(FList.GetByID(VId));
+      Result.Add(VCategory);
     end;
   finally
     UnlockRead;
   end;
 end;
-
 
 function TMarkCategoryDB.GetMarksCategoryBackUpFileName: string;
 begin
@@ -260,12 +284,26 @@ end;
 procedure TMarkCategoryDB.LoadCategoriesFromFile;
 var
   VFileName: string;
+  VCategory: IMarkCategory;
 begin
   VFileName := GetMarksCategoryFileName;
   if FileExists(VFileName) then begin
     FDMMarksDb.CDSKategory.LoadFromFile(VFileName);
     if FDMMarksDb.CDSKategory.RecordCount > 0 then begin
       CopyFile(PChar(VFileName), PChar(GetMarksCategoryBackUpFileName), false);
+    end;
+
+    FDMMarksDb.CDSKategory.DisableControls;
+    try
+      FDMMarksDb.CDSKategory.Filtered := false;
+      FDMMarksDb.CDSKategory.First;
+      while not (FDMMarksDb.CDSKategory.Eof) do begin
+        VCategory := ReadCurrentCategory;
+        FList.Add(VCategory.Id, VCategory);
+        FDMMarksDb.CDSKategory.Next;
+      end;
+    finally
+      FDMMarksDb.CDSKategory.EnableControls;
     end;
   end;
 end;
