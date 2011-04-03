@@ -11,10 +11,12 @@ uses
   i_MarkCategoryFactory,
   i_MarkCategoryFactoryDbInternal,
   i_MarkCategoryFactoryConfig,
+  i_MarkCategoryDB,
+  i_MarkCategoryDBSmlInternal,
   dm_MarksDb;
 
 type
-  TMarkCategoryDB = class
+  TMarkCategoryDB = class(TInterfacedObject, IMarkCategoryDB, IMarkCategoryDBSmlInternal)
   private
     FSync: IReadWriteSync;
     FBasePath: string;
@@ -31,9 +33,19 @@ type
     procedure LockWrite; virtual;
     procedure UnlockRead; virtual;
     procedure UnlockWrite; virtual;
-  public
+  protected
+    function GetCategoryByName(AName: string): IMarkCategory;
+    function WriteCategory(ACategory: IMarkCategory): IMarkCategory;
+    procedure DeleteCategory(ACategory: IMarkCategory);
+
+    function GetCategoriesList: IInterfaceList;
+    procedure SetAllCategoriesVisible(ANewVisible: Boolean);
+
+    function GetFactory: IMarkCategoryFactory;
+  protected
     function SaveCategory2File: boolean;
     procedure LoadCategoriesFromFile;
+    function GetCategoryByID(id: integer): IMarkCategory;
   public
     constructor Create(
       ABasePath: string;
@@ -41,16 +53,6 @@ type
       AFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
-
-    function GetCategoryByName(AName: string): IMarkCategory;
-    function GetCategoryByID(id: integer): IMarkCategory;
-    function WriteCategory(ACategory: IMarkCategory): IMarkCategory;
-    procedure DeleteCategory(ACategory: IMarkCategory);
-
-    function GetCategoriesList: IInterfaceList;
-    procedure SetAllCategoriesVisible(ANewVisible: Boolean);
-
-    property Factory: IMarkCategoryFactory read FFactory;
   end;
 
 implementation
@@ -211,6 +213,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TMarkCategoryDB.GetFactory: IMarkCategoryFactory;
+begin
+  Result := FFactory;
 end;
 
 procedure TMarkCategoryDB.SetAllCategoriesVisible(ANewVisible: Boolean);
