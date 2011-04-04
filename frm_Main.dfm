@@ -9,7 +9,7 @@ object frmMain: TfrmMain
   Color = clBtnFace
   ParentFont = True
   OldCreateOrder = False
-  Position = poDesigned
+  Position = poDefault
   ShowHint = True
   OnActivate = FormActivate
   OnClose = FormClose
