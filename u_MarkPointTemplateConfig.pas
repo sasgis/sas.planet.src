@@ -96,10 +96,9 @@ function TMarkPointTemplateConfig.CreateTemplate(APicName: string;
 var
   VCategoryId: Integer;
 begin
+  VCategoryId := -1;
   if ACategory <> nil then begin
     VCategoryId := ACategory.Id;
-  end else begin
-    VCategoryId := -1;
   end;
   Result := TMarkTemplatePoint.Create(
     CategoryDb,

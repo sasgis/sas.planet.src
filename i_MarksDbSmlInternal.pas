@@ -16,7 +16,6 @@ type
     property Visible: Boolean read GetVisible write SetVisible;
   end;
 
-
 implementation
 
 end.

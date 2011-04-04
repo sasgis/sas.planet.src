@@ -70,10 +70,9 @@ function TMarkLineTemplateConfig.CreateTemplate(
 var
   VCategoryId: Integer;
 begin
+  VCategoryId := -1;
   if ACategory <> nil then begin
     VCategoryId := ACategory.Id;
-  end else begin
-    VCategoryId := -1;
   end;
   Result := TMarkTemplateLine.Create(
     CategoryDb,

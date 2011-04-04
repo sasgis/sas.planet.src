@@ -141,7 +141,6 @@ procedure TThreadMapCombineKMZ.saveRECT;
 var
   iWidth, iHeight: integer;
   k, i, j: integer;
-  Ckml: TMapCalibrationKml;
   BufRect: TRect;
   FileName: string;
 
