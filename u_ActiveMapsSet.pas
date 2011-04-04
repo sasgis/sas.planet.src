@@ -213,6 +213,7 @@ begin
       end;
     end;
     FSelectedMapsList := VList;
+    SetChanged;
   finally
     UnlockWrite;
   end;
