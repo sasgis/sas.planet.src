@@ -42,7 +42,7 @@ type
     FDrawTask: IBackgroundTaskFillingMap;
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IFillingMapLayerConfig);
     procedure StartThreads; override;
@@ -236,44 +236,32 @@ begin
   );
 end;
 
-procedure TMapLayerFillingMap.PosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-begin
-  if not FConfigStatic.Visible then begin
-    Hide;
-  end else begin
-    if ANewVisualCoordConverter.GetZoom > FConfigStatic.SourceZoom then begin
-      Hide;
-    end else begin
-      Show;
-      inherited;
-    end;
-  end;
-end;
-
 procedure TMapLayerFillingMap.StartThreads;
 begin
   inherited;
   OnConfigChange(nil);
 end;
 
+function TMapLayerFillingMap.GetVisibleForNewPos(
+  ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+begin
+  Result := FConfigStatic.Visible;
+  if Result then begin
+    Result := ANewVisualCoordConverter.GetZoom <= FConfigStatic.SourceZoom;
+  end;
+end;
+
 procedure TMapLayerFillingMap.OnConfigChange(Sender: TObject);
 begin
   FConfigStatic := FConfig.GetStatic;
-  if FConfigStatic.Visible then begin
-    if ViewPortState.GetCurrentZoom > FConfigStatic.SourceZoom then begin
-      Hide;
-    end else begin
-      FDrawTask.StopExecute;
-      try
-        Show;
-        FDrawTask.ChangeConfig(FConfigStatic);
-      finally
-        FDrawTask.StartExecute;
-      end;
+  SetVisible(GetVisibleForNewPos(VisualCoordConverter));
+  if Visible then begin
+    FDrawTask.StopExecute;
+    try
+      FDrawTask.ChangeConfig(FConfigStatic);
+    finally
+      FDrawTask.StartExecute;
     end;
-  end else begin
-    Hide;
   end;
 end;
 

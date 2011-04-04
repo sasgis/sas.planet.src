@@ -27,7 +27,8 @@ type
     procedure DoHide; override;
     procedure DoShow; override;
     function GetMapLayerLocationRect: TFloatRect; override;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure PreparePosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure AfterPosChange; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; ATaskFactory: IBackgroundTaskLayerDrawFactory);
     destructor Destroy; override;
@@ -44,6 +45,13 @@ uses
   u_LocalCoordConverterFactorySimpe;
 
 { TMapLayerWithThreadDraw }
+
+procedure TMapLayerWithThreadDraw.AfterPosChange;
+begin
+  inherited;
+  FDrawTask.ChangePos(FBitmapCoordConverter);
+  UpdateLayerLocation(GetMapLayerLocationRect);
+end;
 
 function TMapLayerWithThreadDraw.BuildBitmapCoordConverter(
   ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
@@ -80,13 +88,11 @@ begin
   FDrawTask.ChangePos(FBitmapCoordConverter);
 end;
 
-procedure TMapLayerWithThreadDraw.DoPosChange(
+procedure TMapLayerWithThreadDraw.PreparePosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
   inherited;
   FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
-  FDrawTask.ChangePos(FBitmapCoordConverter);
-  UpdateLayerLocation(GetMapLayerLocationRect);
 end;
 
 procedure TMapLayerWithThreadDraw.DoRedraw;
