@@ -159,6 +159,8 @@ begin
     ATargetBitmap.Draw(0, 0, FTempBitmap);
   end;
   if FMarksImageProvider <> nil then begin
+    FTempBitmap.SetSize(VSize.X, VSize.Y);
+    FTempBitmap.Clear(0);
     FMarksImageProvider.GetBitmapRect(FTempBitmap, AConverter);
     FTempBitmap.DrawMode := dmBlend;
     ATargetBitmap.Draw(0, 0, FTempBitmap);
