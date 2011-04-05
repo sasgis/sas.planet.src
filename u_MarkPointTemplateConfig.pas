@@ -20,8 +20,6 @@ type
   private
     FDefaultTemplate: IMarkTemplatePoint;
     FMarkPictureList: IMarkPictureList;
-
-    function IsSameTempalte(lhs, rhs: IMarkTemplatePoint): Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -50,6 +48,8 @@ type
 implementation
 
 uses
+  SysUtils,
+  i_MarksDbSmlInternal,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigProviderHelpers,
   u_MarkNameGenerator,
@@ -95,10 +95,13 @@ function TMarkPointTemplateConfig.CreateTemplate(APicName: string;
   AScale2: Integer): IMarkTemplatePoint;
 var
   VCategoryId: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
   VCategoryId := -1;
   if ACategory <> nil then begin
-    VCategoryId := ACategory.Id;
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      VCategoryId := VCategoryInternal.Id;
+    end;
   end;
   Result := TMarkTemplatePoint.Create(
     CategoryDb,
@@ -123,19 +126,23 @@ var
   VCategoryId: Integer;
   VColor1, VColor2: TColor32;
   VScale1, VScale2: Integer;
+  VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
   VCategoryID := -1;
-  VCategory := FDefaultTemplate.Category;
-  if VCategory <> nil then begin
-    VCategoryID := VCategory.Id;
+  if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
+    VCategoryId := VTemplateInternal.CategoryId;
   end;
   VColor1 := FDefaultTemplate.Color1;
   VColor2 := FDefaultTemplate.Color2;
   VScale1 := FDefaultTemplate.Scale1;
   VScale2 := FDefaultTemplate.Scale2;
-  VPicName := FDefaultTemplate.PicName;
   VPic := FDefaultTemplate.Pic;
+  VPicName := '';
+  if VPic <> nil then begin
+    VPicName := VPic.GetName;
+  end;
+  
   if VPicName = '' then begin
     if FMarkPictureList.Count > 0 then begin
       VPicName := FMarkPictureList.GetName(0);
@@ -180,14 +187,19 @@ procedure TMarkPointTemplateConfig.DoWriteConfig(
 var
   VCategory: IMarkCategory;
   VCategoryId: Integer;
+  VPicName: string;
+  VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
   VCategoryID := -1;
-  VCategory := FDefaultTemplate.Category;
-  if VCategory <> nil then begin
-    VCategoryID := VCategory.Id;
+  if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
+    VCategoryId := VTemplateInternal.CategoryId;
   end;
-  AConfigData.WriteString('IconName', FDefaultTemplate.PicName);
+  VPicName := '';
+  if FDefaultTemplate.Pic <> nil then begin
+    VPicName := FDefaultTemplate.Pic.GetName;
+  end;
+  AConfigData.WriteString('IconName', VPicName);
   AConfigData.WriteInteger('CategoryId', VCategoryId);
   WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.Color1);
   WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.Color2);
@@ -210,43 +222,19 @@ begin
   Result := FMarkPictureList;
 end;
 
-function TMarkPointTemplateConfig.IsSameTempalte(lhs,
-  rhs: IMarkTemplatePoint): Boolean;
-var
-  VlhsCategory: IMarkCategory;
-  VrhsCategory: IMarkCategory;
-begin
-  VlhsCategory := lhs.Category;
-  VrhsCategory := rhs.Category;
-  Result :=
-    (
-      (
-        (VlhsCategory <> nil) and
-        (VrhsCategory <> nil) and
-        (VlhsCategory.Id = VrhsCategory.Id)
-      ) or
-        (VlhsCategory = nil) and
-        (VrhsCategory = nil)
-    )and
-    (lhs.Color1 = rhs.Color1) and
-    (lhs.Color2 = rhs.Color2) and
-    (lhs.Scale1 = rhs.Scale1) and
-    (lhs.Scale2 = rhs.Scale2) and
-    (lhs.PicName = rhs.PicName) and
-    (lhs.Pic = rhs.Pic);
-end;
-
 procedure TMarkPointTemplateConfig.SetDefaultTemplate(
   AValue: IMarkTemplatePoint);
 begin
-  LockWrite;
-  try
-    if not IsSameTempalte(FDefaultTemplate, AValue) then begin
-      FDefaultTemplate := AValue;
-      SetChanged;
+  if AValue <> nil then begin
+    LockWrite;
+    try
+      if (FDefaultTemplate = nil) or (FDefaultTemplate.IsSame(AValue)) then begin
+        FDefaultTemplate := AValue;
+        SetChanged;
+      end;
+    finally
+      UnlockWrite;
     end;
-  finally
-    UnlockWrite;
   end;
 end;
 

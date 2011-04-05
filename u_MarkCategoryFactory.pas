@@ -37,6 +37,8 @@ type
 implementation
 
 uses
+  SysUtils,
+  i_MarksDbSmlInternal,
   u_MarkCategory;
 
 { TMarkCategoryFactory }
@@ -97,6 +99,8 @@ function TMarkCategoryFactory.Modify(
 ): IMarkCategory;
 var
   VName: string;
+  VId: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
   VName := AName;
   FConfig.LockRead;
@@ -108,9 +112,14 @@ begin
     FConfig.UnlockRead;
   end;
 
+  VId := -1;
+  if Supports(ASource, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VId := VCategoryInternal.Id;
+  end;
+
   Result :=
     CreateCategory(
-      ASource.Id,
+      VId,
       VName,
       AVisible,
       AAfterScale,
@@ -122,10 +131,18 @@ function TMarkCategoryFactory.ModifyVisible(
   ASource: IMarkCategory;
   AVisible: Boolean
 ): IMarkCategory;
+var
+  VId: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
+  VId := -1;
+  if Supports(ASource, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VId := VCategoryInternal.Id;
+  end;
+
   Result :=
     CreateCategory(
-      ASource.Id,
+      VId,
       ASource.Name,
       AVisible,
       ASource.AfterScale,

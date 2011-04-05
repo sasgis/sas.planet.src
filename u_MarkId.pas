@@ -5,6 +5,7 @@ interface
 uses
   GR32,
   i_MarksSimple,
+  i_MarkCategory,
   i_MarksDbSmlInternal;
 
 type
@@ -12,6 +13,7 @@ type
   private
     FName: string;
     FId: Integer;
+    FCategory: IMarkCategory;
     FCategoryId: Integer;
     FVisible: Boolean;
   protected
@@ -20,6 +22,7 @@ type
     function GetName: string;
   protected
     function GetId: Integer;
+    function GetCategory: IMarkCategory;
     function GetCategoryId: Integer;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
@@ -27,26 +30,42 @@ type
     constructor Create(
       AName: string;
       AId: Integer;
-      ACategoryId: Integer;
+      ACategory: IMarkCategory;
       AVisible: Boolean
     );
   end;
 
 implementation
 
+uses
+  SysUtils;
+
 { TMarkId }
 
 constructor TMarkId.Create(
   AName: string;
   AId: Integer;
-  ACategoryId: Integer;
+  ACategory: IMarkCategory;
   AVisible: Boolean
 );
+var
+  VCategory: IMarkCategorySMLInternal;
 begin
   FName := AName;
   FId := AId;
-  FCategoryId := ACategoryId;
+  FCategory := ACategory;
+  FCategoryId := -1;
+  if FCategory <> nil then begin
+    if Supports(FCategory, IMarkCategorySMLInternal, VCategory) then begin
+      FCategoryId := VCategory.Id;
+    end;
+  end;
   FVisible := AVisible;
+end;
+
+function TMarkId.GetCategory: IMarkCategory;
+begin
+  Result := FCategory;
 end;
 
 function TMarkId.GetCategoryId: Integer;

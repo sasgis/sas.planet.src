@@ -71,7 +71,6 @@ var
   VLastUsedCategoryName: string;
   i: Integer;
   VCategory: IMarkCategory;
-  VId: integer;
 begin
   FMarkDBGUI := AMarkDBGUI;
   VLastUsedCategoryName:=CBKateg.Text;
@@ -86,15 +85,19 @@ begin
     seWidth.Value:=AMark.Scale1;
     clrbxLineColor.Selected:=WinColor(AMark.Color1);
     chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);
-    VId := AMark.CategoryId;
-    for i := 0 to CBKateg.Items.Count - 1 do begin
-      VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[i]));
-      if VCategory <> nil then begin
-        if VCategory.id = VId then begin
-          CBKateg.ItemIndex := i;
-          Break;
+    FCategory := AMark.Category;
+    if FCategory <> nil then begin
+      for i := 0 to CBKateg.Items.Count - 1 do begin
+        VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[i]));
+        if VCategory <> nil then begin
+          if VCategory.IsSame(FCategory) then begin
+            CBKateg.ItemIndex := i;
+            Break;
+          end;
         end;
       end;
+    end else begin
+      CBKateg.ItemIndex := -1;
     end;
     if AMark.IsNew then begin
       Caption:=SAS_STR_AddNewPath;

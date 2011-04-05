@@ -9,6 +9,7 @@ uses
   t_GeoTypes,
   dm_MarksDb,
   i_MarksFactoryConfig,
+  i_MarkCategoryDBSmlInternal,
   i_MarkCategory,
   i_MarksSimple,
   i_MarkFactory,
@@ -38,7 +39,12 @@ type
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
   public
-    constructor Create(ABasePath: string; ADMMarksDb: TDMMarksDb; AFactoryConfig: IMarksFactoryConfig);
+    constructor Create(
+      ABasePath: string;
+      ADMMarksDb: TDMMarksDb;
+      ACategoryDB: IMarkCategoryDBSmlInternal;
+      AFactoryConfig: IMarksFactoryConfig
+    );
     destructor Destroy; override;
     
     function GetMarkByID(AMarkId: IMarkId): IMarkFull;
@@ -124,6 +130,7 @@ end;
 constructor TMarksOnlyDb.Create(
   ABasePath: string;
   ADMMarksDb: TDMMarksDb;
+  ACategoryDB: IMarkCategoryDBSmlInternal;
   AFactoryConfig: IMarksFactoryConfig
 );
 var
@@ -132,7 +139,7 @@ begin
   FBasePath := ABasePath;
   FDMMarksDb := ADMMarksDb;
   FSync := TSimpleRWSync.Create;
-  VFactory := TMarkFactory.Create(AFactoryConfig);
+  VFactory := TMarkFactory.Create(AFactoryConfig, ACategoryDB);
   FFactory := VFactory;
   FFactoryDbInternal := VFactory;
 end;
@@ -226,6 +233,8 @@ end;
 procedure TMarksOnlyDb.WriteCurrentMark(AMark: IMarkFull);
 var
   VMarkVisible: IMarkSMLInternal;
+  VMarkPoint: IMarkPointSMLInternal;
+  VPicName: string;
   VCategoryId: Integer;
   VVisible: Boolean;
 begin
@@ -235,6 +244,11 @@ begin
     VVisible := VMarkVisible.Visible;
     VCategoryId := VMarkVisible.CategoryId;
   end;
+  VPicName := '';
+  if Supports(AMark, IMarkPointSMLInternal, VMarkPoint) then begin
+    VPicName := VMarkPoint.PicName;
+  end;
+
   FDMMarksDb.CDSmarks.FieldByName('name').AsString := AMark.name;
   FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := VVisible;
   BlobFromExtArr(AMark.Points, FDMMarksDb.CDSmarks.FieldByName('LonLatArr'));
@@ -244,7 +258,7 @@ begin
   FDMMarksDb.CDSmarks.FieldByName('LatT').AsFloat := AMark.LLRect.Top;
   FDMMarksDb.CDSmarks.FieldByName('LonR').AsFloat := AMark.LLRect.Right;
   FDMMarksDb.CDSmarks.FieldByName('LatB').AsFloat := AMark.LLRect.Bottom;
-  FDMMarksDb.CDSmarks.FieldByName('PicName').AsString := AMark.PicName;
+  FDMMarksDb.CDSmarks.FieldByName('PicName').AsString := VPicName;
   FDMMarksDb.CDSmarks.FieldByName('Color1').AsInteger := AMark.Color1;
   FDMMarksDb.CDSmarks.FieldByName('Color2').AsInteger := AMark.Color2;
   FDMMarksDb.CDSmarks.FieldByName('Scale1').AsInteger := AMark.Scale1;
@@ -290,23 +304,31 @@ end;
 
 function TMarksOnlyDb.GetMarkVisible(AMark: IMarkId): Boolean;
 var
-  VMarkVisible: IMarkSMLInternal;
+  VMarkInternal: IMarkSMLInternal;
 begin
   Result := True;
   if AMark <> nil then begin
-    if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
-      Result := VMarkVisible.Visible;
+    if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
+      Result := VMarkInternal.Visible;
     end;
   end;
 end;
 
 procedure TMarksOnlyDb.WriteMark(AMark: IMarkFull);
+var
+  VId: Integer;
+  VMarkInternal: IMarkSMLInternal;
 begin
+  Assert(AMark <> nil);
+  VId := -1;
+  if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
+    VId := VMarkInternal.Id;
+  end;
   LockWrite;
   try
     FDMMarksDb.CDSmarks.Filtered := false;
-    if AMark.id >= 0 then begin
-      if FDMMarksDb.CDSmarks.Locate('id', AMark.id, []) then begin
+    if VId >= 0 then begin
+      if FDMMarksDb.CDSmarks.Locate('id', VId, []) then begin
         FDMMarksDb.CDSmarks.Edit;
       end else begin
         FDMMarksDb.CDSmarks.Insert;
@@ -326,14 +348,20 @@ procedure TMarksOnlyDb.WriteMarksList(AMarkList: IInterfaceList);
 var
   i: Integer;
   VMark: IMarkFull;
+  VId: Integer;
+  VMarkInternal: IMarkSMLInternal;
 begin
   LockWrite;
   try
     FDMMarksDb.CDSmarks.Filtered := false;
     for i := 0 to AMarkList.Count - 1 do begin
       VMark := IMarkFull(AMarkList.Items[i]);
-      if VMark.id >= 0 then begin
-        if FDMMarksDb.CDSmarks.Locate('id', VMark.id, []) then begin
+      VId := -1;
+      if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
+        VId := VMarkInternal.Id;
+      end;
+      if VId >= 0 then begin
+        if FDMMarksDb.CDSmarks.Locate('id', VId, []) then begin
           FDMMarksDb.CDSmarks.Edit;
         end else begin
           FDMMarksDb.CDSmarks.Insert;
@@ -380,20 +408,29 @@ end;
 procedure TMarksOnlyDb.DeleteMarksByCategoryID(ACategory: IMarkCategory);
 var
   VDeleted: Boolean;
+  VCategoryID: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
+  Assert(ACategory <> nil);
+  VCategoryID := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VCategoryID := VCategoryInternal.Id;
+  end;
   VDeleted := False;
-  LockWrite;
-  try
-    FDMMarksDb.CDSmarks.Filtered := false;
-    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.Id);
-    FDMMarksDb.CDSmarks.Filtered := true;
-    FDMMarksDb.CDSmarks.First;
-    while not (FDMMarksDb.CDSmarks.Eof) do begin
-      FDMMarksDb.CDSmarks.Delete;
-      VDeleted := True;
+  if VCategoryID >= 0 then begin
+    LockWrite;
+    try
+      FDMMarksDb.CDSmarks.Filtered := false;
+      FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FDMMarksDb.CDSmarks.Filtered := true;
+      FDMMarksDb.CDSmarks.First;
+      while not (FDMMarksDb.CDSmarks.Eof) do begin
+        FDMMarksDb.CDSmarks.Delete;
+        VDeleted := True;
+      end;
+    finally
+      UnlockWrite;
     end;
-  finally
-    UnlockWrite;
   end;
   if VDeleted then begin
     SaveMarks2File;
@@ -404,24 +441,33 @@ procedure TMarksOnlyDb.SetAllMarksInCategoryVisible(ACategory: IMarkCategory;
   ANewVisible: Boolean);
 var
   VVisible: Boolean;
+  VCategoryID: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  LockRead;
-  try
-    FDMMarksDb.CDSmarks.Filtered := false;
-    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.id);
-    FDMMarksDb.CDSmarks.Filtered := true;
-    FDMMarksDb.CDSmarks.First;
-    while not (FDMMarksDb.CDSmarks.Eof) do begin
-      VVisible := FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean;
-      if VVisible <> ANewVisible then begin
-        FDMMarksDb.CDSmarks.Edit;
-        FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := ANewVisible;
-        FDMMarksDb.CDSmarks.Post;
+  VCategoryID := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VCategoryID := VCategoryInternal.Id;
+  end;
+
+  if VCategoryID >= 0 then begin
+    LockRead;
+    try
+      FDMMarksDb.CDSmarks.Filtered := false;
+      FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FDMMarksDb.CDSmarks.Filtered := true;
+      FDMMarksDb.CDSmarks.First;
+      while not (FDMMarksDb.CDSmarks.Eof) do begin
+        VVisible := FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean;
+        if VVisible <> ANewVisible then begin
+          FDMMarksDb.CDSmarks.Edit;
+          FDMMarksDb.CDSmarks.FieldByName('Visible').AsBoolean := ANewVisible;
+          FDMMarksDb.CDSmarks.Post;
+        end;
+        FDMMarksDb.CDSmarks.Next;
       end;
-      FDMMarksDb.CDSmarks.Next;
+    finally
+      UnlockRead;
     end;
-  finally
-    UnlockRead;
   end;
 end;
 
@@ -474,27 +520,45 @@ end;
 function TMarksOnlyDb.GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
 var
   VMarkId: IMarkId;
+  VCategoryID: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
   Result := TInterfaceList.Create;
-  LockRead;
-  try
-    FDMMarksDb.CDSmarks.Filtered := false;
-    FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(ACategory.Id);
-    FDMMarksDb.CDSmarks.Filtered := true;
-    FDMMarksDb.CDSmarks.First;
-    while not (FDMMarksDb.CDSmarks.Eof) do begin
-      VMarkId := ReadCurrentMarkId;
-      Result.Add(VMarkId);
-      FDMMarksDb.CDSmarks.Next;
+  VCategoryID := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VCategoryID := VCategoryInternal.Id;
+  end;
+
+  if VCategoryID >= 0 then begin
+    LockRead;
+    try
+      FDMMarksDb.CDSmarks.Filtered := false;
+      FDMMarksDb.CDSmarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FDMMarksDb.CDSmarks.Filtered := true;
+      FDMMarksDb.CDSmarks.First;
+      while not (FDMMarksDb.CDSmarks.Eof) do begin
+        VMarkId := ReadCurrentMarkId;
+        Result.Add(VMarkId);
+        FDMMarksDb.CDSmarks.Next;
+      end;
+    finally
+      UnlockRead;
     end;
-  finally
-    UnlockRead;
   end;
 end;
 
 function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
   ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
-
+  function GetCategoryID(ACategory: IMarkCategory): Integer;
+  var
+    VCategoryInternal: IMarkCategorySMLInternal;
+  begin
+    Assert(ACategory <> nil);
+    Result := -1;
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      Result := VCategoryInternal.Id;
+    end;
+  end;
   function GetFilterText(
     ARect: TDoubleRect;
     ACategoryList: IInterfaceList;
@@ -502,6 +566,7 @@ function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
   ): string;
   var
     VCategoryFilter: string;
+    VCategoryID: Integer;
     i: Integer;
   begin
     Result := '';
@@ -510,9 +575,11 @@ function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
       Result := Result + ' and ';
     end;
     if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
-      VCategoryFilter := IntToStr(IMarkCategory(ACategoryList[0]).Id);
+      VCategoryID := GetCategoryID(IMarkCategory(ACategoryList[0]));
+      VCategoryFilter := IntToStr(VCategoryID);
       for i :=  1 to ACategoryList.Count - 1 do begin
-        VCategoryFilter := VCategoryFilter + ', ' + IntToStr(IMarkCategory(ACategoryList[i]).Id);
+        VCategoryID := GetCategoryID(IMarkCategory(ACategoryList[0]));
+        VCategoryFilter := VCategoryFilter + ', ' + IntToStr(VCategoryID);
       end;
       VCategoryFilter := '(categoryid in (' + VCategoryFilter + ')) and';
       Result := Result + VCategoryFilter;

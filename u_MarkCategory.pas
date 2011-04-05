@@ -3,10 +3,11 @@ unit u_MarkCategory;
 interface
 
 uses
-  i_MarkCategory;
+  i_MarkCategory,
+  i_MarksDbSmlInternal;
 
 type
-  TMarkCategory = class(TInterfacedObject, IMarkCategory)
+  TMarkCategory = class(TInterfacedObject, IMarkCategory, IMarkCategorySMLInternal)
   private
     FId: Integer;
     FName: string;
@@ -32,6 +33,9 @@ type
   end;
 
 implementation
+
+uses
+  SysUtils;
 
 { TMarkCategory }
 
@@ -76,10 +80,14 @@ begin
 end;
 
 function TMarkCategory.IsSame(ACategory: IMarkCategory): Boolean;
+var
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
   Result := False;
   if ACategory <> nil then begin
-    Result := FId = ACategory.Id;
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      Result := FId = VCategoryInternal.Id;
+    end;
   end;
 end;
 

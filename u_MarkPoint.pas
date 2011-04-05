@@ -6,11 +6,13 @@ uses
   GR32,
   t_GeoTypes,
   i_MarksSimple,
+  i_MarkCategory,
+  i_MarksDbSmlInternal,
   i_MarkPicture,
   u_MarkId;
 
 type
-  TMarkPoint = class(TMarkId, IMarkFull)
+  TMarkPoint = class(TMarkId, IMarkFull, IMarkPointSMLInternal)
   private
     FPicName: string;
     FPic: IMarkPicture;
@@ -43,7 +45,7 @@ type
       AVisible: Boolean;
       APicName: string;
       APic: IMarkPicture;
-      ACategoryId: Integer;
+      ACategory: IMarkCategory;
       ADesc: string;
       ALLRect: TDoubleRect;
       APoint: TDoublePoint;
@@ -64,7 +66,7 @@ constructor TMarkPoint.Create(
   AVisible: Boolean;
   APicName: string;
   APic: IMarkPicture;
-  ACategoryId: Integer;
+  ACategory: IMarkCategory;
   ADesc: string;
   ALLRect: TDoubleRect;
   APoint: TDoublePoint;
@@ -72,7 +74,7 @@ constructor TMarkPoint.Create(
   AScale1, AScale2: Integer
 );
 begin
-  inherited Create(AName, AId, ACategoryId, AVisible);
+  inherited Create(AName, AId, ACategory, AVisible);
   FPicName := APicName;
   FPic := APic;
   FDesc := ADesc;

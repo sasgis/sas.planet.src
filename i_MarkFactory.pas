@@ -36,7 +36,6 @@ type
       ASource: IMarkFull;
       AName: string;
       AVisible: Boolean;
-      APicName: string;
       APic: IMarkPicture;
       ACategory: IMarkCategory;
       ADesc: string;

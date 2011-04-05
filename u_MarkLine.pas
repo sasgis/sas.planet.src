@@ -6,6 +6,7 @@ uses
   GR32,
   t_GeoTypes,
   i_MarksSimple,
+  i_MarkCategory,
   i_MarkPicture,
   u_MarkId;
 
@@ -37,7 +38,7 @@ type
       AName: string;
       AId: Integer;
       AVisible: Boolean;
-      ACategoryId: Integer;
+      ACategory: IMarkCategory;
       ADesc: string;
       ALLRect: TDoubleRect;
       APoints: TArrayOfDoublePoint;
@@ -54,7 +55,7 @@ constructor TMarkLine.Create(
   AName: string;
   AId: Integer;
   AVisible: Boolean;
-  ACategoryId: Integer;
+  ACategory: IMarkCategory;
   ADesc: string;
   ALLRect: TDoubleRect;
   APoints: TArrayOfDoublePoint;
@@ -62,7 +63,7 @@ constructor TMarkLine.Create(
   AScale1: Integer
 );
 begin
-  inherited Create(AName, AId, ACategoryId, AVisible);
+  inherited Create(AName, AId, ACategory, AVisible);
   FDesc := ADesc;
   FLLRect := ALLRect;
   FPoints := APoints;

@@ -84,7 +84,7 @@ begin
         repeat
           if (SearchRec.Attr and faDirectory) <> faDirectory then begin
             VLoader.LoadFromFile(FBasePath + SearchRec.Name, Vbmp);
-            VPicture := TMarkPictureSimple.Create(Vbmp);
+            VPicture := TMarkPictureSimple.Create(SearchRec.Name, Vbmp);
             VPicture._AddRef;
             FList.AddObject(SearchRec.Name, TObject(Pointer(VPicture)));
           end;

@@ -69,7 +69,7 @@ begin
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
   FMarksFactoryConfig := TMarksFactoryConfig.Create(FCategoryDBInternal, AMarkPictureList);
-  FMarksDb := TMarksOnlyDb.Create(ABasePath, FDMMarksDb, FMarksFactoryConfig);
+  FMarksDb := TMarksOnlyDb.Create(ABasePath, FDMMarksDb, FCategoryDBInternal, FMarksFactoryConfig);
 end;
 
 destructor TMarksDB.Destroy;

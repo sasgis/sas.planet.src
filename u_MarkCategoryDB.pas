@@ -24,7 +24,7 @@ type
     FList: IIDInterfaceList;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternal;
     FFactory: IMarkCategoryFactory;
-    function ReadCurrentCategory: IMarkCategory;
+    function ReadCurrentCategory(out AId: Integer): IMarkCategory;
     procedure WriteCurrentCategory(ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
@@ -61,6 +61,7 @@ uses
   DB,
   i_EnumID,
   u_IDInterfaceList,
+  i_MarksDbSmlInternal,
   u_MarkCategoryFactory;
 
 constructor TMarkCategoryDB.Create(
@@ -89,20 +90,19 @@ begin
   inherited;
 end;
 
-function TMarkCategoryDB.ReadCurrentCategory: IMarkCategory;
+function TMarkCategoryDB.ReadCurrentCategory(out AId: Integer): IMarkCategory;
 var
-  VId: Integer;
   VName: string;
   VVisible: Boolean;
   VAfterScale: Integer;
   VBeforeScale: Integer;
 begin
+  AId := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
   VName := FDMMarksDb.CDSKategory.fieldbyname('name').AsString;
-  VId := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
   VVisible := FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean;
   VAfterScale := FDMMarksDb.CDSKategory.fieldbyname('AfterScale').AsInteger;
   VBeforeScale := FDMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger;
-  Result := FFactoryDbInternal.CreateCategory(VId, VName, VVisible, VAfterScale, VBeforeScale);
+  Result := FFactoryDbInternal.CreateCategory(AId, VName, VVisible, VAfterScale, VBeforeScale);
 end;
 
 procedure TMarkCategoryDB.WriteCurrentCategory(ACategory: IMarkCategory);
@@ -117,8 +117,12 @@ function TMarkCategoryDB.WriteCategory(ACategory: IMarkCategory): IMarkCategory;
 var
   VId: Integer;
   VExists: Boolean;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  VId := ACategory.id;
+  VId := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VId := VCategoryInternal.Id;
+  end;
   LockRead;
   try
     if VId < 0 then begin
@@ -156,8 +160,12 @@ procedure TMarkCategoryDB.DeleteCategory(ACategory: IMarkCategory);
 var
   VId: Integer;
   VExist: Boolean;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  VId := ACategory.id;
+  VId := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VId := VCategoryInternal.Id;
+  end;
   LockWrite;
   try
     VExist := False;
@@ -223,6 +231,7 @@ end;
 procedure TMarkCategoryDB.SetAllCategoriesVisible(ANewVisible: Boolean);
 var
   VCategory: IMarkCategory;
+  VId: Integer;
 begin
   LockWrite;
   try
@@ -235,8 +244,8 @@ begin
             FDMMarksDb.CDSKategory.Edit;
             FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean := ANewVisible;
             FDMMarksDb.CDSKategory.post;
-            VCategory := ReadCurrentCategory;
-            FList.Replace(VCategory.Id, VCategory);
+            VCategory := ReadCurrentCategory(VId);
+            FList.Replace(VId, VCategory);
           end;
           FDMMarksDb.CDSKategory.Next;
         end;
@@ -292,6 +301,7 @@ procedure TMarkCategoryDB.LoadCategoriesFromFile;
 var
   VFileName: string;
   VCategory: IMarkCategory;
+  VId: Integer;
 begin
   VFileName := GetMarksCategoryFileName;
   if FileExists(VFileName) then begin
@@ -305,8 +315,8 @@ begin
       FDMMarksDb.CDSKategory.Filtered := false;
       FDMMarksDb.CDSKategory.First;
       while not (FDMMarksDb.CDSKategory.Eof) do begin
-        VCategory := ReadCurrentCategory;
-        FList.Add(VCategory.Id, VCategory);
+        VCategory := ReadCurrentCategory(VId);
+        FList.Add(VId, VCategory);
         FDMMarksDb.CDSKategory.Next;
       end;
     finally

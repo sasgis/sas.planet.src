@@ -9,6 +9,7 @@ uses
   i_MarkPicture,
   i_MarksFactoryConfig,
   i_MarkCategory,
+  i_MarkCategoryDBSmlInternal,
   i_MarksSimple,
   i_MarkFactory,
   i_MarkFactoryDbInternal;
@@ -18,6 +19,7 @@ type
   TMarkFactory =  class(TInterfacedObject, IMarkFactory, IMarkFactoryDbInternal)
   private
     FConfig: IMarksFactoryConfig;
+    FCategoryDB: IMarkCategoryDBSmlInternal;
 
     FMarkPictureList: IMarkPictureList;
     function GetLLRectFromPoints(APoints: TArrayOfDoublePoint): TDoubleRect;
@@ -30,6 +32,7 @@ type
       AName: string;
       AVisible: Boolean;
       ACategoryId: Integer;
+      ACategory: IMarkCategory;
       ADesc: string;
       ARect: TDoubleRect;
       APoints: TArrayOfDoublePoint;
@@ -43,6 +46,7 @@ type
       APicName: string;
       APic: IMarkPicture;
       ACategoryId: Integer;
+      ACategory: IMarkCategory;
       ADesc: string;
       APoint: TDoublePoint;
       AColor1, AColor2: TColor32;
@@ -53,6 +57,7 @@ type
       AName: string;
       AVisible: Boolean;
       ACategoryId: Integer;
+      ACategory: IMarkCategory;
       ADesc: string;
       ARect: TDoubleRect;
       APoints: TArrayOfDoublePoint;
@@ -83,7 +88,6 @@ type
       ASource: IMarkFull;
       AName: string;
       AVisible: Boolean;
-      APicName: string;
       APic: IMarkPicture;
       ACategory: IMarkCategory;
       ADesc: string;
@@ -148,7 +152,10 @@ type
       AVisible: Boolean
     ): IMarkID;
   public
-    constructor Create(AConfig: IMarksFactoryConfig);
+    constructor Create(
+      AConfig: IMarksFactoryConfig;
+      ACategoryDB: IMarkCategoryDBSmlInternal
+    );
   end;
 
 implementation
@@ -166,9 +173,13 @@ uses
 
 { TMarkFactory }
 
-constructor TMarkFactory.Create(AConfig: IMarksFactoryConfig);
+constructor TMarkFactory.Create(
+  AConfig: IMarksFactoryConfig;
+  ACategoryDB: IMarkCategoryDBSmlInternal
+);
 begin
   FConfig := AConfig;
+  FCategoryDB := ACategoryDB;
   FMarkPictureList := FConfig.PointTemplateConfig.MarkPictureList;
 end;
 
@@ -176,6 +187,7 @@ function TMarkFactory.CreateNewLine(APoints: TArrayOfDoublePoint; AName,
   ADesc: string; ATemplate: IMarkTemplateLine): IMarkFull;
 var
   VTemplate: IMarkTemplateLine;
+  VTemplateSML: IMarkTemplateSMLInternal;
   VCategory: IMarkCategory;
   VCategoryID: Integer;
   VName: string;
@@ -192,9 +204,8 @@ begin
   end;
 
   VCategoryID := -1;
-  VCategory := VTemplate.Category;
-  if VCategory <> nil then begin
-    VCategoryID := VCategory.Id;
+  if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
+    VCategoryID := VTemplateSML.CategoryId;
   end;
 
   VPoints := Copy(APoints);
@@ -205,6 +216,7 @@ begin
     VName,
     True,
     VCategoryId,
+    VCategory,
     ADesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
@@ -217,9 +229,11 @@ function TMarkFactory.CreateNewPoint(APoint: TDoublePoint; AName, ADesc: string;
   ATemplate: IMarkTemplatePoint): IMarkFull;
 var
   VTemplate: IMarkTemplatePoint;
+  VTemplateSML: IMarkTemplateSMLInternal;
   VName: string;
   VCategory: IMarkCategory;
   VCategoryID: Integer;
+  VPicName: string;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -232,18 +246,23 @@ begin
   end;
 
   VCategoryID := -1;
-  VCategory := VTemplate.Category;
-  if VCategory <> nil then begin
-    VCategoryID := VCategory.Id;
+  if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
+    VCategoryID := VTemplateSML.CategoryId;
+  end;
+
+  VPicName := '';
+  if VTemplate.Pic <> nil then begin
+    VPicName := VTemplate.Pic.GetName;
   end;
 
   Result := CreatePoint(
     -1,
     VName,
     True,
-    VTemplate.PicName,
+    VPicName,
     VTemplate.Pic,
     VCategoryId,
+    VCategory,
     ADesc,
     APoint,
     VTemplate.Color1,
@@ -257,6 +276,7 @@ function TMarkFactory.CreateNewPoly(APoints: TArrayOfDoublePoint; AName,
   ADesc: string; ATemplate: IMarkTemplatePoly): IMarkFull;
 var
   VTemplate: IMarkTemplatePoly;
+  VTemplateSML: IMarkTemplateSMLInternal;
   VName: string;
   VPoints: TArrayOfDoublePoint;
   VCategory: IMarkCategory;
@@ -276,9 +296,8 @@ begin
   PreparePolyPoints(VPoints);
 
   VCategoryID := -1;
-  VCategory := VTemplate.Category;
-  if VCategory <> nil then begin
-    VCategoryID := VCategory.Id;
+  if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
+    VCategoryID := VTemplateSML.CategoryId;
   end;
 
   Result := CreatePoly(
@@ -286,6 +305,7 @@ begin
     VName,
     True,
     VCategoryId,
+    VCategory,
     ADesc,
     GetLLRectFromPoints(APoints),
     VPoints,
@@ -302,6 +322,7 @@ function TMarkFactory.CreatePoint(
   APicName: string;
   APic: IMarkPicture;
   ACategoryId: Integer;
+  ACategory: IMarkCategory;
   ADesc: string;
   APoint: TDoublePoint;
   AColor1, AColor2: TColor32;
@@ -310,6 +331,7 @@ function TMarkFactory.CreatePoint(
 var
   VPicIndex: Integer;
   VPic: IMarkPicture;
+  VCategory: IMarkCategory;
 begin
   VPic := APic;
   if VPic = nil then begin
@@ -320,13 +342,19 @@ begin
       VPic := FMarkPictureList.Get(VPicIndex);
     end;
   end;
+
+  VCategory := ACategory;
+  if VCategory = nil then begin
+    VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
+  end;
+
   Result := TMarkPoint.Create(
     AName,
     AID,
     AVisible,
     APicName,
     VPic,
-    ACategoryId,
+    VCategory,
     ADesc,
     GetLLRectFromPoint(APoint),
     APoint,
@@ -337,18 +365,56 @@ begin
   );
 end;
 
+function TMarkFactory.CreateLine(
+  AID: Integer; AName: string; AVisible: Boolean;
+  ACategoryId: Integer;
+  ACategory: IMarkCategory;
+  ADesc: string;
+  ARect: TDoubleRect;
+  APoints: TArrayOfDoublePoint;
+  AColor1: TColor32; AScale1: Integer): IMarkFull;
+var
+  VCategory: IMarkCategory;
+begin
+  VCategory := ACategory;
+  if VCategory = nil then begin
+    VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
+  end;
+
+  Result := TMarkLine.Create(
+    AName,
+    AId,
+    AVisible,
+    VCategory,
+    ADesc,
+    ARect,
+    APoints,
+    AColor1,
+    AScale1
+  );
+end;
+
 function TMarkFactory.CreatePoly(
   AID: Integer; AName: string; AVisible: Boolean;
-  ACategoryId: Integer; ADesc: string;
+  ACategoryId: Integer;
+  ACategory: IMarkCategory;
+  ADesc: string;
   ARect: TDoubleRect;
   APoints: TArrayOfDoublePoint; AColor1,
   AColor2: TColor32; AScale1: Integer): IMarkFull;
+var
+  VCategory: IMarkCategory;
 begin
+  VCategory := ACategory;
+  if VCategory = nil then begin
+    VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
+  end;
+
   Result := TMarkPoly.Create(
     AName,
     AID,
     AVisible,
-    ACategoryId,
+    VCategory,
     ADesc,
     ARect,
     APoints,
@@ -369,12 +435,12 @@ begin
   VPointCount := Length(APoints);
   if VPointCount > 0 then begin
     if VPointCount = 1 then begin
-      Result := CreatePoint(AId, AName, AVisible, APicName, nil, ACategoryId, ADesc, APoints[0], AColor1, AColor2, AScale1, AScale2)
+      Result := CreatePoint(AId, AName, AVisible, APicName, nil, ACategoryId, nil, ADesc, APoints[0], AColor1, AColor2, AScale1, AScale2)
     end else begin
       if DoublePoitnsEqual(APoints[0], APoints[VPointCount - 1]) then begin
-        Result := CreatePoly(AId, AName, AVisible, ACategoryId, ADesc, ARect, APoints, AColor1, AColor2, AScale1);
+        Result := CreatePoly(AId, AName, AVisible, ACategoryId, nil, ADesc, ARect, APoints, AColor1, AColor2, AScale1);
       end else begin
-        Result := CreateLine(AId, AName, AVisible, ACategoryId, ADesc, ARect, APoints, AColor1, AScale1);
+        Result := CreateLine(AId, AName, AVisible, ACategoryId, nil, ADesc, ARect, APoints, AColor1, AScale1);
       end;
     end;
   end;
@@ -386,8 +452,11 @@ function TMarkFactory.CreateMarkId(
   ACategoryId: Integer;
   AVisible: Boolean
 ): IMarkID;
+var
+  VCategory: IMarkCategory;
 begin
-  Result := TMarkId.Create(AName, AId, ACategoryId, AVisible);
+  VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
+  Result := TMarkId.Create(AName, AId, VCategory, AVisible);
 end;
 
 function TMarkFactory.SimpleModifyLine(
@@ -400,16 +469,16 @@ var
   VCategoryId: Integer;
   VDesc: string;
   VVisible: Boolean;
-  VMarkVisible: IMarkSMLInternal;
+  VMarkInternal: IMarkSMLInternal;
   VPoints: TArrayOfDoublePoint;
 begin
   VVisible := True;
   VId := -1;
   VCategoryId := -1;
-  if Supports(ASource, IMarkSMLInternal, VMarkVisible) then begin
-    VVisible := VMarkVisible.Visible;
-    VId := VMarkVisible.Id;
-    VCategoryId := VMarkVisible.CategoryId;
+  if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
+    VVisible := VMarkInternal.Visible;
+    VId := VMarkInternal.Id;
+    VCategoryId := VMarkInternal.CategoryId;
   end;
   VDesc := ADesc;
   if ADesc = '' then begin
@@ -424,6 +493,7 @@ begin
     ASource.Name,
     VVisible,
     VCategoryId,
+    ASource.Category,
     VDesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
@@ -440,16 +510,16 @@ var
   VVisible: Boolean;
   VId: Integer;
   VCategoryId: Integer;
-  VMarkVisible: IMarkSMLInternal;
+  VMarkInternal: IMarkSMLInternal;
   VPoints: TArrayOfDoublePoint;
 begin
   VVisible := True;
   VId := -1;
   VCategoryId := -1;
-  if Supports(ASource, IMarkSMLInternal, VMarkVisible) then begin
-    VVisible := VMarkVisible.Visible;
-    VId := VMarkVisible.Id;
-    VCategoryId := VMarkVisible.CategoryId;
+  if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
+    VVisible := VMarkInternal.Visible;
+    VId := VMarkInternal.Id;
+    VCategoryId := VMarkInternal.CategoryId;
   end;
 
   VPoints := Copy(APoints);
@@ -460,6 +530,7 @@ begin
     ASource.Name,
     VVisible,
     VCategoryId,
+    ASource.Category,
     ASource.Desc,
     GetLLRectFromPoints(VPoints),
     VPoints,
@@ -469,32 +540,10 @@ begin
   );
 end;
 
-function TMarkFactory.CreateLine(
-  AID: Integer; AName: string; AVisible: Boolean;
-  ACategoryId: Integer;
-  ADesc: string;
-  ARect: TDoubleRect;
-  APoints: TArrayOfDoublePoint;
-  AColor1: TColor32; AScale1: Integer): IMarkFull;
-begin
-  Result := TMarkLine.Create(
-    AName,
-    AId,
-    AVisible,
-    ACategoryId,
-    ADesc,
-    ARect,
-    APoints,
-    AColor1,
-    AScale1
-  );
-end;
-
 function TMarkFactory.ModifyPoint(
   ASource: IMarkFull;
   AName: string;
   AVisible: Boolean;
-  APicName: string;
   APic: IMarkPicture;
   ACategory: IMarkCategory;
   ADesc: string;
@@ -507,24 +556,34 @@ function TMarkFactory.ModifyPoint(
 var
   VID: Integer;
   VCategoryId: Integer;
+  VPicName: string;
+  VCategoryInternal: IMarkCategorySMLInternal;
+  VMarkInternal: IMarkSMLInternal;
 begin
+  VID := -1;
   if ASource <> nil then begin
-    VID := ASource.Id;
-  end else begin
-    VID := -1;
+    if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
+      VID := VMarkInternal.Id;
+    end;
   end;
+  VCategoryId := -1;
   if ACategory <> nil then begin
-    VCategoryId := ACategory.Id;
-  end else begin
-    VCategoryId := -1;
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      VCategoryId := VCategoryInternal.Id;
+    end;
+  end;
+  VPicName := '';
+  if APic <> nil then begin
+    VPicName := APic.GetName;
   end;
   Result := CreatePoint(
     VID,
     AName,
     AVisible,
-    APicName,
+    VPicName,
     APic,
     VCategoryId,
+    ACategory,
     ADesc,
     APoint,
     AColor1,
@@ -548,17 +607,20 @@ var
   VID: Integer;
   VCategoryId: Integer;
   VPoints: TArrayOfDoublePoint;
+  VCategoryInternal: IMarkCategorySMLInternal;
+  VMarkInternal: IMarkSMLInternal;
 begin
+  VID := -1;
   if ASource <> nil then begin
-    VID := ASource.Id;
-  end else begin
-    VID := -1;
+    if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
+      VID := VMarkInternal.Id;
+    end;
   end;
-
+  VCategoryId := -1;
   if ACategory <> nil then begin
-    VCategoryId := ACategory.Id;
-  end else begin
-    VCategoryId := -1;
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      VCategoryId := VCategoryInternal.Id;
+    end;
   end;
 
   VPoints := Copy(APoints);
@@ -568,6 +630,7 @@ begin
     AName,
     AVisible,
     VCategoryId,
+    ACategory,
     ADesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
@@ -591,17 +654,20 @@ var
   VID: Integer;
   VCategoryId: Integer;
   VPoints: TArrayOfDoublePoint;
+  VCategoryInternal: IMarkCategorySMLInternal;
+  VMarkInternal: IMarkSMLInternal;
 begin
+  VID := -1;
   if ASource <> nil then begin
-    VID := ASource.Id;
-  end else begin
-    VID := -1;
+    if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
+      VID := VMarkInternal.Id;
+    end;
   end;
-
+  VCategoryId := -1;
   if ACategory <> nil then begin
-    VCategoryId := ACategory.Id;
-  end else begin
-    VCategoryId := -1;
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      VCategoryId := VCategoryInternal.Id;
+    end;
   end;
 
   VPoints := Copy(APoints);
@@ -611,6 +677,7 @@ begin
     AName,
     AVisible,
     VCategoryId,
+    ACategory,
     ADesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
