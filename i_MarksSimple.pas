@@ -16,60 +16,6 @@ type
     property Name: string read GetName;
   end;
 
-  IMarkTemplate = interface
-    ['{2D6A0C13-754C-4BC1-9003-361CA28D311E}']
-    function GetNewName: string;
-
-    function GetCategory: IMarkCategory;
-    property Category: IMarkCategory read GetCategory;
-  end;
-
-  IMarkTemplatePoint = interface(IMarkTemplate)
-    ['{B36731B8-7D98-4D56-996F-E6B77AA6FAB3}']
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
-
-    function GetColor2: TColor32;
-    property Color2: TColor32 read GetColor2;
-
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
-
-    function GetScale2: Integer;
-    property Scale2: Integer read GetScale2;
-
-    function GetPic: IMarkPicture;
-    property Pic: IMarkPicture read GetPic;
-
-    function IsSame(ATemplate: IMarkTemplatePoint): Boolean;
-  end;
-
-  IMarkTemplateLine = interface(IMarkTemplate)
-    ['{BF4FF116-98E1-43C5-A7FD-DCE3BF26E8D4}']
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
-
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
-
-    function IsSame(ATemplate: IMarkTemplateLine): Boolean;
-  end;
-
-  IMarkTemplatePoly = interface(IMarkTemplate)
-    ['{81CB621A-112D-4914-B801-BBBAAE11C797}']
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
-
-    function GetColor2: TColor32;
-    property Color2: TColor32 read GetColor2;
-
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
-
-    function IsSame(ATemplate: IMarkTemplatePoly): Boolean;
-  end;
-
-
   IMarkFull = interface
     ['{3502C7E6-F974-4F73-B458-F9C3E979F554}']
     function GetName: string;

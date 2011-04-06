@@ -4,6 +4,7 @@ interface
 
 uses
   i_MarksSimple,
+  i_MarkTemplate,
   u_MarksOnlyDb;
 
 type

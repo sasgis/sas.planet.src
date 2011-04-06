@@ -7,6 +7,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_MarkTemplate,
   i_MarksSimple,
   i_MarkCategory,
   i_MarkNameGenerator,
@@ -90,7 +91,6 @@ procedure TMarkLineTemplateConfig.DoReadConfig(
   AConfigData: IConfigDataProvider);
 var
   VCategoryId: Integer;
-  VCategory: IMarkCategory;
   VColor1: TColor32;
   VScale1: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
@@ -121,7 +121,6 @@ end;
 procedure TMarkLineTemplateConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 var
-  VCategory: IMarkCategory;
   VCategoryId: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
 begin

@@ -4,6 +4,7 @@ interface
 
 uses
   GR32,
+  i_MarkTemplate,
   i_MarkCategory,
   i_MarkPicture,
   i_MarksDbSmlInternal,

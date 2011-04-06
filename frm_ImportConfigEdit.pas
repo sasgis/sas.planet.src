@@ -93,6 +93,7 @@ var
 implementation
 
 uses
+  i_MarkTemplate,
   i_MarkPicture,
   u_ImportConfig;
 

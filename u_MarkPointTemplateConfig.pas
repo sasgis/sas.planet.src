@@ -8,6 +8,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MarkPicture,
+  i_MarkTemplate,
   i_MarksSimple,
   i_MarkCategory,
   i_MarkNameGenerator,
@@ -122,7 +123,6 @@ var
   VPicName: string;
   VPic: IMarkPicture;
   VPicIndex: Integer;
-  VCategory: IMarkCategory;
   VCategoryId: Integer;
   VColor1, VColor2: TColor32;
   VScale1, VScale2: Integer;
@@ -185,7 +185,6 @@ end;
 procedure TMarkPointTemplateConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 var
-  VCategory: IMarkCategory;
   VCategoryId: Integer;
   VPicName: string;
   VTemplateInternal: IMarkTemplateSMLInternal;

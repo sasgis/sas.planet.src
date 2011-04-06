@@ -11,6 +11,7 @@ uses
   i_MarkCategory,
   i_MarkCategoryDBSmlInternal,
   i_MarksSimple,
+  i_MarkTemplate,
   i_MarkFactory,
   i_MarkFactoryDbInternal;
 

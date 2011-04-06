@@ -7,6 +7,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_MarkTemplate,
   i_MarksSimple,
   i_MarkCategory,
   i_MarkNameGenerator,

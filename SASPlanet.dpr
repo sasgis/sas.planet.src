@@ -211,6 +211,7 @@ uses
   u_UsedMarksConfig in 'u_UsedMarksConfig.pas',
   u_UsedMarksConfigStatic in 'u_UsedMarksConfigStatic.pas',
   i_MarksSimple in 'i_MarksSimple.pas',
+  i_MarkTemplate in 'i_MarkTemplate.pas',
   i_MarksDbSmlInternal in 'i_MarksDbSmlInternal.pas',
   u_MarksSubset in 'u_MarksSubset.pas',
   u_MarksOnlyDb in 'u_MarksOnlyDb.pas',
