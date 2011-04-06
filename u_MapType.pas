@@ -109,6 +109,7 @@ type
     Enabled: boolean;
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
+    procedure GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
@@ -424,6 +425,12 @@ begin
   Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
 end;
 
+procedure TMapType.GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
+begin
+  FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
+  FUrlGenerator.GenRequest(AXY.X, AXY.Y, Azoom, AUrl, AHead);
+end;
+
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
   Result := FStorage.GetTileFileName(AXY, Azoom, FVersion);
@@ -690,9 +697,10 @@ var
   StatusCode: Cardinal;
   VPoolElement: IPoolElement;
   VDownloader: ITileDownlodSession;
+  VHead: string;
 begin
   if Self.UseDwn then begin
-    AUrl := GetLink(ATile, AZoom);
+    GetRequest(ATile, AZoom, AUrl, VHead);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin
       raise Exception.Create('No free connections');
@@ -701,7 +709,7 @@ begin
     if FAntiBan <> nil then begin
       FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
     end;
-    Result := VDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
+    Result := VDownloader.DownloadTile(AUrl, VHead, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
     if FAntiBan <> nil then begin
       Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
     end;

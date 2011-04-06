@@ -11,7 +11,7 @@ type
 
   ITileDownlodSession = interface
     ['{2F41E328-BD28-4893-AAC5-8DC93FCC2BCF}']
-    function DownloadTile(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult;
+    function DownloadTile(AUrl, AHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult;
   end;
 
   ITileDownlodSessionFactory = interface

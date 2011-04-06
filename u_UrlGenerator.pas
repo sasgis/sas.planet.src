@@ -28,6 +28,7 @@ type
     constructor Create(AConfig: IConfigDataProvider);
 
     function GenLink(Ax, Ay: longint; Azoom: byte): string; virtual;
+    procedure GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHeaders: string); virtual;
 
     property URLBase: string read FURLBase write SetURLBase;
     property DefURLBase: string read FDefURLBase;
@@ -42,6 +43,7 @@ type
     FExec: TPSExec;
     FpResultUrl: PPSVariantAString;
     FpGetURLBase: PPSVariantAString;
+    FpRequestHead: PPSVariantAString;
     FpGetX: PPSVariantS32;
     FpGetY: PPSVariantS32;
     FpGetZ: PPSVariantS32;
@@ -62,6 +64,7 @@ type
       );
     destructor Destroy; override;
     function GenLink(Ax, Ay: longint; Azoom: byte): string; override;
+    procedure GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHeaders: string); override;
   end;
 
 implementation
@@ -90,6 +93,12 @@ end;
 function TUrlGeneratorBasic.GenLink(Ax, Ay: Integer; Azoom: byte): string;
 begin
   Result := '';
+end;
+
+procedure TUrlGeneratorBasic.GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHeaders: string);
+begin
+  AUrl := '';
+  AHeaders := '';
 end;
 
 procedure TUrlGeneratorBasic.SetURLBase(const Value: string);
@@ -145,6 +154,7 @@ begin
     T := Sender.FindType('string');
     Sender.AddUsedVariable('ResultURL', t);
     Sender.AddUsedVariable('GetURLBase', t);
+    Sender.AddUsedVariable('RequestHead', t);
     T := Sender.FindType('integer');
     Sender.AddUsedVariable('GetX', t);
     Sender.AddUsedVariable('GetY', t);
@@ -224,6 +234,7 @@ begin
   FpResultUrl := PPSVariantAString(FExec.GetVar2('ResultURL'));
   FpGetURLBase := PPSVariantAString(FExec.GetVar2('GetURLBase'));
   FpGetURLBase.Data := FURLBase;
+  FpRequestHead := PPSVariantAString(FExec.GetVar2('RequestHead'));
   FpGetX := PPSVariantS32(FExec.GetVar2('GetX'));
   FpGetY := PPSVariantS32(FExec.GetVar2('GetY'));
   FpGetZ := PPSVariantS32(FExec.GetVar2('GetZ'));
@@ -288,6 +299,25 @@ begin
       end;
     end;
     Result := FpResultUrl.Data;
+  finally
+    FCS.Release;
+  end;
+end;
+
+procedure TUrlGenerator.GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHeaders: string);
+begin
+    FCS.Acquire;
+  try
+    FpResultUrl.Data := '';
+    FpRequestHead.Data := '';
+    SetVar(Point(Ax, Ay), Azoom);
+    try
+      FExec.RunScript; // Run the script.
+    except on E: Exception do
+      raise EUrlGeneratorScriptRunError.Create(E.Message);
+    end;
+    AUrl := FpResultUrl.Data;
+    AHeaders := FpRequestHead.Data;
   finally
     FCS.Release;
   end;

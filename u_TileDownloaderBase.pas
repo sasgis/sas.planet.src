@@ -34,15 +34,15 @@ type
     procedure ResetConnetction; virtual;
     procedure OpenSession; virtual;
     procedure CloseSession; virtual;
-    function BuildHeader(AUrl: string): string; virtual;
-    function TryDownload(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
+    function BuildHeader(AUrl, AHead: string): string; virtual;
+    function TryDownload(AUrl, AHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
     function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AContentType: string): TDownloadTileResult; virtual;
     function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
     function IsGlobalOffline: Boolean;
   public
     constructor Create(AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; ADownloadTryCount: Integer; AConnectionSettings: IInetConfig);
     destructor Destroy; override;
-    function DownloadTile(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
+    function DownloadTile(AUrl, AHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
     property SleepOnResetConnection: Cardinal read FSleepOnResetConnection write FSleepOnResetConnection;
     property ExpectedMIMETypes: string read FExpectedMIMETypes write FExpectedMIMETypes;
     property WaitInterval: Cardinal read FWaitInterval write FWaitInterval;
@@ -55,9 +55,9 @@ uses
 
 { TTileDownloaderBase }
 
-function TTileDownloaderBase.BuildHeader(AUrl: string): string;
+function TTileDownloaderBase.BuildHeader(AUrl, AHead: string): string;
 begin
-  Result := '';
+  Result := AHead;
 end;
 
 procedure TTileDownloaderBase.CloseSession;
@@ -90,7 +90,7 @@ begin
   inherited;
 end;
 
-function TTileDownloaderBase.DownloadTile(AUrl: string;
+function TTileDownloaderBase.DownloadTile(AUrl, AHead: string;
   ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
   fileBuf: TMemoryStream; out AStatusCode: Cardinal;
   out AContentType: string): TDownloadTileResult;
@@ -109,7 +109,7 @@ begin
       if Result = dtrDownloadError then begin
         ResetConnetction;
       end;
-      Result := TryDownload(AUrl, ACheckTileSize, AExistsFileSize, fileBuf, AStatusCode, AContentType);
+      Result := TryDownload(AUrl, AHead, ACheckTileSize, AExistsFileSize, fileBuf, AStatusCode, AContentType);
       Inc(VTryCount);
     until (Result <> dtrDownloadError) or (VTryCount >= FDownloadTryCount);
     FLastDownloadResult := Result;
@@ -331,7 +331,7 @@ begin
   end;
 end;
 
-function TTileDownloaderBase.TryDownload(AUrl: string;
+function TTileDownloaderBase.TryDownload(AUrl, AHead: string;
   ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
   fileBuf: TMemoryStream; out AStatusCode: Cardinal;
   out AContentType: string): TDownloadTileResult;
@@ -357,7 +357,7 @@ begin
   finally
     VProxyConfig.UnlockRead;
   end;
-  VHeader := BuildHeader(AUrl);
+  VHeader := BuildHeader(AUrl, AHead);
   if IsGlobalOffline then begin
     ci.dwConnectedState := INTERNET_STATE_CONNECTED;
     InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
