@@ -59,7 +59,6 @@ uses
   KAZip,
   i_CoordConverter,
   i_LocalCoordConverter,
-  u_MapCalibrationKml,
   u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(

@@ -14,7 +14,6 @@ uses
   JclDebug,
   {$ENDIF SasDebugWithJcl}
   i_JclNotify,
-  i_GUIDList,
   i_LanguageManager,
   i_MemObjCache,
   i_ConfigDataWriteProvider,
@@ -43,7 +42,6 @@ uses
   u_MapTypesMainList,
   u_MemFileCache,
   i_GPSConfig,
-  i_MarksFactoryConfig,
   i_MarkCategoryFactoryConfig,
   i_GlobalViewMainConfig,
   i_ImportFile,
@@ -212,7 +210,6 @@ uses
   u_InetConfig,
   u_GSMGeoCodeConfig,
   u_GPSConfig,
-  u_MarksFactoryConfig,
   u_MarkCategoryFactoryConfig,
   u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,

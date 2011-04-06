@@ -3,7 +3,6 @@ unit i_MarkPolyLineLayerConfig;
 interface
 
 uses
-  GR32,
   i_PolyLineLayerConfig;
 
 type

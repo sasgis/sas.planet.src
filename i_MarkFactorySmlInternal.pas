@@ -1,16 +1,14 @@
-unit i_MarkFactoryDbInternal;
+unit i_MarkFactorySmlInternal;
 
 interface
 
 uses
   GR32,
   t_GeoTypes,
-  i_MarkPicture,
-  i_MarksFactoryConfig,
   i_MarksSimple;
 
 type
-  IMarkFactoryDbInternal = interface
+  IMarkFactorySmlInternal = interface
     ['{0D5A67D8-585A-4DA8-9047-CB3CB76A600E}']
     function CreateMark(
       AID: Integer;

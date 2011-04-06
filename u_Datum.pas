@@ -39,8 +39,7 @@ const
 implementation
 
 uses
-  Math,
-  u_GeoFun;
+  Math;
 
 { TDatum }
 

@@ -13,11 +13,11 @@ uses
   i_MarksSimple,
   i_MarkTemplate,
   i_MarkFactory,
-  i_MarkFactoryDbInternal;
+  i_MarkFactorySmlInternal;
 
 type
 
-  TMarkFactory =  class(TInterfacedObject, IMarkFactory, IMarkFactoryDbInternal)
+  TMarkFactory =  class(TInterfacedObject, IMarkFactory, IMarkFactorySmlInternal)
   private
     FConfig: IMarksFactoryConfig;
     FCategoryDB: IMarkCategoryDBSmlInternal;
@@ -162,10 +162,8 @@ type
 implementation
 
 uses
-  Graphics,
   SysUtils,
   i_MarksDbSmlInternal,
-  u_ResStrings,
   u_GeoFun,
   u_MarkId,
   u_MarkPoint,

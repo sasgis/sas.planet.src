@@ -9,8 +9,7 @@ uses
   i_MarkPicture,
   i_MarkCategory,
   i_MarkNameGenerator,
-  i_MarkTemplate,
-  i_MarksSimple;
+  i_MarkTemplate;
 
 type
   IMarkPointTemplateConfig = interface(IConfigDataElement)

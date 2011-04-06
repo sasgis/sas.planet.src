@@ -3,7 +3,6 @@ unit i_SelectionPolygonLayerConfig;
 interface
 
 uses
-  GR32,
   i_PolygonLayerConfig;
 
 type

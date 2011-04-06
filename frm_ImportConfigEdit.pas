@@ -17,7 +17,6 @@ uses
   GR32,
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
-  i_MarksSimple,
   i_MarkCategory,
   i_ImportConfig,
   u_MarksDbGUIHelper;

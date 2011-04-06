@@ -9,8 +9,7 @@ uses
   i_MarkPicture,
   i_MarksDbSmlInternal,
   i_MarkCategoryDBSmlInternal,
-  i_MarkNameGenerator,
-  i_MarksSimple;
+  i_MarkNameGenerator;
 
 type
   FMarkTemplateBase = class(TInterfacedObject, IMarkTemplate, IMarkTemplateSMLInternal)

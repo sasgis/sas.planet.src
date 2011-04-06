@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  i_MarksSimple,
   i_ImportFile,
   i_ImportConfig;
 

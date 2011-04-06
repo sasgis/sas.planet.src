@@ -3,7 +3,6 @@ unit u_MarkId;
 interface
 
 uses
-  GR32,
   i_MarksSimple,
   i_MarkCategory,
   i_MarksDbSmlInternal;

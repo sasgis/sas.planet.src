@@ -13,7 +13,7 @@ uses
   i_MarkCategory,
   i_MarksSimple,
   i_MarkFactory,
-  i_MarkFactoryDbInternal;
+  i_MarkFactorySmlInternal;
 
 type
   TMarksOnlyDb =  class
@@ -21,7 +21,7 @@ type
     FSync: IReadWriteSync;
     FBasePath: string;
     FDMMarksDb: TDMMarksDb;
-    FFactoryDbInternal: IMarkFactoryDbInternal;
+    FFactoryDbInternal: IMarkFactorySmlInternal;
     FFactory: IMarkFactory;
     function ReadCurrentMark: IMarkFull;
     function ReadCurrentMarkId: IMarkId;
@@ -70,7 +70,6 @@ uses
   DB,
   GR32,
   i_MarksDbSmlInternal,
-  u_GeoFun,
   u_MarkFactory,
   u_MarksSubset;
 

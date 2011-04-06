@@ -8,9 +8,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MarkTemplate,
-  i_MarksSimple,
   i_MarkCategory,
-  i_MarkNameGenerator,
   i_MarksFactoryConfig,
   i_MarkCategoryDBSmlInternal,
   u_MarkTemplateConfigBase;
@@ -43,9 +41,7 @@ implementation
 uses
   SysUtils,
   i_MarksDbSmlInternal,
-  u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigProviderHelpers,
-  u_MarkNameGenerator,
   u_ResStrings,
   u_MarkTemplates;
 
