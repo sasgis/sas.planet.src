@@ -26,6 +26,7 @@ type
     function GetCategoryId: Integer;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
+    function IsSameId(AMarkId: IMarkID): Boolean;
   public
     constructor Create(
       AName: string;
@@ -91,6 +92,18 @@ end;
 function TMarkId.IsNew: Boolean;
 begin
   Result := FId < 0;
+end;
+
+function TMarkId.IsSameId(AMarkId: IMarkID): Boolean;
+var
+  VMarkInternal: IMarkSMLInternal;
+begin
+  Result := False;
+  if AMarkId <> nil then begin
+    if Supports(AMarkId, IMarkSMLInternal, VMarkInternal) then begin
+      Result := FId = VMarkInternal.Id;
+    end;
+  end;
 end;
 
 procedure TMarkId.SetVisible(AValue: Boolean);

@@ -2887,7 +2887,7 @@ begin
     end else begin
       NMarksCalcs.Visible := false;
     end;
-    if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and (FConfig.NavToPoint.Id = VMark.Id) then begin
+    if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and VMark.IsSameId(FConfig.NavToPoint.MarkId) then begin
       NMarkNav.Checked:=true
     end else begin
       NMarkNav.Checked:=false;
@@ -3408,7 +3408,7 @@ begin
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
       LL := VMark.GetGoToLonLat;
-      FConfig.NavToPoint.StartNavToMark(VMark.Id, ll);
+      FConfig.NavToPoint.StartNavToMark(VMark as IMarkID, ll);
     end else begin
       FConfig.NavToPoint.StopNav;
     end;

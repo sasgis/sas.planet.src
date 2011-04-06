@@ -72,8 +72,6 @@ type
 
   IMarkFull = interface
     ['{3502C7E6-F974-4F73-B458-F9C3E979F554}']
-//    function GetId: Integer;
-//    property Id: Integer read GetId;
     function GetName: string;
     property Name: string read GetName;
     function GetCategory: IMarkCategory;
@@ -100,6 +98,7 @@ type
     function IsLine: Boolean;
     function IsPoly: Boolean;
     function IsNew: Boolean;
+    function IsSameId(AMarkId: IMarkID): Boolean;
 
     function GetGoToLonLat: TDoublePoint;
   end;
