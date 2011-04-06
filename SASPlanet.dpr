@@ -233,7 +233,7 @@ uses
   u_MarkPoly in 'u_MarkPoly.pas',
   u_MarkLine in 'u_MarkLine.pas',
   i_MarkFactory in 'i_MarkFactory.pas',
-  i_MarkFactoryDbInternal in 'i_MarkFactoryDbInternal.pas',
+  i_MarkFactorySmlInternal in 'i_MarkFactorySmlInternal.pas',
   i_MarkCategoryFactory in 'i_MarkCategoryFactory.pas',
   i_MarkCategoryFactoryDbInternal in 'i_MarkCategoryFactoryDbInternal.pas',
   u_MarkCategoryFactory in 'u_MarkCategoryFactory.pas',
