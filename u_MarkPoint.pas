@@ -40,6 +40,7 @@ type
     function GetGoToLonLat: TDoublePoint;
   public
     constructor Create(
+      ADbCode: Integer;
       AName: string;
       AId: Integer;
       AVisible: Boolean;
@@ -61,6 +62,7 @@ implementation
 { TMarkPoint }
 
 constructor TMarkPoint.Create(
+  ADbCode: Integer;
   AName: string;
   AId: Integer;
   AVisible: Boolean;
@@ -74,7 +76,7 @@ constructor TMarkPoint.Create(
   AScale1, AScale2: Integer
 );
 begin
-  inherited Create(AName, AId, ACategory, AVisible);
+  inherited Create(ADbCode, AName, AId, ACategory, AVisible);
   FPicName := APicName;
   FPic := APic;
   FDesc := ADesc;

@@ -10,6 +10,7 @@ uses
 type
   TMarkId = class(TInterfacedObject, IMarkID, IMarkSMLInternal)
   private
+    FDbCode: Integer;
     FName: string;
     FId: Integer;
     FCategory: IMarkCategory;
@@ -20,6 +21,7 @@ type
   protected
     function GetName: string;
   protected
+    function GetDbCode: Integer;
     function GetId: Integer;
     function GetCategory: IMarkCategory;
     function GetCategoryId: Integer;
@@ -28,6 +30,7 @@ type
     function IsSameId(AMarkId: IMarkID): Boolean;
   public
     constructor Create(
+      ADbCode: Integer;
       AName: string;
       AId: Integer;
       ACategory: IMarkCategory;
@@ -43,6 +46,7 @@ uses
 { TMarkId }
 
 constructor TMarkId.Create(
+  ADbCode: Integer;
   AName: string;
   AId: Integer;
   ACategory: IMarkCategory;
@@ -51,6 +55,7 @@ constructor TMarkId.Create(
 var
   VCategory: IMarkCategorySMLInternal;
 begin
+  FDbCode := ADbCode;
   FName := AName;
   FId := AId;
   FCategory := ACategory;
@@ -71,6 +76,11 @@ end;
 function TMarkId.GetCategoryId: Integer;
 begin
   Result := FCategoryId;
+end;
+
+function TMarkId.GetDbCode: Integer;
+begin
+  Result := FDbCode;
 end;
 
 function TMarkId.GetId: Integer;

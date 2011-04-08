@@ -20,6 +20,7 @@ type
   TMarkFactory =  class(TInterfacedObject, IMarkFactory, IMarkFactorySmlInternal)
   private
     FConfig: IMarksFactoryConfig;
+    FDbCode: Integer;
     FCategoryDB: IMarkCategoryDBSmlInternal;
 
     FMarkPictureList: IMarkPictureList;
@@ -154,6 +155,7 @@ type
     ): IMarkID;
   public
     constructor Create(
+      ADbCode: Integer;
       AConfig: IMarksFactoryConfig;
       ACategoryDB: IMarkCategoryDBSmlInternal
     );
@@ -173,10 +175,12 @@ uses
 { TMarkFactory }
 
 constructor TMarkFactory.Create(
+  ADbCode: Integer;
   AConfig: IMarksFactoryConfig;
   ACategoryDB: IMarkCategoryDBSmlInternal
 );
 begin
+  FDbCode := ADbCode;
   FConfig := AConfig;
   FCategoryDB := ACategoryDB;
   FMarkPictureList := FConfig.PointTemplateConfig.MarkPictureList;
@@ -348,6 +352,7 @@ begin
   end;
 
   Result := TMarkPoint.Create(
+    FDbCode,
     AName,
     AID,
     AVisible,
@@ -381,6 +386,7 @@ begin
   end;
 
   Result := TMarkLine.Create(
+    FDbCode,
     AName,
     AId,
     AVisible,
@@ -410,6 +416,7 @@ begin
   end;
 
   Result := TMarkPoly.Create(
+    FDbCode,
     AName,
     AID,
     AVisible,
@@ -455,7 +462,7 @@ var
   VCategory: IMarkCategory;
 begin
   VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
-  Result := TMarkId.Create(AName, AId, VCategory, AVisible);
+  Result := TMarkId.Create(FDbCode, AName, AId, VCategory, AVisible);
 end;
 
 function TMarkFactory.SimpleModifyLine(

@@ -138,7 +138,7 @@ begin
   FBasePath := ABasePath;
   FDMMarksDb := ADMMarksDb;
   FSync := TSimpleRWSync.Create;
-  VFactory := TMarkFactory.Create(AFactoryConfig, ACategoryDB);
+  VFactory := TMarkFactory.Create(Integer(Self), AFactoryConfig, ACategoryDB);
   FFactory := VFactory;
   FFactoryDbInternal := VFactory;
 end;
