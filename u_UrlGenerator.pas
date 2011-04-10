@@ -172,10 +172,6 @@ begin
     Sender.AddUsedVariable('GetX', t);
     Sender.AddUsedVariable('GetY', t);
     Sender.AddUsedVariable('GetZ', t);
-    Sender.AddUsedVariable('dLpix', t);
-    Sender.AddUsedVariable('dTpix', t);
-    Sender.AddUsedVariable('dBpix', t);
-    Sender.AddUsedVariable('dRpix', t);
     T := Sender.FindType('Double');
     Sender.AddUsedVariable('GetLlon', t);
     Sender.AddUsedVariable('GetTLat', t);
