@@ -110,6 +110,7 @@ type
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
     procedure GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
+    procedure SetResponse(AHead: string);
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
@@ -431,6 +432,11 @@ begin
   FUrlGenerator.GenRequest(AXY.X, AXY.Y, Azoom, AUrl, AHead);
 end;
 
+procedure TMapType.SetResponse(AHead: string);
+begin
+  FUrlGenerator.SetResponseHead(AHead);
+end;
+
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
   Result := FStorage.GetTileFileName(AXY, Azoom, FVersion);
@@ -710,6 +716,7 @@ begin
       FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
     end;
     Result := VDownloader.DownloadTile(AUrl, VHead, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
+    SetResponse(VHead);
     if FAntiBan <> nil then begin
       Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
     end;

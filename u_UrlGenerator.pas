@@ -22,6 +22,7 @@ type
   private
     FDefURLBase: string;
     FURLBase: String;
+    FLastResponseHead: string;
   protected
     procedure SetURLBase(const Value: string); virtual;
   public
@@ -29,21 +30,25 @@ type
 
     function GenLink(Ax, Ay: longint; Azoom: byte): string; virtual;
     procedure GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHeaders: string); virtual;
+    procedure SetResponseHead(AResponseHead: string); virtual;
 
     property URLBase: string read FURLBase write SetURLBase;
     property DefURLBase: string read FDefURLBase;
+    property LastResponseHead: string read FLastResponseHead;
   end;
 
   TUrlGenerator = class(TUrlGeneratorBasic)
   private
     FCoordConverter: ICoordConverterSimple;
     FGetURLScript: string;
-
+    FScriptBuffer: string;
     FCS: TCriticalSection;
     FExec: TPSExec;
     FpResultUrl: PPSVariantAString;
     FpGetURLBase: PPSVariantAString;
     FpRequestHead: PPSVariantAString;
+    FpResponseHead: PPSVariantAString;
+    FpScriptBuffer: PPSVariantAString;
     FpGetX: PPSVariantS32;
     FpGetY: PPSVariantS32;
     FpGetZ: PPSVariantS32;
@@ -87,7 +92,8 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FURLBase := VParams.ReadString('URLBase', '');
-  FDefUrlBase := VParams.ReadString('MAIN:URLBase', '');;
+  FDefUrlBase := VParams.ReadString('MAIN:URLBase', '');
+  FLastResponseHead := '';
 end;
 
 function TUrlGeneratorBasic.GenLink(Ax, Ay: Integer; Azoom: byte): string;
@@ -99,6 +105,11 @@ procedure TUrlGeneratorBasic.GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, 
 begin
   AUrl := '';
   AHeaders := '';
+end;
+
+procedure TUrlGeneratorBasic.SetResponseHead(AResponseHead: string);
+begin
+  FLastResponseHead := AResponseHead;
 end;
 
 procedure TUrlGeneratorBasic.SetURLBase(const Value: string);
@@ -155,6 +166,8 @@ begin
     Sender.AddUsedVariable('ResultURL', t);
     Sender.AddUsedVariable('GetURLBase', t);
     Sender.AddUsedVariable('RequestHead', t);
+    Sender.AddUsedVariable('ResponseHead', t);
+    Sender.AddUsedVariable('ScriptBuffer', t);
     T := Sender.FindType('integer');
     Sender.AddUsedVariable('GetX', t);
     Sender.AddUsedVariable('GetY', t);
@@ -204,6 +217,7 @@ begin
   inherited Create(AConfig);
   LoadProjectionInfo(AConfig);
   FGetURLScript := AConfig.ReadString('GetUrlScript.txt', '');
+  FScriptBuffer := '';
 
   VCompiler := TPSPascalCompiler.Create;       // create an instance of the compiler.
   try
@@ -235,6 +249,8 @@ begin
   FpGetURLBase := PPSVariantAString(FExec.GetVar2('GetURLBase'));
   FpGetURLBase.Data := FURLBase;
   FpRequestHead := PPSVariantAString(FExec.GetVar2('RequestHead'));
+  FpResponseHead := PPSVariantAString(FExec.GetVar2('ResponseHead'));
+  FpScriptBuffer := PPSVariantAString(FExec.GetVar2('ScriptBuffer'));
   FpGetX := PPSVariantS32(FExec.GetVar2('GetX'));
   FpGetY := PPSVariantS32(FExec.GetVar2('GetY'));
   FpGetZ := PPSVariantS32(FExec.GetVar2('GetZ'));
@@ -310,6 +326,8 @@ begin
   try
     FpResultUrl.Data := '';
     FpRequestHead.Data := '';
+    FpResponseHead.Data := FLastResponseHead;
+    FpScriptBuffer.Data := FScriptBuffer;
     SetVar(Point(Ax, Ay), Azoom);
     try
       FExec.RunScript; // Run the script.
@@ -318,6 +336,7 @@ begin
     end;
     AUrl := FpResultUrl.Data;
     AHeaders := FpRequestHead.Data;
+    FScriptBuffer := FpScriptBuffer.Data;
   finally
     FCS.Release;
   end;
