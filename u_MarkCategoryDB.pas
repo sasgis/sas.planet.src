@@ -19,6 +19,7 @@ type
   TMarkCategoryDB = class(TInterfacedObject, IMarkCategoryDB, IMarkCategoryDBSmlInternal)
   private
     FSync: IReadWriteSync;
+    FDbCode: Integer;
     FBasePath: string;
     FDMMarksDb: TDMMarksDb;
     FList: IIDInterfaceList;
@@ -73,6 +74,7 @@ constructor TMarkCategoryDB.Create(
 var
   VFactory: TMarkCategoryFactory;
 begin
+  FDbCode := Integer(Self);
   FBasePath := ABasePath;
   FDMMarksDb := ADMMarksDb;
   FSync := TSimpleRWSync.Create;
@@ -122,7 +124,9 @@ var
 begin
   VId := -1;
   if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    VId := VCategoryInternal.Id;
+    if GetDbCode = VCategoryInternal.DbCode then begin
+      VId := VCategoryInternal.Id;
+    end;
   end;
   LockRead;
   try
@@ -165,7 +169,9 @@ var
 begin
   VId := -1;
   if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    VId := VCategoryInternal.Id;
+    if GetDbCode = VCategoryInternal.DbCode then begin
+      VId := VCategoryInternal.Id;
+    end;
   end;
   LockWrite;
   try
@@ -226,7 +232,7 @@ end;
 
 function TMarkCategoryDB.GetDbCode: Integer;
 begin
-  Result := Integer(Self);
+  Result := FDbCode;
 end;
 
 function TMarkCategoryDB.GetFactory: IMarkCategoryFactory;
