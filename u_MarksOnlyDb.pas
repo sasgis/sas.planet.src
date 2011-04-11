@@ -30,6 +30,7 @@ type
 
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
+    function GetDbCode: Integer;
   protected
     procedure LockRead; virtual;
     procedure LockWrite; virtual;
@@ -138,7 +139,7 @@ begin
   FBasePath := ABasePath;
   FDMMarksDb := ADMMarksDb;
   FSync := TSimpleRWSync.Create;
-  VFactory := TMarkFactory.Create(Integer(Self), AFactoryConfig, ACategoryDB);
+  VFactory := TMarkFactory.Create(GetDbCode, AFactoryConfig, ACategoryDB);
   FFactory := VFactory;
   FFactoryDbInternal := VFactory;
 end;
@@ -514,6 +515,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TMarksOnlyDb.GetDbCode: Integer;
+begin
+  Result := Integer(Self);
 end;
 
 function TMarksOnlyDb.GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;

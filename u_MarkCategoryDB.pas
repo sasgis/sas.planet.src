@@ -28,6 +28,7 @@ type
     procedure WriteCurrentCategory(ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
+    function GetDbCode: Integer;
   protected
     procedure LockRead; virtual;
     procedure LockWrite; virtual;
@@ -76,7 +77,7 @@ begin
   FDMMarksDb := ADMMarksDb;
   FSync := TSimpleRWSync.Create;
   FList := TIDInterfaceList.Create;
-  VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
+  VFactory := TMarkCategoryFactory.Create(GetDbCode, AFactoryConfig);
   FFactoryDbInternal := VFactory;
   FFactory := VFactory;
 end;
@@ -221,6 +222,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TMarkCategoryDB.GetDbCode: Integer;
+begin
+  Result := Integer(Self);
 end;
 
 function TMarkCategoryDB.GetFactory: IMarkCategoryFactory;

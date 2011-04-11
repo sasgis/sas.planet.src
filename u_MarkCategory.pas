@@ -9,13 +9,16 @@ uses
 type
   TMarkCategory = class(TInterfacedObject, IMarkCategory, IMarkCategorySMLInternal)
   private
+    FDbCode: Integer;
     FId: Integer;
     FName: string;
     FVisible: Boolean;
     FAfterScale: integer;
     FBeforeScale: integer;
   protected
+    function GetDbCode: Integer;
     function GetId: integer; stdcall;
+  protected
     function GetName: string; stdcall;
     function GetVisible: boolean; stdcall;
     function GetAfterScale: integer; stdcall;
@@ -24,6 +27,7 @@ type
     function IsSame(ACategory: IMarkCategory): Boolean;
   public
     constructor Create(
+      ADbCode: Integer;
       AId: Integer;
       AName: string;
       AVisible: Boolean;
@@ -39,9 +43,12 @@ uses
 
 { TMarkCategory }
 
-constructor TMarkCategory.Create(AId: Integer; AName: string; AVisible: Boolean;
+constructor TMarkCategory.Create(
+  ADbCode: Integer;
+  AId: Integer; AName: string; AVisible: Boolean;
   AAfterScale, ABeforeScale: integer);
 begin
+  FDbCode := ADbCode;
   FId := AId;
   FName := AName;
   FVisible := AVisible;
@@ -57,6 +64,11 @@ end;
 function TMarkCategory.GetBeforeScale: integer;
 begin
   Result := FBeforeScale;
+end;
+
+function TMarkCategory.GetDbCode: Integer;
+begin
+  Result := FDbCode;
 end;
 
 function TMarkCategory.GetId: integer;
