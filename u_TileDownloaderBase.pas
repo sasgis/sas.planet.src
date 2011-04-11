@@ -104,10 +104,10 @@ begin
   end;
   FCS.Acquire;
   try
-    VHead := AHead;
     VTryCount := 0;
     Result := FLastDownloadResult;
     repeat
+      VHead := AHead;
       if Result = dtrDownloadError then begin
         ResetConnetction;
       end;
@@ -115,7 +115,9 @@ begin
       Inc(VTryCount);
     until (Result <> dtrDownloadError) or (VTryCount >= FDownloadTryCount);
     FLastDownloadResult := Result;
-    AHead := VHead;
+    if AHead <> VHead then
+      AHead := VHead
+    else AHead := '';
   finally
     FCS.Release;
   end;
@@ -260,7 +262,7 @@ var
 begin
   try
     AResponseHead := '';
-    VBufSize := 10;
+    VBufSize := 1024;
     SetLength(AResponseHead, VBufSize);
     FillChar(AResponseHead[1], VBufSize, 0);
     dwIndex := 0;
@@ -268,12 +270,15 @@ begin
       VLastError := GetLastError;
       if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
         SetLength(AResponseHead, VBufSize);
+        FillChar(AResponseHead[1], VBufSize, 0);
+        dwIndex := 0;
         if not HttpQueryInfo(AFileHandle, HTTP_QUERY_RAW_HEADERS_CRLF, @AResponseHead[1], VBufSize, dwIndex) then
           AResponseHead := ''
         else SetLength(AResponseHead, VBufSize);
       end else AResponseHead := '';
-    end;
+    end else SetLength(AResponseHead, VBufSize);
   except
+    AResponseHead := '';
   end;
   if FIgnoreMIMEType then begin
     AContentType := FDefaultMIMEType;
