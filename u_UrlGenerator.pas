@@ -6,7 +6,6 @@ Uses
   Windows,
   SysUtils,
   SyncObjs,
-  DateUtils,
   uPSC_dll,
   uPSR_dll,
   uPSRuntime,
@@ -85,7 +84,8 @@ uses
   u_GeoToStr,
   u_ResStrings,
   t_GeoTypes,
-  u_GlobalState;
+  u_GlobalState,
+  u_UrlGeneratorHelpers;
 
 { TUrlGeneratorBasic }
 
@@ -215,20 +215,17 @@ begin
     Sender.AddDelphiFunction('function RoundEx(chislo: Double; Precision: Integer): string');
     Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
     Sender.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): string');
+    Sender.AddDelphiFunction('function Length(Str: string): integer');
+    Sender.AddDelphiFunction('function GetAfter(SubStr, Str: string): string');
+    Sender.AddDelphiFunction('function GetBefore(SubStr, Str: string): string');
+    Sender.AddDelphiFunction('function GetBetween(Str, After, Before: string): string');
+    Sender.AddDelphiFunction('function SubStrPos(const Str, SubStr: String; FromPos: integer): integer');
+    Sender.AddDelphiFunction('function RegExprGetMatchSubStr(const Str, MatchExpr: string): string');
+    Sender.AddDelphiFunction('function RegExprReplaseMatchSubStr(const Str, MatchExpr, Replase: string): string');
     Result := True;
   end else begin
     Result := False;
   end;
-end;
-
-function Rand(x: integer): integer;
-begin
-  Result := Random(x);
-end;
-
-function GetUnixTime(x: integer): int64;
-begin
-  Result := DateTimeToUnix(now);
 end;
 
 { TUrlGenerator }
@@ -266,6 +263,13 @@ begin
   FExec.RegisterDelphiFunction(@IntPower, 'IntPower', cdRegister);
   FExec.RegisterDelphiFunction(@Rand, 'Random', cdRegister);
   FExec.RegisterDelphiFunction(@IntToHex, 'IntToHex', cdRegister);
+  FExec.RegisterDelphiFunction(@StrLength, 'Length', cdRegister);
+  FExec.RegisterDelphiFunction(@GetAfter, 'GetAfter', cdRegister);
+  FExec.RegisterDelphiFunction(@GetBefore, 'GetBefore', cdRegister);
+  FExec.RegisterDelphiFunction(@GetBetween, 'GetBetween', cdRegister);
+  FExec.RegisterDelphiFunction(@SubStrPos, 'SubStrPos', cdRegister);
+  FExec.RegisterDelphiFunction(@RegExprGetMatchSubStr, 'RegExprGetMatchSubStr', cdRegister);
+  FExec.RegisterDelphiFunction(@RegExprReplaseMatchSubStr, 'RegExprReplaseMatchSubStr', cdRegister);
 
   if not FExec.LoadData(VData) then begin // Load the data from the Data string.
     raise Exception.Create(SAS_ERR_UrlScriptByteCodeLoad);

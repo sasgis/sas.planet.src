@@ -358,6 +358,7 @@
     <DCCReference Include="src\i_JclNotify.pas" />
     <DCCReference Include="src\KAZip.pas" />
     <DCCReference Include="src\Langs.pas" />
+    <DCCReference Include="src\RegExpr.pas" />
     <DCCReference Include="src\SwinHttp.pas" />
     <DCCReference Include="src\u_FileNameIteratorFolderWithSubfolders.pas" />
     <DCCReference Include="src\u_FileNameIteratorInFolderByMask.pas" />
@@ -609,6 +610,7 @@
     <DCCReference Include="u_TileStorageTypeListSimple.pas" />
     <DCCReference Include="u_TimeZones.pas" />
     <DCCReference Include="u_UrlGenerator.pas" />
+    <DCCReference Include="u_UrlGeneratorHelpers.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="u_ValueToStringConverter.pas" />
