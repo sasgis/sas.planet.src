@@ -20,13 +20,17 @@ type
 
   TUrlGeneratorBasic = class
   private
+    FCS: TCriticalSection;
     FDefURLBase: string;
     FURLBase: String;
     FLastResponseHead: string;
   protected
+    procedure Lock;
+    procedure Unlock;
     procedure SetURLBase(const Value: string); virtual;
   public
     constructor Create(AConfig: IConfigDataProvider);
+    destructor Destroy; override;
 
     function GenLink(Ax, Ay: longint; Azoom: byte): string; virtual;
     procedure GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHeaders: string); virtual;
@@ -42,7 +46,6 @@ type
     FCoordConverter: ICoordConverterSimple;
     FGetURLScript: string;
     FScriptBuffer: string;
-    FCS: TCriticalSection;
     FExec: TPSExec;
     FpResultUrl: PPSVariantAString;
     FpGetURLBase: PPSVariantAString;
@@ -90,10 +93,16 @@ constructor TUrlGeneratorBasic.Create(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
 begin
+  FCS := TCriticalSection.Create;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FURLBase := VParams.ReadString('URLBase', '');
   FDefUrlBase := VParams.ReadString('MAIN:URLBase', '');
   FLastResponseHead := '';
+end;
+
+destructor TUrlGeneratorBasic.Destroy;
+begin
+  FreeAndNil(FCS);
 end;
 
 function TUrlGeneratorBasic.GenLink(Ax, Ay: Integer; Azoom: byte): string;
@@ -109,12 +118,32 @@ end;
 
 procedure TUrlGeneratorBasic.SetResponseHead(AResponseHead: string);
 begin
-  FLastResponseHead := AResponseHead;
+    Lock;
+  try
+    FLastResponseHead := AResponseHead;
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TUrlGeneratorBasic.SetURLBase(const Value: string);
 begin
-  FURLBase := Value;
+    Lock;
+  try
+    FURLBase := Value;
+  finally
+    Unlock;
+  end;
+end;
+
+procedure TUrlGeneratorBasic.Lock;
+begin
+  FCS.Acquire;
+end;
+
+procedure TUrlGeneratorBasic.Unlock;
+begin
+  FCS.Release;
 end;
 
 
@@ -259,12 +288,10 @@ begin
   FpGetBmetr := PPSVariantDouble(FExec.GetVar2('GetBmetr'));
   FpGetRmetr := PPSVariantDouble(FExec.GetVar2('GetRmetr'));
   FpConverter := PPSVariantInterface(FExec.GetVar2('Converter'));
-  FCS := TCriticalSection.Create;
 end;
 
 destructor TUrlGenerator.Destroy;
 begin
-  FreeAndNil(FCS);
   FreeAndNil(FExec);
   FCoordConverter := nil;
   inherited;
@@ -299,7 +326,7 @@ end;
 
 function TUrlGenerator.GenLink(Ax, Ay: Integer; Azoom: byte): string;
 begin
-  FCS.Acquire;
+    Lock;
   try
     FpResultUrl.Data := '';
     SetVar(Point(Ax, Ay), Azoom);
@@ -312,13 +339,13 @@ begin
     end;
     Result := FpResultUrl.Data;
   finally
-    FCS.Release;
+    Unlock;
   end;
 end;
 
 procedure TUrlGenerator.GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHeaders: string);
 begin
-    FCS.Acquire;
+    Lock;
   try
     FpResultUrl.Data := '';
     FpRequestHead.Data := '';
@@ -334,7 +361,7 @@ begin
     AHeaders := FpRequestHead.Data;
     FScriptBuffer := FpScriptBuffer.Data;
   finally
-    FCS.Release;
+    Unlock;
   end;
 end;
 
