@@ -10,7 +10,7 @@ function GetBefore(SubStr, Str: string): string;
 function GetBetween(Str, After, Before: string): string;
 function SubStrPos(const Str, SubStr: AnsiString; FromPos: Integer): Integer;
 function RegExprGetMatchSubStr(const AStr, AMatchExpr: string): string;
-function RegExprReplaseMatchSubStr(const AStr, AMatchExpr, AReplase: string): string;
+function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
 
 implementation
 
@@ -119,7 +119,7 @@ begin
   end;
 end;
 
-function RegExprReplaseMatchSubStr(const AStr, AMatchExpr, AReplase: string): string;
+function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
 var
   VRegExpr: TRegExpr;
 begin
@@ -127,7 +127,7 @@ begin
   try
     VRegExpr.Expression := AMatchExpr;
     if VRegExpr.Exec(AStr) then
-      Result := VRegExpr.Replace(AStr, AReplase, True)
+      Result := VRegExpr.Replace(AStr, AReplace, True)
     else
       Result := AStr;
   finally
