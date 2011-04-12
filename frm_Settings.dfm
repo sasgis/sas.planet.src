@@ -860,19 +860,20 @@ object frmSettings: TfrmSettings
             object Label3: TLabel
               Left = 3
               Top = 3
-              Width = 193
+              Width = 161
               Height = 27
               Align = alLeft
               Alignment = taRightJustify
-              Caption = #1060#1086#1088#1084#1072#1090' '#1095#1080#1089#1077#1083' '#1086#1090#1086#1073#1088#1072#1078#1077#1085#1080#1103' '#1084#1072#1089#1096#1090#1072#1073#1072
+              Caption = #1060#1086#1088#1084#1072#1090' '#1086#1090#1086#1073#1088#1072#1078#1077#1085#1080#1103' '#1084#1072#1089#1096#1090#1072#1073#1072
               Layout = tlCenter
+              ExplicitLeft = 35
               ExplicitHeight = 13
             end
             object ComboBox1: TComboBox
               AlignWithMargins = True
-              Left = 199
+              Left = 167
               Top = 6
-              Width = 108
+              Width = 140
               Height = 21
               Align = alClient
               Style = csDropDownList
@@ -883,6 +884,8 @@ object frmSettings: TfrmSettings
               Items.Strings = (
                 '12 '#1082#1084' 423 '#1084
                 '23,4 '#1082#1084)
+              ExplicitLeft = 199
+              ExplicitWidth = 108
             end
           end
           object pnlLonLatFormat: TPanel
