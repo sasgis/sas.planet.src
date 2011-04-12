@@ -410,7 +410,7 @@ object frmSettings: TfrmSettings
           Width = 144
           Height = 21
           Align = alClient
-          Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' EarthSliser:'
+          Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' EarthSlicer:'
           Layout = tlCenter
           ExplicitWidth = 120
           ExplicitHeight = 13
