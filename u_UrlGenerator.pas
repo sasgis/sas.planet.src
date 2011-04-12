@@ -22,22 +22,29 @@ type
     FCS: TCriticalSection;
     FDefURLBase: string;
     FURLBase: String;
+    FDefRequestHead: string;
+    FRequestHead: string;
     FLastResponseHead: string;
   protected
     procedure Lock;
     procedure Unlock;
     procedure SetURLBase(const Value: string); virtual;
+    procedure SetRequestHead(const ARequestHead: string);
+    function  GetRequestHead: string; virtual;
+    procedure SetResponseHead(const AResponseHead: string); virtual;
+    function  GetResponseHead: string; virtual;
   public
     constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
 
     function GenLink(Ax, Ay: longint; Azoom: byte): string; virtual;
     procedure GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHeaders: string); virtual;
-    procedure SetResponseHead(AResponseHead: string); virtual;
 
     property URLBase: string read FURLBase write SetURLBase;
     property DefURLBase: string read FDefURLBase;
-    property LastResponseHead: string read FLastResponseHead;
+    property RequestHead: string read GetRequestHead write SetRequestHead;
+    property DefRequestHead: string read FDefRequestHead;
+    property ResponseHead: string read GetResponseHead write SetResponseHead;
   end;
 
   TUrlGenerator = class(TUrlGeneratorBasic)
@@ -97,6 +104,8 @@ begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FURLBase := VParams.ReadString('URLBase', '');
   FDefUrlBase := VParams.ReadString('MAIN:URLBase', '');
+  FRequestHead := VParams.ReadString('RequestHead', '');
+  FDefRequestHead := VParams.ReadString('MAIN:RequestHead', '');
   FLastResponseHead := '';
 end;
 
@@ -116,11 +125,41 @@ begin
   AHeaders := '';
 end;
 
-procedure TUrlGeneratorBasic.SetResponseHead(AResponseHead: string);
+procedure TUrlGeneratorBasic.SetResponseHead(const AResponseHead: string);
 begin
     Lock;
   try
     FLastResponseHead := AResponseHead;
+  finally
+    Unlock;
+  end;
+end;
+
+function TUrlGeneratorBasic.GetResponseHead: string;
+begin
+    Lock;
+  try
+    Result := FLastResponseHead;
+  finally
+    Unlock;
+  end;
+end;
+
+procedure TUrlGeneratorBasic.SetRequestHead(const ARequestHead: string);
+begin
+    Lock;
+  try
+    FRequestHead := ARequestHead;
+  finally
+    Unlock;
+  end;
+end;
+
+function TUrlGeneratorBasic.GetRequestHead: string;
+begin
+    Lock;
+  try
+    Result := FRequestHead;
   finally
     Unlock;
   end;
@@ -278,7 +317,9 @@ begin
   FpGetURLBase := PPSVariantAString(FExec.GetVar2('GetURLBase'));
   FpGetURLBase.Data := FURLBase;
   FpRequestHead := PPSVariantAString(FExec.GetVar2('RequestHead'));
+  FpRequestHead.Data := FRequestHead;
   FpResponseHead := PPSVariantAString(FExec.GetVar2('ResponseHead'));
+  FpResponseHead.Data := FLastResponseHead;
   FpScriptBuffer := PPSVariantAString(FExec.GetVar2('ScriptBuffer'));
   FpGetX := PPSVariantS32(FExec.GetVar2('GetX'));
   FpGetY := PPSVariantS32(FExec.GetVar2('GetY'));
@@ -362,7 +403,9 @@ begin
       raise EUrlGeneratorScriptRunError.Create(E.Message);
     end;
     AUrl := FpResultUrl.Data;
-    AHeaders := FpRequestHead.Data;
+    if FpRequestHead.Data <> '' then
+      FRequestHead := FpRequestHead.Data;
+    AHeaders := FRequestHead;
     FScriptBuffer := FpScriptBuffer.Data;
   finally
     Unlock;

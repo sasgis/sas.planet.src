@@ -434,7 +434,7 @@ end;
 
 procedure TMapType.SetResponse(AHead: string);
 begin
-  FUrlGenerator.SetResponseHead(AHead);
+  FUrlGenerator.ResponseHead := AHead;
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
