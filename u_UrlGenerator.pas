@@ -105,7 +105,9 @@ begin
   FURLBase := VParams.ReadString('URLBase', '');
   FDefUrlBase := VParams.ReadString('MAIN:URLBase', '');
   FRequestHead := VParams.ReadString('RequestHead', '');
+  FRequestHead := StringReplace(FRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
   FDefRequestHead := VParams.ReadString('MAIN:RequestHead', '');
+  FDefRequestHead := StringReplace(FDefRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
   FLastResponseHead := '';
 end;
 
