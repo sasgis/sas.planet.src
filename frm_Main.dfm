@@ -713,6 +713,7 @@ object frmMain: TfrmMain
           Images = PanelsImageList
           RadioItem = True
           ShortCut = 32835
+          OnAdjustFont = AdjustFont
           OnClick = NSRCinetClick
           Caption = #1050#1101#1096
           Hint = ''
@@ -724,6 +725,7 @@ object frmMain: TfrmMain
           Images = PanelsImageList
           RadioItem = True
           ShortCut = 32841
+          OnAdjustFont = AdjustFont
           OnClick = NSRCinetClick
           Caption = #1048#1085#1090#1077#1088#1085#1077#1090
           Hint = ''
@@ -736,6 +738,7 @@ object frmMain: TfrmMain
           Images = PanelsImageList
           RadioItem = True
           ShortCut = 32834
+          OnAdjustFont = AdjustFont
           OnClick = NSRCinetClick
           Caption = #1048#1085#1090#1077#1088#1085#1077#1090' '#1080' '#1082#1101#1096
           Hint = ''
