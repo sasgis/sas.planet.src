@@ -434,7 +434,8 @@ end;
 
 procedure TMapType.SetResponse(AHead: string);
 begin
-  FUrlGenerator.ResponseHead := AHead;
+  if AHead <> '' then
+    FUrlGenerator.ResponseHead := AHead;
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -703,10 +704,12 @@ var
   StatusCode: Cardinal;
   VPoolElement: IPoolElement;
   VDownloader: ITileDownlodSession;
-  VHead: string;
+  VRequestHead: string;
+  VResponseHead: string;
 begin
   if Self.UseDwn then begin
-    GetRequest(ATile, AZoom, AUrl, VHead);
+    VRequestHead := ''; VResponseHead := '';
+    GetRequest(ATile, AZoom, AUrl, VRequestHead);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin
       raise Exception.Create('No free connections');
@@ -715,8 +718,8 @@ begin
     if FAntiBan <> nil then begin
       FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
     end;
-    Result := VDownloader.DownloadTile(AUrl, VHead, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
-    SetResponse(VHead);
+    Result := VDownloader.DownloadTile(AUrl, VRequestHead, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType, VResponseHead);
+    SetResponse(VResponseHead);
     if FAntiBan <> nil then begin
       Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
     end;
