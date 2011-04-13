@@ -261,8 +261,10 @@ begin
     Sender.AddDelphiFunction('function GetBefore(SubStr, Str: string): string');
     Sender.AddDelphiFunction('function GetBetween(Str, After, Before: string): string');
     Sender.AddDelphiFunction('function SubStrPos(const Str, SubStr: String; FromPos: integer): integer');
-    Sender.AddDelphiFunction('function RegExprGetMatchSubStr(const Str, MatchExpr: string): string');
+    Sender.AddDelphiFunction('function RegExprGetMatchSubStr(const Str, MatchExpr: string; AMatchID: Integer): string');
     Sender.AddDelphiFunction('function RegExprReplaceMatchSubStr(const Str, MatchExpr, Replace: string): string');
+    Sender.AddDelphiFunction('function SetHeaderValue(AHeaders, AName, AValue: string): string');
+    Sender.AddDelphiFunction('function GetHeaderValue(AHeaders, AName: string): string');
     Result := True;
   end else begin
     Result := False;
@@ -311,6 +313,8 @@ begin
   FExec.RegisterDelphiFunction(@SubStrPos, 'SubStrPos', cdRegister);
   FExec.RegisterDelphiFunction(@RegExprGetMatchSubStr, 'RegExprGetMatchSubStr', cdRegister);
   FExec.RegisterDelphiFunction(@RegExprReplaceMatchSubStr, 'RegExprReplaceMatchSubStr', cdRegister);
+  FExec.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
+  FExec.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
 
   if not FExec.LoadData(VData) then begin // Load the data from the Data string.
     raise Exception.Create(SAS_ERR_UrlScriptByteCodeLoad);
