@@ -112,6 +112,8 @@ type
     Enabled: boolean;
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
+    procedure GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
+    procedure SetResponse(AHead: string);
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
@@ -427,6 +429,18 @@ begin
   Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
 end;
 
+procedure TMapType.GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
+begin
+  FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
+  FUrlGenerator.GenRequest(AXY.X, AXY.Y, Azoom, AUrl, AHead);
+end;
+
+procedure TMapType.SetResponse(AHead: string);
+begin
+  if AHead <> '' then
+    FUrlGenerator.ResponseHead := AHead;
+end;
+
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
   Result := FStorage.GetTileFileName(AXY, Azoom, FVersion);
@@ -697,13 +711,16 @@ var
   StatusCode: Cardinal;
   VPoolElement: IPoolElement;
   VDownloader: ITileDownlodSession;
+  VRequestHead: string;
+  VResponseHead: string;
 begin
   if Self.UseDwn then begin
     if Assigned(FPhpTileDownloader) and FPhpTileDownloader.Enabled then begin
       FPhpTileDownloader.UrlBase := FUrlGenerator.URLBase;
       Result := FPhpTileDownloader.DownloadTile(ACheckTileSize, AOldTileSize, ATile, AZoom, AUrl, AContentType, fileBuf);
     end else begin
-      AUrl := GetLink(ATile, AZoom);
+      VRequestHead := ''; VResponseHead := '';
+      GetRequest(ATile, AZoom, AUrl, VRequestHead);
       VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
       if VPoolElement = nil then begin
         raise Exception.Create('No free connections');
@@ -712,7 +729,8 @@ begin
       if FAntiBan <> nil then begin
         FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
       end;
-      Result := VDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
+      Result := VDownloader.DownloadTile(AUrl, VRequestHead, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType, VResponseHead);
+      SetResponse(VResponseHead);
       if FAntiBan <> nil then begin
         Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
       end;

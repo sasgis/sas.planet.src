@@ -19,11 +19,10 @@ type
     FConfig: IMapLayerGridsConfig;
     procedure generate_granica;
     procedure DrawGenShBorders;
-    function CheckVisible(ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
-    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
   public
     procedure StartThreads; override;
   public
@@ -337,7 +336,7 @@ begin
   end;
 end;
 
-function TMapLayerGrids.CheckVisible(ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+function TMapLayerGrids.GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
 var
   VConverter: ILocalCoordConverter;
   VGeoConverter: ICoordConverter;
@@ -376,27 +375,12 @@ procedure TMapLayerGrids.OnConfigChange(Sender: TObject);
 var
   VVisible: Boolean;
 begin
-  VVisible := CheckVisible(ViewPortState.GetVisualCoordConverter);
+  VVisible := GetVisibleForNewPos(ViewPortState.GetVisualCoordConverter);
   if VVisible then begin
     Redraw;
     Show;
   end else begin
     Hide;
-  end;
-end;
-
-procedure TMapLayerGrids.PosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-var
-  VVisible: Boolean;
-begin
-  VVisible := CheckVisible(ANewVisualCoordConverter);
-  if VVisible then begin
-    Show;
-    inherited;
-  end else begin
-    Hide;
-    inherited;
   end;
 end;
 

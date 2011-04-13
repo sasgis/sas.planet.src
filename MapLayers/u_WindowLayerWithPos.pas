@@ -20,6 +20,7 @@ type
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
+    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; virtual;
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
 
     procedure UpdateLayerLocation(ANewLocation: TFloatRect); virtual;
@@ -31,6 +32,8 @@ type
 
     property LayerPositioned: TPositionedLayer read FLayer;
     property Visible: Boolean read GetVisible write SetVisible;
+  protected
+    procedure AfterPosChange; override;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
     destructor Destroy; override;
@@ -47,7 +50,7 @@ type
     function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
   protected
     procedure DoShow; override;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure AfterPosChange; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
   end;
@@ -65,6 +68,12 @@ uses
   Graphics;
 
 { TWindowLayerBasic }
+
+procedure TWindowLayerBasic.AfterPosChange;
+begin
+  inherited;
+  UpdateLayerLocation(GetMapLayerLocationRect);
+end;
 
 constructor TWindowLayerBasic.Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
 begin
@@ -104,6 +113,12 @@ begin
   Result := FVisible;
 end;
 
+function TWindowLayerBasic.GetVisibleForNewPos(
+  ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+begin
+  Result := FVisible;
+end;
+
 procedure TWindowLayerBasic.Hide;
 begin
   if FVisible then begin
@@ -112,12 +127,16 @@ begin
 end;
 
 procedure TWindowLayerBasic.PosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+  ANewVisualCoordConverter: ILocalCoordConverter
+);
+var
+  VNewVisible: Boolean;
 begin
-  VisualCoordConverter := ANewVisualCoordConverter;
+  PreparePosChange(ANewVisualCoordConverter);
+  VNewVisible := GetVisibleForNewPos(ANewVisualCoordConverter);
+  SetVisible(VNewVisible);
   if Visible then begin
-    DoPosChange(ANewVisualCoordConverter);
-    UpdateLayerLocation(GetMapLayerLocationRect);
+    AfterPosChange;
   end;
 end;
 
@@ -178,8 +197,7 @@ begin
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
 end;
 
-procedure TWindowLayerWithBitmap.DoPosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+procedure TWindowLayerWithBitmap.AfterPosChange;
 begin
   inherited;
   UpdateLayerSize(VisualCoordConverter);

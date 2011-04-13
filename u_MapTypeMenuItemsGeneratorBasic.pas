@@ -41,6 +41,7 @@ implementation
 uses
   SysUtils,
   c_ZeroGUID,
+  u_TBXSubmenuItemWithIndicator,
   u_ActiveMapTBXItem,
   u_ResStrings,
   u_GlobalState;
@@ -91,7 +92,7 @@ end;
 function TMapMenuGeneratorBasic.CreateSubMenuItem(
   AName: string): TTBCustomItem;
 begin
-  Result := TTBXSubmenuItem.Create(FRootMenu);
+  Result := TTBXSubmenuItemWithIndicator.Create(FRootMenu);
   Result.Caption := AName;
   Result.Images := FIconsList.GetImageList;
   Result.tag := -1;

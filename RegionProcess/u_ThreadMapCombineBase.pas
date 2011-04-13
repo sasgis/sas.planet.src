@@ -135,9 +135,14 @@ function TThreadMapCombineBase.CreateConverterForTileImage(
   ATile: TPoint): ILocalCoordConverter;
 var
   VTileRect: TRect;
+  VBitmapTileRect: TRect;
 begin
   VTileRect := FTypeMap.GeoConvert.TilePos2PixelRect(ATile, FZoom);
-  Result := FConverterFactory.CreateConverter(VTileRect, FZoom, FTypeMap.GeoConvert, DoublePoint(1, 1), DoublePoint(0,0));
+  VBitmapTileRect.Left := 0;
+  VBitmapTileRect.Top := 0;
+  VBitmapTileRect.Right := VTileRect.Right - VTileRect.Left;
+  VBitmapTileRect.Bottom := VTileRect.Bottom - VTileRect.Top;
+  Result := FConverterFactory.CreateConverter(VBitmapTileRect, FZoom, FTypeMap.GeoConvert, DoublePoint(1, 1), DoublePoint(VTileRect.TopLeft));
 end;
 
 destructor TThreadMapCombineBase.Destroy;
@@ -159,6 +164,8 @@ begin
     ATargetBitmap.Draw(0, 0, FTempBitmap);
   end;
   if FMarksImageProvider <> nil then begin
+    FTempBitmap.SetSize(VSize.X, VSize.Y);
+    FTempBitmap.Clear(0);
     FMarksImageProvider.GetBitmapRect(FTempBitmap, AConverter);
     FTempBitmap.DrawMode := dmBlend;
     ATargetBitmap.Draw(0, 0, FTempBitmap);

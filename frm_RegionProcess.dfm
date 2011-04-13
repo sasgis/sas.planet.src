@@ -25,7 +25,7 @@ object frmRegionProcess: TfrmRegionProcess
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
-    TabWidth = 83
+    TabWidth = 92
     object TabSheet1: TTabSheet
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
     end

@@ -42,7 +42,7 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
     procedure DoShow; override;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure AfterPosChange; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
   end;
@@ -60,7 +60,7 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoHide; override;
     procedure DoShow; override;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure AfterPosChange; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
   end;
@@ -87,7 +87,7 @@ end;
 procedure TMapLayerBase.DoScaleChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
-  VisualCoordConverter := ANewVisualCoordConverter;
+  SetVisualCoordConverter(ANewVisualCoordConverter);
   UpdateLayerLocation(GetMapLayerLocationRect);
 end;
 
@@ -128,11 +128,10 @@ begin
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
 end;
 
-procedure TMapLayerFixedWithBitmap.DoPosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+procedure TMapLayerFixedWithBitmap.AfterPosChange;
 begin
   inherited;
-  UpdateLayerSize(GetLayerSizeForViewSize(ANewVisualCoordConverter));
+  UpdateLayerSize(GetLayerSizeForViewSize(VisualCoordConverter));
 end;
 
 procedure TMapLayerFixedWithBitmap.DoRedraw;
@@ -269,8 +268,7 @@ begin
   UpdateBitmapConverterByVisual(VisualCoordConverter);
 end;
 
-procedure TMapLayerBasic.DoPosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+procedure TMapLayerBasic.AfterPosChange;
 begin
   inherited;
   UpdateBitmapConverterByVisual(VisualCoordConverter);

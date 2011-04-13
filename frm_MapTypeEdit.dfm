@@ -2,9 +2,11 @@ object frmMapTypeEdit: TfrmMapTypeEdit
   Left = 198
   Top = 305
   BorderIcons = [biSystemMenu]
-  ClientHeight = 284
-  ClientWidth = 508
+  ClientHeight = 273
+  ClientWidth = 452
   Color = clBtnFace
+  Constraints.MinHeight = 300
+  Constraints.MinWidth = 460
   ParentFont = True
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -14,8 +16,8 @@ object frmMapTypeEdit: TfrmMapTypeEdit
   TextHeight = 13
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 247
-    Width = 508
+    Top = 236
+    Width = 452
     Height = 37
     Align = alBottom
     BevelEdges = [beTop]
@@ -23,6 +25,8 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 0
+    ExplicitTop = 248
+    ExplicitWidth = 508
     object btnByDefault: TButton
       AlignWithMargins = True
       Left = 6
@@ -36,7 +40,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     end
     object btnOk: TButton
       AlignWithMargins = True
-      Left = 346
+      Left = 290
       Top = 6
       Width = 75
       Height = 23
@@ -45,10 +49,11 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ModalResult = 1
       TabOrder = 1
       OnClick = btnOkClick
+      ExplicitLeft = 346
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 427
+      Left = 371
       Top = 6
       Width = 75
       Height = 23
@@ -57,12 +62,13 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ModalResult = 2
       TabOrder = 2
+      ExplicitLeft = 427
     end
   end
   object pnlSeparator: TPanel
     Left = 0
-    Top = 205
-    Width = 508
+    Top = 194
+    Width = 452
     Height = 42
     Align = alBottom
     BevelEdges = []
@@ -70,38 +76,44 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
+    ExplicitTop = 206
+    ExplicitWidth = 508
     object CheckBox1: TCheckBox
       AlignWithMargins = True
       Left = 6
       Top = 3
-      Width = 496
+      Width = 440
       Height = 17
       Margins.Top = 0
       Align = alTop
       Caption = #1044#1086#1073#1072#1074#1083#1103#1090#1100' '#1074' '#1084#1077#1085#1102' '#1088#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' '#1087#1086#1089#1083#1077' '#1085#1072#1079#1074#1072#1085#1080#1103' '#1101#1090#1086#1081' '#1082#1072#1088#1090#1099
       TabOrder = 0
+      ExplicitWidth = 496
     end
     object CheckEnabled: TCheckBox
       AlignWithMargins = True
       Left = 6
       Top = 23
-      Width = 496
+      Width = 440
       Height = 17
       Margins.Top = 0
       Align = alTop
       Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
       TabOrder = 1
+      ExplicitWidth = 496
     end
   end
   object pnlCacheType: TPanel
     Left = 0
-    Top = 172
-    Width = 508
+    Top = 161
+    Width = 452
     Height = 33
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 2
+    ExplicitTop = 173
+    ExplicitWidth = 508
     object Label5: TLabel
       AlignWithMargins = True
       Left = 6
@@ -117,7 +129,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       AlignWithMargins = True
       Left = 58
       Top = 6
-      Width = 417
+      Width = 361
       Height = 21
       Align = alClient
       Style = csDropDownList
@@ -130,10 +142,11 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         'EarthSlicer 1.95'
         'Googe maps tiles'
         'Google Earth')
+      ExplicitWidth = 417
     end
     object Button9: TButton
       AlignWithMargins = True
-      Left = 481
+      Left = 425
       Top = 6
       Width = 21
       Height = 21
@@ -144,17 +157,20 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ShowHint = True
       TabOrder = 1
       OnClick = Button9Click
+      ExplicitLeft = 481
     end
   end
   object pnlParentItem: TPanel
     Left = 0
-    Top = 139
-    Width = 508
+    Top = 128
+    Width = 452
     Height = 33
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 3
+    ExplicitTop = 140
+    ExplicitWidth = 508
     object Label3: TLabel
       AlignWithMargins = True
       Left = 6
@@ -170,14 +186,15 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       AlignWithMargins = True
       Left = 147
       Top = 6
-      Width = 328
+      Width = 272
       Height = 21
       Align = alClient
       TabOrder = 0
+      ExplicitWidth = 328
     end
     object Button5: TButton
       AlignWithMargins = True
-      Left = 481
+      Left = 425
       Top = 6
       Width = 21
       Height = 21
@@ -188,17 +205,20 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ShowHint = True
       TabOrder = 1
       OnClick = Button5Click
+      ExplicitLeft = 481
     end
   end
   object pnlCacheName: TPanel
     Left = 0
-    Top = 106
-    Width = 508
+    Top = 95
+    Width = 452
     Height = 33
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 4
+    ExplicitTop = 107
+    ExplicitWidth = 508
     object Label2: TLabel
       AlignWithMargins = True
       Left = 6
@@ -214,14 +234,15 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       AlignWithMargins = True
       Left = 97
       Top = 6
-      Width = 378
+      Width = 322
       Height = 21
       Align = alClient
       TabOrder = 0
+      ExplicitWidth = 378
     end
     object Button4: TButton
       AlignWithMargins = True
-      Left = 481
+      Left = 425
       Top = 6
       Width = 21
       Height = 21
@@ -232,35 +253,40 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ShowHint = True
       TabOrder = 1
       OnClick = Button4Click
+      ExplicitLeft = 481
     end
   end
   object pnlUrl: TPanel
     Left = 0
-    Top = 0
-    Width = 508
-    Height = 73
+    Top = 20
+    Width = 452
+    Height = 42
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 5
+    ExplicitWidth = 508
+    ExplicitHeight = 54
     object Label1: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 6
       Width = 19
-      Height = 61
+      Height = 30
       Align = alLeft
       Caption = 'URL'
       ExplicitHeight = 13
     end
     object pnlUrlRight: TPanel
-      Left = 478
+      Left = 422
       Top = 3
       Width = 27
-      Height = 67
+      Height = 36
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitLeft = 478
+      ExplicitHeight = 48
       object Button6: TButton
         AlignWithMargins = True
         Left = 3
@@ -280,18 +306,20 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       AlignWithMargins = True
       Left = 31
       Top = 6
-      Width = 444
-      Height = 61
+      Width = 388
+      Height = 30
       Align = alClient
       ScrollBars = ssVertical
       TabOrder = 1
       WantReturns = False
+      ExplicitWidth = 444
+      ExplicitHeight = 42
     end
   end
   object grdpnlSleepAndKey: TGridPanel
     Left = 0
-    Top = 73
-    Width = 508
+    Top = 62
+    Width = 452
     Height = 33
     Align = alBottom
     BevelOuter = bvNone
@@ -317,8 +345,13 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     RowCollection = <
       item
         Value = 100.000000000000000000
+      end
+      item
+        SizeStyle = ssAuto
       end>
     TabOrder = 6
+    ExplicitTop = 74
+    ExplicitWidth = 508
     object grdpnlHotKey: TGridPanel
       Left = 3
       Top = 3
@@ -396,7 +429,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       end
     end
     object grdpnlSleep: TGridPanel
-      Left = 352
+      Left = 296
       Top = 3
       Width = 153
       Height = 27
@@ -435,6 +468,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
           Value = 100.000000000000000000
         end>
       TabOrder = 1
+      ExplicitLeft = 352
       DesignSize = (
         153
         27)
@@ -474,6 +508,41 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         TabOrder = 1
         OnClick = Button8Click
       end
+    end
+  end
+  object pnlTop: TPanel
+    Left = 0
+    Top = 0
+    Width = 452
+    Height = 20
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 7
+    ExplicitWidth = 508
+    object lblZmpName: TLabel
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 20
+      Height = 14
+      Align = alLeft
+      Caption = 'Zmp'
+      ExplicitHeight = 13
+    end
+    object edtZmp: TEdit
+      AlignWithMargins = True
+      Left = 29
+      Top = 3
+      Width = 420
+      Height = 14
+      Align = alClient
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      BorderStyle = bsNone
+      Color = clBtnFace
+      ReadOnly = True
+      TabOrder = 0
+      ExplicitWidth = 476
     end
   end
 end

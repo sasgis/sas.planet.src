@@ -20,7 +20,7 @@ type
   protected
     procedure DoRedraw; override;
     function GetMapLayerLocationRect: TFloatRect; override;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure AfterPosChange; override;
   public
     procedure StartThreads; override;
   public
@@ -62,8 +62,7 @@ begin
   DoUpdateLayerSize(VSize);
 end;
 
-procedure TLayerScaleLine.DoPosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+procedure TLayerScaleLine.AfterPosChange;
 begin
   inherited;
   Redraw;

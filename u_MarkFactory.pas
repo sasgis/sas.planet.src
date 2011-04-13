@@ -192,7 +192,7 @@ begin
   end;
 
   VCategoryID := -1;
-  VCategory := ATemplate.Category;
+  VCategory := VTemplate.Category;
   if VCategory <> nil then begin
     VCategoryID := VCategory.Id;
   end;
@@ -232,7 +232,7 @@ begin
   end;
 
   VCategoryID := -1;
-  VCategory := ATemplate.Category;
+  VCategory := VTemplate.Category;
   if VCategory <> nil then begin
     VCategoryID := VCategory.Id;
   end;
@@ -276,7 +276,7 @@ begin
   PreparePolyPoints(VPoints);
 
   VCategoryID := -1;
-  VCategory := ATemplate.Category;
+  VCategory := VTemplate.Category;
   if VCategory <> nil then begin
     VCategoryID := VCategory.Id;
   end;

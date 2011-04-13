@@ -22,13 +22,15 @@ type
     FVisualCoordConverter: ILocalCoordConverter;
     procedure OnPosChange(Sender: TObject); virtual;
   protected
+    procedure SetVisualCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual; abstract;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure PreparePosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure AfterPosChange; virtual;
 
     procedure IncRedrawCounter(ATime: TDateTime);
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
     property ViewPortState: IViewPortState read FViewPortState;
-    property VisualCoordConverter: ILocalCoordConverter read FVisualCoordConverter write FVisualCoordConverter;
+    property VisualCoordConverter: ILocalCoordConverter read FVisualCoordConverter;
   public
     constructor Create(AViewPortState: IViewPortState);
     destructor Destroy; override;
@@ -48,6 +50,10 @@ uses
   u_NotifyEventListener;
 
 { TWindowLayerAbstract }
+
+procedure TWindowLayerAbstract.AfterPosChange;
+begin
+end;
 
 constructor TWindowLayerAbstract.Create(AViewPortState: IViewPortState);
 begin
@@ -71,9 +77,10 @@ begin
   inherited;
 end;
 
-procedure TWindowLayerAbstract.DoPosChange(
+procedure TWindowLayerAbstract.PreparePosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
+  SetVisualCoordConverter(ANewVisualCoordConverter);
 end;
 
 procedure TWindowLayerAbstract.IncRedrawCounter(ATime: TDateTime);
@@ -95,6 +102,12 @@ end;
 procedure TWindowLayerAbstract.SendTerminateToThreads;
 begin
   FLinksList.DeactivateLinks;
+end;
+
+procedure TWindowLayerAbstract.SetVisualCoordConverter(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  FVisualCoordConverter := ANewVisualCoordConverter;
 end;
 
 procedure TWindowLayerAbstract.StartThreads;

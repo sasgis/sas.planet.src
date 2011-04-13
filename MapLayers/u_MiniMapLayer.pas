@@ -82,7 +82,7 @@ type
     procedure DoShow; override;
     procedure DoHide; override;
     procedure DoRedraw; override;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure AfterPosChange; override;
     procedure DoUpdateLayerSize(ANewSize: TPoint); override;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
@@ -512,8 +512,7 @@ begin
   FMinusButton.MouseEvents := false;
 end;
 
-procedure TMiniMapLayer.DoPosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+procedure TMiniMapLayer.AfterPosChange;
 begin
   inherited;
   Redraw;

@@ -40,7 +40,7 @@ type
   protected
     procedure DoRedraw; override;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure AfterPosChange; override;
   public
     procedure StartThreads; override;
   public
@@ -95,8 +95,7 @@ begin
   inherited;
 end;
 
-procedure TSelectionLayer.DoPosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+procedure TSelectionLayer.AfterPosChange;
 begin
   inherited;
   Redraw;

@@ -106,8 +106,8 @@ ResourceString
   SAS_STR_No = 'Нет';
   SAS_STR_Yes = 'Да';
   SAS_STR_Deleted = 'Удаляет:';
-  SAS_STR_Gamma = 'Цветовая гамма';
-  SAS_STR_Contrast = 'Контраст';
+  SAS_STR_Gamma = 'Гамма-коррекция';
+  SAS_STR_Contrast = 'Контрастность';
   SAS_STR_NewPath = 'Путь %0:d';
   SAS_STR_NewMark = 'Метка %0:d';
   SAS_STR_NewPoly = 'Полигон %0:d';
