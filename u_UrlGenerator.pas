@@ -395,7 +395,7 @@ begin
     Lock;
   try
     FpResultUrl.Data := '';
-    FpRequestHead.Data := '';
+    FpRequestHead.Data := FRequestHead;
     FpResponseHead.Data := FLastResponseHead;
     FpScriptBuffer.Data := FScriptBuffer;
     SetVar(Point(Ax, Ay), Azoom);
@@ -405,9 +405,7 @@ begin
       raise EUrlGeneratorScriptRunError.Create(E.Message);
     end;
     AUrl := FpResultUrl.Data;
-    if FpRequestHead.Data <> '' then
-      FRequestHead := FpRequestHead.Data;
-    AHeaders := FRequestHead;
+    AHeaders := FpRequestHead.Data;
     FScriptBuffer := FpScriptBuffer.Data;
   finally
     Unlock;
