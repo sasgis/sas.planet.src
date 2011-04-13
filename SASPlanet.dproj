@@ -278,6 +278,9 @@
     <DCCReference Include="MapLayers\u_SelectionRectLayer.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
+    <DCCReference Include="PhpScript\u_GlobalPhpEngine.pas" />
+    <DCCReference Include="PhpScript\u_TileDownloaderPhp.pas" />
+    <DCCReference Include="PhpScript\u_TileDownloaderPhpBase.pas" />
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
       <DesignClass>TFrame</DesignClass>
       <Form>frExportAUX</Form>
@@ -589,7 +592,6 @@
     <DCCReference Include="u_TileDownloaderThreadBase.pas" />
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
-    <DCCReference Include="u_TileDownloaderViaPHP.pas" />
     <DCCReference Include="u_TileFileNameES.pas" />
     <DCCReference Include="u_TileFileNameGeneratorsSimpleList.pas" />
     <DCCReference Include="u_TileFileNameGM1.pas" />

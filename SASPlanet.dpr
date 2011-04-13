@@ -101,6 +101,9 @@ uses
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
+  u_TileDownloaderPhp in 'PhpScript\u_TileDownloaderPhp.pas',
+  u_TileDownloaderPhpBase in 'PhpScript\u_TileDownloaderPhpBase.pas',
+  u_GlobalPhpEngine in 'PhpScript\u_GlobalPhpEngine.pas',
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
   u_NotifyEventListener in 'u_NotifyEventListener.pas',
   u_NotifyWithGUIDEvent in 'u_NotifyWithGUIDEvent.pas',
@@ -492,8 +495,7 @@ uses
   frm_ImportConfigEdit in 'frm_ImportConfigEdit.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
-  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
-  u_TileDownloaderViaPHP in 'u_TileDownloaderViaPHP.pas';
+  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
 
 {$R *.res} {$R *Pics.res}
 begin

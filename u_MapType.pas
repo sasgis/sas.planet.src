@@ -1,7 +1,5 @@
 unit u_MapType;
 
-{$DEFINE USE_PHP_SCRIPT}
-
 interface
 
 uses
@@ -27,13 +25,8 @@ uses
   u_UrlGenerator,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract,
-  u_ResStrings
-
-{$IFDEF USE_PHP_SCRIPT}
-  ,u_TileDownloaderViaPHP
-{$ENDIF}
-
-  ;
+  u_TileDownloaderPhp,
+  u_ResStrings;
 
 type
   EBadGUID = class(Exception);
@@ -76,10 +69,8 @@ type
     FTileDownlodSessionFactory: ITileDownlodSessionFactory;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
+    FPhpTileDownloader: TTileDownloaderPhp;
 
-    {$IFDEF USE_PHP_SCRIPT}
-    FPhpScript: TPhpScript;
-    {$ENDIF}
 
     function GetUseDwn: Boolean;
     function GetZmpFileName: string;
@@ -638,10 +629,7 @@ begin
     try
       Result := FStorage.LoadTile(AXY, Azoom, FVersion, VFileStream, VTileInfo);
       if Result then begin
-        {.$WARN SYMBOL_PLATFORM OFF}
-        //FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileInfo.GetLoadDate));
-        {.$WARN SYMBOL_PLATFORM ON}
-        FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
+        FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileInfo.GetLoadDate));
       end;
     finally
       VFileStream.Free;
@@ -682,10 +670,7 @@ begin
     FLoadPrevMaxZoomDelta := 6;
   end;
 
-  {$IFDEF USE_PHP_SCRIPT}
-  FPhpScript := TPhpScript.Create(AConfig, FZMPFileName);
-  {$ENDIF}
-
+  FPhpTileDownloader := TTileDownloaderPhp.Create(AConfig, FZMPFileName);
 end;
 
 destructor TMapType.Destroy;
@@ -701,11 +686,7 @@ begin
   FPoolOfDownloaders := nil;
   FCache := nil;
   FreeAndNil(FStorage);
-
-  {$IFDEF USE_PHP_SCRIPT}
-  FreeAndNil(FPhpScript);
-  {$ENDIF}
-
+  FreeAndNil(FPhpTileDownloader);
   inherited;
 end;
 
@@ -718,17 +699,10 @@ var
   VDownloader: ITileDownlodSession;
 begin
   if Self.UseDwn then begin
-
-    {$IFDEF USE_PHP_SCRIPT}
-
-    if Assigned(FPhpScript) and FPhpScript.Enabled then begin
-
-      FPhpScript.UrlBase := FUrlGenerator.URLBase;
-      FPhpScript.DefUrlBase := FUrlGenerator.DefURLBase;
-      Result := FPhpScript.DownloadTile(ACheckTileSize, AOldTileSize, ATile, AZoom, AUrl, AContentType, fileBuf);
-
+    if Assigned(FPhpTileDownloader) and FPhpTileDownloader.Enabled then begin
+      FPhpTileDownloader.UrlBase := FUrlGenerator.URLBase;
+      Result := FPhpTileDownloader.DownloadTile(ACheckTileSize, AOldTileSize, ATile, AZoom, AUrl, AContentType, fileBuf);
     end else begin
-
       AUrl := GetLink(ATile, AZoom);
       VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
       if VPoolElement = nil then begin
@@ -743,7 +717,6 @@ begin
         Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
       end;
     end;
-
     if Result = dtrOK then begin
         SaveTileDownload(ATile, AZoom, fileBuf, AContentType);
     end else if Result = dtrTileNotExists then begin
@@ -751,32 +724,6 @@ begin
         SaveTileNotExists(ATile, AZoom);
       end;
     end;
-
-    {$ELSE}
-
-    AUrl := GetLink(ATile, AZoom);
-    VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
-    if VPoolElement = nil then begin
-      raise Exception.Create('No free connections');
-    end;
-    VDownloader := VPoolElement.GetObject as ITileDownlodSession;
-    if FAntiBan <> nil then begin
-      FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
-    end;
-    Result := VDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
-    if FAntiBan <> nil then begin
-      Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
-    end;
-    if Result = dtrOK then begin
-      SaveTileDownload(ATile, AZoom, fileBuf, AContentType);
-    end else if Result = dtrTileNotExists then begin
-      if GState.SaveTileNotExists then begin
-        SaveTileNotExists(ATile, AZoom);
-      end;
-    end;
-
-    {$ENDIF}
-
   end else begin
     raise Exception.Create('Для этой карты загрузка запрещена.');
   end;
