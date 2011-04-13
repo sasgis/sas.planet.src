@@ -9,6 +9,7 @@ uses
   MidasLib,
   RegExpr in 'src\RegExpr.pas',
   KAZip in 'src\KAZip.pas',
+  TarWriter in 'src\TarWriter.pas'
   ECWReader in 'src\ECWReader.pas',
   ECWwriter in 'src\ECWwriter.pas',
   SwinHttp in 'src\SwinHttp.pas',
@@ -92,6 +93,7 @@ uses
   u_ThreadRegionProcessAbstract in 'RegionProcess\u_ThreadRegionProcessAbstract.pas',
   u_ThreadExportAbstract in 'RegionProcess\u_ThreadExportAbstract.pas',
   u_ThreadExportToZip in 'RegionProcess\u_ThreadExportToZip.pas',
+  u_ThreadExportToTar in 'RegionProcess\u_ThreadExportToTar.pas',
   u_ThreadExportToFileSystem in 'RegionProcess\u_ThreadExportToFileSystem.pas',
   u_ThreadExportIPhone in 'RegionProcess\u_ThreadExportIPhone.pas',
   u_ThreadExportKML in 'RegionProcess\u_ThreadExportKML.pas',
@@ -461,6 +463,7 @@ uses
   u_ExportProviderAUX in 'RegionProcess\u_ExportProviderAUX.pas',
   fr_ExportToFileCont in 'RegionProcess\fr_ExportToFileCont.pas' {frExportToFileCont: TFrame},
   u_ExportProviderZip in 'RegionProcess\u_ExportProviderZip.pas',
+  u_ExportProviderTar in 'RegionProcess\u_ExportProviderTar.pas',
   fr_TilesDelete in 'RegionProcess\fr_TilesDelete.pas' {frTilesDelete: TFrame},
   u_ProviderTilesDelete in 'RegionProcess\u_ProviderTilesDelete.pas',
   fr_TilesGenPrev in 'RegionProcess\fr_TilesGenPrev.pas' {frTilesGenPrev: TFrame},

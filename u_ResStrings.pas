@@ -152,6 +152,7 @@ ResourceString
   SAS_STR_ExportIPhone64Caption = 'iPhone (Ниже v2.2 64х64)';
   SAS_STR_ExportAUXGeoServerCaption = 'AUX для GeoExpress Server';
   SAS_STR_ExportZipPackCaption = 'Упаковка в Zip';
+  SAS_STR_ExportTarPackCaption = 'Упаковка в Tar';
   SAS_STR_OperationDeleteCaption = 'Удаление';
   SAS_STR_OperationGenPrevCaption = 'Генерация верхних уровней';
   SAS_STR_OperationTilesCopyCaption = 'Копирование тайлов';

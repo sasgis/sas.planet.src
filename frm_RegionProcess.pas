@@ -81,6 +81,7 @@ uses
   u_ExportProviderIPhone,
   u_ExportProviderAUX,
   u_ExportProviderZip,
+  u_ExportProviderTar,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
@@ -214,6 +215,8 @@ begin
   VExportProvider := TExportProviderAUX.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   VExportProvider := TExportProviderZip.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderTar.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   CBFormat.ItemIndex := 0;
 end;

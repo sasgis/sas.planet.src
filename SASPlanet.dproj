@@ -320,6 +320,7 @@
     <DCCReference Include="RegionProcess\u_ExportProviderAUX.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderGEKml.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderIPhone.pas" />
+    <DCCReference Include="RegionProcess\u_ExportProviderTar.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderYaMaps.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderZip.pas" />
     <DCCReference Include="RegionProcess\u_ProviderMapCombine.pas" />
@@ -334,6 +335,7 @@
     <DCCReference Include="RegionProcess\u_ThreadExportKML.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToAUX.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToFileSystem.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportToTar.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToZip.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportYaMaps.pas" />
     <DCCReference Include="RegionProcess\u_ThreadGenPrevZoom.pas" />
@@ -360,6 +362,7 @@
     <DCCReference Include="src\Langs.pas" />
     <DCCReference Include="src\RegExpr.pas" />
     <DCCReference Include="src\SwinHttp.pas" />
+    <DCCReference Include="src\TarWriter.pas" />
     <DCCReference Include="src\u_FileNameIteratorFolderWithSubfolders.pas" />
     <DCCReference Include="src\u_FileNameIteratorInFolderByMask.pas" />
     <DCCReference Include="src\u_FileNameIteratorInFolderByMaskList.pas" />
