@@ -9,7 +9,7 @@ uses
   MidasLib,
   RegExpr in 'src\RegExpr.pas',
   KAZip in 'src\KAZip.pas',
-  TarWriter in 'src\TarWriter.pas'
+  TarWriter in 'src\TarWriter.pas',
   ECWReader in 'src\ECWReader.pas',
   ECWwriter in 'src\ECWwriter.pas',
   SwinHttp in 'src\SwinHttp.pas',
