@@ -27,6 +27,7 @@ var
   UnZip: TKAZip;
   VMemStream: TMemoryStream;
   VStreamKml: TMemoryStream;
+  VIndex: Integer;
 begin
   UnZip := TKAZip.Create(nil);
   try
@@ -36,7 +37,11 @@ begin
       UnZip.Open(VMemStream);
       VStreamKml := TMemoryStream.Create;
       try
-        UnZip.Entries.Items[0].ExtractToStream(VStreamKml);
+        VIndex := UnZip.Entries.IndexOf('doc.kml');
+        if VIndex < 0 then begin
+          VIndex := 0;
+        end;
+        UnZip.Entries.Items[VIndex].ExtractToStream(VStreamKml);
         inherited LoadFromStream(VStreamKml, ABtm);
       finally
         VStreamKml.Free;
