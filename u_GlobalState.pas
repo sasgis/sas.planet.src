@@ -442,7 +442,7 @@ begin
     FGeoCoderList,
     FMainMapsList.MapsList,
     FMainMapsList.LayersList,
-    FMainMapsList[0].GUID
+    FMainMapsList.FirstMainMap.GUID
   );
 
   VSensorsGenerator :=

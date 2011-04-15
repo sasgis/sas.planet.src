@@ -19,6 +19,7 @@ type
     function GetCount: Integer;
     function LoadGUID(AConfig : IConfigDataProvider): TGUID;
     procedure BuildMapsLists;
+    function GetFirstMainMap: TMapType;
   public
     destructor Destroy; override;
     property Items[Index : Integer]: TMapType read GetMapType; default;
@@ -26,6 +27,7 @@ type
     property FullMapsList: IMapTypeList read FFullMapsList;
     property MapsList: IMapTypeList read FMapsList;
     property LayersList: IMapTypeList read FLayersList;
+    property FirstMainMap: TMapType read GetFirstMainMap;
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
     procedure LoadMaps(ALocalMapsConfig: IConfigDataProvider; AMapsPath: string);
     function GetMapFromID(id: TGUID): TMapType;
@@ -62,6 +64,21 @@ end;
 function TMapTypesMainList.GetCount: Integer;
 begin
   Result := Length(FMapType);
+end;
+
+function TMapTypesMainList.GetFirstMainMap: TMapType;
+var
+  i: integer;
+  VMapType: TMapType;
+begin
+  Result := nil;
+  for i := 0 to length(FMapType) - 1 do begin
+    VMapType := FMapType[i];
+    if not VMapType.asLayer then begin
+      result := VMapType;
+      exit;
+    end;
+  end;
 end;
 
 function TMapTypesMainList.GetMapFromID(id: TGUID): TMapType;

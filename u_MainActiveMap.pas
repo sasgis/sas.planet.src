@@ -138,11 +138,13 @@ end;
 
 procedure TMainActiveMap.SelectMainByGUID(AMapGUID: TGUID);
 begin
-  LockWrite;
-  try
-    FMainMapChangeNotyfier.NotifyByGUID(AMapGUID);
-  finally
-    UnlockWrite;
+  if FMapsList.GetMapTypeByGUID(AMapGUID) <> nil then begin
+    LockWrite;
+    try
+      FMainMapChangeNotyfier.NotifyByGUID(AMapGUID);
+    finally
+      UnlockWrite;
+    end;
   end;
 end;
 
