@@ -326,6 +326,8 @@ type
     TBXVisibilityToggleItem2: TTBXVisibilityToggleItem;
     TBXSeparatorItem13: TTBXSeparatorItem;
     NSignalStrengthBar: TTBXVisibilityToggleItem;
+    TBXSeparatorItem18: TTBXSeparatorItem;
+    NBlock_toolbars: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -451,6 +453,7 @@ type
     procedure TBScreenSelectClick(Sender: TObject);
     procedure NSensorsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure NBlock_toolbarsClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1441,6 +1444,7 @@ begin
   tbitmGPSCenterMap.Checked:=TBGPSToPoint.Checked;
   TBGPSToPointCenter.Checked:=FConfig.GPSBehaviour.MapMoveCentered;
   tbitmGPSToPointCenter.Checked:=TBGPSToPointCenter.Checked;
+  NBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
 
   TBHideMarks.Checked := not(FConfig.LayersConfig.MarksShowConfig.IsUseMarks);
 
@@ -2039,6 +2043,11 @@ end;
 procedure TfrmMain.NbackloadLayerClick(Sender: TObject);
 begin
   GState.ViewConfig.UsePrevZoomAtLayer := NbackloadLayer.Checked;
+end;
+
+procedure TfrmMain.NBlock_toolbarsClick(Sender: TObject);
+begin
+  GState.MainFormConfig.ToolbarsLock.SetLock(NBlock_toolbars.Checked);
 end;
 
 procedure TfrmMain.NaddPointClick(Sender: TObject);

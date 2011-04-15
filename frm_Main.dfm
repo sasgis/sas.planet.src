@@ -439,6 +439,16 @@ object frmMain: TfrmMain
               Hint = ''
             end
           end
+          object TBXSeparatorItem18: TTBXSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          object NBlock_toolbars: TTBXItem
+            AutoCheck = True
+            OnClick = NBlock_toolbarsClick
+            Caption = #1047#1072#1082#1088#1077#1087#1080#1090#1100' '#1087#1072#1085#1077#1083#1080' '#1080#1085#1089#1090#1088#1091#1084#1077#1085#1090#1086#1074
+            Hint = ''
+          end
         end
         object N31: TTBXSubmenuItem
           Caption = #1069#1083#1077#1084#1077#1085#1090#1099' '#1080#1085#1090#1077#1088#1092#1077#1081#1089#1072
