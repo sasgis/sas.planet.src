@@ -42,6 +42,7 @@ begin
   inherited;
   FVisible := False;
   FBitmap := TCustomBitmap32.Create;
+  CreateBitmap;
 end;
 
 procedure TCenterScaleConfig.CreateBitmap;
