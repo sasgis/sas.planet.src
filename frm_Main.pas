@@ -741,7 +741,7 @@ begin
 
     tbitmShowDebugInfo.Visible := GState.ShowDebugInfo;
 
-    FMainLayer := TMapMainLayer.Create(map, FConfig.ViewPortState, FConfig.MainMapsConfig);
+    FMainLayer := TMapMainLayer.Create(map, FConfig.ViewPortState, FConfig.MainMapsConfig, GState.BitmapPostProcessingConfig);
     FLayersList.Add(FMainLayer);
     FLayerGrids := TMapLayerGrids.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig);
     FLayersList.Add(FLayerGrids);

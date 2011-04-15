@@ -11,6 +11,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,
+  i_BitmapPostProcessingConfig,
   u_MapLayerShowError,
   u_MapType,
   u_MapLayerBasic;
@@ -31,7 +32,8 @@ type
     procedure OnLayerSetChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig;
+                       APostProcessingConfig:IBitmapPostProcessingConfig);
     procedure StartThreads; override;
     property ErrorShowLayer: TTileErrorInfoLayer read FErrorShowLayer write FErrorShowLayer;
   end;
@@ -44,7 +46,6 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   i_TileIterator,
-  i_BitmapPostProcessingConfig,
   u_ResStrings,
   u_TileIteratorByRect,
   u_NotifyEventListener,
@@ -53,7 +54,8 @@ uses
 { TMapMainLayer }
 
 constructor TMapMainLayer.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig);
+  AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig;
+  APostProcessingConfig:IBitmapPostProcessingConfig);
 begin
   inherited Create(AParentMap, AViewPortState);
   FMapsConfig := AMapsConfig;
@@ -75,7 +77,7 @@ begin
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
-    GState.BitmapPostProcessingConfig.GetChangeNotifier
+    APostProcessingConfig.GetChangeNotifier
   );
 end;
 

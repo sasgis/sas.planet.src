@@ -20,9 +20,9 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
   i_MiniMapLayerConfig,
+  i_BitmapPostProcessingConfig,
   u_MapType,
-  u_WindowLayerWithPos,
-  i_BitmapPostProcessingConfig;
+  u_WindowLayerWithPos;
 
 type
   TMiniMapLayer = class(TWindowLayerFixedSizeWithBitmap)
@@ -89,7 +89,7 @@ type
   public
     procedure StartThreads; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig; PostProcessingConfig:IBitmapPostProcessingConfig);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig; APostProcessingConfig:IBitmapPostProcessingConfig);
     destructor Destroy; override;
     property BottomMargin: Integer read FBottomMargin write FBottomMargin;
   end;
@@ -114,7 +114,7 @@ uses
 
 { TMapMainLayer }
 
-constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig; PostProcessingConfig:IBitmapPostProcessingConfig);
+constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig; APostProcessingConfig:IBitmapPostProcessingConfig);
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
@@ -141,7 +141,7 @@ begin
   );
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
-    PostProcessingConfig.GetChangeNotifier
+    APostProcessingConfig.GetChangeNotifier
   );
 end;
 
