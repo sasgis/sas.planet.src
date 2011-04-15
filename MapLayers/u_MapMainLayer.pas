@@ -72,6 +72,11 @@ begin
     TNotifyEventListener.Create(Self.OnConfigChange),
     GState.ViewConfig.GetChangeNotifier
   );
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    GState.BitmapPostProcessingConfig.GetChangeNotifier
+  );
 end;
 
 procedure TMapMainLayer.DoRedraw;

@@ -139,6 +139,10 @@ begin
     TNotifyEventListener.Create(Self.OnConfigChange),
     GState.ViewConfig.GetChangeNotifier
   );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    GState.BitmapPostProcessingConfig.GetChangeNotifier
+  );
 end;
 
 destructor TMiniMapLayer.Destroy;
