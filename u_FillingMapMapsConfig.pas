@@ -49,6 +49,8 @@ begin
 
   FSelectedMapChangeListener := TNotifyWithGUIDEventListener.Create(Self.OnSelectedChange);
   MainMapChangeNotyfier.Add(FSelectedMapChangeListener);
+
+  SetActualMap(FMainMapsConfig.GetSelectedMapType);
 end;
 
 destructor TFillingMapMapsConfig.Destroy;
