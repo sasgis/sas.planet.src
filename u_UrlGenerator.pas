@@ -265,6 +265,7 @@ begin
     Sender.AddDelphiFunction('function RegExprReplaceMatchSubStr(const Str, MatchExpr, Replace: string): string');
     Sender.AddDelphiFunction('function SetHeaderValue(AHeaders, AName, AValue: string): string');
     Sender.AddDelphiFunction('function GetHeaderValue(AHeaders, AName: string): string');
+    Sender.AddDelphiFunction('function DoRequest(const AHost, ADoc, ARequestHeader, APostData: AnsiString; UseSSL: Boolean; out AResponseHeader, AResponseData: AnsiString): Cardinal');
     Result := True;
   end else begin
     Result := False;
@@ -315,6 +316,7 @@ begin
   FExec.RegisterDelphiFunction(@RegExprReplaceMatchSubStr, 'RegExprReplaceMatchSubStr', cdRegister);
   FExec.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
   FExec.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
+  FExec.RegisterDelphiFunction(@DoRequest, 'DoRequest', cdRegister);
 
   if not FExec.LoadData(VData) then begin // Load the data from the Data string.
     raise Exception.Create(SAS_ERR_UrlScriptByteCodeLoad);

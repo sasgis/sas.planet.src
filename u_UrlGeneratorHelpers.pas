@@ -13,13 +13,18 @@ function RegExprGetMatchSubStr(const AStr, AMatchExpr: string; AMatchID: Integer
 function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
 function SetHeaderValue(AHeaders, AName, AValue: string): string;
 function GetHeaderValue(AHeaders, AName: string): string;
+function DoRequest(const AHost, ADoc, ARequestHeader, APostData: AnsiString; UseSSL: Boolean; out AResponseHeader, AResponseData: AnsiString): Cardinal;
 
 implementation
 
 uses
+  Windows,
+  Classes,
   SysUtils,
   DateUtils,
-  RegExpr;
+  RegExpr,
+  WinInet,
+  u_GlobalState;
 
 function Rand(X: Integer): Integer;
 begin
@@ -184,5 +189,174 @@ begin
     Result := '';
 end;
 
+function DoRequest(const AHost, ADoc, ARequestHeader, APostData: AnsiString; UseSSL: Boolean; out AResponseHeader, AResponseData: AnsiString): Cardinal;
+var
+  aBuffer     : array [0..4096] of Char;
+  BufStream   : TMemoryStream;
+  sMethod     : AnsiString;
+  BytesRead   : Cardinal;
+  pSession    : HINTERNET;
+  pConnection : HINTERNET;
+  pRequest    : HINTERNET;
+  Port        : Integer;
+  flags       : DWORD;
+  dwIndex     : Cardinal;
+  VBufSize    : Cardinal;
+  VStatusCode : Cardinal;
+  //VTimeOut    : Cardinal; // TODO
+  VUseIE      : Boolean;
+  VUseProxy   : Boolean;
+  VProxyHost  : string;
+  VUselogin   : Boolean;
+  VLogin      : string;
+  VPassword   : string;
+begin
+  try
+    Result := 9; // dtrUnknownError
+
+      GState.InetConfig.LockWrite;
+    try
+      //VTimeOut := GState.InetConfig.GetTimeOut;
+      VUseIE := GState.InetConfig.ProxyConfig.GetUseIESettings;
+      if not VUseIE  then
+      begin
+        VUseProxy := GState.InetConfig.ProxyConfig.GetUseProxy;
+        if VUseProxy then
+        begin
+          VProxyHost := GState.InetConfig.ProxyConfig.GetHost;
+          VUselogin := GState.InetConfig.ProxyConfig.GetUseLogin;
+          if VUselogin then
+          begin
+            VLogin := GState.InetConfig.ProxyConfig.GetLogin;
+            VPassword := GState.InetConfig.ProxyConfig.GetPassword;
+          end;
+        end;
+      end
+      else
+        VUselogin := False;
+    finally
+      GState.InetConfig.UnlockWrite;
+    end;
+
+    if VUseIE then
+      pSession := InternetOpen(nil, INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0)
+    else
+      if VUseProxy then
+      begin
+        pSession := InternetOpen(nil, INTERNET_OPEN_TYPE_PROXY, PChar(VProxyHost), nil, 0);
+        if Assigned(pSession) and VUselogin then
+        begin
+          InternetSetOption(pSession, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), Length(VLogin));
+          InternetSetOption(pSession, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), Length(VPassword));
+        end;
+      end
+      else
+        pSession := InternetOpen(nil, INTERNET_OPEN_TYPE_DIRECT, nil, nil, 0);
+
+    if Assigned(pSession) then
+    try
+      if UseSSL then
+        Port := INTERNET_DEFAULT_HTTPS_PORT
+      else
+        Port := INTERNET_DEFAULT_HTTP_PORT;
+
+      pConnection := InternetConnect(pSession, PChar(AHost), Port, nil, nil, INTERNET_SERVICE_HTTP, 0, 0);
+
+      if Assigned(pConnection) then
+      try
+        if (APostData = '') then
+          sMethod := 'GET'
+        else
+          sMethod := 'POST';
+
+        if UseSSL then
+          flags := INTERNET_FLAG_SECURE or INTERNET_FLAG_NO_COOKIES
+        else
+          flags := INTERNET_SERVICE_HTTP or INTERNET_FLAG_NO_COOKIES;
+
+        pRequest := HTTPOpenRequest(pConnection, PChar(sMethod), PChar(ADoc), nil, nil, nil, flags, 0);
+
+        if Assigned(pRequest) then
+        try
+          HttpAddRequestHeaders(pRequest, PChar(ARequestHeader), Length(ARequestHeader), HTTP_ADDREQ_FLAG_ADD);
+
+          if HTTPSendRequest(pRequest, nil, 0, Pointer(APostData), Length(APostData)) then
+          begin
+
+            // Response Status Code
+            try
+              VBufSize := sizeof(VStatusCode);
+              dwIndex := 0;
+              if HttpQueryInfo(pRequest, HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER, @VStatusCode, VBufSize, dwIndex) then
+              begin
+                Result := VStatusCode;
+              end
+              else
+                Exit;
+            except
+
+            end;
+
+            // Headers
+            try
+              AResponseHeader := '';
+              VBufSize := 1024;
+              SetLength(AResponseHeader, VBufSize);
+              FillChar(AResponseHeader[1], VBufSize, 0);
+              dwIndex := 0;
+              if not HttpQueryInfo(pRequest, HTTP_QUERY_RAW_HEADERS_CRLF, @AResponseHeader[1], VBufSize, dwIndex) then
+              begin
+                if GetLastError = ERROR_INSUFFICIENT_BUFFER then
+                begin
+                  SetLength(AResponseHeader, VBufSize);
+                  FillChar(AResponseHeader[1], VBufSize, 0);
+                  dwIndex := 0;
+                  if not HttpQueryInfo(pRequest, HTTP_QUERY_RAW_HEADERS_CRLF, @AResponseHeader[1], VBufSize, dwIndex) then
+                    AResponseHeader := ''
+                  else
+                    SetLength(AResponseHeader, VBufSize);
+                end
+                else
+                  AResponseHeader := '';
+              end
+              else
+                SetLength(AResponseHeader, VBufSize);
+            except
+              AResponseHeader := '';
+            end;
+
+            // Body
+              BufStream := TMemoryStream.Create;
+            try
+              while InternetReadFile(pRequest, @aBuffer, SizeOf(aBuffer), BytesRead) do
+              begin
+                if (BytesRead = 0) then
+                  Break;
+                BufStream.Write(aBuffer, BytesRead);
+              end;
+              SetLength(AResponseData, BufStream.Size);
+              FillChar(AResponseData[1], Length(AResponseData), 0);
+              BufStream.Position := 0;
+              BufStream.Read(Pointer(AResponseData)^, Length(AResponseData));
+            finally
+              BufStream.Free;
+            end;
+
+          end;
+        finally
+          InternetCloseHandle(pRequest);
+        end;
+      finally
+        InternetCloseHandle(pConnection);
+      end;
+    finally
+      InternetCloseHandle(pSession);
+    end
+    else
+      Result := 2; // dtrErrorInternetOpen
+  except
+
+  end;
+end;
 
 end.
