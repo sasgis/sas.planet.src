@@ -18,19 +18,21 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 0
     Top = 0
     Width = 577
-    Height = 358
+    Height = 352
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitHeight = 358
     object pnlButtons: TPanel
       AlignWithMargins = True
       Left = 497
       Top = 3
       Width = 77
-      Height = 352
+      Height = 346
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 352
       object btnExport: TTBXButton
         AlignWithMargins = True
         Left = 3
@@ -86,57 +88,66 @@ object frmMarksExplorer: TfrmMarksExplorer
       Left = 0
       Top = 0
       Width = 494
-      Height = 358
+      Height = 352
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 358
       object splCatMarks: TSplitter
-        Left = 178
+        Left = 181
         Top = 0
-        Height = 358
+        Height = 352
         ExplicitLeft = 237
         ExplicitTop = 14
         ExplicitHeight = 331
       end
       object grpMarks: TGroupBox
-        Left = 181
+        Left = 184
         Top = 0
-        Width = 313
-        Height = 358
+        Width = 310
+        Height = 352
         Align = alClient
         Caption = ' '#1052#1077#1090#1082#1080' '
         TabOrder = 0
+        ExplicitLeft = 181
+        ExplicitWidth = 313
+        ExplicitHeight = 358
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
           Top = 46
-          Width = 303
-          Height = 284
+          Width = 300
+          Height = 278
           OnClickCheck = MarksListBoxClickCheck
           Align = alClient
           ItemHeight = 13
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
+          ExplicitWidth = 303
+          ExplicitHeight = 284
         end
         object CheckBox1: TCheckBox
           AlignWithMargins = True
           Left = 5
-          Top = 336
-          Width = 303
+          Top = 330
+          Width = 300
           Height = 17
           Align = alBottom
           Caption = #1042#1089#1077
           TabOrder = 1
           OnClick = CheckBox1Click
+          ExplicitTop = 336
+          ExplicitWidth = 303
         end
         object TBXDockMark: TTBXDock
           Left = 2
           Top = 15
-          Width = 309
+          Width = 306
           Height = 28
           AllowDrag = False
           UseParentBackground = True
+          ExplicitWidth = 309
           object TBXToolbar1: TTBXToolbar
             Left = 0
             Top = 0
@@ -199,30 +210,37 @@ object frmMarksExplorer: TfrmMarksExplorer
         end
       end
       object grpCategory: TGroupBox
-        Left = 0
+        AlignWithMargins = True
+        Left = 3
         Top = 0
         Width = 178
-        Height = 358
+        Height = 352
+        Margins.Top = 0
+        Margins.Right = 0
+        Margins.Bottom = 0
         Align = alLeft
         Caption = ' '#1050#1072#1090#1077#1075#1086#1088#1080#1080' '#1084#1077#1090#1086#1082' '
         TabOrder = 1
+        ExplicitLeft = 0
+        ExplicitHeight = 358
         object CheckBox2: TCheckBox
           AlignWithMargins = True
           Left = 5
-          Top = 336
+          Top = 330
           Width = 168
           Height = 17
           Align = alBottom
           Caption = #1042#1089#1077
           TabOrder = 0
           OnClick = CheckBox2Click
+          ExplicitTop = 336
         end
         object TreeView1: TTreeView
           AlignWithMargins = True
           Left = 5
           Top = 46
           Width = 168
-          Height = 284
+          Height = 278
           Align = alClient
           Indent = 19
           ReadOnly = True
@@ -231,6 +249,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           OnChange = TreeView1Change
           OnKeyUp = TreeView1KeyUp
           OnMouseUp = TreeView1MouseUp
+          ExplicitHeight = 284
         end
         object TBXDockCategory: TTBXDock
           Left = 2
@@ -286,16 +305,19 @@ object frmMarksExplorer: TfrmMarksExplorer
     end
   end
   object rgMarksShowMode: TRadioGroup
-    Left = 0
-    Top = 358
-    Width = 577
+    AlignWithMargins = True
+    Left = 3
+    Top = 355
+    Width = 571
     Height = 69
     Align = alBottom
+    Ctl3D = True
     ItemIndex = 0
     Items.Strings = (
       #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1091#1082#1072#1079#1072#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
       #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
       #1053#1077' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1084#1077#1090#1082#1080)
+    ParentCtl3D = False
     TabOrder = 1
   end
   object OpenDialog1: TOpenDialog
