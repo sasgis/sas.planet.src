@@ -163,14 +163,10 @@ begin
     FTempBitmap.DrawMode := dmBlend;
     ATargetBitmap.Draw(0, 0, FTempBitmap);
   end;
-  if FMarksImageProvider <> nil then begin
-    FTempBitmap.SetSize(VSize.X, VSize.Y);
-    FTempBitmap.Clear(0);
-    FMarksImageProvider.GetBitmapRect(FTempBitmap, AConverter);
-    FTempBitmap.DrawMode := dmBlend;
-    ATargetBitmap.Draw(0, 0, FTempBitmap);
-  end;
   ProcessRecolor(ATargetBitmap);
+  if FMarksImageProvider <> nil then begin
+    FMarksImageProvider.GetBitmapRect(ATargetBitmap, AConverter);
+  end;
 end;
 
 procedure TThreadMapCombineBase.ProcessRecolor(Bitmap: TCustomBitmap32);
