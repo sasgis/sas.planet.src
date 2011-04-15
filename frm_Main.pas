@@ -779,7 +779,7 @@ begin
     FLayersList.Add(FLayerScaleLine);
     FLayerStatBar:=TLayerStatBar.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.StatBar);
     FLayersList.Add(FLayerStatBar);
-    FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MiniMapLayerConfig);
+    FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MiniMapLayerConfig, GState.BitmapPostProcessingConfig);
     FLayersList.Add(FLayerMiniMap);
     FMainLayer.ErrorShowLayer := FShowErrorLayer;
 
