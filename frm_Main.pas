@@ -550,6 +550,8 @@ type
 
     procedure PaintZSlider(zoom:integer);
     procedure SetToolbarsLock(AValue: Boolean);
+
+    Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
   public
     MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
@@ -1930,6 +1932,13 @@ procedure TfrmMain.NZoomOutClick(Sender: TObject);
 begin
  zooming(FConfig.ViewPortState.GetCurrentZoom - 1, false);
 end;
+
+
+Procedure TfrmMain.FormMove(Var Msg: TWMMove);
+Begin
+  Inherited;
+  FormResize(self);
+End;
 
 procedure TfrmMain.FormResize(Sender: TObject);
 begin
