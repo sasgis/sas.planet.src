@@ -363,6 +363,7 @@
     <DCCReference Include="src\RegExpr.pas" />
     <DCCReference Include="src\SwinHttp.pas" />
     <DCCReference Include="src\TarWriter.pas" />
+    <DCCReference Include="src\TBXSASTheme.pas" />
     <DCCReference Include="src\u_FileNameIteratorFolderWithSubfolders.pas" />
     <DCCReference Include="src\u_FileNameIteratorInFolderByMask.pas" />
     <DCCReference Include="src\u_FileNameIteratorInFolderByMaskList.pas" />

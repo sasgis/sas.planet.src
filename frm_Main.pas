@@ -38,6 +38,7 @@ uses
   TBXControls,
   TBXExtItems,
   TBXGraphics,
+  TBXSASTheme,
   u_CommonFormAndFrameParents,
   i_JclNotify,
   i_GUIDList,
@@ -688,6 +689,7 @@ begin
   ProgramStart:=true;
   Application.Title:=Caption;
   Caption:=Caption+' '+SASVersion;
+  TBXSetTheme('SAStbxTheme');
 
   VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
   FWinPosition.ReadConfig(VProvider);
