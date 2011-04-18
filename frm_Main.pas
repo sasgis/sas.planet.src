@@ -1169,6 +1169,9 @@ begin
   Result.Add(N006);
   Result.Add(N007);
   Result.Add(NFillMap);
+  if not GState.ShowDebugInfo then begin
+    Result.Add(tbitmShowDebugInfo);
+  end; 
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
