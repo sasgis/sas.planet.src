@@ -15,6 +15,7 @@ uses
   SwinHttp in 'src\SwinHttp.pas',
   gnugettext in 'src\gnugettext.pas',
   Langs in 'src\Langs.pas',
+  TBXSASTheme in 'src\TBXSASTheme.pas',
   u_WideStrings in 'src\u_WideStrings.pas',
   c_ZeroGUID in 'src\c_ZeroGUID.pas',
   cUnicode in 'src\cUnicode.pas',
@@ -498,8 +499,7 @@ uses
   frm_ImportConfigEdit in 'frm_ImportConfigEdit.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
-  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
-  TBXSASTheme in 'src\TBXSASTheme.pas';
+  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
 
 {$R *.res} {$R *Pics.res}
 begin
@@ -538,7 +538,7 @@ begin
   Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
   Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
   Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
-  if GState.ShowDebugInfo then begin
+    if GState.ShowDebugInfo then begin
       Application.CreateForm(TfrmDebugInfo, frmDebugInfo);
     end;
     GState.StartExceptionTracking;
