@@ -115,10 +115,14 @@ var
   VDownloadResult: TDownloadTileResult;
 begin
   if not Assigned(FSessionHandle) then
-  try
-    if Assigned(AOnDownloadEvent) then
-      AOnDownloadEvent(AParentThreadEvent, dtrErrorInternetOpen, AXY, AZoom, '', nil);
-  finally
+  begin
+    try
+      if Assigned(AOnDownloadEvent) then
+        AOnDownloadEvent(AParentThreadEvent, dtrErrorInternetOpen, AXY, AZoom, '', nil);
+    except
+
+    end;
+
     Exit;
   end;
 

@@ -16,6 +16,7 @@ uses
   i_MapTypes,
   i_TileDownlodSession,
   i_DownloadUIConfig,
+  u_TileDownloaderEventProcessor,
   u_MapLayerShowError,
   u_MapType;
 
@@ -25,8 +26,6 @@ type
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
     FViewPortState: IViewPortState;
-    FMapTileUpdateEvent: TMapTileUpdateEvent;
-    FErrorShowLayer: TTileErrorInfoLayer;
 
     FTileMaxAgeInInternet: TDateTime;
     FTilesOut: Integer;
@@ -40,15 +39,18 @@ type
 
     FMapType: TMapType;
     FLoadXY: TPoint;
-    FErrorString: string;
 
-    class function GetErrStr(Aerr: TDownloadTileResult): string; virtual;
+    FEventProcessor: TTileDownloaderEventProcessor;
+    FMaxRequestCount: Integer;
+    FCurRequestCount: Integer;
+
     procedure GetCurrentMapAndPos;
     procedure OnPosChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure Execute; override;
   public
+    OnTileDownload: TParentThreadEvent;
     constructor Create(
       AConfig: IDownloadUIConfig;
       AViewPortState: IViewPortState;
@@ -72,8 +74,7 @@ uses
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   i_TileIterator,
-  u_TileIteratorSpiralByRect,
-  u_ResStrings;
+  u_TileIteratorSpiralByRect;
 
 constructor TTileDownloaderUI.Create(
   AConfig: IDownloadUIConfig;
@@ -89,10 +90,13 @@ begin
   FConfig := AConfig;
   FViewPortState := AViewPortState;
   FMapsSet := AMapsSet;
-  FMapTileUpdateEvent := AMapTileUpdateEvent;
-  FErrorShowLayer := AErrorShowLayer;
   FViewPortState := AViewPortState;
   FLinksList := TJclListenerNotifierLinksList.Create;
+
+  FEventProcessor := TTileDownloaderEventProcessor.Create(AMapTileUpdateEvent, AErrorShowLayer);
+  FMaxRequestCount := 4;
+  FCurRequestCount := 0;
+  OnTileDownload := OnTileDownloadEvent;
 
   Priority := tpLower;
   FUseDownload := tsCache;
@@ -119,7 +123,7 @@ var
   VWaitResult: DWORD;
 begin
   FLinksList := nil;
-
+  FEventProcessor.Terminate;
   VWaitResult := WaitForSingleObject(Handle, 10000);
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(Handle, 0);
@@ -138,40 +142,6 @@ procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
   FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
   FActiveMapsList := FMapsSet.GetSelectedMapsList;
-end;
-
-class function TTileDownloaderUI.GetErrStr(Aerr: TDownloadTileResult): string;
-begin
-  case Aerr of
-    dtrProxyAuthError:
-    begin
-      result := SAS_ERR_Authorization;
-    end;
-    dtrBanError:
-    begin
-      result := SAS_ERR_Ban;
-    end;
-    dtrTileNotExists:
-    begin
-      result := SAS_ERR_TileNotExists;
-    end;
-    dtrDownloadError,
-    dtrErrorInternetOpen,
-    dtrErrorInternetOpenURL:
-    begin
-      result := SAS_ERR_Noconnectionstointernet;
-    end;
-    dtrErrorMIMEType:
-    begin
-      result := SAS_ERR_TileDownloadContentTypeUnexpcted;
-    end;
-    dtrUnknownError:
-    begin
-      Result := SAS_ERR_TileDownloadUnexpectedError;
-    end else begin
-    result := '';
-  end;
-  end;
 end;
 
 procedure TTileDownloaderUI.OnConfigChange(Sender: TObject);
@@ -203,36 +173,17 @@ begin
 end;
 
 procedure TTileDownloaderUI.OnTileDownloadEvent(AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult);
-//var
-//  VErrorString: string;
 begin
-  // TODO: отправить данные в поток TTileDownloaderEventProcessor
-
-  {
-  VErrorString := GetErrStr(AResult);
-  if (AResult = dtrOK) or (AResult = dtrSameTileSize) then begin
-    GState.DownloadInfo.Add(1, ATileSize);
-  end;
-  if VErrorString <> '' then begin
-    if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.ShowError(ATile, AZoom, AMapType, VErrorString);
-    end;
-  end else begin
-    if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.Visible := False;
-    end;
-    if Addr(FMapTileUpdateEvent) <> nil then begin
-      FMapTileUpdateEvent(AMapType, AZoom, ATile);
-    end;
-  end;
-   }
+  InterlockedDecrement(FCurRequestCount);
+  if FCurRequestCount < 0 then
+    FCurRequestCount := 0;
+  
+  if Assigned(FEventProcessor) then
+    FEventProcessor.Process(AMapType, ATile, AZoom, ATileSize, AResult);
 end;
 
 procedure TTileDownloaderUI.Execute;
 var
-  ty: string;
-  fileBuf: TMemoryStream;
-  res: TDownloadTileResult;
   VNeedDownload: Boolean;
   VIterator: ITileIterator;
   VTile: TPoint;
@@ -249,11 +200,9 @@ var
   VGUID: TGUID;
   i: Cardinal;
   VMap: IMapType;
-  VLoadUrl: string;
   VIteratorsList: IInterfaceList;
   VMapsList: IInterfaceList;
   VAllIteratorsFinished: Boolean;
-  VOnTileDownloadEvent: TParentThreadEvent;
 begin
   VIteratorsList := TInterfaceList.Create;
   VMapsList := TInterfaceList.Create;
@@ -353,8 +302,11 @@ begin
                 end;
                 if VNeedDownload then
                 try
-                  VOnTileDownloadEvent := OnTileDownloadEvent;
-                  FMapType.DownloadTile(@VOnTileDownloadEvent, FLoadXY, VZoom, false, 0);
+                  while FCurRequestCount >= FMaxRequestCount do begin
+                    Sleep(30);
+                  end;
+                  FMapType.DownloadTile(@OnTileDownload, FLoadXY, VZoom, false, 0);
+                  InterlockedIncrement(FCurRequestCount);
                 except
 
                 end;

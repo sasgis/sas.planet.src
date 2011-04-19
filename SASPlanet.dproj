@@ -590,6 +590,7 @@
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
     <DCCReference Include="u_TileDownloaderBase.pas" />
     <DCCReference Include="u_TileDownloaderBaseFactory.pas" />
+    <DCCReference Include="u_TileDownloaderEventProcessor.pas" />
     <DCCReference Include="u_TileDownloaderFrontEnd.pas" />
     <DCCReference Include="u_TileDownloaderThreadBase.pas" />
     <DCCReference Include="u_TileDownloaderUI.pas" />
