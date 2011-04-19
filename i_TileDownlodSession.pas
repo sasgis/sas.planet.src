@@ -9,9 +9,12 @@ uses
 type
   TDownloadTileResult = (dtrOK, dtrSameTileSize, dtrErrorInternetOpen, dtrErrorInternetOpenURL, dtrProxyAuthError, dtrErrorMIMEType, dtrDownloadError, dtrTileNotExists, dtrBanError, dtrUnknownError);
 
+  TOnDownloadEvent = procedure (AParentThreadEvent: Pointer; ADownloadResult: TDownloadTileResult; ATile: TPoint; AZoom: Byte; AContentType: string; fileBuf: TMemoryStream) of object;
+
   ITileDownlodSession = interface
     ['{2F41E328-BD28-4893-AAC5-8DC93FCC2BCF}']
-    function DownloadTile(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult;
+    function DownloadTile(AParentThreadEvent: Pointer; ATile: TPoint; AZoom: Byte; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; AOnDownloadEvent: TOnDownloadEvent): TDownloadTileResult;
+    function GetLink(AXY: TPoint; AZoom: Byte): string;
   end;
 
   ITileDownlodSessionFactory = interface

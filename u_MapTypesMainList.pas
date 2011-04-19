@@ -269,8 +269,8 @@ begin
       VSubItem.DeleteValue('NameInCache');
     end;
 
-    if VMapType.DownloaderFactory.WaitInterval <> VMapType.DefSleep then begin
-      VSubItem.WriteInteger('Sleep', VMapType.DownloaderFactory.WaitInterval);
+    if VMapType.WaitInterval <> VMapType.DefSleep then begin
+      VSubItem.WriteInteger('Sleep', VMapType.WaitInterval);
     end else begin
       VSubItem.DeleteValue('Sleep');
     end;

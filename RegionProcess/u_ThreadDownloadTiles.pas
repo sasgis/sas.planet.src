@@ -251,6 +251,7 @@ var
   VTile: TPoint;
   VTileIterator: ITileIterator;
 begin
+  {
   FStartTime := Now;
 
   VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, FMapType.GeoConvert);
@@ -385,6 +386,7 @@ begin
     FLog.WriteText(FRES_ProcessFilesComplete, 0);
     FFinished := true;
   end;
+  }
 end;
 
 procedure TThreadDownloadTiles.DownloadPause;

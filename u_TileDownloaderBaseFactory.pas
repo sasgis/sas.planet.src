@@ -20,6 +20,7 @@ type
 
   TTileDownloaderFactory = class(TTileDownloaderFactoryBase, ISimpleFactory)
   private
+    FConfig: IConfigDataProvider;
     FIgnoreContent_Type: Boolean;
     FContent_Type: string;
     FDefaultContent_Type: string;
@@ -34,6 +35,7 @@ implementation
 
 uses
   u_GlobalState,
+  u_UrlGenerator,
   u_TileDownloaderBase;
 
 { TTileDownloaderBaseFactory }
@@ -43,7 +45,8 @@ var
   VParams: IConfigDataProvider;
 begin
   inherited;
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FConfig := AConfig;
+  VParams := FConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FIgnoreContent_Type := VParams.ReadBool('IgnoreContentType', False);
   FDefaultContent_Type := VParams.ReadString('DefaultContentType', 'image/jpg');
   FContent_Type := VParams.ReadString('ContentType', 'image/jpg');
@@ -69,6 +72,11 @@ begin
     FContent_Type, FDefaultContent_Type, VTryCount, GState.InetConfig);
   VDownloader.SleepOnResetConnection := FSlepOnResetConnection;
   VDownloader.WaitInterval := FWaitInterval;
+  try
+    VDownloader.UrlGenerator := TUrlGenerator.Create(FConfig);
+  except
+    VDownloader.UrlGenerator := nil;
+  end;
   Result := VDownloader;
 end;
 

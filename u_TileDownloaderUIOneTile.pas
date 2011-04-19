@@ -81,6 +81,7 @@ var
   fileBuf: TMemoryStream;
   res: TDownloadTileResult;
 begin
+  {
   if FMapType.UseDwn then begin
     FileBuf := TMemoryStream.Create;
     try
@@ -102,6 +103,7 @@ begin
     FErrorString := SAS_ERR_NotLoads;
   end;
   Synchronize(AfterWriteToFile);
+  }
 end;
 
 end.

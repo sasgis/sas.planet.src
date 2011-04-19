@@ -106,6 +106,7 @@ uses
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
+  u_TileDownloaderFrontEnd in 'u_TileDownloaderFrontEnd.pas',
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
   u_NotifyEventListener in 'u_NotifyEventListener.pas',
   u_NotifyWithGUIDEvent in 'u_NotifyWithGUIDEvent.pas',

@@ -44,7 +44,6 @@ type
 
     class function GetErrStr(Aerr: TDownloadTileResult): string; virtual;
     procedure GetCurrentMapAndPos;
-    procedure AfterWriteToFile;
     procedure OnPosChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
@@ -60,6 +59,7 @@ type
     destructor Destroy; override;
     procedure StartThreads;
     procedure SendTerminateToThreads;
+    procedure OnTileDownloadEvent(AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult);
   end;
 
 implementation
@@ -202,20 +202,30 @@ begin
   Resume;
 end;
 
-procedure TTileDownloaderUI.AfterWriteToFile;
+procedure TTileDownloaderUI.OnTileDownloadEvent(AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult);
+//var
+//  VErrorString: string;
 begin
-  if FErrorString <> '' then begin
+  // TODO: отправить данные в поток TTileDownloaderEventProcessor
+
+  {
+  VErrorString := GetErrStr(AResult);
+  if (AResult = dtrOK) or (AResult = dtrSameTileSize) then begin
+    GState.DownloadInfo.Add(1, ATileSize);
+  end;
+  if VErrorString <> '' then begin
     if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.ShowError(FLoadXY, FVisualCoordConverter.GetZoom, FMapType, FErrorString);
+      FErrorShowLayer.ShowError(ATile, AZoom, AMapType, VErrorString);
     end;
   end else begin
     if FErrorShowLayer <> nil then begin
       FErrorShowLayer.Visible := False;
     end;
     if Addr(FMapTileUpdateEvent) <> nil then begin
-      FMapTileUpdateEvent(FMapType, FVisualCoordConverter.GetZoom, FLoadXY);
+      FMapTileUpdateEvent(AMapType, AZoom, ATile);
     end;
   end;
+   }
 end;
 
 procedure TTileDownloaderUI.Execute;
@@ -243,6 +253,7 @@ var
   VIteratorsList: IInterfaceList;
   VMapsList: IInterfaceList;
   VAllIteratorsFinished: Boolean;
+  VOnTileDownloadEvent: TParentThreadEvent;
 begin
   VIteratorsList := TInterfaceList.Create;
   VMapsList := TInterfaceList.Create;
@@ -340,28 +351,15 @@ begin
                     end;
                   end;
                 end;
-                if VNeedDownload then begin
-                  FileBuf := TMemoryStream.Create;
-                  try
-                    try
-                      res := FMapType.DownloadTile(Self, FLoadXY, VZoom, false, 0, VLoadUrl, ty, fileBuf);
-                      FErrorString := GetErrStr(res);
-                      if (res = dtrOK) or (res = dtrSameTileSize) then begin
-                        GState.DownloadInfo.Add(1, fileBuf.Size);
-                      end;
-                    except
-                      on E: Exception do begin
-                        FErrorString := E.Message;
-                      end;
-                    end;
-                    if Terminated then begin
-                      break;
-                    end;
-                    Synchronize(AfterWriteToFile);
-                  finally
-                    FileBuf.Free;
-                  end;
+                if VNeedDownload then
+                try
+                  VOnTileDownloadEvent := OnTileDownloadEvent;
+                  FMapType.DownloadTile(@VOnTileDownloadEvent, FLoadXY, VZoom, false, 0);
+                except
+
                 end;
+                if Terminated then
+                  Break;
               end;
             end;
             if Terminated then begin
