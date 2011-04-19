@@ -3,15 +3,15 @@ unit u_ResStrings;
 interface
 
 ResourceString
-  SAS_MSG_need_reload_application_curln = 'Р”Р»СЏ С‚РѕРіРѕ С‡С‚РѕР±С‹ РёР·РјРµРЅРµРЅРёСЏ РІСЃС‚СѓРїРёР»Рё РІ СЃРёР»Сѓ'#13#10 +
-    'РЅРµРѕР±С…РѕРґРёРјРѕ РїРµСЂРµР·Р°РїСѓСЃС‚РёС‚СЊ РїСЂРѕРіСЂР°РјРјСѓ.';
+  SAS_MSG_need_reload_application_curln = 'Для того чтобы изменения вступили в силу'#13#10 +
+    'необходимо перезапустить программу.';
   SAS_MSG_coution = 'Attention!';
   SAS_MSG_youasure = 'Are you sure';
   SAS_MSG_youasurerefrsensor = 'Are you sure?';
-  SAS_MSG_SelectArea = 'Р§Р°СЃС‚СЊ РІС‹РґРµР»РµРЅРЅРѕР№ РѕР±Р»Р°СЃС‚Рё РЅР°С…РѕРґРёС‚СЃСЏ РІРЅРµ РєР°СЂС‚С‹.'#13#10 +
-    'РћР±Р»Р°СЃС‚СЊ Р±СѓРґРµС‚ РѕРіСЂР°РЅРёС‡РµРЅР° РїРѕ СЂР°Р·РјРµСЂР°Рј РєР°СЂС‚С‹.';
-  SAS_MSG_FileExists = 'Р¤Р°Р№Р» %0:s СѓР¶Рµ РµСЃС‚СЊ Сѓ РІР°СЃ РІ РєСЌС€Рµ.'#13#10 +
-    'Р—Р°РјРµРЅРёС‚СЊ СЌС‚РѕС‚ С„Р°Р№Р» РІРЅРѕРІСЊ СЃРєР°С‡Р°РЅРЅС‹Рј?';
+  SAS_MSG_SelectArea = 'Часть выделенной области находится вне карты.'#13#10 +
+    'Область будет ограничена по размерам карты.';
+  SAS_MSG_FileExists = 'Файл %0:s уже есть у вас в кэше.'#13#10 +
+    'Заменить этот файл вновь скачанным?';
   SAS_MSG_NeedHL = 'Please select the region at least once!';
   SAS_MSG_FunExForPoly = 'The feature could be used on polygons only';
   SAS_MSG_FileBeCreateTime = 'The tile is newer than the entered age, skipping.';
@@ -19,13 +19,13 @@ ResourceString
   SAS_MSG_ProcessFilesComplete = 'The task is completed!';
   SAS_MSG_LoadComplete = 'Finished downloading';
   SAS_MSG_NoGPSdetected = 'No GPS devices were found';
-  SAS_MSG_GarminMax1Mp = 'РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»СѓС‡РµРЅРЅС‹С… jpeg-С„Р°Р№Р»РѕРІ РїСЂРµРІС‹СЃРёС‚ 100 С€С‚СѓРє, РµСЃР»Рё РІР°С€'#13#10 +
-    'РЅР°РІРёРіР°С‚РѕСЂ РЅРµ РѕС‚РѕР±СЂР°Р¶Р°РµС‚ РєР°СЂС‚Сѓ СЂР°Р·Р±РµР№С‚Рµ СЃРѕС…СЂР°РЅСЏРµРјРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РЅР° С‡Р°СЃС‚Рё РІ '#13#10 +
-    'РґРёР°Р»РѕРіРµ "РћРїРµСЂР°С†РёРё СЃ РІС‹РґРµР»РµРЅРЅРѕР№ РѕР±Р»Р°СЃС‚СЊСЋ\СЃРєР»РµРёС‚СЊ"'#13#10 +
-    'Рё РёСЃРїРѕР»СЊР·СѓР№С‚Рµ РїРѕР»СѓС‡РµРЅРЅС‹Рµ kmz РїРѕ РѕС‚РґРµР»СЊРЅРѕСЃС‚Рё';
+  SAS_MSG_GarminMax1Mp = 'Количество полученных jpeg-файлов превысит 100 штук, если ваш'#13#10 +
+    'навигатор не отображает карту разбейте сохраняемое изображение на части в '#13#10 +
+    'диалоге "Операции с выделенной областью\склеить"'#13#10 +
+    'и используйте полученные kmz по отдельности';
   SAS_MSG_NotDelWhereHasChildren = 'Category is not empty. Please delete child categories first';
   SAS_MSG_HotKeyExists = 'The hotkey is already in use. Please select another one';
-  SAS_MSG_CantGetTileFileName = 'This is not simple file storage. Tile's file name not exists.';
+  SAS_MSG_CantGetTileFileName = 'This is not simple file storage. Tile''s file name not exists.';
 
   SAS_ERR_Nopoints = 'Required pointset is not found!';
   SAS_ERR_ProxyStrFormat = 'Proxy server string is not correct';
@@ -41,32 +41,32 @@ ResourceString
   SAS_ERR_Communication = 'Error communicating with the device';
   SAS_ERR_UnablePposition = 'Unable to fix position';
   SAS_ERR_ParamsInput = 'Error in parameters!';
-  SAS_ERR_LonLat1 = 'Р”РѕР»РіРѕС‚Р° РІ Р»РµРІРѕРј РІРµСЂС…РЅРµРј СѓРіР»Сѓ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РјРµРЅСЊС€Рµ '#13#10 +
-    'РґРѕР»РіРѕС‚С‹ РІ РїСЂР°РІРѕРј РЅРёР¶РЅРµРј!';
-  SAS_ERR_LonLat2 = 'РЁРёСЂРѕС‚Р° РІ Р»РµРІРѕРј РІРµСЂС…РЅРµРј СѓРіР»Сѓ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РјРµРЅСЊС€Рµ '#13#10 +
-    'С€РёСЂРѕС‚С‹ РІ РїСЂР°РІРѕРј РЅРёР¶РЅРµРј!';
+  SAS_ERR_LonLat1 = 'Долгота в левом верхнем углу должна быть меньше '#13#10 +
+    'долготы в правом нижнем!';
+  SAS_ERR_LonLat2 = 'Широта в левом верхнем углу должна быть меньше '#13#10 +
+    'широты в правом нижнем!';
   SAS_ERR_CreateArh = 'Error creating archive!';
   SAS_ERR_NotLoads = 'The map is unable to load';
   SAS_ERR_Authorization = 'Error proxy authorizing';
   SAS_ERR_WaitTime = 'Wait %0:d secons...';
-  SAS_ERR_Ban = 'Most likely you've got banned by the server!';
+  SAS_ERR_Ban = 'Most likely you''ve got banned by the server!';
   SAS_ERR_TileNotExists = 'Tile is not found!';
   SAS_ERR_Noconnectionstointernet = 'Error connecting to server';
   SAS_ERR_RepeatProcess = 'Retrying the operation';
   SAS_ERR_FileExistsShort = 'The tile is exist';
   SAS_ERR_Memory = 'Not enough memory to complete the task';
   SAS_ERR_UseADifferentFormat = 'Please decide to use another file formats (ecw,bmp,jp2) while stitching big images';
-  SAS_ERR_BadMIMEForDownloadRastr  =  'РЎРµСЂРІРёСЃ РІРµСЂРЅСѓР» С‚РёРї "%0:s", СЌС‚Рѕ РЅРµ СЂР°СЃС‚СЂРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ';
-  SAS_ERR_BadMIME  =  'РЎРµСЂРІРёСЃ РІРµСЂРЅСѓР» С‚РёРї "%0:s", Р° РЅРµ РѕРґРёРЅ РёР· РѕР¶РёРґР°РµРјС‹С…';
+  SAS_ERR_BadMIMEForDownloadRastr  =  'Сервис вернул тип "%0:s", это не растровое изображение';
+  SAS_ERR_BadMIME  =  'Сервис вернул тип "%0:s", а не один из ожидаемых';
   SAS_ERR_MapGUIDEmpty = 'Empty GUID';
   SAS_ERR_MapGUIDBad = 'Incorrect GUID: %0:s';
   SAS_ERR_MapGUIDError = 'There is an error %1:s in the map: %0:s';
   SAS_ERR_MapGUIDDuplicate = 'Files %0:s and %1:s have equal GUIDs';
   SAS_ERR_MainMapNotExists = 'You need at least one MAP among your zmp files';
   SAS_ERR_CategoryNameDoubling = 'Category name already exist';
-  SAS_ERR_UrlScriptError = 'РћС€РёР±РєР° СЃРєСЂРёРїС‚Р° РєР°СЂС‚С‹ %0:s (%2:s):'#13#10'%1:s';
-  SAS_ERR_UrlScriptUnexpectedError = 'РћС€РёР±РєР° СЃРєСЂРёРїС‚Р° РєР°СЂС‚С‹ %0:s (%2:s):'#13#10'РќРµРѕР¶РёРґР°РЅРЅР°СЏ РѕС€РёР±РєР°';
-  SAS_ERR_UrlScriptCompileError = 'РћС€РёР±РєР° РІ СЃРєСЂРёРїС‚Рµ РїСЂРё РєРѕРјРїРёР»СЏС†РёРё'#13#10'%0:s';
+  SAS_ERR_UrlScriptError = 'Ошибка скрипта карты %0:s (%2:s):'#13#10'%1:s';
+  SAS_ERR_UrlScriptUnexpectedError = 'Ошибка скрипта карты %0:s (%2:s):'#13#10'Неожиданная ошибка';
+  SAS_ERR_UrlScriptCompileError = 'Ошибка в скрипте при компиляции'#13#10'%0:s';
   SAS_ERR_UrlScriptByteCodeLoad = 'Error at script bytecode loading';
   SAS_ERR_MapProjectionUnexpectedType = 'Error in projection \"%0:s\" of the map';
   SAS_ERR_MapDownloadByError = 'Downloading of map %0:s disabled by error: %1:s';
@@ -148,8 +148,8 @@ ResourceString
   SAS_STR_InputLacitpCaption = 'Enter parameters';
   SAS_STR_ExportYaMapsCaption = 'Mobile Yandex.Maps (ver.3)';
   SAS_STR_ExportGEKmlExportCaption = 'KML (open in Google Earth)';
-  SAS_STR_ExportIPhone128Caption = 'iPhone (ver.2.2 and above, 128С…128)';
-  SAS_STR_ExportIPhone64Caption = 'iPhone (below ver.2.2, 64С…64)';
+  SAS_STR_ExportIPhone128Caption = 'iPhone (ver.2.2 and above, 128х128)';
+  SAS_STR_ExportIPhone64Caption = 'iPhone (below ver.2.2, 64х64)';
   SAS_STR_ExportAUXGeoServerCaption = 'AUX for LizardTech GeoExpress Server';
   SAS_STR_ExportZipPackCaption = 'Compressing to Zip';
   SAS_STR_ExportTarPackCaption = 'Compressing to Tar';
@@ -187,9 +187,9 @@ ResourceString
   SAS_STR_SensorGPSRecorderOdometer1Description = 'Shows the total distance';
   SAS_STR_SensorGPSRecorderOdometer1MenuItemName = 'Odometer';
 
-  SAS_STR_SensorGPSRecorderOdometer2Caption = 'Distance в„–2, km:';
+  SAS_STR_SensorGPSRecorderOdometer2Caption = 'Distance №2, km:';
   SAS_STR_SensorGPSRecorderOdometer2Description = 'Shows the total distance';
-  SAS_STR_SensorGPSRecorderOdometer2MenuItemName = 'Odometer в„–2';
+  SAS_STR_SensorGPSRecorderOdometer2MenuItemName = 'Odometer №2';
 
   SAS_STR_SensorGPSRecorderAltitudeCaption = 'Altitude';
   SAS_STR_SensorGPSRecorderAltitudeDescription = 'Shows GPS altitude';
