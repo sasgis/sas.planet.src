@@ -2,7 +2,7 @@ object frmShortCutEdit: TfrmShortCutEdit
   Left = 669
   Top = 266
   BorderStyle = bsDialog
-  Caption = #1048#1079#1084#1077#1085#1080#1090#1100' '#1075#1086#1088'. '#1082#1083'.'
+  Caption = 'Edit hotkey'
   ClientHeight = 81
   ClientWidth = 189
   Color = clBtnFace
@@ -20,7 +20,7 @@ object frmShortCutEdit: TfrmShortCutEdit
     Width = 183
     Height = 44
     Align = alClient
-    Caption = #1053#1072#1079#1085#1072#1095#1080#1090#1100' '#1089#1086#1095#1077#1090#1072#1085#1080#1077
+    Caption = 'Define hotkey'
     TabOrder = 0
     ExplicitLeft = 8
     object HotKey: THotKey
@@ -50,7 +50,7 @@ object frmShortCutEdit: TfrmShortCutEdit
       Width = 41
       Height = 25
       Align = alLeft
-      Caption = #1053#1077#1090
+      Caption = 'No'
       Flat = True
       OnClick = btnClearClick
       ExplicitLeft = 8
@@ -63,7 +63,7 @@ object frmShortCutEdit: TfrmShortCutEdit
       Width = 65
       Height = 25
       Align = alRight
-      Caption = #1055#1088#1080#1085#1103#1090#1100
+      Caption = 'Apply'
       Default = True
       ModalResult = 1
       TabOrder = 0
@@ -78,7 +78,7 @@ object frmShortCutEdit: TfrmShortCutEdit
       Height = 25
       Align = alRight
       Cancel = True
-      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+      Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
       ExplicitLeft = 56

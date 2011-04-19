@@ -91,7 +91,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Top = 3
       Width = 5
       Height = 13
-      Caption = 'c'
+      Caption = 'from'
     end
     object EditS1: TSpinEdit
       AlignWithMargins = True

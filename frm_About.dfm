@@ -2,7 +2,7 @@ object frmAbout: TfrmAbout
   Left = 268
   Top = 257
   BorderStyle = bsToolWindow
-  Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
+  Caption = 'About'
   ClientHeight = 223
   ClientWidth = 314
   Color = clWhite
@@ -27,7 +27,7 @@ object frmAbout: TfrmAbout
     Width = 39
     Height = 13
     Alignment = taRightJustify
-    Caption = #1042#1077#1088#1089#1080#1103':'
+    Caption = 'Version:'
   end
   object lblAuthorCaption: TLabel
     Left = 97
@@ -35,7 +35,7 @@ object frmAbout: TfrmAbout
     Width = 63
     Height = 13
     Alignment = taRightJustify
-    Caption = #1056#1072#1079#1088#1072#1073#1086#1090#1082#1072':'
+    Caption = 'Authors:'
   end
   object lblWebSiteCaption: TLabel
     Left = 131
@@ -44,7 +44,7 @@ object frmAbout: TfrmAbout
     Height = 13
     Alignment = taRightJustify
     BiDiMode = bdLeftToRight
-    Caption = #1057#1072#1081#1090':'
+    Caption = 'Website:'
     ParentBiDiMode = False
   end
   object lblEMailCaption: TLabel
@@ -53,7 +53,7 @@ object frmAbout: TfrmAbout
     Width = 35
     Height = 13
     Alignment = taRightJustify
-    Caption = #1055#1086#1095#1090#1072':'
+    Caption = 'Email:'
   end
   object lblDonateCaption: TLabel
     Left = 98
@@ -61,7 +61,7 @@ object frmAbout: TfrmAbout
     Width = 62
     Height = 13
     Alignment = taRightJustify
-    Caption = #1055#1086#1084#1086#1095#1100' '#1085#1072#1084':'
+    Caption = 'How you may help:'
   end
   object lblProgramName: TLabel
     Left = 0
@@ -71,7 +71,7 @@ object frmAbout: TfrmAbout
     Align = alTop
     Alignment = taCenter
     AutoSize = False
-    Caption = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
+    Caption = 'SAS.Planet'
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
     Font.Height = -21
@@ -101,7 +101,7 @@ object frmAbout: TfrmAbout
     Top = 56
     Width = 58
     Height = 13
-    Caption = #1043#1088#1091#1087#1087#1072' SAS'
+    Caption = 'SAS Group'
   end
   object lblEMail: TLabel
     Left = 163
@@ -126,7 +126,7 @@ object frmAbout: TfrmAbout
     Width = 82
     Height = 13
     Alignment = taRightJustify
-    Caption = #1071#1085#1076#1077#1082#1089'.'#1044#1077#1085#1100#1075#1080':'
+    Caption = 'Yandex.Money'
   end
   object lblWebSite: TLabel
     Left = 163
@@ -218,7 +218,7 @@ object frmAbout: TfrmAbout
       Margins.Right = 100
       Align = alClient
       Cancel = True
-      Caption = #1047#1072#1082#1088#1099#1090#1100
+      Caption = 'Close'
       TabOrder = 0
       OnClick = btnCloseClick
       ExplicitLeft = 1

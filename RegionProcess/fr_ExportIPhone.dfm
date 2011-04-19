@@ -26,7 +26,7 @@ object frExportIPhone: TfrExportIPhone
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
+      Caption = 'Куда сохранять:'
       Layout = tlCenter
     end
     object btnSelectTargetPath: TButton
@@ -70,7 +70,7 @@ object frExportIPhone: TfrExportIPhone
         Width = 376
         Height = 17
         Align = alTop
-        Caption = #1044#1086#1073#1072#1074#1083#1103#1090#1100' '#1090#1072#1081#1083#1099' '#1074' '#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1091#1102' '#1073#1072#1079#1091
+        Caption = 'Добавлять тайлы в существующую базу'
         TabOrder = 0
       end
       object grdpnlMaps: TGridPanel
@@ -248,7 +248,7 @@ object frExportIPhone: TfrExportIPhone
           Top = 62
           Width = 17
           Height = 21
-          Hint = #1042#1099#1073#1088#1072#1090#1100' '#1075#1080#1073#1088#1080#1076' '#1074' '#1082#1072#1095#1077#1089#1090#1074#1077' '#1086#1089#1085#1086#1074#1085#1086#1075#1086' '#1089#1083#1086#1103
+          Hint = 'Выбрать гибрид в качестве основного слоя'
           Align = alClient
           TabOrder = 2
         end
@@ -257,7 +257,7 @@ object frExportIPhone: TfrExportIPhone
           Top = 20
           Width = 17
           Height = 21
-          Hint = #1042#1099#1073#1088#1072#1090#1100' '#1082#1072#1088#1090#1091' '#1074' '#1091#1072#1095#1077#1089#1090#1074#1077' '#1086#1089#1085#1086#1074#1085#1086#1075#1086' '#1089#1083#1086#1103
+          Hint = 'Выбрать карту в уачестве основного слоя'
           Align = alClient
           Checked = True
           TabOrder = 3
@@ -268,7 +268,7 @@ object frExportIPhone: TfrExportIPhone
           Top = 41
           Width = 17
           Height = 21
-          Hint = #1042#1099#1073#1088#1072#1090#1100' '#1089#1087#1091#1090#1085#1080#1082' '#1074' '#1091#1072#1095#1077#1089#1090#1074#1077' '#1086#1089#1085#1086#1074#1085#1086#1075#1086' '#1089#1083#1086#1103
+          Hint = 'Выбрать спутник в уачестве основного слоя'
           Align = alClient
           TabOrder = 4
         end
@@ -333,7 +333,7 @@ object frExportIPhone: TfrExportIPhone
           Width = 40
           Height = 13
           Anchors = []
-          Caption = #1057#1078#1072#1090#1080#1077':'
+          Caption = 'Сжатие:'
         end
         object lblHybr: TLabel
           Left = 0
@@ -342,7 +342,7 @@ object frExportIPhone: TfrExportIPhone
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = #1043#1080#1073#1088#1080#1076
+          Caption = 'Гибрид'
           Layout = tlCenter
           ExplicitLeft = 6
           ExplicitWidth = 29
@@ -355,7 +355,7 @@ object frExportIPhone: TfrExportIPhone
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = #1050#1072#1088#1090#1072
+          Caption = 'Карта'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 21
@@ -369,7 +369,7 @@ object frExportIPhone: TfrExportIPhone
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = #1057#1087#1091#1090#1085#1080#1082
+          Caption = 'Спутник'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 45
@@ -383,7 +383,7 @@ object frExportIPhone: TfrExportIPhone
           Align = alClient
           Alignment = taCenter
           AutoSize = False
-          Caption = #1042#1082#1083#1102#1095#1080#1090#1100' '#1089#1083#1077#1076#1091#1102#1097#1080#1077' '#1090#1080#1087#1099' '#1082#1072#1088#1090':'
+          Caption = 'Включить следующие типы карт:'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 4
@@ -422,7 +422,7 @@ object frExportIPhone: TfrExportIPhone
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
+        Caption = 'Масштабы:'
       end
       object chklstZooms: TCheckListBox
         Left = 3
@@ -443,7 +443,7 @@ object frExportIPhone: TfrExportIPhone
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alBottom
-        Caption = #1042#1089#1077
+        Caption = 'Все'
         TabOrder = 1
         OnClick = chkAllZoomsClick
       end

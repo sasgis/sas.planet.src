@@ -34,7 +34,7 @@ object frExportGEKml: TfrExportGEKml
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
+        Caption = 'Масштабы:'
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
@@ -46,7 +46,7 @@ object frExportGEKml: TfrExportGEKml
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alBottom
-        Caption = #1042#1089#1077
+        Caption = 'Все'
         TabOrder = 0
         OnClick = chkAllZoomsClick
       end
@@ -80,7 +80,7 @@ object frExportGEKml: TfrExportGEKml
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = #1050#1072#1088#1090#1072
+        Caption = 'Карта'
         ExplicitLeft = 12
         ExplicitTop = 6
         ExplicitWidth = 31
@@ -91,7 +91,7 @@ object frExportGEKml: TfrExportGEKml
         Width = 370
         Height = 17
         Align = alTop
-        Caption = #1053#1077' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1087#1091#1090#1080' '#1082' '#1085#1077#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1084' '#1090#1072#1081#1083#1072#1084
+        Caption = 'Не сохранять пути к несуществующим тайлам'
         TabOrder = 0
       end
       object chkUseRelativePath: TCheckBox
@@ -104,7 +104,7 @@ object frExportGEKml: TfrExportGEKml
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alTop
-        Caption = #1054#1090#1085#1086#1089#1080#1090#1077#1083#1100#1085#1099#1081' '#1087#1091#1090#1100' '#1082' '#1090#1072#1081#1083#1072#1084
+        Caption = 'Относительный путь к тайлам'
         Checked = True
         State = cbChecked
         TabOrder = 1
@@ -141,7 +141,7 @@ object frExportGEKml: TfrExportGEKml
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
+      Caption = 'Куда сохранять:'
       Layout = tlCenter
     end
     object edtTargetFile: TEdit

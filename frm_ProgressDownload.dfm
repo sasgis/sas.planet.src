@@ -2,7 +2,7 @@ object frmProgressDownload: TfrmProgressDownload
   Left = 226
   Top = 306
   BorderStyle = bsSizeToolWin
-  Caption = #1055#1086#1078#1072#1083#1091#1081#1089#1090#1072' '#1087#1086#1076#1086#1078#1076#1080#1090#1077'...'
+  Caption = 'Please wait...'
   ClientHeight = 248
   ClientWidth = 328
   Color = clBtnFace
@@ -230,7 +230,7 @@ object frmProgressDownload: TfrmProgressDownload
         Top = 0
         Width = 75
         Height = 20
-        Caption = #1057#1074#1077#1088#1085#1091#1090#1100
+        Caption = 'Minimize'
         TabOrder = 0
         OnClick = Button3Click
       end
@@ -239,8 +239,8 @@ object frmProgressDownload: TfrmProgressDownload
         Top = 0
         Width = 75
         Height = 20
-        Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1077#1082#1091#1097#1091#1102' '#1089#1077#1089#1089#1080#1102
-        Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+        Hint = 'Save current download'
+        Caption = 'Save'
         TabOrder = 1
         OnClick = ButtonSaveClick
       end
@@ -250,7 +250,7 @@ object frmProgressDownload: TfrmProgressDownload
         Width = 75
         Height = 20
         Anchors = [akTop, akRight]
-        Caption = #1057#1090#1086#1087
+        Caption = 'Abort'
         TabOrder = 2
         OnClick = Button1Click
         ExplicitLeft = 175
@@ -261,7 +261,7 @@ object frmProgressDownload: TfrmProgressDownload
         Width = 75
         Height = 20
         Anchors = [akTop, akRight]
-        Caption = #1042#1099#1093#1086#1076
+        Caption = 'Quit'
         TabOrder = 3
         OnClick = Button2Click
         ExplicitLeft = 244
@@ -270,7 +270,7 @@ object frmProgressDownload: TfrmProgressDownload
   end
   object SaveSessionDialog: TSaveDialog
     DefaultExt = '*.sls'
-    Filter = #1057#1077#1089#1089#1080#1103' '#1079#1072#1075#1088#1091#1079#1082#1080' (*.sls)|*.sls'
+    Filter = 'Download session (*.sls)|*.sls'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 280
     Top = 184

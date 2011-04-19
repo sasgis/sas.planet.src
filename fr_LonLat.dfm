@@ -25,12 +25,12 @@ object frLonLat: TfrLonLat
       ItemHeight = 13
       ItemIndex = 0
       TabOrder = 0
-      Text = #1043#1077#1086#1075#1088#1072#1092#1080#1095#1077#1089#1082#1080#1077
+      Text = 'Geographical coordinates'
       OnSelect = ComboBoxCoordTypeSelect
       Items.Strings = (
-        #1043#1077#1086#1075#1088#1072#1092#1080#1095#1077#1089#1082#1080#1077
-        #1055#1080#1082#1089#1077#1083#1100#1085#1099#1077
-        #1058#1072#1081#1083#1086#1074#1099#1077)
+        'Geographical coordinates'
+        'Pixel coordinates'
+        'Tile coordinates')
     end
   end
   object grdpnlFull: TGridPanel
@@ -134,7 +134,7 @@ object frLonLat: TfrLonLat
           Margins.Top = 0
           Align = alClient
           Alignment = taRightJustify
-          Caption = #1064#1080#1088#1086#1090#1072':'
+          Caption = 'Latitude:'
           Layout = tlCenter
           ExplicitLeft = 68
           ExplicitWidth = 44
@@ -149,7 +149,7 @@ object frLonLat: TfrLonLat
           Margins.Top = 0
           Align = alClient
           Alignment = taRightJustify
-          Caption = #1044#1086#1083#1075#1086#1090#1072':'
+          Caption = 'Longitude:'
           Layout = tlCenter
           ExplicitLeft = 65
           ExplicitWidth = 47
@@ -210,7 +210,7 @@ object frLonLat: TfrLonLat
           Top = 13
           Width = 36
           Height = 21
-          Hint = #1042#1099#1073#1086#1088' '#1084#1072#1089#1096#1090#1072#1073#1072
+          Hint = 'Zoom selection'
           Style = csDropDownList
           Anchors = [akTop, akRight]
           ItemHeight = 13

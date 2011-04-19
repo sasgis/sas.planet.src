@@ -2,7 +2,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   Left = 730
   Top = 247
   BorderStyle = bsDialog
-  Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1076#1086#1089#1090#1091#1087#1085#1099#1093' '#1089#1085#1080#1084#1082#1072#1093' '#1085#1072' DigitalGlobe'
+  Caption = 'DigitalGlobe availability'
   ClientHeight = 369
   ClientWidth = 355
   Color = clBtnFace
@@ -21,35 +21,35 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Width = 349
     Height = 85
     Align = alBottom
-    Caption = #1054#1087#1080#1089#1072#1085#1080#1077
+    Caption = 'Description:'
     TabOrder = 0
     object LabelDate: TLabel
       Left = 176
       Top = 16
       Width = 65
       Height = 13
-      Caption = #1044#1072#1090#1072' '#1089#1098#1077#1084#1082#1080
+      Caption = 'Date'
     end
     object LabelResolution: TLabel
       Left = 176
       Top = 32
       Width = 61
       Height = 13
-      Caption = #1056#1072#1079#1088#1077#1096#1077#1085#1080#1077
+      Caption = 'Quality'
     end
     object LabelColor: TLabel
       Left = 176
       Top = 48
       Width = 26
       Height = 13
-      Caption = #1062#1074#1077#1090
+      Caption = 'Color'
     end
     object LabelProv: TLabel
       Left = 176
       Top = 64
       Width = 48
       Height = 13
-      Caption = #1048#1089#1090#1086#1095#1085#1080#1082
+      Caption = 'Source'
     end
     object Label2: TLabel
       Left = 100
@@ -57,7 +57,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 69
       Height = 13
       Alignment = taRightJustify
-      Caption = #1044#1072#1090#1072' '#1089#1098#1077#1084#1082#1080':'
+      Caption = 'Date:'
     end
     object Label4: TLabel
       Left = 104
@@ -65,7 +65,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 65
       Height = 13
       Alignment = taRightJustify
-      Caption = #1056#1072#1079#1088#1077#1096#1077#1085#1080#1077':'
+      Caption = 'Quality:'
     end
     object Label5: TLabel
       Left = 139
@@ -73,7 +73,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 30
       Height = 13
       Alignment = taRightJustify
-      Caption = #1062#1074#1077#1090':'
+      Caption = 'Color:'
     end
     object Label6: TLabel
       Left = 117
@@ -81,7 +81,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 52
       Height = 13
       Alignment = taRightJustify
-      Caption = #1048#1089#1090#1086#1095#1085#1080#1082':'
+      Caption = 'Source:'
     end
   end
   object GroupBox3: TGroupBox
@@ -91,7 +91,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Width = 349
     Height = 217
     Align = alClient
-    Caption = #1044#1086#1089#1090#1091#1087#1085#1099#1077' '#1089#1085#1080#1084#1082#1080
+    Caption = 'Images available'
     TabOrder = 1
     object TreeView1: TTreeView
       AlignWithMargins = True
@@ -124,7 +124,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Width = 75
         Height = 25
         Align = alTop
-        Caption = #1042#1099#1096#1077
+        Caption = 'Up'
         TabOrder = 0
         OnClick = Button1Click
       end
@@ -135,7 +135,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Width = 75
         Height = 25
         Align = alTop
-        Caption = #1053#1080#1078#1077
+        Caption = 'Down'
         TabOrder = 1
         OnClick = Button2Click
       end
@@ -145,9 +145,9 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Top = 65
         Width = 75
         Height = 25
-        Hint = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100' '#1074#1099#1073#1088#1072#1085#1085#1099#1077' tid '#1076#1083#1103' '#1074#1089#1090#1072#1074#1082#1080' '#1074' URL'
+        Hint = 'Copy TID''s to the clipboard'
         Align = alTop
-        Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
+        Caption = 'Copy'
         ParentShowHint = False
         ShowHint = True
         TabOrder = 2
@@ -162,7 +162,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Width = 349
     Height = 49
     Align = alTop
-    Caption = #1042#1099#1073#1086#1088' '#1089#1090#1077#1082#1072' '#1089#1085#1080#1084#1082#1086#1074
+    Caption = 'Image stack'
     TabOrder = 2
     object ComboBox2: TComboBox
       Left = 8

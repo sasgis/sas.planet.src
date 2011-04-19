@@ -1,7 +1,7 @@
 object frmMarksExplorer: TfrmMarksExplorer
   Left = 341
   Top = 186
-  Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
+  Caption = 'Manage placemarks'
   ClientHeight = 427
   ClientWidth = 577
   Color = clBtnFace
@@ -45,7 +45,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 0
         OnClick = btnExportClick
-        Caption = #1069#1082#1089#1087#1086#1088#1090
+        Caption = 'Export'
       end
       object btnAccept: TTBXButton
         AlignWithMargins = True
@@ -57,7 +57,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 1
         OnClick = btnAcceptClick
-        Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
+        Caption = 'Apply'
       end
       object btnOk: TTBXButton
         AlignWithMargins = True
@@ -69,7 +69,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 2
         OnClick = btnOkClick
-        Caption = #1054#1050
+        Caption = 'OK'
       end
       object btnImport: TTBXButton
         AlignWithMargins = True
@@ -81,7 +81,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 3
         OnClick = btnImportClick
-        Caption = #1048#1084#1087#1086#1088#1090
+        Caption = 'Import'
       end
     end
     object pnlMain: TPanel
@@ -107,7 +107,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         Width = 310
         Height = 352
         Align = alClient
-        Caption = ' '#1052#1077#1090#1082#1080' '
+        Caption = 'Placemarks'
         TabOrder = 0
         ExplicitLeft = 181
         ExplicitWidth = 313
@@ -134,7 +134,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           Width = 300
           Height = 17
           Align = alBottom
-          Caption = #1042#1089#1077
+          Caption = 'All'
           TabOrder = 1
           OnClick = CheckBox1Click
           ExplicitTop = 336
@@ -165,13 +165,13 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 31
               OnClick = btnEditMarkClick
               Caption = ''
-              Hint = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100' '#1074#1099#1073#1088#1072#1085#1085#1091#1102' '#1084#1077#1090#1082#1091
+              Hint = 'Edit the selected placemark'
             end
             object btnDelMark: TTBXItem
               ImageIndex = 30
               OnClick = btnDelMarkClick
               Caption = ''
-              Hint = #1059#1076#1072#1083#1080#1090#1100' '#1074#1099#1073#1088#1072#1085#1085#1091#1102' '#1084#1077#1090#1082#1091
+              Hint = 'Delete the selected placemark'
             end
             object TBXSeparatorItem1: TTBXSeparatorItem
               Caption = ''
@@ -181,20 +181,20 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 11
               OnClick = btnGoToMarkClick
               Caption = ''
-              Hint = #1055#1077#1088#1077#1081#1090#1080' '#1082' '#1074#1099#1073#1088#1072#1085#1085#1086#1084#1091' '#1086#1073#1098#1077#1082#1090#1091
+              Hint = 'Go to the selected object'
             end
             object btnOpSelectMark: TTBXItem
               ImageIndex = 10
               OnClick = btnOpSelectMarkClick
               Caption = ''
-              Hint = #1054#1087#1077#1088#1072#1094#1080#1080' '#1089' '#1086#1073#1083#1072#1089#1090#1100#1102' '#1074' '#1075#1088#1072#1085#1080#1094#1072#1093' '#1074#1099#1073#1088#1072#1085#1085#1086#1075#1086' '#1086#1073#1098#1077#1082#1090#1072
+              Hint = 'Manage the area within the selected object'
             end
             object btnNavOnMark: TTBXItem
               AutoCheck = True
               ImageIndex = 33
               OnClick = btnNavOnMarkClick
               Caption = ''
-              Hint = #1053#1072#1074#1080#1075#1072#1094#1080#1103' '#1085#1072' '#1074#1099#1073#1088#1072#1085#1085#1091#1102' '#1084#1077#1090#1082#1091
+              Hint = 'Navigate to the selected placemark'
             end
             object TBXSeparatorItem2: TTBXSeparatorItem
               Caption = ''
@@ -204,7 +204,7 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 25
               OnClick = btnSaveMarkClick
               Caption = ''
-              Hint = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1073#1088#1072#1085#1085#1086#1081' '#1084#1077#1090#1082#1080
+              Hint = 'Export selected placemark'
             end
           end
         end
@@ -219,7 +219,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alLeft
-        Caption = ' '#1050#1072#1090#1077#1075#1086#1088#1080#1080' '#1084#1077#1090#1086#1082' '
+        Caption = 'Placemark categories'
         TabOrder = 1
         ExplicitLeft = 0
         ExplicitHeight = 358
@@ -230,7 +230,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           Width = 168
           Height = 17
           Align = alBottom
-          Caption = #1042#1089#1077
+          Caption = 'All'
           TabOrder = 0
           OnClick = CheckBox2Click
           ExplicitTop = 336
@@ -275,19 +275,19 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 32
               OnClick = TBXItem4Click
               Caption = ''
-              Hint = #1044#1086#1073#1072#1074#1080#1090#1100
+              Hint = 'Add'
             end
             object BtnEditCategory: TTBXItem
               ImageIndex = 31
               OnClick = BtnEditCategoryClick
               Caption = ''
-              Hint = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100
+              Hint = 'Edit'
             end
             object BtnDelKat: TTBXItem
               ImageIndex = 30
               OnClick = BtnDelKatClick
               Caption = ''
-              Hint = #1059#1076#1072#1083#1080#1090#1100
+              Hint = 'Delete'
             end
             object TBXSeparatorItem3: TTBXSeparatorItem
               Caption = ''
@@ -297,7 +297,7 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 25
               OnClick = btnExportCategoryClick
               Caption = ''
-              Hint = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1073#1088#1072#1085#1085#1086#1081' '#1082#1072#1090#1077#1075#1086#1088#1080#1080
+              Hint = 'Export placemarks from selected category'
             end
           end
         end
@@ -314,9 +314,9 @@ object frmMarksExplorer: TfrmMarksExplorer
     Ctl3D = True
     ItemIndex = 0
     Items.Strings = (
-      #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1091#1082#1072#1079#1072#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
-      #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
-      #1053#1077' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1084#1077#1090#1082#1080)
+      'Show only specified placemarks'
+      'Show all placemarks'
+      'Hide placemarks')
     ParentCtl3D = False
     TabOrder = 1
   end
@@ -324,8 +324,8 @@ object frmMarksExplorer: TfrmMarksExplorer
     DefaultExt = '*.kml'
     Filter = 
       'Google KML files (*.kml)|*.kml|OziExplorer Track Point File Vers' +
-      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|'#1060#1072#1081#1083' '#1074#1099#1076#1077#1083#1077 +
-      #1085#1080#1103' (*.hlg)|*.hlg'
+      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Файл выделе' +
+      'ния (*.hlg)|*.hlg'
     Left = 352
     Top = 144
   end
@@ -432,7 +432,7 @@ object frmMarksExplorer: TfrmMarksExplorer
   object ExportDialog: TSaveDialog
     DefaultExt = '.kmz'
     Filter = 
-      #1059#1087#1072#1082#1086#1074#1072#1085#1085#1099#1081' Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup L' +
+      'Упакованный Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup L' +
       'anguage (kml)|*.kml'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 256
@@ -442,12 +442,12 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 376
     Top = 224
     object NExportAll: TMenuItem
-      Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1089#1077#1093' '#1084#1077#1090#1086#1082' '#1080' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
+      Caption = 'Export all palcemarks of all categories'
       OnClick = btnExportClick
     end
     object NExportVisible: TMenuItem
       Tag = 1
-      Caption = #1069#1082#1089#1087#1086#1088#1090' '#1090#1086#1083#1100#1082#1086' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1093
+      Caption = 'Export visible placemarks'
       OnClick = btnExportClick
     end
   end

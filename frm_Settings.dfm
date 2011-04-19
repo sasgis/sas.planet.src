@@ -2,7 +2,7 @@ object frmSettings: TfrmSettings
   Left = 293
   Top = 114
   BorderWidth = 3
-  Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
+  Caption = 'Options'
   ClientHeight = 440
   ClientWidth = 646
   Color = clBtnFace
@@ -26,7 +26,7 @@ object frmSettings: TfrmSettings
     TabOrder = 0
     object TabSheet9: TTabSheet
       BorderWidth = 3
-      Caption = #1050#1072#1088#1090#1099
+      Caption = 'Maps'
       ImageIndex = 8
       object MapList: TListView
         Left = 0
@@ -36,27 +36,27 @@ object frmSettings: TfrmSettings
         Align = alClient
         Columns = <
           item
-            Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1082#1072#1088#1090#1099
+            Caption = 'Название карты'
             Width = 130
           end
           item
-            Caption = #1055#1072#1087#1082#1072' '#1074' '#1082#1101#1096#1077
+            Caption = 'Папка в кэше'
             Width = 85
           end
           item
-            Caption = #1055#1091#1090#1100' '#1074' '#1084#1077#1085#1102
+            Caption = 'Путь в меню'
             Width = 110
           end
           item
-            Caption = #1043#1086#1088'. '#1082#1083'.'
+            Caption = 'Гор. кл.'
             Width = 53
           end
           item
-            Caption = #1055#1091#1090#1100' '#1082' '#1092#1072#1081#1083#1091
+            Caption = 'Путь к файлу'
             Width = 100
           end
           item
-            Caption = #1048#1089#1087#1086#1083#1100#1079#1091#1077#1090#1089#1103
+            Caption = 'Используется'
           end>
         FlatScrollBars = True
         HideSelection = False
@@ -83,7 +83,7 @@ object frmSettings: TfrmSettings
           Width = 91
           Height = 25
           Align = alTop
-          Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
+          Caption = 'Settings'
           TabOrder = 0
           OnClick = Button15Click
         end
@@ -94,7 +94,7 @@ object frmSettings: TfrmSettings
           Width = 91
           Height = 25
           Align = alTop
-          Caption = #1042#1085#1080#1079
+          Caption = 'Down'
           TabOrder = 1
           OnClick = Button11Click
         end
@@ -105,7 +105,7 @@ object frmSettings: TfrmSettings
           Width = 91
           Height = 25
           Align = alTop
-          Caption = #1042#1074#1077#1088#1093
+          Caption = 'Up'
           TabOrder = 2
           OnClick = Button12Click
         end
@@ -116,14 +116,14 @@ object frmSettings: TfrmSettings
           Width = 91
           Height = 25
           Align = alTop
-          Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103
+          Caption = 'Info'
           TabOrder = 3
           OnClick = btnMapInfoClick
         end
       end
     end
     object TabSheet2: TTabSheet
-      Caption = #1050#1101#1096
+      Caption = 'Cache'
       ImageIndex = 1
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
@@ -141,7 +141,7 @@ object frmSettings: TfrmSettings
           Width = 289
           Height = 13
           Align = alLeft
-          Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1090#1072#1081#1083#1086#1074', '#1082#1101#1096#1080#1088#1091#1077#1084#1099#1093' '#1074' '#1086#1087#1077#1088#1072#1090#1080#1074#1085#1091#1102' '#1087#1072#1084#1103#1090#1100
+          Caption = 'No. of files to be cached in RAM'
           Layout = tlCenter
         end
         object SETilesOCache: TSpinEdit
@@ -324,7 +324,7 @@ object frmSettings: TfrmSettings
           Width = 144
           Height = 21
           Align = alClient
-          Caption = #1055#1091#1090#1100' '#1082' "'#1088#1086#1076#1085#1086#1084#1091'" '#1082#1101#1096#1091':'
+          Caption = 'Путь к \"родному\" кэшу:'
           Layout = tlCenter
           ExplicitWidth = 120
           ExplicitHeight = 13
@@ -367,7 +367,7 @@ object frmSettings: TfrmSettings
           Width = 144
           Height = 21
           Align = alClient
-          Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' GoogleMV:'
+          Caption = 'GoogleMV cache folder:'
           Layout = tlCenter
           ExplicitWidth = 116
           ExplicitHeight = 13
@@ -410,7 +410,7 @@ object frmSettings: TfrmSettings
           Width = 144
           Height = 21
           Align = alClient
-          Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' EarthSlicer:'
+          Caption = 'EarthSlicer cache folder:'
           Layout = tlCenter
           ExplicitWidth = 120
           ExplicitHeight = 13
@@ -453,7 +453,7 @@ object frmSettings: TfrmSettings
           Width = 144
           Height = 21
           Align = alClient
-          Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' GM Tiles:'
+          Caption = 'GoogleMaps cache folder:'
           Layout = tlCenter
           ExplicitWidth = 108
           ExplicitHeight = 13
@@ -496,7 +496,7 @@ object frmSettings: TfrmSettings
           Width = 144
           Height = 21
           Align = alClient
-          Caption = #1055#1091#1090#1100' '#1082' '#1082#1101#1096#1091' Google Earth:'
+          Caption = 'GoogleEarth cache folder:'
           Layout = tlCenter
           ExplicitWidth = 131
           ExplicitHeight = 13
@@ -539,7 +539,7 @@ object frmSettings: TfrmSettings
           Width = 144
           Height = 19
           Align = alClient
-          Caption = #1058#1080#1087' '#1082#1101#1096#1072
+          Caption = 'Cache type'
           Layout = tlCenter
           ExplicitWidth = 46
           ExplicitHeight = 13
@@ -555,10 +555,10 @@ object frmSettings: TfrmSettings
           ItemHeight = 13
           ItemIndex = 1
           TabOrder = 15
-          Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
+          Text = 'SAS.Planet'
           Items.Strings = (
             'GoogleMV'
-            'SAS.'#1055#1083#1072#1085#1077#1090#1072
+            'SAS.Planet'
             'EarthSlicer 1.95'
             'Googe maps tiles')
         end
@@ -566,7 +566,7 @@ object frmSettings: TfrmSettings
     end
     object TabSheet1: TTabSheet
       BorderWidth = 3
-      Caption = #1048#1085#1090#1077#1088#1085#1077#1090
+      Caption = 'Internet'
       ImageIndex = 1
       object pnlDownloadParams: TPanel
         Left = 0
@@ -584,7 +584,7 @@ object frmSettings: TfrmSettings
           Width = 620
           Height = 17
           Align = alTop
-          Caption = #1055#1099#1090#1072#1090#1100#1089#1103' '#1087#1086#1074#1090#1086#1088#1085#1086' '#1079#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1072#1081#1083' '#1087#1088#1080' '#1077#1075#1086' '#1086#1090#1089#1091#1090#1089#1090#1074#1080#1080
+          Caption = 'Try to reload the tile if \"NotFound\" message received'
           TabOrder = 0
         end
         object CkBGoNextTile: TCheckBox
@@ -594,7 +594,7 @@ object frmSettings: TfrmSettings
           Width = 620
           Height = 17
           Align = alTop
-          Caption = #1055#1077#1088#1077#1093#1086#1076#1080#1090#1100' '#1082' '#1089#1083#1077#1076#1091#1102#1097#1077#1084#1091' '#1090#1072#1081#1083#1091', '#1077#1089#1083#1080' '#1089#1077#1088#1074#1077#1088' '#1085#1077' '#1086#1090#1074#1077#1095#1072#1077#1090
+          Caption = 'Load next tile if no any reply given by the server'
           TabOrder = 1
         end
         object CBSaveTileNotExists: TCheckBox
@@ -604,7 +604,7 @@ object frmSettings: TfrmSettings
           Width = 620
           Height = 17
           Align = alTop
-          Caption = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1080#1085#1092#1086#1088#1084#1072#1094#1080#1102' '#1086#1073' '#1086#1090#1089#1091#1090#1089#1090#1074#1080#1080' '#1090#1072#1081#1083#1086#1074' '#1085#1072' '#1089#1077#1088#1074#1077#1088#1077
+          Caption = 'Store \"NotFound\" info in cache'
           TabOrder = 2
         end
         object flwpnlDownloadTimeOut: TFlowPanel
@@ -622,7 +622,7 @@ object frmSettings: TfrmSettings
             Top = 3
             Width = 172
             Height = 13
-            Caption = #1058#1072#1081#1084#1072#1091#1090' '#1085#1072' '#1089#1077#1090#1077#1074#1099#1077' '#1086#1087#1077#1088#1072#1094#1080#1080', '#1084#1089
+            Caption = 'Server timeout, ms'
           end
           object SETimeOut: TSpinEdit
             Left = 178
@@ -643,8 +643,8 @@ object frmSettings: TfrmSettings
           Height = 17
           Align = alTop
           Caption = 
-            #1053#1072#1095#1072#1090#1100' '#1089#1086#1093#1088#1072#1085#1105#1085#1085#1091#1102' '#1089#1077#1089#1089#1080#1102' '#1079#1072#1075#1088#1091#1079#1082#1080' '#1089' '#1087#1086#1089#1083#1077#1076#1085#1077#1075#1086' '#1091#1076#1072#1095#1085#1086' '#1079#1072#1075#1088#1091#1078#1077#1085#1085 +
-            #1086#1075#1086' '#1090#1072#1081#1083#1072
+            'Начать сохранённую сессию загрузки с последнего удачно загруженн' +
+            'ого тайла'
           TabOrder = 4
         end
         object GroupBox4: TGroupBox
@@ -653,7 +653,7 @@ object frmSettings: TfrmSettings
           Width = 626
           Height = 108
           Align = alTop
-          Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103
+          Caption = 'Connection settings'
           TabOrder = 5
           object pnlProxyUrl: TPanel
             AlignWithMargins = True
@@ -671,7 +671,7 @@ object frmSettings: TfrmSettings
               Width = 152
               Height = 17
               Align = alLeft
-              Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1087#1088#1086#1082#1089#1080' (ip:port)'
+              Caption = 'Use proxy (ip:port)'
               Layout = tlCenter
               ExplicitHeight = 13
             end
@@ -720,7 +720,7 @@ object frmSettings: TfrmSettings
               Top = 3
               Width = 107
               Height = 13
-              Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1083#1086#1075#1080#1085':'
+              Caption = 'Proxy login:'
             end
             object EditLogin: TEdit
               Left = 136
@@ -735,7 +735,7 @@ object frmSettings: TfrmSettings
               Top = 3
               Width = 49
               Height = 13
-              Caption = #1080' '#1087#1072#1088#1086#1083#1100':'
+              Caption = 'Proxy password:'
             end
             object EditPass: TEdit
               Left = 272
@@ -763,7 +763,7 @@ object frmSettings: TfrmSettings
               Width = 610
               Height = 17
               Align = alTop
-              Caption = #1041#1088#1072#1090#1100' '#1085#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1086#1076#1082#1083#1102#1095#1077#1085#1080#1103' '#1080#1079' '#1088#1077#1077#1089#1090#1088#1072
+              Caption = 'Use connection settings reported by Windows'
               TabOrder = 0
               OnClick = chkUseIEProxyClick
             end
@@ -772,7 +772,7 @@ object frmSettings: TfrmSettings
       end
     end
     object TabSheet3: TTabSheet
-      Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077
+      Caption = 'Inputs'
       ImageIndex = 2
       object GroupBox1: TGroupBox
         Left = 0
@@ -780,7 +780,7 @@ object frmSettings: TfrmSettings
         Width = 638
         Height = 42
         Align = alTop
-        Caption = #1050#1086#1083#1105#1089#1080#1082#1086' '#1084#1099#1096#1080
+        Caption = 'Mouse wheel'
         TabOrder = 0
         object ScrolInvert: TCheckBox
           AlignWithMargins = True
@@ -789,7 +789,7 @@ object frmSettings: TfrmSettings
           Width = 628
           Height = 17
           Align = alTop
-          Caption = #1074#1088#1072#1097#1077#1085#1080#1077' '#1085#1072' '#1089#1077#1073#1103' - '#1087#1088#1080#1073#1083#1080#1078#1077#1085#1080#1077
+          Caption = 'spin in - zoom in'
           TabOrder = 0
         end
       end
@@ -799,12 +799,12 @@ object frmSettings: TfrmSettings
         Width = 638
         Height = 339
         Align = alClient
-        Caption = #1043#1086#1088#1103#1095#1080#1077' '#1082#1083#1072#1074#1080#1096#1080
+        Caption = 'Hotkeys'
         TabOrder = 1
       end
     end
     object TabSheet4: TTabSheet
-      Caption = #1042#1085#1077#1096#1085#1080#1081' '#1074#1080#1076
+      Caption = 'View'
       ImageIndex = 3
       object grdpnlUI: TGridPanel
         Left = 0
@@ -864,7 +864,7 @@ object frmSettings: TfrmSettings
               Height = 27
               Align = alLeft
               Alignment = taRightJustify
-              Caption = #1060#1086#1088#1084#1072#1090' '#1086#1090#1086#1073#1088#1072#1078#1077#1085#1080#1103' '#1084#1072#1089#1096#1090#1072#1073#1072
+              Caption = 'Distance representation'
               Layout = tlCenter
               ExplicitLeft = 35
               ExplicitHeight = 13
@@ -880,10 +880,10 @@ object frmSettings: TfrmSettings
               ItemHeight = 13
               ItemIndex = 0
               TabOrder = 0
-              Text = '12 '#1082#1084' 423 '#1084
+              Text = '12 km 423 m'
               Items.Strings = (
-                '12 '#1082#1084' 423 '#1084
-                '23,4 '#1082#1084)
+                '12 km 423 m'
+                '23,4 km')
               ExplicitLeft = 199
               ExplicitWidth = 108
             end
@@ -915,7 +915,7 @@ object frmSettings: TfrmSettings
                 Height = 29
                 Align = alLeft
                 Alignment = taRightJustify
-                Caption = #1060#1086#1088#1084#1072#1090' '#1087#1088#1077#1076#1089#1090#1072#1074#1083#1077#1085#1080#1103' '#1082#1086#1086#1088#1076#1080#1085#1072#1090
+                Caption = 'Coordinates representation'
                 Layout = tlCenter
                 ExplicitHeight = 13
               end
@@ -930,14 +930,14 @@ object frmSettings: TfrmSettings
                 ItemHeight = 13
                 ItemIndex = 0
                 TabOrder = 0
-                Text = 'WS '#1075'.'#1084'.'#1089'. (W12'#176'23"43.35'#39')'
+                Text = 'WS г.м.с. (W12°23\"43.35'')'
                 Items.Strings = (
-                  'WS '#1075'.'#1084'.'#1089'. (W12'#176'23"43.35'#39')'
-                  'WS '#1075'.'#1084'. (W12'#176'23.454)'
-                  'WS '#1075'. (W12.1233'#176')'
-                  '-- '#1075'.'#1084'.'#1089'. (-12'#176'23"43.35'#39')'
-                  '-- '#1075'.'#1084'. (-12'#176'23.454)'
-                  '-- '#1075'. (-12.1233'#176')')
+                  'WS г.м.с. (W12°23\"43.35'')'
+                  'WS deg.min. (W12°23.454)'
+                  'WS deg. (W12.1233°)'
+                  '-- г.м.с. (-12°23\"43.35'')'
+                  '-- deg.min. (-12°23.454)'
+                  '-- deg. (-12.1233°)')
               end
             end
             object ChBoxFirstLat: TCheckBox
@@ -947,7 +947,7 @@ object frmSettings: TfrmSettings
               Width = 301
               Height = 17
               Align = alTop
-              Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1074' '#1087#1086#1088#1103#1076#1082#1077': '#1096#1080#1088#1086#1090#1072'-'#1076#1086#1083#1075#1086#1090#1072
+              Caption = 'Show as: latitude-longitude'
               TabOrder = 1
             end
           end
@@ -1019,7 +1019,7 @@ object frmSettings: TfrmSettings
               Width = 301
               Height = 17
               Align = alTop
-              Caption = #1053#1086#1095#1085#1086#1081' '#1088#1077#1078#1080#1084' ('#1048#1085#1074#1077#1088#1089#1080#1103' '#1094#1074#1077#1090#1086#1074')'
+              Caption = 'Night mode (color inversion)'
               TabOrder = 2
             end
           end
@@ -1043,7 +1043,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alLeft
               Alignment = taRightJustify
-              Caption = #1040#1083#1075#1086#1088#1080#1090#1084' '#1088#1072#1089#1090#1103#1075#1080#1074#1072#1085#1080#1103' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1103
+              Caption = 'Algorythm'
               Layout = tlCenter
               ExplicitHeight = 13
             end
@@ -1093,7 +1093,7 @@ object frmSettings: TfrmSettings
               Width = 307
               Height = 13
               Align = alTop
-              Caption = #1054#1090#1086#1073#1088#1072#1078#1077#1085#1080#1077' '#1075#1088#1072#1085#1080#1094':'
+              Caption = 'Show borders:'
               ExplicitWidth = 112
             end
             object flwpnlTileBorders: TFlowPanel
@@ -1113,7 +1113,7 @@ object frmSettings: TfrmSettings
                 Top = 6
                 Width = 26
                 Height = 13
-                Caption = #1062#1074#1077#1090
+                Caption = 'Color'
               end
               object ColorBoxBorder: TColorBox
                 Left = 32
@@ -1130,7 +1130,7 @@ object frmSettings: TfrmSettings
                 Top = 6
                 Width = 71
                 Height = 13
-                Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100
+                Caption = 'Opacity'
               end
               object SpinEditBorderAlpha: TSpinEdit
                 Left = 187
@@ -1148,7 +1148,7 @@ object frmSettings: TfrmSettings
                 Top = 6
                 Width = 65
                 Height = 17
-                Caption = #1055#1086#1076#1087#1080#1089#1100
+                Caption = 'Signature'
                 TabOrder = 2
               end
             end
@@ -1184,7 +1184,7 @@ object frmSettings: TfrmSettings
               Width = 144
               Height = 13
               Alignment = taRightJustify
-              Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' '#1082#1072#1088#1090#1099' '#1086#1073#1079#1086#1088#1072
+              Caption = 'Minimap opacity'
             end
             object MiniMapAlphaEdit: TSpinEdit
               Left = 153
@@ -1216,7 +1216,7 @@ object frmSettings: TfrmSettings
               Width = 251
               Height = 13
               Alignment = taRightJustify
-              Caption = #1050#1086#1083'-'#1074#1086' '#1090#1072#1081#1083#1086#1074', '#1079#1072#1075#1088#1091#1078#1072#1077#1084#1099#1093' '#1079#1072' '#1075#1088#1072#1085#1080#1094#1077#1081' '#1101#1082#1088#1072#1085#1072
+              Caption = 'No. of tiles to be downloaded outside the screen'
             end
             object TilesOverScreenEdit: TSpinEdit
               Left = 260
@@ -1248,7 +1248,7 @@ object frmSettings: TfrmSettings
               Width = 299
               Height = 17
               Align = alTop
-              Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1085#1072#1079#1074#1072#1085#1080#1077' '#1082#1072#1088#1090#1099' '#1085#1072' '#1087#1072#1085#1077#1083#1080' '#1080#1085#1089#1090#1088#1091#1084#1077#1085#1090#1086#1074
+              Caption = 'Show map name on tab'
               TabOrder = 0
             end
           end
@@ -1272,7 +1272,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alLeft
               Alignment = taRightJustify
-              Caption = #1071#1079#1099#1082
+              Caption = 'Language'
               Layout = tlCenter
               ExplicitHeight = 13
             end
@@ -1308,7 +1308,7 @@ object frmSettings: TfrmSettings
               Width = 299
               Height = 13
               Align = alTop
-              Caption = #1050#1072#1088#1090#1072' '#1079#1072#1087#1086#1083#1085#1077#1085#1080#1103':'
+              Caption = 'Completion map:'
               ExplicitWidth = 97
             end
             object flwpnlFillMap: TFlowPanel
@@ -1325,7 +1325,7 @@ object frmSettings: TfrmSettings
                 Top = 3
                 Width = 26
                 Height = 13
-                Caption = #1062#1074#1077#1090
+                Caption = 'Color'
               end
               object MapZapColorBox: TColorBox
                 Left = 32
@@ -1343,7 +1343,7 @@ object frmSettings: TfrmSettings
                 Width = 71
                 Height = 13
                 Alignment = taRightJustify
-                Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100
+                Caption = 'Opacity'
               end
               object MapZapAlphaEdit: TSpinEdit
                 Left = 187
@@ -1376,7 +1376,7 @@ object frmSettings: TfrmSettings
               Width = 299
               Height = 17
               Align = alTop
-              Caption = #1047#1072#1082#1088#1077#1087#1080#1090#1100' '#1087#1072#1085#1077#1083#1080' '#1080#1085#1089#1090#1088#1091#1084#1077#1085#1090#1086#1074
+              Caption = 'Fix tabs'
               TabOrder = 0
             end
           end
@@ -1399,7 +1399,7 @@ object frmSettings: TfrmSettings
               Width = 299
               Height = 17
               Align = alTop
-              Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1086#1087#1080#1089#1072#1085#1080#1077' '#1084#1077#1090#1082#1080' '#1087#1088#1080' '#1085#1072#1074#1077#1076#1077#1085#1080#1080' '#1082#1091#1088#1089#1086#1088#1072
+              Caption = 'Show tooltips'
               TabOrder = 0
             end
           end
@@ -1422,7 +1422,7 @@ object frmSettings: TfrmSettings
               Width = 55
               Height = 22
               Align = alLeft
-              Caption = #1062#1074#1077#1090' '#1092#1086#1085#1072
+              Caption = 'Background color'
               Layout = tlCenter
               ExplicitHeight = 13
             end
@@ -1472,7 +1472,7 @@ object frmSettings: TfrmSettings
             Top = 6
             Width = 51
             Height = 13
-            Caption = 'COM-'#1087#1086#1088#1090
+            Caption = 'COM-port'
           end
           object ComboBoxCOM: TComboBox
             Left = 60
@@ -1490,7 +1490,7 @@ object frmSettings: TfrmSettings
             Width = 48
             Height = 13
             Alignment = taRightJustify
-            Caption = #1057#1082#1086#1088#1086#1089#1090#1100
+            Caption = 'Speed'
           end
           object ComboBoxBoudRate: TComboBox
             Left = 203
@@ -1533,7 +1533,7 @@ object frmSettings: TfrmSettings
             Top = 3
             Width = 227
             Height = 13
-            Caption = #1042#1088#1077#1084#1103' '#1086#1078#1080#1076#1072#1085#1080#1103' '#1086#1090#1074#1077#1090#1072' '#1086#1090' '#1087#1088#1080#1077#1084#1085#1080#1082#1072' ('#1089#1077#1082'.)'
+            Caption = 'Device timeout (sec.)'
           end
           object SpinEdit2: TSpinEdit
             Left = 3
@@ -1550,7 +1550,7 @@ object frmSettings: TfrmSettings
             Top = 40
             Width = 161
             Height = 13
-            Caption = #1055#1077#1088#1080#1086#1076' '#1086#1073#1085#1086#1074#1083#1077#1085#1080#1103' ('#1089#1077#1082'./1000)'
+            Caption = 'Refresh rate (sec./1000)'
           end
           object SpinEdit1: TSpinEdit
             Left = 3
@@ -1567,7 +1567,7 @@ object frmSettings: TfrmSettings
             Top = 77
             Width = 164
             Height = 13
-            Caption = #1056#1072#1079#1084#1077#1088' '#1091#1082#1072#1079#1072#1090#1077#1083#1103' '#1085#1072#1087#1088#1072#1074#1083#1077#1085#1080#1103':'
+            Caption = 'Bearing pointer size:'
           end
           object SESizeStr: TSpinEdit
             Left = 3
@@ -1584,7 +1584,7 @@ object frmSettings: TfrmSettings
             Top = 114
             Width = 77
             Height = 13
-            Caption = #1064#1080#1088#1080#1085#1072' '#1090#1088#1077#1082#1072':'
+            Caption = 'Tracklog width:'
           end
           object SESizeTrack: TSpinEdit
             Left = 3
@@ -1601,7 +1601,7 @@ object frmSettings: TfrmSettings
             Top = 151
             Width = 63
             Height = 13
-            Caption = #1062#1074#1077#1090' '#1090#1088#1077#1082#1072':'
+            Caption = 'Tracklog color:'
           end
           object ColorBoxGPSstr: TColorBox
             Left = 3
@@ -1617,7 +1617,7 @@ object frmSettings: TfrmSettings
             Top = 188
             Width = 284
             Height = 13
-            Caption = #1052#1072#1082#1089#1080#1084#1072#1083#1100#1085#1086#1077' '#1082#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1093' '#1090#1086#1095#1077#1082' '#1090#1088#1077#1082#1072':'
+            Caption = 'Max.amount of track rendering points:'
           end
           object SE_NumTrackPoints: TSpinEdit
             Left = 3
@@ -1649,7 +1649,7 @@ object frmSettings: TfrmSettings
             Width = 373
             Height = 17
             Align = alTop
-            Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1090#1088#1077#1082#1080' '#1074' .plt'
+            Caption = 'Autosave tracks to .plt'
             TabOrder = 0
           end
           object CB_GPSlogNmea: TCheckBox
@@ -1659,7 +1659,7 @@ object frmSettings: TfrmSettings
             Width = 373
             Height = 17
             Align = alTop
-            Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1089#1086#1093#1088#1072#1085#1103#1090#1100' '#1090#1088#1077#1082#1080' '#1074' .nmea'
+            Caption = 'Autosave tracks to .nmea'
             TabOrder = 1
           end
         end
@@ -1682,7 +1682,7 @@ object frmSettings: TfrmSettings
             Width = 373
             Height = 17
             Align = alTop
-            Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100'/'#1089#1082#1088#1099#1074#1072#1090#1100' '#1087#1072#1085#1077#1083#1100' '#1076#1072#1090#1095#1080#1082#1086#1074
+            Caption = 'Auto show/hide sensors tab'
             TabOrder = 0
           end
         end
@@ -1701,7 +1701,7 @@ object frmSettings: TfrmSettings
           Width = 250
           Height = 381
           Align = alClient
-          Caption = #1057#1087#1091#1090#1085#1080#1082#1080
+          Caption = 'Satellite'
           TabOrder = 0
           object SatellitePaintBox: TImage32
             AlignWithMargins = True
@@ -1748,7 +1748,7 @@ object frmSettings: TfrmSettings
                 Margins.Right = 0
                 Margins.Bottom = 0
                 Align = alLeft
-                Caption = #1040#1082#1090#1080#1074#1085#1099#1077' '#1089#1087#1091#1090#1085#1080#1082#1080
+                Caption = 'Satellite in use'
                 ExplicitHeight = 13
               end
               object shpSatInfoActive: TShape
@@ -1799,7 +1799,7 @@ object frmSettings: TfrmSettings
                 Margins.Right = 0
                 Margins.Bottom = 0
                 Align = alLeft
-                Caption = #1042#1080#1076#1080#1084#1099#1077
+                Caption = 'Satellite in range'
                 ExplicitHeight = 13
               end
             end
@@ -1823,7 +1823,7 @@ object frmSettings: TfrmSettings
                 Margins.Right = 0
                 Margins.Bottom = 0
                 Align = alLeft
-                Caption = #1042#1080#1076#1080#1084#1099#1077' '#1089' '#1085#1091#1083#1077#1074#1099#1084' '#1089#1080#1075#1085#1072#1083#1086#1084
+                Caption = 'Satellite not in range'
                 ExplicitHeight = 13
               end
               object shpSatInfoZeroSignal: TShape
@@ -1900,7 +1900,7 @@ object frmSettings: TfrmSettings
           Width = 76
           Height = 13
           Anchors = []
-          Caption = #1054#1089#1085#1086#1074#1085#1086#1081' '#1094#1074#1077#1090
+          Caption = 'Primary color'
           ExplicitLeft = 6
           ExplicitTop = 4
         end
@@ -1919,7 +1919,7 @@ object frmSettings: TfrmSettings
           Width = 89
           Height = 13
           Anchors = []
-          Caption = #1062#1074#1077#1090' '#1086#1082#1072#1081#1084#1083#1077#1085#1080#1103
+          Caption = 'Border color'
           ExplicitLeft = 5
           ExplicitTop = 36
         end
@@ -1953,8 +1953,8 @@ object frmSettings: TfrmSettings
           Height = 17
           Align = alTop
           Caption = 
-            #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080' '#1086#1087#1088#1077#1076#1077#1083#1103#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088#1099' '#1073#1072#1079#1086#1074#1099#1093' '#1089#1090#1072#1085#1094#1080#1081' '#1095#1077#1088#1077#1079' '#1087#1086#1076#1082#1083#1102#1095 +
-            #1077#1085#1085#1099#1081' '#1090#1077#1083#1077#1092#1086#1085
+            'Автоматически определять параметры базовых станций через подключ' +
+            'енный телефон'
           TabOrder = 0
           OnClick = chkPosFromGSMClick
         end
@@ -1975,7 +1975,7 @@ object frmSettings: TfrmSettings
             Top = 6
             Width = 51
             Height = 13
-            Caption = 'COM-'#1087#1086#1088#1090
+            Caption = 'COM-port'
           end
           object CBGSMComPort: TComboBox
             Left = 60
@@ -1993,7 +1993,7 @@ object frmSettings: TfrmSettings
             Width = 48
             Height = 13
             Alignment = taRightJustify
-            Caption = #1057#1082#1086#1088#1086#1089#1090#1100
+            Caption = 'Speed'
           end
           object CBGSMBaundRate: TComboBox
             Left = 203
@@ -2026,7 +2026,7 @@ object frmSettings: TfrmSettings
             Height = 13
             Alignment = taRightJustify
             BiDiMode = bdRightToLeft
-            Caption = #1054#1078#1080#1076#1072#1085#1080#1077' '#1086#1090#1074#1077#1090#1072
+            Caption = 'Waiting for connection'
             ParentBiDiMode = False
           end
           object SEWaitingAnswer: TSpinEdit
@@ -2059,7 +2059,7 @@ object frmSettings: TfrmSettings
       Height = 25
       Align = alRight
       Cancel = True
-      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+      Caption = 'Cancel'
       TabOrder = 0
       OnClick = btnCancelClick
     end
@@ -2070,7 +2070,7 @@ object frmSettings: TfrmSettings
       Width = 75
       Height = 25
       Align = alRight
-      Caption = #1054#1050
+      Caption = 'OK'
       Default = True
       ModalResult = 1
       TabOrder = 1
@@ -2083,7 +2083,7 @@ object frmSettings: TfrmSettings
       Width = 75
       Height = 25
       Align = alRight
-      Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
+      Caption = 'Apply'
       TabOrder = 2
       OnClick = btnApplyClick
     end
