@@ -121,9 +121,9 @@ function TDatum.CalcPoligonArea(polygon: TArrayOfDoublePoint): Double;
      VPointsCount:integer;
  begin
    s:=0;
-   VPointsCount:=length(APoints);
+   VPointsCount:=length(APoints)-1;
    for i:=0 to VPointsCount-1 do begin
-     s:=s + (APoints[i].x + APoints[(i+1) mod VPointsCount].y)*(APoints[i].y - APoints[(i+1) mod VPointsCount].y);
+     s:=s+(APoints[(i+1) mod VPointsCount].x-APoints[i].x)*(APoints[(i+1) mod VPointsCount].y+APoints[i].y);
    end;
    result:=-s/2;
  end;
@@ -153,6 +153,7 @@ var Node : TDoublePoint;
     i:integer;
     VPointsCount:integer;
     PointsA: Array of integer;
+    ErrNum:integer;
 begin
    s:=0;
    VPointsCount:=Length(polygon)-1;
@@ -163,6 +164,7 @@ begin
    end;
    Orient := Sign(Orientation(polygon)); //ориентация многоугольника
    PointsNum:=VPointsCount;
+   ErrNum:=0;
    SetLength(PointsA, VPointsCount);
    For NodeN:=0 to VPointsCount-1 do begin
      PointsA[NodeN]:=1;
@@ -171,7 +173,7 @@ begin
      pn[i]:=i;
      p[i] := polygon[i];
    end;
-   while PointsNum > 3 do begin
+   while (PointsNum > 3)and(ErrNum<=VPointsCount) do begin
      if Sign(Det(p[0],p[1],p[2]))=Orient then begin//Проверка ориентации треугольника
        inPoint := false;
        NodeN:=(pn[2]+1) mod VPointsCount;
@@ -190,9 +192,11 @@ begin
        s:=s+SphericalTriangleSquare(p);
        PointsA[pn[1]]:=0;    //Удаление вершины из рассмотрения
        dec(PointsNum);
+       ErrNum:=0;
      end else begin
        pn[0] := pn[1];          //  Переход к следущему треугольнику
        p[0] := polygon[pn[0]];
+       inc(ErrNum);
      end;
      pn[1] := pn[2];  //  Переход к следущему треугольнику
      p[1] := polygon[pn[1]];
@@ -202,8 +206,12 @@ begin
      end;
      p[2] := polygon[pn[2]];
    end;
-   s:=s+SphericalTriangleSquare(p);
-   result:=s;
+   if ErrNum<=VPointsCount then begin
+     s:=s+SphericalTriangleSquare(p);
+     result:=s;
+   end else begin
+     result:=NAN;
+   end;
 end;
 
 constructor TDatum.Create(AEPSG: Integer; ARadiusA: Double);
