@@ -5,65 +5,68 @@ interface
 uses
   Windows,
   Classes,
+  SysUtils,
   SyncObjs,
   i_TileDownlodSession,
+  u_TileDownloaderEventElement,
   u_MapLayerShowError,
   u_MapType;
 
 type
-  TEventRec = record
-    TileMap    : TMapType;
-    TileXY     : TPoint;
-    TileZoom   : Byte;
-    TileSize   : Int64;
-    DownResult : TDownloadTileResult;
-  end;
-
   TTileDownloaderEventProcessor = class (TTHread)
   private
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorShowLayer: TTileErrorInfoLayer;
-    FEventBuffer: array of TEventRec;
-    FEventCount: Integer;
+    FEventList: TList;
     FThreadSafe: TCriticalSection;
+    FSemaphore: THandle;
     procedure Lock;
     procedure Unlock;
-    procedure ProcessEventBuffer;
-    procedure ProcessSingleEvent(EventId: Integer);
-    function  GetErrStr(Aerr: TDownloadTileResult): string;
+    procedure ProcessEventList;
   protected
     procedure Execute; override;
   public
     constructor Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorShowLayer: TTileErrorInfoLayer);
     destructor Destroy; override;
-    procedure Process(AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult);
+    procedure AddEvent(AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult);
   end;
 
 implementation
-
-uses
-  u_GlobalState,
-  u_ResStrings;
-
-const
-  EventBufferIncStep = 32;
 
 { TTileDownloaderEventProcessor }
 
 constructor TTileDownloaderEventProcessor.Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorShowLayer: TTileErrorInfoLayer);
 begin
   inherited Create(True);
+  FSemaphore := CreateSemaphore(nil, 0, 1, nil);
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorShowLayer := AErrorShowLayer;
-  FEventCount := 0;
   FThreadSafe := TCriticalSection.Create;
-  SetLength(FEventBuffer, EventBufferIncStep);
+  FEventList := TList.Create;
   Self.FreeOnTerminate := True;
   Self.Resume;
 end;
 
 destructor TTileDownloaderEventProcessor.Destroy;
+var
+  I: Integer;
+  VEvent: TTileDownloaderEventElement;
 begin
+    Lock;
+  try
+    for I := 0 to FEventList.Count - 1 do
+    try
+      VEvent := TTileDownloaderEventElement(FEventList.Items[I]);
+      if Assigned(VEvent) then
+        FreeAndNil(VEvent);
+    except
+    end;
+    FEventList.Clear;
+    FreeAndNil(FEventList);
+  finally
+    Unlock;
+  end;
+  CloseHandle(FSemaphore);
   FThreadSafe.Free;
   inherited Destroy;
 end;
@@ -78,60 +81,44 @@ begin
   FThreadSafe.Release;
 end;
 
-procedure TTileDownloaderEventProcessor.Process(AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult);
+procedure TTileDownloaderEventProcessor.AddEvent(AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult);
+var
+  VEvent: TTileDownloaderEventElement;
 begin
-    Lock;
+  VEvent := TTileDownloaderEventElement.Create(FMapTileUpdateEvent, FErrorShowLayer);
+  VEvent.MapType := AMapType;
+  VEvent.TileXY := ATile;
+  VEvent.TileZoom := AZoom;
+  VEvent.TileSize := ATileSize;
+  VEvent.DownloadResult := AResult;
+  Lock;
   try
-    if Length(FEventBuffer) <= FEventCount then
-      SetLength(FEventBuffer, Length(FEventBuffer) + EventBufferIncStep);
-
-    with FEventBuffer[FEventCount] do
-    begin
-      TileMap    := AMapType;
-      TileXY     := ATile;
-      TileZoom   := AZoom;
-      TileSize   := ATileSize;
-      DownResult := AResult;
-    end;
-
-    Inc(FEventCount);
-
+    FEventList.Add(VEvent);
   finally
     Unlock;
   end;
+  ReleaseSemaphore(FSemaphore, 1, nil);
 end;
 
-procedure TTileDownloaderEventProcessor.ProcessSingleEvent(EventId: Integer);
+procedure TTileDownloaderEventProcessor.ProcessEventList;
 var
-  VErrorString: string;
-begin
-  VErrorString := GetErrStr(FEventBuffer[EventId].DownResult);
-  if (FEventBuffer[EventId].DownResult = dtrOK) or (FEventBuffer[EventId].DownResult = dtrSameTileSize) then begin
-    GState.DownloadInfo.Add(1, FEventBuffer[EventId].TileSize);
-  end;
-  if VErrorString <> '' then begin
-    if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.ShowError(FEventBuffer[EventId].TileXY, FEventBuffer[EventId].TileZoom, FEventBuffer[EventId].TileMap, VErrorString);
-    end;
-  end else begin
-    if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.Visible := False;
-    end;
-    if Addr(FMapTileUpdateEvent) <> nil then begin
-      FMapTileUpdateEvent(FEventBuffer[EventId].TileMap, FEventBuffer[EventId].TileZoom, FEventBuffer[EventId].TileXY);
-    end;
-  end;
-end;
-
-procedure TTileDownloaderEventProcessor.ProcessEventBuffer;
-var
-  i: Integer;
+  I: Integer;
+  VEvent: TTileDownloaderEventElement;
 begin
   try
-    for i := 0 to FEventCount - 1 do
-      ProcessSingleEvent(i);
+    for I := 0 to FEventList.Count - 1 do
+    try
+      VEvent := TTileDownloaderEventElement(FEventList.Items[I]);
+      try
+        if Assigned(VEvent) then
+          VEvent.Process;
+      except
+      end;
+    finally
+      FreeAndNil(VEvent);
+    end;
   finally
-    FEventCount := 0;
+    FEventList.Clear;
   end;
 end;
 
@@ -140,52 +127,16 @@ begin
   repeat
     if Terminated then
       Break;
-
-      Lock;
-    try
-      if FEventCount > 0 then
-        Synchronize(ProcessEventBuffer);
-    finally
-      Unlock;
+    if WaitForSingleObject(FSemaphore, 300) = WAIT_OBJECT_0 then
+    begin
+        Lock;
+      try
+        Synchronize(ProcessEventList);
+      finally
+        Unlock;
+      end;
     end;
-
-     Sleep(60);
-
   until False;
-end;
-
-function TTileDownloaderEventProcessor.GetErrStr(Aerr: TDownloadTileResult): string;
-begin
-  case Aerr of
-    dtrProxyAuthError:
-    begin
-      result := SAS_ERR_Authorization;
-    end;
-    dtrBanError:
-    begin
-      result := SAS_ERR_Ban;
-    end;
-    dtrTileNotExists:
-    begin
-      result := SAS_ERR_TileNotExists;
-    end;
-    dtrDownloadError,
-    dtrErrorInternetOpen,
-    dtrErrorInternetOpenURL:
-    begin
-      result := SAS_ERR_Noconnectionstointernet;
-    end;
-    dtrErrorMIMEType:
-    begin
-      result := SAS_ERR_TileDownloadContentTypeUnexpcted;
-    end;
-    dtrUnknownError:
-    begin
-      Result := SAS_ERR_TileDownloadUnexpectedError;
-    end else begin
-    result := '';
-  end;
-  end;
 end;
 
 end.

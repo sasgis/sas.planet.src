@@ -42,7 +42,7 @@ type
 
     FEventProcessor: TTileDownloaderEventProcessor;
     FMaxRequestCount: Integer;
-    FCurRequestCount: Integer;
+    FSemaphore: THandle;
 
     procedure GetCurrentMapAndPos;
     procedure OnPosChange(Sender: TObject);
@@ -95,7 +95,7 @@ begin
 
   FEventProcessor := TTileDownloaderEventProcessor.Create(AMapTileUpdateEvent, AErrorShowLayer);
   FMaxRequestCount := 4;
-  FCurRequestCount := 0;
+  FSemaphore := CreateSemaphore(nil, FMaxRequestCount, FMaxRequestCount, nil);
   OnTileDownload := OnTileDownloadEvent;
 
   Priority := tpLower;
@@ -123,6 +123,7 @@ var
   VWaitResult: DWORD;
 begin
   FLinksList := nil;
+  CloseHandle(FSemaphore);
   FEventProcessor.Terminate;
   VWaitResult := WaitForSingleObject(Handle, 10000);
   if VWaitResult = WAIT_TIMEOUT then begin
@@ -174,12 +175,10 @@ end;
 
 procedure TTileDownloaderUI.OnTileDownloadEvent(AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult);
 begin
-  InterlockedDecrement(FCurRequestCount);
-  if FCurRequestCount < 0 then
-    FCurRequestCount := 0;
-  
+  ReleaseSemaphore(FSemaphore, 1, nil);
+
   if Assigned(FEventProcessor) then
-    FEventProcessor.Process(AMapType, ATile, AZoom, ATileSize, AResult);
+    FEventProcessor.AddEvent(AMapType, ATile, AZoom, ATileSize, AResult);
 end;
 
 procedure TTileDownloaderUI.Execute;
@@ -302,11 +301,14 @@ begin
                 end;
                 if VNeedDownload then
                 try
-                  while FCurRequestCount >= FMaxRequestCount do begin
-                    Sleep(30);
-                  end;
-                  FMapType.DownloadTile(@OnTileDownload, FLoadXY, VZoom, false, 0);
-                  InterlockedIncrement(FCurRequestCount);
+                  repeat
+                    if WaitForSingleObject(FSemaphore, 300) = WAIT_OBJECT_0  then
+                      Break
+                    else if Terminated then
+                         Break;
+                  until False;
+                  if not Terminated then
+                    FMapType.DownloadTile(@OnTileDownload, FLoadXY, VZoom, False, 0);
                 except
 
                 end;
