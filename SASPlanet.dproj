@@ -587,6 +587,7 @@
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_StatBarConfig.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
+    <DCCReference Include="u_ThreadExportYaMapsNew.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
     <DCCReference Include="u_TileDownloaderBase.pas" />
     <DCCReference Include="u_TileDownloaderBaseFactory.pas" />

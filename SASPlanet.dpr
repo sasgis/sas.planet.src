@@ -99,6 +99,7 @@ uses
   u_ThreadExportIPhone in 'RegionProcess\u_ThreadExportIPhone.pas',
   u_ThreadExportKML in 'RegionProcess\u_ThreadExportKML.pas',
   u_ThreadExportYaMaps in 'RegionProcess\u_ThreadExportYaMaps.pas',
+  u_ThreadExportYaMapsNew in 'u_ThreadExportYaMapsNew.pas',
   u_ThreadExportToAUX in 'RegionProcess\u_ThreadExportToAUX.pas',
   u_ThreadDeleteTiles in 'RegionProcess\u_ThreadDeleteTiles.pas',
   u_ThreadGenPrevZoom in 'RegionProcess\u_ThreadGenPrevZoom.pas',
@@ -538,7 +539,7 @@ begin
   Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
   Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
   Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
-    if GState.ShowDebugInfo then begin
+  if GState.ShowDebugInfo then begin
       Application.CreateForm(TfrmDebugInfo, frmDebugInfo);
     end;
     GState.StartExceptionTracking;
