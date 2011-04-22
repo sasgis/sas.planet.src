@@ -160,7 +160,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Top = 176
     Width = 489
     Height = 57
-    Caption = 'Track parameters'
+    Caption = 'Path parameters'
     TabOrder = 2
     object lblLineColor: TLabel
       Left = 88

@@ -1308,7 +1308,7 @@ object frmSettings: TfrmSettings
               Width = 299
               Height = 13
               Align = alTop
-              Caption = 'Completion map:'
+              Caption = 'Cached tiles map:'
               ExplicitWidth = 97
             end
             object flwpnlFillMap: TFlowPanel

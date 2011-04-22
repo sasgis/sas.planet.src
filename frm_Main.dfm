@@ -94,7 +94,7 @@ object frmMain: TfrmMain
         LinkSubitems = NFillMap
         Options = [tboDropdownArrow, tboShowHint]
         Caption = ''
-        Hint = 'Completion map'
+        Hint = 'Cached tiles map'
       end
       object TBGoTo: TTBXSubmenuItem
         DropdownCombo = True
@@ -269,7 +269,7 @@ object frmMain: TfrmMain
       TabOrder = 5
       Caption = 'Main Menu'
       object NOperations: TTBXSubmenuItem
-        Caption = '&Go!'
+        Caption = '&Operations'
         Hint = ''
         object N35: TTBXItem
           OnClick = N35Click
@@ -343,7 +343,7 @@ object frmMain: TfrmMain
             Images = PanelsImageList
             ShortCut = 32848
             OnClick = TBREGIONClick
-            Caption = 'Freehand Selection'
+            Caption = 'Polynomial Selection'
             Hint = ''
           end
           object TBCOORD: TTBXItem
@@ -479,11 +479,11 @@ object frmMain: TfrmMain
           ImageIndex = 7
           Images = MenusImageList
           OnClick = NFillMapClick
-          Caption = 'Completion Map'
+          Caption = 'Cached Tiles Map'
           Hint = ''
           object TBFillingTypeMap: TTBXSubmenuItem
             Options = [tboDropdownArrow]
-            Caption = 'Show completion map for...'
+            Caption = 'Show for...'
             Hint = ''
           end
           object TBXSeparatorItem11: TTBXSeparatorItem
@@ -783,8 +783,8 @@ object frmMain: TfrmMain
           Images = PanelsImageList
           MaskOptions = [tboShowHint]
           OnClick = TBAdd_LineClick
-          Caption = 'Add Track'
-          Hint = 'Add new track'
+          Caption = 'Add Path'
+          Hint = 'Add new path'
         end
         object TBAdd_Poly: TTBXItem
           ImageIndex = 17
@@ -2910,7 +2910,7 @@ object frmMain: TfrmMain
     object NMarkNav: TTBXItem
       ImageIndex = 33
       OnClick = NMarkNavClick
-      Caption = 'Navidate to Placemark'
+      Caption = 'Navigate to Placemark'
       Hint = ''
     end
     object NMarkExport: TTBXItem

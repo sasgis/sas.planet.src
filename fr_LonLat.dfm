@@ -25,10 +25,10 @@ object frLonLat: TfrLonLat
       ItemHeight = 13
       ItemIndex = 0
       TabOrder = 0
-      Text = 'Geographical'
+      Text = 'Geographic'
       OnSelect = ComboBoxCoordTypeSelect
       Items.Strings = (
-        'Geographical'
+        'Geographic'
         'Pixel'
         'Tile')
     end

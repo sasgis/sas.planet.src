@@ -1,7 +1,7 @@
 object frmMarkEditPath: TfrmMarkEditPath
   Left = 187
   Top = 189
-  Caption = 'Add New Track'
+  Caption = 'Add New Path'
   ClientHeight = 327
   ClientWidth = 328
   Color = clBtnFace

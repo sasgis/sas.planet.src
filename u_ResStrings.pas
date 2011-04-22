@@ -38,7 +38,7 @@ ResourceString
   SAS_ERR_BadFile = 'The tile is corrupt!';
   SAS_ERR_FileNotFound = 'File not found!';
   SAS_ERR_PortOpen = 'Error opening port!';
-  SAS_ERR_Communication = 'Error communicating with device'; //GPS receiver??
+  SAS_ERR_Communication = 'Error communicating with device';
   SAS_ERR_UnablePposition = 'Unable to fix position';
   SAS_ERR_ParamsInput = 'Error in parameters!';
   SAS_ERR_LonLat1 = 'Longitude of upper left corner must be less than '#13#10 +
@@ -46,7 +46,7 @@ ResourceString
   SAS_ERR_LonLat2 = 'Latitude of upper left corner must be less than '#13#10 +
     'latitude of lower right corner';
   SAS_ERR_CreateArh = 'Error creating archive!';
-  SAS_ERR_NotLoads = 'The map is unable to load'; //кто чего не позволяет??
+  SAS_ERR_NotLoads = 'The map is unable to load';
   SAS_ERR_Authorization = 'Proxy authorization error';
   SAS_ERR_WaitTime = 'Wait %0:d secons...';
   SAS_ERR_Ban = 'Most likely you''ve been banned by the server!';
@@ -64,15 +64,15 @@ ResourceString
   SAS_ERR_MapGUIDDuplicate = 'Files %0:s and %1:s have the same GUID';
   SAS_ERR_MainMapNotExists = 'You need at least one MAP among your ZMP files';
   SAS_ERR_CategoryNameDoubling = 'Category name already exists';
-  SAS_ERR_UrlScriptError = 'Map script error %0:s (%2:s):'#13#10'%1:s';  // какие тут параметры??
-  SAS_ERR_UrlScriptUnexpectedError = 'Map script error %0:s (%2:s):'#13#10'Unexpected error'; // какие тут параметры??
+  SAS_ERR_UrlScriptError = 'Map script error %0:s (%2:s):'#13#10'%1:s';
+  SAS_ERR_UrlScriptUnexpectedError = 'Map script error %0:s (%2:s):'#13#10'Unexpected error';
   SAS_ERR_UrlScriptCompileError = 'Compilation error in script '#13#10'%0:s';
   SAS_ERR_UrlScriptByteCodeLoad = 'Error at script bytecode loading';
   SAS_ERR_MapProjectionUnexpectedType = 'Error in projection \"%0:s\" of the map';
   SAS_ERR_MapDownloadByError = 'Download of map %0:s disabled because of error: %1:s';
   SAS_ERR_TileDownloadContentTypeUnexpcted = 'Unexpeced conent type';
   SAS_ERR_TileDownloadUnexpectedError = 'Unknown error during download';
-  SAS_ERR_CoordinatesInput='Error in geographical coordinates';
+  SAS_ERR_CoordinatesInput='Error in geographic coordinates';
 
   SAS_STR_MarshLen = 'Distance:';
   SAS_STR_Marshtime = 'Time to reach:';
@@ -88,7 +88,7 @@ ResourceString
   SAS_STR_for = 'For';
   SAS_STR_savetreck = 'Saving track...';
   SAS_STR_loadhl = 'Loading selection...';
-  SAS_STR_notfound = 'Nothing found on current map.'; //что искали??
+  SAS_STR_notfound = 'Nothing found on current map.';
   SAS_STR_foundplace = 'Found';
   SAS_STR_Process = 'Processing...';
   SAS_STR_WiteLoad = 'Please wait, download in progress...';
@@ -108,15 +108,15 @@ ResourceString
   SAS_STR_Deleted = 'Deleting:';
   SAS_STR_Gamma = 'Gamma';
   SAS_STR_Contrast = 'Contrast';
-  SAS_STR_NewPath = 'Track %0:d';
+  SAS_STR_NewPath = 'Path %0:d';
   SAS_STR_NewMark = 'Placemark %0:d';
   SAS_STR_NewPoly = 'Polygon %0:d';
   SAS_STR_NewCategory = 'New Category';
-  SAS_STR_AddNewPath = 'Add New Track';
+  SAS_STR_AddNewPath = 'Add New Path';
   SAS_STR_AddNewMark = 'Add New Placemark';
   SAS_STR_AddNewPoly = 'Add New Polygon';
   SAS_STR_AddNewCategory = 'Add New Category';
-  SAS_STR_EditPath = 'Edit Track';
+  SAS_STR_EditPath = 'Edit Path';
   SAS_STR_EditMark = 'Edit Placemark';
   SAS_STR_EditPoly = 'Edit Polygon';
   SAS_STR_EditCategory = 'Edit Category';
@@ -187,9 +187,9 @@ ResourceString
   SAS_STR_SensorGPSRecorderOdometer1Description = 'Shows total distance';
   SAS_STR_SensorGPSRecorderOdometer1MenuItemName = 'Odometer';
 
-  SAS_STR_SensorGPSRecorderOdometer2Caption = 'Distance №2, km:';
+  SAS_STR_SensorGPSRecorderOdometer2Caption = 'Distance #2, km:';
   SAS_STR_SensorGPSRecorderOdometer2Description = 'Shows total distance';
-  SAS_STR_SensorGPSRecorderOdometer2MenuItemName = 'Odometer №2';
+  SAS_STR_SensorGPSRecorderOdometer2MenuItemName = 'Odometer #2';
 
   SAS_STR_SensorGPSRecorderAltitudeCaption = 'Altitude';
   SAS_STR_SensorGPSRecorderAltitudeDescription = 'Shows GPS altitude';
