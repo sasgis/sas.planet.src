@@ -23,6 +23,9 @@ type
     property DrawTask: IBackgroundTaskLayerDraw read FDrawTask;
     function BuildBitmapCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter; virtual;
 
+    procedure UpdateLayerSize(ANewSize: TPoint); virtual;
+    procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
+  protected
     procedure DoRedraw; override;
     procedure DoHide; override;
     procedure DoShow; override;
@@ -49,8 +52,14 @@ uses
 procedure TMapLayerWithThreadDraw.AfterPosChange;
 begin
   inherited;
-  FDrawTask.ChangePos(FBitmapCoordConverter);
-  UpdateLayerLocation(GetMapLayerLocationRect);
+  FDrawTask.StopExecute;
+  try
+    UpdateLayerSize(FBitmapCoordConverter.GetLocalRectSize);
+    UpdateLayerLocation;
+    FDrawTask.ChangePos(FBitmapCoordConverter);
+  finally
+    FDrawTask.StartExecute;
+  end;
 end;
 
 function TMapLayerWithThreadDraw.BuildBitmapCoordConverter(
@@ -106,8 +115,14 @@ procedure TMapLayerWithThreadDraw.DoShow;
 begin
   inherited;
   FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
+  UpdateLayerSize(FBitmapCoordConverter.GetLocalRectSize);
+  UpdateLayerLocation;
   FDrawTask.ChangePos(FBitmapCoordConverter);
-  UpdateLayerLocation(GetMapLayerLocationRect);
+end;
+
+procedure TMapLayerWithThreadDraw.DoUpdateLayerSize(ANewSize: TPoint);
+begin
+
 end;
 
 function TMapLayerWithThreadDraw.GetMapLayerLocationRect: TFloatRect;
@@ -139,6 +154,11 @@ begin
   inherited;
   FDrawTask.Start;
   FDrawTask.ChangePos(FBitmapCoordConverter);
+end;
+
+procedure TMapLayerWithThreadDraw.UpdateLayerSize(ANewSize: TPoint);
+begin
+
 end;
 
 end.

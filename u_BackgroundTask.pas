@@ -14,13 +14,14 @@ type
   private
     FStopThread: TEvent;
     FAllowExecute: TEvent;
-    FExecuteCS: TCriticalSection;
+    FCS: TCriticalSection;
     FExecuteStopCounter: Longint;
-  protected
     FNeedStopExecute: Boolean;
+  protected
     procedure ExecuteTask; virtual; abstract;
     procedure Execute; override;
     procedure Terminate; override;
+    property NeedStopExecute: Boolean read FNeedStopExecute;
   protected
     procedure StartExecute; virtual;
     procedure StopExecute; virtual;
@@ -41,7 +42,7 @@ begin
   inherited;
   FStopThread := TEvent.Create(nil, True, False, '');
   FAllowExecute := TEvent.Create(nil, True, False, '');
-  FExecuteCS := TCriticalSection.Create;
+  FCS := TCriticalSection.Create;
 end;
 
 destructor TBackgroundTask.Destroy;
@@ -49,7 +50,7 @@ begin
   Terminate;
   FreeAndNil(FStopThread);
   FreeAndNil(FAllowExecute);
-  FreeAndNil(FExecuteCS);
+  FreeAndNil(FCS);
   inherited;
 end;
 
@@ -66,14 +67,14 @@ begin
     case VWaitResult of
       WAIT_OBJECT_0:
       begin
-        FExecuteCS.Acquire;
+        ExecuteTask;
+        FCS.Acquire;
         try
-          ExecuteTask;
           if not FNeedStopExecute then begin
             FAllowExecute.ResetEvent;
           end;
         finally
-          FExecuteCS.Release;
+          FCS.Release;
         end;
       end;
     end;
@@ -86,12 +87,12 @@ var
 begin
   VCouner := InterlockedDecrement(FExecuteStopCounter);
   if VCouner = 0 then begin
-    FNeedStopExecute := False;
-    FExecuteCS.Acquire;
+    FCS.Acquire;
     try
+      FNeedStopExecute := False;
       FAllowExecute.SetEvent;
     finally
-      FExecuteCS.Release;
+      FCS.Release;
     end;
   end;
 end;
@@ -99,12 +100,12 @@ end;
 procedure TBackgroundTask.StopExecute;
 begin
   InterlockedIncrement(FExecuteStopCounter);
-  FNeedStopExecute := True;
-  FExecuteCS.Acquire;
+  FCS.Acquire;
   try
+    FNeedStopExecute := True;
     FAllowExecute.ResetEvent;
   finally
-    FExecuteCS.Release;
+    FCS.Release;
   end;
 end;
 

@@ -20,19 +20,25 @@ type
     FLinksList: IJclListenerNotifierLinksList;
     FViewPortState: IViewPortState;
     FVisualCoordConverter: ILocalCoordConverter;
-    procedure OnPosChange(Sender: TObject); virtual;
+    procedure OnPosChange(Sender: TObject);
+    procedure OnScaleChange(Sender: TObject);
   protected
     procedure SetVisualCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual; abstract;
     procedure PreparePosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure AfterPosChange; virtual;
 
+    procedure ScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure AfterScaleChange; virtual;
+
+
     procedure IncRedrawCounter(ATime: TDateTime);
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
     property ViewPortState: IViewPortState read FViewPortState;
     property VisualCoordConverter: ILocalCoordConverter read FVisualCoordConverter;
   public
-    constructor Create(AViewPortState: IViewPortState);
+    constructor Create(AViewPortState: IViewPortState; AListenScaleChange: Boolean);
     destructor Destroy; override;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
@@ -55,7 +61,11 @@ procedure TWindowLayerAbstract.AfterPosChange;
 begin
 end;
 
-constructor TWindowLayerAbstract.Create(AViewPortState: IViewPortState);
+procedure TWindowLayerAbstract.AfterScaleChange;
+begin
+end;
+
+constructor TWindowLayerAbstract.Create(AViewPortState: IViewPortState; AListenScaleChange: Boolean);
 begin
   FCS := TCriticalSection.Create;
   FRedrawCounter := 0;
@@ -67,6 +77,12 @@ begin
     TNotifyEventListener.Create(Self.OnPosChange),
     FViewPortState.GetChangeNotifier
   );
+  if AListenScaleChange then begin
+    LinksList.Add(
+      TNotifyEventListener.Create(Self.OnScaleChange),
+      ViewPortState.ScaleChangeNotifier
+    );
+  end;
 end;
 
 destructor TWindowLayerAbstract.Destroy;
@@ -97,6 +113,23 @@ end;
 procedure TWindowLayerAbstract.OnPosChange(Sender: TObject);
 begin
   PosChange(FViewPortState.GetVisualCoordConverter);
+end;
+
+procedure TWindowLayerAbstract.DoScaleChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  SetVisualCoordConverter(ANewVisualCoordConverter);
+end;
+
+procedure TWindowLayerAbstract.OnScaleChange(Sender: TObject);
+begin
+  ScaleChange(ViewPortState.GetVisualCoordConverter);
+end;
+
+procedure TWindowLayerAbstract.ScaleChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  DoScaleChange(ANewVisualCoordConverter);
 end;
 
 procedure TWindowLayerAbstract.SendTerminateToThreads;

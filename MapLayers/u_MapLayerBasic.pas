@@ -14,11 +14,6 @@ uses
 
 type
   TMapLayerBase = class(TWindowLayerBasic)
-  private
-    procedure OnScaleChange(Sender: TObject);
-  protected
-    procedure ScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
   end;
@@ -77,31 +72,14 @@ uses
 constructor TMapLayerBase.Create(ALayer: TPositionedLayer;
   AViewPortState: IViewPortState);
 begin
-  inherited;
-  LinksList.Add(
-    TNotifyEventListener.Create(Self.OnScaleChange),
-    ViewPortState.ScaleChangeNotifier
-  );
+  inherited Create(ALayer, AViewPortState, True);
 end;
 
 procedure TMapLayerBase.DoScaleChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
-  SetVisualCoordConverter(ANewVisualCoordConverter);
-  UpdateLayerLocation(GetMapLayerLocationRect);
-end;
-
-procedure TMapLayerBase.OnScaleChange(Sender: TObject);
-begin
-  ScaleChange(ViewPortState.GetVisualCoordConverter);
-end;
-
-procedure TMapLayerBase.ScaleChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-begin
-  if Visible then begin
-    DoScaleChange(ANewVisualCoordConverter);
-  end;
+  inherited;
+  SetNeedUpdateLocation;
 end;
 
 { TMapLayerBasicNoBitmap }
@@ -195,7 +173,7 @@ begin
   if Visible then begin
     if (FLayerSize.X <> ANewSize.X) or (FLayerSize.Y <> ANewSize.Y) then begin
       DoUpdateLayerSize(ANewSize);
-      UpdateLayerLocation(GetMapLayerLocationRect);
+      UpdateLayerLocation;
     end;
   end;
 end;
@@ -272,7 +250,7 @@ procedure TMapLayerBasic.AfterPosChange;
 begin
   inherited;
   UpdateBitmapConverterByVisual(VisualCoordConverter);
-  UpdateLayerLocation(GetMapLayerLocationRect);
+  UpdateLayerLocation;
 end;
 
 procedure TMapLayerBasic.DoShow;

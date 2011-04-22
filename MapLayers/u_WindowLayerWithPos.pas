@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   GR32,
   GR32_Layers,
   GR32_Image,
@@ -16,26 +17,38 @@ type
   private
     FVisible: Boolean;
     FLayer: TPositionedLayer;
+
+    FNeedRedraw: Boolean;
+    FNeedUpdateLocation: Boolean;
+    FNeedRedrawCS: TCriticalSection;
   protected
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
 
-    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; virtual;
-    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure SetNeedRedraw; virtual;
+    procedure SetNeedUpdateLocation; virtual;
 
-    procedure UpdateLayerLocation(ANewLocation: TFloatRect); virtual;
+    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; virtual;
+
+    function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
+    procedure UpdateLayerLocationIfNeed; virtual;
+    procedure UpdateLayerLocation; virtual;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); virtual;
+
     procedure DoShow; virtual;
     procedure DoHide; virtual;
     procedure DoRedraw; virtual; abstract;
-    function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
+    procedure RedrawIfNeed; virtual;
 
     property LayerPositioned: TPositionedLayer read FLayer;
     property Visible: Boolean read GetVisible write SetVisible;
   protected
+    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
     procedure AfterPosChange; override;
+    procedure AfterScaleChange; override;
   public
-    constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
+    constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState; AListenScaleChange: Boolean);
     destructor Destroy; override;
     procedure Redraw; virtual;
     procedure Show; virtual;
@@ -43,12 +56,18 @@ type
   end;
 
   TWindowLayerWithBitmap = class(TWindowLayerBasic)
+  private
+    FNeedUpdateLayerSize: Boolean;
   protected
     FLayer: TBitmapLayer;
-    procedure UpdateLayerSize(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure SetNeedUpdateLayerSize; virtual;
+
+    procedure UpdateLayerSize; virtual;
+    procedure UpdateLayerSizeIfNeed; virtual;
     procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
     function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
   protected
+    procedure DoHide; override;
     procedure DoShow; override;
     procedure AfterPosChange; override;
   public
@@ -65,6 +84,7 @@ implementation
 
 uses
   Types,
+  SysUtils,
   Graphics;
 
 { TWindowLayerBasic }
@@ -72,21 +92,31 @@ uses
 procedure TWindowLayerBasic.AfterPosChange;
 begin
   inherited;
-  UpdateLayerLocation(GetMapLayerLocationRect);
+  RedrawIfNeed;
+  UpdateLayerLocationIfNeed;
 end;
 
-constructor TWindowLayerBasic.Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
+procedure TWindowLayerBasic.AfterScaleChange;
 begin
-  inherited Create(AViewPortState);
+  inherited;
+  UpdateLayerLocationIfNeed;
+end;
+
+constructor TWindowLayerBasic.Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState; AListenScaleChange: Boolean);
+begin
+  inherited Create(AViewPortState, AListenScaleChange);
   FLayer := ALayer;
 
   FLayer.MouseEvents := false;
   FLayer.Visible := false;
   FVisible := False;
+  FNeedRedraw := True;
+  FNeedRedrawCS := TCriticalSection.Create;
 end;
 
 destructor TWindowLayerBasic.Destroy;
 begin
+  FreeAndNil(FNeedRedrawCS);
   FLayer := nil;
   inherited;
 end;
@@ -95,12 +125,25 @@ procedure TWindowLayerBasic.DoHide;
 begin
   FVisible := False;
   FLayer.Visible := False;
+  SetNeedRedraw;
+  SetNeedUpdateLocation;
+end;
+
+procedure TWindowLayerBasic.DoScaleChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  inherited;
+  if Visible then begin
+    AfterScaleChange;
+  end;
 end;
 
 procedure TWindowLayerBasic.DoShow;
 begin
   FVisible := True;
   FLayer.Visible := True;
+  SetNeedRedraw;
+  SetNeedUpdateLocation;
 end;
 
 procedure TWindowLayerBasic.DoUpdateLayerLocation(ANewLocation: TFloatRect);
@@ -140,10 +183,35 @@ begin
   end;
 end;
 
-procedure TWindowLayerBasic.UpdateLayerLocation(ANewLocation: TFloatRect);
+procedure TWindowLayerBasic.UpdateLayerLocation;
 begin
   if FVisible then begin
-    DoUpdateLayerLocation(ANewLocation);
+    FNeedRedrawCS.Acquire;
+    try
+      FNeedUpdateLocation := False;
+    finally
+      FNeedRedrawCS.Release;
+    end;
+    DoUpdateLayerLocation(GetMapLayerLocationRect);
+  end;
+end;
+
+procedure TWindowLayerBasic.UpdateLayerLocationIfNeed;
+var
+  VNeed: Boolean;
+begin
+  VNeed := False;
+  FNeedRedrawCS.Acquire;
+  try
+    if FNeedUpdateLocation then begin
+      FNeedUpdateLocation := False;
+      VNeed := True;
+    end;
+  finally
+    FNeedRedrawCS.Release;
+  end;
+  if VNeed then begin
+    UpdateLayerLocation;
   end;
 end;
 
@@ -156,6 +224,12 @@ var
 begin
   if FVisible then begin
     try
+      FNeedRedrawCS.Acquire;
+      try
+        FNeedRedraw := False;
+      finally
+        FNeedRedrawCS.Release;
+      end;
       QueryPerformanceCounter(VPerformanceCounterBegin);
       DoRedraw;
     finally
@@ -164,6 +238,45 @@ begin
       VUpdateTime := (VPerformanceCounterEnd - VPerformanceCounterBegin) / VPerformanceCounterFr/24/60/60;
       IncRedrawCounter(VUpdateTime);
     end;
+  end;
+end;
+
+procedure TWindowLayerBasic.RedrawIfNeed;
+var
+  VNeed: Boolean;
+begin
+  VNeed := False;
+  FNeedRedrawCS.Acquire;
+  try
+    if FNeedRedraw then begin
+      FNeedRedraw := False;
+      VNeed := True;
+    end;
+  finally
+    FNeedRedrawCS.Release;
+  end;
+  if VNeed then begin
+    Redraw;
+  end;
+end;
+
+procedure TWindowLayerBasic.SetNeedRedraw;
+begin
+  FNeedRedrawCS.Acquire;
+  try
+    FNeedRedraw := True;
+  finally
+    FNeedRedrawCS.Release;
+  end;
+end;
+
+procedure TWindowLayerBasic.SetNeedUpdateLocation;
+begin
+  FNeedRedrawCS.Acquire;
+  try
+    FNeedUpdateLocation := True;
+  finally
+    FNeedRedrawCS.Release;
   end;
 end;
 
@@ -180,7 +293,8 @@ procedure TWindowLayerBasic.Show;
 begin
   if not Visible then begin
     DoShow;
-    UpdateLayerLocation(GetMapLayerLocationRect);
+    RedrawIfNeed;
+    UpdateLayerLocationIfNeed;
   end;
 end;
 
@@ -190,7 +304,7 @@ constructor TWindowLayerWithBitmap.Create(AParentMap: TImage32;
   AViewPortState: IViewPortState);
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
-  inherited Create(FLayer, AViewPortState);
+  inherited Create(FLayer, AViewPortState, False);
 
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
@@ -199,36 +313,76 @@ end;
 
 procedure TWindowLayerWithBitmap.AfterPosChange;
 begin
+  UpdateLayerSizeIfNeed;
   inherited;
-  UpdateLayerSize(VisualCoordConverter);
+end;
+
+procedure TWindowLayerWithBitmap.DoHide;
+begin
+  inherited;
+  SetNeedUpdateLayerSize;
 end;
 
 procedure TWindowLayerWithBitmap.DoShow;
 begin
   inherited;
-  UpdateLayerSize(VisualCoordConverter);
+  SetNeedUpdateLayerSize;
 end;
 
 procedure TWindowLayerWithBitmap.DoUpdateLayerSize(ANewSize: TPoint);
+var
+  VNedRedraw: Boolean;
 begin
   FLayer.Bitmap.Lock;
   try
-    FLayer.Bitmap.SetSize(ANewSize.X, ANewSize.Y);
+    VNedRedraw := FLayer.Bitmap.SetSize(ANewSize.X, ANewSize.Y);
   finally
     FLayer.Bitmap.Unlock;
   end;
+  if VNedRedraw then begin
+    SetNeedRedraw;
+  end;
 end;
 
-procedure TWindowLayerWithBitmap.UpdateLayerSize(ANewVisualCoordConverter: ILocalCoordConverter);
-var
-  VNewSize: TPoint;
+procedure TWindowLayerWithBitmap.SetNeedUpdateLayerSize;
+begin
+  FNeedRedrawCS.Acquire;
+  try
+    FNeedUpdateLayerSize := True;
+  finally
+    FNeedRedrawCS.Release;
+  end;
+end;
+
+procedure TWindowLayerWithBitmap.UpdateLayerSize;
 begin
   if FVisible then begin
-    VNewSize := GetLayerSizeForViewSize(ANewVisualCoordConverter);
-    if (FLayer.Bitmap.Width <> VNewSize.X) or (FLayer.Bitmap.Height <> VNewSize.Y) then begin
-      DoUpdateLayerSize(VNewSize);
-      UpdateLayerLocation(GetMapLayerLocationRect);
+    FNeedRedrawCS.Acquire;
+    try
+      FNeedUpdateLayerSize := False;
+    finally
+      FNeedRedrawCS.Release;
     end;
+    DoUpdateLayerSize(GetLayerSizeForViewSize(VisualCoordConverter));
+  end;
+end;
+
+procedure TWindowLayerWithBitmap.UpdateLayerSizeIfNeed;
+var
+  VNeed: Boolean;
+begin
+  VNeed := False;
+  FNeedRedrawCS.Acquire;
+  try
+    if FNeedUpdateLayerSize then begin
+      FNeedUpdateLayerSize := False;
+      VNeed := True;
+    end;
+  finally
+    FNeedRedrawCS.Release;
+  end;
+  if VNeed then begin
+    UpdateLayerSize;
   end;
 end;
 
@@ -242,7 +396,12 @@ end;
 function TWindowLayerFixedSizeWithBitmap.GetLayerSizeForViewSize(
   ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
-  Result := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+  FLayer.Bitmap.Lock;
+  try
+    Result := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+  finally
+    FLayer.Bitmap.Unlock;
+  end;
 end;
 
 end.

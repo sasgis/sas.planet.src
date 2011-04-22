@@ -11,6 +11,7 @@ uses
   SyncObjs,
   GR32,
   t_GeoTypes,
+  t_CommonTypes,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
   i_TileObjCache,
@@ -133,7 +134,7 @@ type
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      IsStop: PBoolean;
+      AIsStop: TIsCancelChecker;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
       ATNEColor: TColor32
@@ -652,13 +653,13 @@ function TMapType.LoadFillingMap(
   btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
-  IsStop: PBoolean;
+  AIsStop: TIsCancelChecker;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
   ATNEColor: TColor32
 ): boolean;
 begin
-  Result := FStorage.LoadFillingMap(btm, AXY, Azoom, ASourceZoom, FVersion, IsStop, ANoTileColor, AShowTNE, ATNEColor);
+  Result := FStorage.LoadFillingMap(btm, AXY, Azoom, ASourceZoom, FVersion, AIsStop, ANoTileColor, AShowTNE, ATNEColor);
 end;
 
 function TMapType.GetShortFolderName: string;

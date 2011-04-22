@@ -23,6 +23,7 @@ type
   TBackgroundTaskFillingMap = class(TBackgroundTaskLayerDrawBase, IBackgroundTaskFillingMap)
   private
     FConfig: IFillingMapLayerConfigStatic;
+    function IsNeedStopExecute(): Boolean;
   protected
     procedure DrawBitmap; override;
     procedure ExecuteTask; override;
@@ -149,7 +150,7 @@ begin
     VGeoConvert := VLocalConverter.GetGeoConverter;
 
     VBitmapOnMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
-    if not FNeedStopExecute then begin
+    if not NeedStopExecute then begin
       VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
       VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
       VSourceGeoConvert.CheckLonLatRect(VSourceLonLatRect);
@@ -157,7 +158,7 @@ begin
       VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
       while VTileIterator.Next(VTile) do begin
-        if FNeedStopExecute then begin
+        if NeedStopExecute then begin
           break;
         end;
         VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
@@ -188,15 +189,15 @@ begin
         VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
         VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
 
-        if FNeedStopExecute then begin
+        if NeedStopExecute then begin
           break;
         end;
         VCurrTilePixelRectAtBitmap.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
         VCurrTilePixelRectAtBitmap.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
-        if FNeedStopExecute then begin
+        if NeedStopExecute then begin
           break;
         end;
-        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedStopExecute, VConfig.NoTileColor, VConfig.ShowTNE, VConfig.TNEColor) then begin
+        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, IsNeedStopExecute, VConfig.NoTileColor, VConfig.ShowTNE, VConfig.TNEColor) then begin
           Bitmap.Lock;
           try
             Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
@@ -216,6 +217,11 @@ begin
   if FConfig <> nil then begin
     inherited;
   end;
+end;
+
+function TBackgroundTaskFillingMap.IsNeedStopExecute: Boolean;
+begin
+  Result := NeedStopExecute;
 end;
 
 { TMapLayerFillingMap }

@@ -102,7 +102,7 @@ begin
   FFixedLonLat := VConverter.PixelPosFloat2LonLat(RectCenter(VConverter.TilePos2PixelRect(ATile, AZoom)), AZoom);
   RenderText(AMapType, AText);
   Visible := true;
-  UpdateLayerLocation(GetMapLayerLocationRect);
+  UpdateLayerLocation;
 end;
 
 end.

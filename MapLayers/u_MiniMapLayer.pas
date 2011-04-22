@@ -753,7 +753,7 @@ begin
     FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
 
     DoUpdateLayerSize(Point(FConfig.Width, FConfig.Width));
-    UpdateLayerLocation(GetMapLayerLocationRect);
+    UpdateLayerLocation;
     Redraw;
     if FConfig.Visible then begin
       Show;
