@@ -18,7 +18,7 @@ object frTilesDownload: TfrTilesDownload
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    Caption = 'Загрузить изображения из интернета'
+    Caption = 'Download Tiles'
     TabOrder = 0
   end
   object pnlBottom: TPanel
@@ -48,7 +48,7 @@ object frTilesDownload: TfrTilesDownload
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = 'Масштаб:'
+        Caption = 'Zoom:'
       end
       object cbbZoom: TComboBox
         Left = 5
@@ -93,7 +93,7 @@ object frTilesDownload: TfrTilesDownload
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = 'Тип карты:'
+        Caption = 'Map:'
         ExplicitWidth = 57
       end
       object Bevel1: TBevel
@@ -124,7 +124,7 @@ object frTilesDownload: TfrTilesDownload
         Width = 382
         Height = 16
         Align = alTop
-        Caption = 'Заменять старые файлы'
+        Caption = 'Overwrite old tiles'
         TabOrder = 1
         OnClick = chkReplaceClick
       end
@@ -134,7 +134,7 @@ object frTilesDownload: TfrTilesDownload
         Width = 382
         Height = 16
         Align = alTop
-        Caption = 'Пытаться загружать отсутствующие тайлы'
+        Caption = 'Try to re-download missing tiles'
         TabOrder = 2
       end
       object pnlTileReplaceCondition: TPanel
@@ -154,7 +154,7 @@ object frTilesDownload: TfrTilesDownload
           Width = 361
           Height = 13
           Align = alTop
-          Caption = 'только при их различии'
+          Caption = 'only if different'
           Enabled = False
           TabOrder = 0
         end
@@ -172,7 +172,7 @@ object frTilesDownload: TfrTilesDownload
             Width = 113
             Height = 21
             Align = alLeft
-            Caption = 'только созданные до '
+            Caption = 'only created before'
             Layout = tlCenter
             ExplicitHeight = 13
           end

@@ -19,7 +19,7 @@ object frMapCombine: TfrMapCombine
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    Caption = 'Склеить выделенный фрагмент'
+    Caption = 'Stitch selection'
     TabOrder = 0
   end
   object pnlTargetFile: TPanel
@@ -42,7 +42,7 @@ object frMapCombine: TfrMapCombine
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = 'Куда сохранять:'
+      Caption = 'Save to:'
       Layout = tlCenter
       ExplicitHeight = 13
     end
@@ -86,7 +86,7 @@ object frMapCombine: TfrMapCombine
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = 'Результирующий формат:'
+      Caption = 'Output format:'
       Layout = tlCenter
       ExplicitHeight = 13
     end
@@ -103,11 +103,11 @@ object frMapCombine: TfrMapCombine
       Text = 'Ecw (Enhanced Compression Wavelet)'
       OnChange = cbbOutputFormatChange
       Items.Strings = (
-        'Ecw (Enhanced Compression Wavelet)'
-        'Bmp (Bitmap Picture) без сжатия'
-        'Kmz для Garmin'
+        'ECW (Enhanced Compression Wavelet)'
+        'BMP (Bitmap Picture)'
+        'KMZ for Garmin'
         'JPEG (Joint Photographic Experts Group)'
-        'Jpeg2000')
+        'JPEG2000')
     end
   end
   object pnlCenter: TPanel
@@ -139,7 +139,7 @@ object frMapCombine: TfrMapCombine
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Масштаб:'
+        Caption = 'Zoom:'
         ExplicitLeft = 0
         ExplicitTop = 0
         ExplicitWidth = 72
@@ -187,7 +187,7 @@ object frMapCombine: TfrMapCombine
           Margins.Top = 0
           Margins.Right = 0
           Align = alTop
-          Caption = 'Тип карты:'
+          Caption = 'Base Map:'
           Layout = tlCenter
           ExplicitWidth = 57
         end
@@ -200,7 +200,7 @@ object frMapCombine: TfrMapCombine
           Margins.Left = 0
           Margins.Right = 0
           Align = alTop
-          Caption = 'Наложить:'
+          Caption = 'Overlay layer:'
           Layout = tlCenter
           ExplicitWidth = 55
         end
@@ -236,9 +236,9 @@ object frMapCombine: TfrMapCombine
           ItemHeight = 13
           ItemIndex = 0
           TabOrder = 1
-          Text = 'Нет'
+          Text = 'No'
           Items.Strings = (
-            'Нет')
+            'No')
         end
       end
     end
@@ -268,7 +268,7 @@ object frMapCombine: TfrMapCombine
         Width = 204
         Height = 17
         Align = alTop
-        Caption = 'Накладывать отображаемые метки'
+        Caption = 'Add visible placemarks'
         TabOrder = 0
       end
       object chkUseRecolor: TCheckBox
@@ -277,7 +277,7 @@ object frMapCombine: TfrMapCombine
         Width = 204
         Height = 17
         Align = alTop
-        Caption = 'Применять настройки цвета'
+        Caption = 'Use color settings'
         TabOrder = 1
       end
       object flwpnlJpegQuality: TFlowPanel
@@ -298,7 +298,7 @@ object frMapCombine: TfrMapCombine
           Width = 144
           Height = 13
           Alignment = taRightJustify
-          Caption = 'Качество (для JPEG и ECW):'
+          Caption = 'Quality (for JPEG and ECW):'
           Layout = tlCenter
         end
         object seJpgQuality: TSpinEdit
@@ -330,7 +330,7 @@ object frMapCombine: TfrMapCombine
         Height = 15
         Align = alTop
         AutoSize = False
-        Caption = 'Создавать файл привязки:'
+        Caption = 'Create georeferencing file:'
         WordWrap = True
         ExplicitTop = 6
         ExplicitWidth = 150
@@ -368,14 +368,14 @@ object frMapCombine: TfrMapCombine
         Width = 162
         Height = 63
         Align = alTop
-        Caption = 'Разбить изображение'
+        Caption = 'Split image'
         TabOrder = 0
         object lblSplitHor: TLabel
           Left = 7
           Top = 16
           Width = 92
           Height = 13
-          Caption = 'по горизотали, на'
+          Caption = 'horizontally:'
         end
         object lblSplitVert: TLabel
           AlignWithMargins = True
@@ -383,7 +383,7 @@ object frMapCombine: TfrMapCombine
           Top = 40
           Width = 88
           Height = 13
-          Caption = 'по вертикали, на'
+          Caption = 'vertically:'
         end
         object seSplitHor: TSpinEdit
           Left = 106

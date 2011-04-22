@@ -1,7 +1,7 @@
 object frmMarkEditPoint: TfrmMarkEditPoint
   Left = 193
   Top = 178
-  Caption = 'Add new placemark'
+  Caption = 'Add New Placemark'
   ClientHeight = 424
   ClientWidth = 314
   Color = clBtnFace

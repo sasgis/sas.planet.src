@@ -18,7 +18,7 @@ object frTilesDelete: TfrTilesDelete
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    Caption = 'Удалить файлы карты'
+    Caption = 'Delete map tiles'
     TabOrder = 0
   end
   object pnlBottom: TPanel
@@ -49,7 +49,7 @@ object frTilesDelete: TfrTilesDelete
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Масштаб:'
+        Caption = 'Zoom:'
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -85,7 +85,7 @@ object frTilesDelete: TfrTilesDelete
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Тип карты:'
+        Caption = 'Map:'
       end
       object lblStat: TLabel
         Left = 10
@@ -129,7 +129,7 @@ object frTilesDelete: TfrTilesDelete
           Top = 5
           Width = 238
           Height = 13
-          Caption = 'Удалять только тайлы, размер которых, байт'
+          Caption = 'Delete only tiles of size, bytes:'
         end
         object seDelSize: TSpinEdit
           Left = 257

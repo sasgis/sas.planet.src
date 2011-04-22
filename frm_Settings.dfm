@@ -36,27 +36,27 @@ object frmSettings: TfrmSettings
         Align = alClient
         Columns = <
           item
-            Caption = 'Название карты'
+            Caption = 'Map Name'
             Width = 130
           end
           item
-            Caption = 'Папка в кэше'
+            Caption = 'Cache Folder'
             Width = 85
           end
           item
-            Caption = 'Путь в меню'
+            Caption = 'Menu'
             Width = 110
           end
           item
-            Caption = 'Гор. кл.'
+            Caption = 'Hotkey'
             Width = 53
           end
           item
-            Caption = 'Путь к файлу'
+            Caption = 'ZMP Filename'
             Width = 100
           end
           item
-            Caption = 'Используется'
+            Caption = 'Enabled'
           end>
         FlatScrollBars = True
         HideSelection = False
@@ -141,7 +141,7 @@ object frmSettings: TfrmSettings
           Width = 289
           Height = 13
           Align = alLeft
-          Caption = 'No. of files to be cached in RAM'
+          Caption = 'Number of tiles to be cached in RAM'
           Layout = tlCenter
         end
         object SETilesOCache: TSpinEdit
@@ -324,7 +324,7 @@ object frmSettings: TfrmSettings
           Width = 144
           Height = 21
           Align = alClient
-          Caption = 'Путь к \"родному\" кэшу:'
+          Caption = 'Native cache folder:'
           Layout = tlCenter
           ExplicitWidth = 120
           ExplicitHeight = 13
@@ -584,7 +584,7 @@ object frmSettings: TfrmSettings
           Width = 620
           Height = 17
           Align = alTop
-          Caption = 'Try to reload the tile if \"NotFound\" message received'
+          Caption = 'Retry download if tile not found'
           TabOrder = 0
         end
         object CkBGoNextTile: TCheckBox
@@ -594,7 +594,7 @@ object frmSettings: TfrmSettings
           Width = 620
           Height = 17
           Align = alTop
-          Caption = 'Load next tile if no any reply given by the server'
+          Caption = 'Download next tile if no response'
           TabOrder = 1
         end
         object CBSaveTileNotExists: TCheckBox
@@ -604,7 +604,7 @@ object frmSettings: TfrmSettings
           Width = 620
           Height = 17
           Align = alTop
-          Caption = 'Store \"NotFound\" info in cache'
+          Caption = 'Store info about not found tiles'
           TabOrder = 2
         end
         object flwpnlDownloadTimeOut: TFlowPanel
@@ -643,8 +643,8 @@ object frmSettings: TfrmSettings
           Height = 17
           Align = alTop
           Caption = 
-            'Начать сохранённую сессию загрузки с последнего удачно загруженн' +
-            'ого тайла'
+            'Restore download from last successful tile'
+
           TabOrder = 4
         end
         object GroupBox4: TGroupBox
@@ -671,7 +671,7 @@ object frmSettings: TfrmSettings
               Width = 152
               Height = 17
               Align = alLeft
-              Caption = 'Use proxy (ip:port)'
+              Caption = 'Use proxy (IP:port)'
               Layout = tlCenter
               ExplicitHeight = 13
             end
@@ -763,7 +763,7 @@ object frmSettings: TfrmSettings
               Width = 610
               Height = 17
               Align = alTop
-              Caption = 'Use connection settings reported by Windows'
+              Caption = 'Use system proxy settings'
               TabOrder = 0
               OnClick = chkUseIEProxyClick
             end
@@ -772,7 +772,7 @@ object frmSettings: TfrmSettings
       end
     end
     object TabSheet3: TTabSheet
-      Caption = 'Inputs'
+      Caption = 'Control'
       ImageIndex = 2
       object GroupBox1: TGroupBox
         Left = 0
@@ -789,7 +789,7 @@ object frmSettings: TfrmSettings
           Width = 628
           Height = 17
           Align = alTop
-          Caption = 'spin in - zoom in'
+          Caption = 'Roll backward to zoom in'
           TabOrder = 0
         end
       end
@@ -883,7 +883,7 @@ object frmSettings: TfrmSettings
               Text = '12 km 423 m'
               Items.Strings = (
                 '12 km 423 m'
-                '23,4 km')
+                '23.4 km')
               ExplicitLeft = 199
               ExplicitWidth = 108
             end
@@ -930,14 +930,14 @@ object frmSettings: TfrmSettings
                 ItemHeight = 13
                 ItemIndex = 0
                 TabOrder = 0
-                Text = 'WS г.м.с. (W12°23\"43.35'')'
+                Text = 'WS deg.min.sec. (W12'#176'23"43.35'#39')'
                 Items.Strings = (
-                  'WS г.м.с. (W12°23\"43.35'')'
-                  'WS deg.min. (W12°23.454)'
-                  'WS deg. (W12.1233°)'
-                  '-- г.м.с. (-12°23\"43.35'')'
-                  '-- deg.min. (-12°23.454)'
-                  '-- deg. (-12.1233°)')
+                  'WS deg.min.sec. (W12'#176'23"43.35'#39')'
+                  'WS deg.min. (W12'#176'23.454)'
+                  'WS deg. (W12.1233'#176')'
+                  '-- deg.min.sec. (-12'#176'23"43.35'#39')'
+                  '-- deg.min. (-12'#176'23.454)'
+                  '-- deg. (-12.1233'#176')')
               end
             end
             object ChBoxFirstLat: TCheckBox
@@ -947,7 +947,7 @@ object frmSettings: TfrmSettings
               Width = 301
               Height = 17
               Align = alTop
-              Caption = 'Show as: latitude-longitude'
+              Caption = 'Latitude-Longitude order'
               TabOrder = 1
             end
           end
@@ -1043,7 +1043,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alLeft
               Alignment = taRightJustify
-              Caption = 'Algorythm'
+              Caption = 'Resize algorythm'
               Layout = tlCenter
               ExplicitHeight = 13
             end
@@ -1148,7 +1148,7 @@ object frmSettings: TfrmSettings
                 Top = 6
                 Width = 65
                 Height = 17
-                Caption = 'Signature'
+                Caption = 'Tile coordinates'
                 TabOrder = 2
               end
             end
@@ -1216,7 +1216,7 @@ object frmSettings: TfrmSettings
               Width = 251
               Height = 13
               Alignment = taRightJustify
-              Caption = 'No. of tiles to be downloaded outside the screen'
+              Caption = 'Download tiles off-screen'
             end
             object TilesOverScreenEdit: TSpinEdit
               Left = 260
@@ -1248,7 +1248,7 @@ object frmSettings: TfrmSettings
               Width = 299
               Height = 17
               Align = alTop
-              Caption = 'Show map name on tab'
+              Caption = 'Show map name on toolbar'
               TabOrder = 0
             end
           end
@@ -1376,7 +1376,7 @@ object frmSettings: TfrmSettings
               Width = 299
               Height = 17
               Align = alTop
-              Caption = 'Fix tabs'
+              Caption = 'Lock toolbars'
               TabOrder = 0
             end
           end
@@ -1472,7 +1472,7 @@ object frmSettings: TfrmSettings
             Top = 6
             Width = 51
             Height = 13
-            Caption = 'COM-port'
+            Caption = 'Serial port'
           end
           object ComboBoxCOM: TComboBox
             Left = 60
@@ -1490,7 +1490,7 @@ object frmSettings: TfrmSettings
             Width = 48
             Height = 13
             Alignment = taRightJustify
-            Caption = 'Speed'
+            Caption = 'Bits per second'
           end
           object ComboBoxBoudRate: TComboBox
             Left = 203
@@ -1533,7 +1533,7 @@ object frmSettings: TfrmSettings
             Top = 3
             Width = 227
             Height = 13
-            Caption = 'Device timeout (sec.)'
+            Caption = 'Device timeout (sec)'
           end
           object SpinEdit2: TSpinEdit
             Left = 3
@@ -1550,7 +1550,7 @@ object frmSettings: TfrmSettings
             Top = 40
             Width = 161
             Height = 13
-            Caption = 'Refresh rate (sec./1000)'
+            Caption = 'Refresh rate (ms)'
           end
           object SpinEdit1: TSpinEdit
             Left = 3
@@ -1567,7 +1567,7 @@ object frmSettings: TfrmSettings
             Top = 77
             Width = 164
             Height = 13
-            Caption = 'Bearing pointer size:'
+            Caption = 'Pointer size:'
           end
           object SESizeStr: TSpinEdit
             Left = 3
@@ -1584,7 +1584,7 @@ object frmSettings: TfrmSettings
             Top = 114
             Width = 77
             Height = 13
-            Caption = 'Tracklog width:'
+            Caption = 'Track width:'
           end
           object SESizeTrack: TSpinEdit
             Left = 3
@@ -1601,7 +1601,7 @@ object frmSettings: TfrmSettings
             Top = 151
             Width = 63
             Height = 13
-            Caption = 'Tracklog color:'
+            Caption = 'Track color:'
           end
           object ColorBoxGPSstr: TColorBox
             Left = 3
@@ -1617,7 +1617,7 @@ object frmSettings: TfrmSettings
             Top = 188
             Width = 284
             Height = 13
-            Caption = 'Max.amount of track rendering points:'
+            Caption = 'Maximum number of track points:'
           end
           object SE_NumTrackPoints: TSpinEdit
             Left = 3
@@ -1682,7 +1682,7 @@ object frmSettings: TfrmSettings
             Width = 373
             Height = 17
             Align = alTop
-            Caption = 'Auto show/hide sensors tab'
+            Caption = 'Auto show/hide sensors toolbar'
             TabOrder = 0
           end
         end
@@ -1701,7 +1701,7 @@ object frmSettings: TfrmSettings
           Width = 250
           Height = 381
           Align = alClient
-          Caption = 'Satellite'
+          Caption = 'Satellites'
           TabOrder = 0
           object SatellitePaintBox: TImage32
             AlignWithMargins = True
@@ -1748,7 +1748,7 @@ object frmSettings: TfrmSettings
                 Margins.Right = 0
                 Margins.Bottom = 0
                 Align = alLeft
-                Caption = 'Satellite in use'
+                Caption = 'Satellites in use'
                 ExplicitHeight = 13
               end
               object shpSatInfoActive: TShape
@@ -1799,7 +1799,7 @@ object frmSettings: TfrmSettings
                 Margins.Right = 0
                 Margins.Bottom = 0
                 Align = alLeft
-                Caption = 'Satellite in range'
+                Caption = 'Satellites in range'
                 ExplicitHeight = 13
               end
             end
@@ -1823,7 +1823,7 @@ object frmSettings: TfrmSettings
                 Margins.Right = 0
                 Margins.Bottom = 0
                 Align = alLeft
-                Caption = 'Satellite not in range'
+                Caption = 'Satellites not in range'
                 ExplicitHeight = 13
               end
               object shpSatInfoZeroSignal: TShape
@@ -1953,8 +1953,8 @@ object frmSettings: TfrmSettings
           Height = 17
           Align = alTop
           Caption = 
-            'Автоматически определять параметры базовых станций через подключ' +
-            'енный телефон'
+            'Automatically detect location using GSM phone (Google query)'
+
           TabOrder = 0
           OnClick = chkPosFromGSMClick
         end
@@ -1975,7 +1975,7 @@ object frmSettings: TfrmSettings
             Top = 6
             Width = 51
             Height = 13
-            Caption = 'COM-port'
+            Caption = 'Serial port'
           end
           object CBGSMComPort: TComboBox
             Left = 60
@@ -1993,7 +1993,7 @@ object frmSettings: TfrmSettings
             Width = 48
             Height = 13
             Alignment = taRightJustify
-            Caption = 'Speed'
+            Caption = 'Bits per second'
           end
           object CBGSMBaundRate: TComboBox
             Left = 203
@@ -2026,7 +2026,7 @@ object frmSettings: TfrmSettings
             Height = 13
             Alignment = taRightJustify
             BiDiMode = bdRightToLeft
-            Caption = 'Waiting for connection'
+            Caption = 'Connection timeout'
             ParentBiDiMode = False
           end
           object SEWaitingAnswer: TSpinEdit
@@ -2070,7 +2070,7 @@ object frmSettings: TfrmSettings
       Width = 75
       Height = 25
       Align = alRight
-      Caption = 'OK'
+      Caption = 'Ok'
       Default = True
       ModalResult = 1
       TabOrder = 1

@@ -25,12 +25,12 @@ object frLonLat: TfrLonLat
       ItemHeight = 13
       ItemIndex = 0
       TabOrder = 0
-      Text = 'Geographical coordinates'
+      Text = 'Geographical'
       OnSelect = ComboBoxCoordTypeSelect
       Items.Strings = (
-        'Geographical coordinates'
-        'Pixel coordinates'
-        'Tile coordinates')
+        'Geographical'
+        'Pixel'
+        'Tile')
     end
   end
   object grdpnlFull: TGridPanel
@@ -210,7 +210,7 @@ object frLonLat: TfrLonLat
           Top = 13
           Width = 36
           Height = 21
-          Hint = 'Zoom selection'
+          Hint = 'Zoom'
           Style = csDropDownList
           Anchors = [akTop, akRight]
           ItemHeight = 13

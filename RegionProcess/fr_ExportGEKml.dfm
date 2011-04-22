@@ -34,7 +34,7 @@ object frExportGEKml: TfrExportGEKml
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = 'Масштабы:'
+        Caption = 'Zooms:'
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
@@ -46,7 +46,7 @@ object frExportGEKml: TfrExportGEKml
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alBottom
-        Caption = 'Все'
+        Caption = 'All'
         TabOrder = 0
         OnClick = chkAllZoomsClick
       end
@@ -80,7 +80,7 @@ object frExportGEKml: TfrExportGEKml
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Карта'
+        Caption = 'Map'
         ExplicitLeft = 12
         ExplicitTop = 6
         ExplicitWidth = 31
@@ -91,7 +91,7 @@ object frExportGEKml: TfrExportGEKml
         Width = 370
         Height = 17
         Align = alTop
-        Caption = 'Не сохранять пути к несуществующим тайлам'
+        Caption = 'Don''t store references to non-existent tiles'
         TabOrder = 0
       end
       object chkUseRelativePath: TCheckBox
@@ -104,7 +104,7 @@ object frExportGEKml: TfrExportGEKml
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alTop
-        Caption = 'Относительный путь к тайлам'
+        Caption = 'Path to tiles'
         Checked = True
         State = cbChecked
         TabOrder = 1
@@ -141,7 +141,7 @@ object frExportGEKml: TfrExportGEKml
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = 'Куда сохранять:'
+      Caption = 'Save to:'
       Layout = tlCenter
     end
     object edtTargetFile: TEdit

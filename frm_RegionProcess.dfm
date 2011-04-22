@@ -1,7 +1,7 @@
 object frmRegionProcess: TfrmRegionProcess
   Left = 234
   Top = 298
-  Caption = 'Manage selection'
+  Caption = 'Manage Selection'
   ClientHeight = 316
   ClientWidth = 572
   Color = clBtnFace
@@ -74,7 +74,7 @@ object frmRegionProcess: TfrmRegionProcess
         Top = 8
         Width = 207
         Height = 13
-        Caption = 'Export selection to the desired format'
+        Caption = 'Export selection to format'
       end
       object CBFormat: TComboBox
         Left = 220

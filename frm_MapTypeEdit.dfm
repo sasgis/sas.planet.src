@@ -86,7 +86,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Height = 17
       Margins.Top = 0
       Align = alTop
-      Caption = 'Add line breaker following this map'
+      Caption = 'Add menu separator line after this map'
       TabOrder = 0
       ExplicitWidth = 496
     end
@@ -178,7 +178,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Width = 135
       Height = 21
       Align = alLeft
-      Caption = 'Parent level'
+      Caption = 'Parent submenu'
       Layout = tlCenter
       ExplicitHeight = 13
     end
@@ -226,7 +226,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Width = 85
       Height = 21
       Align = alLeft
-      Caption = 'Name in the cache'
+      Caption = 'Name in cache'
       Layout = tlCenter
       ExplicitHeight = 13
     end

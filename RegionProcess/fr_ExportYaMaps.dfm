@@ -34,7 +34,7 @@ object frExportYaMaps: TfrExportYaMaps
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = 'Масштабы:'
+        Caption = 'Zooms:'
         Layout = tlCenter
       end
       object chklstZooms: TCheckListBox
@@ -61,7 +61,7 @@ object frExportYaMaps: TfrExportYaMaps
         Width = 360
         Height = 20
         Align = alTop
-        Caption = 'Заменять существующие тайлы'
+        Caption = 'Replace existing tiles'
         TabOrder = 0
       end
       object grdpnlMaps: TGridPanel
@@ -259,7 +259,7 @@ object frExportYaMaps: TfrExportYaMaps
           Width = 40
           Height = 13
           Anchors = []
-          Caption = 'Сжатие:'
+          Caption = 'Compression:'
         end
         object lblHybr: TLabel
           Left = 0
@@ -268,7 +268,7 @@ object frExportYaMaps: TfrExportYaMaps
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = 'Гибрид'
+          Caption = 'Hybrid'
           Layout = tlCenter
           ExplicitLeft = 6
           ExplicitWidth = 29
@@ -281,7 +281,7 @@ object frExportYaMaps: TfrExportYaMaps
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = 'Карта'
+          Caption = 'Map'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 21
@@ -295,7 +295,7 @@ object frExportYaMaps: TfrExportYaMaps
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = 'Спутник'
+          Caption = 'Satellite'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 45
@@ -309,7 +309,7 @@ object frExportYaMaps: TfrExportYaMaps
           Align = alClient
           Alignment = taCenter
           AutoSize = False
-          Caption = 'Включить следующие типы карт:'
+          Caption = 'Enable the following map types:'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 4
@@ -338,7 +338,7 @@ object frExportYaMaps: TfrExportYaMaps
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = 'Куда сохранять:'
+      Caption = 'Save to:'
       Layout = tlCenter
     end
     object edtTargetPath: TEdit

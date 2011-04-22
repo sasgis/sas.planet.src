@@ -34,7 +34,7 @@ object frExportAUX: TfrExportAUX
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = 'Карта'
+        Caption = 'Map'
       end
       object cbbMap: TComboBox
         Left = 3
@@ -67,7 +67,7 @@ object frExportAUX: TfrExportAUX
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = 'Масштаб:'
+        Caption = 'Zoom:'
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -100,7 +100,7 @@ object frExportAUX: TfrExportAUX
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = 'Куда сохранять:'
+      Caption = 'Save to:'
       Layout = tlCenter
     end
     object edtTargetFile: TEdit

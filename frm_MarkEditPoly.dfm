@@ -1,7 +1,7 @@
 object frmMarkEditPoly: TfrmMarkEditPoly
   Left = 360
   Top = 40
-  Caption = 'Add new polygon'
+  Caption = 'Add New Polygon'
   ClientHeight = 348
   ClientWidth = 327
   Color = clBtnFace
@@ -80,7 +80,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Width = 321
       Height = 13
       Align = alTop
-      Caption = 'Completion:'
+      Caption = 'Fill:'
       ExplicitWidth = 64
     end
     object flwpnlFill: TFlowPanel

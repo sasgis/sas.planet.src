@@ -1,7 +1,7 @@
 object frmMarksExplorer: TfrmMarksExplorer
   Left = 341
   Top = 186
-  Caption = 'Manage placemarks'
+  Caption = 'Manage Placemarks'
   ClientHeight = 427
   ClientWidth = 577
   Color = clBtnFace
@@ -69,7 +69,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 2
         OnClick = btnOkClick
-        Caption = 'OK'
+        Caption = 'Ok'
       end
       object btnImport: TTBXButton
         AlignWithMargins = True
@@ -160,18 +160,18 @@ object frmMarksExplorer: TfrmMarksExplorer
             Stretch = True
             TabOrder = 0
             UseThemeColor = False
-            Caption = 'TBXToolbar1'
+            Caption = ''
             object btnEditMark: TTBXItem
               ImageIndex = 31
               OnClick = btnEditMarkClick
               Caption = ''
-              Hint = 'Edit the selected placemark'
+              Hint = 'Edit selected placemark'
             end
             object btnDelMark: TTBXItem
               ImageIndex = 30
               OnClick = btnDelMarkClick
               Caption = ''
-              Hint = 'Delete the selected placemark'
+              Hint = 'Delete selected placemark'
             end
             object TBXSeparatorItem1: TTBXSeparatorItem
               Caption = ''
@@ -181,20 +181,20 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 11
               OnClick = btnGoToMarkClick
               Caption = ''
-              Hint = 'Go to the selected object'
+              Hint = 'Go to selected object'
             end
             object btnOpSelectMark: TTBXItem
               ImageIndex = 10
               OnClick = btnOpSelectMarkClick
               Caption = ''
-              Hint = 'Manage the area within the selected object'
+              Hint = 'Manage area within selected object'
             end
             object btnNavOnMark: TTBXItem
               AutoCheck = True
               ImageIndex = 33
               OnClick = btnNavOnMarkClick
               Caption = ''
-              Hint = 'Navigate to the selected placemark'
+              Hint = 'Navigate to selected placemark'
             end
             object TBXSeparatorItem2: TTBXSeparatorItem
               Caption = ''
@@ -219,7 +219,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alLeft
-        Caption = 'Placemark categories'
+        Caption = 'Placemark Categories'
         TabOrder = 1
         ExplicitLeft = 0
         ExplicitHeight = 358
@@ -270,7 +270,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             Stretch = True
             TabOrder = 0
             UseThemeColor = False
-            Caption = 'TBXToolbar1'
+            Caption = ''
             object BtnAddCategory: TTBXItem
               ImageIndex = 32
               OnClick = TBXItem4Click
@@ -314,7 +314,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Ctl3D = True
     ItemIndex = 0
     Items.Strings = (
-      'Show only specified placemarks'
+      'Show only selected placemarks'
       'Show all placemarks'
       'Hide placemarks')
     ParentCtl3D = False
@@ -324,8 +324,8 @@ object frmMarksExplorer: TfrmMarksExplorer
     DefaultExt = '*.kml'
     Filter = 
       'Google KML files (*.kml)|*.kml|OziExplorer Track Point File Vers' +
-      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Файл выделе' +
-      'ния (*.hlg)|*.hlg'
+      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Selection' +
+      ' (*.hlg)|*.hlg'
     Left = 352
     Top = 144
   end
@@ -432,7 +432,7 @@ object frmMarksExplorer: TfrmMarksExplorer
   object ExportDialog: TSaveDialog
     DefaultExt = '.kmz'
     Filter = 
-      'Упакованный Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup L' +
+      'Compressed Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup L' +
       'anguage (kml)|*.kml'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 256
@@ -442,7 +442,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 376
     Top = 224
     object NExportAll: TMenuItem
-      Caption = 'Export all palcemarks of all categories'
+      Caption = 'Export all placemarks of all categories'
       OnClick = btnExportClick
     end
     object NExportVisible: TMenuItem

@@ -2,7 +2,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
   Left = 245
   Top = 207
   BorderStyle = bsDialog
-  Caption = 'Import parameters'
+  Caption = 'Import Parameters'
   ClientHeight = 385
   ClientWidth = 505
   Color = clBtnFace

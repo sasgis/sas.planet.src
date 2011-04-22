@@ -34,7 +34,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = 'Из слоя масштаба:'
+        Caption = 'From zoom:'
       end
       object lblZooms: TLabel
         AlignWithMargins = True
@@ -45,7 +45,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Left = 0
         Margins.Right = 0
         Align = alTop
-        Caption = 'В слои масштаба:'
+        Caption = 'To zooms:'
       end
       object cbbFromZoom: TComboBox
         Left = 3
@@ -64,7 +64,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Width = 108
         Height = 17
         Align = alBottom
-        Caption = 'Все'
+        Caption = 'All'
         TabOrder = 1
         OnClick = chkAllZoomsClick
       end
@@ -102,7 +102,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Тип карты:'
+        Caption = 'Map:'
         ExplicitLeft = 7
         ExplicitTop = -1
         ExplicitWidth = 57
@@ -124,7 +124,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Алгоритм:'
+        Caption = 'Resize algorythm:'
         ExplicitLeft = 5
         ExplicitTop = 37
         ExplicitWidth = 52
@@ -190,7 +190,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alTop
-        Caption = 'Изменять существующие файлы'
+        Caption = 'Overwrite existing tiles'
         TabOrder = 2
       end
       object chkSaveFullOnly: TCheckBox
@@ -199,7 +199,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Width = 331
         Height = 17
         Align = alTop
-        Caption = 'Сохранять только полностью заполненные тайлы'
+        Caption = 'Save only complete tiles'
         TabOrder = 3
       end
       object chkFromPrevZoom: TCheckBox
@@ -208,7 +208,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Width = 331
         Height = 17
         Align = alTop
-        Caption = 'Формировать каждый выбранный масштаб из предыдущего выбранного'
+        Caption = 'Generate each zoom from previous one'
         TabOrder = 4
         OnClick = chkFromPrevZoomClick
       end
@@ -225,7 +225,7 @@ object frTilesGenPrev: TfrTilesGenPrev
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    Caption = 'Сформировать предыдущие слои спутниковой карты'
+    Caption = 'Generate Lower Zooms for Selection'
     TabOrder = 1
   end
 end

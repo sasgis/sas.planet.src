@@ -26,7 +26,7 @@ object frExportIPhone: TfrExportIPhone
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = 'Куда сохранять:'
+      Caption = 'Save to:'
       Layout = tlCenter
     end
     object btnSelectTargetPath: TButton
@@ -70,7 +70,7 @@ object frExportIPhone: TfrExportIPhone
         Width = 376
         Height = 17
         Align = alTop
-        Caption = 'Добавлять тайлы в существующую базу'
+        Caption = 'Add tiles to database'
         TabOrder = 0
       end
       object grdpnlMaps: TGridPanel
@@ -248,7 +248,7 @@ object frExportIPhone: TfrExportIPhone
           Top = 62
           Width = 17
           Height = 21
-          Hint = 'Выбрать гибрид в качестве основного слоя'
+          Hint = 'Select Hybrid as main layer'
           Align = alClient
           TabOrder = 2
         end
@@ -257,7 +257,7 @@ object frExportIPhone: TfrExportIPhone
           Top = 20
           Width = 17
           Height = 21
-          Hint = 'Выбрать карту в уачестве основного слоя'
+          Hint = 'Select Map as main layer'
           Align = alClient
           Checked = True
           TabOrder = 3
@@ -268,7 +268,7 @@ object frExportIPhone: TfrExportIPhone
           Top = 41
           Width = 17
           Height = 21
-          Hint = 'Выбрать спутник в уачестве основного слоя'
+          Hint = 'Select Satellite as main layer'
           Align = alClient
           TabOrder = 4
         end
@@ -333,7 +333,7 @@ object frExportIPhone: TfrExportIPhone
           Width = 40
           Height = 13
           Anchors = []
-          Caption = 'Сжатие:'
+          Caption = 'Compression:'
         end
         object lblHybr: TLabel
           Left = 0
@@ -342,7 +342,7 @@ object frExportIPhone: TfrExportIPhone
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = 'Гибрид'
+          Caption = 'Hybrid'
           Layout = tlCenter
           ExplicitLeft = 6
           ExplicitWidth = 29
@@ -355,7 +355,7 @@ object frExportIPhone: TfrExportIPhone
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = 'Карта'
+          Caption = 'Map'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 21
@@ -369,7 +369,7 @@ object frExportIPhone: TfrExportIPhone
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = 'Спутник'
+          Caption = 'Satellite'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 45
@@ -383,7 +383,7 @@ object frExportIPhone: TfrExportIPhone
           Align = alClient
           Alignment = taCenter
           AutoSize = False
-          Caption = 'Включить следующие типы карт:'
+          Caption = 'Enable the following map types:'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 4
@@ -422,7 +422,7 @@ object frExportIPhone: TfrExportIPhone
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = 'Масштабы:'
+        Caption = 'Zooms:'
       end
       object chklstZooms: TCheckListBox
         Left = 3
@@ -443,7 +443,7 @@ object frExportIPhone: TfrExportIPhone
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alBottom
-        Caption = 'Все'
+        Caption = 'All'
         TabOrder = 1
         OnClick = chkAllZoomsClick
       end

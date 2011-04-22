@@ -1,7 +1,7 @@
 object frmLonLatRectEdit: TfrmLonLatRectEdit
   Left = 192
   Top = 289
-  Caption = 'Selection by coordinates'
+  Caption = 'Selection by Coordinates'
   ClientHeight = 214
   ClientWidth = 291
   Color = clBtnFace
@@ -86,7 +86,7 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
       Width = 285
       Height = 85
       Align = alClient
-      Caption = 'Upper left point'
+      Caption = 'Upper left corner'
       TabOrder = 0
       ExplicitHeight = 87
     end
@@ -97,7 +97,7 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
       Width = 285
       Height = 86
       Align = alClient
-      Caption = 'Lower right point'
+      Caption = 'Lower right corner'
       TabOrder = 1
       ExplicitTop = 96
       ExplicitHeight = 87

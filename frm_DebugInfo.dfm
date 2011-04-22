@@ -1,11 +1,10 @@
 object frmDebugInfo: TfrmDebugInfo
   Left = 0
   Top = 0
-  Caption = 'frmDebugInfo'
+  Caption = ''
   ClientHeight = 301
   ClientWidth = 566
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'

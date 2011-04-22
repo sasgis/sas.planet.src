@@ -54,7 +54,7 @@ object frmMain: TfrmMain
       Images = PanelsImageList
       Stretch = True
       TabOrder = 0
-      Caption = 'Main panel'
+      Caption = 'Main'
       object TBmove: TTBXItem
         Checked = True
         ImageIndex = 8
@@ -73,7 +73,7 @@ object frmMain: TfrmMain
         Options = [tboShowHint]
         OnClick = TBRectSaveClick
         Caption = ''
-        Hint = 'Manage the selection'
+        Hint = 'Manage selection'
       end
       object TBCalcRas: TTBXItem
         AutoCheck = True
@@ -94,7 +94,7 @@ object frmMain: TfrmMain
         LinkSubitems = NFillMap
         Options = [tboDropdownArrow, tboShowHint]
         Caption = ''
-        Hint = 'Layer completion map'
+        Hint = 'Completion map'
       end
       object TBGoTo: TTBXSubmenuItem
         DropdownCombo = True
@@ -108,14 +108,14 @@ object frmMain: TfrmMain
           EditCaption = 'Yandex'
           Caption = 'Yandex'
           Hint = ''
-          EditCaption = 'РЇРЅРґРµРєСЃ'
+          EditCaption = 'Yandex'
         end
         object tbiEditGoogleSrch: TTBEditItem
-          EditCaption = 'Google!'
+          EditCaption = 'Google'
           EditWidth = 150
-          Caption = 'Google!'
+          Caption = 'Google'
           Hint = ''
-          EditCaption = 'Google!'
+          EditCaption = 'Google'
         end
       end
       object TBXSeparatorItem5: TTBXSeparatorItem
@@ -128,7 +128,7 @@ object frmMain: TfrmMain
         Images = PanelsImageList
         OnClick = TBFullSizeClick
         Caption = ''
-        Hint = 'Full screen'
+        Hint = 'Full screen (F11)'
       end
     end
     object SrcToolbar: TTBXToolbar
@@ -138,14 +138,14 @@ object frmMain: TfrmMain
       DockRow = 1
       Stretch = True
       TabOrder = 1
-      Caption = 'Sources tab'
+      Caption = 'Sources'
       object TBSrc: TTBXSubmenuItem
         ImageIndex = 0
         Images = PanelsImageList
         LinkSubitems = NSources
         Options = [tboDropdownArrow]
         Caption = ''
-        Hint = 'Select the source'
+        Hint = 'Select data source'
       end
       object TBSMB: TTBXSubmenuItem
         DisplayMode = nbdmImageAndText
@@ -182,14 +182,14 @@ object frmMain: TfrmMain
       Images = PanelsImageList
       Stretch = True
       TabOrder = 3
-      Caption = 'GPS tab'
+      Caption = 'GPS'
       object TBGPSconn: TTBXItem
         AutoCheck = True
         ImageIndex = 14
         Images = PanelsImageList
         OnClick = TBGPSconnClick
         Caption = ''
-        Hint = 'Connect to GPS device'
+        Hint = 'Connect to GPS receiver'
       end
       object TBGPSPath: TTBXSubmenuItem
         AutoCheck = True
@@ -198,12 +198,12 @@ object frmMain: TfrmMain
         Images = PanelsImageList
         OnClick = TBGPSPathClick
         Caption = ''
-        Hint = 'Plot the track'
+        Hint = 'Show GPS track'
         object TBXItem5: TTBXItem
           ImageIndex = 15
           Images = MenusImageList
           OnClick = TBXItem5Click
-          Caption = 'Add placemark'
+          Caption = 'Add Placemark'
           Hint = ''
         end
         object TBXSeparatorItem16: TTBXSeparatorItem
@@ -214,7 +214,7 @@ object frmMain: TfrmMain
           ImageIndex = 25
           Images = MenusImageList
           OnClick = TBItem5Click
-          Caption = 'Save to database'
+          Caption = 'Add Track to Database'
           Hint = ''
         end
         object TBXSeparatorItem17: TTBXSeparatorItem
@@ -225,7 +225,7 @@ object frmMain: TfrmMain
           ImageIndex = 35
           Images = MenusImageList
           OnClick = TBItemDelTrackClick
-          Caption = 'Delete track'
+          Caption = 'Delete Track'
           Hint = ''
         end
       end
@@ -236,11 +236,11 @@ object frmMain: TfrmMain
         Images = PanelsImageList
         OnClick = TBGPSToPointClick
         Caption = ''
-        Hint = 'Move map by GPS position'
+        Hint = 'Follow GPS Position'
         object TBGPSToPointCenter: TTBXItem
           AutoCheck = True
           OnClick = TBGPSToPointCenterClick
-          Caption = 'GPS position is centered'
+          Caption = 'Centered GPS Position'
           Hint = ''
         end
       end
@@ -267,13 +267,13 @@ object frmMain: TfrmMain
       DockPos = 2
       Stretch = True
       TabOrder = 5
-      Caption = 'Main menu'
+      Caption = 'Main Menu'
       object NOperations: TTBXSubmenuItem
         Caption = '&Go!'
         Hint = ''
         object N35: TTBXItem
           OnClick = N35Click
-          Caption = 'Save the shortcut'
+          Caption = 'Create Shortcut'
           Hint = ''
         end
         object TBXItem6: TTBXItem
@@ -292,7 +292,7 @@ object frmMain: TfrmMain
           Images = MenusImageList
           ShortCut = 33
           OnClick = TBZoomInClick
-          Caption = 'Zoom in'
+          Caption = 'Zoom In'
           Hint = ''
         end
         object NZoomOut: TTBXItem
@@ -300,7 +300,7 @@ object frmMain: TfrmMain
           Images = MenusImageList
           ShortCut = 34
           OnClick = TBZoom_outClick
-          Caption = 'Zoom out'
+          Caption = 'Zoom Out'
           Hint = ''
         end
         object TBXSeparatorItem7: TTBXSeparatorItem
@@ -320,7 +320,7 @@ object frmMain: TfrmMain
           Images = MenusImageList
           ShortCut = 16460
           OnClick = NCalcRastClick
-          Caption = 'Distance calculation'
+          Caption = 'Distance Calculation'
           Hint = ''
         end
         object TBXSeparatorItem8: TTBXSeparatorItem
@@ -335,7 +335,7 @@ object frmMain: TfrmMain
             Images = PanelsImageList
             ShortCut = 32850
             OnClick = TBRECTClick
-            Caption = 'Rectangle selection'
+            Caption = 'Rectangular Selection'
             Hint = ''
           end
           object TBREGION: TTBXItem
@@ -343,14 +343,14 @@ object frmMain: TfrmMain
             Images = PanelsImageList
             ShortCut = 32848
             OnClick = TBREGIONClick
-            Caption = 'Freehand selection'
-            Hint = 'Manage the freehand selection'
+            Caption = 'Freehand Selection'
+            Hint = ''
           end
           object TBCOORD: TTBXItem
             ImageIndex = 12
             Images = PanelsImageList
             OnClick = TBCOORDClick
-            Caption = 'By coordinates'
+            Caption = 'By Coordinates'
             Hint = ''
           end
           object TBScreenSelect: TTBXItem
@@ -358,7 +358,7 @@ object frmMain: TfrmMain
             Images = PanelsImageList
             ShortCut = 16449
             OnClick = TBScreenSelectClick
-            Caption = 'By window borders'
+            Caption = 'Visible Area'
             Hint = ''
           end
           object TBXSeparatorItem13: TTBXSeparatorItem
@@ -369,13 +369,13 @@ object frmMain: TfrmMain
             Images = PanelsImageList
             ShortCut = 16450
             OnClick = TBPreviousClick
-            Caption = 'Last selection'
+            Caption = 'Last Selection'
             Hint = ''
           end
           object TBLoadSelFromFile: TTBXItem
             Images = PanelsImageList
             OnClick = TBLoadSelFromFileClick
-            Caption = 'Load from file'
+            Caption = 'Load from File'
             Hint = ''
           end
         end
@@ -395,7 +395,7 @@ object frmMain: TfrmMain
         Caption = '&View'
         Hint = ''
         object NPanels: TTBXSubmenuItem
-          Caption = 'Tabs'
+          Caption = 'Toolbars'
           Hint = ''
           object NMainToolBarShow: TTBXVisibilityToggleItem
             Control = TBMainToolBar
@@ -409,7 +409,7 @@ object frmMain: TfrmMain
           end
           object NsrcToolBarShow: TTBXVisibilityToggleItem
             Control = SrcToolbar
-            Caption = 'Source'
+            Caption = 'Sources'
             Hint = ''
           end
           object NGPSToolBarShow: TTBXVisibilityToggleItem
@@ -435,7 +435,7 @@ object frmMain: TfrmMain
             Hint = ''
             object NSignalStrengthBar: TTBXVisibilityToggleItem
               Control = TBXSignalStrengthBar
-              Caption = 'Satellite signal strength'
+              Caption = 'Satellite Signal Strength'
               Hint = ''
             end
           end
@@ -446,7 +446,7 @@ object frmMain: TfrmMain
           object NBlock_toolbars: TTBXItem
             AutoCheck = True
             OnClick = NBlock_toolbarsClick
-            Caption = 'Fix tabs'
+            Caption = 'Lock Toolbars'
             Hint = ''
           end
         end
@@ -457,7 +457,7 @@ object frmMain: TfrmMain
             AutoCheck = True
             ShortCut = 32851
             OnClick = ShowstatusClick
-            Caption = 'Statusbar'
+            Caption = 'Status Bar'
             Hint = ''
           end
           object ShowMiniMap: TTBXItem
@@ -479,11 +479,11 @@ object frmMain: TfrmMain
           ImageIndex = 7
           Images = MenusImageList
           OnClick = NFillMapClick
-          Caption = 'Completion map'
+          Caption = 'Completion Map'
           Hint = ''
           object TBFillingTypeMap: TTBXSubmenuItem
             Options = [tboDropdownArrow]
-            Caption = 'Calculate on...'
+            Caption = 'Show completion map for...'
             Hint = ''
           end
           object TBXSeparatorItem11: TTBXSeparatorItem
@@ -504,7 +504,7 @@ object frmMain: TfrmMain
           ImageIndex = 3
           Images = MenusImageList
           OnClick = NShowGranClick
-          Caption = 'Show tile boundaries'
+          Caption = 'Show Tile Boundaries'
           Hint = ''
           object N000: TTBXItem
             GroupIndex = 1
@@ -518,7 +518,7 @@ object frmMain: TfrmMain
             GroupIndex = 1
             RadioItem = True
             OnClick = N000Click
-            Caption = 'Current zoom'
+            Caption = 'Current Zoom'
             Hint = ''
           end
           object N002: TTBXItem
@@ -571,7 +571,7 @@ object frmMain: TfrmMain
           end
         end
         object N40: TTBXSubmenuItem
-          Caption = 'Show GenShtab contours'
+          Caption = 'Show GenShtab Maps Contours'
           Hint = ''
           object NGShScale0: TTBXItem
             AutoCheck = True
@@ -655,28 +655,28 @@ object frmMain: TfrmMain
           Images = MenusImageList
           ShortCut = 122
           OnClick = NFoolSizeClick
-          Caption = 'Full screen'
+          Caption = 'Full Screen'
           Hint = ''
         end
         object NGoToCur: TTBXItem
           AutoCheck = True
           Checked = True
           OnClick = NGoToCurClick
-          Caption = 'Move to cursor'
+          Caption = 'Move to Cursor'
           Hint = ''
         end
         object Nbackload: TTBXItem
           AutoCheck = True
           Checked = True
           OnClick = NbackloadClick
-          Caption = 'Use maps on lower zooms'
+          Caption = 'Use Maps from Lower Zooms'
           Hint = ''
         end
         object NbackloadLayer: TTBXItem
           AutoCheck = True
           Checked = True
           OnClick = NbackloadLayerClick
-          Caption = 'Use layers on lower zooms'
+          Caption = 'Use Layers from Lower Zooms'
           Hint = ''
         end
         object Nanimate: TTBXItem
@@ -689,26 +689,26 @@ object frmMain: TfrmMain
         object N32: TTBXItem
           AutoCheck = True
           OnClick = N32Click
-          Caption = 'Show gauge'
+          Caption = 'Show Gauge'
           Hint = ''
         end
         object Ninvertcolor: TTBXItem
           AutoCheck = True
           ShortCut = 32846
           OnClick = NinvertcolorClick
-          Caption = 'Night mode (color inversion)'
+          Caption = 'Night Mode (Color Inversion)'
           Hint = ''
         end
         object NShowSelection: TTBXItem
           AutoCheck = True
           OnClick = NShowSelectionClick
-          Caption = 'Previous selection'
+          Caption = 'Previous Selection'
           Hint = ''
         end
         object tbitmShowDebugInfo: TTBXItem
           Visible = False
           OnClick = tbitmShowDebugInfoClick
-          Caption = 'ShowDebugInfo'
+          Caption = 'Show Debug Info'
           Hint = ''
         end
       end
@@ -750,7 +750,7 @@ object frmMain: TfrmMain
           ShortCut = 32834
           OnAdjustFont = AdjustFont
           OnClick = NSRCinetClick
-          Caption = 'Internet + Cache'
+          Caption = 'Internet && Cache'
           Hint = ''
         end
       end
@@ -775,7 +775,7 @@ object frmMain: TfrmMain
           Options = [tboShowHint]
           Stretch = True
           OnClick = TBAdd_PointClick
-          Caption = 'Add placemark'
+          Caption = 'Add Placemark'
           Hint = 'Add new placemark'
         end
         object TBAdd_Line: TTBXItem
@@ -783,7 +783,7 @@ object frmMain: TfrmMain
           Images = PanelsImageList
           MaskOptions = [tboShowHint]
           OnClick = TBAdd_LineClick
-          Caption = 'Add route'
+          Caption = 'Add Track'
           Hint = 'Add new track'
         end
         object TBAdd_Poly: TTBXItem
@@ -791,7 +791,7 @@ object frmMain: TfrmMain
           Images = PanelsImageList
           Options = [tboShowHint]
           OnClick = TBAdd_PolyClick
-          Caption = 'Add polygon'
+          Caption = 'Add Polygon'
           Hint = 'Add polygon'
         end
         object TBXSeparatorItem12: TTBXSeparatorItem
@@ -803,7 +803,7 @@ object frmMain: TfrmMain
           Images = PanelsImageList
           Options = [tboShowHint]
           OnClick = TBItem6Click
-          Caption = 'Manage placemarks'
+          Caption = 'Manage Placemarks'
           Hint = 'Manage placemarks'
         end
         object TBHideMarks: TTBXItem
@@ -811,7 +811,7 @@ object frmMain: TfrmMain
           ImageIndex = 19
           Images = PanelsImageList
           OnClick = TBHideMarksClick
-          Caption = 'Hide all placemarks'
+          Caption = 'Hide All Placemarks'
           Hint = 'Hide all placemarks'
         end
       end
@@ -823,7 +823,7 @@ object frmMain: TfrmMain
           Images = MenusImageList
           ShortCut = 49223
           OnClick = TBGPSconnClick
-          Caption = 'Connect to device'
+          Caption = 'Connect to GPS Receiver'
           Hint = ''
         end
         object tbitmGPSTrackShow: TTBXItem
@@ -832,7 +832,7 @@ object frmMain: TfrmMain
           Images = MenusImageList
           ShortCut = 49236
           OnClick = TBGPSPathClick
-          Caption = 'Show track'
+          Caption = 'Show GPS Track'
           Hint = ''
         end
         object tbitmGPSCenterMap: TTBXItem
@@ -840,13 +840,13 @@ object frmMain: TfrmMain
           ImageIndex = 5
           Images = MenusImageList
           OnClick = TBGPSToPointClick
-          Caption = 'Move map by GPS position'
+          Caption = 'Follow GPS Position'
           Hint = ''
         end
         object tbitmGPSToPointCenter: TTBXItem
           AutoCheck = True
           OnClick = TBGPSToPointCenterClick
-          Caption = 'GPS position is centered'
+          Caption = 'Centered GPS Position'
           Hint = ''
         end
         object tbsprtGPS1: TTBXSeparatorItem
@@ -857,21 +857,21 @@ object frmMain: TfrmMain
           ImageIndex = 25
           Images = MenusImageList
           ShortCut = 49235
-          Caption = 'Save track'
+          Caption = 'Save Track'
           Hint = ''
         end
         object tbitmGPSTrackSaveToDb: TTBXItem
           ImageIndex = 25
           Images = MenusImageList
           OnClick = TBItem5Click
-          Caption = 'Save track to the database'
+          Caption = 'Add Track to Database'
           Hint = ''
         end
         object tbitmGPSTrackClear: TTBXItem
           ImageIndex = 35
           Images = MenusImageList
           OnClick = TBItemDelTrackClick
-          Caption = 'Delete track'
+          Caption = 'Delete Track'
           Hint = ''
         end
         object tbsprtGPS2: TTBXSeparatorItem
@@ -880,7 +880,7 @@ object frmMain: TfrmMain
         end
         object tbitmPositionByGSM: TTBXItem
           OnClick = tbitmPositionByGSMClick
-          Caption = 'Calculate locaton based on GSM signal (query to Google)'
+          Caption = 'Get Locaton from GSM (Google Query)'
           Hint = ''
         end
       end
@@ -891,11 +891,11 @@ object frmMain: TfrmMain
         object NMapParams: TTBXItem
           ShortCut = 49232
           OnClick = NMapParamsClick
-          Caption = 'Map settings'
+          Caption = 'Map Settings'
           Hint = ''
         end
         object NLayerParams: TTBXSubmenuItem
-          Caption = 'Layer options'
+          Caption = 'Layer Settings'
           Hint = ''
         end
         object TBXSeparatorItem14: TTBXSeparatorItem
@@ -938,7 +938,7 @@ object frmMain: TfrmMain
         end
         object NGoToSite: TTBXItem
           OnClick = NGoToSiteClick
-          Caption = 'Website (http://www.sasgis.ru)'
+          Caption = 'Web Site (http://www.sasgis.ru)'
           Hint = ''
         end
         object tbtmHelpBugTrack: TTBXItem
@@ -960,7 +960,7 @@ object frmMain: TfrmMain
       Stretch = True
       TabOrder = 6
       Visible = False
-      Caption = 'Search tab'
+      Caption = 'Search'
       object TBXSelectSrchType: TTBXSubmenuItem
         Options = [tboDropdownArrow]
         Caption = 'Google'
@@ -984,7 +984,7 @@ object frmMain: TfrmMain
         OnAcceptText = TBXSearchEditAcceptText
         Caption = ''
         Hint = ''
-        EditCaption = 'РџРѕРёСЃРє'
+        EditCaption = 'Search'
       end
     end
   end
@@ -1010,7 +1010,7 @@ object frmMain: TfrmMain
       Stretch = True
       TabOrder = 0
       OnDockChanging = ZoomToolBarDockChanging
-      Caption = 'Zoom tab'
+      Caption = 'Zoom'
       object TBZoomIn: TTBXItem
         ImageIndex = 23
         Images = MenusImageList
@@ -1018,7 +1018,7 @@ object frmMain: TfrmMain
         MinWidth = 29
         OnClick = TBZoomInClick
         Caption = ''
-        Hint = 'Zoom in'
+        Hint = 'Zoom In'
       end
       object TBXSeparatorItem1: TTBXSeparatorItem
         Blank = True
@@ -1044,7 +1044,7 @@ object frmMain: TfrmMain
         MinWidth = 29
         OnClick = TBZoom_outClick
         Caption = ''
-        Hint = 'Zoom out'
+        Hint = 'Zoom Out'
       end
       object TBXSeparatorItem2: TTBXSeparatorItem
         Blank = True
@@ -1062,11 +1062,10 @@ object frmMain: TfrmMain
         Top = 221
         Width = 14
         Height = 13
-        Hint = 'Current zoom'
+        Hint = 'Current Zoom'
         Alignment = taCenter
         Caption = 'z1'
         Color = clBtnFace
-        Font.Charset = RUSSIAN_CHARSET
         Font.Color = clHotLight
         Font.Height = -11
         Font.Name = 'MS Sans Serif'
@@ -1103,21 +1102,21 @@ object frmMain: TfrmMain
         Images = MenusImageList
         OnClick = TBEditPathDelClick
         Caption = ''
-        Hint = 'Delete the point'
+        Hint = 'Delete Point'
       end
       object TBEditPathLabel: TTBXItem
         ImageIndex = 37
         Images = MenusImageList
         OnClick = TBEditPathLabelClick
         Caption = ''
-        Hint = 'Show/Hide legend'
+        Hint = 'Show/Hide Captions'
       end
       object TBEditPathSave: TTBXItem
         ImageIndex = 25
         Images = MenusImageList
         OnClick = TBEditPathSaveClick
         Caption = ''
-        Hint = 'Save to database'
+        Hint = 'Add to Database'
       end
       object TBEditPathOk: TTBXItem
         FontSettings.Bold = tsTrue
@@ -1128,14 +1127,14 @@ object frmMain: TfrmMain
         Options = [tboImageAboveCaption, tboNoRotation, tboSameWidth]
         OnClick = TBEditPathOkClick
         Caption = ''
-        Hint = 'Manage the selection'
+        Hint = 'Manage Selection'
       end
       object TBEditPathMarsh: TTBXSubmenuItem
         ImageIndex = 39
         Images = MenusImageList
         Options = [tboDropdownArrow]
         Caption = ''
-        Hint = 'Route calculation'
+        Hint = 'Route Calculation'
         object TBXLabelItem2: TTBXLabelItem
           FontSettings.Bold = tsTrue
           Margin = 4
@@ -1146,19 +1145,19 @@ object frmMain: TfrmMain
         object TBItem8: TTBXItem
           Tag = 1
           OnClick = TBEditPathMarshClick
-          Caption = 'By distance'
+          Caption = 'By Distance'
           Hint = ''
         end
         object TBItem9: TTBXItem
           Tag = 2
           OnClick = TBEditPathMarshClick
-          Caption = 'By time'
+          Caption = 'By Time'
           Hint = ''
         end
         object TBItem7: TTBXItem
           Tag = 3
           OnClick = TBEditPathMarshClick
-          Caption = 'By time and traffic jam'
+          Caption = 'By Time Using Traffic Info'
           Hint = ''
         end
         object TBXLabelItem1: TTBXLabelItem
@@ -1171,25 +1170,25 @@ object frmMain: TfrmMain
         object TBXItem1: TTBXItem
           Tag = 1
           OnClick = TBXItem1Click
-          Caption = 'On a car (by speed)'
+          Caption = 'On Car (By Speed)'
           Hint = ''
         end
         object TBXItem2: TTBXItem
           Tag = 11
           OnClick = TBXItem1Click
-          Caption = 'On a car (by distance)'
+          Caption = 'On Car (By Distance)'
           Hint = ''
         end
         object TBXItem4: TTBXItem
           Tag = 2
           OnClick = TBXItem1Click
-          Caption = 'On a bike (by speed)'
+          Caption = 'On Bike (By Speed)'
           Hint = ''
         end
         object TBXItem3: TTBXItem
           Tag = 22
           OnClick = TBXItem1Click
-          Caption = 'On a bike (by distance)'
+          Caption = 'On Bike (By Distance)'
           Hint = ''
         end
       end
@@ -1235,8 +1234,7 @@ object frmMain: TfrmMain
             Left = 0
             Top = 0
             Hint = 
-              'РћС‚РЅРѕС€РµРЅРёРµ СЃРёРіРЅР°Р»/С€СѓРј РґР»СЏ СЃРїСѓС‚РЅРёРєРѕРІ СѓС‡Р°СЃС‚РІСѓСЋС‰РёС… РІ РѕРїСЂРµРґРµР»РµРЅРёРё РїРѕР·' +
-              'РёС†РёРё'
+              'Signal-to-noise ratio for satellites in use'
             Align = alTop
             ClientAreaHeight = 32
             ClientAreaWidth = 150
@@ -1247,7 +1245,7 @@ object frmMain: TfrmMain
             DesignSize = (
               150
               32)
-            Caption = 'РЈСЂРѕРІРЅРё СЃРёРіРЅР°Р»Р°'
+            Caption = 'Satellite Signal Strength'
             object TBXLabel5: TTBXLabel
               Left = 0
               Top = 0
@@ -1256,7 +1254,7 @@ object frmMain: TfrmMain
               Anchors = [akLeft, akTop, akRight]
               AutoSize = False
               Wrapping = twEndEllipsis
-              Caption = 'Satellite signal strength:'
+              Caption = 'Satellite Signal Strength:'
             end
           end
         end
@@ -1288,10 +1286,10 @@ object frmMain: TfrmMain
   object OpenSessionDialog: TOpenDialog
     DefaultExt = '*.sls'
     Filter = 
-      'Р’СЃРµ РїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Рµ С‚РёРїС‹ (*.kml,*.plt,*.kmz,*.sls,*.hlg)|*.kml;*.' +
+      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg)|*.kml;*.' +
       'plt;*.kmz;*.sls;*.hlg|Google KML files (*.kml)|*.kml|OziExplorer' +
       ' Track Point File Version 2.1 (*.plt)|*.plt|Google KMZ files (*.' +
-      'kmz)|*.kmz|РЎРµСЃСЃРёСЏ Р·Р°РіСЂСѓР·РєРё (*.sls)|*.sls|Р¤Р°Р№Р» РІС‹РґРµР»РµРЅРёСЏ (*.hlg)|' +
+      'kmz)|*.kmz|Download session (*.sls)|*.sls|Selection (*.hlg)|' +
       '*.hlg'
     Left = 208
     Top = 208
@@ -2912,18 +2910,18 @@ object frmMain: TfrmMain
     object NMarkNav: TTBXItem
       ImageIndex = 33
       OnClick = NMarkNavClick
-      Caption = 'Navidate to the placemark'
+      Caption = 'Navidate to Placemark'
       Hint = ''
     end
     object NMarkExport: TTBXItem
       ImageIndex = 25
       OnClick = NMarkExportClick
-      Caption = 'Placemark export'
+      Caption = 'Placemark Export'
       Hint = ''
     end
     object NMarksCalcs: TTBXSubmenuItem
       ImageIndex = 9
-      Caption = 'Calculations'
+      Caption = 'Measurements'
       Hint = ''
       object NMarksCalcsLen: TTBXItem
         OnClick = NMarksCalcsLenClick
@@ -2948,7 +2946,7 @@ object frmMain: TfrmMain
     object NaddPoint: TTBXItem
       ImageIndex = 15
       OnClick = NaddPointClick
-      Caption = 'Add placemark'
+      Caption = 'Add Placemark'
       Hint = ''
     end
     object N47: TTBXSeparatorItem
@@ -2956,7 +2954,7 @@ object frmMain: TfrmMain
       Hint = ''
     end
     object N28: TTBXSubmenuItem
-      Caption = 'Center with zoom'
+      Caption = 'Center With Zoom'
       Hint = ''
       object TBXToolPalette2: TTBXToolPalette
         ColCount = 5
@@ -2974,11 +2972,11 @@ object frmMain: TfrmMain
     end
     object N43: TTBXSubmenuItem
       ImageIndex = 28
-      Caption = 'Copy to the clipboard'
+      Caption = 'Copy to Clipboard'
       Hint = ''
       object Google1: TTBXItem
         OnClick = Google1Click
-        Caption = 'URL to google maps'
+        Caption = 'URL to Google Maps'
         Hint = ''
       end
       object YaLink: TTBXItem
@@ -3007,11 +3005,11 @@ object frmMain: TfrmMain
       end
       object N13: TTBXItem
         OnClick = N13Click
-        Caption = 'URL to the primary map tile'
+        Caption = 'URL to Primary Map Tile'
         Hint = ''
       end
       object TBCopyLinkLayer: TTBXSubmenuItem
-        Caption = 'URL to the layer tile'
+        Caption = 'URL to Layer Tile'
         Hint = ''
       end
       object N30: TTBXItem
@@ -3021,29 +3019,29 @@ object frmMain: TfrmMain
       end
       object N20: TTBXItem
         OnClick = N20Click
-        Caption = 'Primary map''s tile'
+        Caption = 'Primary Map Tile'
         Hint = ''
       end
       object N15: TTBXItem
         OnClick = N15Click
-        Caption = 'Path to the tile in cache'
+        Caption = 'Pathname to Tile in Cache'
         Hint = ''
       end
     end
     object Nopendir: TTBXItem
       OnClick = NopendirClick
-      Caption = 'Show the primary map tile'
+      Caption = 'Show Primary Map Tile'
       Hint = ''
     end
     object N25: TTBXItem
       ImageIndex = 34
       OnClick = N25Click
-      Caption = 'Open the folder containing the primary map tile'
+      Caption = 'Open Primary Map Tile Folder'
       Hint = ''
     end
     object TBOpenDirLayer: TTBXSubmenuItem
       ImageIndex = 34
-      Caption = 'Open the folder containing the primary map tile'
+      Caption = 'Open Overlay Layer Tile Folder'
       Hint = ''
     end
     object N23: TTBXSeparatorItem
@@ -3051,16 +3049,16 @@ object frmMain: TfrmMain
       Hint = ''
     end
     object N26: TTBXSubmenuItem
-      Caption = 'Additional operations'
+      Caption = 'Additional Operations'
       Hint = ''
       object NGTOPO30: TTBXItem
         OnClick = NGTOPO30Click
-        Caption = 'Current altitude by GTOPO30 (~1 km accuracy)'
+        Caption = 'Current Altitude by GTOPO30 (~1 km accuracy)'
         Hint = ''
       end
       object NSRTM3: TTBXItem
         OnClick = NSRTM3Click
-        Caption = 'Current altitude by SRTM3 (~90 m accuracy)'
+        Caption = 'Current Altitude by SRTM3 (~90 m accuracy)'
         Hint = ''
       end
       object N49: TTBXSeparatorItem
@@ -3070,8 +3068,7 @@ object frmMain: TfrmMain
       object DigitalGlobe1: TTBXItem
         OnClick = DigitalGlobe1Click
         Caption = 
-          'Р—Р°РіСЂСѓР·РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РґРѕСЃС‚СѓРїРЅС‹С… РєР°СЂС‚Р°С… СЌС‚РѕРіРѕ РјРµСЃС‚Р° РЅР° DigitalGl' +
-          'obe'
+          'DigitalGlobe Availability'
         Hint = ''
       end
       object N27: TTBXSeparatorItem
@@ -3086,23 +3083,23 @@ object frmMain: TfrmMain
     object N21: TTBXItem
       ImageIndex = 21
       OnClick = N21Click
-      Caption = 'Load primary map tile to cache (Ins+MLeft)'
+      Caption = 'Download Primary Map Tile to Cache (Ins+MLeft)'
       Hint = ''
     end
     object NDel: TTBXItem
       ImageIndex = 22
       OnClick = NDelClick
-      Caption = 'Delete primary map tile from cache (Del+MLeft)'
+      Caption = 'Delete Primary Map Tile from Cache (Del+MLeft)'
       Hint = ''
     end
     object ldm: TTBXSubmenuItem
       ImageIndex = 21
-      Caption = 'Load overlay layer tile to cache'
+      Caption = 'Download Overlay Layer Tile to Cache'
       Hint = ''
     end
     object dlm: TTBXSubmenuItem
       ImageIndex = 22
-      Caption = 'Delete overlay layer tile from cache'
+      Caption = 'Delete Overlay Layer Tile from Cache'
       Hint = ''
     end
     object N1: TTBXSeparatorItem
@@ -3112,12 +3109,12 @@ object frmMain: TfrmMain
     object NMapInfo: TTBXItem
       ImageIndex = 27
       OnClick = NMapInfoClick
-      Caption = 'Map information'
+      Caption = 'Map Info'
       Hint = ''
     end
     object TBLayerInfo: TTBXSubmenuItem
       ImageIndex = 27
-      Caption = 'Layer information'
+      Caption = 'Layer Info'
       Hint = ''
     end
   end

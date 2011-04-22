@@ -35,7 +35,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Масштабы:'
+        Caption = 'Zooms:'
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
@@ -47,7 +47,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alBottom
-        Caption = 'Все'
+        Caption = 'All'
         TabOrder = 0
         OnClick = chkAllZoomsClick
       end
@@ -81,7 +81,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Конвертировать в формат'
+        Caption = 'Output format'
       end
       object cbbNamesType: TComboBox
         Left = 3
@@ -93,10 +93,10 @@ object frTilesCopy: TfrTilesCopy
         ItemHeight = 13
         ItemIndex = 1
         TabOrder = 0
-        Text = 'SAS.Планета'
+        Text = 'SAS.Planet'
         Items.Strings = (
           'GoogleMV'
-          'SAS.Планета'
+          'SAS.Planet'
           'ES1.95'
           'GMT (GlobalMapper >=10.02)')
       end
@@ -110,7 +110,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alTop
-        Caption = 'Перемещать'
+        Caption = 'Move'
         TabOrder = 1
       end
       object chkReplaseTarget: TCheckBox
@@ -123,7 +123,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = 'Заменять при совпадении'
+        Caption = 'Overwrite if equal'
         TabOrder = 2
       end
       object chkAllMaps: TCheckBox
@@ -136,7 +136,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alBottom
-        Caption = 'Все'
+        Caption = 'All'
         TabOrder = 3
         OnClick = chkAllMapsClick
       end
@@ -170,7 +170,7 @@ object frTilesCopy: TfrTilesCopy
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = 'Куда сохранять:'
+      Caption = 'Save to:'
       Layout = tlCenter
     end
     object edtTargetPath: TEdit
@@ -203,7 +203,7 @@ object frTilesCopy: TfrTilesCopy
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    Caption = 'Сохранить кэш  выделенного участка карты'
+    Caption = 'Save selection to file'
     TabOrder = 2
   end
 end

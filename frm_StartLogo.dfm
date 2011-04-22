@@ -43,7 +43,6 @@ object frmStartLogo: TfrmStartLogo
       Width = 91
       Height = 16
       Caption = 'http://sasgis.ru'
-      Font.Charset = RUSSIAN_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Arial'

@@ -2,7 +2,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   Left = 730
   Top = 247
   BorderStyle = bsDialog
-  Caption = 'DigitalGlobe availability'
+  Caption = 'DigitalGlobe Availability'
   ClientHeight = 369
   ClientWidth = 355
   Color = clBtnFace
@@ -145,7 +145,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Top = 65
         Width = 75
         Height = 25
-        Hint = 'Copy TID''s to the clipboard'
+        Hint = 'Copy TID''s to clipboard'
         Align = alTop
         Caption = 'Copy'
         ParentShowHint = False

@@ -72,7 +72,6 @@ object frmAbout: TfrmAbout
     Alignment = taCenter
     AutoSize = False
     Caption = 'SAS.Planet'
-    Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
     Font.Height = -21
     Font.Name = 'MS Reference Sans Serif'
@@ -111,7 +110,6 @@ object frmAbout: TfrmAbout
     Cursor = crHandPoint
     Caption = 'az@sasgis.ru'
     Color = clWhite
-    Font.Charset = RUSSIAN_CHARSET
     Font.Color = clBlue
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
@@ -135,7 +133,6 @@ object frmAbout: TfrmAbout
     Height = 13
     Cursor = crHandPoint
     Caption = 'http://sasgis.ru'
-    Font.Charset = RUSSIAN_CHARSET
     Font.Color = clBlue
     Font.Height = -11
     Font.Name = 'MS Sans Serif'

@@ -6,7 +6,6 @@ object frmGoTo: TfrmGoTo
   ClientHeight = 233
   ClientWidth = 331
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
@@ -160,7 +159,7 @@ object frmGoTo: TfrmGoTo
       Top = 3
       Width = 75
       Height = 25
-      Hint = 'Go to selection'
+      Hint = ''
       Align = alRight
       Caption = 'Go to'
       Default = True

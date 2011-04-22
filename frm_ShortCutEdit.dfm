@@ -2,7 +2,7 @@ object frmShortCutEdit: TfrmShortCutEdit
   Left = 669
   Top = 266
   BorderStyle = bsDialog
-  Caption = 'Edit hotkey'
+  Caption = 'Edit Hotkey'
   ClientHeight = 81
   ClientWidth = 189
   Color = clBtnFace

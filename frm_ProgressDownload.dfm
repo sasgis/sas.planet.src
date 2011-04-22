@@ -239,7 +239,7 @@ object frmProgressDownload: TfrmProgressDownload
         Top = 0
         Width = 75
         Height = 20
-        Hint = 'Save current download'
+        Hint = 'Save current session'
         Caption = 'Save'
         TabOrder = 1
         OnClick = ButtonSaveClick
