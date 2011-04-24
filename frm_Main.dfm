@@ -343,7 +343,7 @@ object frmMain: TfrmMain
             Images = PanelsImageList
             ShortCut = 32848
             OnClick = TBREGIONClick
-            Caption = 'Polynomial Selection'
+            Caption = 'Polygonal Selection'
             Hint = ''
           end
           object TBCOORD: TTBXItem

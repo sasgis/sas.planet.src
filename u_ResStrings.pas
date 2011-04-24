@@ -74,6 +74,15 @@ ResourceString
   SAS_ERR_TileDownloadUnexpectedError = 'Unknown error during download';
   SAS_ERR_CoordinatesInput='Error in geographic coordinates';
 
+  SAS_ERR_EmptyZMPFileName = 'Empty ZMP file name';
+  SAS_ERR_FileNotFoundFmt = 'File %0:s not found';
+  SAS_ERR_UnknownImageExt = 'Image type unknown';
+  SAS_ERR_UnknownImageMIMEType = 'Image MIME type unknown';
+  SAS_ERR_CantLoadBitmapFromSourceType = 'Can''t load bitmap from source type';
+  SAS_ERR_CantSaveBitmapToTargetType = 'Can''t save bitmap to target type';
+  SAS_ERR_EmptyServerResponse = 'Empty server response';
+  SAS_ERR_CoordParseError = 'Error parsing coordinates: Lat=%s Lon=%s';
+
   SAS_STR_MarshLen = 'Distance:';
   SAS_STR_Marshtime = 'Time to reach:';
   SAS_STR_coordinates = 'Coordinates';
@@ -128,7 +137,7 @@ ResourceString
   SAS_STR_Continue = 'Resume';
   SAS_STR_ExportTiles = 'Export';
   SAS_STR_DivideInto = 'Split to';
-  SAS_STR_Resolution = 'Quality';
+  SAS_STR_Resolution = 'size:';
   SAS_STR_UserStop = 'Paused by user...';
   SAS_STR_LoadProcess = 'Downloading';
   SAS_STR_LoadProcessRepl = 'Downloading with overwrite...';
@@ -163,7 +172,7 @@ ResourceString
   SAS_STR_BattaryStateCharge = 'Charging';
   SAS_STR_BattaryStateUnknown = 'Unknown';
   SAS_STR_MapCombineProgressLine0 = 'Stitch: %0:dx%1:d (%2:d) files';
-  SAS_STR_MapCombineProgressCaption = 'Quality: %0:dx%1:d Split to %2:d files';
+  SAS_STR_MapCombineProgressCaption = 'Size: %0:dx%1:d. Split to %2:d files';
   SAS_STR_MiniMapAsMainMap = 'Displayed Main Map';
   SAS_STR_SensorReset = 'Reset';
 
@@ -206,6 +215,8 @@ ResourceString
   SAS_STR_SensorBatteryStatusCaption = 'Battery:';
   SAS_STR_SensorBatteryStatusDescription = 'Shows battery status';
   SAS_STR_SensorBatteryStatusMenuItemName = 'Battery';
+
+  SAS_STR_GoogleSearchLanguage = '&hl=en';
 
   SAS_UNITS_kb = 'KB';
   SAS_UNITS_mb = 'MB';

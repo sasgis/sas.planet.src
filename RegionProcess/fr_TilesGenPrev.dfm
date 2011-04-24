@@ -124,7 +124,7 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = 'Resize algorythm:'
+        Caption = 'Resize algorithm:'
         ExplicitLeft = 5
         ExplicitTop = 37
         ExplicitWidth = 52

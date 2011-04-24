@@ -27,7 +27,8 @@ implementation
 
 uses
   SysUtils,
-  GR32;
+  GR32,
+  u_ResStrings;
 
 { TContentConverterBitmap }
 
@@ -41,13 +42,13 @@ begin
   VSource := GetSource as IContentTypeInfoBitmap;
   FSourceLoader := VSource.GetLoader;
   if FSourceLoader = nil then begin
-    raise Exception.Create('Из исходного типа нельзя загрузить растр');
+    raise Exception.Create(SAS_ERR_CantLoadBitmapFromSourceType);
   end;
 
   VTarget := GetTarget as IContentTypeInfoBitmap;
   FTargetSaver := VTarget.GetSaver;
   if FTargetSaver  = nil then begin
-    raise Exception.Create('В результирующий тип нельзя сохранить растр');
+    raise Exception.Create(SAS_ERR_CantSaveBitmapToTargetType);
   end;
 end;
 

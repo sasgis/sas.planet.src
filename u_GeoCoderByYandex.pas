@@ -21,6 +21,7 @@ uses
   StrUtils,
   t_GeoTypes,
   i_GeoCoder,
+  u_ResStrings,
   u_GeoCodePalcemark;
 
 { TGeoCoderByYandex }
@@ -36,7 +37,7 @@ var
   VFormatSettings: TFormatSettings;
 begin
   if AStr = '' then begin
-    raise EParserError.Create('Пустой ответ от сервера');
+    raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
   if not (PosEx(AnsiToUtf8('Искомая комбинация'), AStr) > 0) then begin
@@ -55,7 +56,7 @@ begin
       VPoint.Y := StrToFloat(slat, VFormatSettings);
       VPoint.X := StrToFloat(slon, VFormatSettings);
     except
-      raise EParserError.CreateFmt('Ошибка разбора координат Lat=%s Lon=%s', [slat, slon]);
+      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
     VPlace := TGeoCodePalcemark.Create(VPoint, ASearch, 4);
     VList := TInterfaceList.Create;

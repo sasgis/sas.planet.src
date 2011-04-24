@@ -1043,7 +1043,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alLeft
               Alignment = taRightJustify
-              Caption = 'Resize algorythm'
+              Caption = 'Resize algorithm'
               Layout = tlCenter
               ExplicitHeight = 13
             end
@@ -1146,7 +1146,7 @@ object frmSettings: TfrmSettings
                 AlignWithMargins = True
                 Left = 231
                 Top = 6
-                Width = 65
+                Width = 101
                 Height = 17
                 Caption = 'Tile coordinates'
                 TabOrder = 2
