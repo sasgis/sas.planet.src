@@ -442,7 +442,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 376
     Top = 224
     object NExportAll: TMenuItem
-      Caption = 'Export all placemarks of all categories'
+      Caption = 'Export all placemarks and all categories'
       OnClick = btnExportClick
     end
     object NExportVisible: TMenuItem

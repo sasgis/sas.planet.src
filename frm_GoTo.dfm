@@ -183,7 +183,7 @@ object frmGoTo: TfrmGoTo
     Top = 51
     Width = 62
     Height = 17
-    Caption = 'Google!'
+    Caption = 'Google'
     Checked = True
     TabOrder = 5
     TabStop = True

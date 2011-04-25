@@ -504,7 +504,7 @@ object frmMain: TfrmMain
           ImageIndex = 3
           Images = MenusImageList
           OnClick = NShowGranClick
-          Caption = 'Show Tile Boundaries'
+          Caption = 'Tile Boundaries'
           Hint = ''
           object N000: TTBXItem
             GroupIndex = 1
@@ -571,7 +571,7 @@ object frmMain: TfrmMain
           end
         end
         object N40: TTBXSubmenuItem
-          Caption = 'Show GenShtab Maps Contours'
+          Caption = 'GenShtab Maps Boundaries'
           Hint = ''
           object NGShScale0: TTBXItem
             AutoCheck = True
@@ -683,13 +683,13 @@ object frmMain: TfrmMain
           AutoCheck = True
           Checked = True
           OnClick = NanimateClick
-          Caption = 'Animate'
+          Caption = 'Animation'
           Hint = ''
         end
         object N32: TTBXItem
           AutoCheck = True
           OnClick = N32Click
-          Caption = 'Show Gauge'
+          Caption = 'Gauge'
           Hint = ''
         end
         object Ninvertcolor: TTBXItem
@@ -708,7 +708,7 @@ object frmMain: TfrmMain
         object tbitmShowDebugInfo: TTBXItem
           Visible = False
           OnClick = tbitmShowDebugInfoClick
-          Caption = 'Show Debug Info'
+          Caption = 'Debug Info'
           Hint = ''
         end
       end
@@ -2991,7 +2991,7 @@ object frmMain: TfrmMain
       end
       object livecom1: TTBXItem
         OnClick = livecom1Click
-        Caption = 'URL to maps.live.com'
+        Caption = 'URL to Bing Maps'
         Hint = ''
       end
       object ImageAtlas1: TTBXItem

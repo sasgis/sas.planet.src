@@ -292,7 +292,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
       Top = 46
       Width = 64
       Height = 13
-      Caption = 'Completion:'
+      Caption = 'Fill:'
     end
     object clrbxPolyLineColor: TColorBox
       Left = 117
@@ -376,7 +376,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Top = 152
     Width = 129
     Height = 17
-    Caption = 'Ignore tracks'
+    Caption = 'Ignore paths'
     TabOrder = 7
   end
   object chkPolyIgnore: TCheckBox

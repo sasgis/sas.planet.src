@@ -91,7 +91,7 @@ ResourceString
   SAS_STR_Scale = 'Zoom';
   SAS_STR_Speed = 'Speed';
   SAS_STR_LenPath = 'Distance';
-  SAS_STR_LenToMark = 'Distance to the placemark';
+  SAS_STR_LenToMark = 'Distance to placemark';
   SAS_STR_filesnum = 'Number of tiles';
   SAS_STR_activescale = 'Current zoom';
   SAS_STR_for = 'For';
@@ -106,7 +106,7 @@ ResourceString
   SAS_STR_AllProcessed = 'Processed total:';
   SAS_STR_AllLoad = 'Downloaded total:';
   SAS_STR_TimeRemained = 'Time remaining:';
-  SAS_STR_LoadRemained = 'Approx.to download:';
+  SAS_STR_LoadRemained = 'Approx. to download:';
   SAS_STR_ProcessedNoMore = 'Process not more than';
   SAS_STR_AllDelete = 'Deleted total:';
   SAS_STR_AllSaves = 'Total to save:';
@@ -153,7 +153,7 @@ ResourceString
   SAS_STR_Whole = 'Total';
   SAS_STR_Maps = 'Maps';
   SAS_STR_Layers = 'Layers';
-  SAS_STR_InputLacitp = 'Enter comma-separated mnc, mcc, LAC, CellID (example: 02,250,7718,11942)';
+  SAS_STR_InputLacitp = 'Enter comma-separated MNC, MCC, LAC, CellID (example: 02,250,7718,11942)';
   SAS_STR_InputLacitpCaption = 'Enter parameters';
   SAS_STR_ExportYaMapsCaption = 'Mobile Yandex.Maps (version 3)';
   SAS_STR_ExportGEKmlExportCaption = 'KML (for Google Earth)';

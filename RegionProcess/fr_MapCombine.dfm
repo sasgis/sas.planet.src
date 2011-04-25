@@ -100,7 +100,7 @@ object frMapCombine: TfrMapCombine
       ItemHeight = 13
       ItemIndex = 0
       TabOrder = 0
-      Text = 'Ecw (Enhanced Compression Wavelet)'
+      Text = 'ECW (Enhanced Compression Wavelet)'
       OnChange = cbbOutputFormatChange
       Items.Strings = (
         'ECW (Enhanced Compression Wavelet)'

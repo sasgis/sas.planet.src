@@ -191,7 +191,7 @@ object frmRegionProcess: TfrmRegionProcess
       Width = 367
       Height = 25
       Align = alClient
-      Caption = 'Close this window once operation started'
+      Caption = 'Close this window after start'
       Checked = True
       State = cbChecked
       TabOrder = 2
