@@ -24,14 +24,14 @@ type
     procedure OnScaleChange(Sender: TObject);
   protected
     procedure SetVisualCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual; abstract;
-    procedure PreparePosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-    procedure AfterPosChange; virtual;
+
+    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
 
     procedure ScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-    procedure AfterScaleChange; virtual;
 
+    procedure AfterLayerStateChange; virtual;
 
     procedure IncRedrawCounter(ATime: TDateTime);
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
@@ -56,14 +56,6 @@ uses
   u_NotifyEventListener;
 
 { TWindowLayerAbstract }
-
-procedure TWindowLayerAbstract.AfterPosChange;
-begin
-end;
-
-procedure TWindowLayerAbstract.AfterScaleChange;
-begin
-end;
 
 constructor TWindowLayerAbstract.Create(AViewPortState: IViewPortState; AListenScaleChange: Boolean);
 begin
@@ -93,7 +85,11 @@ begin
   inherited;
 end;
 
-procedure TWindowLayerAbstract.PreparePosChange(
+procedure TWindowLayerAbstract.AfterLayerStateChange;
+begin
+end;
+
+procedure TWindowLayerAbstract.DoPosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 begin
   SetVisualCoordConverter(ANewVisualCoordConverter);
@@ -124,6 +120,12 @@ end;
 procedure TWindowLayerAbstract.OnScaleChange(Sender: TObject);
 begin
   ScaleChange(ViewPortState.GetVisualCoordConverter);
+end;
+
+procedure TWindowLayerAbstract.PosChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  DoPosChange(ANewVisualCoordConverter);
 end;
 
 procedure TWindowLayerAbstract.ScaleChange(

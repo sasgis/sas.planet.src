@@ -45,8 +45,7 @@ type
   protected
     procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    procedure AfterPosChange; override;
-    procedure AfterScaleChange; override;
+    procedure AfterLayerStateChange; override;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState; AListenScaleChange: Boolean);
     destructor Destroy; override;
@@ -69,7 +68,7 @@ type
   protected
     procedure DoHide; override;
     procedure DoShow; override;
-    procedure AfterPosChange; override;
+    procedure AfterLayerStateChange; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
   end;
@@ -89,16 +88,10 @@ uses
 
 { TWindowLayerBasic }
 
-procedure TWindowLayerBasic.AfterPosChange;
+procedure TWindowLayerBasic.AfterLayerStateChange;
 begin
   inherited;
   RedrawIfNeed;
-  UpdateLayerLocationIfNeed;
-end;
-
-procedure TWindowLayerBasic.AfterScaleChange;
-begin
-  inherited;
   UpdateLayerLocationIfNeed;
 end;
 
