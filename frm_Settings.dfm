@@ -1077,7 +1077,7 @@ object frmSettings: TfrmSettings
             Left = 3
             Top = 240
             Width = 313
-            Height = 47
+            Height = 69
             Align = alTop
             AutoSize = True
             BevelEdges = [beBottom]
@@ -1098,7 +1098,7 @@ object frmSettings: TfrmSettings
               Left = 3
               Top = 16
               Width = 307
-              Height = 26
+              Height = 48
               Align = alTop
               AutoSize = True
               BevelEdges = [beBottom]
