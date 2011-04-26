@@ -642,9 +642,7 @@ object frmSettings: TfrmSettings
           Width = 620
           Height = 17
           Align = alTop
-          Caption = 
-            'Restore download from last successful tile'
-
+          Caption = 'Restore download from last successful tile'
           TabOrder = 4
         end
         object GroupBox4: TGroupBox
@@ -1144,9 +1142,9 @@ object frmSettings: TfrmSettings
               end
               object CBBorderText: TCheckBox
                 AlignWithMargins = True
-                Left = 231
-                Top = 6
-                Width = 101
+                Left = 3
+                Top = 28
+                Width = 286
                 Height = 17
                 Caption = 'Tile coordinates'
                 TabOrder = 2
@@ -1952,9 +1950,7 @@ object frmSettings: TfrmSettings
           Width = 632
           Height = 17
           Align = alTop
-          Caption = 
-            'Automatically detect location using GSM phone (Google query)'
-
+          Caption = 'Automatically detect location using GSM phone (Google query)'
           TabOrder = 0
           OnClick = chkPosFromGSMClick
         end
