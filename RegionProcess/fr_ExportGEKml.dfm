@@ -104,7 +104,7 @@ object frExportGEKml: TfrExportGEKml
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alTop
-        Caption = 'Path to tiles'
+        Caption = 'Relative path to tiles'
         Checked = True
         State = cbChecked
         TabOrder = 1
