@@ -115,9 +115,6 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-msgid "Logo"
-msgstr ""
-
 msgid "Wikimapia"
 msgstr ""
 
