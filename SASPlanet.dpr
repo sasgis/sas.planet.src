@@ -500,7 +500,8 @@ uses
   frm_ImportConfigEdit in 'frm_ImportConfigEdit.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
-  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
+  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
+  MD5 in 'src\MD5.pas';
 
 {$R *.res} {$R *Pics.res}
 begin

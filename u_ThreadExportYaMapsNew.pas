@@ -8,6 +8,7 @@ uses
   SysUtils,
   Classes,
   GR32,
+  MD5,
   u_MapType,
   u_ResStrings,
   u_YaMobileWrite,
@@ -23,6 +24,8 @@ type
     csat, cmap: byte;
   protected
     procedure ProcessRegion; override;
+    procedure WriteFile(FilesStream,TileStream:TMemoryStream;recordpos:integer);
+    procedure WriteBlock(FilesStream:TMemoryStream;TileStreams:array of TMemoryStream);
     function GetFilePath(Ax,Ay,Azoom,Aid:integer): string;
   public
     constructor Create(
@@ -129,6 +132,91 @@ begin
 
  path:=path+IntToHex(block127,1);
  result:=path;
+end;
+
+procedure TThreadExportYaMapsNew.WriteFile(FilesStream,TileStream:TMemoryStream;recordpos:integer);
+var records:word;
+    version:word;
+    time:Integer;
+    datasize:integer;
+    dataid:integer;
+    MD5arr:array [0..15] of byte;
+begin
+  records:=1;
+  version:=1;
+  time:=0;
+  dataid:=0;
+  datasize:=TileStream.Size;
+  FilesStream.Position:=recordpos;
+  FilesStream.Write('YTLD',4);
+  FilesStream.Write(records,2);
+  FilesStream.Write(version,2);
+  MD5Buffer(MD5arr,16);
+  FilesStream.Write(MD5arr,16);
+  FilesStream.Write(version,2);
+  FilesStream.Write(time,4);
+  FilesStream.Write(dataid,4);
+  FilesStream.Write(datasize,4);
+  FilesStream.Write(TileStream.Memory,datasize);
+end;
+
+procedure TThreadExportYaMapsNew.WriteBlock(FilesStream:TMemoryStream;TileStreams:array of TMemoryStream);
+var records:word;
+    version:word;
+    flag:
+    time:Integer;
+    datasize:integer;
+    dataid:integer;
+    freeblocknum:integer;
+    blocks8indexes:byte;
+    blockindexpos:integer;
+    blockPos:integer;
+begin
+  FilesStream.Position:=16;
+  freeblocknum:=-1;
+  blockindexpos:=0;
+  while (freeblocknum<0)and(blockindexpos<=8192) do begin
+    FilesStream.Read(blocks8indexes,1);
+    while (freeblocknum<0)and(blockindexpos mod 8<>0) do begin
+      if (blocks8indexes shr (7-(blockindexpos mod 8)))=0 then begin
+        freeblocknum:=blockindexpos;
+      end;
+      inc(blockindexpos);
+    end;
+  end;
+  FilesStream.Position:=16+8*(freeblocknum div 8);
+  FilesStream.read(blocks8indexes,1);
+  blocks8indexes:=blocks8indexes or ($01 shl (7-(blockindexpos mod 8)));
+  FilesStream.Position:=16+8*(freeblocknum div 8);
+  FilesStream.write(blocks8indexes,1);
+
+  if freeblocknum=0 then begin
+    blockPos:=9216;
+  end else begin
+    blockPos:=32768*(freeblocknum+1)
+  end;
+
+  version:=1;
+  FilesStream.Position:=blockPos;
+  FilesStream.Write('YBLK',4);
+  FilesStream.Write(version,2);
+
+  FilesStream.write()
+  records:=1;
+  time:=0;
+  dataid:=0;
+  datasize:=TileStream.Size;
+  FilesStream.Position:=recordpos;
+  FilesStream.Write('YTLD',4);
+  FilesStream.Write(records,2);
+  FilesStream.Write(version,2);
+  MD5Buffer(MD5arr,16);
+  FilesStream.Write(MD5arr,16);
+  FilesStream.Write(version,2);
+  FilesStream.Write(time,4);
+  FilesStream.Write(dataid,4);
+  FilesStream.Write(datasize,4);
+  FilesStream.Write(TileStream.Memory,datasize);
 end;
 
 procedure TThreadExportYaMapsNew.ProcessRegion;
