@@ -76,16 +76,15 @@ type
     procedure CreateLayers(AParentMap: TImage32);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
-    function BuildBitmapCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
     procedure OnConfigChange(Sender: TObject);
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoShow; override;
     procedure DoHide; override;
     procedure DoRedraw; override;
-    procedure AfterPosChange; override;
     procedure DoUpdateLayerSize(ANewSize: TPoint); override;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
+    function GetLayerCoordConverterByViewConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
   public
     procedure StartThreads; override;
   public
@@ -151,7 +150,7 @@ begin
   inherited;
 end;
 
-function TMiniMapLayer.BuildBitmapCoordConverter(
+function TMiniMapLayer.GetLayerCoordConverterByViewConverter(
   ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
 var
   VVisualMapCenter: TDoublePoint;
@@ -288,7 +287,6 @@ var
   VEnum: IEnumGUID;
 begin
   inherited;
-  FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
   FLayer.Bitmap.Clear(FBackGroundColor);
   VMapType := FConfig.MapsConfig.GetActiveMiniMap.MapType;
   VActiveMaps := FConfig.MapsConfig.GetLayers.GetSelectedMapsList;
@@ -322,9 +320,9 @@ var
   VZoomDelta: Integer;
 begin
   FViewRectDrawLayer.Bitmap.Clear(clBlack);
-  VVisualCoordConverter := VisualCoordConverter;
-  VBitmapCoordConverter := FBitmapCoordConverter;
-  if (VVisualCoordConverter <> nil) and (FBitmapCoordConverter <> nil) then begin
+  VVisualCoordConverter := ViewCoordConverter;
+  VBitmapCoordConverter := LayerCoordConverter;
+  if (VVisualCoordConverter <> nil) and (VBitmapCoordConverter <> nil) then begin
     VGeoConvert := VVisualCoordConverter.GetGeoConverter;
     VZoomDelta := FConfig.ZoomDelta;
     if VZoomDelta > 0 then begin
@@ -491,7 +489,7 @@ var
   VViewSize: TPoint;
 begin
   VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-  VViewSize := VisualCoordConverter.GetLocalRectSize;
+  VViewSize := ViewCoordConverter.GetLocalRectSize;
   Result.Right := VViewSize.X;
   Result.Bottom := VViewSize.Y - FBottomMargin;
   Result.Left := Result.Right - VSize.X;
@@ -514,12 +512,6 @@ begin
 
   FMinusButton.Visible := False;
   FMinusButton.MouseEvents := false;
-end;
-
-procedure TMiniMapLayer.AfterPosChange;
-begin
-  inherited;
-  Redraw;
 end;
 
 procedure TMiniMapLayer.LayerMouseDown(Sender: TObject;
@@ -632,7 +624,7 @@ var
   VVisibleSize: TPoint;
 begin
   if FLeftBorderMoved then begin
-    VVisibleSize := VisualCoordConverter.GetLocalRectSize;
+    VVisibleSize := ViewCoordConverter.GetLocalRectSize;
     VNewWidth := Trunc(FLayer.Location.Right - X - FLeftBorderMovedClickDelta);
     if VNewWidth < 40 then begin
       VNewWidth := 40;
@@ -755,11 +747,7 @@ begin
     DoUpdateLayerSize(Point(FConfig.Width, FConfig.Width));
     UpdateLayerLocation;
     Redraw;
-    if FConfig.Visible then begin
-      Show;
-    end else begin
-      Hide;
-    end;
+    SetVisible(FConfig.Visible);
   finally
     FConfig.UnlockRead;
   end;

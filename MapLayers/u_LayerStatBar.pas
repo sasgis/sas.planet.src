@@ -23,7 +23,7 @@ type
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
-    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
+    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
   public
     procedure StartThreads; override;
   public
@@ -60,7 +60,7 @@ begin
   FLastUpdateTick := 0;
 end;
 
-function TLayerStatBar.GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
+function TLayerStatBar.GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
   Result.X := ANewVisualCoordConverter.GetLocalRectSize.X;
   Result.Y := FConfig.Height;
@@ -69,7 +69,7 @@ end;
 function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
 begin
   Result.Left := 0;
-  Result.Bottom := VisualCoordConverter.GetLocalRectSize.Y;
+  Result.Bottom := ViewCoordConverter.GetLocalRectSize.Y;
   Result.Right := Result.Left + FLayer.Bitmap.Width;
   Result.Top := Result.Bottom - FLayer.Bitmap.Height;
 end;
@@ -140,7 +140,7 @@ begin
   VCurrentTick := GetTickCount;
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + VMinUpdate) then begin
     VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-    VVisualCoordConverter := VisualCoordConverter;
+    VVisualCoordConverter := ViewCoordConverter;
     VMousePos := frmMain.MouseCursorPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;

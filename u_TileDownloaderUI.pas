@@ -210,7 +210,7 @@ begin
     end;
   end else begin
     if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.Visible := False;
+      FErrorShowLayer.SetNoError(FLoadXY, FVisualCoordConverter.GetZoom, FMapType);
     end;
     if Addr(FMapTileUpdateEvent) <> nil then begin
       FMapTileUpdateEvent(FMapType, FVisualCoordConverter.GetZoom, FLoadXY);

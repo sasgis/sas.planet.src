@@ -127,7 +127,7 @@ var
   VConverter: ILocalCoordConverter;
   VTargetPoint: TDoublePoint;
 begin
-  VConverter := VisualCoordConverter;
+  VConverter := ViewCoordConverter;
   if VConverter <> nil then begin
     FMarker.Lock;
     try

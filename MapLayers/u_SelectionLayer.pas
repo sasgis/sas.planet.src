@@ -40,7 +40,6 @@ type
   protected
     procedure DoRedraw; override;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    procedure AfterPosChange; override;
   public
     procedure StartThreads; override;
   public
@@ -95,17 +94,11 @@ begin
   inherited;
 end;
 
-procedure TSelectionLayer.AfterPosChange;
-begin
-  inherited;
-  Redraw;
-end;
-
 procedure TSelectionLayer.DoRedraw;
 begin
   inherited;
   FSourcePolygon := Copy(FLastSelectionInfo.Polygon);
-  PreparePolygon(VisualCoordConverter);
+  PreparePolygon(ViewCoordConverter);
   LayerPositioned.Changed;
 end;
 

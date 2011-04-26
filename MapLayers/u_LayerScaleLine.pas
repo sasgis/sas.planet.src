@@ -18,9 +18,9 @@ type
     FBottomMargin: Integer;
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure DoRedraw; override;
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     function GetMapLayerLocationRect: TFloatRect; override;
-    procedure AfterPosChange; override;
+    procedure DoRedraw; override;
   public
     procedure StartThreads; override;
   public
@@ -62,12 +62,6 @@ begin
   DoUpdateLayerSize(VSize);
 end;
 
-procedure TLayerScaleLine.AfterPosChange;
-begin
-  inherited;
-  Redraw;
-end;
-
 procedure TLayerScaleLine.DoRedraw;
 var
   rnum, len_p, textstrt, textwidth: integer;
@@ -82,7 +76,7 @@ var
   VVisualCoordConverter: ILocalCoordConverter;
 begin
   inherited;
-  VVisualCoordConverter := VisualCoordConverter;
+  VVisualCoordConverter := LayerCoordConverter;
   VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   VConverter := VVisualCoordConverter.GetGeoConverter;
   VZoom := VVisualCoordConverter.GetZoom;
@@ -134,7 +128,7 @@ var
 begin
   VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   Result.Left := 6;
-  Result.Bottom := VisualCoordConverter.GetLocalRectSize.Y - 6 - FBottomMargin;
+  Result.Bottom := ViewCoordConverter.GetLocalRectSize.Y - 6 - FBottomMargin;
   Result.Right := Result.Left + VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;
@@ -147,6 +141,12 @@ begin
   end else begin
     Hide;
   end;
+end;
+
+procedure TLayerScaleLine.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+begin
+  inherited;
+  SetNeedRedraw;
 end;
 
 procedure TLayerScaleLine.StartThreads;

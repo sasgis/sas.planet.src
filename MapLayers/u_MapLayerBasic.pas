@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   GR32,
   GR32_Layers,
   GR32_Image,
@@ -14,6 +15,9 @@ uses
 
 type
   TMapLayerBase = class(TWindowLayerBasic)
+  protected
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
   end;
@@ -21,48 +25,47 @@ type
   TMapLayerBasicFullView = class(TMapLayerBase)
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
+    function GetLayerCoordConverterByViewConverter(ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
   end;
 
-  TMapLayerFixedWithBitmap = class(TMapLayerBase)
-  private
-    FLayerSize: TPoint;
+  TMapLayerFixedWithBitmap = class(TWindowLayerWithBitmap)
   protected
-    FLayer: TBitmapLayer;
     FFixedLonLat: TDoublePoint;
     FFixedOnBitmap: TDoublePoint;
-    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual;
-    procedure UpdateLayerSize(ANewSize: TPoint); virtual;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
   protected
+    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
-    procedure DoShow; override;
-    procedure AfterPosChange; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
   end;
 
   TMapLayerBasic = class(TMapLayerBasicFullView)
   private
-    FBitmapCoordConverter: ILocalCoordConverter;
-  protected
     FLayer: TBitmapLayer;
-    function CreateBitmapCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter; virtual;
-    procedure DoUpdateBitmapCoordConverter(ANewBitmapCoordConverter: ILocalCoordConverter); virtual;
-    procedure UpdateBitmapConverterByVisual(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-    property BitmapCoordConverter: ILocalCoordConverter read FBitmapCoordConverter;
+    FNeedUpdateLayerSize: Boolean;
+    FNeedUpdateLayerSizeCS: TCriticalSection;
   protected
+    procedure SetNeedUpdateLayerSize; virtual;
+    procedure UpdateLayerSize; virtual;
+    procedure UpdateLayerSizeIfNeed; virtual;
+    procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
+    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual;
+    property Layer: TBitmapLayer read FLayer;
+  protected
+    function GetLayerCoordConverterByViewConverter(ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
     function GetMapLayerLocationRect: TFloatRect; override;
-    procedure DoHide; override;
-    procedure DoShow; override;
-    procedure AfterPosChange; override;
+    procedure AfterLayerStateChange; override;
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+    destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  SysUtils,
   Types,
   Graphics,
   u_NotifyEventListener;
@@ -75,41 +78,44 @@ begin
   inherited Create(ALayer, AViewPortState, True);
 end;
 
-procedure TMapLayerBase.DoScaleChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+procedure TMapLayerBase.SetLayerCoordConverter(AValue: ILocalCoordConverter);
 begin
+  if (LayerPositioned = nil) or (not LayerCoordConverter.GetIsSameConverter(AValue)) then begin
+    SetNeedRedraw;
+  end;
   inherited;
-  SetNeedUpdateLocation;
 end;
 
-{ TMapLayerBasicNoBitmap }
+procedure TMapLayerBase.SetViewCoordConverter(AValue: ILocalCoordConverter);
+begin
+  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
+    SetNeedUpdateLocation;
+  end;
+  inherited;
+end;
+
+{ TMapLayerBasicFullView }
+
+function TMapLayerBasicFullView.GetLayerCoordConverterByViewConverter(
+  ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
+begin
+  Result := ANewViewCoordConverter;
+end;
 
 function TMapLayerBasicFullView.GetMapLayerLocationRect: TFloatRect;
 begin
-  if VisualCoordConverter <> nil then begin
-    Result := FloatRect(VisualCoordConverter.GetLocalRect);
+  if ViewCoordConverter <> nil then begin
+    Result := FloatRect(ViewCoordConverter.GetLocalRect);
   end else begin
     Result := FloatRect(0, 0, 0, 0);
   end;
 end;
-
 { TMapLayerFixedWithBitmap }
 
 constructor TMapLayerFixedWithBitmap.Create(AParentMap: TImage32;
   AViewPortState: IViewPortState);
 begin
-  FLayer := TBitmapLayer.Create(AParentMap.Layers);
-  inherited Create(FLayer, AViewPortState);
-
-  FLayer.Bitmap.DrawMode := dmBlend;
-  FLayer.Bitmap.CombineMode := cmMerge;
-  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
-end;
-
-procedure TMapLayerFixedWithBitmap.AfterPosChange;
-begin
-  inherited;
-  UpdateLayerSize(GetLayerSizeForViewSize(VisualCoordConverter));
+  inherited Create(AParentMap, AViewPortState);
 end;
 
 procedure TMapLayerFixedWithBitmap.DoRedraw;
@@ -117,32 +123,15 @@ begin
   inherited;
 end;
 
-procedure TMapLayerFixedWithBitmap.DoShow;
+function TMapLayerFixedWithBitmap.GetLayerSizeForView(
+  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
-  inherited;
-  UpdateLayerSize(GetLayerSizeForViewSize(VisualCoordConverter));
-end;
-
-procedure TMapLayerFixedWithBitmap.DoUpdateLayerSize(ANewSize: TPoint);
-var
-  VBitmapSizeInPixel: TPoint;
-begin
-  FLayerSize := ANewSize;
-  VBitmapSizeInPixel := FLayerSize;
   FLayer.Bitmap.Lock;
   try
-    if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X) or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
-      FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
-    end;
+    Result := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   finally
     FLayer.Bitmap.Unlock;
   end;
-end;
-
-function TMapLayerFixedWithBitmap.GetLayerSizeForViewSize(
-  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
-begin
-  Result := FLayerSize;
 end;
 
 function TMapLayerFixedWithBitmap.GetMapLayerLocationRect: TFloatRect;
@@ -151,11 +140,16 @@ var
   VBitmapSize: TPoint;
   VVisualCoordConverter: ILocalCoordConverter;
 begin
-  VVisualCoordConverter := VisualCoordConverter;
+  VVisualCoordConverter := ViewCoordConverter;
   if VVisualCoordConverter <> nil then begin
     VFixedVisualPixel := VVisualCoordConverter.LonLat2LocalPixelFloat(FFixedLonLat);
     if (Abs(VFixedVisualPixel.X) < (1 shl 15)) and (Abs(VFixedVisualPixel.Y) < (1 shl 15)) then begin
-      VBitmapSize := FLayerSize;
+      FLayer.Bitmap.Lock;
+      try
+        VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+      finally
+        FLayer.Bitmap.Unlock;
+      end;
       Result.Left := VFixedVisualPixel.X - FFixedOnBitmap.X;
       Result.Top := VFixedVisualPixel.Y - FFixedOnBitmap.Y;
       Result.Right := Result.Left + VBitmapSize.X;
@@ -168,17 +162,13 @@ begin
   end;
 end;
 
-procedure TMapLayerFixedWithBitmap.UpdateLayerSize(ANewSize: TPoint);
-begin
-  if Visible then begin
-    if (FLayerSize.X <> ANewSize.X) or (FLayerSize.Y <> ANewSize.Y) then begin
-      DoUpdateLayerSize(ANewSize);
-      UpdateLayerLocation;
-    end;
-  end;
-end;
-
 { TMapLayerBasic }
+
+procedure TMapLayerBasic.AfterLayerStateChange;
+begin
+  UpdateLayerSizeIfNeed;
+  inherited;
+end;
 
 constructor TMapLayerBasic.Create(AParentMap: TImage32;
   AViewPortState: IViewPortState);
@@ -188,7 +178,7 @@ begin
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
-  FBitmapCoordConverter := VisualCoordConverter;
+  FNeedUpdateLayerSizeCS := TCriticalSection.Create;
 end;
 
 function TMapLayerBasic.GetMapLayerLocationRect: TFloatRect;
@@ -198,8 +188,8 @@ var
   VBitmapConverter: ILocalCoordConverter;
   VVisualConverter: ILocalCoordConverter;
 begin
-  VBitmapConverter := FBitmapCoordConverter;
-  VVisualConverter := VisualCoordConverter;
+  VBitmapConverter := LayerCoordConverter;
+  VVisualConverter := ViewCoordConverter;
   if (VBitmapConverter <> nil) and (VVisualConverter <> nil) then begin
     VBitmapOnMapRect := VBitmapConverter.GetRectInMapPixelFloat;
     VBitmapOnVisualRect := VVisualConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
@@ -209,75 +199,99 @@ begin
   end;
 end;
 
-procedure TMapLayerBasic.UpdateBitmapConverterByVisual(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+procedure TMapLayerBasic.SetLayerCoordConverter(AValue: ILocalCoordConverter);
 var
-  VOldBitmapCoordConverter: ILocalCoordConverter;
-  VNewBitmapCoordConverter: ILocalCoordConverter;
-  VNeedUpdateConverter: Boolean;
+  VNewSize: TPoint;
 begin
-  if not Visible then begin
-    VNewBitmapCoordConverter := nil;
-  end else begin
-    VNewBitmapCoordConverter := CreateBitmapCoordConverter(ANewVisualCoordConverter);
-  end;
-  VOldBitmapCoordConverter := FBitmapCoordConverter;
-  VNeedUpdateConverter := True;
-  if (VOldBitmapCoordConverter <> nil) and (VNewBitmapCoordConverter <> nil) then begin
-    if VOldBitmapCoordConverter.GetIsSameConverter(VNewBitmapCoordConverter) then begin
-      VNeedUpdateConverter := False;
+  VNewSize := GetLayerSizeForView(AValue);
+  Layer.Bitmap.Lock;
+  try
+    if (Layer.Bitmap.Width <> VNewSize.X) or (Layer.Bitmap.Height <> VNewSize.Y) then begin
+      SetNeedUpdateLayerSize;
     end;
+  finally
+    Layer.Bitmap.Unlock;
   end;
-  if VNeedUpdateConverter then begin
-    DoUpdateBitmapCoordConverter(VNewBitmapCoordConverter);
-    Redraw;
+  inherited;
+end;
+
+procedure TMapLayerBasic.SetNeedUpdateLayerSize;
+begin
+  FNeedUpdateLayerSizeCS.Acquire;
+  try
+    FNeedUpdateLayerSize := True;
+  finally
+    FNeedUpdateLayerSizeCS.Release;
   end;
 end;
 
-function TMapLayerBasic.CreateBitmapCoordConverter(
-  ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
+destructor TMapLayerBasic.Destroy;
 begin
-  Result := ANewVisualCoordConverter;
-end;
-
-procedure TMapLayerBasic.DoHide;
-begin
+  FreeAndNil(FNeedUpdateLayerSizeCS);
   inherited;
-  UpdateBitmapConverterByVisual(VisualCoordConverter);
 end;
 
-procedure TMapLayerBasic.AfterPosChange;
-begin
-  inherited;
-  UpdateBitmapConverterByVisual(VisualCoordConverter);
-  UpdateLayerLocation;
-end;
-
-procedure TMapLayerBasic.DoShow;
-begin
-  inherited;
-  UpdateBitmapConverterByVisual(VisualCoordConverter);
-end;
-
-procedure TMapLayerBasic.DoUpdateBitmapCoordConverter(
-  ANewBitmapCoordConverter: ILocalCoordConverter);
+procedure TMapLayerBasic.DoUpdateLayerSize(ANewSize: TPoint);
 var
-  VBitmapSizeInPixel: TPoint;
+  VNedRedraw: Boolean;
 begin
-  FBitmapCoordConverter := ANewBitmapCoordConverter;
-  if ANewBitmapCoordConverter <> nil then begin
-    VBitmapSizeInPixel := ANewBitmapCoordConverter.GetLocalRectSize;
-  end else begin
-    VBitmapSizeInPixel := Point(0, 0);
-  end;
   FLayer.Bitmap.Lock;
   try
-    if (FLayer.Bitmap.Width <> VBitmapSizeInPixel.X) or (FLayer.Bitmap.Height <> VBitmapSizeInPixel.Y) then begin
-      FLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
-    end;
+    VNedRedraw := FLayer.Bitmap.SetSize(ANewSize.X, ANewSize.Y);
   finally
     FLayer.Bitmap.Unlock;
   end;
+  if VNedRedraw then begin
+    SetNeedRedraw;
+  end;
+end;
+
+procedure TMapLayerBasic.UpdateLayerSize;
+begin
+  if Visible then begin
+    FNeedUpdateLayerSizeCS.Acquire;
+    try
+      FNeedUpdateLayerSize := False;
+    finally
+      FNeedUpdateLayerSizeCS.Release;
+    end;
+    DoUpdateLayerSize(GetLayerSizeForView(LayerCoordConverter));
+  end;
+end;
+
+procedure TMapLayerBasic.UpdateLayerSizeIfNeed;
+var
+  VNeed: Boolean;
+begin
+  VNeed := False;
+  FNeedUpdateLayerSizeCS.Acquire;
+  try
+    if FNeedUpdateLayerSize then begin
+      FNeedUpdateLayerSize := False;
+      VNeed := True;
+    end;
+  finally
+    FNeedUpdateLayerSizeCS.Release;
+  end;
+  if VNeed then begin
+    UpdateLayerSize;
+  end;
+end;
+
+function TMapLayerBasic.GetLayerCoordConverterByViewConverter(
+  ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
+begin
+  if not Visible then begin
+    Result := nil;
+  end else begin
+    Result := ANewViewCoordConverter;
+  end;
+end;
+
+function TMapLayerBasic.GetLayerSizeForView(
+  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
+begin
+  Result := ANewVisualCoordConverter.GetLocalRectSize;
 end;
 
 end.

@@ -79,23 +79,23 @@ begin
   VMarksSubset := FMarksSubset;
   if (VMarksSubset <> nil) and (not VMarksSubset.IsEmpty) then begin
     VProv := TMapMarksBitmapLayerProviderByMarksSubset.Create(VMarksSubset);
-    FLayer.BeginUpdate;
+    Layer.BeginUpdate;
     try
-      FLayer.Bitmap.DrawMode:=dmBlend;
-      FLayer.Bitmap.CombineMode:=cmMerge;
-      FLayer.Bitmap.Clear(0);
-      VProv.GetBitmapRect(FLayer.Bitmap, BitmapCoordConverter);
+      Layer.Bitmap.DrawMode:=dmBlend;
+      Layer.Bitmap.CombineMode:=cmMerge;
+      Layer.Bitmap.Clear(0);
+      VProv.GetBitmapRect(Layer.Bitmap, LayerCoordConverter);
     finally
-      FLayer.EndUpdate;
-      FLayer.Changed;
+      Layer.EndUpdate;
+      Layer.Changed;
     end;
   end else begin
-    FLayer.BeginUpdate;
+    Layer.BeginUpdate;
     try
-      FLayer.Bitmap.Clear(0);
+      Layer.Bitmap.Clear(0);
     finally
-      FLayer.EndUpdate;
-      FLayer.Changed;
+      Layer.EndUpdate;
+      Layer.Changed;
     end;
   end;
 end;
@@ -127,10 +127,10 @@ begin
       VRect.Top := xy.Y - 16;
       VRect.Right := xy.X + 8;
       VRect.Bottom := xy.Y + 16;
-      VLocalConverter := BitmapCoordConverter;
+      VLocalConverter := LayerCoordConverter;
       VConverter := VLocalConverter.GetGeoConverter;
       VZoom := VLocalConverter.GetZoom;
-      VVisualConverter := VisualCoordConverter;
+      VVisualConverter := ViewCoordConverter;
       VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
       VConverter.CheckPixelRectFloat(VMapRect, VZoom);
       VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
@@ -179,7 +179,7 @@ var
 begin
   VList := nil;
   if FConfigStatic.IsUseMarks then begin
-    VConverter := BitmapCoordConverter;
+    VConverter := LayerCoordConverter;
     if VConverter <> nil then begin
       VZoom := VConverter.GetZoom;
       if not FConfigStatic.IgnoreCategoriesVisible then begin

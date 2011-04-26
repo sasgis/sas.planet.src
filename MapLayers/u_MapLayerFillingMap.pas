@@ -260,7 +260,7 @@ end;
 procedure TMapLayerFillingMap.OnConfigChange(Sender: TObject);
 begin
   FConfigStatic := FConfig.GetStatic;
-  SetVisible(GetVisibleForNewPos(VisualCoordConverter));
+  SetVisible(GetVisibleForNewPos(ViewCoordConverter));
   if Visible then begin
     FDrawTask.StopExecute;
     try

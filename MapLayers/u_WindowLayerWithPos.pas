@@ -13,7 +13,39 @@ uses
   u_WindowLayerBasic;
 
 type
-  TWindowLayerBasic = class(TWindowLayerAbstract)
+  TWindowLayerWithPosBase = class(TWindowLayerAbstract)
+  private
+    FViewPortState: IViewPortState;
+    FViewCoordConverter: ILocalCoordConverter;
+    FLayerCoordConverter: ILocalCoordConverter;
+    procedure OnViewPortPosChange(Sender: TObject);
+    procedure OnViewPortScaleChange(Sender: TObject);
+  protected
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); virtual;
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); virtual;
+
+    function GetLayerCoordConverterByViewConverter(ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; virtual; abstract;
+
+    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+
+    procedure ScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+
+    procedure AfterLayerStateChange; virtual;
+
+    property ViewPortState: IViewPortState read FViewPortState;
+    property ViewCoordConverter: ILocalCoordConverter read FViewCoordConverter;
+    property LayerCoordConverter: ILocalCoordConverter read FLayerCoordConverter;
+  public
+    constructor Create(AViewPortState: IViewPortState; AListenScaleChange: Boolean);
+    destructor Destroy; override;
+
+    procedure StartThreads; override;
+  end;
+
+
+  TWindowLayerBasic = class(TWindowLayerWithPosBase)
   private
     FVisible: Boolean;
     FLayer: TPositionedLayer;
@@ -35,7 +67,9 @@ type
     procedure UpdateLayerLocation; virtual;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); virtual;
 
+    procedure Show; virtual;
     procedure DoShow; virtual;
+    procedure Hide; virtual;
     procedure DoHide; virtual;
     procedure DoRedraw; virtual; abstract;
     procedure RedrawIfNeed; virtual;
@@ -43,15 +77,12 @@ type
     property LayerPositioned: TPositionedLayer read FLayer;
     property Visible: Boolean read GetVisible write SetVisible;
   protected
-    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     procedure AfterLayerStateChange; override;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState; AListenScaleChange: Boolean);
     destructor Destroy; override;
     procedure Redraw; virtual;
-    procedure Show; virtual;
-    procedure Hide; virtual;
   end;
 
   TWindowLayerWithBitmap = class(TWindowLayerBasic)
@@ -64,7 +95,7 @@ type
     procedure UpdateLayerSize; virtual;
     procedure UpdateLayerSizeIfNeed; virtual;
     procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
-    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
+    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
   protected
     procedure DoHide; override;
     procedure DoShow; override;
@@ -75,7 +106,7 @@ type
 
   TWindowLayerFixedSizeWithBitmap = class(TWindowLayerWithBitmap)
   protected
-    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
+    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
     procedure DoRedraw; override;
   end;
 
@@ -84,16 +115,97 @@ implementation
 uses
   Types,
   SysUtils,
-  Graphics;
+  Graphics,
+  u_NotifyEventListener;
 
-{ TWindowLayerBasic }
+{ TWindowLayerWithPosBase }
 
-procedure TWindowLayerBasic.AfterLayerStateChange;
+constructor TWindowLayerWithPosBase.Create(AViewPortState: IViewPortState;
+  AListenScaleChange: Boolean);
+begin
+  inherited Create;
+  FViewPortState := AViewPortState;
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnViewPortPosChange),
+    FViewPortState.GetChangeNotifier
+  );
+  if AListenScaleChange then begin
+    LinksList.Add(
+      TNotifyEventListener.Create(Self.OnViewPortScaleChange),
+      ViewPortState.ScaleChangeNotifier
+    );
+  end;
+end;
+
+destructor TWindowLayerWithPosBase.Destroy;
+begin
+  FViewCoordConverter := nil;
+  FLayerCoordConverter := nil;
+  FViewPortState := nil;
+  inherited;
+end;
+
+procedure TWindowLayerWithPosBase.OnViewPortPosChange(Sender: TObject);
+begin
+  PosChange(FViewPortState.GetVisualCoordConverter);
+end;
+
+procedure TWindowLayerWithPosBase.PosChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  DoPosChange(ANewVisualCoordConverter);
+  AfterLayerStateChange;
+end;
+
+procedure TWindowLayerWithPosBase.DoPosChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  SetViewCoordConverter(ANewVisualCoordConverter);
+  SetLayerCoordConverter(GetLayerCoordConverterByViewConverter(ANewVisualCoordConverter));
+end;
+
+procedure TWindowLayerWithPosBase.OnViewPortScaleChange(Sender: TObject);
+begin
+  ScaleChange(FViewPortState.GetVisualCoordConverter);
+end;
+
+procedure TWindowLayerWithPosBase.ScaleChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  DoScaleChange(ANewVisualCoordConverter);
+  AfterLayerStateChange;
+end;
+
+procedure TWindowLayerWithPosBase.DoScaleChange(
+  ANewVisualCoordConverter: ILocalCoordConverter);
+begin
+  SetViewCoordConverter(ANewVisualCoordConverter);
+end;
+
+procedure TWindowLayerWithPosBase.AfterLayerStateChange;
+begin
+end;
+
+procedure TWindowLayerWithPosBase.SetLayerCoordConverter(
+  AValue: ILocalCoordConverter);
+begin
+  FLayerCoordConverter := AValue;
+end;
+
+procedure TWindowLayerWithPosBase.SetViewCoordConverter(
+  AValue: ILocalCoordConverter);
+begin
+  FViewCoordConverter := AValue;
+end;
+
+procedure TWindowLayerWithPosBase.StartThreads;
 begin
   inherited;
-  RedrawIfNeed;
-  UpdateLayerLocationIfNeed;
+  OnViewPortPosChange(nil);
 end;
+
+{ TWindowLayerBasic }
 
 constructor TWindowLayerBasic.Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState; AListenScaleChange: Boolean);
 begin
@@ -114,29 +226,43 @@ begin
   inherited;
 end;
 
+procedure TWindowLayerBasic.AfterLayerStateChange;
+begin
+  inherited;
+  RedrawIfNeed;
+  UpdateLayerLocationIfNeed;
+end;
+
+procedure TWindowLayerBasic.Hide;
+begin
+  if FVisible then begin
+    DoHide;
+  end;
+  AfterLayerStateChange;
+end;
+
 procedure TWindowLayerBasic.DoHide;
 begin
   FVisible := False;
   FLayer.Visible := False;
-  SetNeedRedraw;
   SetNeedUpdateLocation;
+  SetNeedRedraw;
 end;
 
-procedure TWindowLayerBasic.DoScaleChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+procedure TWindowLayerBasic.Show;
 begin
-  inherited;
-  if Visible then begin
-    AfterScaleChange;
+  if not Visible then begin
+    DoShow;
   end;
+  AfterLayerStateChange;
 end;
 
 procedure TWindowLayerBasic.DoShow;
 begin
   FVisible := True;
   FLayer.Visible := True;
-  SetNeedRedraw;
   SetNeedUpdateLocation;
+  SetNeedRedraw;
 end;
 
 procedure TWindowLayerBasic.DoUpdateLayerLocation(ANewLocation: TFloatRect);
@@ -153,27 +279,6 @@ function TWindowLayerBasic.GetVisibleForNewPos(
   ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
 begin
   Result := FVisible;
-end;
-
-procedure TWindowLayerBasic.Hide;
-begin
-  if FVisible then begin
-    DoHide;
-  end;
-end;
-
-procedure TWindowLayerBasic.PosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter
-);
-var
-  VNewVisible: Boolean;
-begin
-  PreparePosChange(ANewVisualCoordConverter);
-  VNewVisible := GetVisibleForNewPos(ANewVisualCoordConverter);
-  SetVisible(VNewVisible);
-  if Visible then begin
-    AfterPosChange;
-  end;
 end;
 
 procedure TWindowLayerBasic.UpdateLayerLocation;
@@ -253,6 +358,13 @@ begin
   end;
 end;
 
+procedure TWindowLayerBasic.SetLayerCoordConverter(
+  AValue: ILocalCoordConverter);
+begin
+  inherited;
+  SetVisible(GetVisibleForNewPos(AValue));
+end;
+
 procedure TWindowLayerBasic.SetNeedRedraw;
 begin
   FNeedRedrawCS.Acquire;
@@ -261,6 +373,7 @@ begin
   finally
     FNeedRedrawCS.Release;
   end;
+  SetNeedUpdateLocation;
 end;
 
 procedure TWindowLayerBasic.SetNeedUpdateLocation;
@@ -282,16 +395,13 @@ begin
   end;
 end;
 
-procedure TWindowLayerBasic.Show;
-begin
-  if not Visible then begin
-    DoShow;
-    RedrawIfNeed;
-    UpdateLayerLocationIfNeed;
-  end;
-end;
-
 { TWindowLayerWithBitmap }
+
+procedure TWindowLayerWithBitmap.AfterLayerStateChange;
+begin
+  UpdateLayerSizeIfNeed;
+  inherited;
+end;
 
 constructor TWindowLayerWithBitmap.Create(AParentMap: TImage32;
   AViewPortState: IViewPortState);
@@ -302,12 +412,6 @@ begin
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
-end;
-
-procedure TWindowLayerWithBitmap.AfterPosChange;
-begin
-  UpdateLayerSizeIfNeed;
-  inherited;
 end;
 
 procedure TWindowLayerWithBitmap.DoHide;
@@ -356,7 +460,7 @@ begin
     finally
       FNeedRedrawCS.Release;
     end;
-    DoUpdateLayerSize(GetLayerSizeForViewSize(VisualCoordConverter));
+    DoUpdateLayerSize(GetLayerSizeForView(LayerCoordConverter));
   end;
 end;
 
@@ -386,7 +490,7 @@ begin
   // По-умолчанию ничего не делаем.
 end;
 
-function TWindowLayerFixedSizeWithBitmap.GetLayerSizeForViewSize(
+function TWindowLayerFixedSizeWithBitmap.GetLayerSizeForView(
   ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
   FLayer.Bitmap.Lock;

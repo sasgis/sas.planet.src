@@ -47,7 +47,7 @@ var
   VViewSize: TPoint;
 begin
   VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-  VViewSize := VisualCoordConverter.GetLocalRectSize;
+  VViewSize := ViewCoordConverter.GetLocalRectSize;
   Result.Left := VViewSize.X / 2 - VSize.X / 2;
   Result.Top := VViewSize.Y / 2 - VSize.Y / 2;
   Result.Right := Result.Left + VSize.X;
@@ -68,10 +68,8 @@ begin
       VBitmap.Free;
     end;
     Redraw;
-    Show;
-  end else begin
-    Hide;
   end;
+  SetVisible(FConfig.Visible);
 end;
 
 procedure TCenterScale.StartThreads;

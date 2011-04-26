@@ -91,7 +91,7 @@ var
   VHybrList: IMapTypeList;
 begin
   inherited;
-  FLayer.Bitmap.Clear(0);
+  Layer.Bitmap.Clear(0);
   if FMainMap <> nil then begin
     DrawMap(FMainMap.MapType, dmOpaque);
   end;
@@ -141,7 +141,7 @@ begin
   end;
   VRecolorConfig := GState.BitmapPostProcessingConfig.GetStatic;
 
-  VBitmapConverter := BitmapCoordConverter;
+  VBitmapConverter := LayerCoordConverter;
   VGeoConvert := VBitmapConverter.GetGeoConverter;
   VZoom := VBitmapConverter.GetZoom;
 
@@ -185,14 +185,14 @@ begin
         try
           if AMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, VUsePre, True, False) then begin
             VRecolorConfig.ProcessBitmap(VBmp);
-            FLayer.Bitmap.Lock;
+            Layer.Bitmap.Lock;
             try
               VBmp.DrawMode := ADrawMode;
               Assert(VCurrTileOnBitmapRect.Right - VCurrTileOnBitmapRect.Left = VTilePixelsToDraw.Right - VTilePixelsToDraw.Left);
               Assert(VCurrTileOnBitmapRect.Bottom - VCurrTileOnBitmapRect.Top = VTilePixelsToDraw.Bottom - VTilePixelsToDraw.Top);
-              FLayer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, Vbmp);
+              Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, Vbmp);
             finally
-              FLayer.Bitmap.UnLock;
+              Layer.Bitmap.UnLock;
             end;
           end;
         except

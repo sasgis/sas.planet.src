@@ -58,7 +58,6 @@ type
     procedure DoShow; override;
     procedure DoRedraw; override;
     procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    procedure AfterPosChange; override;
   public
     procedure StartThreads; override;
   public
@@ -121,16 +120,10 @@ begin
   FPointSize := FConfig.PointSize;
 end;
 
-procedure TPolyLineLayerBase.AfterPosChange;
-begin
-  inherited;
-  Redraw;
-end;
-
 procedure TPolyLineLayerBase.DoRedraw;
 begin
   inherited;
-  PreparePolygon(VisualCoordConverter);
+  PreparePolygon(ViewCoordConverter);
   LayerPositioned.Changed;
 end;
 

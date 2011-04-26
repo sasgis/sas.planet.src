@@ -29,8 +29,8 @@ type
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
-    procedure PreparePosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    procedure AfterPosChange; override;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -52,12 +52,6 @@ uses
   u_NotifyEventListener;
 
 { TNavToMarkLayer }
-
-procedure TNavToMarkLayer.AfterPosChange;
-begin
-  inherited;
-  Redraw;
-end;
 
 constructor TNavToMarkLayer.Create(
   AParentMap: TImage32;
@@ -88,7 +82,7 @@ begin
   inherited;
 end;
 
-procedure TNavToMarkLayer.PreparePosChange(
+procedure TNavToMarkLayer.DoPosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 var
   VMarkMapPos: TDoublePoint;
@@ -203,6 +197,12 @@ begin
   end else begin
     Hide;
   end;
+end;
+
+procedure TNavToMarkLayer.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+begin
+  inherited;
+  SetNeedRedraw;
 end;
 
 procedure TNavToMarkLayer.StartThreads;

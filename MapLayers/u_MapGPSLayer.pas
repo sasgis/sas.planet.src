@@ -88,9 +88,8 @@ begin
     FConfig.UnlockRead
   end;
   VPoints := FGPSRecorder.LastPoints(VPointsCount);
-  VLocalConverter := BitmapCoordConverter;
+  VLocalConverter := LayerCoordConverter;
   VPointsCount := length(VPoints);
-  with FLayer.Bitmap do begin
     if (VPointsCount > 1) then begin
       VMaxSpeed := VPoints[0].Speed;
       for j := 1 to VPointsCount - 1 do begin
@@ -127,7 +126,7 @@ begin
                         speed := 0;
                       end;
                       VSegmentColor := Color32(speed, 0, 256 - speed, 150);
-                      DrawFill(FLayer.Bitmap, VSegmentColor);
+                      DrawFill(Layer.Bitmap, VSegmentColor);
                     finally
                       free;
                     end;
@@ -155,7 +154,6 @@ begin
       finally
         VPolygon.Free;
       end;
-    end;
   end;
 end;
 
@@ -178,7 +176,7 @@ end;
 procedure TMapGPSLayer.DoRedraw;
 begin
   inherited;
-  FLayer.Bitmap.Clear(clBlack);
+  Layer.Bitmap.Clear(0);
   DrawPath;
 end;
 
