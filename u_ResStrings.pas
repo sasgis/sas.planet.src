@@ -147,6 +147,7 @@ ResourceString
   SAS_STR_InputLacitp = 'Введите через запятую mnc, mcc, LAC, CellID (Например: 02,250,17023,13023)';
   SAS_STR_InputLacitpCaption = 'Ввод параметров';
   SAS_STR_ExportYaMapsCaption = 'Мобильные Яндекс.Карты (версия 3)';
+  SAS_STR_ExportYaMapsNewCaption = 'Мобильные Яндекс.Карты (начиная с версии 3.91)';
   SAS_STR_ExportGEKmlExportCaption = 'KML (Для просмотра в GE)';
   SAS_STR_ExportIPhone128Caption = 'iPhone (2.2 и выше 128х128)';
   SAS_STR_ExportIPhone64Caption = 'iPhone (Ниже v2.2 64х64)';
