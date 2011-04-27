@@ -58,18 +58,24 @@ procedure TCenterScale.OnConfigChange(Sender: TObject);
 var
   VBitmap: TCustomBitmap32;
 begin
-  if FConfig.Visible then begin
-    VBitmap := FConfig.Bitmap;
-    try
-      FLayer.Bitmap.Assign(VBitmap);
-      FLayer.Bitmap.DrawMode := dmBlend;
-      FLayer.Bitmap.CombineMode := cmMerge;
-    finally
-      VBitmap.Free;
+  ViewUpdateLock;
+  try
+    if FConfig.Visible then begin
+      VBitmap := FConfig.Bitmap;
+      try
+        FLayer.Bitmap.Assign(VBitmap);
+        FLayer.Bitmap.DrawMode := dmBlend;
+        FLayer.Bitmap.CombineMode := cmMerge;
+      finally
+        VBitmap.Free;
+      end;
+      SetNeedRedraw;
     end;
-    Redraw;
+    SetVisible(FConfig.Visible);
+  finally
+    ViewUpdateUnlock;
   end;
-  SetVisible(FConfig.Visible);
+  ViewUpdate;
 end;
 
 procedure TCenterScale.StartThreads;

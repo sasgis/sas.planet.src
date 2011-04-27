@@ -25,7 +25,6 @@ type
   TMapLayerBasicFullView = class(TMapLayerBase)
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
-    function GetLayerCoordConverterByViewConverter(ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
   end;
 
   TMapLayerFixedWithBitmap = class(TWindowLayerWithBitmap)
@@ -53,9 +52,8 @@ type
     function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual;
     property Layer: TBitmapLayer read FLayer;
   protected
-    function GetLayerCoordConverterByViewConverter(ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
     function GetMapLayerLocationRect: TFloatRect; override;
-    procedure AfterLayerStateChange; override;
+    procedure DoViewUpdate; override;
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
@@ -96,12 +94,6 @@ end;
 
 { TMapLayerBasicFullView }
 
-function TMapLayerBasicFullView.GetLayerCoordConverterByViewConverter(
-  ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
-begin
-  Result := ANewViewCoordConverter;
-end;
-
 function TMapLayerBasicFullView.GetMapLayerLocationRect: TFloatRect;
 begin
   if ViewCoordConverter <> nil then begin
@@ -110,6 +102,7 @@ begin
     Result := FloatRect(0, 0, 0, 0);
   end;
 end;
+
 { TMapLayerFixedWithBitmap }
 
 constructor TMapLayerFixedWithBitmap.Create(AParentMap: TImage32;
@@ -120,7 +113,7 @@ end;
 
 procedure TMapLayerFixedWithBitmap.DoRedraw;
 begin
-  inherited;
+  // Ничего не делаем по-умолчанию.
 end;
 
 function TMapLayerFixedWithBitmap.GetLayerSizeForView(
@@ -164,12 +157,6 @@ end;
 
 { TMapLayerBasic }
 
-procedure TMapLayerBasic.AfterLayerStateChange;
-begin
-  UpdateLayerSizeIfNeed;
-  inherited;
-end;
-
 constructor TMapLayerBasic.Create(AParentMap: TImage32;
   AViewPortState: IViewPortState);
 begin
@@ -179,6 +166,12 @@ begin
   FLayer.Bitmap.CombineMode := cmMerge;
   FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
   FNeedUpdateLayerSizeCS := TCriticalSection.Create;
+end;
+
+procedure TMapLayerBasic.DoViewUpdate;
+begin
+  UpdateLayerSizeIfNeed;
+  inherited;
 end;
 
 function TMapLayerBasic.GetMapLayerLocationRect: TFloatRect;
@@ -275,16 +268,6 @@ begin
   end;
   if VNeed then begin
     UpdateLayerSize;
-  end;
-end;
-
-function TMapLayerBasic.GetLayerCoordConverterByViewConverter(
-  ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
-begin
-  if not Visible then begin
-    Result := nil;
-  end else begin
-    Result := ANewViewCoordConverter;
   end;
 end;
 

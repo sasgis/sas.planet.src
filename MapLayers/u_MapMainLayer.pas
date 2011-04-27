@@ -206,26 +206,44 @@ end;
 
 procedure TMapMainLayer.OnConfigChange(Sender: TObject);
 begin
-  GState.ViewConfig.LockRead;
+  ViewUpdateLock;
   try
-    FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
-    FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
+    GState.ViewConfig.LockRead;
+    try
+      FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
+      FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
+    finally
+      GState.ViewConfig.UnlockRead;
+    end;
+    SetNeedRedraw;
   finally
-    GState.ViewConfig.UnlockRead;
+    ViewUpdateUnlock;
   end;
-  Redraw;
+  ViewUpdate;
 end;
 
 procedure TMapMainLayer.OnLayerSetChange(Sender: TObject);
 begin
-  FLayersList := FMapsConfig.GetBitmapLayersSet.GetSelectedMapsList;
-  Redraw;
+  ViewUpdateLock;
+  try
+    FLayersList := FMapsConfig.GetBitmapLayersSet.GetSelectedMapsList;
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TMapMainLayer.OnMainMapChange(Sender: TObject);
 begin
-  FMainMap := FMapsConfig.GetSelectedMapType;
-  Redraw;
+  ViewUpdateLock;
+  try
+    FMainMap := FMapsConfig.GetSelectedMapType;
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TMapMainLayer.StartThreads;

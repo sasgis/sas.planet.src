@@ -89,14 +89,16 @@ end;
 
 procedure TLayerStatBar.OnConfigChange(Sender: TObject);
 begin
-  FLayer.Bitmap.Font.Name := FConfig.FontName;
-  FLayer.Bitmap.Font.Size := FConfig.FontSize;
-  if FConfig.Visible then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+  ViewUpdateLock;
+  try
+    FLayer.Bitmap.Font.Name := FConfig.FontName;
+    FLayer.Bitmap.Font.Size := FConfig.FontSize;
+    SetNeedRedraw;
+    SetVisible(FConfig.Visible);
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 procedure TLayerStatBar.StartThreads;

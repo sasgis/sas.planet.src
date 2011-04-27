@@ -39,7 +39,6 @@ type
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
-    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -102,13 +101,6 @@ begin
   LayerPositioned.Changed;
 end;
 
-procedure TSelectionLayer.DoScaleChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-begin
-  inherited;
-  Redraw;
-end;
-
 function TSelectionLayer.LonLatArrayToVisualFloatArray(
   ALocalConverter: ILocalCoordConverter;
   APolygon: TArrayOfDoublePoint
@@ -133,26 +125,27 @@ procedure TSelectionLayer.OnConfigChange(Sender: TObject);
 var
   VVisible: Boolean;
 begin
-  FConfig.LockRead;
+  ViewUpdateLock;
   try
-    VVisible := FConfig.Visible;
-    FLineWidth := FConfig.LineWidth;
-    FLineColor := FConfig.LineColor
+    FConfig.LockRead;
+    try
+      VVisible := FConfig.Visible;
+      FLineWidth := FConfig.LineWidth;
+      FLineColor := FConfig.LineColor
+    finally
+      FConfig.UnlockRead;
+    end;
+    SetNeedRedraw;
+    SetVisible(VVisible);
   finally
-    FConfig.UnlockRead;
+    ViewUpdateUnlock;
   end;
-
-  if VVisible then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
-  end;
+  ViewUpdate;
 end;
 
 procedure TSelectionLayer.OnChangeSelection(Sender: TObject);
 begin
-  Redraw;
+  ViewUpdate;
 end;
 
 procedure TSelectionLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);

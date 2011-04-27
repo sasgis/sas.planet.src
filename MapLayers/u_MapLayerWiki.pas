@@ -258,7 +258,8 @@ end;
 
 procedure TWikiLayer.OnConfigChange(Sender: TObject);
 begin
-  Redraw;
+  SetNeedRedraw;
+  ViewUpdate;
 end;
 
 procedure TWikiLayer.OnLayerSetChange(Sender: TObject);
@@ -267,8 +268,14 @@ var
   i: Cardinal;
 begin
   FMapsList := FLayersSet.GetSelectedMapsList;
-  Redraw;
-  SetVisible(FMapsList.GetIterator.Next(1, VGUID, i) = S_OK);
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+    SetVisible(FMapsList.GetIterator.Next(1, VGUID, i) = S_OK);
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TWikiLayer.StartThreads;

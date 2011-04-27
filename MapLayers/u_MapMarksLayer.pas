@@ -213,14 +213,15 @@ end;
 
 procedure TMapMarksLayer.OnConfigChange(Sender: TObject);
 begin
-  FConfigStatic := FConfig.GetStatic;
-  if FConfigStatic.IsUseMarks then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
-    FMarksSubset := nil;
+  ViewUpdateLock;
+  try
+    FConfigStatic := FConfig.GetStatic;
+    SetVisible(FConfigStatic.IsUseMarks);
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 procedure TMapMarksLayer.StartThreads;

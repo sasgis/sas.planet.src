@@ -372,16 +372,15 @@ begin
 end;
 
 procedure TMapLayerGrids.OnConfigChange(Sender: TObject);
-var
-  VVisible: Boolean;
 begin
-  VVisible := GetVisibleForNewPos(ViewPortState.GetVisualCoordConverter);
-  if VVisible then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+    SetVisible(GetVisibleForNewPos(ViewPortState.GetVisualCoordConverter));
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 procedure TMapLayerGrids.StartThreads;

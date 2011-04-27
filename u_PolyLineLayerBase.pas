@@ -55,9 +55,7 @@ type
     property PointsOnBitmap: TArrayOfDoublePoint read FPointsOnBitmap;
     property SourcePolygon: TArrayOfDoublePoint read FSourcePolygon;
   protected
-    procedure DoShow; override;
     procedure DoRedraw; override;
-    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -127,39 +125,38 @@ begin
   LayerPositioned.Changed;
 end;
 
-procedure TPolyLineLayerBase.DoScaleChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-begin
-  inherited;
-  Redraw;
-end;
-
-procedure TPolyLineLayerBase.DoShow;
-begin
-  inherited;
-  Redraw;
-end;
-
 procedure TPolyLineLayerBase.DrawLine(APathLonLat: TArrayOfDoublePoint;
   AActiveIndex: Integer);
 var
   VPointsCount: Integer;
 begin
-  FSourcePolygon := Copy(APathLonLat);
-  FPolyActivePointIndex := AActiveIndex;
+  ViewUpdateLock;
+  try
+    FSourcePolygon := Copy(APathLonLat);
+    FPolyActivePointIndex := AActiveIndex;
 
-  VPointsCount := Length(FSourcePolygon);
-  if VPointsCount > 0 then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+    VPointsCount := Length(FSourcePolygon);
+    if VPointsCount > 0 then begin
+      SetNeedRedraw;
+      Show;
+    end else begin
+      Hide;
+    end;
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 procedure TPolyLineLayerBase.DrawNothing;
 begin
-  Hide;
+  ViewUpdateLock;
+  try
+    Hide;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TPolyLineLayerBase.DrawPolyPoint(
@@ -222,13 +219,18 @@ end;
 
 procedure TPolyLineLayerBase.OnConfigChange(Sender: TObject);
 begin
-  FConfig.LockRead;
+  ViewUpdateLock;
   try
-    DoConfigChange;
+    FConfig.LockRead;
+    try
+      DoConfigChange;
+    finally
+      FConfig.UnlockRead;
+    end;
   finally
-    FConfig.UnlockRead;
+    ViewUpdateUnlock;
   end;
-  Redraw;
+  ViewUpdate;
 end;
 
 procedure TPolyLineLayerBase.PaintLayer(Sender: TObject; Buffer: TBitmap32);

@@ -135,12 +135,14 @@ end;
 
 procedure TLayerScaleLine.OnConfigChange(Sender: TObject);
 begin
-  if FConfig.Visible then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+    SetVisible(FConfig.Visible);
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 procedure TLayerScaleLine.SetLayerCoordConverter(AValue: ILocalCoordConverter);
