@@ -18,7 +18,7 @@ object frTilesDelete: TfrTilesDelete
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    Caption = #1059#1076#1072#1083#1080#1090#1100' '#1092#1072#1081#1083#1099' '#1082#1072#1088#1090#1099
+    Caption = 'Delete map tiles'
     TabOrder = 0
   end
   object pnlBottom: TPanel
@@ -49,7 +49,7 @@ object frTilesDelete: TfrTilesDelete
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = #1052#1072#1089#1096#1090#1072#1073':'
+        Caption = 'Zoom:'
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -85,7 +85,7 @@ object frTilesDelete: TfrTilesDelete
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
+        Caption = 'Map:'
       end
       object lblStat: TLabel
         Left = 10
@@ -129,7 +129,7 @@ object frTilesDelete: TfrTilesDelete
           Top = 5
           Width = 238
           Height = 13
-          Caption = #1059#1076#1072#1083#1103#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1090#1072#1081#1083#1099', '#1088#1072#1079#1084#1077#1088' '#1082#1086#1090#1086#1088#1099#1093', '#1073#1072#1081#1090
+          Caption = 'Delete only tiles of size, bytes:'
         end
         object seDelSize: TSpinEdit
           Left = 257

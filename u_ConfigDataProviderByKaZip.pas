@@ -35,6 +35,7 @@ implementation
 uses
   SysUtils,
   IniFiles,
+  u_ResStrings,
   u_ConfigDataProviderByIniFile;
 
 { TConfigDataProviderByKaZip }
@@ -43,10 +44,10 @@ constructor TConfigDataProviderByKaZip.Create(AFileName: string);
 begin
   FSourceFileName := AFileName;
   if AFileName = '' then begin
-    raise Exception.Create('Пустое имя файла с настройками карты');
+    raise Exception.Create(SAS_ERR_EmptyZMPFileName);
   end;
   if not FileExists(AFileName) then begin
-    raise Exception.CreateFmt('Файл %0:s не найден', [AFileName]);
+    raise Exception.CreateFmt(SAS_ERR_FileNotFoundFmt, [AFileName]);
   end;
   FUnZip := TKAZip.Create(nil);
   FUnZip.Open(AFileName);

@@ -35,7 +35,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
+        Caption = 'Zooms:'
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
@@ -47,7 +47,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alBottom
-        Caption = #1042#1089#1077
+        Caption = 'All'
         TabOrder = 0
         OnClick = chkAllZoomsClick
       end
@@ -81,7 +81,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Right = 0
         Align = alTop
         AutoSize = False
-        Caption = #1050#1086#1085#1074#1077#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074' '#1092#1086#1088#1084#1072#1090
+        Caption = 'Output format'
       end
       object cbbNamesType: TComboBox
         Left = 3
@@ -93,10 +93,10 @@ object frTilesCopy: TfrTilesCopy
         ItemHeight = 13
         ItemIndex = 1
         TabOrder = 0
-        Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
+        Text = 'SAS.Planet'
         Items.Strings = (
           'GoogleMV'
-          'SAS.'#1055#1083#1072#1085#1077#1090#1072
+          'SAS.Planet'
           'ES1.95'
           'GMT (GlobalMapper >=10.02)')
       end
@@ -110,7 +110,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alTop
-        Caption = #1055#1077#1088#1077#1084#1077#1097#1072#1090#1100
+        Caption = 'Move'
         TabOrder = 1
       end
       object chkReplaseTarget: TCheckBox
@@ -123,7 +123,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1087#1088#1080' '#1089#1086#1074#1087#1072#1076#1077#1085#1080#1080
+        Caption = 'Overwrite if equal'
         TabOrder = 2
       end
       object chkAllMaps: TCheckBox
@@ -136,7 +136,7 @@ object frTilesCopy: TfrTilesCopy
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alBottom
-        Caption = #1042#1089#1077
+        Caption = 'All'
         TabOrder = 3
         OnClick = chkAllMapsClick
       end
@@ -170,7 +170,7 @@ object frTilesCopy: TfrTilesCopy
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
+      Caption = 'Save to:'
       Layout = tlCenter
     end
     object edtTargetPath: TEdit
@@ -203,7 +203,7 @@ object frTilesCopy: TfrTilesCopy
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1082#1101#1096'  '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1075#1086' '#1091#1095#1072#1089#1090#1082#1072' '#1082#1072#1088#1090#1099
+    Caption = 'Save selection to file'
     TabOrder = 2
   end
 end

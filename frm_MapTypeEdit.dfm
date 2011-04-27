@@ -34,7 +34,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Width = 105
       Height = 23
       Align = alLeft
-      Caption = #1042#1089#1077' '#1087#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
+      Caption = 'All by default'
       TabOrder = 0
       OnClick = btnByDefaultClick
     end
@@ -45,7 +45,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Width = 75
       Height = 23
       Align = alRight
-      Caption = #1055#1088#1080#1085#1103#1090#1100
+      Caption = 'Apply'
       ModalResult = 1
       TabOrder = 1
       OnClick = btnOkClick
@@ -59,7 +59,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Height = 23
       Align = alRight
       Cancel = True
-      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+      Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 2
       ExplicitLeft = 427
@@ -86,7 +86,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Height = 17
       Margins.Top = 0
       Align = alTop
-      Caption = #1044#1086#1073#1072#1074#1083#1103#1090#1100' '#1074' '#1084#1077#1085#1102' '#1088#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' '#1087#1086#1089#1083#1077' '#1085#1072#1079#1074#1072#1085#1080#1103' '#1101#1090#1086#1081' '#1082#1072#1088#1090#1099
+      Caption = 'Add menu separator line after this map'
       TabOrder = 0
       ExplicitWidth = 496
     end
@@ -98,7 +98,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Height = 17
       Margins.Top = 0
       Align = alTop
-      Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1082#1072#1088#1090#1091
+      Caption = 'Map enabled'
       TabOrder = 1
       ExplicitWidth = 496
     end
@@ -121,7 +121,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Width = 46
       Height = 21
       Align = alLeft
-      Caption = #1058#1080#1087' '#1082#1101#1096#1072
+      Caption = 'Cache type'
       Layout = tlCenter
       ExplicitHeight = 13
     end
@@ -136,9 +136,9 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ItemHeight = 13
       TabOrder = 0
       Items.Strings = (
-        #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
+        'By default'
         'GoogleMV'
-        'SAS.'#1055#1083#1072#1085#1077#1090#1072
+        'SAS.Planet'
         'EarthSlicer 1.95'
         'Googe maps tiles'
         'Google Earth')
@@ -150,7 +150,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Top = 6
       Width = 21
       Height = 21
-      Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
+      Hint = 'By default'
       Align = alRight
       Caption = '<>'
       ParentShowHint = False
@@ -178,7 +178,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Width = 135
       Height = 21
       Align = alLeft
-      Caption = #1056#1086#1076#1080#1090#1077#1083#1100#1089#1082#1080#1081' '#1087#1091#1085#1082#1090' '#1084#1077#1085#1102
+      Caption = 'Parent submenu'
       Layout = tlCenter
       ExplicitHeight = 13
     end
@@ -198,7 +198,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Top = 6
       Width = 21
       Height = 21
-      Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
+      Hint = 'By default'
       Align = alRight
       Caption = '<>'
       ParentShowHint = False
@@ -226,7 +226,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Width = 85
       Height = 21
       Align = alLeft
-      Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1074' '#1082#1101#1096#1077
+      Caption = 'Name in cache'
       Layout = tlCenter
       ExplicitHeight = 13
     end
@@ -246,7 +246,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Top = 6
       Width = 21
       Height = 21
-      Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
+      Hint = 'By default'
       Align = alRight
       Caption = '<>'
       ParentShowHint = False
@@ -293,7 +293,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Top = 3
         Width = 21
         Height = 21
-        Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
+        Hint = 'By default'
         Align = alTop
         Caption = '<>'
         ParentShowHint = False
@@ -411,7 +411,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Top = 3
         Width = 21
         Height = 19
-        Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
+        Hint = 'By default'
         Caption = '<>'
         ParentShowHint = False
         ShowHint = True
@@ -425,7 +425,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Width = 88
         Height = 13
         Anchors = []
-        Caption = #1043#1086#1088#1103#1095#1072#1103' '#1082#1083#1072#1074#1080#1096#1072
+        Caption = 'Hotkey'
       end
     end
     object grdpnlSleep: TGridPanel
@@ -478,7 +478,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Width = 30
         Height = 13
         Anchors = []
-        Caption = #1055#1072#1091#1079#1072
+        Caption = 'Pause'
         ExplicitLeft = -3
         ExplicitTop = 3
       end
@@ -500,7 +500,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Top = 3
         Width = 21
         Height = 21
-        Hint = #1055#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102
+        Hint = 'By default'
         Anchors = []
         Caption = '<>'
         ParentShowHint = False

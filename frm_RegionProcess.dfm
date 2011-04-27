@@ -1,7 +1,7 @@
 object frmRegionProcess: TfrmRegionProcess
   Left = 234
   Top = 298
-  Caption = #1054#1087#1077#1088#1072#1094#1080#1103' '#1089' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1081' '#1086#1073#1083#1072#1089#1090#1100#1102
+  Caption = 'Manage Selection'
   ClientHeight = 316
   ClientWidth = 572
   Color = clBtnFace
@@ -27,11 +27,11 @@ object frmRegionProcess: TfrmRegionProcess
     TabOrder = 0
     TabWidth = 92
     object TabSheet1: TTabSheet
-      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
+      Caption = 'Download'
     end
     object TabSheet2: TTabSheet
       Tag = 1
-      Caption = #1057#1082#1083#1077#1080#1090#1100
+      Caption = 'Stitch'
       ImageIndex = 1
       ExplicitLeft = 0
       ExplicitTop = 0
@@ -40,7 +40,7 @@ object frmRegionProcess: TfrmRegionProcess
     end
     object TabSheet3: TTabSheet
       Tag = 2
-      Caption = #1057#1092#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100
+      Caption = 'Generate'
       ImageIndex = 2
       ExplicitLeft = 0
       ExplicitTop = 0
@@ -49,7 +49,7 @@ object frmRegionProcess: TfrmRegionProcess
     end
     object TabSheet4: TTabSheet
       Tag = 3
-      Caption = #1059#1076#1072#1083#1080#1090#1100
+      Caption = 'Delete'
       ImageIndex = 3
       ExplicitLeft = 0
       ExplicitTop = 0
@@ -58,7 +58,7 @@ object frmRegionProcess: TfrmRegionProcess
     end
     object TabSheet5: TTabSheet
       Tag = 4
-      Caption = #1069#1082#1089#1087#1086#1088#1090
+      Caption = 'Export'
       ImageIndex = 4
       object Bevel5: TBevel
         Left = 0
@@ -74,7 +74,7 @@ object frmRegionProcess: TfrmRegionProcess
         Top = 8
         Width = 207
         Height = 13
-        Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1075#1086' '#1091#1095#1072#1089#1090#1082#1072' '#1074' '#1092#1086#1088#1084#1072#1090
+        Caption = 'Export selection to format'
       end
       object CBFormat: TComboBox
         Left = 220
@@ -98,7 +98,7 @@ object frmRegionProcess: TfrmRegionProcess
     end
     object TabSheet6: TTabSheet
       Tag = 5
-      Caption = #1057#1082#1086#1087#1080#1088#1086#1074#1072#1090#1100
+      Caption = 'Copy'
       ImageIndex = 5
       ExplicitLeft = 0
       ExplicitTop = 0
@@ -121,7 +121,7 @@ object frmRegionProcess: TfrmRegionProcess
       Top = 6
       Width = 25
       Height = 25
-      Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1080#1077' '#1074' '#1086#1090#1076#1077#1083#1100#1085#1099#1081' '#1092#1072#1081#1083
+      Hint = 'Save selection to file'
       Align = alRight
       Flat = True
       Glyph.Data = {
@@ -167,7 +167,7 @@ object frmRegionProcess: TfrmRegionProcess
       Width = 75
       Height = 25
       Align = alRight
-      Caption = #1053#1072#1095#1072#1090#1100
+      Caption = 'Start'
       Default = True
       TabOrder = 0
       OnClick = Button1Click
@@ -180,7 +180,7 @@ object frmRegionProcess: TfrmRegionProcess
       Height = 25
       Align = alRight
       Cancel = True
-      Caption = #1054#1090#1084#1077#1085#1072
+      Caption = 'Cancel'
       TabOrder = 1
       OnClick = Button3Click
     end
@@ -191,7 +191,7 @@ object frmRegionProcess: TfrmRegionProcess
       Width = 367
       Height = 25
       Align = alClient
-      Caption = #1047#1072#1082#1088#1099#1090#1100' '#1086#1082#1085#1086' '#1087#1086#1089#1083#1077' '#1089#1090#1072#1088#1090#1072
+      Caption = 'Close this window after start'
       Checked = True
       State = cbChecked
       TabOrder = 2
@@ -199,7 +199,7 @@ object frmRegionProcess: TfrmRegionProcess
   end
   object SaveSelDialog: TSaveDialog
     DefaultExt = '*.hlg'
-    Filter = #1060#1072#1081#1083' '#1074#1099#1076#1077#1083#1077#1085#1080#1103'|*.hlg'
+    Filter = 'Selections|*.hlg'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 32
     Top = 48
