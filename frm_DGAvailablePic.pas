@@ -49,12 +49,12 @@ type
     procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
-    ms:TMemoryStream;
+    //ms:TMemoryStream;
     FLonLat:TDoublePoint;
     tids,ls:string;
     mpp:extended;
     hi,wi:integer;
-    procedure CreateTree;
+    //procedure CreateTree;
     procedure FormTidList;
     procedure CopyStringToClipboard(s: Widestring);
   public
@@ -356,7 +356,7 @@ begin
   end;
  List.Free;
 end;
-
+{
 procedure TfrmDGAvailablePic.CreateTree;
 var pltstr:TStringList;
     datesat:string;
@@ -395,7 +395,7 @@ begin
  TreeView1.AlphaSort();
  pltstr.Free;
 end;
-
+}
 procedure TfrmDGAvailablePic.setup(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
 var
   VSize: TPoint;
