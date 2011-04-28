@@ -49,12 +49,12 @@ type
     procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
-    ms:TMemoryStream;
+    //ms:TMemoryStream;
     FLonLat:TDoublePoint;
     tids,ls:string;
     mpp:extended;
     hi,wi:integer;
-    procedure CreateTree;
+    //procedure CreateTree;
     procedure FormTidList;
     procedure CopyStringToClipboard(s: Widestring);
   public
@@ -244,6 +244,7 @@ var par,ty:string;
   VLogin: string;
   VPassword: string;
 begin
+  Result := 0;
   VProxyConfig := GState.InetConfig.ProxyConfig;
   VProxyConfig.LockRead;
   try
@@ -254,50 +255,50 @@ begin
     VProxyConfig.UnlockRead;
   end;
   hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
- if Assigned(hSession)
-  then begin
-        hFile:=InternetOpenURL(hSession,PChar(URL),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-        if Assigned(hFile)then
+  if Assigned(hSession) then
+  try
+    hFile:=InternetOpenURL(hSession,PChar(URL),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
+    if Assigned(hFile)then
+    try
+      dwcodelen:=150; dwReserv:=0; dwindex:=0;
+      if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
+       then dwindex:=strtoint(pchar(@dwtype));
+      if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
+       begin
+        if VUselogin then
          begin
-          dwcodelen:=150; dwReserv:=0; dwindex:=0;
-          if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-           then dwindex:=strtoint(pchar(@dwtype));
-          if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
-           begin
-            if VUselogin then
-             begin
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(VLogin), length(VLogin));
-              InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(VPassword), length(VPassword));
-              HttpSendRequest(hFile, nil, 0,Nil, 0);
-             end;
-            dwcodelen:=150; dwReserv:=0; dwindex:=0;
-            if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-             then dwindex:=strtoint(pchar(@dwtype));
-            if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
-             begin
-             	result:=-3;
-              InternetCloseHandle(hFile);
-              InternetCloseHandle(hSession);
-              exit;
-             end;
-           end;
-          dwindex:=0; dwcodelen:=150; ty:='';
-          fillchar(dwtype,sizeof(dwtype),0);
-          if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_TYPE, @dwtype,dwcodelen,dwindex)
-           then ty:=PChar(@dwtype);
-          if (System.Pos(conttype,ty)>0) then
-          repeat
-           err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
-           ms.Write(Buffer,BufferLen);
-          until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false)
-          else result:=-1;
-         end
-        else result:=0;
-       end
-  else result:=0;
-  ms.Position:=0;
-  InternetCloseHandle(hFile);
-  InternetCloseHandle(hSession);
+          InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(VLogin), length(VLogin));
+          InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(VPassword), length(VPassword));
+          HttpSendRequest(hFile, nil, 0,Nil, 0);
+         end;
+        dwcodelen:=150; dwReserv:=0; dwindex:=0;
+        if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
+         then dwindex:=strtoint(pchar(@dwtype));
+        if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
+         begin
+          result:=-3;
+          InternetCloseHandle(hFile);
+          InternetCloseHandle(hSession);
+          exit;
+         end;
+       end;
+      dwindex:=0; dwcodelen:=150; ty:='';
+      fillchar(dwtype,sizeof(dwtype),0);
+      if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_TYPE, @dwtype,dwcodelen,dwindex)
+       then ty:=PChar(@dwtype);
+      if (System.Pos(conttype,ty)>0) then
+      repeat
+       err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
+       ms.Write(Buffer,BufferLen);
+      until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false)
+      else result:=-1;
+    finally
+      InternetCloseHandle(hFile);
+      ms.Position:=0;
+    end;
+  finally
+    InternetCloseHandle(hSession);
+  end;
 end;
 
 procedure TGetList.ShowList;
@@ -306,6 +307,7 @@ var datesat:string;
     added:boolean;
     node:TTreeNode;
 begin
+ node := nil;
  if ThreadID=GetListThId then
  begin
  for i:=0 to list.Count-1 do
@@ -356,7 +358,7 @@ begin
   end;
  List.Free;
 end;
-
+{
 procedure TfrmDGAvailablePic.CreateTree;
 var pltstr:TStringList;
     datesat:string;
@@ -395,7 +397,7 @@ begin
  TreeView1.AlphaSort();
  pltstr.Free;
 end;
-
+}
 procedure TfrmDGAvailablePic.setup(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
 var
   VSize: TPoint;

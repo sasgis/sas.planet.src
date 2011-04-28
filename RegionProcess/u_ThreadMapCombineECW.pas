@@ -40,7 +40,7 @@ type
     btmm: TCustomBitmap32;
     FQuality: Integer;
 
-    function ReadLineECW(Line: cardinal; var LineR, LineG, LineB: PLineRGB): boolean;
+    function ReadLineECW(ALine: cardinal; var LineR, LineG, LineB: PLineRGB): boolean;
   protected
     procedure saveRECT; override;
   public
@@ -85,14 +85,16 @@ begin
   FQuality := AQuality;
 end;
 
-function TThreadMapCombineECW.ReadLineECW(Line: cardinal; var LineR, LineG,
+function TThreadMapCombineECW.ReadLineECW(ALine: cardinal; var LineR, LineG,
   LineB: PLineRGB): boolean;
 var
   i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
+  line: Integer;
   p: PColor32array;
   VConverter: ILocalCoordConverter;
 begin
   Result := True;
+  line := ALine;
   if line < (256 - sy) then begin
     starttile := sy + line;
   end else begin
@@ -104,6 +106,7 @@ begin
     p_y := (FCurrentPieceRect.Top + line) - ((FCurrentPieceRect.Top + line) mod 256);
     p_x := FCurrentPieceRect.Left - (FCurrentPieceRect.Left mod 256);
     lrarri := 0;
+    rarri := 0;
     if line > (255 - sy) then begin
       Asy := 0;
     end else begin

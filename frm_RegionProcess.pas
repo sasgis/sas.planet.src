@@ -77,6 +77,7 @@ uses
   gnugettext,
   u_GlobalState,
   u_ExportProviderYaMaps,
+  u_ExportProviderYaMapsNew,
   u_ExportProviderGEKml,
   u_ExportProviderIPhone,
   u_ExportProviderAUX,
@@ -211,6 +212,8 @@ begin
   VExportProvider := TExportProviderGEKml.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   VExportProvider := TExportProviderYaMaps.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderYaMapsNew.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   VExportProvider := TExportProviderAUX.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);

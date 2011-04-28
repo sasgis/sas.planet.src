@@ -326,7 +326,9 @@ begin
       if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
         SetLength(AContentType, VBufSize);
         if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
+          {$IFDEF DEBUG}
           VLastError := GetLastError;
+          {$ENDIF}
           Result := dtrUnknownError;
           Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
           exit;
@@ -356,7 +358,9 @@ begin
         Exit;
       end;
     end else begin
+      {$IFDEF DEBUG}
       VLastError := GetLastError;
+      {$ENDIF}
       Assert(False, 'Неизвестная ошибка при получении размера. Код ошибки ' + IntToStr(VLastError));
     end;
   end;
