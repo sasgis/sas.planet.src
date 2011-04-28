@@ -34,7 +34,7 @@ type
     btmm: TCustomBitmap32;
     FQuality: Integer;
 
-    procedure ReadLineBMP(Line: cardinal; LineRGB: PLineRGBb);
+    procedure ReadLineBMP(ALine: cardinal; LineRGB: PLineRGBb);
   protected
     procedure saveRECT; override;
   public
@@ -80,13 +80,15 @@ begin
   FQuality := AQuality;
 end;
 
-procedure TThreadMapCombineKMZ.ReadLineBMP(Line: cardinal;
+procedure TThreadMapCombineKMZ.ReadLineBMP(ALine: cardinal;
   LineRGB: PLineRGBb);
 var
   i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
+  line: Integer;
   p: PColor32array;
   VConverter: ILocalCoordConverter;
 begin
+  line := ALine;
   if line < (256 - sy) then begin
     starttile := sy + line;
   end else begin

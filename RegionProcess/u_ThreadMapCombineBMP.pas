@@ -25,7 +25,7 @@ type
     sx, ex, sy, ey: integer;
     btmm: TCustomBitmap32;
 
-    procedure ReadLineBMP(Line: cardinal; LineRGB: PLineRGBb);
+    procedure ReadLineBMP(ALine: cardinal; LineRGB: PLineRGBb);
   protected
     procedure saveRECT; override;
   public
@@ -36,13 +36,15 @@ implementation
 uses
   i_LocalCoordConverter;
 
-procedure TThreadMapCombineBMP.ReadLineBMP(Line: cardinal;
+procedure TThreadMapCombineBMP.ReadLineBMP(ALine: cardinal;
   LineRGB: PLineRGBb);
 var
   i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
+  line: Integer;
   p: PColor32array;
   VConverter: ILocalCoordConverter;
 begin
+  line := ALine;
   if line < (256 - sy) then begin
     starttile := sy + line;
   end else begin
