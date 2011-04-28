@@ -17,6 +17,7 @@ type
     FConfig: IScaleLineConfig;
     FBottomMargin: Integer;
     procedure OnConfigChange(Sender: TObject);
+    procedure SetBottomMargin(const Value: Integer);
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     function GetMapLayerLocationRect: TFloatRect; override;
@@ -25,7 +26,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IScaleLineConfig);
-    property BottomMargin: Integer read FBottomMargin write FBottomMargin;
+    property BottomMargin: Integer read FBottomMargin write SetBottomMargin;
   end;
 
 implementation
@@ -139,6 +140,18 @@ begin
   try
     SetNeedRedraw;
     SetVisible(FConfig.Visible);
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
+end;
+
+procedure TLayerScaleLine.SetBottomMargin(const Value: Integer);
+begin
+  ViewUpdateLock;
+  try
+    FBottomMargin := Value;
+    SetNeedUpdateLocation;
   finally
     ViewUpdateUnlock;
   end;

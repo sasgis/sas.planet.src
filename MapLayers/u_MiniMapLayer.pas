@@ -76,6 +76,7 @@ type
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
+    procedure SetBottomMargin(const Value: Integer);
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoShow; override;
@@ -91,7 +92,7 @@ type
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig; APostProcessingConfig:IBitmapPostProcessingConfig);
     destructor Destroy; override;
-    property BottomMargin: Integer read FBottomMargin write FBottomMargin;
+    property BottomMargin: Integer read FBottomMargin write SetBottomMargin;
   end;
 
 implementation
@@ -757,6 +758,7 @@ begin
     FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
     FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
     SetVisible(FConfig.Visible);
+    PosChange(ViewCoordConverter);
     SetNeedRedraw;
     SetNeedUpdateLayerSize;
   finally
@@ -792,6 +794,18 @@ begin
       FPlusButtonPressed := False;
     end;
   end;
+end;
+
+procedure TMiniMapLayer.SetBottomMargin(const Value: Integer);
+begin
+  ViewUpdateLock;
+  try
+    FBottomMargin := Value;
+    SetNeedUpdateLocation;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TMiniMapLayer.SetLayerCoordConverter(AValue: ILocalCoordConverter);
