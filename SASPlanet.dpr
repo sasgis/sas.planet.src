@@ -7,6 +7,7 @@ uses
   sysutils,
   windows,
   MidasLib,
+  MD5 in 'src\MD5.pas',
   RegExpr in 'src\RegExpr.pas',
   KAZip in 'src\KAZip.pas',
   TarWriter in 'src\TarWriter.pas',
@@ -501,8 +502,7 @@ uses
   frm_ImportConfigEdit in 'frm_ImportConfigEdit.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
-  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
-  MD5 in 'src\MD5.pas';
+  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
 
 {$R *.res} {$R *Pics.res}
 begin
