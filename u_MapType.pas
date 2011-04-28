@@ -640,7 +640,7 @@ begin
     try
       Result := FStorage.LoadTile(AXY, Azoom, FVersion, VFileStream, VTileInfo);
       if Result then begin
-        FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileInfo.GetLoadDate));
+        FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
       end;
     finally
       VFileStream.Free;
