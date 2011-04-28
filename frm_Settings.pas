@@ -10,7 +10,9 @@ uses
   Forms,
   StdCtrls,
   Graphics,
-  filectrl,
+  {$WARN UNIT_PLATFORM OFF}
+  FileCtrl,
+  {$WARN UNIT_PLATFORM ON}
   ExtCtrls,
   ComCtrls,
   Dialogs,

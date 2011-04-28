@@ -22,7 +22,7 @@ object frmRegionProcess: TfrmRegionProcess
     Top = 0
     Width = 572
     Height = 279
-    ActivePage = TabSheet1
+    ActivePage = TabSheet5
     Align = alClient
     TabOrder = 0
     TabWidth = 92
@@ -33,28 +33,16 @@ object frmRegionProcess: TfrmRegionProcess
       Tag = 1
       Caption = 'Stitch'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet3: TTabSheet
       Tag = 2
       Caption = 'Generate'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet4: TTabSheet
       Tag = 3
       Caption = 'Delete'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet5: TTabSheet
       Tag = 4
@@ -100,10 +88,6 @@ object frmRegionProcess: TfrmRegionProcess
       Tag = 5
       Caption = 'Copy'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
   end
   object pnlBottomButtons: TPanel

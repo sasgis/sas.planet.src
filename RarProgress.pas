@@ -138,8 +138,8 @@ begin
   inherited;
   TopX:=2;
   TopY:=2;
-  SizeX:=Width-TopX-2;
-  SizeY:=Height-TopY-4;
+  SizeX:=Width-int64(TopX)-2;
+  SizeY:=Height-int64(TopY)-4;
   Draw;
 end;
 

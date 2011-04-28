@@ -73,6 +73,7 @@ ResourceString
   SAS_ERR_TileDownloadContentTypeUnexpcted = 'Unexpeced conent type';
   SAS_ERR_TileDownloadUnexpectedError = 'Unknown error during download';
   SAS_ERR_CoordinatesInput='Error in geographic coordinates';
+  SAS_STR_ExportYaMapsNewCaption = 'Мобильные Яндекс.Карты (начиная с версии 3.91)';
 
   SAS_ERR_EmptyZMPFileName = 'Empty ZMP file name';
   SAS_ERR_FileNotFoundFmt = 'File %0:s not found';

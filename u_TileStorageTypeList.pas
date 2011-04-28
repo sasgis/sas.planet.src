@@ -108,7 +108,7 @@ end;
 
 function TTileStorageTypeList.GetCanUseAsDefault(AGUID: TGUID): Boolean;
 begin
-
+  Result := False; // ??
 end;
 
 function TTileStorageTypeList.GetConfig(AGUID: TGUID): ITileStorageTypeConfig;

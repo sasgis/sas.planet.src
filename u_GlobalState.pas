@@ -105,7 +105,9 @@ type
     function GetMainConfigFileName: string;
     procedure LoadMainParams;
     procedure LoadMapIconsList;
+    {$IFDEF SasDebugWithJcl}
     procedure DoException(Sender: TObject; E: Exception);
+    {$ENDIF SasDebugWithJcl}
   public
     // Отображать окошко с логотипом при запуске
     Show_logo: Boolean;
@@ -345,11 +347,11 @@ begin
   inherited;
 end;
 
+{$IFDEF SasDebugWithJcl}
 procedure TGlobalState.DoException(Sender: TObject; E: Exception);
 var
   Str: TStringList;
 begin
-  {$IFDEF SasDebugWithJcl}
   Str := TStringList.Create;
   try
     JclLastExceptStackListToStrings(Str, True, True, True, True);
@@ -359,8 +361,8 @@ begin
   finally
     FreeAndNil(Str);
   end;
-  {$ENDIF SasDebugWithJcl}
 end;
+{$ENDIF SasDebugWithJcl}
 
 procedure TGlobalState.StartExceptionTracking;
 begin

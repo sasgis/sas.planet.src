@@ -634,7 +634,8 @@ function TSwinHttp.OpenRequest: boolean;
       postsize:integer;
   begin
     if FCurrReq.PostData = '' then begin
-      postptr := nil
+      postptr := nil;
+      postsize := 0;
     end else begin
       postptr := @FCurrReq.PostData[1];
       postsize:=length(FCurrReq.PostData);
