@@ -445,11 +445,4 @@ begin
 end;
 
 end.
- 
- 
- 
-Проект Delphi World © Выпуск 2002 - 2004 
-Автор проекта: ___Nikolay 
-
- 
 
