@@ -306,6 +306,7 @@ var datesat:string;
     added:boolean;
     node:TTreeNode;
 begin
+ node := nil;
  if ThreadID=GetListThId then
  begin
  for i:=0 to list.Count-1 do
