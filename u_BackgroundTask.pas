@@ -15,7 +15,6 @@ type
     FStopThread: TEvent;
     FAllowExecute: TEvent;
     FCS: TCriticalSection;
-    FExecuteStopCounter: Longint;
     FNeedStopExecute: Boolean;
   protected
     procedure ExecuteTask; virtual; abstract;
@@ -43,6 +42,7 @@ begin
   FStopThread := TEvent.Create(nil, True, False, '');
   FAllowExecute := TEvent.Create(nil, True, False, '');
   FCS := TCriticalSection.Create;
+  SetPriority(tpLowest);
 end;
 
 destructor TBackgroundTask.Destroy;
@@ -67,6 +67,12 @@ begin
     case VWaitResult of
       WAIT_OBJECT_0:
       begin
+        FCS.Acquire;
+        try
+          FNeedStopExecute := False;
+        finally
+          FCS.Release;
+        end;
         ExecuteTask;
         FCS.Acquire;
         try
@@ -82,24 +88,17 @@ begin
 end;
 
 procedure TBackgroundTask.StartExecute;
-var
-  VCouner: Longint;
 begin
-  VCouner := InterlockedDecrement(FExecuteStopCounter);
-  if VCouner = 0 then begin
-    FCS.Acquire;
-    try
-      FNeedStopExecute := False;
-      FAllowExecute.SetEvent;
-    finally
-      FCS.Release;
-    end;
+  FCS.Acquire;
+  try
+    FAllowExecute.SetEvent;
+  finally
+    FCS.Release;
   end;
 end;
 
 procedure TBackgroundTask.StopExecute;
 begin
-  InterlockedIncrement(FExecuteStopCounter);
   FCS.Acquire;
   try
     FNeedStopExecute := True;

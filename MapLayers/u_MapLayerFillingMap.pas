@@ -44,6 +44,7 @@ type
     procedure OnConfigChange(Sender: TObject);
   protected
     function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IFillingMapLayerConfig);
     procedure StartThreads; override;
@@ -66,11 +67,7 @@ procedure TBackgroundTaskFillingMap.ChangeConfig(
   AConfig: IFillingMapLayerConfigStatic);
 begin
   StopExecute;
-  try
-    FConfig := AConfig;
-  finally
-    StartExecute;
-  end;
+  FConfig := AConfig;
 end;
 
 procedure TBackgroundTaskFillingMap.DrawBitmap;
@@ -131,13 +128,6 @@ var
   VConfig: IFillingMapLayerConfigStatic;
 begin
   inherited;
-
-  Bitmap.Lock;
-  try
-    Bitmap.Clear(0);
-  finally
-    Bitmap.UnLock;
-  end;
 
   VBmp := TCustomBitmap32.Create;
   try
@@ -248,6 +238,12 @@ begin
   OnConfigChange(nil);
 end;
 
+procedure TMapLayerFillingMap.DoRedraw;
+begin
+  FDrawTask.ChangeConfig(FConfigStatic);
+  inherited;
+end;
+
 function TMapLayerFillingMap.GetVisibleForNewPos(
   ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
 begin
@@ -262,16 +258,15 @@ end;
 
 procedure TMapLayerFillingMap.OnConfigChange(Sender: TObject);
 begin
-  FConfigStatic := FConfig.GetStatic;
-  SetVisible(GetVisibleForNewPos(ViewCoordConverter));
-  if Visible then begin
-    FDrawTask.StopExecute;
-    try
-      FDrawTask.ChangeConfig(FConfigStatic);
-    finally
-      FDrawTask.StartExecute;
-    end;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+    FConfigStatic := FConfig.GetStatic;
+    SetVisible(GetVisibleForNewPos(ViewCoordConverter));
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 { TBackgroundTaskFillingMapFactory }

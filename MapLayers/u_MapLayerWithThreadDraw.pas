@@ -55,7 +55,16 @@ end;
 procedure TMapLayerWithThreadDraw.DoRedraw;
 begin
   inherited;
-  FDrawTask.StartExecute;
+  FDrawTask.ChangePos(LayerCoordConverter);
+  if Visible then begin
+    Layer.Bitmap.Lock;
+    try
+      Layer.Bitmap.Clear(0);
+    finally
+      Layer.Bitmap.UnLock;
+    end;
+    FDrawTask.StartExecute;
+  end;
 end;
 
 procedure TMapLayerWithThreadDraw.SendTerminateToThreads;
@@ -66,14 +75,14 @@ end;
 
 procedure TMapLayerWithThreadDraw.SetNeedRedraw;
 begin
-  inherited;
   FDrawTask.StopExecute;
+  inherited;
 end;
 
 procedure TMapLayerWithThreadDraw.SetNeedUpdateLayerSize;
 begin
-  inherited;
   FDrawTask.StopExecute;
+  inherited;
 end;
 
 procedure TMapLayerWithThreadDraw.StartThreads;
@@ -81,6 +90,9 @@ begin
   inherited;
   FDrawTask.Start;
   FDrawTask.ChangePos(LayerCoordConverter);
+  if Visible then begin
+    FDrawTask.StartExecute;
+  end;
 end;
 
 end.
