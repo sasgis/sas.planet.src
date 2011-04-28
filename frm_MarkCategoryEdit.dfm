@@ -2,7 +2,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
   Left = 208
   Top = 318
   BorderStyle = bsDialog
-  Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1091#1102' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
+  Caption = 'Add New Category'
   ClientHeight = 140
   ClientWidth = 295
   Color = clBtnFace
@@ -19,7 +19,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     Width = 289
     Height = 13
     Align = alTop
-    Caption = #1052#1072#1089#1096#1090#1072#1073#1099' '#1074#1080#1076#1080#1084#1086#1089#1090#1080':'
+    Caption = 'Visible on zooms:'
     ExplicitWidth = 114
   end
   object Bevel5: TBevel
@@ -40,7 +40,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     Width = 289
     Height = 17
     Align = alBottom
-    Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1085#1072' '#1082#1072#1088#1090#1077
+    Caption = 'Show on map'
     TabOrder = 0
   end
   object pnlBottomButtons: TPanel
@@ -57,10 +57,10 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Top = 3
       Width = 73
       Height = 25
-      Hint = #1054#1090#1084#1077#1085#1080#1090#1100
+      Hint = 'Cancel'
       Align = alRight
       Cancel = True
-      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+      Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 0
     end
@@ -71,7 +71,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Width = 73
       Height = 25
       Align = alRight
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+      Caption = 'Add'
       Default = True
       ModalResult = 1
       TabOrder = 1
@@ -91,7 +91,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Top = 3
       Width = 5
       Height = 13
-      Caption = 'c'
+      Caption = 'from'
     end
     object EditS1: TSpinEdit
       AlignWithMargins = True
@@ -110,7 +110,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Top = 3
       Width = 13
       Height = 13
-      Caption = #1076#1086
+      Caption = 'to'
     end
     object EditS2: TSpinEdit
       AlignWithMargins = True
@@ -139,7 +139,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Width = 48
       Height = 21
       Align = alLeft
-      Caption = #1053#1072#1079#1074#1072#1085#1080#1077
+      Caption = 'Name'
       Layout = tlCenter
       ExplicitHeight = 13
     end

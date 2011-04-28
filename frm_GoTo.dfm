@@ -2,11 +2,10 @@ object frmGoTo: TfrmGoTo
   Left = 295
   Top = 179
   AlphaBlendValue = 220
-  Caption = #1055#1077#1088#1077#1081#1090#1080' '#1082'...'
+  Caption = 'Go to...'
   ClientHeight = 233
   ClientWidth = 331
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
@@ -100,7 +99,7 @@ object frmGoTo: TfrmGoTo
       Margins.Bottom = 8
       Align = alLeft
       Alignment = taRightJustify
-      Caption = #1052#1072#1089#1096#1090#1072#1073': x'
+      Caption = 'Zoom: x'
       Layout = tlCenter
       ExplicitHeight = 13
     end
@@ -149,7 +148,7 @@ object frmGoTo: TfrmGoTo
       Height = 25
       Align = alRight
       Cancel = True
-      Caption = #1054#1090#1084#1077#1085#1072
+      Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
       ExplicitLeft = 259
@@ -160,9 +159,9 @@ object frmGoTo: TfrmGoTo
       Top = 3
       Width = 75
       Height = 25
-      Hint = #1055#1077#1088#1077#1081#1090#1080' '#1074' '#1079#1072#1076#1072#1085#1085#1091#1102' '#1090#1086#1095#1082#1091
+      Hint = ''
       Align = alRight
-      Caption = #1055#1077#1088#1077#1081#1090#1080
+      Caption = 'Go to'
       Default = True
       ParentShowHint = False
       ShowHint = True
@@ -176,7 +175,7 @@ object frmGoTo: TfrmGoTo
     Top = 1
     Width = 124
     Height = 17
-    Caption = #1057#1086#1093#1088#1072#1085#1077#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
+    Caption = 'Stored placemarks'
     TabOrder = 4
   end
   object RB2: TRadioButton
@@ -184,7 +183,7 @@ object frmGoTo: TfrmGoTo
     Top = 51
     Width = 62
     Height = 17
-    Caption = 'Google!'
+    Caption = 'Google'
     Checked = True
     TabOrder = 5
     TabStop = True
@@ -194,7 +193,7 @@ object frmGoTo: TfrmGoTo
     Top = 51
     Width = 58
     Height = 17
-    Caption = #1071#1085#1076#1077#1082#1089
+    Caption = 'Yandex'
     TabOrder = 6
   end
   object RB1: TRadioButton
@@ -202,7 +201,7 @@ object frmGoTo: TfrmGoTo
     Top = 106
     Width = 85
     Height = 17
-    Caption = #1050#1086#1086#1088#1076#1080#1085#1072#1090#1099
+    Caption = 'Coordinates'
     TabOrder = 7
   end
 end

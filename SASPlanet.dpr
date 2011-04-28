@@ -7,6 +7,7 @@ uses
   sysutils,
   windows,
   MidasLib,
+  MD5 in 'src\MD5.pas',
   RegExpr in 'src\RegExpr.pas',
   KAZip in 'src\KAZip.pas',
   TarWriter in 'src\TarWriter.pas',
@@ -504,12 +505,10 @@ uses
   frm_ImportConfigEdit in 'frm_ImportConfigEdit.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
-  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
-  MD5 in 'src\MD5.pas';
+  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
 
 {$R *.res} {$R *Pics.res}
-begin
-
+begin 
   GState := TGlobalState.Create;
   try
     Application.Initialize;
@@ -529,22 +528,22 @@ begin
     //xLogo
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
-  Application.CreateForm(TfrmGoTo, frmGoTo);
-  Application.CreateForm(TfrmAbout, frmAbout);
-  Application.CreateForm(TfrmSettings, frmSettings);
-  Application.CreateForm(TfrmRegionProcess, frmRegionProcess);
-  Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
-  Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
-  Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
-  Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
-  Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);
-  Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
-  Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
-  Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
-  Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
-  Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
-  Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
-  if GState.ShowDebugInfo then begin
+    Application.CreateForm(TfrmGoTo, frmGoTo);
+    Application.CreateForm(TfrmAbout, frmAbout);
+    Application.CreateForm(TfrmSettings, frmSettings);
+    Application.CreateForm(TfrmRegionProcess, frmRegionProcess);
+    Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
+    Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
+    Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
+    Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
+    Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);
+    Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
+    Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
+    Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
+    Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
+    Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
+    Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
+    if GState.ShowDebugInfo then begin
       Application.CreateForm(TfrmDebugInfo, frmDebugInfo);
     end;
     GState.StartExceptionTracking;

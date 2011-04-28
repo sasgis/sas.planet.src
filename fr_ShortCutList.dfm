@@ -35,7 +35,7 @@ object frShortCutList: TfrShortCutList
       Width = 50
       Height = 19
       Align = alLeft
-      Caption = #1054#1087#1077#1088#1072#1094#1080#1103
+      Caption = 'Task'
       Layout = tlCenter
       ExplicitHeight = 13
     end
@@ -46,7 +46,7 @@ object frShortCutList: TfrShortCutList
       Width = 89
       Height = 19
       Align = alRight
-      Caption = #1043#1086#1088#1103#1095#1072#1103' '#1082#1083#1072#1074#1080#1096#1072
+      Caption = 'Hotkey'
       Layout = tlCenter
       ExplicitLeft = 365
       ExplicitHeight = 13

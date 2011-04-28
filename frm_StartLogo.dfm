@@ -3,7 +3,7 @@ object frmStartLogo: TfrmStartLogo
   Top = 224
   AutoSize = True
   BorderStyle = bsNone
-  Caption = 'Logo'
+  Caption = ''
   ClientHeight = 276
   ClientWidth = 480
   Color = clBtnFace
@@ -27,12 +27,11 @@ object frmStartLogo: TfrmStartLogo
     TabOrder = 0
     OnClick = imgLogoClick
     object lblVersion: TLabel
-      Left = 398
+      Left = 467
       Top = 249
-      Width = 69
+      Width = 0
       Height = 13
       Alignment = taRightJustify
-      AutoSize = False
       Color = clWhite
       ParentColor = False
       Transparent = True
@@ -43,7 +42,6 @@ object frmStartLogo: TfrmStartLogo
       Width = 91
       Height = 16
       Caption = 'http://sasgis.ru'
-      Font.Charset = RUSSIAN_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Arial'
