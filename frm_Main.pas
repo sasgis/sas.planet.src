@@ -3126,7 +3126,7 @@ var
   i,j:integer;
   nms:string;
   hintrect:TRect;
-  CState: Integer;
+  //CState: Integer;
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VConverter: ICoordConverter;
