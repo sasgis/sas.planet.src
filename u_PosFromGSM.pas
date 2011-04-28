@@ -212,6 +212,7 @@ var
   VRate: Cardinal;
   VWait: Cardinal;
 begin
+  Result := False;
   FZoom := AZoom;
   GState.GSMpar.LockRead;
   try
