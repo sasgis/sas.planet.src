@@ -32,6 +32,7 @@ type
     FFixedLonLat: TDoublePoint;
     FFixedOnBitmap: TDoublePoint;
   protected
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
     function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
@@ -155,6 +156,15 @@ begin
   end else begin
     Result := FloatRect(0, 0, 0, 0);
   end;
+end;
+
+procedure TMapLayerFixedWithBitmap.SetViewCoordConverter(
+  AValue: ILocalCoordConverter);
+begin
+  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
+    SetNeedUpdateLocation;
+  end;
+  inherited;
 end;
 
 { TMapLayerBasic }

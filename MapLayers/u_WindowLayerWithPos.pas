@@ -452,7 +452,7 @@ constructor TWindowLayerWithBitmap.Create(AParentMap: TImage32;
   AViewPortState: IViewPortState);
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
-  inherited Create(FLayer, AViewPortState, False);
+  inherited Create(FLayer, AViewPortState, True);
 
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;

@@ -39,6 +39,7 @@ type
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -204,6 +205,14 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TSelectionLayer.SetViewCoordConverter(AValue: ILocalCoordConverter);
+begin
+  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
+    SetNeedRedraw;
+  end;
+  inherited;
 end;
 
 procedure TSelectionLayer.StartThreads;
