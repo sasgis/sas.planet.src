@@ -55,6 +55,8 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoViewUpdate; override;
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure DoShow; override;
+    procedure DoHide; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     destructor Destroy; override;
@@ -222,6 +224,18 @@ destructor TMapLayerBasic.Destroy;
 begin
   FreeAndNil(FNeedUpdateLayerSizeCS);
   inherited;
+end;
+
+procedure TMapLayerBasic.DoHide;
+begin
+  inherited;
+  SetNeedUpdateLayerSize;
+end;
+
+procedure TMapLayerBasic.DoShow;
+begin
+  inherited;
+  SetNeedUpdateLayerSize;
 end;
 
 procedure TMapLayerBasic.DoUpdateLayerSize(ANewSize: TPoint);

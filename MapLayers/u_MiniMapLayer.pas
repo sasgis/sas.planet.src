@@ -29,7 +29,6 @@ type
   private
     FConfig: IMiniMapLayerConfig;
     FParentMap: TImage32;
-    FBitmapCoordConverter: ILocalCoordConverter;
     FBitmapCoordConverterFactory: ILocalCoordConverterFactorySimpe;
 
     FPopup: TTBXPopupMenu;
@@ -86,6 +85,7 @@ type
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
     function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
     function GetLayerCoordConverterByViewConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -411,7 +411,7 @@ begin
   end;
   VRecolorConfig := GState.BitmapPostProcessingConfig.GetStatic;
 
-  VBitmapConverter := FBitmapCoordConverter;
+  VBitmapConverter := LayerCoordConverter;
   VGeoConvert := VBitmapConverter.GetGeoConverter;
   VZoom := VBitmapConverter.GetZoom;
 
@@ -597,7 +597,7 @@ var
 begin
   if FPosMoved then begin
     if FLayer.HitTest(X, Y) then begin
-      VBitmapCoordConverter := FBitmapCoordConverter;
+      VBitmapCoordConverter := LayerCoordConverter;
       Vlocation := FLayer.Location;
       VBitmapPos.X := X - Vlocation.Left;
       VBitmapPos.Y := Y - Vlocation.Top;
@@ -792,6 +792,26 @@ begin
       FPlusButtonPressed := False;
     end;
   end;
+end;
+
+procedure TMiniMapLayer.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+var
+  VNewSize: TPoint;
+begin
+  VNewSize := GetLayerSizeForView(AValue);
+  FLayer.Bitmap.Lock;
+  try
+    if (FLayer.Bitmap.Width <> VNewSize.X) or (FLayer.Bitmap.Height <> VNewSize.Y) then begin
+      SetNeedUpdateLayerSize;
+    end;
+  finally
+    FLayer.Bitmap.Unlock;
+  end;
+
+  if (LayerCoordConverter = nil) or (not LayerCoordConverter.GetIsSameConverter(AValue)) then begin
+    SetNeedRedraw;
+  end;
+  inherited;
 end;
 
 procedure TMiniMapLayer.StartThreads;
