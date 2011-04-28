@@ -94,6 +94,7 @@ begin
     p_y := (FCurrentPieceRect.Top + line) - ((FCurrentPieceRect.Top + line) mod 256);
     p_x := FCurrentPieceRect.Left - (FCurrentPieceRect.Left mod 256);
     lrarri := 0;
+    rarri := 0;
     if line > (255 - sy) then begin
       Asy := 0;
     end else begin
