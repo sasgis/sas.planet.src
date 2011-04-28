@@ -168,7 +168,7 @@ procedure TExportMarks2KML.AddFolders(ACategoryList: IInterfaceList);
     VCatIdList: IInterfaceList;
     VCreatedNode: Boolean;
   begin
-    Result := False;
+    //Result := False; // [DCC Warning] u_ExportMarks2KML.pas(171): H2077 Value assigned to 'AddItem' never used
     if ACategoryNamePostfix='' then begin
       VCatIdList:=TInterfaceList.Create;
       VCatIdList.Add(AData);
