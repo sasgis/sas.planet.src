@@ -1,6 +1,11 @@
 unit KAZip;
+
 interface
-{DEFINE USE_BZIP2}
+
+{$WARN SYMBOL_PLATFORM OFF}
+
+{.$DEFINE USE_BZIP2}
+
 uses
   Windows,
   SysUtils,
@@ -1237,8 +1242,6 @@ Var
   TargetPos           : Cardinal;
   Border              : Cardinal;
 
-  NR                  : Integer;
-  NW                  : Integer;
   BufStart            : Integer;
   BufLen              : Integer;
   ShiftSize           : Cardinal;
@@ -1256,10 +1259,11 @@ begin
 
        SetLength(BUF,BufLen);
        FParent.FZipStream.Position := BufStart;
-       NR := FParent.FZipStream.Read(BUF[1],BufLen);
+       FParent.FZipStream.Read(BUF[1],BufLen);
 
        FParent.FZipStream.Position := TargetPos;
-       NW := FParent.FZipStream.Write(BUF[1],BufLen);
+       FParent.FZipStream.Write(BUF[1],BufLen);
+
        SetLength(BUF,0);
 
        For X := 0 to Count-1 do
@@ -1990,12 +1994,12 @@ Var
  MS     : TMemoryStream;
  NoMore : Boolean;
 Begin
-  Result := False;
-  FN     := ExtractFilePath(ToDosName(ToZipName(ItemName)));
-  TN     := FN;
-  INCN   := '';
   MS     := TMemoryStream.Create;
   Try
+    Result := False;
+    FN     := ExtractFilePath(ToDosName(ToZipName(ItemName)));
+    TN     := FN;
+    INCN   := '';
     Repeat
       NoMore := True;
       P      := Pos('\',TN);
@@ -2582,6 +2586,7 @@ Var
   BR   : Integer;
   L    : Integer;
 Begin
+  BR := 0;
   If Names.Count <> NewNames.Count Then
      Begin
        Raise Exception.Create('Names and NewNames must have equal count');
@@ -3275,6 +3280,7 @@ begin
   FApplyAttributes := Value;
 end;
 
+{$WARN SYMBOL_PLATFORM ON}
 
 end.
 

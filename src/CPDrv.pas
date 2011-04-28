@@ -435,7 +435,7 @@ begin
   FTempInBuffer := AllocMem( FInBufSize );
   // Allocate a window handle to catch timer's notification messages
   if not (csDesigning in ComponentState) then
-    FNotifyWnd := AllocateHWnd( TimerWndProc );
+    FNotifyWnd := Classes.AllocateHWnd( TimerWndProc );
 end;
 
 destructor TCommPortDriver.Destroy;
@@ -446,7 +446,7 @@ begin
   FreeMem( FTempInBuffer, FInBufSize );
   // Destroy the timer's window
   if not (csDesigning in ComponentState) then
-    DeallocateHWnd( FNotifyWnd );
+    Classes.DeallocateHWnd( FNotifyWnd );
   // Call inherited destructor
   inherited Destroy;
 end;

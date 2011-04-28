@@ -34,7 +34,7 @@ object frExportYaMaps: TfrExportYaMaps
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
+        Caption = 'Zooms:'
         Layout = tlCenter
       end
       object chklstZooms: TCheckListBox
@@ -61,7 +61,7 @@ object frExportYaMaps: TfrExportYaMaps
         Width = 360
         Height = 20
         Align = alTop
-        Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1089#1091#1097#1077#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
+        Caption = 'Replace existing tiles'
         TabOrder = 0
       end
       object grdpnlMaps: TGridPanel
@@ -259,7 +259,7 @@ object frExportYaMaps: TfrExportYaMaps
           Width = 40
           Height = 13
           Anchors = []
-          Caption = #1057#1078#1072#1090#1080#1077':'
+          Caption = 'Compression:'
         end
         object lblHybr: TLabel
           Left = 0
@@ -268,7 +268,7 @@ object frExportYaMaps: TfrExportYaMaps
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = #1043#1080#1073#1088#1080#1076
+          Caption = 'Hybrid'
           Layout = tlCenter
           ExplicitLeft = 6
           ExplicitWidth = 29
@@ -281,7 +281,7 @@ object frExportYaMaps: TfrExportYaMaps
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = #1050#1072#1088#1090#1072
+          Caption = 'Map'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 21
@@ -295,7 +295,7 @@ object frExportYaMaps: TfrExportYaMaps
           Height = 21
           Align = alClient
           AutoSize = False
-          Caption = #1057#1087#1091#1090#1085#1080#1082
+          Caption = 'Satellite'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 45
@@ -309,7 +309,7 @@ object frExportYaMaps: TfrExportYaMaps
           Align = alClient
           Alignment = taCenter
           AutoSize = False
-          Caption = #1042#1082#1083#1102#1095#1080#1090#1100' '#1089#1083#1077#1076#1091#1102#1097#1080#1077' '#1090#1080#1087#1099' '#1082#1072#1088#1090':'
+          Caption = 'Enable the following map types:'
           Layout = tlCenter
           ExplicitLeft = 5
           ExplicitTop = 4
@@ -338,7 +338,7 @@ object frExportYaMaps: TfrExportYaMaps
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
+      Caption = 'Save to:'
       Layout = tlCenter
     end
     object edtTargetPath: TEdit

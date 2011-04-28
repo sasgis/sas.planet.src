@@ -18,7 +18,7 @@ object frTilesDownload: TfrTilesDownload
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1103' '#1080#1079' '#1080#1085#1090#1077#1088#1085#1077#1090#1072
+    Caption = 'Download Tiles'
     TabOrder = 0
   end
   object pnlBottom: TPanel
@@ -48,7 +48,7 @@ object frTilesDownload: TfrTilesDownload
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1052#1072#1089#1096#1090#1072#1073':'
+        Caption = 'Zoom:'
       end
       object cbbZoom: TComboBox
         Left = 5
@@ -93,7 +93,7 @@ object frTilesDownload: TfrTilesDownload
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1058#1080#1087' '#1082#1072#1088#1090#1099':'
+        Caption = 'Map:'
         ExplicitWidth = 57
       end
       object Bevel1: TBevel
@@ -124,7 +124,7 @@ object frTilesDownload: TfrTilesDownload
         Width = 382
         Height = 16
         Align = alTop
-        Caption = #1047#1072#1084#1077#1085#1103#1090#1100' '#1089#1090#1072#1088#1099#1077' '#1092#1072#1081#1083#1099
+        Caption = 'Overwrite old tiles'
         TabOrder = 1
         OnClick = chkReplaceClick
       end
@@ -134,7 +134,7 @@ object frTilesDownload: TfrTilesDownload
         Width = 382
         Height = 16
         Align = alTop
-        Caption = #1055#1099#1090#1072#1090#1100#1089#1103' '#1079#1072#1075#1088#1091#1078#1072#1090#1100' '#1086#1090#1089#1091#1090#1089#1090#1074#1091#1102#1097#1080#1077' '#1090#1072#1081#1083#1099
+        Caption = 'Try to re-download missing tiles'
         TabOrder = 2
       end
       object pnlTileReplaceCondition: TPanel
@@ -154,7 +154,7 @@ object frTilesDownload: TfrTilesDownload
           Width = 361
           Height = 13
           Align = alTop
-          Caption = #1090#1086#1083#1100#1082#1086' '#1087#1088#1080' '#1080#1093' '#1088#1072#1079#1083#1080#1095#1080#1080
+          Caption = 'only if different'
           Enabled = False
           TabOrder = 0
         end
@@ -172,7 +172,7 @@ object frTilesDownload: TfrTilesDownload
             Width = 113
             Height = 21
             Align = alLeft
-            Caption = #1090#1086#1083#1100#1082#1086' '#1089#1086#1079#1076#1072#1085#1085#1099#1077' '#1076#1086' '
+            Caption = 'only created before'
             Layout = tlCenter
             ExplicitHeight = 13
           end

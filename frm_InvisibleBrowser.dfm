@@ -1,11 +1,10 @@
 object frmInvisibleBrowser: TfrmInvisibleBrowser
   Left = 0
   Top = 0
-  Caption = 'frmInvisibleBrowser'
+  Caption = ''
   ClientHeight = 509
   ClientWidth = 845
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'

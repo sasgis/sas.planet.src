@@ -27,6 +27,7 @@ implementation
 
 uses
   SysUtils,
+  u_ResStrings,
   u_BitmapTileVampyreLoader,
   u_BitmapTileVampyreSaver;
 
@@ -108,7 +109,7 @@ begin
   end else if SameText(AExt, '.bmp') then begin
     Result := FSavers[3];
   end else begin
-    raise Exception.Create('Неизвестное расширение. Не знаю как сохранять.');
+    raise Exception.Create(SAS_ERR_UnknownImageExt);
   end;
 end;
 
@@ -124,7 +125,7 @@ begin
   end else if SameText(AType, 'image/bmp') or SameText(AType, 'image/x-ms-bmp') or SameText(AType, 'image/x-windows-bmp') then begin
     Result := FSavers[3];
   end else begin
-    raise Exception.Create('Неизвестный тип. Не знаю как сохранять.');
+    raise Exception.Create(SAS_ERR_UnknownImageMIMEType);
   end;
 end;
 

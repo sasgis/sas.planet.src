@@ -34,7 +34,7 @@ object frExportAUX: TfrExportAUX
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1050#1072#1088#1090#1072
+        Caption = 'Map'
       end
       object cbbMap: TComboBox
         Left = 3
@@ -67,7 +67,7 @@ object frExportAUX: TfrExportAUX
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1052#1072#1089#1096#1090#1072#1073':'
+        Caption = 'Zoom:'
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -100,7 +100,7 @@ object frExportAUX: TfrExportAUX
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
-      Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
+      Caption = 'Save to:'
       Layout = tlCenter
     end
     object edtTargetFile: TEdit

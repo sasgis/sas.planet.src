@@ -35,7 +35,7 @@ object frExportToFileCont: TfrExportToFileCont
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1052#1072#1089#1096#1090#1072#1073#1099':'
+        Caption = 'Zooms:'
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
@@ -47,7 +47,7 @@ object frExportToFileCont: TfrExportToFileCont
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alBottom
-        Caption = #1042#1089#1077
+        Caption = 'All'
         TabOrder = 0
         OnClick = chkAllZoomsClick
       end
@@ -81,7 +81,7 @@ object frExportToFileCont: TfrExportToFileCont
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1050#1072#1088#1090#1072
+        Caption = 'Map'
         ExplicitWidth = 31
       end
       object lblNamesType: TLabel
@@ -93,7 +93,7 @@ object frExportToFileCont: TfrExportToFileCont
         Margins.Left = 0
         Margins.Right = 0
         Align = alTop
-        Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1076#1077#1083#1077#1085#1085#1086#1075#1086' '#1091#1095#1072#1089#1090#1082#1072' '#1074' '#1092#1086#1088#1084#1072#1090
+        Caption = 'Export selection to format:'
         ExplicitWidth = 207
       end
       object cbbMap: TComboBox
@@ -117,10 +117,10 @@ object frExportToFileCont: TfrExportToFileCont
         ItemHeight = 13
         ItemIndex = 1
         TabOrder = 1
-        Text = 'SAS.'#1055#1083#1072#1085#1077#1090#1072
+        Text = 'SAS.Planet'
         Items.Strings = (
           'GoogleMV'
-          'SAS.'#1055#1083#1072#1085#1077#1090#1072
+          'SAS.Planet'
           'ES1.95'
           'GMT (GlobalMapper >=10.02)')
       end
@@ -146,7 +146,7 @@ object frExportToFileCont: TfrExportToFileCont
       Margins.Bottom = 0
       Align = alLeft
       Alignment = taRightJustify
-      Caption = #1050#1091#1076#1072' '#1089#1086#1093#1088#1072#1085#1103#1090#1100':'
+      Caption = 'Save to:'
       Layout = tlCenter
     end
     object edtTargetFile: TEdit

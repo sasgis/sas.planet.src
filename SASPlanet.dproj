@@ -20,7 +20,6 @@
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
     <DCC_Define>RELEASE</DCC_Define>
-    <DCC_CodePage>1251</DCC_CodePage>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
@@ -30,7 +29,6 @@
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
     <DCC_Define>DEBUG</DCC_Define>
-    <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
@@ -52,8 +50,8 @@
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
     <DCCReference Include="dm_MarksDb.pas">
-      <Form>DMMarksDb</Form>
       <DesignClass>TDataModule</DesignClass>
+      <Form>DMMarksDb</Form>
     </DCCReference>
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
@@ -122,16 +120,16 @@
       <Form>frmStartLogo</Form>
     </DCCReference>
     <DCCReference Include="fr_LonLat.pas">
-      <Form>frLonLat</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frLonLat</Form>
     </DCCReference>
     <DCCReference Include="fr_MarkDescription.pas">
-      <Form>frMarkDescription</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frMarkDescription</Form>
     </DCCReference>
     <DCCReference Include="fr_ShortCutList.pas">
-      <Form>frShortCutList</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frShortCutList</Form>
     </DCCReference>
     <DCCReference Include="i_ActiveMapsConfig.pas" />
     <DCCReference Include="i_AntiBan.pas" />
@@ -277,44 +275,44 @@
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
-      <Form>frExportAUX</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frExportAUX</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportGEKml.pas">
-      <Form>frExportGEKml</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frExportGEKml</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportIPhone.pas">
-      <Form>frExportIPhone</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frExportIPhone</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportToFileCont.pas">
-      <Form>frExportToFileCont</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frExportToFileCont</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportYaMaps.pas">
-      <Form>frExportYaMaps</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frExportYaMaps</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_MapCombine.pas">
-      <Form>frMapCombine</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frMapCombine</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesCopy.pas">
-      <Form>frTilesCopy</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frTilesCopy</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesDelete.pas">
-      <Form>frTilesDelete</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frTilesDelete</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesDownload.pas">
-      <Form>frTilesDownload</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frTilesDownload</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesGenPrev.pas">
-      <Form>frTilesGenPrev</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frTilesGenPrev</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\u_ExportProviderAbstract.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderAUX.pas" />
@@ -322,6 +320,7 @@
     <DCCReference Include="RegionProcess\u_ExportProviderIPhone.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderTar.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderYaMaps.pas" />
+    <DCCReference Include="RegionProcess\u_ExportProviderYaMapsNew.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderZip.pas" />
     <DCCReference Include="RegionProcess\u_ProviderMapCombine.pas" />
     <DCCReference Include="RegionProcess\u_ProviderTilesCopy.pas" />
@@ -338,6 +337,7 @@
     <DCCReference Include="RegionProcess\u_ThreadExportToTar.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToZip.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportYaMaps.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportYaMapsNew.pas" />
     <DCCReference Include="RegionProcess\u_ThreadGenPrevZoom.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombineBase.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombineBMP.pas" />
@@ -360,6 +360,9 @@
     <DCCReference Include="src\i_JclNotify.pas" />
     <DCCReference Include="src\KAZip.pas" />
     <DCCReference Include="src\Langs.pas" />
+    <DCCReference Include="src\MD5.pas">
+      <Form>$R *.res</Form>
+    </DCCReference>
     <DCCReference Include="src\RegExpr.pas" />
     <DCCReference Include="src\SwinHttp.pas" />
     <DCCReference Include="src\TarWriter.pas" />
@@ -587,7 +590,6 @@
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_StatBarConfig.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
-    <DCCReference Include="u_ThreadExportYaMapsNew.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
     <DCCReference Include="u_TileDownloaderBase.pas" />
     <DCCReference Include="u_TileDownloaderBaseFactory.pas" />

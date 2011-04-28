@@ -1,7 +1,7 @@
 object frmSearchResults: TfrmSearchResults
   Left = 646
   Top = 333
-  Caption = #1056#1077#1079#1091#1083#1100#1090#1072#1090#1099' '#1087#1086#1080#1089#1082#1072
+  Caption = 'Search Results'
   ClientHeight = 462
   ClientWidth = 218
   Color = clBtnFace
@@ -22,15 +22,15 @@ object frmSearchResults: TfrmSearchResults
     Columns = <
       item
         AutoSize = True
-        Caption = #1053#1072#1079#1074#1072#1085#1080#1077
+        Caption = 'Name'
       end
       item
         Alignment = taCenter
-        Caption = #1064#1080#1088#1086#1090#1072
+        Caption = 'Latitude'
       end
       item
         Alignment = taCenter
-        Caption = #1044#1086#1083#1075#1086#1090#1072
+        Caption = 'Longitude'
       end>
     GridLines = True
     ReadOnly = True

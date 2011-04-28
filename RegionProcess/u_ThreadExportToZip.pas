@@ -115,12 +115,14 @@ begin
             if VTileStorage.LoadTile(VTile, VZoom, Unassigned, VMemStream, VTileInfo) then begin
               VFileTime := VTileInfo.GetLoadDate;
               VMemStream.Position := 0;
+              {$WARN SYMBOL_PLATFORM OFF}
               FZip.AddStream(
                 FTileNameGen.GetTileFileName(VTile, VZoom)+ VTileStorage.GetTileFileExt,
                 faArchive,
                 VFileTime,
                 VMemStream
               );
+              {$WARN SYMBOL_PLATFORM ON}
             end;
             inc(FTilesProcessed);
             if FTilesProcessed mod 100 = 0 then begin

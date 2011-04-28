@@ -41,7 +41,7 @@ type
     FZMPFileName: string;
     FMapInfo: string;
     FDefHotKey: TShortCut;
-    FDefSleep: Integer;
+    FDefSleep: Cardinal;
     FDefseparator: boolean;
     FDefParentSubMenu: string;
     FDefEnabled: boolean;
@@ -165,7 +165,7 @@ type
     property MapInfo: string read FMapInfo;
     property Name: string read FName;
     property DefHotKey: TShortCut read FDefHotKey;
-    property DefSleep: Integer read FDefSleep;
+    property DefSleep: Cardinal read FDefSleep;
     property Defseparator: boolean read FDefseparator;
     property DefParentSubMenu: string read FDefParentSubMenu;
     property DefEnabled: boolean read FDefEnabled;
@@ -641,7 +641,7 @@ begin
     try
       Result := FStorage.LoadTile(AXY, Azoom, FVersion, VFileStream, VTileInfo);
       if Result then begin
-        FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileInfo.GetLoadDate));
+        FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
       end;
     finally
       VFileStream.Free;
