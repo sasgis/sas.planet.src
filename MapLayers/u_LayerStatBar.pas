@@ -24,6 +24,7 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
     function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -99,6 +100,13 @@ begin
     ViewUpdateUnlock;
   end;
   ViewUpdate;
+end;
+
+procedure TLayerStatBar.SetViewCoordConverter(AValue: ILocalCoordConverter);
+begin
+  inherited;
+  SetNeedUpdateLayerSize;
+  SetNeedUpdateLocation;
 end;
 
 procedure TLayerStatBar.StartThreads;

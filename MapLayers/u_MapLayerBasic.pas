@@ -78,7 +78,7 @@ end;
 
 procedure TMapLayerBase.SetLayerCoordConverter(AValue: ILocalCoordConverter);
 begin
-  if (LayerPositioned = nil) or (not LayerCoordConverter.GetIsSameConverter(AValue)) then begin
+  if (LayerCoordConverter = nil) or (not LayerCoordConverter.GetIsSameConverter(AValue)) then begin
     SetNeedRedraw;
   end;
   inherited;

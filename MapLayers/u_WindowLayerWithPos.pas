@@ -128,6 +128,7 @@ constructor TWindowLayerWithPosBase.Create(AViewPortState: IViewPortState;
   AListenScaleChange: Boolean);
 begin
   inherited Create;
+  FViewUpdateLock := 0;
   FViewPortState := AViewPortState;
 
   LinksList.Add(
@@ -238,8 +239,11 @@ begin
 end;
 
 procedure TWindowLayerWithPosBase.ViewUpdateUnlock;
+var
+  VLockCount: Integer;
 begin
-  InterlockedDecrement(FViewUpdateLock);
+  VLockCount := InterlockedDecrement(FViewUpdateLock);
+  Assert(VLockCount >= 0);
 end;
 
 { TWindowLayerBasic }
@@ -272,7 +276,7 @@ end;
 
 procedure TWindowLayerBasic.Hide;
 begin
-  FViewUpdateLock;
+  ViewUpdateLock;
   try
     if FVisible then begin
       DoHide;
@@ -293,7 +297,7 @@ end;
 
 procedure TWindowLayerBasic.Show;
 begin
-  FViewUpdateLock;
+  ViewUpdateLock;
   try
     if not Visible then begin
       DoShow;

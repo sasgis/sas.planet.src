@@ -84,6 +84,7 @@ type
     procedure DoRedraw; override;
     procedure DoUpdateLayerSize(ANewSize: TPoint); override;
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
+    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
     function GetLayerCoordConverterByViewConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
   public
     procedure StartThreads; override;
@@ -180,6 +181,15 @@ begin
     DoublePoint(1, 1),
     VLocalTopLeftAtMap
   );
+end;
+
+function TMiniMapLayer.GetLayerSizeForView(
+  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
+var
+  VWidth: Integer;
+begin
+  VWidth := FConfig.Width;
+  Result := Point(VWidth, VWidth);
 end;
 
 procedure TMiniMapLayer.CreateLayers(AParentMap: TImage32);
@@ -643,8 +653,9 @@ procedure TMiniMapLayer.LeftBorderMouseUP(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if FLeftBorderMoved then begin
-    Redraw;
+    SetNeedRedraw;
     FLeftBorderMoved := False;
+    ViewUpdate;
   end;
 end;
 
@@ -661,6 +672,7 @@ procedure TMiniMapLayer.MinusButtonMouseUP(Sender: TObject;
 begin
   if Button = mbLeft then begin
     if FMinusButtonPressed then begin
+      FMinusButtonPressed := False;
       if FMinusButton.HitTest(X, Y) then begin
         FConfig.LockWrite;
         try
@@ -669,7 +681,6 @@ begin
           FConfig.UnlockWrite;
         end;
       end;
-      FMinusButtonPressed := False;
     end;
   end;
 end;
@@ -723,6 +734,8 @@ end;
 
 procedure TMiniMapLayer.OnConfigChange(Sender: TObject);
 begin
+  ViewUpdateLock;
+  try
   GState.ViewConfig.LockRead;
   try
     FBackGroundColor := Color32(GState.ViewConfig.BackGroundColor);
@@ -743,14 +756,16 @@ begin
     FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
     FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
     FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-
-    DoUpdateLayerSize(Point(FConfig.Width, FConfig.Width));
-    UpdateLayerLocation;
-    Redraw;
     SetVisible(FConfig.Visible);
+    SetNeedRedraw;
+    SetNeedUpdateLayerSize;
   finally
     FConfig.UnlockRead;
   end;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TMiniMapLayer.PlusButtonMouseDown(Sender: TObject;

@@ -6,6 +6,7 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_LocalCoordConverter,
   i_ViewPortState,
   i_CenterScaleConfig,
   u_WindowLayerWithPos;
@@ -17,6 +18,7 @@ type
     procedure OnConfigChange(Sender: TObject);
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -76,6 +78,12 @@ begin
     ViewUpdateUnlock;
   end;
   ViewUpdate;
+end;
+
+procedure TCenterScale.SetViewCoordConverter(AValue: ILocalCoordConverter);
+begin
+  inherited;
+  SetNeedUpdateLocation;
 end;
 
 procedure TCenterScale.StartThreads;

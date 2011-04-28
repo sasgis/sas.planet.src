@@ -251,9 +251,12 @@ end;
 function TMapLayerFillingMap.GetVisibleForNewPos(
   ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
 begin
-  Result := FConfigStatic.Visible;
-  if Result then begin
-    Result := ANewVisualCoordConverter.GetZoom <= FConfigStatic.SourceZoom;
+  Result := False;
+  if FConfigStatic <> nil then begin
+    Result := FConfigStatic.Visible;
+    if Result then begin
+      Result := ANewVisualCoordConverter.GetZoom <= FConfigStatic.SourceZoom;
+    end;
   end;
 end;
 
