@@ -29,7 +29,7 @@ type
   private
     FConfig: IMiniMapLayerConfig;
     FParentMap: TImage32;
-    FBitmapCoordConverterFactory: ILocalCoordConverterFactorySimpe;
+    FCoordConverterFactory: ILocalCoordConverterFactorySimpe;
 
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
@@ -119,7 +119,7 @@ constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: IViewPort
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
-  FBitmapCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+  FCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
   FParentMap := AParentMap;
   FIconsList := GState.MapTypeIcons18List;
 
@@ -148,7 +148,7 @@ end;
 
 destructor TMiniMapLayer.Destroy;
 begin
-  FBitmapCoordConverterFactory := nil;
+  FCoordConverterFactory := nil;
   inherited;
 end;
 
@@ -175,7 +175,7 @@ begin
   VLocalTopLeftAtMap.Y := Trunc(VVisualMapCenterInLayerMap.Y - (VLayerSize.Y / 2));
 
 
-  Result := FBitmapCoordConverterFactory.CreateConverter(
+  Result := FCoordConverterFactory.CreateConverter(
     Rect(0, 0, VLayerSize.X, VLayerSize.Y),
     VZoom,
     VConverter,

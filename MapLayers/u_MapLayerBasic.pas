@@ -10,6 +10,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
   u_WindowLayerWithPos;
 
@@ -45,6 +46,7 @@ type
     FLayer: TBitmapLayer;
     FNeedUpdateLayerSize: Boolean;
     FNeedUpdateLayerSizeCS: TCriticalSection;
+    FCoordConverterFactory: ILocalCoordConverterFactorySimpe;
   protected
     procedure SetNeedUpdateLayerSize; virtual;
     procedure UpdateLayerSize; virtual;
@@ -56,6 +58,7 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoViewUpdate; override;
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    function GetLayerCoordConverterByViewConverter(ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
     procedure DoShow; override;
     procedure DoHide; override;
   public
@@ -69,6 +72,9 @@ uses
   SysUtils,
   Types,
   Graphics,
+  i_CoordConverter,
+  u_LocalCoordConverterFactorySimpe,
+  u_GeoFun,
   u_NotifyEventListener;
 
 { TMapLayerBase }
@@ -172,6 +178,7 @@ end;
 constructor TMapLayerBasic.Create(AParentMap: TImage32;
   AViewPortState: IViewPortState);
 begin
+  FCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
@@ -293,6 +300,31 @@ begin
   if VNeed then begin
     UpdateLayerSize;
   end;
+end;
+
+function TMapLayerBasic.GetLayerCoordConverterByViewConverter(
+  ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
+var
+  VZoom: Byte;
+  VSourcePixelRect: TDoubleRect;
+  VConverter: ICoordConverter;
+  VTileRect: TRect;
+  VResultPixelRect: TRect;
+begin
+  VConverter := ANewViewCoordConverter.GetGeoConverter;
+  VZoom := ANewViewCoordConverter.GetZoom;
+  VSourcePixelRect := ANewViewCoordConverter.GetRectInMapPixelFloat;
+  VConverter.CheckPixelRectFloat(VSourcePixelRect, VZoom);
+  VTileRect := VConverter.PixelRectFloat2TileRect(VSourcePixelRect, VZoom);
+  VResultPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
+
+  Result := FCoordConverterFactory.CreateConverter(
+    Rect(0, 0, VResultPixelRect.Right - VResultPixelRect.Left, VResultPixelRect.Bottom - VResultPixelRect.Top),
+    VZoom,
+    VConverter,
+    DoublePoint(1, 1),
+    DoublePoint(VResultPixelRect.TopLeft)
+  );
 end;
 
 function TMapLayerBasic.GetLayerSizeForView(

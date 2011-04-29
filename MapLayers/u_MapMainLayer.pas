@@ -25,12 +25,12 @@ type
     FLayersList: IMapTypeList;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-  protected
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
-    procedure DoRedraw; override;
     procedure OnMainMapChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
+  protected
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig;
                        APostProcessingConfig:IBitmapPostProcessingConfig);
