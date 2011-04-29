@@ -5,10 +5,7 @@ interface
 uses
   Windows,
   SyncObjs,
-  GR32,
-  i_JclListenerNotifierLinksList,
-  i_LocalCoordConverter,
-  i_ViewPortState;
+  i_JclListenerNotifierLinksList;
 
 type
   TWindowLayerAbstract = class
@@ -34,10 +31,8 @@ implementation
 
 uses
   SysUtils,
-  Forms,
   Types,
-  u_JclListenerNotifierLinksList,
-  u_NotifyEventListener;
+  u_JclListenerNotifierLinksList;
 
 { TWindowLayerAbstract }
 

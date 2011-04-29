@@ -64,7 +64,6 @@ uses
   DB,
   GR32,
   i_MarksDbSmlInternal,
-  u_GeoFun,
   u_MarkFactory,
   u_MarksSubset;
 

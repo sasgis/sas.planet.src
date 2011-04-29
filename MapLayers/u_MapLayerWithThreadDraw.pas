@@ -6,9 +6,6 @@ uses
   Classes,
   GR32,
   GR32_Image,
-  GR32_Layers,
-  i_LocalCoordConverter,
-  i_LocalCoordConverterFactorySimpe,
   i_BackgroundTaskLayerDraw,
   i_ViewPortState,
   u_MapLayerBasic;
@@ -33,9 +30,7 @@ implementation
 
 uses
   Types,
-  SysUtils,
-  t_GeoTypes,
-  u_LocalCoordConverterFactorySimpe;
+  SysUtils;
 
 { TMapLayerWithThreadDraw }
 

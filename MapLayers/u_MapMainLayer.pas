@@ -7,7 +7,6 @@ uses
   Types,
   GR32,
   GR32_Image,
-  t_GeoTypes,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,

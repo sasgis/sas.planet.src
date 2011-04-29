@@ -36,7 +36,6 @@ type
 implementation
 
 uses
-  ActiveX,
   SysUtils,
   u_GUIDInterfaceList,
   i_Sensor,

@@ -74,8 +74,7 @@ uses
   Graphics,
   i_CoordConverter,
   u_LocalCoordConverterFactorySimpe,
-  u_GeoFun,
-  u_NotifyEventListener;
+  u_GeoFun;
 
 { TMapLayerBase }
 

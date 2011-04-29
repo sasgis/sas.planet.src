@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  i_ImportFile,
   i_KmlInfoSimpleLoader,
   i_ImportConfig,
   u_MarksImportBase;
