@@ -269,6 +269,7 @@
     <DCCReference Include="MapLayers\u_MarkPolygonLayer.pas" />
     <DCCReference Include="MapLayers\u_MarkPolyLineLayer.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
+    <DCCReference Include="MapLayers\u_PolyLineLayerBase.pas" />
     <DCCReference Include="MapLayers\u_SelectionLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionPolygonLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionRectLayer.pas" />
@@ -563,7 +564,6 @@
     <DCCReference Include="u_PathDetalizeProviderYourNavigation.pas" />
     <DCCReference Include="u_PLT.pas" />
     <DCCReference Include="u_PolygonLayerConfig.pas" />
-    <DCCReference Include="u_PolyLineLayerBase.pas" />
     <DCCReference Include="u_PolyLineLayerConfig.pas" />
     <DCCReference Include="u_PoolElement.pas" />
     <DCCReference Include="u_PoolOfObjectsSimple.pas" />
