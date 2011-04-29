@@ -268,7 +268,7 @@ uses
   u_MapLayerShowError in 'MapLayers\u_MapLayerShowError.pas',
   u_MapLayerGoto in 'MapLayers\u_MapLayerGoto.pas',
   u_MapLayerGPSMarker in 'MapLayers\u_MapLayerGPSMarker.pas',
-  u_PolyLineLayerBase in 'u_PolyLineLayerBase.pas',
+  u_PolyLineLayerBase in 'MapLayers\u_PolyLineLayerBase.pas',
   u_CalcLineLayer in 'MapLayers\u_CalcLineLayer.pas',
   u_MarkPolyLineLayer in 'MapLayers\u_MarkPolyLineLayer.pas',
   u_MarkPolygonLayer in 'MapLayers\u_MarkPolygonLayer.pas',
