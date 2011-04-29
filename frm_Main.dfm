@@ -803,8 +803,8 @@ object frmMain: TfrmMain
           Images = PanelsImageList
           Options = [tboShowHint]
           OnClick = TBItem6Click
-          Caption = 'Manage Placemarks'
-          Hint = 'Manage placemarks'
+          Caption = 'Placemark Manager'
+          Hint = 'Placemark manager'
         end
         object TBHideMarks: TTBXItem
           AutoCheck = True

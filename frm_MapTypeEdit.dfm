@@ -45,7 +45,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Width = 75
       Height = 23
       Align = alRight
-      Caption = 'Apply'
+      Caption = 'Ok'
       ModalResult = 1
       TabOrder = 1
       OnClick = btnOkClick
