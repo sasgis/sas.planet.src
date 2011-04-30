@@ -11,13 +11,21 @@ uses
 
 type
   TTileDownloaderThreadBase = class(TThread)
+  private
+    FRES_Authorization: string;
+    FRES_Ban: string;
+    FRES_TileNotExists: string;
+    FRES_Noconnectionstointernet: string;
+    FRES_TileDownloadContentTypeUnexpcted: string;
+    FRES_TileDownloadUnexpectedError: string;
   protected
     FMapType: TMapType;
     FLoadXY: TPoint;
     FZoom: byte;
     FLoadUrl: string;
-    class function GetErrStr(Aerr: TDownloadTileResult): string; virtual;
+    function GetErrStr(Aerr: TDownloadTileResult): string;
   public
+    constructor Create(CreateSuspended: Boolean);
     property MapType: TMapType read FMapType;
   end;
 
@@ -27,37 +35,41 @@ uses
   SysUtils,
   u_ResStrings;
 
-class function TTileDownloaderThreadBase.GetErrStr(Aerr: TDownloadTileResult): string;
+constructor TTileDownloaderThreadBase.Create(CreateSuspended: Boolean);
 begin
+  FRES_Authorization := SAS_ERR_Authorization;
+  FRES_Ban := SAS_ERR_Ban;
+  FRES_TileNotExists := SAS_ERR_TileNotExists;
+  FRES_Noconnectionstointernet := SAS_ERR_Noconnectionstointernet;
+  FRES_TileDownloadContentTypeUnexpcted := SAS_ERR_TileDownloadContentTypeUnexpcted;
+  FRES_TileDownloadUnexpectedError := SAS_ERR_TileDownloadUnexpectedError;
+
+  inherited Create(CreateSuspended);
+end;
+
+function TTileDownloaderThreadBase.GetErrStr(Aerr: TDownloadTileResult): string;
+begin
+  Result := '';
   case Aerr of
     dtrProxyAuthError:
-    begin
-      result := SAS_ERR_Authorization;
-    end;
+      result := FRES_Authorization;
+
     dtrBanError:
-    begin
-      result := SAS_ERR_Ban;
-    end;
+      result := FRES_Ban;
+
     dtrTileNotExists:
-    begin
-      result := SAS_ERR_TileNotExists;
-    end;
+      result := FRES_TileNotExists;
+
     dtrDownloadError,
     dtrErrorInternetOpen,
     dtrErrorInternetOpenURL:
-    begin
-      result := SAS_ERR_Noconnectionstointernet;
-    end;
+      result := FRES_Noconnectionstointernet;
+
     dtrErrorMIMEType:
-    begin
-      result := SAS_ERR_TileDownloadContentTypeUnexpcted;
-    end;
+      result := FRES_TileDownloadContentTypeUnexpcted;
+
     dtrUnknownError:
-    begin
-      Result := SAS_ERR_TileDownloadUnexpectedError;
-    end else begin
-    result := '';
-  end;
+      Result := FRES_TileDownloadUnexpectedError;
   end;
 end;
 

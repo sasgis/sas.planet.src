@@ -17,10 +17,11 @@ uses
   i_TileDownlodSession,
   i_DownloadUIConfig,
   u_MapLayerShowError,
-  u_MapType;
+  u_MapType,
+  u_TileDownloaderThreadBase;
 
 type
-  TTileDownloaderUI = class(TThread)
+  TTileDownloaderUI = class(TTileDownloaderThreadBase)
   private
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
@@ -38,11 +39,9 @@ type
 
     change_scene: boolean;
 
-    FMapType: TMapType;
     FLoadXY: TPoint;
     FErrorString: string;
 
-    class function GetErrStr(Aerr: TDownloadTileResult): string; virtual;
     procedure GetCurrentMapAndPos;
     procedure AfterWriteToFile;
     procedure OnPosChange(Sender: TObject);
@@ -94,6 +93,7 @@ begin
   FViewPortState := AViewPortState;
   FLinksList := TJclListenerNotifierLinksList.Create;
 
+  FMapType := nil;
   Priority := tpLower;
   FUseDownload := tsCache;
   randomize;
@@ -138,40 +138,6 @@ procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
   FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
   FActiveMapsList := FMapsSet.GetSelectedMapsList;
-end;
-
-class function TTileDownloaderUI.GetErrStr(Aerr: TDownloadTileResult): string;
-begin
-  case Aerr of
-    dtrProxyAuthError:
-    begin
-      result := SAS_ERR_Authorization;
-    end;
-    dtrBanError:
-    begin
-      result := SAS_ERR_Ban;
-    end;
-    dtrTileNotExists:
-    begin
-      result := SAS_ERR_TileNotExists;
-    end;
-    dtrDownloadError,
-    dtrErrorInternetOpen,
-    dtrErrorInternetOpenURL:
-    begin
-      result := SAS_ERR_Noconnectionstointernet;
-    end;
-    dtrErrorMIMEType:
-    begin
-      result := SAS_ERR_TileDownloadContentTypeUnexpcted;
-    end;
-    dtrUnknownError:
-    begin
-      Result := SAS_ERR_TileDownloadUnexpectedError;
-    end else begin
-    result := '';
-  end;
-  end;
 end;
 
 procedure TTileDownloaderUI.OnConfigChange(Sender: TObject);
