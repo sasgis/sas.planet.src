@@ -70,7 +70,7 @@ ResourceString
   SAS_ERR_UrlScriptByteCodeLoad = 'Error at script bytecode loading';
   SAS_ERR_MapProjectionUnexpectedType = 'Error in projection "%0:s" of the map';
   SAS_ERR_MapDownloadByError = 'Download of map %0:s disabled because of error: %1:s';
-  SAS_ERR_TileDownloadContentTypeUnexpcted = 'Unexpeced conent type';
+  SAS_ERR_TileDownloadContentTypeUnexpcted = 'Unexpected content type';
   SAS_ERR_TileDownloadUnexpectedError = 'Unknown error during download';
   SAS_ERR_CoordinatesInput='Error in geographic coordinates';
 
