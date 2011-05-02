@@ -239,12 +239,18 @@ begin
 end;
 
 procedure TWindowLayerWithPosBase.ViewUpdateUnlock;
+{$IFDEF DEBUG}
 var
   VLockCount: Integer;
 begin
   VLockCount := InterlockedDecrement(FViewUpdateLock);
   Assert(VLockCount >= 0);
 end;
+{$ELSE}
+begin
+  InterlockedDecrement(FViewUpdateLock);
+end;
+{$ENDIF}
 
 { TWindowLayerBasic }
 
