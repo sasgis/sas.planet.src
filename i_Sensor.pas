@@ -5,9 +5,7 @@ interface
 uses
   GR32,
   i_JclNotify,
-  i_ConfigDataElement,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider;
+  i_ConfigDataElement;
 
 type
   ISensor = interface(IConfigDataElement)

@@ -18,10 +18,11 @@ uses
   i_DownloadUIConfig,
   u_TileDownloaderEventProcessor,
   u_MapLayerShowError,
-  u_MapType;
+  u_MapType,
+  u_TileDownloaderThreadBase;
 
 type
-  TTileDownloaderUI = class(TThread)
+  TTileDownloaderUI = class(TTileDownloaderThreadBase)
   private
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
@@ -37,7 +38,6 @@ type
 
     change_scene: boolean;
 
-    FMapType: TMapType;
     FLoadXY: TPoint;
 
     FEventProcessor: TTileDownloaderEventProcessor;

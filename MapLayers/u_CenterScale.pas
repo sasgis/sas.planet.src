@@ -6,6 +6,7 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_LocalCoordConverter,
   i_ViewPortState,
   i_CenterScaleConfig,
   u_WindowLayerWithPos;
@@ -17,6 +18,7 @@ type
     procedure OnConfigChange(Sender: TObject);
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -47,7 +49,7 @@ var
   VViewSize: TPoint;
 begin
   VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-  VViewSize := VisualCoordConverter.GetLocalRectSize;
+  VViewSize := ViewCoordConverter.GetLocalRectSize;
   Result.Left := VViewSize.X / 2 - VSize.X / 2;
   Result.Top := VViewSize.Y / 2 - VSize.Y / 2;
   Result.Right := Result.Left + VSize.X;
@@ -58,20 +60,30 @@ procedure TCenterScale.OnConfigChange(Sender: TObject);
 var
   VBitmap: TCustomBitmap32;
 begin
-  if FConfig.Visible then begin
-    VBitmap := FConfig.Bitmap;
-    try
-      FLayer.Bitmap.Assign(VBitmap);
-      FLayer.Bitmap.DrawMode := dmBlend;
-      FLayer.Bitmap.CombineMode := cmMerge;
-    finally
-      VBitmap.Free;
+  ViewUpdateLock;
+  try
+    if FConfig.Visible then begin
+      VBitmap := FConfig.Bitmap;
+      try
+        FLayer.Bitmap.Assign(VBitmap);
+        FLayer.Bitmap.DrawMode := dmBlend;
+        FLayer.Bitmap.CombineMode := cmMerge;
+      finally
+        VBitmap.Free;
+      end;
+      SetNeedRedraw;
     end;
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+    SetVisible(FConfig.Visible);
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
+end;
+
+procedure TCenterScale.SetViewCoordConverter(AValue: ILocalCoordConverter);
+begin
+  inherited;
+  SetNeedUpdateLocation;
 end;
 
 procedure TCenterScale.StartThreads;

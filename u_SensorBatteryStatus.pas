@@ -33,8 +33,6 @@ implementation
 uses
   SysUtils,
   c_SensorsGUIDSimple,
-  t_GeoTypes,
-  u_NotifyEventListener,
   u_ResStrings;
 
 { TSensorBatteryStatus }

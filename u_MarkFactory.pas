@@ -157,7 +157,6 @@ uses
   Graphics,
   SysUtils,
   i_MarksDbSmlInternal,
-  u_ResStrings,
   u_GeoFun,
   u_MarkId,
   u_MarkPoint,

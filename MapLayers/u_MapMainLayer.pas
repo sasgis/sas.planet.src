@@ -7,7 +7,6 @@ uses
   Types,
   GR32,
   GR32_Image,
-  t_GeoTypes,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,
@@ -25,12 +24,12 @@ type
     FLayersList: IMapTypeList;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-  protected
     procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
-    procedure DoRedraw; override;
     procedure OnMainMapChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
+  protected
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig;
                        APostProcessingConfig:IBitmapPostProcessingConfig);
@@ -91,7 +90,7 @@ var
   VHybrList: IMapTypeList;
 begin
   inherited;
-  FLayer.Bitmap.Clear(0);
+  Layer.Bitmap.Clear(0);
   if FMainMap <> nil then begin
     DrawMap(FMainMap.MapType, dmOpaque);
   end;
@@ -141,7 +140,7 @@ begin
   end;
   VRecolorConfig := GState.BitmapPostProcessingConfig.GetStatic;
 
-  VBitmapConverter := BitmapCoordConverter;
+  VBitmapConverter := LayerCoordConverter;
   VGeoConvert := VBitmapConverter.GetGeoConverter;
   VZoom := VBitmapConverter.GetZoom;
 
@@ -185,14 +184,14 @@ begin
         try
           if AMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, VUsePre, True, False) then begin
             VRecolorConfig.ProcessBitmap(VBmp);
-            FLayer.Bitmap.Lock;
+            Layer.Bitmap.Lock;
             try
               VBmp.DrawMode := ADrawMode;
               Assert(VCurrTileOnBitmapRect.Right - VCurrTileOnBitmapRect.Left = VTilePixelsToDraw.Right - VTilePixelsToDraw.Left);
               Assert(VCurrTileOnBitmapRect.Bottom - VCurrTileOnBitmapRect.Top = VTilePixelsToDraw.Bottom - VTilePixelsToDraw.Top);
-              FLayer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, Vbmp);
+              Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, Vbmp);
             finally
-              FLayer.Bitmap.UnLock;
+              Layer.Bitmap.UnLock;
             end;
           end;
         except
@@ -206,26 +205,44 @@ end;
 
 procedure TMapMainLayer.OnConfigChange(Sender: TObject);
 begin
-  GState.ViewConfig.LockRead;
+  ViewUpdateLock;
   try
-    FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
-    FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
+    GState.ViewConfig.LockRead;
+    try
+      FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
+      FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
+    finally
+      GState.ViewConfig.UnlockRead;
+    end;
+    SetNeedRedraw;
   finally
-    GState.ViewConfig.UnlockRead;
+    ViewUpdateUnlock;
   end;
-  Redraw;
+  ViewUpdate;
 end;
 
 procedure TMapMainLayer.OnLayerSetChange(Sender: TObject);
 begin
-  FLayersList := FMapsConfig.GetBitmapLayersSet.GetSelectedMapsList;
-  Redraw;
+  ViewUpdateLock;
+  try
+    FLayersList := FMapsConfig.GetBitmapLayersSet.GetSelectedMapsList;
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TMapMainLayer.OnMainMapChange(Sender: TObject);
 begin
-  FMainMap := FMapsConfig.GetSelectedMapType;
-  Redraw;
+  ViewUpdateLock;
+  try
+    FMainMap := FMapsConfig.GetSelectedMapType;
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TMapMainLayer.StartThreads;

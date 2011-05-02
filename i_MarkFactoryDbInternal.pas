@@ -5,8 +5,6 @@ interface
 uses
   GR32,
   t_GeoTypes,
-  i_MarkPicture,
-  i_MarksFactoryConfig,
   i_MarksSimple;
 
 type

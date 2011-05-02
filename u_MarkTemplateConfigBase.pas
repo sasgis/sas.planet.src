@@ -4,13 +4,8 @@ interface
 uses
   Classes,
   GR32,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
-  i_MarksSimple,
-  i_MarkCategory,
   i_MarkNameGenerator,
   i_MarkCategoryDBSmlInternal,
-  i_MarksFactoryConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -34,10 +29,7 @@ implementation
 
 uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
-  u_ConfigProviderHelpers,
-  u_MarkNameGenerator,
-  u_ResStrings,
-  u_MarkTemplates;
+  u_MarkNameGenerator;
 
   { TMarkTemplateConfigBase }
 

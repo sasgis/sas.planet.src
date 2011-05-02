@@ -105,8 +105,8 @@ begin
     FLayersSet.GetChangeNotifier
   );
 
-  FLayer.Bitmap.DrawMode := dmTransparent;
-  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
+  Layer.Bitmap.DrawMode := dmTransparent;
+  Layer.Bitmap.Font.Charset := RUSSIAN_CHARSET;
 
   FWikiLayerElments := nil;
   SetLength(FFixedPointArray, 256);
@@ -217,7 +217,7 @@ var
   VXY: TDoublePoint;
   VSquare: Double;
 begin
-  VXY := BitmapCoordConverter.MapPixelFloat2LocalPixelFloat(VisualCoordConverter.LocalPixelFloat2MapPixelFloat(DoublePoint(xy)));
+  VXY := LayerCoordConverter.MapPixelFloat2LocalPixelFloat(ViewCoordConverter.LocalPixelFloat2MapPixelFloat(DoublePoint(xy)));
   for i := 0 to length(FWikiLayerElments) - 1 do begin
     if (VXY.x > FWikiLayerElments[i].FBounds.Left - 5) and (VXY.x < FWikiLayerElments[i].FBounds.Right + 5) and
       (VXY.y > FWikiLayerElments[i].FBounds.Top - 5) and (VXY.y < FWikiLayerElments[i].FBounds.Bottom + 5) then begin
@@ -258,7 +258,8 @@ end;
 
 procedure TWikiLayer.OnConfigChange(Sender: TObject);
 begin
-  Redraw;
+  SetNeedRedraw;
+  ViewUpdate;
 end;
 
 procedure TWikiLayer.OnLayerSetChange(Sender: TObject);
@@ -267,12 +268,14 @@ var
   i: Cardinal;
 begin
   FMapsList := FLayersSet.GetSelectedMapsList;
-  if FMapsList.GetIterator.Next(1, VGUID, i) = S_OK then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+    SetVisible(FMapsList.GetIterator.Next(1, VGUID, i) = S_OK);
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 procedure TWikiLayer.StartThreads;
@@ -312,20 +315,20 @@ begin
         FFixedPointArray[i] := FixedPoint(AData.FPolygonOnBitmap[i].X, AData.FPolygonOnBitmap[i].Y);
       end;
       VPolygon.AddPoints(FFixedPointArray[0], VLen);
-      VPolygon.DrawEdge(FLayer.Bitmap, VColorBG);
+      VPolygon.DrawEdge(Layer.Bitmap, VColorBG);
       VPolygon.Offset(Fixed(0.9), Fixed(0.9));
-      VPolygon.DrawEdge(FLayer.Bitmap, VColorMain);
+      VPolygon.DrawEdge(Layer.Bitmap, VColorMain);
     end else begin
       VRect.Left := Trunc(AData.FPolygonOnBitmap[0].X - 3);
       VRect.Top := Trunc(AData.FPolygonOnBitmap[0].Y - 3);
       VRect.Right := VRect.Left + 7;
       VRect.Bottom := VRect.Top + 7;
-      FLayer.Bitmap.FillRectS(VRect, VColorBG);
+      Layer.Bitmap.FillRectS(VRect, VColorBG);
       Inc(VRect.Left);
       Inc(VRect.Top);
       Dec(VRect.Right);
       Dec(VRect.Bottom);
-      FLayer.Bitmap.FillRectS(VRect, VPointColor);
+      Layer.Bitmap.FillRectS(VRect, VPointColor);
     end;
   finally
     FreeAndNil(VPolygon);
@@ -345,9 +348,9 @@ var
 begin
   inherited;
   Clear;
-  FLayer.Bitmap.Clear(clBlack);
+  Layer.Bitmap.Clear(clBlack);
   if FMapsList <> nil then begin
-    VLocalConverter := BitmapCoordConverter;
+    VLocalConverter := LayerCoordConverter;
     VHybrList := FMapsList;
     VEnum := VHybrList.GetIterator;
     while VEnum.Next(1, VGUID, i) = S_OK do begin
@@ -357,13 +360,13 @@ begin
         AddFromLayer(VMapType, VLocalConverter);
       end;
     end;
-    FLayer.Bitmap.BeginUpdate;
+    Layer.Bitmap.BeginUpdate;
     try
       for ii := 0 to Length(FWikiLayerElments) - 1 do begin
         DrawWikiElement(FWikiLayerElments[ii], VLocalConverter);
       end;
     finally
-      FLayer.Bitmap.EndUpdate;
+      Layer.Bitmap.EndUpdate;
     end;
   end;
 end;

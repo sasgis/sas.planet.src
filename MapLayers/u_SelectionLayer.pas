@@ -39,8 +39,7 @@ type
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
-    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    procedure AfterPosChange; override;
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -95,25 +94,12 @@ begin
   inherited;
 end;
 
-procedure TSelectionLayer.AfterPosChange;
-begin
-  inherited;
-  Redraw;
-end;
-
 procedure TSelectionLayer.DoRedraw;
 begin
   inherited;
   FSourcePolygon := Copy(FLastSelectionInfo.Polygon);
-  PreparePolygon(VisualCoordConverter);
+  PreparePolygon(ViewCoordConverter);
   LayerPositioned.Changed;
-end;
-
-procedure TSelectionLayer.DoScaleChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-begin
-  inherited;
-  Redraw;
 end;
 
 function TSelectionLayer.LonLatArrayToVisualFloatArray(
@@ -140,26 +126,27 @@ procedure TSelectionLayer.OnConfigChange(Sender: TObject);
 var
   VVisible: Boolean;
 begin
-  FConfig.LockRead;
+  ViewUpdateLock;
   try
-    VVisible := FConfig.Visible;
-    FLineWidth := FConfig.LineWidth;
-    FLineColor := FConfig.LineColor
+    FConfig.LockRead;
+    try
+      VVisible := FConfig.Visible;
+      FLineWidth := FConfig.LineWidth;
+      FLineColor := FConfig.LineColor
+    finally
+      FConfig.UnlockRead;
+    end;
+    SetNeedRedraw;
+    SetVisible(VVisible);
   finally
-    FConfig.UnlockRead;
+    ViewUpdateUnlock;
   end;
-
-  if VVisible then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
-  end;
+  ViewUpdate;
 end;
 
 procedure TSelectionLayer.OnChangeSelection(Sender: TObject);
 begin
-  Redraw;
+  ViewUpdate;
 end;
 
 procedure TSelectionLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
@@ -218,6 +205,14 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TSelectionLayer.SetViewCoordConverter(AValue: ILocalCoordConverter);
+begin
+  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
+    SetNeedRedraw;
+  end;
+  inherited;
 end;
 
 procedure TSelectionLayer.StartThreads;

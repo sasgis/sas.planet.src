@@ -33,7 +33,6 @@ type
     procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
   protected
     procedure DoRedraw; override;
-    procedure DoShow; override;
   public
     procedure StartThreads; override;
   public
@@ -96,25 +95,25 @@ begin
   LayerPositioned.Changed;
 end;
 
-procedure TMapLayerGPSMarker.DoShow;
-begin
-  inherited;
-  Redraw;
-end;
-
 procedure TMapLayerGPSMarker.GPSReceiverReceive(Sender: TObject);
 var
   VGPSPosition: IGPSPosition;
 begin
+  ViewUpdateLock;
+  try
   VGPSPosition := FGPSRecorder.CurrentPosition;
   if VGPSPosition.IsFix = 0 then begin
     Hide;
   end else begin
     FFixedLonLat := VGPSPosition.Position;
     PrepareMarker(VGPSPosition.Speed_KMH, VGPSPosition.Heading);
-    Redraw;
+    SetNeedRedraw;
     Show;
   end;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TMapLayerGPSMarker.OnConfigChange(Sender: TObject);
@@ -127,7 +126,7 @@ var
   VConverter: ILocalCoordConverter;
   VTargetPoint: TDoublePoint;
 begin
-  VConverter := VisualCoordConverter;
+  VConverter := ViewCoordConverter;
   if VConverter <> nil then begin
     FMarker.Lock;
     try

@@ -23,6 +23,7 @@ type
   TBackgroundTaskFillingMap = class(TBackgroundTaskLayerDrawBase, IBackgroundTaskFillingMap)
   private
     FConfig: IFillingMapLayerConfigStatic;
+    function IsNeedStopExecute(): Boolean;
   protected
     procedure DrawBitmap; override;
     procedure ExecuteTask; override;
@@ -43,6 +44,7 @@ type
     procedure OnConfigChange(Sender: TObject);
   protected
     function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IFillingMapLayerConfig);
     procedure StartThreads; override;
@@ -65,11 +67,7 @@ procedure TBackgroundTaskFillingMap.ChangeConfig(
   AConfig: IFillingMapLayerConfigStatic);
 begin
   StopExecute;
-  try
-    FConfig := AConfig;
-  finally
-    StartExecute;
-  end;
+  FConfig := AConfig;
 end;
 
 procedure TBackgroundTaskFillingMap.DrawBitmap;
@@ -131,13 +129,6 @@ var
 begin
   inherited;
 
-  Bitmap.Lock;
-  try
-    Bitmap.Clear(0);
-  finally
-    Bitmap.UnLock;
-  end;
-
   VBmp := TCustomBitmap32.Create;
   try
     VConfig := FConfig;
@@ -149,7 +140,7 @@ begin
     VGeoConvert := VLocalConverter.GetGeoConverter;
 
     VBitmapOnMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
-    if not FNeedStopExecute then begin
+    if not NeedStopExecute then begin
       VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
       VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
       VSourceGeoConvert.CheckLonLatRect(VSourceLonLatRect);
@@ -157,7 +148,7 @@ begin
       VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
       while VTileIterator.Next(VTile) do begin
-        if FNeedStopExecute then begin
+        if NeedStopExecute then begin
           break;
         end;
         VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
@@ -188,15 +179,15 @@ begin
         VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
         VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
 
-        if FNeedStopExecute then begin
+        if NeedStopExecute then begin
           break;
         end;
         VCurrTilePixelRectAtBitmap.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
         VCurrTilePixelRectAtBitmap.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
-        if FNeedStopExecute then begin
+        if NeedStopExecute then begin
           break;
         end;
-        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, @FNeedStopExecute, VConfig.NoTileColor, VConfig.ShowTNE, VConfig.TNEColor) then begin
+        if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, IsNeedStopExecute, VConfig.NoTileColor, VConfig.ShowTNE, VConfig.TNEColor) then begin
           Bitmap.Lock;
           try
             Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
@@ -216,6 +207,11 @@ begin
   if FConfig <> nil then begin
     inherited;
   end;
+end;
+
+function TBackgroundTaskFillingMap.IsNeedStopExecute: Boolean;
+begin
+  Result := NeedStopExecute;
 end;
 
 { TMapLayerFillingMap }
@@ -242,27 +238,35 @@ begin
   OnConfigChange(nil);
 end;
 
+procedure TMapLayerFillingMap.DoRedraw;
+begin
+  FDrawTask.ChangeConfig(FConfigStatic);
+  inherited;
+end;
+
 function TMapLayerFillingMap.GetVisibleForNewPos(
   ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
 begin
-  Result := FConfigStatic.Visible;
-  if Result then begin
-    Result := ANewVisualCoordConverter.GetZoom <= FConfigStatic.SourceZoom;
+  Result := False;
+  if FConfigStatic <> nil then begin
+    Result := FConfigStatic.Visible;
+    if Result then begin
+      Result := ANewVisualCoordConverter.GetZoom <= FConfigStatic.SourceZoom;
+    end;
   end;
 end;
 
 procedure TMapLayerFillingMap.OnConfigChange(Sender: TObject);
 begin
-  FConfigStatic := FConfig.GetStatic;
-  SetVisible(GetVisibleForNewPos(VisualCoordConverter));
-  if Visible then begin
-    FDrawTask.StopExecute;
-    try
-      FDrawTask.ChangeConfig(FConfigStatic);
-    finally
-      FDrawTask.StartExecute;
-    end;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+    FConfigStatic := FConfig.GetStatic;
+    SetVisible(GetVisibleForNewPos(ViewCoordConverter));
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 { TBackgroundTaskFillingMapFactory }

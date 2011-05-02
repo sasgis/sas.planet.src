@@ -23,7 +23,8 @@ type
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
-    function GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
+    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -34,7 +35,6 @@ implementation
 
 uses
   SysUtils,
-  u_GeoToStr,
   i_CoordConverter,
   i_ValueToStringConverter,
   u_NotifyEventListener,
@@ -60,7 +60,7 @@ begin
   FLastUpdateTick := 0;
 end;
 
-function TLayerStatBar.GetLayerSizeForViewSize(ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
+function TLayerStatBar.GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
   Result.X := ANewVisualCoordConverter.GetLocalRectSize.X;
   Result.Y := FConfig.Height;
@@ -69,7 +69,7 @@ end;
 function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
 begin
   Result.Left := 0;
-  Result.Bottom := VisualCoordConverter.GetLocalRectSize.Y;
+  Result.Bottom := ViewCoordConverter.GetLocalRectSize.Y;
   Result.Right := Result.Left + FLayer.Bitmap.Width;
   Result.Top := Result.Bottom - FLayer.Bitmap.Height;
 end;
@@ -89,14 +89,23 @@ end;
 
 procedure TLayerStatBar.OnConfigChange(Sender: TObject);
 begin
-  FLayer.Bitmap.Font.Name := FConfig.FontName;
-  FLayer.Bitmap.Font.Size := FConfig.FontSize;
-  if FConfig.Visible then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+  ViewUpdateLock;
+  try
+    FLayer.Bitmap.Font.Name := FConfig.FontName;
+    FLayer.Bitmap.Font.Size := FConfig.FontSize;
+    SetNeedRedraw;
+    SetVisible(FConfig.Visible);
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
+end;
+
+procedure TLayerStatBar.SetViewCoordConverter(AValue: ILocalCoordConverter);
+begin
+  inherited;
+  SetNeedUpdateLayerSize;
+  SetNeedUpdateLocation;
 end;
 
 procedure TLayerStatBar.StartThreads;
@@ -140,7 +149,7 @@ begin
   VCurrentTick := GetTickCount;
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + VMinUpdate) then begin
     VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-    VVisualCoordConverter := VisualCoordConverter;
+    VVisualCoordConverter := ViewCoordConverter;
     VMousePos := frmMain.MouseCursorPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;

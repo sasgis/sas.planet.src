@@ -3,7 +3,6 @@ unit i_MarkPolygonLayerConfig;
 interface
 
 uses
-  GR32,
   i_PolygonLayerConfig;
 
 type

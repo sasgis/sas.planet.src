@@ -67,7 +67,7 @@ begin
     end;
   end else begin
     if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.Visible := False;
+      FErrorShowLayer.SetNoError(FLoadXY, FZoom, FMapType);
     end;
     if Addr(FMapTileUpdateEvent) <> nil then begin
       FMapTileUpdateEvent(FMapType, FZoom, FLoadXY);

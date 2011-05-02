@@ -81,7 +81,7 @@ begin
   FFixedLonLat := APoint;
   FHideAfterTime := GetTickCount + 100000;
   Visible := True;
-  UpdateLayerLocation(GetMapLayerLocationRect);
+  UpdateLayerLocation;
 end;
 
 end.

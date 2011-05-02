@@ -156,20 +156,21 @@ var headersize:word;
     version:word;
 begin
   FilesStream.Write('YMCF',4);
-  headersize:=32;//KB
-  FilesStream.Write(headersize,2);
+  headersize:=32;
+  FilesStream.Write(headersize,2); //Размер заголовка, в килобайтах = 32
   version:=1;
-  FilesStream.Write(version,2);
-  FilesStream.Size:=FilesStream.Size+4; //приложение
+  FilesStream.Write(version,2); //Версия формата = 1
+  FilesStream.Size:=FilesStream.Size+4; //Платформа, на которой создали
   FilesStream.Position:=FilesStream.Size;
   blocksize:=32;
-  FilesStream.Write(blocksize,2);
+  FilesStream.Write(blocksize,2); //Размер блока регулярных данных, в килобайтах = 32
   ostblocksize:=0;
-  FilesStream.Write(ostblocksize,2);
+  FilesStream.Write(ostblocksize,2);   //Размер фрагмента блока остаточных данных, в килобайтах = 1
   FilesStream.Size:=FilesStream.Size+8192; //Битовая таблица свободных блоков данных
   FilesStream.Size:=FilesStream.Size+512; //Таблица номеров остаточных блоков данных
   FilesStream.Size:=FilesStream.Size+496; //Резерв
   FilesStream.Position:=FilesStream.Size;
+  FilesStream.Size:=32768*2;
 end;
 
 procedure TThreadExportYaMapsNew.WriteTile(FilesStream:TFileStream;TileStream:TMemoryStream;recordpos:integer);
@@ -178,6 +179,7 @@ var records:word;
     time:Integer;
     datasize:integer;
     dataid:integer;
+    MD5hz:byte;
     MD5arr:TMD5Digest;
 begin
   records:=1;
@@ -187,18 +189,24 @@ begin
   datasize:=TileStream.Size;
   FilesStream.Position:=recordpos;
   FilesStream.Write('YTLD',4);
-  FilesStream.Write(records,2);
-  FilesStream.Write(version,2);
-  MD5arr:=MD5Buffer(TileStream.Memory,TileStream.Size);
-  FilesStream.Write(MD5arr.v,16);
-  FilesStream.Write(version,2);
-  FilesStream.Write(time,4);
-  FilesStream.Write(dataid,4);
-  FilesStream.Write(datasize,4);
+  FilesStream.Write(records,2);//количество записей в таблице разметки данных (пока всегда = 1)
+  FilesStream.Write(version,2);//номер версии формата = 1
+
+//  FilesStream.Size:=FilesStream.Size+16;
+  FilesStream.Position:=FilesStream.Position+8;
+  MD5hz:=21;                                        // то что в кэше мяка идет за MD5
+  FilesStream.Write(MD5hz,1);
+  FilesStream.Position:=FilesStream.Position+7;
+
+  {MD5arr:=MD5Buffer(TileStream.Memory,TileStream.Size);
+  FilesStream.Write(MD5arr.v,16);}//MD5-чексумма
+  
+  FilesStream.Write(version,2);//номер версии карт-основы
+  FilesStream.Write(time,4);//время (пока не используется = 0)
+  FilesStream.Write(dataid,4);//идентификатор данных (сейчас всегда 0)
+  FilesStream.Write(datasize,4);//размер данных
   TileStream.Position:=0;
-//  TileStream.SaveToFile('c:\1.png');
-//  TileStream.Position:=0;
-  FilesStream.Write(TileStream.Memory^,datasize);
+  FilesStream.Write(TileStream.Memory^,datasize); //данные
 end;
 
 function TThreadExportYaMapsNew.calcTileIndex(x,y:word):word;
@@ -250,21 +258,26 @@ begin
   flag:=0;
   nexttablesize:=0;
   records:=length(TileStreams);
+  if FilesStream.size<blockPos+32768 then begin
+     FilesStream.size:=blockPos+32768;               //заполняем нулями весь блок
+  end;
   FilesStream.Position:=blockPos;
+
   FilesStream.Write('YBLK',4);
-  FilesStream.Write(version,2);
-  FilesStream.Write(flag,1);
-  FilesStream.Size:=FilesStream.Size+3; //Резерв
-  FilesStream.Position:=FilesStream.Size;
+  FilesStream.Write(version,2); //Версия формата блока = 1
+  FilesStream.Write(flag,1); //Флаги (см. ниже)
+  FilesStream.Write(nexttablesize,1); //Размер таблицы размещения следующих блоков
+  FilesStream.Write(records,2); //Количество ячеек данных
+
   for i := 0 to records - 1 do begin
-    datasize:=TileStreams[i].data.Size;
+    datasize:=TileStreams[i].data.Size+38; //38-байт на заголовок окромя тайла
     dataid:=calcTileIndex(TileStreams[i].x,TileStreams[i].y);
-    FilesStream.Write(datasize,4);
-    FilesStream.Write(dataid,2);
+    FilesStream.Write(datasize,4);  //Размер элемента
+    FilesStream.Write(dataid,2);   //Индекс тайла
   end;
   for i := 0 to records - 1 do begin
     WriteTile(FilesStream,TileStreams[i].data,FilesStream.Position);
-    FilesStream.Position:=FilesStream.Position+TileStreams[i].data.Size;
+    //FilesStream.Position:=FilesStream.Position+TileStreams[i].data.Size;
   end;
 end;
 
@@ -292,23 +305,29 @@ begin
     createdirif(newFilePath);
     filestream:=TFileStream.Create(newFilePath,fmCreate);
   end;
+  try
+    if filestream.Size=0 then begin
+      WriteHeader(filestream);
+    end;
 
-  if filestream.Size=0 then begin
-    WriteHeader(filestream);
+    if ((CurrentFilePath=newFilePath)and
+        (TilesSize+TileStream.Size+10+6*(length(Tiles2Block)+1)>32768))or
+       (last) then begin
+      WriteBlock(filestream,Tiles2Block);
+      SetLength(Tiles2Block,0);
+    end;
+
+    if not(last) then begin
+      SetLength(Tiles2Block,length(Tiles2Block)+1);
+      Tiles2Block[length(Tiles2Block)-1].data:=TMemoryStream.Create;
+      TileStream.Position:=0;
+      Tiles2Block[length(Tiles2Block)-1].data.CopyFrom(TileStream,TileStream.Size);
+      Tiles2Block[length(Tiles2Block)-1].x:=x;
+      Tiles2Block[length(Tiles2Block)-1].y:=y;
+    end;
+  finally
+    filestream.Free;
   end;
-
-  if ((CurrentFilePath=newFilePath)and(TilesSize+TileStream.Size+10+6*(length(Tiles2Block)+1)>32768))then begin
-    WriteBlock(filestream,Tiles2Block);
-    SetLength(Tiles2Block,0);
-  end;
-
-  SetLength(Tiles2Block,length(Tiles2Block)+1);
-  Tiles2Block[length(Tiles2Block)-1].data:=TMemoryStream.Create;
-  TileStream.Position:=0;
-  Tiles2Block[length(Tiles2Block)-1].data.CopyFrom(TileStream,TileStream.Size);
-  Tiles2Block[length(Tiles2Block)-1].x:=x;
-  Tiles2Block[length(Tiles2Block)-1].y:=y;
-  filestream.Free;
   CurrentFilePath:=newFilePath;
 end;
 
@@ -412,6 +431,7 @@ begin
             end;
           end;
         end;
+        //AddTileToCache(nil,0,0,VZoom,10+j,true);
       finally
         for i := 0 to Length(FZooms)-1 do begin
           VTileIterators[i] := nil;

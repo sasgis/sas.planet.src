@@ -15,13 +15,15 @@ type
   private
     FHideAfterTime: Cardinal;
     FZoom: Byte;
+    FTile: TPoint;
+    FMapType: TMapType;
     procedure RenderText(AMapType: TMapType; AText: string);
   protected
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     procedure ShowError(ATile: TPoint; AZoom: Byte; AMapType: TMapType; AText: string);
-    property Visible: Boolean read GetVisible write SetVisible;
+    procedure SetNoError(ATile: TPoint; AZoom: Byte; AMapType: TMapType);
   end;
 
 implementation
@@ -41,6 +43,9 @@ var
   VBitmapSize: TPoint;
 begin
   inherited;
+  FMapType := nil;
+  FZoom := 0;
+  FTile := Point(0, 0);
   VBitmapSize.X := 256;
   VBitmapSize.Y := 100;
   FFixedOnBitmap.X := VBitmapSize.X / 2;
@@ -57,7 +62,7 @@ begin
     VCurrTime := GetTickCount;
     if (VCurrTime < FHideAfterTime) then begin
       if (VCurrTime < FHideAfterTime) then begin
-        if FZoom = VisualCoordConverter.GetZoom then begin
+        if FZoom = LayerCoordConverter.GetZoom then begin
           inherited;
         end else begin
           Visible := False;
@@ -92,17 +97,31 @@ begin
   end;
 end;
 
+procedure TTileErrorInfoLayer.SetNoError(ATile: TPoint; AZoom: Byte;
+  AMapType: TMapType);
+begin
+  if FMapType = AMapType then begin
+    if (FTile.X = ATile.X) and (FTile.Y = ATile.Y) then begin
+      if FZoom = AZoom then begin
+        Hide;
+      end;
+    end;
+  end;
+end;
+
 procedure TTileErrorInfoLayer.ShowError(ATile: TPoint; AZoom: Byte; AMapType: TMapType; AText: string);
 var
   VConverter: ICoordConverter;
 begin
+  FMapType := AMapType;
+  FTile := ATile;
+  FZoom := AZoom;
   VConverter := AMapType.GeoConvert;
   FHideAfterTime := GetTickCount + 10000;
-  FZoom := AZoom;
   FFixedLonLat := VConverter.PixelPosFloat2LonLat(RectCenter(VConverter.TilePos2PixelRect(ATile, AZoom)), AZoom);
   RenderText(AMapType, AText);
   Visible := true;
-  UpdateLayerLocation(GetMapLayerLocationRect);
+  UpdateLayerLocation;
 end;
 
 end.

@@ -70,7 +70,7 @@ ResourceString
   SAS_ERR_UrlScriptByteCodeLoad = 'Error at script bytecode loading';
   SAS_ERR_MapProjectionUnexpectedType = 'Error in projection "%0:s" of the map';
   SAS_ERR_MapDownloadByError = 'Download of map %0:s disabled because of error: %1:s';
-  SAS_ERR_TileDownloadContentTypeUnexpcted = 'Unexpeced conent type';
+  SAS_ERR_TileDownloadContentTypeUnexpcted = 'Unexpected content type';
   SAS_ERR_TileDownloadUnexpectedError = 'Unknown error during download';
   SAS_ERR_CoordinatesInput='Error in geographic coordinates';
 
@@ -131,7 +131,7 @@ ResourceString
   SAS_STR_EditCategory = 'Edit Category';
   SAS_STR_Add = 'Add';
   SAS_STR_Edit = 'Edit';
-  SAS_STR_EditMap = 'Edit map description:';
+  SAS_STR_EditMap = 'Map Settings:';
   SAS_STR_Stop = 'Abort';
   SAS_STR_Stop1 = 'Paused';
   SAS_STR_Continue = 'Resume';
@@ -156,7 +156,7 @@ ResourceString
   SAS_STR_InputLacitp = 'Enter comma-separated MNC, MCC, LAC, CellID (example: 02,250,7718,11942)';
   SAS_STR_InputLacitpCaption = 'Enter parameters';
   SAS_STR_ExportYaMapsCaption = 'Mobile Yandex.Maps (version 3)';
-  SAS_STR_ExportYaMapsNewCaption = 'Mobile Yandex.Maps (version >= 3.91)';
+  SAS_STR_ExportYaMapsNewCaption = 'Mobile Yandex.Maps (version 3.91 and above)';
   SAS_STR_ExportGEKmlExportCaption = 'KML (for Google Earth)';
   SAS_STR_ExportIPhone128Caption = 'iPhone (version 2.2 and above, 128õ128)';
   SAS_STR_ExportIPhone64Caption = 'iPhone (version prior to 2.2, 64õ64)';

@@ -73,23 +73,35 @@ end;
 
 procedure TSelectionRectLayer.DrawSelectionRect(ASelectedLonLat: TDoubleRect);
 begin
-  FSelectedLonLat := ASelectedLonLat;
-  Redraw;
-  Show;
+  ViewUpdateLock;
+  try
+    FSelectedLonLat := ASelectedLonLat;
+    SetNeedRedraw;
+    Show;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TSelectionRectLayer.OnConfigChange(Sender: TObject);
 begin
-  FConfig.LockRead;
+  ViewUpdateLock;
   try
-    FFillColor := FConfig.FillColor;
-    FBorderColor := FConfig.BorderColor;
-    FFontSize := FConfig.FontSize;
-    FZoomDeltaColors := FConfig.ZoomDeltaColors;
+    FConfig.LockRead;
+    try
+      FFillColor := FConfig.FillColor;
+      FBorderColor := FConfig.BorderColor;
+      FFontSize := FConfig.FontSize;
+      FZoomDeltaColors := FConfig.ZoomDeltaColors;
+    finally
+      FConfig.UnlockRead;
+    end;
+    SetNeedRedraw;
   finally
-    FConfig.UnlockRead;
+    ViewUpdateUnlock;
   end;
-  Redraw;
+  ViewUpdate;
 end;
 
 procedure TSelectionRectLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
@@ -106,7 +118,7 @@ var
   VGeoConvert: ICoordConverter;
   VZoom: Byte;
 begin
-  VLocalConverter := VisualCoordConverter;
+  VLocalConverter := ViewCoordConverter;
   if VLocalConverter <> nil then begin
     VGeoConvert := VLocalConverter.GetGeoConverter;
     VZoom := VLocalConverter.GetZoom;

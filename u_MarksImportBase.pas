@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  i_MarksSimple,
   i_ImportFile,
   i_ImportConfig;
 
@@ -15,6 +14,7 @@ type
   protected
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
   end;
+  
 implementation
 
 { TMarksImportBase }

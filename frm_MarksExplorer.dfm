@@ -1,7 +1,7 @@
 object frmMarksExplorer: TfrmMarksExplorer
   Left = 341
   Top = 186
-  Caption = 'Manage Placemarks'
+  Caption = 'Placemark Manager'
   ClientHeight = 427
   ClientWidth = 577
   Color = clBtnFace
