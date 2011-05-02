@@ -15,20 +15,20 @@ uses
   i_ViewPortState,
   i_MapTypes,
   i_DownloadUIConfig,
-  i_TileDownloaderEvent,
+  i_TileDownloader,
   u_TileDownloaderEventElement,
   u_MapLayerShowError,
-  u_MapType,
-  u_TileDownloaderThreadBase;
+  u_MapType;
 
 type
-  TTileDownloaderUI = class(TTileDownloaderThreadBase)
+  TTileDownloaderUI = class(TThread)
   private
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
     FViewPortState: IViewPortState;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorShowLayer: TTileErrorInfoLayer;
+    FMapType: TMapType;
 
     FTileMaxAgeInInternet: TDateTime;
     FTilesOut: Integer;
@@ -285,17 +285,16 @@ begin
                 VAllIteratorsFinished := False;
                 VMap := IMapType(VMapsList.Items[i]);
                 FMapType := VMap.MapType;
-                FLoadXY := VTile;
                 VNeedDownload := False;
-                if FMapType.TileExists(FLoadXY, VZoom) then begin
+                if FMapType.TileExists(VTile, VZoom) then begin
                   if FUseDownload = tsInternet then begin
-                    if Now - FMapType.TileLoadDate(FLoadXY, VZoom) > FTileMaxAgeInInternet then begin
+                    if Now - FMapType.TileLoadDate(VTile, VZoom) > FTileMaxAgeInInternet then begin
                       VNeedDownload := True;
                     end;
                   end;
                 end else begin
                   if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
-                    if not(FMapType.TileNotExistsOnServer(FLoadXY, VZoom)) then begin
+                    if not(FMapType.TileNotExistsOnServer(VTile, VZoom)) then begin
                       VNeedDownload := True;
                     end;
                   end;

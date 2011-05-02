@@ -7,11 +7,10 @@ uses
   i_LogSimple,
   t_GeoTypes,
   i_DownloadInfoSimple,
-  u_MapType,
-  u_TileDownloaderThreadBase;
+  u_MapType;
 
 type
-  TThreadDownloadTiles = class(TTileDownloaderThreadBase)
+  TThreadDownloadTiles = class(TThread)
   private
     FPolygLL: TArrayOfDoublePoint;
     FSecondLoadTNE:boolean;
@@ -21,6 +20,7 @@ type
     FCheckTileDate: TDateTime;
     FLastProcessedPoint: TPoint;
     FLastSuccessfulPoint: TPoint;
+    FMapType: TMapType;
 
     FTotalInRegion: Int64;
     FDownloadInfo: IDownloadInfoSimple;
@@ -88,6 +88,7 @@ type
     property StartTime: TDateTime read FStartTime;
     property Zoom: Byte read FZoom;
     property Finished: Boolean read FFinished;
+    property MapType: TMapType read FMapType;
   end;
 
 implementation
@@ -95,7 +96,6 @@ uses
   SysUtils,
   IniFiles,
   Types,
-  i_TileDownlodSession,
   u_GlobalState,
   i_TileIterator,
   u_DownloadInfoSimple,

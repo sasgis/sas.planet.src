@@ -2,6 +2,8 @@ unit u_ThreadExportYaMapsNew;
 
 interface
 
+{$HINTS OFF}
+
 uses
   Windows,
   Types,

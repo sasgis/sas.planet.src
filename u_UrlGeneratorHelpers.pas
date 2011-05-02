@@ -189,6 +189,8 @@ begin
     Result := '';
 end;
 
+{$WARNINGS OFF}
+
 function DoRequest(const AHost, ADoc, ARequestHeader, APostData: AnsiString; UseSSL: Boolean; out AResponseHeader, AResponseData: AnsiString): Cardinal;
 var
   aBuffer     : array [0..4096] of Char;

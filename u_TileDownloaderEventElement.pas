@@ -6,8 +6,7 @@ uses
   Windows,
   Classes,
   SysUtils,
-  i_TileDownloaderEvent,
-  i_TileDownlodSession, 
+  i_TileDownloader,
   u_MapLayerShowError,
   u_MapType;
 
@@ -25,6 +24,7 @@ type
     FOldTileSize: Cardinal;
     FTileMIME: string;
     FTileStream: TMemoryStream;
+    FRawResponseHeader: string;
     FDownloadResult: TDownloadTileResult;
 
     FRES_Authorization: string;
@@ -60,6 +60,8 @@ type
     procedure SetTileMIME(Value: string);
     function  GetTileStream: TMemoryStream;
     procedure SetTileStream(Value: TMemoryStream);
+    function  GetRawResponseHeader: string;
+    procedure SetRawResponseHeader(Value: string);
     function  GetDwnlResult: TDownloadTileResult;
     procedure SetDwnlResult(Value: TDownloadTileResult);
 
@@ -70,6 +72,7 @@ type
     property OldTileSize: Cardinal read GetOldTileSize write SetOldTileSize;
     property TileMIME: string read GetTileMIME write SetTileMIME;
     property TileStream: TMemoryStream read GetTileStream write SetTileStream;
+    property RawResponseHeader: string read GetRawResponseHeader write SetRawResponseHeader;
     property DownloadResult: TDownloadTileResult read GetDwnlResult write SetDwnlResult;
   end;
 
@@ -235,6 +238,16 @@ end;
 function TTileDownloaderEventElement.GetTileStream: TMemoryStream;
 begin
   Result := FTileStream;
+end;
+
+procedure TTileDownloaderEventElement.SetRawResponseHeader(Value: string);
+begin
+  FRawResponseHeader := Value;
+end;
+
+function TTileDownloaderEventElement.GetRawResponseHeader: string;
+begin
+  Result := FRawResponseHeader;
 end;
 
 procedure TTileDownloaderEventElement.SetDwnlResult(Value: TDownloadTileResult);

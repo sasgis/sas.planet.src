@@ -6,19 +6,20 @@ uses
   Windows,
   Classes,
   Types,
-  u_TileDownloaderThreadBase,
   u_MapLayerShowError,
   u_MapType;
 
 type
-  TTileDownloaderUIOneTile = class(TTileDownloaderThreadBase)
+  TTileDownloaderUIOneTile = class(TThread)
   private
-    FErrorString: string;
+    //FErrorString: string;
 
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorShowLayer: TTileErrorInfoLayer;
-
-    procedure AfterWriteToFile;
+    FMapType: TMapType;
+    FLoadXY: TPoint;
+    FZoom: Byte;
+    //procedure AfterWriteToFile;
   protected
     procedure Execute; override;
   public
@@ -36,7 +37,6 @@ implementation
 uses
   SysUtils,
   u_GlobalState,
-  i_TileDownlodSession,
   u_ResStrings;
 
 constructor TTileDownloaderUIOneTile.Create(
@@ -58,7 +58,7 @@ begin
   FreeOnTerminate := true;
   randomize;
 end;
-
+{
 procedure TTileDownloaderUIOneTile.AfterWriteToFile;
 begin
   if FErrorString <> '' then begin
@@ -74,6 +74,7 @@ begin
     end;
   end;
 end;
+}
 
 procedure TTileDownloaderUIOneTile.Execute;
 {

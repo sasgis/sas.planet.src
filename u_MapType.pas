@@ -16,8 +16,7 @@ uses
   i_ConfigDataProvider,
   i_TileObjCache,
   i_CoordConverter,
-  i_TileDownlodSession,
-  i_TileDownloaderEvent,
+  i_TileDownloader,
   i_BitmapTypeExtManager,
   i_BitmapTileSaveLoad,
   i_KmlInfoSimpleLoader,
@@ -192,12 +191,12 @@ uses
 
 function TMapType.GetWaitInterval: Cardinal;
 begin
-// TODO
+  Result := FTileDownloader.WaitInterval;
 end;
 
 procedure TMapType.SetWaitInterval(Value: Cardinal);
 begin
-// TODO
+  FTileDownloader.WaitInterval := Value;
 end;
 
 procedure TMapType.LoadMapIcons(AConfig: IConfigDataProvider);
