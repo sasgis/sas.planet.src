@@ -1110,7 +1110,6 @@ var
   VLonLatRectTarget: TDoubleRect;
   VTileRectInSource: TRect;
   VPixelRectOfTargetPixelRectInSource: TRect;
-  VAllTilesExits: Boolean;
   i, j: Integer;
   VTile: TPoint;
   VSpr:TCustomBitmap32;

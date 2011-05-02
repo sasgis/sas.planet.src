@@ -250,7 +250,6 @@ var
   VTilesLineRect: TRect;
   VLocalConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
-  VBitmapRect: TDoubleRect;
   VShowText: Boolean;
 begin
   VLocalConverter := LayerCoordConverter;
