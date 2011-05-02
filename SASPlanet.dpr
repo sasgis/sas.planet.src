@@ -109,7 +109,7 @@ uses
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
   u_TileDownloaderFrontEnd in 'u_TileDownloaderFrontEnd.pas',
-  u_TileDownloaderEventProcessor in 'u_TileDownloaderEventProcessor.pas',
+  i_TileDownloaderEvent in 'i_TileDownloaderEvent.pas',
   u_TileDownloaderEventElement in 'u_TileDownloaderEventElement.pas',
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
   u_NotifyEventListener in 'u_NotifyEventListener.pas',

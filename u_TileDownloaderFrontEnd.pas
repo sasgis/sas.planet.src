@@ -10,6 +10,7 @@ uses
   i_AntiBan,
   i_IPoolOfObjectsSimple,
   i_ConfigDataProvider,
+  i_TileDownloaderEvent,
   i_TileDownlodSession;
 
 type
@@ -38,7 +39,7 @@ type
   public
     constructor Create(AConfig: IConfigDataProvider; AZMPFileName: string);
     destructor Destroy; override;
-    procedure Download(AParentThreadEvent: Pointer; AXY: TPoint; AZoom: Byte; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; AOnDownloadEvent: TOnDownloadEvent);
+    procedure Download(AEvent: ITileDownloaderEvent);
   end;
 
 implementation
@@ -114,7 +115,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTileDownloaderFrontEnd.Download(AParentThreadEvent: Pointer; AXY: TPoint; AZoom: Byte; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; AOnDownloadEvent: TOnDownloadEvent);
+procedure TTileDownloaderFrontEnd.Download(AEvent: ITileDownloaderEvent);
 begin
   //
 end;

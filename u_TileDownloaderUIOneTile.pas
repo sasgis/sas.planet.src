@@ -76,10 +76,12 @@ begin
 end;
 
 procedure TTileDownloaderUIOneTile.Execute;
+{
 var
   ty: string;
   fileBuf: TMemoryStream;
   res: TDownloadTileResult;
+}
 begin
   {
   if FMapType.UseDwn then begin

@@ -233,6 +233,7 @@
     <DCCReference Include="i_SimpleFactory.pas" />
     <DCCReference Include="i_StatBarConfig.pas" />
     <DCCReference Include="i_Thread.pas" />
+    <DCCReference Include="i_TileDownloaderEvent.pas" />
     <DCCReference Include="i_TileDownlodSession.pas" />
     <DCCReference Include="i_TileFileNameGenerator.pas" />
     <DCCReference Include="i_TileFileNameGeneratorsList.pas" />
@@ -594,7 +595,6 @@
     <DCCReference Include="u_TileDownloaderBase.pas" />
     <DCCReference Include="u_TileDownloaderBaseFactory.pas" />
     <DCCReference Include="u_TileDownloaderEventElement.pas" />
-    <DCCReference Include="u_TileDownloaderEventProcessor.pas" />
     <DCCReference Include="u_TileDownloaderFrontEnd.pas" />
     <DCCReference Include="u_TileDownloaderThreadBase.pas" />
     <DCCReference Include="u_TileDownloaderUI.pas" />

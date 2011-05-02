@@ -17,6 +17,7 @@ uses
   i_TileObjCache,
   i_CoordConverter,
   i_TileDownlodSession,
+  i_TileDownloaderEvent,
   i_BitmapTypeExtManager,
   i_BitmapTileSaveLoad,
   i_KmlInfoSimpleLoader,
@@ -136,8 +137,8 @@ type
       ATNEColor: TColor32
     ): boolean;
     function GetShortFolderName: string;
-    procedure DownloadTile(AThreadOnDownloadEvent: Pointer; ATile: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer);
-    procedure OnDownloadTileReady(AThreadOnDownloadEvent: Pointer; ADownloadResult: TDownloadTileResult; ATile: TPoint; AZoom: Byte; AContentType: string; fileBuf: TMemoryStream);
+    procedure DownloadTile(AEvent: ITileDownloaderEvent);
+    procedure OnTileDownload(AEvent: ITileDownloaderEvent);
     property GeoConvert: ICoordConverter read FCoordConverter;
     property MainGeoConvert: ICoordConverter read FMainCoordConverter;
     property GUID: TGUID read FGuid;
@@ -654,42 +655,36 @@ begin
   inherited;
 end;
 
-procedure TMapType.OnDownloadTileReady(AThreadOnDownloadEvent: Pointer;
-  ADownloadResult: TDownloadTileResult; ATile: TPoint; AZoom: Byte;
-  AContentType: string; fileBuf: TMemoryStream);
-var
-  VOnDownloadRedyEvent: TParentThreadEvent;
-  VTileSize: Int64;
+procedure TMapType.OnTileDownload(AEvent: ITileDownloaderEvent);
 begin
-  try
-    if ADownloadResult = dtrOK then begin
-      SaveTileDownload(ATile, AZoom, fileBuf, AContentType);
-    end else if ADownloadResult = dtrTileNotExists then begin
+  if Assigned(AEvent) then begin
+    if AEvent.DownloadResult = dtrOK then begin
+      SaveTileDownload(AEvent.TileXY, AEvent.TileZoom, AEvent.TileStream, AEvent.TileMIME);
+    end else if AEvent.DownloadResult = dtrTileNotExists then begin
       if GState.SaveTileNotExists then begin
-        SaveTileNotExists(ATile, AZoom);
+        SaveTileNotExists(AEvent.TileXY, AEvent.TileZoom);
       end;
-    end;
-  finally
-    if AThreadOnDownloadEvent <> nil then
-    begin
-      if Assigned(fileBuf) then
-        VTileSize := fileBuf.Size
-      else
-        VTileSize := 0;                                                    
-      VOnDownloadRedyEvent := TParentThreadEvent(AThreadOnDownloadEvent^);
-      VOnDownloadRedyEvent(Self, ATile, AZoom, VTileSize, ADownloadResult);
     end;
   end;
 end;
 
-procedure TMapType.DownloadTile(AThreadOnDownloadEvent: Pointer;
-  ATile: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer);
+procedure TMapType.DownloadTile(AEvent: ITileDownloaderEvent);
+var
+  VTile: TPoint;
+  VZoom: Byte;
 begin
-  if Self.UseDwn then begin
-    FCoordConverter.CheckTilePosStrict(ATile, AZoom, True);
-    FTileDownloader.Download(AThreadOnDownloadEvent, ATile, AZoom, ACheckTileSize, AOldTileSize, OnDownloadTileReady);
-  end else begin
-    raise Exception.Create('Для этой карты загрузка запрещена.');
+  if Assigned(AEvent) then begin
+    if Self.UseDwn then begin
+      VTile := AEvent.TileXY;
+      VZoom := AEvent.TileZoom;
+      FCoordConverter.CheckTilePosStrict(VTile, VZoom, True);
+      AEvent.TileXY := VTile;
+      AEvent.TileZoom := VZoom;
+      AEvent.AddToCallBackList(Self.OnTileDownload);
+      FTileDownloader.Download(AEvent);
+    end else begin
+      raise Exception.Create('Для этой карты загрузка запрещена.');
+    end;
   end;
 end;
 

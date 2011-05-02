@@ -241,6 +241,7 @@ begin
 end;
 
 procedure TThreadDownloadTiles.Execute;
+{
 var
   ty: string;
   VTileExists: boolean;
@@ -250,6 +251,7 @@ var
   VGotoNextTile: Boolean;
   VTile: TPoint;
   VTileIterator: ITileIterator;
+}
 begin
   {
   FStartTime := Now;

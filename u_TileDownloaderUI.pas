@@ -14,9 +14,9 @@ uses
   i_ActiveMapsConfig,
   i_ViewPortState,
   i_MapTypes,
-  i_TileDownlodSession,
   i_DownloadUIConfig,
-  u_TileDownloaderEventProcessor,
+  i_TileDownloaderEvent,
+  u_TileDownloaderEventElement,
   u_MapLayerShowError,
   u_MapType,
   u_TileDownloaderThreadBase;
@@ -27,6 +27,8 @@ type
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
     FViewPortState: IViewPortState;
+    FMapTileUpdateEvent: TMapTileUpdateEvent;
+    FErrorShowLayer: TTileErrorInfoLayer;
 
     FTileMaxAgeInInternet: TDateTime;
     FTilesOut: Integer;
@@ -37,20 +39,17 @@ type
     FActiveMapsList: IMapTypeList;
 
     change_scene: boolean;
-
-    FLoadXY: TPoint;
-
-    FEventProcessor: TTileDownloaderEventProcessor;
+    
     FMaxRequestCount: Integer;
     FSemaphore: THandle;
 
+    function  GetNewEventElement: ITileDownloaderEvent;
     procedure GetCurrentMapAndPos;
     procedure OnPosChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure Execute; override;
   public
-    OnTileDownload: TParentThreadEvent;
     constructor Create(
       AConfig: IDownloadUIConfig;
       AViewPortState: IViewPortState;
@@ -61,7 +60,7 @@ type
     destructor Destroy; override;
     procedure StartThreads;
     procedure SendTerminateToThreads;
-    procedure OnTileDownloadEvent(AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult);
+    procedure OnTileDownload(AEvent: ITileDownloaderEvent);
   end;
 
 implementation
@@ -92,11 +91,10 @@ begin
   FMapsSet := AMapsSet;
   FViewPortState := AViewPortState;
   FLinksList := TJclListenerNotifierLinksList.Create;
-
-  FEventProcessor := TTileDownloaderEventProcessor.Create(AMapTileUpdateEvent, AErrorShowLayer);
+  FMapTileUpdateEvent := AMapTileUpdateEvent;
+  FErrorShowLayer := AErrorShowLayer;
   FMaxRequestCount := 4;
   FSemaphore := CreateSemaphore(nil, FMaxRequestCount, FMaxRequestCount, nil);
-  OnTileDownload := OnTileDownloadEvent;
 
   Priority := tpLower;
   FUseDownload := tsCache;
@@ -124,7 +122,6 @@ var
 begin
   FLinksList := nil;
   CloseHandle(FSemaphore);
-  FEventProcessor.Terminate;
   VWaitResult := WaitForSingleObject(Handle, 10000);
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(Handle, 0);
@@ -173,12 +170,16 @@ begin
   Resume;
 end;
 
-procedure TTileDownloaderUI.OnTileDownloadEvent(AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult);
+function TTileDownloaderUI.GetNewEventElement: ITileDownloaderEvent;
+begin
+  Result := TTileDownloaderEventElement.Create(FMapTileUpdateEvent, FErrorShowLayer, FMapType);
+  Result.CheckTileSize := False;
+  Result.AddToCallBackList(Self.OnTileDownload);
+end;
+
+procedure TTileDownloaderUI.OnTileDownload (AEvent: ITileDownloaderEvent);
 begin
   ReleaseSemaphore(FSemaphore, 1, nil);
-
-  if Assigned(FEventProcessor) then
-    FEventProcessor.AddEvent(AMapType, ATile, AZoom, ATileSize, AResult);
 end;
 
 procedure TTileDownloaderUI.Execute;
@@ -308,7 +309,7 @@ begin
                          Break;
                   until False;
                   if not Terminated then
-                    FMapType.DownloadTile(@OnTileDownload, FLoadXY, VZoom, False, 0);
+                    FMapType.DownloadTile(GetNewEventElement);
                 except
 
                 end;
