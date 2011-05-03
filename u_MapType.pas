@@ -10,22 +10,24 @@ uses
   Graphics,
   SyncObjs,
   GR32,
-  t_GeoTypes,
   t_CommonTypes,
-  i_ContentTypeInfo,
-  i_ConfigDataProvider,
-  i_TileObjCache,
-  i_CoordConverter,
-  i_TileDownloader,
+  t_GeoTypes,
   i_BitmapTypeExtManager,
   i_BitmapTileSaveLoad,
+  i_ContentTypeInfo,
+  i_ConfigDataProvider,
+  i_CoordConverter,
   i_KmlInfoSimpleLoader,
+  i_RequestBuilderScript,
+  i_TileObjCache,
+  i_TileDownloader,
   u_KmlInfoSimple,
-  u_UrlGenerator,
   u_MapTypeCacheConfig,
-  u_TileStorageAbstract,
+  u_ResStrings,
+  u_RequestBuilderScript,
+  u_RequestBuilderPascalScript,
   u_TileDownloaderFrontEnd,
-  u_ResStrings;
+  u_TileStorageAbstract;
 
 type
   EBadGUID = class(Exception);
@@ -53,7 +55,7 @@ type
     FMimeTypeSubstList: TStringList;
     FCache: ITileObjCache;
     FStorage: TTileStorageAbstract;
-    FUrlGenerator : TUrlGeneratorBasic;
+    FRequestBuilderScript : IRequestBuilderScript;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IKmlInfoSimpleLoader;
@@ -81,7 +83,7 @@ type
     function GetMIMETypeSubst(AMimeType: string): string;
     procedure LoadMimeTypeSubstList(AConfig : IConfigDataProvider);
     procedure LoadMapIcons(AConfig : IConfigDataProvider);
-    procedure LoadUrlScript(AConfig : IConfigDataProvider);
+    procedure LoadRequestBuilderScript(AConfig: IConfigDataProvider);
     procedure LoadProjectionInfo(AConfig : IConfigDataProvider);
     procedure LoadStorageParams(AConfig : IConfigDataProvider);
     procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
@@ -157,7 +159,7 @@ type
     property bmp18: TBitmap read Fbmp18;
     property bmp24: TBitmap read Fbmp24;
     property TileStorage: TTileStorageAbstract read FStorage;
-    property UrlGenerator : TUrlGeneratorBasic read FUrlGenerator;
+    property RequestBuilderScript : IRequestBuilderScript read FRequestBuilderScript;
     property MapInfo: string read FMapInfo;
     property Name: string read FName;
     property DefHotKey: TShortCut read FDefHotKey;
@@ -237,26 +239,25 @@ begin
   end;
 end;
 
-procedure TMapType.LoadUrlScript(AConfig: IConfigDataProvider);
+procedure TMapType.LoadRequestBuilderScript(AConfig: IConfigDataProvider);
 begin
   if FUseDwn then begin
     try
-      FUrlGenerator := TUrlGenerator.Create(AConfig);
-      //GetLink(0,0,0);
+      FRequestBuilderScript := TRequestBuilderPascalScript.Create(AConfig);
     except
       on E: Exception do begin
         ShowMessageFmt(SAS_ERR_UrlScriptError, [name, E.Message, ZmpFileName]);
-        FUrlGenerator := nil;
+        FRequestBuilderScript := nil;
         FUseDwn := False;
       end;
      else
       ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [name, ZmpFileName]);
-      FUrlGenerator := nil;
+      FRequestBuilderScript := nil;
       FUseDwn := False;
     end;
   end;
-  if FUrlGenerator = nil then begin
-    FUrlGenerator := TUrlGeneratorBasic.Create(AConfig);
+  if FRequestBuilderScript = nil then begin
+    FRequestBuilderScript := TRequestBuilderScript.Create(AConfig);
   end;
 end;
 
@@ -385,14 +386,14 @@ begin
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
   LoadMimeTypeSubstList(AConfig);
-  LoadUrlScript(AConfig);
+  LoadRequestBuilderScript(AConfig);
   FTileDownloader := TTileDownloaderFrontEnd.Create(AConfig, FZMPFileName);
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
   FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-  Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
+  Result:=FRequestBuilderScript.GenRequestUrl(AXY, AZoom);
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -644,9 +645,9 @@ begin
   FreeAndNil(FInitDownloadCS);
   FreeAndNil(FCSSaveTile);
   FreeAndNil(FCSSaveTNF);
-  FreeAndNil(FUrlGenerator);
   FreeAndNil(Fbmp18);
   FreeAndNil(Fbmp24);
+  FRequestBuilderScript := nil;
   FCoordConverter := nil;
   FCache := nil;
   FreeAndNil(FTileDownloader);

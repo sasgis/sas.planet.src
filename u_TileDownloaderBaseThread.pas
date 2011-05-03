@@ -9,8 +9,8 @@ uses
   AlHTTPCommon,
   ALHttpClient,
   AlWininetHttpClient,
-  i_TileDownloader,
-  u_UrlGenerator;
+  i_RequestBuilderScript,
+  i_TileDownloader;
 
 type
   TTileDownloaderBaseThread = class(TThread)
@@ -18,7 +18,7 @@ type
     FHttpClient: TALWinInetHTTPClient;
     FResponseHeader: TALHTTPResponseHeader;
     FRawResponseHeader: string;
-    FRequestScript: TUrlGenerator;
+    FRequestBuilderScript: IRequestBuilderScript;
     FTimeOut: Cardinal;
     FEvent: ITileDownloaderEvent;
     FSemaphore: THandle;
@@ -35,7 +35,7 @@ type
     procedure AddEvent(AEvent: ITileDownloaderEvent);
     property TimeOut: Cardinal write SetTimeOutValue;
     property Busy: Boolean read FBusy default False;
-    property RequestScript: TUrlGenerator read FRequestScript write FRequestScript default nil;
+    property RequestBuilderScript: IRequestBuilderScript read FRequestBuilderScript write FRequestBuilderScript default nil;
     property RawResponseHeader: string read FRawResponseHeader write FRawResponseHeader;
   end;
 
@@ -103,7 +103,7 @@ var
 begin
   try
     try
-      FRequestScript.GenRequest(FEvent.TileXY.X, FEvent.TileXY.Y, FEvent.TileZoom, FRawResponseHeader, VUrl, VRawRequestHeader);
+      FRequestBuilderScript.GenRequest(FEvent.TileXY, FEvent.TileZoom, FRawResponseHeader, VUrl, VRawRequestHeader);
       if VRawRequestHeader <> '' then
         FHttpClient.RequestHeader.RawHeaderText := VRawRequestHeader;                                                           
       try
