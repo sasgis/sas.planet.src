@@ -103,6 +103,7 @@ uses
   u_ThreadDeleteTiles in 'RegionProcess\u_ThreadDeleteTiles.pas',
   u_ThreadGenPrevZoom in 'RegionProcess\u_ThreadGenPrevZoom.pas',
   i_TileDownloader in 'i_TileDownloader.pas',
+  u_TileDownloader in 'u_TileDownloader.pas',
   u_TileDownloaderBaseCore in 'u_TileDownloaderBaseCore.pas',
   u_TileDownloaderBaseThread in 'u_TileDownloaderBaseThread.pas',
   u_TileDownloaderEventElement in 'u_TileDownloaderEventElement.pas',

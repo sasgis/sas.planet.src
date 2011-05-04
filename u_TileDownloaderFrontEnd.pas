@@ -5,6 +5,7 @@ interface
 uses
   SysUtils,
   i_ConfigDataProvider,
+  i_RequestBuilderScript,
   i_TileDownloader,
   u_TileDownloaderBaseCore;
 
@@ -12,42 +13,53 @@ type
   TTileDownloaderFrontEnd = class
   private
     FDownloader: ITileDownloader;
+    FRequestBuilderScript: IRequestBuilderScript;
+    FDownloaderStr: string;
     FUseDwn: Boolean;
-    FMaxConnectToServerCount: Cardinal;
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(Value: Cardinal);
   public
-    constructor Create(AConfig: IConfigDataProvider; AZMPFileName: string);
+    constructor Create(AConfig: IConfigDataProvider; AZmpFileName: string);
     destructor Destroy; override;
     procedure Download(AEvent: ITileDownloaderEvent);
+    property RequestBuilderScript: IRequestBuilderScript read FRequestBuilderScript;
     property WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
+    property UseDwn: Boolean read FUseDwn;
   end;
 
 implementation
 
 { TTileDownloaderFrontEnd }
 
-constructor TTileDownloaderFrontEnd.Create(AConfig: IConfigDataProvider; AZMPFileName: string);
+constructor TTileDownloaderFrontEnd.Create(AConfig: IConfigDataProvider; AZmpFileName: string);
 var
   VParams: IConfigDataProvider;
-  VDownloaderStr: string;
 begin
   inherited Create;
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', 1);
-  if FMaxConnectToServerCount > 64 then
-    FMaxConnectToServerCount := 64;
-  FUseDwn := VParams.ReadBool('UseDwn', True);
-  VDownloaderStr := VParams.ReadString('Downloader', 'sasplanet');
   FDownloader := nil;
-  if LowerCase(VDownloaderStr) = 'sasplanet' then
-  begin
-    FDownloader := TTileDownloaderBaseCore.Create(AConfig, AZMPFileName);
-  end
+  FRequestBuilderScript := nil;
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FUseDwn := VParams.ReadBool('UseDwn', True);
+  try
+    if FUseDwn then
+    begin
+      FDownloaderStr := VParams.ReadString('Downloader', 'sasplanet');
+      if LowerCase(FDownloaderStr) = 'sasplanet' then
+      begin
+        FDownloader := TTileDownloaderBaseCore.Create(AConfig, AZmpFileName);
+        FRequestBuilderScript := FDownloader.RequestBuilderScript;
+        FUseDwn := FDownloader.Enabled;
+      end;
+    end;
+  finally
+    if FDownloader = nil then
+      FUseDwn := False;
+  end;
 end;
 
 destructor TTileDownloaderFrontEnd.Destroy;
 begin
+  FRequestBuilderScript := nil;
   FDownloader := nil;
   inherited Destroy;
 end;

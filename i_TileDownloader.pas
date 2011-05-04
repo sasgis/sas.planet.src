@@ -4,7 +4,8 @@ interface
 
 uses
   Windows,
-  Classes;
+  Classes,
+  i_RequestBuilderScript;
 
 type
   TDownloadTileResult = (dtrOK, dtrSameTileSize, dtrErrorInternetOpen, dtrErrorInternetOpenURL, dtrProxyAuthError, dtrErrorMIMEType, dtrDownloadError, dtrTileNotExists, dtrBanError, dtrUnknownError);
@@ -18,7 +19,11 @@ type
     procedure Download(AEvent: ITileDownloaderEvent);
     function  GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);
+    function  GetRequestBuilderScript: IRequestBuilderScript;
+    function  GetIsEnabled: Boolean;
     property  WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
+    property  RequestBuilderScript: IRequestBuilderScript read GetRequestBuilderScript;
+    property  Enabled: Boolean read GetIsEnabled;
   end;
   
   ITileDownloaderEvent = interface

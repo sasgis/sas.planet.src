@@ -4,46 +4,68 @@ interface
 
 uses
   SysUtils,
-  SyncObjs,
   i_ConfigDataProvider,
+  i_RequestBuilderScript,
   i_TileDownloader,
+  u_RequestBuilderScript,
+  u_RequestBuilderPascalScript,
+  u_TileDownloader,
   u_TileDownloaderBaseThread;
 
 type
-  TTileDownloaderBaseCore = class(TInterfacedObject, ITileDownloader)
+  TTileDownloaderBaseCore = class(TTileDownloader)
   private
-    FWaitInterval: Cardinal;
-    FCS: TCriticalSection;
     FDownloadThread: TTileDownloaderBaseThread;
     FRawResponseHeader: string;
-    procedure Lock;
-    procedure Unlock;
+    procedure LoadRequestBuilderScript(AConfig: IConfigDataProvider);
   public
-    constructor Create(AConfig: IConfigDataProvider; AZMPFileName: string);
+    constructor Create(AConfig: IConfigDataProvider; AZmpFileName: string);
     destructor Destroy; override;
-    procedure Download(AEvent: ITileDownloaderEvent);
-    procedure UpdateResponseHeaders(AEvent: ITileDownloaderEvent);
-    function  GetWaitInterval: Cardinal;
-    procedure SetWaitInterval(AValue: Cardinal);
-    property  WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
+    procedure Download(AEvent: ITileDownloaderEvent); override;
+    procedure OnTileDownload(AEvent: ITileDownloaderEvent);
   end;
 
 implementation
 
+uses
+  Dialogs,
+  u_ResStrings;
+
 { TTileDownloaderBaseCore }
 
-constructor TTileDownloaderBaseCore.Create(AConfig: IConfigDataProvider; AZMPFileName: string);
+constructor TTileDownloaderBaseCore.Create(AConfig: IConfigDataProvider; AZmpFileName: string);
 begin
-  inherited Create;
-  FCS := TCriticalSection.Create;
+  inherited Create(AConfig, AZmpFileName);
+  LoadRequestBuilderScript(AConfig);
   FDownloadThread := TTileDownloaderBaseThread.Create;
 end;
 
 destructor TTileDownloaderBaseCore.Destroy;
 begin
-  FreeAndNil(FCS);
   FDownloadThread.Terminate;
   inherited Destroy;
+end;
+
+procedure TTileDownloaderBaseCore.LoadRequestBuilderScript(AConfig: IConfigDataProvider);
+begin
+  try
+    FRequestBuilderScript := TRequestBuilderPascalScript.Create(AConfig);
+    FEnabled := True;
+  except
+    on E: Exception do
+    begin
+      FRequestBuilderScript := nil;
+      ShowMessageFmt(SAS_ERR_UrlScriptError, [FMapName, E.Message, FZmpFileName]);
+    end;
+  else
+    FRequestBuilderScript := nil;
+    ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FMapName, FZmpFileName]);
+  end;
+  if FRequestBuilderScript = nil then
+  begin
+    FEnabled := False;
+    FRequestBuilderScript := TRequestBuilderScript.Create(AConfig);
+  end;
 end;
 
 procedure TTileDownloaderBaseCore.Download(AEvent: ITileDownloaderEvent);
@@ -53,8 +75,8 @@ begin
     repeat
       if not FDownloadThread.Busy then
       begin
-        AEvent.AddToCallBackList(UpdateResponseHeaders);
-        FDownloadThread.TimeOut := FWaitInterval;
+        AEvent.AddToCallBackList(OnTileDownload);
+        FDownloadThread.TimeOut := FTimeOut;
         FDownloadThread.RawResponseHeader := FRawResponseHeader;
         FDownloadThread.AddEvent(AEvent);
         Break;
@@ -66,44 +88,19 @@ begin
   end;
 end;
 
-procedure TTileDownloaderBaseCore.UpdateResponseHeaders(AEvent: ITileDownloaderEvent);
+procedure TTileDownloaderBaseCore.OnTileDownload(AEvent: ITileDownloaderEvent);
 begin
   Lock;
   try
-    FRawResponseHeader := AEvent.RawResponseHeader;
+    if Assigned(AEvent) then
+    begin
+      FRawResponseHeader := AEvent.RawResponseHeader;
+    end;
   finally
     Unlock;
   end;
 end;
 
-procedure TTileDownloaderBaseCore.Lock;
-begin
-  FCS.Acquire;
-end;
 
-procedure TTileDownloaderBaseCore.UnLock;
-begin
-  FCS.Release;
-end;
-
-procedure TTileDownloaderBaseCore.SetWaitInterval(AValue: Cardinal);
-begin
-  Lock;
-  try
-    FWaitInterval := AValue;
-  finally
-    Unlock;
-  end;
-end;
-
-function TTileDownloaderBaseCore.GetWaitInterval: Cardinal;
-begin
-  Lock;
-  try
-    Result := FWaitInterval;
-  finally
-    Unlock;
-  end;
-end;
 
 end.

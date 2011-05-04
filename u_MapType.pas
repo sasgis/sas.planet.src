@@ -83,7 +83,6 @@ type
     function GetMIMETypeSubst(AMimeType: string): string;
     procedure LoadMimeTypeSubstList(AConfig : IConfigDataProvider);
     procedure LoadMapIcons(AConfig : IConfigDataProvider);
-    procedure LoadRequestBuilderScript(AConfig: IConfigDataProvider);
     procedure LoadProjectionInfo(AConfig : IConfigDataProvider);
     procedure LoadStorageParams(AConfig : IConfigDataProvider);
     procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
@@ -239,28 +238,6 @@ begin
   end;
 end;
 
-procedure TMapType.LoadRequestBuilderScript(AConfig: IConfigDataProvider);
-begin
-  if FUseDwn then begin
-    try
-      FRequestBuilderScript := TRequestBuilderPascalScript.Create(AConfig);
-    except
-      on E: Exception do begin
-        ShowMessageFmt(SAS_ERR_UrlScriptError, [name, E.Message, ZmpFileName]);
-        FRequestBuilderScript := nil;
-        FUseDwn := False;
-      end;
-     else
-      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [name, ZmpFileName]);
-      FRequestBuilderScript := nil;
-      FUseDwn := False;
-    end;
-  end;
-  if FRequestBuilderScript = nil then begin
-    FRequestBuilderScript := TRequestBuilderScript.Create(AConfig);
-  end;
-end;
-
 procedure TMapType.LoadMapInfo(AConfig: IConfigDataProvider);
 begin
   FMapinfo := AConfig.ReadString('info_'+GState.LanguageManager.GetCurrentLanguageCode+'.txt', '');
@@ -386,8 +363,12 @@ begin
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
   LoadMimeTypeSubstList(AConfig);
-  LoadRequestBuilderScript(AConfig);
+  FRequestBuilderScript := nil;
   FTileDownloader := TTileDownloaderFrontEnd.Create(AConfig, FZMPFileName);
+  if Assigned(FTileDownloader) then begin
+    FUseDwn := FTileDownloader.UseDwn;
+    FRequestBuilderScript := FTileDownloader.RequestBuilderScript;
+  end;
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;

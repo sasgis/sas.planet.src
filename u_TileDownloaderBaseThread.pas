@@ -6,9 +6,9 @@ uses
   Windows,
   SysUtils,
   Classes,
-  AlHTTPCommon,
+  ALHTTPCommon,
   ALHttpClient,
-  AlWininetHttpClient,
+  ALWinInetHttpClient,
   i_RequestBuilderScript,
   i_TileDownloader;
 
