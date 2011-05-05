@@ -28,6 +28,19 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
   end;
 
+  TMapLayerBasicNoBitmap = class(TMapLayerBasicFullView)
+  private
+    procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
+  protected
+    procedure PaintLayer(ABuffer: TBitmap32); virtual; abstract;
+  protected
+    procedure DoRedraw; override;
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+  public
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+    procedure StartThreads; override;
+  end;
+
   TMapLayerFixedWithBitmap = class(TWindowLayerWithBitmap)
   protected
     FFixedLonLat: TDoublePoint;
@@ -330,6 +343,41 @@ function TMapLayerBasic.GetLayerSizeForView(
   ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
   Result := ANewVisualCoordConverter.GetLocalRectSize;
+end;
+
+{ TMapLayerBasicNoBitmap }
+
+constructor TMapLayerBasicNoBitmap.Create(AParentMap: TImage32;
+  AViewPortState: IViewPortState);
+begin
+  inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+end;
+
+procedure TMapLayerBasicNoBitmap.DoRedraw;
+begin
+  inherited;
+  LayerPositioned.Changed;
+end;
+
+procedure TMapLayerBasicNoBitmap.OnPaintLayer(Sender: TObject;
+  Buffer: TBitmap32);
+begin
+  PaintLayer(Buffer);
+end;
+
+procedure TMapLayerBasicNoBitmap.SetViewCoordConverter(
+  AValue: ILocalCoordConverter);
+begin
+  inherited;
+  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
+    SetNeedRedraw;
+  end;
+end;
+
+procedure TMapLayerBasicNoBitmap.StartThreads;
+begin
+  inherited;
+  LayerPositioned.OnPaint := OnPaintLayer;
 end;
 
 end.
