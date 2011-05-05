@@ -258,6 +258,7 @@ uses
   u_CenterScale in 'MapLayers\u_CenterScale.pas',
   u_LayerStatBar in 'MapLayers\u_LayerStatBar.pas',
   u_MapLayerBasic in 'MapLayers\u_MapLayerBasic.pas',
+  u_MapLayerTileGrid in 'MapLayers\u_MapLayerTileGrid.pas',
   u_MapLayerGrids in 'MapLayers\u_MapLayerGrids.pas',
   u_MapMainLayer in 'MapLayers\u_MapMainLayer.pas',
   u_MapMarksLayer in 'MapLayers\u_MapMarksLayer.pas',

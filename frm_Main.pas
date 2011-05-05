@@ -71,6 +71,7 @@ uses
   u_MapLayerFillingMap,
   u_MiniMapLayer,
   u_MapLayerGrids,
+  u_MapLayerTileGrid,
   u_MapLayerGoto,
   u_MapLayerShowError,
   u_CenterScale,
@@ -489,6 +490,7 @@ type
     FLayerSelection: TSelectionLayer;
     FLayerGPSMarker: TMapLayerGPSMarker;
     FLayerGrids: TMapLayerGrids;
+    FLayerTileGrid: TMapLayerTileGrid;
     LayerMapNavToMark: TNavToMarkLayer;
     FUIDownLoader: TTileDownloaderUI;
 
@@ -752,6 +754,8 @@ begin
     FLayersList.Add(FMainLayer);
     FLayerGrids := TMapLayerGrids.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig);
     FLayersList.Add(FLayerGrids);
+    FLayerTileGrid := TMapLayerTileGrid.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig.TileGrid);
+    FLayersList.Add(FLayerTileGrid);
     FWikiLayer := TWikiLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.KmlLayerConfig, FConfig.MainMapsConfig.GetKmlLayersSet);
     FLayersList.Add(FWikiLayer);
     FLayerFillingMap:=TMapLayerFillingMap.create(map, FConfig.ViewPortState, FConfig.LayersConfig.FillingMapLayerConfig);
