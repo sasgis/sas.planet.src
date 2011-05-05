@@ -134,7 +134,6 @@
     <DCCReference Include="i_ActiveMapsConfig.pas" />
     <DCCReference Include="i_AntiBan.pas" />
     <DCCReference Include="i_BackgroundTask.pas" />
-    <DCCReference Include="i_BackgroundTaskLayerDraw.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />

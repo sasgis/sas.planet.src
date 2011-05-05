@@ -20,7 +20,7 @@ type
     procedure ExecuteTask; virtual; abstract;
     procedure Execute; override;
     procedure Terminate; override;
-    property NeedStopExecute: Boolean read FNeedStopExecute;
+    function IsNeedStopExecute(): Boolean;
   protected
     procedure StartExecute; virtual;
     procedure StopExecute; virtual;
@@ -85,6 +85,11 @@ begin
       end;
     end;
   end;
+end;
+
+function TBackgroundTask.IsNeedStopExecute: Boolean;
+begin
+  Result := FNeedStopExecute;
 end;
 
 procedure TBackgroundTask.StartExecute;

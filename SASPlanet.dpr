@@ -278,7 +278,6 @@ uses
   u_InterfacedThread in 'u_InterfacedThread.pas',
   i_BackgroundTask in 'i_BackgroundTask.pas',
   u_BackgroundTask in 'u_BackgroundTask.pas',
-  i_BackgroundTaskLayerDraw in 'i_BackgroundTaskLayerDraw.pas',
   u_BackgroundTaskLayerDrawBase in 'u_BackgroundTaskLayerDrawBase.pas',
   u_MapLayerFillingMap in 'MapLayers\u_MapLayerFillingMap.pas',
   i_Marks in 'i_Marks.pas',
