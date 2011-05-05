@@ -97,7 +97,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TSelectionRectLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
+procedure TSelectionRectLayer.PaintLayer(ABuffer: TBitmap32);
 var
   jj: integer;
   xy1, xy2: TPoint;
@@ -120,9 +120,9 @@ begin
     xy1 := VLocalConverter.LonLat2LocalPixel(FSelectedLonLat.TopLeft);
     xy2 := VLocalConverter.LonLat2LocalPixel(FSelectedLonLat.BottomRight);
 
-    Buffer.FillRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FFillColor);
-    Buffer.FrameRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FBorderColor);
-    Buffer.FrameRectTS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, FBorderColor);
+    ABuffer.FillRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FFillColor);
+    ABuffer.FrameRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FBorderColor);
+    ABuffer.FrameRectTS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, FBorderColor);
 
     VSelectedRelative := VGeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoom);
 
@@ -140,14 +140,14 @@ begin
 
       VColor := FZoomDeltaColors[VZoomDelta];
 
-      Buffer.FrameRectTS(
+      ABuffer.FrameRectTS(
         xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
         xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
         VColor
       );
 
-      Buffer.Font.Size := FFontSize;
-      Buffer.RenderText(
+      ABuffer.Font.Size := FFontSize;
+      ABuffer.RenderText(
         xy2.x - ((xy2.x - xy1.x) div 2) - 42 + VZoomDelta * 26,
         xy2.y - ((xy2.y - xy1.y) div 2) - 6,
         'z' + inttostr(jj + 1), 3, VColor
@@ -162,7 +162,6 @@ procedure TSelectionRectLayer.StartThreads;
 begin
   inherited;
   OnConfigChange(nil);
-  LayerPositioned.OnPaint := PaintLayer;
 end;
 
 end.
