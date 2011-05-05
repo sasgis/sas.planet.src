@@ -32,7 +32,7 @@ type
   private
     procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
   protected
-    procedure PaintLayer(ABuffer: TBitmap32); virtual; abstract;
+    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); virtual; abstract;
   protected
     procedure DoRedraw; override;
     procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
@@ -361,17 +361,22 @@ end;
 
 procedure TMapLayerBasicNoBitmap.OnPaintLayer(Sender: TObject;
   Buffer: TBitmap32);
+var
+  VLocalConverter: ILocalCoordConverter;
 begin
-  PaintLayer(Buffer);
+  VLocalConverter := ViewCoordConverter;
+  if VLocalConverter <> nil then begin
+    PaintLayer(Buffer, VLocalConverter);
+  end;
 end;
 
 procedure TMapLayerBasicNoBitmap.SetViewCoordConverter(
   AValue: ILocalCoordConverter);
 begin
-  inherited;
   if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
     SetNeedRedraw;
   end;
+  inherited;
 end;
 
 procedure TMapLayerBasicNoBitmap.StartThreads;

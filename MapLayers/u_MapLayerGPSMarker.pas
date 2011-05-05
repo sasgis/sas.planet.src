@@ -9,6 +9,7 @@ uses
   GR32_Transforms,
   GR32_Image,
   t_GeoTypes,
+  i_LocalCoordConverter,
   i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
   i_ViewPortState,
@@ -31,7 +32,7 @@ type
     procedure OnConfigChange(Sender: TObject);
     procedure PrepareMarker(ASpeed, AAngle: Double);
   protected
-    procedure PaintLayer(ABuffer: TBitmap32); override;
+    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -52,7 +53,6 @@ uses
   GR32_Math,
   u_GeoFun,
   i_GPS,
-  i_LocalCoordConverter,
   u_NotifyEventListener;
 
 { TMapLayerGPSMarker }
@@ -94,15 +94,15 @@ var
 begin
   ViewUpdateLock;
   try
-  VGPSPosition := FGPSRecorder.CurrentPosition;
-  if VGPSPosition.IsFix = 0 then begin
-    Hide;
-  end else begin
-    FFixedLonLat := VGPSPosition.Position;
-    PrepareMarker(VGPSPosition.Speed_KMH, VGPSPosition.Heading);
-    SetNeedRedraw;
-    Show;
-  end;
+    VGPSPosition := FGPSRecorder.CurrentPosition;
+    if VGPSPosition.IsFix = 0 then begin
+      Hide;
+    end else begin
+      FFixedLonLat := VGPSPosition.Position;
+      PrepareMarker(VGPSPosition.Speed_KMH, VGPSPosition.Heading);
+      SetNeedRedraw;
+      Show;
+    end;
   finally
     ViewUpdateUnlock;
   end;
@@ -114,24 +114,20 @@ begin
   GPSReceiverReceive(nil);
 end;
 
-procedure TMapLayerGPSMarker.PaintLayer(ABuffer: TBitmap32);
+procedure TMapLayerGPSMarker.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
-  VConverter: ILocalCoordConverter;
   VTargetPoint: TDoublePoint;
 begin
-  VConverter := ViewCoordConverter;
-  if VConverter <> nil then begin
-    FMarker.Lock;
-    try
-      VTargetPoint := VConverter.LonLat2LocalPixelFloat(FFixedLonLat);
-      VTargetPoint.X := VTargetPoint.X - FFixedOnBitmap.X;
-      VTargetPoint.Y := VTargetPoint.Y - FFixedOnBitmap.Y;
-      if PixelPointInRect(VTargetPoint, DoubleRect(VConverter.GetLocalRect)) then begin
-        ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), FMarker);
-      end;
-    finally
-      FMarker.Unlock;
+  FMarker.Lock;
+  try
+    VTargetPoint := ALocalConverter.LonLat2LocalPixelFloat(FFixedLonLat);
+    VTargetPoint.X := VTargetPoint.X - FFixedOnBitmap.X;
+    VTargetPoint.Y := VTargetPoint.Y - FFixedOnBitmap.Y;
+    if PixelPointInRect(VTargetPoint, DoubleRect(ALocalConverter.GetLocalRect)) then begin
+      ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), FMarker);
     end;
+  finally
+    FMarker.Unlock;
   end;
 end;
 

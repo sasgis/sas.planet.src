@@ -37,8 +37,7 @@ type
     procedure OnChangeSelection(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure DoRedraw; override;
-    procedure PaintLayer(Buffer: TBitmap32); override;
+    procedure PaintLayer(Buffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -93,14 +92,6 @@ begin
   inherited;
 end;
 
-procedure TSelectionLayer.DoRedraw;
-begin
-  inherited;
-  FSourcePolygon := Copy(FLastSelectionInfo.Polygon);
-  PreparePolygon(ViewCoordConverter);
-  LayerPositioned.Changed;
-end;
-
 function TSelectionLayer.LonLatArrayToVisualFloatArray(
   ALocalConverter: ILocalCoordConverter;
   APolygon: TArrayOfDoublePoint
@@ -145,13 +136,21 @@ end;
 
 procedure TSelectionLayer.OnChangeSelection(Sender: TObject);
 begin
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
   ViewUpdate;
 end;
 
-procedure TSelectionLayer.PaintLayer(Buffer: TBitmap32);
+procedure TSelectionLayer.PaintLayer(Buffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   VPointsCount: Integer;
 begin
+  FSourcePolygon := Copy(FLastSelectionInfo.Polygon);
+  PreparePolygon(ViewCoordConverter);
   VPointsCount := Length(FPointsOnBitmap);
   if VPointsCount > 0 then begin
     if FLinePolygon <> nil then begin

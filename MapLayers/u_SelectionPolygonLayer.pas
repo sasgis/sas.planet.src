@@ -8,6 +8,7 @@ uses
   GR32_Polygons,
   GR32_Image,
   t_GeoTypes,
+  i_LocalCoordConverter,
   i_ViewPortState,
   i_SelectionPolygonLayerConfig,
   u_PolyLineLayerBase,
@@ -21,7 +22,7 @@ type
     FPolygonFill: TPolygon32;
   protected
     procedure DoConfigChange; override;
-    procedure PaintLayer(ABuffer: TBitmap32); override;
+    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     constructor Create(
       AParentMap: TImage32;
@@ -83,10 +84,10 @@ begin
   inherited DrawLine(VPathLonLat, AActiveIndex);
 end;
 
-procedure TSelectionPolygonLayer.PaintLayer(ABuffer: TBitmap32);
+procedure TSelectionPolygonLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 begin
   FPolygonFill.DrawFill(ABuffer, FFillColor);
-  inherited PaintLayer(ABuffer);
+  inherited;
 end;
 
 end.

@@ -39,7 +39,7 @@ type
     );
   protected
     procedure DoConfigChange; override;
-    procedure PaintLayer(ABuffer: TBitmap32); override;
+    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter); override;
   public
     constructor Create(
@@ -122,7 +122,7 @@ begin
   FValueConverter := FValueToStringConverterConfig.GetStaticConverter;
 end;
 
-procedure TCalcLineLayer.PaintLayer(ABuffer: TBitmap32);
+procedure TCalcLineLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   VIndex: integer;
   VPosOnBitmap: TDoublePoint;

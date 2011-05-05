@@ -54,8 +54,7 @@ type
     property PointsOnBitmap: TArrayOfDoublePoint read FPointsOnBitmap;
     property SourcePolygon: TArrayOfDoublePoint read FSourcePolygon;
   protected
-    procedure DoRedraw; override;
-    procedure PaintLayer(ABuffer: TBitmap32); override;
+    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -116,12 +115,6 @@ begin
   FPointFirstColor := FConfig.PointFirstColor;
   FPointActiveColor := FConfig.PointActiveColor;
   FPointSize := FConfig.PointSize;
-end;
-
-procedure TPolyLineLayerBase.DoRedraw;
-begin
-  inherited;
-  PreparePolygon(ViewCoordConverter);
 end;
 
 procedure TPolyLineLayerBase.DrawLine(APathLonLat: TArrayOfDoublePoint;
@@ -232,12 +225,13 @@ begin
   ViewUpdate;
 end;
 
-procedure TPolyLineLayerBase.PaintLayer(ABuffer: TBitmap32);
+procedure TPolyLineLayerBase.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   VIndex: integer;
   VPosOnBitmap: TDoublePoint;
   VPointsCount: Integer;
 begin
+  PreparePolygon(ALocalConverter);
   VPointsCount := Length(FPointsOnBitmap);
   if VPointsCount > 0 then begin
     if FLinePolygon <> nil then begin
