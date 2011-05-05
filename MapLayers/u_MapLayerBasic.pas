@@ -363,10 +363,23 @@ procedure TMapLayerBasicNoBitmap.OnPaintLayer(Sender: TObject;
   Buffer: TBitmap32);
 var
   VLocalConverter: ILocalCoordConverter;
+var
+  VPerformanceCounterBegin: Int64;
+  VPerformanceCounterEnd: Int64;
+  VPerformanceCounterFr: Int64;
+  VUpdateTime: TDateTime;
 begin
   VLocalConverter := ViewCoordConverter;
   if VLocalConverter <> nil then begin
-    PaintLayer(Buffer, VLocalConverter);
+    QueryPerformanceCounter(VPerformanceCounterBegin);
+    try
+      PaintLayer(Buffer, VLocalConverter);
+    finally
+      QueryPerformanceCounter(VPerformanceCounterEnd);
+      QueryPerformanceFrequency(VPerformanceCounterFr);
+      VUpdateTime := (VPerformanceCounterEnd - VPerformanceCounterBegin) / VPerformanceCounterFr/24/60/60;
+      IncRedrawCounter(VUpdateTime);
+    end;
   end;
 end;
 
