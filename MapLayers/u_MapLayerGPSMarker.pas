@@ -16,7 +16,7 @@ uses
 
 
 type
-  TMapLayerGPSMarker = class(TMapLayerBasicFullView)
+  TMapLayerGPSMarker = class(TMapLayerBasicNoBitmap)
   private
     FConfig: IMapLayerGPSMarkerConfig;
     FGPSRecorder: IGPSRecorder;
@@ -30,9 +30,8 @@ type
     procedure GPSReceiverReceive(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
     procedure PrepareMarker(ASpeed, AAngle: Double);
-    procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
   protected
-    procedure DoRedraw; override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
   public
     procedure StartThreads; override;
   public
@@ -65,7 +64,7 @@ constructor TMapLayerGPSMarker.Create(
   AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+  inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   FMarker := TCustomBitmap32.Create;
@@ -87,12 +86,6 @@ begin
   FreeAndNil(FTransform);
   FreeAndNil(FMarker);
   inherited;
-end;
-
-procedure TMapLayerGPSMarker.DoRedraw;
-begin
-  inherited;
-  LayerPositioned.Changed;
 end;
 
 procedure TMapLayerGPSMarker.GPSReceiverReceive(Sender: TObject);
@@ -121,7 +114,7 @@ begin
   GPSReceiverReceive(nil);
 end;
 
-procedure TMapLayerGPSMarker.PaintLayer(Sender: TObject; Buffer: TBitmap32);
+procedure TMapLayerGPSMarker.PaintLayer(ABuffer: TBitmap32);
 var
   VConverter: ILocalCoordConverter;
   VTargetPoint: TDoublePoint;
@@ -134,7 +127,7 @@ begin
       VTargetPoint.X := VTargetPoint.X - FFixedOnBitmap.X;
       VTargetPoint.Y := VTargetPoint.Y - FFixedOnBitmap.Y;
       if PixelPointInRect(VTargetPoint, DoubleRect(VConverter.GetLocalRect)) then begin
-        Buffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), FMarker);
+        ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), FMarker);
       end;
     finally
       FMarker.Unlock;
@@ -199,7 +192,6 @@ procedure TMapLayerGPSMarker.StartThreads;
 begin
   inherited;
   OnConfigChange(nil);
-  LayerPositioned.OnPaint := PaintLayer;
 end;
 
 end.
