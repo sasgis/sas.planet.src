@@ -85,14 +85,15 @@ end;
 
 function TThreadExportYaMapsNew.GetFilePath(Ax,Ay,Azoom,Aid:integer): string;
  function heightTreeForZooms(i:integer):integer;
- var tilesInZoom,j,heightZoom:integer;
+ var heightZoom:integer;
+     j,tilesInZoom:Int64;
  begin
     heightZoom:=0;
     tilesInZoom:=4 shl (i shl 1);
     j:=1;
     while j<tilesInZoom do begin
-      j:=j shl 8;
       inc(heightZoom);
+      j:=j shl 8;
     end;
     result:=heightZoom;
  end;
@@ -114,7 +115,7 @@ begin
 
   xNode:=0;
   yNode:=0;
-  sizeNode:=1 shl ((4 * (heightTreeForZoom - 1) - 1));
+  sizeNode:=1 shl ((4 * (heightTreeForZoom - 1) {- 1}));
 
   xChild:=0;
   yChild:=0;
@@ -154,22 +155,27 @@ procedure TThreadExportYaMapsNew.WriteHeader(FilesStream:TFileStream);
 var headersize:word;
     blocksize,ostblocksize:word;
     version:word;
+    flag:byte;
 begin
   FilesStream.Write('YMCF',4);
   headersize:=32;
-  FilesStream.Write(headersize,2); //Размер заголовка, в килобайтах = 32
+  flag:=0;
   version:=1;
+  blocksize:=32;
+  ostblocksize:=0;
+  FilesStream.Write(headersize,2); //Размер заголовка, в килобайтах = 32
   FilesStream.Write(version,2); //Версия формата = 1
   FilesStream.Size:=FilesStream.Size+4; //Платформа, на которой создали
   FilesStream.Position:=FilesStream.Size;
-  blocksize:=32;
   FilesStream.Write(blocksize,2); //Размер блока регулярных данных, в килобайтах = 32
-  ostblocksize:=0;
   FilesStream.Write(ostblocksize,2);   //Размер фрагмента блока остаточных данных, в килобайтах = 1
   FilesStream.Size:=FilesStream.Size+8192; //Битовая таблица свободных блоков данных
   FilesStream.Size:=FilesStream.Size+512; //Таблица номеров остаточных блоков данных
   FilesStream.Size:=FilesStream.Size+496; //Резерв
   FilesStream.Position:=FilesStream.Size;
+  FilesStream.Write('YBLK',4);
+  FilesStream.Write(version,1);
+  FilesStream.Write(flag,1);
   FilesStream.Size:=32768*2;
 end;
 
@@ -179,7 +185,6 @@ var records:word;
     time:Integer;
     datasize:integer;
     dataid:integer;
-    MD5hz:byte;
     MD5arr:TMD5Digest;
 begin
   records:=1;
@@ -191,16 +196,9 @@ begin
   FilesStream.Write('YTLD',4);
   FilesStream.Write(records,2);//количество записей в таблице разметки данных (пока всегда = 1)
   FilesStream.Write(version,2);//номер версии формата = 1
-
-//  FilesStream.Size:=FilesStream.Size+16;
-  FilesStream.Position:=FilesStream.Position+8;
-  MD5hz:=21;                                        // то что в кэше мяка идет за MD5
-  FilesStream.Write(MD5hz,1);
-  FilesStream.Position:=FilesStream.Position+7;
-
-  {MD5arr:=MD5Buffer(TileStream.Memory,TileStream.Size);
-  FilesStream.Write(MD5arr.v,16);}//MD5-чексумма
-  
+  MD5arr:=MD5Buffer(TileStream.Memory,TileStream.Size);
+  FilesStream.Write(MD5arr.v,16);//MD5-чексумма
+  version:=5;
   FilesStream.Write(version,2);//номер версии карт-основы
   FilesStream.Write(time,4);//время (пока не используется = 0)
   FilesStream.Write(dataid,4);//идентификатор данных (сейчас всегда 0)
@@ -221,41 +219,36 @@ var records:word;
     nexttablesize:byte;
     datasize:integer;
     dataid:word;
-    freeblocknum:integer;
+    freeblocknum:Smallint;
     blocks8indexes:byte;
     blockindexpos:integer;
     blockPos:integer;
     i:integer;
 begin
   FilesStream.Position:=16;
-  freeblocknum:=-1;
+  freeblocknum:=0;
   blockindexpos:=0;
-  while (freeblocknum<0)and(blockindexpos<=8192) do begin
-    FilesStream.Read(blocks8indexes,1);
-    if (blocks8indexes shr (7-(blockindexpos mod 8)))=0 then begin
-      freeblocknum:=blockindexpos;
+  while (blockindexpos<=8192) do begin
+    if (blockindexpos mod 8)=0 then begin
+      FilesStream.Read(blocks8indexes,1);
     end;
-    while (freeblocknum<0)and(blockindexpos mod 8<>0) do begin
-      if (blocks8indexes shr (7-(blockindexpos mod 8)))=0 then begin
-        freeblocknum:=blockindexpos;
-      end;
-      inc(blockindexpos);
+    if ((blocks8indexes shr (7-(blockindexpos mod 8))) mod 2) = 0 then begin
+      freeblocknum:=blockindexpos+1;
+      Break;
     end;
+    inc(blockindexpos);
   end;
-  FilesStream.Position:=16+8*(freeblocknum div 8);
+
+  FilesStream.Position:=16+((freeblocknum-1) div 8);
   FilesStream.read(blocks8indexes,1);
   blocks8indexes:=blocks8indexes or ($01 shl (7-(blockindexpos mod 8)));
-  FilesStream.Position:=16+8*(freeblocknum div 8);
+  FilesStream.Position:=16+((freeblocknum-1) div 8);
   FilesStream.write(blocks8indexes,1);
 
-  if freeblocknum=0 then begin
-    blockPos:=9216;
-  end else begin
-    blockPos:=32768*(freeblocknum+1)
-  end;
+  blockPos:=32768*(freeblocknum+1);
 
   version:=1;
-  flag:=0;
+  flag:=3;
   nexttablesize:=0;
   records:=length(TileStreams);
   if FilesStream.size<blockPos+32768 then begin
@@ -277,7 +270,11 @@ begin
   end;
   for i := 0 to records - 1 do begin
     WriteTile(FilesStream,TileStreams[i].data,FilesStream.Position);
-    //FilesStream.Position:=FilesStream.Position+TileStreams[i].data.Size;
+  end;
+  for i := 0 to records - 1 do begin
+    dataid:=calcTileIndex(TileStreams[i].x,TileStreams[i].y);
+    FilesStream.Position:=32768+(dataid*2);
+    FilesStream.Write(freeblocknum,2);
   end;
 end;
 
@@ -293,37 +290,49 @@ var newFilePath:string;
     i:Integer;
     filestream:TFileStream;
 begin
-  newFilePath:=GetFilePath(x,y,z,cacheid);
+  if last then begin
+    newFilePath:=CurrentFilePath;
+  end else begin
+    newFilePath:=GetFilePath(x,y,z,cacheid);
+  end;
+
+  if length(Tiles2Block)=0 then begin
+    CurrentFilePath:=newFilePath;
+  end;
+
   TilesSize:=0;
   for i := 0 to length(Tiles2Block) - 1 do begin
     TilesSize:=TilesSize+Tiles2Block[i].data.size;
   end;
 
-  if FileExists(newFilePath) then begin
-    filestream:=TFileStream.Create(newFilePath,fmOpenReadWrite);
+  if FileExists(CurrentFilePath) then begin
+    filestream:=TFileStream.Create(CurrentFilePath,fmOpenReadWrite);
   end else begin
-    createdirif(newFilePath);
-    filestream:=TFileStream.Create(newFilePath,fmCreate);
+    createdirif(CurrentFilePath);
+    filestream:=TFileStream.Create(CurrentFilePath,fmCreate);
   end;
   try
     if filestream.Size=0 then begin
       WriteHeader(filestream);
     end;
 
-    if ((CurrentFilePath=newFilePath)and
-        (TilesSize+TileStream.Size+10+6*(length(Tiles2Block)+1)>32768))or
-       (last) then begin
+    if (
+       (last)or
+       (TilesSize+TileStream.Size+10+6*(length(Tiles2Block))>32768)or
+       (CurrentFilePath<>newFilePath)
+       )
+       and(length(Tiles2Block)>0) then begin
       WriteBlock(filestream,Tiles2Block);
       SetLength(Tiles2Block,0);
     end;
 
-    if not(last) then begin
+    if (not(last))and(TileStream<>nil) then begin
       SetLength(Tiles2Block,length(Tiles2Block)+1);
       Tiles2Block[length(Tiles2Block)-1].data:=TMemoryStream.Create;
       TileStream.Position:=0;
       Tiles2Block[length(Tiles2Block)-1].data.CopyFrom(TileStream,TileStream.Size);
-      Tiles2Block[length(Tiles2Block)-1].x:=x;
-      Tiles2Block[length(Tiles2Block)-1].y:=y;
+      Tiles2Block[length(Tiles2Block)-1].x:=x mod 128;
+      Tiles2Block[length(Tiles2Block)-1].y:=y mod 128;
     end;
   finally
     filestream.Free;
@@ -345,7 +354,6 @@ var
   VSaver: IBitmapTileSaver;
   Vmt: Byte;
   VTileIterators: array of ITileIterator;
-  TileStreams:array of TTileStream;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -418,7 +426,7 @@ begin
                       bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
                       TileStream.Clear;
                       VSaver.SaveToStream(bmp32crop, TileStream);
-                      AddTileToCache(TileStream,VTile.X+Xi,VTile.Y+Yi,VZoom,10+j,false);
+                      AddTileToCache(TileStream,VTile.X*2+Xi,VTile.Y*2+Yi,VZoom,10+j,false);
                    end;
                   end;
                 end;
@@ -431,7 +439,7 @@ begin
             end;
           end;
         end;
-        //AddTileToCache(nil,0,0,VZoom,10+j,true);
+        AddTileToCache(nil,0,0,0,0,true);
       finally
         for i := 0 to Length(FZooms)-1 do begin
           VTileIterators[i] := nil;
