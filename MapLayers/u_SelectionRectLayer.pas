@@ -12,7 +12,7 @@ uses
   u_MapLayerBasic;
 
 type
-  TSelectionRectLayer = class(TMapLayerBasicFullView)
+  TSelectionRectLayer = class(TMapLayerBasicNoBitmap)
   private
     FConfig: ISelectionRectLayerConfig;
     FSelectedLonLat: TDoubleRect;
@@ -22,10 +22,9 @@ type
     FFontSize: Integer;
     FZoomDeltaColors: TArrayOfColor32;
 
-    procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure DoRedraw; override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
   public
     procedure StartThreads; override;
   public
@@ -52,18 +51,12 @@ constructor TSelectionRectLayer.Create(
   AConfig: ISelectionRectLayerConfig
 );
 begin
-  inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+  inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
-end;
-
-procedure TSelectionRectLayer.DoRedraw;
-begin
-  inherited;
-  LayerPositioned.Changed;
 end;
 
 procedure TSelectionRectLayer.DrawNothing;

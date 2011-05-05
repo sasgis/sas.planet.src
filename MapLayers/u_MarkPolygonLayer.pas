@@ -21,7 +21,7 @@ type
     FPolygonFill: TPolygon32;
   protected
     procedure DoConfigChange; override;
-    procedure PaintLayer(Sender: TObject; Buffer: TBitmap32); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
   public
     constructor Create(
       AParentMap: TImage32;
@@ -83,10 +83,10 @@ begin
   inherited DrawLine(VPathLonLat, AActiveIndex);
 end;
 
-procedure TMarkPolygonLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
+procedure TMarkPolygonLayer.PaintLayer(ABuffer: TBitmap32);
 begin
-  FPolygonFill.DrawFill(Buffer, FFillColor);
-  inherited PaintLayer(Sender, Buffer);
+  FPolygonFill.DrawFill(ABuffer, FFillColor);
+  inherited PaintLayer(ABuffer);
 end;
 
 end.

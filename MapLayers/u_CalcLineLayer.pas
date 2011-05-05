@@ -39,7 +39,7 @@ type
     );
   protected
     procedure DoConfigChange; override;
-    procedure PaintLayer(Sender: TObject; Buffer: TBitmap32); override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter); override;
   public
     constructor Create(
@@ -122,7 +122,7 @@ begin
   FValueConverter := FValueToStringConverterConfig.GetStaticConverter;
 end;
 
-procedure TCalcLineLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
+procedure TCalcLineLayer.PaintLayer(ABuffer: TBitmap32);
 var
   VIndex: integer;
   VPosOnBitmap: TDoublePoint;
@@ -137,13 +137,13 @@ begin
       for VIndex := 1 to VPointsCount - 2 do begin
         VPosOnBitmap := PointsOnBitmap[VIndex];
         text := FValueConverter.DistConvert(FDistArray[VIndex] - FDistArray[VIndex - 1]);
-        DrawPointText(Buffer, BitmapSize, text, VPosOnBitmap, 7, FTextBGColor, FTextColor);
+        DrawPointText(ABuffer, BitmapSize, text, VPosOnBitmap, 7, FTextBGColor, FTextColor);
       end;
     end;
 
     if VPointsCount > 1 then begin
       text := SAS_STR_Whole + ': ' + FValueConverter.DistConvert(FDistArray[VPointsCount - 1]);
-      DrawPointText(Buffer, BitmapSize, text, PointsOnBitmap[VPointsCount - 1], 9, FTextBGColor, FTextColor);
+      DrawPointText(ABuffer, BitmapSize, text, PointsOnBitmap[VPointsCount - 1], 9, FTextBGColor, FTextColor);
     end;
   end;
 end;
