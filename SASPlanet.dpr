@@ -76,6 +76,8 @@ uses
   i_ConfigSaveLoadStrategy in 'i_ConfigSaveLoadStrategy.pas',
   u_ConfigSaveLoadStrategyBasicUseProvider in 'u_ConfigSaveLoadStrategyBasicUseProvider.pas',
   u_ConfigSaveLoadStrategyBasicProviderSubItem in 'u_ConfigSaveLoadStrategyBasicProviderSubItem.pas',
+  i_TileError in 'i_TileError.pas',
+  u_TileErrorInfo in 'u_TileErrorInfo.pas',
   i_LogSimple in 'i_LogSimple.pas',
   i_LogForTaskThread in 'i_LogForTaskThread.pas',
   i_TileDownlodSession in 'i_TileDownlodSession.pas',
