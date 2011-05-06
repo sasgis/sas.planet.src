@@ -330,6 +330,8 @@ type
     NSignalStrengthBar: TTBXVisibilityToggleItem;
     TBXSeparatorItem18: TTBXSeparatorItem;
     NBlock_toolbars: TTBXItem;
+    TBXSeparatorItem19: TTBXSeparatorItem;
+    tbitmGPSOptions: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -456,6 +458,7 @@ type
     procedure NSensorsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure NBlock_toolbarsClick(Sender: TObject);
+    procedure tbitmGPSOptionsClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3635,6 +3638,12 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);
+begin
+ frmSettings.TabSheet5.Show;
+ frmSettings.ShowModal;
 end;
 
 procedure TfrmMain.TBScreenSelectClick(Sender: TObject);
