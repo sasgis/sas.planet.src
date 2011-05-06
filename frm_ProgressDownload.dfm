@@ -28,8 +28,8 @@ object frmProgressDownload: TfrmProgressDownload
       328
       248)
     object RProgr: TRarProgress
-      Left = 6
-      Top = 204
+      Left = 8
+      Top = 200
       Width = 314
       Height = 17
       Min = 0

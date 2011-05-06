@@ -154,7 +154,7 @@ end;
 
 procedure TfrmProgressDownload.Panel1Resize(Sender: TObject);
 begin
-  RProgr.Top:=TPanel(sender).Height-44;
+  RProgr.Top:=TPanel(sender).Height-48;
   RProgr.Width:=TPanel(sender).Width-14;
 end;
 
