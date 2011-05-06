@@ -132,7 +132,7 @@ ResourceString
   SAS_STR_Add = 'Add';
   SAS_STR_Edit = 'Edit';
   SAS_STR_EditMap = 'Map Settings:';
-  SAS_STR_Stop = 'Abort';
+  SAS_STR_Stop = 'Stop';
   SAS_STR_Stop1 = 'Paused';
   SAS_STR_Continue = 'Resume';
   SAS_STR_ExportTiles = 'Export';
