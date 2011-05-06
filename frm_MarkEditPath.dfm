@@ -23,7 +23,6 @@ object frmMarkEditPath: TfrmMarkEditPath
     Align = alBottom
     Caption = 'Show on map'
     TabOrder = 4
-    ExplicitTop = 279
   end
   object pnlCategory: TPanel
     Left = 0
@@ -37,7 +36,7 @@ object frmMarkEditPath: TfrmMarkEditPath
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 58
+      Width = 49
       Height = 19
       Align = alLeft
       Caption = 'Category:'
@@ -46,9 +45,9 @@ object frmMarkEditPath: TfrmMarkEditPath
     end
     object CBKateg: TComboBox
       AlignWithMargins = True
-      Left = 67
+      Left = 58
       Top = 3
-      Width = 258
+      Width = 267
       Height = 21
       Align = alClient
       ItemHeight = 13
@@ -68,7 +67,7 @@ object frmMarkEditPath: TfrmMarkEditPath
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 23
+      Width = 31
       Height = 21
       Align = alLeft
       Caption = 'Name:'
@@ -77,9 +76,9 @@ object frmMarkEditPath: TfrmMarkEditPath
     end
     object edtName: TEdit
       AlignWithMargins = True
-      Left = 32
+      Left = 40
       Top = 3
-      Width = 293
+      Width = 285
       Height = 21
       Align = alClient
       TabOrder = 0
@@ -95,7 +94,6 @@ object frmMarkEditPath: TfrmMarkEditPath
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitHeight = 194
   end
   object flwpnlStyle: TFlowPanel
     Left = 0
@@ -109,23 +107,27 @@ object frmMarkEditPath: TfrmMarkEditPath
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitTop = 246
+    ExplicitLeft = 3
+    ExplicitTop = 240
     object lblLineColor: TLabel
       AlignWithMargins = True
       Left = 3
-      Top = 3
-      Width = 26
+      Top = 6
+      Width = 25
       Height = 13
+      Margins.Top = 6
+      Margins.Right = 0
       Align = alLeft
       Caption = 'Color'
       Layout = tlCenter
     end
     object clrbxLineColor: TColorBox
       AlignWithMargins = True
-      Left = 35
+      Left = 31
       Top = 3
       Width = 38
       Height = 22
+      Margins.Right = 0
       Selected = clRed
       Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
       ItemHeight = 16
@@ -133,25 +135,28 @@ object frmMarkEditPath: TfrmMarkEditPath
     end
     object btnLineColor: TSpeedButton
       AlignWithMargins = True
-      Left = 79
+      Left = 69
       Top = 3
       Width = 17
       Height = 22
+      Margins.Left = 0
       Caption = '...'
       OnClick = btnLineColorClick
     end
     object lblWidth: TLabel
       AlignWithMargins = True
-      Left = 102
-      Top = 3
-      Width = 40
+      Left = 92
+      Top = 6
+      Width = 28
       Height = 13
+      Margins.Top = 6
+      Margins.Right = 0
       Caption = 'Width'
       Layout = tlCenter
     end
     object seWidth: TSpinEdit
       AlignWithMargins = True
-      Left = 148
+      Left = 123
       Top = 3
       Width = 41
       Height = 22
@@ -162,16 +167,18 @@ object frmMarkEditPath: TfrmMarkEditPath
     end
     object lblTransp: TLabel
       AlignWithMargins = True
-      Left = 195
-      Top = 3
-      Width = 85
+      Left = 170
+      Top = 6
+      Width = 51
       Height = 13
+      Margins.Top = 6
+      Margins.Right = 0
       Caption = 'Opacity %'
       Layout = tlCenter
     end
     object SEtransp: TSpinEdit
       AlignWithMargins = True
-      Left = 286
+      Left = 224
       Top = 3
       Width = 41
       Height = 22
@@ -191,7 +198,6 @@ object frmMarkEditPath: TfrmMarkEditPath
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 5
-    ExplicitTop = 299
     object btnOk: TButton
       AlignWithMargins = True
       Left = 173
