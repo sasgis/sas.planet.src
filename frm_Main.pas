@@ -46,6 +46,8 @@ uses
   i_JclListenerNotifierLinksList,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_TileError,
+  i_TileErrorLogProviedrStuped,
   u_GeoToStr,
   t_CommonTypes,
   i_GPSRecorder,
@@ -524,6 +526,9 @@ type
     FLineOnMapEdit: ILineOnMapEdit;
     FMarkDBGUI: TMarksDbGUIHelper;
 
+    FTileErrorLogger: ITileErrorLogger;
+    FTileErrorLogProvider: ITileErrorLogProviedrStuped;
+
     FRuller:TBitmap32;
     FTumbler:TBitmap32;
     FSensorViewList: IGUIDInterfaceList;
@@ -613,6 +618,7 @@ uses
   i_SensorViewListGenerator,
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
+  u_TileErrorLogProviedrStuped,
   u_LineOnMapEdit,
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
@@ -635,10 +641,17 @@ uses
 {$R *.dfm}
 
 constructor TfrmMain.Create(AOwner: TComponent);
+var
+  VLogger: TTileErrorLogProviedrStuped;
 begin
   inherited;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FConfig := GState.MainFormConfig;
+
+  VLogger := TTileErrorLogProviedrStuped.Create;
+  FTileErrorLogger := VLogger;
+  FTileErrorLogProvider := VLogger;
+
   FIsGPSPosChanged := False;
   FdWhenMovingButton := 5;
 
