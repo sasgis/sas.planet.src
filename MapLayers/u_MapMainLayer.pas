@@ -10,6 +10,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,
+  i_GlobalViewMainConfig,
   i_BitmapPostProcessingConfig,
   i_TileError,
   u_MapType,
@@ -20,11 +21,18 @@ type
   private
     FErrorLogger: ITileErrorLogger;
     FMapsConfig: IMainMapsConfig;
+    FPostProcessingConfig:IBitmapPostProcessingConfig;
+    FViewConfig: IGlobalViewMainConfig;
     FMainMap: IMapType;
     FLayersList: IMapTypeList;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-    procedure DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
+    procedure DrawMap(
+      AMapType: TMapType;
+      ADrawMode: TDrawMode;
+      AUsePre: Boolean;
+      ARecolorConfig: IBitmapPostProcessingConfigStatic
+    );
     procedure OnMainMapChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
@@ -36,6 +44,7 @@ type
       AViewPortState: IViewPortState;
       AMapsConfig: IMainMapsConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
+      AViewConfig: IGlobalViewMainConfig;
       AErrorLogger: ITileErrorLogger
     );
     procedure StartThreads; override;
@@ -52,8 +61,7 @@ uses
   u_ResStrings,
   u_TileErrorInfo,
   u_TileIteratorByRect,
-  u_NotifyEventListener,
-  u_GlobalState;
+  u_NotifyEventListener;
 
 { TMapMainLayer }
 
@@ -62,12 +70,15 @@ constructor TMapMainLayer.Create(
   AViewPortState: IViewPortState;
   AMapsConfig: IMainMapsConfig;
   APostProcessingConfig: IBitmapPostProcessingConfig;
+  AViewConfig: IGlobalViewMainConfig;
   AErrorLogger: ITileErrorLogger
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FMapsConfig := AMapsConfig;
   FErrorLogger := AErrorLogger;
+  FPostProcessingConfig := APostProcessingConfig;
+  FViewConfig := AViewConfig;
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnMainMapChange),
@@ -81,12 +92,12 @@ begin
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
-    GState.ViewConfig.GetChangeNotifier
+    FViewConfig.GetChangeNotifier
   );
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
-    APostProcessingConfig.GetChangeNotifier
+    FPostProcessingConfig.GetChangeNotifier
   );
 end;
 
@@ -98,11 +109,15 @@ var
   VItem: IMapType;
   VEnum: IEnumGUID;
   VHybrList: IMapTypeList;
+  VRecolorConfig: IBitmapPostProcessingConfigStatic;
 begin
   inherited;
   Layer.Bitmap.Clear(0);
+
+  VRecolorConfig := FPostProcessingConfig.GetStatic;
+
   if FMainMap <> nil then begin
-    DrawMap(FMainMap.MapType, dmOpaque);
+    DrawMap(FMainMap.MapType, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig);
   end;
 
   VHybrList := FLayersList;
@@ -112,13 +127,18 @@ begin
       VItem := VHybrList.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsBitmapTiles then begin
-        DrawMap(VMapType, dmBlend);
+        DrawMap(VMapType, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig);
       end;
     end;
   end;
 end;
 
-procedure TMapMainLayer.DrawMap(AMapType: TMapType; ADrawMode: TDrawMode);
+procedure TMapMainLayer.DrawMap(
+  AMapType: TMapType;
+  ADrawMode: TDrawMode;
+  AUsePre: Boolean;
+  ARecolorConfig: IBitmapPostProcessingConfigStatic
+);
 var
   VZoom: Byte;
   VBmp: TCustomBitmap32;
@@ -138,19 +158,10 @@ var
   VCurrTileOnBitmapRect: TRect;
 
   VGeoConvert: ICoordConverter;
-  VUsePre: Boolean;
   VBitmapConverter: ILocalCoordConverter;
   VTileIterator: ITileIterator;
-  VRecolorConfig: IBitmapPostProcessingConfigStatic;
   VErrorString: string;
 begin
-  if AMapType.asLayer then begin
-    VUsePre := FUsePrevZoomAtLayer;
-  end else begin
-    VUsePre := FUsePrevZoomAtMap;
-  end;
-  VRecolorConfig := GState.BitmapPostProcessingConfig.GetStatic;
-
   VBitmapConverter := LayerCoordConverter;
   VGeoConvert := VBitmapConverter.GetGeoConverter;
   VZoom := VBitmapConverter.GetZoom;
@@ -194,8 +205,8 @@ begin
         VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
         VErrorString := '';
         try
-          if AMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, VUsePre, True, False) then begin
-            VRecolorConfig.ProcessBitmap(VBmp);
+          if AMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, AUsePre, True, False) then begin
+            ARecolorConfig.ProcessBitmap(VBmp);
             Layer.Bitmap.Lock;
             try
               VBmp.DrawMode := ADrawMode;
@@ -233,12 +244,12 @@ procedure TMapMainLayer.OnConfigChange(Sender: TObject);
 begin
   ViewUpdateLock;
   try
-    GState.ViewConfig.LockRead;
+    FViewConfig.LockRead;
     try
-      FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
-      FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
+      FUsePrevZoomAtMap := FViewConfig.UsePrevZoomAtMap;
+      FUsePrevZoomAtLayer := FViewConfig.UsePrevZoomAtLayer;
     finally
-      GState.ViewConfig.UnlockRead;
+      FViewConfig.UnlockRead;
     end;
     SetNeedRedraw;
   finally
