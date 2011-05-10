@@ -158,6 +158,7 @@ type
 
     function CheckLonLatPos(var XY: TDoublePoint): boolean; stdcall;
     function CheckLonLatRect(var XY: TDoubleRect): boolean; stdcall;
+    function CheckLonLatArray(var APolyg: TArrayOfDoublePoint): boolean; stdcall;
 
     // Возвращает код EPSG для этой проекции. Для нестандартных проекций и сфероидов будет возвращать 0
     function GetProjectionEPSG: Integer; stdcall;
