@@ -11,14 +11,14 @@ uses
   i_ActiveMapsConfig,
   i_ViewPortState,
   i_BitmapPostProcessingConfig,
-  u_MapLayerShowError,
+  i_TileError,
   u_MapType,
   u_MapLayerBasic;
 
 type
   TMapMainLayer = class(TMapLayerBasic)
   private
-    FErrorShowLayer: TTileErrorInfoLayer;
+    FErrorLogger: ITileErrorLogger;
     FMapsConfig: IMainMapsConfig;
     FMainMap: IMapType;
     FLayersList: IMapTypeList;
@@ -31,10 +31,14 @@ type
   protected
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig;
-                       APostProcessingConfig:IBitmapPostProcessingConfig);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AMapsConfig: IMainMapsConfig;
+      APostProcessingConfig:IBitmapPostProcessingConfig;
+      AErrorLogger: ITileErrorLogger
+    );
     procedure StartThreads; override;
-    property ErrorShowLayer: TTileErrorInfoLayer read FErrorShowLayer write FErrorShowLayer;
   end;
 
 implementation
@@ -46,18 +50,24 @@ uses
   i_LocalCoordConverter,
   i_TileIterator,
   u_ResStrings,
+  u_TileErrorInfo,
   u_TileIteratorByRect,
   u_NotifyEventListener,
   u_GlobalState;
 
 { TMapMainLayer }
 
-constructor TMapMainLayer.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AMapsConfig: IMainMapsConfig;
-  APostProcessingConfig:IBitmapPostProcessingConfig);
+constructor TMapMainLayer.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AMapsConfig: IMainMapsConfig;
+  APostProcessingConfig: IBitmapPostProcessingConfig;
+  AErrorLogger: ITileErrorLogger
+);
 begin
   inherited Create(AParentMap, AViewPortState);
   FMapsConfig := AMapsConfig;
+  FErrorLogger := AErrorLogger;
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnMainMapChange),
@@ -132,6 +142,7 @@ var
   VBitmapConverter: ILocalCoordConverter;
   VTileIterator: ITileIterator;
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
+  VErrorString: string;
 begin
   if AMapType.asLayer then begin
     VUsePre := FUsePrevZoomAtLayer;
@@ -181,6 +192,7 @@ begin
         end;
         VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
         VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+        VErrorString := '';
         try
           if AMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, VUsePre, True, False) then begin
             VRecolorConfig.ProcessBitmap(VBmp);
@@ -195,7 +207,21 @@ begin
             end;
           end;
         except
-          FErrorShowLayer.ShowError(VTile, VZoom, AMapType, SAS_ERR_BadFile);
+          on E: Exception do begin
+            VErrorString := E.Message;
+          end;
+        else
+          VErrorString := SAS_ERR_TileDownloadUnexpectedError;
+        end;
+        if VErrorString <> '' then begin
+          FErrorLogger.LogError(
+            TTileErrorInfo.Create(
+              AMapType,
+              VZoom,
+              VTile,
+              VErrorString
+            )
+          );
         end;
     end;
   finally

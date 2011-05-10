@@ -766,7 +766,7 @@ begin
 
     tbitmShowDebugInfo.Visible := GState.ShowDebugInfo;
 
-    FMainLayer := TMapMainLayer.Create(map, FConfig.ViewPortState, FConfig.MainMapsConfig, GState.BitmapPostProcessingConfig);
+    FMainLayer := TMapMainLayer.Create(map, FConfig.ViewPortState, FConfig.MainMapsConfig, GState.BitmapPostProcessingConfig, FTileErrorLogger);
     FLayersList.Add(FMainLayer);
     FLayerGrids := TMapLayerGrids.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig);
     FLayersList.Add(FLayerGrids);
@@ -798,7 +798,7 @@ begin
     FLayersList.Add(FLayerGoto);
     LayerMapNavToMark := TNavToMarkLayer.Create(map, FConfig.ViewPortState, FConfig.NavToPoint, FConfig.LayersConfig.NavToPointMarkerConfig);
     FLayersList.Add(LayerMapNavToMark);
-    FShowErrorLayer := TTileErrorInfoLayer.Create(map, FConfig.ViewPortState);
+    FShowErrorLayer := TTileErrorInfoLayer.Create(map, FConfig.ViewPortState, FTileErrorLogProvider, GState.GUISyncronizedTimerNotifier);
     FLayersList.Add(FShowErrorLayer);
     FLayerMapCenterScale := TCenterScale.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CenterScaleConfig);
     FLayersList.Add(FLayerMapCenterScale);
@@ -808,9 +808,8 @@ begin
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MiniMapLayerConfig, GState.BitmapPostProcessingConfig);
     FLayersList.Add(FLayerMiniMap);
-    FMainLayer.ErrorShowLayer := FShowErrorLayer;
 
-    FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FShowErrorLayer);
+    FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FTileErrorLogger);
 
     CreateMapUI;
 
@@ -2218,7 +2217,7 @@ begin
           VZoomCurr,
           VMapType,
           Self.OnMapTileUpdate,
-          FShowErrorLayer
+          FTileErrorLogger
         );
       end;
     end;
@@ -2993,7 +2992,7 @@ begin
           VZoomCurr,
           VMapType,
           Self.OnMapTileUpdate,
-          FShowErrorLayer
+          FTileErrorLogger
         );
       end;
     end;
