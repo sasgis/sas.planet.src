@@ -64,11 +64,15 @@ var
   numd:int64 ;
   Vmt: TMapType;
   VZoom: byte;
+  VPolyLL: TArrayOfDoublePoint;
 begin
   if cbbMap.ItemIndex >= 0 then begin
     Vmt := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
     VZoom := cbbZoom.ItemIndex;
-    polyg := Vmt.GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
+    VPolyLL := copy(FPolygLL);
+    Vmt.GeoConvert.CheckZoom(VZoom);
+    Vmt.GeoConvert.CheckLonLatArray(VPolyLL);
+    polyg := Vmt.GeoConvert.LonLatArray2PixelArray(VPolyLL, VZoom);
     numd:=GetDwnlNum(min,max,polyg,true);
     lblStat.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                     +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';
