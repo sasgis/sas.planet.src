@@ -47,6 +47,7 @@ uses
   Graphics,
   Types,
   i_CoordConverter,
+  u_NotifyEventListener,
   u_GeoFun;
 
 
@@ -71,6 +72,14 @@ begin
   FFixedOnBitmap.Y := VBitmapSize.Y / 2;
   FLayer.Bitmap.SetSize(VBitmapSize.X, VBitmapSize.Y);
   DoUpdateLayerSize(VBitmapSize);
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnErrorRecive),
+    FLogProvider.GetNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimer),
+    FTimerNoifier
+  );
 end;
 
 procedure TTileErrorInfoLayer.DoHide;
@@ -136,7 +145,7 @@ var
   VCurrTime: Cardinal;
 begin
   VCounter := InterlockedExchange(FNeedUpdateCounter, 0);
-  if VCounter >= 0 then begin
+  if VCounter > 0 then begin
     VErrorInfo := FLogProvider.GetLastErrorInfo;
     ShowError(VErrorInfo);
   end else begin
