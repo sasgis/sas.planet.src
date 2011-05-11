@@ -7,6 +7,7 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_CoordConverter,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,
@@ -28,7 +29,11 @@ type
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
     procedure DrawMap(
+      ATargetBmp: TCustomBitmap32;
       AMapType: TMapType;
+      AGeoConvert: ICoordConverter;
+      AZoom: Byte;
+      ATile: TPoint;
       ADrawMode: TDrawMode;
       AUsePre: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic
@@ -55,7 +60,6 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  i_CoordConverter,
   i_LocalCoordConverter,
   i_TileIterator,
   u_ResStrings,
@@ -110,39 +114,12 @@ var
   VEnum: IEnumGUID;
   VHybrList: IMapTypeList;
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
-begin
-  inherited;
-  Layer.Bitmap.Clear(0);
+  VTileToDrawBmp: TCustomBitmap32;
 
-  VRecolorConfig := FPostProcessingConfig.GetStatic;
-
-  if FMainMap <> nil then begin
-    DrawMap(FMainMap.MapType, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig);
-  end;
-
-  VHybrList := FLayersList;
-  if VHybrList <> nil then begin
-    VEnum := VHybrList.GetIterator;
-    while VEnum.Next(1, VGUID, i) = S_OK do begin
-      VItem := VHybrList.GetMapTypeByGUID(VGUID);
-      VMapType := VItem.GetMapType;
-      if VMapType.IsBitmapTiles then begin
-        DrawMap(VMapType, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig);
-      end;
-    end;
-  end;
-end;
-
-procedure TMapMainLayer.DrawMap(
-  AMapType: TMapType;
-  ADrawMode: TDrawMode;
-  AUsePre: Boolean;
-  ARecolorConfig: IBitmapPostProcessingConfigStatic
-);
-var
+  VGeoConvert: ICoordConverter;
+  VBitmapConverter: ILocalCoordConverter;
+  VTileIterator: ITileIterator;
   VZoom: Byte;
-  VBmp: TCustomBitmap32;
-
   { Прямоугольник пикселей растра в координатах основного конвертера }
   VBitmapOnMapPixelRect: TRect;
   { Прямоугольник тайлов текущего зума, покрывающий растр, в кооординатах
@@ -156,12 +133,12 @@ var
   VTilePixelsToDraw: TRect;
   { Прямоугольник пикселов в которые будет скопирован текущий тайл }
   VCurrTileOnBitmapRect: TRect;
-
-  VGeoConvert: ICoordConverter;
-  VBitmapConverter: ILocalCoordConverter;
-  VTileIterator: ITileIterator;
-  VErrorString: string;
 begin
+  inherited;
+  Layer.Bitmap.Clear(0);
+
+  VRecolorConfig := FPostProcessingConfig.GetStatic;
+
   VBitmapConverter := LayerCoordConverter;
   VGeoConvert := VBitmapConverter.GetGeoConverter;
   VZoom := VBitmapConverter.GetZoom;
@@ -171,50 +148,90 @@ begin
 
   VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
   VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
-  VBitmapOnMapPixelRect := VBitmapConverter.GetRectInMapPixel;
 
+  VTileToDrawBmp := TCustomBitmap32.Create;
+  try
+    VTileToDrawBmp.DrawMode := dmOpaque;
+    while VTileIterator.Next(VTile) do begin
+      VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
+
+      VTilePixelsToDraw.TopLeft := Point(0, 0);
+      VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
+      VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
+
+      VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
+      VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+
+      VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
+
+      if FMainMap <> nil then begin
+        DrawMap(VTileToDrawBmp, FMainMap.MapType, VGeoConvert, VZoom, VTile, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig);
+      end;
+
+      VHybrList := FLayersList;
+      if VHybrList <> nil then begin
+        VEnum := VHybrList.GetIterator;
+        while VEnum.Next(1, VGUID, i) = S_OK do begin
+          VItem := VHybrList.GetMapTypeByGUID(VGUID);
+          VMapType := VItem.GetMapType;
+          if VMapType.IsBitmapTiles then begin
+            DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig);
+          end;
+        end;
+      end;
+
+      VRecolorConfig.ProcessBitmap(VTileToDrawBmp);
+
+      Layer.Bitmap.Lock;
+      try
+        Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+      finally
+        Layer.Bitmap.UnLock;
+      end;
+    end;
+  finally
+    VTileToDrawBmp.Free;
+  end;
+end;
+
+procedure TMapMainLayer.DrawMap(
+  ATargetBmp: TCustomBitmap32;
+  AMapType: TMapType;
+  AGeoConvert: ICoordConverter;
+  AZoom: Byte;
+  ATile: TPoint;
+  ADrawMode: TDrawMode;
+  AUsePre: Boolean;
+  ARecolorConfig: IBitmapPostProcessingConfigStatic
+);
+var
+  VBmp: TCustomBitmap32;
+  VErrorString: string;
+begin
   VBmp := TCustomBitmap32.Create;
   try
-    while VTileIterator.Next(VTile) do begin
-        VErrorString := '';
-        try
-          if AMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, AUsePre, True, False) then begin
-            ARecolorConfig.ProcessBitmap(VBmp);
-
-            VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
-          
-            VTilePixelsToDraw.TopLeft := Point(0, 0);
-            VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
-            VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
-
-            VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
-            VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
-
-            Layer.Bitmap.Lock;
-            try
-              VBmp.DrawMode := ADrawMode;
-              Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, Vbmp);
-            finally
-              Layer.Bitmap.UnLock;
-            end;
-          end;
-        except
-          on E: Exception do begin
-            VErrorString := E.Message;
-          end;
-        else
-          VErrorString := SAS_ERR_TileDownloadUnexpectedError;
-        end;
-        if VErrorString <> '' then begin
-          FErrorLogger.LogError(
-            TTileErrorInfo.Create(
-              AMapType,
-              VZoom,
-              VTile,
-              VErrorString
-            )
-          );
-        end;
+    VErrorString := '';
+    try
+      if AMapType.LoadTileUni(VBmp, ATile, AZoom, true, AGeoConvert, AUsePre, True, False) then begin
+        VBmp.DrawMode := ADrawMode;
+        VBmp.DrawTo(ATargetBmp);
+      end;
+    except
+      on E: Exception do begin
+        VErrorString := E.Message;
+      end;
+    else
+      VErrorString := SAS_ERR_TileDownloadUnexpectedError;
+    end;
+    if VErrorString <> '' then begin
+      FErrorLogger.LogError(
+        TTileErrorInfo.Create(
+          AMapType,
+          AZoom,
+          ATile,
+          VErrorString
+        )
+      );
     end;
   finally
     VBmp.Free;
