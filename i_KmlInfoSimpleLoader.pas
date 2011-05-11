@@ -4,13 +4,13 @@ interface
 
 uses
   Classes,
-  u_KmlInfoSimple;
+  i_VectorDataItemSimple;
 
 type
   IKmlInfoSimpleLoader = interface
     ['{F9986E7D-897C-4BD3-8A92-A9798BFB32FA}']
-    procedure LoadFromFile(AFileName: string; ABtm: TKmlInfoSimple);
-    procedure LoadFromStream(AStream: TStream; ABtm: TKmlInfoSimple);
+    procedure LoadFromFile(AFileName: string; out AItems: IVectorDataItemList);
+    procedure LoadFromStream(AStream: TStream;  out AItems: IVectorDataItemList);
   end;
 
 implementation

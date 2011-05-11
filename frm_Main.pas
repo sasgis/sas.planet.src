@@ -615,6 +615,7 @@ uses
   i_ValueToStringConverter,
   i_ActiveMapsConfig,
   i_LanguageManager,
+  i_VectorDataItemSimple,
   i_SensorViewListGenerator,
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
@@ -2959,6 +2960,7 @@ var
   VMouseMoveDelta: TPoint;
   VMark: IMarkFull;
   VMarkS: Double;
+  VWikiItem: IVectorDataItemSimple;
 begin
   if (Layer <> nil) then begin
     exit;
@@ -3035,10 +3037,19 @@ begin
       FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
     end;
     if (FCurrentOper=ao_movemap)and(button=mbLeft) then begin
-      VPWL.S:=0;
-      VPWL.find:=false;
-      if (FWikiLayer.Visible) then
-        FWikiLayer.MouseOnReg(VPWL, Point(x,y));
+      VPWL.find := False;
+      VPWL.name := '';
+      VPWL.descr := '';
+      VPWL.S := 0;
+
+      VWikiItem := nil;
+      FWikiLayer.MouseOnReg(Point(x,y), VWikiItem, VMarkS);
+      if VWikiItem <> nil then begin
+        VPWL.find := True;
+        VPWL.name := VWikiItem.Name;
+        VPWL.descr := VWikiItem.Desc;
+        VPWL.S := VMarkS;
+      end;
       VMark := nil;
       if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
         FLayerMapMarks.MouseOnMyReg(Point(x,y), VMark, VMarkS);
@@ -3157,6 +3168,7 @@ var
   VLastMouseMove: TPoint;
   VMark: IMarkFull;
   VMarkS: Double;
+  VWikiItem: IVectorDataItemSimple;
 begin
   if ProgramClose then begin
     exit;
@@ -3253,8 +3265,15 @@ begin
  if not(FMapMoving)and((FmoveTrue.x<>VLastMouseMove.X)or(FmoveTrue.y<>VLastMouseMove.y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
     VPWL.S:=0;
     VPWL.find:=false;
-    if (FWikiLayer.Visible) then
-      FWikiLayer.MouseOnReg(VPWL,FmoveTrue);
+    VWikiItem := nil;
+    FWikiLayer.MouseOnReg(FmoveTrue, VWikiItem, VMarkS);
+    if VWikiItem <> nil then begin
+      VPWL.find := True;
+      VPWL.name := VWikiItem.Name;
+      VPWL.descr := VWikiItem.Desc;
+      VPWL.S := VMarkS;
+    end;
+
     VMark := nil;
     if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
       FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark, VMarkS);

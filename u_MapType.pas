@@ -22,7 +22,7 @@ uses
   i_BitmapTileSaveLoad,
   i_KmlInfoSimpleLoader,
   i_AntiBan,
-  u_KmlInfoSimple,
+  i_VectorDataItemSimple,
   u_UrlGenerator,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract,
@@ -94,7 +94,7 @@ type
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
-    function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple): boolean;
+    function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; var AKml: IVectorDataItemList): boolean;
     procedure LoadMapType(AConfig : IConfigDataProvider; Apnum : Integer);
 
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
@@ -117,7 +117,7 @@ type
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
     function TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
     function LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
-    function LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
+    function LoadTile(var AKml: IVectorDataItemList; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
     function LoadTileOrPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean; AUsePre: Boolean): boolean;
     function LoadTileUni(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
     function LoadBtimap(spr: TCustomBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
@@ -497,7 +497,7 @@ begin
 end;
 
 function TMapType.LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte;
-  AKml: TKmlInfoSimple): boolean;
+  var AKml: IVectorDataItemList): boolean;
 var
   VTileInfo: ITileInfoBasic;
   VMemStream: TMemoryStream;
@@ -874,13 +874,13 @@ begin
   end;
 end;
 
-function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
+function TMapType.LoadTile(var AKml: IVectorDataItemList; AXY: TPoint; Azoom: byte;
   caching: boolean; IgnoreError: Boolean): boolean;
 begin
   try
-    if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-      result:=LoadKmlTileFromStorage(AXY, Azoom, btm);
-      if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
+    if (not caching)or(not FCache.TryLoadTileFromCache(AKml, AXY, Azoom)) then begin
+      result:=LoadKmlTileFromStorage(AXY, Azoom, AKml);
+      if ((result)and(caching)) then FCache.AddTileToCache(AKml, AXY, Azoom);
     end else begin
       result:=true;
     end;

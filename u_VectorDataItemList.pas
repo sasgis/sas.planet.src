@@ -9,19 +9,19 @@ uses
 type
   TVectorDataItemList = class(TInterfacedObject, IVectorDataItemList)
   private
-    FList: TInterfaceList;
+    FList: IInterfaceList;
   protected
     function GetCount: Integer;
     function GetItem(AIndex: Integer): IVectorDataItemSimple;
   public
-    constructor Create(AList: TInterfaceList);
+    constructor Create(AList: IInterfaceList);
   end;
 
 implementation
 
 { TVectorDataItemList }
 
-constructor TVectorDataItemList.Create(AList: TInterfaceList);
+constructor TVectorDataItemList.Create(AList: IInterfaceList);
 begin
   FList := AList;
 end;
