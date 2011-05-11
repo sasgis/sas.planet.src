@@ -46,6 +46,8 @@ uses
   i_JclListenerNotifierLinksList,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_TileError,
+  i_TileErrorLogProviedrStuped,
   u_GeoToStr,
   t_CommonTypes,
   i_GPSRecorder,
@@ -524,6 +526,9 @@ type
     FLineOnMapEdit: ILineOnMapEdit;
     FMarkDBGUI: TMarksDbGUIHelper;
 
+    FTileErrorLogger: ITileErrorLogger;
+    FTileErrorLogProvider: ITileErrorLogProviedrStuped;
+
     FRuller:TBitmap32;
     FTumbler:TBitmap32;
     FSensorViewList: IGUIDInterfaceList;
@@ -613,6 +618,7 @@ uses
   i_SensorViewListGenerator,
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
+  u_TileErrorLogProviedrStuped,
   u_LineOnMapEdit,
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
@@ -635,10 +641,17 @@ uses
 {$R *.dfm}
 
 constructor TfrmMain.Create(AOwner: TComponent);
+var
+  VLogger: TTileErrorLogProviedrStuped;
 begin
   inherited;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FConfig := GState.MainFormConfig;
+
+  VLogger := TTileErrorLogProviedrStuped.Create;
+  FTileErrorLogger := VLogger;
+  FTileErrorLogProvider := VLogger;
+
   FIsGPSPosChanged := False;
   FdWhenMovingButton := 5;
 
@@ -753,7 +766,7 @@ begin
 
     tbitmShowDebugInfo.Visible := GState.ShowDebugInfo;
 
-    FMainLayer := TMapMainLayer.Create(map, FConfig.ViewPortState, FConfig.MainMapsConfig, GState.BitmapPostProcessingConfig);
+    FMainLayer := TMapMainLayer.Create(map, FConfig.ViewPortState, FConfig.MainMapsConfig, GState.BitmapPostProcessingConfig, GState.ViewConfig, FTileErrorLogger);
     FLayersList.Add(FMainLayer);
     FLayerGrids := TMapLayerGrids.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig);
     FLayersList.Add(FLayerGrids);
@@ -785,7 +798,7 @@ begin
     FLayersList.Add(FLayerGoto);
     LayerMapNavToMark := TNavToMarkLayer.Create(map, FConfig.ViewPortState, FConfig.NavToPoint, FConfig.LayersConfig.NavToPointMarkerConfig);
     FLayersList.Add(LayerMapNavToMark);
-    FShowErrorLayer := TTileErrorInfoLayer.Create(map, FConfig.ViewPortState);
+    FShowErrorLayer := TTileErrorInfoLayer.Create(map, FConfig.ViewPortState, FTileErrorLogProvider, GState.GUISyncronizedTimerNotifier);
     FLayersList.Add(FShowErrorLayer);
     FLayerMapCenterScale := TCenterScale.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CenterScaleConfig);
     FLayersList.Add(FLayerMapCenterScale);
@@ -795,9 +808,8 @@ begin
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MiniMapLayerConfig, GState.BitmapPostProcessingConfig);
     FLayersList.Add(FLayerMiniMap);
-    FMainLayer.ErrorShowLayer := FShowErrorLayer;
 
-    FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FShowErrorLayer);
+    FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FTileErrorLogger);
 
     CreateMapUI;
 
@@ -2205,7 +2217,7 @@ begin
           VZoomCurr,
           VMapType,
           Self.OnMapTileUpdate,
-          FShowErrorLayer
+          FTileErrorLogger
         );
       end;
     end;
@@ -2980,7 +2992,7 @@ begin
           VZoomCurr,
           VMapType,
           Self.OnMapTileUpdate,
-          FShowErrorLayer
+          FTileErrorLogger
         );
       end;
     end;

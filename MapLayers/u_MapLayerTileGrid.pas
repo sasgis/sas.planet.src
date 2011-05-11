@@ -96,6 +96,7 @@ end;
 procedure TMapLayerTileGrid.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   i, j: integer;
+  VVisible: Boolean;
   VColor: TColor32;
   VLoadedRect: TDoubleRect;
   VLoadedRelativeRect: TDoubleRect;
@@ -107,6 +108,7 @@ var
   VGridZoom: Byte;
   VTilesLineRect: TRect;
   VGeoConvert: ICoordConverter;
+  VLocalRect: TRect;
 begin
   inherited;
   VGeoConvert := ALocalConverter.GetGeoConverter;
@@ -114,6 +116,7 @@ begin
 
   FConfig.LockRead;
   try
+    VVisible := FConfig.Visible;
     VColor := FConfig.GridColor;
     if FConfig.UseRelativeZoom then begin
       VGridZoom := VCurrentZoom + FConfig.Zoom;
@@ -123,39 +126,69 @@ begin
   finally
     FConfig.UnlockRead;
   end;
+  if VVisible then begin
+    VLocalRect := ALocalConverter.GetLocalRect;
+    VLoadedRect := ALocalConverter.LocalRect2MapRectFloat(VLocalRect);
+    VGeoConvert.CheckPixelRectFloat(VLoadedRect, VCurrentZoom);
 
-  VLoadedRect := ALocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.CheckPixelRectFloat(VLoadedRect, VCurrentZoom);
+    VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
+    VTilesRect := VGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
 
-  VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
-  VTilesRect := VGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
+    VTilesLineRect.Left := VTilesRect.Left;
+    VTilesLineRect.Right := VTilesRect.Right;
+    for i := VTilesRect.Top to VTilesRect.Bottom do begin
+      VTilesLineRect.Top := i;
+      VTilesLineRect.Bottom := i;
 
-  VTilesLineRect.Left := VTilesRect.Left;
-  VTilesLineRect.Right := VTilesRect.Right;
-  for i := VTilesRect.Top to VTilesRect.Bottom do begin
-    VTilesLineRect.Top := i;
-    VTilesLineRect.Bottom := i;
+      VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
+      VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+      VTileScreenRect.TopLeft := ALocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
+      VTileScreenRect.BottomRight := ALocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
 
-    VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := ALocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := ALocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
-    ABuffer.LineTS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Right, VTileScreenRect.Top, VColor);
-  end;
+      VTileScreenRect.Left := VLocalRect.Left;
+      VTileScreenRect.Right := VLocalRect.Right;
 
-  VTilesLineRect.Top := VTilesRect.Top;
-  VTilesLineRect.Bottom := VTilesRect.Bottom;
-  for j := VTilesRect.Left to VTilesRect.Right do begin
-    VTilesLineRect.Left := j;
-    VTilesLineRect.Right := j;
+      if VTileScreenRect.Top < VLocalRect.Top then begin
+        VTileScreenRect.Top := VLocalRect.Top;
+        VTileScreenRect.Bottom := VTileScreenRect.Top;
+      end;
 
-    VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := ALocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := ALocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
-    ABuffer.LineTS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Left, VTileScreenRect.Bottom, VColor);
+      if VTileScreenRect.Top > VLocalRect.Bottom then begin
+        VTileScreenRect.Top := VLocalRect.Bottom;
+        VTileScreenRect.Bottom := VTileScreenRect.Top;
+      end;
+
+      ABuffer.LineTS(VTileScreenRect.Left, VTileScreenRect.Top,
+        VTileScreenRect.Right, VTileScreenRect.Top, VColor);
+    end;
+
+    VTilesLineRect.Top := VTilesRect.Top;
+    VTilesLineRect.Bottom := VTilesRect.Bottom;
+    for j := VTilesRect.Left to VTilesRect.Right do begin
+      VTilesLineRect.Left := j;
+      VTilesLineRect.Right := j;
+
+      VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
+      VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+      VTileScreenRect.TopLeft := ALocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
+      VTileScreenRect.BottomRight := ALocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
+
+      VTileScreenRect.Top := VLocalRect.Top;
+      VTileScreenRect.Bottom := VLocalRect.Bottom;
+
+      if VTileScreenRect.Left < VLocalRect.Left then begin
+        VTileScreenRect.Left := VLocalRect.Left;
+        VTileScreenRect.Right := VTileScreenRect.Left;
+      end;
+
+      if VTileScreenRect.Left > VLocalRect.Right then begin
+        VTileScreenRect.Left := VLocalRect.Right;
+        VTileScreenRect.Right := VTileScreenRect.Left;
+      end;
+
+      ABuffer.LineTS(VTileScreenRect.Left, VTileScreenRect.Top,
+        VTileScreenRect.Left, VTileScreenRect.Bottom, VColor);
+    end;
   end;
 end;
 

@@ -233,6 +233,8 @@
     <DCCReference Include="i_StatBarConfig.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownlodSession.pas" />
+    <DCCReference Include="i_TileError.pas" />
+    <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="i_TileFileNameGenerator.pas" />
     <DCCReference Include="i_TileFileNameGeneratorsList.pas" />
     <DCCReference Include="i_TileInfoBasic.pas" />
@@ -596,6 +598,8 @@
     <DCCReference Include="u_TileDownloaderThreadBase.pas" />
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
+    <DCCReference Include="u_TileErrorInfo.pas" />
+    <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="u_TileFileNameES.pas" />
     <DCCReference Include="u_TileFileNameGeneratorsSimpleList.pas" />
     <DCCReference Include="u_TileFileNameGM1.pas" />
