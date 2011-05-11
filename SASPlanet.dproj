@@ -250,6 +250,7 @@
     <DCCReference Include="i_UrlByCoordProvider.pas" />
     <DCCReference Include="i_UsedMarksConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
+    <DCCReference Include="i_VectorDataItemSimple.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
@@ -626,6 +627,9 @@
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="u_ValueToStringConverter.pas" />
     <DCCReference Include="u_ValueToStringConverterConfig.pas" />
+    <DCCReference Include="u_VectorDataItemBase.pas" />
+    <DCCReference Include="u_VectorDataItemPoint.pas" />
+    <DCCReference Include="u_VectorDataItemPolygon.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
     <DCCReference Include="u_YaMobileWrite.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
