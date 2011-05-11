@@ -176,42 +176,23 @@ begin
   VBmp := TCustomBitmap32.Create;
   try
     while VTileIterator.Next(VTile) do begin
-        VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
-
-        VTilePixelsToDraw.TopLeft := Point(0, 0);
-        VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
-        VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
-
-        if VCurrTilePixelRect.Left < VBitmapOnMapPixelRect.Left then begin
-          VTilePixelsToDraw.Left := VBitmapOnMapPixelRect.Left - VCurrTilePixelRect.Left;
-          VCurrTilePixelRect.Left := VBitmapOnMapPixelRect.Left;
-        end;
-
-        if VCurrTilePixelRect.Top < VBitmapOnMapPixelRect.Top then begin
-          VTilePixelsToDraw.Top := VBitmapOnMapPixelRect.Top - VCurrTilePixelRect.Top;
-          VCurrTilePixelRect.Top := VBitmapOnMapPixelRect.Top;
-        end;
-
-        if VCurrTilePixelRect.Right > VBitmapOnMapPixelRect.Right then begin
-          VTilePixelsToDraw.Right := VTilePixelsToDraw.Right - (VCurrTilePixelRect.Right - VBitmapOnMapPixelRect.Right);
-          VCurrTilePixelRect.Right := VBitmapOnMapPixelRect.Right;
-        end;
-
-        if VCurrTilePixelRect.Bottom > VBitmapOnMapPixelRect.Bottom then begin
-          VTilePixelsToDraw.Bottom := VTilePixelsToDraw.Bottom - (VCurrTilePixelRect.Bottom - VBitmapOnMapPixelRect.Bottom);
-          VCurrTilePixelRect.Bottom := VBitmapOnMapPixelRect.Bottom;
-        end;
-        VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
-        VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
         VErrorString := '';
         try
           if AMapType.LoadTileUni(VBmp, VTile, VZoom, true, VGeoConvert, AUsePre, True, False) then begin
             ARecolorConfig.ProcessBitmap(VBmp);
+
+            VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
+          
+            VTilePixelsToDraw.TopLeft := Point(0, 0);
+            VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
+            VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
+
+            VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
+            VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+
             Layer.Bitmap.Lock;
             try
               VBmp.DrawMode := ADrawMode;
-              Assert(VCurrTileOnBitmapRect.Right - VCurrTileOnBitmapRect.Left = VTilePixelsToDraw.Right - VTilePixelsToDraw.Left);
-              Assert(VCurrTileOnBitmapRect.Bottom - VCurrTileOnBitmapRect.Top = VTilePixelsToDraw.Bottom - VTilePixelsToDraw.Top);
               Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, Vbmp);
             finally
               Layer.Bitmap.UnLock;
