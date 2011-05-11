@@ -121,6 +121,7 @@ uses
   u_VectorDataItemBase in 'u_VectorDataItemBase.pas',
   u_VectorDataItemPoint in 'u_VectorDataItemPoint.pas',
   u_VectorDataItemPolygon in 'u_VectorDataItemPolygon.pas',
+  u_VectorDataItemList in 'u_VectorDataItemList.pas',
   i_KmlLayerConfig in 'i_KmlLayerConfig.pas',
   u_KmlLayerConfig in 'u_KmlLayerConfig.pas',
   u_MapLayerWiki in 'MapLayers\u_MapLayerWiki.pas',
