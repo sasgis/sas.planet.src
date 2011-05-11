@@ -23,7 +23,6 @@ type
   TWikiLayerElement = class
   public
     name_blok: string;
-    num_blok: string;
     description: string;
     FBounds: TDoubleRect;
     FPolygonOnBitmap: TArrayOfDoublePoint;
@@ -73,7 +72,6 @@ uses
 constructor TWikiLayerElement.Create;
 begin
   name_blok := '';
-  num_blok := '';
   description := '';
   FPolygonOnBitmap := nil;
 end;
@@ -81,7 +79,6 @@ end;
 destructor TWikiLayerElement.Destroy;
 begin
   name_blok := '';
-  num_blok := '';
   description := '';
   FPolygonOnBitmap := nil;
   inherited;
@@ -186,7 +183,6 @@ begin
     With VElement do begin
       FBounds := VBounds;
       name_blok := AData.name;
-      num_blok := AData.PlacemarkID;
       description := AData.description;
       setLength(FPolygonOnBitmap, length(AData.coordinates));
       for i := 0 to length(AData.coordinates) - 1 do begin
@@ -226,7 +222,6 @@ begin
         if VLen = 1 then begin
           APWL.name := FWikiLayerElments[i].name_blok;
           APWL.descr := FWikiLayerElments[i].description;
-          APWL.numid := FWikiLayerElments[i].num_blok;
           APWL.find := true;
           Break;
         end else begin
@@ -235,7 +230,6 @@ begin
             if PointOnPath(VXY, FWikiLayerElments[i].FPolygonOnBitmap, 3) then begin
               APWL.name := FWikiLayerElments[i].name_blok;
               APWL.descr := FWikiLayerElments[i].description;
-              APWL.numid := FWikiLayerElments[i].num_blok;
               APWL.find := true;
               exit;
             end;
@@ -247,7 +241,6 @@ begin
             APWL.S := VSquare;
             APWL.name := FWikiLayerElments[i].name_blok;
             APWL.descr := FWikiLayerElments[i].description;
-            APWL.numid := FWikiLayerElments[i].num_blok;
             APWL.find := true;
           end;
         end;
