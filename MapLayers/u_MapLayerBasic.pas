@@ -195,7 +195,6 @@ begin
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
-  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
   FNeedUpdateLayerSizeCS := TCriticalSection.Create;
 end;
 

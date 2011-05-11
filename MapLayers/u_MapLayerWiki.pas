@@ -74,9 +74,6 @@ begin
     FLayersSet.GetChangeNotifier
   );
 
-  Layer.Bitmap.DrawMode := dmTransparent;
-  Layer.Bitmap.Font.Charset := RUSSIAN_CHARSET;
-
   FElments := TInterfaceList.Create;
   SetLength(FFixedPointArray, 256);
 end;

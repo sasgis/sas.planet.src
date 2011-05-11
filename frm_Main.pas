@@ -3318,7 +3318,6 @@ begin
       if FHintWindow=nil then begin
         FHintWindow:=THintWindow.Create(Self);
         FHintWindow.Brush.Color:=clInfoBk;
-        FHintWindow.Font.Charset:=RUSSIAN_CHARSET;
       end;
       hintrect:=FHintWindow.CalcHintRect(Screen.Width, nms, nil);
       FHintWindow.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),nms);
