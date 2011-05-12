@@ -446,7 +446,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
           Align = alClient
           ItemHeight = 13
           TabOrder = 0
-          Text = 'New category'
+          Text = 'New Category'
         end
       end
       object pnlName: TPanel
