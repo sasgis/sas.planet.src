@@ -3,6 +3,7 @@ unit u_BackgroundTaskLayerDrawBase;
 interface
 
 uses
+  Classes,
   GR32,
   t_CommonTypes,
   i_LocalCoordConverter,
@@ -17,7 +18,7 @@ type
   protected
     procedure ExecuteTask; override;
   public
-    constructor Create(AOnBgPaintLayer: TBgPaintLayerEvent);
+    constructor Create(AOnBgPaintLayer: TBgPaintLayerEvent; APriority: TThreadPriority = tpLowest);
   end;
 
 implementation
@@ -27,9 +28,9 @@ uses
 
 { TBackgroundTaskLayerDrawBase }
 
-constructor TBackgroundTaskLayerDrawBase.Create(AOnBgPaintLayer: TBgPaintLayerEvent);
+constructor TBackgroundTaskLayerDrawBase.Create(AOnBgPaintLayer: TBgPaintLayerEvent; APriority: TThreadPriority);
 begin
-  inherited Create;
+  inherited Create(APriority);
   FOnBgPaintLayer := AOnBgPaintLayer;
 end;
 

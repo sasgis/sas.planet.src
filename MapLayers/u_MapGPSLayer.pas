@@ -178,7 +178,6 @@ end;
 procedure TMapGPSLayer.DoRedraw;
 begin
   inherited;
-  Layer.Bitmap.Clear(0);
   DrawPath;
 end;
 

@@ -50,15 +50,9 @@ end;
 
 procedure TMapLayerWithThreadDraw.DoRedraw;
 begin
-  inherited;
   FDrawTask.StopExecute;
+  inherited;
   if Visible then begin
-    Layer.Bitmap.Lock;
-    try
-      Layer.Bitmap.Clear(0);
-    finally
-      Layer.Bitmap.UnLock;
-    end;
     FDrawTask.StartExecute;
   end;
 end;
