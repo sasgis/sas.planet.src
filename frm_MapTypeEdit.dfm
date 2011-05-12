@@ -226,7 +226,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Width = 85
       Height = 21
       Align = alLeft
-      Caption = 'Name in cache'
+      Caption = 'Cache folder'
       Layout = tlCenter
       ExplicitHeight = 13
     end
