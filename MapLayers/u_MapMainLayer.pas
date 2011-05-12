@@ -28,7 +28,7 @@ type
     FLayersList: IMapTypeList;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-    procedure DrawMap(
+    function DrawMap(
       ATargetBmp: TCustomBitmap32;
       AMapType: TMapType;
       AGeoConvert: ICoordConverter;
@@ -37,7 +37,7 @@ type
       ADrawMode: TDrawMode;
       AUsePre: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic
-    );
+    ): Boolean;
     procedure OnMainMapChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
@@ -133,6 +133,7 @@ var
   VTilePixelsToDraw: TRect;
   { Прямоугольник пикселов в которые будет скопирован текущий тайл }
   VCurrTileOnBitmapRect: TRect;
+  VTileIsEmpty: Boolean;
 begin
   inherited;
   Layer.Bitmap.Clear(0);
@@ -163,9 +164,13 @@ begin
       VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
 
       VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
-
+      VTileIsEmpty := True;
       if FMainMap <> nil then begin
-        DrawMap(VTileToDrawBmp, FMainMap.MapType, VGeoConvert, VZoom, VTile, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig);
+        if DrawMap(VTileToDrawBmp, FMainMap.MapType, VGeoConvert, VZoom, VTile, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig) then begin
+          VTileIsEmpty := False;
+        end else begin
+          VTileToDrawBmp.Clear(0);
+        end;
       end;
 
       VHybrList := FLayersList;
@@ -175,18 +180,21 @@ begin
           VItem := VHybrList.GetMapTypeByGUID(VGUID);
           VMapType := VItem.GetMapType;
           if VMapType.IsBitmapTiles then begin
-            DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig);
+            if DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig) then begin
+              VTileIsEmpty := False;
+            end;
           end;
         end;
       end;
+      if not VTileIsEmpty then begin
+        VRecolorConfig.ProcessBitmap(VTileToDrawBmp);
 
-      VRecolorConfig.ProcessBitmap(VTileToDrawBmp);
-
-      Layer.Bitmap.Lock;
-      try
-        Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
-      finally
-        Layer.Bitmap.UnLock;
+        Layer.Bitmap.Lock;
+        try
+          Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+        finally
+          Layer.Bitmap.UnLock;
+        end;
       end;
     end;
   finally
@@ -194,7 +202,7 @@ begin
   end;
 end;
 
-procedure TMapMainLayer.DrawMap(
+function TMapMainLayer.DrawMap(
   ATargetBmp: TCustomBitmap32;
   AMapType: TMapType;
   AGeoConvert: ICoordConverter;
@@ -203,11 +211,12 @@ procedure TMapMainLayer.DrawMap(
   ADrawMode: TDrawMode;
   AUsePre: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic
-);
+): Boolean;
 var
   VBmp: TCustomBitmap32;
   VErrorString: string;
 begin
+  Result := False;
   VBmp := TCustomBitmap32.Create;
   try
     VErrorString := '';
@@ -215,6 +224,7 @@ begin
       if AMapType.LoadTileUni(VBmp, ATile, AZoom, true, AGeoConvert, AUsePre, True, False) then begin
         VBmp.DrawMode := ADrawMode;
         VBmp.DrawTo(ATargetBmp);
+        Result := True;
       end;
     except
       on E: Exception do begin
