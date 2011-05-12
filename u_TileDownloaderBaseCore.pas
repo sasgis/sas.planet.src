@@ -3,6 +3,8 @@ unit u_TileDownloaderBaseCore;
 interface
 
 uses
+  Windows,
+  Classes,
   SysUtils,
   i_ConfigDataProvider,
   i_RequestBuilderScript,
@@ -15,9 +17,11 @@ uses
 type
   TTileDownloaderBaseCore = class(TTileDownloader)
   private
-    FDownloadThread: TTileDownloaderBaseThread;
+    FSemaphore: THandle;
+    FDownloadesList: TList;
     FRawResponseHeader: string;
-    procedure LoadRequestBuilderScript(AConfig: IConfigDataProvider);
+    function GetRequestBuilderScript(AConfig: IConfigDataProvider): IRequestBuilderScript;
+    function TryGetDownloadThread: TTileDownloaderBaseThread;
   public
     constructor Create(AConfig: IConfigDataProvider; AZmpFileName: string);
     destructor Destroy; override;
@@ -36,55 +40,104 @@ uses
 constructor TTileDownloaderBaseCore.Create(AConfig: IConfigDataProvider; AZmpFileName: string);
 begin
   inherited Create(AConfig, AZmpFileName);
-  LoadRequestBuilderScript(AConfig);
-  FDownloadThread := TTileDownloaderBaseThread.Create;
+  FRequestBuilderScript := GetRequestBuilderScript(AConfig);
+  FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
+  FDownloadesList := TList.Create;
 end;
 
 destructor TTileDownloaderBaseCore.Destroy;
-begin
-  FDownloadThread.Terminate;
-  inherited Destroy;
-end;
-
-procedure TTileDownloaderBaseCore.LoadRequestBuilderScript(AConfig: IConfigDataProvider);
+var
+  i: Integer;
+  VDwnThr: TTileDownloaderBaseThread;
 begin
   try
-    FRequestBuilderScript := TRequestBuilderPascalScript.Create(AConfig);
+    for I := 0 to FDownloadesList.Count - 1 do
+    try
+      VDwnThr := TTileDownloaderBaseThread(FDownloadesList.Items[i]);
+      if Assigned(VDwnThr) then
+        VDwnThr.Terminate;
+    except
+    end;
+    FDownloadesList.Clear;
+    FreeAndNil(FDownloadesList);
+  finally
+    FSemaphore := 0;
+    inherited Destroy;
+  end;
+end;
+
+function TTileDownloaderBaseCore.GetRequestBuilderScript(AConfig: IConfigDataProvider): IRequestBuilderScript;
+begin
+  try
+    Result := TRequestBuilderPascalScript.Create(AConfig);
     FEnabled := True;
   except
     on E: Exception do
     begin
-      FRequestBuilderScript := nil;
+      Result := nil;
       ShowMessageFmt(SAS_ERR_UrlScriptError, [FMapName, E.Message, FZmpFileName]);
     end;
   else
-    FRequestBuilderScript := nil;
+    Result := nil;
     ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FMapName, FZmpFileName]);
   end;
-  if FRequestBuilderScript = nil then
+  if Result = nil then
   begin
     FEnabled := False;
-    FRequestBuilderScript := TRequestBuilderScript.Create(AConfig);
+    Result := TRequestBuilderScript.Create(AConfig);
+  end;
+end;
+
+function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread;
+var
+  i: Integer;
+begin
+  Result := nil;
+  if WaitForSingleObject(FSemaphore, FTimeOut*2) = WAIT_OBJECT_0  then
+  begin
+    Lock;
+    try
+      for I := 0 to FDownloadesList.Count - 1 do
+      try
+        Result := TTileDownloaderBaseThread(FDownloadesList.Items[i]);
+        if Assigned(Result) then
+        begin
+          if Result.Busy then
+            Result := nil
+          else
+            Break;
+        end;
+      except
+        Result := nil;
+      end;
+      if not Assigned(Result) and (FDownloadesList.Count < integer(FMaxConnectToServerCount)) then
+      begin
+        Result := TTileDownloaderBaseThread.Create;
+        Result.RequestBuilderScript := FRequestBuilderScript;
+        FDownloadesList.Add(Result);
+      end;
+    finally
+      UnLock;
+    end;
   end;
 end;
 
 procedure TTileDownloaderBaseCore.Download(AEvent: ITileDownloaderEvent);
+var
+  VDwnThr: TTileDownloaderBaseThread;
 begin
-  Lock;
-  try
-    repeat
-      if not FDownloadThread.Busy then
-      begin
-        AEvent.AddToCallBackList(OnTileDownload);
-        FDownloadThread.TimeOut := FTimeOut;
-        FDownloadThread.RawResponseHeader := FRawResponseHeader;
-        FDownloadThread.AddEvent(AEvent);
-        Break;
-      end;
-      Sleep(30);
-    until False;
-  finally
-    Unlock;
+  VDwnThr := TryGetDownloadThread;
+  if Assigned(VDwnThr) then
+  begin
+    Lock;
+    try
+      AEvent.AddToCallBackList(OnTileDownload);
+      VDwnThr.TimeOut := FTimeOut;
+      VDwnThr.RawResponseHeader := FRawResponseHeader;
+      VDwnThr.AddEvent(AEvent);
+    finally
+      UnLock;
+    end;
   end;
 end;
 
