@@ -4,24 +4,20 @@ interface
 
 uses
   GR32,
+  t_CommonTypes,
   i_LocalCoordConverter,
-  i_BackgroundTaskLayerDraw,
   u_BackgroundTask;
 
 type
-  TBackgroundTaskLayerDrawBase = class(TBackgroundTask, IBackgroundTaskLayerDraw)
+  TBgPaintLayerEvent = procedure(AIsStop: TIsCancelChecker) of object;
+
+  TBackgroundTaskLayerDrawBase = class(TBackgroundTask)
   private
-    FBitmap: TCustomBitmap32;
-    FConverter: ILocalCoordConverter;
+    FOnBgPaintLayer: TBgPaintLayerEvent;
   protected
-    procedure DrawBitmap; virtual; abstract;
     procedure ExecuteTask; override;
-    property Converter: ILocalCoordConverter read FConverter;
-    property Bitmap: TCustomBitmap32 read FBitmap;
-  protected
-    procedure ChangePos(AConverter: ILocalCoordConverter);
   public
-    constructor Create(ABitmap: TCustomBitmap32);
+    constructor Create(AOnBgPaintLayer: TBgPaintLayerEvent);
   end;
 
 implementation
@@ -31,24 +27,17 @@ uses
 
 { TBackgroundTaskLayerDrawBase }
 
-constructor TBackgroundTaskLayerDrawBase.Create(ABitmap: TCustomBitmap32);
+constructor TBackgroundTaskLayerDrawBase.Create(AOnBgPaintLayer: TBgPaintLayerEvent);
 begin
   inherited Create;
-  FBitmap := ABitmap;
-end;
-
-procedure TBackgroundTaskLayerDrawBase.ChangePos(
-  AConverter: ILocalCoordConverter);
-begin
-  StopExecute;
-  FConverter := AConverter;
+  FOnBgPaintLayer := AOnBgPaintLayer;
 end;
 
 procedure TBackgroundTaskLayerDrawBase.ExecuteTask;
 begin
   inherited;
-  if FConverter <> nil then begin
-    DrawBitmap;
+  if Assigned(FOnBgPaintLayer) then begin
+    FOnBgPaintLayer(IsNeedStopExecute);
   end;
 end;
 

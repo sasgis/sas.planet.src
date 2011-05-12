@@ -378,14 +378,14 @@ var
   VUpdateTime: TDateTime;
 begin
   if FVisible then begin
+    FNeedRedrawCS.Acquire;
     try
-      FNeedRedrawCS.Acquire;
-      try
-        FNeedRedraw := False;
-      finally
-        FNeedRedrawCS.Release;
-      end;
-      QueryPerformanceCounter(VPerformanceCounterBegin);
+      FNeedRedraw := False;
+    finally
+      FNeedRedrawCS.Release;
+    end;
+    QueryPerformanceCounter(VPerformanceCounterBegin);
+    try
       DoRedraw;
     finally
       QueryPerformanceCounter(VPerformanceCounterEnd);
@@ -462,7 +462,6 @@ begin
 
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
-  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
 end;
 
 procedure TWindowLayerWithBitmap.DoViewUpdate;

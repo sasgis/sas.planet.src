@@ -11,13 +11,13 @@ uses
   t_CommonTypes,
   i_CoordConverter,
   i_LocalCoordConverter,
+  i_TileError,
   i_ActiveMapsConfig,
   i_ViewPortState,
   i_MapTypes,
   i_DownloadUIConfig,
   i_TileDownloader,
   u_TileDownloaderEventElement,
-  u_MapLayerShowError,
   u_MapType;
 
 type
@@ -26,8 +26,8 @@ type
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
     FViewPortState: IViewPortState;
+    FErrorLogger: ITileErrorLogger;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
-    FErrorShowLayer: TTileErrorInfoLayer;
     FMapType: TMapType;
 
     FTileMaxAgeInInternet: TDateTime;
@@ -55,7 +55,7 @@ type
       AViewPortState: IViewPortState;
       AMapsSet: IActiveMapsSet;
       AMapTileUpdateEvent: TMapTileUpdateEvent;
-      AErrorShowLayer: TTileErrorInfoLayer
+      AErrorLogger: ITileErrorLogger
     ); overload;
     destructor Destroy; override;
     procedure StartThreads;
@@ -74,13 +74,14 @@ uses
   u_NotifyEventListener,
   i_TileIterator,
   u_TileIteratorSpiralByRect;
+  u_TileErrorInfo,
 
 constructor TTileDownloaderUI.Create(
   AConfig: IDownloadUIConfig;
   AViewPortState: IViewPortState;
   AMapsSet: IActiveMapsSet;
   AMapTileUpdateEvent: TMapTileUpdateEvent;
-  AErrorShowLayer: TTileErrorInfoLayer
+  AErrorLogger: ITileErrorLogger
 );
 var
   VChangePosListener: IJclListener;
@@ -180,7 +181,6 @@ end;
 procedure TTileDownloaderUI.OnTileDownload (AEvent: ITileDownloaderEvent);
 begin
   ReleaseSemaphore(FSemaphore, 1, nil);
-end;
 
 procedure TTileDownloaderUI.Execute;
 var
@@ -203,6 +203,7 @@ var
   VIteratorsList: IInterfaceList;
   VMapsList: IInterfaceList;
   VAllIteratorsFinished: Boolean;
+  VErrorString: string;
 begin
   VIteratorsList := TInterfaceList.Create;
   VMapsList := TInterfaceList.Create;
@@ -311,6 +312,19 @@ begin
                     FMapType.DownloadTile(GetNewEventElement);
                 except
 
+                    else
+                      VErrorString := SAS_ERR_TileDownloadUnexpectedError;
+                    if VErrorString = '' then begin
+                    end else begin
+                      FErrorLogger.LogError(
+                        TTileErrorInfo.Create(
+                          FMapType,
+                          VZoom,
+                          FLoadXY,
+                          VErrorString
+                        )
+                      );
+                    end;
                 end;
                 if Terminated then
                   Break;

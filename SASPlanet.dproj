@@ -133,7 +133,6 @@
     </DCCReference>
     <DCCReference Include="i_ActiveMapsConfig.pas" />
     <DCCReference Include="i_BackgroundTask.pas" />
-    <DCCReference Include="i_BackgroundTaskLayerDraw.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
@@ -233,6 +232,8 @@
     <DCCReference Include="i_StatBarConfig.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloader.pas" />
+    <DCCReference Include="i_TileError.pas" />
+    <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="i_TileFileNameGenerator.pas" />
     <DCCReference Include="i_TileFileNameGeneratorsList.pas" />
     <DCCReference Include="i_TileInfoBasic.pas" />
@@ -248,6 +249,7 @@
     <DCCReference Include="i_UrlByCoordProvider.pas" />
     <DCCReference Include="i_UsedMarksConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
+    <DCCReference Include="i_VectorDataItemSimple.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
@@ -261,6 +263,7 @@
     <DCCReference Include="MapLayers\u_MapLayerGrids.pas" />
     <DCCReference Include="MapLayers\u_MapLayerNavToMark.pas" />
     <DCCReference Include="MapLayers\u_MapLayerShowError.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerTileGrid.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWiki.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWithThreadDraw.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayer.pas" />
@@ -595,6 +598,8 @@
     <DCCReference Include="u_TileDownloaderFrontEnd.pas" />
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
+    <DCCReference Include="u_TileErrorInfo.pas" />
+    <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="u_TileFileNameES.pas" />
     <DCCReference Include="u_TileFileNameGeneratorsSimpleList.pas" />
     <DCCReference Include="u_TileFileNameGM1.pas" />
@@ -619,6 +624,10 @@
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="u_ValueToStringConverter.pas" />
     <DCCReference Include="u_ValueToStringConverterConfig.pas" />
+    <DCCReference Include="u_VectorDataItemBase.pas" />
+    <DCCReference Include="u_VectorDataItemList.pas" />
+    <DCCReference Include="u_VectorDataItemPoint.pas" />
+    <DCCReference Include="u_VectorDataItemPolygon.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
     <DCCReference Include="u_YaMobileWrite.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />

@@ -24,14 +24,12 @@ object frmProgressDownload: TfrmProgressDownload
     Align = alClient
     TabOrder = 0
     OnResize = Panel1Resize
-    ExplicitWidth = 330
-    ExplicitHeight = 250
     DesignSize = (
       328
       248)
     object RProgr: TRarProgress
-      Left = 6
-      Top = 204
+      Left = 8
+      Top = 200
       Width = 314
       Height = 17
       Min = 0
@@ -250,10 +248,9 @@ object frmProgressDownload: TfrmProgressDownload
         Width = 75
         Height = 20
         Anchors = [akTop, akRight]
-        Caption = 'Abort'
+        Caption = 'Stop'
         TabOrder = 2
         OnClick = Button1Click
-        ExplicitLeft = 175
       end
       object Button2: TButton
         Left = 238
@@ -264,7 +261,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = 'Quit'
         TabOrder = 3
         OnClick = Button2Click
-        ExplicitLeft = 244
       end
     end
   end

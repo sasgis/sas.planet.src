@@ -34,7 +34,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
     Align = alBottom
     Caption = 'Show on map'
     TabOrder = 5
-    ExplicitTop = 376
   end
   object pnlBottomButtons: TPanel
     Left = 0
@@ -46,7 +45,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 6
-    ExplicitTop = 396
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 238
@@ -75,9 +73,9 @@ object frmMarkEditPoint: TfrmMarkEditPoint
   end
   object grdpnlStyleRows: TGridPanel
     Left = 0
-    Top = 279
+    Top = 285
     Width = 314
-    Height = 91
+    Height = 85
     Align = alBottom
     BevelEdges = [beBottom]
     BevelKind = bkTile
@@ -116,10 +114,10 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         Value = 100.000000000000000000
       end>
     TabOrder = 4
-    ExplicitTop = 282
+    ExplicitTop = 286
     DesignSize = (
       314
-      89)
+      83)
     object grdpnlLine1: TGridPanel
       Left = 0
       Top = 0
@@ -155,26 +153,27 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         314
         29)
       object flwpnlTextColor: TFlowPanel
-        Left = 16
+        Left = 24
         Top = 3
-        Width = 125
+        Width = 109
         Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 16
         object lblTextColor: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 64
+          Width = 48
           Height = 13
           Alignment = taRightJustify
           Caption = 'Text color'
         end
         object clrbxTextColor: TColorBox
-          Left = 70
+          Left = 54
           Top = 0
           Width = 38
           Height = 22
@@ -184,7 +183,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
           TabOrder = 0
         end
         object btnTextColor: TSpeedButton
-          Left = 108
+          Left = 92
           Top = 0
           Width = 17
           Height = 22
@@ -193,26 +192,27 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         end
       end
       object flwpnlFontSize: TFlowPanel
-        Left = 173
+        Left = 190
         Top = 3
-        Width = 125
+        Width = 90
         Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 173
         object lblFontSize: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 78
+          Width = 43
           Height = 13
           Alignment = taRightJustify
           Caption = 'Font size'
         end
         object seFontSize: TSpinEdit
-          Left = 84
+          Left = 49
           Top = 0
           Width = 41
           Height = 22
@@ -258,26 +258,27 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         314
         29)
       object flwpnlShadowColor: TFlowPanel
-        Left = 21
+        Left = 16
         Top = 3
-        Width = 114
+        Width = 125
         Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 21
         object lblShadowColor: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 53
+          Width = 64
           Height = 13
           Alignment = taRightJustify
           Caption = 'Shadow color'
         end
         object clrbxShadowColor: TColorBox
-          Left = 59
+          Left = 70
           Top = 0
           Width = 38
           Height = 22
@@ -286,7 +287,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
           TabOrder = 0
         end
         object btnShadowColor: TSpeedButton
-          Left = 97
+          Left = 108
           Top = 0
           Width = 17
           Height = 22
@@ -295,26 +296,27 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         end
       end
       object flwpnlIconSize: TFlowPanel
-        Left = 175
+        Left = 191
         Top = 3
-        Width = 121
+        Width = 89
         Height = 22
         Anchors = []
         AutoSize = True
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 175
         object lblIconSize: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 74
+          Width = 42
           Height = 13
           Alignment = taRightJustify
           Caption = 'Icon size'
         end
         object seIconSize: TSpinEdit
-          Left = 80
+          Left = 48
           Top = 0
           Width = 41
           Height = 22
@@ -326,26 +328,27 @@ object frmMarkEditPoint: TfrmMarkEditPoint
       end
     end
     object flwpnlTrahsparent: TFlowPanel
-      Left = 91
+      Left = 108
       Top = 58
-      Width = 132
+      Width = 98
       Height = 22
       Anchors = []
       AutoSize = True
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 2
+      ExplicitLeft = 91
       object lblTransp: TLabel
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 85
+        Width = 51
         Height = 13
         Alignment = taRightJustify
         Caption = 'Opacity %'
       end
       object seTransp: TSpinEdit
-        Left = 91
+        Left = 57
         Top = 0
         Width = 41
         Height = 22
@@ -360,13 +363,13 @@ object frmMarkEditPoint: TfrmMarkEditPoint
     Left = 0
     Top = 138
     Width = 314
-    Height = 141
+    Height = 147
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitHeight = 144
+    ExplicitHeight = 141
   end
   object pnlLonLat: TPanel
     Left = 0
@@ -427,7 +430,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 58
+          Width = 49
           Height = 20
           Align = alLeft
           Caption = 'Category:'
@@ -436,14 +439,14 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         end
         object CBKateg: TComboBox
           AlignWithMargins = True
-          Left = 67
+          Left = 58
           Top = 3
-          Width = 185
+          Width = 194
           Height = 21
           Align = alClient
           ItemHeight = 13
           TabOrder = 0
-          Text = 'New category'
+          Text = 'New Category'
         end
       end
       object pnlName: TPanel
@@ -458,7 +461,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 23
+          Width = 31
           Height = 21
           Align = alLeft
           Caption = 'Name:'
@@ -467,9 +470,9 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         end
         object edtName: TEdit
           AlignWithMargins = True
-          Left = 32
+          Left = 40
           Top = 3
-          Width = 220
+          Width = 212
           Height = 21
           Align = alClient
           TabOrder = 0

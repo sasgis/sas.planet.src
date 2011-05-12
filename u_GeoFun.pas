@@ -10,13 +10,9 @@ uses
   i_CoordConverter;
 
 type
- TResObjType = (ROTpoint,ROTline,ROTPoly);
-
   TResObj = record
-   type_:TResObjType;
    find:boolean;
    S:Double;
-   numid:String;
    name:String;
    descr:String;
   end;

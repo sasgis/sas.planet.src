@@ -16,7 +16,7 @@ uses
   u_MapLayerBasic;
 
 type
-  TSelectionLayer = class(TMapLayerBasicFullView)
+  TSelectionLayer = class(TMapLayerBasicNoBitmap)
   private
     FConfig: ILastSelectionLayerConfig;
     FLastSelectionInfo: ILastSelectionInfo;
@@ -30,7 +30,6 @@ type
     FLinePolygon: TPolygon32;
 
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter);
-    procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
     function LonLatArrayToVisualFloatArray(
       ALocalConverter: ILocalCoordConverter;
       APolygon: TArrayOfDoublePoint
@@ -38,8 +37,7 @@ type
     procedure OnChangeSelection(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure DoRedraw; override;
-    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure PaintLayer(Buffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -66,7 +64,7 @@ constructor TSelectionLayer.Create(
   ALastSelectionInfo: ILastSelectionInfo
 );
 begin
-  inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+  inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
   FLastSelectionInfo := ALastSelectionInfo;
 
@@ -92,14 +90,6 @@ begin
   FreeAndNil(FLinePolygon);
   FreeAndNil(FPolygon);
   inherited;
-end;
-
-procedure TSelectionLayer.DoRedraw;
-begin
-  inherited;
-  FSourcePolygon := Copy(FLastSelectionInfo.Polygon);
-  PreparePolygon(ViewCoordConverter);
-  LayerPositioned.Changed;
 end;
 
 function TSelectionLayer.LonLatArrayToVisualFloatArray(
@@ -146,13 +136,21 @@ end;
 
 procedure TSelectionLayer.OnChangeSelection(Sender: TObject);
 begin
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
   ViewUpdate;
 end;
 
-procedure TSelectionLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
+procedure TSelectionLayer.PaintLayer(Buffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   VPointsCount: Integer;
 begin
+  FSourcePolygon := Copy(FLastSelectionInfo.Polygon);
+  PreparePolygon(ViewCoordConverter);
   VPointsCount := Length(FPointsOnBitmap);
   if VPointsCount > 0 then begin
     if FLinePolygon <> nil then begin
@@ -207,19 +205,10 @@ begin
   end;
 end;
 
-procedure TSelectionLayer.SetViewCoordConverter(AValue: ILocalCoordConverter);
-begin
-  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
-    SetNeedRedraw;
-  end;
-  inherited;
-end;
-
 procedure TSelectionLayer.StartThreads;
 begin
   inherited;
   OnConfigChange(nil);
-  LayerPositioned.OnPaint := PaintLayer;
 end;
 
 end.

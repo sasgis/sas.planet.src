@@ -7,12 +7,13 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  i_LocalCoordConverter,
   i_ViewPortState,
   i_SelectionRectLayerConfig,
   u_MapLayerBasic;
 
 type
-  TSelectionRectLayer = class(TMapLayerBasicFullView)
+  TSelectionRectLayer = class(TMapLayerBasicNoBitmap)
   private
     FConfig: ISelectionRectLayerConfig;
     FSelectedLonLat: TDoubleRect;
@@ -22,10 +23,9 @@ type
     FFontSize: Integer;
     FZoomDeltaColors: TArrayOfColor32;
 
-    procedure PaintLayer(Sender: TObject; Buffer: TBitmap32);
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure DoRedraw; override;
+    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -40,7 +40,6 @@ implementation
 uses
   SysUtils,
   GR32_Layers,
-  i_LocalCoordConverter,
   i_CoordConverter,
   u_NotifyEventListener;
 
@@ -52,18 +51,12 @@ constructor TSelectionRectLayer.Create(
   AConfig: ISelectionRectLayerConfig
 );
 begin
-  inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+  inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
-end;
-
-procedure TSelectionRectLayer.DoRedraw;
-begin
-  inherited;
-  LayerPositioned.Changed;
 end;
 
 procedure TSelectionRectLayer.DrawNothing;
@@ -104,7 +97,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TSelectionRectLayer.PaintLayer(Sender: TObject; Buffer: TBitmap32);
+procedure TSelectionRectLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   jj: integer;
   xy1, xy2: TPoint;
@@ -114,54 +107,50 @@ var
   VSelectedRelative: TDoubleRect;
   VSelectedTiles: TRect;
   VMaxZoomDelta: Integer;
-  VLocalConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
   VZoom: Byte;
 begin
-  VLocalConverter := ViewCoordConverter;
-  if VLocalConverter <> nil then begin
-    VGeoConvert := VLocalConverter.GetGeoConverter;
-    VZoom := VLocalConverter.GetZoom;
-    VSelectedPixels := VGeoConvert.LonLatRect2PixelRect(FSelectedLonLat, VZoom);
+  VGeoConvert := ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VSelectedPixels := VGeoConvert.LonLatRect2PixelRect(FSelectedLonLat, VZoom);
 
-    xy1 := VLocalConverter.LonLat2LocalPixel(FSelectedLonLat.TopLeft);
-    xy2 := VLocalConverter.LonLat2LocalPixel(FSelectedLonLat.BottomRight);
+  xy1 := ALocalConverter.LonLat2LocalPixel(FSelectedLonLat.TopLeft);
+  xy2 := ALocalConverter.LonLat2LocalPixel(FSelectedLonLat.BottomRight);
 
-    Buffer.FillRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FFillColor);
-    Buffer.FrameRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FBorderColor);
-    Buffer.FrameRectTS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, FBorderColor);
+  ABuffer.FillRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FFillColor);
+  ABuffer.FrameRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FBorderColor);
+  ABuffer.FrameRectTS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, FBorderColor);
 
-    VSelectedRelative := VGeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoom);
+  VSelectedRelative := VGeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoom);
 
-    jj := VZoom;
-    VZoomDelta := 0;
-    VMaxZoomDelta := Length(FZoomDeltaColors) - 1;
-    while (VZoomDelta <= VMaxZoomDelta) and (jj < 24) do begin
-      VSelectedTiles := VGeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
-      VSelectedPixels := VGeoConvert.RelativeRect2PixelRect(
-        VGeoConvert.TileRect2RelativeRect(VSelectedTiles, jj), VZoom
-      );
+  jj := VZoom;
+  VZoomDelta := 0;
+  VMaxZoomDelta := Length(FZoomDeltaColors) - 1;
+  while (VZoomDelta <= VMaxZoomDelta) and (jj < 24) do begin
+    VSelectedTiles := VGeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
+    VSelectedPixels := VGeoConvert.RelativeRect2PixelRect(
+      VGeoConvert.TileRect2RelativeRect(VSelectedTiles, jj), VZoom
+    );
 
-      xy1 := VLocalConverter.MapPixel2LocalPixel(VSelectedPixels.TopLeft);
-      xy2 := VLocalConverter.MapPixel2LocalPixel(VSelectedPixels.BottomRight);
+    xy1 := ALocalConverter.MapPixel2LocalPixel(VSelectedPixels.TopLeft);
+    xy2 := ALocalConverter.MapPixel2LocalPixel(VSelectedPixels.BottomRight);
 
-      VColor := FZoomDeltaColors[VZoomDelta];
+    VColor := FZoomDeltaColors[VZoomDelta];
 
-      Buffer.FrameRectTS(
-        xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
-        xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
-        VColor
-      );
+    ABuffer.FrameRectTS(
+      xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
+      xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
+      VColor
+    );
 
-      Buffer.Font.Size := FFontSize;
-      Buffer.RenderText(
-        xy2.x - ((xy2.x - xy1.x) div 2) - 42 + VZoomDelta * 26,
-        xy2.y - ((xy2.y - xy1.y) div 2) - 6,
-        'z' + inttostr(jj + 1), 3, VColor
-      );
-      Inc(jj);
-      Inc(VZoomDelta);
-    end;
+    ABuffer.Font.Size := FFontSize;
+    ABuffer.RenderText(
+      xy2.x - ((xy2.x - xy1.x) div 2) - 42 + VZoomDelta * 26,
+      xy2.y - ((xy2.y - xy1.y) div 2) - 6,
+      'z' + inttostr(jj + 1), 3, VColor
+    );
+    Inc(jj);
+    Inc(VZoomDelta);
   end;
 end;
 
@@ -169,7 +158,6 @@ procedure TSelectionRectLayer.StartThreads;
 begin
   inherited;
   OnConfigChange(nil);
-  LayerPositioned.OnPaint := PaintLayer;
 end;
 
 end.

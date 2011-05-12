@@ -214,6 +214,7 @@ type
 
     function CheckLonLatPos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
     function CheckLonLatRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
+    function CheckLonLatArray(var APolyg: TArrayOfDoublePoint): boolean; virtual; stdcall;
 
     function GetProjectionEPSG: Integer; virtual; stdcall;
     function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
@@ -1032,6 +1033,24 @@ end;
 function TCoordConverterAbstract.GetProjectionEPSG: Integer;
 begin
   Result := FProjEPSG;
+end;
+
+function TCoordConverterAbstract.CheckLonLatArray(
+  var APolyg: TArrayOfDoublePoint): boolean;
+var
+  i: integer;
+  VPoint: TDoublePoint;
+begin
+  Result := True;
+  for i := 0 to length(APolyg) - 1 do begin
+    VPoint := Apolyg[i];
+    if not PointIsEmpty(VPoint) then begin
+      if not CheckLonLatPos(VPoint) then begin
+        Result := False;
+        Apolyg[i] := VPoint;
+      end;
+    end;
+  end;
 end;
 
 constructor TCoordConverterAbstract.Create(ADatum: IDatum);

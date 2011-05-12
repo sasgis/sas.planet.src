@@ -132,7 +132,7 @@ ResourceString
   SAS_STR_Add = 'Add';
   SAS_STR_Edit = 'Edit';
   SAS_STR_EditMap = 'Map Settings:';
-  SAS_STR_Stop = 'Abort';
+  SAS_STR_Stop = 'Stop';
   SAS_STR_Stop1 = 'Paused';
   SAS_STR_Continue = 'Resume';
   SAS_STR_ExportTiles = 'Export';
@@ -158,8 +158,8 @@ ResourceString
   SAS_STR_ExportYaMapsCaption = 'Mobile Yandex.Maps (version 3)';
   SAS_STR_ExportYaMapsNewCaption = 'Mobile Yandex.Maps (version 3.91 and above)';
   SAS_STR_ExportGEKmlExportCaption = 'KML (for Google Earth)';
-  SAS_STR_ExportIPhone128Caption = 'iPhone (version 2.2 and above, 128õ128)';
-  SAS_STR_ExportIPhone64Caption = 'iPhone (version prior to 2.2, 64õ64)';
+  SAS_STR_ExportIPhone128Caption = 'iPhone (version 2.2 and above, 128x128)';
+  SAS_STR_ExportIPhone64Caption = 'iPhone (version prior to 2.2, 64x64)';
   SAS_STR_ExportAUXGeoServerCaption = 'AUX for LizardTech GeoExpress Server';
   SAS_STR_ExportZipPackCaption = 'Compressing to ZIP';
   SAS_STR_ExportTarPackCaption = 'Compressing to TAR';

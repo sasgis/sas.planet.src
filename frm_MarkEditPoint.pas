@@ -212,6 +212,8 @@ begin
   frMarkDescription.Parent := pnlDescription;
   edtName.SetFocus;
   drwgrdIcons.Visible:=false;
+  flwpnlTextColor.Realign;
+  flwpnlShadowColor.Realign;
 end;
 
 procedure TfrmMarkEditPoint.btnTextColorClick(Sender: TObject);

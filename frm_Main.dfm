@@ -883,6 +883,17 @@ object frmMain: TfrmMain
           Caption = 'Get Locaton from GSM (Google Query)'
           Hint = ''
         end
+        object TBXSeparatorItem19: TTBXSeparatorItem
+          Caption = ''
+          Hint = ''
+        end
+        object tbitmGPSOptions: TTBXItem
+          ImageIndex = 20
+          Images = MenusImageList
+          OnClick = tbitmGPSOptionsClick
+          Caption = 'Options'
+          Hint = ''
+        end
       end
       object NParams: TTBXSubmenuItem
         OnClick = NParamsClick
@@ -1066,6 +1077,7 @@ object frmMain: TfrmMain
         Alignment = taCenter
         Caption = 'z1'
         Color = clBtnFace
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clHotLight
         Font.Height = -11
         Font.Name = 'MS Sans Serif'
@@ -1233,8 +1245,7 @@ object frmMain: TfrmMain
           object TBXSignalStrengthBar: TTBXToolWindow
             Left = 0
             Top = 0
-            Hint = 
-              'Signal-to-noise ratio for satellites in use'
+            Hint = 'Signal-to-noise ratio for satellites in use'
             Align = alTop
             ClientAreaHeight = 32
             ClientAreaWidth = 150
@@ -1286,11 +1297,10 @@ object frmMain: TfrmMain
   object OpenSessionDialog: TOpenDialog
     DefaultExt = '*.sls'
     Filter = 
-      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg)|*.kml;*.' +
-      'plt;*.kmz;*.sls;*.hlg|Google KML files (*.kml)|*.kml|OziExplorer' +
-      ' Track Point File Version 2.1 (*.plt)|*.plt|Google KMZ files (*.' +
-      'kmz)|*.kmz|Download session (*.sls)|*.sls|Selection (*.hlg)|' +
-      '*.hlg'
+      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg)|*.kml;*.p' +
+      'lt;*.kmz;*.sls;*.hlg|Google KML files (*.kml)|*.kml|OziExplorer ' +
+      'Track Point File Version 2.1 (*.plt)|*.plt|Google KMZ files (*.k' +
+      'mz)|*.kmz|Download session (*.sls)|*.sls|Selection (*.hlg)|*.hlg'
     Left = 208
     Top = 208
   end
@@ -3067,8 +3077,7 @@ object frmMain: TfrmMain
       end
       object DigitalGlobe1: TTBXItem
         OnClick = DigitalGlobe1Click
-        Caption = 
-          'DigitalGlobe Availability'
+        Caption = 'DigitalGlobe Availability'
         Hint = ''
       end
       object N27: TTBXSeparatorItem

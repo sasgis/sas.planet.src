@@ -17,20 +17,9 @@ uses
   i_KmlLayerConfig,
   i_LocalCoordConverter,
   i_ViewPortState,
-  u_KmlInfoSimple;
+  i_VectorDataItemSimple;
 
 type
-  TWikiLayerElement = class
-  public
-    name_blok: string;
-    num_blok: string;
-    description: string;
-    FBounds: TDoubleRect;
-    FPolygonOnBitmap: TArrayOfDoublePoint;
-    constructor Create;
-    destructor Destroy; override;
-  end;
-
   TWikiLayer = class(TMapLayerBasic)
   private
     FConfig: IKmlLayerConfig;
@@ -38,9 +27,9 @@ type
 
     FMapsList: IMapTypeList;
     FFixedPointArray: TArrayOfFixedPoint;
-    FWikiLayerElments: array of TWikiLayerElement;
-    procedure addWL(var AData: TKMLData; ALocalConverter: ILocalCoordConverter);
-    procedure DrawWikiElement(var AData: TWikiLayerElement; ALocalConverter: ILocalCoordConverter);
+    FElments: IInterfaceList;
+    procedure addWL(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
+    procedure DrawWikiElement(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
     procedure Clear;
     procedure AddFromLayer(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
     procedure OnConfigChange(Sender: TObject);
@@ -51,8 +40,8 @@ type
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IKmlLayerConfig; ALayersSet: IActiveMapsSet);
     destructor Destroy; override;
     procedure StartThreads; override;
-    procedure MouseOnReg(var APWL: TResObj; xy: TPoint);
-    property Visible: Boolean read GetVisible;
+    procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple; out AItemS: Double); overload;
+    procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple); overload;
   end;
 
 implementation
@@ -60,32 +49,12 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  StrUtils,
   Graphics,
   GR32_Polygons,
   i_CoordConverter,
   i_TileIterator,
   u_NotifyEventListener,
   u_TileIteratorByRect;
-
-{ TWikiLayerElement }
-
-constructor TWikiLayerElement.Create;
-begin
-  name_blok := '';
-  num_blok := '';
-  description := '';
-  FPolygonOnBitmap := nil;
-end;
-
-destructor TWikiLayerElement.Destroy;
-begin
-  name_blok := '';
-  num_blok := '';
-  description := '';
-  FPolygonOnBitmap := nil;
-  inherited;
-end;
 
 { TWikiLayer }
 
@@ -105,17 +74,14 @@ begin
     FLayersSet.GetChangeNotifier
   );
 
-  Layer.Bitmap.DrawMode := dmTransparent;
-  Layer.Bitmap.Font.Charset := RUSSIAN_CHARSET;
-
-  FWikiLayerElments := nil;
+  FElments := TInterfaceList.Create;
   SetLength(FFixedPointArray, 256);
 end;
 
 destructor TWikiLayer.Destroy;
 begin
   Clear;
-  FWikiLayerElments := nil;
+  FElments := nil;
   FFixedPointArray := nil;
   inherited;
 end;
@@ -123,7 +89,7 @@ end;
 procedure TWikiLayer.AddFromLayer(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
 var
   ii: integer;
-  kml: TKmlInfoSimple;
+  kml: IVectorDataItemList;
   VTileIterator: ITileIterator;
   VZoom: Byte;
   VSourceGeoConvert: ICoordConverter;
@@ -145,115 +111,38 @@ begin
   VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
 
   while VTileIterator.Next(VTile) do begin
-    KML := TKmlInfoSimple.Create;
-    try
       if Alayer.LoadTile(kml, VTile, Vzoom, true, True) then begin
-        for ii := 0 to length(KML.Data) - 1 do begin
-          addWL(KML.Data[ii], ALocalConverter);
+        for ii := 0 to KML.Count - 1 do begin
+          addWL(KML.GetItem(ii), ALocalConverter);
         end;
       end;
-    finally
-      KML.Free;
-    end;
   end;
 end;
 
-procedure TWikiLayer.addWL(var AData: TKMLData; ALocalConverter: ILocalCoordConverter);
+procedure TWikiLayer.addWL(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
 var
-  i, lenLay: integer;
   VConverter: ICoordConverter;
   VSize: TPoint;
-  VElement: TWikiLayerElement;
+  VLLRect: TDoubleRect;
   VBounds: TDoubleRect;
 begin
-  VSize := ALocalConverter.GetLocalRectSize;
-  VConverter := ALocalConverter.GetGeoConverter;
-  Delete(AData.description, posEx('#ge', AData.description, 1), 1);
-  VConverter.CheckLonLatRect(AData.Bounds);
-  VBounds := ALocalConverter.LonLatRect2LocalRectFloat(AData.Bounds);
-  if AData.Bounds.Left = AData.Bounds.Right then begin
-    VBounds.Left := VBounds.Left - 3;
-    VBounds.Right := VBounds.Right + 3;
-  end;
-  if AData.Bounds.Top = AData.Bounds.Bottom then begin
-    VBounds.Top := VBounds.Top - 3;
-    VBounds.Bottom := VBounds.Bottom + 3;
-  end;
-  if (((VBounds.Right - VBounds.Left) <= 1) or ((VBounds.Bottom - VBounds.Top) <= 1) or
-    ((VBounds.Top > VSize.Y) or (VBounds.Bottom < 0) or (VBounds.Left > VSize.X) or (VBounds.Right < 0))) then begin
-  end else begin
-    VElement := TWikiLayerElement.Create;
-    With VElement do begin
-      FBounds := VBounds;
-      name_blok := AData.name;
-      num_blok := AData.PlacemarkID;
-      description := AData.description;
-      setLength(FPolygonOnBitmap, length(AData.coordinates));
-      for i := 0 to length(AData.coordinates) - 1 do begin
-        VConverter.CheckLonLatPos(AData.coordinates[i]);
-        FPolygonOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(AData.coordinates[i]);
+  if AData <> nil then begin
+    VSize := ALocalConverter.GetLocalRectSize;
+    VConverter := ALocalConverter.GetGeoConverter;
+    VLLRect := AData.LLRect;
+    VConverter.CheckLonLatRect(VLLRect);
+    VBounds := ALocalConverter.LonLatRect2LocalRectFloat(VLLRect);
+    if AData.IsPoint or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
+      if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
+        FElments.Add(AData);
       end;
     end;
-    setLength(FWikiLayerElments, length(FWikiLayerElments) + 1);
-    lenLay := length(FWikiLayerElments);
-    FWikiLayerElments[lenLay - 1] := VElement;
   end;
 end;
 
 procedure TWikiLayer.Clear;
-var
-  i: integer;
 begin
-  for i := 0 to length(FWikiLayerElments) - 1 do begin
-    FreeAndNil(FWikiLayerElments[i]);
-  end;
-  FWikiLayerElments := nil;
-end;
-
-procedure TWikiLayer.MouseOnReg(var APWL: TResObj; xy: TPoint);
-var
-  i: integer;
-  VLen: integer;
-  VXY: TDoublePoint;
-  VSquare: Double;
-begin
-  VXY := LayerCoordConverter.MapPixelFloat2LocalPixelFloat(ViewCoordConverter.LocalPixelFloat2MapPixelFloat(DoublePoint(xy)));
-  for i := 0 to length(FWikiLayerElments) - 1 do begin
-    if (VXY.x > FWikiLayerElments[i].FBounds.Left - 5) and (VXY.x < FWikiLayerElments[i].FBounds.Right + 5) and
-      (VXY.y > FWikiLayerElments[i].FBounds.Top - 5) and (VXY.y < FWikiLayerElments[i].FBounds.Bottom + 5) then begin
-      VLen := length(FWikiLayerElments[i].FPolygonOnBitmap);
-      if VLen > 0 then begin
-        if VLen = 1 then begin
-          APWL.name := FWikiLayerElments[i].name_blok;
-          APWL.descr := FWikiLayerElments[i].description;
-          APWL.numid := FWikiLayerElments[i].num_blok;
-          APWL.find := true;
-          Break;
-        end else begin
-          if (FWikiLayerElments[i].FPolygonOnBitmap[0].X <> FWikiLayerElments[i].FPolygonOnBitmap[VLen - 1].x) or
-            (FWikiLayerElments[i].FPolygonOnBitmap[0].y <> FWikiLayerElments[i].FPolygonOnBitmap[VLen - 1].y) then begin
-            if PointOnPath(VXY, FWikiLayerElments[i].FPolygonOnBitmap, 3) then begin
-              APWL.name := FWikiLayerElments[i].name_blok;
-              APWL.descr := FWikiLayerElments[i].description;
-              APWL.numid := FWikiLayerElments[i].num_blok;
-              APWL.find := true;
-              exit;
-            end;
-          end else if PtInRgn(FWikiLayerElments[i].FPolygonOnBitmap, VXY) then begin
-            VSquare := PolygonSquare(FWikiLayerElments[i].FPolygonOnBitmap);
-            if (VSquare > APWL.S) and (APWL.S <> 0) then begin
-              continue;
-            end;
-            APWL.S := VSquare;
-            APWL.name := FWikiLayerElments[i].name_blok;
-            APWL.descr := FWikiLayerElments[i].description;
-            APWL.numid := FWikiLayerElments[i].num_blok;
-            APWL.find := true;
-          end;
-        end;
-      end;
-    end;
-  end;
+  FElments.Clear;
 end;
 
 procedure TWikiLayer.OnConfigChange(Sender: TObject);
@@ -284,7 +173,7 @@ begin
   OnLayerSetChange(nil);
 end;
 
-procedure TWikiLayer.DrawWikiElement(var AData: TWikiLayerElement; ALocalConverter: ILocalCoordConverter);
+procedure TWikiLayer.DrawWikiElement(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
 var
   VPolygon: TPolygon32;
   VLen: integer;
@@ -293,6 +182,9 @@ var
   VColorBG: TColor32;
   VPointColor: TColor32;
   VRect: TRect;
+  VPointLL: TDoublePoint;
+  VConverter: ICoordConverter;
+  VPointOnBitmap: TDoublePoint;
 begin
   FConfig.LockRead;
   try
@@ -302,37 +194,127 @@ begin
   finally
     FConfig.UnlockRead;
   end;
+  VConverter := ALocalConverter.GetGeoConverter;
   VPolygon := TPolygon32.Create;
   VPolygon.Antialiased := true;
   VPolygon.AntialiasMode := am4times;
   try
-    VLen := Length(AData.FPolygonOnBitmap);
-    if VLen > 1 then begin
-      if Length(FFixedPointArray) < VLen then begin
-        SetLength(FFixedPointArray, VLen);
-      end;
-      for i := 0 to VLen - 1 do begin
-        FFixedPointArray[i] := FixedPoint(AData.FPolygonOnBitmap[i].X, AData.FPolygonOnBitmap[i].Y);
-      end;
-      VPolygon.AddPoints(FFixedPointArray[0], VLen);
-      VPolygon.DrawEdge(Layer.Bitmap, VColorBG);
-      VPolygon.Offset(Fixed(0.9), Fixed(0.9));
-      VPolygon.DrawEdge(Layer.Bitmap, VColorMain);
-    end else begin
-      VRect.Left := Trunc(AData.FPolygonOnBitmap[0].X - 3);
-      VRect.Top := Trunc(AData.FPolygonOnBitmap[0].Y - 3);
-      VRect.Right := VRect.Left + 7;
-      VRect.Bottom := VRect.Top + 7;
+    if AData.IsPoint then begin
+      VPointLL := AData.Points[0];
+      VConverter.CheckLonLatPos(VPointLL);
+      VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL);
+      VRect.BottomRight := VRect.TopLeft;
+      Dec(VRect.Left, 3);
+      Dec(VRect.Top, 3);
+      Inc(VRect.Right, 3);
+      Inc(VRect.Bottom, 3);
+
       Layer.Bitmap.FillRectS(VRect, VColorBG);
       Inc(VRect.Left);
       Inc(VRect.Top);
       Dec(VRect.Right);
       Dec(VRect.Bottom);
       Layer.Bitmap.FillRectS(VRect, VPointColor);
+    end else begin
+      VLen := Length(AData.Points);
+      if Length(FFixedPointArray) < VLen then begin
+        SetLength(FFixedPointArray, VLen);
+      end;
+      for i := 0 to VLen - 1 do begin
+        VPointLL := AData.Points[i];
+        VConverter.CheckLonLatPos(VPointLL);
+        VPointOnBitmap := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
+        FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
+      end;
+      VPolygon.AddPoints(FFixedPointArray[0], VLen);
+      VPolygon.DrawEdge(Layer.Bitmap, VColorBG);
+      VPolygon.Offset(Fixed(0.9), Fixed(0.9));
+      VPolygon.DrawEdge(Layer.Bitmap, VColorMain);
     end;
   finally
     FreeAndNil(VPolygon);
   end;
+end;
+
+procedure TWikiLayer.MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple;
+  out AItemS: Double);
+var
+  VLineOnBitmap: TArrayOfDoublePoint;
+  VLonLatRect: TDoubleRect;
+  VRect: TRect;
+  VConverter: ICoordConverter;
+  VMarkLonLatRect: TDoubleRect;
+  VPixelPos: TDoublePoint;
+  VZoom: Byte;
+  VMapRect: TDoubleRect;
+  VLocalConverter: ILocalCoordConverter;
+  VVisualConverter: ILocalCoordConverter;
+  VSquare:Double;
+  i: integer;
+  VList: IInterfaceList;
+  VItem: IVectorDataItemSimple;
+begin
+  AItem := nil;
+  AItemS := 0;
+  VList := TInterfaceList.Create;
+  FElments.Lock;
+  try
+    for i := 0 to FElments.Count - 1 do begin
+      VList.Add(FElments[i]);
+    end;
+  finally
+    FElments.Unlock;
+  end;
+  if VList.Count > 0 then begin
+    VRect.Left := xy.X - 3;
+    VRect.Top := xy.Y - 3;
+    VRect.Right := xy.X + 3;
+    VRect.Bottom := xy.Y + 3;
+    VLocalConverter := LayerCoordConverter;
+    VConverter := VLocalConverter.GetGeoConverter;
+    VZoom := VLocalConverter.GetZoom;
+    VVisualConverter := ViewCoordConverter;
+    VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
+    VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+    VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+    VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
+    for i := 0 to VList.Count - 1 do begin
+      VItem := IVectorDataItemSimple(Pointer(VList[i]));
+      VMarkLonLatRect := VItem.LLRect;
+      if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
+      (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
+        if VItem.IsPoint then begin
+          AItem := VItem;
+          AItemS := 0;
+          exit;
+        end else begin
+          VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VItem.Points, VZoom);
+          if VItem.IsLine then begin
+            if PointOnPath(VPixelPos, VLineOnBitmap, 2) then begin
+              AItem := VItem;
+              AItemS := 0;
+              exit;
+            end;
+          end else begin
+            if (PtInRgn(VLineOnBitmap,VPixelPos)) then begin
+              VSquare := PolygonSquare(VLineOnBitmap);
+              if (AItem = nil) or (VSquare<AItemS) then begin
+                AItem := VItem;
+                AItemS := VSquare;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TWikiLayer.MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple);
+var
+  VItemS: Double;
+begin
+  MouseOnReg(xy, AItem, VItemS);
 end;
 
 procedure TWikiLayer.DoRedraw;
@@ -362,8 +344,8 @@ begin
     end;
     Layer.Bitmap.BeginUpdate;
     try
-      for ii := 0 to Length(FWikiLayerElments) - 1 do begin
-        DrawWikiElement(FWikiLayerElments[ii], VLocalConverter);
+      for ii := 0 to FElments.Count - 1 do begin
+        DrawWikiElement(IVectorDataItemSimple(Pointer(FElments[ii])), VLocalConverter);
       end;
     finally
       Layer.Bitmap.EndUpdate;

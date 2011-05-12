@@ -28,6 +28,19 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
   end;
 
+  TMapLayerBasicNoBitmap = class(TMapLayerBasicFullView)
+  private
+    procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
+  protected
+    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); virtual; abstract;
+  protected
+    procedure DoRedraw; override;
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+  public
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+    procedure StartThreads; override;
+  end;
+
   TMapLayerFixedWithBitmap = class(TWindowLayerWithBitmap)
   protected
     FFixedLonLat: TDoublePoint;
@@ -182,7 +195,6 @@ begin
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
   FLayer.Bitmap.CombineMode := cmMerge;
-  FLayer.bitmap.Font.Charset := RUSSIAN_CHARSET;
   FNeedUpdateLayerSizeCS := TCriticalSection.Create;
 end;
 
@@ -330,6 +342,59 @@ function TMapLayerBasic.GetLayerSizeForView(
   ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
   Result := ANewVisualCoordConverter.GetLocalRectSize;
+end;
+
+{ TMapLayerBasicNoBitmap }
+
+constructor TMapLayerBasicNoBitmap.Create(AParentMap: TImage32;
+  AViewPortState: IViewPortState);
+begin
+  inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+end;
+
+procedure TMapLayerBasicNoBitmap.DoRedraw;
+begin
+  inherited;
+  LayerPositioned.Changed;
+end;
+
+procedure TMapLayerBasicNoBitmap.OnPaintLayer(Sender: TObject;
+  Buffer: TBitmap32);
+var
+  VLocalConverter: ILocalCoordConverter;
+var
+  VPerformanceCounterBegin: Int64;
+  VPerformanceCounterEnd: Int64;
+  VPerformanceCounterFr: Int64;
+  VUpdateTime: TDateTime;
+begin
+  VLocalConverter := ViewCoordConverter;
+  if VLocalConverter <> nil then begin
+    QueryPerformanceCounter(VPerformanceCounterBegin);
+    try
+      PaintLayer(Buffer, VLocalConverter);
+    finally
+      QueryPerformanceCounter(VPerformanceCounterEnd);
+      QueryPerformanceFrequency(VPerformanceCounterFr);
+      VUpdateTime := (VPerformanceCounterEnd - VPerformanceCounterBegin) / VPerformanceCounterFr/24/60/60;
+      IncRedrawCounter(VUpdateTime);
+    end;
+  end;
+end;
+
+procedure TMapLayerBasicNoBitmap.SetViewCoordConverter(
+  AValue: ILocalCoordConverter);
+begin
+  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
+    SetNeedRedraw;
+  end;
+  inherited;
+end;
+
+procedure TMapLayerBasicNoBitmap.StartThreads;
+begin
+  inherited;
+  LayerPositioned.OnPaint := OnPaintLayer;
 end;
 
 end.

@@ -4,7 +4,7 @@ interface
 
 uses
   GR32,
-  u_KmlInfoSimple,
+  i_VectorDataItemSimple,
   i_MemObjCache,
   i_TileObjCache,
   u_MapType;
@@ -18,9 +18,9 @@ type
     procedure Clear;
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
     procedure AddTileToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte); overload;
-    procedure AddTileToCache(AObj: TKmlInfoSimple; AXY: TPoint; AZoom: Byte); overload;
+    procedure AddTileToCache(AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte); overload;
     function TryLoadTileFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean; overload;
-    function TryLoadTileFromCache(AObj: TKmlInfoSimple; AXY: TPoint; AZoom: Byte): boolean; overload;
+    function TryLoadTileFromCache(var AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte): boolean; overload;
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
   public
     constructor Create(AMapType: TMapType; AMemCache: IMemObjCache);
@@ -41,7 +41,7 @@ begin
   FMemCache.AddTileToCache(AObj, GetMemCacheKey(AXY, AZoom));
 end;
 
-procedure TTileCacheSimpleGlobal.AddTileToCache(AObj: TKmlInfoSimple;
+procedure TTileCacheSimpleGlobal.AddTileToCache(AObj: IVectorDataItemList;
   AXY: TPoint; AZoom: Byte);
 begin
   FMemCache.AddTileToCache(AObj, GetMemCacheKey(AXY, AZoom));
@@ -71,7 +71,7 @@ begin
   Result := inttostr(Azoom) + '-' + inttostr(AXY.X) + '-' + inttostr(AXY.Y) + '-' + FGUIDString;
 end;
 
-function TTileCacheSimpleGlobal.TryLoadTileFromCache(AObj: TKmlInfoSimple;
+function TTileCacheSimpleGlobal.TryLoadTileFromCache(var AObj: IVectorDataItemList;
   AXY: TPoint; AZoom: Byte): boolean;
 begin
   Result := FMemCache.TryLoadFileFromCache(AObj, GetMemCacheKey(AXY, AZoom));

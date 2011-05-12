@@ -6,16 +6,15 @@ uses
   Windows,
   Classes,
   Types,
-  u_MapLayerShowError,
+  i_TileError,
   u_MapType;
 
 type
   TTileDownloaderUIOneTile = class(TThread)
   private
     //FErrorString: string;
-
     FMapTileUpdateEvent: TMapTileUpdateEvent;
-    FErrorShowLayer: TTileErrorInfoLayer;
+    FErrorLogger: ITileErrorLogger;
     FMapType: TMapType;
     FLoadXY: TPoint;
     FZoom: Byte;
@@ -28,7 +27,7 @@ type
       AZoom: byte;
       AMapType: TMapType;
       AMapTileUpdateEvent: TMapTileUpdateEvent;
-      AErrorShowLayer: TTileErrorInfoLayer
+      AErrorLogger: ITileErrorLogger
     ); overload;
   end;
 
@@ -37,6 +36,7 @@ implementation
 uses
   SysUtils,
   u_GlobalState,
+  u_TileErrorInfo,
   u_ResStrings;
 
 constructor TTileDownloaderUIOneTile.Create(
@@ -44,12 +44,12 @@ constructor TTileDownloaderUIOneTile.Create(
   AZoom: byte;
   AMapType: TMapType;
   AMapTileUpdateEvent: TMapTileUpdateEvent;
-  AErrorShowLayer: TTileErrorInfoLayer
+  AErrorLogger: ITileErrorLogger
 );
 begin
   inherited Create(False);
   FMapTileUpdateEvent := AMapTileUpdateEvent;
-  FErrorShowLayer := AErrorShowLayer;
+  FErrorLogger := AErrorLogger;
   FLoadXY := AXY;
   FZoom := AZoom;
   FMapType := AMapType;
@@ -61,17 +61,8 @@ end;
 {
 procedure TTileDownloaderUIOneTile.AfterWriteToFile;
 begin
-  if FErrorString <> '' then begin
-    if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.ShowError(FLoadXY, FZoom, FMapType, FErrorString);
-    end;
-  end else begin
-    if FErrorShowLayer <> nil then begin
-      FErrorShowLayer.SetNoError(FLoadXY, FZoom, FMapType);
-    end;
-    if Addr(FMapTileUpdateEvent) <> nil then begin
-      FMapTileUpdateEvent(FMapType, FZoom, FLoadXY);
-    end;
+  if Addr(FMapTileUpdateEvent) <> nil then begin
+    FMapTileUpdateEvent(FMapType, FZoom, FLoadXY);
   end;
 end;
 }
@@ -90,23 +81,33 @@ begin
     try
       try
         res := FMapType.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
-        FErrorString := GetErrStr(res);
+        VErrorString := GetErrStr(res);
         if (res = dtrOK) or (res = dtrSameTileSize) then begin
           GState.DownloadInfo.Add(1, fileBuf.Size);
         end;
       except
         on E: Exception do begin
-          FErrorString := E.Message;
+          VErrorString := E.Message;
         end;
       end;
     finally
       FileBuf.Free;
     end;
   end else begin
-    FErrorString := SAS_ERR_NotLoads;
+    VErrorString := SAS_ERR_NotLoads;
   end;
-  Synchronize(AfterWriteToFile);
+  if VErrorString = '' then begin
+    Synchronize(AfterWriteToFile);
   }
+    FErrorLogger.LogError(
+      TTileErrorInfo.Create(
+        FMapType,
+        FZoom,
+        FLoadXY,
+        VErrorString
+      )
+    );
+  end;
 end;
 
 end.

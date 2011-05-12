@@ -46,6 +46,8 @@ uses
   i_JclListenerNotifierLinksList,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_TileError,
+  i_TileErrorLogProviedrStuped,
   u_GeoToStr,
   t_CommonTypes,
   i_GPSRecorder,
@@ -71,6 +73,7 @@ uses
   u_MapLayerFillingMap,
   u_MiniMapLayer,
   u_MapLayerGrids,
+  u_MapLayerTileGrid,
   u_MapLayerGoto,
   u_MapLayerShowError,
   u_CenterScale,
@@ -329,6 +332,8 @@ type
     NSignalStrengthBar: TTBXVisibilityToggleItem;
     TBXSeparatorItem18: TTBXSeparatorItem;
     NBlock_toolbars: TTBXItem;
+    TBXSeparatorItem19: TTBXSeparatorItem;
+    tbitmGPSOptions: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -455,6 +460,7 @@ type
     procedure NSensorsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure NBlock_toolbarsClick(Sender: TObject);
+    procedure tbitmGPSOptionsClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -489,6 +495,7 @@ type
     FLayerSelection: TSelectionLayer;
     FLayerGPSMarker: TMapLayerGPSMarker;
     FLayerGrids: TMapLayerGrids;
+    FLayerTileGrid: TMapLayerTileGrid;
     LayerMapNavToMark: TNavToMarkLayer;
     FUIDownLoader: TTileDownloaderUI;
 
@@ -518,6 +525,9 @@ type
 
     FLineOnMapEdit: ILineOnMapEdit;
     FMarkDBGUI: TMarksDbGUIHelper;
+
+    FTileErrorLogger: ITileErrorLogger;
+    FTileErrorLogProvider: ITileErrorLogProviedrStuped;
 
     FRuller:TBitmap32;
     FTumbler:TBitmap32;
@@ -605,9 +615,11 @@ uses
   i_ValueToStringConverter,
   i_ActiveMapsConfig,
   i_LanguageManager,
+  i_VectorDataItemSimple,
   i_SensorViewListGenerator,
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
+  u_TileErrorLogProviedrStuped,
   u_LineOnMapEdit,
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
@@ -630,10 +642,17 @@ uses
 {$R *.dfm}
 
 constructor TfrmMain.Create(AOwner: TComponent);
+var
+  VLogger: TTileErrorLogProviedrStuped;
 begin
   inherited;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FConfig := GState.MainFormConfig;
+
+  VLogger := TTileErrorLogProviedrStuped.Create;
+  FTileErrorLogger := VLogger;
+  FTileErrorLogProvider := VLogger;
+
   FIsGPSPosChanged := False;
   FdWhenMovingButton := 5;
 
@@ -748,10 +767,12 @@ begin
 
     tbitmShowDebugInfo.Visible := GState.ShowDebugInfo;
 
-    FMainLayer := TMapMainLayer.Create(map, FConfig.ViewPortState, FConfig.MainMapsConfig, GState.BitmapPostProcessingConfig);
+    FMainLayer := TMapMainLayer.Create(map, FConfig.ViewPortState, FConfig.MainMapsConfig, GState.BitmapPostProcessingConfig, GState.ViewConfig, FTileErrorLogger);
     FLayersList.Add(FMainLayer);
     FLayerGrids := TMapLayerGrids.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig);
     FLayersList.Add(FLayerGrids);
+    FLayerTileGrid := TMapLayerTileGrid.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig.TileGrid);
+    FLayersList.Add(FLayerTileGrid);
     FWikiLayer := TWikiLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.KmlLayerConfig, FConfig.MainMapsConfig.GetKmlLayersSet);
     FLayersList.Add(FWikiLayer);
     FLayerFillingMap:=TMapLayerFillingMap.create(map, FConfig.ViewPortState, FConfig.LayersConfig.FillingMapLayerConfig);
@@ -778,7 +799,7 @@ begin
     FLayersList.Add(FLayerGoto);
     LayerMapNavToMark := TNavToMarkLayer.Create(map, FConfig.ViewPortState, FConfig.NavToPoint, FConfig.LayersConfig.NavToPointMarkerConfig);
     FLayersList.Add(LayerMapNavToMark);
-    FShowErrorLayer := TTileErrorInfoLayer.Create(map, FConfig.ViewPortState);
+    FShowErrorLayer := TTileErrorInfoLayer.Create(map, FConfig.ViewPortState, FTileErrorLogProvider, GState.GUISyncronizedTimerNotifier);
     FLayersList.Add(FShowErrorLayer);
     FLayerMapCenterScale := TCenterScale.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CenterScaleConfig);
     FLayersList.Add(FLayerMapCenterScale);
@@ -788,9 +809,8 @@ begin
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MiniMapLayerConfig, GState.BitmapPostProcessingConfig);
     FLayersList.Add(FLayerMiniMap);
-    FMainLayer.ErrorShowLayer := FShowErrorLayer;
 
-    FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FShowErrorLayer);
+    FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FTileErrorLogger);
 
     CreateMapUI;
 
@@ -2198,7 +2218,7 @@ begin
           VZoomCurr,
           VMapType,
           Self.OnMapTileUpdate,
-          FShowErrorLayer
+          FTileErrorLogger
         );
       end;
     end;
@@ -2940,6 +2960,7 @@ var
   VMouseMoveDelta: TPoint;
   VMark: IMarkFull;
   VMarkS: Double;
+  VWikiItem: IVectorDataItemSimple;
 begin
   if (Layer <> nil) then begin
     exit;
@@ -2973,7 +2994,7 @@ begin
           VZoomCurr,
           VMapType,
           Self.OnMapTileUpdate,
-          FShowErrorLayer
+          FTileErrorLogger
         );
       end;
     end;
@@ -3016,10 +3037,19 @@ begin
       FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
     end;
     if (FCurrentOper=ao_movemap)and(button=mbLeft) then begin
-      VPWL.S:=0;
-      VPWL.find:=false;
-      if (FWikiLayer.Visible) then
-        FWikiLayer.MouseOnReg(VPWL, Point(x,y));
+      VPWL.find := False;
+      VPWL.name := '';
+      VPWL.descr := '';
+      VPWL.S := 0;
+
+      VWikiItem := nil;
+      FWikiLayer.MouseOnReg(Point(x,y), VWikiItem, VMarkS);
+      if VWikiItem <> nil then begin
+        VPWL.find := True;
+        VPWL.name := VWikiItem.Name;
+        VPWL.descr := VWikiItem.Desc;
+        VPWL.S := VMarkS;
+      end;
       VMark := nil;
       if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
         FLayerMapMarks.MouseOnMyReg(Point(x,y), VMark, VMarkS);
@@ -3138,6 +3168,7 @@ var
   VLastMouseMove: TPoint;
   VMark: IMarkFull;
   VMarkS: Double;
+  VWikiItem: IVectorDataItemSimple;
 begin
   if ProgramClose then begin
     exit;
@@ -3234,8 +3265,15 @@ begin
  if not(FMapMoving)and((FmoveTrue.x<>VLastMouseMove.X)or(FmoveTrue.y<>VLastMouseMove.y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
     VPWL.S:=0;
     VPWL.find:=false;
-    if (FWikiLayer.Visible) then
-      FWikiLayer.MouseOnReg(VPWL,FmoveTrue);
+    VWikiItem := nil;
+    FWikiLayer.MouseOnReg(FmoveTrue, VWikiItem, VMarkS);
+    if VWikiItem <> nil then begin
+      VPWL.find := True;
+      VPWL.name := VWikiItem.Name;
+      VPWL.descr := VWikiItem.Desc;
+      VPWL.S := VMarkS;
+    end;
+
     VMark := nil;
     if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
       FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark, VMarkS);
@@ -3280,7 +3318,6 @@ begin
       if FHintWindow=nil then begin
         FHintWindow:=THintWindow.Create(Self);
         FHintWindow.Brush.Color:=clInfoBk;
-        FHintWindow.Font.Charset:=RUSSIAN_CHARSET;
       end;
       hintrect:=FHintWindow.CalcHintRect(Screen.Width, nms, nil);
       FHintWindow.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),nms);
@@ -3631,6 +3668,12 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);
+begin
+ frmSettings.TabSheet5.Show;
+ frmSettings.ShowModal;
 end;
 
 procedure TfrmMain.TBScreenSelectClick(Sender: TObject);

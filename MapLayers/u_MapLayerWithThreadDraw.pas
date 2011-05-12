@@ -6,21 +6,22 @@ uses
   Classes,
   GR32,
   GR32_Image,
-  i_BackgroundTaskLayerDraw,
+  i_BackgroundTask,
   i_ViewPortState,
   u_MapLayerBasic;
 
 type
   TMapLayerWithThreadDraw = class(TMapLayerBasic)
+  private
+    FDrawTask: IBackgroundTask;
   protected
-    FDrawTask: IBackgroundTaskLayerDraw;
-    property DrawTask: IBackgroundTaskLayerDraw read FDrawTask;
+    property DrawTask: IBackgroundTask read FDrawTask;
   protected
     procedure SetNeedRedraw; override;
     procedure SetNeedUpdateLayerSize; override;
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; ATaskFactory: IBackgroundTaskLayerDrawFactory);
+    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; ADrawTask: IBackgroundTask);
     destructor Destroy; override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
@@ -35,10 +36,10 @@ uses
 { TMapLayerWithThreadDraw }
 
 constructor TMapLayerWithThreadDraw.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState;  ATaskFactory: IBackgroundTaskLayerDrawFactory);
+  AViewPortState: IViewPortState;  ADrawTask: IBackgroundTask);
 begin
   inherited Create(AParentMap, AViewPortState);
-  FDrawTask := ATaskFactory.GetTask(Layer.Bitmap);
+  FDrawTask := ADrawTask;
 end;
 
 destructor TMapLayerWithThreadDraw.Destroy;
@@ -50,7 +51,7 @@ end;
 procedure TMapLayerWithThreadDraw.DoRedraw;
 begin
   inherited;
-  FDrawTask.ChangePos(LayerCoordConverter);
+  FDrawTask.StopExecute;
   if Visible then begin
     Layer.Bitmap.Lock;
     try
@@ -84,7 +85,6 @@ procedure TMapLayerWithThreadDraw.StartThreads;
 begin
   inherited;
   FDrawTask.Start;
-  FDrawTask.ChangePos(LayerCoordConverter);
   if Visible then begin
     FDrawTask.StartExecute;
   end;

@@ -247,7 +247,6 @@ var
   VTileCenter: TPoint;
   VTileSize: TPoint;
   VGridZoom: Byte;
-  VTilesLineRect: TRect;
   VLocalConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
   VShowText: Boolean;
@@ -269,67 +268,35 @@ begin
     FConfig.TileGrid.UnlockRead;
   end;
 
-  VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.CheckPixelRectFloat(VLoadedRect, VCurrentZoom);
+  if VShowText then begin
+    if (VGridZoom >= VCurrentZoom - 2) and (VGridZoom <= VCurrentZoom + 3) then begin
+      VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
+      VGeoConvert.CheckPixelRectFloat(VLoadedRect, VCurrentZoom);
 
-  VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
-  VTilesRect := VGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
+      VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
+      VTilesRect := VGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
+      for i := VTilesRect.Top to VTilesRect.Bottom - 1 do begin
+        VTileIndex.Y := i;
+        for j := VTilesRect.Left to VTilesRect.Right - 1 do begin
+          VTileIndex.X := j;
+          VTileRelativeRect := VGeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
+          VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+          VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
+          VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
 
-  VTilesLineRect.Left := VTilesRect.Left;
-  VTilesLineRect.Right := VTilesRect.Right;
-  for i := VTilesRect.Top to VTilesRect.Bottom do begin
-    VTilesLineRect.Top := i;
-    VTilesLineRect.Bottom := i;
-
-    VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
-    Layer.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Right, VTileScreenRect.Top, VColor);
-  end;
-
-  VTilesLineRect.Top := VTilesRect.Top;
-  VTilesLineRect.Bottom := VTilesRect.Bottom;
-  for j := VTilesRect.Left to VTilesRect.Right do begin
-    VTilesLineRect.Left := j;
-    VTilesLineRect.Right := j;
-
-    VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
-    Layer.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Left, VTileScreenRect.Bottom, VColor);
-  end;
-
-  if not (VShowText) then begin
-    exit;
-  end;
-  if VGridZoom - VCurrentZoom > 2 then begin
-    exit;
-  end;
-
-  for i := VTilesRect.Top to VTilesRect.Bottom - 1 do begin
-    VTileIndex.Y := i;
-    for j := VTilesRect.Left to VTilesRect.Right - 1 do begin
-      VTileIndex.X := j;
-      VTileRelativeRect := VGeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
-      VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-      VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-      VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
-
-      VTileSize.X := VTileRect.Right - VTileRect.Left;
-      VTileSize.Y := VTileRect.Bottom - VTileRect.Top;
-      VTileCenter.X := VTileScreenRect.Left + VTileSize.X div 2;
-      VTileCenter.Y := VTileScreenRect.Top + VTileSize.Y div 2;
-      textoutx := 'x=' + inttostr(VTileIndex.X);
-      textouty := 'y=' + inttostr(VTileIndex.Y);
-      Sz1 := Layer.bitmap.TextExtent(textoutx);
-      Sz2 := Layer.bitmap.TextExtent(textouty);
-      if (Sz1.cx < VTileSize.X) and (Sz2.cx < VTileSize.X) then begin
-        Layer.bitmap.RenderText(VTileCenter.X - (Sz1.cx div 2) + 1, VTileCenter.Y - Sz2.cy, textoutx, 0, VColor);
-        Layer.bitmap.RenderText(VTileCenter.X - (Sz2.cx div 2) + 1, VTileCenter.Y, textouty, 0, VColor);
+          VTileSize.X := VTileRect.Right - VTileRect.Left;
+          VTileSize.Y := VTileRect.Bottom - VTileRect.Top;
+          VTileCenter.X := VTileScreenRect.Left + VTileSize.X div 2;
+          VTileCenter.Y := VTileScreenRect.Top + VTileSize.Y div 2;
+          textoutx := 'x=' + inttostr(VTileIndex.X);
+          textouty := 'y=' + inttostr(VTileIndex.Y);
+          Sz1 := Layer.bitmap.TextExtent(textoutx);
+          Sz2 := Layer.bitmap.TextExtent(textouty);
+          if (Sz1.cx < VTileSize.X) and (Sz2.cx < VTileSize.X) then begin
+            Layer.bitmap.RenderText(VTileCenter.X - (Sz1.cx div 2) + 1, VTileCenter.Y - Sz2.cy, textoutx, 0, VColor);
+            Layer.bitmap.RenderText(VTileCenter.X - (Sz2.cx div 2) + 1, VTileCenter.Y, textouty, 0, VColor);
+          end;
+        end;
       end;
     end;
   end;
@@ -350,13 +317,15 @@ begin
     FConfig.LockRead;
     try
       if FConfig.TileGrid.Visible then begin
-        if FConfig.TileGrid.UseRelativeZoom then begin
-          VTileGridZoom := VZoom + FConfig.TileGrid.Zoom;
-        end else begin
-          VTileGridZoom := FConfig.TileGrid.Zoom;
-        end;
-        if VGeoConverter.CheckZoom(VTileGridZoom) then begin
-          Result := (VTileGridZoom >= VZoom - 2) and (VTileGridZoom <= VZoom + 5);
+        if FConfig.TileGrid.ShowText then begin
+          if FConfig.TileGrid.UseRelativeZoom then begin
+            VTileGridZoom := VZoom + FConfig.TileGrid.Zoom;
+          end else begin
+            VTileGridZoom := FConfig.TileGrid.Zoom;
+          end;
+          if VGeoConverter.CheckZoom(VTileGridZoom) then begin
+            Result := (VTileGridZoom >= VZoom - 2) and (VTileGridZoom <= VZoom + 3);
+          end;
         end;
       end;
       if FConfig.GenShtabGrid.Visible then begin
