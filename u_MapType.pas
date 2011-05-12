@@ -19,12 +19,11 @@ uses
   i_CoordConverter,
   i_KmlInfoSimpleLoader,
   i_RequestBuilderScript,
+  i_TileObjCache,
   i_VectorDataItemSimple,
   i_TileDownloader,
   u_MapTypeCacheConfig,
   u_ResStrings,
-  u_RequestBuilderScript,
-  u_RequestBuilderPascalScript,
   u_TileDownloaderFrontEnd,
   u_TileStorageAbstract;
 

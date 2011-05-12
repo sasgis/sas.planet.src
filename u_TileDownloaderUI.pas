@@ -43,7 +43,7 @@ type
     FMaxRequestCount: Integer;
     FSemaphore: THandle;
 
-    function  GetNewEventElement: ITileDownloaderEvent;
+    function  GetNewEventElement(ATile: TPoint; AZoom: Byte): ITileDownloaderEvent;
     procedure GetCurrentMapAndPos;
     procedure OnPosChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
@@ -73,8 +73,8 @@ uses
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   i_TileIterator,
-  u_TileIteratorSpiralByRect;
   u_TileErrorInfo,
+  u_TileIteratorSpiralByRect;
 
 constructor TTileDownloaderUI.Create(
   AConfig: IDownloadUIConfig;
@@ -93,7 +93,8 @@ begin
   FViewPortState := AViewPortState;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
-  FErrorShowLayer := AErrorShowLayer;
+  FErrorLogger := AErrorLogger;
+  FMapType := nil;
   FMaxRequestCount := 4;
   FSemaphore := CreateSemaphore(nil, FMaxRequestCount, FMaxRequestCount, nil);
 
@@ -171,16 +172,19 @@ begin
   Resume;
 end;
 
-function TTileDownloaderUI.GetNewEventElement: ITileDownloaderEvent;
+function TTileDownloaderUI.GetNewEventElement(ATile: TPoint; AZoom: Byte): ITileDownloaderEvent;
 begin
-  Result := TTileDownloaderEventElement.Create(FMapTileUpdateEvent, FErrorShowLayer, FMapType);
-  Result.CheckTileSize := False;
+  Result := TTileDownloaderEventElement.Create(FMapTileUpdateEvent, FErrorLogger, FMapType);
   Result.AddToCallBackList(Self.OnTileDownload);
+  Result.TileXY := ATile;
+  Result.TileZoom := AZoom;
+  Result.CheckTileSize := False;
 end;
 
 procedure TTileDownloaderUI.OnTileDownload (AEvent: ITileDownloaderEvent);
 begin
   ReleaseSemaphore(FSemaphore, 1, nil);
+end;
 
 procedure TTileDownloaderUI.Execute;
 var
@@ -203,7 +207,6 @@ var
   VIteratorsList: IInterfaceList;
   VMapsList: IInterfaceList;
   VAllIteratorsFinished: Boolean;
-  VErrorString: string;
 begin
   VIteratorsList := TInterfaceList.Create;
   VMapsList := TInterfaceList.Create;
@@ -309,22 +312,10 @@ begin
                          Break;
                   until False;
                   if not Terminated then
-                    FMapType.DownloadTile(GetNewEventElement);
+                    FMapType.DownloadTile( GetNewEventElement(VTile, VZoom) );
                 except
-
-                    else
-                      VErrorString := SAS_ERR_TileDownloadUnexpectedError;
-                    if VErrorString = '' then begin
-                    end else begin
-                      FErrorLogger.LogError(
-                        TTileErrorInfo.Create(
-                          FMapType,
-                          VZoom,
-                          FLoadXY,
-                          VErrorString
-                        )
-                      );
-                    end;
+                  on E:Exception do
+                    FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, VZoom, VTile, E.Message) );
                 end;
                 if Terminated then
                   Break;

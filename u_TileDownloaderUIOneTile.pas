@@ -98,16 +98,18 @@ begin
   end;
   if VErrorString = '' then begin
     Synchronize(AfterWriteToFile);
-  }
+  end else begin
     FErrorLogger.LogError(
-      TTileErrorInfo.Create(
-        FMapType,
-        FZoom,
-        FLoadXY,
-        VErrorString
-      )
-    );
+        TTileErrorInfo.Create(
+          FMapType,
+          FZoom,
+          FLoadXY,
+          VErrorString
+        )
+      );
   end;
+  }
+
 end;
 
 end.

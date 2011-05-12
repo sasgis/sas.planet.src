@@ -7,14 +7,14 @@ uses
   Classes,
   SysUtils,
   i_TileDownloader,
-  u_MapLayerShowError,
+  i_TileError,
   u_MapType;
 
 type
   TTileDownloaderEventElement = class(TInterfacedObject, ITileDownloaderEvent)
   private
     FMapTileUpdateEvent: TMapTileUpdateEvent;
-    FErrorShowLayer: TTileErrorInfoLayer;
+    FErrorLogger: ITileErrorLogger;
     FMapType: TMapType;
 
     FTileXY: TPoint;
@@ -38,7 +38,7 @@ type
 
     function  GetErrStr(AErr: TDownloadTileResult): string;
   public
-    constructor Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorShowLayer: TTileErrorInfoLayer; AMapType: TMapType);
+    constructor Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorLogger: ITileErrorLogger; AMapType: TMapType);
     destructor Destroy; override;
 
     procedure ProcessEvent;
@@ -80,16 +80,17 @@ implementation
 
 uses
   u_GlobalState,
+  u_TileErrorInfo,
   u_ResStrings;
 
 { TTileDownloaderEventElement }
 
-constructor TTileDownloaderEventElement.Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorShowLayer: TTileErrorInfoLayer; AMapType: TMapType);
+constructor TTileDownloaderEventElement.Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorLogger: ITileErrorLogger; AMapType: TMapType);
 begin
   inherited Create;
 
   FMapTileUpdateEvent := AMapTileUpdateEvent;
-  FErrorShowLayer := AErrorShowLayer;
+  FErrorLogger := AErrorLogger;
   FMapType := AMapType;
 
   FTileXY.X := 0;
@@ -134,13 +135,11 @@ begin
   if (FDownloadResult = dtrOK) or (FDownloadResult = dtrSameTileSize) then
     GState.DownloadInfo.Add(1, FTileSize);
   if VErrorString <> '' then begin
-    if FErrorShowLayer <> nil then
-      FErrorShowLayer.ShowError(FTileXY, FTileZoom, FMapType, VErrorString);
+    if FErrorLogger <> nil then
+      FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, VErrorString) );
   end else begin
-    if FErrorShowLayer <> nil then
-      FErrorShowLayer.SetNoError(FTileXY, FTileZoom, FMapType);
     if Addr(FMapTileUpdateEvent) <> nil then
-      FMapTileUpdateEvent(FMapType, FTileZoom, FTileXY);
+      FMapTileUpdateEvent(FMapType, FTileZoom, FTileXY); // TODO: Synchronize this call 
   end;
 end;
 
