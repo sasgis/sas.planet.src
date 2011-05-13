@@ -785,7 +785,7 @@ begin
     FLayersList.Add(FLayerTileGrid);
     FWikiLayer := TWikiLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.KmlLayerConfig, FConfig.MainMapsConfig.GetKmlLayersSet);
     FLayersList.Add(FWikiLayer);
-    FLayerFillingMap:=TMapLayerFillingMap.create(map, FConfig.ViewPortState, FConfig.LayersConfig.FillingMapLayerConfig);
+    FLayerFillingMap:=TMapLayerFillingMap.create(map, FConfig.ViewPortState, GState.GUISyncronizedTimerNotifier, FConfig.LayersConfig.FillingMapLayerConfig);
     FLayersList.Add(FLayerFillingMap);
     FLayerMapMarks:= TMapMarksLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarksShowConfig, FMarkDBGUI);
     FLayersList.Add(FLayerMapMarks);

@@ -3,9 +3,12 @@ unit u_MapLayerWithThreadDraw;
 interface
 
 uses
+  Windows,
   Classes,
   GR32,
   GR32_Image,
+  i_JclNotify,
+  t_CommonTypes,
   i_BackgroundTask,
   i_ImageResamplerConfig,
   i_LayerBitmapClearStrategy,
@@ -17,9 +20,14 @@ type
   TMapLayerWithThreadDraw = class(TMapLayerBasic)
   private
     FDrawTask: IBackgroundTask;
+    FUpdateCounter: Integer;
     FClearStrategy: ILayerBitmapClearStrategy;
     FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+    procedure OnDrawBitmap(AIsStop: TIsCancelChecker);
+    procedure OnTimer(Sender: TObject);
   protected
+    procedure DrawBitmap(AIsStop: TIsCancelChecker); virtual; abstract;
+    procedure SetBitmapChanged;
     property DrawTask: IBackgroundTask read FDrawTask;
   protected
     procedure SetNeedRedraw; override;
@@ -32,7 +40,8 @@ type
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
-      ADrawTask: IBackgroundTask
+      ATimerNoifier: IJclNotifier;
+      APriority: TThreadPriority
     );
     destructor Destroy; override;
     procedure StartThreads; override;
@@ -44,6 +53,8 @@ implementation
 uses
   Types,
   SysUtils,
+  u_NotifyEventListener,
+  u_BackgroundTaskLayerDrawBase,
   u_LayerBitmapClearStrategyFactory;
 
 { TMapLayerWithThreadDraw }
@@ -67,12 +78,20 @@ constructor TMapLayerWithThreadDraw.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
-  ADrawTask: IBackgroundTask
+  ATimerNoifier: IJclNotifier;
+  APriority: TThreadPriority
 );
 begin
   inherited Create(AParentMap, AViewPortState);
-  FDrawTask := ADrawTask;
+  Layer.Bitmap.BeginUpdate;
+  FDrawTask := TBackgroundTaskLayerDrawBase.Create(OnDrawBitmap, APriority);
   FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(AResamplerConfig);
+  FUpdateCounter := 0;
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimer),
+    ATimerNoifier
+  );
 end;
 
 destructor TMapLayerWithThreadDraw.Destroy;
@@ -90,10 +109,27 @@ begin
   end;
 end;
 
+procedure TMapLayerWithThreadDraw.OnDrawBitmap(AIsStop: TIsCancelChecker);
+begin
+  DrawBitmap(AIsStop);
+end;
+
+procedure TMapLayerWithThreadDraw.OnTimer(Sender: TObject);
+begin
+  if InterlockedExchange(FUpdateCounter, 0) > 0 then begin
+    Layer.Changed;
+  end;
+end;
+
 procedure TMapLayerWithThreadDraw.SendTerminateToThreads;
 begin
   inherited;
   FDrawTask.Terminate;
+end;
+
+procedure TMapLayerWithThreadDraw.SetBitmapChanged;
+begin
+  InterlockedIncrement(FUpdateCounter);
 end;
 
 procedure TMapLayerWithThreadDraw.SetLayerCoordConverter(

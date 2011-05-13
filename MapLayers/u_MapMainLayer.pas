@@ -27,7 +27,6 @@ type
     FMapsConfig: IMainMapsConfig;
     FPostProcessingConfig:IBitmapPostProcessingConfig;
     FViewConfig: IGlobalViewMainConfig;
-    FUpdateCounter: Integer;
     FMainMap: IMapType;
     FLayersList: IMapTypeList;
     FUsePrevZoomAtMap: Boolean;
@@ -42,11 +41,11 @@ type
       AUsePre: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic
     ): Boolean;
-    procedure DrawBitmap(AIsStop: TIsCancelChecker);
     procedure OnMainMapChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
-    procedure OnTimer(Sender: TObject);
+  protected
+    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
   public
     constructor Create(
       AParentMap: TImage32;
@@ -71,8 +70,6 @@ uses
   i_TileIterator,
   u_ResStrings,
   u_TileErrorInfo,
-  u_BackgroundTaskLayerDrawBase,
-  u_TileIteratorByRect,
   u_NotifyEventListener,
   u_TileIteratorSpiralByRect;
 
@@ -89,8 +86,7 @@ constructor TMapMainLayer.Create(
   ATimerNoifier: IJclNotifier
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AResamplerConfig, TBackgroundTaskLayerDrawBase.Create(DrawBitmap, tpNormal));
-  Layer.Bitmap.BeginUpdate;
+  inherited Create(AParentMap, AViewPortState, AResamplerConfig, ATimerNoifier, tpNormal);
   FMapsConfig := AMapsConfig;
   FErrorLogger := AErrorLogger;
   FPostProcessingConfig := APostProcessingConfig;
@@ -114,11 +110,6 @@ begin
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FPostProcessingConfig.GetChangeNotifier
-  );
-
-  LinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
-    ATimerNoifier
   );
 end;
 
@@ -221,7 +212,7 @@ begin
               break;
             end;
             Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
-            InterlockedIncrement(FUpdateCounter);
+            SetBitmapChanged;
           finally
             Layer.Bitmap.UnLock;
           end;
@@ -319,13 +310,6 @@ begin
     ViewUpdateUnlock;
   end;
   ViewUpdate;
-end;
-
-procedure TMapMainLayer.OnTimer(Sender: TObject);
-begin
-  if InterlockedExchange(FUpdateCounter, 0) > 0 then begin
-    Layer.Changed;
-  end;
 end;
 
 procedure TMapMainLayer.StartThreads;

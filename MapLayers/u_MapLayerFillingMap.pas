@@ -6,9 +6,9 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_JclNotify,
   t_CommonTypes,
   i_LocalCoordConverter,
-  i_BackgroundTask,
   i_ViewPortState,
   i_FillingMapLayerConfig,
   u_MapType,
@@ -20,32 +20,41 @@ type
     FConfig: IFillingMapLayerConfig;
     FConfigStatic: IFillingMapLayerConfigStatic;
     procedure OnConfigChange(Sender: TObject);
-    procedure DrawBitmap(AIsStop: TIsCancelChecker);
   protected
+    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
     function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IFillingMapLayerConfig);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      ATimerNoifier: IJclNotifier;
+      AConfig: IFillingMapLayerConfig
+    );
     procedure StartThreads; override;
   end;
 
 implementation
 
 uses
+  Classes,
   Graphics,
   SysUtils,
   t_GeoTypes,
   i_CoordConverter,
   i_TileIterator,
-  u_BackgroundTaskLayerDrawBase,
   u_NotifyEventListener,
   u_TileIteratorSpiralByRect;
 
 { TMapLayerFillingMap }
 
-constructor TMapLayerFillingMap.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AConfig: IFillingMapLayerConfig);
+constructor TMapLayerFillingMap.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  ATimerNoifier: IJclNotifier;
+  AConfig: IFillingMapLayerConfig
+);
 begin
-  inherited Create(AParentMap, AViewPortState, nil, TBackgroundTaskLayerDrawBase.Create(DrawBitmap));
+  inherited Create(AParentMap, AViewPortState, nil, ATimerNoifier, tpLowest);
   FConfig := AConfig;
 
   LinksList.Add(
@@ -183,6 +192,7 @@ begin
             try
               if not AIsStop then begin
                 Layer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
+                SetBitmapChanged;
               end;
             finally
               Layer.Bitmap.UnLock;
