@@ -772,6 +772,7 @@ begin
         map,
         FConfig.ViewPortState,
         FConfig.MainMapsConfig,
+        GState.ImageResamplerConfig,
         GState.BitmapPostProcessingConfig,
         GState.ViewConfig,
         FTileErrorLogger,

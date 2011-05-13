@@ -45,7 +45,7 @@ uses
 constructor TMapLayerFillingMap.Create(AParentMap: TImage32;
   AViewPortState: IViewPortState; AConfig: IFillingMapLayerConfig);
 begin
-  inherited Create(AParentMap, AViewPortState, TBackgroundTaskLayerDrawBase.Create(DrawBitmap));
+  inherited Create(AParentMap, AViewPortState, nil, TBackgroundTaskLayerDrawBase.Create(DrawBitmap));
   FConfig := AConfig;
 
   LinksList.Add(

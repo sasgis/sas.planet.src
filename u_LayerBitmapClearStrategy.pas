@@ -39,32 +39,27 @@ type
   end;
 
 
-  TLayerBitmapClearStrategyZoomIn = class(TInterfacedObject, ILayerBitmapClearStrategy)
-  private
-    FSourceBitmap: TCustomBitmap32;
-    FSourceRect: TRect;
-  protected
-    procedure Clear(ABitmap: TCustomBitmap32);
-  public
-    constructor Create(ASourceBitmap: TCustomBitmap32; ASourceRect: TRect);
-    destructor Destroy; override;
-  end;
-
-  TLayerBitmapClearStrategyZoomOut = class(TInterfacedObject, ILayerBitmapClearStrategy)
+  TLayerBitmapClearStrategyZoomChange = class(TInterfacedObject, ILayerBitmapClearStrategy)
   private
     FSourceBitmap: TCustomBitmap32;
     FTargetRect: TRect;
   protected
     procedure Clear(ABitmap: TCustomBitmap32);
   public
-    constructor Create(ASourceBitmap: TCustomBitmap32; ATargetRect: TRect);
+    constructor Create(
+      AResumpler: TCustomResampler;
+      ASourceBitmap: TCustomBitmap32;
+      ASourceRect: TRect;
+      ATargetRect: TRect
+    );
     destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  GR32_Resamplers;
 
 { TLayerBitmapClearStrategyNOP }
 
@@ -132,7 +127,7 @@ begin
   end;
 
   FSourceBitmap.SetSize(VCopyRect.Right - VCopyRect.Left, VCopyRect.Bottom - VCopyRect.Top);
-  ASourceBitmap.DrawTo(FSourceBitmap, 0, 0, VCopyRect);
+  BlockTransfer(FSourceBitmap, 0, 0, FSourceBitmap.ClipRect, ASourceBitmap, VCopyRect, dmOpaque, nil);
 end;
 
 destructor TLayerBitmapClearStrategyImageResize.Destroy;
@@ -147,47 +142,36 @@ begin
   FSourceBitmap.DrawTo(ABitmap, FInTargetTopLeft.X, FInTargetTopLeft.Y);
 end;
 
-{ TLayerBitmapClearStrategyZoomIn }
+{ TLayerBitmapClearStrategyZoomChange }
 
-constructor TLayerBitmapClearStrategyZoomIn.Create(
-  ASourceBitmap: TCustomBitmap32; ASourceRect: TRect);
+constructor TLayerBitmapClearStrategyZoomChange.Create(
+  AResumpler: TCustomResampler;
+  ASourceBitmap: TCustomBitmap32;
+  ASourceRect: TRect;
+  ATargetRect: TRect
+);
 begin
   FSourceBitmap := TCustomBitmap32.Create;
-  FSourceBitmap.Assign(ASourceBitmap);
-  FSourceRect := ASourceRect;
-end;
-
-destructor TLayerBitmapClearStrategyZoomIn.Destroy;
-begin
-  FreeAndNil(FSourceBitmap);
-  inherited;
-end;
-
-procedure TLayerBitmapClearStrategyZoomIn.Clear(ABitmap: TCustomBitmap32);
-begin
-  FSourceBitmap.DrawTo(ABitmap, 0, 0, FSourceRect);
-end;
-
-{ TLayerBitmapClearStrategyZoomOut }
-
-constructor TLayerBitmapClearStrategyZoomOut.Create(
-  ASourceBitmap: TCustomBitmap32; ATargetRect: TRect);
-begin
-  FSourceBitmap := TCustomBitmap32.Create;
-  FSourceBitmap.Assign(ASourceBitmap);
+  FSourceBitmap.SetSize(ASourceRect.Right - ASourceRect.Left, ASourceRect.Bottom - ASourceRect.Top);
+  BlockTransfer(FSourceBitmap, 0, 0, FSourceBitmap.ClipRect, ASourceBitmap, ASourceRect, dmOpaque, nil);
+  if AResumpler <> nil then begin
+    FSourceBitmap.Resampler := AResumpler;
+    end else begin
+    FSourceBitmap.Resampler := TDraftResampler.Create;
+  end;
   FTargetRect := ATargetRect;
 end;
 
-destructor TLayerBitmapClearStrategyZoomOut.Destroy;
+destructor TLayerBitmapClearStrategyZoomChange.Destroy;
 begin
   FreeAndNil(FSourceBitmap);
   inherited;
 end;
 
-procedure TLayerBitmapClearStrategyZoomOut.Clear(ABitmap: TCustomBitmap32);
+procedure TLayerBitmapClearStrategyZoomChange.Clear(ABitmap: TCustomBitmap32);
 begin
   ABitmap.Clear(0);
-  FSourceBitmap.DrawTo(ABitmap, FTargetRect);
+  FSourceBitmap.DrawTo(ABitmap, FTargetRect, FSourceBitmap.ClipRect);
 end;
 
 end.

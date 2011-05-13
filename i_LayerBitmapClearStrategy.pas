@@ -14,7 +14,11 @@ type
 
   ILayerBitmapClearStrategyFactory = interface
     ['{9F14B47C-2D9C-4974-B78E-E3E3E6B74725}']
-    function GetStrategy(ASourceConverter, ATargetConverter: ILocalCoordConverter; ASourceBitmap: TCustomBitmap32): ILayerBitmapClearStrategy;
+    function GetStrategy(
+      ASourceConverter, ATargetConverter: ILocalCoordConverter;
+      ASourceBitmap: TCustomBitmap32;
+      APrevStrategy: ILayerBitmapClearStrategy
+    ): ILayerBitmapClearStrategy;
   end;
 
 implementation

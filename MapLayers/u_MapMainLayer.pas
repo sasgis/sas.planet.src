@@ -13,6 +13,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,
+  i_ImageResamplerConfig,
   i_GlobalViewMainConfig,
   i_BitmapPostProcessingConfig,
   i_TileError,
@@ -51,6 +52,7 @@ type
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AMapsConfig: IMainMapsConfig;
+      AResamplerConfig: IImageResamplerConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
       AViewConfig: IGlobalViewMainConfig;
       AErrorLogger: ITileErrorLogger;
@@ -80,13 +82,14 @@ constructor TMapMainLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AMapsConfig: IMainMapsConfig;
+  AResamplerConfig: IImageResamplerConfig;
   APostProcessingConfig: IBitmapPostProcessingConfig;
   AViewConfig: IGlobalViewMainConfig;
   AErrorLogger: ITileErrorLogger;
   ATimerNoifier: IJclNotifier
 );
 begin
-  inherited Create(AParentMap, AViewPortState, TBackgroundTaskLayerDrawBase.Create(DrawBitmap, tpNormal));
+  inherited Create(AParentMap, AViewPortState, AResamplerConfig, TBackgroundTaskLayerDrawBase.Create(DrawBitmap, tpNormal));
   Layer.Bitmap.BeginUpdate;
   FMapsConfig := AMapsConfig;
   FErrorLogger := AErrorLogger;
@@ -218,6 +221,7 @@ begin
               break;
             end;
             Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+            InterlockedIncrement(FUpdateCounter);
           finally
             Layer.Bitmap.UnLock;
           end;
@@ -226,9 +230,6 @@ begin
     end;
   finally
     VTileToDrawBmp.Free;
-  end;
-  if not AIsStop then begin
-    InterlockedIncrement(FUpdateCounter);
   end;
 end;
 
