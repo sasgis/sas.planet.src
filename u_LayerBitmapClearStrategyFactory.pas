@@ -166,7 +166,7 @@ begin
 
   VConverterSource := ASourceConverter.GetGeoConverter;
   VConverterTarget := ATargetConverter.GetGeoConverter;
-  if not VConverterSource.IsSameConverter(VConverterSource) then begin
+  if not VConverterSource.IsSameConverter(VConverterTarget) then begin
     Result := FSimpleClearStrategy;
     Exit;
   end;
