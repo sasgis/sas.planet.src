@@ -21,8 +21,6 @@ type
   private
     FDrawTask: IBackgroundTask;
     FUpdateCounter: Integer;
-    FClearStrategy: ILayerBitmapClearStrategy;
-    FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
     procedure OnDrawBitmap(AIsStop: TIsCancelChecker);
     procedure OnTimer(Sender: TObject);
   protected
@@ -33,8 +31,25 @@ type
     procedure SetNeedRedraw; override;
     procedure SetNeedUpdateLayerSize; override;
     procedure DoRedraw; override;
-    procedure ClearLayerBitmap; override;
+  public
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      ATimerNoifier: IJclNotifier;
+      APriority: TThreadPriority
+    );
+    destructor Destroy; override;
+    procedure StartThreads; override;
+    procedure SendTerminateToThreads; override;
+  end;
+
+  TMapLayerTiledWithThreadDraw = class(TMapLayerWithThreadDraw)
+  private
+    FClearStrategy: ILayerBitmapClearStrategy;
+    FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+  protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure ClearLayerBitmap; override;
   public
     constructor Create(
       AParentMap: TImage32;
@@ -43,9 +58,6 @@ type
       ATimerNoifier: IJclNotifier;
       APriority: TThreadPriority
     );
-    destructor Destroy; override;
-    procedure StartThreads; override;
-    procedure SendTerminateToThreads; override;
   end;
 
 implementation
@@ -59,25 +71,9 @@ uses
 
 { TMapLayerWithThreadDraw }
 
-procedure TMapLayerWithThreadDraw.ClearLayerBitmap;
-begin
-  if Visible then begin
-    Layer.Bitmap.Lock;
-    try
-      if FClearStrategy <> nil then begin
-        FClearStrategy.Clear(Layer.Bitmap);
-        FClearStrategy := nil;
-      end;
-    finally
-      Layer.Bitmap.UnLock;
-    end;
-  end;
-end;
-
 constructor TMapLayerWithThreadDraw.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
   ATimerNoifier: IJclNotifier;
   APriority: TThreadPriority
 );
@@ -85,7 +81,6 @@ begin
   inherited Create(AParentMap, AViewPortState);
   Layer.Bitmap.BeginUpdate;
   FDrawTask := TBackgroundTaskLayerDrawBase.Create(OnDrawBitmap, APriority);
-  FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(AResamplerConfig);
   FUpdateCounter := 0;
 
   LinksList.Add(
@@ -132,22 +127,6 @@ begin
   InterlockedIncrement(FUpdateCounter);
 end;
 
-procedure TMapLayerWithThreadDraw.SetLayerCoordConverter(
-  AValue: ILocalCoordConverter);
-begin
-  Layer.Bitmap.Lock;
-  try
-    if Visible then begin
-      FClearStrategy := FClearStrategyFactory.GetStrategy(LayerCoordConverter, AValue, Layer.Bitmap, FClearStrategy);
-    end else begin
-      FClearStrategy := nil;
-    end;
-  finally
-    Layer.Bitmap.Unlock;
-  end;
-  inherited;
-end;
-
 procedure TMapLayerWithThreadDraw.SetNeedRedraw;
 begin
   FDrawTask.StopExecute;
@@ -167,6 +146,47 @@ begin
   if Visible then begin
     FDrawTask.StartExecute;
   end;
+end;
+
+{ TMapLayerTiledWithThreadDraw }
+
+constructor TMapLayerTiledWithThreadDraw.Create(AParentMap: TImage32;
+  AViewPortState: IViewPortState; AResamplerConfig: IImageResamplerConfig;
+  ATimerNoifier: IJclNotifier; APriority: TThreadPriority);
+begin
+  inherited Create(AParentMap, AViewPortState, ATimerNoifier, APriority);
+  FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(AResamplerConfig);
+end;
+
+procedure TMapLayerTiledWithThreadDraw.ClearLayerBitmap;
+begin
+  if Visible then begin
+    Layer.Bitmap.Lock;
+    try
+      if FClearStrategy <> nil then begin
+        FClearStrategy.Clear(Layer.Bitmap);
+        FClearStrategy := nil;
+      end;
+    finally
+      Layer.Bitmap.UnLock;
+    end;
+  end;
+end;
+
+procedure TMapLayerTiledWithThreadDraw.SetLayerCoordConverter(
+  AValue: ILocalCoordConverter);
+begin
+  Layer.Bitmap.Lock;
+  try
+    if Visible then begin
+      FClearStrategy := FClearStrategyFactory.GetStrategy(LayerCoordConverter, AValue, Layer.Bitmap, FClearStrategy);
+    end else begin
+      FClearStrategy := nil;
+    end;
+  finally
+    Layer.Bitmap.Unlock;
+  end;
+  inherited;
 end;
 
 end.

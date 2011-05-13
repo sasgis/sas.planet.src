@@ -21,7 +21,7 @@ uses
   u_MapLayerWithThreadDraw;
 
 type
-  TMapMainLayer = class(TMapLayerWithThreadDraw)
+  TMapMainLayer = class(TMapLayerTiledWithThreadDraw)
   private
     FErrorLogger: ITileErrorLogger;
     FMapsConfig: IMainMapsConfig;

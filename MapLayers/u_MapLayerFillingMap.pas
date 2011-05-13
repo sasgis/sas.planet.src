@@ -54,7 +54,7 @@ constructor TMapLayerFillingMap.Create(
   AConfig: IFillingMapLayerConfig
 );
 begin
-  inherited Create(AParentMap, AViewPortState, nil, ATimerNoifier, tpLowest);
+  inherited Create(AParentMap, AViewPortState, ATimerNoifier, tpLowest);
   FConfig := AConfig;
 
   LinksList.Add(
