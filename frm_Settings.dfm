@@ -539,7 +539,7 @@ object frmSettings: TfrmSettings
           Width = 144
           Height = 19
           Align = alClient
-          Caption = 'Cache type'
+          Caption = 'Default cache type'
           Layout = tlCenter
           ExplicitWidth = 46
           ExplicitHeight = 13
