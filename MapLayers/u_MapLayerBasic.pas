@@ -304,15 +304,13 @@ end;
 
 procedure TMapLayerBasic.UpdateLayerSize;
 begin
-  if Visible then begin
-    FNeedUpdateLayerSizeCS.Acquire;
-    try
-      FNeedUpdateLayerSize := False;
-    finally
-      FNeedUpdateLayerSizeCS.Release;
-    end;
-    DoUpdateLayerSize(GetLayerSizeForView(LayerCoordConverter));
+  FNeedUpdateLayerSizeCS.Acquire;
+  try
+    FNeedUpdateLayerSize := False;
+  finally
+    FNeedUpdateLayerSizeCS.Release;
   end;
+  DoUpdateLayerSize(GetLayerSizeForView(LayerCoordConverter));
 end;
 
 procedure TMapLayerBasic.UpdateLayerSizeIfNeed;
@@ -362,7 +360,11 @@ end;
 function TMapLayerBasic.GetLayerSizeForView(
   ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
-  Result := ANewVisualCoordConverter.GetLocalRectSize;
+  if Visible then begin
+    Result := ANewVisualCoordConverter.GetLocalRectSize;
+  end else begin
+    Result := Point(0, 0);
+  end;
 end;
 
 { TMapLayerBasicNoBitmap }
