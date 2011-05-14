@@ -436,7 +436,7 @@ begin
   CreateDir(MapsPath);
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
-  FMainMapsList.LoadMaps(VLocalMapsConfig, MapsPath);
+  FMainMapsList.LoadMaps(FLanguageManager, VLocalMapsConfig, MapsPath);
   FMainFormConfig := TMainFormConfig.Create(
     FGeoCoderList,
     FMainMapsList.MapsList,
