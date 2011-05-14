@@ -38,6 +38,7 @@ type
 
     FCallBackList: TList;
 
+    procedure GuiSync;
     function  GetErrStr(AErr: TDownloadTileResult): string;
   public
     constructor Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorLogger: ITileErrorLogger; AMapType: TMapType);
@@ -135,6 +136,12 @@ begin
   end;
 end;
 
+procedure TTileDownloaderEventElement.GuiSync;
+begin
+  if Addr(FMapTileUpdateEvent) <> nil then
+    FMapTileUpdateEvent(FMapType, FTileZoom, FTileXY);
+end;
+
 procedure TTileDownloaderEventElement.ProcessEvent;
 begin
   try
@@ -154,8 +161,7 @@ begin
       if FErrorLogger <> nil then
         FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
     end else begin
-      if Addr(FMapTileUpdateEvent) <> nil then
-        FMapTileUpdateEvent(FMapType, FTileZoom, FTileXY); // TODO: Synchronize this call
+      TThread.Synchronize(nil, GuiSync);
     end;
   end;
 end;
