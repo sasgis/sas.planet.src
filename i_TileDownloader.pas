@@ -12,6 +12,7 @@ type
   
   ITileDownloaderEvent = interface;
 
+  POnDownloadCallBack = ^TOnDownloadCallBack;
   TOnDownloadCallBack = procedure (AEvent: ITileDownloaderEvent) of object;
 
   ITileDownloader = interface
@@ -51,6 +52,8 @@ type
     procedure SetRawResponseHeader(Value: string);
     function  GetDwnlResult: TDownloadTileResult;
     procedure SetDwnlResult(Value: TDownloadTileResult);
+    function  GetErrorString: string;
+    procedure SetErrorString(Value: string);
 
     property TileXY: TPoint read GetTileXY write SetTileXY;
     property TileZoom: Byte read GetTileZoom write SetTileZoom;
@@ -61,6 +64,7 @@ type
     property TileStream: TMemoryStream read GetTileStream write SetTileStream;
     property RawResponseHeader: string read GetRawResponseHeader write SetRawResponseHeader;
     property DownloadResult: TDownloadTileResult read GetDwnlResult write SetDwnlResult;
+    property ErrorString: string read GetErrorString write SetErrorString;
   end;
 
 implementation

@@ -62,7 +62,7 @@ begin
   FWaitInterval := VParams.ReadInteger('Sleep', 0);
   FMapName := VParams.ReadString('name', '');
   FMapName:=VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode, FMapName);
-  FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', 1);
+  FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', 4);
   if FMaxConnectToServerCount > 64 then
     FMaxConnectToServerCount := 64;
 end;

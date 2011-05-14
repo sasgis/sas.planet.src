@@ -13,6 +13,7 @@ uses
 type
   TTileDownloaderEventElement = class(TInterfacedObject, ITileDownloaderEvent)
   private
+    FProcessed: Boolean;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorLogger: ITileErrorLogger;
     FMapType: TMapType;
@@ -26,6 +27,7 @@ type
     FTileStream: TMemoryStream;
     FRawResponseHeader: string;
     FDownloadResult: TDownloadTileResult;
+    FErrorString: string;
 
     FRES_Authorization: string;
     FRES_Ban: string;
@@ -64,6 +66,8 @@ type
     procedure SetRawResponseHeader(Value: string);
     function  GetDwnlResult: TDownloadTileResult;
     procedure SetDwnlResult(Value: TDownloadTileResult);
+    function  GetErrorString: string;
+    procedure SetErrorString(Value: string);
 
     property TileXY: TPoint read GetTileXY write SetTileXY;
     property TileZoom: Byte read GetTileZoom write SetTileZoom;
@@ -74,6 +78,7 @@ type
     property TileStream: TMemoryStream read GetTileStream write SetTileStream;
     property RawResponseHeader: string read GetRawResponseHeader write SetRawResponseHeader;
     property DownloadResult: TDownloadTileResult read GetDwnlResult write SetDwnlResult;
+    property ErrorString: string read GetErrorString write SetErrorString;
   end;
 
 implementation
@@ -88,7 +93,7 @@ uses
 constructor TTileDownloaderEventElement.Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorLogger: ITileErrorLogger; AMapType: TMapType);
 begin
   inherited Create;
-
+  FProcessed := False;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorLogger := AErrorLogger;
   FMapType := AMapType;
@@ -102,6 +107,7 @@ begin
   FTileMIME := '';
   FTileStream := TMemoryStream.Create;
   FDownloadResult := dtrUnknownError;
+  FErrorString := '';
 
   FCallBackList := TList.Create;
 
@@ -117,7 +123,9 @@ destructor TTileDownloaderEventElement.Destroy;
 begin
   try
     try
-      ExecCallBackList;
+      //if not FProcessed then
+      //  ExecCallBackList;
+      FCallBackList.Clear;
       FreeAndNil(FCallBackList);
     finally
       FreeAndNil(FTileStream);
@@ -128,43 +136,65 @@ begin
 end;
 
 procedure TTileDownloaderEventElement.ProcessEvent;
-var
-  VErrorString: string;
 begin
-  VErrorString := GetErrStr(FDownloadResult);
-  if (FDownloadResult = dtrOK) or (FDownloadResult = dtrSameTileSize) then
-    GState.DownloadInfo.Add(1, FTileSize);
-  if VErrorString <> '' then begin
+  try
+    ExecCallBackList;
+  except
+    on E: Exception do
+      FErrorString := E.Message;
+  end;
+  if FErrorString <> '' then begin
     if FErrorLogger <> nil then
-      FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, VErrorString) );
+        FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
   end else begin
-    if Addr(FMapTileUpdateEvent) <> nil then
-      FMapTileUpdateEvent(FMapType, FTileZoom, FTileXY); // TODO: Synchronize this call 
+    FErrorString := GetErrStr(FDownloadResult);
+    if (FDownloadResult = dtrOK) or (FDownloadResult = dtrSameTileSize) then
+      GState.DownloadInfo.Add(1, FTileSize);
+    if FErrorString <> '' then begin
+      if FErrorLogger <> nil then
+        FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
+    end else begin
+      if Addr(FMapTileUpdateEvent) <> nil then
+        FMapTileUpdateEvent(FMapType, FTileZoom, FTileXY); // TODO: Synchronize this call
+    end;
   end;
 end;
 
 procedure TTileDownloaderEventElement.AddToCallBackList(ACallBack: TOnDownloadCallBack);
+var
+  VCallBack: POnDownloadCallBack;
 begin
-  if Assigned(FCallBackList) and Assigned(ACallBack) then
-    FCallBackList.Add(@ACallBack);
+  if Assigned(ACallBack) then begin
+    if not Assigned(FCallBackList) then
+      FCallBackList := TList.Create;
+    New(VCallBack);
+    TOnDownloadCallBack(VCallBack^) := ACallBack;
+    FCallBackList.Add(VCallBack);
+  end;
 end;
 
 procedure TTileDownloaderEventElement.ExecCallBackList;
 var
   i: Integer;
-  VCallBack: TOnDownloadCallBack;
+  VCallBack: POnDownloadCallBack;
 begin
   if Assigned(FCallBackList) then
   try
     for i := FCallBackList.Count - 1 downto 0 do // !!! FILO
     try
-      VCallBack := TOnDownloadCallBack(FCallBackList.Items[i]^);
+      VCallBack := FCallBackList.Items[i];
       if Assigned(VCallBack) then
-        VCallBack(Self);
+      try
+        VCallBack^(Self);
+      finally
+        Dispose(VCallBack);
+        VCallBack := nil;
+      end;
     except
       // ignore all
     end;
   finally
+    FProcessed := True;
     FCallBackList.Clear;
   end;
 end;
@@ -257,6 +287,16 @@ end;
 function TTileDownloaderEventElement.GetDwnlResult: TDownloadTileResult;
 begin
   Result := FDownloadResult;
+end;
+
+procedure TTileDownloaderEventElement.SetErrorString(Value: string);
+begin
+  FErrorString := Value;
+end;
+
+function TTileDownloaderEventElement.GetErrorString: string;
+begin
+  Result := FErrorString;
 end;
 
 function TTileDownloaderEventElement.GetErrStr(AErr: TDownloadTileResult): string;

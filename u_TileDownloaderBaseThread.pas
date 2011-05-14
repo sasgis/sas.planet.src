@@ -22,6 +22,7 @@ type
     FTimeOut: Cardinal;
     FEvent: ITileDownloaderEvent;
     FSemaphore: THandle;
+    FParentSemaphore: THandle;
     FBusy: Boolean;
     procedure SetTimeOutValue(AValue: Cardinal);
     procedure SetHttpTimeOut;
@@ -37,6 +38,7 @@ type
     property Busy: Boolean read FBusy default False;
     property RequestBuilderScript: IRequestBuilderScript read FRequestBuilderScript write FRequestBuilderScript default nil;
     property RawResponseHeader: string read FRawResponseHeader write FRawResponseHeader;
+    property Semaphore: THandle read FParentSemaphore write FParentSemaphore;
   end;
 
 implementation
@@ -48,9 +50,9 @@ begin
   FTimeOut := 30000; // ms
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
   FHttpClient := TALWinInetHTTPClient.Create(nil);
-  FHttpClient.RequestHeader.UserAgent := '';
+  FHttpClient.RequestHeader.UserAgent := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FResponseHeader := TALHTTPResponseHeader.Create;
-  FRawResponseHeader := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
+  FRawResponseHeader := '';
   SetHttpTimeOut;
   SetHttpOptions;
   FreeOnTerminate := True;
@@ -87,7 +89,11 @@ begin
   begin
 
   end;
-  FHttpClient.InternetOptions := [];
+  FHttpClient.InternetOptions := [  wHttpIo_No_cache_write,
+                                    wHttpIo_Pragma_nocache,
+                                    wHttpIo_No_cookies,
+                                    wHttpIo_Keep_connection
+                                 ];
 end;
 
 procedure TTileDownloaderBaseThread.AddEvent(AEvent: ITileDownloaderEvent);
@@ -105,6 +111,7 @@ begin
   try
     try
       FRequestBuilderScript.GenRequest(FEvent.TileXY, FEvent.TileZoom, FRawResponseHeader, VUrl, VRawRequestHeader);
+      FHttpClient.RequestHeader.Accept := '*/*';
       if VRawRequestHeader <> '' then
         FHttpClient.RequestHeader.RawHeaderText := VRawRequestHeader;                                                           
       try
@@ -112,18 +119,20 @@ begin
         FHttpClient.Get(VUrl, FEvent.TileStream, FResponseHeader);
       except
         on E: EALHTTPClientException do begin
-          // E.StatusCode
+          FEvent.ErrorString := IntToStr(E.StatusCode) + ' ' + FResponseHeader.ReasonPhrase;
         end;
       end;
       FRawResponseHeader := '';
       FEvent.RawResponseHeader := FResponseHeader.RawHeaderText;
       FEvent.TileMIME := FResponseHeader.ContentType;
+      FEvent.DownloadResult := dtrOK;
     finally
-      FEvent.ExecCallBackList;
       FEvent.ProcessEvent;
     end;
   finally
     FBusy := False;
+    if FParentSemaphore <> 0 then    
+      ReleaseSemaphore(FParentSemaphore, 1, nil);
     FEvent := nil;
   end;
 end;

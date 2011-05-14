@@ -93,7 +93,7 @@ var
   i: Integer;
 begin
   Result := nil;
-  if WaitForSingleObject(FSemaphore, FTimeOut*2) = WAIT_OBJECT_0  then
+  if WaitForSingleObject(FSemaphore, FTimeOut) = WAIT_OBJECT_0  then
   begin
     Lock;
     try
@@ -134,6 +134,7 @@ begin
       AEvent.AddToCallBackList(OnTileDownload);
       VDwnThr.TimeOut := FTimeOut;
       VDwnThr.RawResponseHeader := FRawResponseHeader;
+      VDwnThr.Semaphore := FSemaphore;
       VDwnThr.AddEvent(AEvent);
     finally
       UnLock;
