@@ -24,7 +24,6 @@ type
     FHideAfterTime: Cardinal;
     FErrorInfo: ITileErrorInfo;
 
-    procedure RenderText(AMapType: TMapType; AText: string);
     procedure OnTimer(Sender: TObject);
     procedure OnErrorRecive(Sender: TObject);
   protected
@@ -142,7 +141,6 @@ procedure TTileErrorInfoLayer.OnTimer(Sender: TObject);
 var
   VCounter: Integer;
   VErrorInfo: ITileErrorInfo;
-  VCurrTime: Cardinal;
 begin
   VCounter := InterlockedExchange(FNeedUpdateCounter, 0);
   if VCounter > 0 then begin
@@ -150,25 +148,6 @@ begin
     ShowError(VErrorInfo);
   end else begin
     SetVisible(GetVisibleForNewPos(LayerCoordConverter));
-  end;
-end;
-
-procedure TTileErrorInfoLayer.RenderText(AMapType: TMapType; AText: string);
-var
-  VTextWidth: integer;
-  VSize: TPoint;
-begin
-  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-  FLayer.Bitmap.Clear(0);
-  if AMapType <> nil then begin
-    VTextWidth := FLayer.Bitmap.TextWidth(AMapType.name);
-    FLayer.Bitmap.RenderText((VSize.X - VTextWidth) div 2, VSize.Y div 4, AMapType.name, 0, clBlack32);
-
-    VTextWidth := FLayer.Bitmap.TextWidth(AText);
-    FLayer.Bitmap.RenderText((VSize.X - VTextWidth) div 2, (VSize.Y div 4) * 3, AText, 0, clBlack32);
-  end else begin
-    VTextWidth := FLayer.Bitmap.TextWidth(AText);
-    FLayer.Bitmap.RenderText((VSize.X - VTextWidth) div 2, (VSize.Y div 2), AText, 0, clBlack32);
   end;
 end;
 

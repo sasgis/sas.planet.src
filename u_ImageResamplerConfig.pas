@@ -96,7 +96,7 @@ begin
       SetChanged;
     end;
   finally
-    UnlockRead;
+    UnlockWrite;
   end;
 end;
 

@@ -57,7 +57,6 @@ end;
 procedure TMapLayerGrids.DoRedraw;
 begin
   inherited;
-  Layer.Bitmap.Clear(0);
   if FConfig.TileGrid.Visible then begin
     generate_granica;
   end;

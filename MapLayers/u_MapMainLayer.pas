@@ -7,18 +7,21 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_JclNotify,
+  t_CommonTypes,
   i_CoordConverter,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,
+  i_ImageResamplerConfig,
   i_GlobalViewMainConfig,
   i_BitmapPostProcessingConfig,
   i_TileError,
   u_MapType,
-  u_MapLayerBasic;
+  u_MapLayerWithThreadDraw;
 
 type
-  TMapMainLayer = class(TMapLayerBasic)
+  TMapMainLayer = class(TMapLayerTiledWithThreadDraw)
   private
     FErrorLogger: ITileErrorLogger;
     FMapsConfig: IMainMapsConfig;
@@ -42,15 +45,17 @@ type
     procedure OnLayerSetChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure DoRedraw; override;
+    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
   public
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AMapsConfig: IMainMapsConfig;
+      AResamplerConfig: IImageResamplerConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
       AViewConfig: IGlobalViewMainConfig;
-      AErrorLogger: ITileErrorLogger
+      AErrorLogger: ITileErrorLogger;
+      ATimerNoifier: IJclNotifier
     );
     procedure StartThreads; override;
   end;
@@ -59,13 +64,14 @@ implementation
 
 uses
   ActiveX,
+  Classes,
   SysUtils,
   i_LocalCoordConverter,
   i_TileIterator,
   u_ResStrings,
   u_TileErrorInfo,
-  u_TileIteratorByRect,
-  u_NotifyEventListener;
+  u_NotifyEventListener,
+  u_TileIteratorSpiralByRect;
 
 { TMapMainLayer }
 
@@ -73,12 +79,14 @@ constructor TMapMainLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AMapsConfig: IMainMapsConfig;
+  AResamplerConfig: IImageResamplerConfig;
   APostProcessingConfig: IBitmapPostProcessingConfig;
   AViewConfig: IGlobalViewMainConfig;
-  AErrorLogger: ITileErrorLogger
+  AErrorLogger: ITileErrorLogger;
+  ATimerNoifier: IJclNotifier
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(AParentMap, AViewPortState, AResamplerConfig, ATimerNoifier, tpNormal);
   FMapsConfig := AMapsConfig;
   FErrorLogger := AErrorLogger;
   FPostProcessingConfig := APostProcessingConfig;
@@ -105,7 +113,7 @@ begin
   );
 end;
 
-procedure TMapMainLayer.DoRedraw;
+procedure TMapMainLayer.DrawBitmap(AIsStop: TIsCancelChecker);
 var
   i: Cardinal;
   VMapType: TMapType;
@@ -135,9 +143,6 @@ var
   VCurrTileOnBitmapRect: TRect;
   VTileIsEmpty: Boolean;
 begin
-  inherited;
-  Layer.Bitmap.Clear(0);
-
   VRecolorConfig := FPostProcessingConfig.GetStatic;
 
   VBitmapConverter := LayerCoordConverter;
@@ -148,52 +153,69 @@ begin
   VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
 
   VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
-  VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
+  VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
 
   VTileToDrawBmp := TCustomBitmap32.Create;
   try
-    VTileToDrawBmp.DrawMode := dmOpaque;
-    while VTileIterator.Next(VTile) do begin
-      VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
-
-      VTilePixelsToDraw.TopLeft := Point(0, 0);
-      VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
-      VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
-
-      VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
-      VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
-
-      VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
-      VTileIsEmpty := True;
-      if FMainMap <> nil then begin
-        if DrawMap(VTileToDrawBmp, FMainMap.MapType, VGeoConvert, VZoom, VTile, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig) then begin
-          VTileIsEmpty := False;
-        end else begin
-          VTileToDrawBmp.Clear(0);
+    if not AIsStop then begin
+      while VTileIterator.Next(VTile) do begin
+        if AIsStop then begin
+          break;
         end;
-      end;
+        VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
 
-      VHybrList := FLayersList;
-      if VHybrList <> nil then begin
-        VEnum := VHybrList.GetIterator;
-        while VEnum.Next(1, VGUID, i) = S_OK do begin
-          VItem := VHybrList.GetMapTypeByGUID(VGUID);
-          VMapType := VItem.GetMapType;
-          if VMapType.IsBitmapTiles then begin
-            if DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig) then begin
-              VTileIsEmpty := False;
+        VTilePixelsToDraw.TopLeft := Point(0, 0);
+        VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
+        VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
+
+        VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
+        VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+
+        VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
+        VTileIsEmpty := True;
+        if FMainMap <> nil then begin
+          if DrawMap(VTileToDrawBmp, FMainMap.MapType, VGeoConvert, VZoom, VTile, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig) then begin
+            VTileIsEmpty := False;
+          end else begin
+            VTileToDrawBmp.Clear(0);
+          end;
+        end;
+        if AIsStop then begin
+          break;
+        end;
+
+        VHybrList := FLayersList;
+        if VHybrList <> nil then begin
+          VEnum := VHybrList.GetIterator;
+          while VEnum.Next(1, VGUID, i) = S_OK do begin
+            VItem := VHybrList.GetMapTypeByGUID(VGUID);
+            VMapType := VItem.GetMapType;
+            if VMapType.IsBitmapTiles then begin
+              if DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig) then begin
+                VTileIsEmpty := False;
+              end;
+            end;
+            if AIsStop then begin
+              break;
             end;
           end;
         end;
-      end;
-      if not VTileIsEmpty then begin
-        VRecolorConfig.ProcessBitmap(VTileToDrawBmp);
+        if not VTileIsEmpty then begin
+          VRecolorConfig.ProcessBitmap(VTileToDrawBmp);
+          if AIsStop then begin
+            break;
+          end;
 
-        Layer.Bitmap.Lock;
-        try
-          Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
-        finally
-          Layer.Bitmap.UnLock;
+          Layer.Bitmap.Lock;
+          try
+            if AIsStop then begin
+              break;
+            end;
+            Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+            SetBitmapChanged;
+          finally
+            Layer.Bitmap.UnLock;
+          end;
         end;
       end;
     end;

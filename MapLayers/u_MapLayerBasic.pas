@@ -64,6 +64,8 @@ type
     procedure SetNeedUpdateLayerSize; virtual;
     procedure UpdateLayerSize; virtual;
     procedure UpdateLayerSizeIfNeed; virtual;
+
+    procedure ClearLayerBitmap; virtual;
     procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
     function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual;
     property Layer: TBitmapLayer read FLayer;
@@ -74,6 +76,7 @@ type
     function GetLayerCoordConverterByViewConverter(ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
     procedure DoShow; override;
     procedure DoHide; override;
+    procedure DoRedraw; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     destructor Destroy; override;
@@ -187,6 +190,18 @@ end;
 
 { TMapLayerBasic }
 
+procedure TMapLayerBasic.ClearLayerBitmap;
+begin
+  if Visible then begin
+    Layer.Bitmap.Lock;
+    try
+      Layer.Bitmap.Clear(0);
+    finally
+      Layer.Bitmap.UnLock;
+    end;
+  end;
+end;
+
 constructor TMapLayerBasic.Create(AParentMap: TImage32;
   AViewPortState: IViewPortState);
 begin
@@ -260,6 +275,12 @@ begin
   SetNeedUpdateLayerSize;
 end;
 
+procedure TMapLayerBasic.DoRedraw;
+begin
+  ClearLayerBitmap;
+  inherited;
+end;
+
 procedure TMapLayerBasic.DoShow;
 begin
   inherited;
@@ -283,15 +304,13 @@ end;
 
 procedure TMapLayerBasic.UpdateLayerSize;
 begin
-  if Visible then begin
-    FNeedUpdateLayerSizeCS.Acquire;
-    try
-      FNeedUpdateLayerSize := False;
-    finally
-      FNeedUpdateLayerSizeCS.Release;
-    end;
-    DoUpdateLayerSize(GetLayerSizeForView(LayerCoordConverter));
+  FNeedUpdateLayerSizeCS.Acquire;
+  try
+    FNeedUpdateLayerSize := False;
+  finally
+    FNeedUpdateLayerSizeCS.Release;
   end;
+  DoUpdateLayerSize(GetLayerSizeForView(LayerCoordConverter));
 end;
 
 procedure TMapLayerBasic.UpdateLayerSizeIfNeed;
@@ -341,7 +360,11 @@ end;
 function TMapLayerBasic.GetLayerSizeForView(
   ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 begin
-  Result := ANewVisualCoordConverter.GetLocalRectSize;
+  if Visible then begin
+    Result := ANewVisualCoordConverter.GetLocalRectSize;
+  end else begin
+    Result := Point(0, 0);
+  end;
 end;
 
 { TMapLayerBasicNoBitmap }

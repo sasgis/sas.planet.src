@@ -174,6 +174,7 @@
     <DCCReference Include="i_LanguageManager.pas" />
     <DCCReference Include="i_LastSelectionInfo.pas" />
     <DCCReference Include="i_LastSelectionLayerConfig.pas" />
+    <DCCReference Include="i_LayerBitmapClearStrategy.pas" />
     <DCCReference Include="i_LineOnMapEdit.pas" />
     <DCCReference Include="i_ListOfObjectsWithTTL.pas" />
     <DCCReference Include="i_LocalCoordConverter.pas" />
@@ -492,6 +493,8 @@
     <DCCReference Include="u_LanguageTBXItem.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
     <DCCReference Include="u_LastSelectionLayerConfig.pas" />
+    <DCCReference Include="u_LayerBitmapClearStrategy.pas" />
+    <DCCReference Include="u_LayerBitmapClearStrategyFactory.pas" />
     <DCCReference Include="u_LineOnMapEdit.pas" />
     <DCCReference Include="u_ListOfObjectsWithTTL.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />

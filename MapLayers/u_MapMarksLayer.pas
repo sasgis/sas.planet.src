@@ -83,16 +83,7 @@ begin
     try
       Layer.Bitmap.DrawMode:=dmBlend;
       Layer.Bitmap.CombineMode:=cmMerge;
-      Layer.Bitmap.Clear(0);
       VProv.GetBitmapRect(Layer.Bitmap, LayerCoordConverter);
-    finally
-      Layer.EndUpdate;
-      Layer.Changed;
-    end;
-  end else begin
-    Layer.BeginUpdate;
-    try
-      Layer.Bitmap.Clear(0);
     finally
       Layer.EndUpdate;
       Layer.Changed;

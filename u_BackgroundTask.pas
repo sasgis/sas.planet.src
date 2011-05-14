@@ -25,7 +25,7 @@ type
     procedure StartExecute; virtual;
     procedure StopExecute; virtual;
   public
-    constructor Create;
+    constructor Create(APriority: TThreadPriority = tpLowest);
     destructor Destroy; override;
   end;
 
@@ -36,13 +36,13 @@ uses
 
 { TBackgroundTask }
 
-constructor TBackgroundTask.Create;
+constructor TBackgroundTask.Create(APriority: TThreadPriority);
 begin
-  inherited;
+  inherited Create;
   FStopThread := TEvent.Create(nil, True, False, '');
   FAllowExecute := TEvent.Create(nil, True, False, '');
   FCS := TCriticalSection.Create;
-  SetPriority(tpLowest);
+  SetPriority(APriority);
 end;
 
 destructor TBackgroundTask.Destroy;
