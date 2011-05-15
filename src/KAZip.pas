@@ -985,7 +985,11 @@ begin
           MS.Read(CDFile,SizeOf(TCentralDirectoryFile)-3*SizeOf(String));
           Entry                       := TKAZipEntriesEntry.Create(Self);
           if CDFile.LastModFileTimeDate > 0 then begin
-            Entry.FDate                 := FileDateToDateTime(CDFile.LastModFileTimeDate);
+            try
+              Entry.FDate               := FileDateToDateTime(CDFile.LastModFileTimeDate);
+            except
+              Entry.FDate               := 0;
+            end;
           end else begin
             Entry.FDate                 := 0;
           end;
