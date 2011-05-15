@@ -124,8 +124,8 @@ destructor TTileDownloaderEventElement.Destroy;
 begin
   try
     try
-      //if not FProcessed then
-      //  ExecCallBackList;
+      if not FProcessed then
+        ProcessEvent;
       FCallBackList.Clear;
       FreeAndNil(FCallBackList);
     finally
@@ -145,24 +145,28 @@ end;
 procedure TTileDownloaderEventElement.ProcessEvent;
 begin
   try
-    ExecCallBackList;
-  except
-    on E: Exception do
-      FErrorString := E.Message;
-  end;
-  if FErrorString <> '' then begin
-    if FErrorLogger <> nil then
-        FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
-  end else begin
-    FErrorString := GetErrStr(FDownloadResult);
-    if (FDownloadResult = dtrOK) or (FDownloadResult = dtrSameTileSize) then
-      GState.DownloadInfo.Add(1, FTileSize);
+    try
+      ExecCallBackList;
+    except
+      on E: Exception do
+        FErrorString := E.Message;
+    end;
     if FErrorString <> '' then begin
       if FErrorLogger <> nil then
-        FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
+          FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
     end else begin
-      TThread.Synchronize(nil, GuiSync);
+      FErrorString := GetErrStr(FDownloadResult);
+      if (FDownloadResult = dtrOK) or (FDownloadResult = dtrSameTileSize) then
+        GState.DownloadInfo.Add(1, FTileSize);
+      if FErrorString <> '' then begin
+        if FErrorLogger <> nil then
+          FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
+      end else begin
+        TThread.Synchronize(nil, GuiSync);
+      end;
     end;
+  finally
+    FProcessed := True;
   end;
 end;
 
@@ -200,7 +204,6 @@ begin
       // ignore all
     end;
   finally
-    FProcessed := True;
     FCallBackList.Clear;
   end;
 end;

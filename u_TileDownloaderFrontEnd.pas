@@ -59,15 +59,21 @@ end;
 
 destructor TTileDownloaderFrontEnd.Destroy;
 begin
-  FRequestBuilderScript := nil;
-  FDownloader := nil;
   inherited Destroy;
 end;
 
 procedure TTileDownloaderFrontEnd.Download(AEvent: ITileDownloaderEvent);
 begin
-  if Assigned(FDownloader) then
-    FDownloader.Download(AEvent);
+  if FUseDwn and Assigned(AEvent) then
+  begin
+    if Assigned(FDownloader) then
+      FDownloader.Download(AEvent)
+    else
+    begin
+      FUseDwn := False;
+      AEvent.ErrorString := 'Downloader not Assigned!';
+    end;
+  end;
 end;
 
 procedure TTileDownloaderFrontEnd.SetWaitInterval(Value: Cardinal);

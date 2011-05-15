@@ -95,7 +95,7 @@ begin
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorLogger := AErrorLogger;
   FMapType := nil;
-  FMaxRequestCount := 4;
+  FMaxRequestCount := 8;
   FSemaphore := CreateSemaphore(nil, FMaxRequestCount, FMaxRequestCount, nil);
 
   Priority := tpLower;

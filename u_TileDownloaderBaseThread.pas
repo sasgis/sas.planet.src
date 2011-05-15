@@ -118,9 +118,10 @@ begin
         FResponseHeader.Clear;
         FHttpClient.Get(VUrl, FEvent.TileStream, FResponseHeader);
       except
-        on E: EALHTTPClientException do begin
+        on E: EALHTTPClientException do
           FEvent.ErrorString := IntToStr(E.StatusCode) + ' ' + FResponseHeader.ReasonPhrase;
-        end;
+        on E: Exception do
+          FEvent.ErrorString := E.Message;
       end;
       FRawResponseHeader := '';
       FEvent.RawResponseHeader := FResponseHeader.RawHeaderText;
@@ -133,7 +134,6 @@ begin
     FBusy := False;
     if FParentSemaphore <> 0 then    
       ReleaseSemaphore(FParentSemaphore, 1, nil);
-    FEvent := nil;
   end;
 end;
 

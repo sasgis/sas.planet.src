@@ -626,7 +626,6 @@ begin
   FreeAndNil(FCSSaveTNF);
   FreeAndNil(Fbmp18);
   FreeAndNil(Fbmp24);
-  FRequestBuilderScript := nil;
   FCoordConverter := nil;
   FCache := nil;
   FreeAndNil(FTileDownloader);
@@ -637,11 +636,13 @@ end;
 procedure TMapType.OnTileDownload(AEvent: ITileDownloaderEvent);
 begin
   if Assigned(AEvent) then begin
-    if AEvent.DownloadResult = dtrOK then begin
-      SaveTileDownload(AEvent.TileXY, AEvent.TileZoom, AEvent.TileStream, AEvent.TileMIME);
-    end else if AEvent.DownloadResult = dtrTileNotExists then begin
-      if GState.SaveTileNotExists then begin
-        SaveTileNotExists(AEvent.TileXY, AEvent.TileZoom);
+    if AEvent.ErrorString = '' then begin
+      if AEvent.DownloadResult = dtrOK then begin
+        SaveTileDownload(AEvent.TileXY, AEvent.TileZoom, AEvent.TileStream, AEvent.TileMIME);
+      end else if AEvent.DownloadResult = dtrTileNotExists then begin
+        if GState.SaveTileNotExists then begin
+          SaveTileNotExists(AEvent.TileXY, AEvent.TileZoom);
+        end;
       end;
     end;
   end;
@@ -662,6 +663,7 @@ begin
       AEvent.AddToCallBackList(Self.OnTileDownload);
       FTileDownloader.Download(AEvent);
     end else begin
+      AEvent.ErrorString := 'Map Download is Disabled!';
       raise Exception.Create('Для этой карты загрузка запрещена.');
     end;
   end;

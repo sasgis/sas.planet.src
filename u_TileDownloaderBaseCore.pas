@@ -47,13 +47,13 @@ end;
 
 destructor TTileDownloaderBaseCore.Destroy;
 var
-  i: Integer;
+  I: Integer;
   VDwnThr: TTileDownloaderBaseThread;
 begin
   try
     for I := 0 to FDownloadesList.Count - 1 do
     try
-      VDwnThr := TTileDownloaderBaseThread(FDownloadesList.Items[i]);
+      VDwnThr := FDownloadesList.Items[I];
       if Assigned(VDwnThr) then
         VDwnThr.Terminate;
     except
@@ -90,7 +90,7 @@ end;
 
 function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread;
 var
-  i: Integer;
+  I: Integer;
 begin
   Result := nil;
   if WaitForSingleObject(FSemaphore, FTimeOut) = WAIT_OBJECT_0  then
@@ -99,7 +99,7 @@ begin
     try
       for I := 0 to FDownloadesList.Count - 1 do
       try
-        Result := TTileDownloaderBaseThread(FDownloadesList.Items[i]);
+        Result := FDownloadesList.Items[I];
         if Assigned(Result) then
         begin
           if Result.Busy then
@@ -139,7 +139,9 @@ begin
     finally
       UnLock;
     end;
-  end;
+  end
+  else
+    AEvent.ErrorString := 'No free connections!';
 end;
 
 procedure TTileDownloaderBaseCore.OnTileDownload(AEvent: ITileDownloaderEvent);
@@ -154,7 +156,5 @@ begin
     Unlock;
   end;
 end;
-
-
 
 end.

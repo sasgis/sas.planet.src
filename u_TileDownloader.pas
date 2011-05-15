@@ -37,6 +37,10 @@ type
     property  Enabled: Boolean read GetIsEnabled;
   end;
 
+const
+  DefMaxConnectToServerCount = 32;
+  LimMaxConnectToServerCount = 64;
+
 implementation
 
 uses
@@ -62,14 +66,13 @@ begin
   FWaitInterval := VParams.ReadInteger('Sleep', 0);
   FMapName := VParams.ReadString('name', '');
   FMapName:=VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode, FMapName);
-  FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', 4);
-  if FMaxConnectToServerCount > 64 then
-    FMaxConnectToServerCount := 64;
+  FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', DefMaxConnectToServerCount);
+  if FMaxConnectToServerCount > LimMaxConnectToServerCount then
+    FMaxConnectToServerCount := LimMaxConnectToServerCount;
 end;
 
 destructor TTileDownloader.Destroy;
 begin
-  FRequestBuilderScript := nil;
   FreeAndNil(FCS);
   inherited Destroy;
 end;
