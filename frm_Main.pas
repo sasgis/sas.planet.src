@@ -787,7 +787,7 @@ begin
     FLayersList.Add(FWikiLayer);
     FLayerFillingMap:=TMapLayerFillingMap.create(map, FConfig.ViewPortState, GState.GUISyncronizedTimerNotifier, FConfig.LayersConfig.FillingMapLayerConfig);
     FLayersList.Add(FLayerFillingMap);
-    FLayerMapMarks:= TMapMarksLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarksShowConfig, FMarkDBGUI);
+    FLayerMapMarks:= TMapMarksLayer.Create(map, FConfig.ViewPortState, GState.ImageResamplerConfig, GState.GUISyncronizedTimerNotifier,FConfig.LayersConfig.MarksShowConfig, FMarkDBGUI);
     FLayersList.Add(FLayerMapMarks);
     FLayerMapGPS:= TMapGPSLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.GPSTrackConfig, GState.GPSRecorder);
     FLayersList.Add(FLayerMapGPS);
