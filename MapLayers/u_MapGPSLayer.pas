@@ -120,7 +120,15 @@ begin
                   with VPolygon.Outline do try
                     with Grow(Fixed(VLineWidth / 2), 0.5) do try
                       VSegmentColor := VTrackColorer.GetColorForSpeed(VPoints[i].Speed);
-                      DrawFill(Layer.Bitmap, VSegmentColor);
+                      Layer.Bitmap.Lock;
+                      try
+                        if not AIsStop then begin
+                          DrawFill(Layer.Bitmap, VSegmentColor);
+                          SetBitmapChanged;
+                        end;
+                      finally
+                        Layer.Bitmap.Unlock;
+                      end;
                     finally
                       free;
                     end;
@@ -143,6 +151,9 @@ begin
             VMapPointPrev := VMapPointCurr;
             VPointPrev := VPointCurr;
             VPointPrevIsEmpty := VPointCurrIsEmpty;
+          end;
+          if AIsStop then begin
+            Break;
           end;
         end;
       finally
