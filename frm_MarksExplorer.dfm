@@ -187,7 +187,7 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 10
               OnClick = btnOpSelectMarkClick
               Caption = ''
-              Hint = 'Manage area within selected object'
+              Hint = 'Selection manager'
             end
             object btnNavOnMark: TTBXItem
               AutoCheck = True
