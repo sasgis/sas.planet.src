@@ -157,6 +157,7 @@ begin
         FTrack[FPointsCount].Point.Y := NaN;
         FTrack[FPointsCount].Speed := 0;
       end;
+      FTrack[FPointsCount].Time := APosition.UTCDateTime;
       Inc(FPointsCount);
       FLastPointIsEmpty := VIsAddPointEmpty;
       SetChanged;

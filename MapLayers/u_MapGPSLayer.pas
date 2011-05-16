@@ -6,27 +6,29 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_JclNotify,
   t_GeoTypes,
+  t_CommonTypes,
   i_GPSRecorder,
   i_MapLayerGPSTrackConfig,
   i_ViewPortState,
-  u_MapLayerBasic;
+  u_MapLayerWithThreadDraw;
 
 type
-  TMapGPSLayer = class(TMapLayerBasic)
+  TMapGPSLayer = class(TMapLayerWithThreadDraw)
   private
     FConfig: IMapLayerGPSTrackConfig;
     FGPSRecorder: IGPSRecorder;
-    procedure DrawPath;
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure DoRedraw; override;
+    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      ATimerNoifier: IJclNotifier;
       AConfig: IMapLayerGPSTrackConfig;
       AGPSRecorder: IGPSRecorder
     );
@@ -35,6 +37,7 @@ type
 implementation
 
 uses
+  Classes,
   Graphics,
   SysUtils,
   GR32_Polygons,
@@ -47,11 +50,12 @@ uses
 constructor TMapGPSLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  ATimerNoifier: IJclNotifier;
   AConfig: IMapLayerGPSTrackConfig;
   AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(AParentMap, AViewPortState, ATimerNoifier, tpLower);
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   LinksList.Add(
@@ -60,44 +64,40 @@ begin
   );
 end;
 
-procedure TMapGPSLayer.DrawPath;
+procedure TMapGPSLayer.DrawBitmap(AIsStop: TIsCancelChecker);
 var
-  j, speed: integer;
+  VTrackColorer: ITrackColorerStatic;
+  VPointsCount: Integer;
+  VLineWidth: Double;
+  VLocalConverter: ILocalCoordConverter;
+  VPoints: TGPSTrackPointArray;
   VPolygon: TPolygon32;
-  VMapPointCurr: TDoublePoint;
   VMapPointPrev: TDoublePoint;
-  VPointCurrIsEmpty: Boolean;
   VPointPrevIsEmpty: Boolean;
   VPointPrev: TDoublePoint;
+  i: Integer;
+  VMapPointCurr: TDoublePoint;
+  VPointCurrIsEmpty: Boolean;
   VPointCurr: TDoublePoint;
-  VPointsCount: Integer;
-  VSegmentColor: TColor32;
-  VSpeed: Extended;
-  VMaxSpeed: Extended;
-  VPoints: TGPSTrackPointArray;
-  VLocalConverter: ILocalCoordConverter;
-  VLineWidth: Double;
-  VIsChangePrevPoint: Boolean;
   VFixedPointsPair: array [0..1] of TFixedPoint;
+  VSegmentColor: TColor32;
+  VIsChangePrevPoint: Boolean;
 begin
+  inherited;
   FConfig.LockRead;
   try
     VPointsCount := FConfig.LastPointCount;
     VLineWidth := FConfig.LineWidth;
+    VTrackColorer := FConfig.TrackColorerConfig.GetStatic;
   finally
     FConfig.UnlockRead
   end;
-  VPoints := FGPSRecorder.LastPoints(VPointsCount);
-  VLocalConverter := LayerCoordConverter;
-  VPointsCount := length(VPoints);
-    if (VPointsCount > 1) then begin
-      VMaxSpeed := VPoints[0].Speed;
-      for j := 1 to VPointsCount - 1 do begin
-        if VMaxSpeed < VPoints[j].Speed then begin
-          VMaxSpeed := VPoints[j].Speed;
-        end;
-      end;
 
+  if (VPointsCount > 1) then begin
+    VLocalConverter := LayerCoordConverter;
+    VPoints := FGPSRecorder.LastPoints(VPointsCount);
+    VPointsCount := length(VPoints);
+    if (VPointsCount > 1) then begin
       VPolygon := TPolygon32.Create;
       try
         VPolygon.Antialiased := true;
@@ -106,8 +106,8 @@ begin
         VMapPointPrev := VPoints[0].Point;
         VPointPrevIsEmpty := PointIsEmpty(VMapPointPrev);
         VPointPrev := VLocalConverter.LonLat2LocalPixelFloat(VMapPointPrev);
-        for j := 1 to VPointsCount - 1 do begin
-          VMapPointCurr := VPoints[j].Point;
+        for i := 1 to VPointsCount - 1 do begin
+          VMapPointCurr := VPoints[i].Point;
           VPointCurrIsEmpty := PointIsEmpty(VMapPointCurr);
           if not VPointCurrIsEmpty then begin
             VPointCurr := VLocalConverter.LonLat2LocalPixelFloat(VMapPointCurr);
@@ -119,13 +119,7 @@ begin
                   VPolygon.AddPoints(VFixedPointsPair[0], 2);
                   with VPolygon.Outline do try
                     with Grow(Fixed(VLineWidth / 2), 0.5) do try
-                      VSpeed := VPoints[j - 1].Speed;
-                      if (VMaxSpeed > 0) then begin
-                        speed := round((255 * VSpeed) / VMaxSpeed);
-                      end else begin
-                        speed := 0;
-                      end;
-                      VSegmentColor := Color32(speed, 0, 256 - speed, 150);
+                      VSegmentColor := VTrackColorer.GetColorForSpeed(VPoints[i].Speed);
                       DrawFill(Layer.Bitmap, VSegmentColor);
                     finally
                       free;
@@ -154,6 +148,7 @@ begin
       finally
         VPolygon.Free;
       end;
+    end;
   end;
 end;
 
@@ -173,12 +168,6 @@ procedure TMapGPSLayer.StartThreads;
 begin
   inherited;
   OnConfigChange(nil);
-end;
-
-procedure TMapGPSLayer.DoRedraw;
-begin
-  inherited;
-  DrawPath;
 end;
 
 end.

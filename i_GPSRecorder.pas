@@ -11,6 +11,7 @@ type
   TGPSTrackPoint = record
     Point: TDoublePoint;
     Speed: Double;
+    Time: TDateTime;
   end;
 
   TGPSTrackPointArray = array of TGPSTrackPoint;
