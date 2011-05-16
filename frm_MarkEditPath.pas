@@ -98,10 +98,8 @@ begin
     end;
     if AMark.IsNew then begin
       Caption:=SAS_STR_AddNewPath;
-      btnOk.Caption:=SAS_STR_Add;
     end else begin
       Caption:=SAS_STR_EditPath;
-      btnOk.Caption:=SAS_STR_Edit;
     end;
     if ShowModal=mrOk then begin
       Result := AMarkDBGUI.MarksDB.MarksDb.Factory.ModifyLine(

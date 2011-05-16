@@ -41,7 +41,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Width = 73
       Height = 23
       Align = alRight
-      Caption = 'Add'
+      Caption = 'Ok'
       Default = True
       ModalResult = 1
       TabOrder = 0

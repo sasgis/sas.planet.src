@@ -205,7 +205,7 @@ object frmMarkEditPath: TfrmMarkEditPath
       Width = 73
       Height = 23
       Align = alRight
-      Caption = 'Add'
+      Caption = 'Ok'
       Default = True
       TabOrder = 0
       OnClick = btnOkClick
