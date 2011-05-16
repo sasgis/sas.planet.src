@@ -71,7 +71,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Width = 73
       Height = 25
       Align = alRight
-      Caption = 'Add'
+      Caption = 'Ok'
       Default = True
       ModalResult = 1
       TabOrder = 1

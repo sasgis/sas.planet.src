@@ -51,10 +51,8 @@ begin
   EditName.Text:=SAS_STR_NewPoly;
   if ACategory.IsNew then begin
     Self.Caption:=SAS_STR_AddNewCategory;
-    btnOk.Caption:=SAS_STR_Add;
   end else begin
     Self.Caption:=SAS_STR_EditCategory;
-    btnOk.Caption:=SAS_STR_Edit;
   end;
   EditName.Text:=ACategory.name;
   EditS1.Value:=ACategory.AfterScale;
