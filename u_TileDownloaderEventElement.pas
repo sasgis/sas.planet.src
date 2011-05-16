@@ -146,24 +146,29 @@ procedure TTileDownloaderEventElement.ProcessEvent;
 begin
   try
     try
+      TileSize := TileStream.Size;
       ExecCallBackList;
     except
       on E: Exception do
         FErrorString := E.Message;
     end;
-    if FErrorString <> '' then begin
-      if FErrorLogger <> nil then
-          FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
-    end else begin
-      FErrorString := GetErrStr(FDownloadResult);
-      if (FDownloadResult = dtrOK) or (FDownloadResult = dtrSameTileSize) then
-        GState.DownloadInfo.Add(1, FTileSize);
+    try
       if FErrorString <> '' then begin
         if FErrorLogger <> nil then
-          FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
+            FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
       end else begin
-        TThread.Synchronize(nil, GuiSync);
+        FErrorString := GetErrStr(FDownloadResult);
+        if (FDownloadResult = dtrOK) or (FDownloadResult = dtrSameTileSize) then
+          GState.DownloadInfo.Add(1, FTileSize);
+        if FErrorString <> '' then begin
+          if FErrorLogger <> nil then
+            FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
+        end else begin
+          TThread.Synchronize(nil, GuiSync);
+        end;
       end;
+    except
+
     end;
   finally
     FProcessed := True;

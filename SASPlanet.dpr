@@ -114,6 +114,7 @@ uses
   u_TileDownloaderFrontEnd in 'u_TileDownloaderFrontEnd.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
+  u_TileDownloaderThread in 'u_TileDownloaderThread.pas',
   i_RequestBuilderScript in 'i_RequestBuilderScript.pas',
   u_RequestBuilderScript in 'u_RequestBuilderScript.pas',
   u_RequestBuilderPascalScript in 'u_RequestBuilderPascalScript.pas',

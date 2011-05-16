@@ -21,6 +21,7 @@ type
     FDownloadesList: TList;
     FRawResponseHeader: string;
     function GetRequestBuilderScript(AConfig: IConfigDataProvider): IRequestBuilderScript;
+    function GetConfigDataProvider: IConfigDataProvider;
     function TryGetDownloadThread: TTileDownloaderBaseThread;
   public
     constructor Create(AConfig: IConfigDataProvider; AZmpFileName: string);
@@ -33,6 +34,8 @@ implementation
 
 uses
   Dialogs,
+  u_ConfigDataProviderByKaZip,
+  u_ConfigDataProviderByFolder,
   u_ResStrings;
 
 { TTileDownloaderBaseCore }
@@ -41,6 +44,7 @@ constructor TTileDownloaderBaseCore.Create(AConfig: IConfigDataProvider; AZmpFil
 begin
   inherited Create(AConfig, AZmpFileName);
   FRequestBuilderScript := GetRequestBuilderScript(AConfig);
+  //FRequestBuilderScript := GetRequestBuilderScript(GetConfigDataProvider);
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
   FDownloadesList := TList.Create;
 end;
@@ -88,9 +92,23 @@ begin
   end;
 end;
 
+function TTileDownloaderBaseCore.GetConfigDataProvider: IConfigDataProvider;
+begin
+  try
+    Result := nil;
+    if FileExists(FZmpFileName) then
+      Result := TConfigDataProviderByKaZip.Create(FZmpFileName)
+    else
+      Result := TConfigDataProviderByFolder.Create(FZmpFileName);
+  except
+    Result := nil;
+  end;
+end;
+
 function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread;
 var
   I: Integer;
+  VConfig: IConfigDataProvider;
 begin
   Result := nil;
   if WaitForSingleObject(FSemaphore, FTimeOut) = WAIT_OBJECT_0  then
@@ -112,9 +130,20 @@ begin
       end;
       if not Assigned(Result) and (FDownloadesList.Count < integer(FMaxConnectToServerCount)) then
       begin
+
         Result := TTileDownloaderBaseThread.Create;
         Result.RequestBuilderScript := FRequestBuilderScript;
         FDownloadesList.Add(Result);
+
+        {
+        VConfig := GetConfigDataProvider;
+        if VConfig <> nil then
+        begin
+          Result := TTileDownloaderBaseThread.Create;
+          Result.RequestBuilderScript := GetRequestBuilderScript(VConfig);
+          FDownloadesList.Add(Result);
+        end;
+        }
       end;
     finally
       UnLock;

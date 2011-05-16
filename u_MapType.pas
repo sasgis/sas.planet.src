@@ -174,7 +174,6 @@ type
 type
   TMapUpdateEvent = procedure(AMapType: TMapType) of object;
   TMapTileUpdateEvent = procedure(AMapType: TMapType; AZoom: Byte; ATile: TPoint) of object;
-  TParentThreadEvent = procedure (AMapType: TMapType; ATile: TPoint; AZoom: Byte; ATileSize: Int64; AResult: TDownloadTileResult) of object;
 
 implementation
 

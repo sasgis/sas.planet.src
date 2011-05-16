@@ -16,34 +16,22 @@ uses
   i_ViewPortState,
   i_MapTypes,
   i_DownloadUIConfig,
-  i_TileDownloader,
-  u_TileDownloaderEventElement,
-  u_MapType;
+  u_MapType,
+  u_TileDownloaderThread;
 
 type
-  TTileDownloaderUI = class(TThread)
+  TTileDownloaderUI = class(TTileDownloaderThread)
   private
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
     FViewPortState: IViewPortState;
-    FErrorLogger: ITileErrorLogger;
-    FMapTileUpdateEvent: TMapTileUpdateEvent;
-    FMapType: TMapType;
-
     FTileMaxAgeInInternet: TDateTime;
     FTilesOut: Integer;
     FUseDownload: TTileSource;
     FLinksList: IJclListenerNotifierLinksList;
-
     FVisualCoordConverter: ILocalCoordConverter;
     FActiveMapsList: IMapTypeList;
-
     change_scene: boolean;
-    
-    FMaxRequestCount: Integer;
-    FSemaphore: THandle;
-
-    function  GetNewEventElement(ATile: TPoint; AZoom: Byte): ITileDownloaderEvent;
     procedure GetCurrentMapAndPos;
     procedure OnPosChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
@@ -56,12 +44,14 @@ type
       AMapsSet: IActiveMapsSet;
       AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger
-    ); overload;
+    );
     destructor Destroy; override;
     procedure StartThreads;
     procedure SendTerminateToThreads;
-    procedure OnTileDownload(AEvent: ITileDownloaderEvent);
   end;
+
+const
+  MaxThreadsUICount = 8;
 
 implementation
 
@@ -86,17 +76,12 @@ constructor TTileDownloaderUI.Create(
 var
   VChangePosListener: IJclListener;
 begin
-  inherited Create(True);
+  inherited Create(True, AMapTileUpdateEvent, AErrorLogger, MaxThreadsUICount);
   FConfig := AConfig;
   FViewPortState := AViewPortState;
   FMapsSet := AMapsSet;
   FViewPortState := AViewPortState;
   FLinksList := TJclListenerNotifierLinksList.Create;
-  FMapTileUpdateEvent := AMapTileUpdateEvent;
-  FErrorLogger := AErrorLogger;
-  FMapType := nil;
-  FMaxRequestCount := 8;
-  FSemaphore := CreateSemaphore(nil, FMaxRequestCount, FMaxRequestCount, nil);
 
   Priority := tpLower;
   FUseDownload := tsCache;
@@ -123,7 +108,6 @@ var
   VWaitResult: DWORD;
 begin
   FLinksList := nil;
-  CloseHandle(FSemaphore);
   VWaitResult := WaitForSingleObject(Handle, 10000);
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(Handle, 0);
@@ -170,20 +154,6 @@ begin
   FLinksList.ActivateLinks;
   OnConfigChange(nil);
   Resume;
-end;
-
-function TTileDownloaderUI.GetNewEventElement(ATile: TPoint; AZoom: Byte): ITileDownloaderEvent;
-begin
-  Result := TTileDownloaderEventElement.Create(FMapTileUpdateEvent, FErrorLogger, FMapType);
-  Result.AddToCallBackList(Self.OnTileDownload);
-  Result.TileXY := ATile;
-  Result.TileZoom := AZoom;
-  Result.CheckTileSize := False;
-end;
-
-procedure TTileDownloaderUI.OnTileDownload (AEvent: ITileDownloaderEvent);
-begin
-  ReleaseSemaphore(FSemaphore, 1, nil);
 end;
 
 procedure TTileDownloaderUI.Execute;
@@ -305,14 +275,7 @@ begin
                 end;
                 if VNeedDownload then
                 try
-                  repeat
-                    if WaitForSingleObject(FSemaphore, 300) = WAIT_OBJECT_0  then
-                      Break
-                    else if Terminated then
-                         Break;
-                  until False;
-                  if not Terminated then
-                    FMapType.DownloadTile( GetNewEventElement(VTile, VZoom) );
+                  Download(VTile, VZoom);
                 except
                   on E:Exception do
                     FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, VZoom, VTile, E.Message) );
