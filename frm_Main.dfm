@@ -662,7 +662,7 @@ object frmMain: TfrmMain
           AutoCheck = True
           Checked = True
           OnClick = NGoToCurClick
-          Caption = 'Move to Cursor'
+          Caption = 'Zoom to Cursor'
           Hint = ''
         end
         object Nbackload: TTBXItem
