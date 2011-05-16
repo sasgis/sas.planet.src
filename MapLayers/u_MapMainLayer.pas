@@ -200,22 +200,23 @@ begin
             end;
           end;
         end;
+
         if not VTileIsEmpty then begin
           VRecolorConfig.ProcessBitmap(VTileToDrawBmp);
           if AIsStop then begin
             break;
           end;
+        end;
 
-          Layer.Bitmap.Lock;
-          try
-            if AIsStop then begin
-              break;
-            end;
-            Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
-            SetBitmapChanged;
-          finally
-            Layer.Bitmap.UnLock;
+        Layer.Bitmap.Lock;
+        try
+          if AIsStop then begin
+            break;
           end;
+          Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+          SetBitmapChanged;
+        finally
+          Layer.Bitmap.UnLock;
         end;
       end;
     end;
