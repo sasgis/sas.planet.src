@@ -26,7 +26,6 @@ type
     procedure OnConfigChange(Sender: TObject);
     function GetMarksSubset: IMarksSubset;
   protected
-    procedure DoRedraw; override;
     procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
   public
     procedure StartThreads; override;
@@ -79,12 +78,6 @@ begin
   );
 end;
 
-procedure TMapMarksLayer.DoRedraw;
-begin
-  FMarksSubset := GetMarksSubset;
-  inherited;
-end;
-
 procedure TMapMarksLayer.DrawBitmap(AIsStop: TIsCancelChecker);
 var
   VTileToDrawBmp: TCustomBitmap32;
@@ -109,6 +102,7 @@ var
   VProv: IBitmapLayerProvider;
   VMarksSubset: IMarksSubset;
 begin
+  FMarksSubset := GetMarksSubset;
   VMarksSubset := FMarksSubset;
   VBitmapConverter := LayerCoordConverter;
   if (VMarksSubset <> nil) and (VBitmapConverter <> nil) and (not VMarksSubset.IsEmpty) then begin

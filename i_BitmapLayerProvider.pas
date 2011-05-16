@@ -10,10 +10,10 @@ uses
 type
   IBitmapLayerProvider = interface
     ['{A4E2AEE1-1747-46F1-9836-173AFB62CCF9}']
-    procedure GetBitmapRect(
+    function GetBitmapRect(
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
-    );
+    ): Boolean;
   end;
 
 implementation
