@@ -70,6 +70,9 @@ begin
 
   FMapsConfig := TMiniMapMapsConfig.Create(AMapsConfig);
   Add(FMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
+
+  GState.LoadBitmapFromRes('ICONI', FPlusButton);
+  GState.LoadBitmapFromRes('ICONII', FMinusButton);
 end;
 
 destructor TMiniMapLayerConfig.Destroy;
@@ -88,8 +91,6 @@ begin
     FZoomDelta := AConfigData.ReadInteger('ZoomDelta', FZoomDelta);
     FMasterAlpha := AConfigData.ReadInteger('Alpha', FMasterAlpha);
     FVisible := AConfigData.ReadBool('Visible', FVisible);
-    GState.LoadBitmapFromRes('ICONI', FPlusButton);
-    GState.LoadBitmapFromRes('ICONII', FMinusButton);
     SetChanged;
   end;
 end;

@@ -129,8 +129,6 @@ ResourceString
   SAS_STR_EditMark = 'Edit Placemark';
   SAS_STR_EditPoly = 'Edit Polygon';
   SAS_STR_EditCategory = 'Edit Category';
-  SAS_STR_Add = 'Add';
-  SAS_STR_Edit = 'Edit';
   SAS_STR_EditMap = 'Map Settings:';
   SAS_STR_Stop = 'Stop';
   SAS_STR_Stop1 = 'Paused';

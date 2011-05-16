@@ -1,7 +1,7 @@
 object frmRegionProcess: TfrmRegionProcess
   Left = 234
   Top = 298
-  Caption = 'Manage Selection'
+  Caption = 'Selection Manager'
   ClientHeight = 316
   ClientWidth = 572
   Color = clBtnFace

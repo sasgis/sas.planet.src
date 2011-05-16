@@ -16,6 +16,7 @@ uses
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
+  i_LanguageManager,
   i_CoordConverter,
   i_KmlInfoSimpleLoader,
   i_RequestBuilderScript,
@@ -65,6 +66,7 @@ type
     FTileDownloader: TTileDownloaderFrontEnd;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
+    FLanguageManager: ILanguageManager;
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(Value: Cardinal);
@@ -167,7 +169,12 @@ type
     property WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
     property Cache: ITileObjCache read FCache;
 
-    constructor Create(AGUID: TGUID; AConfig: IConfigDataProvider; Apnum: Integer);
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AGUID: TGUID;
+      AConfig: IConfigDataProvider;
+      Apnum: Integer
+    );
     destructor Destroy; override;
   end;
 
@@ -237,7 +244,7 @@ end;
 
 procedure TMapType.LoadMapInfo(AConfig: IConfigDataProvider);
 begin
-  FMapinfo := AConfig.ReadString('info_'+GState.LanguageManager.GetCurrentLanguageCode+'.txt', '');
+  FMapinfo := AConfig.ReadString('info_'+FLanguageManager.GetCurrentLanguageCode+'.txt', '');
   if FMapInfo = '' then begin
     FMapinfo := AConfig.ReadString('info.txt', '');
   end;
@@ -321,14 +328,14 @@ begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
   FName:=VParams.ReadString('name',FName);
-  FName:=VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode,FName);
+  FName:=VParams.ReadString('name_'+FLanguageManager.GetCurrentLanguageCode,FName);
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
   HotKey:=VParams.ReadInteger('HotKey',0);
   FDefHotKey := VParams.ReadInteger('MAIN:HotKey',0);
   ParentSubMenu:=VParams.ReadString('ParentSubMenu','');
-  ParentSubMenu:=VParams.ReadString('ParentSubMenu_'+GState.LanguageManager.GetCurrentLanguageCode,ParentSubMenu);
+  ParentSubMenu:=VParams.ReadString('ParentSubMenu_'+FLanguageManager.GetCurrentLanguageCode,ParentSubMenu);
   FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu','');
-  FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu_'+GState.LanguageManager.GetCurrentLanguageCode, FDefParentSubMenu);
+  FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu_' + FLanguageManager.GetCurrentLanguageCode, FDefParentSubMenu);
   separator:=VParams.ReadBool('separator',false);
   FDefseparator:=VParams.ReadBool('MAIN:separator',false);
   Enabled:=VParams.ReadBool('Enabled',true);
@@ -602,9 +609,15 @@ begin
   Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FStorage.CacheConfig.NameInCache)));
 end;
 
-constructor TMapType.Create(AGUID: TGUID; AConfig: IConfigDataProvider; Apnum: Integer);
+constructor TMapType.Create(
+  ALanguageManager: ILanguageManager;
+  AGUID: TGUID;
+  AConfig: IConfigDataProvider;
+  Apnum: Integer
+);
 begin
   FGuid := AGUID;
+  FLanguageManager := ALanguageManager;
   FInitDownloadCS := TCriticalSection.Create;
   FCSSaveTile := TCriticalSection.Create;
   FCSSaveTNF := TCriticalSection.Create;

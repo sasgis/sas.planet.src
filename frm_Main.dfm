@@ -73,7 +73,7 @@ object frmMain: TfrmMain
         Options = [tboShowHint]
         OnClick = TBRectSaveClick
         Caption = ''
-        Hint = 'Manage selection'
+        Hint = 'Selection manager'
       end
       object TBCalcRas: TTBXItem
         AutoCheck = True
@@ -328,7 +328,7 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object NRectSave: TTBXSubmenuItem
-          Caption = 'Select'
+          Caption = 'Selection Manager'
           Hint = ''
           object TBRECT: TTBXItem
             ImageIndex = 10
@@ -662,7 +662,7 @@ object frmMain: TfrmMain
           AutoCheck = True
           Checked = True
           OnClick = NGoToCurClick
-          Caption = 'Move to Cursor'
+          Caption = 'Zoom to Cursor'
           Hint = ''
         end
         object Nbackload: TTBXItem
@@ -2914,7 +2914,7 @@ object frmMain: TfrmMain
     object NMarkOper: TTBXItem
       ImageIndex = 10
       OnClick = NMarkOperClick
-      Caption = 'Actions'
+      Caption = 'Selection Manager'
       Hint = ''
     end
     object NMarkNav: TTBXItem

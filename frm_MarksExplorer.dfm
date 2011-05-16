@@ -43,7 +43,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         DropDownCombo = True
         DropDownMenu = PopupExport
         ImageIndex = 0
-        TabOrder = 0
+        TabOrder = 2
         OnClick = btnExportClick
         Caption = 'Export'
       end
@@ -67,7 +67,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         Height = 21
         Align = alTop
         ImageIndex = 0
-        TabOrder = 2
+        TabOrder = 0
         OnClick = btnOkClick
         Caption = 'Ok'
       end
@@ -187,7 +187,7 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 10
               OnClick = btnOpSelectMarkClick
               Caption = ''
-              Hint = 'Manage area within selected object'
+              Hint = 'Selection manager'
             end
             object btnNavOnMark: TTBXItem
               AutoCheck = True

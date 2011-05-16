@@ -8,6 +8,8 @@ uses
   Classes,
   GR32,
   GR32_Image,
+  i_JclNotify,
+  t_CommonTypes,
   u_GeoFun,
   u_MapType,
   u_MapLayerBasic,
@@ -17,10 +19,11 @@ uses
   i_KmlLayerConfig,
   i_LocalCoordConverter,
   i_ViewPortState,
-  i_VectorDataItemSimple;
+  i_VectorDataItemSimple,
+  u_MapLayerWithThreadDraw;
 
 type
-  TWikiLayer = class(TMapLayerBasic)
+  TWikiLayer = class(TMapLayerWithThreadDraw)
   private
     FConfig: IKmlLayerConfig;
     FLayersSet: IActiveMapsSet;
@@ -29,15 +32,26 @@ type
     FFixedPointArray: TArrayOfFixedPoint;
     FElments: IInterfaceList;
     procedure addWL(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
-    procedure DrawWikiElement(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
-    procedure Clear;
+    procedure DrawWikiElement(
+      AColorMain: TColor32;
+      AColorBG: TColor32;
+      APointColor: TColor32;
+      AData: IVectorDataItemSimple;
+      ALocalConverter: ILocalCoordConverter
+    );
     procedure AddFromLayer(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
     procedure OnConfigChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
   protected
-    procedure DoRedraw; override;
+    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IKmlLayerConfig; ALayersSet: IActiveMapsSet);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      ATimerNoifier: IJclNotifier;
+      AConfig: IKmlLayerConfig;
+      ALayersSet: IActiveMapsSet
+    );
     destructor Destroy; override;
     procedure StartThreads; override;
     procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple; out AItemS: Double); overload;
@@ -58,9 +72,15 @@ uses
 
 { TWikiLayer }
 
-constructor TWikiLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IKmlLayerConfig; ALayersSet: IActiveMapsSet);
+constructor TWikiLayer.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  ATimerNoifier: IJclNotifier;
+  AConfig: IKmlLayerConfig;
+  ALayersSet: IActiveMapsSet
+);
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(AParentMap, AViewPortState, ATimerNoifier, tpLower);
   FConfig := AConfig;
   FLayersSet := ALayersSet;
 
@@ -80,7 +100,6 @@ end;
 
 destructor TWikiLayer.Destroy;
 begin
-  Clear;
   FElments := nil;
   FFixedPointArray := nil;
   inherited;
@@ -140,11 +159,6 @@ begin
   end;
 end;
 
-procedure TWikiLayer.Clear;
-begin
-  FElments.Clear;
-end;
-
 procedure TWikiLayer.OnConfigChange(Sender: TObject);
 begin
   SetNeedRedraw;
@@ -173,19 +187,22 @@ begin
   OnLayerSetChange(nil);
 end;
 
-procedure TWikiLayer.DrawWikiElement(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
+procedure TWikiLayer.DrawBitmap(AIsStop: TIsCancelChecker);
 var
-  VPolygon: TPolygon32;
-  VLen: integer;
-  i: integer;
+  i: Cardinal;
+  VMapType: TMapType;
+  VGUID: TGUID;
+  VItem: IMapType;
+  VEnum: IEnumGUID;
+  VHybrList: IMapTypeList;
+  ii: Integer;
+  VLocalConverter: ILocalCoordConverter;
   VColorMain: TColor32;
   VColorBG: TColor32;
   VPointColor: TColor32;
-  VRect: TRect;
-  VPointLL: TDoublePoint;
-  VConverter: ICoordConverter;
-  VPointOnBitmap: TDoublePoint;
 begin
+  inherited;
+  FElments.Clear;
   FConfig.LockRead;
   try
     VColorMain := FConfig.MainColor;
@@ -194,6 +211,48 @@ begin
   finally
     FConfig.UnlockRead;
   end;
+  VHybrList := FMapsList;
+  if VHybrList <> nil then begin
+    VLocalConverter := LayerCoordConverter;
+    VEnum := VHybrList.GetIterator;
+    while VEnum.Next(1, VGUID, i) = S_OK do begin
+      VItem := VHybrList.GetMapTypeByGUID(VGUID);
+      VMapType := VItem.GetMapType;
+      if VMapType.IsKmlTiles then begin
+        AddFromLayer(VMapType, VLocalConverter);
+        if AIsStop then begin
+          Break;
+        end;
+      end;
+    end;
+    if not AIsStop then begin
+      for ii := 0 to FElments.Count - 1 do begin
+        DrawWikiElement(VColorMain, VColorBG, VPointColor,IVectorDataItemSimple(Pointer(FElments[ii])), VLocalConverter);
+        SetBitmapChanged;
+        if AIsStop then begin
+          Break;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TWikiLayer.DrawWikiElement(
+  AColorMain: TColor32;
+  AColorBG: TColor32;
+  APointColor: TColor32;
+  AData: IVectorDataItemSimple;
+  ALocalConverter: ILocalCoordConverter
+);
+var
+  VPolygon: TPolygon32;
+  VLen: integer;
+  i: integer;
+  VRect: TRect;
+  VPointLL: TDoublePoint;
+  VConverter: ICoordConverter;
+  VPointOnBitmap: TDoublePoint;
+begin
   VConverter := ALocalConverter.GetGeoConverter;
   VPolygon := TPolygon32.Create;
   VPolygon.Antialiased := true;
@@ -208,13 +267,22 @@ begin
       Dec(VRect.Top, 3);
       Inc(VRect.Right, 3);
       Inc(VRect.Bottom, 3);
-
-      Layer.Bitmap.FillRectS(VRect, VColorBG);
+      Layer.Bitmap.Lock;
+      try
+        Layer.Bitmap.FillRectS(VRect, AColorBG);
+      finally
+        Layer.Bitmap.Unlock;
+      end;
       Inc(VRect.Left);
       Inc(VRect.Top);
       Dec(VRect.Right);
       Dec(VRect.Bottom);
-      Layer.Bitmap.FillRectS(VRect, VPointColor);
+      Layer.Bitmap.Lock;
+      try
+        Layer.Bitmap.FillRectS(VRect, APointColor);
+      finally
+        Layer.Bitmap.Unlock;
+      end;
     end else begin
       VLen := Length(AData.Points);
       if Length(FFixedPointArray) < VLen then begin
@@ -227,9 +295,19 @@ begin
         FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
       end;
       VPolygon.AddPoints(FFixedPointArray[0], VLen);
-      VPolygon.DrawEdge(Layer.Bitmap, VColorBG);
+      Layer.Bitmap.Lock;
+      try
+        VPolygon.DrawEdge(Layer.Bitmap, AColorBG);
+      finally
+        Layer.Bitmap.Unlock;
+      end;
       VPolygon.Offset(Fixed(0.9), Fixed(0.9));
-      VPolygon.DrawEdge(Layer.Bitmap, VColorMain);
+      Layer.Bitmap.Lock;
+      try
+        VPolygon.DrawEdge(Layer.Bitmap, AColorMain);
+      finally
+        Layer.Bitmap.Unlock;
+      end;
     end;
   finally
     FreeAndNil(VPolygon);
@@ -315,42 +393,6 @@ var
   VItemS: Double;
 begin
   MouseOnReg(xy, AItem, VItemS);
-end;
-
-procedure TWikiLayer.DoRedraw;
-var
-  i: Cardinal;
-  VMapType: TMapType;
-  VGUID: TGUID;
-  VItem: IMapType;
-  VEnum: IEnumGUID;
-  VHybrList: IMapTypeList;
-  ii: Integer;
-  VLocalConverter: ILocalCoordConverter;
-begin
-  inherited;
-  Clear;
-  Layer.Bitmap.Clear(clBlack);
-  if FMapsList <> nil then begin
-    VLocalConverter := LayerCoordConverter;
-    VHybrList := FMapsList;
-    VEnum := VHybrList.GetIterator;
-    while VEnum.Next(1, VGUID, i) = S_OK do begin
-      VItem := VHybrList.GetMapTypeByGUID(VGUID);
-      VMapType := VItem.GetMapType;
-      if VMapType.IsKmlTiles then begin
-        AddFromLayer(VMapType, VLocalConverter);
-      end;
-    end;
-    Layer.Bitmap.BeginUpdate;
-    try
-      for ii := 0 to FElments.Count - 1 do begin
-        DrawWikiElement(IVectorDataItemSimple(Pointer(FElments[ii])), VLocalConverter);
-      end;
-    finally
-      Layer.Bitmap.EndUpdate;
-    end;
-  end;
 end;
 
 end.
