@@ -31,7 +31,8 @@ type
     property Name: string read GetName;
 
     function GetEunm: IEnumUnknown;
-    function CreateAndAddNew(AName: string): IInternalPerformanceCounter;
+    function CreateAndAddNewCounter(AName: string): IInternalPerformanceCounter;
+    function CreateAndAddNewSubList(AName: string): IInternalPerformanceCounterList;
   end;
 
 implementation

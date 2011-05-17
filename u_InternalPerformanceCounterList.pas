@@ -18,7 +18,8 @@ type
     function GetName: string;
 
     function GetEunm: IEnumUnknown;
-    function CreateAndAddNew(AName: string): IInternalPerformanceCounter;
+    function CreateAndAddNewCounter(AName: string): IInternalPerformanceCounter;
+    function CreateAndAddNewSubList(AName: string): IInternalPerformanceCounterList;
   public
     constructor Create(AName: string);
   end;
@@ -37,10 +38,17 @@ begin
   FName := AName;
 end;
 
-function TInternalPerformanceCounterList.CreateAndAddNew(
+function TInternalPerformanceCounterList.CreateAndAddNewCounter(
   AName: string): IInternalPerformanceCounter;
 begin
   Result := TInternalPerformanceCounter.Create(AName);
+  FList.Add(Result);
+end;
+
+function TInternalPerformanceCounterList.CreateAndAddNewSubList(
+  AName: string): IInternalPerformanceCounterList;
+begin
+  Result := TInternalPerformanceCounterList.Create(AName);
   FList.Add(Result);
 end;
 
