@@ -464,7 +464,7 @@ type
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
-    FIsGPSPosChanged: Boolean;
+    FGpsPosChangeCounter: Integer;
     FCenterToGPSDelta: TDoublePoint;
     FShowActivHint: boolean;
     FHintWindow: THintWindow;
@@ -653,7 +653,7 @@ begin
   FTileErrorLogger := VLogger;
   FTileErrorLogProvider := VLogger;
 
-  FIsGPSPosChanged := False;
+  FGpsPosChangeCounter := 0;
   FdWhenMovingButton := 5;
 
   TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
@@ -1813,10 +1813,8 @@ var
   VMinDelta: Double;
   VProcessGPSIfActive: Boolean;
   VDelta: Double;
-  VNeedTrackRedraw: Boolean;
 begin
-  if FIsGPSPosChanged then begin
-    FIsGPSPosChanged := False;
+  if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
     VPosition := GState.GPSRecorder.CurrentPosition;
     if frmSettings.Visible then frmSettings.SatellitePaint;
     if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
@@ -1832,7 +1830,6 @@ begin
         FConfig.GPSBehaviour.UnlockRead;
       end;
       if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
-        VNeedTrackRedraw := True;
         if (VMapMove) then begin
           VGPSNewPos := GState.GPSRecorder.LastPosition;
           if VMapMoveCentred then begin
@@ -1844,7 +1841,6 @@ begin
             VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
             if VDelta > VMinDelta then begin
               FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
-              VNeedTrackRedraw := False;
             end;
           end else begin
               VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
@@ -1859,14 +1855,11 @@ begin
                 VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
                 if VDelta > VMinDelta then begin
                   FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
-                  VNeedTrackRedraw := False;
                 end;
               end;
           end;
         end;
-        if VNeedTrackRedraw then begin
-          FLayerMapGPS.Redraw;
-        end;
+        FLayerMapGPS.Redraw;
       end;
     end;
   end;
@@ -2780,7 +2773,7 @@ end;
 
 procedure TfrmMain.GPSReceiverReceive(Sender: TObject);
 begin
-  FIsGPSPosChanged := True;
+  InterlockedIncrement(FGpsPosChangeCounter);
 end;
 
 procedure TfrmMain.GPSReceiverStateChange(Sender: TObject);

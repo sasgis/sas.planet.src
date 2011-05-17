@@ -103,10 +103,10 @@ begin
         VPolygon.Antialiased := true;
         VPolygon.AntialiasMode := am4times;
         VPolygon.Closed := false;
-        VMapPointPrev := VPoints[0].Point;
+        VMapPointPrev := VPoints[VPointsCount - 1].Point;
         VPointPrevIsEmpty := PointIsEmpty(VMapPointPrev);
         VPointPrev := VLocalConverter.LonLat2LocalPixelFloat(VMapPointPrev);
-        for i := 1 to VPointsCount - 1 do begin
+        for i := VPointsCount - 2 downto 0 do begin
           VMapPointCurr := VPoints[i].Point;
           VPointCurrIsEmpty := PointIsEmpty(VMapPointCurr);
           if not VPointCurrIsEmpty then begin
@@ -124,7 +124,6 @@ begin
                       try
                         if not AIsStop then begin
                           DrawFill(Layer.Bitmap, VSegmentColor);
-                          SetBitmapChanged;
                         end;
                       finally
                         Layer.Bitmap.Unlock;
@@ -155,6 +154,9 @@ begin
           if AIsStop then begin
             Break;
           end;
+        end;
+        if not AIsStop then begin
+          SetBitmapChanged;
         end;
       finally
         VPolygon.Free;
