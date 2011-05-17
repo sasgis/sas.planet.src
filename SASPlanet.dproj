@@ -169,6 +169,7 @@
     <DCCReference Include="i_ImageResamplerFactory.pas" />
     <DCCReference Include="i_ImportConfig.pas" />
     <DCCReference Include="i_ImportFile.pas" />
+    <DCCReference Include="i_InternalPerformanceCounter.pas" />
     <DCCReference Include="i_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_KmlInfoSimpleLoader.pas" />
     <DCCReference Include="i_KmlLayerConfig.pas" />
@@ -485,6 +486,8 @@
     <DCCReference Include="u_ImportPLT.pas" />
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
+    <DCCReference Include="u_InternalPerformanceCounter.pas" />
+    <DCCReference Include="u_InternalPerformanceCounterList.pas" />
     <DCCReference Include="u_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="u_KmlInfoSimple.pas" />
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />
