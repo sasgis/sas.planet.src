@@ -337,10 +337,26 @@ begin
   VRatio := (ASpeed - ASpeedMin) / (ASpeedMax - ASpeedMin);
   Color32ToRGBA(AColorMin, VRMin, VGMin, VBMin, VAMin);
   Color32ToRGBA(AColorMax, VRMax, VGMax, VBMax, VAMax);
-  VR := Trunc(VRMin + (VRMax - VRMin) * VRatio);
-  VG := Trunc(VGMin + (VGMax - VGMin) * VRatio);
-  VB := Trunc(VBMin + (VBMax - VBMin) * VRatio);
-  VA := Trunc(VAMin + (VAMax - VAMin) * VRatio);
+  if VRMin = VRMax then begin
+    VR := VRMin;
+  end else begin
+    VR := Trunc(VRMin + (VRMax - VRMin) * VRatio);
+  end;
+  if VGMin = VGMax then begin
+    VG := VGMin;
+  end else begin
+    VG := Trunc(VGMin + (VGMax - VGMin) * VRatio);
+  end;
+  if VBMin = VBMax then begin
+    VB := VBMin;
+  end else begin
+    VB := Trunc(VBMin + (VBMax - VBMin) * VRatio);
+  end;
+  if VAMin = VAMax then begin
+    VA := VAMin;
+  end else begin
+    VA := Trunc(VAMin + (VAMax - VAMin) * VRatio);
+  end;
   Result := Color32(VR, VG, VB, VA);
 end;
 
@@ -352,8 +368,8 @@ begin
   if FCount > 0 then begin
     if ASpeed >= FSpeedArray[FCount - 1] then begin
       Result := FMaxColorArray[FCount - 1];
-    end else if ASpeed <= FMaxColorArray[0] then begin
-      Result := GetColor(FMinColorArray[0], FMaxColorArray[0], 0, FMaxColorArray[0], ASpeed);
+    end else if ASpeed <= FSpeedArray[0] then begin
+      Result := GetColor(FMinColorArray[0], FMaxColorArray[0], 0, FSpeedArray[0], ASpeed);
     end else begin
       L := 0;
       H := FCount - 1;
@@ -371,7 +387,7 @@ begin
         end;
       end;
       VIndex := L;
-      Result := GetColor(FMinColorArray[VIndex], FMaxColorArray[VIndex], FMaxColorArray[VIndex - 1], FMaxColorArray[VIndex], ASpeed);
+      Result := GetColor(FMinColorArray[VIndex], FMaxColorArray[VIndex], FSpeedArray[VIndex - 1], FSpeedArray[VIndex], ASpeed);
     end;
   end else begin
     Result := clBlack32;
