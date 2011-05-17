@@ -7,6 +7,7 @@ uses
   Types,
   Classes,
   GR32,
+  GR32_Polygons,
   GR32_Image,
   i_JclNotify,
   t_CommonTypes,
@@ -29,8 +30,11 @@ type
     FLayersSet: IActiveMapsSet;
 
     FMapsList: IMapTypeList;
-    FFixedPointArray: TArrayOfFixedPoint;
     FElments: IInterfaceList;
+
+    FFixedPointArray: TArrayOfFixedPoint;
+    FPolygon: TPolygon32;
+
     procedure addWL(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
     procedure DrawWikiElement(
       AColorMain: TColor32;
@@ -64,7 +68,6 @@ uses
   ActiveX,
   SysUtils,
   Graphics,
-  GR32_Polygons,
   i_CoordConverter,
   i_TileIterator,
   u_NotifyEventListener,
@@ -96,12 +99,17 @@ begin
 
   FElments := TInterfaceList.Create;
   SetLength(FFixedPointArray, 256);
+
+  FPolygon := TPolygon32.Create;
+  FPolygon.Antialiased := true;
+  FPolygon.AntialiasMode := am4times;
 end;
 
 destructor TWikiLayer.Destroy;
 begin
   FElments := nil;
   FFixedPointArray := nil;
+  FreeAndNil(FPolygon);
   inherited;
 end;
 
@@ -228,11 +236,13 @@ begin
     if not AIsStop then begin
       for ii := 0 to FElments.Count - 1 do begin
         DrawWikiElement(VColorMain, VColorBG, VPointColor,IVectorDataItemSimple(Pointer(FElments[ii])), VLocalConverter);
-        SetBitmapChanged;
         if AIsStop then begin
           Break;
         end;
       end;
+    end;
+    if not AIsStop then begin
+      SetBitmapChanged;
     end;
   end;
 end;
@@ -245,7 +255,6 @@ procedure TWikiLayer.DrawWikiElement(
   ALocalConverter: ILocalCoordConverter
 );
 var
-  VPolygon: TPolygon32;
   VLen: integer;
   i: integer;
   VRect: TRect;
@@ -254,63 +263,57 @@ var
   VPointOnBitmap: TDoublePoint;
 begin
   VConverter := ALocalConverter.GetGeoConverter;
-  VPolygon := TPolygon32.Create;
-  VPolygon.Antialiased := true;
-  VPolygon.AntialiasMode := am4times;
-  try
-    if AData.IsPoint then begin
-      VPointLL := AData.Points[0];
-      VConverter.CheckLonLatPos(VPointLL);
-      VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL);
-      VRect.BottomRight := VRect.TopLeft;
-      Dec(VRect.Left, 3);
-      Dec(VRect.Top, 3);
-      Inc(VRect.Right, 3);
-      Inc(VRect.Bottom, 3);
-      Layer.Bitmap.Lock;
-      try
-        Layer.Bitmap.FillRectS(VRect, AColorBG);
-      finally
-        Layer.Bitmap.Unlock;
-      end;
-      Inc(VRect.Left);
-      Inc(VRect.Top);
-      Dec(VRect.Right);
-      Dec(VRect.Bottom);
-      Layer.Bitmap.Lock;
-      try
-        Layer.Bitmap.FillRectS(VRect, APointColor);
-      finally
-        Layer.Bitmap.Unlock;
-      end;
-    end else begin
-      VLen := Length(AData.Points);
-      if Length(FFixedPointArray) < VLen then begin
-        SetLength(FFixedPointArray, VLen);
-      end;
-      for i := 0 to VLen - 1 do begin
-        VPointLL := AData.Points[i];
-        VConverter.CheckLonLatPos(VPointLL);
-        VPointOnBitmap := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
-        FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
-      end;
-      VPolygon.AddPoints(FFixedPointArray[0], VLen);
-      Layer.Bitmap.Lock;
-      try
-        VPolygon.DrawEdge(Layer.Bitmap, AColorBG);
-      finally
-        Layer.Bitmap.Unlock;
-      end;
-      VPolygon.Offset(Fixed(0.9), Fixed(0.9));
-      Layer.Bitmap.Lock;
-      try
-        VPolygon.DrawEdge(Layer.Bitmap, AColorMain);
-      finally
-        Layer.Bitmap.Unlock;
-      end;
+  if AData.IsPoint then begin
+    VPointLL := AData.Points[0];
+    VConverter.CheckLonLatPos(VPointLL);
+    VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL);
+    VRect.BottomRight := VRect.TopLeft;
+    Dec(VRect.Left, 3);
+    Dec(VRect.Top, 3);
+    Inc(VRect.Right, 3);
+    Inc(VRect.Bottom, 3);
+    Layer.Bitmap.Lock;
+    try
+      Layer.Bitmap.FillRectS(VRect, AColorBG);
+    finally
+      Layer.Bitmap.Unlock;
     end;
-  finally
-    FreeAndNil(VPolygon);
+    Inc(VRect.Left);
+    Inc(VRect.Top);
+    Dec(VRect.Right);
+    Dec(VRect.Bottom);
+    Layer.Bitmap.Lock;
+    try
+      Layer.Bitmap.FillRectS(VRect, APointColor);
+    finally
+      Layer.Bitmap.Unlock;
+    end;
+  end else begin
+    VLen := Length(AData.Points);
+    if Length(FFixedPointArray) < VLen then begin
+      SetLength(FFixedPointArray, VLen);
+    end;
+    for i := 0 to VLen - 1 do begin
+      VPointLL := AData.Points[i];
+      VConverter.CheckLonLatPos(VPointLL);
+      VPointOnBitmap := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
+      FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
+    end;
+    FPolygon.Clear;
+    FPolygon.AddPoints(FFixedPointArray[0], VLen);
+    Layer.Bitmap.Lock;
+    try
+      FPolygon.DrawEdge(Layer.Bitmap, AColorBG);
+    finally
+      Layer.Bitmap.Unlock;
+    end;
+    FPolygon.Offset(Fixed(0.9), Fixed(0.9));
+    Layer.Bitmap.Lock;
+    try
+      FPolygon.DrawEdge(Layer.Bitmap, AColorMain);
+    finally
+      Layer.Bitmap.Unlock;
+    end;
   end;
 end;
 
