@@ -15,6 +15,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_InternalPerformanceCounter,
   i_ViewPortState,
   u_MapLayerBasic;
 
@@ -23,6 +24,7 @@ type
   private
     FDrawTask: IBackgroundTask;
     FUpdateCounter: Integer;
+    FBgDrawCounter: IInternalPerformanceCounter;
     procedure OnDrawBitmap(AIsStop: TIsCancelChecker);
     procedure OnTimer(Sender: TObject);
   protected
@@ -33,6 +35,7 @@ type
     procedure SetNeedRedraw; override;
     procedure SetNeedUpdateLayerSize; override;
     procedure DoRedraw; override;
+    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
     constructor Create(
       AParentMap: TImage32;
@@ -111,8 +114,15 @@ begin
 end;
 
 procedure TMapLayerWithThreadDraw.OnDrawBitmap(AIsStop: TIsCancelChecker);
+var
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  DrawBitmap(AIsStop);
+  VCounterContext := FBgDrawCounter.StartOperation;
+  try
+    DrawBitmap(AIsStop);
+  finally
+    FBgDrawCounter.FinishOperation(VCounterContext);
+  end;
 end;
 
 procedure TMapLayerWithThreadDraw.OnTimer(Sender: TObject);
@@ -143,6 +153,13 @@ procedure TMapLayerWithThreadDraw.SetNeedUpdateLayerSize;
 begin
   FDrawTask.StopExecute;
   inherited;
+end;
+
+procedure TMapLayerWithThreadDraw.SetPerfList(
+  const Value: IInternalPerformanceCounterList);
+begin
+  inherited;
+  FBgDrawCounter := Value.CreateAndAddNewCounter('BgDraw');
 end;
 
 procedure TMapLayerWithThreadDraw.StartThreads;
