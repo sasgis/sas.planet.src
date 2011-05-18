@@ -4,17 +4,19 @@ interface
 
 uses
   Classes,
+  i_InternalPerformanceCounter,
   u_WindowLayerBasic;
 
 type
   TWindowLayerBasicList = class
   private
     FList: TList;
+    FPerfList: IInternalPerformanceCounterList;
     function GetCount: Integer;
   protected
     function Get(AIndex: Integer): TWindowLayerAbstract;
   public
-    constructor Create;
+    constructor Create(AParentPerfList: IInternalPerformanceCounterList);
     destructor Destroy; override;
     function Add(AItem: TWindowLayerAbstract): Integer;
     procedure StartThreads;
@@ -30,14 +32,10 @@ uses
 
 { TWindowLayerBasicList }
 
-function TWindowLayerBasicList.Add(AItem: TWindowLayerAbstract): Integer;
-begin
-  Result := FList.Add(AItem);
-end;
-
-constructor TWindowLayerBasicList.Create;
+constructor TWindowLayerBasicList.Create(AParentPerfList: IInternalPerformanceCounterList);
 begin
   FList := TList.Create;;
+  FPerfList := AParentPerfList.CreateAndAddNewSubList('Layer');
 end;
 
 destructor TWindowLayerBasicList.Destroy;
@@ -49,6 +47,12 @@ begin
   end;
   FreeAndNil(FList);
   inherited;
+end;
+
+function TWindowLayerBasicList.Add(AItem: TWindowLayerAbstract): Integer;
+begin
+  AItem.PerfList := FPerfList.CreateAndAddNewSubList(AItem.ClassName);
+  Result := FList.Add(AItem);
 end;
 
 function TWindowLayerBasicList.Get(AIndex: Integer): TWindowLayerAbstract;

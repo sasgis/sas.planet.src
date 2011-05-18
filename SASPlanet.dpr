@@ -556,7 +556,7 @@ begin
     Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
     Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
     if GState.ShowDebugInfo then begin
-      Application.CreateForm(TfrmDebugInfo, frmDebugInfo);
+      frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
     end;
     GState.StartExceptionTracking;
     try

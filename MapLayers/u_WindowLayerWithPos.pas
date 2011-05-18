@@ -10,6 +10,7 @@ uses
   GR32_Image,
   i_LocalCoordConverter,
   i_ViewPortState,
+  i_InternalPerformanceCounter,
   u_WindowLayerBasic;
 
 type
@@ -57,6 +58,7 @@ type
     FNeedRedraw: Boolean;
     FNeedUpdateLocation: Boolean;
     FNeedRedrawCS: TCriticalSection;
+    FRedrawCounter: IInternalPerformanceCounter;
   protected
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean); virtual;
@@ -83,6 +85,7 @@ type
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     procedure DoViewUpdate; override;
+    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
     constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState; AListenScaleChange: Boolean);
     destructor Destroy; override;
@@ -372,10 +375,7 @@ end;
 
 procedure TWindowLayerBasic.Redraw;
 var
-  VPerformanceCounterBegin: Int64;
-  VPerformanceCounterEnd: Int64;
-  VPerformanceCounterFr: Int64;
-  VUpdateTime: TDateTime;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
   if FVisible then begin
     FNeedRedrawCS.Acquire;
@@ -384,14 +384,11 @@ begin
     finally
       FNeedRedrawCS.Release;
     end;
-    QueryPerformanceCounter(VPerformanceCounterBegin);
+    VCounterContext := FRedrawCounter.StartOperation;
     try
       DoRedraw;
     finally
-      QueryPerformanceCounter(VPerformanceCounterEnd);
-      QueryPerformanceFrequency(VPerformanceCounterFr);
-      VUpdateTime := (VPerformanceCounterEnd - VPerformanceCounterBegin) / VPerformanceCounterFr/24/60/60;
-      IncRedrawCounter(VUpdateTime);
+      FRedrawCounter.FinishOperation(VCounterContext);
     end;
   end;
 end;
@@ -441,6 +438,13 @@ begin
   finally
     FNeedRedrawCS.Release;
   end;
+end;
+
+procedure TWindowLayerBasic.SetPerfList(
+  const Value: IInternalPerformanceCounterList);
+begin
+  inherited;
+  FRedrawCounter := Value.CreateAndAddNewCounter('Redraw');
 end;
 
 procedure TWindowLayerBasic.SetVisible(const Value: Boolean);

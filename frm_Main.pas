@@ -676,7 +676,7 @@ begin
   FNCopyLinkItemList := TGUIDObjectList.Create(False);
   FNLayerInfoItemList := TGUIDObjectList.Create(False);
 
-  FLayersList := TWindowLayerBasicList.Create;
+  FLayersList := TWindowLayerBasicList.Create(GState.PerfCounterList);
   FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnWinPositionChange),
@@ -3639,7 +3639,7 @@ end;
 procedure TfrmMain.tbitmShowDebugInfoClick(Sender: TObject);
 begin
   if frmDebugInfo <> nil then begin
-    frmDebugInfo.ShowStatistic(FLayersList);
+    frmDebugInfo.Show;
   end;
 end;
 
