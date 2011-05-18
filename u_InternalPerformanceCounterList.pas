@@ -7,6 +7,7 @@ uses
   Classes,
   SyncObjs,
   ActiveX,
+  i_IDList,
   i_InternalPerformanceCounter;
 
 type
@@ -14,9 +15,11 @@ type
   private
     FList: IInterfaceList;
     FName: string;
+    procedure AppendStaticListByCounterList(AResultList: IIDInterfaceList; ACounterList: IInternalPerformanceCounterList);
   protected
     function GetName: string;
 
+    function GetStaticDataList: IIDInterfaceList;
     function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(AName: string): IInternalPerformanceCounterList;
@@ -27,10 +30,31 @@ type
 implementation
 
 uses
+  SysUtils,
   u_EnumUnknown,
+  u_IDInterfaceList,
   u_InternalPerformanceCounter;
 
 { TInternalPerformanceCounterList }
+
+procedure TInternalPerformanceCounterList.AppendStaticListByCounterList(
+  AResultList: IIDInterfaceList; ACounterList: IInternalPerformanceCounterList);
+var
+  VEnum: IEnumUnknown;
+  Vcnt: Integer;
+  VUnknown: IInterface;
+  VCounter: IInternalPerformanceCounter;
+  VList: IInternalPerformanceCounterList;
+begin
+  VEnum := ACounterList.GetEunm;
+  while VEnum.Next(1, VUnknown, @Vcnt)=S_OK do begin
+    if Supports(VUnknown, IInternalPerformanceCounter, VCounter) then begin
+      AResultList.Add(VCounter.Id, VCounter.GetStaticData);
+    end else if Supports(VUnknown, IInternalPerformanceCounterList, VList) then begin
+      AppendStaticListByCounterList(AResultList, VList);
+    end;
+  end;
+end;
 
 constructor TInternalPerformanceCounterList.Create(AName: string);
 begin
@@ -60,6 +84,12 @@ end;
 function TInternalPerformanceCounterList.GetName: string;
 begin
   Result := FName;
+end;
+
+function TInternalPerformanceCounterList.GetStaticDataList: IIDInterfaceList;
+begin
+  Result := TIDInterfaceList.Create;
+  AppendStaticListByCounterList(Result, Self);
 end;
 
 end.

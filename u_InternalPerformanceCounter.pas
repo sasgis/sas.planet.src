@@ -13,11 +13,13 @@ type
   private
     FCS: TCriticalSection;
 
+    FId: Integer;
     FName: string;
     FCounter: Cardinal;
     FTotalTime: TDateTime;
     FLastTimeInSeconds: Double;
   protected
+    function GetId: Integer;
     function GetName: string;
 
     function StartOperation: TInternalPerformanceCounterContext;
@@ -26,9 +28,30 @@ type
     function GetCounter: Cardinal;
     function GetTotalTime: TDateTime;
     function GetLastTimeInSeconds: Double;
+    function GetStaticData: IInternalPerformanceCounterStaticData;
   public
     constructor Create(AName: string);
     destructor Destroy; override;
+  end;
+
+  TInternalPerformanceCounterStaticData = class(TInterfacedObject, IInternalPerformanceCounterStaticData)
+  private
+    FId: Integer;
+    FName: string;
+    FCounter: Cardinal;
+    FTotalTime: TDateTime;
+  protected
+    function GetId: Integer;
+    function GetName: string;
+    function GetCounter: Cardinal;
+    function GetTotalTime: TDateTime;
+  public
+    constructor Create(
+      AId: Integer;
+      AName: string;
+      ACounter: Cardinal;
+      ATotalTime: TDateTime
+    );
   end;
 
 implementation
@@ -40,6 +63,7 @@ uses
 
 constructor TInternalPerformanceCounter.Create(AName: string);
 begin
+  FId := Integer(Self);
   FName := AName;
   FCS := TCriticalSection.Create;
 end;
@@ -79,6 +103,11 @@ begin
   Result := FCounter;
 end;
 
+function TInternalPerformanceCounter.GetId: Integer;
+begin
+  Result := FId;
+end;
+
 function TInternalPerformanceCounter.GetLastTimeInSeconds: Double;
 begin
   Result := FLastTimeInSeconds;
@@ -94,11 +123,53 @@ begin
   Result := FName;
 end;
 
+function TInternalPerformanceCounter.GetStaticData: IInternalPerformanceCounterStaticData;
+begin
+  Result :=
+    TInternalPerformanceCounterStaticData.Create(
+      FId,
+      FName,
+      FCounter,
+      FTotalTime
+    );
+end;
+
 function TInternalPerformanceCounter.StartOperation: TInternalPerformanceCounterContext;
 begin
   if not QueryPerformanceCounter(Result) then begin
     Result := 0;
   end;
+end;
+
+{ TInternalPerformanceCounterStaticData }
+
+constructor TInternalPerformanceCounterStaticData.Create(AId: Integer;
+  AName: string; ACounter: Cardinal; ATotalTime: TDateTime);
+begin
+  FId := AId;
+  FName := AName;
+  FCounter := ACounter;
+  FTotalTime := ATotalTime;
+end;
+
+function TInternalPerformanceCounterStaticData.GetCounter: Cardinal;
+begin
+  Result := FCounter;
+end;
+
+function TInternalPerformanceCounterStaticData.GetId: Integer;
+begin
+  Result := FId;
+end;
+
+function TInternalPerformanceCounterStaticData.GetName: string;
+begin
+  Result := FName;
+end;
+
+function TInternalPerformanceCounterStaticData.GetTotalTime: TDateTime;
+begin
+  Result := FTotalTime;
 end;
 
 end.
