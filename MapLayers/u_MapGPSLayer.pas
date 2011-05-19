@@ -3,6 +3,7 @@ unit u_MapGPSLayer;
 interface
 
 uses
+  Windows,
   Types,
   GR32,
   GR32_Polygons,
@@ -21,9 +22,13 @@ type
   private
     FConfig: IMapLayerGPSTrackConfig;
     FGPSRecorder: IGPSRecorder;
+
+    FGpsPosChangeCounter: Integer;
     FPoints: TGPSTrackPointArray;
     FPolygon: TPolygon32;
     procedure OnConfigChange(Sender: TObject);
+    procedure OnGPSRecorderChange(Sender: TObject);
+    procedure OnTimer(Sender: TObject);
     procedure DrawPath(
       AIsStop: TIsCancelChecker;
       ATargetBmp: TCustomBitmap32;
@@ -74,13 +79,23 @@ begin
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   LinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimer),
+    ATimerNoifier
+  );
+  LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnGPSRecorderChange),
+    FGPSRecorder.GetChangeNotifier
+  );
+
   FPolygon := TPolygon32.Create;
   FPolygon.Antialiased := true;
   FPolygon.AntialiasMode := am4times;
   FPolygon.Closed := false;
+  FGpsPosChangeCounter := 0;
 end;
 
 destructor TMapGPSLayer.Destroy;
@@ -127,8 +142,7 @@ begin
 
   if (VPointsCount > 1) then begin
     VLocalConverter := LayerCoordConverter;
-    FPoints := FGPSRecorder.LastPoints(VPointsCount);
-    VPointsCount := length(FPoints);
+    VPointsCount := FGPSRecorder.LastPoints(VPointsCount, FPoints);
     if (VPointsCount > 1) then begin
       if not AIsStop then begin
         VTileToDrawBmp := TCustomBitmap32.Create;
@@ -269,6 +283,18 @@ begin
     ViewUpdateUnlock;
   end;
   ViewUpdate;
+end;
+
+procedure TMapGPSLayer.OnGPSRecorderChange(Sender: TObject);
+begin
+  InterlockedIncrement(FGpsPosChangeCounter);
+end;
+
+procedure TMapGPSLayer.OnTimer(Sender: TObject);
+begin
+  if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
+    Redraw;
+  end;
 end;
 
 procedure TMapGPSLayer.StartThreads;

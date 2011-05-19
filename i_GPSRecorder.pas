@@ -21,7 +21,7 @@ type
     procedure AddPoint(APosition: IGPSPosition);
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    function LastPoints(ACount: Integer): TGPSTrackPointArray;
+    function LastPoints(AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
     function GetAllPoints: TArrayOfDoublePoint;
     function GetAllTracPoints: TGPSTrackPointArray;
 

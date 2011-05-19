@@ -1859,7 +1859,6 @@ begin
               end;
           end;
         end;
-        FLayerMapGPS.Redraw;
       end;
     end;
   end;
@@ -3376,7 +3375,6 @@ begin
   finally
     GState.GPSRecorder.UnlockWrite;
   end;
-  FLayerMapGPS.Redraw;
 end;
 
 procedure TfrmMain.NGShScale01Click(Sender: TObject);

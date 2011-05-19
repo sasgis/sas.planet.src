@@ -41,7 +41,7 @@ type
     procedure AddPoint(APosition: IGPSPosition);
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    function LastPoints(ACount: Integer): TGPSTrackPointArray;
+    function LastPoints(AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
     function GetAllPoints: TArrayOfDoublePoint;
     function GetAllTracPoints: TGPSTrackPointArray;
 
@@ -317,21 +317,29 @@ begin
   end;
 end;
 
-function TGPSRecorderStuped.LastPoints(ACount: Integer): TGPSTrackPointArray;
+function TGPSRecorderStuped.LastPoints(
+  AMaxCount: Integer;
+  var APoints: TGPSTrackPointArray
+): Integer;
 var
-  VPointsToCopyCount: Integer;
   VStartIndex: Integer;
 begin
   LockRead;
   try
-    VPointsToCopyCount := ACount;
-    if FPointsCount <= VPointsToCopyCount then begin
-      VPointsToCopyCount := FPointsCount;
+    Result := AMaxCount;
+    if FPointsCount <= Result then begin
+      Result := FPointsCount;
       VStartIndex := 0;
     end else begin
-      VStartIndex :=FPointsCount - VPointsToCopyCount;
+      VStartIndex :=FPointsCount - Result;
     end;
-    Result := Copy(FTrack, VStartIndex, VPointsToCopyCount);
+    if Result > 0 then begin
+      if Length(APoints) < Result then begin
+        SetLength(APoints, Result);
+      end;
+      System.Move(FTrack[VStartIndex], APoints[0],
+        (Result) * SizeOf(TGPSTrackPoint));
+    end;
   finally
     UnlockRead;
   end;
