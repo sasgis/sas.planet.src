@@ -18,6 +18,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_KmlLayerConfig,
+  i_ImageResamplerConfig,
   i_LocalCoordConverter,
   i_ViewPortState,
   i_VectorDataItemSimple,
@@ -62,6 +63,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AResamplerConfig: IImageResamplerConfig;
       ATimerNoifier: IJclNotifier;
       AConfig: IKmlLayerConfig;
       ALayersSet: IActiveMapsSet
@@ -89,12 +91,13 @@ uses
 constructor TWikiLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AResamplerConfig: IImageResamplerConfig;
   ATimerNoifier: IJclNotifier;
   AConfig: IKmlLayerConfig;
   ALayersSet: IActiveMapsSet
 );
 begin
-  inherited Create(AParentMap, AViewPortState, nil, ATimerNoifier, tpLower);
+  inherited Create(AParentMap, AViewPortState, AResamplerConfig, ATimerNoifier, tpLower);
   FConfig := AConfig;
   FLayersSet := ALayersSet;
 
