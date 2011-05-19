@@ -35,7 +35,6 @@ type
     FFixedPointArray: TArrayOfFixedPoint;
     FPolygon: TPolygon32;
 
-    procedure addWL(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
     procedure DrawWikiElement(
       AColorMain: TColor32;
       AColorBG: TColor32;
@@ -43,7 +42,9 @@ type
       AData: IVectorDataItemSimple;
       ALocalConverter: ILocalCoordConverter
     );
-    procedure AddFromLayer(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
+    procedure AddWikiElement(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
+    procedure AddElementsFromMap(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
+    procedure PrepareWikiElements(AIsStop: TIsCancelChecker; ALocalConverter: ILocalCoordConverter);
     procedure OnConfigChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
   protected
@@ -113,7 +114,28 @@ begin
   inherited;
 end;
 
-procedure TWikiLayer.AddFromLayer(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
+procedure TWikiLayer.AddWikiElement(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
+var
+  VConverter: ICoordConverter;
+  VSize: TPoint;
+  VLLRect: TDoubleRect;
+  VBounds: TDoubleRect;
+begin
+  if AData <> nil then begin
+    VSize := ALocalConverter.GetLocalRectSize;
+    VConverter := ALocalConverter.GetGeoConverter;
+    VLLRect := AData.LLRect;
+    VConverter.CheckLonLatRect(VLLRect);
+    VBounds := ALocalConverter.LonLatRect2LocalRectFloat(VLLRect);
+    if AData.IsPoint or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
+      if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
+        FElments.Add(AData);
+      end;
+    end;
+  end;
+end;
+
+procedure TWikiLayer.AddElementsFromMap(Alayer: TMapType; ALocalConverter: ILocalCoordConverter);
 var
   ii: integer;
   kml: IVectorDataItemList;
@@ -140,28 +162,33 @@ begin
   while VTileIterator.Next(VTile) do begin
       if Alayer.LoadTile(kml, VTile, Vzoom, true, True) then begin
         for ii := 0 to KML.Count - 1 do begin
-          addWL(KML.GetItem(ii), ALocalConverter);
+          AddWikiElement(KML.GetItem(ii), ALocalConverter);
         end;
       end;
   end;
 end;
 
-procedure TWikiLayer.addWL(AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
+procedure TWikiLayer.PrepareWikiElements(AIsStop: TIsCancelChecker; ALocalConverter: ILocalCoordConverter);
 var
-  VConverter: ICoordConverter;
-  VSize: TPoint;
-  VLLRect: TDoubleRect;
-  VBounds: TDoubleRect;
+  VHybrList: IMapTypeList;
+  VEnum: IEnumGUID;
+  VGUID: TGUID;
+  Vcnt: Cardinal;
+  VItem: IMapType;
+  VMapType: TMapType;
 begin
-  if AData <> nil then begin
-    VSize := ALocalConverter.GetLocalRectSize;
-    VConverter := ALocalConverter.GetGeoConverter;
-    VLLRect := AData.LLRect;
-    VConverter.CheckLonLatRect(VLLRect);
-    VBounds := ALocalConverter.LonLatRect2LocalRectFloat(VLLRect);
-    if AData.IsPoint or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
-      if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
-        FElments.Add(AData);
+  FElments.Clear;
+  VHybrList := FMapsList;
+  if VHybrList <> nil then begin
+    VEnum := VHybrList.GetIterator;
+    while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
+      VItem := VHybrList.GetMapTypeByGUID(VGUID);
+      VMapType := VItem.GetMapType;
+      if VMapType.IsKmlTiles then begin
+        AddElementsFromMap(VMapType, ALocalConverter);
+        if AIsStop then begin
+          Break;
+        end;
       end;
     end;
   end;
@@ -197,12 +224,6 @@ end;
 
 procedure TWikiLayer.DrawBitmap(AIsStop: TIsCancelChecker);
 var
-  i: Cardinal;
-  VMapType: TMapType;
-  VGUID: TGUID;
-  VItem: IMapType;
-  VEnum: IEnumGUID;
-  VHybrList: IMapTypeList;
   ii: Integer;
   VLocalConverter: ILocalCoordConverter;
   VColorMain: TColor32;
@@ -210,7 +231,6 @@ var
   VPointColor: TColor32;
 begin
   inherited;
-  FElments.Clear;
   FConfig.LockRead;
   try
     VColorMain := FConfig.MainColor;
@@ -219,20 +239,9 @@ begin
   finally
     FConfig.UnlockRead;
   end;
-  VHybrList := FMapsList;
-  if VHybrList <> nil then begin
-    VLocalConverter := LayerCoordConverter;
-    VEnum := VHybrList.GetIterator;
-    while VEnum.Next(1, VGUID, i) = S_OK do begin
-      VItem := VHybrList.GetMapTypeByGUID(VGUID);
-      VMapType := VItem.GetMapType;
-      if VMapType.IsKmlTiles then begin
-        AddFromLayer(VMapType, VLocalConverter);
-        if AIsStop then begin
-          Break;
-        end;
-      end;
-    end;
+  VLocalConverter := LayerCoordConverter;
+  PrepareWikiElements(AIsStop, VLocalConverter);
+  if FElments.Count > 0 then begin
     if not AIsStop then begin
       for ii := 0 to FElments.Count - 1 do begin
         DrawWikiElement(VColorMain, VColorBG, VPointColor,IVectorDataItemSimple(Pointer(FElments[ii])), VLocalConverter);
