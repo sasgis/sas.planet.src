@@ -37,7 +37,13 @@ type
       ALineWidth: Double;
       APointsCount: Integer
     );
-
+    procedure DrawSection(
+      ATargetBmp: TCustomBitmap32;
+      ATrackColorer: ITrackColorerStatic;
+      ALineWidth: Double;
+      APointPrev, APointCurr: TDoublePoint;
+      ASpeed: Double
+    );
   protected
     procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
   public
@@ -59,6 +65,7 @@ uses
   Classes,
   Graphics,
   SysUtils,
+  GR32_Math,
   i_CoordConverter,
   i_TileIterator,
   u_GeoFun,
@@ -206,52 +213,80 @@ procedure TMapGPSLayer.DrawPath(
   ALineWidth: Double;
   APointsCount: Integer
 );
+  function GetCode(ALLRect: TDoubleRect; ALL: TDoublePoint): Byte;
+  //  Смысл разрядов кода:
+  //
+  // 1 рр = 1 - точка над верхним краем окна;
+  //
+  // 2 рр = 1 - точка под нижним краем окна;
+  //
+  // 3 рр = 1 - точка справа от правого края окна;
+  //
+  // 4 рр = 1 - точка слева от левого края окна.
+  begin
+    Result := 0;
+    if ALLRect.Top < ALL.Y then begin
+      Result := 1;
+    end else if ALLRect.Bottom > ALL.Y then begin
+      Result := 2
+    end;
+
+    if ALLRect.Left > ALL.X then begin
+      Result := Result or 8;
+    end else if ALLRect.Right < ALL.X then begin
+      Result := Result or 4
+    end;
+
+  end;
 var
-  VMapPointPrev: TDoublePoint;
+  VPointPrevLL: TDoublePoint;
   VPointPrevIsEmpty: Boolean;
+  VPointPrevLLCode: Byte;
   VPointPrev: TDoublePoint;
   i: Integer;
-  VMapPointCurr: TDoublePoint;
+  VPointCurrLL: TDoublePoint;
   VPointCurrIsEmpty: Boolean;
+  VPointCurrLLCode: Byte;
   VPointCurr: TDoublePoint;
-  VFixedPointsPair: array [0..1] of TFixedPoint;
-  VSegmentColor: TColor32;
   VIsChangePrevPoint: Boolean;
+
+  VGeoConvert: ICoordConverter;
+  VZoom: Byte;
+  VMapPixelRect: TDoubleRect;
+  VLLRect: TDoubleRect;
 begin
-  VMapPointPrev := FPoints[APointsCount - 1].Point;
-  VPointPrevIsEmpty := PointIsEmpty(VMapPointPrev);
+  VGeoConvert := ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
+  VGeoConvert.CheckPixelRectFloat(VMapPixelRect, VZoom);
+  VLLRect := VGeoConvert.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+
+  VPointCurrLLCode := 0;
+  VPointPrevLLCode := 0;
+  VPointPrevLL := FPoints[APointsCount - 1].Point;
+  VPointPrevIsEmpty := PointIsEmpty(VPointPrevLL);
   if not VPointPrevIsEmpty then begin
-    VPointPrev := ALocalConverter.LonLat2LocalPixelFloat(VMapPointPrev);
+    VPointPrevLLCode := GetCode(VLLRect, VPointPrevLL);
+    VPointPrev := ALocalConverter.LonLat2LocalPixelFloat(VPointPrevLL);
   end;
   for i := APointsCount - 2 downto 0 do begin
-    VMapPointCurr := FPoints[i].Point;
-    VPointCurrIsEmpty := PointIsEmpty(VMapPointCurr);
+    VPointCurrLL := FPoints[i].Point;
+    VPointCurrIsEmpty := PointIsEmpty(VPointCurrLL);
     if not VPointCurrIsEmpty then begin
-      VPointCurr := ALocalConverter.LonLat2LocalPixelFloat(VMapPointCurr);
+      VPointCurrLLCode := GetCode(VLLRect, VPointCurrLL);
+      VPointCurr := ALocalConverter.LonLat2LocalPixelFloat(VPointCurrLL);
       if not VPointPrevIsEmpty then begin
-        if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
-          if (VPointPrev.x < 32767) and (VPointPrev.x > -32767) and (VPointPrev.y < 32767) and (VPointPrev.y > -32767) then begin
-            VFixedPointsPair[0] := FixedPoint(VPointPrev.X, VPointPrev.Y);
-            VFixedPointsPair[1] := FixedPoint(VPointCurr.X, VPointCurr.Y);
-            FPolygon.Clear;
-            FPolygon.AddPoints(VFixedPointsPair[0], 2);
-            with FPolygon.Outline do try
-              with Grow(Fixed(ALineWidth / 2), 0.5) do try
-                VSegmentColor := ATrackColorer.GetColorForSpeed(FPoints[i].Speed);
-                if not AIsStop then begin
-                  DrawFill(ATargetBmp, VSegmentColor);
-                end;
-              finally
-                free;
-              end;
-            finally
-              free;
+        if (VPointPrevLLCode and VPointCurrLLCode) = 0 then begin
+          if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
+            if not AIsStop then begin
+              DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrev, VPointCurr,  FPoints[i].Speed);
             end;
-            FPolygon.Clear;
+            VIsChangePrevPoint := True;
+          end else begin
+            VIsChangePrevPoint := False;
           end;
-          VIsChangePrevPoint := True;
         end else begin
-          VIsChangePrevPoint := False;
+          VIsChangePrevPoint := True;
         end;
       end else begin
         VIsChangePrevPoint := True;
@@ -260,9 +295,10 @@ begin
       VIsChangePrevPoint := True;
     end;
     if VIsChangePrevPoint then begin
-      VMapPointPrev := VMapPointCurr;
+      VPointPrevLL := VPointCurrLL;
       VPointPrev := VPointCurr;
       VPointPrevIsEmpty := VPointCurrIsEmpty;
+      VPointPrevLLCode := VPointCurrLLCode;
     end;
     if AIsStop then begin
       Break;
@@ -270,6 +306,35 @@ begin
   end;
   if not AIsStop then begin
     SetBitmapChanged;
+  end;
+end;
+
+procedure TMapGPSLayer.DrawSection(
+  ATargetBmp: TCustomBitmap32;
+  ATrackColorer: ITrackColorerStatic;
+  ALineWidth: Double;
+  APointPrev, APointCurr: TDoublePoint;
+  ASpeed: Double);
+var
+  VFixedPointsPair: array [0..10] of TFixedPoint;
+  VSegmentColor: TColor32;
+begin
+  if (APointPrev.x < 32767) and (APointPrev.x > -32767) and (APointPrev.y < 32767) and (APointPrev.y > -32767) then begin
+    VFixedPointsPair[0] := FixedPoint(APointPrev.X, APointPrev.Y);
+    VFixedPointsPair[1] := FixedPoint(APointCurr.X, APointCurr.Y);
+    FPolygon.Clear;
+    FPolygon.AddPoints(VFixedPointsPair[0], 2);
+    with FPolygon.Outline do try
+      with Grow(Fixed(ALineWidth / 2), 0.5) do try
+        VSegmentColor := ATrackColorer.GetColorForSpeed(ASpeed);
+        DrawFill(ATargetBmp, VSegmentColor);
+      finally
+        free;
+      end;
+    finally
+      free;
+    end;
+    FPolygon.Clear;
   end;
 end;
 
