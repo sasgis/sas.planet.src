@@ -24,7 +24,7 @@ uses
   u_MapLayerWithThreadDraw;
 
 type
-  TWikiLayer = class(TMapLayerWithThreadDraw)
+  TWikiLayer = class(TMapLayerTiledWithThreadDraw)
   private
     FConfig: IKmlLayerConfig;
     FLayersSet: IActiveMapsSet;
@@ -36,6 +36,7 @@ type
     FPolygon: TPolygon32;
 
     procedure DrawWikiElement(
+      ATargetBmp: TCustomBitmap32;
       AColorMain: TColor32;
       AColorBG: TColor32;
       APointColor: TColor32;
@@ -47,6 +48,14 @@ type
     procedure PrepareWikiElements(AIsStop: TIsCancelChecker; ALocalConverter: ILocalCoordConverter);
     procedure OnConfigChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
+    procedure GetBitmapRect(
+      AIsStop: TIsCancelChecker;
+      ATargetBmp: TCustomBitmap32;
+      ALocalConverter: ILocalCoordConverter;
+      AColorMain: TColor32;
+      AColorBG: TColor32;
+      APointColor: TColor32
+    );
   protected
     procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
   public
@@ -72,7 +81,8 @@ uses
   i_CoordConverter,
   i_TileIterator,
   u_NotifyEventListener,
-  u_TileIteratorByRect;
+  u_TileIteratorByRect,
+  u_TileIteratorSpiralByRect;
 
 { TWikiLayer }
 
@@ -84,7 +94,7 @@ constructor TWikiLayer.Create(
   ALayersSet: IActiveMapsSet
 );
 begin
-  inherited Create(AParentMap, AViewPortState, ATimerNoifier, tpLower);
+  inherited Create(AParentMap, AViewPortState, nil, ATimerNoifier, tpLower);
   FConfig := AConfig;
   FLayersSet := ALayersSet;
 
@@ -224,11 +234,28 @@ end;
 
 procedure TWikiLayer.DrawBitmap(AIsStop: TIsCancelChecker);
 var
-  ii: Integer;
   VLocalConverter: ILocalCoordConverter;
   VColorMain: TColor32;
   VColorBG: TColor32;
   VPointColor: TColor32;
+  VTileToDrawBmp: TCustomBitmap32;
+  VTileIterator: ITileIterator;
+  VGeoConvert: ICoordConverter;
+
+  VZoom: Byte;
+  { Прямоугольник пикселей растра в координатах основного конвертера }
+  VBitmapOnMapPixelRect: TRect;
+  { Прямоугольник тайлов текущего зума, покрывающий растр, в кооординатах
+    основного конвертера }
+  VTileSourceRect: TRect;
+  { Текущий тайл в кооординатах основного конвертера }
+  VTile: TPoint;
+  { Прямоугольник пикслов текущего тайла в кооординатах основного конвертера }
+  VCurrTilePixelRect: TRect;
+  { Прямоугольник тайла подлежащий отображению на текущий растр }
+  VTilePixelsToDraw: TRect;
+  { Прямоугольник пикселов в которые будет скопирован текущий тайл }
+  VCurrTileOnBitmapRect: TRect;
 begin
   inherited;
   FConfig.LockRead;
@@ -243,20 +270,97 @@ begin
   PrepareWikiElements(AIsStop, VLocalConverter);
   if FElments.Count > 0 then begin
     if not AIsStop then begin
-      for ii := 0 to FElments.Count - 1 do begin
-        DrawWikiElement(VColorMain, VColorBG, VPointColor,IVectorDataItemSimple(Pointer(FElments[ii])), VLocalConverter);
-        if AIsStop then begin
-          Break;
+      VTileToDrawBmp := TCustomBitmap32.Create;
+      try
+        VGeoConvert := VLocalConverter.GetGeoConverter;
+        VZoom := VLocalConverter.GetZoom;
+
+        VBitmapOnMapPixelRect := VLocalConverter.GetRectInMapPixel;
+        VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
+
+        VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
+        VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
+        while VTileIterator.Next(VTile) do begin
+          if AIsStop then begin
+            break;
+          end;
+          VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
+
+          VTilePixelsToDraw.TopLeft := Point(0, 0);
+          VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
+          VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
+
+          VCurrTileOnBitmapRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
+          VCurrTileOnBitmapRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+
+          VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
+          VTileToDrawBmp.Clear(0);
+          GetBitmapRect(
+            AIsStop,
+            VTileToDrawBmp,
+            CreateConverterForTileImage(VGeoConvert, VTile, VZoom),
+            VColorMain,
+            VColorBG,
+            VPointColor
+          );
+
+          Layer.Bitmap.Lock;
+          try
+            if AIsStop then begin
+              break;
+            end;
+            Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+            SetBitmapChanged;
+          finally
+            Layer.Bitmap.UnLock;
+          end;
         end;
+      finally
+        VTileToDrawBmp.Free;
       end;
     end;
-    if not AIsStop then begin
-      SetBitmapChanged;
+  end;
+end;
+
+procedure TWikiLayer.GetBitmapRect(
+  AIsStop: TIsCancelChecker;
+  ATargetBmp: TCustomBitmap32;
+  ALocalConverter: ILocalCoordConverter; AColorMain, AColorBG,
+  APointColor: TColor32);
+var
+  i: Integer;
+  VItem: IVectorDataItemSimple;
+  VZoom: Byte;
+  VGeoConvert: ICoordConverter;
+  VMapPixelRect: TDoubleRect;
+  VLLRect: TDoubleRect;
+  VMarkLonLatRect: TDoubleRect;
+begin
+  VGeoConvert := ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
+  VGeoConvert.CheckPixelRectFloat(VMapPixelRect, VZoom);
+  VLLRect := VGeoConvert.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+
+  for i := 0 to FElments.Count - 1 do begin
+    VItem := IVectorDataItemSimple(FElments[i]);
+    VMarkLonLatRect := VItem.LLRect;
+    if(
+      (VLLRect.Right >= VMarkLonLatRect.Left)and
+      (VLLRect.Left <= VMarkLonLatRect.Right)and
+      (VLLRect.Bottom <= VMarkLonLatRect.Top)and
+      (VLLRect.Top >= VMarkLonLatRect.Bottom))
+    then begin
+      DrawWikiElement(ATargetBmp, AColorMain, AColorBG, APointColor, VItem, ALocalConverter);
+      if AIsStop then begin
+        Break;
+      end;
     end;
   end;
 end;
 
 procedure TWikiLayer.DrawWikiElement(
+  ATargetBmp: TCustomBitmap32;
   AColorMain: TColor32;
   AColorBG: TColor32;
   APointColor: TColor32;
@@ -281,22 +385,12 @@ begin
     Dec(VRect.Top, 3);
     Inc(VRect.Right, 3);
     Inc(VRect.Bottom, 3);
-    Layer.Bitmap.Lock;
-    try
-      Layer.Bitmap.FillRectS(VRect, AColorBG);
-    finally
-      Layer.Bitmap.Unlock;
-    end;
+    ATargetBmp.FillRectS(VRect, AColorBG);
     Inc(VRect.Left);
     Inc(VRect.Top);
     Dec(VRect.Right);
     Dec(VRect.Bottom);
-    Layer.Bitmap.Lock;
-    try
-      Layer.Bitmap.FillRectS(VRect, APointColor);
-    finally
-      Layer.Bitmap.Unlock;
-    end;
+    ATargetBmp.FillRectS(VRect, APointColor);
   end else begin
     VLen := Length(AData.Points);
     if Length(FFixedPointArray) < VLen then begin
@@ -310,19 +404,9 @@ begin
     end;
     FPolygon.Clear;
     FPolygon.AddPoints(FFixedPointArray[0], VLen);
-    Layer.Bitmap.Lock;
-    try
-      FPolygon.DrawEdge(Layer.Bitmap, AColorBG);
-    finally
-      Layer.Bitmap.Unlock;
-    end;
+    FPolygon.DrawEdge(ATargetBmp, AColorBG);
     FPolygon.Offset(Fixed(0.9), Fixed(0.9));
-    Layer.Bitmap.Lock;
-    try
-      FPolygon.DrawEdge(Layer.Bitmap, AColorMain);
-    finally
-      Layer.Bitmap.Unlock;
-    end;
+    FPolygon.DrawEdge(ATargetBmp, AColorMain);
   end;
 end;
 
