@@ -293,7 +293,13 @@ end;
 procedure TMapGPSLayer.OnTimer(Sender: TObject);
 begin
   if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
-    Redraw;
+    ViewUpdateLock;
+    try
+      SetNeedRedraw;
+    finally
+      ViewUpdateUnlock;
+    end;
+    ViewUpdate;
   end;
 end;
 
