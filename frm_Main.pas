@@ -1638,9 +1638,9 @@ begin
           if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
           VZoom := FConfig.ViewPortState.GetCurrentZoom;
           if Msg.wParam<0 then begin
-            VNewZoom := VZoom-(1*z);
+            VNewZoom := VZoom-z;
           end else begin
-            VNewZoom := VZoom+(1*z);
+            VNewZoom := VZoom+z;
           end;
           if VNewZoom < 0 then VNewZoom := 0;
           zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
