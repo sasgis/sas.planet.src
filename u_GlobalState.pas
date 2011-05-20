@@ -295,7 +295,8 @@ begin
       TPltLogWriter.Create(GetTrackLogPath),
       FGPSConfig,
       FGPSRecorder,
-      GUISyncronizedTimerNotifier
+      GUISyncronizedTimerNotifier,
+      FPerfCounterList
     );
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);

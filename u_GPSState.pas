@@ -10,6 +10,7 @@ uses
   i_GPSRecorder,
   i_GPSConfig,
   i_TrackWriter,
+  i_InternalPerformanceCounter,
   i_GPSModuleByCOMFactory,
   i_GPSModuleByCOM;
 
@@ -42,6 +43,7 @@ type
     FWasTimeOut: Boolean;
     FDataRecived: Boolean;
     FInternalState: TInternalState;
+    FDataReceiveCounter: IInternalPerformanceCounter;
 
     procedure OnTimer(Sender: TObject);
     procedure OnGpsConnecting(Sender: TObject);
@@ -55,7 +57,14 @@ type
 
     procedure CreateModuleAndLinks;
   public
-    constructor Create(AGPSModuleFactory: IGPSModuleByCOMFactory; ATrackWriter: ITrackWriter; AConfig: IGPSConfig; AGPSRecorder: IGPSRecorder; ATimerNoifier: IJclNotifier);
+    constructor Create(
+      AGPSModuleFactory: IGPSModuleByCOMFactory;
+      ATrackWriter: ITrackWriter;
+      AConfig: IGPSConfig;
+      AGPSRecorder: IGPSRecorder;
+      ATimerNoifier: IJclNotifier;
+      APerfCounterList: IInternalPerformanceCounterList
+    );
     destructor Destroy; override;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
@@ -82,7 +91,8 @@ constructor TGPSpar.Create(
   ATrackWriter: ITrackWriter;
   AConfig: IGPSConfig;
   AGPSRecorder: IGPSRecorder;
-  ATimerNoifier: IJclNotifier
+  ATimerNoifier: IJclNotifier;
+  APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FConfig := AConfig;
@@ -90,6 +100,7 @@ begin
   FGPSRecorder := AGPSRecorder;
   FGPSModuleFactory := AGPSModuleFactory;
 
+  FDataReceiveCounter := APerfCounterList.CreateAndAddNewCounter('GPS_Process');
   FLinksList := TJclListenerNotifierLinksList.Create;
   FCS := TCriticalSection.Create;
   FModuleState := msDisconnected;
@@ -226,15 +237,21 @@ end;
 procedure TGPSpar.OnGpsDataReceive;
 var
   VPosition: IGPSPosition;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VPosition := FGPSModuleByCOM.Position;
-  FGPSRecorder.AddPoint(VPosition);
-  FLogWriter.AddPoint(VPosition);
-  FCS.Acquire;
+  VCounterContext := FDataReceiveCounter.StartOperation;
   try
-    FDataRecived := True;
+    VPosition := FGPSModuleByCOM.Position;
+    FGPSRecorder.AddPoint(VPosition);
+    FLogWriter.AddPoint(VPosition);
+    FCS.Acquire;
+    try
+      FDataRecived := True;
+    finally
+      FCS.Release;
+    end;
   finally
-    FCS.Release;
+    FDataReceiveCounter.FinishOperation(VCounterContext);
   end;
 end;
 
