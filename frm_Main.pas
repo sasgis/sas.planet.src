@@ -50,6 +50,7 @@ uses
   i_TileErrorLogProviedrStuped,
   u_GeoToStr,
   t_CommonTypes,
+  i_GPS,
   i_GPSRecorder,
   i_GeoCoder,
   i_MarksSimple,
@@ -556,7 +557,7 @@ type
 
     procedure CopyStringToClipboard(s: Widestring);
     procedure setalloperationfalse(newop: TAOperation);
-    procedure UpdateGPSSatellites;
+    procedure UpdateGPSSatellites(APosition: IGPSPosition);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange(Sender: TObject);
@@ -606,7 +607,6 @@ uses
   u_LogForTaskThread,
   u_NotifyEventListener,
   i_MapTypes,
-  i_GPS,
   i_GeoCoderList,
   i_LogSimple,
   i_LogForTaskThread,
@@ -655,6 +655,7 @@ begin
 
   FGpsPosChangeCounter := 0;
   FdWhenMovingButton := 5;
+  FCenterToGPSDelta := DoublePoint(NaN, NaN);
 
   TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
   TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
@@ -1282,14 +1283,22 @@ var
   VGPSMapPoint: TDoublePoint;
   VCenterMapPoint: TDoublePoint;
   VConverter: ILocalCoordConverter;
+  VPosition: IGPSPosition;
 begin
   VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VZoomCurr := VConverter.GetZoom;
-  VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
-  VGPSLonLat := GState.GPSRecorder.LastPosition;
-  VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSLonLat, VConverter.GetZoom);
-  FCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
-  FCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
+
+  VPosition := GState.GPSRecorder.CurrentPosition;
+  if VPosition.IsFix = 0 then begin
+    FCenterToGPSDelta := DoublePoint(NaN, NaN);
+  end else begin
+    VGPSLonLat := VPosition.Position;
+    VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSLonLat, VZoomCurr);
+
+    VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
+    FCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
+    FCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
+  end;
 
   NZoomIn.Enabled:=TBZoomIn.Enabled;
   NZoomOut.Enabled:=TBZoom_Out.Enabled;
@@ -1767,15 +1776,13 @@ begin
   end;
 end;
 
-procedure TfrmMain.UpdateGPSSatellites;
+procedure TfrmMain.UpdateGPSSatellites(APosition: IGPSPosition);
 var
   i,bar_width,bar_height,bar_x1,bar_dy:integer;
-  VPosition: IGPSPosition;
   VSattelite: IGPSSatelliteInfo;
 begin
    TBXSignalStrengthBar.Repaint;
-   VPosition := GState.GPSRecorder.CurrentPosition;
-   if VPosition.Satellites.FixCount > 0 then begin
+   if APosition.Satellites.FixCount > 0 then begin
     with TBXSignalStrengthBar do begin
        Canvas.Lock;
        try
@@ -1783,9 +1790,9 @@ begin
          Canvas.Brush.Color:=clGreen;
          bar_x1:=0;
          bar_dy:=8;
-         bar_width:=((Width-15) div VPosition.Satellites.FixCount);
-         for I := 0 to VPosition.Satellites.Count-1 do begin
-           VSattelite := VPosition.Satellites.Item[i];
+         bar_width:=((Width-15) div APosition.Satellites.FixCount);
+         for I := 0 to APosition.Satellites.Count-1 do begin
+           VSattelite := APosition.Satellites.Item[i];
            if VSattelite.IsFix then begin
              bar_height:=trunc(14*((VSattelite.SignalToNoiseRatio)/100));
              Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
@@ -1817,7 +1824,7 @@ begin
   if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
     VPosition := GState.GPSRecorder.CurrentPosition;
     if frmSettings.Visible then frmSettings.SatellitePaint;
-    if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
+    if TBXSignalStrengthBar.Visible then UpdateGPSSatellites(VPosition);
     if (VPosition.IsFix=0) then exit;
     if not((FMapMoving)or(FMapZoomAnimtion)) then begin
       FConfig.GPSBehaviour.LockRead;
@@ -1831,7 +1838,7 @@ begin
       end;
       if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
         if (VMapMove) then begin
-          VGPSNewPos := GState.GPSRecorder.LastPosition;
+          VGPSNewPos := VPosition.Position;
           if VMapMoveCentred then begin
             VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
             VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
@@ -1850,11 +1857,15 @@ begin
                 VCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
                 VCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
                 VPointDelta := FCenterToGPSDelta;
-                VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
-                VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
-                VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
-                if VDelta > VMinDelta then begin
-                  FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
+                if PointIsEmpty(VPointDelta) then begin
+                  FCenterToGPSDelta := VCenterToGPSDelta;
+                end else begin
+                  VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
+                  VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
+                  VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+                  if VDelta > VMinDelta then begin
+                    FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
+                  end;
                 end;
               end;
           end;
@@ -2763,7 +2774,7 @@ end;
 procedure TfrmMain.GPSReceiverDisconnect(Sender: TObject);
 begin
   if FConfig.GPSBehaviour.SensorsAutoShow then TBXSensorsBar.Visible:=false;
-  if TBXSignalStrengthBar.Visible then UpdateGPSSatellites;
+  if TBXSignalStrengthBar.Visible then UpdateGPSSatellites(GState.GPSRecorder.CurrentPosition);
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
   tbitmGPSConnect.Checked:=false;
