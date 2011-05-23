@@ -2035,15 +2035,15 @@ begin
         FRuller.Rotate270();
         FTumbler.Rotate270();
     end;
-    TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),4);
-    TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),0);
+    ZoomToolBar.Items.Move(ZoomToolBar.Items.IndexOf(TBZoom_out),4);
+    ZoomToolBar.Items.Move(ZoomToolBar.Items.IndexOf(TBZoomin),0);
   end else begin
     if FRuller.Width<FRuller.Height then begin
         FRuller.Rotate90();
         FTumbler.Rotate90();
     end;
-    TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoom_out),0);
-    TTBToolBar(sender).Items.Move(TTBToolBar(sender).Items.IndexOf(TBZoomin),4);
+    ZoomToolBar.Items.Move(ZoomToolBar.Items.IndexOf(TBZoom_out),0);
+    ZoomToolBar.Items.Move(ZoomToolBar.Items.IndexOf(TBZoomin),4);
   end;
   PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
 end;
