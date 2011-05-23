@@ -18,6 +18,16 @@ type
       AMapScale: TDoublePoint;
       ALocalTopLeftAtMap: TDoublePoint
     ): ILocalCoordConverter;
+    function CreateForTile(
+      ATile: TPoint;
+      AZoom: Byte;
+      AGeoConverter: ICoordConverter
+    ): ILocalCoordConverter;
+    function CreateForTileRect(
+      ATileRect: TRect;
+      AZoom: Byte;
+      AGeoConverter: ICoordConverter
+    ): ILocalCoordConverter;
   end;
 
 implementation

@@ -180,7 +180,7 @@ begin
             DrawPath(
               AIsStop,
               VTileToDrawBmp,
-              CreateConverterForTileImage(VGeoConvert, VTile, VZoom),
+              ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
               VTrackColorer,
               VLineWidth,
               VPointsCount

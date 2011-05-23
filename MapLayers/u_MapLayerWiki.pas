@@ -301,7 +301,7 @@ begin
           GetBitmapRect(
             AIsStop,
             VTileToDrawBmp,
-            CreateConverterForTileImage(VGeoConvert, VTile, VZoom),
+            ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
             VColorMain,
             VColorBG,
             VPointColor
@@ -405,6 +405,7 @@ begin
       VPointOnBitmap := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
       FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
     end;
+//    FPolygon.Points[0] := Copy(FFixedPointArray, 0, VLen);
     FPolygon.Clear;
     FPolygon.AddPoints(FFixedPointArray[0], VLen);
     FPolygon.DrawEdge(ATargetBmp, AColorBG);

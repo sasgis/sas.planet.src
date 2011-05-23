@@ -56,7 +56,7 @@ type
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     procedure ClearLayerBitmap; override;
-    function CreateConverterForTileImage(AGeoConverter: ICoordConverter; ATile: TPoint; AZoom: Byte): ILocalCoordConverter;
+    property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
   public
     constructor Create(
       AParentMap: TImage32;
@@ -180,20 +180,6 @@ begin
   inherited Create(AParentMap, AViewPortState, ATimerNoifier, APriority);
   FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(AResamplerConfig);
   FConverterFactory := TLocalCoordConverterFactorySimpe.Create;
-end;
-
-function TMapLayerTiledWithThreadDraw.CreateConverterForTileImage(
-  AGeoConverter: ICoordConverter; ATile: TPoint; AZoom: Byte): ILocalCoordConverter;
-var
-  VTileRect: TRect;
-  VBitmapTileRect: TRect;
-begin
-  VTileRect := AGeoConverter.TilePos2PixelRect(ATile, AZoom);
-  VBitmapTileRect.Left := 0;
-  VBitmapTileRect.Top := 0;
-  VBitmapTileRect.Right := VTileRect.Right - VTileRect.Left;
-  VBitmapTileRect.Bottom := VTileRect.Bottom - VTileRect.Top;
-  Result := FConverterFactory.CreateConverter(VBitmapTileRect, AZoom, AGeoConverter, DoublePoint(1, 1), DoublePoint(VTileRect.TopLeft));
 end;
 
 procedure TMapLayerTiledWithThreadDraw.ClearLayerBitmap;
