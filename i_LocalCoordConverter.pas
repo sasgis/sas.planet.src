@@ -15,6 +15,10 @@ type
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
     function GetLocalRectCenter: TDoublePoint;
+    function GetRectInMapPixel: TRect;
+    function GetRectInMapPixelFloat: TDoubleRect;
+    function GetCenterMapPixelFloat: TDoublePoint;
+    function GetCenterLonLat: TDoublePoint;
 
     function GetZoom: Byte;
     function GetGeoConverter: ICoordConverter;
@@ -36,11 +40,6 @@ type
     function LonLat2LocalPixel(const APoint: TDoublePoint): TPoint;
     function LonLat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint;
     function LonLatRect2LocalRectFloat(const ARect: TDoubleRect): TDoubleRect;
-
-    function GetCenterMapPixelFloat: TDoublePoint;
-    function GetCenterLonLat: TDoublePoint;
-    function GetRectInMapPixel: TRect;
-    function GetRectInMapPixelFloat: TDoubleRect;
   end;
 
 implementation
