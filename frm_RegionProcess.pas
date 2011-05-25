@@ -125,26 +125,30 @@ end;
 
 procedure TfrmRegionProcess.LoadSelFromFile(FileName:string);
 var
-  ini:TMemIniFile;
   i:integer;
+  VIni:TMemIniFile;
   VPolygon: TArrayOfDoublePoint;
   VZoom: Byte;
 begin
- if FileExists(FileName) then
+  if FileExists(FileName) then
   begin
-   ini:=TMemIniFile.Create(FileName);
-   i:=1;
-   while str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'))<>2147483647 do
-    begin
-     setlength(VPolygon,i);
-     VPolygon[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
-     VPolygon[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
-     inc(i);
-    end;
-   if length(VPolygon)>0 then
-    begin
-     VZoom := Ini.Readinteger('HIGHLIGHTING','zoom',1) - 1;
-     Self.Show_(VZoom, VPolygon);
+    VIni := TMemIniFile.Create(FileName);
+    try
+      i := 1;
+      while str2r( VIni.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647') ) <> 2147483647 do
+      begin
+        setlength(VPolygon,i);
+        VPolygon[i-1].x := str2r(VIni.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
+        VPolygon[i-1].y := str2r(VIni.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
+        inc(i);
+      end;
+      if length(VPolygon)>0 then
+      begin
+        VZoom := VIni.Readinteger('HIGHLIGHTING','zoom',1) - 1;
+        Self.Show_(VZoom, VPolygon);
+      end;
+    finally
+      VIni.Free;
     end;
   end
 end;
