@@ -70,17 +70,17 @@ uses
   i_MarksSimple,
   u_GlobalState,
   u_GeoCodeResult,
-  u_GeoCodePalcemark;
+  u_GeoCodePlacemark;
 
 {$R *.dfm}
 
 function TfrmGoTo.GeocodeResultFromLonLat(ASearch: WideString;
   ALonLat: TDoublePoint; AMessage: WideString): IGeoCodeResult;
 var
-  VPlace: IGeoCodePalcemark;
+  VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
 begin
-  VPlace := TGeoCodePalcemark.Create(ALonLat, AMessage, 4);
+  VPlace := TGeoCodePlacemark.Create(ALonLat, AMessage, 4);
   VList := TInterfaceList.Create;
   VList.Add(VPlace);
   Result := TGeoCodeResult.Create(ASearch, 203, '', VList);

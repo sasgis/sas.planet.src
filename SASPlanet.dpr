@@ -216,7 +216,7 @@ uses
   u_GECrypt in 'u_GECrypt.pas',
   u_GEIndexFile in 'u_GEIndexFile.pas',
   i_GeoCoder in 'i_GeoCoder.pas',
-  u_GeoCodePalcemark in 'u_GeoCodePalcemark.pas',
+  u_GeoCodePlacemark in 'u_GeoCodePlacemark.pas',
   u_EnumUnknown in 'u_EnumUnknown.pas',
   u_GeoCodeResult in 'u_GeoCodeResult.pas',
   i_ProxySettings in 'i_ProxySettings.pas',

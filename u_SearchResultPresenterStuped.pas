@@ -42,7 +42,7 @@ procedure TSearchResultPresenterStuped.ShowSearchResults(
   ASearchResult: IGeoCodeResult; AZoom: Byte);
 var
   VEnum: IEnumUnknown;
-  VPlacemark: IGeoCodePalcemark;
+  VPlacemark: IGeoCodePlacemark;
   i: Cardinal;
 begin
   if ASearchResult.GetPlacemarksCount <= 0 then begin

@@ -16,7 +16,7 @@ type
     function GetPlacemarksCount: integer; safecall;
   end;
 
-  IGeoCodePalcemark = interface
+  IGeoCodePlacemark = interface
     ['{744CAB70-0466-433A-AF57-00BD5AFD9F45}']
     function GetPoint: TDoublePoint; safecall;
     function GetAddress: WideString; safecall;

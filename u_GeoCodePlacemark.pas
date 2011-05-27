@@ -1,4 +1,4 @@
-unit u_GeoCodePalcemark;
+unit u_GeoCodePlacemark;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   i_GeoCoder;
 
 type
-  TGeoCodePalcemark = class(TInterfacedObject, IGeoCodePalcemark)
+  TGeoCodePlacemark = class(TInterfacedObject, IGeoCodePlacemark)
   private
     FPoint: TDoublePoint;
     FAddress: WideString;
@@ -26,9 +26,9 @@ type
 
 implementation
 
-{ TGeoCodePalcemark }
+{ TGeoCodePlacemark }
 
-constructor TGeoCodePalcemark.Create(APoint: TDoublePoint;
+constructor TGeoCodePlacemark.Create(APoint: TDoublePoint;
   AAddress: WideString; AAccuracy: Integer);
 begin
   FAddress := AAddress;
@@ -36,23 +36,23 @@ begin
   FAccuracy := AAccuracy;
 end;
 
-destructor TGeoCodePalcemark.Destroy;
+destructor TGeoCodePlacemark.Destroy;
 begin
   FAddress := '';
   inherited;
 end;
 
-function TGeoCodePalcemark.GetAccuracy: Integer;
+function TGeoCodePlacemark.GetAccuracy: Integer;
 begin
   Result := FAccuracy;
 end;
 
-function TGeoCodePalcemark.GetAddress: WideString;
+function TGeoCodePlacemark.GetAddress: WideString;
 begin
   Result := FAddress;
 end;
 
-function TGeoCodePalcemark.GetPoint: TDoublePoint;
+function TGeoCodePlacemark.GetPoint: TDoublePoint;
 begin
   Result := FPoint;
 end;

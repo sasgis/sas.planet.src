@@ -22,7 +22,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   u_ResStrings,
-  u_GeoCodePalcemark;
+  u_GeoCodePlacemark;
 
 { TGeoCoderByGoogle }
 
@@ -33,7 +33,7 @@ var
   i, j: integer;
   strr: string;
   VPoint: TDoublePoint;
-  VPlace: IGeoCodePalcemark;
+  VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
 begin
@@ -62,7 +62,7 @@ begin
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    VPlace := TGeoCodePalcemark.Create(VPoint, strr, 4);
+    VPlace := TGeoCodePlacemark.Create(VPoint, strr, 4);
     VList := TInterfaceList.Create;
     VList.Add(VPlace);
     Result := VList;
