@@ -4,6 +4,7 @@ interface
 
 uses
   GR32,
+  i_LocalCoordConverter,
   i_ActiveMapsConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -14,7 +15,8 @@ type
   TFillingMapLayerConfig = class(TConfigDataElementComplexBase, IFillingMapLayerConfig)
   private
     FVisible: Boolean;
-    FSourceZoom: Byte;
+    FUseRelativeZoom: Boolean;
+    FZoom: Byte;
     FNoTileColor: TColor32;
     FShowTNE: Boolean;
     FTNEColor: TColor32;
@@ -29,8 +31,11 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
 
-    function GetSourceZoom: Byte;
-    procedure SetSourceZoom(AValue: Byte);
+    function GetUseRelativeZoom: Boolean;
+    procedure SetUseRelativeZoom(AValue: Boolean);
+
+    function GetZoom: Byte;
+    procedure SetZoom(AValue: Byte);
 
     function GetNoTileColor: TColor32;
     procedure SetNoTileColor(AValue: TColor32);
@@ -43,6 +48,7 @@ type
 
     function GetSourceMap: IFillingMapMapsConfig;
     function GetStatic: IFillingMapLayerConfigStatic;
+    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
   public
     constructor Create(AMapsConfig: IMainMapsConfig);
   end;
@@ -61,7 +67,7 @@ constructor TFillingMapLayerConfig.Create(AMapsConfig: IMainMapsConfig);
 begin
   inherited Create;
   FVisible := False;
-  FSourceZoom := 0;
+  FZoom := 0;
   FShowTNE := True;
   FNoTileColor := SetAlpha(clBlack32, 110);
   FTNEColor := SetAlpha(clRed32, 110);
@@ -77,7 +83,8 @@ begin
     TFillingMapLayerConfigStatic.Create(
       FVisible,
       FSourceMap.GetActualMap,
-      FSourceZoom,
+      FUseRelativeZoom,
+      FZoom,
       FNoTileColor,
       FShowTNE,
       FTNEColor
@@ -89,7 +96,7 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FVisible := AConfigData.ReadBool('Visible', FVisible);
-    FSourceZoom := AConfigData.ReadInteger('SourceZoom', FSourceZoom);
+    FZoom := AConfigData.ReadInteger('SourceZoom', FZoom);
     FShowTNE := AConfigData.ReadBool('ShowTNE', FShowTNE);
     FNoTileColor := ReadColor32(AConfigData, 'NoTileColor', FNoTileColor);
     FTNEColor := ReadColor32(AConfigData, 'TNEColor', FTNEColor);
@@ -103,10 +110,34 @@ procedure TFillingMapLayerConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteBool('Visible', FVisible);
-  AConfigData.WriteInteger('SourceZoom', FSourceZoom);
+  AConfigData.WriteInteger('SourceZoom', FZoom);
   AConfigData.WriteBool('ShowTNE', FShowTNE);
   WriteColor32(AConfigData, 'NoTileColor', FNoTileColor);
   WriteColor32(AConfigData, 'TNEColor', FTNEColor);
+end;
+
+function TFillingMapLayerConfig.GetActualZoom(
+  ALocalConverter: ILocalCoordConverter): Byte;
+var
+  VZoom: Integer;
+  VRelative: Boolean;
+begin
+  LockRead;
+  try
+    VZoom := FZoom;
+    VRelative := FUseRelativeZoom;
+  finally
+    UnlockRead;
+  end;
+  if VRelative then begin
+    VZoom := VZoom + ALocalConverter.GetZoom;
+  end;
+  if VZoom < 0 then begin
+    Result := 0;
+  end else begin
+    Result := VZoom;
+    ALocalConverter.GetGeoConverter.CheckZoom(Result);
+  end;
 end;
 
 function TFillingMapLayerConfig.GetNoTileColor: TColor32;
@@ -134,11 +165,11 @@ begin
   Result := FSourceMap;
 end;
 
-function TFillingMapLayerConfig.GetSourceZoom: Byte;
+function TFillingMapLayerConfig.GetZoom: Byte;
 begin
   LockRead;
   try
-    Result := FSourceZoom;
+    Result := FZoom;
   finally
     UnlockRead;
   end;
@@ -159,6 +190,16 @@ begin
   LockRead;
   try
     Result := FTNEColor;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TFillingMapLayerConfig.GetUseRelativeZoom: Boolean;
+begin
+  LockRead;
+  try
+    Result := FUseRelativeZoom;
   finally
     UnlockRead;
   end;
@@ -211,12 +252,12 @@ begin
   end;
 end;
 
-procedure TFillingMapLayerConfig.SetSourceZoom(AValue: Byte);
+procedure TFillingMapLayerConfig.SetZoom(AValue: Byte);
 begin
   LockWrite;
   try
-    if FSourceZoom <> AValue then begin
-      FSourceZoom := AValue;
+    if FZoom <> AValue then begin
+      FZoom := AValue;
       SetChanged;
     end;
   finally
@@ -230,6 +271,19 @@ begin
   try
     if FTNEColor <> AValue then begin
       FTNEColor := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TFillingMapLayerConfig.SetUseRelativeZoom(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FUseRelativeZoom <> AValue then begin
+      FUseRelativeZoom := AValue;
       SetChanged;
     end;
   finally

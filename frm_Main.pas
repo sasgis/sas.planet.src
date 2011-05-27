@@ -1448,9 +1448,25 @@ begin
 end;
 
 procedure TfrmMain.OnFillingMapChange(Sender: TObject);
+var
+  VVisible: Boolean;
+  VRelative: Boolean;
+  VZoom: Byte;
 begin
-  if FConfig.LayersConfig.FillingMapLayerConfig.Visible then begin
-    TBMapZap.Caption:='z'+inttostr(FConfig.LayersConfig.FillingMapLayerConfig.SourceZoom + 1);
+  FConfig.LayersConfig.FillingMapLayerConfig.LockRead;
+  try
+    VVisible := FConfig.LayersConfig.FillingMapLayerConfig.Visible;
+    VRelative := FConfig.LayersConfig.FillingMapLayerConfig.UseRelativeZoom;
+    VZoom := FConfig.LayersConfig.FillingMapLayerConfig.Zoom;
+  finally
+    FConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
+  end;
+  if VVisible then begin
+    if VRelative then begin
+      TBMapZap.Caption:='+'+inttostr(VZoom);
+    end else begin
+      TBMapZap.Caption:='z'+inttostr(VZoom + 1);
+    end;
   end else begin
     TBMapZap.Caption:='';
   end;
@@ -2408,36 +2424,61 @@ end;
 //карта заполнения в основном окне
 procedure TfrmMain.NFillMapClick(Sender: TObject);
 var
-  VZoom: Integer;
+  VVisible: Boolean;
+  VRelative: Boolean;
+  VZoom: Byte;
+  VSelectedCell: TPoint;
 begin
-  VZoom := -1;
-  if FConfig.LayersConfig.FillingMapLayerConfig.Visible then begin
-    VZoom := FConfig.LayersConfig.FillingMapLayerConfig.SourceZoom;
+  FConfig.LayersConfig.FillingMapLayerConfig.LockRead;
+  try
+    VVisible := FConfig.LayersConfig.FillingMapLayerConfig.Visible;
+    VRelative := FConfig.LayersConfig.FillingMapLayerConfig.UseRelativeZoom;
+    VZoom := FConfig.LayersConfig.FillingMapLayerConfig.Zoom;
+  finally
+    FConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
   end;
-  if VZoom > -1 then begin
-    TBXToolPalette1.SelectedCell:=Point((VZoom + 1) mod 5,(VZoom + 1) div 5);
+  if VVisible then begin
+    if VRelative then begin
+      VSelectedCell.X := (VZoom + 25) mod 5;
+      VSelectedCell.Y := (VZoom + 25) div 5;
+    end else begin
+      VSelectedCell.X := (VZoom + 1) mod 5;
+      VSelectedCell.Y := (VZoom + 1) div 5;
+    end;
   end else begin
-    TBXToolPalette1.SelectedCell:=Point(0,0);
+    VSelectedCell := Point(0,0);
   end;
+  TBXToolPalette1.SelectedCell := VSelectedCell;
 end;
 
 procedure TfrmMain.TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette; var ACol, ARow: Integer; var AllowChange: Boolean);
 var
-  Vzoom_mapzap: integer;
+  VZoom: Byte;
+  VRelative: Boolean;
 begin
-  Vzoom_mapzap:=((5*ARow)+ACol)-1;
-  if Vzoom_mapzap < 0 then begin
+  if (ACol = 0) and (ARow = 0) then begin
     FConfig.LayersConfig.FillingMapLayerConfig.Visible := False;
   end else begin
+    if ARow < 5 then begin
+      VZoom := 5 * ARow + ACol - 1;
+      VRelative := False;
+    end else begin
+      VZoom := 5 * (ARow - 5) + ACol;
+      VRelative := True;
+    end;
     FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
     try
       FConfig.LayersConfig.FillingMapLayerConfig.Visible := True;
-      FConfig.LayersConfig.FillingMapLayerConfig.SourceZoom := Vzoom_mapzap;
+      FConfig.LayersConfig.FillingMapLayerConfig.UseRelativeZoom := VRelative;
+      FConfig.LayersConfig.FillingMapLayerConfig.Zoom := VZoom;
     finally
       FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
     end;
   end;
 end;
+
+//X-карта заполнения в основном окне
+
 procedure TfrmMain.TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette;
   var ACol, ARow: Integer; var AllowChange: Boolean);
 var
@@ -2460,8 +2501,6 @@ begin
     topos(VMouseLonLat,VZoom-1,true);
   end;
 end;
-
-//X-карта заполнения в основном окне
 
 procedure TfrmMain.TBCalcRasClick(Sender: TObject);
 begin
