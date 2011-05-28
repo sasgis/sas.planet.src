@@ -51,6 +51,7 @@ type
     );
     procedure AddElementsFromMap(
       AElments: IInterfaceList;
+      AIsStop: TIsCancelChecker;
       Alayer: TMapType;
       ALocalConverter: ILocalCoordConverter
     );
@@ -77,6 +78,7 @@ type
     );
   protected
     procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
+    procedure DoHide; override;
   public
     constructor Create(
       AParentMap: TImage32;
@@ -145,6 +147,12 @@ begin
   inherited;
 end;
 
+procedure TWikiLayer.DoHide;
+begin
+  inherited;
+  FElments.Count := 0;
+end;
+
 procedure TWikiLayer.AddWikiElement(AElments: IInterfaceList; AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
 var
   VConverter: ICoordConverter;
@@ -168,6 +176,7 @@ end;
 
 procedure TWikiLayer.AddElementsFromMap(
   AElments: IInterfaceList;
+  AIsStop: TIsCancelChecker;
   Alayer: TMapType;
   ALocalConverter: ILocalCoordConverter
 );
@@ -195,11 +204,20 @@ begin
   VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
 
   while VTileIterator.Next(VTile) do begin
-      if Alayer.LoadTile(kml, VTile, Vzoom, true, True) then begin
-        for ii := 0 to KML.Count - 1 do begin
-          AddWikiElement(AElments, KML.GetItem(ii), ALocalConverter);
+    if Alayer.LoadTile(kml, VTile, Vzoom, true, True) then begin
+      AElments.Lock;
+      try
+        if AIsStop then begin
+          Break;
+        end else begin
+          for ii := 0 to KML.Count - 1 do begin
+            AddWikiElement(AElments, KML.GetItem(ii), ALocalConverter);
+          end;
         end;
+      finally
+        AElments.Unlock;
       end;
+    end;
   end;
 end;
 
@@ -216,7 +234,6 @@ var
   VItem: IMapType;
   VMapType: TMapType;
 begin
-  AElments.Clear;
   VHybrList := FMapsList;
   if VHybrList <> nil then begin
     VEnum := VHybrList.GetIterator;
@@ -224,7 +241,7 @@ begin
       VItem := VHybrList.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsKmlTiles then begin
-        AddElementsFromMap(AElments, VMapType, ALocalConverter);
+        AddElementsFromMap(AElments, AIsStop, VMapType, ALocalConverter);
         if AIsStop then begin
           Break;
         end;
@@ -352,11 +369,25 @@ end;
 procedure TWikiLayer.DrawBitmap(AIsStop: TIsCancelChecker);
 var
   VLocalConverter: ILocalCoordConverter;
+  i: Integer;
+  VList: IInterfaceList;
 begin
   inherited;
   VLocalConverter := LayerCoordConverter;
+  FElments.Count := 0;
   PrepareWikiElements(FElments, AIsStop, VLocalConverter);
-  ProcessDraw(FElments, AIsStop, VLocalConverter);
+  VList := TInterfaceList.Create;
+  FElments.Lock;
+  try
+    for i := 0 to FElments.Count - 1 do begin
+      VList.Add(FElments[i]);
+    end;
+  finally
+    FElments.Unlock;
+  end;
+  if VList.Count > 0 then begin
+    ProcessDraw(FElments, AIsStop, VLocalConverter);
+  end;
 end;
 
 procedure TWikiLayer.GetBitmapRect(
