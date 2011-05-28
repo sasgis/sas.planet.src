@@ -266,7 +266,7 @@ begin
   finally
     FConfig.UnlockRead;
   end;
-  if FElments.Count > 0 then begin
+  if AElments.Count > 0 then begin
     if not AIsStop then begin
       VTileToDrawBmp := TCustomBitmap32.Create;
       try
@@ -294,7 +294,7 @@ begin
           VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
           VTileToDrawBmp.Clear(0);
           GetBitmapRect(
-            FElments,
+            AElments,
             AIsStop,
             VTileToDrawBmp,
             ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
