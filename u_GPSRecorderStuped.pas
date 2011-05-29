@@ -184,7 +184,7 @@ end;
 
 function TGPSRecorderStuped.GetAllPoints: TArrayOfDoublePoint;
 var
-  i: Cardinal;
+  i: Integer;
 begin
   LockRead;
   try
