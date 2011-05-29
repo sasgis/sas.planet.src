@@ -819,6 +819,7 @@ object frmMain: TfrmMain
         Caption = 'GPS'
         Hint = ''
         object tbitmGPSConnect: TTBXItem
+          AutoCheck = True
           ImageIndex = 14
           Images = MenusImageList
           ShortCut = 49223
