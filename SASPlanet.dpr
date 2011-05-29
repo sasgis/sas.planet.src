@@ -21,6 +21,7 @@ uses
   c_ZeroGUID in 'src\c_ZeroGUID.pas',
   cUnicode in 'src\cUnicode.pas',
   cUnicodeChar in 'src\cUnicodeChar.pas',
+  cUnicodeCodecs in 'src\cUnicodeCodecs.pas',
   CPDrv in 'src\CPDrv.pas',
   BMSearch in 'src\BMSearch.pas',
   i_GUIDList in 'src\i_GUIDList.pas',

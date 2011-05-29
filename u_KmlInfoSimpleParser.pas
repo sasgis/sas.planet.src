@@ -46,6 +46,7 @@ implementation
 
 uses
   StrUtils,
+  cUnicodeCodecs,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon,
   u_VectorDataItemList,
@@ -189,22 +190,55 @@ end;
 
 procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
    out AItems: IVectorDataItemList);
+
+  function GetAnsiString(AStream: TStream): string;
+  var
+    VBOMSize: Integer;
+    VKmlDoc: Pointer;
+    VKmlDocSize: Integer;
+    VUnicodeCodec: TUnicodeCodecClass;
+    VCustomCodec: TCustomUnicodeCodec;
+    VStr: WideString;
+  begin
+    VKmlDocSize := AStream.Size;
+    GetMem(VKmlDoc, VKmlDocSize);
+    try
+      Result := '';
+      AStream.Position := 0;
+      AStream.ReadBuffer(VKmlDoc^, VKmlDocSize);
+      VUnicodeCodec := DetectUTFEncoding(VKmlDoc, VKmlDocSize, VBOMSize);
+      if VUnicodeCodec <> nil then begin
+        VCustomCodec := VUnicodeCodec.Create;
+        try
+          VCustomCodec.DecodeStr(VKmlDoc, VKmlDocSize, VStr);
+          Result := VStr;
+          Result := AnsiToUtf8(Result); // парсер KML воспринимает только UTF-8
+        finally
+          VCustomCodec.Free;
+        end;
+      end else begin
+        AStream.Position := 0;
+        SetLength(Result, AStream.Size);
+        AStream.ReadBuffer(Result[1], AStream.Size);
+      end;
+    finally
+      FreeMem(VKmlDoc);
+    end;
+  end;
+
 var
-  buffer: string;
+  VKml: string;
   VList: IInterfaceList;
 begin
   AItems := nil;
   if AStream.Size > 0 then begin
-    try
-      AStream.Position := 0;
-      SetLength(buffer, AStream.Size);
-      AStream.ReadBuffer(buffer[1], AStream.Size);
+    VKml := GetAnsiString(AStream);
+    if VKml <> '' then begin
       VList := TInterfaceList.Create;
-      parse(buffer, VList);
+      parse(VKml, VList);
       AItems := TVectorDataItemList.Create(VList);
-    finally
-      SetLength(buffer, 0);
-    end;
+    end else
+      Assert(False, 'KML data reader - Unknown error');
   end;
 end;
 
