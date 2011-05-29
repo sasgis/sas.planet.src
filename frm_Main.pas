@@ -1300,8 +1300,15 @@ begin
     FCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
   end;
 
-  NZoomIn.Enabled:=TBZoomIn.Enabled;
-  NZoomOut.Enabled:=TBZoom_Out.Enabled;
+  if VZoomCurr>0 then begin
+    TBZoom_Out.Enabled:=true;
+    NZoomOut.Enabled:=true;
+  end;
+  if VZoomCurr<23 then begin
+    TBZoomIn.Enabled:=true;
+    NZoomIn.Enabled:=true;
+  end;
+  PaintZSlider(VZoomCurr);
   labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
 end;
 
@@ -1971,16 +1978,7 @@ begin
     map.Changed;
   end;
 
-  if ANewZoom>0 then begin
-    TBZoom_Out.Enabled:=true;
-    NZoomOut.Enabled:=true;
-  end;
-  if ANewZoom<23 then begin
-    TBZoomIn.Enabled:=true;
-    NZoomIn.Enabled:=true;
-  end;
   FMapZoomAnimtion:=False;
-  PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
 end;
 
 procedure TfrmMain.NzoomInClick(Sender: TObject);
