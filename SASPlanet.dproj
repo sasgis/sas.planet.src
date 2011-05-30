@@ -353,12 +353,11 @@
     <DCCReference Include="RegionProcess\u_ThreadRegionProcessAbstract.pas" />
     <DCCReference Include="src\BMSearch.pas" />
     <DCCReference Include="src\CPDrv.pas" />
-    <DCCReference Include="src\cUnicode.pas" />
-    <DCCReference Include="src\cUnicodeChar.pas" />
-    <DCCReference Include="src\cUnicodeCodecs.pas" />
     <DCCReference Include="src\c_ZeroGUID.pas" />
     <DCCReference Include="src\ECWReader.pas" />
     <DCCReference Include="src\ECWwriter.pas" />
+    <DCCReference Include="src\Fundamentals\cUnicode.pas" />
+    <DCCReference Include="src\Fundamentals\cUnicodeCodecs.pas" />
     <DCCReference Include="src\gnugettext.pas" />
     <DCCReference Include="src\i_EnumID.pas" />
     <DCCReference Include="src\i_FileNameIterator.pas" />

@@ -101,7 +101,6 @@ interface
 
 uses
   { System }
-  Windows,
   SysUtils;
 
 
@@ -373,8 +372,8 @@ function  GetCodecClassByAlias(const CodecAlias: AnsiString): TUnicodeCodecClass
 {                                                                              }
 { Windows system encoding functions                                            }
 {                                                                              }
-//function  GetSystemEncodingName: AnsiString; {$IFDEF DELPHI6_UP}platform;{$ENDIF}
-//function  GetSystemEncodingCodecClass: TUnicodeCodecClass; {$IFDEF DELPHI6_UP}platform;{$ENDIF}
+function  GetSystemEncodingName: AnsiString; {$IFDEF DELPHI6_UP}platform;{$ENDIF}
+function  GetSystemEncodingCodecClass: TUnicodeCodecClass; {$IFDEF DELPHI6_UP}platform;{$ENDIF}
 {$ENDIF}
 
 

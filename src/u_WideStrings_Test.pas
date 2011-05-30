@@ -5,7 +5,7 @@ interface
 implementation
 
 uses
-  cUnicodeChar,
+  cUnicode,
   u_WideStrings, SysUtils;
 
 procedure TestAdd;
