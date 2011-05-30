@@ -21,7 +21,7 @@ type
     FDownloadesList: TList;
     FRawResponseHeader: string;
     function GetRequestBuilderScript(AConfig: IConfigDataProvider): IRequestBuilderScript;
-    function GetConfigDataProvider: IConfigDataProvider;
+    //function GetConfigDataProvider: IConfigDataProvider;
     function TryGetDownloadThread: TTileDownloaderBaseThread;
   public
     constructor Create(AConfig: IConfigDataProvider; AZmpFileName: string);
@@ -92,6 +92,7 @@ begin
   end;
 end;
 
+{
 function TTileDownloaderBaseCore.GetConfigDataProvider: IConfigDataProvider;
 begin
   try
@@ -104,11 +105,12 @@ begin
     Result := nil;
   end;
 end;
+}
 
 function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread;
 var
   I: Integer;
-  VConfig: IConfigDataProvider;
+//  VConfig: IConfigDataProvider;
 begin
   Result := nil;
   if WaitForSingleObject(FSemaphore, FTimeOut) = WAIT_OBJECT_0  then

@@ -18,8 +18,8 @@ type
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FMaxRequestCount: Integer;
     FSemaphore: THandle;
-    function  GetNewEventElement(ATile: TPoint; AZoom: Byte): ITileDownloaderEvent;
-    procedure Download(ATile: TPoint; AZoom: Byte);
+    function  GetNewEventElement(ATile: TPoint; AZoom: Byte; ACheckExistsTileSize: Boolean; AExistsTileSize: Cardinal): ITileDownloaderEvent;
+    procedure Download(ATile: TPoint; AZoom: Byte; ACheckExistsTileSize: Boolean = False; AExistsTileSize: Cardinal = 0);
   public
     constructor Create(
       ACreateSuspended: Boolean;
@@ -60,16 +60,19 @@ begin
   ReleaseSemaphore(FSemaphore, 1, nil);
 end;
 
-function TTileDownloaderThread.GetNewEventElement(ATile: TPoint; AZoom: Byte): ITileDownloaderEvent;
+function TTileDownloaderThread.GetNewEventElement(ATile: TPoint; AZoom: Byte;
+  ACheckExistsTileSize: Boolean; AExistsTileSize: Cardinal): ITileDownloaderEvent;
 begin
   Result := TTileDownloaderEventElement.Create(FMapTileUpdateEvent, FErrorLogger, FMapType);
   Result.AddToCallBackList(Self.OnTileDownload);
   Result.TileXY := ATile;
   Result.TileZoom := AZoom;
-  Result.CheckTileSize := False;
+  Result.CheckTileSize := ACheckExistsTileSize;
+  Result.OldTileSize := AExistsTileSize;
 end;
 
-procedure TTileDownloaderThread.Download(ATile: TPoint; AZoom: Byte);
+procedure TTileDownloaderThread.Download(ATile: TPoint; AZoom: Byte;
+  ACheckExistsTileSize: Boolean = False; AExistsTileSize: Cardinal = 0);
 begin
   repeat
     if WaitForSingleObject(FSemaphore, 300) = WAIT_OBJECT_0  then
@@ -79,7 +82,7 @@ begin
         Break;
   until False;
   if not Terminated then
-    FMapType.DownloadTile( GetNewEventElement(ATile, AZoom) );
+    FMapType.DownloadTile( GetNewEventElement(ATile, AZoom, ACheckExistsTileSize, AExistsTileSize) );
 end;
 
 end.

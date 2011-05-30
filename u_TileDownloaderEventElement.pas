@@ -203,7 +203,6 @@ begin
         VCallBack^(Self);
       finally
         Dispose(VCallBack);
-        VCallBack := nil;
       end;
     except
       // ignore all
