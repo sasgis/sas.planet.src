@@ -58,9 +58,6 @@ type
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IKmlInfoSimpleLoader;
-    FInitDownloadCS: TCriticalSection;
-    FCSSaveTile: TCriticalSection;
-    FCSSaveTNF: TCriticalSection;
     FCoordConverter : ICoordConverter;
     FMainCoordConverter : ICoordConverter;
     FTileDownloader: TTileDownloaderFrontEnd;
@@ -618,9 +615,6 @@ constructor TMapType.Create(
 begin
   FGuid := AGUID;
   FLanguageManager := ALanguageManager;
-  FInitDownloadCS := TCriticalSection.Create;
-  FCSSaveTile := TCriticalSection.Create;
-  FCSSaveTNF := TCriticalSection.Create;
   FMimeTypeSubstList := nil;
   LoadMapType(AConfig, Apnum);
   if FasLayer then begin
@@ -633,9 +627,6 @@ end;
 destructor TMapType.Destroy;
 begin
   FreeAndNil(FMimeTypeSubstList);
-  FreeAndNil(FInitDownloadCS);
-  FreeAndNil(FCSSaveTile);
-  FreeAndNil(FCSSaveTNF);
   FreeAndNil(Fbmp18);
   FreeAndNil(Fbmp24);
   FCoordConverter := nil;

@@ -19,8 +19,8 @@ uses
   TBXSASTheme in 'src\TBXSASTheme.pas',
   u_WideStrings in 'src\u_WideStrings.pas',
   c_ZeroGUID in 'src\c_ZeroGUID.pas',
-  cUnicode in 'src\cUnicode.pas',
-  cUnicodeChar in 'src\cUnicodeChar.pas',
+  cUnicode in 'src\Fundamentals\cUnicode.pas',
+  cUnicodeCodecs in 'src\Fundamentals\cUnicodeCodecs.pas',
   CPDrv in 'src\CPDrv.pas',
   BMSearch in 'src\BMSearch.pas',
   i_GUIDList in 'src\i_GUIDList.pas',
@@ -120,6 +120,9 @@ uses
   u_RequestBuilderPascalScript in 'u_RequestBuilderPascalScript.pas',
   u_RequestBuilderPascalScriptHelpers in 'u_RequestBuilderPascalScriptHelpers.pas',
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
+  i_InternalPerformanceCounter in 'i_InternalPerformanceCounter.pas',
+  u_InternalPerformanceCounter in 'u_InternalPerformanceCounter.pas',
+  u_InternalPerformanceCounterList in 'u_InternalPerformanceCounterList.pas',
   u_NotifyEventListener in 'u_NotifyEventListener.pas',
   u_NotifyWithGUIDEvent in 'u_NotifyWithGUIDEvent.pas',
   u_NotifyEventPosChangeListener in 'u_NotifyEventPosChangeListener.pas',
@@ -218,7 +221,7 @@ uses
   u_GECrypt in 'u_GECrypt.pas',
   u_GEIndexFile in 'u_GEIndexFile.pas',
   i_GeoCoder in 'i_GeoCoder.pas',
-  u_GeoCodePalcemark in 'u_GeoCodePalcemark.pas',
+  u_GeoCodePlacemark in 'u_GeoCodePlacemark.pas',
   u_EnumUnknown in 'u_EnumUnknown.pas',
   u_GeoCodeResult in 'u_GeoCodeResult.pas',
   i_ProxySettings in 'i_ProxySettings.pas',
@@ -553,7 +556,7 @@ begin
     Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
     Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
     if GState.ShowDebugInfo then begin
-      Application.CreateForm(TfrmDebugInfo, frmDebugInfo);
+      frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
     end;
     GState.StartExceptionTracking;
     try

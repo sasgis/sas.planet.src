@@ -15,6 +15,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_InternalPerformanceCounter,
   i_ViewPortState,
   u_MapLayerBasic;
 
@@ -23,6 +24,7 @@ type
   private
     FDrawTask: IBackgroundTask;
     FUpdateCounter: Integer;
+    FBgDrawCounter: IInternalPerformanceCounter;
     procedure OnDrawBitmap(AIsStop: TIsCancelChecker);
     procedure OnTimer(Sender: TObject);
   protected
@@ -33,6 +35,7 @@ type
     procedure SetNeedRedraw; override;
     procedure SetNeedUpdateLayerSize; override;
     procedure DoRedraw; override;
+    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
     constructor Create(
       AParentMap: TImage32;
@@ -53,7 +56,7 @@ type
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     procedure ClearLayerBitmap; override;
-    function CreateConverterForTileImage(AGeoConverter: ICoordConverter; ATile: TPoint; AZoom: Byte): ILocalCoordConverter;
+    property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
   public
     constructor Create(
       AParentMap: TImage32;
@@ -111,8 +114,15 @@ begin
 end;
 
 procedure TMapLayerWithThreadDraw.OnDrawBitmap(AIsStop: TIsCancelChecker);
+var
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  DrawBitmap(AIsStop);
+  VCounterContext := FBgDrawCounter.StartOperation;
+  try
+    DrawBitmap(AIsStop);
+  finally
+    FBgDrawCounter.FinishOperation(VCounterContext);
+  end;
 end;
 
 procedure TMapLayerWithThreadDraw.OnTimer(Sender: TObject);
@@ -145,6 +155,13 @@ begin
   inherited;
 end;
 
+procedure TMapLayerWithThreadDraw.SetPerfList(
+  const Value: IInternalPerformanceCounterList);
+begin
+  inherited;
+  FBgDrawCounter := Value.CreateAndAddNewCounter('BgDraw');
+end;
+
 procedure TMapLayerWithThreadDraw.StartThreads;
 begin
   inherited;
@@ -163,20 +180,6 @@ begin
   inherited Create(AParentMap, AViewPortState, ATimerNoifier, APriority);
   FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(AResamplerConfig);
   FConverterFactory := TLocalCoordConverterFactorySimpe.Create;
-end;
-
-function TMapLayerTiledWithThreadDraw.CreateConverterForTileImage(
-  AGeoConverter: ICoordConverter; ATile: TPoint; AZoom: Byte): ILocalCoordConverter;
-var
-  VTileRect: TRect;
-  VBitmapTileRect: TRect;
-begin
-  VTileRect := AGeoConverter.TilePos2PixelRect(ATile, AZoom);
-  VBitmapTileRect.Left := 0;
-  VBitmapTileRect.Top := 0;
-  VBitmapTileRect.Right := VTileRect.Right - VTileRect.Left;
-  VBitmapTileRect.Bottom := VTileRect.Bottom - VTileRect.Top;
-  Result := FConverterFactory.CreateConverter(VBitmapTileRect, AZoom, AGeoConverter, DoublePoint(1, 1), DoublePoint(VTileRect.TopLeft));
 end;
 
 procedure TMapLayerTiledWithThreadDraw.ClearLayerBitmap;

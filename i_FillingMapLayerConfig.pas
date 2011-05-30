@@ -4,6 +4,7 @@ interface
 
 uses
   GR32,
+  i_LocalCoordConverter,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ConfigDataElement;
@@ -13,16 +14,26 @@ type
   ['{6D257213-D59E-45D8-A632-6499B2549C64}']
     function GetVisible: Boolean;
     property Visible: Boolean read GetVisible;
+
     function GetSourceMap: IMapType;
     property SourceMap: IMapType read GetSourceMap;
-    function GetSourceZoom: Byte;
-    property SourceZoom: Byte read GetSourceZoom;
+
+    function GetUseRelativeZoom: Boolean;
+    property UseRelativeZoom: Boolean read GetUseRelativeZoom;
+
+    function GetZoom: Byte;
+    property Zoom: Byte read GetZoom;
+
     function GetNoTileColor: TColor32;
     property NoTileColor: TColor32 read GetNoTileColor;
+
     function GetShowTNE: Boolean;
     property ShowTNE: Boolean read GetShowTNE;
+
     function GetTNEColor: TColor32;
     property TNEColor: TColor32 read GetTNEColor;
+
+    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
   end;
 
   IFillingMapMapsConfig = interface(IMainActiveMap)
@@ -36,9 +47,13 @@ type
     procedure SetVisible(AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
 
-    function GetSourceZoom: Byte;
-    procedure SetSourceZoom(AValue: Byte);
-    property SourceZoom: Byte read GetSourceZoom write SetSourceZoom;
+    function GetUseRelativeZoom: Boolean;
+    procedure SetUseRelativeZoom(AValue: Boolean);
+    property UseRelativeZoom: Boolean read GetUseRelativeZoom write SetUseRelativeZoom;
+
+    function GetZoom: Byte;
+    procedure SetZoom(AValue: Byte);
+    property Zoom: Byte read GetZoom write SetZoom;
 
     function GetNoTileColor: TColor32;
     procedure SetNoTileColor(AValue: TColor32);
@@ -54,6 +69,7 @@ type
 
     function GetSourceMap: IFillingMapMapsConfig;
     function GetStatic: IFillingMapLayerConfigStatic;
+    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
   end;
 
 implementation

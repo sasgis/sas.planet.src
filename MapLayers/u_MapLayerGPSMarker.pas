@@ -8,6 +8,7 @@ uses
   GR32,
   GR32_Transforms,
   GR32_Image,
+  i_JclNotify,
   t_GeoTypes,
   i_LocalCoordConverter,
   i_MapLayerGPSMarkerConfig,
@@ -21,8 +22,9 @@ type
   private
     FConfig: IMapLayerGPSMarkerConfig;
     FGPSRecorder: IGPSRecorder;
-    FTransform: TAffineTransformation;
 
+    FGpsPosChangeCounter: Integer;
+    FTransform: TAffineTransformation;
     FMarker: TCustomBitmap32;
 
     FFixedLonLat: TDoublePoint;
@@ -30,6 +32,7 @@ type
 
     procedure GPSReceiverReceive(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
+    procedure OnTimer(Sender: TObject);
     procedure PrepareMarker(ASpeed, AAngle: Double);
   protected
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
@@ -39,6 +42,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      ATimerNoifier: IJclNotifier;
       AConfig: IMapLayerGPSMarkerConfig;
       AGPSRecorder: IGPSRecorder
     );
@@ -59,6 +63,7 @@ uses
 constructor TMapLayerGPSMarker.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  ATimerNoifier: IJclNotifier;
   AConfig: IMapLayerGPSMarkerConfig;
   AGPSRecorder: IGPSRecorder
 );
@@ -71,6 +76,10 @@ begin
   FMarker.CombineMode := cmMerge;
   FTransform := TAffineTransformation.Create;
   LinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimer),
+    ATimerNoifier
+  );
+  LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
@@ -78,6 +87,8 @@ begin
     TNotifyEventListener.Create(Self.GPSReceiverReceive),
     FGPSRecorder.GetChangeNotifier
   );
+
+  FGpsPosChangeCounter := 0;
 end;
 
 destructor TMapLayerGPSMarker.Destroy;
@@ -88,29 +99,36 @@ begin
 end;
 
 procedure TMapLayerGPSMarker.GPSReceiverReceive(Sender: TObject);
-var
-  VGPSPosition: IGPSPosition;
 begin
-  ViewUpdateLock;
-  try
-    VGPSPosition := FGPSRecorder.CurrentPosition;
-    if VGPSPosition.IsFix = 0 then begin
-      Hide;
-    end else begin
-      FFixedLonLat := VGPSPosition.Position;
-      PrepareMarker(VGPSPosition.Speed_KMH, VGPSPosition.Heading);
-      SetNeedRedraw;
-      Show;
-    end;
-  finally
-    ViewUpdateUnlock;
-  end;
-  ViewUpdate;
+  InterlockedIncrement(FGpsPosChangeCounter);
 end;
 
 procedure TMapLayerGPSMarker.OnConfigChange(Sender: TObject);
 begin
   GPSReceiverReceive(nil);
+end;
+
+procedure TMapLayerGPSMarker.OnTimer(Sender: TObject);
+var
+  VGPSPosition: IGPSPosition;
+begin
+  if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
+    ViewUpdateLock;
+    try
+      VGPSPosition := FGPSRecorder.CurrentPosition;
+      if VGPSPosition.IsFix = 0 then begin
+        Hide;
+      end else begin
+        FFixedLonLat := VGPSPosition.Position;
+        PrepareMarker(VGPSPosition.Speed_KMH, VGPSPosition.Heading);
+        Show;
+        SetNeedRedraw;
+      end;
+    finally
+      ViewUpdateUnlock;
+    end;
+    ViewUpdate;
+  end;
 end;
 
 procedure TMapLayerGPSMarker.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);

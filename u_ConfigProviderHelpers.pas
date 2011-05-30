@@ -21,8 +21,9 @@ function ReadColor32(
 implementation
 
 uses
+  SysUtils,
   Graphics;
-  
+
 function ReadColor32(
   AConfigProvider: IConfigDataProvider;
   AIdent: string;
@@ -31,14 +32,23 @@ function ReadColor32(
 var
   VColor: TColor;
   VAlfa: Integer;
+  VHexString: string;
+  VIntColor: Integer;
 begin
   Result := ADefault;
   if AConfigProvider <> nil then begin
-    VAlfa := AlphaComponent(Result);
-    VColor := WinColor(Result);
-    VAlfa := AConfigProvider.ReadInteger(AIdent + 'Alfa', VAlfa);
-    VColor := AConfigProvider.ReadInteger(AIdent, VColor);
-    Result := SetAlpha(Color32(VColor), VAlfa);
+    VHexString := AConfigProvider.ReadString(AIdent + 'Hex', '');
+    if VHexString = '' then begin
+      VAlfa := AlphaComponent(Result);
+      VColor := WinColor(Result);
+      VAlfa := AConfigProvider.ReadInteger(AIdent + 'Alfa', VAlfa);
+      VColor := AConfigProvider.ReadInteger(AIdent, VColor);
+      Result := SetAlpha(Color32(VColor), VAlfa);
+    end else begin
+      if TryStrToInt(VHexString, VIntColor) then begin
+        Result := VIntColor;
+      end;
+    end;
   end;
 end;
 
@@ -48,8 +58,7 @@ procedure WriteColor32(
   AValue: TColor32
 );
 begin
-  AConfigProvider.WriteInteger(AIdent + 'Alfa', AlphaComponent(AValue));
-  AConfigProvider.WriteInteger(AIdent, WinColor(AValue));
+  AConfigProvider.WriteString(AIdent + 'Hex', HexDisplayPrefix + IntToHex(AValue, 8));
 end;
 
 end.

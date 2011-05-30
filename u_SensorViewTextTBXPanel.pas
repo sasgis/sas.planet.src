@@ -27,7 +27,6 @@ type
     FImages: TCustomImageList;
     FImageIndexReset: TImageIndex;
 
-    FCS: TCriticalSection;
     FLinksList: IJclListenerNotifierLinksList;
 
     FBar: TTBXToolWindow;
@@ -40,7 +39,8 @@ type
     FVisibleItem: TTBXCustomItem;
     FVisibleItemWithReset: TTBXSubmenuItem;
 
-    FTextChanged: Boolean;
+    FTextChangeId: Integer;
+    FTextShowId: Integer;
     FLastText: string;
 
     function GuidToComponentName(APrefix: string; AGUID: TGUID): string;
@@ -97,13 +97,14 @@ begin
   FSensor := ASensor;
   FConfig := AConfig;
   FOwner := AOwner;
+  FTextChangeId := 0;
+  FTextShowId := 0;
   Assert(FOwner is TWinControl);
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;
   FImages := AImages;
   FImageIndexReset := AImageIndexReset;
 
-  FCS := TCriticalSection.Create;
   FLinksList := TJclListenerNotifierLinksList.Create;
 
   FLinksList.Add(
@@ -142,7 +143,6 @@ begin
   FreeAndNil(FBar);
   FConfig := nil;
   FSensor := nil;
-  FreeAndNil(FCS);
   inherited;
 end;
 
@@ -298,12 +298,7 @@ end;
 
 procedure TSensorViewTextTBXPanel.OnSensorDataUpdate(Sender: TObject);
 begin
-  FCS.Acquire;
-  try
-    FTextChanged := True;
-  finally
-    FCS.Release;
-  end;
+  InterlockedIncrement(FTextChangeId);
 end;
 
 procedure TSensorViewTextTBXPanel.OnTimer(Sender: TObject);
@@ -311,18 +306,13 @@ var
   VText: string;
 begin
   if FConfig.Visible then begin
-    FCS.Acquire;
-    try
-      if FTextChanged then begin
-        VText := FSensor.GetText;
-        if FLastText <> VText then begin
-          FLastText := VText;
-          FlblValue.Caption := FLastText;
-        end;
-        FTextChanged := False;
+    if FTextChangeId <> FTextShowId then begin
+      VText := FSensor.GetText;
+      if FLastText <> VText then begin
+        FLastText := VText;
+        FlblValue.Caption := FLastText;
       end;
-    finally
-      FCS.Release;
+      FTextShowId := FTextChangeId;
     end;
   end;
 end;

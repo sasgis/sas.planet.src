@@ -12,6 +12,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
+  i_InternalPerformanceCounter,
   u_WindowLayerWithPos;
 
 type
@@ -30,12 +31,14 @@ type
 
   TMapLayerBasicNoBitmap = class(TMapLayerBasicFullView)
   private
+    FOnPaintCounter: IInternalPerformanceCounter;
     procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
   protected
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); virtual; abstract;
   protected
     procedure DoRedraw; override;
     procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
     procedure StartThreads; override;
@@ -385,24 +388,24 @@ procedure TMapLayerBasicNoBitmap.OnPaintLayer(Sender: TObject;
   Buffer: TBitmap32);
 var
   VLocalConverter: ILocalCoordConverter;
-var
-  VPerformanceCounterBegin: Int64;
-  VPerformanceCounterEnd: Int64;
-  VPerformanceCounterFr: Int64;
-  VUpdateTime: TDateTime;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
   VLocalConverter := ViewCoordConverter;
   if VLocalConverter <> nil then begin
-    QueryPerformanceCounter(VPerformanceCounterBegin);
+    VCounterContext := FOnPaintCounter.StartOperation;
     try
       PaintLayer(Buffer, VLocalConverter);
     finally
-      QueryPerformanceCounter(VPerformanceCounterEnd);
-      QueryPerformanceFrequency(VPerformanceCounterFr);
-      VUpdateTime := (VPerformanceCounterEnd - VPerformanceCounterBegin) / VPerformanceCounterFr/24/60/60;
-      IncRedrawCounter(VUpdateTime);
+      FOnPaintCounter.FinishOperation(VCounterContext);
     end;
   end;
+end;
+
+procedure TMapLayerBasicNoBitmap.SetPerfList(
+  const Value: IInternalPerformanceCounterList);
+begin
+  inherited;
+  FOnPaintCounter := Value.CreateAndAddNewCounter('OnPaint');
 end;
 
 procedure TMapLayerBasicNoBitmap.SetViewCoordConverter(

@@ -134,7 +134,7 @@ begin
     VBmp := TCustomBitmap32.Create;
     try
       VZoom := VLocalConverter.GetZoom;
-      VZoomSource := VConfig.SourceZoom;
+      VZoomSource := VConfig.GetActualZoom(VLocalConverter);
       VSourceMapType := VConfig.SourceMap.MapType;
       VSourceGeoConvert := VSourceMapType.GeoConvert;
       VGeoConvert := VLocalConverter.GetGeoConverter;
@@ -208,12 +208,15 @@ end;
 
 function TMapLayerFillingMap.GetVisibleForNewPos(
   ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+var
+  VConfig: IFillingMapLayerConfigStatic;
 begin
   Result := False;
-  if FConfigStatic <> nil then begin
-    Result := FConfigStatic.Visible;
+  VConfig := FConfigStatic;
+  if VConfig <> nil then begin
+    Result := VConfig.Visible;
     if Result then begin
-      Result := ANewVisualCoordConverter.GetZoom <= FConfigStatic.SourceZoom;
+      Result := ANewVisualCoordConverter.GetZoom <= VConfig.GetActualZoom(ANewVisualCoordConverter);
     end;
   end;
 end;

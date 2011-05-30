@@ -36,6 +36,7 @@ uses
   i_GeoCoderList,
   i_MainMemCacheConfig,
   i_MarkPicture,
+  i_InternalPerformanceCounter,
   u_LastSelectionInfo,
   u_MarksDb,
   u_MapType,
@@ -94,6 +95,7 @@ type
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifier: IJclNotifier;
     FSensorList: IInterfaceList;
+    FPerfCounterList: IInternalPerformanceCounterList;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -169,6 +171,7 @@ type
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
     property SensorList: IInterfaceList read FSensorList;
+    property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
     constructor Create;
     destructor Destroy; override;
@@ -227,6 +230,7 @@ uses
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByZylGPS,
   u_MainFormConfig,
+  u_InternalPerformanceCounterList,
   u_ResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -241,6 +245,8 @@ begin
   FGUISyncronizedTimer.Enabled := False;
   FGUISyncronizedTimer.Interval := 500;
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
+
+  FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
 
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
   Show_logo := True;
@@ -289,7 +295,8 @@ begin
       TPltLogWriter.Create(GetTrackLogPath),
       FGPSConfig,
       FGPSRecorder,
-      GUISyncronizedTimerNotifier
+      GUISyncronizedTimerNotifier,
+      FPerfCounterList
     );
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);

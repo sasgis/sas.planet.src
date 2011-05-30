@@ -72,11 +72,11 @@ end;
 procedure TfrmSearchResults.lvResultsDblClick(Sender: TObject);
 var
   VListItem: TListItem;
-  VPlacemark: IGeoCodePalcemark;
+  VPlacemark: IGeoCodePlacemark;
 begin
   VListItem := lvResults.Selected;
   if VListItem <> nil then begin
-    VPlacemark := IGeoCodePalcemark(VListItem.Data);
+    VPlacemark := IGeoCodePlacemark(VListItem.Data);
     FMapGoto.GotoPos(VPlacemark.GetPoint, GState.MainFormConfig.ViewPortState.GetCurrentZoom);
   end;
 end;
@@ -96,7 +96,7 @@ procedure TfrmSearchResults.ShowStart;
 var
   VListItem: TListItem;
   VEnum: IEnumUnknown;
-  VPlacemark: IGeoCodePalcemark;
+  VPlacemark: IGeoCodePlacemark;
   i: Cardinal;
   VItemCount: Integer;
   VRect: TRect;
@@ -143,7 +143,7 @@ procedure TSearchResultPresenterWithForm.ShowSearchResults(
   ASearchResult: IGeoCodeResult; AZoom: Byte);
 var
   VEnum: IEnumUnknown;
-  VPlacemark: IGeoCodePalcemark;
+  VPlacemark: IGeoCodePlacemark;
   i: Cardinal;
 begin
   if ASearchResult.GetResultCode in [200, 203] then begin

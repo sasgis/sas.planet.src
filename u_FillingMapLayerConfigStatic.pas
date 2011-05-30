@@ -4,6 +4,7 @@ interface
 
 uses
   GR32,
+  i_LocalCoordConverter,
   i_MapTypes,
   i_FillingMapLayerConfig;
 
@@ -12,22 +13,27 @@ type
   private
     FVisible: Boolean;
     FSourceMap: IMapType;
-    FSourceZoom: Byte;
+    FUseRelativeZoom: Boolean;
+    FZoom: Byte;
     FNoTileColor: TColor32;
     FShowTNE: Boolean;
     FTNEColor: TColor32;
   protected
     function GetVisible: Boolean;
     function GetSourceMap: IMapType;
-    function GetSourceZoom: Byte;
+    function GetUseRelativeZoom: Boolean;
+    function GetZoom: Byte;
     function GetNoTileColor: TColor32;
     function GetShowTNE: Boolean;
     function GetTNEColor: TColor32;
+
+    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
   public
     constructor Create(
       AVisible: Boolean;
       ASourceMap: IMapType;
-      ASourceZoom: Byte;
+      AUseRelativeZoom: Boolean;
+      AZoom: Byte;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
       ATNEColor: TColor32
@@ -38,16 +44,41 @@ implementation
 
 { TFillingMapLayerConfigStatic }
 
-constructor TFillingMapLayerConfigStatic.Create(AVisible: Boolean;
-  ASourceMap: IMapType; ASourceZoom: Byte; ANoTileColor: TColor32;
-  AShowTNE: Boolean; ATNEColor: TColor32);
+constructor TFillingMapLayerConfigStatic.Create(
+  AVisible: Boolean;
+  ASourceMap: IMapType;
+  AUseRelativeZoom: Boolean;
+  AZoom: Byte;
+  ANoTileColor: TColor32;
+  AShowTNE: Boolean;
+  ATNEColor: TColor32
+);
 begin
   FVisible := AVisible;
   FSourceMap := ASourceMap;
-  FSourceZoom := ASourceZoom;
+  FUseRelativeZoom := AUseRelativeZoom;
+  FZoom := AZoom;
   FNoTileColor := ANoTileColor;
   FShowTNE := AShowTNE;
   FTNEColor := ATNEColor;
+end;
+
+function TFillingMapLayerConfigStatic.GetActualZoom(
+  ALocalConverter: ILocalCoordConverter): Byte;
+var
+  VZoom: Integer;
+  VRelative: Boolean;
+begin
+  VZoom := FZoom;
+  if FUseRelativeZoom then begin
+    VZoom := FZoom + ALocalConverter.GetZoom;
+  end;
+  if VZoom < 0 then begin
+    Result := 0;
+  end else begin
+    Result := VZoom;
+    ALocalConverter.GetGeoConverter.CheckZoom(Result);
+  end;
 end;
 
 function TFillingMapLayerConfigStatic.GetNoTileColor: TColor32;
@@ -65,14 +96,19 @@ begin
   Result := FSourceMap;
 end;
 
-function TFillingMapLayerConfigStatic.GetSourceZoom: Byte;
+function TFillingMapLayerConfigStatic.GetZoom: Byte;
 begin
-  Result := FSourceZoom
+  Result := FZoom
 end;
 
 function TFillingMapLayerConfigStatic.GetTNEColor: TColor32;
 begin
   Result := FTNEColor;
+end;
+
+function TFillingMapLayerConfigStatic.GetUseRelativeZoom: Boolean;
+begin
+  Result := FUseRelativeZoom;
 end;
 
 function TFillingMapLayerConfigStatic.GetVisible: Boolean;

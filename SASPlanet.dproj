@@ -168,6 +168,7 @@
     <DCCReference Include="i_ImageResamplerFactory.pas" />
     <DCCReference Include="i_ImportConfig.pas" />
     <DCCReference Include="i_ImportFile.pas" />
+    <DCCReference Include="i_InternalPerformanceCounter.pas" />
     <DCCReference Include="i_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_KmlInfoSimpleLoader.pas" />
     <DCCReference Include="i_KmlLayerConfig.pas" />
@@ -351,11 +352,11 @@
     <DCCReference Include="RegionProcess\u_ThreadRegionProcessAbstract.pas" />
     <DCCReference Include="src\BMSearch.pas" />
     <DCCReference Include="src\CPDrv.pas" />
-    <DCCReference Include="src\cUnicode.pas" />
-    <DCCReference Include="src\cUnicodeChar.pas" />
     <DCCReference Include="src\c_ZeroGUID.pas" />
     <DCCReference Include="src\ECWReader.pas" />
     <DCCReference Include="src\ECWwriter.pas" />
+    <DCCReference Include="src\Fundamentals\cUnicode.pas" />
+    <DCCReference Include="src\Fundamentals\cUnicodeCodecs.pas" />
     <DCCReference Include="src\gnugettext.pas" />
     <DCCReference Include="src\i_EnumID.pas" />
     <DCCReference Include="src\i_FileNameIterator.pas" />
@@ -446,7 +447,7 @@
     <DCCReference Include="u_GECrypt.pas" />
     <DCCReference Include="u_GEIndexFile.pas" />
     <DCCReference Include="u_GenShtabGridConfig.pas" />
-    <DCCReference Include="u_GeoCodePalcemark.pas" />
+    <DCCReference Include="u_GeoCodePlacemark.pas" />
     <DCCReference Include="u_GeoCoderBasic.pas" />
     <DCCReference Include="u_GeoCoderByGoogle.pas" />
     <DCCReference Include="u_GeoCoderByYandex.pas" />
@@ -483,6 +484,8 @@
     <DCCReference Include="u_ImportPLT.pas" />
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
+    <DCCReference Include="u_InternalPerformanceCounter.pas" />
+    <DCCReference Include="u_InternalPerformanceCounterList.pas" />
     <DCCReference Include="u_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="u_KmlInfoSimple.pas" />
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />

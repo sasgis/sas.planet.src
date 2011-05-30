@@ -89,6 +89,7 @@ begin
   end;
   bmp32 := TCustomBitmap32.Create;
   bmp322 := TCustomBitmap32.Create;
+  bmp32crop := TCustomBitmap32.Create;
   try
     hxyi := 1;
     sizeim := 128;
@@ -98,7 +99,6 @@ begin
     try
       bmp32.DrawMode := dmBlend;
       bmp322.DrawMode := dmBlend;
-      bmp32crop := TCustomBitmap32.Create;
       bmp32crop.Width := sizeim;
       bmp32crop.Height := sizeim;
       VGeoConvert := GState.CoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
@@ -178,6 +178,7 @@ begin
   finally
     bmp32.Free;
     bmp322.Free;
+    bmp32crop.Free;
   end;
 end;
 

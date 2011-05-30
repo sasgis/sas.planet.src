@@ -134,7 +134,10 @@ begin
 
           VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
           VTileToDrawBmp.Clear(0);
-          VProv.GetBitmapRect(VTileToDrawBmp, CreateConverterForTileImage(VGeoConvert, VTile, VZoom));
+          VProv.GetBitmapRect(
+            VTileToDrawBmp,
+            ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
+          );
           Layer.Bitmap.Lock;
           try
             if AIsStop then begin
