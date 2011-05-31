@@ -7,7 +7,6 @@ uses
   Classes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  dm_MarksDb,
   i_MarkPicture,
   i_MarksFactoryConfig,
   i_MarkCategory,
@@ -22,7 +21,6 @@ type
   TMarksDB = class
   private
     FBasePath: string;
-    FDMMarksDb: TDMMarksDb;
     FMarksFactoryConfig: IMarksFactoryConfig;
     FMarksDb: TMarksOnlyDb;
     FCategoryDB: IMarkCategoryDB;
@@ -64,7 +62,6 @@ var
   VCategoryDb: TMarkCategoryDB;
 begin
   FBasePath := ABasePath;
-  FDMMarksDb := TDMMarksDb.Create(nil);
   VCategoryDB := TMarkCategoryDB.Create(ABasePath, ACategoryFactoryConfig);
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
@@ -78,7 +75,6 @@ begin
   FCategoryDB := nil;
   FCategoryDBInternal := nil;
   FMarksFactoryConfig := nil;
-  FreeAndNil(FDMMarksDb);
   inherited;
 end;
 

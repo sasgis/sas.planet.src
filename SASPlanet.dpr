@@ -299,7 +299,6 @@ uses
   i_Marks in 'i_Marks.pas',
   i_MarkCategory in 'i_MarkCategory.pas',
   u_MarkCategory in 'u_MarkCategory.pas',
-  dm_MarksDb in 'dm_MarksDb.pas' {DMMarksDb: TDataModule},
   u_EnumUnknownEmpty in 'u_EnumUnknownEmpty.pas',
   i_TileFileNameGenerator in 'i_TileFileNameGenerator.pas',
   u_TileFileNameSAS in 'u_TileFileNameSAS.pas',

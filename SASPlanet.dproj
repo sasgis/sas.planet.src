@@ -49,10 +49,6 @@
     <DCCReference Include="c_GeoCoderGUIDSimple.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
-    <DCCReference Include="dm_MarksDb.pas">
-      <DesignClass>TDataModule</DesignClass>
-      <Form>DMMarksDb</Form>
-    </DCCReference>
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
     </DCCReference>
