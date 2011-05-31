@@ -8,7 +8,6 @@ uses
   SysUtils,
   Classes,
   t_GeoTypes,
-  dm_MarksDb,
   i_MarksFactoryConfig,
   i_MarkCategory,
   i_MarksSimple,
@@ -606,7 +605,11 @@ begin
   try
     VFileName := GetMarksFileName;
     if FileExists(VFileName) then begin
-      CDSMarks.LoadFromFile(VFileName);
+      try
+        CDSMarks.LoadFromFile(VFileName);
+      except
+        InitEmptyDS;
+      end;
       if CDSMarks.RecordCount > 0 then begin
         CopyFile(PChar(VFileName), PChar(GetMarksBackUpFileName), false);
       end;

@@ -76,9 +76,7 @@ begin
   VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
   FFactoryDbInternal := VFactory;
   FFactory := VFactory;
-  //CDSKategory
   CDSKategory := TClientDataSet.Create(nil);
-  //CDSKategory
   CDSKategory.Name := 'CDSKategory';
   InitEmptyDS;
 end;
