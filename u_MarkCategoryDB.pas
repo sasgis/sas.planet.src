@@ -358,17 +358,22 @@ var
   XML: string;
 begin
   result := true;
-  VStream := TFileStream.Create(GetMarksCategoryFileName, fmCreate);;
   try
+    VStream := TFileStream.Create(GetMarksCategoryFileName, fmCreate);;
     try
-      FCdsKategory.MergeChangeLog;
-      XML := FCdsKategory.XMLData;
-      VStream.Write(XML[1], length(XML));
-    except
-      result := false;
+      LockRead;
+      try
+        FCdsKategory.MergeChangeLog;
+        XML := FCdsKategory.XMLData;
+        VStream.Write(XML[1], length(XML));
+      finally
+        UnlockRead;
+      end;
+    finally
+      VStream.Free;
     end;
-  finally
-    VStream.Free;
+  except
+    result := false;
   end;
 end;
 

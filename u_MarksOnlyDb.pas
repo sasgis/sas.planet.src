@@ -625,8 +625,8 @@ var
   XML: string;
 begin
   result := true;
-  VStream := TFileStream.Create(GetMarksFileName, fmCreate);;
   try
+    VStream := TFileStream.Create(GetMarksFileName, fmCreate);;
     try
       LockRead;
       try
@@ -636,11 +636,11 @@ begin
       finally
         UnlockRead;
       end;
-    except
-      result := false;
+    finally
+      VStream.Free;
     end;
-  finally
-    VStream.Free;
+  except
+    result := false;
   end;
 end;
 
