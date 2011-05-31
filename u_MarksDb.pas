@@ -65,7 +65,7 @@ var
 begin
   FBasePath := ABasePath;
   FDMMarksDb := TDMMarksDb.Create(nil);
-  VCategoryDB := TMarkCategoryDB.Create(ABasePath, FDMMarksDb, ACategoryFactoryConfig);
+  VCategoryDB := TMarkCategoryDB.Create(ABasePath, ACategoryFactoryConfig);
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
   FMarksFactoryConfig := TMarksFactoryConfig.Create(FCategoryDBInternal, AMarkPictureList);
