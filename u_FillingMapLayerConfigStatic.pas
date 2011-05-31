@@ -67,7 +67,6 @@ function TFillingMapLayerConfigStatic.GetActualZoom(
   ALocalConverter: ILocalCoordConverter): Byte;
 var
   VZoom: Integer;
-  VRelative: Boolean;
 begin
   VZoom := FZoom;
   if FUseRelativeZoom then begin
