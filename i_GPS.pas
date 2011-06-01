@@ -3,6 +3,7 @@ unit i_GPS;
 interface
 
 uses
+  ActiveX,
   t_GeoTypes;
 
 type
@@ -57,6 +58,39 @@ type
     property VDOP: Double read GetVDOP;
     property PDOP: Double read GetPDOP;
     property Satellites: IGPSSatellitesInView  read GetSatellites;
+  end;
+
+  IGPSPositionFactory = interface
+    ['{542F6E48-EC4E-4C8D-9A53-8B392B0E8EA6}']
+    function BuildSatelliteInfo(
+      APseudoRandomCode: Integer;
+      AElevation: Integer;
+      AAzimuth: Integer;
+      ASignalToNoiseRatio: Integer;
+      AIsFix: Boolean
+    ): IGPSSatelliteInfo;
+
+    function BuildSatellitesInViewEmpty: IGPSSatellitesInView;
+    function BuildSatellitesInView(
+      AFixCount: Integer;
+      AItemsCount: Integer;
+      AItems: PUnknownList
+    ): IGPSSatellitesInView;
+
+    function BuildPositionEmpty: IGPSPosition;
+    function BuildPosition(
+      APosition: TDoublePoint;
+      AAltitude: Double;
+      ASpeed_KMH: Double;
+      AHeading: Double;
+      AUTCDateTime: TDateTime;
+      ALocalDateTime: TDateTime;
+      AIsFix: Word;
+      AHDOP: Double;
+      AVDOP: Double;
+      APDOP: Double;
+      ASatellites: IGPSSatellitesInView
+    ): IGPSPosition;
   end;
 
 implementation
