@@ -91,6 +91,7 @@ implementation
 uses
   SysUtils,
   u_JclNotify,
+  u_EnumUnknown,
   u_GPSPositionStatic,
   u_GPSSatellitesInView,
   u_GPSSatelliteInfo;
@@ -204,7 +205,7 @@ begin
           FPDOP,
           TGPSSatellitesInView.Create(
             FFixCount,
-            FSatellites
+            TEnumUnknown.Create(FSatellites)
           )
         );
       end;

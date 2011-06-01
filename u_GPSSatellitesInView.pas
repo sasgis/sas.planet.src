@@ -3,6 +3,7 @@ unit u_GPSSatellitesInView;
 interface
 
 uses
+  ActiveX,
   Classes,
   SysUtils,
   i_GPS;
@@ -19,7 +20,7 @@ type
   public
     constructor Create(
       AFixCount: Integer;
-      AItems: IInterfaceList
+      AItemsEnum: IEnumUnknown
     );
     destructor Destroy; override;
   end;
@@ -28,15 +29,17 @@ implementation
 { TGPSSatellitesInView }
 
 constructor TGPSSatellitesInView.Create(
-  AFixCount: Integer; AItems: IInterfaceList);
+  AFixCount: Integer;
+  AItemsEnum: IEnumUnknown
+);
 var
   i: Integer;
+  VItem: IGPSSatelliteInfo;
 begin
-  if AItems <> nil then begin
+  if AItemsEnum <> nil then begin
     FItems := TInterfaceList.Create;
-    FItems.Capacity := AItems.Count;
-    for i := 0 to AItems.Count - 1 do begin
-      FItems.Add(AItems[i]);
+    while AItemsEnum.Next(1, VItem, @i) =  S_OK do begin
+      FItems.Add(VItem);
     end;
     FFixCount := AFixCount;
     if FItems.Count < FFixCount then begin
