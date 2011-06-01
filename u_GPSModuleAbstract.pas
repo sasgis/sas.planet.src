@@ -33,11 +33,11 @@ type
 
   TGPSModuleAbstract = class(TInterfacedObject, IGPSModule)
   private
+    FGPSPositionFactory: IGPSPositionFactory;
     FCS: TCriticalSection;
     FPosChanged: Boolean;
     FSatellitesChanged: Boolean;
     FLastStaticPosition: IGPSPosition;
-    FEmptyDataPosition: IGPSPosition;
 
     FPosition: TDoublePoint;
     FAltitude: Double;
@@ -102,7 +102,7 @@ type
     function GetConnectErrorNotifier: IJclNotifier; virtual; safecall;
     function GetTimeOutNotifier: IJclNotifier; virtual; safecall;
   public
-    constructor Create();
+    constructor Create(AGPSPositionFactory: IGPSPositionFactory);
     destructor Destroy; override;
   end;
 
@@ -110,18 +110,16 @@ implementation
 
 uses
   SysUtils,
-  u_JclNotify,
-  u_EnumUnknown,
-  u_GPSPositionStatic,
-  u_GPSSatellitesInView,
-  u_GPSSatelliteInfo;
+  u_JclNotify;
 
 { TGPSPositionUpdatable }
 
-constructor TGPSModuleAbstract.Create;
+constructor TGPSModuleAbstract.Create(AGPSPositionFactory: IGPSPositionFactory);
 var
   VPoint: TDoublePoint;
 begin
+  FGPSPositionFactory := AGPSPositionFactory;
+
   FCS := TCriticalSection.Create;
 
   FSatellites := TSatellitesInternalList.Create;
@@ -140,9 +138,6 @@ begin
   FTimeOutNotifier := TJclBaseNotifier.Create;
   VPoint.X := 0;
   VPoint.Y := 0;
-  FEmptyDataPosition := TGPSPositionStatic.Create(
-    VPoint, 0, 0, 0, 0, 0, 0, 0, 0, 0, TGPSSatellitesInView.Create(0, 0, nil)
-  );
 end;
 
 destructor TGPSModuleAbstract.Destroy;
@@ -150,7 +145,7 @@ begin
   FreeAndNil(FCS);
   FreeAndNil(FSatellites);
   FLastStaticPosition := nil;
-  FEmptyDataPosition := nil;
+  FGPSPositionFactory := nil;
 
   FConnectingNotifier := nil;
   FConnectedNotifier := nil;
@@ -199,7 +194,7 @@ begin
   try
     if FSatellitesChanged or FPosChanged then begin
       if not FSatellitesChanged then begin
-        Result := TGPSPositionStatic.Create(
+        Result := FGPSPositionFactory.BuildPosition(
           FPosition,
           FAltitude,
           FSpeed_KMH,
@@ -213,7 +208,7 @@ begin
           FLastStaticPosition.Satellites
         );
       end else begin
-        Result := TGPSPositionStatic.Create(
+        Result := FGPSPositionFactory.BuildPosition(
           FPosition,
           FAltitude,
           FSpeed_KMH,
@@ -224,7 +219,7 @@ begin
           FHDOP,
           FVDOP,
           FPDOP,
-          TGPSSatellitesInView.Create(
+          FGPSPositionFactory.BuildSatellitesInView(
             FFixCount,
             FSatellites.Count,
             FSatellites.List
@@ -356,7 +351,7 @@ begin
   end;
 
   if VSatteliteChanged then begin
-    VSattelite := TGPSSatelliteInfo.Create(
+    VSattelite := FGPSPositionFactory.BuildSatelliteInfo(
       APseudoRandomCode,
       AElevation,
       AAzimuth,
@@ -372,7 +367,7 @@ procedure TGPSModuleAbstract._UpdateToEmptyPosition;
 begin
   FPosChanged := False;
   FSatellitesChanged := False;
-  FLastStaticPosition := FEmptyDataPosition;
+  FLastStaticPosition := FGPSPositionFactory.BuildPositionEmpty;
 end;
 
 { TSatellitesInternalList }

@@ -14,6 +14,7 @@ uses
   JclDebug,
   {$ENDIF SasDebugWithJcl}
   i_JclNotify,
+  i_GPS,
   i_LanguageManager,
   i_MemObjCache,
   i_ConfigDataWriteProvider,
@@ -76,6 +77,7 @@ type
     FProxySettings: IProxySettings;
     FGPSConfig: IGPSConfig;
     FGSMpar: IGSMGeoCodeConfig;
+    FGPSPositionFactory: IGPSPositionFactory;
     FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -213,6 +215,7 @@ uses
   u_LanguageManager,
   u_DownloadInfoSimple,
   u_InetConfig,
+  u_Datum,
   u_GSMGeoCodeConfig,
   u_GPSConfig,
   u_MarkCategoryFactoryConfig,
@@ -229,6 +232,7 @@ uses
   u_GPSLogWriterToPlt,
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByZylGPS,
+  u_GPSPositionFactory,
   u_MainFormConfig,
   u_InternalPerformanceCounterList,
   u_ResStrings,
@@ -277,7 +281,12 @@ begin
   FInetConfig := TInetConfig.Create;
   FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
   FGPSConfig := TGPSConfig.Create(GetTrackLogPath);
-  FGPSRecorder := TGPSRecorderStuped.Create;
+  FGPSPositionFactory := TGPSPositionFactory.Create;
+  FGPSRecorder :=
+    TGPSRecorderStuped.Create(
+      TDatum.Create(3395, 6378137, 6356752),
+      FGPSPositionFactory
+    );
   FGSMpar := TGSMGeoCodeConfig.Create;
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
@@ -297,7 +306,7 @@ begin
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   FGPSpar :=
     TGPSpar.Create(
-      TGPSModuleFactoryByZylGPS.Create,
+      TGPSModuleFactoryByZylGPS.Create(FGPSPositionFactory),
       TPltLogWriter.Create(GetTrackLogPath),
       FGPSConfig,
       FGPSRecorder,
