@@ -29,14 +29,21 @@ implementation
 
 constructor TGPSSatellitesInView.Create(
   AFixCount: Integer; AItems: IInterfaceList);
+var
+  i: Integer;
 begin
-  FItems := AItems;
-  if FItems <> nil then begin
+  if AItems <> nil then begin
+    FItems := TInterfaceList.Create;
+    FItems.Capacity := AItems.Count;
+    for i := 0 to AItems.Count - 1 do begin
+      FItems.Add(AItems[i]);
+    end;
     FFixCount := AFixCount;
     if FItems.Count < FFixCount then begin
       FFixCount := FItems.Count;
     end;
   end else begin
+    FItems := nil;
     FFixCount := 0;
   end;
 end;

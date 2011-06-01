@@ -42,7 +42,6 @@ type
     FConnectErrorNotifier: IJclNotifier;
     FTimeOutNotifier: IJclNotifier;
   protected
-    function _GetSatellitesCopy: IInterfaceList;
     procedure _UpdatePosition(
       APosition: TDoublePoint;
       AAltitude: Double;
@@ -205,7 +204,7 @@ begin
           FPDOP,
           TGPSSatellitesInView.Create(
             FFixCount,
-            _GetSatellitesCopy
+            FSatellites
           )
         );
       end;
@@ -231,17 +230,6 @@ end;
 procedure TGPSModuleAbstract.UnLock;
 begin
   FCS.Release;
-end;
-
-function TGPSModuleAbstract._GetSatellitesCopy: IInterfaceList;
-var
-  i: Integer;
-begin
-  Result := TInterfaceList.Create;
-  Result.Capacity := FSatellites.Count;
-  for i := 0 to FSatellites.Count - 1 do begin
-    Result.Add(FSatellites[i]);
-  end;
 end;
 
 procedure TGPSModuleAbstract._UpdatePosition(APosition: TDoublePoint;
