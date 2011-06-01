@@ -250,7 +250,13 @@ begin
 
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
   Show_logo := True;
-  ShowDebugInfo := False;
+
+  {$IFDEF DEBUG}
+    ShowDebugInfo := True;
+  {$ELSE}
+    ShowDebugInfo := False;
+  {$ENDIF}
+
   FCacheConfig := TGlobalCahceConfig.Create;
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   FMainMapsList := TMapTypesMainList.Create;
