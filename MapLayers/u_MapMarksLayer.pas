@@ -13,6 +13,7 @@ uses
   u_GeoFun,
   i_ViewPortState,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   u_MarksDbGUIHelper,
   u_MapLayerWithThreadDraw;
 
@@ -23,10 +24,12 @@ type
     FConfigStatic: IUsedMarksConfigStatic;
     FMarkDBGUI: TMarksDbGUIHelper;
     FMarksSubset: IMarksSubset;
+    FGetMarksCounter: IInternalPerformanceCounter;
     procedure OnConfigChange(Sender: TObject);
     function GetMarksSubset: IMarksSubset;
   protected
     procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
+    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
     procedure StartThreads; override;
   public
@@ -101,9 +104,15 @@ var
   VCurrTileOnBitmapRect: TRect;
   VProv: IBitmapLayerProvider;
   VMarksSubset: IMarksSubset;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  FMarksSubset := GetMarksSubset;
-  VMarksSubset := FMarksSubset;
+  VCounterContext := FGetMarksCounter.StartOperation;
+  try
+    FMarksSubset := GetMarksSubset;
+    VMarksSubset := FMarksSubset;
+  finally
+    FGetMarksCounter.FinishOperation(VCounterContext);
+  end;
   VBitmapConverter := LayerCoordConverter;
   if (VMarksSubset <> nil) and (VBitmapConverter <> nil) and (not VMarksSubset.IsEmpty) then begin
     VProv := TMapMarksBitmapLayerProviderByMarksSubset.Create(VMarksSubset);
@@ -278,6 +287,13 @@ begin
     ViewUpdateUnlock;
   end;
   ViewUpdate;
+end;
+
+procedure TMapMarksLayer.SetPerfList(
+  const Value: IInternalPerformanceCounterList);
+begin
+  inherited;
+  FGetMarksCounter := Value.CreateAndAddNewCounter('GetMarks');
 end;
 
 procedure TMapMarksLayer.StartThreads;
