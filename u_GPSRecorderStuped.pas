@@ -82,7 +82,7 @@ begin
   FDatum := TDatum.Create(3395, 6378137, 6356752);
   FLastPointIsEmpty := True;
   FCurrentPosition := TGPSPositionStatic.Create(
-    DoublePoint(0, 0), 0, 0, 0, 0, 0, 0, 0, 0, 0, TGPSSatellitesInView.Create(0, nil)
+    DoublePoint(0, 0), 0, 0, 0, 0, 0, 0, 0, 0, 0, TGPSSatellitesInView.Create(0, 0, nil)
   );
 end;
 

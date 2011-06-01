@@ -20,25 +20,40 @@ type
   public
     constructor Create(
       AFixCount: Integer;
-      AItemsEnum: IEnumUnknown
+      AItemsCount: Integer;
+      AItems: PUnknownList
     );
     destructor Destroy; override;
   end;
 
 implementation
+
+const
+  CMaxSatellitesCount = 32;
+
 { TGPSSatellitesInView }
 
 constructor TGPSSatellitesInView.Create(
   AFixCount: Integer;
-  AItemsEnum: IEnumUnknown
+  AItemsCount: Integer;
+  AItems: PUnknownList
 );
 var
   i: Integer;
+  VItemCount: Integer;
   VItem: IGPSSatelliteInfo;
 begin
-  if AItemsEnum <> nil then begin
+  if (AItemsCount > 0) and (AItems <> nil) then begin
+    VItemCount := AItemsCount;
+    if VItemCount > CMaxSatellitesCount then begin
+      VItemCount := CMaxSatellitesCount;
+    end;
+
     FItems := TInterfaceList.Create;
-    while AItemsEnum.Next(1, VItem, @i) =  S_OK do begin
+    FItems.Capacity := VItemCount;
+
+    for i := 0 to VItemCount - 1 do begin
+      VItem := IGPSSatelliteInfo(AItems^[i]);
       FItems.Add(VItem);
     end;
     FFixCount := AFixCount;
