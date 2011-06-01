@@ -143,10 +143,6 @@ ResourceString
   SAS_STR_Wite = 'Wait';
   SAS_STR_S = 'Area';
   SAS_STR_L = 'Length';
-  SAS_STR_Lat = 'Latitude';
-  SAS_STR_Lon = 'Longitude';
-  SAS_STR_OnVertical = 'Vertically';
-  SAS_STR_OnHorizontal = 'Horizontally';
   SAS_STR_P = 'Perimeter';
   SAS_STR_Whole = 'Total';
   SAS_STR_Maps = 'Maps';
