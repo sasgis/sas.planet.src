@@ -464,6 +464,7 @@ uses
   u_GPSSatelliteInfo in 'u_GPSSatelliteInfo.pas',
   u_GPSSatellitesInView in 'u_GPSSatellitesInView.pas',
   u_GPSPositionStatic in 'u_GPSPositionStatic.pas',
+  u_GPSPositionFactory in 'u_GPSPositionFactory.pas',
   u_GPSModuleAbstract in 'u_GPSModuleAbstract.pas',
   u_GPSModuleByZylGPS in 'u_GPSModuleByZylGPS.pas',
   u_GPSModuleFactoryByZylGPS in 'u_GPSModuleFactoryByZylGPS.pas',
