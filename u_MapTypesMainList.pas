@@ -246,7 +246,7 @@ begin
     VGUIDString := VMapType.GUIDString;
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
     VSubItem.WriteInteger('pnum', VMapType.FSortIndex);
-
+    VSubItem.WriteString('name', VMapType.Name);
 
     if VMapType.UrlGenerator.URLBase <> VMapType.UrlGenerator.DefURLBase then begin
       VSubItem.WriteString('URLBase', VMapType.UrlGenerator.URLBase);
