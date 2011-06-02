@@ -354,7 +354,7 @@ begin
     AName,
     AID,
     AVisible,
-    APicName,
+    VPicName,
     VPic,
     VCategory,
     ADesc,
