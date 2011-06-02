@@ -4,7 +4,6 @@ interface
 
 uses
   Windows,
-  SyncObjs,
   i_InternalPerformanceCounter,
   i_JclListenerNotifierLinksList;
 

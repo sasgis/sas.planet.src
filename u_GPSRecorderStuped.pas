@@ -68,17 +68,14 @@ type
 implementation
 
 uses
-  Math,
-  u_GPSPositionStatic,
-  u_GPSSatellitesInView,
-  u_GeoFun;
+  Math;
 
 { TGPSRecorderStuped }
 
 constructor TGPSRecorderStuped.Create(ADatum: IDatum; AGPSPositionFactory: IGPSPositionFactory);
 begin
   inherited Create;
-  FDatum := ADatum; //TDatum.Create(3395, 6378137, 6356752);
+  FDatum := ADatum;
   FLastPointIsEmpty := True;
   FCurrentPosition := AGPSPositionFactory.BuildPositionEmpty;
 end;

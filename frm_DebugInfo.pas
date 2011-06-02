@@ -16,8 +16,7 @@ uses
   ExtCtrls,
   Grids,
   i_IDList,
-  i_InternalPerformanceCounter,
-  u_WindowLayerBasicList;
+  i_InternalPerformanceCounter;
 
 type
   TfrmDebugInfo = class(TForm)
@@ -46,8 +45,7 @@ var
 implementation
 
 uses
-  ActiveX,
-  u_WindowLayerBasic;
+  ActiveX;
 
 {$R *.dfm}
 

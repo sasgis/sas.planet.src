@@ -122,7 +122,6 @@ implementation
 uses
   Types,
   SysUtils,
-  Graphics,
   u_NotifyEventListener;
 
 { TWindowLayerWithPosBase }

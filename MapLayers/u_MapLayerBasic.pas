@@ -90,7 +90,6 @@ implementation
 uses
   SysUtils,
   Types,
-  Graphics,
   i_CoordConverter,
   u_LocalCoordConverterFactorySimpe,
   u_GeoFun;

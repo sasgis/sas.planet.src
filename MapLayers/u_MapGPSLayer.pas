@@ -65,9 +65,7 @@ implementation
 
 uses
   Classes,
-  Graphics,
   SysUtils,
-  GR32_Math,
   i_CoordConverter,
   i_TileIterator,
   u_GeoFun,

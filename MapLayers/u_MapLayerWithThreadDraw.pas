@@ -12,7 +12,6 @@ uses
   i_BackgroundTask,
   i_ImageResamplerConfig,
   i_LayerBitmapClearStrategy,
-  i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
@@ -75,9 +74,7 @@ uses
   SysUtils,
   u_NotifyEventListener,
   u_BackgroundTaskLayerDrawBase,
-  u_LocalCoordConverterFactorySimpe,
-  u_LayerBitmapClearStrategyFactory,
-  u_GeoFun;
+  u_LayerBitmapClearStrategyFactory;
 
 { TMapLayerWithThreadDraw }
 

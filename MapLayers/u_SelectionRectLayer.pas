@@ -39,7 +39,6 @@ implementation
 
 uses
   SysUtils,
-  GR32_Layers,
   i_CoordConverter,
   u_NotifyEventListener;
 

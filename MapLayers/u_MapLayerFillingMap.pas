@@ -37,7 +37,6 @@ implementation
 
 uses
   Classes,
-  Graphics,
   SysUtils,
   t_GeoTypes,
   i_CoordConverter,

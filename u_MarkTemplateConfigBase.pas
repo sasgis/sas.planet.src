@@ -1,9 +1,9 @@
 unit u_MarkTemplateConfigBase;
 
 interface
+
 uses
   Classes,
-  GR32,
   i_MarkNameGenerator,
   i_MarkCategoryDBSmlInternal,
   u_ConfigDataElementComplexBase;

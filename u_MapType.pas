@@ -8,7 +8,6 @@ uses
   Classes,
   Dialogs,
   Graphics,
-  SyncObjs,
   GR32,
   t_GeoTypes,
   t_CommonTypes,
