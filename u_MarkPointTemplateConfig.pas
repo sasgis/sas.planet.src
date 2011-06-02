@@ -130,9 +130,7 @@ begin
   VScale2 := FDefaultTemplate.Scale2;
   VPic := FDefaultTemplate.Pic;
   if VPic = nil then begin
-    if FMarkPictureList.Count > 0 then begin
-      VPic := FMarkPictureList.Get(0);
-    end;
+    VPic := FMarkPictureList.GetDefaultPicture;
   end;
   if VPic <> nil then begin
     VPicName := VPic.GetName;

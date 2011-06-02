@@ -27,6 +27,8 @@ type
     function GetName(AIndex: Integer): string;
     function GetIndexByName(AValue: string): Integer;
     function GetPictureName(AValue: IMarkPicture): string;
+
+    function GetDefaultPicture: IMarkPicture;
   end;
 
 implementation

@@ -588,10 +588,6 @@ begin
     end;
   end;
 
-  if APic <> nil then begin
-    VPicName := APic.GetName;
-  end;
-
   Result := CreatePoint(
     VID,
     AName,

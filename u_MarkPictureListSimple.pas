@@ -27,6 +27,8 @@ type
     function GetName(AIndex: Integer): string;
     function GetIndexByName(AValue: string): Integer;
     function GetPictureName(AValue: IMarkPicture): string;
+
+    function GetDefaultPicture: IMarkPicture;
   public
     constructor Create(ABasePath: string; ABitmapTypeManager: IBitmapTypeExtManager);
     destructor Destroy; override;
@@ -119,6 +121,18 @@ begin
   LockRead;
   try
     Result := FList.Count;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMarkPictureListSimple.GetDefaultPicture: IMarkPicture;
+begin
+  LockRead;
+  try
+    if GetCount > 0 then begin
+      Result := Get(0);
+    end;
   finally
     UnlockRead;
   end;
