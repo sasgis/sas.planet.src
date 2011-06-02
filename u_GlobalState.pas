@@ -465,6 +465,7 @@ begin
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
   FMainMapsList.LoadMaps(FLanguageManager, VLocalMapsConfig, MapsPath);
   FMainFormConfig := TMainFormConfig.Create(
+    FLocalConverterFactory,
     FGeoCoderList,
     FMainMapsList.MapsList,
     FMainMapsList.LayersList,

@@ -96,7 +96,6 @@ uses
   SysUtils,
   Types,
   i_CoordConverter,
-  u_LocalCoordConverterFactorySimpe,
   u_GeoFun;
 
 { TMapLayerBase }
