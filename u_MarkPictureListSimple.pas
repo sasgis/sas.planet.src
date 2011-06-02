@@ -26,7 +26,6 @@ type
     function Get(AIndex: Integer): IMarkPicture;
     function GetName(AIndex: Integer): string;
     function GetIndexByName(AValue: string): Integer;
-    function GetPictureName(AValue: IMarkPicture): string;
 
     function GetDefaultPicture: IMarkPicture;
   public
@@ -148,23 +147,6 @@ begin
   LockRead;
   try
     Result := FList.Strings[AIndex];
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMarkPictureListSimple.GetPictureName(AValue: IMarkPicture): string;
-var
-  VIndex: Integer;
-begin
-  LockRead;
-  try
-    VIndex := FList.IndexOfObject(TObject(Pointer(AValue)));
-    if VIndex >=  0 then begin
-      Result := FList.Strings[VIndex];
-    end else begin
-      Result := '';
-    end;
   finally
     UnlockRead;
   end;
