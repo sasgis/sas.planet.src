@@ -344,7 +344,6 @@ type
     procedure TBmoveClick(Sender: TObject);
     procedure TBFullSizeClick(Sender: TObject);
     procedure NCalcRastClick(Sender: TObject);
-    procedure NFoolSizeClick(Sender: TObject);
     procedure N6Click(Sender: TObject);
     procedure ZoomToolBarDockChanging(Sender: TObject; Floating: Boolean; DockingTo: TTBDock);
     procedure N8Click(Sender: TObject);
@@ -1729,6 +1728,7 @@ begin
             VK_LEFT,
             VK_DOWN,
             VK_UP: VMoveByDelta := True;
+            VK_F11: Handled := True;
           end;
           if VMoveByDelta then begin
             if (FdWhenMovingButton<35) then begin
@@ -1807,6 +1807,10 @@ begin
                   end;
                 end;
               end;
+            end;
+            VK_F11: begin
+              TBFullSizeClick(nil);
+              Handled := True;
             end;
           end;
         end;
@@ -2098,10 +2102,15 @@ end;
 
 procedure TfrmMain.TBFullSizeClick(Sender:TObject);
 begin
-  if TBFullSize.Checked then begin
-    FWinPosition.SetFullScreen;
-  end else begin
-    FWinPosition.SetNoFullScreen;
+  FWinPosition.LockWrite;
+  try
+    if FWinPosition.GetIsFullScreen then begin
+      FWinPosition.SetNoFullScreen;
+    end else begin
+      FWinPosition.SetFullScreen;
+    end;
+  finally
+    FWinPosition.UnlockWrite;
   end;
 end;
 
@@ -2129,15 +2138,6 @@ procedure TfrmMain.NCalcRastClick(Sender: TObject);
 begin
  TBCalcRas.Checked:=true;
  TBCalcRasClick(self);
-end;
-
-procedure TfrmMain.NFoolSizeClick(Sender: TObject);
-begin
-  if NFoolSize.Checked then begin
-    FWinPosition.SetFullScreen;
-  end else begin
-    FWinPosition.SetNoFullScreen;
-  end;
 end;
 
 procedure TfrmMain.N6Click(Sender: TObject);
@@ -3137,16 +3137,7 @@ begin
   map.Enabled:=false;
   map.Enabled:=true;
   if button=mbMiddle then begin
-    FWinPosition.LockWrite;
-    try
-      if FWinPosition.GetIsFullScreen then begin
-        FWinPosition.SetNoFullScreen;
-      end else begin
-        FWinPosition.SetFullScreen;
-      end;
-    finally
-      FWinPosition.UnlockWrite;
-    end;
+    TBFullSizeClick(nil);
     exit;
   end;
   VMouseMoveDelta := Point(FMouseDownPoint.x-FMouseUpPoint.X, FMouseDownPoint.y-FMouseUpPoint.y);

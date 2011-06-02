@@ -265,6 +265,9 @@ object frmMain: TfrmMain
       Top = 0
       CloseButton = False
       DockPos = 2
+      MenuBar = True
+      ProcessShortCuts = True
+      ShrinkMode = tbsmWrap
       Stretch = True
       TabOrder = 5
       Caption = 'Main Menu'
@@ -654,7 +657,7 @@ object frmMain: TfrmMain
           ImageIndex = 4
           Images = MenusImageList
           ShortCut = 122
-          OnClick = NFoolSizeClick
+          OnClick = TBFullSizeClick
           Caption = 'Full Screen'
           Hint = ''
         end
