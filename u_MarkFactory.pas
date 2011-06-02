@@ -236,7 +236,6 @@ var
   VName: string;
   VCategory: IMarkCategory;
   VCategoryID: Integer;
-  VPicName: string;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -253,16 +252,11 @@ begin
     VCategoryID := VTemplateSML.CategoryId;
   end;
 
-  VPicName := '';
-  if VTemplate.Pic <> nil then begin
-    VPicName := VTemplate.Pic.GetName;
-  end;
-
   Result := CreatePoint(
     -1,
     VName,
     True,
-    VPicName,
+    '',
     VTemplate.Pic,
     VCategoryId,
     VCategory,
@@ -334,16 +328,20 @@ function TMarkFactory.CreatePoint(
 var
   VPicIndex: Integer;
   VPic: IMarkPicture;
+  VPicName: string;
   VCategory: IMarkCategory;
 begin
   VPic := APic;
   if VPic = nil then begin
+    VPicName := APicName;
     VPicIndex := FMarkPictureList.GetIndexByName(APicName);
     if VPicIndex < 0 then begin
       VPic := nil;
     end else begin
       VPic := FMarkPictureList.Get(VPicIndex);
     end;
+  end else begin
+    VPicName := VPic.GetName;
   end;
 
   VCategory := ACategory;
@@ -430,11 +428,18 @@ begin
   );
 end;
 
-function TMarkFactory.CreateMark(AID: Integer; AName: string; AVisible: Boolean;
-  APicName: string; ACategoryId: Integer; ADesc: string;
+function TMarkFactory.CreateMark(
+  AID: Integer;
+  AName: string;
+  AVisible: Boolean;
+  APicName: string;
+  ACategoryId: Integer;
+  ADesc: string;
   ARect: TDoubleRect;
   APoints: TArrayOfDoublePoint;
-  AColor1, AColor2: TColor32; AScale1, AScale2: Integer): IMarkFull;
+  AColor1, AColor2: TColor32;
+  AScale1, AScale2: Integer
+): IMarkFull;
 var
   VPointCount: Integer;
 begin
@@ -565,11 +570,15 @@ var
   VPicName: string;
   VCategoryInternal: IMarkCategorySMLInternal;
   VMarkInternal: IMarkSMLInternal;
+  VMarkPointInternal: IMarkPointSMLInternal;
 begin
   VID := -1;
   if ASource <> nil then begin
     if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
       VID := VMarkInternal.Id;
+    end;
+    if Supports(ASource, IMarkPointSMLInternal, VMarkPointInternal) then begin
+      VPicName := VMarkPointInternal.PicName;
     end;
   end;
   VCategoryId := -1;
@@ -578,10 +587,11 @@ begin
       VCategoryId := VCategoryInternal.Id;
     end;
   end;
-  VPicName := '';
+
   if APic <> nil then begin
     VPicName := APic.GetName;
   end;
+
   Result := CreatePoint(
     VID,
     AName,
