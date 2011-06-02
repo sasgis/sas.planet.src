@@ -19,15 +19,17 @@ type
   TMarkCategoryDB = class(TInterfacedObject, IMarkCategoryDB, IMarkCategoryDBSmlInternal)
   private
     FSync: IReadWriteSync;
+    FDbCode: Integer;
     FBasePath: string;
     FCdsKategory: TClientDataSet;
     FList: IIDInterfaceList;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternal;
     FFactory: IMarkCategoryFactory;
-    function ReadCurrentCategory: IMarkCategory;
+    function ReadCurrentCategory(out AId: Integer): IMarkCategory;
     procedure WriteCurrentCategory(ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
+    function GetDbCode: Integer;
     procedure InitEmptyDS;
   protected
     procedure LockRead; virtual;
@@ -61,6 +63,7 @@ uses
   DB,
   i_EnumID,
   u_IDInterfaceList,
+  i_MarksDbSmlInternal,
   u_MarkCategoryFactory;
 
 constructor TMarkCategoryDB.Create(
@@ -70,10 +73,11 @@ constructor TMarkCategoryDB.Create(
 var
   VFactory: TMarkCategoryFactory;
 begin
+  FDbCode := Integer(Self);
   FBasePath := ABasePath;
   FSync := TSimpleRWSync.Create;
   FList := TIDInterfaceList.Create;
-  VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
+  VFactory := TMarkCategoryFactory.Create(GetDbCode, AFactoryConfig);
   FFactoryDbInternal := VFactory;
   FFactory := VFactory;
   FCdsKategory := TClientDataSet.Create(nil);
@@ -91,20 +95,20 @@ begin
   inherited;
 end;
 
-function TMarkCategoryDB.ReadCurrentCategory: IMarkCategory;
+function TMarkCategoryDB.ReadCurrentCategory(out AId: Integer): IMarkCategory;
 var
-  VId: Integer;
   VName: string;
   VVisible: Boolean;
   VAfterScale: Integer;
   VBeforeScale: Integer;
 begin
+  AId := FCdsKategory.fieldbyname('id').AsInteger;
   VName := FCdsKategory.fieldbyname('name').AsString;
-  VId := FCdsKategory.fieldbyname('id').AsInteger;
+  AId := FCdsKategory.fieldbyname('id').AsInteger;
   VVisible := FCdsKategory.FieldByName('visible').AsBoolean;
   VAfterScale := FCdsKategory.fieldbyname('AfterScale').AsInteger;
   VBeforeScale := FCdsKategory.fieldbyname('BeforeScale').AsInteger;
-  Result := FFactoryDbInternal.CreateCategory(VId, VName, VVisible, VAfterScale, VBeforeScale);
+  Result := FFactoryDbInternal.CreateCategory(AId, VName, VVisible, VAfterScale, VBeforeScale);
 end;
 
 procedure TMarkCategoryDB.WriteCurrentCategory(ACategory: IMarkCategory);
@@ -119,8 +123,14 @@ function TMarkCategoryDB.WriteCategory(ACategory: IMarkCategory): IMarkCategory;
 var
   VId: Integer;
   VExists: Boolean;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  VId := ACategory.id;
+  VId := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    if GetDbCode = VCategoryInternal.DbCode then begin
+      VId := VCategoryInternal.Id;
+    end;
+  end;
   LockRead;
   try
     if VId < 0 then begin
@@ -179,8 +189,14 @@ procedure TMarkCategoryDB.DeleteCategory(ACategory: IMarkCategory);
 var
   VId: Integer;
   VExist: Boolean;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  VId := ACategory.id;
+  VId := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    if GetDbCode = VCategoryInternal.DbCode then begin
+      VId := VCategoryInternal.Id;
+    end;
+  end;
   LockWrite;
   try
     VExist := False;
@@ -238,6 +254,11 @@ begin
   end;
 end;
 
+function TMarkCategoryDB.GetDbCode: Integer;
+begin
+  Result := FDbCode;
+end;
+
 function TMarkCategoryDB.GetFactory: IMarkCategoryFactory;
 begin
   Result := FFactory;
@@ -246,6 +267,7 @@ end;
 procedure TMarkCategoryDB.SetAllCategoriesVisible(ANewVisible: Boolean);
 var
   VCategory: IMarkCategory;
+  VId: Integer;
 begin
   LockWrite;
   try
@@ -258,8 +280,8 @@ begin
             FCdsKategory.Edit;
             FCdsKategory.FieldByName('visible').AsBoolean := ANewVisible;
             FCdsKategory.post;
-            VCategory := ReadCurrentCategory;
-            FList.Replace(VCategory.Id, VCategory);
+            VCategory := ReadCurrentCategory(VId);
+            FList.Replace(VId, VCategory);
           end;
           FCdsKategory.Next;
         end;
@@ -315,6 +337,7 @@ procedure TMarkCategoryDB.LoadCategoriesFromFile;
 var
   VFileName: string;
   VCategory: IMarkCategory;
+  VId: Integer;
 begin
   VFileName := GetMarksCategoryFileName;
   if FileExists(VFileName) then begin
@@ -332,8 +355,8 @@ begin
       FCdsKategory.Filtered := false;
       FCdsKategory.First;
       while not (FCdsKategory.Eof) do begin
-        VCategory := ReadCurrentCategory;
-        FList.Add(VCategory.Id, VCategory);
+        VCategory := ReadCurrentCategory(VId);
+        FList.Add(VId, VCategory);
         FCdsKategory.Next;
       end;
     finally

@@ -6,11 +6,13 @@ uses
   GR32,
   t_GeoTypes,
   i_MarksSimple,
+  i_MarkCategory,
+  i_MarksDbSmlInternal,
   i_MarkPicture,
   u_MarkId;
 
 type
-  TMarkPoint = class(TMarkId, IMarkFull)
+  TMarkPoint = class(TMarkId, IMarkFull, IMarkPointSMLInternal)
   private
     FPicName: string;
     FPic: IMarkPicture;
@@ -38,12 +40,13 @@ type
     function GetGoToLonLat: TDoublePoint;
   public
     constructor Create(
+      ADbCode: Integer;
       AName: string;
       AId: Integer;
       AVisible: Boolean;
       APicName: string;
       APic: IMarkPicture;
-      ACategoryId: Integer;
+      ACategory: IMarkCategory;
       ADesc: string;
       ALLRect: TDoubleRect;
       APoint: TDoublePoint;
@@ -59,12 +62,13 @@ implementation
 { TMarkPoint }
 
 constructor TMarkPoint.Create(
+  ADbCode: Integer;
   AName: string;
   AId: Integer;
   AVisible: Boolean;
   APicName: string;
   APic: IMarkPicture;
-  ACategoryId: Integer;
+  ACategory: IMarkCategory;
   ADesc: string;
   ALLRect: TDoubleRect;
   APoint: TDoublePoint;
@@ -72,7 +76,7 @@ constructor TMarkPoint.Create(
   AScale1, AScale2: Integer
 );
 begin
-  inherited Create(AName, AId, ACategoryId, AVisible);
+  inherited Create(ADbCode, AName, AId, ACategory, AVisible);
   FPicName := APicName;
   FPic := APic;
   FDesc := ADesc;

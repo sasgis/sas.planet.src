@@ -199,7 +199,7 @@
     <DCCReference Include="i_MarkCategoryFactoryConfig.pas" />
     <DCCReference Include="i_MarkCategoryFactoryDbInternal.pas" />
     <DCCReference Include="i_MarkFactory.pas" />
-    <DCCReference Include="i_MarkFactoryDbInternal.pas" />
+    <DCCReference Include="i_MarkFactorySmlInternal.pas" />
     <DCCReference Include="i_MarkNameGenerator.pas" />
     <DCCReference Include="i_MarkPicture.pas" />
     <DCCReference Include="i_MarkPolygonLayerConfig.pas" />
@@ -208,6 +208,7 @@
     <DCCReference Include="i_MarksDbSmlInternal.pas" />
     <DCCReference Include="i_MarksFactoryConfig.pas" />
     <DCCReference Include="i_MarksSimple.pas" />
+    <DCCReference Include="i_MarkTemplate.pas" />
     <DCCReference Include="i_MemCache.pas" />
     <DCCReference Include="i_MemObjCache.pas" />
     <DCCReference Include="i_MiniMapLayerConfig.pas" />

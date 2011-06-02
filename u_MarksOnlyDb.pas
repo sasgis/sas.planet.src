@@ -9,10 +9,11 @@ uses
   Classes,
   t_GeoTypes,
   i_MarksFactoryConfig,
+  i_MarkCategoryDBSmlInternal,
   i_MarkCategory,
   i_MarksSimple,
   i_MarkFactory,
-  i_MarkFactoryDbInternal;
+  i_MarkFactorySmlInternal;
 
 type
   TMarksOnlyDb =  class
@@ -20,7 +21,7 @@ type
     FSync: IReadWriteSync;
     FBasePath: string;
     FCdsMarks: TClientDataSet;
-    FFactoryDbInternal: IMarkFactoryDbInternal;
+    FFactoryDbInternal: IMarkFactorySmlInternal;
     FFactory: IMarkFactory;
     function ReadCurrentMark: IMarkFull;
     function ReadCurrentMarkId: IMarkId;
@@ -29,6 +30,7 @@ type
 
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
+    function GetDbCode: Integer;
     procedure InitEmptyDS;
   protected
     procedure LockRead; virtual;
@@ -39,7 +41,11 @@ type
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
   public
-    constructor Create(ABasePath: string; AFactoryConfig: IMarksFactoryConfig);
+    constructor Create(
+      ABasePath: string;
+      ACategoryDB: IMarkCategoryDBSmlInternal;
+      AFactoryConfig: IMarksFactoryConfig
+    );
     destructor Destroy; override;
     
     function GetMarkByID(AMarkId: IMarkId): IMarkFull;
@@ -123,6 +129,7 @@ end;
 
 constructor TMarksOnlyDb.Create(
   ABasePath: string;
+  ACategoryDB: IMarkCategoryDBSmlInternal;
   AFactoryConfig: IMarksFactoryConfig
 );
 var
@@ -130,7 +137,7 @@ var
 begin
   FBasePath := ABasePath;
   FSync := TSimpleRWSync.Create;
-  VFactory := TMarkFactory.Create(AFactoryConfig);
+  VFactory := TMarkFactory.Create(GetDbCode, AFactoryConfig, ACategoryDB);
   FFactory := VFactory;
   FFactoryDbInternal := VFactory;
   FCdsMarks := TClientDataSet.Create(nil);
@@ -228,6 +235,8 @@ end;
 procedure TMarksOnlyDb.WriteCurrentMark(AMark: IMarkFull);
 var
   VMarkVisible: IMarkSMLInternal;
+  VMarkPoint: IMarkPointSMLInternal;
+  VPicName: string;
   VCategoryId: Integer;
   VVisible: Boolean;
 begin
@@ -237,6 +246,11 @@ begin
     VVisible := VMarkVisible.Visible;
     VCategoryId := VMarkVisible.CategoryId;
   end;
+  VPicName := '';
+  if Supports(AMark, IMarkPointSMLInternal, VMarkPoint) then begin
+    VPicName := VMarkPoint.PicName;
+  end;
+
   FCdsMarks.FieldByName('name').AsString := AMark.name;
   FCdsMarks.FieldByName('Visible').AsBoolean := VVisible;
   BlobFromExtArr(AMark.Points, FCdsMarks.FieldByName('LonLatArr'));
@@ -246,7 +260,7 @@ begin
   FCdsMarks.FieldByName('LatT').AsFloat := AMark.LLRect.Top;
   FCdsMarks.FieldByName('LonR').AsFloat := AMark.LLRect.Right;
   FCdsMarks.FieldByName('LatB').AsFloat := AMark.LLRect.Bottom;
-  FCdsMarks.FieldByName('PicName').AsString := AMark.PicName;
+  FCdsMarks.FieldByName('PicName').AsString := VPicName;
   FCdsMarks.FieldByName('Color1').AsInteger := AMark.Color1;
   FCdsMarks.FieldByName('Color2').AsInteger := AMark.Color2;
   FCdsMarks.FieldByName('Scale1').AsInteger := AMark.Scale1;
@@ -292,23 +306,31 @@ end;
 
 function TMarksOnlyDb.GetMarkVisible(AMark: IMarkId): Boolean;
 var
-  VMarkVisible: IMarkSMLInternal;
+  VMarkInternal: IMarkSMLInternal;
 begin
   Result := True;
   if AMark <> nil then begin
-    if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
-      Result := VMarkVisible.Visible;
+    if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
+      Result := VMarkInternal.Visible;
     end;
   end;
 end;
 
 procedure TMarksOnlyDb.WriteMark(AMark: IMarkFull);
+var
+  VId: Integer;
+  VMarkInternal: IMarkSMLInternal;
 begin
+  Assert(AMark <> nil);
+  VId := -1;
+  if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
+    VId := VMarkInternal.Id;
+  end;
   LockWrite;
   try
     FCdsMarks.Filtered := false;
-    if AMark.id >= 0 then begin
-      if FCdsMarks.Locate('id', AMark.id, []) then begin
+    if VId >= 0 then begin
+      if FCdsMarks.Locate('id', VId, []) then begin
         FCdsMarks.Edit;
       end else begin
         FCdsMarks.Insert;
@@ -328,14 +350,20 @@ procedure TMarksOnlyDb.WriteMarksList(AMarkList: IInterfaceList);
 var
   i: Integer;
   VMark: IMarkFull;
+  VId: Integer;
+  VMarkInternal: IMarkSMLInternal;
 begin
   LockWrite;
   try
     FCdsMarks.Filtered := false;
     for i := 0 to AMarkList.Count - 1 do begin
       VMark := IMarkFull(AMarkList.Items[i]);
-      if VMark.id >= 0 then begin
-        if FCdsMarks.Locate('id', VMark.id, []) then begin
+      VId := -1;
+      if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
+        VId := VMarkInternal.Id;
+      end;
+      if VId >= 0 then begin
+        if FCdsMarks.Locate('id', VId, []) then begin
           FCdsMarks.Edit;
         end else begin
           FCdsMarks.Insert;
@@ -382,20 +410,29 @@ end;
 procedure TMarksOnlyDb.DeleteMarksByCategoryID(ACategory: IMarkCategory);
 var
   VDeleted: Boolean;
+  VCategoryID: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
+  Assert(ACategory <> nil);
+  VCategoryID := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VCategoryID := VCategoryInternal.Id;
+  end;
   VDeleted := False;
-  LockWrite;
-  try
-    FCdsMarks.Filtered := false;
-    FCdsMarks.Filter := 'categoryid = ' + inttostr(ACategory.Id);
-    FCdsMarks.Filtered := true;
-    FCdsMarks.First;
-    while not (FCdsMarks.Eof) do begin
-      FCdsMarks.Delete;
-      VDeleted := True;
+  if VCategoryID >= 0 then begin
+    LockWrite;
+    try
+      FCdsMarks.Filtered := false;
+      FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FCdsMarks.Filtered := true;
+      FCdsMarks.First;
+      while not (FCdsMarks.Eof) do begin
+        FCdsMarks.Delete;
+        VDeleted := True;
+      end;
+    finally
+      UnlockWrite;
     end;
-  finally
-    UnlockWrite;
   end;
   if VDeleted then begin
     SaveMarks2File;
@@ -406,24 +443,33 @@ procedure TMarksOnlyDb.SetAllMarksInCategoryVisible(ACategory: IMarkCategory;
   ANewVisible: Boolean);
 var
   VVisible: Boolean;
+  VCategoryID: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  LockRead;
-  try
-    FCdsMarks.Filtered := false;
-    FCdsMarks.Filter := 'categoryid = ' + inttostr(ACategory.id);
-    FCdsMarks.Filtered := true;
-    FCdsMarks.First;
-    while not (FCdsMarks.Eof) do begin
-      VVisible := FCdsMarks.FieldByName('Visible').AsBoolean;
-      if VVisible <> ANewVisible then begin
-        FCdsMarks.Edit;
-        FCdsMarks.FieldByName('Visible').AsBoolean := ANewVisible;
-        FCdsMarks.Post;
+  VCategoryID := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VCategoryID := VCategoryInternal.Id;
+  end;
+
+  if VCategoryID >= 0 then begin
+    LockRead;
+    try
+      FCdsMarks.Filtered := false;
+      FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FCdsMarks.Filtered := true;
+      FCdsMarks.First;
+      while not (FCdsMarks.Eof) do begin
+        VVisible := FCdsMarks.FieldByName('Visible').AsBoolean;
+        if VVisible <> ANewVisible then begin
+          FCdsMarks.Edit;
+          FCdsMarks.FieldByName('Visible').AsBoolean := ANewVisible;
+          FCdsMarks.Post;
+        end;
+        FCdsMarks.Next;
       end;
-      FCdsMarks.Next;
+    finally
+      UnlockRead;
     end;
-  finally
-    UnlockRead;
   end;
 end;
 
@@ -473,24 +519,38 @@ begin
   end;
 end;
 
+function TMarksOnlyDb.GetDbCode: Integer;
+begin
+  Result := Integer(Self);
+end;
+
 function TMarksOnlyDb.GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
 var
   VMarkId: IMarkId;
+  VCategoryID: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
   Result := TInterfaceList.Create;
-  LockRead;
-  try
-    FCdsMarks.Filtered := false;
-    FCdsMarks.Filter := 'categoryid = ' + inttostr(ACategory.Id);
-    FCdsMarks.Filtered := true;
-    FCdsMarks.First;
-    while not (FCdsMarks.Eof) do begin
-      VMarkId := ReadCurrentMarkId;
-      Result.Add(VMarkId);
-      FCdsMarks.Next;
+  VCategoryID := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VCategoryID := VCategoryInternal.Id;
+  end;
+
+  if VCategoryID >= 0 then begin
+    LockRead;
+    try
+      FCdsMarks.Filtered := false;
+      FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FCdsMarks.Filtered := true;
+      FCdsMarks.First;
+      while not (FCdsMarks.Eof) do begin
+        VMarkId := ReadCurrentMarkId;
+        Result.Add(VMarkId);
+        FCdsMarks.Next;
+      end;
+    finally
+      UnlockRead;
     end;
-  finally
-    UnlockRead;
   end;
 end;
 
@@ -528,7 +588,16 @@ end;
 
 function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
   ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
-
+  function GetCategoryID(ACategory: IMarkCategory): Integer;
+  var
+    VCategoryInternal: IMarkCategorySMLInternal;
+  begin
+    Assert(ACategory <> nil);
+    Result := -1;
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      Result := VCategoryInternal.Id;
+    end;
+  end;
   function GetFilterText(
     ARect: TDoubleRect;
     ACategoryList: IInterfaceList;
@@ -536,6 +605,7 @@ function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
   ): string;
   var
     VCategoryFilter: string;
+    VCategoryID: Integer;
     i: Integer;
   begin
     Result := '';
@@ -544,9 +614,11 @@ function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
       Result := Result + ' and ';
     end;
     if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
-      VCategoryFilter := IntToStr(IMarkCategory(ACategoryList[0]).Id);
+      VCategoryID := GetCategoryID(IMarkCategory(ACategoryList[0]));
+      VCategoryFilter := IntToStr(VCategoryID);
       for i :=  1 to ACategoryList.Count - 1 do begin
-        VCategoryFilter := VCategoryFilter + ', ' + IntToStr(IMarkCategory(ACategoryList[i]).Id);
+        VCategoryID := GetCategoryID(IMarkCategory(ACategoryList[0]));
+        VCategoryFilter := VCategoryFilter + ', ' + IntToStr(VCategoryID);
       end;
       VCategoryFilter := '(categoryid in (' + VCategoryFilter + ')) and';
       Result := Result + VCategoryFilter;

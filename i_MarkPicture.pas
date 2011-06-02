@@ -11,6 +11,7 @@ type
   IMarkPicture = interface
     ['{4F70C829-D49A-4019-AAF6-3AA9BCD2CCAE}']
     procedure LoadBitmap(ABmp: TCustomBitmap32);
+    function GetName: string;
     function GetBitmapSize: TPoint;
     function GetPointInPicture: TPoint;
     function GetTextAlignment: TAlignment;

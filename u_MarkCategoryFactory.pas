@@ -12,6 +12,7 @@ type
   TMarkCategoryFactory = class(TInterfacedObject, IMarkCategoryFactory, IMarkCategoryFactoryDbInternal)
   private
     FConfig: IMarkCategoryFactoryConfig;
+    FDbCode: Integer;
   protected
     function CreateNew(AName: string): IMarkCategory;
     function Modify(
@@ -31,18 +32,27 @@ type
       ABeforeScale: integer
     ): IMarkCategory;
   public
-    constructor Create(AConfig: IMarkCategoryFactoryConfig);
+    constructor Create(
+      ADbCode: Integer;
+      AConfig: IMarkCategoryFactoryConfig
+    );
   end;
 
 implementation
 
 uses
+  SysUtils,
+  i_MarksDbSmlInternal,
   u_MarkCategory;
 
 { TMarkCategoryFactory }
 
-constructor TMarkCategoryFactory.Create(AConfig: IMarkCategoryFactoryConfig);
+constructor TMarkCategoryFactory.Create(
+  ADbCode: Integer;
+  AConfig: IMarkCategoryFactoryConfig
+);
 begin
+  FDbCode := ADbCode;
   FConfig := AConfig;
 end;
 
@@ -54,6 +64,7 @@ function TMarkCategoryFactory.CreateCategory(
 ): IMarkCategory;
 begin
   Result := TMarkCategory.Create(
+    FDbCode,
     AId,
     AName,
     AVisible,
@@ -97,6 +108,8 @@ function TMarkCategoryFactory.Modify(
 ): IMarkCategory;
 var
   VName: string;
+  VId: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
   VName := AName;
   FConfig.LockRead;
@@ -108,9 +121,14 @@ begin
     FConfig.UnlockRead;
   end;
 
+  VId := -1;
+  if Supports(ASource, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VId := VCategoryInternal.Id;
+  end;
+
   Result :=
     CreateCategory(
-      ASource.Id,
+      VId,
       VName,
       AVisible,
       AAfterScale,
@@ -122,10 +140,18 @@ function TMarkCategoryFactory.ModifyVisible(
   ASource: IMarkCategory;
   AVisible: Boolean
 ): IMarkCategory;
+var
+  VId: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
+  VId := -1;
+  if Supports(ASource, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VId := VCategoryInternal.Id;
+  end;
+
   Result :=
     CreateCategory(
-      ASource.Id,
+      VId,
       ASource.Name,
       AVisible,
       ASource.AfterScale,

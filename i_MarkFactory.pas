@@ -8,6 +8,7 @@ uses
   i_MarkCategory,
   i_MarkPicture,
   i_MarksFactoryConfig,
+  i_MarkTemplate,
   i_MarksSimple;
 
 type
@@ -36,7 +37,6 @@ type
       ASource: IMarkFull;
       AName: string;
       AVisible: Boolean;
-      APicName: string;
       APic: IMarkPicture;
       ACategory: IMarkCategory;
       ADesc: string;

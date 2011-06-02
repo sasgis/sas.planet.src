@@ -9,13 +9,12 @@ uses
   i_MarkPicture,
   i_MarkCategory,
   i_MarkNameGenerator,
-  i_MarksSimple;
+  i_MarkTemplate;
 
 type
   IMarkPointTemplateConfig = interface(IConfigDataElement)
     ['{B796934A-83FE-4E8A-B69D-11237690AA23}']
     function CreateTemplate(
-      APicName: string;
       APic: IMarkPicture;
       ACategory: IMarkCategory;
       AColor1: TColor32;
