@@ -422,12 +422,12 @@ begin
   if VCategoryID >= 0 then begin
     LockWrite;
     try
-    FCdsMarks.Filtered := false;
-    FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
-    FCdsMarks.Filtered := true;
-    FCdsMarks.First;
-    while not (FCdsMarks.Eof) do begin
-      FCdsMarks.Delete;
+      FCdsMarks.Filtered := false;
+      FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FCdsMarks.Filtered := true;
+      FCdsMarks.First;
+      while not (FCdsMarks.Eof) do begin
+        FCdsMarks.Delete;
         VDeleted := True;
       end;
     finally
@@ -539,14 +539,14 @@ begin
   if VCategoryID >= 0 then begin
     LockRead;
     try
-    FCdsMarks.Filtered := false;
-    FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
-    FCdsMarks.Filtered := true;
-    FCdsMarks.First;
-    while not (FCdsMarks.Eof) do begin
+      FCdsMarks.Filtered := false;
+      FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FCdsMarks.Filtered := true;
+      FCdsMarks.First;
+      while not (FCdsMarks.Eof) do begin
         VMarkId := ReadCurrentMarkId;
         Result.Add(VMarkId);
-      FCdsMarks.Next;
+        FCdsMarks.Next;
       end;
     finally
       UnlockRead;

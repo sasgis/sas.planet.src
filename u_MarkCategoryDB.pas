@@ -104,7 +104,7 @@ var
 begin
   AId := FCdsKategory.fieldbyname('id').AsInteger;
   VName := FCdsKategory.fieldbyname('name').AsString;
-  VId := FCdsKategory.fieldbyname('id').AsInteger;
+  AId := FCdsKategory.fieldbyname('id').AsInteger;
   VVisible := FCdsKategory.FieldByName('visible').AsBoolean;
   VAfterScale := FCdsKategory.fieldbyname('AfterScale').AsInteger;
   VBeforeScale := FCdsKategory.fieldbyname('BeforeScale').AsInteger;
