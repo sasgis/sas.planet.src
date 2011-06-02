@@ -20,13 +20,13 @@ type
   end;
 
   IMarkPointSMLInternal = interface(IMarkSMLInternal)
-  ['{2611AAA5-10DA-472B-B3EE-31EA27EDD6CD}']
+  ['{8032428E-F038-46C0-A060-47EDDF3A4852}']
     function GetPicName: string;
     property PicName: string read GetPicName;
   end;
 
   IMarkCategorySMLInternal = interface
-    ['{28CEA1EA-F64D-4CD6-81CC-4ACAEAECD4B1}']
+    ['{08E68E71-FD75-4E7F-953F-485F034525AA}']
     function GetDbCode: Integer;
     property DbCode: Integer read GetDbCode;
 
@@ -35,7 +35,7 @@ type
   end;
 
   IMarkTemplateSMLInternal = interface
-    ['{8941E424-A7EF-4EB7-A2CD-6754107D5AE5}']
+    ['{17BBDDCD-3CBC-4872-91C4-E58AEBCF595E}']
     function GetCategoryId: Integer;
     property CategoryId: Integer read GetCategoryId;
   end;
