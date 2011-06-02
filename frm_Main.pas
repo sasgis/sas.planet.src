@@ -296,7 +296,6 @@ type
     YaLink: TTBXItem;
     kosmosnimkiru1: TTBXItem;
     livecom1: TTBXItem;
-    ImageAtlas1: TTBXItem;
     N51: TTBXSeparatorItem;
     N13: TTBXItem;
     N30: TTBXItem;
@@ -396,7 +395,6 @@ type
     procedure NMarkOperClick(Sender: TObject);
     procedure livecom1Click(Sender: TObject);
     procedure N13Click(Sender: TObject);
-    procedure ImageAtlas1Click(Sender: TObject);
     procedure DigitalGlobe1Click(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
     procedure GPSReceiverDisconnect(Sender: TObject);
@@ -4014,7 +4012,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoom));
+  CopyStringToClipboard('http://www.bing.com/maps/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoom));
 end;
 
 procedure TfrmMain.MainPopupMenuPopup(Sender: TObject);
@@ -4055,27 +4053,6 @@ begin
   end;
   VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   NMapInfo.Enabled:=VMapType.MapInfo<>'';
-end;
-
-procedure TfrmMain.ImageAtlas1Click(Sender: TObject);
-var
-  VLocalConverter: ILocalCoordConverter;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat:TDoublePoint;
-begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VConverter := VLocalConverter.GetGeoConverter;
-  VZoom := VLocalConverter.GetZoom;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
-  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  CopyStringToClipboard(
-    'http://imageatlas.digitalglobe.com/ia-webapp/?lat='+
-    R2StrPoint(VLonLat.y)+'&lon='+R2StrPoint(VLonLat.x)+
-    '&zoom='+inttostr(VZoom)
-  );
 end;
 
 procedure TfrmMain.NGoToForumClick(Sender: TObject);
