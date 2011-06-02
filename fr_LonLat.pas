@@ -29,7 +29,6 @@ type
     lblLon: TLabel;
     edtLat: TEdit;
     edtLon: TEdit;
-    pnlZoom: TPanel;
     lblZoom: TLabel;
     cbbZoom: TComboBox;
     grdpnlXY: TGridPanel;
@@ -37,6 +36,7 @@ type
     edtX: TEdit;
     edtY: TEdit;
     lblX: TLabel;
+    grdpnlZoom: TGridPanel;
     procedure cbbCoordTypeSelect(Sender: TObject);
   private
     FCoordinates: TDoublePoint;
