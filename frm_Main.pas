@@ -781,7 +781,13 @@ begin
         GState.GUISyncronizedTimerNotifier
       );
     FLayersList.Add(FMainLayer);
-    FLayerGrids := TMapLayerGrids.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig);
+    FLayerGrids :=
+      TMapLayerGrids.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.LocalConverterFactory,
+        FConfig.LayersConfig.MapLayerGridsConfig
+      );
     FLayersList.Add(FLayerGrids);
     FLayerTileGrid := TMapLayerTileGrid.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig.TileGrid);
     FLayersList.Add(FLayerTileGrid);
@@ -796,7 +802,14 @@ begin
         FConfig.MainMapsConfig.GetKmlLayersSet
       );
     FLayersList.Add(FWikiLayer);
-    FLayerFillingMap:=TMapLayerFillingMap.create(map, FConfig.ViewPortState, GState.GUISyncronizedTimerNotifier, FConfig.LayersConfig.FillingMapLayerConfig);
+    FLayerFillingMap :=
+      TMapLayerFillingMap.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.LocalConverterFactory,
+        GState.GUISyncronizedTimerNotifier,
+        FConfig.LayersConfig.FillingMapLayerConfig
+      );
     FLayersList.Add(FLayerFillingMap);
     FLayerMapMarks:=
       TMapMarksLayer.Create(

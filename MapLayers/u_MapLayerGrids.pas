@@ -9,6 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   i_MapLayerGridsConfig,
   i_ViewPortState,
   u_MapLayerBasic;
@@ -26,7 +27,12 @@ type
   public
     procedure StartThreads; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMapLayerGridsConfig);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      AConfig: IMapLayerGridsConfig
+    );
   end;
 
 implementation
@@ -43,10 +49,14 @@ const
 
 { TMapLayerGrids }
 
-constructor TMapLayerGrids.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AConfig: IMapLayerGridsConfig);
+constructor TMapLayerGrids.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AConfig: IMapLayerGridsConfig
+);
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(AParentMap, AViewPortState, AConverterFactory);
   FConfig := AConfig;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),

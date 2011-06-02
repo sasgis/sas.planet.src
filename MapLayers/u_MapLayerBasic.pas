@@ -62,7 +62,7 @@ type
     FLayer: TBitmapLayer;
     FNeedUpdateLayerSize: Boolean;
     FNeedUpdateLayerSizeCS: TCriticalSection;
-    FCoordConverterFactory: ILocalCoordConverterFactorySimpe;
+    FConverterFactory: ILocalCoordConverterFactorySimpe;
   protected
     procedure SetNeedUpdateLayerSize; virtual;
     procedure UpdateLayerSize; virtual;
@@ -72,6 +72,7 @@ type
     procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
     function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual;
     property Layer: TBitmapLayer read FLayer;
+    property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoViewUpdate; override;
@@ -81,7 +82,11 @@ type
     procedure DoHide; override;
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      ACoordConverterFactory: ILocalCoordConverterFactorySimpe
+    );
     destructor Destroy; override;
   end;
 
@@ -96,8 +101,10 @@ uses
 
 { TMapLayerBase }
 
-constructor TMapLayerBase.Create(ALayer: TPositionedLayer;
-  AViewPortState: IViewPortState);
+constructor TMapLayerBase.Create(
+  ALayer: TPositionedLayer;
+  AViewPortState: IViewPortState
+);
 begin
   inherited Create(ALayer, AViewPortState, True);
 end;
@@ -204,10 +211,13 @@ begin
   end;
 end;
 
-constructor TMapLayerBasic.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState);
+constructor TMapLayerBasic.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  ACoordConverterFactory: ILocalCoordConverterFactorySimpe
+);
 begin
-  FCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+  FConverterFactory := ACoordConverterFactory;
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
@@ -350,7 +360,7 @@ begin
   VTileRect := VConverter.PixelRectFloat2TileRect(VSourcePixelRect, VZoom);
   VResultPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
 
-  Result := FCoordConverterFactory.CreateConverter(
+  Result := FConverterFactory.CreateConverter(
     Rect(0, 0, VResultPixelRect.Right - VResultPixelRect.Left, VResultPixelRect.Bottom - VResultPixelRect.Top),
     VZoom,
     VConverter,
