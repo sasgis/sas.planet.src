@@ -116,7 +116,7 @@ begin
 
   FTileFileExt := LowerCase(VParams.ReadString('Ext', '.jpg'));
   FCacheType := VParams.ReadInteger('CacheType', 0);
-  FDefCacheType := FCacheType;
+  FDefCacheType := VParams.ReadInteger('MAIN:CacheType', 0);
   FNameInCache := VParams.ReadString('NameInCache', 'Sat');
   FDefNameInCache := FNameInCache;
   OnSettingsEdit(nil);
