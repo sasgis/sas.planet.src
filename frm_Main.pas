@@ -858,7 +858,14 @@ begin
     FLayersList.Add(FLayerScaleLine);
     FLayerStatBar:=TLayerStatBar.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.StatBar);
     FLayersList.Add(FLayerStatBar);
-    FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MiniMapLayerConfig, GState.BitmapPostProcessingConfig);
+    FLayerMiniMap :=
+      TMiniMapLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.LocalConverterFactory,
+        FConfig.LayersConfig.MiniMapLayerConfig,
+        GState.BitmapPostProcessingConfig
+      );
     FLayersList.Add(FLayerMiniMap);
 
     FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FTileErrorLogger);
