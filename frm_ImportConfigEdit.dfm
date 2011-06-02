@@ -2,7 +2,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
   Left = 245
   Top = 207
   BorderStyle = bsDialog
-  Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1080#1084#1087#1086#1088#1090#1072
+  Caption = 'Import Parameters'
   ClientHeight = 385
   ClientWidth = 505
   Color = clBtnFace
@@ -17,7 +17,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Top = 10
     Width = 58
     Height = 13
-    Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
+    Caption = 'Category:'
   end
   object CBKateg: TComboBox
     Left = 72
@@ -32,42 +32,42 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Top = 64
     Width = 489
     Height = 81
-    Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1084#1077#1090#1086#1082
+    Caption = 'Placemark parameters'
     TabOrder = 1
     object lblPointTextColor: TLabel
       Left = 128
       Top = 24
       Width = 64
       Height = 13
-      Caption = #1062#1074#1077#1090' '#1090#1077#1082#1089#1090#1072
+      Caption = 'Text color'
     end
     object lblPointShadowColor: TLabel
       Left = 128
       Top = 48
       Width = 53
       Height = 13
-      Caption = #1062#1074#1077#1090' '#1090#1077#1085#1080
+      Caption = 'Shadow color'
     end
     object lblPointFontSize: TLabel
       Left = 256
       Top = 24
       Width = 78
       Height = 13
-      Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072
+      Caption = 'Font size'
     end
     object lblPointIconSize: TLabel
       Left = 256
       Top = 48
       Width = 74
       Height = 13
-      Caption = #1056#1072#1079#1084#1077#1088' '#1080#1082#1086#1085#1082#1080
+      Caption = 'Icon size'
     end
     object lblPointTextTransp: TLabel
       Left = 392
       Top = 24
       Width = 85
       Height = 13
-      Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
+      Caption = 'Opacity %'
     end
     object btnPointTextColor: TSpeedButton
       Left = 230
@@ -90,7 +90,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
       Top = 32
       Width = 37
       Height = 13
-      Caption = #1048#1082#1086#1085#1082#1072
+      Caption = 'Icon'
     end
     object clrbxPointTextColor: TColorBox
       Left = 192
@@ -146,7 +146,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
       Top = 21
       Width = 57
       Height = 44
-      Hint = #1042#1099#1073#1077#1088#1080#1090#1077' '#1075#1088#1072#1092#1080#1095#1077#1089#1082#1086#1077' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+      Hint = 'Select image'
       Style = csOwnerDrawVariable
       ItemHeight = 38
       ParentShowHint = False
@@ -160,28 +160,28 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Top = 176
     Width = 489
     Height = 57
-    Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1087#1091#1090#1077#1081
+    Caption = 'Path parameters'
     TabOrder = 2
     object lblLineColor: TLabel
       Left = 88
       Top = 24
       Width = 26
       Height = 13
-      Caption = #1062#1074#1077#1090
+      Caption = 'Color'
     end
     object lblLineWidth: TLabel
       Left = 194
       Top = 24
       Width = 40
       Height = 13
-      Caption = #1064#1080#1088#1080#1085#1072
+      Caption = 'Width'
     end
     object lblLineTransp: TLabel
       Left = 298
       Top = 24
       Width = 85
       Height = 13
-      Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
+      Caption = 'Opacity %'
     end
     object btnLineColor: TSpeedButton
       Left = 155
@@ -227,28 +227,28 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Top = 264
     Width = 489
     Height = 81
-    Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1087#1086#1083#1080#1075#1086#1085#1086#1074
+    Caption = 'Polygon parameters'
     TabOrder = 3
     object lblPolyLineColor: TLabel
       Left = 88
       Top = 24
       Width = 26
       Height = 13
-      Caption = #1062#1074#1077#1090
+      Caption = 'Color'
     end
     object lblPolyLineWidth: TLabel
       Left = 194
       Top = 24
       Width = 40
       Height = 13
-      Caption = #1064#1080#1088#1080#1085#1072
+      Caption = 'Width'
     end
     object lblPolyLineTransp: TLabel
       Left = 298
       Top = 24
       Width = 85
       Height = 13
-      Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
+      Caption = 'Opacity %'
     end
     object btnPolyLineColor: TSpeedButton
       Left = 155
@@ -263,14 +263,14 @@ object frmImportConfigEdit: TfrmImportConfigEdit
       Top = 48
       Width = 26
       Height = 13
-      Caption = #1062#1074#1077#1090
+      Caption = 'Color'
     end
     object lblPolyFillTransp: TLabel
       Left = 194
       Top = 48
       Width = 85
       Height = 13
-      Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
+      Caption = 'Opacity %'
     end
     object btnPolyFillColor: TSpeedButton
       Left = 155
@@ -285,14 +285,14 @@ object frmImportConfigEdit: TfrmImportConfigEdit
       Top = 22
       Width = 35
       Height = 13
-      Caption = #1051#1080#1085#1080#1103':'
+      Caption = 'Line:'
     end
     object lblPolyFill: TLabel
       Left = 8
       Top = 46
       Width = 64
       Height = 13
-      Caption = #1047#1072#1087#1086#1083#1085#1077#1085#1080#1077':'
+      Caption = 'Fill:'
     end
     object clrbxPolyLineColor: TColorBox
       Left = 117
@@ -349,7 +349,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Top = 352
     Width = 75
     Height = 25
-    Caption = #1053#1072#1095#1072#1090#1100
+    Caption = 'Start'
     TabOrder = 4
     OnClick = btnOkClick
   end
@@ -359,7 +359,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Width = 75
     Height = 25
     Cancel = True
-    Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+    Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 5
   end
@@ -368,7 +368,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Top = 40
     Width = 129
     Height = 17
-    Caption = #1048#1075#1085#1086#1088#1080#1088#1086#1074#1072#1090#1100' '#1084#1077#1090#1082#1080
+    Caption = 'Ignore placemarks'
     TabOrder = 6
   end
   object chkLineIgnore: TCheckBox
@@ -376,7 +376,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Top = 152
     Width = 129
     Height = 17
-    Caption = #1048#1075#1085#1086#1088#1080#1088#1086#1074#1072#1090#1100' '#1087#1091#1090#1080
+    Caption = 'Ignore paths'
     TabOrder = 7
   end
   object chkPolyIgnore: TCheckBox
@@ -384,7 +384,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     Top = 240
     Width = 153
     Height = 17
-    Caption = #1048#1075#1085#1086#1088#1080#1088#1086#1074#1072#1090#1100' '#1087#1086#1083#1080#1075#1086#1085#1099
+    Caption = 'Ignore polygons'
     TabOrder = 8
   end
   object ColorDialog1: TColorDialog

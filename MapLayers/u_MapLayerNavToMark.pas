@@ -29,8 +29,8 @@ type
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoRedraw; override;
-    procedure PreparePosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    procedure AfterPosChange; override;
+    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
+    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
   public
     procedure StartThreads; override;
   public
@@ -52,12 +52,6 @@ uses
   u_NotifyEventListener;
 
 { TNavToMarkLayer }
-
-procedure TNavToMarkLayer.AfterPosChange;
-begin
-  inherited;
-  Redraw;
-end;
 
 constructor TNavToMarkLayer.Create(
   AParentMap: TImage32;
@@ -88,7 +82,7 @@ begin
   inherited;
 end;
 
-procedure TNavToMarkLayer.PreparePosChange(
+procedure TNavToMarkLayer.DoPosChange(
   ANewVisualCoordConverter: ILocalCoordConverter);
 var
   VMarkMapPos: TDoublePoint;
@@ -122,6 +116,7 @@ begin
       FAngle := 180 - FAngle;
     end;
   end;
+  SetNeedRedraw;
 end;
 
 procedure TNavToMarkLayer.DoRedraw;
@@ -169,40 +164,52 @@ begin
   end;
 end;
 
-procedure TNavToMarkLayer.OnConfigChange(Sender: TObject);
+function TNavToMarkLayer.GetLayerSizeForView(
+  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
 var
-  VSize: TPoint;
   VMarker: TCustomBitmap32;
 begin
   FConfig.LockRead;
   try
     VMarker := FConfig.GetMarkerArrow;
-    VSize := Point(VMarker.Width, VMarker.Height);
+    Result := Point(VMarker.Width, VMarker.Height);
     VMarker := FConfig.GetMarkerCross;
-    if VSize.X < VMarker.Width then begin
-      VSize.X := VMarker.Width;
+    if Result.X < VMarker.Width then begin
+      Result.X := VMarker.Width;
     end;
-    if VSize.Y < VMarker.Height then begin
-      VSize.Y := VMarker.Height;
+    if Result.Y < VMarker.Height then begin
+      Result.Y := VMarker.Height;
     end;
   finally
     FConfig.UnlockRead;
   end;
-  FFixedOnBitmap.X := VSize.X / 2;
-  FFixedOnBitmap.Y := VSize.Y / 2;
-  DoUpdateLayerSize(VSize);
-  Redraw;
+  FFixedOnBitmap.X := Result.X / 2;
+  FFixedOnBitmap.Y := Result.Y / 2;
+end;
+
+procedure TNavToMarkLayer.OnConfigChange(Sender: TObject);
+begin
+  ViewUpdateLock;
+  try
+    SetNeedUpdateLayerSize;
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TNavToMarkLayer.OnNavToPointChange(Sender: TObject);
 begin
-  if FNavToPoint.IsActive then begin
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
     FMarkPoint := FNavToPoint.LonLat;
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+    SetVisible(FNavToPoint.IsActive);
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 procedure TNavToMarkLayer.StartThreads;

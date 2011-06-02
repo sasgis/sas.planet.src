@@ -114,10 +114,8 @@ begin
     end;
     if AMark.IsNew then begin
       Caption:=SAS_STR_AddNewPoly;
-      btnOk.Caption:=SAS_STR_Add;
     end else begin
       Caption:=SAS_STR_EditPoly;
-      btnOk.Caption:=SAS_STR_Edit;
     end;
     if ShowModal=mrOk then begin
       Result := AMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoly(

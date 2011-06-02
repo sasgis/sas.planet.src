@@ -21,28 +21,33 @@ uses
   StrUtils,
   t_GeoTypes,
   i_GeoCoder,
-  u_GeoCodePalcemark;
+  u_ResStrings,
+  u_GeoCodePlacemark;
 
 { TGeoCoderByYandex }
 
 function TGeoCoderByYandex.ParseStringToPlacemarksList(
   AStr: string; ASearch: WideString): IInterfaceList;
 var
-  slat, slon: string;
+  slat, slon, sname: string;
   i, j: integer;
   VPoint: TDoublePoint;
-  VPlace: IGeoCodePalcemark;
+  VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
 begin
   if AStr = '' then begin
-    raise EParserError.Create('Пустой ответ от сервера');
+    raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
-  if not (PosEx(AnsiToUtf8('Искомая комбинация'), AStr) > 0) then begin
-    i := PosEx('"ll":[', AStr);
-    j := PosEx(',', AStr, i + 6);
-    slon := Copy(AStr, i + 6, j - (i + 6));
+  i:=PosEx('"items":[{', AStr);
+  if i > 0 then begin
+    i := PosEx('"text":"', AStr, i+10);
+    j := PosEx('",', AStr, i + 8);
+    sname:= Utf8ToAnsi(Copy(AStr, i + 8, j - (i + 8)));
+    i := PosEx('"point":[', AStr);
+    j := PosEx(',', AStr, i + 9);
+    slon := Copy(AStr, i + 9, j - (i + 9));
     i := PosEx(']', AStr, j);
     slat := Copy(AStr, j + 1, i - (j + 1));
     if slat[1] = '\' then begin
@@ -55,9 +60,9 @@ begin
       VPoint.Y := StrToFloat(slat, VFormatSettings);
       VPoint.X := StrToFloat(slon, VFormatSettings);
     except
-      raise EParserError.CreateFmt('Ошибка разбора координат Lat=%s Lon=%s', [slat, slon]);
+      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    VPlace := TGeoCodePalcemark.Create(VPoint, ASearch, 4);
+    VPlace := TGeoCodePlacemark.Create(VPoint, sname, 4);
     VList := TInterfaceList.Create;
     VList.Add(VPlace);
     Result := VList;

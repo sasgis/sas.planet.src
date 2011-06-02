@@ -4,7 +4,6 @@ interface
 
 uses
   Types,
-  GR32_Polygons,
   GR32_Image,
   i_ViewPortState,
   i_MarkPolyLineLayerConfig,
@@ -26,7 +25,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  GR32_Polygons;
 
 { TMarkPolyLineLayer }
 

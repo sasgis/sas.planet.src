@@ -8,12 +8,13 @@ uses
   Classes,
   Dialogs,
   Graphics,
-  SyncObjs,
   GR32,
   t_GeoTypes,
+  t_CommonTypes,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
   i_TileObjCache,
+  i_LanguageManager,
   i_CoordConverter,
   i_TileDownlodSession,
   i_IPoolOfObjectsSimple,
@@ -21,7 +22,7 @@ uses
   i_BitmapTileSaveLoad,
   i_KmlInfoSimpleLoader,
   i_AntiBan,
-  u_KmlInfoSimple,
+  i_VectorDataItemSimple,
   u_UrlGenerator,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract,
@@ -40,7 +41,7 @@ type
     FZMPFileName: string;
     FMapInfo: string;
     FDefHotKey: TShortCut;
-    FDefSleep: Integer;
+    FDefSleep: Cardinal;
     FDefseparator: boolean;
     FDefParentSubMenu: string;
     FDefEnabled: boolean;
@@ -59,15 +60,13 @@ type
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IKmlInfoSimpleLoader;
-    FInitDownloadCS: TCriticalSection;
-    FCSSaveTile: TCriticalSection;
-    FCSSaveTNF: TCriticalSection;
     FCoordConverter : ICoordConverter;
     FMainCoordConverter : ICoordConverter;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
     FTileDownlodSessionFactory: ITileDownlodSessionFactory;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
+    FLanguageManager: ILanguageManager;
 
     function GetUseDwn: Boolean;
     function GetZmpFileName: string;
@@ -93,7 +92,7 @@ type
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
-    function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; AKml: TKmlInfoSimple): boolean;
+    function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; var AKml: IVectorDataItemList): boolean;
     procedure LoadMapType(AConfig : IConfigDataProvider; Apnum : Integer);
 
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
@@ -109,12 +108,14 @@ type
     Enabled: boolean;
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
+    procedure GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
+    procedure SetResponse(AHead: string);
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
     function TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
     function LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
-    function LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
+    function LoadTile(var AKml: IVectorDataItemList; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
     function LoadTileOrPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean; AUsePre: Boolean): boolean;
     function LoadTileUni(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
     function LoadBtimap(spr: TCustomBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
@@ -131,7 +132,7 @@ type
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      IsStop: PBoolean;
+      AIsStop: TIsCancelChecker;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
       ATNEColor: TColor32
@@ -162,14 +163,19 @@ type
     property MapInfo: string read FMapInfo;
     property Name: string read FName;
     property DefHotKey: TShortCut read FDefHotKey;
-    property DefSleep: Integer read FDefSleep;
+    property DefSleep: Cardinal read FDefSleep;
     property Defseparator: boolean read FDefseparator;
     property DefParentSubMenu: string read FDefParentSubMenu;
     property DefEnabled: boolean read FDefEnabled;
     property DownloaderFactory: ITileDownlodSessionFactory read FTileDownlodSessionFactory;
     property Cache: ITileObjCache read FCache;
 
-    constructor Create(AGUID: TGUID; AConfig: IConfigDataProvider; Apnum: Integer);
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AGUID: TGUID;
+      AConfig: IConfigDataProvider;
+      Apnum: Integer
+    );
     destructor Destroy; override;
  end;
 
@@ -258,7 +264,7 @@ end;
 
 procedure TMapType.LoadMapInfo(AConfig: IConfigDataProvider);
 begin
-  FMapinfo := AConfig.ReadString('info_'+GState.LanguageManager.GetCurrentLanguageCode+'.txt', '');
+  FMapinfo := AConfig.ReadString('info_'+FLanguageManager.GetCurrentLanguageCode+'.txt', '');
   if FMapInfo = '' then begin
     FMapinfo := AConfig.ReadString('info.txt', '');
   end;
@@ -342,14 +348,14 @@ begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
   FName:=VParams.ReadString('name',FName);
-  FName:=VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode,FName);
+  FName:=VParams.ReadString('name_'+FLanguageManager.GetCurrentLanguageCode,FName);
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
   HotKey:=VParams.ReadInteger('HotKey',0);
   FDefHotKey := VParams.ReadInteger('MAIN:HotKey',0);
   ParentSubMenu:=VParams.ReadString('ParentSubMenu','');
-  ParentSubMenu:=VParams.ReadString('ParentSubMenu_'+GState.LanguageManager.GetCurrentLanguageCode,ParentSubMenu);
+  ParentSubMenu:=VParams.ReadString('ParentSubMenu_'+FLanguageManager.GetCurrentLanguageCode,ParentSubMenu);
   FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu','');
-  FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu_'+GState.LanguageManager.GetCurrentLanguageCode, FDefParentSubMenu);
+  FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu_' + FLanguageManager.GetCurrentLanguageCode, FDefParentSubMenu);
   separator:=VParams.ReadBool('separator',false);
   FDefseparator:=VParams.ReadBool('MAIN:separator',false);
   Enabled:=VParams.ReadBool('Enabled',true);
@@ -424,6 +430,18 @@ begin
   Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
 end;
 
+procedure TMapType.GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
+begin
+  FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
+  FUrlGenerator.GenRequest(AXY.X, AXY.Y, Azoom, AUrl, AHead);
+end;
+
+procedure TMapType.SetResponse(AHead: string);
+begin
+  if AHead <> '' then
+    FUrlGenerator.ResponseHead := AHead;
+end;
+
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
   Result := FStorage.GetTileFileName(AXY, Azoom, FVersion);
@@ -482,7 +500,7 @@ begin
 end;
 
 function TMapType.LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte;
-  AKml: TKmlInfoSimple): boolean;
+  var AKml: IVectorDataItemList): boolean;
 var
   VTileInfo: ITileInfoBasic;
   VMemStream: TMemoryStream;
@@ -626,7 +644,7 @@ begin
     try
       Result := FStorage.LoadTile(AXY, Azoom, FVersion, VFileStream, VTileInfo);
       if Result then begin
-        FileSetDate(VFileStream.Handle, DateTimeToFileDate(VTileInfo.GetLoadDate));
+        FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
       end;
     finally
       VFileStream.Free;
@@ -638,13 +656,13 @@ function TMapType.LoadFillingMap(
   btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
-  IsStop: PBoolean;
+  AIsStop: TIsCancelChecker;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
   ATNEColor: TColor32
 ): boolean;
 begin
-  Result := FStorage.LoadFillingMap(btm, AXY, Azoom, ASourceZoom, FVersion, IsStop, ANoTileColor, AShowTNE, ATNEColor);
+  Result := FStorage.LoadFillingMap(btm, AXY, Azoom, ASourceZoom, FVersion, AIsStop, ANoTileColor, AShowTNE, ATNEColor);
 end;
 
 function TMapType.GetShortFolderName: string;
@@ -652,12 +670,15 @@ begin
   Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FStorage.CacheConfig.NameInCache)));
 end;
 
-constructor TMapType.Create(AGUID: TGUID; AConfig: IConfigDataProvider; Apnum: Integer);
+constructor TMapType.Create(
+  ALanguageManager: ILanguageManager;
+  AGUID: TGUID;
+  AConfig: IConfigDataProvider;
+  Apnum: Integer
+);
 begin
   FGuid := AGUID;
-  FInitDownloadCS := TCriticalSection.Create;
-  FCSSaveTile := TCriticalSection.Create;
-  FCSSaveTNF := TCriticalSection.Create;
+  FLanguageManager := ALanguageManager;
   FMimeTypeSubstList := nil;
   LoadMapType(AConfig, Apnum);
   if FasLayer then begin
@@ -670,9 +691,6 @@ end;
 destructor TMapType.Destroy;
 begin
   FreeAndNil(FMimeTypeSubstList);
-  FreeAndNil(FInitDownloadCS);
-  FreeAndNil(FCSSaveTile);
-  FreeAndNil(FCSSaveTNF);
   FreeAndNil(FUrlGenerator);
   FreeAndNil(Fbmp18);
   FreeAndNil(Fbmp24);
@@ -690,9 +708,12 @@ var
   StatusCode: Cardinal;
   VPoolElement: IPoolElement;
   VDownloader: ITileDownlodSession;
+  VRequestHead: string;
+  VResponseHead: string;
 begin
   if Self.UseDwn then begin
-    AUrl := GetLink(ATile, AZoom);
+    VRequestHead := ''; VResponseHead := '';
+    GetRequest(ATile, AZoom, AUrl, VRequestHead);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin
       raise Exception.Create('No free connections');
@@ -701,7 +722,8 @@ begin
     if FAntiBan <> nil then begin
       FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
     end;
-    Result := VDownloader.DownloadTile(AUrl, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType);
+    Result := VDownloader.DownloadTile(AUrl, VRequestHead, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType, VResponseHead);
+    SetResponse(VResponseHead);
     if FAntiBan <> nil then begin
       Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
     end;
@@ -855,13 +877,13 @@ begin
   end;
 end;
 
-function TMapType.LoadTile(btm: TKmlInfoSimple; AXY: TPoint; Azoom: byte;
+function TMapType.LoadTile(var AKml: IVectorDataItemList; AXY: TPoint; Azoom: byte;
   caching: boolean; IgnoreError: Boolean): boolean;
 begin
   try
-    if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-      result:=LoadKmlTileFromStorage(AXY, Azoom, btm);
-      if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
+    if (not caching)or(not FCache.TryLoadTileFromCache(AKml, AXY, Azoom)) then begin
+      result:=LoadKmlTileFromStorage(AXY, Azoom, AKml);
+      if ((result)and(caching)) then FCache.AddTileToCache(AKml, AXY, Azoom);
     end else begin
       result:=true;
     end;
@@ -1091,7 +1113,6 @@ var
   VLonLatRectTarget: TDoubleRect;
   VTileRectInSource: TRect;
   VPixelRectOfTargetPixelRectInSource: TRect;
-  VAllTilesExits: Boolean;
   i, j: Integer;
   VTile: TPoint;
   VSpr:TCustomBitmap32;

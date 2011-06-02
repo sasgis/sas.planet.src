@@ -7,16 +7,20 @@ uses
   sysutils,
   windows,
   MidasLib,
+  MD5 in 'src\MD5.pas',
+  RegExpr in 'src\RegExpr.pas',
   KAZip in 'src\KAZip.pas',
+  TarWriter in 'src\TarWriter.pas',
   ECWReader in 'src\ECWReader.pas',
   ECWwriter in 'src\ECWwriter.pas',
   SwinHttp in 'src\SwinHttp.pas',
   gnugettext in 'src\gnugettext.pas',
   Langs in 'src\Langs.pas',
+  TBXSASTheme in 'src\TBXSASTheme.pas',
   u_WideStrings in 'src\u_WideStrings.pas',
   c_ZeroGUID in 'src\c_ZeroGUID.pas',
-  cUnicode in 'src\cUnicode.pas',
-  cUnicodeChar in 'src\cUnicodeChar.pas',
+  cUnicode in 'src\Fundamentals\cUnicode.pas',
+  cUnicodeCodecs in 'src\Fundamentals\cUnicodeCodecs.pas',
   CPDrv in 'src\CPDrv.pas',
   BMSearch in 'src\BMSearch.pas',
   i_GUIDList in 'src\i_GUIDList.pas',
@@ -50,6 +54,7 @@ uses
   u_TimeZones in 'u_TimeZones.pas',
   u_ResStrings in 'u_ResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
+  u_TBXSubmenuItemWithIndicator in 'u_TBXSubmenuItemWithIndicator.pas',
   i_ConfigDataProvider in 'i_ConfigDataProvider.pas',
   i_ConfigDataWriteProvider in 'i_ConfigDataWriteProvider.pas',
   u_ConfigDataProviderByKaZip in 'u_ConfigDataProviderByKaZip.pas',
@@ -71,6 +76,10 @@ uses
   i_ConfigSaveLoadStrategy in 'i_ConfigSaveLoadStrategy.pas',
   u_ConfigSaveLoadStrategyBasicUseProvider in 'u_ConfigSaveLoadStrategyBasicUseProvider.pas',
   u_ConfigSaveLoadStrategyBasicProviderSubItem in 'u_ConfigSaveLoadStrategyBasicProviderSubItem.pas',
+  i_TileError in 'i_TileError.pas',
+  u_TileErrorInfo in 'u_TileErrorInfo.pas',
+  i_TileErrorLogProviedrStuped in 'i_TileErrorLogProviedrStuped.pas',
+  u_TileErrorLogProviedrStuped in 'u_TileErrorLogProviedrStuped.pas',
   i_LogSimple in 'i_LogSimple.pas',
   i_LogForTaskThread in 'i_LogForTaskThread.pas',
   i_TileDownlodSession in 'i_TileDownlodSession.pas',
@@ -90,10 +99,12 @@ uses
   u_ThreadRegionProcessAbstract in 'RegionProcess\u_ThreadRegionProcessAbstract.pas',
   u_ThreadExportAbstract in 'RegionProcess\u_ThreadExportAbstract.pas',
   u_ThreadExportToZip in 'RegionProcess\u_ThreadExportToZip.pas',
+  u_ThreadExportToTar in 'RegionProcess\u_ThreadExportToTar.pas',
   u_ThreadExportToFileSystem in 'RegionProcess\u_ThreadExportToFileSystem.pas',
   u_ThreadExportIPhone in 'RegionProcess\u_ThreadExportIPhone.pas',
   u_ThreadExportKML in 'RegionProcess\u_ThreadExportKML.pas',
   u_ThreadExportYaMaps in 'RegionProcess\u_ThreadExportYaMaps.pas',
+  u_ThreadExportYaMapsNew in 'RegionProcess\u_ThreadExportYaMapsNew.pas',
   u_ThreadExportToAUX in 'RegionProcess\u_ThreadExportToAUX.pas',
   u_ThreadDeleteTiles in 'RegionProcess\u_ThreadDeleteTiles.pas',
   u_ThreadGenPrevZoom in 'RegionProcess\u_ThreadGenPrevZoom.pas',
@@ -102,10 +113,18 @@ uses
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThreadBase in 'u_TileDownloaderThreadBase.pas',
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
+  i_InternalPerformanceCounter in 'i_InternalPerformanceCounter.pas',
+  u_InternalPerformanceCounter in 'u_InternalPerformanceCounter.pas',
+  u_InternalPerformanceCounterList in 'u_InternalPerformanceCounterList.pas',
   u_NotifyEventListener in 'u_NotifyEventListener.pas',
   u_NotifyWithGUIDEvent in 'u_NotifyWithGUIDEvent.pas',
   u_NotifyEventPosChangeListener in 'u_NotifyEventPosChangeListener.pas',
   u_MapLayerWithThreadDraw in 'MapLayers\u_MapLayerWithThreadDraw.pas',
+  i_VectorDataItemSimple in 'i_VectorDataItemSimple.pas',
+  u_VectorDataItemBase in 'u_VectorDataItemBase.pas',
+  u_VectorDataItemPoint in 'u_VectorDataItemPoint.pas',
+  u_VectorDataItemPolygon in 'u_VectorDataItemPolygon.pas',
+  u_VectorDataItemList in 'u_VectorDataItemList.pas',
   i_KmlLayerConfig in 'i_KmlLayerConfig.pas',
   u_KmlLayerConfig in 'u_KmlLayerConfig.pas',
   u_MapLayerWiki in 'MapLayers\u_MapLayerWiki.pas',
@@ -152,6 +171,7 @@ uses
   i_LocalCoordConverterFactorySimpe in 'i_LocalCoordConverterFactorySimpe.pas',
   u_LocalCoordConverterFactorySimpe in 'u_LocalCoordConverterFactorySimpe.pas',
   u_UrlGenerator in 'u_UrlGenerator.pas',
+  u_UrlGeneratorHelpers in 'u_UrlGeneratorHelpers.pas',
   i_CoordConverter in 'i_CoordConverter.pas',
   u_CoordConverterAbstract in 'u_CoordConverterAbstract.pas',
   u_CoordConverterBasic in 'u_CoordConverterBasic.pas',
@@ -196,13 +216,16 @@ uses
   u_GECrypt in 'u_GECrypt.pas',
   u_GEIndexFile in 'u_GEIndexFile.pas',
   i_GeoCoder in 'i_GeoCoder.pas',
-  u_GeoCodePalcemark in 'u_GeoCodePalcemark.pas',
+  u_GeoCodePlacemark in 'u_GeoCodePlacemark.pas',
   u_EnumUnknown in 'u_EnumUnknown.pas',
   u_GeoCodeResult in 'u_GeoCodeResult.pas',
   i_ProxySettings in 'i_ProxySettings.pas',
   u_GeoCoderBasic in 'u_GeoCoderBasic.pas',
   u_GeoCoderByYandex in 'u_GeoCoderByYandex.pas',
   u_GeoCoderByGoogle in 'u_GeoCoderByGoogle.pas',
+  i_LayerBitmapClearStrategy in 'i_LayerBitmapClearStrategy.pas',
+  u_LayerBitmapClearStrategy in 'u_LayerBitmapClearStrategy.pas',
+  u_LayerBitmapClearStrategyFactory in 'u_LayerBitmapClearStrategyFactory.pas',
   i_MapViewGoto in 'i_MapViewGoto.pas',
   u_MapViewGotoOnFMain in 'u_MapViewGotoOnFMain.pas',
   i_SearchResultPresenter in 'i_SearchResultPresenter.pas',
@@ -251,6 +274,7 @@ uses
   u_CenterScale in 'MapLayers\u_CenterScale.pas',
   u_LayerStatBar in 'MapLayers\u_LayerStatBar.pas',
   u_MapLayerBasic in 'MapLayers\u_MapLayerBasic.pas',
+  u_MapLayerTileGrid in 'MapLayers\u_MapLayerTileGrid.pas',
   u_MapLayerGrids in 'MapLayers\u_MapLayerGrids.pas',
   u_MapMainLayer in 'MapLayers\u_MapMainLayer.pas',
   u_MapMarksLayer in 'MapLayers\u_MapMarksLayer.pas',
@@ -261,7 +285,7 @@ uses
   u_MapLayerShowError in 'MapLayers\u_MapLayerShowError.pas',
   u_MapLayerGoto in 'MapLayers\u_MapLayerGoto.pas',
   u_MapLayerGPSMarker in 'MapLayers\u_MapLayerGPSMarker.pas',
-  u_PolyLineLayerBase in 'u_PolyLineLayerBase.pas',
+  u_PolyLineLayerBase in 'MapLayers\u_PolyLineLayerBase.pas',
   u_CalcLineLayer in 'MapLayers\u_CalcLineLayer.pas',
   u_MarkPolyLineLayer in 'MapLayers\u_MarkPolyLineLayer.pas',
   u_MarkPolygonLayer in 'MapLayers\u_MarkPolygonLayer.pas',
@@ -271,13 +295,11 @@ uses
   u_InterfacedThread in 'u_InterfacedThread.pas',
   i_BackgroundTask in 'i_BackgroundTask.pas',
   u_BackgroundTask in 'u_BackgroundTask.pas',
-  i_BackgroundTaskLayerDraw in 'i_BackgroundTaskLayerDraw.pas',
   u_BackgroundTaskLayerDrawBase in 'u_BackgroundTaskLayerDrawBase.pas',
   u_MapLayerFillingMap in 'MapLayers\u_MapLayerFillingMap.pas',
   i_Marks in 'i_Marks.pas',
   i_MarkCategory in 'i_MarkCategory.pas',
   u_MarkCategory in 'u_MarkCategory.pas',
-  dm_MarksDb in 'dm_MarksDb.pas' {DMMarksDb: TDataModule},
   u_EnumUnknownEmpty in 'u_EnumUnknownEmpty.pas',
   i_TileFileNameGenerator in 'i_TileFileNameGenerator.pas',
   u_TileFileNameSAS in 'u_TileFileNameSAS.pas',
@@ -443,6 +465,7 @@ uses
   u_GPSSatelliteInfo in 'u_GPSSatelliteInfo.pas',
   u_GPSSatellitesInView in 'u_GPSSatellitesInView.pas',
   u_GPSPositionStatic in 'u_GPSPositionStatic.pas',
+  u_GPSPositionFactory in 'u_GPSPositionFactory.pas',
   u_GPSModuleAbstract in 'u_GPSModuleAbstract.pas',
   u_GPSModuleByZylGPS in 'u_GPSModuleByZylGPS.pas',
   u_GPSModuleFactoryByZylGPS in 'u_GPSModuleFactoryByZylGPS.pas',
@@ -451,6 +474,7 @@ uses
   u_ExportProviderAbstract in 'RegionProcess\u_ExportProviderAbstract.pas',
   fr_ExportYaMaps in 'RegionProcess\fr_ExportYaMaps.pas' {frExportYaMaps: TFrame},
   u_ExportProviderYaMaps in 'RegionProcess\u_ExportProviderYaMaps.pas',
+  u_ExportProviderYaMapsNew in 'RegionProcess\u_ExportProviderYaMapsNew.pas',
   fr_ExportGEKml in 'RegionProcess\fr_ExportGEKml.pas' {frExportGEKml: TFrame},
   u_ExportProviderGEKml in 'RegionProcess\u_ExportProviderGEKml.pas',
   fr_ExportIPhone in 'RegionProcess\fr_ExportIPhone.pas' {frExportIPhone: TFrame},
@@ -459,6 +483,7 @@ uses
   u_ExportProviderAUX in 'RegionProcess\u_ExportProviderAUX.pas',
   fr_ExportToFileCont in 'RegionProcess\fr_ExportToFileCont.pas' {frExportToFileCont: TFrame},
   u_ExportProviderZip in 'RegionProcess\u_ExportProviderZip.pas',
+  u_ExportProviderTar in 'RegionProcess\u_ExportProviderTar.pas',
   fr_TilesDelete in 'RegionProcess\fr_TilesDelete.pas' {frTilesDelete: TFrame},
   u_ProviderTilesDelete in 'RegionProcess\u_ProviderTilesDelete.pas',
   fr_TilesGenPrev in 'RegionProcess\fr_TilesGenPrev.pas' {frTilesGenPrev: TFrame},
@@ -496,8 +521,7 @@ uses
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
 
 {$R *.res} {$R *Pics.res}
-begin
-
+begin 
   GState := TGlobalState.Create;
   try
     Application.Initialize;
@@ -517,24 +541,23 @@ begin
     //xLogo
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
-  Application.CreateForm(TfrmGoTo, frmGoTo);
-  Application.CreateForm(TfrmAbout, frmAbout);
-  Application.CreateForm(TfrmSettings, frmSettings);
-  Application.CreateForm(TfrmRegionProcess, frmRegionProcess);
-  Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
-  Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
-  Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
-  Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
-  Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);
-  Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
-  Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
-  Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
-  Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
-  Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
-  Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
-
+    Application.CreateForm(TfrmGoTo, frmGoTo);
+    Application.CreateForm(TfrmAbout, frmAbout);
+    Application.CreateForm(TfrmSettings, frmSettings);
+    Application.CreateForm(TfrmRegionProcess, frmRegionProcess);
+    Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
+    Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
+    Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
+    Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
+    Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);
+    Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
+    Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
+    Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
+    Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
+    Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
+    Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
     if GState.ShowDebugInfo then begin
-      Application.CreateForm(TfrmDebugInfo, frmDebugInfo);
+      frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
     end;
     GState.StartExceptionTracking;
     try

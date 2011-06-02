@@ -9,6 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   i_MapLayerGridsConfig,
   i_ViewPortState,
   u_MapLayerBasic;
@@ -26,7 +27,12 @@ type
   public
     procedure StartThreads; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMapLayerGridsConfig);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      AConfig: IMapLayerGridsConfig
+    );
   end;
 
 implementation
@@ -43,10 +49,14 @@ const
 
 { TMapLayerGrids }
 
-constructor TMapLayerGrids.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AConfig: IMapLayerGridsConfig);
+constructor TMapLayerGrids.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AConfig: IMapLayerGridsConfig
+);
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(AParentMap, AViewPortState, AConverterFactory);
   FConfig := AConfig;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
@@ -57,7 +67,6 @@ end;
 procedure TMapLayerGrids.DoRedraw;
 begin
   inherited;
-  FLayer.Bitmap.Clear(0);
   if FConfig.TileGrid.Visible then begin
     generate_granica;
   end;
@@ -119,7 +128,7 @@ begin
     exit;
   end;
   z := GetGhBordersStepByScale(VScale);
-  VLocalConverter := BitmapCoordConverter;
+  VLocalConverter := LayerCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
@@ -166,7 +175,7 @@ begin
     VDrawScreenRect.TopLeft := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.TopLeft));
     VDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.BottomRight));
 
-    FLayer.bitmap.LineAS(
+    Layer.bitmap.LineAS(
       VDrawScreenRect.Left, VDrawScreenRect.Top,
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
     );
@@ -184,7 +193,7 @@ begin
 
     VDrawScreenRect.TopLeft := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.TopLeft));
     VDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.BottomRight));
-    FLayer.bitmap.LineAS(
+    Layer.bitmap.LineAS(
       VDrawScreenRect.Left, VDrawScreenRect.Top,
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
     );
@@ -208,13 +217,13 @@ begin
         DoublePoint(VDrawLonLatRect.Left + z.X / 2, VDrawLonLatRect.Top - z.Y / 2),
         VScale, GSHprec
       );
-      twidth := FLayer.bitmap.TextWidth(ListName);
-      theight := FLayer.bitmap.TextHeight(ListName);
+      twidth := Layer.bitmap.TextWidth(ListName);
+      theight := Layer.bitmap.TextHeight(ListName);
 
       VDrawScreenRect.TopLeft := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.TopLeft));
       VDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.BottomRight));
 
-      FLayer.bitmap.RenderTextW(
+      Layer.bitmap.RenderTextW(
         VDrawScreenRect.Left + (VDrawScreenRect.Right - VDrawScreenRect.Left) div 2 - (twidth div 2),
         VDrawScreenRect.Top + (VDrawScreenRect.Bottom - VDrawScreenRect.Top) div 2 - (theight div 2),
         ListName, 0, VColor
@@ -247,13 +256,11 @@ var
   VTileCenter: TPoint;
   VTileSize: TPoint;
   VGridZoom: Byte;
-  VTilesLineRect: TRect;
   VLocalConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
-  VBitmapRect: TDoubleRect;
   VShowText: Boolean;
 begin
-  VLocalConverter := BitmapCoordConverter;
+  VLocalConverter := LayerCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VCurrentZoom := VLocalConverter.GetZoom;
 
@@ -270,67 +277,35 @@ begin
     FConfig.TileGrid.UnlockRead;
   end;
 
-  VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.CheckPixelRectFloat(VLoadedRect, VCurrentZoom);
+  if VShowText then begin
+    if (VGridZoom >= VCurrentZoom - 2) and (VGridZoom <= VCurrentZoom + 3) then begin
+      VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
+      VGeoConvert.CheckPixelRectFloat(VLoadedRect, VCurrentZoom);
 
-  VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
-  VTilesRect := VGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
+      VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
+      VTilesRect := VGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
+      for i := VTilesRect.Top to VTilesRect.Bottom - 1 do begin
+        VTileIndex.Y := i;
+        for j := VTilesRect.Left to VTilesRect.Right - 1 do begin
+          VTileIndex.X := j;
+          VTileRelativeRect := VGeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
+          VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+          VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
+          VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
 
-  VTilesLineRect.Left := VTilesRect.Left;
-  VTilesLineRect.Right := VTilesRect.Right;
-  for i := VTilesRect.Top to VTilesRect.Bottom do begin
-    VTilesLineRect.Top := i;
-    VTilesLineRect.Bottom := i;
-
-    VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
-    FLayer.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Right, VTileScreenRect.Top, VColor);
-  end;
-
-  VTilesLineRect.Top := VTilesRect.Top;
-  VTilesLineRect.Bottom := VTilesRect.Bottom;
-  for j := VTilesRect.Left to VTilesRect.Right do begin
-    VTilesLineRect.Left := j;
-    VTilesLineRect.Right := j;
-
-    VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-    VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-    VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-    VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
-    FLayer.bitmap.LineAS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Left, VTileScreenRect.Bottom, VColor);
-  end;
-
-  if not (VShowText) then begin
-    exit;
-  end;
-  if VGridZoom - VCurrentZoom > 2 then begin
-    exit;
-  end;
-
-  for i := VTilesRect.Top to VTilesRect.Bottom - 1 do begin
-    VTileIndex.Y := i;
-    for j := VTilesRect.Left to VTilesRect.Right - 1 do begin
-      VTileIndex.X := j;
-      VTileRelativeRect := VGeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
-      VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-      VTileScreenRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-      VTileScreenRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
-
-      VTileSize.X := VTileRect.Right - VTileRect.Left;
-      VTileSize.Y := VTileRect.Bottom - VTileRect.Top;
-      VTileCenter.X := VTileScreenRect.Left + VTileSize.X div 2;
-      VTileCenter.Y := VTileScreenRect.Top + VTileSize.Y div 2;
-      textoutx := 'x=' + inttostr(VTileIndex.X);
-      textouty := 'y=' + inttostr(VTileIndex.Y);
-      Sz1 := FLayer.bitmap.TextExtent(textoutx);
-      Sz2 := FLayer.bitmap.TextExtent(textouty);
-      if (Sz1.cx < VTileSize.X) and (Sz2.cx < VTileSize.X) then begin
-        FLayer.bitmap.RenderText(VTileCenter.X - (Sz1.cx div 2) + 1, VTileCenter.Y - Sz2.cy, textoutx, 0, VColor);
-        FLayer.bitmap.RenderText(VTileCenter.X - (Sz2.cx div 2) + 1, VTileCenter.Y, textouty, 0, VColor);
+          VTileSize.X := VTileRect.Right - VTileRect.Left;
+          VTileSize.Y := VTileRect.Bottom - VTileRect.Top;
+          VTileCenter.X := VTileScreenRect.Left + VTileSize.X div 2;
+          VTileCenter.Y := VTileScreenRect.Top + VTileSize.Y div 2;
+          textoutx := 'x=' + inttostr(VTileIndex.X);
+          textouty := 'y=' + inttostr(VTileIndex.Y);
+          Sz1 := Layer.bitmap.TextExtent(textoutx);
+          Sz2 := Layer.bitmap.TextExtent(textouty);
+          if (Sz1.cx < VTileSize.X) and (Sz2.cx < VTileSize.X) then begin
+            Layer.bitmap.RenderText(VTileCenter.X - (Sz1.cx div 2) + 1, VTileCenter.Y - Sz2.cy, textoutx, 0, VColor);
+            Layer.bitmap.RenderText(VTileCenter.X - (Sz2.cx div 2) + 1, VTileCenter.Y, textouty, 0, VColor);
+          end;
+        end;
       end;
     end;
   end;
@@ -351,13 +326,15 @@ begin
     FConfig.LockRead;
     try
       if FConfig.TileGrid.Visible then begin
-        if FConfig.TileGrid.UseRelativeZoom then begin
-          VTileGridZoom := VZoom + FConfig.TileGrid.Zoom;
-        end else begin
-          VTileGridZoom := FConfig.TileGrid.Zoom;
-        end;
-        if VGeoConverter.CheckZoom(VTileGridZoom) then begin
-          Result := (VTileGridZoom >= VZoom - 2) and (VTileGridZoom <= VZoom + 5);
+        if FConfig.TileGrid.ShowText then begin
+          if FConfig.TileGrid.UseRelativeZoom then begin
+            VTileGridZoom := VZoom + FConfig.TileGrid.Zoom;
+          end else begin
+            VTileGridZoom := FConfig.TileGrid.Zoom;
+          end;
+          if VGeoConverter.CheckZoom(VTileGridZoom) then begin
+            Result := (VTileGridZoom >= VZoom - 2) and (VTileGridZoom <= VZoom + 3);
+          end;
         end;
       end;
       if FConfig.GenShtabGrid.Visible then begin
@@ -372,16 +349,15 @@ begin
 end;
 
 procedure TMapLayerGrids.OnConfigChange(Sender: TObject);
-var
-  VVisible: Boolean;
 begin
-  VVisible := GetVisibleForNewPos(ViewPortState.GetVisualCoordConverter);
-  if VVisible then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+    SetVisible(GetVisibleForNewPos(ViewPortState.GetVisualCoordConverter));
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 procedure TMapLayerGrids.StartThreads;

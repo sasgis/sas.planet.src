@@ -14,18 +14,18 @@ type
   private
     FStopThread: TEvent;
     FAllowExecute: TEvent;
-    FExecuteCS: TCriticalSection;
-    FExecuteStopCounter: Longint;
-  protected
+    FCS: TCriticalSection;
     FNeedStopExecute: Boolean;
+  protected
     procedure ExecuteTask; virtual; abstract;
     procedure Execute; override;
     procedure Terminate; override;
+    function IsNeedStopExecute(): Boolean;
   protected
     procedure StartExecute; virtual;
     procedure StopExecute; virtual;
   public
-    constructor Create;
+    constructor Create(APriority: TThreadPriority = tpLowest);
     destructor Destroy; override;
   end;
 
@@ -36,12 +36,13 @@ uses
 
 { TBackgroundTask }
 
-constructor TBackgroundTask.Create;
+constructor TBackgroundTask.Create(APriority: TThreadPriority);
 begin
-  inherited;
+  inherited Create;
   FStopThread := TEvent.Create(nil, True, False, '');
   FAllowExecute := TEvent.Create(nil, True, False, '');
-  FExecuteCS := TCriticalSection.Create;
+  FCS := TCriticalSection.Create;
+  SetPriority(APriority);
 end;
 
 destructor TBackgroundTask.Destroy;
@@ -49,7 +50,7 @@ begin
   Terminate;
   FreeAndNil(FStopThread);
   FreeAndNil(FAllowExecute);
-  FreeAndNil(FExecuteCS);
+  FreeAndNil(FCS);
   inherited;
 end;
 
@@ -66,45 +67,49 @@ begin
     case VWaitResult of
       WAIT_OBJECT_0:
       begin
-        FExecuteCS.Acquire;
+        FCS.Acquire;
         try
-          ExecuteTask;
+          FNeedStopExecute := False;
+        finally
+          FCS.Release;
+        end;
+        ExecuteTask;
+        FCS.Acquire;
+        try
           if not FNeedStopExecute then begin
             FAllowExecute.ResetEvent;
           end;
         finally
-          FExecuteCS.Release;
+          FCS.Release;
         end;
       end;
     end;
   end;
 end;
 
-procedure TBackgroundTask.StartExecute;
-var
-  VCouner: Longint;
+function TBackgroundTask.IsNeedStopExecute: Boolean;
 begin
-  VCouner := InterlockedDecrement(FExecuteStopCounter);
-  if VCouner = 0 then begin
-    FNeedStopExecute := False;
-    FExecuteCS.Acquire;
-    try
-      FAllowExecute.SetEvent;
-    finally
-      FExecuteCS.Release;
-    end;
+  Result := FNeedStopExecute;
+end;
+
+procedure TBackgroundTask.StartExecute;
+begin
+  FCS.Acquire;
+  try
+    FAllowExecute.SetEvent;
+  finally
+    FCS.Release;
   end;
 end;
 
 procedure TBackgroundTask.StopExecute;
 begin
-  InterlockedIncrement(FExecuteStopCounter);
-  FNeedStopExecute := True;
-  FExecuteCS.Acquire;
+  FCS.Acquire;
   try
+    FNeedStopExecute := True;
     FAllowExecute.ResetEvent;
   finally
-    FExecuteCS.Release;
+    FCS.Release;
   end;
 end;
 

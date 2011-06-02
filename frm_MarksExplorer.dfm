@@ -1,7 +1,7 @@
 object frmMarksExplorer: TfrmMarksExplorer
   Left = 341
   Top = 186
-  Caption = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1084#1077#1090#1082#1072#1084#1080
+  Caption = 'Placemark Manager'
   ClientHeight = 427
   ClientWidth = 577
   Color = clBtnFace
@@ -18,19 +18,21 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 0
     Top = 0
     Width = 577
-    Height = 358
+    Height = 352
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitHeight = 358
     object pnlButtons: TPanel
       AlignWithMargins = True
       Left = 497
       Top = 3
       Width = 77
-      Height = 352
+      Height = 346
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 352
       object btnExport: TTBXButton
         AlignWithMargins = True
         Left = 3
@@ -41,9 +43,9 @@ object frmMarksExplorer: TfrmMarksExplorer
         DropDownCombo = True
         DropDownMenu = PopupExport
         ImageIndex = 0
-        TabOrder = 0
+        TabOrder = 2
         OnClick = btnExportClick
-        Caption = #1069#1082#1089#1087#1086#1088#1090
+        Caption = 'Export'
       end
       object btnAccept: TTBXButton
         AlignWithMargins = True
@@ -55,7 +57,7 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 1
         OnClick = btnAcceptClick
-        Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100
+        Caption = 'Apply'
       end
       object btnOk: TTBXButton
         AlignWithMargins = True
@@ -65,9 +67,9 @@ object frmMarksExplorer: TfrmMarksExplorer
         Height = 21
         Align = alTop
         ImageIndex = 0
-        TabOrder = 2
+        TabOrder = 0
         OnClick = btnOkClick
-        Caption = #1054#1050
+        Caption = 'Ok'
       end
       object btnImport: TTBXButton
         AlignWithMargins = True
@@ -79,64 +81,73 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 3
         OnClick = btnImportClick
-        Caption = #1048#1084#1087#1086#1088#1090
+        Caption = 'Import'
       end
     end
     object pnlMain: TPanel
       Left = 0
       Top = 0
       Width = 494
-      Height = 358
+      Height = 352
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 358
       object splCatMarks: TSplitter
-        Left = 178
+        Left = 181
         Top = 0
-        Height = 358
+        Height = 352
         ExplicitLeft = 237
         ExplicitTop = 14
         ExplicitHeight = 331
       end
       object grpMarks: TGroupBox
-        Left = 181
+        Left = 184
         Top = 0
-        Width = 313
-        Height = 358
+        Width = 310
+        Height = 352
         Align = alClient
-        Caption = ' '#1052#1077#1090#1082#1080' '
+        Caption = 'Placemarks'
         TabOrder = 0
+        ExplicitLeft = 181
+        ExplicitWidth = 313
+        ExplicitHeight = 358
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
           Top = 46
-          Width = 303
-          Height = 284
+          Width = 300
+          Height = 278
           OnClickCheck = MarksListBoxClickCheck
           Align = alClient
           ItemHeight = 13
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
+          ExplicitWidth = 303
+          ExplicitHeight = 284
         end
         object CheckBox1: TCheckBox
           AlignWithMargins = True
           Left = 5
-          Top = 336
-          Width = 303
+          Top = 330
+          Width = 300
           Height = 17
           Align = alBottom
-          Caption = #1042#1089#1077
+          Caption = 'All'
           TabOrder = 1
           OnClick = CheckBox1Click
+          ExplicitTop = 336
+          ExplicitWidth = 303
         end
         object TBXDockMark: TTBXDock
           Left = 2
           Top = 15
-          Width = 309
+          Width = 306
           Height = 28
           AllowDrag = False
           UseParentBackground = True
+          ExplicitWidth = 309
           object TBXToolbar1: TTBXToolbar
             Left = 0
             Top = 0
@@ -149,18 +160,18 @@ object frmMarksExplorer: TfrmMarksExplorer
             Stretch = True
             TabOrder = 0
             UseThemeColor = False
-            Caption = 'TBXToolbar1'
+            Caption = ''
             object btnEditMark: TTBXItem
               ImageIndex = 31
               OnClick = btnEditMarkClick
               Caption = ''
-              Hint = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100' '#1074#1099#1073#1088#1072#1085#1085#1091#1102' '#1084#1077#1090#1082#1091
+              Hint = 'Edit selected placemark'
             end
             object btnDelMark: TTBXItem
               ImageIndex = 30
               OnClick = btnDelMarkClick
               Caption = ''
-              Hint = #1059#1076#1072#1083#1080#1090#1100' '#1074#1099#1073#1088#1072#1085#1085#1091#1102' '#1084#1077#1090#1082#1091
+              Hint = 'Delete selected placemark'
             end
             object TBXSeparatorItem1: TTBXSeparatorItem
               Caption = ''
@@ -170,20 +181,20 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 11
               OnClick = btnGoToMarkClick
               Caption = ''
-              Hint = #1055#1077#1088#1077#1081#1090#1080' '#1082' '#1074#1099#1073#1088#1072#1085#1085#1086#1084#1091' '#1086#1073#1098#1077#1082#1090#1091
+              Hint = 'Go to selected object'
             end
             object btnOpSelectMark: TTBXItem
               ImageIndex = 10
               OnClick = btnOpSelectMarkClick
               Caption = ''
-              Hint = #1054#1087#1077#1088#1072#1094#1080#1080' '#1089' '#1086#1073#1083#1072#1089#1090#1100#1102' '#1074' '#1075#1088#1072#1085#1080#1094#1072#1093' '#1074#1099#1073#1088#1072#1085#1085#1086#1075#1086' '#1086#1073#1098#1077#1082#1090#1072
+              Hint = 'Selection manager'
             end
             object btnNavOnMark: TTBXItem
               AutoCheck = True
               ImageIndex = 33
               OnClick = btnNavOnMarkClick
               Caption = ''
-              Hint = #1053#1072#1074#1080#1075#1072#1094#1080#1103' '#1085#1072' '#1074#1099#1073#1088#1072#1085#1085#1091#1102' '#1084#1077#1090#1082#1091
+              Hint = 'Navigate to selected placemark'
             end
             object TBXSeparatorItem2: TTBXSeparatorItem
               Caption = ''
@@ -193,36 +204,43 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 25
               OnClick = btnSaveMarkClick
               Caption = ''
-              Hint = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1073#1088#1072#1085#1085#1086#1081' '#1084#1077#1090#1082#1080
+              Hint = 'Export selected placemark'
             end
           end
         end
       end
       object grpCategory: TGroupBox
-        Left = 0
+        AlignWithMargins = True
+        Left = 3
         Top = 0
         Width = 178
-        Height = 358
+        Height = 352
+        Margins.Top = 0
+        Margins.Right = 0
+        Margins.Bottom = 0
         Align = alLeft
-        Caption = ' '#1050#1072#1090#1077#1075#1086#1088#1080#1080' '#1084#1077#1090#1086#1082' '
+        Caption = 'Placemark Categories'
         TabOrder = 1
+        ExplicitLeft = 0
+        ExplicitHeight = 358
         object CheckBox2: TCheckBox
           AlignWithMargins = True
           Left = 5
-          Top = 336
+          Top = 330
           Width = 168
           Height = 17
           Align = alBottom
-          Caption = #1042#1089#1077
+          Caption = 'All'
           TabOrder = 0
           OnClick = CheckBox2Click
+          ExplicitTop = 336
         end
         object TreeView1: TTreeView
           AlignWithMargins = True
           Left = 5
           Top = 46
           Width = 168
-          Height = 284
+          Height = 278
           Align = alClient
           Indent = 19
           ReadOnly = True
@@ -231,6 +249,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           OnChange = TreeView1Change
           OnKeyUp = TreeView1KeyUp
           OnMouseUp = TreeView1MouseUp
+          ExplicitHeight = 284
         end
         object TBXDockCategory: TTBXDock
           Left = 2
@@ -251,24 +270,24 @@ object frmMarksExplorer: TfrmMarksExplorer
             Stretch = True
             TabOrder = 0
             UseThemeColor = False
-            Caption = 'TBXToolbar1'
+            Caption = ''
             object BtnAddCategory: TTBXItem
               ImageIndex = 32
               OnClick = TBXItem4Click
               Caption = ''
-              Hint = #1044#1086#1073#1072#1074#1080#1090#1100
+              Hint = 'Add'
             end
             object BtnEditCategory: TTBXItem
               ImageIndex = 31
               OnClick = BtnEditCategoryClick
               Caption = ''
-              Hint = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100
+              Hint = 'Edit'
             end
             object BtnDelKat: TTBXItem
               ImageIndex = 30
               OnClick = BtnDelKatClick
               Caption = ''
-              Hint = #1059#1076#1072#1083#1080#1090#1100
+              Hint = 'Delete'
             end
             object TBXSeparatorItem3: TTBXSeparatorItem
               Caption = ''
@@ -278,7 +297,7 @@ object frmMarksExplorer: TfrmMarksExplorer
               ImageIndex = 25
               OnClick = btnExportCategoryClick
               Caption = ''
-              Hint = #1069#1082#1089#1087#1086#1088#1090' '#1074#1099#1073#1088#1072#1085#1085#1086#1081' '#1082#1072#1090#1077#1075#1086#1088#1080#1080
+              Hint = 'Export placemarks from selected category'
             end
           end
         end
@@ -286,24 +305,27 @@ object frmMarksExplorer: TfrmMarksExplorer
     end
   end
   object rgMarksShowMode: TRadioGroup
-    Left = 0
-    Top = 358
-    Width = 577
+    AlignWithMargins = True
+    Left = 3
+    Top = 355
+    Width = 571
     Height = 69
     Align = alBottom
+    Ctl3D = True
     ItemIndex = 0
     Items.Strings = (
-      #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1091#1082#1072#1079#1072#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
-      #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1074#1089#1077' '#1084#1077#1090#1082#1080
-      #1053#1077' '#1087#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1084#1077#1090#1082#1080)
+      'Show only selected placemarks'
+      'Show all placemarks'
+      'Hide placemarks')
+    ParentCtl3D = False
     TabOrder = 1
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*.kml'
     Filter = 
       'Google KML files (*.kml)|*.kml|OziExplorer Track Point File Vers' +
-      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|'#1060#1072#1081#1083' '#1074#1099#1076#1077#1083#1077 +
-      #1085#1080#1103' (*.hlg)|*.hlg'
+      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Selection' +
+      ' (*.hlg)|*.hlg'
     Left = 352
     Top = 144
   end
@@ -410,7 +432,7 @@ object frmMarksExplorer: TfrmMarksExplorer
   object ExportDialog: TSaveDialog
     DefaultExt = '.kmz'
     Filter = 
-      #1059#1087#1072#1082#1086#1074#1072#1085#1085#1099#1081' Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup L' +
+      'Compressed Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup L' +
       'anguage (kml)|*.kml'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 256
@@ -420,12 +442,12 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 376
     Top = 224
     object NExportAll: TMenuItem
-      Caption = #1069#1082#1089#1087#1086#1088#1090' '#1074#1089#1077#1093' '#1084#1077#1090#1086#1082' '#1080' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
+      Caption = 'Export all placemarks and all categories'
       OnClick = btnExportClick
     end
     object NExportVisible: TMenuItem
       Tag = 1
-      Caption = #1069#1082#1089#1087#1086#1088#1090' '#1090#1086#1083#1100#1082#1086' '#1086#1090#1086#1073#1088#1072#1078#1072#1077#1084#1099#1093
+      Caption = 'Export visible placemarks'
       OnClick = btnExportClick
     end
   end

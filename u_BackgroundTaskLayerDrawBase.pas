@@ -3,26 +3,20 @@ unit u_BackgroundTaskLayerDrawBase;
 interface
 
 uses
-  GR32,
-  i_LocalCoordConverter,
-  i_BackgroundTaskLayerDraw,
+  Classes,
+  t_CommonTypes,
   u_BackgroundTask;
 
 type
-  TBackgroundTaskLayerDrawBase = class(TBackgroundTask, IBackgroundTaskLayerDraw)
+  TBgPaintLayerEvent = procedure(AIsStop: TIsCancelChecker) of object;
+
+  TBackgroundTaskLayerDrawBase = class(TBackgroundTask)
   private
-    FBitmap: TCustomBitmap32;
-    FConverter: ILocalCoordConverter;
+    FOnBgPaintLayer: TBgPaintLayerEvent;
   protected
-    procedure DrawBitmap; virtual; abstract;
-    procedure ResizeBitmap(ABitmapSize: TPoint);
     procedure ExecuteTask; override;
-    property Converter: ILocalCoordConverter read FConverter;
-    property Bitmap: TCustomBitmap32 read FBitmap;
-  protected
-    procedure ChangePos(AConverter: ILocalCoordConverter);
   public
-    constructor Create(ABitmap: TCustomBitmap32);
+    constructor Create(AOnBgPaintLayer: TBgPaintLayerEvent; APriority: TThreadPriority = tpLowest);
   end;
 
 implementation
@@ -32,48 +26,17 @@ uses
 
 { TBackgroundTaskLayerDrawBase }
 
-constructor TBackgroundTaskLayerDrawBase.Create(ABitmap: TCustomBitmap32);
+constructor TBackgroundTaskLayerDrawBase.Create(AOnBgPaintLayer: TBgPaintLayerEvent; APriority: TThreadPriority);
 begin
-  inherited Create;
-  FBitmap := ABitmap;
-end;
-
-procedure TBackgroundTaskLayerDrawBase.ChangePos(
-  AConverter: ILocalCoordConverter);
-begin
-  StopExecute;
-  try
-    FConverter := AConverter;
-  finally
-    StartExecute;
-  end;
+  inherited Create(APriority);
+  FOnBgPaintLayer := AOnBgPaintLayer;
 end;
 
 procedure TBackgroundTaskLayerDrawBase.ExecuteTask;
-var
-  VBitmapSize: TPoint;
 begin
   inherited;
-  if FConverter <> nil then begin
-    VBitmapSize := FConverter.GetLocalRectSize;
-  end else begin
-    VBitmapSize := Point(0, 0);
-  end;
-  ResizeBitmap(VBitmapSize);
-  if (VBitmapSize.X <> 0) and (VBitmapSize.Y <> 0) then begin
-    DrawBitmap;
-  end;
-end;
-
-procedure TBackgroundTaskLayerDrawBase.ResizeBitmap(ABitmapSize: TPoint);
-begin
-  FBitmap.Lock;
-  try
-    if (FBitmap.Width <> ABitmapSize.X) or (FBitmap.Height <> ABitmapSize.Y) then begin
-      FBitmap.SetSize(ABitmapSize.X, ABitmapSize.Y);
-    end;
-  finally
-    FBitmap.Unlock;
+  if Assigned(FOnBgPaintLayer) then begin
+    FOnBgPaintLayer(IsNeedStopExecute);
   end;
 end;
 

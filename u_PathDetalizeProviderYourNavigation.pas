@@ -44,7 +44,7 @@ implementation
 uses
   Classes,
   u_GeoToStr,
-  u_KmlInfoSimple,
+  i_VectorDataItemSimple,
   u_GlobalState,
   frm_InvisibleBrowser;
 
@@ -61,10 +61,11 @@ var
   ms:TMemoryStream;
   url:string;
   i:integer;
-  kml:TKmlInfoSimple;
+  kml:IVectorDataItemList;
   s,l:integer;
   conerr:boolean;
   add_line_arr_b:TArrayOfDoublePoint;
+  VItem: IVectorDataItemSimple;
 begin
   AComment := '';
   ms:=TMemoryStream.Create;
@@ -76,18 +77,18 @@ begin
       url:=url+'&flat='+R2StrPoint(ASource[i].y)+'&flon='+R2StrPoint(ASource[i].x)+
           '&tlat='+R2StrPoint(ASource[i+1].y)+'&tlon='+R2StrPoint(ASource[i+1].x);
       if GetStreamFromURL(ms, url, 'text/xml')>0 then begin
-        kml:=TKmlInfoSimple.Create;
-        try
-          GState.KmlLoader.LoadFromStream(ms, kml);
+        GState.KmlLoader.LoadFromStream(ms, kml);
+        if kml <> nil then begin
           ms.SetSize(0);
-          if (length(kml.Data)>0)and(length(kml.Data[0].coordinates)>0) then begin
-            s:=length(add_line_arr_b);
-            l:=length(kml.Data[0].coordinates);
-            SetLength(add_line_arr_b,(s+l));
-            Move(kml.Data[0].coordinates[0],add_line_arr_b[s],l*sizeof(TDoublePoint));
+          if kml.Count > 0 then begin
+            VItem := kml.GetItem(0);
+            if Length(VItem.Points)>0 then begin
+              s:=length(add_line_arr_b);
+              l:=length(VItem.Points);
+              SetLength(add_line_arr_b,(s+l));
+              Move(VItem.Points[0], add_line_arr_b[s], l*sizeof(TDoublePoint));
+            end;
           end;
-        finally
-          kml.Free;
         end;
       end else begin
         conerr:=true;

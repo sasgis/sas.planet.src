@@ -64,7 +64,7 @@ var
   Form: TCustomForm;
 begin
   if (Key=VK_RETURN) then begin
-    if not(ssCtrl in Shift) then begin
+    if (ssCtrl in Shift) then begin
       Key:=0;
       s:=EditComment.Text;
       VSelStart:=EditComment.SelStart;

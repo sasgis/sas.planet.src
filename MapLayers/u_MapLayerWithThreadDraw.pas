@@ -3,37 +3,67 @@ unit u_MapLayerWithThreadDraw;
 interface
 
 uses
+  Windows,
   Classes,
   GR32,
   GR32_Image,
-  GR32_Layers,
+  i_JclNotify,
+  t_CommonTypes,
+  i_BackgroundTask,
+  i_ImageResamplerConfig,
+  i_LayerBitmapClearStrategy,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
-  i_BackgroundTaskLayerDraw,
+  i_InternalPerformanceCounter,
   i_ViewPortState,
   u_MapLayerBasic;
 
 type
-  TMapLayerWithThreadDraw = class(TMapLayerBasicFullView)
+  TMapLayerWithThreadDraw = class(TMapLayerBasic)
+  private
+    FDrawTask: IBackgroundTask;
+    FUpdateCounter: Integer;
+    FBgDrawCounter: IInternalPerformanceCounter;
+    procedure OnDrawBitmap(AIsStop: TIsCancelChecker);
+    procedure OnTimer(Sender: TObject);
   protected
-    FDrawTask: IBackgroundTaskLayerDraw;
-    FBitmapCoordConverter: ILocalCoordConverter;
-    FBitmapCoordConverterFactory: ILocalCoordConverterFactorySimpe;
-    FLayer: TBitmapLayer;
-    property DrawTask: IBackgroundTaskLayerDraw read FDrawTask;
-    function BuildBitmapCoordConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter; virtual;
-
+    procedure DrawBitmap(AIsStop: TIsCancelChecker); virtual; abstract;
+    procedure SetBitmapChanged;
+    property DrawTask: IBackgroundTask read FDrawTask;
+  protected
+    procedure SetNeedRedraw; override;
+    procedure SetNeedUpdateLayerSize; override;
     procedure DoRedraw; override;
-    procedure DoHide; override;
-    procedure DoShow; override;
-    function GetMapLayerLocationRect: TFloatRect; override;
-    procedure PreparePosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    procedure AfterPosChange; override;
+    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; ATaskFactory: IBackgroundTaskLayerDrawFactory);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      ATimerNoifier: IJclNotifier;
+      APriority: TThreadPriority
+    );
     destructor Destroy; override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
+  end;
+
+  TMapLayerTiledWithThreadDraw = class(TMapLayerWithThreadDraw)
+  private
+    FClearStrategy: ILayerBitmapClearStrategy;
+    FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+  protected
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure ClearLayerBitmap; override;
+  public
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      AResamplerConfig: IImageResamplerConfig;
+      ATimerNoifier: IJclNotifier;
+      APriority: TThreadPriority
+    );
   end;
 
 implementation
@@ -41,90 +71,62 @@ implementation
 uses
   Types,
   SysUtils,
-  t_GeoTypes,
-  u_LocalCoordConverterFactorySimpe;
+  u_NotifyEventListener,
+  u_BackgroundTaskLayerDrawBase,
+  u_LayerBitmapClearStrategyFactory;
 
 { TMapLayerWithThreadDraw }
 
-procedure TMapLayerWithThreadDraw.AfterPosChange;
+constructor TMapLayerWithThreadDraw.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  ATimerNoifier: IJclNotifier;
+  APriority: TThreadPriority
+);
 begin
-  inherited;
-  FDrawTask.ChangePos(FBitmapCoordConverter);
-  UpdateLayerLocation(GetMapLayerLocationRect);
-end;
+  inherited Create(AParentMap, AViewPortState, AConverterFactory);
+  Layer.Bitmap.BeginUpdate;
+  FDrawTask := TBackgroundTaskLayerDrawBase.Create(OnDrawBitmap, APriority);
+  FUpdateCounter := 0;
 
-function TMapLayerWithThreadDraw.BuildBitmapCoordConverter(
-  ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
-begin
-  if Visible then begin
-    Result := ANewVisualCoordConverter;
-  end else begin
-    Result := nil;
-  end;
-end;
-
-constructor TMapLayerWithThreadDraw.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState;  ATaskFactory: IBackgroundTaskLayerDrawFactory);
-begin
-  FLayer := TBitmapLayer.Create(AParentMap.Layers);
-  inherited Create(FLayer, AViewPortState);
-  FLayer.Bitmap.DrawMode := dmBlend;
-  FLayer.Bitmap.CombineMode := cmMerge;
-  FDrawTask := ATaskFactory.GetTask(FLayer.Bitmap);
-  FBitmapCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimer),
+    ATimerNoifier
+  );
 end;
 
 destructor TMapLayerWithThreadDraw.Destroy;
 begin
   FDrawTask := nil;
-  FBitmapCoordConverterFactory := nil;
   inherited;
-end;
-
-procedure TMapLayerWithThreadDraw.DoHide;
-begin
-  inherited;
-  FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
-  FDrawTask.ChangePos(FBitmapCoordConverter);
-end;
-
-procedure TMapLayerWithThreadDraw.PreparePosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-begin
-  inherited;
-  FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
 end;
 
 procedure TMapLayerWithThreadDraw.DoRedraw;
 begin
-  inherited;
   FDrawTask.StopExecute;
-  FDrawTask.StartExecute;
-end;
-
-procedure TMapLayerWithThreadDraw.DoShow;
-begin
   inherited;
-  FBitmapCoordConverter := BuildBitmapCoordConverter(VisualCoordConverter);
-  FDrawTask.ChangePos(FBitmapCoordConverter);
-  UpdateLayerLocation(GetMapLayerLocationRect);
+  if Visible then begin
+    FDrawTask.StartExecute;
+  end;
 end;
 
-function TMapLayerWithThreadDraw.GetMapLayerLocationRect: TFloatRect;
+procedure TMapLayerWithThreadDraw.OnDrawBitmap(AIsStop: TIsCancelChecker);
 var
-  VBitmapOnMapRect: TDoubleRect;
-  VBitmapOnVisualRect: TDoubleRect;
-  VBitmapConverter: ILocalCoordConverter;
-  VVisualConverter: ILocalCoordConverter;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VBitmapConverter := FBitmapCoordConverter;
-  VVisualConverter := VisualCoordConverter;
-  if (VBitmapConverter <> nil) and (VVisualConverter <> nil) then begin
-    VBitmapOnMapRect := VBitmapConverter.GetRectInMapPixelFloat;
-    VBitmapOnVisualRect := VVisualConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
-    Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);
-  end else begin
-    Result := FloatRect(0, 0, 0, 0);
+  VCounterContext := FBgDrawCounter.StartOperation;
+  try
+    DrawBitmap(AIsStop);
+  finally
+    FBgDrawCounter.FinishOperation(VCounterContext);
+  end;
+end;
+
+procedure TMapLayerWithThreadDraw.OnTimer(Sender: TObject);
+begin
+  if InterlockedExchange(FUpdateCounter, 0) > 0 then begin
+    Layer.Changed;
   end;
 end;
 
@@ -134,11 +136,89 @@ begin
   FDrawTask.Terminate;
 end;
 
+procedure TMapLayerWithThreadDraw.SetBitmapChanged;
+begin
+  InterlockedIncrement(FUpdateCounter);
+end;
+
+procedure TMapLayerWithThreadDraw.SetNeedRedraw;
+begin
+  FDrawTask.StopExecute;
+  inherited;
+end;
+
+procedure TMapLayerWithThreadDraw.SetNeedUpdateLayerSize;
+begin
+  FDrawTask.StopExecute;
+  inherited;
+end;
+
+procedure TMapLayerWithThreadDraw.SetPerfList(
+  const Value: IInternalPerformanceCounterList);
+begin
+  inherited;
+  FBgDrawCounter := Value.CreateAndAddNewCounter('BgDraw');
+end;
+
 procedure TMapLayerWithThreadDraw.StartThreads;
 begin
   inherited;
   FDrawTask.Start;
-  FDrawTask.ChangePos(FBitmapCoordConverter);
+  if Visible then begin
+    FDrawTask.StartExecute;
+  end;
+end;
+
+{ TMapLayerTiledWithThreadDraw }
+
+constructor TMapLayerTiledWithThreadDraw.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AResamplerConfig: IImageResamplerConfig;
+  ATimerNoifier: IJclNotifier;
+  APriority: TThreadPriority
+);
+begin
+  inherited Create(
+    AParentMap,
+    AViewPortState,
+    AConverterFactory,
+    ATimerNoifier,
+    APriority
+  );
+  FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(AResamplerConfig);
+end;
+
+procedure TMapLayerTiledWithThreadDraw.ClearLayerBitmap;
+begin
+  if Visible then begin
+    Layer.Bitmap.Lock;
+    try
+      if FClearStrategy <> nil then begin
+        FClearStrategy.Clear(Layer.Bitmap);
+        FClearStrategy := nil;
+      end;
+    finally
+      Layer.Bitmap.UnLock;
+    end;
+  end;
+end;
+
+procedure TMapLayerTiledWithThreadDraw.SetLayerCoordConverter(
+  AValue: ILocalCoordConverter);
+begin
+  Layer.Bitmap.Lock;
+  try
+    if Visible then begin
+      FClearStrategy := FClearStrategyFactory.GetStrategy(LayerCoordConverter, AValue, Layer.Bitmap, FClearStrategy);
+    end else begin
+      FClearStrategy := nil;
+    end;
+  finally
+    Layer.Bitmap.Unlock;
+  end;
+  inherited;
 end;
 
 end.

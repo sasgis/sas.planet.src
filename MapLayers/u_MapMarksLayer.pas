@@ -5,31 +5,41 @@ interface
 uses
   GR32,
   GR32_Image,
+  i_JclNotify,
+  t_CommonTypes,
+  i_ImageResamplerConfig,
   i_UsedMarksConfig,
   i_MarksSimple,
   u_GeoFun,
   i_ViewPortState,
   i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
+  i_InternalPerformanceCounter,
   u_MarksDbGUIHelper,
-  u_MapLayerBasic;
+  u_MapLayerWithThreadDraw;
 
 type
-  TMapMarksLayer = class(TMapLayerBasic)
+  TMapMarksLayer = class(TMapLayerTiledWithThreadDraw)
   private
     FConfig: IUsedMarksConfig;
     FConfigStatic: IUsedMarksConfigStatic;
     FMarkDBGUI: TMarksDbGUIHelper;
     FMarksSubset: IMarksSubset;
+    FGetMarksCounter: IInternalPerformanceCounter;
     procedure OnConfigChange(Sender: TObject);
     function GetMarksSubset: IMarksSubset;
   protected
-    procedure DoRedraw; override;
+    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
+    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      AResamplerConfig: IImageResamplerConfig;
+      ATimerNoifier: IJclNotifier;
       AConfig: IUsedMarksConfig;
       AMarkDBGUI: TMarksDbGUIHelper
     );
@@ -46,20 +56,25 @@ uses
   SysUtils,
   t_GeoTypes,
   i_CoordConverter,
+  i_TileIterator,
   i_BitmapLayerProvider,
   u_MapMarksBitmapLayerProviderByMarksSubset,
-  u_NotifyEventListener;
+  u_NotifyEventListener,
+  u_TileIteratorSpiralByRect;
 
 { TMapMarksLayer }
 
 constructor TMapMarksLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AResamplerConfig: IImageResamplerConfig;
+  ATimerNoifier: IJclNotifier;
   AConfig: IUsedMarksConfig;
   AMarkDBGUI: TMarksDbGUIHelper
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(AParentMap, AViewPortState, AConverterFactory, AResamplerConfig, ATimerNoifier, tpLower);
   FConfig := AConfig;
   FMarkDBGUI := AMarkDBGUI;
 
@@ -69,33 +84,86 @@ begin
   );
 end;
 
-procedure TMapMarksLayer.DoRedraw;
+procedure TMapMarksLayer.DrawBitmap(AIsStop: TIsCancelChecker);
 var
+  VTileToDrawBmp: TCustomBitmap32;
+
+  VGeoConvert: ICoordConverter;
+  VBitmapConverter: ILocalCoordConverter;
+  VTileIterator: ITileIterator;
+  VZoom: Byte;
+  { Прямоугольник пикселей растра в координатах основного конвертера }
+  VBitmapOnMapPixelRect: TRect;
+  { Прямоугольник тайлов текущего зума, покрывающий растр, в кооординатах
+    основного конвертера }
+  VTileSourceRect: TRect;
+  { Текущий тайл в кооординатах основного конвертера }
+  VTile: TPoint;
+  { Прямоугольник пикслов текущего тайла в кооординатах основного конвертера }
+  VCurrTilePixelRect: TRect;
+  { Прямоугольник тайла подлежащий отображению на текущий растр }
+  VTilePixelsToDraw: TRect;
+  { Прямоугольник пикселов в которые будет скопирован текущий тайл }
+  VCurrTileOnBitmapRect: TRect;
   VProv: IBitmapLayerProvider;
   VMarksSubset: IMarksSubset;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  inherited;
-  FMarksSubset := GetMarksSubset;
-  VMarksSubset := FMarksSubset;
-  if (VMarksSubset <> nil) and (not VMarksSubset.IsEmpty) then begin
+  VCounterContext := FGetMarksCounter.StartOperation;
+  try
+    FMarksSubset := GetMarksSubset;
+    VMarksSubset := FMarksSubset;
+  finally
+    FGetMarksCounter.FinishOperation(VCounterContext);
+  end;
+  VBitmapConverter := LayerCoordConverter;
+  if (VMarksSubset <> nil) and (VBitmapConverter <> nil) and (not VMarksSubset.IsEmpty) then begin
     VProv := TMapMarksBitmapLayerProviderByMarksSubset.Create(VMarksSubset);
-    FLayer.BeginUpdate;
+    VGeoConvert := VBitmapConverter.GetGeoConverter;
+    VZoom := VBitmapConverter.GetZoom;
+
+    VBitmapOnMapPixelRect := VBitmapConverter.GetRectInMapPixel;
+    VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
+
+    VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
+    VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
+
+    VTileToDrawBmp := TCustomBitmap32.Create;
     try
-      FLayer.Bitmap.DrawMode:=dmBlend;
-      FLayer.Bitmap.CombineMode:=cmMerge;
-      FLayer.Bitmap.Clear(0);
-      VProv.GetBitmapRect(FLayer.Bitmap, BitmapCoordConverter);
+      if not AIsStop then begin
+        while VTileIterator.Next(VTile) do begin
+          if AIsStop then begin
+            break;
+          end;
+          VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
+
+          VTilePixelsToDraw.TopLeft := Point(0, 0);
+          VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
+          VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
+
+          VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
+          VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+
+          VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
+          VTileToDrawBmp.Clear(0);
+          VProv.GetBitmapRect(
+            VTileToDrawBmp,
+            ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
+          );
+          Layer.Bitmap.Lock;
+          try
+            if AIsStop then begin
+              break;
+            end;
+            Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+            SetBitmapChanged;
+          finally
+            Layer.Bitmap.UnLock;
+          end;
+      end;
+      end;
     finally
-      FLayer.EndUpdate;
-      FLayer.Changed;
-    end;
-  end else begin
-    FLayer.BeginUpdate;
-    try
-      FLayer.Bitmap.Clear(0);
-    finally
-      FLayer.EndUpdate;
-      FLayer.Changed;
+      VTileToDrawBmp.Free;
     end;
   end;
 end;
@@ -127,10 +195,10 @@ begin
       VRect.Top := xy.Y - 16;
       VRect.Right := xy.X + 8;
       VRect.Bottom := xy.Y + 16;
-      VLocalConverter := BitmapCoordConverter;
+      VLocalConverter := LayerCoordConverter;
       VConverter := VLocalConverter.GetGeoConverter;
       VZoom := VLocalConverter.GetZoom;
-      VVisualConverter := VisualCoordConverter;
+      VVisualConverter := ViewCoordConverter;
       VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
       VConverter.CheckPixelRectFloat(VMapRect, VZoom);
       VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
@@ -179,7 +247,7 @@ var
 begin
   VList := nil;
   if FConfigStatic.IsUseMarks then begin
-    VConverter := BitmapCoordConverter;
+    VConverter := LayerCoordConverter;
     if VConverter <> nil then begin
       VZoom := VConverter.GetZoom;
       if not FConfigStatic.IgnoreCategoriesVisible then begin
@@ -213,14 +281,22 @@ end;
 
 procedure TMapMarksLayer.OnConfigChange(Sender: TObject);
 begin
-  FConfigStatic := FConfig.GetStatic;
-  if FConfigStatic.IsUseMarks then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
-    FMarksSubset := nil;
+  ViewUpdateLock;
+  try
+    FConfigStatic := FConfig.GetStatic;
+    SetVisible(FConfigStatic.IsUseMarks);
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
+end;
+
+procedure TMapMarksLayer.SetPerfList(
+  const Value: IInternalPerformanceCounterList);
+begin
+  inherited;
+  FGetMarksCounter := Value.CreateAndAddNewCounter('GetMarks');
 end;
 
 procedure TMapMarksLayer.StartThreads;

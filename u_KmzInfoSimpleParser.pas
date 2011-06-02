@@ -4,13 +4,13 @@ interface
 
 uses
   Classes,
-  u_KmlInfoSimple,
+  i_VectorDataItemSimple,
   u_KmlInfoSimpleParser;
 
 type
   TKmzInfoSimpleParser = class(TKmlInfoSimpleParser)
   public
-    procedure LoadFromStream(AStream: TStream; ABtm: TKmlInfoSimple); override;
+    procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); override;
   end;
 
 implementation
@@ -22,11 +22,12 @@ uses
 { TKmzInfoSimpleParser }
 
 procedure TKmzInfoSimpleParser.LoadFromStream(AStream: TStream;
-  ABtm: TKmlInfoSimple);
+  out AItems: IVectorDataItemList);
 var
   UnZip: TKAZip;
   VMemStream: TMemoryStream;
   VStreamKml: TMemoryStream;
+  VIndex: Integer;
 begin
   UnZip := TKAZip.Create(nil);
   try
@@ -36,8 +37,12 @@ begin
       UnZip.Open(VMemStream);
       VStreamKml := TMemoryStream.Create;
       try
-        UnZip.Entries.Items[0].ExtractToStream(VStreamKml);
-        inherited LoadFromStream(VStreamKml, ABtm);
+        VIndex := UnZip.Entries.IndexOf('doc.kml');
+        if VIndex < 0 then begin
+          VIndex := 0;
+        end;
+        UnZip.Entries.Items[VIndex].ExtractToStream(VStreamKml);
+        inherited LoadFromStream(VStreamKml, AItems);
       finally
         VStreamKml.Free;
       end;

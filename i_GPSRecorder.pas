@@ -11,6 +11,7 @@ type
   TGPSTrackPoint = record
     Point: TDoublePoint;
     Speed: Double;
+    Time: TDateTime;
   end;
 
   TGPSTrackPointArray = array of TGPSTrackPoint;
@@ -20,7 +21,7 @@ type
     procedure AddPoint(APosition: IGPSPosition);
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    function LastPoints(ACount: Integer): TGPSTrackPointArray;
+    function LastPoints(AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
     function GetAllPoints: TArrayOfDoublePoint;
     function GetAllTracPoints: TGPSTrackPointArray;
 

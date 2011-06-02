@@ -27,11 +27,11 @@ type
     FPathPointsOnBitmap: TArrayOfDoublePoint;
     FPathPointsOnBitmapPrepared: TArrayOfDoublePoint;
     FPathFixedPoints: TArrayOfFixedPoint;
-    procedure DrawSubset(
+    function DrawSubset(
       AMarksSubset: IMarksSubset;
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
-    );
+    ): Boolean;
     procedure DrawPath(
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
@@ -56,10 +56,10 @@ type
       AColor1, AColor2: TColor32
     );
   protected
-    procedure GetBitmapRect(
+    function GetBitmapRect(
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
-    );
+    ): Boolean;
   public
     constructor Create(AMarksSubset: IMarksSubset);
     destructor Destroy; override;
@@ -282,27 +282,41 @@ begin
   end;
 end;
 
-procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawSubset(
-  AMarksSubset: IMarksSubset; ATargetBmp: TCustomBitmap32;
-  ALocalConverter: ILocalCoordConverter);
+function TMapMarksBitmapLayerProviderByMarksSubset.DrawSubset(
+  AMarksSubset: IMarksSubset;
+  ATargetBmp: TCustomBitmap32;
+  ALocalConverter: ILocalCoordConverter
+): Boolean;
 var
   VEnumMarks: IEnumUnknown;
   VMark: IMarkFull;
   i: Cardinal;
   VScale1: Integer;
-  VPointCount: Integer;
   TestArrLenLonLatRect: TDoubleRect;
   TestArrLenPixelRect: TDoubleRect;
   VOldClipRect: TRect;
 begin
+  Result := False;
   VOldClipRect := ATargetBmp.ClipRect;
   ATargetBmp.ClipRect := ALocalConverter.GetLocalRect;
   try
     VEnumMarks := AMarksSubset.GetEnum;
     while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
       VScale1 := VMark.Scale1;
-      VPointCount := length(VMark.Points);
-      if VPointCount > 1 then begin
+      if VMark.IsPoint then begin
+        DrawPoint(
+          ATargetBmp,
+          ALocalConverter,
+          VMark.Points[0],
+          VMark.name,
+          VMark.Pic,
+          VMark.Scale2,
+          VMark.Scale1,
+          VMark.Color1,
+          VMark.Color2
+        );
+        Result := True;
+      end else begin
         TestArrLenLonLatRect := VMark.LLRect;
         TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
         if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
@@ -324,19 +338,8 @@ begin
               VMark.Scale1
             );
           end;
+          Result := True;
         end;
-      end else if VPointCount = 1 then begin
-        DrawPoint(
-          ATargetBmp,
-          ALocalConverter,
-          VMark.Points[0],
-          VMark.name,
-          VMark.Pic,
-          VMark.Scale2,
-          VMark.Scale1,
-          VMark.Color1,
-          VMark.Color2
-        );
       end;
     end;
   finally
@@ -344,8 +347,10 @@ begin
   end;
 end;
 
-procedure TMapMarksBitmapLayerProviderByMarksSubset.GetBitmapRect(
-  ATargetBmp: TCustomBitmap32; ALocalConverter: ILocalCoordConverter);
+function TMapMarksBitmapLayerProviderByMarksSubset.GetBitmapRect(
+  ATargetBmp: TCustomBitmap32;
+  ALocalConverter: ILocalCoordConverter
+): Boolean;
 var
   VRectWithDelta: TRect;
   VLocalRect: TRect;
@@ -368,7 +373,7 @@ begin
   VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
 
   FBitmapClip := TPolygonClipByRect.Create(VRectWithDelta);
-  DrawSubset(VMarksSubset, ATargetBmp, ALocalConverter);
+  Result := DrawSubset(VMarksSubset, ATargetBmp, ALocalConverter);
   FBitmapClip := nil;
 end;
 

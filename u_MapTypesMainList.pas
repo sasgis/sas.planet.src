@@ -5,6 +5,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_LanguageManager,
   i_MapTypes,
   u_MapType;
 
@@ -19,6 +20,7 @@ type
     function GetCount: Integer;
     function LoadGUID(AConfig : IConfigDataProvider): TGUID;
     procedure BuildMapsLists;
+    function GetFirstMainMap: TMapType;
   public
     destructor Destroy; override;
     property Items[Index : Integer]: TMapType read GetMapType; default;
@@ -26,8 +28,13 @@ type
     property FullMapsList: IMapTypeList read FFullMapsList;
     property MapsList: IMapTypeList read FMapsList;
     property LayersList: IMapTypeList read FLayersList;
+    property FirstMainMap: TMapType read GetFirstMainMap;
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
-    procedure LoadMaps(ALocalMapsConfig: IConfigDataProvider; AMapsPath: string);
+    procedure LoadMaps(
+      ALanguageManager: ILanguageManager;
+      ALocalMapsConfig: IConfigDataProvider;
+      AMapsPath: string
+    );
     function GetMapFromID(id: TGUID): TMapType;
     procedure SortList;
   end;
@@ -62,6 +69,21 @@ end;
 function TMapTypesMainList.GetCount: Integer;
 begin
   Result := Length(FMapType);
+end;
+
+function TMapTypesMainList.GetFirstMainMap: TMapType;
+var
+  i: integer;
+  VMapType: TMapType;
+begin
+  Result := nil;
+  for i := 0 to length(FMapType) - 1 do begin
+    VMapType := FMapType[i];
+    if not VMapType.asLayer then begin
+      result := VMapType;
+      exit;
+    end;
+  end;
 end;
 
 function TMapTypesMainList.GetMapFromID(id: TGUID): TMapType;
@@ -138,7 +160,11 @@ begin
   end;
 end;
 
-procedure TMapTypesMainList.LoadMaps(ALocalMapsConfig: IConfigDataProvider; AMapsPath: string);
+procedure TMapTypesMainList.LoadMaps(
+  ALanguageManager: ILanguageManager;
+  ALocalMapsConfig: IConfigDataProvider;
+  AMapsPath: string
+);
 var
   VMapType: TMapType;
   VMapTypeLoaded: TMapType;
@@ -181,7 +207,7 @@ begin
 
       VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VGUID));
       VMapConfig := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
-      VMapType := TMapType.Create(VGUID, VMapConfig, VMapTypeCount);
+      VMapType := TMapType.Create(ALanguageManager, VGUID, VMapConfig, VMapTypeCount);
     except
       if ExceptObject <> nil then begin
         ShowMessage((ExceptObject as Exception).Message);

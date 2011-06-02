@@ -31,7 +31,7 @@ type
     procedure AddMark(Mark:iMarkFull;inNode:iXMLNode);
     function SaveMarkIcon(Mark:IMarkFull): string;
     procedure AddFolders(ACategoryList: IInterfaceList);
-    procedure AddMarks(ACategoryList: IInterfaceList; inNode:iXMLNode);
+    function AddMarks(ACategoryList: IInterfaceList; inNode:iXMLNode): Boolean;
     function Color32toKMLColor(Color32:TColor32):string;
   public
     constructor Create(AOnlyVisible:boolean);
@@ -143,8 +143,8 @@ end;
 
 procedure TExportMarks2KML.AddFolders(ACategoryList: IInterfaceList);
 
-  function AddItem(Lev: Integer; ParentNode: IXMLNode; S: string; Data: IMarkCategory):boolean;
-    function FindNodeWithText(AParent: iXMLNode; const S: string): IXMLNode;
+  function AddItem(AParentNode: IXMLNode; ACategoryNamePostfix: string; AData: IMarkCategory):boolean;
+    function FindNodeWithText(AParent: iXMLNode; const ACategoryNameElement: string): IXMLNode;
     var
       i: Integer;
       tmpNode: IXMLNode;
@@ -152,7 +152,7 @@ procedure TExportMarks2KML.AddFolders(ACategoryList: IInterfaceList);
       if AParent.HasChildNodes then begin
         for i:=0 to AParent.ChildNodes.Count-1 do begin
           tmpNode :=AParent.ChildNodes.Get(i);
-          if (tmpNode.NodeName='Folder')and(tmpNode.ChildValues['name'] = S) then begin
+          if (tmpNode.NodeName='Folder')and(tmpNode.ChildValues['name'] = ACategoryNameElement) then begin
             Result := tmpNode;
             break;
           end;
@@ -161,47 +161,48 @@ procedure TExportMarks2KML.AddFolders(ACategoryList: IInterfaceList);
     end;
 
   var
-    prefix: string;
-    ID: Integer;
-    aNode: IXMLNode;
-    CatIdList:IInterfaceList;
+    VCatgoryNamePrefix: string;
+    VCatgoryNamePostfix: string;
+    VDelimiterPos: Integer;
+    VNode: IXMLNode;
+    VCatIdList: IInterfaceList;
+    VCreatedNode: Boolean;
   begin
-    Result := False;
-    if S='' then begin
-      Exit;
-    end;
-    ID:=Pos('\', S);
-    prefix:='';
-    if ID > 0 then begin
-      prefix:=Copy(S, 1, ID - 1)
+    //Result := False; // [DCC Warning] u_ExportMarks2KML.pas(171): H2077 Value assigned to 'AddItem' never used
+    if ACategoryNamePostfix='' then begin
+      VCatIdList:=TInterfaceList.Create;
+      VCatIdList.Add(AData);
+      Result := AddMarks(VCatIdList, AParentNode);
+      VCatIdList := nil;
     end else begin
-      prefix:=S;
-      S := '';
-    end;
-    aNode := FindNodeWithText(ParentNode, prefix);
-
-    if (TXMLNode(aNode) = nil) then begin
-    aNode := ParentNode.AddChild('Folder');
-    if ((Data.visible)or(not OnlyVisible)) then begin
-      aNode.ChildValues['name']:=prefix;
-      aNode.ChildValues['open']:=1;
-      with aNode.AddChild('Style').AddChild('ListStyle') do begin
-        ChildValues['listItemType']:='check';
-        ChildValues['bgColor']:='00ffffff';
+      VDelimiterPos:=Pos('\', ACategoryNamePostfix);
+      if VDelimiterPos > 0 then begin
+        VCatgoryNamePrefix := Copy(ACategoryNamePostfix, 1, VDelimiterPos - 1);
+        VCatgoryNamePostfix := Copy(ACategoryNamePostfix, VDelimiterPos + 1, Length(ACategoryNamePostfix))
+      end else begin
+        VCatgoryNamePrefix:=ACategoryNamePostfix;
+        VCatgoryNamePostfix := '';
       end;
-      if ID=0 then begin
-        CatIdList:=TInterfaceList.Create;
-        CatIdList.Add(Data);
-        AddMarks(CatIdList, aNode);
-        CatIdList := nil;
+      VCreatedNode := False;
+      if VCatgoryNamePrefix = '' then begin
+        VNode := AParentNode;
+      end else begin
+        VNode := FindNodeWithText(AParentNode, VCatgoryNamePrefix);
+        if (VNode = nil) then begin
+          VNode := AParentNode.AddChild('Folder');
+          VNode.ChildValues['name']:=VCatgoryNamePrefix;
+          VNode.ChildValues['open']:=1;
+          with VNode.AddChild('Style').AddChild('ListStyle') do begin
+            ChildValues['listItemType']:='check';
+            ChildValues['bgColor']:='00ffffff';
+          end;
+          VCreatedNode := True;
+        end;
       end;
-      result:=true;
-    end else begin
-      Result:=false;
-    end;
-    end;
-    if (not AddItem(Lev + 1, aNode, Copy(S, ID + 1, Length(S)),Data))and(not Result) then begin
-      ParentNode.ChildNodes.Remove(aNode);
+      Result := AddItem(VNode, VCatgoryNamePostfix, AData);
+      if (not Result) and (VCreatedNode) then begin
+        AParentNode.ChildNodes.Remove(VNode);
+      end;
     end;
   end;
 
@@ -211,7 +212,9 @@ var
 begin
   for K := 0 to ACategoryList.Count - 1 do begin
     VCategory := IMarkCategory(Pointer(ACategoryList.Items[K]));
-    AddItem(0, doc, VCategory.name, VCategory);
+    if (VCategory.Visible) or (not OnlyVisible) then begin
+      AddItem(doc, VCategory.name, VCategory);
+    end;
   end;
 end;
 
@@ -239,16 +242,18 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.AddMarks(ACategoryList: IInterfaceList; inNode:iXMLNode);
+function TExportMarks2KML.AddMarks(ACategoryList: IInterfaceList; inNode:iXMLNode): Boolean;
 var MarksList:IMarksSubset;
     Mark:iMarkFull;
     VEnumMarks:IEnumUnknown;
     i:integer;
 begin
+  Result := False;
   MarksList:=GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), ACategoryList, (not OnlyVisible));
   VEnumMarks := MarksList.GetEnum;
   while (VEnumMarks.Next(1, Mark, @i) = S_OK) do begin
     AddMark(Mark,inNode);
+    Result := True;
   end;
 end;
 

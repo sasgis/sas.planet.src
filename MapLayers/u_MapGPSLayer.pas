@@ -3,169 +3,369 @@ unit u_MapGPSLayer;
 interface
 
 uses
+  Windows,
   Types,
   GR32,
+  GR32_Polygons,
   GR32_Image,
+  i_JclNotify,
   t_GeoTypes,
+  t_CommonTypes,
+  i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   i_GPSRecorder,
   i_MapLayerGPSTrackConfig,
   i_ViewPortState,
-  u_MapLayerBasic;
+  u_MapLayerWithThreadDraw;
 
 type
-  TMapGPSLayer = class(TMapLayerBasic)
+  TMapGPSLayer = class(TMapLayerTiledWithThreadDraw)
   private
     FConfig: IMapLayerGPSTrackConfig;
     FGPSRecorder: IGPSRecorder;
-    procedure DrawPath;
+
+    FGpsPosChangeCounter: Integer;
+    FPoints: TGPSTrackPointArray;
+    FPolygon: TPolygon32;
     procedure OnConfigChange(Sender: TObject);
+    procedure OnGPSRecorderChange(Sender: TObject);
+    procedure OnTimer(Sender: TObject);
+    procedure DrawPath(
+      AIsStop: TIsCancelChecker;
+      ATargetBmp: TCustomBitmap32;
+      ALocalConverter: ILocalCoordConverter;
+      ATrackColorer: ITrackColorerStatic;
+      ALineWidth: Double;
+      APointsCount: Integer
+    );
+    procedure DrawSection(
+      ATargetBmp: TCustomBitmap32;
+      ATrackColorer: ITrackColorerStatic;
+      ALineWidth: Double;
+      APointPrev, APointCurr: TDoublePoint;
+      ASpeed: Double
+    );
   protected
-    procedure DoRedraw; override;
+    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      ATimerNoifier: IJclNotifier;
       AConfig: IMapLayerGPSTrackConfig;
       AGPSRecorder: IGPSRecorder
     );
+    destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  Graphics,
+  Classes,
   SysUtils,
-  GR32_Polygons,
+  i_CoordConverter,
+  i_TileIterator,
   u_GeoFun,
-  i_LocalCoordConverter,
-  u_NotifyEventListener;
+  u_NotifyEventListener,
+  u_TileIteratorSpiralByRect;
 
 { TMapGPSLayer }
 
 constructor TMapGPSLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  ATimerNoifier: IJclNotifier;
   AConfig: IMapLayerGPSTrackConfig;
   AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(AParentMap, AViewPortState, AConverterFactory, nil, ATimerNoifier, tpLower);
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimer),
+    ATimerNoifier
+  );
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnGPSRecorderChange),
+    FGPSRecorder.GetChangeNotifier
+  );
+
+  FPolygon := TPolygon32.Create;
+  FPolygon.Antialiased := true;
+  FPolygon.AntialiasMode := am4times;
+  FPolygon.Closed := false;
+  FGpsPosChangeCounter := 0;
 end;
 
-procedure TMapGPSLayer.DrawPath;
-var
-  j, speed: integer;
-  VPolygon: TPolygon32;
-  VMapPointCurr: TDoublePoint;
-  VMapPointPrev: TDoublePoint;
-  VPointCurrIsEmpty: Boolean;
-  VPointPrevIsEmpty: Boolean;
-  VPointPrev: TDoublePoint;
-  VPointCurr: TDoublePoint;
-  VPointsCount: Integer;
-  VSegmentColor: TColor32;
-  VSpeed: Extended;
-  VMaxSpeed: Extended;
-  VPoints: TGPSTrackPointArray;
-  VLocalConverter: ILocalCoordConverter;
-  VLineWidth: Double;
-  VIsChangePrevPoint: Boolean;
-  VFixedPointsPair: array [0..1] of TFixedPoint;
+destructor TMapGPSLayer.Destroy;
 begin
+  FreeAndNil(FPolygon);
+  inherited;
+end;
+
+procedure TMapGPSLayer.DrawBitmap(AIsStop: TIsCancelChecker);
+var
+  VTrackColorer: ITrackColorerStatic;
+  VPointsCount: Integer;
+  VLineWidth: Double;
+  VLocalConverter: ILocalCoordConverter;
+
+  VTileToDrawBmp: TCustomBitmap32;
+  VTileIterator: ITileIterator;
+  VGeoConvert: ICoordConverter;
+
+  VZoom: Byte;
+  { Прямоугольник пикселей растра в координатах основного конвертера }
+  VBitmapOnMapPixelRect: TRect;
+  { Прямоугольник тайлов текущего зума, покрывающий растр, в кооординатах
+    основного конвертера }
+  VTileSourceRect: TRect;
+  { Текущий тайл в кооординатах основного конвертера }
+  VTile: TPoint;
+  { Прямоугольник пикслов текущего тайла в кооординатах основного конвертера }
+  VCurrTilePixelRect: TRect;
+  { Прямоугольник тайла подлежащий отображению на текущий растр }
+  VTilePixelsToDraw: TRect;
+  { Прямоугольник пикселов в которые будет скопирован текущий тайл }
+  VCurrTileOnBitmapRect: TRect;
+begin
+  inherited;
   FConfig.LockRead;
   try
     VPointsCount := FConfig.LastPointCount;
     VLineWidth := FConfig.LineWidth;
+    VTrackColorer := FConfig.TrackColorerConfig.GetStatic;
   finally
     FConfig.UnlockRead
   end;
-  VPoints := FGPSRecorder.LastPoints(VPointsCount);
-  VLocalConverter := BitmapCoordConverter;
-  VPointsCount := length(VPoints);
-  with FLayer.Bitmap do begin
-    if (VPointsCount > 1) then begin
-      VMaxSpeed := VPoints[0].Speed;
-      for j := 1 to VPointsCount - 1 do begin
-        if VMaxSpeed < VPoints[j].Speed then begin
-          VMaxSpeed := VPoints[j].Speed;
-        end;
-      end;
 
-      VPolygon := TPolygon32.Create;
-      try
-        VPolygon.Antialiased := true;
-        VPolygon.AntialiasMode := am4times;
-        VPolygon.Closed := false;
-        VMapPointPrev := VPoints[0].Point;
-        VPointPrevIsEmpty := PointIsEmpty(VMapPointPrev);
-        VPointPrev := VLocalConverter.LonLat2LocalPixelFloat(VMapPointPrev);
-        for j := 1 to VPointsCount - 1 do begin
-          VMapPointCurr := VPoints[j].Point;
-          VPointCurrIsEmpty := PointIsEmpty(VMapPointCurr);
-          if not VPointCurrIsEmpty then begin
-            VPointCurr := VLocalConverter.LonLat2LocalPixelFloat(VMapPointCurr);
-            if not VPointPrevIsEmpty then begin
-              if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
-                if (VPointPrev.x < 32767) and (VPointPrev.x > -32767) and (VPointPrev.y < 32767) and (VPointPrev.y > -32767) then begin
-                  VFixedPointsPair[0] := FixedPoint(VPointPrev.X, VPointPrev.Y);
-                  VFixedPointsPair[1] := FixedPoint(VPointCurr.X, VPointCurr.Y);
-                  VPolygon.AddPoints(VFixedPointsPair[0], 2);
-                  with VPolygon.Outline do try
-                    with Grow(Fixed(VLineWidth / 2), 0.5) do try
-                      VSpeed := VPoints[j - 1].Speed;
-                      if (VMaxSpeed > 0) then begin
-                        speed := round((255 * VSpeed) / VMaxSpeed);
-                      end else begin
-                        speed := 0;
-                      end;
-                      VSegmentColor := Color32(speed, 0, 256 - speed, 150);
-                      DrawFill(FLayer.Bitmap, VSegmentColor);
-                    finally
-                      free;
-                    end;
-                  finally
-                    free;
-                  end;
-                  VPolygon.Clear;
-                end;
-                VIsChangePrevPoint := True;
-              end else begin
-                VIsChangePrevPoint := False;
-              end;
-            end else begin
-              VIsChangePrevPoint := True;
+  if (VPointsCount > 1) then begin
+    VLocalConverter := LayerCoordConverter;
+    VPointsCount := FGPSRecorder.LastPoints(VPointsCount, FPoints);
+    if (VPointsCount > 1) then begin
+      if not AIsStop then begin
+        VTileToDrawBmp := TCustomBitmap32.Create;
+        try
+          VGeoConvert := VLocalConverter.GetGeoConverter;
+          VZoom := VLocalConverter.GetZoom;
+
+          VBitmapOnMapPixelRect := VLocalConverter.GetRectInMapPixel;
+          VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
+
+          VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
+          VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
+          while VTileIterator.Next(VTile) do begin
+            if AIsStop then begin
+              break;
             end;
-          end else begin
-            VIsChangePrevPoint := True;
+            VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
+
+            VTilePixelsToDraw.TopLeft := Point(0, 0);
+            VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
+            VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
+
+            VCurrTileOnBitmapRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
+            VCurrTileOnBitmapRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+
+            VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
+            VTileToDrawBmp.Clear(0);
+            DrawPath(
+              AIsStop,
+              VTileToDrawBmp,
+              ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
+              VTrackColorer,
+              VLineWidth,
+              VPointsCount
+            );
+
+            Layer.Bitmap.Lock;
+            try
+              if AIsStop then begin
+                break;
+              end;
+              Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+              SetBitmapChanged;
+            finally
+              Layer.Bitmap.UnLock;
+            end;
           end;
-          if VIsChangePrevPoint then begin
-            VMapPointPrev := VMapPointCurr;
-            VPointPrev := VPointCurr;
-            VPointPrevIsEmpty := VPointCurrIsEmpty;
-          end;
+        finally
+          VTileToDrawBmp.Free;
         end;
-      finally
-        VPolygon.Free;
       end;
     end;
   end;
 end;
 
+procedure TMapGPSLayer.DrawPath(
+  AIsStop: TIsCancelChecker;
+  ATargetBmp: TCustomBitmap32;
+  ALocalConverter: ILocalCoordConverter;
+  ATrackColorer: ITrackColorerStatic;
+  ALineWidth: Double;
+  APointsCount: Integer
+);
+  function GetCode(ALLRect: TDoubleRect; ALL: TDoublePoint): Byte;
+  //  Смысл разрядов кода:
+  //
+  // 1 рр = 1 - точка над верхним краем окна;
+  //
+  // 2 рр = 1 - точка под нижним краем окна;
+  //
+  // 3 рр = 1 - точка справа от правого края окна;
+  //
+  // 4 рр = 1 - точка слева от левого края окна.
+  begin
+    Result := 0;
+    if ALLRect.Top < ALL.Y then begin
+      Result := 1;
+    end else if ALLRect.Bottom > ALL.Y then begin
+      Result := 2
+    end;
+
+    if ALLRect.Left > ALL.X then begin
+      Result := Result or 8;
+    end else if ALLRect.Right < ALL.X then begin
+      Result := Result or 4
+    end;
+
+  end;
+var
+  VPointPrevLL: TDoublePoint;
+  VPointPrevIsEmpty: Boolean;
+  VPointPrevLLCode: Byte;
+  VPointPrev: TDoublePoint;
+  i: Integer;
+  VPointCurrLL: TDoublePoint;
+  VPointCurrIsEmpty: Boolean;
+  VPointCurrLLCode: Byte;
+  VPointCurr: TDoublePoint;
+  VIsChangePrevPoint: Boolean;
+
+  VGeoConvert: ICoordConverter;
+  VZoom: Byte;
+  VMapPixelRect: TDoubleRect;
+  VLLRect: TDoubleRect;
+begin
+  VGeoConvert := ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
+  VGeoConvert.CheckPixelRectFloat(VMapPixelRect, VZoom);
+  VLLRect := VGeoConvert.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+
+  VPointCurrLLCode := 0;
+  VPointPrevLLCode := 0;
+  VPointPrevLL := FPoints[APointsCount - 1].Point;
+  VPointPrevIsEmpty := PointIsEmpty(VPointPrevLL);
+  if not VPointPrevIsEmpty then begin
+    VPointPrevLLCode := GetCode(VLLRect, VPointPrevLL);
+    VPointPrev := ALocalConverter.LonLat2LocalPixelFloat(VPointPrevLL);
+  end;
+  for i := APointsCount - 2 downto 0 do begin
+    VPointCurrLL := FPoints[i].Point;
+    VPointCurrIsEmpty := PointIsEmpty(VPointCurrLL);
+    if not VPointCurrIsEmpty then begin
+      VPointCurrLLCode := GetCode(VLLRect, VPointCurrLL);
+      VPointCurr := ALocalConverter.LonLat2LocalPixelFloat(VPointCurrLL);
+      if not VPointPrevIsEmpty then begin
+        if (VPointPrevLLCode and VPointCurrLLCode) = 0 then begin
+          if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
+            if not AIsStop then begin
+              DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrev, VPointCurr,  FPoints[i].Speed);
+            end;
+            VIsChangePrevPoint := True;
+          end else begin
+            VIsChangePrevPoint := False;
+          end;
+        end else begin
+          VIsChangePrevPoint := True;
+        end;
+      end else begin
+        VIsChangePrevPoint := True;
+      end;
+    end else begin
+      VIsChangePrevPoint := True;
+    end;
+    if VIsChangePrevPoint then begin
+      VPointPrevLL := VPointCurrLL;
+      VPointPrev := VPointCurr;
+      VPointPrevIsEmpty := VPointCurrIsEmpty;
+      VPointPrevLLCode := VPointCurrLLCode;
+    end;
+    if AIsStop then begin
+      Break;
+    end;
+  end;
+  if not AIsStop then begin
+    SetBitmapChanged;
+  end;
+end;
+
+procedure TMapGPSLayer.DrawSection(
+  ATargetBmp: TCustomBitmap32;
+  ATrackColorer: ITrackColorerStatic;
+  ALineWidth: Double;
+  APointPrev, APointCurr: TDoublePoint;
+  ASpeed: Double);
+var
+  VFixedPointsPair: array [0..10] of TFixedPoint;
+  VSegmentColor: TColor32;
+begin
+  if (APointPrev.x < 32767) and (APointPrev.x > -32767) and (APointPrev.y < 32767) and (APointPrev.y > -32767) then begin
+    VFixedPointsPair[0] := FixedPoint(APointPrev.X, APointPrev.Y);
+    VFixedPointsPair[1] := FixedPoint(APointCurr.X, APointCurr.Y);
+    FPolygon.Clear;
+    FPolygon.AddPoints(VFixedPointsPair[0], 2);
+    with FPolygon.Outline do try
+      with Grow(Fixed(ALineWidth / 2), 0.5) do try
+        VSegmentColor := ATrackColorer.GetColorForSpeed(ASpeed);
+        DrawFill(ATargetBmp, VSegmentColor);
+      finally
+        free;
+      end;
+    finally
+      free;
+    end;
+    FPolygon.Clear;
+  end;
+end;
+
 procedure TMapGPSLayer.OnConfigChange(Sender: TObject);
 begin
-  if FConfig.Visible then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+    SetVisible(FConfig.Visible);
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
+end;
+
+procedure TMapGPSLayer.OnGPSRecorderChange(Sender: TObject);
+begin
+  InterlockedIncrement(FGpsPosChangeCounter);
+end;
+
+procedure TMapGPSLayer.OnTimer(Sender: TObject);
+begin
+  if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
+    ViewUpdateLock;
+    try
+      SetNeedRedraw;
+    finally
+      ViewUpdateUnlock;
+    end;
+    ViewUpdate;
   end;
 end;
 
@@ -173,13 +373,6 @@ procedure TMapGPSLayer.StartThreads;
 begin
   inherited;
   OnConfigChange(nil);
-end;
-
-procedure TMapGPSLayer.DoRedraw;
-begin
-  inherited;
-  FLayer.Bitmap.Clear(clBlack);
-  DrawPath;
 end;
 
 end.

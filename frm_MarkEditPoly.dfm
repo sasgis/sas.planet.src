@@ -1,7 +1,7 @@
 object frmMarkEditPoly: TfrmMarkEditPoly
   Left = 360
   Top = 40
-  Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1085#1086#1074#1099#1081' '#1087#1086#1083#1080#1075#1086#1085
+  Caption = 'Add New Polygon'
   ClientHeight = 348
   ClientWidth = 327
   Color = clBtnFace
@@ -21,9 +21,8 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     Width = 321
     Height = 17
     Align = alBottom
-    Caption = #1054#1090#1086#1073#1088#1072#1078#1072#1090#1100' '#1101#1090#1086' '#1084#1077#1089#1090#1086' '#1085#1072' '#1082#1072#1088#1090#1077
+    Caption = 'Show on map'
     TabOrder = 5
-    ExplicitTop = 300
   end
   object pnlBottomButtons: TPanel
     Left = 0
@@ -35,7 +34,6 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 6
-    ExplicitTop = 320
     object btnOk: TButton
       AlignWithMargins = True
       Left = 172
@@ -43,7 +41,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Width = 73
       Height = 23
       Align = alRight
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+      Caption = 'Ok'
       Default = True
       ModalResult = 1
       TabOrder = 0
@@ -55,19 +53,19 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Top = 3
       Width = 73
       Height = 23
-      Hint = #1054#1090#1084#1077#1085#1080#1090#1100
+      Hint = 'Cancel'
       Align = alRight
       Cancel = True
-      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+      Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
     end
   end
   object pnlFill: TPanel
     Left = 0
-    Top = 245
+    Top = 251
     Width = 327
-    Height = 49
+    Height = 43
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
@@ -76,16 +74,19 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     object lblFill: TLabel
       AlignWithMargins = True
       Left = 3
-      Top = 3
+      Top = 0
       Width = 321
       Height = 13
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alTop
-      Caption = #1047#1072#1087#1086#1083#1085#1077#1085#1080#1077':'
-      ExplicitWidth = 64
+      Caption = 'Fill:'
+      ExplicitTop = 3
+      ExplicitWidth = 16
     end
     object flwpnlFill: TFlowPanel
       Left = 0
-      Top = 19
+      Top = 13
       Width = 327
       Height = 30
       Align = alTop
@@ -95,20 +96,24 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       BevelKind = bkTile
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitTop = 19
       object lblFillColor: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 3
-        Width = 26
+        Top = 6
+        Width = 25
         Height = 13
-        Caption = #1062#1074#1077#1090
+        Margins.Top = 6
+        Margins.Right = 0
+        Caption = 'Color'
       end
       object clrbxFillColor: TColorBox
         AlignWithMargins = True
-        Left = 35
+        Left = 31
         Top = 3
         Width = 38
         Height = 22
+        Margins.Right = 0
         Selected = clWhite
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
         ItemHeight = 16
@@ -116,24 +121,27 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       end
       object btnFillColor: TSpeedButton
         AlignWithMargins = True
-        Left = 79
+        Left = 69
         Top = 3
         Width = 17
         Height = 22
+        Margins.Left = 0
         Caption = '...'
         OnClick = btnFillColorClick
       end
       object lblFillTransp: TLabel
         AlignWithMargins = True
-        Left = 102
-        Top = 3
-        Width = 85
+        Left = 92
+        Top = 6
+        Width = 51
         Height = 13
-        Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
+        Margins.Top = 6
+        Margins.Right = 0
+        Caption = 'Opacity %'
       end
       object seFillTransp: TSpinEdit
         AlignWithMargins = True
-        Left = 193
+        Left = 146
         Top = 3
         Width = 41
         Height = 22
@@ -146,27 +154,30 @@ object frmMarkEditPoly: TfrmMarkEditPoly
   end
   object pnlLine: TPanel
     Left = 0
-    Top = 198
+    Top = 210
     Width = 327
-    Height = 47
+    Height = 41
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitTop = 201
+    ExplicitTop = 207
     object lblLine: TLabel
       AlignWithMargins = True
       Left = 3
-      Top = 3
+      Top = 0
       Width = 321
       Height = 13
+      Margins.Top = 0
+      Margins.Bottom = 0
       Align = alTop
-      Caption = #1051#1080#1085#1080#1103':'
-      ExplicitWidth = 35
+      Caption = 'Line:'
+      ExplicitTop = 3
+      ExplicitWidth = 23
     end
     object flwpnlLine: TFlowPanel
       Left = 0
-      Top = 19
+      Top = 13
       Width = 327
       Height = 28
       Align = alTop
@@ -174,44 +185,51 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitTop = 19
       object lblLineColor: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 3
-        Width = 26
+        Top = 6
+        Width = 25
         Height = 13
-        Caption = #1062#1074#1077#1090
+        Margins.Top = 6
+        Margins.Right = 0
+        Caption = 'Color'
       end
       object clrbxLineColor: TColorBox
         AlignWithMargins = True
-        Left = 35
+        Left = 31
         Top = 3
         Width = 38
         Height = 22
+        Margins.Right = 0
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
         ItemHeight = 16
         TabOrder = 0
       end
       object btnLineColor: TSpeedButton
         AlignWithMargins = True
-        Left = 79
+        Left = 69
         Top = 3
         Width = 17
         Height = 22
+        Margins.Left = 0
         Caption = '...'
         OnClick = btnLineColorClick
       end
       object lblLineWidth: TLabel
         AlignWithMargins = True
-        Left = 102
-        Top = 3
-        Width = 40
+        Left = 92
+        Top = 6
+        Width = 28
         Height = 13
-        Caption = #1064#1080#1088#1080#1085#1072
+        Margins.Top = 6
+        Margins.Right = 0
+        Caption = 'Width'
       end
       object seLineWidth: TSpinEdit
         AlignWithMargins = True
-        Left = 148
+        Left = 123
         Top = 3
         Width = 41
         Height = 22
@@ -222,15 +240,17 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       end
       object lblLineTransp: TLabel
         AlignWithMargins = True
-        Left = 195
-        Top = 3
-        Width = 85
+        Left = 170
+        Top = 6
+        Width = 51
         Height = 13
-        Caption = #1055#1088#1086#1079#1088#1072#1095#1085#1086#1089#1090#1100' %'
+        Margins.Top = 6
+        Margins.Right = 0
+        Caption = 'Opacity %'
       end
       object seLineTransp: TSpinEdit
         AlignWithMargins = True
-        Left = 286
+        Left = 224
         Top = 3
         Width = 41
         Height = 22
@@ -245,13 +265,13 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     Left = 0
     Top = 52
     Width = 327
-    Height = 146
+    Height = 158
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitHeight = 149
+    ExplicitHeight = 146
   end
   object pnlCategory: TPanel
     Left = 0
@@ -265,22 +285,22 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 58
+      Width = 49
       Height = 19
       Align = alLeft
-      Caption = #1050#1072#1090#1077#1075#1086#1088#1080#1103':'
+      Caption = 'Category:'
       ExplicitHeight = 13
     end
     object CBKateg: TComboBox
       AlignWithMargins = True
-      Left = 67
+      Left = 58
       Top = 3
-      Width = 257
+      Width = 266
       Height = 21
       Align = alClient
       ItemHeight = 13
       TabOrder = 0
-      Text = #1053#1086#1074#1072#1103' '#1082#1072#1090#1077#1075#1086#1088#1080#1103
+      Text = 'New Category'
     end
   end
   object pnlName: TPanel
@@ -295,24 +315,24 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 23
+      Width = 31
       Height = 21
       Align = alLeft
-      Caption = #1048#1084#1103':'
+      Caption = 'Name:'
       ExplicitHeight = 13
     end
     object edtName: TEdit
       AlignWithMargins = True
-      Left = 32
+      Left = 40
       Top = 3
-      Width = 292
+      Width = 284
       Height = 21
       Align = alClient
       TabOrder = 0
     end
   end
   object ColorDialog1: TColorDialog
-    Left = 88
-    Top = 264
+    Left = 96
+    Top = 288
   end
 end

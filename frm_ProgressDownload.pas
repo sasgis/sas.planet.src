@@ -23,9 +23,6 @@ type
   TfrmProgressDownload = class(TCommonFormParent)
     Panel1: TPanel;
     Memo1: TMemo;
-    Button1: TButton;
-    Button2: TButton;
-    Button3: TButton;
     RProgr: TRarProgress;
     LabelValue0: TLabel;
     LabelValue1: TLabel;
@@ -38,8 +35,12 @@ type
     LabelName4: TLabel;
     LabelValue4: TLabel;
     SaveSessionDialog: TSaveDialog;
-    ButtonSave: TButton;
     UpdateTimer: TTimer;
+    GridPanel1: TGridPanel;
+    Button3: TButton;
+    ButtonSave: TButton;
+    Button1: TButton;
+    Button2: TButton;
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -47,6 +48,7 @@ type
     procedure UpdateTimerTimer(Sender: TObject);
     procedure ButtonSaveClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Panel1Resize(Sender: TObject);
   private
     FDownloadThread: TThreadDownloadTiles;
     FLog: ILogForTaskThread;
@@ -148,6 +150,12 @@ begin
   LabelName3.Caption := SAS_STR_TimeRemained;
   LabelName4.Caption := SAS_STR_LoadRemained;
   Visible:=true;
+end;
+
+procedure TfrmProgressDownload.Panel1Resize(Sender: TObject);
+begin
+  RProgr.Top:=TPanel(sender).Height-48;
+  RProgr.Width:=TPanel(sender).Width-14;
 end;
 
 procedure TfrmProgressDownload.RefreshTranslation;

@@ -210,7 +210,7 @@ end;
 
 function TSensorFromGPSRecorderAvgSpeed.GetCaptionTranslated: string;
 begin
-  Result := SAS_STR_SensorGPSRecorderAvgSpeedDescription;
+  Result := SAS_STR_SensorGPSRecorderAvgSpeedCaption;
 end;
 
 function TSensorFromGPSRecorderAvgSpeed.GetDescriptionTranslated: string;

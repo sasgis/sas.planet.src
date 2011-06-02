@@ -34,15 +34,15 @@ type
     procedure ResetConnetction; virtual;
     procedure OpenSession; virtual;
     procedure CloseSession; virtual;
-    function BuildHeader(AUrl: string): string; virtual;
-    function TryDownload(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
-    function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AContentType: string): TDownloadTileResult; virtual;
+    function BuildHeader(AUrl, AHead: string): string; virtual;
+    function TryDownload(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
+    function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AContentType: string; out AResponseHead: string): TDownloadTileResult; virtual;
     function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
     function IsGlobalOffline: Boolean;
   public
     constructor Create(AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; ADownloadTryCount: Integer; AConnectionSettings: IInetConfig);
     destructor Destroy; override;
-    function DownloadTile(AUrl: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType: string): TDownloadTileResult; virtual;
+    function DownloadTile(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
     property SleepOnResetConnection: Cardinal read FSleepOnResetConnection write FSleepOnResetConnection;
     property ExpectedMIMETypes: string read FExpectedMIMETypes write FExpectedMIMETypes;
     property WaitInterval: Cardinal read FWaitInterval write FWaitInterval;
@@ -55,9 +55,9 @@ uses
 
 { TTileDownloaderBase }
 
-function TTileDownloaderBase.BuildHeader(AUrl: string): string;
+function TTileDownloaderBase.BuildHeader(AUrl, AHead: string): string;
 begin
-  Result := '';
+  Result := AHead;
 end;
 
 procedure TTileDownloaderBase.CloseSession;
@@ -90,10 +90,10 @@ begin
   inherited;
 end;
 
-function TTileDownloaderBase.DownloadTile(AUrl: string;
+function TTileDownloaderBase.DownloadTile(AUrl, ARequestHead: string;
   ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
   fileBuf: TMemoryStream; out AStatusCode: Cardinal;
-  out AContentType: string): TDownloadTileResult;
+  out AContentType, AResponseHead: string): TDownloadTileResult;
 var
   VTryCount: Integer;
 begin
@@ -109,7 +109,7 @@ begin
       if Result = dtrDownloadError then begin
         ResetConnetction;
       end;
-      Result := TryDownload(AUrl, ACheckTileSize, AExistsFileSize, fileBuf, AStatusCode, AContentType);
+      Result := TryDownload(AUrl, ARequestHead, ACheckTileSize, AExistsFileSize, fileBuf, AStatusCode, AContentType, AResponseHead);
       Inc(VTryCount);
     until (Result <> dtrDownloadError) or (VTryCount >= FDownloadTryCount);
     FLastDownloadResult := Result;
@@ -248,13 +248,33 @@ end;
 
 function TTileDownloaderBase.ProcessDataRequest(AFileHandle: HInternet;
   ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
-  fileBuf: TMemoryStream; out AContentType: string): TDownloadTileResult;
+  fileBuf: TMemoryStream; out AContentType: string; out AResponseHead: string): TDownloadTileResult;
 var
   VBufSize: Cardinal;
   dwIndex: Cardinal;
   VContentLen: Cardinal;
   VLastError: Cardinal;
 begin
+  try
+    AResponseHead := '';
+    VBufSize := 1024;
+    SetLength(AResponseHead, VBufSize);
+    FillChar(AResponseHead[1], VBufSize, 0);
+    dwIndex := 0;
+    if not HttpQueryInfo(AFileHandle, HTTP_QUERY_RAW_HEADERS_CRLF, @AResponseHead[1], VBufSize, dwIndex) then begin
+      VLastError := GetLastError;
+      if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
+        SetLength(AResponseHead, VBufSize);
+        FillChar(AResponseHead[1], VBufSize, 0);
+        dwIndex := 0;
+        if not HttpQueryInfo(AFileHandle, HTTP_QUERY_RAW_HEADERS_CRLF, @AResponseHead[1], VBufSize, dwIndex) then
+          AResponseHead := ''
+        else SetLength(AResponseHead, VBufSize);
+      end else AResponseHead := '';
+    end else SetLength(AResponseHead, VBufSize);
+  except
+    AResponseHead := '';
+  end;
   if FIgnoreMIMEType then begin
     AContentType := FDefaultMIMEType;
   end else begin
@@ -270,7 +290,9 @@ begin
       if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
         SetLength(AContentType, VBufSize);
         if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
+          {$IFDEF DEBUG}
           VLastError := GetLastError;
+          {$ENDIF}
           Result := dtrUnknownError;
           Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
           exit;
@@ -300,7 +322,9 @@ begin
         Exit;
       end;
     end else begin
+      {$IFDEF DEBUG}
       VLastError := GetLastError;
+      {$ENDIF}
       Assert(False, 'Неизвестная ошибка при получении размера. Код ошибки ' + IntToStr(VLastError));
     end;
   end;
@@ -331,10 +355,10 @@ begin
   end;
 end;
 
-function TTileDownloaderBase.TryDownload(AUrl: string;
+function TTileDownloaderBase.TryDownload(AUrl, ARequestHead: string;
   ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
   fileBuf: TMemoryStream; out AStatusCode: Cardinal;
-  out AContentType: string): TDownloadTileResult;
+  out AContentType, AResponseHead: string): TDownloadTileResult;
 var
   VFileHandle: HInternet;
   VHeader: String;
@@ -357,7 +381,7 @@ begin
   finally
     VProxyConfig.UnlockRead;
   end;
-  VHeader := BuildHeader(AUrl);
+  VHeader := BuildHeader(AUrl, ARequestHead);
   if IsGlobalOffline then begin
     ci.dwConnectedState := INTERNET_STATE_CONNECTED;
     InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
@@ -370,7 +394,8 @@ begin
     INTERNET_FLAG_NO_CACHE_WRITE or
     INTERNET_FLAG_RELOAD or
     INTERNET_FLAG_IGNORE_CERT_CN_INVALID or
-    INTERNET_FLAG_IGNORE_CERT_DATE_INVALID,
+    INTERNET_FLAG_IGNORE_CERT_DATE_INVALID or
+    INTERNET_FLAG_NO_COOKIES, { no automatic cookie handling }
     0);
   if not Assigned(VFileHandle) then begin
     VLastError := GetLastError;
@@ -427,7 +452,7 @@ begin
       end;
     end;
     if IsOkStatus(AStatusCode) then begin
-      Result := ProcessDataRequest(VFileHandle, ACheckTileSize, AExistsFileSize, fileBuf, AContentType);
+      Result := ProcessDataRequest(VFileHandle, ACheckTileSize, AExistsFileSize, fileBuf, AContentType, AResponseHead);
     end else if IsDownloadErrorStatus(AStatusCode) then begin
       Result := dtrDownloadError;
     end else if IsTileNotExistStatus(AStatusCode) then begin

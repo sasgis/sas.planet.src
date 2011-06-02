@@ -72,7 +72,7 @@ begin
   inherited;
   FCodes := TStringList.Create;
   FNames := TStringList.Create;
-  FDefaultLangCode := 'ru';
+  FDefaultLangCode := 'en';
   FLanguagesEx := TLanguagesEx.Create;
 
   SetTranslateIgnore;

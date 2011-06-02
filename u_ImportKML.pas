@@ -23,7 +23,7 @@ implementation
 uses
   SysUtils,
   i_MarksSimple,
-  u_KmlInfoSimple;
+  i_VectorDataItemSimple;
 
 { TImportKML }
 
@@ -35,40 +35,40 @@ end;
 function TImportKML.DoImport(AFileName: string;
   AConfig: IImportConfig): IInterfaceList;
 var
-  KML:TKmlInfoSimple;
+  KML: IVectorDataItemList;
   VMark: IMarkFull;
+  VItem: IVectorDataItemSimple;
   i: Integer;
 begin
   Result := TInterfaceList.Create;
-  KML:=TKmlInfoSimple.Create;
-  try
     FKmlLoader.LoadFromFile(AFileName, KML);
-    for i:=0 to length(KML.Data)-1 do begin
+    for i:=0 to KML.Count-1 do begin
       VMark := nil;
-      if KML.Data[i].IsPoint then begin
+      VItem := KML.GetItem(i);
+      if VItem.IsPoint then begin
         if AConfig.TemplateNewPoint <> nil then begin
           VMark := AConfig.MarkDB.Factory.CreateNewPoint(
-            KML.Data[i].coordinates[0],
-            KML.Data[i].Name,
-            KML.Data[i].description,
+            VItem.Points[0],
+            VItem.Name,
+            VItem.Desc,
             AConfig.TemplateNewPoint
           );
         end;
-      end else if KML.Data[i].IsPoly then begin
+      end else if VItem.IsPoly then begin
         if AConfig.TemplateNewPoly <> nil then begin
           VMark := AConfig.MarkDB.Factory.CreateNewPoly(
-            KML.Data[i].coordinates,
-            KML.Data[i].Name,
-            KML.Data[i].description,
+            VItem.Points,
+            VItem.Name,
+            VItem.Desc,
             AConfig.TemplateNewPoly
           );
         end;
-      end else if KML.Data[i].IsLine then begin
+      end else if VItem.IsLine then begin
         if AConfig.TemplateNewLine <> nil then begin
           VMark := AConfig.MarkDB.Factory.CreateNewLine(
-            KML.Data[i].coordinates,
-            KML.Data[i].Name,
-            KML.Data[i].description,
+            VItem.Points,
+            VItem.Name,
+            VItem.Desc,
             AConfig.TemplateNewLine
           );
         end;
@@ -77,9 +77,6 @@ begin
         Result.Add(VMark);
       end;
     end;
-  finally
-    KML.Free;
-  end;
 end;
 
 end.

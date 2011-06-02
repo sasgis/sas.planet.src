@@ -183,114 +183,121 @@ begin
   VBitmaps[2] := TCustomBitmap32.Create;
   VBitmaps[2].DrawMode := dmBlend;
 
-  SetLength(VSavers, 3);
-  VSavers[0] := TVampyreBasicBitmapTileSaverJPG.Create(cSat);
-  VSavers[1] := TVampyreBasicBitmapTileSaverPNGRGB.Create(cMap);
-  VSavers[2] := TVampyreBasicBitmapTileSaverJPG.Create(chib);
-
-  SetLength(VFlags, 3);
-  VFlags[0] := 3;
-  VFlags[1] := 2;
-  VFlags[2] := 6;
-
   Vbmp32crop := TCustomBitmap32.Create;
-  Vbmp32crop.Width := sizeim;
-  Vbmp32crop.Height := sizeim;
-  FTilesToProcess := 0;
-  FTilesProcessed := 0;
-  SetLength(VTileIterators, Length(FZooms));
-  for i := 0 to Length(FZooms) - 1 do begin
-    VZoom := FZooms[i];
-    VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
-    FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
-  end;
   try
-    ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
-    ProgressFormUpdateOnProgress;
+    SetLength(VSavers, 3);
+    VSavers[0] := TVampyreBasicBitmapTileSaverJPG.Create(cSat);
+    VSavers[1] := TVampyreBasicBitmapTileSaverPNGRGB.Create(cMap);
+    VSavers[2] := TVampyreBasicBitmapTileSaverJPG.Create(chib);
 
+    SetLength(VFlags, 3);
+    VFlags[0] := 3;
+    VFlags[1] := 2;
+    VFlags[2] := 6;
+
+    Vbmp32crop.Width := sizeim;
+    Vbmp32crop.Height := sizeim;
+    FTilesToProcess := 0;
+    FTilesProcessed := 0;
+    SetLength(VTileIterators, Length(FZooms));
+    for i := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[i];
+      VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+      FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
+    end;
     try
-      sqlite3_initialize;
-      FSQLite3Db := TDISQLite3Database.Create(nil);
-      FSQLite3Db.DatabaseName := FExportPath + 'MapTiles.sqlitedb';
-      if not (FileExists(FExportPath + 'MapTiles.sqlitedb')) then begin
-        FIsReplace := true;
-      end;
-      If FIsReplace then begin
-        If FileExists(FExportPath + 'MapTiles.sqlitedb') then begin
-          DeleteFile(FExportPath + 'MapTiles.sqlitedb');
+      ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
+      ProgressFormUpdateOnProgress;
+
+      try
+        sqlite3_initialize;
+        FSQLite3Db := TDISQLite3Database.Create(nil);
+        FSQLite3Db.DatabaseName := FExportPath + 'MapTiles.sqlitedb';
+        if not (FileExists(FExportPath + 'MapTiles.sqlitedb')) then begin
+          FIsReplace := true;
         end;
-        FSQLite3Db.CreateDatabase;
-        FSQLite3Db.Execute('CREATE TABLE version(version int)');
-        FSQLite3Db.Execute('CREATE TABLE images(zoom int, x int, y int, flags int, length int, data blob);');
-        FSQLite3Db.Execute('CREATE INDEX index1 on images (zoom,x,y,flags)');
-      end else begin
-        FSQLite3Db.Open;
-      end;
-      FSQLite3Db.Execute('PRAGMA locking_mode=EXCLUSIVE');
-      FSQLite3Db.Execute('PRAGMA cache_size=100000');
-      FSQLite3Db.Execute('PRAGMA synchronous=OFF');
-      FSQLite3Db.Connected := true;
-      If FIsReplace then begin
-        if FNewFormat then begin
-          FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("5")');
-        end else begin
-          FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("4")');
-        end;
-        FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("0")');
-      end;
-      FSQLite3Db.Execute('BEGIN TRANSACTION');
-      for i := 0 to Length(FZooms) - 1 do begin
-        VZoom := FZooms[i];
-        VTileIterator := VTileIterators[i];
-        while VTileIterator.Next(VTile) do begin
-          if IsCancel then begin
-            exit;
+        If FIsReplace then begin
+          If FileExists(FExportPath + 'MapTiles.sqlitedb') then begin
+            DeleteFile(FExportPath + 'MapTiles.sqlitedb');
           end;
-          for j := 0 to Length(FMapTypeArr) - 1 do begin
-            if FMapTypeArr[j] <> nil then begin
-              if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, VZoom, False, VGeoConvert, False, true, true) then begin
-                if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                  VBitmaps[0].Draw(0, 0, VBitmaps[j]);
-                  VBitmaps[j].Draw(0, 0, VBitmaps[0]);
-                end;
-                for xi := 0 to hxyi - 1 do begin
-                  for yi := 0 to hxyi - 1 do begin
-                    Vbmp32crop.Clear;
-                    Vbmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), VBitmaps[j]);
-                    VTileStream.Clear;
-                    VSavers[j].SaveToStream(Vbmp32crop, VTileStream);
-                    Write_Stream_to_Blob_Traditional(
-                      VTileStream, VZoom + 1,
-                      VTile.X * hxyi + xi, VTile.Y * hxyi + yi,
-                      VFlags[j]
-                    );
+          FSQLite3Db.CreateDatabase;
+          FSQLite3Db.Execute('CREATE TABLE version(version int)');
+          FSQLite3Db.Execute('CREATE TABLE images(zoom int, x int, y int, flags int, length int, data blob);');
+          FSQLite3Db.Execute('CREATE INDEX index1 on images (zoom,x,y,flags)');
+        end else begin
+          FSQLite3Db.Open;
+        end;
+        FSQLite3Db.Execute('PRAGMA locking_mode=EXCLUSIVE');
+        FSQLite3Db.Execute('PRAGMA cache_size=100000');
+        FSQLite3Db.Execute('PRAGMA synchronous=OFF');
+        FSQLite3Db.Connected := true;
+        If FIsReplace then begin
+          if FNewFormat then begin
+            FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("5")');
+          end else begin
+            FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("4")');
+          end;
+          FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("0")');
+        end;
+        FSQLite3Db.Execute('BEGIN TRANSACTION');
+        for i := 0 to Length(FZooms) - 1 do begin
+          VZoom := FZooms[i];
+          VTileIterator := VTileIterators[i];
+          while VTileIterator.Next(VTile) do begin
+            if IsCancel then begin
+              exit;
+            end;
+            for j := 0 to Length(FMapTypeArr) - 1 do begin
+              if FMapTypeArr[j] <> nil then begin
+                if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, VZoom, False, VGeoConvert, False, true, true) then begin
+                  if (j = 2) and (FMapTypeArr[0] <> nil) then begin
+                    VBitmaps[0].Draw(0, 0, VBitmaps[j]);
+                    VBitmaps[j].Draw(0, 0, VBitmaps[0]);
+                  end;
+                  for xi := 0 to hxyi - 1 do begin
+                    for yi := 0 to hxyi - 1 do begin
+                      Vbmp32crop.Clear;
+                      Vbmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), VBitmaps[j]);
+                      VTileStream.Clear;
+                      VSavers[j].SaveToStream(Vbmp32crop, VTileStream);
+                      Write_Stream_to_Blob_Traditional(
+                        VTileStream, VZoom + 1,
+                        VTile.X * hxyi + xi, VTile.Y * hxyi + yi,
+                        VFlags[j]
+                      );
+                    end;
                   end;
                 end;
-              end;
-              inc(FTilesProcessed);
-              if ((FTilesToProcess < 100) and (FTilesProcessed mod 5 = 0)) or
-                ((FTilesToProcess >= 100) and (FTilesProcessed mod 50 = 0)) then begin
-                ProgressFormUpdateOnProgress;
-              end;
-              if (FTilesProcessed mod 500 = 0) then begin
-                FSQLite3Db.Execute('COMMIT');
-                FSQLite3Db.Execute('BEGIN TRANSACTION');
+                inc(FTilesProcessed);
+                if ((FTilesToProcess < 100) and (FTilesProcessed mod 5 = 0)) or
+                  ((FTilesToProcess >= 100) and (FTilesProcessed mod 50 = 0)) then begin
+                  ProgressFormUpdateOnProgress;
+                end;
+                if (FTilesProcessed mod 500 = 0) then begin
+                  FSQLite3Db.Execute('COMMIT');
+                  FSQLite3Db.Execute('BEGIN TRANSACTION');
+                end;
               end;
             end;
           end;
         end;
+        FSQLite3Db.Execute('COMMIT');
+        ProgressFormUpdateOnProgress;
+      finally
+        sqlite3_shutdown;
+        FSQLite3Db.Free;
       end;
-      FSQLite3Db.Execute('COMMIT');
-      ProgressFormUpdateOnProgress;
     finally
-      sqlite3_shutdown;
-      FSQLite3Db.Free;
+      for i := 0 to Length(VTileIterators) - 1 do begin
+        VTileIterators[i] := nil;
+      end;
+      VTileIterators := nil;
     end;
   finally
-    for i := 0 to Length(VTileIterators) - 1 do begin
-      VTileIterators[i] := nil;
-    end;
-    VTileIterators := nil;
+    VTileStream.Free;
+    for i := 0 to Length(VBitmaps) - 1 do
+      VBitmaps[i].Free;
+    Vbmp32crop.Free;
   end;
 end;
 

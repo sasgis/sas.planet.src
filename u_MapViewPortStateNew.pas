@@ -66,7 +66,10 @@ type
 
     function GetScaleChangeNotifier: IJclNotifier;
   public
-    constructor Create(AMainMapConfig: IMainMapsConfig);
+    constructor Create(
+      ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+      AMainMapConfig: IMainMapsConfig
+    );
     destructor Destroy; override;
   end;
 
@@ -77,16 +80,18 @@ uses
   u_JclNotify,
   i_MapTypes,
   u_NotifyEventListener,
-  u_LocalCoordConverterFactorySimpe,
   u_GeoFun;
 
 { TMapViewPortStateNew }
 
-constructor TMapViewPortStateNew.Create(AMainMapConfig: IMainMapsConfig);
+constructor TMapViewPortStateNew.Create(
+  ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+  AMainMapConfig: IMainMapsConfig
+);
 begin
   inherited Create;
   FScaleChangeNotifier := TJclBaseNotifier.Create;
-  FVisibleCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+  FVisibleCoordConverterFactory := ACoordConverterFactory;
   FMainMapConfig := AMainMapConfig;
   FMainCoordConverter := nil;
   FCenterPos := Point(128, 128);

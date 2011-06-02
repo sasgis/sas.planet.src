@@ -104,20 +104,26 @@ end;
 function TValueToStringConverter.DegrToStr(ADegr: Double): string;
 var
   VDegr: Double;
+  VMinute: Integer;
 begin
   VDegr := abs(ADegr);
   case FDegrShowFormat of
     dshCharDegrMinSec, dshSignDegrMinSec: begin
       result := IntToStr(Trunc(VDegr)) + '°';
       VDegr := Frac(VDegr) * 60;
-      result := result + IntToStr(Trunc(VDegr)) + '''';
+      VMinute := Trunc(VDegr);
+      if VMinute < 10 then begin
+        result := result + '0' + IntToStr(VMinute) + '''';
+      end else begin
+        result := result + IntToStr(VMinute) + '''';
+      end;
       VDegr := Frac(VDegr) * 60;
-      Result := Result + FormatFloat('0.00', VDegr) + '"';
+      Result := Result + FormatFloat('00.00', VDegr) + '"';
     end;
     dshCharDegrMin, dshSignDegrMin: begin
       result := IntToStr(Trunc(VDegr))+'°';
       VDegr := Frac(VDegr) * 60;
-      result := result + FormatFloat('0.0000', VDegr) + '''';
+      result := result + FormatFloat('00.0000', VDegr) + '''';
     end;
     dshCharDegr, dshSignDegr: begin
       result := FormatFloat('0.000000', VDegr) + '°';

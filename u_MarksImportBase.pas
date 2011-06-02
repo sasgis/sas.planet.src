@@ -14,6 +14,7 @@ type
   protected
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
   end;
+  
 implementation
 
 { TMarksImportBase }

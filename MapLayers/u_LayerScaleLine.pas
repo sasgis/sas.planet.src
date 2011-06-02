@@ -17,15 +17,16 @@ type
     FConfig: IScaleLineConfig;
     FBottomMargin: Integer;
     procedure OnConfigChange(Sender: TObject);
+    procedure SetBottomMargin(const Value: Integer);
   protected
-    procedure DoRedraw; override;
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     function GetMapLayerLocationRect: TFloatRect; override;
-    procedure AfterPosChange; override;
+    procedure DoRedraw; override;
   public
     procedure StartThreads; override;
   public
     constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IScaleLineConfig);
-    property BottomMargin: Integer read FBottomMargin write FBottomMargin;
+    property BottomMargin: Integer read FBottomMargin write SetBottomMargin;
   end;
 
 implementation
@@ -62,12 +63,6 @@ begin
   DoUpdateLayerSize(VSize);
 end;
 
-procedure TLayerScaleLine.AfterPosChange;
-begin
-  inherited;
-  Redraw;
-end;
-
 procedure TLayerScaleLine.DoRedraw;
 var
   rnum, len_p, textstrt, textwidth: integer;
@@ -82,7 +77,7 @@ var
   VVisualCoordConverter: ILocalCoordConverter;
 begin
   inherited;
-  VVisualCoordConverter := VisualCoordConverter;
+  VVisualCoordConverter := LayerCoordConverter;
   VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   VConverter := VVisualCoordConverter.GetGeoConverter;
   VZoom := VVisualCoordConverter.GetZoom;
@@ -134,19 +129,39 @@ var
 begin
   VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   Result.Left := 6;
-  Result.Bottom := VisualCoordConverter.GetLocalRectSize.Y - 6 - FBottomMargin;
+  Result.Bottom := ViewCoordConverter.GetLocalRectSize.Y - 6 - FBottomMargin;
   Result.Right := Result.Left + VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;
 
 procedure TLayerScaleLine.OnConfigChange(Sender: TObject);
 begin
-  if FConfig.Visible then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+    SetVisible(FConfig.Visible);
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
+end;
+
+procedure TLayerScaleLine.SetBottomMargin(const Value: Integer);
+begin
+  ViewUpdateLock;
+  try
+    FBottomMargin := Value;
+    SetNeedUpdateLocation;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
+end;
+
+procedure TLayerScaleLine.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+begin
+  inherited;
+  SetNeedRedraw;
 end;
 
 procedure TLayerScaleLine.StartThreads;

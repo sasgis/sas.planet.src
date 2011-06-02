@@ -5,6 +5,7 @@ interface
 uses
   SysUtils,
   ZylGPSReceiver,
+  i_GPS,
   i_GPSModuleByCOMPortSettings,
   i_GPSModuleByCOM,
   u_GPSModuleAbstract;
@@ -31,7 +32,7 @@ type
     procedure Disconnect; safecall;
     function GetIsReadyToConnect: Boolean; safecall;
   public
-    constructor Create;
+    constructor Create(AGPSPositionFactory: IGPSPositionFactory);
     destructor Destroy; override;
   end;
 implementation
@@ -46,9 +47,9 @@ uses
 const
   CMaxSatCount = 32;
 
-constructor TGPSModuleByZylGPS.Create;
+constructor TGPSModuleByZylGPS.Create(AGPSPositionFactory: IGPSPositionFactory);
 begin
-  inherited Create;
+  inherited Create(AGPSPositionFactory);
 
   FFormatSettings.DecimalSeparator := '.';
   FFormatSettings.DateSeparator := '.';

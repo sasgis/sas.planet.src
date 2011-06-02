@@ -13,6 +13,8 @@ type
 
   TDegrShowFormat = (dshCharDegrMinSec = 0, dshCharDegrMin = 1, dshCharDegr = 2, dshSignDegrMinSec = 3, dshSignDegrMin = 4, dshSignDegr = 5);
 
+  TIsCancelChecker = function(): Boolean of object;
+
 implementation
 
 end.

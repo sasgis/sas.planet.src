@@ -77,10 +77,12 @@ uses
   gnugettext,
   u_GlobalState,
   u_ExportProviderYaMaps,
+  u_ExportProviderYaMapsNew,
   u_ExportProviderGEKml,
   u_ExportProviderIPhone,
   u_ExportProviderAUX,
   u_ExportProviderZip,
+  u_ExportProviderTar,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
@@ -123,26 +125,30 @@ end;
 
 procedure TfrmRegionProcess.LoadSelFromFile(FileName:string);
 var
-  ini:TMemIniFile;
   i:integer;
+  VIni:TMemIniFile;
   VPolygon: TArrayOfDoublePoint;
   VZoom: Byte;
 begin
- if FileExists(FileName) then
+  if FileExists(FileName) then
   begin
-   ini:=TMemIniFile.Create(FileName);
-   i:=1;
-   while str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'))<>2147483647 do
-    begin
-     setlength(VPolygon,i);
-     VPolygon[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
-     VPolygon[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
-     inc(i);
-    end;
-   if length(VPolygon)>0 then
-    begin
-     VZoom := Ini.Readinteger('HIGHLIGHTING','zoom',1) - 1;
-     Self.Show_(VZoom, VPolygon);
+    VIni := TMemIniFile.Create(FileName);
+    try
+      i := 1;
+      while str2r( VIni.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647') ) <> 2147483647 do
+      begin
+        setlength(VPolygon,i);
+        VPolygon[i-1].x := str2r(VIni.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
+        VPolygon[i-1].y := str2r(VIni.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
+        inc(i);
+      end;
+      if length(VPolygon)>0 then
+      begin
+        VZoom := VIni.Readinteger('HIGHLIGHTING','zoom',1) - 1;
+        Self.Show_(VZoom, VPolygon);
+      end;
+    finally
+      VIni.Free;
     end;
   end
 end;
@@ -211,9 +217,13 @@ begin
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   VExportProvider := TExportProviderYaMaps.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderYaMapsNew.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   VExportProvider := TExportProviderAUX.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   VExportProvider := TExportProviderZip.Create(pnlExport);
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  VExportProvider := TExportProviderTar.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   CBFormat.ItemIndex := 0;
 end;

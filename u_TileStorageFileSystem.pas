@@ -7,6 +7,7 @@ uses
   Types,
   Classes,
   GR32,
+  t_CommonTypes,
   i_ConfigDataProvider,
   i_CoordConverter,
   i_ContentTypeInfo,
@@ -58,7 +59,7 @@ type
       Azoom: byte;
       ASourceZoom: byte;
       AVersion: Variant;
-      IsStop: PBoolean;
+      AIsStop: TIsCancelChecker;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
       ATNEColor: TColor32
@@ -243,7 +244,7 @@ function TTileStorageFileSystem.LoadFillingMap(
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
   AVersion: Variant;
-  IsStop: PBoolean;
+  AIsStop: TIsCancelChecker;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
   ATNEColor: TColor32
@@ -289,7 +290,7 @@ begin
         or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
       while VIterator.Next(VCurrTile) do begin
-        if IsStop^ then break;
+        if AIsStop then break;
         VFileName := FCacheConfig.GetTileFileName(VCurrTile, ASourceZoom);
         VFolderName := ExtractFilePath(VFileName);
         if VFolderName = VPrevFolderName then begin
@@ -306,7 +307,7 @@ begin
         end;
 
         if not VFileExists then begin
-          if IsStop^ then break;
+          if AIsStop then break;
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
           VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
           if VSourceTilePixels.Left < VPixelsRect.Left then begin
@@ -352,7 +353,7 @@ begin
         end;
       end;
     end;
-    if IsStop^ then begin
+    if AIsStop then begin
       Result := false;
     end;
   except

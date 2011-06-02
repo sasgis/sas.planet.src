@@ -1,58 +1,81 @@
+{******************************************************************************}
 {                                                                              }
-{                      Unicode character functions v3.04                       }
+{   Library:          Fundamentals 4.00                                        }
+{   File name:        cUnicode.pas                                             }
+{   File version:     4.12                                                     }
+{   Description:      Unicode character and string functions                   }
 {                                                                              }
-{             This unit is copyright © 2002-2004 by David J Butler             }
+{   Copyright:        Copyright © 2002-2007, David J Butler                    }
+{                     All rights reserved.                                     }
+{                     Redistribution and use in source and binary forms, with  }
+{                     or without modification, are permitted provided that     }
+{                     the following conditions are met:                        }
+{                     Redistributions of source code must retain the above     }
+{                     copyright notice, this list of conditions and the        }
+{                     following disclaimer.                                    }
+{                     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND   }
+{                     CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED          }
+{                     WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED   }
+{                     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A          }
+{                     PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL     }
+{                     THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,    }
+{                     INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR             }
+{                     CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,    }
+{                     PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF     }
+{                     USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)         }
+{                     HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER   }
+{                     IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING        }
+{                     NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE   }
+{                     USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE             }
+{                     POSSIBILITY OF SUCH DAMAGE.                              }
 {                                                                              }
-{                  This unit is part of Delphi Fundamentals.                   }
-{                 Its original file name is cUnicodeChar.pas                   }
-{       The latest version is available from the Fundamentals home page        }
-{                     http://fundementals.sourceforge.net/                     }
+{   Home page:        http://fundementals.sourceforge.net                      }
+{   Forum:            http://sourceforge.net/forum/forum.php?forum_id=2117     }
+{   E-mail:           fundamentalslib at gmail.com                             }
 {                                                                              }
-{                I invite you to use this unit, free of charge.                }
-{        I invite you to distibute this unit, but it must be for free.         }
-{             I also invite you to contribute to its development,              }
-{             but do not distribute a modified copy of this file.              }
+{ Revision history:                                                            }
 {                                                                              }
-{          A forum is available on SourceForge for general discussion          }
-{             http://sourceforge.net/forum/forum.php?forum_id=2117             }
+{   19/04/2002  0.01  Initial version                                          }
+{   21/04/2002  0.02  Added case and decomposition functions                   }
+{   26/04/2002  0.03  Added WidePos, WideReplace and Append functions.         }
+{   28/10/2002  3.04  Refactored for Fundamentals 3.                           }
+{   07/09/2003  3.05  Revision.                                                }
+{   10/01/2004  3.06  Removed dependancy on cUtils unit.                       }
+{   10/01/2004  3.07  Changes to allow smart-linking by the compiler.          }
+{                     Typically this saves 100-200K on the executable size.    }
+{   01/04/2004  3.08  Compilable with FreePascal-1.92 Win32 i386.              }
+{   22/08/2004  3.09  Compilable with Delphi 8.                                }
+{   14/07/2005  4.10  Compilable with FreePascal 2 Win32 i386.                 }
+{   17/07/2005  4.11  Merged cUnicode and cUnicodeChar units.                  }
+{   27/08/2005  4.12  Revised for Fundamentals 4.                              }
 {                                                                              }
+{ Supported compilers:                                                         }
 {                                                                              }
-{ Description:                                                                 }
-{   Unicode character constants.                                               }
-{   Functions for checking unicode character properties.                       }
-{   Functions to interpret unicode characters.                                 }
-{   Unicode character case functions.                                          }
-{                                                                              }
+{   Borland Delphi 5/6/7/2005/2006/2007 Win32 i386                             }
+{   Borland Delphi 8 .NET                                                      }
+{   FreePascal 2 Win32 i386                                                    }
+{   FreePascal 2 Linux i386                                                    }
 {                                                                              }
 { Notes:                                                                       }
+{                                                                              }
 {   Most functions in this unit work from tables in source code form.          }
 {   All tables were generated from the Unicode 3.2 data.                       }
 {                                                                              }
-{   The source code is deceptively big, for example, the upper-lower case      }
-{   table is about 128K in the source code, but only 7K when compiled.         }
+{   The unit doesn't have depend on any other units, including standard        }
+{   system units.                                                              }
 {                                                                              }
-{   This unit has no dependancies on any other unit.                           }
-{                                                                              }
-{ Revision history:                                                            }
-{   19/04/2002  0.01  Initial version                                          }
-{   21/04/2002  0.02  Added case and decomposition functions                   }
-{   28/10/2002  3.03  Refactored for Fundamentals 3.                           }
-{   10/01/2004  3.04  Changes to allow smart-linking by the compiler.          }
-{                     Typically this saves 100-200K on the executable size.    }
-{                                                                              }
+{******************************************************************************}
 
-{$INCLUDE .\cDefines.inc}
-unit cUnicodeChar;
+{$INCLUDE cDefines.inc}
+{$IFDEF FREEPASCAL}{$IFDEF DEBUG}
+  {$WARNINGS OFF}{$HINTS OFF}
+{$ENDIF}{$ENDIF}
+unit cUnicode;
 
 interface
 
-const
-  UnitName      = 'cUnicodeChar';
-  UnitVersion   = '3.04';
-  UnitCopyright = 'Copyright (c) 2002-2004 David J Butler';
 
 
-  
 {                                                                              }
 { Unicode character constants                                                  }
 {                                                                              }
@@ -110,6 +133,10 @@ const
 { Unicode character functions                                                  }
 {                                                                              }
 {$IFDEF DELPHI5}
+type
+  UCS4Char = LongWord;
+{$ENDIF}
+{$IFDEF DOT_NET}
 type
   UCS4Char = LongWord;
 {$ENDIF}
@@ -172,6 +199,123 @@ function  IsAlphabetic(const Ch: WideChar): Boolean;
 function  GetCombiningClass(const Ch: WideChar): Byte;
 function  GetCharacterDecomposition(const Ch: UCS4Char): WideString; overload;
 function  GetCharacterDecomposition(const Ch: WideChar): WideString; overload;
+
+
+
+{                                                                              }
+{ WideString functions                                                         }
+{                                                                              }
+type
+  AnsiCharSet = Set of AnsiChar;
+
+function  WideMatchAnsiCharNoCase(const M: AnsiChar; const C: WideChar): Boolean;
+
+{$IFNDEF DOT_NET}
+function  WidePMatchChars(const CharMatchFunc: WideCharMatchFunction;
+          const P: PWideChar; const Length: Integer = -1): Integer;
+function  WidePMatchCharsRev(const CharMatchFunc: WideCharMatchFunction;
+          const P: PWideChar; const Length: Integer = -1): Integer;
+function  WidePMatchAllChars(const CharMatchFunc: WideCharMatchFunction;
+          const P: PWideChar; const Length: Integer = -1): Integer;
+function  WidePMatchAnsiStr(const M: AnsiString; const P: PWideChar;
+          const CaseSensitive: Boolean = True): Boolean;
+function  WidePMatch(const M: WideString; const P: PWideChar): Boolean;
+{$ENDIF}
+
+function  WideEqualAnsiStr(const M: AnsiString; const S: WideString;
+          const CaseSensitive: Boolean = True): Boolean;
+function  WideMatchLeftAnsiStr(const M: AnsiString; const S: WideString;
+          const CaseSensitive: Boolean = True): Boolean;
+
+{$IFNDEF DOT_NET}
+function  WideZPosChar(const F: WideChar; const P: PWideChar): Integer;
+function  WideZPosAnsiChar(const F: AnsiChar; const P: PWideChar): Integer;
+function  WideZPosAnsiCharSet(const F: AnsiCharSet; const P: PWideChar): Integer;
+function  WideZPosAnsiStr(const F: AnsiString; const P: PWideChar;
+          const CaseSensitive: Boolean = True): Integer;
+
+function  WideZSkipChar(const CharMatchFunc: WideCharMatchFunction;
+          var P: PWideChar): Boolean;
+function  WideZSkipChars(const CharMatchFunc: WideCharMatchFunction;
+          var P: PWideChar): Integer;
+function  WidePSkipAnsiChar(const Ch: AnsiChar; var P: PWideChar): Boolean;
+function  WidePSkipAnsiStr(const M: AnsiString; var P: PWideChar;
+          const CaseSensitive: Boolean = True): Boolean;
+
+function  WideZExtractBeforeChar(const Ch: WideChar; var P: PWideChar;
+          var S: WideString): Boolean;
+function  WideZExtractBeforeAnsiChar(const Ch: AnsiChar; var P: PWideChar;
+          var S: WideString): Boolean;
+function  WideZExtractBeforeAnsiCharSet(const C: AnsiCharSet; var P: PWideChar;
+          var S: WideString): Boolean;
+function  WideZExtractAnsiCharDelimited(const LeftDelimiter, RightDelimiter: AnsiChar;
+          var P: PWideChar; var S: WideString): Boolean;
+function  WideZExtractAnsiCharQuoted(const Delimiter: AnsiChar;
+          var P: PWideChar; var S: WideString): Boolean;
+{$ENDIF}
+
+function  WideDup(const Ch: WideChar; const Count: Integer): WideString;
+
+procedure WideTrimInPlace(var S: WideString;
+          const MatchFunc: WideCharMatchFunction = nil);
+procedure WideTrimLeftInPlace(var S: WideString;
+          const MatchFunc: WideCharMatchFunction = nil);
+procedure WideTrimRightInPlace(var S: WideString;
+          const MatchFunc: WideCharMatchFunction = nil);
+
+function  WideTrim(const S: WideString;
+          const MatchFunc: WideCharMatchFunction = nil): WideString;
+function  WideTrimLeft(const S: WideString;
+          const MatchFunc: WideCharMatchFunction = nil): WideString;
+function  WideTrimRight(const S: WideString;
+          const MatchFunc: WideCharMatchFunction = nil): WideString;
+
+function  WideCountChar(const CharMatchFunc: WideCharMatchFunction;
+          const S: WideString): Integer; overload;
+function  WideCountChar(const Ch: WideChar; const S: WideString): Integer; overload;
+
+function  WidePosChar(const F: WideChar; const S: WideString;
+          const StartIndex: Integer = 1): Integer; overload;
+function  WidePosAnsiCharSet(const F: AnsiCharSet; const S: WideString;
+          const StartIndex: Integer = 1): Integer;
+function  WidePos(const F: WideString; const S: WideString;
+          const StartIndex: Integer = 1): Integer; overload;
+
+procedure WideReplaceChar(const Find: WideChar; const Replace: WideString;
+          var S: WideString);
+
+procedure WideSetLengthAndZero(var S: WideString; const NewLength: Integer);
+
+{$IFDEF DELPHI5}
+function  WideUpperCase(const S: WideString): WideString;
+function  WideLowerCase(const S: WideString): WideString;
+{$ENDIF}
+
+function  WideCopyRange(const S: WideString; const StartIndex, StopIndex: Integer): WideString;
+function  WideCopyFrom(const S: WideString; const Index: Integer): WideString;
+
+
+
+{                                                                              }
+{ Dynamic Array functions                                                      }
+{                                                                              }
+type
+  WideStringArray = Array of WideString;
+
+function  WideAppend(var V : WideStringArray;
+          const R: WideString): Integer; overload;
+function  WideAppendWideStringArray(var V : WideStringArray;
+          const R: WideStringArray): Integer;
+function  WideSplit(const S, D: WideString): WideStringArray;
+
+
+
+{                                                                              }
+{ Self-testing code                                                            }
+{                                                                              }
+{$IFDEF DEBUG}
+procedure SelfTest;
+{$ENDIF}
 
 
 
@@ -2882,6 +3026,52 @@ begin
   Result := LocateTitleCaseLetterInfo(Ch) >= 0;
 end;
 
+{$IFDEF DOT_NET}
+function WideUpCase(const Ch: WideChar): WideChar;
+var I : Integer;
+    J : Integer;
+    C : WideChar;
+    P : TUnicodeLetterInfo;
+begin
+  if Ord(Ch) < $80 then // ASCII short-cut
+    begin
+      if AnsiChar(Ord(Ch)) in ['a'..'z'] then
+        Result := WideChar(Ord(Ch) - (Ord('a') - Ord('A'))) else
+        Result := Ch;
+    end else
+    begin
+      I := LocateLetterInfo(Ch);
+      if I >= 0 then
+        begin
+          P := UnicodeLetterInfo[I];
+          if P.Attr = laUpper then
+            Result := Ch else
+            begin
+              C := P.CaseCode;
+              if C = #$FFFF then
+                Result := Ch else
+                Result := C;
+            end;
+        end else
+        begin
+          J := LocateTitleCaseLetterInfo(Ch);
+          if J >= 0 then
+            begin
+              C := UnicodeTitleCaseLetterInfo[J].Upper;
+              if C = #$FFFF then
+                Result := Ch else
+                Result := C;
+            end else
+            begin
+              C := LocateOtherLowerCase(Ch);
+              if C = #$0000 then
+                Result := Ch else
+                Result := C;
+            end;
+        end;
+    end;
+end;
+{$ELSE}
 function WideUpCase(const Ch: WideChar): WideChar;
 var I : Integer;
     J : Integer;
@@ -2890,7 +3080,7 @@ var I : Integer;
 begin
   if Ord(Ch) < $80 then // ASCII short-cut
     begin
-      if Char(Ord(Ch)) in ['a'..'z'] then
+      if AnsiChar(Ord(Ch)) in ['a'..'z'] then
         Result := WideChar(Ord(Ch) - (Ord('a') - Ord('A'))) else
         Result := Ch;
     end else
@@ -2926,6 +3116,7 @@ begin
         end;
     end;
 end;
+{$ENDIF}
 
 function WideUpCaseFolding(const Ch: WideChar): WideString;
 var R : WideChar;
@@ -2941,6 +3132,52 @@ begin
     Result := R;
 end;
 
+{$IFDEF DOT_NET}
+function WideLowCase(const Ch: WideChar): WideChar;
+var I : Integer;
+    J : Integer;
+    C : WideChar;
+    P : TUnicodeLetterInfo;
+begin
+  if Ord(Ch) < $80 then // ASCII short-cut
+    begin
+      if AnsiChar(Ord(Ch)) in ['A'..'Z'] then
+        Result := WideChar(Ord(Ch) + (Ord('a') - Ord('A'))) else
+        Result := Ch;
+    end else
+    begin
+      I := LocateLetterInfo(Ch);
+      if I >= 0 then
+        begin
+          P := UnicodeLetterInfo[I];
+          if P.Attr = laLower then
+            Result := Ch else
+            begin
+              C := P.CaseCode;
+              if C = #$FFFF then
+                Result := Ch else
+                Result := C;
+            end;
+        end else
+        begin
+          J := LocateTitleCaseLetterInfo(Ch);
+          if J >= 0 then
+            begin
+              C := UnicodeTitleCaseLetterInfo[J].Lower;
+              if C = #$FFFF then
+                Result := Ch else
+                Result := C;
+            end else
+            begin
+              C := LocateOtherUpperCase(Ch);
+              if C = #$0000 then
+                Result := Ch else
+                Result := C;
+            end;
+        end;
+    end;
+end;
+{$ELSE}
 function WideLowCase(const Ch: WideChar): WideChar;
 var I : Integer;
     J : Integer;
@@ -2949,7 +3186,7 @@ var I : Integer;
 begin
   if Ord(Ch) < $80 then // ASCII short-cut
     begin
-      if Char(Ord(Ch)) in ['A'..'Z'] then
+      if AnsiChar(Ord(Ch)) in ['A'..'Z'] then
         Result := WideChar(Ord(Ch) + (Ord('a') - Ord('A'))) else
         Result := Ch;
     end else
@@ -2985,6 +3222,7 @@ begin
         end;
     end;
 end;
+{$ENDIF}
 
 function WideLowCaseFolding(const Ch: WideChar): WideString;
 var R : WideChar;
@@ -3006,10 +3244,57 @@ begin
     Result := Ch;
 end;
 
+{$IFDEF DOT_NET}
 function WideIsEqualNoCase(const A, B: WideChar): Boolean;
 var I    : Integer;
     J    : Integer;
-    C, D : Char;
+    C, D : AnsiChar;
+    E, F : WideChar;
+    P    : TUnicodeTitleCaseLetterInfo;
+begin
+  Result := A = B;
+  if Result then
+    exit;
+  if (Ord(A) < $80) and (Ord(B) < $80) then // ASCII short-cut
+    begin
+      if AnsiChar(Ord(A)) in ['A'..'Z'] then
+        C := AnsiChar(Byte(Ord(A)) + (Ord('a') - Ord('A'))) else
+        C := AnsiChar(Ord(A));
+      if AnsiChar(Ord(B)) in ['A'..'Z'] then
+        D := AnsiChar(Byte (Ord(B)) + (Ord('a') - Ord('A'))) else
+        D := AnsiChar(Ord(B));
+      Result := C = D;
+      exit;
+    end;
+  I := LocateLetterInfo(A);
+  if I >= 0 then
+    begin
+      E := UnicodeLetterInfo[I].CaseCode;
+      if E = #$FFFF then
+        Result := False else
+        Result := E = B;
+      exit;
+    end;
+  J := LocateTitleCaseLetterInfo(A);
+  if J >= 0 then
+    begin
+      P := UnicodeTitleCaseLetterInfo[J];
+      E := P.Upper;
+      F := P.Lower;
+      Result := ((E <> #$FFFF) and (E = B)) or
+                ((F <> #$FFFF) and (F = B));
+      exit;
+    end;
+  E := LocateOtherLowerCase(A);
+  if E <> #$0000 then
+    Result := E = B else
+    Result := False;
+end;
+{$ELSE}
+function WideIsEqualNoCase(const A, B: WideChar): Boolean;
+var I    : Integer;
+    J    : Integer;
+    C, D : AnsiChar;
     E, F : WideChar;
     P    : PUnicodeTitleCaseLetterInfo;
 begin
@@ -3018,12 +3303,12 @@ begin
     exit;
   if (Ord(A) < $80) and (Ord(B) < $80) then // ASCII short-cut
     begin
-      if Char(Ord(A)) in ['A'..'Z'] then
-        C := Char(Byte(Ord(A)) + (Ord('a') - Ord('A'))) else
-        C := Char(Ord(A));
-      if Char(Ord(B)) in ['A'..'Z'] then
-        D := Char(Byte (Ord(B)) + (Ord('a') - Ord('A'))) else
-        D := Char(Ord(B));
+      if AnsiChar(Ord(A)) in ['A'..'Z'] then
+        C := AnsiChar(Byte(Ord(A)) + (Ord('a') - Ord('A'))) else
+        C := AnsiChar(Ord(A));
+      if AnsiChar(Ord(B)) in ['A'..'Z'] then
+        D := AnsiChar(Byte (Ord(B)) + (Ord('a') - Ord('A'))) else
+        D := AnsiChar(Ord(B));
       Result := C = D;
       exit;
     end;
@@ -3051,6 +3336,7 @@ begin
     Result := E = B else
     Result := False;
 end;
+{$ENDIF}
 
 // Derived from 'Lo' class
 function IsOtherLetter(const Ch: UCS4Char): Boolean;
@@ -3269,7 +3555,7 @@ end;
 function IsLetter(const Ch: WideChar): Boolean;
 begin
   if Ord(Ch) < $80 then // ASCII short-cut
-    Result := Char(Ord(Ch)) in ['A'..'Z', 'a'..'z']
+    Result := AnsiChar(Ord(Ch)) in ['A'..'Z', 'a'..'z']
   else
     begin
       Result := LocateLetterInfo(Ch) >= 0;
@@ -3594,17 +3880,17 @@ type
 const
   UnicodeDecompositionEntries = 3481; // ~ 45K
   UnicodeDecompositionInfo : Array[0..UnicodeDecompositionEntries - 1] of TUnicodeDecompositionInfo = (
-    (Unicode:#$00A0; Attr:daNoBreak; Ch1:#$0020; Ch2:#$FFFF),             // NO-BREAK SPACE
-    (Unicode:#$00A8; Attr:daCompat; Ch1:#$0020; Ch2:#$0308; Ch3:#$FFFF),  // DIAERESIS
-    (Unicode:#$00AA; Attr:daSuper; Ch1:#$0061; Ch2:#$FFFF),               // FEMININE ORDINAL INDICATOR
-    (Unicode:#$00AF; Attr:daCompat; Ch1:#$0020; Ch2:#$0304; Ch3:#$FFFF),  // MACRON
-    (Unicode:#$00B2; Attr:daSuper; Ch1:#$0032; Ch2:#$FFFF),               // SUPERSCRIPT TWO
-    (Unicode:#$00B3; Attr:daSuper; Ch1:#$0033; Ch2:#$FFFF),               // SUPERSCRIPT THREE
-    (Unicode:#$00B4; Attr:daCompat; Ch1:#$0020; Ch2:#$0301; Ch3:#$FFFF),  // ACUTE ACCENT
-    (Unicode:#$00B5; Attr:daCompat; Ch1:#$03BC; Ch2:#$FFFF),              // MICRO SIGN
-    (Unicode:#$00B8; Attr:daCompat; Ch1:#$0020; Ch2:#$0327; Ch3:#$FFFF),  // CEDILLA
-    (Unicode:#$00B9; Attr:daSuper; Ch1:#$0031; Ch2:#$FFFF),               // SUPERSCRIPT ONE
-    (Unicode:#$00BA; Attr:daSuper; Ch1:#$006F; Ch2:#$FFFF),               // MASCULINE ORDINAL INDICATOR
+    (Unicode:#$00A0; Attr:daNoBreak; Ch1:#$0020; Ch2:#$FFFF),                          // NO-BREAK SPACE
+    (Unicode:#$00A8; Attr:daCompat; Ch1:#$0020; Ch2:#$0308; Ch3:#$FFFF),               // DIAERESIS
+    (Unicode:#$00AA; Attr:daSuper; Ch1:#$0061; Ch2:#$FFFF),                            // FEMININE ORDINAL INDICATOR
+    (Unicode:#$00AF; Attr:daCompat; Ch1:#$0020; Ch2:#$0304; Ch3:#$FFFF),               // MACRON
+    (Unicode:#$00B2; Attr:daSuper; Ch1:#$0032; Ch2:#$FFFF),                            // SUPERSCRIPT TWO
+    (Unicode:#$00B3; Attr:daSuper; Ch1:#$0033; Ch2:#$FFFF),                            // SUPERSCRIPT THREE
+    (Unicode:#$00B4; Attr:daCompat; Ch1:#$0020; Ch2:#$0301; Ch3:#$FFFF),               // ACUTE ACCENT
+    (Unicode:#$00B5; Attr:daCompat; Ch1:#$03BC; Ch2:#$FFFF),                           // MICRO SIGN
+    (Unicode:#$00B8; Attr:daCompat; Ch1:#$0020; Ch2:#$0327; Ch3:#$FFFF),               // CEDILLA
+    (Unicode:#$00B9; Attr:daSuper; Ch1:#$0031; Ch2:#$FFFF),                            // SUPERSCRIPT ONE
+    (Unicode:#$00BA; Attr:daSuper; Ch1:#$006F; Ch2:#$FFFF),                            // MASCULINE ORDINAL INDICATOR
     (Unicode:#$00BC; Attr:daFraction; Ch1:#$0031; Ch2:#$2044; Ch3:#$0034; Ch4:#$FFFF), // VULGAR FRACTION ONE QUARTER
     (Unicode:#$00BD; Attr:daFraction; Ch1:#$0031; Ch2:#$2044; Ch3:#$0032; Ch4:#$FFFF), // VULGAR FRACTION ONE HALF
     (Unicode:#$00BE; Attr:daFraction; Ch1:#$0033; Ch2:#$2044; Ch3:#$0034; Ch4:#$FFFF), // VULGAR FRACTION THREE QUARTERS
@@ -3774,7 +4060,7 @@ const
     (Unicode:#$017C; Attr:daNone; Ch1:#$007A; Ch2:#$0307; Ch3:#$FFFF),    // LATIN SMALL LETTER Z WITH DOT ABOVE
     (Unicode:#$017D; Attr:daNone; Ch1:#$005A; Ch2:#$030C; Ch3:#$FFFF),    // LATIN CAPITAL LETTER Z WITH CARON
     (Unicode:#$017E; Attr:daNone; Ch1:#$007A; Ch2:#$030C; Ch3:#$FFFF),    // LATIN SMALL LETTER Z WITH CARON
-    (Unicode:#$017F; Attr:daCompat; Ch1:#$0073; Ch2:#$FFFF),        // LATIN SMALL LETTER LONG S
+    (Unicode:#$017F; Attr:daCompat; Ch1:#$0073; Ch2:#$FFFF),              // LATIN SMALL LETTER LONG S
     (Unicode:#$01A0; Attr:daNone; Ch1:#$004F; Ch2:#$031B; Ch3:#$FFFF),    // LATIN CAPITAL LETTER O WITH HORN
     (Unicode:#$01A1; Attr:daNone; Ch1:#$006F; Ch2:#$031B; Ch3:#$FFFF),    // LATIN SMALL LETTER O WITH HORN
     (Unicode:#$01AF; Attr:daNone; Ch1:#$0055; Ch2:#$031B; Ch3:#$FFFF),    // LATIN CAPITAL LETTER U WITH HORN
@@ -4553,31 +4839,31 @@ const
     (Unicode:#$1FFC; Attr:daNone; Ch1:#$03A9; Ch2:#$0345; Ch3:#$FFFF),    // GREEK CAPITAL LETTER OMEGA WITH PROSGEGRAMMENI
     (Unicode:#$1FFD; Attr:daNone; Ch1:#$00B4; Ch2:#$FFFF),                // GREEK OXIA
     (Unicode:#$1FFE; Attr:daCompat; Ch1:#$0020; Ch2:#$0314; Ch3:#$FFFF),  // GREEK DASIA
-    (Unicode:#$2000; Attr:daNone; Ch1:#$2002; Ch2:#$FFFF),                // EN QUAD
-    (Unicode:#$2001; Attr:daNone; Ch1:#$2003; Ch2:#$FFFF),                // EM QUAD
-    (Unicode:#$2002; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),              // EN SPACE
-    (Unicode:#$2003; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),              // EM SPACE
-    (Unicode:#$2004; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),              // THREE-PER-EM SPACE
-    (Unicode:#$2005; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),              // FOUR-PER-EM SPACE
-    (Unicode:#$2006; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),              // SIX-PER-EM SPACE
-    (Unicode:#$2007; Attr:daNoBreak; Ch1:#$0020; Ch2:#$FFFF),             // FIGURE SPACE
-    (Unicode:#$2008; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),              // PUNCTUATION SPACE
-    (Unicode:#$2009; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),              // THIN SPACE
-    (Unicode:#$200A; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),              // HAIR SPACE
-    (Unicode:#$2011; Attr:daNoBreak; Ch1:#$2010; Ch2:#$FFFF),             // NON-BREAKING HYPHEN
-    (Unicode:#$2017; Attr:daCompat; Ch1:#$0020; Ch2:#$0333; Ch3:#$FFFF),  // DOUBLE LOW LINE
-    (Unicode:#$2024; Attr:daCompat; Ch1:#$002E; Ch2:#$FFFF),              // ONE DOT LEADER
-    (Unicode:#$2025; Attr:daCompat; Ch1:#$002E; Ch2:#$002E; Ch3:#$FFFF),  // TWO DOT LEADER
+    (Unicode:#$2000; Attr:daNone; Ch1:#$2002; Ch2:#$FFFF),                             // EN QUAD
+    (Unicode:#$2001; Attr:daNone; Ch1:#$2003; Ch2:#$FFFF),                             // EM QUAD
+    (Unicode:#$2002; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),                           // EN SPACE
+    (Unicode:#$2003; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),                           // EM SPACE
+    (Unicode:#$2004; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),                           // THREE-PER-EM SPACE
+    (Unicode:#$2005; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),                           // FOUR-PER-EM SPACE
+    (Unicode:#$2006; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),                           // SIX-PER-EM SPACE
+    (Unicode:#$2007; Attr:daNoBreak; Ch1:#$0020; Ch2:#$FFFF),                          // FIGURE SPACE
+    (Unicode:#$2008; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),                           // PUNCTUATION SPACE
+    (Unicode:#$2009; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),                           // THIN SPACE
+    (Unicode:#$200A; Attr:daCompat; Ch1:#$0020; Ch2:#$FFFF),                           // HAIR SPACE
+    (Unicode:#$2011; Attr:daNoBreak; Ch1:#$2010; Ch2:#$FFFF),                          // NON-BREAKING HYPHEN
+    (Unicode:#$2017; Attr:daCompat; Ch1:#$0020; Ch2:#$0333; Ch3:#$FFFF),               // DOUBLE LOW LINE
+    (Unicode:#$2024; Attr:daCompat; Ch1:#$002E; Ch2:#$FFFF),                           // ONE DOT LEADER
+    (Unicode:#$2025; Attr:daCompat; Ch1:#$002E; Ch2:#$002E; Ch3:#$FFFF),               // TWO DOT LEADER
     (Unicode:#$2026; Attr:daCompat; Ch1:#$002E; Ch2:#$002E; Ch3:#$002E; Ch4:#$FFFF),   // HORIZONTAL ELLIPSIS
-    (Unicode:#$202F; Attr:daNoBreak; Ch1:#$0020; Ch2:#$FFFF),             // NARROW NO-BREAK SPACE
-    (Unicode:#$2033; Attr:daCompat; Ch1:#$2032; Ch2:#$2032; Ch3:#$FFFF),  // DOUBLE PRIME
+    (Unicode:#$202F; Attr:daNoBreak; Ch1:#$0020; Ch2:#$FFFF),                          // NARROW NO-BREAK SPACE
+    (Unicode:#$2033; Attr:daCompat; Ch1:#$2032; Ch2:#$2032; Ch3:#$FFFF),               // DOUBLE PRIME
     (Unicode:#$2034; Attr:daCompat; Ch1:#$2032; Ch2:#$2032; Ch3:#$2032; Ch4:#$FFFF),   // TRIPLE PRIME
-    (Unicode:#$2036; Attr:daCompat; Ch1:#$2035; Ch2:#$2035; Ch3:#$FFFF),  // REVERSED DOUBLE PRIME
+    (Unicode:#$2036; Attr:daCompat; Ch1:#$2035; Ch2:#$2035; Ch3:#$FFFF),               // REVERSED DOUBLE PRIME
     (Unicode:#$2037; Attr:daCompat; Ch1:#$2035; Ch2:#$2035; Ch3:#$2035; Ch4:#$FFFF),   // REVERSED TRIPLE PRIME
-    (Unicode:#$203C; Attr:daCompat; Ch1:#$0021; Ch2:#$0021; Ch3:#$FFFF),  // DOUBLE EXCLAMATION MARK
-    (Unicode:#$203E; Attr:daCompat; Ch1:#$0020; Ch2:#$0305; Ch3:#$FFFF),  // OVERLINE
-    (Unicode:#$2048; Attr:daCompat; Ch1:#$003F; Ch2:#$0021; Ch3:#$FFFF),  // QUESTION EXCLAMATION MARK
-    (Unicode:#$2049; Attr:daCompat; Ch1:#$0021; Ch2:#$003F; Ch3:#$FFFF),  // EXCLAMATION QUESTION MARK
+    (Unicode:#$203C; Attr:daCompat; Ch1:#$0021; Ch2:#$0021; Ch3:#$FFFF),               // DOUBLE EXCLAMATION MARK
+    (Unicode:#$203E; Attr:daCompat; Ch1:#$0020; Ch2:#$0305; Ch3:#$FFFF),               // OVERLINE
+    (Unicode:#$2048; Attr:daCompat; Ch1:#$003F; Ch2:#$0021; Ch3:#$FFFF),               // QUESTION EXCLAMATION MARK
+    (Unicode:#$2049; Attr:daCompat; Ch1:#$0021; Ch2:#$003F; Ch3:#$FFFF),               // EXCLAMATION QUESTION MARK
     (Unicode:#$2070; Attr:daSuper; Ch1:#$0030; Ch2:#$FFFF),               // SUPERSCRIPT ZERO
     (Unicode:#$2074; Attr:daSuper; Ch1:#$0034; Ch2:#$FFFF),               // SUPERSCRIPT FOUR
     (Unicode:#$2075; Attr:daSuper; Ch1:#$0035; Ch2:#$FFFF),               // SUPERSCRIPT FIVE
@@ -4606,52 +4892,52 @@ const
     (Unicode:#$208C; Attr:daSub; Ch1:#$003D; Ch2:#$FFFF),                 // SUBSCRIPT EQUALS SIGN
     (Unicode:#$208D; Attr:daSub; Ch1:#$0028; Ch2:#$FFFF),                 // SUBSCRIPT LEFT PARENTHESIS
     (Unicode:#$208E; Attr:daSub; Ch1:#$0029; Ch2:#$FFFF),                 // SUBSCRIPT RIGHT PARENTHESIS
-    (Unicode:#$20A8; Attr:daCompat; Ch1:#$0052; Ch2:#$0073; Ch3:#$FFFF),  // RUPEE SIGN
+    (Unicode:#$20A8; Attr:daCompat; Ch1:#$0052; Ch2:#$0073; Ch3:#$FFFF),               // RUPEE SIGN
     (Unicode:#$2100; Attr:daCompat; Ch1:#$0061; Ch2:#$002F; Ch3:#$0063; Ch4:#$FFFF),   // ACCOUNT OF
     (Unicode:#$2101; Attr:daCompat; Ch1:#$0061; Ch2:#$002F; Ch3:#$0073; Ch4:#$FFFF),   // ADDRESSED TO THE SUBJECT
-    (Unicode:#$2102; Attr:daFont; Ch1:#$0043; Ch2:#$FFFF),                // DOUBLE-STRUCK CAPITAL C
-    (Unicode:#$2103; Attr:daCompat; Ch1:#$00B0; Ch2:#$0043; Ch3:#$FFFF),  // DEGREE CELSIUS
+    (Unicode:#$2102; Attr:daFont; Ch1:#$0043; Ch2:#$FFFF),                             // DOUBLE-STRUCK CAPITAL C
+    (Unicode:#$2103; Attr:daCompat; Ch1:#$00B0; Ch2:#$0043; Ch3:#$FFFF),               // DEGREE CELSIUS
     (Unicode:#$2105; Attr:daCompat; Ch1:#$0063; Ch2:#$002F; Ch3:#$006F; Ch4:#$FFFF),   // CARE OF
     (Unicode:#$2106; Attr:daCompat; Ch1:#$0063; Ch2:#$002F; Ch3:#$0075; Ch4:#$FFFF),   // CADA UNA
-    (Unicode:#$2107; Attr:daCompat; Ch1:#$0190; Ch2:#$FFFF),              // EULER CONSTANT
-    (Unicode:#$2109; Attr:daCompat; Ch1:#$00B0; Ch2:#$0046; Ch3:#$FFFF),  // DEGREE FAHRENHEIT
-    (Unicode:#$210A; Attr:daFont; Ch1:#$0067; Ch2:#$FFFF),                // SCRIPT SMALL G
-    (Unicode:#$210B; Attr:daFont; Ch1:#$0048; Ch2:#$FFFF),                // SCRIPT CAPITAL H
-    (Unicode:#$210C; Attr:daFont; Ch1:#$0048; Ch2:#$FFFF),                // BLACK-LETTER CAPITAL H
-    (Unicode:#$210D; Attr:daFont; Ch1:#$0048; Ch2:#$FFFF),                // DOUBLE-STRUCK CAPITAL H
-    (Unicode:#$210E; Attr:daFont; Ch1:#$0068; Ch2:#$FFFF),                // PLANCK CONSTANT
-    (Unicode:#$210F; Attr:daFont; Ch1:#$0127; Ch2:#$FFFF),                // PLANCK CONSTANT OVER TWO PI
-    (Unicode:#$2110; Attr:daFont; Ch1:#$0049; Ch2:#$FFFF),                // SCRIPT CAPITAL I
-    (Unicode:#$2111; Attr:daFont; Ch1:#$0049; Ch2:#$FFFF),                // BLACK-LETTER CAPITAL I
-    (Unicode:#$2112; Attr:daFont; Ch1:#$004C; Ch2:#$FFFF),                // SCRIPT CAPITAL L
-    (Unicode:#$2113; Attr:daFont; Ch1:#$006C; Ch2:#$FFFF),                // SCRIPT SMALL L
-    (Unicode:#$2115; Attr:daFont; Ch1:#$004E; Ch2:#$FFFF),                // DOUBLE-STRUCK CAPITAL N
-    (Unicode:#$2116; Attr:daCompat; Ch1:#$004E; Ch2:#$006F; Ch3:#$FFFF),  // NUMERO SIGN
-    (Unicode:#$2119; Attr:daFont; Ch1:#$0050; Ch2:#$FFFF),                // DOUBLE-STRUCK CAPITAL P
-    (Unicode:#$211A; Attr:daFont; Ch1:#$0051; Ch2:#$FFFF),                // DOUBLE-STRUCK CAPITAL Q
-    (Unicode:#$211B; Attr:daFont; Ch1:#$0052; Ch2:#$FFFF),                // SCRIPT CAPITAL R
-    (Unicode:#$211C; Attr:daFont; Ch1:#$0052; Ch2:#$FFFF),                // BLACK-LETTER CAPITAL R
-    (Unicode:#$211D; Attr:daFont; Ch1:#$0052; Ch2:#$FFFF),                // DOUBLE-STRUCK CAPITAL R
-    (Unicode:#$2120; Attr:daSuper; Ch1:#$0053; Ch2:#$004D; Ch3:#$FFFF),   // SERVICE MARK
+    (Unicode:#$2107; Attr:daCompat; Ch1:#$0190; Ch2:#$FFFF),                           // EULER CONSTANT
+    (Unicode:#$2109; Attr:daCompat; Ch1:#$00B0; Ch2:#$0046; Ch3:#$FFFF),               // DEGREE FAHRENHEIT
+    (Unicode:#$210A; Attr:daFont; Ch1:#$0067; Ch2:#$FFFF),                             // SCRIPT SMALL G
+    (Unicode:#$210B; Attr:daFont; Ch1:#$0048; Ch2:#$FFFF),                             // SCRIPT CAPITAL H
+    (Unicode:#$210C; Attr:daFont; Ch1:#$0048; Ch2:#$FFFF),                             // BLACK-LETTER CAPITAL H
+    (Unicode:#$210D; Attr:daFont; Ch1:#$0048; Ch2:#$FFFF),                             // DOUBLE-STRUCK CAPITAL H
+    (Unicode:#$210E; Attr:daFont; Ch1:#$0068; Ch2:#$FFFF),                             // PLANCK CONSTANT
+    (Unicode:#$210F; Attr:daFont; Ch1:#$0127; Ch2:#$FFFF),                             // PLANCK CONSTANT OVER TWO PI
+    (Unicode:#$2110; Attr:daFont; Ch1:#$0049; Ch2:#$FFFF),                             // SCRIPT CAPITAL I
+    (Unicode:#$2111; Attr:daFont; Ch1:#$0049; Ch2:#$FFFF),                             // BLACK-LETTER CAPITAL I
+    (Unicode:#$2112; Attr:daFont; Ch1:#$004C; Ch2:#$FFFF),                             // SCRIPT CAPITAL L
+    (Unicode:#$2113; Attr:daFont; Ch1:#$006C; Ch2:#$FFFF),                             // SCRIPT SMALL L
+    (Unicode:#$2115; Attr:daFont; Ch1:#$004E; Ch2:#$FFFF),                             // DOUBLE-STRUCK CAPITAL N
+    (Unicode:#$2116; Attr:daCompat; Ch1:#$004E; Ch2:#$006F; Ch3:#$FFFF),               // NUMERO SIGN
+    (Unicode:#$2119; Attr:daFont; Ch1:#$0050; Ch2:#$FFFF),                             // DOUBLE-STRUCK CAPITAL P
+    (Unicode:#$211A; Attr:daFont; Ch1:#$0051; Ch2:#$FFFF),                             // DOUBLE-STRUCK CAPITAL Q
+    (Unicode:#$211B; Attr:daFont; Ch1:#$0052; Ch2:#$FFFF),                             // SCRIPT CAPITAL R
+    (Unicode:#$211C; Attr:daFont; Ch1:#$0052; Ch2:#$FFFF),                             // BLACK-LETTER CAPITAL R
+    (Unicode:#$211D; Attr:daFont; Ch1:#$0052; Ch2:#$FFFF),                             // DOUBLE-STRUCK CAPITAL R
+    (Unicode:#$2120; Attr:daSuper; Ch1:#$0053; Ch2:#$004D; Ch3:#$FFFF),                // SERVICE MARK
     (Unicode:#$2121; Attr:daCompat; Ch1:#$0054; Ch2:#$0045; Ch3:#$004C; Ch4:#$FFFF),   // TELEPHONE SIGN
-    (Unicode:#$2122; Attr:daSuper; Ch1:#$0054; Ch2:#$004D; Ch3:#$FFFF),   // TRADE MARK SIGN
-    (Unicode:#$2124; Attr:daFont; Ch1:#$005A; Ch2:#$FFFF),                // DOUBLE-STRUCK CAPITAL Z
-    (Unicode:#$2126; Attr:daNone; Ch1:#$03A9; Ch2:#$FFFF),                // OHM SIGN
-    (Unicode:#$2128; Attr:daFont; Ch1:#$005A; Ch2:#$FFFF),                // BLACK-LETTER CAPITAL Z
-    (Unicode:#$212A; Attr:daNone; Ch1:#$004B; Ch2:#$FFFF),                // KELVIN SIGN
-    (Unicode:#$212B; Attr:daNone; Ch1:#$00C5; Ch2:#$FFFF),                // ANGSTROM SIGN
-    (Unicode:#$212C; Attr:daFont; Ch1:#$0042; Ch2:#$FFFF),                // SCRIPT CAPITAL B
-    (Unicode:#$212D; Attr:daFont; Ch1:#$0043; Ch2:#$FFFF),                // BLACK-LETTER CAPITAL C
-    (Unicode:#$212F; Attr:daFont; Ch1:#$0065; Ch2:#$FFFF),                // SCRIPT SMALL E
-    (Unicode:#$2130; Attr:daFont; Ch1:#$0045; Ch2:#$FFFF),                // SCRIPT CAPITAL E
-    (Unicode:#$2131; Attr:daFont; Ch1:#$0046; Ch2:#$FFFF),                // SCRIPT CAPITAL F
-    (Unicode:#$2133; Attr:daFont; Ch1:#$004D; Ch2:#$FFFF),                // SCRIPT CAPITAL M
-    (Unicode:#$2134; Attr:daFont; Ch1:#$006F; Ch2:#$FFFF),                // SCRIPT SMALL O
-    (Unicode:#$2135; Attr:daCompat; Ch1:#$05D0; Ch2:#$FFFF),              // ALEF SYMBOL
-    (Unicode:#$2136; Attr:daCompat; Ch1:#$05D1; Ch2:#$FFFF),              // BET SYMBOL
-    (Unicode:#$2137; Attr:daCompat; Ch1:#$05D2; Ch2:#$FFFF),              // GIMEL SYMBOL
-    (Unicode:#$2138; Attr:daCompat; Ch1:#$05D3; Ch2:#$FFFF),              // DALET SYMBOL
-    (Unicode:#$2139; Attr:daFont; Ch1:#$0069; Ch2:#$FFFF),                // INFORMATION SOURCE
+    (Unicode:#$2122; Attr:daSuper; Ch1:#$0054; Ch2:#$004D; Ch3:#$FFFF),                // TRADE MARK SIGN
+    (Unicode:#$2124; Attr:daFont; Ch1:#$005A; Ch2:#$FFFF),                             // DOUBLE-STRUCK CAPITAL Z
+    (Unicode:#$2126; Attr:daNone; Ch1:#$03A9; Ch2:#$FFFF),                             // OHM SIGN
+    (Unicode:#$2128; Attr:daFont; Ch1:#$005A; Ch2:#$FFFF),                             // BLACK-LETTER CAPITAL Z
+    (Unicode:#$212A; Attr:daNone; Ch1:#$004B; Ch2:#$FFFF),                             // KELVIN SIGN
+    (Unicode:#$212B; Attr:daNone; Ch1:#$00C5; Ch2:#$FFFF),                             // ANGSTROM SIGN
+    (Unicode:#$212C; Attr:daFont; Ch1:#$0042; Ch2:#$FFFF),                             // SCRIPT CAPITAL B
+    (Unicode:#$212D; Attr:daFont; Ch1:#$0043; Ch2:#$FFFF),                             // BLACK-LETTER CAPITAL C
+    (Unicode:#$212F; Attr:daFont; Ch1:#$0065; Ch2:#$FFFF),                             // SCRIPT SMALL E
+    (Unicode:#$2130; Attr:daFont; Ch1:#$0045; Ch2:#$FFFF),                             // SCRIPT CAPITAL E
+    (Unicode:#$2131; Attr:daFont; Ch1:#$0046; Ch2:#$FFFF),                             // SCRIPT CAPITAL F
+    (Unicode:#$2133; Attr:daFont; Ch1:#$004D; Ch2:#$FFFF),                             // SCRIPT CAPITAL M
+    (Unicode:#$2134; Attr:daFont; Ch1:#$006F; Ch2:#$FFFF),                             // SCRIPT SMALL O
+    (Unicode:#$2135; Attr:daCompat; Ch1:#$05D0; Ch2:#$FFFF),                           // ALEF SYMBOL
+    (Unicode:#$2136; Attr:daCompat; Ch1:#$05D1; Ch2:#$FFFF),                           // BET SYMBOL
+    (Unicode:#$2137; Attr:daCompat; Ch1:#$05D2; Ch2:#$FFFF),                           // GIMEL SYMBOL
+    (Unicode:#$2138; Attr:daCompat; Ch1:#$05D3; Ch2:#$FFFF),                           // DALET SYMBOL
+    (Unicode:#$2139; Attr:daFont; Ch1:#$0069; Ch2:#$FFFF),                             // INFORMATION SOURCE
     (Unicode:#$2153; Attr:daFraction; Ch1:#$0031; Ch2:#$2044; Ch3:#$0033; Ch4:#$FFFF), // VULGAR FRACTION ONE THIRD
     (Unicode:#$2154; Attr:daFraction; Ch1:#$0032; Ch2:#$2044; Ch3:#$0033; Ch4:#$FFFF), // VULGAR FRACTION TWO THIRDS
     (Unicode:#$2155; Attr:daFraction; Ch1:#$0031; Ch2:#$2044; Ch3:#$0035; Ch4:#$FFFF), // VULGAR FRACTION ONE FIFTH
@@ -4664,109 +4950,109 @@ const
     (Unicode:#$215C; Attr:daFraction; Ch1:#$0033; Ch2:#$2044; Ch3:#$0038; Ch4:#$FFFF), // VULGAR FRACTION THREE EIGHTHS
     (Unicode:#$215D; Attr:daFraction; Ch1:#$0035; Ch2:#$2044; Ch3:#$0038; Ch4:#$FFFF), // VULGAR FRACTION FIVE EIGHTHS
     (Unicode:#$215E; Attr:daFraction; Ch1:#$0037; Ch2:#$2044; Ch3:#$0038; Ch4:#$FFFF), // VULGAR FRACTION SEVEN EIGHTHS
-    (Unicode:#$215F; Attr:daFraction; Ch1:#$0031; Ch2:#$2044; Ch3:#$FFFF),// FRACTION NUMERATOR ONE
-    (Unicode:#$2160; Attr:daCompat; Ch1:#$0049; Ch2:#$FFFF),              // ROMAN NUMERAL ONE
-    (Unicode:#$2161; Attr:daCompat; Ch1:#$0049; Ch2:#$0049; Ch3:#$FFFF),  // ROMAN NUMERAL TWO
+    (Unicode:#$215F; Attr:daFraction; Ch1:#$0031; Ch2:#$2044; Ch3:#$FFFF),             // FRACTION NUMERATOR ONE
+    (Unicode:#$2160; Attr:daCompat; Ch1:#$0049; Ch2:#$FFFF),                           // ROMAN NUMERAL ONE
+    (Unicode:#$2161; Attr:daCompat; Ch1:#$0049; Ch2:#$0049; Ch3:#$FFFF),               // ROMAN NUMERAL TWO
     (Unicode:#$2162; Attr:daCompat; Ch1:#$0049; Ch2:#$0049; Ch3:#$0049; Ch4:#$FFFF),   // ROMAN NUMERAL THREE
-    (Unicode:#$2163; Attr:daCompat; Ch1:#$0049; Ch2:#$0056; Ch3:#$FFFF),  // ROMAN NUMERAL FOUR
-    (Unicode:#$2164; Attr:daCompat; Ch1:#$0056; Ch2:#$FFFF),              // ROMAN NUMERAL FIVE
-    (Unicode:#$2165; Attr:daCompat; Ch1:#$0056; Ch2:#$0049; Ch3:#$FFFF),  // ROMAN NUMERAL SIX
+    (Unicode:#$2163; Attr:daCompat; Ch1:#$0049; Ch2:#$0056; Ch3:#$FFFF),               // ROMAN NUMERAL FOUR
+    (Unicode:#$2164; Attr:daCompat; Ch1:#$0056; Ch2:#$FFFF),                           // ROMAN NUMERAL FIVE
+    (Unicode:#$2165; Attr:daCompat; Ch1:#$0056; Ch2:#$0049; Ch3:#$FFFF),               // ROMAN NUMERAL SIX
     (Unicode:#$2166; Attr:daCompat; Ch1:#$0056; Ch2:#$0049; Ch3:#$0049; Ch4:#$FFFF),   // ROMAN NUMERAL SEVEN
     (Unicode:#$2167; Attr:daCompat; Ch1:#$0056; Ch2:#$0049; Ch3:#$0049; Ch4:#$0049; Ch5:#$FFFF),  // ROMAN NUMERAL EIGHT
-    (Unicode:#$2168; Attr:daCompat; Ch1:#$0049; Ch2:#$0058; Ch3:#$FFFF),  // ROMAN NUMERAL NINE
-    (Unicode:#$2169; Attr:daCompat; Ch1:#$0058; Ch2:#$FFFF),              // ROMAN NUMERAL TEN
-    (Unicode:#$216A; Attr:daCompat; Ch1:#$0058; Ch2:#$0049; Ch3:#$FFFF),  // ROMAN NUMERAL ELEVEN
+    (Unicode:#$2168; Attr:daCompat; Ch1:#$0049; Ch2:#$0058; Ch3:#$FFFF),               // ROMAN NUMERAL NINE
+    (Unicode:#$2169; Attr:daCompat; Ch1:#$0058; Ch2:#$FFFF),                           // ROMAN NUMERAL TEN
+    (Unicode:#$216A; Attr:daCompat; Ch1:#$0058; Ch2:#$0049; Ch3:#$FFFF),               // ROMAN NUMERAL ELEVEN
     (Unicode:#$216B; Attr:daCompat; Ch1:#$0058; Ch2:#$0049; Ch3:#$0049; Ch4:#$FFFF),   // ROMAN NUMERAL TWELVE
-    (Unicode:#$216C; Attr:daCompat; Ch1:#$004C; Ch2:#$FFFF),              // ROMAN NUMERAL FIFTY
-    (Unicode:#$216D; Attr:daCompat; Ch1:#$0043; Ch2:#$FFFF),              // ROMAN NUMERAL ONE HUNDRED
-    (Unicode:#$216E; Attr:daCompat; Ch1:#$0044; Ch2:#$FFFF),              // ROMAN NUMERAL FIVE HUNDRED
-    (Unicode:#$216F; Attr:daCompat; Ch1:#$004D; Ch2:#$FFFF),              // ROMAN NUMERAL ONE THOUSAND
-    (Unicode:#$2170; Attr:daCompat; Ch1:#$0069; Ch2:#$FFFF),              // SMALL ROMAN NUMERAL ONE
-    (Unicode:#$2171; Attr:daCompat; Ch1:#$0069; Ch2:#$0069; Ch3:#$FFFF),  // SMALL ROMAN NUMERAL TWO
+    (Unicode:#$216C; Attr:daCompat; Ch1:#$004C; Ch2:#$FFFF),                           // ROMAN NUMERAL FIFTY
+    (Unicode:#$216D; Attr:daCompat; Ch1:#$0043; Ch2:#$FFFF),                           // ROMAN NUMERAL ONE HUNDRED
+    (Unicode:#$216E; Attr:daCompat; Ch1:#$0044; Ch2:#$FFFF),                           // ROMAN NUMERAL FIVE HUNDRED
+    (Unicode:#$216F; Attr:daCompat; Ch1:#$004D; Ch2:#$FFFF),                           // ROMAN NUMERAL ONE THOUSAND
+    (Unicode:#$2170; Attr:daCompat; Ch1:#$0069; Ch2:#$FFFF),                           // SMALL ROMAN NUMERAL ONE
+    (Unicode:#$2171; Attr:daCompat; Ch1:#$0069; Ch2:#$0069; Ch3:#$FFFF),               // SMALL ROMAN NUMERAL TWO
     (Unicode:#$2172; Attr:daCompat; Ch1:#$0069; Ch2:#$0069; Ch3:#$0069; Ch4:#$FFFF),   // SMALL ROMAN NUMERAL THREE
-    (Unicode:#$2173; Attr:daCompat; Ch1:#$0069; Ch2:#$0076; Ch3:#$FFFF),  // SMALL ROMAN NUMERAL FOUR
-    (Unicode:#$2174; Attr:daCompat; Ch1:#$0076; Ch2:#$FFFF),              // SMALL ROMAN NUMERAL FIVE
-    (Unicode:#$2175; Attr:daCompat; Ch1:#$0076; Ch2:#$0069; Ch3:#$FFFF),  // SMALL ROMAN NUMERAL SIX
+    (Unicode:#$2173; Attr:daCompat; Ch1:#$0069; Ch2:#$0076; Ch3:#$FFFF),               // SMALL ROMAN NUMERAL FOUR
+    (Unicode:#$2174; Attr:daCompat; Ch1:#$0076; Ch2:#$FFFF),                           // SMALL ROMAN NUMERAL FIVE
+    (Unicode:#$2175; Attr:daCompat; Ch1:#$0076; Ch2:#$0069; Ch3:#$FFFF),               // SMALL ROMAN NUMERAL SIX
     (Unicode:#$2176; Attr:daCompat; Ch1:#$0076; Ch2:#$0069; Ch3:#$0069; Ch4:#$FFFF),   // SMALL ROMAN NUMERAL SEVEN
     (Unicode:#$2177; Attr:daCompat; Ch1:#$0076; Ch2:#$0069; Ch3:#$0069; Ch4:#$0069; Ch5:#$FFFF),  // SMALL ROMAN NUMERAL EIGHT
-    (Unicode:#$2178; Attr:daCompat; Ch1:#$0069; Ch2:#$0078; Ch3:#$FFFF),  // SMALL ROMAN NUMERAL NINE
-    (Unicode:#$2179; Attr:daCompat; Ch1:#$0078; Ch2:#$FFFF),              // SMALL ROMAN NUMERAL TEN
-    (Unicode:#$217A; Attr:daCompat; Ch1:#$0078; Ch2:#$0069; Ch3:#$FFFF),  // SMALL ROMAN NUMERAL ELEVEN
+    (Unicode:#$2178; Attr:daCompat; Ch1:#$0069; Ch2:#$0078; Ch3:#$FFFF),               // SMALL ROMAN NUMERAL NINE
+    (Unicode:#$2179; Attr:daCompat; Ch1:#$0078; Ch2:#$FFFF),                           // SMALL ROMAN NUMERAL TEN
+    (Unicode:#$217A; Attr:daCompat; Ch1:#$0078; Ch2:#$0069; Ch3:#$FFFF),               // SMALL ROMAN NUMERAL ELEVEN
     (Unicode:#$217B; Attr:daCompat; Ch1:#$0078; Ch2:#$0069; Ch3:#$0069; Ch4:#$FFFF),   // SMALL ROMAN NUMERAL TWELVE
-    (Unicode:#$217C; Attr:daCompat; Ch1:#$006C; Ch2:#$FFFF),              // SMALL ROMAN NUMERAL FIFTY
-    (Unicode:#$217D; Attr:daCompat; Ch1:#$0063; Ch2:#$FFFF),              // SMALL ROMAN NUMERAL ONE HUNDRED
-    (Unicode:#$217E; Attr:daCompat; Ch1:#$0064; Ch2:#$FFFF),              // SMALL ROMAN NUMERAL FIVE HUNDRED
-    (Unicode:#$217F; Attr:daCompat; Ch1:#$006D; Ch2:#$FFFF),              // SMALL ROMAN NUMERAL ONE THOUSAND
-    (Unicode:#$219A; Attr:daNone; Ch1:#$2190; Ch2:#$0338; Ch3:#$FFFF),    // LEFTWARDS ARROW WITH STROKE
-    (Unicode:#$219B; Attr:daNone; Ch1:#$2192; Ch2:#$0338; Ch3:#$FFFF),    // RIGHTWARDS ARROW WITH STROKE
-    (Unicode:#$21AE; Attr:daNone; Ch1:#$2194; Ch2:#$0338; Ch3:#$FFFF),    // LEFT RIGHT ARROW WITH STROKE
-    (Unicode:#$21CD; Attr:daNone; Ch1:#$21D0; Ch2:#$0338; Ch3:#$FFFF),    // LEFTWARDS DOUBLE ARROW WITH STROKE
-    (Unicode:#$21CE; Attr:daNone; Ch1:#$21D4; Ch2:#$0338; Ch3:#$FFFF),    // LEFT RIGHT DOUBLE ARROW WITH STROKE
-    (Unicode:#$21CF; Attr:daNone; Ch1:#$21D2; Ch2:#$0338; Ch3:#$FFFF),    // RIGHTWARDS DOUBLE ARROW WITH STROKE
-    (Unicode:#$2204; Attr:daNone; Ch1:#$2203; Ch2:#$0338; Ch3:#$FFFF),    // THERE DOES NOT EXIST
-    (Unicode:#$2209; Attr:daNone; Ch1:#$2208; Ch2:#$0338; Ch3:#$FFFF),    // NOT AN ELEMENT OF
-    (Unicode:#$220C; Attr:daNone; Ch1:#$220B; Ch2:#$0338; Ch3:#$FFFF),    // DOES NOT CONTAIN AS MEMBER
-    (Unicode:#$2224; Attr:daNone; Ch1:#$2223; Ch2:#$0338; Ch3:#$FFFF),    // DOES NOT DIVIDE
-    (Unicode:#$2226; Attr:daNone; Ch1:#$2225; Ch2:#$0338; Ch3:#$FFFF),    // NOT PARALLEL TO
-    (Unicode:#$222C; Attr:daCompat; Ch1:#$222B; Ch2:#$222B; Ch3:#$FFFF),  // DOUBLE INTEGRAL
+    (Unicode:#$217C; Attr:daCompat; Ch1:#$006C; Ch2:#$FFFF),                           // SMALL ROMAN NUMERAL FIFTY
+    (Unicode:#$217D; Attr:daCompat; Ch1:#$0063; Ch2:#$FFFF),                           // SMALL ROMAN NUMERAL ONE HUNDRED
+    (Unicode:#$217E; Attr:daCompat; Ch1:#$0064; Ch2:#$FFFF),                           // SMALL ROMAN NUMERAL FIVE HUNDRED
+    (Unicode:#$217F; Attr:daCompat; Ch1:#$006D; Ch2:#$FFFF),                           // SMALL ROMAN NUMERAL ONE THOUSAND
+    (Unicode:#$219A; Attr:daNone; Ch1:#$2190; Ch2:#$0338; Ch3:#$FFFF),                 // LEFTWARDS ARROW WITH STROKE
+    (Unicode:#$219B; Attr:daNone; Ch1:#$2192; Ch2:#$0338; Ch3:#$FFFF),                 // RIGHTWARDS ARROW WITH STROKE
+    (Unicode:#$21AE; Attr:daNone; Ch1:#$2194; Ch2:#$0338; Ch3:#$FFFF),                 // LEFT RIGHT ARROW WITH STROKE
+    (Unicode:#$21CD; Attr:daNone; Ch1:#$21D0; Ch2:#$0338; Ch3:#$FFFF),                 // LEFTWARDS DOUBLE ARROW WITH STROKE
+    (Unicode:#$21CE; Attr:daNone; Ch1:#$21D4; Ch2:#$0338; Ch3:#$FFFF),                 // LEFT RIGHT DOUBLE ARROW WITH STROKE
+    (Unicode:#$21CF; Attr:daNone; Ch1:#$21D2; Ch2:#$0338; Ch3:#$FFFF),                 // RIGHTWARDS DOUBLE ARROW WITH STROKE
+    (Unicode:#$2204; Attr:daNone; Ch1:#$2203; Ch2:#$0338; Ch3:#$FFFF),                 // THERE DOES NOT EXIST
+    (Unicode:#$2209; Attr:daNone; Ch1:#$2208; Ch2:#$0338; Ch3:#$FFFF),                 // NOT AN ELEMENT OF
+    (Unicode:#$220C; Attr:daNone; Ch1:#$220B; Ch2:#$0338; Ch3:#$FFFF),                 // DOES NOT CONTAIN AS MEMBER
+    (Unicode:#$2224; Attr:daNone; Ch1:#$2223; Ch2:#$0338; Ch3:#$FFFF),                 // DOES NOT DIVIDE
+    (Unicode:#$2226; Attr:daNone; Ch1:#$2225; Ch2:#$0338; Ch3:#$FFFF),                 // NOT PARALLEL TO
+    (Unicode:#$222C; Attr:daCompat; Ch1:#$222B; Ch2:#$222B; Ch3:#$FFFF),               // DOUBLE INTEGRAL
     (Unicode:#$222D; Attr:daCompat; Ch1:#$222B; Ch2:#$222B; Ch3:#$222B; Ch4:#$FFFF),   // TRIPLE INTEGRAL
-    (Unicode:#$222F; Attr:daCompat; Ch1:#$222E; Ch2:#$222E; Ch3:#$FFFF),  // SURFACE INTEGRAL
+    (Unicode:#$222F; Attr:daCompat; Ch1:#$222E; Ch2:#$222E; Ch3:#$FFFF),               // SURFACE INTEGRAL
     (Unicode:#$2230; Attr:daCompat; Ch1:#$222E; Ch2:#$222E; Ch3:#$222E; Ch4:#$FFFF),   // VOLUME INTEGRAL
-    (Unicode:#$2241; Attr:daNone; Ch1:#$223C; Ch2:#$0338; Ch3:#$FFFF),    // NOT TILDE
-    (Unicode:#$2244; Attr:daNone; Ch1:#$2243; Ch2:#$0338; Ch3:#$FFFF),    // NOT ASYMPTOTICALLY EQUAL TO
-    (Unicode:#$2247; Attr:daNone; Ch1:#$2245; Ch2:#$0338; Ch3:#$FFFF),    // NEITHER APPROXIMATELY NOR ACTUALLY EQUAL TO
-    (Unicode:#$2249; Attr:daNone; Ch1:#$2248; Ch2:#$0338; Ch3:#$FFFF),    // NOT ALMOST EQUAL TO
-    (Unicode:#$2260; Attr:daNone; Ch1:#$003D; Ch2:#$0338; Ch3:#$FFFF),    // NOT EQUAL TO
-    (Unicode:#$2262; Attr:daNone; Ch1:#$2261; Ch2:#$0338; Ch3:#$FFFF),    // NOT IDENTICAL TO
-    (Unicode:#$226D; Attr:daNone; Ch1:#$224D; Ch2:#$0338; Ch3:#$FFFF),    // NOT EQUIVALENT TO
-    (Unicode:#$226E; Attr:daNone; Ch1:#$003C; Ch2:#$0338; Ch3:#$FFFF),    // NOT LESS-THAN
-    (Unicode:#$226F; Attr:daNone; Ch1:#$003E; Ch2:#$0338; Ch3:#$FFFF),    // NOT GREATER-THAN
-    (Unicode:#$2270; Attr:daNone; Ch1:#$2264; Ch2:#$0338; Ch3:#$FFFF),    // NEITHER LESS-THAN NOR EQUAL TO
-    (Unicode:#$2271; Attr:daNone; Ch1:#$2265; Ch2:#$0338; Ch3:#$FFFF),    // NEITHER GREATER-THAN NOR EQUAL TO
-    (Unicode:#$2274; Attr:daNone; Ch1:#$2272; Ch2:#$0338; Ch3:#$FFFF),    // NEITHER LESS-THAN NOR EQUIVALENT TO
-    (Unicode:#$2275; Attr:daNone; Ch1:#$2273; Ch2:#$0338; Ch3:#$FFFF),    // NEITHER GREATER-THAN NOR EQUIVALENT TO
-    (Unicode:#$2278; Attr:daNone; Ch1:#$2276; Ch2:#$0338; Ch3:#$FFFF),    // NEITHER LESS-THAN NOR GREATER-THAN
-    (Unicode:#$2279; Attr:daNone; Ch1:#$2277; Ch2:#$0338; Ch3:#$FFFF),    // NEITHER GREATER-THAN NOR LESS-THAN
-    (Unicode:#$2280; Attr:daNone; Ch1:#$227A; Ch2:#$0338; Ch3:#$FFFF),    // DOES NOT PRECEDE
-    (Unicode:#$2281; Attr:daNone; Ch1:#$227B; Ch2:#$0338; Ch3:#$FFFF),    // DOES NOT SUCCEED
-    (Unicode:#$2284; Attr:daNone; Ch1:#$2282; Ch2:#$0338; Ch3:#$FFFF),    // NOT A SUBSET OF
-    (Unicode:#$2285; Attr:daNone; Ch1:#$2283; Ch2:#$0338; Ch3:#$FFFF),    // NOT A SUPERSET OF
-    (Unicode:#$2288; Attr:daNone; Ch1:#$2286; Ch2:#$0338; Ch3:#$FFFF),    // NEITHER A SUBSET OF NOR EQUAL TO
-    (Unicode:#$2289; Attr:daNone; Ch1:#$2287; Ch2:#$0338; Ch3:#$FFFF),    // NEITHER A SUPERSET OF NOR EQUAL TO
-    (Unicode:#$22AC; Attr:daNone; Ch1:#$22A2; Ch2:#$0338; Ch3:#$FFFF),    // DOES NOT PROVE
-    (Unicode:#$22AD; Attr:daNone; Ch1:#$22A8; Ch2:#$0338; Ch3:#$FFFF),    // NOT TRUE
-    (Unicode:#$22AE; Attr:daNone; Ch1:#$22A9; Ch2:#$0338; Ch3:#$FFFF),    // DOES NOT FORCE
-    (Unicode:#$22AF; Attr:daNone; Ch1:#$22AB; Ch2:#$0338; Ch3:#$FFFF),    // NEGATED DOUBLE VERTICAL BAR DOUBLE RIGHT TURNSTILE
-    (Unicode:#$22E0; Attr:daNone; Ch1:#$227C; Ch2:#$0338; Ch3:#$FFFF),    // DOES NOT PRECEDE OR EQUAL
-    (Unicode:#$22E1; Attr:daNone; Ch1:#$227D; Ch2:#$0338; Ch3:#$FFFF),    // DOES NOT SUCCEED OR EQUAL
-    (Unicode:#$22E2; Attr:daNone; Ch1:#$2291; Ch2:#$0338; Ch3:#$FFFF),    // NOT SQUARE IMAGE OF OR EQUAL TO
-    (Unicode:#$22E3; Attr:daNone; Ch1:#$2292; Ch2:#$0338; Ch3:#$FFFF),    // NOT SQUARE ORIGINAL OF OR EQUAL TO
-    (Unicode:#$22EA; Attr:daNone; Ch1:#$22B2; Ch2:#$0338; Ch3:#$FFFF),    // NOT NORMAL SUBGROUP OF
-    (Unicode:#$22EB; Attr:daNone; Ch1:#$22B3; Ch2:#$0338; Ch3:#$FFFF),    // DOES NOT CONTAIN AS NORMAL SUBGROUP
-    (Unicode:#$22EC; Attr:daNone; Ch1:#$22B4; Ch2:#$0338; Ch3:#$FFFF),    // NOT NORMAL SUBGROUP OF OR EQUAL TO
-    (Unicode:#$22ED; Attr:daNone; Ch1:#$22B5; Ch2:#$0338; Ch3:#$FFFF),    // DOES NOT CONTAIN AS NORMAL SUBGROUP OR EQUAL
-    (Unicode:#$2329; Attr:daNone; Ch1:#$3008; Ch2:#$FFFF),                // LEFT-POINTING ANGLE BRACKET
-    (Unicode:#$232A; Attr:daNone; Ch1:#$3009; Ch2:#$FFFF),                // RIGHT-POINTING ANGLE BRACKET
-    (Unicode:#$2460; Attr:daCircle; Ch1:#$0031; Ch2:#$FFFF),              // CIRCLED DIGIT ONE
-    (Unicode:#$2461; Attr:daCircle; Ch1:#$0032; Ch2:#$FFFF),              // CIRCLED DIGIT TWO
-    (Unicode:#$2462; Attr:daCircle; Ch1:#$0033; Ch2:#$FFFF),              // CIRCLED DIGIT THREE
-    (Unicode:#$2463; Attr:daCircle; Ch1:#$0034; Ch2:#$FFFF),              // CIRCLED DIGIT FOUR
-    (Unicode:#$2464; Attr:daCircle; Ch1:#$0035; Ch2:#$FFFF),              // CIRCLED DIGIT FIVE
-    (Unicode:#$2465; Attr:daCircle; Ch1:#$0036; Ch2:#$FFFF),              // CIRCLED DIGIT SIX
-    (Unicode:#$2466; Attr:daCircle; Ch1:#$0037; Ch2:#$FFFF),              // CIRCLED DIGIT SEVEN
-    (Unicode:#$2467; Attr:daCircle; Ch1:#$0038; Ch2:#$FFFF),              // CIRCLED DIGIT EIGHT
-    (Unicode:#$2468; Attr:daCircle; Ch1:#$0039; Ch2:#$FFFF),              // CIRCLED DIGIT NINE
-    (Unicode:#$2469; Attr:daCircle; Ch1:#$0031; Ch2:#$0030; Ch3:#$FFFF),  // CIRCLED NUMBER TEN
-    (Unicode:#$246A; Attr:daCircle; Ch1:#$0031; Ch2:#$0031; Ch3:#$FFFF),  // CIRCLED NUMBER ELEVEN
-    (Unicode:#$246B; Attr:daCircle; Ch1:#$0031; Ch2:#$0032; Ch3:#$FFFF),  // CIRCLED NUMBER TWELVE
-    (Unicode:#$246C; Attr:daCircle; Ch1:#$0031; Ch2:#$0033; Ch3:#$FFFF),  // CIRCLED NUMBER THIRTEEN
-    (Unicode:#$246D; Attr:daCircle; Ch1:#$0031; Ch2:#$0034; Ch3:#$FFFF),  // CIRCLED NUMBER FOURTEEN
-    (Unicode:#$246E; Attr:daCircle; Ch1:#$0031; Ch2:#$0035; Ch3:#$FFFF),  // CIRCLED NUMBER FIFTEEN
-    (Unicode:#$246F; Attr:daCircle; Ch1:#$0031; Ch2:#$0036; Ch3:#$FFFF),  // CIRCLED NUMBER SIXTEEN
-    (Unicode:#$2470; Attr:daCircle; Ch1:#$0031; Ch2:#$0037; Ch3:#$FFFF),  // CIRCLED NUMBER SEVENTEEN
-    (Unicode:#$2471; Attr:daCircle; Ch1:#$0031; Ch2:#$0038; Ch3:#$FFFF),  // CIRCLED NUMBER EIGHTEEN
-    (Unicode:#$2472; Attr:daCircle; Ch1:#$0031; Ch2:#$0039; Ch3:#$FFFF),  // CIRCLED NUMBER NINETEEN
-    (Unicode:#$2473; Attr:daCircle; Ch1:#$0032; Ch2:#$0030; Ch3:#$FFFF),  // CIRCLED NUMBER TWENTY
+    (Unicode:#$2241; Attr:daNone; Ch1:#$223C; Ch2:#$0338; Ch3:#$FFFF),                 // NOT TILDE
+    (Unicode:#$2244; Attr:daNone; Ch1:#$2243; Ch2:#$0338; Ch3:#$FFFF),                 // NOT ASYMPTOTICALLY EQUAL TO
+    (Unicode:#$2247; Attr:daNone; Ch1:#$2245; Ch2:#$0338; Ch3:#$FFFF),                 // NEITHER APPROXIMATELY NOR ACTUALLY EQUAL TO
+    (Unicode:#$2249; Attr:daNone; Ch1:#$2248; Ch2:#$0338; Ch3:#$FFFF),                 // NOT ALMOST EQUAL TO
+    (Unicode:#$2260; Attr:daNone; Ch1:#$003D; Ch2:#$0338; Ch3:#$FFFF),                 // NOT EQUAL TO
+    (Unicode:#$2262; Attr:daNone; Ch1:#$2261; Ch2:#$0338; Ch3:#$FFFF),                 // NOT IDENTICAL TO
+    (Unicode:#$226D; Attr:daNone; Ch1:#$224D; Ch2:#$0338; Ch3:#$FFFF),                 // NOT EQUIVALENT TO
+    (Unicode:#$226E; Attr:daNone; Ch1:#$003C; Ch2:#$0338; Ch3:#$FFFF),                 // NOT LESS-THAN
+    (Unicode:#$226F; Attr:daNone; Ch1:#$003E; Ch2:#$0338; Ch3:#$FFFF),                 // NOT GREATER-THAN
+    (Unicode:#$2270; Attr:daNone; Ch1:#$2264; Ch2:#$0338; Ch3:#$FFFF),                 // NEITHER LESS-THAN NOR EQUAL TO
+    (Unicode:#$2271; Attr:daNone; Ch1:#$2265; Ch2:#$0338; Ch3:#$FFFF),                 // NEITHER GREATER-THAN NOR EQUAL TO
+    (Unicode:#$2274; Attr:daNone; Ch1:#$2272; Ch2:#$0338; Ch3:#$FFFF),                 // NEITHER LESS-THAN NOR EQUIVALENT TO
+    (Unicode:#$2275; Attr:daNone; Ch1:#$2273; Ch2:#$0338; Ch3:#$FFFF),                 // NEITHER GREATER-THAN NOR EQUIVALENT TO
+    (Unicode:#$2278; Attr:daNone; Ch1:#$2276; Ch2:#$0338; Ch3:#$FFFF),                 // NEITHER LESS-THAN NOR GREATER-THAN
+    (Unicode:#$2279; Attr:daNone; Ch1:#$2277; Ch2:#$0338; Ch3:#$FFFF),                 // NEITHER GREATER-THAN NOR LESS-THAN
+    (Unicode:#$2280; Attr:daNone; Ch1:#$227A; Ch2:#$0338; Ch3:#$FFFF),                 // DOES NOT PRECEDE
+    (Unicode:#$2281; Attr:daNone; Ch1:#$227B; Ch2:#$0338; Ch3:#$FFFF),                 // DOES NOT SUCCEED
+    (Unicode:#$2284; Attr:daNone; Ch1:#$2282; Ch2:#$0338; Ch3:#$FFFF),                 // NOT A SUBSET OF
+    (Unicode:#$2285; Attr:daNone; Ch1:#$2283; Ch2:#$0338; Ch3:#$FFFF),                 // NOT A SUPERSET OF
+    (Unicode:#$2288; Attr:daNone; Ch1:#$2286; Ch2:#$0338; Ch3:#$FFFF),                 // NEITHER A SUBSET OF NOR EQUAL TO
+    (Unicode:#$2289; Attr:daNone; Ch1:#$2287; Ch2:#$0338; Ch3:#$FFFF),                 // NEITHER A SUPERSET OF NOR EQUAL TO
+    (Unicode:#$22AC; Attr:daNone; Ch1:#$22A2; Ch2:#$0338; Ch3:#$FFFF),                 // DOES NOT PROVE
+    (Unicode:#$22AD; Attr:daNone; Ch1:#$22A8; Ch2:#$0338; Ch3:#$FFFF),                 // NOT TRUE
+    (Unicode:#$22AE; Attr:daNone; Ch1:#$22A9; Ch2:#$0338; Ch3:#$FFFF),                 // DOES NOT FORCE
+    (Unicode:#$22AF; Attr:daNone; Ch1:#$22AB; Ch2:#$0338; Ch3:#$FFFF),                 // NEGATED DOUBLE VERTICAL BAR DOUBLE RIGHT TURNSTILE
+    (Unicode:#$22E0; Attr:daNone; Ch1:#$227C; Ch2:#$0338; Ch3:#$FFFF),                 // DOES NOT PRECEDE OR EQUAL
+    (Unicode:#$22E1; Attr:daNone; Ch1:#$227D; Ch2:#$0338; Ch3:#$FFFF),                 // DOES NOT SUCCEED OR EQUAL
+    (Unicode:#$22E2; Attr:daNone; Ch1:#$2291; Ch2:#$0338; Ch3:#$FFFF),                 // NOT SQUARE IMAGE OF OR EQUAL TO
+    (Unicode:#$22E3; Attr:daNone; Ch1:#$2292; Ch2:#$0338; Ch3:#$FFFF),                 // NOT SQUARE ORIGINAL OF OR EQUAL TO
+    (Unicode:#$22EA; Attr:daNone; Ch1:#$22B2; Ch2:#$0338; Ch3:#$FFFF),                 // NOT NORMAL SUBGROUP OF
+    (Unicode:#$22EB; Attr:daNone; Ch1:#$22B3; Ch2:#$0338; Ch3:#$FFFF),                 // DOES NOT CONTAIN AS NORMAL SUBGROUP
+    (Unicode:#$22EC; Attr:daNone; Ch1:#$22B4; Ch2:#$0338; Ch3:#$FFFF),                 // NOT NORMAL SUBGROUP OF OR EQUAL TO
+    (Unicode:#$22ED; Attr:daNone; Ch1:#$22B5; Ch2:#$0338; Ch3:#$FFFF),                 // DOES NOT CONTAIN AS NORMAL SUBGROUP OR EQUAL
+    (Unicode:#$2329; Attr:daNone; Ch1:#$3008; Ch2:#$FFFF),                             // LEFT-POINTING ANGLE BRACKET
+    (Unicode:#$232A; Attr:daNone; Ch1:#$3009; Ch2:#$FFFF),                             // RIGHT-POINTING ANGLE BRACKET
+    (Unicode:#$2460; Attr:daCircle; Ch1:#$0031; Ch2:#$FFFF),                           // CIRCLED DIGIT ONE
+    (Unicode:#$2461; Attr:daCircle; Ch1:#$0032; Ch2:#$FFFF),                           // CIRCLED DIGIT TWO
+    (Unicode:#$2462; Attr:daCircle; Ch1:#$0033; Ch2:#$FFFF),                           // CIRCLED DIGIT THREE
+    (Unicode:#$2463; Attr:daCircle; Ch1:#$0034; Ch2:#$FFFF),                           // CIRCLED DIGIT FOUR
+    (Unicode:#$2464; Attr:daCircle; Ch1:#$0035; Ch2:#$FFFF),                           // CIRCLED DIGIT FIVE
+    (Unicode:#$2465; Attr:daCircle; Ch1:#$0036; Ch2:#$FFFF),                           // CIRCLED DIGIT SIX
+    (Unicode:#$2466; Attr:daCircle; Ch1:#$0037; Ch2:#$FFFF),                           // CIRCLED DIGIT SEVEN
+    (Unicode:#$2467; Attr:daCircle; Ch1:#$0038; Ch2:#$FFFF),                           // CIRCLED DIGIT EIGHT
+    (Unicode:#$2468; Attr:daCircle; Ch1:#$0039; Ch2:#$FFFF),                           // CIRCLED DIGIT NINE
+    (Unicode:#$2469; Attr:daCircle; Ch1:#$0031; Ch2:#$0030; Ch3:#$FFFF),               // CIRCLED NUMBER TEN
+    (Unicode:#$246A; Attr:daCircle; Ch1:#$0031; Ch2:#$0031; Ch3:#$FFFF),               // CIRCLED NUMBER ELEVEN
+    (Unicode:#$246B; Attr:daCircle; Ch1:#$0031; Ch2:#$0032; Ch3:#$FFFF),               // CIRCLED NUMBER TWELVE
+    (Unicode:#$246C; Attr:daCircle; Ch1:#$0031; Ch2:#$0033; Ch3:#$FFFF),               // CIRCLED NUMBER THIRTEEN
+    (Unicode:#$246D; Attr:daCircle; Ch1:#$0031; Ch2:#$0034; Ch3:#$FFFF),               // CIRCLED NUMBER FOURTEEN
+    (Unicode:#$246E; Attr:daCircle; Ch1:#$0031; Ch2:#$0035; Ch3:#$FFFF),               // CIRCLED NUMBER FIFTEEN
+    (Unicode:#$246F; Attr:daCircle; Ch1:#$0031; Ch2:#$0036; Ch3:#$FFFF),               // CIRCLED NUMBER SIXTEEN
+    (Unicode:#$2470; Attr:daCircle; Ch1:#$0031; Ch2:#$0037; Ch3:#$FFFF),               // CIRCLED NUMBER SEVENTEEN
+    (Unicode:#$2471; Attr:daCircle; Ch1:#$0031; Ch2:#$0038; Ch3:#$FFFF),               // CIRCLED NUMBER EIGHTEEN
+    (Unicode:#$2472; Attr:daCircle; Ch1:#$0031; Ch2:#$0039; Ch3:#$FFFF),               // CIRCLED NUMBER NINETEEN
+    (Unicode:#$2473; Attr:daCircle; Ch1:#$0032; Ch2:#$0030; Ch3:#$FFFF),               // CIRCLED NUMBER TWENTY
     (Unicode:#$2474; Attr:daCompat; Ch1:#$0028; Ch2:#$0031; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED DIGIT ONE
     (Unicode:#$2475; Attr:daCompat; Ch1:#$0028; Ch2:#$0032; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED DIGIT TWO
     (Unicode:#$2476; Attr:daCompat; Ch1:#$0028; Ch2:#$0033; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED DIGIT THREE
@@ -5275,20 +5561,20 @@ const
     (Unicode:#$319D; Attr:daSuper; Ch1:#$5929; Ch2:#$FFFF),               // IDEOGRAPHIC ANNOTATION HEAVEN MARK
     (Unicode:#$319E; Attr:daSuper; Ch1:#$5730; Ch2:#$FFFF),               // IDEOGRAPHIC ANNOTATION EARTH MARK
     (Unicode:#$319F; Attr:daSuper; Ch1:#$4EBA; Ch2:#$FFFF),               // IDEOGRAPHIC ANNOTATION MAN MARK
-    (Unicode:#$3200; Attr:daCompat; Ch1:#$0028; Ch2:#$1100; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL KIYEOK
-    (Unicode:#$3201; Attr:daCompat; Ch1:#$0028; Ch2:#$1102; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL NIEUN
-    (Unicode:#$3202; Attr:daCompat; Ch1:#$0028; Ch2:#$1103; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL TIKEUT
-    (Unicode:#$3203; Attr:daCompat; Ch1:#$0028; Ch2:#$1105; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL RIEUL
-    (Unicode:#$3204; Attr:daCompat; Ch1:#$0028; Ch2:#$1106; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL MIEUM
-    (Unicode:#$3205; Attr:daCompat; Ch1:#$0028; Ch2:#$1107; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL PIEUP
-    (Unicode:#$3206; Attr:daCompat; Ch1:#$0028; Ch2:#$1109; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL SIOS
-    (Unicode:#$3207; Attr:daCompat; Ch1:#$0028; Ch2:#$110B; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL IEUNG
-    (Unicode:#$3208; Attr:daCompat; Ch1:#$0028; Ch2:#$110C; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL CIEUC
-    (Unicode:#$3209; Attr:daCompat; Ch1:#$0028; Ch2:#$110E; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL CHIEUCH
-    (Unicode:#$320A; Attr:daCompat; Ch1:#$0028; Ch2:#$110F; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL KHIEUKH
-    (Unicode:#$320B; Attr:daCompat; Ch1:#$0028; Ch2:#$1110; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL THIEUTH
-    (Unicode:#$320C; Attr:daCompat; Ch1:#$0028; Ch2:#$1111; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL PHIEUPH
-    (Unicode:#$320D; Attr:daCompat; Ch1:#$0028; Ch2:#$1112; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED HANGUL HIEUH
+    (Unicode:#$3200; Attr:daCompat; Ch1:#$0028; Ch2:#$1100; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL KIYEOK
+    (Unicode:#$3201; Attr:daCompat; Ch1:#$0028; Ch2:#$1102; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL NIEUN
+    (Unicode:#$3202; Attr:daCompat; Ch1:#$0028; Ch2:#$1103; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL TIKEUT
+    (Unicode:#$3203; Attr:daCompat; Ch1:#$0028; Ch2:#$1105; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL RIEUL
+    (Unicode:#$3204; Attr:daCompat; Ch1:#$0028; Ch2:#$1106; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL MIEUM
+    (Unicode:#$3205; Attr:daCompat; Ch1:#$0028; Ch2:#$1107; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL PIEUP
+    (Unicode:#$3206; Attr:daCompat; Ch1:#$0028; Ch2:#$1109; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL SIOS
+    (Unicode:#$3207; Attr:daCompat; Ch1:#$0028; Ch2:#$110B; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL IEUNG
+    (Unicode:#$3208; Attr:daCompat; Ch1:#$0028; Ch2:#$110C; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL CIEUC
+    (Unicode:#$3209; Attr:daCompat; Ch1:#$0028; Ch2:#$110E; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL CHIEUCH
+    (Unicode:#$320A; Attr:daCompat; Ch1:#$0028; Ch2:#$110F; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL KHIEUKH
+    (Unicode:#$320B; Attr:daCompat; Ch1:#$0028; Ch2:#$1110; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL THIEUTH
+    (Unicode:#$320C; Attr:daCompat; Ch1:#$0028; Ch2:#$1111; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL PHIEUPH
+    (Unicode:#$320D; Attr:daCompat; Ch1:#$0028; Ch2:#$1112; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED HANGUL HIEUH
     (Unicode:#$320E; Attr:daCompat; Ch1:#$0028; Ch2:#$1100; Ch3:#$1161; Ch4:#$0029; Ch5:#$FFFF),  // PARENTHESIZED HANGUL KIYEOK A
     (Unicode:#$320F; Attr:daCompat; Ch1:#$0028; Ch2:#$1102; Ch3:#$1161; Ch4:#$0029; Ch5:#$FFFF),  // PARENTHESIZED HANGUL NIEUN A
     (Unicode:#$3210; Attr:daCompat; Ch1:#$0028; Ch2:#$1103; Ch3:#$1161; Ch4:#$0029; Ch5:#$FFFF),  // PARENTHESIZED HANGUL TIKEUT A
@@ -5304,42 +5590,42 @@ const
     (Unicode:#$321A; Attr:daCompat; Ch1:#$0028; Ch2:#$1111; Ch3:#$1161; Ch4:#$0029; Ch5:#$FFFF),  // PARENTHESIZED HANGUL PHIEUPH A
     (Unicode:#$321B; Attr:daCompat; Ch1:#$0028; Ch2:#$1112; Ch3:#$1161; Ch4:#$0029; Ch5:#$FFFF),  // PARENTHESIZED HANGUL HIEUH A
     (Unicode:#$321C; Attr:daCompat; Ch1:#$0028; Ch2:#$110C; Ch3:#$116E; Ch4:#$0029; Ch5:#$FFFF),  // PARENTHESIZED HANGUL CIEUC U
-    (Unicode:#$3220; Attr:daCompat; Ch1:#$0028; Ch2:#$4E00; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH ONE
-    (Unicode:#$3221; Attr:daCompat; Ch1:#$0028; Ch2:#$4E8C; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH TWO
-    (Unicode:#$3222; Attr:daCompat; Ch1:#$0028; Ch2:#$4E09; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH THREE
-    (Unicode:#$3223; Attr:daCompat; Ch1:#$0028; Ch2:#$56DB; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH FOUR
-    (Unicode:#$3224; Attr:daCompat; Ch1:#$0028; Ch2:#$4E94; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH FIVE
-    (Unicode:#$3225; Attr:daCompat; Ch1:#$0028; Ch2:#$516D; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH SIX
-    (Unicode:#$3226; Attr:daCompat; Ch1:#$0028; Ch2:#$4E03; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH SEVEN
-    (Unicode:#$3227; Attr:daCompat; Ch1:#$0028; Ch2:#$516B; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH EIGHT
-    (Unicode:#$3228; Attr:daCompat; Ch1:#$0028; Ch2:#$4E5D; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH NINE
-    (Unicode:#$3229; Attr:daCompat; Ch1:#$0028; Ch2:#$5341; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH TEN
-    (Unicode:#$322A; Attr:daCompat; Ch1:#$0028; Ch2:#$6708; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH MOON
-    (Unicode:#$322B; Attr:daCompat; Ch1:#$0028; Ch2:#$706B; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH FIRE
-    (Unicode:#$322C; Attr:daCompat; Ch1:#$0028; Ch2:#$6C34; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH WATER
-    (Unicode:#$322D; Attr:daCompat; Ch1:#$0028; Ch2:#$6728; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH WOOD
-    (Unicode:#$322E; Attr:daCompat; Ch1:#$0028; Ch2:#$91D1; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH METAL
-    (Unicode:#$322F; Attr:daCompat; Ch1:#$0028; Ch2:#$571F; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH EARTH
-    (Unicode:#$3230; Attr:daCompat; Ch1:#$0028; Ch2:#$65E5; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH SUN
-    (Unicode:#$3231; Attr:daCompat; Ch1:#$0028; Ch2:#$682A; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH STOCK
-    (Unicode:#$3232; Attr:daCompat; Ch1:#$0028; Ch2:#$6709; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH HAVE
-    (Unicode:#$3233; Attr:daCompat; Ch1:#$0028; Ch2:#$793E; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH SOCIETY
-    (Unicode:#$3234; Attr:daCompat; Ch1:#$0028; Ch2:#$540D; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH NAME
-    (Unicode:#$3235; Attr:daCompat; Ch1:#$0028; Ch2:#$7279; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH SPECIAL
-    (Unicode:#$3236; Attr:daCompat; Ch1:#$0028; Ch2:#$8CA1; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH FINANCIAL
-    (Unicode:#$3237; Attr:daCompat; Ch1:#$0028; Ch2:#$795D; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH CONGRATULATION
-    (Unicode:#$3238; Attr:daCompat; Ch1:#$0028; Ch2:#$52B4; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH LABOR
-    (Unicode:#$3239; Attr:daCompat; Ch1:#$0028; Ch2:#$4EE3; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH REPRESENT
-    (Unicode:#$323A; Attr:daCompat; Ch1:#$0028; Ch2:#$547C; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH CALL
-    (Unicode:#$323B; Attr:daCompat; Ch1:#$0028; Ch2:#$5B66; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH STUDY
-    (Unicode:#$323C; Attr:daCompat; Ch1:#$0028; Ch2:#$76E3; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH SUPERVISE
-    (Unicode:#$323D; Attr:daCompat; Ch1:#$0028; Ch2:#$4F01; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH ENTERPRISE
-    (Unicode:#$323E; Attr:daCompat; Ch1:#$0028; Ch2:#$8CC7; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH RESOURCE
-    (Unicode:#$323F; Attr:daCompat; Ch1:#$0028; Ch2:#$5354; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH ALLIANCE
-    (Unicode:#$3240; Attr:daCompat; Ch1:#$0028; Ch2:#$796D; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH FESTIVAL
-    (Unicode:#$3241; Attr:daCompat; Ch1:#$0028; Ch2:#$4F11; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH REST
-    (Unicode:#$3242; Attr:daCompat; Ch1:#$0028; Ch2:#$81EA; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH SELF
-    (Unicode:#$3243; Attr:daCompat; Ch1:#$0028; Ch2:#$81F3; Ch3:#$0029; Ch4:#$FFFF),   // PARENTHESIZED IDEOGRAPH REACH
+    (Unicode:#$3220; Attr:daCompat; Ch1:#$0028; Ch2:#$4E00; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH ONE
+    (Unicode:#$3221; Attr:daCompat; Ch1:#$0028; Ch2:#$4E8C; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH TWO
+    (Unicode:#$3222; Attr:daCompat; Ch1:#$0028; Ch2:#$4E09; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH THREE
+    (Unicode:#$3223; Attr:daCompat; Ch1:#$0028; Ch2:#$56DB; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH FOUR
+    (Unicode:#$3224; Attr:daCompat; Ch1:#$0028; Ch2:#$4E94; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH FIVE
+    (Unicode:#$3225; Attr:daCompat; Ch1:#$0028; Ch2:#$516D; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH SIX
+    (Unicode:#$3226; Attr:daCompat; Ch1:#$0028; Ch2:#$4E03; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH SEVEN
+    (Unicode:#$3227; Attr:daCompat; Ch1:#$0028; Ch2:#$516B; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH EIGHT
+    (Unicode:#$3228; Attr:daCompat; Ch1:#$0028; Ch2:#$4E5D; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH NINE
+    (Unicode:#$3229; Attr:daCompat; Ch1:#$0028; Ch2:#$5341; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH TEN
+    (Unicode:#$322A; Attr:daCompat; Ch1:#$0028; Ch2:#$6708; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH MOON
+    (Unicode:#$322B; Attr:daCompat; Ch1:#$0028; Ch2:#$706B; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH FIRE
+    (Unicode:#$322C; Attr:daCompat; Ch1:#$0028; Ch2:#$6C34; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH WATER
+    (Unicode:#$322D; Attr:daCompat; Ch1:#$0028; Ch2:#$6728; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH WOOD
+    (Unicode:#$322E; Attr:daCompat; Ch1:#$0028; Ch2:#$91D1; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH METAL
+    (Unicode:#$322F; Attr:daCompat; Ch1:#$0028; Ch2:#$571F; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH EARTH
+    (Unicode:#$3230; Attr:daCompat; Ch1:#$0028; Ch2:#$65E5; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH SUN
+    (Unicode:#$3231; Attr:daCompat; Ch1:#$0028; Ch2:#$682A; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH STOCK
+    (Unicode:#$3232; Attr:daCompat; Ch1:#$0028; Ch2:#$6709; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH HAVE
+    (Unicode:#$3233; Attr:daCompat; Ch1:#$0028; Ch2:#$793E; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH SOCIETY
+    (Unicode:#$3234; Attr:daCompat; Ch1:#$0028; Ch2:#$540D; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH NAME
+    (Unicode:#$3235; Attr:daCompat; Ch1:#$0028; Ch2:#$7279; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH SPECIAL
+    (Unicode:#$3236; Attr:daCompat; Ch1:#$0028; Ch2:#$8CA1; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH FINANCIAL
+    (Unicode:#$3237; Attr:daCompat; Ch1:#$0028; Ch2:#$795D; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH CONGRATULATION
+    (Unicode:#$3238; Attr:daCompat; Ch1:#$0028; Ch2:#$52B4; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH LABOR
+    (Unicode:#$3239; Attr:daCompat; Ch1:#$0028; Ch2:#$4EE3; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH REPRESENT
+    (Unicode:#$323A; Attr:daCompat; Ch1:#$0028; Ch2:#$547C; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH CALL
+    (Unicode:#$323B; Attr:daCompat; Ch1:#$0028; Ch2:#$5B66; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH STUDY
+    (Unicode:#$323C; Attr:daCompat; Ch1:#$0028; Ch2:#$76E3; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH SUPERVISE
+    (Unicode:#$323D; Attr:daCompat; Ch1:#$0028; Ch2:#$4F01; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH ENTERPRISE
+    (Unicode:#$323E; Attr:daCompat; Ch1:#$0028; Ch2:#$8CC7; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH RESOURCE
+    (Unicode:#$323F; Attr:daCompat; Ch1:#$0028; Ch2:#$5354; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH ALLIANCE
+    (Unicode:#$3240; Attr:daCompat; Ch1:#$0028; Ch2:#$796D; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH FESTIVAL
+    (Unicode:#$3241; Attr:daCompat; Ch1:#$0028; Ch2:#$4F11; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH REST
+    (Unicode:#$3242; Attr:daCompat; Ch1:#$0028; Ch2:#$81EA; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH SELF
+    (Unicode:#$3243; Attr:daCompat; Ch1:#$0028; Ch2:#$81F3; Ch3:#$0029; Ch4:#$FFFF),              // PARENTHESIZED IDEOGRAPH REACH
     (Unicode:#$3260; Attr:daCircle; Ch1:#$1100; Ch2:#$FFFF),              // CIRCLED HANGUL KIYEOK
     (Unicode:#$3261; Attr:daCircle; Ch1:#$1102; Ch2:#$FFFF),              // CIRCLED HANGUL NIEUN
     (Unicode:#$3262; Attr:daCircle; Ch1:#$1103; Ch2:#$FFFF),              // CIRCLED HANGUL TIKEUT
@@ -5417,15 +5703,15 @@ const
     (Unicode:#$32AE; Attr:daCircle; Ch1:#$8CC7; Ch2:#$FFFF),              // CIRCLED IDEOGRAPH RESOURCE
     (Unicode:#$32AF; Attr:daCircle; Ch1:#$5354; Ch2:#$FFFF),              // CIRCLED IDEOGRAPH ALLIANCE
     (Unicode:#$32B0; Attr:daCircle; Ch1:#$591C; Ch2:#$FFFF),              // CIRCLED IDEOGRAPH NIGHT
-    (Unicode:#$32C0; Attr:daCompat; Ch1:#$0031; Ch2:#$6708; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR JANUARY
-    (Unicode:#$32C1; Attr:daCompat; Ch1:#$0032; Ch2:#$6708; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR FEBRUARY
-    (Unicode:#$32C2; Attr:daCompat; Ch1:#$0033; Ch2:#$6708; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR MARCH
-    (Unicode:#$32C3; Attr:daCompat; Ch1:#$0034; Ch2:#$6708; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR APRIL
-    (Unicode:#$32C4; Attr:daCompat; Ch1:#$0035; Ch2:#$6708; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR MAY
-    (Unicode:#$32C5; Attr:daCompat; Ch1:#$0036; Ch2:#$6708; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR JUNE
-    (Unicode:#$32C6; Attr:daCompat; Ch1:#$0037; Ch2:#$6708; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR JULY
-    (Unicode:#$32C7; Attr:daCompat; Ch1:#$0038; Ch2:#$6708; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR AUGUST
-    (Unicode:#$32C8; Attr:daCompat; Ch1:#$0039; Ch2:#$6708; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR SEPTEMBER
+    (Unicode:#$32C0; Attr:daCompat; Ch1:#$0031; Ch2:#$6708; Ch3:#$FFFF),               // IDEOGRAPHIC TELEGRAPH SYMBOL FOR JANUARY
+    (Unicode:#$32C1; Attr:daCompat; Ch1:#$0032; Ch2:#$6708; Ch3:#$FFFF),               // IDEOGRAPHIC TELEGRAPH SYMBOL FOR FEBRUARY
+    (Unicode:#$32C2; Attr:daCompat; Ch1:#$0033; Ch2:#$6708; Ch3:#$FFFF),               // IDEOGRAPHIC TELEGRAPH SYMBOL FOR MARCH
+    (Unicode:#$32C3; Attr:daCompat; Ch1:#$0034; Ch2:#$6708; Ch3:#$FFFF),               // IDEOGRAPHIC TELEGRAPH SYMBOL FOR APRIL
+    (Unicode:#$32C4; Attr:daCompat; Ch1:#$0035; Ch2:#$6708; Ch3:#$FFFF),               // IDEOGRAPHIC TELEGRAPH SYMBOL FOR MAY
+    (Unicode:#$32C5; Attr:daCompat; Ch1:#$0036; Ch2:#$6708; Ch3:#$FFFF),               // IDEOGRAPHIC TELEGRAPH SYMBOL FOR JUNE
+    (Unicode:#$32C6; Attr:daCompat; Ch1:#$0037; Ch2:#$6708; Ch3:#$FFFF),               // IDEOGRAPHIC TELEGRAPH SYMBOL FOR JULY
+    (Unicode:#$32C7; Attr:daCompat; Ch1:#$0038; Ch2:#$6708; Ch3:#$FFFF),               // IDEOGRAPHIC TELEGRAPH SYMBOL FOR AUGUST
+    (Unicode:#$32C8; Attr:daCompat; Ch1:#$0039; Ch2:#$6708; Ch3:#$FFFF),               // IDEOGRAPHIC TELEGRAPH SYMBOL FOR SEPTEMBER
     (Unicode:#$32C9; Attr:daCompat; Ch1:#$0031; Ch2:#$0030; Ch3:#$6708; Ch4:#$FFFF),   // IDEOGRAPHIC TELEGRAPH SYMBOL FOR OCTOBER
     (Unicode:#$32CA; Attr:daCompat; Ch1:#$0031; Ch2:#$0031; Ch3:#$6708; Ch4:#$FFFF),   // IDEOGRAPHIC TELEGRAPH SYMBOL FOR NOVEMBER
     (Unicode:#$32CB; Attr:daCompat; Ch1:#$0031; Ch2:#$0032; Ch3:#$6708; Ch4:#$FFFF),   // IDEOGRAPHIC TELEGRAPH SYMBOL FOR DECEMBER
@@ -5476,93 +5762,93 @@ const
     (Unicode:#$32FC; Attr:daCircle; Ch1:#$30F0; Ch2:#$FFFF),              // CIRCLED KATAKANA WI
     (Unicode:#$32FD; Attr:daCircle; Ch1:#$30F1; Ch2:#$FFFF),              // CIRCLED KATAKANA WE
     (Unicode:#$32FE; Attr:daCircle; Ch1:#$30F2; Ch2:#$FFFF),              // CIRCLED KATAKANA WO
-    (Unicode:#$3300; Attr:daSquare; Ch1:#$30A2; Ch2:#$30D1; Ch3:#$30FC; Ch4:#$30C8; Ch5:#$FFFF),  // SQUARE APAATO
-    (Unicode:#$3301; Attr:daSquare; Ch1:#$30A2; Ch2:#$30EB; Ch3:#$30D5; Ch4:#$30A1; Ch5:#$FFFF),  // SQUARE ARUHUA
-    (Unicode:#$3302; Attr:daSquare; Ch1:#$30A2; Ch2:#$30F3; Ch3:#$30DA; Ch4:#$30A2; Ch5:#$FFFF),  // SQUARE ANPEA
-    (Unicode:#$3303; Attr:daSquare; Ch1:#$30A2; Ch2:#$30FC; Ch3:#$30EB; Ch4:#$FFFF),   // SQUARE AARU
-    (Unicode:#$3304; Attr:daSquare; Ch1:#$30A4; Ch2:#$30CB; Ch3:#$30F3; Ch4:#$30B0; Ch5:#$FFFF),  // SQUARE ININGU
-    (Unicode:#$3305; Attr:daSquare; Ch1:#$30A4; Ch2:#$30F3; Ch3:#$30C1; Ch4:#$FFFF),   // SQUARE INTI
-    (Unicode:#$3306; Attr:daSquare; Ch1:#$30A6; Ch2:#$30A9; Ch3:#$30F3; Ch4:#$FFFF),   // SQUARE UON
+    (Unicode:#$3300; Attr:daSquare; Ch1:#$30A2; Ch2:#$30D1; Ch3:#$30FC; Ch4:#$30C8; Ch5:#$FFFF),   // SQUARE APAATO
+    (Unicode:#$3301; Attr:daSquare; Ch1:#$30A2; Ch2:#$30EB; Ch3:#$30D5; Ch4:#$30A1; Ch5:#$FFFF),   // SQUARE ARUHUA
+    (Unicode:#$3302; Attr:daSquare; Ch1:#$30A2; Ch2:#$30F3; Ch3:#$30DA; Ch4:#$30A2; Ch5:#$FFFF),   // SQUARE ANPEA
+    (Unicode:#$3303; Attr:daSquare; Ch1:#$30A2; Ch2:#$30FC; Ch3:#$30EB; Ch4:#$FFFF),               // SQUARE AARU
+    (Unicode:#$3304; Attr:daSquare; Ch1:#$30A4; Ch2:#$30CB; Ch3:#$30F3; Ch4:#$30B0; Ch5:#$FFFF),   // SQUARE ININGU
+    (Unicode:#$3305; Attr:daSquare; Ch1:#$30A4; Ch2:#$30F3; Ch3:#$30C1; Ch4:#$FFFF),               // SQUARE INTI
+    (Unicode:#$3306; Attr:daSquare; Ch1:#$30A6; Ch2:#$30A9; Ch3:#$30F3; Ch4:#$FFFF),               // SQUARE UON
     (Unicode:#$3307; Attr:daSquare; Ch1:#$30A8; Ch2:#$30B9; Ch3:#$30AF; Ch4:#$30FC; Ch5:#$30C9),   // SQUARE ESUKUUDO
-    (Unicode:#$3308; Attr:daSquare; Ch1:#$30A8; Ch2:#$30FC; Ch3:#$30AB; Ch4:#$30FC; Ch5:#$FFFF),  // SQUARE EEKAA
-    (Unicode:#$3309; Attr:daSquare; Ch1:#$30AA; Ch2:#$30F3; Ch3:#$30B9; Ch4:#$FFFF),   // SQUARE ONSU
-    (Unicode:#$330A; Attr:daSquare; Ch1:#$30AA; Ch2:#$30FC; Ch3:#$30E0; Ch4:#$FFFF),   // SQUARE OOMU
-    (Unicode:#$330B; Attr:daSquare; Ch1:#$30AB; Ch2:#$30A4; Ch3:#$30EA; Ch4:#$FFFF),   // SQUARE KAIRI
-    (Unicode:#$330C; Attr:daSquare; Ch1:#$30AB; Ch2:#$30E9; Ch3:#$30C3; Ch4:#$30C8; Ch5:#$FFFF),  // SQUARE KARATTO
-    (Unicode:#$330D; Attr:daSquare; Ch1:#$30AB; Ch2:#$30ED; Ch3:#$30EA; Ch4:#$30FC; Ch5:#$FFFF),  // SQUARE KARORII
-    (Unicode:#$330E; Attr:daSquare; Ch1:#$30AC; Ch2:#$30ED; Ch3:#$30F3; Ch4:#$FFFF),   // SQUARE GARON
-    (Unicode:#$330F; Attr:daSquare; Ch1:#$30AC; Ch2:#$30F3; Ch3:#$30DE; Ch4:#$FFFF),   // SQUARE GANMA
-    (Unicode:#$3310; Attr:daSquare; Ch1:#$30AE; Ch2:#$30AC; Ch3:#$FFFF),  // SQUARE GIGA
-    (Unicode:#$3311; Attr:daSquare; Ch1:#$30AE; Ch2:#$30CB; Ch3:#$30FC; Ch4:#$FFFF),   // SQUARE GINII
-    (Unicode:#$3312; Attr:daSquare; Ch1:#$30AD; Ch2:#$30E5; Ch3:#$30EA; Ch4:#$30FC; Ch5:#$FFFF),  // SQUARE KYURII
-    (Unicode:#$3313; Attr:daSquare; Ch1:#$30AE; Ch2:#$30EB; Ch3:#$30C0; Ch4:#$30FC; Ch5:#$FFFF),  // SQUARE GIRUDAA
-    (Unicode:#$3314; Attr:daSquare; Ch1:#$30AD; Ch2:#$30ED; Ch3:#$FFFF),  // SQUARE KIRO
+    (Unicode:#$3308; Attr:daSquare; Ch1:#$30A8; Ch2:#$30FC; Ch3:#$30AB; Ch4:#$30FC; Ch5:#$FFFF),   // SQUARE EEKAA
+    (Unicode:#$3309; Attr:daSquare; Ch1:#$30AA; Ch2:#$30F3; Ch3:#$30B9; Ch4:#$FFFF),               // SQUARE ONSU
+    (Unicode:#$330A; Attr:daSquare; Ch1:#$30AA; Ch2:#$30FC; Ch3:#$30E0; Ch4:#$FFFF),               // SQUARE OOMU
+    (Unicode:#$330B; Attr:daSquare; Ch1:#$30AB; Ch2:#$30A4; Ch3:#$30EA; Ch4:#$FFFF),               // SQUARE KAIRI
+    (Unicode:#$330C; Attr:daSquare; Ch1:#$30AB; Ch2:#$30E9; Ch3:#$30C3; Ch4:#$30C8; Ch5:#$FFFF),   // SQUARE KARATTO
+    (Unicode:#$330D; Attr:daSquare; Ch1:#$30AB; Ch2:#$30ED; Ch3:#$30EA; Ch4:#$30FC; Ch5:#$FFFF),   // SQUARE KARORII
+    (Unicode:#$330E; Attr:daSquare; Ch1:#$30AC; Ch2:#$30ED; Ch3:#$30F3; Ch4:#$FFFF),               // SQUARE GARON
+    (Unicode:#$330F; Attr:daSquare; Ch1:#$30AC; Ch2:#$30F3; Ch3:#$30DE; Ch4:#$FFFF),               // SQUARE GANMA
+    (Unicode:#$3310; Attr:daSquare; Ch1:#$30AE; Ch2:#$30AC; Ch3:#$FFFF),                           // SQUARE GIGA
+    (Unicode:#$3311; Attr:daSquare; Ch1:#$30AE; Ch2:#$30CB; Ch3:#$30FC; Ch4:#$FFFF),               // SQUARE GINII
+    (Unicode:#$3312; Attr:daSquare; Ch1:#$30AD; Ch2:#$30E5; Ch3:#$30EA; Ch4:#$30FC; Ch5:#$FFFF),   // SQUARE KYURII
+    (Unicode:#$3313; Attr:daSquare; Ch1:#$30AE; Ch2:#$30EB; Ch3:#$30C0; Ch4:#$30FC; Ch5:#$FFFF),   // SQUARE GIRUDAA
+    (Unicode:#$3314; Attr:daSquare; Ch1:#$30AD; Ch2:#$30ED; Ch3:#$FFFF),                           // SQUARE KIRO
     (Unicode:#$3315; Attr:daSquare; Ch1:#$30AD; Ch2:#$30ED; Ch3:#$30B0; Ch4:#$30E9; Ch5:#$30E0),   // SQUARE KIROGURAMU
     (Unicode:#$3317; Attr:daSquare; Ch1:#$30AD; Ch2:#$30ED; Ch3:#$30EF; Ch4:#$30C3; Ch5:#$30C8),   // SQUARE KIROWATTO
-    (Unicode:#$3318; Attr:daSquare; Ch1:#$30B0; Ch2:#$30E9; Ch3:#$30E0; Ch4:#$FFFF),   // SQUARE GURAMU
+    (Unicode:#$3318; Attr:daSquare; Ch1:#$30B0; Ch2:#$30E9; Ch3:#$30E0; Ch4:#$FFFF),               // SQUARE GURAMU
     (Unicode:#$3319; Attr:daSquare; Ch1:#$30B0; Ch2:#$30E9; Ch3:#$30E0; Ch4:#$30C8; Ch5:#$30F3),   // SQUARE GURAMUTON
     (Unicode:#$331A; Attr:daSquare; Ch1:#$30AF; Ch2:#$30EB; Ch3:#$30BC; Ch4:#$30A4; Ch5:#$30ED),   // SQUARE KURUZEIRO
-    (Unicode:#$331B; Attr:daSquare; Ch1:#$30AF; Ch2:#$30ED; Ch3:#$30FC; Ch4:#$30CD; Ch5:#$FFFF),  // SQUARE KUROONE
-    (Unicode:#$331C; Attr:daSquare; Ch1:#$30B1; Ch2:#$30FC; Ch3:#$30B9; Ch4:#$FFFF),   // SQUARE KEESU
-    (Unicode:#$331D; Attr:daSquare; Ch1:#$30B3; Ch2:#$30EB; Ch3:#$30CA; Ch4:#$FFFF),   // SQUARE KORUNA
-    (Unicode:#$331E; Attr:daSquare; Ch1:#$30B3; Ch2:#$30FC; Ch3:#$30DD; Ch4:#$FFFF),   // SQUARE KOOPO
-    (Unicode:#$331F; Attr:daSquare; Ch1:#$30B5; Ch2:#$30A4; Ch3:#$30AF; Ch4:#$30EB; Ch5:#$FFFF),  // SQUARE SAIKURU
+    (Unicode:#$331B; Attr:daSquare; Ch1:#$30AF; Ch2:#$30ED; Ch3:#$30FC; Ch4:#$30CD; Ch5:#$FFFF),   // SQUARE KUROONE
+    (Unicode:#$331C; Attr:daSquare; Ch1:#$30B1; Ch2:#$30FC; Ch3:#$30B9; Ch4:#$FFFF),               // SQUARE KEESU
+    (Unicode:#$331D; Attr:daSquare; Ch1:#$30B3; Ch2:#$30EB; Ch3:#$30CA; Ch4:#$FFFF),               // SQUARE KORUNA
+    (Unicode:#$331E; Attr:daSquare; Ch1:#$30B3; Ch2:#$30FC; Ch3:#$30DD; Ch4:#$FFFF),               // SQUARE KOOPO
+    (Unicode:#$331F; Attr:daSquare; Ch1:#$30B5; Ch2:#$30A4; Ch3:#$30AF; Ch4:#$30EB; Ch5:#$FFFF),   // SQUARE SAIKURU
     (Unicode:#$3320; Attr:daSquare; Ch1:#$30B5; Ch2:#$30F3; Ch3:#$30C1; Ch4:#$30FC; Ch5:#$30E0),   // SQUARE SANTIIMU
-    (Unicode:#$3321; Attr:daSquare; Ch1:#$30B7; Ch2:#$30EA; Ch3:#$30F3; Ch4:#$30B0; Ch5:#$FFFF),  // SQUARE SIRINGU
-    (Unicode:#$3322; Attr:daSquare; Ch1:#$30BB; Ch2:#$30F3; Ch3:#$30C1; Ch4:#$FFFF),   // SQUARE SENTI
-    (Unicode:#$3323; Attr:daSquare; Ch1:#$30BB; Ch2:#$30F3; Ch3:#$30C8; Ch4:#$FFFF),   // SQUARE SENTO
-    (Unicode:#$3324; Attr:daSquare; Ch1:#$30C0; Ch2:#$30FC; Ch3:#$30B9; Ch4:#$FFFF),   // SQUARE DAASU
-    (Unicode:#$3325; Attr:daSquare; Ch1:#$30C7; Ch2:#$30B7; Ch3:#$FFFF),  // SQUARE DESI
-    (Unicode:#$3326; Attr:daSquare; Ch1:#$30C9; Ch2:#$30EB; Ch3:#$FFFF),  // SQUARE DORU
-    (Unicode:#$3327; Attr:daSquare; Ch1:#$30C8; Ch2:#$30F3; Ch3:#$FFFF),  // SQUARE TON
-    (Unicode:#$3328; Attr:daSquare; Ch1:#$30CA; Ch2:#$30CE; Ch3:#$FFFF),  // SQUARE NANO
-    (Unicode:#$3329; Attr:daSquare; Ch1:#$30CE; Ch2:#$30C3; Ch3:#$30C8; Ch4:#$FFFF),   // SQUARE NOTTO
-    (Unicode:#$332A; Attr:daSquare; Ch1:#$30CF; Ch2:#$30A4; Ch3:#$30C4; Ch4:#$FFFF),   // SQUARE HAITU
+    (Unicode:#$3321; Attr:daSquare; Ch1:#$30B7; Ch2:#$30EA; Ch3:#$30F3; Ch4:#$30B0; Ch5:#$FFFF),   // SQUARE SIRINGU
+    (Unicode:#$3322; Attr:daSquare; Ch1:#$30BB; Ch2:#$30F3; Ch3:#$30C1; Ch4:#$FFFF),               // SQUARE SENTI
+    (Unicode:#$3323; Attr:daSquare; Ch1:#$30BB; Ch2:#$30F3; Ch3:#$30C8; Ch4:#$FFFF),               // SQUARE SENTO
+    (Unicode:#$3324; Attr:daSquare; Ch1:#$30C0; Ch2:#$30FC; Ch3:#$30B9; Ch4:#$FFFF),               // SQUARE DAASU
+    (Unicode:#$3325; Attr:daSquare; Ch1:#$30C7; Ch2:#$30B7; Ch3:#$FFFF),                           // SQUARE DESI
+    (Unicode:#$3326; Attr:daSquare; Ch1:#$30C9; Ch2:#$30EB; Ch3:#$FFFF),                           // SQUARE DORU
+    (Unicode:#$3327; Attr:daSquare; Ch1:#$30C8; Ch2:#$30F3; Ch3:#$FFFF),                           // SQUARE TON
+    (Unicode:#$3328; Attr:daSquare; Ch1:#$30CA; Ch2:#$30CE; Ch3:#$FFFF),                           // SQUARE NANO
+    (Unicode:#$3329; Attr:daSquare; Ch1:#$30CE; Ch2:#$30C3; Ch3:#$30C8; Ch4:#$FFFF),               // SQUARE NOTTO
+    (Unicode:#$332A; Attr:daSquare; Ch1:#$30CF; Ch2:#$30A4; Ch3:#$30C4; Ch4:#$FFFF),               // SQUARE HAITU
     (Unicode:#$332B; Attr:daSquare; Ch1:#$30D1; Ch2:#$30FC; Ch3:#$30BB; Ch4:#$30F3; Ch5:#$30C8),   // SQUARE PAASENTO
-    (Unicode:#$332C; Attr:daSquare; Ch1:#$30D1; Ch2:#$30FC; Ch3:#$30C4; Ch4:#$FFFF),   // SQUARE PAATU
-    (Unicode:#$332D; Attr:daSquare; Ch1:#$30D0; Ch2:#$30FC; Ch3:#$30EC; Ch4:#$30EB; Ch5:#$FFFF),  // SQUARE BAARERU
+    (Unicode:#$332C; Attr:daSquare; Ch1:#$30D1; Ch2:#$30FC; Ch3:#$30C4; Ch4:#$FFFF),               // SQUARE PAATU
+    (Unicode:#$332D; Attr:daSquare; Ch1:#$30D0; Ch2:#$30FC; Ch3:#$30EC; Ch4:#$30EB; Ch5:#$FFFF),   // SQUARE BAARERU
     (Unicode:#$332E; Attr:daSquare; Ch1:#$30D4; Ch2:#$30A2; Ch3:#$30B9; Ch4:#$30C8; Ch5:#$30EB),   // SQUARE PIASUTORU
-    (Unicode:#$332F; Attr:daSquare; Ch1:#$30D4; Ch2:#$30AF; Ch3:#$30EB; Ch4:#$FFFF),   // SQUARE PIKURU
-    (Unicode:#$3330; Attr:daSquare; Ch1:#$30D4; Ch2:#$30B3; Ch3:#$FFFF),  // SQUARE PIKO
-    (Unicode:#$3331; Attr:daSquare; Ch1:#$30D3; Ch2:#$30EB; Ch3:#$FFFF),  // SQUARE BIRU
+    (Unicode:#$332F; Attr:daSquare; Ch1:#$30D4; Ch2:#$30AF; Ch3:#$30EB; Ch4:#$FFFF),               // SQUARE PIKURU
+    (Unicode:#$3330; Attr:daSquare; Ch1:#$30D4; Ch2:#$30B3; Ch3:#$FFFF),                           // SQUARE PIKO
+    (Unicode:#$3331; Attr:daSquare; Ch1:#$30D3; Ch2:#$30EB; Ch3:#$FFFF),                           // SQUARE BIRU
     (Unicode:#$3332; Attr:daSquare; Ch1:#$30D5; Ch2:#$30A1; Ch3:#$30E9; Ch4:#$30C3; Ch5:#$30C9),   // SQUARE HUARADDO
-    (Unicode:#$3333; Attr:daSquare; Ch1:#$30D5; Ch2:#$30A3; Ch3:#$30FC; Ch4:#$30C8; Ch5:#$FFFF),  // SQUARE HUIITO
+    (Unicode:#$3333; Attr:daSquare; Ch1:#$30D5; Ch2:#$30A3; Ch3:#$30FC; Ch4:#$30C8; Ch5:#$FFFF),   // SQUARE HUIITO
     (Unicode:#$3334; Attr:daSquare; Ch1:#$30D6; Ch2:#$30C3; Ch3:#$30B7; Ch4:#$30A7; Ch5:#$30EB),   // SQUARE BUSSYERU
-    (Unicode:#$3335; Attr:daSquare; Ch1:#$30D5; Ch2:#$30E9; Ch3:#$30F3; Ch4:#$FFFF),   // SQUARE HURAN
+    (Unicode:#$3335; Attr:daSquare; Ch1:#$30D5; Ch2:#$30E9; Ch3:#$30F3; Ch4:#$FFFF),               // SQUARE HURAN
     (Unicode:#$3336; Attr:daSquare; Ch1:#$30D8; Ch2:#$30AF; Ch3:#$30BF; Ch4:#$30FC; Ch5:#$30EB),   // SQUARE HEKUTAARU
-    (Unicode:#$3337; Attr:daSquare; Ch1:#$30DA; Ch2:#$30BD; Ch3:#$FFFF),  // SQUARE PESO
-    (Unicode:#$3338; Attr:daSquare; Ch1:#$30DA; Ch2:#$30CB; Ch3:#$30D2; Ch4:#$FFFF),   // SQUARE PENIHI
-    (Unicode:#$3339; Attr:daSquare; Ch1:#$30D8; Ch2:#$30EB; Ch3:#$30C4; Ch4:#$FFFF),   // SQUARE HERUTU
-    (Unicode:#$333A; Attr:daSquare; Ch1:#$30DA; Ch2:#$30F3; Ch3:#$30B9; Ch4:#$FFFF),   // SQUARE PENSU
-    (Unicode:#$333B; Attr:daSquare; Ch1:#$30DA; Ch2:#$30FC; Ch3:#$30B8; Ch4:#$FFFF),   // SQUARE PEEZI
-    (Unicode:#$333C; Attr:daSquare; Ch1:#$30D9; Ch2:#$30FC; Ch3:#$30BF; Ch4:#$FFFF),   // SQUARE BEETA
-    (Unicode:#$333D; Attr:daSquare; Ch1:#$30DD; Ch2:#$30A4; Ch3:#$30F3; Ch4:#$30C8; Ch5:#$FFFF),  // SQUARE POINTO
-    (Unicode:#$333E; Attr:daSquare; Ch1:#$30DC; Ch2:#$30EB; Ch3:#$30C8; Ch4:#$FFFF),   // SQUARE BORUTO
-    (Unicode:#$333F; Attr:daSquare; Ch1:#$30DB; Ch2:#$30F3; Ch3:#$FFFF),  // SQUARE HON
-    (Unicode:#$3340; Attr:daSquare; Ch1:#$30DD; Ch2:#$30F3; Ch3:#$30C9; Ch4:#$FFFF),   // SQUARE PONDO
-    (Unicode:#$3341; Attr:daSquare; Ch1:#$30DB; Ch2:#$30FC; Ch3:#$30EB; Ch4:#$FFFF),   // SQUARE HOORU
-    (Unicode:#$3342; Attr:daSquare; Ch1:#$30DB; Ch2:#$30FC; Ch3:#$30F3; Ch4:#$FFFF),   // SQUARE HOON
-    (Unicode:#$3343; Attr:daSquare; Ch1:#$30DE; Ch2:#$30A4; Ch3:#$30AF; Ch4:#$30ED; Ch5:#$FFFF),  // SQUARE MAIKURO
-    (Unicode:#$3344; Attr:daSquare; Ch1:#$30DE; Ch2:#$30A4; Ch3:#$30EB; Ch4:#$FFFF),   // SQUARE MAIRU
-    (Unicode:#$3345; Attr:daSquare; Ch1:#$30DE; Ch2:#$30C3; Ch3:#$30CF; Ch4:#$FFFF),   // SQUARE MAHHA
-    (Unicode:#$3346; Attr:daSquare; Ch1:#$30DE; Ch2:#$30EB; Ch3:#$30AF; Ch4:#$FFFF),   // SQUARE MARUKU
+    (Unicode:#$3337; Attr:daSquare; Ch1:#$30DA; Ch2:#$30BD; Ch3:#$FFFF),                           // SQUARE PESO
+    (Unicode:#$3338; Attr:daSquare; Ch1:#$30DA; Ch2:#$30CB; Ch3:#$30D2; Ch4:#$FFFF),               // SQUARE PENIHI
+    (Unicode:#$3339; Attr:daSquare; Ch1:#$30D8; Ch2:#$30EB; Ch3:#$30C4; Ch4:#$FFFF),               // SQUARE HERUTU
+    (Unicode:#$333A; Attr:daSquare; Ch1:#$30DA; Ch2:#$30F3; Ch3:#$30B9; Ch4:#$FFFF),               // SQUARE PENSU
+    (Unicode:#$333B; Attr:daSquare; Ch1:#$30DA; Ch2:#$30FC; Ch3:#$30B8; Ch4:#$FFFF),               // SQUARE PEEZI
+    (Unicode:#$333C; Attr:daSquare; Ch1:#$30D9; Ch2:#$30FC; Ch3:#$30BF; Ch4:#$FFFF),               // SQUARE BEETA
+    (Unicode:#$333D; Attr:daSquare; Ch1:#$30DD; Ch2:#$30A4; Ch3:#$30F3; Ch4:#$30C8; Ch5:#$FFFF),   // SQUARE POINTO
+    (Unicode:#$333E; Attr:daSquare; Ch1:#$30DC; Ch2:#$30EB; Ch3:#$30C8; Ch4:#$FFFF),               // SQUARE BORUTO
+    (Unicode:#$333F; Attr:daSquare; Ch1:#$30DB; Ch2:#$30F3; Ch3:#$FFFF),                           // SQUARE HON
+    (Unicode:#$3340; Attr:daSquare; Ch1:#$30DD; Ch2:#$30F3; Ch3:#$30C9; Ch4:#$FFFF),               // SQUARE PONDO
+    (Unicode:#$3341; Attr:daSquare; Ch1:#$30DB; Ch2:#$30FC; Ch3:#$30EB; Ch4:#$FFFF),               // SQUARE HOORU
+    (Unicode:#$3342; Attr:daSquare; Ch1:#$30DB; Ch2:#$30FC; Ch3:#$30F3; Ch4:#$FFFF),               // SQUARE HOON
+    (Unicode:#$3343; Attr:daSquare; Ch1:#$30DE; Ch2:#$30A4; Ch3:#$30AF; Ch4:#$30ED; Ch5:#$FFFF),   // SQUARE MAIKURO
+    (Unicode:#$3344; Attr:daSquare; Ch1:#$30DE; Ch2:#$30A4; Ch3:#$30EB; Ch4:#$FFFF),               // SQUARE MAIRU
+    (Unicode:#$3345; Attr:daSquare; Ch1:#$30DE; Ch2:#$30C3; Ch3:#$30CF; Ch4:#$FFFF),               // SQUARE MAHHA
+    (Unicode:#$3346; Attr:daSquare; Ch1:#$30DE; Ch2:#$30EB; Ch3:#$30AF; Ch4:#$FFFF),               // SQUARE MARUKU
     (Unicode:#$3347; Attr:daSquare; Ch1:#$30DE; Ch2:#$30F3; Ch3:#$30B7; Ch4:#$30E7; Ch5:#$30F3),   // SQUARE MANSYON
-    (Unicode:#$3348; Attr:daSquare; Ch1:#$30DF; Ch2:#$30AF; Ch3:#$30ED; Ch4:#$30F3; Ch5:#$FFFF),  // SQUARE MIKURON
-    (Unicode:#$3349; Attr:daSquare; Ch1:#$30DF; Ch2:#$30EA; Ch3:#$FFFF),  // SQUARE MIRI
+    (Unicode:#$3348; Attr:daSquare; Ch1:#$30DF; Ch2:#$30AF; Ch3:#$30ED; Ch4:#$30F3; Ch5:#$FFFF),   // SQUARE MIKURON
+    (Unicode:#$3349; Attr:daSquare; Ch1:#$30DF; Ch2:#$30EA; Ch3:#$FFFF),                           // SQUARE MIRI
     (Unicode:#$334A; Attr:daSquare; Ch1:#$30DF; Ch2:#$30EA; Ch3:#$30D0; Ch4:#$30FC; Ch5:#$30EB),   // SQUARE MIRIBAARU
-    (Unicode:#$334B; Attr:daSquare; Ch1:#$30E1; Ch2:#$30AC; Ch3:#$FFFF),  // SQUARE MEGA
-    (Unicode:#$334C; Attr:daSquare; Ch1:#$30E1; Ch2:#$30AC; Ch3:#$30C8; Ch4:#$30F3; Ch5:#$FFFF),  // SQUARE MEGATON
-    (Unicode:#$334D; Attr:daSquare; Ch1:#$30E1; Ch2:#$30FC; Ch3:#$30C8; Ch4:#$30EB; Ch5:#$FFFF),  // SQUARE MEETORU
-    (Unicode:#$334E; Attr:daSquare; Ch1:#$30E4; Ch2:#$30FC; Ch3:#$30C9; Ch4:#$FFFF),   // SQUARE YAADO
-    (Unicode:#$334F; Attr:daSquare; Ch1:#$30E4; Ch2:#$30FC; Ch3:#$30EB; Ch4:#$FFFF),   // SQUARE YAARU
-    (Unicode:#$3350; Attr:daSquare; Ch1:#$30E6; Ch2:#$30A2; Ch3:#$30F3; Ch4:#$FFFF),   // SQUARE YUAN
-    (Unicode:#$3351; Attr:daSquare; Ch1:#$30EA; Ch2:#$30C3; Ch3:#$30C8; Ch4:#$30EB; Ch5:#$FFFF),  // SQUARE RITTORU
-    (Unicode:#$3352; Attr:daSquare; Ch1:#$30EA; Ch2:#$30E9; Ch3:#$FFFF),  // SQUARE RIRA
-    (Unicode:#$3353; Attr:daSquare; Ch1:#$30EB; Ch2:#$30D4; Ch3:#$30FC; Ch4:#$FFFF),   // SQUARE RUPII
-    (Unicode:#$3354; Attr:daSquare; Ch1:#$30EB; Ch2:#$30FC; Ch3:#$30D6; Ch4:#$30EB; Ch5:#$FFFF),  // SQUARE RUUBURU
-    (Unicode:#$3355; Attr:daSquare; Ch1:#$30EC; Ch2:#$30E0; Ch3:#$FFFF),  // SQUARE REMU
+    (Unicode:#$334B; Attr:daSquare; Ch1:#$30E1; Ch2:#$30AC; Ch3:#$FFFF),                           // SQUARE MEGA
+    (Unicode:#$334C; Attr:daSquare; Ch1:#$30E1; Ch2:#$30AC; Ch3:#$30C8; Ch4:#$30F3; Ch5:#$FFFF),   // SQUARE MEGATON
+    (Unicode:#$334D; Attr:daSquare; Ch1:#$30E1; Ch2:#$30FC; Ch3:#$30C8; Ch4:#$30EB; Ch5:#$FFFF),   // SQUARE MEETORU
+    (Unicode:#$334E; Attr:daSquare; Ch1:#$30E4; Ch2:#$30FC; Ch3:#$30C9; Ch4:#$FFFF),               // SQUARE YAADO
+    (Unicode:#$334F; Attr:daSquare; Ch1:#$30E4; Ch2:#$30FC; Ch3:#$30EB; Ch4:#$FFFF),               // SQUARE YAARU
+    (Unicode:#$3350; Attr:daSquare; Ch1:#$30E6; Ch2:#$30A2; Ch3:#$30F3; Ch4:#$FFFF),               // SQUARE YUAN
+    (Unicode:#$3351; Attr:daSquare; Ch1:#$30EA; Ch2:#$30C3; Ch3:#$30C8; Ch4:#$30EB; Ch5:#$FFFF),   // SQUARE RITTORU
+    (Unicode:#$3352; Attr:daSquare; Ch1:#$30EA; Ch2:#$30E9; Ch3:#$FFFF),                           // SQUARE RIRA
+    (Unicode:#$3353; Attr:daSquare; Ch1:#$30EB; Ch2:#$30D4; Ch3:#$30FC; Ch4:#$FFFF),               // SQUARE RUPII
+    (Unicode:#$3354; Attr:daSquare; Ch1:#$30EB; Ch2:#$30FC; Ch3:#$30D6; Ch4:#$30EB; Ch5:#$FFFF),   // SQUARE RUUBURU
+    (Unicode:#$3355; Attr:daSquare; Ch1:#$30EC; Ch2:#$30E0; Ch3:#$FFFF),                           // SQUARE REMU
     (Unicode:#$3356; Attr:daSquare; Ch1:#$30EC; Ch2:#$30F3; Ch3:#$30C8; Ch4:#$30B2; Ch5:#$30F3),   // SQUARE RENTOGEN
-    (Unicode:#$3357; Attr:daSquare; Ch1:#$30EF; Ch2:#$30C3; Ch3:#$30C8; Ch4:#$FFFF),   // SQUARE WATTO
+    (Unicode:#$3357; Attr:daSquare; Ch1:#$30EF; Ch2:#$30C3; Ch3:#$30C8; Ch4:#$FFFF),               // SQUARE WATTO
     (Unicode:#$3358; Attr:daCompat; Ch1:#$0030; Ch2:#$70B9; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR HOUR ZERO
     (Unicode:#$3359; Attr:daCompat; Ch1:#$0031; Ch2:#$70B9; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR HOUR ONE
     (Unicode:#$335A; Attr:daCompat; Ch1:#$0032; Ch2:#$70B9; Ch3:#$FFFF),  // IDEOGRAPHIC TELEGRAPH SYMBOL FOR HOUR TWO
@@ -6013,9 +6299,9 @@ const
     (Unicode:#$FA2B; Attr:daNone; Ch1:#$98FC; Ch2:#$FFFF),                // CJK COMPATIBILITY IDEOGRAPH-FA2B
     (Unicode:#$FA2C; Attr:daNone; Ch1:#$9928; Ch2:#$FFFF),                // CJK COMPATIBILITY IDEOGRAPH-FA2C
     (Unicode:#$FA2D; Attr:daNone; Ch1:#$9DB4; Ch2:#$FFFF),                // CJK COMPATIBILITY IDEOGRAPH-FA2D
-    (Unicode:#$FB00; Attr:daCompat; Ch1:#$0066; Ch2:#$0066; Ch3:#$FFFF),  // LATIN SMALL LIGATURE FF
-    (Unicode:#$FB01; Attr:daCompat; Ch1:#$0066; Ch2:#$0069; Ch3:#$FFFF),  // LATIN SMALL LIGATURE FI
-    (Unicode:#$FB02; Attr:daCompat; Ch1:#$0066; Ch2:#$006C; Ch3:#$FFFF),  // LATIN SMALL LIGATURE FL
+    (Unicode:#$FB00; Attr:daCompat; Ch1:#$0066; Ch2:#$0066; Ch3:#$FFFF),               // LATIN SMALL LIGATURE FF
+    (Unicode:#$FB01; Attr:daCompat; Ch1:#$0066; Ch2:#$0069; Ch3:#$FFFF),               // LATIN SMALL LIGATURE FI
+    (Unicode:#$FB02; Attr:daCompat; Ch1:#$0066; Ch2:#$006C; Ch3:#$FFFF),               // LATIN SMALL LIGATURE FL
     (Unicode:#$FB03; Attr:daCompat; Ch1:#$0066; Ch2:#$0066; Ch3:#$0069; Ch4:#$FFFF),   // LATIN SMALL LIGATURE FFI
     (Unicode:#$FB04; Attr:daCompat; Ch1:#$0066; Ch2:#$0066; Ch3:#$006C; Ch4:#$FFFF),   // LATIN SMALL LIGATURE FFL
     (Unicode:#$FB05; Attr:daCompat; Ch1:#$017F; Ch2:#$0074; Ch3:#$FFFF),  // LATIN SMALL LIGATURE LONG S T
@@ -6307,12 +6593,12 @@ const
     (Unicode:#$FC5B; Attr:daIsolated; Ch1:#$0630; Ch2:#$0670; Ch3:#$FFFF),// ARABIC LIGATURE THAL WITH SUPERSCRIPT ALEF ISOLATED FORM
     (Unicode:#$FC5C; Attr:daIsolated; Ch1:#$0631; Ch2:#$0670; Ch3:#$FFFF),// ARABIC LIGATURE REH WITH SUPERSCRIPT ALEF ISOLATED FORM
     (Unicode:#$FC5D; Attr:daIsolated; Ch1:#$0649; Ch2:#$0670; Ch3:#$FFFF),// ARABIC LIGATURE ALEF MAKSURA WITH SUPERSCRIPT ALEF ISOLATED FORM
-    (Unicode:#$FC5E; Attr:daIsolated; Ch1:#$0020; Ch2:#$064C; Ch3:#$0651; Ch4:#$FFFF), // ARABIC LIGATURE SHADDA WITH DAMMATAN ISOLATED FORM
-    (Unicode:#$FC5F; Attr:daIsolated; Ch1:#$0020; Ch2:#$064D; Ch3:#$0651; Ch4:#$FFFF), // ARABIC LIGATURE SHADDA WITH KASRATAN ISOLATED FORM
-    (Unicode:#$FC60; Attr:daIsolated; Ch1:#$0020; Ch2:#$064E; Ch3:#$0651; Ch4:#$FFFF), // ARABIC LIGATURE SHADDA WITH FATHA ISOLATED FORM
-    (Unicode:#$FC61; Attr:daIsolated; Ch1:#$0020; Ch2:#$064F; Ch3:#$0651; Ch4:#$FFFF), // ARABIC LIGATURE SHADDA WITH DAMMA ISOLATED FORM
-    (Unicode:#$FC62; Attr:daIsolated; Ch1:#$0020; Ch2:#$0650; Ch3:#$0651; Ch4:#$FFFF), // ARABIC LIGATURE SHADDA WITH KASRA ISOLATED FORM
-    (Unicode:#$FC63; Attr:daIsolated; Ch1:#$0020; Ch2:#$0651; Ch3:#$0670; Ch4:#$FFFF), // ARABIC LIGATURE SHADDA WITH SUPERSCRIPT ALEF ISOLATED FORM
+    (Unicode:#$FC5E; Attr:daIsolated; Ch1:#$0020; Ch2:#$064C; Ch3:#$0651; Ch4:#$FFFF),  // ARABIC LIGATURE SHADDA WITH DAMMATAN ISOLATED FORM
+    (Unicode:#$FC5F; Attr:daIsolated; Ch1:#$0020; Ch2:#$064D; Ch3:#$0651; Ch4:#$FFFF),  // ARABIC LIGATURE SHADDA WITH KASRATAN ISOLATED FORM
+    (Unicode:#$FC60; Attr:daIsolated; Ch1:#$0020; Ch2:#$064E; Ch3:#$0651; Ch4:#$FFFF),  // ARABIC LIGATURE SHADDA WITH FATHA ISOLATED FORM
+    (Unicode:#$FC61; Attr:daIsolated; Ch1:#$0020; Ch2:#$064F; Ch3:#$0651; Ch4:#$FFFF),  // ARABIC LIGATURE SHADDA WITH DAMMA ISOLATED FORM
+    (Unicode:#$FC62; Attr:daIsolated; Ch1:#$0020; Ch2:#$0650; Ch3:#$0651; Ch4:#$FFFF),  // ARABIC LIGATURE SHADDA WITH KASRA ISOLATED FORM
+    (Unicode:#$FC63; Attr:daIsolated; Ch1:#$0020; Ch2:#$0651; Ch3:#$0670; Ch4:#$FFFF),  // ARABIC LIGATURE SHADDA WITH SUPERSCRIPT ALEF ISOLATED FORM
     (Unicode:#$FC64; Attr:daFinal; Ch1:#$0626; Ch2:#$0631; Ch3:#$FFFF),   // ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH REH FINAL FORM
     (Unicode:#$FC65; Attr:daFinal; Ch1:#$0626; Ch2:#$0632; Ch3:#$FFFF),   // ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH ZAIN FINAL FORM
     (Unicode:#$FC66; Attr:daFinal; Ch1:#$0626; Ch2:#$0645; Ch3:#$FFFF),   // ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH MEEM FINAL FORM
@@ -6651,13 +6937,13 @@ const
     (Unicode:#$FDC7; Attr:daFinal; Ch1:#$0646; Ch2:#$062C; Ch3:#$064A; Ch4:#$FFFF),    // ARABIC LIGATURE NOON WITH JEEM WITH YEH FINAL FORM
     (Unicode:#$FDF0; Attr:daIsolated; Ch1:#$0635; Ch2:#$0644; Ch3:#$06D2; Ch4:#$FFFF), // ARABIC LIGATURE SALLA USED AS KORANIC STOP SIGN ISOLATED FORM
     (Unicode:#$FDF1; Attr:daIsolated; Ch1:#$0642; Ch2:#$0644; Ch3:#$06D2; Ch4:#$FFFF), // ARABIC LIGATURE QALA USED AS KORANIC STOP SIGN ISOLATED FORM
-    (Unicode:#$FDF2; Attr:daIsolated; Ch1:#$0627; Ch2:#$0644; Ch3:#$0644; Ch4:#$0647; Ch5:#$FFFF),// ARABIC LIGATURE ALLAH ISOLATED FORM
-    (Unicode:#$FDF3; Attr:daIsolated; Ch1:#$0627; Ch2:#$0643; Ch3:#$0628; Ch4:#$0631; Ch5:#$FFFF),// ARABIC LIGATURE AKBAR ISOLATED FORM
-    (Unicode:#$FDF4; Attr:daIsolated; Ch1:#$0645; Ch2:#$062D; Ch3:#$0645; Ch4:#$062F; Ch5:#$FFFF),// ARABIC LIGATURE MOHAMMAD ISOLATED FORM
-    (Unicode:#$FDF5; Attr:daIsolated; Ch1:#$0635; Ch2:#$0644; Ch3:#$0639; Ch4:#$0645; Ch5:#$FFFF),// ARABIC LIGATURE SALAM ISOLATED FORM
-    (Unicode:#$FDF6; Attr:daIsolated; Ch1:#$0631; Ch2:#$0633; Ch3:#$0648; Ch4:#$0644; Ch5:#$FFFF),// ARABIC LIGATURE RASOUL ISOLATED FORM
-    (Unicode:#$FDF7; Attr:daIsolated; Ch1:#$0639; Ch2:#$0644; Ch3:#$064A; Ch4:#$0647; Ch5:#$FFFF),// ARABIC LIGATURE ALAYHE ISOLATED FORM
-    (Unicode:#$FDF8; Attr:daIsolated; Ch1:#$0648; Ch2:#$0633; Ch3:#$0644; Ch4:#$0645; Ch5:#$FFFF),// ARABIC LIGATURE WASALLAM ISOLATED FORM
+    (Unicode:#$FDF2; Attr:daIsolated; Ch1:#$0627; Ch2:#$0644; Ch3:#$0644; Ch4:#$0647; Ch5:#$FFFF),  // ARABIC LIGATURE ALLAH ISOLATED FORM
+    (Unicode:#$FDF3; Attr:daIsolated; Ch1:#$0627; Ch2:#$0643; Ch3:#$0628; Ch4:#$0631; Ch5:#$FFFF),  // ARABIC LIGATURE AKBAR ISOLATED FORM
+    (Unicode:#$FDF4; Attr:daIsolated; Ch1:#$0645; Ch2:#$062D; Ch3:#$0645; Ch4:#$062F; Ch5:#$FFFF),  // ARABIC LIGATURE MOHAMMAD ISOLATED FORM
+    (Unicode:#$FDF5; Attr:daIsolated; Ch1:#$0635; Ch2:#$0644; Ch3:#$0639; Ch4:#$0645; Ch5:#$FFFF),  // ARABIC LIGATURE SALAM ISOLATED FORM
+    (Unicode:#$FDF6; Attr:daIsolated; Ch1:#$0631; Ch2:#$0633; Ch3:#$0648; Ch4:#$0644; Ch5:#$FFFF),  // ARABIC LIGATURE RASOUL ISOLATED FORM
+    (Unicode:#$FDF7; Attr:daIsolated; Ch1:#$0639; Ch2:#$0644; Ch3:#$064A; Ch4:#$0647; Ch5:#$FFFF),  // ARABIC LIGATURE ALAYHE ISOLATED FORM
+    (Unicode:#$FDF8; Attr:daIsolated; Ch1:#$0648; Ch2:#$0633; Ch3:#$0644; Ch4:#$0645; Ch5:#$FFFF),  // ARABIC LIGATURE WASALLAM ISOLATED FORM
     (Unicode:#$FDF9; Attr:daIsolated; Ch1:#$0635; Ch2:#$0644; Ch3:#$0649; Ch4:#$FFFF), // ARABIC LIGATURE SALLA ISOLATED FORM
     (Unicode:#$FE30; Attr:daVertical; Ch1:#$2025; Ch2:#$FFFF),            // PRESENTATION FORM FOR VERTICAL TWO DOT LEADER
     (Unicode:#$FE31; Attr:daVertical; Ch1:#$2014; Ch2:#$FFFF),            // PRESENTATION FORM FOR VERTICAL EM DASH
@@ -7105,6 +7391,46 @@ begin
   Result := -1;
 end;
 
+{$IFDEF DOT_NET}
+function GetCharacterDecomposition(const Ch: WideChar): WideString;
+var I, J : Integer;
+begin
+  I := LocateDecompositionInfo(Ch);
+  if I < 0 then
+    // Exceptionally long decompositions not stored in table
+    Case Ch of
+      #$3316 : Result := #$30AD#$30ED#$30E1#$30FC#$30C8#$30EB;             // SQUARE KIROMEETORU
+      #$33AF : Result := #$0072#$0061#$0064#$2215#$0073#$00B2;             // SQUARE RAD OVER S SQUARED
+      #$FDFA : Result := #$0635#$0644#$0649#$0020#$0627#$0644#$0644#$0647#$0020#$0639#$0644#$064A#$0647#$0020#$0648#$0633#$0644#$0645; // ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM
+      #$FDFB : Result := #$062C#$0644#$0020#$062C#$0644#$0627#$0644#$0647; // ARABIC LIGATURE JALLAJALALOUHOU
+    else
+      Result := '';
+    end
+  else
+    begin
+      if UnicodeDecompositionInfo[I].Ch2 = #$FFFF then
+        J := 1 else
+      if UnicodeDecompositionInfo[I].Ch3 = #$FFFF then
+        J := 2 else
+      if UnicodeDecompositionInfo[I].Ch4 = #$FFFF then
+        J := 3 else
+      if UnicodeDecompositionInfo[I].Ch5 = #$FFFF then
+        J := 4
+      else
+        J := 5;
+      SetLength(Result, J);
+      Result[1] := UnicodeDecompositionInfo[I].Ch1;
+      if J > 1 then
+        Result[2] := UnicodeDecompositionInfo[I].Ch2;
+      if J > 2 then
+        Result[3] := UnicodeDecompositionInfo[I].Ch3;
+      if J > 3 then
+        Result[4] := UnicodeDecompositionInfo[I].Ch4;
+      if J > 4 then
+        Result[5] := UnicodeDecompositionInfo[I].Ch5;
+    end;
+end;
+{$ELSE}
 function GetCharacterDecomposition(const Ch: WideChar): WideString;
 var I, J : Integer;
     P, Q : PWideChar;
@@ -7142,6 +7468,7 @@ begin
         end;
     end;
 end;
+{$ENDIF}
 
 type
   TUnicodeUCS4DecompositionInfo = packed record
@@ -8175,6 +8502,51 @@ begin
   Result := -1;
 end;
 
+{$IFDEF DOT_NET}
+function GetCharacterDecomposition(const Ch: UCS4Char): WideString;
+var I : Integer;
+    P : TUnicodeUCS4DecompositionInfo;
+begin
+  if Ch < $10000 then
+    Result := GetCharacterDecomposition(WideChar(Ch))
+  else
+    begin
+      if Ch and $FFF00 = $1D100 then // UCS4 decompositions
+        begin
+          (*
+              (Unicode:$1D15E; Attr:daNone; Ch1:#$1D157; Ch2:#$1D165),     // MUSICAL SYMBOL HALF NOTE
+              (Unicode:$1D15F; Attr:daNone; Ch1:#$1D158; Ch2:#$1D165),     // MUSICAL SYMBOL QUARTER NOTE
+              (Unicode:$1D160; Attr:daNone; Ch1:#$1D15F; Ch2:#$1D16E),     // MUSICAL SYMBOL EIGHTH NOTE
+              (Unicode:$1D161; Attr:daNone; Ch1:#$1D15F; Ch2:#$1D16F),     // MUSICAL SYMBOL SIXTEENTH NOTE
+              (Unicode:$1D162; Attr:daNone; Ch1:#$1D15F; Ch2:#$1D170),     // MUSICAL SYMBOL THIRTY-SECOND NOTE
+              (Unicode:$1D163; Attr:daNone; Ch1:#$1D15F; Ch2:#$1D171),     // MUSICAL SYMBOL SIXTY-FOURTH NOTE
+              (Unicode:$1D164; Attr:daNone; Ch1:#$1D15F; Ch2:#$1D172),     // MUSICAL SYMBOL ONE HUNDRED TWENTY-EIGHTH NOTE
+              (Unicode:$1D1BB; Attr:daNone; Ch1:#$1D1B9; Ch2:#$1D165),     // MUSICAL SYMBOL MINIMA
+              (Unicode:$1D1BC; Attr:daNone; Ch1:#$1D1BA; Ch2:#$1D165),     // MUSICAL SYMBOL MINIMA BLACK
+              (Unicode:$1D1BD; Attr:daNone; Ch1:#$1D1BB; Ch2:#$1D16E),     // MUSICAL SYMBOL SEMIMINIMA WHITE
+              (Unicode:$1D1BE; Attr:daNone; Ch1:#$1D1BC; Ch2:#$1D16E),     // MUSICAL SYMBOL SEMIMINIMA BLACK
+              (Unicode:$1D1BF; Attr:daNone; Ch1:#$1D1BB; Ch2:#$1D16F),     // MUSICAL SYMBOL FUSA WHITE
+              (Unicode:$1D1C0; Attr:daNone; Ch1:#$1D1BC; Ch2:#$1D16F),     // MUSICAL SYMBOL FUSA BLACK
+          *)
+        end;
+      I := LocateHighUCS4DecompositionInfo(Ch);
+      if I < 0 then
+        Result := ''
+      else
+        begin
+          P := UnicodeUCS4DecompositionInfo[I];
+          if P.Ch2 = #$FFFF then
+            Result := P.Ch1
+          else
+            begin
+              SetLength(Result, 2);
+              Result[1] := P.Ch1;
+              Result[2] := P.Ch2;
+            end;
+        end;
+    end;
+end;
+{$ELSE}
 function GetCharacterDecomposition(const Ch: UCS4Char): WideString;
 var I : Integer;
     P : PUnicodeUCS4DecompositionInfo;
@@ -8218,6 +8590,932 @@ begin
         end;
     end;
 end;
+{$ENDIF}
+
+
+
+{                                                                              }
+{ Match                                                                        }
+{                                                                              }
+function WideMatchAnsiCharNoCase(const M: AnsiChar; const C: WideChar): Boolean;
+const ASCIICaseOffset = Ord('a') - Ord('A');
+var D, N : AnsiChar;
+begin
+  if Ord(C) > $7F then
+    begin
+      Result := False;
+      exit;
+    end;
+  D := AnsiChar(Ord(C));
+  if D in ['A'..'Z'] then
+    D := AnsiChar(Ord(D) + ASCIICaseOffset);
+  N := M;
+  if N in ['A'..'Z'] then
+    N := AnsiChar(Ord(N) + ASCIICaseOffset);
+  Result := D = N;
+end;
+
+{$IFNDEF DOT_NET}
+function WidePMatchChars(const CharMatchFunc: WideCharMatchFunction;
+    const P: PWideChar; const Length: Integer): Integer;
+var Q : PWideChar;
+    L : Integer;
+    C : WideChar;
+begin
+  Result := 0;
+  Q := P;
+  L := Length;
+  if not Assigned(Q) or (L = 0) then
+    exit;
+  C := Q^;
+  if (L < 0) and (Ord(C) = 0) then
+    exit;
+  Repeat
+    if not CharMatchFunc(C) then
+      exit;
+    Inc(Result);
+    Inc(Q);
+    if L > 0 then
+      Dec(L);
+    C := Q^;
+  Until (L = 0) or ((L < 0) and (Ord(C) = 0));
+end;
+
+function WidePMatchCharsRev(const CharMatchFunc: WideCharMatchFunction;
+    const P: PWideChar; const Length: Integer): Integer;
+var Q : PWideChar;
+    L : Integer;
+    C : WideChar;
+begin
+  Result := 0;
+  Q := P;
+  L := Length;
+  if not Assigned(Q) or (L = 0) then
+    exit;
+  Inc(Q, L - 1);
+  C := Q^;
+  if (L < 0) and (Ord(C) = 0) then
+    exit;
+  Repeat
+    if not CharMatchFunc(C) then
+      exit;
+    Inc(Result);
+    Dec(Q);
+    if L < 0 then
+      C := Q^ else
+      begin
+        Dec(L);
+        if L > 0 then
+          C := Q^;
+      end;
+  Until (L = 0) or ((L < 0) and (Ord(C) = 0));
+end;
+
+function WidePMatchAllChars(const CharMatchFunc: WideCharMatchFunction; const P: PWideChar; const Length: Integer): Integer;
+var Q : PWideChar;
+    L : Integer;
+    C : WideChar;
+begin
+  Result := 0;
+  Q := P;
+  L := Length;
+  if not Assigned(Q) or (L = 0) then
+    exit;
+  C := Q^;
+  if (L < 0) and (Ord(C) = 0) then
+    exit;
+  Repeat
+    if CharMatchFunc(C) then
+      Inc(Result);
+    Inc(Q);
+    if L > 0 then
+      Dec(L);
+    C := Q^;
+  Until (L = 0) or ((L < 0) and (Ord(C) = 0));
+end;
+
+function WidePMatchAnsiStr(const M: AnsiString; const P: PWideChar;
+    const CaseSensitive: Boolean): Boolean;
+var I, L : Integer;
+    Q : PWideChar;
+    R : PAnsiChar;
+begin
+  L := Length(M);
+  if L = 0 then
+    begin
+      Result := False;
+      exit;
+    end;
+  R := Pointer(M);
+  Q := P;
+  if CaseSensitive then
+    begin
+      For I := 1 to L do
+        if Ord(R^) <> Ord(Q^) then
+          begin
+            Result := False;
+            exit;
+          end else
+          begin
+            Inc(R);
+            Inc(Q);
+          end;
+    end else
+    begin
+      For I := 1 to L do
+        if not WideMatchAnsiCharNoCase(R^, Q^) then
+          begin
+            Result := False;
+            exit;
+          end else
+          begin
+            Inc(R);
+            Inc(Q);
+          end;
+    end;
+  Result := True;
+end;
+
+function WidePMatch(const M: WideString; const P: PWideChar): Boolean;
+var I, L : Integer;
+    Q, R : PWideChar;
+begin
+  L := Length(M);
+  if L = 0 then
+    begin
+      Result := False;
+      exit;
+    end;
+  R := Pointer(M);
+  Q := P;
+  For I := 1 to L do
+    if R^ <> Q^ then
+      begin
+        Result := False;
+        exit;
+      end else
+      begin
+        Inc(R);
+        Inc(Q);
+      end;
+  Result := True;
+end;
+{$ENDIF}
+
+function WideEqualAnsiStr(const M: AnsiString; const S: WideString;
+    const CaseSensitive: Boolean): Boolean;
+var L : Integer;
+begin
+  L := Length(M);
+  Result := L = Length(S);
+  if not Result or (L = 0) then
+    exit;
+  Result := WidePMatchAnsiStr(M, Pointer(S), CaseSensitive);
+end;
+
+function WideMatchLeftAnsiStr(const M: AnsiString; const S: WideString;
+    const CaseSensitive: Boolean): Boolean;
+var L, N : Integer;
+begin
+  L := Length(M);
+  N := Length(S);
+  if (L = 0) or (N = 0) or (L > N) then
+    begin
+      Result := False;
+      exit;
+    end;
+  Result := WidePMatchAnsiStr(M, Pointer(S), CaseSensitive);
+end;
+
+
+
+{                                                                              }
+{ Pos                                                                          }
+{                                                                              }
+{$IFNDEF DOT_NET}
+function WideZPosAnsiChar(const F: AnsiChar; const P: PWideChar): Integer;
+var Q : PWideChar;
+    I : Integer;
+begin
+  Result := -1;
+  Q := P;
+  if not Assigned(Q) then
+    exit;
+  I := 0;
+  While Ord(Q^) <> 0 do
+    if Ord(Q^) = Ord(F) then
+      begin
+        Result := I;
+        exit;
+      end else
+      begin
+        Inc(Q);
+        Inc(I);
+      end;
+end;
+
+function WideZPosAnsiCharSet(const F: AnsiCharSet; const P: PWideChar): Integer;
+var Q : PWideChar;
+    I : Integer;
+begin
+  Result := -1;
+  Q := P;
+  if not Assigned(Q) then
+    exit;
+  I := 0;
+  While Ord(Q^) <> 0 do
+    if (Ord(Q^) < $80) and (Char(Ord(Q^)) in F) then
+      begin
+        Result := I;
+        exit;
+      end else
+      begin
+        Inc(Q);
+        Inc(I);
+      end;
+end;
+
+function WideZPosChar(const F: WideChar; const P: PWideChar): Integer;
+var Q : PWideChar;
+    I : Integer;
+begin
+  Result := -1;
+  Q := P;
+  if not Assigned(Q) then
+    exit;
+  I := 0;
+  While Ord(Q^) <> 0 do
+    if Q^ = F then
+      begin
+        Result := I;
+        exit;
+      end else
+      begin
+        Inc(Q);
+        Inc(I);
+      end;
+end;
+
+function WideZPosAnsiStr(const F: AnsiString; const P: PWideChar; const CaseSensitive: Boolean): Integer;
+var Q : PWideChar;
+    I : Integer;
+begin
+  Result := -1;
+  Q := P;
+  if not Assigned(Q) then
+    exit;
+  I := 0;
+  While Ord(Q^) <> 0 do
+    if WidePMatchAnsiStr(F, Q, CaseSensitive) then
+      begin
+        Result := I;
+        exit;
+      end else
+      begin
+        Inc(Q);
+        Inc(I);
+      end;
+end;
+{$ENDIF}
+
+
+
+{                                                                              }
+{ Skip                                                                         }
+{                                                                              }
+{$IFNDEF DOT_NET}
+function WideZSkipChar(const CharMatchFunc: WideCharMatchFunction; var P: PWideChar): Boolean;
+var C : WideChar;
+begin
+  Assert(Assigned(CharMatchFunc));
+  C := P^;
+  if Ord(C) = 0 then
+    begin
+      Result := False;
+      exit;
+    end;
+  Result := CharMatchFunc(C);
+  if Result then
+    Inc(P);
+end;
+
+function WideZSkipChars(const CharMatchFunc: WideCharMatchFunction; var P: PWideChar): Integer;
+var C : WideChar;
+begin
+  Assert(Assigned(CharMatchFunc));
+  Result := 0;
+  if not Assigned(P) then
+    exit;
+  C := P^;
+  While Ord(C) <> 0 do
+    if not CharMatchFunc(C) then
+      exit
+    else
+      begin
+        Inc(P);
+        Inc(Result);
+        C := P^;
+      end;
+end;
+
+function WidePSkipAnsiChar(const Ch: AnsiChar; var P: PWideChar): Boolean;
+begin
+  Result := Ord(P^) = Ord(Ch);
+  if Result then
+    Inc(P);
+end;
+
+function WidePSkipAnsiStr(const M: AnsiString; var P: PWideChar; const CaseSensitive: Boolean): Boolean;
+begin
+  Result := WidePMatchAnsiStr(M, P, CaseSensitive);
+  if Result then
+    Inc(P, Length(M));
+end;
+{$ENDIF}
+
+
+
+{                                                                              }
+{ Extract                                                                      }
+{                                                                              }
+{$IFNDEF DOT_NET}
+function WideZExtractBeforeChar(const Ch: WideChar; var P: PWideChar; var S: WideString): Boolean;
+var I : Integer;
+begin
+  I := WideZPosChar(Ch, P);
+  Result := I >= 0;
+  if I <= 0 then
+    begin
+      S := '';
+      exit;
+    end;
+  SetLength(S, I);
+  Move(P^, Pointer(S)^, I * Sizeof(WideChar));
+  Inc(P, I);
+end;
+
+function WideZExtractBeforeAnsiChar(const Ch: AnsiChar; var P: PWideChar; var S: WideString): Boolean;
+var I : Integer;
+begin
+  I := WideZPosAnsiChar(Ch, P);
+  Result := I >= 0;
+  if I <= 0 then
+    begin
+      S := '';
+      exit;
+    end;
+  SetLength(S, I);
+  Move(P^, Pointer(S)^, I * Sizeof(WideChar));
+  Inc(P, I);
+end;
+
+function WideZExtractBeforeAnsiCharSet(const C: AnsiCharSet; var P: PWideChar; var S: WideString): Boolean;
+var I : Integer;
+begin
+  I := WideZPosAnsiCharSet(C, P);
+  Result := I >= 0;
+  if I <= 0 then
+    begin
+      S := '';
+      exit;
+    end;
+  SetLength(S, I);
+  Move(P^, Pointer(S)^, I * Sizeof(WideChar));
+  Inc(P, I);
+end;
+
+function WideZExtractAnsiCharDelimited(const LeftDelimiter, RightDelimiter: AnsiChar;
+         var P: PWideChar; var S: WideString): Boolean;
+var Q : PWideChar;
+begin
+  Q := P;
+  Result := Assigned(Q) and (Ord(Q^) < $80) and (Ord(Q^) = Ord(LeftDelimiter));
+  if not Result then
+    begin
+      S := '';
+      exit;
+    end;
+  Inc(Q);
+  Result := WideZExtractBeforeAnsiChar(RightDelimiter, Q, S);
+  if not Result then
+    exit;
+  Inc(Q);
+  P := Q;
+end;
+
+function WideZExtractAnsiCharQuoted(const Delimiter: AnsiChar; var P: PWideChar; var S: WideString): Boolean;
+begin
+  Result := WideZExtractAnsiCharDelimited(Delimiter, Delimiter, P, S);
+end;
+{$ENDIF}
+
+
+
+{                                                                              }
+{ Dup                                                                          }
+{                                                                              }
+function WideDup(const Ch: WideChar; const Count: Integer): WideString;
+var I : Integer;
+    P : PWideChar;
+begin
+  if Count <= 0 then
+    begin
+      Result := '';
+      exit;
+    end;
+  SetLength(Result, Count);
+  P := Pointer(Result);
+  For I := 1 to Count do
+    begin
+      P^ := Ch;
+      Inc(P);
+    end;
+end;
+
+
+
+{                                                                              }
+{ Trim                                                                         }
+{                                                                              }
+procedure WideTrimLeftInPlace(var S: WideString; const MatchFunc: WideCharMatchFunction);
+var I, L : Integer;
+    P : PWideChar;
+    F : WideCharMatchFunction;
+begin
+  L := Length(S);
+  if L = 0 then
+    exit;
+  F := MatchFunc;
+  if not Assigned(F) then
+    F := IsWhiteSpace;
+  I := 0;
+  P := Pointer(S);
+  While F(P^) do
+    begin
+      Inc(I);
+      Inc(P);
+      Dec(L);
+      if L = 0 then
+        begin
+          S := '';
+          exit;
+        end;
+    end;
+  if I = 0 then
+    exit;
+  S := Copy(S, I + 1, L);
+end;
+
+procedure WideTrimRightInPlace(var S: WideString; const MatchFunc: WideCharMatchFunction);
+var I, L : Integer;
+    P : PWideChar;
+    F : WideCharMatchFunction;
+begin
+  L := Length(S);
+  if L = 0 then
+    exit;
+  F := MatchFunc;
+  if not Assigned(F) then
+    F := IsWhiteSpace;
+  I := 0;
+  P := Pointer(S);
+  Inc(P, L - 1);
+  While F(P^) do
+    begin
+      Inc(I);
+      Dec(P);
+      Dec(L);
+      if L = 0 then
+        begin
+          S := '';
+          exit;
+        end;
+    end;
+  if I = 0 then
+    exit;
+  SetLength(S, L);
+end;
+
+procedure WideTrimInPlace(var S: WideString; const MatchFunc: WideCharMatchFunction);
+var I, J, L : Integer;
+    P : PWideChar;
+    F: WideCharMatchFunction;
+begin
+  L := Length(S);
+  if L = 0 then
+    exit;
+  F := MatchFunc;
+  if not Assigned(F) then
+    F := IsWhiteSpace;
+  I := 0;
+  P := Pointer(S);
+  Inc(P, L - 1);
+  While F(P^) or IsControl(P^) do
+    begin
+      Inc(I);
+      Dec(P);
+      Dec(L);
+      if L = 0 then
+        begin
+          S := '';
+          exit;
+        end;
+    end;
+  J := 0;
+  P := Pointer(S);
+  While F(P^) or IsControl(P^) do
+    begin
+      Inc(J);
+      Inc(P);
+      Dec(L);
+      if L = 0 then
+        begin
+          S := '';
+          exit;
+        end;
+    end;
+  if (I = 0) and (J = 0) then
+    exit;
+  S := Copy(S, J + 1, L);
+end;
+
+function WideTrimLeft(const S: WideString; const MatchFunc: WideCharMatchFunction): WideString;
+begin
+  Result := S;
+  WideTrimLeftInPlace(Result, MatchFunc);
+end;
+
+function WideTrimRight(const S: WideString; const MatchFunc: WideCharMatchFunction): WideString;
+begin
+  Result := S;
+  WideTrimRightInPlace(Result, MatchFunc);
+end;
+
+function WideTrim(const S: WideString; const MatchFunc: WideCharMatchFunction): WideString;
+begin
+  Result := S;
+  WideTrimInPlace(Result, MatchFunc);
+end;
+
+
+
+{                                                                              }
+{ Count                                                                        }
+{                                                                              }
+function WideCountChar(const CharMatchFunc: WideCharMatchFunction; const S: WideString): Integer;
+begin
+  Result := WidePMatchAllChars(CharMatchFunc, Pointer(S), Length(S));
+end;
+
+function WideCountChar(const Ch: WideChar; const S: WideString): Integer;
+var Q : PWideChar;
+    I : Integer;
+begin
+  Result := 0;
+  Q := PWideChar(S);
+  if not Assigned(Q) then
+    exit;
+  For I := 1 to Length(S) do
+    begin
+      if Q^ = Ch then
+        Inc(Result);
+      Inc(Q);
+    end;
+end;
+
+
+
+{                                                                              }
+{ Pos                                                                          }
+{                                                                              }
+function WidePosChar(const F: WideChar; const S: WideString; const StartIndex: Integer): Integer;
+var P : PWideChar;
+    I, L : Integer;
+begin
+  L := Length(S);
+  if (StartIndex > L) or (StartIndex < 1) then
+    begin
+      Result := 0;
+      exit;
+    end;
+  P := Pointer(S);
+  Inc(P, StartIndex - 1);
+  For I := StartIndex to L do
+    if P^ = F then
+      begin
+        Result := I;
+        exit;
+      end
+    else
+      Inc(P);
+  Result := 0;
+end;
+
+function WidePosAnsiCharSet(const F: AnsiCharSet; const S: WideString; const StartIndex: Integer): Integer;
+var P : PWideChar;
+    I, L : Integer;
+begin
+  L := Length(S);
+  if (StartIndex > L) or (StartIndex < 1) then
+    begin
+      Result := 0;
+      exit;
+    end;
+  P := Pointer(S);
+  Inc(P, StartIndex - 1);
+  For I := StartIndex to L do
+    if (Ord(P^) <= $FF) and (Char(P^) in F) then
+      begin
+        Result := I;
+        exit;
+      end
+    else
+      Inc(P);
+  Result := 0;
+end;
+
+function WidePos(const F: WideString; const S: WideString; const StartIndex: Integer): Integer;
+var P : PWideChar;
+    I, L : Integer;
+begin
+  L := Length(S);
+  if (StartIndex > L) or (StartIndex < 1) then
+    begin
+      Result := 0;
+      exit;
+    end;
+  P := Pointer(S);
+  Inc(P, StartIndex - 1);
+  For I := StartIndex to L do
+    if WidePMatch(F, P) then
+      begin
+        Result := I;
+        exit;
+      end
+    else
+      Inc(P);
+  Result := 0;
+end;
+
+
+
+{                                                                              }
+{ Replace                                                                      }
+{                                                                              }
+procedure WideReplaceChar(const Find: WideChar; const Replace: WideString; var S: WideString);
+var C, L, M, I, R : Integer;
+    P, Q : PWideChar;
+    T : WideString;
+begin
+  C := WideCountChar(Find, S);
+  if C = 0 then
+    exit;
+  R := Length(Replace);
+  M := Length(S);
+  L := M + (R - 1) * C;
+  if L = 0 then
+    begin
+      S := '';
+      exit;
+    end;
+  SetLength(T, L);
+  P := Pointer(S);
+  Q := Pointer(T);
+  For I := 1 to M do
+    if P^ = Find then
+      begin
+        if R > 0 then
+          begin
+            Move(Pointer(Replace)^, Q^, Sizeof(WideChar) * R);
+            Inc(Q, R);
+          end;
+        Inc(P);
+      end
+    else
+      begin
+        Q^ := P^;
+        Inc(P);
+        Inc(Q);
+      end;
+  S := T;
+end;
+
+procedure WideSetLengthAndZero(var S: WideString; const NewLength: Integer);
+var L : Integer;
+    P : PWideChar;
+begin
+  L := Length(S);
+  if L = NewLength then
+    exit;
+  SetLength(S, NewLength);
+  if L > NewLength then
+    exit;
+  P := Pointer(S);
+  Inc(P, L);
+  FillChar(P^, (NewLength - L) * Sizeof(WideChar), #0);
+end;
+
+{$IFDEF DELPHI5}
+function WideUpperCase(const S: WideString): WideString;
+var I : Integer;
+begin
+  Result := '';
+  For I := 1 to Length(S) do
+    Result := Result + WideUpCaseFolding(S[I]);
+end;
+
+function WideLowerCase(const S: WideString): WideString;
+var I : Integer;
+begin
+  Result := '';
+  For I := 1 to Length(S) do
+    Result := Result + WideLowCaseFolding(S[I]);
+end;
+{$ENDIF}
+
+function WideCopyRange(const S: WideString; const StartIndex, StopIndex: Integer): WideString;
+var L, I : Integer;
+begin
+  L := Length(S);
+  if (StartIndex > StopIndex) or (StopIndex < 1) or (StartIndex > L) or (L = 0) then
+    Result := ''
+  else
+    begin
+      if StartIndex <= 1 then
+        if StopIndex >= L then
+          begin
+            Result := S;
+            exit;
+          end
+        else
+          I := 1
+      else
+        I := StartIndex;
+      Result := Copy(S, I, StopIndex - I + 1);
+    end;
+end;
+
+function WideCopyFrom(const S: WideString; const Index: Integer): WideString;
+var L : Integer;
+begin
+  if Index <= 1 then
+    Result := S
+  else
+    begin
+      L := Length(S);
+      if (L = 0) or (Index > L) then
+        Result := ''
+      else
+        Result := Copy(S, Index, L - Index + 1);
+    end;
+end;
+
+
+
+{                                                                              }
+{ Dynamic Array functions                                                      }
+{                                                                              }
+function WideAppend(var V : WideStringArray; const R: WideString): Integer;
+begin
+  Result := Length(V);
+  SetLength(V, Result + 1);
+  V[Result] := R;
+end;
+
+function WideAppendWideStringArray(var V : WideStringArray; const R: WideStringArray): Integer;
+var I, LR : Integer;
+begin
+  Result := Length(V);
+  LR := Length(R);
+  if LR > 0 then
+    begin
+      SetLength(V, Result + LR);
+      For I := 0 to LR - 1 do
+        V[Result + I] := R[I];
+    end;
+end;
+
+function WideSplit(const S, D: WideString): WideStringArray;
+var I, J, L, M: Integer;
+begin
+  if S = '' then
+    begin
+      Result := nil;
+      exit;
+    end;
+  M := Length(D);
+  if M = 0 then
+    begin
+      SetLength(Result, 1);
+      Result[0] := S;
+      exit;
+    end;
+  L := 0;
+  I := 1;
+  Repeat
+    I := WidePos(D, S, I);
+    if I = 0 then
+      break;
+    Inc(L);
+    Inc(I, M);
+  Until False;
+  SetLength(Result, L + 1);
+  if L = 0 then
+    begin
+      Result[0] := S;
+      exit;
+    end;
+  L := 0;
+  I := 1;
+  Repeat
+    J := WidePos(D, S, I);
+    if J = 0 then
+      begin
+        Result[L] := WideCopyFrom(S, I);
+        break;
+      end;
+    Result[L] := WideCopyRange(S, I, J - 1);
+    Inc(L);
+    I := J + M;
+  Until False;
+end;
+
+
+
+{                                                                              }
+{ Self-testing code                                                            }
+{                                                                              }
+{$IFDEF DEBUG}
+{$ASSERTIONS ON}
+procedure SelfTest;
+var S : WideString;
+begin
+  Assert(IsASCIIChar('A'), 'IsASCIIChar');
+  Assert(not IsASCIIChar(#$1234), 'IsASCIIChar');
+  Assert(IsWhiteSpace(' '), 'IsWhiteSpace');
+  Assert(IsPunctuation('.'), 'IsPunctuation');
+  Assert(not IsPunctuation('A'), 'IsPunctuation');
+  Assert(IsDecimalDigit(WideChar('0')), 'IsDecimalDigit');
+  Assert(DecimalDigitValue(WideChar('5')) = 5, 'DecimalDigitValue');
+  Assert(IsUpperCase('A'), 'IsUpperCase');
+  Assert(not IsUpperCase('a'), 'IsUpperCase');
+  Assert(WideUpCase('a') = 'A', 'WideUpCase');
+  Assert(WideUpCase('A') = 'A', 'WideUpCase');
+  Assert(WideLowCase('a') = 'a', 'WideUpCase');
+  Assert(WideLowCase('A') = 'a', 'WideUpCase');
+  Assert(IsLetter('A'), 'IsLetter');
+  Assert(not IsLetter('1'), 'IsLetter');
+
+  Assert(WideMatchAnsiCharNoCase('A', 'a'), 'WideMatchAnsiCharNoCase');
+  Assert(WideMatchAnsiCharNoCase('z', 'Z'), 'WideMatchAnsiCharNoCase');
+  Assert(WideMatchAnsiCharNoCase('1', '1'), 'WideMatchAnsiCharNoCase');
+  Assert(not WideMatchAnsiCharNoCase('A', 'B'), 'WideMatchAnsiCharNoCase');
+  Assert(not WideMatchAnsiCharNoCase('0', 'A'), 'WideMatchAnsiCharNoCase');
+
+  Assert(WidePMatchAnsiStr('Unicode', 'uNicode', False), 'WidePMatchAnsiStr');
+  Assert(not WidePMatchAnsiStr('Unicode', 'uNicode', True), 'WidePMatchAnsiStr');
+  Assert(WidePMatchAnsiStr('Unicode', 'Unicode', True), 'WidePMatchAnsiStr');
+
+  S := ' X ';
+  WideTrimLeftInPlace(S, nil);
+  Assert(S = 'X ', 'WideTrimLeftInPlace');
+  Assert(WideTrimLeft(' X ') = 'X ', 'WideTrimLeft');
+  Assert(WideTrimRight(' X ') = ' X', 'WideTrimRight');
+  Assert(WideTrim(' X ') = 'X', 'WideTrim');
+
+  Assert(WideDup('X', 0) = '', 'WideDup');
+  Assert(WideDup('X', 1) = 'X', 'WideDup');
+  Assert(WideDup('A', 4) = 'AAAA', 'WideDup');
+
+  S := 'AXAYAA';
+  WideReplaceChar('A', '', S);
+  Assert(S = 'XY', 'WideReplaceChar');
+  S := 'AXAYAA';
+  WideReplaceChar('A', 'B', S);
+  Assert(S = 'BXBYBB', 'WideReplaceChar');
+  S := 'AXAYAA';
+  WideReplaceChar('A', 'CC', S);
+  Assert(S = 'CCXCCYCCCC', 'WideReplaceChar');
+  S := 'AXAXAA';
+  WideReplaceChar('X', 'IJK', S);
+  Assert(S = 'AIJKAIJKAA', 'WideReplaceChar');
+
+  Assert(WidePosChar(WideChar('A'), 'XYZABCAACDEF', 1) = 4, 'WidePosChar');
+  Assert(WidePosChar(WideChar('A'), 'XYZABCAACDEF', 5) = 7, 'WidePosChar');
+  Assert(WidePosChar(WideChar('A'), 'XYZABCAACDEF', 8) = 8, 'WidePosChar');
+  Assert(WidePosChar(WideChar('A'), 'XYZABCAACDEF', 9) = 0, 'WidePosChar');
+  Assert(WidePosChar(WideChar('Q'), 'XYZABCAACDEF', 1) = 0, 'WidePosChar');
+  Assert(WidePos('AB', 'XYZABCAACDEF', 1) = 4, 'WidePos');
+  Assert(WidePos('AA', 'XYZABCAACDEF', 1) = 7, 'WidePos');
+  Assert(WidePos('A', 'XYZABCAACDEF', 8) = 8, 'WidePos');
+  Assert(WidePos('AA', 'XYZABCAACDEF', 8) = 0, 'WidePos');
+  Assert(WidePos('AAQ', 'XYZABCAACDEF', 1) = 0, 'WidePos');
+  {$IFNDEF DOT_NET}
+  Assert(WideZPosAnsiChar('A', 'XYZABCAACDEF') = 3, 'WideZPosAnsiChar');
+  Assert(WideZPosAnsiChar('Q', 'XYZABCAACDEF') = -1, 'WideZPosAnsiChar');
+  {$ENDIF}
+end;
+{$ENDIF}
 
 
 

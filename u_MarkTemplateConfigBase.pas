@@ -1,6 +1,7 @@
 unit u_MarkTemplateConfigBase;
 
 interface
+
 uses
   Classes,
   i_MarkNameGenerator,

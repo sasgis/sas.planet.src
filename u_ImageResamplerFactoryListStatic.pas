@@ -5,7 +5,6 @@ interface
 uses
   SyncObjs,
   Classes,
-  GR32,
   i_ImageResamplerFactory;
 
 type

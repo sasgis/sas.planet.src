@@ -1,10 +1,10 @@
 object frmProgressDownload: TfrmProgressDownload
   Left = 226
   Top = 306
-  BorderStyle = bsToolWindow
-  Caption = #1055#1086#1078#1072#1083#1091#1081#1089#1090#1072' '#1087#1086#1076#1086#1078#1076#1080#1090#1077'...'
-  ClientHeight = 250
-  ClientWidth = 330
+  BorderStyle = bsSizeToolWin
+  Caption = 'Please wait...'
+  ClientHeight = 248
+  ClientWidth = 328
   Color = clBtnFace
   ParentFont = True
   FormStyle = fsStayOnTop
@@ -19,13 +19,17 @@ object frmProgressDownload: TfrmProgressDownload
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 330
-    Height = 250
+    Width = 328
+    Height = 248
     Align = alClient
     TabOrder = 0
+    OnResize = Panel1Resize
+    DesignSize = (
+      328
+      248)
     object RProgr: TRarProgress
-      Left = 7
-      Top = 204
+      Left = 8
+      Top = 200
       Width = 314
       Height = 17
       Min = 0
@@ -47,10 +51,11 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object LabelValue0: TLabel
       Left = 315
-      Top = 121
+      Top = 119
       Width = 6
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akRight, akBottom]
       BiDiMode = bdLeftToRight
       Caption = '  '
       ParentBiDiMode = False
@@ -58,10 +63,11 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object LabelValue1: TLabel
       Left = 315
-      Top = 137
+      Top = 138
       Width = 6
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akRight, akBottom]
       BiDiMode = bdLeftToRight
       Caption = '  '
       ParentBiDiMode = False
@@ -69,10 +75,11 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object LabelValue2: TLabel
       Left = 315
-      Top = 153
+      Top = 150
       Width = 6
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akRight, akBottom]
       BiDiMode = bdLeftToRight
       Caption = '  '
       ParentBiDiMode = False
@@ -84,6 +91,7 @@ object frmProgressDownload: TfrmProgressDownload
       Width = 6
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akRight, akBottom]
       BiDiMode = bdLeftToRight
       Caption = '  '
       ParentBiDiMode = False
@@ -94,6 +102,7 @@ object frmProgressDownload: TfrmProgressDownload
       Top = 121
       Width = 6
       Height = 13
+      Anchors = [akLeft, akBottom]
       BiDiMode = bdLeftToRight
       Caption = '  '
       ParentBiDiMode = False
@@ -104,6 +113,7 @@ object frmProgressDownload: TfrmProgressDownload
       Top = 137
       Width = 3
       Height = 13
+      Anchors = [akLeft, akBottom]
       BiDiMode = bdLeftToRight
       Caption = ' '
       ParentBiDiMode = False
@@ -114,6 +124,7 @@ object frmProgressDownload: TfrmProgressDownload
       Top = 153
       Width = 6
       Height = 13
+      Anchors = [akLeft, akBottom]
       BiDiMode = bdLeftToRight
       Caption = '  '
       ParentBiDiMode = False
@@ -124,6 +135,7 @@ object frmProgressDownload: TfrmProgressDownload
       Top = 169
       Width = 9
       Height = 13
+      Anchors = [akLeft, akBottom]
       BiDiMode = bdLeftToRight
       Caption = '   '
       ParentBiDiMode = False
@@ -134,6 +146,7 @@ object frmProgressDownload: TfrmProgressDownload
       Top = 185
       Width = 9
       Height = 13
+      Anchors = [akLeft, akBottom]
       BiDiMode = bdLeftToRight
       Caption = '   '
       ParentBiDiMode = False
@@ -145,6 +158,7 @@ object frmProgressDownload: TfrmProgressDownload
       Width = 6
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akRight, akBottom]
       BiDiMode = bdLeftToRight
       Caption = '  '
       ParentBiDiMode = False
@@ -155,51 +169,104 @@ object frmProgressDownload: TfrmProgressDownload
       Top = 8
       Width = 313
       Height = 105
+      Anchors = [akLeft, akTop, akRight, akBottom]
       ReadOnly = True
       ScrollBars = ssBoth
       TabOrder = 0
     end
-    object Button1: TButton
-      Left = 168
-      Top = 223
-      Width = 73
-      Height = 20
-      Caption = #1057#1090#1086#1087
-      TabOrder = 1
-      OnClick = Button1Click
-    end
-    object Button2: TButton
-      Left = 248
-      Top = 223
-      Width = 73
-      Height = 20
-      Caption = #1042#1099#1093#1086#1076
-      TabOrder = 2
-      OnClick = Button2Click
-    end
-    object Button3: TButton
+    object GridPanel1: TGridPanel
       Left = 8
-      Top = 223
-      Width = 73
+      Top = 222
+      Width = 313
       Height = 20
-      Caption = #1057#1074#1077#1088#1085#1091#1090#1100
-      TabOrder = 3
-      OnClick = Button3Click
-    end
-    object ButtonSave: TButton
-      Left = 88
-      Top = 223
-      Width = 73
-      Height = 20
-      Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1077#1082#1091#1097#1091#1102' '#1089#1077#1089#1089#1080#1102
-      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
-      TabOrder = 4
-      OnClick = ButtonSaveClick
+      Anchors = [akLeft, akRight, akBottom]
+      BevelOuter = bvNone
+      ColumnCollection = <
+        item
+          Value = 25.000000000000000000
+        end
+        item
+          Value = 25.000000000000000000
+        end
+        item
+          Value = 25.000000000000000000
+        end
+        item
+          Value = 25.000000000000000000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = Button3
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = ButtonSave
+          Row = 0
+        end
+        item
+          Column = 2
+          Control = Button1
+          Row = 0
+        end
+        item
+          Column = 3
+          Control = Button2
+          Row = 0
+        end>
+      RowCollection = <
+        item
+          Value = 100.000000000000000000
+        end>
+      TabOrder = 1
+      DesignSize = (
+        313
+        20)
+      object Button3: TButton
+        Left = 0
+        Top = 0
+        Width = 75
+        Height = 20
+        Caption = 'Minimize'
+        TabOrder = 0
+        OnClick = Button3Click
+      end
+      object ButtonSave: TButton
+        Left = 78
+        Top = 0
+        Width = 75
+        Height = 20
+        Hint = 'Save current session'
+        Caption = 'Save'
+        TabOrder = 1
+        OnClick = ButtonSaveClick
+      end
+      object Button1: TButton
+        Left = 159
+        Top = 0
+        Width = 75
+        Height = 20
+        Anchors = [akTop, akRight]
+        Caption = 'Stop'
+        TabOrder = 2
+        OnClick = Button1Click
+      end
+      object Button2: TButton
+        Left = 238
+        Top = 0
+        Width = 75
+        Height = 20
+        Anchors = [akTop, akRight]
+        Caption = 'Quit'
+        TabOrder = 3
+        OnClick = Button2Click
+      end
     end
   end
   object SaveSessionDialog: TSaveDialog
     DefaultExt = '*.sls'
-    Filter = #1057#1077#1089#1089#1080#1103' '#1079#1072#1075#1088#1091#1079#1082#1080' (*.sls)|*.sls'
+    Filter = 'Download session (*.sls)|*.sls'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 280
     Top = 184

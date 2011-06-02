@@ -21,7 +21,8 @@ uses
   StrUtils,
   t_GeoTypes,
   i_GeoCoder,
-  u_GeoCodePalcemark;
+  u_ResStrings,
+  u_GeoCodePlacemark;
 
 { TGeoCoderByGoogle }
 
@@ -32,12 +33,12 @@ var
   i, j: integer;
   strr: string;
   VPoint: TDoublePoint;
-  VPlace: IGeoCodePalcemark;
+  VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
 begin
   if AStr = '' then begin
-    raise EParserError.Create('Пустой ответ от сервера');
+    raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
   if not (PosEx(AnsiToUtf8('Placemark'), AStr) < 1) then begin
@@ -59,9 +60,9 @@ begin
       VPoint.Y := StrToFloat(slat, VFormatSettings);
       VPoint.X := StrToFloat(slon, VFormatSettings);
     except
-      raise EParserError.CreateFmt('Ошибка разбора координат Lat=%s Lon=%s', [slat, slon]);
+      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    VPlace := TGeoCodePalcemark.Create(VPoint, strr, 4);
+    VPlace := TGeoCodePlacemark.Create(VPoint, strr, 4);
     VList := TInterfaceList.Create;
     VList.Add(VPlace);
     Result := VList;
@@ -81,7 +82,7 @@ begin
   end;
   Result := 'http://maps.google.com/maps/geo?q=' +
     URLEncode(AnsiToUtf8(VSearch)) +
-    '&output=xml&hl=ru&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA';
+    '&output=xml' + SAS_STR_GoogleSearchLanguage + '&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA';
 end;
 
 end.

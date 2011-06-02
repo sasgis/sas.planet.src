@@ -156,10 +156,8 @@ begin
     end;
     if AMark.IsNew then begin
       Caption:=SAS_STR_AddNewMark;
-      btnOk.Caption:=SAS_STR_Add;
     end else begin
       Caption:=SAS_STR_EditMark;
-      btnOk.Caption:=SAS_STR_Edit;
     end;
     DrawFromMarkIcons(imgIcon.canvas, AMark.Pic, bounds(4,4,36,36));
     frLonLatPoint.LonLat := AMark.Points[0];
@@ -212,6 +210,8 @@ begin
   frMarkDescription.Parent := pnlDescription;
   edtName.SetFocus;
   drwgrdIcons.Visible:=false;
+  flwpnlTextColor.Realign;
+  flwpnlShadowColor.Realign;
 end;
 
 procedure TfrmMarkEditPoint.btnTextColorClick(Sender: TObject);

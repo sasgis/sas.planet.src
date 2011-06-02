@@ -2,10 +2,12 @@ object frmGoTo: TfrmGoTo
   Left = 295
   Top = 179
   AlphaBlendValue = 220
-  Caption = #1055#1077#1088#1077#1081#1090#1080' '#1082'...'
-  ClientHeight = 233
-  ClientWidth = 331
+  Caption = 'Go to...'
+  ClientHeight = 236
+  ClientWidth = 264
   Color = clBtnFace
+  Constraints.MinHeight = 263
+  Constraints.MinWidth = 272
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -20,17 +22,17 @@ object frmGoTo: TfrmGoTo
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 325
+    Width = 258
     Height = 45
     Align = alTop
     Caption = ' '
     TabOrder = 0
-    ExplicitWidth = 331
+    ExplicitWidth = 325
     object cbbAllMarks: TComboBox
       AlignWithMargins = True
       Left = 5
       Top = 18
-      Width = 315
+      Width = 248
       Height = 21
       Align = alClient
       ItemHeight = 13
@@ -38,24 +40,24 @@ object frmGoTo: TfrmGoTo
       OnChange = cbbAllMarksDropDown
       OnDropDown = cbbAllMarksDropDown
       OnEnter = cbbAllMarksEnter
-      ExplicitWidth = 321
+      ExplicitWidth = 315
     end
   end
   object grpGeoCode: TGroupBox
     AlignWithMargins = True
     Left = 3
     Top = 54
-    Width = 325
+    Width = 258
     Height = 49
     Align = alTop
     Caption = ' '
     TabOrder = 1
-    ExplicitWidth = 331
+    ExplicitWidth = 325
     object edtGeoCode: TEdit
       AlignWithMargins = True
       Left = 7
       Top = 18
-      Width = 311
+      Width = 244
       Height = 24
       Margins.Left = 5
       Margins.Right = 5
@@ -63,7 +65,7 @@ object frmGoTo: TfrmGoTo
       Align = alClient
       TabOrder = 0
       OnClick = edtGeoCodeClick
-      ExplicitWidth = 317
+      ExplicitWidth = 311
       ExplicitHeight = 21
     end
   end
@@ -71,44 +73,44 @@ object frmGoTo: TfrmGoTo
     AlignWithMargins = True
     Left = 3
     Top = 109
-    Width = 325
-    Height = 90
+    Width = 258
+    Height = 93
     Align = alClient
     Caption = ' '
     TabOrder = 2
     OnEnter = grpLonLatEnter
-    ExplicitWidth = 331
-    ExplicitHeight = 87
+    ExplicitWidth = 325
+    ExplicitHeight = 90
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 202
-    Width = 331
+    Top = 205
+    Width = 264
     Height = 31
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitTop = 199
-    ExplicitWidth = 337
+    ExplicitTop = 202
+    ExplicitWidth = 331
     object lblZoom: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 58
+      Width = 30
       Height = 20
       Margins.Bottom = 8
       Align = alLeft
       Alignment = taRightJustify
-      Caption = #1052#1072#1089#1096#1090#1072#1073': x'
+      Caption = 'Zoom:'
       Layout = tlCenter
       ExplicitHeight = 13
     end
     object cbbZoom: TComboBox
       AlignWithMargins = True
-      Left = 67
+      Left = 39
       Top = 3
-      Width = 41
+      Width = 39
       Height = 21
       Align = alLeft
       ItemHeight = 13
@@ -143,32 +145,31 @@ object frmGoTo: TfrmGoTo
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 253
+      Left = 186
       Top = 3
       Width = 75
       Height = 25
       Align = alRight
       Cancel = True
-      Caption = #1054#1090#1084#1077#1085#1072
+      Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 259
+      ExplicitLeft = 253
     end
     object btnGoTo: TButton
       AlignWithMargins = True
-      Left = 172
+      Left = 105
       Top = 3
       Width = 75
       Height = 25
-      Hint = #1055#1077#1088#1077#1081#1090#1080' '#1074' '#1079#1072#1076#1072#1085#1085#1091#1102' '#1090#1086#1095#1082#1091
       Align = alRight
-      Caption = #1055#1077#1088#1077#1081#1090#1080
+      Caption = 'Go to'
       Default = True
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
       OnClick = btnGoToClick
-      ExplicitLeft = 178
+      ExplicitLeft = 172
     end
   end
   object RB3: TRadioButton
@@ -176,7 +177,7 @@ object frmGoTo: TfrmGoTo
     Top = 1
     Width = 124
     Height = 17
-    Caption = #1057#1086#1093#1088#1072#1085#1077#1085#1085#1099#1077' '#1084#1077#1090#1082#1080
+    Caption = 'Stored placemarks'
     TabOrder = 4
   end
   object RB2: TRadioButton
@@ -184,7 +185,7 @@ object frmGoTo: TfrmGoTo
     Top = 51
     Width = 62
     Height = 17
-    Caption = 'Google!'
+    Caption = 'Google'
     Checked = True
     TabOrder = 5
     TabStop = True
@@ -194,7 +195,7 @@ object frmGoTo: TfrmGoTo
     Top = 51
     Width = 58
     Height = 17
-    Caption = #1071#1085#1076#1077#1082#1089
+    Caption = 'Yandex'
     TabOrder = 6
   end
   object RB1: TRadioButton
@@ -202,7 +203,7 @@ object frmGoTo: TfrmGoTo
     Top = 106
     Width = 85
     Height = 17
-    Caption = #1050#1086#1086#1088#1076#1080#1085#1072#1090#1099
+    Caption = 'Coordinates'
     TabOrder = 7
   end
 end

@@ -78,7 +78,6 @@ uses
   SysUtils,
   i_MapCalibration,
   u_MapMarksBitmapLayerProviderByMarksSubset,
-  u_LocalCoordConverterFactorySimpe,
   u_GlobalState,
   u_ResStrings,
   u_GeoFun;
@@ -112,7 +111,7 @@ begin
     FMarksImageProvider := TMapMarksBitmapLayerProviderByMarksSubset.Create(AMarksSubset);
   end;
   FMapCalibrationList := AMapCalibrationList;
-  FConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+  FConverterFactory := GState.LocalConverterFactory;
   FTempBitmap := TCustomBitmap32.Create;
   FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
   FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
@@ -163,14 +162,10 @@ begin
     FTempBitmap.DrawMode := dmBlend;
     ATargetBitmap.Draw(0, 0, FTempBitmap);
   end;
-  if FMarksImageProvider <> nil then begin
-    FTempBitmap.SetSize(VSize.X, VSize.Y);
-    FTempBitmap.Clear(0);
-    FMarksImageProvider.GetBitmapRect(FTempBitmap, AConverter);
-    FTempBitmap.DrawMode := dmBlend;
-    ATargetBitmap.Draw(0, 0, FTempBitmap);
-  end;
   ProcessRecolor(ATargetBitmap);
+  if FMarksImageProvider <> nil then begin
+    FMarksImageProvider.GetBitmapRect(ATargetBitmap, AConverter);
+  end;
 end;
 
 procedure TThreadMapCombineBase.ProcessRecolor(Bitmap: TCustomBitmap32);

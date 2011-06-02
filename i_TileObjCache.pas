@@ -4,7 +4,7 @@ interface
 
 uses
   GR32,
-  u_KmlInfoSimple;
+  i_VectorDataItemSimple;
 
 type
   ITileObjCache = interface
@@ -12,9 +12,9 @@ type
     procedure Clear;
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
     procedure AddTileToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte); overload;
-    procedure AddTileToCache(AObj: TKmlInfoSimple; AXY: TPoint; AZoom: Byte); overload;
+    procedure AddTileToCache(AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte); overload;
     function TryLoadTileFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean; overload;
-    function TryLoadTileFromCache(AObj: TKmlInfoSimple; AXY: TPoint; AZoom: Byte): boolean; overload;
+    function TryLoadTileFromCache(var AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte): boolean; overload;
   end;
 
 

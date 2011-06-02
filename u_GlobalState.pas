@@ -14,6 +14,7 @@ uses
   JclDebug,
   {$ENDIF SasDebugWithJcl}
   i_JclNotify,
+  i_GPS,
   i_LanguageManager,
   i_MemObjCache,
   i_ConfigDataWriteProvider,
@@ -24,6 +25,7 @@ uses
   i_KmlInfoSimpleLoader,
   i_MapTypeIconsList,
   i_CoordConverterFactory,
+  i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,
   i_GSMGeoCodeConfig,
   i_MainFormConfig,
@@ -36,6 +38,7 @@ uses
   i_GeoCoderList,
   i_MainMemCacheConfig,
   i_MarkPicture,
+  i_InternalPerformanceCounter,
   u_LastSelectionInfo,
   u_MarksDb,
   u_MapType,
@@ -70,11 +73,13 @@ type
     FLastSelectionInfo: ILastSelectionInfo;
     FMarksDB: TMarksDB;
     FCoordConverterFactory: ICoordConverterFactory;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
     FInetConfig: IInetConfig;
     FProxySettings: IProxySettings;
     FGPSConfig: IGPSConfig;
     FGSMpar: IGSMGeoCodeConfig;
+    FGPSPositionFactory: IGPSPositionFactory;
     FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -94,6 +99,7 @@ type
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifier: IJclNotifier;
     FSensorList: IInterfaceList;
+    FPerfCounterList: IInternalPerformanceCounterList;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -103,7 +109,9 @@ type
     function GetMainConfigFileName: string;
     procedure LoadMainParams;
     procedure LoadMapIconsList;
+    {$IFDEF SasDebugWithJcl}
     procedure DoException(Sender: TObject; E: Exception);
+    {$ENDIF SasDebugWithJcl}
   public
     // Отображать окошко с логотипом при запуске
     Show_logo: Boolean;
@@ -136,6 +144,7 @@ type
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
+    property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
@@ -167,6 +176,7 @@ type
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
     property SensorList: IInterfaceList read FSensorList;
+    property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
     constructor Create;
     destructor Destroy; override;
@@ -208,6 +218,7 @@ uses
   u_LanguageManager,
   u_DownloadInfoSimple,
   u_InetConfig,
+  u_Datum,
   u_GSMGeoCodeConfig,
   u_GPSConfig,
   u_MarkCategoryFactoryConfig,
@@ -224,7 +235,10 @@ uses
   u_GPSLogWriterToPlt,
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByZylGPS,
+  u_GPSPositionFactory,
+  u_LocalCoordConverterFactorySimpe,
   u_MainFormConfig,
+  u_InternalPerformanceCounterList,
   u_ResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -240,9 +254,18 @@ begin
   FGUISyncronizedTimer.Interval := 500;
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
+  FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
+
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
   Show_logo := True;
-  ShowDebugInfo := False;
+
+  {$IFDEF DEBUG}
+    ShowDebugInfo := True;
+  {$ELSE}
+    ShowDebugInfo := False;
+  {$ENDIF}
+  FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+
   FCacheConfig := TGlobalCahceConfig.Create;
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   FMainMapsList := TMapTypesMainList.Create;
@@ -263,7 +286,12 @@ begin
   FInetConfig := TInetConfig.Create;
   FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
   FGPSConfig := TGPSConfig.Create(GetTrackLogPath);
-  FGPSRecorder := TGPSRecorderStuped.Create;
+  FGPSPositionFactory := TGPSPositionFactory.Create;
+  FGPSRecorder :=
+    TGPSRecorderStuped.Create(
+      TDatum.Create(3395, 6378137, 6356752),
+      FGPSPositionFactory
+    );
   FGSMpar := TGSMGeoCodeConfig.Create;
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
@@ -283,11 +311,12 @@ begin
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   FGPSpar :=
     TGPSpar.Create(
-      TGPSModuleFactoryByZylGPS.Create,
+      TGPSModuleFactoryByZylGPS.Create(FGPSPositionFactory),
       TPltLogWriter.Create(GetTrackLogPath),
       FGPSConfig,
       FGPSRecorder,
-      GUISyncronizedTimerNotifier
+      GUISyncronizedTimerNotifier,
+      FPerfCounterList
     );
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
@@ -342,11 +371,11 @@ begin
   inherited;
 end;
 
+{$IFDEF SasDebugWithJcl}
 procedure TGlobalState.DoException(Sender: TObject; E: Exception);
 var
   Str: TStringList;
 begin
-  {$IFDEF SasDebugWithJcl}
   Str := TStringList.Create;
   try
     JclLastExceptStackListToStrings(Str, True, True, True, True);
@@ -356,8 +385,8 @@ begin
   finally
     FreeAndNil(Str);
   end;
-  {$ENDIF SasDebugWithJcl}
 end;
+{$ENDIF SasDebugWithJcl}
 
 procedure TGlobalState.StartExceptionTracking;
 begin
@@ -434,12 +463,13 @@ begin
   CreateDir(MapsPath);
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
-  FMainMapsList.LoadMaps(VLocalMapsConfig, MapsPath);
+  FMainMapsList.LoadMaps(FLanguageManager, VLocalMapsConfig, MapsPath);
   FMainFormConfig := TMainFormConfig.Create(
+    FLocalConverterFactory,
     FGeoCoderList,
     FMainMapsList.MapsList,
     FMainMapsList.LayersList,
-    FMainMapsList[0].GUID
+    FMainMapsList.FirstMainMap.GUID
   );
 
   VSensorsGenerator :=

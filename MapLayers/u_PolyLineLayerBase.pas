@@ -15,7 +15,7 @@ uses
   u_MapLayerBasic;
 
 type
-  TPolyLineLayerBase = class(TMapLayerBasicFullView)
+  TPolyLineLayerBase = class(TMapLayerBasicNoBitmap)
   private
     FConfig: IPolyLineLayerConfig;
 
@@ -49,16 +49,12 @@ type
   protected
     procedure OnConfigChange(Sender: TObject); virtual;
     procedure DoConfigChange; virtual;
-    procedure PaintLayer(Sender: TObject; Buffer: TBitmap32); virtual;
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter); virtual;
     property BitmapSize: TPoint read FBitmapSize;
     property PointsOnBitmap: TArrayOfDoublePoint read FPointsOnBitmap;
     property SourcePolygon: TArrayOfDoublePoint read FSourcePolygon;
   protected
-    procedure DoShow; override;
-    procedure DoRedraw; override;
-    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    procedure AfterPosChange; override;
+    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -77,7 +73,6 @@ implementation
 
 uses
   SysUtils,
-  GR32_Layers,
   u_GeoFun,
   i_CoordConverter,
   u_NotifyEventListener;
@@ -91,7 +86,7 @@ constructor TPolyLineLayerBase.Create(
   APolygon: TPolygon32
 );
 begin
-  inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+  inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
   FPolygon := APolygon;
 
@@ -121,52 +116,38 @@ begin
   FPointSize := FConfig.PointSize;
 end;
 
-procedure TPolyLineLayerBase.AfterPosChange;
-begin
-  inherited;
-  Redraw;
-end;
-
-procedure TPolyLineLayerBase.DoRedraw;
-begin
-  inherited;
-  PreparePolygon(VisualCoordConverter);
-  LayerPositioned.Changed;
-end;
-
-procedure TPolyLineLayerBase.DoScaleChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-begin
-  inherited;
-  Redraw;
-end;
-
-procedure TPolyLineLayerBase.DoShow;
-begin
-  inherited;
-  Redraw;
-end;
-
 procedure TPolyLineLayerBase.DrawLine(APathLonLat: TArrayOfDoublePoint;
   AActiveIndex: Integer);
 var
   VPointsCount: Integer;
 begin
-  FSourcePolygon := Copy(APathLonLat);
-  FPolyActivePointIndex := AActiveIndex;
+  ViewUpdateLock;
+  try
+    FSourcePolygon := Copy(APathLonLat);
+    FPolyActivePointIndex := AActiveIndex;
 
-  VPointsCount := Length(FSourcePolygon);
-  if VPointsCount > 0 then begin
-    Redraw;
-    Show;
-  end else begin
-    Hide;
+    VPointsCount := Length(FSourcePolygon);
+    if VPointsCount > 0 then begin
+      SetNeedRedraw;
+      Show;
+    end else begin
+      Hide;
+    end;
+  finally
+    ViewUpdateUnlock;
   end;
+  ViewUpdate;
 end;
 
 procedure TPolyLineLayerBase.DrawNothing;
 begin
-  Hide;
+  ViewUpdateLock;
+  try
+    Hide;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
 end;
 
 procedure TPolyLineLayerBase.DrawPolyPoint(
@@ -229,34 +210,40 @@ end;
 
 procedure TPolyLineLayerBase.OnConfigChange(Sender: TObject);
 begin
-  FConfig.LockRead;
+  ViewUpdateLock;
   try
-    DoConfigChange;
+    FConfig.LockRead;
+    try
+      DoConfigChange;
+    finally
+      FConfig.UnlockRead;
+    end;
   finally
-    FConfig.UnlockRead;
+    ViewUpdateUnlock;
   end;
-  Redraw;
+  ViewUpdate;
 end;
 
-procedure TPolyLineLayerBase.PaintLayer(Sender: TObject; Buffer: TBitmap32);
+procedure TPolyLineLayerBase.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   VIndex: integer;
   VPosOnBitmap: TDoublePoint;
   VPointsCount: Integer;
 begin
+  PreparePolygon(ALocalConverter);
   VPointsCount := Length(FPointsOnBitmap);
   if VPointsCount > 0 then begin
     if FLinePolygon <> nil then begin
-      FLinePolygon.DrawFill(Buffer, FLineColor);
+      FLinePolygon.DrawFill(ABuffer, FLineColor);
     end;
 
     for VIndex := 1 to VPointsCount - 2 do begin
       VPosOnBitmap := FPointsOnBitmap[VIndex];
-      DrawPolyPoint(Buffer, FBitmapSize, VPosOnBitmap, FPointSize, FPointFillColor, FPointRectColor);
+      DrawPolyPoint(ABuffer, FBitmapSize, VPosOnBitmap, FPointSize, FPointFillColor, FPointRectColor);
     end;
-    DrawPolyPoint(Buffer, FBitmapSize, FPointsOnBitmap[VPointsCount - 1], FPointSize, FPointFillColor, FPointRectColor);
-    DrawPolyPoint(Buffer, FBitmapSize, FPointsOnBitmap[0], FPointSize, FPointFirstColor, FPointFirstColor);
-    DrawPolyPoint(Buffer, FBitmapSize, FPointsOnBitmap[FPolyActivePointIndex], FPointSize, FPointActiveColor, FPointActiveColor);
+    DrawPolyPoint(ABuffer, FBitmapSize, FPointsOnBitmap[VPointsCount - 1], FPointSize, FPointFillColor, FPointRectColor);
+    DrawPolyPoint(ABuffer, FBitmapSize, FPointsOnBitmap[0], FPointSize, FPointFirstColor, FPointFirstColor);
+    DrawPolyPoint(ABuffer, FBitmapSize, FPointsOnBitmap[FPolyActivePointIndex], FPointSize, FPointActiveColor, FPointActiveColor);
   end;
 end;
 
@@ -321,7 +308,6 @@ procedure TPolyLineLayerBase.StartThreads;
 begin
   inherited;
   OnConfigChange(nil);
-  LayerPositioned.OnPaint := PaintLayer;
 end;
 
 end.

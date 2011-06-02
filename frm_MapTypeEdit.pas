@@ -54,6 +54,9 @@ type
     pnlUrlRight: TPanel;
     Label4: TLabel;
     CheckEnabled: TCheckBox;
+    pnlTop: TPanel;
+    lblZmpName: TLabel;
+    edtZmp: TEdit;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnByDefaultClick(Sender: TObject);
@@ -145,6 +148,7 @@ begin
   FMapType := AMapType;
 
   Caption:=SAS_STR_EditMap+' '+FmapType.name;
+  edtZmp.Text := AMapType.ZmpFileName;
   EditURL.Text:=FMapType.UrlGenerator.URLBase;
   EditNameinCache.Text:=FMapType.TileStorage.CacheConfig.NameInCache;
   SESleep.Value:=FMapType.DownloaderFactory.WaitInterval;
