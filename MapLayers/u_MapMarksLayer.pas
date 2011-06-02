@@ -13,6 +13,7 @@ uses
   u_GeoFun,
   i_ViewPortState,
   i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
   u_MarksDbGUIHelper,
   u_MapLayerWithThreadDraw;
@@ -36,6 +37,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
       AResamplerConfig: IImageResamplerConfig;
       ATimerNoifier: IJclNotifier;
       AConfig: IUsedMarksConfig;
@@ -65,13 +67,14 @@ uses
 constructor TMapMarksLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
   AResamplerConfig: IImageResamplerConfig;
   ATimerNoifier: IJclNotifier;
   AConfig: IUsedMarksConfig;
   AMarkDBGUI: TMarksDbGUIHelper
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AResamplerConfig, ATimerNoifier, tpLower);
+  inherited Create(AParentMap, AViewPortState, AConverterFactory, AResamplerConfig, ATimerNoifier, tpLower);
   FConfig := AConfig;
   FMarkDBGUI := AMarkDBGUI;
 

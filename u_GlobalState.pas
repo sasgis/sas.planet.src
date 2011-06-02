@@ -25,6 +25,7 @@ uses
   i_KmlInfoSimpleLoader,
   i_MapTypeIconsList,
   i_CoordConverterFactory,
+  i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,
   i_GSMGeoCodeConfig,
   i_MainFormConfig,
@@ -72,6 +73,7 @@ type
     FLastSelectionInfo: ILastSelectionInfo;
     FMarksDB: TMarksDB;
     FCoordConverterFactory: ICoordConverterFactory;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
     FInetConfig: IInetConfig;
     FProxySettings: IProxySettings;
@@ -142,6 +144,7 @@ type
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
+    property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
@@ -233,6 +236,7 @@ uses
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByZylGPS,
   u_GPSPositionFactory,
+  u_LocalCoordConverterFactorySimpe,
   u_MainFormConfig,
   u_InternalPerformanceCounterList,
   u_ResStrings,
@@ -260,6 +264,7 @@ begin
   {$ELSE}
     ShowDebugInfo := False;
   {$ENDIF}
+  FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create;
 
   FCacheConfig := TGlobalCahceConfig.Create;
   FDownloadInfo := TDownloadInfoSimple.Create(nil);

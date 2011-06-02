@@ -61,6 +61,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
       AResamplerConfig: IImageResamplerConfig;
       ATimerNoifier: IJclNotifier;
       APriority: TThreadPriority
@@ -173,13 +174,18 @@ end;
 
 { TMapLayerTiledWithThreadDraw }
 
-constructor TMapLayerTiledWithThreadDraw.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AResamplerConfig: IImageResamplerConfig;
-  ATimerNoifier: IJclNotifier; APriority: TThreadPriority);
+constructor TMapLayerTiledWithThreadDraw.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AResamplerConfig: IImageResamplerConfig;
+  ATimerNoifier: IJclNotifier;
+  APriority: TThreadPriority
+);
 begin
   inherited Create(AParentMap, AViewPortState, ATimerNoifier, APriority);
   FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(AResamplerConfig);
-  FConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+  FConverterFactory := AConverterFactory;
 end;
 
 procedure TMapLayerTiledWithThreadDraw.ClearLayerBitmap;

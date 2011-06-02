@@ -10,6 +10,7 @@ uses
   i_JclNotify,
   t_CommonTypes,
   i_CoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,
@@ -50,6 +51,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapsConfig: IMainMapsConfig;
       AResamplerConfig: IImageResamplerConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
@@ -78,6 +80,7 @@ uses
 constructor TMapMainLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapsConfig: IMainMapsConfig;
   AResamplerConfig: IImageResamplerConfig;
   APostProcessingConfig: IBitmapPostProcessingConfig;
@@ -86,7 +89,7 @@ constructor TMapMainLayer.Create(
   ATimerNoifier: IJclNotifier
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AResamplerConfig, ATimerNoifier, tpNormal);
+  inherited Create(AParentMap, AViewPortState, AConverterFactory, AResamplerConfig, ATimerNoifier, tpNormal);
   FMapsConfig := AMapsConfig;
   FErrorLogger := AErrorLogger;
   FPostProcessingConfig := APostProcessingConfig;
