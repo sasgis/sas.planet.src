@@ -617,7 +617,7 @@ function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
       VCategoryID := GetCategoryID(IMarkCategory(ACategoryList[0]));
       VCategoryFilter := IntToStr(VCategoryID);
       for i :=  1 to ACategoryList.Count - 1 do begin
-        VCategoryID := GetCategoryID(IMarkCategory(ACategoryList[0]));
+        VCategoryID := GetCategoryID(IMarkCategory(ACategoryList[i]));
         VCategoryFilter := VCategoryFilter + ', ' + IntToStr(VCategoryID);
       end;
       VCategoryFilter := '(categoryid in (' + VCategoryFilter + ')) and';
