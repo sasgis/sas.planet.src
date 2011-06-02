@@ -24,7 +24,6 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      APicName: string;
       APic: IMarkPicture;
       ACategory: IMarkCategory;
       AColor1: TColor32;
@@ -60,22 +59,18 @@ constructor TMarkPointTemplateConfig.Create(
   AMarkPictureList: IMarkPictureList
 );
 var
-  VPicName: string;
   VPic: IMarkPicture;
 begin
   inherited Create(ACategoryDb, SAS_STR_NewMark);
 
   FMarkPictureList := AMarkPictureList;
   if FMarkPictureList.Count > 0 then begin
-    VPicName := FMarkPictureList.GetName(0);
     VPic := FMarkPictureList.Get(0);
   end else begin
-    VPicName := '';
     VPic := nil;
   end;
 
   FDefaultTemplate := CreateTemplate(
-    VPicName,
     VPic,
     nil,
     SetAlpha(clYellow32, 166),
@@ -85,11 +80,12 @@ begin
   );
 end;
 
-function TMarkPointTemplateConfig.CreateTemplate(APicName: string;
+function TMarkPointTemplateConfig.CreateTemplate(
   APic: IMarkPicture;
   ACategory: IMarkCategory;
-  AColor1, AColor2: TColor32; AScale1,
-  AScale2: Integer): IMarkTemplatePoint;
+  AColor1, AColor2: TColor32;
+  AScale1, AScale2: Integer
+): IMarkTemplatePoint;
 var
   VCategoryId: Integer;
   VCategoryInternal: IMarkCategorySMLInternal;
@@ -108,7 +104,6 @@ begin
     AColor2,
     AScale1,
     AScale2,
-    APicName,
     APic
   );
 end;
@@ -134,16 +129,13 @@ begin
   VScale1 := FDefaultTemplate.Scale1;
   VScale2 := FDefaultTemplate.Scale2;
   VPic := FDefaultTemplate.Pic;
-  VPicName := '';
-  if VPic <> nil then begin
-    VPicName := VPic.GetName;
-  end;
-  
-  if VPicName = '' then begin
+  if VPic = nil then begin
     if FMarkPictureList.Count > 0 then begin
-      VPicName := FMarkPictureList.GetName(0);
       VPic := FMarkPictureList.Get(0);
     end;
+  end;
+  if VPic <> nil then begin
+    VPicName := VPic.GetName;
   end;
   if AConfigData <> nil then begin
     VPicName := AConfigData.ReadString('IconName', VPicName);
@@ -172,7 +164,6 @@ begin
       VColor2,
       VScale1,
       VScale2,
-      VPicName,
       VPic
     )
   );
@@ -184,6 +175,7 @@ var
   VCategoryId: Integer;
   VPicName: string;
   VTemplateInternal: IMarkTemplateSMLInternal;
+  VPic: IMarkPicture;
 begin
   inherited;
   VCategoryID := -1;
@@ -191,8 +183,9 @@ begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
   VPicName := '';
-  if FDefaultTemplate.Pic <> nil then begin
-    VPicName := FDefaultTemplate.Pic.GetName;
+  VPic := FDefaultTemplate.Pic;
+  if VPic <> nil then begin
+    VPicName := VPic.GetName;
   end;
   AConfigData.WriteString('IconName', VPicName);
   AConfigData.WriteInteger('CategoryId', VCategoryId);
@@ -223,7 +216,7 @@ begin
   if AValue <> nil then begin
     LockWrite;
     try
-      if (FDefaultTemplate = nil) or (FDefaultTemplate.IsSame(AValue)) then begin
+      if (FDefaultTemplate = nil) or (not FDefaultTemplate.IsSame(AValue)) then begin
         FDefaultTemplate := AValue;
         SetChanged;
       end;

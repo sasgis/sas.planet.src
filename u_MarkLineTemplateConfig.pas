@@ -146,7 +146,7 @@ begin
   if AValue <> nil then begin
     LockWrite;
     try
-      if (FDefaultTemplate = nil) or (FDefaultTemplate.IsSame(AValue)) then begin
+      if (FDefaultTemplate = nil) or (not FDefaultTemplate.IsSame(AValue)) then begin
         FDefaultTemplate := AValue;
         SetChanged;
       end;

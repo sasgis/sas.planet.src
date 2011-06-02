@@ -162,7 +162,6 @@ function TfrmImportConfigEdit.GetImportConfig(AMarkDBGUI: TMarksDbGUIHelper): II
 var
   VIndex: Integer;
   VPic: IMarkPicture;
-  VPicName: string;
   VMarkTemplatePoint: IMarkTemplatePoint;
   VMarkTemplateLine: IMarkTemplateLine;
   VMarkTemplatePoly: IMarkTemplatePoly;
@@ -187,14 +186,11 @@ begin
           VIndex := cbbPointIcon.ItemIndex;
           if VIndex < 0 then begin
             VPic := nil;
-            VPicName := '';
           end else begin
             VPic := IMarkPicture(Pointer(cbbPointIcon.Items.Objects[VIndex]));
-            VPicName := cbbPointIcon.Items.Strings[VIndex];
           end;
           VMarkTemplatePoint :=
             FMarkDBGUI.MarksDB.MarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
-              VPicName,
               VPic,
               FCategory,
               SetAlpha(Color32(clrbxPointTextColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
