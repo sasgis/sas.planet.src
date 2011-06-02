@@ -220,24 +220,29 @@ end;
 
 function TExportMarks2KML.SaveMarkIcon(Mark:iMarkFull): string;
 var
-  VSourceFileName: string;
   VTargetPath: string;
   VTargetFullName: string;
   VPicName: string;
+  VMemStream: TMemoryStream;
 begin
   Result := '';
   if Mark.Pic <> nil then begin
-    VPicName := Mark.Pic.GetName;
-    VSourceFileName := GState.ProgramPath + 'marksicons' + PathDelim + VPicName;
-    VTargetPath := 'files' + PathDelim;
-    Result := VTargetPath  + VPicName;
-    if inKMZ then begin
-      Zip.AddFile(VSourceFileName, Result);
-    end else begin
-      VTargetPath := ExtractFilePath(filename) + VTargetPath;
-      VTargetFullName := VTargetPath + VPicName;
-      CreateDir(VTargetPath);
-      CopyFile(PChar(VSourceFileName),PChar(VTargetFullName),false);
+    VMemStream := TMemoryStream.Create;
+    try
+      Mark.Pic.ExportToStream(VMemStream);
+      VPicName := Mark.Pic.GetName;
+      VTargetPath := 'files' + PathDelim;
+      Result := VTargetPath  + VPicName;
+      if inKMZ then begin
+        Zip.AddStream(Result, VMemStream);
+      end else begin
+        VTargetPath := ExtractFilePath(filename) + VTargetPath;
+        VTargetFullName := VTargetPath + VPicName;
+        CreateDir(VTargetPath);
+        VMemStream.SaveToFile(VTargetFullName);
+      end;
+    finally
+      VMemStream.Free;
     end;
   end;
 end;

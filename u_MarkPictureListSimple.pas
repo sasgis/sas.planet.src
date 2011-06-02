@@ -72,31 +72,26 @@ end;
 procedure TMarkPictureListSimple.DoReadConfig(AConfigData: IConfigDataProvider);
 var
   SearchRec: TSearchRec;
-  Vbmp: TCustomBitmap32;
   VLoader: IBitmapTileLoader;
   VPicture: IMarkPicture;
+  VFullName: string;
 begin
   inherited;
   Clear;
   VLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.png');
-  Vbmp := TCustomBitmap32.Create;
-  try
-    if FindFirst(FBasePath + '*.png', faAnyFile, SearchRec) = 0 then begin
-      try
-        repeat
-          if (SearchRec.Attr and faDirectory) <> faDirectory then begin
-            VLoader.LoadFromFile(FBasePath + SearchRec.Name, Vbmp);
-            VPicture := TMarkPictureSimple.Create(SearchRec.Name, Vbmp);
-            VPicture._AddRef;
-            FList.AddObject(SearchRec.Name, TObject(Pointer(VPicture)));
-          end;
-        until FindNext(SearchRec) <> 0;
-      finally
-        FindClose(SearchRec);
-      end;
+  if FindFirst(FBasePath + '*.png', faAnyFile, SearchRec) = 0 then begin
+    try
+      repeat
+        if (SearchRec.Attr and faDirectory) <> faDirectory then begin
+          VFullName := FBasePath + SearchRec.Name;
+          VPicture := TMarkPictureSimple.Create(VFullName, SearchRec.Name, VLoader);
+          VPicture._AddRef;
+          FList.AddObject(SearchRec.Name, TObject(Pointer(VPicture)));
+        end;
+      until FindNext(SearchRec) <> 0;
+    finally
+      FindClose(SearchRec);
     end;
-  finally
-    FreeAndNil(Vbmp);
   end;
 end;
 
