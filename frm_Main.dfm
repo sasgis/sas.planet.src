@@ -497,7 +497,7 @@ object frmMain: TfrmMain
             ColCount = 5
             Images = ScalesImageList
             PaletteOptions = []
-            RowCount = 5
+            RowCount = 7
             OnCellClick = TBXToolPalette1CellClick
             Caption = ''
             Hint = ''
