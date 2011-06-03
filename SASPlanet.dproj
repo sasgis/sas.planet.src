@@ -228,9 +228,11 @@
     <DCCReference Include="i_Sensor.pas" />
     <DCCReference Include="i_SensorListGenerator.pas" />
     <DCCReference Include="i_SensorViewListGenerator.pas" />
+    <DCCReference Include="i_SimpleDownloader.pas" />
     <DCCReference Include="i_SimpleFactory.pas" />
     <DCCReference Include="i_StatBarConfig.pas" />
     <DCCReference Include="i_Thread.pas" />
+    <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownlodSession.pas" />
     <DCCReference Include="i_TileError.pas" />
     <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
@@ -598,6 +600,7 @@
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
     <DCCReference Include="u_TileDownloaderBase.pas" />
     <DCCReference Include="u_TileDownloaderBaseFactory.pas" />
+    <DCCReference Include="u_TileDownloaderConfigStatic.pas" />
     <DCCReference Include="u_TileDownloaderThreadBase.pas" />
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
