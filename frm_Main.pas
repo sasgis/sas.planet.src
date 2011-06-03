@@ -1964,8 +1964,8 @@ procedure TfrmMain.topos(LL:TDoublePoint;zoom_:byte;draw:boolean);
 begin
   FConfig.ViewPortState.LockWrite;
   try
-    FConfig.ViewPortState.ChangeLonLat(LL);
     FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(zoom_);
+    FConfig.ViewPortState.ChangeLonLat(LL);
   finally
     FConfig.ViewPortState.UnlockWrite;
   end;
