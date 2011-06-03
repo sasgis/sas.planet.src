@@ -334,7 +334,6 @@ type
     NBlock_toolbars: TTBXItem;
     TBXSeparatorItem19: TTBXSeparatorItem;
     tbitmGPSOptions: TTBXItem;
-    ScalesPlusImageList: TTBXImageList;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
