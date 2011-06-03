@@ -18,7 +18,6 @@ type
     FIgnoreMIMEType: Boolean;
     FDownloadTryCount: Integer;
     FConnectionSettings: IInetConfig;
-    FSleepOnResetConnection: Cardinal;
     FWaitInterval: Cardinal;
     FUserAgentString: string;
   protected
@@ -43,8 +42,6 @@ type
     constructor Create(AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; ADownloadTryCount: Integer; AConnectionSettings: IInetConfig);
     destructor Destroy; override;
     function DownloadTile(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
-    property SleepOnResetConnection: Cardinal read FSleepOnResetConnection write FSleepOnResetConnection;
-    property ExpectedMIMETypes: string read FExpectedMIMETypes write FExpectedMIMETypes;
     property WaitInterval: Cardinal read FWaitInterval write FWaitInterval;
   end;
 
@@ -78,7 +75,6 @@ begin
   FConnectionSettings := AConnectionSettings;
   FCS := TCriticalSection.Create;
   FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
-  FSleepOnResetConnection := 200;
   FLastDownloadResult := dtrOK;
   OpenSession;
 end;
@@ -337,7 +333,7 @@ end;
 procedure TTileDownloaderBase.ResetConnetction;
 begin
   CloseSession;
-  Sleep(FSleepOnResetConnection);
+  Sleep(FConnectionSettings.SleepOnResetConnection);
   OpenSession;
 end;
 

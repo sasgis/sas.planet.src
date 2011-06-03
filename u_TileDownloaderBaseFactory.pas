@@ -23,7 +23,6 @@ type
     FIgnoreContent_Type: Boolean;
     FContent_Type: string;
     FDefaultContent_Type: string;
-    FSlepOnResetConnection: Cardinal;
     function CreateInstance: IInterface;
     function CreateSession: ITileDownlodSession; override;
   public
@@ -47,7 +46,6 @@ begin
   FIgnoreContent_Type := VParams.ReadBool('IgnoreContentType', False);
   FDefaultContent_Type := VParams.ReadString('DefaultContentType', 'image/jpg');
   FContent_Type := VParams.ReadString('ContentType', 'image/jpg');
-  FSlepOnResetConnection := VParams.ReadInteger('SlepOnResetConnection', 5000);
 end;
 
 function TTileDownloaderFactory.CreateInstance: IInterface;
@@ -58,16 +56,9 @@ end;
 function TTileDownloaderFactory.CreateSession: ITileDownlodSession;
 var
   VDownloader: TTileDownloaderBase;
-  VTryCount: Integer;
 begin
-  if GState.TwoDownloadAttempt then begin
-    VTryCount := 2;
-  end else begin
-    VTryCount := 1;
-  end;
   VDownloader := TTileDownloaderBase.Create(FIgnoreContent_Type,
-    FContent_Type, FDefaultContent_Type, VTryCount, GState.InetConfig);
-  VDownloader.SleepOnResetConnection := FSlepOnResetConnection;
+    FContent_Type, FDefaultContent_Type, GState.InetConfig.DownloadTryCount, GState.InetConfig);
   VDownloader.WaitInterval := FWaitInterval;
   Result := VDownloader;
 end;

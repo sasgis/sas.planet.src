@@ -122,8 +122,6 @@ type
 
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
-    // Делать вторую попытку скачать файл при ошибке скачивания
-    TwoDownloadAttempt: Boolean;
     // Переходить к следующему тайлу если произошла ошибка закачки
     GoNextTileIfDownloadError: Boolean;
 
@@ -522,7 +520,6 @@ begin
   WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
   SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', false);
 
-  TwoDownloadAttempt:=MainIni.ReadBool('INTERNET','DblDwnl',true);
   GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
   SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 end;
@@ -561,7 +558,6 @@ begin
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
   MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
-  MainIni.WriteBool('INTERNET','DblDwnl',TwoDownloadAttempt);
   MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);
   MainIni.WriteBool('INTERNET','SessionLastSuccess',SessionLastSuccess);
 

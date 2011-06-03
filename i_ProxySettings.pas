@@ -83,6 +83,14 @@ type
     function GetTimeOut: Cardinal;
     procedure SetTimeOut(AValue: Cardinal);
     property TimeOut: Cardinal read GetTimeOut write SetTimeOut;
+
+    function GetSleepOnResetConnection: Cardinal;
+    procedure SetSleepOnResetConnection(AValue: Cardinal);
+    property SleepOnResetConnection: Cardinal read GetSleepOnResetConnection write SetSleepOnResetConnection;
+
+    function GetDownloadTryCount: Integer;
+    procedure SetDownloadTryCount(AValue: Integer);
+    property DownloadTryCount: Integer read GetDownloadTryCount write SetDownloadTryCount;
   end;
 
 implementation
