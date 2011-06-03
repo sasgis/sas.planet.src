@@ -132,7 +132,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 238
+      Left = 242
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -164,7 +164,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 365
+      Left = 369
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -175,7 +175,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 536
+      Left = 540
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -3125,5 +3125,13 @@ object frmMain: TfrmMain
       Caption = 'Layer Info'
       Hint = ''
     end
+  end
+  object ScalesPlusImageList: TTBXImageList
+    Left = 48
+    Top = 272
+    PngDIB = {
+      0A00000089504E470D0A1A0A0000000D4948445200000010000000A001000000
+      002D42D1B90000000274524E5300007693CD380000000E494441547801636018
+      05C339040001E00001CE64BEB40000000049454E4400000000}
   end
 end
