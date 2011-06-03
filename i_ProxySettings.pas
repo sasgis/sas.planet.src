@@ -25,6 +25,27 @@ type
     property Password: WideString read GetPassword;
   end;
 
+  IProxyConfigStatic = interface(IInterface)
+    ['{DD723CA2-3A8F-4350-B04E-284B00AC47EA}']
+    function GetUseIESettings: Boolean;
+    property UseIESettings: Boolean read GetUseIESettings;
+
+    function GetUseProxy(): boolean;
+    property UseProxy: boolean read GetUseProxy;
+
+    function GetHost(): WideString;
+    property Host: WideString read GetHost;
+
+    function GetUseLogin(): boolean;
+    property UseLogin: boolean read GetUseLogin;
+
+    function GetLogin(): WideString;
+    property Login: WideString read GetLogin;
+
+    function GetPassword(): WideString;
+    property Password: WideString read GetPassword;
+  end;
+
   IProxyConfig = interface(IConfigDataElement)
   ['{0CE5A97E-471D-4A3E-93E3-D130DD1F50F5}']
     function GetUseIESettings: Boolean; safecall;
@@ -50,15 +71,18 @@ type
     function GetPassword(): WideString; safecall;
     procedure SetPassword(AValue: WideString);
     property Password: WideString read GetPassword write SetPassword;
+
+    function GetStatic: IProxyConfigStatic;
   end;
 
   IInetConfig = interface(IConfigDataElement)
     ['{D025A3CE-2CC7-4DB3-BBF6-53DF14A2A2E7}']
-    function GetProxyConfig: IProxyConfig; safecall;
-    function GetTimeOut: Cardinal; safecall;
-    procedure SetTimeOut(AValue: Cardinal); safecall;
-
+    function GetProxyConfig: IProxyConfig;
     property ProxyConfig: IProxyConfig read GetProxyConfig;
+
+    function GetTimeOut: Cardinal;
+    procedure SetTimeOut(AValue: Cardinal);
+    property TimeOut: Cardinal read GetTimeOut write SetTimeOut;
   end;
 
 implementation

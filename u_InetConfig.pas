@@ -17,9 +17,9 @@ type
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetProxyConfig: IProxyConfig; safecall;
-    function GetTimeOut: Cardinal; safecall;
-    procedure SetTimeOut(AValue: Cardinal); safecall;
+    function GetProxyConfig: IProxyConfig;
+    function GetTimeOut: Cardinal;
+    procedure SetTimeOut(AValue: Cardinal);
   public
     constructor Create;
   end;
