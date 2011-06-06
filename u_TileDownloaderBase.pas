@@ -7,18 +7,24 @@ uses
   WinInet,
   SyncObjs,
   Classes,
+  i_JclNotify,
   i_ProxySettings,
+  i_TileDownloaderConfig,
   i_TileDownlodSession;
 
 type
   TTileDownloaderBase = class(TInterfacedObject, ITileDownlodSession)
   private
+    FConfig: ITileDownloaderConfig;
+    FConfigStatic: ITileDownloaderConfigStatic;
+    FConfigListener: IJclListener;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
     FIgnoreMIMEType: Boolean;
     FConnectionSettings: IInetConfig;
     FWaitInterval: Cardinal;
     FUserAgentString: string;
+    procedure OnConfigChange(Sender: TObject);
   protected
     FSessionHandle: HInternet;
     FSessionOpenError: Cardinal;
@@ -38,7 +44,7 @@ type
     function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
     function IsGlobalOffline: Boolean;
   public
-    constructor Create(AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; AConnectionSettings: IInetConfig);
+    constructor Create(AConfig: ITileDownloaderConfig; AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; AConnectionSettings: IInetConfig);
     destructor Destroy; override;
     function DownloadTile(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
     property WaitInterval: Cardinal read FWaitInterval write FWaitInterval;
@@ -47,7 +53,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_NotifyEventListener;
 
 { TTileDownloaderBase }
 
@@ -63,10 +70,15 @@ begin
   end;
 end;
 
-constructor TTileDownloaderBase.Create(AIgnoreMIMEType: Boolean;
+constructor TTileDownloaderBase.Create(AConfig: ITileDownloaderConfig; AIgnoreMIMEType: Boolean;
   AExpectedMIMETypes, ADefaultMIMEType: string;
   AConnectionSettings: IInetConfig);
 begin
+  FConfig := AConfig;
+  FConfigListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  FConfig.GetChangeNotifier.Add(FConfigListener);
+  OnConfigChange(nil);
+
   FIgnoreMIMEType := AIgnoreMIMEType;
   FDefaultMIMEType := ADefaultMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
@@ -79,6 +91,10 @@ end;
 
 destructor TTileDownloaderBase.Destroy;
 begin
+  FConfig.GetChangeNotifier.Remove(FConfigListener);
+  FConfigListener := nil;
+  FConfig := nil;
+  FConfigStatic := nil;
   FreeAndNil(FCS);
   CloseSession;
   inherited;
@@ -212,6 +228,11 @@ begin
     Result := False;
   end;
   end;
+end;
+
+procedure TTileDownloaderBase.OnConfigChange(Sender: TObject);
+begin
+  FConfigStatic := FConfig.GetStatic;
 end;
 
 procedure TTileDownloaderBase.OpenSession;

@@ -383,7 +383,7 @@ begin
       if FMaxConnectToServerCount <= 0 then begin
         FMaxConnectToServerCount := 1;
       end;
-      VDownloader := TTileDownloaderFactory.Create(AConfig);
+      VDownloader := TTileDownloaderFactory.Create(AConfig, FTileDownloaderConfig);
       FTileDownlodSessionFactory := VDownloader;
       FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, VDownloader, 60000, 60000);
       GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
