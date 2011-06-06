@@ -64,7 +64,6 @@ type
     FCoordConverter : ICoordConverter;
     FMainCoordConverter : ICoordConverter;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
-    FTileDownlodSessionFactory: ITileDownlodSessionFactory;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
@@ -170,7 +169,6 @@ type
     property DefParentSubMenu: string read FDefParentSubMenu;
     property DefEnabled: boolean read FDefEnabled;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
-    property DownloaderFactory: ITileDownlodSessionFactory read FTileDownlodSessionFactory;
     property Cache: ITileObjCache read FCache;
 
     constructor Create(
@@ -383,8 +381,7 @@ begin
       if FMaxConnectToServerCount <= 0 then begin
         FMaxConnectToServerCount := 1;
       end;
-      VDownloader := TTileDownloaderFactory.Create(AConfig, FTileDownloaderConfig);
-      FTileDownlodSessionFactory := VDownloader;
+      VDownloader := TTileDownloaderFactory.Create(FTileDownloaderConfig);
       FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, VDownloader, 60000, 60000);
       GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
       FAntiBan := TAntiBanStuped.Create(AConfig);
@@ -392,12 +389,8 @@ begin
       if ExceptObject <> nil then begin
         ShowMessageFmt(SAS_ERR_MapDownloadByError,[FZMPFileName, (ExceptObject as Exception).Message]);
       end;
-      FTileDownlodSessionFactory := nil;
       FUseDwn := false;
     end;
-  end;
-  if FTileDownlodSessionFactory = nil then begin
-    FTileDownlodSessionFactory := TTileDownloaderFactoryBase.Create(AConfig);
   end;
 end;
 

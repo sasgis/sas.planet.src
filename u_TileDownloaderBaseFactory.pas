@@ -12,8 +12,6 @@ type
   TTileDownloaderFactoryBase = class(TInterfacedObject, ITileDownlodSessionFactory)
   private
     function CreateSession: ITileDownlodSession; virtual;
-  public
-    constructor Create(AConfigData: IConfigDataProvider);
   end;
 
   TTileDownloaderFactory = class(TTileDownloaderFactoryBase, ISimpleFactory)
@@ -22,7 +20,7 @@ type
     function CreateInstance: IInterface;
     function CreateSession: ITileDownlodSession; override;
   public
-    constructor Create(AConfigData: IConfigDataProvider; AConfig: ITileDownloaderConfig);
+    constructor Create(AConfig: ITileDownloaderConfig);
   end;
 
 implementation
@@ -33,11 +31,9 @@ uses
 
 { TTileDownloaderBaseFactory }
 
-constructor TTileDownloaderFactory.Create(AConfigData: IConfigDataProvider; AConfig: ITileDownloaderConfig);
-var
-  VParams: IConfigDataProvider;
+constructor TTileDownloaderFactory.Create(AConfig: ITileDownloaderConfig);
 begin
-  inherited Create(AConfigData);
+  inherited Create;
   FConfig := AConfig;
 end;
 
@@ -47,19 +43,11 @@ begin
 end;
 
 function TTileDownloaderFactory.CreateSession: ITileDownlodSession;
-var
-  VDownloader: TTileDownloaderBase;
 begin
-  VDownloader := TTileDownloaderBase.Create(FConfig, FIgnoreContent_Type,
-    FContent_Type, FDefaultContent_Type, GState.InetConfig);
-  Result := VDownloader;
+  Result := TTileDownloaderBase.Create(FConfig);
 end;
 
 { TTileDownloaderFactoryBase }
-
-constructor TTileDownloaderFactoryBase.Create(AConfigData: IConfigDataProvider);
-begin
-end;
 
 function TTileDownloaderFactoryBase.CreateSession: ITileDownlodSession;
 begin
