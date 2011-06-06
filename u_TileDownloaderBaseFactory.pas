@@ -58,7 +58,7 @@ var
   VDownloader: TTileDownloaderBase;
 begin
   VDownloader := TTileDownloaderBase.Create(FIgnoreContent_Type,
-    FContent_Type, FDefaultContent_Type, GState.InetConfig.DownloadTryCount, GState.InetConfig);
+    FContent_Type, FDefaultContent_Type, GState.InetConfig);
   VDownloader.WaitInterval := FWaitInterval;
   Result := VDownloader;
 end;

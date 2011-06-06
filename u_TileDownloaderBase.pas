@@ -16,7 +16,6 @@ type
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
     FIgnoreMIMEType: Boolean;
-    FDownloadTryCount: Integer;
     FConnectionSettings: IInetConfig;
     FWaitInterval: Cardinal;
     FUserAgentString: string;
@@ -39,7 +38,7 @@ type
     function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
     function IsGlobalOffline: Boolean;
   public
-    constructor Create(AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; ADownloadTryCount: Integer; AConnectionSettings: IInetConfig);
+    constructor Create(AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; AConnectionSettings: IInetConfig);
     destructor Destroy; override;
     function DownloadTile(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
     property WaitInterval: Cardinal read FWaitInterval write FWaitInterval;
@@ -66,12 +65,11 @@ end;
 
 constructor TTileDownloaderBase.Create(AIgnoreMIMEType: Boolean;
   AExpectedMIMETypes, ADefaultMIMEType: string;
-  ADownloadTryCount: Integer; AConnectionSettings: IInetConfig);
+  AConnectionSettings: IInetConfig);
 begin
   FIgnoreMIMEType := AIgnoreMIMEType;
   FDefaultMIMEType := ADefaultMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
-  FDownloadTryCount := ADownloadTryCount;
   FConnectionSettings := AConnectionSettings;
   FCS := TCriticalSection.Create;
   FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
@@ -92,11 +90,13 @@ function TTileDownloaderBase.DownloadTile(AUrl, ARequestHead: string;
   out AContentType, AResponseHead: string): TDownloadTileResult;
 var
   VTryCount: Integer;
+  VDownloadTryCount: Integer;
 begin
   if not Assigned(FSessionHandle) then begin
     Result := dtrErrorInternetOpen;
     exit;
   end;
+  VDownloadTryCount := FConnectionSettings.DownloadTryCount;
   FCS.Acquire;
   try
     VTryCount := 0;
@@ -107,7 +107,7 @@ begin
       end;
       Result := TryDownload(AUrl, ARequestHead, ACheckTileSize, AExistsFileSize, fileBuf, AStatusCode, AContentType, AResponseHead);
       Inc(VTryCount);
-    until (Result <> dtrDownloadError) or (VTryCount >= FDownloadTryCount);
+    until (Result <> dtrDownloadError) or (VTryCount >= VDownloadTryCount);
     FLastDownloadResult := Result;
   finally
     FCS.Release;
