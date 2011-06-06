@@ -23,7 +23,8 @@ type
   protected
     FSessionHandle: HInternet;
     FSessionOpenError: Cardinal;
-    FCS: TCriticalSection;
+    FSessionCS: TCriticalSection;
+    FDownloadCS: TCriticalSection;
     FLastDownloadTime: Cardinal;
     FLastDownloadResult: TDownloadTileResult;
     function IsDownloadError(ALastError: Cardinal): Boolean; virtual;
@@ -53,26 +54,16 @@ uses
 
 { TTileDownloaderBase }
 
-function TTileDownloaderBase.BuildHeader(AUrl, AHead: string): string;
-begin
-  Result := AHead;
-end;
-
-procedure TTileDownloaderBase.CloseSession;
-begin
-  if Assigned(FSessionHandle) then begin
-    InternetCloseHandle(FSessionHandle);
-  end;
-end;
-
 constructor TTileDownloaderBase.Create(AConfig: ITileDownloaderConfig);
 begin
   FConfig := AConfig;
+  FDownloadCS := TCriticalSection.Create;
+  FSessionCS := TCriticalSection.Create;
+
   FConfigListener := TNotifyEventListener.Create(Self.OnConfigChange);
   FConfig.GetChangeNotifier.Add(FConfigListener);
   OnConfigChange(nil);
 
-  FCS := TCriticalSection.Create;
   FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FLastDownloadResult := dtrOK;
   OpenSession;
@@ -84,9 +75,27 @@ begin
   FConfigListener := nil;
   FConfig := nil;
   FConfigStatic := nil;
-  FreeAndNil(FCS);
   CloseSession;
+  FreeAndNil(FDownloadCS);
+  FreeAndNil(FSessionCS);
   inherited;
+end;
+
+function TTileDownloaderBase.BuildHeader(AUrl, AHead: string): string;
+begin
+  Result := AHead;
+end;
+
+procedure TTileDownloaderBase.CloseSession;
+begin
+  FSessionCS.Acquire;
+  try
+    if Assigned(FSessionHandle) then begin
+      InternetCloseHandle(FSessionHandle);
+    end;
+  finally
+    FSessionCS.Release;
+  end;
 end;
 
 function TTileDownloaderBase.DownloadTile(AUrl, ARequestHead: string;
@@ -97,12 +106,17 @@ var
   VTryCount: Integer;
   VDownloadTryCount: Integer;
 begin
-  if not Assigned(FSessionHandle) then begin
-    Result := dtrErrorInternetOpen;
-    exit;
+  FSessionCS.Acquire;
+  try
+    if not Assigned(FSessionHandle) then begin
+      Result := dtrErrorInternetOpen;
+      exit;
+    end;
+  finally
+    FSessionCS.Release;
   end;
   VDownloadTryCount := FConfigStatic.DownloadTryCount;
-  FCS.Acquire;
+  FDownloadCS.Acquire;
   try
     VTryCount := 0;
     Result := FLastDownloadResult;
@@ -115,7 +129,7 @@ begin
     until (Result <> dtrDownloadError) or (VTryCount >= VDownloadTryCount);
     FLastDownloadResult := Result;
   finally
-    FCS.Release;
+    FDownloadCS.Release;
   end;
 end;
 
@@ -222,33 +236,45 @@ end;
 procedure TTileDownloaderBase.OnConfigChange(Sender: TObject);
 begin
   FConfigStatic := FConfig.GetStatic;
+  FSessionCS.Acquire;
+  try
+    CloseSession;
+    OpenSession;
+  finally
+    FSessionCS.Release;
+  end;
 end;
 
 procedure TTileDownloaderBase.OpenSession;
 var
   VTimeOut: DWORD;
 begin
-  FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
-  if Assigned(FSessionHandle) then begin
-    FSessionOpenError := 0;
-    VTimeOut := FConfigStatic.TimeOut;
-    if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+  FSessionCS.Acquire;
+  try
+    FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+    if Assigned(FSessionHandle) then begin
+      FSessionOpenError := 0;
+      VTimeOut := FConfigStatic.TimeOut;
+      if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+        FSessionOpenError := GetLastError;
+      end;
+      if not InternetSetOption(FSessionHandle, INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+        FSessionOpenError := GetLastError;
+      end;
+      if not InternetSetOption(FSessionHandle, INTERNET_OPTION_DATA_SEND_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+        FSessionOpenError := GetLastError;
+      end;
+      if not InternetSetOption(FSessionHandle, INTERNET_OPTION_SEND_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+        FSessionOpenError := GetLastError;
+      end;
+      if not InternetSetOption(FSessionHandle, INTERNET_OPTION_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+        FSessionOpenError := GetLastError;
+      end;
+    end else begin
       FSessionOpenError := GetLastError;
     end;
-    if not InternetSetOption(FSessionHandle, INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
-      FSessionOpenError := GetLastError;
-    end;
-    if not InternetSetOption(FSessionHandle, INTERNET_OPTION_DATA_SEND_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
-      FSessionOpenError := GetLastError;
-    end;
-    if not InternetSetOption(FSessionHandle, INTERNET_OPTION_SEND_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
-      FSessionOpenError := GetLastError;
-    end;
-    if not InternetSetOption(FSessionHandle, INTERNET_OPTION_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
-      FSessionOpenError := GetLastError;
-    end;
-  end else begin
-    FSessionOpenError := GetLastError;
+  finally
+    FSessionCS.Release;
   end;
 end;
 
@@ -378,19 +404,27 @@ var
   VProxyConfig: IProxyConfigStatic;
   VLogin, VPassword: string;
   VConfig: ITileDownloaderConfigStatic;
+  VSessionHandle: HInternet;
 begin
   VConfig := FConfigStatic;
   VProxyConfig := VConfig.ProxyConfigStatic;
+  FSessionCS.Acquire;
+  try
+    VSessionHandle := FSessionHandle;
+  finally
+    FSessionCS.Release;
+  end;
+
   VHeader := BuildHeader(AUrl, ARequestHead);
   if IsGlobalOffline then begin
     ci.dwConnectedState := INTERNET_STATE_CONNECTED;
-    InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
+    InternetSetOption(VSessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
   end;
   VNow := GetTickCount;
   if VNow < FLastDownloadTime + VConfig.WaitInterval then begin
     Sleep(VConfig.WaitInterval);
   end;
-  VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader),
+  VFileHandle := InternetOpenURL(VSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader),
     INTERNET_FLAG_NO_CACHE_WRITE or
     INTERNET_FLAG_RELOAD or
     INTERNET_FLAG_IGNORE_CERT_CN_INVALID or
