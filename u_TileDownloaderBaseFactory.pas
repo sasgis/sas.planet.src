@@ -11,10 +11,7 @@ uses
 type
   TTileDownloaderFactoryBase = class(TInterfacedObject, ITileDownlodSessionFactory)
   private
-    FWaitInterval: Cardinal;
     function CreateSession: ITileDownlodSession; virtual;
-    function GetWaitInterval: Cardinal; virtual;
-    procedure SetWaitInterval(AValue: Cardinal); virtual;
   public
     constructor Create(AConfigData: IConfigDataProvider);
   end;
@@ -22,9 +19,6 @@ type
   TTileDownloaderFactory = class(TTileDownloaderFactoryBase, ISimpleFactory)
   private
     FConfig: ITileDownloaderConfig;
-    FIgnoreContent_Type: Boolean;
-    FContent_Type: string;
-    FDefaultContent_Type: string;
     function CreateInstance: IInterface;
     function CreateSession: ITileDownlodSession; override;
   public
@@ -45,10 +39,6 @@ var
 begin
   inherited Create(AConfigData);
   FConfig := AConfig;
-  VParams := AConfigData.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FIgnoreContent_Type := VParams.ReadBool('IgnoreContentType', False);
-  FDefaultContent_Type := VParams.ReadString('DefaultContentType', 'image/jpg');
-  FContent_Type := VParams.ReadString('ContentType', 'image/jpg');
 end;
 
 function TTileDownloaderFactory.CreateInstance: IInterface;
@@ -62,33 +52,18 @@ var
 begin
   VDownloader := TTileDownloaderBase.Create(FConfig, FIgnoreContent_Type,
     FContent_Type, FDefaultContent_Type, GState.InetConfig);
-  VDownloader.WaitInterval := FWaitInterval;
   Result := VDownloader;
 end;
 
 { TTileDownloaderFactoryBase }
 
 constructor TTileDownloaderFactoryBase.Create(AConfigData: IConfigDataProvider);
-var
-  VParams: IConfigDataProvider;
 begin
-  VParams := AConfigData.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FWaitInterval := VParams.ReadInteger('Sleep', 0);
 end;
 
 function TTileDownloaderFactoryBase.CreateSession: ITileDownlodSession;
 begin
   Result := nil;
-end;
-
-function TTileDownloaderFactoryBase.GetWaitInterval: Cardinal;
-begin
-  Result := FWaitInterval;
-end;
-
-procedure TTileDownloaderFactoryBase.SetWaitInterval(AValue: Cardinal);
-begin
-  FWaitInterval := AValue;
 end;
 
 end.

@@ -18,11 +18,6 @@ type
     FConfig: ITileDownloaderConfig;
     FConfigStatic: ITileDownloaderConfigStatic;
     FConfigListener: IJclListener;
-    FExpectedMIMETypes: string;
-    FDefaultMIMEType: string;
-    FIgnoreMIMEType: Boolean;
-    FConnectionSettings: IInetConfig;
-    FWaitInterval: Cardinal;
     FUserAgentString: string;
     procedure OnConfigChange(Sender: TObject);
   protected
@@ -43,11 +38,11 @@ type
     function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AContentType: string; out AResponseHead: string): TDownloadTileResult; virtual;
     function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
     function IsGlobalOffline: Boolean;
-  public
-    constructor Create(AConfig: ITileDownloaderConfig; AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string; AConnectionSettings: IInetConfig);
-    destructor Destroy; override;
+  protected
     function DownloadTile(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
-    property WaitInterval: Cardinal read FWaitInterval write FWaitInterval;
+  public
+    constructor Create(AConfig: ITileDownloaderConfig);
+    destructor Destroy; override;
   end;
 
 implementation
@@ -70,19 +65,13 @@ begin
   end;
 end;
 
-constructor TTileDownloaderBase.Create(AConfig: ITileDownloaderConfig; AIgnoreMIMEType: Boolean;
-  AExpectedMIMETypes, ADefaultMIMEType: string;
-  AConnectionSettings: IInetConfig);
+constructor TTileDownloaderBase.Create(AConfig: ITileDownloaderConfig);
 begin
   FConfig := AConfig;
   FConfigListener := TNotifyEventListener.Create(Self.OnConfigChange);
   FConfig.GetChangeNotifier.Add(FConfigListener);
   OnConfigChange(nil);
 
-  FIgnoreMIMEType := AIgnoreMIMEType;
-  FDefaultMIMEType := ADefaultMIMEType;
-  FExpectedMIMETypes := AExpectedMIMETypes;
-  FConnectionSettings := AConnectionSettings;
   FCS := TCriticalSection.Create;
   FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FLastDownloadResult := dtrOK;
@@ -112,7 +101,7 @@ begin
     Result := dtrErrorInternetOpen;
     exit;
   end;
-  VDownloadTryCount := FConnectionSettings.DownloadTryCount;
+  VDownloadTryCount := FConfigStatic.DownloadTryCount;
   FCS.Acquire;
   try
     VTryCount := 0;
@@ -242,7 +231,7 @@ begin
   FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
   if Assigned(FSessionHandle) then begin
     FSessionOpenError := 0;
-    VTimeOut := FConnectionSettings.GetTimeOut;
+    VTimeOut := FConfigStatic.TimeOut;
     if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
       FSessionOpenError := GetLastError;
     end;
@@ -271,7 +260,9 @@ var
   dwIndex: Cardinal;
   VContentLen: Cardinal;
   VLastError: Cardinal;
+  VConfig: ITileDownloaderConfigStatic;
 begin
+  VConfig := FConfigStatic;
   try
     AResponseHead := '';
     VBufSize := 1024;
@@ -292,8 +283,8 @@ begin
   except
     AResponseHead := '';
   end;
-  if FIgnoreMIMEType then begin
-    AContentType := FDefaultMIMEType;
+  if VConfig.IgnoreMIMEType then begin
+    AContentType := VConfig.DefaultMIMEType;
   end else begin
     VBufSize := Length(AContentType);
     if VBufSize = 0 then begin
@@ -324,8 +315,8 @@ begin
     end;
     AContentType := trim(AContentType);
     if (AContentType = '') then begin
-      AContentType := FDefaultMIMEType;
-    end else if (Pos(AContentType, FExpectedMIMETypes) <= 0) then begin
+      AContentType := VConfig.DefaultMIMEType;
+    end else if (Pos(AContentType, VConfig.ExpectedMIMETypes) <= 0) then begin
       Result := dtrErrorMIMEType;
       exit;
     end;
@@ -354,7 +345,7 @@ end;
 procedure TTileDownloaderBase.ResetConnetction;
 begin
   CloseSession;
-  Sleep(FConnectionSettings.SleepOnResetConnection);
+  Sleep(FConfigStatic.SleepOnResetConnection);
   OpenSession;
 end;
 
@@ -384,28 +375,20 @@ var
   VLastError: Cardinal;
   ci: INTERNET_CONNECTED_INFO;
   VNow: Cardinal;
-  VProxyConfig: IProxyConfig;
-  VUselogin: Boolean;
-  VLogin: string;
-  VPassword: string;
+  VProxyConfig: IProxyConfigStatic;
+  VLogin, VPassword: string;
+  VConfig: ITileDownloaderConfigStatic;
 begin
-  VProxyConfig := FConnectionSettings.ProxyConfig;
-  VProxyConfig.LockRead;
-  try
-    VUselogin := (not VProxyConfig.GetUseIESettings) and VProxyConfig.GetUseProxy and VProxyConfig.GetUseLogin;
-    VLogin := VProxyConfig.GetLogin;
-    VPassword := VProxyConfig.GetPassword;
-  finally
-    VProxyConfig.UnlockRead;
-  end;
+  VConfig := FConfigStatic;
+  VProxyConfig := VConfig.ProxyConfigStatic;
   VHeader := BuildHeader(AUrl, ARequestHead);
   if IsGlobalOffline then begin
     ci.dwConnectedState := INTERNET_STATE_CONNECTED;
     InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
   end;
   VNow := GetTickCount;
-  if VNow < FLastDownloadTime + FWaitInterval then begin
-    Sleep(FWaitInterval);
+  if VNow < FLastDownloadTime + VConfig.WaitInterval then begin
+    Sleep(VConfig.WaitInterval);
   end;
   VFileHandle := InternetOpenURL(FSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader),
     INTERNET_FLAG_NO_CACHE_WRITE or
@@ -442,7 +425,9 @@ begin
       Exit;
     end;
     if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-      if VUselogin then begin
+      if VProxyConfig.UseLogin then begin
+        VLogin := VProxyConfig.Login;
+        VPassword := VProxyConfig.Password;
         InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
         InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
         HttpSendRequest(VFileHandle, nil, 0, Nil, 0);

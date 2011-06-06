@@ -84,7 +84,7 @@ begin
  FmapType.UrlGenerator.URLBase:=EditURL.Text;
  FmapType.TileStorage.CacheConfig.NameInCache:=EditNameinCache.Text;
  FmapType.ParentSubMenu:=EditParSubMenu.Text;
- FmapType.DownloaderFactory.WaitInterval:=SESleep.Value;
+ FmapType.TileDownloaderConfig.WaitInterval:=SESleep.Value;
  FmapType.HotKey:=EditHotKey.HotKey;
  FMapType.Enabled:=CheckEnabled.Checked;
  if CBCacheType.ItemIndex > 0 then begin
@@ -106,7 +106,7 @@ begin
  EditURL.Text:=FmapType.UrlGenerator.DefURLBase;
  EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
  EditParSubMenu.Text:=FmapType.DefParentSubMenu;
- SESleep.Value:=FmapType.DownloaderFactory.WaitInterval;
+ SESleep.Value:=FmapType.TileDownloaderConfig.WaitInterval;
  EditHotKey.HotKey:=FmapType.DefHotKey;
  CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
  CheckBox1.Checked:=FmapType.Defseparator;
@@ -151,7 +151,7 @@ begin
   edtZmp.Text := AMapType.ZmpFileName;
   EditURL.Text:=FMapType.UrlGenerator.URLBase;
   EditNameinCache.Text:=FMapType.TileStorage.CacheConfig.NameInCache;
-  SESleep.Value:=FMapType.DownloaderFactory.WaitInterval;
+  SESleep.Value:=FMapType.TileDownloaderConfig.WaitInterval;
   EditParSubMenu.Text:=FMapType.ParentSubMenu;
   EditHotKey.HotKey:=FMapType.HotKey;
   CBCacheType.ItemIndex:=FMapType.TileStorage.CacheConfig.cachetype;
