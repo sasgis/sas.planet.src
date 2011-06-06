@@ -14,6 +14,7 @@ uses
   i_ContentTypeInfo,
   i_ConfigDataProvider,
   i_TileObjCache,
+  i_TileDownloaderConfig,
   i_LanguageManager,
   i_CoordConverter,
   i_TileDownlodSession,
@@ -67,6 +68,7 @@ type
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
+    FTileDownloaderConfig: ITileDownloaderConfig;
 
     function GetUseDwn: Boolean;
     function GetZmpFileName: string;
@@ -167,6 +169,7 @@ type
     property Defseparator: boolean read FDefseparator;
     property DefParentSubMenu: string read FDefParentSubMenu;
     property DefEnabled: boolean read FDefEnabled;
+    property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
     property DownloaderFactory: ITileDownlodSessionFactory read FTileDownlodSessionFactory;
     property Cache: ITileObjCache read FCache;
 
@@ -195,6 +198,7 @@ uses
   i_PoolElement,
   i_TileInfoBasic,
   u_PoolOfObjectsSimple,
+  u_TileDownloaderConfig,
   u_TileDownloaderBaseFactory,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
@@ -369,6 +373,7 @@ var
   VDownloader: TTileDownloaderFactory;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FTileDownloaderConfig.ReadConfig(VParams);
   if FUseDwn then begin
     try
       FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', 1);
@@ -680,6 +685,7 @@ begin
   FGuid := AGUID;
   FLanguageManager := ALanguageManager;
   FMimeTypeSubstList := nil;
+  FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig);
   LoadMapType(AConfig, Apnum);
   if FasLayer then begin
     FLoadPrevMaxZoomDelta := 4;

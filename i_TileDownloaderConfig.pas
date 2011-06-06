@@ -34,8 +34,20 @@ type
     property DefaultMIMEType: string read GetDefaultMIMEType;
   end;
 
-  ITileDownloaderConfig = interface(IInetConfig)
+  ITileDownloaderConfig = interface(IConfigDataElement)
     ['{FECD40CF-A0AF-479A-8CCC-E3363037773E}']
+    function GetProxyConfig: IProxyConfig;
+    property ProxyConfig: IProxyConfig read GetProxyConfig;
+
+    function GetTimeOut: Cardinal;
+    property TimeOut: Cardinal read GetTimeOut;
+
+    function GetSleepOnResetConnection: Cardinal;
+    property SleepOnResetConnection: Cardinal read GetSleepOnResetConnection;
+
+    function GetDownloadTryCount: Integer;
+    property DownloadTryCount: Integer read GetDownloadTryCount;
+
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);
     property WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;

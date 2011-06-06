@@ -163,6 +163,7 @@ uses
   u_InetConfig in 'u_InetConfig.pas',
   i_TileDownloaderConfig in 'i_TileDownloaderConfig.pas',
   u_TileDownloaderConfigStatic in 'u_TileDownloaderConfigStatic.pas',
+  u_TileDownloaderConfig in 'u_TileDownloaderConfig.pas',
   i_GSMGeoCodeConfig in 'i_GSMGeoCodeConfig.pas',
   u_GSMGeoCodeConfig in 'u_GSMGeoCodeConfig.pas',
   u_YaMobileWrite in 'u_YaMobileWrite.pas',
