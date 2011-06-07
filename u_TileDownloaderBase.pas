@@ -35,7 +35,16 @@ type
     procedure OpenSession; virtual;
     procedure CloseSession; virtual;
     function BuildHeader(AUrl, AHead: string): string; virtual;
-    function TryDownload(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
+    function TryDownload(
+      AConfig: ITileDownloaderConfigStatic;
+      AUrl, ARequestHead: string;
+      ACheckTileSize: Boolean;
+      AExistsFileSize: Cardinal;
+      fileBuf: TMemoryStream;
+      out AServerExists: Boolean;
+      out AStatusCode: Cardinal;
+      out AContentType, AResponseHead: string
+    ): TDownloadTileResult; virtual;
     procedure ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AContentType: string; var AResponseHead: string); virtual;
     procedure GetData(AFileHandle: HInternet; fileBuf: TMemoryStream); virtual;
     function IsGlobalOffline(ASessionHandle: HInternet): Boolean;
@@ -122,6 +131,9 @@ function TTileDownloaderBase.DownloadTile(AUrl, ARequestHead: string;
 var
   VTryCount: Integer;
   VDownloadTryCount: Integer;
+  VConfig: ITileDownloaderConfigStatic;
+  VServerExists: Boolean;
+  VNow: Cardinal;
 begin
   FSessionCS.Acquire;
   try
@@ -132,7 +144,8 @@ begin
   finally
     FSessionCS.Release;
   end;
-  VDownloadTryCount := FConfigStatic.DownloadTryCount;
+  VConfig := FConfigStatic;
+  VDownloadTryCount := VConfig.DownloadTryCount;
   FDownloadCS.Acquire;
   try
     VTryCount := 0;
@@ -141,8 +154,15 @@ begin
       if Result = dtrDownloadError then begin
         ResetConnetction;
       end;
-      Result := TryDownload(AUrl, ARequestHead, ACheckTileSize, AExistsFileSize, fileBuf, AStatusCode, AContentType, AResponseHead);
+      VNow := GetTickCount;
+      if VNow < FLastDownloadTime + VConfig.WaitInterval then begin
+        Sleep(VConfig.WaitInterval);
+      end;
+      Result := TryDownload(VConfig, AUrl, ARequestHead, ACheckTileSize, AExistsFileSize, fileBuf, VServerExists, AStatusCode, AContentType, AResponseHead);
       Inc(VTryCount);
+      if VServerExists then begin
+        FLastDownloadTime := GetTickCount;
+      end;
     until (Result <> dtrDownloadError) or (VTryCount >= VDownloadTryCount);
     FLastDownloadResult := Result;
   finally
@@ -477,20 +497,24 @@ begin
   end;
 end;
 
-function TTileDownloaderBase.TryDownload(AUrl, ARequestHead: string;
-  ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
-  fileBuf: TMemoryStream; out AStatusCode: Cardinal;
-  out AContentType, AResponseHead: string): TDownloadTileResult;
+function TTileDownloaderBase.TryDownload(
+  AConfig: ITileDownloaderConfigStatic;
+  AUrl, ARequestHead: string;
+  ACheckTileSize: Boolean;
+  AExistsFileSize: Cardinal;
+  fileBuf: TMemoryStream;
+  out AServerExists: Boolean;
+  out AStatusCode: Cardinal;
+  out AContentType, AResponseHead: string
+): TDownloadTileResult;
 var
   VFileHandle: HInternet;
   VHeader: String;
-  VNow: Cardinal;
   VProxyConfig: IProxyConfigStatic;
-  VConfig: ITileDownloaderConfigStatic;
   VSessionHandle: HInternet;
 begin
-  VConfig := FConfigStatic;
-  VProxyConfig := VConfig.ProxyConfigStatic;
+  AServerExists := False;
+  VProxyConfig := AConfig.ProxyConfigStatic;
   FSessionCS.Acquire;
   try
     VSessionHandle := FSessionHandle;
@@ -499,10 +523,6 @@ begin
   end;
 
   VHeader := BuildHeader(AUrl, ARequestHead);
-  VNow := GetTickCount;
-  if VNow < FLastDownloadTime + VConfig.WaitInterval then begin
-    Sleep(VConfig.WaitInterval);
-  end;
   try
     VFileHandle := InternetOpenURL(VSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader),
       INTERNET_FLAG_NO_CACHE_WRITE or
@@ -521,6 +541,7 @@ begin
           ProxyAuth(VProxyConfig, VFileHandle, AStatusCode);
         end;
         if IsOkStatus(AStatusCode) then begin
+          AServerExists := True;
           try
             ProcessDataRequest(VFileHandle, ACheckTileSize, AExistsFileSize, fileBuf, AContentType, AResponseHead);
           except
@@ -543,7 +564,6 @@ begin
         end else begin
           Result := dtrUnknownError;
         end;
-        FLastDownloadTime := GetTickCount;
       except
         on E: EOSError do begin
           if IsDownloadError(E.ErrorCode) then begin
