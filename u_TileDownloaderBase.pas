@@ -40,12 +40,21 @@ type
     procedure GetData(AFileHandle: HInternet; fileBuf: TMemoryStream); virtual;
     function IsGlobalOffline(ASessionHandle: HInternet): Boolean;
     procedure ResetGlobalOffline(ASessionHandle: HInternet);
-    procedure CheckBeforeGetData(
+    procedure CheckTargetSize(
       AFileHandle: HInternet;
       ACheckTileSize: Boolean;
-      AExistsFileSize: Cardinal;
-      out AContentType: string
+      AExistsFileSize: Cardinal
     );
+    procedure CheckContentType(
+      AFileHandle: HInternet;
+      var AContentType: string
+    );
+    procedure ProxyAuth(
+      AProxyConfig: IProxyConfigStatic;
+      AFileHandle: HInternet;
+      out AStatusCode: Cardinal
+    );
+    function GetStatusCode(AFileHandle: HInternet): Cardinal;
     procedure GetResponsHead(AFileHandle: HInternet; var AResponseHead: string);
   protected
     function DownloadTile(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
@@ -269,6 +278,7 @@ begin
       if not InternetSetOption(FSessionHandle, INTERNET_OPTION_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
         FSessionOpenError := GetLastError;
       end;
+      ResetGlobalOffline(FSessionHandle);
     end else begin
       FSessionOpenError := GetLastError;
     end;
@@ -278,21 +288,15 @@ begin
 end;
 
 type
-  ESameTileSize = class(Exception);
   EMimeTypeError = class(Exception);
 
-procedure TTileDownloaderBase.CheckBeforeGetData(
-  AFileHandle: HInternet;
-  ACheckTileSize: Boolean;
-  AExistsFileSize: Cardinal;
-  out AContentType: string
-);
+procedure TTileDownloaderBase.CheckContentType(AFileHandle: HInternet;
+  var AContentType: string);
 var
   VConfig: ITileDownloaderConfigStatic;
   VBufSize: Cardinal;
   dwIndex: Cardinal;
   VLastError: Cardinal;
-  VContentLen: Cardinal;
 begin
   VConfig := FConfigStatic;
   if VConfig.IgnoreMIMEType then begin
@@ -325,6 +329,22 @@ begin
       raise EMimeTypeError.CreateFmt('Неожиданный тип %s', [AContentType]);
     end;
   end;
+end;
+
+type
+  ESameTileSize = class(Exception);
+
+procedure TTileDownloaderBase.CheckTargetSize(
+  AFileHandle: HInternet;
+  ACheckTileSize: Boolean;
+  AExistsFileSize: Cardinal
+);
+var
+  VBufSize: Cardinal;
+  dwIndex: Cardinal;
+  VLastError: Cardinal;
+  VContentLen: Cardinal;
+begin
   if ACheckTileSize then begin
     dwIndex := 0;
     VBufSize := sizeof(VContentLen);
@@ -380,7 +400,8 @@ procedure TTileDownloaderBase.ProcessDataRequest(AFileHandle: HInternet;
   fileBuf: TMemoryStream; out AContentType: string; var AResponseHead: string);
 begin
   GetResponsHead(AFileHandle, AResponseHead);
-  CheckBeforeGetData(AFileHandle, ACheckTileSize, AExistsFileSize, AContentType);
+  CheckContentType(AFileHandle, AContentType);
+  CheckTargetSize(AFileHandle, ACheckTileSize, AExistsFileSize);
   GetData(AFileHandle, fileBuf);
 end;
 
@@ -418,6 +439,44 @@ end;
 type
   EProxyAuthError = class(Exception);
 
+function TTileDownloaderBase.GetStatusCode(AFileHandle: HInternet): Cardinal;
+var
+  dwIndex: Cardinal;
+  VBufSize: Cardinal;
+begin
+  VBufSize := sizeof(Result);
+  dwIndex := 0;
+  if not HttpQueryInfo(AFileHandle, HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER, @Result, VBufSize, dwIndex) then begin
+    RaiseLastOSError;
+  end;
+end;
+
+procedure TTileDownloaderBase.ProxyAuth(
+  AProxyConfig: IProxyConfigStatic;
+  AFileHandle: HInternet;
+  out AStatusCode: Cardinal
+);
+var
+  VLogin, VPassword: string;
+begin
+  if AProxyConfig.UseIESettings or
+    not AProxyConfig.UseProxy or
+    not AProxyConfig.UseLogin
+  then begin
+    raise EProxyAuthError.Create('Настройки не предусматривают авторизацию на прокси');
+  end;
+  VLogin := AProxyConfig.Login;
+  VPassword := AProxyConfig.Password;
+  InternetSetOption(AFileHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
+  InternetSetOption(AFileHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
+  HttpSendRequest(AFileHandle, nil, 0, Nil, 0);
+
+  AStatusCode := GetStatusCode(AFileHandle);
+  if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
+    raise EProxyAuthError.Create('Ошибка авторизации на прокси');
+  end;
+end;
+
 function TTileDownloaderBase.TryDownload(AUrl, ARequestHead: string;
   ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
   fileBuf: TMemoryStream; out AStatusCode: Cardinal;
@@ -425,15 +484,11 @@ function TTileDownloaderBase.TryDownload(AUrl, ARequestHead: string;
 var
   VFileHandle: HInternet;
   VHeader: String;
-  VBufSize: Cardinal;
-  dwIndex: Cardinal;
   VNow: Cardinal;
   VProxyConfig: IProxyConfigStatic;
-  VLogin, VPassword: string;
   VConfig: ITileDownloaderConfigStatic;
   VSessionHandle: HInternet;
 begin
-  Result := dtrUnknownError;
   VConfig := FConfigStatic;
   VProxyConfig := VConfig.ProxyConfigStatic;
   FSessionCS.Acquire;
@@ -442,8 +497,6 @@ begin
   finally
     FSessionCS.Release;
   end;
-
-  ResetGlobalOffline(VSessionHandle);
 
   VHeader := BuildHeader(AUrl, ARequestHead);
   VNow := GetTickCount;
@@ -462,33 +515,10 @@ begin
       RaiseLastOSError;
     end;
     try
-      VBufSize := sizeof(AStatusCode);
-      dwIndex := 0;
       try
-        if not HttpQueryInfo(VFileHandle, HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER, @AStatusCode, VBufSize, dwIndex) then begin
-          RaiseLastOSError;
-        end;
+        AStatusCode := GetStatusCode(VFileHandle);
         if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-          if VProxyConfig.UseIESettings or
-            not VProxyConfig.UseProxy or
-            not VProxyConfig.UseLogin
-          then begin
-            raise EProxyAuthError.Create('Настройки не предусматривают авторизацию на прокси');
-          end;
-          VLogin := VProxyConfig.Login;
-          VPassword := VProxyConfig.Password;
-          InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
-          InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
-          HttpSendRequest(VFileHandle, nil, 0, Nil, 0);
-
-          dwIndex := 0;
-          VBufSize := sizeof(AStatusCode);
-          if not HttpQueryInfo(VFileHandle, HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER, @AStatusCode, VBufSize, dwIndex) then begin
-            RaiseLastOSError;
-          end;
-          if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-            raise EProxyAuthError.Create('Ошибка авторизации на прокси');
-          end;
+          ProxyAuth(VProxyConfig, VFileHandle, AStatusCode);
         end;
         if IsOkStatus(AStatusCode) then begin
           try
