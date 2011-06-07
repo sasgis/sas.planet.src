@@ -38,7 +38,8 @@ type
     function TryDownload(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
     function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AContentType: string; out AResponseHead: string): TDownloadTileResult; virtual;
     function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
-    function IsGlobalOffline: Boolean;
+    function IsGlobalOffline(ASessionHandle: HInternet): Boolean;
+    procedure ResetGlobalOffline(ASessionHandle: HInternet);
   protected
     function DownloadTile(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
   public
@@ -375,14 +376,24 @@ begin
   OpenSession;
 end;
 
-function TTileDownloaderBase.IsGlobalOffline: Boolean;
+procedure TTileDownloaderBase.ResetGlobalOffline(ASessionHandle: HInternet);
+var
+  ci: INTERNET_CONNECTED_INFO;
+begin
+  if IsGlobalOffline(ASessionHandle) then begin
+    ci.dwConnectedState := INTERNET_STATE_CONNECTED;
+    InternetSetOption(ASessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
+  end;
+end;
+
+function TTileDownloaderBase.IsGlobalOffline(ASessionHandle: HInternet): Boolean;
 var
   State, Size: DWORD;
 begin
   Result := False;
   State := 0;
   Size := SizeOf(DWORD);
-  if InternetQueryOption(nil, INTERNET_OPTION_CONNECTED_STATE, @State, Size) then begin
+  if InternetQueryOption(ASessionHandle, INTERNET_OPTION_CONNECTED_STATE, @State, Size) then begin
     if (State and INTERNET_STATE_DISCONNECTED_BY_USER) <> 0 then begin
       Result := True;
     end;
@@ -399,7 +410,6 @@ var
   VBufSize: Cardinal;
   dwIndex: Cardinal;
   VLastError: Cardinal;
-  ci: INTERNET_CONNECTED_INFO;
   VNow: Cardinal;
   VProxyConfig: IProxyConfigStatic;
   VLogin, VPassword: string;
@@ -415,11 +425,9 @@ begin
     FSessionCS.Release;
   end;
 
+  ResetGlobalOffline(VSessionHandle);
+
   VHeader := BuildHeader(AUrl, ARequestHead);
-  if IsGlobalOffline then begin
-    ci.dwConnectedState := INTERNET_STATE_CONNECTED;
-    InternetSetOption(VSessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
-  end;
   VNow := GetTickCount;
   if VNow < FLastDownloadTime + VConfig.WaitInterval then begin
     Sleep(VConfig.WaitInterval);
