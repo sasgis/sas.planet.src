@@ -36,10 +36,17 @@ type
     procedure CloseSession; virtual;
     function BuildHeader(AUrl, AHead: string): string; virtual;
     function TryDownload(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
-    function ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AContentType: string; out AResponseHead: string): TDownloadTileResult; virtual;
-    function GetData(AFileHandle: HInternet; fileBuf: TMemoryStream): TDownloadTileResult; virtual;
+    procedure ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AContentType: string; var AResponseHead: string); virtual;
+    procedure GetData(AFileHandle: HInternet; fileBuf: TMemoryStream); virtual;
     function IsGlobalOffline(ASessionHandle: HInternet): Boolean;
     procedure ResetGlobalOffline(ASessionHandle: HInternet);
+    procedure CheckBeforeGetData(
+      AFileHandle: HInternet;
+      ACheckTileSize: Boolean;
+      AExistsFileSize: Cardinal;
+      out AContentType: string
+    );
+    procedure GetResponsHead(AFileHandle: HInternet; var AResponseHead: string);
   protected
     function DownloadTile(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
   public
@@ -134,28 +141,19 @@ begin
   end;
 end;
 
-function TTileDownloaderBase.GetData(AFileHandle: HInternet;
-  fileBuf: TMemoryStream): TDownloadTileResult;
+procedure TTileDownloaderBase.GetData(AFileHandle: HInternet;
+  fileBuf: TMemoryStream);
 var
   VBuffer: array [1..64535] of Byte;
   VBufferLen: LongWord;
-  VLastError: Cardinal;
 begin
   repeat
     if InternetReadFile(AFileHandle, @VBuffer, SizeOf(VBuffer), VBufferLen) then begin
       filebuf.Write(VBuffer, VBufferLen);
     end else begin
-      VLastError := GetLastError;
-      if IsDownloadError(VLastError) then begin
-        Result := dtrDownloadError;
-      end else begin
-        Result := dtrUnknownError;
-        Assert(False, 'Неизвестная ошибка при получении данных. Код ошибки ' + IntToStr(VLastError));
-      end;
-      Exit;
+      RaiseLastOSError;
     end;
   until (VBufferLen = 0);
-  Result := dtrOK;
 end;
 
 function TTileDownloaderBase.IsDownloadError(
@@ -279,37 +277,24 @@ begin
   end;
 end;
 
-function TTileDownloaderBase.ProcessDataRequest(AFileHandle: HInternet;
-  ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
-  fileBuf: TMemoryStream; out AContentType: string; out AResponseHead: string): TDownloadTileResult;
+type
+  ESameTileSize = class(Exception);
+  EMimeTypeError = class(Exception);
+
+procedure TTileDownloaderBase.CheckBeforeGetData(
+  AFileHandle: HInternet;
+  ACheckTileSize: Boolean;
+  AExistsFileSize: Cardinal;
+  out AContentType: string
+);
 var
+  VConfig: ITileDownloaderConfigStatic;
   VBufSize: Cardinal;
   dwIndex: Cardinal;
-  VContentLen: Cardinal;
   VLastError: Cardinal;
-  VConfig: ITileDownloaderConfigStatic;
+  VContentLen: Cardinal;
 begin
   VConfig := FConfigStatic;
-  try
-    AResponseHead := '';
-    VBufSize := 1024;
-    SetLength(AResponseHead, VBufSize);
-    FillChar(AResponseHead[1], VBufSize, 0);
-    dwIndex := 0;
-    if not HttpQueryInfo(AFileHandle, HTTP_QUERY_RAW_HEADERS_CRLF, @AResponseHead[1], VBufSize, dwIndex) then begin
-      VLastError := GetLastError;
-      if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
-        SetLength(AResponseHead, VBufSize);
-        FillChar(AResponseHead[1], VBufSize, 0);
-        dwIndex := 0;
-        if not HttpQueryInfo(AFileHandle, HTTP_QUERY_RAW_HEADERS_CRLF, @AResponseHead[1], VBufSize, dwIndex) then
-          AResponseHead := ''
-        else SetLength(AResponseHead, VBufSize);
-      end else AResponseHead := '';
-    end else SetLength(AResponseHead, VBufSize);
-  except
-    AResponseHead := '';
-  end;
   if VConfig.IgnoreMIMEType then begin
     AContentType := VConfig.DefaultMIMEType;
   end else begin
@@ -325,27 +310,19 @@ begin
       if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
         SetLength(AContentType, VBufSize);
         if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
-          {$IFDEF DEBUG}
-          VLastError := GetLastError;
-          {$ENDIF}
-          Result := dtrUnknownError;
-          Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
-          exit;
+          RaiseLastOSError;
         end;
       end else if VLastError = ERROR_HTTP_HEADER_NOT_FOUND then begin
         AContentType := '';
       end else begin
-        Result := dtrUnknownError;
-        Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
-        exit;
+        RaiseLastOSError(VLastError);
       end;
     end;
     AContentType := trim(AContentType);
     if (AContentType = '') then begin
       AContentType := VConfig.DefaultMIMEType;
     end else if (Pos(AContentType, VConfig.ExpectedMIMETypes) <= 0) then begin
-      Result := dtrErrorMIMEType;
-      exit;
+      raise EMimeTypeError.CreateFmt('Неожиданный тип %s', [AContentType]);
     end;
   end;
   if ACheckTileSize then begin
@@ -353,20 +330,58 @@ begin
     VBufSize := sizeof(VContentLen);
     if HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_LENGTH or HTTP_QUERY_FLAG_NUMBER, @VContentLen, VBufSize, dwIndex) then begin
       if VContentLen = AExistsFileSize then begin
-        Result := dtrSameTileSize;
-        Exit;
+        raise ESameTileSize.Create('Одинаковый размер тайла');
       end;
     end else begin
-      {$IFDEF DEBUG}
       VLastError := GetLastError;
-      {$ENDIF}
-      Assert(False, 'Неизвестная ошибка при получении размера. Код ошибки ' + IntToStr(VLastError));
+      if VLastError <> ERROR_HTTP_HEADER_NOT_FOUND then begin
+        RaiseLastOSError(VLastError);
+      end;
     end;
   end;
-  Result := GetData(AFileHandle, fileBuf);
-  if (Result = dtrOK) and (fileBuf.Size = 0) then begin
-    Result := dtrTileNotExists;
+end;
+
+procedure TTileDownloaderBase.GetResponsHead(AFileHandle: HInternet;
+  var AResponseHead: string);
+var
+  VBufSize: Cardinal;
+  dwIndex: Cardinal;
+  VLastError: Cardinal;
+begin
+  try
+    VBufSize := 1024;
+    SetLength(AResponseHead, VBufSize);
+    FillChar(AResponseHead[1], VBufSize, 0);
+    dwIndex := 0;
+    if not HttpQueryInfo(AFileHandle, HTTP_QUERY_RAW_HEADERS_CRLF, @AResponseHead[1], VBufSize, dwIndex) then begin
+      VLastError := GetLastError;
+      if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
+        SetLength(AResponseHead, VBufSize);
+        FillChar(AResponseHead[1], VBufSize, 0);
+        dwIndex := 0;
+        if not HttpQueryInfo(AFileHandle, HTTP_QUERY_RAW_HEADERS_CRLF, @AResponseHead[1], VBufSize, dwIndex) then begin
+          AResponseHead := ''
+        end else begin
+          SetLength(AResponseHead, VBufSize);
+        end;
+      end else begin
+        AResponseHead := '';
+      end;
+    end else begin
+      SetLength(AResponseHead, VBufSize);
+    end;
+  except
+    AResponseHead := '';
   end;
+end;
+
+procedure TTileDownloaderBase.ProcessDataRequest(AFileHandle: HInternet;
+  ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
+  fileBuf: TMemoryStream; out AContentType: string; var AResponseHead: string);
+begin
+  GetResponsHead(AFileHandle, AResponseHead);
+  CheckBeforeGetData(AFileHandle, ACheckTileSize, AExistsFileSize, AContentType);
+  GetData(AFileHandle, fileBuf);
 end;
 
 procedure TTileDownloaderBase.ResetConnetction;
@@ -400,6 +415,9 @@ begin
   end;
 end;
 
+type
+  EProxyAuthError = class(Exception);
+
 function TTileDownloaderBase.TryDownload(AUrl, ARequestHead: string;
   ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
   fileBuf: TMemoryStream; out AStatusCode: Cardinal;
@@ -409,13 +427,13 @@ var
   VHeader: String;
   VBufSize: Cardinal;
   dwIndex: Cardinal;
-  VLastError: Cardinal;
   VNow: Cardinal;
   VProxyConfig: IProxyConfigStatic;
   VLogin, VPassword: string;
   VConfig: ITileDownloaderConfigStatic;
   VSessionHandle: HInternet;
 begin
+  Result := dtrUnknownError;
   VConfig := FConfigStatic;
   VProxyConfig := VConfig.ProxyConfigStatic;
   FSessionCS.Acquire;
@@ -432,81 +450,93 @@ begin
   if VNow < FLastDownloadTime + VConfig.WaitInterval then begin
     Sleep(VConfig.WaitInterval);
   end;
-  VFileHandle := InternetOpenURL(VSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader),
-    INTERNET_FLAG_NO_CACHE_WRITE or
-    INTERNET_FLAG_RELOAD or
-    INTERNET_FLAG_IGNORE_CERT_CN_INVALID or
-    INTERNET_FLAG_IGNORE_CERT_DATE_INVALID or
-    INTERNET_FLAG_NO_COOKIES, { no automatic cookie handling }
-    0);
-  if not Assigned(VFileHandle) then begin
-    VLastError := GetLastError;
-    if IsDownloadError(VLastError) then begin
-      Result := dtrDownloadError;
-    end else begin
-      Result := dtrErrorInternetOpenURL;
-      if VLastError <> ERROR_INTERNET_INVALID_CA then begin
-        Assert(False, 'Неизвестная ошибка при открытии соединения. Код ошибки ' + IntToStr(VLastError));
-      end else begin
-        //Что бы нормально обрабатывать ситуацию нужно полностью переделать закачку.
-      end;
-    end;
-    exit;
-  end;
   try
-    VBufSize := sizeof(AStatusCode);
-    dwIndex := 0;
-    if not HttpQueryInfo(VFileHandle, HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER, @AStatusCode, VBufSize, dwIndex) then begin
-      VLastError := GetLastError;
-      if IsDownloadError(VLastError) then begin
-        Result := dtrDownloadError;
-      end else begin
-        Result := dtrUnknownError;
-        Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
-      end;
-      Exit;
+    VFileHandle := InternetOpenURL(VSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader),
+      INTERNET_FLAG_NO_CACHE_WRITE or
+      INTERNET_FLAG_RELOAD or
+      INTERNET_FLAG_IGNORE_CERT_CN_INVALID or
+      INTERNET_FLAG_IGNORE_CERT_DATE_INVALID or
+      INTERNET_FLAG_NO_COOKIES, { no automatic cookie handling }
+      0);
+    if not Assigned(VFileHandle) then begin
+      RaiseLastOSError;
     end;
-    if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-      if VProxyConfig.UseLogin then begin
-        VLogin := VProxyConfig.Login;
-        VPassword := VProxyConfig.Password;
-        InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
-        InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
-        HttpSendRequest(VFileHandle, nil, 0, Nil, 0);
-
-        dwIndex := 0;
-        VBufSize := sizeof(AStatusCode);
+    try
+      VBufSize := sizeof(AStatusCode);
+      dwIndex := 0;
+      try
         if not HttpQueryInfo(VFileHandle, HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER, @AStatusCode, VBufSize, dwIndex) then begin
-          VLastError := GetLastError;
-          if IsDownloadError(VLastError) then begin
+          RaiseLastOSError;
+        end;
+        if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
+          if VProxyConfig.UseIESettings or
+            not VProxyConfig.UseProxy or
+            not VProxyConfig.UseLogin
+          then begin
+            raise EProxyAuthError.Create('Настройки не предусматривают авторизацию на прокси');
+          end;
+          VLogin := VProxyConfig.Login;
+          VPassword := VProxyConfig.Password;
+          InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
+          InternetSetOption(VFileHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
+          HttpSendRequest(VFileHandle, nil, 0, Nil, 0);
+
+          dwIndex := 0;
+          VBufSize := sizeof(AStatusCode);
+          if not HttpQueryInfo(VFileHandle, HTTP_QUERY_STATUS_CODE or HTTP_QUERY_FLAG_NUMBER, @AStatusCode, VBufSize, dwIndex) then begin
+            RaiseLastOSError;
+          end;
+          if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
+            raise EProxyAuthError.Create('Ошибка авторизации на прокси');
+          end;
+        end;
+        if IsOkStatus(AStatusCode) then begin
+          try
+            ProcessDataRequest(VFileHandle, ACheckTileSize, AExistsFileSize, fileBuf, AContentType, AResponseHead);
+          except
+            on E: EMimeTypeError do begin
+              Result := dtrErrorMIMEType;
+            end;
+            on E: ESameTileSize do begin
+              Result := dtrSameTileSize;
+            end;
+          end;
+          if fileBuf.Size = 0 then begin
+            Result := dtrTileNotExists;
+          end else begin
+            Result := dtrOK;
+          end;
+        end else if IsDownloadErrorStatus(AStatusCode) then begin
+          Result := dtrDownloadError;
+        end else if IsTileNotExistStatus(AStatusCode) then begin
+          Result := dtrTileNotExists;
+        end else begin
+          Result := dtrUnknownError;
+        end;
+        FLastDownloadTime := GetTickCount;
+      except
+        on E: EOSError do begin
+          if IsDownloadError(E.ErrorCode) then begin
             Result := dtrDownloadError;
           end else begin
             Result := dtrUnknownError;
-            Assert(False, 'Неизвестная ошибка при закачке. Код ошибки ' + IntToStr(VLastError));
           end;
-          exit;
         end;
-        if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
+        on E: EProxyAuthError do begin
           Result := dtrProxyAuthError;
-          exit;
         end;
+      end;
+    finally
+      InternetCloseHandle(VFileHandle);
+    end;
+  except
+    on E: EOSError do begin
+      if IsDownloadError(E.ErrorCode) then begin
+        Result := dtrDownloadError;
       end else begin
-        Result := dtrProxyAuthError;
-        Exit;
+        Result := dtrErrorInternetOpenURL;
       end;
     end;
-    if IsOkStatus(AStatusCode) then begin
-      Result := ProcessDataRequest(VFileHandle, ACheckTileSize, AExistsFileSize, fileBuf, AContentType, AResponseHead);
-    end else if IsDownloadErrorStatus(AStatusCode) then begin
-      Result := dtrDownloadError;
-    end else if IsTileNotExistStatus(AStatusCode) then begin
-      Result := dtrTileNotExists;
-    end else begin
-      Result := dtrUnknownError;
-    end;
-    FLastDownloadTime := GetTickCount;
-  finally
-    InternetCloseHandle(VFileHandle);
   end;
 end;
 
