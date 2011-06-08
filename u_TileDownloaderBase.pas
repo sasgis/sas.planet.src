@@ -469,6 +469,9 @@ begin
   end;
 
   VHeader := BuildHeader(AUrl, ARequestHead);
+  if ADownloadChecker <> nil then begin
+    ADownloadChecker.BeforeRequest(AUrl, ARequestHead);
+  end;
   try
     VFileHandle := InternetOpenURL(VSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader),
       INTERNET_FLAG_NO_CACHE_WRITE or
@@ -491,9 +494,13 @@ begin
           try
             GetResponsHead(VFileHandle, AResponseHead);
             GetContentType(VFileHandle, AContentType);
-            ADownloadChecker.AfterResponce(AStatusCode, AContentType, AResponseHead);
+            if ADownloadChecker <> nil then begin
+              ADownloadChecker.AfterResponce(AStatusCode, AContentType, AResponseHead);
+            end;
             GetData(VFileHandle, ARecivedData);
-            ADownloadChecker.AfterReciveData(ARecivedData, AStatusCode, AResponseHead);
+            if ADownloadChecker <> nil then begin
+              ADownloadChecker.AfterReciveData(ARecivedData, AStatusCode, AResponseHead);
+            end;
           except
             on E: EMimeTypeError do begin
               Result := dtrErrorMIMEType;
