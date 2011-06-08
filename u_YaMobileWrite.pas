@@ -14,41 +14,55 @@ implementation
 const
   YaHeaderSize: integer = 1024;
 
-function GetMobileFile(X,Y:integer;Z:byte;Mt:byte):string;
-var Mask,num:integer;
+function GetMobileFile(X,Y: Integer; Z: Byte; AMapType: Byte): string;
+var
+  Mask, Num: Integer;
 begin
-    result:=IntToStr(Z) + PathDelim;
-    if(Z>15) then
-    begin
-      Mask:=(1 shl (Z-15))-1;
-      Num:=(((X shr 15) and Mask) shl 4)+(((Y shr 15) and Mask));
-      result:=result+IntToHex(Num,2) + PathDelim;
-    end;
-    if(Z>11) then
-    begin
-      Mask:=(1 shl (Z-11))-1;
-      Mask:=Mask and $F;
-      Num:=(((X shr 11) and Mask) shl 4)+(((Y shr 11) and Mask));
-      result:=result+IntToHex(Num,2) + PathDelim;
-    end;
-    if(Z>7) then
-    begin
-      Mask:=(1 shl (Z-7))-1;
-      Mask:=Mask and $F;
-      Num:=(((X shr 7) and Mask) shl 8)+(((Y shr 7) and Mask) shl 4)+Mt;
-    end
-    else Num:=Mt;
-    result:=result+IntToHex(Num,3);
+  Result := IntToStr(Z) + PathDelim;
+  if(Z > 15) then
+  begin
+    Mask := (1 shl (Z-15))-1;
+    Num  := (((X shr 15) and Mask) shl 4) + ((Y shr 15) and Mask);
+    Result := Result + IntToHex(Num, 2) + PathDelim;
+  end;
+  if(Z > 11) then
+  begin
+    Mask := (1 shl (Z-11))-1;
+    Mask := Mask and $F;
+    Num  := (((X shr 11) and Mask) shl 4) + ((Y shr 11) and Mask);
+    Result := Result + IntToHex(Num, 2) + PathDelim;
+  end;
+  if(Z > 7) then
+  begin
+    Mask := (1 shl (Z-7))-1;
+    Mask := Mask and $F;
+    Num  := (((X shr 7) and Mask) shl 8) + (((Y shr 7) and Mask) shl 4) + AMapType;
+  end
+  else
+    Num := AMapType;    
+  Result := LowerCase(Result + IntToHex(Num, 3));
 end;
 
-function GetMobileFilePos(X,Y:integer;Z:byte):integer;
+function TileToTablePos(ATile: TPoint): Integer;
+var
+  X,Y: Integer;
 begin
-  x:=X and $7F;
-  y:=Y and $7F;
-  result:=((y and $40) shl 9)+((x and $40) shl 8)+((y and $20) shl 8)+((x and $20) shl 7)
-          +((y and $10) shl 7)+((x and $10) shl 6)+((y and $08) shl 6)+((x and $08) shl 5)
-          +((y and $04) shl 5)+((x and $04) shl 4)+((y and $02) shl 4)+((x and $02) shl 3)
-          +((y and $01) shl 3)+((x and $01) shl 2);
+  X := ATile.X and $7F;
+  Y := ATile.Y and $7F;
+  Result := ((Y and $40) shl 9) +
+            ((X and $40) shl 8) +
+            ((Y and $20) shl 8) +
+            ((X and $20) shl 7) +
+            ((Y and $10) shl 7) +
+            ((X and $10) shl 6) +
+            ((Y and $08) shl 6) +
+            ((X and $08) shl 5) +
+            ((Y and $04) shl 5) +
+            ((X and $04) shl 4) +
+            ((Y and $02) shl 4) +
+            ((X and $02) shl 3) +
+            ((Y and $01) shl 3) +
+            ((X and $01) shl 2);
 end;
 
 procedure CreateNilFile(AFileName: string; ATableSize: Integer);
@@ -103,7 +117,7 @@ begin
   try
     VYaMobileStream.Read(VHead, Length(VHead));
     VTableOffset := ( VHead[6] or (VHead[7] shl 8) or (VHead[8] shl 16) or (VHead[9] shl 24) );
-    VTablePos := GetMobileFilePos(ATile.X, ATile.Y, AZoom)*6 + sm_xy*6;
+    VTablePos := TileToTablePos(ATile)*6 + sm_xy*6;
     VTileOffset := VYaMobileStream.Size;
     VTileSize := ATileStream.Size;
     VYaMobileStream.Position := VTableOffset + VTablePos;
