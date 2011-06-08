@@ -17,6 +17,7 @@ uses
   i_TileDownloaderConfig,
   i_LanguageManager,
   i_CoordConverter,
+  i_DownloadChecker,
   i_TileDownlodSession,
   i_IPoolOfObjectsSimple,
   i_BitmapTypeExtManager,
@@ -139,7 +140,15 @@ type
       ATNEColor: TColor32
     ): boolean;
     function GetShortFolderName: string;
-    function DownloadTile(AThread: TThread; ATile: TPoint; AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl: string; out AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult; overload;
+    function DownloadTile(
+      ATile: TPoint;
+      AZoom: byte;
+      ACheckTileSize: Boolean;
+      AOldTileSize: Integer;
+      out AUrl: string;
+      out AContentType: string;
+      fileBuf: TMemoryStream
+    ): TDownloadTileResult; overload;
 
     property GeoConvert: ICoordConverter read FCoordConverter;
     property MainGeoConvert: ICoordConverter read FMainCoordConverter;
@@ -200,6 +209,7 @@ uses
   u_TileDownloaderBaseFactory,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
+  u_DownloadCheckerStuped,
   u_TileStorageGE,
   u_TileStorageFileSystem;
 
@@ -700,15 +710,22 @@ begin
   inherited;
 end;
 
-function TMapType.DownloadTile(AThread: TThread; ATile: TPoint;
-  AZoom: byte; ACheckTileSize: Boolean; AOldTileSize: Integer; out AUrl,
-  AContentType: string; fileBuf: TMemoryStream): TDownloadTileResult;
+function TMapType.DownloadTile(
+  ATile: TPoint;
+  AZoom: byte;
+  ACheckTileSize: Boolean;
+  AOldTileSize: Integer;
+  out AUrl, AContentType: string;
+  fileBuf: TMemoryStream
+): TDownloadTileResult;
 var
   StatusCode: Cardinal;
   VPoolElement: IPoolElement;
   VDownloader: ITileDownlodSession;
   VRequestHead: string;
   VResponseHead: string;
+  VDownloadChecker: IDownloadChecker;
+  VConfig: ITileDownloaderConfigStatic;
 begin
   if Self.UseDwn then begin
     VRequestHead := ''; VResponseHead := '';
@@ -721,7 +738,15 @@ begin
     if FAntiBan <> nil then begin
       FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
     end;
-    Result := VDownloader.DownloadTile(AUrl, VRequestHead, ACheckTileSize, AOldTileSize, fileBuf, StatusCode, AContentType, VResponseHead);
+    VConfig := FTileDownloaderConfig.GetStatic;
+    VDownloadChecker := TDownloadCheckerStuped.Create(
+      VConfig.IgnoreMIMEType,
+      VConfig.ExpectedMIMETypes,
+      VConfig.DefaultMIMEType,
+      ACheckTileSize,
+      AOldTileSize
+    );
+    Result := VDownloader.DownloadTile(AUrl, VRequestHead, VDownloadChecker, fileBuf, StatusCode, AContentType, VResponseHead);
     SetResponse(VResponseHead);
     if FAntiBan <> nil then begin
       Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);

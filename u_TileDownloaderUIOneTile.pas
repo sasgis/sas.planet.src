@@ -76,7 +76,7 @@ begin
     FileBuf := TMemoryStream.Create;
     try
       try
-        res := FMapType.DownloadTile(Self, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+        res := FMapType.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
         VErrorString := GetErrStr(res);
         if (res = dtrOK) or (res = dtrSameTileSize) then begin
           GState.DownloadInfo.Add(1, fileBuf.Size);

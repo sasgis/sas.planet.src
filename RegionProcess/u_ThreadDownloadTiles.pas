@@ -306,7 +306,7 @@ begin
                   if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(GState.SaveTileNotExists) then begin
                     res := dtrTileNotExists;
                   end else begin
-                    res:=FMapType.DownloadTile(Self, VTile, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
+                    res:=FMapType.DownloadTile(VTile, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
                   end;
                   FLastProcessedPoint := FLoadXY;
                   case res of

@@ -9,6 +9,7 @@ uses
   Classes,
   i_JclNotify,
   i_ProxySettings,
+  i_DownloadChecker,
   i_TileDownloaderConfig,
   i_TileDownlodSession;
 
@@ -38,23 +39,16 @@ type
     function TryDownload(
       AConfig: ITileDownloaderConfigStatic;
       AUrl, ARequestHead: string;
-      ACheckTileSize: Boolean;
-      AExistsFileSize: Cardinal;
-      fileBuf: TMemoryStream;
+      ADownloadChecker: IDownloadChecker;
+      ARecivedData: TMemoryStream;
       out AServerExists: Boolean;
       out AStatusCode: Cardinal;
       out AContentType, AResponseHead: string
     ): TDownloadTileResult; virtual;
-    procedure ProcessDataRequest(AFileHandle: HInternet; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AContentType: string; var AResponseHead: string); virtual;
     procedure GetData(AFileHandle: HInternet; fileBuf: TMemoryStream); virtual;
     function IsGlobalOffline(ASessionHandle: HInternet): Boolean;
     procedure ResetGlobalOffline(ASessionHandle: HInternet);
-    procedure CheckTargetSize(
-      AFileHandle: HInternet;
-      ACheckTileSize: Boolean;
-      AExistsFileSize: Cardinal
-    );
-    procedure CheckContentType(
+    procedure GetContentType(
       AFileHandle: HInternet;
       var AContentType: string
     );
@@ -66,7 +60,13 @@ type
     function GetStatusCode(AFileHandle: HInternet): Cardinal;
     procedure GetResponsHead(AFileHandle: HInternet; var AResponseHead: string);
   protected
-    function DownloadTile(AUrl, ARequestHead: string; ACheckTileSize: Boolean; AExistsFileSize: Cardinal; fileBuf: TMemoryStream; out AStatusCode: Cardinal; out AContentType, AResponseHead: string): TDownloadTileResult; virtual;
+    function DownloadTile(
+      AUrl, ARequestHead: string;
+      ADownloadChecker: IDownloadChecker;
+      ARecivedData: TMemoryStream;
+      out AStatusCode: Cardinal;
+      out AContentType, AResponseHead: string
+    ): TDownloadTileResult; virtual;
   public
     constructor Create(AConfig: ITileDownloaderConfig);
     destructor Destroy; override;
@@ -76,7 +76,8 @@ implementation
 
 uses
   SysUtils,
-  u_NotifyEventListener;
+  u_NotifyEventListener,
+  u_DownloadExceptions;
 
 { TTileDownloaderBase }
 
@@ -124,10 +125,13 @@ begin
   end;
 end;
 
-function TTileDownloaderBase.DownloadTile(AUrl, ARequestHead: string;
-  ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
-  fileBuf: TMemoryStream; out AStatusCode: Cardinal;
-  out AContentType, AResponseHead: string): TDownloadTileResult;
+function TTileDownloaderBase.DownloadTile(
+  AUrl, ARequestHead: string;
+  ADownloadChecker: IDownloadChecker;
+  ARecivedData: TMemoryStream;
+  out AStatusCode: Cardinal;
+  out AContentType, AResponseHead: string
+): TDownloadTileResult;
 var
   VTryCount: Integer;
   VDownloadTryCount: Integer;
@@ -158,7 +162,7 @@ begin
       if VNow < FLastDownloadTime + VConfig.WaitInterval then begin
         Sleep(VConfig.WaitInterval);
       end;
-      Result := TryDownload(VConfig, AUrl, ARequestHead, ACheckTileSize, AExistsFileSize, fileBuf, VServerExists, AStatusCode, AContentType, AResponseHead);
+      Result := TryDownload(VConfig, AUrl, ARequestHead, ADownloadChecker, ARecivedData, VServerExists, AStatusCode, AContentType, AResponseHead);
       Inc(VTryCount);
       if VServerExists then begin
         FLastDownloadTime := GetTickCount;
@@ -307,78 +311,34 @@ begin
   end;
 end;
 
-type
-  EMimeTypeError = class(Exception);
-
-procedure TTileDownloaderBase.CheckContentType(AFileHandle: HInternet;
+procedure TTileDownloaderBase.GetContentType(AFileHandle: HInternet;
   var AContentType: string);
 var
-  VConfig: ITileDownloaderConfigStatic;
   VBufSize: Cardinal;
   dwIndex: Cardinal;
   VLastError: Cardinal;
 begin
-  VConfig := FConfigStatic;
-  if VConfig.IgnoreMIMEType then begin
-    AContentType := VConfig.DefaultMIMEType;
-  end else begin
+  VBufSize := Length(AContentType);
+  if VBufSize = 0 then begin
+    SetLength(AContentType, 20);
     VBufSize := Length(AContentType);
-    if VBufSize = 0 then begin
-      SetLength(AContentType, 20);
-      VBufSize := Length(AContentType);
-    end;
-    FillChar(AContentType[1], VBufSize, 0);
-    dwIndex := 0;
-    if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
-      VLastError := GetLastError;
-      if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
-        SetLength(AContentType, VBufSize);
-        if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
-          RaiseLastOSError;
-        end;
-      end else if VLastError = ERROR_HTTP_HEADER_NOT_FOUND then begin
-        AContentType := '';
-      end else begin
-        RaiseLastOSError(VLastError);
-      end;
-    end;
-    AContentType := trim(AContentType);
-    if (AContentType = '') then begin
-      AContentType := VConfig.DefaultMIMEType;
-    end else if (Pos(AContentType, VConfig.ExpectedMIMETypes) <= 0) then begin
-      raise EMimeTypeError.CreateFmt('Неожиданный тип %s', [AContentType]);
-    end;
   end;
-end;
-
-type
-  ESameTileSize = class(Exception);
-
-procedure TTileDownloaderBase.CheckTargetSize(
-  AFileHandle: HInternet;
-  ACheckTileSize: Boolean;
-  AExistsFileSize: Cardinal
-);
-var
-  VBufSize: Cardinal;
-  dwIndex: Cardinal;
-  VLastError: Cardinal;
-  VContentLen: Cardinal;
-begin
-  if ACheckTileSize then begin
-    dwIndex := 0;
-    VBufSize := sizeof(VContentLen);
-    if HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_LENGTH or HTTP_QUERY_FLAG_NUMBER, @VContentLen, VBufSize, dwIndex) then begin
-      if VContentLen = AExistsFileSize then begin
-        raise ESameTileSize.Create('Одинаковый размер тайла');
+  FillChar(AContentType[1], VBufSize, 0);
+  dwIndex := 0;
+  if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
+    VLastError := GetLastError;
+    if VLastError = ERROR_INSUFFICIENT_BUFFER then begin
+      SetLength(AContentType, VBufSize);
+      if not HttpQueryInfo(AFileHandle, HTTP_QUERY_CONTENT_TYPE, @AContentType[1], VBufSize, dwIndex) then begin
+        RaiseLastOSError;
       end;
+    end else if VLastError = ERROR_HTTP_HEADER_NOT_FOUND then begin
+      AContentType := '';
     end else begin
-      VLastError := GetLastError;
-      if VLastError <> ERROR_HTTP_HEADER_NOT_FOUND then begin
-        RaiseLastOSError(VLastError);
-      end;
+      RaiseLastOSError(VLastError);
     end;
   end;
+  AContentType := trim(AContentType);
 end;
 
 procedure TTileDownloaderBase.GetResponsHead(AFileHandle: HInternet;
@@ -415,16 +375,6 @@ begin
   end;
 end;
 
-procedure TTileDownloaderBase.ProcessDataRequest(AFileHandle: HInternet;
-  ACheckTileSize: Boolean; AExistsFileSize: Cardinal;
-  fileBuf: TMemoryStream; out AContentType: string; var AResponseHead: string);
-begin
-  GetResponsHead(AFileHandle, AResponseHead);
-  CheckContentType(AFileHandle, AContentType);
-  CheckTargetSize(AFileHandle, ACheckTileSize, AExistsFileSize);
-  GetData(AFileHandle, fileBuf);
-end;
-
 procedure TTileDownloaderBase.ResetConnetction;
 begin
   CloseSession;
@@ -455,9 +405,6 @@ begin
     end;
   end;
 end;
-
-type
-  EProxyAuthError = class(Exception);
 
 function TTileDownloaderBase.GetStatusCode(AFileHandle: HInternet): Cardinal;
 var
@@ -500,9 +447,8 @@ end;
 function TTileDownloaderBase.TryDownload(
   AConfig: ITileDownloaderConfigStatic;
   AUrl, ARequestHead: string;
-  ACheckTileSize: Boolean;
-  AExistsFileSize: Cardinal;
-  fileBuf: TMemoryStream;
+  ADownloadChecker: IDownloadChecker;
+  ARecivedData: TMemoryStream;
   out AServerExists: Boolean;
   out AStatusCode: Cardinal;
   out AContentType, AResponseHead: string
@@ -543,7 +489,11 @@ begin
         if IsOkStatus(AStatusCode) then begin
           AServerExists := True;
           try
-            ProcessDataRequest(VFileHandle, ACheckTileSize, AExistsFileSize, fileBuf, AContentType, AResponseHead);
+            GetResponsHead(VFileHandle, AResponseHead);
+            GetContentType(VFileHandle, AContentType);
+            ADownloadChecker.AfterResponce(AStatusCode, AContentType, AResponseHead);
+            GetData(VFileHandle, ARecivedData);
+            ADownloadChecker.AfterReciveData(ARecivedData, AStatusCode, AResponseHead);
           except
             on E: EMimeTypeError do begin
               Result := dtrErrorMIMEType;
@@ -552,7 +502,7 @@ begin
               Result := dtrSameTileSize;
             end;
           end;
-          if fileBuf.Size = 0 then begin
+          if ARecivedData.Size = 0 then begin
             Result := dtrTileNotExists;
           end else begin
             Result := dtrOK;
