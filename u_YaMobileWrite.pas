@@ -3,16 +3,16 @@ unit u_YaMobileWrite;
 interface
 
 uses
+  Windows,
   SysUtils,
-  classes;
+  Classes;
 
- procedure WriteTileInCache(x,y:integer;z,Mt,sm_xy:byte;cache_path:string;tile:TMemoryStream;replace:boolean);
+procedure WriteTileToYaCache(ATile: TPoint; AZoom, AMapType, sm_xy: Byte; AExportPath: string; ATileStream: TMemoryStream; AReplace: Boolean);
 
 implementation
 
 const
- TableOffset=10;
- Head:int64 = $000A000158444E59;//288230381927550553;
+  YaHeaderSize: integer = 1024;
 
 function GetMobileFile(X,Y:integer;Z:byte;Mt:byte):string;
 var Mask,num:integer;
@@ -51,61 +51,74 @@ begin
           +((y and $01) shl 3)+((x and $01) shl 2);
 end;
 
-procedure createdirif(path:string);
+procedure CreateNilFile(AFileName: string; ATableSize: Integer);
+var
+  VYaMob: TMemoryStream;
+  VInitSize: Integer;
+  VPath: string;
 begin
- path:=copy(path, 1, LastDelimiter(PathDelim, path));
- if not(DirectoryExists(path)) then ForceDirectories(path);
-end;
-
-procedure CreateNilFile(path:string; TableSize:integer);
-var ms:TMemoryStream;
-    s:integer;
-begin
- createdirif(path);
- ms:=TMemoryStream.Create;
- s:=8+(sqr(TableSize))*6+(TableOffset-8)+1;
- ms.SetSize(s);
- FillChar(ms.memory^,s,0);
- ms.Position:=0;
- ms.Write(Head,8);
- ms.SaveToFile(path);
- ms.Free;
-end;
-
-procedure WriteTileInCache(x,y:integer;z,Mt,sm_xy:byte;cache_path:string;tile:TMemoryStream;replace:boolean);
-var MobileFilePath:string;
-    MobileFile:TFileStream;
-    TablePos:integer;
-    Adr,RAdr:integer;
-    Len:Smallint;
-    realTableOffset:integer;
- Header:array [0..7] of byte;
- TableSize:integer;
-begin
- if z>7 then TableSize:=256
-        else TableSize:=2 shl Z;
- MobileFilePath:=cache_path+GetMobileFile(X,Y,Z,Mt);
- if not(FileExists(MobileFilePath))
-  then CreateNilFile(MobileFilePath, TableSize);
- MobileFile:=TFileStream.Create(MobileFilePath,fmOpenReadWrite or fmShareExclusive);
-
- MobileFile.Read(Header,8);
- realTableOffset:=(header[6]or(header[7]shl 8));
- TablePos:=GetMobileFilePos(X,Y,Z)*6+sm_xy*6;
-
- Adr:=MobileFile.Size;
- Len:=tile.Size;
- MobileFile.Position:=realTableOffset+TablePos;
- MobileFile.Read(RAdr,4);
- if (RAdr=0)or(replace) then
-  begin
-   MobileFile.Position:=realTableOffset+TablePos;
-   MobileFile.Write(Adr,4);
-   MobileFile.Write(Len,2);
-   MobileFile.Position:=MobileFile.Size;
-   MobileFile.Write(tile.Memory^,tile.Size);
+  VYaMob := TMemoryStream.Create;
+  try
+    VPath := copy(AFileName, 1, LastDelimiter(PathDelim, AFileName));
+    if not(DirectoryExists(VPath)) then
+      if not ForceDirectories(VPath) then
+        Exit;
+    VInitSize := YaHeaderSize + 6*(sqr(ATableSize));
+    VYaMob.SetSize(VInitSize);
+    FillChar(VYaMob.Memory^, VInitSize, 0);
+    VYaMob.Position := 0;
+    VYaMob.Write('YNDX', 4);        // Magic = "YNDX"
+    VYaMob.Write(#01#00, 2);        // Reserved
+    VYaMob.Write(YaHeaderSize, 4);  // HeadSize = 1024 byte
+    VYaMob.Write(#00#00#00, 3);     // "Author"
+    VYaMob.SaveToFile(AFileName);
+  finally
+    VYaMob.Free;
   end;
- MobileFile.Free;
+end;
+
+procedure WriteTileToYaCache(ATile: TPoint; AZoom, AMapType, sm_xy: Byte; AExportPath: string; ATileStream: TMemoryStream; AReplace: Boolean);
+var
+  VYaMobileFile: string;
+  VYaMobileStream: TFileStream;
+  VTablePos: Integer;
+  VTableOffset: Integer;
+  VTableSize: Integer;
+  VTileOffset: Integer;
+  VExistsTileOffset: Integer;
+  VTileSize: SmallInt;
+  VHead: array [0..12] of byte;
+begin
+  if AZoom > 7 then
+    VTableSize := 256
+  else
+    VTableSize := 2 shl AZoom;
+
+  VYaMobileFile := AExportPath + GetMobileFile(ATile.X, ATile.Y, AZoom, AMapType);
+
+  if not FileExists(VYaMobileFile) then
+    CreateNilFile(VYaMobileFile, VTableSize);
+
+  VYaMobileStream := TFileStream.Create(VYaMobileFile, fmOpenReadWrite or fmShareExclusive);
+  try
+    VYaMobileStream.Read(VHead, Length(VHead));
+    VTableOffset := ( VHead[6] or (VHead[7] shl 8) or (VHead[8] shl 16) or (VHead[9] shl 24) );
+    VTablePos := GetMobileFilePos(ATile.X, ATile.Y, AZoom)*6 + sm_xy*6;
+    VTileOffset := VYaMobileStream.Size;
+    VTileSize := ATileStream.Size;
+    VYaMobileStream.Position := VTableOffset + VTablePos;
+    VYaMobileStream.Read(VExistsTileOffset, 4);
+    if (VExistsTileOffset = 0) or AReplace then
+    begin
+      VYaMobileStream.Position := VTableOffset + VTablePos;
+      VYaMobileStream.Write(VTileOffset, 4);
+      VYaMobileStream.Write(VTileSize, 2);
+      VYaMobileStream.Position := VYaMobileStream.Size;
+      VYaMobileStream.Write(ATileStream.Memory^, VTileSize);
+    end;
+  finally
+    VYaMobileStream.Free;
+  end;
 end;
 
 end.
