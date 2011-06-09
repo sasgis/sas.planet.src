@@ -108,6 +108,7 @@ begin
   try
     if Assigned(FSessionHandle) then begin
       InternetCloseHandle(FSessionHandle);
+      FSessionHandle := nil;
     end;
   finally
     FSessionCS.Release;
