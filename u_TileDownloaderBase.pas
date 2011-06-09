@@ -10,6 +10,7 @@ uses
   i_JclNotify,
   i_ProxySettings,
   i_DownloadChecker,
+  i_DownloadResult,
   i_DownloadResultFactory,
   i_TileDownloaderConfig,
   i_TileDownlodSession;
@@ -24,29 +25,23 @@ type
     procedure OnConfigChange(Sender: TObject);
   protected
     FSessionHandle: HInternet;
-    FSessionOpenError: Cardinal;
     FSessionCS: TCriticalSection;
     FDownloadCS: TCriticalSection;
     FLastDownloadTime: Cardinal;
-    FLastDownloadResult: TDownloadTileResult;
+    FWasConnectError: Boolean;
     function IsConnectError(ALastError: Cardinal): Boolean; virtual;
     function IsDownloadError(ALastError: Cardinal): Boolean; virtual;
     function IsOkStatus(AStatusCode: Cardinal): Boolean; virtual;
     function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean; virtual;
     function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean; virtual;
-    procedure ResetConnetction; virtual;
-    procedure OpenSession; virtual;
+    function OpenSession: HInternet; virtual;
     procedure CloseSession; virtual;
-    function BuildHeader(AUrl, AHead: string): string; virtual;
     function TryDownload(
       AConfig: ITileDownloaderConfigStatic;
+      AResultFactory: IDownloadResultFactory;
       AUrl, ARequestHead: string;
-      ADownloadChecker: IDownloadChecker;
-      ARecivedData: TMemoryStream;
-      out AServerExists: Boolean;
-      out AStatusCode: Cardinal;
-      out AContentType, AResponseHead: string
-    ): TDownloadTileResult; virtual;
+      ADownloadChecker: IDownloadChecker
+    ): IDownloadResult;
     procedure GetData(AFileHandle: HInternet; fileBuf: TMemoryStream); virtual;
     function IsGlobalOffline(ASessionHandle: HInternet): Boolean;
     procedure ResetGlobalOffline(ASessionHandle: HInternet);
@@ -54,22 +49,20 @@ type
       AFileHandle: HInternet;
       var AContentType: string
     );
-    procedure ProxyAuth(
+    function ProxyAuth(
+      AResultFactory: IDownloadResultFactory;
       AProxyConfig: IProxyConfigStatic;
       AFileHandle: HInternet;
       out AStatusCode: Cardinal
-    );
+    ): IDownloadResult;
     function GetStatusCode(AFileHandle: HInternet): Cardinal;
     procedure GetResponsHead(AFileHandle: HInternet; var AResponseHead: string);
   protected
     function DownloadTile(
       AResultFactory: IDownloadResultFactory;
       AUrl, ARequestHead: string;
-      ADownloadChecker: IDownloadChecker;
-      ARecivedData: TMemoryStream;
-      out AStatusCode: Cardinal;
-      out AContentType, AResponseHead: string
-    ): TDownloadTileResult; virtual;
+      ADownloadChecker: IDownloadChecker
+    ): IDownloadResult;
   public
     constructor Create(AConfig: ITileDownloaderConfig);
     destructor Destroy; override;
@@ -79,8 +72,7 @@ implementation
 
 uses
   SysUtils,
-  u_NotifyEventListener,
-  u_DownloadExceptions;
+  u_NotifyEventListener;
 
 { TTileDownloaderBase }
 
@@ -95,8 +87,7 @@ begin
   OnConfigChange(nil);
 
   FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
-  FLastDownloadResult := dtrOK;
-  OpenSession;
+  FWasConnectError := False;
 end;
 
 destructor TTileDownloaderBase.Destroy;
@@ -109,11 +100,6 @@ begin
   FreeAndNil(FDownloadCS);
   FreeAndNil(FSessionCS);
   inherited;
-end;
-
-function TTileDownloaderBase.BuildHeader(AUrl, AHead: string): string;
-begin
-  Result := AHead;
 end;
 
 procedure TTileDownloaderBase.CloseSession;
@@ -131,48 +117,53 @@ end;
 function TTileDownloaderBase.DownloadTile(
   AResultFactory: IDownloadResultFactory;
   AUrl, ARequestHead: string;
-  ADownloadChecker: IDownloadChecker;
-  ARecivedData: TMemoryStream;
-  out AStatusCode: Cardinal;
-  out AContentType, AResponseHead: string
-): TDownloadTileResult;
+  ADownloadChecker: IDownloadChecker
+): IDownloadResult;
 var
-  VTryCount: Integer;
+  VTryNo: Integer;
   VDownloadTryCount: Integer;
   VConfig: ITileDownloaderConfigStatic;
-  VServerExists: Boolean;
   VNow: Cardinal;
+  VTimeFromLastDownload: Cardinal;
+  VSleepTime: Cardinal;
 begin
-  FSessionCS.Acquire;
-  try
-    if not Assigned(FSessionHandle) then begin
-      Result := dtrErrorInternetOpen;
-      exit;
-    end;
-  finally
-    FSessionCS.Release;
-  end;
   VConfig := FConfigStatic;
   VDownloadTryCount := VConfig.DownloadTryCount;
   FDownloadCS.Acquire;
   try
-    VTryCount := 0;
-    Result := FLastDownloadResult;
+    VTryNo := 0;
+    Result := nil;
     repeat
-      if Result = dtrDownloadError then begin
-        ResetConnetction;
-      end;
       VNow := GetTickCount;
-      if VNow < FLastDownloadTime + VConfig.WaitInterval then begin
-        Sleep(VConfig.WaitInterval);
+      if VNow >= FLastDownloadTime then begin
+        VTimeFromLastDownload := VNow - FLastDownloadTime;
+      end else begin
+        VTimeFromLastDownload := MaxInt;
       end;
-      Result := TryDownload(VConfig, AUrl, ARequestHead, ADownloadChecker, ARecivedData, VServerExists, AStatusCode, AContentType, AResponseHead);
-      Inc(VTryCount);
-      if VServerExists then begin
-        FLastDownloadTime := GetTickCount;
+      if FWasConnectError then begin
+        if VTimeFromLastDownload < VConfig.SleepOnResetConnection then begin
+          VSleepTime := VConfig.SleepOnResetConnection - VTimeFromLastDownload;
+          Sleep(VSleepTime);
+          VNow := GetTickCount;
+          if VNow >= FLastDownloadTime then begin
+            VTimeFromLastDownload := VNow - FLastDownloadTime;
+          end else begin
+            VTimeFromLastDownload := MaxInt;
+          end;
+        end;
       end;
-    until (Result <> dtrDownloadError) or (VTryCount >= VDownloadTryCount);
-    FLastDownloadResult := Result;
+      if VTimeFromLastDownload < VConfig.WaitInterval then begin
+        VSleepTime := VConfig.WaitInterval - VTimeFromLastDownload;
+        Sleep(VSleepTime);
+      end;
+      Result := TryDownload(VConfig, AResultFactory, AUrl, ARequestHead, ADownloadChecker);
+      Inc(VTryNo);
+      FWasConnectError := not Result.IsServerExists;
+      FLastDownloadTime := GetTickCount;
+      if FWasConnectError then begin
+        CloseSession;
+      end;
+    until (not FWasConnectError) or (VTryNo >= VDownloadTryCount);
   finally
     FDownloadCS.Release;
   end;
@@ -308,41 +299,42 @@ begin
   FSessionCS.Acquire;
   try
     CloseSession;
-    OpenSession;
   finally
     FSessionCS.Release;
   end;
 end;
 
-procedure TTileDownloaderBase.OpenSession;
+function TTileDownloaderBase.OpenSession: HInternet;
 var
   VTimeOut: DWORD;
 begin
   FSessionCS.Acquire;
   try
-    FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
-    if Assigned(FSessionHandle) then begin
-      FSessionOpenError := 0;
-      VTimeOut := FConfigStatic.TimeOut;
-      if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
-        FSessionOpenError := GetLastError;
+    if not Assigned(FSessionHandle) then begin
+      FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+      if Assigned(FSessionHandle) then begin
+        VTimeOut := FConfigStatic.TimeOut;
+        if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+          RaiseLastOSError;
+        end;
+        if not InternetSetOption(FSessionHandle, INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+          RaiseLastOSError;
+        end;
+        if not InternetSetOption(FSessionHandle, INTERNET_OPTION_DATA_SEND_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+          RaiseLastOSError;
+        end;
+        if not InternetSetOption(FSessionHandle, INTERNET_OPTION_SEND_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+          RaiseLastOSError;
+        end;
+        if not InternetSetOption(FSessionHandle, INTERNET_OPTION_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
+          RaiseLastOSError;
+        end;
+        ResetGlobalOffline(FSessionHandle);
+      end else begin
+        RaiseLastOSError;
       end;
-      if not InternetSetOption(FSessionHandle, INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
-        FSessionOpenError := GetLastError;
-      end;
-      if not InternetSetOption(FSessionHandle, INTERNET_OPTION_DATA_SEND_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
-        FSessionOpenError := GetLastError;
-      end;
-      if not InternetSetOption(FSessionHandle, INTERNET_OPTION_SEND_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
-        FSessionOpenError := GetLastError;
-      end;
-      if not InternetSetOption(FSessionHandle, INTERNET_OPTION_RECEIVE_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
-        FSessionOpenError := GetLastError;
-      end;
-      ResetGlobalOffline(FSessionHandle);
-    end else begin
-      FSessionOpenError := GetLastError;
     end;
+    Result := FSessionHandle;
   finally
     FSessionCS.Release;
   end;
@@ -412,13 +404,6 @@ begin
   end;
 end;
 
-procedure TTileDownloaderBase.ResetConnetction;
-begin
-  CloseSession;
-  Sleep(FConfigStatic.SleepOnResetConnection);
-  OpenSession;
-end;
-
 procedure TTileDownloaderBase.ResetGlobalOffline(ASessionHandle: HInternet);
 var
   ci: INTERNET_CONNECTED_INFO;
@@ -455,11 +440,12 @@ begin
   end;
 end;
 
-procedure TTileDownloaderBase.ProxyAuth(
+function TTileDownloaderBase.ProxyAuth(
+  AResultFactory: IDownloadResultFactory;
   AProxyConfig: IProxyConfigStatic;
   AFileHandle: HInternet;
   out AStatusCode: Cardinal
-);
+): IDownloadResult;
 var
   VLogin, VPassword: string;
 begin
@@ -467,7 +453,8 @@ begin
     not AProxyConfig.UseProxy or
     not AProxyConfig.UseLogin
   then begin
-    raise EProxyAuthError.Create('Настройки не предусматривают авторизацию на прокси');
+    Result := AResultFactory.BuildUnexpectedProxyAuth;
+    Exit;
   end;
   VLogin := AProxyConfig.Login;
   VPassword := AProxyConfig.Password;
@@ -477,74 +464,93 @@ begin
 
   AStatusCode := GetStatusCode(AFileHandle);
   if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-    raise EProxyAuthError.Create('Ошибка авторизации на прокси');
+    Result := AResultFactory.BuildBadProxyAuth;
+    Exit;
   end;
 end;
 
 function TTileDownloaderBase.TryDownload(
   AConfig: ITileDownloaderConfigStatic;
+  AResultFactory: IDownloadResultFactory;
   AUrl, ARequestHead: string;
-  ADownloadChecker: IDownloadChecker;
-  ARecivedData: TMemoryStream;
-  out AServerExists: Boolean;
-  out AStatusCode: Cardinal;
-  out AContentType, AResponseHead: string
-): TDownloadTileResult;
+  ADownloadChecker: IDownloadChecker
+): IDownloadResult;
 var
   VFileHandle: HInternet;
-  VHeader: String;
   VProxyConfig: IProxyConfigStatic;
   VSessionHandle: HInternet;
+  VRecivedData: TMemoryStream;
+  VStatusCode: Cardinal;
+  VContentType, VResponseHead: string;
 begin
-  Result := dtrOK;
-  AServerExists := True;
   VProxyConfig := AConfig.ProxyConfigStatic;
-  FSessionCS.Acquire;
   try
-    VSessionHandle := FSessionHandle;
-  finally
-    FSessionCS.Release;
+    VSessionHandle := OpenSession;
+  except
+    on E: EOSError do begin
+      Result := AResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode);
+      Exit;
+    end;
   end;
-
-  VHeader := BuildHeader(AUrl, ARequestHead);
+  if Result <> nil then Exit;
   if ADownloadChecker <> nil then begin
-    ADownloadChecker.BeforeRequest(AUrl, ARequestHead);
+    Result := ADownloadChecker.BeforeRequest(AUrl, ARequestHead);
+    if Result <> nil then Exit;
   end;
   try
-    VFileHandle := InternetOpenURL(VSessionHandle, PChar(AURL), PChar(VHeader), length(VHeader),
-      INTERNET_FLAG_NO_CACHE_WRITE or
-      INTERNET_FLAG_RELOAD or
-      INTERNET_FLAG_IGNORE_CERT_CN_INVALID or
-      INTERNET_FLAG_IGNORE_CERT_DATE_INVALID or
-      INTERNET_FLAG_NO_COOKIES, { no automatic cookie handling }
-      0);
+    VFileHandle :=
+      InternetOpenURL(
+        VSessionHandle,
+        PChar(AURL),
+        PChar(ARequestHead),
+        Length(ARequestHead),
+        INTERNET_FLAG_NO_CACHE_WRITE or
+        INTERNET_FLAG_RELOAD or
+        INTERNET_FLAG_IGNORE_CERT_CN_INVALID or
+        INTERNET_FLAG_IGNORE_CERT_DATE_INVALID or
+        INTERNET_FLAG_NO_COOKIES, { no automatic cookie handling }
+        0
+      );
     if not Assigned(VFileHandle) then begin
       RaiseLastOSError;
     end;
     try
-      AStatusCode := GetStatusCode(VFileHandle);
-      if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-        ProxyAuth(VProxyConfig, VFileHandle, AStatusCode);
+      VStatusCode := GetStatusCode(VFileHandle);
+      if VStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
+        Result := ProxyAuth(AResultFactory, VProxyConfig, VFileHandle, VStatusCode);
+        if Result <> nil then Exit;
       end;
-      if IsOkStatus(AStatusCode) then begin
-        GetResponsHead(VFileHandle, AResponseHead);
-        GetContentType(VFileHandle, AContentType);
-        if ADownloadChecker <> nil then begin
-          ADownloadChecker.AfterResponce(AStatusCode, AContentType, AResponseHead);
+      if IsOkStatus(VStatusCode) then begin
+        GetResponsHead(VFileHandle, VResponseHead);
+        GetContentType(VFileHandle, VContentType);
+        VRecivedData := TMemoryStream.Create;
+        try
+          if ADownloadChecker <> nil then begin
+            Result := ADownloadChecker.AfterResponce(VStatusCode, VContentType, VResponseHead);
+            if Result <> nil then Exit;
+          end;
+          GetData(VFileHandle, VRecivedData);
+          if ADownloadChecker <> nil then begin
+            Result := ADownloadChecker.AfterReciveData(VRecivedData.Size, VRecivedData.Memory, VStatusCode, VResponseHead);
+            if Result <> nil then Exit;
+          end;
+          if VRecivedData.Size = 0 then begin
+            Result := AResultFactory.BuildDataNotExistsZeroSize;
+            Exit;
+          end;
+          Result := AResultFactory.BuildOk(VStatusCode, VResponseHead, VContentType, VRecivedData.Size, VRecivedData.Memory);
+        finally
+          VRecivedData.Free;
         end;
-        GetData(VFileHandle, ARecivedData);
-        if ADownloadChecker <> nil then begin
-          ADownloadChecker.AfterReciveData(ARecivedData.Size, ARecivedData.Memory, AStatusCode, AResponseHead);
-        end;
-        if ARecivedData.Size = 0 then begin
-          raise EFileNotExistsByResultZeroSize.Create;
-        end;
-      end else if IsDownloadErrorStatus(AStatusCode) then begin
-        raise EDownloadErrorByHTTPStatus.CreateByStatus(AStatusCode);
-      end else if IsTileNotExistStatus(AStatusCode) then begin
-        raise EFileNotExistsByHTTPStatus.CreateByStatus(AStatusCode);
+      end else if IsDownloadErrorStatus(VStatusCode) then begin
+        Result := AResultFactory.BuildLoadErrorByStatusCode(VStatusCode);
+        Exit;
+      end else if IsTileNotExistStatus(VStatusCode) then begin
+        Result := AResultFactory.BuildDataNotExistsByStatusCode(VStatusCode);
+        Exit;
       end else begin
-        raise EDownloadErrorUnknownHTTPStatus.CreateByStatus(AStatusCode);
+        Result := AResultFactory.BuildLoadErrorByUnknownStatusCode(VStatusCode);
+        Exit;
       end;
     finally
       InternetCloseHandle(VFileHandle);
@@ -552,38 +558,12 @@ begin
   except
     on E: EOSError do begin
       if IsConnectError(E.ErrorCode) then begin
-        AServerExists := False;
+        Result := AResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
       end else if IsDownloadError(E.ErrorCode) then begin
-        AServerExists := True;
-        Result := dtrDownloadError;
+        Result := AResultFactory.BuildLoadErrorByErrorCode(E.ErrorCode)
       end else begin
-        AServerExists := False;
-        Result := dtrUnknownError;
+        Result := AResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
       end;
-    end;
-    on E: EDownloadErrorUnknownHTTPStatus do begin
-      AServerExists := True;
-      Result := dtrUnknownError;
-    end;
-    on E: EMimeTypeError do begin
-      AServerExists := True;
-      Result := dtrErrorMIMEType;
-    end;
-    on E: ESameTileSize do begin
-      AServerExists := True;
-      Result := dtrSameTileSize;
-    end;
-    on E: EProxyAuthError do begin
-      AServerExists := False;
-      Result := dtrProxyAuthError;
-    end;
-    on E: ETileNotExists do begin
-      AServerExists := True;
-      Result := dtrTileNotExists;
-    end;
-    on E: EDownloadError do begin
-      AServerExists := True;
-      Result := dtrDownloadError;
     end;
   end;
 end;

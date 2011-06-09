@@ -45,8 +45,7 @@ implementation
 
 uses
   SysUtils,
-  u_UrlGeneratorHelpers,
-  u_DownloadExceptions;
+  u_UrlGeneratorHelpers;
 
 { TDownloadCheckerStuped }
 
@@ -88,7 +87,8 @@ begin
     if (AContentType = '') then begin
       AContentType := FDefaultMIMEType;
     end else if (Pos(AContentType, FExpectedMIMETypes) <= 0) then begin
-      raise EMimeTypeError.CreateFmt('Неожиданный тип %s', [AContentType]);
+      Result := FResultFactory.BuildBadContentType(AContentType);
+      Exit;
     end;
   end;
   if FCheckTileSize then begin
@@ -96,7 +96,8 @@ begin
     if VContentLenAsStr <> '' then begin
       if TryStrToInt64(VContentLenAsStr, VContentLen) then begin
         if VContentLen = FExistsFileSize then begin
-          raise ESameTileSize.Create('Одинаковый размер тайла');
+          Result := FResultFactory.BuildNotNecessary('Одинаковый размер тайла');
+          Exit;
         end;
       end;
     end;
@@ -112,7 +113,8 @@ function TDownloadCheckerStuped.AfterReciveData(
 begin
   if FCheckTileSize then begin
     if ARecivedSize = FExistsFileSize then begin
-      raise ESameTileSize.Create('Одинаковый размер тайла');
+      Result := FResultFactory.BuildNotNecessary('Одинаковый размер тайла');
+      Exit;
     end;
   end;
 end;

@@ -33,7 +33,7 @@ type
     function BuildBanned: IDownloadResultBanned;
     function BuildDataNotExists(AReasonText: string): IDownloadResultDataNotExists;
     function BuildDataNotExistsByStatusCode(AStatusCode: DWORD): IDownloadResultDataNotExists;
-    function BuildDataNotExistsZeroSize(AReasonText: string): IDownloadResultDataNotExists;
+    function BuildDataNotExistsZeroSize: IDownloadResultDataNotExists;
     function BuildNotNecessary(AReasonText: string): IDownloadResultNotNecessary;
   public
     constructor Create(
@@ -92,8 +92,7 @@ begin
   Result := TTileDownloadResultDataNotExistsByStatusCode.Create(FTileInfo, FUrl, FRequestHead, AStatusCode);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildDataNotExistsZeroSize(
-  AReasonText: string): IDownloadResultDataNotExists;
+function TDownloadResultFactoryTileDownload.BuildDataNotExistsZeroSize: IDownloadResultDataNotExists;
 begin
   Result := TTileDownloadResultDataNotExistsZeroSize.Create(FTileInfo, FUrl, FRequestHead);
 end;

@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   Types,
+  i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadChecker;
 
@@ -16,11 +17,8 @@ type
     function DownloadTile(
       AResultFactory: IDownloadResultFactory;
       AUrl, ARequestHead: string;
-      ADownloadChecker: IDownloadChecker;
-      ARecivedData: TMemoryStream;
-      out AStatusCode: Cardinal;
-      out AContentType, AResponseHead: string
-    ): TDownloadTileResult;
+      ADownloadChecker: IDownloadChecker
+    ): IDownloadResult;
   end;
 
   ITileDownlodSessionFactory = interface
