@@ -28,6 +28,7 @@ type
     FDownloadCS: TCriticalSection;
     FLastDownloadTime: Cardinal;
     FLastDownloadResult: TDownloadTileResult;
+    function IsConnectError(ALastError: Cardinal): Boolean; virtual;
     function IsDownloadError(ALastError: Cardinal): Boolean; virtual;
     function IsOkStatus(AStatusCode: Cardinal): Boolean; virtual;
     function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean; virtual;
@@ -189,21 +190,54 @@ begin
   until (VBufferLen = 0);
 end;
 
+function TTileDownloaderBase.IsConnectError(ALastError: Cardinal): Boolean;
+begin
+  case ALastError of
+    ERROR_INTERNET_OUT_OF_HANDLES,
+    ERROR_INTERNET_TIMEOUT,
+    ERROR_INTERNET_INTERNAL_ERROR,
+    ERROR_INTERNET_INVALID_URL,
+    ERROR_INTERNET_UNRECOGNIZED_SCHEME,
+    ERROR_INTERNET_NAME_NOT_RESOLVED,
+    ERROR_INTERNET_PROTOCOL_NOT_FOUND,
+    ERROR_INTERNET_SHUTDOWN,
+    ERROR_INTERNET_INVALID_OPERATION,
+    ERROR_INTERNET_OPERATION_CANCELLED,
+    ERROR_INTERNET_NOT_PROXY_REQUEST,
+    ERROR_INTERNET_NO_DIRECT_ACCESS,
+    ERROR_INTERNET_INCORRECT_FORMAT,
+    ERROR_INTERNET_ITEM_NOT_FOUND,
+    ERROR_INTERNET_CANNOT_CONNECT,
+    ERROR_INTERNET_INVALID_PROXY_REQUEST,
+    ERROR_HTTP_INVALID_HEADER,
+    ERROR_INTERNET_TCPIP_NOT_INSTALLED,
+    ERROR_INTERNET_SERVER_UNREACHABLE,
+    ERROR_INTERNET_PROXY_SERVER_UNREACHABLE,
+    ERROR_INTERNET_BAD_AUTO_PROXY_SCRIPT,
+    ERROR_INTERNET_UNABLE_TO_DOWNLOAD_SCRIPT:
+    begin
+      Result := true;
+    end;
+  else begin
+    Result := false;
+  end;
+  end;
+end;
+
 function TTileDownloaderBase.IsDownloadError(
   ALastError: Cardinal): Boolean;
 begin
   case ALastError of
+    ERROR_INTERNET_EXTENDED_ERROR,
+    ERROR_INTERNET_CONNECTION_ABORTED,
     ERROR_INTERNET_CONNECTION_RESET,
-    ERROR_INTERNET_CANNOT_CONNECT,
+    ERROR_INTERNET_SEC_CERT_CN_INVALID,
+    ERROR_INTERNET_HTTP_TO_HTTPS_ON_REDIR,
+    ERROR_INTERNET_HTTPS_TO_HTTP_ON_REDIR,
+    ERROR_HTTP_DOWNLEVEL_SERVER,
     ERROR_HTTP_INVALID_SERVER_RESPONSE,
-    ERROR_INTERNET_DISCONNECTED,
-    ERROR_INTERNET_FORCE_RETRY,
-    ERROR_INTERNET_OPERATION_CANCELLED,
-    ERROR_INTERNET_PROXY_SERVER_UNREACHABLE,
-    ERROR_INTERNET_SERVER_UNREACHABLE,
-    ERROR_INTERNET_SHUTDOWN,
-    ERROR_INTERNET_NAME_NOT_RESOLVED,
-    ERROR_INTERNET_TIMEOUT:
+    ERROR_HTTP_INVALID_HEADER,
+    ERROR_HTTP_REDIRECT_FAILED:
     begin
       Result := true;
     end;
@@ -459,7 +493,8 @@ var
   VProxyConfig: IProxyConfigStatic;
   VSessionHandle: HInternet;
 begin
-  AServerExists := False;
+  Result := dtrOK;
+  AServerExists := True;
   VProxyConfig := AConfig.ProxyConfigStatic;
   FSessionCS.Acquire;
   try
@@ -484,65 +519,68 @@ begin
       RaiseLastOSError;
     end;
     try
-      try
-        AStatusCode := GetStatusCode(VFileHandle);
-        if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-          ProxyAuth(VProxyConfig, VFileHandle, AStatusCode);
+      AStatusCode := GetStatusCode(VFileHandle);
+      if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
+        ProxyAuth(VProxyConfig, VFileHandle, AStatusCode);
+      end;
+      if IsOkStatus(AStatusCode) then begin
+        GetResponsHead(VFileHandle, AResponseHead);
+        GetContentType(VFileHandle, AContentType);
+        if ADownloadChecker <> nil then begin
+          ADownloadChecker.AfterResponce(AStatusCode, AContentType, AResponseHead);
         end;
-        if IsOkStatus(AStatusCode) then begin
-          AServerExists := True;
-          try
-            GetResponsHead(VFileHandle, AResponseHead);
-            GetContentType(VFileHandle, AContentType);
-            if ADownloadChecker <> nil then begin
-              ADownloadChecker.AfterResponce(AStatusCode, AContentType, AResponseHead);
-            end;
-            GetData(VFileHandle, ARecivedData);
-            if ADownloadChecker <> nil then begin
-              ADownloadChecker.AfterReciveData(ARecivedData, AStatusCode, AResponseHead);
-            end;
-          except
-            on E: EMimeTypeError do begin
-              Result := dtrErrorMIMEType;
-            end;
-            on E: ESameTileSize do begin
-              Result := dtrSameTileSize;
-            end;
-          end;
-          if ARecivedData.Size = 0 then begin
-            Result := dtrTileNotExists;
-          end else begin
-            Result := dtrOK;
-          end;
-        end else if IsDownloadErrorStatus(AStatusCode) then begin
-          Result := dtrDownloadError;
-        end else if IsTileNotExistStatus(AStatusCode) then begin
-          Result := dtrTileNotExists;
-        end else begin
-          Result := dtrUnknownError;
+        GetData(VFileHandle, ARecivedData);
+        if ADownloadChecker <> nil then begin
+          ADownloadChecker.AfterReciveData(ARecivedData, AStatusCode, AResponseHead);
         end;
-      except
-        on E: EOSError do begin
-          if IsDownloadError(E.ErrorCode) then begin
-            Result := dtrDownloadError;
-          end else begin
-            Result := dtrUnknownError;
-          end;
+        if ARecivedData.Size = 0 then begin
+          raise EFileNotExistsByResultZeroSize.Create;
         end;
-        on E: EProxyAuthError do begin
-          Result := dtrProxyAuthError;
-        end;
+      end else if IsDownloadErrorStatus(AStatusCode) then begin
+        raise EDownloadErrorByHTTPStatus.CreateByStatus(AStatusCode);
+      end else if IsTileNotExistStatus(AStatusCode) then begin
+        raise EFileNotExistsByHTTPStatus.CreateByStatus(AStatusCode);
+      end else begin
+        raise EDownloadErrorUnknownHTTPStatus.CreateByStatus(AStatusCode);
       end;
     finally
       InternetCloseHandle(VFileHandle);
     end;
   except
     on E: EOSError do begin
-      if IsDownloadError(E.ErrorCode) then begin
+      if IsConnectError(E.ErrorCode) then begin
+        AServerExists := False;
+      end else if IsDownloadError(E.ErrorCode) then begin
+        AServerExists := True;
         Result := dtrDownloadError;
       end else begin
-        Result := dtrErrorInternetOpenURL;
+        AServerExists := False;
+        Result := dtrUnknownError;
       end;
+    end;
+    on E: EDownloadErrorUnknownHTTPStatus do begin
+      AServerExists := True;
+      Result := dtrUnknownError;
+    end;
+    on E: EMimeTypeError do begin
+      AServerExists := True;
+      Result := dtrErrorMIMEType;
+    end;
+    on E: ESameTileSize do begin
+      AServerExists := True;
+      Result := dtrSameTileSize;
+    end;
+    on E: EProxyAuthError do begin
+      AServerExists := False;
+      Result := dtrProxyAuthError;
+    end;
+    on E: ETileNotExists do begin
+      AServerExists := True;
+      Result := dtrTileNotExists;
+    end;
+    on E: EDownloadError do begin
+      AServerExists := True;
+      Result := dtrDownloadError;
     end;
   end;
 end;
