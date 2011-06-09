@@ -744,13 +744,14 @@ begin
     end;
     VConfig := FTileDownloaderConfig.GetStatic;
     VDownloadChecker := TDownloadCheckerStuped.Create(
+      VResultFactory,
       VConfig.IgnoreMIMEType,
       VConfig.ExpectedMIMETypes,
       VConfig.DefaultMIMEType,
       ACheckTileSize,
       AOldTileSize
     );
-    Result := VDownloader.DownloadTile(AUrl, VRequestHead, VDownloadChecker, fileBuf, StatusCode, AContentType, VResponseHead);
+    Result := VDownloader.DownloadTile(VResultFactory, AUrl, VRequestHead, VDownloadChecker, fileBuf, StatusCode, AContentType, VResponseHead);
     SetResponse(VResponseHead);
     if FAntiBan <> nil then begin
       Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);

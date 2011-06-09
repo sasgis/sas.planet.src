@@ -10,6 +10,7 @@ uses
   i_JclNotify,
   i_ProxySettings,
   i_DownloadChecker,
+  i_DownloadResultFactory,
   i_TileDownloaderConfig,
   i_TileDownlodSession;
 
@@ -62,6 +63,7 @@ type
     procedure GetResponsHead(AFileHandle: HInternet; var AResponseHead: string);
   protected
     function DownloadTile(
+      AResultFactory: IDownloadResultFactory;
       AUrl, ARequestHead: string;
       ADownloadChecker: IDownloadChecker;
       ARecivedData: TMemoryStream;
@@ -127,6 +129,7 @@ begin
 end;
 
 function TTileDownloaderBase.DownloadTile(
+  AResultFactory: IDownloadResultFactory;
   AUrl, ARequestHead: string;
   ADownloadChecker: IDownloadChecker;
   ARecivedData: TMemoryStream;

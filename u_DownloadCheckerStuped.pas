@@ -4,11 +4,13 @@ interface
 
 uses
   Classes,
+  i_DownloadResultFactory,
   i_DownloadChecker;
 
 type
   TDownloadCheckerStuped = class(TInterfacedObject, IDownloadChecker)
   private
+    FResultFactory: IDownloadResultFactory;
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
@@ -28,6 +30,7 @@ type
     );
   public
     constructor Create(
+      AResultFactory: IDownloadResultFactory;
       AIgnoreMIMEType: Boolean;
       AExpectedMIMETypes: string;
       ADefaultMIMEType: string;
@@ -46,12 +49,14 @@ uses
 { TDownloadCheckerStuped }
 
 constructor TDownloadCheckerStuped.Create(
+  AResultFactory: IDownloadResultFactory;
   AIgnoreMIMEType: Boolean;
   AExpectedMIMETypes, ADefaultMIMEType: string;
   ACheckTileSize: Boolean;
   AExistsFileSize: Cardinal
 );
 begin
+  FResultFactory := AResultFactory;
   FIgnoreMIMEType := AIgnoreMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
   FDefaultMIMEType := ADefaultMIMEType;

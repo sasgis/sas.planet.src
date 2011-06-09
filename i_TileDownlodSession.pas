@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   Types,
+  i_DownloadResultFactory,
   i_DownloadChecker;
 
 type
@@ -13,6 +14,7 @@ type
   ITileDownlodSession = interface
     ['{2F41E328-BD28-4893-AAC5-8DC93FCC2BCF}']
     function DownloadTile(
+      AResultFactory: IDownloadResultFactory;
       AUrl, ARequestHead: string;
       ADownloadChecker: IDownloadChecker;
       ARecivedData: TMemoryStream;
