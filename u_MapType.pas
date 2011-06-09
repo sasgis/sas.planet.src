@@ -202,11 +202,13 @@ uses
   KAZip,
   u_GlobalState,
   i_ObjectWithTTL,
+  i_DownloadResultFactory,
   i_PoolElement,
   i_TileInfoBasic,
   u_PoolOfObjectsSimple,
   u_TileDownloaderConfig,
   u_TileDownloaderBaseFactory,
+  u_DownloadResultFactoryTileDownload,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
   u_DownloadCheckerStuped,
@@ -726,10 +728,12 @@ var
   VResponseHead: string;
   VDownloadChecker: IDownloadChecker;
   VConfig: ITileDownloaderConfigStatic;
+  VResultFactory: IDownloadResultFactory;
 begin
   if Self.UseDwn then begin
     VRequestHead := ''; VResponseHead := '';
     GetRequest(ATile, AZoom, AUrl, VRequestHead);
+    VResultFactory := TDownloadResultFactoryTileDownload.Create(AZoom, ATile, Self, AUrl, VRequestHead);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin
       raise Exception.Create('No free connections');

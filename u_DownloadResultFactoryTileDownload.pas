@@ -6,6 +6,7 @@ uses
   Types,
   i_DownloadResult,
   i_TileDownloadResult,
+  u_MapType,
   i_DownloadResultFactory;
 
 type
@@ -36,7 +37,9 @@ type
     function BuildNotNecessary(AReasonText: string): IDownloadResultNotNecessary;
   public
     constructor Create(
-      ATileInfo: ITileInfo;
+      AZoom: Byte;
+      AXY: TPoint;
+      AMapType: TMapType;
       AUrl: string;
       ARequestHead: string
     );
@@ -50,11 +53,13 @@ uses
 { TDownloadResultFactorySimpleDownload }
 
 constructor TDownloadResultFactoryTileDownload.Create(
-  ATileInfo: ITileInfo;
+  AZoom: Byte;
+  AXY: TPoint;
+  AMapType: TMapType;
   AUrl, ARequestHead: string
 );
 begin
-  FTileInfo := ATileInfo;
+  FTileInfo := TTileInfo.Create(AZoom, AXY, AMapType);
   FUrl := AUrl;
   FRequestHead := ARequestHead;
 end;

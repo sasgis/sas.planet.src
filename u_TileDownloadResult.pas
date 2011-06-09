@@ -11,7 +11,7 @@ uses
   u_DownloadResult;
 
 type
-  TTileDownloadResult = class(TInterfacedObject, ITileInfo)
+  TTileInfo = class(TInterfacedObject, ITileInfo)
   private
     FZoom: Byte;
     FXY: TPoint;
@@ -215,7 +215,7 @@ implementation
 
 { TTileDownloadResult }
 
-constructor TTileDownloadResult.Create(AZoom: Byte; AXY: TPoint;
+constructor TTileInfo.Create(AZoom: Byte; AXY: TPoint;
   AMapType: TMapType);
 begin
   FZoom := AZoom;
@@ -223,17 +223,17 @@ begin
   FMapType := AMapType;
 end;
 
-function TTileDownloadResult.GetMapType: TMapType;
+function TTileInfo.GetMapType: TMapType;
 begin
   Result := FMapType;
 end;
 
-function TTileDownloadResult.GetXY: TPoint;
+function TTileInfo.GetXY: TPoint;
 begin
   Result := FXY;
 end;
 
-function TTileDownloadResult.GetZoom: Byte;
+function TTileInfo.GetZoom: Byte;
 begin
   Result := FZoom;
 end;
