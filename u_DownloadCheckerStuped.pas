@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadChecker;
 
@@ -17,17 +18,18 @@ type
     FCheckTileSize: Boolean;
     FExistsFileSize: Cardinal;
   protected
-    procedure BeforeRequest(var AUrl:  string; var ARequestHead: string);
-    procedure AfterResponce(
+    function BeforeRequest(AUrl:  string; ARequestHead: string): IDownloadResult;
+    function AfterResponce(
       var AStatusCode: Cardinal;
       var AContentType: string;
       var AResponseHead: string
-    );
-    procedure AfterReciveData(
-      ARecivedData: TMemoryStream;
+    ): IDownloadResult;
+    function AfterReciveData(
+      ARecivedSize: Integer;
+      ARecivedBuffer: Pointer;
       var AStatusCode: Cardinal;
       var AResponseHead: string
-    );
+    ): IDownloadResult;
   public
     constructor Create(
       AResultFactory: IDownloadResultFactory;
@@ -64,18 +66,18 @@ begin
   FExistsFileSize := AExistsFileSize;
 end;
 
-procedure TDownloadCheckerStuped.BeforeRequest(
-  var AUrl, ARequestHead: string
-);
+function TDownloadCheckerStuped.BeforeRequest(
+  AUrl, ARequestHead: string
+): IDownloadResult;
 begin
 // Делаем ничего
 end;
 
-procedure TDownloadCheckerStuped.AfterResponce(
+function TDownloadCheckerStuped.AfterResponce(
   var AStatusCode: Cardinal;
   var AContentType: string;
   var AResponseHead: string
-);
+): IDownloadResult;
 var
   VContentLenAsStr: string;
   VContentLen: Int64;
@@ -101,14 +103,15 @@ begin
   end;
 end;
 
-procedure TDownloadCheckerStuped.AfterReciveData(
-  ARecivedData: TMemoryStream;
+function TDownloadCheckerStuped.AfterReciveData(
+  ARecivedSize: Integer;
+  ARecivedBuffer: Pointer;
   var AStatusCode: Cardinal;
   var AResponseHead: string
-);
+): IDownloadResult;
 begin
   if FCheckTileSize then begin
-    if ARecivedData.Size = FExistsFileSize then begin
+    if ARecivedSize = FExistsFileSize then begin
       raise ESameTileSize.Create('Одинаковый размер тайла');
     end;
   end;

@@ -534,7 +534,7 @@ begin
         end;
         GetData(VFileHandle, ARecivedData);
         if ADownloadChecker <> nil then begin
-          ADownloadChecker.AfterReciveData(ARecivedData, AStatusCode, AResponseHead);
+          ADownloadChecker.AfterReciveData(ARecivedData.Size, ARecivedData.Memory, AStatusCode, AResponseHead);
         end;
         if ARecivedData.Size = 0 then begin
           raise EFileNotExistsByResultZeroSize.Create;
