@@ -3,8 +3,7 @@ unit i_TileDownlodSession;
 interface
 
 uses
-  Classes,
-  Types,
+  i_JclNotify,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadChecker;
@@ -15,6 +14,7 @@ type
   ITileDownlodSession = interface
     ['{2F41E328-BD28-4893-AAC5-8DC93FCC2BCF}']
     function DownloadTile(
+      ACancelNotifier: IJclNotifier;
       AResultFactory: IDownloadResultFactory;
       AUrl, ARequestHead: string;
       ADownloadChecker: IDownloadChecker

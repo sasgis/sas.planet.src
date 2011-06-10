@@ -22,12 +22,12 @@ type
     function BuildLoadErrorByStatusCode(AStatusCode: DWORD): IDownloadResultError;
     function BuildLoadErrorByUnknownStatusCode(AStatusCode: DWORD): IDownloadResultError;
     function BuildLoadErrorByErrorCode(AErrorCode: DWORD): IDownloadResultError;
-    function BuildBadContentType(AContentType: string): IDownloadResultBadContentType;
-    function BuildBanned: IDownloadResultBanned;
-    function BuildDataNotExists(AReasonText: string): IDownloadResultDataNotExists;
-    function BuildDataNotExistsByStatusCode(AStatusCode: DWORD): IDownloadResultDataNotExists;
-    function BuildDataNotExistsZeroSize: IDownloadResultDataNotExists;
-    function BuildNotNecessary(AReasonText: string): IDownloadResultNotNecessary;
+    function BuildBadContentType(AContentType, ARawResponseHeader: string): IDownloadResultBadContentType;
+    function BuildBanned(ARawResponseHeader: string): IDownloadResultBanned;
+    function BuildDataNotExists(AReasonText, ARawResponseHeader: string): IDownloadResultDataNotExists;
+    function BuildDataNotExistsByStatusCode(ARawResponseHeader: string; AStatusCode: DWORD): IDownloadResultDataNotExists;
+    function BuildDataNotExistsZeroSize(ARawResponseHeader: string): IDownloadResultDataNotExists;
+    function BuildNotNecessary(AReasonText, ARawResponseHeader: string): IDownloadResultNotNecessary;
   end;
 
 implementation

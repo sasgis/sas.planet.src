@@ -135,39 +135,50 @@ type
   end;
 
   TDownloadResultBanned = class(TDownloadResultError, IDownloadResultBanned)
+  private
+    FRawResponseHeader: string;
   protected
     function GetIsServerExists: Boolean; override;
-  public
-    constructor Create(
-      AUrl: string;
-      ARequestHead: string
-    );
-  end;
-
-  TDownloadResultBadContentType = class(TDownloadResultError, IDownloadResultBadContentType)
-  protected
-    function GetIsServerExists: Boolean; override;
+    function GetRawResponseHeader: string;
   public
     constructor Create(
       AUrl: string;
       ARequestHead: string;
-      AContentType: string
+      ARawResponseHeader: string
+    );
+  end;
+
+  TDownloadResultBadContentType = class(TDownloadResultError, IDownloadResultBadContentType)
+  private
+    FRawResponseHeader: string;
+  protected
+    function GetIsServerExists: Boolean; override;
+    function GetRawResponseHeader: string;
+  public
+    constructor Create(
+      AUrl: string;
+      ARequestHead: string;
+      AContentType: string;
+      ARawResponseHeader: string
     );
   end;
 
   TDownloadResultDataNotExists = class(TDownloadResult, IDownloadResultDataNotExists)
   private
     FReasonText: string;
+    FRawResponseHeader: string;
   protected
     function GetIsOk: Boolean; override;
     function GetIsServerExists: Boolean; override;
   protected
     function GetReasonText: string;
+    function GetRawResponseHeader: string;
   public
     constructor Create(
       AUrl: string;
       ARequestHead: string;
-      AReasonText: string
+      AReasonText: string;
+      ARawResponseHeader: string
     );
   end;
 
@@ -176,6 +187,7 @@ type
     constructor Create(
       AUrl: string;
       ARequestHead: string;
+      ARawResponseHeader: string;
       AStatusCode: DWORD
     );
   end;
@@ -184,23 +196,27 @@ type
   public
     constructor Create(
       AUrl: string;
-      ARequestHead: string
+      ARequestHead: string;
+      ARawResponseHeader: string
     );
   end;
 
   TDownloadResultNotNecessary = class(TDownloadResult, IDownloadResultNotNecessary)
   private
     FReasonText: string;
+    FRawResponseHeader: string;
   protected
     function GetIsOk: Boolean; override;
     function GetIsServerExists: Boolean; override;
   protected
     function GetReasonText: string;
+    function GetRawResponseHeader: string;
   public
     constructor Create(
       AUrl: string;
       ARequestHead: string;
-      AReasonText: string
+      AReasonText: string;
+      ARawResponseHeader: string
     );
   end;
 
@@ -318,9 +334,10 @@ end;
 
 { TDownloadResultBanned }
 
-constructor TDownloadResultBanned.Create(AUrl, ARequestHead: string);
+constructor TDownloadResultBanned.Create(AUrl, ARequestHead, ARawResponseHeader: string);
 begin
   inherited Create(AUrl, ARequestHead, 'Похоже вас забанили');
+  FRawResponseHeader := ARawResponseHeader;
 end;
 
 function TDownloadResultBanned.GetIsServerExists: Boolean;
@@ -328,17 +345,28 @@ begin
   Result := True;
 end;
 
+function TDownloadResultBanned.GetRawResponseHeader: string;
+begin
+  Result := FRawResponseHeader;
+end;
+
 { TDownloadResultBadContentType }
 
 constructor TDownloadResultBadContentType.Create(AUrl, ARequestHead,
-  AContentType: string);
+  AContentType, ARawResponseHeader: string);
 begin
   inherited Create(AUrl, ARequestHead, Format('Неожиданный тип %s', [AContentType]));
+  FRawResponseHeader := ARawResponseHeader;
 end;
 
 function TDownloadResultBadContentType.GetIsServerExists: Boolean;
 begin
   Result := True;
+end;
+
+function TDownloadResultBadContentType.GetRawResponseHeader: string;
+begin
+  Result := FRawResponseHeader;
 end;
 
 { TDownloadResultUnexpectedProxyAuth }
@@ -390,10 +418,11 @@ end;
 { TIDownloadResultDataNotExists }
 
 constructor TDownloadResultDataNotExists.Create(AUrl, ARequestHead,
-  AReasonText: string);
+  AReasonText, ARawResponseHeader: string);
 begin
   inherited Create(AUrl, ARequestHead);
   FReasonText := AReasonText;
+  FRawResponseHeader := ARawResponseHeader;
 end;
 
 function TDownloadResultDataNotExists.GetIsOk: Boolean;
@@ -406,6 +435,11 @@ begin
   Result := True;
 end;
 
+function TDownloadResultDataNotExists.GetRawResponseHeader: string;
+begin
+  Result := FRawResponseHeader;
+end;
+
 function TDownloadResultDataNotExists.GetReasonText: string;
 begin
   Result := FReasonText;
@@ -414,10 +448,11 @@ end;
 { TDownloadResultNotNecessary }
 
 constructor TDownloadResultNotNecessary.Create(AUrl, ARequestHead,
-  AReasonText: string);
+  AReasonText, ARawResponseHeader: string);
 begin
   inherited Create(AUrl, ARequestHead);
   FReasonText := AReasonText;
+  FRawResponseHeader := ARawResponseHeader;
 end;
 
 function TDownloadResultNotNecessary.GetIsOk: Boolean;
@@ -430,6 +465,11 @@ begin
   Result := True;
 end;
 
+function TDownloadResultNotNecessary.GetRawResponseHeader: string;
+begin
+  Result := FRawResponseHeader;
+end;
+
 function TDownloadResultNotNecessary.GetReasonText: string;
 begin
   Result := FReasonText;
@@ -438,17 +478,19 @@ end;
 { TDownloadResultDataNotExistsByStatusCode }
 
 constructor TDownloadResultDataNotExistsByStatusCode.Create(AUrl,
-  ARequestHead: string; AStatusCode: DWORD);
+  ARequestHead: string;
+  ARawResponseHeader: string;
+  AStatusCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, Format('Данныео отсутствуют. Статус %d', [AStatusCode]));
+  inherited Create(AUrl, ARequestHead, Format('Данныео отсутствуют. Статус %d', [AStatusCode]), ARawResponseHeader);
 end;
 
 { TDownloadResultDataNotExistsZeroSize }
 
 constructor TDownloadResultDataNotExistsZeroSize.Create(AUrl,
-  ARequestHead: string);
+  ARequestHead, ARawResponseHeader: string);
 begin
-  inherited Create(AUrl, ARequestHead, 'Получен ответ нулевой длинны');
+  inherited Create(AUrl, ARequestHead, 'Получен ответ нулевой длинны', ARawResponseHeader);
 end;
 
 { TDownloadResultLoadErrorByUnknownStatusCode }

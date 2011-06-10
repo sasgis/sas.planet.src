@@ -753,7 +753,7 @@ begin
       ACheckTileSize,
       AOldTileSize
     );
-    VResult := VDownloader.DownloadTile(VResultFactory, AUrl, VRequestHead, VDownloadChecker);
+    VResult := VDownloader.DownloadTile(nil, VResultFactory, AUrl, VRequestHead, VDownloadChecker);
     if Supports(VResult, IDownloadResultOk, VResultOk) then begin
       Result := dtrOK;
       AContentType := VResultOk.ContentType;

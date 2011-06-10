@@ -26,12 +26,12 @@ type
     function BuildLoadErrorByStatusCode(AStatusCode: DWORD): IDownloadResultError;
     function BuildLoadErrorByUnknownStatusCode(AStatusCode: DWORD): IDownloadResultError;
     function BuildLoadErrorByErrorCode(AErrorCode: DWORD): IDownloadResultError;
-    function BuildBadContentType(AContentType: string): IDownloadResultBadContentType;
-    function BuildBanned: IDownloadResultBanned;
-    function BuildDataNotExists(AReasonText: string): IDownloadResultDataNotExists;
-    function BuildDataNotExistsByStatusCode(AStatusCode: DWORD): IDownloadResultDataNotExists;
-    function BuildDataNotExistsZeroSize: IDownloadResultDataNotExists;
-    function BuildNotNecessary(AReasonText: string): IDownloadResultNotNecessary;
+    function BuildBadContentType(AContentType, ARawResponseHeader: string): IDownloadResultBadContentType;
+    function BuildBanned(ARawResponseHeader: string): IDownloadResultBanned;
+    function BuildDataNotExists(AReasonText, ARawResponseHeader: string): IDownloadResultDataNotExists;
+    function BuildDataNotExistsByStatusCode(ARawResponseHeader: string; AStatusCode: DWORD): IDownloadResultDataNotExists;
+    function BuildDataNotExistsZeroSize(ARawResponseHeader: string): IDownloadResultDataNotExists;
+    function BuildNotNecessary(AReasonText, ARawResponseHeader: string): IDownloadResultNotNecessary;
   public
     constructor Create(
       AUrl: string;
@@ -54,9 +54,9 @@ begin
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildBadContentType(
-  AContentType: string): IDownloadResultBadContentType;
+  AContentType, ARawResponseHeader: string): IDownloadResultBadContentType;
 begin
-  Result := TDownloadResultBadContentType.Create(FUrl, FRequestHead, AContentType);
+  Result := TDownloadResultBadContentType.Create(FUrl, FRequestHead, AContentType, ARawResponseHeader);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildBadProxyAuth: IDownloadResultProxyError;
@@ -64,26 +64,27 @@ begin
   Result := TDownloadResultBadProxyAuth.Create(FUrl, FRequestHead);
 end;
 
-function TDownloadResultFactorySimpleDownload.BuildBanned: IDownloadResultBanned;
+function TDownloadResultFactorySimpleDownload.BuildBanned(ARawResponseHeader: string): IDownloadResultBanned;
 begin
-  Result := TDownloadResultBanned.Create(FUrl, FRequestHead);
+  Result := TDownloadResultBanned.Create(FUrl, FRequestHead, ARawResponseHeader);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildDataNotExists(
-  AReasonText: string): IDownloadResultDataNotExists;
+  AReasonText, ARawResponseHeader: string): IDownloadResultDataNotExists;
 begin
-  Result := TDownloadResultDataNotExists.Create(FUrl, FRequestHead, AReasonText);
+  Result := TDownloadResultDataNotExists.Create(FUrl, FRequestHead, AReasonText, ARawResponseHeader);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildDataNotExistsByStatusCode(
+  ARawResponseHeader: string;
   AStatusCode: DWORD): IDownloadResultDataNotExists;
 begin
-  Result := TDownloadResultDataNotExistsByStatusCode.Create(FUrl, FRequestHead, AStatusCode);
+  Result := TDownloadResultDataNotExistsByStatusCode.Create(FUrl, FRequestHead, ARawResponseHeader, AStatusCode);
 end;
 
-function TDownloadResultFactorySimpleDownload.BuildDataNotExistsZeroSize: IDownloadResultDataNotExists;
+function TDownloadResultFactorySimpleDownload.BuildDataNotExistsZeroSize(ARawResponseHeader: string): IDownloadResultDataNotExists;
 begin
-  Result := TDownloadResultDataNotExistsZeroSize.Create(FUrl, FRequestHead);
+  Result := TDownloadResultDataNotExistsZeroSize.Create(FUrl, FRequestHead, ARawResponseHeader);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildLoadErrorByErrorCode(
@@ -111,9 +112,9 @@ begin
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildNotNecessary(
-  AReasonText: string): IDownloadResultNotNecessary;
+  AReasonText, ARawResponseHeader: string): IDownloadResultNotNecessary;
 begin
-  Result := TDownloadResultNotNecessary.Create(FUrl, FRequestHead, AReasonText);
+  Result := TDownloadResultNotNecessary.Create(FUrl, FRequestHead, AReasonText, ARawResponseHeader);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildOk(

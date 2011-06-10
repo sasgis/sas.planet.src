@@ -87,7 +87,7 @@ begin
     if (AContentType = '') then begin
       AContentType := FDefaultMIMEType;
     end else if (Pos(AContentType, FExpectedMIMETypes) <= 0) then begin
-      Result := FResultFactory.BuildBadContentType(AContentType);
+      Result := FResultFactory.BuildBadContentType(AContentType, AResponseHead);
       Exit;
     end;
   end;
@@ -96,7 +96,7 @@ begin
     if VContentLenAsStr <> '' then begin
       if TryStrToInt64(VContentLenAsStr, VContentLen) then begin
         if VContentLen = FExistsFileSize then begin
-          Result := FResultFactory.BuildNotNecessary('Одинаковый размер тайла');
+          Result := FResultFactory.BuildNotNecessary('Одинаковый размер тайла', AResponseHead);
           Exit;
         end;
       end;
@@ -113,7 +113,7 @@ function TDownloadCheckerStuped.AfterReciveData(
 begin
   if FCheckTileSize then begin
     if ARecivedSize = FExistsFileSize then begin
-      Result := FResultFactory.BuildNotNecessary('Одинаковый размер тайла');
+      Result := FResultFactory.BuildNotNecessary('Одинаковый размер тайла', AResponseHead);
       Exit;
     end;
   end;

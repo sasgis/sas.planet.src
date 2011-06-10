@@ -137,7 +137,8 @@ type
     constructor Create(
       ATileInfo: ITileInfo;
       AUrl: string;
-      ARequestHead: string
+      ARequestHead: string;
+      ARawResponseHeader: string
     );
   end;
 
@@ -151,7 +152,8 @@ type
       ATileInfo: ITileInfo;
       AUrl: string;
       ARequestHead: string;
-      AContentType: string
+      AContentType: string;
+      ARawResponseHeader: string
     );
   end;
 
@@ -165,7 +167,8 @@ type
       ATileInfo: ITileInfo;
       AUrl: string;
       ARequestHead: string;
-      AReasonText: string
+      AReasonText: string;
+      ARawResponseHeader: string
     );
   end;
 
@@ -179,6 +182,7 @@ type
       ATileInfo: ITileInfo;
       AUrl: string;
       ARequestHead: string;
+      ARawResponseHeader: string;
       AStatusCode: DWORD
     );
   end;
@@ -192,7 +196,8 @@ type
     constructor Create(
       ATileInfo: ITileInfo;
       AUrl: string;
-      ARequestHead: string
+      ARequestHead: string;
+      ARawResponseHeader: string
     );
   end;
 
@@ -206,7 +211,8 @@ type
       ATileInfo: ITileInfo;
       AUrl: string;
       ARequestHead: string;
-      AReasonText: string
+      AReasonText: string;
+      ARawResponseHeader: string
     );
   end;
 
@@ -309,54 +315,54 @@ end;
 { TTileDownloadResultBanned }
 
 constructor TTileDownloadResultBanned.Create(ATileInfo: ITileInfo; AUrl,
-  ARequestHead: string);
+  ARequestHead, ARawResponseHeader: string);
 begin
-  inherited Create(AUrl, ARequestHead);
+  inherited Create(AUrl, ARequestHead, ARawResponseHeader);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultBadContentType }
 
 constructor TTileDownloadResultBadContentType.Create(ATileInfo: ITileInfo; AUrl,
-  ARequestHead, AContentType: string);
+  ARequestHead, AContentType, ARawResponseHeader: string);
 begin
-  inherited Create(AUrl, ARequestHead, AContentType);
+  inherited Create(AUrl, ARequestHead, AContentType, ARawResponseHeader);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultDataNotExistsByStatusCode }
 
 constructor TTileDownloadResultDataNotExistsByStatusCode.Create(
-  ATileInfo: ITileInfo; AUrl, ARequestHead: string; AStatusCode: DWORD);
+  ATileInfo: ITileInfo; AUrl, ARequestHead, ARawResponseHeader: string; AStatusCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, AStatusCode);
+  inherited Create(AUrl, ARequestHead, ARawResponseHeader, AStatusCode);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultDataNotExistsZeroSize }
 
 constructor TTileDownloadResultDataNotExistsZeroSize.Create(
-  ATileInfo: ITileInfo; AUrl, ARequestHead: string);
+  ATileInfo: ITileInfo; AUrl, ARequestHead, ARawResponseHeader: string);
 begin
-  inherited Create(AUrl, ARequestHead);
+  inherited Create(AUrl, ARequestHead, ARawResponseHeader);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultNotNecessary }
 
 constructor TTileDownloadResultNotNecessary.Create(ATileInfo: ITileInfo; AUrl,
-  ARequestHead, AReasonText: string);
+  ARequestHead, AReasonText, ARawResponseHeader: string);
 begin
-  inherited Create(AUrl, ARequestHead, AReasonText);
+  inherited Create(AUrl, ARequestHead, AReasonText, ARawResponseHeader);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultDataNotExists }
 
 constructor TTileDownloadResultDataNotExists.Create(ATileInfo: ITileInfo; AUrl,
-  ARequestHead, AReasonText: string);
+  ARequestHead, AReasonText, ARawResponseHeader: string);
 begin
-  inherited Create(AUrl, ARequestHead, AReasonText);
+  inherited Create(AUrl, ARequestHead, AReasonText, ARawResponseHeader);
   FTileInfo := ATileInfo;
 end;
 

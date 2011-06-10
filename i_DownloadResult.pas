@@ -52,22 +52,32 @@ type
 
   IDownloadResultBanned = interface(IDownloadResultError)
     ['{C51C4998-89C4-440C-9605-A57F85BB7491}']
+    function GetRawResponseHeader: string;
+    property RawResponseHeader: string read GetRawResponseHeader;
   end;
 
   IDownloadResultBadContentType = interface(IDownloadResultError)
     ['{A8C2F27E-D1DA-43CA-8F34-4156F906D50B}']
+    function GetRawResponseHeader: string;
+    property RawResponseHeader: string read GetRawResponseHeader;
   end;
 
   IDownloadResultDataNotExists = interface(IDownloadResult)
     ['{BA3CF11A-2BD7-4541-B8F7-415E85047C20}']
     function GetReasonText: string;
     property ReasonText: string read GetReasonText;
+
+    function GetRawResponseHeader: string;
+    property RawResponseHeader: string read GetRawResponseHeader;
   end;
 
   IDownloadResultNotNecessary = interface(IDownloadResult)
     ['{C5E02C4F-733F-4E37-A565-700D3848E9DB}']
     function GetReasonText: string;
     property ReasonText: string read GetReasonText;
+
+    function GetRawResponseHeader: string;
+    property RawResponseHeader: string read GetRawResponseHeader;
   end;
 
 implementation

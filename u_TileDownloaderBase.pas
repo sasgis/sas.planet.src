@@ -59,6 +59,7 @@ type
     procedure GetResponsHead(AFileHandle: HInternet; var AResponseHead: string);
   protected
     function DownloadTile(
+      ACancelNotifier: IJclNotifier;
       AResultFactory: IDownloadResultFactory;
       AUrl, ARequestHead: string;
       ADownloadChecker: IDownloadChecker
@@ -116,6 +117,7 @@ begin
 end;
 
 function TTileDownloaderBase.DownloadTile(
+  ACancelNotifier: IJclNotifier;
   AResultFactory: IDownloadResultFactory;
   AUrl, ARequestHead: string;
   ADownloadChecker: IDownloadChecker
@@ -521,8 +523,8 @@ begin
         Result := ProxyAuth(AResultFactory, VProxyConfig, VFileHandle, VStatusCode);
         if Result <> nil then Exit;
       end;
+      GetResponsHead(VFileHandle, VResponseHead);
       if IsOkStatus(VStatusCode) then begin
-        GetResponsHead(VFileHandle, VResponseHead);
         GetContentType(VFileHandle, VContentType);
         VRecivedData := TMemoryStream.Create;
         try
@@ -536,7 +538,7 @@ begin
             if Result <> nil then Exit;
           end;
           if VRecivedData.Size = 0 then begin
-            Result := AResultFactory.BuildDataNotExistsZeroSize;
+            Result := AResultFactory.BuildDataNotExistsZeroSize(VResponseHead);
             Exit;
           end;
           Result := AResultFactory.BuildOk(VStatusCode, VResponseHead, VContentType, VRecivedData.Size, VRecivedData.Memory);
@@ -547,7 +549,7 @@ begin
         Result := AResultFactory.BuildLoadErrorByStatusCode(VStatusCode);
         Exit;
       end else if IsTileNotExistStatus(VStatusCode) then begin
-        Result := AResultFactory.BuildDataNotExistsByStatusCode(VStatusCode);
+        Result := AResultFactory.BuildDataNotExistsByStatusCode(VResponseHead, VStatusCode);
         Exit;
       end else begin
         Result := AResultFactory.BuildLoadErrorByUnknownStatusCode(VStatusCode);

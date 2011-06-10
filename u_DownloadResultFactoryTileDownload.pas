@@ -29,12 +29,12 @@ type
     function BuildLoadErrorByStatusCode(AStatusCode: DWORD): IDownloadResultError;
     function BuildLoadErrorByUnknownStatusCode(AStatusCode: DWORD): IDownloadResultError;
     function BuildLoadErrorByErrorCode(AErrorCode: DWORD): IDownloadResultError;
-    function BuildBadContentType(AContentType: string): IDownloadResultBadContentType;
-    function BuildBanned: IDownloadResultBanned;
-    function BuildDataNotExists(AReasonText: string): IDownloadResultDataNotExists;
-    function BuildDataNotExistsByStatusCode(AStatusCode: DWORD): IDownloadResultDataNotExists;
-    function BuildDataNotExistsZeroSize: IDownloadResultDataNotExists;
-    function BuildNotNecessary(AReasonText: string): IDownloadResultNotNecessary;
+    function BuildBadContentType(AContentType, ARawResponseHeader: string): IDownloadResultBadContentType;
+    function BuildBanned(ARawResponseHeader: string): IDownloadResultBanned;
+    function BuildDataNotExists(AReasonText, ARawResponseHeader: string): IDownloadResultDataNotExists;
+    function BuildDataNotExistsByStatusCode(ARawResponseHeader: string; AStatusCode: DWORD): IDownloadResultDataNotExists;
+    function BuildDataNotExistsZeroSize(ARawResponseHeader: string): IDownloadResultDataNotExists;
+    function BuildNotNecessary(AReasonText, ARawResponseHeader: string): IDownloadResultNotNecessary;
   public
     constructor Create(
       AZoom: Byte;
@@ -65,9 +65,9 @@ begin
 end;
 
 function TDownloadResultFactoryTileDownload.BuildBadContentType(
-  AContentType: string): IDownloadResultBadContentType;
+  AContentType, ARawResponseHeader: string): IDownloadResultBadContentType;
 begin
-  Result := TTileDownloadResultBadContentType.Create(FTileInfo, FUrl, FRequestHead, AContentType);
+  Result := TTileDownloadResultBadContentType.Create(FTileInfo, FUrl, FRequestHead, AContentType, ARawResponseHeader);
 end;
 
 function TDownloadResultFactoryTileDownload.BuildBadProxyAuth: IDownloadResultProxyError;
@@ -75,26 +75,27 @@ begin
   Result := TTileDownloadResultBadProxyAuth.Create(FTileInfo, FUrl, FRequestHead);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildBanned: IDownloadResultBanned;
+function TDownloadResultFactoryTileDownload.BuildBanned(ARawResponseHeader: string): IDownloadResultBanned;
 begin
-  Result := TTileDownloadResultBanned.Create(FTileInfo, FUrl, FRequestHead);
+  Result := TTileDownloadResultBanned.Create(FTileInfo, FUrl, FRequestHead, ARawResponseHeader);
 end;
 
 function TDownloadResultFactoryTileDownload.BuildDataNotExists(
-  AReasonText: string): IDownloadResultDataNotExists;
+  AReasonText, ARawResponseHeader: string): IDownloadResultDataNotExists;
 begin
-  Result := TTileDownloadResultDataNotExists.Create(FTileInfo, FUrl, FRequestHead, AReasonText);
+  Result := TTileDownloadResultDataNotExists.Create(FTileInfo, FUrl, FRequestHead, AReasonText, ARawResponseHeader);
 end;
 
 function TDownloadResultFactoryTileDownload.BuildDataNotExistsByStatusCode(
+  ARawResponseHeader: string;
   AStatusCode: DWORD): IDownloadResultDataNotExists;
 begin
-  Result := TTileDownloadResultDataNotExistsByStatusCode.Create(FTileInfo, FUrl, FRequestHead, AStatusCode);
+  Result := TTileDownloadResultDataNotExistsByStatusCode.Create(FTileInfo, FUrl, FRequestHead, ARawResponseHeader, AStatusCode);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildDataNotExistsZeroSize: IDownloadResultDataNotExists;
+function TDownloadResultFactoryTileDownload.BuildDataNotExistsZeroSize(ARawResponseHeader: string): IDownloadResultDataNotExists;
 begin
-  Result := TTileDownloadResultDataNotExistsZeroSize.Create(FTileInfo, FUrl, FRequestHead);
+  Result := TTileDownloadResultDataNotExistsZeroSize.Create(FTileInfo, FUrl, FRequestHead, ARawResponseHeader);
 end;
 
 function TDownloadResultFactoryTileDownload.BuildLoadErrorByErrorCode(
@@ -122,9 +123,9 @@ begin
 end;
 
 function TDownloadResultFactoryTileDownload.BuildNotNecessary(
-  AReasonText: string): IDownloadResultNotNecessary;
+  AReasonText, ARawResponseHeader: string): IDownloadResultNotNecessary;
 begin
-  Result := TTileDownloadResultNotNecessary.Create(FTileInfo, FUrl, FRequestHead, AReasonText);
+  Result := TTileDownloadResultNotNecessary.Create(FTileInfo, FUrl, FRequestHead, AReasonText, ARawResponseHeader);
 end;
 
 function TDownloadResultFactoryTileDownload.BuildOk(
