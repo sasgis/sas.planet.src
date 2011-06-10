@@ -13,6 +13,7 @@ type
     FUrl: string;
     FRequestHead: string;
   protected
+    function BuildCanceled: IDownloadResultCanceled;
     function BuildOk(
       AStatusCode: Cardinal;
       ARawResponseHeader: string;
@@ -67,6 +68,11 @@ end;
 function TDownloadResultFactorySimpleDownload.BuildBanned(ARawResponseHeader: string): IDownloadResultBanned;
 begin
   Result := TDownloadResultBanned.Create(FUrl, FRequestHead, ARawResponseHeader);
+end;
+
+function TDownloadResultFactorySimpleDownload.BuildCanceled: IDownloadResultCanceled;
+begin
+  Result := TDownloadResultCanceled.Create(FUrl, FRequestHead);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildDataNotExists(

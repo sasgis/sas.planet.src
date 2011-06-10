@@ -24,6 +24,12 @@ type
     );
   end;
 
+  TDownloadResultCanceled = class(TDownloadResult, IDownloadResultCanceled)
+  protected
+    function GetIsServerExists: Boolean; override;
+    function GetIsOk: Boolean; override;
+  end;
+
   TDownloadResultOk = class(TDownloadResult, IDownloadResultOk)
   private
     FStatusCode: Cardinal;
@@ -499,6 +505,18 @@ constructor TDownloadResultLoadErrorByUnknownStatusCode.Create(AUrl,
   ARequestHead: string; AStatusCode: DWORD);
 begin
   inherited Create(AUrl, ARequestHead, Format('Неизвестный статус %d', [AStatusCode]));
+end;
+
+{ TDownloadResultCanceled }
+
+function TDownloadResultCanceled.GetIsOk: Boolean;
+begin
+  Result := False;
+end;
+
+function TDownloadResultCanceled.GetIsServerExists: Boolean;
+begin
+  Result := False;
 end;
 
 end.

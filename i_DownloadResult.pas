@@ -18,6 +18,10 @@ type
     property IsServerExists: Boolean read GetIsServerExists;
   end;
 
+  IDownloadResultCanceled = interface(IDownloadResult)
+    ['{2A22DD2C-6D70-4F27-AC7F-FB5ADB66B5A6}']
+  end;
+
   IDownloadResultOk = interface(IDownloadResult)
     ['{EBBAA70B-60D4-421C-829D-F75CFFB43068}']
     function GetStatusCode: Cardinal;

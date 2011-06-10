@@ -16,6 +16,7 @@ type
     FRequestHead: string;
     FTileInfo: ITileInfo;
   protected
+    function BuildCanceled: IDownloadResultCanceled;
     function BuildOk(
       AStatusCode: Cardinal;
       ARawResponseHeader: string;
@@ -78,6 +79,11 @@ end;
 function TDownloadResultFactoryTileDownload.BuildBanned(ARawResponseHeader: string): IDownloadResultBanned;
 begin
   Result := TTileDownloadResultBanned.Create(FTileInfo, FUrl, FRequestHead, ARawResponseHeader);
+end;
+
+function TDownloadResultFactoryTileDownload.BuildCanceled: IDownloadResultCanceled;
+begin
+  Result := TTileDownloadResultCanceled.Create(FTileInfo, FUrl, FRequestHead);
 end;
 
 function TDownloadResultFactoryTileDownload.BuildDataNotExists(

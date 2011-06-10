@@ -28,6 +28,19 @@ type
     );
   end;
 
+  TTileDownloadResultCanceled = class(TDownloadResultCanceled, ITileInfo)
+  private
+    FTileInfo: ITileInfo;
+  protected
+    property TileInfo: ITileInfo read FTileInfo implements ITileInfo;
+  public
+    constructor Create(
+      ATileInfo: ITileInfo;
+      AUrl: string;
+      ARequestHead: string
+    );
+  end;
+
   TTileDownloadResultOk = class(TDownloadResultOk, ITileInfo)
   private
     FTileInfo: ITileInfo;
@@ -363,6 +376,15 @@ constructor TTileDownloadResultDataNotExists.Create(ATileInfo: ITileInfo; AUrl,
   ARequestHead, AReasonText, ARawResponseHeader: string);
 begin
   inherited Create(AUrl, ARequestHead, AReasonText, ARawResponseHeader);
+  FTileInfo := ATileInfo;
+end;
+
+{ TTileDownloadResultCanceled }
+
+constructor TTileDownloadResultCanceled.Create(ATileInfo: ITileInfo; AUrl,
+  ARequestHead: string);
+begin
+  inherited Create(AUrl, ARequestHead);
   FTileInfo := ATileInfo;
 end;
 

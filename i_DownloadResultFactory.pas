@@ -9,6 +9,7 @@ uses
 type
   IDownloadResultFactory = interface
     ['{672345FB-40BA-4B13-AADE-6771192478FD}']
+    function BuildCanceled: IDownloadResultCanceled;
     function BuildOk(
       AStatusCode: Cardinal;
       ARawResponseHeader: string;
