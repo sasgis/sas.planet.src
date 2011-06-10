@@ -298,6 +298,8 @@ begin
     PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PRECONFIG;
     PIInfo^.lpszProxy := nil;
     PIInfo^.lpszProxyBypass := nil;
+    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
+    UrlMkSetSessionOption(INTERNET_OPTION_REFRESH, nil, 0, 0);
   end else begin
     if VUseProxy then begin
       PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
@@ -308,9 +310,9 @@ begin
       PIInfo^.lpszProxy := nil;
       PIInfo^.lpszProxyBypass := nil;
     end;
+    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
+    UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
   end;
-  UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
-  UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
   Dispose (PIInfo) ;
 end;
 
