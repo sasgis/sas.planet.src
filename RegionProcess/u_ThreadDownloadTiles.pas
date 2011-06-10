@@ -1,4 +1,5 @@
 unit u_ThreadDownloadTiles;
+
 interface
 
 uses
@@ -91,6 +92,7 @@ type
   end;
 
 implementation
+
 uses
   SysUtils,
   IniFiles,
@@ -149,7 +151,7 @@ begin
   FProxyAuthErrorSleepTime := 10000;
   FDownloadErrorSleepTime := 5000;
   PrepareStrings;
-  
+
   FLog := ALog;
   Priority := tpLower;
   Ini:=TiniFile.Create(FileName);
@@ -278,7 +280,7 @@ begin
           if (FDownloadPause) then begin
             FElapsedTime := FElapsedTime + (Now - FStartTime);
             FLog.WriteText(FRES_UserStop, 10);
-            While (FDownloadPause)and (not Terminated) do sleep(FPausedSleepTime);
+            While (FDownloadPause)and (not Terminated) do SleepCancelable(FPausedSleepTime);
             FStartTime := now;
           end;
           FLoadXY := VTile;
@@ -306,7 +308,10 @@ begin
                   if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(GState.SaveTileNotExists) then begin
                     res := dtrTileNotExists;
                   end else begin
-                    res:=FMapType.DownloadTile(VTile, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
+                    res:=FMapType.DownloadTile(FCancelNotifier, VTile, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
+                  end;
+                  if Terminated then begin
+                    Break;
                   end;
                   FLastProcessedPoint := FLoadXY;
                   case res of
@@ -324,12 +329,12 @@ begin
                     end;
                     dtrProxyAuthError: begin
                       FLog.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime,[FProxyAuthErrorSleepTime div 1000]), 10);
-                      sleep(FProxyAuthErrorSleepTime);
+                      SleepCancelable(FProxyAuthErrorSleepTime);
                       VGotoNextTile := false;
                     end;
                     dtrBanError: begin
                       FLog.WriteText(FRES_Ban + #13#10 + Format(FRES_WaitTime, [FBanSleepTime div 1000]), 10);
-                      sleep(FBanSleepTime);
+                      SleepCancelable(FBanSleepTime);
                       VGotoNextTile := false;
                     end;
                     dtrErrorMIMEType: begin
@@ -342,7 +347,7 @@ begin
                     end;
                     dtrDownloadError: begin
                       FLog.WriteText(FRES_Noconnectionstointernet + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
-                      sleep(FDownloadErrorSleepTime);
+                      SleepCancelable(FDownloadErrorSleepTime);
                       if GState.GoNextTileIfDownloadError then begin
                         VGotoNextTile := True;
                       end else begin
@@ -351,7 +356,7 @@ begin
                     end;
                     else begin
                       FLog.WriteText(GetErrStr(res) + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
-                      sleep(FDownloadErrorSleepTime);
+                      SleepCancelable(FDownloadErrorSleepTime);
                       VGotoNextTile := false;
                     end;
                   end;
@@ -371,6 +376,9 @@ begin
           end;
           if VGotoNextTile then begin
             inc(FProcessed);
+          end;
+          if Terminated then begin
+            Break;
           end;
         end;
         if Terminated then begin

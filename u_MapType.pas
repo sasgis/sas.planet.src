@@ -9,6 +9,7 @@ uses
   Dialogs,
   Graphics,
   GR32,
+  i_JclNotify,
   t_GeoTypes,
   t_CommonTypes,
   i_ContentTypeInfo,
@@ -141,6 +142,7 @@ type
     ): boolean;
     function GetShortFolderName: string;
     function DownloadTile(
+      ACancelNotifier: IJclNotifier;
       ATile: TPoint;
       AZoom: byte;
       ACheckTileSize: Boolean;
@@ -714,6 +716,7 @@ begin
 end;
 
 function TMapType.DownloadTile(
+  ACancelNotifier: IJclNotifier;
   ATile: TPoint;
   AZoom: byte;
   ACheckTileSize: Boolean;
@@ -753,7 +756,7 @@ begin
       ACheckTileSize,
       AOldTileSize
     );
-    VResult := VDownloader.DownloadTile(nil, VResultFactory, AUrl, VRequestHead, VDownloadChecker);
+    VResult := VDownloader.DownloadTile(ACancelNotifier, VResultFactory, AUrl, VRequestHead, VDownloadChecker);
     if Supports(VResult, IDownloadResultOk, VResultOk) then begin
       Result := dtrOK;
       AContentType := VResultOk.ContentType;

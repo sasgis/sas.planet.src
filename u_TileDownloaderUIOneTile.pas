@@ -76,10 +76,12 @@ begin
     FileBuf := TMemoryStream.Create;
     try
       try
-        res := FMapType.DownloadTile(FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
-        VErrorString := GetErrStr(res);
-        if (res = dtrOK) or (res = dtrSameTileSize) then begin
-          GState.DownloadInfo.Add(1, fileBuf.Size);
+        res := FMapType.DownloadTile(FCancelNotifier, FLoadXY, FZoom, false, 0, FLoadUrl, ty, fileBuf);
+        if not Terminated then begin
+          VErrorString := GetErrStr(res);
+          if (res = dtrOK) or (res = dtrSameTileSize) then begin
+            GState.DownloadInfo.Add(1, fileBuf.Size);
+          end;
         end;
       except
         on E: Exception do begin
@@ -92,17 +94,19 @@ begin
   end else begin
     VErrorString := SAS_ERR_NotLoads;
   end;
-  if VErrorString = '' then begin
-    Synchronize(AfterWriteToFile);
-  end else begin
-    FErrorLogger.LogError(
-      TTileErrorInfo.Create(
-        FMapType,
-        FZoom,
-        FLoadXY,
-        VErrorString
-      )
-    );
+  if not Terminated then begin
+    if VErrorString = '' then begin
+      Synchronize(AfterWriteToFile);
+    end else begin
+      FErrorLogger.LogError(
+        TTileErrorInfo.Create(
+          FMapType,
+          FZoom,
+          FLoadXY,
+          VErrorString
+        )
+      );
+    end;
   end;
 end;
 

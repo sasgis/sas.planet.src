@@ -90,7 +90,7 @@ begin
   FConfig := AConfig;
   FDownloadMutex := TMutex.Create;
   FSessionCS := TCriticalSection.Create;
-  FCancelEvent := TEvent.Create(nil, True, False, '');
+  FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyEventListener.Create(Self.OnDownloadCanceled);
 
   FConfigListener := TNotifyEventListener.Create(Self.OnConfigChange);

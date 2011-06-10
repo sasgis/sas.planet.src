@@ -28,6 +28,8 @@ type
     FViewPortState: IViewPortState;
     FErrorLogger: ITileErrorLogger;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
+    FCancelNotifier: IJclNotifier;
+
 
     FTileMaxAgeInInternet: TDateTime;
     FTilesOut: Integer;
@@ -65,6 +67,7 @@ implementation
 uses
   SysUtils,
   ActiveX,
+  u_JclNotify,
   t_GeoTypes,
   u_GlobalState,
   u_JclListenerNotifierLinksList,
@@ -86,6 +89,7 @@ var
 begin
   inherited Create(True);
   FConfig := AConfig;
+  FCancelNotifier := TJclBaseNotifier.Create;
   FViewPortState := AViewPortState;
   FMapsSet := AMapsSet;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
@@ -119,7 +123,7 @@ var
   VWaitResult: DWORD;
 begin
   FLinksList := nil;
-
+  FCancelNotifier := nil;
   VWaitResult := WaitForSingleObject(Handle, 10000);
   if VWaitResult = WAIT_TIMEOUT then begin
     TerminateThread(Handle, 0);
@@ -157,6 +161,7 @@ procedure TTileDownloaderUI.SendTerminateToThreads;
 begin
   inherited;
   FLinksList.DeactivateLinks;
+  FCancelNotifier.Notify(nil);
   Terminate;
 end;
 
@@ -302,7 +307,7 @@ begin
                   FileBuf := TMemoryStream.Create;
                   try
                     try
-                      res := FMapType.DownloadTile(FLoadXY, VZoom, false, 0, VLoadUrl, ty, fileBuf);
+                      res := FMapType.DownloadTile(FCancelNotifier, FLoadXY, VZoom, false, 0, VLoadUrl, ty, fileBuf);
                       VErrorString := GetErrStr(res);
                       if (res = dtrOK) or (res = dtrSameTileSize) then begin
                         GState.DownloadInfo.Add(1, fileBuf.Size);

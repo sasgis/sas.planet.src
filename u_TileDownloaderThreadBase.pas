@@ -5,7 +5,9 @@ interface
 uses
   Windows,
   Classes,
+  SyncObjs,
   Types,
+  i_JclNotify,
   i_TileDownlodSession,
   u_MapType;
 
@@ -23,9 +25,15 @@ type
     FLoadXY: TPoint;
     FZoom: byte;
     FLoadUrl: string;
+    FCancelEvent: TEvent;
+    FCancelNotifier: IJclNotifier;
+
     function GetErrStr(Aerr: TDownloadTileResult): string;
+    procedure SleepCancelable(ATime: Cardinal);
   public
     constructor Create(CreateSuspended: Boolean);
+    destructor Destroy; override;
+    procedure Terminate; reintroduce;
     property MapType: TMapType read FMapType;
   end;
 
@@ -33,6 +41,7 @@ implementation
 
 uses
   SysUtils,
+  u_JclNotify,
   u_ResStrings;
 
 constructor TTileDownloaderThreadBase.Create(CreateSuspended: Boolean);
@@ -45,6 +54,15 @@ begin
   FRES_TileDownloadUnexpectedError := SAS_ERR_TileDownloadUnexpectedError;
 
   inherited Create(CreateSuspended);
+  FCancelEvent := TEvent.Create;
+  FCancelNotifier := TJclBaseNotifier.Create;
+end;
+
+destructor TTileDownloaderThreadBase.Destroy;
+begin
+  Terminate;
+  inherited;
+  FreeAndNil(FCancelEvent);
 end;
 
 function TTileDownloaderThreadBase.GetErrStr(Aerr: TDownloadTileResult): string;
@@ -71,6 +89,20 @@ begin
     dtrUnknownError:
       Result := FRES_TileDownloadUnexpectedError;
   end;
+end;
+
+procedure TTileDownloaderThreadBase.SleepCancelable(ATime: Cardinal);
+begin
+  if  ATime > 0 then begin
+    FCancelEvent.WaitFor(ATime);
+  end;
+end;
+
+procedure TTileDownloaderThreadBase.Terminate;
+begin
+  inherited;
+  FCancelEvent.SetEvent;
+  FCancelNotifier.Notify(nil);
 end;
 
 end.
