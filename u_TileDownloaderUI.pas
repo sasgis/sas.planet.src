@@ -119,15 +119,9 @@ begin
 end;
 
 destructor TTileDownloaderUI.Destroy;
-var
-  VWaitResult: DWORD;
 begin
   FLinksList := nil;
   FCancelNotifier := nil;
-  VWaitResult := WaitForSingleObject(Handle, 10000);
-  if VWaitResult = WAIT_TIMEOUT then begin
-    TerminateThread(Handle, 0);
-  end;
   FMapsSet := nil;
   inherited;
 end;

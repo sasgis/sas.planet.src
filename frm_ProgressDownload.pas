@@ -285,15 +285,9 @@ begin
 end;
 
 procedure TfrmProgressDownload.StopThread;
-var
-  VWaitResult: DWORD;
 begin
   FDownloadThread.Terminate;
   Application.ProcessMessages;
-  VWaitResult := WaitForSingleObject(FDownloadThread.Handle, 1000);
-  if VWaitResult = WAIT_TIMEOUT then begin
-    TerminateThread(FDownloadThread.Handle, 0);
-  end;
 end;
 
 end.
