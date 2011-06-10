@@ -15,6 +15,7 @@ uses
   i_ContentTypeInfo,
   i_ConfigDataProvider,
   i_TileObjCache,
+  i_DownloadResult,
   i_TileDownloaderConfig,
   i_LanguageManager,
   i_CoordConverter,
@@ -145,12 +146,8 @@ type
       ACancelNotifier: IJclNotifier;
       ATile: TPoint;
       AZoom: byte;
-      ACheckTileSize: Boolean;
-      AOldTileSize: Integer;
-      out AUrl: string;
-      out AContentType: string;
-      fileBuf: TMemoryStream
-    ): TDownloadTileResult; overload;
+      ACheckTileSize: Boolean
+    ): IDownloadResult;
 
     property GeoConvert: ICoordConverter read FCoordConverter;
     property MainGeoConvert: ICoordConverter read FMainCoordConverter;
@@ -205,7 +202,6 @@ uses
   u_GlobalState,
   i_ObjectWithTTL,
   i_DownloadResultFactory,
-  i_DownloadResult,
   i_PoolElement,
   i_TileInfoBasic,
   u_PoolOfObjectsSimple,
@@ -719,33 +715,32 @@ function TMapType.DownloadTile(
   ACancelNotifier: IJclNotifier;
   ATile: TPoint;
   AZoom: byte;
-  ACheckTileSize: Boolean;
-  AOldTileSize: Integer;
-  out AUrl, AContentType: string;
-  fileBuf: TMemoryStream
-): TDownloadTileResult;
+  ACheckTileSize: Boolean
+): IDownloadResult;
 var
-  StatusCode: Cardinal;
   VPoolElement: IPoolElement;
   VDownloader: ITileDownlodSession;
   VRequestHead: string;
   VDownloadChecker: IDownloadChecker;
   VConfig: ITileDownloaderConfigStatic;
   VResultFactory: IDownloadResultFactory;
-  VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
+  VUrl: string;
+  VOldTileSize: Integer;
+  VResultStream: TMemoryStream;
 begin
   if Self.UseDwn then begin
     VRequestHead := '';
-    GetRequest(ATile, AZoom, AUrl, VRequestHead);
-    VResultFactory := TDownloadResultFactoryTileDownload.Create(AZoom, ATile, Self, AUrl, VRequestHead);
+    VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersion).GetSize;
+    GetRequest(ATile, AZoom, VUrl, VRequestHead);
+    VResultFactory := TDownloadResultFactoryTileDownload.Create(AZoom, ATile, Self, VUrl, VRequestHead);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin
       raise Exception.Create('No free connections');
     end;
     VDownloader := VPoolElement.GetObject as ITileDownlodSession;
     if FAntiBan <> nil then begin
-      FAntiBan.PreDownload(VDownloader, ATile, AZoom, AUrl);
+      FAntiBan.PreDownload(VDownloader, ATile, AZoom, VUrl);
     end;
     VConfig := FTileDownloaderConfig.GetStatic;
     VDownloadChecker := TDownloadCheckerStuped.Create(
@@ -754,39 +749,30 @@ begin
       VConfig.ExpectedMIMETypes,
       VConfig.DefaultMIMEType,
       ACheckTileSize,
-      AOldTileSize
+      VOldTileSize
     );
-    VResult := VDownloader.DownloadTile(ACancelNotifier, VResultFactory, AUrl, VRequestHead, VDownloadChecker);
-    if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-      Result := dtrOK;
-      AContentType := VResultOk.ContentType;
-      StatusCode := VResultOk.StatusCode;
-      fileBuf.Clear;
-      fileBuf.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);
+    Result := VDownloader.DownloadTile(ACancelNotifier, VResultFactory, VUrl, VRequestHead, VDownloadChecker);
+    if FAntiBan <> nil then begin
+      Result :=
+        FAntiBan.PostCheckDownload(
+          VResultFactory,
+          VDownloader,
+          Result
+        );
+    end;
+    if Supports(Result, IDownloadResultOk, VResultOk) then begin
       SetResponse(VResultOk.RawResponseHeader);
-      if FAntiBan <> nil then begin
-        Result := FAntiBan.PostCheckDownload(VDownloader, ATile, AZoom, AUrl, Result, StatusCode, AContentType, fileBuf.Memory, fileBuf.Size);
+      VResultStream := TMemoryStream.Create;
+      try
+        VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);
+        SaveTileDownload(ATile, AZoom, VResultStream, VResultOk.ContentType);
+      finally
+        VResultStream.Free;
       end;
-      SaveTileDownload(ATile, AZoom, fileBuf, AContentType);
-    end else if Supports(VResult, IDownloadResultDataNotExists) then begin
-      Result := dtrTileNotExists;
+    end else if Supports(Result, IDownloadResultDataNotExists) then begin
       if GState.SaveTileNotExists then begin
         SaveTileNotExists(ATile, AZoom);
       end;
-    end else if Supports(VResult, IDownloadResultNotNecessary) then begin
-      Result := dtrSameTileSize;
-    end else if Supports(VResult, IDownloadResultBadContentType) then begin
-      Result := dtrErrorMIMEType;
-    end else if Supports(VResult, IDownloadResultProxyError) then begin
-      Result := dtrProxyAuthError;
-    end else if Supports(VResult, IDownloadResultBanned) then begin
-      Result := dtrBanError;
-    end else if Supports(VResult, IDownloadResultError) then begin
-      Result := dtrDownloadError;
-    end else if Supports(VResult, IDownloadResultNoConnetctToServer) then begin
-      Result := dtrErrorInternetOpenURL;
-    end else begin
-      Result := dtrUnknownError;
     end;
   end else begin
     raise Exception.Create('Для этой карты загрузка запрещена.');

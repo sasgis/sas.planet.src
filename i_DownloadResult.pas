@@ -62,6 +62,9 @@ type
 
   IDownloadResultBadContentType = interface(IDownloadResultError)
     ['{A8C2F27E-D1DA-43CA-8F34-4156F906D50B}']
+    function GetContentType: string;
+    property ContentType: string read GetContentType;
+
     function GetRawResponseHeader: string;
     property RawResponseHeader: string read GetRawResponseHeader;
   end;

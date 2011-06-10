@@ -7,6 +7,8 @@ uses
   SyncObjs,
   i_ConfigDataProvider,
   i_AntiBan,
+  i_DownloadResult,
+  i_DownloadResultFactory,
   i_TileDownlodSession;
 
 type
@@ -22,14 +24,7 @@ type
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan();
     function CheckIsBan(
-      ATile: TPoint;
-      AZoom: Byte;
-      AUrl: string;
-      ADownloadResult: TDownloadTileResult;
-      AStatusCode: Cardinal;
-      AContentType: string;
-      ADownloadBuffer: Pointer;
-      ADownloadSize: Cardinal
+      ADownloadResult: IDownloadResult
     ): Boolean;
     procedure ExecOnBan(ALastUrl: String);
   public
@@ -42,16 +37,10 @@ type
       AUrl: string
     );
     function PostCheckDownload(
+      AResultFactory: IDownloadResultFactory;
       ADownloader: ITileDownlodSession;
-      ATile: TPoint;
-      AZoom: Byte;
-      AUrl: string;
-      ADownloadResult: TDownloadTileResult;
-      AStatusCode: Cardinal;
-      AContentType: string;
-      ADownloadBuffer: Pointer;
-      ADownloadSize: Cardinal
-    ): TDownloadTileResult;
+      ADownloadResult: IDownloadResult
+    ): IDownloadResult;
   end;
 
 
@@ -96,19 +85,11 @@ begin
   end;
 end;
 
-function TAntiBanStuped.CheckIsBan(ATile: TPoint; AZoom: Byte;
-  AUrl: string; ADownloadResult: TDownloadTileResult;
-  AStatusCode: Cardinal; AContentType: string; ADownloadBuffer: Pointer;
-  ADownloadSize: Cardinal): Boolean;
+function TAntiBanStuped.CheckIsBan(
+  ADownloadResult: IDownloadResult
+): Boolean;
 begin
   Result := false;
-  if (ADownloadResult = dtrErrorMIMEType) and
-     (ADownloadSize <> 0) and
-     (FBanIfLen <> 0) and
-     (ADownloadSize < Cardinal(FBanIfLen + 50)) and
-     (int64(ADownloadSize) > (FBanIfLen - 50)) then begin
-    result := true;
-  end;
 end;
 
 constructor TAntiBanStuped.Create(AConfig: IConfigDataProvider);
@@ -165,19 +146,19 @@ begin
 end;
 
 function TAntiBanStuped.PostCheckDownload(
-  ADownloader: ITileDownlodSession; ATile: TPoint; AZoom: Byte;
-  AUrl: string; ADownloadResult: TDownloadTileResult;
-  AStatusCode: Cardinal; AContentType: string; ADownloadBuffer: Pointer;
-  ADownloadSize: Cardinal): TDownloadTileResult;
+  AResultFactory: IDownloadResultFactory;
+  ADownloader: ITileDownlodSession;
+  ADownloadResult: IDownloadResult
+): IDownloadResult;
 begin
   Result := ADownloadResult;
-  if CheckIsBan(ATile, AZoom, AUrl, ADownloadResult, AStatusCode, AContentType, ADownloadBuffer, ADownloadSize) then begin
-    Result := dtrBanError;
+  if CheckIsBan(ADownloadResult) then begin
+    Result := AResultFactory.BuildBanned('X3');
   end;
 
-  if Result = dtrBanError then begin
-    ExecOnBan(AUrl);
-  end else if Result = dtrOK then begin
+  if Supports(Result, IDownloadResultBanned) then begin
+    ExecOnBan(ADownloadResult.Url);
+  end else if Supports(Result, IDownloadResultOk) then begin
     FBanCS.Acquire;
     FBanFlag := True;
     FBanCS.Release;

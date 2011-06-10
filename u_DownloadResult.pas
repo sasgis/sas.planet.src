@@ -157,6 +157,9 @@ type
   TDownloadResultBadContentType = class(TDownloadResultError, IDownloadResultBadContentType)
   private
     FRawResponseHeader: string;
+    FContentType: string;
+  protected
+    function GetContentType: string;
   protected
     function GetIsServerExists: Boolean; override;
     function GetRawResponseHeader: string;
@@ -362,7 +365,13 @@ constructor TDownloadResultBadContentType.Create(AUrl, ARequestHead,
   AContentType, ARawResponseHeader: string);
 begin
   inherited Create(AUrl, ARequestHead, Format('Неожиданный тип %s', [AContentType]));
+  FContentType := AContentType;
   FRawResponseHeader := ARawResponseHeader;
+end;
+
+function TDownloadResultBadContentType.GetContentType: string;
+begin
+  Result := FContentType;
 end;
 
 function TDownloadResultBadContentType.GetIsServerExists: Boolean;

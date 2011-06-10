@@ -97,6 +97,7 @@ uses
   SysUtils,
   IniFiles,
   Types,
+  i_DownloadResult,
   i_TileDownlodSession,
   u_GlobalState,
   i_TileIterator,
@@ -244,14 +245,14 @@ end;
 
 procedure TThreadDownloadTiles.Execute;
 var
-  ty: string;
   VTileExists: boolean;
-  fileBuf:TMemoryStream;
-  res: TDownloadTileResult;
-  razlen: integer;
+  VResult: IDownloadResult;
   VGotoNextTile: Boolean;
   VTile: TPoint;
   VTileIterator: ITileIterator;
+  VResultOk: IDownloadResultOk;
+  VResultBadContentType: IDownloadResultBadContentType;
+  VResultDownloadError: IDownloadResultError;
 begin
   FStartTime := Now;
 
@@ -300,64 +301,53 @@ begin
               FLog.WriteText(FRES_FileBeCreateTime, 0);
               VGotoNextTile := True;
             end else begin
-              razlen := FMapType.TileSize(VTile, Fzoom);
-
-              FileBuf:=TMemoryStream.Create;
-              try
                 try
                   if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(GState.SaveTileNotExists) then begin
-                    res := dtrTileNotExists;
+                    FLog.WriteText('(tne exists)', 0);
+                    VGotoNextTile := True;
+                    FLastProcessedPoint := FLoadXY;
                   end else begin
-                    res:=FMapType.DownloadTile(FCancelNotifier, VTile, FZoom, FCheckExistTileSize,  razlen, FLoadUrl, ty, fileBuf);
-                  end;
-                  if Terminated then begin
-                    Break;
-                  end;
-                  FLastProcessedPoint := FLoadXY;
-                  case res of
-                    dtrOK : begin
-                      FLastSuccessfulPoint := FLoadXY;
-                      FDownloadInfo.Add(1, fileBuf.Size);
+                    VResult:=FMapType.DownloadTile(FCancelNotifier, VTile, FZoom, FCheckExistTileSize);
+                    if Terminated then begin
+                      Break;
+                    end;
+                    FLastProcessedPoint := FLoadXY;
+                    if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+                      FDownloadInfo.Add(1, VResultOk.Size);
                       FLog.WriteText('(Ok!)', 0);
                       VGotoNextTile := True;
-                    end;
-                    dtrSameTileSize: begin
+                    end else if Supports(VResult, IDownloadResultNotNecessary) then begin
                       FLastSuccessfulPoint := FLoadXY;
-                      FDownloadInfo.Add(1, fileBuf.Size);
                       FLog.WriteText(FRES_FileBeCreateLen, 0);
                       VGotoNextTile := True;
-                    end;
-                    dtrProxyAuthError: begin
+                    end else if Supports(VResult, IDownloadResultProxyError) then begin
                       FLog.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime,[FProxyAuthErrorSleepTime div 1000]), 10);
                       SleepCancelable(FProxyAuthErrorSleepTime);
                       VGotoNextTile := false;
-                    end;
-                    dtrBanError: begin
+                    end else if Supports(VResult, IDownloadResultBanned) then begin
                       FLog.WriteText(FRES_Ban + #13#10 + Format(FRES_WaitTime, [FBanSleepTime div 1000]), 10);
                       SleepCancelable(FBanSleepTime);
                       VGotoNextTile := false;
-                    end;
-                    dtrErrorMIMEType: begin
-                      FLog.WriteText(Format(FRES_BadMIME, [ty]), 1);
+                    end else if Supports(VResult, IDownloadResultBadContentType, VResultBadContentType) then begin
+                      FLog.WriteText(Format(FRES_BadMIME, [VResultBadContentType.ContentType]), 1);
                       VGotoNextTile := True;
-                    end;
-                    dtrTileNotExists: begin
+                    end else if Supports(VResult, IDownloadResultDataNotExists) then begin
                       FLog.WriteText(FRES_TileNotExists, 1);
                       VGotoNextTile := True;
-                    end;
-                    dtrDownloadError: begin
-                      FLog.WriteText(FRES_Noconnectionstointernet + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
-                      SleepCancelable(FDownloadErrorSleepTime);
-                      if GState.GoNextTileIfDownloadError then begin
-                        VGotoNextTile := True;
-                      end else begin
+                    end else if Supports(VResult, IDownloadResultError, VResultDownloadError) then begin
+                      if Supports(VResult, IDownloadResultNoConnetctToServer) then begin
+                        FLog.WriteText(VResultDownloadError.ErrorText + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
+                        SleepCancelable(FDownloadErrorSleepTime);
                         VGotoNextTile := false;
+                      end else begin
+                        FLog.WriteText(FRES_Noconnectionstointernet + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
+                        SleepCancelable(FDownloadErrorSleepTime);
+                        if GState.GoNextTileIfDownloadError then begin
+                          VGotoNextTile := True;
+                        end else begin
+                          VGotoNextTile := false;
+                        end;
                       end;
-                    end;
-                    else begin
-                      FLog.WriteText(GetErrStr(res) + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
-                      SleepCancelable(FDownloadErrorSleepTime);
-                      VGotoNextTile := false;
                     end;
                   end;
                 except
@@ -366,9 +356,6 @@ begin
                     VGotoNextTile := True;
                   end;
                 end;
-              finally
-                FileBuf.Free;
-              end;
             end;
           end else begin
             FLog.WriteText(FRES_FileExistsShort, 0);

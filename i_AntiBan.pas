@@ -4,6 +4,8 @@ interface
 
 uses
   Types,
+  i_DownloadResult,
+  i_DownloadResultFactory,
   i_TileDownlodSession;
 
 type
@@ -16,16 +18,10 @@ type
       AUrl: string
     );
     function PostCheckDownload(
+      AResultFactory: IDownloadResultFactory;
       ADownloader: ITileDownlodSession;
-      ATile: TPoint;
-      AZoom: Byte;
-      AUrl: string;
-      ADownloadResult: TDownloadTileResult;
-      AStatusCode: Cardinal;
-      AContentType: string;
-      ADownloadBuffer: Pointer;
-      ADownloadSize: Cardinal
-    ): TDownloadTileResult;
+      ADownloadResult: IDownloadResult
+    ): IDownloadResult;
   end;
 implementation
 
