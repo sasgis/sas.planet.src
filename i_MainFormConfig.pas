@@ -13,6 +13,7 @@ uses
   i_MapLayerNavToPointMarkerConfig,
   i_MainFormBehaviourByGPSConfig,
   i_MainGeoCoderConfig,
+  i_KeyMovingConfig,
   i_UsedMarksConfig,
   i_KmlLayerConfig,
   i_MiniMapLayerConfig,
@@ -144,7 +145,10 @@ type
 
     function GetDownloadUIConfig: IDownloadUIConfig;
     property DownloadUIConfig: IDownloadUIConfig read GetDownloadUIConfig;
-  end;
+
+    function GetKeyMovingConfig: IKeyMovingConfig;
+    property KeyMovingConfig: IKeyMovingConfig read GetKeyMovingConfig;
+ end;
 
 implementation
 

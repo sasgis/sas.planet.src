@@ -11,6 +11,7 @@ uses
   i_MainFormConfig,
   i_MainFormBehaviourByGPSConfig,
   i_MainGeoCoderConfig,
+  i_KeyMovingConfig,
   i_GeoCoderList,
   i_DownloadUIConfig,
   u_ConfigDataElementComplexBase;
@@ -27,6 +28,7 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FViewPortState: IViewPortState;
     FDownloadUIConfig: IDownloadUIConfig;
+    FKeyMovingConfig: IKeyMovingConfig;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
@@ -37,6 +39,7 @@ type
     function GetMainMapsConfig: IMainMapsConfig;
     function GetViewPortState: IViewPortState;
     function GetDownloadUIConfig: IDownloadUIConfig;
+    function GetKeyMovingConfig: IKeyMovingConfig;
   public
     constructor Create(
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -59,6 +62,7 @@ uses
   u_MainFormBehaviourByGPSConfig,
   u_MainGeoCoderConfig,
   u_DownloadUIConfig,
+  u_KeyMovingConfig,
   u_MainFormMainConfig;
 
 { TMainFormConfig }
@@ -89,6 +93,8 @@ begin
   Add(FLayersConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FDownloadUIConfig := TDownloadUIConfig.Create;
   Add(FDownloadUIConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ViewDownload'));
+  FKeyMovingConfig := TKeyMovingConfig.Create;
+  Add(FKeyMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('KeyMoving'));
 end;
 
 function TMainFormConfig.GetDownloadUIConfig: IDownloadUIConfig;
@@ -99,6 +105,11 @@ end;
 function TMainFormConfig.GetGPSBehaviour: IMainFormBehaviourByGPSConfig;
 begin
   Result := FGPSBehaviour;
+end;
+
+function TMainFormConfig.GetKeyMovingConfig: IKeyMovingConfig;
+begin
+  Result := FKeyMovingConfig;
 end;
 
 function TMainFormConfig.GetLayersConfig: IMainFormLayersConfig;
