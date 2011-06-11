@@ -402,6 +402,8 @@ uses
   u_GeoCoderListSimple in 'u_GeoCoderListSimple.pas',
   i_MainGeoCoderConfig in 'i_MainGeoCoderConfig.pas',
   u_MainGeoCoderConfig in 'u_MainGeoCoderConfig.pas',
+  i_KeyMovingConfig in 'i_KeyMovingConfig.pas',
+  u_KeyMovingConfig in 'u_KeyMovingConfig.pas',
   i_MainFormBehaviourByGPSConfig in 'i_MainFormBehaviourByGPSConfig.pas',
   u_MainFormBehaviourByGPSConfig in 'u_MainFormBehaviourByGPSConfig.pas',
   i_ValueToStringConverter in 'i_ValueToStringConverter.pas',
