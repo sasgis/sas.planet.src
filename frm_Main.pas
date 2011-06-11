@@ -3321,21 +3321,16 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FmoveTrue);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-// CState:=ShowCursor(True);
-// while CState < 0 do begin
-//  CState:= ShowCursor(true);
-// end;
-// sleep(5);
   if (movepoint) then begin
     FLineOnMapEdit.MoveActivePoint(VLonLat);
     exit;
   end;
- if (FCurrentOper=ao_select_rect)and(Frect_dwn)and(not(ssRight in Shift)) then begin
-   FSelectionRect.BottomRight:=VLonLat;
-   VSelectionRect := FSelectionRect;
-   PrepareSelectionRect(Shift,VSelectionRect);
-   FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
- end;
+  if (FCurrentOper=ao_select_rect)and(Frect_dwn)and(not(ssRight in Shift)) then begin
+    FSelectionRect.BottomRight:=VLonLat;
+    VSelectionRect := FSelectionRect;
+    PrepareSelectionRect(Shift,VSelectionRect);
+    FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
+  end;
  if FWinPosition.GetIsFullScreen then begin
                        if FmoveTrue.y<10 then begin
                                      TBDock.Parent:=map;
