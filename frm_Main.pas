@@ -468,22 +468,21 @@ type
     FHintWindow: THintWindow;
     Frect_dwn: Boolean;
     Frect_p2: boolean;
-    FMainLayer: TMapMainLayer;
-    FLayerStatBar: TLayerStatBar;
-    FShowErrorLayer: TTileErrorInfoLayer;
-    FWikiLayer: TWikiLayer;
     FdWhenMovingButton: integer;
     FMarshrutComment: string;
     movepoint: boolean;
     FSelectionRect: TDoubleRect;
 
+    FMainLayer: TMapMainLayer;
+    FLayerStatBar: TLayerStatBar;
+    FShowErrorLayer: TTileErrorInfoLayer;
+    FWikiLayer: TWikiLayer;
     FLayerScaleLine: TLayerScaleLine;
     FCalcLineLayer: TCalcLineLayer;
     FMarkPolyLineLayer: TMarkPolyLineLayer;
     FMarkPolygonLayer: TMarkPolygonLayer;
     FSelectionPolygonLayer: TSelectionPolygonLayer;
     FSelectionRectLayer: TSelectionRectLayer;
-
     FLayerMapGPS: TMapGPSLayer;
     FLayerGoto: TGotoLayer;
     FLayerFillingMap: TMapLayerFillingMap;
