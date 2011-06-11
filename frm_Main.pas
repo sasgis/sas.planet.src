@@ -1976,33 +1976,48 @@ end;
 
 procedure TfrmMain.zooming(ANewZoom:byte;move:boolean);
 var
-  ts1,ts2,fr:int64;
+  ts1,ts2,ts3,fr:int64;
   Scale: Double;
   VZoom: Byte;
   VMousePos: TPoint;
   VAlfa: Double;
   VTime: Double;
+  VLastTime: Double;
   VMaxTime: Double;
+  VUseAnimation: Boolean;
 begin
-  TBZoom_Out.Enabled := False;
-  TBZoomIn.Enabled := False;
-  NZoomIn.Enabled := False;
-  NZoomOut.Enabled := False;
+  FMapZoomAnimtion:=True;
   VZoom := FConfig.ViewPortState.GetCurrentZoom;
   if (FMapZoomAnimtion)or(FMapMoving)or(ANewZoom>23) then exit;
-  FMapZoomAnimtion:=True;
   VMousePos := MouseCursorPos;
+  VUseAnimation := (abs(ANewZoom-VZoom)=1)and(FConfig.MainConfig.AnimateZoom);
 
-  if (abs(ANewZoom-VZoom)=1)and(FConfig.MainConfig.AnimateZoom) then begin
-    VMaxTime := 250;
+  map.BeginUpdate;
+  try
+    if move then begin
+      FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, VMousePos);
+    end else begin
+      FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
+    end;
+  finally
+    map.EndUpdate;
+    if not VUseAnimation then begin
+      map.Changed;
+    end;
+  end;
+
+  if VUseAnimation then begin
+    VMaxTime := 500;
     VTime := 0;
+    VLastTime := 0;
     QueryPerformanceCounter(ts1);
-    while (VTime < VMaxTime) do begin
+    ts3 := ts1;
+    while (VTime + VLastTime < VMaxTime) do begin
       VAlfa := VTime/VMaxTime;
       if VZoom>ANewZoom then begin
-        Scale := 1/(1 + VAlfa);
+        Scale := 2 - VAlfa;
       end else begin
-        Scale := 3 - 2/(1+VAlfa);
+        Scale := (1 + VAlfa)/2;
       end;
       map.BeginUpdate;
       try
@@ -2018,14 +2033,11 @@ begin
       application.ProcessMessages;
       QueryPerformanceCounter(ts2);
       QueryPerformanceFrequency(fr);
+      VLastTime := (ts2-ts3)/(fr/1000);
       VTime := (ts2-ts1)/(fr/1000);
+      ts3 := ts2;
     end;
-    VAlfa := 1;
-    if VZoom>ANewZoom then begin
-      Scale := 1/(1 + VAlfa);
-    end else begin
-      Scale := 3 - 2/(1+VAlfa);
-    end;
+    Scale := 1;
     map.BeginUpdate;
     try
       if move then begin
@@ -2037,20 +2049,7 @@ begin
       map.EndUpdate;
       map.Changed;
     end;
-    application.ProcessMessages;
   end;
-  map.BeginUpdate;
-  try
-    if move then begin
-      FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, VMousePos);
-    end else begin
-      FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
-    end;
-  finally
-    map.EndUpdate;
-    map.Changed;
-  end;
-
   FMapZoomAnimtion:=False;
 end;
 
