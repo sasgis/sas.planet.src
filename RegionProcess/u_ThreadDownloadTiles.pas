@@ -41,7 +41,6 @@ type
     FProxyAuthErrorSleepTime: Cardinal;
     FDownloadErrorSleepTime: Cardinal;
 
-
     FRES_UserStop: string;
     FRES_ProcessedFile: string;
     FRES_LoadProcessRepl: string;
@@ -62,9 +61,6 @@ type
     function GetElapsedTime: TDateTime;
     function GetDownloaded: Int64;
     function GetDownloadSize: Double;
-
-    //function GetErrStr(Aerr: TDownloadTileResult): string;
-
   protected
     procedure Execute; override;
   public
@@ -86,7 +82,7 @@ type
     procedure DownloadPause;
     procedure DownloadResume;
 
-    procedure OnTileDownload(AEvent: ITileDownloaderEvent);
+    procedure OnTileDownload(AEvent: ITileDownloaderEvent); override;
 
     property TotalInRegion: Int64 read FTotalInRegion;
     property Downloaded: Int64 read GetDownloaded;
@@ -106,6 +102,7 @@ uses
   Types,
   u_GlobalState,
   i_TileIterator,
+  i_DownloadResult,
   u_DownloadInfoSimple,
   u_TileIteratorStuped,
   u_ResStrings;
@@ -249,60 +246,52 @@ begin
 end;
 
 procedure TThreadDownloadTiles.OnTileDownload(AEvent: ITileDownloaderEvent);
+var
+  VResultOk: IDownloadResultOk;
+  VResultBadContentType: IDownloadResultBadContentType;
+  VResultDownloadError: IDownloadResultError;
 begin
-  {
   try
-    case AEvent.DownloadResult of
-      dtrOK : begin
-        FLastSuccessfulPoint := AEvent.TileXY;
-        FDownloadInfo.Add(1, AEvent.TileSize);
-        FLog.WriteText('(Ok!)', 0);
-        FGotoNextTile := True;
-      end;
-      dtrSameTileSize: begin
-        FLastSuccessfulPoint := AEvent.TileXY;
-        FDownloadInfo.Add(1, AEvent.TileSize);
-        FLog.WriteText(FRES_FileBeCreateLen, 0);
-        FGotoNextTile := True;
-      end;
-      dtrProxyAuthError: begin
-        FLog.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime,[FProxyAuthErrorSleepTime div 1000]), 10);
-        sleep(FProxyAuthErrorSleepTime);
-        FGotoNextTile := false;
-      end;
-      dtrBanError: begin
-        FLog.WriteText(FRES_Ban + #13#10 + Format(FRES_WaitTime, [FBanSleepTime div 1000]), 10);
-        sleep(FBanSleepTime);
-        FGotoNextTile := false;
-      end;
-      dtrErrorMIMEType: begin
-        FLog.WriteText(Format(FRES_BadMIME, [AEvent.TileMIME]), 1);
-        FGotoNextTile := True;
-      end;
-      dtrTileNotExists: begin
-        FLog.WriteText(FRES_TileNotExists, 1);
-        FGotoNextTile := True;
-      end;
-      dtrDownloadError: begin
+    if Supports(AEvent.DownloadResult, IDownloadResultOk, VResultOk) then begin
+      FDownloadInfo.Add(1, VResultOk.Size);
+      FLog.WriteText('(Ok!)', 0);
+      FGotoNextTile := True;
+    end else if Supports(AEvent.DownloadResult, IDownloadResultNotNecessary) then begin
+      FLastSuccessfulPoint := AEvent.TileXY;
+      FLog.WriteText(FRES_FileBeCreateLen, 0);
+      FGotoNextTile := True;
+    end else if Supports(AEvent.DownloadResult, IDownloadResultProxyError) then begin
+      FLog.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime,[FProxyAuthErrorSleepTime div 1000]), 10);
+      SleepCancelable(FProxyAuthErrorSleepTime);
+      FGotoNextTile := False;
+    end else if Supports(AEvent.DownloadResult, IDownloadResultBanned) then begin
+      FLog.WriteText(FRES_Ban + #13#10 + Format(FRES_WaitTime, [FBanSleepTime div 1000]), 10);
+      SleepCancelable(FBanSleepTime);
+      FGotoNextTile := False;
+    end else if Supports(AEvent.DownloadResult, IDownloadResultBadContentType, VResultBadContentType) then begin
+      FLog.WriteText(Format(FRES_BadMIME, [VResultBadContentType.ContentType]), 1);
+      FGotoNextTile := True;
+    end else if Supports(AEvent.DownloadResult, IDownloadResultDataNotExists) then begin
+      FLog.WriteText(FRES_TileNotExists, 1);
+      FGotoNextTile := True;
+    end else if Supports(AEvent.DownloadResult, IDownloadResultError, VResultDownloadError) then begin
+      if Supports(AEvent.DownloadResult, IDownloadResultNoConnetctToServer) then begin
+        FLog.WriteText(VResultDownloadError.ErrorText + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
+        SleepCancelable(FDownloadErrorSleepTime);
+        FGotoNextTile := False;
+      end else begin
         FLog.WriteText(FRES_Noconnectionstointernet + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
-        sleep(FDownloadErrorSleepTime);
+        SleepCancelable(FDownloadErrorSleepTime);
         if GState.GoNextTileIfDownloadError then begin
           FGotoNextTile := True;
         end else begin
-          FGotoNextTile := false;
+          FGotoNextTile := False;
         end;
-      end;
-      else begin
-        FLog.WriteText(GetErrStr(AEvent.DownloadResult) + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
-        sleep(FDownloadErrorSleepTime);
-        FGotoNextTile := false;
       end;
     end;
   finally
     inherited;
   end;
-
-  }
 end;
 
 procedure TThreadDownloadTiles.Execute;
@@ -359,7 +348,7 @@ begin
                   FLog.WriteText(FRES_TileNotExists, 1);
                   FGotoNextTile := True;
                 end else begin
-                  Download(VTile, FZoom, FCheckExistTileSize);
+                  Download(VTile, FZoom, OnTileDownload, FCheckExistTileSize);
                 end;
                 FLastProcessedPoint := VTile;
               except

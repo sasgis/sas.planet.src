@@ -276,7 +276,7 @@ begin
                 end;
                 if VNeedDownload then
                 try
-                  Download(VTile, VZoom);
+                  Download(VTile, VZoom, OnTileDownload);
                 except
                   on E:Exception do
                     FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, VZoom, VTile, E.Message) );
