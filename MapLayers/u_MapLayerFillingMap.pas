@@ -9,6 +9,7 @@ uses
   i_JclNotify,
   t_CommonTypes,
   i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
   i_FillingMapLayerConfig,
   u_MapType,
@@ -27,6 +28,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
       ATimerNoifier: IJclNotifier;
       AConfig: IFillingMapLayerConfig
     );
@@ -37,7 +39,6 @@ implementation
 
 uses
   Classes,
-  Graphics,
   SysUtils,
   t_GeoTypes,
   i_CoordConverter,
@@ -50,11 +51,18 @@ uses
 constructor TMapLayerFillingMap.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
   ATimerNoifier: IJclNotifier;
   AConfig: IFillingMapLayerConfig
 );
 begin
-  inherited Create(AParentMap, AViewPortState, ATimerNoifier, tpLowest);
+  inherited Create(
+    AParentMap,
+    AViewPortState,
+    AConverterFactory,
+    ATimerNoifier,
+    tpLowest
+  );
   FConfig := AConfig;
 
   LinksList.Add(

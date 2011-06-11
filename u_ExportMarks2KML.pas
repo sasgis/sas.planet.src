@@ -29,7 +29,7 @@ type
     Zip: TKaZip;
     OnlyVisible:boolean;
     procedure AddMark(Mark:iMarkFull;inNode:iXMLNode);
-    procedure SaveMarkIcon(Mark:IMarkFull);
+    function SaveMarkIcon(Mark:IMarkFull): string;
     procedure AddFolders(ACategoryList: IInterfaceList);
     function AddMarks(ACategoryList: IInterfaceList; inNode:iXMLNode): Boolean;
     function Color32toKMLColor(Color32:TColor32):string;
@@ -218,22 +218,32 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.SaveMarkIcon(Mark:iMarkFull);
+function TExportMarks2KML.SaveMarkIcon(Mark:iMarkFull): string;
 var
-  VSourceFileName: string;
   VTargetPath: string;
   VTargetFullName: string;
+  VPicName: string;
+  VMemStream: TMemoryStream;
 begin
-  VSourceFileName := GState.ProgramPath + 'marksicons' + PathDelim + Mark.PicName;
-  VTargetPath := 'files' + PathDelim;
-  if inKMZ then begin
-    VTargetFullName := VTargetPath + Mark.PicName;
-    Zip.AddFile(VSourceFileName, VTargetFullName);
-  end else begin
-    VTargetPath := ExtractFilePath(filename) + VTargetPath;
-    VTargetFullName := VTargetPath + Mark.PicName;
-    CreateDir(VTargetPath);
-    CopyFile(PChar(VSourceFileName),PChar(VTargetFullName),false);
+  Result := '';
+  if Mark.Pic <> nil then begin
+    VMemStream := TMemoryStream.Create;
+    try
+      Mark.Pic.ExportToStream(VMemStream);
+      VPicName := Mark.Pic.GetName;
+      VTargetPath := 'files' + PathDelim;
+      Result := VTargetPath  + VPicName;
+      if inKMZ then begin
+        Zip.AddStream(Result, VMemStream);
+      end else begin
+        VTargetPath := ExtractFilePath(filename) + VTargetPath;
+        VTargetFullName := VTargetPath + VPicName;
+        CreateDir(VTargetPath);
+        VMemStream.SaveToFile(VTargetFullName);
+      end;
+    finally
+      VMemStream.Free;
+    end;
   end;
 end;
 
@@ -257,6 +267,7 @@ var
   j,width:integer;
   currNode:IXMLNode;
   coordinates:string;
+  VFileName: string;
 begin
       currNode:=inNode.AddChild('Placemark');
       currNode.ChildValues['name']:=Mark.name;
@@ -279,11 +290,11 @@ begin
           end;
           if Mark.Pic <> nil then begin
             with AddChild('IconStyle') do begin
-              SaveMarkIcon(Mark);
+              VFileName := SaveMarkIcon(Mark);
               width:=Mark.Pic.GetBitmapSize.X;
               ChildValues['scale']:=R2StrPoint(Mark.Scale2/width);
               with AddChild('Icon') do begin
-                ChildValues['href']:='files\'+Mark.PicName;
+                ChildValues['href']:=VFileName;
               end;
               with AddChild('hotSpot') do begin
                 Attributes['x']:='0.5';

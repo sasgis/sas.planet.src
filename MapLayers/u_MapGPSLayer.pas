@@ -12,6 +12,7 @@ uses
   t_GeoTypes,
   t_CommonTypes,
   i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   i_GPSRecorder,
   i_MapLayerGPSTrackConfig,
   i_ViewPortState,
@@ -52,6 +53,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
       ATimerNoifier: IJclNotifier;
       AConfig: IMapLayerGPSTrackConfig;
       AGPSRecorder: IGPSRecorder
@@ -63,9 +65,7 @@ implementation
 
 uses
   Classes,
-  Graphics,
   SysUtils,
-  GR32_Math,
   i_CoordConverter,
   i_TileIterator,
   u_GeoFun,
@@ -77,12 +77,13 @@ uses
 constructor TMapGPSLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
   ATimerNoifier: IJclNotifier;
   AConfig: IMapLayerGPSTrackConfig;
   AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(AParentMap, AViewPortState, nil, ATimerNoifier, tpLower);
+  inherited Create(AParentMap, AViewPortState, AConverterFactory, nil, ATimerNoifier, tpLower);
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   LinksList.Add(

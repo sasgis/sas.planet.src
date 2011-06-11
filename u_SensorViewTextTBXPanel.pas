@@ -6,7 +6,6 @@ uses
   Windows,
   Classes,
   ImgList,
-  SyncObjs,
   TB2Item,
   TB2Dock,
   TBX,

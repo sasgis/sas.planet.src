@@ -90,7 +90,13 @@ type
   public
     procedure StartThreads; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig; APostProcessingConfig:IBitmapPostProcessingConfig);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+      AConfig: IMiniMapLayerConfig;
+      APostProcessingConfig:IBitmapPostProcessingConfig
+    );
     destructor Destroy; override;
     property BottomMargin: Integer read FBottomMargin write SetBottomMargin;
   end;
@@ -108,18 +114,23 @@ uses
   u_ResStrings,
   i_TileIterator,
   u_GlobalState,
-  u_LocalCoordConverterFactorySimpe,
   u_NotifyEventListener,
   u_TileIteratorByRect,
   u_MapTypeMenuItemsGeneratorBasic;
 
 { TMapMainLayer }
 
-constructor TMiniMapLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IMiniMapLayerConfig; APostProcessingConfig:IBitmapPostProcessingConfig);
+constructor TMiniMapLayer.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+  AConfig: IMiniMapLayerConfig;
+  APostProcessingConfig:IBitmapPostProcessingConfig
+);
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
-  FCoordConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+  FCoordConverterFactory := ACoordConverterFactory;
   FParentMap := AParentMap;
   FIconsList := GState.MapTypeIcons18List;
 

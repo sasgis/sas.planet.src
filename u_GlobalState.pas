@@ -14,6 +14,7 @@ uses
   JclDebug,
   {$ENDIF SasDebugWithJcl}
   i_JclNotify,
+  i_GPS,
   i_LanguageManager,
   i_MemObjCache,
   i_ConfigDataWriteProvider,
@@ -24,6 +25,7 @@ uses
   i_KmlInfoSimpleLoader,
   i_MapTypeIconsList,
   i_CoordConverterFactory,
+  i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,
   i_GSMGeoCodeConfig,
   i_MainFormConfig,
@@ -71,11 +73,13 @@ type
     FLastSelectionInfo: ILastSelectionInfo;
     FMarksDB: TMarksDB;
     FCoordConverterFactory: ICoordConverterFactory;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
     FInetConfig: IInetConfig;
     FProxySettings: IProxySettings;
     FGPSConfig: IGPSConfig;
     FGSMpar: IGSMGeoCodeConfig;
+    FGPSPositionFactory: IGPSPositionFactory;
     FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -118,8 +122,6 @@ type
 
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
-    // Делать вторую попытку скачать файл при ошибке скачивания
-    TwoDownloadAttempt: Boolean;
     // Переходить к следующему тайлу если произошла ошибка закачки
     GoNextTileIfDownloadError: Boolean;
 
@@ -140,6 +142,7 @@ type
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
+    property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
     property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
     property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
@@ -213,6 +216,7 @@ uses
   u_LanguageManager,
   u_DownloadInfoSimple,
   u_InetConfig,
+  u_Datum,
   u_GSMGeoCodeConfig,
   u_GPSConfig,
   u_MarkCategoryFactoryConfig,
@@ -229,6 +233,8 @@ uses
   u_GPSLogWriterToPlt,
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByZylGPS,
+  u_GPSPositionFactory,
+  u_LocalCoordConverterFactorySimpe,
   u_MainFormConfig,
   u_InternalPerformanceCounterList,
   u_ResStrings,
@@ -250,7 +256,14 @@ begin
 
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
   Show_logo := True;
-  ShowDebugInfo := False;
+
+  {$IFDEF DEBUG}
+    ShowDebugInfo := True;
+  {$ELSE}
+    ShowDebugInfo := False;
+  {$ENDIF}
+  FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+
   FCacheConfig := TGlobalCahceConfig.Create;
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   FMainMapsList := TMapTypesMainList.Create;
@@ -271,7 +284,12 @@ begin
   FInetConfig := TInetConfig.Create;
   FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
   FGPSConfig := TGPSConfig.Create(GetTrackLogPath);
-  FGPSRecorder := TGPSRecorderStuped.Create;
+  FGPSPositionFactory := TGPSPositionFactory.Create;
+  FGPSRecorder :=
+    TGPSRecorderStuped.Create(
+      TDatum.Create(3395, 6378137, 6356752),
+      FGPSPositionFactory
+    );
   FGSMpar := TGSMGeoCodeConfig.Create;
   FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
@@ -291,7 +309,7 @@ begin
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   FGPSpar :=
     TGPSpar.Create(
-      TGPSModuleFactoryByZylGPS.Create,
+      TGPSModuleFactoryByZylGPS.Create(FGPSPositionFactory),
       TPltLogWriter.Create(GetTrackLogPath),
       FGPSConfig,
       FGPSRecorder,
@@ -445,6 +463,7 @@ begin
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
   FMainMapsList.LoadMaps(FLanguageManager, VLocalMapsConfig, MapsPath);
   FMainFormConfig := TMainFormConfig.Create(
+    FLocalConverterFactory,
     FGeoCoderList,
     FMainMapsList.MapsList,
     FMainMapsList.LayersList,
@@ -501,7 +520,6 @@ begin
   WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
   SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', false);
 
-  TwoDownloadAttempt:=MainIni.ReadBool('INTERNET','DblDwnl',true);
   GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
   SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 end;
@@ -540,7 +558,6 @@ begin
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
   MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
-  MainIni.WriteBool('INTERNET','DblDwnl',TwoDownloadAttempt);
   MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);
   MainIni.WriteBool('INTERNET','SessionLastSuccess',SessionLastSuccess);
 

@@ -11,6 +11,8 @@ type
   IMarkPicture = interface
     ['{4F70C829-D49A-4019-AAF6-3AA9BCD2CCAE}']
     procedure LoadBitmap(ABmp: TCustomBitmap32);
+    procedure ExportToStream(AStream: TStream);
+    function GetName: string;
     function GetBitmapSize: TPoint;
     function GetPointInPicture: TPoint;
     function GetTextAlignment: TAlignment;
@@ -25,7 +27,8 @@ type
     function Get(AIndex: Integer): IMarkPicture;
     function GetName(AIndex: Integer): string;
     function GetIndexByName(AValue: string): Integer;
-    function GetPictureName(AValue: IMarkPicture): string;
+
+    function GetDefaultPicture: IMarkPicture;
   end;
 
 implementation

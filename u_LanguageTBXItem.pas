@@ -3,7 +3,6 @@ unit u_LanguageTBXItem;
 interface
 
 uses
-  Graphics,
   Classes,
   TB2Item,
   TBX,

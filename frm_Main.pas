@@ -296,7 +296,6 @@ type
     YaLink: TTBXItem;
     kosmosnimkiru1: TTBXItem;
     livecom1: TTBXItem;
-    ImageAtlas1: TTBXItem;
     N51: TTBXSeparatorItem;
     N13: TTBXItem;
     N30: TTBXItem;
@@ -345,7 +344,6 @@ type
     procedure TBmoveClick(Sender: TObject);
     procedure TBFullSizeClick(Sender: TObject);
     procedure NCalcRastClick(Sender: TObject);
-    procedure NFoolSizeClick(Sender: TObject);
     procedure N6Click(Sender: TObject);
     procedure ZoomToolBarDockChanging(Sender: TObject; Floating: Boolean; DockingTo: TTBDock);
     procedure N8Click(Sender: TObject);
@@ -396,7 +394,6 @@ type
     procedure NMarkOperClick(Sender: TObject);
     procedure livecom1Click(Sender: TObject);
     procedure N13Click(Sender: TObject);
-    procedure ImageAtlas1Click(Sender: TObject);
     procedure DigitalGlobe1Click(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
     procedure GPSReceiverDisconnect(Sender: TObject);
@@ -772,6 +769,7 @@ begin
       TMapMainLayer.Create(
         map,
         FConfig.ViewPortState,
+        GState.LocalConverterFactory,
         FConfig.MainMapsConfig,
         GState.ImageResamplerConfig,
         GState.BitmapPostProcessingConfig,
@@ -780,17 +778,56 @@ begin
         GState.GUISyncronizedTimerNotifier
       );
     FLayersList.Add(FMainLayer);
-    FLayerGrids := TMapLayerGrids.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig);
+    FLayerGrids :=
+      TMapLayerGrids.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.LocalConverterFactory,
+        FConfig.LayersConfig.MapLayerGridsConfig
+      );
     FLayersList.Add(FLayerGrids);
     FLayerTileGrid := TMapLayerTileGrid.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig.TileGrid);
     FLayersList.Add(FLayerTileGrid);
-    FWikiLayer := TWikiLayer.Create(map, FConfig.ViewPortState, GState.ImageResamplerConfig, GState.GUISyncronizedTimerNotifier, FConfig.LayersConfig.KmlLayerConfig, FConfig.MainMapsConfig.GetKmlLayersSet);
+    FWikiLayer :=
+      TWikiLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.LocalConverterFactory,
+        GState.ImageResamplerConfig,
+        GState.GUISyncronizedTimerNotifier,
+        FConfig.LayersConfig.KmlLayerConfig,
+        FConfig.MainMapsConfig.GetKmlLayersSet
+      );
     FLayersList.Add(FWikiLayer);
-    FLayerFillingMap:=TMapLayerFillingMap.create(map, FConfig.ViewPortState, GState.GUISyncronizedTimerNotifier, FConfig.LayersConfig.FillingMapLayerConfig);
+    FLayerFillingMap :=
+      TMapLayerFillingMap.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.LocalConverterFactory,
+        GState.GUISyncronizedTimerNotifier,
+        FConfig.LayersConfig.FillingMapLayerConfig
+      );
     FLayersList.Add(FLayerFillingMap);
-    FLayerMapMarks:= TMapMarksLayer.Create(map, FConfig.ViewPortState, GState.ImageResamplerConfig, GState.GUISyncronizedTimerNotifier, FConfig.LayersConfig.MarksShowConfig, FMarkDBGUI);
+    FLayerMapMarks:=
+      TMapMarksLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.LocalConverterFactory,
+        GState.ImageResamplerConfig,
+        GState.GUISyncronizedTimerNotifier,
+        FConfig.LayersConfig.MarksShowConfig,
+        FMarkDBGUI
+      );
     FLayersList.Add(FLayerMapMarks);
-    FLayerMapGPS:= TMapGPSLayer.Create(map, FConfig.ViewPortState, GState.GUISyncronizedTimerNotifier, FConfig.LayersConfig.GPSTrackConfig, GState.GPSRecorder);
+    FLayerMapGPS:=
+      TMapGPSLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.LocalConverterFactory,
+        GState.GUISyncronizedTimerNotifier,
+        FConfig.LayersConfig.GPSTrackConfig,
+        GState.GPSRecorder
+      );
     FLayersList.Add(FLayerMapGPS);
     FLayerGPSMarker := TMapLayerGPSMarker.Create(map, FConfig.ViewPortState, GState.GUISyncronizedTimerNotifier, FConfig.LayersConfig.GPSMarker, GState.GPSRecorder);
     FLayersList.Add(FLayerGPSMarker);
@@ -818,7 +855,14 @@ begin
     FLayersList.Add(FLayerScaleLine);
     FLayerStatBar:=TLayerStatBar.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.StatBar);
     FLayersList.Add(FLayerStatBar);
-    FLayerMiniMap := TMiniMapLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MiniMapLayerConfig, GState.BitmapPostProcessingConfig);
+    FLayerMiniMap :=
+      TMiniMapLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.LocalConverterFactory,
+        FConfig.LayersConfig.MiniMapLayerConfig,
+        GState.BitmapPostProcessingConfig
+      );
     FLayersList.Add(FLayerMiniMap);
 
     FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FTileErrorLogger);
@@ -1684,6 +1728,7 @@ begin
             VK_LEFT,
             VK_DOWN,
             VK_UP: VMoveByDelta := True;
+            VK_F11: Handled := True;
           end;
           if VMoveByDelta then begin
             if (FdWhenMovingButton<35) then begin
@@ -1762,6 +1807,10 @@ begin
                   end;
                 end;
               end;
+            end;
+            VK_F11: begin
+              TBFullSizeClick(nil);
+              Handled := True;
             end;
           end;
         end;
@@ -1915,8 +1964,8 @@ procedure TfrmMain.topos(LL:TDoublePoint;zoom_:byte;draw:boolean);
 begin
   FConfig.ViewPortState.LockWrite;
   try
-    FConfig.ViewPortState.ChangeLonLat(LL);
     FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(zoom_);
+    FConfig.ViewPortState.ChangeLonLat(LL);
   finally
     FConfig.ViewPortState.UnlockWrite;
   end;
@@ -2053,10 +2102,15 @@ end;
 
 procedure TfrmMain.TBFullSizeClick(Sender:TObject);
 begin
-  if TBFullSize.Checked then begin
-    FWinPosition.SetFullScreen;
-  end else begin
-    FWinPosition.SetNoFullScreen;
+  FWinPosition.LockWrite;
+  try
+    if FWinPosition.GetIsFullScreen then begin
+      FWinPosition.SetNoFullScreen;
+    end else begin
+      FWinPosition.SetFullScreen;
+    end;
+  finally
+    FWinPosition.UnlockWrite;
   end;
 end;
 
@@ -2084,15 +2138,6 @@ procedure TfrmMain.NCalcRastClick(Sender: TObject);
 begin
  TBCalcRas.Checked:=true;
  TBCalcRasClick(self);
-end;
-
-procedure TfrmMain.NFoolSizeClick(Sender: TObject);
-begin
-  if NFoolSize.Checked then begin
-    FWinPosition.SetFullScreen;
-  end else begin
-    FWinPosition.SetNoFullScreen;
-  end;
 end;
 
 procedure TfrmMain.N6Click(Sender: TObject);
@@ -3010,7 +3055,7 @@ begin
     end else begin
       NMarksCalcs.Visible := false;
     end;
-    if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and (FConfig.NavToPoint.Id = VMark.Id) then begin
+    if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and VMark.IsSameId(FConfig.NavToPoint.MarkId) then begin
       NMarkNav.Checked:=true
     end else begin
       NMarkNav.Checked:=false;
@@ -3092,16 +3137,7 @@ begin
   map.Enabled:=false;
   map.Enabled:=true;
   if button=mbMiddle then begin
-    FWinPosition.LockWrite;
-    try
-      if FWinPosition.GetIsFullScreen then begin
-        FWinPosition.SetNoFullScreen;
-      end else begin
-        FWinPosition.SetFullScreen;
-      end;
-    finally
-      FWinPosition.UnlockWrite;
-    end;
+    TBFullSizeClick(nil);
     exit;
   end;
   VMouseMoveDelta := Point(FMouseDownPoint.x-FMouseUpPoint.X, FMouseDownPoint.y-FMouseUpPoint.y);
@@ -3553,7 +3589,7 @@ begin
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
       LL := VMark.GetGoToLonLat;
-      FConfig.NavToPoint.StartNavToMark(VMark.Id, ll);
+      FConfig.NavToPoint.StartNavToMark(VMark as IMarkID, ll);
     end else begin
       FConfig.NavToPoint.StopNav;
     end;
@@ -3967,7 +4003,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  CopyStringToClipboard('http://maps.live.com/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoom));
+  CopyStringToClipboard('http://www.bing.com/maps/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoom));
 end;
 
 procedure TfrmMain.MainPopupMenuPopup(Sender: TObject);
@@ -4008,27 +4044,6 @@ begin
   end;
   VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   NMapInfo.Enabled:=VMapType.MapInfo<>'';
-end;
-
-procedure TfrmMain.ImageAtlas1Click(Sender: TObject);
-var
-  VLocalConverter: ILocalCoordConverter;
-  VConverter: ICoordConverter;
-  VZoom: Byte;
-  VMouseMapPoint: TDoublePoint;
-  VLonLat:TDoublePoint;
-begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VConverter := VLocalConverter.GetGeoConverter;
-  VZoom := VLocalConverter.GetZoom;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
-  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
-  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  CopyStringToClipboard(
-    'http://imageatlas.digitalglobe.com/ia-webapp/?lat='+
-    R2StrPoint(VLonLat.y)+'&lon='+R2StrPoint(VLonLat.x)+
-    '&zoom='+inttostr(VZoom)
-  );
 end;
 
 procedure TfrmMain.NGoToForumClick(Sender: TObject);

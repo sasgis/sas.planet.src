@@ -20,6 +20,7 @@ uses
   i_KmlLayerConfig,
   i_ImageResamplerConfig,
   i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
   i_VectorDataItemSimple,
   u_MapLayerWithThreadDraw;
@@ -35,7 +36,7 @@ type
 
     FFixedPointArray: TArrayOfFixedPoint;
     FPolygon: TPolygon32;
-
+    procedure ElementsClear;
     procedure DrawWikiElement(
       ATargetBmp: TCustomBitmap32;
       AColorMain: TColor32;
@@ -83,6 +84,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
       AResamplerConfig: IImageResamplerConfig;
       ATimerNoifier: IJclNotifier;
       AConfig: IKmlLayerConfig;
@@ -111,13 +113,14 @@ uses
 constructor TWikiLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
   AResamplerConfig: IImageResamplerConfig;
   ATimerNoifier: IJclNotifier;
   AConfig: IKmlLayerConfig;
   ALayersSet: IActiveMapsSet
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AResamplerConfig, ATimerNoifier, tpLower);
+  inherited Create(AParentMap, AViewPortState, AConverterFactory, AResamplerConfig, ATimerNoifier, tpLower);
   FConfig := AConfig;
   FLayersSet := ALayersSet;
 
@@ -150,7 +153,7 @@ end;
 procedure TWikiLayer.DoHide;
 begin
   inherited;
-  FElments.Count := 0;
+  ElementsClear;
 end;
 
 procedure TWikiLayer.AddWikiElement(AElments: IInterfaceList; AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
@@ -218,6 +221,7 @@ begin
         AElments.Unlock;
       end;
     end;
+    kml := nil;
   end;
 end;
 
@@ -374,7 +378,7 @@ var
 begin
   inherited;
   VLocalConverter := LayerCoordConverter;
-  FElments.Count := 0;
+  ElementsClear;
   PrepareWikiElements(FElments, AIsStop, VLocalConverter);
   VList := TInterfaceList.Create;
   FElments.Lock;
@@ -478,6 +482,11 @@ begin
     FPolygon.Offset(Fixed(0.9), Fixed(0.9));
     FPolygon.DrawEdge(ATargetBmp, AColorMain);
   end;
+end;
+
+procedure TWikiLayer.ElementsClear;
+begin
+  FElments.Clear;
 end;
 
 procedure TWikiLayer.MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple;

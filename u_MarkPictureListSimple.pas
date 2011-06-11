@@ -26,7 +26,8 @@ type
     function Get(AIndex: Integer): IMarkPicture;
     function GetName(AIndex: Integer): string;
     function GetIndexByName(AValue: string): Integer;
-    function GetPictureName(AValue: IMarkPicture): string;
+
+    function GetDefaultPicture: IMarkPicture;
   public
     constructor Create(ABasePath: string; ABitmapTypeManager: IBitmapTypeExtManager);
     destructor Destroy; override;
@@ -70,31 +71,26 @@ end;
 procedure TMarkPictureListSimple.DoReadConfig(AConfigData: IConfigDataProvider);
 var
   SearchRec: TSearchRec;
-  Vbmp: TCustomBitmap32;
   VLoader: IBitmapTileLoader;
   VPicture: IMarkPicture;
+  VFullName: string;
 begin
   inherited;
   Clear;
   VLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.png');
-  Vbmp := TCustomBitmap32.Create;
-  try
-    if FindFirst(FBasePath + '*.png', faAnyFile, SearchRec) = 0 then begin
-      try
-        repeat
-          if (SearchRec.Attr and faDirectory) <> faDirectory then begin
-            VLoader.LoadFromFile(FBasePath + SearchRec.Name, Vbmp);
-            VPicture := TMarkPictureSimple.Create(Vbmp);
-            VPicture._AddRef;
-            FList.AddObject(SearchRec.Name, TObject(Pointer(VPicture)));
-          end;
-        until FindNext(SearchRec) <> 0;
-      finally
-        FindClose(SearchRec);
-      end;
+  if FindFirst(FBasePath + '*.png', faAnyFile, SearchRec) = 0 then begin
+    try
+      repeat
+        if (SearchRec.Attr and faDirectory) <> faDirectory then begin
+          VFullName := FBasePath + SearchRec.Name;
+          VPicture := TMarkPictureSimple.Create(VFullName, SearchRec.Name, VLoader);
+          VPicture._AddRef;
+          FList.AddObject(SearchRec.Name, TObject(Pointer(VPicture)));
+        end;
+      until FindNext(SearchRec) <> 0;
+    finally
+      FindClose(SearchRec);
     end;
-  finally
-    FreeAndNil(Vbmp);
   end;
 end;
 
@@ -124,6 +120,18 @@ begin
   end;
 end;
 
+function TMarkPictureListSimple.GetDefaultPicture: IMarkPicture;
+begin
+  LockRead;
+  try
+    if GetCount > 0 then begin
+      Result := Get(0);
+    end;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TMarkPictureListSimple.GetIndexByName(AValue: string): Integer;
 begin
   LockRead;
@@ -139,23 +147,6 @@ begin
   LockRead;
   try
     Result := FList.Strings[AIndex];
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMarkPictureListSimple.GetPictureName(AValue: IMarkPicture): string;
-var
-  VIndex: Integer;
-begin
-  LockRead;
-  try
-    VIndex := FList.IndexOfObject(TObject(Pointer(AValue)));
-    if VIndex >=  0 then begin
-      Result := FList.Strings[VIndex];
-    end else begin
-      Result := '';
-    end;
   finally
     UnlockRead;
   end;

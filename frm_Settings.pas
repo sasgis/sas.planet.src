@@ -294,18 +294,23 @@ begin
     VProxyConfig.UnlockRead;
   end;
   New (PIInfo);
-  if not(VUseIEProxy) then begin
+  if VUseIEProxy then begin
+    PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PRECONFIG;
+    PIInfo^.lpszProxy := nil;
+    PIInfo^.lpszProxyBypass := nil;
+    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
+    UrlMkSetSessionOption(INTERNET_OPTION_REFRESH, nil, 0, 0);
+  end else begin
     if VUseProxy then begin
       PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
       PIInfo^.lpszProxy := PChar(VHost);
       PIInfo^.lpszProxyBypass := nil;
-      UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
     end else  begin
       PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
       PIInfo^.lpszProxy := nil;
       PIInfo^.lpszProxyBypass := nil;
-      UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
     end;
+    UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
     UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
   end;
   Dispose (PIInfo) ;
@@ -343,7 +348,6 @@ begin
 
   GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
 
- GState.TwoDownloadAttempt:=CBDblDwnl.Checked;
  GState.GoNextTileIfDownloadError:=CkBGoNextTile.Checked;
  GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
  GState.BitmapPostProcessingConfig.LockWrite;
@@ -414,6 +418,14 @@ begin
     VProxyConfig.SetLogin(EditLogin.Text);
     VProxyConfig.SetPassword(EditPass.Text);
     VInetConfig.SetTimeOut(SETimeOut.Value);
+    if CBDblDwnl.Checked then begin
+      if VInetConfig.DownloadTryCount < 2 then begin
+        VInetConfig.DownloadTryCount := 2;
+      end;
+    end else begin
+      VInetConfig.DownloadTryCount := 1;
+    end;
+    SetProxy;
   finally
     VInetConfig.UnlockWrite;
   end;
@@ -456,8 +468,6 @@ begin
  GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
 
  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
-
- SetProxy;
 
  save(GState.MainConfigProvider);
  if FMapsEdit then begin
@@ -589,6 +599,7 @@ begin
     EditIP.Text := VProxyConfig.GetHost;
     EditLogin.Text := VProxyConfig.GetLogin;
     EditPass.Text := VProxyConfig.GetPassword;
+    CBDblDwnl.Checked := (VInetConfig.DownloadTryCount > 1);
   finally
     VInetConfig.UnlockRead;
   end;
@@ -600,7 +611,6 @@ begin
   finally
     GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
   end;
- CBDblDwnl.Checked:=GState.TwoDownloadAttempt;
  CBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
  CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
  CBSaveTileNotExists.Checked:=GState.SaveTileNotExists;

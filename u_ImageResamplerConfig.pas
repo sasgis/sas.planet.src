@@ -40,7 +40,7 @@ procedure TImageResamplerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FActiveIndex := AConfigData.ReadInteger('ResamlingType', FActiveIndex);
+    FActiveIndex := AConfigData.ReadInteger('ResamplingType', FActiveIndex);
     if FActiveIndex < 0 then begin
       FActiveIndex := 0;
     end else if FActiveIndex >= FList.Count then begin
@@ -54,7 +54,7 @@ procedure TImageResamplerConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteInteger('ResamlingType', FActiveIndex);
+  AConfigData.WriteInteger('ResamplingType', FActiveIndex);
 end;
 
 function TImageResamplerConfig.GetActiveFactory: IImageResamplerFactory;

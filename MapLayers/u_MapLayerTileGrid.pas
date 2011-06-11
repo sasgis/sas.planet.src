@@ -5,9 +5,7 @@ interface
 uses
   Types,
   GR32,
-  GR32_Polygons,
   GR32_Image,
-  i_JclNotify,
   t_GeoTypes,
   i_ViewPortState,
   i_LocalCoordConverter,
@@ -32,7 +30,6 @@ implementation
 
 uses
   SysUtils,
-  GR32_Layers,
   i_CoordConverter,
   u_NotifyEventListener;
 

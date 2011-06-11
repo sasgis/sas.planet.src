@@ -5,6 +5,7 @@ interface
 uses
   i_MapTypes,
   i_ActiveMapsConfig,
+  i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
   i_NavigationToPoint,
   i_MainFormConfig,
@@ -37,7 +38,12 @@ type
     function GetViewPortState: IViewPortState;
     function GetDownloadUIConfig: IDownloadUIConfig;
   public
-    constructor Create(AGeoCoderList: IGeoCoderList; AMapsList, ALayersList: IMapTypeList; ADefaultMapGUID: TGUID);
+    constructor Create(
+      ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+      AGeoCoderList: IGeoCoderList;
+      AMapsList, ALayersList: IMapTypeList;
+      ADefaultMapGUID: TGUID
+    );
   end;
 
 implementation
@@ -57,7 +63,12 @@ uses
 
 { TMainFormConfig }
 
-constructor TMainFormConfig.Create(AGeoCoderList: IGeoCoderList; AMapsList, ALayersList: IMapTypeList; ADefaultMapGUID: TGUID);
+constructor TMainFormConfig.Create(
+  ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+  AGeoCoderList: IGeoCoderList;
+  AMapsList, ALayersList: IMapTypeList;
+  ADefaultMapGUID: TGUID
+);
 begin
   inherited Create;
   FMainConfig := TMainFormMainConfig.Create;
@@ -72,7 +83,7 @@ begin
   Add(FMainGeoCoderConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'));
   FMainMapsConfig := TMainMapsConfig.Create(AMapsList, ALayersList, ADefaultMapGUID);
   Add(FMainMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
-  FViewPortState := TMapViewPortStateNew.Create(FMainMapsConfig);
+  FViewPortState := TMapViewPortStateNew.Create(ACoordConverterFactory, FMainMapsConfig);
   Add(FViewPortState, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Position'));
   FLayersConfig := TMainFormLayersConfig.Create(FMainMapsConfig);
   Add(FLayersConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);

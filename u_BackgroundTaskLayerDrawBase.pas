@@ -4,9 +4,7 @@ interface
 
 uses
   Classes,
-  GR32,
   t_CommonTypes,
-  i_LocalCoordConverter,
   u_BackgroundTask;
 
 type

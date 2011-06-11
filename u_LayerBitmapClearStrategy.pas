@@ -4,7 +4,6 @@ interface
 
 uses
   GR32,
-  t_GeoTypes,
   i_LayerBitmapClearStrategy;
 
 type

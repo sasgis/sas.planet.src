@@ -67,6 +67,7 @@ constructor TFillingMapLayerConfig.Create(AMapsConfig: IMainMapsConfig);
 begin
   inherited Create;
   FVisible := False;
+  FUseRelativeZoom := False;
   FZoom := 0;
   FShowTNE := True;
   FNoTileColor := SetAlpha(clBlack32, 110);
@@ -96,7 +97,8 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FVisible := AConfigData.ReadBool('Visible', FVisible);
-    FZoom := AConfigData.ReadInteger('SourceZoom', FZoom);
+    FUseRelativeZoom := AConfigData.ReadBool('RelativeZoom', FUseRelativeZoom);
+    FZoom := AConfigData.ReadInteger('Zoom', FZoom);
     FShowTNE := AConfigData.ReadBool('ShowTNE', FShowTNE);
     FNoTileColor := ReadColor32(AConfigData, 'NoTileColor', FNoTileColor);
     FTNEColor := ReadColor32(AConfigData, 'TNEColor', FTNEColor);
@@ -110,7 +112,8 @@ procedure TFillingMapLayerConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteBool('Visible', FVisible);
-  AConfigData.WriteInteger('SourceZoom', FZoom);
+  AConfigData.WriteBool('RelativeZoom', FUseRelativeZoom);
+  AConfigData.WriteInteger('Zoom', FZoom);
   AConfigData.WriteBool('ShowTNE', FShowTNE);
   WriteColor32(AConfigData, 'NoTileColor', FNoTileColor);
   WriteColor32(AConfigData, 'TNEColor', FTNEColor);

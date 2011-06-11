@@ -337,7 +337,7 @@ begin
     VMark := GetSelectedMarkFull;
     if VMark <> nil then begin
       LL := VMark.GetGoToLonLat;
-      GState.MainFormConfig.NavToPoint.StartNavToMark(VMark.id, LL);
+      GState.MainFormConfig.NavToPoint.StartNavToMark(VMark as IMarkId, LL);
     end else begin
       btnNavOnMark.Checked:=not btnNavOnMark.Checked;
     end;

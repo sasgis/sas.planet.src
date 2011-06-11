@@ -6,6 +6,7 @@ uses
   t_GeoTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_MarksSimple,
   i_NavigationToPoint,
   u_ConfigDataElementBase;
 
@@ -13,17 +14,17 @@ type
   TNavigationToPoint = class(TConfigDataElementBase, INavigationToPoint)
   private
     FIsActive: Boolean;
-    FId: Integer;
+    FMarkId: IMarkID;
     FLonLat: TDoublePoint;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetIsActive: Boolean;
-    function GetId: Integer;
+    function GetMarkId: IMarkID;
     function GetLonLat: TDoublePoint;
 
-    procedure StartNavToMark(AId: Integer; APointLonLat: TDoublePoint);
+    procedure StartNavToMark(AMarkId: IMarkID; APointLonLat: TDoublePoint);
     procedure StartNavLonLat(APointLonLat: TDoublePoint);
     procedure StopNav;
   public
@@ -37,7 +38,7 @@ constructor TNavigationToPoint.Create;
 begin
   inherited;
   FIsActive := False;
-  FId := -1;
+  FMarkId := nil;
 end;
 
 procedure TNavigationToPoint.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -45,7 +46,8 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FIsActive := AConfigData.ReadBool('Active', FIsActive);
-    FId := AConfigData.ReadInteger('ID', FId);
+    { TODO -odemidov -c :  06.04.2011 10:54:49 Переделать чтение метки из параметров}
+//    FId := AConfigData.ReadInteger('ID', FId);
     FLonLat.X := AConfigData.ReadFloat('X', FLonLat.X);
     FLonLat.Y := AConfigData.ReadFloat('Y', FLonLat.Y);
     SetChanged;
@@ -57,16 +59,17 @@ procedure TNavigationToPoint.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteBool('Active', FIsActive);
-  AConfigData.WriteInteger('ID', FId);
+    { TODO -odemidov -c :  06.04.2011 10:54:49 Переделать чтение метки из параметров}
+//  AConfigData.WriteInteger('ID', FId);
   AConfigData.WriteFloat('X', FLonLat.X);
   AConfigData.WriteFloat('Y', FLonLat.Y);
 end;
 
-function TNavigationToPoint.GetId: Integer;
+function TNavigationToPoint.GetMarkId: IMarkID;
 begin
   LockRead;
   try
-    Result := FId;
+    Result := FMarkId;
   finally
     UnlockRead;
   end;
@@ -97,7 +100,7 @@ begin
   LockWrite;
   try
     FIsActive := True;
-    FId := -1;
+    FMarkId := nil;
     FLonLat := APointLonLat;
     SetChanged;
   finally
@@ -105,13 +108,13 @@ begin
   end;
 end;
 
-procedure TNavigationToPoint.StartNavToMark(AId: Integer;
+procedure TNavigationToPoint.StartNavToMark(AMarkId: IMarkID;
   APointLonLat: TDoublePoint);
 begin
   LockWrite;
   try
     FIsActive := True;
-    FId := AId;
+    FMarkId := AMarkId;
     FLonLat := APointLonLat;
     SetChanged;
   finally

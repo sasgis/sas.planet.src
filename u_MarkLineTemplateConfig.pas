@@ -7,7 +7,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_MarksSimple,
+  i_MarkTemplate,
   i_MarkCategory,
   i_MarksFactoryConfig,
   i_MarkCategoryDBSmlInternal,
@@ -17,8 +17,6 @@ type
   TMarkLineTemplateConfig = class(TMarkTemplateConfigBase, IMarkLineTemplateConfig)
   private
     FDefaultTemplate: IMarkTemplateLine;
-
-    function IsSameTempalte(lhs, rhs: IMarkTemplateLine): Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -40,6 +38,8 @@ type
 implementation
 
 uses
+  SysUtils,
+  i_MarksDbSmlInternal,
   u_ConfigProviderHelpers,
   u_ResStrings,
   u_MarkTemplates;
@@ -66,10 +66,13 @@ function TMarkLineTemplateConfig.CreateTemplate(
 ): IMarkTemplateLine;
 var
   VCategoryId: Integer;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
   VCategoryId := -1;
   if ACategory <> nil then begin
-    VCategoryId := ACategory.Id;
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      VCategoryId := VCategoryInternal.Id;
+    end;
   end;
   Result := TMarkTemplateLine.Create(
     CategoryDb,
@@ -84,15 +87,14 @@ procedure TMarkLineTemplateConfig.DoReadConfig(
   AConfigData: IConfigDataProvider);
 var
   VCategoryId: Integer;
-  VCategory: IMarkCategory;
   VColor1: TColor32;
   VScale1: Integer;
+  VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
   VCategoryID := -1;
-  VCategory := FDefaultTemplate.Category;
-  if VCategory <> nil then begin
-    VCategoryID := VCategory.Id;
+  if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
+    VCategoryId := VTemplateInternal.CategoryId;
   end;
   VColor1 := FDefaultTemplate.Color1;
   VScale1 := FDefaultTemplate.Scale1;
@@ -115,14 +117,13 @@ end;
 procedure TMarkLineTemplateConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 var
-  VCategory: IMarkCategory;
   VCategoryId: Integer;
+  VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
   VCategoryID := -1;
-  VCategory := FDefaultTemplate.Category;
-  if VCategory <> nil then begin
-    VCategoryID := VCategory.Id;
+  if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
+    VCategoryId := VTemplateInternal.CategoryId;
   end;
   AConfigData.WriteInteger('CategoryId', VCategoryId);
   WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.Color1);
@@ -139,39 +140,19 @@ begin
   end;
 end;
 
-function TMarkLineTemplateConfig.IsSameTempalte(lhs,
-  rhs: IMarkTemplateLine): Boolean;
-var
-  VlhsCategory: IMarkCategory;
-  VrhsCategory: IMarkCategory;
-begin
-  VlhsCategory := lhs.Category;
-  VrhsCategory := rhs.Category;
-  Result :=
-    (
-      (
-        (VlhsCategory <> nil) and
-        (VrhsCategory <> nil) and
-        (VlhsCategory.Id = VrhsCategory.Id)
-      ) or
-        (VlhsCategory = nil) and
-        (VrhsCategory = nil)
-    )and
-    (lhs.Color1 = rhs.Color1) and
-    (lhs.Scale1 = rhs.Scale1);
-end;
-
 procedure TMarkLineTemplateConfig.SetDefaultTemplate(
   AValue: IMarkTemplateLine);
 begin
-  LockWrite;
-  try
-    if not IsSameTempalte(FDefaultTemplate, AValue) then begin
-      FDefaultTemplate := AValue;
-      SetChanged;
+  if AValue <> nil then begin
+    LockWrite;
+    try
+      if (FDefaultTemplate = nil) or (not FDefaultTemplate.IsSame(AValue)) then begin
+        FDefaultTemplate := AValue;
+        SetChanged;
+      end;
+    finally
+      UnlockWrite;
     end;
-  finally
-    UnlockWrite;
   end;
 end;
 

@@ -153,7 +153,7 @@ begin
                       bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
                       TileStream.Clear;
                       VSaver.SaveToStream(bmp32crop, TileStream);
-                      WriteTileInCache(VTile.X, VTile.Y, VZoom, Vmt, (yi * 2) + xi, FExportPath, TileStream, FIsReplace);
+                      WriteTileToYaCache(VTile, VZoom, Vmt, (yi * 2) + xi, FExportPath, TileStream, FIsReplace);
                     end;
                   end;
                 end;
@@ -181,7 +181,5 @@ begin
     bmp32crop.Free;
   end;
 end;
-
-
 
 end.

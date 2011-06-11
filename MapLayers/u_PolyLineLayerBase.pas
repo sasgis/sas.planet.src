@@ -73,7 +73,6 @@ implementation
 
 uses
   SysUtils,
-  GR32_Layers,
   u_GeoFun,
   i_CoordConverter,
   u_NotifyEventListener;

@@ -78,7 +78,6 @@ uses
   SysUtils,
   i_MapCalibration,
   u_MapMarksBitmapLayerProviderByMarksSubset,
-  u_LocalCoordConverterFactorySimpe,
   u_GlobalState,
   u_ResStrings,
   u_GeoFun;
@@ -112,7 +111,7 @@ begin
     FMarksImageProvider := TMapMarksBitmapLayerProviderByMarksSubset.Create(AMarksSubset);
   end;
   FMapCalibrationList := AMapCalibrationList;
-  FConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+  FConverterFactory := GState.LocalConverterFactory;
   FTempBitmap := TCustomBitmap32.Create;
   FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
   FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;

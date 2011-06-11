@@ -12,7 +12,6 @@ uses
   i_BackgroundTask,
   i_ImageResamplerConfig,
   i_LayerBitmapClearStrategy,
-  i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
@@ -40,6 +39,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
       ATimerNoifier: IJclNotifier;
       APriority: TThreadPriority
     );
@@ -52,15 +52,14 @@ type
   private
     FClearStrategy: ILayerBitmapClearStrategy;
     FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-    FConverterFactory: ILocalCoordConverterFactorySimpe;
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     procedure ClearLayerBitmap; override;
-    property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
   public
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
       AResamplerConfig: IImageResamplerConfig;
       ATimerNoifier: IJclNotifier;
       APriority: TThreadPriority
@@ -74,20 +73,19 @@ uses
   SysUtils,
   u_NotifyEventListener,
   u_BackgroundTaskLayerDrawBase,
-  u_LocalCoordConverterFactorySimpe,
-  u_LayerBitmapClearStrategyFactory,
-  u_GeoFun;
+  u_LayerBitmapClearStrategyFactory;
 
 { TMapLayerWithThreadDraw }
 
 constructor TMapLayerWithThreadDraw.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
   ATimerNoifier: IJclNotifier;
   APriority: TThreadPriority
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(AParentMap, AViewPortState, AConverterFactory);
   Layer.Bitmap.BeginUpdate;
   FDrawTask := TBackgroundTaskLayerDrawBase.Create(OnDrawBitmap, APriority);
   FUpdateCounter := 0;
@@ -173,13 +171,23 @@ end;
 
 { TMapLayerTiledWithThreadDraw }
 
-constructor TMapLayerTiledWithThreadDraw.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AResamplerConfig: IImageResamplerConfig;
-  ATimerNoifier: IJclNotifier; APriority: TThreadPriority);
+constructor TMapLayerTiledWithThreadDraw.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AResamplerConfig: IImageResamplerConfig;
+  ATimerNoifier: IJclNotifier;
+  APriority: TThreadPriority
+);
 begin
-  inherited Create(AParentMap, AViewPortState, ATimerNoifier, APriority);
+  inherited Create(
+    AParentMap,
+    AViewPortState,
+    AConverterFactory,
+    ATimerNoifier,
+    APriority
+  );
   FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(AResamplerConfig);
-  FConverterFactory := TLocalCoordConverterFactorySimpe.Create;
 end;
 
 procedure TMapLayerTiledWithThreadDraw.ClearLayerBitmap;

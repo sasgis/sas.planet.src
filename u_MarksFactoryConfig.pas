@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  GR32,
   i_MarkPicture,
   i_MarksFactoryConfig,
   i_MarkCategoryDBSmlInternal,

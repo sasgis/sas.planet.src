@@ -25,6 +25,8 @@ type
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
     FViewPortState: IViewPortState;
+    FCancelNotifier: IJclNotifier;
+
     FTileMaxAgeInInternet: TDateTime;
     FTilesOut: Integer;
     FUseDownload: TTileSource;
@@ -58,8 +60,10 @@ implementation
 uses
   SysUtils,
   ActiveX,
+  u_JclNotify,
   t_GeoTypes,
   u_GlobalState,
+  i_DownloadResult,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   i_TileIterator,
@@ -78,6 +82,7 @@ var
 begin
   inherited Create(True, AMapTileUpdateEvent, AErrorLogger, MaxThreadsUICount);
   FConfig := AConfig;
+  FCancelNotifier := TJclBaseNotifier.Create;
   FViewPortState := AViewPortState;
   FMapsSet := AMapsSet;
   FViewPortState := AViewPortState;
@@ -104,14 +109,9 @@ begin
 end;
 
 destructor TTileDownloaderUI.Destroy;
-var
-  VWaitResult: DWORD;
 begin
   FLinksList := nil;
-  VWaitResult := WaitForSingleObject(Handle, 10000);
-  if VWaitResult = WAIT_TIMEOUT then begin
-    TerminateThread(Handle, 0);
-  end;
+  FCancelNotifier := nil;
   FMapsSet := nil;
   inherited;
 end;
@@ -145,6 +145,7 @@ procedure TTileDownloaderUI.SendTerminateToThreads;
 begin
   inherited;
   FLinksList.DeactivateLinks;
+  FCancelNotifier.Notify(nil);
   Terminate;
 end;
 

@@ -49,10 +49,6 @@
     <DCCReference Include="c_GeoCoderGUIDSimple.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
-    <DCCReference Include="dm_MarksDb.pas">
-      <DesignClass>TDataModule</DesignClass>
-      <Form>DMMarksDb</Form>
-    </DCCReference>
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
     </DCCReference>
@@ -149,7 +145,10 @@
     <DCCReference Include="i_CoordConverter.pas" />
     <DCCReference Include="i_CoordConverterFactory.pas" />
     <DCCReference Include="i_Datum.pas" />
+    <DCCReference Include="i_DownloadChecker.pas" />
     <DCCReference Include="i_DownloadInfoSimple.pas" />
+    <DCCReference Include="i_DownloadResult.pas" />
+    <DCCReference Include="i_DownloadResultFactory.pas" />
     <DCCReference Include="i_DownloadUIConfig.pas" />
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
@@ -202,7 +201,7 @@
     <DCCReference Include="i_MarkCategoryFactoryConfig.pas" />
     <DCCReference Include="i_MarkCategoryFactoryDbInternal.pas" />
     <DCCReference Include="i_MarkFactory.pas" />
-    <DCCReference Include="i_MarkFactoryDbInternal.pas" />
+    <DCCReference Include="i_MarkFactorySmlInternal.pas" />
     <DCCReference Include="i_MarkNameGenerator.pas" />
     <DCCReference Include="i_MarkPicture.pas" />
     <DCCReference Include="i_MarkPolygonLayerConfig.pas" />
@@ -211,6 +210,7 @@
     <DCCReference Include="i_MarksDbSmlInternal.pas" />
     <DCCReference Include="i_MarksFactoryConfig.pas" />
     <DCCReference Include="i_MarksSimple.pas" />
+    <DCCReference Include="i_MarkTemplate.pas" />
     <DCCReference Include="i_MemCache.pas" />
     <DCCReference Include="i_MemObjCache.pas" />
     <DCCReference Include="i_MiniMapLayerConfig.pas" />
@@ -230,10 +230,13 @@
     <DCCReference Include="i_Sensor.pas" />
     <DCCReference Include="i_SensorListGenerator.pas" />
     <DCCReference Include="i_SensorViewListGenerator.pas" />
+    <DCCReference Include="i_SimpleDownloader.pas" />
     <DCCReference Include="i_SimpleFactory.pas" />
     <DCCReference Include="i_StatBarConfig.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloader.pas" />
+    <DCCReference Include="i_TileDownloaderConfig.pas" />
+    <DCCReference Include="i_TileDownloadResult.pas" />
     <DCCReference Include="i_TileError.pas" />
     <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="i_TileFileNameGenerator.pas" />
@@ -434,7 +437,12 @@
     <DCCReference Include="u_CoordConverterMercatorOnSphere.pas" />
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="u_Datum.pas" />
+    <DCCReference Include="u_DownloadCheckerStuped.pas" />
+    <DCCReference Include="u_DownloadExceptions.pas" />
     <DCCReference Include="u_DownloadInfoSimple.pas" />
+    <DCCReference Include="u_DownloadResult.pas" />
+    <DCCReference Include="u_DownloadResultFactorySimpleDownload.pas" />
+    <DCCReference Include="u_DownloadResultFactoryTileDownload.pas" />
     <DCCReference Include="u_DownloadUIConfig.pas" />
     <DCCReference Include="u_ECWWrite.pas" />
     <DCCReference Include="u_EnumUnknown.pas" />
@@ -467,6 +475,7 @@
     <DCCReference Include="u_GPSModuleByCOMPortSettings.pas" />
     <DCCReference Include="u_GPSModuleByZylGPS.pas" />
     <DCCReference Include="u_GPSModuleFactoryByZylGPS.pas" />
+    <DCCReference Include="u_GPSPositionFactory.pas" />
     <DCCReference Include="u_GPSPositionStatic.pas" />
     <DCCReference Include="u_GPSRecorderStuped.pas" />
     <DCCReference Include="u_GPSSatelliteInfo.pas" />
@@ -601,10 +610,13 @@
     <DCCReference Include="u_TileDownloaderBaseCore.pas" />
     <DCCReference Include="u_TileDownloaderBaseThread.pas" />
     <DCCReference Include="u_TileDownloaderEventElement.pas" />
+    <DCCReference Include="u_TileDownloaderConfig.pas" />
+    <DCCReference Include="u_TileDownloaderConfigStatic.pas" />
     <DCCReference Include="u_TileDownloaderFrontEnd.pas" />
     <DCCReference Include="u_TileDownloaderThread.pas" />
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
+    <DCCReference Include="u_TileDownloadResult.pas" />
     <DCCReference Include="u_TileErrorInfo.pas" />
     <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="u_TileFileNameES.pas" />

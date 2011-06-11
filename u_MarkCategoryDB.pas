@@ -6,28 +6,31 @@ uses
   Windows,
   Classes,
   SysUtils,
+  DBClient,
   i_IDList,
   i_MarkCategory,
   i_MarkCategoryFactory,
   i_MarkCategoryFactoryDbInternal,
   i_MarkCategoryFactoryConfig,
   i_MarkCategoryDB,
-  i_MarkCategoryDBSmlInternal,
-  dm_MarksDb;
+  i_MarkCategoryDBSmlInternal;
 
 type
   TMarkCategoryDB = class(TInterfacedObject, IMarkCategoryDB, IMarkCategoryDBSmlInternal)
   private
     FSync: IReadWriteSync;
+    FDbCode: Integer;
     FBasePath: string;
-    FDMMarksDb: TDMMarksDb;
+    FCdsKategory: TClientDataSet;
     FList: IIDInterfaceList;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternal;
     FFactory: IMarkCategoryFactory;
-    function ReadCurrentCategory: IMarkCategory;
+    function ReadCurrentCategory(out AId: Integer): IMarkCategory;
     procedure WriteCurrentCategory(ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
+    function GetDbCode: Integer;
+    procedure InitEmptyDS;
   protected
     procedure LockRead; virtual;
     procedure LockWrite; virtual;
@@ -49,7 +52,6 @@ type
   public
     constructor Create(
       ABasePath: string;
-      ADMMarksDb: TDMMarksDb;
       AFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
@@ -61,27 +63,31 @@ uses
   DB,
   i_EnumID,
   u_IDInterfaceList,
+  i_MarksDbSmlInternal,
   u_MarkCategoryFactory;
 
 constructor TMarkCategoryDB.Create(
   ABasePath: string;
-  ADMMarksDb: TDMMarksDb;
   AFactoryConfig: IMarkCategoryFactoryConfig
 );
 var
   VFactory: TMarkCategoryFactory;
 begin
+  FDbCode := Integer(Self);
   FBasePath := ABasePath;
-  FDMMarksDb := ADMMarksDb;
   FSync := TSimpleRWSync.Create;
   FList := TIDInterfaceList.Create;
-  VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
+  VFactory := TMarkCategoryFactory.Create(GetDbCode, AFactoryConfig);
   FFactoryDbInternal := VFactory;
   FFactory := VFactory;
+  FCdsKategory := TClientDataSet.Create(nil);
+  FCdsKategory.Name := 'CDSKategory';
+  InitEmptyDS;
 end;
 
 destructor TMarkCategoryDB.Destroy;
 begin
+  FreeAndNil(FCdsKategory);
   FSync := nil;
   FList := nil;
   FFactory := nil;
@@ -89,52 +95,58 @@ begin
   inherited;
 end;
 
-function TMarkCategoryDB.ReadCurrentCategory: IMarkCategory;
+function TMarkCategoryDB.ReadCurrentCategory(out AId: Integer): IMarkCategory;
 var
-  VId: Integer;
   VName: string;
   VVisible: Boolean;
   VAfterScale: Integer;
   VBeforeScale: Integer;
 begin
-  VName := FDMMarksDb.CDSKategory.fieldbyname('name').AsString;
-  VId := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
-  VVisible := FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean;
-  VAfterScale := FDMMarksDb.CDSKategory.fieldbyname('AfterScale').AsInteger;
-  VBeforeScale := FDMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger;
-  Result := FFactoryDbInternal.CreateCategory(VId, VName, VVisible, VAfterScale, VBeforeScale);
+  AId := FCdsKategory.fieldbyname('id').AsInteger;
+  VName := FCdsKategory.fieldbyname('name').AsString;
+  AId := FCdsKategory.fieldbyname('id').AsInteger;
+  VVisible := FCdsKategory.FieldByName('visible').AsBoolean;
+  VAfterScale := FCdsKategory.fieldbyname('AfterScale').AsInteger;
+  VBeforeScale := FCdsKategory.fieldbyname('BeforeScale').AsInteger;
+  Result := FFactoryDbInternal.CreateCategory(AId, VName, VVisible, VAfterScale, VBeforeScale);
 end;
 
 procedure TMarkCategoryDB.WriteCurrentCategory(ACategory: IMarkCategory);
 begin
-  FDMMarksDb.CDSKategory.fieldbyname('name').AsString := ACategory.name;
-  FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean := ACategory.visible;
-  FDMMarksDb.CDSKategory.fieldbyname('AfterScale').AsInteger := ACategory.AfterScale;
-  FDMMarksDb.CDSKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
+  FCdsKategory.fieldbyname('name').AsString := ACategory.name;
+  FCdsKategory.FieldByName('visible').AsBoolean := ACategory.visible;
+  FCdsKategory.fieldbyname('AfterScale').AsInteger := ACategory.AfterScale;
+  FCdsKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
 end;
 
 function TMarkCategoryDB.WriteCategory(ACategory: IMarkCategory): IMarkCategory;
 var
   VId: Integer;
   VExists: Boolean;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  VId := ACategory.id;
+  VId := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    if GetDbCode = VCategoryInternal.DbCode then begin
+      VId := VCategoryInternal.Id;
+    end;
+  end;
   LockRead;
   try
     if VId < 0 then begin
       VExists := False;
     end else begin
-      VExists := FDMMarksDb.CDSKategory.Locate('id', VId, []);
+      VExists := FCdsKategory.Locate('id', VId, []);
     end;
     if VExists then begin
-      FDMMarksDb.CDSKategory.Edit;
+      FCdsKategory.Edit;
     end else begin
-      FDMMarksDb.CDSKategory.Insert;
+      FCdsKategory.Insert;
     end;
     WriteCurrentCategory(ACategory);
-    FDMMarksDb.CDSKategory.post;
+    FCdsKategory.post;
     if not VExists then begin
-      VId := FDMMarksDb.CDSKategory.fieldbyname('id').AsInteger;
+      VId := FCdsKategory.fieldbyname('id').AsInteger;
       Result := FFactoryDbInternal.CreateCategory(
         VId,
         ACategory.Name,
@@ -152,24 +164,51 @@ begin
   end;
 end;
 
+procedure TMarkCategoryDB.InitEmptyDS;
+begin
+  FCdsKategory.Close;
+  FCdsKategory.XMLData :=
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<DATAPACKET Version="2.0">'+
+    '<METADATA>'+
+    '<FIELDS>'+
+    '<FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>'+
+    '<FIELD attrname="name" fieldtype="string" WIDTH="256"/>'+
+    '<FIELD attrname="visible" fieldtype="boolean"/>'+
+    '<FIELD attrname="AfterScale" fieldtype="i2"/>'+
+    '<FIELD attrname="BeforeScale" fieldtype="i2"/>'+
+    '</FIELDS>'+
+    '<PARAMS AUTOINCVALUE="1"/>'+
+    '</METADATA>'+
+    '<ROWDATA></ROWDATA>'+
+    '</DATAPACKET>';
+  FCdsKategory.Open;
+end;
+
 procedure TMarkCategoryDB.DeleteCategory(ACategory: IMarkCategory);
 var
   VId: Integer;
   VExist: Boolean;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  VId := ACategory.id;
+  VId := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    if GetDbCode = VCategoryInternal.DbCode then begin
+      VId := VCategoryInternal.Id;
+    end;
+  end;
   LockWrite;
   try
     VExist := False;
     if VId >= 0 then begin
-      FDMMarksDb.CDSKategory.DisableControls;
+      FCdsKategory.DisableControls;
       try
-        if FDMMarksDb.CDSKategory.Locate('id', VId, []) then begin
-          FDMMarksDb.CDSKategory.Delete;
+        if FCdsKategory.Locate('id', VId, []) then begin
+          FCdsKategory.Delete;
           VExist := True;
         end;
       finally
-        FDMMarksDb.CDSKategory.EnableControls;
+        FCdsKategory.EnableControls;
       end;
     end;
     if VExist then begin
@@ -215,6 +254,11 @@ begin
   end;
 end;
 
+function TMarkCategoryDB.GetDbCode: Integer;
+begin
+  Result := FDbCode;
+end;
+
 function TMarkCategoryDB.GetFactory: IMarkCategoryFactory;
 begin
   Result := FFactory;
@@ -223,25 +267,26 @@ end;
 procedure TMarkCategoryDB.SetAllCategoriesVisible(ANewVisible: Boolean);
 var
   VCategory: IMarkCategory;
+  VId: Integer;
 begin
   LockWrite;
   try
-    FDMMarksDb.CDSKategory.DisableControls;
+    FCdsKategory.DisableControls;
     try
-      FDMMarksDb.CDSKategory.Filtered := false;
-      FDMMarksDb.CDSKategory.First;
-        while not (FDMMarksDb.CDSKategory.Eof) do begin
-          if FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean <> ANewVisible then begin
-            FDMMarksDb.CDSKategory.Edit;
-            FDMMarksDb.CDSKategory.FieldByName('visible').AsBoolean := ANewVisible;
-            FDMMarksDb.CDSKategory.post;
-            VCategory := ReadCurrentCategory;
-            FList.Replace(VCategory.Id, VCategory);
+      FCdsKategory.Filtered := false;
+      FCdsKategory.First;
+        while not (FCdsKategory.Eof) do begin
+          if FCdsKategory.FieldByName('visible').AsBoolean <> ANewVisible then begin
+            FCdsKategory.Edit;
+            FCdsKategory.FieldByName('visible').AsBoolean := ANewVisible;
+            FCdsKategory.post;
+            VCategory := ReadCurrentCategory(VId);
+            FList.Replace(VId, VCategory);
           end;
-          FDMMarksDb.CDSKategory.Next;
+          FCdsKategory.Next;
         end;
     finally
-      FDMMarksDb.CDSKategory.EnableControls;
+      FCdsKategory.EnableControls;
     end;
   finally
     UnlockWrite;
@@ -292,25 +337,30 @@ procedure TMarkCategoryDB.LoadCategoriesFromFile;
 var
   VFileName: string;
   VCategory: IMarkCategory;
+  VId: Integer;
 begin
   VFileName := GetMarksCategoryFileName;
   if FileExists(VFileName) then begin
-    FDMMarksDb.CDSKategory.LoadFromFile(VFileName);
-    if FDMMarksDb.CDSKategory.RecordCount > 0 then begin
+    try
+      FCdsKategory.LoadFromFile(VFileName);
+    except
+      InitEmptyDS;
+    end;
+    if FCdsKategory.RecordCount > 0 then begin
       CopyFile(PChar(VFileName), PChar(GetMarksCategoryBackUpFileName), false);
     end;
 
-    FDMMarksDb.CDSKategory.DisableControls;
+    FCdsKategory.DisableControls;
     try
-      FDMMarksDb.CDSKategory.Filtered := false;
-      FDMMarksDb.CDSKategory.First;
-      while not (FDMMarksDb.CDSKategory.Eof) do begin
-        VCategory := ReadCurrentCategory;
-        FList.Add(VCategory.Id, VCategory);
-        FDMMarksDb.CDSKategory.Next;
+      FCdsKategory.Filtered := false;
+      FCdsKategory.First;
+      while not (FCdsKategory.Eof) do begin
+        VCategory := ReadCurrentCategory(VId);
+        FList.Add(VId, VCategory);
+        FCdsKategory.Next;
       end;
     finally
-      FDMMarksDb.CDSKategory.EnableControls;
+      FCdsKategory.EnableControls;
     end;
   end;
 end;
@@ -331,17 +381,22 @@ var
   XML: string;
 begin
   result := true;
-  VStream := TFileStream.Create(GetMarksCategoryFileName, fmCreate);;
   try
+    VStream := TFileStream.Create(GetMarksCategoryFileName, fmCreate);;
     try
-      FDMMarksDb.CDSKategory.MergeChangeLog;
-      XML := FDMMarksDb.CDSKategory.XMLData;
-      VStream.Write(XML[1], length(XML));
-    except
-      result := false;
+      LockRead;
+      try
+        FCdsKategory.MergeChangeLog;
+        XML := FCdsKategory.XMLData;
+        VStream.Write(XML[1], length(XML));
+      finally
+        UnlockRead;
+      end;
+    finally
+      VStream.Free;
     end;
-  finally
-    VStream.Free;
+  except
+    result := false;
   end;
 end;
 

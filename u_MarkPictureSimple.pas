@@ -6,20 +6,25 @@ uses
   Types,
   Classes,
   GR32,
+  i_BitmapTileSaveLoad,
   i_MarkPicture;
 
 type
   TMarkPictureSimple = class(TInterfacedObject, IMarkPicture)
+    FFullFileName: string;
+    FName: string;
     FBitmap: TCustomBitmap32;
     FBitmapSize: TPoint;
   protected
+    function GetName: string;
+    procedure ExportToStream(AStream: TStream);
     procedure LoadBitmap(ABmp: TCustomBitmap32);
     function GetPointInPicture: TPoint;
     function GetTextAlignment: TAlignment;
     function GetTextVerticalAlignment: TVerticalAlignment;
     function GetBitmapSize: TPoint;
   public
-    constructor Create(ABitmap: TCustomBitmap32);
+    constructor Create(AFullFileName: string; AName: string; ALoader: IBitmapTileLoader);
     destructor Destroy; override;
   end;
 
@@ -30,10 +35,12 @@ uses
   GR32_LowLevel;
 
 { TMarkPictureSimple }
-constructor TMarkPictureSimple.Create(ABitmap: TCustomBitmap32);
+constructor TMarkPictureSimple.Create(AFullFileName: string; AName: string; ALoader: IBitmapTileLoader);
 begin
+  FFullFileName := AFullFileName;
+  FName := AName;
   FBitmap := TCustomBitmap32.Create;
-  FBitmap.Assign(ABitmap);
+  ALoader.LoadFromFile(FFullFileName, FBitmap);
   FBitmapSize := Point(FBitmap.Width, FBitmap.Height);
 end;
 
@@ -41,6 +48,30 @@ destructor TMarkPictureSimple.Destroy;
 begin
   FreeAndNil(FBitmap);
   inherited;
+end;
+
+procedure TMarkPictureSimple.ExportToStream(AStream: TStream);
+var
+  VMemStream: TMemoryStream;
+  VOwnStream: Boolean;
+begin
+  if AStream is TMemoryStream then begin
+    VMemStream := TMemoryStream(AStream);
+    VOwnStream := False;
+  end else begin
+    VMemStream := TMemoryStream.Create;
+    VOwnStream := True;
+  end;
+  try
+    VMemStream.LoadFromFile(FFullFileName);
+    if VOwnStream then begin
+      VMemStream.SaveToStream(AStream);
+    end;
+  finally
+    if VOwnStream then begin
+      VMemStream.Free;
+    end;
+  end;
 end;
 
 function TMarkPictureSimple.GetPointInPicture: TPoint;
@@ -64,6 +95,11 @@ begin
   ABmp.SetSize(FBitmapSize.X, FBitmapSize.Y);
   if not FBitmap.Empty then
     MoveLongword(FBitmap.Bits[0], ABmp.Bits[0], FBitmapSize.X * FBitmapSize.Y);
+end;
+
+function TMarkPictureSimple.GetName: string;
+begin
+  Result := FName;
 end;
 
 function TMarkPictureSimple.GetBitmapSize: TPoint;

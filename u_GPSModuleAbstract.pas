@@ -3,6 +3,7 @@ unit u_GPSModuleAbstract;
 interface
 
 uses
+  ActiveX,
   Classes,
   SyncObjs,
   i_JclNotify,
@@ -11,13 +12,32 @@ uses
   i_GPSModule;
 
 type
+  TSatellitesInternalList = class
+  private
+    FList: TList;
+    function Get(Index: Integer): IGPSSatelliteInfo;
+    procedure Put(Index: Integer; Item: IGPSSatelliteInfo);
+    procedure SetCapacity(NewCapacity: Integer);
+    procedure SetCount(NewCount: Integer);
+    function GetCapacity: Integer;
+    function GetCount: Integer;
+    function GetList: PUnknownList;
+  public
+    constructor Create();
+    destructor Destroy; override;
+    property Capacity: Integer read GetCapacity write SetCapacity;
+    property Count: Integer read GetCount write SetCount;
+    property Items[Index: Integer]: IGPSSatelliteInfo read Get write Put; default;
+    property List: PUnknownList read GetList;
+  end;
+
   TGPSModuleAbstract = class(TInterfacedObject, IGPSModule)
   private
+    FGPSPositionFactory: IGPSPositionFactory;
     FCS: TCriticalSection;
     FPosChanged: Boolean;
     FSatellitesChanged: Boolean;
     FLastStaticPosition: IGPSPosition;
-    FEmptyDataPosition: IGPSPosition;
 
     FPosition: TDoublePoint;
     FAltitude: Double;
@@ -30,7 +50,7 @@ type
     FVDOP: Double;
     FPDOP: Double;
     FFixCount: Integer;
-    FSatellites: IInterfaceList;
+    FSatellites: TSatellitesInternalList;
 
     FDataReciveNotifier: IJclNotifier;
 
@@ -42,7 +62,6 @@ type
     FConnectErrorNotifier: IJclNotifier;
     FTimeOutNotifier: IJclNotifier;
   protected
-    function _GetSatellitesCopy: IInterfaceList;
     procedure _UpdatePosition(
       APosition: TDoublePoint;
       AAltitude: Double;
@@ -83,7 +102,7 @@ type
     function GetConnectErrorNotifier: IJclNotifier; virtual; safecall;
     function GetTimeOutNotifier: IJclNotifier; virtual; safecall;
   public
-    constructor Create();
+    constructor Create(AGPSPositionFactory: IGPSPositionFactory);
     destructor Destroy; override;
   end;
 
@@ -91,19 +110,19 @@ implementation
 
 uses
   SysUtils,
-  u_JclNotify,
-  u_GPSPositionStatic,
-  u_GPSSatellitesInView,
-  u_GPSSatelliteInfo;
+  u_JclNotify;
 
 { TGPSPositionUpdatable }
 
-constructor TGPSModuleAbstract.Create;
+constructor TGPSModuleAbstract.Create(AGPSPositionFactory: IGPSPositionFactory);
 var
   VPoint: TDoublePoint;
 begin
+  FGPSPositionFactory := AGPSPositionFactory;
+
   FCS := TCriticalSection.Create;
-  FSatellites := TInterfaceList.Create;
+
+  FSatellites := TSatellitesInternalList.Create;
   FSatellites.Capacity := 32;
   FPosChanged := True;
   FSatellitesChanged := True;
@@ -119,17 +138,14 @@ begin
   FTimeOutNotifier := TJclBaseNotifier.Create;
   VPoint.X := 0;
   VPoint.Y := 0;
-  FEmptyDataPosition := TGPSPositionStatic.Create(
-    VPoint, 0, 0, 0, 0, 0, 0, 0, 0, 0, TGPSSatellitesInView.Create(0, nil)
-  );
 end;
 
 destructor TGPSModuleAbstract.Destroy;
 begin
   FreeAndNil(FCS);
-  FSatellites := nil;
+  FreeAndNil(FSatellites);
   FLastStaticPosition := nil;
-  FEmptyDataPosition := nil;
+  FGPSPositionFactory := nil;
 
   FConnectingNotifier := nil;
   FConnectedNotifier := nil;
@@ -178,7 +194,7 @@ begin
   try
     if FSatellitesChanged or FPosChanged then begin
       if not FSatellitesChanged then begin
-        Result := TGPSPositionStatic.Create(
+        Result := FGPSPositionFactory.BuildPosition(
           FPosition,
           FAltitude,
           FSpeed_KMH,
@@ -192,7 +208,7 @@ begin
           FLastStaticPosition.Satellites
         );
       end else begin
-        Result := TGPSPositionStatic.Create(
+        Result := FGPSPositionFactory.BuildPosition(
           FPosition,
           FAltitude,
           FSpeed_KMH,
@@ -203,9 +219,10 @@ begin
           FHDOP,
           FVDOP,
           FPDOP,
-          TGPSSatellitesInView.Create(
+          FGPSPositionFactory.BuildSatellitesInView(
             FFixCount,
-            _GetSatellitesCopy
+            FSatellites.Count,
+            FSatellites.List
           )
         );
       end;
@@ -231,17 +248,6 @@ end;
 procedure TGPSModuleAbstract.UnLock;
 begin
   FCS.Release;
-end;
-
-function TGPSModuleAbstract._GetSatellitesCopy: IInterfaceList;
-var
-  i: Integer;
-begin
-  Result := TInterfaceList.Create;
-  Result.Capacity := FSatellites.Count;
-  for i := 0 to FSatellites.Count - 1 do begin
-    Result.Add(FSatellites[i]);
-  end;
 end;
 
 procedure TGPSModuleAbstract._UpdatePosition(APosition: TDoublePoint;
@@ -322,7 +328,7 @@ var
   VSattelite: IGPSSatelliteInfo;
   VSatteliteChanged: Boolean;
 begin
-  VSattelite := IGPSSatelliteInfo(FSatellites[AIndex]);
+  VSattelite := FSatellites[AIndex];
   VSatteliteChanged := False;
   if VSattelite <> nil then begin
     if VSattelite.PseudoRandomCode <> APseudoRandomCode then begin
@@ -345,7 +351,7 @@ begin
   end;
 
   if VSatteliteChanged then begin
-    VSattelite := TGPSSatelliteInfo.Create(
+    VSattelite := FGPSPositionFactory.BuildSatelliteInfo(
       APseudoRandomCode,
       AElevation,
       AAzimuth,
@@ -361,7 +367,72 @@ procedure TGPSModuleAbstract._UpdateToEmptyPosition;
 begin
   FPosChanged := False;
   FSatellitesChanged := False;
-  FLastStaticPosition := FEmptyDataPosition;
+  FLastStaticPosition := FGPSPositionFactory.BuildPositionEmpty;
+end;
+
+{ TSatellitesInternalList }
+
+constructor TSatellitesInternalList.Create;
+begin
+  FList := TList.Create;;
+end;
+
+destructor TSatellitesInternalList.Destroy;
+begin
+  SetCount(0);
+  FreeAndNil(FList);
+  inherited;
+end;
+
+function TSatellitesInternalList.Get(Index: Integer): IGPSSatelliteInfo;
+begin
+  Result := IGPSSatelliteInfo(FList.Items[Index]);
+end;
+
+function TSatellitesInternalList.GetCapacity: Integer;
+begin
+  Result := FList.Capacity;
+end;
+
+function TSatellitesInternalList.GetCount: Integer;
+begin
+  Result := FList.Count;
+end;
+
+function TSatellitesInternalList.GetList: PUnknownList;
+begin
+  Result := PUnknownList(FList.List);
+end;
+
+procedure TSatellitesInternalList.Put(Index: Integer; Item: IGPSSatelliteInfo);
+begin
+  if (Index >= 0) and (Index < FList.Count) then begin
+    IInterface(FList.List[Index]) := Item;
+  end;
+end;
+
+procedure TSatellitesInternalList.SetCapacity(NewCapacity: Integer);
+var
+  i: Integer;
+begin
+  if FList.Count > NewCapacity then begin
+    for i := NewCapacity to FList.Count - 1 do begin
+      IInterface(FList.List[i]) := nil;
+    end;
+  end;
+  FList.Capacity := NewCapacity;
+end;
+
+procedure TSatellitesInternalList.SetCount(NewCount: Integer);
+var
+  i: Integer;
+begin
+  if FList.Count > NewCount then begin
+    for i := NewCount to FList.Count - 1 do begin
+      IInterface(FList.List[i]) := nil;
+    end;
+  end;
+  FList.Count := NewCount;
 end;
 
 end.

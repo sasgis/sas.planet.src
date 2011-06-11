@@ -246,7 +246,7 @@ begin
     VGUIDString := VMapType.GUIDString;
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
     VSubItem.WriteInteger('pnum', VMapType.FSortIndex);
-
+    VSubItem.WriteString('name', VMapType.Name);
 
     if VMapType.RequestBuilderScript.UrlBase <> VMapType.RequestBuilderScript.DefUrlBase then begin
       VSubItem.WriteString('URLBase', VMapType.RequestBuilderScript.UrlBase);
@@ -278,8 +278,8 @@ begin
       VSubItem.DeleteValue('NameInCache');
     end;
 
-    if VMapType.WaitInterval <> VMapType.DefSleep then begin
-      VSubItem.WriteInteger('Sleep', VMapType.WaitInterval);
+    if VMapType.TileDownloaderConfig.WaitInterval <> VMapType.DefSleep then begin
+      VSubItem.WriteInteger('Sleep', VMapType.TileDownloaderConfig.WaitInterval);
     end else begin
       VSubItem.DeleteValue('Sleep');
     end;

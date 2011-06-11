@@ -5,7 +5,6 @@ interface
 uses
   Windows,
   SyncObjs,
-  ActiveX,
   i_InternalPerformanceCounter;
 
 type

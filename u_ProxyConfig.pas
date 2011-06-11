@@ -9,7 +9,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TProxyConfig = class(TConfigDataElementBase, IProxyConfig, IProxySettings)
+  TProxyConfigStatic = class(TInterfacedObject, IProxyConfigStatic)
   private
     FUseIESettings: Boolean;
     FUseProxy: Boolean;
@@ -18,6 +18,35 @@ type
     FLogin: WideString;
     FPassword: WideString;
   protected
+    function GetUseIESettings: Boolean;
+    function GetUseProxy: Boolean;
+    function GetHost: WideString;
+    function GetUseLogin: boolean;
+    function GetLogin: WideString;
+    function GetPassword: WideString;
+  public
+    constructor Create(
+      AUseIESettings: Boolean;
+      AUseProxy: Boolean;
+      AHost: WideString;
+      AUseLogin: boolean;
+      ALogin: WideString;
+      APassword: WideString
+    );
+  end;
+
+  TProxyConfig = class(TConfigDataElementBase, IProxyConfig, IProxySettings)
+  private
+    FUseIESettings: Boolean;
+    FUseProxy: Boolean;
+    FHost: WideString;
+    FUseLogin: boolean;
+    FLogin: WideString;
+    FPassword: WideString;
+    FStatic: IProxyConfigStatic;
+    function CreateStatic: IProxyConfigStatic;
+  protected
+    procedure SetChanged; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -34,6 +63,8 @@ type
     procedure SetUseLogin(AValue: Boolean);
     procedure SetLogin(AValue: WideString);
     procedure SetPassword(AValue: WideString);
+
+    function GetStatic: IProxyConfigStatic;
   public
     constructor Create();
   end;
@@ -51,6 +82,20 @@ begin
   FHost := '';
   FLogin := '';
   FPassword := '';
+  SetChanged;
+end;
+
+function TProxyConfig.CreateStatic: IProxyConfigStatic;
+begin
+  Result :=
+    TProxyConfigStatic.Create(
+      FUseIESettings,
+      FUseProxy,
+      FHost,
+      FUseLogin,
+      FLogin,
+      FPassword
+    );
 end;
 
 procedure TProxyConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -108,6 +153,11 @@ begin
   end;
 end;
 
+function TProxyConfig.GetStatic: IProxyConfigStatic;
+begin
+  Result := FStatic;
+end;
+
 function TProxyConfig.GetUseIESettings: Boolean;
 begin
   LockRead;
@@ -135,6 +185,17 @@ begin
     Result := FUseProxy;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TProxyConfig.SetChanged;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
   end;
 end;
 
@@ -225,6 +286,49 @@ begin
   finally
     UnlockWrite;
   end;
+end;
+
+{ TProxyConfigStatic }
+
+constructor TProxyConfigStatic.Create(AUseIESettings, AUseProxy: Boolean;
+  AHost: WideString; AUseLogin: boolean; ALogin, APassword: WideString);
+begin
+  FUseIESettings := AUseIESettings;
+  FUseProxy := AUseProxy;
+  FHost := AHost;
+  FUseLogin := AUseLogin;
+  FLogin := ALogin;
+  FPassword := APassword;
+end;
+
+function TProxyConfigStatic.GetHost: WideString;
+begin
+  Result := FHost;
+end;
+
+function TProxyConfigStatic.GetLogin: WideString;
+begin
+  Result := FLogin;
+end;
+
+function TProxyConfigStatic.GetPassword: WideString;
+begin
+  Result := FPassword;
+end;
+
+function TProxyConfigStatic.GetUseIESettings: Boolean;
+begin
+  Result := FUseIESettings;
+end;
+
+function TProxyConfigStatic.GetUseLogin: boolean;
+begin
+  Result := FUseLogin;
+end;
+
+function TProxyConfigStatic.GetUseProxy: Boolean;
+begin
+  Result := FUseProxy;
 end;
 
 end.
