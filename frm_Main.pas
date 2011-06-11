@@ -1975,22 +1975,14 @@ begin
 end;
 
 procedure TfrmMain.zooming(ANewZoom:byte;move:boolean);
-  procedure usleep(mils:integer);
-  var startTS,endTS,freqTS:int64;
-  begin
-   if mils>0 then begin
-     QueryPerformanceCounter(startTS);
-     repeat
-       QueryPerformanceCounter(endTS);
-       QueryPerformanceFrequency(freqTS);
-     until ((endTS-startTS)/(freqTS/1000))>mils;
-   end;
-  end;
-var i,steps:integer;
-    ts1,ts2,fr:int64;
-    Scale: Double;
-    VZoom: Byte;
-    VMousePos: TPoint;
+var
+  ts1,ts2,fr:int64;
+  Scale: Double;
+  VZoom: Byte;
+  VMousePos: TPoint;
+  VAlfa: Double;
+  VTime: Double;
+  VMaxTime: Double;
 begin
   TBZoom_Out.Enabled := False;
   TBZoomIn.Enabled := False;
@@ -2002,13 +1994,15 @@ begin
   VMousePos := MouseCursorPos;
 
   if (abs(ANewZoom-VZoom)=1)and(FConfig.MainConfig.AnimateZoom) then begin
-    steps:=11;
-    for i:=0 to steps-1 do begin
-      QueryPerformanceCounter(ts1);
+    VMaxTime := 250;
+    VTime := 0;
+    QueryPerformanceCounter(ts1);
+    while (VTime < VMaxTime) do begin
+      VAlfa := VTime/VMaxTime;
       if VZoom>ANewZoom then begin
-        Scale := 1/(1 + i/(steps - 1));
+        Scale := 1/(1 + VAlfa);
       end else begin
-        Scale := 3 - (1/(1+i/(steps - 1)))*2;
+        Scale := 3 - 2/(1+VAlfa);
       end;
       map.BeginUpdate;
       try
@@ -2024,10 +2018,24 @@ begin
       application.ProcessMessages;
       QueryPerformanceCounter(ts2);
       QueryPerformanceFrequency(fr);
-      ts1:=round((ts2-ts1)/(fr/1000));
-      if (25-ts1>0) then begin
-        usleep(25-ts1);
+      VTime := (ts2-ts1)/(fr/1000);
+    end;
+    VAlfa := 1;
+    if VZoom>ANewZoom then begin
+      Scale := 1/(1 + VAlfa);
+    end else begin
+      Scale := 3 - 2/(1+VAlfa);
+    end;
+    map.BeginUpdate;
+    try
+      if move then begin
+        FConfig.ViewPortState.ScaleTo(Scale, VMousePos);
+      end else begin
+        FConfig.ViewPortState.ScaleTo(Scale);
       end;
+    finally
+      map.EndUpdate;
+      map.Changed;
     end;
     application.ProcessMessages;
   end;
