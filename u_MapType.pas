@@ -21,6 +21,7 @@ uses
   i_KmlInfoSimpleLoader,
   i_RequestBuilderScript,
   i_TileObjCache,
+  i_TileDownloaderConfig,
   i_VectorDataItemSimple,
   i_TileDownloader,
   u_MapTypeCacheConfig,
@@ -64,9 +65,7 @@ type
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
-
-    function GetWaitInterval: Cardinal;
-    procedure SetWaitInterval(Value: Cardinal);
+    FTileDownloaderConfig: ITileDownloaderConfig;
 
     function GetUseDwn: Boolean;
     function GetZmpFileName: string;
@@ -155,7 +154,7 @@ type
     property bmp18: TBitmap read Fbmp18;
     property bmp24: TBitmap read Fbmp24;
     property TileStorage: TTileStorageAbstract read FStorage;
-    property RequestBuilderScript : IRequestBuilderScript read FRequestBuilderScript;
+    property RequestBuilderScript: IRequestBuilderScript read FRequestBuilderScript;
     property MapInfo: string read FMapInfo;
     property Name: string read FName;
     property DefHotKey: TShortCut read FDefHotKey;
@@ -163,7 +162,7 @@ type
     property Defseparator: boolean read FDefseparator;
     property DefParentSubMenu: string read FDefParentSubMenu;
     property DefEnabled: boolean read FDefEnabled;
-    property WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
+    property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
     property Cache: ITileObjCache read FCache;
 
     constructor Create(
@@ -190,16 +189,6 @@ uses
   u_TileCacheSimpleGlobal,
   u_TileStorageGE,
   u_TileStorageFileSystem;
-
-function TMapType.GetWaitInterval: Cardinal;
-begin
-  Result := FTileDownloader.WaitInterval;
-end;
-
-procedure TMapType.SetWaitInterval(Value: Cardinal);
-begin
-  FTileDownloader.WaitInterval := Value;
-end;
 
 procedure TMapType.LoadMapIcons(AConfig: IConfigDataProvider);
 var
@@ -364,11 +353,14 @@ begin
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
   LoadMimeTypeSubstList(AConfig);
+  
   FRequestBuilderScript := nil;
+  FTileDownloaderConfig := nil;
   FTileDownloader := TTileDownloaderFrontEnd.Create(AConfig, FZMPFileName);
   if Assigned(FTileDownloader) then begin
     FUseDwn := FTileDownloader.UseDwn;
     FRequestBuilderScript := FTileDownloader.RequestBuilderScript;
+    FTileDownloaderConfig := FTileDownloader.TileDownloaderConfig;
   end;
 end;
 

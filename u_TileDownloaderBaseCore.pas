@@ -113,7 +113,7 @@ var
 //  VConfig: IConfigDataProvider;
 begin
   Result := nil;
-  if WaitForSingleObject(FSemaphore, FTimeOut) = WAIT_OBJECT_0  then
+  if WaitForSingleObject(FSemaphore, FTileDownloaderConfig.TimeOut) = WAIT_OBJECT_0  then
   begin
     Lock;
     try
@@ -135,6 +135,7 @@ begin
 
         Result := TTileDownloaderBaseThread.Create;
         Result.RequestBuilderScript := FRequestBuilderScript;
+        Result.TileDownloaderConfig := FTileDownloaderConfig.GetStatic;
         FDownloadesList.Add(Result);
 
         {
@@ -163,7 +164,7 @@ begin
     Lock;
     try
       AEvent.AddToCallBackList(OnTileDownload);
-      VDwnThr.TimeOut := FTimeOut;
+      VDwnThr.TileDownloaderConfig := FTileDownloaderConfig.GetStatic;
       VDwnThr.RawResponseHeader := FRawResponseHeader;
       VDwnThr.Semaphore := FSemaphore;
       VDwnThr.AddEvent(AEvent);

@@ -7,6 +7,7 @@ uses
   i_ConfigDataProvider,
   i_RequestBuilderScript,
   i_TileDownloader,
+  i_TileDownloaderConfig,
   u_TileDownloaderBaseCore;
 
 type
@@ -14,16 +15,14 @@ type
   private
     FDownloader: ITileDownloader;
     FRequestBuilderScript: IRequestBuilderScript;
-    FDownloaderStr: string;
+    FTileDownloaderConfig: ITileDownloaderConfig;
     FUseDwn: Boolean;
-    function GetWaitInterval: Cardinal;
-    procedure SetWaitInterval(Value: Cardinal);
   public
     constructor Create(AConfig: IConfigDataProvider; AZmpFileName: string);
     destructor Destroy; override;
     procedure Download(AEvent: ITileDownloaderEvent);
     property RequestBuilderScript: IRequestBuilderScript read FRequestBuilderScript;
-    property WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
+    property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
     property UseDwn: Boolean read FUseDwn;
   end;
 
@@ -34,26 +33,36 @@ implementation
 constructor TTileDownloaderFrontEnd.Create(AConfig: IConfigDataProvider; AZmpFileName: string);
 var
   VParams: IConfigDataProvider;
+  VDownloaderStr: string;
 begin
   inherited Create;
   FDownloader := nil;
   FRequestBuilderScript := nil;
+  FTileDownloaderConfig := nil;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FUseDwn := VParams.ReadBool('UseDwn', True);
   try
     if FUseDwn then
     begin
-      FDownloaderStr := VParams.ReadString('Downloader', 'sasplanet');
-      if LowerCase(FDownloaderStr) = 'sasplanet' then
+      VDownloaderStr := VParams.ReadString('Downloader', 'sasplanet');
+      if LowerCase(VDownloaderStr) = 'sasplanet' then
       begin
         FDownloader := TTileDownloaderBaseCore.Create(AConfig, AZmpFileName);
-        FRequestBuilderScript := FDownloader.RequestBuilderScript;
-        FUseDwn := FDownloader.Enabled;
+        if Assigned(FDownloader) then
+        begin
+          FTileDownloaderConfig := FDownloader.TileDownloaderConfig;
+          FRequestBuilderScript := FDownloader.RequestBuilderScript;
+          FUseDwn := FDownloader.Enabled;
+        end
       end;
     end;
   finally
     if FDownloader = nil then
+    begin
       FUseDwn := False;
+      FTileDownloaderConfig := nil;
+      FRequestBuilderScript := nil;
+    end;
   end;
 end;
 
@@ -74,20 +83,6 @@ begin
       AEvent.ErrorString := 'Downloader not Assigned!';
     end;
   end;
-end;
-
-procedure TTileDownloaderFrontEnd.SetWaitInterval(Value: Cardinal);
-begin
-  if Assigned(FDownloader) then
-    FDownloader.WaitInterval := Value;
-end;
-
-function TTileDownloaderFrontEnd.GetWaitInterval: Cardinal;
-begin
-  if Assigned(FDownloader) then
-    Result := FDownloader.WaitInterval
-  else
-    Result := 0;
 end;
 
 end.

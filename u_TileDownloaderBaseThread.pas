@@ -9,8 +9,10 @@ uses
   ALHTTPCommon,
   ALHttpClient,
   ALWinInetHttpClient,
+  i_ProxySettings,
   i_RequestBuilderScript,
-  i_TileDownloader;
+  i_TileDownloader,
+  i_TileDownloaderConfig;
 
 type
   TTileDownloaderBaseThread = class(TThread)
@@ -19,14 +21,13 @@ type
     FResponseHeader: TALHTTPResponseHeader;
     FRawResponseHeader: string;
     FRequestBuilderScript: IRequestBuilderScript;
-    FTimeOut: Cardinal;
+    FTileDownloaderConfig: ITileDownloaderConfigStatic;
+
     FEvent: ITileDownloaderEvent;
     FSemaphore: THandle;
     FParentSemaphore: THandle;
     FBusy: Boolean;
-    procedure SetTimeOutValue(AValue: Cardinal);
-    procedure SetHttpTimeOut;
-    procedure SetHttpOptions;
+    procedure PrepareHttpClientConfig(const AAcceptEncoding, ARawHeaders: string);
     procedure DoRequest;
   protected
     procedure Execute; override;
@@ -34,9 +35,9 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure AddEvent(AEvent: ITileDownloaderEvent);
-    property TimeOut: Cardinal write SetTimeOutValue;
     property Busy: Boolean read FBusy default False;
-    property RequestBuilderScript: IRequestBuilderScript read FRequestBuilderScript write FRequestBuilderScript default nil;
+    property RequestBuilderScript: IRequestBuilderScript write FRequestBuilderScript default nil;
+    property TileDownloaderConfig: ITileDownloaderConfigStatic write FTileDownloaderConfig default nil;
     property RawResponseHeader: string read FRawResponseHeader write FRawResponseHeader;
     property Semaphore: THandle read FParentSemaphore write FParentSemaphore;
   end;
@@ -47,14 +48,11 @@ implementation
 
 constructor TTileDownloaderBaseThread.Create;
 begin
-  FTimeOut := 30000; // ms
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
   FHttpClient := TALWinInetHTTPClient.Create(nil);
   FHttpClient.RequestHeader.UserAgent := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FResponseHeader := TALHTTPResponseHeader.Create;
   FRawResponseHeader := '';
-  SetHttpTimeOut;
-  SetHttpOptions;
   FreeOnTerminate := True;
   inherited Create(False);
 end;
@@ -67,33 +65,46 @@ begin
   inherited Destroy;
 end;
 
-procedure TTileDownloaderBaseThread.SetTimeOutValue(AValue: Cardinal);
+procedure TTileDownloaderBaseThread.PrepareHttpClientConfig(const AAcceptEncoding, ARawHeaders: string);
+var
+  VProxyConfig: IProxyConfigStatic;
 begin
-  if FTimeOut <> AValue then
-  begin
-    FTimeOut := AValue;
-    SetHttpTimeOut;
-  end;
-end;
+  FHttpClient.RequestHeader.Accept := AAcceptEncoding;
+  
+  if ARawHeaders <> '' then
+    FHttpClient.RequestHeader.RawHeaderText := ARawHeaders;
 
-procedure TTileDownloaderBaseThread.SetHttpTimeOut;
-begin
-  FHttpClient.ConnectTimeout := FTimeOut;
-  FHttpClient.SendTimeout := FTimeOut;
-  FHttpClient.ReceiveTimeout := FTimeOut;
-end;
+  FHttpClient.ConnectTimeout := FTileDownloaderConfig.TimeOut;
+  FHttpClient.SendTimeout := FTileDownloaderConfig.TimeOut;
+  FHttpClient.ReceiveTimeout := FTileDownloaderConfig.TimeOut;
 
-procedure TTileDownloaderBaseThread.SetHttpOptions;
-begin
-  with FHttpClient.ProxyParams do
-  begin
-
-  end;
   FHttpClient.InternetOptions := [  wHttpIo_No_cache_write,
                                     wHttpIo_Pragma_nocache,
                                     wHttpIo_No_cookies,
                                     wHttpIo_Keep_connection
                                  ];
+
+  VProxyConfig := FTileDownloaderConfig.ProxyConfigStatic;
+  if Assigned(VProxyConfig) then
+  begin
+    if VProxyConfig.UseIESettings then
+      FHttpClient.AccessType := wHttpAt_Preconfig
+    else
+      if VProxyConfig.UseProxy then
+      begin
+        FHttpClient.AccessType := wHttpAt_Proxy;
+        FHttpClient.ProxyParams.ProxyServer := Copy(VProxyConfig.Host, 0, Pos(':', VProxyConfig.Host));
+        FHttpClient.ProxyParams.ProxyPort := StrToInt(Copy(VProxyConfig.Host, Pos(':', VProxyConfig.Host) + 1));
+        if VProxyConfig.UseLogin then
+        begin
+          FHttpClient.ProxyParams.ProxyUserName := VProxyConfig.Login;
+          FHttpClient.ProxyParams.ProxyPassword := VProxyConfig.Password;
+        end;
+      end
+      else
+        FHttpClient.AccessType := wHttpAt_Direct;
+  end;
+
 end;
 
 procedure TTileDownloaderBaseThread.AddEvent(AEvent: ITileDownloaderEvent);
@@ -110,23 +121,24 @@ var
 begin
   try
     try
-      FRequestBuilderScript.GenRequest(FEvent.TileXY, FEvent.TileZoom, FRawResponseHeader, VUrl, VRawRequestHeader);
-      FHttpClient.RequestHeader.Accept := '*/*';
-      if VRawRequestHeader <> '' then
-        FHttpClient.RequestHeader.RawHeaderText := VRawRequestHeader;                                                           
-      try
-        FResponseHeader.Clear;
-        FHttpClient.Get(VUrl, FEvent.TileStream, FResponseHeader);
-      except
-        on E: EALHTTPClientException do
-          FEvent.ErrorString := IntToStr(E.StatusCode) + ' ' + FResponseHeader.ReasonPhrase;
-        on E: Exception do
-          FEvent.ErrorString := E.Message;
+      if (FTileDownloaderConfig <> nil) and (FRequestBuilderScript <> nil) then
+      begin
+        FRequestBuilderScript.GenRequest(FEvent.TileXY, FEvent.TileZoom, FRawResponseHeader, VUrl, VRawRequestHeader);
+        PrepareHttpClientConfig(FTileDownloaderConfig.DefaultMIMEType, VRawRequestHeader);
+        try
+          FResponseHeader.Clear;
+          FHttpClient.Get(VUrl, FEvent.TileStream, FResponseHeader);
+        except
+          on E: EALHTTPClientException do
+            FEvent.ErrorString := IntToStr(E.StatusCode) + ' ' + FResponseHeader.ReasonPhrase;
+          on E: Exception do
+            FEvent.ErrorString := E.Message;
+        end;
+        FRawResponseHeader := '';
+        FEvent.RawResponseHeader := FResponseHeader.RawHeaderText;
+        FEvent.TileMIME := FResponseHeader.ContentType;
+        FEvent.DownloadResult := dtrOK;
       end;
-      FRawResponseHeader := '';
-      FEvent.RawResponseHeader := FResponseHeader.RawHeaderText;
-      FEvent.TileMIME := FResponseHeader.ContentType;
-      FEvent.DownloadResult := dtrOK;
     finally
       FEvent.ProcessEvent;
     end;

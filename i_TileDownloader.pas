@@ -5,7 +5,8 @@ interface
 uses
   Windows,
   Classes,
-  i_RequestBuilderScript;
+  i_RequestBuilderScript,
+  i_TileDownloaderConfig;
 
 type
   TDownloadTileResult = (dtrOK, dtrSameTileSize, dtrErrorInternetOpen, dtrErrorInternetOpenURL, dtrProxyAuthError, dtrErrorMIMEType, dtrDownloadError, dtrTileNotExists, dtrBanError, dtrUnknownError);
@@ -18,13 +19,15 @@ type
   ITileDownloader = interface
     ['{EAF443E6-FC84-46A3-95AA-8217117A2A6B}']
     procedure Download(AEvent: ITileDownloaderEvent);
-    function  GetWaitInterval: Cardinal;
-    procedure SetWaitInterval(AValue: Cardinal);
-    function  GetRequestBuilderScript: IRequestBuilderScript;
-    function  GetIsEnabled: Boolean;
-    property  WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
-    property  RequestBuilderScript: IRequestBuilderScript read GetRequestBuilderScript;
-    property  Enabled: Boolean read GetIsEnabled;
+
+    function GetRequestBuilderScript: IRequestBuilderScript;
+    property RequestBuilderScript: IRequestBuilderScript read GetRequestBuilderScript;
+
+    function GetTileDownloaderConfig: ITileDownloaderConfig;
+    property TileDownloaderConfig: ITileDownloaderConfig read GetTileDownloaderConfig;
+
+    function GetIsEnabled: Boolean;
+    property Enabled: Boolean read GetIsEnabled;
   end;
   
   ITileDownloaderEvent = interface

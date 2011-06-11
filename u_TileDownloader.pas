@@ -7,7 +7,9 @@ uses
   SyncObjs,
   i_ConfigDataProvider,
   i_RequestBuilderScript,
-  i_TileDownloader;
+  i_TileDownloader,
+  i_TileDownloaderConfig,
+  u_TileDownloaderConfig;
 
 type
   TTileDownloader = class(TInterfacedObject, ITileDownloader)
@@ -16,30 +18,26 @@ type
     FMapName: string;
     FZmpFileName: string;
     FMaxConnectToServerCount: Cardinal;
-    FWaitInterval: Cardinal;
-    FTimeOut: Cardinal;
-    FDownloadTryCount: Byte;
-    //FSleepOnResetConnection
     FRequestBuilderScript: IRequestBuilderScript;
+    FTileDownloaderConfig: ITileDownloaderConfig;
     FCS: TCriticalSection;
     procedure Lock;
     procedure UnLock;
+    function GetRequestBuilderScript: IRequestBuilderScript;
+    function GetTileDownloaderConfig: ITileDownloaderConfig;
+    function GetIsEnabled: Boolean;
   public
     constructor Create(AConfig: IConfigDataProvider; AZmpFileName: string);
     destructor Destroy; override;
     procedure Download(AEvent: ITileDownloaderEvent); virtual;
-    function  GetWaitInterval: Cardinal;
-    procedure SetWaitInterval(AValue: Cardinal);
-    function  GetRequestBuilderScript: IRequestBuilderScript;
-    function  GetIsEnabled: Boolean;                          
-    property  WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
-    property  RequestBuilderScript: IRequestBuilderScript read GetRequestBuilderScript;
-    property  Enabled: Boolean read GetIsEnabled;
+    property RequestBuilderScript: IRequestBuilderScript read GetRequestBuilderScript;
+    property TileDownloaderConfig: ITileDownloaderConfig read GetTileDownloaderConfig;
+    property Enabled: Boolean read GetIsEnabled;
   end;
 
 const
-  DefMaxConnectToServerCount = 32;
-  LimMaxConnectToServerCount = 64;
+  DefConnectToServerCount = 32;
+  MaxConnectToServerCount = 64;
 
 implementation
 
@@ -53,22 +51,17 @@ var
   VParams: IConfigDataProvider;
 begin
   inherited Create;
+  FEnabled := False;
+  FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig);
   FRequestBuilderScript := nil;
   FZmpFileName := AZmpFileName;
   FCS := TCriticalSection.Create;
-  FEnabled := False;
-  FTimeOut := GState.InetConfig.GetTimeOut;
-  if GState.TwoDownloadAttempt then
-    FDownloadTryCount := 2
-  else
-    FDownloadTryCount := 1;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FWaitInterval := VParams.ReadInteger('Sleep', 0);
   FMapName := VParams.ReadString('name', '');
-  FMapName:=VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode, FMapName);
-  FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', DefMaxConnectToServerCount);
-  if FMaxConnectToServerCount > LimMaxConnectToServerCount then
-    FMaxConnectToServerCount := LimMaxConnectToServerCount;
+  FMapName := VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode, FMapName);
+  FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', DefConnectToServerCount);
+  if FMaxConnectToServerCount > MaxConnectToServerCount then
+    FMaxConnectToServerCount := MaxConnectToServerCount;
 end;
 
 destructor TTileDownloader.Destroy;
@@ -82,31 +75,21 @@ begin
   // virtual
 end;
 
-procedure TTileDownloader.SetWaitInterval(AValue: Cardinal);
-begin
-  Lock;
-  try
-    FWaitInterval := AValue;
-  finally
-    Unlock;
-  end;
-end;
-
-function TTileDownloader.GetWaitInterval: Cardinal;
-begin
-  Lock;
-  try
-    Result := FWaitInterval;
-  finally
-    Unlock;
-  end;
-end;
-
 function TTileDownloader.GetRequestBuilderScript: IRequestBuilderScript;
 begin
   Lock;
   try
     Result := FRequestBuilderScript;
+  finally
+    Unlock;
+  end;
+end;
+
+function TTileDownloader.GetTileDownloaderConfig: ITileDownloaderConfig;
+begin
+  Lock;
+  try
+    Result := FTileDownloaderConfig;
   finally
     Unlock;
   end;
