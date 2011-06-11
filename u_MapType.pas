@@ -185,6 +185,7 @@ uses
   GR32_Resamplers,
   KAZip,
   u_GlobalState,
+  i_DownloadResult,
   i_TileInfoBasic,
   u_TileCacheSimpleGlobal,
   u_TileStorageGE,
@@ -629,15 +630,15 @@ begin
 end;
 
 procedure TMapType.OnTileDownload(AEvent: ITileDownloaderEvent);
+var
+  VResultOk: IDownloadResultOk;
 begin
   if Assigned(AEvent) then begin
-    if AEvent.ErrorString = '' then begin
-      if AEvent.DownloadResult = dtrOK then begin
-        SaveTileDownload(AEvent.TileXY, AEvent.TileZoom, AEvent.TileStream, AEvent.TileMIME);
-      end else if AEvent.DownloadResult = dtrTileNotExists then begin
-        if GState.SaveTileNotExists then begin
-          SaveTileNotExists(AEvent.TileXY, AEvent.TileZoom);
-        end;
+    if Supports(AEvent.DownloadResult, IDownloadResultOk, VResultOk) then begin
+      SaveTileDownload(AEvent.TileXY, AEvent.TileZoom, AEvent.TileStream, AEvent.TileMIME);
+    end else if Supports(AEvent.DownloadResult, IDownloadResultDataNotExists) then begin
+      if GState.SaveTileNotExists then begin
+        SaveTileNotExists(AEvent.TileXY, AEvent.TileZoom);
       end;
     end;
   end;
@@ -655,6 +656,9 @@ begin
       FCoordConverter.CheckTilePosStrict(VTile, VZoom, True);
       AEvent.TileXY := VTile;
       AEvent.TileZoom := VZoom;
+      if AEvent.CheckTileSize then begin
+        AEvent.OldTileSize := FStorage.GetTileInfo(VTile, VZoom, FVersion).GetSize;
+      end;
       AEvent.AddToCallBackList(Self.OnTileDownload);
       FTileDownloader.Download(AEvent);
     end else begin

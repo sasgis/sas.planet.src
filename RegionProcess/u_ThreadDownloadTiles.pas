@@ -41,6 +41,7 @@ type
     FProxyAuthErrorSleepTime: Cardinal;
     FDownloadErrorSleepTime: Cardinal;
 
+
     FRES_UserStop: string;
     FRES_ProcessedFile: string;
     FRES_LoadProcessRepl: string;
@@ -62,7 +63,7 @@ type
     function GetDownloaded: Int64;
     function GetDownloadSize: Double;
 
-    function GetErrStr(Aerr: TDownloadTileResult): string;
+    //function GetErrStr(Aerr: TDownloadTileResult): string;
 
   protected
     procedure Execute; override;
@@ -249,6 +250,7 @@ end;
 
 procedure TThreadDownloadTiles.OnTileDownload(AEvent: ITileDownloaderEvent);
 begin
+  {
   try
     case AEvent.DownloadResult of
       dtrOK : begin
@@ -299,13 +301,14 @@ begin
   finally
     inherited;
   end;
+
+  }
 end;
 
 procedure TThreadDownloadTiles.Execute;
 var
-  VTileExists: Boolean;
-  VExistsTileSize: Integer;
   VTile: TPoint;
+  VTileExists: Boolean;
   VTileIterator: ITileIterator;
 begin
   FStartTime := Now;
@@ -351,16 +354,12 @@ begin
               FLog.WriteText(FRES_FileBeCreateTime, 0);
               FGotoNextTile := True;
             end else begin
-              if VTileExists then
-                VExistsTileSize := FMapType.TileSize(VTile, Fzoom)
-              else
-                VExistsTileSize := 0;
               try
                 if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(GState.SaveTileNotExists) then begin
                   FLog.WriteText(FRES_TileNotExists, 1);
                   FGotoNextTile := True;
                 end else begin
-                  Download(VTile, FZoom, FCheckExistTileSize, VExistsTileSize);
+                  Download(VTile, FZoom, FCheckExistTileSize);
                 end;
                 FLastProcessedPoint := VTile;
               except
@@ -440,6 +439,7 @@ begin
   FRES_TileDownloadUnexpectedError := SAS_ERR_TileDownloadUnexpectedError;
 end;
 
+{
 function TThreadDownloadTiles.GetErrStr(Aerr: TDownloadTileResult): string;
 begin
   Result := '';
@@ -466,5 +466,6 @@ begin
   end;
 end;
 
+}
 end.
 

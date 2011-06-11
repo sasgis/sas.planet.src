@@ -7,7 +7,13 @@ uses
   Classes,
   SysUtils,
   i_TileDownloader,
+  i_TileDownloaderConfig,
   i_TileError,
+  i_DownloadResult,
+  i_DownloadChecker,
+  i_DownloadResultFactory,
+  u_DownloadCheckerStuped,
+  u_DownloadResultFactoryTileDownload,
   u_MapType;
 
 type
@@ -17,7 +23,13 @@ type
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorLogger: ITileErrorLogger;
     FMapType: TMapType;
+    FDownloadResult: IDownloadResult;
+    FResultFactory: IDownloadResultFactory;
+    FDownloadChecker: IDownloadChecker;
 
+    FUrl: string;
+    FRawRequestHeader: string;
+    FRawResponseHeader: string;
     FTileXY: TPoint;
     FTileZoom: Byte;
     FTileSize: Cardinal;
@@ -25,21 +37,14 @@ type
     FOldTileSize: Cardinal;
     FTileMIME: string;
     FTileStream: TMemoryStream;
-    FRawResponseHeader: string;
-    FDownloadResult: TDownloadTileResult;
     FErrorString: string;
-
-    FRES_Authorization: string;
-    FRES_Ban: string;
-    FRES_TileNotExists: string;
-    FRES_Noconnectionstointernet: string;
-    FRES_TileDownloadContentTypeUnexpcted: string;
+    FHttpStatusCode: Cardinal;
+    
     FRES_TileDownloadUnexpectedError: string;
 
     FCallBackList: TList;
 
     procedure GuiSync;
-    function  GetErrStr(AErr: TDownloadTileResult): string;
   public
     constructor Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorLogger: ITileErrorLogger; AMapType: TMapType);
     destructor Destroy; override;
@@ -49,6 +54,15 @@ type
     procedure AddToCallBackList(ACallBack: TOnDownloadCallBack);
     procedure ExecCallBackList;
 
+    procedure OnBeforeRequest(AConfig: ITileDownloaderConfigStatic);
+    procedure OnAfterResponse();
+
+    function  GetUrl: string;
+    procedure SetUrl(Value: string);
+    function  GetRawRequestHeader: string;
+    procedure SetRawRequestHeader(Value: string);
+    function  GetRawResponseHeader: string;
+    procedure SetRawResponseHeader(Value: string);
     function  GetTileXY: TPoint;
     procedure SetTileXY(Value: TPoint);
     function  GetTileZoom: Byte;
@@ -63,13 +77,17 @@ type
     procedure SetTileMIME(Value: string);
     function  GetTileStream: TMemoryStream;
     procedure SetTileStream(Value: TMemoryStream);
-    function  GetRawResponseHeader: string;
-    procedure SetRawResponseHeader(Value: string);
-    function  GetDwnlResult: TDownloadTileResult;
-    procedure SetDwnlResult(Value: TDownloadTileResult);
     function  GetErrorString: string;
     procedure SetErrorString(Value: string);
+    function  GetHttpStatusCode: Cardinal;
+    procedure SetHttpStatusCode(Value: Cardinal);
+    function  GetDownloadResult: IDownloadResult;
+    procedure SetDownloadResult(Value: IDownloadResult);
+    function  GetResultFactory: IDownloadResultFactory;
 
+    property Url: string read GetUrl write SetUrl;
+    property RawRequestHeader: string read GetRawRequestHeader write SetRawRequestHeader;
+    property RawResponseHeader: string read GetRawResponseHeader write SetRawResponseHeader;
     property TileXY: TPoint read GetTileXY write SetTileXY;
     property TileZoom: Byte read GetTileZoom write SetTileZoom;
     property TileSize: Cardinal read GetTileSize write SetTileSize;
@@ -77,9 +95,10 @@ type
     property OldTileSize: Cardinal read GetOldTileSize write SetOldTileSize;
     property TileMIME: string read GetTileMIME write SetTileMIME;
     property TileStream: TMemoryStream read GetTileStream write SetTileStream;
-    property RawResponseHeader: string read GetRawResponseHeader write SetRawResponseHeader;
-    property DownloadResult: TDownloadTileResult read GetDwnlResult write SetDwnlResult;
     property ErrorString: string read GetErrorString write SetErrorString;
+    property HttpStatusCode: Cardinal read GetHttpStatusCode write SetHttpStatusCode;
+    property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
+    property ResultFactory: IDownloadResultFactory read GetResultFactory;
   end;
 
 implementation
@@ -98,7 +117,13 @@ begin
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorLogger := AErrorLogger;
   FMapType := AMapType;
+  FDownloadResult := nil;
+  FResultFactory := nil;
+  FDownloadChecker := nil;
 
+  FUrl := '';
+  FRawRequestHeader := '';
+  FRawResponseHeader := '';
   FTileXY.X := 0;
   FTileXY.Y := 0;
   FTileZoom := 0;
@@ -107,16 +132,11 @@ begin
   FOldTileSize := 0;
   FTileMIME := '';
   FTileStream := TMemoryStream.Create;
-  FDownloadResult := dtrUnknownError;
   FErrorString := '';
+  FHttpStatusCode := 0;
 
   FCallBackList := TList.Create;
 
-  FRES_Authorization := SAS_ERR_Authorization;
-  FRES_Ban := SAS_ERR_Ban;
-  FRES_TileNotExists := SAS_ERR_TileNotExists;
-  FRES_Noconnectionstointernet := SAS_ERR_Noconnectionstointernet;
-  FRES_TileDownloadContentTypeUnexpcted := SAS_ERR_TileDownloadContentTypeUnexpcted;
   FRES_TileDownloadUnexpectedError := SAS_ERR_TileDownloadUnexpectedError;
 end;
 
@@ -136,6 +156,53 @@ begin
   end;
 end;
 
+procedure TTileDownloaderEventElement.OnBeforeRequest(AConfig: ITileDownloaderConfigStatic);
+begin
+  FResultFactory := TDownloadResultFactoryTileDownload.Create(
+    FTileZoom,
+    FTileXY,
+    FMapType,
+    FUrl,
+    FRawRequestHeader
+  );
+
+  FDownloadChecker := TDownloadCheckerStuped.Create(
+    FResultFactory,
+    AConfig.IgnoreMIMEType,
+    AConfig.ExpectedMIMETypes,
+    AConfig.DefaultMIMEType,
+    FCheckTileSize,
+    FOldTileSize
+  );
+
+  FDownloadResult := FDownloadChecker.BeforeRequest(FUrl, FRawRequestHeader);
+end;
+
+procedure TTileDownloaderEventElement.OnAfterResponse();
+begin
+  if FDownloadResult = nil then
+  begin
+    FDownloadResult := FDownloadChecker.AfterResponce(FHttpStatusCode, FTileMIME, FRawResponseHeader);
+    if FDownloadResult = nil then
+    begin
+      FDownloadResult := FDownloadChecker.AfterReciveData(FTileStream.Size, FTileStream.Memory, FHttpStatusCode, FRawResponseHeader);
+      if FDownloadResult = nil then
+      begin
+        if FTileStream.Size = 0 then
+          FDownloadResult := FResultFactory.BuildDataNotExistsZeroSize(FRawResponseHeader)
+        else
+          FDownloadResult := FResultFactory.BuildOk(
+            FHttpStatusCode,
+            FRawResponseHeader,
+            FTileMIME,
+            FTileStream.Size,
+            FTileStream.Memory
+          );
+      end;
+    end; 
+  end;
+end;
+
 procedure TTileDownloaderEventElement.GuiSync;
 begin
   if Addr(FMapTileUpdateEvent) <> nil then
@@ -143,32 +210,29 @@ begin
 end;
 
 procedure TTileDownloaderEventElement.ProcessEvent;
+var
+  VResultOk: IDownloadResultOk;
+  VResultDownloadError: IDownloadResultError;
 begin
   try
     try
-      TileSize := TileStream.Size;
       ExecCallBackList;
+      if Supports(FDownloadResult, IDownloadResultOk, VResultOk) then begin
+        GState.DownloadInfo.Add(1, VResultOk.Size);
+      end else if Supports(FDownloadResult, IDownloadResultError, VResultDownloadError) then begin
+        FErrorString := VResultDownloadError.ErrorText;
+      end;
     except
       on E: Exception do
         FErrorString := E.Message;
+      else
+        FErrorString := FRES_TileDownloadUnexpectedError;
     end;
-    try
-      if FErrorString <> '' then begin
-        if FErrorLogger <> nil then
-            FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
-      end else begin
-        FErrorString := GetErrStr(FDownloadResult);
-        if (FDownloadResult = dtrOK) or (FDownloadResult = dtrSameTileSize) then
-          GState.DownloadInfo.Add(1, FTileSize);
-        if FErrorString <> '' then begin
-          if FErrorLogger <> nil then
-            FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
-        end else begin
-          TThread.Synchronize(nil, GuiSync);
-        end;
-      end;
-    except
-
+    if FErrorString <> '' then begin
+      if FErrorLogger <> nil then
+        FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
+    end else begin
+      TThread.Synchronize(nil, GuiSync);
     end;
   finally
     FProcessed := True;
@@ -210,6 +274,36 @@ begin
   finally
     FCallBackList.Clear;
   end;
+end;
+
+procedure TTileDownloaderEventElement.SetUrl(Value: string);
+begin
+  FUrl := Value;
+end;
+
+function TTileDownloaderEventElement.GetUrl: string;
+begin
+  Result := FUrl;
+end;
+
+procedure TTileDownloaderEventElement.SetRawRequestHeader(Value: string);
+begin
+  FRawRequestHeader := Value;
+end;
+
+function TTileDownloaderEventElement.GetRawRequestHeader: string;
+begin
+  Result := FRawRequestHeader;
+end;
+
+procedure TTileDownloaderEventElement.SetRawResponseHeader(Value: string);
+begin
+  FRawResponseHeader := Value;
+end;
+
+function TTileDownloaderEventElement.GetRawResponseHeader: string;
+begin
+  Result := FRawResponseHeader;
 end;
 
 procedure TTileDownloaderEventElement.SetTileXY(Value: TPoint);
@@ -282,26 +376,6 @@ begin
   Result := FTileStream;
 end;
 
-procedure TTileDownloaderEventElement.SetRawResponseHeader(Value: string);
-begin
-  FRawResponseHeader := Value;
-end;
-
-function TTileDownloaderEventElement.GetRawResponseHeader: string;
-begin
-  Result := FRawResponseHeader;
-end;
-
-procedure TTileDownloaderEventElement.SetDwnlResult(Value: TDownloadTileResult);
-begin
-  FDownloadResult := Value;
-end;
-
-function TTileDownloaderEventElement.GetDwnlResult: TDownloadTileResult;
-begin
-  Result := FDownloadResult;
-end;
-
 procedure TTileDownloaderEventElement.SetErrorString(Value: string);
 begin
   FErrorString := Value;
@@ -312,30 +386,29 @@ begin
   Result := FErrorString;
 end;
 
-function TTileDownloaderEventElement.GetErrStr(AErr: TDownloadTileResult): string;
+procedure TTileDownloaderEventElement.SetHttpStatusCode(Value: Cardinal);
 begin
-  Result := '';
-  case AErr of
-    dtrProxyAuthError:
-      result := FRES_Authorization;
+  FHttpStatusCode := Value;
+end;
 
-    dtrBanError:
-      result := FRES_Ban;
+function TTileDownloaderEventElement.GetHttpStatusCode: Cardinal;
+begin
+  Result := HttpStatusCode;
+end;
 
-    dtrTileNotExists:
-      result := FRES_TileNotExists;
+procedure TTileDownloaderEventElement.SetDownloadResult(Value: IDownloadResult);
+begin
+  FDownloadResult := Value;
+end;
 
-    dtrDownloadError,
-    dtrErrorInternetOpen,
-    dtrErrorInternetOpenURL:
-      result := FRES_Noconnectionstointernet;
+function TTileDownloaderEventElement.GetDownloadResult: IDownloadResult;
+begin
+  Result := FDownloadResult;
+end;
 
-    dtrErrorMIMEType:
-      result := FRES_TileDownloadContentTypeUnexpcted;
-
-    dtrUnknownError:
-      Result := FRES_TileDownloadUnexpectedError;
-  end;
+function TTileDownloaderEventElement.GetResultFactory: IDownloadResultFactory;
+begin
+  Result := FResultFactory;
 end;
 
 end.

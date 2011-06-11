@@ -5,12 +5,12 @@ interface
 uses
   Windows,
   Classes,
+  i_DownloadResult,
+  i_DownloadResultFactory,
   i_RequestBuilderScript,
   i_TileDownloaderConfig;
 
 type
-  TDownloadTileResult = (dtrOK, dtrSameTileSize, dtrErrorInternetOpen, dtrErrorInternetOpenURL, dtrProxyAuthError, dtrErrorMIMEType, dtrDownloadError, dtrTileNotExists, dtrBanError, dtrUnknownError);
-  
   ITileDownloaderEvent = interface;
 
   POnDownloadCallBack = ^TOnDownloadCallBack;
@@ -37,37 +37,63 @@ type
     procedure AddToCallBackList(ACallBack: TOnDownloadCallBack);
     procedure ExecCallBackList;
 
-    function  GetTileXY: TPoint;
-    procedure SetTileXY(Value: TPoint);
-    function  GetTileZoom: Byte;
-    procedure SetTileZoom(Value: Byte);
-    function  GetTileSize: Cardinal;
-    procedure SetTileSize(Value: Cardinal);
-    function  GetCheckTileSize: Boolean;
-    procedure SetCheckTileSize(Value: Boolean);
-    function  GetOldTileSize: Cardinal;
-    procedure SetOldTileSize(Value: Cardinal);
-    function  GetTileMIME: string;
-    procedure SetTileMIME(Value: string);
-    function  GetTileStream: TMemoryStream;
-    procedure SetTileStream(Value: TMemoryStream);
-    function  GetRawResponseHeader: string;
-    procedure SetRawResponseHeader(Value: string);
-    function  GetDwnlResult: TDownloadTileResult;
-    procedure SetDwnlResult(Value: TDownloadTileResult);
-    function  GetErrorString: string;
-    procedure SetErrorString(Value: string);
+    procedure OnBeforeRequest(AConfig: ITileDownloaderConfigStatic);
+    procedure OnAfterResponse();
 
-    property TileXY: TPoint read GetTileXY write SetTileXY;
-    property TileZoom: Byte read GetTileZoom write SetTileZoom;
-    property TileSize: Cardinal read GetTileSize write SetTileSize;
-    property CheckTileSize: Boolean read GetCheckTileSize write SetCheckTileSize;
-    property OldTileSize: Cardinal read GetOldTileSize write SetOldTileSize;
-    property TileMIME: string read GetTileMIME write SetTileMIME;
-    property TileStream: TMemoryStream read GetTileStream write SetTileStream;
+    function GetUrl: string;
+    procedure SetUrl(Value: string);
+    property Url: string read GetUrl write SetUrl;
+
+    function GetRawRequestHeader: string;
+    procedure SetRawRequestHeader(Value: string);
+    property RawRequestHeader: string read GetRawRequestHeader write SetRawRequestHeader;
+
+    function GetRawResponseHeader: string;
+    procedure SetRawResponseHeader(Value: string);
     property RawResponseHeader: string read GetRawResponseHeader write SetRawResponseHeader;
-    property DownloadResult: TDownloadTileResult read GetDwnlResult write SetDwnlResult;
+
+    function GetTileXY: TPoint;
+    procedure SetTileXY(Value: TPoint);
+    property TileXY: TPoint read GetTileXY write SetTileXY;
+
+    function GetTileZoom: Byte;
+    procedure SetTileZoom(Value: Byte);
+    property TileZoom: Byte read GetTileZoom write SetTileZoom;
+
+    function GetTileSize: Cardinal;
+    procedure SetTileSize(Value: Cardinal);
+    property TileSize: Cardinal read GetTileSize write SetTileSize;
+
+    function GetCheckTileSize: Boolean;
+    procedure SetCheckTileSize(Value: Boolean);
+    property CheckTileSize: Boolean read GetCheckTileSize write SetCheckTileSize;
+
+    function GetOldTileSize: Cardinal;
+    procedure SetOldTileSize(Value: Cardinal);
+    property OldTileSize: Cardinal read GetOldTileSize write SetOldTileSize;
+
+    function GetTileMIME: string;
+    procedure SetTileMIME(Value: string);
+    property TileMIME: string read GetTileMIME write SetTileMIME;
+
+    function GetTileStream: TMemoryStream;
+    procedure SetTileStream(Value: TMemoryStream);
+    property TileStream: TMemoryStream read GetTileStream write SetTileStream;
+
+    function GetErrorString: string;
+    procedure SetErrorString(Value: string);
     property ErrorString: string read GetErrorString write SetErrorString;
+
+    function GetHttpStatusCode: Cardinal;
+    procedure SetHttpStatusCode(Value: Cardinal);
+    property HttpStatusCode: Cardinal read GetHttpStatusCode write SetHttpStatusCode;
+
+    function GetDownloadResult: IDownloadResult;
+    procedure SetDownloadResult(Value: IDownloadResult);
+    property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
+
+    function GetResultFactory: IDownloadResultFactory;
+    property ResultFactory: IDownloadResultFactory read GetResultFactory;
   end;
 
 implementation
