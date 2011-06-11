@@ -1985,39 +1985,59 @@ var
   VMaxTime: Double;
   VUseAnimation: Boolean;
 begin
-  FMapZoomAnimtion:=True;
-  VZoom := FConfig.ViewPortState.GetCurrentZoom;
   if (FMapZoomAnimtion)or(FMapMoving)or(ANewZoom>23) then exit;
-  VMousePos := MouseCursorPos;
-  VUseAnimation := (abs(ANewZoom-VZoom)=1)and(FConfig.MainConfig.AnimateZoom);
-
-  map.BeginUpdate;
+  FMapZoomAnimtion:=True;
   try
-    if move then begin
-      FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, VMousePos);
-    end else begin
-      FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
-    end;
-  finally
-    map.EndUpdate;
-    if not VUseAnimation then begin
-      map.Changed;
-    end;
-  end;
+    VZoom := FConfig.ViewPortState.GetCurrentZoom;
+    VMousePos := MouseCursorPos;
+    VUseAnimation := (abs(ANewZoom-VZoom)=1)and(FConfig.MainConfig.AnimateZoom);
 
-  if VUseAnimation then begin
-    VMaxTime := 500;
-    VTime := 0;
-    VLastTime := 0;
-    QueryPerformanceCounter(ts1);
-    ts3 := ts1;
-    while (VTime + VLastTime < VMaxTime) do begin
-      VAlfa := VTime/VMaxTime;
-      if VZoom>ANewZoom then begin
-        Scale := 2 - VAlfa;
+    map.BeginUpdate;
+    try
+      if move then begin
+        FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, VMousePos);
       end else begin
-        Scale := (1 + VAlfa)/2;
+        FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
       end;
+    finally
+      map.EndUpdate;
+      if not VUseAnimation then begin
+        map.Changed;
+      end;
+    end;
+
+    if VUseAnimation then begin
+      VMaxTime := 500;
+      VTime := 0;
+      VLastTime := 0;
+      QueryPerformanceCounter(ts1);
+      ts3 := ts1;
+      while (VTime + VLastTime < VMaxTime) do begin
+        VAlfa := VTime/VMaxTime;
+        if VZoom>ANewZoom then begin
+          Scale := 2 - VAlfa;
+        end else begin
+          Scale := (1 + VAlfa)/2;
+        end;
+        map.BeginUpdate;
+        try
+          if move then begin
+            FConfig.ViewPortState.ScaleTo(Scale, VMousePos);
+          end else begin
+            FConfig.ViewPortState.ScaleTo(Scale);
+          end;
+        finally
+          map.EndUpdate;
+          map.Changed;
+        end;
+        application.ProcessMessages;
+        QueryPerformanceCounter(ts2);
+        QueryPerformanceFrequency(fr);
+        VLastTime := (ts2-ts3)/(fr/1000);
+        VTime := (ts2-ts1)/(fr/1000);
+        ts3 := ts2;
+      end;
+      Scale := 1;
       map.BeginUpdate;
       try
         if move then begin
@@ -2029,27 +2049,10 @@ begin
         map.EndUpdate;
         map.Changed;
       end;
-      application.ProcessMessages;
-      QueryPerformanceCounter(ts2);
-      QueryPerformanceFrequency(fr);
-      VLastTime := (ts2-ts3)/(fr/1000);
-      VTime := (ts2-ts1)/(fr/1000);
-      ts3 := ts2;
     end;
-    Scale := 1;
-    map.BeginUpdate;
-    try
-      if move then begin
-        FConfig.ViewPortState.ScaleTo(Scale, VMousePos);
-      end else begin
-        FConfig.ViewPortState.ScaleTo(Scale);
-      end;
-    finally
-      map.EndUpdate;
-      map.Changed;
-    end;
+  finally
+    FMapZoomAnimtion:=False;
   end;
-  FMapZoomAnimtion:=False;
 end;
 
 procedure TfrmMain.NzoomInClick(Sender: TObject);
