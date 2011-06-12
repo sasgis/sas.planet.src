@@ -6,9 +6,11 @@ uses
   Windows,
   SysUtils,
   Classes,
+  SyncObjs,
   ALHTTPCommon,
   ALHttpClient,
   ALWinInetHttpClient,
+  i_JclNotify,
   i_ProxySettings,
   i_RequestBuilderScript,
   i_TileDownloader,
@@ -17,6 +19,8 @@ uses
 type
   TTileDownloaderBaseThread = class(TThread)
   private
+    FCancelListener: IJclListener;
+    FCancelEvent: TEvent;
     FHttpClient: TALWinInetHTTPClient;
     FResponseHeader: TALHTTPResponseHeader;
     FRequestBuilderScript: IRequestBuilderScript;
@@ -26,10 +30,18 @@ type
     FSemaphore: THandle;
     FParentSemaphore: THandle;
     FBusy: Boolean;
+    FWasConnectError: Boolean;
+    FLastDownloadTime: Cardinal;
+    FIsCanceled: Boolean;
+    FSessionCS: TCriticalSection;
     procedure PrepareHttpClientConfig(const AAcceptEncoding, ARawHeaders: string);
     procedure PreProcess;
     procedure PostProcess;
     procedure DoRequest;
+    function IsCanceled: Boolean;
+    procedure SetIsCanceled;
+    procedure SetNotCanceled;
+    procedure SleepCancelable(ATime: Cardinal);
     function IsConnectError(ALastError: Cardinal): Boolean;
     function IsDownloadError(ALastError: Cardinal): Boolean;
     function IsOkStatus(AStatusCode: Cardinal): Boolean;
@@ -41,6 +53,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure AddEvent(AEvent: ITileDownloaderEvent);
+    procedure OnCancelEvent(Sender: TObject);
     property Busy: Boolean read FBusy default False;
     property RequestBuilderScript: IRequestBuilderScript write FRequestBuilderScript default nil;
     property TileDownloaderConfig: ITileDownloaderConfigStatic write FTileDownloaderConfig default nil;
@@ -54,27 +67,39 @@ uses
   WinInet,
   i_DownloadResult,
   i_DownloadResultFactory,
-  i_DownloadChecker;
+  i_DownloadChecker,
+  u_NotifyEventListener;
 
 { TTileDownloaderBaseThread }
 
 constructor TTileDownloaderBaseThread.Create;
 begin
   FRawResponseHeader := '';
+  FCancelEvent := TEvent.Create;
+  FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
+  FIsCanceled := False;
+  FSessionCS := TCriticalSection.Create;
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
   FHttpClient := TALWinInetHTTPClient.Create(nil);
   FHttpClient.RequestHeader.UserAgent := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FResponseHeader := TALHTTPResponseHeader.Create;
+  FWasConnectError := False;
   FreeOnTerminate := True;
   inherited Create(False);
 end;
 
 destructor TTileDownloaderBaseThread.Destroy;
 begin
-  FResponseHeader.Free;
-  FHttpClient.Free;
-  CloseHandle(FSemaphore);
-  inherited Destroy;
+  try
+    SetIsCanceled;
+    FResponseHeader.Free;
+    FHttpClient.Free;
+    CloseHandle(FSemaphore);
+    FreeAndNil(FSessionCS);
+    FreeAndNil(FCancelEvent);
+  finally
+    inherited Destroy;
+  end;
 end;
 
 procedure TTileDownloaderBaseThread.AddEvent(AEvent: ITileDownloaderEvent);
@@ -85,10 +110,37 @@ begin
 end;
 
 procedure TTileDownloaderBaseThread.PreProcess;
+
+  procedure SleepIfConnectErrorOrWaitInterval;
+  var
+    VNow: Cardinal;
+    VTimeFromLastDownload: Cardinal;
+    VSleepTime: Cardinal;
+  begin
+    VNow := GetTickCount;
+    if VNow >= FLastDownloadTime then begin
+      VTimeFromLastDownload := VNow - FLastDownloadTime;
+    end else begin
+      VTimeFromLastDownload := MaxInt;
+    end;
+    if FWasConnectError then begin
+      if VTimeFromLastDownload < FTileDownloaderConfig.SleepOnResetConnection then begin
+        VSleepTime := FTileDownloaderConfig.SleepOnResetConnection - VTimeFromLastDownload;
+        SleepCancelable(VSleepTime);
+      end;
+    end else begin
+      if VTimeFromLastDownload < FTileDownloaderConfig.WaitInterval then begin
+        VSleepTime := FTileDownloaderConfig.WaitInterval - VTimeFromLastDownload;
+        SleepCancelable(VSleepTime);
+      end;
+    end;
+  end;
+
 var
   VUrl: string;
   VRawRequestHeader: string;
 begin
+  SleepIfConnectErrorOrWaitInterval;
   FRequestBuilderScript.GenRequest(FEvent.TileXY, FEvent.TileZoom, FRawResponseHeader, VUrl, VRawRequestHeader);
   FEvent.Url := VUrl;
   FEvent.RawRequestHeader := VRawRequestHeader;
@@ -100,9 +152,10 @@ procedure TTileDownloaderBaseThread.PostProcess;
 var
   VStatusCode: Cardinal;
 begin
-  FEvent.RawResponseHeader := FResponseHeader.RawHeaderText;
+  FRawResponseHeader := FResponseHeader.RawHeaderText;
+  FEvent.RawResponseHeader := FRawResponseHeader;
   FEvent.TileMIME := FResponseHeader.ContentType;
-  VStatusCode := StrToInt(FResponseHeader.StatusCode);
+  VStatusCode := StrToIntDef(FResponseHeader.StatusCode, 0);
   FEvent.HttpStatusCode := VStatusCode;
   if IsOkStatus(VStatusCode) then
     FEvent.OnAfterResponse
@@ -119,39 +172,75 @@ end;
 procedure TTileDownloaderBaseThread.DoRequest;
 var
   VCount: Integer;
+  VTryCount: Integer;
 begin
+  SetNotCanceled;
   try
     try
       if (FTileDownloaderConfig <> nil) and (FRequestBuilderScript <> nil) then
       begin
-        PreProcess;
-        if FEvent.DownloadResult = nil then
-        begin
-          VCount := 0;
-          repeat
-            try
-              FResponseHeader.Clear;
-              FHttpClient.Get(FEvent.Url, FEvent.TileStream, FResponseHeader);
-              Inc(VCount);
-            except
-              on E: EALHTTPClientException do
+        try
+          if (FEvent <> nil) and (FEvent.CancelNotifier <> nil) then begin
+            FEvent.CancelNotifier.Add(FCancelListener);
+          end;
+
+          if FEvent.DownloadResult = nil then
+          begin
+            VCount := 0;
+            VTryCount := FTileDownloaderConfig.DownloadTryCount;
+            FWasConnectError := False;
+            FLastDownloadTime := MaxInt;
+            repeat
+              PreProcess;
+
+              if IsCanceled then
               begin
-                FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByStatusCode(E.StatusCode);
-                FEvent.ErrorString := IntToStr(E.StatusCode) + ' ' + FResponseHeader.ReasonPhrase;
+                FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled;
+                Exit;
               end;
-              on E: EOSError do
-              begin
-                if IsConnectError(E.ErrorCode) then
-                  FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
-                else
-                  if IsDownloadError(E.ErrorCode) then
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByErrorCode(E.ErrorCode)
+
+              try
+                FResponseHeader.Clear;
+                FHttpClient.Get(FEvent.Url, FEvent.TileStream, FResponseHeader);
+              except
+                on E: EALHTTPClientException do
+                begin
+                  if E.StatusCode = 0 then
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNotNecessary(E.Message, FResponseHeader.RawHeaderText)
                   else
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByStatusCode(E.StatusCode);
+                end;
+                on E: EOSError do
+                begin
+                  if IsConnectError(E.ErrorCode) then
                     FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
+                  else
+                    if IsDownloadError(E.ErrorCode) then
+                      FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByErrorCode(E.ErrorCode)
+                    else
+                      FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
+                end;
               end;
-            end;
-            PostProcess;
-          until Supports(FEvent.DownloadResult, IDownloadResultOk) or (VCount >= FTileDownloaderConfig.DownloadTryCount);
+
+              if IsCanceled then begin
+                FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled;
+                Exit;
+              end;
+
+              Inc(VCount);
+              FLastDownloadTime := GetTickCount;
+              PostProcess;
+
+              if FEvent.DownloadResult <> nil then begin
+                FWasConnectError := not FEvent.DownloadResult.IsServerExists;
+              end;
+
+            until (not FWasConnectError) or (VCount >= VTryCount);
+          end;
+        finally
+          if (FEvent <> nil) and (FEvent.CancelNotifier <> nil) then begin
+            FEvent.CancelNotifier.Remove(FCancelListener);
+          end;
         end;
       end;
     finally
@@ -184,6 +273,51 @@ begin
   until False;
 end;
 
+procedure TTileDownloaderBaseThread.OnCancelEvent(Sender: TObject);
+begin
+  SetIsCanceled;
+  if Assigned(FHttpClient) then
+    FHttpClient.Disconnect;
+end;
+
+function TTileDownloaderBaseThread.IsCanceled: Boolean;
+begin
+  FSessionCS.Acquire;
+  try
+    Result := FIsCanceled;
+  finally
+    FSessionCS.Release;
+  end;
+end;
+
+procedure TTileDownloaderBaseThread.SetIsCanceled;
+begin
+  FSessionCS.Acquire;
+  try
+    FCancelEvent.SetEvent;
+    FIsCanceled := True;
+  finally
+    FSessionCS.Release;
+  end;
+end;
+
+procedure TTileDownloaderBaseThread.SetNotCanceled;
+begin
+  FSessionCS.Acquire;
+  try
+    FCancelEvent.ResetEvent;
+    FIsCanceled := False;
+  finally
+    FSessionCS.Release;
+  end;
+end;  
+
+procedure TTileDownloaderBaseThread.SleepCancelable(ATime: Cardinal);
+begin
+  if ATime > 0 then
+    FCancelEvent.WaitFor(ATime);
+end;
+
 procedure TTileDownloaderBaseThread.PrepareHttpClientConfig(const AAcceptEncoding, ARawHeaders: string);
 var
   VProxyConfig: IProxyConfigStatic;
@@ -212,7 +346,7 @@ begin
       if VProxyConfig.UseProxy then
       begin
         FHttpClient.AccessType := wHttpAt_Proxy;
-        FHttpClient.ProxyParams.ProxyServer := Copy(VProxyConfig.Host, 0, Pos(':', VProxyConfig.Host));
+        FHttpClient.ProxyParams.ProxyServer := Copy(VProxyConfig.Host, 0, Pos(':', VProxyConfig.Host) - 1);
         FHttpClient.ProxyParams.ProxyPort := StrToInt(Copy(VProxyConfig.Host, Pos(':', VProxyConfig.Host) + 1));
         if VProxyConfig.UseLogin then
         begin

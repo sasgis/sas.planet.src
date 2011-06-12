@@ -609,9 +609,9 @@
     <DCCReference Include="u_TileDownloader.pas" />
     <DCCReference Include="u_TileDownloaderBaseCore.pas" />
     <DCCReference Include="u_TileDownloaderBaseThread.pas" />
-    <DCCReference Include="u_TileDownloaderEventElement.pas" />
     <DCCReference Include="u_TileDownloaderConfig.pas" />
     <DCCReference Include="u_TileDownloaderConfigStatic.pas" />
+    <DCCReference Include="u_TileDownloaderEventElement.pas" />
     <DCCReference Include="u_TileDownloaderFrontEnd.pas" />
     <DCCReference Include="u_TileDownloaderThread.pas" />
     <DCCReference Include="u_TileDownloaderUI.pas" />

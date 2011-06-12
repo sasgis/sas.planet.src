@@ -6,6 +6,8 @@ uses
   Windows,
   Classes,
   SysUtils,
+  SyncObjs,
+  i_JclNotify,
   i_TileDownloader,
   i_TileDownloaderConfig,
   i_TileError,
@@ -17,15 +19,34 @@ uses
   u_MapType;
 
 type
+  TEventElementStatus = class
+  private
+    FCancelNotifier: IJclNotifier;
+    FCancelListener: IJclListener;
+    FThreadSafeCS: TCriticalSection;
+    FCancelled: Boolean;
+    function GetIsCanselled: Boolean;
+    procedure OnCancelEvent(Sender: TObject);
+  public
+    constructor Create(ACancelNotifier: IJclNotifier);
+    destructor Destroy; override;
+    property IsCanceled: Boolean read GetIsCanselled;
+  end;
+
   TTileDownloaderEventElement = class(TInterfacedObject, ITileDownloaderEvent)
   private
     FProcessed: Boolean;
+    FEventStatus: TEventElementStatus;
+    FCallBackList: TList;
+    FRES_TileDownloadUnexpectedError: string;
+
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorLogger: ITileErrorLogger;
     FMapType: TMapType;
     FDownloadResult: IDownloadResult;
     FResultFactory: IDownloadResultFactory;
     FDownloadChecker: IDownloadChecker;
+    FCancelNotifier: IJclNotifier;
 
     FUrl: string;
     FRawRequestHeader: string;
@@ -39,14 +60,15 @@ type
     FTileStream: TMemoryStream;
     FErrorString: string;
     FHttpStatusCode: Cardinal;
-    
-    FRES_TileDownloadUnexpectedError: string;
-
-    FCallBackList: TList;
 
     procedure GuiSync;
   public
-    constructor Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorLogger: ITileErrorLogger; AMapType: TMapType);
+    constructor Create(
+      AMapTileUpdateEvent: TMapTileUpdateEvent;
+      AErrorLogger: ITileErrorLogger;
+      AMapType: TMapType;
+      ACancelNotifier: IJclNotifier
+    );
     destructor Destroy; override;
 
     procedure ProcessEvent;
@@ -84,6 +106,7 @@ type
     function  GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(Value: IDownloadResult);
     function  GetResultFactory: IDownloadResultFactory;
+    function GetCancelNotifier: IJclNotifier;
 
     property Url: string read GetUrl write SetUrl;
     property RawRequestHeader: string read GetRawRequestHeader write SetRawRequestHeader;
@@ -99,6 +122,7 @@ type
     property HttpStatusCode: Cardinal read GetHttpStatusCode write SetHttpStatusCode;
     property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
     property ResultFactory: IDownloadResultFactory read GetResultFactory;
+    property CancelNotifier: IJclNotifier read GetCancelNotifier;
   end;
 
 implementation
@@ -106,13 +130,67 @@ implementation
 uses
   u_GlobalState,
   u_TileErrorInfo,
-  u_ResStrings;
+  u_ResStrings,
+  u_NotifyEventListener;
+
+{ TEventElementStatus }
+
+constructor TEventElementStatus.Create(ACancelNotifier: IJclNotifier);
+begin
+  inherited Create;
+  FCancelled := False;
+  FThreadSafeCS := TCriticalSection.Create;
+  FCancelNotifier := ACancelNotifier;
+  FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
+  if FCancelNotifier <> nil then begin
+    FCancelNotifier.Add(FCancelListener);
+  end;
+end;
+
+destructor TEventElementStatus.Destroy;
+begin
+  try
+    if FCancelNotifier <> nil then begin
+      FCancelNotifier.Remove(FCancelListener);
+    end;
+    FreeAndNil(FThreadSafeCS);
+  finally
+    inherited;
+  end;
+end;
+
+procedure TEventElementStatus.OnCancelEvent(Sender: TObject);
+begin
+  FThreadSafeCS.Acquire;
+  try
+    FCancelled := True;
+  finally
+    FThreadSafeCS.Release;
+  end;
+end;
+
+function TEventElementStatus.GetIsCanselled: Boolean;
+begin
+  FThreadSafeCS.Acquire;
+  try
+    Result := FCancelled;
+  finally
+    FThreadSafeCS.Release;
+  end;
+end;
 
 { TTileDownloaderEventElement }
 
-constructor TTileDownloaderEventElement.Create(AMapTileUpdateEvent: TMapTileUpdateEvent; AErrorLogger: ITileErrorLogger; AMapType: TMapType);
+constructor TTileDownloaderEventElement.Create(
+  AMapTileUpdateEvent: TMapTileUpdateEvent;
+  AErrorLogger: ITileErrorLogger;
+  AMapType: TMapType;
+  ACancelNotifier: IJclNotifier
+);
 begin
   inherited Create;
+  FCancelNotifier := ACancelNotifier;
+  FEventStatus := TEventElementStatus.Create(FCancelNotifier);
   FProcessed := False;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorLogger := AErrorLogger;
@@ -144,11 +222,16 @@ destructor TTileDownloaderEventElement.Destroy;
 begin
   try
     try
-      if not FProcessed then
+      if Assigned(FEventStatus) and
+         not FEventStatus.IsCanceled and
+         not FProcessed then
+      begin
         ProcessEvent;
+      end;
       FCallBackList.Clear;
       FreeAndNil(FCallBackList);
     finally
+      FreeAndNil(FEventStatus);
       FreeAndNil(FTileStream);
     end; 
   finally
@@ -158,29 +241,32 @@ end;
 
 procedure TTileDownloaderEventElement.OnBeforeRequest(AConfig: ITileDownloaderConfigStatic);
 begin
-  FResultFactory := TDownloadResultFactoryTileDownload.Create(
-    FTileZoom,
-    FTileXY,
-    FMapType,
-    FUrl,
-    FRawRequestHeader
-  );
+  if not FEventStatus.IsCanceled then
+  begin
+    FResultFactory := TDownloadResultFactoryTileDownload.Create(
+      FTileZoom,
+      FTileXY,
+      FMapType,
+      FUrl,
+      FRawRequestHeader
+    );
 
-  FDownloadChecker := TDownloadCheckerStuped.Create(
-    FResultFactory,
-    AConfig.IgnoreMIMEType,
-    AConfig.ExpectedMIMETypes,
-    AConfig.DefaultMIMEType,
-    FCheckTileSize,
-    FOldTileSize
-  );
+    FDownloadChecker := TDownloadCheckerStuped.Create(
+      FResultFactory,
+      AConfig.IgnoreMIMEType,
+      AConfig.ExpectedMIMETypes,
+      AConfig.DefaultMIMEType,
+      FCheckTileSize,
+      FOldTileSize
+    );
 
-  FDownloadResult := FDownloadChecker.BeforeRequest(FUrl, FRawRequestHeader);
+    FDownloadResult := FDownloadChecker.BeforeRequest(FUrl, FRawRequestHeader);
+  end;
 end;
 
 procedure TTileDownloaderEventElement.OnAfterResponse();
 begin
-  if FDownloadResult = nil then
+  if not FEventStatus.IsCanceled then
   begin
     FDownloadResult := FDownloadChecker.AfterResponce(FHttpStatusCode, FTileMIME, FRawResponseHeader);
     if FDownloadResult = nil then
@@ -218,7 +304,8 @@ begin
     try
       ExecCallBackList;
       if Supports(FDownloadResult, IDownloadResultOk, VResultOk) then begin
-        GState.DownloadInfo.Add(1, VResultOk.Size);
+        if not FEventStatus.IsCanceled then
+          GState.DownloadInfo.Add(1, VResultOk.Size);
       end else if Supports(FDownloadResult, IDownloadResultError, VResultDownloadError) then begin
         FErrorString := VResultDownloadError.ErrorText;
       end;
@@ -229,10 +316,11 @@ begin
         FErrorString := FRES_TileDownloadUnexpectedError;
     end;
     if FErrorString <> '' then begin
-      if FErrorLogger <> nil then
+      if (FErrorLogger <> nil) and (not FEventStatus.IsCanceled) then
         FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
     end else begin
-      TThread.Synchronize(nil, GuiSync);
+      if not FEventStatus.IsCanceled then
+        TThread.Synchronize(nil, GuiSync);
     end;
   finally
     FProcessed := True;
@@ -264,7 +352,8 @@ begin
       VCallBack := FCallBackList.Items[i];
       if Assigned(VCallBack) then
       try
-        VCallBack^(Self);
+        if not FEventStatus.IsCanceled then
+          VCallBack^(Self);
       finally
         Dispose(VCallBack);
       end;
@@ -409,6 +498,11 @@ end;
 function TTileDownloaderEventElement.GetResultFactory: IDownloadResultFactory;
 begin
   Result := FResultFactory;
+end;
+
+function TTileDownloaderEventElement.GetCancelNotifier: IJclNotifier;
+begin
+  Result := FCancelNotifier;
 end;
 
 end.

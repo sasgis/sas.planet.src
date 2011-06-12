@@ -63,10 +63,13 @@ end;
 
 destructor TTileDownloaderThread.Destroy;
 begin
-  CloseHandle(FSemaphore);
-  Terminate;
-  inherited Destroy;
-  FreeAndNil(FCancelEvent);
+  try
+    CloseHandle(FSemaphore);
+    Terminate;
+    FreeAndNil(FCancelEvent);
+  finally
+    inherited Destroy;
+  end;
 end;
 
 procedure TTileDownloaderThread.Terminate;
@@ -95,7 +98,12 @@ function TTileDownloaderThread.GetNewEventElement(
   ACheckExistsTileSize: Boolean
 ): ITileDownloaderEvent;
 begin
-  Result := TTileDownloaderEventElement.Create(FMapTileUpdateEvent, FErrorLogger, FMapType);
+  Result := TTileDownloaderEventElement.Create(
+              FMapTileUpdateEvent,
+              FErrorLogger,
+              FMapType,
+              FCancelNotifier
+            );
   Result.AddToCallBackList(ACallBack);
   Result.TileXY := ATile;
   Result.TileZoom := AZoom;

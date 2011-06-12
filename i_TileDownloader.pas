@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   Classes,
+  i_JclNotify,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_RequestBuilderScript,
@@ -94,6 +95,9 @@ type
 
     function GetResultFactory: IDownloadResultFactory;
     property ResultFactory: IDownloadResultFactory read GetResultFactory;
+
+    function GetCancelNotifier: IJclNotifier;
+    property CancelNotifier: IJclNotifier read GetCancelNotifier;
   end;
 
 implementation
