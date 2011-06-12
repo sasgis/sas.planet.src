@@ -39,7 +39,6 @@ uses
   i_LogForTaskThread,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
-  frm_Main,
   frm_ProgressDownload,
   u_ResStrings;
 

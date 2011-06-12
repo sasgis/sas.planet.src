@@ -62,7 +62,7 @@ type
     procedure ExportREG(APolyLL: TArrayOfDoublePoint);
     procedure InitExportsList;
   public
-    constructor Create(AOwner: TComponent; AMapUpdateEvent: TMapUpdateEvent);
+    constructor Create(AOwner: TComponent; AMapUpdateEvent: TMapUpdateEvent); reintroduce;
     destructor Destroy; override;
     procedure LoadSelFromFile(FileName:string);
     procedure Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
