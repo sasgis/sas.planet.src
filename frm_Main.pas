@@ -59,6 +59,7 @@ uses
   i_MainWindowPosition,
   i_LineOnMapEdit,
   i_PathDetalizeProvider,
+  i_MessageHandler,
   u_WindowLayerBasicList,
   u_GeoFun,
   u_MapLayerWiki,
@@ -468,6 +469,7 @@ type
     FHintWindow: THintWindow;
     Frect_dwn: Boolean;
     Frect_p2: boolean;
+    FKeyMovingHandler: IMessageHandler;
     FdWhenMovingButton: integer;
     FMarshrutComment: string;
     movepoint: boolean;
@@ -617,6 +619,7 @@ uses
   u_MainWindowPositionConfig,
   u_TileErrorLogProviedrStuped,
   u_LineOnMapEdit,
+  u_KeyMovingHandler,
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
   u_LanguageTBXItem,
@@ -1026,6 +1029,7 @@ begin
     ProcessPosChangeMessage(nil);
 
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
+    FKeyMovingHandler := TKeyMovingHandler.Create(map, FConfig.ViewPortState, FConfig.KeyMovingConfig);
   finally
     Enabled:=true;
     map.SetFocus;
@@ -1707,6 +1711,7 @@ var
 begin
   if Active then begin
     if not FMapZoomAnimtion then begin
+      FKeyMovingHandler.DoMessageEvent(Msg, Handled);
       case Msg.message of
         WM_MOUSEWHEEL: begin
           MouseCursorPos:=FmoveTrue;
@@ -1721,34 +1726,8 @@ begin
           zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
         end;
         WM_KEYFIRST: begin
-          VMoveByDelta := False;
           case Msg.wParam of
-            VK_RIGHT,
-            VK_LEFT,
-            VK_DOWN,
-            VK_UP: VMoveByDelta := True;
             VK_F11: Handled := True;
-          end;
-          if VMoveByDelta then begin
-            if (FdWhenMovingButton<35) then begin
-              inc(FdWhenMovingButton);
-            end;
-            dWMB:=trunc(Power(FdWhenMovingButton,1.5));
-            case Msg.wParam of
-              VK_RIGHT: VPointDelta := DoublePoint(dWMB, 0);
-              VK_LEFT: VPointDelta := DoublePoint(-dWMB, 0);
-              VK_DOWN: VPointDelta := DoublePoint(0, dWMB);
-              VK_UP: VPointDelta := DoublePoint(0, -dWMB);
-            else
-              VPointDelta := DoublePoint(0, 0);
-            end;
-            map.BeginUpdate;
-            try
-              FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
-            finally
-              map.EndUpdate;
-              map.Changed;
-            end;
           end;
         end;
         WM_KEYUP: begin
