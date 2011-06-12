@@ -564,13 +564,13 @@ type
     procedure SetToolbarsLock(AValue: Boolean);
 
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
+    procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
   public
     MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
     procedure CreateMapUI;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
@@ -3632,7 +3632,7 @@ end;
 
 procedure TfrmMain.TBItem6Click(Sender: TObject);
 begin
-  frmMarksExplorer.EditMarks(FMarkDBGUI);
+  frmMarksExplorer.EditMarks(FMarkDBGUI, TMapViewGotoOnFMain.Create(Self.topos));
 end;
 
 procedure TfrmMain.LayerMapMarksRedraw;
