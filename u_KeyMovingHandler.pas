@@ -69,6 +69,7 @@ begin
         VK_UP: VMoveByDelta := True;
       end;
       if VMoveByDelta then begin
+        Handled := True;
         QueryPerformanceCounter(VCurrTick);
         QueryPerformanceFrequency(VFr);
         if FKeyMovingLastTick = 0 then begin

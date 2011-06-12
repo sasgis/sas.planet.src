@@ -786,7 +786,12 @@ begin
         FConfig.LayersConfig.MapLayerGridsConfig
       );
     FLayersList.Add(FLayerGrids);
-    FLayerTileGrid := TMapLayerTileGrid.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig.TileGrid);
+    FLayerTileGrid :=
+      TMapLayerTileGrid.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid
+      );
     FLayersList.Add(FLayerTileGrid);
     FWikiLayer :=
       TWikiLayer.Create(
@@ -829,31 +834,97 @@ begin
         GState.GPSRecorder
       );
     FLayersList.Add(FLayerMapGPS);
-    FLayerGPSMarker := TMapLayerGPSMarker.Create(map, FConfig.ViewPortState, GState.GUISyncronizedTimerNotifier, FConfig.LayersConfig.GPSMarker, GState.GPSRecorder);
+    FLayerGPSMarker :=
+      TMapLayerGPSMarker.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.GUISyncronizedTimerNotifier,
+        FConfig.LayersConfig.GPSMarker,
+        GState.GPSRecorder
+      );
     FLayersList.Add(FLayerGPSMarker);
-    FLayerSelection := TSelectionLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.LastSelectionLayerConfig, GState.LastSelectionInfo);
+    FLayerSelection :=
+      TSelectionLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.LastSelectionLayerConfig,
+        GState.LastSelectionInfo
+      );
     FLayersList.Add(FLayerSelection);
-    FCalcLineLayer := TCalcLineLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CalcLineLayerConfig, GState.ValueToStringConverterConfig);
+    FCalcLineLayer :=
+      TCalcLineLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.CalcLineLayerConfig,
+        GState.ValueToStringConverterConfig
+      );
     FLayersList.Add(FCalcLineLayer);
-    FMarkPolyLineLayer := TMarkPolyLineLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarkPolyLineLayerConfig);
+    FMarkPolyLineLayer :=
+      TMarkPolyLineLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.MarkPolyLineLayerConfig
+      );
     FLayersList.Add(FMarkPolyLineLayer);
-    FMarkPolygonLayer := TMarkPolygonLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarkPolygonLayerConfig);
+    FMarkPolygonLayer :=
+      TMarkPolygonLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.MarkPolygonLayerConfig
+      );
     FLayersList.Add(FMarkPolygonLayer);
-    FSelectionPolygonLayer := TSelectionPolygonLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.SelectionPolygonLayerConfig);
+    FSelectionPolygonLayer :=
+      TSelectionPolygonLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.SelectionPolygonLayerConfig
+      );
     FLayersList.Add(FSelectionPolygonLayer);
-    FSelectionRectLayer := TSelectionRectLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.SelectionRectLayerConfig);
+    FSelectionRectLayer :=
+      TSelectionRectLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.SelectionRectLayerConfig
+      );
     FLayersList.Add(FSelectionRectLayer);
     FLayerGoto := TGotoLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerGoto);
-    LayerMapNavToMark := TNavToMarkLayer.Create(map, FConfig.ViewPortState, FConfig.NavToPoint, FConfig.LayersConfig.NavToPointMarkerConfig);
+    LayerMapNavToMark :=
+      TNavToMarkLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.NavToPoint,
+        FConfig.LayersConfig.NavToPointMarkerConfig
+      );
     FLayersList.Add(LayerMapNavToMark);
-    FShowErrorLayer := TTileErrorInfoLayer.Create(map, FConfig.ViewPortState, FTileErrorLogProvider, GState.GUISyncronizedTimerNotifier);
+    FShowErrorLayer :=
+      TTileErrorInfoLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FTileErrorLogProvider,
+        GState.GUISyncronizedTimerNotifier
+      );
     FLayersList.Add(FShowErrorLayer);
-    FLayerMapCenterScale := TCenterScale.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CenterScaleConfig);
+    FLayerMapCenterScale :=
+      TCenterScale.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.CenterScaleConfig
+      );
     FLayersList.Add(FLayerMapCenterScale);
-    FLayerScaleLine := TLayerScaleLine.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.ScaleLineConfig);
+    FLayerScaleLine :=
+      TLayerScaleLine.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.ScaleLineConfig
+      );
     FLayersList.Add(FLayerScaleLine);
-    FLayerStatBar:=TLayerStatBar.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.StatBar);
+    FLayerStatBar :=
+      TLayerStatBar.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.StatBar
+      );
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap :=
       TMiniMapLayer.Create(
@@ -865,7 +936,14 @@ begin
       );
     FLayersList.Add(FLayerMiniMap);
 
-    FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FTileErrorLogger);
+    FUIDownLoader :=
+      TTileDownloaderUI.Create(
+        FConfig.DownloadUIConfig,
+        FConfig.ViewPortState,
+        FConfig.MainMapsConfig.GetAllActiveMapsSet,
+        Self.OnMapTileUpdate,
+        FTileErrorLogger
+      );
 
     CreateMapUI;
 
@@ -1707,82 +1785,84 @@ begin
   if Active then begin
     if not FMapZoomAnimtion then begin
       FKeyMovingHandler.DoMessageEvent(Msg, Handled);
-      case Msg.message of
-        WM_MOUSEWHEEL: begin
-          MouseCursorPos:=FmoveTrue;
-          if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
-          VZoom := FConfig.ViewPortState.GetCurrentZoom;
-          if Msg.wParam<0 then begin
-            VNewZoom := VZoom-z;
-          end else begin
-            VNewZoom := VZoom+z;
+      if not Handled then begin
+        case Msg.message of
+          WM_MOUSEWHEEL: begin
+            MouseCursorPos:=FmoveTrue;
+            if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
+            VZoom := FConfig.ViewPortState.GetCurrentZoom;
+            if Msg.wParam<0 then begin
+              VNewZoom := VZoom-z;
+            end else begin
+              VNewZoom := VZoom+z;
+            end;
+            if VNewZoom < 0 then VNewZoom := 0;
+            zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
           end;
-          if VNewZoom < 0 then VNewZoom := 0;
-          zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
-        end;
-        WM_KEYFIRST: begin
-          case Msg.wParam of
-            VK_F11: Handled := True;
+          WM_KEYFIRST: begin
+            case Msg.wParam of
+              VK_F11: Handled := True;
+            end;
           end;
-        end;
-        WM_KEYUP: begin
-          case Msg.wParam of
-            VK_BACK: begin
-              if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
-               FLineOnMapEdit.DeleteActivePoint;
-              end;
-            end;
-            VK_ESCAPE: begin
-              case FCurrentOper of
-                ao_select_rect: begin
-                  if Frect_dwn then begin
-                    setalloperationfalse(ao_movemap);
-                    setalloperationfalse(ao_select_rect);
-                  end else begin
-                    setalloperationfalse(ao_movemap);
-                  end;
-                end;
-                ao_Add_Point: begin
-                  setalloperationfalse(ao_movemap);
-                end;
-                ao_select_poly,
-                ao_calc_line,
-                ao_add_line,
-                ao_add_poly,
-                ao_edit_line,
-                ao_edit_poly: begin
-                  if (FLineOnMapEdit.GetCount>0) then begin
-                    FLineOnMapEdit.Empty;
-                  end else begin
-                    setalloperationfalse(ao_movemap);
-                  end;
+          WM_KEYUP: begin
+            case Msg.wParam of
+              VK_BACK: begin
+                if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
+                 FLineOnMapEdit.DeleteActivePoint;
                 end;
               end;
-            end;
-            VK_RETURN: begin
-              case FCurrentOper of
-                ao_add_Poly,
-                ao_edit_Poly: begin
-                  if FLineOnMapEdit.GetCount > 2 then begin
-                    TBEditPathSaveClick(Self);
+              VK_ESCAPE: begin
+                case FCurrentOper of
+                  ao_select_rect: begin
+                    if Frect_dwn then begin
+                      setalloperationfalse(ao_movemap);
+                      setalloperationfalse(ao_select_rect);
+                    end else begin
+                      setalloperationfalse(ao_movemap);
+                    end;
                   end;
-                end;
-                ao_add_line,
-                ao_edit_line: begin
-                  if FLineOnMapEdit.GetCount > 1 then begin
-                    TBEditPathSaveClick(Self);
+                  ao_Add_Point: begin
+                    setalloperationfalse(ao_movemap);
                   end;
-                end;
-                ao_select_poly: begin
-                  if FLineOnMapEdit.GetCount > 2 then begin
-                    TBEditPathOkClick(Self)
+                  ao_select_poly,
+                  ao_calc_line,
+                  ao_add_line,
+                  ao_add_poly,
+                  ao_edit_line,
+                  ao_edit_poly: begin
+                    if (FLineOnMapEdit.GetCount>0) then begin
+                      FLineOnMapEdit.Empty;
+                    end else begin
+                      setalloperationfalse(ao_movemap);
+                    end;
                   end;
                 end;
               end;
-            end;
-            VK_F11: begin
-              TBFullSizeClick(nil);
-              Handled := True;
+              VK_RETURN: begin
+                case FCurrentOper of
+                  ao_add_Poly,
+                  ao_edit_Poly: begin
+                    if FLineOnMapEdit.GetCount > 2 then begin
+                      TBEditPathSaveClick(Self);
+                    end;
+                  end;
+                  ao_add_line,
+                  ao_edit_line: begin
+                    if FLineOnMapEdit.GetCount > 1 then begin
+                      TBEditPathSaveClick(Self);
+                    end;
+                  end;
+                  ao_select_poly: begin
+                    if FLineOnMapEdit.GetCount > 2 then begin
+                      TBEditPathOkClick(Self)
+                    end;
+                  end;
+                end;
+              end;
+              VK_F11: begin
+                TBFullSizeClick(nil);
+                Handled := True;
+              end;
             end;
           end;
         end;
