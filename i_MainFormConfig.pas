@@ -51,6 +51,10 @@ type
     procedure SetAnimateZoom(AValue: Boolean);
     property AnimateZoom: Boolean read GetAnimateZoom write SetAnimateZoom;
 
+    function GetAnimateZoomTime: Cardinal;
+    procedure SetAnimateZoomTime(AValue: Cardinal);
+    property AnimateZoomTime: Cardinal read GetAnimateZoomTime write SetAnimateZoomTime;
+
     // ѕоказывать хинты при нахождении мыши над меткой
     function GetShowHintOnMarks: Boolean;
     procedure SetShowHintOnMarks(AValue: Boolean);

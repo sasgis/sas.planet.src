@@ -15,6 +15,7 @@ type
     FShowMapName: Boolean;
     FMouseScrollInvert: Boolean;
     FAnimateZoom: Boolean;
+    FAnimateZoomTime: Cardinal;
     FShowHintOnMarks: Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -31,6 +32,9 @@ type
 
     function GetAnimateZoom: Boolean;
     procedure SetAnimateZoom(AValue: Boolean);
+
+    function GetAnimateZoomTime: Cardinal;
+    procedure SetAnimateZoomTime(AValue: Cardinal);
 
     function GetShowHintOnMarks: Boolean;
     procedure SetShowHintOnMarks(AValue: Boolean);
@@ -49,6 +53,7 @@ begin
   FShowMapName := True;
   FMouseScrollInvert := False;
   FAnimateZoom := True;
+  FAnimateZoomTime := 500;
   FShowHintOnMarks := True;
 end;
 
@@ -60,6 +65,7 @@ begin
     FShowMapName := AConfigData.ReadBool('ShowMapNameOnPanel', FShowMapName);
     FMouseScrollInvert := AConfigData.ReadBool('MouseScrollInvert', FMouseScrollInvert);
     FAnimateZoom := AConfigData.ReadBool('AnimateZoom', FAnimateZoom);
+    FAnimateZoomTime := AConfigData.ReadInteger('AnimateZoomTime', FAnimateZoomTime);
     FShowHintOnMarks := AConfigData.ReadBool('ShowHintOnMarks', FShowHintOnMarks);
     SetChanged;
   end;
@@ -73,6 +79,7 @@ begin
   AConfigData.WriteBool('ShowMapNameOnPanel', FShowMapName);
   AConfigData.WriteBool('MouseScrollInvert', FMouseScrollInvert);
   AConfigData.WriteBool('AnimateZoom', FAnimateZoom);
+  AConfigData.WriteInteger('AnimateZoomTime', FAnimateZoomTime);
   AConfigData.WriteBool('ShowHintOnMarks', FShowHintOnMarks);
 end;
 
@@ -81,6 +88,16 @@ begin
   LockRead;
   try
     Result := FAnimateZoom;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMainFormMainConfig.GetAnimateZoomTime: Cardinal;
+begin
+  LockRead;
+  try
+    Result := FAnimateZoomTime;
   finally
     UnlockRead;
   end;
@@ -132,6 +149,19 @@ begin
   try
     if FAnimateZoom <> AValue then begin
       FAnimateZoom := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMainFormMainConfig.SetAnimateZoomTime(AValue: Cardinal);
+begin
+  LockWrite;
+  try
+    if FAnimateZoomTime <> AValue then begin
+      FAnimateZoomTime := AValue;
       SetChanged;
     end;
   finally

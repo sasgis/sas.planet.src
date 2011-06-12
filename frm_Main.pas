@@ -2043,7 +2043,11 @@ begin
   try
     VZoom := FConfig.ViewPortState.GetCurrentZoom;
     VMousePos := MouseCursorPos;
-    VUseAnimation := (abs(ANewZoom-VZoom)=1)and(FConfig.MainConfig.AnimateZoom);
+    VMaxTime := FConfig.MainConfig.AnimateZoomTime;
+    VUseAnimation :=
+      (abs(ANewZoom-VZoom)=1)and
+      (FConfig.MainConfig.AnimateZoom) and
+      (VMaxTime > 0);
 
     map.BeginUpdate;
     try
@@ -2060,7 +2064,6 @@ begin
     end;
 
     if VUseAnimation then begin
-      VMaxTime := 500;
       VTime := 0;
       VLastTime := 0;
       QueryPerformanceCounter(ts1);
