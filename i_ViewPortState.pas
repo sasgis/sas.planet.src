@@ -35,6 +35,11 @@ type
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload;
     procedure ScaleTo(AScale: Double); overload;
 
+    function GetBeforeChangeNotifier: IJclNotifier;
+    property BeforeChangeNotifier: IJclNotifier read GetBeforeChangeNotifier;
+    function GetAfterChangeNotifier: IJclNotifier;
+    property AfterChangeNotifier: IJclNotifier read GetAfterChangeNotifier;
+
     function GetScaleChangeNotifier: IJclNotifier;
     property ScaleChangeNotifier: IJclNotifier read GetScaleChangeNotifier;
   end;

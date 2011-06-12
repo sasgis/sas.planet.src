@@ -18,6 +18,8 @@ uses
 type
   TMapViewPortStateNew = class(TConfigDataElementBase, IViewPortState)
   private
+    FBeforeChangeNotifier: IJclNotifier;
+    FAfterChangeNotifier: IJclNotifier;
     FScaleChangeNotifier: IJclNotifier;
     FMainCoordConverter: ICoordConverter;
     FVisibleCoordConverter: ILocalCoordConverter;
@@ -40,6 +42,7 @@ type
     procedure ResetScaleAndMove;
     procedure NotifyChangeScale;
   protected
+    procedure DoChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -64,6 +67,8 @@ type
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload;
     procedure ScaleTo(AScale: Double); overload;
 
+    function GetBeforeChangeNotifier: IJclNotifier;
+    function GetAfterChangeNotifier: IJclNotifier;
     function GetScaleChangeNotifier: IJclNotifier;
   public
     constructor Create(
@@ -91,6 +96,8 @@ constructor TMapViewPortStateNew.Create(
 begin
   inherited Create;
   FScaleChangeNotifier := TJclBaseNotifier.Create;
+  FBeforeChangeNotifier := TJclBaseNotifier.Create;
+  FAfterChangeNotifier := TJclBaseNotifier.Create;
   FVisibleCoordConverterFactory := ACoordConverterFactory;
   FMainMapConfig := AMainMapConfig;
   FMainCoordConverter := nil;
@@ -307,6 +314,16 @@ begin
   );
 end;
 
+procedure TMapViewPortStateNew.DoChangeNotify;
+begin
+  FBeforeChangeNotifier.Notify(nil);
+  try
+    inherited;
+  finally
+    FAfterChangeNotifier.Notify(nil);
+  end;
+end;
+
 procedure TMapViewPortStateNew.DoReadConfig(AConfigData: IConfigDataProvider);
 var
   VLonLat: TDoublePoint;
@@ -338,6 +355,16 @@ begin
   AConfigData.WriteInteger('Zoom', FZoom);
   AConfigData.WriteFloat('X', VLonLat.X);
   AConfigData.WriteFloat('Y', VLonLat.Y);
+end;
+
+function TMapViewPortStateNew.GetAfterChangeNotifier: IJclNotifier;
+begin
+  Result := FAfterChangeNotifier;
+end;
+
+function TMapViewPortStateNew.GetBeforeChangeNotifier: IJclNotifier;
+begin
+  Result := FBeforeChangeNotifier;
 end;
 
 function TMapViewPortStateNew.GetCurrentCoordConverter: ICoordConverter;
@@ -417,7 +444,12 @@ end;
 
 procedure TMapViewPortStateNew.NotifyChangeScale;
 begin
-  FScaleChangeNotifier.Notify(nil);
+  FBeforeChangeNotifier.Notify(nil);
+  try
+    FScaleChangeNotifier.Notify(nil);
+  finally
+    FAfterChangeNotifier.Notify(nil);
+  end;
 end;
 
 procedure TMapViewPortStateNew.OnMainMapChange(Sender: TObject);

@@ -545,7 +545,7 @@ type
     procedure OnLineOnMapEditChange(Sender: TObject);
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
-    procedure zooming(ANewZoom: byte; move: boolean);
+    procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
     procedure ProcessPosChangeMessage(Sender: TObject);
     procedure CopyBtmToClipboard(btm: TBitmap);
@@ -1637,7 +1637,7 @@ begin
   NbackloadLayer.Checked := GState.ViewConfig.UsePrevZoomAtLayer;
   map.Color := GState.ViewConfig.BackGroundColor;
 
-  NGoToCur.Checked := FConfig.MainConfig.GetZoomingAtMousePos;
+  NGoToCur.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
   Ninvertcolor.Checked:=GState.BitmapPostProcessingConfig.InvertColor;
   TBGPSToPoint.Checked:=FConfig.GPSBehaviour.MapMove;
   tbitmGPSCenterMap.Checked:=TBGPSToPoint.Checked;
@@ -1653,7 +1653,7 @@ begin
     TBSMB.Caption := '';
   end;
 
-  Nanimate.Checked := FConfig.MainConfig.AnimateZoom;
+  Nanimate.Checked := FConfig.MapZoomingConfig.AnimateZoom;
 
   VGUID := FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID;
   for i := 0 to TBXSelectSrchType.Count - 1 do begin
@@ -1806,7 +1806,7 @@ begin
               VNewZoom := VZoom+z;
             end;
             if VNewZoom < 0 then VNewZoom := 0;
-            zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
+            zooming(VNewZoom, MouseCursorPos, FConfig.MapZoomingConfig.ZoomingAtMousePos);
           end;
           WM_KEYFIRST: begin
             case Msg.wParam of
@@ -2035,12 +2035,11 @@ begin
   end;
 end;
 
-procedure TfrmMain.zooming(ANewZoom:byte;move:boolean);
+procedure TfrmMain.zooming(ANewZoom:byte; AMousePos: TPoint; move:boolean);
 var
   ts1,ts2,ts3,fr:int64;
   Scale: Double;
   VZoom: Byte;
-  VMousePos: TPoint;
   VAlfa: Double;
   VTime: Double;
   VLastTime: Double;
@@ -2051,17 +2050,16 @@ begin
   FMapZoomAnimtion:=True;
   try
     VZoom := FConfig.ViewPortState.GetCurrentZoom;
-    VMousePos := MouseCursorPos;
-    VMaxTime := FConfig.MainConfig.AnimateZoomTime;
+    VMaxTime := FConfig.MapZoomingConfig.AnimateZoomTime;
     VUseAnimation :=
       (abs(ANewZoom-VZoom)=1)and
-      (FConfig.MainConfig.AnimateZoom) and
+      (FConfig.MapZoomingConfig.AnimateZoom) and
       (VMaxTime > 0);
 
     map.BeginUpdate;
     try
       if move then begin
-        FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, VMousePos);
+        FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, AMousePos);
       end else begin
         FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
       end;
@@ -2087,7 +2085,7 @@ begin
         map.BeginUpdate;
         try
           if move then begin
-            FConfig.ViewPortState.ScaleTo(Scale, VMousePos);
+            FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
           end else begin
             FConfig.ViewPortState.ScaleTo(Scale);
           end;
@@ -2106,7 +2104,7 @@ begin
       map.BeginUpdate;
       try
         if move then begin
-          FConfig.ViewPortState.ScaleTo(Scale, VMousePos);
+          FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
         end else begin
           FConfig.ViewPortState.ScaleTo(Scale);
         end;
@@ -2122,12 +2120,12 @@ end;
 
 procedure TfrmMain.NzoomInClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom + 1, false);
+ zooming(FConfig.ViewPortState.GetCurrentZoom + 1, MouseCursorPos, false);
 end;
 
 procedure TfrmMain.NZoomOutClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom - 1, false);
+ zooming(FConfig.ViewPortState.GetCurrentZoom - 1, MouseCursorPos, false);
 end;
 
 
@@ -2157,12 +2155,12 @@ end;
 
 procedure TfrmMain.TBZoom_outClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom - 1, false);
+ zooming(FConfig.ViewPortState.GetCurrentZoom - 1, MouseCursorPos, false);
 end;
 
 procedure TfrmMain.TBZoomInClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom + 1, false);
+ zooming(FConfig.ViewPortState.GetCurrentZoom + 1, MouseCursorPos, false);
 end;
 
 procedure TfrmMain.WMGetMinMaxInfo(var msg:TWMGetMinMaxInfo);
@@ -3770,7 +3768,7 @@ end;
 
 procedure TfrmMain.NanimateClick(Sender: TObject);
 begin
-  FConfig.MainConfig.AnimateZoom := Nanimate.Checked;
+  FConfig.MapZoomingConfig.AnimateZoom := Nanimate.Checked;
 end;
 
 procedure TfrmMain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
@@ -3899,7 +3897,7 @@ end;
 
 procedure TfrmMain.NGoToCurClick(Sender: TObject);
 begin
-  FConfig.MainConfig.ZoomingAtMousePos := (Sender as TTBXItem).Checked
+  FConfig.MapZoomingConfig.ZoomingAtMousePos := (Sender as TTBXItem).Checked
 end;
 
 procedure TfrmMain.TBXSelectSrchClick(Sender: TObject);
@@ -4218,7 +4216,7 @@ procedure TfrmMain.ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
 begin
   if Button=mbLeft then begin
     ZSliderMouseMove(Sender,[ssLeft],X,Y,Layer);
-    zooming(ZSlider.Tag,false);
+    zooming(ZSlider.Tag, MouseCursorPos, false);
   end;
 end;
 
