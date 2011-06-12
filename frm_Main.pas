@@ -470,7 +470,6 @@ type
     Frect_dwn: Boolean;
     Frect_p2: boolean;
     FKeyMovingHandler: IMessageHandler;
-    FdWhenMovingButton: integer;
     FMarshrutComment: string;
     movepoint: boolean;
     FSelectionRect: TDoubleRect;
@@ -653,7 +652,6 @@ begin
   FTileErrorLogProvider := VLogger;
 
   FGpsPosChangeCounter := 0;
-  FdWhenMovingButton := 5;
   FCenterToGPSDelta := DoublePoint(NaN, NaN);
 
   TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
@@ -1703,11 +1701,8 @@ end;
 procedure TfrmMain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
 var
   z: integer;
-  dWMB: integer;
   VZoom: Byte;
   VNewZoom: integer;
-  VMoveByDelta: Boolean;
-  VPointDelta: TDoublePoint;
 begin
   if Active then begin
     if not FMapZoomAnimtion then begin
@@ -1731,7 +1726,6 @@ begin
           end;
         end;
         WM_KEYUP: begin
-          FdWhenMovingButton:=5;
           case Msg.wParam of
             VK_BACK: begin
               if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
