@@ -87,6 +87,7 @@ uses
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
+  frm_RegionProcess,
   u_TileDownloaderUI;
 
 type
@@ -530,6 +531,7 @@ type
     FRuller:TBitmap32;
     FTumbler:TBitmap32;
     FSensorViewList: IGUIDInterfaceList;
+    FFormRegionProcess: TfrmRegionProcess;
 
     procedure InitSearchers;
     procedure CreateMapUIMapsList;
@@ -565,6 +567,8 @@ type
 
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
     procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
+    procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
+    procedure OnMapUpdate(AMapType: TMapType);
   public
     MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
@@ -573,8 +577,6 @@ type
     destructor Destroy; override;
     procedure CreateMapUI;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
-    procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
-    procedure OnMapUpdate(AMapType: TMapType);
     procedure LayerMapMarksRedraw;
   end;
 
@@ -590,7 +592,6 @@ uses
   frm_GoTo,
   frm_About,
   frm_Settings,
-  frm_RegionProcess,
   frm_LonLatRectEdit,
   frm_MapTypeEdit,
   frm_IntrnalBrowser,
@@ -644,6 +645,8 @@ var
   VLogger: TTileErrorLogProviedrStuped;
 begin
   inherited;
+
+  FFormRegionProcess := TfrmRegionProcess.Create(Self, Self.OnMapUpdate);
   FLinksList := TJclListenerNotifierLinksList.Create;
   FConfig := GState.MainFormConfig;
 
@@ -721,7 +724,13 @@ begin
   TBConfigProviderLoadPositions(Self, VProvider);
   OnToolbarsLockChange(nil);
   TBEditPath.Visible:=false;
-  FMarkDBGUI := TMarksDbGUIHelper.Create(GState.MarksDB, GState.ValueToStringConverterConfig, GState.MarksDB.MarksFactoryConfig.PointTemplateConfig.MarkPictureList);
+  FMarkDBGUI :=
+    TMarksDbGUIHelper.Create(
+      GState.MarksDB,
+      GState.ValueToStringConverterConfig,
+      GState.MarksDB.MarksFactoryConfig.PointTemplateConfig.MarkPictureList,
+      FFormRegionProcess
+    );
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -2525,7 +2534,7 @@ begin
   VZoom := GState.LastSelectionInfo.Zoom;
   VPolygon := Copy(GState.LastSelectionInfo.Polygon);
   if length(VPolygon)>0 then begin
-    frmRegionProcess.Show_(VZoom, VPolygon);
+    FFormRegionProcess.Show_(VZoom, VPolygon);
   end else begin
     showmessage(SAS_MSG_NeedHL);
   end;
@@ -2728,7 +2737,7 @@ begin
     GetMinMax(VLonLatRect, Poly);
     if VSelLonLat.Execute(VLonLatRect) Then Begin
       Poly := PolygonFromRect(VLonLatRect);
-      frmRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
+      FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
       Poly := nil;
     End;
   Finally
@@ -2788,7 +2797,7 @@ end;
 procedure TfrmMain.TBLoadSelFromFileClick(Sender: TObject);
 begin
   if (OpenDialog1.Execute) then begin
-    frmRegionProcess.LoadSelFromFile(OpenDialog1.FileName);
+    FFormRegionProcess.LoadSelFromFile(OpenDialog1.FileName);
   end
 end;
 
@@ -3084,7 +3093,7 @@ begin
       FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
       if (Frect_p2) then begin
         VPoly := PolygonFromRect(VSelectionRect);
-        frmRegionProcess.Show_(VZoom, VPoly);
+        FFormRegionProcess.Show_(VZoom, VPoly);
         FSelectionRectLayer.DrawNothing;
         VPoly := nil;
         Frect_p2:=false;
@@ -3739,7 +3748,7 @@ procedure TfrmMain.TBEditPathOkClick(Sender: TObject);
 begin
   case FCurrentOper of
    ao_select_poly: begin
-         frmRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
+         FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
          setalloperationfalse(ao_movemap);
         end;
   end;
@@ -3840,7 +3849,7 @@ begin
         VThread := TThreadDownloadTiles.Create(VSimpleLog, VFileName, GState.SessionLastSuccess, FConfig.ViewPortState.GetCurrentZoom);
         TfrmProgressDownload.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
       end else if ExtractFileExt(VFileName)='.hlg' then begin
-        frmRegionProcess.LoadSelFromFile(VFileName);
+        FFormRegionProcess.LoadSelFromFile(VFileName);
       end else begin
         VImportConfig := frmImportConfigEdit.GetImportConfig(FMarkDBGUI);
         if VImportConfig <> nil then begin
@@ -3875,7 +3884,7 @@ begin
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
   VPolygon := PolygonFromRect(VLonLatRect);
-  frmRegionProcess.Show_(VZoom, VPolygon);
+  FFormRegionProcess.Show_(VZoom, VPolygon);
 end;
 
 procedure TfrmMain.TBGPSToPointCenterClick(Sender: TObject);

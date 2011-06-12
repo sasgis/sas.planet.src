@@ -562,7 +562,6 @@ begin
     Application.CreateForm(TfrmGoTo, frmGoTo);
     Application.CreateForm(TfrmAbout, frmAbout);
     Application.CreateForm(TfrmSettings, frmSettings);
-    Application.CreateForm(TfrmRegionProcess, frmRegionProcess);
     Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
     Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
     Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);

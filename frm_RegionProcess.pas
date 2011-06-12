@@ -17,6 +17,7 @@ uses
   u_CommonFormAndFrameParents,
   u_ExportProviderAbstract,
   t_GeoTypes,
+  u_MapType,
   u_GeoTostr;
 
 type
@@ -61,15 +62,12 @@ type
     procedure ExportREG(APolyLL: TArrayOfDoublePoint);
     procedure InitExportsList;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; AMapUpdateEvent: TMapUpdateEvent);
     destructor Destroy; override;
     procedure LoadSelFromFile(FileName:string);
     procedure Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
     procedure RefreshTranslation; override;
   end;
-
-var
-  frmRegionProcess: TfrmRegionProcess;
 
 implementation
 
@@ -93,17 +91,17 @@ uses
 
 {$R *.dfm}
 
-constructor TfrmRegionProcess.Create(AOwner: TComponent);
+constructor TfrmRegionProcess.Create(AOwner: TComponent; AMapUpdateEvent: TMapUpdateEvent);
 begin
   TP_Ignore(Self, 'CBFormat.Items');
-  inherited;
+  inherited Create(AOwner);
 
   InitExportsList;
 
   FProviderTilesDelte := TProviderTilesDelete.Create(TabSheet4);
   FProviderTilesGenPrev := TProviderTilesGenPrev.Create(TabSheet3);
   FProviderTilesCopy := TProviderTilesCopy.Create(TabSheet6);
-  FProviderTilesDownload := TProviderTilesDownload.Create(TabSheet1);
+  FProviderTilesDownload := TProviderTilesDownload.Create(TabSheet1, AMapUpdateEvent);
   FProviderMapCombine := TProviderMapCombine.Create(TabSheet2);
 end;
 
