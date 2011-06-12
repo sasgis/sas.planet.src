@@ -569,6 +569,8 @@ type
     procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
     procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
     procedure OnMapUpdate(AMapType: TMapType);
+    procedure OnBeforeViewChange(Sender: TObject);
+    procedure OnAfterViewChange(Sender: TObject);
   public
     MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
@@ -965,6 +967,15 @@ begin
     NGShScale500000.Checked := VScale = 500000;
     NGShScale1000000.Checked := VScale = 1000000;
     NGShScale0.Checked := VScale = 0;
+
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnBeforeViewChange),
+      FConfig.ViewPortState.BeforeChangeNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnAfterViewChange),
+      FConfig.ViewPortState.AfterChangeNotifier
+    );
 
     FLinksList.Add(
       TNotifyEventListener.Create(Self.ProcessPosChangeMessage),
@@ -1534,6 +1545,17 @@ begin
   end;
 end;
 
+procedure TfrmMain.OnAfterViewChange(Sender: TObject);
+begin
+  map.EndUpdate;
+  map.Changed;
+end;
+
+procedure TfrmMain.OnBeforeViewChange(Sender: TObject);
+begin
+  map.BeginUpdate;
+end;
+
 procedure TfrmMain.OnClickLayerItem(Sender: TObject);
 var
   VSender: TTBCustomItem;
@@ -1980,13 +2002,7 @@ begin
             VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
             VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
             if VDelta > VMinDelta then begin
-              map.BeginUpdate;
-              try
-                FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
-              finally
-                map.EndUpdate;
-                map.Changed;
-              end;
+              FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
             end;
           end else begin
             VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
@@ -2003,13 +2019,7 @@ begin
                 VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
                 VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
                 if VDelta > VMinDelta then begin
-                  map.BeginUpdate;
-                  try
-                    FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
-                  finally
-                    map.EndUpdate;
-                    map.Changed;
-                  end;
+                  FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
                 end;
               end;
             end;
@@ -2056,18 +2066,10 @@ begin
       (FConfig.MapZoomingConfig.AnimateZoom) and
       (VMaxTime > 0);
 
-    map.BeginUpdate;
-    try
-      if move then begin
-        FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, AMousePos);
-      end else begin
-        FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
-      end;
-    finally
-      map.EndUpdate;
-      if not VUseAnimation then begin
-        map.Changed;
-      end;
+    if move then begin
+      FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, AMousePos);
+    end else begin
+      FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
     end;
 
     if VUseAnimation then begin
@@ -2082,16 +2084,10 @@ begin
         end else begin
           Scale := (1 + VAlfa)/2;
         end;
-        map.BeginUpdate;
-        try
-          if move then begin
-            FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
-          end else begin
-            FConfig.ViewPortState.ScaleTo(Scale);
-          end;
-        finally
-          map.EndUpdate;
-          map.Changed;
+        if move then begin
+          FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
+        end else begin
+          FConfig.ViewPortState.ScaleTo(Scale);
         end;
         application.ProcessMessages;
         QueryPerformanceCounter(ts2);
@@ -2101,16 +2097,10 @@ begin
         ts3 := ts2;
       end;
       Scale := 1;
-      map.BeginUpdate;
-      try
-        if move then begin
-          FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
-        end else begin
-          FConfig.ViewPortState.ScaleTo(Scale);
-        end;
-      finally
-        map.EndUpdate;
-        map.Changed;
+      if move then begin
+        FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
+      end else begin
+        FConfig.ViewPortState.ScaleTo(Scale);
       end;
     end;
   finally
@@ -2782,13 +2772,7 @@ end;
 procedure TfrmMain.mapResize(Sender: TObject);
 begin
   if (not ProgramClose)and(not ProgramStart)then begin
-    map.BeginUpdate;
-    try
-      FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
-    finally
-      map.EndUpdate;
-      map.Changed;
-    end;
+    FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
   end;
 end;
 
@@ -2801,7 +2785,7 @@ end;
 
 procedure TfrmMain.NinvertcolorClick(Sender: TObject);
 begin
- GState.BitmapPostProcessingConfig.InvertColor:=Ninvertcolor.Checked;
+  GState.BitmapPostProcessingConfig.InvertColor:=Ninvertcolor.Checked;
 end;
 
 procedure TfrmMain.mapDblClick(Sender: TObject);
@@ -2821,13 +2805,7 @@ begin
   end;
   FMapMoving:=false;
   if (FCurrentOper=ao_movemap) then begin
-    map.BeginUpdate;
-    try
-      FConfig.ViewPortState.ChangeMapPixelToVisualPoint(r);
-    finally
-      map.EndUpdate;
-      map.Changed;
-    end;
+    FConfig.ViewPortState.ChangeMapPixelToVisualPoint(r);
   end;
 end;
 
@@ -3215,13 +3193,7 @@ begin
   VMouseMoveDelta := Point(FMouseDownPoint.x-FMouseUpPoint.X, FMouseDownPoint.y-FMouseUpPoint.y);
 
   if VMapMoving then begin
-    map.BeginUpdate;
-    try
-      FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
-    finally
-      map.EndUpdate;
-      map.Changed;
-    end;
+    FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
   end;
 
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
@@ -3432,13 +3404,7 @@ begin
  end;
  if FMapZoomAnimtion then exit;
  if FMapMoving then begin
-  map.BeginUpdate;
-  try
     FConfig.ViewPortState.MoveTo(VMouseMoveDelta);
-  finally
-    map.EndUpdate;
-    map.Changed;
-  end;
  end;
  if not(FMapMoving) then begin
     FLayerStatBar.Redraw;
