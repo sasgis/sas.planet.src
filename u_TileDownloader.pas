@@ -52,11 +52,12 @@ var
 begin
   inherited Create;
   FEnabled := False;
-  FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig);
   FRequestBuilderScript := nil;
   FZmpFileName := AZmpFileName;
   FCS := TCriticalSection.Create;
+  FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FTileDownloaderConfig.ReadConfig(VParams);
   FMapName := VParams.ReadString('name', '');
   FMapName := VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode, FMapName);
   FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', DefConnectToServerCount);

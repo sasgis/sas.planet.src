@@ -135,7 +135,7 @@ begin
 
         Result := TTileDownloaderBaseThread.Create;
         Result.RequestBuilderScript := FRequestBuilderScript;
-        Result.TileDownloaderConfig := FTileDownloaderConfig.GetStatic;
+        Result.TileDownloaderConfig := FTileDownloaderConfig;
         FDownloadesList.Add(Result);
 
         {
@@ -164,7 +164,7 @@ begin
     Lock;
     try
       AEvent.AddToCallBackList(OnTileDownload);
-      VDwnThr.TileDownloaderConfig := FTileDownloaderConfig.GetStatic;
+      VDwnThr.TileDownloaderConfig := FTileDownloaderConfig;
       VDwnThr.RawResponseHeader := FRawResponseHeader;
       VDwnThr.Semaphore := FSemaphore;
       VDwnThr.AddEvent(AEvent);

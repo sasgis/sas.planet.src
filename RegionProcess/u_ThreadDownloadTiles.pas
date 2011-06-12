@@ -322,6 +322,9 @@ begin
         end;
         FGotoNextTile := false;
         while not FGotoNextTile do begin
+          if Terminated then begin
+            Break;
+          end;
           if (FDownloadPause) then begin
             FElapsedTime := FElapsedTime + (Now - FStartTime);
             FLog.WriteText(FRES_UserStop, 10);

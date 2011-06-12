@@ -354,15 +354,6 @@ begin
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
   LoadMimeTypeSubstList(AConfig);
-  
-  FRequestBuilderScript := nil;
-  FTileDownloaderConfig := nil;
-  FTileDownloader := TTileDownloaderFrontEnd.Create(AConfig, FZMPFileName);
-  if Assigned(FTileDownloader) then begin
-    FUseDwn := FTileDownloader.UseDwn;
-    FRequestBuilderScript := FTileDownloader.RequestBuilderScript;
-    FTileDownloaderConfig := FTileDownloader.TileDownloaderConfig;
-  end;
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
@@ -615,6 +606,15 @@ begin
   end else begin
     FLoadPrevMaxZoomDelta := 6;
   end;
+
+  FRequestBuilderScript := nil;
+  FTileDownloaderConfig := nil;
+  FTileDownloader := TTileDownloaderFrontEnd.Create(AConfig, FZMPFileName);
+  if Assigned(FTileDownloader) then begin
+    FUseDwn := FTileDownloader.UseDwn;
+    FRequestBuilderScript := FTileDownloader.RequestBuilderScript;
+    FTileDownloaderConfig := FTileDownloader.TileDownloaderConfig;
+  end;
 end;
 
 destructor TMapType.Destroy;
@@ -624,8 +624,8 @@ begin
   FreeAndNil(Fbmp24);
   FCoordConverter := nil;
   FCache := nil;
-  FreeAndNil(FTileDownloader);
   FreeAndNil(FStorage);
+  FreeAndNil(FTileDownloader);
   inherited;
 end;
 

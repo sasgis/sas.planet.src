@@ -24,7 +24,8 @@ type
     FHttpClient: TALWinInetHTTPClient;
     FResponseHeader: TALHTTPResponseHeader;
     FRequestBuilderScript: IRequestBuilderScript;
-    FTileDownloaderConfig: ITileDownloaderConfigStatic;
+    FTileDownloaderConfig: ITileDownloaderConfig;
+    FTileDownloaderConfigStatic: ITileDownloaderConfigStatic;
     FRawResponseHeader: string;
     FEvent: ITileDownloaderEvent;
     FSemaphore: THandle;
@@ -56,7 +57,7 @@ type
     procedure OnCancelEvent(Sender: TObject);
     property Busy: Boolean read FBusy default False;
     property RequestBuilderScript: IRequestBuilderScript write FRequestBuilderScript default nil;
-    property TileDownloaderConfig: ITileDownloaderConfigStatic write FTileDownloaderConfig default nil;
+    property TileDownloaderConfig: ITileDownloaderConfig write FTileDownloaderConfig default nil;
     property Semaphore: THandle read FParentSemaphore write FParentSemaphore;
     property RawResponseHeader: string write FRawResponseHeader;
   end;
@@ -124,13 +125,13 @@ procedure TTileDownloaderBaseThread.PreProcess;
       VTimeFromLastDownload := MaxInt;
     end;
     if FWasConnectError then begin
-      if VTimeFromLastDownload < FTileDownloaderConfig.SleepOnResetConnection then begin
-        VSleepTime := FTileDownloaderConfig.SleepOnResetConnection - VTimeFromLastDownload;
+      if VTimeFromLastDownload < FTileDownloaderConfigStatic.SleepOnResetConnection then begin
+        VSleepTime := FTileDownloaderConfigStatic.SleepOnResetConnection - VTimeFromLastDownload;
         SleepCancelable(VSleepTime);
       end;
     end else begin
-      if VTimeFromLastDownload < FTileDownloaderConfig.WaitInterval then begin
-        VSleepTime := FTileDownloaderConfig.WaitInterval - VTimeFromLastDownload;
+      if VTimeFromLastDownload < FTileDownloaderConfigStatic.WaitInterval then begin
+        VSleepTime := FTileDownloaderConfigStatic.WaitInterval - VTimeFromLastDownload;
         SleepCancelable(VSleepTime);
       end;
     end;
@@ -144,8 +145,8 @@ begin
   FRequestBuilderScript.GenRequest(FEvent.TileXY, FEvent.TileZoom, FRawResponseHeader, VUrl, VRawRequestHeader);
   FEvent.Url := VUrl;
   FEvent.RawRequestHeader := VRawRequestHeader;
-  PrepareHttpClientConfig(FTileDownloaderConfig.DefaultMIMEType, FEvent.RawRequestHeader);
-  FEvent.OnBeforeRequest(FTileDownloaderConfig);
+  PrepareHttpClientConfig(FTileDownloaderConfigStatic.DefaultMIMEType, FEvent.RawRequestHeader);
+  FEvent.OnBeforeRequest(FTileDownloaderConfigStatic);
 end;
 
 procedure TTileDownloaderBaseThread.PostProcess;
@@ -174,10 +175,11 @@ var
   VCount: Integer;
   VTryCount: Integer;
 begin
+  FTileDownloaderConfigStatic := FTileDownloaderConfig.GetStatic;
   SetNotCanceled;
   try
     try
-      if (FTileDownloaderConfig <> nil) and (FRequestBuilderScript <> nil) then
+      if (FTileDownloaderConfigStatic <> nil) and (FRequestBuilderScript <> nil) then
       begin
         try
           if (FEvent <> nil) and (FEvent.CancelNotifier <> nil) then begin
@@ -187,7 +189,7 @@ begin
           if FEvent.DownloadResult = nil then
           begin
             VCount := 0;
-            VTryCount := FTileDownloaderConfig.DownloadTryCount;
+            VTryCount := FTileDownloaderConfigStatic.DownloadTryCount;
             FWasConnectError := False;
             FLastDownloadTime := MaxInt;
             repeat
@@ -327,9 +329,9 @@ begin
   if ARawHeaders <> '' then
     FHttpClient.RequestHeader.RawHeaderText := ARawHeaders;
 
-  FHttpClient.ConnectTimeout := FTileDownloaderConfig.TimeOut;
-  FHttpClient.SendTimeout := FTileDownloaderConfig.TimeOut;
-  FHttpClient.ReceiveTimeout := FTileDownloaderConfig.TimeOut;
+  FHttpClient.ConnectTimeout := FTileDownloaderConfigStatic.TimeOut;
+  FHttpClient.SendTimeout := FTileDownloaderConfigStatic.TimeOut;
+  FHttpClient.ReceiveTimeout := FTileDownloaderConfigStatic.TimeOut;
 
   FHttpClient.InternetOptions := [  wHttpIo_No_cache_write,
                                     wHttpIo_Pragma_nocache,
@@ -337,7 +339,7 @@ begin
                                     wHttpIo_Keep_connection
                                  ];
 
-  VProxyConfig := FTileDownloaderConfig.ProxyConfigStatic;
+  VProxyConfig := FTileDownloaderConfigStatic.ProxyConfigStatic;
   if Assigned(VProxyConfig) then
   begin
     if VProxyConfig.UseIESettings then
