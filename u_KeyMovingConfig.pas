@@ -11,6 +11,7 @@ uses
 type
   TKeyMovingConfig = class(TConfigDataElementBase, IKeyMovingConfig)
   private
+    FFirstKeyPressDelta: Double;
     FMinPixelPerSecond: Double;
     FMaxPixelPerSecond: Double;
     FSpeedChangeTime: Double;
@@ -18,6 +19,9 @@ type
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
+    function GetFirstKeyPressDelta: Double;
+    procedure SetFirstKeyPressDelta(AValue: Double);
+
     function GetMinPixelPerSecond: Double;
     procedure SetMinPixelPerSecond(AValue: Double);
 
@@ -37,15 +41,17 @@ implementation
 constructor TKeyMovingConfig.Create;
 begin
   inherited;
-  FMinPixelPerSecond := 10;
-  FMaxPixelPerSecond := 512;
-  FSpeedChangeTime := 30;
+  FFirstKeyPressDelta := 32;
+  FMinPixelPerSecond := 256;
+  FMaxPixelPerSecond := 1024;
+  FSpeedChangeTime := 20;
 end;
 
 procedure TKeyMovingConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
+    FFirstKeyPressDelta := AConfigData.ReadFloat('FirstKeyPressDelta', FFirstKeyPressDelta);
     FMinPixelPerSecond := AConfigData.ReadFloat('MinPixelPerSecond', FMinPixelPerSecond);
     FMaxPixelPerSecond := AConfigData.ReadFloat('MaxPixelPerSecond', FMaxPixelPerSecond);
     FSpeedChangeTime := AConfigData.ReadFloat('SpeedChangeTime', FSpeedChangeTime);
@@ -56,9 +62,20 @@ end;
 procedure TKeyMovingConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
+  AConfigData.WriteFloat('FirstKeyPressDelta', FFirstKeyPressDelta);
   AConfigData.WriteFloat('MinPixelPerSecond', FMinPixelPerSecond);
   AConfigData.WriteFloat('MaxPixelPerSecond', FMaxPixelPerSecond);
   AConfigData.WriteFloat('SpeedChangeTime', FSpeedChangeTime);
+end;
+
+function TKeyMovingConfig.GetFirstKeyPressDelta: Double;
+begin
+  LockRead;
+  try
+    Result := FFirstKeyPressDelta;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TKeyMovingConfig.GetMaxPixelPerSecond: Double;
@@ -88,6 +105,19 @@ begin
     Result := FSpeedChangeTime;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TKeyMovingConfig.SetFirstKeyPressDelta(AValue: Double);
+begin
+  LockWrite;
+  try
+    if FFirstKeyPressDelta <> AValue then begin
+      FFirstKeyPressDelta := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

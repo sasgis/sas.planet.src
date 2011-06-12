@@ -18,6 +18,7 @@ type
     FViewPortState: IViewPortState;
     FKeyMovingLastTick: Int64;
     FTimeFromFirstToLast: Double;
+    FWasSecondKeyPress: Boolean;
   protected
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
   public
@@ -72,26 +73,33 @@ begin
         QueryPerformanceFrequency(VFr);
         if FKeyMovingLastTick = 0 then begin
           FKeyMovingLastTick := VCurrTick;
-          FTimeFromFirstToLast := 0;
-          VStep := 15;
+          FWasSecondKeyPress := False;
+          VStep := FConfig.FirstKeyPressDelta;
         end else begin
-          FConfig.LockRead;
-          try
-            VStartSpeed := FConfig.MinPixelPerSecond;
-            VMaxSpeed := FConfig.MaxPixelPerSecond;
-            VAcelerateTime := FConfig.SpeedChangeTime;
-          finally
-            FConfig.UnlockRead;
-          end;
-          VTimeFromLast := (VCurrTick - FKeyMovingLastTick) / VFr;
-          if (FTimeFromFirstToLast >= VAcelerateTime) or (VAcelerateTime < 0.01) then begin
-            VStep := VMaxSpeed * VTimeFromLast;
+          if not FWasSecondKeyPress then begin
+            FWasSecondKeyPress := True;
+            FKeyMovingLastTick := VCurrTick;
+            FTimeFromFirstToLast := 0;
+            VStep := 0;
           end else begin
-            VAcelerate := (VMaxSpeed - VStartSpeed) / VAcelerateTime;
-            VStep := (VStartSpeed + VAcelerate * (FTimeFromFirstToLast + VTimeFromLast/2)) * VTimeFromLast;
+            FConfig.LockRead;
+            try
+              VStartSpeed := FConfig.MinPixelPerSecond;
+              VMaxSpeed := FConfig.MaxPixelPerSecond;
+              VAcelerateTime := FConfig.SpeedChangeTime;
+            finally
+              FConfig.UnlockRead;
+            end;
+            VTimeFromLast := (VCurrTick - FKeyMovingLastTick) / VFr;
+            if (FTimeFromFirstToLast >= VAcelerateTime) or (VAcelerateTime < 0.01) then begin
+              VStep := VMaxSpeed * VTimeFromLast;
+            end else begin
+              VAcelerate := (VMaxSpeed - VStartSpeed) / VAcelerateTime;
+              VStep := (VStartSpeed + VAcelerate * (FTimeFromFirstToLast + VTimeFromLast/2)) * VTimeFromLast;
+            end;
+            FKeyMovingLastTick := VCurrTick;
+            FTimeFromFirstToLast := FTimeFromFirstToLast + VTimeFromLast;
           end;
-          FKeyMovingLastTick := VCurrTick;
-          FTimeFromFirstToLast := FTimeFromFirstToLast + VTimeFromLast;
         end;
         case Msg.wParam of
           VK_RIGHT: VPointDelta := DoublePoint(VStep, 0);

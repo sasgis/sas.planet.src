@@ -8,6 +8,10 @@ uses
 type
   IKeyMovingConfig = interface(IConfigDataElement)
     ['{87769678-9D11-4E47-AAE5-88F4809B7406}']
+    function GetFirstKeyPressDelta: Double;
+    procedure SetFirstKeyPressDelta(AValue: Double);
+    property FirstKeyPressDelta: Double read GetFirstKeyPressDelta write SetFirstKeyPressDelta;
+
     function GetMinPixelPerSecond: Double;
     procedure SetMinPixelPerSecond(AValue: Double);
     property MinPixelPerSecond: Double read GetMinPixelPerSecond write SetMinPixelPerSecond;
