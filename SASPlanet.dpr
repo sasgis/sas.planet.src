@@ -464,6 +464,8 @@ uses
   u_LineOnMapEdit in 'u_LineOnMapEdit.pas',
   i_GlobalViewMainConfig in 'i_GlobalViewMainConfig.pas',
   u_GlobalViewMainConfig in 'u_GlobalViewMainConfig.pas',
+  i_MessageHandler in 'i_MessageHandler.pas',
+  u_KeyMovingHandler in 'u_KeyMovingHandler.pas',
   i_GPSRecorder in 'i_GPSRecorder.pas',
   u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
   i_GPS in 'i_GPS.pas',
