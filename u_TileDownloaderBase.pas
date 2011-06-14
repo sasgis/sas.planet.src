@@ -615,7 +615,7 @@ begin
         VRecivedData := TMemoryStream.Create;
         try
           if ADownloadChecker <> nil then begin
-            Result := ADownloadChecker.AfterResponce(VStatusCode, VContentType, VResponseHead);
+            Result := ADownloadChecker.AfterResponse(VStatusCode, VContentType, VResponseHead);
             if Result <> nil then Exit;
           end;
           GetData(VFileHandle, VRecivedData);
