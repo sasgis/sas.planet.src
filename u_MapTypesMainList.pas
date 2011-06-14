@@ -254,6 +254,8 @@ begin
       end else begin
         VSubItem.DeleteValue('URLBase');
       end;
+    end else begin
+      Assert(False, 'Can''t save UrlBase for map: ' + VMapType.ZmpFileName);
     end;
 
     if VMapType.HotKey <> VMapType.DefHotKey then begin
@@ -286,6 +288,8 @@ begin
       end else begin
         VSubItem.DeleteValue('Sleep');
       end;
+    end else begin
+      Assert(False, 'Can''t save Sleep param for map: ' + VMapType.ZmpFileName);
     end;
 
     if VMapType.ParentSubMenu <> VMapType.DefParentSubMenu then begin

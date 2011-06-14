@@ -39,21 +39,18 @@ begin
   FDownloader := nil;
   FRequestBuilderScript := nil;
   FTileDownloaderConfig := nil;
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FUseDwn := VParams.ReadBool('UseDwn', True);
+  FUseDwn := False;
   try
-    if FUseDwn then
+    VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+    VDownloaderStr := VParams.ReadString('Downloader', 'sasplanet');
+    if LowerCase(VDownloaderStr) = 'sasplanet' then
     begin
-      VDownloaderStr := VParams.ReadString('Downloader', 'sasplanet');
-      if LowerCase(VDownloaderStr) = 'sasplanet' then
+      FDownloader := TTileDownloaderBaseCore.Create(AConfig, AZmpFileName);
+      if Assigned(FDownloader) then
       begin
-        FDownloader := TTileDownloaderBaseCore.Create(AConfig, AZmpFileName);
-        if Assigned(FDownloader) then
-        begin
-          FTileDownloaderConfig := FDownloader.TileDownloaderConfig;
-          FRequestBuilderScript := FDownloader.RequestBuilderScript;
-          FUseDwn := FDownloader.Enabled;
-        end
+        FTileDownloaderConfig := FDownloader.TileDownloaderConfig;
+        FRequestBuilderScript := FDownloader.RequestBuilderScript;
+        FUseDwn := FDownloader.Enabled;
       end;
     end;
   finally
