@@ -59,7 +59,7 @@ type
     );
   end;
 
-  TTileDownloadResultUnexpectedProxyAuth = class(TDownloadResultUnexpectedProxyAuth, ITileInfo)
+  TTileDownloadResultProxyError = class(TDownloadResultProxyError, ITileInfo)
   private
     FTileInfo: ITileInfo;
   protected
@@ -68,20 +68,8 @@ type
     constructor Create(
       ATileInfo: ITileInfo;
       AUrl: string;
-      ARequestHead: string
-    );
-  end;
-
-  TTileDownloadResultBadProxyAuth = class(TDownloadResultBadProxyAuth, ITileInfo)
-  private
-    FTileInfo: ITileInfo;
-  protected
-    property TileInfo: ITileInfo read FTileInfo implements ITileInfo;
-  public
-    constructor Create(
-      ATileInfo: ITileInfo;
-      AUrl: string;
-      ARequestHead: string
+      ARequestHead: string;
+      AErrorText: string
     );
   end;
 
@@ -95,6 +83,7 @@ type
       ATileInfo: ITileInfo;
       AUrl: string;
       ARequestHead: string;
+      AErrorText: string;
       AErrorCode: DWORD
     );
   end;
@@ -109,6 +98,7 @@ type
       ATileInfo: ITileInfo;
       AUrl: string;
       ARequestHead: string;
+      AErrorText: string;
       AStatusCode: DWORD
     );
   end;
@@ -123,6 +113,7 @@ type
       ATileInfo: ITileInfo;
       AUrl: string;
       ARequestHead: string;
+      AErrorText: string;
       AStatusCode: DWORD
     );
   end;
@@ -137,6 +128,7 @@ type
       ATileInfo: ITileInfo;
       AUrl: string;
       ARequestHead: string;
+      AErrorText: string;
       AErrorCode: DWORD
     );
   end;
@@ -151,7 +143,8 @@ type
       ATileInfo: ITileInfo;
       AUrl: string;
       ARequestHead: string;
-      ARawResponseHeader: string
+      ARawResponseHeader: string;
+      AErrorText: string
     );
   end;
 
@@ -166,7 +159,8 @@ type
       AUrl: string;
       ARequestHead: string;
       AContentType: string;
-      ARawResponseHeader: string
+      ARawResponseHeader: string;
+      AErrorText: string
     );
   end;
 
@@ -196,6 +190,7 @@ type
       AUrl: string;
       ARequestHead: string;
       ARawResponseHeader: string;
+      AErrorText: string;
       AStatusCode: DWORD
     );
   end;
@@ -210,7 +205,8 @@ type
       ATileInfo: ITileInfo;
       AUrl: string;
       ARequestHead: string;
-      ARawResponseHeader: string
+      ARawResponseHeader: string;
+      AErrorText: string
     );
   end;
 
@@ -271,93 +267,84 @@ begin
   FTileInfo := ATileInfo;
 end;
 
-{ TTileDownloadResultUnexpectedProxyAuth }
+{ TTileDownloadResultProxyError }
 
-constructor TTileDownloadResultUnexpectedProxyAuth.Create(ATileInfo: ITileInfo;
-  AUrl, ARequestHead: string);
+constructor TTileDownloadResultProxyError.Create(ATileInfo: ITileInfo;
+  AUrl, ARequestHead, AErrorText: string);
 begin
-  inherited Create(AUrl, ARequestHead);
-  FTileInfo := ATileInfo;
-end;
-
-{ TTileDownloadResultBadProxyAuth }
-
-constructor TTileDownloadResultBadProxyAuth.Create(ATileInfo: ITileInfo; AUrl,
-  ARequestHead: string);
-begin
-  inherited Create(AUrl, ARequestHead);
+  inherited Create(AUrl, ARequestHead, AErrorText);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultNoConnetctToServerByErrorCode }
 
 constructor TTileDownloadResultNoConnetctToServerByErrorCode.Create(
-  ATileInfo: ITileInfo; AUrl, ARequestHead: string; AErrorCode: DWORD);
+  ATileInfo: ITileInfo; AUrl, ARequestHead, AErrorText: string; AErrorCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, AErrorCode);
+  inherited Create(AUrl, ARequestHead, AErrorText, AErrorCode);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultLoadErrorByStatusCode }
 
 constructor TTileDownloadResultLoadErrorByStatusCode.Create(
-  ATileInfo: ITileInfo; AUrl, ARequestHead: string; AStatusCode: DWORD);
+  ATileInfo: ITileInfo; AUrl, ARequestHead, AErrorText: string; AStatusCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, AStatusCode);
+  inherited Create(AUrl, ARequestHead, AErrorText, AStatusCode);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultLoadErrorByUnknownStatusCode }
 
 constructor TTileDownloadResultLoadErrorByUnknownStatusCode.Create(
-  ATileInfo: ITileInfo; AUrl, ARequestHead: string; AStatusCode: DWORD);
+  ATileInfo: ITileInfo; AUrl, ARequestHead, AErrorText: string; AStatusCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, AStatusCode);
+  inherited Create(AUrl, ARequestHead, AErrorText, AStatusCode);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultLoadErrorByErrorCode }
 
 constructor TTileDownloadResultLoadErrorByErrorCode.Create(ATileInfo: ITileInfo;
-  AUrl, ARequestHead: string; AErrorCode: DWORD);
+  AUrl, ARequestHead, AErrorText: string; AErrorCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, AErrorCode);
+  inherited Create(AUrl, ARequestHead, AErrorText, AErrorCode);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultBanned }
 
 constructor TTileDownloadResultBanned.Create(ATileInfo: ITileInfo; AUrl,
-  ARequestHead, ARawResponseHeader: string);
+  ARequestHead, ARawResponseHeader, AErrorText: string);
 begin
-  inherited Create(AUrl, ARequestHead, ARawResponseHeader);
+  inherited Create(AUrl, ARequestHead, ARawResponseHeader, AErrorText);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultBadContentType }
 
 constructor TTileDownloadResultBadContentType.Create(ATileInfo: ITileInfo; AUrl,
-  ARequestHead, AContentType, ARawResponseHeader: string);
+  ARequestHead, AContentType, ARawResponseHeader, AErrorText: string);
 begin
-  inherited Create(AUrl, ARequestHead, AContentType, ARawResponseHeader);
+  inherited Create(AUrl, ARequestHead, AContentType, ARawResponseHeader, AErrorText);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultDataNotExistsByStatusCode }
 
 constructor TTileDownloadResultDataNotExistsByStatusCode.Create(
-  ATileInfo: ITileInfo; AUrl, ARequestHead, ARawResponseHeader: string; AStatusCode: DWORD);
+  ATileInfo: ITileInfo; AUrl, ARequestHead, ARawResponseHeader, AErrorText: string; AStatusCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, ARawResponseHeader, AStatusCode);
+  inherited Create(AUrl, ARequestHead, ARawResponseHeader, AErrorText, AStatusCode);
   FTileInfo := ATileInfo;
 end;
 
 { TTileDownloadResultDataNotExistsZeroSize }
 
 constructor TTileDownloadResultDataNotExistsZeroSize.Create(
-  ATileInfo: ITileInfo; AUrl, ARequestHead, ARawResponseHeader: string);
+  ATileInfo: ITileInfo; AUrl, ARequestHead, ARawResponseHeader, AErrorText: string);
 begin
-  inherited Create(AUrl, ARequestHead, ARawResponseHeader);
+  inherited Create(AUrl, ARequestHead, ARawResponseHeader, AErrorText);
   FTileInfo := ATileInfo;
 end;
 

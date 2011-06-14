@@ -78,22 +78,6 @@ type
     function GetIsServerExists: Boolean; override;
   end;
 
-  TDownloadResultUnexpectedProxyAuth = class(TDownloadResultProxyError)
-  public
-    constructor Create(
-      AUrl: string;
-      ARequestHead: string
-    );
-  end;
-
-  TDownloadResultBadProxyAuth = class(TDownloadResultProxyError)
-  public
-    constructor Create(
-      AUrl: string;
-      ARequestHead: string
-    );
-  end;
-
   TDownloadResultNoConnetctToServer = class(TDownloadResultError, IDownloadResultNoConnetctToServer)
   protected
     function GetIsServerExists: Boolean; override;
@@ -104,6 +88,7 @@ type
     constructor Create(
       AUrl: string;
       ARequestHead: string;
+      AErrorText: string;
       AErrorCode: DWORD
     );
   end;
@@ -118,6 +103,7 @@ type
     constructor Create(
       AUrl: string;
       ARequestHead: string;
+      AErrorText: string;
       AStatusCode: DWORD
     );
   end;
@@ -127,6 +113,7 @@ type
     constructor Create(
       AUrl: string;
       ARequestHead: string;
+      AErrorText: string;
       AStatusCode: DWORD
     );
   end;
@@ -136,6 +123,7 @@ type
     constructor Create(
       AUrl: string;
       ARequestHead: string;
+      AErrorText: string;
       AErrorCode: DWORD
     );
   end;
@@ -150,7 +138,8 @@ type
     constructor Create(
       AUrl: string;
       ARequestHead: string;
-      ARawResponseHeader: string
+      ARawResponseHeader: string;
+      AErrorText: string
     );
   end;
 
@@ -168,7 +157,8 @@ type
       AUrl: string;
       ARequestHead: string;
       AContentType: string;
-      ARawResponseHeader: string
+      ARawResponseHeader: string;
+      AErrorText: string
     );
   end;
 
@@ -197,6 +187,7 @@ type
       AUrl: string;
       ARequestHead: string;
       ARawResponseHeader: string;
+      AErrorText: string;
       AStatusCode: DWORD
     );
   end;
@@ -206,7 +197,8 @@ type
     constructor Create(
       AUrl: string;
       ARequestHead: string;
-      ARawResponseHeader: string
+      ARawResponseHeader: string;
+      AErrorText: string
     );
   end;
 
@@ -343,9 +335,9 @@ end;
 
 { TDownloadResultBanned }
 
-constructor TDownloadResultBanned.Create(AUrl, ARequestHead, ARawResponseHeader: string);
+constructor TDownloadResultBanned.Create(AUrl, ARequestHead, ARawResponseHeader, AErrorText: string);
 begin
-  inherited Create(AUrl, ARequestHead, 'Похоже вас забанили');
+  inherited Create(AUrl, ARequestHead, AErrorText);
   FRawResponseHeader := ARawResponseHeader;
 end;
 
@@ -362,9 +354,9 @@ end;
 { TDownloadResultBadContentType }
 
 constructor TDownloadResultBadContentType.Create(AUrl, ARequestHead,
-  AContentType, ARawResponseHeader: string);
+  AContentType, ARawResponseHeader, AErrorText: string);
 begin
-  inherited Create(AUrl, ARequestHead, Format('Неожиданный тип %s', [AContentType]));
+  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AContentType]));
   FContentType := AContentType;
   FRawResponseHeader := ARawResponseHeader;
 end;
@@ -384,43 +376,28 @@ begin
   Result := FRawResponseHeader;
 end;
 
-{ TDownloadResultUnexpectedProxyAuth }
-
-constructor TDownloadResultUnexpectedProxyAuth.Create(AUrl,
-  ARequestHead: string);
-begin
-  inherited Create(AUrl, ARequestHead, 'Настройки не предусматривают авторизацию на прокси');
-end;
-
-{ TDownloadResultBadProxyAuth }
-
-constructor TDownloadResultBadProxyAuth.Create(AUrl, ARequestHead: string);
-begin
-  inherited Create(AUrl, ARequestHead, 'Ошибка авторизации на прокси');
-end;
-
 { TDownloadResultNoConnetctToServerByErrorCode }
 
 constructor TDownloadResultNoConnetctToServerByErrorCode.Create(AUrl,
-  ARequestHead: string; AErrorCode: DWORD);
+  ARequestHead, AErrorText: string; AErrorCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, Format('Ошибка подключения к серверу. Код ошибки %d', [AErrorCode]));
+  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AErrorCode]));
 end;
 
 { TDownloadResultLoadErrorByStatusCode }
 
 constructor TDownloadResultLoadErrorByStatusCode.Create(AUrl,
-  ARequestHead: string; AStatusCode: DWORD);
+  ARequestHead, AErrorText: string; AStatusCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, Format('Ошибка загрузки. Статус %d', [AStatusCode]));
+  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AStatusCode]));
 end;
 
 { TDownloadResultLoadErrorByErrorCode }
 
 constructor TDownloadResultLoadErrorByErrorCode.Create(AUrl,
-  ARequestHead: string; AErrorCode: DWORD);
+  ARequestHead, AErrorText: string; AErrorCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, Format('Ошибка загрузки. Код ошибки %d', [AErrorCode]));
+  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AErrorCode]));
 end;
 
 { TDownloadResultLoadError }
@@ -494,26 +471,26 @@ end;
 
 constructor TDownloadResultDataNotExistsByStatusCode.Create(AUrl,
   ARequestHead: string;
-  ARawResponseHeader: string;
+  ARawResponseHeader, AErrorText: string;
   AStatusCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, Format('Данныео отсутствуют. Статус %d', [AStatusCode]), ARawResponseHeader);
+  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AStatusCode]), ARawResponseHeader);
 end;
 
 { TDownloadResultDataNotExistsZeroSize }
 
 constructor TDownloadResultDataNotExistsZeroSize.Create(AUrl,
-  ARequestHead, ARawResponseHeader: string);
+  ARequestHead, ARawResponseHeader, AErrorText: string);
 begin
-  inherited Create(AUrl, ARequestHead, 'Получен ответ нулевой длинны', ARawResponseHeader);
+  inherited Create(AUrl, ARequestHead, AErrorText, ARawResponseHeader);
 end;
 
 { TDownloadResultLoadErrorByUnknownStatusCode }
 
 constructor TDownloadResultLoadErrorByUnknownStatusCode.Create(AUrl,
-  ARequestHead: string; AStatusCode: DWORD);
+  ARequestHead, AErrorText: string; AStatusCode: DWORD);
 begin
-  inherited Create(AUrl, ARequestHead, Format('Неизвестный статус %d', [AStatusCode]));
+  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AStatusCode]));
 end;
 
 { TDownloadResultCanceled }
