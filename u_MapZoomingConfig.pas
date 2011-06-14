@@ -39,7 +39,7 @@ begin
   inherited;
   FZoomingAtMousePos := True;
   FAnimateZoom := True;
-  FAnimateZoomTime := 500;
+  FAnimateZoomTime := 320;
 end;
 
 procedure TMapZoomingConfig.DoReadConfig(AConfigData: IConfigDataProvider);
