@@ -436,7 +436,7 @@ end;
 
 function TGlobalState.GetMainConfigFileName: string;
 begin
-  Result := ChangeFileExt(ParamStr(0), '.ini');
+  Result := FProgramPath + 'SASPlanet.ini';
 end;
 
 procedure TGlobalState.LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
