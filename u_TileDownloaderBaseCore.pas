@@ -34,6 +34,7 @@ implementation
 
 uses
   Dialogs,
+  gnugettext,
   u_ConfigDataProviderByKaZip,
   u_ConfigDataProviderByFolder,
   u_ResStrings;
@@ -173,7 +174,7 @@ begin
     end;
   end
   else
-    AEvent.ErrorString := 'No free connections!';
+    raise Exception.Create( _('No free connections!') );
 end;
 
 procedure TTileDownloaderBaseCore.OnTileDownload(AEvent: ITileDownloaderEvent);

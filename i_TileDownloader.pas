@@ -81,10 +81,6 @@ type
     procedure SetTileStream(Value: TMemoryStream);
     property TileStream: TMemoryStream read GetTileStream write SetTileStream;
 
-    function GetErrorString: string;
-    procedure SetErrorString(Value: string);
-    property ErrorString: string read GetErrorString write SetErrorString;
-
     function GetHttpStatusCode: Cardinal;
     procedure SetHttpStatusCode(Value: Cardinal);
     property HttpStatusCode: Cardinal read GetHttpStatusCode write SetHttpStatusCode;

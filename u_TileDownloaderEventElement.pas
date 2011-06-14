@@ -99,8 +99,6 @@ type
     procedure SetTileMIME(Value: string);
     function  GetTileStream: TMemoryStream;
     procedure SetTileStream(Value: TMemoryStream);
-    function  GetErrorString: string;
-    procedure SetErrorString(Value: string);
     function  GetHttpStatusCode: Cardinal;
     procedure SetHttpStatusCode(Value: Cardinal);
     function  GetDownloadResult: IDownloadResult;
@@ -118,7 +116,6 @@ type
     property OldTileSize: Cardinal read GetOldTileSize write SetOldTileSize;
     property TileMIME: string read GetTileMIME write SetTileMIME;
     property TileStream: TMemoryStream read GetTileStream write SetTileStream;
-    property ErrorString: string read GetErrorString write SetErrorString;
     property HttpStatusCode: Cardinal read GetHttpStatusCode write SetHttpStatusCode;
     property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
     property ResultFactory: IDownloadResultFactory read GetResultFactory;
@@ -244,6 +241,7 @@ begin
   if not FEventStatus.IsCanceled then
   begin
     FResultFactory := TDownloadResultFactoryTileDownload.Create(
+      GState.DownloadResultTextProvider,
       FTileZoom,
       FTileXY,
       FMapType,
@@ -268,7 +266,7 @@ procedure TTileDownloaderEventElement.OnAfterResponse();
 begin
   if not FEventStatus.IsCanceled then
   begin
-    FDownloadResult := FDownloadChecker.AfterResponce(FHttpStatusCode, FTileMIME, FRawResponseHeader);
+    FDownloadResult := FDownloadChecker.AfterResponse(FHttpStatusCode, FTileMIME, FRawResponseHeader);
     if FDownloadResult = nil then
     begin
       FDownloadResult := FDownloadChecker.AfterReciveData(FTileStream.Size, FTileStream.Memory, FHttpStatusCode, FRawResponseHeader);
@@ -297,27 +295,29 @@ end;
 
 procedure TTileDownloaderEventElement.ProcessEvent;
 var
+  VErrorString: string;
   VResultOk: IDownloadResultOk;
   VResultDownloadError: IDownloadResultError;
 begin
   try
+    VErrorString := '';
     try
       ExecCallBackList;
       if Supports(FDownloadResult, IDownloadResultOk, VResultOk) then begin
         if not FEventStatus.IsCanceled then
           GState.DownloadInfo.Add(1, VResultOk.Size);
       end else if Supports(FDownloadResult, IDownloadResultError, VResultDownloadError) then begin
-        FErrorString := VResultDownloadError.ErrorText;
+        VErrorString := VResultDownloadError.ErrorText;
       end;
     except
       on E: Exception do
-        FErrorString := E.Message;
+        VErrorString := E.Message;
       else
-        FErrorString := FRES_TileDownloadUnexpectedError;
+        VErrorString := FRES_TileDownloadUnexpectedError;
     end;
-    if FErrorString <> '' then begin
+    if VErrorString <> '' then begin
       if (FErrorLogger <> nil) and (not FEventStatus.IsCanceled) then
-        FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, FErrorString) );
+        FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, VErrorString) );
     end else begin
       if not FEventStatus.IsCanceled then
         TThread.Synchronize(nil, GuiSync);
@@ -463,16 +463,6 @@ end;
 function TTileDownloaderEventElement.GetTileStream: TMemoryStream;
 begin
   Result := FTileStream;
-end;
-
-procedure TTileDownloaderEventElement.SetErrorString(Value: string);
-begin
-  FErrorString := Value;
-end;
-
-function TTileDownloaderEventElement.GetErrorString: string;
-begin
-  Result := FErrorString;
 end;
 
 procedure TTileDownloaderEventElement.SetHttpStatusCode(Value: Cardinal);

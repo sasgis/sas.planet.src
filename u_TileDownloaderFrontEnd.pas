@@ -28,6 +28,9 @@ type
 
 implementation
 
+uses
+  gnugettext;
+
 { TTileDownloaderFrontEnd }
 
 constructor TTileDownloaderFrontEnd.Create(AConfig: IConfigDataProvider; AZmpFileName: string);
@@ -77,7 +80,7 @@ begin
     else
     begin
       FUseDwn := False;
-      AEvent.ErrorString := 'Downloader not Assigned!';
+      raise Exception.Create( _('Downloader not Assigned!') );
     end;
   end;
 end;

@@ -184,6 +184,7 @@ uses
   Types,
   GR32_Resamplers,
   KAZip,
+  gnugettext,
   u_GlobalState,
   i_DownloadResult,
   i_TileInfoBasic,
@@ -662,8 +663,7 @@ begin
       AEvent.AddToCallBackList(Self.OnTileDownload);
       FTileDownloader.Download(AEvent);
     end else begin
-      AEvent.ErrorString := 'Map Download is Disabled!';
-      raise Exception.Create('Для этой карты загрузка запрещена.');
+      raise Exception.Create( _('Для этой карты загрузка запрещена.') );
     end;
   end;
 end;
