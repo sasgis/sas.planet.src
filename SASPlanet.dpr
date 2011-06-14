@@ -229,6 +229,8 @@ uses
   u_TileStorageTypeListSimple in 'u_TileStorageTypeListSimple.pas',
   u_GECrypt in 'u_GECrypt.pas',
   u_GEIndexFile in 'u_GEIndexFile.pas',
+  i_DownloadResultTextProvider in 'i_DownloadResultTextProvider.pas',
+  u_DownloadResultTextProvider in 'u_DownloadResultTextProvider.pas',
   i_GeoCoder in 'i_GeoCoder.pas',
   u_GeoCodePlacemark in 'u_GeoCodePlacemark.pas',
   u_EnumUnknown in 'u_EnumUnknown.pas',

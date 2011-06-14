@@ -733,7 +733,7 @@ begin
     VRequestHead := '';
     VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersion).GetSize;
     GetRequest(ATile, AZoom, VUrl, VRequestHead);
-    VResultFactory := TDownloadResultFactoryTileDownload.Create(AZoom, ATile, Self, VUrl, VRequestHead);
+    VResultFactory := TDownloadResultFactoryTileDownload.Create(GState.DownloadResultTextProvider, AZoom, ATile, Self, VUrl, VRequestHead);
     VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
     if VPoolElement = nil then begin
       raise Exception.Create('No free connections');

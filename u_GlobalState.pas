@@ -47,6 +47,7 @@ uses
   i_GPSConfig,
   i_MarkCategoryFactoryConfig,
   i_GlobalViewMainConfig,
+  i_DownloadResultTextProvider,
   i_ImportFile,
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
@@ -100,6 +101,7 @@ type
     FGUISyncronizedTimerNotifier: IJclNotifier;
     FSensorList: IInterfaceList;
     FPerfCounterList: IInternalPerformanceCounterList;
+    FDownloadResultTextProvider: IDownloadResultTextProvider;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -170,6 +172,7 @@ type
     property GPSpar: TGPSpar read FGPSpar;
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property ViewConfig: IGlobalViewMainConfig read FViewConfig;
+    property DownloadResultTextProvider: IDownloadResultTextProvider read FDownloadResultTextProvider;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
@@ -235,6 +238,7 @@ uses
   u_GPSModuleFactoryByZylGPS,
   u_GPSPositionFactory,
   u_LocalCoordConverterFactorySimpe,
+  u_DownloadResultTextProvider,
   u_MainFormConfig,
   u_InternalPerformanceCounterList,
   u_ResStrings,
@@ -322,6 +326,7 @@ begin
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
+  FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
 end;
 
 destructor TGlobalState.Destroy;

@@ -9,8 +9,6 @@ uses
   i_DownloadChecker;
 
 type
-  TDownloadTileResult = (dtrOK, dtrSameTileSize, dtrErrorInternetOpen, dtrErrorInternetOpenURL, dtrProxyAuthError, dtrErrorMIMEType, dtrDownloadError, dtrTileNotExists, dtrBanError, dtrUnknownError);
-
   ITileDownlodSession = interface
     ['{2F41E328-BD28-4893-AAC5-8DC93FCC2BCF}']
     function DownloadTile(

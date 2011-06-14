@@ -7,11 +7,13 @@ uses
   i_DownloadResult,
   i_TileDownloadResult,
   u_MapType,
+  i_DownloadResultTextProvider,
   i_DownloadResultFactory;
 
 type
   TDownloadResultFactoryTileDownload = class(TInterfacedObject, IDownloadResultFactory)
   private
+    FTextProvider: IDownloadResultTextProvider;
     FUrl: string;
     FRequestHead: string;
     FTileInfo: ITileInfo;
@@ -38,6 +40,7 @@ type
     function BuildNotNecessary(AReasonText, ARawResponseHeader: string): IDownloadResultNotNecessary;
   public
     constructor Create(
+      ATextProvider: IDownloadResultTextProvider;
       AZoom: Byte;
       AXY: TPoint;
       AMapType: TMapType;
@@ -54,6 +57,7 @@ uses
 { TDownloadResultFactorySimpleDownload }
 
 constructor TDownloadResultFactoryTileDownload.Create(
+  ATextProvider: IDownloadResultTextProvider;
   AZoom: Byte;
   AXY: TPoint;
   AMapType: TMapType;
@@ -63,6 +67,7 @@ begin
   FTileInfo := TTileInfo.Create(AZoom, AXY, AMapType);
   FUrl := AUrl;
   FRequestHead := ARequestHead;
+  FTextProvider := ATextProvider;
 end;
 
 function TDownloadResultFactoryTileDownload.BuildBadContentType(

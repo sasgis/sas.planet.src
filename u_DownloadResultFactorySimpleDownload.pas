@@ -5,11 +5,13 @@ interface
 uses
   Types,
   i_DownloadResult,
+  i_DownloadResultTextProvider,
   i_DownloadResultFactory;
 
 type
   TDownloadResultFactorySimpleDownload = class(TInterfacedObject, IDownloadResultFactory)
   private
+    FTextProvider: IDownloadResultTextProvider;
     FUrl: string;
     FRequestHead: string;
   protected
@@ -35,6 +37,7 @@ type
     function BuildNotNecessary(AReasonText, ARawResponseHeader: string): IDownloadResultNotNecessary;
   public
     constructor Create(
+      ATextProvider: IDownloadResultTextProvider;
       AUrl: string;
       ARequestHead: string
     );
@@ -47,11 +50,14 @@ uses
 
 { TDownloadResultFactorySimpleDownload }
 
-constructor TDownloadResultFactorySimpleDownload.Create(AUrl,
-  ARequestHead: string);
+constructor TDownloadResultFactorySimpleDownload.Create(
+  ATextProvider: IDownloadResultTextProvider;
+  AUrl, ARequestHead: string
+);
 begin
   FUrl := AUrl;
   FRequestHead := ARequestHead;
+  FTextProvider := ATextProvider;
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildBadContentType(
