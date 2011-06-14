@@ -41,10 +41,10 @@ implementation
 constructor TKeyMovingConfig.Create;
 begin
   inherited;
-  FFirstKeyPressDelta := 32;
-  FMinPixelPerSecond := 256;
+  FFirstKeyPressDelta := 30;
+  FMinPixelPerSecond := 20;
   FMaxPixelPerSecond := 1024;
-  FSpeedChangeTime := 20;
+  FSpeedChangeTime := 3;
 end;
 
 procedure TKeyMovingConfig.DoReadConfig(AConfigData: IConfigDataProvider);
