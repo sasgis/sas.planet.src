@@ -4,8 +4,10 @@ interface
 
 uses
   Windows,
+  Controls,
   Forms,
   t_GeoTypes,
+  u_MapType,
   u_ExportProviderAbstract,
   fr_TilesDownload;
 
@@ -13,7 +15,12 @@ type
   TProviderTilesDownload = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesDownload;
+    FMapUpdateEvent: TMapUpdateEvent;
   public
+    constructor Create(
+      AParent: TWinControl;
+      AMapUpdateEvent: TMapUpdateEvent
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
@@ -32,12 +39,17 @@ uses
   i_LogForTaskThread,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
-  frm_Main,
   frm_ProgressDownload,
-  u_ResStrings,
-  u_MapType;
+  u_ResStrings;
 
 { TProviderTilesDownload }
+
+constructor TProviderTilesDownload.Create(AParent: TWinControl;
+  AMapUpdateEvent: TMapUpdateEvent);
+begin
+  inherited Create(AParent);
+  FMapUpdateEvent := AMapUpdateEvent;
+end;
 
 destructor TProviderTilesDownload.Destroy;
 begin
@@ -113,7 +125,12 @@ begin
     smb,
     FFrame.dtpReplaceOlderDate.DateTime
   );
-  TfrmProgressDownload.Create(Application, VThread, VThreadLog, frmMain.OnMapUpdate);
+  TfrmProgressDownload.Create(
+    Application,
+    VThread,
+    VThreadLog,
+    FMapUpdateEvent
+  );
 end;
 
 end.

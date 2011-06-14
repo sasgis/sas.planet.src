@@ -59,6 +59,7 @@ uses
   i_MainWindowPosition,
   i_LineOnMapEdit,
   i_PathDetalizeProvider,
+  i_MessageHandler,
   u_WindowLayerBasicList,
   u_GeoFun,
   u_MapLayerWiki,
@@ -86,6 +87,7 @@ uses
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
+  frm_RegionProcess,
   u_TileDownloaderUI;
 
 type
@@ -468,22 +470,21 @@ type
     FHintWindow: THintWindow;
     Frect_dwn: Boolean;
     Frect_p2: boolean;
-    FMainLayer: TMapMainLayer;
-    FLayerStatBar: TLayerStatBar;
-    FShowErrorLayer: TTileErrorInfoLayer;
-    FWikiLayer: TWikiLayer;
-    FdWhenMovingButton: integer;
+    FKeyMovingHandler: IMessageHandler;
     FMarshrutComment: string;
     movepoint: boolean;
     FSelectionRect: TDoubleRect;
 
+    FMainLayer: TMapMainLayer;
+    FLayerStatBar: TLayerStatBar;
+    FShowErrorLayer: TTileErrorInfoLayer;
+    FWikiLayer: TWikiLayer;
     FLayerScaleLine: TLayerScaleLine;
     FCalcLineLayer: TCalcLineLayer;
     FMarkPolyLineLayer: TMarkPolyLineLayer;
     FMarkPolygonLayer: TMarkPolygonLayer;
     FSelectionPolygonLayer: TSelectionPolygonLayer;
     FSelectionRectLayer: TSelectionRectLayer;
-
     FLayerMapGPS: TMapGPSLayer;
     FLayerGoto: TGotoLayer;
     FLayerFillingMap: TMapLayerFillingMap;
@@ -530,6 +531,7 @@ type
     FRuller:TBitmap32;
     FTumbler:TBitmap32;
     FSensorViewList: IGUIDInterfaceList;
+    FFormRegionProcess: TfrmRegionProcess;
 
     procedure InitSearchers;
     procedure CreateMapUIMapsList;
@@ -543,7 +545,7 @@ type
     procedure OnLineOnMapEditChange(Sender: TObject);
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
-    procedure zooming(ANewZoom: byte; move: boolean);
+    procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
     procedure ProcessPosChangeMessage(Sender: TObject);
     procedure CopyBtmToClipboard(btm: TBitmap);
@@ -564,17 +566,19 @@ type
     procedure SetToolbarsLock(AValue: Boolean);
 
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
+    procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
+    procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
+    procedure OnMapUpdate(AMapType: TMapType);
+    procedure OnBeforeViewChange(Sender: TObject);
+    procedure OnAfterViewChange(Sender: TObject);
   public
     MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
     procedure CreateMapUI;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
-    procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
-    procedure OnMapUpdate(AMapType: TMapType);
     procedure LayerMapMarksRedraw;
   end;
 
@@ -590,7 +594,6 @@ uses
   frm_GoTo,
   frm_About,
   frm_Settings,
-  frm_RegionProcess,
   frm_LonLatRectEdit,
   frm_MapTypeEdit,
   frm_IntrnalBrowser,
@@ -618,6 +621,7 @@ uses
   u_MainWindowPositionConfig,
   u_TileErrorLogProviedrStuped,
   u_LineOnMapEdit,
+  u_KeyMovingHandler,
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
   u_LanguageTBXItem,
@@ -643,6 +647,8 @@ var
   VLogger: TTileErrorLogProviedrStuped;
 begin
   inherited;
+
+  FFormRegionProcess := TfrmRegionProcess.Create(Self, Self.OnMapUpdate);
   FLinksList := TJclListenerNotifierLinksList.Create;
   FConfig := GState.MainFormConfig;
 
@@ -651,7 +657,6 @@ begin
   FTileErrorLogProvider := VLogger;
 
   FGpsPosChangeCounter := 0;
-  FdWhenMovingButton := 5;
   FCenterToGPSDelta := DoublePoint(NaN, NaN);
 
   TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
@@ -721,7 +726,13 @@ begin
   TBConfigProviderLoadPositions(Self, VProvider);
   OnToolbarsLockChange(nil);
   TBEditPath.Visible:=false;
-  FMarkDBGUI := TMarksDbGUIHelper.Create(GState.MarksDB, GState.ValueToStringConverterConfig, GState.MarksDB.MarksFactoryConfig.PointTemplateConfig.MarkPictureList);
+  FMarkDBGUI :=
+    TMarksDbGUIHelper.Create(
+      GState.MarksDB,
+      GState.ValueToStringConverterConfig,
+      GState.MarksDB.MarksFactoryConfig.PointTemplateConfig.MarkPictureList,
+      FFormRegionProcess
+    );
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -786,7 +797,12 @@ begin
         FConfig.LayersConfig.MapLayerGridsConfig
       );
     FLayersList.Add(FLayerGrids);
-    FLayerTileGrid := TMapLayerTileGrid.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MapLayerGridsConfig.TileGrid);
+    FLayerTileGrid :=
+      TMapLayerTileGrid.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid
+      );
     FLayersList.Add(FLayerTileGrid);
     FWikiLayer :=
       TWikiLayer.Create(
@@ -829,31 +845,97 @@ begin
         GState.GPSRecorder
       );
     FLayersList.Add(FLayerMapGPS);
-    FLayerGPSMarker := TMapLayerGPSMarker.Create(map, FConfig.ViewPortState, GState.GUISyncronizedTimerNotifier, FConfig.LayersConfig.GPSMarker, GState.GPSRecorder);
+    FLayerGPSMarker :=
+      TMapLayerGPSMarker.Create(
+        map,
+        FConfig.ViewPortState,
+        GState.GUISyncronizedTimerNotifier,
+        FConfig.LayersConfig.GPSMarker,
+        GState.GPSRecorder
+      );
     FLayersList.Add(FLayerGPSMarker);
-    FLayerSelection := TSelectionLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.LastSelectionLayerConfig, GState.LastSelectionInfo);
+    FLayerSelection :=
+      TSelectionLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.LastSelectionLayerConfig,
+        GState.LastSelectionInfo
+      );
     FLayersList.Add(FLayerSelection);
-    FCalcLineLayer := TCalcLineLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CalcLineLayerConfig, GState.ValueToStringConverterConfig);
+    FCalcLineLayer :=
+      TCalcLineLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.CalcLineLayerConfig,
+        GState.ValueToStringConverterConfig
+      );
     FLayersList.Add(FCalcLineLayer);
-    FMarkPolyLineLayer := TMarkPolyLineLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarkPolyLineLayerConfig);
+    FMarkPolyLineLayer :=
+      TMarkPolyLineLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.MarkPolyLineLayerConfig
+      );
     FLayersList.Add(FMarkPolyLineLayer);
-    FMarkPolygonLayer := TMarkPolygonLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.MarkPolygonLayerConfig);
+    FMarkPolygonLayer :=
+      TMarkPolygonLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.MarkPolygonLayerConfig
+      );
     FLayersList.Add(FMarkPolygonLayer);
-    FSelectionPolygonLayer := TSelectionPolygonLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.SelectionPolygonLayerConfig);
+    FSelectionPolygonLayer :=
+      TSelectionPolygonLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.SelectionPolygonLayerConfig
+      );
     FLayersList.Add(FSelectionPolygonLayer);
-    FSelectionRectLayer := TSelectionRectLayer.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.SelectionRectLayerConfig);
+    FSelectionRectLayer :=
+      TSelectionRectLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.SelectionRectLayerConfig
+      );
     FLayersList.Add(FSelectionRectLayer);
     FLayerGoto := TGotoLayer.Create(map, FConfig.ViewPortState);
     FLayersList.Add(FLayerGoto);
-    LayerMapNavToMark := TNavToMarkLayer.Create(map, FConfig.ViewPortState, FConfig.NavToPoint, FConfig.LayersConfig.NavToPointMarkerConfig);
+    LayerMapNavToMark :=
+      TNavToMarkLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.NavToPoint,
+        FConfig.LayersConfig.NavToPointMarkerConfig
+      );
     FLayersList.Add(LayerMapNavToMark);
-    FShowErrorLayer := TTileErrorInfoLayer.Create(map, FConfig.ViewPortState, FTileErrorLogProvider, GState.GUISyncronizedTimerNotifier);
+    FShowErrorLayer :=
+      TTileErrorInfoLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FTileErrorLogProvider,
+        GState.GUISyncronizedTimerNotifier
+      );
     FLayersList.Add(FShowErrorLayer);
-    FLayerMapCenterScale := TCenterScale.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.CenterScaleConfig);
+    FLayerMapCenterScale :=
+      TCenterScale.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.CenterScaleConfig
+      );
     FLayersList.Add(FLayerMapCenterScale);
-    FLayerScaleLine := TLayerScaleLine.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.ScaleLineConfig);
+    FLayerScaleLine :=
+      TLayerScaleLine.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.ScaleLineConfig
+      );
     FLayersList.Add(FLayerScaleLine);
-    FLayerStatBar:=TLayerStatBar.Create(map, FConfig.ViewPortState, FConfig.LayersConfig.StatBar);
+    FLayerStatBar :=
+      TLayerStatBar.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.StatBar
+      );
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap :=
       TMiniMapLayer.Create(
@@ -865,7 +947,14 @@ begin
       );
     FLayersList.Add(FLayerMiniMap);
 
-    FUIDownLoader := TTileDownloaderUI.Create(FConfig.DownloadUIConfig, FConfig.ViewPortState, FConfig.MainMapsConfig.GetAllActiveMapsSet, Self.OnMapTileUpdate, FTileErrorLogger);
+    FUIDownLoader :=
+      TTileDownloaderUI.Create(
+        FConfig.DownloadUIConfig,
+        FConfig.ViewPortState,
+        FConfig.MainMapsConfig.GetAllActiveMapsSet,
+        Self.OnMapTileUpdate,
+        FTileErrorLogger
+      );
 
     CreateMapUI;
 
@@ -878,6 +967,15 @@ begin
     NGShScale500000.Checked := VScale = 500000;
     NGShScale1000000.Checked := VScale = 1000000;
     NGShScale0.Checked := VScale = 0;
+
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnBeforeViewChange),
+      FConfig.ViewPortState.BeforeChangeNotifier
+    );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnAfterViewChange),
+      FConfig.ViewPortState.AfterChangeNotifier
+    );
 
     FLinksList.Add(
       TNotifyEventListener.Create(Self.ProcessPosChangeMessage),
@@ -1027,6 +1125,7 @@ begin
     ProcessPosChangeMessage(nil);
 
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
+    FKeyMovingHandler := TKeyMovingHandler.Create(map, FConfig.ViewPortState, FConfig.KeyMovingConfig);
   finally
     Enabled:=true;
     map.SetFocus;
@@ -1446,6 +1545,17 @@ begin
   end;
 end;
 
+procedure TfrmMain.OnAfterViewChange(Sender: TObject);
+begin
+  map.EndUpdate;
+  map.Changed;
+end;
+
+procedure TfrmMain.OnBeforeViewChange(Sender: TObject);
+begin
+  map.BeginUpdate;
+end;
+
 procedure TfrmMain.OnClickLayerItem(Sender: TObject);
 var
   VSender: TTBCustomItem;
@@ -1549,7 +1659,7 @@ begin
   NbackloadLayer.Checked := GState.ViewConfig.UsePrevZoomAtLayer;
   map.Color := GState.ViewConfig.BackGroundColor;
 
-  NGoToCur.Checked := FConfig.MainConfig.GetZoomingAtMousePos;
+  NGoToCur.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
   Ninvertcolor.Checked:=GState.BitmapPostProcessingConfig.InvertColor;
   TBGPSToPoint.Checked:=FConfig.GPSBehaviour.MapMove;
   tbitmGPSCenterMap.Checked:=TBGPSToPoint.Checked;
@@ -1565,7 +1675,7 @@ begin
     TBSMB.Caption := '';
   end;
 
-  Nanimate.Checked := FConfig.MainConfig.AnimateZoom;
+  Nanimate.Checked := FConfig.MapZoomingConfig.AnimateZoom;
 
   VGUID := FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID;
   for i := 0 to TBXSelectSrchType.Count - 1 do begin
@@ -1700,117 +1810,90 @@ end;
 procedure TfrmMain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
 var
   z: integer;
-  dWMB: integer;
   VZoom: Byte;
   VNewZoom: integer;
-  VMoveByDelta: Boolean;
-  VPointDelta: TDoublePoint;
 begin
   if Active then begin
     if not FMapZoomAnimtion then begin
-      case Msg.message of
-        WM_MOUSEWHEEL: begin
-          MouseCursorPos:=FmoveTrue;
-          if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
-          VZoom := FConfig.ViewPortState.GetCurrentZoom;
-          if Msg.wParam<0 then begin
-            VNewZoom := VZoom-z;
-          end else begin
-            VNewZoom := VZoom+z;
-          end;
-          if VNewZoom < 0 then VNewZoom := 0;
-          zooming(VNewZoom, FConfig.MainConfig.ZoomingAtMousePos);
-        end;
-        WM_KEYFIRST: begin
-          VMoveByDelta := False;
-          case Msg.wParam of
-            VK_RIGHT,
-            VK_LEFT,
-            VK_DOWN,
-            VK_UP: VMoveByDelta := True;
-            VK_F11: Handled := True;
-          end;
-          if VMoveByDelta then begin
-            if (FdWhenMovingButton<35) then begin
-              inc(FdWhenMovingButton);
+      FKeyMovingHandler.DoMessageEvent(Msg, Handled);
+      if not Handled then begin
+        case Msg.message of
+          WM_MOUSEWHEEL: begin
+            MouseCursorPos:=FmoveTrue;
+            if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
+            VZoom := FConfig.ViewPortState.GetCurrentZoom;
+            if Msg.wParam<0 then begin
+              VNewZoom := VZoom-z;
+            end else begin
+              VNewZoom := VZoom+z;
             end;
-            dWMB:=trunc(Power(FdWhenMovingButton,1.5));
+            if VNewZoom < 0 then VNewZoom := 0;
+            zooming(VNewZoom, MouseCursorPos, FConfig.MapZoomingConfig.ZoomingAtMousePos);
+          end;
+          WM_KEYFIRST: begin
             case Msg.wParam of
-              VK_RIGHT: VPointDelta := DoublePoint(dWMB, 0);
-              VK_LEFT: VPointDelta := DoublePoint(-dWMB, 0);
-              VK_DOWN: VPointDelta := DoublePoint(0, dWMB);
-              VK_UP: VPointDelta := DoublePoint(0, -dWMB);
-            else
-              VPointDelta := DoublePoint(0, 0);
-            end;
-            map.BeginUpdate;
-            try
-              FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
-            finally
-              map.EndUpdate;
-              map.Changed;
+              VK_F11: Handled := True;
             end;
           end;
-        end;
-        WM_KEYUP: begin
-          FdWhenMovingButton:=5;
-          case Msg.wParam of
-            VK_BACK: begin
-              if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
-               FLineOnMapEdit.DeleteActivePoint;
-              end;
-            end;
-            VK_ESCAPE: begin
-              case FCurrentOper of
-                ao_select_rect: begin
-                  if Frect_dwn then begin
-                    setalloperationfalse(ao_movemap);
-                    setalloperationfalse(ao_select_rect);
-                  end else begin
-                    setalloperationfalse(ao_movemap);
-                  end;
-                end;
-                ao_Add_Point: begin
-                  setalloperationfalse(ao_movemap);
-                end;
-                ao_select_poly,
-                ao_calc_line,
-                ao_add_line,
-                ao_add_poly,
-                ao_edit_line,
-                ao_edit_poly: begin
-                  if (FLineOnMapEdit.GetCount>0) then begin
-                    FLineOnMapEdit.Empty;
-                  end else begin
-                    setalloperationfalse(ao_movemap);
-                  end;
+          WM_KEYUP: begin
+            case Msg.wParam of
+              VK_BACK: begin
+                if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
+                 FLineOnMapEdit.DeleteActivePoint;
                 end;
               end;
-            end;
-            VK_RETURN: begin
-              case FCurrentOper of
-                ao_add_Poly,
-                ao_edit_Poly: begin
-                  if FLineOnMapEdit.GetCount > 2 then begin
-                    TBEditPathSaveClick(Self);
+              VK_ESCAPE: begin
+                case FCurrentOper of
+                  ao_select_rect: begin
+                    if Frect_dwn then begin
+                      setalloperationfalse(ao_movemap);
+                      setalloperationfalse(ao_select_rect);
+                    end else begin
+                      setalloperationfalse(ao_movemap);
+                    end;
                   end;
-                end;
-                ao_add_line,
-                ao_edit_line: begin
-                  if FLineOnMapEdit.GetCount > 1 then begin
-                    TBEditPathSaveClick(Self);
+                  ao_Add_Point: begin
+                    setalloperationfalse(ao_movemap);
                   end;
-                end;
-                ao_select_poly: begin
-                  if FLineOnMapEdit.GetCount > 2 then begin
-                    TBEditPathOkClick(Self)
+                  ao_select_poly,
+                  ao_calc_line,
+                  ao_add_line,
+                  ao_add_poly,
+                  ao_edit_line,
+                  ao_edit_poly: begin
+                    if (FLineOnMapEdit.GetCount>0) then begin
+                      FLineOnMapEdit.Empty;
+                    end else begin
+                      setalloperationfalse(ao_movemap);
+                    end;
                   end;
                 end;
               end;
-            end;
-            VK_F11: begin
-              TBFullSizeClick(nil);
-              Handled := True;
+              VK_RETURN: begin
+                case FCurrentOper of
+                  ao_add_Poly,
+                  ao_edit_Poly: begin
+                    if FLineOnMapEdit.GetCount > 2 then begin
+                      TBEditPathSaveClick(Self);
+                    end;
+                  end;
+                  ao_add_line,
+                  ao_edit_line: begin
+                    if FLineOnMapEdit.GetCount > 1 then begin
+                      TBEditPathSaveClick(Self);
+                    end;
+                  end;
+                  ao_select_poly: begin
+                    if FLineOnMapEdit.GetCount > 2 then begin
+                      TBEditPathOkClick(Self)
+                    end;
+                  end;
+                end;
+              end;
+              VK_F11: begin
+                TBFullSizeClick(nil);
+                Handled := True;
+              end;
             end;
           end;
         end;
@@ -1919,13 +2002,7 @@ begin
             VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
             VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
             if VDelta > VMinDelta then begin
-              map.BeginUpdate;
-              try
-                FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
-              finally
-                map.EndUpdate;
-                map.Changed;
-              end;
+              FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
             end;
           end else begin
             VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
@@ -1942,13 +2019,7 @@ begin
                 VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
                 VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
                 if VDelta > VMinDelta then begin
-                  map.BeginUpdate;
-                  try
-                    FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
-                  finally
-                    map.EndUpdate;
-                    map.Changed;
-                  end;
+                  FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
                 end;
               end;
             end;
@@ -1974,86 +2045,77 @@ begin
   end;
 end;
 
-procedure TfrmMain.zooming(ANewZoom:byte;move:boolean);
-  procedure usleep(mils:integer);
-  var startTS,endTS,freqTS:int64;
-  begin
-   if mils>0 then begin
-     QueryPerformanceCounter(startTS);
-     repeat
-       QueryPerformanceCounter(endTS);
-       QueryPerformanceFrequency(freqTS);
-     until ((endTS-startTS)/(freqTS/1000))>mils;
-   end;
-  end;
-var i,steps:integer;
-    ts1,ts2,fr:int64;
-    Scale: Double;
-    VZoom: Byte;
-    VMousePos: TPoint;
+procedure TfrmMain.zooming(ANewZoom:byte; AMousePos: TPoint; move:boolean);
+var
+  ts1,ts2,ts3,fr:int64;
+  Scale: Double;
+  VZoom: Byte;
+  VAlfa: Double;
+  VTime: Double;
+  VLastTime: Double;
+  VMaxTime: Double;
+  VUseAnimation: Boolean;
 begin
-  TBZoom_Out.Enabled := False;
-  TBZoomIn.Enabled := False;
-  NZoomIn.Enabled := False;
-  NZoomOut.Enabled := False;
-  VZoom := FConfig.ViewPortState.GetCurrentZoom;
   if (FMapZoomAnimtion)or(FMapMoving)or(ANewZoom>23) then exit;
   FMapZoomAnimtion:=True;
-  VMousePos := MouseCursorPos;
-
-  if (abs(ANewZoom-VZoom)=1)and(FConfig.MainConfig.AnimateZoom) then begin
-    steps:=11;
-    for i:=0 to steps-1 do begin
-      QueryPerformanceCounter(ts1);
-      if VZoom>ANewZoom then begin
-        Scale := 1/(1 + i/(steps - 1));
-      end else begin
-        Scale := 3 - (1/(1+i/(steps - 1)))*2;
-      end;
-      map.BeginUpdate;
-      try
-        if move then begin
-          FConfig.ViewPortState.ScaleTo(Scale, VMousePos);
-        end else begin
-          FConfig.ViewPortState.ScaleTo(Scale);
-        end;
-      finally
-        map.EndUpdate;
-        map.Changed;
-      end;
-      application.ProcessMessages;
-      QueryPerformanceCounter(ts2);
-      QueryPerformanceFrequency(fr);
-      ts1:=round((ts2-ts1)/(fr/1000));
-      if (25-ts1>0) then begin
-        usleep(25-ts1);
-      end;
-    end;
-    application.ProcessMessages;
-  end;
-  map.BeginUpdate;
   try
+    VZoom := FConfig.ViewPortState.GetCurrentZoom;
+    VMaxTime := FConfig.MapZoomingConfig.AnimateZoomTime;
+    VUseAnimation :=
+      (abs(ANewZoom-VZoom)=1)and
+      (FConfig.MapZoomingConfig.AnimateZoom) and
+      (VMaxTime > 0);
+
     if move then begin
-      FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, VMousePos);
+      FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, AMousePos);
     end else begin
       FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
     end;
-  finally
-    map.EndUpdate;
-    map.Changed;
-  end;
 
-  FMapZoomAnimtion:=False;
+    if VUseAnimation then begin
+      VTime := 0;
+      VLastTime := 0;
+      QueryPerformanceCounter(ts1);
+      ts3 := ts1;
+      while (VTime + VLastTime < VMaxTime) do begin
+        VAlfa := VTime/VMaxTime;
+        if VZoom>ANewZoom then begin
+          Scale := 2 - VAlfa;
+        end else begin
+          Scale := (1 + VAlfa)/2;
+        end;
+        if move then begin
+          FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
+        end else begin
+          FConfig.ViewPortState.ScaleTo(Scale);
+        end;
+        application.ProcessMessages;
+        QueryPerformanceCounter(ts2);
+        QueryPerformanceFrequency(fr);
+        VLastTime := (ts2-ts3)/(fr/1000);
+        VTime := (ts2-ts1)/(fr/1000);
+        ts3 := ts2;
+      end;
+      Scale := 1;
+      if move then begin
+        FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
+      end else begin
+        FConfig.ViewPortState.ScaleTo(Scale);
+      end;
+    end;
+  finally
+    FMapZoomAnimtion:=False;
+  end;
 end;
 
 procedure TfrmMain.NzoomInClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom + 1, false);
+ zooming(FConfig.ViewPortState.GetCurrentZoom + 1, MouseCursorPos, false);
 end;
 
 procedure TfrmMain.NZoomOutClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom - 1, false);
+ zooming(FConfig.ViewPortState.GetCurrentZoom - 1, MouseCursorPos, false);
 end;
 
 
@@ -2083,12 +2145,12 @@ end;
 
 procedure TfrmMain.TBZoom_outClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom - 1, false);
+ zooming(FConfig.ViewPortState.GetCurrentZoom - 1, MouseCursorPos, false);
 end;
 
 procedure TfrmMain.TBZoomInClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom + 1, false);
+ zooming(FConfig.ViewPortState.GetCurrentZoom + 1, MouseCursorPos, false);
 end;
 
 procedure TfrmMain.WMGetMinMaxInfo(var msg:TWMGetMinMaxInfo);
@@ -2460,7 +2522,7 @@ begin
   VZoom := GState.LastSelectionInfo.Zoom;
   VPolygon := Copy(GState.LastSelectionInfo.Polygon);
   if length(VPolygon)>0 then begin
-    frmRegionProcess.Show_(VZoom, VPolygon);
+    FFormRegionProcess.Show_(VZoom, VPolygon);
   end else begin
     showmessage(SAS_MSG_NeedHL);
   end;
@@ -2663,7 +2725,7 @@ begin
     GetMinMax(VLonLatRect, Poly);
     if VSelLonLat.Execute(VLonLatRect) Then Begin
       Poly := PolygonFromRect(VLonLatRect);
-      frmRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
+      FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
       Poly := nil;
     End;
   Finally
@@ -2710,26 +2772,20 @@ end;
 procedure TfrmMain.mapResize(Sender: TObject);
 begin
   if (not ProgramClose)and(not ProgramStart)then begin
-    map.BeginUpdate;
-    try
-      FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
-    finally
-      map.EndUpdate;
-      map.Changed;
-    end;
+    FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
   end;
 end;
 
 procedure TfrmMain.TBLoadSelFromFileClick(Sender: TObject);
 begin
   if (OpenDialog1.Execute) then begin
-    frmRegionProcess.LoadSelFromFile(OpenDialog1.FileName);
+    FFormRegionProcess.LoadSelFromFile(OpenDialog1.FileName);
   end
 end;
 
 procedure TfrmMain.NinvertcolorClick(Sender: TObject);
 begin
- GState.BitmapPostProcessingConfig.InvertColor:=Ninvertcolor.Checked;
+  GState.BitmapPostProcessingConfig.InvertColor:=Ninvertcolor.Checked;
 end;
 
 procedure TfrmMain.mapDblClick(Sender: TObject);
@@ -2749,13 +2805,7 @@ begin
   end;
   FMapMoving:=false;
   if (FCurrentOper=ao_movemap) then begin
-    map.BeginUpdate;
-    try
-      FConfig.ViewPortState.ChangeMapPixelToVisualPoint(r);
-    finally
-      map.EndUpdate;
-      map.Changed;
-    end;
+    FConfig.ViewPortState.ChangeMapPixelToVisualPoint(r);
   end;
 end;
 
@@ -3019,7 +3069,7 @@ begin
       FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
       if (Frect_p2) then begin
         VPoly := PolygonFromRect(VSelectionRect);
-        frmRegionProcess.Show_(VZoom, VPoly);
+        FFormRegionProcess.Show_(VZoom, VPoly);
         FSelectionRectLayer.DrawNothing;
         VPoly := nil;
         Frect_p2:=false;
@@ -3143,13 +3193,7 @@ begin
   VMouseMoveDelta := Point(FMouseDownPoint.x-FMouseUpPoint.X, FMouseDownPoint.y-FMouseUpPoint.y);
 
   if VMapMoving then begin
-    map.BeginUpdate;
-    try
-      FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
-    finally
-      map.EndUpdate;
-      map.Changed;
-    end;
+    FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
   end;
 
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
@@ -3314,21 +3358,16 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FmoveTrue);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-// CState:=ShowCursor(True);
-// while CState < 0 do begin
-//  CState:= ShowCursor(true);
-// end;
-// sleep(5);
   if (movepoint) then begin
     FLineOnMapEdit.MoveActivePoint(VLonLat);
     exit;
   end;
- if (FCurrentOper=ao_select_rect)and(Frect_dwn)and(not(ssRight in Shift)) then begin
-   FSelectionRect.BottomRight:=VLonLat;
-   VSelectionRect := FSelectionRect;
-   PrepareSelectionRect(Shift,VSelectionRect);
-   FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
- end;
+  if (FCurrentOper=ao_select_rect)and(Frect_dwn)and(not(ssRight in Shift)) then begin
+    FSelectionRect.BottomRight:=VLonLat;
+    VSelectionRect := FSelectionRect;
+    PrepareSelectionRect(Shift,VSelectionRect);
+    FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
+  end;
  if FWinPosition.GetIsFullScreen then begin
                        if FmoveTrue.y<10 then begin
                                      TBDock.Parent:=map;
@@ -3365,13 +3404,7 @@ begin
  end;
  if FMapZoomAnimtion then exit;
  if FMapMoving then begin
-  map.BeginUpdate;
-  try
     FConfig.ViewPortState.MoveTo(VMouseMoveDelta);
-  finally
-    map.EndUpdate;
-    map.Changed;
-  end;
  end;
  if not(FMapMoving) then begin
     FLayerStatBar.Redraw;
@@ -3572,7 +3605,7 @@ end;
 
 procedure TfrmMain.TBItem6Click(Sender: TObject);
 begin
-  frmMarksExplorer.EditMarks(FMarkDBGUI);
+  frmMarksExplorer.EditMarks(FMarkDBGUI, TMapViewGotoOnFMain.Create(Self.topos));
 end;
 
 procedure TfrmMain.LayerMapMarksRedraw;
@@ -3679,7 +3712,7 @@ procedure TfrmMain.TBEditPathOkClick(Sender: TObject);
 begin
   case FCurrentOper of
    ao_select_poly: begin
-         frmRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
+         FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
          setalloperationfalse(ao_movemap);
         end;
   end;
@@ -3701,7 +3734,7 @@ end;
 
 procedure TfrmMain.NanimateClick(Sender: TObject);
 begin
-  FConfig.MainConfig.AnimateZoom := Nanimate.Checked;
+  FConfig.MapZoomingConfig.AnimateZoom := Nanimate.Checked;
 end;
 
 procedure TfrmMain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
@@ -3780,7 +3813,7 @@ begin
         VThread := TThreadDownloadTiles.Create(VSimpleLog, VFileName, GState.SessionLastSuccess, FConfig.ViewPortState.GetCurrentZoom);
         TfrmProgressDownload.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
       end else if ExtractFileExt(VFileName)='.hlg' then begin
-        frmRegionProcess.LoadSelFromFile(VFileName);
+        FFormRegionProcess.LoadSelFromFile(VFileName);
       end else begin
         VImportConfig := frmImportConfigEdit.GetImportConfig(FMarkDBGUI);
         if VImportConfig <> nil then begin
@@ -3815,7 +3848,7 @@ begin
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
   VPolygon := PolygonFromRect(VLonLatRect);
-  frmRegionProcess.Show_(VZoom, VPolygon);
+  FFormRegionProcess.Show_(VZoom, VPolygon);
 end;
 
 procedure TfrmMain.TBGPSToPointCenterClick(Sender: TObject);
@@ -3830,7 +3863,7 @@ end;
 
 procedure TfrmMain.NGoToCurClick(Sender: TObject);
 begin
-  FConfig.MainConfig.ZoomingAtMousePos := (Sender as TTBXItem).Checked
+  FConfig.MapZoomingConfig.ZoomingAtMousePos := (Sender as TTBXItem).Checked
 end;
 
 procedure TfrmMain.TBXSelectSrchClick(Sender: TObject);
@@ -4149,7 +4182,7 @@ procedure TfrmMain.ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
 begin
   if Button=mbLeft then begin
     ZSliderMouseMove(Sender,[ssLeft],X,Y,Layer);
-    zooming(ZSlider.Tag,false);
+    zooming(ZSlider.Tag, MouseCursorPos, false);
   end;
 end;
 

@@ -13,8 +13,10 @@ uses
   i_MapLayerNavToPointMarkerConfig,
   i_MainFormBehaviourByGPSConfig,
   i_MainGeoCoderConfig,
+  i_KeyMovingConfig,
   i_UsedMarksConfig,
   i_KmlLayerConfig,
+  i_MapZoomingConfig,
   i_MiniMapLayerConfig,
   i_CenterScaleConfig,
   i_ScaleLineConfig,
@@ -31,11 +33,6 @@ uses
 type
   IMainFormMainConfig = interface(IConfigDataElement)
     ['{5388E4B8-801A-445F-BF07-DE520A5AFA06}']
-    // Фиксировать центр изменения масштаба под курсором мыши
-    function GetZoomingAtMousePos: Boolean;
-    procedure SetZoomingAtMousePos(AValue: Boolean);
-    property ZoomingAtMousePos: Boolean read GetZoomingAtMousePos write SetZoomingAtMousePos;
-
     function GetShowMapName: Boolean;
     procedure SetShowMapName(AValue: Boolean);
     property ShowMapName: Boolean read GetShowMapName write SetShowMapName;
@@ -44,11 +41,6 @@ type
     function GetMouseScrollInvert: Boolean;
     procedure SetMouseScrollInvert(AValue: Boolean);
     property MouseScrollInvert: Boolean read GetMouseScrollInvert write SetMouseScrollInvert;
-
-    //Анимированный зум
-    function GetAnimateZoom: Boolean;
-    procedure SetAnimateZoom(AValue: Boolean);
-    property AnimateZoom: Boolean read GetAnimateZoom write SetAnimateZoom;
 
     // Показывать хинты при нахождении мыши над меткой
     function GetShowHintOnMarks: Boolean;
@@ -144,7 +136,13 @@ type
 
     function GetDownloadUIConfig: IDownloadUIConfig;
     property DownloadUIConfig: IDownloadUIConfig read GetDownloadUIConfig;
-  end;
+
+    function GetKeyMovingConfig: IKeyMovingConfig;
+    property KeyMovingConfig: IKeyMovingConfig read GetKeyMovingConfig;
+
+    function GetMapZoomingConfig: IMapZoomingConfig;
+    property MapZoomingConfig: IMapZoomingConfig read GetMapZoomingConfig;
+ end;
 
 implementation
 

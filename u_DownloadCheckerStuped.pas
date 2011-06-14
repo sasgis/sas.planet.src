@@ -16,7 +16,7 @@ type
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
     FCheckTileSize: Boolean;
-    FExistsFileSize: Cardinal;
+    FExistsFileSize: Integer;
   protected
     function BeforeRequest(AUrl:  string; ARequestHead: string): IDownloadResult;
     function AfterResponce(
@@ -37,7 +37,7 @@ type
       AExpectedMIMETypes: string;
       ADefaultMIMEType: string;
       ACheckTileSize: Boolean;
-      AExistsFileSize: Cardinal
+      AExistsFileSize: Integer
     );
   end;
 
@@ -54,7 +54,7 @@ constructor TDownloadCheckerStuped.Create(
   AIgnoreMIMEType: Boolean;
   AExpectedMIMETypes, ADefaultMIMEType: string;
   ACheckTileSize: Boolean;
-  AExistsFileSize: Cardinal
+  AExistsFileSize: Integer
 );
 begin
   FResultFactory := AResultFactory;

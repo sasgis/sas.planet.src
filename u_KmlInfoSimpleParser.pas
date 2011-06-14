@@ -342,11 +342,11 @@ begin
               result := false;
             end;
           end;
+          VItem := BuildItem(VName, VDescription, VPoints, VRect);
+          if VItem <> nil then begin
+            AList.Add(VItem);
+          end;
         end;
-      VItem := BuildItem(VName, VDescription, VPoints, VRect);
-      if VItem <> nil then begin
-        AList.Add(VItem);
-      end;
       position := PosEndPlace + 1;
     except
       Result := false;

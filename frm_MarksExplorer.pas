@@ -24,6 +24,7 @@ uses
   u_ResStrings,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
+  i_MapViewGoto,
   i_MarksSimple,
   i_MarkCategory,
   u_MarksDbGUIHelper,
@@ -94,6 +95,7 @@ type
     procedure btnSaveMarkClick(Sender: TObject);
     procedure TBXItem4Click(Sender: TObject);
   private
+    FMapGoto: IMapViewGoto;
     FCategoryList: IInterfaceList;
     FMarksList: IInterfaceList;
     FMarkDBGUI: TMarksDbGUIHelper;
@@ -103,7 +105,7 @@ type
     function GetSelectedMarkId: IMarkId;
     function GetSelectedMarkFull: IMarkFull;
   public
-    procedure EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
+    procedure EditMarks(AMarkDBGUI: TMarksDbGUIHelper; AMapGoto: IMapViewGoto);
   end;
 
 var
@@ -312,7 +314,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    frmMain.topos(VMark.GetGoToLonLat, GState.MainFormConfig.ViewPortState.GetCurrentZoom, True);
+    FMapGoto.GotoPos(VMark.GetGoToLonLat, GState.MainFormConfig.ViewPortState.GetCurrentZoom);
   end;
 end;
 
@@ -499,9 +501,12 @@ begin
   end;
 end;
 
-procedure TfrmMarksExplorer.EditMarks(AMarkDBGUI: TMarksDbGUIHelper);
+procedure TfrmMarksExplorer.EditMarks(
+  AMarkDBGUI: TMarksDbGUIHelper; AMapGoto: IMapViewGoto
+);
 begin
   FMarkDBGUI := AMarkDBGUI;
+  FMapGoto := AMapGoto;
   UpdateCategoryTree;
   UpdateMarksList;
   btnNavOnMark.Checked:= GState.MainFormConfig.NavToPoint.IsActive;

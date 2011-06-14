@@ -12,6 +12,7 @@ uses
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
+  frm_RegionProcess,
   u_MarksDb;
 
 type
@@ -20,6 +21,7 @@ type
     FMarksDB: TMarksDB;
     FMarkPictureList: IMarkPictureList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FFormRegionProcess: TfrmRegionProcess;
   public
     procedure CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
     procedure CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
@@ -38,7 +40,12 @@ type
     property MarksDB: TMarksDB read FMarksDB;
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
   public
-    constructor Create(AMarksDB: TMarksDB; AValueToStringConverterConfig: IValueToStringConverterConfig; AMarkPictureList: IMarkPictureList);
+    constructor Create(
+      AMarksDB: TMarksDB;
+      AValueToStringConverterConfig: IValueToStringConverterConfig;
+      AMarkPictureList: IMarkPictureList;
+      AFormRegionProcess: TfrmRegionProcess
+    );
   end;
 
 implementation
@@ -48,7 +55,6 @@ uses
   Dialogs,
   i_Datum,
   u_ResStrings,
-  frm_RegionProcess,
   frm_MarkEditPoint,
   frm_MarkEditPoly,
   frm_MarkEditPath;
@@ -192,12 +198,14 @@ end;
 constructor TMarksDbGUIHelper.Create(
   AMarksDB: TMarksDB;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
-  AMarkPictureList: IMarkPictureList
+  AMarkPictureList: IMarkPictureList;
+  AFormRegionProcess: TfrmRegionProcess
 );
 begin
   FMarkPictureList := AMarkPictureList;
   FMarksDB := AMarksDB;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FFormRegionProcess := AFormRegionProcess;
 end;
 
 function TMarksDbGUIHelper.DeleteMarkModal(AMarkID: IMarkID;
@@ -270,7 +278,7 @@ begin
   Result:=false;
   if AMark <> nil then begin
     if AMark.IsPoly then begin
-      frmRegionProcess.Show_(AZoom, AMark.Points);
+      FFormRegionProcess.Show_(AZoom, AMark.Points);
       Result:=true;
     end else begin
       ShowMessage(SAS_MSG_FunExForPoly);

@@ -402,6 +402,8 @@ uses
   u_GeoCoderListSimple in 'u_GeoCoderListSimple.pas',
   i_MainGeoCoderConfig in 'i_MainGeoCoderConfig.pas',
   u_MainGeoCoderConfig in 'u_MainGeoCoderConfig.pas',
+  i_KeyMovingConfig in 'i_KeyMovingConfig.pas',
+  u_KeyMovingConfig in 'u_KeyMovingConfig.pas',
   i_MainFormBehaviourByGPSConfig in 'i_MainFormBehaviourByGPSConfig.pas',
   u_MainFormBehaviourByGPSConfig in 'u_MainFormBehaviourByGPSConfig.pas',
   i_ValueToStringConverter in 'i_ValueToStringConverter.pas',
@@ -447,6 +449,8 @@ uses
   i_BitmapPostProcessingConfig in 'i_BitmapPostProcessingConfig.pas',
   u_BitmapPostProcessingConfigStatic in 'u_BitmapPostProcessingConfigStatic.pas',
   u_BitmapPostProcessingConfig in 'u_BitmapPostProcessingConfig.pas',
+  i_MapZoomingConfig in 'i_MapZoomingConfig.pas',
+  u_MapZoomingConfig in 'u_MapZoomingConfig.pas',
   i_MainFormConfig in 'i_MainFormConfig.pas',
   u_MainFormMainConfig in 'u_MainFormMainConfig.pas',
   u_MainFormConfig in 'u_MainFormConfig.pas',
@@ -462,6 +466,8 @@ uses
   u_LineOnMapEdit in 'u_LineOnMapEdit.pas',
   i_GlobalViewMainConfig in 'i_GlobalViewMainConfig.pas',
   u_GlobalViewMainConfig in 'u_GlobalViewMainConfig.pas',
+  i_MessageHandler in 'i_MessageHandler.pas',
+  u_KeyMovingHandler in 'u_KeyMovingHandler.pas',
   i_GPSRecorder in 'i_GPSRecorder.pas',
   u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
   i_GPS in 'i_GPS.pas',
@@ -558,7 +564,6 @@ begin
     Application.CreateForm(TfrmGoTo, frmGoTo);
     Application.CreateForm(TfrmAbout, frmAbout);
     Application.CreateForm(TfrmSettings, frmSettings);
-    Application.CreateForm(TfrmRegionProcess, frmRegionProcess);
     Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
     Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
     Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
