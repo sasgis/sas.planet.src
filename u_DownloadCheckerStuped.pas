@@ -19,7 +19,7 @@ type
     FExistsFileSize: Integer;
   protected
     function BeforeRequest(AUrl:  string; ARequestHead: string): IDownloadResult;
-    function AfterResponce(
+    function AfterResponse(
       var AStatusCode: Cardinal;
       var AContentType: string;
       var AResponseHead: string
@@ -72,7 +72,7 @@ begin
 // Делаем ничего
 end;
 
-function TDownloadCheckerStuped.AfterResponce(
+function TDownloadCheckerStuped.AfterResponse(
   var AStatusCode: Cardinal;
   var AContentType: string;
   var AResponseHead: string

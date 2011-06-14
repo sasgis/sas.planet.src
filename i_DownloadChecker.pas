@@ -13,7 +13,7 @@ type
       AUrl:  string;
       ARequestHead: string
     ): IDownloadResult;
-    function AfterResponce(
+    function AfterResponse(
       var AStatusCode: Cardinal;
       var AContentType: string;
       var AResponseHead: string

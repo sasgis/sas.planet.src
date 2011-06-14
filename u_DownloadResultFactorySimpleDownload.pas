@@ -5,11 +5,13 @@ interface
 uses
   Types,
   i_DownloadResult,
+  i_DownloadResultTextProvider,
   i_DownloadResultFactory;
 
 type
   TDownloadResultFactorySimpleDownload = class(TInterfacedObject, IDownloadResultFactory)
   private
+    FTextProvider: IDownloadResultTextProvider;
     FUrl: string;
     FRequestHead: string;
   protected
@@ -35,6 +37,7 @@ type
     function BuildNotNecessary(AReasonText, ARawResponseHeader: string): IDownloadResultNotNecessary;
   public
     constructor Create(
+      ATextProvider: IDownloadResultTextProvider;
       AUrl: string;
       ARequestHead: string
     );
@@ -47,27 +50,30 @@ uses
 
 { TDownloadResultFactorySimpleDownload }
 
-constructor TDownloadResultFactorySimpleDownload.Create(AUrl,
-  ARequestHead: string);
+constructor TDownloadResultFactorySimpleDownload.Create(
+  ATextProvider: IDownloadResultTextProvider;
+  AUrl, ARequestHead: string
+);
 begin
   FUrl := AUrl;
   FRequestHead := ARequestHead;
+  FTextProvider := ATextProvider;
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildBadContentType(
   AContentType, ARawResponseHeader: string): IDownloadResultBadContentType;
 begin
-  Result := TDownloadResultBadContentType.Create(FUrl, FRequestHead, AContentType, ARawResponseHeader);
+  Result := TDownloadResultBadContentType.Create(FUrl, FRequestHead, AContentType, ARawResponseHeader, 'Неожиданный тип %s');
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildBadProxyAuth: IDownloadResultProxyError;
 begin
-  Result := TDownloadResultBadProxyAuth.Create(FUrl, FRequestHead);
+  Result := TDownloadResultProxyError.Create(FUrl, FRequestHead, 'Ошибка авторизации на прокси');
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildBanned(ARawResponseHeader: string): IDownloadResultBanned;
 begin
-  Result := TDownloadResultBanned.Create(FUrl, FRequestHead, ARawResponseHeader);
+  Result := TDownloadResultBanned.Create(FUrl, FRequestHead, ARawResponseHeader, 'Похоже вас забанили');
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildCanceled: IDownloadResultCanceled;
@@ -85,36 +91,36 @@ function TDownloadResultFactorySimpleDownload.BuildDataNotExistsByStatusCode(
   ARawResponseHeader: string;
   AStatusCode: DWORD): IDownloadResultDataNotExists;
 begin
-  Result := TDownloadResultDataNotExistsByStatusCode.Create(FUrl, FRequestHead, ARawResponseHeader, AStatusCode);
+  Result := TDownloadResultDataNotExistsByStatusCode.Create(FUrl, FRequestHead, ARawResponseHeader, 'Данныео отсутствуют. Статус %d', AStatusCode);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildDataNotExistsZeroSize(ARawResponseHeader: string): IDownloadResultDataNotExists;
 begin
-  Result := TDownloadResultDataNotExistsZeroSize.Create(FUrl, FRequestHead, ARawResponseHeader);
+  Result := TDownloadResultDataNotExistsZeroSize.Create(FUrl, FRequestHead, ARawResponseHeader, 'Получен ответ нулевой длинны');
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildLoadErrorByErrorCode(
   AErrorCode: DWORD): IDownloadResultError;
 begin
-  Result := TDownloadResultLoadErrorByErrorCode.Create(FUrl, FRequestHead, AErrorCode);
+  Result := TDownloadResultLoadErrorByErrorCode.Create(FUrl, FRequestHead, 'Ошибка загрузки. Код ошибки %d', AErrorCode);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildLoadErrorByStatusCode(
   AStatusCode: DWORD): IDownloadResultError;
 begin
-  Result := TDownloadResultLoadErrorByStatusCode.Create(FUrl, FRequestHead, AStatusCode);
+  Result := TDownloadResultLoadErrorByStatusCode.Create(FUrl, FRequestHead, 'Ошибка загрузки. Статус %d', AStatusCode);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildLoadErrorByUnknownStatusCode(
   AStatusCode: DWORD): IDownloadResultError;
 begin
-  Result := TDownloadResultLoadErrorByUnknownStatusCode.Create(FUrl, FRequestHead, AStatusCode);
+  Result := TDownloadResultLoadErrorByUnknownStatusCode.Create(FUrl, FRequestHead, 'Неизвестный статус %d', AStatusCode);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildNoConnetctToServerByErrorCode(
   AErrorCode: DWORD): IDownloadResultNoConnetctToServer;
 begin
-  Result := TDownloadResultNoConnetctToServerByErrorCode.Create(FUrl, FRequestHead, AErrorCode);
+  Result := TDownloadResultNoConnetctToServerByErrorCode.Create(FUrl, FRequestHead, 'Ошибка подключения к серверу. Код ошибки %d', AErrorCode);
 end;
 
 function TDownloadResultFactorySimpleDownload.BuildNotNecessary(
@@ -135,7 +141,7 @@ end;
 
 function TDownloadResultFactorySimpleDownload.BuildUnexpectedProxyAuth: IDownloadResultProxyError;
 begin
-  Result := TDownloadResultUnexpectedProxyAuth.Create(FUrl, FRequestHead);
+  Result := TDownloadResultProxyError.Create(FUrl, FRequestHead, 'Настройки не предусматривают авторизацию на прокси');
 end;
 
 end.
