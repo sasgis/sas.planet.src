@@ -98,7 +98,6 @@ uses
   u_DownloadResultFactorySimpleDownload in 'u_DownloadResultFactorySimpleDownload.pas',
   u_DownloadResultFactoryTileDownload in 'u_DownloadResultFactoryTileDownload.pas',
   i_DownloadChecker in 'i_DownloadChecker.pas',
-  u_DownloadExceptions in 'u_DownloadExceptions.pas',
   u_DownloadCheckerStuped in 'u_DownloadCheckerStuped.pas',
   u_ThreadDownloadTiles in 'RegionProcess\u_ThreadDownloadTiles.pas',
   u_ThreadMapCombineBase in 'RegionProcess\u_ThreadMapCombineBase.pas',
