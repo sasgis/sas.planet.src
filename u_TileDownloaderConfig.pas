@@ -18,7 +18,6 @@ type
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
-    FUserAgentString: string;
 
     FStatic: ITileDownloaderConfigStatic;
     function CreateStatic: ITileDownloaderConfigStatic;
@@ -27,10 +26,7 @@ type
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetProxyConfig: IProxyConfig;
-    function GetTimeOut: Cardinal;
-    function GetSleepOnResetConnection: Cardinal;
-    function GetDownloadTryCount: Integer;
+    function GetInetConfig: IInetConfig;
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);
@@ -43,9 +39,6 @@ type
 
     function GetDefaultMIMEType: string;
     procedure SetDefaultMIMEType(AValue: string);
-
-    function GetUserAgentString: string;
-    procedure SetUserAgentString(AValue: string);
 
     function GetStatic: ITileDownloaderConfigStatic;
   public
@@ -67,7 +60,6 @@ begin
   FIgnoreMIMEType := False;
   FDefaultMIMEType := 'image/jpg';
   FExpectedMIMETypes := 'image/jpg';
-  FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
 
   Add(FIntetConfig, nil, False, False, False, True);
 end;
@@ -78,15 +70,11 @@ begin
   try
   Result :=
     TTileDownloaderConfigStatic.Create(
-      FIntetConfig.ProxyConfig.GetStatic,
-      FIntetConfig.TimeOut,
+      FIntetConfig.GetStatic,
       FWaitInterval,
-      FIntetConfig.SleepOnResetConnection,
-      FIntetConfig.DownloadTryCount,
       FIgnoreMIMEType,
       FExpectedMIMETypes,
-      FDefaultMIMEType,
-      FUserAgentString
+      FDefaultMIMEType
     );
   finally
     FIntetConfig.UnlockRead;
@@ -101,7 +89,6 @@ begin
     FDefaultMIMEType := AConfigData.ReadString('DefaultContentType', FDefaultMIMEType);
     FExpectedMIMETypes := AConfigData.ReadString('ContentType', FExpectedMIMETypes);
     FWaitInterval := AConfigData.ReadInteger('Sleep', FWaitInterval);
-    FUserAgentString := AConfigData.ReadString('UserAgentString', FUserAgentString);
     SetChanged;
   end;
 end;
@@ -120,11 +107,6 @@ begin
   finally
     UnlockRead;
   end;
-end;
-
-function TTileDownloaderConfig.GetDownloadTryCount: Integer;
-begin
-  Result := FStatic.DownloadTryCount;
 end;
 
 function TTileDownloaderConfig.GetExpectedMIMETypes: string;
@@ -147,34 +129,14 @@ begin
   end;
 end;
 
-function TTileDownloaderConfig.GetProxyConfig: IProxyConfig;
+function TTileDownloaderConfig.GetInetConfig: IInetConfig;
 begin
-  Result := FIntetConfig.ProxyConfig;
-end;
-
-function TTileDownloaderConfig.GetSleepOnResetConnection: Cardinal;
-begin
-  Result := FStatic.SleepOnResetConnection;
+  Result := FIntetConfig;
 end;
 
 function TTileDownloaderConfig.GetStatic: ITileDownloaderConfigStatic;
 begin
   Result := FStatic;
-end;
-
-function TTileDownloaderConfig.GetTimeOut: Cardinal;
-begin
-  Result := FStatic.TimeOut;
-end;
-
-function TTileDownloaderConfig.GetUserAgentString: string;
-begin
-  LockRead;
-  try
-    Result := FUserAgentString;
-  finally
-    UnlockRead;
-  end;
 end;
 
 function TTileDownloaderConfig.GetWaitInterval: Cardinal;
@@ -230,19 +192,6 @@ begin
   try
     if FIgnoreMIMEType <> AValue then begin
       FIgnoreMIMEType := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TTileDownloaderConfig.SetUserAgentString(AValue: string);
-begin
-  LockWrite;
-  try
-    if FUserAgentString <> AValue then begin
-      FUserAgentString := AValue;
       SetChanged;
     end;
   finally

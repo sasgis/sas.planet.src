@@ -147,7 +147,7 @@ var
   VWaitResult: DWORD;
 begin
   VConfig := FConfigStatic;
-  VDownloadTryCount := VConfig.DownloadTryCount;
+  VDownloadTryCount := VConfig.InetConfigStatic.DownloadTryCount;
 
   SetNotCanceled;
   if ACancelNotifier <> nil then begin 
@@ -170,8 +170,8 @@ begin
               VTimeFromLastDownload := MaxInt;
             end;
             if FWasConnectError then begin
-              if VTimeFromLastDownload < VConfig.SleepOnResetConnection then begin
-                VSleepTime := VConfig.SleepOnResetConnection - VTimeFromLastDownload;
+              if VTimeFromLastDownload < VConfig.InetConfigStatic.SleepOnResetConnection then begin
+                VSleepTime := VConfig.InetConfigStatic.SleepOnResetConnection - VTimeFromLastDownload;
                 SleepCancelable(VSleepTime);
               end;
             end else begin
@@ -371,9 +371,9 @@ begin
   try
     if not Assigned(FSessionHandle) then begin
       VConfig := FConfigStatic;
-      FSessionHandle := InternetOpen(pChar(VConfig.UserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+      FSessionHandle := InternetOpen(pChar(VConfig.InetConfigStatic.UserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
       if Assigned(FSessionHandle) then begin
-        VTimeOut := VConfig.TimeOut;
+        VTimeOut := VConfig.InetConfigStatic.TimeOut;
         if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
           RaiseLastOSError;
         end;
@@ -572,7 +572,7 @@ var
   VStatusCode: Cardinal;
   VContentType, VResponseHead: string;
 begin
-  VProxyConfig := AConfig.ProxyConfigStatic;
+  VProxyConfig := AConfig.InetConfigStatic.ProxyConfigStatic;
   try
     VSessionHandle := OpenSession;
   except
