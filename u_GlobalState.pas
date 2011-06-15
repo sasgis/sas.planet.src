@@ -17,6 +17,7 @@ uses
   i_GPS,
   i_LanguageManager,
   i_MemObjCache,
+  i_InetConfig,
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
   i_TileFileNameGeneratorsList,

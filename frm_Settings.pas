@@ -254,6 +254,7 @@ uses
   Menus,
   t_CommonTypes,
   i_ProxySettings,
+  i_InetConfig,
   u_GlobalState,
   frm_Main,
   frm_IntrnalBrowser,

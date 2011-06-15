@@ -170,6 +170,8 @@ uses
   u_MapTypeIconsList in 'u_MapTypeIconsList.pas',
   u_MemFileCache in 'u_MemFileCache.pas',
   u_ProxyConfig in 'u_ProxyConfig.pas',
+  i_InetConfig in 'i_InetConfig.pas',
+  u_InetConfigStatic in 'u_InetConfigStatic.pas',
   u_InetConfig in 'u_InetConfig.pas',
   i_TileDownloaderConfig in 'i_TileDownloaderConfig.pas',
   u_TileDownloaderConfigStatic in 'u_TileDownloaderConfigStatic.pas',
