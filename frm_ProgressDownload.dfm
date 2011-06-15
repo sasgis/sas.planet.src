@@ -248,7 +248,7 @@ object frmProgressDownload: TfrmProgressDownload
         Width = 75
         Height = 20
         Anchors = [akTop, akRight]
-        Caption = 'Stop'
+        Caption = 'Pause'
         TabOrder = 2
         OnClick = Button1Click
       end
