@@ -12,6 +12,7 @@ uses
   i_DownloadChecker,
   i_DownloadResult,
   i_DownloadResultFactory,
+  i_InetConfig,
   i_TileDownloaderConfig,
   i_TileDownlodSession;
 
@@ -41,16 +42,15 @@ type
     function IsOkStatus(AStatusCode: Cardinal): Boolean; virtual;
     function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean; virtual;
     function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean; virtual;
-    function OpenSession: HInternet; virtual;
+    function OpenSession(AConfig: IInetConfigStatic): HInternet; virtual;
     procedure CloseSession; virtual;
     function TryDownload(
-      AConfig: ITileDownloaderConfigStatic;
+      AConfig: IInetConfigStatic;
       AResultFactory: IDownloadResultFactory;
       AUrl, ARequestHead: string;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
     procedure GetData(AFileHandle: HInternet; fileBuf: TMemoryStream); virtual;
-    function IsGlobalOffline(ASessionHandle: HInternet): Boolean;
     procedure ResetGlobalOffline(ASessionHandle: HInternet);
     procedure GetContentType(
       AFileHandle: HInternet;
@@ -184,7 +184,7 @@ begin
               Result := AResultFactory.BuildCanceled;
               Exit;
             end;
-            Result := TryDownload(VConfig, AResultFactory, AUrl, ARequestHead, ADownloadChecker);
+            Result := TryDownload(VConfig.InetConfigStatic, AResultFactory, AUrl, ARequestHead, ADownloadChecker);
             if IsCanceled then begin
               Result := AResultFactory.BuildCanceled;
               Exit;
@@ -362,18 +362,16 @@ begin
   CloseSession;
 end;
 
-function TTileDownloaderBase.OpenSession: HInternet;
+function TTileDownloaderBase.OpenSession(AConfig: IInetConfigStatic): HInternet;
 var
   VTimeOut: DWORD;
-  VConfig: ITileDownloaderConfigStatic;
 begin
   FSessionCS.Acquire;
   try
     if not Assigned(FSessionHandle) then begin
-      VConfig := FConfigStatic;
-      FSessionHandle := InternetOpen(pChar(VConfig.InetConfigStatic.UserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+      FSessionHandle := InternetOpen(pChar(AConfig.UserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
       if Assigned(FSessionHandle) then begin
-        VTimeOut := VConfig.InetConfigStatic.TimeOut;
+        VTimeOut := AConfig.TimeOut;
         if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
           RaiseLastOSError;
         end;
@@ -466,11 +464,16 @@ end;
 
 procedure TTileDownloaderBase.ResetGlobalOffline(ASessionHandle: HInternet);
 var
+  State, Size: DWORD;
   ci: INTERNET_CONNECTED_INFO;
 begin
-  if IsGlobalOffline(ASessionHandle) then begin
-    ci.dwConnectedState := INTERNET_STATE_CONNECTED;
-    InternetSetOption(ASessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
+  State := 0;
+  Size := SizeOf(DWORD);
+  if InternetQueryOption(ASessionHandle, INTERNET_OPTION_CONNECTED_STATE, @State, Size) then begin
+    if (State and INTERNET_STATE_DISCONNECTED_BY_USER) <> 0 then begin
+      ci.dwConnectedState := INTERNET_STATE_CONNECTED;
+      InternetSetOption(ASessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
+    end;
   end;
 end;
 
@@ -478,8 +481,8 @@ procedure TTileDownloaderBase.SetIsCanceled;
 begin
   FSessionCS.Acquire;
   try
-    FCancelEvent.SetEvent;
     FIsCanceled := True;
+    FCancelEvent.SetEvent;
   finally
     FSessionCS.Release;
   end;
@@ -500,20 +503,6 @@ procedure TTileDownloaderBase.SleepCancelable(ATime: Cardinal);
 begin
   if  ATime > 0 then begin
     FCancelEvent.WaitFor(ATime);
-  end;
-end;
-
-function TTileDownloaderBase.IsGlobalOffline(ASessionHandle: HInternet): Boolean;
-var
-  State, Size: DWORD;
-begin
-  Result := False;
-  State := 0;
-  Size := SizeOf(DWORD);
-  if InternetQueryOption(ASessionHandle, INTERNET_OPTION_CONNECTED_STATE, @State, Size) then begin
-    if (State and INTERNET_STATE_DISCONNECTED_BY_USER) <> 0 then begin
-      Result := True;
-    end;
   end;
 end;
 
@@ -559,7 +548,7 @@ begin
 end;
 
 function TTileDownloaderBase.TryDownload(
-  AConfig: ITileDownloaderConfigStatic;
+  AConfig: IInetConfigStatic;
   AResultFactory: IDownloadResultFactory;
   AUrl, ARequestHead: string;
   ADownloadChecker: IDownloadChecker
@@ -572,9 +561,9 @@ var
   VStatusCode: Cardinal;
   VContentType, VResponseHead: string;
 begin
-  VProxyConfig := AConfig.InetConfigStatic.ProxyConfigStatic;
+  VProxyConfig := AConfig.ProxyConfigStatic;
   try
-    VSessionHandle := OpenSession;
+    VSessionHandle := OpenSession(AConfig);
   except
     on E: EOSError do begin
       Result := AResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode);
