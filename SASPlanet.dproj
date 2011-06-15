@@ -250,6 +250,8 @@
     <DCCReference Include="i_TileInfoBasic.pas" />
     <DCCReference Include="i_TileIterator.pas" />
     <DCCReference Include="i_TileObjCache.pas" />
+    <DCCReference Include="i_TileRequestBuilder.pas" />
+    <DCCReference Include="i_TileRequestBuilderConfig.pas" />
     <DCCReference Include="i_TileStorage.pas" />
     <DCCReference Include="i_TileStorageType.pas" />
     <DCCReference Include="i_TileStorageTypeConfig.pas" />
@@ -262,6 +264,7 @@
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_VectorDataItemSimple.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
+    <DCCReference Include="i_ZmpInfo.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
     <DCCReference Include="MapLayers\u_LayerScaleLine.pas" />
@@ -638,6 +641,7 @@
     <DCCReference Include="u_TileIteratorByRect.pas" />
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="u_TileIteratorStuped.pas" />
+    <DCCReference Include="u_TileRequestBuilderConfig.pas" />
     <DCCReference Include="u_TileStorageAbstract.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />
@@ -659,5 +663,6 @@
     <DCCReference Include="u_WindowLayerBasicList.pas" />
     <DCCReference Include="u_YaMobileWrite.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
+    <DCCReference Include="u_ZmpInfo.pas" />
   </ItemGroup>
 </Project>
