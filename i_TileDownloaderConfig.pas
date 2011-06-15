@@ -32,6 +32,9 @@ type
 
     function GetDefaultMIMEType: string;
     property DefaultMIMEType: string read GetDefaultMIMEType;
+
+    function GetUserAgentString: string;
+    property UserAgentString: string read GetUserAgentString;
   end;
 
   ITileDownloaderConfig = interface(IConfigDataElement)
@@ -63,6 +66,10 @@ type
     function GetDefaultMIMEType: string;
     procedure SetDefaultMIMEType(AValue: string);
     property DefaultMIMEType: string read GetDefaultMIMEType write SetDefaultMIMEType;
+
+    function GetUserAgentString: string;
+    procedure SetUserAgentString(AValue: string);
+    property UserAgentString: string read GetUserAgentString write SetUserAgentString;
 
     function GetStatic: ITileDownloaderConfigStatic;
   end;

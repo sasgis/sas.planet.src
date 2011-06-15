@@ -21,7 +21,6 @@ type
     FConfig: ITileDownloaderConfig;
     FConfigStatic: ITileDownloaderConfigStatic;
     FConfigListener: IJclListener;
-    FUserAgentString: string;
     FCancelListener: IJclListener;
     FCancelEvent: TEvent;
     procedure OnConfigChange(Sender: TObject);
@@ -99,7 +98,6 @@ begin
 
   FIsCanceled := False;
 
-  FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FWasConnectError := False;
 end;
 
@@ -367,13 +365,15 @@ end;
 function TTileDownloaderBase.OpenSession: HInternet;
 var
   VTimeOut: DWORD;
+  VConfig: ITileDownloaderConfigStatic;
 begin
   FSessionCS.Acquire;
   try
     if not Assigned(FSessionHandle) then begin
-      FSessionHandle := InternetOpen(pChar(FUserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+      VConfig := FConfigStatic;
+      FSessionHandle := InternetOpen(pChar(VConfig.UserAgentString), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
       if Assigned(FSessionHandle) then begin
-        VTimeOut := FConfigStatic.TimeOut;
+        VTimeOut := VConfig.TimeOut;
         if not InternetSetOption(FSessionHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @VTimeOut, sizeof(VTimeOut)) then begin
           RaiseLastOSError;
         end;

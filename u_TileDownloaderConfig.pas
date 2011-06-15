@@ -17,6 +17,7 @@ type
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
+    FUserAgentString: string;
 
     FStatic: ITileDownloaderConfigStatic;
     function CreateStatic: ITileDownloaderConfigStatic;
@@ -42,6 +43,9 @@ type
     function GetDefaultMIMEType: string;
     procedure SetDefaultMIMEType(AValue: string);
 
+    function GetUserAgentString: string;
+    procedure SetUserAgentString(AValue: string);
+
     function GetStatic: ITileDownloaderConfigStatic;
   public
     constructor Create(AIntetConfig: IInetConfig);
@@ -62,6 +66,7 @@ begin
   FIgnoreMIMEType := False;
   FDefaultMIMEType := 'image/jpg';
   FExpectedMIMETypes := 'image/jpg';
+  FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
 
   Add(FIntetConfig, nil, False, False, False, True);
 end;
@@ -79,7 +84,8 @@ begin
       FIntetConfig.DownloadTryCount,
       FIgnoreMIMEType,
       FExpectedMIMETypes,
-      FDefaultMIMEType
+      FDefaultMIMEType,
+      FUserAgentString
     );
   finally
     FIntetConfig.UnlockRead;
@@ -94,6 +100,7 @@ begin
     FDefaultMIMEType := AConfigData.ReadString('DefaultContentType', FDefaultMIMEType);
     FExpectedMIMETypes := AConfigData.ReadString('ContentType', FExpectedMIMETypes);
     FWaitInterval := AConfigData.ReadInteger('Sleep', FWaitInterval);
+    FUserAgentString := AConfigData.ReadString('UserAgentString', FUserAgentString);
     SetChanged;
   end;
 end;
@@ -159,6 +166,16 @@ begin
   Result := FStatic.TimeOut;
 end;
 
+function TTileDownloaderConfig.GetUserAgentString: string;
+begin
+  LockRead;
+  try
+    Result := FUserAgentString;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TTileDownloaderConfig.GetWaitInterval: Cardinal;
 begin
   LockRead;
@@ -212,6 +229,19 @@ begin
   try
     if FIgnoreMIMEType <> AValue then begin
       FIgnoreMIMEType := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TTileDownloaderConfig.SetUserAgentString(AValue: string);
+begin
+  LockWrite;
+  try
+    if FUserAgentString <> AValue then begin
+      FUserAgentString := AValue;
       SetChanged;
     end;
   finally

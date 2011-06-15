@@ -17,6 +17,7 @@ type
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
+    FUserAgentString: string;
   protected
     function GetProxyConfigStatic: IProxyConfigStatic;
     function GetTimeOut: Cardinal;
@@ -26,6 +27,7 @@ type
     function GetIgnoreMIMEType: Boolean;
     function GetExpectedMIMETypes: string;
     function GetDefaultMIMEType: string;
+    function GetUserAgentString: string;
   public
     constructor Create(
       AProxyConfigStatic: IProxyConfigStatic;
@@ -35,7 +37,8 @@ type
       ADownloadTryCount: Integer;
       AIgnoreMIMEType: Boolean;
       AExpectedMIMETypes: string;
-      ADefaultMIMEType: string
+      ADefaultMIMEType: string;
+      AUserAgentString: string
     );
   end;
 
@@ -44,9 +47,12 @@ implementation
 { TTileDownloaderConfigStatic }
 
 constructor TTileDownloaderConfigStatic.Create(
-  AProxyConfigStatic: IProxyConfigStatic; ATimeOut, AWaitInterval,
-  ASleepOnResetConnection: Cardinal; ADownloadTryCount: Integer;
-  AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string);
+  AProxyConfigStatic: IProxyConfigStatic;
+  ATimeOut, AWaitInterval, ASleepOnResetConnection: Cardinal;
+  ADownloadTryCount: Integer;
+  AIgnoreMIMEType: Boolean;
+  AExpectedMIMETypes, ADefaultMIMEType, AUserAgentString: string
+);
 begin
   FProxyConfigStatic := AProxyConfigStatic;
   FTimeOut := ATimeOut;
@@ -56,6 +62,7 @@ begin
   FIgnoreMIMEType := AIgnoreMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
   FDefaultMIMEType := ADefaultMIMEType;
+  FUserAgentString := AUserAgentString;
 end;
 
 function TTileDownloaderConfigStatic.GetDefaultMIMEType: string;
@@ -91,6 +98,11 @@ end;
 function TTileDownloaderConfigStatic.GetTimeOut: Cardinal;
 begin
   Result := FTimeOut;
+end;
+
+function TTileDownloaderConfigStatic.GetUserAgentString: string;
+begin
+  Result := FUserAgentString;
 end;
 
 function TTileDownloaderConfigStatic.GetWaitInterval: Cardinal;
