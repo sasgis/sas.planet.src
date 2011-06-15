@@ -27,8 +27,8 @@ type
 
   ITileDownloaderConfig = interface(IConfigDataElement)
     ['{FECD40CF-A0AF-479A-8CCC-E3363037773E}']
-    function GetInetConfig: IInetConfig;
-    property InetConfig: IInetConfig read GetInetConfig;
+    function GetInetConfigStatic: IInetConfigStatic;
+    property InetConfigStatic: IInetConfigStatic read GetInetConfigStatic;
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);

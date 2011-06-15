@@ -26,7 +26,7 @@ type
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetInetConfig: IInetConfig;
+    function GetInetConfigStatic: IInetConfigStatic;
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);
@@ -129,9 +129,9 @@ begin
   end;
 end;
 
-function TTileDownloaderConfig.GetInetConfig: IInetConfig;
+function TTileDownloaderConfig.GetInetConfigStatic: IInetConfigStatic;
 begin
-  Result := FIntetConfig;
+  Result := FIntetConfig.GetStatic;
 end;
 
 function TTileDownloaderConfig.GetStatic: ITileDownloaderConfigStatic;
