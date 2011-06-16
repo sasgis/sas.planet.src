@@ -6,6 +6,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LanguageManager,
+  i_CoordConverterFactory,
   i_MapTypes,
   u_MapType;
 
@@ -18,7 +19,6 @@ type
     FLayersList: IMapTypeList;
     function GetMapType(Index: Integer): TMapType;
     function GetCount: Integer;
-    function LoadGUID(AConfig : IConfigDataProvider): TGUID;
     procedure BuildMapsLists;
     function GetFirstMainMap: TMapType;
   public
@@ -32,6 +32,7 @@ type
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
     procedure LoadMaps(
       ALanguageManager: ILanguageManager;
+      ACoordConverterFactory: ICoordConverterFactory;
       ALocalMapsConfig: IConfigDataProvider;
       AMapsPath: string
     );
@@ -44,7 +45,10 @@ implementation
 uses
   SysUtils,
   Dialogs,
+  gnugettext,
   i_FileNameIterator,
+  i_ZmpInfo,
+  u_ZmpInfo,
   u_ZmpFileNamesIteratorFactory,
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByKaZip,
@@ -106,33 +110,6 @@ begin
   Result := FMapType[index];
 end;
 
-function TMapTypesMainList.LoadGUID(AConfig: IConfigDataProvider): TGUID;
-var
-  VGUIDStr: String;
-  VParams: IConfigDataProvider;
-begin
-  VParams := AConfig.GetSubItem('params.txt');
-  if VParams <> nil then begin
-    VParams := VParams.GetSubItem('PARAMS');
-    if VParams <> nil then begin
-      VGUIDStr := VParams.ReadString('GUID', '');
-      if Length(VGUIDStr) > 0 then begin
-        try
-          Result := StringToGUID(VGUIDStr);
-        except
-          raise EBadGUID.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
-        end;
-      end else begin
-        raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
-      end;
-    end else begin
-      raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
-    end;
-  end else begin
-    raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
-  end;
-end;
-
 procedure TMapTypesMainList.BuildMapsLists;
 var
   i: Integer;
@@ -162,6 +139,7 @@ end;
 
 procedure TMapTypesMainList.LoadMaps(
   ALanguageManager: ILanguageManager;
+  ACoordConverterFactory: ICoordConverterFactory;
   ALocalMapsConfig: IConfigDataProvider;
   AMapsPath: string
 );
@@ -178,7 +156,7 @@ var
   VMapTypeCount: integer;
   VFilesIteratorFactory: IFileNameIteratorFactory;
   VFilesIterator: IFileNameIterator;
-  VGUID: TGUID;
+  VZmp: IZmpInfo;
 begin
   SetLength(FMapType, 0);
   VMapOnlyCount := 0;
@@ -194,20 +172,27 @@ begin
         VZmpMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);
       end;
       try
-        VGUID := LoadGUID(VZmpMapConfig);
+        VZmp := TZmpInfo.Create(
+          ALanguageManager,
+          ACoordConverterFactory,
+          VFileName,
+          VZmpMapConfig,
+          VMapTypeCount
+        );
       except
-        on E: EBadGUID do begin
+        on E: EZmpError do begin
           raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
         end;
       end;
-      VMapTypeLoaded := GetMapFromID(VGUID);
+
+      VMapTypeLoaded := GetMapFromID(VZmp.GUID);
       if VMapTypeLoaded <> nil then begin
         raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.ZmpFileName, VFullFileName]);
       end;
 
-      VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VGUID));
+      VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VZmp.GUID));
       VMapConfig := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
-      VMapType := TMapType.Create(ALanguageManager, VGUID, VMapConfig, VMapTypeCount);
+      VMapType := TMapType.Create(ALanguageManager, VZmp, VMapConfig, VMapTypeCount);
     except
       if ExceptObject <> nil then begin
         ShowMessage((ExceptObject as Exception).Message);

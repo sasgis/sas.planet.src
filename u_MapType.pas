@@ -26,6 +26,7 @@ uses
   i_BitmapTileSaveLoad,
   i_KmlInfoSimpleLoader,
   i_AntiBan,
+  i_ZmpInfo,
   i_VectorDataItemSimple,
   u_UrlGenerator,
   u_MapTypeCacheConfig,
@@ -37,6 +38,7 @@ type
 
  TMapType = class
    private
+    FZmp: IZmpInfo;
     FGuid: TGUID;
     FName: string;
     FasLayer: boolean;
@@ -181,7 +183,7 @@ type
 
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AGUID: TGUID;
+      AZmp: IZmpInfo;
       AConfig: IConfigDataProvider;
       Apnum: Integer
     );
@@ -681,12 +683,13 @@ end;
 
 constructor TMapType.Create(
   ALanguageManager: ILanguageManager;
-  AGUID: TGUID;
+  AZmp: IZmpInfo;
   AConfig: IConfigDataProvider;
   Apnum: Integer
 );
 begin
-  FGuid := AGUID;
+  FZmp := AZmp;
+  FGuid := FZmp.GUID;
   FLanguageManager := ALanguageManager;
   FMimeTypeSubstList := nil;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig);
