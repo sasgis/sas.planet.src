@@ -737,31 +737,35 @@ begin
     VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersion).GetSize;
     GetRequest(ATile, AZoom, VUrl, VRequestHead);
     VResultFactory := TDownloadResultFactoryTileDownload.Create(GState.DownloadResultTextProvider, AZoom, ATile, Self, VUrl, VRequestHead);
-    VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
-    if VPoolElement = nil then begin
-      raise Exception.Create('No free connections');
-    end;
-    VDownloader := VPoolElement.GetObject as ITileDownlodSession;
-    if FAntiBan <> nil then begin
-      FAntiBan.PreDownload(VDownloader, ATile, AZoom, VUrl);
-    end;
-    VConfig := FTileDownloaderConfig.GetStatic;
-    VDownloadChecker := TDownloadCheckerStuped.Create(
-      VResultFactory,
-      VConfig.IgnoreMIMEType,
-      VConfig.ExpectedMIMETypes,
-      VConfig.DefaultMIMEType,
-      ACheckTileSize,
-      VOldTileSize
-    );
-    Result := VDownloader.DownloadTile(ACancelNotifier, VResultFactory, VUrl, VRequestHead, VDownloadChecker);
-    if FAntiBan <> nil then begin
-      Result :=
-        FAntiBan.PostCheckDownload(
-          VResultFactory,
-          VDownloader,
-          Result
-        );
+    if VUrl = '' then begin
+      Result := VResultFactory.BuildCanceled;
+    end else begin
+      VPoolElement := FPoolOfDownloaders.TryGetPoolElement(60000);
+      if VPoolElement = nil then begin
+        raise Exception.Create('No free connections');
+      end;
+      VDownloader := VPoolElement.GetObject as ITileDownlodSession;
+      if FAntiBan <> nil then begin
+        FAntiBan.PreDownload(VDownloader, ATile, AZoom, VUrl);
+      end;
+      VConfig := FTileDownloaderConfig.GetStatic;
+      VDownloadChecker := TDownloadCheckerStuped.Create(
+        VResultFactory,
+        VConfig.IgnoreMIMEType,
+        VConfig.ExpectedMIMETypes,
+        VConfig.DefaultMIMEType,
+        ACheckTileSize,
+        VOldTileSize
+      );
+      Result := VDownloader.DownloadTile(ACancelNotifier, VResultFactory, VUrl, VRequestHead, VDownloadChecker);
+      if FAntiBan <> nil then begin
+        Result :=
+          FAntiBan.PostCheckDownload(
+            VResultFactory,
+            VDownloader,
+            Result
+          );
+      end;
     end;
     if Supports(Result, IDownloadResultOk, VResultOk) then begin
       SetResponse(VResultOk.RawResponseHeader);
