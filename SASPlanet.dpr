@@ -7,6 +7,7 @@ uses
   sysutils,
   windows,
   MidasLib,
+  RarProgress in 'src\RarProgressBar\RarProgress.pas',
   MD5 in 'src\MD5.pas',
   RegExpr in 'src\RegExpr.pas',
   KAZip in 'src\KAZip.pas',
