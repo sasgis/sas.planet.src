@@ -80,6 +80,7 @@ type
       AConfig: IConfigDataProvider;
       Apnum: Integer
     );
+    destructor Destroy; override;
   end;
 
   EZmpError = class(Exception);
@@ -119,6 +120,13 @@ begin
   FCurrentLanguageCode := FLanguageManager.GetCurrentLanguageCode;
   LoadConfig(ACoordConverterFactory);
   LoadByLang(FCurrentLanguageCode);
+end;
+
+destructor TZmpInfo.Destroy;
+begin
+  FreeAndNil(FBmp18);
+  FreeAndNil(FBmp24);
+  inherited;
 end;
 
 function TZmpInfo.GetBmp18: TBitmap;
