@@ -3,12 +3,14 @@ unit u_ZmpInfo;
 interface
 
 uses
+  SysUtils,
   Graphics,
   Classes,
   i_CoordConverter,
   i_ConfigDataProvider,
   i_TileRequestBuilderConfig,
   i_LanguageManager,
+  i_CoordConverterFactory,
   i_ZmpInfo;
 
 type
@@ -16,34 +18,50 @@ type
   private
     FGUID: TGUID;
     FFileName: string;
+    FNameDef: string;
     FName: string;
     FSortIndex: Integer;
-    FMapInfo: string;
+    FInfoDef: string;
+    FInfo: string;
     FBmp18: TBitmap;
     FBmp24: TBitmap;
     FHotKey: TShortCut;
     FSleep: Cardinal;
     FSeparator: Boolean;
+    FParentSubMenuDef: string;
     FParentSubMenu: string;
     FEnabled: Boolean;
     FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     FGeoConvert: ICoordConverter;
     FMainGeoConvert: ICoordConverter;
 
+    FConfig: IConfigDataProvider;
+    FConfigIni: IConfigDataProvider;
+    FConfigIniParams: IConfigDataProvider;
+    FCurrentLanguageCode: string;
     FLanguageManager: ILanguageManager;
-
   private
+    procedure LoadConfig(
+      ACoordConverterFactory: ICoordConverterFactory
+    );
+    function LoadGUID(AConfig : IConfigDataProvider): TGUID;
     procedure LoadIcons(AConfig : IConfigDataProvider);
-    procedure LoadProjectionInfo(AConfig : IConfigDataProvider);
-    procedure LoadUrlScript(AConfig : IConfigDataProvider);
-    procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
+    procedure LoadProjectionInfo(
+      AConfig : IConfigDataProvider;
+      ACoordConverterFactory: ICoordConverterFactory
+    );
     procedure LoadUIParams(AConfig : IConfigDataProvider);
-    procedure LoadMapInfo(AConfig : IConfigDataProvider);
+    procedure LoadInfo(AConfig : IConfigDataProvider);
+
+    procedure LoadByLang(ALanguageCode: string);
+    procedure LoadInfoLang(AConfig : IConfigDataProvider; ALanguageCode: string);
+    procedure LoadUIParamsLang(AConfig : IConfigDataProvider; ALanguageCode: string);
   protected
     function GetGUID: TGUID;
     function GetFileName: string;
     function GetName: string;
-    function GetMapInfo: string;
+    function GetSortIndex: Integer;
+    function GetInfo: string;
     function GetBmp18: TBitmap;
     function GetBmp24: TBitmap;
     function GetHotKey: TShortCut;
@@ -57,27 +75,50 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AGUID: TGUID;
+      ACoordConverterFactory: ICoordConverterFactory;
+      AFileName: string;
       AConfig: IConfigDataProvider;
       Apnum: Integer
     );
   end;
 
+  EZmpError = class(Exception);
+  EZmpIniNotFound = class(EZmpError);
+  EZmpParamsNotFound = class(EZmpError);
+  EZmpGUIDError = class(EZmpError);
+
 implementation
 
 uses
-  SysUtils;
+  gnugettext,
+  u_ResStrings;
 
 { TZmpInfo }
 
-constructor TZmpInfo.Create(ALanguageManager: ILanguageManager; AGUID: TGUID;
-  AConfig: IConfigDataProvider; Apnum: Integer);
+constructor TZmpInfo.Create(
+  ALanguageManager: ILanguageManager;
+  ACoordConverterFactory: ICoordConverterFactory;
+  AFileName: string;
+  AConfig: IConfigDataProvider;
+  Apnum: Integer
+);
 begin
   FLanguageManager := ALanguageManager;
-  FGUID := AGUID;
-  FName:='map#'+inttostr(Apnum);
-  FFileName := AConfig.ReadString(':::FileName', FName);
+  FNameDef:='map#'+inttostr(Apnum);
+  FFileName := AFileName;
+  FConfig := AConfig;
+  FConfigIni := FConfig.GetSubItem('params.txt');
+  if FConfigIni = nil then begin
+    raise EZmpIniNotFound.Create(_('Not found "params.txt" in zmp'));
+  end;
+  FConfigIniParams := FConfigIni.GetSubItem('PARAMS');
+  if FConfigIniParams = nil then begin
+    raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
+  end;
 
+  FCurrentLanguageCode := FLanguageManager.GetCurrentLanguageCode;
+  LoadConfig(ACoordConverterFactory);
+  LoadByLang(FCurrentLanguageCode);
 end;
 
 function TZmpInfo.GetBmp18: TBitmap;
@@ -120,9 +161,9 @@ begin
   Result := FMainGeoConvert;
 end;
 
-function TZmpInfo.GetMapInfo: string;
+function TZmpInfo.GetInfo: string;
 begin
-  Result := FMapInfo;
+  Result := FInfo;
 end;
 
 function TZmpInfo.GetName: string;
@@ -145,9 +186,45 @@ begin
   Result := FSleep;
 end;
 
+function TZmpInfo.GetSortIndex: Integer;
+begin
+  Result := FSortIndex;
+end;
+
 function TZmpInfo.GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
 begin
   Result := FTileRequestBuilderConfig;
+end;
+
+procedure TZmpInfo.LoadByLang(ALanguageCode: string);
+begin
+  LoadInfoLang(FConfig, ALanguageCode);
+  LoadUIParamsLang(FConfigIniParams, ALanguageCode);
+end;
+
+procedure TZmpInfo.LoadConfig(ACoordConverterFactory: ICoordConverterFactory);
+begin
+  FGUID := LoadGUID(FConfigIniParams);
+  LoadUIParams(FConfigIniParams);
+  LoadIcons(FConfig);
+  LoadInfo(FConfig);
+  LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
+end;
+
+function TZmpInfo.LoadGUID(AConfig: IConfigDataProvider): TGUID;
+var
+  VGUIDStr: String;
+begin
+  VGUIDStr := AConfig.ReadString('GUID', '');
+  if Length(VGUIDStr) > 0 then begin
+    try
+      Result := StringToGUID(VGUIDStr);
+    except
+      raise EZmpGUIDError.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
+    end;
+  end else begin
+    raise EZmpGUIDError.CreateRes(@SAS_ERR_MapGUIDEmpty);
+  end;
 end;
 
 procedure TZmpInfo.LoadIcons(AConfig: IConfigDataProvider);
@@ -165,7 +242,7 @@ begin
       Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
       Fbmp24.Width:=24;
       Fbmp24.Height:=24;
-      Fbmp24.Canvas.TextOut(7,3,copy(FName,1,1));
+      Fbmp24.Canvas.TextOut(7,3,copy(FNameDef,1,1));
     end;
   finally
     FreeAndNil(VStream);
@@ -188,36 +265,44 @@ begin
   end;
 end;
 
-procedure TZmpInfo.LoadMapInfo(AConfig: IConfigDataProvider);
+procedure TZmpInfo.LoadInfo(AConfig: IConfigDataProvider);
 begin
-
+  FInfoDef := AConfig.ReadString('info.txt', '');
 end;
 
-procedure TZmpInfo.LoadProjectionInfo(AConfig: IConfigDataProvider);
+procedure TZmpInfo.LoadInfoLang(AConfig: IConfigDataProvider; ALanguageCode: string);
 begin
+  FInfo := AConfig.ReadString('info_'+ALanguageCode+'.txt', FInfoDef);
+end;
 
+procedure TZmpInfo.LoadProjectionInfo(AConfig: IConfigDataProvider; ACoordConverterFactory: ICoordConverterFactory);
+var
+  VParams: IConfigDataProvider;
+begin
+  VParams := AConfig.GetSubItem('ViewInfo');
+  if VParams <> nil then begin
+    FMainGeoConvert := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
+  end;
+  FGeoConvert := ACoordConverterFactory.GetCoordConverterByConfig(FConfigIniParams);
+  if FMainGeoConvert = nil then begin
+    FMainGeoConvert := FGeoConvert;
+  end;
 end;
 
 procedure TZmpInfo.LoadUIParams(AConfig: IConfigDataProvider);
 begin
-  FName:=AConfig.ReadString('name',FName);
-  FName:=AConfig.ReadString('name_'+FLanguageManager.GetCurrentLanguageCode,FName);
-  FHotKey:=AConfig.ReadInteger('HotKey',0);
-  FParentSubMenu:=AConfig.ReadString('ParentSubMenu','');
-  FParentSubMenu:=AConfig.ReadString('ParentSubMenu_'+FLanguageManager.GetCurrentLanguageCode,FParentSubMenu);
-  FSeparator:=AConfig.ReadBool('separator',false);
-  FEnabled:=AConfig.ReadBool('Enabled',true);
-  FSortIndex:=AConfig.ReadInteger('pnum',-1);
+  FNameDef := AConfig.ReadString('name', FNameDef);
+  FHotKey :=AConfig.ReadInteger('HotKey', 0);
+  FParentSubMenuDef := AConfig.ReadString('ParentSubMenu', '');
+  FSeparator := AConfig.ReadBool('separator', false);
+  FEnabled := AConfig.ReadBool('Enabled', true);
+  FSortIndex := AConfig.ReadInteger('pnum', -1);
 end;
 
-procedure TZmpInfo.LoadUrlScript(AConfig: IConfigDataProvider);
+procedure TZmpInfo.LoadUIParamsLang(AConfig: IConfigDataProvider; ALanguageCode: string);
 begin
-
-end;
-
-procedure TZmpInfo.LoadWebSourceParams(AConfig: IConfigDataProvider);
-begin
-
+  FName := AConfig.ReadString('name_' + ALanguageCode, FNameDef);
+  FParentSubMenu := AConfig.ReadString('ParentSubMenu_' + ALanguageCode, FParentSubMenuDef);
 end;
 
 end.

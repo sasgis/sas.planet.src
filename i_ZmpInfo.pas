@@ -20,8 +20,11 @@ type
     function GetName: string;
     property Name: string read GetName;
 
-    function GetMapInfo: string;
-    property MapInfo: string read GetMapInfo;
+    function GetInfo: string;
+    property Info: string read GetInfo;
+
+    function GetSortIndex: Integer;
+    property SortIndex: Integer read GetSortIndex;
 
     function GetBmp18: TBitmap;
     property Bmp18: TBitmap read GetBmp18;
