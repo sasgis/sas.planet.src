@@ -21,6 +21,7 @@ uses
   i_CoordConverter,
   i_DownloadChecker,
   i_TileDownlodSession,
+  i_TileRequestBuilderConfig,
   i_IPoolOfObjectsSimple,
   i_BitmapTypeExtManager,
   i_BitmapTileSaveLoad,
@@ -66,6 +67,7 @@ type
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
     FTileDownloaderConfig: ITileDownloaderConfig;
+    FTileRequestBuilderConfig: ITileRequestBuilderConfig;
 
     function GetUseDwn: Boolean;
     function GetIsCanShowOnSmMap: boolean;
@@ -165,6 +167,7 @@ type
     property MapInfo: string read GetMapInfo;
     property Name: string read FName;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
+    property TileRequestBuilderConfig: ITileRequestBuilderConfig read FTileRequestBuilderConfig;
     property Cache: ITileObjCache read FCache;
 
     constructor Create(
@@ -194,6 +197,7 @@ uses
   i_TileInfoBasic,
   u_PoolOfObjectsSimple,
   u_TileDownloaderConfig,
+  u_TileRequestBuilderConfig,
   u_TileDownloaderBaseFactory,
   u_DownloadResultFactoryTileDownload,
   u_AntiBanStuped,
@@ -241,7 +245,11 @@ begin
 end;
 
 procedure TMapType.LoadUrlScript(AConfig: IConfigDataProvider);
+var
+  VParams: IConfigDataProvider;
 begin
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FTileRequestBuilderConfig.ReadConfig(VParams);
   if FUseDwn then begin
     try
       FUrlGenerator := TUrlGenerator.Create(AConfig);
@@ -661,6 +669,7 @@ begin
   FLanguageManager := ALanguageManager;
   FMimeTypeSubstList := nil;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig);
+  FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
   LoadMapType(AConfig, Apnum);
   if FasLayer then begin
     FLoadPrevMaxZoomDelta := 4;

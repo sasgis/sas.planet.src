@@ -306,7 +306,8 @@ var
   VUrlBase: string;
   VRequestHead: string;
 begin
-  VURLBase := AConfig.ReadString('URLBase', '');
+  VURLBase := AConfig.ReadString('DefURLBase', '');
+  VURLBase := AConfig.ReadString('URLBase', VURLBase);
   VRequestHead := AConfig.ReadString('RequestHead', '');
   VRequestHead := StringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
   FTileRequestBuilderConfig := TTileRequestBuilderConfigStatic.Create(VUrlBase, VRequestHead);
@@ -315,7 +316,8 @@ end;
 procedure TZmpInfo.LoadUIParams(AConfig: IConfigDataProvider);
 begin
   FNameDef := AConfig.ReadString('name', FNameDef);
-  FHotKey :=AConfig.ReadInteger('HotKey', 0);
+  FHotKey :=AConfig.ReadInteger('DefHotKey', 0);
+  FHotKey :=AConfig.ReadInteger('HotKey', FHotKey);
   FParentSubMenuDef := AConfig.ReadString('ParentSubMenu', '');
   FSeparator := AConfig.ReadBool('separator', false);
   FEnabled := AConfig.ReadBool('Enabled', true);
