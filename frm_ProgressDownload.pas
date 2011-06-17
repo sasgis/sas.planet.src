@@ -23,7 +23,6 @@ type
   TfrmProgressDownload = class(TCommonFormParent)
     Panel1: TPanel;
     Memo1: TMemo;
-    RProgr: TRarProgress;
     LabelValue0: TLabel;
     LabelValue1: TLabel;
     LabelValue2: TLabel;
@@ -55,6 +54,7 @@ type
     FLastLogID: Cardinal;
     FStoped: boolean;
     FFinished: Boolean;
+    FRarProgress: TRarProgress;
     FMapUpdateEvent: TMapUpdateEvent;
     procedure InitProgressForm;
     procedure UpdateProgressForm;
@@ -81,11 +81,11 @@ implementation
 
 uses
   SysUtils,
+  Graphics,
   i_ValueToStringConverter,
   u_GlobalState;
 
 {$R *.dfm}
-
 
 procedure TfrmProgressDownload.Button2Click(Sender: TObject);
 begin
@@ -129,6 +129,30 @@ begin
   FMapUpdateEvent := AMapUpdateEvent;
   FDownloadThread := ADownloadThread;
   FLog := ALog;
+  FRarProgress := TRarProgress.Create(Self);
+  with FRarProgress do begin
+    Left := 8;
+    Top := 200;
+    Width := 314;
+    Height := 17;
+    Min := 0;
+    Max := 100;
+    Progress1 := 0;
+    Progress2 := 0;
+    Double := True;
+    LightColor1 := 16770764;
+    DarkColor1 := 13395456;
+    LightColor2 := 16768959;
+    FrameColor1 := 16758122;
+    FrameColor2 := 16747546;
+    FillColor1 := 16757606;
+    FillColor2 := 16749867;
+    BackFrameColor1 := 16633762;
+    BackFrameColor2 := 16634540;
+    BackFillColor := 16635571;
+    ShadowColor := clGray;
+  end;
+  FRarProgress.Parent := Self.Panel1;
   InitProgressForm;
 end;
 
@@ -137,13 +161,14 @@ begin
   StopThread;
   FreeAndNil(FDownloadThread);
   FLog := nil;
+  FreeAndNil(FRarProgress);
   inherited;
 end;
 procedure TfrmProgressDownload.InitProgressForm;
 begin
-  RProgr.Max := FDownloadThread.TotalInRegion;
-  RProgr.Progress1 := FDownloadThread.Downloaded;
-  RProgr.Progress2 := FDownloadThread.Processed;
+  FRarProgress.Max := FDownloadThread.TotalInRegion;
+  FRarProgress.Progress1 := FDownloadThread.Downloaded;
+  FRarProgress.Progress2 := FDownloadThread.Processed;
   LabelName0.Caption := SAS_STR_ProcessedNoMore+':';
   LabelName1.Caption := SAS_STR_AllProcessed;
   LabelName2.Caption := SAS_STR_AllLoad;
@@ -154,8 +179,8 @@ end;
 
 procedure TfrmProgressDownload.Panel1Resize(Sender: TObject);
 begin
-  RProgr.Top:=TPanel(sender).Height-48;
-  RProgr.Width:=TPanel(sender).Width-14;
+  FRarProgress.Top:=TPanel(sender).Height-48;
+  FRarProgress.Width:=TPanel(sender).Width-14;
 end;
 
 procedure TfrmProgressDownload.RefreshTranslation;
@@ -190,9 +215,9 @@ begin
       LabelValue2.Caption := inttostr(FDownloadThread.Downloaded)+' ('+ VValueConverter.DataSizeConvert(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
       LabelValue3.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.ElapsedTime);
       LabelValue4.Caption := GetLenEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.Downloaded, FDownloadThread.DownloadSize);
-      RProgr.Max := FDownloadThread.TotalInRegion;
-      RProgr.Progress1 := FDownloadThread.Processed;
-      RProgr.Progress2 := FDownloadThread.Downloaded;
+      FRarProgress.Max := FDownloadThread.TotalInRegion;
+      FRarProgress.Progress1 := FDownloadThread.Processed;
+      FRarProgress.Progress2 := FDownloadThread.Downloaded;
       Repaint;
       ThreadFinish;
     end;
@@ -209,9 +234,9 @@ begin
       LabelValue3.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.ElapsedTime);
       LabelValue4.Caption:=GetLenEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.Downloaded, FDownloadThread.DownloadSize);
       UpdateMemoProgressForm;
-      RProgr.Max := FDownloadThread.TotalInRegion;
-      RProgr.Progress1 := FDownloadThread.Processed;
-      RProgr.Progress2 := FDownloadThread.Downloaded;
+      FRarProgress.Max := FDownloadThread.TotalInRegion;
+      FRarProgress.Progress1 := FDownloadThread.Processed;
+      FRarProgress.Progress2 := FDownloadThread.Downloaded;
     end;
   end;
 end;

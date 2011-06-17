@@ -27,28 +27,6 @@ object frmProgressDownload: TfrmProgressDownload
     DesignSize = (
       328
       248)
-    object RProgr: TRarProgress
-      Left = 8
-      Top = 200
-      Width = 314
-      Height = 17
-      Min = 0
-      Max = 100
-      Progress1 = 50
-      Progress2 = 30
-      Double = True
-      LightColor1 = 16770764
-      DarkColor1 = 13395456
-      LightColor2 = 16768959
-      FrameColor1 = 16758122
-      FrameColor2 = 16747546
-      FillColor1 = 16757606
-      FillColor2 = 16749867
-      BackFrameColor1 = 16633762
-      BackFrameColor2 = 16634540
-      BackFillColor = 16635571
-      ShadowColor = clGray
-    end
     object LabelValue0: TLabel
       Left = 315
       Top = 119
