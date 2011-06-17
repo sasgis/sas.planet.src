@@ -42,7 +42,7 @@ type
 
     function GetStatic: ITileDownloaderConfigStatic;
   public
-    constructor Create(AIntetConfig: IInetConfig);
+    constructor Create(AIntetConfig: IInetConfig; ADefault: ITileDownloaderConfigStatic);
   end;
 
 implementation
@@ -52,14 +52,14 @@ uses
 
 { TTileDownloaderConfig }
 
-constructor TTileDownloaderConfig.Create(AIntetConfig: IInetConfig);
+constructor TTileDownloaderConfig.Create(AIntetConfig: IInetConfig; ADefault: ITileDownloaderConfigStatic);
 begin
   inherited Create;
   FIntetConfig := AIntetConfig;
-  FWaitInterval := 0;
-  FIgnoreMIMEType := False;
-  FDefaultMIMEType := 'image/jpg';
-  FExpectedMIMETypes := 'image/jpg';
+  FWaitInterval := ADefault.WaitInterval;
+  FIgnoreMIMEType := ADefault.IgnoreMIMEType;
+  FDefaultMIMEType := ADefault.DefaultMIMEType;
+  FExpectedMIMETypes := ADefault.ExpectedMIMETypes;
 
   Add(FIntetConfig, nil, False, False, False, True);
 end;

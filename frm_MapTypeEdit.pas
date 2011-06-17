@@ -106,7 +106,7 @@ begin
  EditURL.Text := FmapType.Zmp.TileRequestBuilderConfig.UrlBase;
  EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
  EditParSubMenu.Text:=FmapType.Zmp.ParentSubMenu;
- SESleep.Value:=FmapType.Zmp.Sleep;
+ SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
  EditHotKey.HotKey:=FmapType.Zmp.HotKey;
  CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
  CheckBox1.Checked:=FmapType.Zmp.Separator;
@@ -135,7 +135,7 @@ end;
 
 procedure TfrmMapTypeEdit.Button8Click(Sender: TObject);
 begin
- SESleep.Value := FMapType.Zmp.Sleep;
+  SESleep.Value := FMapType.TileDownloaderConfig.WaitInterval;
 end;
 
 procedure TfrmMapTypeEdit.Button9Click(Sender: TObject);

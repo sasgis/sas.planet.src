@@ -6,6 +6,7 @@ uses
   Graphics,
   Classes,
   i_CoordConverter,
+  i_TileDownloaderConfig,
   i_TileRequestBuilderConfig;
 
 type
@@ -35,9 +36,6 @@ type
     function GetHotKey: TShortCut;
     property HotKey: TShortCut read GetHotKey;
 
-    function GetSleep: Cardinal;
-    property Sleep: Cardinal read GetSleep;
-
     function GetSeparator: Boolean;
     property Separator: Boolean read GetSeparator;
 
@@ -49,6 +47,9 @@ type
 
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     property TileRequestBuilderConfig: ITileRequestBuilderConfigStatic read GetTileRequestBuilderConfig;
+
+    function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
+    property TileDownloaderConfig: ITileDownloaderConfigStatic read GetTileDownloaderConfig;
 
     function GetGeoConvert: ICoordConverter;
     property GeoConvert: ICoordConverter read GetGeoConvert;

@@ -263,7 +263,7 @@ begin
       VSubItem.DeleteValue('NameInCache');
     end;
 
-    if VMapType.TileDownloaderConfig.WaitInterval <> VMapType.Zmp.Sleep then begin
+    if VMapType.TileDownloaderConfig.WaitInterval <> VMapType.Zmp.TileDownloaderConfig.WaitInterval then begin
       VSubItem.WriteInteger('Sleep', VMapType.TileDownloaderConfig.WaitInterval);
     end else begin
       VSubItem.DeleteValue('Sleep');

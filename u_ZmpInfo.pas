@@ -9,6 +9,7 @@ uses
   i_CoordConverter,
   i_ConfigDataProvider,
   i_TileRequestBuilderConfig,
+  i_TileDownloaderConfig,
   i_LanguageManager,
   i_CoordConverterFactory,
   i_ZmpInfo;
@@ -26,12 +27,12 @@ type
     FBmp18: TBitmap;
     FBmp24: TBitmap;
     FHotKey: TShortCut;
-    FSleep: Cardinal;
     FSeparator: Boolean;
     FParentSubMenuDef: string;
     FParentSubMenu: string;
     FEnabled: Boolean;
     FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
+    FTileDownloaderConfig: ITileDownloaderConfigStatic;
     FGeoConvert: ICoordConverter;
     FMainGeoConvert: ICoordConverter;
 
@@ -53,6 +54,7 @@ type
     procedure LoadUIParams(AConfig : IConfigDataProvider);
     procedure LoadInfo(AConfig : IConfigDataProvider);
     procedure LoadTileRequestBuilderConfig(AConfig : IConfigDataProvider);
+    procedure LoadTileDownloaderConfig(AConfig: IConfigDataProvider);
 
     procedure LoadByLang(ALanguageCode: string);
     procedure LoadInfoLang(AConfig : IConfigDataProvider; ALanguageCode: string);
@@ -66,11 +68,11 @@ type
     function GetBmp18: TBitmap;
     function GetBmp24: TBitmap;
     function GetHotKey: TShortCut;
-    function GetSleep: Cardinal;
     function GetSeparator: Boolean;
     function GetParentSubMenu: string;
     function GetEnabled: Boolean;
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
+    function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     function GetGeoConvert: ICoordConverter;
     function GetMainGeoConvert: ICoordConverter;
   public
@@ -94,6 +96,7 @@ implementation
 uses
   gnugettext,
   u_TileRequestBuilderConfig,
+  u_TileDownloaderConfigStatic,
   u_ResStrings;
 
 { TZmpInfo }
@@ -191,14 +194,14 @@ begin
   Result := FSeparator;
 end;
 
-function TZmpInfo.GetSleep: Cardinal;
-begin
-  Result := FSleep;
-end;
-
 function TZmpInfo.GetSortIndex: Integer;
 begin
   Result := FSortIndex;
+end;
+
+function TZmpInfo.GetTileDownloaderConfig: ITileDownloaderConfigStatic;
+begin
+  Result := FTileDownloaderConfig;
 end;
 
 function TZmpInfo.GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
@@ -220,7 +223,7 @@ begin
   LoadInfo(FConfig);
   LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
   LoadTileRequestBuilderConfig(FConfigIniParams);
-  FSleep := FConfigIniParams.ReadInteger('Sleep', 0);
+  LoadTileDownloaderConfig(FConfigIniParams);
 end;
 
 function TZmpInfo.LoadGUID(AConfig: IConfigDataProvider): TGUID;
@@ -299,6 +302,28 @@ begin
   if FMainGeoConvert = nil then begin
     FMainGeoConvert := FGeoConvert;
   end;
+end;
+
+procedure TZmpInfo.LoadTileDownloaderConfig(AConfig: IConfigDataProvider);
+var
+  VIgnoreMIMEType: Boolean;
+  VDefaultMIMEType: string;
+  VExpectedMIMETypes: string;
+  VWaitInterval: Cardinal;
+begin
+  VIgnoreMIMEType := AConfig.ReadBool('IgnoreContentType', False);
+  VDefaultMIMEType := AConfig.ReadString('DefaultContentType', 'image/jpg');
+  VExpectedMIMETypes := AConfig.ReadString('ContentType', 'image/jpg');
+  VWaitInterval := AConfig.ReadInteger('Sleep', 0);
+
+  FTileDownloaderConfig :=
+    TTileDownloaderConfigStatic.Create(
+      nil,
+      VWaitInterval,
+      VIgnoreMIMEType,
+      VExpectedMIMETypes,
+      VDefaultMIMEType
+    );
 end;
 
 procedure TZmpInfo.LoadTileRequestBuilderConfig(AConfig: IConfigDataProvider);

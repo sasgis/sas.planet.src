@@ -660,7 +660,7 @@ begin
   FGuid := FZmp.GUID;
   FLanguageManager := ALanguageManager;
   FMimeTypeSubstList := nil;
-  FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig);
+  FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
   LoadMapType(AConfig, Apnum);
   if FasLayer then begin
