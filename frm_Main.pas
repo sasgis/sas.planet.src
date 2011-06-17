@@ -336,6 +336,13 @@ type
     NBlock_toolbars: TTBXItem;
     TBXSeparatorItem19: TTBXSeparatorItem;
     tbitmGPSOptions: TTBXItem;
+    TBXLabelItem3: TTBXLabelItem;
+    TBXItem7: TTBXItem;
+    TBXItem8: TTBXItem;
+    TBXItem9: TTBXItem;
+    TBXItem10: TTBXItem;
+    TBXItem11: TTBXItem;
+    TBXItem12: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -461,6 +468,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure NBlock_toolbarsClick(Sender: TObject);
     procedure tbitmGPSOptionsClick(Sender: TObject);
+    procedure TBXItem9Click(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -629,6 +637,7 @@ uses
   u_ThreadDownloadTiles,
   u_PathDetalizeProviderMailRu,
   u_PathDetalizeProviderYourNavigation,
+  u_PathDetalizeProviderCloudMade,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
   u_PosFromGSM,
@@ -3589,7 +3598,7 @@ begin
       result:=FMarkDBGUI.SaveLineModal(nil, FLineOnMapEdit.GetPoints, FMarshrutComment);
     end;
     ao_edit_line: begin
-      result:=FMarkDBGUI.SaveLineModal(FEditMark, FLineOnMapEdit.GetPoints, '');
+      result:=FMarkDBGUI.SaveLineModal(FEditMark, FLineOnMapEdit.GetPoints, FMarshrutComment);
     end;
   end;
   if result then begin
@@ -3820,6 +3829,40 @@ begin
           GState.ImportFileByExt.ProcessImport(VFileName, VImportConfig);
         end;
       end;
+    end;
+  end;
+end;
+
+procedure TfrmMain.TBXItem9Click(Sender: TObject);
+var
+  VResult: TArrayOfDoublePoint;
+  VProvider: IPathDetalizeProvider;
+  VIsError: Boolean;
+begin
+  case TTBXItem(Sender).tag of
+    1:VProvider := TPathDetalizeProviderCloudMade.Create(car,fastest);
+    2:VProvider := TPathDetalizeProviderCloudMade.Create(foot,fastest);
+    3:VProvider := TPathDetalizeProviderCloudMade.Create(bicycle,fastest);
+    11:VProvider := TPathDetalizeProviderCloudMade.Create(car,shortest);
+    12:VProvider := TPathDetalizeProviderCloudMade.Create(foot,shortest);
+    13:VProvider := TPathDetalizeProviderCloudMade.Create(bicycle,shortest);
+  end;
+  if VProvider <> nil then begin
+    VIsError := True;
+    try
+      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
+      VIsError := False;
+    except
+      on E: Exception do begin
+        ShowMessage(E.Message);
+      end;
+    end;
+    if not VIsError then begin
+      if Length(VResult) > 0 then begin
+        FLineOnMapEdit.SetPoints(VResult);
+      end;
+    end else begin
+      FMarshrutComment := '';
     end;
   end;
 end;
