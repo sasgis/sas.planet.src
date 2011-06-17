@@ -645,6 +645,7 @@
     <DCCReference Include="u_TileStorageAbstract.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />
+    <DCCReference Include="u_TileStorageTypeConfig.pas" />
     <DCCReference Include="u_TileStorageTypeInfo.pas" />
     <DCCReference Include="u_TileStorageTypeList.pas" />
     <DCCReference Include="u_TileStorageTypeListItem.pas" />

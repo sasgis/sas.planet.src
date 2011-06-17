@@ -224,6 +224,7 @@ uses
   u_TileIteratorSpiralByRect in 'u_TileIteratorSpiralByRect.pas',
   u_TileIteratorByRect in 'u_TileIteratorByRect.pas',
   i_TileStorageTypeConfig in 'i_TileStorageTypeConfig.pas',
+  u_TileStorageTypeConfig in 'u_TileStorageTypeConfig.pas',
   i_TileStorageTypeList in 'i_TileStorageTypeList.pas',
   i_TileStorageTypeListItem in 'i_TileStorageTypeListItem.pas',
   u_TileStorageTypeListItem in 'u_TileStorageTypeListItem.pas',
