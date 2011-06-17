@@ -109,7 +109,6 @@ type
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
     procedure GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
-    procedure SetResponse(AHead: string);
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
@@ -163,7 +162,6 @@ type
     property bmp18: TBitmap read Fbmp18;
     property bmp24: TBitmap read Fbmp24;
     property TileStorage: TTileStorageAbstract read FStorage;
-    property UrlGenerator : TUrlGeneratorBasic read FUrlGenerator;
     property MapInfo: string read GetMapInfo;
     property Name: string read FName;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
@@ -421,12 +419,6 @@ procedure TMapType.GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string)
 begin
   FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
   FUrlGenerator.GenRequest(AXY.X, AXY.Y, Azoom, AUrl, AHead);
-end;
-
-procedure TMapType.SetResponse(AHead: string);
-begin
-  if AHead <> '' then
-    FUrlGenerator.ResponseHead := AHead;
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -745,7 +737,7 @@ begin
       end;
     end;
     if Supports(Result, IDownloadResultOk, VResultOk) then begin
-      SetResponse(VResultOk.RawResponseHeader);
+      FUrlGenerator.ResponseHead := VResultOk.RawResponseHeader;
       VResultStream := TMemoryStream.Create;
       try
         VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);
