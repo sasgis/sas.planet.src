@@ -3728,7 +3728,7 @@ begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
   if VMapType.MapInfo <> '' then begin
-    frmIntrnalBrowser.showmessage(VMapType.zmpfilename,VMapType.MapInfo);
+    frmIntrnalBrowser.showmessage(VMapType.Zmp.FileName, VMapType.MapInfo);
   end;
 end;
 

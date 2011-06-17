@@ -187,7 +187,7 @@ begin
 
       VMapTypeLoaded := GetMapFromID(VZmp.GUID);
       if VMapTypeLoaded <> nil then begin
-        raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.ZmpFileName, VFullFileName]);
+        raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.Zmp.FileName, VFullFileName]);
       end;
 
       VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VZmp.GUID));
@@ -239,7 +239,7 @@ begin
       VSubItem.DeleteValue('URLBase');
     end;
 
-    if VMapType.HotKey <> VMapType.DefHotKey then begin
+    if VMapType.HotKey <> VMapType.Zmp.HotKey then begin
       VSubItem.WriteInteger('HotKey', VMapType.HotKey);
     end else begin
       VSubItem.DeleteValue('HotKey');
@@ -251,7 +251,7 @@ begin
       VSubItem.DeleteValue('CacheType');
     end;
 
-    if VMapType.separator <> VMapType.Defseparator then begin
+    if VMapType.separator <> VMapType.Zmp.Separator then begin
       VSubItem.WriteBool('separator', VMapType.separator);
     end else begin
       VSubItem.DeleteValue('separator');
@@ -263,19 +263,19 @@ begin
       VSubItem.DeleteValue('NameInCache');
     end;
 
-    if VMapType.TileDownloaderConfig.WaitInterval <> VMapType.DefSleep then begin
+    if VMapType.TileDownloaderConfig.WaitInterval <> VMapType.Zmp.Sleep then begin
       VSubItem.WriteInteger('Sleep', VMapType.TileDownloaderConfig.WaitInterval);
     end else begin
       VSubItem.DeleteValue('Sleep');
     end;
 
-    if VMapType.ParentSubMenu <> VMapType.DefParentSubMenu then begin
+    if VMapType.ParentSubMenu <> VMapType.Zmp.ParentSubMenu then begin
       VSubItem.WriteString('ParentSubMenu', VMapType.ParentSubMenu);
     end else begin
       VSubItem.DeleteValue('ParentSubMenu');
     end;
 
-    if VMapType.Enabled <> VMapType.DefEnabled then begin
+    if VMapType.Enabled <> VMapType.Zmp.Enabled then begin
       VSubItem.WriteBool('Enabled', VMapType.Enabled);
     end else begin
       VSubItem.DeleteValue('Enabled');

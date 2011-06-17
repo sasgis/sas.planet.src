@@ -822,7 +822,7 @@ var
 begin
   VMap := TMapType(MapList.Selected.Data);
   if VMap.MapInfo <> '' then begin
-    frmIntrnalBrowser.showmessage(VMap.zmpfilename,VMap.MapInfo);
+    frmIntrnalBrowser.showmessage(VMap.Zmp.FileName, VMap.MapInfo);
   end;
 end;
 
@@ -844,7 +844,7 @@ begin
         MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.ParentSubMenu);
       end;
       MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.HotKey));
-      MapList.Items.Item[i].SubItems.Add(VMapType.ZmpFileName);
+      MapList.Items.Item[i].SubItems.Add(VMapType.Zmp.FileName);
       if VMapType.Enabled then begin
         MapList.Items.Item[i].SubItems.Add(SAS_STR_Yes)
       end else begin

@@ -44,13 +44,6 @@ type
     FasLayer: boolean;
     FVersion: Variant;
     FTileRect: TRect;
-    FZMPFileName: string;
-    FMapInfo: string;
-    FDefHotKey: TShortCut;
-    FDefSleep: Cardinal;
-    FDefseparator: boolean;
-    FDefParentSubMenu: string;
-    FDefEnabled: boolean;
     FUseDwn: boolean;
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
@@ -75,7 +68,6 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
 
     function GetUseDwn: Boolean;
-    function GetZmpFileName: string;
     function GetIsCanShowOnSmMap: boolean;
     function GetUseStick: boolean;
     function GetIsCropOnDownload: Boolean;
@@ -92,7 +84,6 @@ type
     procedure LoadStorageParams(AConfig : IConfigDataProvider);
     procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
     procedure LoadUIParams(AConfig : IConfigDataProvider);
-    procedure LoadMapInfo(AConfig : IConfigDataProvider);
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
@@ -105,6 +96,7 @@ type
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
     function GetUseGenPrevious: boolean;
     function LoadTileFromPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean;
+    function GetMapInfo: string;
    public
     FSortIndex: integer;
     HotKey: TShortCut;
@@ -150,7 +142,7 @@ type
       AZoom: byte;
       ACheckTileSize: Boolean
     ): IDownloadResult;
-
+    property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
     property MainGeoConvert: ICoordConverter read FMainCoordConverter;
     property GUID: TGUID read FGuid;
@@ -166,18 +158,12 @@ type
     property UseStick: boolean read GetUseStick;
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
 
-    property ZmpFileName: string read GetZmpFileName;
     property bmp18: TBitmap read Fbmp18;
     property bmp24: TBitmap read Fbmp24;
     property TileStorage: TTileStorageAbstract read FStorage;
     property UrlGenerator : TUrlGeneratorBasic read FUrlGenerator;
-    property MapInfo: string read FMapInfo;
+    property MapInfo: string read GetMapInfo;
     property Name: string read FName;
-    property DefHotKey: TShortCut read FDefHotKey;
-    property DefSleep: Cardinal read FDefSleep;
-    property Defseparator: boolean read FDefseparator;
-    property DefParentSubMenu: string read FDefParentSubMenu;
-    property DefEnabled: boolean read FDefEnabled;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
     property Cache: ITileObjCache read FCache;
 
@@ -262,26 +248,18 @@ begin
       //GetLink(0,0,0);
     except
       on E: Exception do begin
-        ShowMessageFmt(SAS_ERR_UrlScriptError, [name, E.Message, ZmpFileName]);
+        ShowMessageFmt(SAS_ERR_UrlScriptError, [name, E.Message, Zmp.FileName]);
         FUrlGenerator := nil;
         FUseDwn := False;
       end;
      else
-      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [name, ZmpFileName]);
+      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [name, Zmp.FileName]);
       FUrlGenerator := nil;
       FUseDwn := False;
     end;
   end;
   if FUrlGenerator = nil then begin
     FUrlGenerator := TUrlGeneratorBasic.Create(AConfig);
-  end;
-end;
-
-procedure TMapType.LoadMapInfo(AConfig: IConfigDataProvider);
-begin
-  FMapinfo := AConfig.ReadString('info_'+FLanguageManager.GetCurrentLanguageCode+'.txt', '');
-  if FMapInfo = '' then begin
-    FMapinfo := AConfig.ReadString('info.txt', '');
   end;
 end;
 
@@ -352,7 +330,6 @@ begin
   FTileRect.Right:=VParams.ReadInteger('TileRRight',0);
   FTileRect.Bottom:=VParams.ReadInteger('TileRBottom',0);
 
-  FDefSleep:=VParams.ReadInteger('MAIN:Sleep',0);
   FUseDwn:=VParams.ReadBool('UseDwn',true);
 end;
 
@@ -362,20 +339,13 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
-  FName:=VParams.ReadString('name',FName);
-  FName:=VParams.ReadString('name_'+FLanguageManager.GetCurrentLanguageCode,FName);
+  FName := Zmp.Name;
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
-  HotKey:=VParams.ReadInteger('HotKey',0);
-  FDefHotKey := VParams.ReadInteger('MAIN:HotKey',0);
-  ParentSubMenu:=VParams.ReadString('ParentSubMenu','');
-  ParentSubMenu:=VParams.ReadString('ParentSubMenu_'+FLanguageManager.GetCurrentLanguageCode,ParentSubMenu);
-  FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu','');
-  FDefParentSubMenu:=VParams.ReadString('MAIN:ParentSubMenu_' + FLanguageManager.GetCurrentLanguageCode, FDefParentSubMenu);
-  separator:=VParams.ReadBool('separator',false);
-  FDefseparator:=VParams.ReadBool('MAIN:separator',false);
-  Enabled:=VParams.ReadBool('Enabled',true);
-  FDefEnabled:=VParams.ReadBool('MAIN:Enabled',true);
-  FSortIndex:=VParams.ReadInteger('pnum',-1);
+  HotKey:=VParams.ReadInteger('HotKey',Zmp.HotKey);
+  ParentSubMenu:=VParams.ReadString('ParentSubMenu', Zmp.ParentSubMenu);
+  separator:=VParams.ReadBool('separator', Zmp.Separator);
+  Enabled:=VParams.ReadBool('Enabled', Zmp.Enabled);
+  FSortIndex:=VParams.ReadInteger('pnum', Zmp.SortIndex);
 end;
 
 procedure TMapType.LoadDownloader(AConfig: IConfigDataProvider);
@@ -400,7 +370,7 @@ begin
       FAntiBan := TAntiBanStuped.Create(AConfig);
     except
       if ExceptObject <> nil then begin
-        ShowMessageFmt(SAS_ERR_MapDownloadByError,[FZMPFileName, (ExceptObject as Exception).Message]);
+        ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
       end;
       FUseDwn := false;
     end;
@@ -412,7 +382,6 @@ var
   VParams: IConfigDataProvider;
 begin
   FName:='map#'+inttostr(Apnum);
-  FZMPFileName := AConfig.ReadString(':::FileName', FName);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FasLayer:= VParams.ReadBool('asLayer', false);
   LoadUIParams(AConfig);
@@ -423,7 +392,6 @@ begin
     showinfo := False;
   end;
 
-  LoadMapInfo(AConfig);
   LoadStorageParams(AConfig);
   LoadProjectionInfo(AConfig);
   LoadMapIcons(AConfig);
@@ -814,11 +782,6 @@ begin
   end;
 end;
 
-function TMapType.GetZmpFileName: string;
-begin
-  Result := ExtractFileName(FZMPFileName);
-end;
-
 function TMapType.GetUseStick: boolean;
 begin
   if GetIsBitmapTiles then begin
@@ -890,6 +853,11 @@ end;
 function TMapType.GetGUIDString: string;
 begin
   Result := GUIDToString(FGuid);
+end;
+
+function TMapType.GetMapInfo: string;
+begin
+  Result := Zmp.Info;
 end;
 
 function TMapType.GetMIMETypeSubst(AMimeType: string): string;
