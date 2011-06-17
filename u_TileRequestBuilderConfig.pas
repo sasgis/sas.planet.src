@@ -37,7 +37,7 @@ type
     function  GetRequestHeader: string;
     procedure SetRequestHeader(AValue: string);
   public
-    constructor Create();
+    constructor Create(ADefConfig: ITileRequestBuilderConfigStatic);
   end;
 
 implementation
@@ -47,11 +47,11 @@ uses
 
 { TTileRequestBuilderConfig }
 
-constructor TTileRequestBuilderConfig.Create;
+constructor TTileRequestBuilderConfig.Create(ADefConfig: ITileRequestBuilderConfigStatic);
 begin
-  inherited;
-  FUrlBase := '';
-  FRequestHeader := '';
+  inherited Create;
+  FUrlBase := ADefConfig.UrlBase;
+  FRequestHeader := ADefConfig.RequestHeader;
 end;
 
 procedure TTileRequestBuilderConfig.DoReadConfig(

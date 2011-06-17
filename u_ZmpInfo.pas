@@ -52,6 +52,7 @@ type
     );
     procedure LoadUIParams(AConfig : IConfigDataProvider);
     procedure LoadInfo(AConfig : IConfigDataProvider);
+    procedure LoadTileRequestBuilderConfig(AConfig : IConfigDataProvider);
 
     procedure LoadByLang(ALanguageCode: string);
     procedure LoadInfoLang(AConfig : IConfigDataProvider; ALanguageCode: string);
@@ -92,6 +93,7 @@ implementation
 
 uses
   gnugettext,
+  u_TileRequestBuilderConfig,
   u_ResStrings;
 
 { TZmpInfo }
@@ -217,6 +219,8 @@ begin
   LoadIcons(FConfig);
   LoadInfo(FConfig);
   LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
+  LoadTileRequestBuilderConfig(FConfigIniParams);
+  FSleep := FConfigIniParams.ReadInteger('Sleep', 0);
 end;
 
 function TZmpInfo.LoadGUID(AConfig: IConfigDataProvider): TGUID;
@@ -295,6 +299,17 @@ begin
   if FMainGeoConvert = nil then begin
     FMainGeoConvert := FGeoConvert;
   end;
+end;
+
+procedure TZmpInfo.LoadTileRequestBuilderConfig(AConfig: IConfigDataProvider);
+var
+  VUrlBase: string;
+  VRequestHead: string;
+begin
+  VURLBase := AConfig.ReadString('URLBase', '');
+  VRequestHead := AConfig.ReadString('RequestHead', '');
+  VRequestHead := StringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
+  FTileRequestBuilderConfig := TTileRequestBuilderConfigStatic.Create(VUrlBase, VRequestHead);
 end;
 
 procedure TZmpInfo.LoadUIParams(AConfig: IConfigDataProvider);
