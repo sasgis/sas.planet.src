@@ -233,8 +233,8 @@ begin
     VSubItem.WriteInteger('pnum', VMapType.FSortIndex);
     VSubItem.WriteString('name', VMapType.Name);
 
-    if VMapType.UrlGenerator.URLBase <> VMapType.UrlGenerator.DefURLBase then begin
-      VSubItem.WriteString('URLBase', VMapType.UrlGenerator.URLBase);
+    if VMapType.TileRequestBuilderConfig.URLBase <> VMapType.Zmp.TileRequestBuilderConfig.UrlBase then begin
+      VSubItem.WriteString('URLBase', VMapType.TileRequestBuilderConfig.URLBase);
     end else begin
       VSubItem.DeleteValue('URLBase');
     end;

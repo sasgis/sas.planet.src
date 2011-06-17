@@ -11,6 +11,7 @@ Uses
   uPSRuntime,
   uPSCompiler,
   i_ConfigDataProvider,
+  i_TileRequestBuilderConfig,
   i_CoordConverter;
 
 type
@@ -20,30 +21,20 @@ type
   TUrlGeneratorBasic = class
   private
     FCS: TCriticalSection;
-    FDefURLBase: string;
-    FURLBase: String;
-    FDefRequestHead: string;
-    FRequestHead: string;
+    FConfig: ITileRequestBuilderConfig;
     FLastResponseHead: string;
   protected
     procedure Lock;
     procedure Unlock;
-    procedure SetURLBase(const Value: string); virtual;
-    procedure SetRequestHead(const ARequestHead: string);
-    function  GetRequestHead: string; virtual;
     procedure SetResponseHead(const AResponseHead: string); virtual;
     function  GetResponseHead: string; virtual;
   public
-    constructor Create(AConfig: IConfigDataProvider);
+    constructor Create(AConfig: ITileRequestBuilderConfig);
     destructor Destroy; override;
 
     function GenLink(Ax, Ay: longint; Azoom: byte): string; virtual;
     procedure GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHeaders: string); virtual;
 
-    property URLBase: string read FURLBase write SetURLBase;
-    property DefURLBase: string read FDefURLBase;
-    property RequestHead: string read GetRequestHead write SetRequestHead;
-    property DefRequestHead: string read FDefRequestHead;
     property ResponseHead: string read GetResponseHead write SetResponseHead;
   end;
 
@@ -74,8 +65,9 @@ type
     procedure LoadProjectionInfo(AConfig : IConfigDataProvider);
   public
     constructor Create(
-      AConfig: IConfigDataProvider
-      );
+      AConfig: ITileRequestBuilderConfig;
+      AConfigData: IConfigDataProvider
+    );
     destructor Destroy; override;
     function GenLink(Ax, Ay: longint; Azoom: byte): string; override;
     procedure GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHeaders: string); override;
@@ -96,18 +88,12 @@ uses
 
 { TUrlGeneratorBasic }
 
-constructor TUrlGeneratorBasic.Create(AConfig: IConfigDataProvider);
-var
-  VParams: IConfigDataProvider;
+constructor TUrlGeneratorBasic.Create(
+  AConfig: ITileRequestBuilderConfig
+);
 begin
   FCS := TCriticalSection.Create;
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FURLBase := VParams.ReadString('URLBase', '');
-  FDefUrlBase := VParams.ReadString('MAIN:URLBase', '');
-  FRequestHead := VParams.ReadString('RequestHead', '');
-  FRequestHead := StringReplace(FRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
-  FDefRequestHead := VParams.ReadString('MAIN:RequestHead', '');
-  FDefRequestHead := StringReplace(FDefRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
+  FConfig := AConfig;
   FLastResponseHead := '';
 end;
 
@@ -142,36 +128,6 @@ begin
     Lock;
   try
     Result := FLastResponseHead;
-  finally
-    Unlock;
-  end;
-end;
-
-procedure TUrlGeneratorBasic.SetRequestHead(const ARequestHead: string);
-begin
-    Lock;
-  try
-    FRequestHead := ARequestHead;
-  finally
-    Unlock;
-  end;
-end;
-
-function TUrlGeneratorBasic.GetRequestHead: string;
-begin
-    Lock;
-  try
-    Result := FRequestHead;
-  finally
-    Unlock;
-  end;
-end;
-
-procedure TUrlGeneratorBasic.SetURLBase(const Value: string);
-begin
-    Lock;
-  try
-    FURLBase := Value;
   finally
     Unlock;
   end;
@@ -272,7 +228,10 @@ begin
 end;
 
 { TUrlGenerator }
-constructor TUrlGenerator.Create(AConfig: IConfigDataProvider);
+constructor TUrlGenerator.Create(
+  AConfig: ITileRequestBuilderConfig;
+  AConfigData: IConfigDataProvider
+);
 var
   i: integer;
   Msg: string;
@@ -280,8 +239,8 @@ var
   VData: string;
 begin
   inherited Create(AConfig);
-  LoadProjectionInfo(AConfig);
-  FGetURLScript := AConfig.ReadString('GetUrlScript.txt', '');
+  LoadProjectionInfo(AConfigData);
+  FGetURLScript := AConfigData.ReadString('GetUrlScript.txt', '');
   FScriptBuffer := '';
 
   VCompiler := TPSPascalCompiler.Create;       // create an instance of the compiler.
@@ -321,11 +280,11 @@ begin
   end;
   FpResultUrl := PPSVariantAString(FExec.GetVar2('ResultURL'));
   FpGetURLBase := PPSVariantAString(FExec.GetVar2('GetURLBase'));
-  FpGetURLBase.Data := FURLBase;
+  FpGetURLBase.Data := '';
   FpRequestHead := PPSVariantAString(FExec.GetVar2('RequestHead'));
-  FpRequestHead.Data := FRequestHead;
+  FpRequestHead.Data := '';
   FpResponseHead := PPSVariantAString(FExec.GetVar2('ResponseHead'));
-  FpResponseHead.Data := FLastResponseHead;
+  FpResponseHead.Data := '';
   FpScriptBuffer := PPSVariantAString(FExec.GetVar2('ScriptBuffer'));
   FpGetX := PPSVariantS32(FExec.GetVar2('GetX'));
   FpGetY := PPSVariantS32(FExec.GetVar2('GetY'));
@@ -372,7 +331,16 @@ begin
   FpGetRMetr.Data := Ll.X;
   FpGetBMetr.Data := Ll.Y;
   FpConverter.Data := FCoordConverter;
-  FpGetURLBase.Data := FURLBase;
+  FpResultUrl.Data := '';
+  FConfig.LockRead;
+  try
+    FpGetURLBase.Data := FConfig.URLBase;
+    FpRequestHead.Data := FConfig.RequestHeader;
+  finally
+    FConfig.UnlockRead;
+  end;
+  FpResponseHead.Data := FLastResponseHead;
+  FpScriptBuffer.Data := FScriptBuffer;
 end;
 
 function TUrlGenerator.GenLink(Ax, Ay: Integer; Azoom: byte): string;
@@ -398,10 +366,6 @@ procedure TUrlGenerator.GenRequest(Ax, Ay: Integer; Azoom: byte; out AUrl, AHead
 begin
     Lock;
   try
-    FpResultUrl.Data := '';
-    FpRequestHead.Data := FRequestHead;
-    FpResponseHead.Data := FLastResponseHead;
-    FpScriptBuffer.Data := FScriptBuffer;
     SetVar(Point(Ax, Ay), Azoom);
     try
       FExec.RunScript; // Run the script.

@@ -252,7 +252,7 @@ begin
   FTileRequestBuilderConfig.ReadConfig(VParams);
   if FUseDwn then begin
     try
-      FUrlGenerator := TUrlGenerator.Create(AConfig);
+      FUrlGenerator := TUrlGenerator.Create(FTileRequestBuilderConfig, AConfig);
       //GetLink(0,0,0);
     except
       on E: Exception do begin
@@ -267,7 +267,7 @@ begin
     end;
   end;
   if FUrlGenerator = nil then begin
-    FUrlGenerator := TUrlGeneratorBasic.Create(AConfig);
+    FUrlGenerator := TUrlGeneratorBasic.Create(FTileRequestBuilderConfig);
   end;
 end;
 
