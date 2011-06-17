@@ -35,11 +35,12 @@ type
     LabelValue4: TLabel;
     SaveSessionDialog: TSaveDialog;
     UpdateTimer: TTimer;
-    GridPanel1: TGridPanel;
     Button3: TButton;
     ButtonSave: TButton;
     Button1: TButton;
     Button2: TButton;
+    pnlBottom: TPanel;
+    pnlProgress: TPanel;
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -131,6 +132,7 @@ begin
   FLog := ALog;
   FRarProgress := TRarProgress.Create(Self);
   with FRarProgress do begin
+
     Left := 8;
     Top := 200;
     Width := 314;
@@ -152,7 +154,8 @@ begin
     BackFillColor := 16635571;
     ShadowColor := clGray;
   end;
-  FRarProgress.Parent := Self.Panel1;
+  FRarProgress.Parent := pnlProgress;
+  FRarProgress.Align := alClient;
   InitProgressForm;
 end;
 
