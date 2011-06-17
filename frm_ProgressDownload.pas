@@ -169,11 +169,6 @@ begin
   FRarProgress.Max := FDownloadThread.TotalInRegion;
   FRarProgress.Progress1 := FDownloadThread.Downloaded;
   FRarProgress.Progress2 := FDownloadThread.Processed;
-  LabelName0.Caption := SAS_STR_ProcessedNoMore+':';
-  LabelName1.Caption := SAS_STR_AllProcessed;
-  LabelName2.Caption := SAS_STR_AllLoad;
-  LabelName3.Caption := SAS_STR_TimeRemained;
-  LabelName4.Caption := SAS_STR_LoadRemained;
   Visible:=true;
 end;
 
@@ -186,11 +181,6 @@ end;
 procedure TfrmProgressDownload.RefreshTranslation;
 begin
   inherited;
-  LabelName0.Caption := SAS_STR_ProcessedNoMore+':';
-  LabelName1.Caption := SAS_STR_AllProcessed;
-  LabelName2.Caption := SAS_STR_AllLoad;
-  LabelName3.Caption := SAS_STR_TimeRemained;
-  LabelName4.Caption := SAS_STR_LoadRemained;
 end;
 
 procedure TfrmProgressDownload.UpdateProgressForm;

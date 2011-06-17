@@ -103,10 +103,6 @@ ResourceString
   SAS_STR_WiteLoad = 'Please wait, download in progress...';
   SAS_STR_Processed = 'Processed';
   SAS_STR_Saves = 'Saved';
-  SAS_STR_AllProcessed = 'Processed total:';
-  SAS_STR_AllLoad = 'Downloaded total:';
-  SAS_STR_TimeRemained = 'Time remaining:';
-  SAS_STR_LoadRemained = 'Approx. to download:';
   SAS_STR_ProcessedNoMore = 'Process not more than';
   SAS_STR_AllDelete = 'Deleted total:';
   SAS_STR_AllSaves = 'Total to save:';

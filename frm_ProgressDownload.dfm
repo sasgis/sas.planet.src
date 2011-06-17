@@ -78,55 +78,55 @@ object frmProgressDownload: TfrmProgressDownload
     object LabelName0: TLabel
       Left = 11
       Top = 121
-      Width = 6
+      Width = 112
       Height = 13
       Anchors = [akLeft, akBottom]
       BiDiMode = bdLeftToRight
-      Caption = '  '
+      Caption = 'Process not more than:'
       ParentBiDiMode = False
       Layout = tlCenter
     end
     object LabelName1: TLabel
       Left = 11
       Top = 137
-      Width = 3
+      Width = 78
       Height = 13
       Anchors = [akLeft, akBottom]
       BiDiMode = bdLeftToRight
-      Caption = ' '
+      Caption = 'Processed total:'
       ParentBiDiMode = False
       Layout = tlCenter
     end
     object LabelName2: TLabel
       Left = 11
       Top = 153
-      Width = 6
+      Width = 88
       Height = 13
       Anchors = [akLeft, akBottom]
       BiDiMode = bdLeftToRight
-      Caption = '  '
+      Caption = 'Downloaded total:'
       ParentBiDiMode = False
       Layout = tlCenter
     end
     object LabelName3: TLabel
       Left = 11
       Top = 169
-      Width = 9
+      Width = 75
       Height = 13
       Anchors = [akLeft, akBottom]
       BiDiMode = bdLeftToRight
-      Caption = '   '
+      Caption = 'Time remaining:'
       ParentBiDiMode = False
       Layout = tlCenter
     end
     object LabelName4: TLabel
       Left = 11
       Top = 185
-      Width = 9
+      Width = 105
       Height = 13
       Anchors = [akLeft, akBottom]
       BiDiMode = bdLeftToRight
-      Caption = '   '
+      Caption = 'Approx. to download:'
       ParentBiDiMode = False
       Layout = tlCenter
     end
