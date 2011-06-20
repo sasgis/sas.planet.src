@@ -18,7 +18,7 @@ type
   TTileStorageTypeList = class(TConfigDataElementBase, ITileStorageTypeList)
   private
     FList: IGUIDInterfaceList;
-    FDefault: ITileStorageType;
+    FDefault: ITileStorageTypeListItem;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -38,7 +38,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  c_ZeroGUID;
 
 { TTileStorageTypeList }
 
@@ -48,7 +49,7 @@ begin
   inherited Create;
   Assert(AFirstType.CanUseAsDefault);
   Add(AFirstType);
-  FDefault := AFirstType.StorageType;
+  FDefault := AFirstType;
 end;
 
 procedure TTileStorageTypeList.Add(AValue: ITileStorageTypeListItem);
@@ -64,6 +65,7 @@ var
   VConfigData: IConfigDataProvider;
   VItem: ITileStorageTypeListItem;
   VConfig: ITileStorageTypeConfig;
+  VGUIDString: string;
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -76,6 +78,18 @@ begin
         VConfig.ReadConfig(VConfigData);
       end;
     end;
+    VGUID := CGUID_Zero;
+    VGUIDString := AConfigData.ReadString('DefaultTypeGUID', '');
+    if VGUIDString <> '' then begin
+      try
+        VGUID := StringToGUID(VGUIDString);
+      except
+        VGUID := CGUID_Zero;
+      end;
+    end;
+    if not IsEqualGUID(VGUID, CGUID_Zero) then begin
+      SetDefaultByGUID(VGUID);
+    end;
   end;
 end;
 
@@ -85,50 +99,75 @@ var
   i: Cardinal;
   VGUID: TGUID;
   VEnum: IEnumGUID;
-  VConfigData: IConfigDataProvider;
+  VConfigData: IConfigDataWriteProvider;
   VItem: ITileStorageTypeListItem;
   VConfig: ITileStorageTypeConfig;
 begin
   inherited;
+  AConfigData.WriteString('DefaultTypeGUID', GUIDToString(FDefault.GUID));
+  AConfigData.WriteString('DefaultTypeName', FDefault.StorageType.Caption);
+
   VEnum := FList.GetGUIDEnum;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
     VItem := ITileStorageTypeListItem(FList.GetByGUID(VGUID));
     VConfig := VItem.Config;
     if VConfig <> nil then begin
-      VConfigData := AConfigData.GetSubItem(GUIDToString(VGUID));
-      VConfig.ReadConfig(VConfigData);
+      VConfigData := AConfigData.GetOrCreateSubItem(GUIDToString(VGUID));
+      VConfigData.WriteString('Name', VItem.StorageType.Caption);
+      VConfig.WriteConfig(VConfigData);
     end;
   end;
 end;
 
 function TTileStorageTypeList.Get(AGUID: TGUID): ITileStorageType;
+var
+  VResult: ITileStorageTypeListItem;
 begin
-
+  VResult := ITileStorageTypeListItem(FList.GetByGUID(AGUID));
+  if VResult <> nil then begin
+    Result := VResult.StorageType;
+  end;
 end;
 
 function TTileStorageTypeList.GetCanUseAsDefault(AGUID: TGUID): Boolean;
+var
+  VResult: ITileStorageTypeListItem;
 begin
-  Result := False; // ??
+  Result := False;
+  VResult := ITileStorageTypeListItem(FList.GetByGUID(AGUID));
+  if VResult <> nil then begin
+    Result := VResult.CanUseAsDefault;
+  end;
 end;
 
 function TTileStorageTypeList.GetConfig(AGUID: TGUID): ITileStorageTypeConfig;
+var
+  VResult: ITileStorageTypeListItem;
 begin
-
+  VResult := ITileStorageTypeListItem(FList.GetByGUID(AGUID));
+  if VResult <> nil then begin
+    Result := VResult.Config;
+  end;
 end;
 
 function TTileStorageTypeList.GetDefault: ITileStorageType;
 begin
-
+  Result := FDefault.StorageType;
 end;
 
 function TTileStorageTypeList.GetEnum: IEnumGUID;
 begin
-
+  Result := FList.GetGUIDEnum;
 end;
 
 procedure TTileStorageTypeList.SetDefaultByGUID(AGUID: TGUID);
+var
+  VResult: ITileStorageTypeListItem;
 begin
-
+  VResult := ITileStorageTypeListItem(FList.GetByGUID(AGUID));
+  if VResult <> nil then begin
+    VResult.StorageType;
+  end;
 end;
 
 end.

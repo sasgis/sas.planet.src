@@ -32,9 +32,12 @@ implementation
 
 { TTileStorageTypeListItem }
 
-constructor TTileStorageTypeListItem.Create(AGUID: TGUID;
-  AStorageType: ITileStorageType; ACanUseAsDefault: Boolean;
-  AConfig: ITileStorageTypeConfig);
+constructor TTileStorageTypeListItem.Create(
+  AGUID: TGUID;
+  AStorageType: ITileStorageType;
+  ACanUseAsDefault: Boolean;
+  AConfig: ITileStorageTypeConfig
+);
 begin
   FGUID := AGUID;
   FStorageType := AStorageType;
