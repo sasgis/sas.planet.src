@@ -231,6 +231,7 @@ uses
   u_TileStorageTypeListItem in 'u_TileStorageTypeListItem.pas',
   i_TileStorage in 'i_TileStorage.pas',
   i_TileStorageType in 'i_TileStorageType.pas',
+  u_TileStorageTypeBase in 'u_TileStorageTypeBase.pas',
   i_TileStorageTypeInfo in 'i_TileStorageTypeInfo.pas',
   u_TileStorageTypeInfo in 'u_TileStorageTypeInfo.pas',
   u_TileStorageTypeList in 'u_TileStorageTypeList.pas',
