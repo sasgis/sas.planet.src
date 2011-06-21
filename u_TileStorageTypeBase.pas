@@ -12,16 +12,19 @@ uses
 type
   TTileStorageTypeBase = class(TInterfacedObject, ITileStorageType)
   private
+    FGUID: TGUID;
     FCaption: string;
     FInfo: ITileStorageTypeInfo;
     FConfig: ITileStorageTypeConfig;
   protected
+    function GetGUID: TGUID;
     function GetInfo: ITileStorageTypeInfo;
     function GetConfig: ITileStorageTypeConfig;
     function BuildStorage(APath: string): ITileStorage; virtual; abstract;
     function GetCaption: string;
   public
     constructor Create(
+      AGUID: TGUID;
       ACaption: string;
       AInfo: ITileStorageTypeInfo;
       AConfig: ITileStorageTypeConfig
@@ -32,9 +35,14 @@ implementation
 
 { TTileStorageTypeBase }
 
-constructor TTileStorageTypeBase.Create(ACaption: string;
-  AInfo: ITileStorageTypeInfo; AConfig: ITileStorageTypeConfig);
+constructor TTileStorageTypeBase.Create(
+  AGUID: TGUID;
+  ACaption: string;
+  AInfo: ITileStorageTypeInfo;
+  AConfig: ITileStorageTypeConfig
+);
 begin
+  FGUID := AGUID;
   FCaption := ACaption;
   FInfo := AInfo;
   FConfig := AConfig;
@@ -48,6 +56,11 @@ end;
 function TTileStorageTypeBase.GetConfig: ITileStorageTypeConfig;
 begin
   Result := FConfig;
+end;
+
+function TTileStorageTypeBase.GetGUID: TGUID;
+begin
+  Result := FGUID;
 end;
 
 function TTileStorageTypeBase.GetInfo: ITileStorageTypeInfo;

@@ -11,6 +11,9 @@ uses
 type
   ITileStorageType = interface
     ['{EBB122FB-5382-49CA-A265-3BEA89694B0E}']
+    function GetGUID: TGUID;
+    property GUID: TGUID read GetGUID;
+
     function GetInfo: ITileStorageTypeInfo;
     property Info: ITileStorageTypeInfo read GetInfo;
 
