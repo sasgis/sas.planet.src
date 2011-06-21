@@ -27,7 +27,6 @@ type
     procedure SetDefaultByGUID(AGUID: TGUID);
     function Get(AGUID: TGUID): ITileStorageType;
     function GetCanUseAsDefault(AGUID: TGUID): Boolean;
-    function GetConfig(AGUID: TGUID): ITileStorageTypeConfig;
     function GetEnum: IEnumGUID;
   protected
     procedure Add(AValue: ITileStorageTypeListItem);
@@ -72,7 +71,7 @@ begin
     VEnum := FList.GetGUIDEnum;
     while VEnum.Next(1, VGUID, i) = S_OK do begin
       VItem := ITileStorageTypeListItem(FList.GetByGUID(VGUID));
-      VConfig := VItem.Config;
+      VConfig := VItem.StorageType.Config;
       if VConfig <> nil then begin
         VConfigData := AConfigData.GetSubItem(GUIDToString(VGUID));
         VConfig.ReadConfig(VConfigData);
@@ -110,7 +109,7 @@ begin
   VEnum := FList.GetGUIDEnum;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
     VItem := ITileStorageTypeListItem(FList.GetByGUID(VGUID));
-    VConfig := VItem.Config;
+    VConfig := VItem.StorageType.Config;
     if VConfig <> nil then begin
       VConfigData := AConfigData.GetOrCreateSubItem(GUIDToString(VGUID));
       VConfigData.WriteString('Name', VItem.StorageType.Caption);
@@ -137,16 +136,6 @@ begin
   VResult := ITileStorageTypeListItem(FList.GetByGUID(AGUID));
   if VResult <> nil then begin
     Result := VResult.CanUseAsDefault;
-  end;
-end;
-
-function TTileStorageTypeList.GetConfig(AGUID: TGUID): ITileStorageTypeConfig;
-var
-  VResult: ITileStorageTypeListItem;
-begin
-  VResult := ITileStorageTypeListItem(FList.GetByGUID(AGUID));
-  if VResult <> nil then begin
-    Result := VResult.Config;
   end;
 end;
 

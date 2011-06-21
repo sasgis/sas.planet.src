@@ -16,7 +16,6 @@ type
 
     function Get(AGUID: TGUID): ITileStorageType;
     function GetCanUseAsDefault(AGUID: TGUID): Boolean;
-    function GetConfig(AGUID: TGUID): ITileStorageTypeConfig;
     function GetEnum: IEnumGUID;
   end;
 

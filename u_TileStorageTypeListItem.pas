@@ -13,18 +13,15 @@ type
     FGUID: TGUID;
     FStorageType: ITileStorageType;
     FCanUseAsDefault: Boolean;
-    FConfig: ITileStorageTypeConfig;
   protected
     function GetGUID: TGUID;
     function GetStorageType: ITileStorageType;
     function GetCanUseAsDefault: Boolean;
-    function GetConfig: ITileStorageTypeConfig;
   public
     constructor Create(
       AGUID: TGUID;
       AStorageType: ITileStorageType;
-      ACanUseAsDefault: Boolean;
-      AConfig: ITileStorageTypeConfig
+      ACanUseAsDefault: Boolean
     );
   end;
 
@@ -35,24 +32,17 @@ implementation
 constructor TTileStorageTypeListItem.Create(
   AGUID: TGUID;
   AStorageType: ITileStorageType;
-  ACanUseAsDefault: Boolean;
-  AConfig: ITileStorageTypeConfig
+  ACanUseAsDefault: Boolean
 );
 begin
   FGUID := AGUID;
   FStorageType := AStorageType;
   FCanUseAsDefault := ACanUseAsDefault;
-  FConfig := AConfig;
 end;
 
 function TTileStorageTypeListItem.GetCanUseAsDefault: Boolean;
 begin
   Result := FCanUseAsDefault;
-end;
-
-function TTileStorageTypeListItem.GetConfig: ITileStorageTypeConfig;
-begin
-  Result := FConfig;
 end;
 
 function TTileStorageTypeListItem.GetGUID: TGUID;

@@ -17,9 +17,6 @@ type
 
     function GetCanUseAsDefault: Boolean;
     property CanUseAsDefault: Boolean read GetCanUseAsDefault;
-
-    function GetConfig: ITileStorageTypeConfig;
-    property Config: ITileStorageTypeConfig read GetConfig;
   end;
 
 
