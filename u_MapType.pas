@@ -89,7 +89,7 @@ type
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; var AKml: IVectorDataItemList): boolean;
-    procedure LoadMapType(AConfig : IConfigDataProvider; Apnum : Integer);
+    procedure LoadMapType(AConfig : IConfigDataProvider);
 
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
@@ -166,8 +166,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AZmp: IZmpInfo;
-      AConfig: IConfigDataProvider;
-      Apnum: Integer
+      AConfig: IConfigDataProvider
     );
     destructor Destroy; override;
  end;
@@ -340,11 +339,10 @@ begin
   end;
 end;
 
-procedure TMapType.LoadMapType(AConfig: IConfigDataProvider; Apnum: Integer);
+procedure TMapType.LoadMapType(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
 begin
-  FName:='map#'+inttostr(Apnum);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FasLayer:= VParams.ReadBool('asLayer', false);
   LoadUIParams(AConfig);
@@ -608,8 +606,7 @@ end;
 constructor TMapType.Create(
   ALanguageManager: ILanguageManager;
   AZmp: IZmpInfo;
-  AConfig: IConfigDataProvider;
-  Apnum: Integer
+  AConfig: IConfigDataProvider
 );
 begin
   FZmp := AZmp;
@@ -618,7 +615,7 @@ begin
   FMimeTypeSubstList := nil;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
-  LoadMapType(AConfig, Apnum);
+  LoadMapType(AConfig);
   if FasLayer then begin
     FLoadPrevMaxZoomDelta := 4;
   end else begin

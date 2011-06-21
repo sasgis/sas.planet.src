@@ -191,7 +191,7 @@ begin
 
       VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VZmp.GUID));
       VMapConfig := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
-      VMapType := TMapType.Create(ALanguageManager, VZmp, VMapConfig, VMapTypeCount);
+      VMapType := TMapType.Create(ALanguageManager, VZmp, VMapConfig);
     except
       if ExceptObject <> nil then begin
         ShowMessage((ExceptObject as Exception).Message);
