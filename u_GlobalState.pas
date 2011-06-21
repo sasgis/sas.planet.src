@@ -552,8 +552,8 @@ begin
 
   for i := 0 to MapType.Count - 1 do begin
     VMapType := MapType[i];
-    VList18.Add(VMapType.GUID, VMapType.bmp18);
-    VList24.Add(VMapType.GUID, VMapType.bmp24);
+    VList18.Add(VMapType.GUID, VMapType.Zmp.Bmp18);
+    VList24.Add(VMapType.GUID, VMapType.Zmp.Bmp24);
   end;
 end;
 

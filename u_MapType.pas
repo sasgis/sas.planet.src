@@ -49,8 +49,6 @@ type
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
     FUseGenPrevious: boolean;
-    Fbmp18: TBitmap;
-    Fbmp24: TBitmap;
     FMaxConnectToServerCount: Cardinal;
     FAntiBan: IAntiBan;
     FMimeTypeSubstList: TStringList;
@@ -79,7 +77,6 @@ type
     function GetGUIDString: string;
     function GetMIMETypeSubst(AMimeType: string): string;
     procedure LoadMimeTypeSubstList(AConfig : IConfigDataProvider);
-    procedure LoadMapIcons(AConfig : IConfigDataProvider);
     procedure LoadUrlScript(AConfig : IConfigDataProvider);
     procedure LoadDownloader(AConfig : IConfigDataProvider);
     procedure LoadProjectionInfo(AConfig : IConfigDataProvider);
@@ -159,8 +156,6 @@ type
     property UseStick: boolean read GetUseStick;
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
 
-    property bmp18: TBitmap read Fbmp18;
-    property bmp24: TBitmap read Fbmp24;
     property TileStorage: TTileStorageAbstract read FStorage;
     property MapInfo: string read GetMapInfo;
     property Name: string read FName;
@@ -203,44 +198,6 @@ uses
   u_DownloadCheckerStuped,
   u_TileStorageGE,
   u_TileStorageFileSystem;
-
-procedure TMapType.LoadMapIcons(AConfig: IConfigDataProvider);
-var
-  VStream:TMemoryStream;
-begin
-  Fbmp24:=TBitmap.create;
-  VStream:=TMemoryStream.Create;
-  try
-    try
-      AConfig.ReadBinaryStream('24.bmp', VStream);
-      VStream.Position:=0;
-      Fbmp24.LoadFromStream(VStream);
-    except
-      Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
-      Fbmp24.Width:=24;
-      Fbmp24.Height:=24;
-      Fbmp24.Canvas.TextOut(7,3,copy(name,1,1));
-    end;
-  finally
-    FreeAndNil(VStream);
-  end;
-  Fbmp18:=TBitmap.create;
-  VStream:=TMemoryStream.Create;
-  try
-    try
-      AConfig.ReadBinaryStream('18.bmp', VStream);
-      VStream.Position:=0;
-      Fbmp18.LoadFromStream(VStream);
-    except
-      Fbmp18.Canvas.FillRect(Fbmp18.Canvas.ClipRect);
-      Fbmp18.Width:=18;
-      Fbmp18.Height:=18;
-      Fbmp18.Canvas.TextOut(3,2,copy(name,1,1));
-    end;
-  finally
-    FreeAndNil(VStream);
-  end;
-end;
 
 procedure TMapType.LoadUrlScript(AConfig: IConfigDataProvider);
 var
@@ -400,7 +357,6 @@ begin
 
   LoadStorageParams(AConfig);
   LoadProjectionInfo(AConfig);
-  LoadMapIcons(AConfig);
   LoadWebSourceParams(AConfig);
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
@@ -674,8 +630,6 @@ destructor TMapType.Destroy;
 begin
   FreeAndNil(FMimeTypeSubstList);
   FreeAndNil(FUrlGenerator);
-  FreeAndNil(Fbmp18);
-  FreeAndNil(Fbmp24);
   FCoordConverter := nil;
   FPoolOfDownloaders := nil;
   FCache := nil;
