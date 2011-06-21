@@ -35,7 +35,6 @@ uses
   SysUtils,
   u_GlobalState,
   i_DownloadResult,
-  i_TileDownlodSession,
   u_TileErrorInfo,
   u_ResStrings;
 

@@ -15,7 +15,6 @@ uses
   i_ActiveMapsConfig,
   i_ViewPortState,
   i_MapTypes,
-  i_TileDownlodSession,
   i_DownloadUIConfig,
   u_MapType,
   u_TileDownloaderThreadBase;

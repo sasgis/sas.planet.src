@@ -5,7 +5,6 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ProxySettings,
   i_InetConfig,
   i_TileDownloaderConfig,
   u_ConfigDataElementComplexBase;

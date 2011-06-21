@@ -8,7 +8,6 @@ uses
   SyncObjs,
   Types,
   i_JclNotify,
-  i_TileDownlodSession,
   u_MapType;
 
 type
@@ -33,8 +32,7 @@ implementation
 
 uses
   SysUtils,
-  u_JclNotify,
-  u_ResStrings;
+  u_JclNotify;
 
 constructor TTileDownloaderThreadBase.Create(CreateSuspended: Boolean);
 begin

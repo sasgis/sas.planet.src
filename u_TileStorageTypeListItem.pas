@@ -3,7 +3,6 @@ unit u_TileStorageTypeListItem;
 interface
 
 uses
-  i_TileStorageTypeConfig,
   i_TileStorageType,
   i_TileStorageTypeListItem;
 

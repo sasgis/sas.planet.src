@@ -3,7 +3,6 @@ unit u_TileStorageTypeBase;
 interface
 
 uses
-  i_ConfigDataElement,
   i_TileStorageTypeInfo,
   i_TileStorageTypeConfig,
   i_TileStorage,

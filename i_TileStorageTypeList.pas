@@ -5,7 +5,6 @@ interface
 uses
   ActiveX,
   i_ConfigDataElement,
-  i_TileStorageTypeConfig,
   i_TileStorageType;
 
 type

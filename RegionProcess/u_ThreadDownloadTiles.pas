@@ -98,7 +98,6 @@ uses
   IniFiles,
   Types,
   i_DownloadResult,
-  i_TileDownlodSession,
   u_GlobalState,
   i_TileIterator,
   u_DownloadInfoSimple,

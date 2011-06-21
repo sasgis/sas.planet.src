@@ -5,7 +5,6 @@ interface
 uses
   Types,
   Classes,
-  i_DownloadResult,
   u_MapType,
   i_TileDownloadResult,
   u_DownloadResult;

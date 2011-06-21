@@ -3,7 +3,6 @@ unit i_TileStorageType;
 interface
 
 uses
-  i_ConfigDataElement,
   i_TileStorageTypeInfo,
   i_TileStorageTypeConfig,
   i_TileStorage;

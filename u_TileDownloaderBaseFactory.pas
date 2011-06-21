@@ -3,7 +3,6 @@ unit u_TileDownloaderBaseFactory;
 interface
 
 uses
-  i_ConfigDataProvider,
   i_TileDownloaderConfig,
   i_TileDownlodSession,
   i_SimpleFactory;
@@ -26,7 +25,6 @@ type
 implementation
 
 uses
-  u_GlobalState,
   u_TileDownloaderBase;
 
 { TTileDownloaderBaseFactory }

@@ -45,7 +45,6 @@ implementation
 uses
   SysUtils,
   Dialogs,
-  gnugettext,
   i_FileNameIterator,
   i_ZmpInfo,
   u_ZmpInfo,
