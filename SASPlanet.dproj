@@ -378,6 +378,7 @@
     <DCCReference Include="src\KAZip.pas" />
     <DCCReference Include="src\Langs.pas" />
     <DCCReference Include="src\MD5.pas" />
+    <DCCReference Include="src\RarProgressBar\RarProgress.pas" />
     <DCCReference Include="src\RegExpr.pas" />
     <DCCReference Include="src\SwinHttp.pas" />
     <DCCReference Include="src\TarWriter.pas" />
