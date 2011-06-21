@@ -253,6 +253,8 @@
     <DCCReference Include="i_TileRequestBuilder.pas" />
     <DCCReference Include="i_TileRequestBuilderConfig.pas" />
     <DCCReference Include="i_TileStorage.pas" />
+    <DCCReference Include="i_TileStorageConfig.pas" />
+    <DCCReference Include="i_TileStorageInfo.pas" />
     <DCCReference Include="i_TileStorageType.pas" />
     <DCCReference Include="i_TileStorageTypeConfig.pas" />
     <DCCReference Include="i_TileStorageTypeInfo.pas" />
@@ -646,6 +648,7 @@
     <DCCReference Include="u_TileStorageAbstract.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />
+    <DCCReference Include="u_TileStorageInfo.pas" />
     <DCCReference Include="u_TileStorageTypeBase.pas" />
     <DCCReference Include="u_TileStorageTypeConfig.pas" />
     <DCCReference Include="u_TileStorageTypeInfo.pas" />
