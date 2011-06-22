@@ -118,7 +118,7 @@ begin
   FCacheType := VParams.ReadInteger('CacheType', 0);
   FDefCacheType := VParams.ReadInteger('MAIN:CacheType', 0);
   FNameInCache := VParams.ReadString('NameInCache', 'Sat');
-  FDefNameInCache := FNameInCache;
+  FDefNameInCache := VParams.ReadString('MAIN:NameInCache', 'Sat');;
   OnSettingsEdit(nil);
 end;
 
