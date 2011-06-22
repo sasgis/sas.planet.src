@@ -14,6 +14,7 @@ type
   private
     FIntetConfig: IInetConfig;
     FWaitInterval: Cardinal;
+    FMaxConnectToServerCount: Cardinal;
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
@@ -29,6 +30,9 @@ type
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);
+
+    function GetMaxConnectToServerCount: Cardinal;
+    procedure SetMaxConnectToServerCount(AValue: Cardinal);
 
     function GetIgnoreMIMEType: Boolean;
     procedure SetIgnoreMIMEType(AValue: Boolean);
@@ -56,6 +60,7 @@ begin
   inherited Create;
   FIntetConfig := AIntetConfig;
   FWaitInterval := ADefault.WaitInterval;
+  FMaxConnectToServerCount := ADefault.MaxConnectToServerCount;
   FIgnoreMIMEType := ADefault.IgnoreMIMEType;
   FDefaultMIMEType := ADefault.DefaultMIMEType;
   FExpectedMIMETypes := ADefault.ExpectedMIMETypes;
@@ -71,6 +76,7 @@ begin
     TTileDownloaderConfigStatic.Create(
       FIntetConfig.GetStatic,
       FWaitInterval,
+      FMaxConnectToServerCount,
       FIgnoreMIMEType,
       FExpectedMIMETypes,
       FDefaultMIMEType
@@ -88,6 +94,7 @@ begin
     FDefaultMIMEType := AConfigData.ReadString('DefaultContentType', FDefaultMIMEType);
     FExpectedMIMETypes := AConfigData.ReadString('ContentType', FExpectedMIMETypes);
     FWaitInterval := AConfigData.ReadInteger('Sleep', FWaitInterval);
+    SetMaxConnectToServerCount(AConfigData.ReadInteger('MaxConnectToServerCount', FMaxConnectToServerCount));
     SetChanged;
   end;
 end;
@@ -131,6 +138,16 @@ end;
 function TTileDownloaderConfig.GetInetConfigStatic: IInetConfigStatic;
 begin
   Result := FIntetConfig.GetStatic;
+end;
+
+function TTileDownloaderConfig.GetMaxConnectToServerCount: Cardinal;
+begin
+  LockRead;
+  try
+    Result := FMaxConnectToServerCount;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TTileDownloaderConfig.GetStatic: ITileDownloaderConfigStatic;
@@ -191,6 +208,29 @@ begin
   try
     if FIgnoreMIMEType <> AValue then begin
       FIgnoreMIMEType := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TTileDownloaderConfig.SetMaxConnectToServerCount(AValue: Cardinal);
+var
+  VValue: Cardinal;
+begin
+  VValue := AValue;
+  if VValue > 64 then begin
+    VValue := 64;
+  end;
+  if VValue <= 0 then begin
+    VValue := 1;
+  end;
+
+  LockWrite;
+  try
+    if FMaxConnectToServerCount <> VValue then begin
+      FMaxConnectToServerCount := VValue;
       SetChanged;
     end;
   finally

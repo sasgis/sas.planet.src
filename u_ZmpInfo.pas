@@ -310,16 +310,19 @@ var
   VDefaultMIMEType: string;
   VExpectedMIMETypes: string;
   VWaitInterval: Cardinal;
+  VMaxConnectToServerCount: Cardinal;
 begin
   VIgnoreMIMEType := AConfig.ReadBool('IgnoreContentType', False);
   VDefaultMIMEType := AConfig.ReadString('DefaultContentType', 'image/jpg');
   VExpectedMIMETypes := AConfig.ReadString('ContentType', 'image/jpg');
   VWaitInterval := AConfig.ReadInteger('Sleep', 0);
+  VMaxConnectToServerCount := AConfig.ReadInteger('MaxConnectToServerCount', 1);
 
   FTileDownloaderConfig :=
     TTileDownloaderConfigStatic.Create(
       nil,
       VWaitInterval,
+      VMaxConnectToServerCount,
       VIgnoreMIMEType,
       VExpectedMIMETypes,
       VDefaultMIMEType

@@ -11,12 +11,14 @@ type
   private
     FInetConfigStatic: IInetConfigStatic;
     FWaitInterval: Cardinal;
+    FMaxConnectToServerCount: Cardinal;
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
   protected
     function GetInetConfigStatic: IInetConfigStatic;
     function GetWaitInterval: Cardinal;
+    function GetMaxConnectToServerCount: Cardinal;
     function GetIgnoreMIMEType: Boolean;
     function GetExpectedMIMETypes: string;
     function GetDefaultMIMEType: string;
@@ -24,6 +26,7 @@ type
     constructor Create(
       AInetConfigStatic: IInetConfigStatic;
       AWaitInterval: Cardinal;
+      AMaxConnectToServerCount: Cardinal;
       AIgnoreMIMEType: Boolean;
       AExpectedMIMETypes: string;
       ADefaultMIMEType: string
@@ -37,12 +40,14 @@ implementation
 constructor TTileDownloaderConfigStatic.Create(
   AInetConfigStatic: IInetConfigStatic;
   AWaitInterval: Cardinal;
+  AMaxConnectToServerCount: Cardinal;
   AIgnoreMIMEType: Boolean;
   AExpectedMIMETypes, ADefaultMIMEType: string
 );
 begin
   FInetConfigStatic := AInetConfigStatic;
   FWaitInterval := AWaitInterval;
+  FMaxConnectToServerCount := AMaxConnectToServerCount;
   FIgnoreMIMEType := AIgnoreMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
   FDefaultMIMEType := ADefaultMIMEType;
@@ -66,6 +71,11 @@ end;
 function TTileDownloaderConfigStatic.GetInetConfigStatic: IInetConfigStatic;
 begin
   Result := FInetConfigStatic;
+end;
+
+function TTileDownloaderConfigStatic.GetMaxConnectToServerCount: Cardinal;
+begin
+  Result := FMaxConnectToServerCount;
 end;
 
 function TTileDownloaderConfigStatic.GetWaitInterval: Cardinal;

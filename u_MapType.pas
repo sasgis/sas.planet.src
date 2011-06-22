@@ -47,7 +47,6 @@ type
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
     FUseGenPrevious: boolean;
-    FMaxConnectToServerCount: Cardinal;
     FAntiBan: IAntiBan;
     FMimeTypeSubstList: TStringList;
     FCache: ITileObjCache;
@@ -312,15 +311,14 @@ begin
   FTileDownloaderConfig.ReadConfig(VParams);
   if FUseDwn then begin
     try
-      FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', 1);
-      if FMaxConnectToServerCount > 64 then begin
-        FMaxConnectToServerCount := 64;
-      end;
-      if FMaxConnectToServerCount <= 0 then begin
-        FMaxConnectToServerCount := 1;
-      end;
       VDownloader := TTileDownloaderFactory.Create(FTileDownloaderConfig);
-      FPoolOfDownloaders := TPoolOfObjectsSimple.Create(FMaxConnectToServerCount, VDownloader, 60000, 60000);
+      FPoolOfDownloaders :=
+        TPoolOfObjectsSimple.Create(
+          FTileDownloaderConfig.MaxConnectToServerCount,
+          VDownloader,
+          60000,
+          60000
+        );
       GState.GCThread.List.AddObject(FPoolOfDownloaders as IObjectWithTTL);
       FAntiBan := TAntiBanStuped.Create(AConfig);
     except

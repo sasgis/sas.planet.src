@@ -15,6 +15,9 @@ type
     function GetWaitInterval: Cardinal;
     property WaitInterval: Cardinal read GetWaitInterval;
 
+    function GetMaxConnectToServerCount: Cardinal;
+    property MaxConnectToServerCount: Cardinal read GetMaxConnectToServerCount;
+
     function GetIgnoreMIMEType: Boolean;
     property IgnoreMIMEType: Boolean read GetIgnoreMIMEType;
 
@@ -33,6 +36,10 @@ type
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);
     property WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
+
+    function GetMaxConnectToServerCount: Cardinal;
+    procedure SetMaxConnectToServerCount(AValue: Cardinal);
+    property MaxConnectToServerCount: Cardinal read GetMaxConnectToServerCount write SetMaxConnectToServerCount;
 
     function GetIgnoreMIMEType: Boolean;
     procedure SetIgnoreMIMEType(AValue: Boolean);
