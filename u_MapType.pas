@@ -7,7 +7,6 @@ uses
   sysutils,
   Classes,
   Dialogs,
-  Graphics,
   GR32,
   i_JclNotify,
   t_GeoTypes,
@@ -95,7 +94,6 @@ type
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
     function GetUseGenPrevious: boolean;
     function LoadTileFromPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean;
-    function GetMapInfo: string;
    public
     FSortIndex: integer;
     HotKey: TShortCut;
@@ -157,7 +155,6 @@ type
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
 
     property TileStorage: TTileStorageAbstract read FStorage;
-    property MapInfo: string read GetMapInfo;
     property Name: string read FName;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
     property TileRequestBuilderConfig: ITileRequestBuilderConfig read FTileRequestBuilderConfig;
@@ -805,11 +802,6 @@ end;
 function TMapType.GetGUIDString: string;
 begin
   Result := GUIDToString(FGuid);
-end;
-
-function TMapType.GetMapInfo: string;
-begin
-  Result := Zmp.Info;
 end;
 
 function TMapType.GetMIMETypeSubst(AMimeType: string): string;

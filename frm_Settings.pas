@@ -777,7 +777,7 @@ var
 begin
   if Item.Data<>nil then begin
     VMap := TMapType(Item.Data);
-    btnMapInfo.Enabled:=VMap.MapInfo<>'';
+    btnMapInfo.Enabled:=VMap.Zmp.Info<>'';
   end;
 end;
 
@@ -821,8 +821,8 @@ var
   VMap: TMapType;
 begin
   VMap := TMapType(MapList.Selected.Data);
-  if VMap.MapInfo <> '' then begin
-    frmIntrnalBrowser.showmessage(VMap.Zmp.FileName, VMap.MapInfo);
+  if VMap.Zmp.Info <> '' then begin
+    frmIntrnalBrowser.showmessage(VMap.Zmp.FileName, VMap.Zmp.Info);
   end;
 end;
 
