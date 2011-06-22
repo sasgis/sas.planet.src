@@ -37,6 +37,7 @@ type
     FLastDownloadTime: Cardinal;
     FWasConnectError: Boolean;
     FIsCanceled: Boolean;
+    function GetSleepTime(AConfig: ITileDownloaderConfigStatic): Cardinal; virtual;
     function IsConnectError(ALastError: Cardinal): Boolean; virtual;
     function IsDownloadError(ALastError: Cardinal): Boolean; virtual;
     function IsOkStatus(AStatusCode: Cardinal): Boolean; virtual;
@@ -139,8 +140,6 @@ var
   VTryNo: Integer;
   VDownloadTryCount: Integer;
   VConfig: ITileDownloaderConfigStatic;
-  VNow: Cardinal;
-  VTimeFromLastDownload: Cardinal;
   VSleepTime: Cardinal;
 
   VHandles: array [0..1] of THandle;
@@ -163,22 +162,9 @@ begin
           VTryNo := 0;
           Result := nil;
           repeat
-            VNow := GetTickCount;
-            if VNow >= FLastDownloadTime then begin
-              VTimeFromLastDownload := VNow - FLastDownloadTime;
-            end else begin
-              VTimeFromLastDownload := MaxInt;
-            end;
-            if FWasConnectError then begin
-              if VTimeFromLastDownload < VConfig.InetConfigStatic.SleepOnResetConnection then begin
-                VSleepTime := VConfig.InetConfigStatic.SleepOnResetConnection - VTimeFromLastDownload;
-                SleepCancelable(VSleepTime);
-              end;
-            end else begin
-              if VTimeFromLastDownload < VConfig.WaitInterval then begin
-                VSleepTime := VConfig.WaitInterval - VTimeFromLastDownload;
-                SleepCancelable(VSleepTime);
-              end;
+            VSleepTime := GetSleepTime(VConfig);
+            if VSleepTime > 0 then begin
+              SleepCancelable(VSleepTime);
             end;
             if IsCanceled then begin
               Result := AResultFactory.BuildCanceled;
@@ -503,6 +489,29 @@ procedure TTileDownloaderBase.SleepCancelable(ATime: Cardinal);
 begin
   if  ATime > 0 then begin
     FCancelEvent.WaitFor(ATime);
+  end;
+end;
+
+function TTileDownloaderBase.GetSleepTime(AConfig: ITileDownloaderConfigStatic): Cardinal;
+var
+  VNow: Cardinal;
+  VTimeFromLastDownload: Cardinal;
+begin
+  VNow := GetTickCount;
+  if VNow >= FLastDownloadTime then begin
+    VTimeFromLastDownload := VNow - FLastDownloadTime;
+  end else begin
+    VTimeFromLastDownload := MaxInt;
+  end;
+  Result := 0;
+  if FWasConnectError then begin
+    if VTimeFromLastDownload < AConfig.InetConfigStatic.SleepOnResetConnection then begin
+      Result := AConfig.InetConfigStatic.SleepOnResetConnection - VTimeFromLastDownload;
+    end;
+  end else begin
+    if VTimeFromLastDownload < AConfig.WaitInterval then begin
+      Result := AConfig.WaitInterval - VTimeFromLastDownload;
+    end;
   end;
 end;
 
