@@ -21,8 +21,12 @@ type
     FLastCheckTime: Cardinal;
     FSemaphore: THandle;
   public
-    constructor Create(APoolSize: Cardinal; AObjectFactory: ISimpleFactory;
-      AObjectTimeToLive: Cardinal; ACheckInterval: Cardinal);
+    constructor Create(
+      APoolSize: Cardinal;
+      AObjectFactory: ISimpleFactory;
+      AObjectTimeToLive: Cardinal;
+      ACheckInterval: Cardinal
+    );
     destructor Destroy; override;
     function TryGetPoolElement(ATimeOut: Cardinal): IPoolElement;
     function GetPoolSize: Cardinal;
