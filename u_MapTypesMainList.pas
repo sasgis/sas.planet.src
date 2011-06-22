@@ -97,7 +97,7 @@ begin
   Result := nil;
   for i := 0 to length(FMapType) - 1 do begin
     VMapType := FMapType[i];
-    if IsEqualGUID(VMapType.GUID, id) then begin
+    if IsEqualGUID(VMapType.Zmp.GUID, id) then begin
       result := VMapType;
       exit;
     end;
@@ -227,7 +227,7 @@ var
 begin
   for i := 0 to length(FMapType) - 1 do begin
     VMapType := FMapType[i];
-    VGUIDString := VMapType.GUIDString;
+    VGUIDString := GUIDToString(VMapType.Zmp.GUID);
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
     VSubItem.WriteInteger('pnum', VMapType.FSortIndex);
     VSubItem.WriteString('name', VMapType.Name);

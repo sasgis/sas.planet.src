@@ -39,7 +39,6 @@ type
  TMapType = class
    private
     FZmp: IZmpInfo;
-    FGuid: TGUID;
     FName: string;
     FasLayer: boolean;
     FVersion: Variant;
@@ -73,7 +72,6 @@ type
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
-    function GetGUIDString: string;
     function GetMIMETypeSubst(AMimeType: string): string;
     procedure LoadMimeTypeSubstList(AConfig : IConfigDataProvider);
     procedure LoadUrlScript(AConfig : IConfigDataProvider);
@@ -141,8 +139,6 @@ type
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
     property MainGeoConvert: ICoordConverter read FMainCoordConverter;
-    property GUID: TGUID read FGuid;
-    property GUIDString: string read GetGUIDString;
 
     property asLayer: boolean read FasLayer;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
@@ -607,7 +603,6 @@ constructor TMapType.Create(
 );
 begin
   FZmp := AZmp;
-  FGuid := FZmp.GUID;
   FLanguageManager := ALanguageManager;
   FMimeTypeSubstList := nil;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, Zmp.TileDownloaderConfig);
@@ -797,11 +792,6 @@ end;
 function TMapType.GetIsHybridLayer: Boolean;
 begin
   Result := IsBitmapTiles and asLayer;
-end;
-
-function TMapType.GetGUIDString: string;
-begin
-  Result := GUIDToString(FGuid);
 end;
 
 function TMapType.GetMIMETypeSubst(AMimeType: string): string;

@@ -173,7 +173,7 @@ begin
     if VMapType.IsBitmapTiles then begin
       if (VMapType.UseGenPrevious)and(VMapType.Enabled) then begin
         VAddedIndex := cbbMap.Items.AddObject(VMapType.name, VMapType);
-        if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
+        if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
           cbbMap.ItemIndex:=VAddedIndex;
         end;
       end;

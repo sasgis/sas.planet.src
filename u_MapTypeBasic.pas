@@ -32,7 +32,7 @@ end;
 function TMapTypeBasic.GetGUID: TGUID;
 begin
   if FMapType <> nil then begin
-    Result := FMapType.GUID;
+    Result := FMapType.Zmp.GUID;
   end else begin
     Result := CGUID_Zero;
   end;

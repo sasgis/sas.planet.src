@@ -213,7 +213,7 @@ var
 begin
   Ini:=TiniFile.Create(AFileName);
   try
-    Ini.WriteString('Session', 'MapGUID', FMapType.GUIDString);
+    Ini.WriteString('Session', 'MapGUID', GUIDToString(FMapType.Zmp.GUID));
     Ini.WriteInteger('Session', 'zoom', Fzoom + 1);
     Ini.WriteBool('Session', 'zamena', FReplaceExistTiles);
     Ini.WriteBool('Session', 'raz', FCheckExistTileSize);

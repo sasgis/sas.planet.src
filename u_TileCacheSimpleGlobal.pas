@@ -54,7 +54,7 @@ end;
 
 constructor TTileCacheSimpleGlobal.Create(AMapType: TMapType; AMemCache: IMemObjCache);
 begin
-  FGUID := AMapType.GUID;
+  FGUID := AMapType.Zmp.GUID;
   FGUIDString := GUIDToString(FGUID);
   FMemCache := AMemCache;
 end;
