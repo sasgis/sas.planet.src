@@ -45,7 +45,7 @@ implementation
 
 uses
   SysUtils,
-  u_UrlGeneratorHelpers;
+  u_TileRequestBuilderHelpers;
 
 { TDownloadCheckerStuped }
 

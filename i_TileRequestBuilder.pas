@@ -15,6 +15,10 @@ type
       const APreviousResponseHeader: string;
       out AUrl, ARequestHeader: string
     );
+
+    function GetResponseHead: string;
+    procedure SetResponseHead(const AValue: string);
+    property ResponseHead: string read GetResponseHead write SetResponseHead;
   end;
 
 

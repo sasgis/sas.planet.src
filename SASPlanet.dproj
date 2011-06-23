@@ -644,7 +644,10 @@
     <DCCReference Include="u_TileIteratorByRect.pas" />
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="u_TileIteratorStuped.pas" />
+    <DCCReference Include="u_TileRequestBuilder.pas" />
     <DCCReference Include="u_TileRequestBuilderConfig.pas" />
+    <DCCReference Include="u_TileRequestBuilderHelpers.pas" />
+    <DCCReference Include="u_TileRequestBuilderPascalScript.pas" />
     <DCCReference Include="u_TileStorageAbstract.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />

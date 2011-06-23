@@ -20,6 +20,7 @@ uses
   i_CoordConverter,
   i_DownloadChecker,
   i_TileDownlodSession,
+  i_TileRequestBuilder,
   i_TileRequestBuilderConfig,
   i_IPoolOfObjectsSimple,
   i_BitmapTypeExtManager,
@@ -28,7 +29,6 @@ uses
   i_AntiBan,
   i_ZmpInfo,
   i_VectorDataItemSimple,
-  u_UrlGenerator,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract,
   u_ResStrings;
@@ -51,7 +51,7 @@ type
     FMimeTypeSubstList: TStringList;
     FCache: ITileObjCache;
     FStorage: TTileStorageAbstract;
-    FUrlGenerator : TUrlGeneratorBasic;
+    FTileRequestBuilder: ITileRequestBuilder;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IKmlInfoSimpleLoader;
@@ -181,7 +181,9 @@ uses
   i_TileInfoBasic,
   u_PoolOfObjectsSimple,
   u_TileDownloaderConfig,
+  u_TileRequestBuilder,
   u_TileRequestBuilderConfig,
+  u_TileRequestBuilderPascalScript,
   u_TileDownloaderBaseFactory,
   u_DownloadResultFactoryTileDownload,
   u_AntiBanStuped,
@@ -198,22 +200,21 @@ begin
   FTileRequestBuilderConfig.ReadConfig(VParams);
   if FUseDwn then begin
     try
-      FUrlGenerator := TUrlGenerator.Create(FTileRequestBuilderConfig, AConfig);
-      //GetLink(0,0,0);
+      FTileRequestBuilder := TTileRequestBuilderPascalScript.Create(FTileRequestBuilderConfig, AConfig);
     except
       on E: Exception do begin
-        ShowMessageFmt(SAS_ERR_UrlScriptError, [name, E.Message, Zmp.FileName]);
-        FUrlGenerator := nil;
+        ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.Name, E.Message, FZmp.FileName]);
+        FTileRequestBuilder := nil;
         FUseDwn := False;
       end;
      else
-      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [name, Zmp.FileName]);
-      FUrlGenerator := nil;
+      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.Name, FZmp.FileName]);
+      FTileRequestBuilder := nil;
       FUseDwn := False;
     end;
   end;
-  if FUrlGenerator = nil then begin
-    FUrlGenerator := TUrlGeneratorBasic.Create(FTileRequestBuilderConfig);
+  if FTileRequestBuilder = nil then begin
+    FTileRequestBuilder := TTileRequestBuilder.Create(FTileRequestBuilderConfig);
   end;
 end;
 
@@ -357,13 +358,13 @@ end;
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
   FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-  Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
+  Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom);
 end;
 
 procedure TMapType.GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
 begin
   FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-  FUrlGenerator.GenRequest(AXY.X, AXY.Y, Azoom, AUrl, AHead);
+  FTileRequestBuilder.BuildRequest(AXY, Azoom, '', AUrl, AHead);
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -616,7 +617,6 @@ end;
 destructor TMapType.Destroy;
 begin
   FreeAndNil(FMimeTypeSubstList);
-  FreeAndNil(FUrlGenerator);
   FCoordConverter := nil;
   FPoolOfDownloaders := nil;
   FCache := nil;
@@ -678,7 +678,7 @@ begin
       end;
     end;
     if Supports(Result, IDownloadResultOk, VResultOk) then begin
-      FUrlGenerator.ResponseHead := VResultOk.RawResponseHeader;
+      FTileRequestBuilder.ResponseHead := VResultOk.RawResponseHeader;
       VResultStream := TMemoryStream.Create;
       try
         VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);
