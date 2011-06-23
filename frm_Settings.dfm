@@ -20,7 +20,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 658
     Height = 415
-    ActivePage = tsView
+    ActivePage = tsGPS
     Align = alClient
     TabOrder = 0
     ExplicitWidth = 652
@@ -1620,9 +1620,9 @@ object frmSettings: TfrmSettings
           object Label12: TLabel
             Left = 3
             Top = 151
-            Width = 56
+            Width = 59
             Height = 13
-            Caption = 'Track color:'
+            Caption = 'Arrow color:'
           end
           object ColorBoxGPSstr: TColorBox
             Left = 3
