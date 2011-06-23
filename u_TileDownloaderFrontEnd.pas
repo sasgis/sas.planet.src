@@ -8,6 +8,7 @@ uses
   i_RequestBuilderScript,
   i_TileDownloader,
   i_TileDownloaderConfig,
+  i_ZmpInfo,
   u_TileDownloaderBaseCore;
 
 type
@@ -18,7 +19,7 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FUseDwn: Boolean;
   public
-    constructor Create(AConfig: IConfigDataProvider; AZmpFileName: string);
+    constructor Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
     destructor Destroy; override;
     procedure Download(AEvent: ITileDownloaderEvent);
     property RequestBuilderScript: IRequestBuilderScript read FRequestBuilderScript;
@@ -33,7 +34,7 @@ uses
 
 { TTileDownloaderFrontEnd }
 
-constructor TTileDownloaderFrontEnd.Create(AConfig: IConfigDataProvider; AZmpFileName: string);
+constructor TTileDownloaderFrontEnd.Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
 var
   VParams: IConfigDataProvider;
   VDownloaderStr: string;
@@ -48,7 +49,7 @@ begin
     VDownloaderStr := VParams.ReadString('Downloader', 'sasplanet');
     if LowerCase(VDownloaderStr) = 'sasplanet' then
     begin
-      FDownloader := TTileDownloaderBaseCore.Create(AConfig, AZmpFileName);
+      FDownloader := TTileDownloaderBaseCore.Create(AConfig, AZmp);
       if Assigned(FDownloader) then
       begin
         FTileDownloaderConfig := FDownloader.TileDownloaderConfig;

@@ -9,6 +9,7 @@ uses
   i_ConfigDataProvider,
   i_RequestBuilderScript,
   i_TileDownloader,
+  i_ZmpInfo,
   u_RequestBuilderScript,
   u_RequestBuilderPascalScript,
   u_TileDownloader,
@@ -24,7 +25,7 @@ type
     //function GetConfigDataProvider: IConfigDataProvider;
     function TryGetDownloadThread: TTileDownloaderBaseThread;
   public
-    constructor Create(AConfig: IConfigDataProvider; AZmpFileName: string);
+    constructor Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
     destructor Destroy; override;
     procedure Download(AEvent: ITileDownloaderEvent); override;
     procedure OnTileDownload(AEvent: ITileDownloaderEvent);
@@ -41,9 +42,9 @@ uses
 
 { TTileDownloaderBaseCore }
 
-constructor TTileDownloaderBaseCore.Create(AConfig: IConfigDataProvider; AZmpFileName: string);
+constructor TTileDownloaderBaseCore.Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
 begin
-  inherited Create(AConfig, AZmpFileName);
+  inherited Create(AConfig, AZmp);
   FRequestBuilderScript := GetRequestBuilderScript(AConfig);
   //FRequestBuilderScript := GetRequestBuilderScript(GetConfigDataProvider);
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
@@ -80,11 +81,11 @@ begin
     on E: Exception do
     begin
       Result := nil;
-      ShowMessageFmt(SAS_ERR_UrlScriptError, [FMapName, E.Message, FZmpFileName]);
+      ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.Name, E.Message, FZmp.FileName]);
     end;
   else
     Result := nil;
-    ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FMapName, FZmpFileName]);
+    ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.Name, FZmp.FileName]);
   end;
   if Result = nil then
   begin
@@ -114,7 +115,7 @@ var
 //  VConfig: IConfigDataProvider;
 begin
   Result := nil;
-  if WaitForSingleObject(FSemaphore, FTileDownloaderConfig.TimeOut) = WAIT_OBJECT_0  then
+  if WaitForSingleObject(FSemaphore, FTileDownloaderConfig.InetConfigStatic.TimeOut) = WAIT_OBJECT_0  then
   begin
     Lock;
     try

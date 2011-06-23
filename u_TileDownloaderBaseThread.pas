@@ -11,6 +11,7 @@ uses
   ALHttpClient,
   ALWinInetHttpClient,
   i_JclNotify,
+  i_InetConfig,
   i_ProxySettings,
   i_RequestBuilderScript,
   i_TileDownloader,
@@ -82,7 +83,6 @@ begin
   FSessionCS := TCriticalSection.Create;
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
   FHttpClient := TALWinInetHTTPClient.Create(nil);
-  FHttpClient.RequestHeader.UserAgent := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FResponseHeader := TALHTTPResponseHeader.Create;
   FWasConnectError := False;
   FreeOnTerminate := True;
@@ -117,7 +117,9 @@ procedure TTileDownloaderBaseThread.PreProcess;
     VNow: Cardinal;
     VTimeFromLastDownload: Cardinal;
     VSleepTime: Cardinal;
+    VInetConfig: IInetConfigStatic;
   begin
+    VInetConfig := FTileDownloaderConfigStatic.InetConfigStatic;
     VNow := GetTickCount;
     if VNow >= FLastDownloadTime then begin
       VTimeFromLastDownload := VNow - FLastDownloadTime;
@@ -125,8 +127,8 @@ procedure TTileDownloaderBaseThread.PreProcess;
       VTimeFromLastDownload := MaxInt;
     end;
     if FWasConnectError then begin
-      if VTimeFromLastDownload < FTileDownloaderConfigStatic.SleepOnResetConnection then begin
-        VSleepTime := FTileDownloaderConfigStatic.SleepOnResetConnection - VTimeFromLastDownload;
+      if VTimeFromLastDownload < VInetConfig.SleepOnResetConnection then begin
+        VSleepTime := VInetConfig.SleepOnResetConnection - VTimeFromLastDownload;
         SleepCancelable(VSleepTime);
       end;
     end else begin
@@ -189,7 +191,7 @@ begin
           if FEvent.DownloadResult = nil then
           begin
             VCount := 0;
-            VTryCount := FTileDownloaderConfigStatic.DownloadTryCount;
+            VTryCount := FTileDownloaderConfigStatic.InetConfigStatic.DownloadTryCount;
             FWasConnectError := False;
             FLastDownloadTime := MaxInt;
             repeat
@@ -322,16 +324,24 @@ end;
 
 procedure TTileDownloaderBaseThread.PrepareHttpClientConfig(const AAcceptEncoding, ARawHeaders: string);
 var
+  VInetConfig: IInetConfigStatic;
   VProxyConfig: IProxyConfigStatic;
 begin
-  FHttpClient.RequestHeader.Accept := AAcceptEncoding;
+  VInetConfig := FTileDownloaderConfig.InetConfigStatic;
+
+  FHttpClient.RequestHeader.UserAgent := VInetConfig.UserAgentString;
+
+  if AAcceptEncoding <> '' then
+    FHttpClient.RequestHeader.Accept := AAcceptEncoding
+  else
+    FHttpClient.RequestHeader.Accept := '*/*';
 
   if ARawHeaders <> '' then
     FHttpClient.RequestHeader.RawHeaderText := ARawHeaders;
 
-  FHttpClient.ConnectTimeout := FTileDownloaderConfigStatic.TimeOut;
-  FHttpClient.SendTimeout := FTileDownloaderConfigStatic.TimeOut;
-  FHttpClient.ReceiveTimeout := FTileDownloaderConfigStatic.TimeOut;
+  FHttpClient.ConnectTimeout := VInetConfig.TimeOut;
+  FHttpClient.SendTimeout := VInetConfig.TimeOut;
+  FHttpClient.ReceiveTimeout := VInetConfig.TimeOut;
 
   FHttpClient.InternetOptions := [  wHttpIo_No_cache_write,
                                     wHttpIo_Pragma_nocache,
@@ -339,7 +349,7 @@ begin
                                     wHttpIo_Keep_connection
                                  ];
 
-  VProxyConfig := FTileDownloaderConfigStatic.ProxyConfigStatic;
+  VProxyConfig := VInetConfig.ProxyConfigStatic;
   if Assigned(VProxyConfig) then
   begin
     if VProxyConfig.UseIESettings then

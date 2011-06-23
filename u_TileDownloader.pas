@@ -9,6 +9,7 @@ uses
   i_RequestBuilderScript,
   i_TileDownloader,
   i_TileDownloaderConfig,
+  i_ZmpInfo,
   u_TileDownloaderConfig;
 
 type
@@ -16,7 +17,7 @@ type
   protected
     FEnabled: Boolean;
     FMapName: string;
-    FZmpFileName: string;
+    FZmp: IZmpInfo;
     FMaxConnectToServerCount: Cardinal;
     FRequestBuilderScript: IRequestBuilderScript;
     FTileDownloaderConfig: ITileDownloaderConfig;
@@ -27,17 +28,13 @@ type
     function GetTileDownloaderConfig: ITileDownloaderConfig;
     function GetIsEnabled: Boolean;
   public
-    constructor Create(AConfig: IConfigDataProvider; AZmpFileName: string);
+    constructor Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
     destructor Destroy; override;
     procedure Download(AEvent: ITileDownloaderEvent); virtual;
     property RequestBuilderScript: IRequestBuilderScript read GetRequestBuilderScript;
     property TileDownloaderConfig: ITileDownloaderConfig read GetTileDownloaderConfig;
     property Enabled: Boolean read GetIsEnabled;
   end;
-
-const
-  DefConnectToServerCount = 32;
-  MaxConnectToServerCount = 64;
 
 implementation
 
@@ -46,23 +43,18 @@ uses
 
 { TTileDownloader }
 
-constructor TTileDownloader.Create(AConfig: IConfigDataProvider; AZmpFileName: string);
+constructor TTileDownloader.Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
 var
   VParams: IConfigDataProvider;
 begin
   inherited Create;
+  FZmp := AZmp;
   FEnabled := False;
-  FRequestBuilderScript := nil;
-  FZmpFileName := AZmpFileName;
   FCS := TCriticalSection.Create;
-  FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, FZmp.TileDownloaderConfig);
   FTileDownloaderConfig.ReadConfig(VParams);
-  FMapName := VParams.ReadString('name', '');
-  FMapName := VParams.ReadString('name_'+GState.LanguageManager.GetCurrentLanguageCode, FMapName);
-  FMaxConnectToServerCount := VParams.ReadInteger('MaxConnectToServerCount', DefConnectToServerCount);
-  if FMaxConnectToServerCount > MaxConnectToServerCount then
-    FMaxConnectToServerCount := MaxConnectToServerCount;
+  FMaxConnectToServerCount := FTileDownloaderConfig.MaxConnectToServerCount;
 end;
 
 destructor TTileDownloader.Destroy;

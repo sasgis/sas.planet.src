@@ -81,7 +81,7 @@ implementation
 
 procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
 begin
- FmapType.RequestBuilderScript.URLBase:=EditURL.Text;
+ FmapType.TileRequestBuilderConfig.URLBase:=EditURL.Text;
  FmapType.TileStorage.CacheConfig.NameInCache:=EditNameinCache.Text;
  FmapType.ParentSubMenu:=EditParSubMenu.Text;
  FmapType.TileDownloaderConfig.WaitInterval:=SESleep.Value;
@@ -103,7 +103,7 @@ end;
 
 procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
- EditURL.Text:=FmapType.RequestBuilderScript.DefURLBase;
+ EditURL.Text:=FmapType.TileRequestBuilderConfig.UrlBase;
  EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
  EditParSubMenu.Text:=FmapType.Zmp.ParentSubMenu;
  SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
@@ -115,7 +115,7 @@ end;
 
 procedure TfrmMapTypeEdit.Button6Click(Sender: TObject);
 begin
- EditURL.Text := FMapType.RequestBuilderScript.DefURLBase;
+ EditURL.Text := FMapType.TileRequestBuilderConfig.URLBase;
 end;
 
 procedure TfrmMapTypeEdit.Button4Click(Sender: TObject);
@@ -149,7 +149,7 @@ begin
 
   Caption:=SAS_STR_EditMap+' '+FmapType.name;
   edtZmp.Text := AMapType.Zmp.FileName;
-  EditURL.Text:=FMapType.RequestBuilderScript.URLBase;
+  EditURL.Text:=FMapType.TileRequestBuilderConfig.URLBase;
   EditNameinCache.Text:=FMapType.TileStorage.CacheConfig.NameInCache;
   SESleep.Value:=FMapType.TileDownloaderConfig.WaitInterval;
   EditParSubMenu.Text:=FMapType.ParentSubMenu;
