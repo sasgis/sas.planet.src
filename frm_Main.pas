@@ -3869,7 +3869,7 @@ end;
 
 procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);
 begin
- frmSettings.TabSheet5.Show;
+ frmSettings.tsGPS.Show;
  frmSettings.ShowModal;
 end;
 

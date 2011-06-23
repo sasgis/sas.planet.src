@@ -33,15 +33,15 @@ uses
 type
   TfrmSettings = class(TCommonFormParent)
     PageControl1: TPageControl;
-    TabSheet2: TTabSheet;
-    TabSheet1: TTabSheet;
+    tsCache: TTabSheet;
+    tsInternet: TTabSheet;
     Label2: TLabel;
     btnCancel: TButton;
     btnOk: TButton;
-    TabSheet3: TTabSheet;
+    tsControl: TTabSheet;
     GroupBox1: TGroupBox;
     ScrolInvert: TCheckBox;
-    TabSheet4: TTabSheet;
+    tsView: TTabSheet;
     btnApply: TButton;
     Label15: TLabel;
     OldCpath: TEdit;
@@ -61,7 +61,7 @@ type
     LabelGamma: TLabel;
     TrBarContrast: TTrackBar;
     LabelContrast: TLabel;
-    TabSheet5: TTabSheet;
+    tsGPS: TTabSheet;
     ComboBoxCOM: TComboBox;
     Label4: TLabel;
     Label6: TLabel;
@@ -74,7 +74,7 @@ type
     TilesOverScreenEdit: TSpinEdit;
     Label69: TLabel;
     CB_GPSlog: TCheckBox;
-    TabSheet8: TTabSheet;
+    tsWiki: TTabSheet;
     CBWMainColor: TColorBox;
     lblWikiMainColor: TLabel;
     lblWikiBgColor: TLabel;
@@ -101,7 +101,7 @@ type
     ColorBoxBorder: TColorBox;
     CBDblDwnl: TCheckBox;
     CkBGoNextTile: TCheckBox;
-    TabSheet9: TTabSheet;
+    tsMaps: TTabSheet;
     Button11: TButton;
     Button12: TButton;
     Button15: TButton;
@@ -138,7 +138,7 @@ type
     CBSensorsBarAutoShow: TCheckBox;
     Label32: TLabel;
     SETimeOut: TSpinEdit;
-    TabSheet6: TTabSheet;
+    tsGSM: TTabSheet;
     Label33: TLabel;
     CBGSMComPort: TComboBox;
     Label34: TLabel;
@@ -165,8 +165,7 @@ type
     pnlUseIEProxy: TPanel;
     pnlDownloadParams: TPanel;
     flwpnlDownloadTimeOut: TFlowPanel;
-    pnlNumbersFormat: TPanel;
-    pnlCoordFormat: TPanel;
+    pnlDistFormat: TPanel;
     pnlUILeft: TPanel;
     pnlLonLatFormat: TPanel;
     pnlImageProcess: TPanel;
@@ -176,12 +175,10 @@ type
     pnlUIRight: TPanel;
     flwpnlMiniMapAlfa: TFlowPanel;
     flwpnlTileBorder: TFlowPanel;
-    pnlShowMapName: TPanel;
+    pnlOptions: TPanel;
     pnlLang: TPanel;
     pnlFillMap: TPanel;
     flwpnlFillMap: TFlowPanel;
-    pnlLockToolbars: TPanel;
-    pnlShowPointDescr: TPanel;
     pnlBgColor: TPanel;
     grdpnlUI: TGridPanel;
     pnlGPSLeft: TPanel;
@@ -227,7 +224,7 @@ type
     procedure chkPosFromGSMClick(Sender: TObject);
     procedure CBoxLocalChange(Sender: TObject);
     procedure SatellitePaintBoxResize(Sender: TObject);
-    procedure TabSheet5Show(Sender: TObject);
+    procedure tsGPSShow(Sender: TObject);
     procedure MapListChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
   private
@@ -719,7 +716,7 @@ begin
                            else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position-40)/10)+')';
 end;
 
-procedure TfrmSettings.TabSheet5Show(Sender: TObject);
+procedure TfrmSettings.tsGPSShow(Sender: TObject);
 begin
  pnlGPSLeft.Repaint;
 end;
