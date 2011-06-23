@@ -13,6 +13,7 @@ type
   TGPSConfig = class(TConfigDataElementComplexBase, IGPSConfig)
   private
     FGPSEnabled: Boolean;
+    FNoDataTimeOut: Integer;
     FWriteLog: Boolean;
     FLogPath: WideString;
     FModuleConfig: IGPSModuleByCOMPortConfig;
@@ -22,6 +23,9 @@ type
   protected
     function GetGPSEnabled: Boolean;
     procedure SetGPSEnabled(AValue: Boolean);
+
+    function GetNoDataTimeOut: Integer;
+    procedure SetNoDataTimeOut(AValue: Integer);
 
     function GetWriteLog: Boolean;
     procedure SetWriteLog(AValue: Boolean);
@@ -46,6 +50,7 @@ begin
   FLogPath := ALogPath;
   FGPSEnabled := False;
   FWriteLog := True;
+  FNoDataTimeOut := 5000;  
   FModuleConfig := TGPSModuleByCOMPortConfig.Create(FLogPath);
   Add(FModuleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Module'));
 end;
@@ -55,6 +60,7 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FGPSEnabled := AConfigData.ReadBool('Enabled', FGPSEnabled);
+    FNoDataTimeOut := AConfigData.ReadInteger('NoDataTimeOut', FNoDataTimeOut);
     FWriteLog := AConfigData.ReadBool('LogWrite', FWriteLog);
     SetChanged;
   end;
@@ -65,6 +71,7 @@ begin
   inherited;
   AConfigData.WriteBool('Enabled', FGPSEnabled);
   AConfigData.WriteBool('LogWrite', FWriteLog);
+  AConfigData.WriteInteger('NoDataTimeOut', FNoDataTimeOut);
 end;
 
 function TGPSConfig.GetGPSEnabled: Boolean;
@@ -87,6 +94,16 @@ begin
   Result := FModuleConfig;
 end;
 
+function TGPSConfig.GetNoDataTimeOut: Integer;
+begin
+  LockRead;
+  try
+    Result := FNoDataTimeOut;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TGPSConfig.GetWriteLog: Boolean;
 begin
   LockRead;
@@ -103,6 +120,19 @@ begin
   try
     if FGPSEnabled <> AValue then begin
       FGPSEnabled := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TGPSConfig.SetNoDataTimeOut(AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FNoDataTimeOut <> AValue then begin
+      FNoDataTimeOut := AValue;
       SetChanged;
     end;
   finally
