@@ -17,6 +17,7 @@ uses
   i_GPS,
   i_LanguageManager,
   i_MemObjCache,
+  i_InetConfig,
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
   i_TileFileNameGeneratorsList,
@@ -431,12 +432,14 @@ end;
 
 function TGlobalState.GetHelpFileName: string;
 begin
-  Result := FProgramPath + 'help.chm';
+  Result := FProgramPath + 'help.chm';      
 end;
 
 function TGlobalState.GetMainConfigFileName: string;
+var posdot:integer;
 begin
-  Result := FProgramPath + 'SASPlanet.ini';
+  posdot:=pos('.',ExtractFileName(ParamStr(0)));
+  Result := FProgramPath +  copy(ExtractFileName(ParamStr(0)),0,posdot-1)+'.ini';
 end;
 
 procedure TGlobalState.LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
@@ -466,13 +469,18 @@ begin
   CreateDir(MapsPath);
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
-  FMainMapsList.LoadMaps(FLanguageManager, VLocalMapsConfig, MapsPath);
+  FMainMapsList.LoadMaps(
+    FLanguageManager,
+    FCoordConverterFactory,
+    VLocalMapsConfig,
+    MapsPath
+  );
   FMainFormConfig := TMainFormConfig.Create(
     FLocalConverterFactory,
     FGeoCoderList,
     FMainMapsList.MapsList,
     FMainMapsList.LayersList,
-    FMainMapsList.FirstMainMap.GUID
+    FMainMapsList.FirstMainMap.Zmp.GUID
   );
 
   VSensorsGenerator :=
@@ -544,8 +552,8 @@ begin
 
   for i := 0 to MapType.Count - 1 do begin
     VMapType := MapType[i];
-    VList18.Add(VMapType.GUID, VMapType.bmp18);
-    VList24.Add(VMapType.GUID, VMapType.bmp24);
+    VList18.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp18);
+    VList24.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp24);
   end;
 end;
 

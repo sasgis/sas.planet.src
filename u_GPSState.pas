@@ -3,6 +3,7 @@ unit u_GPSState;
 interface
 
 uses
+  Windows,
   SysUtils,
   SyncObjs,
   i_JclNotify,
@@ -43,6 +44,7 @@ type
     FWasTimeOut: Boolean;
     FDataRecived: Boolean;
     FInternalState: TInternalState;
+    FLastDataReceiveTick: Cardinal;
     FDataReceiveCounter: IInternalPerformanceCounter;
 
     procedure OnTimer(Sender: TObject);
@@ -108,6 +110,7 @@ begin
   FWasTimeOut := False;
   FDataRecived := False;
   FInternalState := isDisconnected;
+  FLastDataReceiveTick := 0;
 
   FConnectingNotifier := TJclBaseNotifier.Create;
   FConnectedNotifier := TJclBaseNotifier.Create;
@@ -209,6 +212,7 @@ begin
   FCS.Acquire;
   try
     FModuleState := msConnected;
+    FLastDataReceiveTick := GetTickCount;
   finally
     FCS.Release;
   end;
@@ -247,6 +251,7 @@ begin
     FCS.Acquire;
     try
       FDataRecived := True;
+      FLastDataReceiveTick := GetTickCount;
     finally
       FCS.Release;
     end;
@@ -297,11 +302,16 @@ var
   VInternalStateNew: TInternalState;
   VInternalStatePrev: TInternalState;
   VDataRecived: Boolean;
+  VNotDataTimeout: Integer;
+  VCurrTick: Cardinal;
+  VTickDelta: Integer;
 begin
+  VNotDataTimeout := FConfig.NoDataTimeOut;
   VInternalStatePrev := isDisconnected;
   VInternalStateNew := isDisconnected;
   repeat
     VDataRecived := False;
+    VCurrTick := GetTickCount;
     FCS.Acquire;
     try
       if FWasError then begin
@@ -367,9 +377,23 @@ begin
       end else begin
         VNeedNotify := False;
       end;
-      if (FInternalState = isConnected) and FDataRecived then begin
-        VDataRecived := True;
-        FDataRecived := False;
+      if (FInternalState = isConnected) then begin
+        if FDataRecived then begin
+          VDataRecived := True;
+          FDataRecived := False;
+        end else begin
+          if FLastDataReceiveTick > 0 then begin
+            if FLastDataReceiveTick > VCurrTick then begin
+              FLastDataReceiveTick := VCurrTick;
+            end else begin
+              VTickDelta := VCurrTick - FLastDataReceiveTick;
+              if VTickDelta > VNotDataTimeout then begin
+                FGPSRecorder.AddEmptyPoint;
+                VDataRecived := True;
+              end;
+            end;
+          end;
+        end;
       end else if FInternalState = isDisconnecting then begin
         VDataRecived := True;
         FDataRecived := False;

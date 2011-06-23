@@ -108,7 +108,7 @@ begin
     VMapType := GState.MapType[i];
     if (VMapType.Enabled) then begin
       VAddedIndex := chklstMaps.Items.AddObject(VMapType.name, VMapType);
-      if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
+      if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         chklstMaps.ItemIndex := VAddedIndex;
       end;
     end;

@@ -6,6 +6,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LanguageManager,
+  i_CoordConverterFactory,
   i_MapTypes,
   u_MapType;
 
@@ -18,7 +19,6 @@ type
     FLayersList: IMapTypeList;
     function GetMapType(Index: Integer): TMapType;
     function GetCount: Integer;
-    function LoadGUID(AConfig : IConfigDataProvider): TGUID;
     procedure BuildMapsLists;
     function GetFirstMainMap: TMapType;
   public
@@ -32,6 +32,7 @@ type
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
     procedure LoadMaps(
       ALanguageManager: ILanguageManager;
+      ACoordConverterFactory: ICoordConverterFactory;
       ALocalMapsConfig: IConfigDataProvider;
       AMapsPath: string
     );
@@ -45,6 +46,8 @@ uses
   SysUtils,
   Dialogs,
   i_FileNameIterator,
+  i_ZmpInfo,
+  u_ZmpInfo,
   u_ZmpFileNamesIteratorFactory,
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByKaZip,
@@ -94,7 +97,7 @@ begin
   Result := nil;
   for i := 0 to length(FMapType) - 1 do begin
     VMapType := FMapType[i];
-    if IsEqualGUID(VMapType.GUID, id) then begin
+    if IsEqualGUID(VMapType.Zmp.GUID, id) then begin
       result := VMapType;
       exit;
     end;
@@ -104,33 +107,6 @@ end;
 function TMapTypesMainList.GetMapType(Index: Integer): TMapType;
 begin
   Result := FMapType[index];
-end;
-
-function TMapTypesMainList.LoadGUID(AConfig: IConfigDataProvider): TGUID;
-var
-  VGUIDStr: String;
-  VParams: IConfigDataProvider;
-begin
-  VParams := AConfig.GetSubItem('params.txt');
-  if VParams <> nil then begin
-    VParams := VParams.GetSubItem('PARAMS');
-    if VParams <> nil then begin
-      VGUIDStr := VParams.ReadString('GUID', '');
-      if Length(VGUIDStr) > 0 then begin
-        try
-          Result := StringToGUID(VGUIDStr);
-        except
-          raise EBadGUID.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
-        end;
-      end else begin
-        raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
-      end;
-    end else begin
-      raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
-    end;
-  end else begin
-    raise EBadGUID.CreateRes(@SAS_ERR_MapGUIDEmpty);
-  end;
 end;
 
 procedure TMapTypesMainList.BuildMapsLists;
@@ -162,6 +138,7 @@ end;
 
 procedure TMapTypesMainList.LoadMaps(
   ALanguageManager: ILanguageManager;
+  ACoordConverterFactory: ICoordConverterFactory;
   ALocalMapsConfig: IConfigDataProvider;
   AMapsPath: string
 );
@@ -178,7 +155,7 @@ var
   VMapTypeCount: integer;
   VFilesIteratorFactory: IFileNameIteratorFactory;
   VFilesIterator: IFileNameIterator;
-  VGUID: TGUID;
+  VZmp: IZmpInfo;
 begin
   SetLength(FMapType, 0);
   VMapOnlyCount := 0;
@@ -194,20 +171,27 @@ begin
         VZmpMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);
       end;
       try
-        VGUID := LoadGUID(VZmpMapConfig);
+        VZmp := TZmpInfo.Create(
+          ALanguageManager,
+          ACoordConverterFactory,
+          VFileName,
+          VZmpMapConfig,
+          VMapTypeCount
+        );
       except
-        on E: EBadGUID do begin
+        on E: EZmpError do begin
           raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
         end;
       end;
-      VMapTypeLoaded := GetMapFromID(VGUID);
+
+      VMapTypeLoaded := GetMapFromID(VZmp.GUID);
       if VMapTypeLoaded <> nil then begin
-        raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.ZmpFileName, VFullFileName]);
+        raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.Zmp.FileName, VFullFileName]);
       end;
 
-      VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VGUID));
+      VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VZmp.GUID));
       VMapConfig := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
-      VMapType := TMapType.Create(ALanguageManager, VGUID, VMapConfig, VMapTypeCount);
+      VMapType := TMapType.Create(ALanguageManager, VZmp, VMapConfig);
     except
       if ExceptObject <> nil then begin
         ShowMessage((ExceptObject as Exception).Message);
@@ -243,13 +227,13 @@ var
 begin
   for i := 0 to length(FMapType) - 1 do begin
     VMapType := FMapType[i];
-    VGUIDString := VMapType.GUIDString;
+    VGUIDString := GUIDToString(VMapType.Zmp.GUID);
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
     VSubItem.WriteInteger('pnum', VMapType.FSortIndex);
     VSubItem.WriteString('name', VMapType.Name);
 
-    if Assigned(VMapType.RequestBuilderScript) then begin
-      if VMapType.RequestBuilderScript.UrlBase <> VMapType.RequestBuilderScript.DefUrlBase then begin
+    if VMapType.TileRequestBuilderConfig.URLBase <> VMapType.Zmp.TileRequestBuilderConfig.UrlBase then begin
+      VSubItem.WriteString('URLBase', VMapType.TileRequestBuilderConfig.URLBase);
         VSubItem.WriteString('URLBase', VMapType.RequestBuilderScript.UrlBase);
       end else begin
         VSubItem.DeleteValue('URLBase');
@@ -258,7 +242,7 @@ begin
       Assert(False, 'Can''t save UrlBase for map: ' + VMapType.ZmpFileName);
     end;
 
-    if VMapType.HotKey <> VMapType.DefHotKey then begin
+    if VMapType.HotKey <> VMapType.Zmp.HotKey then begin
       VSubItem.WriteInteger('HotKey', VMapType.HotKey);
     end else begin
       VSubItem.DeleteValue('HotKey');
@@ -270,7 +254,7 @@ begin
       VSubItem.DeleteValue('CacheType');
     end;
 
-    if VMapType.separator <> VMapType.Defseparator then begin
+    if VMapType.separator <> VMapType.Zmp.Separator then begin
       VSubItem.WriteBool('separator', VMapType.separator);
     end else begin
       VSubItem.DeleteValue('separator');
@@ -282,8 +266,7 @@ begin
       VSubItem.DeleteValue('NameInCache');
     end;
 
-    if Assigned(VMapType.TileDownloaderConfig) then begin
-      if VMapType.TileDownloaderConfig.WaitInterval <> VMapType.DefSleep then begin
+    if VMapType.TileDownloaderConfig.WaitInterval <> VMapType.Zmp.TileDownloaderConfig.WaitInterval then begin
         VSubItem.WriteInteger('Sleep', VMapType.TileDownloaderConfig.WaitInterval);
       end else begin
         VSubItem.DeleteValue('Sleep');
@@ -292,13 +275,13 @@ begin
       Assert(False, 'Can''t save Sleep param for map: ' + VMapType.ZmpFileName);
     end;
 
-    if VMapType.ParentSubMenu <> VMapType.DefParentSubMenu then begin
+    if VMapType.ParentSubMenu <> VMapType.Zmp.ParentSubMenu then begin
       VSubItem.WriteString('ParentSubMenu', VMapType.ParentSubMenu);
     end else begin
       VSubItem.DeleteValue('ParentSubMenu');
     end;
 
-    if VMapType.Enabled <> VMapType.DefEnabled then begin
+    if VMapType.Enabled <> VMapType.Zmp.Enabled then begin
       VSubItem.WriteBool('Enabled', VMapType.Enabled);
     end else begin
       VSubItem.DeleteValue('Enabled');

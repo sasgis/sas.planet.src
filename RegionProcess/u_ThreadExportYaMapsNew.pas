@@ -142,13 +142,6 @@ begin
 
   block127:=((fileX shr 7) shl 1) or (fileY shr 7);
 
-  if ((fileX shr 7)>0) then begin
-    fileX:=fileX-128;
-  end;
-  if ((fileY shr 7)>0) then begin
-    fileY:=fileY-128;
-  end;
-
  path:=path+IntToHex(block127,1);
  result:=path;
 end;
@@ -354,7 +347,6 @@ var
   VTile: TPoint;
   VMapType: TMapType;
   VSaver: IBitmapTileSaver;
-  Vmt: Byte;
   VTileIterators: array of ITileIterator;
 begin
   inherited;
@@ -417,10 +409,8 @@ begin
                   end;
                   if (j = 2) or (j = 0) then begin
                     VSaver := JPGSaver;
-                    Vmt := 2;
                   end else begin
                     VSaver := PNGSaver;
-                    Vmt := 1;
                   end;
                   for xi := 0 to hxyi do begin
                     for yi := 0 to hxyi do begin

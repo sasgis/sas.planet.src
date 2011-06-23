@@ -1151,6 +1151,49 @@ object frmMain: TfrmMain
         Options = [tboDropdownArrow]
         Caption = ''
         Hint = 'Route Calculation'
+        object TBXLabelItem3: TTBXLabelItem
+          FontSettings.Bold = tsTrue
+          Margin = 4
+          ShowAccelChar = False
+          Caption = 'By maps.cloudmade.com (OSM)'
+          Hint = ''
+        end
+        object TBXItem9: TTBXItem
+          Tag = 1
+          OnClick = TBXItem9Click
+          Caption = 'On car (Fastest)'
+          Hint = ''
+        end
+        object TBXItem8: TTBXItem
+          Tag = 2
+          OnClick = TBXItem9Click
+          Caption = 'On foot (Fastest)'
+          Hint = ''
+        end
+        object TBXItem7: TTBXItem
+          Tag = 3
+          OnClick = TBXItem9Click
+          Caption = 'On bicycle (Fastest)'
+          Hint = ''
+        end
+        object TBXItem10: TTBXItem
+          Tag = 11
+          OnClick = TBXItem9Click
+          Caption = 'On car (Shortest)'
+          Hint = ''
+        end
+        object TBXItem11: TTBXItem
+          Tag = 12
+          OnClick = TBXItem9Click
+          Caption = 'On foot (Shortest)'
+          Hint = ''
+        end
+        object TBXItem12: TTBXItem
+          Tag = 13
+          OnClick = TBXItem9Click
+          Caption = 'On bicycle (Shortest)'
+          Hint = ''
+        end
         object TBXLabelItem2: TTBXLabelItem
           FontSettings.Bold = tsTrue
           Margin = 4
@@ -1161,19 +1204,19 @@ object frmMain: TfrmMain
         object TBItem8: TTBXItem
           Tag = 1
           OnClick = TBEditPathMarshClick
-          Caption = 'By Distance'
+          Caption = 'Shortest'
           Hint = ''
         end
         object TBItem9: TTBXItem
           Tag = 2
           OnClick = TBEditPathMarshClick
-          Caption = 'By Time'
+          Caption = 'Fastest'
           Hint = ''
         end
         object TBItem7: TTBXItem
           Tag = 3
           OnClick = TBEditPathMarshClick
-          Caption = 'By Time Using Traffic Info'
+          Caption = 'Fastest with traffic'
           Hint = ''
         end
         object TBXLabelItem1: TTBXLabelItem
@@ -1186,25 +1229,25 @@ object frmMain: TfrmMain
         object TBXItem1: TTBXItem
           Tag = 1
           OnClick = TBXItem1Click
-          Caption = 'On Car (By Speed)'
+          Caption = 'On Car (Fastest)'
           Hint = ''
         end
         object TBXItem2: TTBXItem
           Tag = 11
           OnClick = TBXItem1Click
-          Caption = 'On Car (By Distance)'
+          Caption = 'On Car (Shortest)'
           Hint = ''
         end
         object TBXItem4: TTBXItem
           Tag = 2
           OnClick = TBXItem1Click
-          Caption = 'On Bike (By Speed)'
+          Caption = 'On Bike (Fastest)'
           Hint = ''
         end
         object TBXItem3: TTBXItem
           Tag = 22
           OnClick = TBXItem1Click
-          Caption = 'On Bike (By Distance)'
+          Caption = 'On Bike (Shortest)'
           Hint = ''
         end
       end

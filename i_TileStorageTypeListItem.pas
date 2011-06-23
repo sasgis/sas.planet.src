@@ -3,7 +3,6 @@ unit i_TileStorageTypeListItem;
 interface
 
 uses
-  i_TileStorageTypeConfig,
   i_TileStorageType;
 
 type
@@ -17,9 +16,6 @@ type
 
     function GetCanUseAsDefault: Boolean;
     property CanUseAsDefault: Boolean read GetCanUseAsDefault;
-
-    function GetConfig: ITileStorageTypeConfig;
-    property Config: ITileStorageTypeConfig read GetConfig;
   end;
 
 

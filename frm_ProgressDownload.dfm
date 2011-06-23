@@ -3,9 +3,11 @@ object frmProgressDownload: TfrmProgressDownload
   Top = 306
   BorderStyle = bsSizeToolWin
   Caption = 'Please wait...'
-  ClientHeight = 248
+  ClientHeight = 219
   ClientWidth = 328
   Color = clBtnFace
+  Constraints.MinHeight = 243
+  Constraints.MinWidth = 336
   ParentFont = True
   FormStyle = fsStayOnTop
   OldCreateOrder = False
@@ -20,38 +22,18 @@ object frmProgressDownload: TfrmProgressDownload
     Left = 0
     Top = 0
     Width = 328
-    Height = 248
+    Height = 219
     Align = alClient
     TabOrder = 0
     OnResize = Panel1Resize
+    ExplicitWidth = 344
+    ExplicitHeight = 321
     DesignSize = (
       328
-      248)
-    object RProgr: TRarProgress
-      Left = 8
-      Top = 200
-      Width = 314
-      Height = 17
-      Min = 0
-      Max = 100
-      Progress1 = 50
-      Progress2 = 30
-      Double = True
-      LightColor1 = 16770764
-      DarkColor1 = 13395456
-      LightColor2 = 16768959
-      FrameColor1 = 16758122
-      FrameColor2 = 16747546
-      FillColor1 = 16757606
-      FillColor2 = 16749867
-      BackFrameColor1 = 16633762
-      BackFrameColor2 = 16634540
-      BackFillColor = 16635571
-      ShadowColor = clGray
-    end
+      219)
     object LabelValue0: TLabel
       Left = 315
-      Top = 119
+      Top = 90
       Width = 6
       Height = 13
       Alignment = taRightJustify
@@ -60,10 +42,11 @@ object frmProgressDownload: TfrmProgressDownload
       Caption = '  '
       ParentBiDiMode = False
       Layout = tlCenter
+      ExplicitTop = 119
     end
     object LabelValue1: TLabel
       Left = 315
-      Top = 138
+      Top = 109
       Width = 6
       Height = 13
       Alignment = taRightJustify
@@ -72,89 +55,24 @@ object frmProgressDownload: TfrmProgressDownload
       Caption = '  '
       ParentBiDiMode = False
       Layout = tlCenter
+      ExplicitTop = 138
     end
     object LabelValue2: TLabel
       Left = 315
-      Top = 150
-      Width = 6
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akRight, akBottom]
-      BiDiMode = bdLeftToRight
-      Caption = '  '
-      ParentBiDiMode = False
-      Layout = tlCenter
-    end
-    object LabelValue3: TLabel
-      Left = 315
-      Top = 169
-      Width = 6
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akRight, akBottom]
-      BiDiMode = bdLeftToRight
-      Caption = '  '
-      ParentBiDiMode = False
-      Layout = tlCenter
-    end
-    object LabelName0: TLabel
-      Left = 11
       Top = 121
       Width = 6
       Height = 13
-      Anchors = [akLeft, akBottom]
+      Alignment = taRightJustify
+      Anchors = [akRight, akBottom]
       BiDiMode = bdLeftToRight
       Caption = '  '
       ParentBiDiMode = False
       Layout = tlCenter
+      ExplicitTop = 150
     end
-    object LabelName1: TLabel
-      Left = 11
-      Top = 137
-      Width = 3
-      Height = 13
-      Anchors = [akLeft, akBottom]
-      BiDiMode = bdLeftToRight
-      Caption = ' '
-      ParentBiDiMode = False
-      Layout = tlCenter
-    end
-    object LabelName2: TLabel
-      Left = 11
-      Top = 153
-      Width = 6
-      Height = 13
-      Anchors = [akLeft, akBottom]
-      BiDiMode = bdLeftToRight
-      Caption = '  '
-      ParentBiDiMode = False
-      Layout = tlCenter
-    end
-    object LabelName3: TLabel
-      Left = 11
-      Top = 169
-      Width = 9
-      Height = 13
-      Anchors = [akLeft, akBottom]
-      BiDiMode = bdLeftToRight
-      Caption = '   '
-      ParentBiDiMode = False
-      Layout = tlCenter
-    end
-    object LabelName4: TLabel
-      Left = 11
-      Top = 185
-      Width = 9
-      Height = 13
-      Anchors = [akLeft, akBottom]
-      BiDiMode = bdLeftToRight
-      Caption = '   '
-      ParentBiDiMode = False
-      Layout = tlCenter
-    end
-    object LabelValue4: TLabel
+    object LabelValue3: TLabel
       Left = 315
-      Top = 185
+      Top = 140
       Width = 6
       Height = 13
       Alignment = taRightJustify
@@ -163,105 +81,164 @@ object frmProgressDownload: TfrmProgressDownload
       Caption = '  '
       ParentBiDiMode = False
       Layout = tlCenter
+      ExplicitTop = 169
+    end
+    object LabelName0: TLabel
+      Left = 11
+      Top = 92
+      Width = 112
+      Height = 13
+      Anchors = [akLeft, akBottom]
+      BiDiMode = bdLeftToRight
+      Caption = 'Process not more than:'
+      ParentBiDiMode = False
+      Layout = tlCenter
+      ExplicitTop = 121
+    end
+    object LabelName1: TLabel
+      Left = 11
+      Top = 108
+      Width = 78
+      Height = 13
+      Anchors = [akLeft, akBottom]
+      BiDiMode = bdLeftToRight
+      Caption = 'Processed total:'
+      ParentBiDiMode = False
+      Layout = tlCenter
+      ExplicitTop = 137
+    end
+    object LabelName2: TLabel
+      Left = 11
+      Top = 124
+      Width = 88
+      Height = 13
+      Anchors = [akLeft, akBottom]
+      BiDiMode = bdLeftToRight
+      Caption = 'Downloaded total:'
+      ParentBiDiMode = False
+      Layout = tlCenter
+      ExplicitTop = 153
+    end
+    object LabelName3: TLabel
+      Left = 11
+      Top = 140
+      Width = 75
+      Height = 13
+      Anchors = [akLeft, akBottom]
+      BiDiMode = bdLeftToRight
+      Caption = 'Time remaining:'
+      ParentBiDiMode = False
+      Layout = tlCenter
+      ExplicitTop = 169
+    end
+    object LabelName4: TLabel
+      Left = 11
+      Top = 156
+      Width = 105
+      Height = 13
+      Anchors = [akLeft, akBottom]
+      BiDiMode = bdLeftToRight
+      Caption = 'Approx. to download:'
+      ParentBiDiMode = False
+      Layout = tlCenter
+      ExplicitTop = 185
+    end
+    object LabelValue4: TLabel
+      Left = 315
+      Top = 156
+      Width = 6
+      Height = 13
+      Alignment = taRightJustify
+      Anchors = [akRight, akBottom]
+      BiDiMode = bdLeftToRight
+      Caption = '  '
+      ParentBiDiMode = False
+      Layout = tlCenter
+      ExplicitTop = 185
     end
     object Memo1: TMemo
       Left = 8
       Top = 8
       Width = 313
-      Height = 105
+      Height = 76
       Anchors = [akLeft, akTop, akRight, akBottom]
       ReadOnly = True
       ScrollBars = ssBoth
       TabOrder = 0
+      ExplicitWidth = 329
+      ExplicitHeight = 178
     end
-    object GridPanel1: TGridPanel
-      Left = 8
-      Top = 222
-      Width = 313
-      Height = 20
-      Anchors = [akLeft, akRight, akBottom]
+    object pnlBottom: TPanel
+      AlignWithMargins = True
+      Left = 4
+      Top = 189
+      Width = 320
+      Height = 26
+      Align = alBottom
+      AutoSize = True
       BevelOuter = bvNone
-      ColumnCollection = <
-        item
-          Value = 25.000000000000000000
-        end
-        item
-          Value = 25.000000000000000000
-        end
-        item
-          Value = 25.000000000000000000
-        end
-        item
-          Value = 25.000000000000000000
-        end>
-      ControlCollection = <
-        item
-          Column = 0
-          Control = Button3
-          Row = 0
-        end
-        item
-          Column = 1
-          Control = ButtonSave
-          Row = 0
-        end
-        item
-          Column = 2
-          Control = Button1
-          Row = 0
-        end
-        item
-          Column = 3
-          Control = Button2
-          Row = 0
-        end>
-      RowCollection = <
-        item
-          Value = 100.000000000000000000
-        end>
       TabOrder = 1
-      DesignSize = (
-        313
-        20)
-      object Button3: TButton
-        Left = 0
-        Top = 0
+      ExplicitTop = 291
+      ExplicitWidth = 336
+      object Button2: TButton
+        AlignWithMargins = True
+        Left = 242
+        Top = 3
         Width = 75
         Height = 20
-        Caption = 'Minimize'
+        Align = alRight
+        Caption = 'Quit'
         TabOrder = 0
-        OnClick = Button3Click
+        OnClick = Button2Click
+        ExplicitLeft = 258
+      end
+      object Button1: TButton
+        AlignWithMargins = True
+        Left = 161
+        Top = 3
+        Width = 75
+        Height = 20
+        Align = alRight
+        Caption = 'Pause'
+        TabOrder = 1
+        OnClick = Button1Click
+        ExplicitLeft = 177
       end
       object ButtonSave: TButton
-        Left = 78
-        Top = 0
+        AlignWithMargins = True
+        Left = 80
+        Top = 3
         Width = 75
         Height = 20
         Hint = 'Save current session'
+        Align = alRight
         Caption = 'Save'
-        TabOrder = 1
-        OnClick = ButtonSaveClick
-      end
-      object Button1: TButton
-        Left = 159
-        Top = 0
-        Width = 75
-        Height = 20
-        Anchors = [akTop, akRight]
-        Caption = 'Stop'
         TabOrder = 2
-        OnClick = Button1Click
+        OnClick = ButtonSaveClick
+        ExplicitLeft = 96
       end
-      object Button2: TButton
-        Left = 238
-        Top = 0
+      object Button3: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
         Width = 75
         Height = 20
-        Anchors = [akTop, akRight]
-        Caption = 'Quit'
+        Align = alLeft
+        Caption = 'Minimize'
         TabOrder = 3
-        OnClick = Button2Click
+        OnClick = Button3Click
       end
+    end
+    object pnlProgress: TPanel
+      Left = 1
+      Top = 169
+      Width = 326
+      Height = 17
+      Align = alBottom
+      BevelOuter = bvNone
+      TabOrder = 2
+      ExplicitTop = 271
+      ExplicitWidth = 342
     end
   end
   object SaveSessionDialog: TSaveDialog

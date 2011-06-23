@@ -336,6 +336,13 @@ type
     NBlock_toolbars: TTBXItem;
     TBXSeparatorItem19: TTBXSeparatorItem;
     tbitmGPSOptions: TTBXItem;
+    TBXLabelItem3: TTBXLabelItem;
+    TBXItem7: TTBXItem;
+    TBXItem8: TTBXItem;
+    TBXItem9: TTBXItem;
+    TBXItem10: TTBXItem;
+    TBXItem11: TTBXItem;
+    TBXItem12: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -461,6 +468,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure NBlock_toolbarsClick(Sender: TObject);
     procedure tbitmGPSOptionsClick(Sender: TObject);
+    procedure TBXItem9Click(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -629,6 +637,7 @@ uses
   u_ThreadDownloadTiles,
   u_PathDetalizeProviderMailRu,
   u_PathDetalizeProviderYourNavigation,
+  u_PathDetalizeProviderCloudMade,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
   u_PosFromGSM,
@@ -1256,10 +1265,10 @@ begin
   if GState.MapType.Count>0 then begin
     for i:=0 to GState.MapType.Count-1 do begin
       VMapType := GState.MapType[i];
-      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.GUID);
+      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.Zmp.GUID);
       if VMapType.asLayer then begin
         NDwnItem:=TTBXItem.Create(ldm);
-        FNDwnItemList.Add(VMapType.GUID, NDwnItem);
+        FNDwnItemList.Add(VMapType.Zmp.GUID, NDwnItem);
         NDwnItem.Caption:=VMapType.name;
         NDwnItem.ImageIndex:=VIcon18Index;
         NDwnItem.OnClick:=N21Click;
@@ -1267,7 +1276,7 @@ begin
         ldm.Add(NDwnItem);
 
         NDelItem:=TTBXItem.Create(dlm);
-        FNDelItemList.Add(VMapType.GUID, NDelItem);
+        FNDelItemList.Add(VMapType.Zmp.GUID, NDelItem);
         NDelItem.Caption:=VMapType.name;
         NDelItem.ImageIndex:=VIcon18Index;
         NDelItem.OnClick:=NDelClick;
@@ -1275,7 +1284,7 @@ begin
         dlm.Add(NDelItem);
 
         NOpenDirItem:=TTBXItem.Create(TBOpenDirLayer);
-        FNOpenDirItemList.Add(VMapType.GUID, NOpenDirItem);
+        FNOpenDirItemList.Add(VMapType.Zmp.GUID, NOpenDirItem);
         NOpenDirItem.Caption:=VMapType.name;
         NOpenDirItem.ImageIndex:=VIcon18Index;
         NOpenDirItem.OnClick:=N25Click;
@@ -1283,7 +1292,7 @@ begin
         TBOpenDirLayer.Add(NOpenDirItem);
 
         NCopyLinkItem:=TTBXItem.Create(TBCopyLinkLayer);
-        FNCopyLinkItemList.Add(VMapType.GUID, NCopyLinkItem);
+        FNCopyLinkItemList.Add(VMapType.Zmp.GUID, NCopyLinkItem);
         NCopyLinkItem.Caption:=VMapType.name;
         NCopyLinkItem.ImageIndex:=VIcon18Index;
         NCopyLinkItem.OnClick:=N13Click;
@@ -1291,7 +1300,7 @@ begin
         TBCopyLinkLayer.Add(NCopyLinkItem);
 
         NLayerParamsItem:=TTBXItem.Create(NLayerParams);
-        FNLayerParamsItemList.Add(VMapType.GUID, NLayerParamsItem);
+        FNLayerParamsItemList.Add(VMapType.Zmp.GUID, NLayerParamsItem);
         NLayerParamsItem.Caption:=VMapType.name;
         NLayerParamsItem.ImageIndex:=VIcon18Index;
         NLayerParamsItem.OnClick:=NMapParamsClick;
@@ -1299,7 +1308,7 @@ begin
         NLayerParams.Add(NLayerParamsItem);
 
         NLayerInfoItem:=TTBXItem.Create(TBLayerInfo);
-        FNLayerInfoItemList.Add(VMapType.GUID, NLayerInfoItem);
+        FNLayerInfoItemList.Add(VMapType.Zmp.GUID, NLayerInfoItem);
         NLayerInfoItem.Caption:=VMapType.name;
         NLayerInfoItem.ImageIndex:=VIcon18Index;
         NLayerInfoItem.OnClick:=NMapInfoClick;
@@ -1962,72 +1971,7 @@ begin
 end;
 
 procedure TfrmMain.OnTimerEvent(Sender: TObject);
-var
-  VGPSNewPos: TDoublePoint;
-  VCenterToGPSDelta: TDoublePoint;
-  VPointDelta: TDoublePoint;
-  VCenterMapPoint: TDoublePoint;
-  VGPSMapPoint: TDoublePoint;
-  VPosition: IGPSPosition;
-  VConverter: ILocalCoordConverter;
-  VMapMove: Boolean;
-  VMapMoveCentred: Boolean;
-  VMinDelta: Double;
-  VProcessGPSIfActive: Boolean;
-  VDelta: Double;
 begin
-  if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
-    VPosition := GState.GPSRecorder.CurrentPosition;
-    if frmSettings.Visible then frmSettings.SatellitePaint;
-    if TBXSignalStrengthBar.Visible then UpdateGPSSatellites(VPosition);
-    if (VPosition.IsFix=0) then exit;
-    if not((FMapMoving)or(FMapZoomAnimtion)) then begin
-      FConfig.GPSBehaviour.LockRead;
-      try
-        VMapMove := FConfig.GPSBehaviour.MapMove;
-        VMapMoveCentred := FConfig.GPSBehaviour.MapMoveCentered;
-        VMinDelta := FConfig.GPSBehaviour.MinMoveDelta;
-        VProcessGPSIfActive := FConfig.GPSBehaviour.ProcessGPSIfActive;
-      finally
-        FConfig.GPSBehaviour.UnlockRead;
-      end;
-      if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
-        if (VMapMove) then begin
-          VGPSNewPos := VPosition.Position;
-          if VMapMoveCentred then begin
-            VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-            VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
-            VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
-            VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
-            VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
-            VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
-            if VDelta > VMinDelta then begin
-              FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
-            end;
-          end else begin
-            VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-            VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
-            if PixelPointInRect(VGPSMapPoint, VConverter.GetRectInMapPixelFloat) then  begin
-              VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
-              VCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
-              VCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
-              VPointDelta := FCenterToGPSDelta;
-              if PointIsEmpty(VPointDelta) then begin
-                FCenterToGPSDelta := VCenterToGPSDelta;
-              end else begin
-                VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
-                VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
-                VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
-                if VDelta > VMinDelta then begin
-                  FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
-                end;
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
-  end;
   FLayerStatBar.Redraw;
 end;
 
@@ -2944,8 +2888,70 @@ begin
 end;
 
 procedure TfrmMain.GPSReceiverReceive(Sender: TObject);
+var
+  VGPSNewPos: TDoublePoint;
+  VCenterToGPSDelta: TDoublePoint;
+  VPointDelta: TDoublePoint;
+  VCenterMapPoint: TDoublePoint;
+  VGPSMapPoint: TDoublePoint;
+  VPosition: IGPSPosition;
+  VConverter: ILocalCoordConverter;
+  VMapMove: Boolean;
+  VMapMoveCentred: Boolean;
+  VMinDelta: Double;
+  VProcessGPSIfActive: Boolean;
+  VDelta: Double;
 begin
-  InterlockedIncrement(FGpsPosChangeCounter);
+  VPosition := GState.GPSRecorder.CurrentPosition;
+  if frmSettings.Visible then frmSettings.SatellitePaint;
+  if TBXSignalStrengthBar.Visible then UpdateGPSSatellites(VPosition);
+  if (VPosition.IsFix=0) then exit;
+  if not((FMapMoving)or(FMapZoomAnimtion)) then begin
+    FConfig.GPSBehaviour.LockRead;
+    try
+      VMapMove := FConfig.GPSBehaviour.MapMove;
+      VMapMoveCentred := FConfig.GPSBehaviour.MapMoveCentered;
+      VMinDelta := FConfig.GPSBehaviour.MinMoveDelta;
+      VProcessGPSIfActive := FConfig.GPSBehaviour.ProcessGPSIfActive;
+    finally
+      FConfig.GPSBehaviour.UnlockRead;
+    end;
+    if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
+      if (VMapMove) then begin
+        VGPSNewPos := VPosition.Position;
+        if VMapMoveCentred then begin
+          VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+          VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
+          VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
+          VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
+          VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
+          VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+          if VDelta > VMinDelta then begin
+            FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
+          end;
+        end else begin
+          VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+          VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
+          if PixelPointInRect(VGPSMapPoint, VConverter.GetRectInMapPixelFloat) then  begin
+            VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
+            VCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
+            VCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
+            VPointDelta := FCenterToGPSDelta;
+            if PointIsEmpty(VPointDelta) then begin
+              FCenterToGPSDelta := VCenterToGPSDelta;
+            end else begin
+              VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
+              VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
+              VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+              if VDelta > VMinDelta then begin
+                FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmMain.GPSReceiverStateChange(Sender: TObject);
@@ -3514,7 +3520,7 @@ begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VLonLat := VLocalConverter.GetCenterLonLat;
-    param:=' '+VMapType.GUIDString+' '+IntToStr(VZoomCurr + 1)+' '+FloatToStr(VLonLat.x)+' '+FloatToStr(VLonLat.y);
+    param:=' '+GUIDToString(VMapType.Zmp.GUID)+' '+IntToStr(VZoomCurr + 1)+' '+FloatToStr(VLonLat.x)+' '+FloatToStr(VLonLat.y);
     CreateLink(ParamStr(0), SaveLink.filename, '', param)
   end;
 end;
@@ -3589,7 +3595,7 @@ begin
       result:=FMarkDBGUI.SaveLineModal(nil, FLineOnMapEdit.GetPoints, FMarshrutComment);
     end;
     ao_edit_line: begin
-      result:=FMarkDBGUI.SaveLineModal(FEditMark, FLineOnMapEdit.GetPoints, '');
+      result:=FMarkDBGUI.SaveLineModal(FEditMark, FLineOnMapEdit.GetPoints, FMarshrutComment);
     end;
   end;
   if result then begin
@@ -3648,8 +3654,8 @@ begin
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
-      VLayerIsActive := VActiveLayersList.GetMapTypeByGUID(VMapType.GUID) <> nil;
-      TTBXItem(FNLayerParamsItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
+      VLayerIsActive := VActiveLayersList.GetMapTypeByGUID(VMapType.Zmp.GUID) <> nil;
+      TTBXItem(FNLayerParamsItemList.GetByGUID(VMapType.Zmp.GUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
         NLayerParams.Visible:=true;
       end
@@ -3727,8 +3733,8 @@ begin
   end else begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
-  if VMapType.MapInfo <> '' then begin
-    frmIntrnalBrowser.showmessage(VMapType.zmpfilename,VMapType.MapInfo);
+  if VMapType.Zmp.Info <> '' then begin
+    frmIntrnalBrowser.showmessage(VMapType.Zmp.FileName, VMapType.Zmp.Info);
   end;
 end;
 
@@ -3824,9 +3830,43 @@ begin
   end;
 end;
 
+procedure TfrmMain.TBXItem9Click(Sender: TObject);
+var
+  VResult: TArrayOfDoublePoint;
+  VProvider: IPathDetalizeProvider;
+  VIsError: Boolean;
+begin
+  case TTBXItem(Sender).tag of
+    1:VProvider := TPathDetalizeProviderCloudMade.Create(car,fastest);
+    2:VProvider := TPathDetalizeProviderCloudMade.Create(foot,fastest);
+    3:VProvider := TPathDetalizeProviderCloudMade.Create(bicycle,fastest);
+    11:VProvider := TPathDetalizeProviderCloudMade.Create(car,shortest);
+    12:VProvider := TPathDetalizeProviderCloudMade.Create(foot,shortest);
+    13:VProvider := TPathDetalizeProviderCloudMade.Create(bicycle,shortest);
+  end;
+  if VProvider <> nil then begin
+    VIsError := True;
+    try
+      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
+      VIsError := False;
+    except
+      on E: Exception do begin
+        ShowMessage(E.Message);
+      end;
+    end;
+    if not VIsError then begin
+      if Length(VResult) > 0 then begin
+        FLineOnMapEdit.SetPoints(VResult);
+      end;
+    end else begin
+      FMarshrutComment := '';
+    end;
+  end;
+end;
+
 procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);
 begin
- frmSettings.TabSheet5.Show;
+ frmSettings.tsGPS.Show;
  frmSettings.ShowModal;
 end;
 
@@ -4046,6 +4086,7 @@ var
   VLayerIsActive: Boolean;
   VActiveLayers: IMapTypeList;
   VMenuItem: TTBXItem;
+  VGUID: TGUID;
 begin
   ldm.Visible:=false;
   dlm.Visible:=false;
@@ -4056,15 +4097,16 @@ begin
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
-      VLayerIsActive := VActiveLayers.GetMapTypeByGUID(VMapType.GUID) <> nil;
-      TTBXItem(FNDwnItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
-      TTBXItem(FNDelItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
-      TTBXItem(FNOpenDirItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
-      TTBXItem(FNCopyLinkItemList.GetByGUID(VMapType.GUID)).Visible := VLayerIsActive;
-      VMenuItem := TTBXItem(FNLayerInfoItemList.GetByGUID(VMapType.GUID));
+      VGUID := VMapType.Zmp.GUID;
+      VLayerIsActive := VActiveLayers.GetMapTypeByGUID(VGUID) <> nil;
+      TTBXItem(FNDwnItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
+      TTBXItem(FNDelItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
+      TTBXItem(FNOpenDirItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
+      TTBXItem(FNCopyLinkItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
+      VMenuItem := TTBXItem(FNLayerInfoItemList.GetByGUID(VGUID));
       VMenuItem.Visible := VLayerIsActive;
       if VLayerIsActive then begin
-        VMenuItem.Enabled := VMapType.MapInfo <> '';
+        VMenuItem.Enabled := VMapType.Zmp.Info <> '';
       end;
       if VLayerIsActive then begin
         ldm.Visible:=true;
@@ -4076,7 +4118,7 @@ begin
     end;
   end;
   VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-  NMapInfo.Enabled:=VMapType.MapInfo<>'';
+  NMapInfo.Enabled:=VMapType.Zmp.Info<>'';
 end;
 
 procedure TfrmMain.NGoToForumClick(Sender: TObject);

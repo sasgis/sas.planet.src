@@ -4,7 +4,6 @@ interface
 
 uses
   Types,
-  i_DownloadResult,
   u_MapType;
 
 type

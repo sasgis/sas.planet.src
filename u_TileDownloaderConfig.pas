@@ -5,7 +5,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ProxySettings,
+  i_InetConfig,
   i_TileDownloaderConfig,
   u_ConfigDataElementComplexBase;
 
@@ -14,6 +14,7 @@ type
   private
     FIntetConfig: IInetConfig;
     FWaitInterval: Cardinal;
+    FMaxConnectToServerCount: Cardinal;
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
@@ -25,13 +26,13 @@ type
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetProxyConfig: IProxyConfig;
-    function GetTimeOut: Cardinal;
-    function GetSleepOnResetConnection: Cardinal;
-    function GetDownloadTryCount: Integer;
+    function GetInetConfigStatic: IInetConfigStatic;
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);
+
+    function GetMaxConnectToServerCount: Cardinal;
+    procedure SetMaxConnectToServerCount(AValue: Cardinal);
 
     function GetIgnoreMIMEType: Boolean;
     procedure SetIgnoreMIMEType(AValue: Boolean);
@@ -44,7 +45,7 @@ type
 
     function GetStatic: ITileDownloaderConfigStatic;
   public
-    constructor Create(AIntetConfig: IInetConfig);
+    constructor Create(AIntetConfig: IInetConfig; ADefault: ITileDownloaderConfigStatic);
   end;
 
 implementation
@@ -54,14 +55,15 @@ uses
 
 { TTileDownloaderConfig }
 
-constructor TTileDownloaderConfig.Create(AIntetConfig: IInetConfig);
+constructor TTileDownloaderConfig.Create(AIntetConfig: IInetConfig; ADefault: ITileDownloaderConfigStatic);
 begin
   inherited Create;
   FIntetConfig := AIntetConfig;
-  FWaitInterval := 0;
-  FIgnoreMIMEType := False;
-  FDefaultMIMEType := 'image/jpg';
-  FExpectedMIMETypes := 'image/jpg';
+  FWaitInterval := ADefault.WaitInterval;
+  FMaxConnectToServerCount := ADefault.MaxConnectToServerCount;
+  FIgnoreMIMEType := ADefault.IgnoreMIMEType;
+  FDefaultMIMEType := ADefault.DefaultMIMEType;
+  FExpectedMIMETypes := ADefault.ExpectedMIMETypes;
 
   Add(FIntetConfig, nil, False, False, False, True);
 end;
@@ -72,11 +74,9 @@ begin
   try
   Result :=
     TTileDownloaderConfigStatic.Create(
-      FIntetConfig.ProxyConfig.GetStatic,
-      FIntetConfig.TimeOut,
+      FIntetConfig.GetStatic,
       FWaitInterval,
-      FIntetConfig.SleepOnResetConnection,
-      FIntetConfig.DownloadTryCount,
+      FMaxConnectToServerCount,
       FIgnoreMIMEType,
       FExpectedMIMETypes,
       FDefaultMIMEType
@@ -94,6 +94,7 @@ begin
     FDefaultMIMEType := AConfigData.ReadString('DefaultContentType', FDefaultMIMEType);
     FExpectedMIMETypes := AConfigData.ReadString('ContentType', FExpectedMIMETypes);
     FWaitInterval := AConfigData.ReadInteger('Sleep', FWaitInterval);
+    SetMaxConnectToServerCount(AConfigData.ReadInteger('MaxConnectToServerCount', FMaxConnectToServerCount));
     SetChanged;
   end;
 end;
@@ -112,11 +113,6 @@ begin
   finally
     UnlockRead;
   end;
-end;
-
-function TTileDownloaderConfig.GetDownloadTryCount: Integer;
-begin
-  Result := FStatic.DownloadTryCount;
 end;
 
 function TTileDownloaderConfig.GetExpectedMIMETypes: string;
@@ -139,24 +135,24 @@ begin
   end;
 end;
 
-function TTileDownloaderConfig.GetProxyConfig: IProxyConfig;
+function TTileDownloaderConfig.GetInetConfigStatic: IInetConfigStatic;
 begin
-  Result := FIntetConfig.ProxyConfig;
+  Result := FIntetConfig.GetStatic;
 end;
 
-function TTileDownloaderConfig.GetSleepOnResetConnection: Cardinal;
+function TTileDownloaderConfig.GetMaxConnectToServerCount: Cardinal;
 begin
-  Result := FStatic.SleepOnResetConnection;
+  LockRead;
+  try
+    Result := FMaxConnectToServerCount;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TTileDownloaderConfig.GetStatic: ITileDownloaderConfigStatic;
 begin
   Result := FStatic;
-end;
-
-function TTileDownloaderConfig.GetTimeOut: Cardinal;
-begin
-  Result := FStatic.TimeOut;
 end;
 
 function TTileDownloaderConfig.GetWaitInterval: Cardinal;
@@ -212,6 +208,29 @@ begin
   try
     if FIgnoreMIMEType <> AValue then begin
       FIgnoreMIMEType := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TTileDownloaderConfig.SetMaxConnectToServerCount(AValue: Cardinal);
+var
+  VValue: Cardinal;
+begin
+  VValue := AValue;
+  if VValue > 64 then begin
+    VValue := 64;
+  end;
+  if VValue <= 0 then begin
+    VValue := 1;
+  end;
+
+  LockWrite;
+  try
+    if FMaxConnectToServerCount <> VValue then begin
+      FMaxConnectToServerCount := VValue;
       SetChanged;
     end;
   finally

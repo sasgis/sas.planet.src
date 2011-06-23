@@ -4,7 +4,7 @@ interface
 
 uses
   i_ConfigDataElement;
-  
+
 type
   // Настройки прокси
   IProxySettings = interface(IInterface)
@@ -73,24 +73,6 @@ type
     property Password: WideString read GetPassword write SetPassword;
 
     function GetStatic: IProxyConfigStatic;
-  end;
-
-  IInetConfig = interface(IConfigDataElement)
-    ['{D025A3CE-2CC7-4DB3-BBF6-53DF14A2A2E7}']
-    function GetProxyConfig: IProxyConfig;
-    property ProxyConfig: IProxyConfig read GetProxyConfig;
-
-    function GetTimeOut: Cardinal;
-    procedure SetTimeOut(AValue: Cardinal);
-    property TimeOut: Cardinal read GetTimeOut write SetTimeOut;
-
-    function GetSleepOnResetConnection: Cardinal;
-    procedure SetSleepOnResetConnection(AValue: Cardinal);
-    property SleepOnResetConnection: Cardinal read GetSleepOnResetConnection write SetSleepOnResetConnection;
-
-    function GetDownloadTryCount: Integer;
-    procedure SetDownloadTryCount(AValue: Integer);
-    property DownloadTryCount: Integer read GetDownloadTryCount write SetDownloadTryCount;
   end;
 
 implementation

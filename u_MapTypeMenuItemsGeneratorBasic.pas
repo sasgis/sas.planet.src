@@ -75,7 +75,7 @@ begin
     VMapType := AMapActive.GetMapType.MapType;
   end;
   if VMapType <> nil then begin
-    VGUID := VMapType.GUID;
+    VGUID := VMapType.Zmp.GUID;
     Result.Caption := VMapType.name;
     if FShortCut then begin
       Result.ShortCut:= VMapType.HotKey;
@@ -173,7 +173,7 @@ begin
   ProcessSubItemGUID(CGUID_Zero);
   for i := 0 to GState.MapType.Count - 1 do begin
     if GState.MapType[i].Enabled then begin
-      ProcessSubItemGUID(GState.MapType[i].GUID);
+      ProcessSubItemGUID(GState.MapType[i].Zmp.GUID);
     end;
   end;
 end;

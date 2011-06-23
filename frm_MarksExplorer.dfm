@@ -22,7 +22,6 @@ object frmMarksExplorer: TfrmMarksExplorer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitHeight = 358
     object pnlButtons: TPanel
       AlignWithMargins = True
       Left = 497
@@ -32,56 +31,72 @@ object frmMarksExplorer: TfrmMarksExplorer
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 352
       object btnExport: TTBXButton
         AlignWithMargins = True
         Left = 3
-        Top = 30
+        Top = 322
         Width = 71
         Height = 21
-        Align = alTop
+        Align = alBottom
         DropDownCombo = True
         DropDownMenu = PopupExport
         ImageIndex = 0
-        TabOrder = 2
-        OnClick = btnExportClick
-        Caption = 'Export'
-      end
-      object btnAccept: TTBXButton
-        AlignWithMargins = True
-        Left = 3
-        Top = 57
-        Width = 71
-        Height = 21
-        Align = alTop
-        ImageIndex = 0
-        TabOrder = 1
-        OnClick = btnAcceptClick
-        Caption = 'Apply'
-      end
-      object btnOk: TTBXButton
-        AlignWithMargins = True
-        Left = 3
-        Top = 84
-        Width = 71
-        Height = 21
-        Align = alTop
-        ImageIndex = 0
         TabOrder = 0
-        OnClick = btnOkClick
-        Caption = 'Ok'
+        OnClick = btnExportClick
+        ExplicitTop = 30
+        Caption = 'Export'
       end
       object btnImport: TTBXButton
         AlignWithMargins = True
         Left = 3
-        Top = 3
+        Top = 295
         Width = 71
         Height = 21
-        Align = alTop
+        Align = alBottom
         ImageIndex = 0
-        TabOrder = 3
+        TabOrder = 1
         OnClick = btnImportClick
+        ExplicitTop = 3
         Caption = 'Import'
+      end
+      object btnCancel: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 34
+        Width = 71
+        Height = 25
+        Align = alTop
+        Cancel = True
+        Caption = 'Cancel'
+        ModalResult = 2
+        TabOrder = 2
+        ExplicitTop = 88
+      end
+      object btnOk: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 71
+        Height = 25
+        Align = alTop
+        Caption = 'Ok'
+        ModalResult = 1
+        TabOrder = 3
+        ExplicitTop = 53
+      end
+      object btnApply: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 65
+        Width = 71
+        Height = 25
+        Align = alTop
+        Caption = 'Apply'
+        TabOrder = 4
+        OnClick = btnApplyClick
+        ExplicitLeft = 56
+        ExplicitTop = 168
+        ExplicitWidth = 75
       end
     end
     object pnlMain: TPanel
@@ -92,7 +107,6 @@ object frmMarksExplorer: TfrmMarksExplorer
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 358
       object splCatMarks: TSplitter
         Left = 181
         Top = 0
@@ -109,9 +123,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Align = alClient
         Caption = 'Placemarks'
         TabOrder = 0
-        ExplicitLeft = 181
-        ExplicitWidth = 313
-        ExplicitHeight = 358
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
@@ -124,8 +135,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
-          ExplicitWidth = 303
-          ExplicitHeight = 284
         end
         object CheckBox1: TCheckBox
           AlignWithMargins = True
@@ -137,8 +146,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           Caption = 'All'
           TabOrder = 1
           OnClick = CheckBox1Click
-          ExplicitTop = 336
-          ExplicitWidth = 303
         end
         object TBXDockMark: TTBXDock
           Left = 2
@@ -147,7 +154,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           Height = 28
           AllowDrag = False
           UseParentBackground = True
-          ExplicitWidth = 309
           object TBXToolbar1: TTBXToolbar
             Left = 0
             Top = 0
@@ -160,7 +166,6 @@ object frmMarksExplorer: TfrmMarksExplorer
             Stretch = True
             TabOrder = 0
             UseThemeColor = False
-            Caption = ''
             object btnEditMark: TTBXItem
               ImageIndex = 31
               OnClick = btnEditMarkClick
@@ -221,8 +226,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Align = alLeft
         Caption = 'Placemark Categories'
         TabOrder = 1
-        ExplicitLeft = 0
-        ExplicitHeight = 358
         object CheckBox2: TCheckBox
           AlignWithMargins = True
           Left = 5
@@ -233,7 +236,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           Caption = 'All'
           TabOrder = 0
           OnClick = CheckBox2Click
-          ExplicitTop = 336
         end
         object TreeView1: TTreeView
           AlignWithMargins = True
@@ -249,7 +251,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           OnChange = TreeView1Change
           OnKeyUp = TreeView1KeyUp
           OnMouseUp = TreeView1MouseUp
-          ExplicitHeight = 284
         end
         object TBXDockCategory: TTBXDock
           Left = 2
@@ -270,7 +271,6 @@ object frmMarksExplorer: TfrmMarksExplorer
             Stretch = True
             TabOrder = 0
             UseThemeColor = False
-            Caption = ''
             object BtnAddCategory: TTBXItem
               ImageIndex = 32
               OnClick = TBXItem4Click
@@ -324,8 +324,8 @@ object frmMarksExplorer: TfrmMarksExplorer
     DefaultExt = '*.kml'
     Filter = 
       'Google KML files (*.kml)|*.kml|OziExplorer Track Point File Vers' +
-      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Selection' +
-      ' (*.hlg)|*.hlg'
+      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Selection (' +
+      '*.hlg)|*.hlg'
     Left = 352
     Top = 144
   end
@@ -432,8 +432,8 @@ object frmMarksExplorer: TfrmMarksExplorer
   object ExportDialog: TSaveDialog
     DefaultExt = '.kmz'
     Filter = 
-      'Compressed Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup L' +
-      'anguage (kml)|*.kml'
+      'Compressed Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup La' +
+      'nguage (kml)|*.kml'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 256
     Top = 208

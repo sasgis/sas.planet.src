@@ -105,12 +105,12 @@ procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
  EditURL.Text:=FmapType.RequestBuilderScript.DefURLBase;
  EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
- EditParSubMenu.Text:=FmapType.DefParentSubMenu;
- SESleep.Value:=FmapType.TileDownloaderConfig.WaitInterval;
- EditHotKey.HotKey:=FmapType.DefHotKey;
+ EditParSubMenu.Text:=FmapType.Zmp.ParentSubMenu;
+ SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
+ EditHotKey.HotKey:=FmapType.Zmp.HotKey;
  CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
- CheckBox1.Checked:=FmapType.Defseparator;
- CheckEnabled.Checked:=FMapType.Enabled;
+ CheckBox1.Checked:=FmapType.Zmp.Separator;
+ CheckEnabled.Checked:=FMapType.Zmp.Enabled;
 end;
 
 procedure TfrmMapTypeEdit.Button6Click(Sender: TObject);
@@ -125,17 +125,17 @@ end;
 
 procedure TfrmMapTypeEdit.Button5Click(Sender: TObject);
 begin
- EditParSubMenu.Text := FMapType.DefParentSubMenu;
+ EditParSubMenu.Text := FMapType.Zmp.ParentSubMenu;
 end;
 
 procedure TfrmMapTypeEdit.Button7Click(Sender: TObject);
 begin
- EditHotKey.HotKey := FMapType.DefHotKey;
+ EditHotKey.HotKey := FMapType.Zmp.HotKey;
 end;
 
 procedure TfrmMapTypeEdit.Button8Click(Sender: TObject);
 begin
- SESleep.Value := FMapType.DefSleep;
+  SESleep.Value := FMapType.TileDownloaderConfig.WaitInterval;
 end;
 
 procedure TfrmMapTypeEdit.Button9Click(Sender: TObject);
@@ -148,7 +148,7 @@ begin
   FMapType := AMapType;
 
   Caption:=SAS_STR_EditMap+' '+FmapType.name;
-  edtZmp.Text := AMapType.ZmpFileName;
+  edtZmp.Text := AMapType.Zmp.FileName;
   EditURL.Text:=FMapType.RequestBuilderScript.URLBase;
   EditNameinCache.Text:=FMapType.TileStorage.CacheConfig.NameInCache;
   SESleep.Value:=FMapType.TileDownloaderConfig.WaitInterval;

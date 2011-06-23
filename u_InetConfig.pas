@@ -6,20 +6,30 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ProxySettings,
+  i_InetConfig,
   u_ConfigDataElementComplexBase;
 
 type
   TInetConfig = class(TConfigDataElementComplexBase, IInetConfig)
   private
+    FUserAgentString: string;
     FTimeOut: Cardinal;
     FProxyConfig: IProxyConfig;
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
+
+    FStatic: IInetConfigStatic;
+    function CreateStatic: IInetConfigStatic;
   protected
+    procedure SetChanged; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetProxyConfig: IProxyConfig;
+
+    function GetUserAgentString: string;
+    procedure SetUserAgentString(AValue: string);
+
     function GetTimeOut: Cardinal;
     procedure SetTimeOut(AValue: Cardinal);
 
@@ -28,6 +38,8 @@ type
 
     function GetDownloadTryCount: Integer;
     procedure SetDownloadTryCount(AValue: Integer);
+
+    function GetStatic: IInetConfigStatic;
   public
     constructor Create;
   end;
@@ -36,6 +48,7 @@ implementation
 
 uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
+  u_InetConfigStatic,
   u_ProxyConfig;
 
 { TInetConfig }
@@ -43,6 +56,7 @@ uses
 constructor TInetConfig.Create;
 begin
   inherited;
+  FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FTimeOut := 40000;
   FSleepOnResetConnection := 30000;
   FDownloadTryCount := 2;
@@ -50,10 +64,23 @@ begin
   Add(FProxyConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Proxy'));
 end;
 
+function TInetConfig.CreateStatic: IInetConfigStatic;
+begin
+  Result :=
+    TInetConfigStatic.Create(
+      FProxyConfig.GetStatic,
+      FUserAgentString,
+      FTimeOut,
+      FSleepOnResetConnection,
+      FDownloadTryCount
+    );
+end;
+
 procedure TInetConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
+    FUserAgentString := AConfigData.ReadString('UserAgentString', FUserAgentString);
     FTimeOut := AConfigData.ReadInteger('TimeOut', FTimeOut);
     SetDownloadTryCount(AConfigData.ReadInteger('DownloadTryCount', FDownloadTryCount));
     FSleepOnResetConnection := AConfigData.ReadInteger('SleepOnResetConnection', FSleepOnResetConnection);
@@ -64,6 +91,7 @@ end;
 procedure TInetConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
+  AConfigData.WriteString('UserAgentString', FUserAgentString);
   AConfigData.WriteInteger('TimeOut', FTimeOut);
   AConfigData.WriteInteger('DownloadTryCount', FDownloadTryCount);
   AConfigData.WriteInteger('SleepOnResetConnection', FSleepOnResetConnection);
@@ -94,6 +122,11 @@ begin
   end;
 end;
 
+function TInetConfig.GetStatic: IInetConfigStatic;
+begin
+  Result := FStatic;
+end;
+
 function TInetConfig.GetTimeOut: Cardinal;
 begin
   LockRead;
@@ -101,6 +134,27 @@ begin
     Result := FTimeOut;
   finally
     UnlockRead;
+  end;
+end;
+
+function TInetConfig.GetUserAgentString: string;
+begin
+  LockRead;
+  try
+    Result := FUserAgentString;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TInetConfig.SetChanged;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
   end;
 end;
 
@@ -138,6 +192,19 @@ begin
   try
     if FTimeOut <> AValue then begin
       FTimeOut := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TInetConfig.SetUserAgentString(AValue: string);
+begin
+  LockWrite;
+  try
+    if FUserAgentString <> AValue then begin
+      FUserAgentString := AValue;
       SetChanged;
     end;
   finally

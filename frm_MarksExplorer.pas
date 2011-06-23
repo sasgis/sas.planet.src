@@ -50,8 +50,6 @@ type
     NExportAll: TMenuItem;
     NExportVisible: TMenuItem;
     btnImport: TTBXButton;
-    btnAccept: TTBXButton;
-    btnOk: TTBXButton;
     rgMarksShowMode: TRadioGroup;
     TBXDockMark: TTBXDock;
     TBXToolbar1: TTBXToolbar;
@@ -70,6 +68,9 @@ type
     TBXSeparatorItem3: TTBXSeparatorItem;
     BtnEditCategory: TTBXItem;
     btnExportCategory: TTBXItem;
+    btnCancel: TButton;
+    btnOk: TButton;
+    btnApply: TButton;
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
@@ -84,8 +85,7 @@ type
     procedure btnExportClick(Sender: TObject);
     procedure btnExportCategoryClick(Sender: TObject);
     procedure btnImportClick(Sender: TObject);
-    procedure btnAcceptClick(Sender: TObject);
-    procedure btnOkClick(Sender: TObject);
+    procedure btnApplyClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure btnEditMarkClick(Sender: TObject);
     procedure btnDelMarkClick(Sender: TObject);
@@ -251,7 +251,7 @@ begin
   end;
 end;
 
-procedure TfrmMarksExplorer.btnAcceptClick(Sender: TObject);
+procedure TfrmMarksExplorer.btnApplyClick(Sender: TObject);
 begin
   GState.MainFormConfig.LayersConfig.MarksShowConfig.LockWrite;
   try
@@ -274,12 +274,6 @@ begin
     GState.MainFormConfig.LayersConfig.MarksShowConfig.UnlockWrite;
   end;
   frmMain.LayerMapMarksRedraw;
-end;
-
-procedure TfrmMarksExplorer.btnOkClick(Sender: TObject);
-begin
-  btnAcceptClick(nil);
-  close;
 end;
 
 procedure TfrmMarksExplorer.btnDelMarkClick(Sender: TObject);
@@ -355,7 +349,7 @@ begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
     if FMarkDBGUI.OperationMark(VMark, GState.MainFormConfig.ViewPortState.GetCurrentZoom) then begin
-      close;
+      ModalResult := mrOk;
     end;
   end;
 end;
@@ -504,6 +498,8 @@ end;
 procedure TfrmMarksExplorer.EditMarks(
   AMarkDBGUI: TMarksDbGUIHelper; AMapGoto: IMapViewGoto
 );
+var
+  VModalResult: Integer;
 begin
   FMarkDBGUI := AMarkDBGUI;
   FMapGoto := AMapGoto;
@@ -511,7 +507,10 @@ begin
   UpdateMarksList;
   btnNavOnMark.Checked:= GState.MainFormConfig.NavToPoint.IsActive;
   try
-    ShowModal;
+    VModalResult := ShowModal;
+    if VModalResult = mrOk then begin
+      btnApplyClick(nil);
+    end;
   finally
     TreeView1.OnChange:=nil;
     TreeView1.Items.Clear;

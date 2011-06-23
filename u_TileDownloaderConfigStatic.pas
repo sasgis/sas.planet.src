@@ -3,36 +3,30 @@ unit u_TileDownloaderConfigStatic;
 interface
 
 uses
-  i_ProxySettings,
+  i_InetConfig,
   i_TileDownloaderConfig;
 
 type
   TTileDownloaderConfigStatic = class(TInterfacedObject, ITileDownloaderConfigStatic)
   private
-    FProxyConfigStatic: IProxyConfigStatic;
-    FTimeOut: Cardinal;
+    FInetConfigStatic: IInetConfigStatic;
     FWaitInterval: Cardinal;
-    FSleepOnResetConnection: Cardinal;
-    FDownloadTryCount: Integer;
+    FMaxConnectToServerCount: Cardinal;
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
   protected
-    function GetProxyConfigStatic: IProxyConfigStatic;
-    function GetTimeOut: Cardinal;
+    function GetInetConfigStatic: IInetConfigStatic;
     function GetWaitInterval: Cardinal;
-    function GetSleepOnResetConnection: Cardinal;
-    function GetDownloadTryCount: Integer;
+    function GetMaxConnectToServerCount: Cardinal;
     function GetIgnoreMIMEType: Boolean;
     function GetExpectedMIMETypes: string;
     function GetDefaultMIMEType: string;
   public
     constructor Create(
-      AProxyConfigStatic: IProxyConfigStatic;
-      ATimeOut: Cardinal;
+      AInetConfigStatic: IInetConfigStatic;
       AWaitInterval: Cardinal;
-      ASleepOnResetConnection: Cardinal;
-      ADownloadTryCount: Integer;
+      AMaxConnectToServerCount: Cardinal;
       AIgnoreMIMEType: Boolean;
       AExpectedMIMETypes: string;
       ADefaultMIMEType: string
@@ -44,15 +38,16 @@ implementation
 { TTileDownloaderConfigStatic }
 
 constructor TTileDownloaderConfigStatic.Create(
-  AProxyConfigStatic: IProxyConfigStatic; ATimeOut, AWaitInterval,
-  ASleepOnResetConnection: Cardinal; ADownloadTryCount: Integer;
-  AIgnoreMIMEType: Boolean; AExpectedMIMETypes, ADefaultMIMEType: string);
+  AInetConfigStatic: IInetConfigStatic;
+  AWaitInterval: Cardinal;
+  AMaxConnectToServerCount: Cardinal;
+  AIgnoreMIMEType: Boolean;
+  AExpectedMIMETypes, ADefaultMIMEType: string
+);
 begin
-  FProxyConfigStatic := AProxyConfigStatic;
-  FTimeOut := ATimeOut;
+  FInetConfigStatic := AInetConfigStatic;
   FWaitInterval := AWaitInterval;
-  FSleepOnResetConnection := ASleepOnResetConnection;
-  FDownloadTryCount := ADownloadTryCount;
+  FMaxConnectToServerCount := AMaxConnectToServerCount;
   FIgnoreMIMEType := AIgnoreMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
   FDefaultMIMEType := ADefaultMIMEType;
@@ -61,11 +56,6 @@ end;
 function TTileDownloaderConfigStatic.GetDefaultMIMEType: string;
 begin
   Result := FDefaultMIMEType;
-end;
-
-function TTileDownloaderConfigStatic.GetDownloadTryCount: Integer;
-begin
-  Result := FDownloadTryCount;
 end;
 
 function TTileDownloaderConfigStatic.GetExpectedMIMETypes: string;
@@ -78,19 +68,14 @@ begin
   Result := FIgnoreMIMEType;
 end;
 
-function TTileDownloaderConfigStatic.GetProxyConfigStatic: IProxyConfigStatic;
+function TTileDownloaderConfigStatic.GetInetConfigStatic: IInetConfigStatic;
 begin
-  Result := FProxyConfigStatic;
+  Result := FInetConfigStatic;
 end;
 
-function TTileDownloaderConfigStatic.GetSleepOnResetConnection: Cardinal;
+function TTileDownloaderConfigStatic.GetMaxConnectToServerCount: Cardinal;
 begin
-  Result := FSleepOnResetConnection;
-end;
-
-function TTileDownloaderConfigStatic.GetTimeOut: Cardinal;
-begin
-  Result := FTimeOut;
+  Result := FMaxConnectToServerCount;
 end;
 
 function TTileDownloaderConfigStatic.GetWaitInterval: Cardinal;

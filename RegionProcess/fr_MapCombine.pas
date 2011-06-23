@@ -168,13 +168,13 @@ begin
     if (VMapType.UseStick)and(VMapType.IsBitmapTiles)and(VMapType.Enabled) then begin
       if not VMapType.asLayer then begin
         VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
-        if IsEqualGUID(VMapType.GUID, VActiveMapGUID) then begin
+        if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
           cbbMap.ItemIndex:=VAddedIndex;
         end;
       end else begin
         VAddedIndex := cbbHybr.Items.AddObject(VMapType.name,VMapType);
         if (cbbHybr.ItemIndex=-1) then begin
-          if GState.MainFormConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMapType.GUID) then begin
+          if GState.MainFormConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMapType.Zmp.GUID) then begin
             cbbHybr.ItemIndex:=VAddedIndex;
           end;
         end;

@@ -168,6 +168,7 @@
     <DCCReference Include="i_ImageResamplerFactory.pas" />
     <DCCReference Include="i_ImportConfig.pas" />
     <DCCReference Include="i_ImportFile.pas" />
+    <DCCReference Include="i_InetConfig.pas" />
     <DCCReference Include="i_InternalPerformanceCounter.pas" />
     <DCCReference Include="i_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
@@ -248,7 +249,11 @@
     <DCCReference Include="i_TileInfoBasic.pas" />
     <DCCReference Include="i_TileIterator.pas" />
     <DCCReference Include="i_TileObjCache.pas" />
+    <DCCReference Include="i_TileRequestBuilder.pas" />
+    <DCCReference Include="i_TileRequestBuilderConfig.pas" />
     <DCCReference Include="i_TileStorage.pas" />
+    <DCCReference Include="i_TileStorageConfig.pas" />
+    <DCCReference Include="i_TileStorageInfo.pas" />
     <DCCReference Include="i_TileStorageType.pas" />
     <DCCReference Include="i_TileStorageTypeConfig.pas" />
     <DCCReference Include="i_TileStorageTypeInfo.pas" />
@@ -260,6 +265,7 @@
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_VectorDataItemSimple.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
+    <DCCReference Include="i_ZmpInfo.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
     <DCCReference Include="MapLayers\u_LayerScaleLine.pas" />
@@ -373,6 +379,7 @@
     <DCCReference Include="src\KAZip.pas" />
     <DCCReference Include="src\Langs.pas" />
     <DCCReference Include="src\MD5.pas" />
+    <DCCReference Include="src\RarProgressBar\RarProgress.pas" />
     <DCCReference Include="src\RegExpr.pas" />
     <DCCReference Include="src\SwinHttp.pas" />
     <DCCReference Include="src\TarWriter.pas" />
@@ -442,7 +449,6 @@
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="u_Datum.pas" />
     <DCCReference Include="u_DownloadCheckerStuped.pas" />
-    <DCCReference Include="u_DownloadExceptions.pas" />
     <DCCReference Include="u_DownloadInfoSimple.pas" />
     <DCCReference Include="u_DownloadResult.pas" />
     <DCCReference Include="u_DownloadResultFactorySimpleDownload.pas" />
@@ -497,6 +503,7 @@
     <DCCReference Include="u_ImportKML.pas" />
     <DCCReference Include="u_ImportPLT.pas" />
     <DCCReference Include="u_InetConfig.pas" />
+    <DCCReference Include="u_InetConfigStatic.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
     <DCCReference Include="u_InternalPerformanceCounter.pas" />
     <DCCReference Include="u_InternalPerformanceCounterList.pas" />
@@ -639,9 +646,13 @@
     <DCCReference Include="u_TileIteratorByRect.pas" />
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="u_TileIteratorStuped.pas" />
+    <DCCReference Include="u_TileRequestBuilderConfig.pas" />
     <DCCReference Include="u_TileStorageAbstract.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />
+    <DCCReference Include="u_TileStorageInfo.pas" />
+    <DCCReference Include="u_TileStorageTypeBase.pas" />
+    <DCCReference Include="u_TileStorageTypeConfig.pas" />
     <DCCReference Include="u_TileStorageTypeInfo.pas" />
     <DCCReference Include="u_TileStorageTypeList.pas" />
     <DCCReference Include="u_TileStorageTypeListItem.pas" />
@@ -658,5 +669,6 @@
     <DCCReference Include="u_WindowLayerBasicList.pas" />
     <DCCReference Include="u_YaMobileWrite.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
+    <DCCReference Include="u_ZmpInfo.pas" />
   </ItemGroup>
 </Project>

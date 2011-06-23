@@ -4,25 +4,19 @@ interface
 
 uses
   i_ConfigDataElement,
-  i_ProxySettings;
+  i_InetConfig;
 
 type
   ITileDownloaderConfigStatic = interface
     ['{FECD40CF-A0AF-479A-8CCC-E3363037773E}']
-    function GetProxyConfigStatic: IProxyConfigStatic;
-    property ProxyConfigStatic: IProxyConfigStatic read GetProxyConfigStatic;
-
-    function GetTimeOut: Cardinal;
-    property TimeOut: Cardinal read GetTimeOut;
+    function GetInetConfigStatic: IInetConfigStatic;
+    property InetConfigStatic: IInetConfigStatic read GetInetConfigStatic;
 
     function GetWaitInterval: Cardinal;
     property WaitInterval: Cardinal read GetWaitInterval;
 
-    function GetSleepOnResetConnection: Cardinal;
-    property SleepOnResetConnection: Cardinal read GetSleepOnResetConnection;
-
-    function GetDownloadTryCount: Integer;
-    property DownloadTryCount: Integer read GetDownloadTryCount;
+    function GetMaxConnectToServerCount: Cardinal;
+    property MaxConnectToServerCount: Cardinal read GetMaxConnectToServerCount;
 
     function GetIgnoreMIMEType: Boolean;
     property IgnoreMIMEType: Boolean read GetIgnoreMIMEType;
@@ -36,21 +30,16 @@ type
 
   ITileDownloaderConfig = interface(IConfigDataElement)
     ['{FECD40CF-A0AF-479A-8CCC-E3363037773E}']
-    function GetProxyConfig: IProxyConfig;
-    property ProxyConfig: IProxyConfig read GetProxyConfig;
-
-    function GetTimeOut: Cardinal;
-    property TimeOut: Cardinal read GetTimeOut;
-
-    function GetSleepOnResetConnection: Cardinal;
-    property SleepOnResetConnection: Cardinal read GetSleepOnResetConnection;
-
-    function GetDownloadTryCount: Integer;
-    property DownloadTryCount: Integer read GetDownloadTryCount;
+    function GetInetConfigStatic: IInetConfigStatic;
+    property InetConfigStatic: IInetConfigStatic read GetInetConfigStatic;
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);
     property WaitInterval: Cardinal read GetWaitInterval write SetWaitInterval;
+
+    function GetMaxConnectToServerCount: Cardinal;
+    procedure SetMaxConnectToServerCount(AValue: Cardinal);
+    property MaxConnectToServerCount: Cardinal read GetMaxConnectToServerCount write SetMaxConnectToServerCount;
 
     function GetIgnoreMIMEType: Boolean;
     procedure SetIgnoreMIMEType(AValue: Boolean);
