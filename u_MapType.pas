@@ -104,7 +104,6 @@ type
     Enabled: boolean;
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
-    procedure GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
@@ -364,12 +363,6 @@ function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
   FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
   Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom);
-end;
-
-procedure TMapType.GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
-begin
-  FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-  FTileRequestBuilder.BuildRequest(AXY, Azoom, '', AUrl, AHead);
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -651,7 +644,8 @@ var
 begin
   if Self.UseDwn then begin
     VRequestHead := '';
-    GetRequest(ATile, AZoom, VUrl, VRequestHead);
+    FCoordConverter.CheckTilePosStrict(ATile, AZoom, True);
+    FTileRequestBuilder.BuildRequest(ATile, AZoom, FLastResponseInfo, VUrl, VRequestHead);
     VResultFactory := FTileDownloadResultFactoryProvider.BuildFactory(AZoom, ATile, VUrl, VRequestHead);
     if VUrl = '' then begin
       Result := VResultFactory.BuildCanceled;

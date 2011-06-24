@@ -12,6 +12,7 @@ uses
   uPSUtils,
   i_ConfigDataProvider,
   i_CoordConverter,
+  i_LastResponseInfo,
   i_TileRequestBuilderConfig,
   u_TileRequestBuilder;
 
@@ -45,7 +46,7 @@ type
     procedure PrepareCoordConverter(AConfig: IConfigDataProvider);
     procedure PreparePascalScript(AConfig: IConfigDataProvider);
     procedure SetVar(
-      const APreviousResponseHeader: string;
+      ALastResponseInfo: ILastResponseInfo;
       AXY: TPoint;
       AZoom: Byte
     );
@@ -56,7 +57,7 @@ type
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
-      const APreviousResponseHeader: string;
+      ALastResponseInfo: ILastResponseInfo;
       out AUrl: string;
       out ARequestHeader: string
     ); override;
@@ -101,7 +102,7 @@ begin
   Lock;
   try
     FpResultUrl.Data := '';
-    SetVar('', ATileXY, AZoom);
+    SetVar(nil, ATileXY, AZoom);
     try
       FExec.RunScript;
     except on E: Exception do
@@ -116,14 +117,14 @@ end;
 procedure TTileRequestBuilderPascalScript.BuildRequest(
   ATileXY: TPoint;
   AZoom: Byte;
-  const APreviousResponseHeader: string;
+  ALastResponseInfo: ILastResponseInfo;
   out AUrl: string;
   out ARequestHeader: string
 );
 begin
   Lock;
   try
-    SetVar(APreviousResponseHeader, ATileXY, AZoom);
+    SetVar(ALastResponseInfo, ATileXY, AZoom);
     try
       FExec.RunScript;
     except on E: Exception do
@@ -300,7 +301,7 @@ begin
 end;
 
 procedure TTileRequestBuilderPascalScript.SetVar(
-  const APreviousResponseHeader: string;
+  ALastResponseInfo: ILastResponseInfo;
   AXY: TPoint;
   AZoom: Byte
 );
@@ -335,7 +336,11 @@ begin
   finally
     FConfig.UnlockRead;
   end;
-  FpResponseHead.Data := APreviousResponseHeader;
+  if ALastResponseInfo <> nil then begin
+    FpResponseHead.Data := ALastResponseInfo.ResponseHead;
+  end else begin
+    FpResponseHead.Data := '';
+  end;
   FpScriptBuffer.Data := FScriptBuffer;
 end;
 

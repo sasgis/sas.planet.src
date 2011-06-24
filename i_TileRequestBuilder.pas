@@ -3,7 +3,8 @@ unit i_TileRequestBuilder;
 interface
 
 uses
-  Types;
+  Types,
+  i_LastResponseInfo;
 
 type
   ITileRequestBuilder = interface
@@ -12,7 +13,7 @@ type
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
-      const APreviousResponseHeader: string;
+      ALastResponseInfo: ILastResponseInfo;
       out AUrl, ARequestHeader: string
     );
   end;

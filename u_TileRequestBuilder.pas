@@ -7,6 +7,7 @@ uses
   SyncObjs,
   SysUtils,
   i_TileRequestBuilder,
+  i_LastResponseInfo,
   i_TileRequestBuilderConfig;
 
 type
@@ -23,7 +24,7 @@ type
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
-      const APreviousResponseHeader: string;
+      ALastResponseInfo: ILastResponseInfo;
       out AUrl: string;
       out ARequestHeader: string
     ); virtual;
@@ -54,7 +55,7 @@ end;
 procedure TTileRequestBuilder.BuildRequest(
   ATileXY: TPoint;
   AZoom: Byte;
-  const APreviousResponseHeader: string;
+  ALastResponseInfo: ILastResponseInfo;
   out AUrl: string;
   out ARequestHeader: string
 );
