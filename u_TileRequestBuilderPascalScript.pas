@@ -44,7 +44,11 @@ type
     FpConverter: PPSVariantInterface;
     procedure PrepareCoordConverter(AConfig: IConfigDataProvider);
     procedure PreparePascalScript(AConfig: IConfigDataProvider);
-    procedure SetVar(AXY: TPoint; AZoom: Byte);
+    procedure SetVar(
+      const APreviousResponseHeader: string;
+      AXY: TPoint;
+      AZoom: Byte
+    );
   public
     constructor Create(AConfig: ITileRequestBuilderConfig; AConfigData: IConfigDataProvider);
     destructor Destroy; override;
@@ -97,7 +101,7 @@ begin
   Lock;
   try
     FpResultUrl.Data := '';
-    SetVar(ATileXY, AZoom);
+    SetVar('', ATileXY, AZoom);
     try
       FExec.RunScript;
     except on E: Exception do
@@ -119,10 +123,7 @@ procedure TTileRequestBuilderPascalScript.BuildRequest(
 begin
   Lock;
   try
-    if APreviousResponseHeader <> '' then begin
-      FLastResponseHead := APreviousResponseHeader;
-    end;
-    SetVar(ATileXY, AZoom);
+    SetVar(APreviousResponseHeader, ATileXY, AZoom);
     try
       FExec.RunScript;
     except on E: Exception do
@@ -298,7 +299,11 @@ begin
   end;
 end;
 
-procedure TTileRequestBuilderPascalScript.SetVar(AXY: TPoint; AZoom: Byte);
+procedure TTileRequestBuilderPascalScript.SetVar(
+  const APreviousResponseHeader: string;
+  AXY: TPoint;
+  AZoom: Byte
+);
 var
   XY: TPoint;
   Ll: TDoublePoint;
@@ -330,7 +335,7 @@ begin
   finally
     FConfig.UnlockRead;
   end;
-  FpResponseHead.Data := FLastResponseHead;
+  FpResponseHead.Data := APreviousResponseHeader;
   FpScriptBuffer.Data := FScriptBuffer;
 end;
 

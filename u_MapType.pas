@@ -20,6 +20,7 @@ uses
   i_CoordConverter,
   i_DownloadChecker,
   i_TileDownlodSession,
+  i_LastResponseInfo,
   i_TileRequestBuilder,
   i_TileRequestBuilderConfig,
   i_IPoolOfObjectsSimple,
@@ -62,6 +63,7 @@ type
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
+    FLastResponseInfo: ILastResponseInfo;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
     FTileDownloadResultFactoryProvider: ITileDownloadResultFactoryProvider;
@@ -190,6 +192,7 @@ uses
   u_TileDownloadResultFactoryProvider,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
+  u_LastResponseInfo,
   u_DownloadCheckerStuped,
   u_TileStorageGE,
   u_TileStorageFileSystem;
@@ -608,6 +611,7 @@ begin
   FMimeTypeSubstList := nil;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
+  FLastResponseInfo := TLastResponseInfo.Create;
   LoadMapType(AConfig);
   if FasLayer then begin
     FLoadPrevMaxZoomDelta := 4;
@@ -681,7 +685,7 @@ begin
       end;
     end;
     if Supports(Result, IDownloadResultOk, VResultOk) then begin
-      FTileRequestBuilder.ResponseHead := VResultOk.RawResponseHeader;
+      FLastResponseInfo.ResponseHead := VResultOk.RawResponseHeader;
       VResultStream := TMemoryStream.Create;
       try
         VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);

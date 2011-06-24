@@ -132,6 +132,8 @@ uses
   i_TileRequestBuilderConfig in 'i_TileRequestBuilderConfig.pas',
   i_TileRequestBuilder in 'i_TileRequestBuilder.pas',
   u_TileRequestBuilderConfig in 'u_TileRequestBuilderConfig.pas',
+  i_LastResponseInfo in 'i_LastResponseInfo.pas',
+  u_LastResponseInfo in 'u_LastResponseInfo.pas',
   i_ZmpInfo in 'i_ZmpInfo.pas',
   u_ZmpInfo in 'u_ZmpInfo.pas',
   u_NotifyEventListener in 'u_NotifyEventListener.pas',

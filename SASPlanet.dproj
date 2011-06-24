@@ -176,6 +176,7 @@
     <DCCReference Include="i_KmlInfoSimpleLoader.pas" />
     <DCCReference Include="i_KmlLayerConfig.pas" />
     <DCCReference Include="i_LanguageManager.pas" />
+    <DCCReference Include="i_LastResponseInfo.pas" />
     <DCCReference Include="i_LastSelectionInfo.pas" />
     <DCCReference Include="i_LastSelectionLayerConfig.pas" />
     <DCCReference Include="i_LayerBitmapClearStrategy.pas" />
@@ -520,6 +521,7 @@
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
     <DCCReference Include="u_LanguageTBXItem.pas" />
+    <DCCReference Include="u_LastResponseInfo.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
     <DCCReference Include="u_LastSelectionLayerConfig.pas" />
     <DCCReference Include="u_LayerBitmapClearStrategy.pas" />

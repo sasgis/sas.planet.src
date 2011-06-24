@@ -14,9 +14,6 @@ type
   protected
     FCS: TCriticalSection;
     FConfig: ITileRequestBuilderConfig;
-    FLastResponseHead: string;
-    function GetResponseHead: string;
-    procedure SetResponseHead(const AValue: string);
     procedure Lock;
     procedure Unlock;
   public
@@ -30,7 +27,6 @@ type
       out AUrl: string;
       out ARequestHeader: string
     ); virtual;
-    property ResponseHead: string read GetResponseHead write SetResponseHead;
   end;
 
 implementation
@@ -65,26 +61,6 @@ procedure TTileRequestBuilder.BuildRequest(
 begin
   AUrl := '';
   ARequestHeader := '';
-end;
-
-procedure TTileRequestBuilder.SetResponseHead(const AValue: string);
-begin
-  Lock;
-  try
-    FLastResponseHead := AValue;
-  finally
-    Unlock;
-  end;
-end;
-
-function TTileRequestBuilder.GetResponseHead: string;
-begin
-  Lock;
-  try
-    Result := FLastResponseHead;
-  finally
-    Unlock;
-  end;
 end;
 
 procedure TTileRequestBuilder.Lock;
