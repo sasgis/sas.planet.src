@@ -31,6 +31,7 @@ type
     FpRequestHead: PPSVariantAString;
     FpResponseHead: PPSVariantAString;
     FpScriptBuffer: PPSVariantAString;
+    FpVersion: PPSVariantAString;
     FpGetX: PPSVariantS32;
     FpGetY: PPSVariantS32;
     FpGetZ: PPSVariantS32;
@@ -47,16 +48,18 @@ type
     procedure PreparePascalScript(AConfig: IConfigDataProvider);
     procedure SetVar(
       ALastResponseInfo: ILastResponseInfo;
+      AVersion: Variant;
       AXY: TPoint;
       AZoom: Byte
     );
   public
     constructor Create(AConfig: ITileRequestBuilderConfig; AConfigData: IConfigDataProvider);
     destructor Destroy; override;
-    function  BuildRequestUrl(ATileXY: TPoint; AZoom: Byte): string; override;
+    function  BuildRequestUrl(ATileXY: TPoint; AZoom: Byte; AVersion: Variant): string; override;
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
+      AVersion: Variant;
       ALastResponseInfo: ILastResponseInfo;
       out AUrl: string;
       out ARequestHeader: string
@@ -67,6 +70,7 @@ implementation
 
 uses
   Math,
+  Variants,
   t_GeoTypes,
   u_GeoToStr,
   u_GlobalState,
@@ -97,12 +101,16 @@ begin
   inherited Destroy;
 end;
 
-function TTileRequestBuilderPascalScript.BuildRequestUrl(ATileXY: TPoint; AZoom: Byte): string;
+function TTileRequestBuilderPascalScript.BuildRequestUrl(
+  ATileXY: TPoint;
+  AZoom: Byte;
+  AVersion: Variant
+): string;
 begin
   Lock;
   try
     FpResultUrl.Data := '';
-    SetVar(nil, ATileXY, AZoom);
+    SetVar(nil, AVersion, ATileXY, AZoom);
     try
       FExec.RunScript;
     except on E: Exception do
@@ -117,6 +125,7 @@ end;
 procedure TTileRequestBuilderPascalScript.BuildRequest(
   ATileXY: TPoint;
   AZoom: Byte;
+  AVersion: Variant;
   ALastResponseInfo: ILastResponseInfo;
   out AUrl: string;
   out ARequestHeader: string
@@ -124,7 +133,7 @@ procedure TTileRequestBuilderPascalScript.BuildRequest(
 begin
   Lock;
   try
-    SetVar(ALastResponseInfo, ATileXY, AZoom);
+    SetVar(ALastResponseInfo, AVersion, ATileXY, AZoom);
     try
       FExec.RunScript;
     except on E: Exception do
@@ -201,6 +210,8 @@ begin
   FpRequestHead.Data := '';
   FpResponseHead := PPSVariantAString(FExec.GetVar2('ResponseHead'));
   FpResponseHead.Data := '';
+  FpVersion := PPSVariantAString(FExec.GetVar2('Version'));
+  FpVersion.Data := '';
   FpScriptBuffer := PPSVariantAString(FExec.GetVar2('ScriptBuffer'));
   FpGetX := PPSVariantS32(FExec.GetVar2('GetX'));
   FpGetY := PPSVariantS32(FExec.GetVar2('GetY'));
@@ -266,6 +277,7 @@ begin
     Sender.AddUsedVariable('RequestHead', t);
     Sender.AddUsedVariable('ResponseHead', t);
     Sender.AddUsedVariable('ScriptBuffer', t);
+    Sender.AddUsedVariable('Version', t);
     T := Sender.FindType('integer');
     Sender.AddUsedVariable('GetX', t);
     Sender.AddUsedVariable('GetY', t);
@@ -302,6 +314,7 @@ end;
 
 procedure TTileRequestBuilderPascalScript.SetVar(
   ALastResponseInfo: ILastResponseInfo;
+  AVersion: Variant;
   AXY: TPoint;
   AZoom: Byte
 );
@@ -342,6 +355,7 @@ begin
     FpResponseHead.Data := '';
   end;
   FpScriptBuffer.Data := FScriptBuffer;
+  FpVersion.Data := VarToStrDef(AVersion, '');
 end;
 
 end.

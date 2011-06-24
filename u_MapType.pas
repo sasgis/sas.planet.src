@@ -362,7 +362,7 @@ function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
   if FUseDwn then begin
     FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-    Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom);
+    Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom, FVersion);
   end;
 end;
 
@@ -646,7 +646,7 @@ begin
   if FUseDwn then begin
     VRequestHead := '';
     FCoordConverter.CheckTilePosStrict(ATile, AZoom, True);
-    FTileRequestBuilder.BuildRequest(ATile, AZoom, FLastResponseInfo, VUrl, VRequestHead);
+    FTileRequestBuilder.BuildRequest(ATile, AZoom, FVersion, FLastResponseInfo, VUrl, VRequestHead);
     VResultFactory := FTileDownloadResultFactoryProvider.BuildFactory(AZoom, ATile, VUrl, VRequestHead);
     if VUrl = '' then begin
       Result := VResultFactory.BuildCanceled;
