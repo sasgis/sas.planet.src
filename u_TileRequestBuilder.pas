@@ -20,14 +20,14 @@ type
   public
     constructor Create(AConfig: ITileRequestBuilderConfig);
     destructor Destroy; override;
-    function  BuildRequestUrl(ATileXY: TPoint; AZoom: Byte): string; virtual;
+    function  BuildRequestUrl(ATileXY: TPoint; AZoom: Byte): string; virtual; abstract;
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
       ALastResponseInfo: ILastResponseInfo;
       out AUrl: string;
       out ARequestHeader: string
-    ); virtual;
+    ); virtual; abstract;
   end;
 
 implementation
@@ -45,23 +45,6 @@ destructor TTileRequestBuilder.Destroy;
 begin
   FreeAndNil(FCS);
   inherited Destroy;
-end;
-
-function TTileRequestBuilder.BuildRequestUrl(ATileXY: TPoint; AZoom: Byte): string;
-begin
-  Result := '';
-end;
-
-procedure TTileRequestBuilder.BuildRequest(
-  ATileXY: TPoint;
-  AZoom: Byte;
-  ALastResponseInfo: ILastResponseInfo;
-  out AUrl: string;
-  out ARequestHeader: string
-);
-begin
-  AUrl := '';
-  ARequestHeader := '';
 end;
 
 procedure TTileRequestBuilder.Lock;

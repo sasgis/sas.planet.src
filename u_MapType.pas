@@ -202,6 +202,7 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FTileRequestBuilderConfig.ReadConfig(VParams);
+  FTileRequestBuilder := nil;
   if FUseDwn then begin
     try
       FTileRequestBuilder := TTileRequestBuilderPascalScript.Create(FTileRequestBuilderConfig, AConfig);
@@ -209,16 +210,14 @@ begin
       on E: Exception do begin
         ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.Name, E.Message, FZmp.FileName]);
         FTileRequestBuilder := nil;
-        FUseDwn := False;
       end;
-     else
+    else
       ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.Name, FZmp.FileName]);
       FTileRequestBuilder := nil;
-      FUseDwn := False;
     end;
   end;
   if FTileRequestBuilder = nil then begin
-    FTileRequestBuilder := TTileRequestBuilder.Create(FTileRequestBuilderConfig);
+    FUseDwn := False;
   end;
 end;
 
@@ -361,8 +360,10 @@ end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
-  FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-  Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom);
+  if FUseDwn then begin
+    FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
+    Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom);
+  end;
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -642,7 +643,7 @@ var
   VOldTileSize: Integer;
   VResultStream: TMemoryStream;
 begin
-  if Self.UseDwn then begin
+  if FUseDwn then begin
     VRequestHead := '';
     FCoordConverter.CheckTilePosStrict(ATile, AZoom, True);
     FTileRequestBuilder.BuildRequest(ATile, AZoom, FLastResponseInfo, VUrl, VRequestHead);
