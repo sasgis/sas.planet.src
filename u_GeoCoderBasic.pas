@@ -6,7 +6,9 @@ uses
   Windows,
   SysUtils,
   Classes,
+  SwinHttp,
   t_GeoTypes,
+  u_GeoCodeResult,
   i_ProxySettings,
   i_GeoCoder;
 
@@ -14,10 +16,12 @@ type
   TGeoCoderBasic = class(TInterfacedObject, IGeoCoder)
   protected
     FInetSettings: IProxySettings;
+    FOnGetLocation: TGetLocation;
+    procedure SendRequest(ASearch: WideString; ACurrentPos: TDoublePoint; OnGetLocation:TGetLocation); virtual; safecall;
     function URLEncode(const S: string): string; virtual;
     function PrepareURL(ASearch: WideString): string; virtual; abstract;
-    function GetDataFromInet(ASearch: WideString): string; virtual;
     function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; virtual; abstract;
+    procedure OnSendRequestEndWork(Sender: TSwinHttp; Request: TSwRequest);
     function GetLocations(ASearch: WideString; ACurrentPos: TDoublePoint): IGeoCodeResult; virtual; safecall;
   public
     constructor Create(AInetSettings: IProxySettings);
@@ -33,134 +37,77 @@ type
   EProxyAuthError = class(Exception);
   EAnswerParseError = class(Exception);
 
+var
+ shttp:TSwinHttp;
 implementation
-
-uses
-  WinInet,
-  u_GeoCodeResult;
 
 { TGeoCoderBasic }
 
 constructor TGeoCoderBasic.Create(AInetSettings: IProxySettings);
 begin
   FInetSettings := AInetSettings;
+  shttp:=TSwinHttp.Create(nil);
 end;
 
 destructor TGeoCoderBasic.Destroy;
 begin
   FInetSettings := nil;
+  freeandnil(shttp);
   inherited;
 end;
 
-function TGeoCoderBasic.GetDataFromInet(ASearch: WideString): string;
+procedure TGeoCoderBasic.OnSendRequestEndWork(Sender: TSwinHttp; Request: TSwRequest);
 var
-  s, par: string;
-  err: boolean;
-  Buffer: array [1..64535] of char;
-  BufferLen: LongWord;
-  hSession, hFile: Pointer;
-  dwindex, dwcodelen, dwReserv: dword;
-  dwtype: array [1..20] of char;
-  VUrl: string;
-  VLogin: string;
-  VPassword: string;
-  VLastError: DWORD;
+  VList: IInterfaceList;
+  VResultCode: Integer;
+  VMessage: WideString;
 begin
-  hSession := InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
-  if not Assigned(hSession) then begin
-    VLastError := GetLastError;
-    raise EInternetOpenError.Create(VLastError, 'Ошибка InternetOpen');
-  end;
-  try
-    VUrl := PrepareURL(ASearch);
-    hFile := InternetOpenUrl(hSession, PChar(VUrl), PChar(par), length(par), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD, 0);
-    if not Assigned(hFile) then begin
-      VLastError := GetLastError;
-      raise EInternetOpenError.Create(VLastError, 'Ошибка InternetOpenUrl');
+  VResultCode := Sender.Response.Code;
+  if VResultCode=200 then begin
+    VList := ParseStringToPlacemarksList(Sender.Response.Body, '');
+    if (VList=nil)or(VList.Count = 0) then begin
+      VResultCode := 404;
+      VMessage := 'Не найдено';
     end;
-    try
-      dwcodelen := SizeOf(dwtype);
-      dwReserv := 0;
-      dwindex := 0;
-      if HttpQueryInfo(hFile, HTTP_QUERY_STATUS_CODE, @dwtype, dwcodelen, dwReserv) then begin
-        dwindex := strtoint(pchar(@dwtype));
-      end;
-      if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then begin
-        if FInetSettings <> nil then begin
-          if (FInetSettings.UseLogin) then begin
-            VLogin := FInetSettings.Login;
-            VPassword := FInetSettings.Password;
-            InternetSetOption(hFile, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
-            InternetSetOption(hFile, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
-            HttpSendRequest(hFile, nil, 0, Nil, 0);
-
-            dwcodelen := SizeOf(dwtype);
-            dwReserv := 0;
-            dwindex := 0;
-            if HttpQueryInfo(hFile, HTTP_QUERY_STATUS_CODE, @dwtype, dwcodelen, dwReserv) then begin
-              dwindex := strtoint(pchar(@dwtype));
-            end;
-          end;
-        end;
-        if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then begin
-          raise EProxyAuthError.Create('Ошибка уатентификации на Proxy');
-        end;
-      end;
-
-      repeat
-        err := not (internetReadFile(hFile, @Buffer, SizeOf(Buffer), BufferLen));
-        s := s + copy(Buffer,1,BufferLen);
-      until (BufferLen = 0) and (BufferLen < SizeOf(Buffer)) and (err = false);
-    finally
-      InternetCloseHandle(hFile);
-    end;
-  finally
-    InternetCloseHandle(hSession);
+  end else begin
+    VMessage := 'Код ошибки '+inttostr(VResultCode);
   end;
-  Result := s;
+  FOnGetLocation(TGeoCodeResult.Create('', VResultCode, VMessage, VList));
+end;
+
+procedure TGeoCoderBasic.SendRequest(ASearch: WideString; ACurrentPos: TDoublePoint; OnGetLocation:TGetLocation);
+begin
+  FOnGetLocation:=OnGetLocation;
+  shttp.InThread:=true;
+  shttp.OnWorkEnd:=OnSendRequestEndWork;
+  shttp.Request.Agent:='Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
+  shttp.Request.url.url:=PrepareURL(ASearch);
+  shttp.DoRequest;
 end;
 
 function TGeoCoderBasic.GetLocations(ASearch: WideString;
   ACurrentPos: TDoublePoint): IGeoCodeResult;
 var
-  VServerResult: string;
   VList: IInterfaceList;
   VResultCode: Integer;
   VMessage: WideString;
 begin
-  VResultCode := 200;
-  VMessage := '';
-  try
-    if not (ASearch = '') then begin
-      VServerResult := GetDataFromInet(ASearch);
-      VList := ParseStringToPlacemarksList(VServerResult, ASearch);
+  shttp.InThread:=false;
+  shttp.OnWorkEnd:=nil;
+  shttp.Request.Agent:='Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
+  shttp.Request.url.url:=PrepareURL(ASearch);
+  shttp.DoRequest;
+  VResultCode := shttp.Response.Code;
+  if VResultCode=200 then begin
+    VList := ParseStringToPlacemarksList(shttp.Response.Body, '');
+    if (VList=nil)or(VList.Count = 0) then begin
+      VResultCode := 404;
+      VMessage := 'Не найдено';
     end;
-  except
-    on E: EInternetOpenError do begin
-      VResultCode := 503;
-      VMessage := E.Message;
-    end;
-    on E: EProxyAuthError do begin
-      VResultCode := 407;
-      VMessage := E.Message;
-    end;
-    on E: EAnswerParseError do begin
-      VResultCode := 416;
-      VMessage := E.Message;
-    end;
-    on E: Exception do begin
-      VResultCode := 417;
-      VMessage := E.Message;
-    end;
+  end else begin
+    VMessage := 'Код ошибки '+inttostr(VResultCode);
   end;
-  if VList = nil then begin
-    VList := TInterfaceList.Create;
-  end;
-  if VList.Count = 0 then begin
-    VResultCode := 404;
-    VMessage := 'Не найдено';
-  end;
-  Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VList);
+  Result:=TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VList);
 end;
 
 function TGeoCoderBasic.URLEncode(const S: string): string;

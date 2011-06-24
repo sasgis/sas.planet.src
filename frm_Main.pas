@@ -39,6 +39,9 @@ uses
   TBXExtItems,
   TBXGraphics,
   TBXSASTheme,
+  rxAnimate,
+  rxGIFCtrl,
+  SwinHttp,
   u_CommonFormAndFrameParents,
   i_JclNotify,
   i_GUIDList,
@@ -343,6 +346,8 @@ type
     TBXItem10: TTBXItem;
     TBXItem11: TTBXItem;
     TBXItem12: TTBXItem;
+    SearchProgressGIF: TRxGIFAnimator;
+    TBControlItem3: TTBControlItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -561,6 +566,7 @@ type
     procedure MapLayersVisibleChange(Sender: TObject);
     procedure OnMainFormMainConfigChange(Sender: TObject);
     procedure OnTimerEvent(Sender: TObject);
+    procedure OnGetLocation(AResult: IGeoCodeResult);
 
     procedure CopyStringToClipboard(s: Widestring);
     procedure setalloperationfalse(newop: TAOperation);
@@ -3920,22 +3926,27 @@ begin
   end;
 end;
 
+procedure TfrmMain.OnGetLocation(AResult: IGeoCodeResult);
+begin                                 
+  SearchProgressGIF.Visible:=false;
+  FSearchPresenter.ShowSearchResults(AResult, FConfig.ViewPortState.GetVisualCoordConverter.GetZoom);
+end;
+
 procedure TfrmMain.TBXSearchEditAcceptText(Sender: TObject;
   var NewText: String; var Accept: Boolean);
 var
   VItem: IGeoCoderListEntity;
-  VResult: IGeoCodeResult;
   VLocalConverter: ILocalCoordConverter;
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
-  VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), VLocalConverter.GetCenterLonLat);
-  FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
+
+  VItem.GetGeoCoder.SendRequest(Trim(NewText), VLocalConverter.GetCenterLonLat, OnGetLocation);
+  SearchProgressGIF.Visible:=true;
 end;
 
 procedure TfrmMain.tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
 var
-  VResult: IGeoCodeResult;
   VToolbarItem: TTBCustomItem;
   VItem: IGeoCoderListEntity;
   VLocalConverter: ILocalCoordConverter;
@@ -3945,8 +3956,8 @@ begin
     VItem := IGeoCoderListEntity(VToolbarItem.Tag);
     if VItem <> nil then begin
       VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-      VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), VLocalConverter.GetCenterLonLat);
-      FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
+      VItem.GetGeoCoder.SendRequest(Trim(NewText), VLocalConverter.GetCenterLonLat, OnGetLocation);
+      SearchProgressGIF.Visible:=true;
     end;
   end;
 end;
