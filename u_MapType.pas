@@ -21,6 +21,7 @@ uses
   i_DownloadChecker,
   i_TileDownlodSession,
   i_LastResponseInfo,
+  i_MapVersionConfig,
   i_TileRequestBuilder,
   i_TileRequestBuilderConfig,
   i_IPoolOfObjectsSimple,
@@ -64,6 +65,7 @@ type
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
     FLastResponseInfo: ILastResponseInfo;
+    FVersionConfig: IMapVersionConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
     FTileDownloadResultFactoryProvider: ITileDownloadResultFactoryProvider;
@@ -192,6 +194,7 @@ uses
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
   u_LastResponseInfo,
+  u_MapVersionConfig,
   u_DownloadCheckerStuped,
   u_TileStorageGE,
   u_TileStorageFileSystem;
@@ -347,7 +350,7 @@ begin
   end else begin
     showinfo := False;
   end;
-
+  FVersionConfig.ReadConfig(VParams);
   LoadStorageParams(AConfig);
   LoadProjectionInfo(AConfig);
   LoadWebSourceParams(AConfig);
@@ -606,6 +609,7 @@ begin
   FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
   FLastResponseInfo := TLastResponseInfo.Create;
+  FVersionConfig := TMapVersionConfig.Create(Zmp.VersionConfig);
   LoadMapType(AConfig);
   if FasLayer then begin
     FLoadPrevMaxZoomDelta := 4;
