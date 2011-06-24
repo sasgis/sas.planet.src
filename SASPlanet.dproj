@@ -242,6 +242,7 @@
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownloadResult.pas" />
+    <DCCReference Include="i_TileDownloadResultFactoryProvider.pas" />
     <DCCReference Include="i_TileDownlodSession.pas" />
     <DCCReference Include="i_TileError.pas" />
     <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
@@ -630,6 +631,7 @@
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
     <DCCReference Include="u_TileDownloadResult.pas" />
+    <DCCReference Include="u_TileDownloadResultFactoryProvider.pas" />
     <DCCReference Include="u_TileErrorInfo.pas" />
     <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="u_TileFileNameES.pas" />

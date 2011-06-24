@@ -26,6 +26,7 @@ uses
   i_BitmapTypeExtManager,
   i_BitmapTileSaveLoad,
   i_KmlInfoSimpleLoader,
+  i_TileDownloadResultFactoryProvider,
   i_AntiBan,
   i_ZmpInfo,
   i_VectorDataItemSimple,
@@ -63,6 +64,7 @@ type
     FLanguageManager: ILanguageManager;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
+    FTileDownloadResultFactoryProvider: ITileDownloadResultFactoryProvider;
 
     function GetUseDwn: Boolean;
     function GetIsCanShowOnSmMap: boolean;
@@ -185,7 +187,7 @@ uses
   u_TileRequestBuilderConfig,
   u_TileRequestBuilderPascalScript,
   u_TileDownloaderBaseFactory,
-  u_DownloadResultFactoryTileDownload,
+  u_TileDownloadResultFactoryProvider,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
   u_DownloadCheckerStuped,
@@ -612,6 +614,7 @@ begin
   end else begin
     FLoadPrevMaxZoomDelta := 6;
   end;
+  FTileDownloadResultFactoryProvider := TTileDownloadResultFactoryProvider.Create(Self, GState.DownloadResultTextProvider);
 end;
 
 destructor TMapType.Destroy;
@@ -644,9 +647,8 @@ var
 begin
   if Self.UseDwn then begin
     VRequestHead := '';
-    VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersion).GetSize;
     GetRequest(ATile, AZoom, VUrl, VRequestHead);
-    VResultFactory := TDownloadResultFactoryTileDownload.Create(GState.DownloadResultTextProvider, AZoom, ATile, Self, VUrl, VRequestHead);
+    VResultFactory := FTileDownloadResultFactoryProvider.BuildFactory(AZoom, ATile, VUrl, VRequestHead);
     if VUrl = '' then begin
       Result := VResultFactory.BuildCanceled;
     end else begin
@@ -659,6 +661,7 @@ begin
         FAntiBan.PreDownload(VDownloader, ATile, AZoom, VUrl);
       end;
       VConfig := FTileDownloaderConfig.GetStatic;
+      VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersion).GetSize;
       VDownloadChecker := TDownloadCheckerStuped.Create(
         VResultFactory,
         VConfig.IgnoreMIMEType,

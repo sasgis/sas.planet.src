@@ -98,6 +98,8 @@ uses
   i_DownloadResultFactory in 'i_DownloadResultFactory.pas',
   u_DownloadResultFactorySimpleDownload in 'u_DownloadResultFactorySimpleDownload.pas',
   u_DownloadResultFactoryTileDownload in 'u_DownloadResultFactoryTileDownload.pas',
+  i_TileDownloadResultFactoryProvider in 'i_TileDownloadResultFactoryProvider.pas',
+  u_TileDownloadResultFactoryProvider in 'u_TileDownloadResultFactoryProvider.pas',
   i_DownloadChecker in 'i_DownloadChecker.pas',
   u_DownloadCheckerStuped in 'u_DownloadCheckerStuped.pas',
   u_ThreadDownloadTiles in 'RegionProcess\u_ThreadDownloadTiles.pas',
