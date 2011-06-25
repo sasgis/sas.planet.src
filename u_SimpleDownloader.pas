@@ -14,11 +14,39 @@ uses
   i_TileDownloaderConfig;
 
 type
+  TSimpleDownloaderThread = class (TThread)
+    private
+      FUrl: string;
+      FAcceptEncoding: string;
+      FRequestHead: string;
+      FRequestBuf: TMemoryStream;
+      FOnDownload: TSimpleDownloaderEvent;
+      FSimpleDownloader: ISimpleDownloader;
+      FResponseBuf: TMemoryStream;
+      FContentType: string;
+      FResponseHead: string;
+      FResponseCode: Cardinal;
+      procedure OnDownload;
+    protected
+      procedure Execute; override;
+    public
+      constructor Create(
+        AUrl: string;
+        AAcceptEncoding: string;
+        ARequestHead: string;
+        ARequestBuf: TMemoryStream;
+        AOnDownload: TSimpleDownloaderEvent;
+        ASimpleDownloader: ISimpleDownloader
+      );
+      destructor Destroy; override;
+  end;
+
   TSimpleDownloader = class (TInterfacedObject, ISimpleDownloader)
   private
     FHttpClient: TALWinInetHTTPClient;
     FResponseHeader: TALHTTPResponseHeader;
     FTileDownloaderConfig: ITileDownloaderConfig;
+    FThread: TSimpleDownloaderThread;
   public
     constructor Create(ATileDownloaderConfig: ITileDownloaderConfig);
     destructor Destroy; override;
@@ -31,9 +59,84 @@ type
       out AContentType: string;
       out AResponseHead: string
     ): Cardinal;
+    procedure GetFromInternetAsync(
+      AUrl: string;
+      AAcceptEncoding: string;
+      ARequestHead: string;
+      ARequestBuf: TMemoryStream;
+      AOnDownload: TSimpleDownloaderEvent
+    );
   end;
 
 implementation
+
+{ TSimpleDownloaderThread }
+
+constructor TSimpleDownloaderThread.Create(
+  AUrl: string;
+  AAcceptEncoding: string;
+  ARequestHead: string;
+  ARequestBuf: TMemoryStream;
+  AOnDownload: TSimpleDownloaderEvent;
+  ASimpleDownloader: ISimpleDownloader
+);
+begin
+  inherited Create(True);
+  FreeOnTerminate := True;
+  FUrl := AUrl;
+  FAcceptEncoding := AAcceptEncoding;
+  FRequestHead := ARequestHead;
+  FRequestBuf := ARequestBuf;
+  FOnDownload := AOnDownload;
+  FSimpleDownloader := ASimpleDownloader;
+  FResponseBuf := TMemoryStream.Create;
+  FContentType := '';
+  FResponseHead := '';
+  FResponseCode := 0;
+  Resume;
+end;
+
+destructor TSimpleDownloaderThread.Destroy;
+begin
+  FreeAndNil(FResponseBuf);
+  inherited Destroy;
+end;
+
+procedure TSimpleDownloaderThread.Execute;
+begin
+  try
+    try
+      if FSimpleDownloader <> nil then begin
+        FResponseCode := FSimpleDownloader.GetFromInternet(
+          FUrl,
+          FAcceptEncoding,
+          FRequestHead,
+          FRequestBuf,
+          FResponseBuf,
+          FContentType,
+          FResponseHead
+        );
+      end;
+    finally
+      if Assigned(FOnDownload) then begin
+        Synchronize(Self, OnDownload);
+      end;
+    end;
+  finally
+    Terminate;
+  end;
+end;
+
+procedure TSimpleDownloaderThread.OnDownload;
+begin
+  FOnDownload(
+    Self,
+    FResponseCode,
+    FContentType,
+    FResponseHead,
+    FResponseBuf
+  );
+end;
 
 { TSimpleDownloader }
 
@@ -41,6 +144,7 @@ constructor TSimpleDownloader.Create(ATileDownloaderConfig: ITileDownloaderConfi
 begin
   inherited Create;
   FTileDownloaderConfig := ATileDownloaderConfig;
+  FThread := nil;
 end;
 
 destructor TSimpleDownloader.Destroy;
@@ -51,6 +155,10 @@ begin
     end;
     if Assigned(FResponseHeader) then begin
       FreeAndNil(FResponseHeader);
+    end;
+    if FThread <> nil then begin
+      FThread.Terminate;
+      FThread := nil;
     end;
   finally
     inherited Destroy;
@@ -158,6 +266,26 @@ begin
         end;
       end;
     end;
+  end;
+end;
+
+procedure TSimpleDownloader.GetFromInternetAsync(
+  AUrl: string;
+  AAcceptEncoding: string;
+  ARequestHead: string;
+  ARequestBuf: TMemoryStream;
+  AOnDownload: TSimpleDownloaderEvent
+);
+begin
+  if FThread = nil then begin
+    FThread := TSimpleDownloaderThread.Create(
+      AUrl,
+      AAcceptEncoding,
+      ARequestHead,
+      ARequestBuf,
+      AOnDownload,
+      Self
+    );
   end;
 end;
 
