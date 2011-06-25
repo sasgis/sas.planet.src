@@ -52,12 +52,10 @@ var
   ms:TMemoryStream;
   url:string;
   i:integer;
-  kml:IVectorDataItemList;
-  s,l:integer;
+  s:integer;
   conerr:boolean;
   add_line_arr_b:TArrayOfDoublePoint;
-  VItem: IVectorDataItemSimple;
-
+  
   pathstr,timeT1:string;
   posit,posit2,dd,seconds,meters:integer;
   dateT1:TDateTime;

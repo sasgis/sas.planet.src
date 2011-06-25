@@ -1971,72 +1971,7 @@ begin
 end;
 
 procedure TfrmMain.OnTimerEvent(Sender: TObject);
-var
-  VGPSNewPos: TDoublePoint;
-  VCenterToGPSDelta: TDoublePoint;
-  VPointDelta: TDoublePoint;
-  VCenterMapPoint: TDoublePoint;
-  VGPSMapPoint: TDoublePoint;
-  VPosition: IGPSPosition;
-  VConverter: ILocalCoordConverter;
-  VMapMove: Boolean;
-  VMapMoveCentred: Boolean;
-  VMinDelta: Double;
-  VProcessGPSIfActive: Boolean;
-  VDelta: Double;
 begin
-  if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
-    VPosition := GState.GPSRecorder.CurrentPosition;
-    if frmSettings.Visible then frmSettings.SatellitePaint;
-    if TBXSignalStrengthBar.Visible then UpdateGPSSatellites(VPosition);
-    if (VPosition.IsFix=0) then exit;
-    if not((FMapMoving)or(FMapZoomAnimtion)) then begin
-      FConfig.GPSBehaviour.LockRead;
-      try
-        VMapMove := FConfig.GPSBehaviour.MapMove;
-        VMapMoveCentred := FConfig.GPSBehaviour.MapMoveCentered;
-        VMinDelta := FConfig.GPSBehaviour.MinMoveDelta;
-        VProcessGPSIfActive := FConfig.GPSBehaviour.ProcessGPSIfActive;
-      finally
-        FConfig.GPSBehaviour.UnlockRead;
-      end;
-      if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
-        if (VMapMove) then begin
-          VGPSNewPos := VPosition.Position;
-          if VMapMoveCentred then begin
-            VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-            VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
-            VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
-            VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
-            VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
-            VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
-            if VDelta > VMinDelta then begin
-              FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
-            end;
-          end else begin
-            VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-            VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
-            if PixelPointInRect(VGPSMapPoint, VConverter.GetRectInMapPixelFloat) then  begin
-              VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
-              VCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
-              VCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
-              VPointDelta := FCenterToGPSDelta;
-              if PointIsEmpty(VPointDelta) then begin
-                FCenterToGPSDelta := VCenterToGPSDelta;
-              end else begin
-                VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
-                VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
-                VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
-                if VDelta > VMinDelta then begin
-                  FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
-                end;
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
-  end;
   FLayerStatBar.Redraw;
 end;
 
@@ -2953,8 +2888,70 @@ begin
 end;
 
 procedure TfrmMain.GPSReceiverReceive(Sender: TObject);
+var
+  VGPSNewPos: TDoublePoint;
+  VCenterToGPSDelta: TDoublePoint;
+  VPointDelta: TDoublePoint;
+  VCenterMapPoint: TDoublePoint;
+  VGPSMapPoint: TDoublePoint;
+  VPosition: IGPSPosition;
+  VConverter: ILocalCoordConverter;
+  VMapMove: Boolean;
+  VMapMoveCentred: Boolean;
+  VMinDelta: Double;
+  VProcessGPSIfActive: Boolean;
+  VDelta: Double;
 begin
-  InterlockedIncrement(FGpsPosChangeCounter);
+  VPosition := GState.GPSRecorder.CurrentPosition;
+  if frmSettings.Visible then frmSettings.SatellitePaint;
+  if TBXSignalStrengthBar.Visible then UpdateGPSSatellites(VPosition);
+  if (VPosition.IsFix=0) then exit;
+  if not((FMapMoving)or(FMapZoomAnimtion)) then begin
+    FConfig.GPSBehaviour.LockRead;
+    try
+      VMapMove := FConfig.GPSBehaviour.MapMove;
+      VMapMoveCentred := FConfig.GPSBehaviour.MapMoveCentered;
+      VMinDelta := FConfig.GPSBehaviour.MinMoveDelta;
+      VProcessGPSIfActive := FConfig.GPSBehaviour.ProcessGPSIfActive;
+    finally
+      FConfig.GPSBehaviour.UnlockRead;
+    end;
+    if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
+      if (VMapMove) then begin
+        VGPSNewPos := VPosition.Position;
+        if VMapMoveCentred then begin
+          VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+          VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
+          VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
+          VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
+          VPointDelta.Y := VCenterMapPoint.Y - VGPSMapPoint.Y;
+          VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+          if VDelta > VMinDelta then begin
+            FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
+          end;
+        end else begin
+          VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+          VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
+          if PixelPointInRect(VGPSMapPoint, VConverter.GetRectInMapPixelFloat) then  begin
+            VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
+            VCenterToGPSDelta.X := VGPSMapPoint.X - VCenterMapPoint.X;
+            VCenterToGPSDelta.Y := VGPSMapPoint.Y - VCenterMapPoint.Y;
+            VPointDelta := FCenterToGPSDelta;
+            if PointIsEmpty(VPointDelta) then begin
+              FCenterToGPSDelta := VCenterToGPSDelta;
+            end else begin
+              VPointDelta.X := VCenterToGPSDelta.X - VPointDelta.X;
+              VPointDelta.Y := VCenterToGPSDelta.Y - VPointDelta.Y;
+              VDelta := Sqrt(Sqr(VPointDelta.X) + Sqr(VPointDelta.Y));
+              if VDelta > VMinDelta then begin
+                FConfig.ViewPortState.ChangeMapPixelByDelta(VPointDelta);
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmMain.GPSReceiverStateChange(Sender: TObject);

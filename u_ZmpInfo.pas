@@ -8,6 +8,7 @@ uses
   Classes,
   i_CoordConverter,
   i_ConfigDataProvider,
+  i_MapVersionConfig,
   i_TileRequestBuilderConfig,
   i_TileDownloaderConfig,
   i_LanguageManager,
@@ -31,6 +32,7 @@ type
     FParentSubMenuDef: string;
     FParentSubMenu: string;
     FEnabled: Boolean;
+    FVersionConfig: IMapVersionConfigStatic;
     FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     FTileDownloaderConfig: ITileDownloaderConfigStatic;
     FGeoConvert: ICoordConverter;
@@ -46,6 +48,7 @@ type
       ACoordConverterFactory: ICoordConverterFactory
     );
     function LoadGUID(AConfig : IConfigDataProvider): TGUID;
+    procedure LoadVersion(AConfig : IConfigDataProvider);
     procedure LoadIcons(AConfig : IConfigDataProvider);
     procedure LoadProjectionInfo(
       AConfig : IConfigDataProvider;
@@ -71,6 +74,7 @@ type
     function GetSeparator: Boolean;
     function GetParentSubMenu: string;
     function GetEnabled: Boolean;
+    function GetVersionConfig: IMapVersionConfigStatic;
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     function GetGeoConvert: ICoordConverter;
@@ -97,6 +101,7 @@ uses
   gnugettext,
   u_TileRequestBuilderConfig,
   u_TileDownloaderConfigStatic,
+  u_MapVersionConfig,
   u_ResStrings;
 
 { TZmpInfo }
@@ -209,6 +214,11 @@ begin
   Result := FTileRequestBuilderConfig;
 end;
 
+function TZmpInfo.GetVersionConfig: IMapVersionConfigStatic;
+begin
+  Result := FVersionConfig;
+end;
+
 procedure TZmpInfo.LoadByLang(ALanguageCode: string);
 begin
   LoadInfoLang(FConfig, ALanguageCode);
@@ -218,6 +228,7 @@ end;
 procedure TZmpInfo.LoadConfig(ACoordConverterFactory: ICoordConverterFactory);
 begin
   FGUID := LoadGUID(FConfigIniParams);
+  LoadVersion(FConfigIniParams);
   LoadUIParams(FConfigIniParams);
   LoadIcons(FConfig);
   LoadInfo(FConfig);
@@ -356,6 +367,14 @@ procedure TZmpInfo.LoadUIParamsLang(AConfig: IConfigDataProvider; ALanguageCode:
 begin
   FName := AConfig.ReadString('name_' + ALanguageCode, FNameDef);
   FParentSubMenu := AConfig.ReadString('ParentSubMenu_' + ALanguageCode, FParentSubMenuDef);
+end;
+
+procedure TZmpInfo.LoadVersion(AConfig: IConfigDataProvider);
+var
+  VVersion: Variant;
+begin
+  VVersion := AConfig.ReadString('Version', '');
+  FVersionConfig := TMapVersionConfigStatic.Create(VVersion);
 end;
 
 end.

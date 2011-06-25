@@ -13,6 +13,10 @@ type
     procedure SetGPSEnabled(AValue: Boolean);
     property GPSEnabled: Boolean read GetGPSEnabled write SetGPSEnabled;
 
+    function GetNoDataTimeOut: Integer;
+    procedure SetNoDataTimeOut(AValue: Integer);
+    property NoDataTimeOut: Integer read GetNoDataTimeOut write SetNoDataTimeOut;
+
     function GetWriteLog: Boolean;
     procedure SetWriteLog(AValue: Boolean);
     property WriteLog: Boolean read GetWriteLog write SetWriteLog;

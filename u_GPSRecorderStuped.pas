@@ -15,6 +15,7 @@ uses
 type
   TGPSRecorderStuped = class(TConfigDataElementBase, IGPSRecorder)
   private
+    FGPSPositionFactory: IGPSPositionFactory;
     FDatum: IDatum;
     FTrack: TGPSTrackPointArray;
     FPointsCount: Integer;
@@ -39,6 +40,7 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     procedure AddPoint(APosition: IGPSPosition);
+    procedure AddEmptyPoint;
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function LastPoints(AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
@@ -75,9 +77,10 @@ uses
 constructor TGPSRecorderStuped.Create(ADatum: IDatum; AGPSPositionFactory: IGPSPositionFactory);
 begin
   inherited Create;
+  FGPSPositionFactory := AGPSPositionFactory;
   FDatum := ADatum;
   FLastPointIsEmpty := True;
-  FCurrentPosition := AGPSPositionFactory.BuildPositionEmpty;
+  FCurrentPosition := FGPSPositionFactory.BuildPositionEmpty;
 end;
 
 destructor TGPSRecorderStuped.Destroy;
@@ -102,6 +105,33 @@ begin
   inherited;
   AConfigData.WriteFloat('Odometer1', FOdometer1);
   AConfigData.WriteFloat('Odometer2', FOdometer2);
+end;
+
+procedure TGPSRecorderStuped.AddEmptyPoint;
+begin
+  LockWrite;
+  try
+    if (not FLastPointIsEmpty) then begin
+      if FPointsCount >= FAllocatedPoints then begin
+        if FAllocatedPoints <= 0 then begin
+          FAllocatedPoints := 4096;
+        end else begin
+          Inc(FAllocatedPoints, 4096);
+        end;
+        SetLength(FTrack, FAllocatedPoints);
+      end;
+      FTrack[FPointsCount].Point.X := NaN;
+      FTrack[FPointsCount].Point.Y := NaN;
+      FTrack[FPointsCount].Speed := 0;
+      FTrack[FPointsCount].Time := NaN;
+      Inc(FPointsCount);
+      FLastPointIsEmpty := True;
+      SetChanged;
+    end;
+    FCurrentPosition := FGPSPositionFactory.BuildPositionEmpty;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TGPSRecorderStuped.AddPoint(APosition: IGPSPosition);
