@@ -11,8 +11,7 @@ uses
   SyncObjs,
   i_InetConfig,
   i_ProxySettings,
-  i_SimpleDownloader,
-  i_TileDownloaderConfig;
+  i_SimpleDownloader;
 
 type
   TSimpleDownloaderThread = class (TThread)
