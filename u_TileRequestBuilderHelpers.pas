@@ -1,4 +1,4 @@
-unit u_UrlGeneratorHelpers;
+unit u_TileRequestBuilderHelpers;
 
 interface
 
@@ -183,6 +183,5 @@ begin
   else
     Result := '';
 end;
-
 
 end.

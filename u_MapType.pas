@@ -20,15 +20,18 @@ uses
   i_CoordConverter,
   i_DownloadChecker,
   i_TileDownlodSession,
+  i_LastResponseInfo,
+  i_MapVersionConfig,
+  i_TileRequestBuilder,
   i_TileRequestBuilderConfig,
   i_IPoolOfObjectsSimple,
   i_BitmapTypeExtManager,
   i_BitmapTileSaveLoad,
   i_KmlInfoSimpleLoader,
+  i_TileDownloadResultFactoryProvider,
   i_AntiBan,
   i_ZmpInfo,
   i_VectorDataItemSimple,
-  u_UrlGenerator,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract,
   u_ResStrings;
@@ -51,7 +54,7 @@ type
     FMimeTypeSubstList: TStringList;
     FCache: ITileObjCache;
     FStorage: TTileStorageAbstract;
-    FUrlGenerator : TUrlGeneratorBasic;
+    FTileRequestBuilder: ITileRequestBuilder;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IKmlInfoSimpleLoader;
@@ -61,8 +64,11 @@ type
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
+    FLastResponseInfo: ILastResponseInfo;
+    FVersionConfig: IMapVersionConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
+    FTileDownloadResultFactoryProvider: ITileDownloadResultFactoryProvider;
 
     function GetUseDwn: Boolean;
     function GetIsCanShowOnSmMap: boolean;
@@ -100,7 +106,6 @@ type
     Enabled: boolean;
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
-    procedure GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
@@ -181,11 +186,15 @@ uses
   i_TileInfoBasic,
   u_PoolOfObjectsSimple,
   u_TileDownloaderConfig,
+  u_TileRequestBuilder,
   u_TileRequestBuilderConfig,
+  u_TileRequestBuilderPascalScript,
   u_TileDownloaderBaseFactory,
-  u_DownloadResultFactoryTileDownload,
+  u_TileDownloadResultFactoryProvider,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
+  u_LastResponseInfo,
+  u_MapVersionConfig,
   u_DownloadCheckerStuped,
   u_TileStorageGE,
   u_TileStorageFileSystem;
@@ -196,24 +205,22 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FTileRequestBuilderConfig.ReadConfig(VParams);
+  FTileRequestBuilder := nil;
   if FUseDwn then begin
     try
-      FUrlGenerator := TUrlGenerator.Create(FTileRequestBuilderConfig, AConfig);
-      //GetLink(0,0,0);
+      FTileRequestBuilder := TTileRequestBuilderPascalScript.Create(FTileRequestBuilderConfig, AConfig);
     except
       on E: Exception do begin
-        ShowMessageFmt(SAS_ERR_UrlScriptError, [name, E.Message, Zmp.FileName]);
-        FUrlGenerator := nil;
-        FUseDwn := False;
+        ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.Name, E.Message, FZmp.FileName]);
+        FTileRequestBuilder := nil;
       end;
-     else
-      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [name, Zmp.FileName]);
-      FUrlGenerator := nil;
-      FUseDwn := False;
+    else
+      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.Name, FZmp.FileName]);
+      FTileRequestBuilder := nil;
     end;
   end;
-  if FUrlGenerator = nil then begin
-    FUrlGenerator := TUrlGeneratorBasic.Create(FTileRequestBuilderConfig);
+  if FTileRequestBuilder = nil then begin
+    FUseDwn := False;
   end;
 end;
 
@@ -343,7 +350,7 @@ begin
   end else begin
     showinfo := False;
   end;
-
+  FVersionConfig.ReadConfig(VParams);
   LoadStorageParams(AConfig);
   LoadProjectionInfo(AConfig);
   LoadWebSourceParams(AConfig);
@@ -356,14 +363,10 @@ end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
-  FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-  Result:=FUrlGenerator.GenLink(AXY.X, AXY.Y, Azoom);
-end;
-
-procedure TMapType.GetRequest(AXY: TPoint; Azoom: byte; out AUrl, AHead: string);
-begin
-  FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-  FUrlGenerator.GenRequest(AXY.X, AXY.Y, Azoom, AUrl, AHead);
+  if FUseDwn then begin
+    FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
+    Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom, FVersion);
+  end;
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -605,18 +608,20 @@ begin
   FMimeTypeSubstList := nil;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
+  FLastResponseInfo := TLastResponseInfo.Create;
+  FVersionConfig := TMapVersionConfig.Create(Zmp.VersionConfig);
   LoadMapType(AConfig);
   if FasLayer then begin
     FLoadPrevMaxZoomDelta := 4;
   end else begin
     FLoadPrevMaxZoomDelta := 6;
   end;
+  FTileDownloadResultFactoryProvider := TTileDownloadResultFactoryProvider.Create(Self, GState.DownloadResultTextProvider);
 end;
 
 destructor TMapType.Destroy;
 begin
   FreeAndNil(FMimeTypeSubstList);
-  FreeAndNil(FUrlGenerator);
   FCoordConverter := nil;
   FPoolOfDownloaders := nil;
   FCache := nil;
@@ -642,11 +647,11 @@ var
   VOldTileSize: Integer;
   VResultStream: TMemoryStream;
 begin
-  if Self.UseDwn then begin
+  if FUseDwn then begin
     VRequestHead := '';
-    VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersion).GetSize;
-    GetRequest(ATile, AZoom, VUrl, VRequestHead);
-    VResultFactory := TDownloadResultFactoryTileDownload.Create(GState.DownloadResultTextProvider, AZoom, ATile, Self, VUrl, VRequestHead);
+    FCoordConverter.CheckTilePosStrict(ATile, AZoom, True);
+    FTileRequestBuilder.BuildRequest(ATile, AZoom, FVersion, FLastResponseInfo, VUrl, VRequestHead);
+    VResultFactory := FTileDownloadResultFactoryProvider.BuildFactory(AZoom, ATile, VUrl, VRequestHead);
     if VUrl = '' then begin
       Result := VResultFactory.BuildCanceled;
     end else begin
@@ -659,6 +664,7 @@ begin
         FAntiBan.PreDownload(VDownloader, ATile, AZoom, VUrl);
       end;
       VConfig := FTileDownloaderConfig.GetStatic;
+      VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersion).GetSize;
       VDownloadChecker := TDownloadCheckerStuped.Create(
         VResultFactory,
         VConfig.IgnoreMIMEType,
@@ -678,7 +684,7 @@ begin
       end;
     end;
     if Supports(Result, IDownloadResultOk, VResultOk) then begin
-      FUrlGenerator.ResponseHead := VResultOk.RawResponseHeader;
+      FLastResponseInfo.ResponseHead := VResultOk.RawResponseHeader;
       VResultStream := TMemoryStream.Create;
       try
         VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);

@@ -176,6 +176,7 @@
     <DCCReference Include="i_KmlInfoSimpleLoader.pas" />
     <DCCReference Include="i_KmlLayerConfig.pas" />
     <DCCReference Include="i_LanguageManager.pas" />
+    <DCCReference Include="i_LastResponseInfo.pas" />
     <DCCReference Include="i_LastSelectionInfo.pas" />
     <DCCReference Include="i_LastSelectionLayerConfig.pas" />
     <DCCReference Include="i_LayerBitmapClearStrategy.pas" />
@@ -197,6 +198,7 @@
     <DCCReference Include="i_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />
+    <DCCReference Include="i_MapVersionConfig.pas" />
     <DCCReference Include="i_MapViewGoto.pas" />
     <DCCReference Include="i_MapZoomingConfig.pas" />
     <DCCReference Include="i_MarkCategory.pas" />
@@ -242,6 +244,7 @@
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownloadResult.pas" />
+    <DCCReference Include="i_TileDownloadResultFactoryProvider.pas" />
     <DCCReference Include="i_TileDownlodSession.pas" />
     <DCCReference Include="i_TileError.pas" />
     <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
@@ -519,6 +522,7 @@
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
     <DCCReference Include="u_LanguageTBXItem.pas" />
+    <DCCReference Include="u_LastResponseInfo.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
     <DCCReference Include="u_LastSelectionLayerConfig.pas" />
     <DCCReference Include="u_LayerBitmapClearStrategy.pas" />
@@ -556,6 +560,7 @@
     <DCCReference Include="u_MapTypeList.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypesMainList.pas" />
+    <DCCReference Include="u_MapVersionConfig.pas" />
     <DCCReference Include="u_MapViewGotoOnFMain.pas" />
     <DCCReference Include="u_MapViewPortStateNew.pas" />
     <DCCReference Include="u_MapZoomingConfig.pas" />
@@ -619,6 +624,7 @@
     <DCCReference Include="u_SensorViewListGeneratorStuped.pas" />
     <DCCReference Include="u_SensorViewTextTBXPanel.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
+    <DCCReference Include="u_SimpleDownloader.pas" />
     <DCCReference Include="u_StatBarConfig.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
@@ -630,6 +636,7 @@
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
     <DCCReference Include="u_TileDownloadResult.pas" />
+    <DCCReference Include="u_TileDownloadResultFactoryProvider.pas" />
     <DCCReference Include="u_TileErrorInfo.pas" />
     <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="u_TileFileNameES.pas" />
@@ -644,7 +651,10 @@
     <DCCReference Include="u_TileIteratorByRect.pas" />
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="u_TileIteratorStuped.pas" />
+    <DCCReference Include="u_TileRequestBuilder.pas" />
     <DCCReference Include="u_TileRequestBuilderConfig.pas" />
+    <DCCReference Include="u_TileRequestBuilderHelpers.pas" />
+    <DCCReference Include="u_TileRequestBuilderPascalScript.pas" />
     <DCCReference Include="u_TileStorageAbstract.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />
