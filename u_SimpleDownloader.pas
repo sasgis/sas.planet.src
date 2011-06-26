@@ -277,6 +277,10 @@ procedure TSimpleDownloader.GetFromInternetAsync(
   AOnDownload: TSimpleDownloaderEvent
 );
 begin
+  if FThread <> nil then begin
+    FThread.Terminate;
+    FThread := nil;
+  end;
   if FThread = nil then begin
     FThread := TSimpleDownloaderThread.Create(
       AUrl,
@@ -286,6 +290,10 @@ begin
       AOnDownload,
       Self
     );
+  end else begin
+    if Assigned(AOnDownload) then begin
+      AOnDownload(Self, 0, '', '', nil);
+    end;
   end;
 end;
 
