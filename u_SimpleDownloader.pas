@@ -45,10 +45,10 @@ type
   private
     FHttpClient: TALWinInetHTTPClient;
     FResponseHeader: TALHTTPResponseHeader;
-    FTileDownloaderConfig: ITileDownloaderConfig;
+    FInetConfig: IInetConfig;
     FThread: TSimpleDownloaderThread;
   public
-    constructor Create(ATileDownloaderConfig: ITileDownloaderConfig);
+    constructor Create(AInetConfig: IInetConfig);
     destructor Destroy; override;
     function GetFromInternet(
       AUrl: string;
@@ -140,10 +140,10 @@ end;
 
 { TSimpleDownloader }
 
-constructor TSimpleDownloader.Create(ATileDownloaderConfig: ITileDownloaderConfig);
+constructor TSimpleDownloader.Create(AInetConfig: IInetConfig);
 begin
   inherited Create;
-  FTileDownloaderConfig := ATileDownloaderConfig;
+  FInetConfig := AInetConfig;
   FThread := nil;
 end;
 
@@ -194,7 +194,7 @@ begin
     try
       FResponseHeader.Clear;
 
-      VInternetConfigStatic := FTileDownloaderConfig.GetStatic.InetConfigStatic;
+      VInternetConfigStatic := FInetConfig.GetStatic;
 
       FHttpClient.RequestHeader.UserAgent := VInternetConfigStatic.UserAgentString;
 

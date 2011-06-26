@@ -41,7 +41,6 @@ uses
   TBXSASTheme,
   rxAnimate,
   rxGIFCtrl,
-  SwinHttp,
   u_CommonFormAndFrameParents,
   i_JclNotify,
   i_GUIDList,
@@ -3928,7 +3927,7 @@ end;
 
 procedure TfrmMain.OnGetLocation(AResult: IGeoCodeResult);
 begin                                 
-  SearchProgressGIF.Visible:=false;
+  SearchProgressGIF.Visible := False;
   FSearchPresenter.ShowSearchResults(AResult, FConfig.ViewPortState.GetVisualCoordConverter.GetZoom);
 end;
 
@@ -3938,11 +3937,10 @@ var
   VItem: IGeoCoderListEntity;
   VLocalConverter: ILocalCoordConverter;
 begin
+  SearchProgressGIF.Visible := True;
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
-
-  VItem.GetGeoCoder.SendRequest(Trim(NewText), VLocalConverter.GetCenterLonLat, OnGetLocation);
-  SearchProgressGIF.Visible:=true;
+  VItem.GetGeoCoder.GetLocationsAsync(Trim(NewText), VLocalConverter.GetCenterLonLat, OnGetLocation);
 end;
 
 procedure TfrmMain.tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
@@ -3955,9 +3953,9 @@ begin
     VToolbarItem := TTBCustomItem(Sender);
     VItem := IGeoCoderListEntity(VToolbarItem.Tag);
     if VItem <> nil then begin
+      SearchProgressGIF.Visible := True;
       VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-      VItem.GetGeoCoder.SendRequest(Trim(NewText), VLocalConverter.GetCenterLonLat, OnGetLocation);
-      SearchProgressGIF.Visible:=true;
+      VItem.GetGeoCoder.GetLocationsAsync(Trim(NewText), VLocalConverter.GetCenterLonLat, OnGetLocation);
     end;
   end;
 end;
