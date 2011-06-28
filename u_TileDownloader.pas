@@ -3,35 +3,43 @@ unit u_TileDownloader;
 interface
 
 uses
+  Windows,
   SysUtils,
   SyncObjs,
   i_ConfigDataProvider,
-  i_RequestBuilderScript,
+  i_InetConfig,
+  i_TileRequestBuilder,
+  i_TileRequestBuilderConfig,
   i_TileDownloader,
   i_TileDownloaderConfig,
-  i_ZmpInfo,
-  u_TileDownloaderConfig;
+  i_ZmpInfo;
 
 type
   TTileDownloader = class(TInterfacedObject, ITileDownloader)
   protected
     FEnabled: Boolean;
-    FMapName: string;
     FZmp: IZmpInfo;
     FMaxConnectToServerCount: Cardinal;
-    FRequestBuilderScript: IRequestBuilderScript;
+    FTileRequestBuilder: ITileRequestBuilder;
+    FTileRequestBuilderConfig: ITileRequestBuilderConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
+    FInetConfig: IInetConfig;
     FCS: TCriticalSection;
     procedure Lock;
     procedure UnLock;
-    function GetRequestBuilderScript: IRequestBuilderScript;
+    function GetTileRequestBuilderConfig: ITileRequestBuilderConfig;
     function GetTileDownloaderConfig: ITileDownloaderConfig;
     function GetIsEnabled: Boolean;
   public
-    constructor Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
+    constructor Create(
+      AConfig: IConfigDataProvider;
+      AInetConfig: IInetConfig;
+      AZmp: IZmpInfo
+    );
     destructor Destroy; override;
-    procedure Download(AEvent: ITileDownloaderEvent); virtual;
-    property RequestBuilderScript: IRequestBuilderScript read GetRequestBuilderScript;
+    function GetTileUrl(ATileXY: TPoint; AZoom: Byte): string; virtual; abstract;
+    procedure Download(AEvent: ITileDownloaderEvent); virtual; abstract;
+    property TileRequestBuilderConfig: ITileRequestBuilderConfig read GetTileRequestBuilderConfig;
     property TileDownloaderConfig: ITileDownloaderConfig read GetTileDownloaderConfig;
     property Enabled: Boolean read GetIsEnabled;
   end;
@@ -39,20 +47,28 @@ type
 implementation
 
 uses
-  u_GlobalState;
+  u_TileRequestBuilderConfig,
+  u_TileDownloaderConfig;
 
 { TTileDownloader }
 
-constructor TTileDownloader.Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
+constructor TTileDownloader.Create(
+  AConfig: IConfigDataProvider;
+  AInetConfig: IInetConfig;
+  AZmp: IZmpInfo
+);
 var
   VParams: IConfigDataProvider;
 begin
   inherited Create;
+  FInetConfig := AInetConfig;
   FZmp := AZmp;
   FEnabled := False;
   FCS := TCriticalSection.Create;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, FZmp.TileDownloaderConfig);
+  FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(FZmp.TileRequestBuilderConfig);
+  FTileRequestBuilderConfig.ReadConfig(VParams);
+  FTileDownloaderConfig := TTileDownloaderConfig.Create(FInetConfig, FZmp.TileDownloaderConfig);
   FTileDownloaderConfig.ReadConfig(VParams);
   FMaxConnectToServerCount := FTileDownloaderConfig.MaxConnectToServerCount;
 end;
@@ -63,16 +79,11 @@ begin
   inherited Destroy;
 end;
 
-procedure TTileDownloader.Download(AEvent: ITileDownloaderEvent);
-begin
-  // virtual
-end;
-
-function TTileDownloader.GetRequestBuilderScript: IRequestBuilderScript;
+function TTileDownloader.GetTileRequestBuilderConfig: ITileRequestBuilderConfig;
 begin
   Lock;
   try
-    Result := FRequestBuilderScript;
+    Result := FTileRequestBuilderConfig;
   finally
     Unlock;
   end;

@@ -64,7 +64,6 @@ type
     FTileDownloader: TTileDownloaderFrontEnd;
     FVersionConfig: IMapVersionConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
-    FRequestBuilderScript: IRequestBuilderScript;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
     FTileDownloadResultFactoryProvider: ITileDownloadResultFactoryProvider;
 
@@ -186,8 +185,6 @@ uses
   u_TileStorageGE,
   u_TileStorageFileSystem;
 
-  FTileRequestBuilder := nil;
-
 procedure TMapType.LoadStorageParams(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
@@ -297,10 +294,12 @@ end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
-  if FUseDwn then begin
+  if FUseDwn and Assigned(FTileDownloader) then begin
     FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-    Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom, FVersion);
+    Result := FTileDownloader.GetTileUrl(AXY, AZoom);
   end;
+end;
+
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
   Result := FStorage.GetTileFileName(AXY, Azoom, FVersion);
@@ -549,16 +548,17 @@ begin
     FLoadPrevMaxZoomDelta := 6;
   end;
   FTileDownloadResultFactoryProvider := TTileDownloadResultFactoryProvider.Create(Self, GState.DownloadResultTextProvider);
-  FTileDownloader := TTileDownloaderFrontEnd.Create(AConfig, FZmp);
+
+  FTileDownloader := TTileDownloaderFrontEnd.Create(AConfig, GState.InetConfig, FZmp);
   if Assigned(FTileDownloader) then begin
     FUseDwn := FTileDownloader.UseDwn;
-    FRequestBuilderScript := FTileDownloader.RequestBuilderScript;
+    FTileRequestBuilderConfig := FTileDownloader.TileRequestBuilderConfig;
     FTileDownloaderConfig := FTileDownloader.TileDownloaderConfig;
   end else begin
     FUseDwn := False;
     FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, Zmp.TileDownloaderConfig);
     FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
-    FRequestBuilderScript := nil;
+    FTileRequestBuilder := nil;
   end;
 
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
@@ -567,8 +567,7 @@ begin
   end;
   if FTileDownloaderConfig <> nil then begin
     FTileDownloaderConfig.ReadConfig(VParams);
-  end;
-
+  end; 
 end;
 
 destructor TMapType.Destroy;
@@ -591,7 +590,6 @@ begin
     end else if Supports(AEvent.DownloadResult, IDownloadResultDataNotExists) then begin
       if GState.SaveTileNotExists then begin
         SaveTileNotExists(AEvent.TileXY, AEvent.TileZoom);
-      VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersion).GetSize;
       end;
     end;
   end;

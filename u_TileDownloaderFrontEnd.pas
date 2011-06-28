@@ -3,26 +3,32 @@ unit u_TileDownloaderFrontEnd;
 interface
 
 uses
+  Windows,
   SysUtils,
   i_ConfigDataProvider,
-  i_RequestBuilderScript,
+  i_InetConfig,
+  i_TileRequestBuilderConfig,
   i_TileDownloader,
   i_TileDownloaderConfig,
-  i_ZmpInfo,
-  u_TileDownloaderBaseCore;
+  i_ZmpInfo;
 
 type
   TTileDownloaderFrontEnd = class
   private
     FDownloader: ITileDownloader;
-    FRequestBuilderScript: IRequestBuilderScript;
+    FTileRequestBuilderConfig: ITileRequestBuilderConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FUseDwn: Boolean;
   public
-    constructor Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
+    constructor Create(
+      AConfig: IConfigDataProvider;
+      AInetConfig: IInetConfig;
+      AZmp: IZmpInfo
+    );
     destructor Destroy; override;
+    function GetTileUrl(ATileXY: TPoint; AZoom: Byte): string;
     procedure Download(AEvent: ITileDownloaderEvent);
-    property RequestBuilderScript: IRequestBuilderScript read FRequestBuilderScript;
+    property TileRequestBuilderConfig: ITileRequestBuilderConfig read FTileRequestBuilderConfig;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
     property UseDwn: Boolean read FUseDwn;
   end;
@@ -30,39 +36,40 @@ type
 implementation
 
 uses
-  gnugettext;
+  u_TileDownloaderBaseCore;
 
 { TTileDownloaderFrontEnd }
 
-constructor TTileDownloaderFrontEnd.Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
+constructor TTileDownloaderFrontEnd.Create(
+  AConfig: IConfigDataProvider;
+  AInetConfig: IInetConfig;
+  AZmp: IZmpInfo
+);
 var
   VParams: IConfigDataProvider;
   VDownloaderStr: string;
 begin
   inherited Create;
   FDownloader := nil;
-  FRequestBuilderScript := nil;
+  FTileRequestBuilderConfig := nil;
   FTileDownloaderConfig := nil;
   FUseDwn := False;
   try
     VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
     VDownloaderStr := VParams.ReadString('Downloader', 'sasplanet');
-    if LowerCase(VDownloaderStr) = 'sasplanet' then
-    begin
-      FDownloader := TTileDownloaderBaseCore.Create(AConfig, AZmp);
-      if Assigned(FDownloader) then
-      begin
+    if LowerCase(VDownloaderStr) = 'sasplanet' then begin
+      FDownloader := TTileDownloaderBaseCore.Create(AConfig, AInetConfig, AZmp);
+      if Assigned(FDownloader) then begin
         FTileDownloaderConfig := FDownloader.TileDownloaderConfig;
-        FRequestBuilderScript := FDownloader.RequestBuilderScript;
+        FTileRequestBuilderConfig := FDownloader.TileRequestBuilderConfig;
         FUseDwn := FDownloader.Enabled;
       end;
     end;
   finally
-    if FDownloader = nil then
-    begin
+    if FDownloader = nil then begin
       FUseDwn := False;
       FTileDownloaderConfig := nil;
-      FRequestBuilderScript := nil;
+      FTileRequestBuilderConfig := nil;
     end;
   end;
 end;
@@ -72,16 +79,23 @@ begin
   inherited Destroy;
 end;
 
+function TTileDownloaderFrontEnd.GetTileUrl(ATileXY: TPoint; AZoom: Byte): string;
+begin
+  if FUseDwn and Assigned(FDownloader) then begin
+    Result := FDownloader.GetTileUrl(ATileXY, AZoom);
+  end else begin
+    Result := '';
+  end;
+end;
+
 procedure TTileDownloaderFrontEnd.Download(AEvent: ITileDownloaderEvent);
 begin
-  if FUseDwn and Assigned(AEvent) then
-  begin
-    if Assigned(FDownloader) then
+  if FUseDwn and Assigned(AEvent) then begin
+    if Assigned(FDownloader) then begin
       FDownloader.Download(AEvent)
-    else
-    begin
+    end else begin
       FUseDwn := False;
-      raise Exception.Create( _('Downloader not Assigned!') );
+      raise Exception.Create('Downloader not Assigned!');
     end;
   end;
 end;

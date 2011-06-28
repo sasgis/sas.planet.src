@@ -7,11 +7,10 @@ uses
   Classes,
   SysUtils,
   i_ConfigDataProvider,
-  i_RequestBuilderScript,
+  i_InetConfig,
+  i_TileRequestBuilder,
   i_TileDownloader,
   i_ZmpInfo,
-  u_RequestBuilderScript,
-  u_RequestBuilderPascalScript,
   u_TileDownloader,
   u_TileDownloaderBaseThread;
 
@@ -21,12 +20,16 @@ type
     FSemaphore: THandle;
     FDownloadesList: TList;
     FRawResponseHeader: string;
-    function GetRequestBuilderScript(AConfig: IConfigDataProvider): IRequestBuilderScript;
-    //function GetConfigDataProvider: IConfigDataProvider;
+    function CreateNewTileRequestBuilder(AConfig: IConfigDataProvider): ITileRequestBuilder;
     function TryGetDownloadThread: TTileDownloaderBaseThread;
   public
-    constructor Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
+    constructor Create(
+      AConfig: IConfigDataProvider;
+      AInetConfig: IInetConfig;
+      AZmp: IZmpInfo
+    );
     destructor Destroy; override;
+    function GetTileUrl(ATileXY: TPoint; AZoom: Byte): string; override;
     procedure Download(AEvent: ITileDownloaderEvent); override;
     procedure OnTileDownload(AEvent: ITileDownloaderEvent);
   end;
@@ -35,18 +38,26 @@ implementation
 
 uses
   Dialogs,
-  gnugettext,
+  IniFiles,
+  u_GlobalState,
   u_ConfigDataProviderByKaZip,
   u_ConfigDataProviderByFolder,
+  u_ConfigDataProviderByIniFile,
+  u_ConfigDataProviderZmpComplex,
+  u_TileRequestBuilder,
+  u_TileRequestBuilderPascalScript,
   u_ResStrings;
 
 { TTileDownloaderBaseCore }
 
-constructor TTileDownloaderBaseCore.Create(AConfig: IConfigDataProvider; AZmp: IZmpInfo);
+constructor TTileDownloaderBaseCore.Create(
+  AConfig: IConfigDataProvider;
+  AInetConfig: IInetConfig;
+  AZmp: IZmpInfo
+);
 begin
-  inherited Create(AConfig, AZmp);
-  FRequestBuilderScript := GetRequestBuilderScript(AConfig);
-  //FRequestBuilderScript := GetRequestBuilderScript(GetConfigDataProvider);
+  inherited Create(AConfig, AInetConfig, AZmp);
+  FTileRequestBuilder := CreateNewTileRequestBuilder(AConfig);
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
   FDownloadesList := TList.Create;
 end;
@@ -60,9 +71,11 @@ begin
     for I := 0 to FDownloadesList.Count - 1 do
     try
       VDwnThr := FDownloadesList.Items[I];
-      if Assigned(VDwnThr) then
+      if Assigned(VDwnThr) then begin
         VDwnThr.Terminate;
+      end;
     except
+      // ignore all
     end;
     FDownloadesList.Clear;
     FreeAndNil(FDownloadesList);
@@ -72,14 +85,43 @@ begin
   end;
 end;
 
-function TTileDownloaderBaseCore.GetRequestBuilderScript(AConfig: IConfigDataProvider): IRequestBuilderScript;
+function TTileDownloaderBaseCore.CreateNewTileRequestBuilder(AConfig: IConfigDataProvider): ITileRequestBuilder;
+
+  function TryGetMapConfig: IConfigDataProvider;
+  var
+    VZmpMapConfig: IConfigDataProvider;
+    VLocalMapsConfig: IConfigDataProvider;
+    VLocalMapConfig: IConfigDataProvider;
+    VIni: TMemIniFile;
+  begin
+    try
+      Result := nil;
+      if FileExists(FZmp.FileName) then begin
+        VZmpMapConfig := TConfigDataProviderByKaZip.Create(FZmp.FileName);
+      end else begin
+        VZmpMapConfig := TConfigDataProviderByFolder.Create(FZmp.FileName);
+      end;
+      VIni := TMemIniFile.Create(GState.MapsPath + 'Maps.ini');
+      VLocalMapsConfig := TConfigDataProviderByIniFile.Create(VIni);
+      VLocalMapConfig := VLocalMapsConfig.GetSubItem(GUIDToString(FZmp.GUID));
+      Result := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
+    except
+      Result := nil;
+    end;
+  end;  // TryGetMapConfig
+
+var
+  VMapConfig: IConfigDataProvider;
 begin
   try
-    Result := TRequestBuilderPascalScript.Create(AConfig);
+    VMapConfig := AConfig;
+    if VMapConfig = nil then begin
+      VMapConfig := TryGetMapConfig;
+    end;
+    Result := TTileRequestBuilderPascalScript.Create(FTileRequestBuilderConfig, VMapConfig);
     FEnabled := True;
   except
-    on E: Exception do
-    begin
+    on E: Exception do begin
       Result := nil;
       ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.Name, E.Message, FZmp.FileName]);
     end;
@@ -87,68 +129,46 @@ begin
     Result := nil;
     ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.Name, FZmp.FileName]);
   end;
-  if Result = nil then
-  begin
+  if Result = nil then begin
     FEnabled := False;
-    Result := TRequestBuilderScript.Create(AConfig);
   end;
 end;
 
-{
-function TTileDownloaderBaseCore.GetConfigDataProvider: IConfigDataProvider;
+function TTileDownloaderBaseCore.GetTileUrl(ATileXY: TPoint; AZoom: Byte): string;
 begin
-  try
-    Result := nil;
-    if FileExists(FZmpFileName) then
-      Result := TConfigDataProviderByKaZip.Create(FZmpFileName)
-    else
-      Result := TConfigDataProviderByFolder.Create(FZmpFileName);
-  except
-    Result := nil;
+  if Assigned(FTileRequestBuilder) then begin
+    Result := FTileRequestBuilder.BuildRequestUrl(ATileXY, AZoom, FZmp.VersionConfig.Version);
+  end else begin
+    Result := '';
   end;
 end;
-}
 
 function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread;
 var
   I: Integer;
-//  VConfig: IConfigDataProvider;
 begin
   Result := nil;
-  if WaitForSingleObject(FSemaphore, FTileDownloaderConfig.InetConfigStatic.TimeOut) = WAIT_OBJECT_0  then
-  begin
+  if WaitForSingleObject(FSemaphore, FInetConfig.TimeOut) = WAIT_OBJECT_0 then begin
     Lock;
     try
       for I := 0 to FDownloadesList.Count - 1 do
       try
         Result := FDownloadesList.Items[I];
-        if Assigned(Result) then
-        begin
-          if Result.Busy then
+        if Assigned(Result) then begin
+          if Result.Busy then begin
             Result := nil
-          else
+          end else begin
             Break;
+          end;
         end;
       except
         Result := nil;
       end;
-      if not Assigned(Result) and (FDownloadesList.Count < integer(FMaxConnectToServerCount)) then
-      begin
-
+      if not Assigned(Result) and (FDownloadesList.Count < integer(FMaxConnectToServerCount)) then begin
         Result := TTileDownloaderBaseThread.Create;
-        Result.RequestBuilderScript := FRequestBuilderScript;
+        Result.TileRequestBuilder := CreateNewTileRequestBuilder(nil);
         Result.TileDownloaderConfig := FTileDownloaderConfig;
         FDownloadesList.Add(Result);
-
-        {
-        VConfig := GetConfigDataProvider;
-        if VConfig <> nil then
-        begin
-          Result := TTileDownloaderBaseThread.Create;
-          Result.RequestBuilderScript := GetRequestBuilderScript(VConfig);
-          FDownloadesList.Add(Result);
-        end;
-        }
       end;
     finally
       UnLock;
@@ -161,8 +181,7 @@ var
   VDwnThr: TTileDownloaderBaseThread;
 begin
   VDwnThr := TryGetDownloadThread;
-  if Assigned(VDwnThr) then
-  begin
+  if Assigned(VDwnThr) then begin
     Lock;
     try
       AEvent.AddToCallBackList(OnTileDownload);
@@ -173,9 +192,9 @@ begin
     finally
       UnLock;
     end;
-  end
-  else
-    raise Exception.Create( _('No free connections!') );
+  end else begin
+    raise Exception.Create('No free connections!');
+  end;
 end;
 
 procedure TTileDownloaderBaseCore.OnTileDownload(AEvent: ITileDownloaderEvent);

@@ -8,7 +8,7 @@ uses
   i_JclNotify,
   i_DownloadResult,
   i_DownloadResultFactory,
-  i_RequestBuilderScript,
+  i_TileRequestBuilderConfig,
   i_TileDownloaderConfig;
 
 type
@@ -19,10 +19,11 @@ type
 
   ITileDownloader = interface
     ['{EAF443E6-FC84-46A3-95AA-8217117A2A6B}']
+    function GetTileUrl(ATileXY: TPoint; AZoom: Byte): string;
     procedure Download(AEvent: ITileDownloaderEvent);
 
-    function GetRequestBuilderScript: IRequestBuilderScript;
-    property RequestBuilderScript: IRequestBuilderScript read GetRequestBuilderScript;
+    function GetTileRequestBuilderConfig: ITileRequestBuilderConfig;
+    property TileRequestBuilderConfig: ITileRequestBuilderConfig read GetTileRequestBuilderConfig;
 
     function GetTileDownloaderConfig: ITileDownloaderConfig;
     property TileDownloaderConfig: ITileDownloaderConfig read GetTileDownloaderConfig;

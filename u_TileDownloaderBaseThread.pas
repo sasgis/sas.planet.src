@@ -13,7 +13,7 @@ uses
   i_JclNotify,
   i_InetConfig,
   i_ProxySettings,
-  i_RequestBuilderScript,
+  i_TileRequestBuilder,
   i_TileDownloader,
   i_TileDownloaderConfig;
 
@@ -24,7 +24,7 @@ type
     FCancelEvent: TEvent;
     FHttpClient: TALWinInetHTTPClient;
     FResponseHeader: TALHTTPResponseHeader;
-    FRequestBuilderScript: IRequestBuilderScript;
+    FTileRequestBuilder: ITileRequestBuilder;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloaderConfigStatic: ITileDownloaderConfigStatic;
     FRawResponseHeader: string;
@@ -57,7 +57,7 @@ type
     procedure AddEvent(AEvent: ITileDownloaderEvent);
     procedure OnCancelEvent(Sender: TObject);
     property Busy: Boolean read FBusy default False;
-    property RequestBuilderScript: IRequestBuilderScript write FRequestBuilderScript default nil;
+    property TileRequestBuilder: ITileRequestBuilder write FTileRequestBuilder default nil;
     property TileDownloaderConfig: ITileDownloaderConfig write FTileDownloaderConfig default nil;
     property Semaphore: THandle read FParentSemaphore write FParentSemaphore;
     property RawResponseHeader: string write FRawResponseHeader;
@@ -144,7 +144,14 @@ var
   VRawRequestHeader: string;
 begin
   SleepIfConnectErrorOrWaitInterval;
-  FRequestBuilderScript.GenRequest(FEvent.TileXY, FEvent.TileZoom, FRawResponseHeader, VUrl, VRawRequestHeader);
+  FTileRequestBuilder.BuildRequest(
+    FEvent.TileXY,
+    FEvent.TileZoom,
+    0,
+    nil,
+    VUrl,
+    VRawRequestHeader
+  );
   FEvent.Url := VUrl;
   FEvent.RawRequestHeader := VRawRequestHeader;
   PrepareHttpClientConfig(FTileDownloaderConfigStatic.DefaultMIMEType, FEvent.RawRequestHeader);
@@ -181,7 +188,7 @@ begin
   SetNotCanceled;
   try
     try
-      if (FTileDownloaderConfigStatic <> nil) and (FRequestBuilderScript <> nil) then
+      if (FTileDownloaderConfigStatic <> nil) and (FTileRequestBuilder <> nil) then
       begin
         try
           if (FEvent <> nil) and (FEvent.CancelNotifier <> nil) then begin
