@@ -322,7 +322,7 @@ begin
       FPerfCounterList
     );
   FLastSelectionInfo := TLastSelectionInfo.Create;
-  FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
+  FGeoCoderList := TGeoCoderListSimple.Create(FInetConfig);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);

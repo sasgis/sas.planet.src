@@ -355,7 +355,7 @@ begin
   ZeroStr(pas, u.lpszPassword, u.dwPasswordLength);
   ZeroStr(pth, u.lpszUrlPath, u.dwUrlPathLength);
   ZeroStr(ext, u.lpszExtraInfo, u.dwExtraInfoLength);
-  if InternetCrackUrl(PChar(Value), Length(Value), ICU_DECODE, u) then
+  if InternetCrackUrl(PChar(Value), Length(Value), 0{ICU_DECODE}, u) then
   begin
     host := PChar(hst); user := PChar(usr); pass := PChar(pas);
     path := PChar(pth); extra := PChar(ext);

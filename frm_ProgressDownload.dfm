@@ -26,8 +26,6 @@ object frmProgressDownload: TfrmProgressDownload
     Align = alClient
     TabOrder = 0
     OnResize = Panel1Resize
-    ExplicitWidth = 344
-    ExplicitHeight = 321
     DesignSize = (
       328
       219)
@@ -165,8 +163,6 @@ object frmProgressDownload: TfrmProgressDownload
       ReadOnly = True
       ScrollBars = ssBoth
       TabOrder = 0
-      ExplicitWidth = 329
-      ExplicitHeight = 178
     end
     object pnlBottom: TPanel
       AlignWithMargins = True
@@ -178,8 +174,6 @@ object frmProgressDownload: TfrmProgressDownload
       AutoSize = True
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitTop = 291
-      ExplicitWidth = 336
       object Button2: TButton
         AlignWithMargins = True
         Left = 242
@@ -190,7 +184,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = 'Quit'
         TabOrder = 0
         OnClick = Button2Click
-        ExplicitLeft = 258
       end
       object Button1: TButton
         AlignWithMargins = True
@@ -202,7 +195,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = 'Pause'
         TabOrder = 1
         OnClick = Button1Click
-        ExplicitLeft = 177
       end
       object ButtonSave: TButton
         AlignWithMargins = True
@@ -215,7 +207,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = 'Save'
         TabOrder = 2
         OnClick = ButtonSaveClick
-        ExplicitLeft = 96
       end
       object Button3: TButton
         AlignWithMargins = True
@@ -237,8 +228,6 @@ object frmProgressDownload: TfrmProgressDownload
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitTop = 271
-      ExplicitWidth = 342
     end
   end
   object SaveSessionDialog: TSaveDialog

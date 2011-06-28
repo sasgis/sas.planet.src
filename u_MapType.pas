@@ -18,8 +18,11 @@ uses
   i_ConfigDataProvider,
   i_LanguageManager,
   i_CoordConverter,
+  i_LastResponseInfo,
+  i_MapVersionConfig,
+  i_TileRequestBuilder,
   i_KmlInfoSimpleLoader,
-  i_RequestBuilderScript,
+  i_TileDownloadResultFactoryProvider,
   i_TileObjCache,
   i_TileDownloaderConfig,
   i_TileRequestBuilderConfig,
@@ -48,6 +51,7 @@ type
     FMimeTypeSubstList: TStringList;
     FCache: ITileObjCache;
     FStorage: TTileStorageAbstract;
+    FTileRequestBuilder: ITileRequestBuilder;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IKmlInfoSimpleLoader;
@@ -56,10 +60,13 @@ type
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
+    FLastResponseInfo: ILastResponseInfo;
     FTileDownloader: TTileDownloaderFrontEnd;
+    FVersionConfig: IMapVersionConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FRequestBuilderScript: IRequestBuilderScript;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
+    FTileDownloadResultFactoryProvider: ITileDownloadResultFactoryProvider;
 
     function GetUseDwn: Boolean;
     function GetIsCanShowOnSmMap: boolean;
@@ -168,12 +175,18 @@ uses
   u_GlobalState,
   i_DownloadResult,
   i_TileInfoBasic,
+  u_TileRequestBuilder,
   u_TileRequestBuilderConfig,
   u_TileDownloaderConfig,
+  u_TileRequestBuilderPascalScript,
+  u_TileDownloadResultFactoryProvider,
   u_TileCacheSimpleGlobal,
+  u_LastResponseInfo,
+  u_MapVersionConfig,
   u_TileStorageGE,
   u_TileStorageFileSystem;
 
+  FTileRequestBuilder := nil;
 
 procedure TMapType.LoadStorageParams(AConfig: IConfigDataProvider);
 var
@@ -273,7 +286,7 @@ begin
   end else begin
     showinfo := False;
   end;
-
+  FVersionConfig.ReadConfig(VParams);
   LoadStorageParams(AConfig);
   LoadProjectionInfo(AConfig);
   LoadWebSourceParams(AConfig);
@@ -284,9 +297,10 @@ end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
-  FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-  Result:=FRequestBuilderScript.GenRequestUrl(AXY, AZoom);
-end;
+  if FUseDwn then begin
+    FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
+    Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom, FVersion);
+  end;
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
   Result := FStorage.GetTileFileName(AXY, Azoom, FVersion);
@@ -526,13 +540,15 @@ begin
   FZmp := AZmp;
   FLanguageManager := ALanguageManager;
   FMimeTypeSubstList := nil;
+  FLastResponseInfo := TLastResponseInfo.Create;
+  FVersionConfig := TMapVersionConfig.Create(Zmp.VersionConfig);
   LoadMapType(AConfig);
   if FasLayer then begin
     FLoadPrevMaxZoomDelta := 4;
   end else begin
     FLoadPrevMaxZoomDelta := 6;
   end;
-
+  FTileDownloadResultFactoryProvider := TTileDownloadResultFactoryProvider.Create(Self, GState.DownloadResultTextProvider);
   FTileDownloader := TTileDownloaderFrontEnd.Create(AConfig, FZmp);
   if Assigned(FTileDownloader) then begin
     FUseDwn := FTileDownloader.UseDwn;
@@ -575,6 +591,7 @@ begin
     end else if Supports(AEvent.DownloadResult, IDownloadResultDataNotExists) then begin
       if GState.SaveTileNotExists then begin
         SaveTileNotExists(AEvent.TileXY, AEvent.TileZoom);
+      VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersion).GetSize;
       end;
     end;
   end;

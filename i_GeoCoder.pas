@@ -23,9 +23,12 @@ type
     function GetAccuracy: Integer; safecall;
   end;
 
+  TGetLocation = procedure(AResult: IGeoCodeResult) of object;
+
   IGeoCoder = interface
     ['{D9293293-080A-44B7-92F8-3093D35A551B}']
     function GetLocations(ASearch: WideString; ACurrentPos: TDoublePoint): IGeoCodeResult; safecall;
+    procedure GetLocationsAsync(ASearch: WideString; ACurrentPos: TDoublePoint; OnGetLocation: TGetLocation); safecall;
   end;
 
 implementation
