@@ -492,6 +492,7 @@ end;
 procedure TWikiLayer.MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple;
   out AItemS: Double);
 var
+  VLonLatLine: TArrayOfDoublePoint;
   VLineOnBitmap: TArrayOfDoublePoint;
   VLonLatRect: TDoubleRect;
   VRect: TRect;
@@ -541,7 +542,9 @@ begin
           AItemS := 0;
           exit;
         end else begin
-          VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VItem.Points, VZoom);
+          VLonLatLine := VItem.Points;
+          VConverter.CheckLonLatArray(VLonLatLine);
+          VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
           if VItem.IsLine then begin
             if PointOnPath(VPixelPos, VLineOnBitmap, 2) then begin
               AItem := VItem;

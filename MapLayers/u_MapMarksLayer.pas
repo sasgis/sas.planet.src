@@ -170,6 +170,7 @@ end;
 
 procedure TMapMarksLayer.MouseOnMyReg(xy: TPoint; out AMark: IMarkFull; out AMarkS: Double);
 var
+  VLonLatLine: TArrayOfDoublePoint;
   VLineOnBitmap: TArrayOfDoublePoint;
   VLonLatRect: TDoubleRect;
   VRect: TRect;
@@ -213,7 +214,9 @@ begin
             AMarkS := 0;
             exit;
           end else begin
-            VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VMark.Points, VZoom);
+            VLonLatLine := VMark.Points;
+            VConverter.CheckLonLatArray(VLonLatLine);
+            VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
             if VMark.IsLine then begin
               if PointOnPath(VPixelPos, VLineOnBitmap, (VMark.Scale1 / 2) + 1) then begin
                 AMark := VMark;
