@@ -5,6 +5,7 @@ interface
 uses
   Graphics,
   Classes,
+  i_ConfigDataProvider,
   i_CoordConverter,
   i_TileDownloaderConfig,
   i_MapVersionConfig,
@@ -60,6 +61,9 @@ type
 
     function GetViewGeoConvert: ICoordConverter;
     property ViewGeoConvert: ICoordConverter read GetViewGeoConvert;
+
+    function GetDataProvider: IConfigDataProvider;
+    property DataProvider: IConfigDataProvider read GetDataProvider;
   end;
 
 implementation

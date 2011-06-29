@@ -79,6 +79,7 @@ type
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     function GetGeoConvert: ICoordConverter;
     function GetViewGeoConvert: ICoordConverter;
+    function GetDataProvider: IConfigDataProvider;
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
@@ -147,6 +148,11 @@ end;
 function TZmpInfo.GetBmp24: TBitmap;
 begin
   Result := FBmp24;
+end;
+
+function TZmpInfo.GetDataProvider: IConfigDataProvider;
+begin
+  Result := FConfig;
 end;
 
 function TZmpInfo.GetEnabled: Boolean;

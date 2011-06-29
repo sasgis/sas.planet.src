@@ -200,15 +200,11 @@ uses
   u_TileStorageFileSystem;
 
 procedure TMapType.LoadUrlScript(AConfig: IConfigDataProvider);
-var
-  VParams: IConfigDataProvider;
 begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FTileRequestBuilderConfig.ReadConfig(VParams);
   FTileRequestBuilder := nil;
   if FUseDwn then begin
     try
-      FTileRequestBuilder := TTileRequestBuilderPascalScript.Create(FTileRequestBuilderConfig, AConfig);
+      FTileRequestBuilder := TTileRequestBuilderPascalScript.Create(FTileRequestBuilderConfig, Zmp.DataProvider);
     except
       on E: Exception do begin
         ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.Name, E.Message, FZmp.FileName]);
@@ -348,6 +344,7 @@ begin
   LoadWebSourceParams(AConfig);
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
+  FTileRequestBuilderConfig.ReadConfig(VParams);
   LoadMimeTypeSubstList(AConfig);
   LoadUrlScript(AConfig);
   LoadDownloader(AConfig);
