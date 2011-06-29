@@ -3,6 +3,7 @@ unit i_TileInfoBasic;
 interface
 
 uses
+  i_MapVersionConfig,
   i_ContentTypeInfo;
 
 type
@@ -12,7 +13,7 @@ type
     function GetIsExistsTNE: Boolean;
     function GetLoadDate: TDateTime;
     function GetSize: Cardinal;
-    function GetVersion: Variant;
+    function GetVersionInfo: IMapVersionConfigStatic;
     function GetContentType: IContentTypeInfoBasic;
   end;
 

@@ -7,6 +7,7 @@ uses
   SyncObjs,
   SysUtils,
   i_TileRequestBuilder,
+  i_MapVersionConfig,
   i_LastResponseInfo,
   i_TileRequestBuilderConfig;
 
@@ -20,11 +21,15 @@ type
   public
     constructor Create(AConfig: ITileRequestBuilderConfig);
     destructor Destroy; override;
-    function  BuildRequestUrl(ATileXY: TPoint; AZoom: Byte; AVersion: Variant): string; virtual; abstract;
+    function  BuildRequestUrl(
+      ATileXY: TPoint;
+      AZoom: Byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ): string; virtual; abstract;
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
-      AVersion: Variant;
+      AVersionInfo: IMapVersionConfigStatic;
       ALastResponseInfo: ILastResponseInfo;
       out AUrl: string;
       out ARequestHeader: string

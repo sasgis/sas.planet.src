@@ -8,6 +8,7 @@ uses
   i_CoordConverter,
   i_ConfigDataProvider,
   i_ContentTypeInfo,
+  i_MapVersionConfig,
   i_TileInfoBasic,
   u_MapTypeCacheConfig,
   u_GEIndexFile,
@@ -35,17 +36,48 @@ type
     function GetCoordConverter: ICoordConverter; override;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
-    function GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string; override;
+    function GetTileFileName(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ): string; override;
 
-    function GetTileInfo(AXY: TPoint; Azoom: byte; AVersion: Variant): ITileInfoBasic; override;
+    function GetTileInfo(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ): ITileInfoBasic; override;
 
-    function LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream; out ATileInfo: ITileInfoBasic): Boolean; override;
+    function LoadTile(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic;
+      AStream: TStream;
+      out ATileInfo: ITileInfoBasic
+    ): Boolean; override;
 
-    function DeleteTile(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean; override;
-    function DeleteTNE(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean; override;
+    function DeleteTile(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ): Boolean; override;
+    function DeleteTNE(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ): Boolean; override;
 
-    procedure SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream); override;
-    procedure SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant); override;
+    procedure SaveTile(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic;
+      AStream: TStream
+    ); override;
+    procedure SaveTNE(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ); override;
   end;
 
 implementation
@@ -75,12 +107,20 @@ begin
   inherited;
 end;
 
-function TTileStorageGE.DeleteTile(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean;
+function TTileStorageGE.DeleteTile(
+  AXY: TPoint;
+  Azoom: byte;
+  AVersionInfo: IMapVersionConfigStatic
+): Boolean;
 begin
   Result := False;
 end;
 
-function TTileStorageGE.DeleteTNE(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean;
+function TTileStorageGE.DeleteTNE(
+  AXY: TPoint;
+  Azoom: byte;
+  AVersionInfo: IMapVersionConfigStatic
+): Boolean;
 begin
   Result := False;
 end;
@@ -120,32 +160,34 @@ begin
   Result := FMainContentType.GetDefaultExt;
 end;
 
-function TTileStorageGE.GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string;
+function TTileStorageGE.GetTileFileName(
+  AXY: TPoint;
+  Azoom: byte;
+  AVersionInfo: IMapVersionConfigStatic
+): string;
 begin
   Abort;
 end;
 
-function TTileStorageGE.GetTileInfo(AXY: TPoint; Azoom: byte;
-  AVersion: Variant): ITileInfoBasic;
+function TTileStorageGE.GetTileInfo(
+  AXY: TPoint;
+  Azoom: byte;
+  AVersionInfo: IMapVersionConfigStatic
+): ITileInfoBasic;
 var
   VVersion: Word;
   VOffset: Integer;
   VSize: Integer;
 begin
-  try
-    VVersion := AVersion;
-  except
-    VVersion := 0;
-  end;
-  if FIndex.FindTileInfo(AXY, Azoom, VVersion, VOffset, VSize) then begin
+  if FIndex.FindTileInfo(AXY, Azoom, AVersionInfo, VOffset, VSize) then begin
     Result := TTileInfoBasicExists.Create(
       0,
       VSize,
-      VVersion,
+      AVersionInfo,
       FMainContentType
     );
   end else begin
-    Result := TTileInfoBasicNotExists.Create(0, VVersion);
+    Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
   end;
 end;
 
@@ -159,8 +201,13 @@ begin
   Result := False;
 end;
 
-function TTileStorageGE.LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant;
-  AStream: TStream; out ATileInfo: ITileInfoBasic): Boolean;
+function TTileStorageGE.LoadTile(
+  AXY: TPoint;
+  Azoom: byte;
+  AVersionInfo: IMapVersionConfigStatic;
+  AStream: TStream;
+  out ATileInfo: ITileInfoBasic
+): Boolean;
 var
   VFileName: string;
   VFileStream: TFileStream;
@@ -171,12 +218,7 @@ var
   VTileStart: LongWord;
 begin
   Result := False;
-  try
-    VVersion := AVersion;
-  except
-    VVersion := 0;
-  end;
-  if FIndex.FindTileInfo(AXY, Azoom, VVersion, VOffset, VSize) then begin
+  if FIndex.FindTileInfo(AXY, Azoom, AVersionInfo, VOffset, VSize) then begin
     VFileName := FCacheConfig.GetDataFileName;
     if FileExists(VFileName) then begin
       VFileStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
@@ -209,7 +251,7 @@ begin
           ATileInfo := TTileInfoBasicExists.Create(
             0,
             VSize,
-            VVersion,
+            AVersionInfo,
             FMainContentType
           );
         finally
@@ -220,17 +262,25 @@ begin
       end;
     end;
   end else begin
-    ATileInfo := TTileInfoBasicNotExists.Create(0, VVersion);
+    ATileInfo := TTileInfoBasicNotExists.Create(0, AVersionInfo);
   end;
 end;
 
-procedure TTileStorageGE.SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant;
-  AStream: TStream);
+procedure TTileStorageGE.SaveTile(
+  AXY: TPoint;
+  Azoom: byte;
+  AVersionInfo: IMapVersionConfigStatic;
+  AStream: TStream
+);
 begin
   Abort;
 end;
 
-procedure TTileStorageGE.SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant);
+procedure TTileStorageGE.SaveTNE(
+  AXY: TPoint;
+  Azoom: byte;
+  AVersionInfo: IMapVersionConfigStatic
+);
 begin
   Abort;
 end;

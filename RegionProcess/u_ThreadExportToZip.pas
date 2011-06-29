@@ -111,8 +111,8 @@ begin
               exit;
             end;
             VMemStream.Position := 0;
-            VTileInfo := VTileStorage.GetTileInfo(VTile, VZoom, Unassigned);
-            if VTileStorage.LoadTile(VTile, VZoom, Unassigned, VMemStream, VTileInfo) then begin
+            VTileInfo := VTileStorage.GetTileInfo(VTile, VZoom, nil);
+            if VTileStorage.LoadTile(VTile, VZoom, nil, VMemStream, VTileInfo) then begin
               VFileTime := VTileInfo.GetLoadDate;
               VMemStream.Position := 0;
               {$WARN SYMBOL_PLATFORM OFF}

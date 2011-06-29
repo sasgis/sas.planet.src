@@ -4,22 +4,26 @@ interface
 
 uses
   i_ContentTypeInfo,
+  i_MapVersionConfig,
   i_TileInfoBasic;
 
 type
   TTileInfoBasicBase = class(TInterfacedObject, ITileInfoBasic)
   private
     FDate: TDateTime;
-    FVersion: Variant;
+    FVersionInfo: IMapVersionConfigStatic;
   protected
     function GetIsExists: Boolean; virtual; abstract;
     function GetIsExistsTNE: Boolean; virtual; abstract;
     function GetLoadDate: TDateTime; virtual;
     function GetSize: Cardinal; virtual; abstract;
-    function GetVersion: Variant; virtual;
+    function GetVersionInfo: IMapVersionConfigStatic; virtual;
     function GetContentType: IContentTypeInfoBasic; virtual; abstract;
   public
-    constructor Create(ADate: TDateTime; AVersion: Variant);
+    constructor Create(
+      ADate: TDateTime;
+      AVersionInfo: IMapVersionConfigStatic
+    );
   end;
 
   TTileInfoBasicNotExists = class(TTileInfoBasicBase)
@@ -51,7 +55,7 @@ type
     constructor Create(
       ADate: TDateTime;
       ASize: Cardinal;
-      AVersion: Variant;
+      AVersionInfo: IMapVersionConfigStatic;
       AContentType: IContentTypeInfoBasic
     );
   end;
@@ -60,10 +64,13 @@ implementation
 
 { TTileInfoBasicBase }
 
-constructor TTileInfoBasicBase.Create(ADate: TDateTime; AVersion: Variant);
+constructor TTileInfoBasicBase.Create(
+  ADate: TDateTime;
+  AVersionInfo: IMapVersionConfigStatic
+);
 begin
   FDate := ADate;
-  FVersion := AVersion;
+  FVersionInfo := AVersionInfo;
 end;
 
 function TTileInfoBasicBase.GetLoadDate: TDateTime;
@@ -71,9 +78,9 @@ begin
   Result := FDate;
 end;
 
-function TTileInfoBasicBase.GetVersion: Variant;
+function TTileInfoBasicBase.GetVersionInfo: IMapVersionConfigStatic;
 begin
-  Result := FVersion;
+  Result := FVersionInfo;
 end;
 
 { TTileInfoBasicTNE }
@@ -103,11 +110,11 @@ end;
 constructor TTileInfoBasicExists.Create(
   ADate: TDateTime;
   ASize: Cardinal;
-  AVersion: Variant;
+  AVersionInfo: IMapVersionConfigStatic;
   AContentType: IContentTypeInfoBasic
 );
 begin
-  inherited Create(ADate, AVersion);
+  inherited Create(ADate, AVersionInfo);
   FSize := ASize;
   FContentType := AContentType;
 end;

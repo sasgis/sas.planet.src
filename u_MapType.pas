@@ -44,7 +44,7 @@ type
     FZmp: IZmpInfo;
     FName: string;
     FasLayer: boolean;
-    FVersion: Variant;
+//    FVersion: Variant;
     FTileRect: TRect;
     FUseDwn: boolean;
     FIsCanShowOnSmMap: Boolean;
@@ -354,33 +354,33 @@ function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 begin
   if FUseDwn then begin
     FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-    Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom, FVersion);
+    Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom, FVersionConfig.GetStatic);
   end;
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := FStorage.GetTileFileName(AXY, Azoom, FVersion);
+  Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.GetStatic);
 end;
 
 function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;
 var
   VTileInfo: ITileInfoBasic;
 begin
-  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersion);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.GetStatic);
   Result := VTileInfo.GetIsExists;
 end;
 
 function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 begin
-  Result := FStorage.DeleteTile(AXY, Azoom, FVersion);
+  Result := FStorage.DeleteTile(AXY, Azoom, FVersionConfig.GetStatic);
 end;
 
 function TMapType.TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
 var
   VTileInfo: ITileInfoBasic;
 begin
-  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersion);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.GetStatic);
   Result := VTileInfo.GetIsExistsTNE;
 end;
 
@@ -392,7 +392,7 @@ begin
   VMemStream := TMemoryStream.Create;
   try
     FBitmapSaverToStorage.SaveToStream(btm, VMemStream);
-    FStorage.SaveTile(AXY, Azoom, FVersion, VMemStream);
+    FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream);
   finally
     VMemStream.Free;
   end;
@@ -406,7 +406,7 @@ var
 begin
   VMemStream := TMemoryStream.Create;
   try
-    Result := FStorage.LoadTile(AXY, Azoom, FVersion, VMemStream, VTileInfo);
+    Result := FStorage.LoadTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream, VTileInfo);
     if Result then begin
       FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
     end;
@@ -423,7 +423,7 @@ var
 begin
   VMemStream := TMemoryStream.Create;
   try
-    Result := FStorage.LoadTile(AXY, Azoom, FVersion, VMemStream, VTileInfo);
+    Result := FStorage.LoadTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream, VTileInfo);
     if Result then  begin
       FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
     end;
@@ -443,7 +443,7 @@ begin
   VMimeType := GetMIMETypeSubst(AMimeType);
   if VManager.GetIsBitmapType(VMimeType) then begin
     if not IsCropOnDownload and SameText(FStorage.TileFileExt, VManager.GetExtForType(VMimeType)) then begin
-      FStorage.SaveTile(AXY, Azoom, FVersion, ATileStream);
+      FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
     end else begin
       btmsrc := TCustomBitmap32.Create;
       try
@@ -478,7 +478,7 @@ begin
         VMemStream := TMemoryStream.Create;
         try
           UnZip.Entries.Items[0].ExtractToStream(VMemStream);
-          FStorage.SaveTile(AXY, Azoom, FVersion, VMemStream);
+          FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream);
         finally
           VMemStream.Free;
         end;
@@ -487,12 +487,12 @@ begin
       end;
     except
       try
-        FStorage.SaveTile(AXY, Azoom, FVersion, ATileStream);
+        FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
       except
       end;
     end;
   end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
-    FStorage.SaveTile(AXY, Azoom, FVersion, ATileStream);
+    FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
   end;
 end;
 
@@ -516,7 +516,7 @@ function TMapType.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
 var
   VTileInfo: ITileInfoBasic;
 begin
-  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersion);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.GetStatic);
   Result := VTileInfo.GetLoadDate;
 end;
 
@@ -524,13 +524,13 @@ function TMapType.TileSize(AXY: TPoint; Azoom: byte): integer;
 var
   VTileInfo: ITileInfoBasic;
 begin
-  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersion);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.GetStatic);
   Result := VTileInfo.GetSize;
 end;
 
 procedure TMapType.SaveTileNotExists(AXY: TPoint; Azoom: byte);
 begin
-  FStorage.SaveTNE(AXY, Azoom, FVersion);
+  FStorage.SaveTNE(AXY, Azoom, FVersionConfig.GetStatic);
 end;
 
 procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
@@ -558,7 +558,7 @@ begin
     end;
     VFileStream := TFileStream.Create(AFileName, fmCreate);
     try
-      Result := FStorage.LoadTile(AXY, Azoom, FVersion, VFileStream, VTileInfo);
+      Result := FStorage.LoadTile(AXY, Azoom, FVersionConfig.GetStatic, VFileStream, VTileInfo);
       if Result then begin
         FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
       end;
@@ -578,7 +578,7 @@ function TMapType.LoadFillingMap(
   ATNEColor: TColor32
 ): boolean;
 begin
-  Result := FStorage.LoadFillingMap(btm, AXY, Azoom, ASourceZoom, FVersion, AIsStop, ANoTileColor, AShowTNE, ATNEColor);
+  Result := FStorage.LoadFillingMap(btm, AXY, Azoom, ASourceZoom, FVersionConfig.GetStatic, AIsStop, ANoTileColor, AShowTNE, ATNEColor);
 end;
 
 function TMapType.GetShortFolderName: string;
@@ -639,7 +639,7 @@ begin
   if FUseDwn then begin
     VRequestHead := '';
     FCoordConverter.CheckTilePosStrict(ATile, AZoom, True);
-    FTileRequestBuilder.BuildRequest(ATile, AZoom, FVersion, FLastResponseInfo, VUrl, VRequestHead);
+    FTileRequestBuilder.BuildRequest(ATile, AZoom, FVersionConfig.GetStatic, FLastResponseInfo, VUrl, VRequestHead);
     VResultFactory := FTileDownloadResultFactoryProvider.BuildFactory(AZoom, ATile, VUrl, VRequestHead);
     if VUrl = '' then begin
       Result := VResultFactory.BuildCanceled;
@@ -653,7 +653,7 @@ begin
         FAntiBan.PreDownload(VDownloader, ATile, AZoom, VUrl);
       end;
       VConfig := FTileDownloaderConfig.GetStatic;
-      VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersion).GetSize;
+      VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersionConfig.GetStatic).GetSize;
       VDownloadChecker := TDownloadCheckerStuped.Create(
         VResultFactory,
         VConfig.IgnoreMIMEType,

@@ -12,6 +12,7 @@ uses
   uPSUtils,
   i_ConfigDataProvider,
   i_CoordConverter,
+  i_MapVersionConfig,
   i_LastResponseInfo,
   i_TileRequestBuilderConfig,
   u_TileRequestBuilder;
@@ -48,18 +49,22 @@ type
     procedure PreparePascalScript(AConfig: IConfigDataProvider);
     procedure SetVar(
       ALastResponseInfo: ILastResponseInfo;
-      AVersion: Variant;
+      AVersionInfo: IMapVersionConfigStatic;
       AXY: TPoint;
       AZoom: Byte
     );
   public
     constructor Create(AConfig: ITileRequestBuilderConfig; AConfigData: IConfigDataProvider);
     destructor Destroy; override;
-    function  BuildRequestUrl(ATileXY: TPoint; AZoom: Byte; AVersion: Variant): string; override;
+    function  BuildRequestUrl(
+      ATileXY: TPoint;
+      AZoom: Byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ): string; override;
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
-      AVersion: Variant;
+      AVersionInfo: IMapVersionConfigStatic;
       ALastResponseInfo: ILastResponseInfo;
       out AUrl: string;
       out ARequestHeader: string
@@ -104,13 +109,13 @@ end;
 function TTileRequestBuilderPascalScript.BuildRequestUrl(
   ATileXY: TPoint;
   AZoom: Byte;
-  AVersion: Variant
+  AVersionInfo: IMapVersionConfigStatic
 ): string;
 begin
   Lock;
   try
     FpResultUrl.Data := '';
-    SetVar(nil, AVersion, ATileXY, AZoom);
+    SetVar(nil, AVersionInfo, ATileXY, AZoom);
     try
       FExec.RunScript;
     except on E: Exception do
@@ -125,7 +130,7 @@ end;
 procedure TTileRequestBuilderPascalScript.BuildRequest(
   ATileXY: TPoint;
   AZoom: Byte;
-  AVersion: Variant;
+  AVersionInfo: IMapVersionConfigStatic;
   ALastResponseInfo: ILastResponseInfo;
   out AUrl: string;
   out ARequestHeader: string
@@ -133,7 +138,7 @@ procedure TTileRequestBuilderPascalScript.BuildRequest(
 begin
   Lock;
   try
-    SetVar(ALastResponseInfo, AVersion, ATileXY, AZoom);
+    SetVar(ALastResponseInfo, AVersionInfo, ATileXY, AZoom);
     try
       FExec.RunScript;
     except on E: Exception do
@@ -314,7 +319,7 @@ end;
 
 procedure TTileRequestBuilderPascalScript.SetVar(
   ALastResponseInfo: ILastResponseInfo;
-  AVersion: Variant;
+  AVersionInfo: IMapVersionConfigStatic;
   AXY: TPoint;
   AZoom: Byte
 );
@@ -355,7 +360,11 @@ begin
     FpResponseHead.Data := '';
   end;
   FpScriptBuffer.Data := FScriptBuffer;
-  FpVersion.Data := VarToStrDef(AVersion, '');
+  if AVersionInfo <> nil then begin
+    FpVersion.Data := VarToStrDef(AVersionInfo.Version, '');
+  end else begin
+    FpVersion.Data := '';
+  end;
 end;
 
 end.

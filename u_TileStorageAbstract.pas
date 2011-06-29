@@ -9,6 +9,7 @@ uses
   t_CommonTypes,
   i_CoordConverter,
   i_ContentTypeInfo,
+  i_MapVersionConfig,
   i_TileInfoBasic,
   u_MapTypeCacheConfig;
 
@@ -26,21 +27,52 @@ type
     function GetCoordConverter: ICoordConverter; virtual; abstract;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; virtual; abstract;
 
-    function GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string; virtual; abstract;
-    function GetTileInfo(AXY: TPoint; Azoom: byte; AVersion: Variant): ITileInfoBasic; virtual; abstract;
+    function GetTileFileName(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ): string; virtual; abstract;
+    function GetTileInfo(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ): ITileInfoBasic; virtual; abstract;
 
-    function LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream; out ATileInfo: ITileInfoBasic): Boolean; virtual; abstract;
-    function DeleteTile(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean; virtual; abstract;
-    function DeleteTNE(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean; virtual; abstract;
-    procedure SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream); virtual; abstract;
-    procedure SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant); virtual; abstract;
+    function LoadTile(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic;
+      AStream: TStream;
+      out ATileInfo: ITileInfoBasic
+    ): Boolean; virtual; abstract;
+    function DeleteTile(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ): Boolean; virtual; abstract;
+    function DeleteTNE(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ): Boolean; virtual; abstract;
+    procedure SaveTile(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic;
+      AStream: TStream
+    ); virtual; abstract;
+    procedure SaveTNE(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionConfigStatic
+    ); virtual; abstract;
 
     function LoadFillingMap(
       btm: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      AVersion: Variant;
+      AVersionInfo: IMapVersionConfigStatic;
       AIsStop: TIsCancelChecker;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
@@ -65,7 +97,7 @@ function TTileStorageAbstract.LoadFillingMap(
   btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
-  AVersion: Variant;
+  AVersionInfo: IMapVersionConfigStatic;
   AIsStop: TIsCancelChecker;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
@@ -109,7 +141,7 @@ begin
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
       while VIterator.Next(VCurrTile) do begin
         if AIsStop then break;
-        VTileInfo := GetTileInfo(VCurrTile, ASourceZoom, AVersion);
+        VTileInfo := GetTileInfo(VCurrTile, ASourceZoom, AVersionInfo);
         if not VTileInfo.GetIsExists then begin
           if AIsStop then break;
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
