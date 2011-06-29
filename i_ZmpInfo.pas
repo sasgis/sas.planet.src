@@ -58,8 +58,8 @@ type
     function GetGeoConvert: ICoordConverter;
     property GeoConvert: ICoordConverter read GetGeoConvert;
 
-    function GetMainGeoConvert: ICoordConverter;
-    property MainGeoConvert: ICoordConverter read GetMainGeoConvert;
+    function GetViewGeoConvert: ICoordConverter;
+    property ViewGeoConvert: ICoordConverter read GetViewGeoConvert;
   end;
 
 implementation

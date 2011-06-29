@@ -582,7 +582,7 @@ begin
     end else begin
       VMap := FMainMapConfig.GetSelectedMapType;
       if VMap <> nil then begin
-        VNewConverter := VMap.MapType.MainGeoConvert;
+        VNewConverter := VMap.MapType.ViewGeoConvert;
       end;
     end;
     if VNewConverter <> nil then begin

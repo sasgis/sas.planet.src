@@ -36,7 +36,7 @@ type
     FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     FTileDownloaderConfig: ITileDownloaderConfigStatic;
     FGeoConvert: ICoordConverter;
-    FMainGeoConvert: ICoordConverter;
+    FViewGeoConvert: ICoordConverter;
 
     FConfig: IConfigDataProvider;
     FConfigIni: IConfigDataProvider;
@@ -78,7 +78,7 @@ type
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     function GetGeoConvert: ICoordConverter;
-    function GetMainGeoConvert: ICoordConverter;
+    function GetViewGeoConvert: ICoordConverter;
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
@@ -174,9 +174,9 @@ begin
   Result := FHotKey;
 end;
 
-function TZmpInfo.GetMainGeoConvert: ICoordConverter;
+function TZmpInfo.GetViewGeoConvert: ICoordConverter;
 begin
-  Result := FMainGeoConvert;
+  Result := FViewGeoConvert;
 end;
 
 function TZmpInfo.GetInfo: string;
@@ -307,11 +307,11 @@ var
 begin
   VParams := AConfig.GetSubItem('ViewInfo');
   if VParams <> nil then begin
-    FMainGeoConvert := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
+    FViewGeoConvert := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
   end;
   FGeoConvert := ACoordConverterFactory.GetCoordConverterByConfig(FConfigIniParams);
-  if FMainGeoConvert = nil then begin
-    FMainGeoConvert := FGeoConvert;
+  if FViewGeoConvert = nil then begin
+    FViewGeoConvert := FGeoConvert;
   end;
 end;
 

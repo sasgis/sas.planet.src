@@ -59,7 +59,7 @@ type
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IKmlInfoSimpleLoader;
     FCoordConverter : ICoordConverter;
-    FMainCoordConverter : ICoordConverter;
+    FViewCoordConverter : ICoordConverter;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
@@ -142,7 +142,7 @@ type
     ): IDownloadResult;
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
-    property MainGeoConvert: ICoordConverter read FMainCoordConverter;
+    property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
 
     property asLayer: boolean read FasLayer;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
@@ -249,17 +249,9 @@ begin
 end;
 
 procedure TMapType.LoadProjectionInfo(AConfig: IConfigDataProvider);
-var
-  VParamsTXT: IConfigDataProvider;
-  VParams: IConfigDataProvider;
 begin
   FCoordConverter := FStorage.GetCoordConverter;
-  VParamsTXT := AConfig.GetSubItem('params.txt');
-  VParams := VParamsTXT.GetSubItem('ViewInfo');
-  if VParams = nil then begin
-    VParams := VParamsTXT.GetSubItem('PARAMS');
-  end;
-  FMainCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
+  FViewCoordConverter := Zmp.ViewGeoConvert;
 end;
 
 procedure TMapType.LoadMimeTypeSubstList(AConfig: IConfigDataProvider);
