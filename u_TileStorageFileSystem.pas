@@ -254,16 +254,16 @@ begin
     APath := ChangeFileExt(APath, '.tne');
     VSearchResult := FindFirst(APath, faAnyFile, InfoFile);
     if VSearchResult <> 0 then begin
-      Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
+      Result := TTileInfoBasicNotExists.Create(0, nil);
     end else begin
-      Result := TTileInfoBasicTNE.Create(FileDateToDateTime(InfoFile.Time), AVersionInfo);
+      Result := TTileInfoBasicTNE.Create(FileDateToDateTime(InfoFile.Time), nil);
       FindClose(InfoFile);
     end;
   end else begin
     Result := TTileInfoBasicExists.Create(
       FileDateToDateTime(InfoFile.Time),
       InfoFile.Size,
-      AVersionInfo,
+      nil,
       FMainContentType
     );
     FindClose(InfoFile);

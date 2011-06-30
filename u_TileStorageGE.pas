@@ -175,15 +175,16 @@ function TTileStorageGE.GetTileInfo(
   AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
-  VVersion: Word;
   VOffset: Integer;
   VSize: Integer;
+  VVersionInfo: IMapVersionInfo;
 begin
-  if FIndex.FindTileInfo(AXY, Azoom, AVersionInfo, VOffset, VSize) then begin
+  VVersionInfo := AVersionInfo;
+  if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize) then begin
     Result := TTileInfoBasicExists.Create(
       0,
       VSize,
-      AVersionInfo,
+      VVersionInfo,
       FMainContentType
     );
   end else begin
@@ -211,14 +212,15 @@ function TTileStorageGE.LoadTile(
 var
   VFileName: string;
   VFileStream: TFileStream;
-  VVersion: Word;
   VOffset: Integer;
   VSize: Integer;
   VMemStream: TMemoryStream;
   VTileStart: LongWord;
+  VVersionInfo: IMapVersionInfo;
 begin
   Result := False;
-  if FIndex.FindTileInfo(AXY, Azoom, AVersionInfo, VOffset, VSize) then begin
+  VVersionInfo := AVersionInfo;
+  if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize) then begin
     VFileName := FCacheConfig.GetDataFileName;
     if FileExists(VFileName) then begin
       VFileStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
@@ -251,7 +253,7 @@ begin
           ATileInfo := TTileInfoBasicExists.Create(
             0,
             VSize,
-            AVersionInfo,
+            VVersionInfo,
             FMainContentType
           );
         finally
@@ -262,7 +264,7 @@ begin
       end;
     end;
   end else begin
-    ATileInfo := TTileInfoBasicNotExists.Create(0, AVersionInfo);
+    ATileInfo := TTileInfoBasicNotExists.Create(0, VVersionInfo);
   end;
 end;
 
