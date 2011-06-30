@@ -143,6 +143,7 @@
     <DCCReference Include="i_ContentConverter.pas" />
     <DCCReference Include="i_ContentTypeInfo.pas" />
     <DCCReference Include="i_ContentTypeManager.pas" />
+    <DCCReference Include="i_ContentTypeSubst.pas" />
     <DCCReference Include="i_CoordConverter.pas" />
     <DCCReference Include="i_CoordConverterFactory.pas" />
     <DCCReference Include="i_Datum.pas" />
@@ -447,6 +448,7 @@
     <DCCReference Include="u_ContentTypeListByKey.pas" />
     <DCCReference Include="u_ContentTypeManagerBase.pas" />
     <DCCReference Include="u_ContentTypeManagerSimple.pas" />
+    <DCCReference Include="u_ContentTypeSubstByList.pas" />
     <DCCReference Include="u_CoordConverterAbstract.pas" />
     <DCCReference Include="u_CoordConverterBasic.pas" />
     <DCCReference Include="u_CoordConverterFactorySimple.pas" />

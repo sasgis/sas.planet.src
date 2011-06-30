@@ -91,6 +91,8 @@ uses
   i_MemObjCache in 'i_MemObjCache.pas',
   i_TileObjCache in 'i_TileObjCache.pas',
   u_TileCacheSimpleGlobal in 'u_TileCacheSimpleGlobal.pas',
+  i_ContentTypeSubst in 'i_ContentTypeSubst.pas',
+  u_ContentTypeSubstByList in 'u_ContentTypeSubstByList.pas',
   i_DownloadResult in 'i_DownloadResult.pas',
   i_TileDownloadResult in 'i_TileDownloadResult.pas',
   u_DownloadResult in 'u_DownloadResult.pas',
