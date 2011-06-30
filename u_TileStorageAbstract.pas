@@ -9,7 +9,7 @@ uses
   t_CommonTypes,
   i_CoordConverter,
   i_ContentTypeInfo,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_TileInfoBasic,
   u_MapTypeCacheConfig;
 
@@ -30,41 +30,41 @@ type
     function GetTileFileName(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): string; virtual; abstract;
     function GetTileInfo(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; virtual; abstract;
 
     function LoadTile(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       AStream: TStream;
       out ATileInfo: ITileInfoBasic
     ): Boolean; virtual; abstract;
     function DeleteTile(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): Boolean; virtual; abstract;
     function DeleteTNE(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): Boolean; virtual; abstract;
     procedure SaveTile(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       AStream: TStream
     ); virtual; abstract;
     procedure SaveTNE(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ); virtual; abstract;
 
     function LoadFillingMap(
@@ -72,7 +72,7 @@ type
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       AIsStop: TIsCancelChecker;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
@@ -97,7 +97,7 @@ function TTileStorageAbstract.LoadFillingMap(
   btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
-  AVersionInfo: IMapVersionConfigStatic;
+  AVersionInfo: IMapVersionInfo;
   AIsStop: TIsCancelChecker;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;

@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_LastResponseInfo;
 
 type
@@ -13,12 +13,12 @@ type
     function  BuildRequestUrl(
       ATileXY: TPoint;
       AZoom: Byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): string;
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       ALastResponseInfo: ILastResponseInfo;
       out AUrl: string;
       out ARequestHeader: string

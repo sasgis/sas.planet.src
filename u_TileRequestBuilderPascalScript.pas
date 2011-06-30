@@ -12,7 +12,7 @@ uses
   uPSUtils,
   i_ConfigDataProvider,
   i_CoordConverter,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_LastResponseInfo,
   i_TileRequestBuilderConfig,
   u_TileRequestBuilder;
@@ -49,7 +49,7 @@ type
     procedure PreparePascalScript(AConfig: IConfigDataProvider);
     procedure SetVar(
       ALastResponseInfo: ILastResponseInfo;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       AXY: TPoint;
       AZoom: Byte
     );
@@ -59,12 +59,12 @@ type
     function  BuildRequestUrl(
       ATileXY: TPoint;
       AZoom: Byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): string; override;
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       ALastResponseInfo: ILastResponseInfo;
       out AUrl: string;
       out ARequestHeader: string
@@ -109,7 +109,7 @@ end;
 function TTileRequestBuilderPascalScript.BuildRequestUrl(
   ATileXY: TPoint;
   AZoom: Byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 ): string;
 begin
   Lock;
@@ -130,7 +130,7 @@ end;
 procedure TTileRequestBuilderPascalScript.BuildRequest(
   ATileXY: TPoint;
   AZoom: Byte;
-  AVersionInfo: IMapVersionConfigStatic;
+  AVersionInfo: IMapVersionInfo;
   ALastResponseInfo: ILastResponseInfo;
   out AUrl: string;
   out ARequestHeader: string
@@ -319,7 +319,7 @@ end;
 
 procedure TTileRequestBuilderPascalScript.SetVar(
   ALastResponseInfo: ILastResponseInfo;
-  AVersionInfo: IMapVersionConfigStatic;
+  AVersionInfo: IMapVersionInfo;
   AXY: TPoint;
   AZoom: Byte
 );

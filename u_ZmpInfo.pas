@@ -8,7 +8,7 @@ uses
   Classes,
   i_CoordConverter,
   i_ConfigDataProvider,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_TileRequestBuilderConfig,
   i_TileDownloaderConfig,
   i_LanguageManager,
@@ -32,7 +32,7 @@ type
     FParentSubMenuDef: string;
     FParentSubMenu: string;
     FEnabled: Boolean;
-    FVersionConfig: IMapVersionConfigStatic;
+    FVersionConfig: IMapVersionInfo;
     FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     FTileDownloaderConfig: ITileDownloaderConfigStatic;
     FGeoConvert: ICoordConverter;
@@ -74,7 +74,7 @@ type
     function GetSeparator: Boolean;
     function GetParentSubMenu: string;
     function GetEnabled: Boolean;
-    function GetVersionConfig: IMapVersionConfigStatic;
+    function GetVersionConfig: IMapVersionInfo;
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     function GetGeoConvert: ICoordConverter;
@@ -102,7 +102,7 @@ uses
   gnugettext,
   u_TileRequestBuilderConfig,
   u_TileDownloaderConfigStatic,
-  u_MapVersionConfig,
+  u_MapVersionInfo,
   u_ResStrings;
 
 { TZmpInfo }
@@ -220,7 +220,7 @@ begin
   Result := FTileRequestBuilderConfig;
 end;
 
-function TZmpInfo.GetVersionConfig: IMapVersionConfigStatic;
+function TZmpInfo.GetVersionConfig: IMapVersionInfo;
 begin
   Result := FVersionConfig;
 end;
@@ -380,7 +380,7 @@ var
   VVersion: Variant;
 begin
   VVersion := AConfig.ReadString('Version', '');
-  FVersionConfig := TMapVersionConfigStatic.Create(VVersion);
+  FVersionConfig := TMapVersionInfo.Create(VVersion);
 end;
 
 end.

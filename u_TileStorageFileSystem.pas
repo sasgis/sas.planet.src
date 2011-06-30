@@ -10,7 +10,7 @@ uses
   t_CommonTypes,
   i_ConfigDataProvider,
   i_CoordConverter,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_ContentTypeInfo,
   i_TileInfoBasic,
   u_MapTypeCacheConfig,
@@ -29,7 +29,7 @@ type
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByPath(
       APath: string;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic;
   public
     constructor Create(AConfig: IConfigDataProvider);
@@ -49,18 +49,18 @@ type
     function GetTileFileName(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): string; override;
     function GetTileInfo(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
 
     function LoadTile(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       AStream: TStream;
       out ATileInfo: ITileInfoBasic
     ): Boolean; override;
@@ -68,24 +68,24 @@ type
     function DeleteTile(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): Boolean; override;
     function DeleteTNE(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     procedure SaveTile(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       AStream: TStream
     ); override;
     procedure SaveTNE(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ); override;
 
     function LoadFillingMap(
@@ -93,7 +93,7 @@ type
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       AIsStop: TIsCancelChecker;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
@@ -146,7 +146,7 @@ end;
 function TTileStorageFileSystem.DeleteTile(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
   VPath: string;
@@ -170,7 +170,7 @@ end;
 function TTileStorageFileSystem.DeleteTNE(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
   VPath: string;
@@ -235,7 +235,7 @@ end;
 function TTileStorageFileSystem.GetTileFileName(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 ): string;
 begin
   Result := FCacheConfig.GetTileFileName(AXY, Azoom);
@@ -243,7 +243,7 @@ end;
 
 function TTileStorageFileSystem.GetTileInfoByPath(
   APath: string;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
   InfoFile: TSearchRec;
@@ -273,7 +273,7 @@ end;
 function TTileStorageFileSystem.GetTileInfo(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
   VPath: String;
@@ -296,7 +296,7 @@ function TTileStorageFileSystem.LoadFillingMap(
   btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
-  AVersionInfo: IMapVersionConfigStatic;
+  AVersionInfo: IMapVersionInfo;
   AIsStop: TIsCancelChecker;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
@@ -417,7 +417,7 @@ end;
 function TTileStorageFileSystem.LoadTile(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic;
+  AVersionInfo: IMapVersionInfo;
   AStream: TStream;
   out ATileInfo: ITileInfoBasic
 ): Boolean;
@@ -450,7 +450,7 @@ end;
 procedure TTileStorageFileSystem.SaveTile(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic;
+  AVersionInfo: IMapVersionInfo;
   AStream: TStream
 );
 var
@@ -480,7 +480,7 @@ end;
 procedure TTileStorageFileSystem.SaveTNE(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 );
 var
   VPath: String;

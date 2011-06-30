@@ -7,7 +7,7 @@ uses
   SyncObjs,
   SysUtils,
   i_TileRequestBuilder,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_LastResponseInfo,
   i_TileRequestBuilderConfig;
 
@@ -24,12 +24,12 @@ type
     function  BuildRequestUrl(
       ATileXY: TPoint;
       AZoom: Byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): string; virtual; abstract;
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       ALastResponseInfo: ILastResponseInfo;
       out AUrl: string;
       out ARequestHeader: string

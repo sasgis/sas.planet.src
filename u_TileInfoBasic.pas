@@ -4,25 +4,25 @@ interface
 
 uses
   i_ContentTypeInfo,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_TileInfoBasic;
 
 type
   TTileInfoBasicBase = class(TInterfacedObject, ITileInfoBasic)
   private
     FDate: TDateTime;
-    FVersionInfo: IMapVersionConfigStatic;
+    FVersionInfo: IMapVersionInfo;
   protected
     function GetIsExists: Boolean; virtual; abstract;
     function GetIsExistsTNE: Boolean; virtual; abstract;
     function GetLoadDate: TDateTime; virtual;
     function GetSize: Cardinal; virtual; abstract;
-    function GetVersionInfo: IMapVersionConfigStatic; virtual;
+    function GetVersionInfo: IMapVersionInfo; virtual;
     function GetContentType: IContentTypeInfoBasic; virtual; abstract;
   public
     constructor Create(
       ADate: TDateTime;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     );
   end;
 
@@ -55,7 +55,7 @@ type
     constructor Create(
       ADate: TDateTime;
       ASize: Cardinal;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       AContentType: IContentTypeInfoBasic
     );
   end;
@@ -66,7 +66,7 @@ implementation
 
 constructor TTileInfoBasicBase.Create(
   ADate: TDateTime;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 );
 begin
   FDate := ADate;
@@ -78,7 +78,7 @@ begin
   Result := FDate;
 end;
 
-function TTileInfoBasicBase.GetVersionInfo: IMapVersionConfigStatic;
+function TTileInfoBasicBase.GetVersionInfo: IMapVersionInfo;
 begin
   Result := FVersionInfo;
 end;
@@ -110,7 +110,7 @@ end;
 constructor TTileInfoBasicExists.Create(
   ADate: TDateTime;
   ASize: Cardinal;
-  AVersionInfo: IMapVersionConfigStatic;
+  AVersionInfo: IMapVersionInfo;
   AContentType: IContentTypeInfoBasic
 );
 begin

@@ -44,7 +44,6 @@ type
     FZmp: IZmpInfo;
     FName: string;
     FasLayer: boolean;
-//    FVersion: Variant;
     FTileRect: TRect;
     FUseDwn: boolean;
     FIsCanShowOnSmMap: Boolean;

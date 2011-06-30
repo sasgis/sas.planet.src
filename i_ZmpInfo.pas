@@ -8,7 +8,7 @@ uses
   i_ConfigDataProvider,
   i_CoordConverter,
   i_TileDownloaderConfig,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_TileRequestBuilderConfig;
 
 type
@@ -47,8 +47,8 @@ type
     function GetEnabled: Boolean;
     property Enabled: Boolean read GetEnabled;
 
-    function GetVersionConfig: IMapVersionConfigStatic;
-    property VersionConfig: IMapVersionConfigStatic read GetVersionConfig;
+    function GetVersionConfig: IMapVersionInfo;
+    property VersionConfig: IMapVersionInfo read GetVersionConfig;
 
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     property TileRequestBuilderConfig: ITileRequestBuilderConfigStatic read GetTileRequestBuilderConfig;

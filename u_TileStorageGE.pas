@@ -8,7 +8,7 @@ uses
   i_CoordConverter,
   i_ConfigDataProvider,
   i_ContentTypeInfo,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_TileInfoBasic,
   u_MapTypeCacheConfig,
   u_GEIndexFile,
@@ -39,19 +39,19 @@ type
     function GetTileFileName(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): string; override;
 
     function GetTileInfo(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
 
     function LoadTile(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       AStream: TStream;
       out ATileInfo: ITileInfoBasic
     ): Boolean; override;
@@ -59,24 +59,24 @@ type
     function DeleteTile(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): Boolean; override;
     function DeleteTNE(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     procedure SaveTile(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic;
+      AVersionInfo: IMapVersionInfo;
       AStream: TStream
     ); override;
     procedure SaveTNE(
       AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionConfigStatic
+      AVersionInfo: IMapVersionInfo
     ); override;
   end;
 
@@ -110,7 +110,7 @@ end;
 function TTileStorageGE.DeleteTile(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 ): Boolean;
 begin
   Result := False;
@@ -119,7 +119,7 @@ end;
 function TTileStorageGE.DeleteTNE(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 ): Boolean;
 begin
   Result := False;
@@ -163,7 +163,7 @@ end;
 function TTileStorageGE.GetTileFileName(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 ): string;
 begin
   Abort;
@@ -172,7 +172,7 @@ end;
 function TTileStorageGE.GetTileInfo(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
   VVersion: Word;
@@ -204,7 +204,7 @@ end;
 function TTileStorageGE.LoadTile(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic;
+  AVersionInfo: IMapVersionInfo;
   AStream: TStream;
   out ATileInfo: ITileInfoBasic
 ): Boolean;
@@ -269,7 +269,7 @@ end;
 procedure TTileStorageGE.SaveTile(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic;
+  AVersionInfo: IMapVersionInfo;
   AStream: TStream
 );
 begin
@@ -279,7 +279,7 @@ end;
 procedure TTileStorageGE.SaveTNE(
   AXY: TPoint;
   Azoom: byte;
-  AVersionInfo: IMapVersionConfigStatic
+  AVersionInfo: IMapVersionInfo
 );
 begin
   Abort;
