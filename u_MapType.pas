@@ -101,7 +101,6 @@ type
     HotKey: TShortCut;
     separator: boolean;
     ParentSubMenu: string;
-    showinfo: boolean;
     Enabled: boolean;
 
     function GetLink(AXY: TPoint; Azoom: byte): string;
@@ -298,11 +297,8 @@ end;
 
 procedure TMapType.LoadDownloader(AConfig: IConfigDataProvider);
 var
-  VParams: IConfigDataProvider;
   VDownloader: TTileDownloaderFactory;
 begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FTileDownloaderConfig.ReadConfig(VParams);
   if FUseDwn then begin
     try
       VDownloader := TTileDownloaderFactory.Create(FTileDownloaderConfig);
@@ -333,11 +329,9 @@ begin
   LoadUIParams(AConfig);
   if FSortIndex < 0 then begin
     FSortIndex := 1000;
-    showinfo := True;
-  end else begin
-    showinfo := False;
   end;
   FVersionConfig.ReadConfig(VParams);
+  FTileDownloaderConfig.ReadConfig(VParams);
   LoadStorageParams(AConfig);
   LoadProjectionInfo(AConfig);
   LoadWebSourceParams(AConfig);
