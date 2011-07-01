@@ -9,6 +9,7 @@ uses
   i_CoordConverter,
   i_ConfigDataProvider,
   i_MapVersionInfo,
+  i_ContentTypeSubst,
   i_TileRequestBuilderConfig,
   i_TileDownloaderConfig,
   i_LanguageManager,
@@ -35,6 +36,7 @@ type
     FVersionConfig: IMapVersionInfo;
     FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     FTileDownloaderConfig: ITileDownloaderConfigStatic;
+    FContentTypeSubst: IContentTypeSubst;
     FGeoConvert: ICoordConverter;
     FViewGeoConvert: ICoordConverter;
 
@@ -77,6 +79,7 @@ type
     function GetVersionConfig: IMapVersionInfo;
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
+    function GetContentTypeSubst: IContentTypeSubst;
     function GetGeoConvert: ICoordConverter;
     function GetViewGeoConvert: ICoordConverter;
     function GetDataProvider: IConfigDataProvider;
@@ -102,6 +105,7 @@ uses
   gnugettext,
   u_TileRequestBuilderConfig,
   u_TileDownloaderConfigStatic,
+  u_ContentTypeSubstByList,
   u_MapVersionInfo,
   u_ResStrings;
 
@@ -148,6 +152,11 @@ end;
 function TZmpInfo.GetBmp24: TBitmap;
 begin
   Result := FBmp24;
+end;
+
+function TZmpInfo.GetContentTypeSubst: IContentTypeSubst;
+begin
+  Result := FContentTypeSubst;
 end;
 
 function TZmpInfo.GetDataProvider: IConfigDataProvider;
@@ -241,6 +250,7 @@ begin
   LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
   LoadTileRequestBuilderConfig(FConfigIniParams);
   LoadTileDownloaderConfig(FConfigIniParams);
+  FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
 end;
 
 function TZmpInfo.LoadGUID(AConfig: IConfigDataProvider): TGUID;

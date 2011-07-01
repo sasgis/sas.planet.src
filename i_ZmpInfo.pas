@@ -7,6 +7,7 @@ uses
   Classes,
   i_ConfigDataProvider,
   i_CoordConverter,
+  i_ContentTypeSubst,
   i_TileDownloaderConfig,
   i_MapVersionInfo,
   i_TileRequestBuilderConfig;
@@ -55,6 +56,9 @@ type
 
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     property TileDownloaderConfig: ITileDownloaderConfigStatic read GetTileDownloaderConfig;
+
+    function GetContentTypeSubst: IContentTypeSubst;
+    property ContentTypeSubst: IContentTypeSubst read GetContentTypeSubst;
 
     function GetGeoConvert: ICoordConverter;
     property GeoConvert: ICoordConverter read GetGeoConvert;

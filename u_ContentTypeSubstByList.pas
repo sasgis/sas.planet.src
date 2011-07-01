@@ -13,6 +13,7 @@ type
     FSource: TStringList;
     FTarget: TStringList;
     procedure ParseSubstList(ASubstListText: string);
+    procedure ParseSubstListItem(ASubstListItemText: string);
   protected
     function GetContentType(ASource: string): string;
   public
@@ -37,6 +38,7 @@ begin
   if VSubstListText <> '' then begin
     ParseSubstList(VSubstListText);
   end;
+  FSource.Sorted := True;
 end;
 
 destructor TContentTypeSubstByList.Destroy;
@@ -63,7 +65,7 @@ procedure TContentTypeSubstByList.ParseSubstList(ASubstListText: string);
 var
   VTempList: TStringList;
   i: Integer;
-  VSubstItemString: string;
+  VSubstItemText: string;
 begin
   VTempList := TStringList.Create;
   try
@@ -71,7 +73,36 @@ begin
     VTempList.Delimiter := ';';
     VTempList.DelimitedText := ASubstListText;
     for i := 0 to VTempList.Count - 1 do begin
-      VSubstItemString := VTempList.Strings[i];
+      VSubstItemText := VTempList.Strings[i];
+      if VSubstItemText <> '' then begin
+        ParseSubstListItem(VSubstItemText);
+      end;
+    end;
+  finally
+    VTempList.Free;
+  end;
+end;
+
+procedure TContentTypeSubstByList.ParseSubstListItem(
+  ASubstListItemText: string);
+var
+  VTempList: TStringList;
+  VSource: string;
+  VTarget: string;
+  VTargetIndex: Integer;
+begin
+  VTempList := TStringList.Create;
+  try
+    VTempList.QuoteChar := '"';
+    VTempList.Delimiter := '=';
+    VTempList.DelimitedText := ASubstListItemText;
+    if VTempList.Count = 2 then begin
+      VSource := VTempList.Strings[0];
+      VTarget := VTempList.Strings[1];
+      if (VSource <> '') and (VTarget <> '') then begin
+        VTargetIndex := FTarget.Add(VTarget);
+        FSource.AddObject(VSource, TObject(VTargetIndex));
+      end; 
     end;
   finally
     VTempList.Free;
