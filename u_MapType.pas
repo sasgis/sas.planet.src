@@ -50,7 +50,6 @@ type
     FUseStick: boolean;
     FUseGenPrevious: boolean;
     FAntiBan: IAntiBan;
-    FMimeTypeSubstList: TStringList;
     FCache: ITileObjCache;
     FStorage: TTileStorageAbstract;
     FTileRequestBuilder: ITileRequestBuilder;
@@ -76,8 +75,6 @@ type
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
-    function GetMIMETypeSubst(AMimeType: string): string;
-    procedure LoadMimeTypeSubstList(AConfig : IConfigDataProvider);
     procedure LoadUrlScript(AConfig : IConfigDataProvider);
     procedure LoadDownloader(AConfig : IConfigDataProvider);
     procedure LoadProjectionInfo(AConfig : IConfigDataProvider);
@@ -248,24 +245,6 @@ begin
   FViewCoordConverter := Zmp.ViewGeoConvert;
 end;
 
-procedure TMapType.LoadMimeTypeSubstList(AConfig: IConfigDataProvider);
-var
-  VMimeTypeSubstText: string;
-  VParams: IConfigDataProvider;
-begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-
-  VMimeTypeSubstText := VParams.ReadString('MimeTypeSubst', '');
-  if Length(VMimeTypeSubstText) > 0 then begin
-    FMimeTypeSubstList := TStringList.Create;
-    FMimeTypeSubstList.Delimiter := ';';
-    FMimeTypeSubstList.DelimitedText := VMimeTypeSubstText;
-    if FMimeTypeSubstList.Count = 0 then begin
-      FreeAndNil(FMimeTypeSubstList);
-    end;
-  end;
-end;
-
 procedure TMapType.LoadWebSourceParams(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
@@ -338,7 +317,6 @@ begin
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
   FTileRequestBuilderConfig.ReadConfig(VParams);
-  LoadMimeTypeSubstList(AConfig);
   LoadUrlScript(AConfig);
   LoadDownloader(AConfig);
 end;
@@ -430,18 +408,16 @@ procedure TMapType.SaveTileBitmapDownload(AXY: TPoint; Azoom: byte;
 var
   btmSrc:TCustomBitmap32;
   VManager: IBitmapTypeExtManager;
-  VMimeType: String;
 begin
   VManager := GState.BitmapTypeManager;
-  VMimeType := GetMIMETypeSubst(AMimeType);
-  if VManager.GetIsBitmapType(VMimeType) then begin
-    if not IsCropOnDownload and SameText(FStorage.TileFileExt, VManager.GetExtForType(VMimeType)) then begin
+  if VManager.GetIsBitmapType(AMimeType) then begin
+    if not IsCropOnDownload and SameText(FStorage.TileFileExt, VManager.GetExtForType(AMimeType)) then begin
       FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
     end else begin
       btmsrc := TCustomBitmap32.Create;
       try
         ATileStream.Position := 0;
-        VManager.GetBitmapLoaderForType(VMimeType).LoadFromStream(ATileStream, btmSrc);
+        VManager.GetBitmapLoaderForType(AMimeType).LoadFromStream(ATileStream, btmSrc);
 
         if IsCropOnDownload then begin
           CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
@@ -587,7 +563,6 @@ constructor TMapType.Create(
 begin
   FZmp := AZmp;
   FLanguageManager := ALanguageManager;
-  FMimeTypeSubstList := nil;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
   FLastResponseInfo := TLastResponseInfo.Create;
@@ -603,7 +578,6 @@ end;
 
 destructor TMapType.Destroy;
 begin
-  FreeAndNil(FMimeTypeSubstList);
   FCoordConverter := nil;
   FPoolOfDownloaders := nil;
   FCache := nil;
@@ -628,6 +602,7 @@ var
   VUrl: string;
   VOldTileSize: Integer;
   VResultStream: TMemoryStream;
+  VContentType: string;
 begin
   if FUseDwn then begin
     VRequestHead := '';
@@ -670,7 +645,9 @@ begin
       VResultStream := TMemoryStream.Create;
       try
         VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);
-        SaveTileDownload(ATile, AZoom, VResultStream, VResultOk.ContentType);
+        VContentType := VResultOk.ContentType;
+        VContentType := Zmp.ContentTypeSubst.GetContentType(VContentType);
+        SaveTileDownload(ATile, AZoom, VResultStream, VContentType);
       finally
         VResultStream.Free;
       end;
@@ -778,19 +755,6 @@ end;
 function TMapType.GetIsHybridLayer: Boolean;
 begin
   Result := IsBitmapTiles and asLayer;
-end;
-
-function TMapType.GetMIMETypeSubst(AMimeType: string): string;
-var
-  VNewMimeType: string;
-begin
-  Result := AMimeType;
-  if FMimeTypeSubstList <> nil then begin
-    VNewMimeType := FMimeTypeSubstList.Values[AMimeType];
-    if Length(VNewMimeType) > 0 then begin
-      Result := VNewMimeType;
-    end;
-  end;
 end;
 
 function TMapType.LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte;
