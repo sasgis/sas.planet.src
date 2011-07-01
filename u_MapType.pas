@@ -268,7 +268,7 @@ begin
   FName := Zmp.Name;
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
   HotKey:=VParams.ReadInteger('HotKey',Zmp.HotKey);
-  ParentSubMenu:=VParams.ReadString('ParentSubMenu', Zmp.ParentSubMenu);
+  ParentSubMenu:=VParams.ReadString('LOCAL:ParentSubMenu', Zmp.ParentSubMenu);
   separator:=VParams.ReadBool('separator', Zmp.Separator);
   Enabled:=VParams.ReadBool('Enabled', Zmp.Enabled);
   FSortIndex:=VParams.ReadInteger('pnum', Zmp.SortIndex);
