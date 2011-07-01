@@ -77,7 +77,6 @@ type
     function GetIsHybridLayer: Boolean;
     procedure LoadUrlScript(AConfig : IConfigDataProvider);
     procedure LoadDownloader(AConfig : IConfigDataProvider);
-    procedure LoadProjectionInfo(AConfig : IConfigDataProvider);
     procedure LoadStorageParams(AConfig : IConfigDataProvider);
     procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
     procedure LoadUIParams(AConfig : IConfigDataProvider);
@@ -239,12 +238,6 @@ begin
   FCache := TTileCacheSimpleGlobal.Create(Self, GState.MainMemCache);
 end;
 
-procedure TMapType.LoadProjectionInfo(AConfig: IConfigDataProvider);
-begin
-  FCoordConverter := FStorage.GetCoordConverter;
-  FViewCoordConverter := Zmp.ViewGeoConvert;
-end;
-
 procedure TMapType.LoadWebSourceParams(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
@@ -312,7 +305,8 @@ begin
   FVersionConfig.ReadConfig(VParams);
   FTileDownloaderConfig.ReadConfig(VParams);
   LoadStorageParams(AConfig);
-  LoadProjectionInfo(AConfig);
+  FCoordConverter := FStorage.GetCoordConverter;
+  FViewCoordConverter := Zmp.ViewGeoConvert;
   LoadWebSourceParams(AConfig);
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
