@@ -92,7 +92,7 @@ begin
     end;
   end;
   if FCheckTileSize then begin
-    VContentLenAsStr := GetHeaderValue(AResponseHead, 'Conternt Length');
+    VContentLenAsStr := GetHeaderValue(AResponseHead, 'Content-Length');
     if VContentLenAsStr <> '' then begin
       if TryStrToInt64(VContentLenAsStr, VContentLen) then begin
         if VContentLen = FExistsFileSize then begin
