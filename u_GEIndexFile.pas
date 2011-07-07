@@ -128,7 +128,6 @@ begin
   AOffset := 0;
   ASize := 0;
 
-  VVersion := 0;
   AVersionInfo := nil;
   VProcessed := False;
   while not VProcessed do begin
