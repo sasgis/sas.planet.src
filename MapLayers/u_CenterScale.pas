@@ -67,7 +67,6 @@ begin
       try
         FLayer.Bitmap.Assign(VBitmap);
         FLayer.Bitmap.DrawMode := dmBlend;
-        FLayer.Bitmap.CombineMode := cmMerge;
       finally
         VBitmap.Free;
       end;

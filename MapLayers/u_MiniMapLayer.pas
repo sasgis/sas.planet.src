@@ -211,7 +211,6 @@ begin
   FLeftBorder.MouseEvents := false;
   FLeftBorder.Cursor := crSizeNWSE;
   FLeftBorder.Bitmap.DrawMode := dmBlend;
-  FLeftBorder.Bitmap.CombineMode := cmMerge;
   FLeftBorder.OnMouseDown := LeftBorderMouseDown;
   FLeftBorder.OnMouseUp := LeftBorderMouseUP;
   FLeftBorder.OnMouseMove := LeftBorderMouseMove;
@@ -221,13 +220,11 @@ begin
   FTopBorder.Visible := False;
   FTopBorder.MouseEvents := false;
   FTopBorder.Bitmap.DrawMode := dmBlend;
-  FTopBorder.Bitmap.CombineMode := cmMerge;
 
   FViewRectDrawLayer := TBitmapLayer.Create(AParentMap.Layers);
   FViewRectDrawLayer.Visible := False;
   FViewRectDrawLayer.MouseEvents := false;
   FViewRectDrawLayer.Bitmap.DrawMode := dmBlend;
-  FViewRectDrawLayer.Bitmap.CombineMode := cmMerge;
   FViewRectDrawLayer.OnMouseDown := LayerMouseDown;
   FViewRectDrawLayer.OnMouseUp := LayerMouseUP;
   FViewRectDrawLayer.OnMouseMove := LayerMouseMove;
@@ -236,7 +233,6 @@ begin
   FPlusButton.Visible := False;
   FPlusButton.MouseEvents := false;
   FPlusButton.Bitmap.DrawMode := dmBlend;
-  FPlusButton.Bitmap.CombineMode := cmMerge;
   FPlusButton.OnMouseDown := PlusButtonMouseDown;
   FPlusButton.OnMouseUp := PlusButtonMouseUP;
   FPlusButton.Cursor := crHandPoint;
@@ -246,7 +242,6 @@ begin
   FMinusButton.Visible := False;
   FMinusButton.MouseEvents := false;
   FMinusButton.Bitmap.DrawMode := dmBlend;
-  FMinusButton.Bitmap.CombineMode := cmMerge;
   FMinusButton.OnMouseDown := MinusButtonMouseDown;
   FMinusButton.OnMouseUp := MinusButtonMouseUP;
   FMinusButton.Cursor := crHandPoint;
