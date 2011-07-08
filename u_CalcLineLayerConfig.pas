@@ -21,13 +21,13 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetLenShow: Boolean;
-    procedure SetLenShow(AValue: Boolean);
+    procedure SetLenShow(const AValue: Boolean);
 
     function GetTextColor: TColor32;
-    procedure SetTextColor(AValue: TColor32);
+    procedure SetTextColor(const AValue: TColor32);
 
     function GetTextBGColor: TColor32;
-    procedure SetTextBGColor(AValue: TColor32);
+    procedure SetTextBGColor(const AValue: TColor32);
   public
     constructor Create;
   end;
@@ -115,7 +115,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayerConfig.SetLenShow(AValue: Boolean);
+procedure TCalcLineLayerConfig.SetLenShow(const AValue: Boolean);
 begin
   LockWrite;
   try
@@ -128,7 +128,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayerConfig.SetTextBGColor(AValue: TColor32);
+procedure TCalcLineLayerConfig.SetTextBGColor(const AValue: TColor32);
 begin
   LockWrite;
   try
@@ -141,7 +141,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayerConfig.SetTextColor(AValue: TColor32);
+procedure TCalcLineLayerConfig.SetTextColor(const AValue: TColor32);
 begin
   LockWrite;
   try

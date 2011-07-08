@@ -12,10 +12,10 @@ type
   private
     FSource: TStringList;
     FTarget: TStringList;
-    procedure ParseSubstList(ASubstListText: string);
-    procedure ParseSubstListItem(ASubstListItemText: string);
+    procedure ParseSubstList(const ASubstListText: string);
+    procedure ParseSubstListItem(const ASubstListItemText: string);
   protected
-    function GetContentType(ASource: string): string;
+    function GetContentType(const ASource: string): string;
   public
     constructor Create(AConfig: IConfigDataProvider);
     destructor Destroy; override;
@@ -48,7 +48,7 @@ begin
   inherited;
 end;
 
-function TContentTypeSubstByList.GetContentType(ASource: string): string;
+function TContentTypeSubstByList.GetContentType(const ASource: string): string;
 var
   VSourceIndex: Integer;
   VTargetIndex: Integer;
@@ -61,7 +61,7 @@ begin
   end;
 end;
 
-procedure TContentTypeSubstByList.ParseSubstList(ASubstListText: string);
+procedure TContentTypeSubstByList.ParseSubstList(const ASubstListText: string);
 var
   VTempList: TStringList;
   i: Integer;
@@ -84,7 +84,7 @@ begin
 end;
 
 procedure TContentTypeSubstByList.ParseSubstListItem(
-  ASubstListItemText: string);
+  const ASubstListItemText: string);
 var
   VTempList: TStringList;
   VSource: string;

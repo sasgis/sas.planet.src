@@ -10,7 +10,7 @@ type
   ICenterScaleConfig = interface(IConfigDataElement)
     ['{8C83DD24-D0D4-4DAD-ACEF-9359587DDE0B}']
     function GetVisible: Boolean;
-    procedure SetVisible(AValue: Boolean);
+    procedure SetVisible(const AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
 
     function GetBitmap: TCustomBitmap32;

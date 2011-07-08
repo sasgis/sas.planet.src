@@ -31,13 +31,13 @@ type
     property ConverterMatrix: TContentConverterMatrix read FConverterMatrix;
 
   protected
-    function GetInfo(AType: WideString): IContentTypeInfoBasic;
-    function GetInfoByExt(AExt: WideString): IContentTypeInfoBasic;
-    function GetIsBitmapType(AType: WideString): Boolean;
-    function GetIsBitmapExt(AExt: WideString): Boolean;
-    function GetIsKmlType(AType: WideString): Boolean;
-    function GetIsKmlExt(AExt: WideString): Boolean;
-    function GetConverter(ATypeSource, ATypeTarget: WideString): IContentConverter;
+    function GetInfo(const AType: WideString): IContentTypeInfoBasic;
+    function GetInfoByExt(const AExt: WideString): IContentTypeInfoBasic;
+    function GetIsBitmapType(const AType: WideString): Boolean;
+    function GetIsBitmapExt(const AExt: WideString): Boolean;
+    function GetIsKmlType(const AType: WideString): Boolean;
+    function GetIsKmlExt(const AExt: WideString): Boolean;
+    function GetConverter(const ATypeSource, ATypeTarget: WideString): IContentConverter;
   public
     constructor Create();
     destructor Destroy; override;
@@ -93,40 +93,40 @@ begin
   inherited;
 end;
 
-function TContentTypeManagerBase.GetConverter(ATypeSource,
-  ATypeTarget: WideString): IContentConverter;
+function TContentTypeManagerBase.GetConverter(
+  const ATypeSource, ATypeTarget: WideString): IContentConverter;
 begin
   Result := FConverterMatrix.Get(ATypeSource, ATypeTarget);
 end;
 
 function TContentTypeManagerBase.GetInfo(
-  AType: WideString): IContentTypeInfoBasic;
+  const AType: WideString): IContentTypeInfoBasic;
 begin
   Result := FTypeList.Get(AType);
 end;
 
 function TContentTypeManagerBase.GetInfoByExt(
-  AExt: WideString): IContentTypeInfoBasic;
+  const AExt: WideString): IContentTypeInfoBasic;
 begin
   Result := FExtList.Get(AExt);
 end;
 
-function TContentTypeManagerBase.GetIsBitmapExt(AExt: WideString): Boolean;
+function TContentTypeManagerBase.GetIsBitmapExt(const AExt: WideString): Boolean;
 begin
   Result := FBitmapExtList.Get(AExt) <> nil;
 end;
 
-function TContentTypeManagerBase.GetIsBitmapType(AType: WideString): Boolean;
+function TContentTypeManagerBase.GetIsBitmapType(const AType: WideString): Boolean;
 begin
   Result := FBitmapTypeList.Get(AType) <> nil;
 end;
 
-function TContentTypeManagerBase.GetIsKmlExt(AExt: WideString): Boolean;
+function TContentTypeManagerBase.GetIsKmlExt(const AExt: WideString): Boolean;
 begin
   Result := FKmlExtList.Get(AExt) <> nil;
 end;
 
-function TContentTypeManagerBase.GetIsKmlType(AType: WideString): Boolean;
+function TContentTypeManagerBase.GetIsKmlType(const AType: WideString): Boolean;
 begin
   Result := FKmlTypeList.Get(AType) <> nil;
 end;

@@ -4,7 +4,7 @@ interface
 
 type
   IContentTypeSubst = interface
-    function GetContentType(ASource: string): string;
+    function GetContentType(const ASource: string): string;
   end;
 
 implementation
