@@ -19,14 +19,14 @@ type
     function LonLat2Metr(const Ll: TDoublePoint): TDoublePoint; stdcall;
 
     // Возвращает количество тайлов в заданном зуме
-    function TilesAtZoom(AZoom: byte): Longint; stdcall;
+    function TilesAtZoom(const AZoom: byte): Longint; stdcall;
     // Возвращает общее количество пикселей на заданном зуме
-    function PixelsAtZoom(AZoom: byte): Longint; stdcall;
+    function PixelsAtZoom(const AZoom: byte): Longint; stdcall;
 
     // Преобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
-    function TilePos2PixelPos(const XY: TPoint; Azoom: byte): TPoint; stdcall;
+    function TilePos2PixelPos(const XY: TPoint; const Azoom: byte): TPoint; stdcall;
     // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
-    function TilePos2PixelRect(const XY: TPoint; Azoom: byte): TRect; stdcall;
+    function TilePos2PixelRect(const XY: TPoint; const Azoom: byte): TRect; stdcall;
   end;
 
   ICoordConverter = interface
@@ -35,111 +35,111 @@ type
     property Datum: IDatum read GetDatum;
 
     // Возвращает количество тайлов в заданном зуме
-    function TilesAtZoom(AZoom: byte): Longint; stdcall;
-    function TilesAtZoomFloat(AZoom: byte): Double; stdcall;
+    function TilesAtZoom(const AZoom: byte): Longint; stdcall;
+    function TilesAtZoomFloat(const AZoom: byte): Double; stdcall;
     // Возвращает общее количество пикселей на заданном зуме
-    function PixelsAtZoom(AZoom: byte): Longint; stdcall;
-    function PixelsAtZoomFloat(AZoom: byte): Double; stdcall;
+    function PixelsAtZoom(const AZoom: byte): Longint; stdcall;
+    function PixelsAtZoomFloat(const AZoom: byte): Double; stdcall;
 
     // Преобразует координаты пиксела в  координаты тайда cодержащего пиксель
-    function PixelPos2TilePos(const XY: TPoint; Azoom: byte): TPoint; stdcall;
+    function PixelPos2TilePos(const XY: TPoint; const Azoom: byte): TPoint; stdcall;
     // Преобразует координаты пиксела в относительные координаты на карте (x/PixelsAtZoom)
-    function PixelPos2Relative(const XY: TPoint; Azoom: byte): TDoublePoint; stdcall;
+    function PixelPos2Relative(const XY: TPoint; const Azoom: byte): TDoublePoint; stdcall;
     // Преобразует координаты пиксела в географические координаты
-    function PixelPos2LonLat(const XY: TPoint; Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
-    function PixelPos2TilePosFloat(const XY: TPoint; Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
+    function PixelPos2LonLat(const XY: TPoint; const Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
+    function PixelPos2TilePosFloat(const XY: TPoint; const Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
 
-    function PixelPosFloat2PixelPos(const XY: TDoublePoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
-    function PixelPosFloat2TilePos(const XY: TDoublePoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
-    function PixelPosFloat2TilePosFloat(const XY: TDoublePoint; Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
-    function PixelPosFloat2Relative(const XY: TDoublePoint; Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
-    function PixelPosFloat2LonLat(const XY: TDoublePoint; Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
+    function PixelPosFloat2PixelPos(const XY: TDoublePoint; const Azoom: byte): TPoint; stdcall;//TODO: Автотест
+    function PixelPosFloat2TilePos(const XY: TDoublePoint; const Azoom: byte): TPoint; stdcall;//TODO: Автотест
+    function PixelPosFloat2TilePosFloat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
+    function PixelPosFloat2Relative(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
+    function PixelPosFloat2LonLat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
 
     // вычисляет прямоугольник тайлов покрывающий прямоугольник пикселов
-    function PixelRect2TileRect(const XY: TRect; AZoom: byte): TRect; stdcall;
+    function PixelRect2TileRect(const XY: TRect; const AZoom: byte): TRect; stdcall;
     // Преобразует координаты прямоугольника пикселов в относительные координаты на карте (x/PixelsAtZoom)
-    function PixelRect2RelativeRect(const XY: TRect; AZoom: byte): TDoubleRect; stdcall;
+    function PixelRect2RelativeRect(const XY: TRect; const AZoom: byte): TDoubleRect; stdcall;
     // Преобразует координаты прямоугольника пикселов в географические координаты на карте
-    function PixelRect2LonLatRect(const XY: TRect; AZoom: byte): TDoubleRect; stdcall;
-    function PixelRect2TileRectFloat(const XY: TRect; AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function PixelRect2LonLatRect(const XY: TRect; const AZoom: byte): TDoubleRect; stdcall;
+    function PixelRect2TileRectFloat(const XY: TRect; const AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
 
-    function PixelRectFloat2PixelRect(const XY: TDoubleRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
-    function PixelRectFloat2TileRect(const XY: TDoubleRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
-    function PixelRectFloat2TileRectFloat(const XY: TDoubleRect; AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
-    function PixelRectFloat2RelativeRect(const XY: TDoubleRect; AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
-    function PixelRectFloat2LonLatRect(const XY: TDoubleRect; AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function PixelRectFloat2PixelRect(const XY: TDoubleRect; const AZoom: byte): TRect; stdcall;//TODO: Автотест
+    function PixelRectFloat2TileRect(const XY: TDoubleRect; const AZoom: byte): TRect; stdcall;//TODO: Автотест
+    function PixelRectFloat2TileRectFloat(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function PixelRectFloat2RelativeRect(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function PixelRectFloat2LonLatRect(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
 
     // Преобразует позицию тайла заданного зума в координаты пиксела его левого верхнего угла
-    function TilePos2PixelPos(const XY: TPoint; Azoom: byte): TPoint; stdcall;
+    function TilePos2PixelPos(const XY: TPoint; const Azoom: byte): TPoint; stdcall;
     // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
-    function TilePos2PixelRect(const XY: TPoint; Azoom: byte): TRect; stdcall;
+    function TilePos2PixelRect(const XY: TPoint; const Azoom: byte): TRect; stdcall;
     // Преобразует координаты тайла в относительные координаты на карте (x/PixelsAtZoom)
-    function TilePos2Relative(const XY: TPoint; Azoom: byte): TDoublePoint; stdcall;
+    function TilePos2Relative(const XY: TPoint; const Azoom: byte): TDoublePoint; stdcall;
     // Преобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
-    function TilePos2RelativeRect(const XY: TPoint; Azoom: byte): TDoubleRect; stdcall;
+    function TilePos2RelativeRect(const XY: TPoint; const Azoom: byte): TDoubleRect; stdcall;
     // Преобразует координаты тайла в географические координаты
-    function TilePos2LonLat(const XY: TPoint; Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
+    function TilePos2LonLat(const XY: TPoint; const Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
     // Преобразует позицию тайла заданного зума в географические координаты его углов
-    function TilePos2LonLatRect(const XY: TPoint; Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function TilePos2LonLatRect(const XY: TPoint; const Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
 
-    function TilePosFloat2TilePos(const XY: TDoublePoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
-    function TilePosFloat2PixelPos(const XY: TDoublePoint; Azoom: byte): TPoint; stdcall;//TODO: Автотест
-    function TilePosFloat2PixelPosFloat(const XY: TDoublePoint; Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
-    function TilePosFloat2Relative(const XY: TDoublePoint; Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
-    function TilePosFloat2LonLat(const XY: TDoublePoint; Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
+    function TilePosFloat2TilePos(const XY: TDoublePoint; const Azoom: byte): TPoint; stdcall;//TODO: Автотест
+    function TilePosFloat2PixelPos(const XY: TDoublePoint; const Azoom: byte): TPoint; stdcall;//TODO: Автотест
+    function TilePosFloat2PixelPosFloat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
+    function TilePosFloat2Relative(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
+    function TilePosFloat2LonLat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
 
     // вычисляет координты пикселей вершин прямоугольника тайлов
-    function TileRect2PixelRect(const XY: TRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
+    function TileRect2PixelRect(const XY: TRect; const AZoom: byte): TRect; stdcall;//TODO: Автотест
     // вычисляет относительные координты вершин прямоугольника тайлов
-    function TileRect2RelativeRect(const XY: TRect; AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function TileRect2RelativeRect(const XY: TRect; const AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
     // Преобразует прямоугольник тайлов заданного зума в географические координаты его углов
-    function TileRect2LonLatRect(const XY: TRect; Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function TileRect2LonLatRect(const XY: TRect; const Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
 
-    function TileRectFloat2TileRect(const XY: TDoubleRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
-    function TileRectFloat2PixelRect(const XY: TDoubleRect; AZoom: byte): TRect; stdcall;//TODO: Автотест
-    function TileRectFloat2PixelRectFloat(const XY: TDoubleRect; AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
-    function TileRectFloat2RelativeRect(const XY: TDoubleRect; AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
-    function TileRectFloat2LonLatRect(const XY: TDoubleRect; Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function TileRectFloat2TileRect(const XY: TDoubleRect; const AZoom: byte): TRect; stdcall;//TODO: Автотест
+    function TileRectFloat2PixelRect(const XY: TDoubleRect; const AZoom: byte): TRect; stdcall;//TODO: Автотест
+    function TileRectFloat2PixelRectFloat(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function TileRectFloat2RelativeRect(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function TileRectFloat2LonLatRect(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
 
     // Перобразует относительные координаты на карте в координаты пиксела
-    function Relative2Pixel(const XY: TDoublePoint; Azoom: byte): TPoint; stdcall;
-    function Relative2PixelPosFloat(const XY: TDoublePoint; Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
+    function Relative2Pixel(const XY: TDoublePoint; const Azoom: byte): TPoint; stdcall;
+    function Relative2PixelPosFloat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;//TODO: Автотест
     // Перобразует относительные координаты на карте в координаты тайла
-    function Relative2Tile(const XY: TDoublePoint; Azoom: byte): TPoint; stdcall;
-    function Relative2TilePosFloat(const XY: TDoublePoint; Azoom: byte): TDoublePoint; stdcall;
+    function Relative2Tile(const XY: TDoublePoint; const Azoom: byte): TPoint; stdcall;
+    function Relative2TilePosFloat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
     // Перобразует относительные координаты на карте в географические
     function Relative2LonLat(const XY: TDoublePoint): TDoublePoint; stdcall;//TODO: Автотест
 
     // Преобразует прямоугольник с относительными координатами в прямоугольник пикселов
-    function RelativeRect2PixelRect(const XY: TDoubleRect; Azoom: byte): TRect; stdcall;
-    function RelativeRect2PixelRectFloat(const XY: TDoubleRect; Azoom: byte): TDoubleRect; stdcall;
+    function RelativeRect2PixelRect(const XY: TDoubleRect; const Azoom: byte): TRect; stdcall;
+    function RelativeRect2PixelRectFloat(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;
     // Преобразует прямоугольник с относительными координатами в прямоугольник тайлов
-    function RelativeRect2TileRect(const XY: TDoubleRect; Azoom: byte): TRect; stdcall;
-    function RelativeRect2TileRectFloat(const XY: TDoubleRect; Azoom: byte): TDoubleRect; stdcall;
+    function RelativeRect2TileRect(const XY: TDoubleRect; const Azoom: byte): TRect; stdcall;
+    function RelativeRect2TileRectFloat(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;
     // Перобразует прямоугольник с относительными координатами на карте в географические
     function RelativeRect2LonLatRect(const XY: TDoubleRect): TDoubleRect; stdcall;//TODO: Автотест
 
     // Преобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
-    function LonLat2PixelPos(const Ll: TDoublePoint; Azoom: byte): Tpoint; stdcall;//TODO: Автотест
-    function LonLat2PixelPosFloat(const Ll: TDoublePoint; Azoom: byte): TDoublePoint; stdcall;
+    function LonLat2PixelPos(const Ll: TDoublePoint; const Azoom: byte): Tpoint; stdcall;//TODO: Автотест
+    function LonLat2PixelPosFloat(const Ll: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
     // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
-    function LonLat2TilePos(const Ll: TDoublePoint; Azoom: byte): Tpoint; stdcall;//TODO: Автотест
-    function LonLat2TilePosFloat(const Ll: TDoublePoint; Azoom: byte): TDoublePoint; stdcall;
+    function LonLat2TilePos(const Ll: TDoublePoint; const Azoom: byte): Tpoint; stdcall;//TODO: Автотест
+    function LonLat2TilePosFloat(const Ll: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
     // Преобразует географические коодинаты в относительные координаты на карте
     function LonLat2Relative(const XY: TDoublePoint): TDoublePoint; stdcall;//TODO: Автотест
 
     // Преобразует прямоугольник в географических коодинатах в относительные координаты на карте
     function LonLatRect2RelativeRect(const XY: TDoubleRect): TDoubleRect; stdcall;//TODO: Автотест
-    function LonLatRect2PixelRect(const XY: TDoubleRect; Azoom: byte): TRect; stdcall;//TODO: Автотест
-    function LonLatRect2PixelRectFloat(const XY: TDoubleRect; Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
-    function LonLatRect2TileRect(const XY: TDoubleRect; Azoom: byte): TRect; stdcall;//TODO: Автотест
-    function LonLatRect2TileRectFloat(const XY: TDoubleRect; Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function LonLatRect2PixelRect(const XY: TDoubleRect; const Azoom: byte): TRect; stdcall;//TODO: Автотест
+    function LonLatRect2PixelRectFloat(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
+    function LonLatRect2TileRect(const XY: TDoubleRect; const Azoom: byte): TRect; stdcall;//TODO: Автотест
+    function LonLatRect2TileRectFloat(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
 
-    function LonLatArray2PixelArray(APolyg: TArrayOfDoublePoint; AZoom: byte): TArrayOfPoint; stdcall;
-    function LonLatArray2PixelArrayFloat(APolyg: TArrayOfDoublePoint; AZoom: byte): TArrayOfDoublePoint; stdcall;
+    function LonLatArray2PixelArray(const APolyg: TArrayOfDoublePoint; const AZoom: byte): TArrayOfPoint; stdcall;
+    function LonLatArray2PixelArrayFloat(const APolyg: TArrayOfDoublePoint; const AZoom: byte): TArrayOfDoublePoint; stdcall;
 
-    function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; stdcall;
-    function PixelPos2OtherMap(XY: TPoint; Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; stdcall;
+    function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; stdcall;
+    function PixelPos2OtherMap(const XY: TPoint; const Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; stdcall;
 
     function CheckZoom(var AZoom: Byte): boolean; stdcall;
     function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
