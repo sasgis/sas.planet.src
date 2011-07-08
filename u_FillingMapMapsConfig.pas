@@ -18,7 +18,7 @@ type
     FMainMapChangeListener: IJclListener;
     function CreateMapsList: IMapTypeList;
     procedure OnMainMapChange(Sender: TObject);
-    procedure OnSelectedChange(AGUID: TGUID);
+    procedure OnSelectedChange(const AGUID: TGUID);
     procedure SetActualMap(AValue: IMapType);
   protected
     function GetActualMap: IMapType;
@@ -105,7 +105,7 @@ begin
   end;
 end;
 
-procedure TFillingMapMapsConfig.OnSelectedChange(AGUID: TGUID);
+procedure TFillingMapMapsConfig.OnSelectedChange(const AGUID: TGUID);
 begin
   if IsEqualGUID(AGUID, CGUID_Zero) then begin
     SetActualMap(FMainMapsConfig.GetSelectedMapType);

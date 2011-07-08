@@ -7,7 +7,7 @@ uses
   u_JclNotify;
 
 type
-  TNotifyWithGUIDEvent = procedure(AGUID: TGUID) of object;
+  TNotifyWithGUIDEvent = procedure(const AGUID: TGUID) of object;
 
 type
   INotificationMessageWithGUID = interface(IJclNotificationMessage)
@@ -38,13 +38,13 @@ type
 type
   INotifierWithGUID = interface(IJclNotifier)
     ['{7160ECC8-5A85-445C-8655-5E5574E60C88}']
-    procedure NotifyByGUID(AGUID: TGUID); stdcall;
+    procedure NotifyByGUID(const AGUID: TGUID); stdcall;
   end;
 
 type
   TNotifierWithGUID = class (TJclBaseNotifier, INotifierWithGUID)
   protected
-    procedure NotifyByGUID(AGUID: TGUID); stdcall;
+    procedure NotifyByGUID(const AGUID: TGUID); stdcall;
   end;
 
 implementation
@@ -76,7 +76,7 @@ end;
 
 { TNotifierWithGUID }
 
-procedure TNotifierWithGUID.NotifyByGUID(AGUID: TGUID);
+procedure TNotifierWithGUID.NotifyByGUID(const AGUID: TGUID);
 var
   msg: INotificationMessageWithGUID;
 begin

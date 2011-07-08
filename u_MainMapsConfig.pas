@@ -16,7 +16,7 @@ type
     FBitmapLayersSet: IActiveMapsSet;
     FKmlLayersSet: IActiveMapsSet;
     FSelectedMapChangeListener: IJclListener;
-    procedure OnSelectedChange(AGUID: TGUID);
+    procedure OnSelectedChange(const AGUID: TGUID);
   protected
     function GetSelectedMapType: IMapType;
     function GetBitmapLayersSet: IActiveMapsSet;
@@ -118,7 +118,7 @@ begin
   end;
 end;
 
-procedure TMainMapsConfig.OnSelectedChange(AGUID: TGUID);
+procedure TMainMapsConfig.OnSelectedChange(const AGUID: TGUID);
 begin
   LockWrite;
   try

@@ -20,10 +20,10 @@ type
   protected
     FMainMapChangeNotyfier: IJclNotifier;
     FMainMapListener: IJclListener;
-    procedure OnMainMapChange(AGUID: TGUID);
+    procedure OnMainMapChange(const AGUID: TGUID);
   protected
     function GetSelectedGUID: TGUID;
-    function GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
+    function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
     function GetMapsList: IMapTypeList;
   public
     constructor Create(AMainMapChangeNotyfier: IJclNotifier; ASingeMapsList: IGUIDInterfaceList; AMapsList: IMapTypeList);
@@ -64,7 +64,7 @@ begin
   inherited;
 end;
 
-function TActiveMapConfig.GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
+function TActiveMapConfig.GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
 begin
   if FMapsList.GetMapTypeByGUID(AMapGUID) <> nil then begin
     Result := IActiveMapSingle(FSingeMapsList.GetByGUID(AMapGUID));
@@ -86,7 +86,7 @@ begin
   end;
 end;
 
-procedure TActiveMapConfig.OnMainMapChange(AGUID: TGUID);
+procedure TActiveMapConfig.OnMainMapChange(const AGUID: TGUID);
 begin
   LockWrite;
   try

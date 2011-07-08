@@ -26,12 +26,12 @@ type
     FLayerSetSelectListener: IJclListener;
     FLayerSetUnselectListener: IJclListener;
 
-    procedure OnMainMapChange(AGUID: TGUID);
-    procedure OnLayerSetSelectChange(AGUID: TGUID);
-    procedure OnLayerSetUnselectChange(AGUID: TGUID);
+    procedure OnMainMapChange(const AGUID: TGUID);
+    procedure OnLayerSetSelectChange(const AGUID: TGUID);
+    procedure OnLayerSetUnselectChange(const AGUID: TGUID);
   protected
-    function IsGUIDSelected(AMapGUID: TGUID): Boolean;
-    function GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
+    function IsGUIDSelected(const AMapGUID: TGUID): Boolean;
+    function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
     function GetSelectedMapsList: IMapTypeList;
     function GetMapsList: IMapTypeList;
   public
@@ -105,7 +105,7 @@ begin
   inherited;
 end;
 
-function TActiveMapsSet.GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
+function TActiveMapsSet.GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
 begin
   if FMapsList.GetMapTypeByGUID(AMapGUID) <> nil then begin
     Result := IActiveMapSingle(FSingeMapsList.GetByGUID(AMapGUID));
@@ -127,7 +127,7 @@ begin
   end;
 end;
 
-function TActiveMapsSet.IsGUIDSelected(AMapGUID: TGUID): Boolean;
+function TActiveMapsSet.IsGUIDSelected(const AMapGUID: TGUID): Boolean;
 begin
   LockRead;
   try
@@ -137,7 +137,7 @@ begin
   end;
 end;
 
-procedure TActiveMapsSet.OnLayerSetSelectChange(AGUID: TGUID);
+procedure TActiveMapsSet.OnLayerSetSelectChange(const AGUID: TGUID);
 var
   VMapType: IMapType;
   VList: TMapTypeList;
@@ -165,7 +165,7 @@ begin
   end;
 end;
 
-procedure TActiveMapsSet.OnLayerSetUnselectChange(AGUID: TGUID);
+procedure TActiveMapsSet.OnLayerSetUnselectChange(const AGUID: TGUID);
 var
   VMapType: IMapType;
   VList: TMapTypeList;
@@ -194,7 +194,7 @@ begin
   end;
 end;
 
-procedure TActiveMapsSet.OnMainMapChange(AGUID: TGUID);
+procedure TActiveMapsSet.OnMainMapChange(const AGUID: TGUID);
 var
   VMapSingle: IActiveMapSingle;
   VList: TMapTypeList;

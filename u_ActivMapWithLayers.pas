@@ -26,8 +26,8 @@ type
     property LayerSetUnselectNotyfier: INotifierWithGUID read FLayerSetUnselectNotyfier;
     property AllMapsSingleList: IGUIDInterfaceList read FAllMapsSingleList;
   protected
-    procedure SelectLayerByGUID(AMapGUID: TGUID);
-    procedure UnSelectLayerByGUID(AMapGUID: TGUID);
+    procedure SelectLayerByGUID(const AMapGUID: TGUID);
+    procedure UnSelectLayerByGUID(const AMapGUID: TGUID);
 
     function GetLayers: IActiveMapsSet;
     function GetAllActiveMapsSet: IActiveMapsSet;
@@ -213,7 +213,7 @@ begin
   Result := FLayersSet;
 end;
 
-procedure TActivMapWithLayers.SelectLayerByGUID(AMapGUID: TGUID);
+procedure TActivMapWithLayers.SelectLayerByGUID(const AMapGUID: TGUID);
 begin
   LockWrite;
   try
@@ -223,7 +223,7 @@ begin
   end;
 end;
 
-procedure TActivMapWithLayers.UnSelectLayerByGUID(AMapGUID: TGUID);
+procedure TActivMapWithLayers.UnSelectLayerByGUID(const AMapGUID: TGUID);
 begin
   LockWrite;
   try

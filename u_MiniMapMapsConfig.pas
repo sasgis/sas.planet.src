@@ -19,7 +19,7 @@ type
     function CreateMiniMapMapsList: IMapTypeList;
     function CreateMiniMapLayersList: IMapTypeList;
     procedure OnMainMapChange(Sender: TObject);
-    procedure OnSelectedChange(AGUID: TGUID);
+    procedure OnSelectedChange(const AGUID: TGUID);
     procedure SetActiveMiniMap(AValue: IMapType);
   protected
     function GetActiveMiniMap: IMapType;
@@ -129,7 +129,7 @@ begin
   end;
 end;
 
-procedure TMiniMapMapsConfig.OnSelectedChange(AGUID: TGUID);
+procedure TMiniMapMapsConfig.OnSelectedChange(const AGUID: TGUID);
 begin
   if IsEqualGUID(AGUID, CGUID_Zero) then begin
     SetActiveMiniMap(FMainMapsConfig.GetSelectedMapType);

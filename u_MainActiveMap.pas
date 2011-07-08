@@ -23,7 +23,7 @@ type
     property MainMapChangeNotyfier: INotifierWithGUID read FMainMapChangeNotyfier;
     property SingeMapsList: IGUIDInterfaceList read FSingeMapsList;
   protected
-    procedure SelectMainByGUID(AMapGUID: TGUID);
+    procedure SelectMainByGUID(const AMapGUID: TGUID);
     function GetActiveMap: IActiveMap;
     function GetMapsSet: IActiveMapsSet;
   protected
@@ -136,7 +136,7 @@ begin
   Result := FMapsSet;
 end;
 
-procedure TMainActiveMap.SelectMainByGUID(AMapGUID: TGUID);
+procedure TMainActiveMap.SelectMainByGUID(const AMapGUID: TGUID);
 begin
   if FMapsList.GetMapTypeByGUID(AMapGUID) <> nil then begin
     LockWrite;
