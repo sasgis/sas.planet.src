@@ -32,9 +32,9 @@ type
     destructor Destroy; override;
     procedure PreDownload(
       ADownloader: ITileDownlodSession;
-      ATile: TPoint;
-      AZoom: Byte;
-      AUrl: string
+      const ATile: TPoint;
+      const AZoom: Byte;
+      const AUrl: string
     );
     function PostCheckDownload(
       AResultFactory: IDownloadResultFactory;
@@ -166,8 +166,11 @@ begin
 end;
 
 procedure TAntiBanStuped.PreDownload(
-  ADownloader: ITileDownlodSession; ATile: TPoint; AZoom: Byte;
-  AUrl: string);
+  ADownloader: ITileDownlodSession;
+  const ATile: TPoint;
+  const AZoom: Byte;
+  const AUrl: string
+);
 begin
   IncDownloadedAndCheckAntiBan;
 end;

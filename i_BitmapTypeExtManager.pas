@@ -8,13 +8,13 @@ uses
 type
   IBitmapTypeExtManager = interface
     ['{946CE320-DA28-4EC4-934E-CD4A671A9D06}']
-    function GetIsBitmapType(AType: String): Boolean;
-    function GetIsBitmapExt(AExt: String): Boolean;
-    function GetExtForType(AType: String): string;
-    function GetBitmapLoaderForExt(AExt: String): IBitmapTileLoader;
-    function GetBitmapSaverForExt(AExt: String): IBitmapTileSaver;
-    function GetBitmapLoaderForType(AType: String): IBitmapTileLoader;
-    function GetBitmapSaverForType(AType: String): IBitmapTileSaver;
+    function GetIsBitmapType(const AType: String): Boolean;
+    function GetIsBitmapExt(const AExt: String): Boolean;
+    function GetExtForType(const AType: String): string;
+    function GetBitmapLoaderForExt(const AExt: String): IBitmapTileLoader;
+    function GetBitmapSaverForExt(const AExt: String): IBitmapTileSaver;
+    function GetBitmapLoaderForType(const AType: String): IBitmapTileLoader;
+    function GetBitmapSaverForType(const AType: String): IBitmapTileSaver;
   end;
 
 implementation

@@ -14,7 +14,7 @@ type
     FFormat: TImageFileFormat;
   public
     constructor Create(AFormat: TImageFileFormat);
-    procedure LoadFromFile(AFileName: string; ABtm: TCustomBitmap32);
+    procedure LoadFromFile(const AFileName: string; ABtm: TCustomBitmap32);
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
   end;
 
@@ -56,8 +56,10 @@ begin
   FFormat := AFormat;
 end;
 
-procedure TVampyreBasicBitmapTileLoader.LoadFromFile(AFileName: string;
-  ABtm: TCustomBitmap32);
+procedure TVampyreBasicBitmapTileLoader.LoadFromFile(
+  const AFileName: string;
+  ABtm: TCustomBitmap32
+);
 var
   VFormat: TImageFileFormat;
   VImage: TImageData;

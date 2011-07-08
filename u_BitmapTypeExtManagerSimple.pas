@@ -14,13 +14,13 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function GetIsBitmapType(AType: String): Boolean;
-    function GetIsBitmapExt(AExt: String): Boolean;
-    function GetExtForType(AType: String): string;
-    function GetBitmapLoaderForExt(AExt: String): IBitmapTileLoader;
-    function GetBitmapSaverForExt(AExt: String): IBitmapTileSaver;
-    function GetBitmapLoaderForType(AType: String): IBitmapTileLoader;
-    function GetBitmapSaverForType(AType: String): IBitmapTileSaver;
+    function GetIsBitmapType(const AType: String): Boolean;
+    function GetIsBitmapExt(const AExt: String): Boolean;
+    function GetExtForType(const AType: String): string;
+    function GetBitmapLoaderForExt(const AExt: String): IBitmapTileLoader;
+    function GetBitmapSaverForExt(const AExt: String): IBitmapTileSaver;
+    function GetBitmapLoaderForType(const AType: String): IBitmapTileLoader;
+    function GetBitmapSaverForType(const AType: String): IBitmapTileSaver;
   end;
 
 implementation
@@ -66,7 +66,7 @@ begin
 end;
 
 function TBitmapTypeExtManagerSimple.GetBitmapLoaderForExt(
-  AExt: String): IBitmapTileLoader;
+  const AExt: String): IBitmapTileLoader;
 begin
   if SameText(AExt, '.jpg') then begin
     Result := FLoaders[0];
@@ -82,7 +82,7 @@ begin
 end;
 
 function TBitmapTypeExtManagerSimple.GetBitmapLoaderForType(
-  AType: String): IBitmapTileLoader;
+  const AType: String): IBitmapTileLoader;
 begin
   if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := FLoaders[0];
@@ -98,7 +98,7 @@ begin
 end;
 
 function TBitmapTypeExtManagerSimple.GetBitmapSaverForExt(
-  AExt: String): IBitmapTileSaver;
+  const AExt: String): IBitmapTileSaver;
 begin
   if SameText(AExt, '.jpg') then begin
     Result := FSavers[0];
@@ -114,7 +114,7 @@ begin
 end;
 
 function TBitmapTypeExtManagerSimple.GetBitmapSaverForType(
-  AType: String): IBitmapTileSaver;
+  const AType: String): IBitmapTileSaver;
 begin
   if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := FSavers[0];
@@ -129,7 +129,7 @@ begin
   end;
 end;
 
-function TBitmapTypeExtManagerSimple.GetExtForType(AType: String): string;
+function TBitmapTypeExtManagerSimple.GetExtForType(const AType: String): string;
 begin
   if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := '.jpg';
@@ -144,7 +144,7 @@ begin
   end;
 end;
 
-function TBitmapTypeExtManagerSimple.GetIsBitmapExt(AExt: String): Boolean;
+function TBitmapTypeExtManagerSimple.GetIsBitmapExt(const AExt: String): Boolean;
 begin
   if SameText(AExt, '.jpg') then begin
     Result := true;
@@ -160,7 +160,7 @@ begin
 end;
 
 function TBitmapTypeExtManagerSimple.GetIsBitmapType(
-  AType: String): Boolean;
+  const AType: String): Boolean;
 begin
   if SameText(AType, 'image/jpg') or SameText(AType, 'image/jpeg') or SameText(AType, 'image/pjpeg') then begin
     Result := true;

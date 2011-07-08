@@ -14,7 +14,7 @@ type
     FDXTextureLoader: IBitmapTileLoader;
     procedure LoadFromMemStream(AStream: TCustomMemoryStream; ABtm: TCustomBitmap32);
   protected
-    procedure LoadFromFile(AFileName: string; ABtm: TCustomBitmap32);
+    procedure LoadFromFile(const AFileName: string; ABtm: TCustomBitmap32);
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
   public
     constructor Create();
@@ -43,7 +43,7 @@ begin
   inherited;
 end;
 
-procedure TBitmapTileGELoader.LoadFromFile(AFileName: string;
+procedure TBitmapTileGELoader.LoadFromFile(const AFileName: string;
   ABtm: TCustomBitmap32);
 var
   VMemStream: TMemoryStream;

@@ -12,7 +12,7 @@ type
   private
     procedure LoadFromMemStream(AStream: TCustomMemoryStream; ABtm: TCustomBitmap32);
   protected
-    procedure LoadFromFile(AFileName: string; ABtm: TCustomBitmap32);
+    procedure LoadFromFile(const AFileName: string; ABtm: TCustomBitmap32);
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
   end;
 
@@ -46,8 +46,10 @@ type
 
 { TBitmapTileGEDXTextureLoader }
 
-procedure TBitmapTileGEDXTextureLoader.LoadFromFile(AFileName: string;
-  ABtm: TCustomBitmap32);
+procedure TBitmapTileGEDXTextureLoader.LoadFromFile(
+  const AFileName: string;
+  ABtm: TCustomBitmap32
+);
 var
   VMemStream: TMemoryStream;
 begin
