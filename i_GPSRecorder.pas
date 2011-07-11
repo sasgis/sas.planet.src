@@ -22,7 +22,7 @@ type
     procedure AddEmptyPoint;
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    function LastPoints(AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
+    function LastPoints(const AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
     function GetAllPoints: TArrayOfDoublePoint;
     function GetAllTracPoints: TGPSTrackPointArray;
 
