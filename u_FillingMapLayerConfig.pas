@@ -29,22 +29,22 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetVisible: Boolean;
-    procedure SetVisible(AValue: Boolean);
+    procedure SetVisible(const AValue: Boolean);
 
     function GetUseRelativeZoom: Boolean;
-    procedure SetUseRelativeZoom(AValue: Boolean);
+    procedure SetUseRelativeZoom(const AValue: Boolean);
 
     function GetZoom: Byte;
-    procedure SetZoom(AValue: Byte);
+    procedure SetZoom(const AValue: Byte);
 
     function GetNoTileColor: TColor32;
-    procedure SetNoTileColor(AValue: TColor32);
+    procedure SetNoTileColor(const AValue: TColor32);
 
     function GetShowTNE: Boolean;
-    procedure SetShowTNE(AValue: Boolean);
+    procedure SetShowTNE(const AValue: Boolean);
 
     function GetTNEColor: TColor32;
-    procedure SetTNEColor(AValue: TColor32);
+    procedure SetTNEColor(const AValue: TColor32);
 
     function GetSourceMap: IFillingMapMapsConfig;
     function GetStatic: IFillingMapLayerConfigStatic;
@@ -229,7 +229,7 @@ begin
   end;
 end;
 
-procedure TFillingMapLayerConfig.SetNoTileColor(AValue: TColor32);
+procedure TFillingMapLayerConfig.SetNoTileColor(const AValue: TColor32);
 begin
   LockWrite;
   try
@@ -242,7 +242,7 @@ begin
   end;
 end;
 
-procedure TFillingMapLayerConfig.SetShowTNE(AValue: Boolean);
+procedure TFillingMapLayerConfig.SetShowTNE(const AValue: Boolean);
 begin
   LockWrite;
   try
@@ -255,7 +255,7 @@ begin
   end;
 end;
 
-procedure TFillingMapLayerConfig.SetZoom(AValue: Byte);
+procedure TFillingMapLayerConfig.SetZoom(const AValue: Byte);
 begin
   LockWrite;
   try
@@ -268,7 +268,7 @@ begin
   end;
 end;
 
-procedure TFillingMapLayerConfig.SetTNEColor(AValue: TColor32);
+procedure TFillingMapLayerConfig.SetTNEColor(const AValue: TColor32);
 begin
   LockWrite;
   try
@@ -281,7 +281,7 @@ begin
   end;
 end;
 
-procedure TFillingMapLayerConfig.SetUseRelativeZoom(AValue: Boolean);
+procedure TFillingMapLayerConfig.SetUseRelativeZoom(const AValue: Boolean);
 begin
   LockWrite;
   try
@@ -294,7 +294,7 @@ begin
   end;
 end;
 
-procedure TFillingMapLayerConfig.SetVisible(AValue: Boolean);
+procedure TFillingMapLayerConfig.SetVisible(const AValue: Boolean);
 begin
   LockWrite;
   try
