@@ -14,33 +14,33 @@ type
     FPositionEmpty: IGPSPosition;
   protected
     function BuildSatelliteInfo(
-      APseudoRandomCode: Integer;
-      AElevation: Integer;
-      AAzimuth: Integer;
-      ASignalToNoiseRatio: Integer;
-      AIsFix: Boolean
+      const APseudoRandomCode: Integer;
+      const AElevation: Integer;
+      const AAzimuth: Integer;
+      const ASignalToNoiseRatio: Integer;
+      const AIsFix: Boolean
     ): IGPSSatelliteInfo;
 
     function BuildSatellitesInViewEmpty: IGPSSatellitesInView;
     function BuildSatellitesInView(
-      AFixCount: Integer;
-      AItemsCount: Integer;
-      AItems: PUnknownList
+      const AFixCount: Integer;
+      const AItemsCount: Integer;
+      const AItems: PUnknownList
     ): IGPSSatellitesInView;
 
     function BuildPositionEmpty: IGPSPosition;
     function BuildPosition(
-      APosition: TDoublePoint;
-      AAltitude: Double;
-      ASpeed_KMH: Double;
-      AHeading: Double;
-      AUTCDateTime: TDateTime;
-      ALocalDateTime: TDateTime;
-      AIsFix: Word;
-      AHDOP: Double;
-      AVDOP: Double;
-      APDOP: Double;
-      ASatellites: IGPSSatellitesInView
+      const APosition: TDoublePoint;
+      const AAltitude: Double;
+      const ASpeed_KMH: Double;
+      const AHeading: Double;
+      const AUTCDateTime: TDateTime;
+      const ALocalDateTime: TDateTime;
+      const AIsFix: Word;
+      const AHDOP: Double;
+      const AVDOP: Double;
+      const APDOP: Double;
+      const ASatellites: IGPSSatellitesInView
     ): IGPSPosition;
   public
     constructor Create;
@@ -69,10 +69,14 @@ begin
     );
 end;
 
-function TGPSPositionFactory.BuildPosition(APosition: TDoublePoint; AAltitude,
-  ASpeed_KMH, AHeading: Double; AUTCDateTime, ALocalDateTime: TDateTime;
-  AIsFix: Word; AHDOP, AVDOP, APDOP: Double;
-  ASatellites: IGPSSatellitesInView): IGPSPosition;
+function TGPSPositionFactory.BuildPosition(
+  const APosition: TDoublePoint;
+  const AAltitude, ASpeed_KMH, AHeading: Double;
+  const AUTCDateTime, ALocalDateTime: TDateTime;
+  const AIsFix: Word;
+  const AHDOP, AVDOP, APDOP: Double;
+  const ASatellites: IGPSSatellitesInView
+): IGPSPosition;
 begin
   Result :=
     TGPSPositionStatic.Create(
@@ -96,8 +100,8 @@ begin
 end;
 
 function TGPSPositionFactory.BuildSatelliteInfo(
-  APseudoRandomCode, AElevation, AAzimuth, ASignalToNoiseRatio: Integer;
-  AIsFix: Boolean
+  const APseudoRandomCode, AElevation, AAzimuth, ASignalToNoiseRatio: Integer;
+  const AIsFix: Boolean
 ): IGPSSatelliteInfo;
 begin
   Result :=
@@ -110,8 +114,10 @@ begin
     );
 end;
 
-function TGPSPositionFactory.BuildSatellitesInView(AFixCount,
-  AItemsCount: Integer; AItems: PUnknownList): IGPSSatellitesInView;
+function TGPSPositionFactory.BuildSatellitesInView(
+  const AFixCount, AItemsCount: Integer;
+  const AItems: PUnknownList
+): IGPSSatellitesInView;
 begin
   Result :=
     TGPSSatellitesInView.Create(
