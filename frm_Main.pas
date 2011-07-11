@@ -3978,7 +3978,6 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  frmIntrnalBrowser.showmessage('',SAS_STR_WiteLoad);
   frmIntrnalBrowser.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
@@ -3996,7 +3995,6 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  frmIntrnalBrowser.showmessage('',SAS_STR_WiteLoad);
   frmIntrnalBrowser.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 

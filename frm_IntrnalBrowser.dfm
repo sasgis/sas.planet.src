@@ -10,6 +10,7 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
   OldCreateOrder = False
   Position = poMainFormCenter
   OnClose = FormClose
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object EmbeddedWB1: TEmbeddedWB
@@ -19,7 +20,6 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
     Height = 306
     Align = alClient
     TabOrder = 0
-    Silent = False
     DisableCtrlShortcuts = 'N'
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
     OnAuthenticate = EmbeddedWB1Authenticate

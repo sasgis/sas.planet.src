@@ -606,7 +606,6 @@ begin
     GState.StartExceptionTracking;
     try
       frmInvisibleBrowser.NavigateAndWait('about:blank');
-      frmIntrnalBrowser.Navigate('about:blank');
       Application.Run;
     finally
       GState.StopExceptionTracking;

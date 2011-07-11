@@ -22,6 +22,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
       ScanCode: Word; Shift: TShiftState);
+    procedure FormCreate(Sender: TObject);
   private
   protected
   public
@@ -36,6 +37,7 @@ var
 implementation
 
 uses
+  u_ResStrings,
   i_ProxySettings,
   u_GlobalState;
 
@@ -61,11 +63,19 @@ end;
 
 procedure TfrmIntrnalBrowser.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
- EmbeddedWB1.Stop;
+  EmbeddedWB1.Stop;
+end;
+
+procedure TfrmIntrnalBrowser.FormCreate(Sender: TObject);
+begin
+  EmbeddedWB1.Navigate('about:blank');
 end;
 
 procedure TfrmIntrnalBrowser.Navigate(AUrl: string);
 begin
+  TextToWebBrowser(SAS_STR_WiteLoad);
+  Caption:='';
+  show;
   EmbeddedWB1.Navigate(AUrl);
 end;
 
