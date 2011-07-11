@@ -18,7 +18,8 @@ type
     function PrepareURL(ASearch: WideString): string; virtual; abstract;
     function GetDataFromInet(ASearch: WideString): string; virtual;
     function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; virtual; abstract;
-    function GetLocations(ASearch: WideString; ACurrentPos: TDoublePoint): IGeoCodeResult; virtual; safecall;
+  protected
+    function GetLocations(const ASearch: WideString; const ACurrentPos: TDoublePoint): IGeoCodeResult; virtual; safecall;
   public
     constructor Create(AInetSettings: IProxySettings);
     destructor Destroy; override;
@@ -120,8 +121,10 @@ begin
   Result := s;
 end;
 
-function TGeoCoderBasic.GetLocations(ASearch: WideString;
-  ACurrentPos: TDoublePoint): IGeoCodeResult;
+function TGeoCoderBasic.GetLocations(
+  const ASearch: WideString;
+  const ACurrentPos: TDoublePoint
+): IGeoCodeResult;
 var
   VServerResult: string;
   VList: IInterfaceList;
