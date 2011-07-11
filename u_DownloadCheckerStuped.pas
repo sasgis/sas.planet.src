@@ -18,15 +18,18 @@ type
     FCheckTileSize: Boolean;
     FExistsFileSize: Integer;
   protected
-    function BeforeRequest(AUrl:  string; ARequestHead: string): IDownloadResult;
+    function BeforeRequest(
+      const AUrl:  string;
+      const ARequestHead: string
+    ): IDownloadResult;
     function AfterResponse(
       var AStatusCode: Cardinal;
       var AContentType: string;
       var AResponseHead: string
     ): IDownloadResult;
     function AfterReciveData(
-      ARecivedSize: Integer;
-      ARecivedBuffer: Pointer;
+      const ARecivedSize: Integer;
+      const ARecivedBuffer: Pointer;
       var AStatusCode: Cardinal;
       var AResponseHead: string
     ): IDownloadResult;
@@ -66,10 +69,9 @@ begin
 end;
 
 function TDownloadCheckerStuped.BeforeRequest(
-  AUrl, ARequestHead: string
+  const AUrl, ARequestHead: string
 ): IDownloadResult;
 begin
-// Делаем ничего
 end;
 
 function TDownloadCheckerStuped.AfterResponse(
@@ -105,8 +107,8 @@ begin
 end;
 
 function TDownloadCheckerStuped.AfterReciveData(
-  ARecivedSize: Integer;
-  ARecivedBuffer: Pointer;
+  const ARecivedSize: Integer;
+  const ARecivedBuffer: Pointer;
   var AStatusCode: Cardinal;
   var AResponseHead: string
 ): IDownloadResult;
