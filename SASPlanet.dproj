@@ -675,8 +675,6 @@
     <DCCReference Include="u_TileStorageTypeListItem.pas" />
     <DCCReference Include="u_TileStorageTypeListSimple.pas" />
     <DCCReference Include="u_TimeZones.pas" />
-    <DCCReference Include="u_UrlGenerator.pas" />
-    <DCCReference Include="u_UrlGeneratorHelpers.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="u_ValueToStringConverter.pas" />
