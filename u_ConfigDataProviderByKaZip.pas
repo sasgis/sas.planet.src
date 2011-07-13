@@ -177,7 +177,7 @@ begin
   for i := 0 to FUnZip.Entries.Count - 1 do begin
     VFileName := FUnZip.Entries.Items[i].FileName;
     VExt := UpperCase(ExtractFileExt(VFileName));
-    if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
+    if (VExt = '.INI') or (VExt = '.TXT') then begin
       AList.Add(VFileName);
     end;
   end;
@@ -199,7 +199,7 @@ begin
   for i := 0 to FUnZip.Entries.Count - 1 do begin
     VFileName := FUnZip.Entries.Items[i].FileName;
     VExt := UpperCase(ExtractFileExt(VFileName));
-    if (VExt <> '.INI') then begin
+    if (VExt <> '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
       AList.Add(VFileName);
     end;
   end;
