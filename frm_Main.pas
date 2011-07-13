@@ -3733,8 +3733,8 @@ begin
   end else begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
-  if VMapType.Zmp.Info <> '' then begin
-    frmIntrnalBrowser.showmessage(VMapType.Zmp.FileName, VMapType.Zmp.Info);
+  if VMapType.Zmp.InfoUrl <> '' then begin
+    frmIntrnalBrowser.Navigate(VMapType.Zmp.FileName, VMapType.Zmp.InfoUrl);
   end;
 end;
 
@@ -3978,7 +3978,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  frmIntrnalBrowser.Navigate('http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  frmIntrnalBrowser.Navigate('http://ws.geonames.org/srtm3', 'http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TfrmMain.NGTOPO30Click(Sender: TObject);
@@ -3995,7 +3995,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseDownPoint);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  frmIntrnalBrowser.Navigate('http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  frmIntrnalBrowser.Navigate('http://ws.geonames.org/gtopo30', 'http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TfrmMain.Google1Click(Sender: TObject);
@@ -4104,7 +4104,7 @@ begin
       VMenuItem := TTBXItem(FNLayerInfoItemList.GetByGUID(VGUID));
       VMenuItem.Visible := VLayerIsActive;
       if VLayerIsActive then begin
-        VMenuItem.Enabled := VMapType.Zmp.Info <> '';
+        VMenuItem.Enabled := VMapType.Zmp.InfoUrl <> '';
       end;
       if VLayerIsActive then begin
         ldm.Visible:=true;
@@ -4116,7 +4116,7 @@ begin
     end;
   end;
   VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-  NMapInfo.Enabled:=VMapType.Zmp.Info<>'';
+  NMapInfo.Enabled:=VMapType.Zmp.InfoUrl<>'';
 end;
 
 procedure TfrmMain.NGoToForumClick(Sender: TObject);
