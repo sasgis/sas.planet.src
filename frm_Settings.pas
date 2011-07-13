@@ -772,9 +772,11 @@ procedure TfrmSettings.MapListChange(Sender: TObject; Item: TListItem;
 var
   VMap: TMapType;
 begin
-  if Item.Data<>nil then begin
-    VMap := TMapType(Item.Data);
-    btnMapInfo.Enabled:=VMap.Zmp.InfoUrl<>'';
+  if Self.Visible then begin
+    if Item.Data<>nil then begin
+      VMap := TMapType(Item.Data);
+      btnMapInfo.Enabled:=VMap.Zmp.InfoUrl<>'';
+    end;
   end;
 end;
 
