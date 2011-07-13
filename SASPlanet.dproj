@@ -171,6 +171,7 @@
     <DCCReference Include="i_ImportConfig.pas" />
     <DCCReference Include="i_ImportFile.pas" />
     <DCCReference Include="i_InetConfig.pas" />
+    <DCCReference Include="i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="i_InternalPerformanceCounter.pas" />
     <DCCReference Include="i_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
@@ -501,6 +502,9 @@
     <DCCReference Include="u_GPSSatellitesInView.pas" />
     <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
+    <DCCReference Include="u_IeEmbeddedProtocol.pas" />
+    <DCCReference Include="u_IeEmbeddedProtocolFactory.pas" />
+    <DCCReference Include="u_IeEmbeddedProtocolRegistration.pas" />
     <DCCReference Include="u_ImageResamplerConfig.pas" />
     <DCCReference Include="u_ImageResamplerFactory.pas" />
     <DCCReference Include="u_ImageResamplerFactoryListStatic.pas" />
@@ -513,6 +517,8 @@
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InetConfigStatic.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
+    <DCCReference Include="u_InternalDomainInfoProviderByMapTypeList.pas" />
+    <DCCReference Include="u_InternalDomainInfoProviderList.pas" />
     <DCCReference Include="u_InternalPerformanceCounter.pas" />
     <DCCReference Include="u_InternalPerformanceCounterList.pas" />
     <DCCReference Include="u_JclListenerNotifierLinksList.pas" />

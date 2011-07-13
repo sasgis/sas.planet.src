@@ -26,9 +26,9 @@ type
   private
   protected
   public
-    procedure showmessage(ACaption,AText: string);
+    procedure showmessage(ACaption, AText: string);
     procedure TextToWebBrowser(Text: string);
-    procedure Navigate(AUrl: string);
+    procedure Navigate(ACaption, AUrl: string);
   end;
 
 var
@@ -71,10 +71,10 @@ begin
   EmbeddedWB1.Navigate('about:blank');
 end;
 
-procedure TfrmIntrnalBrowser.Navigate(AUrl: string);
+procedure TfrmIntrnalBrowser.Navigate(ACaption, AUrl: string);
 begin
   TextToWebBrowser(SAS_STR_WiteLoad);
-  Caption:='';
+  Caption:=ACaption;
   show;
   EmbeddedWB1.Navigate(AUrl);
 end;

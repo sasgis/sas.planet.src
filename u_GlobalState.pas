@@ -52,6 +52,7 @@ uses
   i_ImportFile,
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
+  u_IeEmbeddedProtocolRegistration,
   u_GPSState,
   u_GlobalCahceConfig;
 
@@ -103,6 +104,7 @@ type
     FSensorList: IInterfaceList;
     FPerfCounterList: IInternalPerformanceCounterList;
     FDownloadResultTextProvider: IDownloadResultTextProvider;
+    FProtocol: TIeEmbeddedProtocolRegistration;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -242,6 +244,9 @@ uses
   u_DownloadResultTextProvider,
   u_MainFormConfig,
   u_InternalPerformanceCounterList,
+  u_IeEmbeddedProtocolFactory,
+  u_InternalDomainInfoProviderList,
+  u_InternalDomainInfoProviderByMapTypeList,
   u_ResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -251,6 +256,7 @@ constructor TGlobalState.Create;
 var
   VList: IListOfObjectsWithTTL;
   VViewCnonfig: IConfigDataProvider;
+  VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
 begin
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
@@ -328,6 +334,9 @@ begin
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
+  VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
+  VInternalDomainInfoProviderList.Add('ZmpInfo', TInternalDomainInfoProviderByMapTypeList.Create);
+  FProtocol := TIeEmbeddedProtocolRegistration.Create('sas', TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));
 end;
 
 destructor TGlobalState.Destroy;
@@ -370,6 +379,7 @@ begin
   FMarkPictureList := nil;
   FreeAndNil(FCacheConfig);
   FSkyMapDraw := nil;
+  FreeAndNil(FProtocol);
   FreeAndNil(FGUISyncronizedTimer);
   FGUISyncronizedTimerNotifier := nil;
   inherited;

@@ -24,8 +24,8 @@ type
     function GetName: string;
     property Name: string read GetName;
 
-    function GetInfo: string;
-    property Info: string read GetInfo;
+    function GetInfoUrl: string;
+    property InfoUrl: string read GetInfoUrl;
 
     function GetSortIndex: Integer;
     property SortIndex: Integer read GetSortIndex;

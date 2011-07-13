@@ -24,8 +24,7 @@ type
     FNameDef: string;
     FName: string;
     FSortIndex: Integer;
-    FInfoDef: string;
-    FInfo: string;
+    FInfoUrl: string;
     FBmp18: TBitmap;
     FBmp24: TBitmap;
     FHotKey: TShortCut;
@@ -69,7 +68,7 @@ type
     function GetFileName: string;
     function GetName: string;
     function GetSortIndex: Integer;
-    function GetInfo: string;
+    function GetInfoUrl: string;
     function GetBmp18: TBitmap;
     function GetBmp24: TBitmap;
     function GetHotKey: TShortCut;
@@ -194,9 +193,9 @@ begin
   Result := FViewGeoConvert;
 end;
 
-function TZmpInfo.GetInfo: string;
+function TZmpInfo.GetInfoUrl: string;
 begin
-  Result := FInfo;
+  Result := FInfoUrl;
 end;
 
 function TZmpInfo.GetName: string;
@@ -309,12 +308,21 @@ end;
 
 procedure TZmpInfo.LoadInfo(AConfig: IConfigDataProvider);
 begin
-  FInfoDef := AConfig.ReadString('info.txt', '');
+  if AConfig.ReadString('info.txt', '') <> '' then begin
+    FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/';
+  end else begin
+    FInfoUrl := '';
+  end;
 end;
 
 procedure TZmpInfo.LoadInfoLang(AConfig: IConfigDataProvider; ALanguageCode: string);
+var
+  VFileName: string;
 begin
-  FInfo := AConfig.ReadString('info_'+ALanguageCode+'.txt', FInfoDef);
+  VFileName := 'info_'+ALanguageCode+'.txt';
+  if AConfig.ReadString(VFileName, '') <> '' then begin
+    FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/' + VFileName;
+  end;
 end;
 
 procedure TZmpInfo.LoadProjectionInfo(AConfig: IConfigDataProvider; ACoordConverterFactory: ICoordConverterFactory);
