@@ -308,8 +308,10 @@ end;
 
 procedure TZmpInfo.LoadInfo(AConfig: IConfigDataProvider);
 begin
-  if AConfig.ReadString('info.txt', '') <> '' then begin
+  if AConfig.ReadString('index.html', '') <> '' then begin
     FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/';
+  end else if AConfig.ReadString('info.txt', '') <> '' then begin
+    FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/info.txt';
   end else begin
     FInfoUrl := '';
   end;
@@ -319,9 +321,14 @@ procedure TZmpInfo.LoadInfoLang(AConfig: IConfigDataProvider; ALanguageCode: str
 var
   VFileName: string;
 begin
-  VFileName := 'info_'+ALanguageCode+'.txt';
+  VFileName := 'index_'+ALanguageCode+'.html';
   if AConfig.ReadString(VFileName, '') <> '' then begin
     FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/' + VFileName;
+  end else begin
+    VFileName := 'info_'+ALanguageCode+'.txt';
+    if AConfig.ReadString(VFileName, '') <> '' then begin
+      FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/' + VFileName;
+    end;
   end;
 end;
 

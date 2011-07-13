@@ -140,7 +140,7 @@ begin
     Result := FSourceFolderName;
   end else begin
     VExt := UpperCase(ExtractFileExt(AIdent));
-    if (VExt = '.INI') or (VExt = '.TXT') then begin
+    if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
       VFileName := IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent;
       if FileExists(VFileName) then begin
         VStream := TMemoryStream.Create;

@@ -64,7 +64,7 @@ begin
   AContentType := '';
   VFileName := AFileName;
   if VFileName = '' then begin
-    VFileName := 'info.txt';
+    VFileName := 'index.html';
   end;
   if AContentType = '' then begin
     VExt := ExtractFileExt(VFileName);
