@@ -132,7 +132,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 242
+      Left = 238
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -164,7 +164,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 369
+      Left = 365
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -175,7 +175,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 540
+      Left = 536
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -199,10 +199,10 @@ object frmMain: TfrmMain
         OnClick = TBGPSPathClick
         Caption = ''
         Hint = 'Show GPS track'
-        object TBXItem5: TTBXItem
+        object tbitmSaveCurrentPositionToolbar: TTBXItem
           ImageIndex = 15
           Images = MenusImageList
-          OnClick = TBXItem5Click
+          OnClick = tbitmSaveCurrentPositionClick
           Caption = 'Add Placemark'
           Hint = ''
         end
@@ -857,11 +857,12 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
         end
-        object tbitmGPSTrackSave: TTBXItem
-          ImageIndex = 25
+        object tbitmSaveCurrentPosition: TTBXItem
+          ImageIndex = 15
           Images = MenusImageList
           ShortCut = 49235
-          Caption = 'Save Track'
+          OnClick = tbitmSaveCurrentPositionClick
+          Caption = 'Add Placemark'
           Hint = ''
         end
         object tbitmGPSTrackSaveToDb: TTBXItem

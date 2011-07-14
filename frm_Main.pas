@@ -205,7 +205,7 @@ type
     tbitmGPSConnect: TTBXItem;
     tbitmGPSTrackShow: TTBXItem;
     tbitmGPSCenterMap: TTBXItem;
-    tbitmGPSTrackSave: TTBXItem;
+    tbitmSaveCurrentPosition: TTBXItem;
     tbitmGPSTrackSaveToDb: TTBXItem;
     tbitmGPSTrackClear: TTBXItem;
     Showstatus: TTBXItem;
@@ -245,7 +245,7 @@ type
     TBXItem2: TTBXItem;
     TBXItem3: TTBXItem;
     TBXItem4: TTBXItem;
-    TBXItem5: TTBXItem;
+    tbitmSaveCurrentPositionToolbar: TTBXItem;
     TBXSeparatorItem16: TTBXSeparatorItem;
     TBXSeparatorItem17: TTBXSeparatorItem;
     TBXToolBarSearch: TTBXToolbar;
@@ -442,7 +442,7 @@ type
     procedure NbackloadLayerClick(Sender: TObject);
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
     procedure TBXItem1Click(Sender: TObject);
-    procedure TBXItem5Click(Sender: TObject);
+    procedure tbitmSaveCurrentPositionClick(Sender: TObject);
     procedure TBXSelectSrchClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
       var Accept: Boolean);
@@ -3768,16 +3768,20 @@ begin
   TBXSensorsBar.Visible := TTBXItem(sender).Checked;
 end;
 
-procedure TfrmMain.TBXItem5Click(Sender: TObject);
+procedure TfrmMain.tbitmSaveCurrentPositionClick(Sender: TObject);
 var
   VPosition: IGPSPosition;
+  VLonLat: TDoublePoint;
 begin
   VPosition := GState.GPSRecorder.CurrentPosition;
   if VPosition.IsFix > 0 then begin
-    if FMarkDBGUI.AddNewPointModal(VPosition.Position) then begin
-      setalloperationfalse(ao_movemap);
-      FLayerMapMarks.Redraw;
-    end;
+    VLonLat := VPosition.Position;
+  end else begin
+    VLonLat := FConfig.ViewPortState.GetVisualCoordConverter.GetCenterLonLat;
+  end;
+  if FMarkDBGUI.AddNewPointModal(VLonLat) then begin
+    setalloperationfalse(ao_movemap);
+    FLayerMapMarks.Redraw;
   end;
 end;
 
