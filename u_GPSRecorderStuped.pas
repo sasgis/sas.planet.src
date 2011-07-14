@@ -9,6 +9,7 @@ uses
   i_ConfigDataWriteProvider,
   i_Datum,
   i_GPS,
+  i_GPSPositionFactory,
   i_GPSRecorder,
   u_ConfigDataElementBase;
 

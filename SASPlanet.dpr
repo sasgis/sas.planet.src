@@ -502,6 +502,7 @@ uses
   i_GPSRecorder in 'i_GPSRecorder.pas',
   u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
   i_GPS in 'i_GPS.pas',
+  i_GPSPositionFactory in 'i_GPSPositionFactory.pas',
   i_GPSModule in 'i_GPSModule.pas',
   i_GPSModuleByCOM in 'i_GPSModuleByCOM.pas',
   i_GPSModuleByCOMFactory in 'i_GPSModuleByCOMFactory.pas',

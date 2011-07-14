@@ -164,6 +164,7 @@
     <DCCReference Include="i_GPSModuleByCOMFactory.pas" />
     <DCCReference Include="i_GPSModuleByCOMPortConfig.pas" />
     <DCCReference Include="i_GPSModuleByCOMPortSettings.pas" />
+    <DCCReference Include="i_GPSPositionFactory.pas" />
     <DCCReference Include="i_GPSRecorder.pas" />
     <DCCReference Include="i_GSMGeoCodeConfig.pas" />
     <DCCReference Include="i_ImageResamplerConfig.pas" />
