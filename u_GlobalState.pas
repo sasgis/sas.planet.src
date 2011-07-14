@@ -14,7 +14,6 @@ uses
   JclDebug,
   {$ENDIF SasDebugWithJcl}
   i_JclNotify,
-  i_GPS,
   i_GPSPositionFactory,
   i_LanguageManager,
   i_MemObjCache,

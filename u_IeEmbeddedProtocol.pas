@@ -6,7 +6,6 @@ uses
   Windows,
   Classes,
   UrlMon,
-  ActiveX,
   i_InternalDomainInfoProvider;
 
 type

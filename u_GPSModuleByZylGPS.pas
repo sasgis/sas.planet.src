@@ -5,7 +5,6 @@ interface
 uses
   SysUtils,
   ZylGPSReceiver,
-  i_GPS,
   i_GPSPositionFactory,
   i_GPSModuleByCOMPortSettings,
   i_GPSModuleByCOM,

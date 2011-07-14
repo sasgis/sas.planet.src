@@ -180,7 +180,6 @@ uses
   i_TileInfoBasic,
   u_PoolOfObjectsSimple,
   u_TileDownloaderConfig,
-  u_TileRequestBuilder,
   u_TileRequestBuilderConfig,
   u_TileRequestBuilderPascalScript,
   u_TileDownloaderBaseFactory,
