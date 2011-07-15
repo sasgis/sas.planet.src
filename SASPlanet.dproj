@@ -678,6 +678,7 @@
     <DCCReference Include="u_TimeZones.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
+    <DCCReference Include="u_UserInterfaceItemBase.pas" />
     <DCCReference Include="u_ValueToStringConverter.pas" />
     <DCCReference Include="u_ValueToStringConverterConfig.pas" />
     <DCCReference Include="u_VectorDataItemBase.pas" />
