@@ -3841,12 +3841,12 @@ var
   VIsError: Boolean;
 begin
   case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderCloudMade.Create(car,fastest);
-    2:VProvider := TPathDetalizeProviderCloudMade.Create(foot,fastest);
-    3:VProvider := TPathDetalizeProviderCloudMade.Create(bicycle,fastest);
-    11:VProvider := TPathDetalizeProviderCloudMade.Create(car,shortest);
-    12:VProvider := TPathDetalizeProviderCloudMade.Create(foot,shortest);
-    13:VProvider := TPathDetalizeProviderCloudMade.Create(bicycle,shortest);
+    1:VProvider := TPathDetalizeProviderCloudMadeFastestByCar.Create(GState.LanguageManager);
+    2:VProvider := TPathDetalizeProviderCloudMadeFastestByFoot.Create(GState.LanguageManager);
+    3:VProvider := TPathDetalizeProviderCloudMadeFastestByBicycle.Create(GState.LanguageManager);
+    11:VProvider := TPathDetalizeProviderCloudMadeShortestByCar.Create(GState.LanguageManager);
+    12:VProvider := TPathDetalizeProviderCloudMadeShortestByFoot.Create(GState.LanguageManager);
+    13:VProvider := TPathDetalizeProviderCloudMadeShortestByBicycle.Create(GState.LanguageManager);
   end;
   if VProvider <> nil then begin
     VIsError := True;
@@ -4176,10 +4176,10 @@ var
   VIsError: Boolean;
 begin
   case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderYourNavigation1.Create;
-    11:VProvider := TPathDetalizeProviderYourNavigation11.Create;
-    2:VProvider := TPathDetalizeProviderYourNavigation2.Create;
-    22:VProvider := TPathDetalizeProviderYourNavigation22.Create;
+    1:VProvider := TPathDetalizeProviderYourNavigation1.Create(GState.KmlLoader);
+    11:VProvider := TPathDetalizeProviderYourNavigation11.Create(GState.KmlLoader);
+    2:VProvider := TPathDetalizeProviderYourNavigation2.Create(GState.KmlLoader);
+    22:VProvider := TPathDetalizeProviderYourNavigation22.Create(GState.KmlLoader);
   end;
   if VProvider <> nil then begin
     VIsError := True;

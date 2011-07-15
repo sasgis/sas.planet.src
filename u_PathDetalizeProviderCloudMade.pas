@@ -7,6 +7,8 @@ uses
   SysUtils,
   DateUtils,
   t_GeoTypes,
+  i_LanguageManager,
+  u_UserInterfaceItemBase,
   i_PathDetalizeProvider;
 
 type
@@ -14,9 +16,7 @@ type
   TRouteCalcType = (fastest,shortest);
 
 type
-  TPathDetalizeProviderCloudMade = class(TInterfacedObject, IPathDetalizeProvider)
-  public
-    constructor Create(Vehicle:TRouteVehicle; RouteCalcType:TRouteCalcType);
+  TPathDetalizeProviderCloudMade = class(TUserInterfaceItemBase, IPathDetalizeProvider)
   private
     FBaseUrl: string;
     FVehicle: TRouteVehicle;
@@ -24,13 +24,86 @@ type
   protected
     function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint;
     function SecondToTime(const Seconds: Cardinal): Double;
+  public
+    constructor Create(
+      AGUID: TGUID;
+      ALanguageManager: ILanguageManager;
+      AVehicle: TRouteVehicle;
+      ARouteCalcType: TRouteCalcType
+    );
   end;
 
+  TPathDetalizeProviderCloudMadeFastestByCar = class(TPathDetalizeProviderCloudMade)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
+  end;
+
+  TPathDetalizeProviderCloudMadeFastestByFoot = class(TPathDetalizeProviderCloudMade)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
+  end;
+
+  TPathDetalizeProviderCloudMadeFastestByBicycle = class(TPathDetalizeProviderCloudMade)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
+  end;
+
+  TPathDetalizeProviderCloudMadeShortestByCar = class(TPathDetalizeProviderCloudMade)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
+  end;
+
+  TPathDetalizeProviderCloudMadeShortestByFoot = class(TPathDetalizeProviderCloudMade)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
+  end;
+
+  TPathDetalizeProviderCloudMadeShortestByBicycle = class(TPathDetalizeProviderCloudMade)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
+  end;
 
 implementation
 
 uses
   Classes,
+  gnugettext,
   u_GeoToStr,
   u_ResStrings,
   i_VectorDataItemSimple,
@@ -39,11 +112,17 @@ uses
 
 { TPathDetalizeProviderCloudMade }
 
-constructor TPathDetalizeProviderCloudMade.Create(Vehicle:TRouteVehicle; RouteCalcType:TRouteCalcType);
+constructor TPathDetalizeProviderCloudMade.Create(
+  AGUID: TGUID;
+  ALanguageManager: ILanguageManager;
+  AVehicle: TRouteVehicle;
+  ARouteCalcType: TRouteCalcType
+);
 begin
+  inherited Create(AGUID, ALanguageManager);
   FBaseUrl := 'http://routes.cloudmade.com/BC9A493B41014CAABB98F0471D759707/api/0.3/';
-  FVehicle := Vehicle;
-  FRouteCalcType:=RouteCalcType;
+  FVehicle := AVehicle;
+  FRouteCalcType := ARouteCalcType;
 end;
 
 function TPathDetalizeProviderCloudMade.GetPath(ASource: TArrayOfDoublePoint;
@@ -155,6 +234,144 @@ begin
   ss := ((Seconds mod SecPerDay) mod SecPerHour) mod SecPerMinute;
   ms := 0;
   Result := dd + EncodeTime(hh, mm, ss, ms);
+end;
+
+{ TPathDetalizeProviderCloudMadeFastestByCar }
+
+constructor TPathDetalizeProviderCloudMadeFastestByCar.Create(
+  ALanguageManager: ILanguageManager);
+begin
+  inherited Create(StringToGUID('{EA19A8A3-B79F-4CB2-81E7-18365FAF6163}'), ALanguageManager, car, fastest);
+end;
+
+function TPathDetalizeProviderCloudMadeFastestByCar.GetCaptionTranslated: string;
+begin
+  Result := _('On car (Fastest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeFastestByCar.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on car (Fastest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeFastestByCar.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On car (Fastest)');
+end;
+
+{ TPathDetalizeProviderCloudMadeFastestByFoot }
+
+constructor TPathDetalizeProviderCloudMadeFastestByFoot.Create(
+  ALanguageManager: ILanguageManager);
+begin
+  inherited Create(StringToGUID('{038DA1B0-F36B-463D-8914-32CEDC8791DB}'), ALanguageManager, foot, fastest);
+end;
+
+function TPathDetalizeProviderCloudMadeFastestByFoot.GetCaptionTranslated: string;
+begin
+  Result := _('On foot (Fastest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeFastestByFoot.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on foot (Fastest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeFastestByFoot.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On foot (Fastest)');
+end;
+
+{ TPathDetalizeProviderCloudMadeFastestByBicycle }
+
+constructor TPathDetalizeProviderCloudMadeFastestByBicycle.Create(
+  ALanguageManager: ILanguageManager);
+begin
+  inherited Create(StringToGUID('{77999C1C-176E-4F25-BEF3-69F5A7D52D40}'), ALanguageManager, bicycle, fastest);
+end;
+
+function TPathDetalizeProviderCloudMadeFastestByBicycle.GetCaptionTranslated: string;
+begin
+  Result := _('On bicycle (Fastest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeFastestByBicycle.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on bicycle (Fastest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeFastestByBicycle.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On bicycle (Fastest)');
+end;
+
+{ TPathDetalizeProviderCloudMadeShortestByCar }
+
+constructor TPathDetalizeProviderCloudMadeShortestByCar.Create(
+  ALanguageManager: ILanguageManager);
+begin
+  inherited Create(StringToGUID('{8E648161-59ED-4F3B-8279-7B45A1A9E269}'), ALanguageManager, car, shortest);
+end;
+
+function TPathDetalizeProviderCloudMadeShortestByCar.GetCaptionTranslated: string;
+begin
+  Result := _('On car (Shortest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeShortestByCar.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on car (Shortest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeShortestByCar.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On car (Shortest)');
+end;
+
+{ TPathDetalizeProviderCloudMadeShortestByFoot }
+
+constructor TPathDetalizeProviderCloudMadeShortestByFoot.Create(
+  ALanguageManager: ILanguageManager);
+begin
+  inherited Create(StringToGUID('{05D95794-5A4C-4CD4-BE7D-6D17532A44B5}'), ALanguageManager, foot, shortest);
+end;
+
+function TPathDetalizeProviderCloudMadeShortestByFoot.GetCaptionTranslated: string;
+begin
+  Result := _('On foot (Shortest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeShortestByFoot.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on foot (Shortest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeShortestByFoot.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On foot (Shortest)');
+end;
+
+{ TPathDetalizeProviderCloudMadeShortestByBicycle }
+
+constructor TPathDetalizeProviderCloudMadeShortestByBicycle.Create(
+  ALanguageManager: ILanguageManager);
+begin
+  inherited Create(StringToGUID('{63EAF551-FA9D-4119-910A-D9044CD5663D}'), ALanguageManager, bicycle, shortest);
+end;
+
+function TPathDetalizeProviderCloudMadeShortestByBicycle.GetCaptionTranslated: string;
+begin
+  Result := _('On bicycle (Shortest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeShortestByBicycle.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on bicycle (Shortest) by cloudmade.com');
+end;
+
+function TPathDetalizeProviderCloudMadeShortestByBicycle.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On bicycle (Shortest)');
 end;
 
 end.

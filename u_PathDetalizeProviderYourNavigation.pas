@@ -4,39 +4,41 @@ interface
 
 uses
   t_GeoTypes,
+  i_KmlInfoSimpleLoader,
   i_PathDetalizeProvider;
 
 type
   TPathDetalizeProviderYourNavigation = class(TInterfacedObject, IPathDetalizeProvider)
   private
     FBaseUrl: string;
+    FKmlLoader: IKmlInfoSimpleLoader;
   protected
     function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint;
-    constructor Create(ABaseUrl: string);
+    constructor Create(AKmlLoader: IKmlInfoSimpleLoader; ABaseUrl: string);
   end;
 
 type
   TPathDetalizeProviderYourNavigation1 = class(TPathDetalizeProviderYourNavigation)
   public
-    constructor Create;
+    constructor Create(AKmlLoader: IKmlInfoSimpleLoader);
   end;
 
 type
   TPathDetalizeProviderYourNavigation11 = class(TPathDetalizeProviderYourNavigation)
   public
-    constructor Create;
+    constructor Create(AKmlLoader: IKmlInfoSimpleLoader);
   end;
 
 type
   TPathDetalizeProviderYourNavigation2 = class(TPathDetalizeProviderYourNavigation)
   public
-    constructor Create;
+    constructor Create(AKmlLoader: IKmlInfoSimpleLoader);
   end;
 
 type
   TPathDetalizeProviderYourNavigation22 = class(TPathDetalizeProviderYourNavigation)
   public
-    constructor Create;
+    constructor Create(AKmlLoader: IKmlInfoSimpleLoader);
   end;
 
 implementation
@@ -50,9 +52,10 @@ uses
 
 { TPathDetalizeProviderYourNavigation }
 
-constructor TPathDetalizeProviderYourNavigation.Create(ABaseUrl: string);
+constructor TPathDetalizeProviderYourNavigation.Create(AKmlLoader: IKmlInfoSimpleLoader; ABaseUrl: string);
 begin
   FBaseUrl := ABaseUrl;
+  FKmlLoader := AKmlLoader;
 end;
 
 function TPathDetalizeProviderYourNavigation.GetPath(ASource: TArrayOfDoublePoint;
@@ -77,7 +80,7 @@ begin
       url:=url+'&flat='+R2StrPoint(ASource[i].y)+'&flon='+R2StrPoint(ASource[i].x)+
           '&tlat='+R2StrPoint(ASource[i+1].y)+'&tlon='+R2StrPoint(ASource[i+1].x);
       if GetStreamFromURL(ms, url, 'text/xml')>0 then begin
-        GState.KmlLoader.LoadFromStream(ms, kml);
+        FKmlLoader.LoadFromStream(ms, kml);
         if kml <> nil then begin
           ms.SetSize(0);
           if kml.Count > 0 then begin
@@ -104,36 +107,40 @@ end;
 
 { TPathDetalizeProviderYourNavigation1 }
 
-constructor TPathDetalizeProviderYourNavigation1.Create;
+constructor TPathDetalizeProviderYourNavigation1.Create(AKmlLoader: IKmlInfoSimpleLoader);
 begin
   inherited Create(
+    AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik'
   );
 end;
 
 { TPathDetalizeProviderYourNavigation11 }
 
-constructor TPathDetalizeProviderYourNavigation11.Create;
+constructor TPathDetalizeProviderYourNavigation11.Create(AKmlLoader: IKmlInfoSimpleLoader);
 begin
   inherited Create(
+    AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik'
   );
 end;
 
 { TPathDetalizeProviderYourNavigation2 }
 
-constructor TPathDetalizeProviderYourNavigation2.Create;
+constructor TPathDetalizeProviderYourNavigation2.Create(AKmlLoader: IKmlInfoSimpleLoader);
 begin
   inherited Create(
+    AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik'
   );
 end;
 
 { TPathDetalizeProviderYourNavigation22 }
 
-constructor TPathDetalizeProviderYourNavigation22.Create;
+constructor TPathDetalizeProviderYourNavigation22.Create(AKmlLoader: IKmlInfoSimpleLoader);
 begin
   inherited Create(
+    AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'
   );
 end;
