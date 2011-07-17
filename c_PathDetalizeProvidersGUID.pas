@@ -13,11 +13,11 @@ const
 //  CPathDetalizeProvider: TGUID = ;
 //  CPathDetalizeProvider: TGUID = ;
 //  CPathDetalizeProvider: TGUID = ;
-//
-//  CPathDetalizeProvider: TGUID = ;
-//  CPathDetalizeProvider: TGUID = ;
-//  CPathDetalizeProvider: TGUID = ;
-//  CPathDetalizeProvider: TGUID = ;
+
+  CPathDetalizeProviderYourNavigationFastestByCar: TGUID = '{49F567B9-9E8A-4878-86FD-BDDDB7098928}';
+  CPathDetalizeProviderYourNavigationShortestByCar: TGUID = '{3789A641-00FA-4DFD-BE57-BF53D162B0E7}';
+  CPathDetalizeProviderYourNavigationFastestByBicycle: TGUID = '{FB9561C9-0AC4-4E4D-9F9E-CE81A5D1CA45}';
+  CPathDetalizeProviderYourNavigationShortestByBicycle: TGUID = '{FB699DA8-87AF-4B6B-BB4D-7C714510396B}';
 
 
 implementation

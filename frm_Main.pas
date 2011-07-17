@@ -4176,10 +4176,10 @@ var
   VIsError: Boolean;
 begin
   case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderYourNavigationFastestByCar.Create(GState.KmlLoader);
-    11:VProvider := TPathDetalizeProviderYourNavigationShortestByCar.Create(GState.KmlLoader);
-    2:VProvider := TPathDetalizeProviderYourNavigationFastestByBicycle.Create(GState.KmlLoader);
-    22:VProvider := TPathDetalizeProviderYourNavigationShortestByBicycle.Create(GState.KmlLoader);
+    1:VProvider := TPathDetalizeProviderYourNavigationFastestByCar.Create(GState.LanguageManager, GState.KmlLoader);
+    11:VProvider := TPathDetalizeProviderYourNavigationShortestByCar.Create(GState.LanguageManager, GState.KmlLoader);
+    2:VProvider := TPathDetalizeProviderYourNavigationFastestByBicycle.Create(GState.LanguageManager, GState.KmlLoader);
+    22:VProvider := TPathDetalizeProviderYourNavigationShortestByBicycle.Create(GState.LanguageManager, GState.KmlLoader);
   end;
   if VProvider <> nil then begin
     VIsError := True;
