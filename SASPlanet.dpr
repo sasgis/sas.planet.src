@@ -376,6 +376,7 @@ uses
   i_UrlByCoordProvider in 'i_UrlByCoordProvider.pas',
   i_PathDetalizeProvider in 'i_PathDetalizeProvider.pas',
   u_PathDetalizeProviderYourNavigation in 'u_PathDetalizeProviderYourNavigation.pas',
+  u_PathDetalizeProviderCloudMade in 'u_PathDetalizeProviderCloudMade.pas',
   u_PathDetalizeProviderMailRu in 'u_PathDetalizeProviderMailRu.pas',
   u_UserInterfaceItemBase in 'u_UserInterfaceItemBase.pas',
   i_Sensor in 'i_Sensor.pas',
