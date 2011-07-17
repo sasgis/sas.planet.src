@@ -6,16 +6,17 @@ uses
   t_GeoTypes,
   i_KmlInfoSimpleLoader,
   i_LanguageManager,
-  u_UserInterfaceItemBase,
+  u_PathDetalizeProviderListEntity,
   i_PathDetalizeProvider;
 
 type
-  TPathDetalizeProviderYourNavigation = class(TUserInterfaceItemBase, IPathDetalizeProvider)
+  TPathDetalizeProviderYourNavigation = class(TPathDetalizeProviderListEntity)
   private
     FBaseUrl: string;
     FKmlLoader: IKmlInfoSimpleLoader;
-  protected
-    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint;
+  protected { IPathDetalizeProvider }
+    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
+  public
     constructor Create(
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;

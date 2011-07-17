@@ -50,6 +50,7 @@ uses
   i_GlobalViewMainConfig,
   i_DownloadResultTextProvider,
   i_ImportFile,
+  i_PathDetalizeProviderList,
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
   u_IeEmbeddedProtocolRegistration,
@@ -105,6 +106,7 @@ type
     FPerfCounterList: IInternalPerformanceCounterList;
     FDownloadResultTextProvider: IDownloadResultTextProvider;
     FProtocol: TIeEmbeddedProtocolRegistration;
+    FPathDetalizeList: IPathDetalizeProviderList;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -181,6 +183,7 @@ type
     property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
     property SensorList: IInterfaceList read FSensorList;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
+    property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
 
     constructor Create;
     destructor Destroy; override;
@@ -245,6 +248,7 @@ uses
   u_MainFormConfig,
   u_InternalPerformanceCounterList,
   u_IeEmbeddedProtocolFactory,
+  u_PathDetalizeProviderListSimple,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
   u_ResStrings,
@@ -334,6 +338,7 @@ begin
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
+  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FKmlLoader);
   VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
   VInternalDomainInfoProviderList.Add('ZmpInfo', TInternalDomainInfoProviderByMapTypeList.Create);
   FProtocol := TIeEmbeddedProtocolRegistration.Create('sas', TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));

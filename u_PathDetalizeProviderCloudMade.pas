@@ -8,7 +8,7 @@ uses
   DateUtils,
   t_GeoTypes,
   i_LanguageManager,
-  u_UserInterfaceItemBase,
+  u_PathDetalizeProviderListEntity,
   i_PathDetalizeProvider;
 
 type
@@ -16,14 +16,15 @@ type
   TRouteCalcType = (fastest,shortest);
 
 type
-  TPathDetalizeProviderCloudMade = class(TUserInterfaceItemBase, IPathDetalizeProvider)
+  TPathDetalizeProviderCloudMade = class(TPathDetalizeProviderListEntity)
   private
     FBaseUrl: string;
     FVehicle: TRouteVehicle;
     FRouteCalcType: TRouteCalcType;
   protected
-    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint;
     function SecondToTime(const Seconds: Cardinal): Double;
+  protected { IPathDetalizeProvider }
+    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
   public
     constructor Create(
       AGUID: TGUID;

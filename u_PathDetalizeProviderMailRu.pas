@@ -5,16 +5,17 @@ interface
 uses
   t_GeoTypes,
   i_LanguageManager,
-  u_UserInterfaceItemBase,
+  u_PathDetalizeProviderListEntity,
   i_PathDetalizeProvider;
 
 type
-  TPathDetalizeProviderMailRu = class(TUserInterfaceItemBase, IPathDetalizeProvider)
+  TPathDetalizeProviderMailRu = class(TPathDetalizeProviderListEntity)
   private
     FBaseUrl: string;
     function SecondToTime(const Seconds: Cardinal): Double;
-  protected
-    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint;
+  protected { IPathDetalizeProvider }
+    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
+  public
     constructor Create(
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;
