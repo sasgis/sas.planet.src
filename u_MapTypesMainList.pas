@@ -3,6 +3,7 @@ unit u_MapTypesMainList;
 interface
 
 uses
+  SysUtils,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LanguageManager,
@@ -11,6 +12,8 @@ uses
   u_MapType;
 
 type
+  EMapTypesNoMaps = class(Exception);
+
   TMapTypesMainList = class
   private
     FMapType: array of TMapType;
@@ -43,7 +46,6 @@ type
 implementation
 
 uses
-  SysUtils,
   Dialogs,
   i_FileNameIterator,
   i_ZmpInfo,
@@ -209,7 +211,7 @@ begin
   end;
 
   if Length(FMapType) = 0 then begin
-    raise Exception.Create(SAS_ERR_NoMaps);
+    raise EMapTypesNoMaps.Create(SAS_ERR_NoMaps);
   end;
   if VMapOnlyCount = 0 then begin
     raise Exception.Create(SAS_ERR_MainMapNotExists);
