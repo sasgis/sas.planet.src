@@ -30,6 +30,7 @@ uses
 
 constructor TPathDetalizeProviderListBase.Create;
 begin
+  inherited;
   FList := TGUIDInterfaceList.Create(False);
 end;
 
