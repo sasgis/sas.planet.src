@@ -4145,9 +4145,9 @@ var
   VIsError: Boolean;
 begin
   case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderMailRuShortest.Create;
-    2:VProvider := TPathDetalizeProviderMailRuFastest.Create;
-    3:VProvider := TPathDetalizeProviderMailRuFastestWithTraffic.Create;
+    1:VProvider := TPathDetalizeProviderMailRuShortest.Create(GState.LanguageManager);
+    2:VProvider := TPathDetalizeProviderMailRuFastest.Create(GState.LanguageManager);
+    3:VProvider := TPathDetalizeProviderMailRuFastestWithTraffic.Create(GState.LanguageManager);
   end;
   if VProvider <> nil then begin
     VIsError := True;

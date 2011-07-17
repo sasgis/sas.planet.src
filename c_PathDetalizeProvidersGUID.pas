@@ -10,9 +10,9 @@ const
   CPathDetalizeProviderCloudMadeShortestByFoot: TGUID = '{565E73B3-5F02-4D03-87A7-7EA3A1F6BD35}';
   CPathDetalizeProviderCloudMadeShortestByBicycle: TGUID = '{1EBC7CC5-A107-41AB-B5AF-86BFD61ADBC0}';
 
-//  CPathDetalizeProvider: TGUID = ;
-//  CPathDetalizeProvider: TGUID = ;
-//  CPathDetalizeProvider: TGUID = ;
+  CPathDetalizeProviderMailRuShortest: TGUID = '{B64FB2B3-9862-493B-86DB-868D20817DB0}';
+  CPathDetalizeProviderMailRuFastest: TGUID = '{F88747AD-E946-4652-9B28-E8B32EACF726}';
+  CPathDetalizeProviderMailRuFastestWithTraffic: TGUID = '{4E7DE0A5-C868-42FA-9667-4B72EAACFA4B}';
 
   CPathDetalizeProviderYourNavigationFastestByCar: TGUID = '{49F567B9-9E8A-4878-86FD-BDDDB7098928}';
   CPathDetalizeProviderYourNavigationShortestByCar: TGUID = '{3789A641-00FA-4DFD-BE57-BF53D162B0E7}';

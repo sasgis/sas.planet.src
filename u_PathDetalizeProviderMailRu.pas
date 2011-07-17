@@ -4,34 +4,58 @@ interface
 
 uses
   t_GeoTypes,
+  i_LanguageManager,
+  u_UserInterfaceItemBase,
   i_PathDetalizeProvider;
 
 type
-  TPathDetalizeProviderMailRu = class(TInterfacedObject, IPathDetalizeProvider)
+  TPathDetalizeProviderMailRu = class(TUserInterfaceItemBase, IPathDetalizeProvider)
   private
     FBaseUrl: string;
     function SecondToTime(const Seconds: Cardinal): Double;
   protected
     function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint;
-    constructor Create(ABaseUrl: string);
+    constructor Create(
+      AGUID: TGUID;
+      ALanguageManager: ILanguageManager;
+      ABaseUrl: string
+    );
   end;
 
 type
   TPathDetalizeProviderMailRuShortest = class(TPathDetalizeProviderMailRu)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
   public
-    constructor Create;
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
   end;
 
 type
   TPathDetalizeProviderMailRuFastest = class(TPathDetalizeProviderMailRu)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
   public
-    constructor Create;
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
   end;
 
 type
   TPathDetalizeProviderMailRuFastestWithTraffic = class(TPathDetalizeProviderMailRu)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
   public
-    constructor Create;
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
   end;
 
 implementation
@@ -41,14 +65,21 @@ uses
   SysUtils,
   StrUtils,
   DateUtils,
+  gnugettext,
+  c_PathDetalizeProvidersGUID,
   u_GeoToStr,
   u_ResStrings,
   frm_InvisibleBrowser;
 
 { TPathDetalizeProviderMailRu }
 
-constructor TPathDetalizeProviderMailRu.Create(ABaseUrl: string);
+constructor TPathDetalizeProviderMailRu.Create(
+  AGUID: TGUID;
+  ALanguageManager: ILanguageManager;
+  ABaseUrl: string
+);
 begin
+  inherited Create(AGUID, ALanguageManager);
   FBaseUrl := ABaseUrl;
 end;
 
@@ -143,29 +174,86 @@ end;
 
 { TPathDetalizeProviderMailRuShortest }
 
-constructor TPathDetalizeProviderMailRuShortest.Create;
+constructor TPathDetalizeProviderMailRuShortest.Create(
+      ALanguageManager: ILanguageManager
+);
 begin
   inherited Create(
+    CPathDetalizeProviderMailRuShortest,
+    ALanguageManager,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
   );
 end;
 
+function TPathDetalizeProviderMailRuShortest.GetCaptionTranslated: string;
+begin
+  Result := _('On car (Shortest) by Maps@mail.ru');
+end;
+
+function TPathDetalizeProviderMailRuShortest.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on car (Shortest) by Maps@mail.ru');
+end;
+
+function TPathDetalizeProviderMailRuShortest.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On car (Shortest)');
+end;
+
 { TPathDetalizeProviderMailRuFastest }
 
-constructor TPathDetalizeProviderMailRuFastest.Create;
+constructor TPathDetalizeProviderMailRuFastest.Create(
+      ALanguageManager: ILanguageManager
+);
 begin
   inherited Create(
+    CPathDetalizeProviderMailRuFastest,
+    ALanguageManager,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
   );
 end;
 
+function TPathDetalizeProviderMailRuFastest.GetCaptionTranslated: string;
+begin
+  Result := _('On car (Fastest) by Maps@mail.ru');
+end;
+
+function TPathDetalizeProviderMailRuFastest.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on car (Fastest) by Maps@mail.ru');
+end;
+
+function TPathDetalizeProviderMailRuFastest.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On car (Fastest)');
+end;
+
 { TPathDetalizeProviderMailRuFastestWithTraffic }
 
-constructor TPathDetalizeProviderMailRuFastestWithTraffic.Create;
+constructor TPathDetalizeProviderMailRuFastestWithTraffic.Create(
+      ALanguageManager: ILanguageManager
+);
 begin
   inherited Create(
+    CPathDetalizeProviderMailRuFastestWithTraffic,
+    ALanguageManager,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
   );
+end;
+
+function TPathDetalizeProviderMailRuFastestWithTraffic.GetCaptionTranslated: string;
+begin
+  Result := _('On car (Fastest with traffic) by Maps@mail.ru');
+end;
+
+function TPathDetalizeProviderMailRuFastestWithTraffic.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on car (Fastest with traffic) by Maps@mail.ru');
+end;
+
+function TPathDetalizeProviderMailRuFastestWithTraffic.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On car (Fastest with traffic)');
 end;
 
 end.
