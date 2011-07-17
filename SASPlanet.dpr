@@ -374,6 +374,7 @@ uses
   u_ImportByFileExt in 'u_ImportByFileExt.pas',
   u_ExportMarks2KML in 'u_ExportMarks2KML.pas',
   i_UrlByCoordProvider in 'i_UrlByCoordProvider.pas',
+  c_PathDetalizeProvidersGUID in 'c_PathDetalizeProvidersGUID.pas',
   i_PathDetalizeProvider in 'i_PathDetalizeProvider.pas',
   u_PathDetalizeProviderYourNavigation in 'u_PathDetalizeProviderYourNavigation.pas',
   u_PathDetalizeProviderCloudMade in 'u_PathDetalizeProviderCloudMade.pas',

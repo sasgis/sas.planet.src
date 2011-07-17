@@ -104,6 +104,7 @@ implementation
 uses
   Classes,
   gnugettext,
+  c_PathDetalizeProvidersGUID,
   u_GeoToStr,
   u_ResStrings,
   i_VectorDataItemSimple,
@@ -241,7 +242,7 @@ end;
 constructor TPathDetalizeProviderCloudMadeFastestByCar.Create(
   ALanguageManager: ILanguageManager);
 begin
-  inherited Create(StringToGUID('{EA19A8A3-B79F-4CB2-81E7-18365FAF6163}'), ALanguageManager, car, fastest);
+  inherited Create(CPathDetalizeProviderCloudMadeFastestByCar, ALanguageManager, car, fastest);
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByCar.GetCaptionTranslated: string;
@@ -264,7 +265,7 @@ end;
 constructor TPathDetalizeProviderCloudMadeFastestByFoot.Create(
   ALanguageManager: ILanguageManager);
 begin
-  inherited Create(StringToGUID('{038DA1B0-F36B-463D-8914-32CEDC8791DB}'), ALanguageManager, foot, fastest);
+  inherited Create(CPathDetalizeProviderCloudMadeFastestByFoot, ALanguageManager, foot, fastest);
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByFoot.GetCaptionTranslated: string;
@@ -287,7 +288,7 @@ end;
 constructor TPathDetalizeProviderCloudMadeFastestByBicycle.Create(
   ALanguageManager: ILanguageManager);
 begin
-  inherited Create(StringToGUID('{77999C1C-176E-4F25-BEF3-69F5A7D52D40}'), ALanguageManager, bicycle, fastest);
+  inherited Create(CPathDetalizeProviderCloudMadeFastestByBicycle, ALanguageManager, bicycle, fastest);
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByBicycle.GetCaptionTranslated: string;
@@ -310,7 +311,7 @@ end;
 constructor TPathDetalizeProviderCloudMadeShortestByCar.Create(
   ALanguageManager: ILanguageManager);
 begin
-  inherited Create(StringToGUID('{8E648161-59ED-4F3B-8279-7B45A1A9E269}'), ALanguageManager, car, shortest);
+  inherited Create(CPathDetalizeProviderCloudMadeShortestByCar, ALanguageManager, car, shortest);
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByCar.GetCaptionTranslated: string;
@@ -333,7 +334,7 @@ end;
 constructor TPathDetalizeProviderCloudMadeShortestByFoot.Create(
   ALanguageManager: ILanguageManager);
 begin
-  inherited Create(StringToGUID('{05D95794-5A4C-4CD4-BE7D-6D17532A44B5}'), ALanguageManager, foot, shortest);
+  inherited Create(CPathDetalizeProviderCloudMadeShortestByFoot, ALanguageManager, foot, shortest);
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByFoot.GetCaptionTranslated: string;
@@ -356,7 +357,7 @@ end;
 constructor TPathDetalizeProviderCloudMadeShortestByBicycle.Create(
   ALanguageManager: ILanguageManager);
 begin
-  inherited Create(StringToGUID('{63EAF551-FA9D-4119-910A-D9044CD5663D}'), ALanguageManager, bicycle, shortest);
+  inherited Create(CPathDetalizeProviderCloudMadeShortestByBicycle, ALanguageManager, bicycle, shortest);
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByBicycle.GetCaptionTranslated: string;

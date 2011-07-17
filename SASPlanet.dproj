@@ -47,6 +47,7 @@
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas" />
     <DCCReference Include="c_CoordConverter.pas" />
     <DCCReference Include="c_GeoCoderGUIDSimple.pas" />
+    <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
     <DCCReference Include="frm_About.pas">
