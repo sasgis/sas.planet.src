@@ -6,8 +6,7 @@ uses
   t_GeoTypes,
   i_KmlInfoSimpleLoader,
   i_LanguageManager,
-  u_PathDetalizeProviderListEntity,
-  i_PathDetalizeProvider;
+  u_PathDetalizeProviderListEntity;
 
 type
   TPathDetalizeProviderYourNavigation = class(TPathDetalizeProviderListEntity)
@@ -85,7 +84,6 @@ uses
   c_PathDetalizeProvidersGUID,
   u_GeoToStr,
   i_VectorDataItemSimple,
-  u_GlobalState,
   frm_InvisibleBrowser;
 
 { TPathDetalizeProviderYourNavigation }

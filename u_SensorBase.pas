@@ -4,7 +4,6 @@ interface
 
 uses
   i_JclNotify,
-  i_JclListenerNotifierLinksList,
   i_LanguageManager,
   i_Sensor,
   u_UserInterfaceItemBase,
@@ -36,9 +35,7 @@ type
 implementation
 
 uses
-  u_JclNotify,
-  u_JclListenerNotifierLinksList,
-  u_NotifyEventListener;
+  u_JclNotify;
 
 { TSensorBase }
 

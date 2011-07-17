@@ -5,8 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_LanguageManager,
-  u_PathDetalizeProviderListEntity,
-  i_PathDetalizeProvider;
+  u_PathDetalizeProviderListEntity;
 
 type
   TPathDetalizeProviderMailRu = class(TPathDetalizeProviderListEntity)

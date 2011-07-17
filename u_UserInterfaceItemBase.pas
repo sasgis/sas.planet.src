@@ -3,7 +3,6 @@ unit u_UserInterfaceItemBase;
 interface
 
 uses
-  i_JclNotify,
   i_JclListenerNotifierLinksList,
   i_LanguageManager,
   u_ConfigDataElementBase;
@@ -39,7 +38,6 @@ type
 implementation
 
 uses
-  u_JclNotify,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener;
 

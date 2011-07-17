@@ -8,8 +8,7 @@ uses
   DateUtils,
   t_GeoTypes,
   i_LanguageManager,
-  u_PathDetalizeProviderListEntity,
-  i_PathDetalizeProvider;
+  u_PathDetalizeProviderListEntity;
 
 type
   TRouteVehicle = (car,foot,bicycle);
@@ -108,8 +107,6 @@ uses
   c_PathDetalizeProvidersGUID,
   u_GeoToStr,
   u_ResStrings,
-  i_VectorDataItemSimple,
-  u_GlobalState,
   frm_InvisibleBrowser;
 
 { TPathDetalizeProviderCloudMade }

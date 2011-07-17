@@ -4,7 +4,6 @@ interface
 
 uses
   ActiveX,
-  i_JclNotify,
   i_ConfigDataElement,
   i_PathDetalizeProvider;
 
