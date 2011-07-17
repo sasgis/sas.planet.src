@@ -132,7 +132,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 238
+      Left = 242
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -164,7 +164,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 365
+      Left = 369
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -175,7 +175,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 536
+      Left = 540
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -1159,39 +1159,27 @@ object frmMain: TfrmMain
           Caption = 'By maps.cloudmade.com (OSM)'
           Hint = ''
         end
-        object TBXItem9: TTBXItem
-          Tag = 1
-          OnClick = TBXItem9Click
+        object tbiCloudMadeCarFastest: TTBXItem
           Caption = 'On car (Fastest)'
           Hint = ''
         end
-        object TBXItem8: TTBXItem
-          Tag = 2
-          OnClick = TBXItem9Click
+        object tbiCloudMadeFootFastest: TTBXItem
           Caption = 'On foot (Fastest)'
           Hint = ''
         end
-        object TBXItem7: TTBXItem
-          Tag = 3
-          OnClick = TBXItem9Click
+        object tbiCloudMadeBicycleFastest: TTBXItem
           Caption = 'On bicycle (Fastest)'
           Hint = ''
         end
-        object TBXItem10: TTBXItem
-          Tag = 11
-          OnClick = TBXItem9Click
+        object tbiCloudMadeCarShortest: TTBXItem
           Caption = 'On car (Shortest)'
           Hint = ''
         end
-        object TBXItem11: TTBXItem
-          Tag = 12
-          OnClick = TBXItem9Click
+        object tbiCloudMadeFootShortest: TTBXItem
           Caption = 'On foot (Shortest)'
           Hint = ''
         end
-        object TBXItem12: TTBXItem
-          Tag = 13
-          OnClick = TBXItem9Click
+        object tbiCloudMadeBicycleShortest: TTBXItem
           Caption = 'On bicycle (Shortest)'
           Hint = ''
         end
@@ -1202,21 +1190,15 @@ object frmMain: TfrmMain
           Caption = 'By Maps@mail.ru'
           Hint = ''
         end
-        object TBItem8: TTBXItem
-          Tag = 1
-          OnClick = TBEditPathMarshClick
+        object tbiMailRuShortest: TTBXItem
           Caption = 'Shortest'
           Hint = ''
         end
-        object TBItem9: TTBXItem
-          Tag = 2
-          OnClick = TBEditPathMarshClick
+        object tbiMailRuFastest: TTBXItem
           Caption = 'Fastest'
           Hint = ''
         end
-        object TBItem7: TTBXItem
-          Tag = 3
-          OnClick = TBEditPathMarshClick
+        object tbiMailRuFastestWithTraffic: TTBXItem
           Caption = 'Fastest with traffic'
           Hint = ''
         end
@@ -1227,27 +1209,19 @@ object frmMain: TfrmMain
           Caption = 'By yournavigation.org (OSM)'
           Hint = ''
         end
-        object TBXItem1: TTBXItem
-          Tag = 1
-          OnClick = TBXItem1Click
+        object tbiYourNavigationCarFastest: TTBXItem
           Caption = 'On Car (Fastest)'
           Hint = ''
         end
-        object TBXItem2: TTBXItem
-          Tag = 11
-          OnClick = TBXItem1Click
+        object tbiYourNavigationCarShortest: TTBXItem
           Caption = 'On Car (Shortest)'
           Hint = ''
         end
-        object TBXItem4: TTBXItem
-          Tag = 2
-          OnClick = TBXItem1Click
+        object tbiYourNavigationBicycleFastest: TTBXItem
           Caption = 'On Bike (Fastest)'
           Hint = ''
         end
-        object TBXItem3: TTBXItem
-          Tag = 22
-          OnClick = TBXItem1Click
+        object tbiYourNavigationBicycleShortest: TTBXItem
           Caption = 'On Bike (Shortest)'
           Hint = ''
         end

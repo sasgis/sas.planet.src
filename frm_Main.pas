@@ -168,9 +168,9 @@ type
     TBEditPathSave: TTBXItem;
     TBEditPathOk: TTBXItem;
     TBEditPathMarsh: TTBXSubmenuItem;
-    TBItem8: TTBXItem;
-    TBItem9: TTBXItem;
-    TBItem7: TTBXItem;
+    tbiMailRuShortest: TTBXItem;
+    tbiMailRuFastest: TTBXItem;
+    tbiMailRuFastestWithTraffic: TTBXItem;
     TBItem5: TTBXItem;
     TBItemDelTrack: TTBXItem;
     NFoolSize: TTBXItem;
@@ -239,12 +239,12 @@ type
     TBXDock1: TTBXDock;
     NSensors: TTBXSubmenuItem;
     TBXPopupMenuSensors: TTBXPopupMenu;
-    TBXItem1: TTBXItem;
+    tbiYourNavigationCarFastest: TTBXItem;
     TBXLabelItem1: TTBXLabelItem;
     TBXLabelItem2: TTBXLabelItem;
-    TBXItem2: TTBXItem;
-    TBXItem3: TTBXItem;
-    TBXItem4: TTBXItem;
+    tbiYourNavigationCarShortest: TTBXItem;
+    tbiYourNavigationBicycleShortest: TTBXItem;
+    tbiYourNavigationBicycleFastest: TTBXItem;
     tbitmSaveCurrentPositionToolbar: TTBXItem;
     TBXSeparatorItem16: TTBXSeparatorItem;
     TBXSeparatorItem17: TTBXSeparatorItem;
@@ -337,12 +337,12 @@ type
     TBXSeparatorItem19: TTBXSeparatorItem;
     tbitmGPSOptions: TTBXItem;
     TBXLabelItem3: TTBXLabelItem;
-    TBXItem7: TTBXItem;
-    TBXItem8: TTBXItem;
-    TBXItem9: TTBXItem;
-    TBXItem10: TTBXItem;
-    TBXItem11: TTBXItem;
-    TBXItem12: TTBXItem;
+    tbiCloudMadeBicycleFastest: TTBXItem;
+    tbiCloudMadeFootFastest: TTBXItem;
+    tbiCloudMadeCarFastest: TTBXItem;
+    tbiCloudMadeCarShortest: TTBXItem;
+    tbiCloudMadeFootShortest: TTBXItem;
+    tbiCloudMadeBicycleShortest: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -441,7 +441,6 @@ type
     procedure NanimateClick(Sender: TObject);
     procedure NbackloadLayerClick(Sender: TObject);
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
-    procedure TBXItem1Click(Sender: TObject);
     procedure tbitmSaveCurrentPositionClick(Sender: TObject);
     procedure TBXSelectSrchClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
@@ -468,7 +467,6 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure NBlock_toolbarsClick(Sender: TObject);
     procedure tbitmGPSOptionsClick(Sender: TObject);
-    procedure TBXItem9Click(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -542,6 +540,7 @@ type
     FFormRegionProcess: TfrmRegionProcess;
 
     procedure InitSearchers;
+    procedure InitPathDetalizeProviders;
     procedure CreateMapUIMapsList;
     procedure CreateMapUILayersList;
     procedure CreateMapUIFillingList;
@@ -610,10 +609,12 @@ uses
   c_ZeroGUID,
   c_SasVersion,
   c_GeoCoderGUIDSimple,
+  c_PathDetalizeProvidersGUID,
   u_JclListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
   u_NotifyEventListener,
+  i_PathDetalizeProviderList,
   i_MapTypes,
   i_GeoCoderList,
   i_LogSimple,
@@ -1114,6 +1115,7 @@ begin
       end;
     end;
     InitSearchers;
+    InitPathDetalizeProviders;
     CreateLangMenu;
     FMapMoving:=false;
 
@@ -1141,6 +1143,105 @@ begin
     TfrmStartLogo.ReadyToHideLogo;
   end;
   TBXMainMenu.ProcessShortCuts:=true;
+end;
+
+procedure TfrmMain.InitPathDetalizeProviders;
+var
+  VEntity: IPathDetalizeProviderListEntity;
+  VItem: TTBXItem;
+begin
+  VItem := tbiCloudMadeCarFastest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeFastestByCar);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+  VItem := tbiCloudMadeFootFastest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeFastestByFoot);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+  VItem := tbiCloudMadeBicycleFastest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeFastestByBicycle);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+  VItem := tbiCloudMadeCarShortest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeShortestByCar);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+  VItem := tbiCloudMadeFootShortest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeShortestByFoot);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+  VItem := tbiCloudMadeBicycleShortest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeShortestByBicycle);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+
+  VItem := tbiMailRuShortest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderMailRuShortest);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+  VItem := tbiMailRuFastest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderMailRuFastest);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+  VItem := tbiMailRuFastestWithTraffic;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderMailRuFastestWithTraffic);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+
+  VItem := tbiYourNavigationCarFastest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderYourNavigationFastestByCar);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+  VItem := tbiYourNavigationCarShortest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderYourNavigationShortestByCar);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+  VItem := tbiYourNavigationBicycleFastest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderYourNavigationFastestByBicycle);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
+
+  VItem := tbiYourNavigationBicycleShortest;
+  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderYourNavigationShortestByBicycle);
+  if VEntity <> nil then begin
+    VItem.Tag := Integer(VEntity.GetProvider);
+    VItem.OnClick := Self.TBEditPathMarshClick;
+  end;
 end;
 
 procedure TfrmMain.InitSearchers;
@@ -3834,40 +3935,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBXItem9Click(Sender: TObject);
-var
-  VResult: TArrayOfDoublePoint;
-  VProvider: IPathDetalizeProvider;
-  VIsError: Boolean;
-begin
-  case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderCloudMadeFastestByCar.Create(GState.LanguageManager);
-    2:VProvider := TPathDetalizeProviderCloudMadeFastestByFoot.Create(GState.LanguageManager);
-    3:VProvider := TPathDetalizeProviderCloudMadeFastestByBicycle.Create(GState.LanguageManager);
-    11:VProvider := TPathDetalizeProviderCloudMadeShortestByCar.Create(GState.LanguageManager);
-    12:VProvider := TPathDetalizeProviderCloudMadeShortestByFoot.Create(GState.LanguageManager);
-    13:VProvider := TPathDetalizeProviderCloudMadeShortestByBicycle.Create(GState.LanguageManager);
-  end;
-  if VProvider <> nil then begin
-    VIsError := True;
-    try
-      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
-      VIsError := False;
-    except
-      on E: Exception do begin
-        ShowMessage(E.Message);
-      end;
-    end;
-    if not VIsError then begin
-      if Length(VResult) > 0 then begin
-        FLineOnMapEdit.SetPoints(VResult);
-      end;
-    end else begin
-      FMarshrutComment := '';
-    end;
-  end;
-end;
-
 procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);
 begin
  frmSettings.tsGPS.Show;
@@ -4144,43 +4211,7 @@ var
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
 begin
-  case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderMailRuShortest.Create(GState.LanguageManager);
-    2:VProvider := TPathDetalizeProviderMailRuFastest.Create(GState.LanguageManager);
-    3:VProvider := TPathDetalizeProviderMailRuFastestWithTraffic.Create(GState.LanguageManager);
-  end;
-  if VProvider <> nil then begin
-    VIsError := True;
-    try
-      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
-      VIsError := False;
-    except
-      on E: Exception do begin
-        ShowMessage(E.Message);
-      end;
-    end;
-    if not VIsError then begin
-      if Length(VResult) > 0 then begin
-        FLineOnMapEdit.SetPoints(VResult);
-      end;
-    end else begin
-      FMarshrutComment := '';
-    end;
-  end;
-end;
-
-procedure TfrmMain.TBXItem1Click(Sender: TObject);
-var
-  VResult: TArrayOfDoublePoint;
-  VProvider: IPathDetalizeProvider;
-  VIsError: Boolean;
-begin
-  case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderYourNavigationFastestByCar.Create(GState.LanguageManager, GState.KmlLoader);
-    11:VProvider := TPathDetalizeProviderYourNavigationShortestByCar.Create(GState.LanguageManager, GState.KmlLoader);
-    2:VProvider := TPathDetalizeProviderYourNavigationFastestByBicycle.Create(GState.LanguageManager, GState.KmlLoader);
-    22:VProvider := TPathDetalizeProviderYourNavigationShortestByBicycle.Create(GState.LanguageManager, GState.KmlLoader);
-  end;
+  VProvider := IPathDetalizeProvider(TTBXItem(Sender).tag);
   if VProvider <> nil then begin
     VIsError := True;
     try
