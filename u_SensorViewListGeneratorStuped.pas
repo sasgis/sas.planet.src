@@ -9,6 +9,7 @@ uses
   TB2Dock,
   i_JclNotify,
   i_GUIDList,
+  i_SensorList,
   i_SensorViewListGenerator;
 
 type
@@ -20,8 +21,10 @@ type
     FParentMenu: TTBCustomItem;
     FImages: TCustomImageList;
     FImageIndexReset: TImageIndex;
+    procedure AddSensor(ASensor: ISensorListEntity; AResult: IGUIDInterfaceList);
+    procedure AddSensorsInFixedOrder(ASensorList: ISensorList; AResult: IGUIDInterfaceList);
   protected
-    function CreateSensorViewList(ASensorList: IInterfaceList): IGUIDInterfaceList;
+    function CreateSensorViewList(ASensorList: ISensorList): IGUIDInterfaceList;
   public
     constructor Create(
       ATimerNoifier: IJclNotifier;
@@ -36,13 +39,71 @@ type
 implementation
 
 uses
+  ActiveX,
   SysUtils,
   u_GUIDInterfaceList,
+  c_SensorsGUIDSimple,
   i_Sensor,
   u_SensorViewTextTBXPanel,
   u_SensorViewConfigSimple;
 
 { TSensorViewListGeneratorStuped }
+
+procedure TSensorViewListGeneratorStuped.AddSensor(ASensor: ISensorListEntity;
+  AResult: IGUIDInterfaceList);
+var
+  VSensorViewConfig: ISensorViewConfig;
+  VSensorView: ISensorView;
+  VGUID: TGUID;
+begin
+  if ASensor <> nil then begin
+    if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorText) then begin
+      VGUID := ASensor.GUID;
+      if not AResult.IsExists(VGUID) then begin
+        VSensorViewConfig := TSensorViewConfigSimple.Create;
+        VSensorView :=
+          TSensorViewTextTBXPanel.Create(
+            ASensor,
+            VSensorViewConfig,
+            FTimerNoifier,
+            FOwner,
+            FDefaultDoc,
+            FParentMenu,
+            FImages,
+            FImageIndexReset
+          );
+        AResult.Add(VGUID, VSensorView);
+      end;
+    end;
+  end;
+end;
+
+procedure TSensorViewListGeneratorStuped.AddSensorsInFixedOrder(
+  ASensorList: ISensorList; AResult: IGUIDInterfaceList);
+var
+  VSensor: ISensorListEntity;
+begin
+  VSensor := ASensorList.Get(CSensorLastSpeedGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorAvgSpeedGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorMaxSpeedGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorDistGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorOdometer1GUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorOdometer2GUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorDistToMarkGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorLastAltitudeGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorBatteryGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorHeadingGUID);
+  AddSensor(VSensor, AResult);
+end;
 
 constructor TSensorViewListGeneratorStuped.Create(
   ATimerNoifier: IJclNotifier;
@@ -62,37 +123,26 @@ begin
 end;
 
 function TSensorViewListGeneratorStuped.CreateSensorViewList(
-  ASensorList: IInterfaceList): IGUIDInterfaceList;
+  ASensorList: ISensorList): IGUIDInterfaceList;
 var
   VGUID: TGUID;
-  i: Integer;
-  VSensor: ISensor;
-  VSensorText: ISensorText;
-  VSensorViewConfig: ISensorViewConfig;
-  VSensorView: ISensorView;
+  i: Cardinal;
+  VSensor: ISensorListEntity;
+  VEnum: IEnumGUID;
 begin
   FDefaultDoc.BeginUpdate;
   try
     Result := TGUIDInterfaceList.Create;
-    for i := 0 to ASensorList.Count - 1 do begin
-      VSensor := ISensor(ASensorList.Items[i]);
-      VGUID := VSensor.GetGUID;
-      if IsEqualGUID(VSensor.GetSensorTypeIID, ISensorText) then begin
-        VSensorText := VSensor as ISensorText;
-        VSensorViewConfig := TSensorViewConfigSimple.Create;
-        VSensorView :=
-          TSensorViewTextTBXPanel.Create(
-            VSensorText,
-            VSensorViewConfig,
-            FTimerNoifier,
-            FOwner,
-            FDefaultDoc,
-            FParentMenu,
-            FImages,
-            FImageIndexReset
-          );
-        Result.Add(VGUID, VSensorView);
+    ASensorList.LockRead;
+    try
+      AddSensorsInFixedOrder(ASensorList, Result);
+      VEnum := ASensorList.GetGUIDEnum;
+      while VEnum.Next(1, VGUID, i) = S_OK do begin
+        VSensor := ASensorList.Get(VGUID);
+        AddSensor(VSensor, Result);
       end;
+    finally
+      ASensorList.UnlockRead;
     end;
   finally
     FDefaultDoc.EndUpdate;

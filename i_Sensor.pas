@@ -8,15 +8,10 @@ uses
   i_ConfigDataElement;
 
 type
-  ISensor = interface(IConfigDataElement)
+  ISensor = interface
     ['{EFD30054-5F65-49DF-8EB9-A4EF816D05D2}']
-    function GetGUID: TGUID;
-    function GetCaption: string;
-    function GetDescription: string;
-    function GetMenuItemName: string;
     function CanReset: Boolean;
     procedure Reset;
-    function GetSensorTypeIID: TGUID;
     function GetDataUpdateNotifier: IJclNotifier;
   end;
 

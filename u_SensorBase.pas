@@ -6,11 +6,12 @@ uses
   i_JclNotify,
   i_LanguageManager,
   i_Sensor,
+  i_SensorList,
   u_UserInterfaceItemBase,
   u_ConfigDataElementBase;
 
 type
-  TSensorBase = class(TUserInterfaceItemBase, ISensor)
+  TSensorBase = class(TUserInterfaceItemBase, ISensor, ISensorListEntity)
   private
     FCanReset: Boolean;
     FSensorTypeIID: TGUID;
@@ -23,6 +24,7 @@ type
     procedure Reset; virtual;
     function GetSensorTypeIID: TGUID;
     function GetDataUpdateNotifier: IJclNotifier;
+    function GetSensor: ISensor;
   public
     constructor Create(
       AGUID: TGUID;
@@ -61,6 +63,11 @@ end;
 function TSensorBase.GetDataUpdateNotifier: IJclNotifier;
 begin
   Result := FDataUpdateNotifier;
+end;
+
+function TSensorBase.GetSensor: ISensor;
+begin
+  Result := Self;
 end;
 
 function TSensorBase.GetSensorTypeIID: TGUID;

@@ -53,6 +53,7 @@ uses
   i_PathDetalizeProviderList,
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
+  i_SensorList,
   u_IeEmbeddedProtocolRegistration,
   u_GPSState,
   u_GlobalCahceConfig;
@@ -102,7 +103,7 @@ type
     FSkyMapDraw: ISatellitesInViewMapDraw;
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifier: IJclNotifier;
-    FSensorList: IInterfaceList;
+    FSensorList: ISensorList;
     FPerfCounterList: IInternalPerformanceCounterList;
     FDownloadResultTextProvider: IDownloadResultTextProvider;
     FProtocol: TIeEmbeddedProtocolRegistration;
@@ -181,7 +182,7 @@ type
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
-    property SensorList: IInterfaceList read FSensorList;
+    property SensorList: ISensorList read FSensorList;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
 
@@ -209,8 +210,6 @@ uses
   Forms,
   u_JclNotify,
   i_BitmapTileSaveLoad,
-  i_SensorListGenerator,
-  u_SensorListGeneratorStuped,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   i_ListOfObjectsWithTTL,
@@ -246,6 +245,7 @@ uses
   u_LocalCoordConverterFactorySimpe,
   u_DownloadResultTextProvider,
   u_MainFormConfig,
+  u_SensorListStuped,
   u_InternalPerformanceCounterList,
   u_IeEmbeddedProtocolFactory,
   u_PathDetalizeProviderListSimple,
@@ -477,7 +477,6 @@ end;
 procedure TGlobalState.LoadConfig;
 var
   VLocalMapsConfig: IConfigDataProvider;
-  VSensorsGenerator: ISensorListGenerator;
   Ini: TMeminifile;
 begin
   LoadMainParams;
@@ -498,15 +497,13 @@ begin
     FMainMapsList.FirstMainMap.Zmp.GUID
   );
 
-  VSensorsGenerator :=
-    TSensorListGeneratorStuped.Create(
+  FSensorList := TSensorListStuped.Create(
       FLanguageManager,
       FMainFormConfig.ViewPortState,
       FMainFormConfig.NavToPoint,
       FGPSRecorder,
       FValueToStringConverterConfig
     );
-  FSensorList := VSensorsGenerator.CreateSensorsList;
 
   FCacheConfig.LoadConfig(FMainConfigProvider);
   LoadMapIconsList;
