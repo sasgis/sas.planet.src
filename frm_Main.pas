@@ -4145,9 +4145,9 @@ var
   VIsError: Boolean;
 begin
   case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderMailRu1.Create;
-    2:VProvider := TPathDetalizeProviderMailRu2.Create;
-    3:VProvider := TPathDetalizeProviderMailRu3.Create;
+    1:VProvider := TPathDetalizeProviderMailRuShortest.Create;
+    2:VProvider := TPathDetalizeProviderMailRuFastest.Create;
+    3:VProvider := TPathDetalizeProviderMailRuFastestWithTraffic.Create;
   end;
   if VProvider <> nil then begin
     VIsError := True;
@@ -4176,10 +4176,10 @@ var
   VIsError: Boolean;
 begin
   case TTBXItem(Sender).tag of
-    1:VProvider := TPathDetalizeProviderYourNavigation1.Create(GState.KmlLoader);
-    11:VProvider := TPathDetalizeProviderYourNavigation11.Create(GState.KmlLoader);
-    2:VProvider := TPathDetalizeProviderYourNavigation2.Create(GState.KmlLoader);
-    22:VProvider := TPathDetalizeProviderYourNavigation22.Create(GState.KmlLoader);
+    1:VProvider := TPathDetalizeProviderYourNavigationFastestByCar.Create(GState.KmlLoader);
+    11:VProvider := TPathDetalizeProviderYourNavigationShortestByCar.Create(GState.KmlLoader);
+    2:VProvider := TPathDetalizeProviderYourNavigationFastestByBicycle.Create(GState.KmlLoader);
+    22:VProvider := TPathDetalizeProviderYourNavigationShortestByBicycle.Create(GState.KmlLoader);
   end;
   if VProvider <> nil then begin
     VIsError := True;

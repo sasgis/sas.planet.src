@@ -5,6 +5,8 @@ interface
 uses
   t_GeoTypes,
   i_KmlInfoSimpleLoader,
+  i_LanguageManager,
+  u_UserInterfaceItemBase,
   i_PathDetalizeProvider;
 
 type
@@ -18,25 +20,25 @@ type
   end;
 
 type
-  TPathDetalizeProviderYourNavigation1 = class(TPathDetalizeProviderYourNavigation)
+  TPathDetalizeProviderYourNavigationFastestByCar = class(TPathDetalizeProviderYourNavigation)
   public
     constructor Create(AKmlLoader: IKmlInfoSimpleLoader);
   end;
 
 type
-  TPathDetalizeProviderYourNavigation11 = class(TPathDetalizeProviderYourNavigation)
+  TPathDetalizeProviderYourNavigationShortestByCar = class(TPathDetalizeProviderYourNavigation)
   public
     constructor Create(AKmlLoader: IKmlInfoSimpleLoader);
   end;
 
 type
-  TPathDetalizeProviderYourNavigation2 = class(TPathDetalizeProviderYourNavigation)
+  TPathDetalizeProviderYourNavigationFastestByBicycle = class(TPathDetalizeProviderYourNavigation)
   public
     constructor Create(AKmlLoader: IKmlInfoSimpleLoader);
   end;
 
 type
-  TPathDetalizeProviderYourNavigation22 = class(TPathDetalizeProviderYourNavigation)
+  TPathDetalizeProviderYourNavigationShortestByBicycle = class(TPathDetalizeProviderYourNavigation)
   public
     constructor Create(AKmlLoader: IKmlInfoSimpleLoader);
   end;
@@ -105,9 +107,9 @@ begin
   end;
 end;
 
-{ TPathDetalizeProviderYourNavigation1 }
+{ TPathDetalizeProviderYourNavigationFastestByCar }
 
-constructor TPathDetalizeProviderYourNavigation1.Create(AKmlLoader: IKmlInfoSimpleLoader);
+constructor TPathDetalizeProviderYourNavigationFastestByCar.Create(AKmlLoader: IKmlInfoSimpleLoader);
 begin
   inherited Create(
     AKmlLoader,
@@ -115,9 +117,9 @@ begin
   );
 end;
 
-{ TPathDetalizeProviderYourNavigation11 }
+{ TPathDetalizeProviderYourNavigationShortestByCar }
 
-constructor TPathDetalizeProviderYourNavigation11.Create(AKmlLoader: IKmlInfoSimpleLoader);
+constructor TPathDetalizeProviderYourNavigationShortestByCar.Create(AKmlLoader: IKmlInfoSimpleLoader);
 begin
   inherited Create(
     AKmlLoader,
@@ -125,9 +127,9 @@ begin
   );
 end;
 
-{ TPathDetalizeProviderYourNavigation2 }
+{ TPathDetalizeProviderYourNavigationFastestByBicycle }
 
-constructor TPathDetalizeProviderYourNavigation2.Create(AKmlLoader: IKmlInfoSimpleLoader);
+constructor TPathDetalizeProviderYourNavigationFastestByBicycle.Create(AKmlLoader: IKmlInfoSimpleLoader);
 begin
   inherited Create(
     AKmlLoader,
@@ -135,9 +137,9 @@ begin
   );
 end;
 
-{ TPathDetalizeProviderYourNavigation22 }
+{ TPathDetalizeProviderYourNavigationShortestByBicycle }
 
-constructor TPathDetalizeProviderYourNavigation22.Create(AKmlLoader: IKmlInfoSimpleLoader);
+constructor TPathDetalizeProviderYourNavigationShortestByBicycle.Create(AKmlLoader: IKmlInfoSimpleLoader);
 begin
   inherited Create(
     AKmlLoader,

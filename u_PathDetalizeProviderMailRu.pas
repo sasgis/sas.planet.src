@@ -17,19 +17,19 @@ type
   end;
 
 type
-  TPathDetalizeProviderMailRu1 = class(TPathDetalizeProviderMailRu)
+  TPathDetalizeProviderMailRuShortest = class(TPathDetalizeProviderMailRu)
   public
     constructor Create;
   end;
 
 type
-  TPathDetalizeProviderMailRu2 = class(TPathDetalizeProviderMailRu)
+  TPathDetalizeProviderMailRuFastest = class(TPathDetalizeProviderMailRu)
   public
     constructor Create;
   end;
 
 type
-  TPathDetalizeProviderMailRu3 = class(TPathDetalizeProviderMailRu)
+  TPathDetalizeProviderMailRuFastestWithTraffic = class(TPathDetalizeProviderMailRu)
   public
     constructor Create;
   end;
@@ -141,27 +141,27 @@ begin
   Result := dd + EncodeTime(hh, mm, ss, ms);
 end;
 
-{ TPathDetalizeProviderMailRu1 }
+{ TPathDetalizeProviderMailRuShortest }
 
-constructor TPathDetalizeProviderMailRu1.Create;
+constructor TPathDetalizeProviderMailRuShortest.Create;
 begin
   inherited Create(
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
   );
 end;
 
-{ TPathDetalizeProviderMailRu2 }
+{ TPathDetalizeProviderMailRuFastest }
 
-constructor TPathDetalizeProviderMailRu2.Create;
+constructor TPathDetalizeProviderMailRuFastest.Create;
 begin
   inherited Create(
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
   );
 end;
 
-{ TPathDetalizeProviderMailRu3 }
+{ TPathDetalizeProviderMailRuFastestWithTraffic }
 
-constructor TPathDetalizeProviderMailRu3.Create;
+constructor TPathDetalizeProviderMailRuFastestWithTraffic.Create;
 begin
   inherited Create(
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
