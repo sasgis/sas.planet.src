@@ -152,8 +152,6 @@ type
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
-    property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
-    property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
     property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
     property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
 
