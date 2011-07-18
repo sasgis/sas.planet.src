@@ -105,12 +105,51 @@ type
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
     function TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
-    function LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
-    function LoadTile(var AKml: IVectorDataItemList; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean; overload;
-    function LoadTileOrPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean; AUsePre: Boolean): boolean;
-    function LoadTileUni(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
-    function LoadBtimap(spr: TCustomBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
-    function LoadBtimapUni(spr: TCustomBitmap32; APixelRectTarget: TRect; Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
+    function LoadTile(
+      btm: TCustomBitmap32;
+      AXY: TPoint;
+      Azoom: byte;
+      caching: boolean;
+      IgnoreError: Boolean
+    ): boolean; overload;
+    function LoadTile(
+      var AKml: IVectorDataItemList;
+      AXY: TPoint;
+      Azoom: byte;
+      caching: boolean;
+      IgnoreError: Boolean
+    ): boolean; overload;
+    function LoadTileOrPreZ(
+      spr: TCustomBitmap32;
+      AXY: TPoint;
+      Azoom: byte;
+      caching: boolean;
+      IgnoreError: Boolean;
+      AUsePre: Boolean
+    ): boolean;
+    function LoadTileUni(
+      spr: TCustomBitmap32;
+      AXY: TPoint;
+      Azoom: byte;
+      caching: boolean;
+      ACoordConverterTarget: ICoordConverter;
+      AUsePre, AAllowPartial, IgnoreError: Boolean
+    ): boolean;
+    function LoadBtimap(
+      spr: TCustomBitmap32;
+      APixelRectTarget: TRect;
+      Azoom: byte;
+      caching: boolean;
+      AUsePre, AAllowPartial, IgnoreError: Boolean
+    ): boolean;
+    function LoadBtimapUni(
+      spr: TCustomBitmap32;
+      APixelRectTarget: TRect;
+      Azoom: byte;
+      caching: boolean;
+      ACoordConverterTarget: ICoordConverter;
+      AUsePre, AAllowPartial, IgnoreError: Boolean
+    ): boolean;
     function DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
     procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
