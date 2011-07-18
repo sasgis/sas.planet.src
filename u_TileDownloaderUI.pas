@@ -9,6 +9,8 @@ uses
   i_JclNotify,
   i_JclListenerNotifierLinksList,
   t_CommonTypes,
+  i_OperationCancelNotifier,
+  u_OperationCancelNotifier,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_TileError,
@@ -27,7 +29,8 @@ type
     FViewPortState: IViewPortState;
     FErrorLogger: ITileErrorLogger;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
-    FCancelNotifier: IJclNotifier;
+    FCancelNotifierInternal: TOperationCancelNotifier;
+    FCancelNotifier: IOperationCancelNotifier;
 
 
     FTileMaxAgeInInternet: TDateTime;
@@ -89,7 +92,10 @@ var
 begin
   inherited Create(True);
   FConfig := AConfig;
-  FCancelNotifier := TJclBaseNotifier.Create;
+
+  FCancelNotifierInternal := TOperationCancelNotifier.Create;
+  FCancelNotifier := FCancelNotifierInternal;
+
   FViewPortState := AViewPortState;
   FMapsSet := AMapsSet;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
@@ -155,7 +161,7 @@ procedure TTileDownloaderUI.SendTerminateToThreads;
 begin
   inherited;
   FLinksList.DeactivateLinks;
-  FCancelNotifier.Notify(nil);
+  FCancelNotifierInternal.SetCanceled;
   Terminate;
 end;
 

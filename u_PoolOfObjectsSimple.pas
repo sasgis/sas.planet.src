@@ -5,6 +5,9 @@ interface
 uses
   Windows,
   Classes,
+  SyncObjs,
+  i_JclNotify,
+  i_OperationCancelNotifier,
   i_SimpleFactory,
   i_ObjectWithTTL,
   i_PoolElement,
@@ -20,6 +23,18 @@ type
     FOldestObjectTime: Cardinal;
     FLastCheckTime: Cardinal;
     FSemaphore: THandle;
+
+    FCancelEvent: TEvent;
+    FCancelListener: IJclListener;
+    procedure OnDownloadCanceled(Sender: TObject);
+  protected { IPoolOfObjectsSimple }
+    function TryGetPoolElement(
+      ACancelNotifier: IOperationCancelNotifier
+    ): IPoolElement;
+    function GetPoolSize: Cardinal;
+  protected { IObjectWithTTL }
+    function GetNextCheckTime: Cardinal;
+    procedure TrimByTTL;
   public
     constructor Create(
       APoolSize: Cardinal;
@@ -28,16 +43,13 @@ type
       ACheckInterval: Cardinal
     );
     destructor Destroy; override;
-    function TryGetPoolElement(ATimeOut: Cardinal): IPoolElement;
-    function GetPoolSize: Cardinal;
-    function GetNextCheckTime: Cardinal;
-    procedure TrimByTTL;
   end;
 
 implementation
 
 uses
   SysUtils,
+  u_NotifyEventListener,
   u_PoolElement;
 
 { TPoolOfObjectsSimple }
@@ -48,6 +60,9 @@ constructor TPoolOfObjectsSimple.Create(APoolSize: Cardinal;
 var
   i: integer;
 begin
+  FCancelEvent := TEvent.Create;
+  FCancelListener := TNotifyEventListener.Create(Self.OnDownloadCanceled);
+
   FObjectFactory := AObjectFactory;
   FObjectTimeToLive := AObjectTimeToLive;
   FCheckInterval := ACheckInterval;
@@ -73,6 +88,8 @@ begin
     CloseHandle(FSemaphore);
     FSemaphore := 0;
   end;
+  FCancelEvent.SetEvent;
+  FreeAndNil(FCancelEvent);
   inherited;
 end;
 
@@ -88,6 +105,11 @@ end;
 function TPoolOfObjectsSimple.GetPoolSize: Cardinal;
 begin
   Result := FList.Count;
+end;
+
+procedure TPoolOfObjectsSimple.OnDownloadCanceled(Sender: TObject);
+begin
+  FCancelEvent.SetEvent;
 end;
 
 procedure TPoolOfObjectsSimple.TrimByTTL;
@@ -115,19 +137,42 @@ begin
 end;
 
 function TPoolOfObjectsSimple.TryGetPoolElement(
-  ATimeOut: Cardinal): IPoolElement;
+  ACancelNotifier: IOperationCancelNotifier
+): IPoolElement;
 var
   i: integer;
+  VHandles: array [0..1] of THandle;
+  VWaitResult: DWORD;
 begin
   Result := nil;
-  if WaitForSingleObject(FSemaphore, ATimeOut) = WAIT_OBJECT_0 then begin
+  if ACancelNotifier <> nil then begin
+    ACancelNotifier.AddListener(FCancelListener);
+  end;
+  try
+    VHandles[0] := FSemaphore;
+    VHandles[1] := FCancelEvent.Handle;
     while Result = nil do begin
-      for i := 0 to FList.Count - 1 do begin
-        Result := TPoolElement(FList.Items[i]).TryLock;
-        if Result <> nil then begin
-          Break;
+      if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
+        Break;
+      end;
+      VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
+      if VWaitResult = WAIT_OBJECT_0 then begin
+        while Result = nil do begin
+          if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
+            Break;
+          end;
+          for i := 0 to FList.Count - 1 do begin
+            Result := TPoolElement(FList.Items[i]).TryLock;
+            if Result <> nil then begin
+              Break;
+            end;
+          end;
         end;
       end;
+    end;
+  finally
+    if ACancelNotifier <> nil then begin
+      ACancelNotifier.RemoveListener(FCancelListener);
     end;
   end;
 end;

@@ -81,6 +81,8 @@ uses
   u_TileErrorInfo in 'u_TileErrorInfo.pas',
   i_TileErrorLogProviedrStuped in 'i_TileErrorLogProviedrStuped.pas',
   u_TileErrorLogProviedrStuped in 'u_TileErrorLogProviedrStuped.pas',
+  i_OperationCancelNotifier in 'i_OperationCancelNotifier.pas',
+  u_OperationCancelNotifier in 'u_OperationCancelNotifier.pas',
   i_LogSimple in 'i_LogSimple.pas',
   i_LogForTaskThread in 'i_LogForTaskThread.pas',
   i_TileDownlodSession in 'i_TileDownlodSession.pas',
