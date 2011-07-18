@@ -156,9 +156,9 @@ var
   VSize: TPoint;
 begin
   VSize := AConverter.GetLocalRectSize;
-  FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, False, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
+  FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
   if FHTypeMap <> nil then begin
-    FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, False, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
+    FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
     FTempBitmap.DrawMode := dmBlend;
     ATargetBitmap.Draw(0, 0, FTempBitmap);
   end;

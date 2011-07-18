@@ -247,7 +247,7 @@ begin
   try
     VErrorString := '';
     try
-      if AMapType.LoadTileUni(VBmp, ATile, AZoom, true, AGeoConvert, AUsePre, True, False) then begin
+      if AMapType.LoadTileUni(VBmp, ATile, AZoom, AGeoConvert, AUsePre, True, False, AMapType.Cache) then begin
         VBmp.DrawMode := ADrawMode;
         VBmp.DrawTo(ATargetBmp);
         Result := True;

@@ -249,7 +249,7 @@ begin
             end;
             for j := 0 to Length(FMapTypeArr) - 1 do begin
               if FMapTypeArr[j] <> nil then begin
-                if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, VZoom, False, VGeoConvert, False, true, true) then begin
+                if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, VZoom, VGeoConvert, False, true, true) then begin
                   if (j = 2) and (FMapTypeArr[0] <> nil) then begin
                     VBitmaps[0].Draw(0, 0, VBitmaps[j]);
                     VBitmaps[j].Draw(0, 0, VBitmaps[0]);

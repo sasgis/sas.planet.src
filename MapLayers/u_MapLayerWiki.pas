@@ -207,7 +207,7 @@ begin
   VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
 
   while VTileIterator.Next(VTile) do begin
-    if Alayer.LoadTile(kml, VTile, Vzoom, true, True) then begin
+    if Alayer.LoadTile(kml, VTile, Vzoom, True, Alayer.Cache) then begin
       AElments.Lock;
       try
         if AIsStop then begin

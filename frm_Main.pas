@@ -2313,7 +2313,7 @@ begin
   VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
   btm:=TBitmap32.Create;
   try
-    if VMapType.LoadTile(btm, VTile, VZoomCurr, false, False) then begin
+    if VMapType.LoadTile(btm, VTile, VZoomCurr, True) then begin
       btm1:=TBitmap.Create;
       try
         btm1.Width:=btm.Width;

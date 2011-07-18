@@ -397,10 +397,10 @@ begin
               if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
                 bmp322.Clear;
                 if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                  FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, False, VGeoConvert, False, False, True);
+                  FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, VGeoConvert, False, False, True);
                 end;
                 bmp32.Clear;
-                if VMapType.LoadTileUni(bmp32, VTile, VZoom, False, VGeoConvert, False, False, True) then begin
+                if VMapType.LoadTileUni(bmp32, VTile, VZoom, VGeoConvert, False, False, True) then begin
                   if (j = 2) and (FMapTypeArr[0] <> nil) then begin
                     bmp322.Draw(0, 0, bmp32);
                     bmp32.Draw(0, 0, bmp322);

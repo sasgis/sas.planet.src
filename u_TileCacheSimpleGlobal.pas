@@ -15,13 +15,14 @@ type
     FGUID: TGUID;
     FGUIDString: String;
     FMemCache: IMemObjCache;
+    function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+  protected
     procedure Clear;
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
     procedure AddTileToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte); overload;
     procedure AddTileToCache(AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte); overload;
     function TryLoadTileFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean; overload;
     function TryLoadTileFromCache(var AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte): boolean; overload;
-    function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
   public
     constructor Create(AMapType: TMapType; AMemCache: IMemObjCache);
   end;

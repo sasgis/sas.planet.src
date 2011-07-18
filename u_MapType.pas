@@ -92,7 +92,13 @@ type
     procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
     procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
     function GetUseGenPrevious: boolean;
-    function LoadTileFromPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean;
+    function LoadTileFromPreZ(
+      spr: TCustomBitmap32;
+      AXY: TPoint;
+      Azoom: byte;
+      IgnoreError: Boolean;
+      ACache: ITileObjCache = nil
+    ): boolean;
    public
     FSortIndex: integer;
     HotKey: TShortCut;
@@ -109,46 +115,46 @@ type
       btm: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
-      caching: boolean;
-      IgnoreError: Boolean
+      IgnoreError: Boolean;
+      ACache: ITileObjCache = nil
     ): boolean; overload;
     function LoadTile(
       var AKml: IVectorDataItemList;
       AXY: TPoint;
       Azoom: byte;
-      caching: boolean;
-      IgnoreError: Boolean
+      IgnoreError: Boolean;
+      ACache: ITileObjCache = nil
     ): boolean; overload;
     function LoadTileOrPreZ(
       spr: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
-      caching: boolean;
       IgnoreError: Boolean;
-      AUsePre: Boolean
+      AUsePre: Boolean;
+      ACache: ITileObjCache = nil
     ): boolean;
     function LoadTileUni(
       spr: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
-      caching: boolean;
       ACoordConverterTarget: ICoordConverter;
-      AUsePre, AAllowPartial, IgnoreError: Boolean
+      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      ACache: ITileObjCache = nil
     ): boolean;
     function LoadBtimap(
       spr: TCustomBitmap32;
       APixelRectTarget: TRect;
       Azoom: byte;
-      caching: boolean;
-      AUsePre, AAllowPartial, IgnoreError: Boolean
+      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      ACache: ITileObjCache = nil
     ): boolean;
     function LoadBtimapUni(
       spr: TCustomBitmap32;
       APixelRectTarget: TRect;
       Azoom: byte;
-      caching: boolean;
       ACoordConverterTarget: ICoordConverter;
-      AUsePre, AAllowPartial, IgnoreError: Boolean
+      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      ACache: ITileObjCache = nil
     ): boolean;
     function DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
     procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
@@ -795,13 +801,18 @@ begin
   Result := IsBitmapTiles and asLayer;
 end;
 
-function TMapType.LoadTile(btm: TCustomBitmap32; AXY: TPoint; Azoom: byte;
-  caching: boolean; IgnoreError: Boolean): boolean;
+function TMapType.LoadTile(
+  btm: TCustomBitmap32;
+  AXY: TPoint;
+  Azoom: byte;
+  IgnoreError: Boolean;
+  ACache: ITileObjCache
+): boolean;
 begin
   try
-    if (not caching)or(not FCache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
+    if (ACache = nil) or (not ACache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
       result:=LoadBitmapTileFromStorage(AXY, Azoom, btm);
-      if ((result)and(caching)) then FCache.AddTileToCache(btm, AXY, Azoom);
+      if ((result)and(ACache <> nil)) then ACache.AddTileToCache(btm, AXY, Azoom);
     end else begin
       result:=true;
     end;
@@ -814,13 +825,18 @@ begin
   end;
 end;
 
-function TMapType.LoadTile(var AKml: IVectorDataItemList; AXY: TPoint; Azoom: byte;
-  caching: boolean; IgnoreError: Boolean): boolean;
+function TMapType.LoadTile(
+  var AKml: IVectorDataItemList;
+  AXY: TPoint;
+  Azoom: byte;
+  IgnoreError: Boolean;
+  ACache: ITileObjCache
+): boolean;
 begin
   try
-    if (not caching)or(not FCache.TryLoadTileFromCache(AKml, AXY, Azoom)) then begin
+    if (ACache = nil) or (not ACache.TryLoadTileFromCache(AKml, AXY, Azoom)) then begin
       result:=LoadKmlTileFromStorage(AXY, Azoom, AKml);
-      if ((result)and(caching)) then FCache.AddTileToCache(AKml, AXY, Azoom);
+      if ((result)and(ACache <> nil)) then ACache.AddTileToCache(AKml, AXY, Azoom);
     end else begin
       result:=true;
     end;
@@ -833,8 +849,13 @@ begin
   end;
 end;
 
-function TMapType.LoadTileFromPreZ(spr: TCustomBitmap32; AXY: TPoint;
-  Azoom: byte; caching: boolean; IgnoreError: Boolean): boolean;
+function TMapType.LoadTileFromPreZ(
+  spr: TCustomBitmap32;
+  AXY: TPoint;
+  Azoom: byte;
+  IgnoreError: Boolean;
+  ACache: ITileObjCache
+): boolean;
 var
   i: integer;
   VBmp: TCustomBitmap32;
@@ -860,7 +881,7 @@ begin
       for i := Azoom - 1 downto VMinZoom do begin
         VParentZoom := i;
         VTileParent := FCoordConverter.Relative2Tile(VRelative, i);
-        if LoadTile(VBmp, VTileParent, VParentZoom, caching, IgnoreError)then begin
+        if LoadTile(VBmp, VTileParent, VParentZoom, IgnoreError, ACache)then begin
           VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
           VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, Azoom);
           VTileTargetBounds.Left := 0;
@@ -881,8 +902,8 @@ begin
             spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
             spr.Draw(VTileTargetBounds, VTileSourceBounds, VBmp);
             Result := true;
-            if caching then begin
-              FCache.AddTileToCache(spr, AXY, Azoom);
+            if ACache <> nil then begin
+              ACache.AddTileToCache(spr, AXY, Azoom);
             end;
             Break;
           except
@@ -898,8 +919,14 @@ begin
   end;
 end;
 
-function TMapType.LoadTileOrPreZ(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte;
-  caching: boolean; IgnoreError: Boolean; AUsePre: Boolean): boolean;
+function TMapType.LoadTileOrPreZ(
+  spr: TCustomBitmap32;
+  AXY: TPoint;
+  Azoom: byte;
+  IgnoreError: Boolean;
+  AUsePre: Boolean;
+  ACache: ITileObjCache
+): boolean;
 var
   VRect: TRect;
   VSize: TPoint;
@@ -907,7 +934,7 @@ var
 begin
   VRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
   VSize := Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
-  Result := LoadTile(spr, AXY, Azoom, caching, IgnoreError);
+  Result := LoadTile(spr, AXY, Azoom, IgnoreError, ACache);
   if Result then begin
     if (spr.Width < VSize.X) or
       (spr.Height < VSize.Y) then begin
@@ -924,14 +951,18 @@ begin
   end;
   if not Result then begin
     if AUsePre then begin
-      Result := LoadTileFromPreZ(spr, AXY, Azoom, caching, IgnoreError);
+      Result := LoadTileFromPreZ(spr, AXY, Azoom, IgnoreError, ACache);
     end;
   end;
 end;
 
-function TMapType.LoadBtimap(spr: TCustomBitmap32; APixelRectTarget: TRect;
-  Azoom: byte; caching, AUsePre, AAllowPartial,
-  IgnoreError: Boolean): boolean;
+function TMapType.LoadBtimap(
+  spr: TCustomBitmap32;
+  APixelRectTarget: TRect;
+  Azoom: byte;
+  AUsePre, AAllowPartial, IgnoreError: Boolean;
+  ACache: ITileObjCache
+): boolean;
 var
   VPixelRectTarget: TRect;
   VTileRect: TRect;
@@ -962,7 +993,7 @@ begin
       (VPixelRectCurrTile.Right = APixelRectTarget.Right) and
       (VPixelRectCurrTile.Bottom = APixelRectTarget.Bottom)
     then begin
-      Result := LoadTileOrPreZ(spr, VTileRect.TopLeft, Azoom, caching, IgnoreError, AUsePre);
+      Result := LoadTileOrPreZ(spr, VTileRect.TopLeft, Azoom, IgnoreError, AUsePre, ACache);
       exit;
     end;
   end;
@@ -976,7 +1007,7 @@ begin
       VTile.Y := i;
       for j := VTileRect.Left to VTileRect.Right - 1 do begin
         VTile.X := j;
-        VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError, AUsePre);
+        VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, IgnoreError, AUsePre, ACache);
         if VLoadResult then begin
           VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
 
@@ -1042,9 +1073,14 @@ begin
   end;
 end;
 
-function TMapType.LoadBtimapUni(spr: TCustomBitmap32; APixelRectTarget: TRect;
-  Azoom: byte; caching: boolean; ACoordConverterTarget: ICoordConverter;
-  AUsePre, AAllowPartial, IgnoreError: Boolean): boolean;
+function TMapType.LoadBtimapUni(
+  spr: TCustomBitmap32;
+  APixelRectTarget: TRect;
+  Azoom: byte;
+  ACoordConverterTarget: ICoordConverter;
+  AUsePre, AAllowPartial, IgnoreError: Boolean;
+  ACache: ITileObjCache
+): boolean;
 var
   VPixelRectTarget: TRect;
   VLonLatRectTarget: TDoubleRect;
@@ -1064,7 +1100,7 @@ begin
   Result := False;
 
   if FCoordConverter.IsSameConverter(ACoordConverterTarget) then begin
-    Result := LoadBtimap(spr, APixelRectTarget, Azoom, caching, AUsePre, AAllowPartial, IgnoreError);
+    Result := LoadBtimap(spr, APixelRectTarget, Azoom, AUsePre, AAllowPartial, IgnoreError, ACache);
   end else begin
     VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left;
     VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top;
@@ -1084,7 +1120,7 @@ begin
         VTile.Y := i;
         for j := VTileRectInSource.Left to VTileRectInSource.Right - 1 do begin
           VTile.X := j;
-          VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, caching, IgnoreError, AUsePre);
+          VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, IgnoreError, AUsePre, ACache);
           if VLoadResult then begin
             VPixelRectCurTileInSource := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
             VLonLatRectCurTile := FCoordConverter.PixelRect2LonLatRect(VPixelRectCurTileInSource, Azoom);
@@ -1154,14 +1190,19 @@ begin
   end;
 end;
 
-function TMapType.LoadTileUni(spr: TCustomBitmap32; AXY: TPoint; Azoom: byte;
-  caching: boolean; ACoordConverterTarget: ICoordConverter; AUsePre, AAllowPartial,
-  IgnoreError: Boolean): boolean;
+function TMapType.LoadTileUni(
+  spr: TCustomBitmap32;
+  AXY: TPoint;
+  Azoom: byte;
+  ACoordConverterTarget: ICoordConverter;
+  AUsePre, AAllowPartial, IgnoreError: Boolean;
+  ACache: ITileObjCache
+): boolean;
 var
   VPixelRect: TRect;
 begin
   VPixelRect := ACoordConverterTarget.TilePos2PixelRect(AXY, Azoom);
-  Result := LoadBtimapUni(spr, VPixelRect, Azoom, caching, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError);
+  Result := LoadBtimapUni(spr, VPixelRect, Azoom, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError, ACache);
 end;
 
 end.
