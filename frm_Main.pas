@@ -1817,12 +1817,13 @@ procedure TfrmMain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
   ATile: TPoint);
 begin
   if AMapType <> nil then begin
-    AMapType.Cache.DeleteTileFromCache(ATile, AZoom);
     if AMapType.IsBitmapTiles then begin
+      AMapType.CacheBitmap.DeleteTileFromCache(ATile, AZoom);
       if FMainLayer <> nil then begin
         FMainLayer.Redraw;
       end;
     end else if AMapType.IsKmlTiles then begin
+      AMapType.CacheVector.DeleteTileFromCache(ATile, AZoom);
       if FWikiLayer <> nil then begin
         FWikiLayer.Redraw;
       end;
@@ -1833,12 +1834,13 @@ end;
 procedure TfrmMain.OnMapUpdate(AMapType: TMapType);
 begin
   if AMapType <> nil then begin
-    AMapType.Cache.Clear;
     if AMapType.IsBitmapTiles then begin
+      AMapType.CacheBitmap.Clear;
       if FMainLayer <> nil then begin
         FMainLayer.Redraw;
       end;
     end else if AMapType.IsKmlTiles then begin
+      AMapType.CacheVector.Clear;
       if FWikiLayer <> nil then begin
         FWikiLayer.Redraw;
       end;

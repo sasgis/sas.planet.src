@@ -51,7 +51,8 @@ type
     FUseStick: boolean;
     FUseGenPrevious: boolean;
     FAntiBan: IAntiBan;
-    FCache: ITileObjCache;
+    FCacheBitmap: ITileObjCacheBitmap;
+    FCacheVector: ITileObjCacheVector;
     FStorage: TTileStorageAbstract;
     FTileRequestBuilder: ITileRequestBuilder;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
@@ -97,7 +98,7 @@ type
       AXY: TPoint;
       Azoom: byte;
       IgnoreError: Boolean;
-      ACache: ITileObjCache = nil
+      ACache: ITileObjCacheBitmap = nil
     ): boolean;
    public
     FSortIndex: integer;
@@ -116,14 +117,14 @@ type
       AXY: TPoint;
       Azoom: byte;
       IgnoreError: Boolean;
-      ACache: ITileObjCache = nil
+      ACache: ITileObjCacheBitmap = nil
     ): boolean; overload;
     function LoadTile(
       var AKml: IVectorDataItemList;
       AXY: TPoint;
       Azoom: byte;
       IgnoreError: Boolean;
-      ACache: ITileObjCache = nil
+      ACache: ITileObjCacheVector = nil
     ): boolean; overload;
     function LoadTileOrPreZ(
       spr: TCustomBitmap32;
@@ -131,7 +132,7 @@ type
       Azoom: byte;
       IgnoreError: Boolean;
       AUsePre: Boolean;
-      ACache: ITileObjCache = nil
+      ACache: ITileObjCacheBitmap = nil
     ): boolean;
     function LoadTileUni(
       spr: TCustomBitmap32;
@@ -139,14 +140,14 @@ type
       Azoom: byte;
       ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
-      ACache: ITileObjCache = nil
+      ACache: ITileObjCacheBitmap = nil
     ): boolean;
     function LoadBtimap(
       spr: TCustomBitmap32;
       APixelRectTarget: TRect;
       Azoom: byte;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
-      ACache: ITileObjCache = nil
+      ACache: ITileObjCacheBitmap = nil
     ): boolean;
     function LoadBtimapUni(
       spr: TCustomBitmap32;
@@ -154,7 +155,7 @@ type
       Azoom: byte;
       ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
-      ACache: ITileObjCache = nil
+      ACache: ITileObjCacheBitmap = nil
     ): boolean;
     function DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
     procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
@@ -198,7 +199,8 @@ type
     property Name: string read FName;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
     property TileRequestBuilderConfig: ITileRequestBuilderConfig read FTileRequestBuilderConfig;
-    property Cache: ITileObjCache read FCache;
+    property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
+    property CacheVector: ITileObjCacheVector read FCacheVector;
 
     constructor Create(
       ALanguageManager: ILanguageManager;
@@ -280,7 +282,8 @@ begin
   end else if Supports(FContentType, IContentTypeInfoKml, VContentTypeKml) then begin
     FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
   end;
-  FCache := TTileCacheSimpleGlobal.Create(Self, GState.MainMemCache);
+  FCacheBitmap := TTileCacheSimpleGlobalBitmap.Create(Self, GState.MainMemCacheBitmap);
+  FCacheVector := TTileCacheSimpleGlobalVector.Create(Self, GState.MainMemCacheVector);
 end;
 
 procedure TMapType.LoadWebSourceParams(AConfig: IConfigDataProvider);
@@ -466,7 +469,7 @@ begin
         FreeAndNil(btmSrc);
       end;
     end;
-    FCache.DeleteTileFromCache(AXY, Azoom);
+    FCacheBitmap.DeleteTileFromCache(AXY, Azoom);
   end else begin
     raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
   end;
@@ -619,7 +622,8 @@ destructor TMapType.Destroy;
 begin
   FCoordConverter := nil;
   FPoolOfDownloaders := nil;
-  FCache := nil;
+  FCacheBitmap := nil;
+  FCacheVector := nil;
   FreeAndNil(FStorage);
   inherited;
 end;
@@ -806,7 +810,7 @@ function TMapType.LoadTile(
   AXY: TPoint;
   Azoom: byte;
   IgnoreError: Boolean;
-  ACache: ITileObjCache
+  ACache: ITileObjCacheBitmap
 ): boolean;
 begin
   try
@@ -830,7 +834,7 @@ function TMapType.LoadTile(
   AXY: TPoint;
   Azoom: byte;
   IgnoreError: Boolean;
-  ACache: ITileObjCache
+  ACache: ITileObjCacheVector
 ): boolean;
 begin
   try
@@ -854,7 +858,7 @@ function TMapType.LoadTileFromPreZ(
   AXY: TPoint;
   Azoom: byte;
   IgnoreError: Boolean;
-  ACache: ITileObjCache
+  ACache: ITileObjCacheBitmap
 ): boolean;
 var
   i: integer;
@@ -925,7 +929,7 @@ function TMapType.LoadTileOrPreZ(
   Azoom: byte;
   IgnoreError: Boolean;
   AUsePre: Boolean;
-  ACache: ITileObjCache
+  ACache: ITileObjCacheBitmap
 ): boolean;
 var
   VRect: TRect;
@@ -961,7 +965,7 @@ function TMapType.LoadBtimap(
   APixelRectTarget: TRect;
   Azoom: byte;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
-  ACache: ITileObjCache
+  ACache: ITileObjCacheBitmap
 ): boolean;
 var
   VPixelRectTarget: TRect;
@@ -1079,7 +1083,7 @@ function TMapType.LoadBtimapUni(
   Azoom: byte;
   ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
-  ACache: ITileObjCache
+  ACache: ITileObjCacheBitmap
 ): boolean;
 var
   VPixelRectTarget: TRect;
@@ -1196,7 +1200,7 @@ function TMapType.LoadTileUni(
   Azoom: byte;
   ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
-  ACache: ITileObjCache
+  ACache: ITileObjCacheBitmap
 ): boolean;
 var
   VPixelRect: TRect;

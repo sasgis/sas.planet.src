@@ -459,7 +459,7 @@ begin
         end;
         VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
         VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
-        if AMapType.LoadTileUni(VBmp, VTile, VZoom, VGeoConvert, VUsePre, True, True, AMapType.Cache) then begin
+        if AMapType.LoadTileUni(VBmp, VTile, VZoom, VGeoConvert, VUsePre, True, True, AMapType.CacheBitmap) then begin
           VRecolorConfig.ProcessBitmap(VBmp);
           FLayer.Bitmap.Lock;
           try

@@ -92,7 +92,8 @@ type
     FProgramPath: string;
     FImageResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
-    FMainMemCache: IMemObjCache;
+    FMainMemCacheBitmap: IMemObjCacheBitmap;
+    FMainMemCacheVector: IMemObjCacheVector;
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
     FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
@@ -169,7 +170,8 @@ type
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
     property ProgramPath: string read FProgramPath;
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
-    property MainMemCache: IMemObjCache read FMainMemCache;
+    property MainMemCacheBitmap: IMemObjCacheBitmap read FMainMemCacheBitmap;
+    property MainMemCacheVector: IMemObjCacheVector read FMainMemCacheVector;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
@@ -308,7 +310,8 @@ begin
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
   FViewConfig := TGlobalViewMainConfig.Create;
 
-  FMainMemCache := TMemFileCache.Create(FMainMemCacheConfig);
+  FMainMemCacheBitmap := TMemFileCacheBitmap.Create(FMainMemCacheConfig);
+  FMainMemCacheVector := TMemFileCacheVector.Create(FMainMemCacheConfig);
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FContentTypeManager := TContentTypeManagerSimple.Create;
@@ -353,7 +356,8 @@ begin
   except
   end;
   FMainConfigProvider := nil;
-  FMainMemCache := nil;
+  FMainMemCacheBitmap := nil;
+  FMainMemCacheVector := nil;
   FTileNameGenerator := nil;
   FBitmapTypeManager := nil;
   FContentTypeManager := nil;
