@@ -208,17 +208,12 @@ begin
 
   while VTileIterator.Next(VTile) do begin
     if Alayer.LoadTile(kml, VTile, Vzoom, True, Alayer.CacheVector) then begin
-      AElments.Lock;
-      try
-        if AIsStop then begin
-          Break;
-        end else begin
-          for ii := 0 to KML.Count - 1 do begin
-            AddWikiElement(AElments, KML.GetItem(ii), ALocalConverter);
-          end;
+      if AIsStop then begin
+        Break;
+      end else begin
+        for ii := 0 to KML.Count - 1 do begin
+          AddWikiElement(AElments, KML.GetItem(ii), ALocalConverter);
         end;
-      finally
-        AElments.Unlock;
       end;
     end;
     kml := nil;
