@@ -14,37 +14,36 @@ uses
   i_VectorDataItemSimple;
 
 type
-  TMemFileCacheVector = class(TInterfacedObject, IMemObjCacheVector)
+  TMemFileCacheBase = class(TInterfacedObject)
   private
     FConfig: IMainMemCacheConfig;
     FConfigListener: IJclListener;
     FCacheList: TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
     procedure OnChangeConfig(Sender: TObject);
+    procedure ItemFree(AIndex: Integer); virtual; abstract;
+  protected
+    procedure Clear;
+    procedure DeleteFileFromCache(path: string);
   public
     constructor Create(AConfig: IMainMemCacheConfig);
     destructor Destroy; override;
-    procedure Clear;
-    procedure DeleteFileFromCache(path: string);
+  end;
+
+  TMemFileCacheVector = class(TMemFileCacheBase, IMemObjCacheVector)
+  private
+    procedure ItemFree(AIndex: Integer); override;
+  protected
     procedure AddTileToCache(btm: IVectorDataItemList; APath: string);
     function TryLoadFileFromCache(var btm: IVectorDataItemList; APath: string): boolean;
   end;
 
-  TMemFileCacheBitmap = class(TInterfacedObject, IMemObjCacheBitmap)
+  TMemFileCacheBitmap = class(TMemFileCacheBase, IMemObjCacheBitmap)
   private
-    FConfig: IMainMemCacheConfig;
-    FConfigListener: IJclListener;
-
-    FCacheList: TStringList;
-    FSync: TMultiReadExclusiveWriteSynchronizer;
-    procedure OnChangeConfig(Sender: TObject);
-  public
-    constructor Create(AConfig: IMainMemCacheConfig);
-    destructor Destroy; override;
-    procedure Clear;
-    procedure DeleteFileFromCache(path: string);
-    procedure AddTileToCache(btm: TCustomBitmap32; APath: string); overload;
-    function TryLoadFileFromCache(btm: TCustomBitmap32; APath: string): boolean; overload;
+    procedure ItemFree(AIndex: Integer); override;
+  protected
+    procedure AddTileToCache(btm: TCustomBitmap32; APath: string);
+    function TryLoadFileFromCache(btm: TCustomBitmap32; APath: string): boolean;
   end;
 
 
@@ -53,9 +52,9 @@ implementation
 uses
   u_NotifyEventListener;
 
-{ TMemFileCache }
+{ TMemFileCacheBase }
 
-constructor TMemFileCacheVector.Create(AConfig: IMainMemCacheConfig);
+constructor TMemFileCacheBase.Create(AConfig: IMainMemCacheConfig);
 begin
   FConfig := AConfig;
   FConfigListener := TNotifyEventListener.Create(Self.OnChangeConfig);
@@ -66,7 +65,7 @@ begin
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
-destructor TMemFileCacheVector.Destroy;
+destructor TMemFileCacheBase.Destroy;
 begin
   FConfig.GetChangeNotifier.Remove(FConfigListener);
   FConfigListener := nil;
@@ -78,7 +77,38 @@ begin
   inherited;
 end;
 
-procedure TMemFileCacheVector.OnChangeConfig(Sender: TObject);
+procedure TMemFileCacheBase.Clear;
+var
+  i: integer;
+begin
+  FSync.BeginWrite;
+  try
+    for i := 0 to FCacheList.Count - 1 do begin
+      ItemFree(i);
+    end;
+    FCacheList.Clear;
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
+procedure TMemFileCacheBase.DeleteFileFromCache(path: string);
+var
+  i: Integer;
+begin
+  FSync.BeginWrite;
+  try
+    i := FCacheList.IndexOf(AnsiUpperCase(Path));
+    if i >= 0 then begin
+      ItemFree(i);
+      FCacheList.Delete(i);
+    end;
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
+procedure TMemFileCacheBase.OnChangeConfig(Sender: TObject);
 var
   VNewSize: Integer;
   i: Integer;
@@ -89,7 +119,7 @@ begin
     if VNewSize <> FCacheList.Capacity then begin
       if VNewSize < FCacheList.Count then begin
         for i := 0 to (FCacheList.Count - VNewSize) - 1 do begin
-          IInterface(Pointer(FCacheList.Objects[0]))._Release;
+          ItemFree(0);
           FCacheList.Delete(0);
         end;
       end;
@@ -100,36 +130,7 @@ begin
   end;
 end;
 
-procedure TMemFileCacheVector.Clear;
-var
-  i: integer;
-begin
-  FSync.BeginWrite;
-  try
-    for i := 0 to FCacheList.Count - 1 do begin
-      IInterface(Pointer(FCacheList.Objects[i]))._Release;
-    end;
-    FCacheList.Clear;
-  finally
-    FSync.EndWrite;
-  end;
-end;
-
-procedure TMemFileCacheVector.DeleteFileFromCache(path: string);
-var
-  i: Integer;
-begin
-  FSync.BeginWrite;
-  try
-    i := FCacheList.IndexOf(AnsiUpperCase(Path));
-    if i >= 0 then begin
-      IInterface(Pointer(FCacheList.Objects[i]))._Release;
-      FCacheList.Delete(i);
-    end;
-  finally
-    FSync.EndWrite;
-  end;
-end;
+{ TMemFileCache }
 
 procedure TMemFileCacheVector.AddTileToCache(btm: IVectorDataItemList; APath: string);
 var
@@ -142,7 +143,7 @@ begin
     i := FCacheList.IndexOf(APath);
     if (i < 0)and(FCacheList.Capacity>0) then begin
       if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
-        IInterface(Pointer(FCacheList.Objects[0]))._Release;
+        ItemFree(0);
         FCacheList.Delete(0);
       end;
       btm._AddRef;
@@ -151,6 +152,11 @@ begin
   finally
     FSync.EndWrite;
   end;
+end;
+
+procedure TMemFileCacheVector.ItemFree(AIndex: Integer);
+begin
+  IInterface(Pointer(FCacheList.Objects[AIndex]))._Release;
 end;
 
 function TMemFileCacheVector.TryLoadFileFromCache(var btm: IVectorDataItemList;
@@ -175,29 +181,6 @@ end;
 
 { TMemFileCacheBitmap }
 
-constructor TMemFileCacheBitmap.Create(AConfig: IMainMemCacheConfig);
-begin
-  FConfig := AConfig;
-  FConfigListener := TNotifyEventListener.Create(Self.OnChangeConfig);
-  FConfig.GetChangeNotifier.Add(FConfigListener);
-
-  FCacheList := TStringList.Create;
-  FCacheList.Capacity := FConfig.MaxSize;
-  FSync := TMultiReadExclusiveWriteSynchronizer.Create;
-end;
-
-destructor TMemFileCacheBitmap.Destroy;
-begin
-  FConfig.GetChangeNotifier.Remove(FConfigListener);
-  FConfigListener := nil;
-  FConfig := nil;
-
-  Clear;
-  FreeAndNil(FSync);
-  FreeAndNil(FCacheList);
-  inherited;
-end;
-
 procedure TMemFileCacheBitmap.AddTileToCache(btm: TCustomBitmap32;
   APath: string);
 var
@@ -211,7 +194,7 @@ begin
     i := FCacheList.IndexOf(APath);
     if (i < 0)and(FCacheList.Capacity>0) then begin
       if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
-        FCacheList.Objects[0].Free;
+        ItemFree(0);
         FCacheList.Delete(0);
       end;
       btmcache := TCustomBitmap32.Create;
@@ -223,57 +206,9 @@ begin
   end;
 end;
 
-procedure TMemFileCacheBitmap.Clear;
-var
-  i: integer;
+procedure TMemFileCacheBitmap.ItemFree(AIndex: Integer);
 begin
-  FSync.BeginWrite;
-  try
-    for i := 0 to FCacheList.Count - 1 do begin
-      FCacheList.Objects[i].Free;
-    end;
-    FCacheList.Clear;
-  finally
-    FSync.EndWrite;
-  end;
-end;
-
-procedure TMemFileCacheBitmap.DeleteFileFromCache(path: string);
-var
-  i: Integer;
-begin
-  FSync.BeginWrite;
-  try
-    i := FCacheList.IndexOf(AnsiUpperCase(Path));
-    if i >= 0 then begin
-      FCacheList.Objects[i].Free;
-      FCacheList.Delete(i);
-    end;
-  finally
-    FSync.EndWrite;
-  end;
-end;
-
-procedure TMemFileCacheBitmap.OnChangeConfig(Sender: TObject);
-var
-  VNewSize: Integer;
-  i: Integer;
-begin
-  VNewSize := FConfig.MaxSize;
-  FSync.BeginWrite;
-  try
-    if VNewSize <> FCacheList.Capacity then begin
-      if VNewSize < FCacheList.Count then begin
-        for i := 0 to (FCacheList.Count - VNewSize) - 1 do begin
-          FCacheList.Objects[0].Free;
-          FCacheList.Delete(0);
-        end;
-      end;
-      FCacheList.Capacity := VNewSize;
-    end;
-  finally
-    FSync.EndWrite;
-  end;
+  FCacheList.Objects[AIndex].Free;
 end;
 
 function TMemFileCacheBitmap.TryLoadFileFromCache(btm: TCustomBitmap32;
