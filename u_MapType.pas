@@ -874,52 +874,56 @@ var
   VMinZoom: Integer;
 begin
   result:=false;
-  VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
-  VMinZoom :=  Azoom - FLoadPrevMaxZoomDelta;
-  if VMinZoom < 0 then begin
-    VMinZoom := 0;
-  end;
-  if Azoom - 1 > VMinZoom then begin
-    VBmp:=TCustomBitmap32.Create;
-    try
-      for i := Azoom - 1 downto VMinZoom do begin
-        VParentZoom := i;
-        VTileParent := FCoordConverter.Relative2Tile(VRelative, i);
-        if LoadTile(VBmp, VTileParent, VParentZoom, IgnoreError, ACache)then begin
-          VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
-          VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, Azoom);
-          VTileTargetBounds.Left := 0;
-          VTileTargetBounds.Top := 0;
-          VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left;
-          VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top;
+  if (ACache = nil) or (not ACache.TryLoadTilePreFromCache(spr, AXY, Azoom)) then begin
+    VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
+    VMinZoom :=  Azoom - FLoadPrevMaxZoomDelta;
+    if VMinZoom < 0 then begin
+      VMinZoom := 0;
+    end;
+    if Azoom - 1 > VMinZoom then begin
+      VBmp:=TCustomBitmap32.Create;
+      try
+        for i := Azoom - 1 downto VMinZoom do begin
+          VParentZoom := i;
+          VTileParent := FCoordConverter.Relative2Tile(VRelative, i);
+          if LoadTile(VBmp, VTileParent, VParentZoom, IgnoreError, ACache)then begin
+            VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
+            VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, Azoom);
+            VTileTargetBounds.Left := 0;
+            VTileTargetBounds.Top := 0;
+            VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left;
+            VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top;
 
-          VBmp.Resampler := GState.ImageResamplerConfig.GetActiveFactory.CreateResampler;
+            VBmp.Resampler := GState.ImageResamplerConfig.GetActiveFactory.CreateResampler;
 
-          VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
-          VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
-          VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
-          VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
-          VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left;
-          VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top;
-          try
-            VBmp.DrawMode := dmOpaque;
-            spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
-            spr.Draw(VTileTargetBounds, VTileSourceBounds, VBmp);
-            Result := true;
-            if ACache <> nil then begin
-              ACache.AddTileToCache(spr, AXY, Azoom);
-            end;
-            Break;
-          except
-            if not IgnoreError then begin
-              raise
+            VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
+            VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
+            VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
+            VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
+            VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left;
+            VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top;
+            try
+              VBmp.DrawMode := dmOpaque;
+              spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
+              spr.Draw(VTileTargetBounds, VTileSourceBounds, VBmp);
+              Result := true;
+              if ACache <> nil then begin
+                ACache.AddTilePreToCache(spr, AXY, Azoom);
+              end;
+              Break;
+            except
+              if not IgnoreError then begin
+                raise
+              end;
             end;
           end;
         end;
+      finally
+        FreeAndNil(VBmp);
       end;
-    finally
-      FreeAndNil(VBmp);
     end;
+  end else begin
+    result:=true;
   end;
 end;
 
