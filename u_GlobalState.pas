@@ -310,8 +310,9 @@ begin
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
   FViewConfig := TGlobalViewMainConfig.Create;
 
-  FMainMemCacheBitmap := TMemFileCacheBitmap.Create(FMainMemCacheConfig);
-  FMainMemCacheVector := TMemFileCacheVector.Create(FMainMemCacheConfig);
+  FMainMemCacheBitmap := TMemFileCacheBitmap.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('BitmapCache'));
+  FMainMemCacheVector := TMemFileCacheVector.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('VectorCache'));
+
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FContentTypeManager := TContentTypeManagerSimple.Create;
