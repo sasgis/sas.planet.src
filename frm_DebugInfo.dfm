@@ -26,8 +26,6 @@ object frmDebugInfo: TfrmDebugInfo
     FixedCols = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
     TabOrder = 0
-    ExplicitWidth = 566
-    ExplicitHeight = 272
   end
   object pnlBottom: TPanel
     Left = 0
@@ -37,8 +35,6 @@ object frmDebugInfo: TfrmDebugInfo
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 272
-    ExplicitWidth = 566
     object btnRefresh: TButton
       AlignWithMargins = True
       Left = 271
@@ -53,7 +49,6 @@ object frmDebugInfo: TfrmDebugInfo
       Caption = 'Refresh'
       TabOrder = 0
       OnClick = btnRefreshClick
-      ExplicitLeft = 489
     end
     object btnReset: TButton
       AlignWithMargins = True
