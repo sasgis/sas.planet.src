@@ -385,7 +385,7 @@ begin
     FElments.Unlock;
   end;
   if VList.Count > 0 then begin
-    ProcessDraw(FElments, AIsStop, VLocalConverter);
+    ProcessDraw(VList, AIsStop, VLocalConverter);
   end;
 end;
 
