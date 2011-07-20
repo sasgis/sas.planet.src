@@ -950,7 +950,8 @@ begin
         FConfig.ViewPortState,
         GState.LocalConverterFactory,
         FConfig.LayersConfig.MiniMapLayerConfig,
-        GState.BitmapPostProcessingConfig
+        GState.BitmapPostProcessingConfig,
+        GState.GUISyncronizedTimerNotifier
       );
     FLayersList.Add(FLayerMiniMap);
 
