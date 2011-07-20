@@ -8,6 +8,7 @@ uses
   Classes,
   GR32,
   i_JclNotify,
+  i_InternalPerformanceCounter,
   i_MemObjCache,
   i_MainMemCacheConfig,
   i_VectorDataItemSimple;
@@ -17,7 +18,7 @@ type
   private
     FConfig: IMainMemCacheConfig;
     FConfigListener: IJclListener;
-    FCacheVectorList: TStringList;
+    FCacheList: TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
     procedure OnChangeConfig(Sender: TObject);
   public
@@ -34,7 +35,7 @@ type
     FConfig: IMainMemCacheConfig;
     FConfigListener: IJclListener;
 
-    FCacheBmpList: TStringList;
+    FCacheList: TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
     procedure OnChangeConfig(Sender: TObject);
   public
@@ -60,8 +61,8 @@ begin
   FConfigListener := TNotifyEventListener.Create(Self.OnChangeConfig);
   FConfig.GetChangeNotifier.Add(FConfigListener);
 
-  FCacheVectorList := TStringList.Create;
-  FCacheVectorList.Capacity := FConfig.MaxSize;
+  FCacheList := TStringList.Create;
+  FCacheList.Capacity := FConfig.MaxSize;
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
@@ -73,7 +74,7 @@ begin
 
   Clear;
   FreeAndNil(FSync);
-  FreeAndNil(FCacheVectorList);
+  FreeAndNil(FCacheList);
   inherited;
 end;
 
@@ -85,14 +86,14 @@ begin
   VNewSize := FConfig.MaxSize;
   FSync.BeginWrite;
   try
-    if VNewSize <> FCacheVectorList.Capacity then begin
-      if VNewSize < FCacheVectorList.Count then begin
-        for i := 0 to (FCacheVectorList.Count - VNewSize) - 1 do begin
-          IInterface(Pointer(FCacheVectorList.Objects[0]))._Release;
-          FCacheVectorList.Delete(0);
+    if VNewSize <> FCacheList.Capacity then begin
+      if VNewSize < FCacheList.Count then begin
+        for i := 0 to (FCacheList.Count - VNewSize) - 1 do begin
+          IInterface(Pointer(FCacheList.Objects[0]))._Release;
+          FCacheList.Delete(0);
         end;
       end;
-      FCacheVectorList.Capacity := VNewSize;
+      FCacheList.Capacity := VNewSize;
     end;
   finally
     FSync.EndWrite;
@@ -105,10 +106,10 @@ var
 begin
   FSync.BeginWrite;
   try
-    for i := 0 to FCacheVectorList.Count - 1 do begin
-      IInterface(Pointer(FCacheVectorList.Objects[i]))._Release;
+    for i := 0 to FCacheList.Count - 1 do begin
+      IInterface(Pointer(FCacheList.Objects[i]))._Release;
     end;
-    FCacheVectorList.Clear;
+    FCacheList.Clear;
   finally
     FSync.EndWrite;
   end;
@@ -120,10 +121,10 @@ var
 begin
   FSync.BeginWrite;
   try
-    i := FCacheVectorList.IndexOf(AnsiUpperCase(Path));
+    i := FCacheList.IndexOf(AnsiUpperCase(Path));
     if i >= 0 then begin
-      IInterface(Pointer(FCacheVectorList.Objects[i]))._Release;
-      FCacheVectorList.Delete(i);
+      IInterface(Pointer(FCacheList.Objects[i]))._Release;
+      FCacheList.Delete(i);
     end;
   finally
     FSync.EndWrite;
@@ -138,14 +139,14 @@ begin
   VPath := AnsiUpperCase(APath);
   FSync.BeginWrite;
   try
-    i := FCacheVectorList.IndexOf(APath);
-    if (i < 0)and(FCacheVectorList.Capacity>0) then begin
-      if (FCacheVectorList.Count >= FCacheVectorList.Capacity)and(FCacheVectorList.Count>0) then begin
-        IInterface(Pointer(FCacheVectorList.Objects[0]))._Release;
-        FCacheVectorList.Delete(0);
+    i := FCacheList.IndexOf(APath);
+    if (i < 0)and(FCacheList.Capacity>0) then begin
+      if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
+        IInterface(Pointer(FCacheList.Objects[0]))._Release;
+        FCacheList.Delete(0);
       end;
       btm._AddRef;
-      FCacheVectorList.AddObject(APath, Pointer(btm));
+      FCacheList.AddObject(APath, Pointer(btm));
     end;
   finally
     FSync.EndWrite;
@@ -162,9 +163,9 @@ begin
   VPath := AnsiUpperCase(APath);
   FSync.BeginRead;
   try
-    i := FCacheVectorList.IndexOf(VPath);
+    i := FCacheList.IndexOf(VPath);
     if i >= 0 then begin
-      btm := IVectorDataItemList(Pointer(FCacheVectorList.Objects[i]));
+      btm := IVectorDataItemList(Pointer(FCacheList.Objects[i]));
       result := true;
     end;
   finally
@@ -180,8 +181,8 @@ begin
   FConfigListener := TNotifyEventListener.Create(Self.OnChangeConfig);
   FConfig.GetChangeNotifier.Add(FConfigListener);
 
-  FCacheBmpList := TStringList.Create;
-  FCacheBmpList.Capacity := FConfig.MaxSize;
+  FCacheList := TStringList.Create;
+  FCacheList.Capacity := FConfig.MaxSize;
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
@@ -193,7 +194,7 @@ begin
 
   Clear;
   FreeAndNil(FSync);
-  FreeAndNil(FCacheBmpList);
+  FreeAndNil(FCacheList);
   inherited;
 end;
 
@@ -207,15 +208,15 @@ begin
   VPath := AnsiUpperCase(APath);
   FSync.BeginWrite;
   try
-    i := FCacheBmpList.IndexOf(APath);
-    if (i < 0)and(FCacheBmpList.Capacity>0) then begin
-      if (FCacheBmpList.Count >= FCacheBmpList.Capacity)and(FCacheBmpList.Count>0) then begin
-        FCacheBmpList.Objects[0].Free;
-        FCacheBmpList.Delete(0);
+    i := FCacheList.IndexOf(APath);
+    if (i < 0)and(FCacheList.Capacity>0) then begin
+      if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
+        FCacheList.Objects[0].Free;
+        FCacheList.Delete(0);
       end;
       btmcache := TCustomBitmap32.Create;
       btmcache.Assign(btm);
-      FCacheBmpList.AddObject(APath, btmcache);
+      FCacheList.AddObject(APath, btmcache);
     end;
   finally
     FSync.EndWrite;
@@ -228,10 +229,10 @@ var
 begin
   FSync.BeginWrite;
   try
-    for i := 0 to FCacheBmpList.Count - 1 do begin
-      FCacheBmpList.Objects[i].Free;
+    for i := 0 to FCacheList.Count - 1 do begin
+      FCacheList.Objects[i].Free;
     end;
-    FCacheBmpList.Clear;
+    FCacheList.Clear;
   finally
     FSync.EndWrite;
   end;
@@ -243,10 +244,10 @@ var
 begin
   FSync.BeginWrite;
   try
-    i := FCacheBmpList.IndexOf(AnsiUpperCase(Path));
+    i := FCacheList.IndexOf(AnsiUpperCase(Path));
     if i >= 0 then begin
-      FCacheBmpList.Objects[i].Free;
-      FCacheBmpList.Delete(i);
+      FCacheList.Objects[i].Free;
+      FCacheList.Delete(i);
     end;
   finally
     FSync.EndWrite;
@@ -261,14 +262,14 @@ begin
   VNewSize := FConfig.MaxSize;
   FSync.BeginWrite;
   try
-    if VNewSize <> FCacheBmpList.Capacity then begin
-      if VNewSize < FCacheBmpList.Count then begin
-        for i := 0 to (FCacheBmpList.Count - VNewSize) - 1 do begin
-          FCacheBmpList.Objects[0].Free;
-          FCacheBmpList.Delete(0);
+    if VNewSize <> FCacheList.Capacity then begin
+      if VNewSize < FCacheList.Count then begin
+        for i := 0 to (FCacheList.Count - VNewSize) - 1 do begin
+          FCacheList.Objects[0].Free;
+          FCacheList.Delete(0);
         end;
       end;
-      FCacheBmpList.Capacity := VNewSize;
+      FCacheList.Capacity := VNewSize;
     end;
   finally
     FSync.EndWrite;
@@ -285,9 +286,9 @@ begin
   VPath := AnsiUpperCase(APath);
   FSync.BeginRead;
   try
-    i := FCacheBmpList.IndexOf(VPath);
+    i := FCacheList.IndexOf(VPath);
     if i >= 0 then begin
-      btm.Assign(TCustomBitmap32(FCacheBmpList.Objects[i]));
+      btm.Assign(TCustomBitmap32(FCacheList.Objects[i]));
       result := true;
     end;
   finally
