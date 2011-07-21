@@ -18,7 +18,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TMapViewPortStateNew = class(TConfigDataElementBase, IViewPortState)
+  TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
     FMapZoomingConfig: IMapZoomingConfig;
     FBeforeChangeNotifier: IJclNotifier;
@@ -96,7 +96,7 @@ uses
 
 { TMapViewPortStateNew }
 
-constructor TMapViewPortStateNew.Create(
+constructor TMapViewPortState.Create(
   ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapZoomingConfig: IMapZoomingConfig;
   AMainMapConfig: IMainMapsConfig;
@@ -126,7 +126,7 @@ begin
   FMainMapConfig.GetChangeNotifier.Add(FMainMapChangeListener);
 end;
 
-destructor TMapViewPortStateNew.Destroy;
+destructor TMapViewPortState.Destroy;
 begin
   FMainMapConfig.GetChangeNotifier.Remove(FMainMapChangeListener);
   FMainMapChangeListener := nil;
@@ -136,7 +136,7 @@ begin
   inherited;
 end;
 
-procedure TMapViewPortStateNew.ChangeLonLat(ALonLat: TDoublePoint);
+procedure TMapViewPortState.ChangeLonLat(ALonLat: TDoublePoint);
 var
   VLonLat: TDoublePoint;
   VPixelPos: TPoint;
@@ -159,7 +159,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.ChangeMapPixelByDelta(ADelta: TDoublePoint);
+procedure TMapViewPortState.ChangeMapPixelByDelta(ADelta: TDoublePoint);
 var
   VNewPos: TPoint;
   VZoom: Byte;
@@ -183,7 +183,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.ChangeMapPixelToVisualPoint(
+procedure TMapViewPortState.ChangeMapPixelToVisualPoint(
   AVisualPoint: TPoint);
 var
   VNewPos: TPoint;
@@ -207,7 +207,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.ChangeViewSize(ANewSize: TPoint);
+procedure TMapViewPortState.ChangeViewSize(ANewSize: TPoint);
 var
   VChanged: Boolean;
 begin
@@ -237,7 +237,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.ChangeZoomWithFreezeAtCenter(AZoom: Byte);
+procedure TMapViewPortState.ChangeZoomWithFreezeAtCenter(AZoom: Byte);
 var
   VRelativePoint: TDoublePoint;
   VZoom: Byte;
@@ -266,7 +266,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.ChangeZoomWithFreezeAtVisualPoint(AZoom: Byte;
+procedure TMapViewPortState.ChangeZoomWithFreezeAtVisualPoint(AZoom: Byte;
   AFreezePoint: TPoint);
 var
   VZoom: Byte;
@@ -309,7 +309,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.CreateVisibleCoordConverter;
+procedure TMapViewPortState.CreateVisibleCoordConverter;
 var
   VViewCenter: TPoint;
   VLocalTopLeftAtMap: TDoublePoint;
@@ -327,7 +327,7 @@ begin
   );
 end;
 
-procedure TMapViewPortStateNew.DoChangeNotify;
+procedure TMapViewPortState.DoChangeNotify;
 var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
@@ -344,7 +344,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMapViewPortState.DoReadConfig(AConfigData: IConfigDataProvider);
 var
   VLonLat: TDoublePoint;
   VZoom: Byte;
@@ -365,7 +365,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.DoWriteConfig(
+procedure TMapViewPortState.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 var
   VLonLat: TDoublePoint;
@@ -377,17 +377,17 @@ begin
   AConfigData.WriteFloat('Y', VLonLat.Y);
 end;
 
-function TMapViewPortStateNew.GetAfterChangeNotifier: IJclNotifier;
+function TMapViewPortState.GetAfterChangeNotifier: IJclNotifier;
 begin
   Result := FAfterChangeNotifier;
 end;
 
-function TMapViewPortStateNew.GetBeforeChangeNotifier: IJclNotifier;
+function TMapViewPortState.GetBeforeChangeNotifier: IJclNotifier;
 begin
   Result := FBeforeChangeNotifier;
 end;
 
-function TMapViewPortStateNew.GetCurrentCoordConverter: ICoordConverter;
+function TMapViewPortState.GetCurrentCoordConverter: ICoordConverter;
 begin
   LockRead;
   try
@@ -397,7 +397,7 @@ begin
   end;
 end;
 
-function TMapViewPortStateNew.GetCurrentZoom: Byte;
+function TMapViewPortState.GetCurrentZoom: Byte;
 begin
   LockRead;
   try
@@ -407,7 +407,7 @@ begin
   end;
 end;
 
-function TMapViewPortStateNew.GetMainCoordConverter: ICoordConverter;
+function TMapViewPortState.GetMainCoordConverter: ICoordConverter;
 begin
   LockRead;
   try
@@ -417,12 +417,12 @@ begin
   end;
 end;
 
-function TMapViewPortStateNew.GetScaleChangeNotifier: IJclNotifier;
+function TMapViewPortState.GetScaleChangeNotifier: IJclNotifier;
 begin
   Result := FScaleChangeNotifier;
 end;
 
-function TMapViewPortStateNew.GetVisualCoordConverter: ILocalCoordConverter;
+function TMapViewPortState.GetVisualCoordConverter: ILocalCoordConverter;
 begin
   LockRead;
   try
@@ -432,7 +432,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.MoveTo(Pnt: TPoint);
+procedure TMapViewPortState.MoveTo(Pnt: TPoint);
 var
   VChanged: Boolean;
   VVisibleMove: TDoublePoint;
@@ -462,7 +462,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.NotifyChangeScale;
+procedure TMapViewPortState.NotifyChangeScale;
 var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
@@ -479,19 +479,19 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.OnMainMapChange(Sender: TObject);
+procedure TMapViewPortState.OnMainMapChange(Sender: TObject);
 begin
   SetActiveCoordConverter;
 end;
 
-procedure TMapViewPortStateNew.ResetScaleAndMove;
+procedure TMapViewPortState.ResetScaleAndMove;
 begin
   FMapScale := FBaseScale;
   FVisibleMove.X := 0;
   FVisibleMove.Y := 0;
 end;
 
-procedure TMapViewPortStateNew.ScaleTo(AScale: Double; ACenterPoint: TPoint);
+procedure TMapViewPortState.ScaleTo(AScale: Double; ACenterPoint: TPoint);
 var
   VVisiblePointFixed: TDoublePoint;
   VMapPointFixed: TDoublePoint;
@@ -540,7 +540,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.ScaleTo(AScale: Double);
+procedure TMapViewPortState.ScaleTo(AScale: Double);
 var
   VVisiblePointFixed: TDoublePoint;
   VMapPointFixed: TDoublePoint;
@@ -589,7 +589,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.SetActiveCoordConverter;
+procedure TMapViewPortState.SetActiveCoordConverter;
 var
   VNewConverter: ICoordConverter;
   VMap: IMapType;
@@ -630,7 +630,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortStateNew.SetMainCoordConverter(AValue: ICoordConverter);
+procedure TMapViewPortState.SetMainCoordConverter(AValue: ICoordConverter);
 begin
   LockWrite;
   try
