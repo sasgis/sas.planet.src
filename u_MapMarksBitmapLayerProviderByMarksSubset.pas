@@ -19,7 +19,7 @@ type
   TMapMarksBitmapLayerProviderByMarksSubset = class(TInterfacedObject, IBitmapLayerProvider)
   private
     FMarksSubset: IMarksSubset;
-    FDeltaSizeInPixel: TPoint;
+    FDeltaSizeInPixel: TRect;
     FBitmapClip: IPolygonClip;
 
     FTempBmp: TCustomBitmap32;
@@ -84,7 +84,7 @@ constructor TMapMarksBitmapLayerProviderByMarksSubset.Create(
   AMarksSubset: IMarksSubset);
 begin
   FMarksSubset := AMarksSubset;
-  FDeltaSizeInPixel := Point(128, 128);
+  FDeltaSizeInPixel := Rect(256, 128, 64, 128);
 
   FTempBmp := TCustomBitmap32.Create;
   FTempBmp.DrawMode := dmBlend;
@@ -361,10 +361,10 @@ var
   VMarksSubset: IMarksSubset;
 begin
   VLocalRect := ALocalConverter.GetLocalRect;
-  VRectWithDelta.Left := VLocalRect.Left - FDeltaSizeInPixel.X;
-  VRectWithDelta.Top := VLocalRect.Top - FDeltaSizeInPixel.Y;
-  VRectWithDelta.Right := VLocalRect.Right + FDeltaSizeInPixel.X;
-  VRectWithDelta.Bottom := VLocalRect.Bottom + FDeltaSizeInPixel.Y;
+  VRectWithDelta.Left := VLocalRect.Left - FDeltaSizeInPixel.Left;
+  VRectWithDelta.Top := VLocalRect.Top - FDeltaSizeInPixel.Top;
+  VRectWithDelta.Right := VLocalRect.Right + FDeltaSizeInPixel.Right;
+  VRectWithDelta.Bottom := VLocalRect.Bottom + FDeltaSizeInPixel.Bottom;
   VTargetRect := ALocalConverter.LocalRect2MapRectFloat(VRectWithDelta);
   VZoom := ALocalConverter.GetZoom;
   VConverter := ALocalConverter.GetGeoConverter;
