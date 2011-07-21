@@ -3548,6 +3548,9 @@ begin
       end;
     end;
    if (VPWL.find) then begin
+     if map.Cursor = crDefault then begin
+       map.Cursor := crHandPoint;
+     end;
      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
      if (length(VPWL.name)>0) then begin
        if System.Pos('<',VPWL.name)>0 then nms:=HTML2Txt(VPWL.name)
@@ -3586,6 +3589,10 @@ begin
       FHintWindow.Repaint;
      end;
      FShowActivHint:=true;
+    end else begin
+      if map.Cursor = crHandPoint then begin
+        map.Cursor := crDefault;
+      end;
     end;
   end;
 end;
