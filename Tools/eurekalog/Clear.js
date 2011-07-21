@@ -18,15 +18,6 @@ fileVersionPostfix.write(VersionPostfix);
 fileVersionPostfix.Close();
 
 var dpr = ReadFile(fso, "SASPlanet.dpr");
-dpr = dpr.replace('  EurekaLog in \'Debug\\EurekaLog\.pas\',\r\n', "");
+dpr = dpr.replace('  EurekaLog,\r\n', "");
 var dprFile = fso.OpenTextFile("SASPlanet.dpr", 2, false);
 dprFile.write(dpr);
-
-var dproj = ReadFile(fso, "SASPlanet.dproj");
-var reg = /EurekaLog First Line/;
-if( reg.test(dproj) ){
-	dproj = dproj.slice(0, dproj.indexOf("<!-- EurekaLog First Line") );
-	var dprojFile = fso.OpenTextFile("SASPlanet.dproj", 2, false);
-	dprojFile.write(dproj);
-	dprojFile.Close();
-}
