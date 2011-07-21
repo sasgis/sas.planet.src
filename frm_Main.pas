@@ -3157,6 +3157,15 @@ begin
         Vlastpoint := FLineOnMapEdit.GetPointIndexInLonLatRect(VClickLonLatRect);
       end;
       if Vlastpoint < 0 then begin
+        VMark := nil;
+        if FConfig.LayersConfig.MarksShowConfig.IsUseMarks then begin
+          FLayerMapMarks.MouseOnMyReg(FMouseDownPoint, VMark);
+        end;
+        if VMark <> nil then begin
+          if VMark.IsPoint then begin
+            VClickLonLat := VMark.Points[0];
+          end;
+        end;
         FLineOnMapEdit.InsertPoint(VClickLonLat);
       end else begin
         FLineOnMapEdit.SetActiveIndex(Vlastpoint);
@@ -3466,6 +3475,14 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   if (movepoint) then begin
+    VMark := nil;
+    if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
+      FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+    if VMark <> nil then begin
+      if VMark.IsPoint then begin
+        VLonLat := VMark.Points[0];
+      end;
+    end;
     FLineOnMapEdit.MoveActivePoint(VLonLat);
     exit;
   end;
