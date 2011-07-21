@@ -761,7 +761,7 @@ var
   VCount: Integer;
 begin
   VCount := Length(APoints);
-  Assert(VCount > 2, 'В полигоне должно быть хотя бы 3 точки');
+  Assert(VCount > 1, 'В полигоне должно быть хотя бы 2 точки');
   if VCount > 0 then begin
     if not DoublePoitnsEqual(APoints[0], APoints[VCount - 1]) then begin
       SetLength(APoints, VCount + 1);
