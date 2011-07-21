@@ -417,7 +417,7 @@ uses
   u_MainMapsConfig in 'u_MainMapsConfig.pas',
   i_ActiveMapsConfig in 'i_ActiveMapsConfig.pas',
   i_ViewPortState in 'i_ViewPortState.pas',
-  u_MapViewPortStateNew in 'u_MapViewPortStateNew.pas',
+  u_MapViewPortState in 'u_MapViewPortState.pas',
   u_ShortcutManager in 'u_ShortcutManager.pas',
   i_LanguageManager in 'i_LanguageManager.pas',
   u_LanguageManager in 'u_LanguageManager.pas',

@@ -60,7 +60,7 @@ uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_MainMapsConfig,
-  u_MapViewPortStateNew,
+  u_MapViewPortState,
   u_MainWindowToolbarsLock,
   u_NavigationToPoint,
   u_MainFormLayersConfig,
