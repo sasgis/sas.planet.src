@@ -10,6 +10,7 @@ uses
   i_LocalCoordConverter,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_InternalPerformanceCounter,
   i_ViewPortState,
   i_ActiveMapsConfig,
   i_MapZoomingConfig,
@@ -37,6 +38,8 @@ type
     FBaseScale: TDoublePoint;
     FMapScale: TDoublePoint;
 
+    FPosChangeCounter: IInternalPerformanceCounter;
+    FScaleChangeCounter: IInternalPerformanceCounter;
     FMainMapChangeListener: IJclListener;
     procedure SetActiveCoordConverter;
     procedure CreateVisibleCoordConverter;
@@ -76,7 +79,8 @@ type
     constructor Create(
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapZoomingConfig: IMapZoomingConfig;
-      AMainMapConfig: IMainMapsConfig
+      AMainMapConfig: IMainMapsConfig;
+      APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
   end;
@@ -95,10 +99,14 @@ uses
 constructor TMapViewPortStateNew.Create(
   ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapZoomingConfig: IMapZoomingConfig;
-  AMainMapConfig: IMainMapsConfig
+  AMainMapConfig: IMainMapsConfig;
+  APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
+  FPosChangeCounter := APerfCounterList.CreateAndAddNewCounter('PosChange');
+  FScaleChangeCounter := APerfCounterList.CreateAndAddNewCounter('ScaleChange');
+
   FScaleChangeNotifier := TJclBaseNotifier.Create;
   FBeforeChangeNotifier := TJclBaseNotifier.Create;
   FAfterChangeNotifier := TJclBaseNotifier.Create;
@@ -320,12 +328,19 @@ begin
 end;
 
 procedure TMapViewPortStateNew.DoChangeNotify;
+var
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  FBeforeChangeNotifier.Notify(nil);
+  VCounterContext := FPosChangeCounter.StartOperation;
   try
-    inherited;
+    FBeforeChangeNotifier.Notify(nil);
+    try
+      inherited;
+    finally
+      FAfterChangeNotifier.Notify(nil);
+    end;
   finally
-    FAfterChangeNotifier.Notify(nil);
+    FPosChangeCounter.FinishOperation(VCounterContext);
   end;
 end;
 
@@ -448,12 +463,19 @@ begin
 end;
 
 procedure TMapViewPortStateNew.NotifyChangeScale;
+var
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  FBeforeChangeNotifier.Notify(nil);
+  VCounterContext := FScaleChangeCounter.StartOperation;
   try
-    FScaleChangeNotifier.Notify(nil);
+    FBeforeChangeNotifier.Notify(nil);
+    try
+      FScaleChangeNotifier.Notify(nil);
+    finally
+      FAfterChangeNotifier.Notify(nil);
+    end;
   finally
-    FAfterChangeNotifier.Notify(nil);
+    FScaleChangeCounter.FinishOperation(VCounterContext);
   end;
 end;
 
