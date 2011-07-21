@@ -12,7 +12,6 @@ function DateToVersionString(dtmDate){
 }
 
 var fso = WScript.CreateObject("Scripting.FileSystemObject");
-//var fileOutVersion = fso.OpenTextFile("Version.txt", 2, true);
 var fileOutVersionInc = fso.OpenTextFile("Version.inc", 2, true);
 var fileInVersionPostfix = fso.OpenTextFile("VersionPostfix.inc", 1, false)
 var VersionPostfix = "";
@@ -21,7 +20,6 @@ if (!fileInVersionPostfix.AtEndOfStream){
 };
 var now = new Date();
 var VersionString = DateToVersionString(now).substr(2, 6);
-//fileOutVersion.write(VersionString);
 fileOutVersionInc.write("'" + VersionString + VersionPostfix + "'");
 
 

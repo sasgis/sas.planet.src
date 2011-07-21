@@ -2,6 +2,5 @@
 cd ..\
 cscript .\Tools\CreateVersion.js
 call rsvars.bat
-set Configuration=Release
-msbuild SASPlanet.dproj
+msbuild SASPlanet.dproj /p:Configuration=Release /t:rebuild
 pause
