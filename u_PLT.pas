@@ -56,28 +56,35 @@ var pltstr:TStringList;
     str,trackname:string;
     i,j:integer;
 begin
- Result := false;
- if FileExists(FileName) then
-  begin
-   pltstr:=TStringList.Create;
-   pltstr.LoadFromFile(FileName);
-   trackname:=copy(ExtractFileName(FileName),1,length(ExtractFileName(FileName))-4);
-   for i:=6 to pltstr.Count-1 do
+  Result := false;
+  if FileExists(FileName) then begin
+    pltstr:=TStringList.Create;
     try
-     j:=1;
-     str:=pltstr[i];
-     while j<length(str) do
-      if str[j]=' ' then delete(str,j,1)
-                    else inc(j);
-     if (GetWord(pltstr[i], ',', 3)='1')or(i=6) then
-      begin
-       SetLength(Data,length(Data)+1);
-       Data[length(Data)-1].Name:=trackname+', section '+inttostr(length(Data));
+      pltstr.LoadFromFile(FileName);
+      trackname:=copy(ExtractFileName(FileName),1,length(ExtractFileName(FileName))-4);
+      for i:=6 to pltstr.Count-1 do begin
+        try
+          j:=1;
+          str:=pltstr[i];
+          while j<length(str) do begin
+            if str[j]=' ' then begin
+              delete(str,j,1);
+            end else begin
+              inc(j);
+            end;
+          end;
+          if (GetWord(pltstr[i], ',', 3)='1')or(i=6) then begin
+            SetLength(Data,length(Data)+1);
+            Data[length(Data)-1].Name:=trackname+', section '+inttostr(length(Data));
+          end;
+          SetLength(Data[length(Data)-1].coordinates,length(Data[length(Data)-1].coordinates)+1);
+          Data[length(Data)-1].coordinates[length(Data[length(Data)-1].coordinates)-1].y:=str2r(GetWord(str, ',', 1));
+          Data[length(Data)-1].coordinates[length(Data[length(Data)-1].coordinates)-1].x:=str2r(GetWord(str, ',', 2));
+        except
+        end;
       end;
-     SetLength(Data[length(Data)-1].coordinates,length(Data[length(Data)-1].coordinates)+1);
-     Data[length(Data)-1].coordinates[length(Data[length(Data)-1].coordinates)-1].y:=str2r(GetWord(str, ',', 1));
-     Data[length(Data)-1].coordinates[length(Data[length(Data)-1].coordinates)-1].x:=str2r(GetWord(str, ',', 2));
-    except
+    finally
+      pltstr.Free;
     end;
   end;
 end;
