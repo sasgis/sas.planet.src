@@ -905,7 +905,12 @@ begin
         FConfig.LayersConfig.SelectionRectLayerConfig
       );
     FLayersList.Add(FSelectionRectLayer);
-    FLayerGoto := TGotoLayer.Create(map, FConfig.ViewPortState);
+    FLayerGoto :=
+      TGotoLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LayersConfig.GotoLayerConfig
+      );
     FLayersList.Add(FLayerGoto);
     LayerMapNavToMark :=
       TNavToMarkLayer.Create(
