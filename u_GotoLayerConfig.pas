@@ -43,7 +43,7 @@ uses
 constructor TGotoLayerConfig.Create;
 begin
   inherited;
-  FShowTickCount := 100000;
+  FShowTickCount := 20000;
   FMarker := TCustomBitmap32.Create;
   GState.LoadBitmapFromRes('ICONIII', FMarker);
   FMarkerFixedPoint := Point(7, 6);
