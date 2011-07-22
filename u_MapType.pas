@@ -184,6 +184,7 @@ type
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
     property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
+    property VersionConfig: IMapVersionConfig read FVersionConfig;
 
     property asLayer: boolean read FasLayer;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
@@ -245,7 +246,12 @@ begin
   FTileRequestBuilder := nil;
   if FUseDwn then begin
     try
-      FTileRequestBuilder := TTileRequestBuilderPascalScript.Create(FTileRequestBuilderConfig, Zmp.DataProvider);
+      FTileRequestBuilder :=
+        TTileRequestBuilderPascalScript.Create(
+          FTileRequestBuilderConfig,
+          Zmp.DataProvider,
+          FLanguageManager
+        );
     except
       on E: Exception do begin
         ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.Name, E.Message, FZmp.FileName]);

@@ -10,9 +10,11 @@ uses
   uPSRuntime,
   uPSCompiler,
   uPSUtils,
+  i_JclNotify,
   i_ConfigDataProvider,
   i_CoordConverter,
   i_MapVersionInfo,
+  i_LanguageManager,
   i_LastResponseInfo,
   i_TileRequestBuilderConfig,
   u_TileRequestBuilder;
@@ -26,6 +28,12 @@ type
     FCoordConverter: ICoordConverterSimple;
     FPascalScript: string;
     FScriptBuffer: string;
+
+    FLang: string;
+    FLangManager: ILanguageManager;
+    FLangListener: IJclListener;
+    FLangChangeCount: Integer;
+
     FExec: TPSExec;
     FpResultUrl: PPSVariantAString;
     FpGetURLBase: PPSVariantAString;
@@ -33,6 +41,7 @@ type
     FpResponseHead: PPSVariantAString;
     FpScriptBuffer: PPSVariantAString;
     FpVersion: PPSVariantAString;
+    FpLang: PPSVariantAString;
     FpGetX: PPSVariantS32;
     FpGetY: PPSVariantS32;
     FpGetZ: PPSVariantS32;
@@ -53,8 +62,13 @@ type
       AXY: TPoint;
       AZoom: Byte
     );
+    procedure OnLangChange(Sender: TObject);
   public
-    constructor Create(AConfig: ITileRequestBuilderConfig; AConfigData: IConfigDataProvider);
+    constructor Create(
+      AConfig: ITileRequestBuilderConfig;
+      AConfigData: IConfigDataProvider;
+      ALangManager: ILanguageManager
+    );
     destructor Destroy; override;
     function  BuildRequestUrl(
       ATileXY: TPoint;
@@ -76,6 +90,7 @@ implementation
 uses
   Math,
   Variants,
+  u_NotifyEventListener,
   t_GeoTypes,
   u_GeoToStr,
   u_GlobalState,
@@ -91,19 +106,35 @@ function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean; f
 
 constructor TTileRequestBuilderPascalScript.Create(
   AConfig: ITileRequestBuilderConfig;
-  AConfigData: IConfigDataProvider
+  AConfigData: IConfigDataProvider;
+  ALangManager: ILanguageManager
 );
 begin
   inherited Create(AConfig);
   PrepareCoordConverter(AConfigData);
   PreparePascalScript(AConfigData);
+
+  FLangManager := ALangManager;
+  FLangListener := TNotifyEventListener.Create(Self.OnLangChange);
+  FLangManager.GetChangeNotifier.Add(FLangListener);
+
+  OnLangChange(nil);
 end;
 
 destructor TTileRequestBuilderPascalScript.Destroy;
 begin
+  FLangManager.GetChangeNotifier.Remove(FLangListener);
+  FLangManager := nil;
+  FLangListener := nil;
+
   FreeAndNil(FExec);
   FCoordConverter := nil;
   inherited Destroy;
+end;
+
+procedure TTileRequestBuilderPascalScript.OnLangChange(Sender: TObject);
+begin
+  InterlockedIncrement(FLangChangeCount);
 end;
 
 function TTileRequestBuilderPascalScript.BuildRequestUrl(
@@ -114,7 +145,6 @@ function TTileRequestBuilderPascalScript.BuildRequestUrl(
 begin
   Lock;
   try
-    FpResultUrl.Data := '';
     SetVar(nil, AVersionInfo, ATileXY, AZoom);
     try
       FExec.RunScript;
@@ -217,6 +247,8 @@ begin
   FpResponseHead.Data := '';
   FpVersion := PPSVariantAString(FExec.GetVar2('Version'));
   FpVersion.Data := '';
+  FpLang := PPSVariantAString(FExec.GetVar2('Lang'));
+  FpLang.Data := '';
   FpScriptBuffer := PPSVariantAString(FExec.GetVar2('ScriptBuffer'));
   FpGetX := PPSVariantS32(FExec.GetVar2('GetX'));
   FpGetY := PPSVariantS32(FExec.GetVar2('GetY'));
@@ -283,6 +315,7 @@ begin
     Sender.AddUsedVariable('ResponseHead', t);
     Sender.AddUsedVariable('ScriptBuffer', t);
     Sender.AddUsedVariable('Version', t);
+    Sender.AddUsedVariable('Lang', t);
     T := Sender.FindType('integer');
     Sender.AddUsedVariable('GetX', t);
     Sender.AddUsedVariable('GetY', t);
@@ -365,6 +398,10 @@ begin
   end else begin
     FpVersion.Data := '';
   end;
+  if InterlockedExchange(FLangChangeCount, 0) > 0 then begin
+    FLang := FLangManager.GetCurrentLanguageCode;
+  end;
+  FpLang.Data := FLang;
 end;
 
 end.
