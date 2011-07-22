@@ -61,6 +61,11 @@ type
     btnVersionReset: TButton;
     edtVersion: TEdit;
     lblVersion: TLabel;
+    pnlHeader: TPanel;
+    lblHeader: TLabel;
+    pnlHeaderReset: TPanel;
+    btnHeaderReset: TButton;
+    mmoHeader: TMemo;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnByDefaultClick(Sender: TObject);
@@ -71,6 +76,7 @@ type
     procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure btnVersionResetClick(Sender: TObject);
+    procedure btnHeaderResetClick(Sender: TObject);
   private
     FMapType: TMapType;
   public
@@ -82,7 +88,15 @@ var
 
 implementation
 
+uses
+  u_GlobalState;
+
 {$R *.dfm}
+
+procedure TfrmMapTypeEdit.btnHeaderResetClick(Sender: TObject);
+begin
+  mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
+end;
 
 procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
 begin
@@ -99,6 +113,8 @@ begin
  end;
  FmapType.separator:=CheckBox1.Checked;
  FMapType.VersionConfig.Version := edtVersion.Text;
+ FMapType.TileRequestBuilderConfig.RequestHeader := mmoHeader.Text;
+ pnlHeader.Visible := GState.ShowDebugInfo;
 
  ModalResult := mrOk;
 end;
@@ -124,6 +140,7 @@ begin
  CheckBox1.Checked:=FmapType.Zmp.Separator;
  CheckEnabled.Checked:=FMapType.Zmp.Enabled;
  edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
+ mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
 end;
 
 procedure TfrmMapTypeEdit.Button6Click(Sender: TObject);
@@ -171,6 +188,7 @@ begin
   CheckBox1.Checked:=FMapType.separator;
   CheckEnabled.Checked:=FMapType.Enabled;
   edtVersion.Text := FMapType.VersionConfig.Version;
+  mmoHeader.Text := FMapType.TileRequestBuilderConfig.RequestHeader;
 
   Result := ShowModal = mrOk;
 end;

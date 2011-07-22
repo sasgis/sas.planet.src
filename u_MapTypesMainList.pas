@@ -240,6 +240,20 @@ begin
       VSubItem.DeleteValue('URLBase');
     end;
 
+    if VMapType.TileRequestBuilderConfig.RequestHeader <> VMapType.Zmp.TileRequestBuilderConfig.RequestHeader then begin
+      VSubItem.WriteString(
+        'RequestHead',
+        StringReplace(
+          VMapType.TileRequestBuilderConfig.RequestHeader,
+          #13#10,
+          '\r\n',
+          [rfIgnoreCase, rfReplaceAll]
+        )
+      );
+    end else begin
+      VSubItem.DeleteValue('RequestHead');
+    end;
+
     if VMapType.HotKey <> VMapType.Zmp.HotKey then begin
       VSubItem.WriteInteger('HotKey', VMapType.HotKey);
     end else begin
