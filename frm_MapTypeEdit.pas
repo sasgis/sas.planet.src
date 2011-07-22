@@ -57,6 +57,10 @@ type
     pnlTop: TPanel;
     lblZmpName: TLabel;
     edtZmp: TEdit;
+    pnlVersion: TPanel;
+    btnVersionReset: TButton;
+    edtVersion: TEdit;
+    lblVersion: TLabel;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnByDefaultClick(Sender: TObject);
@@ -66,6 +70,7 @@ type
     procedure Button7Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
+    procedure btnVersionResetClick(Sender: TObject);
   private
     FMapType: TMapType;
   public
@@ -93,7 +98,14 @@ begin
    FmapType.TileStorage.CacheConfig.cachetype:=0;
  end;
  FmapType.separator:=CheckBox1.Checked;
+ FMapType.VersionConfig.Version := edtVersion.Text;
+
  ModalResult := mrOk;
+end;
+
+procedure TfrmMapTypeEdit.btnVersionResetClick(Sender: TObject);
+begin
+  edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
 end;
 
 procedure TfrmMapTypeEdit.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -111,6 +123,7 @@ begin
  CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
  CheckBox1.Checked:=FmapType.Zmp.Separator;
  CheckEnabled.Checked:=FMapType.Zmp.Enabled;
+ edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
 end;
 
 procedure TfrmMapTypeEdit.Button6Click(Sender: TObject);
@@ -157,6 +170,7 @@ begin
   CBCacheType.ItemIndex:=FMapType.TileStorage.CacheConfig.cachetype;
   CheckBox1.Checked:=FMapType.separator;
   CheckEnabled.Checked:=FMapType.Enabled;
+  edtVersion.Text := FMapType.VersionConfig.Version;
 
   Result := ShowModal = mrOk;
 end;

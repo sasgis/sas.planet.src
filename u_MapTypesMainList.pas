@@ -281,6 +281,12 @@ begin
     end else begin
       VSubItem.DeleteValue('Enabled');
     end;
+
+    if VMapType.VersionConfig.Version <> VMapType.Zmp.VersionConfig.Version then begin
+      VSubItem.WriteString('Version', VMapType.VersionConfig.Version);
+    end else begin
+      VSubItem.DeleteValue('Version');
+    end;
   end;
 end;
 
