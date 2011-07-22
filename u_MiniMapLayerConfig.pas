@@ -17,7 +17,6 @@ type
     FZoomDelta: Integer;
     FMasterAlpha: Integer;
     FVisible: Boolean;
-    FDefoultMap: TCustomBitmap32;
     FPlusButton: TCustomBitmap32;
     FMinusButton: TCustomBitmap32;
     FMapsConfig: IMiniMapMapsConfig;
@@ -37,7 +36,6 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
 
-    function GetDefoultMap: TCustomBitmap32;
     function GetPlusButton: TCustomBitmap32;
     function GetMinusButton: TCustomBitmap32;
 
@@ -64,7 +62,6 @@ begin
   FZoomDelta := 4;
   FMasterAlpha := 150;
   FVisible := True;
-  FDefoultMap := TCustomBitmap32.Create;
   FPlusButton := TCustomBitmap32.Create;
   FMinusButton := TCustomBitmap32.Create;
 
@@ -77,7 +74,6 @@ end;
 
 destructor TMiniMapLayerConfig.Destroy;
 begin
-  FreeAndNil(FDefoultMap);
   FreeAndNil(FPlusButton);
   FreeAndNil(FMinusButton);
   inherited;
@@ -103,16 +99,6 @@ begin
   AConfigData.WriteInteger('ZoomDelta', FZoomDelta);
   AConfigData.WriteInteger('Alpha', FMasterAlpha);
   AConfigData.WriteBool('Visible', FVisible);
-end;
-
-function TMiniMapLayerConfig.GetDefoultMap: TCustomBitmap32;
-begin
-  LockRead;
-  try
-    Result := FDefoultMap;
-  finally
-    UnlockRead;
-  end;
 end;
 
 function TMiniMapLayerConfig.GetMapsConfig: IMiniMapMapsConfig;
