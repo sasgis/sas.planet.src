@@ -28,6 +28,7 @@ uses
   i_MarkPolyLineLayerConfig,
   i_FillingMapLayerConfig,
   i_DownloadUIConfig,
+  i_GotoLayerConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -106,6 +107,9 @@ type
 
     function GetFillingMapLayerConfig: IFillingMapLayerConfig;
     property FillingMapLayerConfig: IFillingMapLayerConfig read GetFillingMapLayerConfig;
+
+    function GetGotoLayerConfig: IGotoLayerConfig;
+    property GotoLayerConfig: IGotoLayerConfig read GetGotoLayerConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)

@@ -158,6 +158,7 @@
     <DCCReference Include="i_GeoCoder.pas" />
     <DCCReference Include="i_GeoCoderList.pas" />
     <DCCReference Include="i_GlobalViewMainConfig.pas" />
+    <DCCReference Include="i_GotoLayerConfig.pas" />
     <DCCReference Include="i_GPS.pas" />
     <DCCReference Include="i_GPSConfig.pas" />
     <DCCReference Include="i_GPSModule.pas" />
@@ -492,6 +493,7 @@
     <DCCReference Include="u_GlobalCahceConfig.pas" />
     <DCCReference Include="u_GlobalState.pas" />
     <DCCReference Include="u_GlobalViewMainConfig.pas" />
+    <DCCReference Include="u_GotoLayerConfig.pas" />
     <DCCReference Include="u_GPSConfig.pas" />
     <DCCReference Include="u_GPSLogWriterToPlt.pas" />
     <DCCReference Include="u_GPSModuleAbstract.pas" />

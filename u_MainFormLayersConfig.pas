@@ -21,6 +21,7 @@ uses
   i_MarkPolygonLayerConfig,
   i_MarkPolyLineLayerConfig,
   i_FillingMapLayerConfig,
+  i_GotoLayerConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -44,6 +45,7 @@ type
     FMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     FMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     FFillingMapLayerConfig: IFillingMapLayerConfig;
+    FGotoLayerConfig: IGotoLayerConfig;
   protected
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;
@@ -62,6 +64,7 @@ type
     function GetMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     function GetMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     function GetFillingMapLayerConfig: IFillingMapLayerConfig;
+    function GetGotoLayerConfig: IGotoLayerConfig;
   public
     constructor Create(AMapsConfig: IMainMapsConfig);
   end;
@@ -87,6 +90,7 @@ uses
   u_MarkPolygonLayerConfig,
   u_MarkPolyLineLayerConfig,
   u_FillingMapLayerConfig,
+  u_GotoLayerConfig,
   u_MapLayerNavToPointMarkerConfig;
 
 { TMainFormLayersConfig }
@@ -128,6 +132,8 @@ begin
   Add(FMarkPolyLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolyLine'));
   FFillingMapLayerConfig := TFillingMapLayerConfig.Create(AMapsConfig);
   Add(FFillingMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FillingLayer'));
+  FGotoLayerConfig := TGotoLayerConfig.Create;
+  Add(FGotoLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GotoMarker'));
 end;
 
 function TMainFormLayersConfig.GetCalcLineLayerConfig: ICalcLineLayerConfig;
@@ -143,6 +149,11 @@ end;
 function TMainFormLayersConfig.GetFillingMapLayerConfig: IFillingMapLayerConfig;
 begin
   Result := FFillingMapLayerConfig;
+end;
+
+function TMainFormLayersConfig.GetGotoLayerConfig: IGotoLayerConfig;
+begin
+  Result := FGotoLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetGPSMarker: IMapLayerGPSMarkerConfig;
