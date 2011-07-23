@@ -19,6 +19,10 @@
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
     <DCC_Define>RELEASE</DCC_Define>
+    <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_UnitSearchPath>
+    <DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_ResourcePath>
+    <DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_ObjPath>
+    <DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
@@ -31,6 +35,10 @@
     <DCC_Optimize>False</DCC_Optimize>
     <DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
     <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
+    <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_UnitSearchPath>
+    <DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_ResourcePath>
+    <DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_ObjPath>
+    <DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_IncludePath>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
@@ -377,40 +385,6 @@
     <DCCReference Include="RegionProcess\u_ThreadMapCombineJPG.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombineKMZ.pas" />
     <DCCReference Include="RegionProcess\u_ThreadRegionProcessAbstract.pas" />
-    <DCCReference Include="src\BMSearch.pas" />
-    <DCCReference Include="src\CPDrv.pas" />
-    <DCCReference Include="src\c_ZeroGUID.pas" />
-    <DCCReference Include="src\ECWReader.pas" />
-    <DCCReference Include="src\ECWwriter.pas" />
-    <DCCReference Include="src\Fundamentals\cUnicode.pas" />
-    <DCCReference Include="src\Fundamentals\cUnicodeCodecs.pas" />
-    <DCCReference Include="src\gnugettext.pas" />
-    <DCCReference Include="src\i_EnumID.pas" />
-    <DCCReference Include="src\i_FileNameIterator.pas" />
-    <DCCReference Include="src\i_GUIDList.pas" />
-    <DCCReference Include="src\i_IDList.pas" />
-    <DCCReference Include="src\i_JclNotify.pas" />
-    <DCCReference Include="src\KAZip.pas" />
-    <DCCReference Include="src\Langs.pas" />
-    <DCCReference Include="src\MD5.pas" />
-    <DCCReference Include="src\RarProgressBar\RarProgress.pas" />
-    <DCCReference Include="src\RegExpr.pas" />
-    <DCCReference Include="src\SwinHttp.pas" />
-    <DCCReference Include="src\TarWriter.pas" />
-    <DCCReference Include="src\TBXSASTheme.pas" />
-    <DCCReference Include="src\u_FileNameIteratorFolderWithSubfolders.pas" />
-    <DCCReference Include="src\u_FileNameIteratorInFolderByMask.pas" />
-    <DCCReference Include="src\u_FileNameIteratorInFolderByMaskList.pas" />
-    <DCCReference Include="src\u_FoldersIteratorRecursiveByLevels.pas" />
-    <DCCReference Include="src\u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders.pas" />
-    <DCCReference Include="src\u_GUIDInterfaceList.pas" />
-    <DCCReference Include="src\u_GUIDList.pas" />
-    <DCCReference Include="src\u_GUIDObjectList.pas" />
-    <DCCReference Include="src\u_IDInterfaceList.pas" />
-    <DCCReference Include="src\u_IdListBase.pas" />
-    <DCCReference Include="src\u_JclNotify.pas" />
-    <DCCReference Include="src\u_UseNewFonts.pas" />
-    <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
