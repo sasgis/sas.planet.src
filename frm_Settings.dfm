@@ -2123,8 +2123,4 @@ object frmSettings: TfrmSettings
       ExplicitLeft = 406
     end
   end
-  object XPManifest1: TXPManifest
-    Left = 236
-    Top = 480
-  end
 end

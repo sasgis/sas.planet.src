@@ -22,7 +22,6 @@ uses
   wininet,
   GR32,
   GR32_Image,
-  XPMan,
   u_CommonFormAndFrameParents,
   i_ConfigDataWriteProvider,
   i_ImageResamplerFactory,
@@ -57,7 +56,6 @@ type
     Label3: TLabel;
     ComboBox1: TComboBox;
     TrBarGamma: TTrackBar;
-    XPManifest1: TXPManifest;
     LabelGamma: TLabel;
     TrBarContrast: TTrackBar;
     LabelContrast: TLabel;
