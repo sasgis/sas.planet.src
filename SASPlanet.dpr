@@ -585,8 +585,12 @@ uses
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
 
-{$R *.res} {$R *Pics.res}
-begin 
+{$R .\Resources\VersionInfo.res}
+{$R .\Resources\Manifest.res}
+{$R .\Resources\MainIcon.res}
+{$R .\Resources\Common.res}
+
+begin
   GState := TGlobalState.Create;
   try
     Application.Initialize;

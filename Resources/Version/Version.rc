@@ -1,0 +1,29 @@
+1 VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+FILESUBTYPE VFT2_UNKNOWN
+{
+BLOCK "StringFileInfo"
+{
+   BLOCK "040904E4"
+   {
+      VALUE "CompanyName", "SAS Group\000"
+      VALUE "FileDescription", "\000"
+      VALUE "FileVersion", "1.0.0.0\000"
+      VALUE "InternalName", "SAS.Planet\000"
+      VALUE "LegalCopyright", "SAS Group\000"
+      VALUE "LegalTrademarks", "SAS.Planet\000"
+      VALUE "OriginalFilename", "SASPlanet.exe\000"
+      VALUE "ProductName", "SAS.Planet\000"
+      VALUE "ProductVersion", "1.0.0.0\000"
+      VALUE "Comments", "\000"
+   }
+}
+
+BLOCK "VarFileInfo"
+{
+   VALUE "Translation", 0x0409 0x04E4
+}
+}
