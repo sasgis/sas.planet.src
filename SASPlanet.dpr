@@ -3,10 +3,7 @@ program SASPlanet;
 
 uses
   Forms,
-  iniFiles,
-  sysutils,
-  windows,
-  MidasLib,
+  SysUtils,
   u_ZmpFileNamesIteratorFactory in 'u_ZmpFileNamesIteratorFactory.pas',
   i_JclListenerNotifierLinksList in 'i_JclListenerNotifierLinksList.pas',
   u_JclListenerNotifierLinksList in 'u_JclListenerNotifierLinksList.pas',
