@@ -4,6 +4,7 @@ program SASPlanet;
 uses
   Forms,
   SysUtils,
+  XPMan,
   u_ZmpFileNamesIteratorFactory in 'u_ZmpFileNamesIteratorFactory.pas',
   i_JclListenerNotifierLinksList in 'i_JclListenerNotifierLinksList.pas',
   u_JclListenerNotifierLinksList in 'u_JclListenerNotifierLinksList.pas',
@@ -549,7 +550,6 @@ uses
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
 
 {$R .\Resources\VersionInfo.res}
-{$R .\Resources\Manifest.res}
 {$R .\Resources\MainIcon.res}
 {$R .\Resources\Common.res}
 
