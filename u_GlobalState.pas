@@ -273,7 +273,7 @@ begin
 
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
   Show_logo := True;
-  Show_tray := True;
+  Show_tray := False;
 
   {$IFDEF DEBUG}
     ShowDebugInfo := True;
@@ -611,6 +611,7 @@ begin
   FMarkPictureList.WriteConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));
   FMarksDb.WriteConfig(MainConfigProvider);
+  MainIni.WriteBool('VIEW','Show_tray', Show_tray);
 end;
 
 procedure TGlobalState.SendTerminateToThreads;

@@ -201,6 +201,7 @@ type
     pnlSatInfoActive: TPanel;
     pnlSatInfoVisible: TPanel;
     pnlSatInfoZeroSignal: TPanel;
+    CBMinimizeToTray: TCheckBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -339,7 +340,7 @@ begin
  finally
    GState.GSMpar.UnlockWrite;
  end;
-
+  GState.Show_tray := CBMinimizeToTray.Checked;
   GState.MainMemCacheConfig.MaxSize := SETilesOCache.value;
 
   GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
@@ -689,6 +690,7 @@ begin
   end;
 
   TilesOverScreenEdit.Value := GState.MainFormConfig.DownloadUIConfig.TilesOut;
+  CBMinimizeToTray.Checked := GState.Show_tray;
 
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);

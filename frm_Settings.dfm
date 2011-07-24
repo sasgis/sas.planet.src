@@ -1060,6 +1060,15 @@ object frmSettings: TfrmSettings
               ExplicitTop = 6
               ExplicitWidth = 307
             end
+            object CBMinimizeToTray: TCheckBox
+              Left = 3
+              Top = 54
+              Width = 313
+              Height = 17
+              Align = alTop
+              Caption = 'Minimize to tray'
+              TabOrder = 4
+            end
           end
           object flwpnlTileBorder: TFlowPanel
             Left = 3
