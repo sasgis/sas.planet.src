@@ -343,6 +343,11 @@ type
     tbiCloudMadeCarShortest: TTBXItem;
     tbiCloudMadeFootShortest: TTBXItem;
     tbiCloudMadeBicycleShortest: TTBXItem;
+    TrayIcon: TTrayIcon;
+    TrayPopupMenu: TTBXPopupMenu;
+    TrayItemRestore: TTBItem;
+    TBSeparatorItem1: TTBSeparatorItem;
+    TrayItemQuit: TTBItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -377,7 +382,7 @@ type
     procedure tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBSubmenuItem1Click(Sender: TObject);
     procedure N000Click(Sender: TObject);
-    procedure TBItem2Click(Sender: TObject);
+    procedure TrayItemQuitClick(Sender: TObject);
     procedure TBGPSconnClick(Sender: TObject);
     procedure TBGPSPathClick(Sender: TObject);
     procedure TBGPSToPointClick(Sender: TObject);
@@ -467,6 +472,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure NBlock_toolbarsClick(Sender: TObject);
     procedure tbitmGPSOptionsClick(Sender: TObject);
+    procedure TrayItemRestoreClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -573,6 +579,7 @@ type
     procedure SetToolbarsLock(AValue: Boolean);
 
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
+    Procedure TrayControl(Var Msg: TMessage); Message WM_SYSCOMMAND;
     procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
     procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
     procedure OnMapUpdate(AMapType: TMapType);
@@ -587,6 +594,7 @@ type
     procedure CreateMapUI;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     procedure LayerMapMarksRedraw;
+    procedure OnMinimize(Sender: TObject);
   end;
 
 var
@@ -717,6 +725,7 @@ var
 begin
   ProgramStart:=true;
   Application.Title:=Caption;
+  Application.OnMinimize := Self.OnMinimize;
   Caption:=Caption+' '+SASVersion;
   TBXSetTheme('SAStbxTheme');
 
@@ -2737,11 +2746,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.TBItem2Click(Sender: TObject);
-begin
- close;
-end;
-
 procedure TfrmMain.TBGPSconnClick(Sender: TObject);
 begin
   GState.GPSConfig.GPSEnabled := TTBXitem(sender).Checked;
@@ -4302,6 +4306,35 @@ begin
   end;
   ZSlider.Bitmap.Assign(FRuller);
   FTumbler.DrawTo(ZSlider.Bitmap,tumbpos.X,tumbpos.Y);
+end;
+
+// TrayIcon
+
+Procedure TfrmMain.TrayControl(var Msg: TMessage);
+begin
+  if (Msg.WParam = SC_MINIMIZE) and GState.Show_tray then begin
+    TrayIcon.Visible := True;
+    ShowWindow(frmMain.Handle, SW_HIDE);
+    ShowWindow(Application.Handle, SW_HIDE);
+  end else inherited;
+end;
+
+procedure TfrmMain.OnMinimize(Sender: TObject);
+begin
+  PostMessage(frmMain.Handle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+end;
+
+procedure TfrmMain.TrayItemRestoreClick(Sender: TObject);
+begin
+  ShowWindow(Application.Handle, SW_SHOW);
+  ShowWindow(frmMain.Handle, SW_SHOW);
+  TrayIcon.Visible := False;
+end;
+
+procedure TfrmMain.TrayItemQuitClick(Sender: TObject);
+begin
+  TrayIcon.Visible := False;
+  Close;
 end;
 
 end.

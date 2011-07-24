@@ -124,6 +124,8 @@ type
   public
     // Отображать окошко с логотипом при запуске
     Show_logo: Boolean;
+    // Показывать иконку в трее
+    Show_tray: Boolean;
     // Заходить на сайт автора при старте программы
     WebReportToAuthor: Boolean;
     // Выводить отладочную инфромацию о производительности
@@ -271,6 +273,7 @@ begin
 
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
   Show_logo := True;
+  Show_tray := True;
 
   {$IFDEF DEBUG}
     ShowDebugInfo := True;
@@ -290,6 +293,7 @@ begin
   FLanguageManager.ReadConfig(VViewCnonfig);
   if VViewCnonfig <> nil then begin
     Show_logo := VViewCnonfig.ReadBool('Show_logo', Show_logo);
+    Show_tray := VViewCnonfig.ReadBool('Show_tray', Show_tray);
     ShowDebugInfo := VViewCnonfig.ReadBool('time_rendering', ShowDebugInfo);
   end;
   FImageResamplerConfig :=
