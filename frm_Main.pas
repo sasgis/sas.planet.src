@@ -974,6 +974,7 @@ begin
         FConfig.DownloadUIConfig,
         FConfig.ViewPortState,
         FConfig.MainMapsConfig.GetAllActiveMapsSet,
+        GState.DownloadInfo,
         Self.OnMapTileUpdate,
         FTileErrorLogger
       );
@@ -2428,6 +2429,7 @@ begin
           VTile,
           VZoomCurr,
           VMapType,
+          GState.DownloadInfo,
           Self.OnMapTileUpdate,
           FTileErrorLogger
         );
@@ -3293,6 +3295,7 @@ begin
           VTile,
           VZoomCurr,
           VMapType,
+          GState.DownloadInfo,
           Self.OnMapTileUpdate,
           FTileErrorLogger
         );

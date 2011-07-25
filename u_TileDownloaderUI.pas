@@ -16,6 +16,7 @@ uses
   i_TileError,
   i_ActiveMapsConfig,
   i_ViewPortState,
+  i_DownloadInfoSimple,
   i_MapTypes,
   i_DownloadUIConfig,
   u_MapType,
@@ -26,6 +27,7 @@ type
   private
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
+    FDownloadInfo: IDownloadInfoSimple;
     FViewPortState: IViewPortState;
     FErrorLogger: ITileErrorLogger;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
@@ -56,6 +58,7 @@ type
       AConfig: IDownloadUIConfig;
       AViewPortState: IViewPortState;
       AMapsSet: IActiveMapsSet;
+      ADownloadInfo: IDownloadInfoSimple;
       AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger
     ); overload;
@@ -69,9 +72,7 @@ implementation
 uses
   SysUtils,
   ActiveX,
-  u_JclNotify,
   t_GeoTypes,
-  u_GlobalState,
   i_DownloadResult,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
@@ -84,6 +85,7 @@ constructor TTileDownloaderUI.Create(
   AConfig: IDownloadUIConfig;
   AViewPortState: IViewPortState;
   AMapsSet: IActiveMapsSet;
+  ADownloadInfo: IDownloadInfoSimple;
   AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger
 );
@@ -98,6 +100,7 @@ begin
 
   FViewPortState := AViewPortState;
   FMapsSet := AMapsSet;
+  FDownloadInfo := ADownloadInfo;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorLogger := AErrorLogger;
   FViewPortState := AViewPortState;
@@ -307,7 +310,7 @@ begin
                       VResult := FMapType.DownloadTile(FCancelNotifier, FLoadXY, VZoom, false);
                       VErrorString := '';
                       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-                        GState.DownloadInfo.Add(1, VResultOk.Size);
+                        FDownloadInfo.Add(1, VResultOk.Size);
                       end else if Supports(VResult, IDownloadResultError, VResultDownloadError) then begin
                         VErrorString := VResultDownloadError.ErrorText;
                       end;

@@ -7,6 +7,7 @@ uses
   Classes,
   Types,
   i_TileError,
+  i_DownloadInfoSimple,
   u_TileDownloaderThreadBase,
   u_MapType;
 
@@ -15,6 +16,7 @@ type
   private
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorLogger: ITileErrorLogger;
+    FDownloadInfo: IDownloadInfoSimple;
 
     procedure AfterWriteToFile;
   protected
@@ -24,6 +26,7 @@ type
       AXY: TPoint;
       AZoom: byte;
       AMapType: TMapType;
+      ADownloadInfo: IDownloadInfoSimple;
       AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger
     ); overload;
@@ -33,7 +36,6 @@ implementation
 
 uses
   SysUtils,
-  u_GlobalState,
   i_DownloadResult,
   u_TileErrorInfo,
   u_ResStrings;
@@ -42,12 +44,14 @@ constructor TTileDownloaderUIOneTile.Create(
   AXY: TPoint;
   AZoom: byte;
   AMapType: TMapType;
+  ADownloadInfo: IDownloadInfoSimple;
   AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger
 );
 begin
   inherited Create(False);
   FMapTileUpdateEvent := AMapTileUpdateEvent;
+  FDownloadInfo := ADownloadInfo;
   FErrorLogger := AErrorLogger;
   FLoadXY := AXY;
   FZoom := AZoom;
@@ -78,7 +82,7 @@ begin
         if not Terminated then begin
           VErrorString := '';
           if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-            GState.DownloadInfo.Add(1, VResultOk.Size);
+            FDownloadInfo.Add(1, VResultOk.Size);
           end else if Supports(VResult, IDownloadResultError, VResultDownloadError) then begin
             VErrorString := VResultDownloadError.ErrorText;
           end;
