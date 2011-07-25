@@ -9,7 +9,7 @@ uses
   i_MapLayerGPSMarkerConfig,
   i_MapLayerGPSTrackConfig,
   i_MapLayerNavToPointMarkerConfig,
-  i_UsedMarksConfig,
+  i_MarksLayerConfig,
   i_KmlLayerConfig,
   i_MiniMapLayerConfig,
   i_CenterScaleConfig,
@@ -33,7 +33,7 @@ type
     FGPSMarker: IMapLayerGPSMarkerConfig;
     FGPSTrackConfig: IMapLayerGPSTrackConfig;
     FNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
-    FMarksShowConfig: IUsedMarksConfig;
+    FMarksLayerConfig: IMarksLayerConfig;
     FKmlLayerConfig: IKmlLayerConfig;
     FMiniMapLayerConfig: IMiniMapLayerConfig;
     FCenterScaleConfig: ICenterScaleConfig;
@@ -52,7 +52,7 @@ type
     function GetGPSMarker: IMapLayerGPSMarkerConfig;
     function GetGPSTrackConfig: IMapLayerGPSTrackConfig;
     function GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
-    function GetMarksShowConfig: IUsedMarksConfig;
+    function GetMarksLayerConfig: IMarksLayerConfig;
     function GetKmlLayerConfig: IKmlLayerConfig;
     function GetMiniMapLayerConfig: IMiniMapLayerConfig;
     function GetCenterScaleConfig: ICenterScaleConfig;
@@ -78,7 +78,7 @@ uses
   u_StatBarConfig,
   u_MapLayerGPSMarkerConfig,
   u_MapLayerGPSTrackConfig,
-  u_UsedMarksConfig,
+  u_MarksLayerConfig,
   u_KmlLayerConfig,
   u_MiniMapLayerConfig,
   u_CenterScaleConfig,
@@ -108,8 +108,8 @@ begin
   Add(FGPSTrackConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GPSTrack'));
   FNavToPointMarkerConfig := TMapLayerNavToPointMarkerConfig.Create;
   Add(FNavToPointMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('NavToPointMarker'));
-  FMarksShowConfig := TUsedMarksConfig.Create;
-  Add(FMarksShowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
+  FMarksLayerConfig := TMarksLayerConfig.Create;
+  Add(FMarksLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
   FKmlLayerConfig := TKmlLayerConfig.Create;
   Add(FKmlLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('WikiLayer'));
   FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AMapsConfig);
@@ -191,9 +191,9 @@ begin
   Result := FMarkPolyLineLayerConfig;
 end;
 
-function TMainFormLayersConfig.GetMarksShowConfig: IUsedMarksConfig;
+function TMainFormLayersConfig.GetMarksLayerConfig: IMarksLayerConfig;
 begin
-  Result := FMarksShowConfig;
+  Result := FMarksLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetMiniMapLayerConfig: IMiniMapLayerConfig;

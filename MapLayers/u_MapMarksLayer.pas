@@ -9,6 +9,8 @@ uses
   t_CommonTypes,
   i_ImageResamplerConfig,
   i_UsedMarksConfig,
+  i_MarksDrawConfig,
+  i_MarksLayerConfig,
   i_MarksSimple,
   u_GeoFun,
   i_ViewPortState,
@@ -21,8 +23,9 @@ uses
 type
   TMapMarksLayer = class(TMapLayerTiledWithThreadDraw)
   private
-    FConfig: IUsedMarksConfig;
+    FConfig: IMarksLayerConfig;
     FConfigStatic: IUsedMarksConfigStatic;
+    FDrawConfigStatic: IMarksDrawConfigStatic;
     FMarkDBGUI: TMarksDbGUIHelper;
     FMarksSubset: IMarksSubset;
     FGetMarksCounter: IInternalPerformanceCounter;
@@ -40,7 +43,7 @@ type
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       AResamplerConfig: IImageResamplerConfig;
       ATimerNoifier: IJclNotifier;
-      AConfig: IUsedMarksConfig;
+      AConfig: IMarksLayerConfig;
       AMarkDBGUI: TMarksDbGUIHelper
     );
     procedure MouseOnMyReg(xy: TPoint; out AMark: IMarkFull; out AMarkS: Double); overload;
@@ -70,7 +73,7 @@ constructor TMapMarksLayer.Create(
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   AResamplerConfig: IImageResamplerConfig;
   ATimerNoifier: IJclNotifier;
-  AConfig: IUsedMarksConfig;
+  AConfig: IMarksLayerConfig;
   AMarkDBGUI: TMarksDbGUIHelper
 );
 begin
@@ -80,7 +83,11 @@ begin
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    FConfig.MarksShowConfig.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.MarksDrawConfig.GetChangeNotifier
   );
 end;
 
@@ -286,7 +293,8 @@ procedure TMapMarksLayer.OnConfigChange(Sender: TObject);
 begin
   ViewUpdateLock;
   try
-    FConfigStatic := FConfig.GetStatic;
+    FConfigStatic := FConfig.MarksShowConfig.GetStatic;
+    FDrawConfigStatic := FConfig.MarksDrawConfig.GetStatic;
     SetVisible(FConfigStatic.IsUseMarks);
     SetNeedRedraw;
   finally

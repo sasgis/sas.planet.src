@@ -847,7 +847,7 @@ begin
         GState.LocalConverterFactory,
         GState.ImageResamplerConfig,
         GState.GUISyncronizedTimerNotifier,
-        FConfig.LayersConfig.MarksShowConfig,
+        FConfig.LayersConfig.MarksLayerConfig,
         FMarkDBGUI
       );
     FLayersList.Add(FLayerMapMarks);
@@ -1085,7 +1085,7 @@ begin
     );
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
-      FConfig.LayersConfig.MarksShowConfig.GetChangeNotifier
+      FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.GetChangeNotifier
     );
 
 
@@ -1790,7 +1790,7 @@ begin
   tbitmGPSToPointCenter.Checked:=TBGPSToPointCenter.Checked;
   NBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
 
-  TBHideMarks.Checked := not(FConfig.LayersConfig.MarksShowConfig.IsUseMarks);
+  TBHideMarks.Checked := not(FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
 
   if FConfig.MainConfig.ShowMapName then begin
     TBSMB.Caption := FConfig.MainMapsConfig.GetSelectedMapType.MapType.Name;
@@ -2765,7 +2765,7 @@ end;
 
 procedure TfrmMain.TBHideMarksClick(Sender: TObject);
 begin
-  FConfig.LayersConfig.MarksShowConfig.IsUseMarks := not(TBHideMarks.Checked);
+  FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := not(TBHideMarks.Checked);
 end;
 
 procedure TfrmMain.TBCOORDClick(Sender: TObject);
@@ -3169,7 +3169,7 @@ begin
       end;
       if Vlastpoint < 0 then begin
         VMark := nil;
-        if FConfig.LayersConfig.MarksShowConfig.IsUseMarks then begin
+        if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
           FLayerMapMarks.MouseOnMyReg(FMouseDownPoint, VMark);
         end;
         if VMark <> nil then begin
@@ -3215,7 +3215,7 @@ begin
   if (VIsClickInMap)and (Button=mbright)and(FCurrentOper=ao_movemap) then begin
     FMouseUpPoint:=FMouseDownPoint;
     VMark := nil;
-    if FConfig.LayersConfig.MarksShowConfig.IsUseMarks then begin
+    if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
       FLayerMapMarks.MouseOnMyReg(FMouseDownPoint, VMark);
     end;
     NMarkEdit.Visible := VMark <> nil;
@@ -3345,7 +3345,7 @@ begin
         VPWL.S := VMarkS;
       end;
       VMark := nil;
-      if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
+      if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
         FLayerMapMarks.MouseOnMyReg(Point(x,y), VMark, VMarkS);
       if VMark <> nil then begin
         if (not VPWL.find) or (not VMark.IsPoly) or (VPWL.S >= VMarkS) then begin
@@ -3488,7 +3488,7 @@ begin
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   if (movepoint) then begin
     VMark := nil;
-    if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
+    if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
       FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
     if VMark <> nil then begin
       if VMark.IsPoint then begin
@@ -3566,7 +3566,7 @@ begin
     end;
 
     VMark := nil;
-    if (FConfig.LayersConfig.MarksShowConfig.IsUseMarks) then
+    if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
       FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark, VMarkS);
     if VMark <> nil then begin
       if (not VPWL.find) or (not VMark.IsPoly) or (VPWL.S >= VMarkS) then begin

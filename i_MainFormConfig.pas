@@ -14,7 +14,7 @@ uses
   i_MainFormBehaviourByGPSConfig,
   i_MainGeoCoderConfig,
   i_KeyMovingConfig,
-  i_UsedMarksConfig,
+  i_MarksLayerConfig,
   i_KmlLayerConfig,
   i_MapZoomingConfig,
   i_MiniMapLayerConfig,
@@ -72,8 +72,8 @@ type
     function GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
     property NavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig read GetNavToPointMarkerConfig;
 
-    function GetMarksShowConfig: IUsedMarksConfig;
-    property MarksShowConfig: IUsedMarksConfig read GetMarksShowConfig;
+    function GetMarksLayerConfig: IMarksLayerConfig;
+    property MarksLayerConfig: IMarksLayerConfig read GetMarksLayerConfig;
 
     function GetKmlLayerConfig: IKmlLayerConfig;
     property KmlLayerConfig: IKmlLayerConfig read GetKmlLayerConfig;

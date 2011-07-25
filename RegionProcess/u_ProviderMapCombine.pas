@@ -123,7 +123,7 @@ begin
   VMarksSubset := nil;
   if FFrame.chkUseMapMarks.Checked then begin
     VMarkDB := GState.MarksDB;
-    VMarksConfigStatic := GState.MainFormConfig.LayersConfig.MarksShowConfig.GetStatic;
+    VMarksConfigStatic := GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.GetStatic;
     if VMarksConfigStatic.IsUseMarks then begin
       VList := nil;
       if not VMarksConfigStatic.IgnoreCategoriesVisible then begin
