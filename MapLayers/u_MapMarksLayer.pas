@@ -125,7 +125,11 @@ begin
   end;
   VBitmapConverter := LayerCoordConverter;
   if (VMarksSubset <> nil) and (VBitmapConverter <> nil) and (not VMarksSubset.IsEmpty) then begin
-    VProv := TMapMarksBitmapLayerProviderByMarksSubset.Create(VMarksSubset);
+    VProv :=
+      TMapMarksBitmapLayerProviderByMarksSubset.Create(
+        FDrawConfigStatic,
+        VMarksSubset
+      );
     VGeoConvert := VBitmapConverter.GetGeoConverter;
     VZoom := VBitmapConverter.GetZoom;
 

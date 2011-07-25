@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_LocalCoordConverter,
+  i_MarksDrawConfig,
   i_MarkPicture,
   i_MarksSimple,
   i_BitmapLayerProvider,
@@ -18,8 +19,8 @@ uses
 type
   TMapMarksBitmapLayerProviderByMarksSubset = class(TInterfacedObject, IBitmapLayerProvider)
   private
+    FConfig: IMarksDrawConfigStatic;
     FMarksSubset: IMarksSubset;
-    FDeltaSizeInPixel: TRect;
     FBitmapClip: IPolygonClip;
 
     FTempBmp: TCustomBitmap32;
@@ -61,7 +62,10 @@ type
       ALocalConverter: ILocalCoordConverter
     ): Boolean;
   public
-    constructor Create(AMarksSubset: IMarksSubset);
+    constructor Create(
+      AConfig: IMarksDrawConfigStatic;
+      AMarksSubset: IMarksSubset
+    );
     destructor Destroy; override;
   end;
 
@@ -81,10 +85,12 @@ const
 { TMapMarksBitmapLayerProviderByMarksSubset }
 
 constructor TMapMarksBitmapLayerProviderByMarksSubset.Create(
-  AMarksSubset: IMarksSubset);
+  AConfig: IMarksDrawConfigStatic;
+  AMarksSubset: IMarksSubset
+);
 begin
+  FConfig := AConfig;
   FMarksSubset := AMarksSubset;
-  FDeltaSizeInPixel := Rect(256, 128, 64, 128);
 
   FTempBmp := TCustomBitmap32.Create;
   FTempBmp.DrawMode := dmBlend;
@@ -359,12 +365,14 @@ var
   VConverter: ICoordConverter;
   VZoom: Byte;
   VMarksSubset: IMarksSubset;
+  VDeltaSizeInPixel: TRect;
 begin
   VLocalRect := ALocalConverter.GetLocalRect;
-  VRectWithDelta.Left := VLocalRect.Left - FDeltaSizeInPixel.Left;
-  VRectWithDelta.Top := VLocalRect.Top - FDeltaSizeInPixel.Top;
-  VRectWithDelta.Right := VLocalRect.Right + FDeltaSizeInPixel.Right;
-  VRectWithDelta.Bottom := VLocalRect.Bottom + FDeltaSizeInPixel.Bottom;
+  VDeltaSizeInPixel := FConfig.OverSizeRect;
+  VRectWithDelta.Left := VLocalRect.Left - VDeltaSizeInPixel.Left;
+  VRectWithDelta.Top := VLocalRect.Top - VDeltaSizeInPixel.Top;
+  VRectWithDelta.Right := VLocalRect.Right + VDeltaSizeInPixel.Right;
+  VRectWithDelta.Bottom := VLocalRect.Bottom + VDeltaSizeInPixel.Bottom;
   VTargetRect := ALocalConverter.LocalRect2MapRectFloat(VRectWithDelta);
   VZoom := ALocalConverter.GetZoom;
   VConverter := ALocalConverter.GetGeoConverter;

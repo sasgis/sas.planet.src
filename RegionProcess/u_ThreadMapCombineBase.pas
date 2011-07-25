@@ -108,7 +108,11 @@ begin
   FUsedReColor := AusedReColor;
   FRecolorConfig := ARecolorConfig;
   if AMarksSubset <> nil then begin
-    FMarksImageProvider := TMapMarksBitmapLayerProviderByMarksSubset.Create(AMarksSubset);
+    FMarksImageProvider :=
+      TMapMarksBitmapLayerProviderByMarksSubset.Create(
+        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.GetStatic,
+        AMarksSubset
+      );
   end;
   FMapCalibrationList := AMapCalibrationList;
   FConverterFactory := GState.LocalConverterFactory;
