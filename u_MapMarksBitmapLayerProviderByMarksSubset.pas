@@ -281,7 +281,7 @@ begin
     VDstRect.Right := VDstRect.Left + VTextSize.cx;
     VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
     VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
-    FBitmapWithText.Clear(clBlack);
+    FBitmapWithText.Clear(0);
     FBitmapWithText.RenderText(2, 2, AName, 1, SetAlpha(AColor2,255));
     FBitmapWithText.RenderText(1, 1, AName, 1, SetAlpha(AColor1,255));
     ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);

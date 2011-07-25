@@ -385,7 +385,7 @@ var
   VGeoConvert: ICoordConverter;
   VZoomDelta: Integer;
 begin
-  FViewRectDrawLayer.Bitmap.Clear(clBlack);
+  FViewRectDrawLayer.Bitmap.Clear(0);
   VVisualCoordConverter := ViewCoordConverter;
   VBitmapCoordConverter := LayerCoordConverter;
   if (VVisualCoordConverter <> nil) and (VBitmapCoordConverter <> nil) then begin
@@ -1167,10 +1167,10 @@ begin
       FLeftBorder.Bitmap.VertLineS(0, 0, VBitmapSizeInPixel.Y + VBorderWidth - 1, clBlack32);
       FLeftBorder.Bitmap.VertLineS(VBorderWidth - 1, VBorderWidth - 1, VBitmapSizeInPixel.Y + VBorderWidth - 1, clBlack32);
       FLeftBorder.Bitmap.HorzLineS(0, 0, VBorderWidth - 1, clBlack32);
-      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) - 6] := clBlack;
-      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) - 2] := clBlack;
-      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) + 2] := clBlack;
-      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) + 6] := clBlack;
+      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) - 6] := 0;
+      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) - 2] := 0;
+      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) + 2] := 0;
+      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) + 6] := 0;
     finally
       FLeftBorder.Bitmap.Unlock;
     end;
