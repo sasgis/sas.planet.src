@@ -114,7 +114,7 @@ begin
  FmapType.separator:=CheckBox1.Checked;
  FMapType.VersionConfig.Version := edtVersion.Text;
  FMapType.TileRequestBuilderConfig.RequestHeader := mmoHeader.Text;
- pnlHeader.Visible := GState.ShowDebugInfo;
+ pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
 
  ModalResult := mrOk;
 end;

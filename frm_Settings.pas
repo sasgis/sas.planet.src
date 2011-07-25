@@ -340,7 +340,7 @@ begin
  finally
    GState.GSMpar.UnlockWrite;
  end;
-  GState.Show_tray := CBMinimizeToTray.Checked;
+  GState.GlobalAppConfig.IsShowIconInTray := CBMinimizeToTray.Checked;
   GState.MainMemCacheConfig.MaxSize := SETilesOCache.value;
 
   GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
@@ -690,7 +690,7 @@ begin
   end;
 
   TilesOverScreenEdit.Value := GState.MainFormConfig.DownloadUIConfig.TilesOut;
-  CBMinimizeToTray.Checked := GState.Show_tray;
+  CBMinimizeToTray.Checked := GState.GlobalAppConfig.IsShowIconInTray;
 
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);

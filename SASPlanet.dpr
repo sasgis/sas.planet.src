@@ -566,7 +566,7 @@ begin
     Application.Initialize;
     Application.Title := SAS_STR_ApplicationTitle;
     //logo
-    if GState.Show_logo then begin
+    if GState.GlobalAppConfig.IsShowLogo then begin
       TfrmStartLogo.ShowLogo;
     end;
     try
@@ -594,7 +594,7 @@ begin
     Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
     Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
     Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
-    if GState.ShowDebugInfo then begin
+    if GState.GlobalAppConfig.IsShowDebugInfo then begin
       frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
     end;
     GState.StartExceptionTracking;

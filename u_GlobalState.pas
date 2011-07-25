@@ -30,6 +30,7 @@ uses
   i_ProxySettings,
   i_GSMGeoCodeConfig,
   i_MainFormConfig,
+  i_GlobalAppConfig,
   i_BitmapPostProcessingConfig,
   i_ValueToStringConverter,
   u_GarbageCollectorThread,
@@ -63,6 +64,7 @@ type
   private
     // Ini-файл с основными настройками
     MainIni: TMeminifile;
+    FGlobalAppConfig: IGlobalAppConfig;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
     FBitmapTypeManager: IBitmapTypeExtManager;
@@ -122,15 +124,6 @@ type
     procedure DoException(Sender: TObject; E: Exception);
     {$ENDIF SasDebugWithJcl}
   public
-    // Отображать окошко с логотипом при запуске
-    Show_logo: Boolean;
-    // Показывать иконку в трее
-    Show_tray: Boolean;
-    // Заходить на сайт автора при старте программы
-    WebReportToAuthor: Boolean;
-    // Выводить отладочную инфромацию о производительности
-    ShowDebugInfo: Boolean;
-
     //Записывать информацию о тайлах отсутствующих на сервере
     SaveTileNotExists: Boolean;
     // Переходить к следующему тайлу если произошла ошибка закачки
@@ -139,6 +132,7 @@ type
     //Начать сохраненную сессию загрузки с последнего удачно загруженного тайла
     SessionLastSuccess: boolean;
 
+    property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
     property MapType: TMapTypesMainList read FMainMapsList;
 
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
@@ -233,6 +227,7 @@ uses
   u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,
   u_ValueToStringConverterConfig,
+  u_GlobalAppConfig,
   u_MainMemCacheConfig,
   u_MarkPictureListSimple,
   u_ImageResamplerConfig,
@@ -272,14 +267,9 @@ begin
   FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
 
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
-  Show_logo := True;
-  Show_tray := False;
 
-  {$IFDEF DEBUG}
-    ShowDebugInfo := True;
-  {$ELSE}
-    ShowDebugInfo := False;
-  {$ENDIF}
+  FGlobalAppConfig := TGlobalAppConfig.Create;
+
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create;
 
   FCacheConfig := TGlobalCahceConfig.Create;
@@ -292,9 +282,7 @@ begin
   FLanguageManager := TLanguageManager.Create;
   FLanguageManager.ReadConfig(VViewCnonfig);
   if VViewCnonfig <> nil then begin
-    Show_logo := VViewCnonfig.ReadBool('Show_logo', Show_logo);
-    Show_tray := VViewCnonfig.ReadBool('Show_tray', Show_tray);
-    ShowDebugInfo := VViewCnonfig.ReadBool('time_rendering', ShowDebugInfo);
+    FGlobalAppConfig.ReadConfig(VViewCnonfig);
   end;
   FImageResamplerConfig :=
     TImageResamplerConfig.Create(
@@ -550,7 +538,6 @@ end;
 
 procedure TGlobalState.LoadMainParams;
 begin
-  WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
   SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', false);
 
   GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
@@ -594,7 +581,6 @@ begin
   MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);
   MainIni.WriteBool('INTERNET','SessionLastSuccess',SessionLastSuccess);
 
-  MainIni.Writebool('NPARAM','stat',WebReportToAuthor);
   FGPSRecorder.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
@@ -602,6 +588,7 @@ begin
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FLastSelectionInfo.WriteConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
+  FGlobalAppConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ValueFormats'));
   FMainFormConfig.WriteConfig(MainConfigProvider);
@@ -611,7 +598,6 @@ begin
   FMarkPictureList.WriteConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));
   FMarksDb.WriteConfig(MainConfigProvider);
-  MainIni.WriteBool('VIEW','Show_tray', Show_tray);
 end;
 
 procedure TGlobalState.SendTerminateToThreads;

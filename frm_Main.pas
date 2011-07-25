@@ -792,7 +792,7 @@ begin
     FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, GetIgnoredMenuItemsList);
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
-    tbitmShowDebugInfo.Visible := GState.ShowDebugInfo;
+    tbitmShowDebugInfo.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
 
     FMainLayer :=
       TMapMainLayer.Create(
@@ -1140,7 +1140,7 @@ begin
 
     SetProxy;
 
-    if GState.WebReportToAuthor then begin
+    if GState.GlobalAppConfig.IsSendStatistic then begin
       frmInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
     end;
 
@@ -1472,7 +1472,7 @@ begin
   Result.Add(N006);
   Result.Add(N007);
   Result.Add(NFillMap);
-  if not GState.ShowDebugInfo then begin
+  if not GState.GlobalAppConfig.IsShowDebugInfo then begin
     Result.Add(tbitmShowDebugInfo);
   end; 
 end;
@@ -4327,7 +4327,7 @@ end;
 
 Procedure TfrmMain.TrayControl(var Msg: TMessage);
 begin
-  if (Msg.WParam = SC_MINIMIZE) and GState.Show_tray then begin
+  if (Msg.WParam = SC_MINIMIZE) and GState.GlobalAppConfig.IsShowIconInTray then begin
     TrayIcon.Visible := True;
     ShowWindow(frmMain.Handle, SW_HIDE);
     ShowWindow(Application.Handle, SW_HIDE);
