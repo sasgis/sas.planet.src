@@ -348,6 +348,7 @@ type
     TrayItemRestore: TTBItem;
     TBSeparatorItem1: TTBSeparatorItem;
     TrayItemQuit: TTBItem;
+    tbitmShowMarkCaption: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -473,6 +474,7 @@ type
     procedure NBlock_toolbarsClick(Sender: TObject);
     procedure tbitmGPSOptionsClick(Sender: TObject);
     procedure TrayItemRestoreClick(Sender: TObject);
+    procedure tbitmShowMarkCaptionClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1086,6 +1088,10 @@ begin
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.GetChangeNotifier
+    );
+    FLinksList.Add(
+      VMainFormMainConfigChangeListener,
+      FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.GetChangeNotifier
     );
 
 
@@ -1789,6 +1795,7 @@ begin
   TBGPSToPointCenter.Checked:=FConfig.GPSBehaviour.MapMoveCentered;
   tbitmGPSToPointCenter.Checked:=TBGPSToPointCenter.Checked;
   NBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
+  tbitmShowMarkCaption.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.ShowPointCaption;
 
   TBHideMarks.Checked := not(FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
 
@@ -2274,12 +2281,12 @@ end;
 
 procedure TfrmMain.NbackloadClick(Sender: TObject);
 begin
-  GState.ViewConfig.UsePrevZoomAtMap := Nbackload.Checked;
+  GState.ViewConfig.UsePrevZoomAtMap := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.NbackloadLayerClick(Sender: TObject);
 begin
-  GState.ViewConfig.UsePrevZoomAtLayer := NbackloadLayer.Checked;
+  GState.ViewConfig.UsePrevZoomAtLayer := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.NBlock_toolbarsClick(Sender: TObject);
@@ -2841,7 +2848,7 @@ end;
 
 procedure TfrmMain.NinvertcolorClick(Sender: TObject);
 begin
-  GState.BitmapPostProcessingConfig.InvertColor:=Ninvertcolor.Checked;
+  GState.BitmapPostProcessingConfig.InvertColor := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.mapDblClick(Sender: TObject);
@@ -3877,7 +3884,7 @@ end;
 
 procedure TfrmMain.NanimateClick(Sender: TObject);
 begin
-  FConfig.MapZoomingConfig.AnimateZoom := Nanimate.Checked;
+  FConfig.MapZoomingConfig.AnimateZoom := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
@@ -3939,6 +3946,11 @@ begin
   if frmDebugInfo <> nil then begin
     frmDebugInfo.Show;
   end;
+end;
+
+procedure TfrmMain.tbitmShowMarkCaptionClick(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.ShowPointCaption := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.TBXItem6Click(Sender: TObject);
@@ -4005,7 +4017,7 @@ end;
 
 procedure TfrmMain.NShowSelectionClick(Sender: TObject);
 begin
-  FConfig.LayersConfig.LastSelectionLayerConfig.Visible := TTBXItem(sender).Checked;
+  FConfig.LayersConfig.LastSelectionLayerConfig.Visible := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.NGoToCurClick(Sender: TObject);
