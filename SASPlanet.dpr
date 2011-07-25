@@ -471,6 +471,8 @@ uses
   u_MainWindowToolbarsLock in 'u_MainWindowToolbarsLock.pas',
   i_LineOnMapEdit in 'i_LineOnMapEdit.pas',
   u_LineOnMapEdit in 'u_LineOnMapEdit.pas',
+  i_GlobalAppConfig in 'i_GlobalAppConfig.pas',
+  u_GlobalAppConfig in 'u_GlobalAppConfig.pas',
   i_GlobalViewMainConfig in 'i_GlobalViewMainConfig.pas',
   u_GlobalViewMainConfig in 'u_GlobalViewMainConfig.pas',
   u_IeEmbeddedProtocolRegistration in 'u_IeEmbeddedProtocolRegistration.pas',
