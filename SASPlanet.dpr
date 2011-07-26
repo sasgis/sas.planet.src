@@ -4,6 +4,7 @@ program SASPlanet;
 uses
   Forms,
   SysUtils,
+  MidasLib,
   XPMan,
   u_ZmpFileNamesIteratorFactory in 'u_ZmpFileNamesIteratorFactory.pas',
   i_JclListenerNotifierLinksList in 'i_JclListenerNotifierLinksList.pas',
