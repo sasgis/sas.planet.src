@@ -31,6 +31,8 @@ uses
   u_ConfigDataProviderVirtualWithSubItem in 'u_ConfigDataProviderVirtualWithSubItem.pas',
   u_ConfigDataProviderWithUseDepreciated in 'u_ConfigDataProviderWithUseDepreciated.pas',
   u_ConfigDataProviderWithReplacedSubItem in 'u_ConfigDataProviderWithReplacedSubItem.pas',
+  u_ConfigDataProviderByResources in 'u_ConfigDataProviderByResources.pas',
+  u_ConfigDataProviderWithGlobal in 'u_ConfigDataProviderWithGlobal.pas',
   u_ConfigDataProviderZmpComplex in 'u_ConfigDataProviderZmpComplex.pas',
   u_ConfigDataWriteProviderByIniFileSection in 'u_ConfigDataWriteProviderByIniFileSection.pas',
   u_ConfigDataWriteProviderByIniFile in 'u_ConfigDataWriteProviderByIniFile.pas',
