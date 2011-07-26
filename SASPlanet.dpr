@@ -473,6 +473,8 @@ uses
   u_LineOnMapEdit in 'u_LineOnMapEdit.pas',
   i_GlobalAppConfig in 'i_GlobalAppConfig.pas',
   u_GlobalAppConfig in 'u_GlobalAppConfig.pas',
+  i_GlobalDownloadConfig in 'i_GlobalDownloadConfig.pas',
+  u_GlobalDownloadConfig in 'u_GlobalDownloadConfig.pas',
   i_GlobalViewMainConfig in 'i_GlobalViewMainConfig.pas',
   u_GlobalViewMainConfig in 'u_GlobalViewMainConfig.pas',
   u_IeEmbeddedProtocolRegistration in 'u_IeEmbeddedProtocolRegistration.pas',
