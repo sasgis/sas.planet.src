@@ -39,6 +39,7 @@ type
     FBanSleepTime: Cardinal;
     FProxyAuthErrorSleepTime: Cardinal;
     FDownloadErrorSleepTime: Cardinal;
+    FIsGoNextTileIfDownloadError: Boolean;
 
     FRES_UserStop: string;
     FRES_ProcessedFile: string;
@@ -121,6 +122,7 @@ begin
   FDownloadErrorSleepTime := 5000;
   PrepareStrings;
 
+  FIsGoNextTileIfDownloadError := GState.DownloadConfig.IsGoNextTileIfDownloadError;
   FDownloadInfo := TDownloadInfoSimple.Create(GState.DownloadInfo);
   FLog := ALog;
   Priority := tpLower;
@@ -301,7 +303,7 @@ begin
               VGotoNextTile := True;
             end else begin
                 try
-                  if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(GState.SaveTileNotExists) then begin
+                  if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(GState.DownloadConfig.IsSaveTileNotExists) then begin
                     FLog.WriteText('(tne exists)', 0);
                     VGotoNextTile := True;
                     FLastProcessedPoint := FLoadXY;
@@ -341,7 +343,7 @@ begin
                       end else begin
                         FLog.WriteText(FRES_Noconnectionstointernet + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
                         SleepCancelable(FDownloadErrorSleepTime);
-                        if GState.GoNextTileIfDownloadError then begin
+                        if FIsGoNextTileIfDownloadError then begin
                           VGotoNextTile := True;
                         end else begin
                           VGotoNextTile := false;

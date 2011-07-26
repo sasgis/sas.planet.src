@@ -706,7 +706,7 @@ begin
         VResultStream.Free;
       end;
     end else if Supports(Result, IDownloadResultDataNotExists) then begin
-      if GState.SaveTileNotExists then begin
+      if GState.DownloadConfig.IsSaveTileNotExists then begin
         SaveTileNotExists(ATile, AZoom);
       end;
     end;

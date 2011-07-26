@@ -49,6 +49,7 @@ uses
   i_GPSConfig,
   i_MarkCategoryFactoryConfig,
   i_GlobalViewMainConfig,
+  i_GlobalDownloadConfig,
   i_DownloadResultTextProvider,
   i_ImportFile,
   i_PathDetalizeProviderList,
@@ -91,6 +92,7 @@ type
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadInfo: IDownloadInfoSimple;
+    FDownloadConfig: IGlobalDownloadConfig;
     FProgramPath: string;
     FImageResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
@@ -118,20 +120,11 @@ type
     function GetTrackLogPath: string;
     function GetHelpFileName: string;
     function GetMainConfigFileName: string;
-    procedure LoadMainParams;
     procedure LoadMapIconsList;
     {$IFDEF SasDebugWithJcl}
     procedure DoException(Sender: TObject; E: Exception);
     {$ENDIF SasDebugWithJcl}
   public
-    //Записывать информацию о тайлах отсутствующих на сервере
-    SaveTileNotExists: Boolean;
-    // Переходить к следующему тайлу если произошла ошибка закачки
-    GoNextTileIfDownloadError: Boolean;
-
-    //Начать сохраненную сессию загрузки с последнего удачно загруженного тайла
-    SessionLastSuccess: boolean;
-
     property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
     property MapType: TMapTypesMainList read FMainMapsList;
 
@@ -181,6 +174,7 @@ type
     property SensorList: ISensorList read FSensorList;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
+    property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -234,6 +228,7 @@ uses
   u_ImageResamplerFactoryListStaticSimple,
   u_ImportByFileExt,
   u_GlobalViewMainConfig,
+  u_GlobalDownloadConfig,
   u_GPSRecorderStuped,
   u_GPSLogWriterToPlt,
   u_SatellitesInViewMapDrawSimple,
@@ -284,6 +279,7 @@ begin
   if VViewCnonfig <> nil then begin
     FGlobalAppConfig.ReadConfig(VViewCnonfig);
   end;
+  FDownloadConfig := TGlobalDownloadConfig.Create;
   FImageResamplerConfig :=
     TImageResamplerConfig.Create(
       TImageResamplerFactoryListStaticSimple.Create
@@ -474,7 +470,6 @@ var
   VLocalMapsConfig: IConfigDataProvider;
   Ini: TMeminifile;
 begin
-  LoadMainParams;
   CreateDir(MapsPath);
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
@@ -507,6 +502,7 @@ begin
   FGPSRecorder.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
+  FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.ReadConfig(MainConfigProvider.GetSubItem('ValueFormats'));
@@ -534,14 +530,6 @@ begin
   finally
     ResStream.Free;
   end;
-end;
-
-procedure TGlobalState.LoadMainParams;
-begin
-  SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', false);
-
-  GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
-  SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
 end;
 
 procedure TGlobalState.LoadMapIconsList;
@@ -577,13 +565,11 @@ begin
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
-  MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
-  MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);
-  MainIni.WriteBool('INTERNET','SessionLastSuccess',SessionLastSuccess);
 
   FGPSRecorder.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
+  FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FLastSelectionInfo.WriteConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));

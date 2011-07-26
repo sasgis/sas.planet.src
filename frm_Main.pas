@@ -3969,7 +3969,13 @@ begin
         VLog := TLogForTaskThread.Create(5000, 0);
         VSimpleLog := VLog;
         VThreadLog := VLog;
-        VThread := TThreadDownloadTiles.Create(VSimpleLog, VFileName, GState.SessionLastSuccess, FConfig.ViewPortState.GetCurrentZoom);
+        VThread :=
+          TThreadDownloadTiles.Create(
+            VSimpleLog,
+            VFileName,
+            GState.DownloadConfig.IsUseSessionLastSuccess,
+            FConfig.ViewPortState.GetCurrentZoom
+          );
         TfrmProgressDownload.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
       end else if ExtractFileExt(VFileName)='.hlg' then begin
         FFormRegionProcess.LoadSelFromFile(VFileName);
