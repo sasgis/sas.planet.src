@@ -322,7 +322,10 @@ begin
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
   FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FKmlLoader);
   VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
-  VInternalDomainInfoProviderList.Add('ZmpInfo', TInternalDomainInfoProviderByMapTypeList.Create);
+  VInternalDomainInfoProviderList.Add(
+    'ZmpInfo',
+    TInternalDomainInfoProviderByMapTypeList.Create(FMainMapsList, FContentTypeManager)
+  );
   FProtocol := TIeEmbeddedProtocolRegistration.Create('sas', TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));
 end;
 

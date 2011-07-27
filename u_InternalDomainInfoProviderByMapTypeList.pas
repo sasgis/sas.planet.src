@@ -6,17 +6,26 @@ uses
   Classes,
   i_ConfigDataProvider,
   i_ZmpInfo,
+  i_ContentTypeManager,
+  u_MapTypesMainList,
   i_InternalDomainInfoProvider;
 
 type
   TInternalDomainInfoProviderByMapTypeList = class(TInterfacedObject, IInternalDomainInfoProvider)
   private
+    FMapTypeLsit: TMapTypesMainList;
+    FContentTypeManager: IContentTypeManager;
     function ParseFilePath(AFilePath: string; out AZmpGUID: TGUID; out AFileName: string): Boolean;
     function LoadStreamFromZmp(AZmp: IZmpInfo; AFileName: string; AStream: TStream; out AContentType: string): Boolean;
     function LoadStreamFromDataProvider(ADataProvider: IConfigDataProvider; AFileName: string; AStream: TStream; out AContentType: string): Boolean;
     function LoadStreamFromSubDataProvider(ADataProvider: IConfigDataProvider; AFileName: string; AStream: TStream; out AContentType: string): Boolean;
   protected
     function LoadStreamByFilePath(AFilePath: string; AStream: TStream; out AContentType: string): Boolean;
+  public
+    constructor Create(
+      AMapTypeLsit: TMapTypesMainList;
+      AContentTypeManager: IContentTypeManager
+    );
   end;
 
 implementation
@@ -24,16 +33,21 @@ implementation
 uses
   StrUtils,
   SysUtils,
-  i_ContentTypeManager,
   i_ContentTypeInfo,
   u_MapType,
-  c_ZeroGUID,
-  u_GlobalState;
+  c_ZeroGUID;
 
 const
   CFileNameSeparator = '/';
 
 { TInternalDomainInfoProviderByMapTypeList }
+
+constructor TInternalDomainInfoProviderByMapTypeList.Create(
+  AMapTypeLsit: TMapTypesMainList; AContentTypeManager: IContentTypeManager);
+begin
+  FMapTypeLsit := AMapTypeLsit;
+  FContentTypeManager := AContentTypeManager;
+end;
 
 function TInternalDomainInfoProviderByMapTypeList.LoadStreamByFilePath(
   AFilePath: string; AStream: TStream; out AContentType: string): Boolean;
@@ -45,7 +59,7 @@ begin
   Result := ParseFilePath(AFilePath, VGuid, VFileName);
   if Result then begin
     Result := False;
-    VMapType := GState.MapType.GetMapFromID(VGuid);
+    VMapType := FMapTypeLsit.GetMapFromID(VGuid);
     if VMapType <> nil then begin
       Result := LoadStreamFromZmp(VMapType.Zmp, VFileName, AStream, AContentType);
     end;
@@ -58,7 +72,6 @@ function TInternalDomainInfoProviderByMapTypeList.LoadStreamFromDataProvider(
 var
   VFileName: string;
   VExt: string;
-  VContentTypeManager: IContentTypeManager;
   VContentType: IContentTypeInfoBasic;
 begin
   AContentType := '';
@@ -68,8 +81,7 @@ begin
   end;
   if AContentType = '' then begin
     VExt := ExtractFileExt(VFileName);
-    VContentTypeManager := GState.ContentTypeManager;
-    VContentType := VContentTypeManager.GetInfoByExt(VExt);
+    VContentType := FContentTypeManager.GetInfoByExt(VExt);
     if VContentType <> nil then begin
       AContentType := VContentType.GetContentType;
     end else begin
