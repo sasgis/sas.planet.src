@@ -8,11 +8,6 @@ uses
 type
   IGlobalAppConfig = interface(IConfigDataElement)
     ['{3DBA929F-BD4C-46A3-A64B-F61786D41FED}']
-    // Отображать окошко с логотипом при запуске
-    function GetIsShowLogo: Boolean;
-    procedure SetIsShowLogo(AValue: Boolean);
-    property IsShowLogo: Boolean read GetIsShowLogo write SetIsShowLogo;
-
     // Показывать иконку в трее
     function GetIsShowIconInTray: Boolean;
     procedure SetIsShowIconInTray(AValue: Boolean);

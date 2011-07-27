@@ -50,6 +50,7 @@ uses
   i_MarkCategoryFactoryConfig,
   i_GlobalViewMainConfig,
   i_GlobalDownloadConfig,
+  i_StartUpLogoConfig,
   i_DownloadResultTextProvider,
   i_ImportFile,
   i_PathDetalizeProviderList,
@@ -66,6 +67,7 @@ type
     FMainConfigProvider: IConfigDataWriteProvider;
 
     FGlobalAppConfig: IGlobalAppConfig;
+    FStartUpLogoConfig: IStartUpLogoConfig;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
     FBitmapTypeManager: IBitmapTypeExtManager;
@@ -173,6 +175,7 @@ type
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
     property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
+    property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -211,6 +214,7 @@ uses
   u_CoordConverterFactorySimple,
   u_LanguageManager,
   u_DownloadInfoSimple,
+  u_StartUpLogoConfig,
   u_InetConfig,
   u_Datum,
   u_GSMGeoCodeConfig,
@@ -302,6 +306,10 @@ begin
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FContentTypeManager := TContentTypeManagerSimple.Create;
+
+  FStartUpLogoConfig := TStartUpLogoConfig.Create(FContentTypeManager);
+  FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
+
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   FKmlLoader := TKmlInfoSimpleParser.Create;
   FKmzLoader := TKmzInfoSimpleParser.Create;
@@ -546,6 +554,7 @@ begin
   FLastSelectionInfo.WriteConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FGlobalAppConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
+  FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ValueFormats'));
   FMainFormConfig.WriteConfig(MainConfigProvider);

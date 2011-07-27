@@ -11,7 +11,6 @@ uses
 type
   TGlobalAppConfig = class(TConfigDataElementBase, IGlobalAppConfig)
   private
-    FIsShowLogo: Boolean;
     FIsShowIconInTray: Boolean;
     FIsSendStatistic: Boolean;
     FIsShowDebugInfo: Boolean;
@@ -19,9 +18,6 @@ type
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetIsShowLogo: Boolean;
-    procedure SetIsShowLogo(AValue: Boolean);
-
     function GetIsShowIconInTray: Boolean;
     procedure SetIsShowIconInTray(AValue: Boolean);
 
@@ -41,7 +37,6 @@ implementation
 constructor TGlobalAppConfig.Create;
 begin
   inherited;
-  FIsShowLogo := True;
   FIsShowIconInTray := False;
 
   {$IFDEF DEBUG}
@@ -56,7 +51,6 @@ procedure TGlobalAppConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FIsShowLogo := AConfigData.ReadBool('ShowLogo', FIsShowLogo);
     FIsShowIconInTray := AConfigData.ReadBool('ShowIconInTray', FIsShowIconInTray);
     FIsShowDebugInfo := AConfigData.ReadBool('ShowDebugInfo', FIsShowDebugInfo);
     FIsSendStatistic := AConfigData.ReadBool('SendStatistic', FIsSendStatistic);
@@ -67,7 +61,6 @@ end;
 procedure TGlobalAppConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteBool('ShowLogo', FIsShowLogo);
   AConfigData.WriteBool('ShowIconInTray', FIsShowIconInTray);
 end;
 
@@ -96,16 +89,6 @@ begin
   LockRead;
   try
     Result := FIsShowIconInTray;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TGlobalAppConfig.GetIsShowLogo: Boolean;
-begin
-  LockRead;
-  try
-    Result := FIsShowLogo;
   finally
     UnlockRead;
   end;
@@ -143,19 +126,6 @@ begin
   try
     if FIsShowIconInTray <> AValue then begin
       FIsShowIconInTray := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TGlobalAppConfig.SetIsShowLogo(AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FIsShowLogo <> AValue then begin
-      FIsShowLogo := AValue;
       SetChanged;
     end;
   finally

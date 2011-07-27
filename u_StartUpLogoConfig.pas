@@ -31,11 +31,13 @@ type
     constructor Create(
       AContentTypeManager: IContentTypeManager
     );
+    destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  SysUtils,
   u_ConfigProviderHelpers;
 
 { TGlobalAppConfig }
@@ -50,6 +52,12 @@ begin
   FIsShowLogo := True;
   FLogo := TCustomBitmap32.Create;
   FLogoFileName := 'sas:\Resource\LOGOI.jpg';
+end;
+
+destructor TStartUpLogoConfig.Destroy;
+begin
+  FreeAndNil(FLogo);
+  inherited;
 end;
 
 procedure TStartUpLogoConfig.DoReadConfig(AConfigData: IConfigDataProvider);

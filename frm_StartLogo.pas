@@ -9,6 +9,7 @@ uses
   Controls,
   ExtCtrls,
   StdCtrls,
+  i_StartUpLogoConfig,
   u_CommonFormAndFrameParents;
 
 type
@@ -22,8 +23,10 @@ type
     procedure imgLogoClick(Sender: TObject);
   private
     FReadyToHide: Boolean;
+    FConfig: IStartUpLogoConfig;
   public
-    class procedure ShowLogo;
+    constructor Create(AOwner: TComponent; AConfig: IStartUpLogoConfig);
+    class procedure ShowLogo(AConfig: IStartUpLogoConfig);
     class procedure ReadyToHideLogo;
   end;
 
@@ -46,11 +49,18 @@ begin
   Self.Close;
 end;
 
+constructor TfrmStartLogo.Create(AOwner: TComponent;
+  AConfig: IStartUpLogoConfig);
+begin
+  inherited Create(AOwner);
+  FConfig := AConfig;
+end;
+
 procedure TfrmStartLogo.FormShow(Sender: TObject);
 var
   VBitmapSize: TPoint;
 begin
-  GState.LoadBitmapFromJpegRes('LOGOI', imgLogo.Bitmap);
+  imgLogo.Bitmap.Assign(FConfig.Logo);
   VBitmapSize.X := imgLogo.Bitmap.Width;
   VBitmapSize.Y := imgLogo.Bitmap.Height;
 
@@ -81,11 +91,13 @@ begin
   end;
 end;
 
-class procedure TfrmStartLogo.ShowLogo;
+class procedure TfrmStartLogo.ShowLogo(AConfig: IStartUpLogoConfig);
 begin
-  frmStartLogo := TfrmStartLogo.Create(Application);
-  frmStartLogo.Show;
-  Application.ProcessMessages;
+  if AConfig.IsShowLogo then begin
+    frmStartLogo := TfrmStartLogo.Create(Application, AConfig);
+    frmStartLogo.Show;
+    Application.ProcessMessages;
+  end;
 end;
 
 end.

@@ -574,10 +574,7 @@ begin
   try
     Application.Initialize;
     Application.Title := SAS_STR_ApplicationTitle;
-    //logo
-    if GState.GlobalAppConfig.IsShowLogo then begin
-      TfrmStartLogo.ShowLogo;
-    end;
+    TfrmStartLogo.ShowLogo(GState.StartUpLogoConfig);
     try
       GState.LoadConfig;
     except
@@ -586,7 +583,6 @@ begin
         Exit;
       end;
     end;
-    //xLogo
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
     Application.CreateForm(TfrmGoTo, frmGoTo);
