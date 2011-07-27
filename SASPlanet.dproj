@@ -423,6 +423,7 @@
     <DCCReference Include="u_ConfigDataProviderZmpComplex.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFileSection.pas" />
+    <DCCReference Include="u_ConfigDataWriteProviderWithGlobal.pas" />
     <DCCReference Include="u_ConfigProviderHelpers.pas" />
     <DCCReference Include="u_ConfigSaveLoadStrategyBasicProviderSubItem.pas" />
     <DCCReference Include="u_ConfigSaveLoadStrategyBasicUseProvider.pas" />

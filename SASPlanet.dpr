@@ -36,6 +36,7 @@ uses
   u_ConfigDataProviderZmpComplex in 'u_ConfigDataProviderZmpComplex.pas',
   u_ConfigDataWriteProviderByIniFileSection in 'u_ConfigDataWriteProviderByIniFileSection.pas',
   u_ConfigDataWriteProviderByIniFile in 'u_ConfigDataWriteProviderByIniFile.pas',
+  u_ConfigDataWriteProviderWithGlobal in 'u_ConfigDataWriteProviderWithGlobal.pas',
   u_SaveLoadTBConfigByConfigProvider in 'u_SaveLoadTBConfigByConfigProvider.pas',
   u_ConfigProviderHelpers in 'u_ConfigProviderHelpers.pas',
   i_ConfigDataElement in 'i_ConfigDataElement.pas',
