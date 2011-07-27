@@ -618,6 +618,7 @@
     <DCCReference Include="u_PosFromGSM.pas" />
     <DCCReference Include="u_ProxyConfig.pas" />
     <DCCReference Include="u_ResStrings.pas" />
+    <DCCReference Include="u_SASMainConfigProvider.pas" />
     <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_ScaleLineConfig.pas" />
