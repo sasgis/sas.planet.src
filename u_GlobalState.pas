@@ -186,8 +186,6 @@ type
 
     procedure StartExceptionTracking;
     procedure StopExceptionTracking;
-
-    procedure LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
   end;
 
 var
@@ -492,23 +490,6 @@ begin
   FMarkPictureList.ReadConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
   FMarksDb.ReadConfig(MainConfigProvider);
-end;
-
-procedure TGlobalState.LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
-var
-  ResStream: TResourceStream;
-  VImageLoader: IBitmapTileLoader;
-begin
-  VImageLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.jpg');
-  {Creates an especial stream to load from the resource}
-  ResStream := TResourceStream.Create(HInstance, Name, RT_RCDATA);
-
-  {Loads the png image from the resource}
-  try
-    VImageLoader.LoadFromStream(ResStream, Abmp);
-  finally
-    ResStream.Free;
-  end;
 end;
 
 procedure TGlobalState.LoadMapIconsList;
