@@ -23,7 +23,9 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetMarker: TCustomBitmap32;
-    procedure SetMarker(AValue: TCustomBitmap32);
+
+    function GetMarkerFileName: string;
+    procedure SetMarkerFileName(AValue: string);
 
     function GetMarkerFixedPoint: TPoint;
     procedure SetMarkerFixedPoint(AValue: TPoint);
@@ -69,7 +71,9 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FShowTickCount := AConfigData.ReadInteger('ShowTickCount', FShowTickCount);
-    FMarkerFileName  := ReadBitmapByFileRef(AConfigData, 'MarkerFile', FMarkerFileName, FContentTypeManager, FMarker);
+    FMarkerFileName  := AConfigData.ReadString('MarkerFile', FMarkerFileName);
+
+    ReadBitmapByFileRef(AConfigData, FMarkerFileName, FContentTypeManager, FMarker);
     SetChanged;
   end;
 end;
@@ -86,6 +90,16 @@ begin
   try
     Result := TCustomBitmap32.Create;
     Result.Assign(FMarker);
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TGotoLayerConfig.GetMarkerFileName: string;
+begin
+  LockRead;
+  try
+    Result := FMarkerFileName;
   finally
     UnlockRead;
   end;
@@ -111,12 +125,14 @@ begin
   end;
 end;
 
-procedure TGotoLayerConfig.SetMarker(AValue: TCustomBitmap32);
+procedure TGotoLayerConfig.SetMarkerFileName(AValue: string);
 begin
   LockWrite;
   try
-    FMarker.Assign(AValue);
-    SetChanged;
+    if FMarkerFileName <> AValue then begin
+      FMarkerFileName := AValue;
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;

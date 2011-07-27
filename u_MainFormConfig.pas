@@ -85,7 +85,7 @@ constructor TMainFormConfig.Create(
 );
 begin
   inherited Create;
-  FMainConfig := TMainFormMainConfig.Create;
+  FMainConfig := TMainFormMainConfig.Create(AContentTypeManager);
   Add(FMainConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'));
   FToolbarsLock := TMainWindowToolbarsLock.Create;
   Add(FToolbarsLock, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PANEL'));

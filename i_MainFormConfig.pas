@@ -3,6 +3,7 @@ unit i_MainFormConfig;
 interface
 
 uses
+  GR32,
   i_ConfigDataElement,
   i_ActiveMapsConfig,
   i_ViewPortState,
@@ -47,6 +48,12 @@ type
     function GetShowHintOnMarks: Boolean;
     procedure SetShowHintOnMarks(AValue: Boolean);
     property ShowHintOnMarks: Boolean read GetShowHintOnMarks write SetShowHintOnMarks;
+
+    function GetRuller: TCustomBitmap32;
+    property Ruller: TCustomBitmap32 read GetRuller;
+
+    function GetTumbler: TCustomBitmap32;
+    property Tumbler: TCustomBitmap32 read GetTumbler;
   end;
 
   IMainWindowToolbarsLock = interface(IConfigDataElement)

@@ -89,7 +89,7 @@ begin
   try
     FConfig.LockRead;
     try
-      VBitmap := FConfig.Marker;
+      VBitmap := FConfig.GetMarker;
       try
         FLayer.Bitmap.Assign(VBitmap);
         FLayer.Bitmap.DrawMode := dmBlend;

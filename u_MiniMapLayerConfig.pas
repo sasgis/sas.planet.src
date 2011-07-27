@@ -102,8 +102,8 @@ begin
     FMasterAlpha := AConfigData.ReadInteger('Alpha', FMasterAlpha);
     FVisible := AConfigData.ReadBool('Visible', FVisible);
 
-    FPlusButtonFileName  := ReadBitmapByFileRef(AConfigData, 'PlusButtonFile', FPlusButtonFileName, FContentTypeManager, FPlusButton);
-    FMinusButtonFileName := ReadBitmapByFileRef(AConfigData, 'MinusButtonFile', FMinusButtonFileName, FContentTypeManager, FMinusButton);
+    ReadBitmapByFileRef(AConfigData, FPlusButtonFileName, FContentTypeManager, FPlusButton);
+    ReadBitmapByFileRef(AConfigData, FMinusButtonFileName, FContentTypeManager, FMinusButton);
     SetChanged;
   end;
 end;

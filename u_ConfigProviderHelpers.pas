@@ -19,13 +19,12 @@ function ReadColor32(
   ADefault: TColor32
 ): TColor32;
 
-function ReadBitmapByFileRef(
+procedure ReadBitmapByFileRef(
   AConfigProvider: IConfigDataProvider;
-  AIdent: string;
-  ADefFileName: string;
+  AFullFileName: string;
   AContentTypeManager: IContentTypeManager;
   ABitmap: TCustomBitmap32
-): string;
+);
 
 implementation
 
@@ -72,49 +71,43 @@ begin
   AConfigProvider.WriteString(AIdent + 'Hex', HexDisplayPrefix + IntToHex(AValue, 8));
 end;
 
-function ReadBitmapByFileRef(
+procedure ReadBitmapByFileRef(
   AConfigProvider: IConfigDataProvider;
-  AIdent: string;
-  ADefFileName: string;
+  AFullFileName: string;
   AContentTypeManager: IContentTypeManager;
   ABitmap: TCustomBitmap32
-): string;
+);
 var
+  VFilePath: string;
   VFileName: string;
-  VPath: string;
-  VName: string;
-  VExt: string;
+  VFileExt: string;
   VResourceProvider: IConfigDataProvider;
   VStream: TMemoryStream;
   VInfoBasic: IContentTypeInfoBasic;
   VBitmapContntType: IContentTypeInfoBitmap;
 begin
-  Result := ADefFileName;
-
-  VFileName := AConfigProvider.ReadString(AIdent, ADefFileName);
-  VPath := ExcludeTrailingPathDelimiter(ExtractFilePath(VFileName));
-  VName := ExtractFileName(VFileName);
-  VExt := ExtractFileExt(VName);
+  VFilePath := ExcludeTrailingPathDelimiter(ExtractFilePath(AFullFileName));
+  VFileName := ExtractFileName(AFullFileName);
+  VFileExt := ExtractFileExt(VFileName);
 
   try
-    VResourceProvider := AConfigProvider.GetSubItem(VPath);
+    VResourceProvider := AConfigProvider.GetSubItem(VFilePath);
   except
-    Assert(False, 'Ошибка при получении пути ' + VPath);
+    Assert(False, 'Ошибка при получении пути ' + VFilePath);
   end;
 
   if VResourceProvider <> nil then begin
     VStream := TMemoryStream.Create;
     try
-      if VResourceProvider.ReadBinaryStream(VName, VStream) > 0 then begin
-        VInfoBasic := AContentTypeManager.GetInfoByExt(VExt);
+      if VResourceProvider.ReadBinaryStream(VFileName, VStream) > 0 then begin
+        VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
         if VInfoBasic <> nil then begin
           if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
             VStream.Position := 0;
             try
               VBitmapContntType.GetLoader.LoadFromStream(VStream, ABitmap);
-              Result := VFileName;
             except
-              Assert(False, 'Ошибка при загрузке картинки ' + VFileName);
+              Assert(False, 'Ошибка при загрузке картинки ' + AFullFileName);
             end;
           end;
         end;

@@ -10,8 +10,10 @@ type
   IGotoLayerConfig = interface(IConfigDataElement)
     ['{95096F2B-D3BF-46CC-9826-1D1D973EEC1F}']
     function GetMarker: TCustomBitmap32;
-    procedure SetMarker(AValue: TCustomBitmap32);
-    property Marker: TCustomBitmap32 read GetMarker write SetMarker;
+
+    function GetMarkerFileName: string;
+    procedure SetMarkerFileName(AValue: string);
+    property MarkerFileName: string read GetMarkerFileName write SetMarkerFileName;
 
     function GetMarkerFixedPoint: TPoint;
     procedure SetMarkerFixedPoint(AValue: TPoint);
