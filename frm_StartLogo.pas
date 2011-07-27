@@ -18,6 +18,7 @@ type
     imgLogo: TImage32;
     lblVersion: TLabel;
     lblWebSite: TLabel;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure tmrLogoTimer(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure imgLogoClick(Sender: TObject);
@@ -26,6 +27,8 @@ type
     FConfig: IStartUpLogoConfig;
   public
     constructor Create(AOwner: TComponent; AConfig: IStartUpLogoConfig); reintroduce;
+    destructor Destroy; override;
+    
     class procedure ShowLogo(AConfig: IStartUpLogoConfig);
     class procedure ReadyToHideLogo;
   end;
@@ -53,6 +56,17 @@ constructor TfrmStartLogo.Create(AOwner: TComponent;
 begin
   inherited Create(AOwner);
   FConfig := AConfig;
+end;
+
+destructor TfrmStartLogo.Destroy;
+begin
+  frmStartLogo := nil;
+  inherited;
+end;
+
+procedure TfrmStartLogo.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Action := caFree;
 end;
 
 procedure TfrmStartLogo.FormShow(Sender: TObject);
@@ -93,7 +107,7 @@ end;
 class procedure TfrmStartLogo.ShowLogo(AConfig: IStartUpLogoConfig);
 begin
   if AConfig.IsShowLogo then begin
-    frmStartLogo := TfrmStartLogo.Create(Application, AConfig);
+    frmStartLogo := TfrmStartLogo.Create(nil, AConfig);
     frmStartLogo.Show;
     Application.ProcessMessages;
   end;
