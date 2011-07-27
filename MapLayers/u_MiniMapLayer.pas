@@ -169,7 +169,7 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FPostProcessingConfig := APostProcessingConfig;
   FParentMap := AParentMap;
-  FIconsList := GState.MapTypeIcons18List;
+  FIconsList := GState.MapType.MapTypeIcons18List;
 
   FViewRectMoveDelta := DoublePoint(0, 0);
 

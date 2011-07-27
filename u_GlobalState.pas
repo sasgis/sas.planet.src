@@ -76,8 +76,6 @@ type
     FKmlLoader: IKmlInfoSimpleLoader;
     FKmzLoader: IKmlInfoSimpleLoader;
     FCacheConfig: TGlobalCahceConfig;
-    FMapTypeIcons18List: IMapTypeIconsList;
-    FMapTypeIcons24List: IMapTypeIconsList;
     FLanguageManager: ILanguageManager;
     FLastSelectionInfo: ILastSelectionInfo;
     FMarksDB: TMarksDB;
@@ -118,7 +116,6 @@ type
     function GetMarkIconsPath: string;
     function GetMapsPath: string;
     function GetTrackLogPath: string;
-    procedure LoadMapIconsList;
     {$IFDEF SasDebugWithJcl}
     procedure DoException(Sender: TObject; E: Exception);
     {$ENDIF SasDebugWithJcl}
@@ -132,7 +129,6 @@ type
     property GPSpar: TGPSpar read FGPSpar;
     property ProgramPath: string read FProgramPath;
 
-    property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
@@ -141,11 +137,8 @@ type
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
-    property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
-    property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
 
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
-    property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
     property MainMemCacheBitmap: IMemObjCacheBitmap read FMainMemCacheBitmap;
     property MainMemCacheVector: IMemObjCacheVector read FMainMemCacheVector;
@@ -155,6 +148,8 @@ type
     property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
+    property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
+    property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
     property LanguageManager: ILanguageManager read FLanguageManager;
     property GSMpar: IGSMGeoCodeConfig read FGSMpar;
     property InetConfig: IInetConfig read FInetConfig;
@@ -346,8 +341,6 @@ begin
   FKmlLoader := nil;
   FKmzLoader := nil;
   FreeAndNil(FMarksDB);
-  FMapTypeIcons18List := nil;
-  FMapTypeIcons24List := nil;
   FLastSelectionInfo := nil;
   FGPSConfig := nil;
   FGPSRecorder := nil;
@@ -461,7 +454,7 @@ begin
     );
 
   FCacheConfig.LoadConfig(FMainConfigProvider);
-  LoadMapIconsList;
+  MapType.LoadMapIconsList;
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorder.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
@@ -477,26 +470,6 @@ begin
   FMarkPictureList.ReadConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
   FMarksDb.ReadConfig(MainConfigProvider);
-end;
-
-procedure TGlobalState.LoadMapIconsList;
-var
-  i: Integer;
-  VMapType: TMapType;
-  VList18: TMapTypeIconsList;
-  VList24: TMapTypeIconsList;
-begin
-  VList18 := TMapTypeIconsList.Create(18, 18);
-  FMapTypeIcons18List := VList18;
-
-  VList24 := TMapTypeIconsList.Create(24, 24);
-  FMapTypeIcons24List := VList24;
-
-  for i := 0 to MapType.Count - 1 do begin
-    VMapType := MapType[i];
-    VList18.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp18);
-    VList24.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp24);
-  end;
 end;
 
 procedure TGlobalState.OnGUISyncronizedTimer(Sender: TObject);

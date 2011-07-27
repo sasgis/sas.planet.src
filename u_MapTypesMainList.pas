@@ -8,6 +8,7 @@ uses
   i_ConfigDataWriteProvider,
   i_LanguageManager,
   i_CoordConverterFactory,
+  i_MapTypeIconsList,
   i_MapTypes,
   u_MapType;
 
@@ -20,6 +21,10 @@ type
     FFullMapsList: IMapTypeList;
     FMapsList: IMapTypeList;
     FLayersList: IMapTypeList;
+
+    FMapTypeIcons18List: IMapTypeIconsList;
+    FMapTypeIcons24List: IMapTypeIconsList;
+
     function GetMapType(Index: Integer): TMapType;
     function GetCount: Integer;
     procedure BuildMapsLists;
@@ -32,6 +37,10 @@ type
     property MapsList: IMapTypeList read FMapsList;
     property LayersList: IMapTypeList read FLayersList;
     property FirstMainMap: TMapType read GetFirstMainMap;
+
+    property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
+    property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
+
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
     procedure LoadMaps(
       ALanguageManager: ILanguageManager;
@@ -41,6 +50,7 @@ type
     );
     function GetMapFromID(id: TGUID): TMapType;
     procedure SortList;
+    procedure LoadMapIconsList;
   end;
 
 implementation
@@ -55,6 +65,7 @@ uses
   u_ConfigDataProviderByKaZip,
   u_ConfigDataProviderZmpComplex,
   u_MapTypeBasic,
+  u_MapTypeIconsList,
   u_MapTypeList,
   u_ResStrings;
 
@@ -135,6 +146,26 @@ begin
     end else begin
       VMapsList.Add(VMapType);
     end;
+  end;
+end;
+
+procedure TMapTypesMainList.LoadMapIconsList;
+var
+  i: Integer;
+  VMapType: TMapType;
+  VList18: TMapTypeIconsList;
+  VList24: TMapTypeIconsList;
+begin
+  VList18 := TMapTypeIconsList.Create(18, 18);
+  FMapTypeIcons18List := VList18;
+
+  VList24 := TMapTypeIconsList.Create(24, 24);
+  FMapTypeIcons24List := VList24;
+
+  for i := 0 to GetCount - 1 do begin
+    VMapType := Items[i];
+    VList18.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp18);
+    VList24.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp24);
   end;
 end;
 

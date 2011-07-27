@@ -676,18 +676,18 @@ begin
   FGpsPosChangeCounter := 0;
   FCenterToGPSDelta := DoublePoint(NaN, NaN);
 
-  TBSMB.Images := GState.MapTypeIcons24List.GetImageList;
-  TBSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  TBLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  TBFillingTypeMap.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  NSMB.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  NLayerSel.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  NLayerParams.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  ldm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  dlm.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  TBOpenDirLayer.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  TBCopyLinkLayer.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
-  TBLayerInfo.SubMenuImages := GState.MapTypeIcons18List.GetImageList;
+  TBSMB.Images := GState.MapType.MapTypeIcons24List.GetImageList;
+  TBSMB.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  TBLayerSel.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  TBFillingTypeMap.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  NSMB.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  NLayerSel.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  NLayerParams.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  ldm.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  dlm.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  TBOpenDirLayer.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  TBCopyLinkLayer.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  TBLayerInfo.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
 
   FNLayerParamsItemList := TGUIDObjectList.Create(False);
   FNDwnItemList := TGUIDObjectList.Create(False);
@@ -1324,7 +1324,7 @@ begin
     FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetMapsSet,
     TBFillingTypeMap,
     Self.TBfillMapAsMainClick,
-    GState.MapTypeIcons18List,
+    GState.MapType.MapTypeIcons18List,
     false
   );
   try
@@ -1342,7 +1342,7 @@ begin
     FConfig.MainMapsConfig.GetLayers,
     TBLayerSel,
     Self.OnClickLayerItem,
-    GState.MapTypeIcons18List,
+    GState.MapType.MapTypeIcons18List,
     true
   );
   try
@@ -1383,7 +1383,7 @@ begin
   if GState.MapType.Count>0 then begin
     for i:=0 to GState.MapType.Count-1 do begin
       VMapType := GState.MapType[i];
-      VIcon18Index := GState.MapTypeIcons18List.GetIconIndexByGUID(VMapType.Zmp.GUID);
+      VIcon18Index := GState.MapType.MapTypeIcons18List.GetIconIndexByGUID(VMapType.Zmp.GUID);
       if VMapType.asLayer then begin
         NDwnItem:=TTBXItem.Create(ldm);
         FNDwnItemList.Add(VMapType.Zmp.GUID, NDwnItem);
@@ -1445,7 +1445,7 @@ begin
     FConfig.MainMapsConfig.GetMapsSet,
     TBSMB,
     Self.OnClickMapItem,
-    GState.MapTypeIcons18List,
+    GState.MapType.MapTypeIcons18List,
     true
   );
   try
@@ -1827,7 +1827,7 @@ var
 begin
   VGUID := FConfig.MainMapsConfig. GetActiveMap.GetSelectedGUID;
 
-  TBSMB.ImageIndex := GState.MapTypeIcons24List.GetIconIndexByGUID(VGUID);
+  TBSMB.ImageIndex := GState.MapType.MapTypeIcons24List.GetIconIndexByGUID(VGUID);
   if FConfig.MainConfig.ShowMapName then begin
     VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID);
     TBSMB.Caption := VMapType.MapType.Name;
