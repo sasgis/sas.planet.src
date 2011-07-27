@@ -93,7 +93,7 @@ function TConfigDataProviderWithGlobal.PrepareIdent(
   out AUseMain: Boolean): string;
 begin
   if LeftStr(AIdent, FProviderGlobalPrefixLen) = FProviderGlobalPrefix then begin
-    Result := MidStr(AIdent, FProviderGlobalPrefixLen, Length(AIdent));
+    Result := MidStr(AIdent, FProviderGlobalPrefixLen + 1, Length(AIdent));
     AUseMain := False;
   end else begin
     Result := AIdent;

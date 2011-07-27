@@ -39,7 +39,7 @@ begin
   VGlobalProvider := TConfigDataProviderVirtualWithSubItem.Create('Resource', VResourceProvider);
   FMainIni := TMeminifile.Create(GetMainConfigFileName(ABasePath, AExeFileName));
   VMainProvider := TConfigDataWriteProviderByIniFile.Create(FMainIni);
-  inherited Create(VMainProvider, 'sas@', VGlobalProvider);
+  inherited Create(VMainProvider, 'sas:\', VGlobalProvider);
 end;
 
 destructor TSASMainConfigProvider.Destroy;
