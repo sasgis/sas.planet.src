@@ -184,7 +184,6 @@ type
     procedure StartExceptionTracking;
     procedure StopExceptionTracking;
 
-    procedure LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
     procedure LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
   end;
 
@@ -434,23 +433,6 @@ end;
 function TGlobalState.GetHelpFileName: string;
 begin
   Result := FProgramPath + 'help.chm';      
-end;
-
-procedure TGlobalState.LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
-var
-  ResStream: TResourceStream;
-  VImageLoader: IBitmapTileLoader;
-begin
-  VImageLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.png');
-  {Creates an especial stream to load from the resource}
-  ResStream := TResourceStream.Create(HInstance, Name, RT_RCDATA);
-
-  {Loads the png image from the resource}
-  try
-    VImageLoader.LoadFromStream(ResStream, Abmp);
-  finally
-    ResStream.Free;
-  end;
 end;
 
 procedure TGlobalState.LoadConfig;
