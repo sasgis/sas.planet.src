@@ -47,7 +47,7 @@ uses
 
 procedure TfrmInvisibleBrowser.FormCreate(Sender: TObject);
 begin
-  EmbeddedWB1.Navigate('about:blank');
+  WebBrowser1.Navigate('about:blank');
 end;
 
 { TfrmInvisibleBrowser }
