@@ -604,7 +604,6 @@ begin
     end;
     GState.StartExceptionTracking;
     try
-      frmInvisibleBrowser.NavigateAndWait('about:blank');
       Application.Run;
     finally
       GState.StopExceptionTracking;

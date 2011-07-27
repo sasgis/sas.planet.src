@@ -20,6 +20,7 @@ uses
 type
   TfrmInvisibleBrowser = class(TForm)
     WebBrowser1: TEmbeddedWB;
+    procedure FormCreate(Sender: TObject);
     procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
   private
     { Private declarations }
@@ -43,6 +44,11 @@ uses
   WinInet,
   i_ProxySettings,
   u_GlobalState;
+
+procedure TfrmInvisibleBrowser.FormCreate(Sender: TObject);
+begin
+  EmbeddedWB1.Navigate('about:blank');
+end;
 
 { TfrmInvisibleBrowser }
 
