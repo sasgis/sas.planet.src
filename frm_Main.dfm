@@ -718,7 +718,7 @@ object frmMain: TfrmMain
           AutoCheck = True
           Checked = True
           OnClick = tbitmShowMarkCaptionClick
-          Caption = 'Show mark captions'
+          Caption = 'Show Placemark Names'
           Hint = ''
         end
       end
