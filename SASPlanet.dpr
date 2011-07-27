@@ -478,6 +478,8 @@ uses
   u_LineOnMapEdit in 'u_LineOnMapEdit.pas',
   i_GlobalAppConfig in 'i_GlobalAppConfig.pas',
   u_GlobalAppConfig in 'u_GlobalAppConfig.pas',
+  i_StartUpLogoConfig in 'i_StartUpLogoConfig.pas',
+  u_StartUpLogoConfig in 'u_StartUpLogoConfig.pas',
   i_GlobalDownloadConfig in 'i_GlobalDownloadConfig.pas',
   u_GlobalDownloadConfig in 'u_GlobalDownloadConfig.pas',
   i_GlobalViewMainConfig in 'i_GlobalViewMainConfig.pas',
