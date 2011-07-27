@@ -22,6 +22,7 @@ uses
   i_MarkPolyLineLayerConfig,
   i_FillingMapLayerConfig,
   i_GotoLayerConfig,
+  i_ContentTypeManager,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -66,7 +67,10 @@ type
     function GetFillingMapLayerConfig: IFillingMapLayerConfig;
     function GetGotoLayerConfig: IGotoLayerConfig;
   public
-    constructor Create(AMapsConfig: IMainMapsConfig);
+    constructor Create(
+      AContentTypeManager: IContentTypeManager;
+      AMapsConfig: IMainMapsConfig
+    );
   end;
 
 implementation
@@ -95,7 +99,10 @@ uses
 
 { TMainFormLayersConfig }
 
-constructor TMainFormLayersConfig.Create(AMapsConfig: IMainMapsConfig);
+constructor TMainFormLayersConfig.Create(
+  AContentTypeManager: IContentTypeManager;
+  AMapsConfig: IMainMapsConfig
+);
 begin
   inherited Create;
   FMapLayerGridsConfig := TMapLayerGridsConfig.Create;
@@ -112,7 +119,7 @@ begin
   Add(FMarksLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
   FKmlLayerConfig := TKmlLayerConfig.Create;
   Add(FKmlLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('WikiLayer'));
-  FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AMapsConfig);
+  FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AContentTypeManager, AMapsConfig);
   Add(FMiniMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MiniMap'));
   FCenterScaleConfig := TCenterScaleConfig.Create;
   Add(FCenterScaleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CenterScale'));

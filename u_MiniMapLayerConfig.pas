@@ -6,6 +6,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_ContentTypeManager,
   i_MiniMapLayerConfig,
   i_ActiveMapsConfig,
   u_ConfigDataElementComplexBase;
@@ -13,11 +14,16 @@ uses
 type
   TMiniMapLayerConfig = class(TConfigDataElementComplexBase, IMiniMapLayerConfig)
   private
+    FContentTypeManager: IContentTypeManager;
+
     FWidth: Integer;
     FZoomDelta: Integer;
     FMasterAlpha: Integer;
     FVisible: Boolean;
+
+    FPlusButtonFileName: string;
     FPlusButton: TCustomBitmap32;
+    FMinusButtonFileName: string;
     FMinusButton: TCustomBitmap32;
     FMapsConfig: IMiniMapMapsConfig;
   protected
@@ -41,23 +47,31 @@ type
 
     function GetMapsConfig: IMiniMapMapsConfig;
   public
-    constructor Create(AMapsConfig: IMainMapsConfig);
+    constructor Create(
+      AContentTypeManager: IContentTypeManager;
+      AMapsConfig: IMainMapsConfig
+    );
     destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  Classes,
   SysUtils,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
-  u_GlobalState,
+  u_ConfigProviderHelpers,
   u_MiniMapMapsConfig;
 
 { TMiniMapLayerConfig }
 
-constructor TMiniMapLayerConfig.Create(AMapsConfig: IMainMapsConfig);
+constructor TMiniMapLayerConfig.Create(
+  AContentTypeManager: IContentTypeManager;
+  AMapsConfig: IMainMapsConfig
+);
 begin
   inherited Create;
+  FContentTypeManager := AContentTypeManager;
   FWidth := 100;
   FZoomDelta := 4;
   FMasterAlpha := 150;
@@ -68,8 +82,8 @@ begin
   FMapsConfig := TMiniMapMapsConfig.Create(AMapsConfig);
   Add(FMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
 
-  GState.LoadBitmapFromRes('ICONI', FPlusButton);
-  GState.LoadBitmapFromRes('ICONII', FMinusButton);
+  FPlusButtonFileName := 'sas:\Resource\ICONI.png';
+  FMinusButtonFileName := 'sas:\Resource\ICONII.png';
 end;
 
 destructor TMiniMapLayerConfig.Destroy;
@@ -87,6 +101,9 @@ begin
     FZoomDelta := AConfigData.ReadInteger('ZoomDelta', FZoomDelta);
     FMasterAlpha := AConfigData.ReadInteger('Alpha', FMasterAlpha);
     FVisible := AConfigData.ReadBool('Visible', FVisible);
+
+    FPlusButtonFileName  := ReadBitmapByFileRef(AConfigData, 'PlusButtonFile', FPlusButtonFileName, FContentTypeManager, FPlusButton);
+    FMinusButtonFileName := ReadBitmapByFileRef(AConfigData, 'MinusButtonFile', FMinusButtonFileName, FContentTypeManager, FMinusButton);
     SetChanged;
   end;
 end;

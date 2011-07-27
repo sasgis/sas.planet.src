@@ -469,6 +469,7 @@ begin
   );
   FMainFormConfig := TMainFormConfig.Create(
     FLocalConverterFactory,
+    FContentTypeManager,
     FGeoCoderList,
     FMainMapsList.MapsList,
     FMainMapsList.LayersList,
