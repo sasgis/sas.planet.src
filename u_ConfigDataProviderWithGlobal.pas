@@ -13,6 +13,9 @@ type
     FProviderGlobalPrefix: string;
     FProviderGlobalPrefixLen: Integer;
     FProviderGlobal: IConfigDataProvider;
+  protected
+    property ProviderGlobalPrefix: string read FProviderGlobalPrefix;
+    property ProviderGlobal: IConfigDataProvider read FProviderGlobal;
     function PrepareIdent(const AIdent: string; out AUseMain: Boolean): string;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
