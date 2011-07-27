@@ -3892,6 +3892,9 @@ var
   lock_tb_b:boolean;
   VProvider: IConfigDataWriteProvider;
 begin
+  VProvider := AProvider.GetOrCreateSubItem('HOTKEY');
+  ShortCutManager.Save(VProvider);
+
   VProvider := AProvider.GetOrCreateSubItem('MainForm');
   FWinPosition.WriteConfig(VProvider);
 

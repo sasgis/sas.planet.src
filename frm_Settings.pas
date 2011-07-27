@@ -262,7 +262,6 @@ procedure TfrmSettings.Save(AProvider: IConfigDataWriteProvider);
 begin
   try
     GState.SaveMainParams;
-    frmMain.ShortCutManager.Save(AProvider.GetOrCreateSubItem('HOTKEY'));
     frmMain.SaveWindowConfigToIni(AProvider);
   except
   end;
