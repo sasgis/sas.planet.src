@@ -85,7 +85,6 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
     FInetConfig: IInetConfig;
-    FProxySettings: IProxySettings;
     FGPSConfig: IGPSConfig;
     FGSMpar: IGSMGeoCodeConfig;
     FGPSPositionFactory: IGPSPositionFactory;
@@ -119,23 +118,23 @@ type
     function GetMarkIconsPath: string;
     function GetMapsPath: string;
     function GetTrackLogPath: string;
-    function GetHelpFileName: string;
     procedure LoadMapIconsList;
     {$IFDEF SasDebugWithJcl}
     procedure DoException(Sender: TObject; E: Exception);
     {$ENDIF SasDebugWithJcl}
-  public
-    property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
-    property MapType: TMapTypesMainList read FMainMapsList;
-
-    property CacheConfig: TGlobalCahceConfig read FCacheConfig;
-
-    // Список генераторов имен файлов с тайлами
-    property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     // Путь к папке с картами
     property MapsPath: string read GetMapsPath;
-    // Имя файла со справкой по программе
-    property HelpFileName: string read GetHelpFileName;
+  public
+    property MapType: TMapTypesMainList read FMainMapsList;
+    property CacheConfig: TGlobalCahceConfig read FCacheConfig;
+    property GCThread: TGarbageCollectorThread read FGCThread;
+    property MarksDB: TMarksDB read FMarksDB;
+    property GPSpar: TGPSpar read FGPSpar;
+    property ProgramPath: string read FProgramPath;
+
+    property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
+    // Список генераторов имен файлов с тайлами
+    property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
     property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
@@ -145,35 +144,31 @@ type
     property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
     property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
 
-    property GCThread: TGarbageCollectorThread read FGCThread;
-    property LanguageManager: ILanguageManager read FLanguageManager;
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
-    property MarksDB: TMarksDB read FMarksDB;
-    property InetConfig: IInetConfig read FInetConfig;
-    property ProxySettings: IProxySettings read FProxySettings;
+    property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
+    property MainMemCacheBitmap: IMemObjCacheBitmap read FMainMemCacheBitmap;
+    property MainMemCacheVector: IMemObjCacheVector read FMainMemCacheVector;
+    property ImportFileByExt: IImportFile read FImportFileByExt;
+    property DownloadResultTextProvider: IDownloadResultTextProvider read FDownloadResultTextProvider;
+    property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
+    property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
+    property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
+
+    property LanguageManager: ILanguageManager read FLanguageManager;
     property GSMpar: IGSMGeoCodeConfig read FGSMpar;
+    property InetConfig: IInetConfig read FInetConfig;
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
-    property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
-    property ProgramPath: string read FProgramPath;
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
-    property MainMemCacheBitmap: IMemObjCacheBitmap read FMainMemCacheBitmap;
-    property MainMemCacheVector: IMemObjCacheVector read FMainMemCacheVector;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
-    property GPSpar: TGPSpar read FGPSpar;
-    property ImportFileByExt: IImportFile read FImportFileByExt;
     property ViewConfig: IGlobalViewMainConfig read FViewConfig;
-    property DownloadResultTextProvider: IDownloadResultTextProvider read FDownloadResultTextProvider;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
-    property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
-    property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
-    property SensorList: ISensorList read FSensorList;
-    property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
+    property SensorList: ISensorList read FSensorList;
     property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
 
@@ -285,7 +280,6 @@ begin
       TImageResamplerFactoryListStaticSimple.Create
     );
   FInetConfig := TInetConfig.Create;
-  FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
   FGPSConfig := TGPSConfig.Create(GetTrackLogPath);
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorder :=
@@ -326,7 +320,7 @@ begin
       FPerfCounterList
     );
   FLastSelectionInfo := TLastSelectionInfo.Create;
-  FGeoCoderList := TGeoCoderListSimple.Create(FProxySettings);
+  FGeoCoderList := TGeoCoderListSimple.Create(FInetConfig.ProxyConfig as IProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);
@@ -361,7 +355,6 @@ begin
   FreeAndNil(FGPSpar);
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
-  FProxySettings := nil;
   FGSMpar := nil;
   FInetConfig := nil;
   FViewConfig := nil;
@@ -434,11 +427,6 @@ end;
 function TGlobalState.GetTrackLogPath: string;
 begin
   Result := FProgramPath + 'TrackLog' + PathDelim;
-end;
-
-function TGlobalState.GetHelpFileName: string;
-begin
-  Result := FProgramPath + 'help.chm';      
 end;
 
 procedure TGlobalState.LoadConfig;
