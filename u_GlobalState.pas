@@ -63,8 +63,8 @@ uses
 type
   TGlobalState = class
   private
-    // Ini-файл с основными настройками
-    MainIni: TMeminifile;
+    FMainConfigProvider: IConfigDataWriteProvider;
+
     FGlobalAppConfig: IGlobalAppConfig;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
@@ -77,7 +77,6 @@ type
     FMapTypeIcons18List: IMapTypeIconsList;
     FMapTypeIcons24List: IMapTypeIconsList;
     FLanguageManager: ILanguageManager;
-    FMainConfigProvider: IConfigDataWriteProvider;
     FLastSelectionInfo: ILastSelectionInfo;
     FMarksDB: TMarksDB;
     FCoordConverterFactory: ICoordConverterFactory;
@@ -119,7 +118,6 @@ type
     function GetMapsPath: string;
     function GetTrackLogPath: string;
     function GetHelpFileName: string;
-    function GetMainConfigFileName: string;
     procedure LoadMapIconsList;
     {$IFDEF SasDebugWithJcl}
     procedure DoException(Sender: TObject; E: Exception);
@@ -200,6 +198,7 @@ uses
   Forms,
   u_JclNotify,
   i_BitmapTileSaveLoad,
+  u_SASMainConfigProvider,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   i_ListOfObjectsWithTTL,
@@ -254,6 +253,9 @@ var
   VViewCnonfig: IConfigDataProvider;
   VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
 begin
+  FProgramPath := ExtractFilePath(ParamStr(0));
+  FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
+
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
   FGUISyncronizedTimer.Interval := 500;
@@ -270,9 +272,6 @@ begin
   FCacheConfig := TGlobalCahceConfig.Create;
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   FMainMapsList := TMapTypesMainList.Create;
-  FProgramPath := ExtractFilePath(ParamStr(0));
-  MainIni := TMeminifile.Create(GetMainConfigFileName);
-  FMainConfigProvider := TConfigDataWriteProviderByIniFile.Create(MainIni);
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
   FLanguageManager := TLanguageManager.Create;
   FLanguageManager.ReadConfig(VViewCnonfig);
@@ -340,11 +339,6 @@ begin
   FGCThread.WaitFor;
   FreeAndNil(FGCThread);
   FLanguageManager := nil;
-  try
-    MainIni.UpdateFile;
-  except
-  end;
-  FMainConfigProvider := nil;
   FMainMemCacheBitmap := nil;
   FMainMemCacheVector := nil;
   FTileNameGenerator := nil;
@@ -378,6 +372,7 @@ begin
   FreeAndNil(FProtocol);
   FreeAndNil(FGUISyncronizedTimer);
   FGUISyncronizedTimerNotifier := nil;
+  FMainConfigProvider := nil;
   inherited;
 end;
 
@@ -439,13 +434,6 @@ end;
 function TGlobalState.GetHelpFileName: string;
 begin
   Result := FProgramPath + 'help.chm';      
-end;
-
-function TGlobalState.GetMainConfigFileName: string;
-var posdot:integer;
-begin
-  posdot:=pos('.',ExtractFileName(ParamStr(0)));
-  Result := FProgramPath +  copy(ExtractFileName(ParamStr(0)),0,posdot-1)+'.ini';
 end;
 
 procedure TGlobalState.LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
