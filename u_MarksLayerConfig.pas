@@ -3,7 +3,6 @@ unit u_MarksLayerConfig;
 interface
 
 uses
-  i_ConfigDataElement,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarksLayerConfig,
@@ -24,7 +23,6 @@ type
 implementation
 
 uses
-  u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_UsedMarksConfig,
   u_MarksDrawConfig;

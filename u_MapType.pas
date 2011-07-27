@@ -8,7 +8,6 @@ uses
   Classes,
   Dialogs,
   GR32,
-  i_JclNotify,
   t_GeoTypes,
   t_CommonTypes,
   i_ContentTypeInfo,

@@ -35,8 +35,7 @@ implementation
 
 uses
   Types,
-  c_SasVersion,
-  u_GlobalState;
+  c_SasVersion;
 
 var
   frmStartLogo: TfrmStartLogo;

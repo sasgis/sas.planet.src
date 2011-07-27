@@ -7,7 +7,6 @@ uses
   Classes,
   SyncObjs,
   Types,
-  i_JclNotify,
   i_OperationCancelNotifier,
   u_OperationCancelNotifier,
   u_MapType;
@@ -35,8 +34,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  u_JclNotify;
+  SysUtils;
 
 constructor TTileDownloaderThreadBase.Create(CreateSuspended: Boolean);
 begin

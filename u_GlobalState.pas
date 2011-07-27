@@ -192,7 +192,6 @@ uses
   Types,
   Forms,
   u_JclNotify,
-  i_BitmapTileSaveLoad,
   u_SASMainConfigProvider,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
