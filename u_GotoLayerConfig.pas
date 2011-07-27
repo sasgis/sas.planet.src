@@ -5,12 +5,16 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_ContentTypeManager,
   i_GotoLayerConfig,
   u_ConfigDataElementBase;
 
 type
   TGotoLayerConfig = class(TConfigDataElementBase, IGotoLayerConfig)
   private
+    FContentTypeManager: IContentTypeManager;
+
+    FMarkerFileName: string;
     FMarker: TCustomBitmap32;
     FMarkerFixedPoint: TPoint;
     FShowTickCount: Cardinal;
@@ -27,7 +31,9 @@ type
     function GetShowTickCount: Cardinal;
     procedure SetShowTickCount(AValue: Cardinal);
   public
-    constructor Create;
+    constructor Create(
+      AContentTypeManager: IContentTypeManager
+    );
     destructor Destroy; override;
   end;
 
@@ -36,16 +42,19 @@ implementation
 uses
   Types,
   SysUtils,
-  u_GlobalState;
+  u_ConfigProviderHelpers;
 
 { TGotoLayerConfig }
 
-constructor TGotoLayerConfig.Create;
+constructor TGotoLayerConfig.Create(
+  AContentTypeManager: IContentTypeManager
+);
 begin
-  inherited;
+  inherited Create;
+  FContentTypeManager := AContentTypeManager;
   FShowTickCount := 20000;
   FMarker := TCustomBitmap32.Create;
-  GState.LoadBitmapFromRes('ICONIII', FMarker);
+  FMarkerFileName := 'sas:\Resource\ICONIII.png';
   FMarkerFixedPoint := Point(7, 6);
 end;
 
@@ -60,6 +69,7 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FShowTickCount := AConfigData.ReadInteger('ShowTickCount', FShowTickCount);
+    FMarkerFileName  := ReadBitmapByFileRef(AConfigData, 'MarkerFile', FMarkerFileName, FContentTypeManager, FMarker);
     SetChanged;
   end;
 end;
