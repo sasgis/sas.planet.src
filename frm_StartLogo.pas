@@ -25,7 +25,7 @@ type
     FReadyToHide: Boolean;
     FConfig: IStartUpLogoConfig;
   public
-    constructor Create(AOwner: TComponent; AConfig: IStartUpLogoConfig);
+    constructor Create(AOwner: TComponent; AConfig: IStartUpLogoConfig); reintroduce;
     class procedure ShowLogo(AConfig: IStartUpLogoConfig);
     class procedure ReadyToHideLogo;
   end;
