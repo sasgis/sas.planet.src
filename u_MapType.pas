@@ -35,6 +35,7 @@ uses
   i_DownloadResultTextProvider,
   i_ImageResamplerConfig,
   i_ContentTypeManager,
+  i_GlobalDownloadConfig,
   i_ZmpInfo,
   i_VectorDataItemSimple,
   u_MapTypeCacheConfig,
@@ -75,6 +76,7 @@ type
     FTileDownloadResultFactoryProvider: ITileDownloadResultFactoryProvider;
     FImageResamplerConfig: IImageResamplerConfig;
     FContentTypeManager: IContentTypeManager;
+    FDownloadConfig: IGlobalDownloadConfig;
 
     function GetUseDwn: Boolean;
     function GetIsCanShowOnSmMap: boolean;
@@ -227,6 +229,7 @@ type
       AGCList: IListOfObjectsWithTTL;
       AInetConfig: IInetConfig;
       AImageResamplerConfig: IImageResamplerConfig;
+      ADownloadConfig: IGlobalDownloadConfig;
       AContentTypeManager: IContentTypeManager;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
       AConfig: IConfigDataProvider
@@ -630,6 +633,7 @@ constructor TMapType.Create(
   AGCList: IListOfObjectsWithTTL;
   AInetConfig: IInetConfig;
   AImageResamplerConfig: IImageResamplerConfig;
+  ADownloadConfig: IGlobalDownloadConfig;
   AContentTypeManager: IContentTypeManager;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
   AConfig: IConfigDataProvider
@@ -638,6 +642,7 @@ begin
   FZmp := AZmp;
   FLanguageManager := ALanguageManager;
   FImageResamplerConfig := AImageResamplerConfig;
+  FDownloadConfig := ADownloadConfig;
   FContentTypeManager := AContentTypeManager;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
@@ -738,7 +743,7 @@ begin
         VResultStream.Free;
       end;
     end else if Supports(Result, IDownloadResultDataNotExists) then begin
-      if GState.DownloadConfig.IsSaveTileNotExists then begin
+      if FDownloadConfig.IsSaveTileNotExists then begin
         SaveTileNotExists(ATile, AZoom);
       end;
     end;

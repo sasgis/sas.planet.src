@@ -434,6 +434,7 @@ begin
     FGCThread.List,
     FInetConfig,
     FImageResamplerConfig,
+    FDownloadConfig,
     FContentTypeManager,
     FDownloadResultTextProvider,
     FCoordConverterFactory,

@@ -13,6 +13,7 @@ uses
   i_ListOfObjectsWithTTL,
   i_InetConfig,
   i_ImageResamplerConfig,
+  i_GlobalDownloadConfig,
   i_ContentTypeManager,
   i_DownloadResultTextProvider,
   i_MapTypes,
@@ -55,6 +56,7 @@ type
       AGCList: IListOfObjectsWithTTL;
       AInetConfig: IInetConfig;
       AImageResamplerConfig: IImageResamplerConfig;
+      ADownloadConfig: IGlobalDownloadConfig;
       AContentTypeManager: IContentTypeManager;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
       ACoordConverterFactory: ICoordConverterFactory;
@@ -189,6 +191,7 @@ procedure TMapTypesMainList.LoadMaps(
   AGCList: IListOfObjectsWithTTL;
   AInetConfig: IInetConfig;
   AImageResamplerConfig: IImageResamplerConfig;
+  ADownloadConfig: IGlobalDownloadConfig;
   AContentTypeManager: IContentTypeManager;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
   ACoordConverterFactory: ICoordConverterFactory;
@@ -253,6 +256,7 @@ begin
           AGCList,
           AInetConfig,
           AImageResamplerConfig,
+          ADownloadConfig,
           AContentTypeManager,
           ADownloadResultTextProvider,
           VMapConfig
