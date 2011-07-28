@@ -5,7 +5,6 @@ interface
 uses
   Windows,
   Classes,
-  Graphics,
   Controls,
   TBX,
   TB2Item,
@@ -133,6 +132,7 @@ type
       AConfig: IMiniMapLayerConfig;
       AViewConfig: IGlobalViewMainConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
+      AIconsList: IMapTypeIconsList;
       ATimerNoifier: IJclNotifier
     );
     destructor Destroy; override;
@@ -150,7 +150,6 @@ uses
   u_GeoFun,
   u_ResStrings,
   i_TileIterator,
-  u_GlobalState,
   u_NotifyEventListener,
   u_BackgroundTaskLayerDrawBase,
   u_TileIteratorSpiralByRect,
@@ -165,6 +164,7 @@ constructor TMiniMapLayer.Create(
   AConfig: IMiniMapLayerConfig;
   AViewConfig: IGlobalViewMainConfig;
   APostProcessingConfig:IBitmapPostProcessingConfig;
+  AIconsList: IMapTypeIconsList;
   ATimerNoifier: IJclNotifier
 );
 begin
@@ -174,7 +174,7 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FPostProcessingConfig := APostProcessingConfig;
   FParentMap := AParentMap;
-  FIconsList := GState.MapType.MapTypeIcons18List;
+  FIconsList := AIconsList;
 
   FViewRectMoveDelta := DoublePoint(0, 0);
 

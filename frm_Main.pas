@@ -966,6 +966,7 @@ begin
         FConfig.LayersConfig.MiniMapLayerConfig,
         GState.ViewConfig,
         GState.BitmapPostProcessingConfig,
+        GState.MapType.MapTypeIcons18List,
         GState.GUISyncronizedTimerNotifier
       );
     FLayersList.Add(FLayerMiniMap);
