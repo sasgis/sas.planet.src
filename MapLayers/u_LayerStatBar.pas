@@ -11,12 +11,14 @@ uses
   i_LocalCoordConverter,
   i_StatBarConfig,
   i_ViewPortState,
+  i_ActiveMapsConfig,
   u_WindowLayerWithPos;
 
 type
   TLayerStatBar = class(TWindowLayerWithBitmap)
   private
     FConfig: IStatBarConfig;
+    FMainMapsConfig: IMainMapsConfig;
     FLastUpdateTick: DWORD;
     function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
     procedure OnConfigChange(Sender: TObject);
@@ -28,7 +30,12 @@ type
   public
     procedure StartThreads; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IStatBarConfig);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConfig: IStatBarConfig;
+      AMainMapsConfig: IMainMapsConfig
+    );
   end;
 
 implementation
@@ -49,7 +56,12 @@ const
 
 { TLayerStatBar }
 
-constructor TLayerStatBar.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IStatBarConfig);
+constructor TLayerStatBar.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConfig: IStatBarConfig;
+  AMainMapsConfig: IMainMapsConfig
+);
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
@@ -57,6 +69,7 @@ begin
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
+  FMainMapsConfig := AMainMapsConfig;
   FLastUpdateTick := 0;
 end;
 
@@ -154,7 +167,7 @@ begin
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;
     VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-    VMap := GState.MainFormConfig.MainMapsConfig.GetSelectedMapType.MapType;
+    VMap := FMainMapsConfig.GetSelectedMapType.MapType;
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
     VMap.GeoConvert.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);

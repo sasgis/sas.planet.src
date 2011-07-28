@@ -955,7 +955,8 @@ begin
       TLayerStatBar.Create(
         map,
         FConfig.ViewPortState,
-        FConfig.LayersConfig.StatBar
+        FConfig.LayersConfig.StatBar,
+        FConfig.MainMapsConfig
       );
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap :=
