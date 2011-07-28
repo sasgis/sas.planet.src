@@ -116,7 +116,7 @@ begin
   VContentType := TContentTypeInfoKml.Create(
     'application/vnd.google-earth.kml+xml',
     '.kml',
-    TKmlInfoSimpleParser.Create
+    TKmlInfoSimpleParser.Create(APerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
@@ -124,7 +124,7 @@ begin
   VContentType := TContentTypeInfoKml.Create(
     'application/vnd.google-earth.kmz',
     '.kmz',
-    TKmzInfoSimpleParser.Create
+    TKmzInfoSimpleParser.Create(APerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);

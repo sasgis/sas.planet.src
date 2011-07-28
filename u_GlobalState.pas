@@ -237,6 +237,7 @@ var
   VList: IListOfObjectsWithTTL;
   VViewCnonfig: IConfigDataProvider;
   VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
+  VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
 begin
   FProgramPath := ExtractFilePath(ParamStr(0));
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
@@ -291,8 +292,9 @@ begin
   FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
-  FKmlLoader := TKmlInfoSimpleParser.Create;
-  FKmzLoader := TKmzInfoSimpleParser.Create;
+  VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
+  FKmlLoader := TKmlInfoSimpleParser.Create(VMarksKmlLoadCounterList);
+  FKmzLoader := TKmzInfoSimpleParser.Create(VMarksKmlLoadCounterList);
   FImportFileByExt := TImportByFileExt.Create(FKmlLoader, FKmzLoader);
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
