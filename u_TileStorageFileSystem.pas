@@ -13,6 +13,7 @@ uses
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_TileInfoBasic,
+  i_TileFileNameGeneratorsList,
   u_GlobalCahceConfig,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
@@ -33,7 +34,11 @@ type
       AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic;
   public
-    constructor Create(AGlobalCacheConfig: TGlobalCahceConfig; AConfig: IConfigDataProvider);
+    constructor Create(
+      AGlobalCacheConfig: TGlobalCahceConfig;
+      ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      AConfig: IConfigDataProvider
+    );
     destructor Destroy; override;
 
     function GetMainContentType: IContentTypeInfoBasic; override;
@@ -114,7 +119,11 @@ uses
 
 { TTileStorageFileSystem }
 
-constructor TTileStorageFileSystem.Create(AGlobalCacheConfig: TGlobalCahceConfig; AConfig: IConfigDataProvider);
+constructor TTileStorageFileSystem.Create(
+  AGlobalCacheConfig: TGlobalCahceConfig;
+  ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  AConfig: IConfigDataProvider
+);
 var
   VParamsTXT: IConfigDataProvider;
   VParams: IConfigDataProvider;
@@ -128,7 +137,7 @@ begin
   FIsStoreReadOnly:=VParams.ReadBool('ReadOnly', false);
   FUseSave:=VParams.ReadBool('Usesave',true);
   FTileFileExt:=LowerCase(VParams.ReadString('Ext','.jpg'));
-  FCacheConfig := TMapTypeCacheConfig.Create(AGlobalCacheConfig, AConfig);
+  FCacheConfig := TMapTypeCacheConfig.Create(AGlobalCacheConfig, ATileNameGeneratorList, AConfig);
   FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
   FMainContentType := GState.ContentTypeManager.GetInfoByExt(FTileFileExt);
 end;

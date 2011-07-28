@@ -430,6 +430,7 @@ begin
     FMainMemCacheBitmap,
     FMainMemCacheVector,
     FCacheConfig,
+    FTileNameGenerator,
     FGCThread.List,
     FInetConfig,
     FImageResamplerConfig,

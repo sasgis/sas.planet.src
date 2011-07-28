@@ -16,6 +16,7 @@ uses
   i_GlobalDownloadConfig,
   i_ContentTypeManager,
   i_DownloadResultTextProvider,
+  i_TileFileNameGeneratorsList,
   i_MapTypes,
   u_GlobalCahceConfig,
   u_MapType;
@@ -55,6 +56,7 @@ type
       AMemCacheBitmap: IMemObjCacheBitmap;
       AMemCacheVector: IMemObjCacheVector;
       AGlobalCacheConfig: TGlobalCahceConfig;
+      ATileNameGeneratorList: ITileFileNameGeneratorsList;
       AGCList: IListOfObjectsWithTTL;
       AInetConfig: IInetConfig;
       AImageResamplerConfig: IImageResamplerConfig;
@@ -191,6 +193,7 @@ procedure TMapTypesMainList.LoadMaps(
   AMemCacheBitmap: IMemObjCacheBitmap;
   AMemCacheVector: IMemObjCacheVector;
   AGlobalCacheConfig: TGlobalCahceConfig;
+  ATileNameGeneratorList: ITileFileNameGeneratorsList;
   AGCList: IListOfObjectsWithTTL;
   AInetConfig: IInetConfig;
   AImageResamplerConfig: IImageResamplerConfig;
@@ -257,6 +260,7 @@ begin
           AMemCacheBitmap,
           AMemCacheVector,
           AGlobalCacheConfig,
+          ATileNameGeneratorList,
           AGCList,
           AInetConfig,
           AImageResamplerConfig,

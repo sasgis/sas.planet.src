@@ -6,6 +6,7 @@ uses
   Types,
   i_JclNotify,
   i_ConfigDataProvider,
+  i_TileFileNameGeneratorsList,
   u_GlobalCahceConfig,
   i_TileFileNameGenerator;
 
@@ -51,12 +52,17 @@ type
 
   TMapTypeCacheConfig = class(TMapTypeCacheConfigAbstract)
   private
+    FTileNameGeneratorList: ITileFileNameGeneratorsList;
     procedure OnSettingsEdit(Sender: TObject); override;
   protected
     procedure SetCacheType(const Value: byte); override;
     procedure SetNameInCache(const Value: string); override;
   public
-    constructor Create(AGlobalCacheConfig: TGlobalCahceConfig; AConfig: IConfigDataProvider);
+    constructor Create(
+      AGlobalCacheConfig: TGlobalCahceConfig;
+      ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      AConfig: IConfigDataProvider
+    );
   end;
 
   TMapTypeCacheConfigGE = class(TMapTypeCacheConfigAbstract)
@@ -113,11 +119,16 @@ end;
 
 { TMapTypeCacheConfig }
 
-constructor TMapTypeCacheConfig.Create(AGlobalCacheConfig: TGlobalCahceConfig; AConfig: IConfigDataProvider);
+constructor TMapTypeCacheConfig.Create(
+  AGlobalCacheConfig: TGlobalCahceConfig;
+  ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  AConfig: IConfigDataProvider
+);
 var
   VParams: IConfigDataProvider;
 begin
   inherited Create(AGlobalCacheConfig);
+  FTileNameGeneratorList := ATileNameGeneratorList;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
   FTileFileExt := LowerCase(VParams.ReadString('Ext', '.jpg'));
@@ -138,7 +149,7 @@ begin
     VCacheType := FGlobalCacheConfig.DefCache;
   end;
   FEffectiveCacheType := VCacheType;
-  FFileNameGenerator := GState.TileNameGenerator.GetGenerator(FEffectiveCacheType);
+  FFileNameGenerator := FTileNameGeneratorList.GetGenerator(FEffectiveCacheType);
 
   VBasePath := FNameInCache;
   //TODO: — этим бардаком нужно что-то будет сделать
