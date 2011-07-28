@@ -247,8 +247,6 @@ implementation
 uses
   Types,
   GR32_Resamplers,
-  KAZip,
-  u_GlobalState,
   i_ObjectWithTTL,
   i_DownloadResultFactory,
   i_PoolElement,

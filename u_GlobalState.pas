@@ -5,11 +5,9 @@ interface
 uses
   Windows,
   ExtCtrls,
-  Graphics,
   Classes,
   IniFiles,
   SysUtils,
-  GR32,
   {$IFDEF SasDebugWithJcl}
   JclDebug,
   {$ENDIF SasDebugWithJcl}
@@ -23,7 +21,6 @@ uses
   i_TileFileNameGeneratorsList,
   i_ContentTypeManager,
   i_KmlInfoSimpleLoader,
-  i_MapTypeIconsList,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,
@@ -42,7 +39,6 @@ uses
   i_InternalPerformanceCounter,
   u_LastSelectionInfo,
   u_MarksDb,
-  u_MapType,
   u_MapTypesMainList,
   u_MemFileCache,
   i_GPSConfig,
@@ -192,7 +188,6 @@ uses
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
-  u_MapTypeIconsList,
   u_CoordConverterFactorySimple,
   u_LanguageManager,
   u_DownloadInfoSimple,
