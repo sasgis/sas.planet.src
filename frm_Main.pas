@@ -956,6 +956,8 @@ begin
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.StatBar,
+        GState.ValueToStringConverterConfig,
+        GState.DownloadInfo,
         FConfig.MainMapsConfig
       );
     FLayersList.Add(FLayerStatBar);
