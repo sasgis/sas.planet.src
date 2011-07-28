@@ -21,7 +21,6 @@ uses
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
   i_TileFileNameGeneratorsList,
-  i_BitmapTypeExtManager,
   i_ContentTypeManager,
   i_KmlInfoSimpleLoader,
   i_MapTypeIconsList,
@@ -70,7 +69,6 @@ type
     FStartUpLogoConfig: IStartUpLogoConfig;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
-    FBitmapTypeManager: IBitmapTypeExtManager;
     FContentTypeManager: IContentTypeManager;
     FMapCalibrationList: IInterfaceList;
     FKmlLoader: IKmlInfoSimpleLoader;
@@ -131,8 +129,6 @@ type
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
-    // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
-    property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
@@ -192,7 +188,6 @@ uses
   u_ConfigDataWriteProviderByIniFile,
   i_ListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
-  u_BitmapTypeExtManagerSimple,
   u_ContentTypeManagerSimple,
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
@@ -290,7 +285,6 @@ begin
   FMainMemCacheVector := TMemFileCacheVector.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('VectorCache'));
 
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
-  FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
   FContentTypeManager := TContentTypeManagerSimple.Create;
 
   FStartUpLogoConfig := TStartUpLogoConfig.Create(FContentTypeManager);
@@ -315,7 +309,7 @@ begin
     );
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FInetConfig.ProxyConfig as IProxySettings);
-  FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
+  FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FContentTypeManager);
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
@@ -338,7 +332,6 @@ begin
   FMainMemCacheBitmap := nil;
   FMainMemCacheVector := nil;
   FTileNameGenerator := nil;
-  FBitmapTypeManager := nil;
   FContentTypeManager := nil;
   FMapCalibrationList := nil;
   FKmlLoader := nil;

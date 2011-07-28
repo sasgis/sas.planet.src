@@ -143,8 +143,6 @@ uses
   u_BitmapTileVampyreSaver in 'BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas',
   u_BitmapTileGELoader in 'BitmapTileSaveLoad\u_BitmapTileGELoader.pas',
   u_BitmapTileGEDXTextureLoader in 'BitmapTileSaveLoad\u_BitmapTileGEDXTextureLoader.pas',
-  i_BitmapTypeExtManager in 'i_BitmapTypeExtManager.pas',
-  u_BitmapTypeExtManagerSimple in 'u_BitmapTypeExtManagerSimple.pas',
   u_MapTypeCacheConfig in 'u_MapTypeCacheConfig.pas',
   i_MapVersionInfo in 'i_MapVersionInfo.pas',
   u_MapVersionInfo in 'u_MapVersionInfo.pas',

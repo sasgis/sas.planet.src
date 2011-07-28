@@ -25,7 +25,6 @@ uses
   i_TileRequestBuilder,
   i_TileRequestBuilderConfig,
   i_IPoolOfObjectsSimple,
-  i_BitmapTypeExtManager,
   i_BitmapTileSaveLoad,
   i_KmlInfoSimpleLoader,
   i_TileDownloadResultFactoryProvider,
@@ -81,7 +80,7 @@ type
     procedure LoadStorageParams(AConfig : IConfigDataProvider);
     procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
     procedure LoadUIParams(AConfig : IConfigDataProvider);
-    procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
+    procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
@@ -89,8 +88,6 @@ type
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; var AKml: IVectorDataItemList): boolean;
     procedure LoadMapType(AConfig : IConfigDataProvider);
 
-    procedure SaveTileKmlDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; ty: string);
-    procedure SaveTileBitmapDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
     function GetUseGenPrevious: boolean;
     function LoadTileFromPreZ(
       spr: TCustomBitmap32;
@@ -226,6 +223,8 @@ uses
   i_DownloadResultFactory,
   i_PoolElement,
   i_TileInfoBasic,
+  i_ContentTypeManager,
+  i_ContentConverter,
   u_PoolOfObjectsSimple,
   u_TileDownloaderConfig,
   u_TileRequestBuilderConfig,
@@ -450,79 +449,59 @@ begin
   end;
 end;
 
-procedure TMapType.SaveTileBitmapDownload(AXY: TPoint; Azoom: byte;
+procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
   ATileStream: TCustomMemoryStream; AMimeType: string);
 var
   btmSrc:TCustomBitmap32;
-  VManager: IBitmapTypeExtManager;
-begin
-  VManager := GState.BitmapTypeManager;
-  if VManager.GetIsBitmapType(AMimeType) then begin
-    if not IsCropOnDownload and SameText(FStorage.TileFileExt, VManager.GetExtForType(AMimeType)) then begin
-      FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
-    end else begin
-      btmsrc := TCustomBitmap32.Create;
-      try
-        ATileStream.Position := 0;
-        VManager.GetBitmapLoaderForType(AMimeType).LoadFromStream(ATileStream, btmSrc);
-
-        if IsCropOnDownload then begin
-          CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
-        end;
-        SaveBitmapTileToStorage(AXY, Azoom, btmSrc);
-      finally
-        FreeAndNil(btmSrc);
-      end;
-    end;
-    FCacheBitmap.DeleteTileFromCache(AXY, Azoom);
-  end else begin
-    raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
-  end;
-end;
-
-procedure TMapType.SaveTileKmlDownload(AXY: TPoint; Azoom: byte;
-  ATileStream: TCustomMemoryStream; ty: string);
-var
-  UnZip:TKAZip;
+  VManager: IContentTypeManager;
+  VContentType: IContentTypeInfoBasic;
+  VContentTypeBitmap: IContentTypeInfoBitmap;
+  VConverter: IContentConverter;
+  VLoader: IBitmapTileLoader;
   VMemStream: TMemoryStream;
 begin
-  if (ty='application/vnd.google-earth.kmz') then begin
-    try
-      UnZip:=TKAZip.Create(nil);
-      try
-        UnZip.Open(ATileStream);
+  if FStorage.GetUseSave then begin
+    VManager := GState.ContentTypeManager;
+    if GetIsBitmapTiles and IsCropOnDownload then begin
+      VContentType := VManager.GetInfo(AMimeType);
+      if VContentType <> nil then begin
+        if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+          VLoader := VContentTypeBitmap.GetLoader;
+          if VLoader <> nil then begin
+            btmsrc := TCustomBitmap32.Create;
+            try
+              ATileStream.Position := 0;
+              VLoader.LoadFromStream(ATileStream, btmSrc);
+              CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
+              SaveBitmapTileToStorage(AXY, Azoom, btmSrc);
+            finally
+              FreeAndNil(btmSrc);
+            end;
+          end else begin
+            raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
+          end;
+        end else begin
+          raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
+        end;
+      end else begin
+        raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
+      end;
+    end else begin
+      VConverter := VManager.GetConverter(AMimeType, FContentType.GetContentType);
+      if VConverter.GetIsSimpleCopy then begin
+        FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
+      end else begin
         VMemStream := TMemoryStream.Create;
         try
-          UnZip.Entries.Items[0].ExtractToStream(VMemStream);
+          ATileStream.Position := 0;
+          VConverter.ConvertStream(ATileStream, VMemStream);
           FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream);
         finally
           VMemStream.Free;
         end;
-      finally
-        UnZip.Free;
-      end;
-    except
-      try
-        FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
-      except
       end;
     end;
-  end else if (copy(ty,1,8)='text/xml')or(ty='application/vnd.google-earth.kml+xml') then begin
-    FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
-  end;
-end;
-
-procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
-  ATileStream: TCustomMemoryStream; ty: string);
-begin
-  if FStorage.GetUseSave then begin
-    if GetIsKmlTiles then begin
-      SaveTileKmlDownload(AXY, Azoom, ATileStream, ty);
-    end else if GetIsBitmapTiles then begin
-      SaveTileBitmapDownload(AXY, Azoom, ATileStream, ty);
-    end else begin
-      raise Exception.Create('В этой карте неизвестный тип тайлов.');
-    end;
+    FCacheBitmap.DeleteTileFromCache(AXY, Azoom);
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
