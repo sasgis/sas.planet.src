@@ -422,10 +422,14 @@ begin
   CreateDir(MapsPath);
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
+
+  FCacheConfig.LoadConfig(FMainConfigProvider);
+
   FMainMapsList.LoadMaps(
     FLanguageManager,
     FMainMemCacheBitmap,
     FMainMemCacheVector,
+    FCacheConfig,
     FGCThread.List,
     FInetConfig,
     FImageResamplerConfig,
@@ -454,7 +458,6 @@ begin
       FValueToStringConverterConfig
     );
 
-  FCacheConfig.LoadConfig(FMainConfigProvider);
   MapType.LoadMapIconsList;
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorder.ReadConfig(MainConfigProvider.GetSubItem('GPS'));

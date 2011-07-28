@@ -11,6 +11,7 @@ uses
   i_MapVersionInfo,
   i_TileInfoBasic,
   u_MapTypeCacheConfig,
+  u_GlobalCahceConfig,
   u_GEIndexFile,
   u_TileStorageAbstract;
 
@@ -22,7 +23,7 @@ type
     FIndex: TGEIndexFile;
     FMainContentType: IContentTypeInfoBasic;
   public
-    constructor Create(AConfig: IConfigDataProvider);
+    constructor Create(AGlobalCacheConfig: TGlobalCahceConfig; AConfig: IConfigDataProvider);
     destructor Destroy; override;
 
     function GetMainContentType: IContentTypeInfoBasic; override;
@@ -92,9 +93,9 @@ uses
 
 { TTileStorageGEStuped }
 
-constructor TTileStorageGE.Create(AConfig: IConfigDataProvider);
+constructor TTileStorageGE.Create(AGlobalCacheConfig: TGlobalCahceConfig; AConfig: IConfigDataProvider);
 begin
-  FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig);
+  FCacheConfig := TMapTypeCacheConfigGE.Create(AGlobalCacheConfig, AConfig);
   FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   FIndex := TGEIndexFile.Create(FCacheConfig);
   FMainContentType := GState.ContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');

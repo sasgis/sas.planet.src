@@ -38,6 +38,7 @@ uses
   i_GlobalDownloadConfig,
   i_ZmpInfo,
   i_VectorDataItemSimple,
+  u_GlobalCahceConfig,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract,
   u_ResStrings;
@@ -93,6 +94,7 @@ type
     procedure LoadStorageParams(
       AMemCacheBitmap: IMemObjCacheBitmap;
       AMemCacheVector: IMemObjCacheVector;
+      AGlobalCacheConfig: TGlobalCahceConfig;
       AConfig : IConfigDataProvider
     );
     procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
@@ -107,6 +109,7 @@ type
       AMemCacheBitmap: IMemObjCacheBitmap;
       AMemCacheVector: IMemObjCacheVector;
       AGCList: IListOfObjectsWithTTL;
+      AGlobalCacheConfig: TGlobalCahceConfig;
       AConfig : IConfigDataProvider
     );
 
@@ -226,6 +229,7 @@ type
       AZmp: IZmpInfo;
       AMemCacheBitmap: IMemObjCacheBitmap;
       AMemCacheVector: IMemObjCacheVector;
+      AGlobalCacheConfig: TGlobalCahceConfig;
       AGCList: IListOfObjectsWithTTL;
       AInetConfig: IInetConfig;
       AImageResamplerConfig: IImageResamplerConfig;
@@ -295,6 +299,7 @@ end;
 procedure TMapType.LoadStorageParams(
   AMemCacheBitmap: IMemObjCacheBitmap;
   AMemCacheVector: IMemObjCacheVector;
+  AGlobalCacheConfig: TGlobalCahceConfig;
   AConfig: IConfigDataProvider
 );
 var
@@ -304,9 +309,9 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   if VParams.ReadInteger('CacheType', 0) = 5  then begin
-    FStorage := TTileStorageGE.Create(AConfig);
+    FStorage := TTileStorageGE.Create(AGlobalCacheConfig, AConfig);
   end else begin
-    FStorage := TTileStorageFileSystem.Create(AConfig);
+    FStorage := TTileStorageFileSystem.Create(AGlobalCacheConfig, AConfig);
   end;
   FContentType := FStorage.GetMainContentType;
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
@@ -382,6 +387,7 @@ procedure TMapType.LoadMapType(
   AMemCacheBitmap: IMemObjCacheBitmap;
   AMemCacheVector: IMemObjCacheVector;
   AGCList: IListOfObjectsWithTTL;
+  AGlobalCacheConfig: TGlobalCahceConfig;
   AConfig: IConfigDataProvider
 );
 var
@@ -395,7 +401,7 @@ begin
   end;
   FVersionConfig.ReadConfig(VParams);
   FTileDownloaderConfig.ReadConfig(VParams);
-  LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AConfig);
+  LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AGlobalCacheConfig, AConfig);
   FCoordConverter := FStorage.GetCoordConverter;
   FViewCoordConverter := Zmp.ViewGeoConvert;
   LoadWebSourceParams(AConfig);
@@ -492,7 +498,6 @@ procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
   ATileStream: TCustomMemoryStream; AMimeType: string);
 var
   btmSrc:TCustomBitmap32;
-  FContentTypeManager: IContentTypeManager;
   VContentType: IContentTypeInfoBasic;
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VConverter: IContentConverter;
@@ -628,6 +633,7 @@ constructor TMapType.Create(
   AZmp: IZmpInfo;
   AMemCacheBitmap: IMemObjCacheBitmap;
   AMemCacheVector: IMemObjCacheVector;
+  AGlobalCacheConfig: TGlobalCahceConfig;
   AGCList: IListOfObjectsWithTTL;
   AInetConfig: IInetConfig;
   AImageResamplerConfig: IImageResamplerConfig;
@@ -646,7 +652,7 @@ begin
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
   FLastResponseInfo := TLastResponseInfo.Create;
   FVersionConfig := TMapVersionConfig.Create(Zmp.VersionConfig);
-  LoadMapType(AMemCacheBitmap, AMemCacheVector, AGCList, AConfig);
+  LoadMapType(AMemCacheBitmap, AMemCacheVector, AGCList, AGlobalCacheConfig, AConfig);
   if FasLayer then begin
     FLoadPrevMaxZoomDelta := 4;
   end else begin

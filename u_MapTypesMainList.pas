@@ -17,6 +17,7 @@ uses
   i_ContentTypeManager,
   i_DownloadResultTextProvider,
   i_MapTypes,
+  u_GlobalCahceConfig,
   u_MapType;
 
 type
@@ -53,6 +54,7 @@ type
       ALanguageManager: ILanguageManager;
       AMemCacheBitmap: IMemObjCacheBitmap;
       AMemCacheVector: IMemObjCacheVector;
+      AGlobalCacheConfig: TGlobalCahceConfig;
       AGCList: IListOfObjectsWithTTL;
       AInetConfig: IInetConfig;
       AImageResamplerConfig: IImageResamplerConfig;
@@ -188,6 +190,7 @@ procedure TMapTypesMainList.LoadMaps(
   ALanguageManager: ILanguageManager;
   AMemCacheBitmap: IMemObjCacheBitmap;
   AMemCacheVector: IMemObjCacheVector;
+  AGlobalCacheConfig: TGlobalCahceConfig;
   AGCList: IListOfObjectsWithTTL;
   AInetConfig: IInetConfig;
   AImageResamplerConfig: IImageResamplerConfig;
@@ -253,6 +256,7 @@ begin
           VZmp,
           AMemCacheBitmap,
           AMemCacheVector,
+          AGlobalCacheConfig,
           AGCList,
           AInetConfig,
           AImageResamplerConfig,
