@@ -132,7 +132,6 @@ uses
   i_LastSelectionInfo in 'i_LastSelectionInfo.pas',
   u_LastSelectionInfo in 'u_LastSelectionInfo.pas',
   u_GeoToStr in 'u_GeoToStr.pas',
-  u_KmlInfoSimple in 'u_KmlInfoSimple.pas',
   i_KmlInfoSimpleLoader in 'i_KmlInfoSimpleLoader.pas',
   u_KmlInfoSimpleParser in 'u_KmlInfoSimpleParser.pas',
   u_KmzInfoSimpleParser in 'u_KmzInfoSimpleParser.pas',
