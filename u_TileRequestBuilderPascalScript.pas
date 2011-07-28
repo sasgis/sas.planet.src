@@ -15,6 +15,7 @@ uses
   i_CoordConverter,
   i_MapVersionInfo,
   i_LanguageManager,
+  i_CoordConverterFactory,
   i_LastResponseInfo,
   i_TileRequestBuilderConfig,
   u_TileRequestBuilder;
@@ -54,7 +55,10 @@ type
     FpGetTMetr: PPSVariantDouble;
     FpGetBMetr: PPSVariantDouble;
     FpConverter: PPSVariantInterface;
-    procedure PrepareCoordConverter(AConfig: IConfigDataProvider);
+    procedure PrepareCoordConverter(
+      ACoordConverterFactory: ICoordConverterFactory;
+      AConfig: IConfigDataProvider
+    );
     procedure PreparePascalScript(AConfig: IConfigDataProvider);
     procedure SetVar(
       ALastResponseInfo: ILastResponseInfo;
@@ -63,13 +67,7 @@ type
       AZoom: Byte
     );
     procedure OnLangChange(Sender: TObject);
-  public
-    constructor Create(
-      AConfig: ITileRequestBuilderConfig;
-      AConfigData: IConfigDataProvider;
-      ALangManager: ILanguageManager
-    );
-    destructor Destroy; override;
+  protected
     function  BuildRequestUrl(
       ATileXY: TPoint;
       AZoom: Byte;
@@ -83,6 +81,14 @@ type
       out AUrl: string;
       out ARequestHeader: string
     ); override;
+  public
+    constructor Create(
+      AConfig: ITileRequestBuilderConfig;
+      AConfigData: IConfigDataProvider;
+      ACoordConverterFactory: ICoordConverterFactory;
+      ALangManager: ILanguageManager
+    );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -93,7 +99,6 @@ uses
   u_NotifyEventListener,
   t_GeoTypes,
   u_GeoToStr,
-  u_GlobalState,
   u_TileRequestBuilderHelpers,
   u_ResStrings;
 
@@ -107,11 +112,12 @@ function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean; f
 constructor TTileRequestBuilderPascalScript.Create(
   AConfig: ITileRequestBuilderConfig;
   AConfigData: IConfigDataProvider;
+  ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager
 );
 begin
   inherited Create(AConfig);
-  PrepareCoordConverter(AConfigData);
+  PrepareCoordConverter(ACoordConverterFactory, AConfigData);
   PreparePascalScript(AConfigData);
 
   FLangManager := ALangManager;
@@ -182,13 +188,16 @@ begin
   end;
 end;
 
-procedure TTileRequestBuilderPascalScript.PrepareCoordConverter(AConfig: IConfigDataProvider);
+procedure TTileRequestBuilderPascalScript.PrepareCoordConverter(
+  ACoordConverterFactory: ICoordConverterFactory;
+  AConfig: IConfigDataProvider
+);
 var
   VParams: IConfigDataProvider;
   VCoordConverter: ICoordConverter;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  VCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
+  VCoordConverter := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
   FCoordConverter := VCoordConverter as ICoordConverterSimple;
 end;
 

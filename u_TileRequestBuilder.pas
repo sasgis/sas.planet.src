@@ -13,14 +13,13 @@ uses
 
 type
   TTileRequestBuilder = class(TInterfacedObject, ITileRequestBuilder)
-  protected
+  private
     FCS: TCriticalSection;
+  protected
     FConfig: ITileRequestBuilderConfig;
     procedure Lock;
     procedure Unlock;
-  public
-    constructor Create(AConfig: ITileRequestBuilderConfig);
-    destructor Destroy; override;
+  protected
     function  BuildRequestUrl(
       ATileXY: TPoint;
       AZoom: Byte;
@@ -34,6 +33,9 @@ type
       out AUrl: string;
       out ARequestHeader: string
     ); virtual; abstract;
+  public
+    constructor Create(AConfig: ITileRequestBuilderConfig);
+    destructor Destroy; override;
   end;
 
 implementation

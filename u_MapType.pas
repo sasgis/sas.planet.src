@@ -88,7 +88,10 @@ type
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
-    procedure LoadUrlScript(AConfig : IConfigDataProvider);
+    procedure LoadUrlScript(
+      ACoordConverterFactory: ICoordConverterFactory;
+      AConfig : IConfigDataProvider
+    );
     procedure LoadDownloader(
       AGCList: IListOfObjectsWithTTL;
       AConfig : IConfigDataProvider
@@ -278,7 +281,10 @@ uses
   u_TileStorageGE,
   u_TileStorageFileSystem;
 
-procedure TMapType.LoadUrlScript(AConfig: IConfigDataProvider);
+procedure TMapType.LoadUrlScript(
+  ACoordConverterFactory: ICoordConverterFactory;
+  AConfig: IConfigDataProvider
+);
 begin
   FTileRequestBuilder := nil;
   if FUseDwn then begin
@@ -287,6 +293,7 @@ begin
         TTileRequestBuilderPascalScript.Create(
           FTileRequestBuilderConfig,
           Zmp.DataProvider,
+          ACoordConverterFactory,
           FLanguageManager
         );
     except
@@ -420,7 +427,7 @@ begin
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
   FTileRequestBuilderConfig.ReadConfig(VParams);
-  LoadUrlScript(AConfig);
+  LoadUrlScript(ACoordConverterFactory, AConfig);
   LoadDownloader(AGCList, AConfig);
 end;
 
