@@ -10,6 +10,7 @@ uses
   t_CommonTypes,
   i_ConfigDataProvider,
   i_CoordConverter,
+  i_CoordConverterFactory,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_TileInfoBasic,
@@ -37,6 +38,7 @@ type
     constructor Create(
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      ACoordConverterFactory: ICoordConverterFactory;
       AConfig: IConfigDataProvider
     );
     destructor Destroy; override;
@@ -122,6 +124,7 @@ uses
 constructor TTileStorageFileSystem.Create(
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  ACoordConverterFactory: ICoordConverterFactory;
   AConfig: IConfigDataProvider
 );
 var
@@ -138,7 +141,7 @@ begin
   FUseSave:=VParams.ReadBool('Usesave',true);
   FTileFileExt:=LowerCase(VParams.ReadString('Ext','.jpg'));
   FCacheConfig := TMapTypeCacheConfig.Create(AGlobalCacheConfig, ATileNameGeneratorList, AConfig);
-  FCoordConverter := GState.CoordConverterFactory.GetCoordConverterByConfig(VParams);
+  FCoordConverter := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
   FMainContentType := GState.ContentTypeManager.GetInfoByExt(FTileFileExt);
 end;
 

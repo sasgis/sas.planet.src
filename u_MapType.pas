@@ -37,6 +37,7 @@ uses
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
   i_ZmpInfo,
+  i_CoordConverterFactory,
   i_TileFileNameGeneratorsList,
   i_VectorDataItemSimple,
   u_GlobalCahceConfig,
@@ -97,6 +98,7 @@ type
       AMemCacheVector: IMemObjCacheVector;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      ACoordConverterFactory: ICoordConverterFactory;
       AConfig : IConfigDataProvider
     );
     procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
@@ -113,6 +115,7 @@ type
       AGCList: IListOfObjectsWithTTL;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      ACoordConverterFactory: ICoordConverterFactory;
       AConfig : IConfigDataProvider
     );
 
@@ -239,6 +242,7 @@ type
       AImageResamplerConfig: IImageResamplerConfig;
       ADownloadConfig: IGlobalDownloadConfig;
       AContentTypeManager: IContentTypeManager;
+      ACoordConverterFactory: ICoordConverterFactory;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
       AConfig: IConfigDataProvider
     );
@@ -305,6 +309,7 @@ procedure TMapType.LoadStorageParams(
   AMemCacheVector: IMemObjCacheVector;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  ACoordConverterFactory: ICoordConverterFactory;
   AConfig: IConfigDataProvider
 );
 var
@@ -314,9 +319,9 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   if VParams.ReadInteger('CacheType', 0) = 5  then begin
-    FStorage := TTileStorageGE.Create(AGlobalCacheConfig, AConfig);
+    FStorage := TTileStorageGE.Create(AGlobalCacheConfig, ACoordConverterFactory, AConfig);
   end else begin
-    FStorage := TTileStorageFileSystem.Create(AGlobalCacheConfig, ATileNameGeneratorList, AConfig);
+    FStorage := TTileStorageFileSystem.Create(AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory, AConfig);
   end;
   FContentType := FStorage.GetMainContentType;
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
@@ -394,6 +399,7 @@ procedure TMapType.LoadMapType(
   AGCList: IListOfObjectsWithTTL;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  ACoordConverterFactory: ICoordConverterFactory;
   AConfig: IConfigDataProvider
 );
 var
@@ -407,7 +413,7 @@ begin
   end;
   FVersionConfig.ReadConfig(VParams);
   FTileDownloaderConfig.ReadConfig(VParams);
-  LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AGlobalCacheConfig, ATileNameGeneratorList, AConfig);
+  LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory, AConfig);
   FCoordConverter := FStorage.GetCoordConverter;
   FViewCoordConverter := Zmp.ViewGeoConvert;
   LoadWebSourceParams(AConfig);
@@ -646,6 +652,7 @@ constructor TMapType.Create(
   AImageResamplerConfig: IImageResamplerConfig;
   ADownloadConfig: IGlobalDownloadConfig;
   AContentTypeManager: IContentTypeManager;
+  ACoordConverterFactory: ICoordConverterFactory;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
   AConfig: IConfigDataProvider
 );
@@ -665,6 +672,7 @@ begin
     AGCList,
     AGlobalCacheConfig,
     ATileNameGeneratorList,
+    ACoordConverterFactory,
     AConfig
   );
   if FasLayer then begin

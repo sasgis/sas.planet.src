@@ -266,6 +266,7 @@ begin
           AImageResamplerConfig,
           ADownloadConfig,
           AContentTypeManager,
+          ACoordConverterFactory,
           ADownloadResultTextProvider,
           VMapConfig
         );
