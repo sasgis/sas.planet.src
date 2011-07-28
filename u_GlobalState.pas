@@ -280,7 +280,7 @@ begin
   FMainMemCacheBitmap := TMemFileCacheBitmap.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('BitmapCache'));
   FMainMemCacheVector := TMemFileCacheVector.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('VectorCache'));
 
-  FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
+  FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create(FCacheConfig);
   FContentTypeManager := TContentTypeManagerSimple.Create(FPerfCounterList);
 
   FStartUpLogoConfig := TStartUpLogoConfig.Create(FContentTypeManager);
