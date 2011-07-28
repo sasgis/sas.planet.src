@@ -433,6 +433,8 @@ begin
     FMainMemCacheVector,
     FGCThread.List,
     FInetConfig,
+    FImageResamplerConfig,
+    FContentTypeManager,
     FDownloadResultTextProvider,
     FCoordConverterFactory,
     VLocalMapsConfig,

@@ -12,6 +12,8 @@ uses
   i_MemObjCache,
   i_ListOfObjectsWithTTL,
   i_InetConfig,
+  i_ImageResamplerConfig,
+  i_ContentTypeManager,
   i_DownloadResultTextProvider,
   i_MapTypes,
   u_MapType;
@@ -52,6 +54,8 @@ type
       AMemCacheVector: IMemObjCacheVector;
       AGCList: IListOfObjectsWithTTL;
       AInetConfig: IInetConfig;
+      AImageResamplerConfig: IImageResamplerConfig;
+      AContentTypeManager: IContentTypeManager;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
       ACoordConverterFactory: ICoordConverterFactory;
       ALocalMapsConfig: IConfigDataProvider;
@@ -184,6 +188,8 @@ procedure TMapTypesMainList.LoadMaps(
   AMemCacheVector: IMemObjCacheVector;
   AGCList: IListOfObjectsWithTTL;
   AInetConfig: IInetConfig;
+  AImageResamplerConfig: IImageResamplerConfig;
+  AContentTypeManager: IContentTypeManager;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
   ACoordConverterFactory: ICoordConverterFactory;
   ALocalMapsConfig: IConfigDataProvider;
@@ -246,6 +252,8 @@ begin
           AMemCacheVector,
           AGCList,
           AInetConfig,
+          AImageResamplerConfig,
+          AContentTypeManager,
           ADownloadResultTextProvider,
           VMapConfig
         );

@@ -33,6 +33,8 @@ uses
   i_MemObjCache,
   i_InetConfig,
   i_DownloadResultTextProvider,
+  i_ImageResamplerConfig,
+  i_ContentTypeManager,
   i_ZmpInfo,
   i_VectorDataItemSimple,
   u_MapTypeCacheConfig,
@@ -71,6 +73,8 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
     FTileDownloadResultFactoryProvider: ITileDownloadResultFactoryProvider;
+    FImageResamplerConfig: IImageResamplerConfig;
+    FContentTypeManager: IContentTypeManager;
 
     function GetUseDwn: Boolean;
     function GetIsCanShowOnSmMap: boolean;
@@ -222,6 +226,8 @@ type
       AMemCacheVector: IMemObjCacheVector;
       AGCList: IListOfObjectsWithTTL;
       AInetConfig: IInetConfig;
+      AImageResamplerConfig: IImageResamplerConfig;
+      AContentTypeManager: IContentTypeManager;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
       AConfig: IConfigDataProvider
     );
@@ -244,7 +250,6 @@ uses
   i_DownloadResultFactory,
   i_PoolElement,
   i_TileInfoBasic,
-  i_ContentTypeManager,
   i_ContentConverter,
   u_PoolOfObjectsSimple,
   u_TileDownloaderConfig,
@@ -486,7 +491,7 @@ procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
   ATileStream: TCustomMemoryStream; AMimeType: string);
 var
   btmSrc:TCustomBitmap32;
-  VManager: IContentTypeManager;
+  FContentTypeManager: IContentTypeManager;
   VContentType: IContentTypeInfoBasic;
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VConverter: IContentConverter;
@@ -494,9 +499,8 @@ var
   VMemStream: TMemoryStream;
 begin
   if FStorage.GetUseSave then begin
-    VManager := GState.ContentTypeManager;
     if GetIsBitmapTiles and IsCropOnDownload then begin
-      VContentType := VManager.GetInfo(AMimeType);
+      VContentType := FContentTypeManager.GetInfo(AMimeType);
       if VContentType <> nil then begin
         if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
           VLoader := VContentTypeBitmap.GetLoader;
@@ -520,7 +524,7 @@ begin
         raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
       end;
     end else begin
-      VConverter := VManager.GetConverter(AMimeType, FContentType.GetContentType);
+      VConverter := FContentTypeManager.GetConverter(AMimeType, FContentType.GetContentType);
       if VConverter <> nil then begin
         if VConverter.GetIsSimpleCopy then begin
           FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
@@ -625,12 +629,16 @@ constructor TMapType.Create(
   AMemCacheVector: IMemObjCacheVector;
   AGCList: IListOfObjectsWithTTL;
   AInetConfig: IInetConfig;
+  AImageResamplerConfig: IImageResamplerConfig;
+  AContentTypeManager: IContentTypeManager;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
   AConfig: IConfigDataProvider
 );
 begin
   FZmp := AZmp;
   FLanguageManager := ALanguageManager;
+  FImageResamplerConfig := AImageResamplerConfig;
+  FContentTypeManager := AContentTypeManager;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
   FLastResponseInfo := TLastResponseInfo.Create;
@@ -924,7 +932,7 @@ begin
             VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left;
             VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top;
 
-            VBmp.Resampler := GState.ImageResamplerConfig.GetActiveFactory.CreateResampler;
+            VBmp.Resampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
 
             VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
             VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
