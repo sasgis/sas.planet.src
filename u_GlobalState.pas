@@ -250,7 +250,7 @@ begin
 
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create;
 
-  FCacheConfig := TGlobalCahceConfig.Create;
+  FCacheConfig := TGlobalCahceConfig.Create(ProgramPath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   FMainMapsList := TMapTypesMainList.Create;
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');

@@ -34,7 +34,9 @@ type
     procedure SetCacheType(const Value: byte); virtual; abstract;
     procedure SetNameInCache(const Value: string); virtual;
   public
-    constructor Create(AGlobalCacheConfig: TGlobalCahceConfig);
+    constructor Create(
+      AGlobalCacheConfig: TGlobalCahceConfig
+    );
     destructor Destroy; override;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
 
@@ -71,7 +73,10 @@ type
     procedure SetCacheType(const Value: byte); override;
     procedure SetNameInCache(const Value: string); override;
   public
-    constructor Create(AGlobalCacheConfig: TGlobalCahceConfig; AConfig: IConfigDataProvider);
+    constructor Create(
+      AGlobalCacheConfig: TGlobalCahceConfig;
+      AConfig: IConfigDataProvider
+    );
     function GetIndexFileName: string;
     function GetDataFileName: string;
   end;
@@ -82,12 +87,13 @@ implementation
 uses
   SysUtils,
   u_JclNotify,
-  u_NotifyEventListener,
-  u_GlobalState;
+  u_NotifyEventListener;
 
 { TMapTypeCacheConfigAbstract }
 
-constructor TMapTypeCacheConfigAbstract.Create(AGlobalCacheConfig: TGlobalCahceConfig);
+constructor TMapTypeCacheConfigAbstract.Create(
+  AGlobalCacheConfig: TGlobalCahceConfig
+);
 begin
   FGlobalCacheConfig := AGlobalCacheConfig;
   FConfigChangeNotifier := TJclBaseNotifier.Create;
@@ -174,7 +180,7 @@ begin
   end;
   //TODO: — этим бардаком нужно что-то будет сделать
   if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
-    VBasePath := IncludeTrailingPathDelimiter(GState.ProgramPath) + VBasePath;
+    VBasePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.CacheGlobalPath) + VBasePath;
   end;
   VBasePath := IncludeTrailingPathDelimiter(VBasePath);
   FBasePath := VBasePath;
@@ -198,7 +204,10 @@ end;
 
 { TMapTypeCacheConfigGE }
 
-constructor TMapTypeCacheConfigGE.Create(AGlobalCacheConfig: TGlobalCahceConfig; AConfig: IConfigDataProvider);
+constructor TMapTypeCacheConfigGE.Create(
+  AGlobalCacheConfig: TGlobalCahceConfig;
+  AConfig: IConfigDataProvider
+);
 var
   VParams: IConfigDataProvider;
 begin
@@ -224,7 +233,7 @@ begin
   end;
   //TODO: — этим бардаком нужно что-то будет сделать
   if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
-    VBasePath := IncludeTrailingPathDelimiter(GState.ProgramPath) + VBasePath;
+    VBasePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.CacheGlobalPath) + VBasePath;
   end;
   VBasePath := IncludeTrailingPathDelimiter(VBasePath);
   FBasePath := VBasePath;
