@@ -15,6 +15,7 @@ uses
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_TileFileNameGeneratorsList,
+  i_ContentTypeManager,
   u_GlobalCahceConfig,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
@@ -39,6 +40,7 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
       ACoordConverterFactory: ICoordConverterFactory;
+      AContentTypeManager: IContentTypeManager;
       AConfig: IConfigDataProvider
     );
     destructor Destroy; override;
@@ -115,7 +117,6 @@ uses
   SysUtils,
   t_GeoTypes,
   i_TileIterator,
-  u_GlobalState,
   u_TileIteratorByRect,
   u_TileInfoBasic;
 
@@ -125,6 +126,7 @@ constructor TTileStorageFileSystem.Create(
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
   ACoordConverterFactory: ICoordConverterFactory;
+  AContentTypeManager: IContentTypeManager;
   AConfig: IConfigDataProvider
 );
 var
@@ -142,7 +144,7 @@ begin
   FTileFileExt:=LowerCase(VParams.ReadString('Ext','.jpg'));
   FCacheConfig := TMapTypeCacheConfig.Create(AGlobalCacheConfig, ATileNameGeneratorList, AConfig);
   FCoordConverter := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
-  FMainContentType := GState.ContentTypeManager.GetInfoByExt(FTileFileExt);
+  FMainContentType := AContentTypeManager.GetInfoByExt(FTileFileExt);
 end;
 
 procedure TTileStorageFileSystem.CreateDirIfNotExists(APath: string);

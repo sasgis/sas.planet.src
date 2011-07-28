@@ -10,6 +10,7 @@ uses
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_TileInfoBasic,
+  i_ContentTypeManager,
   i_CoordConverterFactory,
   u_MapTypeCacheConfig,
   u_GlobalCahceConfig,
@@ -27,6 +28,7 @@ type
     constructor Create(
       AGlobalCacheConfig: TGlobalCahceConfig;
       ACoordConverterFactory: ICoordConverterFactory;
+      AContentTypeManager: IContentTypeManager;
       AConfig: IConfigDataProvider
     );
     destructor Destroy; override;
@@ -93,21 +95,21 @@ uses
   Variants,
   c_CoordConverter,
   u_TileInfoBasic,
-  u_GECrypt,
-  u_GlobalState;
+  u_GECrypt;
 
 { TTileStorageGEStuped }
 
 constructor TTileStorageGE.Create(
   AGlobalCacheConfig: TGlobalCahceConfig;
   ACoordConverterFactory: ICoordConverterFactory;
+  AContentTypeManager: IContentTypeManager;
   AConfig: IConfigDataProvider
 );
 begin
   FCacheConfig := TMapTypeCacheConfigGE.Create(AGlobalCacheConfig, AConfig);
   FCoordConverter := ACoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   FIndex := TGEIndexFile.Create(FCacheConfig);
-  FMainContentType := GState.ContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');
+  FMainContentType := AContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');
 end;
 
 destructor TTileStorageGE.Destroy;

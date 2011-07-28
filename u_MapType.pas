@@ -319,9 +319,9 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   if VParams.ReadInteger('CacheType', 0) = 5  then begin
-    FStorage := TTileStorageGE.Create(AGlobalCacheConfig, ACoordConverterFactory, AConfig);
+    FStorage := TTileStorageGE.Create(AGlobalCacheConfig, ACoordConverterFactory, FContentTypeManager, AConfig);
   end else begin
-    FStorage := TTileStorageFileSystem.Create(AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory, AConfig);
+    FStorage := TTileStorageFileSystem.Create(AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory, FContentTypeManager, AConfig);
   end;
   FContentType := FStorage.GetMainContentType;
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
