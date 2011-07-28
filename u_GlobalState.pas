@@ -432,6 +432,8 @@ begin
     FMainMemCacheBitmap,
     FMainMemCacheVector,
     FGCThread.List,
+    FInetConfig,
+    FDownloadResultTextProvider,
     FCoordConverterFactory,
     VLocalMapsConfig,
     MapsPath

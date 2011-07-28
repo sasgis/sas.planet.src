@@ -11,6 +11,8 @@ uses
   i_MapTypeIconsList,
   i_MemObjCache,
   i_ListOfObjectsWithTTL,
+  i_InetConfig,
+  i_DownloadResultTextProvider,
   i_MapTypes,
   u_MapType;
 
@@ -49,6 +51,8 @@ type
       AMemCacheBitmap: IMemObjCacheBitmap;
       AMemCacheVector: IMemObjCacheVector;
       AGCList: IListOfObjectsWithTTL;
+      AInetConfig: IInetConfig;
+      ADownloadResultTextProvider: IDownloadResultTextProvider;
       ACoordConverterFactory: ICoordConverterFactory;
       ALocalMapsConfig: IConfigDataProvider;
       AMapsPath: string
@@ -179,6 +183,8 @@ procedure TMapTypesMainList.LoadMaps(
   AMemCacheBitmap: IMemObjCacheBitmap;
   AMemCacheVector: IMemObjCacheVector;
   AGCList: IListOfObjectsWithTTL;
+  AInetConfig: IInetConfig;
+  ADownloadResultTextProvider: IDownloadResultTextProvider;
   ACoordConverterFactory: ICoordConverterFactory;
   ALocalMapsConfig: IConfigDataProvider;
   AMapsPath: string
@@ -232,7 +238,17 @@ begin
 
       VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VZmp.GUID));
       VMapConfig := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
-      VMapType := TMapType.Create(ALanguageManager, VZmp, AMemCacheBitmap, AMemCacheVector, AGCList, VMapConfig);
+      VMapType :=
+        TMapType.Create(
+          ALanguageManager,
+          VZmp,
+          AMemCacheBitmap,
+          AMemCacheVector,
+          AGCList,
+          AInetConfig,
+          ADownloadResultTextProvider,
+          VMapConfig
+        );
     except
       if ExceptObject <> nil then begin
         ShowMessage((ExceptObject as Exception).Message);

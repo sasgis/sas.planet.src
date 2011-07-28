@@ -31,6 +31,8 @@ uses
   i_TileDownloadResultFactoryProvider,
   i_AntiBan,
   i_MemObjCache,
+  i_InetConfig,
+  i_DownloadResultTextProvider,
   i_ZmpInfo,
   i_VectorDataItemSimple,
   u_MapTypeCacheConfig,
@@ -219,6 +221,8 @@ type
       AMemCacheBitmap: IMemObjCacheBitmap;
       AMemCacheVector: IMemObjCacheVector;
       AGCList: IListOfObjectsWithTTL;
+      AInetConfig: IInetConfig;
+      ADownloadResultTextProvider: IDownloadResultTextProvider;
       AConfig: IConfigDataProvider
     );
     destructor Destroy; override;
@@ -620,12 +624,14 @@ constructor TMapType.Create(
   AMemCacheBitmap: IMemObjCacheBitmap;
   AMemCacheVector: IMemObjCacheVector;
   AGCList: IListOfObjectsWithTTL;
+  AInetConfig: IInetConfig;
+  ADownloadResultTextProvider: IDownloadResultTextProvider;
   AConfig: IConfigDataProvider
 );
 begin
   FZmp := AZmp;
   FLanguageManager := ALanguageManager;
-  FTileDownloaderConfig := TTileDownloaderConfig.Create(GState.InetConfig, Zmp.TileDownloaderConfig);
+  FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
   FLastResponseInfo := TLastResponseInfo.Create;
   FVersionConfig := TMapVersionConfig.Create(Zmp.VersionConfig);
@@ -635,7 +641,11 @@ begin
   end else begin
     FLoadPrevMaxZoomDelta := 6;
   end;
-  FTileDownloadResultFactoryProvider := TTileDownloadResultFactoryProvider.Create(Self, GState.DownloadResultTextProvider);
+  FTileDownloadResultFactoryProvider :=
+    TTileDownloadResultFactoryProvider.Create(
+      Self,
+      ADownloadResultTextProvider
+    );
 end;
 
 destructor TMapType.Destroy;
