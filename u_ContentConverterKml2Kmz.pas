@@ -27,8 +27,8 @@ begin
   VZip:=TKAZip.Create(nil);
   try
     VZip.CreateZip(ATarget);
+    VZip.Open(ATarget);
     VZip.CompressionType := ctNormal;
-    VZip.Active := true;
     VZip.AddStream('doc.kml', ASource);
   finally
     VZip.Free;
