@@ -488,17 +488,21 @@ begin
       end;
     end else begin
       VConverter := VManager.GetConverter(AMimeType, FContentType.GetContentType);
-      if VConverter.GetIsSimpleCopy then begin
-        FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
-      end else begin
-        VMemStream := TMemoryStream.Create;
-        try
-          ATileStream.Position := 0;
-          VConverter.ConvertStream(ATileStream, VMemStream);
-          FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream);
-        finally
-          VMemStream.Free;
+      if VConverter <> nil then begin
+        if VConverter.GetIsSimpleCopy then begin
+          FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
+        end else begin
+          VMemStream := TMemoryStream.Create;
+          try
+            ATileStream.Position := 0;
+            VConverter.ConvertStream(ATileStream, VMemStream);
+            FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream);
+          finally
+            VMemStream.Free;
+          end;
         end;
+      end else begin
+        raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
       end;
     end;
     FCacheBitmap.DeleteTileFromCache(AXY, Azoom);
