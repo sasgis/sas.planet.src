@@ -285,7 +285,7 @@ begin
   FMainMemCacheVector := TMemFileCacheVector.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('VectorCache'));
 
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
-  FContentTypeManager := TContentTypeManagerSimple.Create;
+  FContentTypeManager := TContentTypeManagerSimple.Create(FPerfCounterList);
 
   FStartUpLogoConfig := TStartUpLogoConfig.Create(FContentTypeManager);
   FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
