@@ -9,6 +9,8 @@ uses
   i_LanguageManager,
   i_CoordConverterFactory,
   i_MapTypeIconsList,
+  i_MemObjCache,
+  i_ListOfObjectsWithTTL,
   i_MapTypes,
   u_MapType;
 
@@ -44,6 +46,9 @@ type
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
     procedure LoadMaps(
       ALanguageManager: ILanguageManager;
+      AMemCacheBitmap: IMemObjCacheBitmap;
+      AMemCacheVector: IMemObjCacheVector;
+      AGCList: IListOfObjectsWithTTL;
       ACoordConverterFactory: ICoordConverterFactory;
       ALocalMapsConfig: IConfigDataProvider;
       AMapsPath: string
@@ -171,6 +176,9 @@ end;
 
 procedure TMapTypesMainList.LoadMaps(
   ALanguageManager: ILanguageManager;
+  AMemCacheBitmap: IMemObjCacheBitmap;
+  AMemCacheVector: IMemObjCacheVector;
+  AGCList: IListOfObjectsWithTTL;
   ACoordConverterFactory: ICoordConverterFactory;
   ALocalMapsConfig: IConfigDataProvider;
   AMapsPath: string
@@ -224,7 +232,7 @@ begin
 
       VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VZmp.GUID));
       VMapConfig := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
-      VMapType := TMapType.Create(ALanguageManager, VZmp, VMapConfig);
+      VMapType := TMapType.Create(ALanguageManager, VZmp, AMemCacheBitmap, AMemCacheVector, AGCList, VMapConfig);
     except
       if ExceptObject <> nil then begin
         ShowMessage((ExceptObject as Exception).Message);

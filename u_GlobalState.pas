@@ -429,6 +429,9 @@ begin
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
   FMainMapsList.LoadMaps(
     FLanguageManager,
+    FMainMemCacheBitmap,
+    FMainMemCacheVector,
+    FGCThread.List,
     FCoordConverterFactory,
     VLocalMapsConfig,
     MapsPath
