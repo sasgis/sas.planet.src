@@ -964,6 +964,7 @@ begin
         FConfig.ViewPortState,
         GState.LocalConverterFactory,
         FConfig.LayersConfig.MiniMapLayerConfig,
+        GState.ViewConfig,
         GState.BitmapPostProcessingConfig,
         GState.GUISyncronizedTimerNotifier
       );

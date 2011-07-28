@@ -23,6 +23,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_GlobalViewMainConfig,
   i_ViewPortState,
   i_MiniMapLayerConfig,
   i_BitmapPostProcessingConfig,
@@ -33,6 +34,7 @@ type
   TMiniMapLayer = class(TWindowLayerFixedSizeWithBitmap)
   private
     FConfig: IMiniMapLayerConfig;
+    FViewConfig: IGlobalViewMainConfig;
     FParentMap: TImage32;
     FCoordConverterFactory: ILocalCoordConverterFactorySimpe;
 
@@ -129,6 +131,7 @@ type
       AViewPortState: IViewPortState;
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       AConfig: IMiniMapLayerConfig;
+      AViewConfig: IGlobalViewMainConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
       ATimerNoifier: IJclNotifier
     );
@@ -160,12 +163,14 @@ constructor TMiniMapLayer.Create(
   AViewPortState: IViewPortState;
   ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   AConfig: IMiniMapLayerConfig;
+  AViewConfig: IGlobalViewMainConfig;
   APostProcessingConfig:IBitmapPostProcessingConfig;
   ATimerNoifier: IJclNotifier
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
+  FViewConfig := AViewConfig;
   FCoordConverterFactory := ACoordConverterFactory;
   FPostProcessingConfig := APostProcessingConfig;
   FParentMap := AParentMap;
@@ -201,7 +206,7 @@ begin
   );
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
-    GState.ViewConfig.GetChangeNotifier
+    FViewConfig.GetChangeNotifier
   );
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
@@ -833,13 +838,13 @@ procedure TMiniMapLayer.OnConfigChange(Sender: TObject);
 begin
   ViewUpdateLock;
   try
-  GState.ViewConfig.LockRead;
+  FViewConfig.LockRead;
   try
-    FBackGroundColor := Color32(GState.ViewConfig.BackGroundColor);
-    FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
-    FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
+    FBackGroundColor := Color32(FViewConfig.BackGroundColor);
+    FUsePrevZoomAtMap := FViewConfig.UsePrevZoomAtMap;
+    FUsePrevZoomAtLayer := FViewConfig.UsePrevZoomAtLayer;
   finally
-    GState.ViewConfig.UnlockRead;
+    FViewConfig.UnlockRead;
   end;
   FConfig.LockRead;
   try
