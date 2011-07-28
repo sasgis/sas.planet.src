@@ -3938,7 +3938,7 @@ procedure TfrmMain.tbitmPositionByGSMClick(Sender: TObject);
 var
   PosFromGSM: TPosFromGSM;
 begin
- PosFromGSM:=TPosFromGSM.Create(Self.topos);
+ PosFromGSM:=TPosFromGSM.Create(GState.GSMpar, Self.topos);
  try
    PosFromGSM.GetPos(FConfig.ViewPortState.GetCurrentZoom);
  finally
