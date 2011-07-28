@@ -113,21 +113,24 @@ begin
 end;
 
 procedure TLayerStatBar.OnConfigChange(Sender: TObject);
+var
+  VVisible: Boolean;
 begin
   ViewUpdateLock;
   try
-    FLayer.Bitmap.Font.Name := FConfig.FontName;
-    FLayer.Bitmap.Font.Size := FConfig.FontSize;
     FConfig.LockRead;
     try
+      FLayer.Bitmap.Font.Name := FConfig.FontName;
+      FLayer.Bitmap.Font.Size := FConfig.FontSize;
       FMinUpdate := FConfig.MinUpdateTickCount;
       FBgColor := FConfig.BgColor;
       FTextColor := FConfig.TextColor;
+      VVisible := FConfig.Visible;
     finally
       FConfig.UnlockRead;
     end;
     SetNeedRedraw;
-    SetVisible(FConfig.Visible);
+    SetVisible(VVisible);
   finally
     ViewUpdateUnlock;
   end;

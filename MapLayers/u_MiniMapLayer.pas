@@ -838,33 +838,33 @@ procedure TMiniMapLayer.OnConfigChange(Sender: TObject);
 begin
   ViewUpdateLock;
   try
-  FViewConfig.LockRead;
-  try
-    FBackGroundColor := Color32(FViewConfig.BackGroundColor);
-    FUsePrevZoomAtMap := FViewConfig.UsePrevZoomAtMap;
-    FUsePrevZoomAtLayer := FViewConfig.UsePrevZoomAtLayer;
-  finally
-    FViewConfig.UnlockRead;
-  end;
-  FConfig.LockRead;
-  try
-    FPlusButton.Bitmap.Assign(FConfig.PlusButton);
-    FPlusButton.Bitmap.DrawMode := dmTransparent;
-    FMinusButton.Bitmap.Assign(FConfig.MinusButton);
-    FMinusButton.Bitmap.DrawMode := dmTransparent;
+    FViewConfig.LockRead;
+    try
+      FBackGroundColor := Color32(FViewConfig.BackGroundColor);
+      FUsePrevZoomAtMap := FViewConfig.UsePrevZoomAtMap;
+      FUsePrevZoomAtLayer := FViewConfig.UsePrevZoomAtLayer;
+    finally
+      FViewConfig.UnlockRead;
+    end;
+    FConfig.LockRead;
+    try
+      FPlusButton.Bitmap.Assign(FConfig.PlusButton);
+      FPlusButton.Bitmap.DrawMode := dmTransparent;
+      FMinusButton.Bitmap.Assign(FConfig.MinusButton);
+      FMinusButton.Bitmap.DrawMode := dmTransparent;
 
-    FMinusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-    FPlusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-    FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-    FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-    FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-    SetVisible(FConfig.Visible);
-    PosChange(ViewCoordConverter);
-    SetNeedRedraw;
-    SetNeedUpdateLayerSize;
-  finally
-    FConfig.UnlockRead;
-  end;
+      FMinusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+      FPlusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+      FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+      FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+      FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+      SetVisible(FConfig.Visible);
+      PosChange(ViewCoordConverter);
+      SetNeedRedraw;
+      SetNeedUpdateLayerSize;
+    finally
+      FConfig.UnlockRead;
+    end;
   finally
     ViewUpdateUnlock;
   end;
