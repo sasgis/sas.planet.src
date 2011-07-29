@@ -339,8 +339,8 @@ begin
   end else if Supports(FContentType, IContentTypeInfoKml, VContentTypeKml) then begin
     FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
   end;
-  FCacheBitmap := TTileCacheSimpleGlobalBitmap.Create(Self, AMemCacheBitmap);
-  FCacheVector := TTileCacheSimpleGlobalVector.Create(Self, AMemCacheVector);
+  FCacheBitmap := TTileCacheSimpleGlobalBitmap.Create(FZmp.GUID, AMemCacheBitmap);
+  FCacheVector := TTileCacheSimpleGlobalVector.Create(FZmp.GUID, AMemCacheVector);
 end;
 
 procedure TMapType.LoadWebSourceParams(AConfig: IConfigDataProvider);

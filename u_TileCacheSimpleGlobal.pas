@@ -6,8 +6,7 @@ uses
   GR32,
   i_VectorDataItemSimple,
   i_MemObjCache,
-  i_TileObjCache,
-  u_MapType;
+  i_TileObjCache;
 
 type
   TTileCacheSimpleGlobalVector = class(TInterfacedObject, ITileObjCacheVector)
@@ -22,7 +21,7 @@ type
     procedure AddTileToCache(AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte);
     function TryLoadTileFromCache(var AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte): boolean;
   public
-    constructor Create(AMapType: TMapType; AMemCache: IMemObjCacheVector);
+    constructor Create(AGUID: TGUID; AMemCache: IMemObjCacheVector);
   end;
 
   TTileCacheSimpleGlobalBitmap = class(TInterfacedObject, ITileObjCacheBitmap)
@@ -40,7 +39,7 @@ type
     procedure AddTilePreToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte);
     function TryLoadTilePreFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean;
   public
-    constructor Create(AMapType: TMapType; AMemCache: IMemObjCacheBitmap);
+    constructor Create(AGUID: TGUID; AMemCache: IMemObjCacheBitmap);
   end;
 
 
@@ -63,9 +62,10 @@ begin
   FMemCache.Clear;
 end;
 
-constructor TTileCacheSimpleGlobalVector.Create(AMapType: TMapType; AMemCache: IMemObjCacheVector);
+constructor TTileCacheSimpleGlobalVector.Create(AGUID: TGUID; AMemCache:
+    IMemObjCacheVector);
 begin
-  FGUID := AMapType.Zmp.GUID;
+  FGUID := AGUID;
   FGUIDString := GUIDToString(FGUID);
   FMemCache := AMemCache;
 end;
@@ -107,10 +107,10 @@ begin
   FMemCache.Clear;
 end;
 
-constructor TTileCacheSimpleGlobalBitmap.Create(AMapType: TMapType;
-  AMemCache: IMemObjCacheBitmap);
+constructor TTileCacheSimpleGlobalBitmap.Create(AGUID: TGUID; AMemCache:
+    IMemObjCacheBitmap);
 begin
-  FGUID := AMapType.Zmp.GUID;
+  FGUID := AGUID;
   FGUIDString := GUIDToString(FGUID);
   FMemCache := AMemCache;
 end;
