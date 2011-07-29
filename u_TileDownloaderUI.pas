@@ -234,7 +234,7 @@ begin
           break;
         end;
         change_scene := false;
-        Synchronize(GetCurrentMapAndPos);
+        GetCurrentMapAndPos;
         if Terminated then begin
           break;
         end;
