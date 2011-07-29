@@ -45,19 +45,14 @@ uses
 
 procedure TfrmIntrnalBrowser.EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
 var
-  VProxyConfig: IProxyConfig;
+  VProxyConfig: IProxyConfigStatic;
   VUseLogin: Boolean;
 begin
-  VProxyConfig := GState.InetConfig.ProxyConfig;
-  VProxyConfig.LockRead;
-  try
-    VUselogin := (not VProxyConfig.GetUseIESettings) and VProxyConfig.GetUseProxy and VProxyConfig.GetUseLogin;
-    if VUselogin then begin
-      szUserName := VProxyConfig.GetLogin;
-      szPassWord := VProxyConfig.GetPassword;
-    end;
-  finally
-    VProxyConfig.UnlockRead;
+  VProxyConfig := GState.InetConfig.ProxyConfig.GetStatic;
+  VUselogin := (not VProxyConfig.UseIESettings) and VProxyConfig.UseProxy and VProxyConfig.UseLogin;
+  if VUselogin then begin
+    szUserName := VProxyConfig.Login;
+    szPassWord := VProxyConfig.Password;
   end;
 end;
 
