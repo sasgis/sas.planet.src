@@ -20,9 +20,9 @@ object frmMain: TfrmMain
   TextHeight = 13
   object map: TImage32
     Left = 33
-    Top = 59
+    Top = 61
     Width = 645
-    Height = 467
+    Height = 465
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -44,11 +44,11 @@ object frmMain: TfrmMain
     Left = 0
     Top = 0
     Width = 842
-    Height = 59
+    Height = 61
     PopupMenu = TBXPopupPanels
     object TBMainToolBar: TTBXToolbar
       Left = 0
-      Top = 25
+      Top = 27
       DockPos = -6
       DockRow = 1
       Images = PanelsImageList
@@ -132,8 +132,8 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 238
-      Top = 25
+      Left = 230
+      Top = 27
       DockPos = 224
       DockRow = 1
       Stretch = True
@@ -164,8 +164,8 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 365
-      Top = 25
+      Left = 357
+      Top = 27
       DockPos = 352
       DockRow = 1
       Images = PanelsImageList
@@ -175,8 +175,8 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 536
-      Top = 25
+      Left = 528
+      Top = 27
       DockPos = 504
       DockRow = 1
       Images = PanelsImageList
@@ -247,7 +247,7 @@ object frmMain: TfrmMain
     end
     object TBExit: TTBXToolbar
       Left = 807
-      Top = 25
+      Top = 27
       DockPos = 807
       DockRow = 1
       TabOrder = 4
@@ -1021,9 +1021,9 @@ object frmMain: TfrmMain
   end
   object TBDockLeft: TTBXDock
     Left = 0
-    Top = 59
+    Top = 61
     Width = 33
-    Height = 467
+    Height = 465
     PopupMenu = TBXPopupPanels
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
@@ -1237,15 +1237,15 @@ object frmMain: TfrmMain
   end
   object TBDockRight: TTBXDock
     Left = 678
-    Top = 59
+    Top = 61
     Width = 164
-    Height = 467
+    Height = 465
     PopupMenu = TBXPopupPanels
     Position = dpRight
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 457
+      ClientAreaHeight = 455
       ClientAreaWidth = 160
       DockPos = -6
       PopupMenu = TBXPopupMenuSensors
@@ -1258,7 +1258,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 160
-        Height = 457
+        Height = 455
         Align = alClient
         AutoScroll = False
         AutoSize = True
@@ -1313,10 +1313,6 @@ object frmMain: TfrmMain
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 113
     Top = 212
-  end
-  object OpenPictureDialog: TOpenPictureDialog
-    Left = 244
-    Top = 81
   end
   object TBXPopupMenuSensors: TTBXPopupMenu
     LinkSubitems = NSensors
@@ -2896,37 +2892,6 @@ object frmMain: TfrmMain
       F1A7E8357D777F1B02763E533BD2CFC4771CF608C00094D6F10F5A9A7E803CE2
       5973FD411FF735A6AFE51F049CBBA96E5E46F799F24AF53A1BFF8BEF1FBADD59
       9D6BF277E30000000049454E4400000000}
-  end
-  object EditCommentsImgs: TTBXImageList
-    Left = 48
-    Top = 208
-    PngDIB = {
-      0900000089504E470D0A1A0A0000000D49484452000000100000009008030000
-      00369D1B8B000000F3504C5445FF00FF00000000008490A8D090A8C090A0C080
-      A0C08098C08090B07088B07080B06080A06078A05070A05068A0FFFFFF204880
-      F0F0F0C0B8C0909090908890808880B0B8B0204080C0C8C0707070808080A0A0
-      A0505850B0B0B0103880606060605860C0C0C0FFF8FF505050504850D0D8D070
-      7870F0F8FFF0F0FF103070403840303030606860E0E8F0A098A0E0E0F0F0F8F0
-      D0D0D0706860A04800C0B8B0D0D8F0D0C0B0B05810B06020E0D8D0C050009040
-      00C0D0F0C06020E0A880E09860E07020B05000A05010C0C8E0D07830E08850E0
-      8840703000B0C0E0B05820B04800803800A0A8C0B0B8E0313163CECEFF6363CE
-      4D1E5D7E0000000174524E530040E6D866000001E4494441547801C5538956C2
-      30104C4111155904F10004C10350F142C55B04EFA3F0FF5FE3EC366DA91811C5
-      67DE668F99CD6C5A8A523F5B965EFE69004A89D398E4E2BE00C05B9A464035A4
-      064E88E1F0BF9B5CA4E769828FC2D74307076F8FB8861CCC53FFC704D7B0F863
-      F0DF86C5A9387D2DC9C5FD252097E0D17A485FE09BCAEE637E0E881E9C5901A4
-      6B86A601344EB91D88A83E3330629F710E26B4E31CE0AFBCCC308B0BED386393
-      439B7F4BCD73306A0CFA1CF8B0DE668D51307A88E9695C1AD13C0DA498A14338
-      C7193A003B7CEFDF10A06F2E8DE883BFCC42A1505041004C10634A004EBEBFFB
-      8E08208A70AC230027DFDF7D4704809E18EB08C0C92F76383C361E99884E4E4D
-      C766E2710885A96725008C11CD265373E9F959100B00C689169732D9546E1940
-      1E40842853282CAD14D3442506268856D7E6D78BD90D2A57AAE888126D6EA14E
-      6F972B350626A16115B3E9DC4EA5B6CBC014D1DEFE41AE503FACED1E31304D74
-      DC38392D9F9D278F2E1888115D5E5DD79B37CDD6459B8119A2C6EDDD7DBDD97A
-      683F3210A7D2FED373FDFCE5E5F5F14D80C4423E5F7517EE3194D976B0DDEE28
-      1FB1B13AAAEB014C0EAAED6ED7D3E47EA56CBBA3159C5AE980C1364834F833D1
-      6B61FB77406F175B0B486FA04627E6791359B3B740FDD1DE0120B5321FEB0CA9
-      6C0000000049454E4400000000}
   end
   object MainPopupMenu: TTBXPopupMenu
     Images = MenusImageList

@@ -233,7 +233,6 @@ type
     tbsprtGPS1: TTBXSeparatorItem;
     TBXSeparatorItem14: TTBXSeparatorItem;
     TBXSeparatorItem15: TTBXSeparatorItem;
-    OpenPictureDialog: TOpenPictureDialog;
     TBXSensorsBar: TTBXToolWindow;
     ScrollBox1: TScrollBox;
     TBXDock1: TTBXDock;
@@ -277,7 +276,6 @@ type
     TBXPopupPanels: TTBXPopupMenu;
     MenusImageList: TTBXImageList;
     ScalesImageList: TTBXImageList;
-    EditCommentsImgs: TTBXImageList;
     MainPopupMenu: TTBXPopupMenu;
     NMarkEdit: TTBXItem;
     NMarkDel: TTBXItem;
