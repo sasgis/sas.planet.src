@@ -23,11 +23,8 @@ type
     procedure EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
       ScanCode: Word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
-  private
-  protected
   public
     procedure showmessage(ACaption, AText: string);
-    procedure TextToWebBrowser(Text: string);
     procedure Navigate(ACaption, AUrl: string);
   end;
 
@@ -68,20 +65,15 @@ end;
 
 procedure TfrmIntrnalBrowser.Navigate(ACaption, AUrl: string);
 begin
-  TextToWebBrowser(SAS_STR_WiteLoad);
+  EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
   Caption:=ACaption;
   show;
   EmbeddedWB1.Navigate(AUrl);
 end;
 
-procedure TfrmIntrnalBrowser.TextToWebBrowser(Text: string);
-begin
-  EmbeddedWB1.HTMLCode.Text:=Text;
-end;
-
 procedure TfrmIntrnalBrowser.showmessage(ACaption,AText: string);
 begin
-  TextToWebBrowser(AText);
+  EmbeddedWB1.HTMLCode.Text:=AText;
   Caption:=ACaption;
   show;
 end;
