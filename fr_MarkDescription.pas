@@ -12,12 +12,15 @@ uses
   Controls,
   Forms,
   Dialogs,
+  StdCtrls,
+  ExtCtrls,
+  ExtDlgs,
+  ImgList,
   TB2Item,
   TBX,
   TB2Dock,
   TB2Toolbar,
-  StdCtrls,
-  ExtCtrls,
+  TBXGraphics,
   u_CommonFormAndFrameParents;
 
 type
@@ -36,6 +39,8 @@ type
     TBXSeparatorItem2: TTBXSeparatorItem;
     TBXItem7: TTBXItem;
     tbxtmInsertUrl: TTBXItem;
+    imglstToolbar: TTBXImageList;
+    OpenPictureDialog: TOpenPictureDialog;
     procedure TBXItem1Click(Sender: TObject);
     procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -47,9 +52,6 @@ type
   end;
 
 implementation
-
-uses
-  frm_Main;
 
 {$R *.dfm}
 
@@ -126,8 +128,8 @@ begin
         end;
        end;
   ebImg:
-       if (frmMain.OpenPictureDialog.Execute)and(frmMain.OpenPictureDialog.FileName<>'') then begin
-          VTextBeforeSelection := '<img src="'+frmMain.OpenPictureDialog.FileName+'"/>';
+       if (OpenPictureDialog.Execute)and(OpenPictureDialog.FileName<>'') then begin
+          VTextBeforeSelection := '<img src="'+OpenPictureDialog.FileName+'"/>';
           VTextAfterSelection := '';
        end;
   ebCenter:
