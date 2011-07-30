@@ -11,6 +11,7 @@ uses
   i_LocalCoordConverter,
   i_StatBarConfig,
   i_ViewPortState,
+  i_MouseState,
   i_ActiveMapsConfig,
   i_ValueToStringConverter,
   i_DownloadInfoSimple,
@@ -22,6 +23,7 @@ type
     FConfig: IStatBarConfig;
     FMainMapsConfig: IMainMapsConfig;
     FDownloadInfo: IDownloadInfoSimple;
+    FMouseState: IMouseState;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
 
     FLastUpdateTick: DWORD;
@@ -43,6 +45,7 @@ type
       AViewPortState: IViewPortState;
       AConfig: IStatBarConfig;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
+      AMouseState: IMouseState;
       ADownloadInfo: IDownloadInfoSimple;
       AMainMapsConfig: IMainMapsConfig
     );
@@ -69,6 +72,7 @@ constructor TLayerStatBar.Create(
   AViewPortState: IViewPortState;
   AConfig: IStatBarConfig;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
+  AMouseState: IMouseState;
   ADownloadInfo: IDownloadInfoSimple;
   AMainMapsConfig: IMainMapsConfig
 );
@@ -77,6 +81,7 @@ begin
   FConfig := AConfig;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FDownloadInfo := ADownloadInfo;
+  FMouseState := AMouseState;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
@@ -175,7 +180,7 @@ begin
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + FMinUpdate) then begin
     VValueConverter := FValueToStringConverterConfig.GetStaticConverter;
     VVisualCoordConverter := ViewCoordConverter;
-    VMousePos := frmMain.MouseCursorPos;
+    VMousePos := FMouseState.CurentPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;
     VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);

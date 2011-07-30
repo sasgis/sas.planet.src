@@ -964,6 +964,7 @@ begin
         FConfig.ViewPortState,
         FConfig.LayersConfig.StatBar,
         GState.ValueToStringConverterConfig,
+        FMouseState,
         GState.DownloadInfo,
         FConfig.MainMapsConfig
       );
