@@ -37,6 +37,7 @@ uses
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
   i_ZmpInfo,
+  i_ProxySettings,
   i_CoordConverterFactory,
   i_TileFileNameGeneratorsList,
   i_VectorDataItemSimple,
@@ -94,6 +95,7 @@ type
     );
     procedure LoadDownloader(
       AGCList: IListOfObjectsWithTTL;
+      AProxyConfig: IProxyConfig;
       AConfig : IConfigDataProvider
     );
     procedure LoadStorageParams(
@@ -116,6 +118,7 @@ type
       AMemCacheBitmap: IMemObjCacheBitmap;
       AMemCacheVector: IMemObjCacheVector;
       AGCList: IListOfObjectsWithTTL;
+      AProxyConfig: IProxyConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
       ACoordConverterFactory: ICoordConverterFactory;
@@ -374,6 +377,7 @@ end;
 
 procedure TMapType.LoadDownloader(
   AGCList: IListOfObjectsWithTTL;
+  AProxyConfig: IProxyConfig;
   AConfig: IConfigDataProvider
 );
 var
@@ -390,7 +394,7 @@ begin
           60000
         );
       AGCList.AddObject(FPoolOfDownloaders as IObjectWithTTL);
-      FAntiBan := TAntiBanStuped.Create(AConfig);
+      FAntiBan := TAntiBanStuped.Create(AProxyConfig, AConfig);
     except
       if ExceptObject <> nil then begin
         ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
@@ -404,6 +408,7 @@ procedure TMapType.LoadMapType(
   AMemCacheBitmap: IMemObjCacheBitmap;
   AMemCacheVector: IMemObjCacheVector;
   AGCList: IListOfObjectsWithTTL;
+  AProxyConfig: IProxyConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
   ACoordConverterFactory: ICoordConverterFactory;
@@ -428,7 +433,7 @@ begin
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
   FTileRequestBuilderConfig.ReadConfig(VParams);
   LoadUrlScript(ACoordConverterFactory, AConfig);
-  LoadDownloader(AGCList, AConfig);
+  LoadDownloader(AGCList, AProxyConfig, AConfig);
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
@@ -677,6 +682,7 @@ begin
     AMemCacheBitmap,
     AMemCacheVector,
     AGCList,
+    AInetConfig.ProxyConfig,
     AGlobalCacheConfig,
     ATileNameGeneratorList,
     ACoordConverterFactory,

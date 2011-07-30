@@ -1142,7 +1142,7 @@ begin
     SetProxy;
 
     if GState.GlobalAppConfig.IsSendStatistic then begin
-      frmInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
+      frmInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html', GState.InetConfig.ProxyConfig.GetStatic);
     end;
 
     FLinksList.ActivateLinks;

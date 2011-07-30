@@ -7,6 +7,7 @@ uses
   SyncObjs,
   i_ConfigDataProvider,
   i_AntiBan,
+  i_ProxySettings,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_TileDownlodSession;
@@ -21,6 +22,7 @@ type
     FDownloadTilesCount: Longint;
     FBanFlag: Boolean;
     FBanCS: TCriticalSection;
+    FProxyConfig: IProxyConfig;
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan();
     function CheckIsBan(
@@ -28,7 +30,10 @@ type
     ): Boolean;
     procedure ExecOnBan(ALastUrl: String);
   public
-    constructor Create(AConfig: IConfigDataProvider);
+    constructor Create(
+      AProxyConfig: IProxyConfig;
+      AConfig: IConfigDataProvider
+    );
     destructor Destroy; override;
     procedure PreDownload(
       ADownloader: ITileDownlodSession;
@@ -79,9 +84,9 @@ end;
 procedure TAntiBanStuped.addDwnforban;
 begin
   if FPreloadPage = '' then begin
-    frmInvisibleBrowser.NavigateAndWait('http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8');
+    frmInvisibleBrowser.NavigateAndWait('http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8', FProxyConfig.GetStatic);
   end else begin
-    frmInvisibleBrowser.NavigateAndWait(FPreloadPage);
+    frmInvisibleBrowser.NavigateAndWait(FPreloadPage, FProxyConfig.GetStatic);
   end;
 end;
 
@@ -92,10 +97,14 @@ begin
   Result := false;
 end;
 
-constructor TAntiBanStuped.Create(AConfig: IConfigDataProvider);
+constructor TAntiBanStuped.Create(
+  AProxyConfig: IProxyConfig;
+  AConfig: IConfigDataProvider
+);
 var
   VParams: IConfigDataProvider;
 begin
+  FProxyConfig := AProxyConfig;
   FBanCS := TCriticalSection.Create;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FUsePreloadPage := VParams.ReadInteger('UsePreloadPage', 0);
