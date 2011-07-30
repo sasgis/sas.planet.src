@@ -60,6 +60,8 @@ uses
   i_LineOnMapEdit,
   i_PathDetalizeProvider,
   i_MessageHandler,
+  i_MouseState,
+  i_MouseHandler,
   u_WindowLayerBasicList,
   u_GeoFun,
   u_MapLayerWiki,
@@ -483,6 +485,8 @@ type
     Frect_dwn: Boolean;
     Frect_p2: boolean;
     FKeyMovingHandler: IMessageHandler;
+    FMouseHandler: IMouseHandler;
+    FMouseState: IMouseState;
     FMarshrutComment: string;
     movepoint: boolean;
     FSelectionRect: TDoubleRect;
@@ -642,6 +646,7 @@ uses
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
   u_LanguageTBXItem,
+  u_MouseState,
   i_ImportConfig,
   u_ThreadDownloadTiles,
   u_SaveLoadTBConfigByConfigProvider,
@@ -660,9 +665,13 @@ uses
 constructor TfrmMain.Create(AOwner: TComponent);
 var
   VLogger: TTileErrorLogProviedrStuped;
+  VMouseState: TMouseState;
 begin
   inherited;
 
+  VMouseState := TMouseState.Create;
+  FMouseHandler := VMouseState;
+  FMouseState := VMouseState;
   FFormRegionProcess := TfrmRegionProcess.Create(Self, Self.OnMapUpdate);
   FLinksList := TJclListenerNotifierLinksList.Create;
   FConfig := GState.MainFormConfig;
@@ -3142,6 +3151,7 @@ begin
   if (Layer <> nil) then begin
     exit;
   end;
+  FMouseHandler.OnMouseDown(Button, Shift, Point(X, Y));
   if (FMapZoomAnimtion)or
      (ssDouble in Shift)or
      (button=mbMiddle)or
@@ -3221,7 +3231,7 @@ begin
     exit;
   end;
   if FMapMoving then exit;
-  
+
   if (VIsClickInMap)and (Button=mbright)and(FCurrentOper=ao_movemap) then begin
     FMouseUpPoint:=FMouseDownPoint;
     VMark := nil;
@@ -3277,6 +3287,7 @@ begin
   if (Layer <> nil) then begin
     exit;
   end;
+  FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
   if (ssDouble in Shift)or
      ((Button=mbRight)and(ssLeft in Shift))or
      ((Button=mbLeft)and(ssRight in Shift)) then begin
@@ -3477,6 +3488,7 @@ begin
   if ProgramClose then begin
     exit;
   end;
+  FMouseHandler.OnMouseMove(Shift, Point(AX, AY));
   VLastMouseMove := FmoveTrue;
   FmoveTrue:=point(Ax,Ay);
   MouseCursorPos:=FmoveTrue;
