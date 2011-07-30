@@ -46,8 +46,7 @@ implementation
 uses
   StrUtils,
   ShellAPI,
-  WinInet,
-  u_GlobalState;
+  WinInet;
 
 constructor TfrmInvisibleBrowser.Create(AOwner: TComponent);
 begin
@@ -111,20 +110,13 @@ var par,ty:string;
     hSession,hFile:Pointer;
     dwtype: array [1..20] of char;
     dwindex, dwcodelen,dwReserv: dword;
-    FProxyConfig: IProxyConfig;
     VUselogin: Boolean;
     VLogin: string;
     VPassword: string;
 begin
-  FProxyConfig := GState.InetConfig.ProxyConfig;
-  FProxyConfig.LockRead;
-  try
-    VUselogin := (not FProxyConfig.GetUseIESettings) and FProxyConfig.GetUseProxy and FProxyConfig.GetUseLogin;
-    VLogin := FProxyConfig.GetLogin;
-    VPassword := FProxyConfig.GetPassword;
-  finally
-    FProxyConfig.UnlockRead;
-  end;
+  VUselogin := (not AProxyConfig.UseIESettings) and AProxyConfig.UseProxy and AProxyConfig.UseLogin;
+  VLogin := AProxyConfig.Login;
+  VPassword := AProxyConfig.Password;
 
  hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
  if Assigned(hSession)
