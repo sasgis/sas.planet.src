@@ -15,7 +15,8 @@ uses
   OleCtrls,
   SHDocVw_EWB,
   EwbCore,
-  EmbeddedWB;
+  EmbeddedWB,
+  i_ProxySettings;
 
 type
   TfrmInvisibleBrowser = class(TForm)
@@ -32,7 +33,7 @@ var
   frmInvisibleBrowser: TfrmInvisibleBrowser;
 
 procedure OpenUrlInBrowser(URL: string);
-function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
+function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string; AProxyConfig: IProxyConfigStatic):integer;
 
 implementation
 
@@ -42,7 +43,6 @@ uses
   StrUtils,
   ShellAPI,
   WinInet,
-  i_ProxySettings,
   u_GlobalState;
 
 procedure TfrmInvisibleBrowser.FormCreate(Sender: TObject);
@@ -77,7 +77,7 @@ begin
   ShellExecute(0, nil, PChar(URL), nil, nil, SW_RESTORE);
 end;
 
-function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
+function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string; AProxyConfig: IProxyConfigStatic):integer;
 var par,ty:string;
     err:boolean;
     Buffer:array [1..64535] of char;

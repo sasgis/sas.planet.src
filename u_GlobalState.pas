@@ -311,7 +311,7 @@ begin
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
-  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FKmlLoader);
+  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, FKmlLoader);
   VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
   VInternalDomainInfoProviderList.Add(
     'ZmpInfo',

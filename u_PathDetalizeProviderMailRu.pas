@@ -5,12 +5,15 @@ interface
 uses
   t_GeoTypes,
   i_LanguageManager,
+  i_ProxySettings,
   u_PathDetalizeProviderListEntity;
 
 type
   TPathDetalizeProviderMailRu = class(TPathDetalizeProviderListEntity)
   private
     FBaseUrl: string;
+    FProxyConfig: IProxyConfig;
+
     function SecondToTime(const Seconds: Cardinal): Double;
   protected { IPathDetalizeProvider }
     function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
@@ -18,6 +21,7 @@ type
     constructor Create(
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
       ABaseUrl: string
     );
   end;
@@ -30,7 +34,8 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
     );
   end;
 
@@ -42,7 +47,8 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
     );
   end;
 
@@ -54,7 +60,8 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
     );
   end;
 
@@ -76,11 +83,13 @@ uses
 constructor TPathDetalizeProviderMailRu.Create(
   AGUID: TGUID;
   ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
   ABaseUrl: string
 );
 begin
   inherited Create(AGUID, ALanguageManager);
   FBaseUrl := ABaseUrl;
+  FProxyConfig := AProxyConfig;
 end;
 
 function TPathDetalizeProviderMailRu.GetPath(ASource: TArrayOfDoublePoint;
@@ -97,7 +106,7 @@ begin
   end;
   ms:=TMemoryStream.Create;
   try
-    if GetStreamFromURL(ms,url,'text/javascript; charset=utf-8')>0 then begin
+    if GetStreamFromURL(ms,url,'text/javascript; charset=utf-8', FProxyConfig.GetStatic)>0 then begin
       ms.Position:=0;
       SetLength(pathstr, ms.Size);
       ms.ReadBuffer(pathstr[1], ms.Size);
@@ -175,12 +184,14 @@ end;
 { TPathDetalizeProviderMailRuShortest }
 
 constructor TPathDetalizeProviderMailRuShortest.Create(
-      ALanguageManager: ILanguageManager
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
 );
 begin
   inherited Create(
     CPathDetalizeProviderMailRuShortest,
     ALanguageManager,
+    AProxyConfig,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
   );
 end;
@@ -203,12 +214,14 @@ end;
 { TPathDetalizeProviderMailRuFastest }
 
 constructor TPathDetalizeProviderMailRuFastest.Create(
-      ALanguageManager: ILanguageManager
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
 );
 begin
   inherited Create(
     CPathDetalizeProviderMailRuFastest,
     ALanguageManager,
+    AProxyConfig,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
   );
 end;
@@ -231,12 +244,14 @@ end;
 { TPathDetalizeProviderMailRuFastestWithTraffic }
 
 constructor TPathDetalizeProviderMailRuFastestWithTraffic.Create(
-      ALanguageManager: ILanguageManager
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
 );
 begin
   inherited Create(
     CPathDetalizeProviderMailRuFastestWithTraffic,
     ALanguageManager,
+    AProxyConfig,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
   );
 end;

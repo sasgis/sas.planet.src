@@ -6,12 +6,14 @@ uses
   t_GeoTypes,
   i_KmlInfoSimpleLoader,
   i_LanguageManager,
+  i_ProxySettings,
   u_PathDetalizeProviderListEntity;
 
 type
   TPathDetalizeProviderYourNavigation = class(TPathDetalizeProviderListEntity)
   private
     FBaseUrl: string;
+    FProxyConfig: IProxyConfig;
     FKmlLoader: IKmlInfoSimpleLoader;
   protected { IPathDetalizeProvider }
     function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
@@ -19,6 +21,7 @@ type
     constructor Create(
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
       AKmlLoader: IKmlInfoSimpleLoader;
       ABaseUrl: string
     );
@@ -33,6 +36,7 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
       AKmlLoader: IKmlInfoSimpleLoader
     );
   end;
@@ -46,6 +50,7 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
       AKmlLoader: IKmlInfoSimpleLoader
     );
   end;
@@ -59,6 +64,7 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
       AKmlLoader: IKmlInfoSimpleLoader
     );
   end;
@@ -72,6 +78,7 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
       AKmlLoader: IKmlInfoSimpleLoader
     );
   end;
@@ -91,12 +98,14 @@ uses
 constructor TPathDetalizeProviderYourNavigation.Create(
   AGUID: TGUID;
   ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
   AKmlLoader: IKmlInfoSimpleLoader;
   ABaseUrl: string
 );
 begin
   inherited Create(AGUID, ALanguageManager);
   FBaseUrl := ABaseUrl;
+  FProxyConfig := AProxyConfig;
   FKmlLoader := AKmlLoader;
 end;
 
@@ -121,7 +130,7 @@ begin
       if conerr then Continue;
       url:=url+'&flat='+R2StrPoint(ASource[i].y)+'&flon='+R2StrPoint(ASource[i].x)+
           '&tlat='+R2StrPoint(ASource[i+1].y)+'&tlon='+R2StrPoint(ASource[i+1].x);
-      if GetStreamFromURL(ms, url, 'text/xml')>0 then begin
+      if GetStreamFromURL(ms, url, 'text/xml', FProxyConfig.GetStatic)>0 then begin
         FKmlLoader.LoadFromStream(ms, kml);
         if kml <> nil then begin
           ms.SetSize(0);
@@ -151,12 +160,14 @@ end;
 
 constructor TPathDetalizeProviderYourNavigationFastestByCar.Create(
   ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
   AKmlLoader: IKmlInfoSimpleLoader
 );
 begin
   inherited Create(
     CPathDetalizeProviderYourNavigationFastestByCar,
     ALanguageManager,
+    AProxyConfig,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik'
   );
@@ -181,12 +192,14 @@ end;
 
 constructor TPathDetalizeProviderYourNavigationShortestByCar.Create(
   ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
   AKmlLoader: IKmlInfoSimpleLoader
 );
 begin
   inherited Create(
     CPathDetalizeProviderYourNavigationShortestByCar,
     ALanguageManager,
+    AProxyConfig,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik'
   );
@@ -211,12 +224,14 @@ end;
 
 constructor TPathDetalizeProviderYourNavigationFastestByBicycle.Create(
   ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
   AKmlLoader: IKmlInfoSimpleLoader
 );
 begin
   inherited Create(
     CPathDetalizeProviderYourNavigationFastestByBicycle,
     ALanguageManager,
+    AProxyConfig,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik'
   );
@@ -241,12 +256,14 @@ end;
 
 constructor TPathDetalizeProviderYourNavigationShortestByBicycle.Create(
   ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
   AKmlLoader: IKmlInfoSimpleLoader
 );
 begin
   inherited Create(
     CPathDetalizeProviderYourNavigationShortestByBicycle,
     ALanguageManager,
+    AProxyConfig,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'
   );

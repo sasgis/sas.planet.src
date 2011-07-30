@@ -8,6 +8,7 @@ uses
   DateUtils,
   t_GeoTypes,
   i_LanguageManager,
+  i_ProxySettings,
   u_PathDetalizeProviderListEntity;
 
 type
@@ -20,6 +21,7 @@ type
     FBaseUrl: string;
     FVehicle: TRouteVehicle;
     FRouteCalcType: TRouteCalcType;
+    FProxyConfig: IProxyConfig;
   protected
     function SecondToTime(const Seconds: Cardinal): Double;
   protected { IPathDetalizeProvider }
@@ -28,6 +30,7 @@ type
     constructor Create(
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
       AVehicle: TRouteVehicle;
       ARouteCalcType: TRouteCalcType
     );
@@ -40,7 +43,8 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
     );
   end;
 
@@ -51,7 +55,8 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
     );
   end;
 
@@ -62,7 +67,8 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
     );
   end;
 
@@ -73,7 +79,8 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
     );
   end;
 
@@ -84,7 +91,8 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
     );
   end;
 
@@ -95,7 +103,8 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
     );
   end;
 
@@ -114,6 +123,7 @@ uses
 constructor TPathDetalizeProviderCloudMade.Create(
   AGUID: TGUID;
   ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
   AVehicle: TRouteVehicle;
   ARouteCalcType: TRouteCalcType
 );
@@ -122,6 +132,7 @@ begin
   FBaseUrl := 'http://routes.cloudmade.com/BC9A493B41014CAABB98F0471D759707/api/0.3/';
   FVehicle := AVehicle;
   FRouteCalcType := ARouteCalcType;
+  FProxyConfig := AProxyConfig;
 end;
 
 function TPathDetalizeProviderCloudMade.GetPath(ASource: TArrayOfDoublePoint;
@@ -133,7 +144,7 @@ var
   s:integer;
   conerr:boolean;
   add_line_arr_b:TArrayOfDoublePoint;
-  
+
   pathstr,timeT1:string;
   posit,posit2,dd,seconds,meters:integer;
   dateT1:TDateTime;
@@ -161,7 +172,7 @@ begin
         shortest: url:=url+'/shortest.js?units=km&lang=en&callback=getRoute6&translation=common';
       end;
       ms.Clear;
-      if GetStreamFromURL(ms, url, 'application/json;charset=UTF-8')>0 then begin
+      if GetStreamFromURL(ms, url, 'application/json;charset=UTF-8', FProxyConfig.GetStatic)>0 then begin
         ms.Position:=0;
         SetLength(pathstr, ms.Size);
         ms.ReadBuffer(pathstr[1], ms.Size);
@@ -238,9 +249,11 @@ end;
 { TPathDetalizeProviderCloudMadeFastestByCar }
 
 constructor TPathDetalizeProviderCloudMadeFastestByCar.Create(
-  ALanguageManager: ILanguageManager);
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeFastestByCar, ALanguageManager, car, fastest);
+  inherited Create(CPathDetalizeProviderCloudMadeFastestByCar, ALanguageManager, AProxyConfig, car, fastest);
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByCar.GetCaptionTranslated: string;
@@ -261,9 +274,11 @@ end;
 { TPathDetalizeProviderCloudMadeFastestByFoot }
 
 constructor TPathDetalizeProviderCloudMadeFastestByFoot.Create(
-  ALanguageManager: ILanguageManager);
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeFastestByFoot, ALanguageManager, foot, fastest);
+  inherited Create(CPathDetalizeProviderCloudMadeFastestByFoot, ALanguageManager, AProxyConfig, foot, fastest);
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByFoot.GetCaptionTranslated: string;
@@ -284,9 +299,11 @@ end;
 { TPathDetalizeProviderCloudMadeFastestByBicycle }
 
 constructor TPathDetalizeProviderCloudMadeFastestByBicycle.Create(
-  ALanguageManager: ILanguageManager);
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeFastestByBicycle, ALanguageManager, bicycle, fastest);
+  inherited Create(CPathDetalizeProviderCloudMadeFastestByBicycle, ALanguageManager, AProxyConfig, bicycle, fastest);
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByBicycle.GetCaptionTranslated: string;
@@ -307,9 +324,11 @@ end;
 { TPathDetalizeProviderCloudMadeShortestByCar }
 
 constructor TPathDetalizeProviderCloudMadeShortestByCar.Create(
-  ALanguageManager: ILanguageManager);
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeShortestByCar, ALanguageManager, car, shortest);
+  inherited Create(CPathDetalizeProviderCloudMadeShortestByCar, ALanguageManager, AProxyConfig, car, shortest);
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByCar.GetCaptionTranslated: string;
@@ -330,9 +349,11 @@ end;
 { TPathDetalizeProviderCloudMadeShortestByFoot }
 
 constructor TPathDetalizeProviderCloudMadeShortestByFoot.Create(
-  ALanguageManager: ILanguageManager);
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeShortestByFoot, ALanguageManager, foot, shortest);
+  inherited Create(CPathDetalizeProviderCloudMadeShortestByFoot, ALanguageManager, AProxyConfig, foot, shortest);
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByFoot.GetCaptionTranslated: string;
@@ -353,9 +374,11 @@ end;
 { TPathDetalizeProviderCloudMadeShortestByBicycle }
 
 constructor TPathDetalizeProviderCloudMadeShortestByBicycle.Create(
-  ALanguageManager: ILanguageManager);
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeShortestByBicycle, ALanguageManager, bicycle, shortest);
+  inherited Create(CPathDetalizeProviderCloudMadeShortestByBicycle, ALanguageManager, AProxyConfig, bicycle, shortest);
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByBicycle.GetCaptionTranslated: string;
