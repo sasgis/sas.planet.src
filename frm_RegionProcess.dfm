@@ -13,7 +13,6 @@ object frmRegionProcess: TfrmRegionProcess
   Position = poMainFormCenter
   ShowHint = True
   OnActivate = FormActivate
-  OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -28,21 +27,37 @@ object frmRegionProcess: TfrmRegionProcess
     TabWidth = 92
     object TabSheet1: TTabSheet
       Caption = 'Download'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet2: TTabSheet
       Tag = 1
       Caption = 'Stitch'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet3: TTabSheet
       Tag = 2
       Caption = 'Generate'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet4: TTabSheet
       Tag = 3
       Caption = 'Delete'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet5: TTabSheet
       Tag = 4
@@ -60,7 +75,7 @@ object frmRegionProcess: TfrmRegionProcess
       object Label9: TLabel
         Left = 5
         Top = 8
-        Width = 207
+        Width = 125
         Height = 13
         Caption = 'Export selection to format'
       end
@@ -88,6 +103,10 @@ object frmRegionProcess: TfrmRegionProcess
       Tag = 5
       Caption = 'Copy'
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
   end
   object pnlBottomButtons: TPanel

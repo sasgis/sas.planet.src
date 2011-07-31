@@ -2620,6 +2620,7 @@ begin
   VZoom := GState.LastSelectionInfo.Zoom;
   VPolygon := Copy(GState.LastSelectionInfo.Polygon);
   if length(VPolygon)>0 then begin
+    setalloperationfalse(ao_movemap);
     FFormRegionProcess.Show_(VZoom, VPolygon);
   end else begin
     showmessage(SAS_MSG_NeedHL);
@@ -2818,6 +2819,7 @@ begin
     GetMinMax(VLonLatRect, Poly);
     if VSelLonLat.Execute(VLonLatRect) Then Begin
       Poly := PolygonFromRect(VLonLatRect);
+      setalloperationfalse(ao_movemap);
       FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
       Poly := nil;
     End;
@@ -2872,6 +2874,7 @@ end;
 procedure TfrmMain.TBLoadSelFromFileClick(Sender: TObject);
 begin
   if (OpenDialog1.Execute) then begin
+    setalloperationfalse(ao_movemap);
     FFormRegionProcess.LoadSelFromFile(OpenDialog1.FileName);
   end
 end;
@@ -3244,8 +3247,9 @@ begin
       FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
       if (Frect_p2) then begin
         VPoly := PolygonFromRect(VSelectionRect);
-        FFormRegionProcess.Show_(VZoom, VPoly);
         FSelectionRectLayer.DrawNothing;
+        setalloperationfalse(ao_movemap);
+        FFormRegionProcess.Show_(VZoom, VPoly);
         VPoly := nil;
         Frect_p2:=false;
       end;
@@ -3914,12 +3918,15 @@ begin
 end;
 
 procedure TfrmMain.TBEditPathOkClick(Sender: TObject);
+var
+  VPoly: TArrayOfDoublePoint;
 begin
   case FCurrentOper of
-   ao_select_poly: begin
-         FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, FLineOnMapEdit.GetPoints);
-         setalloperationfalse(ao_movemap);
-        end;
+    ao_select_poly: begin
+      VPoly := Copy(FLineOnMapEdit.GetPoints);
+      setalloperationfalse(ao_movemap);
+      FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPoly);
+    end;
   end;
 end;
 
@@ -4036,6 +4043,7 @@ begin
           );
         TfrmProgressDownload.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
       end else if ExtractFileExt(VFileName)='.hlg' then begin
+        setalloperationfalse(ao_movemap);
         FFormRegionProcess.LoadSelFromFile(VFileName);
       end else begin
         VImportConfig := frmImportConfigEdit.GetImportConfig(FMarkDBGUI);
@@ -4071,6 +4079,7 @@ begin
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
   VPolygon := PolygonFromRect(VLonLatRect);
+  setalloperationfalse(ao_movemap);
   FFormRegionProcess.Show_(VZoom, VPolygon);
 end;
 

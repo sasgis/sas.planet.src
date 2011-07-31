@@ -40,7 +40,6 @@ type
     pnlExport: TPanel;
     pnlBottomButtons: TPanel;
     procedure Button1Click(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button3Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
@@ -86,8 +85,7 @@ uses
   u_ProviderTilesCopy,
   u_ProviderTilesDownload,
   u_ProviderMapCombine,
-  u_GeoFun,
-  frm_Main;
+  u_GeoFun;
 
 {$R *.dfm}
 
@@ -242,10 +240,8 @@ begin
   4: ExportREG(FPolygonLL);
   5: savefilesREG(FPolygonLL);
  end;
- if CBCloseWithStart.Checked then
-  begin
-   frmMain.Enabled:=true;
-   close;
+  if CBCloseWithStart.Checked then begin
+    close;
   end;
 end;
 
@@ -281,12 +277,6 @@ begin
   PageControl1.ActivePageIndex:=0;
 end;
 
-procedure TfrmRegionProcess.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-  frmMain.TBmoveClick(nil);
-  frmMain.Enabled:=true;
-end;
-
 procedure TfrmRegionProcess.FormShow(Sender: TObject);
 begin
   CBFormatChange(CBFormat);
@@ -300,7 +290,6 @@ begin
   FProviderTilesDownload.Show;
   FProviderMapCombine.InitFrame(FZoom_rect, FPolygonLL);
   FProviderMapCombine.Show;
-  frmMain.Enabled:=false;
 end;
 
 procedure TfrmRegionProcess.Button3Click(Sender: TObject);
