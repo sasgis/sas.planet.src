@@ -530,7 +530,6 @@ type
     FSearchPresenter: ISearchResultPresenter;
     FMouseDownPoint: TPoint;
     FMouseUpPoint: TPoint;
-    FmoveTrue: Tpoint;
     FMapMoving: Boolean;
     FMapZoomAnimtion: Boolean;
     FEditMark: IMarkFull;
@@ -590,7 +589,6 @@ type
     procedure OnBeforeViewChange(Sender: TObject);
     procedure OnAfterViewChange(Sender: TObject);
   public
-    MouseCursorPos: Tpoint;
     property ShortCutManager: TShortcutManager read FShortCutManager;
 
     constructor Create(AOwner: TComponent); override;
@@ -1964,7 +1962,6 @@ begin
       if not Handled then begin
         case Msg.message of
           WM_MOUSEWHEEL: begin
-            MouseCursorPos:=FmoveTrue;
             if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
             VZoom := FConfig.ViewPortState.GetCurrentZoom;
             if Msg.wParam<0 then begin
@@ -1973,7 +1970,11 @@ begin
               VNewZoom := VZoom+z;
             end;
             if VNewZoom < 0 then VNewZoom := 0;
-            zooming(VNewZoom, MouseCursorPos, FConfig.MapZoomingConfig.ZoomingAtMousePos);
+            zooming(
+              VNewZoom,
+              FMouseState.CurentPos,
+              FConfig.MapZoomingConfig.ZoomingAtMousePos
+            );
           end;
           WM_KEYFIRST: begin
             case Msg.wParam of
@@ -2190,12 +2191,20 @@ end;
 
 procedure TfrmMain.NzoomInClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom + 1, MouseCursorPos, false);
+  zooming(
+    FConfig.ViewPortState.GetCurrentZoom + 1,
+    FMouseState.CurentPos,
+    false
+  );
 end;
 
 procedure TfrmMain.NZoomOutClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom - 1, MouseCursorPos, false);
+  zooming(
+    FConfig.ViewPortState.GetCurrentZoom - 1,
+    FMouseState.CurentPos,
+    false
+  );
 end;
 
 
@@ -2225,12 +2234,20 @@ end;
 
 procedure TfrmMain.TBZoom_outClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom - 1, MouseCursorPos, false);
+  zooming(
+    FConfig.ViewPortState.GetCurrentZoom - 1,
+    FMouseState.CurentPos,
+    false
+  );
 end;
 
 procedure TfrmMain.TBZoomInClick(Sender: TObject);
 begin
- zooming(FConfig.ViewPortState.GetCurrentZoom + 1, MouseCursorPos, false);
+  zooming(
+    FConfig.ViewPortState.GetCurrentZoom + 1,
+    FMouseState.CurentPos,
+    false
+  );
 end;
 
 procedure TfrmMain.WMGetMinMaxInfo(var msg:TWMGetMinMaxInfo);
@@ -2904,7 +2921,10 @@ procedure TfrmMain.NMarkEditClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  FLayerMapMarks.MouseOnMyReg(
+    FMouseState.GetLastDownPos(mbRight),
+    VMark
+  );
   if VMark <> nil then begin
     if VMark.IsPoint then begin
       VMark := FMarkDBGUI.EditMarkModal(VMark);
@@ -2929,7 +2949,10 @@ var
   KMLExport:TExportMarks2KML;
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  FLayerMapMarks.MouseOnMyReg(
+    FMouseState.GetLastDownPos(mbRight),
+    VMark
+  );
   if VMark <> nil then begin
     KMLExport:=TExportMarks2KML.Create(false);
     try
@@ -2947,7 +2970,10 @@ procedure TfrmMain.NMarkDelClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  FLayerMapMarks.MouseOnMyReg(
+    FMouseState.GetLastDownPos(mbRight),
+    VMark
+  );
   if VMark <> nil then begin
     if FMarkDBGUI.DeleteMarkModal(VMark as IMarkID, Handle) then
       FLayerMapMarks.Redraw;
@@ -2958,7 +2984,10 @@ procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  FLayerMapMarks.MouseOnMyReg(
+    FMouseState.GetLastDownPos(mbRight),
+    VMark
+  );
   if VMark <> nil then begin
     FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.GetCurrentZoom);
   end;
@@ -3164,9 +3193,7 @@ begin
   end;
   Screen.ActiveForm.SetFocusedControl(map);
   FMouseDownPoint := Point(x, y);
-  FmoveTrue := FMouseDownPoint;
   FMouseUpPoint := FMouseDownPoint;
-  MouseCursorPos := FMouseDownPoint;
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
@@ -3482,6 +3509,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseMoveDelta: TPoint;
   VLastMouseMove: TPoint;
+  VMousePos: TPoint;
   VMark: IMarkFull;
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
@@ -3489,11 +3517,10 @@ begin
   if ProgramClose then begin
     exit;
   end;
+  VLastMouseMove := FMouseState.CurentPos;
   FMouseHandler.OnMouseMove(Shift, Point(AX, AY));
-  VLastMouseMove := FmoveTrue;
-  FmoveTrue:=point(Ax,Ay);
-  MouseCursorPos:=FmoveTrue;
-  VMouseMoveDelta := Point(FMouseDownPoint.X-FmoveTrue.X, FMouseDownPoint.Y-FmoveTrue.Y);
+  VMousePos := FMouseState.CurentPos;
+  VMouseMoveDelta := Point(FMouseDownPoint.X-VMousePos.X, FMouseDownPoint.Y-VMousePos.Y);
   if (Layer <> nil) then begin
     exit;
   end;
@@ -3506,13 +3533,13 @@ begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoomCurr := VLocalConverter.GetZoom;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FmoveTrue);
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   if (movepoint) then begin
     VMark := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
-      FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+      FLayerMapMarks.MouseOnMyReg(VMousePos, VMark);
     if VMark <> nil then begin
       if VMark.IsPoint then begin
         VLonLat := VMark.Points[0];
@@ -3528,7 +3555,7 @@ begin
     FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
   end;
  if FWinPosition.GetIsFullScreen then begin
-                       if FmoveTrue.y<10 then begin
+                       if VMousePos.y<10 then begin
                                      TBDock.Parent:=map;
                                      TBDock.Visible:=true;
                                     end
@@ -3536,7 +3563,7 @@ begin
                                      TBDock.Visible:=false;
                                      TBDock.Parent:=Self;
                                     end;
-                       if FmoveTrue.x<10 then begin
+                       if VMousePos.x<10 then begin
                                      TBDockLeft.Parent:=map;
                                      TBDockLeft.Visible:=true;
                                     end
@@ -3544,7 +3571,7 @@ begin
                                      TBDockLeft.Visible:=false;
                                      TBDockLeft.Parent:=Self;
                                     end;
-                       if FmoveTrue.y>Map.Height-10 then begin
+                       if VMousePos.y>Map.Height-10 then begin
                                      TBDockBottom.Parent:=map;
                                      TBDockBottom.Visible:=true;
                                     end
@@ -3552,7 +3579,7 @@ begin
                                      TBDockBottom.Visible:=false;
                                      TBDockBottom.Parent:=Self;
                                     end;
-                       if FmoveTrue.x>Map.Width-10 then begin
+                       if VMousePos.x>Map.Width-10 then begin
                                      TBDockRight.Parent:=map;
                                      TBDockRight.Visible:=true;
                                     end
@@ -3576,11 +3603,11 @@ begin
     end;
  end;
  FShowActivHint:=false;
- if not(FMapMoving)and((FmoveTrue.x<>VLastMouseMove.X)or(FmoveTrue.y<>VLastMouseMove.y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
+ if not(FMapMoving)and((VMousePos.x<>VLastMouseMove.X)or(VMousePos.y<>VLastMouseMove.y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
     VPWL.S:=0;
     VPWL.find:=false;
     VWikiItem := nil;
-    FWikiLayer.MouseOnReg(FmoveTrue, VWikiItem, VMarkS);
+    FWikiLayer.MouseOnReg(VMousePos, VWikiItem, VMarkS);
     if VWikiItem <> nil then begin
       VPWL.find := True;
       VPWL.name := VWikiItem.Name;
@@ -3590,7 +3617,7 @@ begin
 
     VMark := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
-      FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark, VMarkS);
+      FLayerMapMarks.MouseOnMyReg(VMousePos, VMark, VMarkS);
     if VMark <> nil then begin
       if (not VPWL.find) or (not VMark.IsPoly) or (VPWL.S >= VMarkS) then begin
         VPWL.find := True;
@@ -3784,7 +3811,10 @@ var
   LL:TDoublePoint;
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  FLayerMapMarks.MouseOnMyReg(
+    FMouseState.GetLastDownPos(mbRight),
+    VMark
+  );
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
       LL := VMark.GetGoToLonLat;
@@ -3848,7 +3878,10 @@ procedure TfrmMain.NMarksCalcsLenClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  FLayerMapMarks.MouseOnMyReg(
+    FMouseState.GetLastDownPos(mbRight),
+    VMark
+  );
   if VMark <> nil then begin
     FMarkDBGUI.ShowMarkLength(VMark, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
@@ -3858,7 +3891,10 @@ procedure TfrmMain.NMarksCalcsSqClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  FLayerMapMarks.MouseOnMyReg(
+    FMouseState.GetLastDownPos(mbRight),
+    VMark
+  );
   if VMark <> nil then begin
     FMarkDBGUI.ShowMarkSq(VMark, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
@@ -3868,7 +3904,10 @@ procedure TfrmMain.NMarksCalcsPerClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(FmoveTrue, VMark);
+  FLayerMapMarks.MouseOnMyReg(
+    FMouseState.GetLastDownPos(mbRight),
+    VMark
+  );
   if VMark <> nil then begin
     FMarkDBGUI.ShowMarkLength(VMark, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
@@ -4330,7 +4369,11 @@ procedure TfrmMain.ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
 begin
   if Button=mbLeft then begin
     ZSliderMouseMove(Sender,[ssLeft],X,Y,Layer);
-    zooming(ZSlider.Tag, MouseCursorPos, false);
+    zooming(
+      ZSlider.Tag,
+      FMouseState.CurentPos,
+      false
+    );
   end;
 end;
 

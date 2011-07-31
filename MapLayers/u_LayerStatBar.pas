@@ -59,7 +59,6 @@ uses
   u_NotifyEventListener,
   u_ResStrings,
   u_TimeZones,
-  frm_Main,
   u_MapType;
 
 const
