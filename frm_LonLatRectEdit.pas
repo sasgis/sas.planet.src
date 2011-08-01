@@ -37,15 +37,16 @@ type
 implementation
 
 uses
-  u_ResStrings;
+  u_ResStrings,
+  u_GlobalState;
 
 {$R *.dfm}
 
 constructor TfrmLonLatRectEdit.Create(AOwner: TComponent);
 begin
   inherited;
-  FfrLonLatTopLeft := TfrLonLat.Create(nil);
-  FfrLonLatBottomRight := TfrLonLat.Create(nil);
+  FfrLonLatTopLeft := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig);
+  FfrLonLatBottomRight := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig);
 end;
 
 destructor TfrmLonLatRectEdit.Destroy;

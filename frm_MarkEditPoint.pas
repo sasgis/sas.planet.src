@@ -99,7 +99,8 @@ var
 implementation
 
 uses
-  Math;
+  Math,
+  u_GlobalState;
 
 {$R *.dfm}
 
@@ -228,7 +229,7 @@ constructor TfrmMarkEditPoint.Create(AOwner: TComponent);
 begin
   inherited;
   frMarkDescription := TfrMarkDescription.Create(nil);
-  frLonLatPoint := TfrLonLat.Create(nil);
+  frLonLatPoint := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig);
 end;
 
 destructor TfrmMarkEditPoint.Destroy;

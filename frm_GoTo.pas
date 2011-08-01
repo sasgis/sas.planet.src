@@ -199,7 +199,7 @@ end;
 constructor TfrmGoTo.Create(AOwner: TComponent);
 begin
   inherited;
-  frLonLatPoint := TfrLonLat.Create(nil);
+  frLonLatPoint := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig);
   frLonLatPoint.Width:= grpLonLat.Width;
   frLonLatPoint.Height:= grpLonLat.Height;
 end;
