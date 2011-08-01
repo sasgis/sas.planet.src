@@ -13,11 +13,11 @@ function DateToVersionInfoString(dtmDate){
       return "null date";
    }
    var Year, Month, Day;
-   Year = dtmDate.getFullYear();
+   Year = ""+dtmDate.getFullYear()+"";
+   Year = Year.substr(2, 2)
    Month = dtmDate.getMonth() + 1;
-   Month = Month>9?Month:"0"+Month;
    Day = dtmDate.getDate();
-   Day = Day>9?Day:"0"+Day;
+   
    return (""+Year+","+Month+","+Day);
 }
 
@@ -28,7 +28,7 @@ var RevisionString = ReadFile(fso, "./Tools/revision.txt");
         RevisionString = "0";
     } 
 var now = new Date();
-var VersionInfoString = DateToVersionInfoString(now).substr(2, 8) + "," + RevisionString; 
+var VersionInfoString = DateToVersionInfoString(now) + "," + RevisionString; 
 var VersionInfoRc = ReadFile(fso, "./Resources/Version/Version.rc");
 
 var MatchStr = "FILEVERSION (.*)?\r\n";
