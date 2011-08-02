@@ -835,7 +835,7 @@ begin
         GState.ImageResamplerConfig,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.KmlLayerConfig,
-        FConfig.MainMapsConfig.GetKmlLayersSet
+        FConfig.MainMapsConfig.GetActiveKmlLayersSet
       );
     FLayersList.Add(FWikiLayer);
     FLayerFillingMap :=
@@ -1334,7 +1334,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetMapsSet,
+    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetActiveMapsSet,
     TBFillingTypeMap,
     Self.TBfillMapAsMainClick,
     GState.MapType.MapTypeIcons18List,
@@ -1352,7 +1352,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.MainMapsConfig.GetLayers,
+    FConfig.MainMapsConfig.GetActiveLayersSet,
     TBLayerSel,
     Self.OnClickLayerItem,
     GState.MapType.MapTypeIcons18List,
@@ -1455,7 +1455,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.MainMapsConfig.GetMapsSet,
+    FConfig.MainMapsConfig.GetActiveMapsSet,
     TBSMB,
     Self.OnClickMapItem,
     GState.MapType.MapTypeIcons18List,
@@ -1710,7 +1710,7 @@ begin
       if VMapType <> nil then begin
         FConfig.MainMapsConfig.LockWrite;
         try
-          if not FConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMapType.GUID) then begin
+          if not FConfig.MainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VMapType.GUID) then begin
             FConfig.MainMapsConfig.SelectLayerByGUID(VMapType.GUID);
           end else begin
             FConfig.MainMapsConfig.UnSelectLayerByGUID(VMapType.GUID);
@@ -1844,7 +1844,7 @@ begin
 
   TBSMB.ImageIndex := GState.MapType.MapTypeIcons24List.GetIconIndexByGUID(VGUID);
   if FConfig.MainConfig.ShowMapName then begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsList.GetMapTypeByGUID(VGUID);
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsSet.GetMapTypeByGUID(VGUID);
     TBSMB.Caption := VMapType.MapType.Name;
   end else begin
     TBSMB.Caption := '';
@@ -3920,14 +3920,14 @@ var
   i:Integer;
   VMapType: TMapType;
   VLayerIsActive: Boolean;
-  VActiveLayersList: IMapTypeList;
+  VActiveLayersSet: IMapTypeSet;
 begin
   NLayerParams.Visible:=false;
-  VActiveLayersList := FConfig.MainMapsConfig.GetLayers.GetSelectedMapsList;
+  VActiveLayersSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
-      VLayerIsActive := VActiveLayersList.GetMapTypeByGUID(VMapType.Zmp.GUID) <> nil;
+      VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VMapType.Zmp.GUID) <> nil;
       TTBXItem(FNLayerParamsItemList.GetByGUID(VMapType.Zmp.GUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
         NLayerParams.Visible:=true;
@@ -4358,7 +4358,7 @@ var
   i:Integer;
   VMapType: TMapType;
   VLayerIsActive: Boolean;
-  VActiveLayers: IMapTypeList;
+  VActiveLayersSet: IMapTypeSet;
   VMenuItem: TTBXItem;
   VGUID: TGUID;
 begin
@@ -4367,12 +4367,12 @@ begin
   TBOpenDirLayer.Visible:=false;
   TBCopyLinkLayer.Visible:=false;
   TBLayerInfo.Visible:=false;
-  VActiveLayers := FConfig.MainMapsConfig.GetLayers.GetSelectedMapsList;
+  VActiveLayersSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.asLayer) then begin
       VGUID := VMapType.Zmp.GUID;
-      VLayerIsActive := VActiveLayers.GetMapTypeByGUID(VGUID) <> nil;
+      VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VGUID) <> nil;
       TTBXItem(FNDwnItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       TTBXItem(FNDelItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       TTBXItem(FNOpenDirItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;

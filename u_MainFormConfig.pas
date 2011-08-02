@@ -53,7 +53,7 @@ type
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       AContentTypeManager: IContentTypeManager;
       AGeoCoderList: IGeoCoderList;
-      AMapsList, ALayersList: IMapTypeList;
+      AMapsSet, ALayersSet: IMapTypeSet;
       ADefaultMapGUID: TGUID;
       APerfCounterList: IInternalPerformanceCounterList
     );
@@ -83,7 +83,7 @@ constructor TMainFormConfig.Create(
   ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   AContentTypeManager: IContentTypeManager;
   AGeoCoderList: IGeoCoderList;
-  AMapsList, ALayersList: IMapTypeList;
+  AMapsSet, ALayersSet: IMapTypeSet;
   ADefaultMapGUID: TGUID;
   APerfCounterList: IInternalPerformanceCounterList
 );
@@ -99,7 +99,7 @@ begin
   Add(FGPSBehaviour, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MainFormGPSEvents'));
   FMainGeoCoderConfig := TMainGeoCoderConfig.Create(AGeoCoderList);
   Add(FMainGeoCoderConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'));
-  FMainMapsConfig := TMainMapsConfig.Create(AMapsList, ALayersList, ADefaultMapGUID);
+  FMainMapsConfig := TMainMapsConfig.Create(AMapsSet, ALayersSet, ADefaultMapGUID);
   Add(FMainMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
   FViewPortState := TMapViewPortState.Create(ACoordConverterFactory, FMapZoomingConfig, FMainMapsConfig, APerfCounterList);
   Add(FViewPortState, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Position'));

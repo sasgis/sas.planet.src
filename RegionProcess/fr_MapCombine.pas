@@ -174,7 +174,7 @@ begin
       end else begin
         VAddedIndex := cbbHybr.Items.AddObject(VMapType.name,VMapType);
         if (cbbHybr.ItemIndex=-1) then begin
-          if GState.MainFormConfig.MainMapsConfig.GetLayers.IsGUIDSelected(VMapType.Zmp.GUID) then begin
+          if GState.MainFormConfig.MainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VMapType.Zmp.GUID) then begin
             cbbHybr.ItemIndex:=VAddedIndex;
           end;
         end;

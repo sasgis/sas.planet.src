@@ -445,8 +445,8 @@ begin
     FLocalConverterFactory,
     FContentTypeManager,
     FGeoCoderList,
-    FMainMapsList.MapsList,
-    FMainMapsList.LayersList,
+    FMainMapsList.MapsSet,
+    FMainMapsList.LayersSet,
     FMainMapsList.FirstMainMap.Zmp.GUID,
     FPerfCounterList.CreateAndAddNewSubList('ViewState')
   );

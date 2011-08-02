@@ -17,10 +17,10 @@ type
     FLayerSetSelectNotyfier: INotifierWithGUID;
     FLayerSetUnselectNotyfier: INotifierWithGUID;
 
-    FAllMapsList: IMapTypeList;
+    FAllMapsSet: IMapTypeSet;
     FAllMapsSingleList: IGUIDInterfaceList;
-    FLayersSet: IActiveMapsSet;
-    FAllMapsSet: IActiveMapsSet;
+    FActiveLayersSet: IActiveMapsSet;
+    FAllActiveMapsSet: IActiveMapsSet;
   protected
     property LayerSetSelectNotyfier: INotifierWithGUID read FLayerSetSelectNotyfier;
     property LayerSetUnselectNotyfier: INotifierWithGUID read FLayerSetUnselectNotyfier;
@@ -29,13 +29,13 @@ type
     procedure SelectLayerByGUID(const AMapGUID: TGUID);
     procedure UnSelectLayerByGUID(const AMapGUID: TGUID);
 
-    function GetLayers: IActiveMapsSet;
+    function GetActiveLayersSet: IActiveMapsSet;
     function GetAllActiveMapsSet: IActiveMapsSet;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   public
-    constructor Create(AMapsList, ALayersList: IMapTypeList);
+    constructor Create(AMapsSet, ALayersSet: IMapTypeSet);
     destructor Destroy; override;
   end;
 
@@ -57,33 +57,33 @@ const
 
 { TActivMapWithLayers }
 
-constructor TActivMapWithLayers.Create(AMapsList, ALayersList: IMapTypeList);
+constructor TActivMapWithLayers.Create(AMapsSet, ALayersSet: IMapTypeSet);
 var
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
   VMapType: IMapType;
   VSingleMap: IActiveMapSingle;
-  VAllMapsList: TMapTypeList;
+  VAllMapsList: TMapTypeSet;
 begin
-  inherited Create(AMapsList);
+  inherited Create(AMapsSet);
   FLayerSetSelectNotyfier := TNotifierWithGUID.Create;
   FLayerSetUnselectNotyfier := TNotifierWithGUID.Create;
 
   FAllMapsSingleList := TGUIDInterfaceList.Create(False);
-  VAllMapsList := TMapTypeList.Create(True);
+  VAllMapsList := TMapTypeSet.Create(True);
 
-  VEnun := AMapsList.GetIterator;
+  VEnun := AMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VMapType := AMapsList.GetMapTypeByGUID(VGUID);
+    VMapType := AMapsSet.GetMapTypeByGUID(VGUID);
     VSingleMap := IActiveMapSingle(SingeMapsList.GetByGUID(VGUID));
     VAllMapsList.Add(VMapType);
     FAllMapsSingleList.Add(VGUID, VSingleMap);
   end;
 
-  VEnun := ALayersList.GetIterator;
+  VEnun := ALayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VMapType := ALayersList.GetMapTypeByGUID(VGUID);
+    VMapType := ALayersSet.GetMapTypeByGUID(VGUID);
     VSingleMap := TActiveMapSingleLayer.Create(
       VMapType,
       FLayerSetSelectNotyfier,
@@ -95,25 +95,25 @@ begin
   end;
 
 
-  FAllMapsList := VAllMapsList;
+  FAllMapsSet := VAllMapsList;
   
-  FLayersSet := TActiveMapsSet.Create(
-    ALayersList,
+  FActiveLayersSet := TActiveMapsSet.Create(
+    ALayersSet,
     FAllMapsSingleList,
     nil,
     FLayerSetSelectNotyfier,
     FLayerSetUnselectNotyfier
   );
-  Add(FLayersSet, nil);
+  Add(FActiveLayersSet, nil);
 
-  FAllMapsSet :=  TActiveMapsSet.Create(
-    FAllMapsList,
+  FAllActiveMapsSet :=  TActiveMapsSet.Create(
+    FAllMapsSet,
     FAllMapsSingleList,
     MainMapChangeNotyfier,
     FLayerSetSelectNotyfier,
     FLayerSetUnselectNotyfier
   );
-  Add(FAllMapsSet, nil);
+  Add(FAllActiveMapsSet, nil);
 end;
 
 destructor TActivMapWithLayers.Destroy;
@@ -121,10 +121,10 @@ begin
   FLayerSetSelectNotyfier := nil;
   FLayerSetUnselectNotyfier := nil;
 
-  FAllMapsList := nil;
-  FAllMapsSingleList := nil;
-  FLayersSet := nil;
   FAllMapsSet := nil;
+  FAllMapsSingleList := nil;
+  FActiveLayersSet := nil;
+  FAllActiveMapsSet := nil;
   inherited;
 end;
 
@@ -156,7 +156,7 @@ begin
             VGUID := CGUID_Zero;
           end;
           if not IsEqualGUID(VGUID, CGUID_Zero) then begin
-            VMap := FLayersSet.GetMapsList.GetMapTypeByGUID(VGUID);
+            VMap := FActiveLayersSet.GetMapsSet.GetMapTypeByGUID(VGUID);
             if VMap <> nil then begin
               SelectLayerByGUID(VGUID)
             end;
@@ -195,7 +195,7 @@ begin
   end;
 
   VIndex := 0;
-  VEnum := FLayersSet.GetSelectedMapsList.GetIterator;
+  VEnum := FActiveLayersSet.GetSelectedMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
     VGUIDString := GUIDToString(VGUID);
     AConfigData.WriteString(CKeyNameLayer + IntToStr(VIndex), VGUIDString);
@@ -205,12 +205,12 @@ end;
 
 function TActivMapWithLayers.GetAllActiveMapsSet: IActiveMapsSet;
 begin
-  Result := FAllMapsSet;
+  Result := FAllActiveMapsSet;
 end;
 
-function TActivMapWithLayers.GetLayers: IActiveMapsSet;
+function TActivMapWithLayers.GetActiveLayersSet: IActiveMapsSet;
 begin
-  Result := FLayersSet;
+  Result := FActiveLayersSet;
 end;
 
 procedure TActivMapWithLayers.SelectLayerByGUID(const AMapGUID: TGUID);

@@ -16,7 +16,7 @@ type
     property GUID: TGUID read GetGUID;
   end;
 
-  IMapTypeList = interface
+  IMapTypeSet = interface
     ['{45EF5080-01DC-4FE1-92E1-E93574439718}']
     function GetMapTypeByGUID(AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;

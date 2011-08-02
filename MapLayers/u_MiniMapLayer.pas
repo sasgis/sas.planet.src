@@ -57,7 +57,7 @@ type
     FBackGroundColor: TColor32;
 
     FMainMap: IMapType;
-    FLayersList: IMapTypeList;
+    FLayersSet: IMapTypeSet;
     FPostProcessingConfig:IBitmapPostProcessingConfig;
 
     FDrawTask: IBackgroundTask;
@@ -197,7 +197,7 @@ begin
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnLayerSetChange),
-    FConfig.MapsConfig.GetLayers.GetChangeNotifier
+    FConfig.MapsConfig.GetActiveLayersSet.GetChangeNotifier
   );
 
   LinksList.Add(
@@ -331,7 +331,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.MapsConfig.GetMapsSet,
+    FConfig.MapsConfig.GetActiveMapsSet,
     AMapssSubMenu,
     Self.OnClickMapItem,
     FIconsList,
@@ -343,7 +343,7 @@ begin
     FreeAndNil(VGenerator);
   end;
   VGenerator := TMapMenuGeneratorBasic.Create(
-    FConfig.MapsConfig.GetLayers,
+    FConfig.MapsConfig.GetActiveLayersSet,
     ALayersSubMenu,
     Self.OnClickLayerItem,
     FIconsList,
@@ -447,7 +447,7 @@ var
   VGUID: TGUID;
   VItem: IMapType;
   VEnum: IEnumGUID;
-  VHybrList: IMapTypeList;
+  VLayersSet: IMapTypeSet;
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
   VTileToDrawBmp: TCustomBitmap32;
 
@@ -511,11 +511,11 @@ begin
           break;
         end;
 
-        VHybrList := FLayersList;
-        if VHybrList <> nil then begin
-          VEnum := VHybrList.GetIterator;
+        VLayersSet := FLayersSet;
+        if VLayersSet <> nil then begin
+          VEnum := VLayersSet.GetIterator;
           while VEnum.Next(1, VGUID, i) = S_OK do begin
-            VItem := VHybrList.GetMapTypeByGUID(VGUID);
+            VItem := VLayersSet.GetMapTypeByGUID(VGUID);
             VMapType := VItem.GetMapType;
             if VMapType.IsBitmapTiles then begin
               if DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig) then begin
@@ -801,7 +801,7 @@ begin
       if VMap <> nil then begin
         FConfig.MapsConfig.LockWrite;
         try
-          if not FConfig.MapsConfig.GetLayers.IsGUIDSelected(VMap.GUID) then begin
+          if not FConfig.MapsConfig.GetActiveLayersSet.IsGUIDSelected(VMap.GUID) then begin
             FConfig.MapsConfig.SelectLayerByGUID(VMap.GUID);
           end else begin
             FConfig.MapsConfig.UnSelectLayerByGUID(VMap.GUID);
@@ -887,7 +887,7 @@ procedure TMiniMapLayer.OnLayerSetChange(Sender: TObject);
 begin
   ViewUpdateLock;
   try
-    FLayersList := FConfig.MapsConfig.GetLayers.GetSelectedMapsList;
+    FLayersSet := FConfig.MapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;

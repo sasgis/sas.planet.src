@@ -17,21 +17,21 @@ type
     ['{6BAD8743-D50B-4342-9A68-DA5FBDDFDB04}']
     function GetSelectedGUID: TGUID;
     function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
-    function GetMapsList: IMapTypeList;
+    function GetMapsSet: IMapTypeSet;
   end;
 
   IActiveMapsSet = interface(IConfigDataElement)
     ['{09F8FEE4-984C-4D1F-A240-BD8FF3333F85}']
     function IsGUIDSelected(const AMapGUID: TGUID): Boolean;
     function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
-    function GetSelectedMapsList: IMapTypeList;
-    function GetMapsList: IMapTypeList;
+    function GetSelectedMapsSet: IMapTypeSet;
+    function GetMapsSet: IMapTypeSet;
   end;
 
   IMainActiveMap = interface(IConfigDataElement)
     procedure SelectMainByGUID(const AMapGUID: TGUID);
     function GetActiveMap: IActiveMap;
-    function GetMapsSet: IActiveMapsSet;
+    function GetActiveMapsSet: IActiveMapsSet;
   end;
 
   IActivMapWithLayers = interface(IMainActiveMap)
@@ -39,15 +39,15 @@ type
     procedure SelectLayerByGUID(const AMapGUID: TGUID);
     procedure UnSelectLayerByGUID(const AMapGUID: TGUID);
 
-    function GetLayers: IActiveMapsSet;
+    function GetActiveLayersSet: IActiveMapsSet;
     function GetAllActiveMapsSet: IActiveMapsSet;
   end;
 
   IMainMapsConfig = interface(IActivMapWithLayers)
     ['{8A8A42A5-9252-4E85-812C-6A5EEEF98443}']
     function GetSelectedMapType: IMapType;
-    function GetBitmapLayersSet: IActiveMapsSet;
-    function GetKmlLayersSet: IActiveMapsSet;
+    function GetActiveBitmapLayersSet: IActiveMapsSet;
+    function GetActiveKmlLayersSet: IActiveMapsSet;
   end;
   
 implementation

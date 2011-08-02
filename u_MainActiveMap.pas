@@ -14,23 +14,23 @@ uses
 type
   TMainActiveMap = class(TConfigDataElementComplexBase, IMainActiveMap)
   private
-    FMapsList: IMapTypeList;
+    FMapsSet: IMapTypeSet;
     FMainMapChangeNotyfier: INotifierWithGUID;
     FSingeMapsList: IGUIDInterfaceList;
     FActiveMap: IActiveMap;
-    FMapsSet: IActiveMapsSet;
+    FActiveMapsSet: IActiveMapsSet;
   protected
     property MainMapChangeNotyfier: INotifierWithGUID read FMainMapChangeNotyfier;
     property SingeMapsList: IGUIDInterfaceList read FSingeMapsList;
   protected
     procedure SelectMainByGUID(const AMapGUID: TGUID);
     function GetActiveMap: IActiveMap;
-    function GetMapsSet: IActiveMapsSet;
+    function GetActiveMapsSet: IActiveMapsSet;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   public
-    constructor Create(AMapsList: IMapTypeList);
+    constructor Create(AMapsSet: IMapTypeSet);
     destructor Destroy; override;
   end;
 implementation
@@ -48,7 +48,7 @@ const
 
 { TMainActiveMap }
 
-constructor TMainActiveMap.Create(AMapsList: IMapTypeList);
+constructor TMainActiveMap.Create(AMapsSet: IMapTypeSet);
 var
   VEnun: IEnumGUID;
   VGUID: TGUID;
@@ -57,34 +57,34 @@ var
   VSingleMap: IActiveMapSingle;
 begin
   inherited Create;
-  FMapsList := AMapsList;
+  FMapsSet := AMapsSet;
   FMainMapChangeNotyfier := TNotifierWithGUID.Create;
   FSingeMapsList := TGUIDInterfaceList.Create(False);
 
-  VEnun := FMapsList.GetIterator;
+  VEnun := FMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VMapType := FMapsList.GetMapTypeByGUID(VGUID);
+    VMapType := FMapsSet.GetMapTypeByGUID(VGUID);
     VSingleMap := TActiveMapSingleMainMap.Create(VMapType, FMainMapChangeNotyfier);
     FSingeMapsList.Add(VGUID, VSingleMap);
     Add(VSingleMap, nil);
   end;
-  FActiveMap := TActiveMapConfig.Create(FMainMapChangeNotyfier, FSingeMapsList, FMapsList);
+  FActiveMap := TActiveMapConfig.Create(FMainMapChangeNotyfier, FSingeMapsList, FMapsSet);
   Add(FActiveMap, nil);
 
-  FMapsSet :=  TActiveMapsSet.Create(
-    FMapsList,
+  FActiveMapsSet :=  TActiveMapsSet.Create(
+    FMapsSet,
     FSingeMapsList,
     MainMapChangeNotyfier,
     nil,
     nil
   );
-  Add(FMapsSet, nil);
+  Add(FActiveMapsSet, nil);
 end;
 
 destructor TMainActiveMap.Destroy;
 begin
   FMainMapChangeNotyfier := nil;
-  FMapsList := nil;
+  FMapsSet := nil;
   FSingeMapsList := nil;
   FActiveMap := nil;
   inherited;
@@ -109,7 +109,7 @@ begin
     end;
   end;
   if VValidGUID then begin
-    if FMapsList.GetMapTypeByGUID(VGUID) <> nil then begin
+    if FMapsSet.GetMapTypeByGUID(VGUID) <> nil then begin
       SelectMainByGUID(VGUID);
     end;
   end;
@@ -131,14 +131,14 @@ begin
   Result := FActiveMap;
 end;
 
-function TMainActiveMap.GetMapsSet: IActiveMapsSet;
+function TMainActiveMap.GetActiveMapsSet: IActiveMapsSet;
 begin
-  Result := FMapsSet;
+  Result := FActiveMapsSet;
 end;
 
 procedure TMainActiveMap.SelectMainByGUID(const AMapGUID: TGUID);
 begin
-  if FMapsList.GetMapTypeByGUID(AMapGUID) <> nil then begin
+  if FMapsSet.GetMapTypeByGUID(AMapGUID) <> nil then begin
     LockWrite;
     try
       FMainMapChangeNotyfier.NotifyByGUID(AMapGUID);

@@ -27,9 +27,9 @@ type
   TMapTypesMainList = class
   private
     FMapType: array of TMapType;
-    FFullMapsList: IMapTypeList;
-    FMapsList: IMapTypeList;
-    FLayersList: IMapTypeList;
+    FFullMapsSet: IMapTypeSet;
+    FMapsSet: IMapTypeSet;
+    FLayersSet: IMapTypeSet;
 
     FMapTypeIcons18List: IMapTypeIconsList;
     FMapTypeIcons24List: IMapTypeIconsList;
@@ -42,9 +42,9 @@ type
     destructor Destroy; override;
     property Items[Index : Integer]: TMapType read GetMapType; default;
     property Count: Integer read GetCount;
-    property FullMapsList: IMapTypeList read FFullMapsList;
-    property MapsList: IMapTypeList read FMapsList;
-    property LayersList: IMapTypeList read FLayersList;
+    property FullMapsSet: IMapTypeSet read FFullMapsSet;
+    property MapsSet: IMapTypeSet read FMapsSet;
+    property LayersSet: IMapTypeSet read FLayersSet;
     property FirstMainMap: TMapType read GetFirstMainMap;
 
     property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
@@ -146,16 +146,16 @@ var
   i: Integer;
   VMap: TMapType;
   VMapType: IMapType;
-  VFullMapsList: TMapTypeList;
-  VMapsList: TMapTypeList;
-  VLayersList: TMapTypeList;
+  VFullMapsList: TMapTypeSet;
+  VMapsList: TMapTypeSet;
+  VLayersList: TMapTypeSet;
 begin
-  VFullMapsList := TMapTypeList.Create(False);
-  FFullMapsList := VFullMapsList;
-  VMapsList := TMapTypeList.Create(False);
-  FMapsList := VMapsList;
-  VLayersList := TMapTypeList.Create(False);
-  FLayersList := VLayersList;
+  VFullMapsList := TMapTypeSet.Create(False);
+  FFullMapsSet := VFullMapsList;
+  VMapsList := TMapTypeSet.Create(False);
+  FMapsSet := VMapsList;
+  VLayersList := TMapTypeSet.Create(False);
+  FLayersSet := VLayersList;
   for i := 0 to Length(FMapType) - 1 do begin
     VMap := FMapType[i];
     VMapType := TMapTypeBasic.Create(VMap);
