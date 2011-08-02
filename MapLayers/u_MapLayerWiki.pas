@@ -31,7 +31,7 @@ type
     FConfig: IKmlLayerConfig;
     FLayersSet: IActiveMapsSet;
 
-    FMapsList: IMapTypeList;
+    FVectorMapsSet: IMapTypeSet;
     FElments: IInterfaceList;
 
     FFixedPointArray: TArrayOfFixedPoint;
@@ -226,18 +226,18 @@ procedure TWikiLayer.PrepareWikiElements(
   ALocalConverter: ILocalCoordConverter
 );
 var
-  VHybrList: IMapTypeList;
+  VVectorMapsSet: IMapTypeSet;
   VEnum: IEnumGUID;
   VGUID: TGUID;
   Vcnt: Cardinal;
   VItem: IMapType;
   VMapType: TMapType;
 begin
-  VHybrList := FMapsList;
-  if VHybrList <> nil then begin
-    VEnum := VHybrList.GetIterator;
+  VVectorMapsSet := FVectorMapsSet;
+  if VVectorMapsSet <> nil then begin
+    VEnum := VVectorMapsSet.GetIterator;
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-      VItem := VHybrList.GetMapTypeByGUID(VGUID);
+      VItem := VVectorMapsSet.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsKmlTiles then begin
         AddElementsFromMap(AElments, AIsStop, VMapType, ALocalConverter);
@@ -348,11 +348,11 @@ var
   VGUID: TGUID;
   i: Cardinal;
 begin
-  FMapsList := FLayersSet.GetSelectedMapsList;
+  FVectorMapsSet := FLayersSet.GetSelectedMapsSet;
   ViewUpdateLock;
   try
     SetNeedRedraw;
-    SetVisible(FMapsList.GetIterator.Next(1, VGUID, i) = S_OK);
+    SetVisible(FVectorMapsSet.GetIterator.Next(1, VGUID, i) = S_OK);
   finally
     ViewUpdateUnlock;
   end;

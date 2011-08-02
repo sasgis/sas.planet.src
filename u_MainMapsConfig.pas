@@ -13,16 +13,16 @@ type
   private
     FDefaultMapGUID: TGUID;
     FSelectedMapType: IMapType;
-    FBitmapLayersSet: IActiveMapsSet;
-    FKmlLayersSet: IActiveMapsSet;
+    FActiveBitmapLayersSet: IActiveMapsSet;
+    FActiveKmlLayersSet: IActiveMapsSet;
     FSelectedMapChangeListener: IJclListener;
     procedure OnSelectedChange(const AGUID: TGUID);
   protected
     function GetSelectedMapType: IMapType;
-    function GetBitmapLayersSet: IActiveMapsSet;
-    function GetKmlLayersSet: IActiveMapsSet;
+    function GetActiveBitmapLayersSet: IActiveMapsSet;
+    function GetActiveKmlLayersSet: IActiveMapsSet;
   public
-    constructor Create(AMapsList, ALayersList: IMapTypeList; ADefaultMapGUID: TGUID);
+    constructor Create(AMapsSet, ALayersSet: IMapTypeSet; ADefaultMapGUID: TGUID);
     destructor Destroy; override;
   end;
 
@@ -36,24 +36,24 @@ uses
 
 { TMainMapsConfig }
 
-constructor TMainMapsConfig.Create(AMapsList, ALayersList: IMapTypeList; ADefaultMapGUID: TGUID);
+constructor TMainMapsConfig.Create(AMapsSet, ALayersSet: IMapTypeSet; ADefaultMapGUID: TGUID);
 var
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
   VMapType: IMapType;
-  VBitmapLayersList: TMapTypeList;
-  VKmlLayersList: TMapTypeList;
+  VBitmapLayersList: TMapTypeSet;
+  VKmlLayersList: TMapTypeSet;
 begin
   FDefaultMapGUID := ADefaultMapGUID;
-  inherited Create(AMapsList, ALayersList);
+  inherited Create(AMapsSet, ALayersSet);
 
-  VBitmapLayersList := TMapTypeList.Create(True);
-  VKmlLayersList := TMapTypeList.Create(True);
+  VBitmapLayersList := TMapTypeSet.Create(True);
+  VKmlLayersList := TMapTypeSet.Create(True);
 
-  VEnun := ALayersList.GetIterator;
+  VEnun := ALayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VMapType := ALayersList.GetMapTypeByGUID(VGUID);
+    VMapType := ALayersSet.GetMapTypeByGUID(VGUID);
     if VMapType.MapType.IsBitmapTiles then begin
       VBitmapLayersList.Add(VMapType);
     end;
@@ -62,23 +62,23 @@ begin
     end;
   end;
 
-  FBitmapLayersSet := TActiveMapsSet.Create(
+  FActiveBitmapLayersSet := TActiveMapsSet.Create(
     VBitmapLayersList,
     AllMapsSingleList,
     nil,
     LayerSetSelectNotyfier,
     LayerSetUnselectNotyfier
   );
-  Add(FBitmapLayersSet, nil);
+  Add(FActiveBitmapLayersSet, nil);
 
-  FKmlLayersSet := TActiveMapsSet.Create(
+  FActiveKmlLayersSet := TActiveMapsSet.Create(
     VKmlLayersList,
     AllMapsSingleList,
     nil,
     LayerSetSelectNotyfier,
     LayerSetUnselectNotyfier
   );
-  Add(FKmlLayersSet, nil);
+  Add(FActiveKmlLayersSet, nil);
 
   FSelectedMapChangeListener := TNotifyWithGUIDEventListener.Create(Self.OnSelectedChange);
   MainMapChangeNotyfier.Add(FSelectedMapChangeListener);
@@ -93,19 +93,19 @@ begin
   MainMapChangeNotyfier.Remove(FSelectedMapChangeListener);
   FSelectedMapChangeListener := nil;
 
-  FBitmapLayersSet := nil;
-  FKmlLayersSet := nil;
+  FActiveBitmapLayersSet := nil;
+  FActiveKmlLayersSet := nil;
   inherited;
 end;
 
-function TMainMapsConfig.GetBitmapLayersSet: IActiveMapsSet;
+function TMainMapsConfig.GetActiveBitmapLayersSet: IActiveMapsSet;
 begin
-  Result := FBitmapLayersSet;
+  Result := FActiveBitmapLayersSet;
 end;
 
-function TMainMapsConfig.GetKmlLayersSet: IActiveMapsSet;
+function TMainMapsConfig.GetActiveKmlLayersSet: IActiveMapsSet;
 begin
-  Result := FKmlLayersSet;
+  Result := FActiveKmlLayersSet;
 end;
 
 function TMainMapsConfig.GetSelectedMapType: IMapType;
@@ -122,7 +122,7 @@ procedure TMainMapsConfig.OnSelectedChange(const AGUID: TGUID);
 begin
   LockWrite;
   try
-    FSelectedMapType := GetActiveMap.GetMapsList.GetMapTypeByGUID(AGUID);
+    FSelectedMapType := GetActiveMap.GetMapsSet.GetMapTypeByGUID(AGUID);
     Assert(FSelectedMapType <> nil);
   finally
     UnlockWrite;

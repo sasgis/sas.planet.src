@@ -41,7 +41,7 @@ type
     FLinksList: IJclListenerNotifierLinksList;
 
     FVisualCoordConverter: ILocalCoordConverter;
-    FActiveMapsList: IMapTypeList;
+    FActiveMapsSet: IMapTypeSet;
 
     change_scene: boolean;
 
@@ -144,7 +144,7 @@ end;
 procedure TTileDownloaderUI.GetCurrentMapAndPos;
 begin
   FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
-  FActiveMapsList := FMapsSet.GetSelectedMapsList;
+  FActiveMapsSet := FMapsSet.GetSelectedMapsSet;
 end;
 
 procedure TTileDownloaderUI.OnConfigChange(Sender: TObject);
@@ -199,7 +199,7 @@ var
   VLonLatRectInMap: TDoubleRect;
   VMapTileRect: TRect;
   VZoom: Byte;
-  VActiveMapsList: IMapTypeList;
+  VActiveMapsSet: IMapTypeSet;
   VEnum: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
@@ -245,7 +245,7 @@ begin
           end;
           Sleep(1000);
         end else begin
-          VActiveMapsList := FActiveMapsList;
+          VActiveMapsSet := FActiveMapsSet;
           VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
           VZoom := VLocalConverter.GetZoom;
           VGeoConverter := VLocalConverter.GetGeoConverter;
@@ -253,9 +253,9 @@ begin
           VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
           VIteratorsList.Clear;
           VMapsList.Clear;
-          VEnum := VActiveMapsList.GetIterator;
+          VEnum := VActiveMapsSet.GetIterator;
           while VEnum.Next(1, VGUID, i) = S_OK do begin
-            VMap := VActiveMapsList.GetMapTypeByGUID(VGUID);
+            VMap := VActiveMapsSet.GetMapTypeByGUID(VGUID);
             if VMap <> nil then begin
               FMapType := VMap.MapType;
               if FMapType.UseDwn then begin

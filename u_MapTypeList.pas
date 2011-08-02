@@ -8,7 +8,7 @@ uses
   i_MapTypes;
 
 type
-  TMapTypeList = class(TInterfacedObject, IMapTypeList)
+  TMapTypeSet = class(TInterfacedObject, IMapTypeSet)
   private
     FList: IGUIDInterfaceList;
     function GetMapTypeByGUID(AGUID: TGUID): IMapType;
@@ -27,7 +27,7 @@ uses
 
 { TMapTypeList }
 
-procedure TMapTypeList.Add(AMap: IMapType);
+procedure TMapTypeSet.Add(AMap: IMapType);
 var
   VGUID: TGUID;
 begin
@@ -39,23 +39,23 @@ begin
   FList.Add(VGUID, AMap);
 end;
 
-constructor TMapTypeList.Create(AAllowNil: Boolean);
+constructor TMapTypeSet.Create(AAllowNil: Boolean);
 begin
   FList := TGUIDInterfaceList.Create(AAllowNil);
 end;
 
-destructor TMapTypeList.Destroy;
+destructor TMapTypeSet.Destroy;
 begin
   FList := nil;
   inherited;
 end;
 
-function TMapTypeList.GetIterator: IEnumGUID;
+function TMapTypeSet.GetIterator: IEnumGUID;
 begin
   Result := FList.GetGUIDEnum;
 end;
 
-function TMapTypeList.GetMapTypeByGUID(AGUID: TGUID): IMapType;
+function TMapTypeSet.GetMapTypeByGUID(AGUID: TGUID): IMapType;
 begin
   Result := Flist.GetByGUID(AGUID) as IMapType;
 end;
