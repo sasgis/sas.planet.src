@@ -144,7 +144,7 @@ begin
   try
     if FActiveMiniMap <> AValue then begin
       FActiveMiniMap := AValue;
-      inherited SetChanged;
+      SetChanged;
     end;
   finally
     UnlockWrite;

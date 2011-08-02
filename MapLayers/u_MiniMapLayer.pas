@@ -192,7 +192,7 @@ begin
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnMainMapChange),
-    FConfig.MapsConfig.GetActiveMap.GetChangeNotifier
+    FConfig.MapsConfig.GetChangeNotifier
   );
 
   LinksList.Add(
