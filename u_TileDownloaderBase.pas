@@ -571,7 +571,6 @@ begin
         PChar(ARequestHead),
         Length(ARequestHead),
         INTERNET_FLAG_NO_CACHE_WRITE or
-        INTERNET_FLAG_RELOAD or
         INTERNET_FLAG_IGNORE_CERT_CN_INVALID or
         INTERNET_FLAG_IGNORE_CERT_DATE_INVALID or
         INTERNET_FLAG_NO_COOKIES, { no automatic cookie handling }
