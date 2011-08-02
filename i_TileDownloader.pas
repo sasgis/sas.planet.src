@@ -19,15 +19,7 @@ type
 
   ITileDownloader = interface
     ['{EAF443E6-FC84-46A3-95AA-8217117A2A6B}']
-    function GetTileUrl(ATileXY: TPoint; AZoom: Byte): string;
     procedure Download(AEvent: ITileDownloaderEvent);
-
-    function GetTileRequestBuilderConfig: ITileRequestBuilderConfig;
-    property TileRequestBuilderConfig: ITileRequestBuilderConfig read GetTileRequestBuilderConfig;
-
-    function GetTileDownloaderConfig: ITileDownloaderConfig;
-    property TileDownloaderConfig: ITileDownloaderConfig read GetTileDownloaderConfig;
-
     function GetIsEnabled: Boolean;
     property Enabled: Boolean read GetIsEnabled;
   end;

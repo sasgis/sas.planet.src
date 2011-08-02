@@ -40,6 +40,7 @@ type
     FBanSleepTime: Cardinal;
     FProxyAuthErrorSleepTime: Cardinal;
     FDownloadErrorSleepTime: Cardinal;
+    FIsGoNextTileIfDownloadError: Boolean;
 
     FRES_UserStop: string;
     FRES_ProcessedFile: string;
@@ -124,6 +125,7 @@ begin
   FDownloadErrorSleepTime := 5000;
   PrepareStrings;
 
+  FIsGoNextTileIfDownloadError := GState.DownloadConfig.IsGoNextTileIfDownloadError;
   FDownloadInfo := TDownloadInfoSimple.Create(GState.DownloadInfo);
   FLog := ALog;
   Priority := tpLower;
@@ -282,7 +284,7 @@ begin
       end else begin
         FLog.WriteText(FRES_Noconnectionstointernet + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
         SleepCancelable(FDownloadErrorSleepTime);
-        if GState.GoNextTileIfDownloadError then begin
+        if FIsGoNextTileIfDownloadError then begin
           FGotoNextTile := True;
         end else begin
           FGotoNextTile := False;
@@ -347,7 +349,7 @@ begin
               FGotoNextTile := True;
             end else begin
               try
-                if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(GState.SaveTileNotExists) then begin
+                if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(GState.DownloadConfig.IsSaveTileNotExists) then begin
                   FLog.WriteText(FRES_TileNotExists, 1);
                   FGotoNextTile := True;
                 end else begin
@@ -431,33 +433,5 @@ begin
   FRES_TileDownloadUnexpectedError := SAS_ERR_TileDownloadUnexpectedError;
 end;
 
-{
-function TThreadDownloadTiles.GetErrStr(Aerr: TDownloadTileResult): string;
-begin
-  Result := '';
-  case Aerr of
-    dtrProxyAuthError:
-      result := FRES_Authorization;
-
-    dtrBanError:
-      result := FRES_Ban;
-
-    dtrTileNotExists:
-      result := FRES_TileNotExists;
-
-    dtrDownloadError,
-    dtrErrorInternetOpen,
-    dtrErrorInternetOpenURL:
-      result := FRES_Noconnectionstointernet;
-
-    dtrErrorMIMEType:
-      result := FRES_BadMIME;
-
-    dtrUnknownError:
-      Result := FRES_TileDownloadUnexpectedError;
-  end;
-end;
-
-}
 end.
 

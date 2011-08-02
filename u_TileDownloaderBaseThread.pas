@@ -147,7 +147,7 @@ begin
   FTileRequestBuilder.BuildRequest(
     FEvent.TileXY,
     FEvent.TileZoom,
-    0,
+    nil,
     nil,
     VUrl,
     VRawRequestHeader

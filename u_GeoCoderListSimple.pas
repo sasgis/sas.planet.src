@@ -3,13 +3,13 @@ unit u_GeoCoderListSimple;
 interface
 
 uses
-  i_InetConfig,
+  i_ProxySettings,
   u_GeoCoderListBase;
 
 type
   TGeoCoderListSimple = class(TGeoCoderListBase)
   public
-    constructor Create(AInetConfig: IInetConfig);
+    constructor Create(AProxy: IProxySettings);
   end;
 
 implementation
@@ -23,21 +23,21 @@ uses
 
 { TGeoCoderListSimple }
 
-constructor TGeoCoderListSimple.Create(AInetConfig: IInetConfig);
+constructor TGeoCoderListSimple.Create(AProxy: IProxySettings);
 begin
   inherited Create;
   Add(
     TGeoCoderListEntity.Create(
       CGeoCoderGoogleGUID,
       'Google',
-      TGeoCoderByGoogle.Create(AInetConfig)
+      TGeoCoderByGoogle.Create(AProxy)
     )
   );
   Add(
     TGeoCoderListEntity.Create(
       CGeoCoderYandexGUID,
       'Yandex',
-      TGeoCoderByYandex.Create(AInetConfig)
+      TGeoCoderByYandex.Create(AProxy)
     )
   );
 end;

@@ -6,32 +6,49 @@ uses
   Windows,
   Classes,
   SysUtils,
+  SyncObjs,
   i_ConfigDataProvider,
-  i_InetConfig,
+  i_CoordConverterFactory,
+  i_LanguageManager,
   i_TileRequestBuilder,
+  i_TileRequestBuilderConfig,
   i_TileDownloader,
+  i_TileDownloaderConfig,
   i_ZmpInfo,
-  u_TileDownloader,
   u_TileDownloaderBaseThread;
 
 type
-  TTileDownloaderBaseCore = class(TTileDownloader)
+  TTileDownloaderBaseCore = class(TInterfacedObject, ITileDownloader)
   private
+    FEnabled: Boolean;
+    FZmp: IZmpInfo;
+    FMaxConnectToServerCount: Cardinal;
+    FTileRequestBuilderConfig: ITileRequestBuilderConfig;
+    FTileDownloaderConfig: ITileDownloaderConfig;
+    FCoordConverterFactory: ICoordConverterFactory;
+    FLangManager: ILanguageManager;
     FSemaphore: THandle;
     FDownloadesList: TList;
     FRawResponseHeader: string;
-    function CreateNewTileRequestBuilder(AConfig: IConfigDataProvider): ITileRequestBuilder;
+    FCS: TCriticalSection;
+    procedure Lock;
+    procedure UnLock;
+    function CreateNewTileRequestBuilder: ITileRequestBuilder;
     function TryGetDownloadThread: TTileDownloaderBaseThread;
   public
     constructor Create(
       AConfig: IConfigDataProvider;
-      AInetConfig: IInetConfig;
-      AZmp: IZmpInfo
+      ATileDownloaderConfig: ITileDownloaderConfig;
+      ATileRequestBuilderConfig: ITileRequestBuilderConfig;
+      AZmp: IZmpInfo;
+      ACoordConverterFactory: ICoordConverterFactory;
+      ALangManager: ILanguageManager
     );
     destructor Destroy; override;
-    function GetTileUrl(ATileXY: TPoint; AZoom: Byte): string; override;
-    procedure Download(AEvent: ITileDownloaderEvent); override;
+    function GetIsEnabled: Boolean;
+    procedure Download(AEvent: ITileDownloaderEvent);
     procedure OnTileDownload(AEvent: ITileDownloaderEvent);
+    property Enabled: Boolean read GetIsEnabled;
   end;
 
 implementation
@@ -52,12 +69,27 @@ uses
 
 constructor TTileDownloaderBaseCore.Create(
   AConfig: IConfigDataProvider;
-  AInetConfig: IInetConfig;
-  AZmp: IZmpInfo
+  ATileDownloaderConfig: ITileDownloaderConfig;
+  ATileRequestBuilderConfig: ITileRequestBuilderConfig;
+  AZmp: IZmpInfo;
+  ACoordConverterFactory: ICoordConverterFactory;
+  ALangManager: ILanguageManager
 );
+var
+  VParams: IConfigDataProvider;
 begin
-  inherited Create(AConfig, AInetConfig, AZmp);
-  FTileRequestBuilder := CreateNewTileRequestBuilder(AConfig);
+  inherited Create;
+  FEnabled := False;
+  FTileDownloaderConfig := ATileDownloaderConfig;
+  FTileRequestBuilderConfig := ATileRequestBuilderConfig;
+  FZmp := AZmp;
+  FCoordConverterFactory := ACoordConverterFactory;
+  FLangManager := ALangManager;
+  FCS := TCriticalSection.Create;
+  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FTileRequestBuilderConfig.ReadConfig(VParams);
+  FTileDownloaderConfig.ReadConfig(VParams);
+  FMaxConnectToServerCount := FTileDownloaderConfig.MaxConnectToServerCount;
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
   FDownloadesList := TList.Create;
 end;
@@ -85,40 +117,15 @@ begin
   end;
 end;
 
-function TTileDownloaderBaseCore.CreateNewTileRequestBuilder(AConfig: IConfigDataProvider): ITileRequestBuilder;
-
-  function TryGetMapConfig: IConfigDataProvider;
-  var
-    VZmpMapConfig: IConfigDataProvider;
-    VLocalMapsConfig: IConfigDataProvider;
-    VLocalMapConfig: IConfigDataProvider;
-    VIni: TMemIniFile;
-  begin
-    try
-      Result := nil;
-      if FileExists(FZmp.FileName) then begin
-        VZmpMapConfig := TConfigDataProviderByKaZip.Create(FZmp.FileName);
-      end else begin
-        VZmpMapConfig := TConfigDataProviderByFolder.Create(FZmp.FileName);
-      end;
-      VIni := TMemIniFile.Create(GState.MapsPath + 'Maps.ini');
-      VLocalMapsConfig := TConfigDataProviderByIniFile.Create(VIni);
-      VLocalMapConfig := VLocalMapsConfig.GetSubItem(GUIDToString(FZmp.GUID));
-      Result := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
-    except
-      Result := nil;
-    end;
-  end;  // TryGetMapConfig
-
-var
-  VMapConfig: IConfigDataProvider;
+function TTileDownloaderBaseCore.CreateNewTileRequestBuilder: ITileRequestBuilder;
 begin
   try
-    VMapConfig := AConfig;
-    if VMapConfig = nil then begin
-      VMapConfig := TryGetMapConfig;
-    end;
-    Result := TTileRequestBuilderPascalScript.Create(FTileRequestBuilderConfig, VMapConfig);
+    Result := TTileRequestBuilderPascalScript.Create(
+      FTileRequestBuilderConfig,
+      FZmp.DataProvider,
+      FCoordConverterFactory,
+      FLangManager
+    );
     FEnabled := True;
   except
     on E: Exception do begin
@@ -134,21 +141,12 @@ begin
   end;
 end;
 
-function TTileDownloaderBaseCore.GetTileUrl(ATileXY: TPoint; AZoom: Byte): string;
-begin
-  if Assigned(FTileRequestBuilder) then begin
-    Result := FTileRequestBuilder.BuildRequestUrl(ATileXY, AZoom, FZmp.VersionConfig.Version);
-  end else begin
-    Result := '';
-  end;
-end;
-
 function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread;
 var
   I: Integer;
 begin
   Result := nil;
-  if WaitForSingleObject(FSemaphore, FInetConfig.TimeOut) = WAIT_OBJECT_0 then begin
+  if WaitForSingleObject(FSemaphore, FTileDownloaderConfig.InetConfigStatic.TimeOut) = WAIT_OBJECT_0 then begin
     Lock;
     try
       for I := 0 to FDownloadesList.Count - 1 do
@@ -166,7 +164,7 @@ begin
       end;
       if not Assigned(Result) and (FDownloadesList.Count < integer(FMaxConnectToServerCount)) then begin
         Result := TTileDownloaderBaseThread.Create;
-        Result.TileRequestBuilder := CreateNewTileRequestBuilder(nil);
+        Result.TileRequestBuilder := CreateNewTileRequestBuilder;
         Result.TileDownloaderConfig := FTileDownloaderConfig;
         FDownloadesList.Add(Result);
       end;
@@ -208,6 +206,26 @@ begin
   finally
     Unlock;
   end;
+end;
+
+function TTileDownloaderBaseCore.GetIsEnabled: Boolean;
+begin
+  Lock;
+  try
+    Result := FEnabled;
+  finally
+    Unlock;
+  end;
+end;
+
+procedure TTileDownloaderBaseCore.Lock;
+begin
+  FCS.Acquire;
+end;
+
+procedure TTileDownloaderBaseCore.UnLock;
+begin
+  FCS.Release;
 end;
 
 end.
