@@ -547,6 +547,8 @@ type
     FSensorViewList: IGUIDInterfaceList;
     FFormRegionProcess: TfrmRegionProcess;
 
+    FPrevTick:int64;
+
     procedure InitSearchers;
     procedure InitPathDetalizeProviders;
     procedure CreateMapUIMapsList;
@@ -561,6 +563,7 @@ type
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
+    procedure MapMoveAnimate(AMousePPS:double;dxy:TPoint;ALastTime:double);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
     procedure ProcessPosChangeMessage(Sender: TObject);
     procedure CopyBtmToClipboard(btm: TBitmap);
@@ -2186,6 +2189,60 @@ begin
   end;
 end;
 
+procedure TfrmMain.MapMoveAnimate(AMousePPS:double;dxy:TPoint;ALastTime:double);
+var
+  ts1,ts2,fr:int64;
+  VTime: Double;
+  VStepSizeInPixel:integer;
+  VMaxTime: Double; //максимальное время отображения инерции, мс.
+  Vk: Double;
+  VMapDeltaXY:TDoublePoint;
+  VMapDeltaXYmul:TDoublePoint;
+  mul:double;
+begin
+  QueryPerformanceCounter(ts1);
+  VMaxTime := 200; //теоретическое максимальное время отображения инерции
+  VTime := 0;
+  AMousePPS:=AMousePPS/8;
+  if AMousePPS>500 then begin
+    AMousePPS:=500; //ограничиваем максимальную скорость.
+  end;
+
+  if abs(dxy.x)>abs(dxy.y) then begin
+    VMapDeltaXYmul.x:=dxy.x/abs(dxy.x);
+    VMapDeltaXYmul.y:=dxy.y/abs(dxy.x);
+  end else begin
+    VMapDeltaXYmul.y:=dxy.y/abs(dxy.y);
+    VMapDeltaXYmul.x:=dxy.x/abs(dxy.y);
+  end;
+
+  VStepSizeInPixel:=Round(AMousePPS*(ALastTime/VMaxTime));
+
+  repeat
+    mul:=exp(-VTime/VMaxTime);
+    Vk:=VStepSizeInPixel*mul;
+    //mul:=mul*0.9;
+    //mul:=mul*(Tanh(Pi-(Pi*(VTime/VMaxTime))));
+    //Vk:=Vk*LogN(VMaxTime,VMaxTime-(VTime+VLastTime));
+    VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
+    VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
+    Map.BeginUpdate;
+    try
+      FConfig.ViewPortState.ChangeMapPixelByDelta(VMapDeltaXY);
+    finally
+      Map.EndUpdate;
+      Map.Changed;
+    end;
+    QueryPerformanceCounter(ts2);
+    QueryPerformanceFrequency(fr);
+    VTime:=(ts2-ts1)/(fr/1000);
+    if VStepSizeInPixel=0 then begin
+      VStepSizeInPixel:=Round(AMousePPS*(VTime/VMaxTime));
+    end;    
+    application.ProcessMessages;
+  until (Vk<2)or(FMapZoomAnimtion)or(FMapMoving);
+end;
+
 procedure TfrmMain.NzoomInClick(Sender: TObject);
 begin
   zooming(
@@ -3308,9 +3365,12 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseDownPos: TPoint;
   VMouseMoveDelta: TPoint;
+  VMouseMoveUPDelta: TPoint;
   VMark: IMarkFull;
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
+  VCurrTick, VFr: int64;
+  VMousePPS:Double;
 begin
   if (Layer <> nil) then begin
     exit;
@@ -3375,7 +3435,19 @@ begin
   VMouseMoveDelta := Point(VMouseDownPos.x-X, VMouseDownPos.y-y);
 
   if VMapMoving then begin
+    QueryPerformanceCounter(VCurrTick);
+    QueryPerformanceFrequency(VFr);
+    VMouseMoveUPDelta := Point(FMouseState.PreviousPos.x-FMouseState.CurentPos.X,
+                               FMouseState.PreviousPos.y-FMouseState.CurentPos.y);
+    VMousePPS:=sqrt(sqr(VMouseMoveUPDelta.X)+sqr(VMouseMoveUPDelta.Y))/((VCurrTick-FPrevTick)/(VFr));
+
+    QueryPerformanceCounter(FPrevTick);
     FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
+    QueryPerformanceCounter(VCurrTick);
+    QueryPerformanceFrequency(VFr);
+    MapMoveAnimate(VMousePPS,VMouseMoveUPDelta,(VCurrTick-FPrevTick)/(VFr/1000));
+
+    //FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
   end;
 
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
@@ -3520,6 +3592,7 @@ var
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
 begin
+  QueryPerformanceCounter(FPrevTick);
   if ProgramClose then begin
     exit;
   end;

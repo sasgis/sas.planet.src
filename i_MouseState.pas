@@ -13,6 +13,9 @@ type
     function GetCurentPos: TPoint;
     property CurentPos: TPoint read GetCurentPos;
 
+    function GetPreviousPos: TPoint;
+    property PreviousPos: TPoint read GetPreviousPos;
+
     function GetCurrentShift: TShiftState;
     property CurrentShift: TShiftState read GetCurrentShift;
 

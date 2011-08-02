@@ -14,6 +14,7 @@ type
   TMouseState = class(TInterfacedObject, IMouseState, IMouseHandler)
   private
     FCS: TCriticalSection;
+    FPreviousPos: TPoint;
     FCurentPos: TPoint;
     FCurrentShift: TShiftState;
     FLastDownPos: array [TMouseButton] of TPoint;
@@ -22,6 +23,7 @@ type
     FLastUpShift: array [TMouseButton] of TShiftState;
   protected
     function GetCurentPos: TPoint;
+    function GetPreviousPos: TPoint;
     function GetCurrentShift: TShiftState;
 
     function GetLastDownShift(AButton: TMouseButton): TShiftState;
@@ -71,6 +73,16 @@ begin
   FCS.Acquire;
   try
     Result := FCurentPos;
+  finally
+    FCS.Release;
+  end;
+end;
+
+function TMouseState.GetPreviousPos: TPoint;
+begin
+  FCS.Acquire;
+  try
+    Result := FPreviousPos;
   finally
     FCS.Release;
   end;
@@ -146,6 +158,7 @@ procedure TMouseState.OnMouseMove(AShift: TShiftState; APos: TPoint);
 begin
   FCS.Acquire;
   try
+    FPreviousPos := FCurentPos;
     FCurentPos := APos;
     FCurrentShift := AShift;
   finally
