@@ -4,48 +4,60 @@ interface
 
 uses
   GR32,
+  i_InternalPerformanceCounter,
   i_LayerBitmapClearStrategy;
 
 type
-  TLayerBitmapClearStrategyNOP = class(TInterfacedObject, ILayerBitmapClearStrategy)
-  protected
-    procedure Clear(ABitmap: TCustomBitmap32);
-  end;
-
-  TLayerBitmapClearStrategySimpleClear = class(TInterfacedObject, ILayerBitmapClearStrategy)
-  protected
-    procedure Clear(ABitmap: TCustomBitmap32);
-  end;
-
-  TLayerBitmapClearStrategyMoveImage = class(TInterfacedObject, ILayerBitmapClearStrategy)
+  TLayerBitmapClearStrategyBase = class(TInterfacedObject, ILayerBitmapClearStrategy)
   private
-    FDelta: TPoint;
+    FCounter: IInternalPerformanceCounter;
+  protected
+    procedure DoClear(ABitmap: TCustomBitmap32); virtual; abstract;
   protected
     procedure Clear(ABitmap: TCustomBitmap32);
   public
-    constructor Create(ADelta: TPoint);
+    constructor Create(ACounter: IInternalPerformanceCounter);
   end;
 
-  TLayerBitmapClearStrategyImageResize = class(TInterfacedObject, ILayerBitmapClearStrategy)
+  TLayerBitmapClearStrategySimpleClear = class(TLayerBitmapClearStrategyBase)
+  protected
+    procedure DoClear(ABitmap: TCustomBitmap32); override;
+  end;
+
+  TLayerBitmapClearStrategyMoveImage = class(TLayerBitmapClearStrategyBase)
+  private
+    FDelta: TPoint;
+  protected
+    procedure DoClear(ABitmap: TCustomBitmap32); override;
+  public
+    constructor Create(ACounter: IInternalPerformanceCounter; ADelta: TPoint);
+  end;
+
+  TLayerBitmapClearStrategyImageResize = class(TLayerBitmapClearStrategyBase)
   private
     FSourceBitmap: TCustomBitmap32;
     FInTargetTopLeft: TPoint;
   protected
-    procedure Clear(ABitmap: TCustomBitmap32);
+    procedure DoClear(ABitmap: TCustomBitmap32); override;
   public
-    constructor Create(ASourceBitmap: TCustomBitmap32; ATargetRectInSource: TRect);
+    constructor Create(
+      ACounter: IInternalPerformanceCounter;
+      ASourceBitmap: TCustomBitmap32;
+      ATargetRectInSource: TRect
+    );
     destructor Destroy; override;
   end;
 
 
-  TLayerBitmapClearStrategyZoomChange = class(TInterfacedObject, ILayerBitmapClearStrategy)
+  TLayerBitmapClearStrategyZoomChange = class(TLayerBitmapClearStrategyBase)
   private
     FSourceBitmap: TCustomBitmap32;
     FTargetRect: TRect;
   protected
-    procedure Clear(ABitmap: TCustomBitmap32);
+    procedure DoClear(ABitmap: TCustomBitmap32); override;
   public
     constructor Create(
+      ACounter: IInternalPerformanceCounter;
       AResumpler: TCustomResampler;
       ASourceBitmap: TCustomBitmap32;
       ASourceRect: TRect;
@@ -60,28 +72,45 @@ uses
   SysUtils,
   GR32_Resamplers;
 
-{ TLayerBitmapClearStrategyNOP }
+{ TLayerBitmapClearStrategyBase }
 
-procedure TLayerBitmapClearStrategyNOP.Clear(ABitmap: TCustomBitmap32);
+constructor TLayerBitmapClearStrategyBase.Create(
+  ACounter: IInternalPerformanceCounter);
 begin
-//NOP
+  FCounter := ACounter;
+end;
+
+procedure TLayerBitmapClearStrategyBase.Clear(ABitmap: TCustomBitmap32);
+var
+  VCounterContext: TInternalPerformanceCounterContext;
+begin
+  VCounterContext := FCounter.StartOperation;
+  try
+    DoClear(ABitmap);
+  finally
+    FCounter.FinishOperation(VCounterContext);
+  end;
 end;
 
 { TLayerBitmapClearStrategySimpleClear }
 
-procedure TLayerBitmapClearStrategySimpleClear.Clear(ABitmap: TCustomBitmap32);
+procedure TLayerBitmapClearStrategySimpleClear.DoClear(ABitmap: TCustomBitmap32);
 begin
   ABitmap.Clear(0);
 end;
 
 { TLayerBitmapClearStrategyMoveImage }
 
-constructor TLayerBitmapClearStrategyMoveImage.Create(ADelta: TPoint);
+constructor TLayerBitmapClearStrategyMoveImage.Create(
+  ACounter: IInternalPerformanceCounter;
+  ADelta: TPoint
+);
 begin
+  inherited Create(ACounter);
   FDelta := ADelta;
 end;
 
-procedure TLayerBitmapClearStrategyMoveImage.Clear(ABitmap: TCustomBitmap32);
+procedure TLayerBitmapClearStrategyMoveImage.DoClear(ABitmap: TCustomBitmap32);
 begin
   ABitmap.Roll(FDelta.X, FDelta.Y, True, 0);
 end;
@@ -89,12 +118,14 @@ end;
 { TLayerBitmapClearStrategyImageResize }
 
 constructor TLayerBitmapClearStrategyImageResize.Create(
+  ACounter: IInternalPerformanceCounter;
   ASourceBitmap: TCustomBitmap32;
   ATargetRectInSource: TRect
 );
 var
   VCopyRect: TRect;
 begin
+  inherited Create(ACounter);
   FSourceBitmap := TCustomBitmap32.Create;
 
   if ATargetRectInSource.Left <= 0 then begin
@@ -135,7 +166,7 @@ begin
   inherited;
 end;
 
-procedure TLayerBitmapClearStrategyImageResize.Clear(ABitmap: TCustomBitmap32);
+procedure TLayerBitmapClearStrategyImageResize.DoClear(ABitmap: TCustomBitmap32);
 begin
   ABitmap.Clear(0);
   FSourceBitmap.DrawTo(ABitmap, FInTargetTopLeft.X, FInTargetTopLeft.Y);
@@ -144,12 +175,14 @@ end;
 { TLayerBitmapClearStrategyZoomChange }
 
 constructor TLayerBitmapClearStrategyZoomChange.Create(
+  ACounter: IInternalPerformanceCounter;
   AResumpler: TCustomResampler;
   ASourceBitmap: TCustomBitmap32;
   ASourceRect: TRect;
   ATargetRect: TRect
 );
 begin
+  inherited Create(ACounter);
   FSourceBitmap := TCustomBitmap32.Create;
   FSourceBitmap.SetSize(ASourceRect.Right - ASourceRect.Left, ASourceRect.Bottom - ASourceRect.Top);
   BlockTransfer(FSourceBitmap, 0, 0, FSourceBitmap.ClipRect, ASourceBitmap, ASourceRect, dmOpaque, nil);
@@ -167,7 +200,7 @@ begin
   inherited;
 end;
 
-procedure TLayerBitmapClearStrategyZoomChange.Clear(ABitmap: TCustomBitmap32);
+procedure TLayerBitmapClearStrategyZoomChange.DoClear(ABitmap: TCustomBitmap32);
 begin
   ABitmap.Clear(0);
   FSourceBitmap.DrawTo(ABitmap, FTargetRect, FSourceBitmap.ClipRect);
