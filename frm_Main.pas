@@ -3440,7 +3440,7 @@ begin
   end;
   VMouseMoveDelta := Point(VMouseDownPos.x-X, VMouseDownPos.y-y);
 
-  if VMapMoving then begin
+  if (VMapMoving)and(VMouseMoveDelta.X<>0)and(VMouseMoveDelta.Y<>0) then begin
     QueryPerformanceCounter(VCurrTick);
     QueryPerformanceFrequency(VFr);
     VMouseMoveUPDelta := Point(FMouseState.PreviousPos.x-FMouseState.CurentPos.X,
