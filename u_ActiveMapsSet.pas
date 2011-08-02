@@ -12,10 +12,10 @@ uses
 type
   TActiveMapsSet = class(TConfigDataElementBaseEmptySaveLoad, IActiveMapsSet)
   private
-    FMapsList: IMapTypeList;
+    FMapsSet: IMapTypeSet;
 
-    FSingeMapsList: IGUIDInterfaceList;
-    FSelectedMapsList: IMapTypeList;
+    FSingeMapsSet: IGUIDInterfaceList;
+    FSelectedMapsList: IMapTypeSet;
 
     FMainMapChangeNotyfier: IJclNotifier;
     FMainMapListener: IJclListener;
@@ -26,17 +26,17 @@ type
     FLayerSetSelectListener: IJclListener;
     FLayerSetUnselectListener: IJclListener;
 
-    procedure OnMainMapChange(AGUID: TGUID);
-    procedure OnLayerSetSelectChange(AGUID: TGUID);
-    procedure OnLayerSetUnselectChange(AGUID: TGUID);
+    procedure OnMainMapChange(const AGUID: TGUID);
+    procedure OnLayerSetSelectChange(const AGUID: TGUID);
+    procedure OnLayerSetUnselectChange(const AGUID: TGUID);
   protected
-    function IsGUIDSelected(AMapGUID: TGUID): Boolean;
-    function GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
-    function GetSelectedMapsList: IMapTypeList;
-    function GetMapsList: IMapTypeList;
+    function IsGUIDSelected(const AMapGUID: TGUID): Boolean;
+    function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
+    function GetSelectedMapsSet: IMapTypeSet;
+    function GetMapsSet: IMapTypeSet;
   public
     constructor Create(
-      AMapsList: IMapTypeList;
+      AMapsSet: IMapTypeSet;
       ASingeMapsList: IGUIDInterfaceList;
       AMainMapChangeNotyfier: IJclNotifier;
       ALayerSetSelectNotyfier: IJclNotifier;
@@ -54,14 +54,14 @@ uses
 
 { TActiveMapsSet }
 
-constructor TActiveMapsSet.Create(AMapsList: IMapTypeList;
+constructor TActiveMapsSet.Create(AMapsSet: IMapTypeSet;
   ASingeMapsList: IGUIDInterfaceList; AMainMapChangeNotyfier,
   ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier);
 begin
   inherited Create;
-  FMapsList := AMapsList;
-  FSingeMapsList := ASingeMapsList;
-  FSelectedMapsList := TMapTypeList.Create(True);
+  FMapsSet := AMapsSet;
+  FSingeMapsSet := ASingeMapsList;
+  FSelectedMapsList := TMapTypeSet.Create(True);
 
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;
   if FMainMapChangeNotyfier <> nil then begin
@@ -105,19 +105,19 @@ begin
   inherited;
 end;
 
-function TActiveMapsSet.GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
+function TActiveMapsSet.GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
 begin
-  if FMapsList.GetMapTypeByGUID(AMapGUID) <> nil then begin
-    Result := IActiveMapSingle(FSingeMapsList.GetByGUID(AMapGUID));
+  if FMapsSet.GetMapTypeByGUID(AMapGUID) <> nil then begin
+    Result := IActiveMapSingle(FSingeMapsSet.GetByGUID(AMapGUID));
   end;
 end;
 
-function TActiveMapsSet.GetMapsList: IMapTypeList;
+function TActiveMapsSet.GetMapsSet: IMapTypeSet;
 begin
-  Result := FMapsList;
+  Result := FMapsSet;
 end;
 
-function TActiveMapsSet.GetSelectedMapsList: IMapTypeList;
+function TActiveMapsSet.GetSelectedMapsSet: IMapTypeSet;
 begin
   LockRead;
   try
@@ -127,7 +127,7 @@ begin
   end;
 end;
 
-function TActiveMapsSet.IsGUIDSelected(AMapGUID: TGUID): Boolean;
+function TActiveMapsSet.IsGUIDSelected(const AMapGUID: TGUID): Boolean;
 begin
   LockRead;
   try
@@ -137,23 +137,23 @@ begin
   end;
 end;
 
-procedure TActiveMapsSet.OnLayerSetSelectChange(AGUID: TGUID);
+procedure TActiveMapsSet.OnLayerSetSelectChange(const AGUID: TGUID);
 var
   VMapType: IMapType;
-  VList: TMapTypeList;
+  VList: TMapTypeSet;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VMapType := FMapsList.GetMapTypeByGUID(AGUID);
+  VMapType := FMapsSet.GetMapTypeByGUID(AGUID);
   if VMapType <> nil then begin
     LockWrite;
     try
       if FSelectedMapsList.GetMapTypeByGUID(AGUID) = nil then begin
-        VList := TMapTypeList.Create(True);
+        VList := TMapTypeSet.Create(True);
         VEnun := FSelectedMapsList.GetIterator;
         while VEnun.Next(1, VGUID, i) = S_OK do begin
-          VList.Add(FMapsList.GetMapTypeByGUID(VGUID));
+          VList.Add(FMapsSet.GetMapTypeByGUID(VGUID));
         end;
         VList.Add(VMapType);
         FSelectedMapsList := VList;
@@ -165,24 +165,24 @@ begin
   end;
 end;
 
-procedure TActiveMapsSet.OnLayerSetUnselectChange(AGUID: TGUID);
+procedure TActiveMapsSet.OnLayerSetUnselectChange(const AGUID: TGUID);
 var
   VMapType: IMapType;
-  VList: TMapTypeList;
+  VList: TMapTypeSet;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VMapType := FMapsList.GetMapTypeByGUID(AGUID);
+  VMapType := FMapsSet.GetMapTypeByGUID(AGUID);
   if VMapType <> nil then begin
     LockWrite;
     try
       if FSelectedMapsList.GetMapTypeByGUID(AGUID) <> nil then begin
-        VList := TMapTypeList.Create(True);
+        VList := TMapTypeSet.Create(True);
         VEnun := FSelectedMapsList.GetIterator;
         while VEnun.Next(1, VGUID, i) = S_OK do begin
           if not IsEqualGUID(VGUID, AGUID) then begin
-            VList.Add(FMapsList.GetMapTypeByGUID(VGUID));
+            VList.Add(FMapsSet.GetMapTypeByGUID(VGUID));
           end;
         end;
         FSelectedMapsList := VList;
@@ -194,20 +194,20 @@ begin
   end;
 end;
 
-procedure TActiveMapsSet.OnMainMapChange(AGUID: TGUID);
+procedure TActiveMapsSet.OnMainMapChange(const AGUID: TGUID);
 var
   VMapSingle: IActiveMapSingle;
-  VList: TMapTypeList;
+  VList: TMapTypeSet;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
 begin
   LockWrite;
   try
-    VList := TMapTypeList.Create(True);
-    VEnun := FMapsList.GetIterator;
+    VList := TMapTypeSet.Create(True);
+    VEnun := FMapsSet.GetIterator;
     while VEnun.Next(1, VGUID, i) = S_OK do begin
-      VMapSingle := IActiveMapSingle(FSingeMapsList.GetByGUID(VGUID));
+      VMapSingle := IActiveMapSingle(FSingeMapsSet.GetByGUID(VGUID));
       if VMapSingle.GetIsActive then begin
         VList.Add(VMapSingle.GetMapType);
       end;

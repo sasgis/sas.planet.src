@@ -31,7 +31,7 @@ type
   private
     FMainMapChangeNotyfier: IJclNotifier;
     FMainMapListener: IJclListener;
-    procedure OnMainMapChange(AGUID: TGUID);
+    procedure OnMainMapChange(const AGUID: TGUID);
   public
     constructor Create(AMapType: IMapType; AMainMapChangeNotyfier: IJclNotifier);
     destructor Destroy; override;
@@ -44,8 +44,8 @@ type
     FLayerSetUnselectNotyfier: IJclNotifier;
     FLayerSetSelectListener: IJclListener;
     FLayerSetUnselectListener: IJclListener;
-    procedure OnLayerSetSelectChange(AGUID: TGUID);
-    procedure OnLayerSetUnselectChange(AGUID: TGUID);
+    procedure OnLayerSetSelectChange(const AGUID: TGUID);
+    procedure OnLayerSetUnselectChange(const AGUID: TGUID);
   public
     constructor Create(
       AMapType: IMapType;
@@ -128,7 +128,7 @@ begin
   inherited;
 end;
 
-procedure TActiveMapSingleMainMap.OnMainMapChange(AGUID: TGUID);
+procedure TActiveMapSingleMainMap.OnMainMapChange(const AGUID: TGUID);
 begin
   SetIsActive(IsEqualGUID(FMapGUID, AGUID));
 end;
@@ -161,14 +161,14 @@ begin
   inherited;
 end;
 
-procedure TActiveMapSingleLayer.OnLayerSetSelectChange(AGUID: TGUID);
+procedure TActiveMapSingleLayer.OnLayerSetSelectChange(const AGUID: TGUID);
 begin
   if IsEqualGUID(MapGUID, AGUID) then begin
     SetIsActive(True);
   end;
 end;
 
-procedure TActiveMapSingleLayer.OnLayerSetUnselectChange(AGUID: TGUID);
+procedure TActiveMapSingleLayer.OnLayerSetUnselectChange(const AGUID: TGUID);
 begin
   if IsEqualGUID(MapGUID, AGUID) then begin
     SetIsActive(False);

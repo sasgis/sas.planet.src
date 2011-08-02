@@ -14,12 +14,15 @@
     <DCC_DebugInformation>False</DCC_DebugInformation>
     <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
     <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-    <DCC_MapFile>3</DCC_MapFile>
     <DCC_ExeOutput>.\.bin</DCC_ExeOutput>
     <DCC_DcuOutput>.\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
     <DCC_Define>RELEASE</DCC_Define>
+    <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_UnitSearchPath>
+    <DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_ResourcePath>
+    <DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_ObjPath>
+    <DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
@@ -29,6 +32,13 @@
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
     <DCC_Define>DEBUG</DCC_Define>
+    <DCC_Optimize>False</DCC_Optimize>
+    <DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
+    <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
+    <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_UnitSearchPath>
+    <DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_ResourcePath>
+    <DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_ObjPath>
+    <DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\Fundamentals</DCC_IncludePath>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
@@ -47,6 +57,7 @@
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas" />
     <DCCReference Include="c_CoordConverter.pas" />
     <DCCReference Include="c_GeoCoderGUIDSimple.pas" />
+    <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
     <DCCReference Include="frm_About.pas">
@@ -116,23 +127,22 @@
       <Form>frmStartLogo</Form>
     </DCCReference>
     <DCCReference Include="fr_LonLat.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frLonLat</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_MarkDescription.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frMarkDescription</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_ShortCutList.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frShortCutList</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="i_ActiveMapsConfig.pas" />
     <DCCReference Include="i_BackgroundTask.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
-    <DCCReference Include="i_BitmapTypeExtManager.pas" />
     <DCCReference Include="i_CalcLineLayerConfig.pas" />
     <DCCReference Include="i_CenterScaleConfig.pas" />
     <DCCReference Include="i_ConfigDataElement.pas" />
@@ -142,6 +152,7 @@
     <DCCReference Include="i_ContentConverter.pas" />
     <DCCReference Include="i_ContentTypeInfo.pas" />
     <DCCReference Include="i_ContentTypeManager.pas" />
+    <DCCReference Include="i_ContentTypeSubst.pas" />
     <DCCReference Include="i_CoordConverter.pas" />
     <DCCReference Include="i_CoordConverterFactory.pas" />
     <DCCReference Include="i_Datum.pas" />
@@ -154,7 +165,10 @@
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
     <DCCReference Include="i_GeoCoderList.pas" />
+    <DCCReference Include="i_GlobalAppConfig.pas" />
+    <DCCReference Include="i_GlobalDownloadConfig.pas" />
     <DCCReference Include="i_GlobalViewMainConfig.pas" />
+    <DCCReference Include="i_GotoLayerConfig.pas" />
     <DCCReference Include="i_GPS.pas" />
     <DCCReference Include="i_GPSConfig.pas" />
     <DCCReference Include="i_GPSModule.pas" />
@@ -162,6 +176,7 @@
     <DCCReference Include="i_GPSModuleByCOMFactory.pas" />
     <DCCReference Include="i_GPSModuleByCOMPortConfig.pas" />
     <DCCReference Include="i_GPSModuleByCOMPortSettings.pas" />
+    <DCCReference Include="i_GPSPositionFactory.pas" />
     <DCCReference Include="i_GPSRecorder.pas" />
     <DCCReference Include="i_GSMGeoCodeConfig.pas" />
     <DCCReference Include="i_ImageResamplerConfig.pas" />
@@ -169,6 +184,7 @@
     <DCCReference Include="i_ImportConfig.pas" />
     <DCCReference Include="i_ImportFile.pas" />
     <DCCReference Include="i_InetConfig.pas" />
+    <DCCReference Include="i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="i_InternalPerformanceCounter.pas" />
     <DCCReference Include="i_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
@@ -195,9 +211,11 @@
     <DCCReference Include="i_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="i_MapLayerGridsConfig.pas" />
     <DCCReference Include="i_MapLayerNavToPointMarkerConfig.pas" />
+    <DCCReference Include="i_MapMovingConfig.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_MapVersionConfig.pas" />
+    <DCCReference Include="i_MapVersionInfo.pas" />
     <DCCReference Include="i_MapViewGoto.pas" />
     <DCCReference Include="i_MapZoomingConfig.pas" />
     <DCCReference Include="i_MarkCategory.pas" />
@@ -214,16 +232,22 @@
     <DCCReference Include="i_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="i_Marks.pas" />
     <DCCReference Include="i_MarksDbSmlInternal.pas" />
+    <DCCReference Include="i_MarksDrawConfig.pas" />
     <DCCReference Include="i_MarksFactoryConfig.pas" />
+    <DCCReference Include="i_MarksLayerConfig.pas" />
     <DCCReference Include="i_MarksSimple.pas" />
     <DCCReference Include="i_MarkTemplate.pas" />
     <DCCReference Include="i_MemCache.pas" />
     <DCCReference Include="i_MemObjCache.pas" />
     <DCCReference Include="i_MessageHandler.pas" />
     <DCCReference Include="i_MiniMapLayerConfig.pas" />
+    <DCCReference Include="i_MouseHandler.pas" />
+    <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
     <DCCReference Include="i_ObjectWithTTL.pas" />
+    <DCCReference Include="i_OperationCancelNotifier.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
+    <DCCReference Include="i_PathDetalizeProviderList.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
     <DCCReference Include="i_PolyLineLayerConfig.pas" />
     <DCCReference Include="i_PosChangeMessage.pas" />
@@ -234,10 +258,11 @@
     <DCCReference Include="i_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="i_SelectionRectLayerConfig.pas" />
     <DCCReference Include="i_Sensor.pas" />
-    <DCCReference Include="i_SensorListGenerator.pas" />
+    <DCCReference Include="i_SensorList.pas" />
     <DCCReference Include="i_SensorViewListGenerator.pas" />
     <DCCReference Include="i_SimpleDownloader.pas" />
     <DCCReference Include="i_SimpleFactory.pas" />
+    <DCCReference Include="i_StartUpLogoConfig.pas" />
     <DCCReference Include="i_StatBarConfig.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloader.pas" />
@@ -295,44 +320,44 @@
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportAUX</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportGEKml.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportGEKml</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportIPhone.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportIPhone</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportToFileCont.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportToFileCont</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportYaMaps.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportYaMaps</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_MapCombine.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frMapCombine</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesCopy.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frTilesCopy</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesDelete.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frTilesDelete</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesDownload.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frTilesDownload</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesGenPrev.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frTilesGenPrev</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\u_ExportProviderAbstract.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderAUX.pas" />
@@ -365,40 +390,6 @@
     <DCCReference Include="RegionProcess\u_ThreadMapCombineJPG.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombineKMZ.pas" />
     <DCCReference Include="RegionProcess\u_ThreadRegionProcessAbstract.pas" />
-    <DCCReference Include="src\BMSearch.pas" />
-    <DCCReference Include="src\CPDrv.pas" />
-    <DCCReference Include="src\c_ZeroGUID.pas" />
-    <DCCReference Include="src\ECWReader.pas" />
-    <DCCReference Include="src\ECWwriter.pas" />
-    <DCCReference Include="src\Fundamentals\cUnicode.pas" />
-    <DCCReference Include="src\Fundamentals\cUnicodeCodecs.pas" />
-    <DCCReference Include="src\gnugettext.pas" />
-    <DCCReference Include="src\i_EnumID.pas" />
-    <DCCReference Include="src\i_FileNameIterator.pas" />
-    <DCCReference Include="src\i_GUIDList.pas" />
-    <DCCReference Include="src\i_IDList.pas" />
-    <DCCReference Include="src\i_JclNotify.pas" />
-    <DCCReference Include="src\KAZip.pas" />
-    <DCCReference Include="src\Langs.pas" />
-    <DCCReference Include="src\MD5.pas" />
-    <DCCReference Include="src\RarProgressBar\RarProgress.pas" />
-    <DCCReference Include="src\RegExpr.pas" />
-    <DCCReference Include="src\SwinHttp.pas" />
-    <DCCReference Include="src\TarWriter.pas" />
-    <DCCReference Include="src\TBXSASTheme.pas" />
-    <DCCReference Include="src\u_FileNameIteratorFolderWithSubfolders.pas" />
-    <DCCReference Include="src\u_FileNameIteratorInFolderByMask.pas" />
-    <DCCReference Include="src\u_FileNameIteratorInFolderByMaskList.pas" />
-    <DCCReference Include="src\u_FoldersIteratorRecursiveByLevels.pas" />
-    <DCCReference Include="src\u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders.pas" />
-    <DCCReference Include="src\u_GUIDInterfaceList.pas" />
-    <DCCReference Include="src\u_GUIDList.pas" />
-    <DCCReference Include="src\u_GUIDObjectList.pas" />
-    <DCCReference Include="src\u_IDInterfaceList.pas" />
-    <DCCReference Include="src\u_IdListBase.pas" />
-    <DCCReference Include="src\u_JclNotify.pas" />
-    <DCCReference Include="src\u_UseNewFonts.pas" />
-    <DCCReference Include="src\u_WideStrings.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
@@ -411,7 +402,6 @@
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfigStatic.pas" />
-    <DCCReference Include="u_BitmapTypeExtManagerSimple.pas" />
     <DCCReference Include="u_BmpUtil.pas" />
     <DCCReference Include="u_CalcLineLayerConfig.pas" />
     <DCCReference Include="u_CenterScaleConfig.pas" />
@@ -423,13 +413,16 @@
     <DCCReference Include="u_ConfigDataProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFileSection.pas" />
     <DCCReference Include="u_ConfigDataProviderByKaZip.pas" />
+    <DCCReference Include="u_ConfigDataProviderByResources.pas" />
     <DCCReference Include="u_ConfigDataProviderVirtualWithSubItem.pas" />
+    <DCCReference Include="u_ConfigDataProviderWithGlobal.pas" />
     <DCCReference Include="u_ConfigDataProviderWithLocal.pas" />
     <DCCReference Include="u_ConfigDataProviderWithReplacedSubItem.pas" />
     <DCCReference Include="u_ConfigDataProviderWithUseDepreciated.pas" />
     <DCCReference Include="u_ConfigDataProviderZmpComplex.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataWriteProviderByIniFileSection.pas" />
+    <DCCReference Include="u_ConfigDataWriteProviderWithGlobal.pas" />
     <DCCReference Include="u_ConfigProviderHelpers.pas" />
     <DCCReference Include="u_ConfigSaveLoadStrategyBasicProviderSubItem.pas" />
     <DCCReference Include="u_ConfigSaveLoadStrategyBasicUseProvider.pas" />
@@ -443,6 +436,7 @@
     <DCCReference Include="u_ContentTypeListByKey.pas" />
     <DCCReference Include="u_ContentTypeManagerBase.pas" />
     <DCCReference Include="u_ContentTypeManagerSimple.pas" />
+    <DCCReference Include="u_ContentTypeSubstByList.pas" />
     <DCCReference Include="u_CoordConverterAbstract.pas" />
     <DCCReference Include="u_CoordConverterBasic.pas" />
     <DCCReference Include="u_CoordConverterFactorySimple.pas" />
@@ -478,9 +472,12 @@
     <DCCReference Include="u_GeoCoderListSimple.pas" />
     <DCCReference Include="u_GeoFun.pas" />
     <DCCReference Include="u_GeoToStr.pas" />
+    <DCCReference Include="u_GlobalAppConfig.pas" />
     <DCCReference Include="u_GlobalCahceConfig.pas" />
+    <DCCReference Include="u_GlobalDownloadConfig.pas" />
     <DCCReference Include="u_GlobalState.pas" />
     <DCCReference Include="u_GlobalViewMainConfig.pas" />
+    <DCCReference Include="u_GotoLayerConfig.pas" />
     <DCCReference Include="u_GPSConfig.pas" />
     <DCCReference Include="u_GPSLogWriterToPlt.pas" />
     <DCCReference Include="u_GPSModuleAbstract.pas" />
@@ -495,6 +492,9 @@
     <DCCReference Include="u_GPSSatellitesInView.pas" />
     <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
+    <DCCReference Include="u_IeEmbeddedProtocol.pas" />
+    <DCCReference Include="u_IeEmbeddedProtocolFactory.pas" />
+    <DCCReference Include="u_IeEmbeddedProtocolRegistration.pas" />
     <DCCReference Include="u_ImageResamplerConfig.pas" />
     <DCCReference Include="u_ImageResamplerFactory.pas" />
     <DCCReference Include="u_ImageResamplerFactoryListStatic.pas" />
@@ -503,16 +503,18 @@
     <DCCReference Include="u_ImportConfig.pas" />
     <DCCReference Include="u_ImportHLG.pas" />
     <DCCReference Include="u_ImportKML.pas" />
+    <DCCReference Include="u_ImportMpSimple.pas" />
     <DCCReference Include="u_ImportPLT.pas" />
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InetConfigStatic.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
+    <DCCReference Include="u_InternalDomainInfoProviderByMapTypeList.pas" />
+    <DCCReference Include="u_InternalDomainInfoProviderList.pas" />
     <DCCReference Include="u_InternalPerformanceCounter.pas" />
     <DCCReference Include="u_InternalPerformanceCounterList.pas" />
     <DCCReference Include="u_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="u_KeyMovingConfig.pas" />
     <DCCReference Include="u_KeyMovingHandler.pas" />
-    <DCCReference Include="u_KmlInfoSimple.pas" />
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />
     <DCCReference Include="u_KmlLayerConfig.pas" />
     <DCCReference Include="u_KmzInfoSimpleParser.pas" />
@@ -550,6 +552,7 @@
     <DCCReference Include="u_MapLayerGridsConfig.pas" />
     <DCCReference Include="u_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="u_MapMarksBitmapLayerProviderByMarksSubset.pas" />
+    <DCCReference Include="u_MapMovingConfig.pas" />
     <DCCReference Include="u_MapType.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeCacheConfig.pas" />
@@ -558,8 +561,9 @@
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypesMainList.pas" />
     <DCCReference Include="u_MapVersionConfig.pas" />
+    <DCCReference Include="u_MapVersionInfo.pas" />
     <DCCReference Include="u_MapViewGotoOnFMain.pas" />
-    <DCCReference Include="u_MapViewPortStateNew.pas" />
+    <DCCReference Include="u_MapViewPortState.pas" />
     <DCCReference Include="u_MapZoomingConfig.pas" />
     <DCCReference Include="u_MarkCategory.pas" />
     <DCCReference Include="u_MarkCategoryDB.pas" />
@@ -580,8 +584,11 @@
     <DCCReference Include="u_MarkPolyTemplateConfig.pas" />
     <DCCReference Include="u_MarksDb.pas" />
     <DCCReference Include="u_MarksDbGUIHelper.pas" />
+    <DCCReference Include="u_MarksDrawConfig.pas" />
+    <DCCReference Include="u_MarksDrawConfigStatic.pas" />
     <DCCReference Include="u_MarksFactoryConfig.pas" />
     <DCCReference Include="u_MarksImportBase.pas" />
+    <DCCReference Include="u_MarksLayerConfig.pas" />
     <DCCReference Include="u_MarksOnlyDb.pas" />
     <DCCReference Include="u_MarksSubset.pas" />
     <DCCReference Include="u_MarkTemplateConfigBase.pas" />
@@ -589,10 +596,16 @@
     <DCCReference Include="u_MemFileCache.pas" />
     <DCCReference Include="u_MiniMapLayerConfig.pas" />
     <DCCReference Include="u_MiniMapMapsConfig.pas" />
+    <DCCReference Include="u_MouseState.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_NotifyEventPosChangeListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
+    <DCCReference Include="u_OperationCancelNotifier.pas" />
+    <DCCReference Include="u_PathDetalizeProviderCloudMade.pas" />
+    <DCCReference Include="u_PathDetalizeProviderListBase.pas" />
+    <DCCReference Include="u_PathDetalizeProviderListEntity.pas" />
+    <DCCReference Include="u_PathDetalizeProviderListSimple.pas" />
     <DCCReference Include="u_PathDetalizeProviderMailRu.pas" />
     <DCCReference Include="u_PathDetalizeProviderYourNavigation.pas" />
     <DCCReference Include="u_PLT.pas" />
@@ -603,6 +616,7 @@
     <DCCReference Include="u_PosFromGSM.pas" />
     <DCCReference Include="u_ProxyConfig.pas" />
     <DCCReference Include="u_ResStrings.pas" />
+    <DCCReference Include="u_SASMainConfigProvider.pas" />
     <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_ScaleLineConfig.pas" />
@@ -611,7 +625,8 @@
     <DCCReference Include="u_SelectionRectLayerConfig.pas" />
     <DCCReference Include="u_SensorBase.pas" />
     <DCCReference Include="u_SensorBatteryStatus.pas" />
-    <DCCReference Include="u_SensorListGeneratorStuped.pas" />
+    <DCCReference Include="u_SensorListBase.pas" />
+    <DCCReference Include="u_SensorListStuped.pas" />
     <DCCReference Include="u_SensorsFromGPSRecorder.pas" />
     <DCCReference Include="u_SensorTextFromGPSRecorder.pas" />
     <DCCReference Include="u_SensorTextFromNavToPoint.pas" />
@@ -619,7 +634,7 @@
     <DCCReference Include="u_SensorViewListGeneratorStuped.pas" />
     <DCCReference Include="u_SensorViewTextTBXPanel.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
-    <DCCReference Include="u_SimpleDownloader.pas" />
+    <DCCReference Include="u_StartUpLogoConfig.pas" />
     <DCCReference Include="u_StatBarConfig.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
@@ -666,6 +681,7 @@
     <DCCReference Include="u_TimeZones.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
+    <DCCReference Include="u_UserInterfaceItemBase.pas" />
     <DCCReference Include="u_ValueToStringConverter.pas" />
     <DCCReference Include="u_ValueToStringConverterConfig.pas" />
     <DCCReference Include="u_VectorDataItemBase.pas" />

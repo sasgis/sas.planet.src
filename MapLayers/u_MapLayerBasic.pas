@@ -220,7 +220,6 @@ begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
-  FLayer.Bitmap.CombineMode := cmMerge;
   FNeedUpdateLayerSizeCS := TCriticalSection.Create;
 end;
 

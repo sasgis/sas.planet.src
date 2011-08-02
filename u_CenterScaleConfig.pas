@@ -20,7 +20,7 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetVisible: Boolean;
-    procedure SetVisible(AValue: Boolean);
+    procedure SetVisible(const AValue: Boolean);
 
     function GetBitmap: TCustomBitmap32;
     procedure SetBitmap(AValue: TCustomBitmap32);
@@ -157,7 +157,7 @@ begin
   end;
 end;
 
-procedure TCenterScaleConfig.SetVisible(AValue: Boolean);
+procedure TCenterScaleConfig.SetVisible(const AValue: Boolean);
 begin
   LockWrite;
   try

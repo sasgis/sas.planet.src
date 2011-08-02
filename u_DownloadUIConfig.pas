@@ -20,13 +20,13 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetUseDownload: TTileSource;
-    procedure SetUseDownload(AValue: TTileSource);
+    procedure SetUseDownload(const AValue: TTileSource);
 
     function GetTileMaxAgeInInternet: TDateTime;
-    procedure SetTileMaxAgeInInternet(AValue: TDateTime);
+    procedure SetTileMaxAgeInInternet(const AValue: TDateTime);
 
     function GetTilesOut: Integer;
-    procedure SetTilesOut(AValue: Integer);
+    procedure SetTilesOut(const AValue: Integer);
   public
     constructor Create;
   end;
@@ -101,7 +101,7 @@ begin
   end;
 end;
 
-procedure TDownloadUIConfig.SetTileMaxAgeInInternet(AValue: TDateTime);
+procedure TDownloadUIConfig.SetTileMaxAgeInInternet(const AValue: TDateTime);
 begin
   LockWrite;
   try
@@ -114,7 +114,7 @@ begin
   end;
 end;
 
-procedure TDownloadUIConfig.SetTilesOut(AValue: Integer);
+procedure TDownloadUIConfig.SetTilesOut(const AValue: Integer);
 begin
   LockWrite;
   try
@@ -127,7 +127,7 @@ begin
   end;
 end;
 
-procedure TDownloadUIConfig.SetUseDownload(AValue: TTileSource);
+procedure TDownloadUIConfig.SetUseDownload(const AValue: TTileSource);
 begin
   LockWrite;
   try

@@ -7,153 +7,163 @@ uses
   SysUtils,
   Classes,
   t_GeoTypes,
-  i_GeoCoder,
-  i_InetConfig,
-  i_SimpleDownloader;
+  i_ProxySettings,
+  i_GeoCoder;
 
 type
   TGeoCoderBasic = class(TInterfacedObject, IGeoCoder)
   protected
-    FInetConfig: IInetConfig;
-    FOnGetLocation: TGetLocation;
-    FDownloader: ISimpleDownloader;
+    FInetSettings: IProxySettings;
     function URLEncode(const S: string): string; virtual;
     function PrepareURL(ASearch: WideString): string; virtual; abstract;
+    function GetDataFromInet(ASearch: WideString): string; virtual;
     function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; virtual; abstract;
-    procedure ParseHttpResponse(
-      var AResponseCode: Cardinal;
-      AResponseBuf: TMemoryStream;
-      out AMessage: WideString;
-      out AList: IInterfaceList
-    );
-    procedure OnAsyncDownloadReady(
-      Sender: TObject;
-      AResponseCode: Cardinal;
-      const AContentType: string;
-      const AResponseHead: string;
-      AResponseBuf: TMemoryStream
-    );
-    function GetLocations(ASearch: WideString; ACurrentPos: TDoublePoint): IGeoCodeResult; virtual; safecall;
-    procedure GetLocationsAsync(ASearch: WideString; ACurrentPos: TDoublePoint; OnGetLocation: TGetLocation); virtual; safecall;
+  protected
+    function GetLocations(const ASearch: WideString; const ACurrentPos: TDoublePoint): IGeoCodeResult; virtual; safecall;
   public
-    constructor Create(AInetConfig: IInetConfig);
+    constructor Create(AInetSettings: IProxySettings);
     destructor Destroy; override;
   end;
+
+  EInternetOpenError = class(Exception)
+  public
+    ErrorCode: DWORD;
+    constructor Create(Code: DWORD; Msg: String);
+  end;
+
+  EProxyAuthError = class(Exception);
+  EAnswerParseError = class(Exception);
 
 implementation
 
 uses
-  u_GeoCodeResult,
-  u_SimpleDownloader;
+  WinInet,
+  u_GeoCodeResult;
 
 { TGeoCoderBasic }
 
-constructor TGeoCoderBasic.Create(AInetConfig: IInetConfig);
+constructor TGeoCoderBasic.Create(AInetSettings: IProxySettings);
 begin
-  FInetConfig := AInetConfig;
-  FDownloader := TSimpleDownloader.Create(FInetConfig);
+  FInetSettings := AInetSettings;
 end;
 
 destructor TGeoCoderBasic.Destroy;
 begin
-  FDownloader := nil;
-  FInetConfig := nil;
+  FInetSettings := nil;
   inherited;
 end;
 
-procedure TGeoCoderBasic.ParseHttpResponse(
-  var AResponseCode: Cardinal;
-  AResponseBuf: TMemoryStream;
-  out AMessage: WideString;
-  out AList: IInterfaceList
-);
+function TGeoCoderBasic.GetDataFromInet(ASearch: WideString): string;
 var
-  VResponseBody: string;
+  s, par: string;
+  err: boolean;
+  Buffer: array [1..64535] of char;
+  BufferLen: LongWord;
+  hSession, hFile: Pointer;
+  dwindex, dwcodelen, dwReserv: dword;
+  dwtype: array [1..20] of char;
+  VUrl: string;
+  VLogin: string;
+  VPassword: string;
+  VLastError: DWORD;
 begin
-  if AResponseCode = 200 then begin
-    if Assigned(AResponseBuf) then begin
-      SetLength(VResponseBody, AResponseBuf.Size);
-      FillChar(VResponseBody[1], Length(VResponseBody), 0);
-      AResponseBuf.Position := 0;
-      AResponseBuf.ReadBuffer(VResponseBody[1], Length(VResponseBody));
-    end else begin
-      VResponseBody := '';
+  hSession := InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+  if not Assigned(hSession) then begin
+    VLastError := GetLastError;
+    raise EInternetOpenError.Create(VLastError, 'Ошибка InternetOpen');
+  end;
+  try
+    VUrl := PrepareURL(ASearch);
+    hFile := InternetOpenUrl(hSession, PChar(VUrl), PChar(par), length(par), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD, 0);
+    if not Assigned(hFile) then begin
+      VLastError := GetLastError;
+      raise EInternetOpenError.Create(VLastError, 'Ошибка InternetOpenUrl');
     end;
-    AList := ParseStringToPlacemarksList(VResponseBody, '');
-    if (AList = nil) or (AList.Count = 0) then begin
-      AResponseCode := 404;
-      AMessage := 'Not Found';
+    try
+      dwcodelen := SizeOf(dwtype);
+      dwReserv := 0;
+      dwindex := 0;
+      if HttpQueryInfo(hFile, HTTP_QUERY_STATUS_CODE, @dwtype, dwcodelen, dwReserv) then begin
+        dwindex := strtoint(pchar(@dwtype));
+      end;
+      if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then begin
+        if FInetSettings <> nil then begin
+          if (FInetSettings.UseLogin) then begin
+            VLogin := FInetSettings.Login;
+            VPassword := FInetSettings.Password;
+            InternetSetOption(hFile, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
+            InternetSetOption(hFile, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
+            HttpSendRequest(hFile, nil, 0, Nil, 0);
+
+            dwcodelen := SizeOf(dwtype);
+            dwReserv := 0;
+            dwindex := 0;
+            if HttpQueryInfo(hFile, HTTP_QUERY_STATUS_CODE, @dwtype, dwcodelen, dwReserv) then begin
+              dwindex := strtoint(pchar(@dwtype));
+            end;
+          end;
+        end;
+        if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then begin
+          raise EProxyAuthError.Create('Ошибка уатентификации на Proxy');
+        end;
+      end;
+
+      repeat
+        err := not (internetReadFile(hFile, @Buffer, SizeOf(Buffer), BufferLen));
+        s := s + copy(Buffer,1,BufferLen);
+      until (BufferLen = 0) and (BufferLen < SizeOf(Buffer)) and (err = false);
+    finally
+      InternetCloseHandle(hFile);
     end;
-  end else begin
-    AMessage := 'HTTP Error: ' + IntToStr(AResponseCode);
+  finally
+    InternetCloseHandle(hSession);
   end;
-end;
-
-procedure TGeoCoderBasic.OnAsyncDownloadReady(
-  Sender: TObject;
-  AResponseCode: Cardinal;
-  const AContentType: string;
-  const AResponseHead: string;
-  AResponseBuf: TMemoryStream
-);
-var
-  VList: IInterfaceList;
-  VMessage: WideString;
-begin
-  if Assigned(FOnGetLocation) then begin
-    ParseHttpResponse(AResponseCode, AResponseBuf, VMessage, VList);
-    FOnGetLocation(TGeoCodeResult.Create('', AResponseCode, VMessage, VList));
-  end;
-end;
-
-procedure TGeoCoderBasic.GetLocationsAsync(
-  ASearch: WideString;
-  ACurrentPos: TDoublePoint;
-  OnGetLocation: TGetLocation
-);
-begin
-  if FDownloader <> nil then begin
-    FOnGetLocation := OnGetLocation;
-    FDownloader.GetFromInternetAsync(
-      PrepareURL(ASearch),
-      '',
-      '',
-      nil,
-      Self.OnAsyncDownloadReady
-    );
-  end;
+  Result := s;
 end;
 
 function TGeoCoderBasic.GetLocations(
-  ASearch: WideString;
-  ACurrentPos: TDoublePoint
+  const ASearch: WideString;
+  const ACurrentPos: TDoublePoint
 ): IGeoCodeResult;
 var
+  VServerResult: string;
   VList: IInterfaceList;
-  VResponseCode: Cardinal;
-  VResponseBuf: TMemoryStream;
-  VContentType: string;
-  VResponseHead: string;
+  VResultCode: Integer;
   VMessage: WideString;
 begin
-  if FDownloader <> nil then begin
-    VResponseBuf := TMemoryStream.Create;
-    try
-      VResponseCode := FDownloader.GetFromInternet(
-        PrepareURL(ASearch),
-        '',
-        '',
-        nil,
-        VResponseBuf,
-        VContentType,
-        VResponseHead
-      );
-      ParseHttpResponse(VResponseCode, VResponseBuf, VMessage, VList);
-      Result:=TGeoCodeResult.Create(ASearch, VResponseCode, VMessage, VList);
-    finally
-      FreeAndNil(VResponseBuf);
+  VResultCode := 200;
+  VMessage := '';
+  try
+    if not (ASearch = '') then begin
+      VServerResult := GetDataFromInet(ASearch);
+      VList := ParseStringToPlacemarksList(VServerResult, ASearch);
+    end;
+  except
+    on E: EInternetOpenError do begin
+      VResultCode := 503;
+      VMessage := E.Message;
+    end;
+    on E: EProxyAuthError do begin
+      VResultCode := 407;
+      VMessage := E.Message;
+    end;
+    on E: EAnswerParseError do begin
+      VResultCode := 416;
+      VMessage := E.Message;
+    end;
+    on E: Exception do begin
+      VResultCode := 417;
+      VMessage := E.Message;
     end;
   end;
+  if VList = nil then begin
+    VList := TInterfaceList.Create;
+  end;
+  if VList.Count = 0 then begin
+    VResultCode := 404;
+    VMessage := 'Не найдено';
+  end;
+  Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VList);
 end;
 
 function TGeoCoderBasic.URLEncode(const S: string): string;
@@ -206,6 +216,14 @@ begin
       idx := idx + 3;
     end;
   end;
+end;
+
+{ EInternetOpenError }
+
+constructor EInternetOpenError.Create(Code: DWORD; Msg: String);
+begin
+  inherited Create(Msg);
+  ErrorCode := Code;
 end;
 
 end.

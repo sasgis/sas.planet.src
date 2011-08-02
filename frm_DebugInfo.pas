@@ -56,6 +56,7 @@ var
   VTime: TDateTime;
   VId: Integer;
   VPrevData: IInternalPerformanceCounterStaticData;
+  VAvgTime: Extended;
 begin
   VId := ACounter.Id;
   VCount := ACounter.Counter;
@@ -77,7 +78,8 @@ begin
   sgrdDebugInfo.Cells[0, ARow] := AName;
   if VCount > 0 then begin
     sgrdDebugInfo.Cells[1, ARow] := IntToStr(VCount);
-    sgrdDebugInfo.Cells[2, ARow] := FormatDateTime('ss.zzz', VTime/VCount);
+    VAvgTime := VTime/VCount*24*60*60;
+    sgrdDebugInfo.Cells[2, ARow] := FloatToStrF(VAvgTime, ffFixed, 20, 8);
     sgrdDebugInfo.Cells[3, ARow] := FormatDateTime('nn:ss.zzz', VTime);
   end else begin
     sgrdDebugInfo.Cells[1, ARow] := '';
@@ -143,7 +145,7 @@ procedure TfrmDebugInfo.PrepareGridHeader;
 begin
   sgrdDebugInfo.Cells[0, 0] := 'Class';
   sgrdDebugInfo.Cells[1, 0] := 'Redraw cnt';
-  sgrdDebugInfo.Cells[2, 0] := 'Redraw time avg';
+  sgrdDebugInfo.Cells[2, 0] := 'Redraw time avg, s';
   sgrdDebugInfo.Cells[3, 0] := 'Redraw time total';
 end;
 

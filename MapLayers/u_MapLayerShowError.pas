@@ -98,7 +98,7 @@ begin
   VErrorInfo := FErrorInfo;
   if VErrorInfo <> nil then begin
     VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-    FLayer.Bitmap.Clear(clBlack);
+    FLayer.Bitmap.Clear(0);
     if VErrorInfo.MapType <> nil then begin
       VTextWidth := FLayer.Bitmap.TextWidth(VErrorInfo.MapType.name);
       FLayer.Bitmap.RenderText((VSize.X - VTextWidth) div 2, VSize.Y div 4, VErrorInfo.MapType.name, 0, clBlack32);

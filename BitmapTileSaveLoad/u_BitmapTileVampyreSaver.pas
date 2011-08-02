@@ -18,7 +18,7 @@ type
   public
     constructor Create(AFormat: TImageFileFormat);
     destructor Destroy; override;
-    procedure SaveToFile(ABtm: TCustomBitmap32; AFileName: string);
+    procedure SaveToFile(ABtm: TCustomBitmap32; const AFileName: string);
     procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
   end;
 
@@ -80,8 +80,10 @@ procedure TVampyreBasicBitmapTileSaver.PrepareData(var AImage: TImageData);
 begin
 end;
 
-procedure TVampyreBasicBitmapTileSaver.SaveToFile(ABtm: TCustomBitmap32;
-  AFileName: string);
+procedure TVampyreBasicBitmapTileSaver.SaveToFile(
+  ABtm: TCustomBitmap32;
+  const AFileName: string
+);
 var
   VFormat: TImageFileFormat;
   VImage: TImageData;

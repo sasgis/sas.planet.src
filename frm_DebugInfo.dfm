@@ -1,8 +1,8 @@
 object frmDebugInfo: TfrmDebugInfo
   Left = 0
   Top = 0
-  ClientHeight = 301
-  ClientWidth = 566
+  ClientHeight = 480
+  ClientWidth = 348
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,8 +17,8 @@ object frmDebugInfo: TfrmDebugInfo
   object sgrdDebugInfo: TStringGrid
     Left = 0
     Top = 0
-    Width = 566
-    Height = 272
+    Width = 348
+    Height = 451
     Align = alClient
     ColCount = 4
     DefaultColWidth = 80
@@ -29,15 +29,15 @@ object frmDebugInfo: TfrmDebugInfo
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 272
-    Width = 566
+    Top = 451
+    Width = 348
     Height = 29
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
     object btnRefresh: TButton
       AlignWithMargins = True
-      Left = 489
+      Left = 271
       Top = 2
       Width = 75
       Height = 25
@@ -64,8 +64,6 @@ object frmDebugInfo: TfrmDebugInfo
       Caption = 'Reset'
       TabOrder = 1
       OnClick = btnResetClick
-      ExplicitLeft = 368
-      ExplicitTop = 8
     end
   end
 end

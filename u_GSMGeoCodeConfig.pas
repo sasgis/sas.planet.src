@@ -20,13 +20,16 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetUseGSMByCOM: Boolean;
+    procedure SetUseGSMByCOM(const AValue: Boolean);
+
     function GetPortName: string;
+    procedure SetPortName(const AValue: string);
+
     function GetBaudRate: Cardinal;
+    procedure SetBaudRate(const AValue: Cardinal);
+
     function GetWaitTime: Cardinal;
-    procedure SetUseGSMByCOM(AValue: Boolean);
-    procedure SetPortName(AValue: string);
-    procedure SetBaudRate(AValue: Cardinal);
-    procedure SetWaitTime(AValue: Cardinal);
+    procedure SetWaitTime(const AValue: Cardinal);
   public
     constructor Create();
   end;
@@ -105,7 +108,7 @@ begin
   end;
 end;
 
-procedure TGSMGeoCodeConfig.SetBaudRate(AValue: Cardinal);
+procedure TGSMGeoCodeConfig.SetBaudRate(const AValue: Cardinal);
 begin
   LockWrite;
   try
@@ -118,7 +121,7 @@ begin
   end;
 end;
 
-procedure TGSMGeoCodeConfig.SetPortName(AValue: string);
+procedure TGSMGeoCodeConfig.SetPortName(const AValue: string);
 begin
   LockWrite;
   try
@@ -131,7 +134,7 @@ begin
   end;
 end;
 
-procedure TGSMGeoCodeConfig.SetUseGSMByCOM(AValue: Boolean);
+procedure TGSMGeoCodeConfig.SetUseGSMByCOM(const AValue: Boolean);
 begin
   LockWrite;
   try
@@ -144,7 +147,7 @@ begin
   end;
 end;
 
-procedure TGSMGeoCodeConfig.SetWaitTime(AValue: Cardinal);
+procedure TGSMGeoCodeConfig.SetWaitTime(const AValue: Cardinal);
 begin
   LockWrite;
   try

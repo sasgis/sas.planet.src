@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_LocalCoordConverter,
+  i_MarksDrawConfig,
   i_MarkPicture,
   i_MarksSimple,
   i_BitmapLayerProvider,
@@ -18,8 +19,8 @@ uses
 type
   TMapMarksBitmapLayerProviderByMarksSubset = class(TInterfacedObject, IBitmapLayerProvider)
   private
+    FConfig: IMarksDrawConfigStatic;
     FMarksSubset: IMarksSubset;
-    FDeltaSizeInPixel: TPoint;
     FBitmapClip: IPolygonClip;
 
     FTempBmp: TCustomBitmap32;
@@ -61,7 +62,10 @@ type
       ALocalConverter: ILocalCoordConverter
     ): Boolean;
   public
-    constructor Create(AMarksSubset: IMarksSubset);
+    constructor Create(
+      AConfig: IMarksDrawConfigStatic;
+      AMarksSubset: IMarksSubset
+    );
     destructor Destroy; override;
   end;
 
@@ -81,10 +85,12 @@ const
 { TMapMarksBitmapLayerProviderByMarksSubset }
 
 constructor TMapMarksBitmapLayerProviderByMarksSubset.Create(
-  AMarksSubset: IMarksSubset);
+  AConfig: IMarksDrawConfigStatic;
+  AMarksSubset: IMarksSubset
+);
 begin
+  FConfig := AConfig;
   FMarksSubset := AMarksSubset;
-  FDeltaSizeInPixel := Point(128, 128);
 
   FTempBmp := TCustomBitmap32.Create;
   FTempBmp.DrawMode := dmBlend;
@@ -263,22 +269,24 @@ begin
     VSrcRect := bounds(0, 0, FTempBmp.Width, FTempBmp.Height);
     ATargetBmp.Draw(VDstRect, VSrcRect, FTempBmp);
   end;
-  if AFontSize > 0 then begin
-    FBitmapWithText.MasterAlpha:=AlphaComponent(AColor1);
-    FBitmapWithText.Font.Size := AFontSize;
-    VTextSize := FBitmapWithText.TextExtent(AName);
-    VTextSize.cx:=VTextSize.cx+2;
-    VTextSize.cy:=VTextSize.cy+2;
-    FBitmapWithText.SetSize(VTextSize.cx + 2,VTextSize.cy + 2);
-    VDstRect.Left := xy.x + (AMarkSize div 2);
-    VDstRect.Top := xy.y - (AMarkSize div 2) - VTextSize.cy div 2;
-    VDstRect.Right := VDstRect.Left + VTextSize.cx;
-    VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
-    VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
-    FBitmapWithText.Clear(clBlack);
-    FBitmapWithText.RenderText(2, 2, AName, 1, SetAlpha(AColor2,255));
-    FBitmapWithText.RenderText(1, 1, AName, 1, SetAlpha(AColor1,255));
-    ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
+  if FConfig.ShowPointCaption then begin
+    if AFontSize > 0 then begin
+      FBitmapWithText.MasterAlpha:=AlphaComponent(AColor1);
+      FBitmapWithText.Font.Size := AFontSize;
+      VTextSize := FBitmapWithText.TextExtent(AName);
+      VTextSize.cx:=VTextSize.cx+2;
+      VTextSize.cy:=VTextSize.cy+2;
+      FBitmapWithText.SetSize(VTextSize.cx + 2,VTextSize.cy + 2);
+      VDstRect.Left := xy.x + (AMarkSize div 2);
+      VDstRect.Top := xy.y - (AMarkSize div 2) - VTextSize.cy div 2;
+      VDstRect.Right := VDstRect.Left + VTextSize.cx;
+      VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
+      VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
+      FBitmapWithText.Clear(0);
+      FBitmapWithText.RenderText(2, 2, AName, 1, SetAlpha(AColor2,255));
+      FBitmapWithText.RenderText(1, 1, AName, 1, SetAlpha(AColor1,255));
+      ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
+    end;
   end;
 end;
 
@@ -296,31 +304,57 @@ var
   TestArrLenPixelRect: TDoubleRect;
   VOldClipRect: TRect;
 begin
-  Result := False;
   VOldClipRect := ATargetBmp.ClipRect;
   ATargetBmp.ClipRect := ALocalConverter.GetLocalRect;
   try
     VEnumMarks := AMarksSubset.GetEnum;
-    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-      VScale1 := VMark.Scale1;
-      if VMark.IsPoint then begin
-        DrawPoint(
-          ATargetBmp,
-          ALocalConverter,
-          VMark.Points[0],
-          VMark.name,
-          VMark.Pic,
-          VMark.Scale2,
-          VMark.Scale1,
-          VMark.Color1,
-          VMark.Color2
-        );
-        Result := True;
-      end else begin
-        TestArrLenLonLatRect := VMark.LLRect;
-        TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
-        if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-          if VMark.IsPoly then begin
+    if FConfig.UseSimpleDrawOrder then begin
+      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+        VScale1 := VMark.Scale1;
+        if VMark.IsPoint then begin
+          DrawPoint(
+            ATargetBmp,
+            ALocalConverter,
+            VMark.Points[0],
+            VMark.name,
+            VMark.Pic,
+            VMark.Scale2,
+            VMark.Scale1,
+            VMark.Color1,
+            VMark.Color2
+          );
+        end else begin
+          TestArrLenLonLatRect := VMark.LLRect;
+          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
+          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
+            if VMark.IsPoly then begin
+              DrawPoly(
+                ATargetBmp,
+                ALocalConverter,
+                VMark.Points,
+                VMark.Color1,
+                VMark.Color2,
+                VMark.Scale1
+              );
+            end else begin
+              drawPath(
+                ATargetBmp,
+                ALocalConverter,
+                VMark.Points,
+                VMark.Color1,
+                VMark.Scale1
+              );
+            end;
+          end;
+        end;
+      end;
+    end else begin
+      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+        if VMark.IsPoly then begin
+          VScale1 := VMark.Scale1;
+          TestArrLenLonLatRect := VMark.LLRect;
+          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
+          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
             DrawPoly(
               ATargetBmp,
               ALocalConverter,
@@ -329,7 +363,16 @@ begin
               VMark.Color2,
               VMark.Scale1
             );
-          end else begin
+          end;
+        end;
+      end;
+      VEnumMarks.Reset;
+      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+        if VMark.IsLine then begin
+          VScale1 := VMark.Scale1;
+          TestArrLenLonLatRect := VMark.LLRect;
+          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
+          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
             drawPath(
               ATargetBmp,
               ALocalConverter,
@@ -338,13 +381,29 @@ begin
               VMark.Scale1
             );
           end;
-          Result := True;
+        end;
+      end;
+      VEnumMarks.Reset;
+      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+        if VMark.IsPoint then begin
+          DrawPoint(
+            ATargetBmp,
+            ALocalConverter,
+            VMark.Points[0],
+            VMark.name,
+            VMark.Pic,
+            VMark.Scale2,
+            VMark.Scale1,
+            VMark.Color1,
+            VMark.Color2
+          );
         end;
       end;
     end;
   finally
     ATargetBmp.ClipRect := VOldClipRect;
   end;
+  Result := True;
 end;
 
 function TMapMarksBitmapLayerProviderByMarksSubset.GetBitmapRect(
@@ -359,12 +418,14 @@ var
   VConverter: ICoordConverter;
   VZoom: Byte;
   VMarksSubset: IMarksSubset;
+  VDeltaSizeInPixel: TRect;
 begin
   VLocalRect := ALocalConverter.GetLocalRect;
-  VRectWithDelta.Left := VLocalRect.Left - FDeltaSizeInPixel.X;
-  VRectWithDelta.Top := VLocalRect.Top - FDeltaSizeInPixel.Y;
-  VRectWithDelta.Right := VLocalRect.Right + FDeltaSizeInPixel.X;
-  VRectWithDelta.Bottom := VLocalRect.Bottom + FDeltaSizeInPixel.Y;
+  VDeltaSizeInPixel := FConfig.OverSizeRect;
+  VRectWithDelta.Left := VLocalRect.Left - VDeltaSizeInPixel.Left;
+  VRectWithDelta.Top := VLocalRect.Top - VDeltaSizeInPixel.Top;
+  VRectWithDelta.Right := VLocalRect.Right + VDeltaSizeInPixel.Right;
+  VRectWithDelta.Bottom := VLocalRect.Bottom + VDeltaSizeInPixel.Bottom;
   VTargetRect := ALocalConverter.LocalRect2MapRectFloat(VRectWithDelta);
   VZoom := ALocalConverter.GetZoom;
   VConverter := ALocalConverter.GetGeoConverter;

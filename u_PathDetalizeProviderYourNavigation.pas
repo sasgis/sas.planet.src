@@ -4,55 +4,109 @@ interface
 
 uses
   t_GeoTypes,
-  i_PathDetalizeProvider;
+  i_KmlInfoSimpleLoader,
+  i_LanguageManager,
+  i_ProxySettings,
+  u_PathDetalizeProviderListEntity;
 
 type
-  TPathDetalizeProviderYourNavigation = class(TInterfacedObject, IPathDetalizeProvider)
+  TPathDetalizeProviderYourNavigation = class(TPathDetalizeProviderListEntity)
   private
     FBaseUrl: string;
+    FProxyConfig: IProxyConfig;
+    FKmlLoader: IKmlInfoSimpleLoader;
+  protected { IPathDetalizeProvider }
+    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
+  public
+    constructor Create(
+      AGUID: TGUID;
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
+      AKmlLoader: IKmlInfoSimpleLoader;
+      ABaseUrl: string
+    );
+  end;
+
+type
+  TPathDetalizeProviderYourNavigationFastestByCar = class(TPathDetalizeProviderYourNavigation)
   protected
-    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint;
-    constructor Create(ABaseUrl: string);
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
+      AKmlLoader: IKmlInfoSimpleLoader
+    );
   end;
 
 type
-  TPathDetalizeProviderYourNavigation1 = class(TPathDetalizeProviderYourNavigation)
+  TPathDetalizeProviderYourNavigationShortestByCar = class(TPathDetalizeProviderYourNavigation)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
   public
-    constructor Create;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
+      AKmlLoader: IKmlInfoSimpleLoader
+    );
   end;
 
 type
-  TPathDetalizeProviderYourNavigation11 = class(TPathDetalizeProviderYourNavigation)
+  TPathDetalizeProviderYourNavigationFastestByBicycle = class(TPathDetalizeProviderYourNavigation)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
   public
-    constructor Create;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
+      AKmlLoader: IKmlInfoSimpleLoader
+    );
   end;
 
 type
-  TPathDetalizeProviderYourNavigation2 = class(TPathDetalizeProviderYourNavigation)
+  TPathDetalizeProviderYourNavigationShortestByBicycle = class(TPathDetalizeProviderYourNavigation)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
   public
-    constructor Create;
-  end;
-
-type
-  TPathDetalizeProviderYourNavigation22 = class(TPathDetalizeProviderYourNavigation)
-  public
-    constructor Create;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
+      AKmlLoader: IKmlInfoSimpleLoader
+    );
   end;
 
 implementation
 
 uses
   Classes,
+  gnugettext,
+  c_PathDetalizeProvidersGUID,
   u_GeoToStr,
   i_VectorDataItemSimple,
-  u_GlobalState,
   frm_InvisibleBrowser;
 
 { TPathDetalizeProviderYourNavigation }
 
-constructor TPathDetalizeProviderYourNavigation.Create(ABaseUrl: string);
+constructor TPathDetalizeProviderYourNavigation.Create(
+  AGUID: TGUID;
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
+  AKmlLoader: IKmlInfoSimpleLoader;
+  ABaseUrl: string
+);
 begin
+  inherited Create(AGUID, ALanguageManager);
   FBaseUrl := ABaseUrl;
+  FProxyConfig := AProxyConfig;
+  FKmlLoader := AKmlLoader;
 end;
 
 function TPathDetalizeProviderYourNavigation.GetPath(ASource: TArrayOfDoublePoint;
@@ -76,8 +130,8 @@ begin
       if conerr then Continue;
       url:=url+'&flat='+R2StrPoint(ASource[i].y)+'&flon='+R2StrPoint(ASource[i].x)+
           '&tlat='+R2StrPoint(ASource[i+1].y)+'&tlon='+R2StrPoint(ASource[i+1].x);
-      if GetStreamFromURL(ms, url, 'text/xml')>0 then begin
-        GState.KmlLoader.LoadFromStream(ms, kml);
+      if GetStreamFromURL(ms, url, 'text/xml', FProxyConfig.GetStatic)>0 then begin
+        FKmlLoader.LoadFromStream(ms, kml);
         if kml <> nil then begin
           ms.SetSize(0);
           if kml.Count > 0 then begin
@@ -102,40 +156,132 @@ begin
   end;
 end;
 
-{ TPathDetalizeProviderYourNavigation1 }
+{ TPathDetalizeProviderYourNavigationFastestByCar }
 
-constructor TPathDetalizeProviderYourNavigation1.Create;
+constructor TPathDetalizeProviderYourNavigationFastestByCar.Create(
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
+  AKmlLoader: IKmlInfoSimpleLoader
+);
 begin
   inherited Create(
+    CPathDetalizeProviderYourNavigationFastestByCar,
+    ALanguageManager,
+    AProxyConfig,
+    AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik'
   );
 end;
 
-{ TPathDetalizeProviderYourNavigation11 }
+function TPathDetalizeProviderYourNavigationFastestByCar.GetCaptionTranslated: string;
+begin
+  Result := _('On car (Fastest) by yournavigation.org');
+end;
 
-constructor TPathDetalizeProviderYourNavigation11.Create;
+function TPathDetalizeProviderYourNavigationFastestByCar.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on car (Fastest) by yournavigation.org');
+end;
+
+function TPathDetalizeProviderYourNavigationFastestByCar.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On car (Fastest)');
+end;
+
+{ TPathDetalizeProviderYourNavigationShortestByCar }
+
+constructor TPathDetalizeProviderYourNavigationShortestByCar.Create(
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
+  AKmlLoader: IKmlInfoSimpleLoader
+);
 begin
   inherited Create(
+    CPathDetalizeProviderYourNavigationShortestByCar,
+    ALanguageManager,
+    AProxyConfig,
+    AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik'
   );
 end;
 
-{ TPathDetalizeProviderYourNavigation2 }
+function TPathDetalizeProviderYourNavigationShortestByCar.GetCaptionTranslated: string;
+begin
+  Result := _('On car (Shortest) by yournavigation.org');
+end;
 
-constructor TPathDetalizeProviderYourNavigation2.Create;
+function TPathDetalizeProviderYourNavigationShortestByCar.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on car (Shortest) by yournavigation.org');
+end;
+
+function TPathDetalizeProviderYourNavigationShortestByCar.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On car (Shortest)');
+end;
+
+{ TPathDetalizeProviderYourNavigationFastestByBicycle }
+
+constructor TPathDetalizeProviderYourNavigationFastestByBicycle.Create(
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
+  AKmlLoader: IKmlInfoSimpleLoader
+);
 begin
   inherited Create(
+    CPathDetalizeProviderYourNavigationFastestByBicycle,
+    ALanguageManager,
+    AProxyConfig,
+    AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik'
   );
 end;
 
-{ TPathDetalizeProviderYourNavigation22 }
+function TPathDetalizeProviderYourNavigationFastestByBicycle.GetCaptionTranslated: string;
+begin
+  Result := _('On bicycle (Fastest) by yournavigation.org');
+end;
 
-constructor TPathDetalizeProviderYourNavigation22.Create;
+function TPathDetalizeProviderYourNavigationFastestByBicycle.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on bicycle (Fastest) by yournavigation.org');
+end;
+
+function TPathDetalizeProviderYourNavigationFastestByBicycle.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On bicycle (Fastest)');
+end;
+
+{ TPathDetalizeProviderYourNavigationShortestByBicycle }
+
+constructor TPathDetalizeProviderYourNavigationShortestByBicycle.Create(
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
+  AKmlLoader: IKmlInfoSimpleLoader
+);
 begin
   inherited Create(
+    CPathDetalizeProviderYourNavigationShortestByBicycle,
+    ALanguageManager,
+    AProxyConfig,
+    AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'
   );
+end;
+
+function TPathDetalizeProviderYourNavigationShortestByBicycle.GetCaptionTranslated: string;
+begin
+  Result := _('On bicycle (Shortest) by yournavigation.org');
+end;
+
+function TPathDetalizeProviderYourNavigationShortestByBicycle.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on bicycle (Shortest) by yournavigation.org');
+end;
+
+function TPathDetalizeProviderYourNavigationShortestByBicycle.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On bicycle (Shortest)');
 end;
 
 end.

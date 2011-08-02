@@ -5,6 +5,7 @@ interface
 uses
   i_ContentTypeInfo,
   i_ContentConverter,
+  i_InternalPerformanceCounter,
   u_ContentTypeListByKey,
   u_ContentConverterMatrix,
   u_ContentTypeManagerBase;
@@ -18,9 +19,13 @@ type
     procedure ConverterMatrixUpdateBitmaps;
     function FindConverterWithSynonyms(ASourceType, ATargetType: string): IContentConverter;
     procedure UpdateConverterMatrix;
-    procedure InitLists;
+    procedure InitLists(
+      APerfCounterList: IInternalPerformanceCounterList
+    );
   public
-    constructor Create();
+    constructor Create(
+      APerfCounterList: IInternalPerformanceCounterList
+    );
   end;
 
 implementation
@@ -41,20 +46,24 @@ uses
 
 { TContentTypeManagerSimple }
 
-constructor TContentTypeManagerSimple.Create;
+constructor TContentTypeManagerSimple.Create(
+  APerfCounterList: IInternalPerformanceCounterList
+);
 begin
-  inherited;
-  InitLists;
+  inherited Create;
+  InitLists(APerfCounterList.CreateAndAddNewSubList('TileLoad'));
 end;
 
-procedure TContentTypeManagerSimple.InitLists;
+procedure TContentTypeManagerSimple.InitLists(
+  APerfCounterList: IInternalPerformanceCounterList
+);
 var
   VContentType: IContentTypeInfoBasic;
 begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/jpg',
     '.jpg',
-    TVampyreBasicBitmapTileLoaderJPEG.Create,
+    TVampyreBasicBitmapTileLoaderJPEG.Create(APerfCounterList),
     TVampyreBasicBitmapTileSaverJPG.Create(85)
   );
   AddByType(VContentType, VContentType.GetContentType);
@@ -62,11 +71,11 @@ begin
   AddByType(VContentType, 'image/pjpeg');
   AddByExt(VContentType, VContentType.GetDefaultExt);
   AddByExt(VContentType, '.jpeg');
-  
+
   VContentType := TContentTypeInfoBitmap.Create(
     'image/png',
     '.png',
-    TVampyreBasicBitmapTileLoaderPNG.Create,
+    TVampyreBasicBitmapTileLoaderPNG.Create(APerfCounterList),
     TVampyreBasicBitmapTileSaverPNG.Create
   );
   AddByType(VContentType, VContentType.GetContentType);
@@ -77,7 +86,7 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/gif',
     '.gif',
-    TVampyreBasicBitmapTileLoaderGIF.Create,
+    TVampyreBasicBitmapTileLoaderGIF.Create(APerfCounterList),
     TVampyreBasicBitmapTileSaverGIF.Create
   );
   AddByType(VContentType, VContentType.GetContentType);
@@ -86,7 +95,7 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/bmp',
     '.bmp',
-    TVampyreBasicBitmapTileLoaderBMP.Create,
+    TVampyreBasicBitmapTileLoaderBMP.Create(APerfCounterList),
     TVampyreBasicBitmapTileSaverBMP.Create
   );
   AddByType(VContentType, VContentType.GetContentType);
@@ -97,7 +106,7 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'application/vnd.google-earth.tile-image',
     '.ge_image',
-    TBitmapTileGELoader.Create,
+    TBitmapTileGELoader.Create(APerfCounterList),
     nil
   );
   AddByType(VContentType, VContentType.GetContentType);
@@ -107,7 +116,7 @@ begin
   VContentType := TContentTypeInfoKml.Create(
     'application/vnd.google-earth.kml+xml',
     '.kml',
-    TKmlInfoSimpleParser.Create
+    TKmlInfoSimpleParser.Create(APerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
@@ -115,7 +124,7 @@ begin
   VContentType := TContentTypeInfoKml.Create(
     'application/vnd.google-earth.kmz',
     '.kmz',
-    TKmzInfoSimpleParser.Create
+    TKmzInfoSimpleParser.Create(APerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);

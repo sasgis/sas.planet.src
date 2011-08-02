@@ -32,9 +32,6 @@ type
     procedure SetVisible(AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
 
-    function GetDefoultMap: TCustomBitmap32;
-    property DefoultMap: TCustomBitmap32 read GetDefoultMap;
-
     function GetPlusButton: TCustomBitmap32;
     property PlusButton: TCustomBitmap32 read GetPlusButton;
 

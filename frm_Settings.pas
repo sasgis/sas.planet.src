@@ -22,7 +22,6 @@ uses
   wininet,
   GR32,
   GR32_Image,
-  XPMan,
   u_CommonFormAndFrameParents,
   i_ConfigDataWriteProvider,
   i_ImageResamplerFactory,
@@ -57,7 +56,6 @@ type
     Label3: TLabel;
     ComboBox1: TComboBox;
     TrBarGamma: TTrackBar;
-    XPManifest1: TXPManifest;
     LabelGamma: TLabel;
     TrBarContrast: TTrackBar;
     LabelContrast: TLabel;
@@ -203,6 +201,7 @@ type
     pnlSatInfoActive: TPanel;
     pnlSatInfoVisible: TPanel;
     pnlSatInfoZeroSignal: TPanel;
+    CBMinimizeToTray: TCheckBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -263,7 +262,6 @@ procedure TfrmSettings.Save(AProvider: IConfigDataWriteProvider);
 begin
   try
     GState.SaveMainParams;
-    frmMain.ShortCutManager.Save(AProvider.GetOrCreateSubItem('HOTKEY'));
     frmMain.SaveWindowConfigToIni(AProvider);
   except
   end;
@@ -330,7 +328,15 @@ begin
 
  GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
 
- GState.SessionLastSuccess:=CBLastSuccess.Checked;
+  GState.DownloadConfig.LockWrite;
+  try
+    GState.DownloadConfig.IsUseSessionLastSuccess := CBLastSuccess.Checked;
+    GState.DownloadConfig.IsGoNextTileIfDownloadError := CkBGoNextTile.Checked;
+    GState.DownloadConfig.IsSaveTileNotExists := CBSaveTileNotExists.Checked;
+  finally
+    GState.DownloadConfig.UnlockWrite;
+  end;
+
  GState.ViewConfig.BackGroundColor := ColorBoxBackGround.Selected;
  GState.GSMpar.LockWrite;
  try
@@ -341,12 +347,11 @@ begin
  finally
    GState.GSMpar.UnlockWrite;
  end;
-
+  GState.GlobalAppConfig.IsShowIconInTray := CBMinimizeToTray.Checked;
   GState.MainMemCacheConfig.MaxSize := SETilesOCache.value;
 
   GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
 
- GState.GoNextTileIfDownloadError:=CkBGoNextTile.Checked;
  GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
  GState.BitmapPostProcessingConfig.LockWrite;
  try
@@ -428,7 +433,6 @@ begin
     VInetConfig.UnlockWrite;
   end;
 
- GState.SaveTileNotExists:=CBSaveTileNotExists.Checked;
   GState.MainFormConfig.MainConfig.LockWrite;
   try
     GState.MainFormConfig.MainConfig.ShowMapName := CBShowmapname.Checked;
@@ -575,7 +579,15 @@ begin
 
  MiniMapAlphaEdit.Value:=GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
 
- CBLastSuccess.Checked:=GState.SessionLastSuccess;
+  GState.DownloadConfig.LockRead;
+  try
+    CBLastSuccess.Checked:=GState.DownloadConfig.IsUseSessionLastSuccess;
+    CkBGoNextTile.Checked:=GState.DownloadConfig.IsGoNextTileIfDownloadError;
+    CBSaveTileNotExists.Checked:=GState.DownloadConfig.IsSaveTileNotExists;
+  finally
+    GState.DownloadConfig.UnlockRead;
+  end;
+
  ColorBoxBackGround.Selected:=GState.ViewConfig.BackGroundColor;
   GState.GSMpar.LockRead;
   try
@@ -610,8 +622,6 @@ begin
     GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
   end;
  CBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
- CkBGoNextTile.Checked:=GState.GoNextTileIfDownloadError;
- CBSaveTileNotExists.Checked:=GState.SaveTileNotExists;
   ColorBoxGPSstr.Selected := WinColor(GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedColor);
   GState.BitmapPostProcessingConfig.LockRead;
   try
@@ -691,6 +701,7 @@ begin
   end;
 
   TilesOverScreenEdit.Value := GState.MainFormConfig.DownloadUIConfig.TilesOut;
+  CBMinimizeToTray.Checked := GState.GlobalAppConfig.IsShowIconInTray;
 
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
@@ -772,9 +783,11 @@ procedure TfrmSettings.MapListChange(Sender: TObject; Item: TListItem;
 var
   VMap: TMapType;
 begin
-  if Item.Data<>nil then begin
-    VMap := TMapType(Item.Data);
-    btnMapInfo.Enabled:=VMap.Zmp.Info<>'';
+  if Self.Visible then begin
+    if Item.Data<>nil then begin
+      VMap := TMapType(Item.Data);
+      btnMapInfo.Enabled:=VMap.Zmp.InfoUrl<>'';
+    end;
   end;
 end;
 
@@ -818,8 +831,8 @@ var
   VMap: TMapType;
 begin
   VMap := TMapType(MapList.Selected.Data);
-  if VMap.Zmp.Info <> '' then begin
-    frmIntrnalBrowser.showmessage(VMap.Zmp.FileName, VMap.Zmp.Info);
+  if VMap.Zmp.InfoUrl <> '' then begin
+    frmIntrnalBrowser.Navigate(VMap.Zmp.FileName, VMap.Zmp.InfoUrl);
   end;
 end;
 

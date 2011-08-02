@@ -12,11 +12,13 @@ uses
   TBXControls,
   i_JclNotify,
   i_JclListenerNotifierLinksList,
+  i_SensorList,
   i_Sensor;
 
 type
   TSensorViewTextTBXPanel = class(TInterfacedObject, ISensorView)
   private
+    FListEntity: ISensorListEntity;
     FSensor: ISensorText;
     FConfig: ISensorViewConfig;
 
@@ -60,7 +62,7 @@ type
     function GetSensor: ISensor;
   public
     constructor Create(
-      ASensor: ISensorText;
+      AListEntity: ISensorListEntity;
       AConfig: ISensorViewConfig;
       ATimerNoifier: IJclNotifier;
       AOwner: TComponent;
@@ -83,7 +85,7 @@ uses
   u_ResStrings;
 
 constructor TSensorViewTextTBXPanel.Create(
-  ASensor: ISensorText;
+  AListEntity: ISensorListEntity;
   AConfig: ISensorViewConfig;
   ATimerNoifier: IJclNotifier;
   AOwner: TComponent;
@@ -93,7 +95,10 @@ constructor TSensorViewTextTBXPanel.Create(
   AImageIndexReset: TImageIndex
 );
 begin
-  FSensor := ASensor;
+  FListEntity := AListEntity;
+  if not Supports(FListEntity.GetSensor, ISensorText, FSensor) then begin
+    raise Exception.Create('Неподдерживаемый тип сенсора');
+  end;
   FConfig := AConfig;
   FOwner := AOwner;
   FTextChangeId := 0;
@@ -118,7 +123,7 @@ begin
 
   FLinksList.Add(
     TNotifyEventListener.Create(Self.OnSensorChange),
-    FSensor.GetChangeNotifier
+    FListEntity.GetChangeNotifier
   );
 
   FLinksList.Add(
@@ -154,7 +159,7 @@ begin
 
     FResetItem := TTBXItem.Create(FBar);
 
-    FResetItem.Name := GuidToComponentName('SensorReset_', FSensor.GetGUID);
+    FResetItem.Name := GuidToComponentName('SensorReset_', FListEntity.GetGUID);
     FResetItem.OnClick := Self.OnResetClick;
     FResetItem.Hint := '';
     FResetItem.Images := FImages;
@@ -164,7 +169,7 @@ begin
     FVisibleItem := TTBXItem.Create(FBar);
     FVisibleItemWithReset := nil;
   end;
-  FVisibleItem.Name := GuidToComponentName('Sensor_', FSensor.GetGUID);
+  FVisibleItem.Name := GuidToComponentName('Sensor_', FListEntity.GetGUID);
   FVisibleItem.AutoCheck := True;
   FVisibleItem.OnClick := Self.OnVisibleItemClick;
   FParentMenu.Add(FVisibleItem);
@@ -177,7 +182,7 @@ begin
   FpnlTop := TTBXAlignmentPanel.Create(FBar);
   FlblCaption := TTBXLabel.Create(FBar);
 
-  FBar.Name := GuidToComponentName('Sensor_', FSensor.GetGUID);
+  FBar.Name := GuidToComponentName('Sensor_', FListEntity.GetGUID);
   FBar.Align := alTop;
   FBar.ActivateParent := True;
   FBar.DefaultDock := FDefaultDoc;
@@ -323,10 +328,10 @@ end;
 
 procedure TSensorViewTextTBXPanel.UpdateControls;
 begin
-  FVisibleItem.Caption := FSensor.GetMenuItemName;
-  FBar.Caption := FSensor.GetCaption;
-  FBar.Hint := FSensor.GetDescription;
-  FlblCaption.Caption := FSensor.GetCaption;
+  FVisibleItem.Caption := FListEntity.GetMenuItemName;
+  FBar.Caption := FListEntity.GetCaption;
+  FBar.Hint := FListEntity.GetDescription;
+  FlblCaption.Caption := FListEntity.GetCaption;
   if FResetItem <> nil then begin
     FResetItem.Caption := SAS_STR_SensorReset;
   end;

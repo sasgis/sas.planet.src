@@ -15,18 +15,18 @@ type
   TActiveMapConfig = class(TConfigDataElementBaseEmptySaveLoad, IActiveMap)
   private
     FSelectedGUID: TGUID;
-    FMapsList: IMapTypeList;
+    FMapsSet: IMapTypeSet;
     FSingeMapsList: IGUIDInterfaceList;
   protected
     FMainMapChangeNotyfier: IJclNotifier;
     FMainMapListener: IJclListener;
-    procedure OnMainMapChange(AGUID: TGUID);
+    procedure OnMainMapChange(const AGUID: TGUID);
   protected
     function GetSelectedGUID: TGUID;
-    function GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
-    function GetMapsList: IMapTypeList;
+    function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
+    function GetMapsSet: IMapTypeSet;
   public
-    constructor Create(AMainMapChangeNotyfier: IJclNotifier; ASingeMapsList: IGUIDInterfaceList; AMapsList: IMapTypeList);
+    constructor Create(AMainMapChangeNotyfier: IJclNotifier; ASingeMapsList: IGUIDInterfaceList; AMapsSet: IMapTypeSet);
     destructor Destroy; override;
   end;
 
@@ -39,17 +39,17 @@ uses
 { TActiveMapConfigNew }
 
 constructor TActiveMapConfig.Create(AMainMapChangeNotyfier: IJclNotifier;
-  ASingeMapsList: IGUIDInterfaceList; AMapsList: IMapTypeList);
+  ASingeMapsList: IGUIDInterfaceList; AMapsSet: IMapTypeSet);
 var
   i: Cardinal;
 begin
   inherited Create;
-  FMapsList := AMapsList;
+  FMapsSet := AMapsSet;
   FSingeMapsList := ASingeMapsList;
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;
   FMainMapListener := TNotifyWithGUIDEventListener.Create(Self.OnMainMapChange);
   FMainMapChangeNotyfier.Add(FMainMapListener);
-  if FMapsList.GetIterator.Next(1, FSelectedGUID, i) <> S_OK then begin
+  if FMapsSet.GetIterator.Next(1, FSelectedGUID, i) <> S_OK then begin
     raise Exception.Create('Empty maps list');
   end;
 end;
@@ -59,21 +59,21 @@ begin
   FMainMapChangeNotyfier.Remove(FMainMapListener);
   FMainMapListener := nil;
   FMainMapChangeNotyfier := nil;
-  FMapsList := nil;
+  FMapsSet := nil;
   FSingeMapsList := nil;
   inherited;
 end;
 
-function TActiveMapConfig.GetMapSingle(AMapGUID: TGUID): IActiveMapSingle;
+function TActiveMapConfig.GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
 begin
-  if FMapsList.GetMapTypeByGUID(AMapGUID) <> nil then begin
+  if FMapsSet.GetMapTypeByGUID(AMapGUID) <> nil then begin
     Result := IActiveMapSingle(FSingeMapsList.GetByGUID(AMapGUID));
   end;
 end;
 
-function TActiveMapConfig.GetMapsList: IMapTypeList;
+function TActiveMapConfig.GetMapsSet: IMapTypeSet;
 begin
-  Result := FMapsList;
+  Result := FMapsSet;
 end;
 
 function TActiveMapConfig.GetSelectedGUID: TGUID;
@@ -86,7 +86,7 @@ begin
   end;
 end;
 
-procedure TActiveMapConfig.OnMainMapChange(AGUID: TGUID);
+procedure TActiveMapConfig.OnMainMapChange(const AGUID: TGUID);
 begin
   LockWrite;
   try

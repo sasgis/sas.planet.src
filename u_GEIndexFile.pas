@@ -6,6 +6,7 @@ uses
   Types,
   SysUtils,
   i_JclNotify,
+  i_MapVersionInfo,
   u_MapTypeCacheConfig;
 
 type
@@ -43,7 +44,7 @@ type
     function FindTileInfo(
       APoint: TPoint;
       AZoom: Byte;
-      var AVersion: Word;
+      var AVersionInfo: IMapVersionInfo;
       out AOffset: Integer;
       out ASize: Integer
     ): Boolean;
@@ -53,7 +54,8 @@ implementation
 
 uses
   Classes,
-  u_NotifyEventListener;
+  u_NotifyEventListener,
+  u_MapVersionInfo;
 
 { TGEIndexFile }
 
@@ -109,18 +111,24 @@ begin
   end;
 end;
 
-function TGEIndexFile.FindTileInfo(APoint: TPoint; AZoom: Byte;
-  var AVersion: Word; out AOffset, ASize: Integer): Boolean;
+function TGEIndexFile.FindTileInfo(
+  APoint: TPoint;
+  AZoom: Byte;
+  var AVersionInfo: IMapVersionInfo;
+  out AOffset, ASize: Integer
+): Boolean;
 var
   VNameLo: LongWord;
   VNameHi: LongWord;
   i: Integer;
   VProcessed: Boolean;
+  VVersion: Word;
 begin
   Result := False;
   AOffset := 0;
   ASize := 0;
-  AVersion := 0;
+
+  AVersionInfo := nil;
   VProcessed := False;
   while not VProcessed do begin
     if not FFileInited then begin
@@ -146,7 +154,8 @@ begin
                     if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
                       AOffset := FIndexInfo[i].Offset;
                       ASize := FIndexInfo[i].Size;
-                      AVersion := FIndexInfo[i].Ver;
+                      VVersion := FIndexInfo[i].Ver;
+                      AVersionInfo := TMapVersionInfo.Create(VVersion);
                       Result := True;
                       Break;
                     end;

@@ -253,25 +253,25 @@ end;
 
 procedure TfrmMarksExplorer.btnApplyClick(Sender: TObject);
 begin
-  GState.MainFormConfig.LayersConfig.MarksShowConfig.LockWrite;
+  GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.LockWrite;
   try
     case rgMarksShowMode.ItemIndex of
       0: begin
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := True;
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := False;
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := False;
+        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := True;
+        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreCategoriesVisible := False;
+        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible := False;
 
       end;
       1: begin
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := True;
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreCategoriesVisible := True;
-        GState.MainFormConfig.LayersConfig.MarksShowConfig.IgnoreMarksVisible := True;
+        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := True;
+        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreCategoriesVisible := True;
+        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible := True;
       end;
     else
-      GState.MainFormConfig.LayersConfig.MarksShowConfig.IsUseMarks := False;
+      GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := False;
     end;
   finally
-    GState.MainFormConfig.LayersConfig.MarksShowConfig.UnlockWrite;
+    GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.UnlockWrite;
   end;
   frmMain.LayerMapMarksRedraw;
 end;
@@ -524,7 +524,7 @@ procedure TfrmMarksExplorer.FormActivate(Sender: TObject);
 var
   VMarksConfig: IUsedMarksConfigStatic;
 begin
-  VMarksConfig := GState.MainFormConfig.LayersConfig.MarksShowConfig.GetStatic;
+  VMarksConfig := GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.GetStatic;
   if VMarksConfig.IsUseMarks then begin
     if VMarksConfig.IgnoreCategoriesVisible and VMarksConfig.IgnoreMarksVisible then begin
       rgMarksShowMode.ItemIndex := 1;

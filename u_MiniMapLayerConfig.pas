@@ -6,6 +6,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_ContentTypeManager,
   i_MiniMapLayerConfig,
   i_ActiveMapsConfig,
   u_ConfigDataElementComplexBase;
@@ -13,12 +14,16 @@ uses
 type
   TMiniMapLayerConfig = class(TConfigDataElementComplexBase, IMiniMapLayerConfig)
   private
+    FContentTypeManager: IContentTypeManager;
+
     FWidth: Integer;
     FZoomDelta: Integer;
     FMasterAlpha: Integer;
     FVisible: Boolean;
-    FDefoultMap: TCustomBitmap32;
+
+    FPlusButtonFileName: string;
     FPlusButton: TCustomBitmap32;
+    FMinusButtonFileName: string;
     FMinusButton: TCustomBitmap32;
     FMapsConfig: IMiniMapMapsConfig;
   protected
@@ -37,47 +42,52 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
 
-    function GetDefoultMap: TCustomBitmap32;
     function GetPlusButton: TCustomBitmap32;
     function GetMinusButton: TCustomBitmap32;
 
     function GetMapsConfig: IMiniMapMapsConfig;
   public
-    constructor Create(AMapsConfig: IMainMapsConfig);
+    constructor Create(
+      AContentTypeManager: IContentTypeManager;
+      AMapsConfig: IMainMapsConfig
+    );
     destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  Classes,
   SysUtils,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
-  u_GlobalState,
+  u_ConfigProviderHelpers,
   u_MiniMapMapsConfig;
 
 { TMiniMapLayerConfig }
 
-constructor TMiniMapLayerConfig.Create(AMapsConfig: IMainMapsConfig);
+constructor TMiniMapLayerConfig.Create(
+  AContentTypeManager: IContentTypeManager;
+  AMapsConfig: IMainMapsConfig
+);
 begin
   inherited Create;
+  FContentTypeManager := AContentTypeManager;
   FWidth := 100;
   FZoomDelta := 4;
   FMasterAlpha := 150;
   FVisible := True;
-  FDefoultMap := TCustomBitmap32.Create;
   FPlusButton := TCustomBitmap32.Create;
   FMinusButton := TCustomBitmap32.Create;
 
   FMapsConfig := TMiniMapMapsConfig.Create(AMapsConfig);
   Add(FMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
 
-  GState.LoadBitmapFromRes('ICONI', FPlusButton);
-  GState.LoadBitmapFromRes('ICONII', FMinusButton);
+  FPlusButtonFileName := 'sas:\Resource\ICONI.png';
+  FMinusButtonFileName := 'sas:\Resource\ICONII.png';
 end;
 
 destructor TMiniMapLayerConfig.Destroy;
 begin
-  FreeAndNil(FDefoultMap);
   FreeAndNil(FPlusButton);
   FreeAndNil(FMinusButton);
   inherited;
@@ -91,6 +101,9 @@ begin
     FZoomDelta := AConfigData.ReadInteger('ZoomDelta', FZoomDelta);
     FMasterAlpha := AConfigData.ReadInteger('Alpha', FMasterAlpha);
     FVisible := AConfigData.ReadBool('Visible', FVisible);
+
+    ReadBitmapByFileRef(AConfigData, FPlusButtonFileName, FContentTypeManager, FPlusButton);
+    ReadBitmapByFileRef(AConfigData, FMinusButtonFileName, FContentTypeManager, FMinusButton);
     SetChanged;
   end;
 end;
@@ -103,16 +116,6 @@ begin
   AConfigData.WriteInteger('ZoomDelta', FZoomDelta);
   AConfigData.WriteInteger('Alpha', FMasterAlpha);
   AConfigData.WriteBool('Visible', FVisible);
-end;
-
-function TMiniMapLayerConfig.GetDefoultMap: TCustomBitmap32;
-begin
-  LockRead;
-  try
-    Result := FDefoultMap;
-  finally
-    UnlockRead;
-  end;
 end;
 
 function TMiniMapLayerConfig.GetMapsConfig: IMiniMapMapsConfig;

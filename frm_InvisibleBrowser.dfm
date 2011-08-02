@@ -1,15 +1,16 @@
 object frmInvisibleBrowser: TfrmInvisibleBrowser
   Left = 0
   Top = 0
-  Caption = ''
   ClientHeight = 509
   ClientWidth = 845
   Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object WebBrowser1: TEmbeddedWB
@@ -19,6 +20,7 @@ object frmInvisibleBrowser: TfrmInvisibleBrowser
     Height = 509
     Align = alClient
     TabOrder = 0
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]

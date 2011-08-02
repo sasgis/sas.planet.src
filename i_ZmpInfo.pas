@@ -5,9 +5,11 @@ interface
 uses
   Graphics,
   Classes,
+  i_ConfigDataProvider,
   i_CoordConverter,
+  i_ContentTypeSubst,
   i_TileDownloaderConfig,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_TileRequestBuilderConfig;
 
 type
@@ -22,8 +24,8 @@ type
     function GetName: string;
     property Name: string read GetName;
 
-    function GetInfo: string;
-    property Info: string read GetInfo;
+    function GetInfoUrl: string;
+    property InfoUrl: string read GetInfoUrl;
 
     function GetSortIndex: Integer;
     property SortIndex: Integer read GetSortIndex;
@@ -46,8 +48,8 @@ type
     function GetEnabled: Boolean;
     property Enabled: Boolean read GetEnabled;
 
-    function GetVersionConfig: IMapVersionConfigStatic;
-    property VersionConfig: IMapVersionConfigStatic read GetVersionConfig;
+    function GetVersionConfig: IMapVersionInfo;
+    property VersionConfig: IMapVersionInfo read GetVersionConfig;
 
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     property TileRequestBuilderConfig: ITileRequestBuilderConfigStatic read GetTileRequestBuilderConfig;
@@ -55,11 +57,17 @@ type
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     property TileDownloaderConfig: ITileDownloaderConfigStatic read GetTileDownloaderConfig;
 
+    function GetContentTypeSubst: IContentTypeSubst;
+    property ContentTypeSubst: IContentTypeSubst read GetContentTypeSubst;
+
     function GetGeoConvert: ICoordConverter;
     property GeoConvert: ICoordConverter read GetGeoConvert;
 
-    function GetMainGeoConvert: ICoordConverter;
-    property MainGeoConvert: ICoordConverter read GetMainGeoConvert;
+    function GetViewGeoConvert: ICoordConverter;
+    property ViewGeoConvert: ICoordConverter read GetViewGeoConvert;
+
+    function GetDataProvider: IConfigDataProvider;
+    property DataProvider: IConfigDataProvider read GetDataProvider;
   end;
 
 implementation

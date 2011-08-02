@@ -6,24 +6,40 @@ uses
   GR32,
   i_VectorDataItemSimple,
   i_MemObjCache,
-  i_TileObjCache,
-  u_MapType;
+  i_TileObjCache;
 
 type
-  TTileCacheSimpleGlobal = class(TInterfacedObject, ITileObjCache)
+  TTileCacheSimpleGlobalVector = class(TInterfacedObject, ITileObjCacheVector)
   private
     FGUID: TGUID;
     FGUIDString: String;
-    FMemCache: IMemObjCache;
+    FMemCache: IMemObjCacheVector;
+    function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+  protected
     procedure Clear;
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
-    procedure AddTileToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte); overload;
-    procedure AddTileToCache(AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte); overload;
-    function TryLoadTileFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean; overload;
-    function TryLoadTileFromCache(var AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte): boolean; overload;
-    function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+    procedure AddTileToCache(AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte);
+    function TryLoadTileFromCache(var AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte): boolean;
   public
-    constructor Create(AMapType: TMapType; AMemCache: IMemObjCache);
+    constructor Create(AGUID: TGUID; AMemCache: IMemObjCacheVector);
+  end;
+
+  TTileCacheSimpleGlobalBitmap = class(TInterfacedObject, ITileObjCacheBitmap)
+  private
+    FGUID: TGUID;
+    FGUIDString: String;
+    FMemCache: IMemObjCacheBitmap;
+    function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+    function GetMemCachePreKey(AXY: TPoint; Azoom: byte): string;
+  protected
+    procedure Clear;
+    procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
+    procedure AddTileToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte);
+    function TryLoadTileFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean;
+    procedure AddTilePreToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte);
+    function TryLoadTilePreFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean;
+  public
+    constructor Create(AGUID: TGUID; AMemCache: IMemObjCacheBitmap);
   end;
 
 
@@ -35,52 +51,98 @@ uses
 
 { TTileCacheSimpleGlobal }
 
-procedure TTileCacheSimpleGlobal.AddTileToCache(AObj: TCustomBitmap32;
+procedure TTileCacheSimpleGlobalVector.AddTileToCache(AObj: IVectorDataItemList;
   AXY: TPoint; AZoom: Byte);
 begin
   FMemCache.AddTileToCache(AObj, GetMemCacheKey(AXY, AZoom));
 end;
 
-procedure TTileCacheSimpleGlobal.AddTileToCache(AObj: IVectorDataItemList;
-  AXY: TPoint; AZoom: Byte);
-begin
-  FMemCache.AddTileToCache(AObj, GetMemCacheKey(AXY, AZoom));
-end;
-
-procedure TTileCacheSimpleGlobal.Clear;
+procedure TTileCacheSimpleGlobalVector.Clear;
 begin
   FMemCache.Clear;
 end;
 
-constructor TTileCacheSimpleGlobal.Create(AMapType: TMapType; AMemCache: IMemObjCache);
+constructor TTileCacheSimpleGlobalVector.Create(AGUID: TGUID; AMemCache:
+    IMemObjCacheVector);
 begin
-  FGUID := AMapType.Zmp.GUID;
+  FGUID := AGUID;
   FGUIDString := GUIDToString(FGUID);
   FMemCache := AMemCache;
 end;
 
-procedure TTileCacheSimpleGlobal.DeleteTileFromCache(AXY: TPoint;
+procedure TTileCacheSimpleGlobalVector.DeleteTileFromCache(AXY: TPoint;
   AZoom: Byte);
 begin
   FMemCache.DeleteFileFromCache(GetMemCacheKey(AXY, AZoom));
 end;
 
-function TTileCacheSimpleGlobal.GetMemCacheKey(AXY: TPoint;
+function TTileCacheSimpleGlobalVector.GetMemCacheKey(AXY: TPoint;
   Azoom: byte): string;
 begin
   Result := inttostr(Azoom) + '-' + inttostr(AXY.X) + '-' + inttostr(AXY.Y) + '-' + FGUIDString;
 end;
 
-function TTileCacheSimpleGlobal.TryLoadTileFromCache(var AObj: IVectorDataItemList;
+function TTileCacheSimpleGlobalVector.TryLoadTileFromCache(var AObj: IVectorDataItemList;
   AXY: TPoint; AZoom: Byte): boolean;
 begin
   Result := FMemCache.TryLoadFileFromCache(AObj, GetMemCacheKey(AXY, AZoom));
 end;
 
-function TTileCacheSimpleGlobal.TryLoadTileFromCache(AObj: TCustomBitmap32;
-  AXY: TPoint; AZoom: Byte): boolean;
+{ TTileCacheSimpleGlobalBitmap }
+
+procedure TTileCacheSimpleGlobalBitmap.AddTilePreToCache(AObj: TCustomBitmap32;
+  AXY: TPoint; AZoom: Byte);
+begin
+  FMemCache.AddTileToCache(AObj, GetMemCachePreKey(AXY, AZoom));
+end;
+
+procedure TTileCacheSimpleGlobalBitmap.AddTileToCache(AObj: TCustomBitmap32;
+  AXY: TPoint; AZoom: Byte);
+begin
+  FMemCache.AddTileToCache(AObj, GetMemCacheKey(AXY, AZoom));
+end;
+
+procedure TTileCacheSimpleGlobalBitmap.Clear;
+begin
+  FMemCache.Clear;
+end;
+
+constructor TTileCacheSimpleGlobalBitmap.Create(AGUID: TGUID; AMemCache:
+    IMemObjCacheBitmap);
+begin
+  FGUID := AGUID;
+  FGUIDString := GUIDToString(FGUID);
+  FMemCache := AMemCache;
+end;
+
+procedure TTileCacheSimpleGlobalBitmap.DeleteTileFromCache(AXY: TPoint;
+  AZoom: Byte);
+begin
+  FMemCache.DeleteFileFromCache(GetMemCacheKey(AXY, AZoom));
+end;
+
+function TTileCacheSimpleGlobalBitmap.GetMemCacheKey(AXY: TPoint;
+  Azoom: byte): string;
+begin
+  Result := inttostr(Azoom) + '-' + inttostr(AXY.X) + '-' + inttostr(AXY.Y) + '-' + FGUIDString;
+end;
+
+function TTileCacheSimpleGlobalBitmap.GetMemCachePreKey(AXY: TPoint;
+  Azoom: byte): string;
+begin
+  Result := inttostr(Azoom) + '-' + inttostr(AXY.X) + '-' + inttostr(AXY.Y) + '-Pre-' + FGUIDString;
+end;
+
+function TTileCacheSimpleGlobalBitmap.TryLoadTileFromCache(
+  AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean;
 begin
   Result := FMemCache.TryLoadFileFromCache(AObj, GetMemCacheKey(AXY, AZoom));
+end;
+
+function TTileCacheSimpleGlobalBitmap.TryLoadTilePreFromCache(
+  AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean;
+begin
+  Result := FMemCache.TryLoadFileFromCache(AObj, GetMemCachePreKey(AXY, AZoom));
 end;
 
 end.

@@ -3,7 +3,7 @@ unit u_GPSModuleFactoryByZylGPS;
 interface
 
 uses
-  i_GPS,
+  i_GPSPositionFactory,
   i_GPSModuleByCOM,
   i_GPSModuleByCOMFactory;
 

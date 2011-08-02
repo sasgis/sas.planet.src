@@ -9,6 +9,7 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_GPS,
+  i_GPSPositionFactory,
   i_GPSModule;
 
 type

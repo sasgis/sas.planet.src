@@ -341,22 +341,27 @@ begin
 end;
 
 procedure TGetList.Execute;
-var ms:TMemoryStream;
+var
+  VStream: TMemoryStream;
 begin
- List:=TStringList.Create;
- ms:=TMemoryStream.Create;
- ErrCode:=GetStreamFromURL1(ms,Link,'text/plain');
- if ErrCode>0 then
-  begin
-   List.LoadFromStream(ms);
-   ms.Free;
-   if not(Terminated) then Synchronize(ShowList);
-  end
-  else
-  begin
-   if not(Terminated) then Synchronize(ShowError);
+  List := TStringList.Create;
+  VStream := TMemoryStream.Create;
+  try
+    ErrCode := GetStreamFromURL1(VStream, Link, 'text/plain');
+    if ErrCode > 0 then begin
+      List.LoadFromStream(VStream);
+      if not(Terminated) then begin
+        Synchronize(ShowList);
+      end;
+    end else begin
+      if not(Terminated) then begin
+        Synchronize(ShowError);
+      end;
+    end;
+  finally
+    VStream.Free;
+    List.Free;
   end;
- List.Free;
 end;
 {
 procedure TfrmDGAvailablePic.CreateTree;

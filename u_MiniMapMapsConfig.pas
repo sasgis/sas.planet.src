@@ -16,10 +16,10 @@ type
     FSelectedMapChangeListener: IJclListener;
     FMainMapsConfig: IMainMapsConfig;
     FMainMapChangeListener: IJclListener;
-    function CreateMiniMapMapsList: IMapTypeList;
-    function CreateMiniMapLayersList: IMapTypeList;
+    function CreateMiniMapMapsSet: IMapTypeSet;
+    function CreateMiniMapLayersSet: IMapTypeSet;
     procedure OnMainMapChange(Sender: TObject);
-    procedure OnSelectedChange(AGUID: TGUID);
+    procedure OnSelectedChange(const AGUID: TGUID);
     procedure SetActiveMiniMap(AValue: IMapType);
   protected
     function GetActiveMiniMap: IMapType;
@@ -43,7 +43,7 @@ uses
 constructor TMiniMapMapsConfig.Create(AMapsConfig: IMainMapsConfig);
 begin
   FMainMapsConfig := AMapsConfig;
-  inherited Create(CreateMiniMapMapsList, CreateMiniMapLayersList);
+  inherited Create(CreateMiniMapMapsSet, CreateMiniMapLayersSet);
 
   FMainMapChangeListener := TNotifyEventListener.Create(Self.OnMainMapChange);
   FMainMapsConfig.GetActiveMap.GetChangeNotifier.Add(FMainMapChangeListener);
@@ -76,43 +76,43 @@ begin
   end;
 end;
 
-function TMiniMapMapsConfig.CreateMiniMapLayersList: IMapTypeList;
+function TMiniMapMapsConfig.CreateMiniMapLayersSet: IMapTypeSet;
 var
-  VSourceList: IMapTypeList;
+  VSourceSet: IMapTypeSet;
   VMap: IMapType;
-  VList: TMapTypeList;
+  VList: TMapTypeSet;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VSourceList := FMainMapsConfig.GetBitmapLayersSet.GetMapsList;
-  VList := TMapTypeList.Create(True);
+  VSourceSet := FMainMapsConfig.GetActiveBitmapLayersSet.GetMapsSet;
+  VList := TMapTypeSet.Create(True);
   Result := VList;
-  VEnun := VSourceList.GetIterator;
+  VEnun := VSourceSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VMap := VSourceList.GetMapTypeByGUID(VGUID);
+    VMap := VSourceSet.GetMapTypeByGUID(VGUID);
     if VMap.MapType.IsCanShowOnSmMap then begin
       VList.Add(VMap);
     end;
   end;
 end;
 
-function TMiniMapMapsConfig.CreateMiniMapMapsList: IMapTypeList;
+function TMiniMapMapsConfig.CreateMiniMapMapsSet: IMapTypeSet;
 var
-  VSourceList: IMapTypeList;
+  VSourceSet: IMapTypeSet;
   VMap: IMapType;
-  VList: TMapTypeList;
+  VList: TMapTypeSet;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VSourceList := FMainMapsConfig.GetActiveMap.GetMapsList;
-  VList := TMapTypeList.Create(True);
+  VSourceSet := FMainMapsConfig.GetActiveMap.GetMapsSet;
+  VList := TMapTypeSet.Create(True);
   Result := VList;
   VList.Add(TMapTypeBasic.Create(nil));
-  VEnun := VSourceList.GetIterator;
+  VEnun := VSourceSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VMap := VSourceList.GetMapTypeByGUID(VGUID);
+    VMap := VSourceSet.GetMapTypeByGUID(VGUID);
     if VMap.MapType.IsCanShowOnSmMap then begin
       VList.Add(VMap);
     end;
@@ -129,12 +129,12 @@ begin
   end;
 end;
 
-procedure TMiniMapMapsConfig.OnSelectedChange(AGUID: TGUID);
+procedure TMiniMapMapsConfig.OnSelectedChange(const AGUID: TGUID);
 begin
   if IsEqualGUID(AGUID, CGUID_Zero) then begin
     SetActiveMiniMap(FMainMapsConfig.GetSelectedMapType);
   end else begin
-    SetActiveMiniMap(GetActiveMap.GetMapsList.GetMapTypeByGUID(AGUID));
+    SetActiveMiniMap(GetActiveMap.GetMapsSet.GetMapTypeByGUID(AGUID));
   end;
 end;
 
@@ -144,7 +144,7 @@ begin
   try
     if FActiveMiniMap <> AValue then begin
       FActiveMiniMap := AValue;
-      inherited SetChanged;
+      SetChanged;
     end;
   finally
     UnlockWrite;

@@ -129,7 +129,7 @@ type
     function Pos2LonLat(const AXY: TPoint; Azoom: byte): TDoublePoint; virtual; stdcall;
     function LonLat2Pos(const AXY: TDoublePoint; Azoom: byte): Tpoint; virtual; stdcall;
     function GetTileSplitCode: Integer; override;
-    function GetTileSize(const XY: TPoint; Azoom: byte): TPoint; override;
+    function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; override;
     procedure AfterConstruction; override;
   end;
 
@@ -197,7 +197,7 @@ begin
 end;
 
 function TCoordConverterBasic.GetTileSize(const XY: TPoint;
-  Azoom: byte): TPoint;
+  const Azoom: byte): TPoint;
 begin
   Result := Point(256, 256);
 end;

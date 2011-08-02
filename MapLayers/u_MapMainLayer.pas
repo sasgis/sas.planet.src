@@ -29,7 +29,7 @@ type
     FPostProcessingConfig:IBitmapPostProcessingConfig;
     FViewConfig: IGlobalViewMainConfig;
     FMainMap: IMapType;
-    FLayersList: IMapTypeList;
+    FLayersSet: IMapTypeSet;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
     function DrawMap(
@@ -102,7 +102,7 @@ begin
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnLayerSetChange),
-    FMapsConfig.GetBitmapLayersSet.GetChangeNotifier
+    FMapsConfig.GetActiveBitmapLayersSet.GetChangeNotifier
   );
 
   LinksList.Add(
@@ -123,7 +123,7 @@ var
   VGUID: TGUID;
   VItem: IMapType;
   VEnum: IEnumGUID;
-  VHybrList: IMapTypeList;
+  VLayersSet: IMapTypeSet;
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
   VTileToDrawBmp: TCustomBitmap32;
 
@@ -187,11 +187,11 @@ begin
           break;
         end;
 
-        VHybrList := FLayersList;
-        if VHybrList <> nil then begin
-          VEnum := VHybrList.GetIterator;
+        VLayersSet := FLayersSet;
+        if VLayersSet <> nil then begin
+          VEnum := VLayersSet.GetIterator;
           while VEnum.Next(1, VGUID, i) = S_OK do begin
-            VItem := VHybrList.GetMapTypeByGUID(VGUID);
+            VItem := VLayersSet.GetMapTypeByGUID(VGUID);
             VMapType := VItem.GetMapType;
             if VMapType.IsBitmapTiles then begin
               if DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig) then begin
@@ -247,7 +247,7 @@ begin
   try
     VErrorString := '';
     try
-      if AMapType.LoadTileUni(VBmp, ATile, AZoom, true, AGeoConvert, AUsePre, True, False) then begin
+      if AMapType.LoadTileUni(VBmp, ATile, AZoom, AGeoConvert, AUsePre, True, False, AMapType.CacheBitmap) then begin
         VBmp.DrawMode := ADrawMode;
         VBmp.DrawTo(ATargetBmp);
         Result := True;
@@ -296,7 +296,7 @@ procedure TMapMainLayer.OnLayerSetChange(Sender: TObject);
 begin
   ViewUpdateLock;
   try
-    FLayersList := FMapsConfig.GetBitmapLayersSet.GetSelectedMapsList;
+    FLayersSet := FMapsConfig.GetActiveBitmapLayersSet.GetSelectedMapsSet;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;

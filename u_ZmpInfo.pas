@@ -8,7 +8,8 @@ uses
   Classes,
   i_CoordConverter,
   i_ConfigDataProvider,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
+  i_ContentTypeSubst,
   i_TileRequestBuilderConfig,
   i_TileDownloaderConfig,
   i_LanguageManager,
@@ -23,8 +24,7 @@ type
     FNameDef: string;
     FName: string;
     FSortIndex: Integer;
-    FInfoDef: string;
-    FInfo: string;
+    FInfoUrl: string;
     FBmp18: TBitmap;
     FBmp24: TBitmap;
     FHotKey: TShortCut;
@@ -32,11 +32,12 @@ type
     FParentSubMenuDef: string;
     FParentSubMenu: string;
     FEnabled: Boolean;
-    FVersionConfig: IMapVersionConfigStatic;
+    FVersionConfig: IMapVersionInfo;
     FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     FTileDownloaderConfig: ITileDownloaderConfigStatic;
+    FContentTypeSubst: IContentTypeSubst;
     FGeoConvert: ICoordConverter;
-    FMainGeoConvert: ICoordConverter;
+    FViewGeoConvert: ICoordConverter;
 
     FConfig: IConfigDataProvider;
     FConfigIni: IConfigDataProvider;
@@ -67,18 +68,20 @@ type
     function GetFileName: string;
     function GetName: string;
     function GetSortIndex: Integer;
-    function GetInfo: string;
+    function GetInfoUrl: string;
     function GetBmp18: TBitmap;
     function GetBmp24: TBitmap;
     function GetHotKey: TShortCut;
     function GetSeparator: Boolean;
     function GetParentSubMenu: string;
     function GetEnabled: Boolean;
-    function GetVersionConfig: IMapVersionConfigStatic;
+    function GetVersionConfig: IMapVersionInfo;
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
+    function GetContentTypeSubst: IContentTypeSubst;
     function GetGeoConvert: ICoordConverter;
-    function GetMainGeoConvert: ICoordConverter;
+    function GetViewGeoConvert: ICoordConverter;
+    function GetDataProvider: IConfigDataProvider;
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
@@ -101,7 +104,8 @@ uses
   gnugettext,
   u_TileRequestBuilderConfig,
   u_TileDownloaderConfigStatic,
-  u_MapVersionConfig,
+  u_ContentTypeSubstByList,
+  u_MapVersionInfo,
   u_ResStrings;
 
 { TZmpInfo }
@@ -149,6 +153,16 @@ begin
   Result := FBmp24;
 end;
 
+function TZmpInfo.GetContentTypeSubst: IContentTypeSubst;
+begin
+  Result := FContentTypeSubst;
+end;
+
+function TZmpInfo.GetDataProvider: IConfigDataProvider;
+begin
+  Result := FConfig;
+end;
+
 function TZmpInfo.GetEnabled: Boolean;
 begin
   Result := FEnabled;
@@ -174,14 +188,14 @@ begin
   Result := FHotKey;
 end;
 
-function TZmpInfo.GetMainGeoConvert: ICoordConverter;
+function TZmpInfo.GetViewGeoConvert: ICoordConverter;
 begin
-  Result := FMainGeoConvert;
+  Result := FViewGeoConvert;
 end;
 
-function TZmpInfo.GetInfo: string;
+function TZmpInfo.GetInfoUrl: string;
 begin
-  Result := FInfo;
+  Result := FInfoUrl;
 end;
 
 function TZmpInfo.GetName: string;
@@ -214,7 +228,7 @@ begin
   Result := FTileRequestBuilderConfig;
 end;
 
-function TZmpInfo.GetVersionConfig: IMapVersionConfigStatic;
+function TZmpInfo.GetVersionConfig: IMapVersionInfo;
 begin
   Result := FVersionConfig;
 end;
@@ -235,6 +249,7 @@ begin
   LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
   LoadTileRequestBuilderConfig(FConfigIniParams);
   LoadTileDownloaderConfig(FConfigIniParams);
+  FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
 end;
 
 function TZmpInfo.LoadGUID(AConfig: IConfigDataProvider): TGUID;
@@ -293,12 +308,28 @@ end;
 
 procedure TZmpInfo.LoadInfo(AConfig: IConfigDataProvider);
 begin
-  FInfoDef := AConfig.ReadString('info.txt', '');
+  if AConfig.ReadString('index.html', '') <> '' then begin
+    FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/';
+  end else if AConfig.ReadString('info.txt', '') <> '' then begin
+    FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/info.txt';
+  end else begin
+    FInfoUrl := '';
+  end;
 end;
 
 procedure TZmpInfo.LoadInfoLang(AConfig: IConfigDataProvider; ALanguageCode: string);
+var
+  VFileName: string;
 begin
-  FInfo := AConfig.ReadString('info_'+ALanguageCode+'.txt', FInfoDef);
+  VFileName := 'index_'+ALanguageCode+'.html';
+  if AConfig.ReadString(VFileName, '') <> '' then begin
+    FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/' + VFileName;
+  end else begin
+    VFileName := 'info_'+ALanguageCode+'.txt';
+    if AConfig.ReadString(VFileName, '') <> '' then begin
+      FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/' + VFileName;
+    end;
+  end;
 end;
 
 procedure TZmpInfo.LoadProjectionInfo(AConfig: IConfigDataProvider; ACoordConverterFactory: ICoordConverterFactory);
@@ -307,11 +338,11 @@ var
 begin
   VParams := AConfig.GetSubItem('ViewInfo');
   if VParams <> nil then begin
-    FMainGeoConvert := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
+    FViewGeoConvert := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
   end;
   FGeoConvert := ACoordConverterFactory.GetCoordConverterByConfig(FConfigIniParams);
-  if FMainGeoConvert = nil then begin
-    FMainGeoConvert := FGeoConvert;
+  if FViewGeoConvert = nil then begin
+    FViewGeoConvert := FGeoConvert;
   end;
 end;
 
@@ -374,7 +405,7 @@ var
   VVersion: Variant;
 begin
   VVersion := AConfig.ReadString('Version', '');
-  FVersionConfig := TMapVersionConfigStatic.Create(VVersion);
+  FVersionConfig := TMapVersionInfo.Create(VVersion);
 end;
 
 end.

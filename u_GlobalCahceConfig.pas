@@ -10,6 +10,8 @@ uses
 type
   TGlobalCahceConfig = class
   private
+    FCacheGlobalPath: string;
+
     //Способ храения кэша по-умолчанию.
     FDefCache: byte;
 
@@ -28,7 +30,9 @@ type
     procedure SetNewCPath(const Value: string);
     procedure SetOldCPath(const Value: string);
   public
-    constructor Create;
+    constructor Create(
+      ACacheGlobalPath: string
+    );
     destructor Destroy; override;
 
     procedure LoadConfig(AConfigProvider: IConfigDataProvider);
@@ -44,6 +48,7 @@ type
     property GMTilespath: string read FGMTilespath write SetGMTilespath;
     property GECachepath: string read FGECachepath write SetGECachepath;
 
+    property  CacheGlobalPath: string read FCacheGlobalPath;
     property CacheChangeNotifier: IJclNotifier read FCacheChangeNotifier;
   end;
 
@@ -55,8 +60,11 @@ uses
 
 { TGlobalCahceConfig }
 
-constructor TGlobalCahceConfig.Create;
+constructor TGlobalCahceConfig.Create(
+  ACacheGlobalPath: string
+);
 begin
+  FCacheGlobalPath := ACacheGlobalPath;
   FDefCache := 2;
   FCacheChangeNotifier := TJclBaseNotifier.Create;
   FOldCpath := 'cache_old' + PathDelim;

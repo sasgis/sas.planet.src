@@ -4,34 +4,65 @@ interface
 
 uses
   t_GeoTypes,
-  i_PathDetalizeProvider;
+  i_LanguageManager,
+  i_ProxySettings,
+  u_PathDetalizeProviderListEntity;
 
 type
-  TPathDetalizeProviderMailRu = class(TInterfacedObject, IPathDetalizeProvider)
+  TPathDetalizeProviderMailRu = class(TPathDetalizeProviderListEntity)
   private
     FBaseUrl: string;
+    FProxyConfig: IProxyConfig;
+
     function SecondToTime(const Seconds: Cardinal): Double;
+  protected { IPathDetalizeProvider }
+    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
+  public
+    constructor Create(
+      AGUID: TGUID;
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig;
+      ABaseUrl: string
+    );
+  end;
+
+type
+  TPathDetalizeProviderMailRuShortest = class(TPathDetalizeProviderMailRu)
   protected
-    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint;
-    constructor Create(ABaseUrl: string);
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
+    );
   end;
 
 type
-  TPathDetalizeProviderMailRu1 = class(TPathDetalizeProviderMailRu)
+  TPathDetalizeProviderMailRuFastest = class(TPathDetalizeProviderMailRu)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
   public
-    constructor Create;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
+    );
   end;
 
 type
-  TPathDetalizeProviderMailRu2 = class(TPathDetalizeProviderMailRu)
+  TPathDetalizeProviderMailRuFastestWithTraffic = class(TPathDetalizeProviderMailRu)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
   public
-    constructor Create;
-  end;
-
-type
-  TPathDetalizeProviderMailRu3 = class(TPathDetalizeProviderMailRu)
-  public
-    constructor Create;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
+    );
   end;
 
 implementation
@@ -41,15 +72,24 @@ uses
   SysUtils,
   StrUtils,
   DateUtils,
+  gnugettext,
+  c_PathDetalizeProvidersGUID,
   u_GeoToStr,
   u_ResStrings,
   frm_InvisibleBrowser;
 
 { TPathDetalizeProviderMailRu }
 
-constructor TPathDetalizeProviderMailRu.Create(ABaseUrl: string);
+constructor TPathDetalizeProviderMailRu.Create(
+  AGUID: TGUID;
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig;
+  ABaseUrl: string
+);
 begin
+  inherited Create(AGUID, ALanguageManager);
   FBaseUrl := ABaseUrl;
+  FProxyConfig := AProxyConfig;
 end;
 
 function TPathDetalizeProviderMailRu.GetPath(ASource: TArrayOfDoublePoint;
@@ -66,7 +106,7 @@ begin
   end;
   ms:=TMemoryStream.Create;
   try
-    if GetStreamFromURL(ms,url,'text/javascript; charset=utf-8')>0 then begin
+    if GetStreamFromURL(ms,url,'text/javascript; charset=utf-8', FProxyConfig.GetStatic)>0 then begin
       ms.Position:=0;
       SetLength(pathstr, ms.Size);
       ms.ReadBuffer(pathstr[1], ms.Size);
@@ -141,31 +181,94 @@ begin
   Result := dd + EncodeTime(hh, mm, ss, ms);
 end;
 
-{ TPathDetalizeProviderMailRu1 }
+{ TPathDetalizeProviderMailRuShortest }
 
-constructor TPathDetalizeProviderMailRu1.Create;
+constructor TPathDetalizeProviderMailRuShortest.Create(
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
   inherited Create(
+    CPathDetalizeProviderMailRuShortest,
+    ALanguageManager,
+    AProxyConfig,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
   );
 end;
 
-{ TPathDetalizeProviderMailRu2 }
+function TPathDetalizeProviderMailRuShortest.GetCaptionTranslated: string;
+begin
+  Result := _('On car (Shortest) by Maps@mail.ru');
+end;
 
-constructor TPathDetalizeProviderMailRu2.Create;
+function TPathDetalizeProviderMailRuShortest.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on car (Shortest) by Maps@mail.ru');
+end;
+
+function TPathDetalizeProviderMailRuShortest.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On car (Shortest)');
+end;
+
+{ TPathDetalizeProviderMailRuFastest }
+
+constructor TPathDetalizeProviderMailRuFastest.Create(
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
   inherited Create(
+    CPathDetalizeProviderMailRuFastest,
+    ALanguageManager,
+    AProxyConfig,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
   );
 end;
 
-{ TPathDetalizeProviderMailRu3 }
+function TPathDetalizeProviderMailRuFastest.GetCaptionTranslated: string;
+begin
+  Result := _('On car (Fastest) by Maps@mail.ru');
+end;
 
-constructor TPathDetalizeProviderMailRu3.Create;
+function TPathDetalizeProviderMailRuFastest.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on car (Fastest) by Maps@mail.ru');
+end;
+
+function TPathDetalizeProviderMailRuFastest.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On car (Fastest)');
+end;
+
+{ TPathDetalizeProviderMailRuFastestWithTraffic }
+
+constructor TPathDetalizeProviderMailRuFastestWithTraffic.Create(
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
   inherited Create(
+    CPathDetalizeProviderMailRuFastestWithTraffic,
+    ALanguageManager,
+    AProxyConfig,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
   );
+end;
+
+function TPathDetalizeProviderMailRuFastestWithTraffic.GetCaptionTranslated: string;
+begin
+  Result := _('On car (Fastest with traffic) by Maps@mail.ru');
+end;
+
+function TPathDetalizeProviderMailRuFastestWithTraffic.GetDescriptionTranslated: string;
+begin
+  Result := _('Detalize route on car (Fastest with traffic) by Maps@mail.ru');
+end;
+
+function TPathDetalizeProviderMailRuFastestWithTraffic.GetMenuItemNameTranslated: string;
+begin
+  Result := _('On car (Fastest with traffic)');
 end;
 
 end.

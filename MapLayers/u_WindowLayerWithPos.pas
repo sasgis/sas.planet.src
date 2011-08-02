@@ -464,7 +464,6 @@ begin
   inherited Create(FLayer, AViewPortState, True);
 
   FLayer.Bitmap.DrawMode := dmBlend;
-  FLayer.Bitmap.CombineMode := cmMerge;
 end;
 
 procedure TWindowLayerWithBitmap.DoViewUpdate;

@@ -17,7 +17,7 @@ type
     ///	<remarks>Рекомендуется реализовывать через загрузку при помощи
     ///	стрима</remarks>
     {$ENDREGION}
-    procedure LoadFromFile(AFileName: string; ABtm: TCustomBitmap32);
+    procedure LoadFromFile(const AFileName: string; ABtm: TCustomBitmap32);
 
     ///	<summary>Загрузка растра из стрима</summary>
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
@@ -25,7 +25,7 @@ type
 
   IBitmapTileSaver = interface
     ['{00853113-0F3E-441D-974E-CCBC2F5C6E10}']
-    procedure SaveToFile(ABtm: TCustomBitmap32; AFileName: string);
+    procedure SaveToFile(ABtm: TCustomBitmap32; const AFileName: string);
     procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
   end;
 

@@ -22,12 +22,10 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
       ScanCode: Word; Shift: TShiftState);
-  private
-  protected
+    procedure FormCreate(Sender: TObject);
   public
-    procedure showmessage(ACaption,AText: string);
-    procedure TextToWebBrowser(Text: string);
-    procedure Navigate(AUrl: string);
+    procedure showmessage(ACaption, AText: string);
+    procedure Navigate(ACaption, AUrl: string);
   end;
 
 var
@@ -36,6 +34,7 @@ var
 implementation
 
 uses
+  u_ResStrings,
   i_ProxySettings,
   u_GlobalState;
 
@@ -43,40 +42,38 @@ uses
 
 procedure TfrmIntrnalBrowser.EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
 var
-  VProxyConfig: IProxyConfig;
+  VProxyConfig: IProxyConfigStatic;
   VUseLogin: Boolean;
 begin
-  VProxyConfig := GState.InetConfig.ProxyConfig;
-  VProxyConfig.LockRead;
-  try
-    VUselogin := (not VProxyConfig.GetUseIESettings) and VProxyConfig.GetUseProxy and VProxyConfig.GetUseLogin;
-    if VUselogin then begin
-      szUserName := VProxyConfig.GetLogin;
-      szPassWord := VProxyConfig.GetPassword;
-    end;
-  finally
-    VProxyConfig.UnlockRead;
+  VProxyConfig := GState.InetConfig.ProxyConfig.GetStatic;
+  VUselogin := (not VProxyConfig.UseIESettings) and VProxyConfig.UseProxy and VProxyConfig.UseLogin;
+  if VUselogin then begin
+    szUserName := VProxyConfig.Login;
+    szPassWord := VProxyConfig.Password;
   end;
 end;
 
 procedure TfrmIntrnalBrowser.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
- EmbeddedWB1.Stop;
+  EmbeddedWB1.Stop;
 end;
 
-procedure TfrmIntrnalBrowser.Navigate(AUrl: string);
+procedure TfrmIntrnalBrowser.FormCreate(Sender: TObject);
 begin
+  EmbeddedWB1.Navigate('about:blank');
+end;
+
+procedure TfrmIntrnalBrowser.Navigate(ACaption, AUrl: string);
+begin
+  EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
+  Caption:=ACaption;
+  show;
   EmbeddedWB1.Navigate(AUrl);
-end;
-
-procedure TfrmIntrnalBrowser.TextToWebBrowser(Text: string);
-begin
-  EmbeddedWB1.HTMLCode.Text:=Text;
 end;
 
 procedure TfrmIntrnalBrowser.showmessage(ACaption,AText: string);
 begin
-  TextToWebBrowser(AText);
+  EmbeddedWB1.HTMLCode.Text:=AText;
   Caption:=ACaption;
   show;
 end;

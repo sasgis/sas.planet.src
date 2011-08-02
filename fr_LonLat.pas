@@ -17,7 +17,9 @@ uses
   StdCtrls,
   u_CommonFormAndFrameParents,
   i_LocalCoordConverter,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_ValueToStringConverter,
+  i_ViewPortState;
 
 type
   TfrLonLat = class(TFrame)
@@ -40,17 +42,23 @@ type
     procedure cbbCoordTypeSelect(Sender: TObject);
   private
     FCoordinates: TDoublePoint;
+    FViewPortState: IViewPortState;
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
     function Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
   public
+    constructor Create(
+      AOwner: TComponent;
+      AViewPortState: IViewPortState;
+      AValueToStringConverterConfig: IValueToStringConverterConfig
+    ); reintroduce;
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
   end;
 
 implementation
 
 uses
-  i_ValueToStringConverter,
   u_GeoToStr,
   u_GlobalState,
   u_ResStrings;
@@ -73,6 +81,14 @@ begin
           grdpnlXY.Realign;
         end;
   end;
+end;
+
+constructor TfrLonLat.Create(AOwner: TComponent; AViewPortState: IViewPortState;
+  AValueToStringConverterConfig: IValueToStringConverterConfig);
+begin
+  inherited Create(AOwner);
+  FViewPortState := AViewPortState;
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 
 function TfrLonLat.Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
@@ -158,7 +174,7 @@ begin
         except
           ShowMessage(SAS_ERR_CoordinatesInput);
         end;
-        VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+        VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
         Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,cbbZoom.ItemIndex);
       end;
    2: begin
@@ -168,7 +184,7 @@ begin
         except
           ShowMessage(SAS_ERR_CoordinatesInput);
         end;
-        VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+        VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
         XYRect:=VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,cbbZoom.ItemIndex);
         XYPoint:=Point(XYRect.Right-(XYRect.Right-XYRect.Left)div 2,
                        XYRect.Bottom-(XYRect.Bottom-XYRect.top)div 2);
@@ -185,8 +201,8 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   FCoordinates:=Value;
-  VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
-  CurrZoom:=GState.MainFormConfig.ViewPortState.GetCurrentZoom;
+  VValueConverter := FValueToStringConverterConfig.GetStaticConverter;
+  CurrZoom:=FViewPortState.GetCurrentZoom;
   cbbZoom.ItemIndex:=CurrZoom;
   if cbbCoordType.ItemIndex=-1 then begin
     cbbCoordType.ItemIndex:=0;
@@ -198,13 +214,13 @@ begin
         edtLat.Text:=VValueConverter.LatConvert(Value.y);
       end;
    1: begin
-        VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+        VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
         XYPoint:=VLocalConverter.GetGeoConverter.LonLat2PixelPos(Value,CurrZoom);
         edtX.Text:=inttostr(XYPoint.x);
         edtY.Text:=inttostr(XYPoint.y);
       end;
    2: begin
-        VLocalConverter :=  GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+        VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
         XYPoint:=VLocalConverter.GetGeoConverter.LonLat2TilePos(Value,CurrZoom);
         edtX.Text:=inttostr(XYPoint.x);
         edtY.Text:=inttostr(XYPoint.y);

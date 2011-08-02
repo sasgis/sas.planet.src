@@ -26,15 +26,15 @@ type
   IBitmapPostProcessingConfig = interface(IConfigDataElement)
     ['{3CF3CE21-3488-495C-9A17-A2164763342E}']
     function GetInvertColor: boolean;
-    procedure SetInvertColor(AValue: boolean);
+    procedure SetInvertColor(const AValue: boolean);
     property InvertColor: boolean read GetInvertColor write SetInvertColor;
 
     function GetGammaN: Integer;
-    procedure SetGammaN(AValue: Integer);
+    procedure SetGammaN(const AValue: Integer);
     property GammaN: Integer read GetGammaN write SetGammaN;
 
     function GetContrastN: Integer;
-    procedure SetContrastN(AValue: Integer);
+    procedure SetContrastN(const AValue: Integer);
     property ContrastN: Integer read GetContrastN write SetContrastN;
 
     function GetStatic: IBitmapPostProcessingConfigStatic;

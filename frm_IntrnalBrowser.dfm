@@ -10,6 +10,7 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
   OldCreateOrder = False
   Position = poMainFormCenter
   OnClose = FormClose
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object EmbeddedWB1: TEmbeddedWB

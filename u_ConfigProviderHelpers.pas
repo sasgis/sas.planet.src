@@ -4,6 +4,7 @@ interface
 
 uses
   GR32,
+  i_ContentTypeManager,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;
 
@@ -18,11 +19,20 @@ function ReadColor32(
   ADefault: TColor32
 ): TColor32;
 
+procedure ReadBitmapByFileRef(
+  AConfigProvider: IConfigDataProvider;
+  AFullFileName: string;
+  AContentTypeManager: IContentTypeManager;
+  ABitmap: TCustomBitmap32
+);
+
 implementation
 
 uses
+  Classes,
   SysUtils,
-  Graphics;
+  Graphics,
+  i_ContentTypeInfo;
 
 function ReadColor32(
   AConfigProvider: IConfigDataProvider;
@@ -59,6 +69,53 @@ procedure WriteColor32(
 );
 begin
   AConfigProvider.WriteString(AIdent + 'Hex', HexDisplayPrefix + IntToHex(AValue, 8));
+end;
+
+procedure ReadBitmapByFileRef(
+  AConfigProvider: IConfigDataProvider;
+  AFullFileName: string;
+  AContentTypeManager: IContentTypeManager;
+  ABitmap: TCustomBitmap32
+);
+var
+  VFilePath: string;
+  VFileName: string;
+  VFileExt: string;
+  VResourceProvider: IConfigDataProvider;
+  VStream: TMemoryStream;
+  VInfoBasic: IContentTypeInfoBasic;
+  VBitmapContntType: IContentTypeInfoBitmap;
+begin
+  VFilePath := ExcludeTrailingPathDelimiter(ExtractFilePath(AFullFileName));
+  VFileName := ExtractFileName(AFullFileName);
+  VFileExt := ExtractFileExt(VFileName);
+
+  try
+    VResourceProvider := AConfigProvider.GetSubItem(VFilePath);
+  except
+    Assert(False, 'Ошибка при получении пути ' + VFilePath);
+  end;
+
+  if VResourceProvider <> nil then begin
+    VStream := TMemoryStream.Create;
+    try
+      if VResourceProvider.ReadBinaryStream(VFileName, VStream) > 0 then begin
+        VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
+        if VInfoBasic <> nil then begin
+          if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
+            VStream.Position := 0;
+            try
+              VBitmapContntType.GetLoader.LoadFromStream(VStream, ABitmap);
+            except
+              Assert(False, 'Ошибка при загрузке картинки ' + AFullFileName);
+            end;
+          end;
+        end;
+      end;
+    finally
+      VStream.Free;
+    end;
+  end;
 end;
 
 end.

@@ -5,31 +5,28 @@ interface
 uses
   Windows,
   ExtCtrls,
-  Graphics,
   Classes,
   IniFiles,
   SysUtils,
-  GR32,
   {$IFDEF SasDebugWithJcl}
   JclDebug,
   {$ENDIF SasDebugWithJcl}
   i_JclNotify,
-  i_GPS,
+  i_GPSPositionFactory,
   i_LanguageManager,
   i_MemObjCache,
   i_InetConfig,
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
   i_TileFileNameGeneratorsList,
-  i_BitmapTypeExtManager,
   i_ContentTypeManager,
   i_KmlInfoSimpleLoader,
-  i_MapTypeIconsList,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,
   i_GSMGeoCodeConfig,
   i_MainFormConfig,
+  i_GlobalAppConfig,
   i_BitmapPostProcessingConfig,
   i_ValueToStringConverter,
   u_GarbageCollectorThread,
@@ -42,43 +39,44 @@ uses
   i_InternalPerformanceCounter,
   u_LastSelectionInfo,
   u_MarksDb,
-  u_MapType,
   u_MapTypesMainList,
   u_MemFileCache,
   i_GPSConfig,
   i_MarkCategoryFactoryConfig,
   i_GlobalViewMainConfig,
+  i_GlobalDownloadConfig,
+  i_StartUpLogoConfig,
   i_DownloadResultTextProvider,
   i_ImportFile,
+  i_PathDetalizeProviderList,
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
+  i_SensorList,
+  u_IeEmbeddedProtocolRegistration,
   u_GPSState,
   u_GlobalCahceConfig;
 
 type
   TGlobalState = class
   private
-    // Ini-файл с основными настройками
-    MainIni: TMeminifile;
+    FMainConfigProvider: IConfigDataWriteProvider;
+
+    FGlobalAppConfig: IGlobalAppConfig;
+    FStartUpLogoConfig: IStartUpLogoConfig;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
-    FBitmapTypeManager: IBitmapTypeExtManager;
     FContentTypeManager: IContentTypeManager;
     FMapCalibrationList: IInterfaceList;
     FKmlLoader: IKmlInfoSimpleLoader;
     FKmzLoader: IKmlInfoSimpleLoader;
     FCacheConfig: TGlobalCahceConfig;
-    FMapTypeIcons18List: IMapTypeIconsList;
-    FMapTypeIcons24List: IMapTypeIconsList;
     FLanguageManager: ILanguageManager;
-    FMainConfigProvider: IConfigDataWriteProvider;
     FLastSelectionInfo: ILastSelectionInfo;
     FMarksDB: TMarksDB;
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
     FInetConfig: IInetConfig;
-    FProxySettings: IProxySettings;
     FGPSConfig: IGPSConfig;
     FGSMpar: IGSMGeoCodeConfig;
     FGPSPositionFactory: IGPSPositionFactory;
@@ -86,10 +84,12 @@ type
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadInfo: IDownloadInfoSimple;
+    FDownloadConfig: IGlobalDownloadConfig;
     FProgramPath: string;
     FImageResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
-    FMainMemCache: IMemObjCache;
+    FMainMemCacheBitmap: IMemObjCacheBitmap;
+    FMainMemCacheVector: IMemObjCacheVector;
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
     FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
@@ -100,85 +100,64 @@ type
     FSkyMapDraw: ISatellitesInViewMapDraw;
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifier: IJclNotifier;
-    FSensorList: IInterfaceList;
+    FSensorList: ISensorList;
     FPerfCounterList: IInternalPerformanceCounterList;
     FDownloadResultTextProvider: IDownloadResultTextProvider;
+    FProtocol: TIeEmbeddedProtocolRegistration;
+    FPathDetalizeList: IPathDetalizeProviderList;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
     function GetMapsPath: string;
     function GetTrackLogPath: string;
-    function GetHelpFileName: string;
-    function GetMainConfigFileName: string;
-    procedure LoadMainParams;
-    procedure LoadMapIconsList;
     {$IFDEF SasDebugWithJcl}
     procedure DoException(Sender: TObject; E: Exception);
     {$ENDIF SasDebugWithJcl}
+    // Путь к папке с картами
+    property MapsPath: string read GetMapsPath;
   public
-    // Отображать окошко с логотипом при запуске
-    Show_logo: Boolean;
-    // Заходить на сайт автора при старте программы
-    WebReportToAuthor: Boolean;
-    // Выводить отладочную инфромацию о производительности
-    ShowDebugInfo: Boolean;
-
-    //Записывать информацию о тайлах отсутствующих на сервере
-    SaveTileNotExists: Boolean;
-    // Переходить к следующему тайлу если произошла ошибка закачки
-    GoNextTileIfDownloadError: Boolean;
-
-    //Начать сохраненную сессию загрузки с последнего удачно загруженного тайла
-    SessionLastSuccess: boolean;
-
     property MapType: TMapTypesMainList read FMainMapsList;
-
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
+    property GCThread: TGarbageCollectorThread read FGCThread;
+    property MarksDB: TMarksDB read FMarksDB;
+    property GPSpar: TGPSpar read FGPSpar;
+    property ProgramPath: string read FProgramPath;
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
-    // Путь к папке с картами
-    property MapsPath: string read GetMapsPath;
-    // Имя файла со справкой по программе
-    property HelpFileName: string read GetHelpFileName;
-    // Менеджер типов растровых тайлов. Теоретически, каждая карта может иметь свой собственный.
-    property BitmapTypeManager: IBitmapTypeExtManager read FBitmapTypeManager;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
-    property KmlLoader: IKmlInfoSimpleLoader read FKmlLoader;
-    property KmzLoader: IKmlInfoSimpleLoader read FKmzLoader;
-    property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
-    property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
 
-    property GCThread: TGarbageCollectorThread read FGCThread;
-    property LanguageManager: ILanguageManager read FLanguageManager;
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
+    property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
+    property MainMemCacheBitmap: IMemObjCacheBitmap read FMainMemCacheBitmap;
+    property MainMemCacheVector: IMemObjCacheVector read FMainMemCacheVector;
+    property ImportFileByExt: IImportFile read FImportFileByExt;
+    property DownloadResultTextProvider: IDownloadResultTextProvider read FDownloadResultTextProvider;
+    property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
+    property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
+    property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
+
+    property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
     property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
-    property MarksDB: TMarksDB read FMarksDB;
-    property InetConfig: IInetConfig read FInetConfig;
-    property ProxySettings: IProxySettings read FProxySettings;
+    property LanguageManager: ILanguageManager read FLanguageManager;
     property GSMpar: IGSMGeoCodeConfig read FGSMpar;
+    property InetConfig: IInetConfig read FInetConfig;
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
-    property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
-    property ProgramPath: string read FProgramPath;
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
-    property MainMemCache: IMemObjCache read FMainMemCache;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
-    property GPSpar: TGPSpar read FGPSpar;
-    property ImportFileByExt: IImportFile read FImportFileByExt;
     property ViewConfig: IGlobalViewMainConfig read FViewConfig;
-    property DownloadResultTextProvider: IDownloadResultTextProvider read FDownloadResultTextProvider;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
-    property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
-    property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
-    property SensorList: IInterfaceList read FSensorList;
-    property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
+    property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
+    property SensorList: ISensorList read FSensorList;
+    property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
+    property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -189,9 +168,6 @@ type
 
     procedure StartExceptionTracking;
     procedure StopExceptionTracking;
-
-    procedure LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
-    procedure LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
   end;
 
 var
@@ -203,22 +179,19 @@ uses
   Types,
   Forms,
   u_JclNotify,
-  i_BitmapTileSaveLoad,
-  i_SensorListGenerator,
-  u_SensorListGeneratorStuped,
+  u_SASMainConfigProvider,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   i_ListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
-  u_BitmapTypeExtManagerSimple,
   u_ContentTypeManagerSimple,
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
-  u_MapTypeIconsList,
   u_CoordConverterFactorySimple,
   u_LanguageManager,
   u_DownloadInfoSimple,
+  u_StartUpLogoConfig,
   u_InetConfig,
   u_Datum,
   u_GSMGeoCodeConfig,
@@ -227,12 +200,14 @@ uses
   u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,
   u_ValueToStringConverterConfig,
+  u_GlobalAppConfig,
   u_MainMemCacheConfig,
   u_MarkPictureListSimple,
   u_ImageResamplerConfig,
   u_ImageResamplerFactoryListStaticSimple,
   u_ImportByFileExt,
   u_GlobalViewMainConfig,
+  u_GlobalDownloadConfig,
   u_GPSRecorderStuped,
   u_GPSLogWriterToPlt,
   u_SatellitesInViewMapDrawSimple,
@@ -241,7 +216,12 @@ uses
   u_LocalCoordConverterFactorySimpe,
   u_DownloadResultTextProvider,
   u_MainFormConfig,
+  u_SensorListStuped,
   u_InternalPerformanceCounterList,
+  u_IeEmbeddedProtocolFactory,
+  u_PathDetalizeProviderListSimple,
+  u_InternalDomainInfoProviderList,
+  u_InternalDomainInfoProviderByMapTypeList,
   u_ResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -251,7 +231,12 @@ constructor TGlobalState.Create;
 var
   VList: IListOfObjectsWithTTL;
   VViewCnonfig: IConfigDataProvider;
+  VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
+  VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
 begin
+  FProgramPath := ExtractFilePath(ParamStr(0));
+  FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
+
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
   FGUISyncronizedTimer.Interval := 500;
@@ -260,34 +245,26 @@ begin
   FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
 
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
-  Show_logo := True;
 
-  {$IFDEF DEBUG}
-    ShowDebugInfo := True;
-  {$ELSE}
-    ShowDebugInfo := False;
-  {$ENDIF}
+  FGlobalAppConfig := TGlobalAppConfig.Create;
+
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create;
 
-  FCacheConfig := TGlobalCahceConfig.Create;
+  FCacheConfig := TGlobalCahceConfig.Create(ProgramPath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   FMainMapsList := TMapTypesMainList.Create;
-  FProgramPath := ExtractFilePath(ParamStr(0));
-  MainIni := TMeminifile.Create(GetMainConfigFileName);
-  FMainConfigProvider := TConfigDataWriteProviderByIniFile.Create(MainIni);
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
   FLanguageManager := TLanguageManager.Create;
   FLanguageManager.ReadConfig(VViewCnonfig);
   if VViewCnonfig <> nil then begin
-    Show_logo := VViewCnonfig.ReadBool('Show_logo', Show_logo);
-    ShowDebugInfo := VViewCnonfig.ReadBool('time_rendering', ShowDebugInfo);
+    FGlobalAppConfig.ReadConfig(VViewCnonfig);
   end;
+  FDownloadConfig := TGlobalDownloadConfig.Create;
   FImageResamplerConfig :=
     TImageResamplerConfig.Create(
       TImageResamplerFactoryListStaticSimple.Create
     );
   FInetConfig := TInetConfig.Create;
-  FProxySettings := FInetConfig.ProxyConfig as IProxySettings;
   FGPSConfig := TGPSConfig.Create(GetTrackLogPath);
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorder :=
@@ -300,13 +277,19 @@ begin
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
   FViewConfig := TGlobalViewMainConfig.Create;
 
-  FMainMemCache := TMemFileCache.Create(FMainMemCacheConfig);
-  FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
-  FBitmapTypeManager := TBitmapTypeExtManagerSimple.Create;
-  FContentTypeManager := TContentTypeManagerSimple.Create;
+  FMainMemCacheBitmap := TMemFileCacheBitmap.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('BitmapCache'));
+  FMainMemCacheVector := TMemFileCacheVector.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('VectorCache'));
+
+  FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create(FCacheConfig);
+  FContentTypeManager := TContentTypeManagerSimple.Create(FPerfCounterList);
+
+  FStartUpLogoConfig := TStartUpLogoConfig.Create(FContentTypeManager);
+  FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
+
   FMapCalibrationList := TMapCalibrationListBasic.Create;
-  FKmlLoader := TKmlInfoSimpleParser.Create;
-  FKmzLoader := TKmzInfoSimpleParser.Create;
+  VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
+  FKmlLoader := TKmlInfoSimpleParser.Create(VMarksKmlLoadCounterList);
+  FKmzLoader := TKmzInfoSimpleParser.Create(VMarksKmlLoadCounterList);
   FImportFileByExt := TImportByFileExt.Create(FKmlLoader, FKmzLoader);
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
@@ -322,12 +305,19 @@ begin
       FPerfCounterList
     );
   FLastSelectionInfo := TLastSelectionInfo.Create;
-  FGeoCoderList := TGeoCoderListSimple.Create(FInetConfig);
-  FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FBitmapTypeManager);
+  FGeoCoderList := TGeoCoderListSimple.Create(FInetConfig.ProxyConfig as IProxySettings);
+  FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FContentTypeManager);
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
   FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
+  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, FKmlLoader);
+  VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
+  VInternalDomainInfoProviderList.Add(
+    'ZmpInfo',
+    TInternalDomainInfoProviderByMapTypeList.Create(FMainMapsList, FContentTypeManager)
+  );
+  FProtocol := TIeEmbeddedProtocolRegistration.Create('sas', TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));
 end;
 
 destructor TGlobalState.Destroy;
@@ -336,28 +326,20 @@ begin
   FGCThread.WaitFor;
   FreeAndNil(FGCThread);
   FLanguageManager := nil;
-  try
-    MainIni.UpdateFile;
-  except
-  end;
-  FMainConfigProvider := nil;
-  FMainMemCache := nil;
+  FMainMemCacheBitmap := nil;
+  FMainMemCacheVector := nil;
   FTileNameGenerator := nil;
-  FBitmapTypeManager := nil;
   FContentTypeManager := nil;
   FMapCalibrationList := nil;
   FKmlLoader := nil;
   FKmzLoader := nil;
   FreeAndNil(FMarksDB);
-  FMapTypeIcons18List := nil;
-  FMapTypeIcons24List := nil;
   FLastSelectionInfo := nil;
   FGPSConfig := nil;
   FGPSRecorder := nil;
   FreeAndNil(FGPSpar);
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
-  FProxySettings := nil;
   FGSMpar := nil;
   FInetConfig := nil;
   FViewConfig := nil;
@@ -370,8 +352,10 @@ begin
   FMarkPictureList := nil;
   FreeAndNil(FCacheConfig);
   FSkyMapDraw := nil;
+  FreeAndNil(FProtocol);
   FreeAndNil(FGUISyncronizedTimer);
   FGUISyncronizedTimerNotifier := nil;
+  FMainConfigProvider := nil;
   inherited;
 end;
 
@@ -430,75 +414,57 @@ begin
   Result := FProgramPath + 'TrackLog' + PathDelim;
 end;
 
-function TGlobalState.GetHelpFileName: string;
-begin
-  Result := FProgramPath + 'help.chm';      
-end;
-
-function TGlobalState.GetMainConfigFileName: string;
-var posdot:integer;
-begin
-  posdot:=pos('.',ExtractFileName(ParamStr(0)));
-  Result := FProgramPath +  copy(ExtractFileName(ParamStr(0)),0,posdot-1)+'.ini';
-end;
-
-procedure TGlobalState.LoadBitmapFromRes(const Name: String; Abmp: TCustomBitmap32);
-var
-  ResStream: TResourceStream;
-  VImageLoader: IBitmapTileLoader;
-begin
-  VImageLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.png');
-  {Creates an especial stream to load from the resource}
-  ResStream := TResourceStream.Create(HInstance, Name, RT_RCDATA);
-
-  {Loads the png image from the resource}
-  try
-    VImageLoader.LoadFromStream(ResStream, Abmp);
-  finally
-    ResStream.Free;
-  end;
-end;
-
 procedure TGlobalState.LoadConfig;
 var
   VLocalMapsConfig: IConfigDataProvider;
-  VSensorsGenerator: ISensorListGenerator;
   Ini: TMeminifile;
 begin
-  LoadMainParams;
   CreateDir(MapsPath);
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
+
+  FCacheConfig.LoadConfig(FMainConfigProvider);
+
   FMainMapsList.LoadMaps(
     FLanguageManager,
+    FMainMemCacheBitmap,
+    FMainMemCacheVector,
+    FCacheConfig,
+    FTileNameGenerator,
+    FGCThread.List,
+    FInetConfig,
+    FImageResamplerConfig,
+    FDownloadConfig,
+    FContentTypeManager,
+    FDownloadResultTextProvider,
     FCoordConverterFactory,
     VLocalMapsConfig,
     MapsPath
   );
   FMainFormConfig := TMainFormConfig.Create(
     FLocalConverterFactory,
+    FContentTypeManager,
     FGeoCoderList,
-    FMainMapsList.MapsList,
-    FMainMapsList.LayersList,
-    FMainMapsList.FirstMainMap.Zmp.GUID
+    FMainMapsList.MapsSet,
+    FMainMapsList.LayersSet,
+    FMainMapsList.FirstMainMap.Zmp.GUID,
+    FPerfCounterList.CreateAndAddNewSubList('ViewState')
   );
 
-  VSensorsGenerator :=
-    TSensorListGeneratorStuped.Create(
+  FSensorList := TSensorListStuped.Create(
       FLanguageManager,
       FMainFormConfig.ViewPortState,
       FMainFormConfig.NavToPoint,
       FGPSRecorder,
       FValueToStringConverterConfig
     );
-  FSensorList := VSensorsGenerator.CreateSensorsList;
 
-  FCacheConfig.LoadConfig(FMainConfigProvider);
-  LoadMapIconsList;
+  MapType.LoadMapIconsList;
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorder.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
+  FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.ReadConfig(MainConfigProvider.GetSubItem('ValueFormats'));
@@ -509,52 +475,6 @@ begin
   FMarkPictureList.ReadConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
   FMarksDb.ReadConfig(MainConfigProvider);
-end;
-
-procedure TGlobalState.LoadBitmapFromJpegRes(const Name: String; Abmp: TCustomBitmap32);
-var
-  ResStream: TResourceStream;
-  VImageLoader: IBitmapTileLoader;
-begin
-  VImageLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.jpg');
-  {Creates an especial stream to load from the resource}
-  ResStream := TResourceStream.Create(HInstance, Name, RT_RCDATA);
-
-  {Loads the png image from the resource}
-  try
-    VImageLoader.LoadFromStream(ResStream, Abmp);
-  finally
-    ResStream.Free;
-  end;
-end;
-
-procedure TGlobalState.LoadMainParams;
-begin
-  WebReportToAuthor := MainIni.ReadBool('NPARAM', 'stat', true);
-  SaveTileNotExists:=MainIni.ReadBool('INTERNET','SaveTileNotExists', false);
-
-  GoNextTileIfDownloadError:=MainIni.ReadBool('INTERNET','GoNextTile',false);
-  SessionLastSuccess:=MainIni.ReadBool('INTERNET','SessionLastSuccess',false);
-end;
-
-procedure TGlobalState.LoadMapIconsList;
-var
-  i: Integer;
-  VMapType: TMapType;
-  VList18: TMapTypeIconsList;
-  VList24: TMapTypeIconsList;
-begin
-  VList18 := TMapTypeIconsList.Create(18, 18);
-  FMapTypeIcons18List := VList18;
-
-  VList24 := TMapTypeIconsList.Create(24, 24);
-  FMapTypeIcons24List := VList24;
-
-  for i := 0 to MapType.Count - 1 do begin
-    VMapType := MapType[i];
-    VList18.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp18);
-    VList24.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp24);
-  end;
 end;
 
 procedure TGlobalState.OnGUISyncronizedTimer(Sender: TObject);
@@ -570,18 +490,17 @@ begin
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
-  MainIni.WriteBool('INTERNET','SaveTileNotExists',SaveTileNotExists);
-  MainIni.Writebool('INTERNET','GoNextTile',GoNextTileIfDownloadError);
-  MainIni.WriteBool('INTERNET','SessionLastSuccess',SessionLastSuccess);
 
-  MainIni.Writebool('NPARAM','stat',WebReportToAuthor);
   FGPSRecorder.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
+  FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FLastSelectionInfo.WriteConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
+  FGlobalAppConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
+  FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ValueFormats'));
   FMainFormConfig.WriteConfig(MainConfigProvider);

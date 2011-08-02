@@ -5,12 +5,19 @@ interface
 uses
   Classes,
   i_VectorDataItemSimple,
+  i_InternalPerformanceCounter,
   u_KmlInfoSimpleParser;
 
 type
   TKmzInfoSimpleParser = class(TKmlInfoSimpleParser)
-  public
+  private
+    FLoadKmzStreamCounter: IInternalPerformanceCounter;
+  protected
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); override;
+  public
+    constructor Create(
+      APerfCounterList: IInternalPerformanceCounterList
+    );
   end;
 
 implementation
@@ -21,6 +28,16 @@ uses
 
 { TKmzInfoSimpleParser }
 
+constructor TKmzInfoSimpleParser.Create(
+  APerfCounterList: IInternalPerformanceCounterList);
+var
+  VPerfCounterList: IInternalPerformanceCounterList;
+begin
+  VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('KmzLoader');
+  inherited Create(VPerfCounterList);
+  FLoadKmzStreamCounter := VPerfCounterList.CreateAndAddNewCounter('LoadKmzStream');
+end;
+
 procedure TKmzInfoSimpleParser.LoadFromStream(AStream: TStream;
   out AItems: IVectorDataItemList);
 var
@@ -28,29 +45,35 @@ var
   VMemStream: TMemoryStream;
   VStreamKml: TMemoryStream;
   VIndex: Integer;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  UnZip := TKAZip.Create(nil);
+  VCounterContext := FLoadKmzStreamCounter.StartOperation;
   try
-    VMemStream := TMemoryStream.Create;
+    UnZip := TKAZip.Create(nil);
     try
-      VMemStream.LoadFromStream(AStream);
-      UnZip.Open(VMemStream);
-      VStreamKml := TMemoryStream.Create;
+      VMemStream := TMemoryStream.Create;
       try
-        VIndex := UnZip.Entries.IndexOf('doc.kml');
-        if VIndex < 0 then begin
-          VIndex := 0;
+        VMemStream.LoadFromStream(AStream);
+        UnZip.Open(VMemStream);
+        VStreamKml := TMemoryStream.Create;
+        try
+          VIndex := UnZip.Entries.IndexOf('doc.kml');
+          if VIndex < 0 then begin
+            VIndex := 0;
+          end;
+          UnZip.Entries.Items[VIndex].ExtractToStream(VStreamKml);
+          inherited LoadFromStream(VStreamKml, AItems);
+        finally
+          VStreamKml.Free;
         end;
-        UnZip.Entries.Items[VIndex].ExtractToStream(VStreamKml);
-        inherited LoadFromStream(VStreamKml, AItems);
       finally
-        VStreamKml.Free;
+        FreeAndNil(VMemStream);
       end;
     finally
-      FreeAndNil(VMemStream);
+      UnZip.Free;
     end;
   finally
-    UnZip.Free;
+    FLoadKmzStreamCounter.FinishOperation(VCounterContext);
   end;
 end;
 

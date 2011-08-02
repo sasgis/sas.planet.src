@@ -7,12 +7,15 @@ uses
   SysUtils,
   t_GeoTypes,
   i_VectorDataItemSimple,
+  i_InternalPerformanceCounter,
   i_KmlInfoSimpleLoader,
   BMSEARCH;
 
 type
   TKmlInfoSimpleParser = class(TInterfacedObject, IKmlInfoSimpleLoader)
   private
+    FLoadKmlStreamCounter: IInternalPerformanceCounter;
+
     FFormat: TFormatSettings;
     FBMSrchPlacemark: TSearchBM;
     FBMSrchPlacemarkE: TSearchBM;
@@ -34,11 +37,14 @@ type
     procedure parseName(var Name: string);
     procedure parseDescription(var Description: string);
     function BuildItem(AName, ADesc: string; Adata: TArrayOfDoublePoint; ARect: TDoubleRect): IVectorDataItemSimple;
-  public
-    constructor Create;
-    destructor Destroy; override;
+  protected
     procedure LoadFromFile(AFileName: string; out AItems: IVectorDataItemList); virtual;
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
+  public
+    constructor Create(
+      APerfCounterList: IInternalPerformanceCounterList
+    );
+    destructor Destroy; override;
   end;
 
 
@@ -123,8 +129,11 @@ begin
   end;
 end;
 
-constructor TKmlInfoSimpleParser.Create;
+constructor TKmlInfoSimpleParser.Create(
+  APerfCounterList: IInternalPerformanceCounterList
+);
 begin
+  FLoadKmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadKmlStream');
   FFormat.DecimalSeparator := '.';
   FBMSrchPlacemark := TSearchBM.Create;
   FBMSrchPlacemark.PrepareStr('<Placemark', False);
@@ -229,16 +238,22 @@ procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
 var
   VKml: string;
   VList: IInterfaceList;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  AItems := nil;
-  if AStream.Size > 0 then begin
-    VKml := GetAnsiString(AStream);
-    if VKml <> '' then begin
-      VList := TInterfaceList.Create;
-      parse(VKml, VList);
-      AItems := TVectorDataItemList.Create(VList);
-    end else
-      Assert(False, 'KML data reader - Unknown error');
+  VCounterContext := FLoadKmlStreamCounter.StartOperation;
+  try
+    AItems := nil;
+    if AStream.Size > 0 then begin
+      VKml := GetAnsiString(AStream);
+      if VKml <> '' then begin
+        VList := TInterfaceList.Create;
+        parse(VKml, VList);
+        AItems := TVectorDataItemList.Create(VList);
+      end else
+        Assert(False, 'KML data reader - Unknown error');
+    end;
+  finally
+    FLoadKmlStreamCounter.FinishOperation(VCounterContext);
   end;
 end;
 

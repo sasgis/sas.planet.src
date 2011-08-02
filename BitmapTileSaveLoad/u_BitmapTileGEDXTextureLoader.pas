@@ -5,15 +5,22 @@ interface
 uses
   Classes,
   GR32,
+  i_InternalPerformanceCounter,
   i_BitmapTileSaveLoad;
 
 type
   TBitmapTileGEDXTextureLoader = class(TInterfacedObject, IBitmapTileLoader)
   private
+    FLoadStreamCounter: IInternalPerformanceCounter;
+    FLoadFileCounter: IInternalPerformanceCounter;
     procedure LoadFromMemStream(AStream: TCustomMemoryStream; ABtm: TCustomBitmap32);
   protected
-    procedure LoadFromFile(AFileName: string; ABtm: TCustomBitmap32);
+    procedure LoadFromFile(const AFileName: string; ABtm: TCustomBitmap32);
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
+  public
+    constructor Create(
+      APerfCounterList: IInternalPerformanceCounterList
+    );
   end;
 
 implementation
@@ -46,17 +53,35 @@ type
 
 { TBitmapTileGEDXTextureLoader }
 
-procedure TBitmapTileGEDXTextureLoader.LoadFromFile(AFileName: string;
-  ABtm: TCustomBitmap32);
+constructor TBitmapTileGEDXTextureLoader.Create(
+  APerfCounterList: IInternalPerformanceCounterList);
+var
+  VPerfCounterList: IInternalPerformanceCounterList;
+begin
+  VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('GEDXTexture');
+  FLoadStreamCounter := VPerfCounterList.CreateAndAddNewCounter('LoadStream');
+  FLoadFileCounter := VPerfCounterList.CreateAndAddNewCounter('LoadFile');
+end;
+
+procedure TBitmapTileGEDXTextureLoader.LoadFromFile(
+  const AFileName: string;
+  ABtm: TCustomBitmap32
+);
 var
   VMemStream: TMemoryStream;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VMemStream := TMemoryStream.Create;
+  VCounterContext := FLoadFileCounter.StartOperation;
   try
-    VMemStream.LoadFromFile(AFileName);
-    LoadFromMemStream(VMemStream, ABtm);
+    VMemStream := TMemoryStream.Create;
+    try
+      VMemStream.LoadFromFile(AFileName);
+      LoadFromMemStream(VMemStream, ABtm);
+    finally
+      VMemStream.Free;
+    end;
   finally
-    VMemStream.Free;
+    FLoadFileCounter.FinishOperation(VCounterContext);
   end;
 end;
 
@@ -64,17 +89,23 @@ procedure TBitmapTileGEDXTextureLoader.LoadFromStream(AStream: TStream;
   ABtm: TCustomBitmap32);
 var
   VMemStream: TMemoryStream;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  if AStream is TCustomMemoryStream then begin
-    LoadFromMemStream(TCustomMemoryStream(AStream), ABtm);
-  end else begin
-    VMemStream := TMemoryStream.Create;
-    try
-      VMemStream.LoadFromStream(AStream);
-      LoadFromMemStream(VMemStream, ABtm);
-    finally
-      VMemStream.Free;
+  VCounterContext := FLoadStreamCounter.StartOperation;
+  try
+    if AStream is TCustomMemoryStream then begin
+      LoadFromMemStream(TCustomMemoryStream(AStream), ABtm);
+    end else begin
+      VMemStream := TMemoryStream.Create;
+      try
+        VMemStream.LoadFromStream(AStream);
+        LoadFromMemStream(VMemStream, ABtm);
+      finally
+        VMemStream.Free;
+      end;
     end;
+  finally
+    FLoadStreamCounter.FinishOperation(VCounterContext);
   end;
 end;
 

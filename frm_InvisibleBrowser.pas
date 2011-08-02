@@ -7,6 +7,7 @@ uses
   Messages,
   SysUtils,
   Variants,
+  SyncObjs,
   Classes,
   Graphics,
   Controls,
@@ -15,23 +16,28 @@ uses
   OleCtrls,
   SHDocVw_EWB,
   EwbCore,
-  EmbeddedWB;
+  EmbeddedWB,
+  i_ProxySettings;
 
 type
   TfrmInvisibleBrowser = class(TForm)
     WebBrowser1: TEmbeddedWB;
+    procedure FormCreate(Sender: TObject);
     procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
   private
-    { Private declarations }
+    FCS: TCriticalSection;
+    FProxyConfig: IProxyConfigStatic;
   public
-    procedure NavigateAndWait(AUrl: WideString);
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure NavigateAndWait(AUrl: WideString; AProxyConfig: IProxyConfigStatic);
   end;
 
 var
   frmInvisibleBrowser: TfrmInvisibleBrowser;
 
 procedure OpenUrlInBrowser(URL: string);
-function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
+function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string; AProxyConfig: IProxyConfigStatic):integer;
 
 implementation
 
@@ -40,34 +46,54 @@ implementation
 uses
   StrUtils,
   ShellAPI,
-  WinInet,
-  i_ProxySettings,
-  u_GlobalState;
+  WinInet;
+
+constructor TfrmInvisibleBrowser.Create(AOwner: TComponent);
+begin
+  inherited;
+  FCS := TCriticalSection.Create;
+end;
+
+destructor TfrmInvisibleBrowser.Destroy;
+begin
+  FreeAndNil(FCS);
+  inherited;
+end;
+
+procedure TfrmInvisibleBrowser.FormCreate(Sender: TObject);
+begin
+  WebBrowser1.Navigate('about:blank');
+end;
 
 { TfrmInvisibleBrowser }
 
-procedure TfrmInvisibleBrowser.NavigateAndWait(AUrl: WideString);
+procedure TfrmInvisibleBrowser.NavigateAndWait(AUrl: WideString; AProxyConfig: IProxyConfigStatic);
 begin
-  WebBrowser1.NavigateWait(AUrl, 10000);
+  FCS.Acquire;
+  try
+    FProxyConfig := AProxyConfig;
+    try
+      WebBrowser1.NavigateWait(AUrl, 10000);
+    finally
+      FProxyConfig := nil;
+    end;
+  finally
+    FCS.Release;
+  end;
 end;
 
 procedure TfrmInvisibleBrowser.WebBrowser1Authenticate(
   Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName,
   szPassWord: WideString; var Rezult: HRESULT);
 var
-  VProxyConfig: IProxyConfig;
   VUseLogin: Boolean;
 begin
-  VProxyConfig := GState.InetConfig.ProxyConfig;
-  VProxyConfig.LockRead;
-  try
-    VUselogin := (not VProxyConfig.GetUseIESettings) and VProxyConfig.GetUseProxy and VProxyConfig.GetUseLogin;
-    if VUseLogin then begin
-      szUserName := VProxyConfig.GetLogin;
-      szPassWord := VProxyConfig.GetPassword;
+  if FProxyConfig <> nil then begin
+    VUselogin := (not FProxyConfig.UseIESettings) and FProxyConfig.UseProxy and FProxyConfig.UseLogin;
+    if VUselogin then begin
+      szUserName := FProxyConfig.Login;
+      szPassWord := FProxyConfig.Password;
     end;
-  finally
-    VProxyConfig.UnlockRead;
   end;
 end;
 
@@ -76,7 +102,7 @@ begin
   ShellExecute(0, nil, PChar(URL), nil, nil, SW_RESTORE);
 end;
 
-function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string):integer;
+function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string; AProxyConfig: IProxyConfigStatic):integer;
 var par,ty:string;
     err:boolean;
     Buffer:array [1..64535] of char;
@@ -84,20 +110,13 @@ var par,ty:string;
     hSession,hFile:Pointer;
     dwtype: array [1..20] of char;
     dwindex, dwcodelen,dwReserv: dword;
-    VProxyConfig: IProxyConfig;
     VUselogin: Boolean;
     VLogin: string;
     VPassword: string;
 begin
-  VProxyConfig := GState.InetConfig.ProxyConfig;
-  VProxyConfig.LockRead;
-  try
-    VUselogin := (not VProxyConfig.GetUseIESettings) and VProxyConfig.GetUseProxy and VProxyConfig.GetUseLogin;
-    VLogin := VProxyConfig.GetLogin;
-    VPassword := VProxyConfig.GetPassword;
-  finally
-    VProxyConfig.UnlockRead;
-  end;
+  VUselogin := (not AProxyConfig.UseIESettings) and AProxyConfig.UseProxy and AProxyConfig.UseLogin;
+  VLogin := AProxyConfig.Login;
+  VPassword := AProxyConfig.Password;
 
  hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
  if Assigned(hSession)

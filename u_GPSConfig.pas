@@ -22,13 +22,13 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetGPSEnabled: Boolean;
-    procedure SetGPSEnabled(AValue: Boolean);
+    procedure SetGPSEnabled(const AValue: Boolean);
 
     function GetNoDataTimeOut: Integer;
-    procedure SetNoDataTimeOut(AValue: Integer);
+    procedure SetNoDataTimeOut(const AValue: Integer);
 
     function GetWriteLog: Boolean;
-    procedure SetWriteLog(AValue: Boolean);
+    procedure SetWriteLog(const AValue: Boolean);
 
     function GetLogPath: WideString;
     function GetModuleConfig: IGPSModuleByCOMPortConfig;
@@ -114,7 +114,7 @@ begin
   end;
 end;
 
-procedure TGPSConfig.SetGPSEnabled(AValue: Boolean);
+procedure TGPSConfig.SetGPSEnabled(const AValue: Boolean);
 begin
   LockWrite;
   try
@@ -127,7 +127,7 @@ begin
   end;
 end;
 
-procedure TGPSConfig.SetNoDataTimeOut(AValue: Integer);
+procedure TGPSConfig.SetNoDataTimeOut(const AValue: Integer);
 begin
   LockWrite;
   try
@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TGPSConfig.SetWriteLog(AValue: Boolean);
+procedure TGPSConfig.SetWriteLog(const AValue: Boolean);
 begin
   LockWrite;
   try

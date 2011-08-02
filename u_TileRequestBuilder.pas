@@ -7,28 +7,35 @@ uses
   SyncObjs,
   SysUtils,
   i_TileRequestBuilder,
+  i_MapVersionInfo,
   i_LastResponseInfo,
   i_TileRequestBuilderConfig;
 
 type
   TTileRequestBuilder = class(TInterfacedObject, ITileRequestBuilder)
-  protected
+  private
     FCS: TCriticalSection;
+  protected
     FConfig: ITileRequestBuilderConfig;
     procedure Lock;
     procedure Unlock;
-  public
-    constructor Create(AConfig: ITileRequestBuilderConfig);
-    destructor Destroy; override;
-    function  BuildRequestUrl(ATileXY: TPoint; AZoom: Byte; AVersion: Variant): string; virtual; abstract;
+  protected
+    function  BuildRequestUrl(
+      ATileXY: TPoint;
+      AZoom: Byte;
+      AVersionInfo: IMapVersionInfo
+    ): string; virtual; abstract;
     procedure BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
-      AVersion: Variant;
+      AVersionInfo: IMapVersionInfo;
       ALastResponseInfo: ILastResponseInfo;
       out AUrl: string;
       out ARequestHeader: string
     ); virtual; abstract;
+  public
+    constructor Create(AConfig: ITileRequestBuilderConfig);
+    destructor Destroy; override;
   end;
 
 implementation

@@ -3,6 +3,7 @@ unit i_MainFormConfig;
 interface
 
 uses
+  GR32,
   i_ConfigDataElement,
   i_ActiveMapsConfig,
   i_ViewPortState,
@@ -14,8 +15,9 @@ uses
   i_MainFormBehaviourByGPSConfig,
   i_MainGeoCoderConfig,
   i_KeyMovingConfig,
-  i_UsedMarksConfig,
+  i_MarksLayerConfig,
   i_KmlLayerConfig,
+  i_MapMovingConfig,
   i_MapZoomingConfig,
   i_MiniMapLayerConfig,
   i_CenterScaleConfig,
@@ -28,6 +30,7 @@ uses
   i_MarkPolyLineLayerConfig,
   i_FillingMapLayerConfig,
   i_DownloadUIConfig,
+  i_GotoLayerConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -46,6 +49,12 @@ type
     function GetShowHintOnMarks: Boolean;
     procedure SetShowHintOnMarks(AValue: Boolean);
     property ShowHintOnMarks: Boolean read GetShowHintOnMarks write SetShowHintOnMarks;
+
+    function GetRuller: TCustomBitmap32;
+    property Ruller: TCustomBitmap32 read GetRuller;
+
+    function GetTumbler: TCustomBitmap32;
+    property Tumbler: TCustomBitmap32 read GetTumbler;
   end;
 
   IMainWindowToolbarsLock = interface(IConfigDataElement)
@@ -71,8 +80,8 @@ type
     function GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
     property NavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig read GetNavToPointMarkerConfig;
 
-    function GetMarksShowConfig: IUsedMarksConfig;
-    property MarksShowConfig: IUsedMarksConfig read GetMarksShowConfig;
+    function GetMarksLayerConfig: IMarksLayerConfig;
+    property MarksLayerConfig: IMarksLayerConfig read GetMarksLayerConfig;
 
     function GetKmlLayerConfig: IKmlLayerConfig;
     property KmlLayerConfig: IKmlLayerConfig read GetKmlLayerConfig;
@@ -106,6 +115,9 @@ type
 
     function GetFillingMapLayerConfig: IFillingMapLayerConfig;
     property FillingMapLayerConfig: IFillingMapLayerConfig read GetFillingMapLayerConfig;
+
+    function GetGotoLayerConfig: IGotoLayerConfig;
+    property GotoLayerConfig: IGotoLayerConfig read GetGotoLayerConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)
@@ -142,6 +154,9 @@ type
 
     function GetMapZoomingConfig: IMapZoomingConfig;
     property MapZoomingConfig: IMapZoomingConfig read GetMapZoomingConfig;
+
+    function GetMapMovingConfig: IMapMovingConfig;
+    property MapMovingConfig: IMapMovingConfig read GetMapMovingConfig;
  end;
 
 implementation

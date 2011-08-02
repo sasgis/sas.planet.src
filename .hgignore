@@ -10,3 +10,4 @@ syntax: glob
 *.orig
 *.dproj.local
 *.identcache
+*.cbk

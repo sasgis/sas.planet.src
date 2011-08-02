@@ -20,13 +20,13 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetBackGroundColor: TColor;
-    procedure SetBackGroundColor(AValue: TColor);
+    procedure SetBackGroundColor(const AValue: TColor);
 
     function GetUsePrevZoomAtMap: Boolean;
-    procedure SetUsePrevZoomAtMap(AValue: Boolean);
+    procedure SetUsePrevZoomAtMap(const AValue: Boolean);
 
     function GetUsePrevZoomAtLayer: Boolean;
-    procedure SetUsePrevZoomAtLayer(AValue: Boolean);
+    procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
   public
     constructor Create;
   end;
@@ -93,7 +93,7 @@ begin
   end;
 end;
 
-procedure TGlobalViewMainConfig.SetBackGroundColor(AValue: TColor);
+procedure TGlobalViewMainConfig.SetBackGroundColor(const AValue: TColor);
 begin
   LockWrite;
   try
@@ -106,7 +106,7 @@ begin
   end;
 end;
 
-procedure TGlobalViewMainConfig.SetUsePrevZoomAtLayer(AValue: Boolean);
+procedure TGlobalViewMainConfig.SetUsePrevZoomAtLayer(const AValue: Boolean);
 begin
   LockWrite;
   try
@@ -119,7 +119,7 @@ begin
   end;
 end;
 
-procedure TGlobalViewMainConfig.SetUsePrevZoomAtMap(AValue: Boolean);
+procedure TGlobalViewMainConfig.SetUsePrevZoomAtMap(const AValue: Boolean);
 begin
   LockWrite;
   try

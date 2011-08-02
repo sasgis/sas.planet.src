@@ -6,8 +6,8 @@ uses
   Classes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_ContentTypeManager,
   i_MarkPicture,
-  i_BitmapTypeExtManager,
   u_ConfigDataElementBase;
 
 type
@@ -15,7 +15,7 @@ type
   private
     FList: TStringList;
     FBasePath: string;
-    FBitmapTypeManager: IBitmapTypeExtManager;
+    FContentTypeManager: IContentTypeManager;
     procedure Clear;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -29,7 +29,10 @@ type
 
     function GetDefaultPicture: IMarkPicture;
   public
-    constructor Create(ABasePath: string; ABitmapTypeManager: IBitmapTypeExtManager);
+    constructor Create(
+      ABasePath: string;
+      AContentTypeManager: IContentTypeManager
+    );
     destructor Destroy; override;
   end;
 
@@ -39,15 +42,19 @@ uses
   SysUtils,
   GR32,
   i_BitmapTileSaveLoad,
+  i_ContentTypeInfo,
   u_MarkPictureSimple;
 
 { TMarkPictureListSimple }
 
-constructor TMarkPictureListSimple.Create(ABasePath: string; ABitmapTypeManager: IBitmapTypeExtManager);
+constructor TMarkPictureListSimple.Create(
+  ABasePath: string;
+  AContentTypeManager: IContentTypeManager
+);
 begin
   inherited Create;
   FBasePath := ABasePath;
-  FBitmapTypeManager := ABitmapTypeManager;
+  FContentTypeManager := AContentTypeManager;
   FList := TStringList.Create;
 end;
 
@@ -74,10 +81,17 @@ var
   VLoader: IBitmapTileLoader;
   VPicture: IMarkPicture;
   VFullName: string;
+  VContentType: IContentTypeInfoBasic;
+  VContentTypeBitmap: IContentTypeInfoBitmap;
 begin
   inherited;
   Clear;
-  VLoader := FBitmapTypeManager.GetBitmapLoaderForExt('.png');
+  VContentType := FContentTypeManager.GetInfoByExt('.png');
+  if VContentType <> nil then begin
+    if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+      VLoader := VContentTypeBitmap.GetLoader;
+    end;
+  end;
   if FindFirst(FBasePath + '*.png', faAnyFile, SearchRec) = 0 then begin
     try
       repeat

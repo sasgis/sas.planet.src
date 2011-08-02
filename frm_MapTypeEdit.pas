@@ -57,6 +57,15 @@ type
     pnlTop: TPanel;
     lblZmpName: TLabel;
     edtZmp: TEdit;
+    pnlVersion: TPanel;
+    btnVersionReset: TButton;
+    edtVersion: TEdit;
+    lblVersion: TLabel;
+    pnlHeader: TPanel;
+    lblHeader: TLabel;
+    pnlHeaderReset: TPanel;
+    btnHeaderReset: TButton;
+    mmoHeader: TMemo;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnByDefaultClick(Sender: TObject);
@@ -66,6 +75,8 @@ type
     procedure Button7Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
+    procedure btnVersionResetClick(Sender: TObject);
+    procedure btnHeaderResetClick(Sender: TObject);
   private
     FMapType: TMapType;
   public
@@ -77,11 +88,19 @@ var
 
 implementation
 
+uses
+  u_GlobalState;
+
 {$R *.dfm}
+
+procedure TfrmMapTypeEdit.btnHeaderResetClick(Sender: TObject);
+begin
+  mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
+end;
 
 procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
 begin
- FmapType.TileRequestBuilderConfig.URLBase:=EditURL.Text;
+ FmapType.TileRequestBuilderConfig.UrlBase := EditURL.Text;
  FmapType.TileStorage.CacheConfig.NameInCache:=EditNameinCache.Text;
  FmapType.ParentSubMenu:=EditParSubMenu.Text;
  FmapType.TileDownloaderConfig.WaitInterval:=SESleep.Value;
@@ -93,7 +112,16 @@ begin
    FmapType.TileStorage.CacheConfig.cachetype:=0;
  end;
  FmapType.separator:=CheckBox1.Checked;
+ FMapType.VersionConfig.Version := edtVersion.Text;
+ FMapType.TileRequestBuilderConfig.RequestHeader := mmoHeader.Text;
+ pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
+
  ModalResult := mrOk;
+end;
+
+procedure TfrmMapTypeEdit.btnVersionResetClick(Sender: TObject);
+begin
+  edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
 end;
 
 procedure TfrmMapTypeEdit.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -103,7 +131,7 @@ end;
 
 procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
- EditURL.Text:=FmapType.TileRequestBuilderConfig.UrlBase;
+ EditURL.Text := FmapType.Zmp.TileRequestBuilderConfig.UrlBase;
  EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
  EditParSubMenu.Text:=FmapType.Zmp.ParentSubMenu;
  SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
@@ -111,11 +139,13 @@ begin
  CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
  CheckBox1.Checked:=FmapType.Zmp.Separator;
  CheckEnabled.Checked:=FMapType.Zmp.Enabled;
+ edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
+ mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
 end;
 
 procedure TfrmMapTypeEdit.Button6Click(Sender: TObject);
 begin
- EditURL.Text := FMapType.TileRequestBuilderConfig.URLBase;
+ EditURL.Text := FMapType.Zmp.TileRequestBuilderConfig.UrlBase;
 end;
 
 procedure TfrmMapTypeEdit.Button4Click(Sender: TObject);
@@ -149,7 +179,7 @@ begin
 
   Caption:=SAS_STR_EditMap+' '+FmapType.name;
   edtZmp.Text := AMapType.Zmp.FileName;
-  EditURL.Text:=FMapType.TileRequestBuilderConfig.URLBase;
+  EditURL.Text:=FMapType.TileRequestBuilderConfig.UrlBase;
   EditNameinCache.Text:=FMapType.TileStorage.CacheConfig.NameInCache;
   SESleep.Value:=FMapType.TileDownloaderConfig.WaitInterval;
   EditParSubMenu.Text:=FMapType.ParentSubMenu;
@@ -157,6 +187,8 @@ begin
   CBCacheType.ItemIndex:=FMapType.TileStorage.CacheConfig.cachetype;
   CheckBox1.Checked:=FMapType.separator;
   CheckEnabled.Checked:=FMapType.Enabled;
+  edtVersion.Text := FMapType.VersionConfig.Version;
+  mmoHeader.Text := FMapType.TileRequestBuilderConfig.RequestHeader;
 
   Result := ShowModal = mrOk;
 end;

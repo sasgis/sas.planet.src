@@ -9,13 +9,13 @@ uses
 type
   IContentTypeManager = interface
     ['{157D7F4C-BBBB-4617-A0D1-250D066B4C2C}']
-    function GetInfo(AType: WideString): IContentTypeInfoBasic;
-    function GetInfoByExt(AExt: WideString): IContentTypeInfoBasic;
-    function GetIsBitmapType(AType: WideString): Boolean;
-    function GetIsBitmapExt(AExt: WideString): Boolean;
-    function GetIsKmlType(AType: WideString): Boolean;
-    function GetIsKmlExt(AExt: WideString): Boolean;
-    function GetConverter(ATypeSource, ATypeTarget: WideString): IContentConverter;
+    function GetInfo(const AType: WideString): IContentTypeInfoBasic;
+    function GetInfoByExt(const AExt: WideString): IContentTypeInfoBasic;
+    function GetIsBitmapType(const AType: WideString): Boolean;
+    function GetIsBitmapExt(const AExt: WideString): Boolean;
+    function GetIsKmlType(const AType: WideString): Boolean;
+    function GetIsKmlExt(const AExt: WideString): Boolean;
+    function GetConverter(const ATypeSource, ATypeTarget: WideString): IContentConverter;
   end;
 
 

@@ -16,13 +16,13 @@ uses
   SwinHttp,
   CPDrv,
   t_GeoTypes,
-  u_GlobalState,
-  u_ResStrings;
+  i_GSMGeoCodeConfig;
 
 type
   TToPos = procedure (LL:TDoublePoint;zoom_:byte;draw:boolean) of object;
   TPosFromGSM = class
   private
+    FConfig: IGSMGeoCodeConfig;
     FToPos:TToPos;
     FZoom: Byte;
     CommPortDriver:TCommPortDriver;
@@ -33,16 +33,20 @@ type
     procedure CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
     function GetCoordFromGoogle(var LL:TDoublePoint): boolean;
   public
-    constructor Create(AOnToPos: TToPos);
+    constructor Create(AConfig: IGSMGeoCodeConfig; AOnToPos: TToPos);
     function GetPos(AZoom: Byte):boolean;
   end;
 
 implementation
 
+uses
+  u_ResStrings;
+
 { TPosFromGSM }
 
-constructor TPosFromGSM.Create(AOnToPos: TToPos);
+constructor TPosFromGSM.Create(AConfig: IGSMGeoCodeConfig; AOnToPos: TToPos);
 begin
+  FConfig := AConfig;
   FToPos := AOnToPos;
 end;
 
@@ -214,14 +218,14 @@ var
 begin
   Result := False;
   FZoom := AZoom;
-  GState.GSMpar.LockRead;
+  FConfig.LockRead;
   try
-    VUseGSM := GState.GSMpar.GetUseGSMByCOM;
-    VPort := GState.GSMpar.GetPortName;
-    VRate := GState.GSMpar.GetBaudRate;
-    VWait := GState.GSMpar.GetWaitTime;
+    VUseGSM := FConfig.GetUseGSMByCOM;
+    VPort := FConfig.GetPortName;
+    VRate := FConfig.GetBaudRate;
+    VWait := FConfig.GetWaitTime;
   finally
-    GState.GSMpar.UnlockRead;
+    FConfig.UnlockRead;
   end;
  if VUseGSM then begin
    CommPortDriver:=TCommPortDriver.Create(nil);

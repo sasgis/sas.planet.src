@@ -26,19 +26,19 @@ type
     procedure SetChanged; override;
   protected
     function GetPort: Integer;
-    procedure SetPort(AValue: Integer);
+    procedure SetPort(const AValue: Integer);
 
     function GetBaudRate: Integer;
-    procedure SetBaudRate(AValue: Integer);
+    procedure SetBaudRate(const AValue: Integer);
 
     function GetConnectionTimeout: Integer;
-    procedure SetConnectionTimeout(AValue: Integer);
+    procedure SetConnectionTimeout(const AValue: Integer);
 
     function GetDelay: Integer;
-    procedure SetDelay(AValue: Integer);
+    procedure SetDelay(const AValue: Integer);
 
     function GetNMEALog: Boolean;
-    procedure SetNMEALog(AValue: Boolean);
+    procedure SetNMEALog(const AValue: Boolean);
 
     function GetLogPath: WideString;
 
@@ -173,7 +173,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortConfig.SetBaudRate(AValue: Integer);
+procedure TGPSModuleByCOMPortConfig.SetBaudRate(const AValue: Integer);
 begin
   if (AValue > 0) and (AValue <= 1000000) then begin
     LockWrite;
@@ -199,7 +199,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortConfig.SetConnectionTimeout(AValue: Integer);
+procedure TGPSModuleByCOMPortConfig.SetConnectionTimeout(const AValue: Integer);
 begin
   if (AValue >= 0) and (AValue <= 600) then begin
     LockWrite;
@@ -214,7 +214,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortConfig.SetDelay(AValue: Integer);
+procedure TGPSModuleByCOMPortConfig.SetDelay(const AValue: Integer);
 begin
   if (AValue >= 0) and (AValue <= 300000) then begin
     LockWrite;
@@ -229,7 +229,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortConfig.SetNMEALog(AValue: Boolean);
+procedure TGPSModuleByCOMPortConfig.SetNMEALog(const AValue: Boolean);
 begin
   LockWrite;
   try
@@ -242,7 +242,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortConfig.SetPort(AValue: Integer);
+procedure TGPSModuleByCOMPortConfig.SetPort(const AValue: Integer);
 begin
   if (AValue >= 1) and (AValue <= 255) then begin
     LockWrite;

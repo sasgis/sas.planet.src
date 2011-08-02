@@ -5,26 +5,16 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_MapVersionInfo,
   i_MapVersionConfig,
   u_ConfigDataElementBase;
 
 type
-  TMapVersionConfigStatic = class(TInterfacedObject, IMapVersionConfigStatic)
-  private
-    FVersion: Variant;
-  protected
-    function GetVersion: Variant;
-  public
-    constructor Create(
-      AVersion: Variant
-    );
-  end;
-
   TMapVersionConfig = class(TConfigDataElementBase, IMapVersionConfig)
   private
     FVersion: Variant;
-    FStatic: IMapVersionConfigStatic;
-    function CreateStatic: IMapVersionConfigStatic;
+    FStatic: IMapVersionInfo;
+    function CreateStatic: IMapVersionInfo;
   protected
     procedure SetChanged; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -33,37 +23,28 @@ type
     function GetVersion: Variant;
     procedure SetVersion(const AValue: Variant);
 
-    function GetStatic: IMapVersionConfigStatic;
+    function GetStatic: IMapVersionInfo;
   public
-    constructor Create(ADefConfig: IMapVersionConfigStatic);
+    constructor Create(ADefConfig: IMapVersionInfo);
   end;
 
 
 implementation
 
-{ TMapVersionConfigStatic }
-
-constructor TMapVersionConfigStatic.Create(AVersion: Variant);
-begin
-  FVersion := AVersion;
-end;
-
-function TMapVersionConfigStatic.GetVersion: Variant;
-begin
-  Result := FVersion;
-end;
+uses
+  u_MapVersionInfo;
 
 { TMapVersionConfig }
 
-constructor TMapVersionConfig.Create(ADefConfig: IMapVersionConfigStatic);
+constructor TMapVersionConfig.Create(ADefConfig: IMapVersionInfo);
 begin
   inherited Create;
   FVersion := ADefConfig.Version;
 end;
 
-function TMapVersionConfig.CreateStatic: IMapVersionConfigStatic;
+function TMapVersionConfig.CreateStatic: IMapVersionInfo;
 begin
-  Result := TMapVersionConfigStatic.Create(FVersion);
+  Result := TMapVersionInfo.Create(FVersion);
 end;
 
 procedure TMapVersionConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -82,7 +63,7 @@ begin
   AConfigData.WriteString('Version', FVersion);
 end;
 
-function TMapVersionConfig.GetStatic: IMapVersionConfigStatic;
+function TMapVersionConfig.GetStatic: IMapVersionInfo;
 begin
   Result := FStatic;
 end;

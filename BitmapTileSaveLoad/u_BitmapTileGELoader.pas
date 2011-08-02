@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   GR32,
+  i_InternalPerformanceCounter,
   i_BitmapTileSaveLoad;
 
 type
@@ -14,10 +15,12 @@ type
     FDXTextureLoader: IBitmapTileLoader;
     procedure LoadFromMemStream(AStream: TCustomMemoryStream; ABtm: TCustomBitmap32);
   protected
-    procedure LoadFromFile(AFileName: string; ABtm: TCustomBitmap32);
+    procedure LoadFromFile(const AFileName: string; ABtm: TCustomBitmap32);
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
   public
-    constructor Create();
+    constructor Create(
+      APerfCounterList: IInternalPerformanceCounterList
+    );
     destructor Destroy; override;
   end;
 
@@ -30,10 +33,15 @@ uses
 
 { TBitmapTileGELoader }
 
-constructor TBitmapTileGELoader.Create;
+constructor TBitmapTileGELoader.Create(
+  APerfCounterList: IInternalPerformanceCounterList
+);
+var
+  VPerfCounterList: IInternalPerformanceCounterList;
 begin
-  FJpegLoader := TVampyreBasicBitmapTileLoaderJPEG.Create;
-  FDXTextureLoader := TBitmapTileGEDXTextureLoader.Create;
+  VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('GELoader');
+  FJpegLoader := TVampyreBasicBitmapTileLoaderJPEG.Create(VPerfCounterList);
+  FDXTextureLoader := TBitmapTileGEDXTextureLoader.Create(VPerfCounterList);
 end;
 
 destructor TBitmapTileGELoader.Destroy;
@@ -43,7 +51,7 @@ begin
   inherited;
 end;
 
-procedure TBitmapTileGELoader.LoadFromFile(AFileName: string;
+procedure TBitmapTileGELoader.LoadFromFile(const AFileName: string;
   ABtm: TCustomBitmap32);
 var
   VMemStream: TMemoryStream;

@@ -21,11 +21,11 @@ type
     procedure SetChanged; override;
   protected
     function GetInvertColor: boolean;
-    procedure SetInvertColor(AValue: boolean);
+    procedure SetInvertColor(const AValue: boolean);
     function GetGammaN: Integer;
-    procedure SetGammaN(AValue: Integer);
+    procedure SetGammaN(const AValue: Integer);
     function GetContrastN: Integer;
-    procedure SetContrastN(AValue: Integer);
+    procedure SetContrastN(const AValue: Integer);
     function GetStatic: IBitmapPostProcessingConfigStatic;
   public
     constructor Create;
@@ -114,7 +114,7 @@ begin
   FStatic := TBitmapPostProcessingConfigStatic.Create(FInvertColor, FGammaN, FContrastN);
 end;
 
-procedure TBitmapPostProcessingConfig.SetContrastN(AValue: Integer);
+procedure TBitmapPostProcessingConfig.SetContrastN(const AValue: Integer);
 begin
   LockWrite;
   try
@@ -127,7 +127,7 @@ begin
   end;
 end;
 
-procedure TBitmapPostProcessingConfig.SetGammaN(AValue: Integer);
+procedure TBitmapPostProcessingConfig.SetGammaN(const AValue: Integer);
 begin
   LockWrite;
   try
@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TBitmapPostProcessingConfig.SetInvertColor(AValue: boolean);
+procedure TBitmapPostProcessingConfig.SetInvertColor(const AValue: boolean);
 begin
   LockWrite;
   try

@@ -9,18 +9,25 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_ViewPortState,
+  i_GotoLayerConfig,
   u_MapLayerBasic;
 
 type
   TGotoLayer = class(TMapLayerFixedWithBitmap)
   private
-    FHideAfterTime: Cardinal;
-    FGoToSelIcon: TCustomBitmap32;
+    FConfig: IGotoLayerConfig;
+    FShowTickCount: Cardinal;
+    FShowTick: Cardinal;
+
+    procedure OnConfigChange(Sender: TObject);
   protected
     procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
-    destructor Destroy; override;
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConfig: IGotoLayerConfig
+    );
     procedure ShowGotoIcon(APoint: TDoublePoint);
   end;
 
@@ -30,56 +37,84 @@ implementation
 
 uses
   SysUtils,
-  u_GlobalState;
+  u_NotifyEventListener,
+  u_GeoFun;
 
 { TGotoLayer }
 
-constructor TGotoLayer.Create(AParentMap: TImage32; AViewPortState: IViewPortState);
-var
-  VBitmapSize: TPoint;
+constructor TGotoLayer.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConfig: IGotoLayerConfig
+);
 begin
-  inherited;
-  FGoToSelIcon := TCustomBitmap32.Create;
-  FGoToSelIcon.DrawMode := dmBlend;
-  GState.LoadBitmapFromRes('ICONIII', FGoToSelIcon);
-  VBitmapSize.X := FGoToSelIcon.Width;
-  VBitmapSize.Y := FGoToSelIcon.Height;
-  FLayer.Bitmap.Assign(FGoToSelIcon);
-  FFixedOnBitmap.X := 7;
-  FFixedOnBitmap.Y := 6;
-  DoUpdateLayerSize(VBitmapSize);
-end;
+  inherited Create(AParentMap, AViewPortState);
+  FConfig := AConfig;
 
-destructor TGotoLayer.Destroy;
-begin
-  FreeAndNil(FGoToSelIcon);
-  inherited;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FConfig.GetChangeNotifier
+  );
+  OnConfigChange(nil);
 end;
 
 procedure TGotoLayer.DoUpdateLayerLocation(ANewLocation: TFloatRect);
 var
   VCurrTime: Cardinal;
 begin
-  if FHideAfterTime <> 0 then begin
+  if FShowTick <> 0 then begin
     VCurrTime := GetTickCount;
-    if (VCurrTime < FHideAfterTime) then begin
-      if (VCurrTime < FHideAfterTime) then begin
+    if (FShowTick <= VCurrTime) then begin
+      if (VCurrTime < FShowTick + FShowTickCount) then begin
         inherited;
       end else begin
         Visible := False;
+        FShowTick := 0;
       end;
     end else begin
       Visible := False;
+      FShowTick := 0;
     end;
   end else begin
     Visible := False;
   end;
 end;
 
+procedure TGotoLayer.OnConfigChange(Sender: TObject);
+var
+  VBitmap: TCustomBitmap32;
+  VBitmapSize: TPoint;
+begin
+  ViewUpdateLock;
+  try
+    FConfig.LockRead;
+    try
+      VBitmap := FConfig.GetMarker;
+      try
+        FLayer.Bitmap.Assign(VBitmap);
+        FLayer.Bitmap.DrawMode := dmBlend;
+        VBitmapSize.X := VBitmap.Width;
+        VBitmapSize.Y := VBitmap.Height;
+        FFixedOnBitmap := DoublePoint(FConfig.MarkerFixedPoint);
+        FShowTickCount := FConfig.ShowTickCount;
+      finally
+        VBitmap.Free;
+      end;
+    finally
+      FConfig.UnlockRead;
+    end;
+    DoUpdateLayerSize(VBitmapSize);
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
+end;
+
 procedure TGotoLayer.ShowGotoIcon(APoint: TDoublePoint);
 begin
   FFixedLonLat := APoint;
-  FHideAfterTime := GetTickCount + 100000;
+  FShowTick := GetTickCount;
   Visible := True;
   UpdateLayerLocation;
 end;

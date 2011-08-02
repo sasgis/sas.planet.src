@@ -9,7 +9,7 @@ uses
   i_MapLayerGPSMarkerConfig,
   i_MapLayerGPSTrackConfig,
   i_MapLayerNavToPointMarkerConfig,
-  i_UsedMarksConfig,
+  i_MarksLayerConfig,
   i_KmlLayerConfig,
   i_MiniMapLayerConfig,
   i_CenterScaleConfig,
@@ -21,6 +21,8 @@ uses
   i_MarkPolygonLayerConfig,
   i_MarkPolyLineLayerConfig,
   i_FillingMapLayerConfig,
+  i_GotoLayerConfig,
+  i_ContentTypeManager,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -32,7 +34,7 @@ type
     FGPSMarker: IMapLayerGPSMarkerConfig;
     FGPSTrackConfig: IMapLayerGPSTrackConfig;
     FNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
-    FMarksShowConfig: IUsedMarksConfig;
+    FMarksLayerConfig: IMarksLayerConfig;
     FKmlLayerConfig: IKmlLayerConfig;
     FMiniMapLayerConfig: IMiniMapLayerConfig;
     FCenterScaleConfig: ICenterScaleConfig;
@@ -44,13 +46,14 @@ type
     FMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     FMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     FFillingMapLayerConfig: IFillingMapLayerConfig;
+    FGotoLayerConfig: IGotoLayerConfig;
   protected
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;
     function GetGPSMarker: IMapLayerGPSMarkerConfig;
     function GetGPSTrackConfig: IMapLayerGPSTrackConfig;
     function GetNavToPointMarkerConfig: IMapLayerNavToPointMarkerConfig;
-    function GetMarksShowConfig: IUsedMarksConfig;
+    function GetMarksLayerConfig: IMarksLayerConfig;
     function GetKmlLayerConfig: IKmlLayerConfig;
     function GetMiniMapLayerConfig: IMiniMapLayerConfig;
     function GetCenterScaleConfig: ICenterScaleConfig;
@@ -62,8 +65,12 @@ type
     function GetMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     function GetMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     function GetFillingMapLayerConfig: IFillingMapLayerConfig;
+    function GetGotoLayerConfig: IGotoLayerConfig;
   public
-    constructor Create(AMapsConfig: IMainMapsConfig);
+    constructor Create(
+      AContentTypeManager: IContentTypeManager;
+      AMapsConfig: IMainMapsConfig
+    );
   end;
 
 implementation
@@ -75,7 +82,7 @@ uses
   u_StatBarConfig,
   u_MapLayerGPSMarkerConfig,
   u_MapLayerGPSTrackConfig,
-  u_UsedMarksConfig,
+  u_MarksLayerConfig,
   u_KmlLayerConfig,
   u_MiniMapLayerConfig,
   u_CenterScaleConfig,
@@ -87,11 +94,15 @@ uses
   u_MarkPolygonLayerConfig,
   u_MarkPolyLineLayerConfig,
   u_FillingMapLayerConfig,
+  u_GotoLayerConfig,
   u_MapLayerNavToPointMarkerConfig;
 
 { TMainFormLayersConfig }
 
-constructor TMainFormLayersConfig.Create(AMapsConfig: IMainMapsConfig);
+constructor TMainFormLayersConfig.Create(
+  AContentTypeManager: IContentTypeManager;
+  AMapsConfig: IMainMapsConfig
+);
 begin
   inherited Create;
   FMapLayerGridsConfig := TMapLayerGridsConfig.Create;
@@ -104,11 +115,11 @@ begin
   Add(FGPSTrackConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GPSTrack'));
   FNavToPointMarkerConfig := TMapLayerNavToPointMarkerConfig.Create;
   Add(FNavToPointMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('NavToPointMarker'));
-  FMarksShowConfig := TUsedMarksConfig.Create;
-  Add(FMarksShowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
+  FMarksLayerConfig := TMarksLayerConfig.Create;
+  Add(FMarksLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
   FKmlLayerConfig := TKmlLayerConfig.Create;
   Add(FKmlLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('WikiLayer'));
-  FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AMapsConfig);
+  FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AContentTypeManager, AMapsConfig);
   Add(FMiniMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MiniMap'));
   FCenterScaleConfig := TCenterScaleConfig.Create;
   Add(FCenterScaleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CenterScale'));
@@ -128,6 +139,8 @@ begin
   Add(FMarkPolyLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolyLine'));
   FFillingMapLayerConfig := TFillingMapLayerConfig.Create(AMapsConfig);
   Add(FFillingMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FillingLayer'));
+  FGotoLayerConfig := TGotoLayerConfig.Create(AContentTypeManager);
+  Add(FGotoLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GotoMarker'));
 end;
 
 function TMainFormLayersConfig.GetCalcLineLayerConfig: ICalcLineLayerConfig;
@@ -143,6 +156,11 @@ end;
 function TMainFormLayersConfig.GetFillingMapLayerConfig: IFillingMapLayerConfig;
 begin
   Result := FFillingMapLayerConfig;
+end;
+
+function TMainFormLayersConfig.GetGotoLayerConfig: IGotoLayerConfig;
+begin
+  Result := FGotoLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetGPSMarker: IMapLayerGPSMarkerConfig;
@@ -180,9 +198,9 @@ begin
   Result := FMarkPolyLineLayerConfig;
 end;
 
-function TMainFormLayersConfig.GetMarksShowConfig: IUsedMarksConfig;
+function TMainFormLayersConfig.GetMarksLayerConfig: IMarksLayerConfig;
 begin
-  Result := FMarksShowConfig;
+  Result := FMarksLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetMiniMapLayerConfig: IMiniMapLayerConfig;

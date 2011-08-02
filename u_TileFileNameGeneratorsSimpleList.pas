@@ -7,14 +7,16 @@ interface
 
 uses
   i_TileFileNameGenerator,
+  u_GlobalCahceConfig,
   i_TileFileNameGeneratorsList;
 
 type
   TTileFileNameGeneratorsSimpleList = class(TInterfacedObject, ITileFileNameGeneratorsList)
   private
+    FGlobalCacheConfig: TGlobalCahceConfig;
     FItems: array of ITileFileNameGenerator;
   public
-    constructor Create;
+    constructor Create(AGlobalCacheConfig: TGlobalCahceConfig);
     destructor Destroy; override;
     function GetGenerator(CacheType: Byte): ITileFileNameGenerator;
   end;
@@ -26,13 +28,15 @@ uses
   u_TileFileNameGMV,
   u_TileFileNameES,
   u_TileFileNameGM1,
-  u_TileFileNameGM2,
-  u_GlobalState;
+  u_TileFileNameGM2;
 
 { TTileFileNameGeneratorsSimpleList }
 
-constructor TTileFileNameGeneratorsSimpleList.Create;
+constructor TTileFileNameGeneratorsSimpleList.Create(
+  AGlobalCacheConfig: TGlobalCahceConfig
+);
 begin
+  FGlobalCacheConfig := AGlobalCacheConfig;
   SetLength(FItems, 5);
   FItems[0] := TTileFileNameGMV.Create;
   FItems[1] := TTileFileNameSAS.Create;
@@ -58,7 +62,7 @@ var
   VCacheType: Byte;
 begin
   if CacheType = 0 then begin
-    VCacheType := GState.CacheConfig.DefCache;
+    VCacheType := FGlobalCacheConfig.DefCache;
   end else begin
     VCacheType := CacheType;
   end;

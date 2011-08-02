@@ -19,8 +19,8 @@ type
     function GetSpheroidRadiusB: Double; stdcall;
     function IsSameDatum(ADatum: IDatum): Boolean; stdcall;
     function SphericalTriangleSquare(points:array of TDoublePoint):Double;
-    function CalcPoligonArea(polygon: TArrayOfDoublePoint): Double;
-    function CalcDist(AStart: TDoublePoint; AFinish: TDoublePoint): Double;
+    function CalcPoligonArea(const polygon: TArrayOfDoublePoint): Double;
+    function CalcDist(const AStart, AFinish: TDoublePoint): Double;
   public
     constructor Create(
       AEPSG: Integer;
@@ -51,7 +51,7 @@ begin
   FExct := sqrt(FRadiusA * FRadiusA - FRadiusB * FRadiusB) / FRadiusA;
 end;
 
-function TDatum.CalcDist(AStart, AFinish: TDoublePoint): Double;
+function TDatum.CalcDist(const AStart, AFinish: TDoublePoint): Double;
 var
   fSinPhimean, fdLambda, fdPhi, fAlpha, fRho, fNu, fR, fz, fTemp, a, e2: Double;
   VStart, VFinish: TDoublePoint; // Координаты в радианах
@@ -112,7 +112,7 @@ begin
   Result:=Sqr(FRadiusA)*eps;  //Площадь
 end;
 
-function TDatum.CalcPoligonArea(polygon: TArrayOfDoublePoint): Double;
+function TDatum.CalcPoligonArea(const polygon: TArrayOfDoublePoint): Double;
 
  function Orientation(APoints: TArrayOfDoublePoint):extended;
  var i:integer;

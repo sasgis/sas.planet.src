@@ -3,44 +3,9 @@ program SASPlanet;
 
 uses
   Forms,
-  iniFiles,
-  sysutils,
-  windows,
+  SysUtils,
   MidasLib,
-  RarProgress in 'src\RarProgressBar\RarProgress.pas',
-  MD5 in 'src\MD5.pas',
-  RegExpr in 'src\RegExpr.pas',
-  KAZip in 'src\KAZip.pas',
-  TarWriter in 'src\TarWriter.pas',
-  ECWReader in 'src\ECWReader.pas',
-  ECWwriter in 'src\ECWwriter.pas',
-  SwinHttp in 'src\SwinHttp.pas',
-  gnugettext in 'src\gnugettext.pas',
-  Langs in 'src\Langs.pas',
-  TBXSASTheme in 'src\TBXSASTheme.pas',
-  u_WideStrings in 'src\u_WideStrings.pas',
-  c_ZeroGUID in 'src\c_ZeroGUID.pas',
-  cUnicode in 'src\Fundamentals\cUnicode.pas',
-  cUnicodeCodecs in 'src\Fundamentals\cUnicodeCodecs.pas',
-  CPDrv in 'src\CPDrv.pas',
-  BMSearch in 'src\BMSearch.pas',
-  i_GUIDList in 'src\i_GUIDList.pas',
-  u_GUIDList in 'src\u_GUIDList.pas',
-  u_GUIDInterfaceList in 'src\u_GUIDInterfaceList.pas',
-  u_GUIDObjectList in 'src\u_GUIDObjectList.pas',
-  i_EnumID in 'src\i_EnumID.pas',
-  i_IDList in 'src\i_IDList.pas',
-  u_IdListBase in 'src\u_IdListBase.pas',
-  u_IDInterfaceList in 'src\u_IDInterfaceList.pas',
-  i_JclNotify in 'src\i_JclNotify.pas',
-  u_JclNotify in 'src\u_JclNotify.pas',
-  u_UseNewFonts in 'src\u_UseNewFonts.pas',
-  i_FileNameIterator in 'src\i_FileNameIterator.pas',
-  u_FileNameIteratorInFolderByMaskList in 'src\u_FileNameIteratorInFolderByMaskList.pas',
-  u_FileNameIteratorFolderWithSubfolders in 'src\u_FileNameIteratorFolderWithSubfolders.pas',
-  u_FileNameIteratorInFolderByMask in 'src\u_FileNameIteratorInFolderByMask.pas',
-  u_FoldersIteratorRecursiveByLevels in 'src\u_FoldersIteratorRecursiveByLevels.pas',
-  u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders in 'src\u_FoldersIteratorRecursiveByLevelsWithIgnoredFolders.pas',
+  XPMan,
   u_ZmpFileNamesIteratorFactory in 'u_ZmpFileNamesIteratorFactory.pas',
   i_JclListenerNotifierLinksList in 'i_JclListenerNotifierLinksList.pas',
   u_JclListenerNotifierLinksList in 'u_JclListenerNotifierLinksList.pas',
@@ -66,9 +31,13 @@ uses
   u_ConfigDataProviderVirtualWithSubItem in 'u_ConfigDataProviderVirtualWithSubItem.pas',
   u_ConfigDataProviderWithUseDepreciated in 'u_ConfigDataProviderWithUseDepreciated.pas',
   u_ConfigDataProviderWithReplacedSubItem in 'u_ConfigDataProviderWithReplacedSubItem.pas',
+  u_ConfigDataProviderByResources in 'u_ConfigDataProviderByResources.pas',
+  u_ConfigDataProviderWithGlobal in 'u_ConfigDataProviderWithGlobal.pas',
   u_ConfigDataProviderZmpComplex in 'u_ConfigDataProviderZmpComplex.pas',
   u_ConfigDataWriteProviderByIniFileSection in 'u_ConfigDataWriteProviderByIniFileSection.pas',
   u_ConfigDataWriteProviderByIniFile in 'u_ConfigDataWriteProviderByIniFile.pas',
+  u_ConfigDataWriteProviderWithGlobal in 'u_ConfigDataWriteProviderWithGlobal.pas',
+  u_SASMainConfigProvider in 'u_SASMainConfigProvider.pas',
   u_SaveLoadTBConfigByConfigProvider in 'u_SaveLoadTBConfigByConfigProvider.pas',
   u_ConfigProviderHelpers in 'u_ConfigProviderHelpers.pas',
   i_ConfigDataElement in 'i_ConfigDataElement.pas',
@@ -81,6 +50,8 @@ uses
   u_TileErrorInfo in 'u_TileErrorInfo.pas',
   i_TileErrorLogProviedrStuped in 'i_TileErrorLogProviedrStuped.pas',
   u_TileErrorLogProviedrStuped in 'u_TileErrorLogProviedrStuped.pas',
+  i_OperationCancelNotifier in 'i_OperationCancelNotifier.pas',
+  u_OperationCancelNotifier in 'u_OperationCancelNotifier.pas',
   i_LogSimple in 'i_LogSimple.pas',
   i_LogForTaskThread in 'i_LogForTaskThread.pas',
   i_SimpleFactory in 'i_SimpleFactory.pas',
@@ -89,6 +60,8 @@ uses
   i_MemObjCache in 'i_MemObjCache.pas',
   i_TileObjCache in 'i_TileObjCache.pas',
   u_TileCacheSimpleGlobal in 'u_TileCacheSimpleGlobal.pas',
+  i_ContentTypeSubst in 'i_ContentTypeSubst.pas',
+  u_ContentTypeSubstByList in 'u_ContentTypeSubstByList.pas',
   i_DownloadResult in 'i_DownloadResult.pas',
   i_TileDownloadResult in 'i_TileDownloadResult.pas',
   u_DownloadResult in 'u_DownloadResult.pas',
@@ -163,7 +136,6 @@ uses
   i_LastSelectionInfo in 'i_LastSelectionInfo.pas',
   u_LastSelectionInfo in 'u_LastSelectionInfo.pas',
   u_GeoToStr in 'u_GeoToStr.pas',
-  u_KmlInfoSimple in 'u_KmlInfoSimple.pas',
   i_KmlInfoSimpleLoader in 'i_KmlInfoSimpleLoader.pas',
   u_KmlInfoSimpleParser in 'u_KmlInfoSimpleParser.pas',
   u_KmzInfoSimpleParser in 'u_KmzInfoSimpleParser.pas',
@@ -174,9 +146,9 @@ uses
   u_BitmapTileVampyreSaver in 'BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas',
   u_BitmapTileGELoader in 'BitmapTileSaveLoad\u_BitmapTileGELoader.pas',
   u_BitmapTileGEDXTextureLoader in 'BitmapTileSaveLoad\u_BitmapTileGEDXTextureLoader.pas',
-  i_BitmapTypeExtManager in 'i_BitmapTypeExtManager.pas',
-  u_BitmapTypeExtManagerSimple in 'u_BitmapTypeExtManagerSimple.pas',
   u_MapTypeCacheConfig in 'u_MapTypeCacheConfig.pas',
+  i_MapVersionInfo in 'i_MapVersionInfo.pas',
+  u_MapVersionInfo in 'u_MapVersionInfo.pas',
   i_MapVersionConfig in 'i_MapVersionConfig.pas',
   u_MapVersionConfig in 'u_MapVersionConfig.pas',
   u_MapType in 'u_MapType.pas',
@@ -267,11 +239,18 @@ uses
   u_LayerBitmapClearStrategyFactory in 'u_LayerBitmapClearStrategyFactory.pas',
   i_MapViewGoto in 'i_MapViewGoto.pas',
   u_MapViewGotoOnFMain in 'u_MapViewGotoOnFMain.pas',
+  i_GotoLayerConfig in 'i_GotoLayerConfig.pas',
+  u_GotoLayerConfig in 'u_GotoLayerConfig.pas',
   i_SearchResultPresenter in 'i_SearchResultPresenter.pas',
   u_SearchResultPresenterStuped in 'u_SearchResultPresenterStuped.pas',
   i_UsedMarksConfig in 'i_UsedMarksConfig.pas',
   u_UsedMarksConfig in 'u_UsedMarksConfig.pas',
   u_UsedMarksConfigStatic in 'u_UsedMarksConfigStatic.pas',
+  i_MarksDrawConfig in 'i_MarksDrawConfig.pas',
+  u_MarksDrawConfigStatic in 'u_MarksDrawConfigStatic.pas',
+  u_MarksDrawConfig in 'u_MarksDrawConfig.pas',
+  i_MarksLayerConfig in 'i_MarksLayerConfig.pas',
+  u_MarksLayerConfig in 'u_MarksLayerConfig.pas',
   i_MarksSimple in 'i_MarksSimple.pas',
   i_MarkTemplate in 'i_MarkTemplate.pas',
   i_MarksDbSmlInternal in 'i_MarksDbSmlInternal.pas',
@@ -368,21 +347,30 @@ uses
   u_ImportKML in 'u_ImportKML.pas',
   u_ImportPLT in 'u_ImportPLT.pas',
   u_ImportHLG in 'u_ImportHLG.pas',
+  u_ImportMpSimple in 'u_ImportMpSimple.pas',
   u_ImportByFileExt in 'u_ImportByFileExt.pas',
   u_ExportMarks2KML in 'u_ExportMarks2KML.pas',
   i_UrlByCoordProvider in 'i_UrlByCoordProvider.pas',
+  c_PathDetalizeProvidersGUID in 'c_PathDetalizeProvidersGUID.pas',
   i_PathDetalizeProvider in 'i_PathDetalizeProvider.pas',
   u_PathDetalizeProviderYourNavigation in 'u_PathDetalizeProviderYourNavigation.pas',
+  u_PathDetalizeProviderCloudMade in 'u_PathDetalizeProviderCloudMade.pas',
   u_PathDetalizeProviderMailRu in 'u_PathDetalizeProviderMailRu.pas',
+  i_PathDetalizeProviderList in 'i_PathDetalizeProviderList.pas',
+  u_PathDetalizeProviderListEntity in 'u_PathDetalizeProviderListEntity.pas',
+  u_PathDetalizeProviderListBase in 'u_PathDetalizeProviderListBase.pas',
+  u_PathDetalizeProviderListSimple in 'u_PathDetalizeProviderListSimple.pas',
+  u_UserInterfaceItemBase in 'u_UserInterfaceItemBase.pas',
   i_Sensor in 'i_Sensor.pas',
+  i_SensorList in 'i_SensorList.pas',
+  u_SensorListBase in 'u_SensorListBase.pas',
+  u_SensorListStuped in 'u_SensorListStuped.pas',
   u_SensorViewTextTBXPanel in 'u_SensorViewTextTBXPanel.pas',
   u_SensorBase in 'u_SensorBase.pas',
   u_SensorTextFromGPSRecorder in 'u_SensorTextFromGPSRecorder.pas',
   u_SensorsFromGPSRecorder in 'u_SensorsFromGPSRecorder.pas',
   u_SensorTextFromNavToPoint in 'u_SensorTextFromNavToPoint.pas',
   u_SensorBatteryStatus in 'u_SensorBatteryStatus.pas',
-  i_SensorListGenerator in 'i_SensorListGenerator.pas',
-  u_SensorListGeneratorStuped in 'u_SensorListGeneratorStuped.pas',
   i_SensorViewListGenerator in 'i_SensorViewListGenerator.pas',
   u_SensorViewConfigSimple in 'u_SensorViewConfigSimple.pas',
   u_SensorViewListGeneratorStuped in 'u_SensorViewListGeneratorStuped.pas',
@@ -402,7 +390,7 @@ uses
   u_MainMapsConfig in 'u_MainMapsConfig.pas',
   i_ActiveMapsConfig in 'i_ActiveMapsConfig.pas',
   i_ViewPortState in 'i_ViewPortState.pas',
-  u_MapViewPortStateNew in 'u_MapViewPortStateNew.pas',
+  u_MapViewPortState in 'u_MapViewPortState.pas',
   u_ShortcutManager in 'u_ShortcutManager.pas',
   i_LanguageManager in 'i_LanguageManager.pas',
   u_LanguageManager in 'u_LanguageManager.pas',
@@ -471,6 +459,8 @@ uses
   u_BitmapPostProcessingConfig in 'u_BitmapPostProcessingConfig.pas',
   i_MapZoomingConfig in 'i_MapZoomingConfig.pas',
   u_MapZoomingConfig in 'u_MapZoomingConfig.pas',
+  i_MapMovingConfig in 'i_MapMovingConfig.pas',
+  u_MapMovingConfig in 'u_MapMovingConfig.pas',
   i_MainFormConfig in 'i_MainFormConfig.pas',
   u_MainFormMainConfig in 'u_MainFormMainConfig.pas',
   u_MainFormConfig in 'u_MainFormConfig.pas',
@@ -484,13 +474,29 @@ uses
   u_MainWindowToolbarsLock in 'u_MainWindowToolbarsLock.pas',
   i_LineOnMapEdit in 'i_LineOnMapEdit.pas',
   u_LineOnMapEdit in 'u_LineOnMapEdit.pas',
+  i_GlobalAppConfig in 'i_GlobalAppConfig.pas',
+  u_GlobalAppConfig in 'u_GlobalAppConfig.pas',
+  i_StartUpLogoConfig in 'i_StartUpLogoConfig.pas',
+  u_StartUpLogoConfig in 'u_StartUpLogoConfig.pas',
+  i_GlobalDownloadConfig in 'i_GlobalDownloadConfig.pas',
+  u_GlobalDownloadConfig in 'u_GlobalDownloadConfig.pas',
   i_GlobalViewMainConfig in 'i_GlobalViewMainConfig.pas',
   u_GlobalViewMainConfig in 'u_GlobalViewMainConfig.pas',
+  u_IeEmbeddedProtocolRegistration in 'u_IeEmbeddedProtocolRegistration.pas',
+  u_IeEmbeddedProtocolFactory in 'u_IeEmbeddedProtocolFactory.pas',
+  u_IeEmbeddedProtocol in 'u_IeEmbeddedProtocol.pas',
+  u_InternalDomainInfoProviderList in 'u_InternalDomainInfoProviderList.pas',
+  i_InternalDomainInfoProvider in 'i_InternalDomainInfoProvider.pas',
+  u_InternalDomainInfoProviderByMapTypeList in 'u_InternalDomainInfoProviderByMapTypeList.pas',
   i_MessageHandler in 'i_MessageHandler.pas',
   u_KeyMovingHandler in 'u_KeyMovingHandler.pas',
+  i_MouseState in 'i_MouseState.pas',
+  i_MouseHandler in 'i_MouseHandler.pas',
+  u_MouseState in 'u_MouseState.pas',
   i_GPSRecorder in 'i_GPSRecorder.pas',
   u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
   i_GPS in 'i_GPS.pas',
+  i_GPSPositionFactory in 'i_GPSPositionFactory.pas',
   i_GPSModule in 'i_GPSModule.pas',
   i_GPSModuleByCOM in 'i_GPSModuleByCOM.pas',
   i_GPSModuleByCOMFactory in 'i_GPSModuleByCOMFactory.pas',
@@ -559,17 +565,16 @@ uses
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
+{$R .\Resources\VersionInfo.res}
+{$R .\Resources\MainIcon.res}
+{$R .\Resources\Common.res}
 
-{$R *.res} {$R *Pics.res}
-begin 
+begin
   GState := TGlobalState.Create;
   try
     Application.Initialize;
     Application.Title := SAS_STR_ApplicationTitle;
-    //logo
-    if GState.Show_logo then begin
-      TfrmStartLogo.ShowLogo;
-    end;
+    TfrmStartLogo.ShowLogo(GState.StartUpLogoConfig);
     try
       GState.LoadConfig;
     except
@@ -578,7 +583,6 @@ begin
         Exit;
       end;
     end;
-    //xLogo
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
     Application.CreateForm(TfrmGoTo, frmGoTo);
@@ -595,13 +599,11 @@ begin
     Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
     Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
     Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
-    if GState.ShowDebugInfo then begin
+    if GState.GlobalAppConfig.IsShowDebugInfo then begin
       frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
     end;
     GState.StartExceptionTracking;
     try
-      frmInvisibleBrowser.NavigateAndWait('about:blank');
-      frmIntrnalBrowser.Navigate('about:blank');
       Application.Run;
     finally
       GState.StopExceptionTracking;

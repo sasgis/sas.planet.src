@@ -31,7 +31,7 @@ type
     FConfig: IKmlLayerConfig;
     FLayersSet: IActiveMapsSet;
 
-    FMapsList: IMapTypeList;
+    FVectorMapsSet: IMapTypeSet;
     FElments: IInterfaceList;
 
     FFixedPointArray: TArrayOfFixedPoint;
@@ -207,18 +207,13 @@ begin
   VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
 
   while VTileIterator.Next(VTile) do begin
-    if Alayer.LoadTile(kml, VTile, Vzoom, true, True) then begin
-      AElments.Lock;
-      try
-        if AIsStop then begin
-          Break;
-        end else begin
-          for ii := 0 to KML.Count - 1 do begin
-            AddWikiElement(AElments, KML.GetItem(ii), ALocalConverter);
-          end;
+    if Alayer.LoadTile(kml, VTile, Vzoom, True, Alayer.CacheVector) then begin
+      if AIsStop then begin
+        Break;
+      end else begin
+        for ii := 0 to KML.Count - 1 do begin
+          AddWikiElement(AElments, KML.GetItem(ii), ALocalConverter);
         end;
-      finally
-        AElments.Unlock;
       end;
     end;
     kml := nil;
@@ -231,18 +226,18 @@ procedure TWikiLayer.PrepareWikiElements(
   ALocalConverter: ILocalCoordConverter
 );
 var
-  VHybrList: IMapTypeList;
+  VVectorMapsSet: IMapTypeSet;
   VEnum: IEnumGUID;
   VGUID: TGUID;
   Vcnt: Cardinal;
   VItem: IMapType;
   VMapType: TMapType;
 begin
-  VHybrList := FMapsList;
-  if VHybrList <> nil then begin
-    VEnum := VHybrList.GetIterator;
+  VVectorMapsSet := FVectorMapsSet;
+  if VVectorMapsSet <> nil then begin
+    VEnum := VVectorMapsSet.GetIterator;
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-      VItem := VHybrList.GetMapTypeByGUID(VGUID);
+      VItem := VVectorMapsSet.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsKmlTiles then begin
         AddElementsFromMap(AElments, AIsStop, VMapType, ALocalConverter);
@@ -353,11 +348,11 @@ var
   VGUID: TGUID;
   i: Cardinal;
 begin
-  FMapsList := FLayersSet.GetSelectedMapsList;
+  FVectorMapsSet := FLayersSet.GetSelectedMapsSet;
   ViewUpdateLock;
   try
     SetNeedRedraw;
-    SetVisible(FMapsList.GetIterator.Next(1, VGUID, i) = S_OK);
+    SetVisible(FVectorMapsSet.GetIterator.Next(1, VGUID, i) = S_OK);
   finally
     ViewUpdateUnlock;
   end;
@@ -390,7 +385,7 @@ begin
     FElments.Unlock;
   end;
   if VList.Count > 0 then begin
-    ProcessDraw(FElments, AIsStop, VLocalConverter);
+    ProcessDraw(VList, AIsStop, VLocalConverter);
   end;
 end;
 
@@ -492,6 +487,7 @@ end;
 procedure TWikiLayer.MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple;
   out AItemS: Double);
 var
+  VLonLatLine: TArrayOfDoublePoint;
   VLineOnBitmap: TArrayOfDoublePoint;
   VLonLatRect: TDoubleRect;
   VRect: TRect;
@@ -541,7 +537,9 @@ begin
           AItemS := 0;
           exit;
         end else begin
-          VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VItem.Points, VZoom);
+          VLonLatLine := VItem.Points;
+          VConverter.CheckLonLatArray(VLonLatLine);
+          VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
           if VItem.IsLine then begin
             if PointOnPath(VPixelPos, VLineOnBitmap, 2) then begin
               AItem := VItem;

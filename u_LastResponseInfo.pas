@@ -3,8 +3,6 @@ unit u_LastResponseInfo;
 interface
 
 uses
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   i_LastResponseInfo,
   u_ConfigDataElementBase;
 
