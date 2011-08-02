@@ -16,6 +16,10 @@ type
     function GetAnimateMoveTime: Cardinal;
     procedure SetAnimateMoveTime(AValue: Cardinal);
     property AnimateMoveTime: Cardinal read GetAnimateMoveTime write SetAnimateMoveTime;
+
+    function GetAnimateMaxStartSpeed: Cardinal;
+    procedure SetAnimateMaxStartSpeed(AValue: Cardinal);
+    property AnimateMaxStartSpeed: Cardinal read GetAnimateMaxStartSpeed write SetAnimateMaxStartSpeed;
   end;
 
 implementation

@@ -13,6 +13,7 @@ type
   private
     FAnimateMove: Boolean;
     FAnimateMoveTime: Cardinal;
+    FAnimateMaxStartSpeed: Cardinal;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -22,6 +23,9 @@ type
 
     function GetAnimateMoveTime: Cardinal;
     procedure SetAnimateMoveTime(AValue: Cardinal);
+
+    function GetAnimateMaxStartSpeed: Cardinal;
+    procedure SetAnimateMaxStartSpeed(AValue: Cardinal);
   public
     constructor Create;
   end;
@@ -35,6 +39,7 @@ begin
   inherited;
   FAnimateMove := True;
   FAnimateMoveTime := 200;
+  FAnimateMaxStartSpeed := 500;
 end;
 
 procedure TMapMovingConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -43,6 +48,7 @@ begin
   if AConfigData <> nil then begin
     FAnimateMove := AConfigData.ReadBool('AnimateMove', FAnimateMove);
     FAnimateMoveTime := AConfigData.ReadInteger('AnimateMoveTime', FAnimateMoveTime);
+    FAnimateMaxStartSpeed := AConfigData.ReadInteger('AnimateMaxStartSpeed', FAnimateMaxStartSpeed);
     SetChanged;
   end;
 end;
@@ -53,6 +59,7 @@ begin
   inherited;
   AConfigData.WriteBool('AnimateMove', FAnimateMove);
   AConfigData.WriteInteger('AnimateMoveTime', FAnimateMoveTime);
+  AConfigData.WriteInteger('AnimateMaxStartSpeed', FAnimateMaxStartSpeed);
 end;
 
 function TMapMovingConfig.GetAnimateMove: Boolean;
@@ -70,6 +77,16 @@ begin
   LockRead;
   try
     Result := FAnimateMoveTime;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMapMovingConfig.GetAnimateMaxStartSpeed: Cardinal;
+begin
+  LockRead;
+  try
+    Result := FAnimateMaxStartSpeed;
   finally
     UnlockRead;
   end;
@@ -94,6 +111,19 @@ begin
   try
     if FAnimateMoveTime <> AValue then begin
       FAnimateMoveTime := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMapMovingConfig.SetAnimateMaxStartSpeed(AValue: Cardinal);
+begin
+  LockWrite;
+  try
+    if FAnimateMaxStartSpeed <> AValue then begin
+      FAnimateMaxStartSpeed := AValue;
       SetChanged;
     end;
   finally

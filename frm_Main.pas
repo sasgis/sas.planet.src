@@ -2209,8 +2209,8 @@ begin
     VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime; //теоретическое максимальное время отображения инерции
     VTime := 0;
     AMousePPS:=AMousePPS/8;
-    if AMousePPS>500 then begin
-      AMousePPS:=500; //ограничиваем максимальную скорость.
+    if AMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
+      AMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
     end;
 
     if abs(dxy.x)>abs(dxy.y) then begin
