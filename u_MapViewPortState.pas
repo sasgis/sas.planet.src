@@ -30,7 +30,7 @@ type
     FMainMapConfig: IMainMapsConfig;
 
     FActiveCoordConverter: ICoordConverter;
-    FCenterPos: TPoint;
+    FCenterPos: TDoublePoint;
     FZoom: Byte;
     FViewSize: TPoint;
 
@@ -114,7 +114,7 @@ begin
   FMainMapConfig := AMainMapConfig;
   FMapZoomingConfig := AMapZoomingConfig;
   FMainCoordConverter := nil;
-  FCenterPos := Point(128, 128);
+  FCenterPos := DoublePoint(128, 128);
   FZoom := 0;
   FViewSize := Point(1024, 768);
   FBaseScale.X := 1;
@@ -139,15 +139,15 @@ end;
 procedure TMapViewPortState.ChangeLonLat(ALonLat: TDoublePoint);
 var
   VLonLat: TDoublePoint;
-  VPixelPos: TPoint;
+  VPixelPos: TDoublePoint;
   VPosChanged: Boolean;
 begin
   LockWrite;
   try
     VLonLat := ALonLat;
     FActiveCoordConverter.CheckLonLatPos(VLonLat);
-    VPixelPos := FActiveCoordConverter.LonLat2PixelPos(VLonLat, FZoom);
-    VPosChanged := (FCenterPos.X <> VPixelPos.X) or (FCenterPos.Y <> VPixelPos.Y);
+    VPixelPos := FActiveCoordConverter.LonLat2PixelPosFloat(VLonLat, FZoom);
+    VPosChanged := not DoublePoitnsEqual(FCenterPos, VPixelPos);
     FCenterPos := VPixelPos;
     ResetScaleAndMove;
     if VPosChanged then begin
@@ -161,18 +161,18 @@ end;
 
 procedure TMapViewPortState.ChangeMapPixelByDelta(ADelta: TDoublePoint);
 var
-  VNewPos: TPoint;
+  VNewPos: TDoublePoint;
   VZoom: Byte;
   VChanged: Boolean;
 begin
   LockWrite;
   try
     VZoom := FZoom;
-    VNewPos.X := Trunc(FCenterPos.X + ADelta.X / FBaseScale.X);
-    VNewPos.Y := Trunc(FCenterPos.Y + ADelta.Y / FBaseScale.Y);
+    VNewPos.X := FCenterPos.X + ADelta.X / FBaseScale.X;
+    VNewPos.Y := FCenterPos.Y + ADelta.Y / FBaseScale.Y;
     ResetScaleAndMove;
-    FActiveCoordConverter.CheckPixelPosStrict(VNewPos, VZoom, True);
-    VChanged := (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
+    FActiveCoordConverter.CheckPixelPosFloatStrict(VNewPos, VZoom, True);
+    VChanged := not DoublePoitnsEqual(FCenterPos, VNewPos);
     FCenterPos := VNewPos;
     if VChanged then begin
       CreateVisibleCoordConverter;
@@ -186,16 +186,16 @@ end;
 procedure TMapViewPortState.ChangeMapPixelToVisualPoint(
   AVisualPoint: TPoint);
 var
-  VNewPos: TPoint;
+  VNewPos: TDoublePoint;
   VZoom: Byte;
   VChanged: Boolean;
 begin
   LockWrite;
   try
     VZoom := FZoom;
-    VNewPos := FVisibleCoordConverter.LocalPixel2MapPixel(AVisualPoint);
-    FActiveCoordConverter.CheckPixelPosStrict(VNewPos, VZoom, True);
-    VChanged := (FCenterPos.X <> VNewPos.X) or (FCenterPos.Y <> VNewPos.Y);
+    VNewPos := FVisibleCoordConverter.LocalPixel2MapPixelFloat(AVisualPoint);
+    FActiveCoordConverter.CheckPixelPosFloatStrict(VNewPos, VZoom, True);
+    VChanged := not DoublePoitnsEqual(FCenterPos, VNewPos);;
     ResetScaleAndMove;
     FCenterPos := VNewPos;
     if VChanged then begin
@@ -253,8 +253,8 @@ begin
       VChanged := True;
       VZoomOld := FZoom;
       ResetScaleAndMove;
-      VRelativePoint := FActiveCoordConverter.PixelPos2Relative(FCenterPos, VZoomOld);
-      FCenterPos := FActiveCoordConverter.Relative2Pixel(VRelativePoint, VZoom);
+      VRelativePoint := FActiveCoordConverter.PixelPosFloat2Relative(FCenterPos, VZoomOld);
+      FCenterPos := FActiveCoordConverter.Relative2PixelPosFloat(VRelativePoint, VZoom);
       FZoom := VZoom;
     end;
     if VChanged then begin
@@ -274,7 +274,7 @@ var
   VMapFreezePoint: TDoublePoint;
   VRelativeFreezePoint: TDoublePoint;
   VMapFreezPointAtNewZoom: TDoublePoint;
-  VNewCenterPos: TPoint;
+  VNewCenterPos: TDoublePoint;
   VChanged: Boolean;
   VViewCenter: TPoint;
 begin
@@ -292,12 +292,12 @@ begin
       VMapFreezPointAtNewZoom := FActiveCoordConverter.Relative2PixelPosFloat(VRelativeFreezePoint, VZoom);
       VViewCenter := Point(FViewSize.X div 2, FViewSize.Y div 2);
 
-      VNewCenterPos.X := Trunc(VMapFreezPointAtNewZoom.X - (AFreezePoint.X - VViewCenter.X) / FBaseScale.X);
-      VNewCenterPos.Y := Trunc(VMapFreezPointAtNewZoom.Y - (AFreezePoint.Y - VViewCenter.Y) / FBaseScale.Y);
+      VNewCenterPos.X := VMapFreezPointAtNewZoom.X - (AFreezePoint.X - VViewCenter.X) / FBaseScale.X;
+      VNewCenterPos.Y := VMapFreezPointAtNewZoom.Y - (AFreezePoint.Y - VViewCenter.Y) / FBaseScale.Y;
       ResetScaleAndMove;
       FZoom := VZoom;
 
-      FActiveCoordConverter.CheckPixelPosStrict(VNewCenterPos, VZoom, False);
+      FActiveCoordConverter.CheckPixelPosFloatStrict(VNewCenterPos, VZoom, False);
       FCenterPos := VNewCenterPos;
     end;
     if VChanged then begin
@@ -610,9 +610,9 @@ begin
     if VNewConverter <> nil then begin
       if FActiveCoordConverter <> nil then begin
         if not FActiveCoordConverter.IsSameConverter(VNewConverter) then begin
-          VCenterLonLat := FActiveCoordConverter.PixelPos2LonLat(FCenterPos, FZoom);
+          VCenterLonLat := FActiveCoordConverter.PixelPosFloat2LonLat(FCenterPos, FZoom);
           VNewConverter.CheckLonLatPos(VCenterLonLat);
-          FCenterPos := VNewConverter.LonLat2PixelPos(VCenterLonLat, FZoom);
+          FCenterPos := VNewConverter.LonLat2PixelPosFloat(VCenterLonLat, FZoom);
           FActiveCoordConverter := VNewConverter;
           VChanged := True;
         end;
