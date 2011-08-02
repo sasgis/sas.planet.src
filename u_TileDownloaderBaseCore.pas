@@ -199,8 +199,7 @@ procedure TTileDownloaderBaseCore.OnTileDownload(AEvent: ITileDownloaderEvent);
 begin
   Lock;
   try
-    if Assigned(AEvent) then
-    begin
+    if Assigned(AEvent) then begin
       FRawResponseHeader := AEvent.RawResponseHeader;
     end;
   finally

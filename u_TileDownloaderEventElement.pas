@@ -239,8 +239,7 @@ end;
 
 procedure TTileDownloaderEventElement.OnBeforeRequest(AConfig: ITileDownloaderConfigStatic);
 begin
-  if not FEventStatus.IsCanceled then
-  begin
+  if not FEventStatus.IsCanceled then begin
     FResultFactory := TDownloadResultFactoryTileDownload.Create(
       GState.DownloadResultTextProvider,
       FTileZoom,
@@ -265,17 +264,14 @@ end;
 
 procedure TTileDownloaderEventElement.OnAfterResponse();
 begin
-  if not FEventStatus.IsCanceled then
-  begin
+  if not FEventStatus.IsCanceled then begin
     FDownloadResult := FDownloadChecker.AfterResponse(FHttpStatusCode, FTileMIME, FRawResponseHeader);
-    if FDownloadResult = nil then
-    begin
+    if FDownloadResult = nil then begin
       FDownloadResult := FDownloadChecker.AfterReciveData(FTileStream.Size, FTileStream.Memory, FHttpStatusCode, FRawResponseHeader);
-      if FDownloadResult = nil then
-      begin
-        if FTileStream.Size = 0 then
+      if FDownloadResult = nil then begin
+        if FTileStream.Size = 0 then begin
           FDownloadResult := FResultFactory.BuildDataNotExistsZeroSize(FRawResponseHeader)
-        else
+        end else begin
           FDownloadResult := FResultFactory.BuildOk(
             FHttpStatusCode,
             FRawResponseHeader,
@@ -283,6 +279,7 @@ begin
             FTileStream.Size,
             FTileStream.Memory
           );
+        end;
       end;
     end; 
   end;
@@ -290,8 +287,9 @@ end;
 
 procedure TTileDownloaderEventElement.GuiSync;
 begin
-  if Addr(FMapTileUpdateEvent) <> nil then
+  if Addr(FMapTileUpdateEvent) <> nil then begin
     FMapTileUpdateEvent(FMapType, FTileZoom, FTileXY);
+  end;
 end;
 
 procedure TTileDownloaderEventElement.ProcessEvent;
@@ -305,23 +303,35 @@ begin
     try
       ExecCallBackList;
       if Supports(FDownloadResult, IDownloadResultOk, VResultOk) then begin
-        if not FEventStatus.IsCanceled then
+        if not FEventStatus.IsCanceled then begin
           GState.DownloadInfo.Add(1, VResultOk.Size);
+        end;
       end else if Supports(FDownloadResult, IDownloadResultError, VResultDownloadError) then begin
         VErrorString := VResultDownloadError.ErrorText;
       end;
     except
-      on E: Exception do
+      on E: Exception do begin
         VErrorString := E.Message;
-      else
+      end
+      else begin
         VErrorString := FRES_TileDownloadUnexpectedError;
+      end;
     end;
     if VErrorString <> '' then begin
-      if (FErrorLogger <> nil) and (not FEventStatus.IsCanceled) then
-        FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FTileZoom, FTileXY, VErrorString) );
+      if (FErrorLogger <> nil) and (not FEventStatus.IsCanceled) then begin
+        FErrorLogger.LogError(
+          TTileErrorInfo.Create(
+            FMapType,
+            FTileZoom,
+            FTileXY,
+            VErrorString
+          )
+        );
+      end;
     end else begin
-      if not FEventStatus.IsCanceled then
+      if not FEventStatus.IsCanceled then begin
         TThread.Synchronize(nil, GuiSync);
+      end;
     end;
   finally
     FProcessed := True;
@@ -333,8 +343,9 @@ var
   VCallBack: POnDownloadCallBack;
 begin
   if Assigned(ACallBack) then begin
-    if not Assigned(FCallBackList) then
+    if not Assigned(FCallBackList) then begin
       FCallBackList := TList.Create;
+    end;
     New(VCallBack);
     TOnDownloadCallBack(VCallBack^) := ACallBack;
     FCallBackList.Add(VCallBack);
@@ -353,8 +364,9 @@ begin
       VCallBack := FCallBackList.Items[i];
       if Assigned(VCallBack) then
       try
-        if not FEventStatus.IsCanceled then
+        if not FEventStatus.IsCanceled then begin
           VCallBack^(Self);
+        end;
       finally
         Dispose(VCallBack);
       end;

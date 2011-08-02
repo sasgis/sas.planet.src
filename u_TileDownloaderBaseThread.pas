@@ -168,16 +168,15 @@ begin
   FEvent.TileMIME := FResponseHeader.ContentType;
   VStatusCode := StrToIntDef(FResponseHeader.StatusCode, 0);
   FEvent.HttpStatusCode := VStatusCode;
-  if IsOkStatus(VStatusCode) then
+  if IsOkStatus(VStatusCode) then begin
     FEvent.OnAfterResponse
-  else
-    if IsDownloadErrorStatus(VStatusCode) then
-      FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByStatusCode(VStatusCode)
-    else
-      if IsTileNotExistStatus(VStatusCode) then
-        FEvent.DownloadResult := FEvent.ResultFactory.BuildDataNotExistsByStatusCode(FEvent.RawResponseHeader, VStatusCode)
-      else
-        FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByUnknownStatusCode(VStatusCode);
+  end else if IsDownloadErrorStatus(VStatusCode) then begin
+    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByStatusCode(VStatusCode)
+  end else if IsTileNotExistStatus(VStatusCode) then begin
+    FEvent.DownloadResult := FEvent.ResultFactory.BuildDataNotExistsByStatusCode(FEvent.RawResponseHeader, VStatusCode)
+  end else begin
+    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByUnknownStatusCode(VStatusCode);
+  end;
 end;
 
 procedure TTileDownloaderBaseThread.DoRequest;
@@ -189,64 +188,53 @@ begin
   SetNotCanceled;
   try
     try
-      if (FTileDownloaderConfigStatic <> nil) and (FTileRequestBuilder <> nil) then
-      begin
+      if (FTileDownloaderConfigStatic <> nil) and (FTileRequestBuilder <> nil) then begin
         try
           if (FEvent <> nil) and (FEvent.CancelNotifier <> nil) then begin
             FEvent.CancelNotifier.AddListener(FCancelListener);
           end;
-
-          if FEvent.DownloadResult = nil then
-          begin
+          if FEvent.DownloadResult = nil then begin
             VCount := 0;
             VTryCount := FTileDownloaderConfigStatic.InetConfigStatic.DownloadTryCount;
             FWasConnectError := False;
             FLastDownloadTime := MaxInt;
             repeat
               PreProcess;
-
-              if IsCanceled then
-              begin
-                FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled;
-                Exit;
-              end;
-
-              try
-                FResponseHeader.Clear;
-                FHttpClient.Get(FEvent.Url, FEvent.TileStream, FResponseHeader);
-              except
-                on E: EALHTTPClientException do
-                begin
-                  if E.StatusCode = 0 then
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNotNecessary(E.Message, FResponseHeader.RawHeaderText)
-                  else
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByStatusCode(E.StatusCode);
-                end;
-                on E: EOSError do
-                begin
-                  if IsConnectError(E.ErrorCode) then
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
-                  else
-                    if IsDownloadError(E.ErrorCode) then
-                      FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByErrorCode(E.ErrorCode)
-                    else
-                      FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
-                end;
-              end;
-
               if IsCanceled then begin
                 FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled;
                 Exit;
               end;
-
+              try
+                FResponseHeader.Clear;
+                FHttpClient.Get(FEvent.Url, FEvent.TileStream, FResponseHeader);
+              except
+                on E: EALHTTPClientException do begin
+                  if E.StatusCode = 0 then begin
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNotNecessary(E.Message, FResponseHeader.RawHeaderText)
+                  end else begin
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByStatusCode(E.StatusCode);
+                  end;
+                end;
+                on E: EOSError do begin
+                  if IsConnectError(E.ErrorCode) then begin
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
+                  end else if IsDownloadError(E.ErrorCode) then begin
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByErrorCode(E.ErrorCode)
+                  end else begin
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
+                  end;
+                end;
+              end;
+              if IsCanceled then begin
+                FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled;
+                Exit;
+              end;
               Inc(VCount);
               FLastDownloadTime := GetTickCount;
               PostProcess;
-
               if FEvent.DownloadResult <> nil then begin
                 FWasConnectError := not FEvent.DownloadResult.IsServerExists;
               end;
-
             until (not FWasConnectError) or (VCount >= VTryCount);
           end;
         finally
@@ -260,36 +248,37 @@ begin
     end;
   finally
     FBusy := False;
-    if FParentSemaphore <> 0 then    
+    if FParentSemaphore <> 0 then begin
       ReleaseSemaphore(FParentSemaphore, 1, nil);
+    end;
   end;
 end;
 
 procedure TTileDownloaderBaseThread.Execute;
 begin
   repeat
-    if Terminated then
+    if Terminated then begin
       Break;
-
+    end;
     repeat
-      if WaitForSingleObject(FSemaphore, 300) = WAIT_OBJECT_0  then
+      if WaitForSingleObject(FSemaphore, 300) = WAIT_OBJECT_0  then begin
         Break
-      else
-        if Terminated then
-           Break;
+      end else if Terminated then begin
+        Break;
+      end;
     until False;
-
-    if Assigned(FEvent) then
+    if Assigned(FEvent) then begin
       DoRequest;
-
+    end;
   until False;
 end;
 
 procedure TTileDownloaderBaseThread.OnCancelEvent(Sender: TObject);
 begin
   SetIsCanceled;
-  if Assigned(FHttpClient) then
+  if Assigned(FHttpClient) then begin
     FHttpClient.Disconnect;
+  end;
 end;
 
 function TTileDownloaderBaseThread.IsCanceled: Boolean;
@@ -326,8 +315,9 @@ end;
 
 procedure TTileDownloaderBaseThread.SleepCancelable(ATime: Cardinal);
 begin
-  if ATime > 0 then
+  if ATime > 0 then begin
     FCancelEvent.WaitFor(ATime);
+  end;
 end;
 
 procedure TTileDownloaderBaseThread.PrepareHttpClientConfig(const AAcceptEncoding, ARawHeaders: string);
@@ -336,46 +326,40 @@ var
   VProxyConfig: IProxyConfigStatic;
 begin
   VInetConfig := FTileDownloaderConfig.InetConfigStatic;
-
   FHttpClient.RequestHeader.UserAgent := VInetConfig.UserAgentString;
-
-  if AAcceptEncoding <> '' then
+  if AAcceptEncoding <> '' then begin
     FHttpClient.RequestHeader.Accept := AAcceptEncoding
-  else
+  end else begin
     FHttpClient.RequestHeader.Accept := '*/*';
-
-  if ARawHeaders <> '' then
+  end;
+  if ARawHeaders <> '' then begin
     FHttpClient.RequestHeader.RawHeaderText := ARawHeaders;
-
+  end;
   FHttpClient.ConnectTimeout := VInetConfig.TimeOut;
   FHttpClient.SendTimeout := VInetConfig.TimeOut;
   FHttpClient.ReceiveTimeout := VInetConfig.TimeOut;
-
   FHttpClient.InternetOptions := [  wHttpIo_No_cache_write,
                                     wHttpIo_Pragma_nocache,
                                     wHttpIo_No_cookies,
                                     wHttpIo_Keep_connection
                                  ];
-
   VProxyConfig := VInetConfig.ProxyConfigStatic;
-  if Assigned(VProxyConfig) then
-  begin
-    if VProxyConfig.UseIESettings then
+  if Assigned(VProxyConfig) then begin
+    if VProxyConfig.UseIESettings then begin
       FHttpClient.AccessType := wHttpAt_Preconfig
-    else
-      if VProxyConfig.UseProxy then
-      begin
-        FHttpClient.AccessType := wHttpAt_Proxy;
-        FHttpClient.ProxyParams.ProxyServer := Copy(VProxyConfig.Host, 0, Pos(':', VProxyConfig.Host) - 1);
-        FHttpClient.ProxyParams.ProxyPort := StrToInt(Copy(VProxyConfig.Host, Pos(':', VProxyConfig.Host) + 1));
-        if VProxyConfig.UseLogin then
-        begin
-          FHttpClient.ProxyParams.ProxyUserName := VProxyConfig.Login;
-          FHttpClient.ProxyParams.ProxyPassword := VProxyConfig.Password;
-        end;
-      end
-      else
-        FHttpClient.AccessType := wHttpAt_Direct;
+    end else if VProxyConfig.UseProxy then begin
+      FHttpClient.AccessType := wHttpAt_Proxy;
+      FHttpClient.ProxyParams.ProxyServer :=
+        Copy(VProxyConfig.Host, 0, Pos(':', VProxyConfig.Host) - 1);
+      FHttpClient.ProxyParams.ProxyPort :=
+        StrToInt(Copy(VProxyConfig.Host, Pos(':', VProxyConfig.Host) + 1));
+      if VProxyConfig.UseLogin then begin
+        FHttpClient.ProxyParams.ProxyUserName := VProxyConfig.Login;
+        FHttpClient.ProxyParams.ProxyPassword := VProxyConfig.Password;
+      end;
+    end else begin
+      FHttpClient.AccessType := wHttpAt_Direct;
+    end;
   end;
 end;
 
