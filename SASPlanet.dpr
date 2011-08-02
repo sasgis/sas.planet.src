@@ -460,6 +460,8 @@ uses
   u_BitmapPostProcessingConfig in 'u_BitmapPostProcessingConfig.pas',
   i_MapZoomingConfig in 'i_MapZoomingConfig.pas',
   u_MapZoomingConfig in 'u_MapZoomingConfig.pas',
+  i_MapMovingConfig in 'i_MapMovingConfig.pas',
+  u_MapMovingConfig in 'u_MapMovingConfig.pas',
   i_MainFormConfig in 'i_MainFormConfig.pas',
   u_MainFormMainConfig in 'u_MainFormMainConfig.pas',
   u_MainFormConfig in 'u_MainFormConfig.pas',
@@ -563,10 +565,7 @@ uses
   frm_ImportConfigEdit in 'frm_ImportConfigEdit.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
-  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
-  i_MapMovingConfig in 'i_MapMovingConfig.pas',
-  u_MapMovingConfig in 'u_MapMovingConfig.pas';
-
+  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}
 {$R .\Resources\Common.res}
@@ -587,21 +586,21 @@ begin
     end;
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
-  Application.CreateForm(TfrmGoTo, frmGoTo);
-  Application.CreateForm(TfrmAbout, frmAbout);
-  Application.CreateForm(TfrmSettings, frmSettings);
-  Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
-  Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
-  Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
-  Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
-  Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);
-  Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
-  Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
-  Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
-  Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
-  Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
-  Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
-  if GState.GlobalAppConfig.IsShowDebugInfo then begin
+    Application.CreateForm(TfrmGoTo, frmGoTo);
+    Application.CreateForm(TfrmAbout, frmAbout);
+    Application.CreateForm(TfrmSettings, frmSettings);
+    Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
+    Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
+    Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
+    Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
+    Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);
+    Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
+    Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
+    Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
+    Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
+    Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
+    Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
+    if GState.GlobalAppConfig.IsShowDebugInfo then begin
       frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
     end;
     GState.StartExceptionTracking;
