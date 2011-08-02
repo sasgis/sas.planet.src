@@ -2208,7 +2208,6 @@ begin
     QueryPerformanceCounter(ts1);
     VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime; //теоретическое максимальное время отображения инерции
     VTime := 0;
-    AMousePPS:=AMousePPS/8;
     if AMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
       AMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
     end;
@@ -2224,7 +2223,7 @@ begin
     VStepSizeInPixel:=Round(AMousePPS*(ALastTime/VMaxTime));
 
     repeat
-      mul:=exp(-VTime/VMaxTime);
+      mul:=exp(-VTime/VMaxTime)/8;
       Vk:=VStepSizeInPixel*mul;
       //mul:=mul*0.9;
       //mul:=mul*(Tanh(Pi-(Pi*(VTime/VMaxTime))));
@@ -2245,7 +2244,7 @@ begin
         VStepSizeInPixel:=Round(AMousePPS*(VTime/VMaxTime));
       end;
       application.ProcessMessages;
-    until (Vk<2)or(FMapZoomAnimtion)or(FMapMoving);
+    until (Vk<1)or(FMapZoomAnimtion)or(FMapMoving);
   end;
 end;
 

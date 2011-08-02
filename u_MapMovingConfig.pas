@@ -39,7 +39,7 @@ begin
   inherited;
   FAnimateMove := True;
   FAnimateMoveTime := 200;
-  FAnimateMaxStartSpeed := 500;
+  FAnimateMaxStartSpeed := 4000;
 end;
 
 procedure TMapMovingConfig.DoReadConfig(AConfigData: IConfigDataProvider);
