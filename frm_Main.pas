@@ -565,7 +565,7 @@ type
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
-    procedure MapMoveAnimate(AMousePPS:double;dxy:TPoint;ALastTime:double);
+    procedure MapMoveAnimate(AMousePPS:double;dxy:TPoint;ALastTime:double; AZoom:byte; AMousePos:TPoint);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
     procedure ProcessPosChangeMessage(Sender: TObject);
     procedure CopyBtmToClipboard(btm: TBitmap);
@@ -2193,7 +2193,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.MapMoveAnimate(AMousePPS:double;dxy:TPoint;ALastTime:double);
+procedure TfrmMain.MapMoveAnimate(AMousePPS:double;dxy:TPoint;ALastTime:double; AZoom:byte; AMousePos:TPoint);
 var
   ts1,ts2,fr:int64;
   VTime: Double;
@@ -2221,13 +2221,9 @@ begin
     end;
 
     VStepSizeInPixel:=Round(AMousePPS*(ALastTime/VMaxTime));
-
     repeat
       mul:=exp(-VTime/VMaxTime)/8;
       Vk:=VStepSizeInPixel*mul;
-      //mul:=mul*0.9;
-      //mul:=mul*(Tanh(Pi-(Pi*(VTime/VMaxTime))));
-      //Vk:=Vk*LogN(VMaxTime,VMaxTime-(VTime+VLastTime));
       VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
       VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
       Map.BeginUpdate;
@@ -2244,7 +2240,9 @@ begin
         VStepSizeInPixel:=Round(AMousePPS*(VTime/VMaxTime));
       end;
       application.ProcessMessages;
-    until (Vk<1)or(FMapZoomAnimtion)or(FMapMoving);
+    until (Vk<1)or(AZoom<>FConfig.ViewPortState.GetCurrentZoom)or
+          (AMousePos.X<>FMouseState.GetLastUpPos(FMapMovingButton).X)or
+          (AMousePos.Y<>FMouseState.GetLastUpPos(FMapMovingButton).Y);
   end;
 end;
 
@@ -3450,9 +3448,8 @@ begin
     FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
     QueryPerformanceCounter(VCurrTick);
     QueryPerformanceFrequency(VFr);
-    MapMoveAnimate(VMousePPS,VMouseMoveUPDelta,(VCurrTick-FPrevTick)/(VFr/1000));
-
-    //FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
+    MapMoveAnimate(VMousePPS,VMouseMoveUPDelta,(VCurrTick-FPrevTick)/(VFr/1000),
+                   FConfig.ViewPortState.GetCurrentZoom, FMouseState.GetLastUpPos(button));
   end;
 
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
