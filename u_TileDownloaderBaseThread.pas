@@ -11,6 +11,7 @@ uses
   ALHttpClient,
   ALWinInetHttpClient,
   i_JclNotify,
+  i_OperationCancelNotifier,
   i_InetConfig,
   i_ProxySettings,
   i_TileRequestBuilder,
@@ -192,7 +193,7 @@ begin
       begin
         try
           if (FEvent <> nil) and (FEvent.CancelNotifier <> nil) then begin
-            FEvent.CancelNotifier.Add(FCancelListener);
+            FEvent.CancelNotifier.AddListener(FCancelListener);
           end;
 
           if FEvent.DownloadResult = nil then
@@ -250,7 +251,7 @@ begin
           end;
         finally
           if (FEvent <> nil) and (FEvent.CancelNotifier <> nil) then begin
-            FEvent.CancelNotifier.Remove(FCancelListener);
+            FEvent.CancelNotifier.RemoveListener(FCancelListener);
           end;
         end;
       end;

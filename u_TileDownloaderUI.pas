@@ -310,7 +310,7 @@ begin
                 end;
                 if VNeedDownload then begin
                   try
-                    Download(VTile, VZoom, OnTileDownload);
+                    Download(VTile, VZoom, OnTileDownload, False, FCancelNotifier);
                   except
                     on E:Exception do
                       FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, VZoom, VTile, E.Message) );

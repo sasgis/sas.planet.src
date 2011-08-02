@@ -8,6 +8,7 @@ uses
   SysUtils,
   SyncObjs,
   i_JclNotify,
+  i_OperationCancelNotifier,
   i_TileDownloader,
   i_TileDownloaderConfig,
   i_TileError,
@@ -21,14 +22,14 @@ uses
 type
   TEventElementStatus = class
   private
-    FCancelNotifier: IJclNotifier;
+    FCancelNotifier: IOperationCancelNotifier;
     FCancelListener: IJclListener;
     FThreadSafeCS: TCriticalSection;
     FCancelled: Boolean;
     function GetIsCanselled: Boolean;
     procedure OnCancelEvent(Sender: TObject);
   public
-    constructor Create(ACancelNotifier: IJclNotifier);
+    constructor Create(ACancelNotifier: IOperationCancelNotifier);
     destructor Destroy; override;
     property IsCanceled: Boolean read GetIsCanselled;
   end;
@@ -46,7 +47,7 @@ type
     FDownloadResult: IDownloadResult;
     FResultFactory: IDownloadResultFactory;
     FDownloadChecker: IDownloadChecker;
-    FCancelNotifier: IJclNotifier;
+    FCancelNotifier: IOperationCancelNotifier;
 
     FUrl: string;
     FRawRequestHeader: string;
@@ -67,7 +68,7 @@ type
       AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger;
       AMapType: TMapType;
-      ACancelNotifier: IJclNotifier
+      ACancelNotifier: IOperationCancelNotifier
     );
     destructor Destroy; override;
 
@@ -104,7 +105,7 @@ type
     function  GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(Value: IDownloadResult);
     function  GetResultFactory: IDownloadResultFactory;
-    function GetCancelNotifier: IJclNotifier;
+    function GetCancelNotifier: IOperationCancelNotifier;
 
     property Url: string read GetUrl write SetUrl;
     property RawRequestHeader: string read GetRawRequestHeader write SetRawRequestHeader;
@@ -119,7 +120,7 @@ type
     property HttpStatusCode: Cardinal read GetHttpStatusCode write SetHttpStatusCode;
     property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
     property ResultFactory: IDownloadResultFactory read GetResultFactory;
-    property CancelNotifier: IJclNotifier read GetCancelNotifier;
+    property CancelNotifier: IOperationCancelNotifier read GetCancelNotifier;
   end;
 
 implementation
@@ -132,7 +133,7 @@ uses
 
 { TEventElementStatus }
 
-constructor TEventElementStatus.Create(ACancelNotifier: IJclNotifier);
+constructor TEventElementStatus.Create(ACancelNotifier: IOperationCancelNotifier);
 begin
   inherited Create;
   FCancelled := False;
@@ -140,7 +141,7 @@ begin
   FCancelNotifier := ACancelNotifier;
   FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
   if FCancelNotifier <> nil then begin
-    FCancelNotifier.Add(FCancelListener);
+    FCancelNotifier.AddListener(FCancelListener);
   end;
 end;
 
@@ -148,7 +149,7 @@ destructor TEventElementStatus.Destroy;
 begin
   try
     if FCancelNotifier <> nil then begin
-      FCancelNotifier.Remove(FCancelListener);
+      FCancelNotifier.RemoveListener(FCancelListener);
     end;
     FreeAndNil(FThreadSafeCS);
   finally
@@ -182,7 +183,7 @@ constructor TTileDownloaderEventElement.Create(
   AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger;
   AMapType: TMapType;
-  ACancelNotifier: IJclNotifier
+  ACancelNotifier: IOperationCancelNotifier
 );
 begin
   inherited Create;
@@ -490,7 +491,7 @@ begin
   Result := FResultFactory;
 end;
 
-function TTileDownloaderEventElement.GetCancelNotifier: IJclNotifier;
+function TTileDownloaderEventElement.GetCancelNotifier: IOperationCancelNotifier;
 begin
   Result := FCancelNotifier;
 end;

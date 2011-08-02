@@ -353,7 +353,7 @@ begin
                   FLog.WriteText(FRES_TileNotExists, 1);
                   FGotoNextTile := True;
                 end else begin
-                  Download(VTile, FZoom, OnTileDownload, FCheckExistTileSize);
+                  Download(VTile, FZoom, OnTileDownload, FCheckExistTileSize, FCancelNotifier);
                 end;
                 FLastProcessedPoint := VTile;
               except

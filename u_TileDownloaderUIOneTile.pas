@@ -74,7 +74,7 @@ procedure TTileDownloaderUIOneTile.Execute;
 begin
   if FMapType.UseDwn then
   try
-    Download(FLoadXY, FZoom, OnTileDownload);
+    Download(FLoadXY, FZoom, OnTileDownload, False, FCancelNotifier);
   except
     on E: Exception do
       FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FZoom, FLoadXY, E.Message) );
