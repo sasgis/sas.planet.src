@@ -5,6 +5,7 @@ interface
 uses
   GR32,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_ImageResamplerConfig,
   i_LayerBitmapClearStrategy;
 
@@ -13,6 +14,12 @@ type
   private
     FResamplerConfig: IImageResamplerConfig;
     FSimpleClearStrategy: ILayerBitmapClearStrategy;
+
+    FSimpleClearCounter: IInternalPerformanceCounter;
+    FMoveImageCounter: IInternalPerformanceCounter;
+    FImageResizeCounter: IInternalPerformanceCounter;
+    FZoomChangeCounter: IInternalPerformanceCounter;
+
     function GetStrategeForZoomChange(ASourceConverter, ATargetConverter: ILocalCoordConverter; ASourceBitmap: TCustomBitmap32): ILayerBitmapClearStrategy;
     function GetStrategeForSameZoom(ASourceConverter, ATargetConverter: ILocalCoordConverter; ASourceBitmap: TCustomBitmap32): ILayerBitmapClearStrategy;
   protected
@@ -22,7 +29,10 @@ type
       APrevStrategy: ILayerBitmapClearStrategy
     ): ILayerBitmapClearStrategy;
   public
-    constructor Create(AResamplerConfig: IImageResamplerConfig);
+    constructor Create(
+      AResamplerConfig: IImageResamplerConfig;
+      APerfCounterList: IInternalPerformanceCounterList
+    );
   end;
 
 implementation
@@ -35,9 +45,17 @@ uses
 { TLayerBitmapClearStrategyFactory }
 
 constructor TLayerBitmapClearStrategyFactory.Create(
-  AResamplerConfig: IImageResamplerConfig);
+  AResamplerConfig: IImageResamplerConfig;
+  APerfCounterList: IInternalPerformanceCounterList
+);
 begin
   FResamplerConfig := AResamplerConfig;
+
+  FSimpleClearCounter := APerfCounterList.CreateAndAddNewCounter('SimpleClear');
+  FMoveImageCounter := APerfCounterList.CreateAndAddNewCounter('MoveImage');
+  FImageResizeCounter := APerfCounterList.CreateAndAddNewCounter('ImageResize');
+  FZoomChangeCounter := APerfCounterList.CreateAndAddNewCounter('ZoomChange');
+
   FSimpleClearStrategy := TLayerBitmapClearStrategySimpleClear.Create;
 end;
 

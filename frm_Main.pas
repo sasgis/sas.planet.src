@@ -803,9 +803,10 @@ begin
       TMapMainLayer.Create(
         map,
         FConfig.ViewPortState,
-        GState.LocalConverterFactory,
-        FConfig.MainMapsConfig,
         GState.ImageResamplerConfig,
+        GState.LocalConverterFactory,
+        GState.ClearStrategyFactory,
+        FConfig.MainMapsConfig,
         GState.BitmapPostProcessingConfig,
         GState.ViewConfig,
         FTileErrorLogger,
@@ -816,6 +817,7 @@ begin
       TMapLayerGrids.Create(
         map,
         FConfig.ViewPortState,
+        GState.ImageResamplerConfig,
         GState.LocalConverterFactory,
         FConfig.LayersConfig.MapLayerGridsConfig
       );
@@ -831,8 +833,9 @@ begin
       TWikiLayer.Create(
         map,
         FConfig.ViewPortState,
-        GState.LocalConverterFactory,
         GState.ImageResamplerConfig,
+        GState.LocalConverterFactory,
+        GState.ClearStrategyFactory,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.KmlLayerConfig,
         FConfig.MainMapsConfig.GetActiveKmlLayersSet
@@ -842,6 +845,7 @@ begin
       TMapLayerFillingMap.Create(
         map,
         FConfig.ViewPortState,
+        GState.ImageResamplerConfig,
         GState.LocalConverterFactory,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.FillingMapLayerConfig
@@ -851,8 +855,9 @@ begin
       TMapMarksLayer.Create(
         map,
         FConfig.ViewPortState,
-        GState.LocalConverterFactory,
         GState.ImageResamplerConfig,
+        GState.LocalConverterFactory,
+        GState.ClearStrategyFactory,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.MarksLayerConfig,
         FMarkDBGUI
@@ -862,7 +867,9 @@ begin
       TMapGPSLayer.Create(
         map,
         FConfig.ViewPortState,
+        GState.ImageResamplerConfig,
         GState.LocalConverterFactory,
+        GState.ClearStrategyFactory,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.GPSTrackConfig,
         GState.GPSRecorder

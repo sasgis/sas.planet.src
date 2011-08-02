@@ -21,6 +21,7 @@ uses
   i_ImageResamplerConfig,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_LayerBitmapClearStrategy,
   i_ViewPortState,
   i_VectorDataItemSimple,
   u_MapLayerWithThreadDraw;
@@ -84,8 +85,9 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
       AResamplerConfig: IImageResamplerConfig;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       ATimerNoifier: IJclNotifier;
       AConfig: IKmlLayerConfig;
       ALayersSet: IActiveMapsSet
@@ -113,14 +115,23 @@ uses
 constructor TWikiLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
   AResamplerConfig: IImageResamplerConfig;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   ATimerNoifier: IJclNotifier;
   AConfig: IKmlLayerConfig;
   ALayersSet: IActiveMapsSet
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AConverterFactory, AResamplerConfig, ATimerNoifier, tpLower);
+  inherited Create(
+    AParentMap,
+    AViewPortState,
+    AResamplerConfig,
+    AConverterFactory,
+    AClearStrategyFactory,
+    ATimerNoifier,
+    tpLower
+  );
   FConfig := AConfig;
   FLayersSet := ALayersSet;
 

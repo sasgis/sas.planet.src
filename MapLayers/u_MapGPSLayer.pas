@@ -13,6 +13,8 @@ uses
   t_CommonTypes,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_LayerBitmapClearStrategy,
+  i_ImageResamplerConfig,
   i_GPSRecorder,
   i_MapLayerGPSTrackConfig,
   i_ViewPortState,
@@ -53,7 +55,9 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AResamplerConfig: IImageResamplerConfig;
       AConverterFactory: ILocalCoordConverterFactorySimpe;
+      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       ATimerNoifier: IJclNotifier;
       AConfig: IMapLayerGPSTrackConfig;
       AGPSRecorder: IGPSRecorder
@@ -77,13 +81,23 @@ uses
 constructor TMapGPSLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AResamplerConfig: IImageResamplerConfig;
   AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   ATimerNoifier: IJclNotifier;
   AConfig: IMapLayerGPSTrackConfig;
   AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AConverterFactory, nil, ATimerNoifier, tpLower);
+  inherited Create(
+    AParentMap,
+    AViewPortState,
+    AResamplerConfig,
+    AConverterFactory,
+    AClearStrategyFactory,
+    ATimerNoifier,
+    tpLower
+  );
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   LinksList.Add(

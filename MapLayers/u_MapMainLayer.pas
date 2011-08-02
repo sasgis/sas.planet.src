@@ -11,6 +11,7 @@ uses
   t_CommonTypes,
   i_CoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_LayerBitmapClearStrategy,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,
@@ -51,9 +52,10 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      AMapsConfig: IMainMapsConfig;
       AResamplerConfig: IImageResamplerConfig;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+      AMapsConfig: IMainMapsConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
       AViewConfig: IGlobalViewMainConfig;
       AErrorLogger: ITileErrorLogger;
@@ -80,16 +82,25 @@ uses
 constructor TMapMainLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  AMapsConfig: IMainMapsConfig;
   AResamplerConfig: IImageResamplerConfig;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+  AMapsConfig: IMainMapsConfig;
   APostProcessingConfig: IBitmapPostProcessingConfig;
   AViewConfig: IGlobalViewMainConfig;
   AErrorLogger: ITileErrorLogger;
   ATimerNoifier: IJclNotifier
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AConverterFactory, AResamplerConfig, ATimerNoifier, tpNormal);
+  inherited Create(
+    AParentMap,
+    AViewPortState,
+    AResamplerConfig,
+    AConverterFactory,
+    AClearStrategyFactory,
+    ATimerNoifier,
+    tpLower
+  );
   FMapsConfig := AMapsConfig;
   FErrorLogger := AErrorLogger;
   FPostProcessingConfig := APostProcessingConfig;

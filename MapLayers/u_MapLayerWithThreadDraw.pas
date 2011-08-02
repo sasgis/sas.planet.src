@@ -39,6 +39,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AResamplerConfig: IImageResamplerConfig;
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       ATimerNoifier: IJclNotifier;
       APriority: TThreadPriority
@@ -59,8 +60,9 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
       AResamplerConfig: IImageResamplerConfig;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       ATimerNoifier: IJclNotifier;
       APriority: TThreadPriority
     );
@@ -80,12 +82,13 @@ uses
 constructor TMapLayerWithThreadDraw.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AResamplerConfig: IImageResamplerConfig;
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   ATimerNoifier: IJclNotifier;
   APriority: TThreadPriority
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AConverterFactory);
+  inherited Create(AParentMap, AViewPortState, AResamplerConfig, AConverterFactory);
   Layer.Bitmap.BeginUpdate;
   FDrawTask := TBackgroundTaskLayerDrawBase.Create(OnDrawBitmap, APriority);
   FUpdateCounter := 0;
@@ -174,8 +177,9 @@ end;
 constructor TMapLayerTiledWithThreadDraw.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
   AResamplerConfig: IImageResamplerConfig;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   ATimerNoifier: IJclNotifier;
   APriority: TThreadPriority
 );
@@ -183,11 +187,13 @@ begin
   inherited Create(
     AParentMap,
     AViewPortState,
+    AResamplerConfig,
     AConverterFactory,
     ATimerNoifier,
     APriority
   );
-  FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(AResamplerConfig);
+  FClearStrategyFactory := AClearStrategyFactory;
+//  FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(AResamplerConfig);
 end;
 
 procedure TMapLayerTiledWithThreadDraw.ClearLayerBitmap;

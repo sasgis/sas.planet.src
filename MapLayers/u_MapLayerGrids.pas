@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_ImageResamplerConfig,
   i_MapLayerGridsConfig,
   i_ViewPortState,
   u_MapLayerBasic;
@@ -30,6 +31,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AResamplerConfig: IImageResamplerConfig;
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       AConfig: IMapLayerGridsConfig
     );
@@ -52,11 +54,17 @@ const
 constructor TMapLayerGrids.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AResamplerConfig: IImageResamplerConfig;
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   AConfig: IMapLayerGridsConfig
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AConverterFactory);
+  inherited Create(
+    AParentMap,
+    AViewPortState,
+    AResamplerConfig,
+    AConverterFactory
+  );
   FConfig := AConfig;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),

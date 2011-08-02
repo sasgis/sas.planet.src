@@ -12,6 +12,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
+  i_ImageResamplerConfig,
   i_InternalPerformanceCounter,
   u_WindowLayerWithPos;
 
@@ -85,6 +86,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AResamplerConfig: IImageResamplerConfig;
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe
     );
     destructor Destroy; override;
@@ -213,6 +215,7 @@ end;
 constructor TMapLayerBasic.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AResamplerConfig: IImageResamplerConfig;
   ACoordConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
@@ -220,6 +223,7 @@ begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
+  FLayer.Bitmap.Resampler := AResamplerConfig.GetActiveFactory.CreateResampler;
   FNeedUpdateLayerSizeCS := TCriticalSection.Create;
 end;
 
