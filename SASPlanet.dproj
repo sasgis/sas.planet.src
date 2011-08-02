@@ -127,16 +127,16 @@
       <Form>frmStartLogo</Form>
     </DCCReference>
     <DCCReference Include="fr_LonLat.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frLonLat</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_MarkDescription.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frMarkDescription</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_ShortCutList.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frShortCutList</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="i_ActiveMapsConfig.pas" />
     <DCCReference Include="i_AntiBan.pas" />
@@ -212,6 +212,7 @@
     <DCCReference Include="i_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="i_MapLayerGridsConfig.pas" />
     <DCCReference Include="i_MapLayerNavToPointMarkerConfig.pas" />
+    <DCCReference Include="i_MapMovingConfig.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_MapVersionConfig.pas" />
@@ -321,44 +322,44 @@
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportAUX</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportGEKml.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportGEKml</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportIPhone.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportIPhone</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportToFileCont.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportToFileCont</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportYaMaps.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportYaMaps</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_MapCombine.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frMapCombine</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesCopy.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frTilesCopy</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesDelete.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frTilesDelete</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesDownload.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frTilesDownload</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesGenPrev.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frTilesGenPrev</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\u_ExportProviderAbstract.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderAUX.pas" />
@@ -554,6 +555,7 @@
     <DCCReference Include="u_MapLayerGridsConfig.pas" />
     <DCCReference Include="u_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="u_MapMarksBitmapLayerProviderByMarksSubset.pas" />
+    <DCCReference Include="u_MapMovingConfig.pas" />
     <DCCReference Include="u_MapType.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeCacheConfig.pas" />

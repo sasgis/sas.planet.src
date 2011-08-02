@@ -349,6 +349,7 @@ type
     TBSeparatorItem1: TTBSeparatorItem;
     TrayItemQuit: TTBItem;
     tbitmShowMarkCaption: TTBXItem;
+    NAnimateMove: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -475,6 +476,7 @@ type
     procedure tbitmGPSOptionsClick(Sender: TObject);
     procedure TrayItemRestoreClick(Sender: TObject);
     procedure tbitmShowMarkCaptionClick(Sender: TObject);
+    procedure NAnimateMoveClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1816,6 +1818,8 @@ begin
 
   Nanimate.Checked := FConfig.MapZoomingConfig.AnimateZoom;
 
+  NAnimateMove.Checked := FConfig.MapMovingConfig.AnimateMove;
+
   VGUID := FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID;
   for i := 0 to TBXSelectSrchType.Count - 1 do begin
     VToolbarItem := TBXSelectSrchType.Items[i];
@@ -2200,47 +2204,49 @@ var
   VMapDeltaXYmul:TDoublePoint;
   mul:double;
 begin
-  QueryPerformanceCounter(ts1);
-  VMaxTime := 200; //теоретическое максимальное время отображения инерции
-  VTime := 0;
-  AMousePPS:=AMousePPS/8;
-  if AMousePPS>500 then begin
-    AMousePPS:=500; //ограничиваем максимальную скорость.
-  end;
-
-  if abs(dxy.x)>abs(dxy.y) then begin
-    VMapDeltaXYmul.x:=dxy.x/abs(dxy.x);
-    VMapDeltaXYmul.y:=dxy.y/abs(dxy.x);
-  end else begin
-    VMapDeltaXYmul.y:=dxy.y/abs(dxy.y);
-    VMapDeltaXYmul.x:=dxy.x/abs(dxy.y);
-  end;
-
-  VStepSizeInPixel:=Round(AMousePPS*(ALastTime/VMaxTime));
-
-  repeat
-    mul:=exp(-VTime/VMaxTime);
-    Vk:=VStepSizeInPixel*mul;
-    //mul:=mul*0.9;
-    //mul:=mul*(Tanh(Pi-(Pi*(VTime/VMaxTime))));
-    //Vk:=Vk*LogN(VMaxTime,VMaxTime-(VTime+VLastTime));
-    VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
-    VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
-    Map.BeginUpdate;
-    try
-      FConfig.ViewPortState.ChangeMapPixelByDelta(VMapDeltaXY);
-    finally
-      Map.EndUpdate;
-      Map.Changed;
+  if FConfig.MapMovingConfig.AnimateMove then begin
+    QueryPerformanceCounter(ts1);
+    VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime; //теоретическое максимальное время отображения инерции
+    VTime := 0;
+    AMousePPS:=AMousePPS/8;
+    if AMousePPS>500 then begin
+      AMousePPS:=500; //ограничиваем максимальную скорость.
     end;
-    QueryPerformanceCounter(ts2);
-    QueryPerformanceFrequency(fr);
-    VTime:=(ts2-ts1)/(fr/1000);
-    if VStepSizeInPixel=0 then begin
-      VStepSizeInPixel:=Round(AMousePPS*(VTime/VMaxTime));
-    end;    
-    application.ProcessMessages;
-  until (Vk<2)or(FMapZoomAnimtion)or(FMapMoving);
+
+    if abs(dxy.x)>abs(dxy.y) then begin
+      VMapDeltaXYmul.x:=dxy.x/abs(dxy.x);
+      VMapDeltaXYmul.y:=dxy.y/abs(dxy.x);
+    end else begin
+      VMapDeltaXYmul.y:=dxy.y/abs(dxy.y);
+      VMapDeltaXYmul.x:=dxy.x/abs(dxy.y);
+    end;
+
+    VStepSizeInPixel:=Round(AMousePPS*(ALastTime/VMaxTime));
+
+    repeat
+      mul:=exp(-VTime/VMaxTime);
+      Vk:=VStepSizeInPixel*mul;
+      //mul:=mul*0.9;
+      //mul:=mul*(Tanh(Pi-(Pi*(VTime/VMaxTime))));
+      //Vk:=Vk*LogN(VMaxTime,VMaxTime-(VTime+VLastTime));
+      VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
+      VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
+      Map.BeginUpdate;
+      try
+        FConfig.ViewPortState.ChangeMapPixelByDelta(VMapDeltaXY);
+      finally
+        Map.EndUpdate;
+        Map.Changed;
+      end;
+      QueryPerformanceCounter(ts2);
+      QueryPerformanceFrequency(fr);
+      VTime:=(ts2-ts1)/(fr/1000);
+      if VStepSizeInPixel=0 then begin
+        VStepSizeInPixel:=Round(AMousePPS*(VTime/VMaxTime));
+      end;
+      application.ProcessMessages;
+    until (Vk<2)or(FMapZoomAnimtion)or(FMapMoving);
+  end;
 end;
 
 procedure TfrmMain.NzoomInClick(Sender: TObject);
@@ -4020,6 +4026,11 @@ end;
 procedure TfrmMain.NanimateClick(Sender: TObject);
 begin
   FConfig.MapZoomingConfig.AnimateZoom := (Sender as TTBXItem).Checked;
+end;
+
+procedure TfrmMain.NAnimateMoveClick(Sender: TObject);
+begin
+  FConfig.MapMovingConfig.AnimateMove := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);

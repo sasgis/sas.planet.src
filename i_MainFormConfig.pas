@@ -17,6 +17,7 @@ uses
   i_KeyMovingConfig,
   i_MarksLayerConfig,
   i_KmlLayerConfig,
+  i_MapMovingConfig,
   i_MapZoomingConfig,
   i_MiniMapLayerConfig,
   i_CenterScaleConfig,
@@ -153,6 +154,9 @@ type
 
     function GetMapZoomingConfig: IMapZoomingConfig;
     property MapZoomingConfig: IMapZoomingConfig read GetMapZoomingConfig;
+
+    function GetMapMovingConfig: IMapMovingConfig;
+    property MapMovingConfig: IMapMovingConfig read GetMapMovingConfig;
  end;
 
 implementation

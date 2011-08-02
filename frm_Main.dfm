@@ -20,9 +20,9 @@ object frmMain: TfrmMain
   TextHeight = 13
   object map: TImage32
     Left = 33
-    Top = 61
+    Top = 59
     Width = 645
-    Height = 465
+    Height = 467
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -44,11 +44,11 @@ object frmMain: TfrmMain
     Left = 0
     Top = 0
     Width = 842
-    Height = 61
+    Height = 59
     PopupMenu = TBXPopupPanels
     object TBMainToolBar: TTBXToolbar
       Left = 0
-      Top = 27
+      Top = 25
       DockPos = -6
       DockRow = 1
       Images = PanelsImageList
@@ -132,8 +132,8 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 230
-      Top = 27
+      Left = 242
+      Top = 25
       DockPos = 224
       DockRow = 1
       Stretch = True
@@ -164,8 +164,8 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 357
-      Top = 27
+      Left = 369
+      Top = 25
       DockPos = 352
       DockRow = 1
       Images = PanelsImageList
@@ -175,8 +175,8 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 528
-      Top = 27
+      Left = 540
+      Top = 25
       DockPos = 504
       DockRow = 1
       Images = PanelsImageList
@@ -247,7 +247,7 @@ object frmMain: TfrmMain
     end
     object TBExit: TTBXToolbar
       Left = 807
-      Top = 27
+      Top = 25
       DockPos = 807
       DockRow = 1
       TabOrder = 4
@@ -689,6 +689,13 @@ object frmMain: TfrmMain
           Caption = 'Animation'
           Hint = ''
         end
+        object NAnimateMove: TTBXItem
+          AutoCheck = True
+          Checked = True
+          OnClick = NAnimateMoveClick
+          Caption = 'Inertia when moving'
+          Hint = ''
+        end
         object N32: TTBXItem
           AutoCheck = True
           OnClick = N32Click
@@ -1021,9 +1028,9 @@ object frmMain: TfrmMain
   end
   object TBDockLeft: TTBXDock
     Left = 0
-    Top = 61
+    Top = 59
     Width = 33
-    Height = 465
+    Height = 467
     PopupMenu = TBXPopupPanels
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
@@ -1237,15 +1244,15 @@ object frmMain: TfrmMain
   end
   object TBDockRight: TTBXDock
     Left = 678
-    Top = 61
+    Top = 59
     Width = 164
-    Height = 465
+    Height = 467
     PopupMenu = TBXPopupPanels
     Position = dpRight
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 455
+      ClientAreaHeight = 457
       ClientAreaWidth = 160
       DockPos = -6
       PopupMenu = TBXPopupMenuSensors
@@ -1258,7 +1265,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 160
-        Height = 455
+        Height = 457
         Align = alClient
         AutoScroll = False
         AutoSize = True

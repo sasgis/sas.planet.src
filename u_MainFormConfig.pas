@@ -12,6 +12,7 @@ uses
   i_MainFormBehaviourByGPSConfig,
   i_MainGeoCoderConfig,
   i_KeyMovingConfig,
+  i_MapMovingConfig,
   i_MapZoomingConfig,
   i_ContentTypeManager,
   i_GeoCoderList,
@@ -33,6 +34,7 @@ type
     FDownloadUIConfig: IDownloadUIConfig;
     FKeyMovingConfig: IKeyMovingConfig;
     FMapZoomingConfig: IMapZoomingConfig;
+    FMapMovingConfig: IMapMovingConfig;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
@@ -45,6 +47,7 @@ type
     function GetDownloadUIConfig: IDownloadUIConfig;
     function GetKeyMovingConfig: IKeyMovingConfig;
     function GetMapZoomingConfig: IMapZoomingConfig;
+    function GetMapMovingConfig: IMapMovingConfig;
   public
     constructor Create(
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -68,6 +71,7 @@ uses
   u_MainFormLayersConfig,
   u_MainFormBehaviourByGPSConfig,
   u_MainGeoCoderConfig,
+  u_MapMovingConfig,
   u_MapZoomingConfig,
   u_DownloadUIConfig,
   u_KeyMovingConfig,
@@ -107,6 +111,8 @@ begin
   Add(FKeyMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('KeyMoving'));
   FMapZoomingConfig := TMapZoomingConfig.Create;
   Add(FMapZoomingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Zooming'));
+  FMapMovingConfig := TMapMovingConfig.Create;
+  Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Moving'));
 end;
 
 function TMainFormConfig.GetDownloadUIConfig: IDownloadUIConfig;
@@ -147,6 +153,11 @@ end;
 function TMainFormConfig.GetMapZoomingConfig: IMapZoomingConfig;
 begin
   Result := FMapZoomingConfig;
+end;
+
+function TMainFormConfig.GetMapMovingConfig: IMapMovingConfig;
+begin
+  Result := FMapMovingConfig;
 end;
 
 function TMainFormConfig.GetNavToPoint: INavigationToPoint;
