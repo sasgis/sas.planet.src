@@ -79,7 +79,6 @@ var
   VParams: IConfigDataProvider;
 begin
   inherited Create;
-  FEnabled := False;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileRequestBuilderConfig := ATileRequestBuilderConfig;
   FZmp := AZmp;
@@ -92,6 +91,7 @@ begin
   FMaxConnectToServerCount := FTileDownloaderConfig.MaxConnectToServerCount;
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
   FDownloadesList := TList.Create;
+  FEnabled := True;
 end;
 
 destructor TTileDownloaderBaseCore.Destroy;

@@ -68,7 +68,7 @@ type
   end;
 
 const
-  MaxThreadsUICount = 8;
+  MaxThreadsUICount = 32;
 
 implementation
 
