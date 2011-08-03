@@ -28,7 +28,7 @@ type
     FCS: TCriticalSection;
     FProxyConfig: IProxyConfig;
   public
-    constructor Create(AOwner: TComponent; AProxyConfig: IProxyConfig);
+    constructor Create(AOwner: TComponent; AProxyConfig: IProxyConfig); reintroduce;
     destructor Destroy; override;
     procedure NavigateAndWait(AUrl: WideString);
   end;
