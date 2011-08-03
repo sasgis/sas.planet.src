@@ -724,6 +724,8 @@ begin
 
   FRuller:=TBitmap32.Create;
   FTumbler:=TBitmap32.Create;
+  FRuller.Assign(FConfig.MainConfig.Ruller);
+  FTumbler.Assign(FConfig.MainConfig.Tumbler);
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
@@ -1837,8 +1839,6 @@ begin
       end;
     end;
   end;
-  FRuller.Assign(FConfig.MainConfig.Ruller);
-  FTumbler.Assign(FConfig.MainConfig.Tumbler);
 end;
 
 procedure TfrmMain.OnMainMapChange(Sender: TObject);
