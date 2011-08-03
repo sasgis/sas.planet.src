@@ -26,11 +26,11 @@ type
     procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
   private
     FCS: TCriticalSection;
-    FProxyConfig: IProxyConfigStatic;
+    FProxyConfig: IProxyConfig;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; AProxyConfig: IProxyConfig);
     destructor Destroy; override;
-    procedure NavigateAndWait(AUrl: WideString; AProxyConfig: IProxyConfigStatic);
+    procedure NavigateAndWait(AUrl: WideString);
   end;
 
 var
@@ -48,9 +48,10 @@ uses
   ShellAPI,
   WinInet;
 
-constructor TfrmInvisibleBrowser.Create(AOwner: TComponent);
+constructor TfrmInvisibleBrowser.Create(AOwner: TComponent; AProxyConfig: IProxyConfig);
 begin
-  inherited;
+  inherited Create(AOwner);
+  FProxyConfig := AProxyConfig;
   FCS := TCriticalSection.Create;
 end;
 
@@ -67,16 +68,11 @@ end;
 
 { TfrmInvisibleBrowser }
 
-procedure TfrmInvisibleBrowser.NavigateAndWait(AUrl: WideString; AProxyConfig: IProxyConfigStatic);
+procedure TfrmInvisibleBrowser.NavigateAndWait(AUrl: WideString);
 begin
   FCS.Acquire;
   try
-    FProxyConfig := AProxyConfig;
-    try
-      WebBrowser1.NavigateWait(AUrl, 10000);
-    finally
-      FProxyConfig := nil;
-    end;
+    WebBrowser1.NavigateWait(AUrl, 10000);
   finally
     FCS.Release;
   end;
@@ -87,12 +83,14 @@ procedure TfrmInvisibleBrowser.WebBrowser1Authenticate(
   szPassWord: WideString; var Rezult: HRESULT);
 var
   VUseLogin: Boolean;
+  VProxyConfig: IProxyConfigStatic;
 begin
   if FProxyConfig <> nil then begin
-    VUselogin := (not FProxyConfig.UseIESettings) and FProxyConfig.UseProxy and FProxyConfig.UseLogin;
+    VProxyConfig := FProxyConfig.GetStatic;
+    VUselogin := (not VProxyConfig.UseIESettings) and VProxyConfig.UseProxy and VProxyConfig.UseLogin;
     if VUselogin then begin
-      szUserName := FProxyConfig.Login;
-      szPassWord := FProxyConfig.Password;
+      szUserName := VProxyConfig.Login;
+      szPassWord := VProxyConfig.Password;
     end;
   end;
 end;

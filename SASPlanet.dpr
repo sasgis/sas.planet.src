@@ -599,7 +599,7 @@ begin
     Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
     Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
     Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
-    Application.CreateForm(TfrmInvisibleBrowser, frmInvisibleBrowser);
+    frmInvisibleBrowser := TfrmInvisibleBrowser.Create(Application, GState.InetConfig.ProxyConfig);
     if GState.GlobalAppConfig.IsShowDebugInfo then begin
       frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
     end;

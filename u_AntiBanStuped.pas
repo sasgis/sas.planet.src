@@ -84,9 +84,9 @@ end;
 procedure TAntiBanStuped.addDwnforban;
 begin
   if FPreloadPage = '' then begin
-    frmInvisibleBrowser.NavigateAndWait('http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8', FProxyConfig.GetStatic);
+    frmInvisibleBrowser.NavigateAndWait('http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8');
   end else begin
-    frmInvisibleBrowser.NavigateAndWait(FPreloadPage, FProxyConfig.GetStatic);
+    frmInvisibleBrowser.NavigateAndWait(FPreloadPage);
   end;
 end;
 
