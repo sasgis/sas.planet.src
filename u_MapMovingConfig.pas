@@ -14,6 +14,7 @@ type
     FAnimateMove: Boolean;
     FAnimateMoveTime: Cardinal;
     FAnimateMaxStartSpeed: Cardinal;
+    FAnimateMinStartSpeed: Cardinal;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -26,6 +27,9 @@ type
 
     function GetAnimateMaxStartSpeed: Cardinal;
     procedure SetAnimateMaxStartSpeed(AValue: Cardinal);
+
+    function GetAnimateMinStartSpeed: Cardinal;
+    procedure SetAnimateMinStartSpeed(AValue: Cardinal);
   public
     constructor Create;
   end;
@@ -38,8 +42,9 @@ constructor TMapMovingConfig.Create;
 begin
   inherited;
   FAnimateMove := True;
-  FAnimateMoveTime := 200;
+  FAnimateMoveTime := 600;
   FAnimateMaxStartSpeed := 4000;
+  FAnimateMinStartSpeed := 300;
 end;
 
 procedure TMapMovingConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -49,6 +54,7 @@ begin
     FAnimateMove := AConfigData.ReadBool('AnimateMove', FAnimateMove);
     FAnimateMoveTime := AConfigData.ReadInteger('AnimateMoveTime', FAnimateMoveTime);
     FAnimateMaxStartSpeed := AConfigData.ReadInteger('AnimateMaxStartSpeed', FAnimateMaxStartSpeed);
+    FAnimateMinStartSpeed := AConfigData.ReadInteger('AnimateMinStartSpeed', FAnimateMinStartSpeed);
     SetChanged;
   end;
 end;
@@ -60,6 +66,7 @@ begin
   AConfigData.WriteBool('AnimateMove', FAnimateMove);
   AConfigData.WriteInteger('AnimateMoveTime', FAnimateMoveTime);
   AConfigData.WriteInteger('AnimateMaxStartSpeed', FAnimateMaxStartSpeed);
+  AConfigData.WriteInteger('AnimateMinStartSpeed', FAnimateMinStartSpeed);
 end;
 
 function TMapMovingConfig.GetAnimateMove: Boolean;
@@ -87,6 +94,16 @@ begin
   LockRead;
   try
     Result := FAnimateMaxStartSpeed;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMapMovingConfig.GetAnimateMinStartSpeed: Cardinal;
+begin
+  LockRead;
+  try
+    Result := FAnimateMinStartSpeed;
   finally
     UnlockRead;
   end;
@@ -124,6 +141,19 @@ begin
   try
     if FAnimateMaxStartSpeed <> AValue then begin
       FAnimateMaxStartSpeed := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMapMovingConfig.SetAnimateMinStartSpeed(AValue: Cardinal);
+begin
+  LockWrite;
+  try
+    if FAnimateMinStartSpeed <> AValue then begin
+      FAnimateMinStartSpeed := AValue;
       SetChanged;
     end;
   finally

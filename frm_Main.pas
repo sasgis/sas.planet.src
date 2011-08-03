@@ -2203,17 +2203,17 @@ procedure TfrmMain.MapMoveAnimate(AMousePPS:double;dxy:TPoint;ALastTime:double; 
 var
   ts1,ts2,fr:int64;
   VTime: Double;
-  VStepSizeInPixel:integer;
-  VMaxTime: Double; //максимальное время отображения инерции, мс.
+  VMaxTime: Double; 
+  VLastTime: Double;
   Vk: Double;
   VMapDeltaXY:TDoublePoint;
   VMapDeltaXYmul:TDoublePoint;
-  mul:double;
 begin
-  if (FConfig.MapMovingConfig.AnimateMove)and(AMousePPS>0) then begin
+  if (FConfig.MapMovingConfig.AnimateMove)and(AMousePPS>FConfig.MapMovingConfig.AnimateMinStartSpeed) then begin
     QueryPerformanceCounter(ts1);
-    VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime; //теоретическое максимальное время отображения инерции
-    VTime := 0;
+    VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime; // максимальное время отображения инерции
+    VLastTime := ALastTime; // время потраченное на последнее ChangeMapPixelByDelta
+    VTime := VLastTime; // время прошедшее с начала анимации
     if AMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
       AMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
     end;
@@ -2226,10 +2226,10 @@ begin
       VMapDeltaXYmul.x:=dxy.x/abs(dxy.y);
     end;
 
-    VStepSizeInPixel:=Round(AMousePPS*(ALastTime/VMaxTime));
     repeat
-      mul:=exp(-VTime/VMaxTime)/8;
-      Vk:=VStepSizeInPixel*mul;
+      Vk:=AMousePPS/(1000/VMaxTime); //расстояние в пикселах, которое мы пройдем со скоростью AMousePPS за время VMaxTime
+      Vk:=Vk*(VLastTime/VMaxTime); //из этого расстояния вычленяем то, которое мы прошли за время VLastTime
+      Vk:=Vk*(exp(-VTime/VMaxTime)-exp(-1)); //замедляем экспоненциально, -exp(-1) нужно для того, чтоб к окончанию времени VMaxTime у нас смещение было =0
       VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
       VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
       Map.BeginUpdate;
@@ -2241,12 +2241,11 @@ begin
       end;
       QueryPerformanceCounter(ts2);
       QueryPerformanceFrequency(fr);
+      VLastTime:=VTime;
       VTime:=(ts2-ts1)/(fr/1000);
-      if VStepSizeInPixel=0 then begin
-        VStepSizeInPixel:=Round(AMousePPS*(VTime/VMaxTime));
-      end;
+      VLastTime:=VTime-VLastTime;
       application.ProcessMessages;
-    until (Vk<1)or(AZoom<>FConfig.ViewPortState.GetCurrentZoom)or
+    until (VTime>=VMaxTime)or(AZoom<>FConfig.ViewPortState.GetCurrentZoom)or
           (AMousePos.X<>FMouseState.GetLastUpPos(FMapMovingButton).X)or
           (AMousePos.Y<>FMouseState.GetLastUpPos(FMapMovingButton).Y);
   end;
@@ -3443,7 +3442,7 @@ begin
   end;
   VMouseMoveDelta := Point(VMouseDownPos.x-X, VMouseDownPos.y-y);
 
-  if (VMapMoving)and(VMouseMoveDelta.X<>0)and(VMouseMoveDelta.Y<>0) then begin
+  if (VMapMoving)and((VMouseMoveDelta.X<>0)or(VMouseMoveDelta.Y<>0)) then begin
     QueryPerformanceCounter(VCurrTick);
     QueryPerformanceFrequency(VFr);
     VMouseMoveUPDelta := Point(FMouseState.PreviousPos.x-FMouseState.CurentPos.X,
