@@ -381,9 +381,8 @@ begin
   finally
     GState.ValueToStringConverterConfig.UnlockWrite;
   end;
-  if ComboBox2.ItemIndex > 0 then begin
-    GState.ImageResamplerConfig.ActiveIndex := ComboBox2.ItemIndex;
-  end;
+
+  GState.ImageResamplerConfig.ActiveIndex := ComboBox2.ItemIndex;
 
   GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedSize := SESizeStr.Value;
   GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockWrite;

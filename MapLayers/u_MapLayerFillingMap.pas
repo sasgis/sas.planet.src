@@ -10,6 +10,7 @@ uses
   t_CommonTypes,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_ImageResamplerConfig,
   i_ViewPortState,
   i_FillingMapLayerConfig,
   u_MapType,
@@ -28,6 +29,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AResamplerConfig: IImageResamplerConfig;
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       ATimerNoifier: IJclNotifier;
       AConfig: IFillingMapLayerConfig
@@ -51,6 +53,7 @@ uses
 constructor TMapLayerFillingMap.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AResamplerConfig: IImageResamplerConfig;
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   ATimerNoifier: IJclNotifier;
   AConfig: IFillingMapLayerConfig
@@ -59,6 +62,7 @@ begin
   inherited Create(
     AParentMap,
     AViewPortState,
+    AResamplerConfig,
     AConverterFactory,
     ATimerNoifier,
     tpLowest

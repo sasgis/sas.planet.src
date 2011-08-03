@@ -8,6 +8,7 @@ uses
   i_JclNotify,
   t_CommonTypes,
   i_ImageResamplerConfig,
+  i_LayerBitmapClearStrategy,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarksLayerConfig,
@@ -40,8 +41,9 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
       AResamplerConfig: IImageResamplerConfig;
+      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       ATimerNoifier: IJclNotifier;
       AConfig: IMarksLayerConfig;
       AMarkDBGUI: TMarksDbGUIHelper
@@ -70,14 +72,23 @@ uses
 constructor TMapMarksLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
   AResamplerConfig: IImageResamplerConfig;
+  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   ATimerNoifier: IJclNotifier;
   AConfig: IMarksLayerConfig;
   AMarkDBGUI: TMarksDbGUIHelper
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AConverterFactory, AResamplerConfig, ATimerNoifier, tpLower);
+  inherited Create(
+    AParentMap,
+    AViewPortState,
+    AResamplerConfig,
+    AConverterFactory,
+    AClearStrategyFactory,
+    ATimerNoifier,
+    tpLower
+  );
   FConfig := AConfig;
   FMarkDBGUI := AMarkDBGUI;
 

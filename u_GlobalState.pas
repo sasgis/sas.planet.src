@@ -37,6 +37,7 @@ uses
   i_MainMemCacheConfig,
   i_MarkPicture,
   i_InternalPerformanceCounter,
+  i_LayerBitmapClearStrategy,
   u_LastSelectionInfo,
   u_MarksDb,
   u_MapTypesMainList,
@@ -105,6 +106,7 @@ type
     FDownloadResultTextProvider: IDownloadResultTextProvider;
     FProtocol: TIeEmbeddedProtocolRegistration;
     FPathDetalizeList: IPathDetalizeProviderList;
+    FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -158,6 +160,7 @@ type
     property SensorList: ISensorList read FSensorList;
     property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
+    property ClearStrategyFactory: ILayerBitmapClearStrategyFactory read FClearStrategyFactory;
 
     constructor Create;
     destructor Destroy; override;
@@ -214,6 +217,7 @@ uses
   u_GPSModuleFactoryByZylGPS,
   u_GPSPositionFactory,
   u_LocalCoordConverterFactorySimpe,
+  u_LayerBitmapClearStrategyFactory,
   u_DownloadResultTextProvider,
   u_MainFormConfig,
   u_SensorListStuped,
@@ -264,6 +268,9 @@ begin
     TImageResamplerConfig.Create(
       TImageResamplerFactoryListStaticSimple.Create
     );
+
+  FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(FImageResamplerConfig, FPerfCounterList.CreateAndAddNewSubList('ClearStrategy'));
+
   FInetConfig := TInetConfig.Create;
   FGPSConfig := TGPSConfig.Create(GetTrackLogPath);
   FGPSPositionFactory := TGPSPositionFactory.Create;

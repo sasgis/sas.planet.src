@@ -60,7 +60,6 @@ implementation
 
 uses
   u_GeoToStr,
-  u_GlobalState,
   u_ResStrings;
 
 {$R *.dfm}

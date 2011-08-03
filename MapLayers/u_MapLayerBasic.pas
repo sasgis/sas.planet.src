@@ -12,6 +12,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
+  i_ImageResamplerConfig,
   i_InternalPerformanceCounter,
   u_WindowLayerWithPos;
 
@@ -85,6 +86,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AResamplerConfig: IImageResamplerConfig;
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe
     );
     destructor Destroy; override;
@@ -213,6 +215,7 @@ end;
 constructor TMapLayerBasic.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AResamplerConfig: IImageResamplerConfig;
   ACoordConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
@@ -220,6 +223,7 @@ begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
+//  FLayer.Bitmap.Resampler := AResamplerConfig.GetActiveFactory.CreateResampler;
   FNeedUpdateLayerSizeCS := TCriticalSection.Create;
 end;
 
@@ -350,12 +354,34 @@ var
   VConverter: ICoordConverter;
   VTileRect: TRect;
   VResultPixelRect: TRect;
+  VViewSize: TPoint;
+  VMovedTile: TPoint;
+  VMovedPixelRect: TRect;
+  VMovedTileRect: TRect;
 begin
   VConverter := ANewViewCoordConverter.GetGeoConverter;
   VZoom := ANewViewCoordConverter.GetZoom;
   VSourcePixelRect := ANewViewCoordConverter.GetRectInMapPixelFloat;
+  VViewSize.X := Trunc(VSourcePixelRect.Right - VSourcePixelRect.Left);
+  VViewSize.Y := Trunc(VSourcePixelRect.Bottom - VSourcePixelRect.Top);
+
   VConverter.CheckPixelRectFloat(VSourcePixelRect, VZoom);
+
   VTileRect := VConverter.PixelRectFloat2TileRect(VSourcePixelRect, VZoom);
+  VMovedTile := VTileRect.TopLeft;
+  Inc(VMovedTile.X);
+  Inc(VMovedTile.Y);
+  VConverter.CheckTilePosStrict(VMovedTile, VZoom, False);
+
+  VMovedPixelRect.TopLeft := VConverter.TilePos2PixelPos(VMovedTile, VZoom);
+  VMovedPixelRect.Right := VMovedPixelRect.Left + VViewSize.X;
+  VMovedPixelRect.Bottom := VMovedPixelRect.Top + VViewSize.Y;
+  VConverter.CheckPixelRect(VMovedPixelRect, VZoom);
+
+  VMovedTileRect := VConverter.PixelRect2TileRect(VMovedPixelRect, VZoom);
+  VTileRect.Right := VMovedTileRect.Right;
+  VTileRect.Bottom := VMovedTileRect.Bottom;
+
   VResultPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
 
   Result := FConverterFactory.CreateConverter(
