@@ -188,8 +188,6 @@ begin
   BlockTransfer(FSourceBitmap, 0, 0, FSourceBitmap.ClipRect, ASourceBitmap, ASourceRect, dmOpaque, nil);
   if AResumpler <> nil then begin
     FSourceBitmap.Resampler := AResumpler;
-    end else begin
-    FSourceBitmap.Resampler := TDraftResampler.Create;
   end;
   FTargetRect := ATargetRect;
 end;
