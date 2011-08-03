@@ -223,7 +223,7 @@ begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
-  FLayer.Bitmap.Resampler := AResamplerConfig.GetActiveFactory.CreateResampler;
+//  FLayer.Bitmap.Resampler := AResamplerConfig.GetActiveFactory.CreateResampler;
   FNeedUpdateLayerSizeCS := TCriticalSection.Create;
 end;
 
