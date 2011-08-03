@@ -240,6 +240,7 @@ begin
   VVisualMapCenter := ANewVisualCoordConverter.GetCenterMapPixelFloat;
   VSourceZoom := ANewVisualCoordConverter.GetZoom;
   VConverter := ANewVisualCoordConverter.GetGeoConverter;
+  VConverter.CheckPixelPosFloatStrict(VVisualMapCenter, VSourceZoom, True);
   VVisualMapCenterInRelative := VConverter.PixelPosFloat2Relative(VVisualMapCenter, VSourceZoom);
   VZoom := GetActualZoom(ANewVisualCoordConverter);
   VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);
