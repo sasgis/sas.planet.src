@@ -2211,7 +2211,7 @@ var
   VMapDeltaXYmul:TDoublePoint;
   mul:double;
 begin
-  if FConfig.MapMovingConfig.AnimateMove then begin
+  if (FConfig.MapMovingConfig.AnimateMove)and(AMousePPS>0) then begin
     QueryPerformanceCounter(ts1);
     VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime; //теоретическое максимальное время отображения инерции
     VTime := 0;
