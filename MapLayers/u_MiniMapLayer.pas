@@ -978,6 +978,16 @@ begin
     FLayer.Bitmap.Unlock;
   end;
 
+  FLayer.Bitmap.Lock;
+  try
+    if (FLayer.Location.Left<>GetMapLayerLocationRect.Left)or
+       (FLayer.Location.Top<>GetMapLayerLocationRect.Top) then begin
+      SetNeedUpdateLocation;
+    end;
+  finally
+    FLayer.Bitmap.Unlock;
+  end;
+
   if (LayerCoordConverter = nil) or (not LayerCoordConverter.GetIsSameConverter(AValue)) then begin
     SetNeedRedraw;
   end;
