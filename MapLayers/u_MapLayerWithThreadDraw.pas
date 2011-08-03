@@ -74,8 +74,7 @@ uses
   Types,
   SysUtils,
   u_NotifyEventListener,
-  u_BackgroundTaskLayerDrawBase,
-  u_LayerBitmapClearStrategyFactory;
+  u_BackgroundTaskLayerDrawBase;
 
 { TMapLayerWithThreadDraw }
 

@@ -23,7 +23,6 @@ uses
   ExtCtrls,
   Buttons,
   Dialogs,
-  ExtDlgs,
   ImgList,
   GR32,
   GR32_Layers,
