@@ -83,6 +83,7 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   Result := nil;
+  VLocalSizeSource := ASourceConverter.GetLocalRectSize;
   VLocalSizeTarget := ATargetConverter.GetLocalRectSize;
   if (VLocalSizeSource.X = VLocalSizeTarget.X) and
     (VLocalSizeSource.Y = VLocalSizeTarget.Y)
