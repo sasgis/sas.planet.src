@@ -521,6 +521,7 @@ uses
   u_ExportProviderAbstract in 'RegionProcess\u_ExportProviderAbstract.pas',
   fr_ExportYaMaps in 'RegionProcess\fr_ExportYaMaps.pas' {frExportYaMaps: TFrame},
   u_ExportProviderYaMaps in 'RegionProcess\u_ExportProviderYaMaps.pas',
+  fr_ExportYaMapsNew in 'RegionProcess\fr_ExportYaMapsNew.pas' {frExportYaMapsNew: TFrame},
   u_ExportProviderYaMapsNew in 'RegionProcess\u_ExportProviderYaMapsNew.pas',
   fr_ExportGEKml in 'RegionProcess\fr_ExportGEKml.pas' {frExportGEKml: TFrame},
   u_ExportProviderGEKml in 'RegionProcess\u_ExportProviderGEKml.pas',

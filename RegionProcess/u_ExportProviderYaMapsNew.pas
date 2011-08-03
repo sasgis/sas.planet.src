@@ -6,12 +6,12 @@ uses
   Forms,
   t_GeoTypes,
   u_ExportProviderAbstract,
-  fr_ExportYaMaps;
+  fr_ExportYaMapsNew;
 
 type
   TExportProviderYaMapsNew = class(TExportProviderAbstract)
   private
-    FFrame: TfrExportYaMaps;
+    FFrame: TfrExportYaMapsNew;
   public
     destructor Destroy; override;
     function GetCaption: string; override;
@@ -47,7 +47,7 @@ end;
 procedure TExportProviderYaMapsNew.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportYaMaps.Create(nil);
+    FFrame := TfrExportYaMapsNew.Create(nil);
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;
@@ -100,8 +100,7 @@ begin
   comprSat:=FFrame.seSatCompress.Value;
   comprMap:=FFrame.seMapCompress.Value;
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
-  Replace:=FFrame.chkReplaseTiles.Checked;
-  TThreadExportYaMapsNew.Create(path,APolygon,ZoomArr,typemaparr,Replace,comprSat,comprMap);
+  TThreadExportYaMapsNew.Create(path,APolygon,ZoomArr,typemaparr,true,comprSat,comprMap);
 end;
 
 end.

@@ -44,7 +44,8 @@
     <Borland.Personality>Delphi.Personality</Borland.Personality>
     <Borland.ProjectType>VCLApplication</Borland.ProjectType>
     <BorlandProject>
-<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><Language><Language Name="ProjectLang">$00000419</Language></Language><VersionInfo><VersionInfo Name="IncludeVerInfo">True</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">0</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1049</VersionInfo><VersionInfo Name="CodePage">1251</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName">SAS Group</VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">0.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName">SAS.Планета</VersionInfoKeys><VersionInfoKeys Name="LegalCopyright">Группа SAS</VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks">SAS.Планета</VersionInfoKeys><VersionInfoKeys Name="OriginalFilename">SASPlanet</VersionInfoKeys><VersionInfoKeys Name="ProductName">SAS.Планета</VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">SASPlanet.dpr</Source></Source></Delphi.Personality></BorlandProject></BorlandProject>
+<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><Language><Language Name="ProjectLang">$00000419</Language></Language><VersionInfo><VersionInfo Name="IncludeVerInfo">True</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">0</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1049</VersionInfo><VersionInfo Name="CodePage">1251</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName">SAS Group</VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">0.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName">SAS.Планета</VersionInfoKeys><VersionInfoKeys Name="LegalCopyright">Группа SAS</VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks">SAS.Планета</VersionInfoKeys><VersionInfoKeys Name="OriginalFilename">SASPlanet</VersionInfoKeys><VersionInfoKeys Name="ProductName">SAS.Планета</VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">SASPlanet.dpr</Source></Source></Delphi.Personality>  <ModelSupport>False</ModelSupport>
+</BorlandProject></BorlandProject>
   </ProjectExtensions>
   <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
   <ItemGroup>
@@ -341,6 +342,10 @@
       <Form>frExportYaMaps</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="RegionProcess\fr_ExportYaMapsNew.pas">
+      <Form>frExportYaMapsNew</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="RegionProcess\fr_MapCombine.pas">
       <Form>frMapCombine</Form>
       <DesignClass>TFrame</DesignClass>
@@ -384,7 +389,9 @@
     <DCCReference Include="RegionProcess\u_ThreadExportToTar.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToZip.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportYaMaps.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportYaMapsNew.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportYaMapsNew.pas">
+      <Form>$R .\Resources\VersionInfo.res</Form>
+    </DCCReference>
     <DCCReference Include="RegionProcess\u_ThreadGenPrevZoom.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombineBase.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombineBMP.pas" />
