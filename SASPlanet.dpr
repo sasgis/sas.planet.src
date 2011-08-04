@@ -3,6 +3,7 @@ program SASPlanet;
 
 uses
   Forms,
+  Windows,
   SysUtils,
   MidasLib,
   XPMan,
@@ -570,6 +571,8 @@ uses
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}
 {$R .\Resources\Common.res}
+
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 
 begin
   GState := TGlobalState.Create;
