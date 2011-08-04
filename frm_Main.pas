@@ -2153,7 +2153,6 @@ begin
     VZoom := FConfig.ViewPortState.GetCurrentZoom;
     VMaxTime := FConfig.MapZoomingConfig.AnimateZoomTime;
     VUseAnimation :=
-      (abs(ANewZoom-VZoom)=1)and
       (FConfig.MapZoomingConfig.AnimateZoom) and
       (VMaxTime > 0);
 
