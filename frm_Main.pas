@@ -2204,7 +2204,6 @@ var
   ts1,ts2,fr:int64;
   VTime: Double;
   VMaxTime: Double; 
-  VLastTime: Double;
   Vk: Double;
   VMapDeltaXY:TDoublePoint;
   VMapDeltaXYmul:TDoublePoint;
@@ -2212,8 +2211,7 @@ begin
   if (FConfig.MapMovingConfig.AnimateMove)and(AMousePPS>FConfig.MapMovingConfig.AnimateMinStartSpeed) then begin
     QueryPerformanceCounter(ts1);
     VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime; // максимальное время отображения инерции
-    VLastTime := ALastTime; // время потраченное на последнее ChangeMapPixelByDelta
-    VTime := VLastTime; // время прошедшее с начала анимации
+    VTime := ALastTime; // время прошедшее с начала анимации
     if AMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
       AMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
     end;
@@ -2228,7 +2226,7 @@ begin
 
     repeat
       Vk:=AMousePPS/(1000/VMaxTime); //расстояние в пикселах, которое мы пройдем со скоростью AMousePPS за время VMaxTime
-      Vk:=Vk*(VLastTime/VMaxTime); //из этого расстояния вычленяем то, которое мы прошли за время VLastTime
+      Vk:=Vk*(ALastTime/VMaxTime); //из этого расстояния вычленяем то, которое мы прошли за время ALastTime (время потраченное на последнее ChangeMapPixelByDelta)
       Vk:=Vk*(exp(-VTime/VMaxTime)-exp(-1)); //замедляем экспоненциально, -exp(-1) нужно для того, чтоб к окончанию времени VMaxTime у нас смещение было =0
       VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
       VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
@@ -2241,9 +2239,7 @@ begin
       end;
       QueryPerformanceCounter(ts2);
       QueryPerformanceFrequency(fr);
-      VLastTime:=VTime;
       VTime:=(ts2-ts1)/(fr/1000);
-      VLastTime:=VTime-VLastTime;
       application.ProcessMessages;
     until (VTime>=VMaxTime)or(AZoom<>FConfig.ViewPortState.GetCurrentZoom)or
           (AMousePos.X<>FMouseState.GetLastUpPos(FMapMovingButton).X)or
