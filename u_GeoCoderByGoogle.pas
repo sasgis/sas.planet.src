@@ -41,11 +41,13 @@ begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
-  if not (PosEx(AnsiToUtf8('Placemark'), AStr) < 1) then begin
-    i := PosEx('<address>', AStr);
-    j := PosEx('</address>', AStr);
+  i:=1;
+  VList := TInterfaceList.Create;
+  while (not(PosEx(AnsiToUtf8('<Placemark'), AStr,i) < i))and(i>0) do begin
+    i := PosEx('<address>', AStr,i);
+    j := PosEx('</address>', AStr,i);
     strr := Utf8ToAnsi(Copy(AStr, i + 9, j - (i + 9)));
-    i := PosEx('<coordinates>', AStr);
+    i := PosEx('<coordinates>', AStr,j);
     j := PosEx(',', AStr, i + 13);
     slon := Copy(AStr, i + 13, j - (i + 13));
     i := PosEx(',0</coordinates>', AStr, j);
@@ -63,10 +65,9 @@ begin
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
     VPlace := TGeoCodePlacemark.Create(VPoint, strr, 4);
-    VList := TInterfaceList.Create;
     VList.Add(VPlace);
-    Result := VList;
   end;
+  Result := VList;
 end;
 
 function TGeoCoderByGoogle.PrepareURL(ASearch: WideString): string;

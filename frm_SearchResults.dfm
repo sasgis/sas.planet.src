@@ -3,7 +3,7 @@ object frmSearchResults: TfrmSearchResults
   Top = 333
   Caption = 'Search Results'
   ClientHeight = 462
-  ClientWidth = 218
+  ClientWidth = 392
   Color = clBtnFace
   ParentFont = True
   FormStyle = fsStayOnTop
@@ -16,7 +16,7 @@ object frmSearchResults: TfrmSearchResults
   object lvResults: TListView
     Left = 0
     Top = 0
-    Width = 218
+    Width = 392
     Height = 462
     Align = alClient
     Columns = <
@@ -38,5 +38,6 @@ object frmSearchResults: TfrmSearchResults
     ViewStyle = vsReport
     OnDblClick = lvResultsDblClick
     OnKeyDown = lvResultsKeyDown
+    ExplicitWidth = 218
   end
 end

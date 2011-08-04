@@ -40,12 +40,16 @@ begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
+  VList := TInterfaceList.Create;
   i:=PosEx('"items":[{', AStr);
-  if i > 0 then begin
-    i := PosEx('"text":"', AStr, i+10);
+  while (PosEx('"name":"', AStr, i) > i)and(i>0) do begin
+    i := PosEx('"name":"', AStr, i);
     j := PosEx('",', AStr, i + 8);
     sname:= Utf8ToAnsi(Copy(AStr, i + 8, j - (i + 8)));
-    i := PosEx('"point":[', AStr);
+    i := PosEx('"text":"', AStr, i+10);
+    j := PosEx('",', AStr, i + 8);
+    sname:=sname+', '+Utf8ToAnsi(Copy(AStr, i + 8, j - (i + 8)));
+    i := PosEx('"point":[', AStr, j);
     j := PosEx(',', AStr, i + 9);
     slon := Copy(AStr, i + 9, j - (i + 9));
     i := PosEx(']', AStr, j);
@@ -63,10 +67,9 @@ begin
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
     VPlace := TGeoCodePlacemark.Create(VPoint, sname, 4);
-    VList := TInterfaceList.Create;
     VList.Add(VPlace);
-    Result := VList;
   end;
+  Result := VList;
 end;
 
 function TGeoCoderByYandex.PrepareURL(ASearch: WideString): string;
