@@ -2743,23 +2743,12 @@ procedure TfrmMain.TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette;
   var ACol, ARow: Integer; var AllowChange: Boolean);
 var
   VZoom: Byte;
-  VZoomCurr: Byte;
-  VLocalConverter: ILocalCoordConverter;
-  VConverter: ICoordConverter;
-  VMouseMapPoint: TDoublePoint;
-  VMouseLonLat: TDoublePoint;
+  VMouseDownPoint: TPoint;
 begin
   AllowChange:=false;
   VZoom := ((5*ARow)+ACol);
-  if VZoom>0 then begin
-    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-    VZoomCurr := VLocalConverter.GetZoom;
-    VConverter := VLocalConverter.GetGeoConverter;
-    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
-    VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    topos(VMouseLonLat,VZoom-1,true);
-  end;
+  VMouseDownPoint := FMouseState.GetLastDownPos(mbRight);
+  zooming(VZoom,VMouseDownPoint,true);
 end;
 
 procedure TfrmMain.TBCalcRasClick(Sender: TObject);
