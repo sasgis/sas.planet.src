@@ -160,6 +160,10 @@ begin
         end;
       end else begin
         TfrmSearchResults.ShowSearchResults(FMapGoto, ASearchResult);
+        VEnum := ASearchResult.GetPlacemarks;
+        if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
+          FMapGoto.GotoPos(VPlacemark.GetPoint, AZoom);
+        end;
       end;
     end;
   end else begin
