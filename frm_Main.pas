@@ -2152,46 +2152,48 @@ begin
   FMapZoomAnimtion:=True;
   try
     VZoom := FConfig.ViewPortState.GetCurrentZoom;
-    VMaxTime := FConfig.MapZoomingConfig.AnimateZoomTime;
-    VUseAnimation :=
-      (FConfig.MapZoomingConfig.AnimateZoom) and
-      (VMaxTime > 0);
+    if VZoom <> ANewZoom then begin
+      VMaxTime := FConfig.MapZoomingConfig.AnimateZoomTime;
+      VUseAnimation :=
+        (FConfig.MapZoomingConfig.AnimateZoom) and
+        (VMaxTime > 0);
 
-    if move then begin
-      FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, AMousePos);
-    end else begin
-      FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
-    end;
+      if move then begin
+        FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, AMousePos);
+      end else begin
+        FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(ANewZoom);
+      end;
 
-    if VUseAnimation then begin
-      VTime := 0;
-      VLastTime := 0;
-      QueryPerformanceCounter(ts1);
-      ts3 := ts1;
-      while (VTime + VLastTime < VMaxTime) do begin
-        VAlfa := VTime/VMaxTime;
-        if VZoom>ANewZoom then begin
-          Scale := 2 - VAlfa;
-        end else begin
-          Scale := (1 + VAlfa)/2;
+      if VUseAnimation then begin
+        VTime := 0;
+        VLastTime := 0;
+        QueryPerformanceCounter(ts1);
+        ts3 := ts1;
+        while (VTime + VLastTime < VMaxTime) do begin
+          VAlfa := VTime/VMaxTime;
+          if VZoom>ANewZoom then begin
+            Scale := 2 - VAlfa;
+          end else begin
+            Scale := (1 + VAlfa)/2;
+          end;
+          if move then begin
+            FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
+          end else begin
+            FConfig.ViewPortState.ScaleTo(Scale);
+          end;
+          application.ProcessMessages;
+          QueryPerformanceCounter(ts2);
+          QueryPerformanceFrequency(fr);
+          VLastTime := (ts2-ts3)/(fr/1000);
+          VTime := (ts2-ts1)/(fr/1000);
+          ts3 := ts2;
         end;
+        Scale := 1;
         if move then begin
           FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
         end else begin
           FConfig.ViewPortState.ScaleTo(Scale);
         end;
-        application.ProcessMessages;
-        QueryPerformanceCounter(ts2);
-        QueryPerformanceFrequency(fr);
-        VLastTime := (ts2-ts3)/(fr/1000);
-        VTime := (ts2-ts1)/(fr/1000);
-        ts3 := ts2;
-      end;
-      Scale := 1;
-      if move then begin
-        FConfig.ViewPortState.ScaleTo(Scale, AMousePos);
-      end else begin
-        FConfig.ViewPortState.ScaleTo(Scale);
       end;
     end;
   finally
