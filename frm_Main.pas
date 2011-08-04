@@ -2230,13 +2230,9 @@ begin
       Vk:=Vk*(exp(-VTime/VMaxTime)-exp(-1)); //замедляем экспоненциально, -exp(-1) нужно для того, чтоб к окончанию времени VMaxTime у нас смещение было =0
       VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
       VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
-      Map.BeginUpdate;
-      try
-        FConfig.ViewPortState.ChangeMapPixelByDelta(VMapDeltaXY);
-      finally
-        Map.EndUpdate;
-        Map.Changed;
-      end;
+
+      FConfig.ViewPortState.ChangeMapPixelByDelta(VMapDeltaXY);
+
       QueryPerformanceCounter(ts2);
       QueryPerformanceFrequency(fr);
       VTime:=(ts2-ts1)/(fr/1000);
