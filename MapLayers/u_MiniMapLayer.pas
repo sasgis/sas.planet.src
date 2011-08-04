@@ -19,6 +19,7 @@ uses
   i_ActiveMapsConfig,
   i_BackgroundTask,
   i_InternalPerformanceCounter,
+  i_LayerBitmapClearStrategy,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -54,7 +55,6 @@ type
     FBottomMargin: Integer;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-    FBackGroundColor: TColor32;
 
     FMainMap: IMapType;
     FLayersSet: IMapTypeSet;
@@ -63,6 +63,8 @@ type
     FDrawTask: IBackgroundTask;
     FUpdateCounter: Integer;
     FBgDrawCounter: IInternalPerformanceCounter;
+    FClearStrategy: ILayerBitmapClearStrategy;
+    FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
 
     procedure DrawMainViewRect;
 
@@ -108,6 +110,7 @@ type
       AUsePre: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic
     ): Boolean;
+    procedure ClearLayerBitmap;
   protected
     procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
     function GetMapLayerLocationRect: TFloatRect; override;
@@ -129,6 +132,7 @@ type
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       AConfig: IMiniMapLayerConfig;
       AViewConfig: IGlobalViewMainConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
@@ -157,10 +161,26 @@ uses
 
 { TMapMainLayer }
 
+procedure TMiniMapLayer.ClearLayerBitmap;
+begin
+  if Visible then begin
+    FLayer.Bitmap.Lock;
+    try
+      if FClearStrategy <> nil then begin
+        FClearStrategy.Clear(FLayer.Bitmap);
+        FClearStrategy := nil;
+      end;
+    finally
+      FLayer.Bitmap.UnLock;
+    end;
+  end;
+end;
+
 constructor TMiniMapLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   AConfig: IMiniMapLayerConfig;
   AViewConfig: IGlobalViewMainConfig;
   APostProcessingConfig:IBitmapPostProcessingConfig;
@@ -170,6 +190,7 @@ constructor TMiniMapLayer.Create(
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
+  FClearStrategyFactory := AClearStrategyFactory;
   FViewConfig := AViewConfig;
   FCoordConverterFactory := ACoordConverterFactory;
   FPostProcessingConfig := APostProcessingConfig;
@@ -361,12 +382,7 @@ procedure TMiniMapLayer.DoRedraw;
 begin
   FDrawTask.StopExecute;
   inherited;
-  FLayer.Bitmap.Lock;
-  try
-    FLayer.Bitmap.Clear(FBackGroundColor);
-  finally
-    FLayer.Bitmap.Unlock;
-  end;
+  ClearLayerBitmap;
   DrawMainViewRect;
   if Visible then begin
     FDrawTask.StartExecute;
@@ -841,7 +857,6 @@ begin
   try
     FViewConfig.LockRead;
     try
-      FBackGroundColor := Color32(FViewConfig.BackGroundColor);
       FUsePrevZoomAtMap := FViewConfig.UsePrevZoomAtMap;
       FUsePrevZoomAtLayer := FViewConfig.UsePrevZoomAtLayer;
     finally
@@ -976,6 +991,11 @@ begin
   VNewSize := GetLayerSizeForView(AValue);
   FLayer.Bitmap.Lock;
   try
+    if Visible then begin
+      FClearStrategy := FClearStrategyFactory.GetStrategy(LayerCoordConverter, AValue, FLayer.Bitmap, FClearStrategy);
+    end else begin
+      FClearStrategy := nil;
+    end;
     if (FLayer.Bitmap.Width <> VNewSize.X) or (FLayer.Bitmap.Height <> VNewSize.Y) then begin
       SetNeedUpdateLayerSize;
     end;

@@ -982,6 +982,7 @@ begin
         map,
         FConfig.ViewPortState,
         GState.LocalConverterFactory,
+        GState.ClearStrategyFactory,
         FConfig.LayersConfig.MiniMapLayerConfig,
         GState.ViewConfig,
         GState.BitmapPostProcessingConfig,
