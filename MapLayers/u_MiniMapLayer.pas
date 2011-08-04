@@ -858,7 +858,12 @@ begin
       FPlusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
       FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
       FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-      FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+      FLayer.Bitmap.Lock;
+      try
+        FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+      finally
+        FLayer.Bitmap.Unlock;
+      end;
       SetVisible(FConfig.Visible);
       PosChange(ViewCoordConverter);
       SetNeedRedraw;
