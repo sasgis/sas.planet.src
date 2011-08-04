@@ -2746,7 +2746,7 @@ var
   VMouseDownPoint: TPoint;
 begin
   AllowChange:=false;
-  VZoom := ((5*ARow)+ACol);
+  VZoom := ((5*ARow)+ACol)-1;
   VMouseDownPoint := FMouseState.GetLastDownPos(mbRight);
   zooming(VZoom,VMouseDownPoint,true);
 end;
