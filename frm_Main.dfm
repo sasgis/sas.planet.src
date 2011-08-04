@@ -39,6 +39,7 @@ object frmMain: TfrmMain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
+    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -686,14 +687,14 @@ object frmMain: TfrmMain
           AutoCheck = True
           Checked = True
           OnClick = NanimateClick
-          Caption = 'Animation'
+          Caption = 'Animate zooming'
           Hint = ''
         end
         object NAnimateMove: TTBXItem
           AutoCheck = True
           Checked = True
           OnClick = NAnimateMoveClick
-          Caption = 'Inertia when moving'
+          Caption = 'Inertial Movement'
           Hint = ''
         end
         object N32: TTBXItem
@@ -725,7 +726,7 @@ object frmMain: TfrmMain
           AutoCheck = True
           Checked = True
           OnClick = tbitmShowMarkCaptionClick
-          Caption = 'Show Placemark Names'
+          Caption = 'Placemark Names'
           Hint = ''
         end
       end
