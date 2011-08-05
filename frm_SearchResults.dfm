@@ -36,9 +36,7 @@ object frmSearchResults: TfrmSearchResults
     ReadOnly = True
     TabOrder = 0
     ViewStyle = vsReport
-    OnCompare = lvResultsCompare
     OnDblClick = lvResultsDblClick
     OnKeyDown = lvResultsKeyDown
-    ExplicitWidth = 501
   end
 end

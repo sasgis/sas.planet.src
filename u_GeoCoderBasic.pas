@@ -13,6 +13,7 @@ uses
 type
   TGeoCoderBasic = class(TInterfacedObject, IGeoCoder)
   protected
+    FCurrentPos: TDoublePoint;
     FInetSettings: IProxySettings;
     function URLEncode(const S: string): string; virtual;
     function PrepareURL(ASearch: WideString): string; virtual; abstract;
@@ -133,6 +134,7 @@ var
 begin
   VResultCode := 200;
   VMessage := '';
+  FCurrentPos:=ACurrentPos;
   try
     if not (ASearch = '') then begin
       VServerResult := GetDataFromInet(ASearch);

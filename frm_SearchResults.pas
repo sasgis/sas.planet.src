@@ -32,8 +32,6 @@ type
       Shift: TShiftState);
     procedure lvResultsKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure lvResultsCompare(Sender: TObject; Item1, Item2: TListItem;
-      Data: Integer; var Compare: Integer);
   private
     FMapGoto: IMapViewGoto;
     FViewPortState: IViewPortState;
@@ -58,7 +56,6 @@ type
     FMapGoto: IMapViewGoto;
     FViewPortState: IViewPortState;
     FValueConverterConfig: IValueToStringConverterConfig;
-    function GetNearestResult(ASearchResult: IGeoCodeResult): IGeoCodePlacemark;
   protected
     procedure ShowSearchResults(ASearchResult: IGeoCodeResult; AZoom: Byte);
   public
@@ -91,31 +88,6 @@ procedure TfrmSearchResults.FormClose(Sender: TObject;
 begin
   if Action = caHide then begin
     Action := caFree;
-  end;
-end;
-
-procedure TfrmSearchResults.lvResultsCompare(Sender: TObject; Item1,
-  Item2: TListItem; Data: Integer; var Compare: Integer);
-var
-  VPlacemark: IGeoCodePlacemark;
-  VDist1: Double;
-  VDist2: Double;
-  VDatum: IDatum;
-  VCurrLonLat: TDoublePoint;
-begin
-  Compare := 0;
-  VDatum := FCurrDatum;
-  VCurrLonLat := FCurrLonLat;
-  if VDatum <> nil then begin
-    VPlacemark := IGeoCodePlacemark(Item1.Data);
-    VDist1 := VDatum.CalcDist(VCurrLonLat, VPlacemark.GetPoint);
-    VPlacemark := IGeoCodePlacemark(Item2.Data);
-    VDist2 := VDatum.CalcDist(VCurrLonLat, VPlacemark.GetPoint);
-    if VDist1 < VDist2 then begin
-      Compare := -1;
-    end else begin
-      Compare := 1;
-    end;
   end;
 end;
 
@@ -195,7 +167,6 @@ begin
       ClientHeight := VNewClientHeight;
     end;
   end;
-  lvResults.AlphaSort;
   Show;
 end;
 
@@ -218,48 +189,20 @@ begin
   inherited;
 end;
 
-function TSearchResultPresenterWithForm.GetNearestResult(
-  ASearchResult: IGeoCodeResult): IGeoCodePlacemark;
-var
-  VEnum: IEnumUnknown;
-  VPlacemark: IGeoCodePlacemark;
-  i: Cardinal;
-  VLocalCoord: ILocalCoordConverter;
-  VCurrLonLat: TDoublePoint;
-  VDatum: IDatum;
-  VMinDist: Double;
-  VDist: Double;
-begin
-  VLocalCoord := FViewPortState.GetVisualCoordConverter;
-  VCurrLonLat := VLocalCoord.GetCenterLonLat;
-  VDatum := VLocalCoord.GetGeoConverter.Datum;
-
-  VEnum := ASearchResult.GetPlacemarks;
-  if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
-    Result := VPlacemark;
-    VMinDist := VDatum.CalcDist(VCurrLonLat, VPlacemark.GetPoint);
-    while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      VDist := VDatum.CalcDist(VCurrLonLat, VPlacemark.GetPoint);
-      if VMinDist > VDist then begin
-        VMinDist := VDist;
-        Result := VPlacemark;
-      end;
-    end;
-  end;
-end;
-
 procedure TSearchResultPresenterWithForm.ShowSearchResults(
   ASearchResult: IGeoCodeResult; AZoom: Byte);
 var
   VPlacemark: IGeoCodePlacemark;
+  VEnum: IEnumUnknown;
+  i: Cardinal;
 begin
   if ASearchResult.GetResultCode in [200, 203] then begin
     if ASearchResult.GetPlacemarksCount <= 0 then begin
       ShowMessage(SAS_STR_notfound);
     end else begin
       if ASearchResult.GetPlacemarksCount = 1 then begin
-        VPlacemark := GetNearestResult(ASearchResult);
-        if VPlacemark <> nil then begin
+        VEnum := ASearchResult.GetPlacemarks;
+        if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
           FMapGoto.GotoPos(VPlacemark.GetPoint, AZoom);
           if ASearchResult.GetResultCode = 200 then begin
             ShowMessage(SAS_STR_foundplace+' "'+VPlacemark.GetAddress+'"');
@@ -267,8 +210,8 @@ begin
         end;
       end else begin
         TfrmSearchResults.ShowSearchResults(FMapGoto, FValueConverterConfig, FViewPortState, ASearchResult);
-        VPlacemark := GetNearestResult(ASearchResult);
-        if VPlacemark <> nil then begin
+        VEnum := ASearchResult.GetPlacemarks;
+        if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
           FMapGoto.GotoPos(VPlacemark.GetPoint, AZoom);
         end;
       end;

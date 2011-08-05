@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  u_GeoTostr,
   u_GeoCoderBasic;
 
 type
@@ -46,9 +47,16 @@ begin
     i := PosEx('"name":"', AStr, i);
     j := PosEx('",', AStr, i + 8);
     sname:= Utf8ToAnsi(Copy(AStr, i + 8, j - (i + 8)));
-    i := PosEx('"text":"', AStr, i+10);
-    j := PosEx('",', AStr, i + 8);
-    sname:=sname+', '+Utf8ToAnsi(Copy(AStr, i + 8, j - (i + 8)));
+    i := PosEx('"address":"', AStr, j);
+    if i>j then begin
+      j := PosEx('",', AStr, i + 11);
+      sname:=sname+', '+Utf8ToAnsi(Copy(AStr, i + 11, j - (i + 11)));
+    end;
+    i := PosEx('"description":"', AStr, j);
+    if i>j then begin
+      j := PosEx('",', AStr, i + 15);
+      sname:=sname+', '+Utf8ToAnsi(Copy(AStr, i + 15, j - (i + 15)));
+    end;
     i := PosEx('"point":[', AStr, j);
     j := PosEx(',', AStr, i + 9);
     slon := Copy(AStr, i + 9, j - (i + 9));
@@ -77,8 +85,7 @@ var
   VSearch: String;
 begin
   VSearch := ASearch;
-  Result := 'http://maps.yandex.ru/?text=' +
-    URLEncode(AnsiToUtf8(VSearch));
+  Result := 'http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(VSearch))+'&ll='+R2StrPoint(FCurrentPos.x)+','+R2StrPoint(FCurrentPos.y);
 end;
 
 end.
