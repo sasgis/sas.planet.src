@@ -89,7 +89,6 @@ var
   Zoomarr:array [0..23] of boolean;
   typemaparr:array of TMapType;
   comprSat,comprMap:byte;
-  Replace:boolean;
 begin
   inherited;
   for i:=0 to 23 do ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
