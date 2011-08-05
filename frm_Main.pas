@@ -2209,14 +2209,11 @@ var
   Vk: Double;
   VMapDeltaXY:TDoublePoint;
   VMapDeltaXYmul:TDoublePoint;
+  VCurrentTime:double;
 begin
   if (FConfig.MapMovingConfig.AnimateMove)and(AMousePPS>FConfig.MapMovingConfig.AnimateMinStartSpeed) then begin
-    QueryPerformanceCounter(ts1);
     VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime; // максимальное время отображения инерции
-    VTime := ALastTime; // время прошедшее с начала анимации
-    if AMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
-      AMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
-    end;
+    VTime := 0; // время прошедшее с начала анимации
 
     if abs(dxy.x)>abs(dxy.y) then begin
       VMapDeltaXYmul.x:=dxy.x/abs(dxy.x);
@@ -2226,6 +2223,13 @@ begin
       VMapDeltaXYmul.x:=dxy.x/abs(dxy.y);
     end;
 
+    AMousePPS:=AMousePPS/sqrt(sqr(VMapDeltaXYmul.x)+sqr(VMapDeltaXYmul.y)); //корректируем скорость с учетом направления посыла
+
+    if AMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
+      AMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
+    end;
+
+    QueryPerformanceCounter(ts1);
     repeat
       Vk:=AMousePPS/(1000/VMaxTime); //расстояние в пикселах, которое мы пройдем со скоростью AMousePPS за время VMaxTime
       Vk:=Vk*(ALastTime/VMaxTime); //из этого расстояния вычленяем то, которое мы прошли за время ALastTime (время потраченное на последнее ChangeMapPixelByDelta)
@@ -2234,11 +2238,14 @@ begin
       VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
 
       FConfig.ViewPortState.ChangeMapPixelByDelta(VMapDeltaXY);
+      application.ProcessMessages;
 
       QueryPerformanceCounter(ts2);
       QueryPerformanceFrequency(fr);
-      VTime:=(ts2-ts1)/(fr/1000);
-      application.ProcessMessages;
+      VCurrentTime:=VTime;
+      VTime:=(ts2-ts1)/(fr)*1000;
+      VCurrentTime:=VTime-VCurrentTime;
+      ALastTime:=ALastTime+0.3*(VCurrentTime-ALastTime); //время последней итерации сглаженное с предыдущими (чтоб поменьше было рывков во время движения)
     until (VTime>=VMaxTime)or(AZoom<>FConfig.ViewPortState.GetCurrentZoom)or
           (AMousePos.X<>FMouseState.GetLastUpPos(FMapMovingButton).X)or
           (AMousePos.Y<>FMouseState.GetLastUpPos(FMapMovingButton).Y);
@@ -3436,7 +3443,7 @@ begin
     FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
     QueryPerformanceCounter(VCurrTick);
     QueryPerformanceFrequency(VFr);
-    MapMoveAnimate(VMousePPS,VMouseMoveUPDelta,(VCurrTick-FPrevTick)/(VFr/1000),
+    MapMoveAnimate(VMousePPS,VMouseMoveUPDelta,(VCurrTick-FPrevTick)/(VFr)*1000,
                    FConfig.ViewPortState.GetCurrentZoom, FMouseState.GetLastUpPos(button));
   end;
 
