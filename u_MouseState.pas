@@ -17,6 +17,7 @@ type
   private
     FCS: TCriticalSection;
     FMaxTime: Double;
+    FUsedTime: Double;
 
     FCurentPos: TPoint;
     FCurentTime: TLargeInteger;
@@ -72,6 +73,7 @@ begin
   FCS := TCriticalSection.Create;
   FCurentTime := 0;
   FMaxTime := 3;
+  FUsedTime := 0.5;
 end;
 
 destructor TMouseState.Destroy;
@@ -208,11 +210,10 @@ begin
       if VTimeFromLastMove > 0.001 then begin
         VCurrentSpeed.X := (FCurentPos.X - APosition.X) / VTimeFromLastMove;
         VCurrentSpeed.Y := (FCurentPos.Y - APosition.Y) / VTimeFromLastMove;
-//        VAlfa := VTimeFromLastMove / FMaxTime;
-//        if VAlfa > 0.2 then begin
-//          VAlfa := 0.2;
-//        end;
-        VAlfa := 1;
+        VAlfa := VTimeFromLastMove / FUsedTime;
+        if VAlfa > 0.9 then begin
+          VAlfa := 0.9;
+        end;
         VBeta := 1 - VAlfa;
         FCurrentSpeed.X := VAlfa * VCurrentSpeed.X + VBeta * FCurrentSpeed.X;
         FCurrentSpeed.Y := VAlfa * VCurrentSpeed.Y + VBeta * FCurrentSpeed.Y;
