@@ -1291,7 +1291,12 @@ var
   VTBEditItem: TTBEditItem;
 begin
   VGoto := TMapViewGotoOnFMain.Create(Self.topos);
-  FSearchPresenter := TSearchResultPresenterWithForm.Create(VGoto);
+  FSearchPresenter :=
+    TSearchResultPresenterWithForm.Create(
+      VGoto,
+      GState.ValueToStringConverterConfig,
+      FConfig.ViewPortState
+    );
   VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
   VTBXItem := TBXSelectGoogleSrch;
   VTBEditItem := tbiEditGoogleSrch;

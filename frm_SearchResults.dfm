@@ -3,7 +3,7 @@ object frmSearchResults: TfrmSearchResults
   Top = 333
   Caption = 'Search Results'
   ClientHeight = 462
-  ClientWidth = 392
+  ClientWidth = 474
   Color = clBtnFace
   ParentFont = True
   FormStyle = fsStayOnTop
@@ -16,7 +16,7 @@ object frmSearchResults: TfrmSearchResults
   object lvResults: TListView
     Left = 0
     Top = 0
-    Width = 392
+    Width = 474
     Height = 462
     Align = alClient
     Columns = <
@@ -25,19 +25,20 @@ object frmSearchResults: TfrmSearchResults
         Caption = 'Name'
       end
       item
-        Alignment = taCenter
-        Caption = 'Latitude'
+        Caption = 'Distance to'
+        Width = 90
       end
       item
-        Alignment = taCenter
-        Caption = 'Longitude'
+        Caption = 'Coordinates'
+        Width = 130
       end>
     GridLines = True
     ReadOnly = True
     TabOrder = 0
     ViewStyle = vsReport
+    OnCompare = lvResultsCompare
     OnDblClick = lvResultsDblClick
     OnKeyDown = lvResultsKeyDown
-    ExplicitWidth = 218
+    ExplicitWidth = 501
   end
 end
