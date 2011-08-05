@@ -5,7 +5,8 @@ interface
 uses
   Types,
   Classes,
-  Controls;
+  Controls,
+  t_GeoTypes;
 
 type
   IMouseState = interface
@@ -13,8 +14,8 @@ type
     function GetCurentPos: TPoint;
     property CurentPos: TPoint read GetCurentPos;
 
-    function GetPreviousPos: TPoint;
-    property PreviousPos: TPoint read GetPreviousPos;
+    function GetCurentSpeed: TDoublePoint;
+    property CurentSpeed: TDoublePoint read GetCurentSpeed;
 
     function GetCurrentShift: TShiftState;
     property CurrentShift: TShiftState read GetCurrentShift;

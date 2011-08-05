@@ -548,8 +548,6 @@ type
     FSensorViewList: IGUIDInterfaceList;
     FFormRegionProcess: TfrmRegionProcess;
 
-    FPrevTick:int64;
-
     procedure InitSearchers;
     procedure InitPathDetalizeProviders;
     procedure CreateMapUIMapsList;
@@ -564,7 +562,7 @@ type
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
-    procedure MapMoveAnimate(AMousePPS:double;dxy:TPoint;ALastTime:double; AZoom:byte; AMousePos:TPoint);
+    procedure MapMoveAnimate(AMouseMoveSpeed: TDoublePoint; ALastTime:double; AZoom:byte; AMousePos:TPoint);
     procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
     procedure ProcessPosChangeMessage(Sender: TObject);
     procedure CopyBtmToClipboard(btm: TBitmap);
@@ -1298,13 +1296,14 @@ begin
       FConfig.ViewPortState
     );
   VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
-  VTBXItem := TBXSelectGoogleSrch;
-  VTBEditItem := tbiEditGoogleSrch;
 
+  VTBEditItem := tbiEditGoogleSrch;
   VTBEditItem.Tag := Integer(VItem);
   VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
   VTBEditItem.EditCaption := VItem.GetCaption;
   VTBEditItem.Caption := VItem.GetCaption;
+
+  VTBXItem := TBXSelectGoogleSrch;
   VTBXItem.Tag := Integer(VItem);
   VTBXItem.OnClick := Self.TBXSelectSrchClick;
   VTBXItem.Caption := VItem.GetCaption;
@@ -2206,7 +2205,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.MapMoveAnimate(AMousePPS:double;dxy:TPoint;ALastTime:double; AZoom:byte; AMousePos:TPoint);
+procedure TfrmMain.MapMoveAnimate(AMouseMoveSpeed: TDoublePoint; ALastTime:double; AZoom:byte; AMousePos:TPoint);
 var
   ts1,ts2,fr:int64;
   VTime: Double;
@@ -2214,43 +2213,38 @@ var
   Vk: Double;
   VMapDeltaXY:TDoublePoint;
   VMapDeltaXYmul:TDoublePoint;
-  VCurrentTime:double;
+  VLastDrawTime:double;
+  VMousePPS: Double;
 begin
-  if (FConfig.MapMovingConfig.AnimateMove)and(AMousePPS>FConfig.MapMovingConfig.AnimateMinStartSpeed) then begin
-    VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime; // максимальное время отображения инерции
+  VMousePPS := sqrt(sqr(AMouseMoveSpeed.X)+sqr(AMouseMoveSpeed.Y));
+
+  if (FConfig.MapMovingConfig.AnimateMove)and(VMousePPS>FConfig.MapMovingConfig.AnimateMinStartSpeed) then begin
+    VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime / 1000; // максимальное время отображения инерции
     VTime := 0; // время прошедшее с начала анимации
 
-    if abs(dxy.x)>abs(dxy.y) then begin
-      VMapDeltaXYmul.x:=dxy.x/abs(dxy.x);
-      VMapDeltaXYmul.y:=dxy.y/abs(dxy.x);
-    end else begin
-      VMapDeltaXYmul.y:=dxy.y/abs(dxy.y);
-      VMapDeltaXYmul.x:=dxy.x/abs(dxy.y);
+    VMapDeltaXYmul.X := AMouseMoveSpeed.X / VMousePPS;
+    VMapDeltaXYmul.Y := AMouseMoveSpeed.Y / VMousePPS;
+
+    if VMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
+      VMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
     end;
 
-    AMousePPS:=AMousePPS/sqrt(sqr(VMapDeltaXYmul.x)+sqr(VMapDeltaXYmul.y)); //корректируем скорость с учетом направления посыла
-
-    if AMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
-      AMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
-    end;
-
-    QueryPerformanceCounter(ts1);
     repeat
-      Vk:=AMousePPS/(1000/VMaxTime); //расстояние в пикселах, которое мы пройдем со скоростью AMousePPS за время VMaxTime
+      Vk:=VMousePPS * VMaxTime; //расстояние в пикселах, которое мы пройдем со скоростью AMousePPS за время VMaxTime
       Vk:=Vk*(ALastTime/VMaxTime); //из этого расстояния вычленяем то, которое мы прошли за время ALastTime (время потраченное на последнее ChangeMapPixelByDelta)
       Vk:=Vk*(exp(-VTime/VMaxTime)-exp(-1)); //замедляем экспоненциально, -exp(-1) нужно для того, чтоб к окончанию времени VMaxTime у нас смещение было =0
       VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
       VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
 
+      QueryPerformanceCounter(ts1);
       FConfig.ViewPortState.ChangeMapPixelByDelta(VMapDeltaXY);
       application.ProcessMessages;
-
       QueryPerformanceCounter(ts2);
       QueryPerformanceFrequency(fr);
-      VCurrentTime:=VTime;
-      VTime:=(ts2-ts1)/(fr)*1000;
-      VCurrentTime:=VTime-VCurrentTime;
-      ALastTime:=ALastTime+0.3*(VCurrentTime-ALastTime); //время последней итерации сглаженное с предыдущими (чтоб поменьше было рывков во время движения)
+
+      VLastDrawTime := (ts2-ts1)/fr;
+      VTime := VTime + VLastDrawTime;
+      ALastTime:=ALastTime+0.3*(VLastDrawTime-ALastTime); //время последней итерации сглаженное с предыдущими (чтоб поменьше было рывков во время движения)
     until (VTime>=VMaxTime)or(AZoom<>FConfig.ViewPortState.GetCurrentZoom)or
           (AMousePos.X<>FMouseState.GetLastUpPos(FMapMovingButton).X)or
           (AMousePos.Y<>FMouseState.GetLastUpPos(FMapMovingButton).Y);
@@ -3368,12 +3362,11 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseDownPos: TPoint;
   VMouseMoveDelta: TPoint;
-  VMouseMoveUPDelta: TPoint;
+  VMouseMoveSpeed: TDoublePoint;
   VMark: IMarkFull;
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
-  VCurrTick, VFr: int64;
-  VMousePPS:Double;
+  VPrevTick, VCurrTick, VFr: int64;
 begin
   if (Layer <> nil) then begin
     exit;
@@ -3438,17 +3431,12 @@ begin
   VMouseMoveDelta := Point(VMouseDownPos.x-X, VMouseDownPos.y-y);
 
   if (VMapMoving)and((VMouseMoveDelta.X<>0)or(VMouseMoveDelta.Y<>0)) then begin
-    QueryPerformanceCounter(VCurrTick);
-    QueryPerformanceFrequency(VFr);
-    VMouseMoveUPDelta := Point(FMouseState.PreviousPos.x-FMouseState.CurentPos.X,
-                               FMouseState.PreviousPos.y-FMouseState.CurentPos.y);
-    VMousePPS:=sqrt(sqr(VMouseMoveUPDelta.X)+sqr(VMouseMoveUPDelta.Y))/((VCurrTick-FPrevTick)/(VFr));
-
-    QueryPerformanceCounter(FPrevTick);
+    VMouseMoveSpeed := FMouseState.CurentSpeed;
+    QueryPerformanceCounter(VPrevTick);
     FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
     QueryPerformanceCounter(VCurrTick);
     QueryPerformanceFrequency(VFr);
-    MapMoveAnimate(VMousePPS,VMouseMoveUPDelta,(VCurrTick-FPrevTick)/(VFr)*1000,
+    MapMoveAnimate(VMouseMoveSpeed,(VCurrTick-VPrevTick)/VFr,
                    FConfig.ViewPortState.GetCurrentZoom, FMouseState.GetLastUpPos(button));
   end;
 
@@ -3594,7 +3582,6 @@ var
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
 begin
-  QueryPerformanceCounter(FPrevTick);
   if ProgramClose then begin
     exit;
   end;

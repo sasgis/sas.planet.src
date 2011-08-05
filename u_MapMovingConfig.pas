@@ -44,7 +44,7 @@ begin
   FAnimateMove := True;
   FAnimateMoveTime := 600;
   FAnimateMaxStartSpeed := 4000;
-  FAnimateMinStartSpeed := 300;
+  FAnimateMinStartSpeed := 100;
 end;
 
 procedure TMapMovingConfig.DoReadConfig(AConfigData: IConfigDataProvider);
