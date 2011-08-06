@@ -184,7 +184,8 @@ procedure TMouseState.OnMouseUp(AButton: TMouseButton; AShift: TShiftState;
 begin
   FCS.Acquire;
   try
-    SetCurrentPos(APosition);
+    FCurentPos := APosition;
+    //SetCurrentPos(APosition);
     FCurrentShift := AShift;
     FLastUpPos[AButton] := APosition;
     FLastUpShift[AButton] := AShift;
@@ -210,11 +211,12 @@ begin
       if VTimeFromLastMove > 0.001 then begin
         VCurrentSpeed.X := (FCurentPos.X - APosition.X) / VTimeFromLastMove;
         VCurrentSpeed.Y := (FCurentPos.Y - APosition.Y) / VTimeFromLastMove;
-        VAlfa := VTimeFromLastMove / FUsedTime;
+        {VAlfa := VTimeFromLastMove / FUsedTime;
         if VAlfa > 0.9 then begin
           VAlfa := 0.9;
         end;
-        VBeta := 1 - VAlfa;
+        VBeta := 1 - VAlfa;}
+        VAlfa:=1;
         FCurrentSpeed.X := VAlfa * VCurrentSpeed.X + VBeta * FCurrentSpeed.X;
         FCurrentSpeed.Y := VAlfa * VCurrentSpeed.Y + VBeta * FCurrentSpeed.Y;
       end;
