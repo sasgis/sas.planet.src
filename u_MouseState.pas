@@ -217,6 +217,7 @@ begin
         end;
         VBeta := 1 - VAlfa;}
         VAlfa:=1;
+        VBeta := 1 - VAlfa;
         FCurrentSpeed.X := VAlfa * VCurrentSpeed.X + VBeta * FCurrentSpeed.X;
         FCurrentSpeed.Y := VAlfa * VCurrentSpeed.Y + VBeta * FCurrentSpeed.Y;
       end;
