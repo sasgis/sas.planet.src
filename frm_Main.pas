@@ -757,6 +757,7 @@ begin
       GState.MarksDB.MarksFactoryConfig.PointTemplateConfig.MarkPictureList,
       FFormRegionProcess
     );
+  TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
