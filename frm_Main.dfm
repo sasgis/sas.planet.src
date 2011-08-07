@@ -687,7 +687,7 @@ object frmMain: TfrmMain
           AutoCheck = True
           Checked = True
           OnClick = NanimateClick
-          Caption = 'Animate zooming'
+          Caption = 'Zoom Animation'
           Hint = ''
         end
         object NAnimateMove: TTBXItem
