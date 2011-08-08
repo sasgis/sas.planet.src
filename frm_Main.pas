@@ -3372,11 +3372,13 @@ begin
   if (Layer <> nil) then begin
     exit;
   end;
+
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
-  VMouseDownPos := FMouseState.GetLastDownPos(Button);
-  if (ssDouble in Shift)or
-     ((Button=mbRight)and(ssLeft in Shift))or
-     ((Button=mbLeft)and(ssRight in Shift)) then begin
+
+  if (FMapZoomAnimtion) then exit;
+
+  if button=mbMiddle then begin
+    TBFullSizeClick(nil);
     exit;
   end;
 
@@ -3386,34 +3388,40 @@ begin
   end else begin
     VMapMoving := False;
   end;
-  VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VConverter := VLocalConverter.GetGeoConverter;
-  VZoomCurr := VLocalConverter.GetZoom;
-  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
-  VValidPoint := VConverter.CheckPixelPosFloat(VMouseMapPoint, VZoomCurr, False);
-  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
 
-  if VValidPoint then begin
-    if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
-      VTile := VMapType.GeoConvert.LonLat2TilePos(VLonLat, VZoomCurr);
-      if HiWord(GetKeyState(VK_DELETE))<>0 then begin
-        VMapType.DeleteTile(VTile, VZoomCurr);
-        OnMapTileUpdate(VMapType, VZoomCurr, VTile);
+  if not VMapMoving and (Button = mbLeft) then begin
+    VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VConverter := VLocalConverter.GetGeoConverter;
+    VZoomCurr := VLocalConverter.GetZoom;
+    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
+    VValidPoint := VConverter.CheckPixelPosFloat(VMouseMapPoint, VZoomCurr, False);
+    VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+
+    if VValidPoint then begin
+      if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
+        VTile := VMapType.GeoConvert.LonLat2TilePos(VLonLat, VZoomCurr);
+        if HiWord(GetKeyState(VK_DELETE))<>0 then begin
+          VMapType.DeleteTile(VTile, VZoomCurr);
+          OnMapTileUpdate(VMapType, VZoomCurr, VTile);
+          Exit;
+        end;
+        if HiWord(GetKeyState(VK_INSERT))<>0 then begin
+          TTileDownloaderUIOneTile.Create(
+            VTile,
+            VZoomCurr,
+            VMapType,
+            GState.DownloadInfo,
+            Self.OnMapTileUpdate,
+            FTileErrorLogger
+          );
+          Exit;
+        end;
       end;
-      if HiWord(GetKeyState(VK_INSERT))<>0 then begin
-        TTileDownloaderUIOneTile.Create(
-          VTile,
-          VZoomCurr,
-          VMapType,
-          GState.DownloadInfo,
-          Self.OnMapTileUpdate,
-          FTileErrorLogger
-        );
+      if HiWord(GetKeyState(VK_F6))<>0 then begin
+        frmDGAvailablePic.setup(VLocalConverter, Point(X, y));
+        Exit;
       end;
-    end;
-    if HiWord(GetKeyState(VK_F6))<>0 then begin
-      frmDGAvailablePic.setup(VLocalConverter, Point(X, y));
     end;
   end;
 
@@ -3421,14 +3429,11 @@ begin
 
   if (((FCurrentOper<>ao_movemap)and(Button=mbLeft))or
      ((FCurrentOper=ao_movemap)and(Button=mbRight))) then exit;
-  if (FMapZoomAnimtion) then exit;
 
   map.Enabled:=false;
   map.Enabled:=true;
-  if button=mbMiddle then begin
-    TBFullSizeClick(nil);
-    exit;
-  end;
+
+  VMouseDownPos := FMouseState.GetLastDownPos(Button);
   VMouseMoveDelta := Point(VMouseDownPos.x-X, VMouseDownPos.y-y);
 
   if (VMapMoving)and((VMouseMoveDelta.X<>0)or(VMouseMoveDelta.Y<>0)) then begin
