@@ -38,7 +38,7 @@ type
     FLastUpShift: array [TMouseButton] of TShiftState;
 
     procedure SetCurrentPos(
-      APosition: TPoint
+      const APosition: TPoint
     );
   protected
     function GetCurentPos: TPoint;
@@ -52,17 +52,17 @@ type
   protected
     procedure OnMouseMove(
       AShift: TShiftState;
-      APosition: TPoint
+      const APosition: TPoint
     );
     procedure OnMouseDown(
       AButton: TMouseButton;
       AShift: TShiftState;
-      APosition: TPoint
+      const APosition: TPoint
     );
     procedure OnMouseUp(
       AButton: TMouseButton;
       AShift: TShiftState;
-      APosition: TPoint
+      const APosition: TPoint
     );
   public
     constructor Create();
@@ -162,8 +162,11 @@ begin
   end;
 end;
 
-procedure TMouseState.OnMouseDown(AButton: TMouseButton; AShift: TShiftState;
-  APosition: TPoint);
+procedure TMouseState.OnMouseDown(
+  AButton: TMouseButton;
+  AShift: TShiftState;
+  const APosition: TPoint
+);
 begin
   FCS.Acquire;
   try
@@ -178,7 +181,10 @@ begin
   end;
 end;
 
-procedure TMouseState.OnMouseMove(AShift: TShiftState; APosition: TPoint);
+procedure TMouseState.OnMouseMove(
+  AShift: TShiftState;
+  const APosition: TPoint
+);
 begin
   FCS.Acquire;
   try
@@ -189,8 +195,11 @@ begin
   end;
 end;
 
-procedure TMouseState.OnMouseUp(AButton: TMouseButton; AShift: TShiftState;
-  APosition: TPoint);
+procedure TMouseState.OnMouseUp(
+  AButton: TMouseButton;
+  AShift: TShiftState;
+  const APosition: TPoint
+);
 begin
   FCS.Acquire;
   try
@@ -203,7 +212,9 @@ begin
   end;
 end;
 
-procedure TMouseState.SetCurrentPos(APosition: TPoint);
+procedure TMouseState.SetCurrentPos(
+  const APosition: TPoint
+);
 var
   VCurrTime: TLargeInteger;
   VFrequency: TLargeInteger;

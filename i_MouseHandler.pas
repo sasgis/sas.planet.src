@@ -12,17 +12,17 @@ type
     ['{81780134-ECB7-4D1A-A0B7-FE00D52C7D82}']
     procedure OnMouseMove(
       AShift: TShiftState;
-      APos: TPoint
+      const APosition: TPoint
     );
     procedure OnMouseDown(
       AButton: TMouseButton;
       AShift: TShiftState;
-      APos: TPoint
+      const APosition: TPoint
     );
     procedure OnMouseUp(
       AButton: TMouseButton;
       AShift: TShiftState;
-      APos: TPoint
+      const APosition: TPoint
     );
   end;
 
