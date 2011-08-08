@@ -12,12 +12,20 @@ uses
   i_MouseState,
   i_MouseHandler;
 
+const
+  CPrevSpeedCount = 8;
+
 type
   TMouseState = class(TInterfacedObject, IMouseState, IMouseHandler)
   private
     FCS: TCriticalSection;
+    FMinTime: Double;
     FMaxTime: Double;
     FUsedTime: Double;
+
+    FPrevSpeedUsed: Integer;
+    FPrevPoints: array[0..CPrevSpeedCount-1] of TPoint;
+    FPrevTime: array[0..CPrevSpeedCount-1] of Double;
 
     FCurentPos: TPoint;
     FCurentTime: TLargeInteger;
@@ -72,8 +80,10 @@ constructor TMouseState.Create;
 begin
   FCS := TCriticalSection.Create;
   FCurentTime := 0;
+  FMinTime := 0.001;
   FMaxTime := 3;
-  FUsedTime := 0.5;
+  FUsedTime := 0.1;
+  FPrevSpeedUsed := 0;
 end;
 
 destructor TMouseState.Destroy;
@@ -184,8 +194,7 @@ procedure TMouseState.OnMouseUp(AButton: TMouseButton; AShift: TShiftState;
 begin
   FCS.Acquire;
   try
-    FCurentPos := APosition;
-    //SetCurrentPos(APosition);
+    SetCurrentPos(APosition);
     FCurrentShift := AShift;
     FLastUpPos[AButton] := APosition;
     FLastUpShift[AButton] := AShift;
@@ -199,31 +208,73 @@ var
   VCurrTime: TLargeInteger;
   VFrequency: TLargeInteger;
   VTimeFromLastMove: Double;
+  VCurrentDelta: TPoint;
   VCurrentSpeed: TDoublePoint;
-  VAlfa: Double;
-  VBeta: Double;
+  VNotUsedTime: Double;
+  VUsedTime: Double;
+  VAvgDelta: TDoublePoint;
+  VAvgSpeed: TDoublePoint;
+  VFirstPoint, VSecondPoint: TPoint;
+  i: Integer;
 begin
   QueryPerformanceCounter(VCurrTime);
   if FCurentTime <> 0 then begin
     QueryPerformanceFrequency(VFrequency);
     VTimeFromLastMove := (VCurrTime - FCurentTime) / VFrequency;
     if VTimeFromLastMove < FMaxTime then begin
-      if VTimeFromLastMove > 0.001 then begin
-        VCurrentSpeed.X := (FCurentPos.X - APosition.X) / VTimeFromLastMove;
-        VCurrentSpeed.Y := (FCurentPos.Y - APosition.Y) / VTimeFromLastMove;
-        {VAlfa := VTimeFromLastMove / FUsedTime;
-        if VAlfa > 0.9 then begin
-          VAlfa := 0.9;
+      if VTimeFromLastMove > FMinTime then begin
+        VCurrentDelta.X := FCurentPos.X - APosition.X;
+        VCurrentDelta.Y := FCurentPos.Y - APosition.Y;
+
+        VCurrentSpeed.X := VCurrentDelta.X / VTimeFromLastMove;
+        VCurrentSpeed.Y := VCurrentDelta.Y / VTimeFromLastMove;
+
+        VNotUsedTime := FUsedTime - VTimeFromLastMove;
+        if (VNotUsedTime > 0) and (FPrevSpeedUsed > 0) then begin
+          VAvgDelta.X := VCurrentDelta.X;
+          VAvgDelta.Y := VCurrentDelta.Y;
+          i := 0;
+          while ((i < FPrevSpeedUsed) and (FPrevTime[i] < VNotUsedTime)) do begin
+            VNotUsedTime := VNotUsedTime - FPrevTime[i];
+            Inc(i);
+          end;
+          if (i < FPrevSpeedUsed) then begin
+            if (VNotUsedTime > 0) then begin
+              VFirstPoint := FPrevPoints[i];
+              if i = 0 then begin
+                VSecondPoint := FCurentPos;
+              end else begin
+                VSecondPoint := FPrevPoints[i - 1];
+              end;
+              VAvgDelta.X := VSecondPoint.X - (VSecondPoint.X - VFirstPoint.X) * VNotUsedTime / FPrevTime[i] - APosition.X;
+              VAvgDelta.Y := VSecondPoint.Y - (VSecondPoint.Y - VFirstPoint.Y) * VNotUsedTime / FPrevTime[i] - APosition.Y;
+              VNotUsedTime := 0;
+            end else begin
+              VAvgDelta.X := FPrevPoints[i].X - APosition.X;
+              VAvgDelta.Y := FPrevPoints[i].Y - APosition.Y;
+            end;
+          end;
+          VUsedTime := FUsedTime - VNotUsedTime;
+          VAvgSpeed.X := VAvgDelta.X / VUsedTime;
+          VAvgSpeed.Y := VAvgDelta.Y / VUsedTime;
+        end else begin
+          VAvgSpeed := VCurrentSpeed;
         end;
-        VBeta := 1 - VAlfa;}
-        VAlfa:=1;
-        VBeta := 1 - VAlfa;
-        FCurrentSpeed.X := VAlfa * VCurrentSpeed.X + VBeta * FCurrentSpeed.X;
-        FCurrentSpeed.Y := VAlfa * VCurrentSpeed.Y + VBeta * FCurrentSpeed.Y;
+        FCurrentSpeed := VAvgSpeed;
+        if FPrevSpeedUsed < CPrevSpeedCount then begin
+          Inc(FPrevSpeedUsed);
+        end;
+        for i := FPrevSpeedUsed - 1 downto 1 do begin
+          FPrevPoints[i] := FPrevPoints[i - 1];
+          FPrevTime[i] := FPrevTime[i - 1];
+        end;
+        FPrevPoints[0] := FCurentPos;
+        FPrevTime[0] := VTimeFromLastMove;
       end;
     end else begin
       FCurrentSpeed.X := 0;
       FCurrentSpeed.Y := 0;
+      FPrevSpeedUsed := 0;
     end;
   end else begin
     FCurrentSpeed.X := 0;

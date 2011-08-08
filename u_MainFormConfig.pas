@@ -112,7 +112,7 @@ begin
   FMapZoomingConfig := TMapZoomingConfig.Create;
   Add(FMapZoomingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Zooming'));
   FMapMovingConfig := TMapMovingConfig.Create;
-  Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Moving'));
+  Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MouseMoving'));
 end;
 
 function TMainFormConfig.GetDownloadUIConfig: IDownloadUIConfig;
