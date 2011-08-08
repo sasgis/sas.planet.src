@@ -131,7 +131,7 @@ begin
       FBgColor := FConfig.BgColor;
       FTextColor := FConfig.TextColor;
       VVisible := FConfig.Visible;
-      FAALevel := 2;
+      FAALevel := 0;
     finally
       FConfig.UnlockRead;
     end;
