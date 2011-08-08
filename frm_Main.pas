@@ -3369,10 +3369,6 @@ var
   VWikiItem: IVectorDataItemSimple;
   VPrevTick, VCurrTick, VFr: int64;
 begin
-  if (Layer <> nil) then begin
-    exit;
-  end;
-
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
   if (FMapZoomAnimtion) then exit;
@@ -3387,6 +3383,11 @@ begin
     VMapMoving := True;
   end else begin
     VMapMoving := False;
+  end;
+  if not VMapMoving then begin
+    if (Layer <> nil) then begin
+      exit;
+    end;
   end;
 
   if not VMapMoving and (Button = mbLeft) then begin
@@ -3594,8 +3595,10 @@ begin
   VLastMouseMove := FMouseState.CurentPos;
   FMouseHandler.OnMouseMove(Shift, Point(AX, AY));
   VMousePos := FMouseState.CurentPos;
-  if (Layer <> nil) then begin
-    exit;
+  if not FMapMoving then begin
+    if (Layer <> nil) then begin
+      exit;
+    end;
   end;
   if (FMapZoomAnimtion)or(ssDouble in Shift) then begin
     exit;
