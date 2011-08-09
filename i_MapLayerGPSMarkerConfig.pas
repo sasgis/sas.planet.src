@@ -4,7 +4,8 @@ interface
 
 uses
   GR32,
-  i_ConfigDataElement;
+  i_ConfigDataElement,
+  i_BitmapMarkerProviderSimpleConfig;
 
 type
   IMapLayerGPSMarkerConfig = interface(IConfigDataElement)
@@ -13,24 +14,11 @@ type
     procedure SetMinMoveSpeed(AValue: Double);
     property MinMoveSpeed: Double read GetMinMoveSpeed write SetMinMoveSpeed;
 
-    function GetMarkerMovedSize: Integer;
-    procedure SetMarkerMovedSize(AValue: Integer);
-    property MarkerMovedSize: Integer read GetMarkerMovedSize write SetMarkerMovedSize;
+    function GetMovedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    property MovedMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetMovedMarkerConfig;
 
-    function GetMarkerMovedColor: TColor32;
-    procedure SetMarkerMovedColor(AValue: TColor32);
-    property MarkerMovedColor: TColor32 read GetMarkerMovedColor write SetMarkerMovedColor;
-
-    function GetMarkerStopedSize: Integer;
-    procedure SetMarkerStopedSize(AValue: Integer);
-    property MarkerStopedSize: Integer read GetMarkerStopedSize write SetMarkerStopedSize;
-
-    function GetMarkerStopedColor: TColor32;
-    procedure SetMarkerStopedColor(AValue: TColor32);
-    property MarkerStopedColor: TColor32 read GetMarkerStopedColor write SetMarkerStopedColor;
-
-    function GetMarkerMoved: TCustomBitmap32;
-    function GetMarkerStoped: TCustomBitmap32;
+    function GetStopedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    property StopedMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetStopedMarkerConfig;
   end;
 
 implementation

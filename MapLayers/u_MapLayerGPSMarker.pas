@@ -13,6 +13,7 @@ uses
   i_LocalCoordConverter,
   i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
+  i_BitmapMarker,
   i_ViewPortState,
   u_MapLayerBasic;
 
@@ -22,8 +23,12 @@ type
   private
     FConfig: IMapLayerGPSMarkerConfig;
     FGPSRecorder: IGPSRecorder;
+    FMovedMarkerProvider: IBitmapMarkerProvider;
+    FStopedMarkerProvider: IBitmapMarkerProvider;
 
     FGpsPosChangeCounter: Integer;
+    FMovedMarker: IBitmapMarker;
+    FStopedMarker: IBitmapMarker;
     FTransform: TAffineTransformation;
     FMarker: TCustomBitmap32;
 
@@ -44,6 +49,8 @@ type
       AViewPortState: IViewPortState;
       ATimerNoifier: IJclNotifier;
       AConfig: IMapLayerGPSMarkerConfig;
+      AMovedMarkerProvider: IBitmapMarkerProvider;
+      AStopedMarkerProvider: IBitmapMarkerProvider;
       AGPSRecorder: IGPSRecorder
     );
     destructor Destroy; override;
@@ -65,16 +72,21 @@ constructor TMapLayerGPSMarker.Create(
   AViewPortState: IViewPortState;
   ATimerNoifier: IJclNotifier;
   AConfig: IMapLayerGPSMarkerConfig;
+  AMovedMarkerProvider: IBitmapMarkerProvider;
+  AStopedMarkerProvider: IBitmapMarkerProvider;
   AGPSRecorder: IGPSRecorder
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
+  FMovedMarkerProvider := AMovedMarkerProvider;
+  FStopedMarkerProvider := AStopedMarkerProvider;
   FMarker := TCustomBitmap32.Create;
   FMarker.DrawMode := dmBlend;
   FMarker.CombineMode := cmMerge;
   FTransform := TAffineTransformation.Create;
+
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnTimer),
     ATimerNoifier
@@ -82,6 +94,14 @@ begin
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FMovedMarkerProvider.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FStopedMarkerProvider.GetChangeNotifier
   );
   LinksList.Add(
     TNotifyEventListener.Create(Self.GPSReceiverReceive),
@@ -105,6 +125,8 @@ end;
 
 procedure TMapLayerGPSMarker.OnConfigChange(Sender: TObject);
 begin
+  FMovedMarker := FMovedMarkerProvider.GetMarker;
+  FStopedMarker := FStopedMarkerProvider.GetMarker;
   GPSReceiverReceive(nil);
 end;
 
@@ -153,51 +175,48 @@ var
   VSizeSource: TPoint;
   VSizeSourceFloat: TFloatPoint;
   VSizeTarget: TPoint;
-  VMarker: TCustomBitmap32;
   VDiag: Integer;
   VFixedOnBitmap: TFloatPoint;
+  VMarker: IBitmapMarker;
 begin
-  FConfig.LockRead;
-  try
-    if ASpeed > FConfig.MinMoveSpeed then begin
-      VMarker := FConfig.GetMarkerMoved;
-      VSizeSource := Point(VMarker.Width, VMarker.Height);
-      VSizeSourceFloat := FloatPoint(VSizeSource.X, VSizeSource.Y);
-      VDiag := Trunc(Hypot(VSizeSourceFloat.X, VSizeSourceFloat.Y));
-      VSizeTarget.X := VDiag;
-      VSizeTarget.Y := VDiag;
-      FMarker.Lock;
-      try
-        FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
-        FTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-        FTransform.Clear;
-        FTransform.Translate(-VSizeSource.X / 2, -VSizeSource.Y / 2);
-        FTransform.Rotate(0, 0, -AAngle);
-        FTransform.Translate(VSizeTarget.X / 2, VSizeTarget.Y / 2);
-        FMarker.Clear(0);
-        Transform(FMarker, VMarker, FTransform);
-        SinCos(-AAngle*Pi/180, VSizeSource.Y / 2, VFixedOnBitmap.X, VFixedOnBitmap.Y);
-        FFixedOnBitmap.X := VSizeTarget.X / 2 + VFixedOnBitmap.X;
-        FFixedOnBitmap.Y := VSizeTarget.Y / 2 + VFixedOnBitmap.Y;
-      finally
-        FMarker.Unlock;
-      end;
-    end else begin
-      VMarker := FConfig.GetMarkerStoped;
-      VSizeSource := Point(VMarker.Width, VMarker.Height);
-      VSizeTarget := VSizeSource;
-      FMarker.Lock;
-      try
-        FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
-        FFixedOnBitmap.X := VSizeTarget.X / 2;
-        FFixedOnBitmap.Y := VSizeTarget.Y / 2;
-        VMarker.DrawTo(FMarker);
-      finally
-        FMarker.Unlock;
-      end;
+  if ASpeed > FConfig.MinMoveSpeed then begin
+    VMarker := FMovedMarker;
+  end else begin
+    VMarker := FStopedMarker;
+  end;
+  if VMarker.UseDirection then begin
+    VSizeSource := VMarker.BitmapSize;
+    VSizeSourceFloat := FloatPoint(VSizeSource.X, VSizeSource.Y);
+    VDiag := Trunc(Hypot(VSizeSourceFloat.X, VSizeSourceFloat.Y));
+    VSizeTarget.X := VDiag;
+    VSizeTarget.Y := VDiag;
+    FMarker.Lock;
+    try
+      FTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
+      FTransform.Clear;
+      FTransform.Translate(-VSizeSource.X / 2, -VSizeSource.Y / 2);
+      FTransform.Rotate(0, 0, VMarker.DefaultDirection - AAngle);
+      FTransform.Translate(VSizeTarget.X / 2, VSizeTarget.Y / 2);
+
+      FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
+      FMarker.Clear(0);
+      Transform(FMarker, VMarker.Bitmap, FTransform);
+      VFixedOnBitmap := FTransform.Transform(FloatPoint(VMarker.AnchorPoint.X, VMarker.AnchorPoint.Y));
+      FFixedOnBitmap := DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y);
+    finally
+      FMarker.Unlock;
     end;
-  finally
-    FConfig.UnlockRead;
+
+  end else begin
+    VSizeTarget := VMarker.BitmapSize;
+    FMarker.Lock;
+    try
+      FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
+      FFixedOnBitmap := VMarker.AnchorPoint;
+      VMarker.Bitmap.DrawTo(FMarker);
+    finally
+      FMarker.Unlock;
+    end;
   end;
 end;
 

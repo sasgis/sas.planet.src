@@ -352,7 +352,6 @@ begin
 
   GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
 
- GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
  GState.BitmapPostProcessingConfig.LockWrite;
  try
    GState.BitmapPostProcessingConfig.InvertColor:=CBinvertcolor.Checked;
@@ -384,7 +383,13 @@ begin
 
   GState.ImageResamplerConfig.ActiveIndex := ComboBox2.ItemIndex;
 
-  GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedSize := SESizeStr.Value;
+  GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockWrite;
+  try
+    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
+    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize := SESizeStr.Value;
+  finally
+    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockWrite;
+  end;
   GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockWrite;
   try
     GState.MainFormConfig.LayersConfig.GPSTrackConfig.LineWidth := SESizeTrack.Value;
@@ -621,7 +626,6 @@ begin
     GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
   end;
  CBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
-  ColorBoxGPSstr.Selected := WinColor(GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedColor);
   GState.BitmapPostProcessingConfig.LockRead;
   try
     CBinvertcolor.Checked := GState.BitmapPostProcessingConfig.InvertColor;
@@ -672,7 +676,15 @@ begin
   finally
     GState.GPSConfig.UnlockRead;
   end;
-  SESizeStr.Value:=GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedSize;
+
+  GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;
+  try
+    ColorBoxGPSstr.Selected := WinColor(GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor);
+    SESizeStr.Value:=GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize;
+  finally
+    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockRead;
+  end;
+
   GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockRead;
   try
     SESizeTrack.Value := Trunc(GState.MainFormConfig.LayersConfig.GPSTrackConfig.LineWidth);

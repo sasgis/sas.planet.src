@@ -647,6 +647,8 @@ uses
   u_LanguageTBXItem,
   u_MouseState,
   i_ImportConfig,
+  u_BitmapMarkerProviderSimpleSquare,
+  u_BitmapMarkerProviderSimpleArrow,
   u_ThreadDownloadTiles,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
@@ -881,6 +883,12 @@ begin
         FConfig.ViewPortState,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.GPSMarker,
+        TBitmapMarkerProviderSimpleArrow.Create(
+          FConfig.LayersConfig.GPSMarker.MovedMarkerConfig
+        ),
+        TBitmapMarkerProviderSimpleSquare.Create(
+          FConfig.LayersConfig.GPSMarker.StopedMarkerConfig
+        ),
         GState.GPSRecorder
       );
     FLayersList.Add(FLayerGPSMarker);
