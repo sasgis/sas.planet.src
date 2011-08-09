@@ -15,10 +15,11 @@ type
     FGammaN: Integer;
     FContrastN: Integer;
     FStatic: IBitmapPostProcessingConfigStatic;
+    function CreateStatic: IBitmapPostProcessingConfigStatic;
   protected
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
-    procedure SetChanged; override;
   protected
     function GetInvertColor: boolean;
     procedure SetInvertColor(const AValue: boolean);
@@ -45,6 +46,27 @@ begin
   FContrastN := 0;
   FGammaN := 50;
   FStatic := TBitmapPostProcessingConfigStatic.Create(FInvertColor, FGammaN, FContrastN);
+end;
+
+function TBitmapPostProcessingConfig.CreateStatic: IBitmapPostProcessingConfigStatic;
+begin
+  Result :=
+    TBitmapPostProcessingConfigStatic.Create(
+      FInvertColor,
+      FGammaN,
+      FContrastN
+    );
+end;
+
+procedure TBitmapPostProcessingConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TBitmapPostProcessingConfig.DoReadConfig(
@@ -106,12 +128,6 @@ begin
   finally
     UnlockRead;
   end;
-end;
-
-procedure TBitmapPostProcessingConfig.SetChanged;
-begin
-  inherited;
-  FStatic := TBitmapPostProcessingConfigStatic.Create(FInvertColor, FGammaN, FContrastN);
 end;
 
 procedure TBitmapPostProcessingConfig.SetContrastN(const AValue: Integer);

@@ -179,7 +179,7 @@ begin
   inherited;
   VCurrentTick := GetTickCount;
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + FMinUpdate) then begin
-    VValueConverter := FValueToStringConverterConfig.GetStaticConverter;
+    VValueConverter := FValueToStringConverterConfig.GetStatic;
     VVisualCoordConverter := ViewCoordConverter;
     VMousePos := FMouseState.CurentPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;

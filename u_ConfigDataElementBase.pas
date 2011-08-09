@@ -20,6 +20,7 @@ type
   protected
     procedure SetChanged; virtual;
     function CheckIsChangedAndReset: Boolean;
+    procedure DoBeforeChangeNotify; virtual;
     procedure DoChangeNotify; virtual;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); virtual; abstract;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); virtual; abstract;
@@ -71,6 +72,10 @@ begin
   Result := InterlockedExchange(FNeedNotify, 0) <> 0;
 end;
 
+procedure TConfigDataElementBase.DoBeforeChangeNotify;
+begin
+end;
+
 procedure TConfigDataElementBase.DoChangeNotify;
 begin
   FChangeNotifier.Notify(nil);
@@ -114,6 +119,7 @@ begin
   VCouner := InterlockedDecrement(FStopNotifyCounter);
   if VCouner = 0 then begin
     if CheckIsChangedAndReset then begin
+      DoBeforeChangeNotify;
       DoChangeNotify;
     end;
   end;

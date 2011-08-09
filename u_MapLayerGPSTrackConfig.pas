@@ -41,9 +41,10 @@ type
   private
     FStatic: ITrackColorerStatic;
     FList: IInterfaceList;
-    function BuildStatic: ITrackColorerStatic;
+    function CreateStatic: ITrackColorerStatic;
     procedure CreateDefault;
   protected
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -137,6 +138,22 @@ begin
   FList.Add(VItem);
   VItem := TSpeedRangeItem.Create(140, SetAlpha(clLime32, 192), SetAlpha(clTeal32, 192));
   FList.Add(VItem);
+end;
+
+function TTrackColorerConfig.CreateStatic: ITrackColorerStatic;
+begin
+  Result := TTrackColorerStatic.Create(FList);
+end;
+
+procedure TTrackColorerConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TTrackColorerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -234,16 +251,10 @@ begin
     end else begin
       Result := FList.Add(VItemNew);
     end;
-    FStatic := BuildStatic;
     SetChanged;
   finally
     UnlockWrite;
   end;
-end;
-
-function TTrackColorerConfig.BuildStatic: ITrackColorerStatic;
-begin
-  Result := TTrackColorerStatic.Create(FList);
 end;
 
 procedure TTrackColorerConfig.ClearItems;
@@ -251,7 +262,7 @@ begin
   LockWrite;
   try
     FList.Clear;
-    FStatic := BuildStatic;
+    FStatic := CreateStatic;
     SetChanged;
   finally
     UnlockWrite;

@@ -113,7 +113,7 @@ begin
     end;
   end else if RB1.Checked then begin
     VLonLat := frLonLatPoint.LonLat;
-    textsrch := GState.ValueToStringConverterConfig.GetStaticConverter.LonLatConvert(VLonLat);
+    textsrch := GState.ValueToStringConverterConfig.GetStatic.LonLatConvert(VLonLat);
     FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
     ModalResult := mrOk;
   end else if RB2.Checked then begin

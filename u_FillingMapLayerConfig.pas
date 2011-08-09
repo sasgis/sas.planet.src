@@ -24,7 +24,7 @@ type
     FStatic: IFillingMapLayerConfigStatic;
     function CreateStatic: IFillingMapLayerConfigStatic;
   protected
-    procedure SetChanged; override;
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -90,6 +90,17 @@ begin
       FShowTNE,
       FTNEColor
     );
+end;
+
+procedure TFillingMapLayerConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TFillingMapLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -215,17 +226,6 @@ begin
     Result := FVisible;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TFillingMapLayerConfig.SetChanged;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
   end;
 end;
 

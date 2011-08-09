@@ -46,7 +46,7 @@ type
     FStatic: IProxyConfigStatic;
     function CreateStatic: IProxyConfigStatic;
   protected
-    procedure SetChanged; override;
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -96,6 +96,17 @@ begin
       FLogin,
       FPassword
     );
+end;
+
+procedure TProxyConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TProxyConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -185,17 +196,6 @@ begin
     Result := FUseProxy;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TProxyConfig.SetChanged;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
   end;
 end;
 

@@ -21,7 +21,7 @@ type
     FStatic: IInetConfigStatic;
     function CreateStatic: IInetConfigStatic;
   protected
-    procedure SetChanged; override;
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -74,6 +74,17 @@ begin
       FSleepOnResetConnection,
       FDownloadTryCount
     );
+end;
+
+procedure TInetConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TInetConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -144,17 +155,6 @@ begin
     Result := FUserAgentString;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TInetConfig.SetChanged;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
   end;
 end;
 

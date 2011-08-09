@@ -2462,7 +2462,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-  VStr := GState.ValueToStringConverterConfig.GetStaticConverter.LonLatConvert(VMouseLonLat);
+  VStr := GState.ValueToStringConverterConfig.GetStatic.LonLatConvert(VMouseLonLat);
   CopyStringToClipboard(VStr);
 end;
 

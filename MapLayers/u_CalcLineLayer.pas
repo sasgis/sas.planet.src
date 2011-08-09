@@ -119,7 +119,7 @@ begin
   FLenShow := FConfig.LenShow;
   FTextColor := FConfig.TextColor;
   FTextBGColor := FConfig.TextBGColor;
-  FValueConverter := FValueToStringConverterConfig.GetStaticConverter;
+  FValueConverter := FValueToStringConverterConfig.GetStatic;
 end;
 
 procedure TCalcLineLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);

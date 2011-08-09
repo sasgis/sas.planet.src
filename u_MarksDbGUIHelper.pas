@@ -249,10 +249,10 @@ begin
       end;
       if AMark.IsPoly then begin
         VMessage := SAS_STR_P+' - '+
-          FValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
+          FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
       end else begin
         VMessage := SAS_STR_L+' - '+
-          FValueToStringConverterConfig.GetStaticConverter.DistConvert(VLen);
+          FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
       end;
       MessageBox(AHandle, pchar(VMessage), pchar(AMark.name),0);
     end;
@@ -267,7 +267,7 @@ begin
   if AMark <> nil then begin
     if (Length(AMark.Points) > 1) then begin
       VArea:= AConverter.Datum.CalcPoligonArea(AMark.Points);
-      VMessage := SAS_STR_S+' - '+FValueToStringConverterConfig.GetStaticConverter.AreaConvert(VArea);
+      VMessage := SAS_STR_S+' - '+FValueToStringConverterConfig.GetStatic.AreaConvert(VArea);
       MessageBox(AHandle,pchar(VMessage),pchar(AMark.name),0);
     end;
   end;

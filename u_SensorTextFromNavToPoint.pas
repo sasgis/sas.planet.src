@@ -127,7 +127,7 @@ procedure TSensorTextFromNavToPoint.OnConverterConfigChange(Sender: TObject);
 begin
   LockWrite;
   try
-    FValueConverter := FValueConverterConfig.GetStaticConverter;
+    FValueConverter := FValueConverterConfig.GetStatic;
     SetChanged;
   finally
     UnlockWrite;

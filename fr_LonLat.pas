@@ -200,7 +200,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   FCoordinates:=Value;
-  VValueConverter := FValueToStringConverterConfig.GetStaticConverter;
+  VValueConverter := FValueToStringConverterConfig.GetStatic;
   CurrZoom:=FViewPortState.GetCurrentZoom;
   cbbZoom.ItemIndex:=CurrZoom;
   if cbbCoordType.ItemIndex=-1 then begin

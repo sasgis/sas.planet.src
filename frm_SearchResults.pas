@@ -130,7 +130,7 @@ var
   VValueConverter: IValueToStringConverter;
 begin
   lvResults.Clear;
-  VValueConverter := FValueConverterConfig.GetStaticConverter;
+  VValueConverter := FValueConverterConfig.GetStatic;
   VEnum := FSearchResult.GetPlacemarks;
   while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
     VListItem := lvResults.Items.Add;

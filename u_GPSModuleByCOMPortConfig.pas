@@ -21,9 +21,9 @@ type
     FStatic: IGPSModuleByCOMPortSettings;
     function CreateStatic: IGPSModuleByCOMPortSettings;
   protected
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
-    procedure SetChanged; override;
   protected
     function GetPort: Integer;
     procedure SetPort(const AValue: Integer);
@@ -77,6 +77,17 @@ begin
       FNMEALog,
       FLogPath
     );
+end;
+
+procedure TGPSModuleByCOMPortConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TGPSModuleByCOMPortConfig.DoReadConfig(
@@ -185,17 +196,6 @@ begin
     finally
       UnlockWrite;
     end;
-  end;
-end;
-
-procedure TGPSModuleByCOMPortConfig.SetChanged;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
   end;
 end;
 

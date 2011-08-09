@@ -20,12 +20,13 @@ type
     FDistStrFormat: TDistStrFormat;
     FIsLatitudeFirst: Boolean;
     FDegrShowFormat: TDegrShowFormat;
-    FConverter: IValueToStringConverter;
+    FStatic: IValueToStringConverter;
     procedure OnDependentOnElementChange(Sender: TObject);
+    function CreateStatic: IValueToStringConverter;
   protected
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
-    procedure SetChanged; override;
   protected
     function GetDistStrFormat: TDistStrFormat;
     procedure SetDistStrFormat(AValue: TDistStrFormat);
@@ -36,7 +37,7 @@ type
     function GetDegrShowFormat: TDegrShowFormat;
     procedure SetDegrShowFormat(AValue: TDegrShowFormat);
 
-    function GetStaticConverter: IValueToStringConverter;
+    function GetStatic: IValueToStringConverter;
   public
     constructor Create(ADependentOnElement: IConfigDataElement);
     destructor Destroy; override;
@@ -69,6 +70,27 @@ begin
   FDependentOnElementListener := nil;
   FDependentOnElement := nil;
   inherited;
+end;
+
+function TValueToStringConverterConfig.CreateStatic: IValueToStringConverter;
+begin
+  Result :=
+    TValueToStringConverter.Create(
+      FDistStrFormat,
+      FIsLatitudeFirst,
+      FDegrShowFormat
+    );
+end;
+
+procedure TValueToStringConverterConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TValueToStringConverterConfig.DoReadConfig(
@@ -122,14 +144,9 @@ begin
   end;
 end;
 
-function TValueToStringConverterConfig.GetStaticConverter: IValueToStringConverter;
+function TValueToStringConverterConfig.GetStatic: IValueToStringConverter;
 begin
-  LockRead;
-  try
-    Result := FConverter;
-  finally
-    UnlockRead;
-  end;
+  Result := FStatic;
 end;
 
 procedure TValueToStringConverterConfig.OnDependentOnElementChange(
@@ -141,12 +158,6 @@ begin
   finally
     UnlockWrite;
   end;
-end;
-
-procedure TValueToStringConverterConfig.SetChanged;
-begin
-  inherited;
-  FConverter := TValueToStringConverter.Create(FDistStrFormat, FIsLatitudeFirst, FDegrShowFormat);
 end;
 
 procedure TValueToStringConverterConfig.SetDegrShowFormat(

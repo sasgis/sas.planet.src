@@ -16,7 +16,7 @@ type
     FStatic: IMapVersionInfo;
     function CreateStatic: IMapVersionInfo;
   protected
-    procedure SetChanged; override;
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -47,6 +47,17 @@ begin
   Result := TMapVersionInfo.Create(FVersion);
 end;
 
+procedure TMapVersionConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TMapVersionConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
@@ -75,17 +86,6 @@ begin
     Result := FVersion;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TMapVersionConfig.SetChanged;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
   end;
 end;
 

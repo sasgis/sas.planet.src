@@ -34,7 +34,7 @@ type
     procedure SetDegrShowFormat(AValue: TDegrShowFormat);
     property DegrShowFormat: TDegrShowFormat read GetDegrShowFormat write SetDegrShowFormat;
 
-    function GetStaticConverter: IValueToStringConverter;
+    function GetStatic: IValueToStringConverter;
   end;
 
 implementation

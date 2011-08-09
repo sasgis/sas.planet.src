@@ -19,7 +19,7 @@ type
     FStatic: IMarksDrawConfigStatic;
     function CreateStatic: IMarksDrawConfigStatic;
   protected
-    procedure SetChanged; override;
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -63,6 +63,17 @@ begin
       FUseSimpleDrawOrder,
       FOverSizeRect
     );
+end;
+
+procedure TMarksDrawConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TMarksDrawConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -127,17 +138,6 @@ begin
     Result := FStatic;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TMarksDrawConfig.SetChanged;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
   end;
 end;
 

@@ -17,7 +17,7 @@ type
     FStatic: IUsedMarksConfigStatic;
     function CreateStatic: IUsedMarksConfigStatic;
   protected
-    procedure SetChanged; override;
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -59,6 +59,17 @@ begin
       FIgnoreMarksVisible,
       FIgnoreCategoriesVisible
     );
+end;
+
+procedure TUsedMarksConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TUsedMarksConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -117,17 +128,6 @@ begin
     Result := FStatic;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TUsedMarksConfig.SetChanged;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
   end;
 end;
 

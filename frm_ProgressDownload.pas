@@ -196,7 +196,7 @@ begin
   end else begin
     VComplete := '~%';
   end;
-  VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
+  VValueConverter := GState.ValueToStringConverterConfig.GetStatic;
   if FDownloadThread.Finished then begin
     if not FFinished then begin
       FFinished := True;
@@ -255,7 +255,7 @@ begin
   if loaded=0 then begin
     result:='~ Κα';
   end else begin
-    VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
+    VValueConverter := GState.ValueToStringConverterConfig.GetStatic;
     Result:= VValueConverter.DataSizeConvert((len/loaded)*(loadAll-obrab));
   end;
 end;
