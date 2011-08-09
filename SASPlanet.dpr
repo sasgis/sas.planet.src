@@ -239,7 +239,6 @@ uses
   i_GotoLayerConfig in 'i_GotoLayerConfig.pas',
   u_GotoLayerConfig in 'u_GotoLayerConfig.pas',
   i_SearchResultPresenter in 'i_SearchResultPresenter.pas',
-  u_SearchResultPresenterStuped in 'u_SearchResultPresenterStuped.pas',
   i_UsedMarksConfig in 'i_UsedMarksConfig.pas',
   u_UsedMarksConfig in 'u_UsedMarksConfig.pas',
   u_UsedMarksConfigStatic in 'u_UsedMarksConfigStatic.pas',

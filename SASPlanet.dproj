@@ -676,7 +676,6 @@
     <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_ScaleLineConfig.pas" />
-    <DCCReference Include="u_SearchResultPresenterStuped.pas" />
     <DCCReference Include="u_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="u_SelectionRectLayerConfig.pas" />
     <DCCReference Include="u_SensorBase.pas" />
