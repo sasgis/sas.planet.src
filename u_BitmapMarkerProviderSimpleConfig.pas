@@ -1,0 +1,173 @@
+unit u_BitmapMarkerProviderSimpleConfig;
+
+interface
+
+uses
+  Types,
+  GR32,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
+  i_BitmapMarkerProviderSimpleConfig,
+  u_ConfigDataElementBase;
+
+type
+  TBitmapMarkerProviderSimpleConfig = class(TConfigDataElementBase, IBitmapMarkerProviderSimpleConfig)
+  private
+    FMarkerSize: Integer;
+    FMarkerColor: TColor32;
+    FBorderColor: TColor32;
+    FStatic: IBitmapMarkerProviderSimpleConfigStatic;
+    function CreateStatic: IBitmapMarkerProviderSimpleConfigStatic;
+  protected
+    procedure DoBeforeChangeNotify; override;
+    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+  protected
+    function GetMarkerSize: Integer;
+    procedure SetMarkerSize(AValue: Integer);
+
+    function GetMarkerColor: TColor32;
+    procedure SetMarkerColor(AValue: TColor32);
+
+    function GetBorderColor: TColor32;
+    procedure SetBorderColor(AValue: TColor32);
+
+    function GetStatic: IBitmapMarkerProviderSimpleConfigStatic;
+  public
+    constructor Create(ADefault: IBitmapMarkerProviderSimpleConfigStatic);
+  end;
+
+implementation
+
+uses
+  u_ConfigProviderHelpers,
+  u_BitmapMarkerProviderSimpleConfigStatic;
+
+{ TBitmapMarkerProviderSimpleConfig }
+
+constructor TBitmapMarkerProviderSimpleConfig.Create(
+  ADefault: IBitmapMarkerProviderSimpleConfigStatic);
+begin
+  inherited Create;
+  FMarkerSize := ADefault.MarkerSize;
+  FMarkerColor := ADefault.MarkerColor;
+  FBorderColor := ADefault.BorderColor;
+end;
+
+function TBitmapMarkerProviderSimpleConfig.CreateStatic: IBitmapMarkerProviderSimpleConfigStatic;
+begin
+  Result :=
+    TBitmapMarkerProviderSimpleConfigStatic.Create(
+      FMarkerSize,
+      FMarkerColor,
+      FBorderColor
+    );
+end;
+
+procedure TBitmapMarkerProviderSimpleConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TBitmapMarkerProviderSimpleConfig.DoReadConfig(
+  AConfigData: IConfigDataProvider);
+begin
+  inherited;
+  if AConfigData <> nil then begin
+    FMarkerSize := AConfigData.ReadInteger('Size', FMarkerSize);
+    FMarkerColor := ReadColor32(AConfigData, 'FillColor', FMarkerColor);
+    FBorderColor := ReadColor32(AConfigData, 'BorderColor', FBorderColor);
+    SetChanged;
+  end;
+end;
+
+procedure TBitmapMarkerProviderSimpleConfig.DoWriteConfig(
+  AConfigData: IConfigDataWriteProvider);
+begin
+  inherited;
+  AConfigData.WriteInteger('Size', FMarkerSize);
+  WriteColor32(AConfigData, 'FillColor', FMarkerColor);
+  WriteColor32(AConfigData, 'BorderColor', FBorderColor);
+end;
+
+function TBitmapMarkerProviderSimpleConfig.GetBorderColor: TColor32;
+begin
+  LockRead;
+  try
+    Result := FBorderColor;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TBitmapMarkerProviderSimpleConfig.GetMarkerColor: TColor32;
+begin
+  LockRead;
+  try
+    Result := FMarkerColor;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TBitmapMarkerProviderSimpleConfig.GetMarkerSize: Integer;
+begin
+  LockRead;
+  try
+    Result := FMarkerSize;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TBitmapMarkerProviderSimpleConfig.GetStatic: IBitmapMarkerProviderSimpleConfigStatic;
+begin
+  Result := FStatic;
+end;
+
+procedure TBitmapMarkerProviderSimpleConfig.SetBorderColor(AValue: TColor32);
+begin
+  LockWrite;
+  try
+    if FBorderColor <> AValue then begin
+      FBorderColor := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TBitmapMarkerProviderSimpleConfig.SetMarkerColor(AValue: TColor32);
+begin
+  LockWrite;
+  try
+    if FMarkerColor <> AValue then begin
+      FMarkerColor := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TBitmapMarkerProviderSimpleConfig.SetMarkerSize(AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FMarkerSize <> AValue then begin
+      FMarkerSize := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+end.
