@@ -568,6 +568,7 @@ uses
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
+
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}
 {$R .\Resources\Common.res}
