@@ -264,6 +264,14 @@ begin
               VAvgDelta.X := FPrevPoints[i].X - APosition.X;
               VAvgDelta.Y := FPrevPoints[i].Y - APosition.Y;
             end;
+          end else begin
+            if i = 0 then begin
+              VSecondPoint := FCurentPos;
+            end else begin
+              VSecondPoint := FPrevPoints[i - 1];
+            end;
+            VAvgDelta.X := VSecondPoint.X - APosition.X;
+            VAvgDelta.Y := VSecondPoint.Y - APosition.Y;
           end;
           VUsedTime := FUsedTime - VNotUsedTime;
           VAvgSpeed.X := VAvgDelta.X / VUsedTime;
