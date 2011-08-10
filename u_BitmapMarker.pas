@@ -3,6 +3,7 @@ unit u_BitmapMarker;
 interface
 
 uses
+  Types,
   GR32,
   t_GeoTypes,
   i_BitmapMarker;

@@ -30,9 +30,7 @@ var
   VConfig: IBitmapMarkerProviderSimpleConfigStatic;
   VMarkerBitmap: TCustomBitmap32;
   VSize: TPoint;
-  VPolygon: TPolygon32;
   VCenterPoint: TDoublePoint;
-  VPointHalfSize: Double;
   VMarkRect: TRect;
 begin
   VMarkerBitmap := TCustomBitmap32.Create;
@@ -45,7 +43,6 @@ begin
 
     VMarkerBitmap.SetSize(VSize.Y, VSize.Y);
     VMarkerBitmap.Clear(VConfig.MarkerColor);
-    VPointHalfSize := VConfig.MarkerSize  / 2;
 
     VMarkRect := VMarkerBitmap.BoundsRect;
     VMarkerBitmap.FrameRectTS(VMarkRect, VConfig.BorderColor);
