@@ -48,7 +48,7 @@ begin
     VPointHalfSize := VConfig.MarkerSize  / 2;
 
     VMarkRect := VMarkerBitmap.BoundsRect;
-    VMarkerBitmap.FillRectS(VMarkRect, VConfig.BorderColor);
+    VMarkerBitmap.FrameRectTS(VMarkRect, VConfig.BorderColor);
 
     Result :=
       TBitmapMarker.Create(
