@@ -35,12 +35,9 @@ implementation
 
 uses
   SysUtils,
-  GR32_Polygons,
-  t_GeoTypes,
   u_BitmapMarkerProviderSimpleConfig,
   u_BitmapMarkerProviderSimpleConfigStatic,
-  u_ConfigSaveLoadStrategyBasicProviderSubItem,
-  u_ConfigProviderHelpers;
+  u_ConfigSaveLoadStrategyBasicProviderSubItem;
 
 { TMapLayerGPSMarkerConfig }
 

@@ -20,7 +20,6 @@ implementation
 uses
   GR32_Polygons,
   t_GeoTypes,
-  u_GeoFun,
   u_BitmapMarker;
 
 { TBitmapMarkerProviderSimpleCross }
