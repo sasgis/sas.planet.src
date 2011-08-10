@@ -649,6 +649,7 @@ uses
   i_ImportConfig,
   u_BitmapMarkerProviderSimpleSquare,
   u_BitmapMarkerProviderSimpleArrow,
+  u_BitmapMarkerProviderSimpleCross,
   u_ThreadDownloadTiles,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
@@ -948,6 +949,12 @@ begin
         map,
         FConfig.ViewPortState,
         FConfig.NavToPoint,
+        TBitmapMarkerProviderSimpleArrow.Create(
+          FConfig.LayersConfig.NavToPointMarkerConfig.ArrowMarkerConfig
+        ),
+        TBitmapMarkerProviderSimpleCross.Create(
+          FConfig.LayersConfig.NavToPointMarkerConfig.ReachedMarkerConfig
+        ),
         FConfig.LayersConfig.NavToPointMarkerConfig
       );
     FLayersList.Add(LayerMapNavToMark);

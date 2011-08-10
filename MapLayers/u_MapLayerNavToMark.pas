@@ -13,24 +13,31 @@ uses
   i_LocalCoordConverter,
   i_NavigationToPoint,
   i_MapLayerNavToPointMarkerConfig,
+  i_BitmapMarker,
   i_ViewPortState,
   u_MapLayerBasic;
 
 type
-  TNavToMarkLayer = class(TMapLayerFixedWithBitmap)
+  TNavToMarkLayer = class(TMapLayerBasicNoBitmap)
   private
     FConfig: IMapLayerNavToPointMarkerConfig;
     FTransform: TAffineTransformation;
     FNavToPoint:  INavigationToPoint;
+    FArrowMarkerProvider: IBitmapMarkerProvider;
+    FReachedMarkerProvider: IBitmapMarkerProvider;
+    FArrowMarker: IBitmapMarker;
+    FReachedMarker: IBitmapMarker;
+
+    FMarker: TCustomBitmap32;
+    FPreparedMarker: IBitmapMarker;
+    FPreparedAngle: Double;
+    FFixedOnBitmap: TDoublePoint;
     FMarkPoint: TDoublePoint;
-    FDistInPixel: Double;
-    FAngle: Double;
     procedure OnNavToPointChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
+    procedure PrepareMarker(AMarker: IBitmapMarker; AAngle: Double);
   protected
-    procedure DoRedraw; override;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); override;
-    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
+    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
@@ -38,6 +45,8 @@ type
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ANavToPoint: INavigationToPoint;
+      AArrowMarkerProvider: IBitmapMarkerProvider;
+      AReachedMarkerProvider: IBitmapMarkerProvider;
       AConfig: IMapLayerNavToPointMarkerConfig
     );
     destructor Destroy; override;
@@ -49,6 +58,7 @@ uses
   SysUtils,
   Math,
   i_CoordConverter,
+  u_GeoFun,
   u_NotifyEventListener;
 
 { TNavToMarkLayer }
@@ -57,141 +67,53 @@ constructor TNavToMarkLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ANavToPoint: INavigationToPoint;
+  AArrowMarkerProvider: IBitmapMarkerProvider;
+  AReachedMarkerProvider: IBitmapMarkerProvider;
   AConfig: IMapLayerNavToPointMarkerConfig
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FNavToPoint := ANavToPoint;
+  FArrowMarkerProvider := AArrowMarkerProvider;
+  FReachedMarkerProvider := AReachedMarkerProvider;
   FConfig := AConfig;
+
+  FMarker := TCustomBitmap32.Create;
+  FMarker.DrawMode := dmBlend;
+  FMarker.CombineMode := cmBlend;
+
   FTransform := TAffineTransformation.Create;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FArrowMarkerProvider.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FReachedMarkerProvider.GetChangeNotifier
+  );
+  LinksList.Add(
     TNotifyEventListener.Create(Self.OnNavToPointChange),
     FNavToPoint.GetChangeNotifier
   );
-  OnNavToPointChange(nil);
-  OnConfigChange(nil);
 end;
 
 destructor TNavToMarkLayer.Destroy;
 begin
   FreeAndNil(FTransform);
+  FreeAndNil(FMarker);
   inherited;
-end;
-
-procedure TNavToMarkLayer.DoPosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-var
-  VMarkMapPos: TDoublePoint;
-  VScreenCenterMapPos: TDoublePoint;
-  VDelta: TDoublePoint;
-  VDeltaNormed: TDoublePoint;
-  VZoom: Byte;
-  VConverter: ICoordConverter;
-  VCrossDist: Double;
-begin
-  inherited;
-  VConverter := ANewVisualCoordConverter.GetGeoConverter;
-  VZoom := ANewVisualCoordConverter.GetZoom;
-  VScreenCenterMapPos := ANewVisualCoordConverter.GetCenterMapPixelFloat;
-  VMarkMapPos := VConverter.LonLat2PixelPosFloat(FMarkPoint, VZoom);
-  VDelta.X := VMarkMapPos.X - VScreenCenterMapPos.X;
-  VDelta.Y := VMarkMapPos.Y - VScreenCenterMapPos.Y;
-  FDistInPixel := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
-  VCrossDist := FConfig.CrossDistInPixels;
-  if FDistInPixel < VCrossDist then begin
-    FFixedLonLat := FMarkPoint;
-    FAngle := 0;
-  end else begin
-    VDeltaNormed.X := VDelta.X / FDistInPixel * VCrossDist;
-    VDeltaNormed.Y := VDelta.Y / FDistInPixel * VCrossDist;
-    VMarkMapPos.X := VScreenCenterMapPos.X + VDeltaNormed.X;
-    VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
-    FFixedLonLat := VConverter.PixelPosFloat2LonLat(VMarkMapPos, VZoom);
-    FAngle := ArcSin(VDelta.X/FDistInPixel) / Pi * 180;
-    if VDelta.Y > 0 then begin
-      FAngle := 180 - FAngle;
-    end;
-  end;
-  SetNeedRedraw;
-end;
-
-procedure TNavToMarkLayer.DoRedraw;
-var
-  VSize: TPoint;
-  VMarker: TCustomBitmap32;
-begin
-  inherited;
-  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-  if FDistInPixel > FConfig.CrossDistInPixels then begin
-    FTransform.SrcRect := FloatRect(0, 0, VSize.X, VSize.Y);
-    FTransform.Clear;
-    FConfig.LockRead;
-    try
-      VMarker := FConfig.GetMarkerArrow;
-      FTransform.Rotate(VSize.X / 2, VSize.Y / 2, -FAngle);
-      FLayer.Bitmap.Lock;
-      try
-        FLayer.Bitmap.Clear(0);
-        Transform(FLayer.Bitmap, VMarker, FTransform);
-      finally
-        FLayer.Bitmap.Unlock;
-      end;
-    finally
-      FConfig.UnlockRead;
-    end;
-  end else begin
-    FLayer.Bitmap.Lock;
-    try
-      FConfig.LockRead;
-      try
-        VMarker := FConfig.GetMarkerCross;
-        FLayer.Bitmap.Clear(0);
-        VMarker.DrawTo(
-          FLayer.Bitmap,
-          trunc(VSize.X / 2 - VMarker.Width / 2),
-          trunc(VSize.Y / 2 - VMarker.Height / 2)
-        );
-      finally
-        FConfig.UnlockRead;
-      end;
-    finally
-      FLayer.Bitmap.Unlock;
-    end;
-  end;
-end;
-
-function TNavToMarkLayer.GetLayerSizeForView(
-  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
-var
-  VMarker: TCustomBitmap32;
-begin
-  FConfig.LockRead;
-  try
-    VMarker := FConfig.GetMarkerArrow;
-    Result := Point(VMarker.Width, VMarker.Height);
-    VMarker := FConfig.GetMarkerCross;
-    if Result.X < VMarker.Width then begin
-      Result.X := VMarker.Width;
-    end;
-    if Result.Y < VMarker.Height then begin
-      Result.Y := VMarker.Height;
-    end;
-  finally
-    FConfig.UnlockRead;
-  end;
-  FFixedOnBitmap.X := Result.X / 2;
-  FFixedOnBitmap.Y := Result.Y / 2;
 end;
 
 procedure TNavToMarkLayer.OnConfigChange(Sender: TObject);
 begin
   ViewUpdateLock;
   try
-    SetNeedUpdateLayerSize;
+    FArrowMarker := FArrowMarkerProvider.GetMarker;
+    FReachedMarker := FReachedMarkerProvider.GetMarker;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -212,9 +134,121 @@ begin
   ViewUpdate;
 end;
 
+procedure TNavToMarkLayer.PaintLayer(ABuffer: TBitmap32;
+  ALocalConverter: ILocalCoordConverter);
+var
+  VMarkMapPos: TDoublePoint;
+  VScreenCenterMapPos: TDoublePoint;
+  VDelta: TDoublePoint;
+  VDeltaNormed: TDoublePoint;
+  VZoom: Byte;
+  VConverter: ICoordConverter;
+  VCrossDist: Double;
+  VDistInPixel: Double;
+  VAngle: Double;
+  VVisualConverter: ILocalCoordConverter;
+  VTargetPoint: TDoublePoint;
+  VFixedOnView: TDoublePoint;
+  VMarker: IBitmapMarker;
+begin
+  VVisualConverter := ViewCoordConverter;
+  VConverter := VVisualConverter.GetGeoConverter;
+  VZoom := VVisualConverter.GetZoom;
+  VScreenCenterMapPos := VVisualConverter.GetCenterMapPixelFloat;
+  VMarkMapPos := VConverter.LonLat2PixelPosFloat(FMarkPoint, VZoom);
+  VDelta.X := VMarkMapPos.X - VScreenCenterMapPos.X;
+  VDelta.Y := VMarkMapPos.Y - VScreenCenterMapPos.Y;
+  VDistInPixel := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
+  VCrossDist := FConfig.CrossDistInPixels;
+  if VDistInPixel < VCrossDist then begin
+    VFixedOnView :=  VVisualConverter.LonLat2LocalPixelFloat(FMarkPoint);
+    VAngle := 0;
+    VMarker := FReachedMarker;
+  end else begin
+    VDeltaNormed.X := VDelta.X / VDistInPixel * VCrossDist;
+    VDeltaNormed.Y := VDelta.Y / VDistInPixel * VCrossDist;
+    VMarkMapPos.X := VScreenCenterMapPos.X + VDeltaNormed.X;
+    VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
+    VFixedOnView := VVisualConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
+    VAngle := ArcSin(VDelta.X/VDistInPixel) / Pi * 180;
+    if VDelta.Y > 0 then begin
+      VAngle := 180 - VAngle;
+    end;
+    VMarker := FArrowMarker;
+  end;
+  FMarker.Lock;
+  try
+    PrepareMarker(VMarker, VAngle);
+    VTargetPoint.X := VFixedOnView.X - FFixedOnBitmap.X;
+    VTargetPoint.Y := VFixedOnView.Y - FFixedOnBitmap.Y;
+    if PixelPointInRect(VTargetPoint, DoubleRect(ALocalConverter.GetLocalRect)) then begin
+      ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), FMarker);
+    end;
+  finally
+    FMarker.Unlock;
+  end;
+end;
+
+procedure TNavToMarkLayer.PrepareMarker(AMarker: IBitmapMarker; AAngle: Double);
+var
+  VSizeSource: TPoint;
+  VSizeSourceFloat: TFloatPoint;
+  VSizeTarget: TPoint;
+  VDiag: Integer;
+  VFixedOnBitmap: TFloatPoint;
+begin
+  if AMarker <> nil then begin
+    if (AMarker <> FPreparedMarker) or (Abs(AAngle - FPreparedAngle) > 1) then begin
+      if AMarker.UseDirection then begin
+        VSizeSource := AMarker.BitmapSize;
+        VSizeSourceFloat := FloatPoint(VSizeSource.X, VSizeSource.Y);
+        VDiag := Trunc(Hypot(VSizeSourceFloat.X, VSizeSourceFloat.Y));
+        VSizeTarget.X := VDiag;
+        VSizeTarget.Y := VDiag;
+        FMarker.Lock;
+        try
+          FTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
+          FTransform.Clear;
+          FTransform.Translate(-VSizeSource.X / 2, -VSizeSource.Y / 2);
+          FTransform.Rotate(0, 0, AMarker.DefaultDirection - AAngle);
+          FTransform.Translate(VSizeTarget.X / 2, VSizeTarget.Y / 2);
+
+          FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
+          FMarker.Clear(0);
+          Transform(FMarker, AMarker.Bitmap, FTransform);
+          VFixedOnBitmap := FTransform.Transform(FloatPoint(AMarker.AnchorPoint.X, AMarker.AnchorPoint.Y));
+          FFixedOnBitmap := DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y);
+        finally
+          FMarker.Unlock;
+        end;
+      end else begin
+        VSizeTarget := AMarker.BitmapSize;
+        FMarker.Lock;
+        try
+          FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
+          FFixedOnBitmap := AMarker.AnchorPoint;
+          AMarker.Bitmap.DrawTo(FMarker);
+        finally
+          FMarker.Unlock;
+        end;
+      end;
+      FPreparedMarker := AMarker;
+      FPreparedAngle := AAngle;
+    end;
+  end else begin
+    FMarker.Lock;
+    try
+      FMarker.SetSize(0, 0);
+    finally
+      FMarker.Unlock;
+    end;
+  end;
+end;
+
 procedure TNavToMarkLayer.StartThreads;
 begin
   inherited;
+  OnNavToPointChange(nil);
   OnConfigChange(nil);
 end;
 

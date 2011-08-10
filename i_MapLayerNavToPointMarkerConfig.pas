@@ -4,7 +4,8 @@ interface
 
 uses
   GR32,
-  i_ConfigDataElement;
+  i_ConfigDataElement,
+  i_BitmapMarkerProviderSimpleConfig;
 
 type
   IMapLayerNavToPointMarkerConfig = interface(IConfigDataElement)
@@ -12,6 +13,12 @@ type
     function GetCrossDistInPixels: Double;
     procedure SetCrossDistInPixels(AValue: Double);
     property CrossDistInPixels: Double read GetCrossDistInPixels write SetCrossDistInPixels;
+
+    function GetArrowMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    property ArrowMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetArrowMarkerConfig;
+
+    function GetReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    property ReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetReachedMarkerConfig;
 
     function GetMarkerArrowSize: Integer;
     procedure SetMarkerArrowSize(AValue: Integer);
