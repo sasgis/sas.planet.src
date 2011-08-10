@@ -84,7 +84,7 @@ begin
   FStopedMarkerProvider := AStopedMarkerProvider;
   FMarker := TCustomBitmap32.Create;
   FMarker.DrawMode := dmBlend;
-  FMarker.CombineMode := cmMerge;
+  FMarker.CombineMode := cmBlend;
   FTransform := TAffineTransformation.Create;
 
   LinksList.Add(
@@ -206,7 +206,6 @@ begin
     finally
       FMarker.Unlock;
     end;
-
   end else begin
     VSizeTarget := VMarker.BitmapSize;
     FMarker.Lock;
