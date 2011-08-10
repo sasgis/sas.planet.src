@@ -650,6 +650,7 @@ uses
   u_BitmapMarkerProviderSimpleSquare,
   u_BitmapMarkerProviderSimpleArrow,
   u_BitmapMarkerProviderSimpleCross,
+  u_BitmapMarkerProviderStaticFromDataProvider,
   u_ThreadDownloadTiles,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
@@ -941,6 +942,14 @@ begin
       TGotoLayer.Create(
         map,
         FConfig.ViewPortState,
+        TBitmapMarkerProviderStaticFromDataProvider.Create(
+          GState.ResourceProvider,
+          GState.ContentTypeManager,
+          'ICONIII.png',
+          DoublePoint(7, 6),
+          False,
+          0
+        ),
         FConfig.LayersConfig.GotoLayerConfig
       );
     FLayersList.Add(FLayerGoto);

@@ -61,7 +61,7 @@ type
   TGlobalState = class
   private
     FMainConfigProvider: IConfigDataWriteProvider;
-
+    FResourceProvider: IConfigDataProvider;
     FGlobalAppConfig: IGlobalAppConfig;
     FStartUpLogoConfig: IStartUpLogoConfig;
     FTileNameGenerator: ITileFileNameGeneratorsList;
@@ -133,6 +133,7 @@ type
     property MapCalibrationList: IInterfaceList read FMapCalibrationList;
 
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
+    property ResourceProvider: IConfigDataProvider read FResourceProvider;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
     property MainMemCacheBitmap: IMemObjCacheBitmap read FMainMemCacheBitmap;
     property MainMemCacheVector: IMemObjCacheVector read FMainMemCacheVector;
@@ -240,7 +241,7 @@ var
 begin
   FProgramPath := ExtractFilePath(ParamStr(0));
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
-
+  FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
   FGUISyncronizedTimer.Interval := 500;

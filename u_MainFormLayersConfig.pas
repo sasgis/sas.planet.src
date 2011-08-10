@@ -139,7 +139,7 @@ begin
   Add(FMarkPolyLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolyLine'));
   FFillingMapLayerConfig := TFillingMapLayerConfig.Create(AMapsConfig);
   Add(FFillingMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FillingLayer'));
-  FGotoLayerConfig := TGotoLayerConfig.Create(AContentTypeManager);
+  FGotoLayerConfig := TGotoLayerConfig.Create;
   Add(FGotoLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GotoMarker'));
 end;
 
