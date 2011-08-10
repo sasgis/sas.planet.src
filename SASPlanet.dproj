@@ -453,6 +453,7 @@
     <DCCReference Include="u_BitmapMarkerProviderSimpleBase.pas" />
     <DCCReference Include="u_BitmapMarkerProviderSimpleConfig.pas" />
     <DCCReference Include="u_BitmapMarkerProviderSimpleConfigStatic.pas" />
+    <DCCReference Include="u_BitmapMarkerProviderSimpleCross.pas" />
     <DCCReference Include="u_BitmapMarkerProviderSimpleSquare.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfigStatic.pas" />
