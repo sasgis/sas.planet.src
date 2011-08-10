@@ -2991,7 +2991,7 @@ procedure TfrmMain.NMarkEditClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(
+  FLayerMapMarks.MouseOnReg(
     FMouseState.GetLastDownPos(mbRight),
     VMark
   );
@@ -3019,7 +3019,7 @@ var
   KMLExport:TExportMarks2KML;
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(
+  FLayerMapMarks.MouseOnReg(
     FMouseState.GetLastDownPos(mbRight),
     VMark
   );
@@ -3040,7 +3040,7 @@ procedure TfrmMain.NMarkDelClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(
+  FLayerMapMarks.MouseOnReg(
     FMouseState.GetLastDownPos(mbRight),
     VMark
   );
@@ -3054,7 +3054,7 @@ procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(
+  FLayerMapMarks.MouseOnReg(
     FMouseState.GetLastDownPos(mbRight),
     VMark
   );
@@ -3286,7 +3286,7 @@ begin
       if Vlastpoint < 0 then begin
         VMark := nil;
         if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-          FLayerMapMarks.MouseOnMyReg(Point(x, y), VMark);
+          FLayerMapMarks.MouseOnReg(Point(x, y), VMark);
         end;
         if VMark <> nil then begin
           if VMark.IsPoint then begin
@@ -3332,7 +3332,7 @@ begin
   if (VIsClickInMap)and (Button=mbright)and(FCurrentOper=ao_movemap) then begin
     VMark := nil;
     if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-      FLayerMapMarks.MouseOnMyReg(Point(x, y), VMark);
+      FLayerMapMarks.MouseOnReg(Point(x, y), VMark);
     end;
     NMarkEdit.Visible := VMark <> nil;
     NMarkExport.Visible := VMark <> nil;
@@ -3484,7 +3484,7 @@ begin
       end;
       VMark := nil;
       if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
-        FLayerMapMarks.MouseOnMyReg(Point(x,y), VMark, VMarkS);
+        FLayerMapMarks.MouseOnReg(Point(x,y), VMark, VMarkS);
       if VMark <> nil then begin
         if (not VPWL.find) or (not VMark.IsPoly) or (VPWL.S >= VMarkS) then begin
           VPWL.find := True;
@@ -3627,7 +3627,7 @@ begin
   if (movepoint) then begin
     VMark := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
-      FLayerMapMarks.MouseOnMyReg(VMousePos, VMark);
+      FLayerMapMarks.MouseOnReg(VMousePos, VMark);
     if VMark <> nil then begin
       if VMark.IsPoint then begin
         VLonLat := VMark.Points[0];
@@ -3707,7 +3707,7 @@ begin
 
     VMark := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
-      FLayerMapMarks.MouseOnMyReg(VMousePos, VMark, VMarkS);
+      FLayerMapMarks.MouseOnReg(VMousePos, VMark, VMarkS);
     if VMark <> nil then begin
       if (not VPWL.find) or (not VMark.IsPoly) or (VPWL.S >= VMarkS) then begin
         VPWL.find := True;
@@ -3901,7 +3901,7 @@ var
   LL:TDoublePoint;
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(
+  FLayerMapMarks.MouseOnReg(
     FMouseState.GetLastDownPos(mbRight),
     VMark
   );
@@ -3968,7 +3968,7 @@ procedure TfrmMain.NMarksCalcsLenClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(
+  FLayerMapMarks.MouseOnReg(
     FMouseState.GetLastDownPos(mbRight),
     VMark
   );
@@ -3981,7 +3981,7 @@ procedure TfrmMain.NMarksCalcsSqClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(
+  FLayerMapMarks.MouseOnReg(
     FMouseState.GetLastDownPos(mbRight),
     VMark
   );
@@ -3994,7 +3994,7 @@ procedure TfrmMain.NMarksCalcsPerClick(Sender: TObject);
 var
   VMark: IMarkFull;
 begin
-  FLayerMapMarks.MouseOnMyReg(
+  FLayerMapMarks.MouseOnReg(
     FMouseState.GetLastDownPos(mbRight),
     VMark
   );

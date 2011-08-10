@@ -48,8 +48,8 @@ type
       AConfig: IMarksLayerConfig;
       AMarkDBGUI: TMarksDbGUIHelper
     );
-    procedure MouseOnMyReg(xy: TPoint; out AMark: IMarkFull; out AMarkS: Double); overload;
-    procedure MouseOnMyReg(xy: TPoint; out AMark: IMarkFull); overload;
+    procedure MouseOnReg(xy: TPoint; out AMark: IMarkFull; out AMarkS: Double); overload;
+    procedure MouseOnReg(xy: TPoint; out AMark: IMarkFull); overload;
   end;
 
 implementation
@@ -190,7 +190,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.MouseOnMyReg(xy: TPoint; out AMark: IMarkFull; out AMarkS: Double);
+procedure TMapMarksLayer.MouseOnReg(xy: TPoint; out AMark: IMarkFull; out AMarkS: Double);
 var
   VLonLatLine: TArrayOfDoublePoint;
   VLineOnBitmap: TArrayOfDoublePoint;
@@ -297,11 +297,11 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.MouseOnMyReg(xy: TPoint; out AMark: IMarkFull);
+procedure TMapMarksLayer.MouseOnReg(xy: TPoint; out AMark: IMarkFull);
 var
   VMarkS: Double;
 begin
-  MouseOnMyReg(xy, AMark, VMarkS);
+  MouseOnReg(xy, AMark, VMarkS);
 end;
 
 procedure TMapMarksLayer.OnConfigChange(Sender: TObject);
