@@ -48,8 +48,8 @@ begin
       VPolygon.Antialiased := true;
       VPolygon.AntialiasMode := am32times;
       VPolygon.Add(FixedPoint(VCenterPoint.X, 0));
-      VPolygon.Add(FixedPoint(VCenterPoint.X - VConfig.MarkerSize / 3, VSize.Y));
-      VPolygon.Add(FixedPoint(VCenterPoint.X + VConfig.MarkerSize / 3, VSize.Y));
+      VPolygon.Add(FixedPoint(VCenterPoint.X - VConfig.MarkerSize / 3, VSize.Y - 1));
+      VPolygon.Add(FixedPoint(VCenterPoint.X + VConfig.MarkerSize / 3, VSize.Y - 1));
       VPolygon.DrawFill(VMarkerBitmap, VConfig.MarkerColor);
       VPolygon.DrawEdge(VMarkerBitmap, VConfig.BorderColor);
     finally
