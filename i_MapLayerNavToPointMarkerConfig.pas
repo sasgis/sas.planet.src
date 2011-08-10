@@ -19,25 +19,6 @@ type
 
     function GetReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
     property ReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetReachedMarkerConfig;
-
-    function GetMarkerArrowSize: Integer;
-    procedure SetMarkerArrowSize(AValue: Integer);
-    property MarkerArrowSize: Integer read GetMarkerArrowSize write SetMarkerArrowSize;
-
-    function GetMarkerArrowColor: TColor32;
-    procedure SetMarkerArrowColor(AValue: TColor32);
-    property MarkerArrowColor: TColor32 read GetMarkerArrowColor write SetMarkerArrowColor;
-
-    function GetMarkerCrossSize: Integer;
-    procedure SetMarkerCrossSize(AValue: Integer);
-    property MarkerCrossSize: Integer read GetMarkerCrossSize write SetMarkerCrossSize;
-
-    function GetMarkerCrossColor: TColor32;
-    procedure SetMarkerCrossColor(AValue: TColor32);
-    property MarkerCrossColor: TColor32 read GetMarkerCrossColor write SetMarkerCrossColor;
-
-    function GetMarkerArrow: TCustomBitmap32;
-    function GetMarkerCross: TCustomBitmap32;
   end;
 
 implementation
