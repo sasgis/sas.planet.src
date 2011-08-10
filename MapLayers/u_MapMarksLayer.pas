@@ -30,6 +30,7 @@ type
     FMarkDBGUI: TMarksDbGUIHelper;
     FMarksSubset: IMarksSubset;
     FGetMarksCounter: IInternalPerformanceCounter;
+    FMouseOnRegCounter: IInternalPerformanceCounter;
     procedure OnConfigChange(Sender: TObject);
     function GetMarksSubset: IMarksSubset;
   protected
@@ -208,49 +209,53 @@ var
   VMarksEnum: IEnumUnknown;
   VSquare:Double;
   i: Cardinal;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
-  AMark := nil;
-  AMarkS := 0;
-  VMarksSubset := FMarksSubset;
-  if VMarksSubset <> nil then begin
-    if not VMarksSubset.IsEmpty then begin
-      VRect.Left := xy.X - 8;
-      VRect.Top := xy.Y - 16;
-      VRect.Right := xy.X + 8;
-      VRect.Bottom := xy.Y + 16;
-      VLocalConverter := LayerCoordConverter;
-      VConverter := VLocalConverter.GetGeoConverter;
-      VZoom := VLocalConverter.GetZoom;
-      VVisualConverter := ViewCoordConverter;
-      VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
-      VConverter.CheckPixelRectFloat(VMapRect, VZoom);
-      VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-      VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
-      VMarksEnum := VMarksSubset.GetEnum;
-      while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
-        VMarkLonLatRect := VMark.LLRect;
-        if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
-        (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
-          if VMark.IsPoint then begin
-            AMark := VMark;
-            AMarkS := 0;
-            exit;
-          end else begin
-            VLonLatLine := VMark.Points;
-            VConverter.CheckLonLatArray(VLonLatLine);
-            VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
-            if VMark.IsLine then begin
-              if PointOnPath(VPixelPos, VLineOnBitmap, (VMark.Scale1 / 2) + 1) then begin
-                AMark := VMark;
-                AMarkS := 0;
-                exit;
-              end;
+  VCounterContext := FMouseOnRegCounter.StartOperation;
+  try
+    AMark := nil;
+    AMarkS := 0;
+    VMarksSubset := FMarksSubset;
+    if VMarksSubset <> nil then begin
+      if not VMarksSubset.IsEmpty then begin
+        VRect.Left := xy.X - 8;
+        VRect.Top := xy.Y - 16;
+        VRect.Right := xy.X + 8;
+        VRect.Bottom := xy.Y + 16;
+        VLocalConverter := LayerCoordConverter;
+        VConverter := VLocalConverter.GetGeoConverter;
+        VZoom := VLocalConverter.GetZoom;
+        VVisualConverter := ViewCoordConverter;
+        VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
+        VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+        VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+        VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
+        VMarksEnum := VMarksSubset.GetEnum;
+        while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
+          VMarkLonLatRect := VMark.LLRect;
+          if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
+          (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
+            if VMark.IsPoint then begin
+              AMark := VMark;
+              AMarkS := 0;
+              exit;
             end else begin
-              if (PtInRgn(VLineOnBitmap,VPixelPos)) then begin
-                VSquare := PolygonSquare(VLineOnBitmap);
-                if (AMark = nil) or (VSquare<AMarkS) then begin
+              VLonLatLine := VMark.Points;
+              VConverter.CheckLonLatArray(VLonLatLine);
+              VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
+              if VMark.IsLine then begin
+                if PointOnPath(VPixelPos, VLineOnBitmap, (VMark.Scale1 / 2) + 1) then begin
                   AMark := VMark;
-                  AMarkS := VSquare;
+                  AMarkS := 0;
+                  exit;
+                end;
+              end else begin
+                if (PtInRgn(VLineOnBitmap,VPixelPos)) then begin
+                  VSquare := PolygonSquare(VLineOnBitmap);
+                  if (AMark = nil) or (VSquare<AMarkS) then begin
+                    AMark := VMark;
+                    AMarkS := VSquare;
+                  end;
                 end;
               end;
             end;
@@ -258,6 +263,8 @@ begin
         end;
       end;
     end;
+  finally
+    FMouseOnRegCounter.FinishOperation(VCounterContext);
   end;
 end;
 
@@ -323,6 +330,7 @@ procedure TMapMarksLayer.SetPerfList(
 begin
   inherited;
   FGetMarksCounter := Value.CreateAndAddNewCounter('GetMarks');
+  FMouseOnRegCounter := Value.CreateAndAddNewCounter('MouseOnReg');
 end;
 
 procedure TMapMarksLayer.StartThreads;
