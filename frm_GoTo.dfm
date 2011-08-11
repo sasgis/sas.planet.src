@@ -3,10 +3,10 @@ object frmGoTo: TfrmGoTo
   Top = 179
   AlphaBlendValue = 220
   Caption = 'Go to...'
-  ClientHeight = 236
+  ClientHeight = 140
   ClientWidth = 264
   Color = clBtnFace
-  Constraints.MinHeight = 263
+  Constraints.MinHeight = 167
   Constraints.MinWidth = 272
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,83 +16,19 @@ object frmGoTo: TfrmGoTo
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object grpMarks: TGroupBox
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 258
-    Height = 45
-    Align = alTop
-    Caption = ' '
-    TabOrder = 0
-    ExplicitWidth = 325
-    object cbbAllMarks: TComboBox
-      AlignWithMargins = True
-      Left = 5
-      Top = 18
-      Width = 248
-      Height = 21
-      Align = alClient
-      ItemHeight = 13
-      TabOrder = 0
-      OnChange = cbbAllMarksDropDown
-      OnDropDown = cbbAllMarksDropDown
-      OnEnter = cbbAllMarksEnter
-      ExplicitWidth = 315
-    end
-  end
-  object grpGeoCode: TGroupBox
-    AlignWithMargins = True
-    Left = 3
-    Top = 54
-    Width = 258
-    Height = 49
-    Align = alTop
-    Caption = ' '
-    TabOrder = 1
-    ExplicitWidth = 325
-    object edtGeoCode: TEdit
-      AlignWithMargins = True
-      Left = 7
-      Top = 18
-      Width = 244
-      Height = 24
-      Margins.Left = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
-      Align = alClient
-      TabOrder = 0
-      OnClick = edtGeoCodeClick
-      ExplicitWidth = 311
-      ExplicitHeight = 21
-    end
-  end
-  object grpLonLat: TGroupBox
-    AlignWithMargins = True
-    Left = 3
-    Top = 109
-    Width = 258
-    Height = 93
-    Align = alClient
-    Caption = ' '
-    TabOrder = 2
-    OnEnter = grpLonLatEnter
-    ExplicitWidth = 325
-    ExplicitHeight = 90
-  end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 205
+    Top = 109
     Width = 264
     Height = 31
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
-    TabOrder = 3
-    ExplicitTop = 202
-    ExplicitWidth = 331
+    TabOrder = 1
+    ExplicitTop = 205
     object lblZoom: TLabel
       AlignWithMargins = True
       Left = 3
@@ -154,7 +90,6 @@ object frmGoTo: TfrmGoTo
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 253
     end
     object btnGoTo: TButton
       AlignWithMargins = True
@@ -169,41 +104,73 @@ object frmGoTo: TfrmGoTo
       ShowHint = True
       TabOrder = 2
       OnClick = btnGoToClick
-      ExplicitLeft = 172
     end
   end
-  object RB3: TRadioButton
-    Left = 13
-    Top = 1
-    Width = 124
-    Height = 17
-    Caption = 'Stored placemarks'
-    TabOrder = 4
-  end
-  object RB2: TRadioButton
-    Left = 13
-    Top = 51
-    Width = 62
-    Height = 17
-    Caption = 'Google'
-    Checked = True
-    TabOrder = 5
-    TabStop = True
-  end
-  object RB4: TRadioButton
-    Left = 72
-    Top = 51
-    Width = 58
-    Height = 17
-    Caption = 'Yandex'
-    TabOrder = 6
-  end
-  object RB1: TRadioButton
-    Left = 13
-    Top = 106
-    Width = 85
-    Height = 17
-    Caption = 'Coordinates'
-    TabOrder = 7
+  object pgcSearchType: TPageControl
+    Left = 0
+    Top = 0
+    Width = 264
+    Height = 109
+    ActivePage = tsPlaceMarks
+    Align = alClient
+    TabOrder = 0
+    object tsPlaceMarks: TTabSheet
+      Caption = 'PlaceMarks'
+      ExplicitWidth = 388
+      ExplicitHeight = 165
+      object cbbAllMarks: TComboBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 250
+        Height = 21
+        Align = alClient
+        ItemHeight = 13
+        TabOrder = 0
+        OnChange = cbbAllMarksDropDown
+        OnDropDown = cbbAllMarksDropDown
+        ExplicitLeft = 7
+        ExplicitTop = 21
+        ExplicitWidth = 248
+      end
+    end
+    object tsSearch: TTabSheet
+      Caption = 'Search'
+      ImageIndex = 1
+      ExplicitLeft = -84
+      ExplicitTop = 33
+      ExplicitWidth = 388
+      ExplicitHeight = 165
+      object cbbSearcherType: TComboBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 250
+        Height = 21
+        Align = alTop
+        ItemHeight = 13
+        TabOrder = 1
+      end
+      object cbbGeoCode: TComboBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 30
+        Width = 248
+        Height = 21
+        Align = alLeft
+        ItemHeight = 13
+        TabOrder = 0
+        OnChange = cbbAllMarksDropDown
+        OnDropDown = cbbAllMarksDropDown
+        ExplicitLeft = 5
+        ExplicitTop = 18
+      end
+    end
+    object tsCoordinates: TTabSheet
+      Caption = 'Coordinates'
+      ImageIndex = 2
+      ExplicitWidth = 388
+      ExplicitHeight = 165
+    end
   end
 end
