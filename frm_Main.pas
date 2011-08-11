@@ -4240,13 +4240,16 @@ var
   VToolbarItem: TTBCustomItem;
   VItem: IGeoCoderListEntity;
   VLocalConverter: ILocalCoordConverter;
+  VText: string;
 begin
   if Sender is TTBCustomItem then begin
     VToolbarItem := TTBCustomItem(Sender);
     VItem := IGeoCoderListEntity(VToolbarItem.Tag);
     if VItem <> nil then begin
       VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-      VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), VLocalConverter.GetCenterLonLat);
+      VText := Trim(NewText);
+      VResult := VItem.GetGeoCoder.GetLocations(VText, VLocalConverter.GetCenterLonLat);
+      FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
       FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
     end;
   end;
