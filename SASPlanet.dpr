@@ -238,6 +238,8 @@ uses
   u_MapViewGotoOnFMain in 'u_MapViewGotoOnFMain.pas',
   i_GotoLayerConfig in 'i_GotoLayerConfig.pas',
   u_GotoLayerConfig in 'u_GotoLayerConfig.pas',
+  i_StringHistory in 'i_StringHistory.pas',
+  u_StringHistory in 'u_StringHistory.pas',
   i_SearchResultPresenter in 'i_SearchResultPresenter.pas',
   i_UsedMarksConfig in 'i_UsedMarksConfig.pas',
   u_UsedMarksConfig in 'u_UsedMarksConfig.pas',

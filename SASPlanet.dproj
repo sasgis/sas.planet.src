@@ -307,6 +307,7 @@
     <DCCReference Include="i_SimpleFactory.pas" />
     <DCCReference Include="i_StartUpLogoConfig.pas" />
     <DCCReference Include="i_StatBarConfig.pas" />
+    <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownloadResult.pas" />
@@ -693,6 +694,7 @@
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_StartUpLogoConfig.pas" />
     <DCCReference Include="u_StatBarConfig.pas" />
+    <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
     <DCCReference Include="u_TileDownloaderBase.pas" />
