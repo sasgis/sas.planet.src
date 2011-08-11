@@ -4539,7 +4539,7 @@ begin
       tbiSearch.Lines.Add(FConfig.MainGeoCoderConfig.SearchHistory.GetItem(i));
     end;
   finally
-    FConfig.MainGeoCoderConfig.SearchHistory.LockRead;
+    FConfig.MainGeoCoderConfig.SearchHistory.UnlockRead;
   end;
 end;
 
