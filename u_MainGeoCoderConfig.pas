@@ -6,18 +6,21 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_GeoCoderList,
+  i_StringHistory,
   i_MainGeoCoderConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementComplexBase;
 
 type
-  TMainGeoCoderConfig = class(TConfigDataElementBase, IMainGeoCoderConfig)
+  TMainGeoCoderConfig = class(TConfigDataElementComplexBase, IMainGeoCoderConfig)
   private
     FList: IGeoCoderList;
     FActiveGeoCoderGUID: TGUID;
+    FSearchHistory: IStringHistory;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
+    function GetSearchHistory: IStringHistory;
     function GetList: IGeoCoderList;
     function GetActiveGeoCoderGUID: TGUID;
     procedure SetActiveGeoCoderGUID(AValue: TGUID);
@@ -30,7 +33,9 @@ implementation
 
 uses
   SysUtils,
-  c_ZeroGUID;
+  c_ZeroGUID,
+  u_ConfigSaveLoadStrategyBasicProviderSubItem,
+  u_StringHistory;
 
 { TMainGeoCoderConfig }
 
@@ -43,6 +48,8 @@ begin
   if FList.GetGUIDEnum.Next(1, FActiveGeoCoderGUID, i) <> S_OK then begin
     raise Exception.Create('В списке геокодеров пусто');
   end;
+  FSearchHistory := TStringHistory.Create;
+  Add(FSearchHistory, TConfigSaveLoadStrategyBasicProviderSubItem.Create('History'));
 end;
 
 procedure TMainGeoCoderConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -95,6 +102,11 @@ end;
 function TMainGeoCoderConfig.GetList: IGeoCoderList;
 begin
   Result := FList;
+end;
+
+function TMainGeoCoderConfig.GetSearchHistory: IStringHistory;
+begin
+  Result := FSearchHistory;
 end;
 
 procedure TMainGeoCoderConfig.SetActiveGeoCoderGUID(AValue: TGUID);
