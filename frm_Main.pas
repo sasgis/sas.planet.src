@@ -249,7 +249,6 @@ type
     TBXSeparatorItem16: TTBXSeparatorItem;
     TBXSeparatorItem17: TTBXSeparatorItem;
     TBXToolBarSearch: TTBXToolbar;
-    TBXSearchEdit: TTBXEditItem;
     TBXSelectSrchType: TTBXSubmenuItem;
     TBXSelectGoogleSrch: TTBXItem;
     TBXSelectYandexSrch: TTBXItem;
@@ -349,6 +348,7 @@ type
     TrayItemQuit: TTBItem;
     tbitmShowMarkCaption: TTBXItem;
     NAnimateMove: TTBXItem;
+    tbiSearch: TTBXComboBoxItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -556,6 +556,7 @@ type
     procedure CreateMapUILayerSubMenu;
     procedure CreateLangMenu;
 
+    procedure OnSearchhistoryChange(Sender: TObject);
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
     procedure OnLineOnMapEditChange(Sender: TObject);
@@ -1147,6 +1148,10 @@ begin
       TNotifyEventListener.Create(Self.OnTimerEvent),
       GState.GUISyncronizedTimerNotifier
     );
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnSearchhistoryChange),
+      FConfig.MainGeoCoderConfig.SearchHistory.GetChangeNotifier
+    );
 
     ProgramStart:=false;
 
@@ -1196,6 +1201,7 @@ begin
     OnFillingMapChange(nil);
     OnMainMapChange(nil);
     ProcessPosChangeMessage(nil);
+    OnSearchhistoryChange(nil);
 
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
     FKeyMovingHandler := TKeyMovingHandler.Create(map, FConfig.ViewPortState, FConfig.KeyMovingConfig);
@@ -4218,10 +4224,13 @@ var
   VItem: IGeoCoderListEntity;
   VResult: IGeoCodeResult;
   VLocalConverter: ILocalCoordConverter;
+  VText: string;
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
-  VResult := VItem.GetGeoCoder.GetLocations(Trim(NewText), VLocalConverter.GetCenterLonLat);
+  VText := Trim(NewText);
+  VResult := VItem.GetGeoCoder.GetLocations(VText, VLocalConverter.GetCenterLonLat);
+  FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
   FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
 end;
 
@@ -4514,6 +4523,21 @@ end;
 procedure TfrmMain.OnMinimize(Sender: TObject);
 begin
   PostMessage(frmMain.Handle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+end;
+
+procedure TfrmMain.OnSearchhistoryChange(Sender: TObject);
+var
+  i: Integer;
+begin
+  tbiSearch.Lines.Clear;
+  FConfig.MainGeoCoderConfig.SearchHistory.LockRead;
+  try
+    for i := 0 to FConfig.MainGeoCoderConfig.SearchHistory.Count - 1 do begin
+      tbiSearch.Lines.Add(FConfig.MainGeoCoderConfig.SearchHistory.GetItem(i));
+    end;
+  finally
+    FConfig.MainGeoCoderConfig.SearchHistory.LockRead;
+  end;
 end;
 
 procedure TfrmMain.TrayItemRestoreClick(Sender: TObject);

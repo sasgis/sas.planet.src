@@ -39,7 +39,6 @@ object frmMain: TfrmMain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
-    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -133,7 +132,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 242
+      Left = 238
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -165,7 +164,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 369
+      Left = 365
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -176,7 +175,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 540
+      Left = 536
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -1009,10 +1008,13 @@ object frmMain: TfrmMain
           Hint = ''
         end
       end
-      object TBXSearchEdit: TTBXEditItem
+      object tbiSearch: TTBXComboBoxItem
         EditCaption = 'Search'
         EditWidth = 150
         OnAcceptText = TBXSearchEditAcceptText
+        AutoComplete = False
+        MaxVisibleItems = 20
+        MinListWidth = 150
         Caption = ''
         Hint = ''
         EditCaption = 'Search'
