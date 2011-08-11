@@ -42,6 +42,7 @@ type
     FMarkDBGUI: TMarksDbGUIHelper;
     FMarksList: IInterfaceList;
     function GeocodeResultFromLonLat(ASearch: WideString; ALonLat: TDoublePoint; AMessage: WideString): IGeoCodeResult;
+    procedure InitHistory;
     procedure InitGeoCoders;
     procedure EmptyGeoCoders;
   public
@@ -109,6 +110,12 @@ begin
     VActiveIndex := 0;
   end;
   cbbSearcherType.ItemIndex := VActiveIndex;
+end;
+
+procedure TfrmGoTo.InitHistory;
+var
+  i: Integer;
+begin
   GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.LockRead;
   try
     for i := 0 to GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.Count - 1 do begin
@@ -181,6 +188,7 @@ begin
   cbbZoom.ItemIndex := Azoom;
   frLonLatPoint.LonLat := FLonLat;
   InitGeoCoders;
+  InitHistory;
   try
     if ShowModal = mrOk then begin
       Result := true;
@@ -196,6 +204,7 @@ begin
   end;
   cbbAllMarks.Clear;
   FMarksList:=nil;
+  cbbGeoCode.Clear;
 end;
 
 procedure TfrmGoTo.cbbAllMarksDropDown(Sender: TObject);
