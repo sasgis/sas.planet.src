@@ -115,7 +115,7 @@ begin
       cbbGeoCode.Items.Add(GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.GetItem(i));
     end;
   finally
-    GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.LockRead;
+    GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.UnlockRead;
   end;
 end;
 
