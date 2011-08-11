@@ -60,9 +60,9 @@ begin
   FVisible := True;
   FHeight := 17;
   FMinUpdateTickCount := 200;
-  FBgColor := SetAlpha(clWhite32, 160);
-  FTextColor := clBlack32;
-  FFontName := 'arial';
+  FBgColor := SetAlpha(clBlack32, $50);
+  FTextColor := SetAlpha(clWhite32, $FF);
+  FFontName := 'Arial';
   FFontSize := 10;
 end;
 
