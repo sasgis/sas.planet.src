@@ -8,18 +8,17 @@ uses
   i_MarksSimple,
   i_MarkCategory,
   i_MarkPicture,
-  u_MarkId;
+  i_HtmlToHintTextConverter,
+  u_MarkFullBase;
 
 type
-  TMarkLine = class(TMarkId, IMarkFull)
+  TMarkLine = class(TMarkFullBase, IMarkFull)
   private
-    FDesc: string;
     FLLRect: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
     FColor1: TColor32;
     FScale1: Integer;
   protected
-    function GetDesc: string;
     function GetLLRect: TDoubleRect;
     function GetPoints: TArrayOfDoublePoint;
     function GetColor1: TColor32;
@@ -35,6 +34,7 @@ type
     function GetGoToLonLat: TDoublePoint;
   public
     constructor Create(
+      AHintConverter: IHtmlToHintTextConverter;
       ADbCode: Integer;
       AName: string;
       AId: Integer;
@@ -53,6 +53,7 @@ implementation
 { TMarkFull }
 
 constructor TMarkLine.Create(
+  AHintConverter: IHtmlToHintTextConverter;
   ADbCode: Integer;
   AName: string;
   AId: Integer;
@@ -65,8 +66,7 @@ constructor TMarkLine.Create(
   AScale1: Integer
 );
 begin
-  inherited Create(ADbCode, AName, AId, ACategory, AVisible);
-  FDesc := ADesc;
+  inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
   FLLRect := ALLRect;
   FPoints := APoints;
   FColor1 := AColor1;
@@ -81,11 +81,6 @@ end;
 function TMarkLine.GetColor2: TColor32;
 begin
   Result := 0;
-end;
-
-function TMarkLine.GetDesc: string;
-begin
-  Result := FDesc;
 end;
 
 function TMarkLine.GetGoToLonLat: TDoublePoint;

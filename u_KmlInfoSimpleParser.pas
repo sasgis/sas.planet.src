@@ -6,6 +6,7 @@ uses
   Classes,
   SysUtils,
   t_GeoTypes,
+  i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
   i_InternalPerformanceCounter,
   i_KmlInfoSimpleLoader,
@@ -15,6 +16,7 @@ type
   TKmlInfoSimpleParser = class(TInterfacedObject, IKmlInfoSimpleLoader)
   private
     FLoadKmlStreamCounter: IInternalPerformanceCounter;
+    FHintConverter: IHtmlToHintTextConverter;
 
     FFormat: TFormatSettings;
     FBMSrchPlacemark: TSearchBM;
@@ -42,6 +44,7 @@ type
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
   public
     constructor Create(
+      AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -118,21 +121,23 @@ begin
   VPointCount := Length(Adata);
   if VPointCount > 0 then begin
     if VPointCount = 1 then begin
-      Result := TVectorDataItemPoint.Create(AName, ADesc, AData[0]);
+      Result := TVectorDataItemPoint.Create(FHintConverter, AName, ADesc, AData[0]);
     end else begin
       if DoublePoitnsEqual(Adata[0], Adata[VPointCount - 1]) then begin
-        Result := TVectorDataItemPoly.Create(AName, ADesc, Adata, ARect);
+        Result := TVectorDataItemPoly.Create(FHintConverter, AName, ADesc, Adata, ARect);
       end else begin
-        Result := TVectorDataItemPath.Create(AName, ADesc, Adata, ARect);
+        Result := TVectorDataItemPath.Create(FHintConverter, AName, ADesc, Adata, ARect);
       end;
     end;
   end;
 end;
 
 constructor TKmlInfoSimpleParser.Create(
+  AHintConverter: IHtmlToHintTextConverter;
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  FHintConverter := AHintConverter;
   FLoadKmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadKmlStream');
   FFormat.DecimalSeparator := '.';
   FBMSrchPlacemark := TSearchBM.Create;

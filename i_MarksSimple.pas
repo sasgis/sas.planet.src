@@ -46,6 +46,9 @@ type
     function IsNew: Boolean;
     function IsSameId(AMarkId: IMarkID): Boolean;
 
+    function GetHintText: string;
+    function GetInfoHTML: string;
+
     function GetGoToLonLat: TDoublePoint;
   end;
 

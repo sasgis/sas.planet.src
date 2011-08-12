@@ -4,6 +4,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_HtmlToHintTextConverter,
   u_VectorDataItemBase;
 
 type
@@ -17,6 +18,7 @@ type
     function GetPoints: TArrayOfDoublePoint;  override;
   public
     constructor Create(
+      AHintConverter: IHtmlToHintTextConverter;
       AName: string;
       ADesc: string;
       APoints: TArrayOfDoublePoint;
@@ -41,10 +43,14 @@ implementation
 
 { TVectorDataItemPolygon }
 
-constructor TVectorDataItemPolygon.Create(AName, ADesc: string;
-  APoints: TArrayOfDoublePoint; ALLRect: TDoubleRect);
+constructor TVectorDataItemPolygon.Create(
+  AHintConverter: IHtmlToHintTextConverter;
+  AName, ADesc: string;
+  APoints: TArrayOfDoublePoint;
+  ALLRect: TDoubleRect
+);
 begin
-  inherited Create(AName, ADesc);
+  inherited Create(AHintConverter, AName, ADesc);
   FLLRect := ALLRect;
   FPoints := APoints;
 end;

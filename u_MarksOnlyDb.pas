@@ -9,6 +9,7 @@ uses
   Classes,
   t_GeoTypes,
   i_MarksFactoryConfig,
+  i_HtmlToHintTextConverter,
   i_MarkCategoryDBSmlInternal,
   i_MarkCategory,
   i_MarksSimple,
@@ -44,6 +45,7 @@ type
     constructor Create(
       ABasePath: string;
       ACategoryDB: IMarkCategoryDBSmlInternal;
+      AHintConverter: IHtmlToHintTextConverter;
       AFactoryConfig: IMarksFactoryConfig
     );
     destructor Destroy; override;
@@ -130,6 +132,7 @@ end;
 constructor TMarksOnlyDb.Create(
   ABasePath: string;
   ACategoryDB: IMarkCategoryDBSmlInternal;
+  AHintConverter: IHtmlToHintTextConverter;
   AFactoryConfig: IMarksFactoryConfig
 );
 var
@@ -137,7 +140,13 @@ var
 begin
   FBasePath := ABasePath;
   FSync := TSimpleRWSync.Create;
-  VFactory := TMarkFactory.Create(GetDbCode, AFactoryConfig, ACategoryDB);
+  VFactory :=
+    TMarkFactory.Create(
+      GetDbCode,
+      AFactoryConfig,
+      AHintConverter,
+      ACategoryDB
+    );
   FFactory := VFactory;
   FFactoryDbInternal := VFactory;
   FCdsMarks := TClientDataSet.Create(nil);

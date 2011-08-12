@@ -3520,87 +3520,8 @@ begin
   end;
 end;
 
-function HTML2Txt(OrigHTML: String): String;
-var
-  NoHTML: String;
-function MidStr(const pString, pAbre, pFecha: String; pInclui: boolean): string;
-var
-  lIni, lFim : integer;
-begin
-  if (pInclui = False) then begin
-    lIni := System.Pos(UpperCase(pAbre), UpperCase(pString)) + Length(pAbre);
-    lFim := PosEx(UpperCase(pFecha),UpperCase(pString),lIni)+1;
-  end else begin
-    lIni := System.Pos(UpperCase(pAbre), UpperCase(pString));
-    lFim := PosEx(UpperCase(pFecha),UpperCase(pString),lIni + Length(pAbre))+1;
-  end;
-  result := Copy(pString, lIni, lFim - lIni);
-end;
-function mid(str:string; pos:integer):string;
-begin
- result:=copy(str,pos, length(str)-pos+1);
-end;
-begin
-  if System.Pos('<body', LowerCase(OrigHTML)) > 0 Then begin
-    OrigHTML := Mid(OrigHTML, System.Pos('<body', LowerCase(OrigHTML)));
-    OrigHTML := Mid(OrigHTML, System.Pos('>', OrigHTML) + 1);
-    if System.Pos('</body>', LowerCase(OrigHTML)) > 0 Then
-      OrigHTML := Copy(OrigHTML,1 , System.Pos('</body>', LowerCase(OrigHTML)) - 1);
-  end;
-  OrigHTML := StringReplace(OrigHTML, Chr(13), '', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, Chr(10), '', [rfReplaceAll]);
-  while System.Pos('  ', OrigHTML) > 0 do
-    OrigHTML := StringReplace(OrigHTML, '  ', ' ', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '<br>', #13#10, [rfReplaceAll, rfIgnoreCase]);
-  OrigHTML := StringReplace(OrigHTML, '</div>', #13#10#13#10, [rfReplaceAll, rfIgnoreCase]);
-  while System.Pos('<p', OrigHTML) > 0 do begin
-    NoHTML   := MidStr(OrigHTML, '<p', '>', True);
-    OrigHTML := StringReplace(OrigHTML, NoHTML, (#13#10#13#10), [rfReplaceAll, rfIgnoreCase]);
-  end;
-  while System.Pos('<', OrigHTML) > 0 do begin
-    NoHTML   := MidStr(OrigHTML, '<', '>', True);
-    OrigHTML := StringReplace(OrigHTML, NoHTML, '', [rfReplaceAll, rfIgnoreCase]);
-  end;
-  OrigHTML := StringReplace(OrigHTML, '&#36;',     '$', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '#37;',      '%', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&#187;',    '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&aacute;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&atilde;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&ccedil;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&eacute;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&ecirc;',   '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&iacute;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&oacute;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&ocirc;',   '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&otilde;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&Aacute;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&Atilde;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&Ccedil;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&Eacute;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&Ecirc;',   '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&Iacute;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&Oacute;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&Ocirc;',   '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&Otilde;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&amp;',     '&', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&quot;',    '"', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&lt;',      '<', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&gt;',      '>', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&nbsp;',    ' ', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&copy;',    '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&reg;',     '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&raquo;',   '»', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&laquo;',   '«', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&Uacute;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&uacute;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&uuml;',    '?', [rfReplaceAll]);
-  result := OrigHTML;
-end;
-
-
 procedure TfrmMain.mapMouseMove(Sender: TObject; Shift: TShiftState; AX, AY: Integer; Layer: TCustomLayer);
 var
-  i,j:integer;
   nms:string;
   hintrect:TRect;
   //CState: Integer;
@@ -3718,6 +3639,7 @@ begin
       VPWL.name := VWikiItem.Name;
       VPWL.descr := VWikiItem.Desc;
       VPWL.S := VMarkS;
+      nms := VWikiItem.GetHintText;
     end;
 
     VMark := nil;
@@ -3729,6 +3651,7 @@ begin
         VPWL.name := VMark.Name;
         VPWL.descr := VMark.Desc;
         VPWL.S := VMarkS;
+        nms := VMark.GetHintText;
       end;
     end;
    if (VPWL.find) then begin
@@ -3736,33 +3659,6 @@ begin
        map.Cursor := crHandPoint;
      end;
      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
-     if (length(VPWL.name)>0) then begin
-       if System.Pos('<',VPWL.name)>0 then nms:=HTML2Txt(VPWL.name)
-                                     else nms:=VPWL.name;
-     end;
-     if (length(VPWL.descr)>0) then begin
-       if length(nms)>0 then nms:=nms+#13#10;
-       if System.Pos('<',VPWL.descr)>0 then nms:=nms+HTML2Txt(VPWL.descr)
-                                      else nms:=nms+VPWL.descr;
-     end;
-     i:=1;
-     j:=0;
-     while (i<length(nms))and(i<>0) do begin
-       inc(j);
-       if (nms[i]=#13)or(nms[i]=#10) then j:=0;
-       if (j>40)and(nms[i]=' ')and(length(nms)-i>5)then begin
-         if i>500 then begin
-           Insert('...',nms,i);
-           Delete(nms,i+3,length(nms)-i+3);
-           i:=0;
-           continue;
-         end;
-         Delete(nms,i,1);
-         Insert(#13#10,nms,i);
-         j:=0;
-        end;
-       inc(i);
-      end;
      if nms<>'' then begin
       if FHintWindow=nil then begin
         FHintWindow:=THintWindow.Create(Self);

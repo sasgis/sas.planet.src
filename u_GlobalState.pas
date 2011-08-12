@@ -222,6 +222,7 @@ uses
   u_DownloadResultTextProvider,
   u_MainFormConfig,
   u_SensorListStuped,
+  u_HtmlToHintTextConverterStuped,
   u_InternalPerformanceCounterList,
   u_IeEmbeddedProtocolFactory,
   u_PathDetalizeProviderListSimple,
@@ -289,15 +290,27 @@ begin
   FMainMemCacheVector := TMemFileCacheVector.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('VectorCache'));
 
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create(FCacheConfig);
-  FContentTypeManager := TContentTypeManagerSimple.Create(FPerfCounterList);
+  FContentTypeManager :=
+    TContentTypeManagerSimple.Create(
+      THtmlToHintTextConverterStuped.Create,
+      FPerfCounterList
+    );
 
   FStartUpLogoConfig := TStartUpLogoConfig.Create(FContentTypeManager);
   FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
-  FKmlLoader := TKmlInfoSimpleParser.Create(VMarksKmlLoadCounterList);
-  FKmzLoader := TKmzInfoSimpleParser.Create(VMarksKmlLoadCounterList);
+  FKmlLoader :=
+    TKmlInfoSimpleParser.Create(
+      THtmlToHintTextConverterStuped.Create,
+      VMarksKmlLoadCounterList
+    );
+  FKmzLoader :=
+    TKmzInfoSimpleParser.Create(
+      THtmlToHintTextConverterStuped.Create,
+      VMarksKmlLoadCounterList
+    );
   FImportFileByExt := TImportByFileExt.Create(FKmlLoader, FKmzLoader);
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
@@ -316,7 +329,13 @@ begin
   FGeoCoderList := TGeoCoderListSimple.Create(FInetConfig.ProxyConfig as IProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FContentTypeManager);
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
-  FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);
+  FMarksDB :=
+    TMarksDB.Create(
+      FProgramPath,
+      FMarkPictureList,
+      THtmlToHintTextConverterStuped.Create,
+      FMarksCategoryFactoryConfig
+    );
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
   FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, FKmlLoader);

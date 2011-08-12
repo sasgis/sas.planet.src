@@ -116,6 +116,8 @@ object frmGoTo: TfrmGoTo
     TabOrder = 0
     object tsPlaceMarks: TTabSheet
       Caption = 'PlaceMarks'
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 388
       ExplicitHeight = 165
       object cbbAllMarks: TComboBox
@@ -125,13 +127,10 @@ object frmGoTo: TfrmGoTo
         Width = 250
         Height = 21
         Align = alClient
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         OnChange = cbbAllMarksDropDown
         OnDropDown = cbbAllMarksDropDown
-        ExplicitLeft = 7
-        ExplicitTop = 21
-        ExplicitWidth = 248
       end
     end
     object tsSearch: TTabSheet
@@ -148,7 +147,7 @@ object frmGoTo: TfrmGoTo
         Width = 250
         Height = 21
         Align = alTop
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 1
       end
       object cbbGeoCode: TComboBox
@@ -156,19 +155,19 @@ object frmGoTo: TfrmGoTo
         Left = 3
         Top = 30
         Width = 248
-        Height = 21
+        Height = 48
         Align = alLeft
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         OnChange = cbbAllMarksDropDown
         OnDropDown = cbbAllMarksDropDown
-        ExplicitLeft = 5
-        ExplicitTop = 18
       end
     end
     object tsCoordinates: TTabSheet
       Caption = 'Coordinates'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 388
       ExplicitHeight = 165
     end

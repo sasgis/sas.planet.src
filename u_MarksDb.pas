@@ -8,6 +8,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MarkPicture,
+  i_HtmlToHintTextConverter,
   i_MarksFactoryConfig,
   i_MarkCategory,
   i_MarkCategoryFactoryConfig,
@@ -29,6 +30,7 @@ type
     constructor Create(
       ABasePath: string;
       AMarkPictureList: IMarkPictureList;
+      AHintConverter: IHtmlToHintTextConverter;
       ACategoryFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
@@ -56,6 +58,7 @@ uses
 constructor TMarksDB.Create(
   ABasePath: string;
   AMarkPictureList: IMarkPictureList;
+  AHintConverter: IHtmlToHintTextConverter;
   ACategoryFactoryConfig: IMarkCategoryFactoryConfig
 );
 var
@@ -65,8 +68,18 @@ begin
   VCategoryDB := TMarkCategoryDB.Create(ABasePath, ACategoryFactoryConfig);
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
-  FMarksFactoryConfig := TMarksFactoryConfig.Create(FCategoryDBInternal, AMarkPictureList);
-  FMarksDb := TMarksOnlyDb.Create(ABasePath, FCategoryDBInternal, FMarksFactoryConfig);
+  FMarksFactoryConfig :=
+    TMarksFactoryConfig.Create(
+      FCategoryDBInternal,
+      AMarkPictureList
+    );
+  FMarksDb :=
+    TMarksOnlyDb.Create(
+      ABasePath,
+      FCategoryDBInternal,
+      AHintConverter,
+      FMarksFactoryConfig
+    );
 end;
 
 destructor TMarksDB.Destroy;

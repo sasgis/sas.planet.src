@@ -6,6 +6,7 @@ uses
   Classes,
   i_VectorDataItemSimple,
   i_InternalPerformanceCounter,
+  i_HtmlToHintTextConverter,
   u_KmlInfoSimpleParser;
 
 type
@@ -16,6 +17,7 @@ type
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); override;
   public
     constructor Create(
+      AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -29,12 +31,13 @@ uses
 { TKmzInfoSimpleParser }
 
 constructor TKmzInfoSimpleParser.Create(
+  AHintConverter: IHtmlToHintTextConverter;
   APerfCounterList: IInternalPerformanceCounterList);
 var
   VPerfCounterList: IInternalPerformanceCounterList;
 begin
   VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('KmzLoader');
-  inherited Create(VPerfCounterList);
+  inherited Create(AHintConverter, VPerfCounterList);
   FLoadKmzStreamCounter := VPerfCounterList.CreateAndAddNewCounter('LoadKmzStream');
 end;
 

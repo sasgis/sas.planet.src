@@ -12,6 +12,7 @@ uses
   i_MarkCategoryDBSmlInternal,
   i_MarksSimple,
   i_MarkTemplate,
+  i_HtmlToHintTextConverter,
   i_MarkFactory,
   i_MarkFactorySmlInternal;
 
@@ -22,6 +23,7 @@ type
     FConfig: IMarksFactoryConfig;
     FDbCode: Integer;
     FCategoryDB: IMarkCategoryDBSmlInternal;
+    FHintConverter: IHtmlToHintTextConverter;
 
     FMarkPictureList: IMarkPictureList;
     function GetLLRectFromPoints(APoints: TArrayOfDoublePoint): TDoubleRect;
@@ -157,6 +159,7 @@ type
     constructor Create(
       ADbCode: Integer;
       AConfig: IMarksFactoryConfig;
+      AHintConverter: IHtmlToHintTextConverter;
       ACategoryDB: IMarkCategoryDBSmlInternal
     );
   end;
@@ -177,11 +180,13 @@ uses
 constructor TMarkFactory.Create(
   ADbCode: Integer;
   AConfig: IMarksFactoryConfig;
+  AHintConverter: IHtmlToHintTextConverter;
   ACategoryDB: IMarkCategoryDBSmlInternal
 );
 begin
   FDbCode := ADbCode;
   FConfig := AConfig;
+  FHintConverter := AHintConverter;
   FCategoryDB := ACategoryDB;
   FMarkPictureList := FConfig.PointTemplateConfig.MarkPictureList;
 end;
@@ -350,6 +355,7 @@ begin
   end;
 
   Result := TMarkPoint.Create(
+    FHintConverter,
     FDbCode,
     AName,
     AID,
@@ -384,6 +390,7 @@ begin
   end;
 
   Result := TMarkLine.Create(
+    FHintConverter,
     FDbCode,
     AName,
     AId,
@@ -414,6 +421,7 @@ begin
   end;
 
   Result := TMarkPoly.Create(
+    FHintConverter,
     FDbCode,
     AName,
     AID,
