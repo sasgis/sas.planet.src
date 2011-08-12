@@ -27,7 +27,6 @@ type
     FStopedMarkerProvider: IBitmapMarkerProvider;
 
     FGpsPosChangeCounter: Integer;
-    FMovedMarker: IBitmapMarker;
     FStopedMarker: IBitmapMarker;
     FTransform: TAffineTransformation;
     FMarker: TCustomBitmap32;
@@ -125,7 +124,6 @@ end;
 
 procedure TMapLayerGPSMarker.OnConfigChange(Sender: TObject);
 begin
-  FMovedMarker := FMovedMarkerProvider.GetMarker;
   FStopedMarker := FStopedMarkerProvider.GetMarker;
   GPSReceiverReceive(nil);
 end;
@@ -172,50 +170,22 @@ end;
 
 procedure TMapLayerGPSMarker.PrepareMarker(ASpeed, AAngle: Double);
 var
-  VSizeSource: TPoint;
-  VSizeSourceFloat: TFloatPoint;
   VSizeTarget: TPoint;
-  VDiag: Integer;
-  VFixedOnBitmap: TFloatPoint;
   VMarker: IBitmapMarker;
 begin
   if ASpeed > FConfig.MinMoveSpeed then begin
-    VMarker := FMovedMarker;
+    VMarker := FMovedMarkerProvider.GetMarkerWithRotation(AAngle);
   end else begin
     VMarker := FStopedMarker;
   end;
-  if VMarker.UseDirection then begin
-    VSizeSource := VMarker.BitmapSize;
-    VSizeSourceFloat := FloatPoint(VSizeSource.X, VSizeSource.Y);
-    VDiag := Trunc(Hypot(VSizeSourceFloat.X, VSizeSourceFloat.Y));
-    VSizeTarget.X := VDiag;
-    VSizeTarget.Y := VDiag;
-    FMarker.Lock;
-    try
-      FTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-      FTransform.Clear;
-      FTransform.Translate(-VSizeSource.X / 2, -VSizeSource.Y / 2);
-      FTransform.Rotate(0, 0, VMarker.DefaultDirection - AAngle);
-      FTransform.Translate(VSizeTarget.X / 2, VSizeTarget.Y / 2);
-
-      FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
-      FMarker.Clear(0);
-      Transform(FMarker, VMarker.Bitmap, FTransform);
-      VFixedOnBitmap := FTransform.Transform(FloatPoint(VMarker.AnchorPoint.X, VMarker.AnchorPoint.Y));
-      FFixedOnBitmap := DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y);
-    finally
-      FMarker.Unlock;
-    end;
-  end else begin
+  FMarker.Lock;
+  try
     VSizeTarget := VMarker.BitmapSize;
-    FMarker.Lock;
-    try
-      FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
-      FFixedOnBitmap := VMarker.AnchorPoint;
-      VMarker.Bitmap.DrawTo(FMarker);
-    finally
-      FMarker.Unlock;
-    end;
+    FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
+    FFixedOnBitmap := VMarker.AnchorPoint;
+    FMarker.Assign(VMarker.Bitmap);
+  finally
+    FMarker.Unlock;
   end;
 end;
 

@@ -45,6 +45,8 @@ constructor TBitmapMarker.Create(ABitmap: TCustomBitmap32; AAnchorPoint: TDouble
 begin
   FBitmap := TCustomBitmap32.Create;
   FBitmap.Assign(ABitmap);
+  FBitmap.DrawMode := dmBlend;
+  FBitmap.CombineMode := cmBlend;
   FBitmapSize := Point(FBitmap.Width, FBitmap.Height);
   FAnchorPoint := AAnchorPoint;
   FUseDirection := AUseDirection;

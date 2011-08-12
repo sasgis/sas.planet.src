@@ -12,7 +12,11 @@ uses
 type
   TBitmapMarkerProviderSimpleSquare = class(TBitmapMarkerProviderSimpleBase)
   protected
-    function CreateMarker: IBitmapMarker; override;
+    function CreateMarker(ASize: Integer): IBitmapMarker; override;
+  public
+    constructor Create(
+      AConfig: IBitmapMarkerProviderSimpleConfig
+    );
   end;
 
 implementation
@@ -23,7 +27,13 @@ uses
 
 { TBitmapMarkerProviderSimpleSquare }
 
-function TBitmapMarkerProviderSimpleSquare.CreateMarker: IBitmapMarker;
+constructor TBitmapMarkerProviderSimpleSquare.Create(
+  AConfig: IBitmapMarkerProviderSimpleConfig);
+begin
+  inherited Create(False, 0, AConfig);
+end;
+
+function TBitmapMarkerProviderSimpleSquare.CreateMarker(ASize: Integer): IBitmapMarker;
 var
   VConfig: IBitmapMarkerProviderSimpleConfigStatic;
   VMarkerBitmap: TCustomBitmap32;
@@ -34,7 +44,7 @@ begin
   VMarkerBitmap := TCustomBitmap32.Create;
   try
     VConfig := Config.GetStatic;
-    VSize := Point(VConfig.MarkerSize, VConfig.MarkerSize);
+    VSize := Point(ASize, ASize);
 
     VCenterPoint.X := VSize.X / 2;
     VCenterPoint.Y := VSize.Y / 2;

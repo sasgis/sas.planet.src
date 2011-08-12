@@ -12,7 +12,11 @@ uses
 type
   TBitmapMarkerProviderSimpleArrow = class(TBitmapMarkerProviderSimpleBase)
   protected
-    function CreateMarker: IBitmapMarker; override;
+    function CreateMarker(ASize: Integer): IBitmapMarker; override;
+  public
+    constructor Create(
+      AConfig: IBitmapMarkerProviderSimpleConfig
+    );
   end;
 
 implementation
@@ -25,7 +29,13 @@ uses
 
 { TBitmapMarkerProviderSimpleArrow }
 
-function TBitmapMarkerProviderSimpleArrow.CreateMarker: IBitmapMarker;
+constructor TBitmapMarkerProviderSimpleArrow.Create(
+  AConfig: IBitmapMarkerProviderSimpleConfig);
+begin
+  inherited Create(True, 0, AConfig);
+end;
+
+function TBitmapMarkerProviderSimpleArrow.CreateMarker(ASize: Integer): IBitmapMarker;
 var
   VConfig: IBitmapMarkerProviderSimpleConfigStatic;
   VMarkerBitmap: TCustomBitmap32;
@@ -36,7 +46,7 @@ begin
   VMarkerBitmap := TCustomBitmap32.Create;
   try
     VConfig := Config.GetStatic;
-    VSize := Point(VConfig.MarkerSize, VConfig.MarkerSize);
+    VSize := Point(ASize, ASize);
 
     VCenterPoint.X := VSize.X / 2;
     VCenterPoint.Y := VSize.Y / 2;
@@ -48,8 +58,8 @@ begin
       VPolygon.Antialiased := true;
       VPolygon.AntialiasMode := am32times;
       VPolygon.Add(FixedPoint(VCenterPoint.X, 0));
-      VPolygon.Add(FixedPoint(VCenterPoint.X - VConfig.MarkerSize / 3, VSize.Y - 1));
-      VPolygon.Add(FixedPoint(VCenterPoint.X + VConfig.MarkerSize / 3, VSize.Y - 1));
+      VPolygon.Add(FixedPoint(VCenterPoint.X - VSize.X / 3, VSize.Y - 1));
+      VPolygon.Add(FixedPoint(VCenterPoint.X + VSize.X / 3, VSize.Y - 1));
       VPolygon.DrawFill(VMarkerBitmap, VConfig.MarkerColor);
       VPolygon.DrawEdge(VMarkerBitmap, VConfig.BorderColor);
     finally

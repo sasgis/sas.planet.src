@@ -17,6 +17,8 @@ type
    descr:String;
   end;
 
+  function CalcAngleDelta(ADerg1, ADegr2: Double): Double;
+
   function PolygonFromRect(ARect: TDoubleRect): TArrayOfDoublePoint;
   function DoublePoint(APoint: TPoint): TDoublePoint; overload;
   function DoublePoint(X, Y: Double): TDoublePoint; overload;
@@ -56,6 +58,19 @@ implementation
 
 uses
   Math;
+
+function CalcAngleDelta(ADerg1, ADegr2: Double): Double;
+begin
+  Result := ADerg1 - ADegr2;
+  if (Result > 360) or (Result < 360) then begin
+    Result := Result - Trunc(Result / 360.0) * 360.0;
+  end;
+  if Result > 180.0 then begin
+    Result := Result - 360.0;
+  end else if Result < -180.0 then begin
+    Result := Result + 360.0;
+  end;
+end;
 
 function RgnAndRect(Polyg:TArrayOfPoint; ARect: TRect):boolean;
 var

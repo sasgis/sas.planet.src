@@ -12,7 +12,11 @@ uses
 type
   TBitmapMarkerProviderSimpleCross = class(TBitmapMarkerProviderSimpleBase)
   protected
-    function CreateMarker: IBitmapMarker; override;
+    function CreateMarker(ASize: Integer): IBitmapMarker; override;
+  public
+    constructor Create(
+      AConfig: IBitmapMarkerProviderSimpleConfig
+    );
   end;
 
 implementation
@@ -24,7 +28,13 @@ uses
 
 { TBitmapMarkerProviderSimpleCross }
 
-function TBitmapMarkerProviderSimpleCross.CreateMarker: IBitmapMarker;
+constructor TBitmapMarkerProviderSimpleCross.Create(
+  AConfig: IBitmapMarkerProviderSimpleConfig);
+begin
+  inherited Create(False, 0, AConfig);
+end;
+
+function TBitmapMarkerProviderSimpleCross.CreateMarker(ASize: Integer): IBitmapMarker;
 var
   VConfig: IBitmapMarkerProviderSimpleConfigStatic;
   VMarkerBitmap: TCustomBitmap32;
@@ -36,12 +46,12 @@ begin
   VMarkerBitmap := TCustomBitmap32.Create;
   try
     VConfig := Config.GetStatic;
-    VSize := Point(VConfig.MarkerSize, VConfig.MarkerSize);
+    VSize := Point(ASize, ASize);
 
     VCenterPoint.X := VSize.X / 2;
     VCenterPoint.Y := VSize.Y / 2;
 
-    VCrossHalfWidth := VConfig.MarkerSize / 10;
+    VCrossHalfWidth := ASize / 10;
 
     VMarkerBitmap.SetSize(VSize.Y, VSize.Y);
     VMarkerBitmap.Clear(0);
