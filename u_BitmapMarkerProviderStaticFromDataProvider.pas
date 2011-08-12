@@ -146,7 +146,7 @@ var
   VMarker: IBitmapMarker;
 begin
   VMarker := FMarker;
-  if (not FUseDirection) or (Abs(CalcAngleDelta(AAngle, VMarker.DefaultDirection)) < CAngleDelta) then begin
+  if (not FUseDirection) or (Abs(CalcAngleDelta(AAngle, VMarker.Direction)) < CAngleDelta) then begin
     Result := VMarker;
   end else begin
     Result := ModifyMarkerWithRotation(VMarker, AAngle);
@@ -159,7 +159,7 @@ var
   VMarker: IBitmapMarker;
 begin
   VMarker := FMarker;
-  if (not FUseDirection) or (Abs(CalcAngleDelta(AAngle, VMarker.DefaultDirection)) < CAngleDelta) then begin
+  if (not FUseDirection) or (Abs(CalcAngleDelta(AAngle, VMarker.Direction)) < CAngleDelta) then begin
     if (VMarker.BitmapSize.X = ASize) then begin
       Result := VMarker;
     end else begin
@@ -237,7 +237,7 @@ begin
           VBitmap,
           DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
           ASourceMarker.UseDirection,
-          ASourceMarker.DefaultDirection
+          ASourceMarker.Direction
         );
     finally
       VBitmap.Free;
@@ -265,7 +265,7 @@ begin
   try
     VSizeSource := ASourceMarker.BitmapSize;
     VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-    VTransform.Rotate(0, 0, ASourceMarker.DefaultDirection - AAngle);
+    VTransform.Rotate(0, 0, ASourceMarker.Direction - AAngle);
     VTargetRect := VTransform.GetTransformedBounds;
     VSizeTarget.X := Trunc(VTargetRect.Right - VTargetRect.Left) + 1;
     VSizeTarget.Y := Trunc(VTargetRect.Bottom - VTargetRect.Top) + 1;
@@ -331,7 +331,7 @@ begin
   try
     VSizeSource := ASourceMarker.BitmapSize;
     VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-    VTransform.Rotate(0, 0, ASourceMarker.DefaultDirection - AAngle);
+    VTransform.Rotate(0, 0, ASourceMarker.Direction - AAngle);
     VScale := ASize / ASourceMarker.BitmapSize.X;
     VTransform.Scale(VScale, VScale);
     VTargetRect := VTransform.GetTransformedBounds;

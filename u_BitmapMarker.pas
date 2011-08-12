@@ -15,19 +15,19 @@ type
     FBitmap: TCustomBitmap32;
     FAnchorPoint: TDoublePoint;
     FUseDirection: Boolean;
-    FDefaultDirection: Double;
+    FDirection: Double;
   protected
     function GetBitmapSize: TPoint;
     function GetBitmap: TCustomBitmap32;
     function GetAnchorPoint: TDoublePoint;
     function GetUseDirection: Boolean;
-    function GetDefaultDirection: Double;
+    function GetDirection: Double;
   public
     constructor Create(
       ABitmap: TCustomBitmap32;
       AAnchorPoint: TDoublePoint;
       AUseDirection: Boolean;
-      ADefaultDirection: Double
+      ADirection: Double
     );
     destructor Destroy; override;
   end;
@@ -41,7 +41,7 @@ uses
 { TBitmapMarker }
 
 constructor TBitmapMarker.Create(ABitmap: TCustomBitmap32; AAnchorPoint: TDoublePoint;
-  AUseDirection: Boolean; ADefaultDirection: Double);
+  AUseDirection: Boolean; ADirection: Double);
 begin
   FBitmap := TCustomBitmap32.Create;
   FBitmap.Assign(ABitmap);
@@ -50,7 +50,7 @@ begin
   FBitmapSize := Point(FBitmap.Width, FBitmap.Height);
   FAnchorPoint := AAnchorPoint;
   FUseDirection := AUseDirection;
-  FDefaultDirection := ADefaultDirection;
+  FDirection := ADirection;
 end;
 
 destructor TBitmapMarker.Destroy;
@@ -74,9 +74,9 @@ begin
   Result := FBitmapSize;
 end;
 
-function TBitmapMarker.GetDefaultDirection: Double;
+function TBitmapMarker.GetDirection: Double;
 begin
-  Result := FDefaultDirection;
+  Result := FDirection;
 end;
 
 function TBitmapMarker.GetUseDirection: Boolean;

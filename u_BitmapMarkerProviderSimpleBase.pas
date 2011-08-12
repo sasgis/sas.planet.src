@@ -146,7 +146,7 @@ begin
   try
     VSizeSource := ASourceMarker.BitmapSize;
     VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-    VTransform.Rotate(0, 0, ASourceMarker.DefaultDirection - AAngle);
+    VTransform.Rotate(0, 0, ASourceMarker.Direction - AAngle);
     VTargetRect := VTransform.GetTransformedBounds;
     VSizeTarget.X := Trunc(VTargetRect.Right - VTargetRect.Left) + 1;
     VSizeTarget.Y := Trunc(VTargetRect.Bottom - VTargetRect.Top) + 1;

@@ -22,8 +22,8 @@ type
     function GetUseDirection: Boolean;
     property UseDirection: Boolean read GetUseDirection;
 
-    function GetDefaultDirection: Double;
-    property DefaultDirection: Double read GetDefaultDirection;
+    function GetDirection: Double;
+    property Direction: Double read GetDirection;
   end;
 
   IBitmapMarkerProvider = interface
