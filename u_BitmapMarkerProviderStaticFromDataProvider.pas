@@ -218,6 +218,7 @@ begin
             VRasterizer.Sampler := VTransformer;
             VCombineInfo.SrcAlpha := 255;
             VCombineInfo.DrawMode := dmOpaque;
+            VCombineInfo.CombineMode := cmBlend;
             VCombineInfo.TransparentColor := 0;
             VRasterizer.Rasterize(VBitmap, VBitmap.BoundsRect, VCombineInfo);
           finally
