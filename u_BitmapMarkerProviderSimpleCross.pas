@@ -14,9 +14,9 @@ type
   protected
     function CreateMarker(ASize: Integer): IBitmapMarker; override;
   public
-    constructor Create(
-      AConfig: IBitmapMarkerProviderSimpleConfig
-    );
+    constructor CreateProvider(
+      AConfig: IBitmapMarkerProviderSimpleConfigStatic
+    ); override;
   end;
 
 implementation
@@ -28,8 +28,8 @@ uses
 
 { TBitmapMarkerProviderSimpleCross }
 
-constructor TBitmapMarkerProviderSimpleCross.Create(
-  AConfig: IBitmapMarkerProviderSimpleConfig);
+constructor TBitmapMarkerProviderSimpleCross.CreateProvider(
+  AConfig: IBitmapMarkerProviderSimpleConfigStatic);
 begin
   inherited Create(False, 0, AConfig);
 end;
@@ -45,7 +45,7 @@ var
 begin
   VMarkerBitmap := TCustomBitmap32.Create;
   try
-    VConfig := Config.GetStatic;
+    VConfig := Config;
     VSize := Point(ASize, ASize);
 
     VCenterPoint.X := VSize.X / 2;

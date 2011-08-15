@@ -451,6 +451,7 @@
     <DCCReference Include="u_BackgroundTaskLayerDrawBase.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BitmapMarker.pas" />
+    <DCCReference Include="u_BitmapMarkerProviderChangeableFaked.pas" />
     <DCCReference Include="u_BitmapMarkerProviderSimpleArrow.pas" />
     <DCCReference Include="u_BitmapMarkerProviderSimpleBase.pas" />
     <DCCReference Include="u_BitmapMarkerProviderSimpleConfig.pas" />

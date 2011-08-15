@@ -23,8 +23,10 @@ type
   private
     FConfig: IMapLayerGPSMarkerConfig;
     FGPSRecorder: IGPSRecorder;
-    FMovedMarkerProvider: IBitmapMarkerProvider;
-    FStopedMarkerProvider: IBitmapMarkerProvider;
+    FMovedMarkerProvider: IBitmapMarkerProviderChangeable;
+    FMovedMarkerProviderStatic: IBitmapMarkerProvider;
+    FStopedMarkerProvider: IBitmapMarkerProviderChangeable;
+    FStopedMarkerProviderStatic: IBitmapMarkerProvider;
 
     FGpsPosChangeCounter: Integer;
     FStopedMarker: IBitmapMarker;
@@ -48,8 +50,8 @@ type
       AViewPortState: IViewPortState;
       ATimerNoifier: IJclNotifier;
       AConfig: IMapLayerGPSMarkerConfig;
-      AMovedMarkerProvider: IBitmapMarkerProvider;
-      AStopedMarkerProvider: IBitmapMarkerProvider;
+      AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
+      AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
       AGPSRecorder: IGPSRecorder
     );
     destructor Destroy; override;
@@ -71,8 +73,8 @@ constructor TMapLayerGPSMarker.Create(
   AViewPortState: IViewPortState;
   ATimerNoifier: IJclNotifier;
   AConfig: IMapLayerGPSMarkerConfig;
-  AMovedMarkerProvider: IBitmapMarkerProvider;
-  AStopedMarkerProvider: IBitmapMarkerProvider;
+  AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
+  AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
   AGPSRecorder: IGPSRecorder
 );
 begin
@@ -124,7 +126,9 @@ end;
 
 procedure TMapLayerGPSMarker.OnConfigChange(Sender: TObject);
 begin
-  FStopedMarker := FStopedMarkerProvider.GetMarker;
+  FMovedMarkerProviderStatic := FMovedMarkerProvider.GetStatic;
+  FStopedMarkerProviderStatic := FStopedMarkerProvider.GetStatic;
+  FStopedMarker := FStopedMarkerProviderStatic.GetMarker;
   GPSReceiverReceive(nil);
 end;
 
@@ -174,7 +178,7 @@ var
   VMarker: IBitmapMarker;
 begin
   if ASpeed > FConfig.MinMoveSpeed then begin
-    VMarker := FMovedMarkerProvider.GetMarkerWithRotation(AAngle);
+    VMarker := FMovedMarkerProviderStatic.GetMarkerWithRotation(AAngle);
   end else begin
     VMarker := FStopedMarker;
   end;

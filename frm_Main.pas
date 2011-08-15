@@ -648,9 +648,11 @@ uses
   u_LanguageTBXItem,
   u_MouseState,
   i_ImportConfig,
+  u_BitmapMarkerProviderSimpleBase,
   u_BitmapMarkerProviderSimpleSquare,
   u_BitmapMarkerProviderSimpleArrow,
   u_BitmapMarkerProviderSimpleCross,
+  u_BitmapMarkerProviderChangeableFaked,
   u_BitmapMarkerProviderStaticFromDataProvider,
   u_ThreadDownloadTiles,
   u_SaveLoadTBConfigByConfigProvider,
@@ -886,10 +888,12 @@ begin
         FConfig.ViewPortState,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.GPSMarker,
-        TBitmapMarkerProviderSimpleArrow.Create(
+        TBitmapMarkerProviderChangeableWithConfig.Create(
+          TBitmapMarkerProviderSimpleArrow,
           FConfig.LayersConfig.GPSMarker.MovedMarkerConfig
         ),
-        TBitmapMarkerProviderSimpleSquare.Create(
+        TBitmapMarkerProviderChangeableWithConfig.Create(
+          TBitmapMarkerProviderSimpleSquare,
           FConfig.LayersConfig.GPSMarker.StopedMarkerConfig
         ),
         GState.GPSRecorder
@@ -943,13 +947,15 @@ begin
       TGotoLayer.Create(
         map,
         FConfig.ViewPortState,
-        TBitmapMarkerProviderStaticFromDataProvider.Create(
-          GState.ResourceProvider,
-          GState.ContentTypeManager,
-          'ICONIII.png',
-          DoublePoint(7, 6),
-          False,
-          0
+        TBitmapMarkerProviderChangeableFaked.Create(
+          TBitmapMarkerProviderStaticFromDataProvider.Create(
+            GState.ResourceProvider,
+            GState.ContentTypeManager,
+            'ICONIII.png',
+            DoublePoint(7, 6),
+            False,
+            0
+          )
         ),
         FConfig.LayersConfig.GotoLayerConfig
       );
@@ -959,10 +965,12 @@ begin
         map,
         FConfig.ViewPortState,
         FConfig.NavToPoint,
-        TBitmapMarkerProviderSimpleArrow.Create(
+        TBitmapMarkerProviderChangeableWithConfig.Create(
+          TBitmapMarkerProviderSimpleArrow,
           FConfig.LayersConfig.NavToPointMarkerConfig.ArrowMarkerConfig
         ),
-        TBitmapMarkerProviderSimpleCross.Create(
+        TBitmapMarkerProviderChangeableWithConfig.Create(
+          TBitmapMarkerProviderSimpleCross,
           FConfig.LayersConfig.NavToPointMarkerConfig.ReachedMarkerConfig
         ),
         FConfig.LayersConfig.NavToPointMarkerConfig

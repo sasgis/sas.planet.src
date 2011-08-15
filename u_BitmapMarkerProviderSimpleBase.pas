@@ -12,16 +12,13 @@ uses
 type
   TBitmapMarkerProviderSimpleBase = class(TInterfacedObject, IBitmapMarkerProvider)
   private
-    FConfig: IBitmapMarkerProviderSimpleConfig;
+    FConfig: IBitmapMarkerProviderSimpleConfigStatic;
     FUseDirection: Boolean;
     FDefaultDirection: Double;
     FMarker: IBitmapMarker;
-    FConfigChangeListener: IJclListener;
-    FChangeNotifier: IJclNotifier;
-    procedure OnConfigChange(Sender: TObject);
     function ModifyMarkerWithRotation(ASourceMarker: IBitmapMarker; AAngle: Double): IBitmapMarker;
   protected
-    property Config: IBitmapMarkerProviderSimpleConfig read FConfig;
+    property Config: IBitmapMarkerProviderSimpleConfigStatic read FConfig;
     function CreateMarker(ASize: Integer): IBitmapMarker; virtual; abstract;
   protected
     function GetUseDirection: Boolean;
@@ -30,16 +27,37 @@ type
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
     function GetMarkerWithRotation(AAngle: Double): IBitmapMarker;
     function GetMarkerWithRotationBySize(AAngle: Double;  ASize: Integer): IBitmapMarker;
-
-    function GetChangeNotifier: IJclNotifier;
   public
+    constructor CreateProvider(AConfig: IBitmapMarkerProviderSimpleConfigStatic); virtual; abstract;
     constructor Create(
       AUseDirection: Boolean;
       ADefaultDirection: Double;
+      AConfig: IBitmapMarkerProviderSimpleConfigStatic
+    );
+  end;
+
+  TBitmapMarkerProviderSimpleBaseClass = class of TBitmapMarkerProviderSimpleBase;
+
+  TBitmapMarkerProviderChangeableWithConfig = class(TInterfacedObject, IBitmapMarkerProviderChangeable)
+  private
+    FConfig: IBitmapMarkerProviderSimpleConfig;
+    FProviderClass: TBitmapMarkerProviderSimpleBaseClass;
+    FProviderStatic: IBitmapMarkerProvider;
+
+    FConfigChangeListener: IJclListener;
+    FChangeNotifier: IJclNotifier;
+    procedure OnConfigChange(Sender: TObject);
+  protected
+    function GetStatic: IBitmapMarkerProvider;
+    function GetChangeNotifier: IJclNotifier;
+  public
+    constructor Create(
+      AProviderClass: TBitmapMarkerProviderSimpleBaseClass;
       AConfig: IBitmapMarkerProviderSimpleConfig
     );
     destructor Destroy; override;
   end;
+
 
 implementation
 
@@ -61,31 +79,14 @@ const
 constructor TBitmapMarkerProviderSimpleBase.Create(
   AUseDirection: Boolean;
   ADefaultDirection: Double;
-  AConfig: IBitmapMarkerProviderSimpleConfig
+  AConfig: IBitmapMarkerProviderSimpleConfigStatic
 );
 begin
   FConfig := AConfig;
   FUseDirection := AUseDirection;
   FDefaultDirection := ADefaultDirection;
 
-  FConfigChangeListener := TNotifyEventListener.Create(Self.OnConfigChange);
-  FConfig.GetChangeNotifier.Add(FConfigChangeListener);
-
-  FChangeNotifier := TJclBaseNotifier.Create;
-  OnConfigChange(nil);
-end;
-
-destructor TBitmapMarkerProviderSimpleBase.Destroy;
-begin
-  FConfig.GetChangeNotifier.Remove(FConfigChangeListener);
-  FConfigChangeListener := nil;
-
-  inherited;
-end;
-
-function TBitmapMarkerProviderSimpleBase.GetChangeNotifier: IJclNotifier;
-begin
-  Result := FChangeNotifier;
+  FMarker := CreateMarker(FConfig.MarkerSize);
 end;
 
 function TBitmapMarkerProviderSimpleBase.GetMarker: IBitmapMarker;
@@ -196,9 +197,44 @@ begin
   end;
 end;
 
-procedure TBitmapMarkerProviderSimpleBase.OnConfigChange(Sender: TObject);
+{ TBitmapMarkerProviderChangeableWithConfig }
+
+constructor TBitmapMarkerProviderChangeableWithConfig.Create(
+  AProviderClass: TBitmapMarkerProviderSimpleBaseClass;
+  AConfig: IBitmapMarkerProviderSimpleConfig);
 begin
-  FMarker := CreateMarker(FConfig.MarkerSize);
+  FProviderClass := AProviderClass;
+  FConfig := AConfig;
+
+  FConfigChangeListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  FConfig.GetChangeNotifier.Add(FConfigChangeListener);
+
+  FChangeNotifier := TJclBaseNotifier.Create;
+  OnConfigChange(nil);
+end;
+
+destructor TBitmapMarkerProviderChangeableWithConfig.Destroy;
+begin
+  FConfig.GetChangeNotifier.Remove(FConfigChangeListener);
+  FConfigChangeListener := nil;
+
+  inherited;
+end;
+
+function TBitmapMarkerProviderChangeableWithConfig.GetChangeNotifier: IJclNotifier;
+begin
+  Result := FChangeNotifier;
+end;
+
+function TBitmapMarkerProviderChangeableWithConfig.GetStatic: IBitmapMarkerProvider;
+begin
+  Result := FProviderStatic;
+end;
+
+procedure TBitmapMarkerProviderChangeableWithConfig.OnConfigChange(
+  Sender: TObject);
+begin
+  FProviderStatic := FProviderClass.CreateProvider(FConfig.GetStatic);
   FChangeNotifier.Notify(nil);
 end;
 

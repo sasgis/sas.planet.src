@@ -18,7 +18,8 @@ type
   private
     FConfig: IGotoLayerConfig;
 
-    FMarkerProvider: IBitmapMarkerProvider;
+    FMarkerProvider: IBitmapMarkerProviderChangeable;
+    FMarkerProviderStatic: IBitmapMarkerProvider;
     FMarker: IBitmapMarker;
 
     FShowTickCount: Cardinal;
@@ -33,7 +34,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
-      AMarkerProvider: IBitmapMarkerProvider;
+      AMarkerProvider: IBitmapMarkerProviderChangeable;
       AConfig: IGotoLayerConfig
     );
     procedure ShowGotoIcon(APoint: TDoublePoint);
@@ -53,7 +54,7 @@ uses
 constructor TGotoLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
-  AMarkerProvider: IBitmapMarkerProvider;
+  AMarkerProvider: IBitmapMarkerProviderChangeable;
   AConfig: IGotoLayerConfig
 );
 begin
@@ -99,7 +100,8 @@ var
   VBitmapSize: TPoint;
   VMarker: IBitmapMarker;
 begin
-  VMarker := FMarkerProvider.GetMarker;
+  FMarkerProviderStatic := FMarkerProvider.GetStatic;
+  VMarker := FMarkerProviderStatic.GetMarker;
   FMarker := VMarker;
   ViewUpdateLock;
   try

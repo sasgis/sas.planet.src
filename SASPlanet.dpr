@@ -497,6 +497,7 @@ uses
   i_BitmapMarker in 'i_BitmapMarker.pas',
   u_BitmapMarker in 'u_BitmapMarker.pas',
   u_BitmapMarkerProviderStaticFromDataProvider in 'u_BitmapMarkerProviderStaticFromDataProvider.pas',
+  u_BitmapMarkerProviderChangeableFaked in 'u_BitmapMarkerProviderChangeableFaked.pas',
   u_BitmapMarkerProviderSimpleArrow in 'u_BitmapMarkerProviderSimpleArrow.pas',
   u_BitmapMarkerProviderSimpleCross in 'u_BitmapMarkerProviderSimpleCross.pas',
   i_BitmapMarkerProviderSimpleConfig in 'i_BitmapMarkerProviderSimpleConfig.pas',

@@ -23,8 +23,10 @@ type
     FConfig: IMapLayerNavToPointMarkerConfig;
     FTransform: TAffineTransformation;
     FNavToPoint:  INavigationToPoint;
-    FArrowMarkerProvider: IBitmapMarkerProvider;
-    FReachedMarkerProvider: IBitmapMarkerProvider;
+    FArrowMarkerProvider: IBitmapMarkerProviderChangeable;
+    FArrowMarkerProviderStatic: IBitmapMarkerProvider;
+    FReachedMarkerProvider: IBitmapMarkerProviderChangeable;
+    FReachedMarkerProviderStatic: IBitmapMarkerProvider;
     FReachedMarker: IBitmapMarker;
 
     FMarker: TCustomBitmap32;
@@ -41,8 +43,8 @@ type
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ANavToPoint: INavigationToPoint;
-      AArrowMarkerProvider: IBitmapMarkerProvider;
-      AReachedMarkerProvider: IBitmapMarkerProvider;
+      AArrowMarkerProvider: IBitmapMarkerProviderChangeable;
+      AReachedMarkerProvider: IBitmapMarkerProviderChangeable;
       AConfig: IMapLayerNavToPointMarkerConfig
     );
     destructor Destroy; override;
@@ -63,8 +65,8 @@ constructor TNavToMarkLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ANavToPoint: INavigationToPoint;
-  AArrowMarkerProvider: IBitmapMarkerProvider;
-  AReachedMarkerProvider: IBitmapMarkerProvider;
+  AArrowMarkerProvider: IBitmapMarkerProviderChangeable;
+  AReachedMarkerProvider: IBitmapMarkerProviderChangeable;
   AConfig: IMapLayerNavToPointMarkerConfig
 );
 begin
@@ -108,7 +110,9 @@ procedure TNavToMarkLayer.OnConfigChange(Sender: TObject);
 begin
   ViewUpdateLock;
   try
-    FReachedMarker := FReachedMarkerProvider.GetMarker;
+    FArrowMarkerProviderStatic := FArrowMarkerProvider.GetStatic;
+    FReachedMarkerProviderStatic := FReachedMarkerProvider.GetStatic;
+    FReachedMarker := FReachedMarkerProviderStatic.GetMarker;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -168,7 +172,7 @@ begin
     if VDelta.Y > 0 then begin
       VAngle := 180 - VAngle;
     end;
-    VMarker := FArrowMarkerProvider.GetMarkerWithRotation(VAngle);
+    VMarker := FArrowMarkerProviderStatic.GetMarkerWithRotation(VAngle);
   end;
   FMarker.Lock;
   try
