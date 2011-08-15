@@ -64,6 +64,13 @@ type
     procedure Remove(listener: IJclListener); stdcall;
   end;
 
+  TJclBaseNotifierFaked = class (TInterfacedObject, IJclNotifier)
+  protected
+    procedure Add(listener: IJclListener); stdcall;
+    procedure Notify(msg: IJclNotificationMessage); stdcall;
+    procedure Remove(listener: IJclListener); stdcall;
+  end;
+
 implementation
 
 { TJclBaseNotifier }
@@ -130,6 +137,23 @@ end;
 procedure TJclBaseListener.Notification(msg: IJclNotificationMessage);
 begin
   // do nothing; descendants should override this method to process incoming notifications
+end;
+
+{ TJclBaseNotifierFaked }
+
+procedure TJclBaseNotifierFaked.Add(listener: IJclListener);
+begin
+  // do nothing;
+end;
+
+procedure TJclBaseNotifierFaked.Notify(msg: IJclNotificationMessage);
+begin
+  // do nothing;
+end;
+
+procedure TJclBaseNotifierFaked.Remove(listener: IJclListener);
+begin
+  // do nothing;
 end;
 
 end.
