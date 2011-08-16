@@ -198,7 +198,7 @@ uses
   u_StartUpLogoConfig,
   u_InetConfig,
   u_Datum,
-  u_PLT,
+  u_PLTSimpleParser,
   u_GSMGeoCodeConfig,
   u_GPSConfig,
   u_MarkCategoryFactoryConfig,

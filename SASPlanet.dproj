@@ -668,7 +668,7 @@
     <DCCReference Include="u_PathDetalizeProviderListSimple.pas" />
     <DCCReference Include="u_PathDetalizeProviderMailRu.pas" />
     <DCCReference Include="u_PathDetalizeProviderYourNavigation.pas" />
-    <DCCReference Include="u_PLT.pas" />
+    <DCCReference Include="u_PLTSimpleParser.pas" />
     <DCCReference Include="u_PolygonLayerConfig.pas" />
     <DCCReference Include="u_PolyLineLayerConfig.pas" />
     <DCCReference Include="u_PoolElement.pas" />

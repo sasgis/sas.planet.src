@@ -127,7 +127,7 @@ uses
   i_MiniMapLayerConfig in 'i_MiniMapLayerConfig.pas',
   u_MiniMapMapsConfig in 'u_MiniMapMapsConfig.pas',
   u_MiniMapLayerConfig in 'u_MiniMapLayerConfig.pas',
-  u_PLT in 'u_PLT.pas',
+  u_PLTSimpleParser in 'u_PLTSimpleParser.pas',
   u_GeoFun in 'u_GeoFun.pas',
   u_GlobalCahceConfig in 'u_GlobalCahceConfig.pas',
   u_GlobalState in 'u_GlobalState.pas',
