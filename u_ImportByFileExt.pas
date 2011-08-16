@@ -31,8 +31,7 @@ uses
   SysUtils,
   u_ImportKML,
   u_ImportHLG,
-  u_ImportMpSimple,
-  u_ImportPLT;
+  u_ImportMpSimple;
 
 { TImportByFileExt }
 
