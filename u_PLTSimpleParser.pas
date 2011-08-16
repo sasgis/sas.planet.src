@@ -6,7 +6,7 @@ uses
   Classes,
   SysUtils,
   t_GeoTypes,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   i_HtmlToHintTextConverter,
   i_InternalPerformanceCounter,
   i_VectorDataItemSimple;

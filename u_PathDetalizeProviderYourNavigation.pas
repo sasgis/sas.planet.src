@@ -4,7 +4,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   i_LanguageManager,
   i_ProxySettings,
   u_PathDetalizeProviderListEntity;

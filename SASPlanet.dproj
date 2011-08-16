@@ -231,7 +231,6 @@
     <DCCReference Include="i_InternalPerformanceCounter.pas" />
     <DCCReference Include="i_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
-    <DCCReference Include="i_KmlInfoSimpleLoader.pas" />
     <DCCReference Include="i_KmlLayerConfig.pas" />
     <DCCReference Include="i_LanguageManager.pas" />
     <DCCReference Include="i_LastResponseInfo.pas" />
@@ -336,6 +335,7 @@
     <DCCReference Include="i_UsedMarksConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_VectorDataItemSimple.pas" />
+    <DCCReference Include="i_VectorDataLoader.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="i_ZmpInfo.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />

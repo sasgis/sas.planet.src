@@ -4,7 +4,7 @@ interface
 
 uses
   i_BitmapTileSaveLoad,
-  i_KmlInfoSimpleLoader;
+  i_VectorDataLoader;
 
 type
   IContentTypeInfoBasic = interface

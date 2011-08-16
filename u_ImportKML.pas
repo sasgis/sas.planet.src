@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   i_ImportConfig,
   u_MarksImportBase;
 

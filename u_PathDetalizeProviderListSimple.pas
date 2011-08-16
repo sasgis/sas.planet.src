@@ -5,7 +5,7 @@ interface
 uses
   i_LanguageManager,
   i_ProxySettings,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   u_PathDetalizeProviderListBase;
 
 type

@@ -9,7 +9,7 @@ uses
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
   i_InternalPerformanceCounter,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   BMSEARCH;
 
 type

@@ -26,7 +26,7 @@ uses
   i_TileRequestBuilderConfig,
   i_IPoolOfObjectsSimple,
   i_BitmapTileSaveLoad,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   i_ListOfObjectsWithTTL,
   i_TileDownloadResultFactoryProvider,
   i_AntiBan,

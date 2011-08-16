@@ -20,7 +20,7 @@ uses
   i_ConfigDataProvider,
   i_TileFileNameGeneratorsList,
   i_ContentTypeManager,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,

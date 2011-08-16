@@ -1,4 +1,4 @@
-unit i_KmlInfoSimpleLoader;
+unit i_VectorDataLoader;
 
 interface
 

@@ -4,7 +4,7 @@ interface
 
 uses
   i_ImportFile,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   i_ImportConfig;
 
 type
