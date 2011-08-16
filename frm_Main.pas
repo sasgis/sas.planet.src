@@ -3530,14 +3530,15 @@ end;
 
 procedure TfrmMain.mapMouseMove(Sender: TObject; Shift: TShiftState; AX, AY: Integer; Layer: TCustomLayer);
 var
-  nms:string;
   hintrect:TRect;
   //CState: Integer;
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VConverter: ICoordConverter;
   VLonLat: TDoublePoint;
-  VPWL: TResObj;
+  VItemFound: Boolean;
+  VItemS: Double;
+  VItemHint: string;
   VLocalConverter: ILocalCoordConverter;
   VMouseMapPoint: TDoublePoint;
   VMouseMoveDelta: TPoint;
@@ -3638,42 +3639,37 @@ begin
  end;
  FShowActivHint:=false;
  if not(FMapMoving)and((VMousePos.x<>VLastMouseMove.X)or(VMousePos.y<>VLastMouseMove.y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
-    VPWL.S:=0;
-    VPWL.find:=false;
+    VItemFound := False;
+    VItemS := 0;
     VWikiItem := nil;
     FWikiLayer.MouseOnReg(VMousePos, VWikiItem, VMarkS);
     if VWikiItem <> nil then begin
-      VPWL.find := True;
-      VPWL.name := VWikiItem.Name;
-      VPWL.descr := VWikiItem.Desc;
-      VPWL.S := VMarkS;
-      nms := VWikiItem.GetHintText;
+      VItemFound := True;
+      VItemS := VMarkS;
+      VItemHint := VWikiItem.GetHintText;
     end;
 
     VMark := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
       FLayerMapMarks.MouseOnReg(VMousePos, VMark, VMarkS);
     if VMark <> nil then begin
-      if (not VPWL.find) or (not VMark.IsPoly) or (VPWL.S >= VMarkS) then begin
-        VPWL.find := True;
-        VPWL.name := VMark.Name;
-        VPWL.descr := VMark.Desc;
-        VPWL.S := VMarkS;
-        nms := VMark.GetHintText;
+      if (not VItemFound) or (not VMark.IsPoly) or (VItemS >= VMarkS) then begin
+        VItemFound := True;
+        VItemHint := VMark.GetHintText;
       end;
     end;
-   if (VPWL.find) then begin
+   if (VItemFound) then begin
      if map.Cursor = crDefault then begin
        map.Cursor := crHandPoint;
      end;
      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
-     if nms<>'' then begin
+     if VItemHint<>'' then begin
       if FHintWindow=nil then begin
         FHintWindow:=THintWindow.Create(Self);
         FHintWindow.Brush.Color:=clInfoBk;
       end;
-      hintrect:=FHintWindow.CalcHintRect(Screen.Width, nms, nil);
-      FHintWindow.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),nms);
+      hintrect:=FHintWindow.CalcHintRect(Screen.Width, VItemHint, nil);
+      FHintWindow.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),VItemHint);
       FHintWindow.Repaint;
      end;
      FShowActivHint:=true;
