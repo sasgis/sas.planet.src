@@ -198,6 +198,7 @@ uses
   u_StartUpLogoConfig,
   u_InetConfig,
   u_Datum,
+  u_PLT,
   u_GSMGeoCodeConfig,
   u_GPSConfig,
   u_MarkCategoryFactoryConfig,
@@ -311,7 +312,14 @@ begin
       THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     );
-  FImportFileByExt := TImportByFileExt.Create(FKmlLoader, FKmzLoader);
+  FImportFileByExt := TImportByFileExt.Create(
+    TPLTSimpleParser.Create(
+      THtmlToHintTextConverterStuped.Create,
+      VMarksKmlLoadCounterList
+    ),
+    FKmlLoader,
+    FKmzLoader
+  );
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;

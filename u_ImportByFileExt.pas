@@ -18,7 +18,11 @@ type
   protected
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
   public
-    constructor Create(AKmlLoader: IKmlInfoSimpleLoader; AKmzLoader: IKmlInfoSimpleLoader);
+    constructor Create(
+      APltLoader: IKmlInfoSimpleLoader;
+      AKmlLoader: IKmlInfoSimpleLoader;
+      AKmzLoader: IKmlInfoSimpleLoader
+    );
   end;
 
 implementation
@@ -32,9 +36,13 @@ uses
 
 { TImportByFileExt }
 
-constructor TImportByFileExt.Create(AKmlLoader: IKmlInfoSimpleLoader; AKmzLoader: IKmlInfoSimpleLoader);
+constructor TImportByFileExt.Create(
+  APltLoader: IKmlInfoSimpleLoader;
+  AKmlLoader: IKmlInfoSimpleLoader;
+  AKmzLoader: IKmlInfoSimpleLoader
+);
 begin
-  FImportPLT := TImportPLT.Create;
+  FImportPLT := TImportKML.Create(APltLoader);
   FImportHLG := TImportHLG.Create;
   FImportMP := TImportMpSimple.Create;
   FImportKML := TImportKML.Create(AKmlLoader);

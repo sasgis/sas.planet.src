@@ -349,7 +349,6 @@ uses
   i_ImportFile in 'i_ImportFile.pas',
   u_MarksImportBase in 'u_MarksImportBase.pas',
   u_ImportKML in 'u_ImportKML.pas',
-  u_ImportPLT in 'u_ImportPLT.pas',
   u_ImportHLG in 'u_ImportHLG.pas',
   u_ImportMpSimple in 'u_ImportMpSimple.pas',
   u_ImportByFileExt in 'u_ImportByFileExt.pas',
