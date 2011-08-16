@@ -68,8 +68,6 @@ type
     FGCThread: TGarbageCollectorThread;
     FContentTypeManager: IContentTypeManager;
     FMapCalibrationList: IInterfaceList;
-    FKmlLoader: IVectorDataLoader;
-    FKmzLoader: IVectorDataLoader;
     FCacheConfig: TGlobalCahceConfig;
     FLanguageManager: ILanguageManager;
     FLastSelectionInfo: ILastSelectionInfo;
@@ -240,6 +238,8 @@ var
   VViewCnonfig: IConfigDataProvider;
   VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
+  VKmlLoader: IVectorDataLoader;
+  VKmzLoader: IVectorDataLoader;
 begin
   FProgramPath := ExtractFilePath(ParamStr(0));
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
@@ -302,12 +302,12 @@ begin
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
-  FKmlLoader :=
+  VKmlLoader :=
     TKmlInfoSimpleParser.Create(
       THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     );
-  FKmzLoader :=
+  VKmzLoader :=
     TKmzInfoSimpleParser.Create(
       THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
@@ -317,8 +317,8 @@ begin
       THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     ),
-    FKmlLoader,
-    FKmzLoader
+    VKmlLoader,
+    VKmzLoader
   );
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
@@ -346,7 +346,7 @@ begin
     );
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
-  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, FKmlLoader);
+  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, VKmlLoader);
   VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
   VInternalDomainInfoProviderList.Add(
     'ZmpInfo',
@@ -366,8 +366,6 @@ begin
   FTileNameGenerator := nil;
   FContentTypeManager := nil;
   FMapCalibrationList := nil;
-  FKmlLoader := nil;
-  FKmzLoader := nil;
   FreeAndNil(FMarksDB);
   FLastSelectionInfo := nil;
   FGPSConfig := nil;
