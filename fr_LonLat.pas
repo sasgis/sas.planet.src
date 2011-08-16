@@ -22,6 +22,8 @@ uses
   i_ViewPortState;
 
 type
+  TTileSelectStyle = (tssCenter, tssTopLeft, tssBottomRight);
+
   TfrLonLat = class(TFrame)
     pnlTop: TPanel;
     cbbCoordType: TComboBox;
@@ -44,6 +46,7 @@ type
     FCoordinates: TDoublePoint;
     FViewPortState: IViewPortState;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
     function Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
@@ -51,7 +54,8 @@ type
     constructor Create(
       AOwner: TComponent;
       AViewPortState: IViewPortState;
-      AValueToStringConverterConfig: IValueToStringConverterConfig
+      AValueToStringConverterConfig: IValueToStringConverterConfig;
+      ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
   end;
@@ -83,11 +87,12 @@ begin
 end;
 
 constructor TfrLonLat.Create(AOwner: TComponent; AViewPortState: IViewPortState;
-  AValueToStringConverterConfig: IValueToStringConverterConfig);
+  AValueToStringConverterConfig: IValueToStringConverterConfig; ATileSelectStyle: TTileSelectStyle);
 begin
   inherited Create(AOwner);
   FViewPortState := AViewPortState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FTileSelectStyle:=ATileSelectStyle;
 end;
 
 function TfrLonLat.Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
@@ -185,8 +190,11 @@ begin
         end;
         VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
         XYRect:=VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,cbbZoom.ItemIndex);
-        XYPoint:=Point(XYRect.Right-(XYRect.Right-XYRect.Left)div 2,
-                       XYRect.Bottom-(XYRect.Bottom-XYRect.top)div 2);
+        case FTileSelectStyle of
+          tssCenter: XYPoint:=Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
+          tssTopLeft: XYPoint:=XYRect.TopLeft;
+          tssBottomRight: XYPoint:=XYRect.BottomRight;
+        end;
         Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,cbbZoom.ItemIndex);
       end;
   end;

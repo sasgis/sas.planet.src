@@ -45,8 +45,8 @@ uses
 constructor TfrmLonLatRectEdit.Create(AOwner: TComponent);
 begin
   inherited;
-  FfrLonLatTopLeft := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig);
-  FfrLonLatBottomRight := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig);
+  FfrLonLatTopLeft := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig, tssTopLeft);
+  FfrLonLatBottomRight := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig, tssBottomRight);
 end;
 
 destructor TfrmLonLatRectEdit.Destroy;

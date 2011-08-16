@@ -218,7 +218,7 @@ end;
 constructor TfrmGoTo.Create(AOwner: TComponent);
 begin
   inherited;
-  frLonLatPoint := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig);
+  frLonLatPoint := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig, tssCenter);
   frLonLatPoint.Width:= tsCoordinates.Width;
   frLonLatPoint.Height:= tsCoordinates.Height;
 end;
