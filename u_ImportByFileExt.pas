@@ -19,9 +19,9 @@ type
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
   public
     constructor Create(
-      APltLoader: IKmlInfoSimpleLoader;
-      AKmlLoader: IKmlInfoSimpleLoader;
-      AKmzLoader: IKmlInfoSimpleLoader
+      APltLoader: IVectorDataLoader;
+      AKmlLoader: IVectorDataLoader;
+      AKmzLoader: IVectorDataLoader
     );
   end;
 
@@ -36,9 +36,9 @@ uses
 { TImportByFileExt }
 
 constructor TImportByFileExt.Create(
-  APltLoader: IKmlInfoSimpleLoader;
-  AKmlLoader: IKmlInfoSimpleLoader;
-  AKmzLoader: IKmlInfoSimpleLoader
+  APltLoader: IVectorDataLoader;
+  AKmlLoader: IVectorDataLoader;
+  AKmzLoader: IVectorDataLoader
 );
 begin
   FImportPLT := TImportKML.Create(APltLoader);

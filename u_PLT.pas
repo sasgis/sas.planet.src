@@ -12,7 +12,7 @@ uses
   i_VectorDataItemSimple;
 
 type
-  TPLTSimpleParser = class(TInterfacedObject, IKmlInfoSimpleLoader)
+  TPLTSimpleParser = class(TInterfacedObject, IVectorDataLoader)
   private
     FLoadStreamCounter: IInternalPerformanceCounter;
     FHintConverter: IHtmlToHintTextConverter;

@@ -14,7 +14,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader
+      AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -31,7 +31,7 @@ uses
 constructor TPathDetalizeProviderListSimple.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader
+  AKmlLoader: IVectorDataLoader
 );
 var
   VEntity: IPathDetalizeProviderListEntity;

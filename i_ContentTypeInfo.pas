@@ -19,9 +19,9 @@ type
     function GetSaver: IBitmapTileSaver;
   end;
 
-  IContentTypeInfoKml = interface(IContentTypeInfoBasic)
+  IContentTypeInfoVectorData = interface(IContentTypeInfoBasic)
     ['{62A84A15-D775-4F23-A12D-C25948182757}']
-    function GetLoader: IKmlInfoSimpleLoader;
+    function GetLoader: IVectorDataLoader;
   end;
 
 

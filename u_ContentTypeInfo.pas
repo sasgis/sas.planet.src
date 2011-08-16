@@ -39,16 +39,16 @@ type
     destructor Destroy; override;
   end;
 
-  TContentTypeInfoKml = class(TContentTypeInfoBase, IContentTypeInfoKml)
+  TContentTypeInfoKml = class(TContentTypeInfoBase, IContentTypeInfoVectorData)
   private
-    FLoader: IKmlInfoSimpleLoader;
+    FLoader: IVectorDataLoader;
   protected
-    function GetLoader: IKmlInfoSimpleLoader;
+    function GetLoader: IVectorDataLoader;
   public
     constructor Create(
       AContentType: WideString;
       ADefaultExt: WideString;
-      ALoader: IKmlInfoSimpleLoader
+      ALoader: IVectorDataLoader
     );
     destructor Destroy; override;
   end;
@@ -103,7 +103,7 @@ end;
 { TContentTypeInfoKml }
 
 constructor TContentTypeInfoKml.Create(AContentType, ADefaultExt: WideString;
-  ALoader: IKmlInfoSimpleLoader);
+  ALoader: IVectorDataLoader);
 begin
   inherited Create(AContentType, ADefaultExt);
   FLoader := ALoader;
@@ -115,7 +115,7 @@ begin
   inherited;
 end;
 
-function TContentTypeInfoKml.GetLoader: IKmlInfoSimpleLoader;
+function TContentTypeInfoKml.GetLoader: IVectorDataLoader;
 begin
   Result := FLoader;
 end;

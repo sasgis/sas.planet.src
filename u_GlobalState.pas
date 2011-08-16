@@ -68,8 +68,8 @@ type
     FGCThread: TGarbageCollectorThread;
     FContentTypeManager: IContentTypeManager;
     FMapCalibrationList: IInterfaceList;
-    FKmlLoader: IKmlInfoSimpleLoader;
-    FKmzLoader: IKmlInfoSimpleLoader;
+    FKmlLoader: IVectorDataLoader;
+    FKmzLoader: IVectorDataLoader;
     FCacheConfig: TGlobalCahceConfig;
     FLanguageManager: ILanguageManager;
     FLastSelectionInfo: ILastSelectionInfo;

@@ -66,7 +66,7 @@ type
     FTileRequestBuilder: ITileRequestBuilder;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
-    FKmlLoaderFromStorage: IKmlInfoSimpleLoader;
+    FKmlLoaderFromStorage: IVectorDataLoader;
     FCoordConverter : ICoordConverter;
     FViewCoordConverter : ICoordConverter;
     FPoolOfDownloaders: IPoolOfObjectsSimple;
@@ -325,7 +325,7 @@ procedure TMapType.LoadStorageParams(
 var
   VParams: IConfigDataProvider;
   VContentTypeBitmap: IContentTypeInfoBitmap;
-  VContentTypeKml: IContentTypeInfoKml;
+  VContentTypeKml: IContentTypeInfoVectorData;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   if VParams.ReadInteger('CacheType', 0) = 5  then begin
@@ -339,7 +339,7 @@ begin
     if FStorage.GetUseSave then begin
       FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
     end;
-  end else if Supports(FContentType, IContentTypeInfoKml, VContentTypeKml) then begin
+  end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
     FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
   end;
   FCacheBitmap := TTileCacheSimpleGlobalBitmap.Create(FZmp.GUID, AMemCacheBitmap);

@@ -13,7 +13,7 @@ uses
   BMSEARCH;
 
 type
-  TKmlInfoSimpleParser = class(TInterfacedObject, IKmlInfoSimpleLoader)
+  TKmlInfoSimpleParser = class(TInterfacedObject, IVectorDataLoader)
   private
     FLoadKmlStreamCounter: IInternalPerformanceCounter;
     FHintConverter: IHtmlToHintTextConverter;

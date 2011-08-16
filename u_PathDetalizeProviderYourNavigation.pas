@@ -14,7 +14,7 @@ type
   private
     FBaseUrl: string;
     FProxyConfig: IProxyConfig;
-    FKmlLoader: IKmlInfoSimpleLoader;
+    FKmlLoader: IVectorDataLoader;
   protected { IPathDetalizeProvider }
     function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
   public
@@ -22,7 +22,7 @@ type
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader;
+      AKmlLoader: IVectorDataLoader;
       ABaseUrl: string
     );
   end;
@@ -37,7 +37,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader
+      AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -51,7 +51,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader
+      AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -65,7 +65,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader
+      AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -79,7 +79,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader
+      AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -99,7 +99,7 @@ constructor TPathDetalizeProviderYourNavigation.Create(
   AGUID: TGUID;
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader;
+  AKmlLoader: IVectorDataLoader;
   ABaseUrl: string
 );
 begin
@@ -161,7 +161,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationFastestByCar.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader
+  AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -193,7 +193,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationShortestByCar.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader
+  AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -225,7 +225,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationFastestByBicycle.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader
+  AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -257,7 +257,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationShortestByBicycle.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader
+  AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(

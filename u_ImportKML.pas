@@ -11,11 +11,11 @@ uses
 type
   TImportKML = class(TMarksImportBase)
   private
-    FKmlLoader: IKmlInfoSimpleLoader;
+    FKmlLoader: IVectorDataLoader;
   protected
     function DoImport(AFileName: string; AConfig: IImportConfig): IInterfaceList; override;
   public
-    constructor Create(AKmlLoader: IKmlInfoSimpleLoader);
+    constructor Create(AKmlLoader: IVectorDataLoader);
   end;
 
 implementation
@@ -27,7 +27,7 @@ uses
 
 { TImportKML }
 
-constructor TImportKML.Create(AKmlLoader: IKmlInfoSimpleLoader);
+constructor TImportKML.Create(AKmlLoader: IVectorDataLoader);
 begin
   FKmlLoader := AKmlLoader;
 end;
