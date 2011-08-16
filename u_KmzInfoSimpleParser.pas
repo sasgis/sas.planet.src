@@ -44,6 +44,7 @@ end;
 procedure TKmzInfoSimpleParser.LoadFromStream(AStream: TStream;
   out AItems: IVectorDataItemList);
 var
+  i: Integer;
   UnZip: TKAZip;
   VMemStream: TMemoryStream;
   VStreamKml: TMemoryStream;
@@ -61,6 +62,14 @@ begin
         VStreamKml := TMemoryStream.Create;
         try
           VIndex := UnZip.Entries.IndexOf('doc.kml');
+          if VIndex < 0 then begin
+            for i := 0 to UnZip.Entries.Count - 1 do begin
+              if ExtractFileExt(UnZip.Entries.Items[i].FileName) =  '.kml' then begin
+                VIndex := i;
+                Break;
+              end;
+            end;
+          end;
           if VIndex < 0 then begin
             VIndex := 0;
           end;
