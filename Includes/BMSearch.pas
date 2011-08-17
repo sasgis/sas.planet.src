@@ -40,7 +40,6 @@ type
     procedure PrepareStr(const Pattern: string; IgnoreCase: Boolean);
 
     function Search(Text: pchar; TextLen: size_t): pchar;
-    function Pos(const S: string): integer;
   end;
 
 implementation
@@ -251,29 +250,6 @@ begin
 
     shift := FShift_1;
     Inc(jumps, shift);
-  end;
-end;
-
-function TSearchBM.Pos(const S: string): integer;
-var
-
-  str, p: pchar;
-begin
-
-  result := 0;
-  if S <> '' then
-  begin
-{$IFDEF Windows}
-
-    str := @S[1];
-{$ELSE}
-
-    str := pchar(S);
-{$ENDIF}
-
-    p := Search(str, Length(S));
-    if p <> nil then
-      result := 1 + p - str;
   end;
 end;
 
