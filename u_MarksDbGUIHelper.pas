@@ -163,7 +163,10 @@ var
       if VNamePrefix = '' then begin
         VNamePrefix := '(NoName)';
       end;
-      aNode := CreateNodeWithText(AParentNode, VNamePrefix, GetKey(AParentNode, VNamePrefix));
+      aNode := FindNodeWithText(AParentNode, VNamePrefix, GetKey(AParentNode, VNamePrefix));
+      if aNode.StateIndex > 0 then begin
+        aNode := CreateNodeWithText(AParentNode, VNamePrefix, GetKey(AParentNode, VNamePrefix));
+      end;
       aNode.Data := Pointer(Data);
       aNode.StateIndex := 2;
       if Data.visible then begin
