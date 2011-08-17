@@ -44,7 +44,6 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure FormActivate(Sender: TObject);
   private
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
@@ -272,11 +271,6 @@ begin
 end;
 
 
-procedure TfrmRegionProcess.FormActivate(Sender: TObject);
-begin
-  PageControl1.ActivePageIndex:=0;
-end;
-
 procedure TfrmRegionProcess.FormShow(Sender: TObject);
 begin
   CBFormatChange(CBFormat);
@@ -290,6 +284,8 @@ begin
   FProviderTilesDownload.Show;
   FProviderMapCombine.InitFrame(FZoom_rect, FPolygonLL);
   FProviderMapCombine.Show;
+
+  PageControl1.ActivePageIndex:=0;
 end;
 
 procedure TfrmRegionProcess.Button3Click(Sender: TObject);

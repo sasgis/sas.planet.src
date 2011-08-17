@@ -12,7 +12,6 @@ object frmRegionProcess: TfrmRegionProcess
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
-  OnActivate = FormActivate
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
