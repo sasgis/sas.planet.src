@@ -29,13 +29,13 @@ type
     FBMSrchDescE: TSearchBM;
     FBMSrchCoord: TSearchBM;
     FBMSrchCoordE: TSearchBM;
-    function PosOfChar(APattern: Char; AText: PChar; ALast: PChar): PChar;
-    function PosOfNonSpaceChar(AText: PChar; ALast: PChar): PChar;
-    function PosOfSpaceChar(AText: PChar; ALast: PChar): PChar;
-    function parse(buffer: string; AList: IInterfaceList): boolean;
-    function parseCoordinates(AText: PChar; ALen: integer; var Adata: TArrayOfDoublePoint; var ARect: TDoubleRect): boolean;
-    procedure parseName(var Name: string);
-    procedure parseDescription(var Description: string);
+    function PosOfChar(APattern: AnsiChar; AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
+    function PosOfNonSpaceChar(AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
+    function PosOfSpaceChar(AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
+    function parse(buffer: AnsiString; AList: IInterfaceList): boolean;
+    function parseCoordinates(AText: PAnsiChar; ALen: integer; var Adata: TArrayOfDoublePoint; var ARect: TDoubleRect): boolean;
+    procedure parseName(var Name: AnsiString);
+    procedure parseDescription(var Description: AnsiString);
     function BuildItem(AName, ADesc: string; Adata: TArrayOfDoublePoint; ARect: TDoubleRect): IVectorDataItemSimple;
   protected
     procedure LoadFromFile(AFileName: string; out AItems: IVectorDataItemList); virtual;
@@ -132,7 +132,7 @@ end;
 procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
    out AItems: IVectorDataItemList);
 
-  function GetAnsiString(AStream: TStream): string;
+  function GetAnsiString(AStream: TStream): AnsiString;
   var
     VBOMSize: Integer;
     VKmlDoc: Pointer;
@@ -152,8 +152,7 @@ procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
         VCustomCodec := VUnicodeCodec.Create;
         try
           VCustomCodec.DecodeStr(VKmlDoc, VKmlDocSize, VStr);
-          Result := VStr;
-          Result := AnsiToUtf8(Result); // парсер KML воспринимает только UTF-8
+          Result := Utf8Encode(VStr); // парсер KML воспринимает только UTF-8
         finally
           VCustomCodec.Free;
         end;
@@ -168,7 +167,7 @@ procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
   end;
 
 var
-  VKml: string;
+  VKml: AnsiString;
   VList: IInterfaceList;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
@@ -189,7 +188,7 @@ begin
   end;
 end;
 
-procedure TKmlInfoSimpleParser.parseName(var Name: string);
+procedure TKmlInfoSimpleParser.parseName(var Name: AnsiString);
 var
   pb: integer;
 begin
@@ -200,7 +199,7 @@ begin
   end;
 end;
 
-procedure TKmlInfoSimpleParser.parseDescription(var Description: string);
+procedure TKmlInfoSimpleParser.parseDescription(var Description: AnsiString);
 var
   pb: integer;
   iip: integer;
@@ -224,7 +223,7 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.parse(buffer: string; AList: IInterfaceList): boolean;
+function TKmlInfoSimpleParser.parse(buffer: AnsiString; AList: IInterfaceList): boolean;
 var
   position, PosStartPlace, PosTag1, PosTag2,PosTag3, PosEndPlace, sLen, sStart: integer;
   VName: string;
@@ -300,19 +299,19 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.parseCoordinates(AText: PChar; ALen: integer;
+function TKmlInfoSimpleParser.parseCoordinates(AText: PAnsiChar; ALen: integer;
   var Adata: TArrayOfDoublePoint; var ARect: TDoubleRect): boolean;
 var
-  VCurPos: PChar;
-  VNumEndPos: PChar;
-  VComa: PChar;
-  VSpace: PChar;
-  VLineStart: PChar;
+  VCurPos: PAnsiChar;
+  VNumEndPos: PAnsiChar;
+  VComa: PAnsiChar;
+  VSpace: PAnsiChar;
+  VLineStart: PAnsiChar;
   VCurCoord: TDoublePoint;
   VAllocated: Integer;
   VUsed: Integer;
   VValue: Extended;
-  VLastPos: PChar;
+  VLastPos: PAnsiChar;
   i: Integer;
 begin
   VUsed := 0;
@@ -407,10 +406,10 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.PosOfChar(APattern: Char; AText: PChar;
-  ALast: PChar): PChar;
+function TKmlInfoSimpleParser.PosOfChar(APattern: AnsiChar; AText: PAnsiChar;
+  ALast: PAnsiChar): PAnsiChar;
 var
-  VCurr: PChar;
+  VCurr: PAnsiChar;
 begin
   VCurr := AText;
   Result := nil;
@@ -423,10 +422,10 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.PosOfNonSpaceChar(AText: PChar;
-  ALast: PChar): PChar;
+function TKmlInfoSimpleParser.PosOfNonSpaceChar(AText: PAnsiChar;
+  ALast: PAnsiChar): PAnsiChar;
 var
-  VCurr: PChar;
+  VCurr: PAnsiChar;
 begin
   VCurr := AText;
   Result := nil;
@@ -439,9 +438,9 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.PosOfSpaceChar(AText, ALast: PChar): PChar;
+function TKmlInfoSimpleParser.PosOfSpaceChar(AText, ALast: PAnsiChar): PAnsiChar;
 var
-  VCurr: PChar;
+  VCurr: PAnsiChar;
 begin
   VCurr := AText;
   Result := nil;
