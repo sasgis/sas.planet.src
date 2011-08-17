@@ -32,6 +32,7 @@ type
   protected
     function DataSizeConvert(ASizeInKb: Double): string;
     function DistConvert(ADistInMeters: Double): string;
+    function DistPerPixelConvert(ADistPerPixelInMeters: Double): string;
     function AreaConvert(AAreaInSqm: Double): string;
     function SpeedConvert(AKmph: Double): string;
     function AltitudeConvert(AMeters: Double): string;
@@ -154,6 +155,12 @@ begin
       end;
     end;
   end;
+end;
+
+function TValueToStringConverter.DistPerPixelConvert(
+  ADistPerPixelInMeters: Double): string;
+begin
+  Result := DistConvert(ADistPerPixelInMeters) + SAS_UNITS_mperp;
 end;
 
 function TValueToStringConverter.GetLatitudeMarker(ADegr: Double): string;
