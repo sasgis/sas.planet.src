@@ -203,7 +203,7 @@ begin
 
     VRad := VConverter.Datum.GetSpheroidRadiusA;
     VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
-    subs2 := VValueConverter.DistConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(ll.y * D2R)))) + SAS_UNITS_mperp;
+    subs2 := VValueConverter.DistPerPixelConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(ll.y * D2R))));
     FLayer.Bitmap.RenderText(278, 1, ' | ' + SAS_STR_Scale + ' ' + subs2, FAALevel, FTextColor);
     posnext := 273 + FLayer.Bitmap.TextWidth(subs2) + 70;
     TameTZ := GetTimeInLonLat(ll);
