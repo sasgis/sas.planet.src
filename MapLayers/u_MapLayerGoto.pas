@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_BitmapMarker,
   i_ViewPortState,
+  i_LocalCoordConverter,
   i_GotoLayerConfig,
   u_MapLayerBasic;
 
@@ -27,7 +28,7 @@ type
 
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
+    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
   public
     procedure StartThreads; override;
   public
@@ -73,7 +74,8 @@ begin
   );
 end;
 
-procedure TGotoLayer.DoUpdateLayerLocation(ANewLocation: TFloatRect);
+function TGotoLayer.GetVisibleForNewPos(
+  ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
 var
   VCurrTime: Cardinal;
 begin
@@ -81,17 +83,17 @@ begin
     VCurrTime := GetTickCount;
     if (FShowTick <= VCurrTime) then begin
       if (VCurrTime < FShowTick + FShowTickCount) then begin
-        inherited;
+         Result := inherited GetVisibleForNewPos(ANewVisualCoordConverter);
       end else begin
-        Visible := False;
+        Result := False;
         FShowTick := 0;
       end;
     end else begin
-      Visible := False;
+      Result := False;
       FShowTick := 0;
     end;
   end else begin
-    Visible := False;
+    Result := False;
   end;
 end;
 
