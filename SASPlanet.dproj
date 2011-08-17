@@ -53,7 +53,7 @@
           </Parameters>
           <Source>
             <Source Name="MainSource">SASPlanet.dpr</Source>
-          </Source>  
+          </Source>
           <VersionInfo>
             <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
             <VersionInfo Name="AutoIncBuild">False</VersionInfo>
@@ -171,6 +171,10 @@
     </DCCReference>
     <DCCReference Include="fr_MarkDescription.pas">
       <Form>frMarkDescription</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="fr_SearchResultsItem.pas">
+      <Form>frSearchResultsItem</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_ShortCutList.pas">
