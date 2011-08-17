@@ -3,6 +3,7 @@ unit u_MapTypesMainList;
 interface
 
 uses
+  Classes,
   SysUtils,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -70,6 +71,7 @@ type
     function GetMapFromID(id: TGUID): TMapType;
     procedure SortList;
     procedure LoadMapIconsList;
+    function GetMapTypeByHotKey(AHotKey: TShortCut): TMapType;
   end;
 
 implementation
@@ -139,6 +141,21 @@ end;
 function TMapTypesMainList.GetMapType(Index: Integer): TMapType;
 begin
   Result := FMapType[index];
+end;
+
+function TMapTypesMainList.GetMapTypeByHotKey(AHotKey: TShortCut): TMapType;
+var
+  i: Integer;
+  VMap: TMapType;
+begin
+  Result := nil;
+  for i := 0 to Length(FMapType) - 1 do begin
+    VMap := FMapType[i];
+    if VMap.HotKey = AHotKey then begin
+      Result := VMap;
+      Break;
+    end;
+  end;
 end;
 
 procedure TMapTypesMainList.BuildMapsLists;

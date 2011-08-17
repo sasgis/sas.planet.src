@@ -1389,8 +1389,7 @@ begin
     FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetActiveMapsSet,
     TBFillingTypeMap,
     Self.TBfillMapAsMainClick,
-    GState.MapType.MapTypeIcons18List,
-    false
+    GState.MapType.MapTypeIcons18List
   );
   try
     VGenerator.BuildControls;
@@ -1407,8 +1406,7 @@ begin
     FConfig.MainMapsConfig.GetActiveLayersSet,
     TBLayerSel,
     Self.OnClickLayerItem,
-    GState.MapType.MapTypeIcons18List,
-    true
+    GState.MapType.MapTypeIcons18List
   );
   try
    VGenerator.BuildControls;
@@ -1510,8 +1508,7 @@ begin
     FConfig.MainMapsConfig.GetActiveMapsSet,
     TBSMB,
     Self.OnClickMapItem,
-    GState.MapType.MapTypeIcons18List,
-    true
+    GState.MapType.MapTypeIcons18List
   );
   try
     VGenerator.BuildControls;
@@ -2009,6 +2006,7 @@ var
   z: integer;
   VZoom: Byte;
   VNewZoom: integer;
+  VMapType: TMapType;
 begin
   if Active then begin
     if not FMapZoomAnimtion then begin
@@ -2093,6 +2091,24 @@ begin
               VK_F11: begin
                 TBFullSizeClick(nil);
                 Handled := True;
+              end;
+            else
+              VMapType := GState.MapType.GetMapTypeByHotKey(Msg.wParam);
+              if VMapType <> nil then begin
+                if VMapType.asLayer then begin
+                  FConfig.MainMapsConfig.LockWrite;
+                  try
+                    if not FConfig.MainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VMapType.Zmp.GUID) then begin
+                      FConfig.MainMapsConfig.SelectLayerByGUID(VMapType.Zmp.GUID);
+                    end else begin
+                      FConfig.MainMapsConfig.UnSelectLayerByGUID(VMapType.Zmp.GUID);
+                    end;
+                  finally
+                    FConfig.MainMapsConfig.UnlockWrite;
+                  end;
+                end else begin
+                  FConfig.MainMapsConfig.SelectMainByGUID(VMapType.Zmp.GUID);
+                end;
               end;
             end;
           end;

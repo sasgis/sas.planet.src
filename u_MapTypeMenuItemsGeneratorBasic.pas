@@ -18,7 +18,6 @@ type
     FRootMenu: TTBCustomItem;
     FMapsSet: IActiveMapsSet;
     FOnClick: TNotifyEvent;
-    FShortCut: boolean;
     procedure ClearLists; virtual;
     procedure ProcessSubItemsCreate; virtual;
     procedure ProcessSubItemGUID(AGUID: TGUID); virtual;
@@ -30,8 +29,7 @@ type
       AMapsSet: IActiveMapsSet;
       ARootMenu: TTBCustomItem;
       AOnClick: TNotifyEvent;
-      AIconsList: IMapTypeIconsList;
-      AShortCut: boolean
+      AIconsList: IMapTypeIconsList
     );
     procedure BuildControls;
   end;
@@ -52,15 +50,13 @@ constructor TMapMenuGeneratorBasic.Create(
   AMapsSet: IActiveMapsSet;
   ARootMenu: TTBCustomItem;
   AOnClick: TNotifyEvent;
-  AIconsList: IMapTypeIconsList;
-  AShortCut: boolean
+  AIconsList: IMapTypeIconsList
 );
 begin
   FMapsSet := AMapsSet;
   FRootMenu := ARootMenu;
   FIconsList := AIconsList;
   FOnClick := AOnClick;
-  FShortCut:=AShortCut;
 end;
 
 function TMapMenuGeneratorBasic.CreateMenuItem(
@@ -77,9 +73,6 @@ begin
   if VMapType <> nil then begin
     VGUID := VMapType.Zmp.GUID;
     Result.Caption := VMapType.name;
-    if FShortCut then begin
-      Result.ShortCut:= VMapType.HotKey;
-    end;
   end else begin
     VGUID := CGUID_Zero;
     Result.Caption := SAS_STR_MiniMapAsMainMap;

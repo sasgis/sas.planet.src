@@ -356,8 +356,7 @@ begin
     FConfig.MapsConfig.GetActiveMapsSet,
     AMapssSubMenu,
     Self.OnClickMapItem,
-    FIconsList,
-    false
+    FIconsList
   );
   try
     VGenerator.BuildControls;
@@ -368,8 +367,7 @@ begin
     FConfig.MapsConfig.GetActiveLayersSet,
     ALayersSubMenu,
     Self.OnClickLayerItem,
-    FIconsList,
-    false
+    FIconsList
   );
   try
    VGenerator.BuildControls;
