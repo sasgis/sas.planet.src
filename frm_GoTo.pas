@@ -79,7 +79,7 @@ var
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
 begin
-  VPlace := TGeoCodePlacemark.Create(ALonLat, AMessage, 4);
+  VPlace := TGeoCodePlacemark.Create(ALonLat, AMessage, '', '', 4);
   VList := TInterfaceList.Create;
   VList.Add(VPlace);
   Result := TGeoCodeResult.Create(ASearch, 203, '', VList);

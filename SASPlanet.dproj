@@ -44,46 +44,7 @@
     <Borland.Personality>Delphi.Personality</Borland.Personality>
     <Borland.ProjectType>VCLApplication</Borland.ProjectType>
     <BorlandProject>
-      <BorlandProject>
-        <Delphi.Personality>
-          <Parameters>
-            <Parameters Name="UseLauncher">False</Parameters>
-            <Parameters Name="LoadAllSymbols">True</Parameters>
-            <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-          </Parameters>
-          <Source>
-            <Source Name="MainSource">SASPlanet.dpr</Source>
-          </Source>
-          <VersionInfo>
-            <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
-            <VersionInfo Name="AutoIncBuild">False</VersionInfo>
-            <VersionInfo Name="MajorVer">1</VersionInfo>
-            <VersionInfo Name="MinorVer">0</VersionInfo>
-            <VersionInfo Name="Release">0</VersionInfo>
-            <VersionInfo Name="Build">0</VersionInfo>
-            <VersionInfo Name="Debug">False</VersionInfo>
-            <VersionInfo Name="PreRelease">False</VersionInfo>
-            <VersionInfo Name="Special">False</VersionInfo>
-            <VersionInfo Name="Private">False</VersionInfo>
-            <VersionInfo Name="DLL">False</VersionInfo>
-            <VersionInfo Name="Locale">1033</VersionInfo>
-            <VersionInfo Name="CodePage">1252</VersionInfo>
-          </VersionInfo>
-          <VersionInfoKeys>
-            <VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
-            <VersionInfoKeys Name="FileDescription"></VersionInfoKeys>
-            <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
-            <VersionInfoKeys Name="InternalName"></VersionInfoKeys>
-            <VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys>
-            <VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
-            <VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys>
-            <VersionInfoKeys Name="ProductName"></VersionInfoKeys>
-            <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
-            <VersionInfoKeys Name="Comments"></VersionInfoKeys>
-          </VersionInfoKeys>
-        </Delphi.Personality>
-      </BorlandProject>
-    </BorlandProject>
+<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><Source><Source Name="MainSource">SASPlanet.dpr</Source></Source><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1033</VersionInfo><VersionInfo Name="CodePage">1252</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys></Delphi.Personality></BorlandProject></BorlandProject>
   </ProjectExtensions>
   <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
   <ItemGroup>
@@ -152,9 +113,6 @@
     </DCCReference>
     <DCCReference Include="frm_RegionProcess.pas">
       <Form>frmRegionProcess</Form>
-    </DCCReference>
-    <DCCReference Include="frm_SearchResults.pas">
-      <Form>frmSearchResults</Form>
     </DCCReference>
     <DCCReference Include="frm_Settings.pas">
       <Form>frmSettings</Form>
@@ -686,6 +644,7 @@
     <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_ScaleLineConfig.pas" />
+    <DCCReference Include="u_SearchResults.pas" />
     <DCCReference Include="u_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="u_SelectionRectLayerConfig.pas" />
     <DCCReference Include="u_SensorBase.pas" />

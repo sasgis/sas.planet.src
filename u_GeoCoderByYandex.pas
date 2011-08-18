@@ -30,7 +30,7 @@ uses
 function TGeoCoderByYandex.ParseStringToPlacemarksList(
   AStr: string; ASearch: WideString): IInterfaceList;
 var
-  slat, slon, sname: string;
+  slat, slon, sname, sdesc: string;
   i, j: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
@@ -50,12 +50,12 @@ begin
     i := PosEx('"address":"', AStr, j);
     if i>j then begin
       j := PosEx('",', AStr, i + 11);
-      sname:=sname+', '+Utf8ToAnsi(Copy(AStr, i + 11, j - (i + 11)));
+      sdesc:=Utf8ToAnsi(Copy(AStr, i + 11, j - (i + 11)));
     end;
     i := PosEx('"description":"', AStr, j);
     if i>j then begin
       j := PosEx('",', AStr, i + 15);
-      sname:=sname+', '+Utf8ToAnsi(Copy(AStr, i + 15, j - (i + 15)));
+      sdesc:=Utf8ToAnsi(Copy(AStr, i + 15, j - (i + 15)));
     end;
     i := PosEx('"point":[', AStr, j);
     j := PosEx(',', AStr, i + 9);
@@ -74,7 +74,7 @@ begin
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    VPlace := TGeoCodePlacemark.Create(VPoint, sname, 4);
+    VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, '', 4);
     VList.Add(VPlace);
   end;
   Result := VList;

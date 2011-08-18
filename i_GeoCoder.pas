@@ -20,6 +20,8 @@ type
     ['{744CAB70-0466-433A-AF57-00BD5AFD9F45}']
     function GetPoint: TDoublePoint; safecall;
     function GetAddress: WideString; safecall;
+    function GetDesc: WideString; safecall;
+    function GetFullDesc: WideString; safecall;
     function GetAccuracy: Integer; safecall;
   end;
 

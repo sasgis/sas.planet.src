@@ -2,10 +2,22 @@ object frSearchResultsItem: TfrSearchResultsItem
   Left = 0
   Top = 0
   Width = 289
-  Height = 76
+  Height = 87
   Align = alTop
   AutoSize = True
+  Color = clWhite
+  ParentBackground = False
+  ParentColor = False
   TabOrder = 0
+  object Bevel1: TBevel
+    AlignWithMargins = True
+    Left = 3
+    Top = 79
+    Width = 283
+    Height = 5
+    Align = alTop
+    Shape = bsTopLine
+  end
   object PanelCaption: TPanel
     Left = 0
     Top = 0
@@ -21,15 +33,17 @@ object frSearchResultsItem: TfrSearchResultsItem
       Top = 3
       Width = 283
       Height = 16
+      Cursor = crHandPoint
       Align = alTop
       Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1085#1072#1081#1076#1077#1085#1085#1086#1075#1086' '#1086#1073#1098#1077#1082#1090#1072
-      Font.Charset = ANSI_CHARSET
+      Font.Charset = RUSSIAN_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Arial'
       Font.Style = [fsBold]
       ParentFont = False
       WordWrap = True
+      OnClick = LabelCaptionClick
       ExplicitWidth = 203
     end
   end
@@ -39,6 +53,7 @@ object frSearchResultsItem: TfrSearchResultsItem
     Width = 289
     Height = 20
     Align = alTop
+    AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
     ExplicitTop = 63
@@ -87,6 +102,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
+      WordWrap = True
       ExplicitWidth = 159
     end
   end

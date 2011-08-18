@@ -75,7 +75,7 @@ begin
             except
               raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [StringList[1], StringList[0]]);
             end;
-            VPlace := TGeoCodePlacemark.Create(VPoint, AddressNode.Text, 4);
+            VPlace := TGeoCodePlacemark.Create(VPoint, AddressNode.Text, '', '', 4);
             VList.Add(VPlace);
             StringList.Clear;
           end;

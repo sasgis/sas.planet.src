@@ -89,6 +89,7 @@ uses
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
   frm_RegionProcess,
+  fr_SearchResultsItem,
   u_TileDownloaderUI;
 
 type
@@ -349,6 +350,9 @@ type
     tbitmShowMarkCaption: TTBXItem;
     NAnimateMove: TTBXItem;
     tbiSearch: TTBXComboBoxItem;
+    TBSearchWindow: TTBXToolWindow;
+    ScrollBoxSearchWindow: TScrollBox;
+    NSearchResults: TTBXVisibilityToggleItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -476,6 +480,8 @@ type
     procedure TrayItemRestoreClick(Sender: TObject);
     procedure tbitmShowMarkCaptionClick(Sender: TObject);
     procedure NAnimateMoveClick(Sender: TObject);
+    procedure TBSearchWindowVisibleChanged(Sender: TObject);
+    procedure NSearchResultsClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -659,7 +665,7 @@ uses
   u_MapTypeMenuItemsGeneratorBasic,
   u_PosFromGSM,
   u_ExportMarks2KML,
-  frm_SearchResults,
+  u_SearchResults,
   frm_ProgressDownload,
   frm_InvisibleBrowser,
   frm_DebugInfo,
@@ -1331,6 +1337,8 @@ begin
   FSearchPresenter :=
     TSearchResultPresenterWithForm.Create(
       VGoto,
+      ScrollBoxSearchWindow,
+      TBSearchWindow,
       GState.ValueToStringConverterConfig,
       FConfig.ViewPortState
     );
@@ -3994,6 +4002,11 @@ begin
   NSensors.Checked := TTBXToolWindow(sender).Visible;
 end;
 
+procedure TfrmMain.NSearchResultsClick(Sender: TObject);
+begin
+  TBSearchWindow.Visible := TTBXItem(sender).Checked;
+end;
+
 procedure TfrmMain.NSensorsClick(Sender: TObject);
 begin
   TBXSensorsBar.Visible := TTBXItem(sender).Checked;
@@ -4103,6 +4116,11 @@ begin
   VPolygon := PolygonFromRect(VLonLatRect);
   setalloperationfalse(ao_movemap);
   FFormRegionProcess.Show_(VZoom, VPolygon);
+end;
+
+procedure TfrmMain.TBSearchWindowVisibleChanged(Sender: TObject);
+begin
+  NSearchResults.Checked := TTBXToolWindow(sender).Visible;
 end;
 
 procedure TfrmMain.TBGPSToPointCenterClick(Sender: TObject);

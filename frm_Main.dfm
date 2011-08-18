@@ -19,9 +19,9 @@ object frmMain: TfrmMain
   PixelsPerInch = 96
   TextHeight = 13
   object map: TImage32
-    Left = 33
+    Left = 197
     Top = 59
-    Width = 645
+    Width = 481
     Height = 467
     Align = alClient
     Bitmap.CombineMode = cmMerge
@@ -39,6 +39,8 @@ object frmMain: TfrmMain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
+    ExplicitLeft = 199
+    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -428,6 +430,12 @@ object frmMain: TfrmMain
           object TBXVisibilityToggleItem2: TTBXVisibilityToggleItem
             Control = TBXToolBarSearch
             Caption = 'Search'
+            Hint = ''
+          end
+          object NSearchResults: TTBXVisibilityToggleItem
+            Control = TBSearchWindow
+            OnClick = NSearchResultsClick
+            Caption = 'Search Results'
             Hint = ''
           end
           object NSensors: TTBXSubmenuItem
@@ -984,15 +992,15 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 430
+      Left = 401
       Top = 0
-      DockPos = 430
+      DockPos = 401
+      Options = [tboNoRotation]
       Stretch = True
       TabOrder = 6
-      Visible = False
       Caption = 'Search'
       object TBXSelectSrchType: TTBXSubmenuItem
-        Options = [tboDropdownArrow]
+        Options = [tboDropdownArrow, tboNoRotation]
         Caption = 'Google'
         Hint = ''
         object TBXSelectYandexSrch: TTBXItem
@@ -1011,6 +1019,7 @@ object frmMain: TfrmMain
       object tbiSearch: TTBXComboBoxItem
         EditCaption = 'Search'
         EditWidth = 150
+        Options = [tboNoRotation]
         OnAcceptText = TBXSearchEditAcceptText
         AutoComplete = False
         MaxVisibleItems = 20
@@ -1032,7 +1041,7 @@ object frmMain: TfrmMain
   object TBDockLeft: TTBXDock
     Left = 0
     Top = 59
-    Width = 33
+    Width = 197
     Height = 467
     PopupMenu = TBXPopupPanels
     Position = dpLeft
@@ -1244,6 +1253,33 @@ object frmMain: TfrmMain
         end
       end
     end
+    object TBSearchWindow: TTBXToolWindow
+      Left = 33
+      Top = 0
+      CloseButtonWhenDocked = True
+      ClientAreaHeight = 449
+      ClientAreaWidth = 160
+      DockPos = 3
+      DockRow = 1
+      Stretch = True
+      TabOrder = 2
+      Visible = False
+      OnVisibleChanged = TBSearchWindowVisibleChanged
+      Caption = 'Search Results'
+      object ScrollBoxSearchWindow: TScrollBox
+        Left = 0
+        Top = 0
+        Width = 160
+        Height = 449
+        HorzScrollBar.Visible = False
+        VertScrollBar.Smooth = True
+        VertScrollBar.Tracking = True
+        Align = alClient
+        Color = clWhite
+        ParentColor = False
+        TabOrder = 0
+      end
+    end
   end
   object TBDockRight: TTBXDock
     Left = 678
@@ -1276,6 +1312,8 @@ object frmMain: TfrmMain
         BevelOuter = bvNone
         BorderStyle = bsNone
         TabOrder = 0
+        ExplicitLeft = -1
+        ExplicitTop = 4
         object TBXDock1: TTBXDock
           Left = 0
           Top = 0
