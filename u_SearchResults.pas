@@ -90,24 +90,19 @@ var
   LengthFSearchItems:integer;
   VItemForGoTo: IGeoCodePlacemark;
 begin
-  FDrawParent.Visible := False;
-  try
-    ClearSearchResults;
-    VItemForGoTo := nil;
-    VEnum := ASearchResult.GetPlacemarks;
-    while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      if VItemForGoTo = nil then begin
-        VItemForGoTo := VPlacemark;
-      end;
-      LengthFSearchItems:=length(FSearchItems);
-      SetLength(FSearchItems,LengthFSearchItems+1);
-      FSearchItems[LengthFSearchItems]:=TfrSearchResultsItem.Create(nil, FDrawParent, VPlacemark, FMapGoto);
-      if LengthFSearchItems>0 then begin
-        FSearchItems[LengthFSearchItems].Top:=FSearchItems[LengthFSearchItems-1].Top+1
-      end;
+  ClearSearchResults;
+  VItemForGoTo := nil;
+  VEnum := ASearchResult.GetPlacemarks;
+  while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
+    if VItemForGoTo = nil then begin
+      VItemForGoTo := VPlacemark;
     end;
-  finally
-    FDrawParent.Visible := True;
+    LengthFSearchItems:=length(FSearchItems);
+    SetLength(FSearchItems,LengthFSearchItems+1);
+    FSearchItems[LengthFSearchItems]:=TfrSearchResultsItem.Create(nil, FDrawParent, VPlacemark, FMapGoto);
+    if LengthFSearchItems>0 then begin
+      FSearchItems[LengthFSearchItems].Top:=FSearchItems[LengthFSearchItems-1].Top+1
+    end;
   end;
   if ASearchResult.GetResultCode in [200, 203] then begin
     if VItemForGoTo = nil then begin
