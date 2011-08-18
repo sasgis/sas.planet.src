@@ -39,9 +39,6 @@ object frmMain: TfrmMain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
-    ExplicitLeft = 199
-    ExplicitTop = 60
-    ExplicitWidth = 481
   end
   object TBDock: TTBXDock
     Left = 0
@@ -119,6 +116,13 @@ object frmMain: TfrmMain
           Caption = 'Google'
           Hint = ''
           EditCaption = 'Google'
+        end
+        object tbiEdit2GISSrch: TTBEditItem
+          EditCaption = '2GIS'
+          EditWidth = 150
+          Caption = '2GIS'
+          Hint = ''
+          EditCaption = '2GIS'
         end
       end
       object TBXSeparatorItem5: TTBXSeparatorItem
@@ -434,6 +438,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NSearchResults: TTBXVisibilityToggleItem
+            Control = TBSearchWindow
             Caption = 'Search Results'
             Hint = ''
           end
@@ -1014,6 +1019,12 @@ object frmMain: TfrmMain
           Caption = 'Google'
           Hint = ''
         end
+        object TBXSelect2GISSrch: TTBXItem
+          GroupIndex = 1
+          RadioItem = True
+          Caption = '2GIS'
+          Hint = ''
+        end
       end
       object tbiSearch: TTBXComboBoxItem
         EditCaption = 'Search'
@@ -1274,7 +1285,6 @@ object frmMain: TfrmMain
           Top = 0
           Width = 170
           Height = 9
-          ExplicitWidth = 128
         end
         object ScrollBoxSearchWindow: TScrollBox
           Left = 0
@@ -1288,7 +1298,6 @@ object frmMain: TfrmMain
           Color = clWhite
           ParentColor = False
           TabOrder = 1
-          ExplicitTop = 6
         end
       end
     end
@@ -1324,8 +1333,6 @@ object frmMain: TfrmMain
         BevelOuter = bvNone
         BorderStyle = bsNone
         TabOrder = 0
-        ExplicitLeft = -1
-        ExplicitTop = 4
         object TBXDock1: TTBXDock
           Left = 0
           Top = 0

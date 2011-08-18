@@ -233,6 +233,7 @@ uses
   u_GeoCoderBasic in 'u_GeoCoderBasic.pas',
   u_GeoCoderByYandex in 'u_GeoCoderByYandex.pas',
   u_GeoCoderByGoogle in 'u_GeoCoderByGoogle.pas',
+  u_GeoCoderBy2GIS in 'u_GeoCoderBy2GIS.pas',
   i_LayerBitmapClearStrategy in 'i_LayerBitmapClearStrategy.pas',
   u_LayerBitmapClearStrategy in 'u_LayerBitmapClearStrategy.pas',
   u_LayerBitmapClearStrategyFactory in 'u_LayerBitmapClearStrategyFactory.pas',

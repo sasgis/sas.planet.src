@@ -19,7 +19,8 @@ uses
   c_GeoCoderGUIDSimple,
   u_GeoCoderListEntity,
   u_GeoCoderByGoogle,
-  u_GeoCoderByYandex;
+  u_GeoCoderByYandex,
+  u_GeoCoderBy2GIS;
 
 { TGeoCoderListSimple }
 
@@ -38,6 +39,13 @@ begin
       CGeoCoderYandexGUID,
       'Yandex',
       TGeoCoderByYandex.Create(AProxy)
+    )
+  );
+  Add(
+    TGeoCoderListEntity.Create(
+      CGeoCoder2GISGUID,
+      '2GIS',
+      TGeoCoderBy2GIS.Create(AProxy)
     )
   );
 end;

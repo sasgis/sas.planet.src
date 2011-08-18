@@ -28,7 +28,6 @@ object frmGoTo: TfrmGoTo
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 205
     object lblZoom: TLabel
       AlignWithMargins = True
       Left = 3
@@ -116,10 +115,6 @@ object frmGoTo: TfrmGoTo
     TabOrder = 0
     object tsPlaceMarks: TTabSheet
       Caption = 'PlaceMarks'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 388
-      ExplicitHeight = 165
       object cbbAllMarks: TComboBox
         AlignWithMargins = True
         Left = 3
@@ -127,7 +122,7 @@ object frmGoTo: TfrmGoTo
         Width = 250
         Height = 21
         Align = alClient
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         OnChange = cbbAllMarksDropDown
         OnDropDown = cbbAllMarksDropDown
@@ -136,28 +131,28 @@ object frmGoTo: TfrmGoTo
     object tsSearch: TTabSheet
       Caption = 'Search'
       ImageIndex = 1
-      ExplicitLeft = -84
-      ExplicitTop = 33
-      ExplicitWidth = 388
-      ExplicitHeight = 165
+      DesignSize = (
+        256
+        81)
       object cbbSearcherType: TComboBox
         AlignWithMargins = True
-        Left = 3
+        Left = 182
         Top = 3
-        Width = 250
+        Width = 71
         Height = 21
-        Align = alTop
-        ItemHeight = 0
+        Style = csDropDownList
+        Anchors = [akTop, akRight]
+        ItemHeight = 13
         TabOrder = 1
       end
       object cbbGeoCode: TComboBox
         AlignWithMargins = True
         Left = 3
-        Top = 30
-        Width = 248
-        Height = 48
-        Align = alLeft
-        ItemHeight = 0
+        Top = 3
+        Width = 173
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        ItemHeight = 13
         TabOrder = 0
         OnChange = cbbAllMarksDropDown
         OnDropDown = cbbAllMarksDropDown
@@ -166,10 +161,6 @@ object frmGoTo: TfrmGoTo
     object tsCoordinates: TTabSheet
       Caption = 'Coordinates'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 388
-      ExplicitHeight = 165
     end
   end
 end

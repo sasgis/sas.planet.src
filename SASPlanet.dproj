@@ -485,6 +485,7 @@
     <DCCReference Include="u_GenShtabGridConfig.pas" />
     <DCCReference Include="u_GeoCodePlacemark.pas" />
     <DCCReference Include="u_GeoCoderBasic.pas" />
+    <DCCReference Include="u_GeoCoderBy2GIS.pas" />
     <DCCReference Include="u_GeoCoderByGoogle.pas" />
     <DCCReference Include="u_GeoCoderByYandex.pas" />
     <DCCReference Include="u_GeoCodeResult.pas" />

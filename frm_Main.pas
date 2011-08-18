@@ -355,6 +355,8 @@ type
     PanelSearch: TPanel;
     TBXDockForSearch: TTBXDock;
     ScrollBoxSearchWindow: TScrollBox;
+    TBXSelect2GISSrch: TTBXItem;
+    tbiEdit2GISSrch: TTBEditItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -1343,14 +1345,13 @@ begin
       FConfig.ViewPortState
     );
   VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
-
+  VTBXItem := TBXSelectGoogleSrch;
   VTBEditItem := tbiEditGoogleSrch;
+
   VTBEditItem.Tag := Integer(VItem);
   VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
   VTBEditItem.EditCaption := VItem.GetCaption;
   VTBEditItem.Caption := VItem.GetCaption;
-
-  VTBXItem := TBXSelectGoogleSrch;
   VTBXItem.Tag := Integer(VItem);
   VTBXItem.OnClick := Self.TBXSelectSrchClick;
   VTBXItem.Caption := VItem.GetCaption;
@@ -1358,6 +1359,18 @@ begin
   VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
   VTBXItem := TBXSelectYandexSrch;
   VTBEditItem := tbiEditYandexSrch;
+
+  VTBEditItem.Tag := Integer(VItem);
+  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
+  VTBEditItem.EditCaption := VItem.GetCaption;
+  VTBEditItem.Caption := VItem.GetCaption;
+  VTBXItem.Tag := Integer(VItem);
+  VTBXItem.OnClick := Self.TBXSelectSrchClick;
+  VTBXItem.Caption := VItem.GetCaption;
+
+  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoder2GISGUID);
+  VTBXItem := TBXSelect2GISSrch;
+  VTBEditItem := tbiEdit2GISSrch;
 
   VTBEditItem.Tag := Integer(VItem);
   VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
