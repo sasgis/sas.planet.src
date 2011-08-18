@@ -434,6 +434,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NSearchResults: TTBXVisibilityToggleItem
+            Control = TBSearchWindow
             Caption = 'Search Results'
             Hint = ''
           end
