@@ -66,7 +66,7 @@ begin
             AddressNode:=PlacemarkNode.ChildNodes.FindNode('name');
             VPoint.X:=StrToFloat(PlacemarkNode.ChildNodes.FindNode('lon').Text, VFormatSettings);
             VPoint.Y:=StrToFloat(PlacemarkNode.ChildNodes.FindNode('lat').Text, VFormatSettings);
-            VDesc:=PlacemarkNode.ChildNodes.FindNode('city_name').Text+','+
+            VDesc:=PlacemarkNode.ChildNodes.FindNode('city_name').Text+', '+
                    PlacemarkNode.ChildNodes.FindNode('address').text;
             if (AddressNode<>nil) then begin
               VPlace := TGeoCodePlacemark.Create(VPoint, AddressNode.Text, VDesc, '', 4);
