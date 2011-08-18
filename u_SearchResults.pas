@@ -97,6 +97,9 @@ begin
       if ASearchResult.GetPlacemarksCount = 1 then begin
         VEnum := ASearchResult.GetPlacemarks;
         if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
+          LengthFSearchItems:=length(FSearchItems);
+          SetLength(FSearchItems,LengthFSearchItems+1);
+          FSearchItems[LengthFSearchItems]:=TfrSearchResultsItem.Create(nil, FDrawParent, VPlacemark, FMapGoto);
           FMapGoto.GotoPos(VPlacemark.GetPoint, AZoom);
           if ASearchResult.GetResultCode = 200 then begin
             ShowMessage(SAS_STR_foundplace+' "'+VPlacemark.GetAddress+'"');
@@ -112,6 +115,10 @@ begin
             FSearchItems[LengthFSearchItems].Top:=FSearchItems[LengthFSearchItems-1].Top+1
           end;
           FSearchWindow.Show;
+        end;
+        VEnum.Reset;
+        if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
+          FMapGoto.GotoPos(VPlacemark.GetPoint, AZoom);
         end;
       end;
     end;
