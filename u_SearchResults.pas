@@ -17,7 +17,7 @@ uses
   fr_SearchResultsItem;
 
 type
-  TSearchResultPresenterWithForm = class(TInterfacedObject, ISearchResultPresenter)
+  TSearchResultPresenterOnPanel = class(TInterfacedObject, ISearchResultPresenter)
   private
     FMapGoto: IMapViewGoto;
     FViewPortState: IViewPortState;
@@ -49,7 +49,7 @@ uses
 
 { TSearchResultPresenterWithForm }
 
-constructor TSearchResultPresenterWithForm.Create(
+constructor TSearchResultPresenterOnPanel.Create(
   AMapGoto: IMapViewGoto;
   ADrawParent: TWinControl;
   ASearchWindow: TWinControl;
@@ -64,7 +64,7 @@ begin
   FSearchWindow := ASearchWindow;
 end;
 
-destructor TSearchResultPresenterWithForm.Destroy;
+destructor TSearchResultPresenterOnPanel.Destroy;
 var i:integer;
 begin
   FMapGoto := nil;
@@ -72,7 +72,7 @@ begin
   inherited;
 end;
 
-procedure TSearchResultPresenterWithForm.ClearSearchResults;
+procedure TSearchResultPresenterOnPanel.ClearSearchResults;
 var i:integer;
 begin
   for i := 0 to length(FSearchItems) - 1 do begin
@@ -81,7 +81,7 @@ begin
   SetLength(FSearchItems,0);
 end;
 
-procedure TSearchResultPresenterWithForm.ShowSearchResults(
+procedure TSearchResultPresenterOnPanel.ShowSearchResults(
   ASearchResult: IGeoCodeResult; AZoom: Byte);
 var
   VPlacemark: IGeoCodePlacemark;

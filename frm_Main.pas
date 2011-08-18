@@ -1335,7 +1335,7 @@ var
 begin
   VGoto := TMapViewGotoOnFMain.Create(Self.topos);
   FSearchPresenter :=
-    TSearchResultPresenterWithForm.Create(
+    TSearchResultPresenterOnPanel.Create(
       VGoto,
       ScrollBoxSearchWindow,
       TBSearchWindow,
