@@ -114,8 +114,8 @@ begin
           if LengthFSearchItems>0 then begin
             FSearchItems[LengthFSearchItems].Top:=FSearchItems[LengthFSearchItems-1].Top+1
           end;
-          FSearchWindow.Show;
         end;
+        FSearchWindow.Show;
         VEnum.Reset;
         if VEnum.Next(1, VPlacemark, @i) = S_OK then begin
           FMapGoto.GotoPos(VPlacemark.GetPoint, AZoom);

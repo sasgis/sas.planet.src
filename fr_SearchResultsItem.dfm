@@ -60,14 +60,14 @@ object frSearchResultsItem: TfrSearchResultsItem
     ExplicitWidth = 288
     object LabelFullDesc: TLabel
       AlignWithMargins = True
-      Left = 199
+      Left = 214
       Top = 3
-      Width = 87
+      Width = 72
       Height = 14
       Cursor = crHandPoint
       Align = alRight
       Alignment = taRightJustify
-      Caption = #1055#1086#1083#1085#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
+      Caption = 'Full Description'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlue
       Font.Height = -11
@@ -75,7 +75,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       Font.Style = [fsUnderline]
       ParentFont = False
       OnMouseUp = LabelFullDescMouseUp
-      ExplicitLeft = 198
       ExplicitHeight = 13
     end
   end
@@ -103,6 +102,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       Font.Style = []
       ParentFont = False
       WordWrap = True
+      OnDblClick = LabelDescDblClick
       ExplicitWidth = 159
     end
   end

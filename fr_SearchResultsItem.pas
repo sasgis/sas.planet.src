@@ -24,6 +24,7 @@ type
     procedure LabelFullDescMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure LabelCaptionClick(Sender: TObject);
+    procedure LabelDescDblClick(Sender: TObject);
   private
     FPlacemark: IGeoCodePlacemark;
     FMapGoto: IMapViewGoto;
@@ -56,6 +57,11 @@ begin
 end;
 
 procedure TfrSearchResultsItem.LabelCaptionClick(Sender: TObject);
+begin
+  FMapGoto.GotoPos(FPlacemark.GetPoint, GState.MainFormConfig.ViewPortState.GetCurrentZoom);
+end;
+
+procedure TfrSearchResultsItem.LabelDescDblClick(Sender: TObject);
 begin
   FMapGoto.GotoPos(FPlacemark.GetPoint, GState.MainFormConfig.ViewPortState.GetCurrentZoom);
 end;

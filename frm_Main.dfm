@@ -19,9 +19,9 @@ object frmMain: TfrmMain
   PixelsPerInch = 96
   TextHeight = 13
   object map: TImage32
-    Left = 197
+    Left = 207
     Top = 59
-    Width = 481
+    Width = 471
     Height = 467
     Align = alClient
     Bitmap.CombineMode = cmMerge
@@ -41,6 +41,7 @@ object frmMain: TfrmMain
     OnResize = mapResize
     ExplicitLeft = 199
     ExplicitTop = 60
+    ExplicitWidth = 481
   end
   object TBDock: TTBXDock
     Left = 0
@@ -991,9 +992,9 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 401
+      Left = 407
       Top = 0
-      DockPos = 401
+      DockPos = 407
       Options = [tboNoRotation]
       Stretch = True
       TabOrder = 6
@@ -1040,7 +1041,7 @@ object frmMain: TfrmMain
   object TBDockLeft: TTBXDock
     Left = 0
     Top = 59
-    Width = 197
+    Width = 207
     Height = 467
     PopupMenu = TBXPopupPanels
     Position = dpLeft
@@ -1257,7 +1258,7 @@ object frmMain: TfrmMain
       Top = 0
       CloseButtonWhenDocked = True
       ClientAreaHeight = 449
-      ClientAreaWidth = 160
+      ClientAreaWidth = 170
       DockPos = 3
       DockRow = 1
       Stretch = True
@@ -1267,17 +1268,18 @@ object frmMain: TfrmMain
       object PanelSearch: TPanel
         Left = 0
         Top = 0
-        Width = 160
+        Width = 170
         Height = 449
         Align = alClient
         AutoSize = True
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitWidth = 160
         ExplicitHeight = 450
         object TBXDockForSearch: TTBXDock
           Left = 0
           Top = 0
-          Width = 160
+          Width = 170
           Height = 9
           ExplicitLeft = 1
           ExplicitTop = 2
@@ -1286,7 +1288,7 @@ object frmMain: TfrmMain
         object ScrollBoxSearchWindow: TScrollBox
           Left = 0
           Top = 9
-          Width = 160
+          Width = 170
           Height = 440
           HorzScrollBar.Visible = False
           VertScrollBar.Smooth = True
@@ -1295,8 +1297,7 @@ object frmMain: TfrmMain
           Color = clWhite
           ParentColor = False
           TabOrder = 1
-          ExplicitTop = 6
-          ExplicitHeight = 449
+          ExplicitWidth = 160
         end
       end
     end
