@@ -185,7 +185,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationFastestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Fastest)');
+  Result := _('On Car (Fastest)');
 end;
 
 { TPathDetalizeProviderYourNavigationShortestByCar }
@@ -217,7 +217,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationShortestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Shortest)');
+  Result := _('On Car (Shortest)');
 end;
 
 { TPathDetalizeProviderYourNavigationFastestByBicycle }
@@ -249,7 +249,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationFastestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On bicycle (Fastest)');
+  Result := _('On Bicycle (Fastest)');
 end;
 
 { TPathDetalizeProviderYourNavigationShortestByBicycle }
@@ -281,7 +281,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationShortestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On bicycle (Shortest)');
+  Result := _('On Bicycle (Shortest)');
 end;
 
 end.
