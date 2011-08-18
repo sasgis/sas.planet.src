@@ -208,7 +208,7 @@ end;
 
 function TPathDetalizeProviderMailRuShortest.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Shortest)');
+  Result := _('On Car (Shortest)');
 end;
 
 { TPathDetalizeProviderMailRuFastest }
@@ -238,7 +238,7 @@ end;
 
 function TPathDetalizeProviderMailRuFastest.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Fastest)');
+  Result := _('On Car (Fastest)');
 end;
 
 { TPathDetalizeProviderMailRuFastestWithTraffic }
@@ -268,7 +268,7 @@ end;
 
 function TPathDetalizeProviderMailRuFastestWithTraffic.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Fastest with traffic)');
+  Result := _('On Car (Fastest with traffic)');
 end;
 
 end.
