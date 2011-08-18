@@ -434,7 +434,6 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NSearchResults: TTBXVisibilityToggleItem
-            Control = TBSearchWindow
             Caption = 'Search Results'
             Hint = ''
           end
@@ -992,9 +991,9 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 407
+      Left = 413
       Top = 0
-      DockPos = 407
+      DockPos = 413
       Options = [tboNoRotation]
       Stretch = True
       TabOrder = 6
@@ -1253,43 +1252,35 @@ object frmMain: TfrmMain
         end
       end
     end
-    object TBSearchWindow: TTBXToolWindow
+    object TBSearchWindow: TTBXDockablePanel
       Left = 33
       Top = 0
-      CloseButtonWhenDocked = True
-      ClientAreaHeight = 449
-      ClientAreaWidth = 170
-      DockPos = 3
-      DockRow = 1
-      Stretch = True
+      DockedWidth = 170
+      DockPos = -6
+      DockRow = 2
       TabOrder = 2
-      Visible = False
       Caption = 'Search Results'
       object PanelSearch: TPanel
         Left = 0
         Top = 0
         Width = 170
-        Height = 449
+        Height = 445
         Align = alClient
         AutoSize = True
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 160
-        ExplicitHeight = 450
         object TBXDockForSearch: TTBXDock
           Left = 0
           Top = 0
           Width = 170
           Height = 9
-          ExplicitLeft = 1
-          ExplicitTop = 2
-          ExplicitWidth = 158
+          ExplicitWidth = 128
         end
         object ScrollBoxSearchWindow: TScrollBox
           Left = 0
           Top = 9
           Width = 170
-          Height = 440
+          Height = 436
           HorzScrollBar.Visible = False
           VertScrollBar.Smooth = True
           VertScrollBar.Tracking = True
@@ -1297,7 +1288,7 @@ object frmMain: TfrmMain
           Color = clWhite
           ParentColor = False
           TabOrder = 1
-          ExplicitWidth = 160
+          ExplicitTop = 6
         end
       end
     end

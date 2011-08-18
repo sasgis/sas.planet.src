@@ -90,7 +90,7 @@ uses
   u_MarksDbGUIHelper,
   frm_RegionProcess,
   fr_SearchResultsItem,
-  u_TileDownloaderUI;
+  u_TileDownloaderUI, TBXDkPanels;
 
 type
   TAOperation = (
@@ -350,8 +350,8 @@ type
     tbitmShowMarkCaption: TTBXItem;
     NAnimateMove: TTBXItem;
     tbiSearch: TTBXComboBoxItem;
-    TBSearchWindow: TTBXToolWindow;
     NSearchResults: TTBXVisibilityToggleItem;
+    TBSearchWindow: TTBXDockablePanel;
     PanelSearch: TPanel;
     TBXDockForSearch: TTBXDock;
     ScrollBoxSearchWindow: TScrollBox;
