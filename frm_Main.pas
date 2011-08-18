@@ -480,8 +480,6 @@ type
     procedure TrayItemRestoreClick(Sender: TObject);
     procedure tbitmShowMarkCaptionClick(Sender: TObject);
     procedure NAnimateMoveClick(Sender: TObject);
-    procedure TBSearchWindowVisibleChanged(Sender: TObject);
-    procedure NSearchResultsClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4002,11 +4000,6 @@ begin
   NSensors.Checked := TTBXToolWindow(sender).Visible;
 end;
 
-procedure TfrmMain.NSearchResultsClick(Sender: TObject);
-begin
-  TBSearchWindow.Visible := TTBXItem(sender).Checked;
-end;
-
 procedure TfrmMain.NSensorsClick(Sender: TObject);
 begin
   TBXSensorsBar.Visible := TTBXItem(sender).Checked;
@@ -4116,11 +4109,6 @@ begin
   VPolygon := PolygonFromRect(VLonLatRect);
   setalloperationfalse(ao_movemap);
   FFormRegionProcess.Show_(VZoom, VPolygon);
-end;
-
-procedure TfrmMain.TBSearchWindowVisibleChanged(Sender: TObject);
-begin
-  NSearchResults.Checked := TTBXToolWindow(sender).Visible;
 end;
 
 procedure TfrmMain.TBGPSToPointCenterClick(Sender: TObject);

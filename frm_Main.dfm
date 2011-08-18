@@ -434,7 +434,6 @@ object frmMain: TfrmMain
           end
           object NSearchResults: TTBXVisibilityToggleItem
             Control = TBSearchWindow
-            OnClick = NSearchResultsClick
             Caption = 'Search Results'
             Hint = ''
           end
@@ -1264,7 +1263,6 @@ object frmMain: TfrmMain
       Stretch = True
       TabOrder = 2
       Visible = False
-      OnVisibleChanged = TBSearchWindowVisibleChanged
       Caption = 'Search Results'
       object ScrollBoxSearchWindow: TScrollBox
         Left = 0
