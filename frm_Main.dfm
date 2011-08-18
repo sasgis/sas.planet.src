@@ -1264,18 +1264,40 @@ object frmMain: TfrmMain
       TabOrder = 2
       Visible = False
       Caption = 'Search Results'
-      object ScrollBoxSearchWindow: TScrollBox
+      object PanelSearch: TPanel
         Left = 0
         Top = 0
         Width = 160
         Height = 449
-        HorzScrollBar.Visible = False
-        VertScrollBar.Smooth = True
-        VertScrollBar.Tracking = True
         Align = alClient
-        Color = clWhite
-        ParentColor = False
+        AutoSize = True
+        BevelOuter = bvNone
         TabOrder = 0
+        ExplicitHeight = 450
+        object TBXDockForSearch: TTBXDock
+          Left = 0
+          Top = 0
+          Width = 160
+          Height = 9
+          ExplicitLeft = 1
+          ExplicitTop = 2
+          ExplicitWidth = 158
+        end
+        object ScrollBoxSearchWindow: TScrollBox
+          Left = 0
+          Top = 9
+          Width = 160
+          Height = 440
+          HorzScrollBar.Visible = False
+          VertScrollBar.Smooth = True
+          VertScrollBar.Tracking = True
+          Align = alClient
+          Color = clWhite
+          ParentColor = False
+          TabOrder = 1
+          ExplicitTop = 6
+          ExplicitHeight = 449
+        end
       end
     end
   end

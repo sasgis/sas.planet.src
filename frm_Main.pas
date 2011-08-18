@@ -351,8 +351,10 @@ type
     NAnimateMove: TTBXItem;
     tbiSearch: TTBXComboBoxItem;
     TBSearchWindow: TTBXToolWindow;
-    ScrollBoxSearchWindow: TScrollBox;
     NSearchResults: TTBXVisibilityToggleItem;
+    PanelSearch: TPanel;
+    TBXDockForSearch: TTBXDock;
+    ScrollBoxSearchWindow: TScrollBox;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
