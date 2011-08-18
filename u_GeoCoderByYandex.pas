@@ -30,13 +30,14 @@ uses
 function TGeoCoderByYandex.ParseStringToPlacemarksList(
   AStr: string; ASearch: WideString): IInterfaceList;
 var
-  slat, slon, sname, sdesc: string;
+  slat, slon, sname, sdesc, sfulldesc: string;
   i, j: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
 begin
+  sfulldesc:='';
   if AStr = '' then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
@@ -44,7 +45,14 @@ begin
   VList := TInterfaceList.Create;
   i:=PosEx('"items":[{', AStr);
   while (PosEx('"name":"', AStr, i) > i)and(i>0) do begin
-    i := PosEx('"name":"', AStr, i);
+    j := i;
+    i := PosEx('"CompanyMetaData":{"id":"', AStr, i);
+    if i>j then begin
+      j := PosEx('",', AStr, i + 25);
+      sfulldesc:='http://maps.yandex.ru/sprav/'+Copy(AStr, i + 25, j - (i + 25))+'/';
+    end;
+
+    i := PosEx('"name":"', AStr, j);
     j := PosEx('",', AStr, i + 8);
     sname:= Utf8ToAnsi(Copy(AStr, i + 8, j - (i + 8)));
     i := PosEx('"address":"', AStr, j);
@@ -74,7 +82,7 @@ begin
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, '', 4);
+    VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
   Result := VList;
