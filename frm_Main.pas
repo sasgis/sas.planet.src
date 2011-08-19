@@ -1962,6 +1962,8 @@ begin
   TBDockLeft.AllowDrag := not AValue;
   TBDockRight.AllowDrag := not AValue;
   TBDockBottom.AllowDrag := not AValue;
+  TBXDock1.AllowDrag := not AValue;
+  TBXDockForSearch.AllowDrag := not AValue;
 end;
 
 procedure TfrmMain.OnToolbarsLockChange(Sender: TObject);
