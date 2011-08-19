@@ -34,10 +34,9 @@ object frSearchResultsItem: TfrSearchResultsItem
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 445
+      Width = 203
       Height = 16
       Cursor = crHandPoint
-      Margins.Bottom = 0
       Align = alTop
       Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1085#1072#1081#1076#1077#1085#1085#1086#1075#1086' '#1086#1073#1098#1077#1082#1090#1072
       Font.Charset = RUSSIAN_CHARSET
@@ -48,7 +47,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnClick = LabelCaptionClick
-      ExplicitWidth = 203
     end
   end
   object PanelFullDesc: TPanel
@@ -66,9 +64,8 @@ object frSearchResultsItem: TfrSearchResultsItem
       Left = 376
       Top = 3
       Width = 72
-      Height = 17
+      Height = 13
       Cursor = crHandPoint
-      Margins.Bottom = 0
       Align = alRight
       Alignment = taRightJustify
       Caption = 'Full Description'
@@ -79,8 +76,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       Font.Style = [fsUnderline]
       ParentFont = False
       OnMouseUp = LabelFullDescMouseUp
-      ExplicitLeft = 214
-      ExplicitHeight = 13
     end
   end
   object PanelDesc: TPanel
@@ -97,9 +92,8 @@ object frSearchResultsItem: TfrSearchResultsItem
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 445
+      Width = 159
       Height = 28
-      Margins.Bottom = 0
       Align = alTop
       Caption = #1054#1087#1080#1089#1072#1085#1080#1077' '#1085#1072#1081#1076#1077#1085#1085#1086#1075#1086' '#1086#1073#1098#1077#1082#1090#1072'.'#13#10#1052#1086#1078#1085#1086' '#1084#1085#1086#1075#1086#1089#1090#1088#1086#1095#1085#1086#1077'.'
       Font.Charset = RUSSIAN_CHARSET
@@ -110,7 +104,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnDblClick = LabelDescDblClick
-      ExplicitWidth = 159
     end
   end
 end
