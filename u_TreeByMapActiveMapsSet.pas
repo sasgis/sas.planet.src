@@ -37,6 +37,11 @@ begin
   FStaticTree := CreateStatic;
 end;
 
+function TTreeByMapActiveMapsSet.CreateStatic: IStaticTreeItem;
+begin
+  Result := nil;
+end;
+
 function TTreeByMapActiveMapsSet.GetChangeNotifier: IJclNotifier;
 begin
   Result := FChangeNotifier;
