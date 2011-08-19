@@ -269,6 +269,7 @@
     <DCCReference Include="i_SimpleFactory.pas" />
     <DCCReference Include="i_StartUpLogoConfig.pas" />
     <DCCReference Include="i_StatBarConfig.pas" />
+    <DCCReference Include="i_StaticTreeItem.pas" />
     <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
@@ -293,6 +294,7 @@
     <DCCReference Include="i_TileStorageTypeList.pas" />
     <DCCReference Include="i_TileStorageTypeListItem.pas" />
     <DCCReference Include="i_TrackWriter.pas" />
+    <DCCReference Include="i_TreeChangeable.pas" />
     <DCCReference Include="i_UrlByCoordProvider.pas" />
     <DCCReference Include="i_UsedMarksConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
@@ -661,6 +663,7 @@
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_StartUpLogoConfig.pas" />
     <DCCReference Include="u_StatBarConfig.pas" />
+    <DCCReference Include="u_StaticTreeItem.pas" />
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
@@ -702,6 +705,7 @@
     <DCCReference Include="u_TileStorageTypeListItem.pas" />
     <DCCReference Include="u_TileStorageTypeListSimple.pas" />
     <DCCReference Include="u_TimeZones.pas" />
+    <DCCReference Include="u_TreeByMapActiveMapsSet.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="u_UserInterfaceItemBase.pas" />
