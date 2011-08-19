@@ -2055,8 +2055,6 @@ begin
               VK_F11: Handled := True;
             end;
           end;
-          WM_KEYUP: begin
-          end;
         end;
       end;
     end;
@@ -2068,11 +2066,12 @@ var
   VShortCut: TShortCut;
   VMapType: TMapType;
 begin
-  VShortCut := ShortCutFromMessage(TWMKey(Msg));
+  VShortCut := ShortCutFromMessage(Msg);
   case VShortCut of
     VK_BACK: begin
       if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
-       FLineOnMapEdit.DeleteActivePoint;
+        FLineOnMapEdit.DeleteActivePoint;
+        Handled := True;
       end;
     end;
     VK_ESCAPE: begin
@@ -2084,9 +2083,11 @@ begin
           end else begin
             setalloperationfalse(ao_movemap);
           end;
+          Handled := True;
         end;
         ao_Add_Point: begin
           setalloperationfalse(ao_movemap);
+          Handled := True;
         end;
         ao_select_poly,
         ao_calc_line,
@@ -2099,6 +2100,7 @@ begin
           end else begin
             setalloperationfalse(ao_movemap);
           end;
+          Handled := True;
         end;
       end;
     end;
@@ -2108,17 +2110,20 @@ begin
         ao_edit_Poly: begin
           if FLineOnMapEdit.GetCount > 2 then begin
             TBEditPathSaveClick(Self);
+            Handled := True;
           end;
         end;
         ao_add_line,
         ao_edit_line: begin
           if FLineOnMapEdit.GetCount > 1 then begin
             TBEditPathSaveClick(Self);
+            Handled := True;
           end;
         end;
         ao_select_poly: begin
           if FLineOnMapEdit.GetCount > 2 then begin
-            TBEditPathOkClick(Self)
+            TBEditPathOkClick(Self);
+            Handled := True;
           end;
         end;
       end;
@@ -2144,6 +2149,7 @@ begin
       end else begin
         FConfig.MainMapsConfig.SelectMainByGUID(VMapType.Zmp.GUID);
       end;
+      Handled := True;
     end;
   end;
 end;
