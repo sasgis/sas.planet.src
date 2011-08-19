@@ -40,7 +40,9 @@ type
   IBitmapMarkerProviderChangeable = interface
     ['{A81C1CCD-76B8-48F7-8079-25F1D1A8D10B}']
     function GetStatic: IBitmapMarkerProvider;
+
     function GetChangeNotifier: IJclNotifier;
+    property ChangeNotifier: IJclNotifier read GetChangeNotifier;
   end;
 
 implementation
