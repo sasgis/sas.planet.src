@@ -17,6 +17,7 @@ type
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorLogger: ITileErrorLogger;
     FDownloadInfo: IDownloadInfoSimple;
+    FLoadXY: TPoint;
 
     procedure AfterWriteToFile;
   protected

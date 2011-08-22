@@ -285,7 +285,6 @@ begin
             While (FDownloadPause)and (not Terminated) do SleepCancelable(FPausedSleepTime);
             FStartTime := now;
           end;
-          FLoadXY := VTile;
 
           FLog.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, Fzoom)]), 0);
           VTileExists := FMapType.TileExists(VTile, Fzoom);
@@ -300,25 +299,29 @@ begin
               and (FMapType.TileLoadDate(VTile, Fzoom) >= FCheckTileDate) then
             begin
               FLog.WriteText(FRES_FileBeCreateTime, 0);
+              FLastSuccessfulPoint := VTile;
+              FLastProcessedPoint := VTile;
               VGotoNextTile := True;
             end else begin
                 try
                   if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(GState.DownloadConfig.IsSaveTileNotExists) then begin
                     FLog.WriteText('(tne exists)', 0);
+                    FLastProcessedPoint := VTile;
+                    FLastSuccessfulPoint := VTile;
                     VGotoNextTile := True;
-                    FLastProcessedPoint := FLoadXY;
                   end else begin
                     VResult:=FMapType.DownloadTile(FCancelNotifier, VTile, FZoom, FCheckExistTileSize);
                     if Terminated then begin
                       Break;
                     end;
-                    FLastProcessedPoint := FLoadXY;
+                    FLastProcessedPoint := VTile;
                     if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+                      FLastSuccessfulPoint := VTile;
+                      VGotoNextTile := True;
                       FDownloadInfo.Add(1, VResultOk.Size);
                       FLog.WriteText('(Ok!)', 0);
-                      VGotoNextTile := True;
                     end else if Supports(VResult, IDownloadResultNotNecessary) then begin
-                      FLastSuccessfulPoint := FLoadXY;
+                      FLastSuccessfulPoint := VTile;
                       FLog.WriteText(FRES_FileBeCreateLen, 0);
                       VGotoNextTile := True;
                     end else if Supports(VResult, IDownloadResultProxyError) then begin
