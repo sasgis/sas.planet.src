@@ -484,6 +484,7 @@ type
     procedure TrayItemRestoreClick(Sender: TObject);
     procedure tbitmShowMarkCaptionClick(Sender: TObject);
     procedure NAnimateMoveClick(Sender: TObject);
+    procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -569,7 +570,6 @@ type
     procedure OnToolbarsLockChange(Sender: TObject);
     procedure OnLineOnMapEditChange(Sender: TObject);
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
-    procedure DoShortCutEvent(var Msg: TWMKey; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
     procedure MapMoveAnimate(AMouseMoveSpeed: TDoublePoint; ALastTime:double; AZoom:byte; AMousePos:TPoint);
@@ -802,7 +802,6 @@ begin
 
     Enabled:=true;
     Application.OnMessage := DoMessageEvent;
-    Application.OnShortCut := DoShortCutEvent;
     Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
     Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
     Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
@@ -2063,7 +2062,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.DoShortCutEvent(var Msg: TWMKey; var Handled: Boolean);
+procedure TfrmMain.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
 var
   VShortCut: TShortCut;
   VMapType: TMapType;
