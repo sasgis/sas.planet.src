@@ -2051,11 +2051,6 @@ begin
               FConfig.MapZoomingConfig.ZoomingAtMousePos
             );
           end;
-          WM_KEYFIRST: begin
-            case Msg.wParam of
-              VK_F11: Handled := True;
-            end;
-          end;
         end;
       end;
     end;
