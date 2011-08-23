@@ -61,6 +61,9 @@ uses
   i_MessageHandler,
   i_MouseState,
   i_MouseHandler,
+  i_TreeChangeable,
+  i_StaticTreeItem,
+  i_MenuGeneratorByTree,
   u_WindowLayerBasicList,
   u_GeoFun,
   u_MapLayerWiki,
@@ -170,9 +173,6 @@ type
     TBEditPathSave: TTBXItem;
     TBEditPathOk: TTBXItem;
     TBEditPathMarsh: TTBXSubmenuItem;
-    tbiMailRuShortest: TTBXItem;
-    tbiMailRuFastest: TTBXItem;
-    tbiMailRuFastestWithTraffic: TTBXItem;
     TBItem5: TTBXItem;
     TBItemDelTrack: TTBXItem;
     NFoolSize: TTBXItem;
@@ -240,12 +240,6 @@ type
     TBXDock1: TTBXDock;
     NSensors: TTBXSubmenuItem;
     TBXPopupMenuSensors: TTBXPopupMenu;
-    tbiYourNavigationCarFastest: TTBXItem;
-    TBXLabelItem1: TTBXLabelItem;
-    TBXLabelItem2: TTBXLabelItem;
-    tbiYourNavigationCarShortest: TTBXItem;
-    tbiYourNavigationBicycleShortest: TTBXItem;
-    tbiYourNavigationBicycleFastest: TTBXItem;
     tbitmSaveCurrentPositionToolbar: TTBXItem;
     TBXSeparatorItem16: TTBXSeparatorItem;
     TBXSeparatorItem17: TTBXSeparatorItem;
@@ -335,13 +329,6 @@ type
     NBlock_toolbars: TTBXItem;
     TBXSeparatorItem19: TTBXSeparatorItem;
     tbitmGPSOptions: TTBXItem;
-    TBXLabelItem3: TTBXLabelItem;
-    tbiCloudMadeBicycleFastest: TTBXItem;
-    tbiCloudMadeFootFastest: TTBXItem;
-    tbiCloudMadeCarFastest: TTBXItem;
-    tbiCloudMadeCarShortest: TTBXItem;
-    tbiCloudMadeFootShortest: TTBXItem;
-    tbiCloudMadeBicycleShortest: TTBXItem;
     TrayIcon: TTrayIcon;
     TrayPopupMenu: TTBXPopupMenu;
     TrayItemRestore: TTBItem;
@@ -557,8 +544,11 @@ type
     FSensorViewList: IGUIDInterfaceList;
     FFormRegionProcess: TfrmRegionProcess;
 
+    FPathProvidersTree: ITreeChangeable;
+    FPathProvidersTreeStatic: IStaticTreeItem;
+    FPathProvidersMenuBuilder: IMenuGeneratorByTree;
+
     procedure InitSearchers;
-    procedure InitPathDetalizeProviders;
     procedure CreateMapUIMapsList;
     procedure CreateMapUILayersList;
     procedure CreateMapUIFillingList;
@@ -569,6 +559,7 @@ type
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
     procedure OnLineOnMapEditChange(Sender: TObject);
+    procedure OnPathProvidesChange(Sender: TObject);
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
@@ -666,6 +657,8 @@ uses
   u_ThreadDownloadTiles,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
+  u_TreeByPathDetalizeProviderList,
+  u_MenuGeneratorByStaticTreeSimple,
   u_PosFromGSM,
   u_ExportMarks2KML,
   u_SearchResults,
@@ -1198,8 +1191,16 @@ begin
       except
       end;
     end;
+
+    FPathProvidersTree := TTreeByPathDetalizeProviderList.Create(GState.PathDetalizeList);
+    FPathProvidersMenuBuilder := TMenuGeneratorByStaticTreeSimple.Create(Self.TBEditPathMarshClick);
+
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnPathProvidesChange),
+      FPathProvidersTree.ChangeNotifier
+    );
+
     InitSearchers;
-    InitPathDetalizeProviders;
     CreateLangMenu;
     FMapMoving:=false;
 
@@ -1219,6 +1220,7 @@ begin
     OnMainMapChange(nil);
     ProcessPosChangeMessage(nil);
     OnSearchhistoryChange(nil);
+    OnPathProvidesChange(nil);
 
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
     FKeyMovingHandler := TKeyMovingHandler.Create(map, FConfig.ViewPortState, FConfig.KeyMovingConfig);
@@ -1228,105 +1230,6 @@ begin
     TfrmStartLogo.ReadyToHideLogo;
   end;
   TBXMainMenu.ProcessShortCuts:=true;
-end;
-
-procedure TfrmMain.InitPathDetalizeProviders;
-var
-  VEntity: IPathDetalizeProviderListEntity;
-  VItem: TTBXItem;
-begin
-  VItem := tbiCloudMadeCarFastest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeFastestByCar);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-  VItem := tbiCloudMadeFootFastest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeFastestByFoot);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-  VItem := tbiCloudMadeBicycleFastest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeFastestByBicycle);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-  VItem := tbiCloudMadeCarShortest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeShortestByCar);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-  VItem := tbiCloudMadeFootShortest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeShortestByFoot);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-  VItem := tbiCloudMadeBicycleShortest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderCloudMadeShortestByBicycle);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-
-  VItem := tbiMailRuShortest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderMailRuShortest);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-  VItem := tbiMailRuFastest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderMailRuFastest);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-  VItem := tbiMailRuFastestWithTraffic;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderMailRuFastestWithTraffic);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-
-  VItem := tbiYourNavigationCarFastest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderYourNavigationFastestByCar);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-  VItem := tbiYourNavigationCarShortest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderYourNavigationShortestByCar);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-  VItem := tbiYourNavigationBicycleFastest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderYourNavigationFastestByBicycle);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
-
-  VItem := tbiYourNavigationBicycleShortest;
-  VEntity := GState.PathDetalizeList.Get(CPathDetalizeProviderYourNavigationShortestByBicycle);
-  if VEntity <> nil then begin
-    VItem.Tag := Integer(VEntity.GetProvider);
-    VItem.OnClick := Self.TBEditPathMarshClick;
-  end;
 end;
 
 procedure TfrmMain.InitSearchers;
@@ -4393,9 +4296,10 @@ var
   VResult: TArrayOfDoublePoint;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
+  VInterface: IInterface;
 begin
-  VProvider := IPathDetalizeProvider(TTBXItem(Sender).tag);
-  if VProvider <> nil then begin
+  VInterface := IInterface(TTBXItem(Sender).tag);
+  if Supports(VInterface, IPathDetalizeProvider, VProvider) then begin
     VIsError := True;
     try
       VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
@@ -4476,6 +4380,15 @@ end;
 procedure TfrmMain.OnMinimize(Sender: TObject);
 begin
   PostMessage(frmMain.Handle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+end;
+
+procedure TfrmMain.OnPathProvidesChange(Sender: TObject);
+var
+  VTree: IStaticTreeItem;
+begin
+  VTree := FPathProvidersTree.GetStatic;
+  FPathProvidersMenuBuilder.BuildMenu(TBEditPathMarsh, VTree);
+  FPathProvidersTreeStatic := VTree;
 end;
 
 procedure TfrmMain.OnSearchhistoryChange(Sender: TObject);
