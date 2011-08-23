@@ -244,6 +244,7 @@
     <DCCReference Include="i_MarkTemplate.pas" />
     <DCCReference Include="i_MemCache.pas" />
     <DCCReference Include="i_MemObjCache.pas" />
+    <DCCReference Include="i_MenuGeneratorByTree.pas" />
     <DCCReference Include="i_MessageHandler.pas" />
     <DCCReference Include="i_MiniMapLayerConfig.pas" />
     <DCCReference Include="i_MouseHandler.pas" />
@@ -622,6 +623,7 @@
     <DCCReference Include="u_MarkTemplateConfigBase.pas" />
     <DCCReference Include="u_MarkTemplates.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
+    <DCCReference Include="u_MenuGeneratorByStaticTreeSimple.pas" />
     <DCCReference Include="u_MiniMapLayerConfig.pas" />
     <DCCReference Include="u_MiniMapMapsConfig.pas" />
     <DCCReference Include="u_MouseState.pas" />
@@ -709,6 +711,8 @@
     <DCCReference Include="u_TileStorageTypeListSimple.pas" />
     <DCCReference Include="u_TimeZones.pas" />
     <DCCReference Include="u_TreeByMapActiveMapsSet.pas" />
+    <DCCReference Include="u_TreeByPathDetalizeProviderList.pas" />
+    <DCCReference Include="u_TreeChangeableBase.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="u_UserInterfaceItemBase.pas" />
