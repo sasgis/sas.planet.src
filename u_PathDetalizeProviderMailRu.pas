@@ -208,7 +208,7 @@ end;
 
 function TPathDetalizeProviderMailRuShortest.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Car (Shortest)');
+  Result := _('Maps@mail.ru') + '|0020~\' +  _('On Car (Shortest)') + '|0010';
 end;
 
 { TPathDetalizeProviderMailRuFastest }
@@ -238,7 +238,7 @@ end;
 
 function TPathDetalizeProviderMailRuFastest.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Car (Fastest)');
+  Result := _('Maps@mail.ru') + '|0020~\' +  _('On Car (Fastest)') + '|0020';
 end;
 
 { TPathDetalizeProviderMailRuFastestWithTraffic }
@@ -268,7 +268,7 @@ end;
 
 function TPathDetalizeProviderMailRuFastestWithTraffic.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Car (Fastest with traffic)');
+  Result := _('Maps@mail.ru') + '|0020~\' +  _('On Car (Fastest with traffic)') + '|0030';
 end;
 
 end.

@@ -185,7 +185,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationFastestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Car (Fastest)');
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('On Car (Fastest)') + '|0010';
 end;
 
 { TPathDetalizeProviderYourNavigationShortestByCar }
@@ -217,7 +217,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationShortestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Car (Shortest)');
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('On Car (Shortest)') + '|0020';
 end;
 
 { TPathDetalizeProviderYourNavigationFastestByBicycle }
@@ -249,7 +249,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationFastestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Bicycle (Fastest)');
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('On Bicycle (Fastest)') + '|0030';
 end;
 
 { TPathDetalizeProviderYourNavigationShortestByBicycle }
@@ -281,7 +281,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationShortestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Bicycle (Shortest)');
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('On Bicycle (Shortest)') + '|0040';
 end;
 
 end.

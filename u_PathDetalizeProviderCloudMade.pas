@@ -268,7 +268,7 @@ end;
 
 function TPathDetalizeProviderCloudMadeFastestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Car (Fastest)');
+  Result :=_('maps.cloudmade.com (OSM)') + '|0010~\' + _('On Car (Fastest)') + '|0010';
 end;
 
 { TPathDetalizeProviderCloudMadeFastestByFoot }
@@ -293,7 +293,7 @@ end;
 
 function TPathDetalizeProviderCloudMadeFastestByFoot.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Foot (Fastest)');
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('On Foot (Fastest)') + '|0020';
 end;
 
 { TPathDetalizeProviderCloudMadeFastestByBicycle }
@@ -318,7 +318,7 @@ end;
 
 function TPathDetalizeProviderCloudMadeFastestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Bicycle (Fastest)');
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('On Bicycle (Fastest)') + '|0030';
 end;
 
 { TPathDetalizeProviderCloudMadeShortestByCar }
@@ -343,7 +343,7 @@ end;
 
 function TPathDetalizeProviderCloudMadeShortestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Car (Shortest)');
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('On Car (Shortest)') + '|0040';
 end;
 
 { TPathDetalizeProviderCloudMadeShortestByFoot }
@@ -368,7 +368,7 @@ end;
 
 function TPathDetalizeProviderCloudMadeShortestByFoot.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Foot (Shortest)');
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('On Foot (Shortest)') + '|0050';
 end;
 
 { TPathDetalizeProviderCloudMadeShortestByBicycle }
@@ -393,7 +393,7 @@ end;
 
 function TPathDetalizeProviderCloudMadeShortestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On Bicycle (Shortest)');
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('On Bicycle (Shortest)') + '|0060';
 end;
 
 end.
