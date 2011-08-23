@@ -13,6 +13,7 @@ type
   private
     FOnClick: TNotifyEvent;
   protected
+    procedure AddSubItems(AParent: TTBCustomItem; AItem: IStaticTreeItem); virtual;
     procedure AddItem(AParent: TTBCustomItem; AItem: IStaticTreeItem); virtual;
     procedure ClearOldItems(ARootMenu: TTBCustomItem); virtual;
     function IsFlatSubTree(AItem: IStaticTreeItem): Boolean; virtual;
@@ -43,22 +44,21 @@ procedure TMenuGeneratorByStaticTreeSimple.AddItem(AParent: TTBCustomItem;
   AItem: IStaticTreeItem);
 var
   VItem: TTBCustomItem;
-  i: Integer;
+  VLabel: TTBXLabelItem;
 begin
   if AItem.SubItemCount > 0 then begin
     if IsFlatSubTree(AItem) then begin
       if Length(AItem.Name) > 0 then begin
-        VItem := TTBXLabelItem.Create(AParent);
+        VLabel := TTBXLabelItem.Create(AParent);
+        VLabel.ShowAccelChar := False;
+        VLabel.FontSettings.Bold := tsTrue;
+        VItem := VLabel;
         VItem.Caption := AItem.Name;
         VItem.Tag := -1;
         AParent.Add(VItem);
-        for i := 0 to AItem.SubItemCount - 1 do begin
-          AddItem(AParent, AItem.SubItem[i]);
-        end;
+        AddSubItems(AParent, AItem);
       end else begin
-        for i := 0 to AItem.SubItemCount - 1 do begin
-          AddItem(AParent, AItem.SubItem[i]);
-        end;
+        AddSubItems(AParent, AItem);
         VItem := TTBSeparatorItem.Create(AParent);
         VItem.Tag := -1;
         AParent.Add(VItem);
@@ -68,9 +68,7 @@ begin
       VItem.Caption := AItem.Name;
       VItem.Tag := -1;
       AParent.Add(VItem);
-      for i := 0 to AItem.SubItemCount - 1 do begin
-        AddItem(AParent, AItem.SubItem[i]);
-      end;
+      AddSubItems(VItem, AItem);
     end;
   end else begin
     if AItem.Data <> nil then begin
@@ -84,11 +82,21 @@ begin
 
 end;
 
+procedure TMenuGeneratorByStaticTreeSimple.AddSubItems(AParent: TTBCustomItem;
+  AItem: IStaticTreeItem);
+var
+  i: Integer;
+begin
+  for i := 0 to AItem.SubItemCount - 1 do begin
+    AddItem(AParent, AItem.SubItem[i]);
+  end;
+end;
+
 procedure TMenuGeneratorByStaticTreeSimple.BuildMenu(ARootMenu: TTBCustomItem;
   ATree: IStaticTreeItem);
 begin
   ClearOldItems(ARootMenu);
-  AddItem(ARootMenu, ATree);
+  AddSubItems(ARootMenu, ATree);
 end;
 
 procedure TMenuGeneratorByStaticTreeSimple.ClearOldItems(ARootMenu: TTBCustomItem);
@@ -104,8 +112,14 @@ end;
 
 function TMenuGeneratorByStaticTreeSimple.IsFlatSubTree(
   AItem: IStaticTreeItem): Boolean;
+var
+  VLen: Integer;
 begin
-  Result := AItem.GroupName[Length(AItem.GroupName)] = '~';
+  Result := False;
+  VLen := Length(AItem.GroupName);
+  if VLen > 0 then begin
+    Result := AItem.GroupName[VLen] = '~';
+  end;
 end;
 
 end.
