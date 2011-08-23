@@ -11,20 +11,20 @@ type
   private
     FData: IInterface;
     FName: string;
-    FDescription: string;
-    FSubItems: TInterfaceList;
+    FGroupName: string;
+    FSubItems: IInterfaceList;
   protected
     function GetData: IInterface;
     function GetName: string;
-    function GetDescription: string;
+    function GetGroupName: string;
     function GetSubItemCount: Integer;
     function GetSubItem(AIndex: Integer): IStaticTreeItem;
   public
     constructor Create(
       AData: IInterface;
       AName: string;
-      ADescription: string;
-      ASubItems: TInterfaceList
+      AGroupName: string;
+      ASubItems: IInterfaceList
     );
   end;
 
@@ -33,11 +33,11 @@ implementation
 { TStaticTreeItem }
 
 constructor TStaticTreeItem.Create(AData: IInterface; AName,
-  ADescription: string; ASubItems: TInterfaceList);
+  AGroupName: string; ASubItems: IInterfaceList);
 begin
   FData := AData;
   FName := AName;
-  FDescription := ADescription;
+  FGroupName := AGroupName;
   FSubItems := ASubItems;
 end;
 
@@ -46,9 +46,9 @@ begin
   Result := FData;
 end;
 
-function TStaticTreeItem.GetDescription: string;
+function TStaticTreeItem.GetGroupName: string;
 begin
-  Result := FDescription;
+  Result := FGroupName;
 end;
 
 function TStaticTreeItem.GetName: string;

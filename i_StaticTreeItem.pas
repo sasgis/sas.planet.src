@@ -11,8 +11,8 @@ type
     function GetName: string;
     property Name: string read GetName;
 
-    function GetDescription: string;
-    property Description: string read GetDescription;
+    function GetGroupName: string;
+    property GroupName: string read GetGroupName;
 
     function GetSubItemCount: Integer;
     property SubItemCount: Integer read GetSubItemCount;
