@@ -216,6 +216,7 @@
     <DCCReference Include="i_MapLayerGridsConfig.pas" />
     <DCCReference Include="i_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="i_MapMovingConfig.pas" />
+    <DCCReference Include="i_MapTypeGUIConfig.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_MapVersionConfig.pas" />
@@ -580,6 +581,8 @@
     <DCCReference Include="u_MapType.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeCacheConfig.pas" />
+    <DCCReference Include="u_MapTypeGUIConfig.pas" />
+    <DCCReference Include="u_MapTypeGUIConfigStatic.pas" />
     <DCCReference Include="u_MapTypeIconsList.pas" />
     <DCCReference Include="u_MapTypeList.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />

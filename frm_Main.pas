@@ -484,6 +484,7 @@ type
     procedure TrayItemRestoreClick(Sender: TObject);
     procedure tbitmShowMarkCaptionClick(Sender: TObject);
     procedure NAnimateMoveClick(Sender: TObject);
+    procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -569,7 +570,6 @@ type
     procedure OnToolbarsLockChange(Sender: TObject);
     procedure OnLineOnMapEditChange(Sender: TObject);
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
-    procedure DoShortCutEvent(var Msg: TWMKey; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
     procedure MapMoveAnimate(AMouseMoveSpeed: TDoublePoint; ALastTime:double; AZoom:byte; AMousePos:TPoint);
@@ -802,7 +802,6 @@ begin
 
     Enabled:=true;
     Application.OnMessage := DoMessageEvent;
-    Application.OnShortCut := DoShortCutEvent;
     Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
     Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
     Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
@@ -2052,106 +2051,103 @@ begin
               FConfig.MapZoomingConfig.ZoomingAtMousePos
             );
           end;
-          WM_KEYFIRST: begin
-            case Msg.wParam of
-              VK_F11: Handled := True;
-            end;
-          end;
         end;
       end;
     end;
   end;
 end;
 
-procedure TfrmMain.DoShortCutEvent(var Msg: TWMKey; var Handled: Boolean);
+procedure TfrmMain.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
 var
   VShortCut: TShortCut;
   VMapType: TMapType;
 begin
-  VShortCut := ShortCutFromMessage(Msg);
-  case VShortCut of
-    VK_BACK: begin
-      if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
-        FLineOnMapEdit.DeleteActivePoint;
+  if Self.Active then begin
+    VShortCut := ShortCutFromMessage(Msg);
+    case VShortCut of
+      VK_BACK: begin
+        if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
+          FLineOnMapEdit.DeleteActivePoint;
+          Handled := True;
+        end;
+      end;
+      VK_ESCAPE: begin
+        case FCurrentOper of
+          ao_select_rect: begin
+            if Frect_dwn then begin
+              setalloperationfalse(ao_movemap);
+              setalloperationfalse(ao_select_rect);
+            end else begin
+              setalloperationfalse(ao_movemap);
+            end;
+            Handled := True;
+          end;
+          ao_Add_Point: begin
+            setalloperationfalse(ao_movemap);
+            Handled := True;
+          end;
+          ao_select_poly,
+          ao_calc_line,
+          ao_add_line,
+          ao_add_poly,
+          ao_edit_line,
+          ao_edit_poly: begin
+            if (FLineOnMapEdit.GetCount>0) then begin
+              FLineOnMapEdit.Empty;
+            end else begin
+              setalloperationfalse(ao_movemap);
+            end;
+            Handled := True;
+          end;
+        end;
+      end;
+      VK_RETURN: begin
+        case FCurrentOper of
+          ao_add_Poly,
+          ao_edit_Poly: begin
+            if FLineOnMapEdit.GetCount > 2 then begin
+              TBEditPathSaveClick(Self);
+              Handled := True;
+            end;
+          end;
+          ao_add_line,
+          ao_edit_line: begin
+            if FLineOnMapEdit.GetCount > 1 then begin
+              TBEditPathSaveClick(Self);
+              Handled := True;
+            end;
+          end;
+          ao_select_poly: begin
+            if FLineOnMapEdit.GetCount > 2 then begin
+              TBEditPathOkClick(Self);
+              Handled := True;
+            end;
+          end;
+        end;
+      end;
+      VK_F11: begin
+        TBFullSizeClick(nil);
         Handled := True;
       end;
-    end;
-    VK_ESCAPE: begin
-      case FCurrentOper of
-        ao_select_rect: begin
-          if Frect_dwn then begin
-            setalloperationfalse(ao_movemap);
-            setalloperationfalse(ao_select_rect);
-          end else begin
-            setalloperationfalse(ao_movemap);
+    else
+      VMapType := GState.MapType.GetMapTypeByHotKey(VShortCut);
+      if VMapType <> nil then begin
+        if VMapType.asLayer then begin
+          FConfig.MainMapsConfig.LockWrite;
+          try
+            if not FConfig.MainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VMapType.Zmp.GUID) then begin
+              FConfig.MainMapsConfig.SelectLayerByGUID(VMapType.Zmp.GUID);
+            end else begin
+              FConfig.MainMapsConfig.UnSelectLayerByGUID(VMapType.Zmp.GUID);
+            end;
+          finally
+            FConfig.MainMapsConfig.UnlockWrite;
           end;
-          Handled := True;
+        end else begin
+          FConfig.MainMapsConfig.SelectMainByGUID(VMapType.Zmp.GUID);
         end;
-        ao_Add_Point: begin
-          setalloperationfalse(ao_movemap);
-          Handled := True;
-        end;
-        ao_select_poly,
-        ao_calc_line,
-        ao_add_line,
-        ao_add_poly,
-        ao_edit_line,
-        ao_edit_poly: begin
-          if (FLineOnMapEdit.GetCount>0) then begin
-            FLineOnMapEdit.Empty;
-          end else begin
-            setalloperationfalse(ao_movemap);
-          end;
-          Handled := True;
-        end;
+        Handled := True;
       end;
-    end;
-    VK_RETURN: begin
-      case FCurrentOper of
-        ao_add_Poly,
-        ao_edit_Poly: begin
-          if FLineOnMapEdit.GetCount > 2 then begin
-            TBEditPathSaveClick(Self);
-            Handled := True;
-          end;
-        end;
-        ao_add_line,
-        ao_edit_line: begin
-          if FLineOnMapEdit.GetCount > 1 then begin
-            TBEditPathSaveClick(Self);
-            Handled := True;
-          end;
-        end;
-        ao_select_poly: begin
-          if FLineOnMapEdit.GetCount > 2 then begin
-            TBEditPathOkClick(Self);
-            Handled := True;
-          end;
-        end;
-      end;
-    end;
-    VK_F11: begin
-      TBFullSizeClick(nil);
-      Handled := True;
-    end;
-  else
-    VMapType := GState.MapType.GetMapTypeByHotKey(VShortCut);
-    if VMapType <> nil then begin
-      if VMapType.asLayer then begin
-        FConfig.MainMapsConfig.LockWrite;
-        try
-          if not FConfig.MainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VMapType.Zmp.GUID) then begin
-            FConfig.MainMapsConfig.SelectLayerByGUID(VMapType.Zmp.GUID);
-          end else begin
-            FConfig.MainMapsConfig.UnSelectLayerByGUID(VMapType.Zmp.GUID);
-          end;
-        finally
-          FConfig.MainMapsConfig.UnlockWrite;
-        end;
-      end else begin
-        FConfig.MainMapsConfig.SelectMainByGUID(VMapType.Zmp.GUID);
-      end;
-      Handled := True;
     end;
   end;
 end;

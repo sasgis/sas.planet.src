@@ -17,7 +17,6 @@ type
     FCancelNotifierInternal: TOperationCancelNotifier;
   protected
     FMapType: TMapType;
-    FLoadXY: TPoint;
     FZoom: byte;
     FLoadUrl: string;
     FCancelEvent: TEvent;
