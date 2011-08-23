@@ -198,17 +198,17 @@ end;
 
 function TPathDetalizeProviderMailRuShortest.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Shortest) by Maps@mail.ru');
+  Result := _('By car (Shortest) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuShortest.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Shortest) by Maps@mail.ru');
+  Result := _('Detalize route by car (Shortest) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuShortest.GetMenuItemNameTranslated: string;
 begin
-  Result := _('Maps@mail.ru') + '|0020~\' +  _('On Car (Shortest)') + '|0010';
+  Result := _('Maps@mail.ru') + '|0020~\' +  _('By Car (Shortest)') + '|0010';
 end;
 
 { TPathDetalizeProviderMailRuFastest }
@@ -228,17 +228,17 @@ end;
 
 function TPathDetalizeProviderMailRuFastest.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Fastest) by Maps@mail.ru');
+  Result := _('By car (Fastest) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuFastest.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Fastest) by Maps@mail.ru');
+  Result := _('Detalize route by car (Fastest) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuFastest.GetMenuItemNameTranslated: string;
 begin
-  Result := _('Maps@mail.ru') + '|0020~\' +  _('On Car (Fastest)') + '|0020';
+  Result := _('Maps@mail.ru') + '|0020~\' +  _('By Car (Fastest)') + '|0020';
 end;
 
 { TPathDetalizeProviderMailRuFastestWithTraffic }
@@ -258,17 +258,17 @@ end;
 
 function TPathDetalizeProviderMailRuFastestWithTraffic.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Fastest with traffic) by Maps@mail.ru');
+  Result := _('By car (Fastest with traffic) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuFastestWithTraffic.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Fastest with traffic) by Maps@mail.ru');
+  Result := _('Detalize route by car (Fastest with traffic) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuFastestWithTraffic.GetMenuItemNameTranslated: string;
 begin
-  Result := _('Maps@mail.ru') + '|0020~\' +  _('On Car (Fastest with traffic)') + '|0030';
+  Result := _('Maps@mail.ru') + '|0020~\' +  _('By Car (Fastest with traffic)') + '|0030';
 end;
 
 end.

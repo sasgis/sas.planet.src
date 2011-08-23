@@ -175,17 +175,17 @@ end;
 
 function TPathDetalizeProviderYourNavigationFastestByCar.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Fastest) by yournavigation.org');
+  Result := _('By car (Fastest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationFastestByCar.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Fastest) by yournavigation.org');
+  Result := _('Detalize route by car (Fastest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationFastestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('On Car (Fastest)') + '|0010';
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Car (Fastest)') + '|0010';
 end;
 
 { TPathDetalizeProviderYourNavigationShortestByCar }
@@ -207,17 +207,17 @@ end;
 
 function TPathDetalizeProviderYourNavigationShortestByCar.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Shortest) by yournavigation.org');
+  Result := _('By car (Shortest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationShortestByCar.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Shortest) by yournavigation.org');
+  Result := _('Detalize route by car (Shortest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationShortestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('On Car (Shortest)') + '|0020';
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Car (Shortest)') + '|0020';
 end;
 
 { TPathDetalizeProviderYourNavigationFastestByBicycle }
@@ -239,17 +239,17 @@ end;
 
 function TPathDetalizeProviderYourNavigationFastestByBicycle.GetCaptionTranslated: string;
 begin
-  Result := _('On bicycle (Fastest) by yournavigation.org');
+  Result := _('By bicycle (Fastest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationFastestByBicycle.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on bicycle (Fastest) by yournavigation.org');
+  Result := _('Detalize route by bicycle (Fastest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationFastestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('On Bicycle (Fastest)') + '|0030';
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Bicycle (Fastest)') + '|0030';
 end;
 
 { TPathDetalizeProviderYourNavigationShortestByBicycle }
@@ -271,17 +271,17 @@ end;
 
 function TPathDetalizeProviderYourNavigationShortestByBicycle.GetCaptionTranslated: string;
 begin
-  Result := _('On bicycle (Shortest) by yournavigation.org');
+  Result := _('By bicycle (Shortest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationShortestByBicycle.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on bicycle (Shortest) by yournavigation.org');
+  Result := _('Detalize route by bicycle (Shortest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationShortestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('On Bicycle (Shortest)') + '|0040';
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Bicycle (Shortest)') + '|0040';
 end;
 
 end.
