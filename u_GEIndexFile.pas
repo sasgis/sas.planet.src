@@ -186,13 +186,13 @@ end;
 
 function TGEIndexFile.getServID:word;
 begin
-  if (FCacheConfig.NameInCache='mars')or(FCacheConfig.NameInCache='1') then begin
+  if FCacheConfig.NameInCache='1' then begin
     Result:=1;
   end else
-  if (FCacheConfig.NameInCache='moon')or(FCacheConfig.NameInCache='2') then begin
+  if FCacheConfig.NameInCache='2' then begin
     Result:=2;
   end else
-  if (FCacheConfig.NameInCache='history')or(FCacheConfig.NameInCache='3') then begin
+  if FCacheConfig.NameInCache='3' then begin
     Result:=3;
   end else begin
     try
