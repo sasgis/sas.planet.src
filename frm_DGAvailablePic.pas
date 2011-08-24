@@ -348,7 +348,7 @@ begin
   VStream := TMemoryStream.Create;
   try
     ErrCode := GetStreamFromURL1(VStream, Link, 'text/plain');
-    if ErrCode > 0 then begin
+    if ErrCode = 0 then begin
       List.LoadFromStream(VStream);
       if not(Terminated) then begin
         Synchronize(ShowList);
