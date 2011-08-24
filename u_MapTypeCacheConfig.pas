@@ -141,7 +141,7 @@ begin
   FCacheType := VParams.ReadInteger('CacheType', 0);
   FDefCacheType := VParams.ReadInteger('MAIN:CacheType', 0);
   FNameInCache := VParams.ReadString('NameInCache', 'Sat');
-  FDefNameInCache := VParams.ReadString('MAIN:NameInCache', 'Sat');;
+  FDefNameInCache := VParams.ReadString('MAIN:NameInCache', 'Sat');
   OnSettingsEdit(nil);
 end;
 
@@ -218,7 +218,7 @@ begin
   FEffectiveCacheType := 5;
   FDefCacheType := FCacheType;
   FNameInCache := VParams.ReadString('NameInCache', '');
-  FDefNameInCache := FNameInCache;
+  FDefNameInCache := VParams.ReadString('MAIN:NameInCache', '');
   OnSettingsEdit(nil);
 end;
 
@@ -226,11 +226,7 @@ procedure TMapTypeCacheConfigGE.OnSettingsEdit(Sender: TObject);
 var
   VBasePath: string;
 begin
-  VBasePath := FNameInCache;
-  //TODO: — этим бардаком нужно что-то будет сделать
-  if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
-    VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.GECachepath)+VBasePath;
-  end;
+  VBasePath:=FGlobalCacheConfig.GECachepath;
   //TODO: — этим бардаком нужно что-то будет сделать
   if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
     VBasePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.CacheGlobalPath) + VBasePath;

@@ -37,6 +37,7 @@ type
     procedure GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte; out ANameHi, ANameLo: LongWord);
     procedure _UpdateIndexInfo;
     procedure OnConfigChange(Sender: TObject);
+    function getServID:word;
   protected
   public
     constructor Create(ACacheConfig: TMapTypeCacheConfigGE);
@@ -149,7 +150,7 @@ begin
           for i := Length(FIndexInfo) - 1 downto 0 do begin
             if FIndexInfo[i].Magic = $7593BFD5 then begin
               if FIndexInfo[i].TileID = 130 then begin
-                if FIndexInfo[i].ServID = 0 then begin
+                if FIndexInfo[i].ServID = getServID then begin
                   if FIndexInfo[i].Zoom = AZoom then begin
                     if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
                       AOffset := FIndexInfo[i].Offset;
@@ -180,6 +181,25 @@ begin
     FFileInited := False;
   finally
     FSync.EndWrite;
+  end;
+end;
+
+function TGEIndexFile.getServID:word;
+begin
+  if (FCacheConfig.NameInCache='mars')or(FCacheConfig.NameInCache='1') then begin
+    Result:=1;
+  end else
+  if (FCacheConfig.NameInCache='moon')or(FCacheConfig.NameInCache='2') then begin
+    Result:=2;
+  end else
+  if (FCacheConfig.NameInCache='history')or(FCacheConfig.NameInCache='3') then begin
+    Result:=3;
+  end else begin
+    try
+      Result:=StrToInt(FCacheConfig.NameInCache);
+    except
+      Result:=0;
+    end;
   end;
 end;
 
