@@ -89,7 +89,7 @@ function TThreadExportYaMapsNew.GetFilePath(Ax,Ay,Azoom,Aid:integer): string;
      j,tilesInZoom:Int64;
  begin
     heightZoom:=0;
-    tilesInZoom:=4 shl (i shl 1);
+    tilesInZoom:=Int64(4) shl (i shl 1);
     j:=1;
     while j<tilesInZoom do begin
       inc(heightZoom);
