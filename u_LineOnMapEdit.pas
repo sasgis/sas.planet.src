@@ -14,9 +14,7 @@ type
     FPoints: TArrayOfDoublePoint;
     FCount: Integer;
     FActiveIndex: Integer;
-  public
-    constructor Create;
-    destructor Destroy; override;
+  protected
     function GetCount: Integer;
     function GetActiveIndex: Integer;
     function GetPoints: TArrayOfDoublePoint;
@@ -27,6 +25,9 @@ type
     procedure InsertPoint(APoint: TDoublePoint);
     procedure MoveActivePoint(APoint: TDoublePoint);
     procedure SetPoints(AValue: TArrayOfDoublePoint);
+  public
+    constructor Create;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -175,7 +176,7 @@ begin
       if FActiveIndex >= FCount then begin
         FActiveIndex := FCount - 1;
       end;
-      if not DoublePoitnsEqual(APoint, FPoints[FActiveIndex]) then begin
+      if not DoublePointsEqual(APoint, FPoints[FActiveIndex]) then begin
         FPoints[FActiveIndex] := APoint;
         SetChanged;
       end;
@@ -206,7 +207,7 @@ var
 begin
   VNewCount := Length(AValue);
   if VNewCount > 1 then begin
-    if DoublePoitnsEqual(AValue[0], AValue[VNewCount - 1]) then begin
+    if DoublePointsEqual(AValue[0], AValue[VNewCount - 1]) then begin
       Dec(VNewCount);
     end;
   end;

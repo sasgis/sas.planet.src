@@ -72,7 +72,7 @@ begin
     if VPointCount = 1 then begin
       Result := TVectorDataItemPoint.Create(FHintConverter, AName, ADesc, AData[0]);
     end else begin
-      if DoublePoitnsEqual(Adata[0], Adata[VPointCount - 1]) then begin
+      if DoublePointsEqual(Adata[0], Adata[VPointCount - 1]) then begin
         Result := TVectorDataItemPoly.Create(FHintConverter, AName, ADesc, Adata, ARect);
       end else begin
         Result := TVectorDataItemPath.Create(FHintConverter, AName, ADesc, Adata, ARect);

@@ -254,7 +254,7 @@ begin
   FPolygonLL := copy(polygon_);
   VPointsCount := Length(FPolygonLL);
   if VPointsCount > 1 then begin
-    if not DoublePoitnsEqual(FPolygonLL[0], FPolygonLL[VPointsCount - 1]) then begin
+    if not DoublePointsEqual(FPolygonLL[0], FPolygonLL[VPointsCount - 1]) then begin
       SetLength(FPolygonLL, VPointsCount + 1);
       FPolygonLL[VPointsCount] := FPolygonLL[0];
     end;

@@ -179,8 +179,8 @@ begin
         end;
       end;
       if Result > 0 then begin
-        if DoublePoitnsEqual(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
-          if not DoublePoitnsEqual(AResultPoints[0], AResultPoints[Result - 1]) then begin
+        if DoublePointsEqual(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
+          if not DoublePointsEqual(AResultPoints[0], AResultPoints[Result - 1]) then begin
             AppendPointToResult(AResultPoints[0], AResultPoints, Result, VOutPointsCapacity);
           end;
         end;
@@ -382,9 +382,9 @@ begin
         end;
       end;
       if Result > 0 then begin
-        if DoublePoitnsEqual(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
+        if DoublePointsEqual(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
           VCurrPoint := AResultPoints[0];
-          if not DoublePoitnsEqual(VCurrPoint, AResultPoints[Result - 1]) then begin
+          if not DoublePointsEqual(VCurrPoint, AResultPoints[Result - 1]) then begin
             AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
         end;

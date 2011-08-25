@@ -78,7 +78,7 @@ var
 begin
   VPointsCount := Length(Value);
   if VPointsCount > 2 then begin
-    if DoublePoitnsEqual(Value[0], Value[VPointsCount - 1]) then begin
+    if DoublePointsEqual(Value[0], Value[VPointsCount - 1]) then begin
       VPathLonLat := Value;
     end else begin
       SetLength(VPathLonLat, VPointsCount + 1);
