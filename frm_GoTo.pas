@@ -64,7 +64,6 @@ implementation
 
 uses
   ActiveX,
-  c_GeoCoderGUIDSimple,
   i_GeoCoderList,
   i_MarksSimple,
   u_GlobalState,

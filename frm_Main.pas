@@ -34,6 +34,7 @@ uses
   TB2ToolWindow,
   TBXToolPals,
   TBX,
+  TBXDkPanels,
   TBXControls,
   TBXExtItems,
   TBXGraphics,
@@ -93,8 +94,7 @@ uses
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
   frm_RegionProcess,
-  fr_SearchResultsItem,
-  u_TileDownloaderUI, TBXDkPanels;
+  u_TileDownloaderUI;
 
 type
   TAOperation = (
@@ -605,7 +605,6 @@ var
 implementation
 
 uses
-  StrUtils,
   u_GUIDObjectList,
   u_GlobalState,
   frm_GoTo,
@@ -619,12 +618,10 @@ uses
   c_ZeroGUID,
   c_SasVersion,
   c_GeoCoderGUIDSimple,
-  c_PathDetalizeProvidersGUID,
   u_JclListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
   u_NotifyEventListener,
-  i_PathDetalizeProviderList,
   i_MapTypes,
   i_GeoCoderList,
   i_LogSimple,

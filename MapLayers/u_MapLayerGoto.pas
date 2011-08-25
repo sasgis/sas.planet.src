@@ -47,8 +47,7 @@ implementation
 
 uses
   SysUtils,
-  u_NotifyEventListener,
-  u_GeoFun;
+  u_NotifyEventListener;
 
 { TGotoLayer }
 

@@ -36,8 +36,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  StrUtils;
+  SysUtils;
 
 { TVectorDataItemBase }
 

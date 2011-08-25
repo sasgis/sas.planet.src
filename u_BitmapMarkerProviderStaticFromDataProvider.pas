@@ -9,8 +9,7 @@ uses
   t_GeoTypes,
   i_ConfigDataProvider,
   i_ContentTypeManager,
-  i_BitmapMarker,
-  i_BitmapMarkerProviderSimpleConfig;
+  i_BitmapMarker;
 
 type
   TBitmapMarkerProviderStaticFromDataProvider = class(TInterfacedObject, IBitmapMarkerProvider)

@@ -61,7 +61,6 @@ implementation
 
 uses
   SysUtils,
-  GR32_Math,
   u_GeoFun,
   i_GPS,
   u_NotifyEventListener;

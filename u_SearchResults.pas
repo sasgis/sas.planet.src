@@ -5,13 +5,9 @@ interface
 uses
   Dialogs,
   Controls,
-  u_CommonFormAndFrameParents,
-  t_GeoTypes,
-  i_Datum,
   i_MapViewGoto,
   i_ViewPortState,
   i_ValueToStringConverter,
-  i_LocalCoordConverter,
   i_GeoCoder,
   i_SearchResultPresenter,
   fr_SearchResultsItem;
@@ -43,11 +39,9 @@ implementation
 
 uses
   ActiveX,
-  u_GlobalState,
-  u_ResStrings,
-  frm_Main;
+  u_ResStrings;
 
-{ TSearchResultPresenterWithForm }
+{ TSearchResultPresenterOnPanel }
 
 constructor TSearchResultPresenterOnPanel.Create(
   AMapGoto: IMapViewGoto;

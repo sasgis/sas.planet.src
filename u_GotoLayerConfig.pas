@@ -5,7 +5,6 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ContentTypeManager,
   i_GotoLayerConfig,
   u_ConfigDataElementBase;
 
@@ -27,8 +26,7 @@ implementation
 
 uses
   Types,
-  SysUtils,
-  u_ConfigProviderHelpers;
+  SysUtils;
 
 { TGotoLayerConfig }
 

@@ -23,7 +23,6 @@ implementation
 
 uses
   SysUtils,
-  StrUtils,
   t_GeoTypes,
   i_GeoCoder,
   u_ResStrings,
