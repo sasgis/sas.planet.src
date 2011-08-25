@@ -37,7 +37,8 @@ type
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
   function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 
-  function DoublePointsEqual(p1,p2:TDoublePoint):boolean;
+  function DoublePointsEqual(p1,p2: TDoublePoint): Boolean;
+  function DoubleRectsEqual(ARect1, ARect2: TDoubleRect): Boolean;
   function PolygonSquare(Poly:TArrayOfPoint): Double; overload;
   function PolygonSquare(Poly:TArrayOfDoublePoint): Double; overload;
   function PointOnPath(APoint:TDoublePoint; APath: TArrayOfDoublePoint; ADist: Double): Boolean;
@@ -413,6 +414,15 @@ function DoublePointsEqual(p1,p2:TDoublePoint):boolean;
 begin
  if (p1.x=p2.X)and(p1.y=p2.y) then result:=true
                               else result:=false;
+end;
+
+function DoubleRectsEqual(ARect1, ARect2: TDoubleRect): Boolean;
+begin
+  Result :=
+    (ARect1.Left = ARect2.Left) and
+    (ARect1.Top = ARect2.Top) and
+    (ARect1.Right = ARect2.Right) and
+    (ARect1.Bottom = ARect2.Bottom);
 end;
 
 function PolygonFromRect(ARect: TDoubleRect): TArrayOfDoublePoint;
