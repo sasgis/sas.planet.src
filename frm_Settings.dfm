@@ -336,8 +336,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 0
-          ExplicitLeft = 153
-          ExplicitWidth = 454
         end
         object Button6: TButton
           Tag = 2
@@ -381,8 +379,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 3
-          ExplicitLeft = 153
-          ExplicitWidth = 454
         end
         object Button4: TButton
           Tag = 1
@@ -426,8 +422,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 6
-          ExplicitLeft = 153
-          ExplicitWidth = 454
         end
         object Button8: TButton
           Tag = 3
@@ -471,8 +465,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 9
-          ExplicitLeft = 153
-          ExplicitWidth = 454
         end
         object Button13: TButton
           Tag = 4
@@ -516,8 +508,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 12
-          ExplicitLeft = 153
-          ExplicitWidth = 454
         end
         object Button10: TButton
           Tag = 5
@@ -569,9 +559,7 @@ object frmSettings: TfrmSettings
             'GoogleMV'
             'SAS.Planet'
             'EarthSlicer 1.95'
-            'Googe maps tiles')
-          ExplicitLeft = 153
-          ExplicitWidth = 454
+            'GlobalMapper Tiles')
         end
       end
     end

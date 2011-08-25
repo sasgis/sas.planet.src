@@ -100,23 +100,25 @@ end;
 
 procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
 begin
- FmapType.TileRequestBuilderConfig.UrlBase := EditURL.Text;
- FmapType.TileStorage.CacheConfig.NameInCache:=EditNameinCache.Text;
- FmapType.ParentSubMenu:=EditParSubMenu.Text;
- FmapType.TileDownloaderConfig.WaitInterval:=SESleep.Value;
- FmapType.HotKey:=EditHotKey.HotKey;
- FMapType.Enabled:=CheckEnabled.Checked;
- if CBCacheType.ItemIndex > 0 then begin
-   FmapType.TileStorage.CacheConfig.cachetype:=CBCacheType.ItemIndex;
- end else begin
-   FmapType.TileStorage.CacheConfig.cachetype:=0;
- end;
- FmapType.separator:=CheckBox1.Checked;
- FMapType.VersionConfig.Version := edtVersion.Text;
- FMapType.TileRequestBuilderConfig.RequestHeader := mmoHeader.Text;
- pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
+  FmapType.TileRequestBuilderConfig.UrlBase := EditURL.Text;
+  FmapType.TileStorage.CacheConfig.NameInCache:=EditNameinCache.Text;
+  FmapType.ParentSubMenu:=EditParSubMenu.Text;
+  FmapType.TileDownloaderConfig.WaitInterval:=SESleep.Value;
+  FmapType.HotKey:=EditHotKey.HotKey;
+  FMapType.Enabled:=CheckEnabled.Checked;
+  if FMapType.TileStorage.CacheConfig.CacheType <> 5 then begin
+    if CBCacheType.ItemIndex > 0 then begin
+      FmapType.TileStorage.CacheConfig.cachetype:=CBCacheType.ItemIndex;
+    end else begin
+      FmapType.TileStorage.CacheConfig.cachetype:=0;
+    end;
+  end;
+  FmapType.separator:=CheckBox1.Checked;
+  FMapType.VersionConfig.Version := edtVersion.Text;
+  FMapType.TileRequestBuilderConfig.RequestHeader := mmoHeader.Text;
+  pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
 
- ModalResult := mrOk;
+  ModalResult := mrOk;
 end;
 
 procedure TfrmMapTypeEdit.btnVersionResetClick(Sender: TObject);
@@ -131,16 +133,18 @@ end;
 
 procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
- EditURL.Text := FmapType.Zmp.TileRequestBuilderConfig.UrlBase;
- EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
- EditParSubMenu.Text:=FmapType.Zmp.ParentSubMenu;
- SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
- EditHotKey.HotKey:=FmapType.Zmp.HotKey;
- CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
- CheckBox1.Checked:=FmapType.Zmp.Separator;
- CheckEnabled.Checked:=FMapType.Zmp.Enabled;
- edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
- mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
+  EditURL.Text := FmapType.Zmp.TileRequestBuilderConfig.UrlBase;
+  EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
+  EditParSubMenu.Text:=FmapType.Zmp.ParentSubMenu;
+  SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
+  EditHotKey.HotKey:=FmapType.Zmp.HotKey;
+  if FMapType.TileStorage.CacheConfig.CacheType <> 5 then begin
+    CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
+  end;
+  CheckBox1.Checked:=FmapType.Zmp.Separator;
+  CheckEnabled.Checked:=FMapType.Zmp.Enabled;
+  edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
+  mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
 end;
 
 procedure TfrmMapTypeEdit.Button6Click(Sender: TObject);
@@ -170,7 +174,9 @@ end;
 
 procedure TfrmMapTypeEdit.Button9Click(Sender: TObject);
 begin
-  CBCacheType.ItemIndex := FMapType.TileStorage.CacheConfig.defcachetype;
+  if FMapType.TileStorage.CacheConfig.CacheType <> 5 then begin
+    CBCacheType.ItemIndex := FMapType.TileStorage.CacheConfig.defcachetype;
+  end;
 end;
 
 function TfrmMapTypeEdit.EditMapModadl(AMapType: TMapType): Boolean;
@@ -184,7 +190,14 @@ begin
   SESleep.Value:=FMapType.TileDownloaderConfig.WaitInterval;
   EditParSubMenu.Text:=FMapType.ParentSubMenu;
   EditHotKey.HotKey:=FMapType.HotKey;
-  CBCacheType.ItemIndex:=FMapType.TileStorage.CacheConfig.cachetype;
+  if FMapType.TileStorage.CacheConfig.CacheType <> 5 then begin
+    pnlCacheType.Visible := True;
+    pnlCacheType.Enabled := True;
+    CBCacheType.ItemIndex:=FMapType.TileStorage.CacheConfig.cachetype;
+  end else begin
+    pnlCacheType.Visible := False;
+    pnlCacheType.Enabled := False;
+  end;
   CheckBox1.Checked:=FMapType.separator;
   CheckEnabled.Checked:=FMapType.Enabled;
   edtVersion.Text := FMapType.VersionConfig.Version;
