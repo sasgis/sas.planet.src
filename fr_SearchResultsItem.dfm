@@ -2,7 +2,7 @@ object frSearchResultsItem: TfrSearchResultsItem
   Left = 0
   Top = 0
   Width = 451
-  Height = 78
+  Height = 64
   Align = alTop
   AutoSize = True
   Color = clWhite
@@ -12,7 +12,7 @@ object frSearchResultsItem: TfrSearchResultsItem
   object Bevel1: TBevel
     AlignWithMargins = True
     Left = 3
-    Top = 73
+    Top = 59
     Width = 445
     Height = 5
     Margins.Bottom = 0
@@ -34,11 +34,11 @@ object frSearchResultsItem: TfrSearchResultsItem
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 203
+      Width = 445
       Height = 16
       Cursor = crHandPoint
       Align = alTop
-      Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1085#1072#1081#1076#1077#1085#1085#1086#1075#1086' '#1086#1073#1098#1077#1082#1090#1072
+      Caption = '_'
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -47,24 +47,25 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnClick = LabelCaptionClick
+      ExplicitWidth = 7
     end
   end
   object PanelFullDesc: TPanel
     Left = 0
-    Top = 50
+    Top = 36
     Width = 451
     Height = 20
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 56
+    ExplicitTop = 50
     object LabelFullDesc: TLabel
       AlignWithMargins = True
       Left = 376
       Top = 3
       Width = 72
-      Height = 13
+      Height = 17
       Cursor = crHandPoint
       Align = alRight
       Alignment = taRightJustify
@@ -76,26 +77,26 @@ object frSearchResultsItem: TfrSearchResultsItem
       Font.Style = [fsUnderline]
       ParentFont = False
       OnMouseUp = LabelFullDescMouseUp
+      ExplicitHeight = 13
     end
   end
   object PanelDesc: TPanel
     Left = 0
     Top = 19
     Width = 451
-    Height = 31
+    Height = 17
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitTop = 16
     object LabelDesc: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 159
-      Height = 28
+      Width = 445
+      Height = 14
       Align = alTop
-      Caption = #1054#1087#1080#1089#1072#1085#1080#1077' '#1085#1072#1081#1076#1077#1085#1085#1086#1075#1086' '#1086#1073#1098#1077#1082#1090#1072'.'#13#10#1052#1086#1078#1085#1086' '#1084#1085#1086#1075#1086#1089#1090#1088#1086#1095#1085#1086#1077'.'
+      Caption = '_'
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clGray
       Font.Height = -11
@@ -104,6 +105,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnDblClick = LabelDescDblClick
+      ExplicitWidth = 6
     end
   end
 end
