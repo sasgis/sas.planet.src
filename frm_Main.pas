@@ -1505,11 +1505,11 @@ var
 begin
   Showstatus.Checked := FConfig.LayersConfig.StatBar.Visible;
   if Showstatus.Checked then begin
-    FLayerScaleLine.BottomMargin := FConfig.LayersConfig.StatBar.Height;
-    FLayerMiniMap.BottomMargin := FConfig.LayersConfig.StatBar.Height;
+    FConfig.LayersConfig.ScaleLineConfig.BottomMargin := FConfig.LayersConfig.StatBar.Height;
+    FConfig.LayersConfig.MiniMapLayerConfig.BottomMargin := FConfig.LayersConfig.StatBar.Height;
   end else begin
-    FLayerScaleLine.BottomMargin := 0;
-    FLayerMiniMap.BottomMargin := 0;
+    FConfig.LayersConfig.ScaleLineConfig.BottomMargin := 0;
+    FConfig.LayersConfig.MiniMapLayerConfig.BottomMargin := 0;
   end;
   ShowMiniMap.Checked := FConfig.LayersConfig.MiniMapLayerConfig.Visible;
   ShowLine.Checked := FConfig.LayersConfig.ScaleLineConfig.Visible;

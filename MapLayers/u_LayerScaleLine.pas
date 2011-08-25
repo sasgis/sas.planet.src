@@ -15,9 +15,7 @@ type
   TLayerScaleLine = class(TWindowLayerFixedSizeWithBitmap)
   private
     FConfig: IScaleLineConfig;
-    FBottomMargin: Integer;
     procedure OnConfigChange(Sender: TObject);
-    procedure SetBottomMargin(const Value: Integer);
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     function GetMapLayerLocationRect: TFloatRect; override;
@@ -25,8 +23,11 @@ type
   public
     procedure StartThreads; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IScaleLineConfig);
-    property BottomMargin: Integer read FBottomMargin write SetBottomMargin;
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConfig: IScaleLineConfig
+    );
   end;
 
 implementation
@@ -44,7 +45,11 @@ const
 
 { TLayerScaleLine }
 
-constructor TLayerScaleLine.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: IScaleLineConfig);
+constructor TLayerScaleLine.Create(
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConfig: IScaleLineConfig
+);
 var
   VSize: TPoint;
 begin
@@ -129,7 +134,7 @@ var
 begin
   VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   Result.Left := 6;
-  Result.Bottom := ViewCoordConverter.GetLocalRectSize.Y - 6 - FBottomMargin;
+  Result.Bottom := ViewCoordConverter.GetLocalRectSize.Y - 6 - FConfig.BottomMargin;
   Result.Right := Result.Left + VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;
@@ -138,19 +143,8 @@ procedure TLayerScaleLine.OnConfigChange(Sender: TObject);
 begin
   ViewUpdateLock;
   try
-    SetNeedRedraw;
     SetVisible(FConfig.Visible);
-  finally
-    ViewUpdateUnlock;
-  end;
-  ViewUpdate;
-end;
-
-procedure TLayerScaleLine.SetBottomMargin(const Value: Integer);
-begin
-  ViewUpdateLock;
-  try
-    FBottomMargin := Value;
+    SetNeedRedraw;
     SetNeedUpdateLocation;
   finally
     ViewUpdateUnlock;

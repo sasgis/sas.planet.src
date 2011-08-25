@@ -52,7 +52,6 @@ type
     FPosMoved: Boolean;
     FViewRectMoveDelta: TDoublePoint;
 
-    FBottomMargin: Integer;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
 
@@ -91,7 +90,6 @@ type
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
-    procedure SetBottomMargin(const Value: Integer);
 
     procedure OnMainMapChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
@@ -140,7 +138,6 @@ type
       ATimerNoifier: IJclNotifier
     );
     destructor Destroy; override;
-    property BottomMargin: Integer read FBottomMargin write SetBottomMargin;
   end;
 
 implementation
@@ -618,7 +615,7 @@ begin
   VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   VViewSize := ViewCoordConverter.GetLocalRectSize;
   Result.Right := VViewSize.X;
-  Result.Bottom := VViewSize.Y - FBottomMargin;
+  Result.Bottom := VViewSize.Y - FConfig.BottomMargin;
   Result.Left := Result.Right - VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;
@@ -968,18 +965,6 @@ end;
 procedure TMiniMapLayer.SetBitmapChanged;
 begin
   InterlockedIncrement(FUpdateCounter);
-end;
-
-procedure TMiniMapLayer.SetBottomMargin(const Value: Integer);
-begin
-  ViewUpdateLock;
-  try
-    FBottomMargin := Value;
-    SetNeedUpdateLocation;
-  finally
-    ViewUpdateUnlock;
-  end;
-  ViewUpdate;
 end;
 
 procedure TMiniMapLayer.SetLayerCoordConverter(AValue: ILocalCoordConverter);

@@ -32,6 +32,10 @@ type
     procedure SetVisible(AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
 
+    function GetBottomMargin: Integer;
+    procedure SetBottomMargin(AValue: Integer);
+    property BottomMargin: Integer read GetBottomMargin write SetBottomMargin;
+
     function GetPlusButton: TCustomBitmap32;
     property PlusButton: TCustomBitmap32 read GetPlusButton;
 

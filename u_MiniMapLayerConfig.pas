@@ -20,6 +20,7 @@ type
     FZoomDelta: Integer;
     FMasterAlpha: Integer;
     FVisible: Boolean;
+    FBottomMargin: Integer;
 
     FPlusButtonFileName: string;
     FPlusButton: TCustomBitmap32;
@@ -41,6 +42,9 @@ type
 
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
+
+    function GetBottomMargin: Integer;
+    procedure SetBottomMargin(AValue: Integer);
 
     function GetPlusButton: TCustomBitmap32;
     function GetMinusButton: TCustomBitmap32;
@@ -118,6 +122,16 @@ begin
   AConfigData.WriteBool('Visible', FVisible);
 end;
 
+function TMiniMapLayerConfig.GetBottomMargin: Integer;
+begin
+  LockRead;
+  try
+    Result := FBottomMargin;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TMiniMapLayerConfig.GetMapsConfig: IMiniMapMapsConfig;
 begin
   Result := FMapsConfig;
@@ -180,6 +194,19 @@ begin
     Result := FZoomDelta;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TMiniMapLayerConfig.SetBottomMargin(AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FBottomMargin <> AValue then begin
+      FBottomMargin := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

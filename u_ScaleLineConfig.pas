@@ -12,12 +12,16 @@ type
   TScaleLineConfig = class(TConfigDataElementBase, IScaleLineConfig)
   private
     FVisible: Boolean;
+    FBottomMargin: Integer;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
+
+    function GetBottomMargin: Integer;
+    procedure SetBottomMargin(AValue: Integer);
   public
     constructor Create;
   end;
@@ -30,6 +34,7 @@ constructor TScaleLineConfig.Create;
 begin
   inherited;
   FVisible := True;
+  FBottomMargin := 0;
 end;
 
 procedure TScaleLineConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -47,6 +52,16 @@ begin
   AConfigData.WriteBool('Visible', FVisible);
 end;
 
+function TScaleLineConfig.GetBottomMargin: Integer;
+begin
+  LockRead;
+  try
+    Result := FBottomMargin;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TScaleLineConfig.GetVisible: Boolean;
 begin
   LockRead;
@@ -54,6 +69,19 @@ begin
     Result := FVisible;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TScaleLineConfig.SetBottomMargin(AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FBottomMargin <> AValue then begin
+      FBottomMargin := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 
