@@ -570,7 +570,6 @@ type
     function GetIgnoredMenuItemsList: TList;
     procedure MapLayersVisibleChange(Sender: TObject);
     procedure OnMainFormMainConfigChange(Sender: TObject);
-    procedure OnTimerEvent(Sender: TObject);
 
     procedure CopyStringToClipboard(s: Widestring);
     procedure setalloperationfalse(newop: TAOperation);
@@ -1007,6 +1006,7 @@ begin
         FConfig.LayersConfig.StatBar,
         GState.ValueToStringConverterConfig,
         FMouseState,
+        GState.GUISyncronizedTimerNotifier,
         GState.DownloadInfo,
         FConfig.MainMapsConfig
       );
@@ -1154,10 +1154,6 @@ begin
       FConfig.LayersConfig.FillingMapLayerConfig.GetChangeNotifier
     );
 
-    FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnTimerEvent),
-      GState.GUISyncronizedTimerNotifier
-    );
     FLinksList.Add(
       TNotifyEventListener.Create(Self.OnSearchhistoryChange),
       FConfig.MainGeoCoderConfig.SearchHistory.GetChangeNotifier
@@ -2112,11 +2108,6 @@ begin
        end;
     end;
    end;
-end;
-
-procedure TfrmMain.OnTimerEvent(Sender: TObject);
-begin
-  FLayerStatBar.Redraw;
 end;
 
 procedure TfrmMain.topos(LL:TDoublePoint;zoom_:byte;draw:boolean);
@@ -3579,9 +3570,6 @@ begin
     VMouseDownPos := FMouseState.GetLastDownPos(FMapMovingButton);
     VMouseMoveDelta := Point(VMouseDownPos.X-VMousePos.X, VMouseDownPos.Y-VMousePos.Y);
     FConfig.ViewPortState.MoveTo(VMouseMoveDelta);
- end;
- if not(FMapMoving) then begin
-    FLayerStatBar.Redraw;
  end;
 
  if (not FShowActivHint) then begin

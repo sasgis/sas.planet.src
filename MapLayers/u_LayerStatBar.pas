@@ -7,6 +7,7 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_JclNotify,
   t_GeoTypes,
   i_LocalCoordConverter,
   i_StatBarConfig,
@@ -33,6 +34,7 @@ type
     FAALevel: Integer;
     function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
     procedure OnConfigChange(Sender: TObject);
+    procedure OnTimerEvent(Sender: TObject);
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
@@ -47,6 +49,7 @@ type
       AConfig: IStatBarConfig;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
       AMouseState: IMouseState;
+      ATimerNoifier: IJclNotifier;
       ADownloadInfo: IDownloadInfoSimple;
       AMainMapsConfig: IMainMapsConfig
     );
@@ -73,6 +76,7 @@ constructor TLayerStatBar.Create(
   AConfig: IStatBarConfig;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
   AMouseState: IMouseState;
+  ATimerNoifier: IJclNotifier;
   ADownloadInfo: IDownloadInfoSimple;
   AMainMapsConfig: IMainMapsConfig
 );
@@ -85,6 +89,10 @@ begin
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimerEvent),
+    ATimerNoifier
   );
   FMainMapsConfig := AMainMapsConfig;
   FLastUpdateTick := 0;
@@ -141,6 +149,11 @@ begin
     ViewUpdateUnlock;
   end;
   ViewUpdate;
+end;
+
+procedure TLayerStatBar.OnTimerEvent(Sender: TObject);
+begin
+  Redraw;
 end;
 
 procedure TLayerStatBar.SetViewCoordConverter(AValue: ILocalCoordConverter);
