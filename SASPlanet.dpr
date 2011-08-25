@@ -489,6 +489,8 @@ uses
   i_MainWindowPosition in 'i_MainWindowPosition.pas',
   u_MainWindowPositionConfig in 'u_MainWindowPositionConfig.pas',
   u_MainWindowToolbarsLock in 'u_MainWindowToolbarsLock.pas',
+  i_SelectionRect in 'i_SelectionRect.pas',
+  u_SelectionRect in 'u_SelectionRect.pas',
   i_LineOnMapEdit in 'i_LineOnMapEdit.pas',
   u_LineOnMapEdit in 'u_LineOnMapEdit.pas',
   i_GlobalAppConfig in 'i_GlobalAppConfig.pas',
