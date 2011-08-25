@@ -534,6 +534,7 @@ type
     FWinPosition: IMainWindowPosition;
 
     FLineOnMapEdit: ILineOnMapEdit;
+    FLineOnMapByOperation: array [TAOperation] of ILineOnMapEdit;
     FMarkDBGUI: TMarksDbGUIHelper;
 
     FTileErrorLogger: ITileErrorLogger;
@@ -673,6 +674,7 @@ constructor TfrmMain.Create(AOwner: TComponent);
 var
   VLogger: TTileErrorLogProviedrStuped;
   VMouseState: TMouseState;
+  VLineOnMapEditChangeListener: IJclListener;
 begin
   inherited;
 
@@ -722,10 +724,33 @@ begin
     FConfig.ToolbarsLock.GetChangeNotifier
   );
 
-  FLineOnMapEdit := TLineOnMapEdit.Create;
+  FLineOnMapByOperation[ao_movemap] := nil;
+  FLineOnMapByOperation[ao_add_point] := nil;
+  FLineOnMapByOperation[ao_edit_point] := nil;
+  FLineOnMapByOperation[ao_select_rect] := nil;
+  FLineOnMapByOperation[ao_add_line] := TLineOnMapEdit.Create;
+  FLineOnMapByOperation[ao_edit_line] := FLineOnMapByOperation[ao_add_line];
+  FLineOnMapByOperation[ao_add_poly] := TLineOnMapEdit.Create;
+  FLineOnMapByOperation[ao_edit_poly] := FLineOnMapByOperation[ao_add_poly];
+  FLineOnMapByOperation[ao_calc_line] := TLineOnMapEdit.Create;
+  FLineOnMapByOperation[ao_select_poly] := TLineOnMapEdit.Create;
+
+  VLineOnMapEditChangeListener := TNotifyEventListener.Create(Self.OnLineOnMapEditChange);
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnLineOnMapEditChange),
-    FLineOnMapEdit.GetChangeNotifier
+    VLineOnMapEditChangeListener,
+    FLineOnMapByOperation[ao_add_line].GetChangeNotifier
+  );
+  FLinksList.Add(
+    VLineOnMapEditChangeListener,
+    FLineOnMapByOperation[ao_add_poly].GetChangeNotifier
+  );
+  FLinksList.Add(
+    VLineOnMapEditChangeListener,
+    FLineOnMapByOperation[ao_calc_line].GetChangeNotifier
+  );
+  FLinksList.Add(
+    VLineOnMapEditChangeListener,
+    FLineOnMapByOperation[ao_select_poly].GetChangeNotifier
   );
 
   FRuller:=TBitmap32.Create;
@@ -912,6 +937,7 @@ begin
       TCalcLineLayer.Create(
         map,
         FConfig.ViewPortState,
+        FLineOnMapByOperation[ao_calc_line],
         FConfig.LayersConfig.CalcLineLayerConfig,
         GState.ValueToStringConverterConfig
       );
@@ -920,6 +946,7 @@ begin
       TMarkPolyLineLayer.Create(
         map,
         FConfig.ViewPortState,
+        FLineOnMapByOperation[ao_add_line],
         FConfig.LayersConfig.MarkPolyLineLayerConfig
       );
     FLayersList.Add(FMarkPolyLineLayer);
@@ -927,6 +954,7 @@ begin
       TMarkPolygonLayer.Create(
         map,
         FConfig.ViewPortState,
+        FLineOnMapByOperation[ao_add_poly],
         FConfig.LayersConfig.MarkPolygonLayerConfig
       );
     FLayersList.Add(FMarkPolygonLayer);
@@ -934,6 +962,7 @@ begin
       TSelectionPolygonLayer.Create(
         map,
         FConfig.ViewPortState,
+        FLineOnMapByOperation[ao_select_poly],
         FConfig.LayersConfig.SelectionPolygonLayerConfig
       );
     FLayersList.Add(FSelectionPolygonLayer);
@@ -1626,7 +1655,11 @@ begin
  TBEditPathLabel.Visible:=(newop=ao_calc_line);
  TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
  Frect_dwn:=false;
- FLineOnMapEdit.Empty;
+  if FLineOnMapEdit <> nil then begin
+    FLineOnMapEdit.Empty;
+  end;
+  FLineOnMapEdit := FLineOnMapByOperation[newop];
+
  Frect_p2:=false;
  case newop of
   ao_movemap:  map.Cursor:=crDefault;
@@ -1637,18 +1670,6 @@ begin
   FCurrentOper:=newop;
   if not(FCurrentOper in[ao_edit_line,ao_edit_poly]) then begin
     FEditMark := nil;
-  end;
-  if FCurrentOper <> ao_calc_line then begin
-    FCalcLineLayer.DrawNothing;
-  end;
-  if not(FCurrentOper in [ao_edit_line, ao_add_line]) then begin
-    FMarkPolyLineLayer.DrawNothing;
-  end;
-  if not(FCurrentOper in [ao_edit_poly, ao_add_poly]) then begin
-    FMarkPolygonLayer.DrawNothing;
-  end;
-  if FCurrentOper <> ao_select_poly then begin
-    FSelectionPolygonLayer.DrawNothing;
   end;
   if FCurrentOper <> ao_select_rect then begin
     FSelectionRectLayer.DrawNothing;
@@ -1737,24 +1758,17 @@ begin
 end;
 
 procedure TfrmMain.OnLineOnMapEditChange(Sender: TObject);
+var
+  VLineOnMapEdit: ILineOnMapEdit;
 begin
-  FLineOnMapEdit.LockRead;
-  try
-    TBEditPath.Visible:=(FLineOnMapEdit.GetCount > 1);
-    case FCurrentOper of
-      ao_select_poly:
-        FSelectionPolygonLayer.DrawLine(FLineOnMapEdit.GetPoints, FLineOnMapEdit.GetActiveIndex);
-      ao_calc_line:
-        FCalcLineLayer.DrawLine(FLineOnMapEdit.GetPoints, FLineOnMapEdit.GetActiveIndex);
-      ao_add_poly,
-      ao_edit_poly:
-        FMarkPolygonLayer.DrawLine(FLineOnMapEdit.GetPoints, FLineOnMapEdit.GetActiveIndex);
-      ao_edit_line,
-      ao_add_line:
-        FMarkPolyLineLayer.DrawLine(FLineOnMapEdit.GetPoints, FLineOnMapEdit.GetActiveIndex);
+  VLineOnMapEdit := FLineOnMapEdit;
+  if VLineOnMapEdit <> nil then begin
+    VLineOnMapEdit.LockRead;
+    try
+      TBEditPath.Visible:=(VLineOnMapEdit.GetCount > 1);
+    finally
+      VLineOnMapEdit.UnlockRead;
     end;
-  finally
-    FLineOnMapEdit.UnlockRead;
   end;
 end;
 
@@ -1965,7 +1979,7 @@ begin
     VShortCut := ShortCutFromMessage(Msg);
     case VShortCut of
       VK_BACK: begin
-        if FCurrentOper in [ao_calc_line, ao_select_poly, ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly] then begin
+        if FLineOnMapEdit <> nil then begin
           FLineOnMapEdit.DeleteActivePoint;
           Handled := True;
         end;
@@ -1991,12 +2005,14 @@ begin
           ao_add_poly,
           ao_edit_line,
           ao_edit_poly: begin
-            if (FLineOnMapEdit.GetCount>0) then begin
-              FLineOnMapEdit.Empty;
-            end else begin
-              setalloperationfalse(ao_movemap);
+            if FLineOnMapEdit <> nil then begin
+              if (FLineOnMapEdit.GetCount>0) then begin
+                FLineOnMapEdit.Empty;
+              end else begin
+                setalloperationfalse(ao_movemap);
+              end;
+              Handled := True;
             end;
-            Handled := True;
           end;
         end;
       end;
@@ -2004,22 +2020,28 @@ begin
         case FCurrentOper of
           ao_add_Poly,
           ao_edit_Poly: begin
-            if FLineOnMapEdit.GetCount > 2 then begin
-              TBEditPathSaveClick(Self);
-              Handled := True;
+            if FLineOnMapEdit <> nil then begin
+              if FLineOnMapEdit.GetCount > 2 then begin
+                TBEditPathSaveClick(Self);
+                Handled := True;
+              end;
             end;
           end;
           ao_add_line,
           ao_edit_line: begin
-            if FLineOnMapEdit.GetCount > 1 then begin
-              TBEditPathSaveClick(Self);
-              Handled := True;
+            if FLineOnMapEdit <> nil then begin
+              if FLineOnMapEdit.GetCount > 1 then begin
+                TBEditPathSaveClick(Self);
+                Handled := True;
+              end;
             end;
           end;
           ao_select_poly: begin
-            if FLineOnMapEdit.GetCount > 2 then begin
-              TBEditPathOkClick(Self);
-              Handled := True;
+            if FLineOnMapEdit <> nil then begin
+              if FLineOnMapEdit.GetCount > 2 then begin
+                TBEditPathOkClick(Self);
+                Handled := True;
+              end;
             end;
           end;
         end;
@@ -2972,11 +2994,15 @@ begin
     end else if VMark.IsPoly then begin
       setalloperationfalse(ao_edit_poly);
       FEditMark := VMark;
-      FLineOnMapEdit.SetPoints(VMark.Points);
+      if FLineOnMapEdit <> nil then begin
+        FLineOnMapEdit.SetPoints(VMark.Points);
+      end;
     end else if VMark.IsLine then begin
       setalloperationfalse(ao_edit_line);
       FEditMark := VMark;
-      FLineOnMapEdit.SetPoints(VMark.Points);
+      if FLineOnMapEdit <> nil then begin
+        FLineOnMapEdit.SetPoints(VMark.Points);
+      end;
     end;
   end;
 end;
@@ -3237,7 +3263,7 @@ begin
   VClickLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
 
   if (Button=mbLeft)and(FCurrentOper<>ao_movemap) then begin
-    if (FCurrentOper in [ao_select_poly, ao_calc_line,ao_add_line,ao_add_poly,ao_edit_line,ao_edit_poly])then begin
+    if (FLineOnMapEdit <> nil)then begin
       movepoint:=true;
       Vlastpoint := -1;
       if VIsClickInMap then begin
@@ -3513,7 +3539,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-  if (movepoint) then begin
+  if (FLineOnMapEdit <> nil) and (movepoint) then begin
     VMark := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
       FLayerMapMarks.MouseOnReg(VMousePos, VMark);
@@ -3689,15 +3715,9 @@ end;
 
 procedure TfrmMain.TBEditPathDelClick(Sender: TObject);
 begin
- case FCurrentOper of
-  ao_select_poly,
-  ao_calc_line,
-  ao_add_poly,
-  ao_add_line,
-  ao_edit_line,
-  ao_edit_poly:
+  if FLineOnMapEdit <> nil then begin
     FLineOnMapEdit.DeleteActivePoint;
- end;
+  end;
 end;
 
 procedure TfrmMain.TBEditPathLabelClick(Sender: TObject);
@@ -4286,23 +4306,25 @@ var
   VIsError: Boolean;
   VInterface: IInterface;
 begin
-  VInterface := IInterface(TTBXItem(Sender).tag);
-  if Supports(VInterface, IPathDetalizeProvider, VProvider) then begin
-    VIsError := True;
-    try
-      VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
-      VIsError := False;
-    except
-      on E: Exception do begin
-        ShowMessage(E.Message);
+  if FLineOnMapEdit <> nil then begin
+    VInterface := IInterface(TTBXItem(Sender).tag);
+    if Supports(VInterface, IPathDetalizeProvider, VProvider) then begin
+      VIsError := True;
+      try
+        VResult := VProvider.GetPath(FLineOnMapEdit.GetPoints, FMarshrutComment);
+        VIsError := False;
+      except
+        on E: Exception do begin
+          ShowMessage(E.Message);
+        end;
       end;
-    end;
-    if not VIsError then begin
-      if Length(VResult) > 0 then begin
-        FLineOnMapEdit.SetPoints(VResult);
+      if not VIsError then begin
+        if Length(VResult) > 0 then begin
+          FLineOnMapEdit.SetPoints(VResult);
+        end;
+      end else begin
+        FMarshrutComment := '';
       end;
-    end else begin
-      FMarshrutComment := '';
     end;
   end;
 end;
