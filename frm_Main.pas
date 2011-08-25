@@ -56,6 +56,7 @@ uses
   i_MainFormConfig,
   i_SearchResultPresenter,
   i_MainWindowPosition,
+  i_SelectionRect,
   i_LineOnMapEdit,
   i_PathDetalizeProvider,
   i_MessageHandler,
@@ -479,14 +480,11 @@ type
     FCenterToGPSDelta: TDoublePoint;
     FShowActivHint: boolean;
     FHintWindow: THintWindow;
-    Frect_dwn: Boolean;
-    Frect_p2: boolean;
     FKeyMovingHandler: IMessageHandler;
     FMouseHandler: IMouseHandler;
     FMouseState: IMouseState;
     FMarshrutComment: string;
     movepoint: boolean;
-    FSelectionRect: TDoubleRect;
 
     FMainLayer: TMapMainLayer;
     FLayerStatBar: TLayerStatBar;
@@ -535,6 +533,7 @@ type
 
     FLineOnMapEdit: ILineOnMapEdit;
     FLineOnMapByOperation: array [TAOperation] of ILineOnMapEdit;
+    FSelectionRect: ISelectionRect;
     FMarkDBGUI: TMarksDbGUIHelper;
 
     FTileErrorLogger: ITileErrorLogger;
@@ -565,7 +564,6 @@ type
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
     procedure MapMoveAnimate(AMouseMoveSpeed: TDoublePoint; ALastTime:double; AZoom:byte; AMousePos:TPoint);
-    procedure PrepareSelectionRect(Shift: TShiftState; var ASelectedLonLat: TDoubleRect);
     procedure ProcessPosChangeMessage(Sender: TObject);
     procedure CopyBtmToClipboard(btm: TBitmap);
     function GetIgnoredMenuItemsList: TList;
@@ -642,6 +640,7 @@ uses
   u_MainWindowPositionConfig,
   u_TileErrorLogProviedrStuped,
   u_LineOnMapEdit,
+  u_SelectionRect,
   u_KeyMovingHandler,
   i_MapViewGoto,
   u_MapViewGotoOnFMain,
@@ -734,6 +733,13 @@ begin
   FLineOnMapByOperation[ao_edit_poly] := FLineOnMapByOperation[ao_add_poly];
   FLineOnMapByOperation[ao_calc_line] := TLineOnMapEdit.Create;
   FLineOnMapByOperation[ao_select_poly] := TLineOnMapEdit.Create;
+
+  FSelectionRect :=
+    TSelectionRect.Create(
+      FConfig.ViewPortState,
+      FConfig.LayersConfig.MapLayerGridsConfig.TileGrid,
+      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid
+    );
 
   VLineOnMapEditChangeListener := TNotifyEventListener.Create(Self.OnLineOnMapEditChange);
   FLinksList.Add(
@@ -970,6 +976,7 @@ begin
       TSelectionRectLayer.Create(
         map,
         FConfig.ViewPortState,
+        FSelectionRect,
         FConfig.LayersConfig.SelectionRectLayerConfig
       );
     FLayersList.Add(FSelectionRectLayer);
@@ -1654,13 +1661,11 @@ begin
  TBEditPathOk.Visible:=(newop=ao_select_poly);
  TBEditPathLabel.Visible:=(newop=ao_calc_line);
  TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
- Frect_dwn:=false;
   if FLineOnMapEdit <> nil then begin
     FLineOnMapEdit.Empty;
   end;
   FLineOnMapEdit := FLineOnMapByOperation[newop];
 
- Frect_p2:=false;
  case newop of
   ao_movemap:  map.Cursor:=crDefault;
   ao_calc_line:     map.Cursor:=2;
@@ -1670,9 +1675,6 @@ begin
   FCurrentOper:=newop;
   if not(FCurrentOper in[ao_edit_line,ao_edit_poly]) then begin
     FEditMark := nil;
-  end;
-  if FCurrentOper <> ao_select_rect then begin
-    FSelectionRectLayer.DrawNothing;
   end;
 end;
 
@@ -1974,6 +1976,7 @@ procedure TfrmMain.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
 var
   VShortCut: TShortCut;
   VMapType: TMapType;
+  VCancelSelection: Boolean;
 begin
   if Self.Active then begin
     VShortCut := ShortCutFromMessage(Msg);
@@ -1987,10 +1990,17 @@ begin
       VK_ESCAPE: begin
         case FCurrentOper of
           ao_select_rect: begin
-            if Frect_dwn then begin
-              setalloperationfalse(ao_movemap);
-              setalloperationfalse(ao_select_rect);
-            end else begin
+            VCancelSelection := False;
+            FSelectionRect.LockWrite;
+            try
+              if FSelectionRect.IsEmpty then begin
+                VCancelSelection := True;
+              end;
+              FSelectionRect.Reset;
+            finally
+              FSelectionRect.UnlockWrite;
+            end;
+            if VCancelSelection then begin
               setalloperationfalse(ao_movemap);
             end;
             Handled := True;
@@ -2070,35 +2080,6 @@ begin
         Handled := True;
       end;
     end;
-  end;
-end;
-
-procedure TfrmMain.PrepareSelectionRect(Shift: TShiftState;
-  var ASelectedLonLat: TDoubleRect);
-var
-  VConverter: ICoordConverter;
-  VTemp: Double;
-  VLocalConverter: ILocalCoordConverter;
-begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VConverter := VLocalConverter.GetGeoConverter;
-
-  VConverter.CheckLonLatRect(ASelectedLonLat);
-  if ASelectedLonLat.Left > ASelectedLonLat.Right then begin
-    VTemp := ASelectedLonLat.Left;
-    ASelectedLonLat.Left := ASelectedLonLat.Right;
-    ASelectedLonLat.Right := VTemp;
-  end;
-  if ASelectedLonLat.Top < ASelectedLonLat.Bottom then begin
-    VTemp := ASelectedLonLat.Top;
-    ASelectedLonLat.Top := ASelectedLonLat.Bottom;
-    ASelectedLonLat.Bottom := VTemp;
-  end;
-  if (ssCtrl in Shift) then begin
-    ASelectedLonLat := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GetRectStickToGrid(VLocalConverter, ASelectedLonLat);
-  end;
-  if (ssShift in Shift) then begin
-    ASelectedLonLat := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GetRectStickToGrid(VLocalConverter, ASelectedLonLat);
   end;
 end;
 
@@ -3223,11 +3204,9 @@ end;
 procedure TfrmMain.mapMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
-  VSelectionRect: TDoubleRect;
   VClickLonLat: TDoublePoint;
   VClickRect: TRect;
   VClickLonLatRect: TDoubleRect;
-  VPoly:  TArrayOfDoublePoint;
   Vlastpoint: Integer;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -3292,24 +3271,13 @@ begin
       end;
     end;
     if (FCurrentOper=ao_select_rect)then begin
-      if Frect_dwn then begin
-        FSelectionRect.BottomRight:= VClickLonLat;
-        Frect_p2:=true;
-      end else begin
-        FSelectionRect.TopLeft:= VClickLonLat;
-        FSelectionRect.BottomRight:=FSelectionRect.TopLeft
-      end;
-      Frect_dwn:=not(Frect_dwn);
-      VSelectionRect := FSelectionRect;
-      PrepareSelectionRect(Shift, VSelectionRect);
-      FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
-      if (Frect_p2) then begin
-        VPoly := PolygonFromRect(VSelectionRect);
-        FSelectionRectLayer.DrawNothing;
-        setalloperationfalse(ao_movemap);
-        FFormRegionProcess.Show_(VZoom, VPoly);
-        VPoly := nil;
-        Frect_p2:=false;
+      FSelectionRect.LockWrite;
+      try
+        if not FSelectionRect.IsEmpty then begin
+          FSelectionRect.SetNextPoint(VClickLonLat, Shift);
+        end;
+      finally
+        FSelectionRect.UnlockWrite;
       end;
     end;
     if (FCurrentOper=ao_add_point) then begin
@@ -3361,6 +3329,8 @@ var
   stw:String;
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
+  VSelectionFinished: Boolean;
+  VPoly: TArrayOfDoublePoint;
   VMapMoving: Boolean;
   VMapType: TMapType;
   VValidPoint: Boolean;
@@ -3432,6 +3402,29 @@ begin
         Exit;
       end;
     end;
+    if FCurrentOper=ao_select_rect then begin
+      VSelectionFinished := False;
+      FSelectionRect.LockWrite;
+      try
+        if not FSelectionRect.IsEmpty then begin
+          VSelectionFinished := True;
+        end;
+        FSelectionRect.SetNextPoint(VLonLat, Shift);
+        VSelectionRect := FSelectionRect.GetRect;
+        if VSelectionFinished then begin
+          FSelectionRect.Reset;
+        end;
+      finally
+        FSelectionRect.UnlockWrite;
+      end;
+      if VSelectionFinished then begin
+        VPoly := PolygonFromRect(VSelectionRect);
+        setalloperationfalse(ao_movemap);
+        FFormRegionProcess.Show_(VZoomCurr, VPoly);
+        VPoly := nil;
+      end;
+      Exit;
+    end;
   end;
 
   movepoint:=false;
@@ -3456,11 +3449,6 @@ begin
   end;
 
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
-    if FCurrentOper=ao_select_rect then begin
-      VSelectionRect := FSelectionRect;
-      PrepareSelectionRect(Shift, VSelectionRect);
-      FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
-    end;
     if (FCurrentOper=ao_movemap)and(button=mbLeft) then begin
       VPWL.find := False;
       VPWL.name := '';
@@ -3503,7 +3491,6 @@ var
   hintrect:TRect;
   //CState: Integer;
   VZoomCurr: Byte;
-  VSelectionRect: TDoubleRect;
   VConverter: ICoordConverter;
   VLonLat: TDoublePoint;
   VItemFound: Boolean;
@@ -3551,11 +3538,15 @@ begin
     FLineOnMapEdit.MoveActivePoint(VLonLat);
     exit;
   end;
-  if (FCurrentOper=ao_select_rect)and(Frect_dwn)and(not(ssRight in Shift)) then begin
-    FSelectionRect.BottomRight:=VLonLat;
-    VSelectionRect := FSelectionRect;
-    PrepareSelectionRect(Shift,VSelectionRect);
-    FSelectionRectLayer.DrawSelectionRect(VSelectionRect);
+  if (FCurrentOper=ao_select_rect) then begin
+    FSelectionRect.LockWrite;
+    try
+      if not FSelectionRect.IsEmpty then begin
+        FSelectionRect.SetNextPoint(VLonLat, Shift);
+      end;
+    finally
+      FSelectionRect.UnlockWrite;
+    end;
   end;
  if FWinPosition.GetIsFullScreen then begin
                        if VMousePos.y<10 then begin
