@@ -32,7 +32,7 @@ uses
   SysUtils,
   i_MarksSimple,
   i_UsedMarksConfig,
-  u_MarksDb,
+  u_MarksSystem,
   u_GlobalState,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
@@ -105,7 +105,7 @@ var
   VMarksConfigStatic: IUsedMarksConfigStatic;
   VZoom: Byte;
   VList: IInterfaceList;
-  VMarkDB: TMarksDb;
+  VMarkDB: TMarksSystem;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);

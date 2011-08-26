@@ -13,12 +13,12 @@ uses
   i_MarksSimple,
   i_MarkCategory,
   frm_RegionProcess,
-  u_MarksDb;
+  u_MarksSystem;
 
 type
   TMarksDbGUIHelper = class
   private
-    FMarksDB: TMarksDB;
+    FMarksDB: TMarksSystem;
     FMarkPictureList: IMarkPictureList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FFormRegionProcess: TfrmRegionProcess;
@@ -37,11 +37,11 @@ type
     function SavePolyModal(AMark: IMarkFull; ANewArrLL: TArrayOfDoublePoint): Boolean;
     function SaveLineModal(AMark: IMarkFull; ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
 
-    property MarksDB: TMarksDB read FMarksDB;
+    property MarksDB: TMarksSystem read FMarksDB;
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
   public
     constructor Create(
-      AMarksDB: TMarksDB;
+      AMarksDB: TMarksSystem;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
       AMarkPictureList: IMarkPictureList;
       AFormRegionProcess: TfrmRegionProcess
@@ -199,7 +199,7 @@ begin
 end;
 
 constructor TMarksDbGUIHelper.Create(
-  AMarksDB: TMarksDB;
+  AMarksDB: TMarksSystem;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
   AMarkPictureList: IMarkPictureList;
   AFormRegionProcess: TfrmRegionProcess

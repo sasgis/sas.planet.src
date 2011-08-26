@@ -5,23 +5,23 @@ interface
 uses
   i_MarkTemplate,
   i_ImportConfig,
-  u_MarksOnlyDb;
+  u_MarksDb1;
 
 type
   TImportConfig = class(TInterfacedObject, IImportConfig)
   private
-    FMarkDB: TMarksOnlyDb;
+    FMarkDB: TMarksDb;
     FTemplateNewPoint: IMarkTemplatePoint;
     FTemplateNewLine: IMarkTemplateLine;
     FTemplateNewPoly: IMarkTemplatePoly;
   protected
-    function GetMarkDB: TMarksOnlyDb;
+    function GetMarkDB: TMarksDb;
     function GetTemplateNewPoint: IMarkTemplatePoint;
     function GetTemplateNewLine: IMarkTemplateLine;
     function GetTemplateNewPoly: IMarkTemplatePoly;
   public
     constructor Create(
-      AMarkDB: TMarksOnlyDb;
+      AMarkDB: TMarksDb;
       ATemplateNewPoint: IMarkTemplatePoint;
       ATemplateNewLine: IMarkTemplateLine;
       ATemplateNewPoly: IMarkTemplatePoly
@@ -33,7 +33,7 @@ implementation
 { TImportConfig }
 
 constructor TImportConfig.Create(
-  AMarkDB: TMarksOnlyDb;
+  AMarkDB: TMarksDb;
   ATemplateNewPoint: IMarkTemplatePoint;
   ATemplateNewLine: IMarkTemplateLine;
   ATemplateNewPoly: IMarkTemplatePoly
@@ -45,7 +45,7 @@ begin
   FTemplateNewPoly := ATemplateNewPoly;
 end;
 
-function TImportConfig.GetMarkDB: TMarksOnlyDb;
+function TImportConfig.GetMarkDB: TMarksDb;
 begin
   Result := FMarkDB;
 end;

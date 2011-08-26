@@ -282,7 +282,7 @@ uses
   u_MarkCategoryFactory in 'u_MarkCategoryFactory.pas',
   i_MarkCategoryFactoryConfig in 'i_MarkCategoryFactoryConfig.pas',
   u_MarkCategoryFactoryConfig in 'u_MarkCategoryFactoryConfig.pas',
-  u_MarksDb in 'u_MarksDb.pas',
+  u_MarksSystem in 'u_MarksSystem.pas',
   u_MarksDbGUIHelper in 'u_MarksDbGUIHelper.pas',
   i_BitmapLayerProvider in 'i_BitmapLayerProvider.pas',
   u_MapMarksBitmapLayerProviderByMarksSubset in 'u_MapMarksBitmapLayerProviderByMarksSubset.pas',

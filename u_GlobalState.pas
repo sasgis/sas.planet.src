@@ -39,7 +39,7 @@ uses
   i_InternalPerformanceCounter,
   i_LayerBitmapClearStrategy,
   u_LastSelectionInfo,
-  u_MarksDb,
+  u_MarksSystem,
   u_MapTypesMainList,
   u_MemFileCache,
   i_GPSConfig,
@@ -71,7 +71,7 @@ type
     FCacheConfig: TGlobalCahceConfig;
     FLanguageManager: ILanguageManager;
     FLastSelectionInfo: ILastSelectionInfo;
-    FMarksDB: TMarksDB;
+    FMarksDB: TMarksSystem;
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
@@ -119,7 +119,7 @@ type
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
     property GCThread: TGarbageCollectorThread read FGCThread;
-    property MarksDB: TMarksDB read FMarksDB;
+    property MarksDB: TMarksSystem read FMarksDB;
     property GPSpar: TGPSpar read FGPSpar;
     property ProgramPath: string read FProgramPath;
 
@@ -338,7 +338,7 @@ begin
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FContentTypeManager);
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
   FMarksDB :=
-    TMarksDB.Create(
+    TMarksSystem.Create(
       FProgramPath,
       FMarkPictureList,
       THtmlToHintTextConverterStuped.Create,

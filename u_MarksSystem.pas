@@ -1,4 +1,4 @@
-unit u_MarksDb;
+unit u_MarksSystem;
 
 interface
 
@@ -14,16 +14,15 @@ uses
   i_MarkCategoryFactoryConfig,
   i_MarkCategoryDB,
   i_MarkCategoryDBSmlInternal,
-  u_MarksOnlyDb,
+  u_MarksDb1,
   u_MarkCategoryDB;
 
 type
-
-  TMarksDB = class
+  TMarksSystem = class
   private
     FBasePath: string;
     FMarksFactoryConfig: IMarksFactoryConfig;
-    FMarksDb: TMarksOnlyDb;
+    FMarksDb: TMarksDb;
     FCategoryDB: IMarkCategoryDB;
     FCategoryDBInternal: IMarkCategoryDBSmlInternal;
   public
@@ -38,7 +37,7 @@ type
     procedure ReadConfig(AConfigData: IConfigDataProvider);
     procedure WriteConfig(AConfigData: IConfigDataWriteProvider);
 
-    property MarksDb: TMarksOnlyDb read FMarksDb;
+    property MarksDb: TMarksDb read FMarksDb;
     property CategoryDB: IMarkCategoryDB read FCategoryDB;
     property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
 
@@ -55,7 +54,7 @@ uses
 
 { TMarksDB }
 
-constructor TMarksDB.Create(
+constructor TMarksSystem.Create(
   ABasePath: string;
   AMarkPictureList: IMarkPictureList;
   AHintConverter: IHtmlToHintTextConverter;
@@ -74,7 +73,7 @@ begin
       AMarkPictureList
     );
   FMarksDb :=
-    TMarksOnlyDb.Create(
+    TMarksDb.Create(
       ABasePath,
       FCategoryDBInternal,
       AHintConverter,
@@ -82,7 +81,7 @@ begin
     );
 end;
 
-destructor TMarksDB.Destroy;
+destructor TMarksSystem.Destroy;
 begin
   FreeAndNil(FMarksDb);
   FCategoryDB := nil;
@@ -91,13 +90,13 @@ begin
   inherited;
 end;
 
-procedure TMarksDB.DeleteCategoryWithMarks(ACategory: IMarkCategory);
+procedure TMarksSystem.DeleteCategoryWithMarks(ACategory: IMarkCategory);
 begin
   FMarksDb.DeleteMarksByCategoryID(ACategory);
   FCategoryDB.DeleteCategory(ACategory);
 end;
 
-function TMarksDB.GetVisibleCategories(AZoom: Byte): IInterfaceList;
+function TMarksSystem.GetVisibleCategories(AZoom: Byte): IInterfaceList;
 var
   VList: IInterfaceList;
   VCategory: IMarkCategory;
@@ -117,14 +116,14 @@ begin
   end;
 end;
 
-procedure TMarksDB.ReadConfig(AConfigData: IConfigDataProvider);
+procedure TMarksSystem.ReadConfig(AConfigData: IConfigDataProvider);
 begin
   FMarksDb.LoadMarksFromFile;
   FCategoryDBInternal.LoadCategoriesFromFile;
   FMarksFactoryConfig.ReadConfig(AConfigData);
 end;
 
-procedure TMarksDB.WriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TMarksSystem.WriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
   FMarksFactoryConfig.WriteConfig(AConfigData);
   FCategoryDBInternal.SaveCategory2File;
