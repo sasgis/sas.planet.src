@@ -256,7 +256,7 @@ uses
   i_MarkTemplate in 'i_MarkTemplate.pas',
   i_MarksDbSmlInternal in 'i_MarksDbSmlInternal.pas',
   u_MarksSubset in 'u_MarksSubset.pas',
-  u_MarksOnlyDb in 'u_MarksOnlyDb.pas',
+  u_MarksDb in 'u_MarksDb.pas',
   u_MarkTemplates in 'u_MarkTemplates.pas',
   i_MarkNameGenerator in 'i_MarkNameGenerator.pas',
   u_MarkNameGenerator in 'u_MarkNameGenerator.pas',

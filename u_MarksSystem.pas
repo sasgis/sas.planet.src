@@ -14,7 +14,7 @@ uses
   i_MarkCategoryFactoryConfig,
   i_MarkCategoryDB,
   i_MarkCategoryDBSmlInternal,
-  u_MarksDb1,
+  u_MarksDb,
   u_MarkCategoryDB;
 
 type

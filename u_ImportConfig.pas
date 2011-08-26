@@ -5,7 +5,7 @@ interface
 uses
   i_MarkTemplate,
   i_ImportConfig,
-  u_MarksDb1;
+  u_MarksDb;
 
 type
   TImportConfig = class(TInterfacedObject, IImportConfig)

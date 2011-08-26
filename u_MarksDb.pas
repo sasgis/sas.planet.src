@@ -1,4 +1,4 @@
-unit u_MarksOnlyDb;
+unit u_MarksDb;
 
 interface
 
@@ -17,7 +17,7 @@ uses
   i_MarkFactorySmlInternal;
 
 type
-  TMarksOnlyDb =  class
+  TMarksDb =  class
   private
     FSync: IReadWriteSync;
     FBasePath: string;
@@ -129,7 +129,7 @@ begin
   end;
 end;
 
-constructor TMarksOnlyDb.Create(
+constructor TMarksDb.Create(
   ABasePath: string;
   ACategoryDB: IMarkCategoryDBSmlInternal;
   AHintConverter: IHtmlToHintTextConverter;
@@ -154,7 +154,7 @@ begin
   InitEmptyDS;
 end;
 
-destructor TMarksOnlyDb.Destroy;
+destructor TMarksDb.Destroy;
 begin
   FreeAndNil(FCdsMarks);
   FFactory := nil;
@@ -163,31 +163,31 @@ begin
   inherited;
 end;
 
-procedure TMarksOnlyDb.LockRead;
+procedure TMarksDb.LockRead;
 begin
   FSync.BeginRead;
   FCdsMarks.DisableControls;
 end;
 
-procedure TMarksOnlyDb.LockWrite;
+procedure TMarksDb.LockWrite;
 begin
   FSync.BeginWrite;
   FCdsMarks.DisableControls;
 end;
 
-procedure TMarksOnlyDb.UnlockRead;
+procedure TMarksDb.UnlockRead;
 begin
   FCdsMarks.EnableControls;
   FSync.EndRead;
 end;
 
-procedure TMarksOnlyDb.UnlockWrite;
+procedure TMarksDb.UnlockWrite;
 begin
   FCdsMarks.EnableControls;
   FSync.EndWrite;
 end;
 
-function TMarksOnlyDb.ReadCurrentMarkId: IMarkId;
+function TMarksDb.ReadCurrentMarkId: IMarkId;
 var
   VId: Integer;
   VName: string;
@@ -201,7 +201,7 @@ begin
   Result := FFactoryDbInternal.CreateMarkId(VName, VId, VCategoryId, VVisible);
 end;
 
-function TMarksOnlyDb.ReadCurrentMark: IMarkFull;
+function TMarksDb.ReadCurrentMark: IMarkFull;
 var
   VPicName: string;
   VId: Integer;
@@ -235,13 +235,13 @@ begin
   Result := FFactoryDbInternal.CreateMark(VId, VName, VVisible, VPicName, VCategoryId, VDesc, VLLRect, VPoints, VColor1, VColor2, VScale1, VScale2);
 end;
 
-procedure TMarksOnlyDb.WriteCurrentMarkId(AMark: IMarkId);
+procedure TMarksDb.WriteCurrentMarkId(AMark: IMarkId);
 begin
   FCdsMarks.FieldByName('name').AsString := AMark.name;
   FCdsMarks.FieldByName('Visible').AsBoolean := GetMarkVisible(AMark);
 end;
 
-procedure TMarksOnlyDb.WriteCurrentMark(AMark: IMarkFull);
+procedure TMarksDb.WriteCurrentMark(AMark: IMarkFull);
 var
   VMarkVisible: IMarkSMLInternal;
   VMarkPoint: IMarkPointSMLInternal;
@@ -276,7 +276,7 @@ begin
   FCdsMarks.FieldByName('Scale2').AsInteger := AMark.Scale2;
 end;
 
-function TMarksOnlyDb.GetMarkByID(AMarkId: IMarkId): IMarkFull;
+function TMarksDb.GetMarkByID(AMarkId: IMarkId): IMarkFull;
 var
   VId: Integer;
   VMarkVisible: IMarkSMLInternal;
@@ -301,7 +301,7 @@ begin
   end;
 end;
 
-function TMarksOnlyDb.GetMarkVisible(AMark: IMarkFull): Boolean;
+function TMarksDb.GetMarkVisible(AMark: IMarkFull): Boolean;
 var
   VMarkVisible: IMarkSMLInternal;
 begin
@@ -313,7 +313,7 @@ begin
   end;
 end;
 
-function TMarksOnlyDb.GetMarkVisible(AMark: IMarkId): Boolean;
+function TMarksDb.GetMarkVisible(AMark: IMarkId): Boolean;
 var
   VMarkInternal: IMarkSMLInternal;
 begin
@@ -325,7 +325,7 @@ begin
   end;
 end;
 
-procedure TMarksOnlyDb.WriteMark(AMark: IMarkFull);
+procedure TMarksDb.WriteMark(AMark: IMarkFull);
 var
   VId: Integer;
   VMarkInternal: IMarkSMLInternal;
@@ -355,7 +355,7 @@ begin
   SaveMarks2File;
 end;
 
-procedure TMarksOnlyDb.WriteMarksList(AMarkList: IInterfaceList);
+procedure TMarksDb.WriteMarksList(AMarkList: IInterfaceList);
 var
   i: Integer;
   VMark: IMarkFull;
@@ -389,7 +389,7 @@ begin
   SaveMarks2File;
 end;
 
-function TMarksOnlyDb.DeleteMark(AMarkId: IMarkId): Boolean;
+function TMarksDb.DeleteMark(AMarkId: IMarkId): Boolean;
 var
   VId: Integer;
   VMarkVisible: IMarkSMLInternal;
@@ -416,7 +416,7 @@ begin
   end;
 end;
 
-procedure TMarksOnlyDb.DeleteMarksByCategoryID(ACategory: IMarkCategory);
+procedure TMarksDb.DeleteMarksByCategoryID(ACategory: IMarkCategory);
 var
   VDeleted: Boolean;
   VCategoryID: Integer;
@@ -448,7 +448,7 @@ begin
   end;
 end;
 
-procedure TMarksOnlyDb.SetAllMarksInCategoryVisible(ACategory: IMarkCategory;
+procedure TMarksDb.SetAllMarksInCategoryVisible(ACategory: IMarkCategory;
   ANewVisible: Boolean);
 var
   VVisible: Boolean;
@@ -482,7 +482,7 @@ begin
   end;
 end;
 
-procedure TMarksOnlyDb.SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
+procedure TMarksDb.SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
 var
   VMarkVisible: IMarkSMLInternal;
   VId: Integer;
@@ -509,7 +509,7 @@ begin
   end;
 end;
 
-function TMarksOnlyDb.GetAllMarskIdList: IInterfaceList;
+function TMarksDb.GetAllMarskIdList: IInterfaceList;
 var
   VMarkId: IMarkId;
 begin
@@ -528,12 +528,12 @@ begin
   end;
 end;
 
-function TMarksOnlyDb.GetDbCode: Integer;
+function TMarksDb.GetDbCode: Integer;
 begin
   Result := Integer(Self);
 end;
 
-function TMarksOnlyDb.GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
+function TMarksDb.GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
 var
   VMarkId: IMarkId;
   VCategoryID: Integer;
@@ -563,7 +563,7 @@ begin
   end;
 end;
 
-procedure TMarksOnlyDb.InitEmptyDS;
+procedure TMarksDb.InitEmptyDS;
 begin
   FCdsMarks.Close;
   FCdsMarks.XMLData :=
@@ -595,7 +595,7 @@ begin
   FCdsMarks.Open;
 end;
 
-function TMarksOnlyDb.GetMarksSubset(ARect: TDoubleRect;
+function TMarksDb.GetMarksSubset(ARect: TDoubleRect;
   ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
   function GetCategoryID(ACategory: IMarkCategory): Integer;
   var
@@ -668,17 +668,17 @@ begin
   end;
 end;
 
-function TMarksOnlyDb.GetMarksBackUpFileName: string;
+function TMarksDb.GetMarksBackUpFileName: string;
 begin
   Result := FBasePath + 'marks.~sml';
 end;
 
-function TMarksOnlyDb.GetMarksFileName: string;
+function TMarksDb.GetMarksFileName: string;
 begin
   Result := FBasePath + 'marks.sml';
 end;
 
-procedure TMarksOnlyDb.LoadMarksFromFile;
+procedure TMarksDb.LoadMarksFromFile;
 var
   VFileName: string;
 begin
@@ -700,7 +700,7 @@ begin
   end;
 end;
 
-function TMarksOnlyDb.SaveMarks2File: boolean;
+function TMarksDb.SaveMarks2File: boolean;
 var
   VStream: TFileStream;
   XML: string;
