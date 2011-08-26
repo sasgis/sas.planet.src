@@ -28,7 +28,7 @@ uses
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
   i_ListOfObjectsWithTTL,
-  i_TileDownloadResultFactoryProvider,
+  i_DownloadResultFactoryProvider,
   i_AntiBan,
   i_MemObjCache,
   i_InetConfig,
@@ -77,7 +77,7 @@ type
     FVersionConfig: IMapVersionConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
-    FTileDownloadResultFactoryProvider: ITileDownloadResultFactoryProvider;
+    FDownloadResultFactoryProvider: IDownloadResultFactoryProvider;
     FImageResamplerConfig: IImageResamplerConfig;
     FContentTypeManager: IContentTypeManager;
     FDownloadConfig: IGlobalDownloadConfig;
@@ -270,12 +270,13 @@ uses
   i_PoolElement,
   i_TileInfoBasic,
   i_ContentConverter,
+  i_TileDownloadRequest,
   u_PoolOfObjectsSimple,
   u_TileDownloaderConfig,
   u_TileRequestBuilderConfig,
   u_TileRequestBuilderPascalScript,
   u_TileDownloaderBaseFactory,
-  u_TileDownloadResultFactoryProvider,
+  u_DownloadResultFactoryProvider,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
   u_LastResponseInfo,
@@ -294,6 +295,7 @@ begin
     try
       FTileRequestBuilder :=
         TTileRequestBuilderPascalScript.Create(
+          FZmp,
           FTileRequestBuilderConfig,
           Zmp.DataProvider,
           ACoordConverterFactory,
@@ -437,10 +439,16 @@ begin
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
+var
+  VRequest: ITileDownloadRequest;
 begin
+  Result := '';
   if FUseDwn then begin
     FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-    Result := FTileRequestBuilder.BuildRequestUrl(AXY, AZoom, FVersionConfig.GetStatic);
+    VRequest := FTileRequestBuilder.BuildRequest(AXY, AZoom, FVersionConfig.GetStatic, FLastResponseInfo);
+    if VRequest <> nil then begin
+      Result := VRequest.Url;
+    end;
   end;
 end;
 
@@ -693,9 +701,8 @@ begin
   end else begin
     FLoadPrevMaxZoomDelta := 6;
   end;
-  FTileDownloadResultFactoryProvider :=
-    TTileDownloadResultFactoryProvider.Create(
-      Self,
+  FDownloadResultFactoryProvider :=
+    TDownloadResultFactoryProvider.Create(
       ADownloadResultTextProvider
     );
 end;
@@ -719,22 +726,20 @@ function TMapType.DownloadTile(
 var
   VPoolElement: IPoolElement;
   VDownloader: ITileDownlodSession;
-  VRequestHead: string;
   VDownloadChecker: IDownloadChecker;
   VConfig: ITileDownloaderConfigStatic;
   VResultFactory: IDownloadResultFactory;
   VResultOk: IDownloadResultOk;
-  VUrl: string;
   VOldTileSize: Integer;
   VResultStream: TMemoryStream;
   VContentType: string;
+  VRequest: ITileDownloadRequest;
 begin
   if FUseDwn then begin
-    VRequestHead := '';
     FCoordConverter.CheckTilePosStrict(ATile, AZoom, True);
-    FTileRequestBuilder.BuildRequest(ATile, AZoom, FVersionConfig.GetStatic, FLastResponseInfo, VUrl, VRequestHead);
-    VResultFactory := FTileDownloadResultFactoryProvider.BuildFactory(AZoom, ATile, VUrl, VRequestHead);
-    if VUrl = '' then begin
+    VRequest := FTileRequestBuilder.BuildRequest(ATile, AZoom, FVersionConfig.GetStatic, FLastResponseInfo);
+    VResultFactory := FDownloadResultFactoryProvider.BuildFactory(VRequest);
+    if VRequest = nil then begin
       Result := VResultFactory.BuildCanceled;
     end else begin
       VPoolElement := FPoolOfDownloaders.TryGetPoolElement(ACancelNotifier);
@@ -743,7 +748,7 @@ begin
       end else begin
         VDownloader := VPoolElement.GetObject as ITileDownlodSession;
         if FAntiBan <> nil then begin
-          FAntiBan.PreDownload(VDownloader, ATile, AZoom, VUrl);
+          FAntiBan.PreDownload(VDownloader, ATile, AZoom, VRequest.Url);
         end;
         if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
           Result := VResultFactory.BuildCanceled;
@@ -758,7 +763,7 @@ begin
             ACheckTileSize,
             VOldTileSize
           );
-          Result := VDownloader.DownloadTile(ACancelNotifier, VResultFactory, VUrl, VRequestHead, VDownloadChecker);
+          Result := VDownloader.DownloadTile(ACancelNotifier, VResultFactory, VRequest.Url, VRequest.RequestHeader, VDownloadChecker);
           if FAntiBan <> nil then begin
             Result :=
               FAntiBan.PostCheckDownload(

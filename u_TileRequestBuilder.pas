@@ -9,6 +9,7 @@ uses
   i_TileRequestBuilder,
   i_MapVersionInfo,
   i_LastResponseInfo,
+  i_TileDownloadRequest,
   i_TileRequestBuilderConfig;
 
 type
@@ -20,19 +21,12 @@ type
     procedure Lock;
     procedure Unlock;
   protected
-    function  BuildRequestUrl(
-      ATileXY: TPoint;
-      AZoom: Byte;
-      AVersionInfo: IMapVersionInfo
-    ): string; virtual; abstract;
-    procedure BuildRequest(
+    function BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
       AVersionInfo: IMapVersionInfo;
-      ALastResponseInfo: ILastResponseInfo;
-      out AUrl: string;
-      out ARequestHeader: string
-    ); virtual; abstract;
+      ALastResponseInfo: ILastResponseInfo
+    ): ITileDownloadRequest; virtual; abstract;
   public
     constructor Create(AConfig: ITileRequestBuilderConfig);
     destructor Destroy; override;

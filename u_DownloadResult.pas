@@ -5,22 +5,20 @@ interface
 uses
   Types,
   Classes,
+  i_DownloadRequest,
   i_DownloadResult;
 
 type
   TDownloadResult = class(TInterfacedObject, IDownloadResult)
   private
-    FUrl: string;
-    FRequestHead: string;
+    FRequest: IDownloadRequest;
   protected
-    function GetUrl: string;
-    function GetRequestHead: string;
+    function GetRequest: IDownloadRequest;
     function GetIsOk: Boolean; virtual; abstract;
     function GetIsServerExists: Boolean; virtual; abstract;
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string
+      ARequest: IDownloadRequest
     );
   end;
 
@@ -47,8 +45,7 @@ type
     function GetBuffer: Pointer;
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       AStatusCode: Cardinal;
       ARawResponseHeader: string;
       AContentType: string;
@@ -67,8 +64,7 @@ type
     function GetErrorText: string;
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       AErrorText: string
     );
   end;
@@ -86,8 +82,7 @@ type
   TDownloadResultNoConnetctToServerByErrorCode = class(TDownloadResultNoConnetctToServer)
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       AErrorText: string;
       AErrorCode: DWORD
     );
@@ -101,8 +96,7 @@ type
   TDownloadResultLoadErrorByStatusCode = class(TDownloadResultLoadError)
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       AErrorText: string;
       AStatusCode: DWORD
     );
@@ -111,8 +105,7 @@ type
   TDownloadResultLoadErrorByUnknownStatusCode = class(TDownloadResultLoadError)
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       AErrorText: string;
       AStatusCode: DWORD
     );
@@ -121,8 +114,7 @@ type
   TDownloadResultLoadErrorByErrorCode = class(TDownloadResultLoadError)
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       AErrorText: string;
       AErrorCode: DWORD
     );
@@ -136,8 +128,7 @@ type
     function GetRawResponseHeader: string;
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       ARawResponseHeader: string;
       AErrorText: string
     );
@@ -154,8 +145,7 @@ type
     function GetRawResponseHeader: string;
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       AContentType: string;
       ARawResponseHeader: string;
       AErrorText: string
@@ -174,8 +164,7 @@ type
     function GetRawResponseHeader: string;
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       AReasonText: string;
       ARawResponseHeader: string
     );
@@ -184,8 +173,7 @@ type
   TDownloadResultDataNotExistsByStatusCode = class(TDownloadResultDataNotExists)
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       ARawResponseHeader: string;
       AErrorText: string;
       AStatusCode: DWORD
@@ -195,8 +183,7 @@ type
   TDownloadResultDataNotExistsZeroSize = class(TDownloadResultDataNotExists)
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       ARawResponseHeader: string;
       AErrorText: string
     );
@@ -214,8 +201,7 @@ type
     function GetRawResponseHeader: string;
   public
     constructor Create(
-      AUrl: string;
-      ARequestHead: string;
+      ARequest: IDownloadRequest;
       AReasonText: string;
       ARawResponseHeader: string
     );
@@ -228,31 +214,28 @@ uses
 
 { TDownloadResult }
 
-constructor TDownloadResult.Create(AUrl, ARequestHead: string);
+constructor TDownloadResult.Create(
+  ARequest: IDownloadRequest
+);
 begin
-  FUrl := AUrl;
-  FRequestHead := ARequestHead;
+  FRequest := ARequest;
 end;
 
-function TDownloadResult.GetRequestHead: string;
+function TDownloadResult.GetRequest: IDownloadRequest;
 begin
-  Result := FRequestHead;
-end;
-
-function TDownloadResult.GetUrl: string;
-begin
-  Result := FUrl;
+  Result := FRequest;
 end;
 
 { TDownloadResultOk }
 
-constructor TDownloadResultOk.Create(AUrl, ARequestHead: string;
+constructor TDownloadResultOk.Create(
+  ARequest: IDownloadRequest;
   AStatusCode: Cardinal; ARawResponseHeader, AContentType: string;
   ASize: Integer;
   ABuffer: Pointer
 );
 begin
-  inherited Create(AUrl, ARequestHead);
+  inherited Create(ARequest);
   FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
   FContentType := AContentType;
@@ -303,9 +286,12 @@ end;
 
 { TDownloadResultError }
 
-constructor TDownloadResultError.Create(AUrl, ARequestHead, AErrorText: string);
+constructor TDownloadResultError.Create(
+  ARequest: IDownloadRequest;
+  AErrorText: string
+);
 begin
-  inherited Create(AUrl, ARequestHead);
+  inherited Create(ARequest);
   FErrorText := AErrorText;
 end;
 
@@ -335,9 +321,12 @@ end;
 
 { TDownloadResultBanned }
 
-constructor TDownloadResultBanned.Create(AUrl, ARequestHead, ARawResponseHeader, AErrorText: string);
+constructor TDownloadResultBanned.Create(
+  ARequest: IDownloadRequest;
+  ARawResponseHeader, AErrorText: string
+);
 begin
-  inherited Create(AUrl, ARequestHead, AErrorText);
+  inherited Create(ARequest, AErrorText);
   FRawResponseHeader := ARawResponseHeader;
 end;
 
@@ -353,10 +342,12 @@ end;
 
 { TDownloadResultBadContentType }
 
-constructor TDownloadResultBadContentType.Create(AUrl, ARequestHead,
-  AContentType, ARawResponseHeader, AErrorText: string);
+constructor TDownloadResultBadContentType.Create(
+  ARequest: IDownloadRequest;
+  AContentType, ARawResponseHeader, AErrorText: string
+);
 begin
-  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AContentType]));
+  inherited Create(ARequest, Format(AErrorText, [AContentType]));
   FContentType := AContentType;
   FRawResponseHeader := ARawResponseHeader;
 end;
@@ -378,26 +369,35 @@ end;
 
 { TDownloadResultNoConnetctToServerByErrorCode }
 
-constructor TDownloadResultNoConnetctToServerByErrorCode.Create(AUrl,
-  ARequestHead, AErrorText: string; AErrorCode: DWORD);
+constructor TDownloadResultNoConnetctToServerByErrorCode.Create(
+  ARequest: IDownloadRequest;
+  AErrorText: string;
+  AErrorCode: DWORD
+);
 begin
-  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AErrorCode]));
+  inherited Create(ARequest, Format(AErrorText, [AErrorCode]));
 end;
 
 { TDownloadResultLoadErrorByStatusCode }
 
-constructor TDownloadResultLoadErrorByStatusCode.Create(AUrl,
-  ARequestHead, AErrorText: string; AStatusCode: DWORD);
+constructor TDownloadResultLoadErrorByStatusCode.Create(
+  ARequest: IDownloadRequest;
+  AErrorText: string;
+  AStatusCode: DWORD
+);
 begin
-  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AStatusCode]));
+  inherited Create(ARequest, Format(AErrorText, [AStatusCode]));
 end;
 
 { TDownloadResultLoadErrorByErrorCode }
 
-constructor TDownloadResultLoadErrorByErrorCode.Create(AUrl,
-  ARequestHead, AErrorText: string; AErrorCode: DWORD);
+constructor TDownloadResultLoadErrorByErrorCode.Create(
+  ARequest: IDownloadRequest;
+  AErrorText: string;
+  AErrorCode: DWORD
+);
 begin
-  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AErrorCode]));
+  inherited Create(ARequest, Format(AErrorText, [AErrorCode]));
 end;
 
 { TDownloadResultLoadError }
@@ -409,10 +409,12 @@ end;
 
 { TIDownloadResultDataNotExists }
 
-constructor TDownloadResultDataNotExists.Create(AUrl, ARequestHead,
-  AReasonText, ARawResponseHeader: string);
+constructor TDownloadResultDataNotExists.Create(
+  ARequest: IDownloadRequest;
+  AReasonText, ARawResponseHeader: string
+);
 begin
-  inherited Create(AUrl, ARequestHead);
+  inherited Create(ARequest);
   FReasonText := AReasonText;
   FRawResponseHeader := ARawResponseHeader;
 end;
@@ -439,10 +441,12 @@ end;
 
 { TDownloadResultNotNecessary }
 
-constructor TDownloadResultNotNecessary.Create(AUrl, ARequestHead,
-  AReasonText, ARawResponseHeader: string);
+constructor TDownloadResultNotNecessary.Create(
+  ARequest: IDownloadRequest;
+  AReasonText, ARawResponseHeader: string
+);
 begin
-  inherited Create(AUrl, ARequestHead);
+  inherited Create(ARequest);
   FReasonText := AReasonText;
   FRawResponseHeader := ARawResponseHeader;
 end;
@@ -469,28 +473,34 @@ end;
 
 { TDownloadResultDataNotExistsByStatusCode }
 
-constructor TDownloadResultDataNotExistsByStatusCode.Create(AUrl,
-  ARequestHead: string;
+constructor TDownloadResultDataNotExistsByStatusCode.Create(
+  ARequest: IDownloadRequest;
   ARawResponseHeader, AErrorText: string;
-  AStatusCode: DWORD);
+  AStatusCode: DWORD
+);
 begin
-  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AStatusCode]), ARawResponseHeader);
+  inherited Create(ARequest, Format(AErrorText, [AStatusCode]), ARawResponseHeader);
 end;
 
 { TDownloadResultDataNotExistsZeroSize }
 
-constructor TDownloadResultDataNotExistsZeroSize.Create(AUrl,
-  ARequestHead, ARawResponseHeader, AErrorText: string);
+constructor TDownloadResultDataNotExistsZeroSize.Create(
+  ARequest: IDownloadRequest;
+  ARawResponseHeader, AErrorText: string
+);
 begin
-  inherited Create(AUrl, ARequestHead, AErrorText, ARawResponseHeader);
+  inherited Create(ARequest, AErrorText, ARawResponseHeader);
 end;
 
 { TDownloadResultLoadErrorByUnknownStatusCode }
 
-constructor TDownloadResultLoadErrorByUnknownStatusCode.Create(AUrl,
-  ARequestHead, AErrorText: string; AStatusCode: DWORD);
+constructor TDownloadResultLoadErrorByUnknownStatusCode.Create(
+  ARequest: IDownloadRequest;
+  AErrorText: string;
+  AStatusCode: DWORD
+);
 begin
-  inherited Create(AUrl, ARequestHead, Format(AErrorText, [AStatusCode]));
+  inherited Create(ARequest, Format(AErrorText, [AStatusCode]));
 end;
 
 { TDownloadResultCanceled }

@@ -5,24 +5,18 @@ interface
 uses
   Types,
   i_MapVersionInfo,
-  i_LastResponseInfo;
+  i_LastResponseInfo,
+  i_TileDownloadRequest;
 
 type
   ITileRequestBuilder = interface
     ['{3F65B989-F693-460B-AE98-FD1DAECEA04B}']
-    function  BuildRequestUrl(
-      ATileXY: TPoint;
-      AZoom: Byte;
-      AVersionInfo: IMapVersionInfo
-    ): string;
-    procedure BuildRequest(
+    function BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
       AVersionInfo: IMapVersionInfo;
-      ALastResponseInfo: ILastResponseInfo;
-      out AUrl: string;
-      out ARequestHeader: string
-    );
+      ALastResponseInfo: ILastResponseInfo
+    ): ITileDownloadRequest;
   end;
 
 

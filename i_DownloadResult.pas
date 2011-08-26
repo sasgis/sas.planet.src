@@ -2,14 +2,14 @@ unit i_DownloadResult;
 
 interface
 
+uses
+  i_DownloadRequest;
+
 type
   IDownloadResult = interface
     ['{E93918EB-D64B-479E-B4D6-E49B30425824}']
-    function GetUrl: string;
-    property Url: string read GetUrl;
-
-    function GetRequestHead: string;
-    property RequestHead: string read GetRequestHead;
+    function GetRequest: IDownloadRequest;
+    property Request: IDownloadRequest read GetRequest;
 
     function GetIsOk: Boolean;
     property IsOk: Boolean read GetIsOk;

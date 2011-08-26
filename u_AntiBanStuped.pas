@@ -166,7 +166,7 @@ begin
   end;
 
   if Supports(Result, IDownloadResultBanned) then begin
-    ExecOnBan(ADownloadResult.Url);
+    ExecOnBan(ADownloadResult.Request.Url);
   end else if Supports(Result, IDownloadResultOk) then begin
     FBanCS.Acquire;
     FBanFlag := True;

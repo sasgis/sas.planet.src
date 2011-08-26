@@ -5,18 +5,16 @@ interface
 uses
   Types,
   i_DownloadResult,
-  i_TileDownloadResult,
   u_MapType,
+  i_DownloadRequest,
   i_DownloadResultTextProvider,
   i_DownloadResultFactory;
 
 type
-  TDownloadResultFactoryTileDownload = class(TInterfacedObject, IDownloadResultFactory)
+  TDownloadResultFactory = class(TInterfacedObject, IDownloadResultFactory)
   private
     FTextProvider: IDownloadResultTextProvider;
-    FUrl: string;
-    FRequestHead: string;
-    FTileInfo: ITileInfo;
+    FRequest: IDownloadRequest;
   protected
     function BuildCanceled: IDownloadResultCanceled;
     function BuildOk(
@@ -62,129 +60,120 @@ type
   public
     constructor Create(
       ATextProvider: IDownloadResultTextProvider;
-      AZoom: Byte;
-      AXY: TPoint;
-      AMapType: TMapType;
-      AUrl: string;
-      ARequestHead: string
+      ARequest: IDownloadRequest
     );
   end;
 
 implementation
 
 uses
-  u_TileDownloadResult;
+  u_DownloadResult;
 
-{ TDownloadResultFactorySimpleDownload }
+{ TDownloadResultFactory }
 
-constructor TDownloadResultFactoryTileDownload.Create(
+constructor TDownloadResultFactory.Create(
   ATextProvider: IDownloadResultTextProvider;
-  AZoom: Byte;
-  AXY: TPoint;
-  AMapType: TMapType;
-  AUrl, ARequestHead: string
+  ARequest: IDownloadRequest
 );
 begin
-  FTileInfo := TTileInfo.Create(AZoom, AXY, AMapType);
-  FUrl := AUrl;
-  FRequestHead := ARequestHead;
   FTextProvider := ATextProvider;
+  FRequest := ARequest;
 end;
 
-function TDownloadResultFactoryTileDownload.BuildBadContentType(
+function TDownloadResultFactory.BuildBadContentType(
   const AContentType, ARawResponseHeader: string
 ): IDownloadResultBadContentType;
 begin
-  Result := TTileDownloadResultBadContentType.Create(FTileInfo, FUrl, FRequestHead, AContentType, ARawResponseHeader, 'Неожиданный тип %s');
+  Result := TDownloadResultBadContentType.Create(FRequest, AContentType, ARawResponseHeader, 'Неожиданный тип %s');
 end;
 
-function TDownloadResultFactoryTileDownload.BuildBadProxyAuth: IDownloadResultProxyError;
+function TDownloadResultFactory.BuildBadProxyAuth: IDownloadResultProxyError;
 begin
-  Result := TTileDownloadResultProxyError.Create(FTileInfo, FUrl, FRequestHead, 'Ошибка авторизации на прокси');
+  Result := TDownloadResultProxyError.Create(FRequest, 'Ошибка авторизации на прокси');
 end;
 
-function TDownloadResultFactoryTileDownload.BuildBanned(
+function TDownloadResultFactory.BuildBanned(
   const ARawResponseHeader: string
 ): IDownloadResultBanned;
 begin
-  Result := TTileDownloadResultBanned.Create(FTileInfo, FUrl, FRequestHead, ARawResponseHeader, 'Похоже вас забанили');
+  Result := TDownloadResultBanned.Create(FRequest, ARawResponseHeader, 'Похоже вас забанили');
 end;
 
-function TDownloadResultFactoryTileDownload.BuildCanceled: IDownloadResultCanceled;
+function TDownloadResultFactory.BuildCanceled: IDownloadResultCanceled;
 begin
-  Result := TTileDownloadResultCanceled.Create(FTileInfo, FUrl, FRequestHead);
+  Result := TDownloadResultCanceled.Create(FRequest);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildDataNotExists(
+function TDownloadResultFactory.BuildDataNotExists(
   const AReasonText, ARawResponseHeader: string
 ): IDownloadResultDataNotExists;
 begin
-  Result := TTileDownloadResultDataNotExists.Create(FTileInfo, FUrl, FRequestHead, AReasonText, ARawResponseHeader);
+  Result := TDownloadResultDataNotExists.Create(FRequest, AReasonText, ARawResponseHeader);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildDataNotExistsByStatusCode(
+function TDownloadResultFactory.BuildDataNotExistsByStatusCode(
   const ARawResponseHeader: string;
   const AStatusCode: DWORD
 ): IDownloadResultDataNotExists;
 begin
-  Result := TTileDownloadResultDataNotExistsByStatusCode.Create(FTileInfo, FUrl, FRequestHead, ARawResponseHeader, 'Данныео отсутствуют. Статус %d', AStatusCode);
+  Result := TDownloadResultDataNotExistsByStatusCode.Create(FRequest, ARawResponseHeader, 'Данныео отсутствуют. Статус %d', AStatusCode);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildDataNotExistsZeroSize(
+function TDownloadResultFactory.BuildDataNotExistsZeroSize(
   const ARawResponseHeader: string
 ): IDownloadResultDataNotExists;
 begin
-  Result := TTileDownloadResultDataNotExistsZeroSize.Create(FTileInfo, FUrl, FRequestHead, ARawResponseHeader, 'Получен ответ нулевой длинны');
+  Result := TDownloadResultDataNotExistsZeroSize.Create(FRequest, ARawResponseHeader, 'Получен ответ нулевой длинны');
 end;
 
-function TDownloadResultFactoryTileDownload.BuildLoadErrorByErrorCode(
+function TDownloadResultFactory.BuildLoadErrorByErrorCode(
   const AErrorCode: DWORD
 ): IDownloadResultError;
 begin
-  Result := TTileDownloadResultLoadErrorByErrorCode.Create(FTileInfo, FUrl, FRequestHead, 'Ошибка загрузки. Код ошибки %d', AErrorCode);
+  Result := TDownloadResultLoadErrorByErrorCode.Create(FRequest, 'Ошибка загрузки. Код ошибки %d', AErrorCode);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildLoadErrorByStatusCode(
+function TDownloadResultFactory.BuildLoadErrorByStatusCode(
   const AStatusCode: DWORD
 ): IDownloadResultError;
 begin
-  Result := TTileDownloadResultLoadErrorByStatusCode.Create(FTileInfo, FUrl, FRequestHead, 'Ошибка загрузки. Статус %d', AStatusCode);
+  Result := TDownloadResultLoadErrorByStatusCode.Create(FRequest, 'Ошибка загрузки. Статус %d', AStatusCode);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildLoadErrorByUnknownStatusCode(
+function TDownloadResultFactory.BuildLoadErrorByUnknownStatusCode(
   const AStatusCode: DWORD
 ): IDownloadResultError;
 begin
-  Result := TTileDownloadResultLoadErrorByUnknownStatusCode.Create(FTileInfo, FUrl, FRequestHead, 'Неизвестный статус %d', AStatusCode);
+  Result := TDownloadResultLoadErrorByUnknownStatusCode.Create(FRequest, 'Неизвестный статус %d', AStatusCode);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildNoConnetctToServerByErrorCode(
+function TDownloadResultFactory.BuildNoConnetctToServerByErrorCode(
   const AErrorCode: DWORD
 ): IDownloadResultNoConnetctToServer;
 begin
-  Result := TTileDownloadResultNoConnetctToServerByErrorCode.Create(FTileInfo, FUrl, FRequestHead, 'Ошибка подключения к серверу. Код ошибки %d', AErrorCode);
+  Result := TDownloadResultNoConnetctToServerByErrorCode.Create(FRequest, 'Ошибка подключения к серверу. Код ошибки %d', AErrorCode);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildNotNecessary(
+function TDownloadResultFactory.BuildNotNecessary(
   const AReasonText, ARawResponseHeader: string
 ): IDownloadResultNotNecessary;
 begin
-  Result := TTileDownloadResultNotNecessary.Create(FTileInfo, FUrl, FRequestHead, AReasonText, ARawResponseHeader);
+  Result := TDownloadResultNotNecessary.Create(FRequest, AReasonText, ARawResponseHeader);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildOk(
+function TDownloadResultFactory.BuildOk(
   const AStatusCode: Cardinal;
   const ARawResponseHeader, AContentType: string;
   const ASize: Integer;
   const ABuffer: Pointer
 ): IDownloadResultOk;
 begin
-  Result := TTileDownloadResultOk.Create(FTileInfo, FUrl, FRequestHead, AStatusCode, ARawResponseHeader, AContentType, ASize, ABuffer);
+  Result := TDownloadResultOk.Create(FRequest, AStatusCode, ARawResponseHeader, AContentType, ASize, ABuffer);
 end;
 
-function TDownloadResultFactoryTileDownload.BuildUnexpectedProxyAuth: IDownloadResultProxyError;
+function TDownloadResultFactory.BuildUnexpectedProxyAuth: IDownloadResultProxyError;
 begin
-  Result := TTileDownloadResultProxyError.Create(FTileInfo, FUrl, FRequestHead, 'Настройки не предусматривают авторизацию на прокси');
+  Result := TDownloadResultProxyError.Create(FRequest, 'Настройки не предусматривают авторизацию на прокси');
 end;
 
 end.

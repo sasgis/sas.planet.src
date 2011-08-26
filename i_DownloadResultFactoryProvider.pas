@@ -1,19 +1,17 @@
-unit i_TileDownloadResultFactoryProvider;
+unit i_DownloadResultFactoryProvider;
 
 interface
 
 uses
   Types,
+  i_DownloadRequest,
   i_DownloadResultFactory;
 
 type
-  ITileDownloadResultFactoryProvider = interface
+  IDownloadResultFactoryProvider = interface
     ['{6509A2DE-8260-474F-A9E0-E23E2D21D448}']
     function BuildFactory(
-      AZoom: Byte;
-      AXY: TPoint;
-      AUrl: string;
-      ARequestHead: string
+      ARequest: IDownloadRequest
     ): IDownloadResultFactory;
   end;
 

@@ -165,6 +165,7 @@
     <DCCReference Include="i_DownloadRequest.pas" />
     <DCCReference Include="i_DownloadResult.pas" />
     <DCCReference Include="i_DownloadResultFactory.pas" />
+    <DCCReference Include="i_DownloadResultFactoryProvider.pas" />
     <DCCReference Include="i_DownloadResultTextProvider.pas" />
     <DCCReference Include="i_DownloadUIConfig.pas" />
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
@@ -278,8 +279,6 @@
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownloadRequest.pas" />
-    <DCCReference Include="i_TileDownloadResult.pas" />
-    <DCCReference Include="i_TileDownloadResultFactoryProvider.pas" />
     <DCCReference Include="i_TileDownlodSession.pas" />
     <DCCReference Include="i_TileError.pas" />
     <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
@@ -475,7 +474,7 @@
     <DCCReference Include="u_DownloadCheckerStuped.pas" />
     <DCCReference Include="u_DownloadInfoSimple.pas" />
     <DCCReference Include="u_DownloadResult.pas" />
-    <DCCReference Include="u_DownloadResultFactorySimpleDownload.pas" />
+    <DCCReference Include="u_DownloadResultFactoryProvider.pas" />
     <DCCReference Include="u_DownloadResultFactoryTileDownload.pas" />
     <DCCReference Include="u_DownloadResultTextProvider.pas" />
     <DCCReference Include="u_DownloadUIConfig.pas" />
@@ -684,8 +683,6 @@
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
     <DCCReference Include="u_TileDownloadRequest.pas" />
-    <DCCReference Include="u_TileDownloadResult.pas" />
-    <DCCReference Include="u_TileDownloadResultFactoryProvider.pas" />
     <DCCReference Include="u_TileErrorInfo.pas" />
     <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="u_TileFileNameES.pas" />
