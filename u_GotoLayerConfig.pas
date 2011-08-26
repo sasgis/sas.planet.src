@@ -2,7 +2,6 @@ unit u_GotoLayerConfig;
 
 interface
 uses
-  GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_GotoLayerConfig,

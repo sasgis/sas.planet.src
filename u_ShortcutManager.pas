@@ -41,8 +41,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  TBX;
+  SysUtils;
 
 { TShortCutInfo }
 

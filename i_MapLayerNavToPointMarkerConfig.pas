@@ -3,7 +3,6 @@ unit i_MapLayerNavToPointMarkerConfig;
 interface
 
 uses
-  GR32,
   i_ConfigDataElement,
   i_BitmapMarkerProviderSimpleConfig;
 

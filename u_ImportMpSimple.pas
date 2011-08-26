@@ -23,8 +23,7 @@ uses
   SysUtils,
   StrUtils,
   i_MarksSimple,
-  u_GeoFun,
-  u_GeoToStr;
+  u_GeoFun;
 
 const
   CPoligonHeader = '[POLYGON]';

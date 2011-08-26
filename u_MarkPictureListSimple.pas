@@ -40,7 +40,6 @@ implementation
 
 uses
   SysUtils,
-  GR32,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   u_MarkPictureSimple;

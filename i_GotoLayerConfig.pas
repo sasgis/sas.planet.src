@@ -3,7 +3,6 @@ unit i_GotoLayerConfig;
 interface
 
 uses
-  GR32,
   i_ConfigDataElement;
 
 type

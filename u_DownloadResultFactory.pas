@@ -5,7 +5,6 @@ interface
 uses
   Types,
   i_DownloadResult,
-  u_MapType,
   i_DownloadRequest,
   i_DownloadResultTextProvider,
   i_DownloadResultFactory;
