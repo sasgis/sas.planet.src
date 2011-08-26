@@ -238,6 +238,7 @@
     <DCCReference Include="i_MarkPolygonLayerConfig.pas" />
     <DCCReference Include="i_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="i_Marks.pas" />
+    <DCCReference Include="i_MarksDb.pas" />
     <DCCReference Include="i_MarksDbSmlInternal.pas" />
     <DCCReference Include="i_MarksDrawConfig.pas" />
     <DCCReference Include="i_MarksFactoryConfig.pas" />

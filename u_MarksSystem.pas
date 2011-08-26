@@ -14,6 +14,8 @@ uses
   i_MarkCategoryFactoryConfig,
   i_MarkCategoryDB,
   i_MarkCategoryDBSmlInternal,
+  i_MarksDb,
+  i_MarksDbSmlInternal,
   u_MarksDb,
   u_MarkCategoryDB;
 
@@ -22,7 +24,8 @@ type
   private
     FBasePath: string;
     FMarksFactoryConfig: IMarksFactoryConfig;
-    FMarksDb: TMarksDb;
+    FMarksDb: IMarksDb;
+    FMarksDbInternal: IMarksDbSmlInternal;
     FCategoryDB: IMarkCategoryDB;
     FCategoryDBInternal: IMarkCategoryDBSmlInternal;
   public
@@ -37,7 +40,7 @@ type
     procedure ReadConfig(AConfigData: IConfigDataProvider);
     procedure WriteConfig(AConfigData: IConfigDataWriteProvider);
 
-    property MarksDb: TMarksDb read FMarksDb;
+    property MarksDb: IMarksDb read FMarksDb;
     property CategoryDB: IMarkCategoryDB read FCategoryDB;
     property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
 
@@ -62,6 +65,7 @@ constructor TMarksSystem.Create(
 );
 var
   VCategoryDb: TMarkCategoryDB;
+  VMarksDb: TMarksDb;
 begin
   FBasePath := ABasePath;
   VCategoryDB := TMarkCategoryDB.Create(ABasePath, ACategoryFactoryConfig);
@@ -72,18 +76,21 @@ begin
       FCategoryDBInternal,
       AMarkPictureList
     );
-  FMarksDb :=
+  VMarksDb :=
     TMarksDb.Create(
       ABasePath,
       FCategoryDBInternal,
       AHintConverter,
       FMarksFactoryConfig
     );
+  FMarksDb := VMarksDb;
+  FMarksDbInternal := VMarksDb;
 end;
 
 destructor TMarksSystem.Destroy;
 begin
-  FreeAndNil(FMarksDb);
+  FMarksDb := nil;
+  FMarksDbInternal := nil;
   FCategoryDB := nil;
   FCategoryDBInternal := nil;
   FMarksFactoryConfig := nil;
@@ -118,7 +125,7 @@ end;
 
 procedure TMarksSystem.ReadConfig(AConfigData: IConfigDataProvider);
 begin
-  FMarksDb.LoadMarksFromFile;
+  FMarksDbInternal.LoadMarksFromFile;
   FCategoryDBInternal.LoadCategoriesFromFile;
   FMarksFactoryConfig.ReadConfig(AConfigData);
 end;
@@ -127,7 +134,7 @@ procedure TMarksSystem.WriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
   FMarksFactoryConfig.WriteConfig(AConfigData);
   FCategoryDBInternal.SaveCategory2File;
-  FMarksDb.SaveMarks2File;
+  FMarksDbInternal.SaveMarks2File;
 end;
 
 end.

@@ -14,10 +14,12 @@ uses
   i_MarkCategory,
   i_MarksSimple,
   i_MarkFactory,
+  i_MarksDb,
+  i_MarksDbSmlInternal,
   i_MarkFactorySmlInternal;
 
 type
-  TMarksDb =  class
+  TMarksDb =  class(TInterfacedObject, IMarksDb, IMarksDbSmlInternal)
   private
     FSync: IReadWriteSync;
     FBasePath: string;
@@ -38,18 +40,10 @@ type
     procedure LockWrite; virtual;
     procedure UnlockRead; virtual;
     procedure UnlockWrite; virtual;
-  public
+  protected
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
-  public
-    constructor Create(
-      ABasePath: string;
-      ACategoryDB: IMarkCategoryDBSmlInternal;
-      AHintConverter: IHtmlToHintTextConverter;
-      AFactoryConfig: IMarksFactoryConfig
-    );
-    destructor Destroy; override;
-    
+  protected
     function GetMarkByID(AMarkId: IMarkId): IMarkFull;
     function DeleteMark(AMarkId: IMarkId): Boolean;
     procedure DeleteMarksByCategoryID(ACategory: IMarkCategory);
@@ -58,13 +52,21 @@ type
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(AMark: IMarkFull): Boolean; overload;
-    property Factory: IMarkFactory read FFactory;
+    function GetFactory: IMarkFactory;
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
 
     procedure SetAllMarksInCategoryVisible(ACategory: IMarkCategory; ANewVisible: Boolean);
 
     function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
+  public
+    constructor Create(
+      ABasePath: string;
+      ACategoryDB: IMarkCategoryDBSmlInternal;
+      AHintConverter: IHtmlToHintTextConverter;
+      AFactoryConfig: IMarksFactoryConfig
+    );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -72,7 +74,6 @@ implementation
 uses
   DB,
   GR32,
-  i_MarksDbSmlInternal,
   u_MarkFactory,
   u_MarksSubset;
 
@@ -531,6 +532,11 @@ end;
 function TMarksDb.GetDbCode: Integer;
 begin
   Result := Integer(Self);
+end;
+
+function TMarksDb.GetFactory: IMarkFactory;
+begin
+  Result := FFactory;
 end;
 
 function TMarksDb.GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;

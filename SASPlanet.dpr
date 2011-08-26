@@ -254,6 +254,7 @@ uses
   u_MarksLayerConfig in 'u_MarksLayerConfig.pas',
   i_MarksSimple in 'i_MarksSimple.pas',
   i_MarkTemplate in 'i_MarkTemplate.pas',
+  i_MarksDb in 'i_MarksDb.pas',
   i_MarksDbSmlInternal in 'i_MarksDbSmlInternal.pas',
   u_MarksSubset in 'u_MarksSubset.pas',
   u_MarksDb in 'u_MarksDb.pas',

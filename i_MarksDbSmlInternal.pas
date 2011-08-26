@@ -40,6 +40,12 @@ type
     property CategoryId: Integer read GetCategoryId;
   end;
 
+  IMarksDbSmlInternal = interface
+    ['{54D17191-A56C-4951-8838-7E492906213A}']
+    function SaveMarks2File: boolean;
+    procedure LoadMarksFromFile;
+  end;
+
 implementation
 
 end.
