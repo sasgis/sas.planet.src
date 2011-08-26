@@ -740,7 +740,7 @@ begin
     VRequest := FTileRequestBuilder.BuildRequest(ATile, AZoom, FVersionConfig.GetStatic, FLastResponseInfo);
     VResultFactory := FDownloadResultFactoryProvider.BuildFactory(VRequest);
     if VRequest = nil then begin
-      Result := VResultFactory.BuildCanceled;
+      Result := VResultFactory.BuildNotNecessary('Empty request', '');
     end else begin
       VPoolElement := FPoolOfDownloaders.TryGetPoolElement(ACancelNotifier);
       if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
@@ -763,7 +763,7 @@ begin
             ACheckTileSize,
             VOldTileSize
           );
-          Result := VDownloader.DownloadTile(ACancelNotifier, VResultFactory, VRequest.Url, VRequest.RequestHeader, VDownloadChecker);
+          Result := VDownloader.DownloadTile(ACancelNotifier, VResultFactory, VRequest, VDownloadChecker);
           if FAntiBan <> nil then begin
             Result :=
               FAntiBan.PostCheckDownload(

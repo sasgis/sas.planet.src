@@ -1,4 +1,4 @@
-unit u_DownloadResultFactoryTileDownload;
+unit u_DownloadResultFactory;
 
 interface
 

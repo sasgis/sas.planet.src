@@ -474,8 +474,8 @@
     <DCCReference Include="u_DownloadCheckerStuped.pas" />
     <DCCReference Include="u_DownloadInfoSimple.pas" />
     <DCCReference Include="u_DownloadResult.pas" />
+    <DCCReference Include="u_DownloadResultFactory.pas" />
     <DCCReference Include="u_DownloadResultFactoryProvider.pas" />
-    <DCCReference Include="u_DownloadResultFactoryTileDownload.pas" />
     <DCCReference Include="u_DownloadResultTextProvider.pas" />
     <DCCReference Include="u_DownloadUIConfig.pas" />
     <DCCReference Include="u_ECWWrite.pas" />

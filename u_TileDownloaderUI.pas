@@ -306,11 +306,15 @@ begin
                   end;
                 end;
                 if VNeedDownload then begin
+                    VErrorString := '';
                     try
                       VResult := FMapType.DownloadTile(FCancelNotifier, FLoadXY, VZoom, false);
-                      VErrorString := '';
+                      if Terminated then begin
+                        break;
+                      end;
                       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
                         FDownloadInfo.Add(1, VResultOk.Size);
+                        Synchronize(AfterWriteToFile);
                       end else if Supports(VResult, IDownloadResultError, VResultDownloadError) then begin
                         VErrorString := VResultDownloadError.ErrorText;
                       end;
@@ -324,9 +328,8 @@ begin
                     if Terminated then begin
                       break;
                     end;
-                    if VErrorString = '' then begin
-                      Synchronize(AfterWriteToFile);
-                    end else begin
+
+                    if VErrorString <> '' then begin
                       FErrorLogger.LogError(
                         TTileErrorInfo.Create(
                           FMapType,

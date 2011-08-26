@@ -4,6 +4,7 @@ interface
 
 uses
   i_OperationCancelNotifier,
+  i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadChecker;
@@ -14,7 +15,7 @@ type
     function DownloadTile(
       ACancelNotifier: IOperationCancelNotifier;
       AResultFactory: IDownloadResultFactory;
-      AUrl, ARequestHead: string;
+      ARequest: IDownloadRequest;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
   end;

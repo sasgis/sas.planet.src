@@ -11,6 +11,7 @@ uses
   i_OperationCancelNotifier,
   i_ProxySettings,
   i_DownloadChecker,
+  i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_InetConfig,
@@ -47,7 +48,7 @@ type
     function TryDownload(
       AConfig: IInetConfigStatic;
       AResultFactory: IDownloadResultFactory;
-      AUrl, ARequestHead: string;
+      ARequest: IDownloadRequest;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
     procedure GetData(AFileHandle: HInternet; fileBuf: TMemoryStream); virtual;
@@ -68,7 +69,7 @@ type
     function DownloadTile(
       ACancelNotifier: IOperationCancelNotifier;
       AResultFactory: IDownloadResultFactory;
-      AUrl, ARequestHead: string;
+      ARequest: IDownloadRequest;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
   public
@@ -130,7 +131,7 @@ end;
 function TTileDownloaderBase.DownloadTile(
   ACancelNotifier: IOperationCancelNotifier;
   AResultFactory: IDownloadResultFactory;
-  AUrl, ARequestHead: string;
+  ARequest: IDownloadRequest;
   ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
 var
@@ -171,7 +172,7 @@ begin
                   Result := AResultFactory.BuildCanceled;
                   Exit;
                 end;
-                Result := TryDownload(VConfig.InetConfigStatic, AResultFactory, AUrl, ARequestHead, ADownloadChecker);
+                Result := TryDownload(VConfig.InetConfigStatic, AResultFactory, ARequest, ADownloadChecker);
                 if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
                   Result := AResultFactory.BuildCanceled;
                   Exit;
@@ -538,7 +539,7 @@ end;
 function TTileDownloaderBase.TryDownload(
   AConfig: IInetConfigStatic;
   AResultFactory: IDownloadResultFactory;
-  AUrl, ARequestHead: string;
+  ARequest: IDownloadRequest;
   ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
 var
@@ -548,6 +549,7 @@ var
   VRecivedData: TMemoryStream;
   VStatusCode: Cardinal;
   VContentType, VResponseHead: string;
+  VHeader: string;
 begin
   VProxyConfig := AConfig.ProxyConfigStatic;
   try
@@ -559,17 +561,18 @@ begin
     end;
   end;
   if Result <> nil then Exit;
+  VHeader := ARequest.RequestHeader;
   if ADownloadChecker <> nil then begin
-    Result := ADownloadChecker.BeforeRequest(AUrl, ARequestHead);
+    Result := ADownloadChecker.BeforeRequest(ARequest.Url, VHeader);
     if Result <> nil then Exit;
   end;
   try
     VFileHandle :=
       InternetOpenURL(
         VSessionHandle,
-        PChar(AURL),
-        PChar(ARequestHead),
-        Length(ARequestHead),
+        PChar(ARequest.URL),
+        PChar(VHeader),
+        Length(VHeader),
         INTERNET_FLAG_NO_CACHE_WRITE or
         INTERNET_FLAG_IGNORE_CERT_CN_INVALID or
         INTERNET_FLAG_IGNORE_CERT_DATE_INVALID or

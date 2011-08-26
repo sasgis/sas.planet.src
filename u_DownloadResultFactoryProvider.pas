@@ -26,7 +26,7 @@ type
 implementation
 
 uses
-  u_DownloadResultFactoryTileDownload;
+  u_DownloadResultFactory;
 
 { TDownloadResultFactoryProvider }
 

@@ -70,7 +70,7 @@ uses
   i_DownloadResult in 'i_DownloadResult.pas',
   u_DownloadResult in 'u_DownloadResult.pas',
   i_DownloadResultFactory in 'i_DownloadResultFactory.pas',
-  u_DownloadResultFactoryTileDownload in 'u_DownloadResultFactoryTileDownload.pas',
+  u_DownloadResultFactory in 'u_DownloadResultFactory.pas',
   i_DownloadResultFactoryProvider in 'i_DownloadResultFactoryProvider.pas',
   u_DownloadResultFactoryProvider in 'u_DownloadResultFactoryProvider.pas',
   i_DownloadChecker in 'i_DownloadChecker.pas',
