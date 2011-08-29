@@ -287,7 +287,7 @@ begin
       VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
       VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
       FBitmapWithText.Clear(0);
-      FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.Color2,255));
+      FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextBgColor,255));
       FBitmapWithText.RenderText(1, 1, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextColor,255));
       ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
     end;

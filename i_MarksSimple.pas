@@ -38,10 +38,13 @@ type
     ['{6E8C2BA9-4A1A-49A8-98FF-8F5BFCBDB00C}']
     function GetPoint: TDoublePoint;
     property Point: TDoublePoint read GetPoint;
+
     function GetTextColor: TColor32;
     property TextColor: TColor32 read GetTextColor;
-    function GetColor2: TColor32;
-    property Color2: TColor32 read GetColor2;
+
+    function GetTextBgColor: TColor32;
+    property TextBgColor: TColor32 read GetTextBgColor;
+
     function GetScale1: Integer;
     property Scale1: Integer read GetScale1;
     function GetScale2: Integer;

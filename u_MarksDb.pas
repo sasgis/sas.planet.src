@@ -277,7 +277,7 @@ begin
     VPoint := VMarkPoint.Point;
     BlobFromExtArr(@VPoint, 1, FCdsMarks.FieldByName('LonLatArr'));
     FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoint.TextColor;
-    FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoint.Color2;
+    FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoint.TextBgColor;
     FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoint.Scale1;
     FCdsMarks.FieldByName('Scale2').AsInteger := VMarkPoint.Scale2;
   end else if Supports(AMark, IMarkLine, VMarkLine) then begin
