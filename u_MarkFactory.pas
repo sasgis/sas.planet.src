@@ -31,18 +31,6 @@ type
     procedure PreparePolyPoints(var APoints: TArrayOfDoublePoint);
     procedure PreparePathPoints(var APoints: TArrayOfDoublePoint);
 
-    function CreateLine(
-      AID: Integer;
-      AName: string;
-      AVisible: Boolean;
-      ACategoryId: Integer;
-      ACategory: IMarkCategory;
-      ADesc: string;
-      ARect: TDoubleRect;
-      APoints: TArrayOfDoublePoint;
-      ALineColor: TColor32;
-      ALineWidth: Integer
-    ): IMarkFull;
     function CreatePoint(
       AID: Integer;
       AName: string;
@@ -55,6 +43,18 @@ type
       APoint: TDoublePoint;
       ATextColor, ATextBgColor: TColor32;
       AFontSize, AMarkerSize: Integer
+    ): IMarkFull;
+    function CreateLine(
+      AID: Integer;
+      AName: string;
+      AVisible: Boolean;
+      ACategoryId: Integer;
+      ACategory: IMarkCategory;
+      ADesc: string;
+      ARect: TDoubleRect;
+      APoints: TArrayOfDoublePoint;
+      ALineColor: TColor32;
+      ALineWidth: Integer
     ): IMarkFull;
     function CreatePoly(
       AID: Integer;
