@@ -17,8 +17,7 @@ type
   private
     FPicName: string;
     FPic: IMarkPicture;
-    FLLRect: TDoubleRect;
-    FPoints: TArrayOfDoublePoint;
+    FPoint: TDoublePoint;
     FColor1: TColor32;
     FColor2: TColor32;
     FScale1: Integer;
@@ -26,7 +25,6 @@ type
   protected
     function GetLLRect: TDoubleRect; override;
     function GetPoint: TDoublePoint;
-    function GetPoints: TArrayOfDoublePoint;
     function GetColor1: TColor32;
     function GetColor2: TColor32;
     function GetScale1: Integer;
@@ -42,15 +40,14 @@ type
     constructor Create(
       AHintConverter: IHtmlToHintTextConverter;
       ADbCode: Integer;
-      AName: string;
+      const AName: string;
       AId: Integer;
       AVisible: Boolean;
-      APicName: string;
+      const APicName: string;
       APic: IMarkPicture;
       ACategory: IMarkCategory;
-      ADesc: string;
-      ALLRect: TDoubleRect;
-      APoint: TDoublePoint;
+      const ADesc: string;
+      const APoint: TDoublePoint;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
@@ -65,15 +62,14 @@ implementation
 constructor TMarkPoint.Create(
   AHintConverter: IHtmlToHintTextConverter;
   ADbCode: Integer;
-  AName: string;
+  const AName: string;
   AId: Integer;
   AVisible: Boolean;
-  APicName: string;
+  const APicName: string;
   APic: IMarkPicture;
   ACategory: IMarkCategory;
-  ADesc: string;
-  ALLRect: TDoubleRect;
-  APoint: TDoublePoint;
+  const ADesc: string;
+  const APoint: TDoublePoint;
   AColor1, AColor2: TColor32;
   AScale1, AScale2: Integer
 );
@@ -81,9 +77,7 @@ begin
   inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
   FPicName := APicName;
   FPic := APic;
-  FLLRect := ALLRect;
-  SetLength(FPoints, 1);
-  FPoints[0] := APoint;
+  FPoint := APoint;
   FColor1 := AColor1;
   FColor2 := AColor2;
   FScale1 := AScale1;
@@ -102,12 +96,13 @@ end;
 
 function TMarkPoint.GetGoToLonLat: TDoublePoint;
 begin
-  Result := FPoints[0];
+  Result := FPoint;
 end;
 
 function TMarkPoint.GetLLRect: TDoubleRect;
 begin
-  Result := FLLRect;
+  Result.TopLeft := FPoint;
+  Result.BottomRight := FPoint;
 end;
 
 function TMarkPoint.GetPic: IMarkPicture;
@@ -122,12 +117,7 @@ end;
 
 function TMarkPoint.GetPoint: TDoublePoint;
 begin
-  Result := FPoints[0];
-end;
-
-function TMarkPoint.GetPoints: TArrayOfDoublePoint;
-begin
-  Result := FPoints;
+  Result := FPoint;
 end;
 
 function TMarkPoint.GetScale1: Integer;

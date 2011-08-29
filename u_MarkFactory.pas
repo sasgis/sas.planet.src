@@ -27,7 +27,6 @@ type
 
     FMarkPictureList: IMarkPictureList;
     function GetLLRectFromPoints(APoints: TArrayOfDoublePoint): TDoubleRect;
-    function GetLLRectFromPoint(APoint: TDoublePoint): TDoubleRect;
     procedure PreparePolyPoints(var APoints: TArrayOfDoublePoint);
     procedure PreparePathPoints(var APoints: TArrayOfDoublePoint);
 
@@ -364,7 +363,6 @@ begin
     VPic,
     VCategory,
     ADesc,
-    GetLLRectFromPoint(APoint),
     APoint,
     ATextColor,
     ATextBgColor,
@@ -716,12 +714,6 @@ end;
 function TMarkFactory.GetConfig: IMarksFactoryConfig;
 begin
   Result := FConfig;
-end;
-
-function TMarkFactory.GetLLRectFromPoint(APoint: TDoublePoint): TDoubleRect;
-begin
-  Result.TopLeft := APoint;
-  Result.BottomRight := APoint;
 end;
 
 function TMarkFactory.GetLLRectFromPoints(
