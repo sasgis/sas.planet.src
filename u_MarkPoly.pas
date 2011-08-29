@@ -25,13 +25,6 @@ type
     function GetBorderColor: TColor32;
     function GetFillColor: TColor32;
     function GetLineWidth: Integer;
-    function GetScale2: Integer;
-    function GetPicName: string;
-    function GetPic: IMarkPicture;
-    function IsEmpty: Boolean;
-    function IsPoint: Boolean;
-    function IsLine: Boolean;
-    function IsPoly: Boolean;
     function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
@@ -97,16 +90,6 @@ begin
   Result := FLLRect;
 end;
 
-function TMarkPoly.GetPic: IMarkPicture;
-begin
-  Result := nil;
-end;
-
-function TMarkPoly.GetPicName: string;
-begin
-  Result := '';
-end;
-
 function TMarkPoly.GetPoints: TArrayOfDoublePoint;
 begin
   Result := FPoints;
@@ -115,31 +98,6 @@ end;
 function TMarkPoly.GetLineWidth: Integer;
 begin
   Result := FLineWidth;
-end;
-
-function TMarkPoly.GetScale2: Integer;
-begin
-  Result := 0;
-end;
-
-function TMarkPoly.IsEmpty: Boolean;
-begin
-  Result := False;
-end;
-
-function TMarkPoly.IsLine: Boolean;
-begin
-  Result := False;
-end;
-
-function TMarkPoly.IsPoint: Boolean;
-begin
-  Result := False;
-end;
-
-function TMarkPoly.IsPoly: Boolean;
-begin
-  Result := True;
 end;
 
 end.

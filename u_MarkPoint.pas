@@ -31,10 +31,6 @@ type
     function GetMarkerSize: Integer;
     function GetPicName: string;
     function GetPic: IMarkPicture;
-    function IsEmpty: Boolean;
-    function IsPoint: Boolean;
-    function IsLine: Boolean;
-    function IsPoly: Boolean;
     function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
@@ -128,26 +124,6 @@ end;
 function TMarkPoint.GetMarkerSize: Integer;
 begin
   Result := FMarkerSize;
-end;
-
-function TMarkPoint.IsEmpty: Boolean;
-begin
-  Result := False;
-end;
-
-function TMarkPoint.IsLine: Boolean;
-begin
-  Result := False;
-end;
-
-function TMarkPoint.IsPoint: Boolean;
-begin
-  Result := True;
-end;
-
-function TMarkPoint.IsPoly: Boolean;
-begin
-  Result := False;
 end;
 
 end.
