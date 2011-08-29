@@ -115,7 +115,7 @@ var
   VPic: IMarkPicture;
   VPicIndex: Integer;
   VCategoryId: Integer;
-  VColor1, VColor2: TColor32;
+  VColor1, VTextBgColor: TColor32;
   VFontSize, VMarkerSize: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
 begin
@@ -125,7 +125,7 @@ begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
   VColor1 := FDefaultTemplate.Color1;
-  VColor2 := FDefaultTemplate.Color2;
+  VTextBgColor := FDefaultTemplate.TextBgColor;
   VFontSize := FDefaultTemplate.FontSize;
   VMarkerSize := FDefaultTemplate.MarkerSize;
   VPic := FDefaultTemplate.Pic;
@@ -149,7 +149,7 @@ begin
     end;
     VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
     VColor1 := ReadColor32(AConfigData, 'TextColor', VColor1);
-    VColor2 := ReadColor32(AConfigData, 'ShadowColor', VColor2);
+    VTextBgColor := ReadColor32(AConfigData, 'ShadowColor', VTextBgColor);
     VFontSize := AConfigData.ReadInteger('FontSize', VFontSize);
     VMarkerSize := AConfigData.ReadInteger('IconSize', VMarkerSize);
   end;
@@ -159,7 +159,7 @@ begin
       NameGenerator,
       VCategoryId,
       VColor1,
-      VColor2,
+      VTextBgColor,
       VFontSize,
       VMarkerSize,
       VPic
@@ -188,7 +188,7 @@ begin
   AConfigData.WriteString('IconName', VPicName);
   AConfigData.WriteInteger('CategoryId', VCategoryId);
   WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.Color1);
-  WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.Color2);
+  WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.TextBgColor);
   AConfigData.WriteInteger('FontSize', FDefaultTemplate.FontSize);
   AConfigData.WriteInteger('IconSize', FDefaultTemplate.MarkerSize);
 end;

@@ -21,8 +21,8 @@ type
     function GetColor1: TColor32;
     property Color1: TColor32 read GetColor1;
 
-    function GetColor2: TColor32;
-    property Color2: TColor32 read GetColor2;
+    function GetTextBgColor: TColor32;
+    property TextBgColor: TColor32 read GetTextBgColor;
 
     function GetFontSize: Integer;
     property FontSize: Integer read GetFontSize;

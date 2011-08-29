@@ -268,7 +268,7 @@ begin
     ADesc,
     APoint,
     VTemplate.Color1,
-    VTemplate.Color2,
+    VTemplate.TextBgColor,
     VTemplate.FontSize,
     VTemplate.MarkerSize
   );
