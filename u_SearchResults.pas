@@ -86,6 +86,9 @@ begin
   ClearSearchResults;
   VItemForGoTo := nil;
   VEnum := ASearchResult.GetPlacemarks;
+  if ASearchResult.GetPlacemarksCount>1 then begin
+    FSearchWindow.Show;
+  end;
   while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
     if VItemForGoTo = nil then begin
       VItemForGoTo := VPlacemark;
@@ -106,8 +109,6 @@ begin
         if ASearchResult.GetResultCode = 200 then begin
           ShowMessage(SAS_STR_foundplace+' "'+VItemForGoTo.GetAddress+'"');
         end;
-      end else begin
-        FSearchWindow.Show;
       end;
     end;
   end else begin
