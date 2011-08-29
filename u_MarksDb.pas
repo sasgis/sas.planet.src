@@ -285,7 +285,7 @@ begin
     BlobFromExtArr(@VMarkLine.Points[0], Length(VMarkLine.Points), FCdsMarks.FieldByName('LonLatArr'));
     FCdsMarks.FieldByName('Color1').AsInteger := VMarkLine.LineColor;
     FCdsMarks.FieldByName('Color2').AsInteger := 0;
-    FCdsMarks.FieldByName('Scale1').AsInteger := VMarkLine.Scale1;
+    FCdsMarks.FieldByName('Scale1').AsInteger := VMarkLine.LineWidth;
     FCdsMarks.FieldByName('Scale2').AsInteger := 0;
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';

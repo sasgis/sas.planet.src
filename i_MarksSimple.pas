@@ -63,8 +63,8 @@ type
     function GetLineColor: TColor32;
     property LineColor: TColor32 read GetLineColor;
 
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
+    function GetLineWidth: Integer;
+    property LineWidth: Integer read GetLineWidth;
   end;
 
   IMarkPoly = interface(IMark)

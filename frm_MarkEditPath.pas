@@ -82,7 +82,7 @@ begin
     edtName.Text:=AMark.name;
     frMarkDescription.Description := AMark.Desc;
     SEtransp.Value:=100-round(AlphaComponent(AMark.LineColor)/255*100);
-    seWidth.Value:=AMark.Scale1;
+    seWidth.Value:=AMark.LineWidth;
     clrbxLineColor.Selected:=WinColor(AMark.LineColor);
     chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);
     FCategory := AMark.Category;

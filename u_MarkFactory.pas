@@ -521,7 +521,7 @@ begin
     GetLLRectFromPoints(VPoints),
     VPoints,
     ASource.LineColor,
-    ASource.Scale1
+    ASource.LineWidth
   );
 end;
 

@@ -308,7 +308,7 @@ begin
     with currNode.AddChild('Style') do begin
       with AddChild('LineStyle') do begin
         ChildValues['color']:=Color32toKMLColor(VMarkLine.LineColor);
-        ChildValues['width']:=R2StrPoint(VMarkLine.Scale1);
+        ChildValues['width']:=R2StrPoint(VMarkLine.LineWidth);
       end;
     end;
     currNode:=currNode.AddChild('LineString');

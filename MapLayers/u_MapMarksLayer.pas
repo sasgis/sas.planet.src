@@ -246,7 +246,7 @@ begin
                 VLonLatLine := VMarkLine.Points;
                 VConverter.CheckLonLatArray(VLonLatLine);
                 VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
-                if PointOnPath(VPixelPos, VLineOnBitmap, (VMarkLine.Scale1 / 2) + 1) then begin
+                if PointOnPath(VPixelPos, VLineOnBitmap, (VMarkLine.LineWidth / 2) + 1) then begin
                   AMark := VMark;
                   AMarkS := 0;
                   exit;

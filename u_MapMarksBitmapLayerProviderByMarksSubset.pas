@@ -122,7 +122,7 @@ var
   TestArrLenLonLatRect: TDoubleRect;
   TestArrLenPixelRect: TDoubleRect;
 begin
-  VScale1 := AMarkLine.Scale1;
+  VScale1 := AMarkLine.LineWidth;
   TestArrLenLonLatRect := AMarkLine.LLRect;
   TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
   if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
@@ -165,7 +165,7 @@ begin
             end;
             polygon.AddPoints(FPathFixedPoints[0], VIndex);
             with Polygon.Outline do try
-              with Grow(GR32.Fixed(AMarkLine.Scale1 / 2), 0.5) do try
+              with Grow(GR32.Fixed(AMarkLine.LineWidth / 2), 0.5) do try
                 FillMode := pfWinding;
                 DrawFill(ATargetBmp, AMarkLine.LineColor);
               finally
