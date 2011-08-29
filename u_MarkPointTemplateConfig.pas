@@ -116,7 +116,7 @@ var
   VPicIndex: Integer;
   VCategoryId: Integer;
   VColor1, VColor2: TColor32;
-  VFontSize, VScale2: Integer;
+  VFontSize, VMarkerSize: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
@@ -127,7 +127,7 @@ begin
   VColor1 := FDefaultTemplate.Color1;
   VColor2 := FDefaultTemplate.Color2;
   VFontSize := FDefaultTemplate.FontSize;
-  VScale2 := FDefaultTemplate.Scale2;
+  VMarkerSize := FDefaultTemplate.MarkerSize;
   VPic := FDefaultTemplate.Pic;
   if VPic = nil then begin
     VPic := FMarkPictureList.GetDefaultPicture;
@@ -151,7 +151,7 @@ begin
     VColor1 := ReadColor32(AConfigData, 'TextColor', VColor1);
     VColor2 := ReadColor32(AConfigData, 'ShadowColor', VColor2);
     VFontSize := AConfigData.ReadInteger('FontSize', VFontSize);
-    VScale2 := AConfigData.ReadInteger('IconSize', VScale2);
+    VMarkerSize := AConfigData.ReadInteger('IconSize', VMarkerSize);
   end;
   SetDefaultTemplate(
     TMarkTemplatePoint.Create(
@@ -161,7 +161,7 @@ begin
       VColor1,
       VColor2,
       VFontSize,
-      VScale2,
+      VMarkerSize,
       VPic
     )
   );
@@ -190,7 +190,7 @@ begin
   WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.Color1);
   WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.Color2);
   AConfigData.WriteInteger('FontSize', FDefaultTemplate.FontSize);
-  AConfigData.WriteInteger('IconSize', FDefaultTemplate.Scale2);
+  AConfigData.WriteInteger('IconSize', FDefaultTemplate.MarkerSize);
 end;
 
 function TMarkPointTemplateConfig.GetDefaultTemplate: IMarkTemplatePoint;

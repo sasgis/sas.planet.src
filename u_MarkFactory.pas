@@ -270,7 +270,7 @@ begin
     VTemplate.Color1,
     VTemplate.Color2,
     VTemplate.FontSize,
-    VTemplate.Scale2
+    VTemplate.MarkerSize
   );
 end;
 
