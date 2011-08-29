@@ -16,13 +16,13 @@ type
   private
     FLLRect: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
-    FColor1: TColor32;
+    FBorderColor: TColor32;
     FColor2: TColor32;
     FScale1: Integer;
   protected
     function GetLLRect: TDoubleRect; override;
     function GetPoints: TArrayOfDoublePoint;
-    function GetColor1: TColor32;
+    function GetBorderColor: TColor32;
     function GetColor2: TColor32;
     function GetScale1: Integer;
     function GetScale2: Integer;
@@ -44,7 +44,7 @@ type
       ADesc: string;
       ALLRect: TDoubleRect;
       APoints: TArrayOfDoublePoint;
-      AColor1: TColor32;
+      ABorderColor: TColor32;
       AColor2: TColor32;
       AScale1: Integer
     );
@@ -64,21 +64,21 @@ constructor TMarkPoly.Create(
   ADesc: string;
   ALLRect: TDoubleRect;
   APoints: TArrayOfDoublePoint;
-  AColor1, AColor2: TColor32;
+  ABorderColor, AColor2: TColor32;
   AScale1: Integer
 );
 begin
   inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
   FLLRect := ALLRect;
   FPoints := APoints;
-  FColor1 := AColor1;
+  FBorderColor := ABorderColor;
   FColor2 := AColor2;
   FScale1 := AScale1;
 end;
 
-function TMarkPoly.GetColor1: TColor32;
+function TMarkPoly.GetBorderColor: TColor32;
 begin
-  Result := FColor1;
+  Result := FBorderColor;
 end;
 
 function TMarkPoly.GetColor2: TColor32;

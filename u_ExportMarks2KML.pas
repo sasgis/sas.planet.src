@@ -321,7 +321,7 @@ begin
   end else if Supports(Mark, IMarkPoly, VMarkPoly) then begin
     with currNode.AddChild('Style') do begin
       with AddChild('LineStyle') do begin
-        ChildValues['color']:=Color32toKMLColor(VMarkPoly.Color1);
+        ChildValues['color']:=Color32toKMLColor(VMarkPoly.BorderColor);
         ChildValues['width']:=R2StrPoint(VMarkPoly.Scale1);
       end;
       with AddChild('PolyStyle') do begin

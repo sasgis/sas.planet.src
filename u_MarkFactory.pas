@@ -557,7 +557,7 @@ begin
     ASource.Desc,
     GetLLRectFromPoints(VPoints),
     VPoints,
-    ASource.Color1,
+    ASource.BorderColor,
     ASource.Color2,
     ASource.Scale1
   );

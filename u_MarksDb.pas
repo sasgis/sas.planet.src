@@ -290,7 +290,7 @@ begin
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
     BlobFromExtArr(@VMarkPoly.Points[0], Length(VMarkPoly.Points), FCdsMarks.FieldByName('LonLatArr'));
-    FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoly.Color1;
+    FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoly.BorderColor;
     FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoly.Color2;
     FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoly.Scale1;
     FCdsMarks.FieldByName('Scale2').AsInteger := 0;

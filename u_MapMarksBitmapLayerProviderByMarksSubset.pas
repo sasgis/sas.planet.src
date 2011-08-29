@@ -234,7 +234,7 @@ begin
               with Polygon.Outline do try
                 with Grow(GR32.Fixed(AMarkPoly.Scale1 / 2), 0.5) do try
                   FillMode := pfWinding;
-                  DrawFill(ATargetBmp, AMarkPoly.color1);
+                  DrawFill(ATargetBmp, AMarkPoly.BorderColor);
                 finally
                   free;
                 end;

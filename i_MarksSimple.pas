@@ -72,8 +72,8 @@ type
     function GetPoints: TArrayOfDoublePoint;
     property Points: TArrayOfDoublePoint read GetPoints;
 
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
+    function GetBorderColor: TColor32;
+    property BorderColor: TColor32 read GetBorderColor;
 
     function GetColor2: TColor32;
     property Color2: TColor32 read GetColor2;
