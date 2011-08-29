@@ -49,14 +49,14 @@ type
 
   IMarkTemplatePoly = interface(IMarkTemplate)
     ['{81CB621A-112D-4914-B801-BBBAAE11C797}']
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
+    function GetBorderColor: TColor32;
+    property BorderColor: TColor32 read GetBorderColor;
 
     function GetFillColor: TColor32;
     property FillColor: TColor32 read GetFillColor;
 
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
+    function GetLineWidth: Integer;
+    property LineWidth: Integer read GetLineWidth;
 
     function IsSame(ATemplate: IMarkTemplatePoly): Boolean;
   end;

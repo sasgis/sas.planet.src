@@ -311,9 +311,9 @@ begin
     ADesc,
     GetLLRectFromPoints(APoints),
     VPoints,
-    VTemplate.Color1,
+    VTemplate.BorderColor,
     VTemplate.FillColor,
-    VTemplate.Scale1
+    VTemplate.LineWidth
   );
 end;
 

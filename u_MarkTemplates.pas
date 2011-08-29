@@ -77,22 +77,22 @@ type
 
   TMarkTemplatePoly = class(FMarkTemplateBase, IMarkTemplatePoly)
   private
-    FColor1: TColor32;
+    FBorderColor: TColor32;
     FFillColor: TColor32;
-    FScale1: Integer;
+    FLineWidth: Integer;
   protected
-    function GetColor1: TColor32;
+    function GetBorderColor: TColor32;
     function GetFillColor: TColor32;
-    function GetScale1: Integer;
+    function GetLineWidth: Integer;
     function IsSame(ATemplate: IMarkTemplatePoly): Boolean;
   public
     constructor Create(
       ACategoryDb: IMarkCategoryDBSmlInternal;
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
-      AColor1: TColor32;
+      ABorderColor: TColor32;
       AFillColor: TColor32;
-      AScale1: Integer
+      ALineWidth: Integer
     );
   end;
 
@@ -239,18 +239,18 @@ end;
 constructor TMarkTemplatePoly.Create(
   ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
-  ACategoryId: Integer; AColor1,
-  AFillColor: TColor32; AScale1: Integer);
+  ACategoryId: Integer; ABorderColor,
+  AFillColor: TColor32; ALineWidth: Integer);
 begin
   inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
-  FColor1 := AColor1;
+  FBorderColor := ABorderColor;
   FFillColor := AFillColor;
-  FScale1 := AScale1;
+  FLineWidth := ALineWidth;
 end;
 
-function TMarkTemplatePoly.GetColor1: TColor32;
+function TMarkTemplatePoly.GetBorderColor: TColor32;
 begin
-  Result := FColor1;
+  Result := FBorderColor;
 end;
 
 function TMarkTemplatePoly.GetFillColor: TColor32;
@@ -258,9 +258,9 @@ begin
   Result := FFillColor;
 end;
 
-function TMarkTemplatePoly.GetScale1: Integer;
+function TMarkTemplatePoly.GetLineWidth: Integer;
 begin
-  Result := FScale1;
+  Result := FLineWidth;
 end;
 
 function TMarkTemplatePoly.IsSame(ATemplate: IMarkTemplatePoly): Boolean;
@@ -268,9 +268,9 @@ begin
   Result := IsSameInternal(ATemplate);
   if Result then begin
     Result :=
-      (FColor1 = ATemplate.Color1) and
+      (FBorderColor = ATemplate.BorderColor) and
       (FFillColor = ATemplate.FillColor) and
-      (FScale1 = ATemplate.Scale1);
+      (FLineWidth = ATemplate.LineWidth);
   end;
 end;
 

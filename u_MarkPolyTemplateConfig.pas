@@ -91,8 +91,8 @@ procedure TMarkPolyTemplateConfig.DoReadConfig(
   AConfigData: IConfigDataProvider);
 var
   VCategoryId: Integer;
-  VColor1, VFillColor: TColor32;
-  VScale1: Integer;
+  VBorderColor, VFillColor: TColor32;
+  VLineWidth: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
@@ -100,23 +100,23 @@ begin
   if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
-  VColor1 := FDefaultTemplate.Color1;
+  VBorderColor := FDefaultTemplate.BorderColor;
   VFillColor := FDefaultTemplate.FillColor;
-  VScale1 := FDefaultTemplate.Scale1;
+  VLineWidth := FDefaultTemplate.LineWidth;
   if AConfigData <> nil then begin
     VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
-    VColor1 := ReadColor32(AConfigData, 'LineColor', VColor1);
+    VBorderColor := ReadColor32(AConfigData, 'LineColor', VBorderColor);
     VFillColor := ReadColor32(AConfigData, 'FillColor', VFillColor);
-    VScale1 := AConfigData.ReadInteger('LineWidth', VScale1);
+    VLineWidth := AConfigData.ReadInteger('LineWidth', VLineWidth);
   end;
   SetDefaultTemplate(
     TMarkTemplatePoly.Create(
       CategoryDb,
       NameGenerator,
       VCategoryId,
-      VColor1,
+      VBorderColor,
       VFillColor,
-      VScale1
+      VLineWidth
     )
   );
 end;
@@ -133,9 +133,9 @@ begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
   AConfigData.WriteInteger('CategoryId', VCategoryId);
-  WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.Color1);
+  WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.BorderColor);
   WriteColor32(AConfigData, 'FillColor', FDefaultTemplate.FillColor);
-  AConfigData.WriteInteger('LineWidth', FDefaultTemplate.Scale1);
+  AConfigData.WriteInteger('LineWidth', FDefaultTemplate.LineWidth);
 end;
 
 function TMarkPolyTemplateConfig.GetDefaultTemplate: IMarkTemplatePoly;
