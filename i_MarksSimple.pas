@@ -48,8 +48,9 @@ type
     function GetFontSize: Integer;
     property FontSize: Integer read GetFontSize;
 
-    function GetScale2: Integer;
-    property Scale2: Integer read GetScale2;
+    function GetMarkerSize: Integer;
+    property MarkerSize: Integer read GetMarkerSize;
+
     function GetPic: IMarkPicture;
     property Pic: IMarkPicture read GetPic;
   end;

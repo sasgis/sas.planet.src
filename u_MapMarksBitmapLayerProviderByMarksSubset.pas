@@ -264,7 +264,7 @@ var
   VMarkSize: Integer;
   VFontSize: Integer;
 begin
-  VMarkSize := AMarkPoint.Scale2;
+  VMarkSize := AMarkPoint.MarkerSize;
   VFontSize := AMarkPoint.FontSize;
   xy := ALocalConverter.LonLat2LocalPixel(AMarkPoint.Point);
   if (AMarkPoint.Pic <> nil) then begin

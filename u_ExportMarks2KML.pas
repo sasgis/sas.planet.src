@@ -287,7 +287,7 @@ begin
         with AddChild('IconStyle') do begin
           VFileName := SaveMarkIcon(VMarkPoint);
           width:=VMarkPoint.Pic.GetBitmapSize.X;
-          ChildValues['scale']:=R2StrPoint(VMarkPoint.Scale2/width);
+          ChildValues['scale']:=R2StrPoint(VMarkPoint.MarkerSize/width);
           with AddChild('Icon') do begin
             ChildValues['href']:=VFileName;
           end;

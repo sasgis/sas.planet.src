@@ -21,14 +21,14 @@ type
     FTextColor: TColor32;
     FTextBgColor: TColor32;
     FFontSize: Integer;
-    FScale2: Integer;
+    FMarkerSize: Integer;
   protected
     function GetLLRect: TDoubleRect; override;
     function GetPoint: TDoublePoint;
     function GetTextColor: TColor32;
     function GetTextBgColor: TColor32;
     function GetFontSize: Integer;
-    function GetScale2: Integer;
+    function GetMarkerSize: Integer;
     function GetPicName: string;
     function GetPic: IMarkPicture;
     function IsEmpty: Boolean;
@@ -51,7 +51,7 @@ type
       ATextColor: TColor32;
       ATextBgColor: TColor32;
       AFontSize: Integer;
-      AScale2: Integer
+      AMarkerSize: Integer
     );
   end;
 
@@ -71,7 +71,7 @@ constructor TMarkPoint.Create(
   const ADesc: string;
   const APoint: TDoublePoint;
   ATextColor, ATextBgColor: TColor32;
-  AFontSize, AScale2: Integer
+  AFontSize, AMarkerSize: Integer
 );
 begin
   inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
@@ -81,7 +81,7 @@ begin
   FTextColor := ATextColor;
   FTextBgColor := ATextBgColor;
   FFontSize := AFontSize;
-  FScale2 := AScale2;
+  FMarkerSize := AMarkerSize;
 end;
 
 function TMarkPoint.GetTextColor: TColor32;
@@ -125,9 +125,9 @@ begin
   Result := FFontSize;
 end;
 
-function TMarkPoint.GetScale2: Integer;
+function TMarkPoint.GetMarkerSize: Integer;
 begin
-  Result := FScale2;
+  Result := FMarkerSize;
 end;
 
 function TMarkPoint.IsEmpty: Boolean;

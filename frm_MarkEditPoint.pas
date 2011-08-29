@@ -136,7 +136,7 @@ begin
     edtName.Text:=AMark.name;
     frMarkDescription.Description:=AMark.Desc;
     seFontSize.Value:=AMark.FontSize;
-    seIconSize.Value:=AMark.Scale2;
+    seIconSize.Value:=AMark.MarkerSize;
     seTransp.Value:=100-round(AlphaComponent(AMark.TextColor)/255*100);
     clrbxTextColor.Selected:=WinColor(AMark.TextColor);
     clrbxShadowColor.Selected:=WinColor(AMark.TextColor);
