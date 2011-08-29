@@ -322,7 +322,7 @@ begin
     with currNode.AddChild('Style') do begin
       with AddChild('LineStyle') do begin
         ChildValues['color']:=Color32toKMLColor(VMarkPoly.BorderColor);
-        ChildValues['width']:=R2StrPoint(VMarkPoly.Scale1);
+        ChildValues['width']:=R2StrPoint(VMarkPoly.LineWidth);
       end;
       with AddChild('PolyStyle') do begin
         ChildValues['color']:=Color32toKMLColor(VMarkPoly.FillColor);

@@ -94,7 +94,7 @@ begin
     frMarkDescription.Description:=AMark.Desc;
     seLineTransp.Value:=100-round(AlphaComponent(AMark.BorderColor)/255*100);
     seFillTransp.Value:=100-round(AlphaComponent(AMark.FillColor)/255*100);
-    seLineWidth.Value:=AMark.Scale1;
+    seLineWidth.Value:=AMark.LineWidth;
     clrbxLineColor.Selected:=WinColor(AMark.BorderColor);
     clrbxFillColor.Selected:=WinColor(AMark.FillColor);
     chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);

@@ -78,8 +78,8 @@ type
     function GetFillColor: TColor32;
     property FillColor: TColor32 read GetFillColor;
 
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
+    function GetLineWidth: Integer;
+    property LineWidth: Integer read GetLineWidth;
   end;
 
   IMarksSubset = interface

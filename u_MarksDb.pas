@@ -292,7 +292,7 @@ begin
     BlobFromExtArr(@VMarkPoly.Points[0], Length(VMarkPoly.Points), FCdsMarks.FieldByName('LonLatArr'));
     FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoly.BorderColor;
     FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoly.FillColor;
-    FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoly.Scale1;
+    FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoly.LineWidth;
     FCdsMarks.FieldByName('Scale2').AsInteger := 0;
   end;
 end;

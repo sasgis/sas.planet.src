@@ -559,7 +559,7 @@ begin
     VPoints,
     ASource.BorderColor,
     ASource.FillColor,
-    ASource.Scale1
+    ASource.LineWidth
   );
 end;
 
