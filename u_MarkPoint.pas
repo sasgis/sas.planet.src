@@ -13,7 +13,7 @@ uses
   u_MarkFullBase;
 
 type
-  TMarkPoint = class(TMarkFullBase, IMarkFull, IMarkPointSMLInternal)
+  TMarkPoint = class(TMarkFullBase, IMarkPoint, IMarkFull, IMarkPointSMLInternal)
   private
     FPicName: string;
     FPic: IMarkPicture;
@@ -24,7 +24,8 @@ type
     FScale1: Integer;
     FScale2: Integer;
   protected
-    function GetLLRect: TDoubleRect;
+    function GetLLRect: TDoubleRect; override;
+    function GetPoint: TDoublePoint;
     function GetPoints: TArrayOfDoublePoint;
     function GetColor1: TColor32;
     function GetColor2: TColor32;
@@ -36,7 +37,7 @@ type
     function IsPoint: Boolean;
     function IsLine: Boolean;
     function IsPoly: Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
       AHintConverter: IHtmlToHintTextConverter;
@@ -117,6 +118,11 @@ end;
 function TMarkPoint.GetPicName: string;
 begin
   Result := FPicName;
+end;
+
+function TMarkPoint.GetPoint: TDoublePoint;
+begin
+  Result := FPoints[0];
 end;
 
 function TMarkPoint.GetPoints: TArrayOfDoublePoint;

@@ -3,19 +3,23 @@ unit u_MarkFullBase;
 interface
 
 uses
+  t_GeoTypes,
   i_HtmlToHintTextConverter,
   i_MarkCategory,
+  i_MarksSimple,
   u_MarkId;
 
 type
-  TMarkFullBase = class(TMarkId)
+  TMarkFullBase = class(TMarkId, IMark)
   private
     FHintConverter: IHtmlToHintTextConverter;
     FDesc: string;
   protected
     function GetDesc: string;
+    function GetLLRect: TDoubleRect; virtual; abstract;
     function GetHintText: string;
     function GetInfoHTML: string;
+    function GetGoToLonLat: TDoublePoint; virtual; abstract;
   public
     constructor Create(
       AHintConverter: IHtmlToHintTextConverter;

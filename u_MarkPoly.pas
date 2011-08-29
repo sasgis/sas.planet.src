@@ -12,7 +12,7 @@ uses
   u_MarkFullBase;
 
 type
-  TMarkPoly = class(TMarkFullBase, IMarkFull)
+  TMarkPoly = class(TMarkFullBase, IMapkPoly, IMarkFull)
   private
     FLLRect: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
@@ -20,7 +20,7 @@ type
     FColor2: TColor32;
     FScale1: Integer;
   protected
-    function GetLLRect: TDoubleRect;
+    function GetLLRect: TDoubleRect; override;
     function GetPoints: TArrayOfDoublePoint;
     function GetColor1: TColor32;
     function GetColor2: TColor32;
@@ -32,7 +32,7 @@ type
     function IsPoint: Boolean;
     function IsLine: Boolean;
     function IsPoly: Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
       AHintConverter: IHtmlToHintTextConverter;

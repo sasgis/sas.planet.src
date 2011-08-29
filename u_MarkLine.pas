@@ -12,14 +12,14 @@ uses
   u_MarkFullBase;
 
 type
-  TMarkLine = class(TMarkFullBase, IMarkFull)
+  TMarkLine = class(TMarkFullBase, IMarkLine, IMarkFull)
   private
     FLLRect: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
     FColor1: TColor32;
     FScale1: Integer;
   protected
-    function GetLLRect: TDoubleRect;
+    function GetLLRect: TDoubleRect; override;
     function GetPoints: TArrayOfDoublePoint;
     function GetColor1: TColor32;
     function GetColor2: TColor32;
@@ -31,7 +31,7 @@ type
     function IsPoint: Boolean;
     function IsLine: Boolean;
     function IsPoly: Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
       AHintConverter: IHtmlToHintTextConverter;
