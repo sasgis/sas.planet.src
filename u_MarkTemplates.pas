@@ -59,19 +59,19 @@ type
 
   TMarkTemplateLine = class(FMarkTemplateBase, IMarkTemplateLine)
   private
-    FColor: TColor32;
-    FLineWeight: Integer;
+    FLineColor: TColor32;
+    FLineWidth: Integer;
   protected
-    function GetColor: TColor32;
-    function GetLineWeight: Integer;
+    function GetLineColor: TColor32;
+    function GetLineWidth: Integer;
     function IsSame(ATemplate: IMarkTemplateLine): Boolean;
   public
     constructor Create(
       ACategoryDb: IMarkCategoryDBSmlInternal;
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
-      AColor: TColor32;
-      ALineWeight: Integer
+      ALineColor: TColor32;
+      ALineWidth: Integer
     );
   end;
 
@@ -206,22 +206,22 @@ constructor TMarkTemplateLine.Create(
   ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
   ACategoryId: Integer;
-  AColor: TColor32;
-  ALineWeight: Integer);
+  ALineColor: TColor32;
+  ALineWidth: Integer);
 begin
   inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
-  FColor := AColor;
-  FLineWeight := ALineWeight;
+  FLineColor := ALineColor;
+  FLineWidth := ALineWidth;
 end;
 
-function TMarkTemplateLine.GetColor: TColor32;
+function TMarkTemplateLine.GetLineColor: TColor32;
 begin
-  Result := FColor;
+  Result := FLineColor;
 end;
 
-function TMarkTemplateLine.GetLineWeight: Integer;
+function TMarkTemplateLine.GetLineWidth: Integer;
 begin
-  Result := FLineWeight;
+  Result := FLineWidth;
 end;
 
 function TMarkTemplateLine.IsSame(ATemplate: IMarkTemplateLine): Boolean;
@@ -229,8 +229,8 @@ begin
   Result := IsSameInternal(ATemplate);
   if Result then begin
     Result :=
-      (FColor = ATemplate.Color) and
-      (FLineWeight = ATemplate.LineWeight);
+      (FLineColor = ATemplate.LineColor) and
+      (FLineWidth = ATemplate.LineWidth);
   end;
 end;
 

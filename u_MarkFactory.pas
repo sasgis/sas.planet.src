@@ -228,8 +228,8 @@ begin
     ADesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
-    VTemplate.Color,
-    VTemplate.LineWeight
+    VTemplate.LineColor,
+    VTemplate.LineWidth
   );
 end;
 
