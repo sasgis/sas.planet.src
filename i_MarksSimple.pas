@@ -75,8 +75,8 @@ type
     function GetBorderColor: TColor32;
     property BorderColor: TColor32 read GetBorderColor;
 
-    function GetColor2: TColor32;
-    property Color2: TColor32 read GetColor2;
+    function GetFillColor: TColor32;
+    property FillColor: TColor32 read GetFillColor;
 
     function GetScale1: Integer;
     property Scale1: Integer read GetScale1;

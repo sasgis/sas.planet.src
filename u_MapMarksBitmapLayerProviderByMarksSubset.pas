@@ -230,7 +230,7 @@ begin
                 FPathFixedPoints[i] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
               end;
               polygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
-              Polygon.DrawFill(ATargetBmp, AMarkPoly.color2);
+              Polygon.DrawFill(ATargetBmp, AMarkPoly.FillColor);
               with Polygon.Outline do try
                 with Grow(GR32.Fixed(AMarkPoly.Scale1 / 2), 0.5) do try
                   FillMode := pfWinding;

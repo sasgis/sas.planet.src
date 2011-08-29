@@ -325,7 +325,7 @@ begin
         ChildValues['width']:=R2StrPoint(VMarkPoly.Scale1);
       end;
       with AddChild('PolyStyle') do begin
-        ChildValues['color']:=Color32toKMLColor(VMarkPoly.Color2);
+        ChildValues['color']:=Color32toKMLColor(VMarkPoly.FillColor);
         ChildValues['fill']:=1;
       end;
     end;

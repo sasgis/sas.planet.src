@@ -93,10 +93,10 @@ begin
     edtName.Text:=AMark.name;
     frMarkDescription.Description:=AMark.Desc;
     seLineTransp.Value:=100-round(AlphaComponent(AMark.BorderColor)/255*100);
-    seFillTransp.Value:=100-round(AlphaComponent(AMark.Color2)/255*100);
+    seFillTransp.Value:=100-round(AlphaComponent(AMark.FillColor)/255*100);
     seLineWidth.Value:=AMark.Scale1;
     clrbxLineColor.Selected:=WinColor(AMark.BorderColor);
-    clrbxFillColor.Selected:=WinColor(AMark.Color2);
+    clrbxFillColor.Selected:=WinColor(AMark.FillColor);
     chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);
     FCategory := AMark.Category;
     if FCategory <> nil then begin
