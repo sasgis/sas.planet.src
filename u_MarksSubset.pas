@@ -41,14 +41,14 @@ function TMarksSubset.GetSubsetByLonLatRect(ARect: TDoubleRect): IMarksSubset;
 var
   VNewList: IInterfaceList;
   i: Integer;
-  VMark: IMarkFull;
+  VMark: IMark;
   VMarkLonLatRect: TDoubleRect;
 begin
   VNewList := TInterfaceList.Create;
   VNewList.Lock;
   try
     for i := 0 to FList.Count - 1 do begin
-      VMark := IMarkFull(FList.Items[i]);
+      VMark := IMark(FList.Items[i]);
       VMarkLonLatRect := VMark.LLRect;
       if(
         (ARect.Right >= VMarkLonLatRect.Left)and

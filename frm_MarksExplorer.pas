@@ -103,7 +103,7 @@ type
     function GetSelectedCategory: IMarkCategory;
     procedure UpdateMarksList;
     function GetSelectedMarkId: IMarkId;
-    function GetSelectedMarkFull: IMarkFull;
+    function GetSelectedMarkFull: IMark;
   public
     procedure EditMarks(AMarkDBGUI: TMarksDbGUIHelper; AMapGoto: IMapViewGoto);
   end;
@@ -171,7 +171,7 @@ begin
   end;
 end;
 
-function TfrmMarksExplorer.GetSelectedMarkFull: IMarkFull;
+function TfrmMarksExplorer.GetSelectedMarkFull: IMark;
 var
   VMarkId: IMarkId;
 begin
@@ -290,7 +290,7 @@ end;
 
 procedure TfrmMarksExplorer.btnEditMarkClick(Sender: TObject);
 var
-  VMark: IMarkFull;
+  VMark: IMark;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
@@ -304,7 +304,7 @@ end;
 
 procedure TfrmMarksExplorer.btnGoToMarkClick(Sender: TObject);
 var
-  VMark: IMarkFull;
+  VMark: IMark;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
@@ -326,7 +326,7 @@ end;
 
 procedure TfrmMarksExplorer.btnNavOnMarkClick(Sender: TObject);
 var
-  VMark: IMarkFull;
+  VMark: IMark;
   LL: TDoublePoint;
 begin
   if (btnNavOnMark.Checked) then begin
@@ -344,7 +344,7 @@ end;
 
 procedure TfrmMarksExplorer.btnOpSelectMarkClick(Sender: TObject);
 var
-  VMark: IMarkFull;
+  VMark: IMark;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
@@ -355,8 +355,9 @@ begin
 end;
 
 procedure TfrmMarksExplorer.btnSaveMarkClick(Sender: TObject);
-var KMLExport:TExportMarks2KML;
-    VMark: iMarkFull;
+var
+  KMLExport:TExportMarks2KML;
+  VMark: IMark;
 begin
     VMark := GetSelectedMarkFull;
     if VMark <> nil then begin

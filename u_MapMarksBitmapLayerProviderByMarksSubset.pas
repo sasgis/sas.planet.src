@@ -50,11 +50,7 @@ type
     procedure DrawPoint(
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
-      ALL: TDoublePoint;
-      AName: string;
-      APic: IMarkPicture;
-      AMarkSize, AFontSize: integer;
-      AColor1, AColor2: TColor32
+      AMarkPoint: IMarkPoint
     );
   protected
     function GetBitmapRect(
@@ -250,41 +246,41 @@ end;
 procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPoint(
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
-  ALL: TDoublePoint;
-  AName: string;
-  APic: IMarkPicture;
-  AMarkSize, AFontSize: integer;
-  AColor1, AColor2: TColor32
+  AMarkPoint: IMarkPoint
 );
 var
   xy: Tpoint;
   VDstRect: TRect;
   VSrcRect: TRect;
   VTextSize: TSize;
+  VMarkSize: Integer;
+  VFontSize: Integer;
 begin
-  xy := ALocalConverter.LonLat2LocalPixel(ALL);
-  if (APic <> nil) then begin
-    APic.LoadBitmap(FTempBmp);
-    VDstRect := bounds(xy.x - (AMarkSize div 2), xy.y - AMarkSize, AMarkSize, AMarkSize);
+  VMarkSize := AMarkPoint.Scale2;
+  VFontSize := AMarkPoint.Scale1;
+  xy := ALocalConverter.LonLat2LocalPixel(AMarkPoint.Point);
+  if (AMarkPoint.Pic <> nil) then begin
+    AMarkPoint.Pic.LoadBitmap(FTempBmp);
+    VDstRect := bounds(xy.x - (VMarkSize div 2), xy.y - VMarkSize, VMarkSize, VMarkSize);
     VSrcRect := bounds(0, 0, FTempBmp.Width, FTempBmp.Height);
     ATargetBmp.Draw(VDstRect, VSrcRect, FTempBmp);
   end;
   if FConfig.ShowPointCaption then begin
-    if AFontSize > 0 then begin
-      FBitmapWithText.MasterAlpha:=AlphaComponent(AColor1);
-      FBitmapWithText.Font.Size := AFontSize;
-      VTextSize := FBitmapWithText.TextExtent(AName);
+    if VFontSize > 0 then begin
+      FBitmapWithText.MasterAlpha:=AlphaComponent(AMarkPoint.Color1);
+      FBitmapWithText.Font.Size := VFontSize;
+      VTextSize := FBitmapWithText.TextExtent(AMarkPoint.Name);
       VTextSize.cx:=VTextSize.cx+2;
       VTextSize.cy:=VTextSize.cy+2;
       FBitmapWithText.SetSize(VTextSize.cx + 2,VTextSize.cy + 2);
-      VDstRect.Left := xy.x + (AMarkSize div 2);
-      VDstRect.Top := xy.y - (AMarkSize div 2) - VTextSize.cy div 2;
+      VDstRect.Left := xy.x + (VMarkSize div 2);
+      VDstRect.Top := xy.y - (VMarkSize div 2) - VTextSize.cy div 2;
       VDstRect.Right := VDstRect.Left + VTextSize.cx;
       VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
       VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
       FBitmapWithText.Clear(0);
-      FBitmapWithText.RenderText(2, 2, AName, 1, SetAlpha(AColor2,255));
-      FBitmapWithText.RenderText(1, 1, AName, 1, SetAlpha(AColor1,255));
+      FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.Color2,255));
+      FBitmapWithText.RenderText(1, 1, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.Color1,255));
       ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
     end;
   end;
@@ -297,12 +293,15 @@ function TMapMarksBitmapLayerProviderByMarksSubset.DrawSubset(
 ): Boolean;
 var
   VEnumMarks: IEnumUnknown;
-  VMark: IMarkFull;
+  VMark: IMark;
   i: Cardinal;
   VScale1: Integer;
   TestArrLenLonLatRect: TDoubleRect;
   TestArrLenPixelRect: TDoubleRect;
   VOldClipRect: TRect;
+  VMarkPoint: IMarkPoint;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
 begin
   VOldClipRect := ATargetBmp.ClipRect;
   ATargetBmp.ClipRect := ALocalConverter.GetLocalRect;
@@ -310,92 +309,83 @@ begin
     VEnumMarks := AMarksSubset.GetEnum;
     if FConfig.UseSimpleDrawOrder then begin
       while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-        VScale1 := VMark.Scale1;
-        if VMark.IsPoint then begin
+        if Supports(VMark, IMarkPoint, VMarkPoint) then begin
           DrawPoint(
             ATargetBmp,
             ALocalConverter,
-            VMark.Points[0],
-            VMark.name,
-            VMark.Pic,
-            VMark.Scale2,
-            VMark.Scale1,
-            VMark.Color1,
-            VMark.Color2
+            VMarkPoint
           );
-        end else begin
-          TestArrLenLonLatRect := VMark.LLRect;
-          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
-          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-            if VMark.IsPoly then begin
-              DrawPoly(
-                ATargetBmp,
-                ALocalConverter,
-                VMark.Points,
-                VMark.Color1,
-                VMark.Color2,
-                VMark.Scale1
-              );
-            end else begin
-              drawPath(
-                ATargetBmp,
-                ALocalConverter,
-                VMark.Points,
-                VMark.Color1,
-                VMark.Scale1
-              );
-            end;
-          end;
-        end;
-      end;
-    end else begin
-      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-        if VMark.IsPoly then begin
-          VScale1 := VMark.Scale1;
-          TestArrLenLonLatRect := VMark.LLRect;
-          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
-          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-            DrawPoly(
-              ATargetBmp,
-              ALocalConverter,
-              VMark.Points,
-              VMark.Color1,
-              VMark.Color2,
-              VMark.Scale1
-            );
-          end;
-        end;
-      end;
-      VEnumMarks.Reset;
-      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-        if VMark.IsLine then begin
-          VScale1 := VMark.Scale1;
+        end else if Supports(VMark, IMarkLine, VMarkLine) then begin
+          VScale1 := VMarkLine.Scale1;
           TestArrLenLonLatRect := VMark.LLRect;
           TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
           if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
             drawPath(
               ATargetBmp,
               ALocalConverter,
-              VMark.Points,
-              VMark.Color1,
-              VMark.Scale1
+              VMarkLine.Points,
+              VMarkLine.Color1,
+              VMarkLine.Scale1
+            );
+          end;
+        end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+          VScale1 := VMarkPoly.Scale1;
+          TestArrLenLonLatRect := VMark.LLRect;
+          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
+          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
+            DrawPoly(
+              ATargetBmp,
+              ALocalConverter,
+              VMarkPoly.Points,
+              VMarkPoly.Color1,
+              VMarkPoly.Color2,
+              VMarkPoly.Scale1
+            );
+          end;
+        end;
+      end;
+    end else begin
+      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+        if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+          VScale1 := VMarkPoly.Scale1;
+          TestArrLenLonLatRect := VMark.LLRect;
+          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
+          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
+            DrawPoly(
+              ATargetBmp,
+              ALocalConverter,
+              VMarkPoly.Points,
+              VMarkPoly.Color1,
+              VMarkPoly.Color2,
+              VMarkPoly.Scale1
             );
           end;
         end;
       end;
       VEnumMarks.Reset;
       while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-        if VMark.IsPoint then begin
+        if Supports(VMark, IMarkLine, VMarkLine) then begin
+          VScale1 := VMarkLine.Scale1;
+          TestArrLenLonLatRect := VMark.LLRect;
+          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
+          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
+            drawPath(
+              ATargetBmp,
+              ALocalConverter,
+              VMarkLine.Points,
+              VMarkLine.Color1,
+              VMarkLine.Scale1
+            );
+          end;
+        end;
+      end;
+      VEnumMarks.Reset;
+      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+        if Supports(VMark, IMarkPoint, VMarkPoint) then begin
           DrawPoint(
             ATargetBmp,
             ALocalConverter,
-            VMark.Points[0],
-            VMark.name,
-            VMark.Pic,
-            VMark.Scale2,
-            VMark.Scale1,
-            VMark.Color1,
-            VMark.Color2
+            VMarkPoint
           );
         end;
       end;

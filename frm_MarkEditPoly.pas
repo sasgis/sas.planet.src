@@ -66,7 +66,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
+    function EditMark(AMark: IMarkPoly; AMarkDBGUI: TMarksDbGUIHelper): IMarkPoly;
     procedure RefreshTranslation; override;
   end;
 
@@ -77,7 +77,7 @@ implementation
 
 {$R *.dfm}
 
-function TfrmMarkEditPoly.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
+function TfrmMarkEditPoly.EditMark(AMark: IMarkPoly; AMarkDBGUI: TMarksDbGUIHelper): IMarkPoly;
 var
   VLastUsedCategoryName: string;
   i: Integer;

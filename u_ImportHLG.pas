@@ -29,7 +29,7 @@ var
   ini:TMemIniFile;
   i:integer;
   VPolygon: TArrayOfDoublePoint;
-  VMark: IMarkFull;
+  VMark: IMark;
 begin
   Result := False;
   VPolygon := nil;

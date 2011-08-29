@@ -23,7 +23,7 @@ type
       AColor2: TColor32;
       AScale1: Integer;
       AScale2: Integer
-    ): IMarkFull;
+    ): IMark;
     function CreateMarkId(
       AName: string;
       AId: Integer;

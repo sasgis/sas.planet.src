@@ -82,7 +82,7 @@ var
   VFile: TStringList;
   i:integer;
   VPolygon: TArrayOfDoublePoint;
-  VMark: IMarkFull;
+  VMark: IMark;
   VString: string;
   VPoligonLine: Integer;
   VDataLine: Integer;

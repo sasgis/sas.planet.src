@@ -28,8 +28,8 @@ type
     doc:iXMLNode;
     Zip: TKaZip;
     OnlyVisible:boolean;
-    procedure AddMark(Mark:iMarkFull;inNode:iXMLNode);
-    function SaveMarkIcon(Mark:IMarkFull): string;
+    procedure AddMark(Mark:IMark; inNode:iXMLNode);
+    function SaveMarkIcon(Mark:IMarkPoint): string;
     procedure AddFolders(ACategoryList: IInterfaceList);
     function AddMarks(ACategoryList: IInterfaceList; inNode:iXMLNode): Boolean;
     function Color32toKMLColor(Color32:TColor32):string;
@@ -39,7 +39,7 @@ type
 
     procedure ExportToKML(AFileName:string);
     procedure ExportCategoryToKML(ACategory: IMarkCategory; AFileName: string);
-    procedure ExportMarkToKML(Mark:iMarkFull;AFileName:string);
+    procedure ExportMarkToKML(Mark:IMark; AFileName:string);
   end;
 
 implementation
@@ -116,7 +116,7 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.ExportMarkToKML(Mark:iMarkFull;AFileName:string);
+procedure TExportMarks2KML.ExportMarkToKML(Mark:IMark;AFileName:string);
 var KMLStream:TMemoryStream;
 begin
   filename:=Afilename;
@@ -218,7 +218,7 @@ begin
   end;
 end;
 
-function TExportMarks2KML.SaveMarkIcon(Mark:iMarkFull): string;
+function TExportMarks2KML.SaveMarkIcon(Mark:IMarkPoint): string;
 var
   VTargetPath: string;
   VTargetFullName: string;
@@ -248,10 +248,11 @@ begin
 end;
 
 function TExportMarks2KML.AddMarks(ACategoryList: IInterfaceList; inNode:iXMLNode): Boolean;
-var MarksList:IMarksSubset;
-    Mark:iMarkFull;
-    VEnumMarks:IEnumUnknown;
-    i:integer;
+var
+  MarksList:IMarksSubset;
+  Mark:IMark;
+  VEnumMarks:IEnumUnknown;
+  i:integer;
 begin
   Result := False;
   MarksList:=GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), ACategoryList, (not OnlyVisible));
@@ -262,72 +263,80 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.AddMark(Mark:iMarkFull;inNode:iXMLNode);
+procedure TExportMarks2KML.AddMark(Mark:IMark;inNode:iXMLNode);
 var
   j,width:integer;
   currNode:IXMLNode;
   coordinates:string;
   VFileName: string;
+var
+  VMarkPoint: IMarkPoint;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
 begin
-      currNode:=inNode.AddChild('Placemark');
-      currNode.ChildValues['name']:=Mark.name;
-      currNode.ChildValues['description']:=Mark.Desc;
-      if Mark.IsLine then begin
-        with currNode.AddChild('Style') do begin
-          with AddChild('LineStyle') do begin
-            ChildValues['color']:=Color32toKMLColor(Mark.Color1);
-            ChildValues['width']:=R2StrPoint(Mark.Scale1);
+  currNode:=inNode.AddChild('Placemark');
+  currNode.ChildValues['name']:=Mark.name;
+  currNode.ChildValues['description']:=Mark.Desc;
+  if Supports(Mark, IMarkPoint, VMarkPoint) then begin
+    with currNode.AddChild('Style') do begin
+      with AddChild('LabelStyle') do begin
+        ChildValues['color']:=Color32toKMLColor(VMarkPoint.Color1);
+        ChildValues['scale']:=R2StrPoint(VMarkPoint.Scale1/14);
+      end;
+      if VMarkPoint.Pic <> nil then begin
+        with AddChild('IconStyle') do begin
+          VFileName := SaveMarkIcon(VMarkPoint);
+          width:=VMarkPoint.Pic.GetBitmapSize.X;
+          ChildValues['scale']:=R2StrPoint(VMarkPoint.Scale2/width);
+          with AddChild('Icon') do begin
+            ChildValues['href']:=VFileName;
+          end;
+          with AddChild('hotSpot') do begin
+            Attributes['x']:='0.5';
+            Attributes['y']:=0;
+            Attributes['xunits']:='fraction';
+            Attributes['yunits']:='fraction';
           end;
         end;
-        currNode:=currNode.AddChild('LineString');
       end;
-
-      if Mark.IsPoint then begin
-        with currNode.AddChild('Style') do begin
-          with AddChild('LabelStyle') do begin
-            ChildValues['color']:=Color32toKMLColor(Mark.Color1);
-            ChildValues['scale']:=R2StrPoint(Mark.Scale1/14);
-          end;
-          if Mark.Pic <> nil then begin
-            with AddChild('IconStyle') do begin
-              VFileName := SaveMarkIcon(Mark);
-              width:=Mark.Pic.GetBitmapSize.X;
-              ChildValues['scale']:=R2StrPoint(Mark.Scale2/width);
-              with AddChild('Icon') do begin
-                ChildValues['href']:=VFileName;
-              end;
-              with AddChild('hotSpot') do begin
-                Attributes['x']:='0.5';
-                Attributes['y']:=0;
-                Attributes['xunits']:='fraction';
-                Attributes['yunits']:='fraction';
-              end;
-            end;
-          end;
-        end;
-        currNode:=currNode.AddChild('Point');
+    end;
+    currNode:=currNode.AddChild('Point');
+    currNode.ChildValues['extrude']:=1;
+    coordinates:=coordinates+R2StrPoint(VMarkPoint.Point.X)+','+R2StrPoint(VMarkPoint.Point.Y)+',0 ';
+    currNode.ChildValues['coordinates']:=coordinates;
+  end else if Supports(Mark, IMarkLine, VMarkLine) then begin
+    with currNode.AddChild('Style') do begin
+      with AddChild('LineStyle') do begin
+        ChildValues['color']:=Color32toKMLColor(VMarkLine.Color1);
+        ChildValues['width']:=R2StrPoint(VMarkLine.Scale1);
       end;
-
-      if Mark.isPoly then begin
-        with currNode.AddChild('Style') do begin
-          with AddChild('LineStyle') do begin
-            ChildValues['color']:=Color32toKMLColor(Mark.Color1);
-            ChildValues['width']:=R2StrPoint(Mark.Scale1);
-          end;
-          with AddChild('PolyStyle') do begin
-            ChildValues['color']:=Color32toKMLColor(Mark.Color2);
-            ChildValues['fill']:=1;
-          end;
-        end;
-        currNode:=currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
+    end;
+    currNode:=currNode.AddChild('LineString');
+    currNode.ChildValues['extrude']:=1;
+    coordinates:='';
+    for j := 0 to length(VMarkLine.Points) - 1 do begin
+      coordinates:=coordinates+R2StrPoint(VMarkLine.Points[j].X)+','+R2StrPoint(VMarkLine.Points[j].Y)+',0 ';
+    end;
+    currNode.ChildValues['coordinates']:=coordinates;
+  end else if Supports(Mark, IMarkPoly, VMarkPoly) then begin
+    with currNode.AddChild('Style') do begin
+      with AddChild('LineStyle') do begin
+        ChildValues['color']:=Color32toKMLColor(VMarkPoly.Color1);
+        ChildValues['width']:=R2StrPoint(VMarkPoly.Scale1);
       end;
-
-      currNode.ChildValues['extrude']:=1;
-      coordinates:='';
-      for j := 0 to length(Mark.Points) - 1 do begin
-        coordinates:=coordinates+R2StrPoint(Mark.Points[j].X)+','+R2StrPoint(Mark.Points[j].Y)+',0 ';
+      with AddChild('PolyStyle') do begin
+        ChildValues['color']:=Color32toKMLColor(VMarkPoly.Color2);
+        ChildValues['fill']:=1;
       end;
-      currNode.ChildValues['coordinates']:=coordinates;
+    end;
+    currNode:=currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
+    currNode.ChildValues['extrude']:=1;
+    coordinates:='';
+    for j := 0 to length(VMarkPoly.Points) - 1 do begin
+      coordinates:=coordinates+R2StrPoint(VMarkPoly.Points[j].X)+','+R2StrPoint(VMarkPoly.Points[j].Y)+',0 ';
+    end;
+    currNode.ChildValues['coordinates']:=coordinates;
+  end;
 end;
 
 function TExportMarks2KML.Color32toKMLColor(Color32:TColor32):string;

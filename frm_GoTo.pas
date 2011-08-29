@@ -130,7 +130,7 @@ var
   textsrch:String;
   VIndex: Integer;
   VMarkId: IMarkID;
-  VMark: IMarkFull;
+  VMark: IMark;
   VLonLat: TDoublePoint;
   VGeoCoderItem: IGeoCoderListEntity;
 begin
@@ -139,8 +139,8 @@ begin
     if VIndex >= 0 then begin
       VMarkId := IMarkId(Pointer(cbbAllMarks.Items.Objects[VIndex]));
       VMark := GState.MarksDb.MarksDb.GetMarkByID(VMarkId);
-        VLonLat := VMark.GetGoToLonLat;
-        FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.name);
+      VLonLat := VMark.GetGoToLonLat;
+      FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.name);
       ModalResult := mrOk;
     end else begin
       ModalResult := mrCancel;

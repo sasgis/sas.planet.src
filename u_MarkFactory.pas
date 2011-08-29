@@ -43,7 +43,7 @@ type
       APoint: TDoublePoint;
       ATextColor, ATextBgColor: TColor32;
       AFontSize, AMarkerSize: Integer
-    ): IMarkFull;
+    ): IMarkPoint;
     function CreateLine(
       AID: Integer;
       AName: string;
@@ -55,7 +55,7 @@ type
       APoints: TArrayOfDoublePoint;
       ALineColor: TColor32;
       ALineWidth: Integer
-    ): IMarkFull;
+    ): IMarkLine;
     function CreatePoly(
       AID: Integer;
       AName: string;
@@ -67,29 +67,29 @@ type
       APoints: TArrayOfDoublePoint;
       ABorderColor, AFillColor: TColor32;
       ALineWidth: Integer
-    ): IMarkFull;
+    ): IMarkPoly;
   protected
     function CreateNewPoint(
       APoint: TDoublePoint;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplatePoint = nil
-    ): IMarkFull;
+    ): IMarkPoint;
     function CreateNewLine(
       APoints: TArrayOfDoublePoint;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplateLine = nil
-    ): IMarkFull;
+    ): IMarkLine;
     function CreateNewPoly(
       APoints: TArrayOfDoublePoint;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplatePoly = nil
-    ): IMarkFull;
+    ): IMarkPoly;
 
     function ModifyPoint(
-      ASource: IMarkFull;
+      ASource: IMarkPoint;
       AName: string;
       AVisible: Boolean;
       APic: IMarkPicture;
@@ -100,9 +100,9 @@ type
       ATextBgColor: TColor32;
       AFontSize: Integer;
       AMarkerSize: Integer
-    ): IMarkFull;
+    ): IMarkPoint;
     function ModifyLine(
-      ASource: IMarkFull;
+      ASource: IMarkLine;
       AName: string;
       AVisible: Boolean;
       ACategory: IMarkCategory;
@@ -110,9 +110,9 @@ type
       APoints: TArrayOfDoublePoint;
       ALineColor: TColor32;
       ALineWidth: Integer
-    ): IMarkFull;
+    ): IMarkLine;
     function ModifyPoly(
-      ASource: IMarkFull;
+      ASource: IMarkPoly;
       AName: string;
       AVisible: Boolean;
       ACategory: IMarkCategory;
@@ -121,17 +121,17 @@ type
       ABorderColor: TColor32;
       AFillColor: TColor32;
       ALineWidth: Integer
-    ): IMarkFull;
+    ): IMarkPoly;
 
     function SimpleModifyLine(
-      ASource: IMarkFull;
+      ASource: IMarkLine;
       APoints: TArrayOfDoublePoint;
       ADesc: string
-    ): IMarkFull;
+    ): IMarkLine;
     function SimpleModifyPoly(
-      ASource: IMarkFull;
+      ASource: IMarkPoly;
       APoints: TArrayOfDoublePoint
-    ): IMarkFull;
+    ): IMarkPoly;
 
     function GetConfig: IMarksFactoryConfig;
   protected
@@ -148,7 +148,7 @@ type
       AColor2: TColor32;
       AScale1: Integer;
       AScale2: Integer
-    ): IMarkFull;
+    ): IMark;
     function CreateMarkId(
       AName: string;
       AId: Integer;
@@ -192,7 +192,7 @@ begin
 end;
 
 function TMarkFactory.CreateNewLine(APoints: TArrayOfDoublePoint; AName,
-  ADesc: string; ATemplate: IMarkTemplateLine): IMarkFull;
+  ADesc: string; ATemplate: IMarkTemplateLine): IMarkLine;
 var
   VTemplate: IMarkTemplateLine;
   VTemplateSML: IMarkTemplateSMLInternal;
@@ -234,7 +234,7 @@ begin
 end;
 
 function TMarkFactory.CreateNewPoint(APoint: TDoublePoint; AName, ADesc: string;
-  ATemplate: IMarkTemplatePoint): IMarkFull;
+  ATemplate: IMarkTemplatePoint): IMarkPoint;
 var
   VTemplate: IMarkTemplatePoint;
   VTemplateSML: IMarkTemplateSMLInternal;
@@ -275,7 +275,7 @@ begin
 end;
 
 function TMarkFactory.CreateNewPoly(APoints: TArrayOfDoublePoint; AName,
-  ADesc: string; ATemplate: IMarkTemplatePoly): IMarkFull;
+  ADesc: string; ATemplate: IMarkTemplatePoly): IMarkPoly;
 var
   VTemplate: IMarkTemplatePoly;
   VTemplateSML: IMarkTemplateSMLInternal;
@@ -329,7 +329,7 @@ function TMarkFactory.CreatePoint(
   APoint: TDoublePoint;
   ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer
-): IMarkFull;
+): IMarkPoint;
 var
   VPicIndex: Integer;
   VPic: IMarkPicture;
@@ -384,7 +384,7 @@ function TMarkFactory.CreateLine(
   APoints: TArrayOfDoublePoint;
   ALineColor: TColor32;
   ALineWidth: Integer
-): IMarkFull;
+): IMarkLine;
 var
   VCategory: IMarkCategory;
 begin
@@ -417,7 +417,7 @@ function TMarkFactory.CreatePoly(
   APoints: TArrayOfDoublePoint;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
-): IMarkFull;
+): IMarkPoly;
 var
   VCategory: IMarkCategory;
 begin
@@ -453,7 +453,7 @@ function TMarkFactory.CreateMark(
   APoints: TArrayOfDoublePoint;
   AColor1, AColor2: TColor32;
   AScale1, AScale2: Integer
-): IMarkFull;
+): IMark;
 var
   VPointCount: Integer;
 begin
@@ -485,10 +485,10 @@ begin
 end;
 
 function TMarkFactory.SimpleModifyLine(
-  ASource: IMarkFull;
+  ASource: IMarkLine;
   APoints: TArrayOfDoublePoint;
   ADesc: string
-): IMarkFull;
+): IMarkLine;
 var
   VId: Integer;
   VCategoryId: Integer;
@@ -528,9 +528,9 @@ begin
 end;
 
 function TMarkFactory.SimpleModifyPoly(
-  ASource: IMarkFull;
+  ASource: IMarkPoly;
   APoints: TArrayOfDoublePoint
-): IMarkFull;
+): IMarkPoly;
 var
   VVisible: Boolean;
   VId: Integer;
@@ -566,7 +566,7 @@ begin
 end;
 
 function TMarkFactory.ModifyPoint(
-  ASource: IMarkFull;
+  ASource: IMarkPoint;
   AName: string;
   AVisible: Boolean;
   APic: IMarkPicture;
@@ -577,7 +577,7 @@ function TMarkFactory.ModifyPoint(
   ATextBgColor: TColor32;
   AFontSize: Integer;
   AMarkerSize: Integer
-): IMarkFull;
+): IMarkPoint;
 var
   VID: Integer;
   VCategoryId: Integer;
@@ -620,7 +620,7 @@ begin
 end;
 
 function TMarkFactory.ModifyLine(
-  ASource: IMarkFull;
+  ASource: IMarkLine;
   AName: string;
   AVisible: Boolean;
   ACategory: IMarkCategory;
@@ -628,7 +628,7 @@ function TMarkFactory.ModifyLine(
   APoints: TArrayOfDoublePoint;
   ALineColor: TColor32;
   ALineWidth: Integer
-): IMarkFull;
+): IMarkLine;
 var
   VID: Integer;
   VCategoryId: Integer;
@@ -666,7 +666,7 @@ begin
 end;
 
 function TMarkFactory.ModifyPoly(
-  ASource: IMarkFull;
+  ASource: IMarkPoly;
   AName: string;
   AVisible: Boolean;
   ACategory: IMarkCategory;
@@ -675,7 +675,7 @@ function TMarkFactory.ModifyPoly(
   ABorderColor: TColor32;
   AFillColor: TColor32;
   ALineWidth: Integer
-): IMarkFull;
+): IMarkPoly;
 var
   VID: Integer;
   VCategoryId: Integer;

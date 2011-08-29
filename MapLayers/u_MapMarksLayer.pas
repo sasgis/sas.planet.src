@@ -49,8 +49,8 @@ type
       AConfig: IMarksLayerConfig;
       AMarkDBGUI: TMarksDbGUIHelper
     );
-    procedure MouseOnReg(xy: TPoint; out AMark: IMarkFull; out AMarkS: Double); overload;
-    procedure MouseOnReg(xy: TPoint; out AMark: IMarkFull); overload;
+    procedure MouseOnReg(xy: TPoint; out AMark: IMark; out AMarkS: Double); overload;
+    procedure MouseOnReg(xy: TPoint; out AMark: IMark); overload;
   end;
 
 implementation
@@ -191,7 +191,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.MouseOnReg(xy: TPoint; out AMark: IMarkFull; out AMarkS: Double);
+procedure TMapMarksLayer.MouseOnReg(xy: TPoint; out AMark: IMark; out AMarkS: Double);
 var
   VLonLatLine: TArrayOfDoublePoint;
   VLineOnBitmap: TArrayOfDoublePoint;
@@ -201,7 +201,7 @@ var
   VMarkLonLatRect: TDoubleRect;
   VPixelPos: TDoublePoint;
   VZoom: Byte;
-  VMark: IMarkFull;
+  VMark: IMark;
   VMapRect: TDoubleRect;
   VLocalConverter: ILocalCoordConverter;
   VVisualConverter: ILocalCoordConverter;
@@ -210,6 +210,8 @@ var
   VSquare:Double;
   i: Cardinal;
   VCounterContext: TInternalPerformanceCounterContext;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
 begin
   VCounterContext := FMouseOnRegCounter.StartOperation;
   try
@@ -235,21 +237,24 @@ begin
           VMarkLonLatRect := VMark.LLRect;
           if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
           (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
-            if VMark.IsPoint then begin
+            if Supports(VMark, IMarkPoint) then begin
               AMark := VMark;
               AMarkS := 0;
               exit;
             end else begin
-              VLonLatLine := VMark.Points;
-              VConverter.CheckLonLatArray(VLonLatLine);
-              VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
-              if VMark.IsLine then begin
-                if PointOnPath(VPixelPos, VLineOnBitmap, (VMark.Scale1 / 2) + 1) then begin
+              if Supports(VMark, IMarkLine, VMarkLine) then begin
+                VLonLatLine := VMarkLine.Points;
+                VConverter.CheckLonLatArray(VLonLatLine);
+                VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
+                if PointOnPath(VPixelPos, VLineOnBitmap, (VMarkLine.Scale1 / 2) + 1) then begin
                   AMark := VMark;
                   AMarkS := 0;
                   exit;
                 end;
-              end else begin
+              end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+                VLonLatLine := VMarkPoly.Points;
+                VConverter.CheckLonLatArray(VLonLatLine);
+                VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
                 if (PtInRgn(VLineOnBitmap,VPixelPos)) then begin
                   VSquare := PolygonSquare(VLineOnBitmap);
                   if (AMark = nil) or (VSquare<AMarkS) then begin
@@ -304,7 +309,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.MouseOnReg(xy: TPoint; out AMark: IMarkFull);
+procedure TMapMarksLayer.MouseOnReg(xy: TPoint; out AMark: IMark);
 var
   VMarkS: Double;
 begin

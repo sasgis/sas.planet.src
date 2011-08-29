@@ -12,7 +12,7 @@ uses
   u_MarkFullBase;
 
 type
-  TMarkLine = class(TMarkFullBase, IMarkLine, IMarkFull)
+  TMarkLine = class(TMarkFullBase, IMarkLine)
   private
     FLLRect: TDoubleRect;
     FPoints: TArrayOfDoublePoint;

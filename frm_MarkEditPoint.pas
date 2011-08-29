@@ -89,7 +89,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
+    function EditMark(AMark: IMarkPoint; AMarkDBGUI: TMarksDbGUIHelper): IMarkPoint;
     procedure RefreshTranslation; override;
   end;
 
@@ -104,7 +104,7 @@ uses
 
 {$R *.dfm}
 
-function TfrmMarkEditPoint.EditMark(AMark: IMarkFull; AMarkDBGUI: TMarksDbGUIHelper): IMarkFull;
+function TfrmMarkEditPoint.EditMark(AMark: IMarkPoint; AMarkDBGUI: TMarksDbGUIHelper): IMarkPoint;
 var
   VLastUsedCategoryName:string;
   i: Integer;
@@ -161,7 +161,7 @@ begin
       Caption:=SAS_STR_EditMark;
     end;
     DrawFromMarkIcons(imgIcon.canvas, AMark.Pic, bounds(4,4,36,36));
-    frLonLatPoint.LonLat := AMark.Points[0];
+    frLonLatPoint.LonLat := AMark.Point;
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
       Result := AMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoint(

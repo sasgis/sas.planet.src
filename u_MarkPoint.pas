@@ -13,7 +13,7 @@ uses
   u_MarkFullBase;
 
 type
-  TMarkPoint = class(TMarkFullBase, IMarkPoint, IMarkFull, IMarkPointSMLInternal)
+  TMarkPoint = class(TMarkFullBase, IMarkPoint, IMarkPointSMLInternal)
   private
     FPicName: string;
     FPic: IMarkPicture;

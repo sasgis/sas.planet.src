@@ -19,22 +19,22 @@ type
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplatePoint = nil
-    ): IMarkFull;
+    ): IMarkPoint;
     function CreateNewLine(
       APoints: TArrayOfDoublePoint;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplateLine = nil
-    ): IMarkFull;
+    ): IMarkLine;
     function CreateNewPoly(
       APoints: TArrayOfDoublePoint;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplatePoly = nil
-    ): IMarkFull;
+    ): IMarkPoly;
 
     function ModifyPoint(
-      ASource: IMarkFull;
+      ASource: IMarkPoint;
       AName: string;
       AVisible: Boolean;
       APic: IMarkPicture;
@@ -45,9 +45,9 @@ type
       ATextBgColor: TColor32;
       AFontSize: Integer;
       AMarkerSize: Integer
-    ): IMarkFull;
+    ): IMarkPoint;
     function ModifyLine(
-      ASource: IMarkFull;
+      ASource: IMarkLine;
       AName: string;
       AVisible: Boolean;
       ACategory: IMarkCategory;
@@ -55,9 +55,9 @@ type
       APoints: TArrayOfDoublePoint;
       ALineColor: TColor32;
       ALineWidth: Integer
-    ): IMarkFull;
+    ): IMarkLine;
     function ModifyPoly(
-      ASource: IMarkFull;
+      ASource: IMarkPoly;
       AName: string;
       AVisible: Boolean;
       ACategory: IMarkCategory;
@@ -66,17 +66,17 @@ type
       ABorderColor: TColor32;
       AFillColor: TColor32;
       ALineWidth: Integer
-    ): IMarkFull;
+    ): IMarkPoly;
 
     function SimpleModifyLine(
-      ASource: IMarkFull;
+      ASource: IMarkLine;
       APoints: TArrayOfDoublePoint;
       ADesc: string
-    ): IMarkFull;
+    ): IMarkLine;
     function SimpleModifyPoly(
-      ASource: IMarkFull;
+      ASource: IMarkPoly;
       APoints: TArrayOfDoublePoint
-    ): IMarkFull;
+    ): IMarkPoly;
 
     function GetConfig: IMarksFactoryConfig;
     property Config: IMarksFactoryConfig read GetConfig;

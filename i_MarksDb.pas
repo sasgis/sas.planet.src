@@ -12,14 +12,14 @@ uses
 type
   IMarksDb = interface
     ['{0B5DFEC6-E519-4D06-8DBA-2D24E2F9A372}']
-    function GetMarkByID(AMarkId: IMarkId): IMarkFull;
+    function GetMarkByID(AMarkId: IMarkId): IMark;
     function DeleteMark(AMarkId: IMarkId): Boolean;
     procedure DeleteMarksByCategoryID(ACategory: IMarkCategory);
-    procedure WriteMark(AMark: IMarkFull);
+    procedure WriteMark(AMark: IMark);
     procedure WriteMarksList(AMarkList: IInterfaceList);
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
-    function GetMarkVisible(AMark: IMarkFull): Boolean; overload;
+    function GetMarkVisible(AMark: IMark): Boolean; overload;
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
 

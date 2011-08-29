@@ -36,7 +36,7 @@ function TImportKML.DoImport(AFileName: string;
   AConfig: IImportConfig): IInterfaceList;
 var
   KML: IVectorDataItemList;
-  VMark: IMarkFull;
+  VMark: IMark;
   VItem: IVectorDataItemSimple;
   i: Integer;
 begin

@@ -26,10 +26,10 @@ type
     FCdsMarks: TClientDataSet;
     FFactoryDbInternal: IMarkFactorySmlInternal;
     FFactory: IMarkFactory;
-    function ReadCurrentMark: IMarkFull;
+    function ReadCurrentMark: IMark;
     function ReadCurrentMarkId: IMarkId;
     procedure WriteCurrentMarkId(AMark: IMarkId);
-    procedure WriteCurrentMark(AMark: IMarkFull);
+    procedure WriteCurrentMark(AMark: IMark);
 
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
@@ -44,14 +44,14 @@ type
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
   protected
-    function GetMarkByID(AMarkId: IMarkId): IMarkFull;
+    function GetMarkByID(AMarkId: IMarkId): IMark;
     function DeleteMark(AMarkId: IMarkId): Boolean;
     procedure DeleteMarksByCategoryID(ACategory: IMarkCategory);
-    procedure WriteMark(AMark: IMarkFull);
+    procedure WriteMark(AMark: IMark);
     procedure WriteMarksList(AMarkList: IInterfaceList);
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
-    function GetMarkVisible(AMark: IMarkFull): Boolean; overload;
+    function GetMarkVisible(AMark: IMark): Boolean; overload;
     function GetFactory: IMarkFactory;
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
@@ -108,19 +108,17 @@ begin
   end;
 end;
 
-procedure BlobFromExtArr(AArr: TArrayOfDoublePoint; Blobfield: Tfield);
+procedure BlobFromExtArr(AArr: PDoublePointArray; APointsCount: Integer; Blobfield: Tfield);
 var
   VField: TBlobfield;
   VStream: TStream;
-  VPointsCount: Integer;
   i: Integer;
   VPoint: TExtendedPoint;
 begin
   VField := TBlobfield(BlobField);
-  VPointsCount := Length(AArr);
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
   try
-    for i := 0 to VPointsCount - 1 do begin
+    for i := 0 to APointsCount - 1 do begin
       VPoint.X := AArr[i].X;
       VPoint.Y := AArr[i].Y;
       VStream.Write(VPoint, SizeOf(VPoint));
@@ -202,7 +200,7 @@ begin
   Result := FFactoryDbInternal.CreateMarkId(VName, VId, VCategoryId, VVisible);
 end;
 
-function TMarksDb.ReadCurrentMark: IMarkFull;
+function TMarksDb.ReadCurrentMark: IMark;
 var
   VPicName: string;
   VId: Integer;
@@ -242,13 +240,17 @@ begin
   FCdsMarks.FieldByName('Visible').AsBoolean := GetMarkVisible(AMark);
 end;
 
-procedure TMarksDb.WriteCurrentMark(AMark: IMarkFull);
+procedure TMarksDb.WriteCurrentMark(AMark: IMark);
 var
   VMarkVisible: IMarkSMLInternal;
-  VMarkPoint: IMarkPointSMLInternal;
+  VMarkPointSml: IMarkPointSMLInternal;
   VPicName: string;
   VCategoryId: Integer;
   VVisible: Boolean;
+  VMarkPoint: IMarkPoint;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
+  VPoint: TDoublePoint;
 begin
   VVisible := True;
   VCategoryId := -1;
@@ -256,28 +258,46 @@ begin
     VVisible := VMarkVisible.Visible;
     VCategoryId := VMarkVisible.CategoryId;
   end;
-  VPicName := '';
-  if Supports(AMark, IMarkPointSMLInternal, VMarkPoint) then begin
-    VPicName := VMarkPoint.PicName;
-  end;
 
-  FCdsMarks.FieldByName('name').AsString := AMark.name;
   FCdsMarks.FieldByName('Visible').AsBoolean := VVisible;
-  BlobFromExtArr(AMark.Points, FCdsMarks.FieldByName('LonLatArr'));
+  FCdsMarks.FieldByName('name').AsString := AMark.name;
   FCdsMarks.FieldByName('categoryid').AsInteger := VCategoryId;
   FCdsMarks.FieldByName('descr').AsString := AMark.Desc;
   FCdsMarks.FieldByName('LonL').AsFloat := AMark.LLRect.Left;
   FCdsMarks.FieldByName('LatT').AsFloat := AMark.LLRect.Top;
   FCdsMarks.FieldByName('LonR').AsFloat := AMark.LLRect.Right;
   FCdsMarks.FieldByName('LatB').AsFloat := AMark.LLRect.Bottom;
-  FCdsMarks.FieldByName('PicName').AsString := VPicName;
-  FCdsMarks.FieldByName('Color1').AsInteger := AMark.Color1;
-  FCdsMarks.FieldByName('Color2').AsInteger := AMark.Color2;
-  FCdsMarks.FieldByName('Scale1').AsInteger := AMark.Scale1;
-  FCdsMarks.FieldByName('Scale2').AsInteger := AMark.Scale2;
+
+  if Supports(AMark, IMarkPoint, VMarkPoint) then begin
+    VPicName := '';
+    if Supports(AMark, IMarkPointSMLInternal, VMarkPointSml) then begin
+      VPicName := VMarkPointSml.PicName;
+    end;
+    FCdsMarks.FieldByName('PicName').AsString := VPicName;
+    VPoint := VMarkPoint.Point;
+    BlobFromExtArr(@VPoint, 1, FCdsMarks.FieldByName('LonLatArr'));
+    FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoint.Color1;
+    FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoint.Color2;
+    FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoint.Scale1;
+    FCdsMarks.FieldByName('Scale2').AsInteger := VMarkPoint.Scale2;
+  end else if Supports(AMark, IMarkLine, VMarkLine) then begin
+    FCdsMarks.FieldByName('PicName').AsString := '';
+    BlobFromExtArr(@VMarkLine.Points[0], Length(VMarkLine.Points), FCdsMarks.FieldByName('LonLatArr'));
+    FCdsMarks.FieldByName('Color1').AsInteger := VMarkLine.Color1;
+    FCdsMarks.FieldByName('Color2').AsInteger := 0;
+    FCdsMarks.FieldByName('Scale1').AsInteger := VMarkLine.Scale1;
+    FCdsMarks.FieldByName('Scale2').AsInteger := 0;
+  end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
+    FCdsMarks.FieldByName('PicName').AsString := '';
+    BlobFromExtArr(@VMarkPoly.Points[0], Length(VMarkPoly.Points), FCdsMarks.FieldByName('LonLatArr'));
+    FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoly.Color1;
+    FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoly.Color2;
+    FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoly.Scale1;
+    FCdsMarks.FieldByName('Scale2').AsInteger := 0;
+  end;
 end;
 
-function TMarksDb.GetMarkByID(AMarkId: IMarkId): IMarkFull;
+function TMarksDb.GetMarkByID(AMarkId: IMarkId): IMark;
 var
   VId: Integer;
   VMarkVisible: IMarkSMLInternal;
@@ -302,7 +322,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarkVisible(AMark: IMarkFull): Boolean;
+function TMarksDb.GetMarkVisible(AMark: IMark): Boolean;
 var
   VMarkVisible: IMarkSMLInternal;
 begin
@@ -326,7 +346,7 @@ begin
   end;
 end;
 
-procedure TMarksDb.WriteMark(AMark: IMarkFull);
+procedure TMarksDb.WriteMark(AMark: IMark);
 var
   VId: Integer;
   VMarkInternal: IMarkSMLInternal;
@@ -359,7 +379,7 @@ end;
 procedure TMarksDb.WriteMarksList(AMarkList: IInterfaceList);
 var
   i: Integer;
-  VMark: IMarkFull;
+  VMark: IMark;
   VId: Integer;
   VMarkInternal: IMarkSMLInternal;
 begin
@@ -367,7 +387,7 @@ begin
   try
     FCdsMarks.Filtered := false;
     for i := 0 to AMarkList.Count - 1 do begin
-      VMark := IMarkFull(AMarkList.Items[i]);
+      VMark := IMark(AMarkList.Items[i]);
       VId := -1;
       if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
         VId := VMarkInternal.Id;
@@ -646,7 +666,7 @@ function TMarksDb.GetMarksSubset(ARect: TDoubleRect;
       ')';
   end;
 var
-  VMark: IMarkFull;
+  VMark: IMark;
   VList: IInterfaceList;
 begin
   VList := TInterfaceList.Create;
