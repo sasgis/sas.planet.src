@@ -265,7 +265,7 @@ var
   VFontSize: Integer;
 begin
   VMarkSize := AMarkPoint.Scale2;
-  VFontSize := AMarkPoint.Scale1;
+  VFontSize := AMarkPoint.FontSize;
   xy := ALocalConverter.LonLat2LocalPixel(AMarkPoint.Point);
   if (AMarkPoint.Pic <> nil) then begin
     AMarkPoint.Pic.LoadBitmap(FTempBmp);

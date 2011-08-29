@@ -281,7 +281,7 @@ begin
     with currNode.AddChild('Style') do begin
       with AddChild('LabelStyle') do begin
         ChildValues['color']:=Color32toKMLColor(VMarkPoint.TextColor);
-        ChildValues['scale']:=R2StrPoint(VMarkPoint.Scale1/14);
+        ChildValues['scale']:=R2StrPoint(VMarkPoint.FontSize/14);
       end;
       if VMarkPoint.Pic <> nil then begin
         with AddChild('IconStyle') do begin

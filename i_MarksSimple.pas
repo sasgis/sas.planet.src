@@ -45,8 +45,9 @@ type
     function GetTextBgColor: TColor32;
     property TextBgColor: TColor32 read GetTextBgColor;
 
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
+    function GetFontSize: Integer;
+    property FontSize: Integer read GetFontSize;
+
     function GetScale2: Integer;
     property Scale2: Integer read GetScale2;
     function GetPic: IMarkPicture;

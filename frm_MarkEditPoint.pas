@@ -135,7 +135,7 @@ begin
     FPic := AMark.Pic;
     edtName.Text:=AMark.name;
     frMarkDescription.Description:=AMark.Desc;
-    seFontSize.Value:=AMark.Scale1;
+    seFontSize.Value:=AMark.FontSize;
     seIconSize.Value:=AMark.Scale2;
     seTransp.Value:=100-round(AlphaComponent(AMark.TextColor)/255*100);
     clrbxTextColor.Selected:=WinColor(AMark.TextColor);
