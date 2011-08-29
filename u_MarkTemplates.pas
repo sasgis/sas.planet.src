@@ -32,13 +32,13 @@ type
 
   TMarkTemplatePoint = class(FMarkTemplateBase, IMarkTemplatePoint)
   private
-    FColor1: TColor32;
+    FTextColor: TColor32;
     FTextBgColor: TColor32;
     FFontSize: Integer;
     FMarkerSize: Integer;
     FPic: IMarkPicture;
   protected
-    function GetColor1: TColor32;
+    function GetTextColor: TColor32;
     function GetTextBgColor: TColor32;
     function GetFontSize: Integer;
     function GetMarkerSize: Integer;
@@ -49,7 +49,7 @@ type
       ACategoryDb: IMarkCategoryDBSmlInternal;
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
-      AColor1: TColor32;
+      ATextColor: TColor32;
       ATextBgColor: TColor32;
       AFontSize: Integer;
       AMarkerSize: Integer;
@@ -149,22 +149,22 @@ constructor TMarkTemplatePoint.Create(
   ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
   ACategoryId: Integer;
-  AColor1, ATextBgColor: TColor32;
+  ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer;
   APic: IMarkPicture
 );
 begin
   inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
-  FColor1 := AColor1;
+  FTextColor := ATextColor;
   FTextBgColor := ATextBgColor;
   FFontSize := AFontSize;
   FMarkerSize := AMarkerSize;
   FPic := APic;
 end;
 
-function TMarkTemplatePoint.GetColor1: TColor32;
+function TMarkTemplatePoint.GetTextColor: TColor32;
 begin
-  Result := FColor1;
+  Result := FTextColor;
 end;
 
 function TMarkTemplatePoint.GetTextBgColor: TColor32;
@@ -192,7 +192,7 @@ begin
   Result := IsSameInternal(ATemplate);
   if Result then begin
     Result :=
-      (FColor1 = ATemplate.Color1) and
+      (FTextColor = ATemplate.TextColor) and
       (FTextBgColor = ATemplate.TextBgColor) and
       (FFontSize = ATemplate.FontSize) and
       (FMarkerSize = ATemplate.MarkerSize) and

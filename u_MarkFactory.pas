@@ -267,7 +267,7 @@ begin
     VCategory,
     ADesc,
     APoint,
-    VTemplate.Color1,
+    VTemplate.TextColor,
     VTemplate.TextBgColor,
     VTemplate.FontSize,
     VTemplate.MarkerSize

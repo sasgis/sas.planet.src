@@ -18,8 +18,8 @@ type
 
   IMarkTemplatePoint = interface(IMarkTemplate)
     ['{B36731B8-7D98-4D56-996F-E6B77AA6FAB3}']
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
+    function GetTextColor: TColor32;
+    property TextColor: TColor32 read GetTextColor;
 
     function GetTextBgColor: TColor32;
     property TextBgColor: TColor32 read GetTextBgColor;
