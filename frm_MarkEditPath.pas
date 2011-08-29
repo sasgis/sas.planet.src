@@ -81,9 +81,9 @@ begin
     CBKateg.Text:=VLastUsedCategoryName;
     edtName.Text:=AMark.name;
     frMarkDescription.Description := AMark.Desc;
-    SEtransp.Value:=100-round(AlphaComponent(AMark.Color1)/255*100);
+    SEtransp.Value:=100-round(AlphaComponent(AMark.LineColor)/255*100);
     seWidth.Value:=AMark.Scale1;
-    clrbxLineColor.Selected:=WinColor(AMark.Color1);
+    clrbxLineColor.Selected:=WinColor(AMark.LineColor);
     chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);
     FCategory := AMark.Category;
     if FCategory <> nil then begin

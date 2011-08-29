@@ -167,7 +167,7 @@ begin
             with Polygon.Outline do try
               with Grow(GR32.Fixed(AMarkLine.Scale1 / 2), 0.5) do try
                 FillMode := pfWinding;
-                DrawFill(ATargetBmp, AMarkLine.Color1);
+                DrawFill(ATargetBmp, AMarkLine.LineColor);
               finally
                 free;
               end;

@@ -16,12 +16,12 @@ type
   private
     FLLRect: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
-    FColor1: TColor32;
+    FLineColor: TColor32;
     FScale1: Integer;
   protected
     function GetLLRect: TDoubleRect; override;
     function GetPoints: TArrayOfDoublePoint;
-    function GetColor1: TColor32;
+    function GetLineColor: TColor32;
     function GetColor2: TColor32;
     function GetScale1: Integer;
     function GetScale2: Integer;
@@ -43,7 +43,7 @@ type
       ADesc: string;
       ALLRect: TDoubleRect;
       APoints: TArrayOfDoublePoint;
-      AColor1: TColor32;
+      ALineColor: TColor32;
       AScale1: Integer
     );
   end;
@@ -62,20 +62,20 @@ constructor TMarkLine.Create(
   ADesc: string;
   ALLRect: TDoubleRect;
   APoints: TArrayOfDoublePoint;
-  AColor1: TColor32;
+  ALineColor: TColor32;
   AScale1: Integer
 );
 begin
   inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
   FLLRect := ALLRect;
   FPoints := APoints;
-  FColor1 := AColor1;
+  FLineColor := ALineColor;
   FScale1 := AScale1;
 end;
 
-function TMarkLine.GetColor1: TColor32;
+function TMarkLine.GetLineColor: TColor32;
 begin
-  Result := FColor1;
+  Result := FLineColor;
 end;
 
 function TMarkLine.GetColor2: TColor32;

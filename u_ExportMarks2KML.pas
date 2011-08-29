@@ -307,7 +307,7 @@ begin
   end else if Supports(Mark, IMarkLine, VMarkLine) then begin
     with currNode.AddChild('Style') do begin
       with AddChild('LineStyle') do begin
-        ChildValues['color']:=Color32toKMLColor(VMarkLine.Color1);
+        ChildValues['color']:=Color32toKMLColor(VMarkLine.LineColor);
         ChildValues['width']:=R2StrPoint(VMarkLine.Scale1);
       end;
     end;

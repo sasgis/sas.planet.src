@@ -520,7 +520,7 @@ begin
     VDesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
-    ASource.Color1,
+    ASource.LineColor,
     ASource.Scale1
   );
 end;

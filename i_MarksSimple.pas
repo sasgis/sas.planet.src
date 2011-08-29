@@ -60,8 +60,8 @@ type
     function GetPoints: TArrayOfDoublePoint;
     property Points: TArrayOfDoublePoint read GetPoints;
 
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
+    function GetLineColor: TColor32;
+    property LineColor: TColor32 read GetLineColor;
 
     function GetScale1: Integer;
     property Scale1: Integer read GetScale1;
