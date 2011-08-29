@@ -312,7 +312,7 @@ begin
     GetLLRectFromPoints(APoints),
     VPoints,
     VTemplate.Color1,
-    VTemplate.Color2,
+    VTemplate.FillColor,
     VTemplate.Scale1
   );
 end;

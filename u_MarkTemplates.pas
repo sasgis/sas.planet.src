@@ -78,11 +78,11 @@ type
   TMarkTemplatePoly = class(FMarkTemplateBase, IMarkTemplatePoly)
   private
     FColor1: TColor32;
-    FColor2: TColor32;
+    FFillColor: TColor32;
     FScale1: Integer;
   protected
     function GetColor1: TColor32;
-    function GetColor2: TColor32;
+    function GetFillColor: TColor32;
     function GetScale1: Integer;
     function IsSame(ATemplate: IMarkTemplatePoly): Boolean;
   public
@@ -91,7 +91,7 @@ type
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
       AColor1: TColor32;
-      AColor2: TColor32;
+      AFillColor: TColor32;
       AScale1: Integer
     );
   end;
@@ -240,11 +240,11 @@ constructor TMarkTemplatePoly.Create(
   ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
   ACategoryId: Integer; AColor1,
-  AColor2: TColor32; AScale1: Integer);
+  AFillColor: TColor32; AScale1: Integer);
 begin
   inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
   FColor1 := AColor1;
-  FColor2 := AColor2;
+  FFillColor := AFillColor;
   FScale1 := AScale1;
 end;
 
@@ -253,9 +253,9 @@ begin
   Result := FColor1;
 end;
 
-function TMarkTemplatePoly.GetColor2: TColor32;
+function TMarkTemplatePoly.GetFillColor: TColor32;
 begin
-  Result := FColor2;
+  Result := FFillColor;
 end;
 
 function TMarkTemplatePoly.GetScale1: Integer;
@@ -269,7 +269,7 @@ begin
   if Result then begin
     Result :=
       (FColor1 = ATemplate.Color1) and
-      (FColor2 = ATemplate.Color2) and
+      (FFillColor = ATemplate.FillColor) and
       (FScale1 = ATemplate.Scale1);
   end;
 end;

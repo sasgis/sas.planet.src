@@ -52,8 +52,8 @@ type
     function GetColor1: TColor32;
     property Color1: TColor32 read GetColor1;
 
-    function GetColor2: TColor32;
-    property Color2: TColor32 read GetColor2;
+    function GetFillColor: TColor32;
+    property FillColor: TColor32 read GetFillColor;
 
     function GetScale1: Integer;
     property Scale1: Integer read GetScale1;
