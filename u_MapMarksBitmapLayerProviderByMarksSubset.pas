@@ -36,16 +36,12 @@ type
     procedure DrawPath(
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
-      APointsLonLat: TArrayOfDoublePoint;
-      color1: TColor32;
-      linew: integer
+      AMarkLine: IMarkLine
     );
     procedure DrawPoly(
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
-      APointsLonLat: TArrayOfDoublePoint;
-      color1, color2: TColor32;
-      linew: integer
+      AMarkPoly: IMarkPoly
     );
     procedure DrawPoint(
       ATargetBmp: TCustomBitmap32;
@@ -112,9 +108,7 @@ end;
 procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPath(
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
-  APointsLonLat: TArrayOfDoublePoint;
-  color1: TColor32;
-  linew: integer
+  AMarkLine: IMarkLine
 );
 var
   polygon: TPolygon32;
@@ -124,60 +118,68 @@ var
   VLonLat: TDoublePoint;
   VGeoConvert: ICoordConverter;
   VIndex: Integer;
+  VScale1: Integer;
+  TestArrLenLonLatRect: TDoubleRect;
+  TestArrLenPixelRect: TDoubleRect;
 begin
-  VGeoConvert := ALocalConverter.GetGeoConverter;
-  VPointsCount := Length(APointsLonLat);
-  if VPointsCount > 0 then begin
-    if Length(FPathPointsOnBitmap) < VPointsCount then begin
-      SetLength(FPathPointsOnBitmap, VPointsCount);
-    end;
-    for i := 0 to VPointsCount - 1 do begin
-      VLonLat := APointsLonLat[i];
-      if PointIsEmpty(VLonLat) then begin
-        FPathPointsOnBitmap[i] := VLonLat;
-      end else begin
-        VGeoConvert.CheckLonLatPos(VLonLat);
-        FPathPointsOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
+  VScale1 := AMarkLine.Scale1;
+  TestArrLenLonLatRect := AMarkLine.LLRect;
+  TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
+  if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
+    VGeoConvert := ALocalConverter.GetGeoConverter;
+    VPointsCount := Length(AMarkLine.Points);
+    if VPointsCount > 0 then begin
+      if Length(FPathPointsOnBitmap) < VPointsCount then begin
+        SetLength(FPathPointsOnBitmap, VPointsCount);
       end;
-    end;
-    try
-      VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap[0], VPointsCount, FPathPointsOnBitmapPrepared);
-      if VPointsProcessedCount > 0 then begin
-        polygon := TPolygon32.Create;
-        try
-          polygon.Antialiased := true;
-          polygon.AntialiasMode := am4times;
-          polygon.Closed := False;
-          if Length(FPathFixedPoints) < VPointsProcessedCount then begin
-            SetLength(FPathFixedPoints, VPointsProcessedCount);
-          end;
-          VIndex := 0;
-          for i := 0 to VPointsProcessedCount - 1 do begin
-            if PointIsEmpty(FPathPointsOnBitmapPrepared[i]) then begin
-              polygon.AddPoints(FPathFixedPoints[0], VIndex);
-              polygon.NewLine;
-              VIndex := 0;
-            end else begin
-              FPathFixedPoints[VIndex] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
-              Inc(VIndex);
+      for i := 0 to VPointsCount - 1 do begin
+        VLonLat := AMarkLine.Points[i];
+        if PointIsEmpty(VLonLat) then begin
+          FPathPointsOnBitmap[i] := VLonLat;
+        end else begin
+          VGeoConvert.CheckLonLatPos(VLonLat);
+          FPathPointsOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
+        end;
+      end;
+      try
+        VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap[0], VPointsCount, FPathPointsOnBitmapPrepared);
+        if VPointsProcessedCount > 0 then begin
+          polygon := TPolygon32.Create;
+          try
+            polygon.Antialiased := true;
+            polygon.AntialiasMode := am4times;
+            polygon.Closed := False;
+            if Length(FPathFixedPoints) < VPointsProcessedCount then begin
+              SetLength(FPathFixedPoints, VPointsProcessedCount);
             end;
-          end;
-          polygon.AddPoints(FPathFixedPoints[0], VIndex);
-          with Polygon.Outline do try
-            with Grow(GR32.Fixed(linew / 2), 0.5) do try
-              FillMode := pfWinding;
-              DrawFill(ATargetBmp, color1);
+            VIndex := 0;
+            for i := 0 to VPointsProcessedCount - 1 do begin
+              if PointIsEmpty(FPathPointsOnBitmapPrepared[i]) then begin
+                polygon.AddPoints(FPathFixedPoints[0], VIndex);
+                polygon.NewLine;
+                VIndex := 0;
+              end else begin
+                FPathFixedPoints[VIndex] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
+                Inc(VIndex);
+              end;
+            end;
+            polygon.AddPoints(FPathFixedPoints[0], VIndex);
+            with Polygon.Outline do try
+              with Grow(GR32.Fixed(AMarkLine.Scale1 / 2), 0.5) do try
+                FillMode := pfWinding;
+                DrawFill(ATargetBmp, AMarkLine.Color1);
+              finally
+                free;
+              end;
             finally
               free;
             end;
           finally
-            free;
+            polygon.Free;
           end;
-        finally
-          polygon.Free;
         end;
+      except
       end;
-    except
     end;
   end;
 end;
@@ -185,9 +187,7 @@ end;
 procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPoly(
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
-  APointsLonLat: TArrayOfDoublePoint;
-  color1, color2: TColor32;
-  linew: integer
+  AMarkPoly: IMarkPoly
 );
 var
   polygon: TPolygon32;
@@ -196,49 +196,57 @@ var
   VPointsProcessedCount: Integer;
   VLonLat: TDoublePoint;
   VGeoConvert: ICoordConverter;
+  VScale1: Integer;
+  TestArrLenLonLatRect: TDoubleRect;
+  TestArrLenPixelRect: TDoubleRect;
 begin
-  VGeoConvert := ALocalConverter.GetGeoConverter;
-  VPointsCount := Length(APointsLonLat);
-  if VPointsCount > 0 then begin
-    if Length(FPathPointsOnBitmap) < VPointsCount then begin
-      SetLength(FPathPointsOnBitmap, VPointsCount);
-    end;
-    for i := 0 to VPointsCount - 1 do begin
-      VLonLat := APointsLonLat[i];
-      VGeoConvert.CheckLonLatPos(VLonLat);
-      FPathPointsOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
-    end;
-    try
-      VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap[0], VPointsCount, FPathPointsOnBitmapPrepared);
-      if VPointsProcessedCount > 0 then begin
-        polygon := TPolygon32.Create;
-        try
-          polygon.Antialiased := true;
-          polygon.AntialiasMode := am4times;
-          polygon.Closed := True;
-            if Length(FPathFixedPoints) < VPointsProcessedCount then begin
-              SetLength(FPathFixedPoints, VPointsProcessedCount);
-            end;
-            for i := 0 to VPointsProcessedCount - 1 do begin
-              FPathFixedPoints[i] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
-            end;
-            polygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
-            Polygon.DrawFill(ATargetBmp, color2);
-            with Polygon.Outline do try
-              with Grow(GR32.Fixed(linew / 2), 0.5) do try
-                FillMode := pfWinding;
-                DrawFill(ATargetBmp, color1);
+  VScale1 := AMarkPoly.Scale1;
+  TestArrLenLonLatRect := AMarkPoly.LLRect;
+  TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
+  if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
+    VGeoConvert := ALocalConverter.GetGeoConverter;
+    VPointsCount := Length(AMarkPoly.Points);
+    if VPointsCount > 0 then begin
+      if Length(FPathPointsOnBitmap) < VPointsCount then begin
+        SetLength(FPathPointsOnBitmap, VPointsCount);
+      end;
+      for i := 0 to VPointsCount - 1 do begin
+        VLonLat := AMarkPoly.Points[i];
+        VGeoConvert.CheckLonLatPos(VLonLat);
+        FPathPointsOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
+      end;
+      try
+        VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap[0], VPointsCount, FPathPointsOnBitmapPrepared);
+        if VPointsProcessedCount > 0 then begin
+          polygon := TPolygon32.Create;
+          try
+            polygon.Antialiased := true;
+            polygon.AntialiasMode := am4times;
+            polygon.Closed := True;
+              if Length(FPathFixedPoints) < VPointsProcessedCount then begin
+                SetLength(FPathFixedPoints, VPointsProcessedCount);
+              end;
+              for i := 0 to VPointsProcessedCount - 1 do begin
+                FPathFixedPoints[i] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
+              end;
+              polygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
+              Polygon.DrawFill(ATargetBmp, AMarkPoly.color2);
+              with Polygon.Outline do try
+                with Grow(GR32.Fixed(AMarkPoly.Scale1 / 2), 0.5) do try
+                  FillMode := pfWinding;
+                  DrawFill(ATargetBmp, AMarkPoly.color1);
+                finally
+                  free;
+                end;
               finally
                 free;
               end;
-            finally
-              free;
-            end;
-        finally
-          polygon.Free;
+          finally
+            polygon.Free;
+          end;
         end;
+      except
       end;
-    except
     end;
   end;
 end;
@@ -295,9 +303,6 @@ var
   VEnumMarks: IEnumUnknown;
   VMark: IMark;
   i: Cardinal;
-  VScale1: Integer;
-  TestArrLenLonLatRect: TDoubleRect;
-  TestArrLenPixelRect: TDoubleRect;
   VOldClipRect: TRect;
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
@@ -316,67 +321,37 @@ begin
             VMarkPoint
           );
         end else if Supports(VMark, IMarkLine, VMarkLine) then begin
-          VScale1 := VMarkLine.Scale1;
-          TestArrLenLonLatRect := VMark.LLRect;
-          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
-          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-            drawPath(
-              ATargetBmp,
-              ALocalConverter,
-              VMarkLine.Points,
-              VMarkLine.Color1,
-              VMarkLine.Scale1
-            );
-          end;
+          drawPath(
+            ATargetBmp,
+            ALocalConverter,
+            VMarkLine
+          );
         end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-          VScale1 := VMarkPoly.Scale1;
-          TestArrLenLonLatRect := VMark.LLRect;
-          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
-          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-            DrawPoly(
-              ATargetBmp,
-              ALocalConverter,
-              VMarkPoly.Points,
-              VMarkPoly.Color1,
-              VMarkPoly.Color2,
-              VMarkPoly.Scale1
-            );
-          end;
+          DrawPoly(
+            ATargetBmp,
+            ALocalConverter,
+            VMarkPoly
+          );
         end;
       end;
     end else begin
       while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
         if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-          VScale1 := VMarkPoly.Scale1;
-          TestArrLenLonLatRect := VMark.LLRect;
-          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
-          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-            DrawPoly(
-              ATargetBmp,
-              ALocalConverter,
-              VMarkPoly.Points,
-              VMarkPoly.Color1,
-              VMarkPoly.Color2,
-              VMarkPoly.Scale1
-            );
-          end;
+          DrawPoly(
+            ATargetBmp,
+            ALocalConverter,
+            VMarkPoly
+          );
         end;
       end;
       VEnumMarks.Reset;
       while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
         if Supports(VMark, IMarkLine, VMarkLine) then begin
-          VScale1 := VMarkLine.Scale1;
-          TestArrLenLonLatRect := VMark.LLRect;
-          TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
-          if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-            drawPath(
-              ATargetBmp,
-              ALocalConverter,
-              VMarkLine.Points,
-              VMarkLine.Color1,
-              VMarkLine.Scale1
-            );
-          end;
+          drawPath(
+            ATargetBmp,
+            ALocalConverter,
+            VMarkLine
+          );
         end;
       end;
       VEnumMarks.Reset;
