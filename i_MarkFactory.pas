@@ -41,10 +41,10 @@ type
       ACategory: IMarkCategory;
       ADesc: string;
       APoint: TDoublePoint;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer;
-      AScale2: Integer
+      ATextColor: TColor32;
+      ATextBgColor: TColor32;
+      AFontSize: Integer;
+      AMarkerSize: Integer
     ): IMarkFull;
     function ModifyLine(
       ASource: IMarkFull;
@@ -53,8 +53,8 @@ type
       ACategory: IMarkCategory;
       ADesc: string;
       APoints: TArrayOfDoublePoint;
-      AColor1: TColor32;
-      AScale1: Integer
+      ALineColor: TColor32;
+      ALineWidth: Integer
     ): IMarkFull;
     function ModifyPoly(
       ASource: IMarkFull;
@@ -63,9 +63,9 @@ type
       ACategory: IMarkCategory;
       ADesc: string;
       APoints: TArrayOfDoublePoint;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer
+      ABorderColor: TColor32;
+      AFillColor: TColor32;
+      ALineWidth: Integer
     ): IMarkFull;
 
     function SimpleModifyLine(

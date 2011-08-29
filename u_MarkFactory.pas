@@ -40,8 +40,8 @@ type
       ADesc: string;
       ARect: TDoubleRect;
       APoints: TArrayOfDoublePoint;
-      AColor1: TColor32;
-      AScale1: Integer
+      ALineColor: TColor32;
+      ALineWidth: Integer
     ): IMarkFull;
     function CreatePoint(
       AID: Integer;
@@ -108,8 +108,8 @@ type
       ACategory: IMarkCategory;
       ADesc: string;
       APoints: TArrayOfDoublePoint;
-      AColor1: TColor32;
-      AScale1: Integer
+      ALineColor: TColor32;
+      ALineWidth: Integer
     ): IMarkFull;
     function ModifyPoly(
       ASource: IMarkFull;
@@ -374,13 +374,17 @@ begin
 end;
 
 function TMarkFactory.CreateLine(
-  AID: Integer; AName: string; AVisible: Boolean;
+  AID: Integer;
+  AName: string;
+  AVisible: Boolean;
   ACategoryId: Integer;
   ACategory: IMarkCategory;
   ADesc: string;
   ARect: TDoubleRect;
   APoints: TArrayOfDoublePoint;
-  AColor1: TColor32; AScale1: Integer): IMarkFull;
+  ALineColor: TColor32;
+  ALineWidth: Integer
+): IMarkFull;
 var
   VCategory: IMarkCategory;
 begin
@@ -399,8 +403,8 @@ begin
     ADesc,
     ARect,
     APoints,
-    AColor1,
-    AScale1
+    ALineColor,
+    ALineWidth
   );
 end;
 
@@ -620,8 +624,8 @@ function TMarkFactory.ModifyLine(
   ACategory: IMarkCategory;
   ADesc: string;
   APoints: TArrayOfDoublePoint;
-  AColor1: TColor32;
-  AScale1: Integer
+  ALineColor: TColor32;
+  ALineWidth: Integer
 ): IMarkFull;
 var
   VID: Integer;
@@ -654,8 +658,8 @@ begin
     ADesc,
     GetLLRectFromPoints(VPoints),
     VPoints,
-    AColor1,
-    AScale1
+    ALineColor,
+    ALineWidth
   );
 end;
 
