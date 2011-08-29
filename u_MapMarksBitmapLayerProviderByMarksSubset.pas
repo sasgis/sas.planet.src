@@ -275,7 +275,7 @@ begin
   end;
   if FConfig.ShowPointCaption then begin
     if VFontSize > 0 then begin
-      FBitmapWithText.MasterAlpha:=AlphaComponent(AMarkPoint.Color1);
+      FBitmapWithText.MasterAlpha:=AlphaComponent(AMarkPoint.TextColor);
       FBitmapWithText.Font.Size := VFontSize;
       VTextSize := FBitmapWithText.TextExtent(AMarkPoint.Name);
       VTextSize.cx:=VTextSize.cx+2;
@@ -288,7 +288,7 @@ begin
       VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
       FBitmapWithText.Clear(0);
       FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.Color2,255));
-      FBitmapWithText.RenderText(1, 1, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.Color1,255));
+      FBitmapWithText.RenderText(1, 1, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextColor,255));
       ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
     end;
   end;

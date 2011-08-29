@@ -276,7 +276,7 @@ begin
     FCdsMarks.FieldByName('PicName').AsString := VPicName;
     VPoint := VMarkPoint.Point;
     BlobFromExtArr(@VPoint, 1, FCdsMarks.FieldByName('LonLatArr'));
-    FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoint.Color1;
+    FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoint.TextColor;
     FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoint.Color2;
     FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoint.Scale1;
     FCdsMarks.FieldByName('Scale2').AsInteger := VMarkPoint.Scale2;

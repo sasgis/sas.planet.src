@@ -137,9 +137,9 @@ begin
     frMarkDescription.Description:=AMark.Desc;
     seFontSize.Value:=AMark.Scale1;
     seIconSize.Value:=AMark.Scale2;
-    seTransp.Value:=100-round(AlphaComponent(AMark.Color1)/255*100);
-    clrbxTextColor.Selected:=WinColor(AMark.Color1);
-    clrbxShadowColor.Selected:=WinColor(AMark.Color2);
+    seTransp.Value:=100-round(AlphaComponent(AMark.TextColor)/255*100);
+    clrbxTextColor.Selected:=WinColor(AMark.TextColor);
+    clrbxShadowColor.Selected:=WinColor(AMark.TextColor);
     chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);
     FCategory := AMark.Category;
     if FCategory <> nil then begin

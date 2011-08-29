@@ -18,14 +18,14 @@ type
     FPicName: string;
     FPic: IMarkPicture;
     FPoint: TDoublePoint;
-    FColor1: TColor32;
+    FTextColor: TColor32;
     FColor2: TColor32;
     FScale1: Integer;
     FScale2: Integer;
   protected
     function GetLLRect: TDoubleRect; override;
     function GetPoint: TDoublePoint;
-    function GetColor1: TColor32;
+    function GetTextColor: TColor32;
     function GetColor2: TColor32;
     function GetScale1: Integer;
     function GetScale2: Integer;
@@ -48,7 +48,7 @@ type
       ACategory: IMarkCategory;
       const ADesc: string;
       const APoint: TDoublePoint;
-      AColor1: TColor32;
+      ATextColor: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
       AScale2: Integer
@@ -70,7 +70,7 @@ constructor TMarkPoint.Create(
   ACategory: IMarkCategory;
   const ADesc: string;
   const APoint: TDoublePoint;
-  AColor1, AColor2: TColor32;
+  ATextColor, AColor2: TColor32;
   AScale1, AScale2: Integer
 );
 begin
@@ -78,15 +78,15 @@ begin
   FPicName := APicName;
   FPic := APic;
   FPoint := APoint;
-  FColor1 := AColor1;
+  FTextColor := ATextColor;
   FColor2 := AColor2;
   FScale1 := AScale1;
   FScale2 := AScale2;
 end;
 
-function TMarkPoint.GetColor1: TColor32;
+function TMarkPoint.GetTextColor: TColor32;
 begin
-  Result := FColor1;
+  Result := FTextColor;
 end;
 
 function TMarkPoint.GetColor2: TColor32;
