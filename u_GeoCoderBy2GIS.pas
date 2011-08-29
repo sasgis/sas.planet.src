@@ -39,7 +39,6 @@ var
   i:Integer;
   VPoint: TDoublePoint;
   VDesc: string;
-  VFullDesc: string;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;

@@ -59,7 +59,6 @@ begin
 end;
 
 destructor TSearchResultPresenterOnPanel.Destroy;
-var i:integer;
 begin
   FMapGoto := nil;
   ClearSearchResults;
