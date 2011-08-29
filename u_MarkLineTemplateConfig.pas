@@ -87,8 +87,8 @@ procedure TMarkLineTemplateConfig.DoReadConfig(
   AConfigData: IConfigDataProvider);
 var
   VCategoryId: Integer;
-  VColor1: TColor32;
-  VScale1: Integer;
+  VColor: TColor32;
+  VLineWeight: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
@@ -96,20 +96,20 @@ begin
   if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
-  VColor1 := FDefaultTemplate.Color1;
-  VScale1 := FDefaultTemplate.Scale1;
+  VColor := FDefaultTemplate.Color;
+  VLineWeight := FDefaultTemplate.LineWeight;
   if AConfigData <> nil then begin
     VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
-    VColor1 := ReadColor32(AConfigData, 'LineColor', VColor1);
-    VScale1 := AConfigData.ReadInteger('LineWidth', VScale1);
+    VColor := ReadColor32(AConfigData, 'LineColor', VColor);
+    VLineWeight := AConfigData.ReadInteger('LineWidth', VLineWeight);
   end;
   SetDefaultTemplate(
     TMarkTemplateLine.Create(
       CategoryDb,
       NameGenerator,
       VCategoryId,
-      VColor1,
-      VScale1
+      VColor,
+      VLineWeight
     )
   );
 end;
@@ -126,8 +126,8 @@ begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
   AConfigData.WriteInteger('CategoryId', VCategoryId);
-  WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.Color1);
-  AConfigData.WriteInteger('LineWidth', FDefaultTemplate.Scale1);
+  WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.Color);
+  AConfigData.WriteInteger('LineWidth', FDefaultTemplate.LineWeight);
 end;
 
 function TMarkLineTemplateConfig.GetDefaultTemplate: IMarkTemplateLine;

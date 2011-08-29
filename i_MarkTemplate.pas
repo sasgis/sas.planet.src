@@ -38,11 +38,11 @@ type
 
   IMarkTemplateLine = interface(IMarkTemplate)
     ['{BF4FF116-98E1-43C5-A7FD-DCE3BF26E8D4}']
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
+    function GetColor: TColor32;
+    property Color: TColor32 read GetColor;
 
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
+    function GetLineWeight: Integer;
+    property LineWeight: Integer read GetLineWeight;
 
     function IsSame(ATemplate: IMarkTemplateLine): Boolean;
   end;
