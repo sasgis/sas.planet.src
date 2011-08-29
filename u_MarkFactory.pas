@@ -269,7 +269,7 @@ begin
     APoint,
     VTemplate.Color1,
     VTemplate.Color2,
-    VTemplate.Scale1,
+    VTemplate.FontSize,
     VTemplate.Scale2
   );
 end;

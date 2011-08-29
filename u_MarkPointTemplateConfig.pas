@@ -116,7 +116,7 @@ var
   VPicIndex: Integer;
   VCategoryId: Integer;
   VColor1, VColor2: TColor32;
-  VScale1, VScale2: Integer;
+  VFontSize, VScale2: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
@@ -126,7 +126,7 @@ begin
   end;
   VColor1 := FDefaultTemplate.Color1;
   VColor2 := FDefaultTemplate.Color2;
-  VScale1 := FDefaultTemplate.Scale1;
+  VFontSize := FDefaultTemplate.FontSize;
   VScale2 := FDefaultTemplate.Scale2;
   VPic := FDefaultTemplate.Pic;
   if VPic = nil then begin
@@ -150,7 +150,7 @@ begin
     VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
     VColor1 := ReadColor32(AConfigData, 'TextColor', VColor1);
     VColor2 := ReadColor32(AConfigData, 'ShadowColor', VColor2);
-    VScale1 := AConfigData.ReadInteger('FontSize', VScale1);
+    VFontSize := AConfigData.ReadInteger('FontSize', VFontSize);
     VScale2 := AConfigData.ReadInteger('IconSize', VScale2);
   end;
   SetDefaultTemplate(
@@ -160,7 +160,7 @@ begin
       VCategoryId,
       VColor1,
       VColor2,
-      VScale1,
+      VFontSize,
       VScale2,
       VPic
     )
@@ -189,7 +189,7 @@ begin
   AConfigData.WriteInteger('CategoryId', VCategoryId);
   WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.Color1);
   WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.Color2);
-  AConfigData.WriteInteger('FontSize', FDefaultTemplate.Scale1);
+  AConfigData.WriteInteger('FontSize', FDefaultTemplate.FontSize);
   AConfigData.WriteInteger('IconSize', FDefaultTemplate.Scale2);
 end;
 

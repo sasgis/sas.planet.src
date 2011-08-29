@@ -34,13 +34,13 @@ type
   private
     FColor1: TColor32;
     FColor2: TColor32;
-    FScale1: Integer;
+    FFontSize: Integer;
     FScale2: Integer;
     FPic: IMarkPicture;
   protected
     function GetColor1: TColor32;
     function GetColor2: TColor32;
-    function GetScale1: Integer;
+    function GetFontSize: Integer;
     function GetScale2: Integer;
     function GetPic: IMarkPicture;
     function IsSame(ATemplate: IMarkTemplatePoint): Boolean;
@@ -51,7 +51,7 @@ type
       ACategoryId: Integer;
       AColor1: TColor32;
       AColor2: TColor32;
-      AScale1: Integer;
+      AFontSize: Integer;
       AScale2: Integer;
       APic: IMarkPicture
     );
@@ -150,14 +150,14 @@ constructor TMarkTemplatePoint.Create(
   ANameGenerator: IMarkNameGenerator;
   ACategoryId: Integer;
   AColor1, AColor2: TColor32;
-  AScale1, AScale2: Integer;
+  AFontSize, AScale2: Integer;
   APic: IMarkPicture
 );
 begin
   inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
   FColor1 := AColor1;
   FColor2 := AColor2;
-  FScale1 := AScale1;
+  FFontSize := AFontSize;
   FScale2 := AScale2;
   FPic := APic;
 end;
@@ -177,9 +177,9 @@ begin
   Result := FPic;
 end;
 
-function TMarkTemplatePoint.GetScale1: Integer;
+function TMarkTemplatePoint.GetFontSize: Integer;
 begin
-  Result := FScale1;
+  Result := FFontSize;
 end;
 
 function TMarkTemplatePoint.GetScale2: Integer;
@@ -194,7 +194,7 @@ begin
     Result :=
       (FColor1 = ATemplate.Color1) and
       (FColor2 = ATemplate.Color2) and
-      (FScale1 = ATemplate.Scale1) and
+      (FFontSize = ATemplate.FontSize) and
       (FScale2 = ATemplate.Scale2) and
       (FPic = ATemplate.Pic);
   end;
