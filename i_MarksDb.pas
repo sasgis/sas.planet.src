@@ -14,16 +14,16 @@ type
     ['{0B5DFEC6-E519-4D06-8DBA-2D24E2F9A372}']
     function GetMarkByID(AMarkId: IMarkId): IMark;
     function DeleteMark(AMarkId: IMarkId): Boolean;
-    procedure DeleteMarksByCategoryID(ACategory: IMarkCategory);
+    procedure DeleteMarksByCategoryID(ACategory: ICategory);
     procedure WriteMark(AMark: IMark);
     procedure WriteMarksList(AMarkList: IInterfaceList);
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(AMark: IMark): Boolean; overload;
     function GetAllMarskIdList: IInterfaceList;
-    function GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
+    function GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
 
-    procedure SetAllMarksInCategoryVisible(ACategory: IMarkCategory; ANewVisible: Boolean);
+    procedure SetAllMarksInCategoryVisible(ACategory: ICategory; ANewVisible: Boolean);
 
     function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
 

@@ -7,7 +7,7 @@ uses
   i_MarksDbSmlInternal;
 
 type
-  TMarkCategory = class(TInterfacedObject, IMarkCategory, IMarkCategorySMLInternal)
+  TMarkCategory = class(TInterfacedObject, ICategory, IMarkCategory, IMarkCategorySMLInternal)
   private
     FDbCode: Integer;
     FId: Integer;
@@ -20,11 +20,12 @@ type
     function GetId: integer; stdcall;
   protected
     function GetName: string; stdcall;
+    function IsSame(ACategory: ICategory): Boolean;
+  protected
     function GetVisible: boolean; stdcall;
     function GetAfterScale: integer; stdcall;
     function GetBeforeScale: integer; stdcall;
     function IsNew: Boolean;
-    function IsSame(ACategory: IMarkCategory): Boolean;
   public
     constructor Create(
       ADbCode: Integer;
@@ -91,7 +92,7 @@ begin
   Result := FId < 0;
 end;
 
-function TMarkCategory.IsSame(ACategory: IMarkCategory): Boolean;
+function TMarkCategory.IsSame(ACategory: ICategory): Boolean;
 var
   VCategoryInternal: IMarkCategorySMLInternal;
 begin

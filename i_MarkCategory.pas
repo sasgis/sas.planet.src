@@ -3,11 +3,16 @@ unit i_MarkCategory;
 interface
 
 type
-  IMarkCategory = interface
-  ['{00226B68-9915-41AA-90B7-3F2348E53527}']
+  ICategory = interface
+    ['{B870BAEC-8ADD-4D29-9A9E-B9131C0C5681}']
     function GetName: string; stdcall;
     property Name: string read GetName;
 
+    function IsSame(ACategory: ICategory): Boolean;
+  end;
+
+  IMarkCategory = interface(ICategory)
+  ['{00226B68-9915-41AA-90B7-3F2348E53527}']
     function GetVisible: boolean; stdcall;
     property Visible: boolean read GetVisible;
 
@@ -18,7 +23,6 @@ type
     property BeforeScale: integer read GetBeforeScale;
 
     function IsNew: Boolean;
-    function IsSame(ACategory: IMarkCategory): Boolean;
   end;
 
 implementation

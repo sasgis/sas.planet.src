@@ -62,7 +62,7 @@ type
     frMarkDescription: TfrMarkDescription;
     FMarkDBGUI: TMarksDbGUIHelper;
     FCategoryList: IInterfaceList;
-    FCategory: IMarkCategory;
+    FCategory: ICategory;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -81,7 +81,7 @@ function TfrmMarkEditPoly.EditMark(AMark: IMarkPoly; AMarkDBGUI: TMarksDbGUIHelp
 var
   VLastUsedCategoryName: string;
   i: Integer;
-  VCategory: IMarkCategory;
+  VCategory: ICategory;
 begin
   FMarkDBGUI := AMarkDBGUI;
   VLastUsedCategoryName:=CBKateg.Text;
@@ -101,7 +101,7 @@ begin
     FCategory := AMark.Category;
     if FCategory <> nil then begin
       for i := 0 to CBKateg.Items.Count - 1 do begin
-        VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[i]));
+        VCategory := ICategory(Pointer(CBKateg.Items.Objects[i]));
         if VCategory <> nil then begin
           if VCategory.IsSame(FCategory) then begin
             CBKateg.ItemIndex := i;
@@ -161,7 +161,7 @@ begin
     VIndex:= CBKateg.Items.IndexOf(VCategoryText);
   end;
   if VIndex >= 0 then begin
-    FCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
+    FCategory := ICategory(Pointer(CBKateg.Items.Objects[VIndex]));
   end;
   if FCategory = nil then begin
     FCategory := FMarkDBGUI.AddKategory(VCategoryText);

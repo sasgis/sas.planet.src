@@ -31,7 +31,7 @@ type
       AName: string;
       AId: Integer;
       AVisible: Boolean;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       ALLRect: TDoubleRect;
       APoints: TArrayOfDoublePoint;
@@ -50,7 +50,7 @@ constructor TMarkLine.Create(
   AName: string;
   AId: Integer;
   AVisible: Boolean;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   ADesc: string;
   ALLRect: TDoubleRect;
   APoints: TArrayOfDoublePoint;

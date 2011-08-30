@@ -26,7 +26,7 @@ type
       ADbCode: Integer;
       AName: string;
       AId: Integer;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       AVisible: Boolean
     );
@@ -41,7 +41,7 @@ constructor TMarkFullBase.Create(
   ADbCode: Integer;
   AName: string;
   AId: Integer;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   ADesc: string;
   AVisible: Boolean
 );

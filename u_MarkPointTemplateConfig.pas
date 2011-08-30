@@ -25,7 +25,7 @@ type
   protected
     function CreateTemplate(
       APic: IMarkPicture;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
@@ -82,7 +82,7 @@ end;
 
 function TMarkPointTemplateConfig.CreateTemplate(
   APic: IMarkPicture;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   AColor1, AColor2: TColor32;
   AScale1, AScale2: Integer
 ): IMarkTemplatePoint;

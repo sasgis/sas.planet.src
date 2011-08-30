@@ -22,7 +22,7 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer
@@ -62,7 +62,7 @@ begin
 end;
 
 function TMarkPolyTemplateConfig.CreateTemplate(
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   AColor1: TColor32;
   AColor2: TColor32;
   AScale1: Integer

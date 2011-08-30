@@ -46,7 +46,7 @@ type
   protected
     function GetMarkByID(AMarkId: IMarkId): IMark;
     function DeleteMark(AMarkId: IMarkId): Boolean;
-    procedure DeleteMarksByCategoryID(ACategory: IMarkCategory);
+    procedure DeleteMarksByCategoryID(ACategory: ICategory);
     procedure WriteMark(AMark: IMark);
     procedure WriteMarksList(AMarkList: IInterfaceList);
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
@@ -54,9 +54,9 @@ type
     function GetMarkVisible(AMark: IMark): Boolean; overload;
     function GetFactory: IMarkFactory;
     function GetAllMarskIdList: IInterfaceList;
-    function GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
+    function GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
 
-    procedure SetAllMarksInCategoryVisible(ACategory: IMarkCategory; ANewVisible: Boolean);
+    procedure SetAllMarksInCategoryVisible(ACategory: ICategory; ANewVisible: Boolean);
 
     function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
   public
@@ -437,7 +437,7 @@ begin
   end;
 end;
 
-procedure TMarksDb.DeleteMarksByCategoryID(ACategory: IMarkCategory);
+procedure TMarksDb.DeleteMarksByCategoryID(ACategory: ICategory);
 var
   VDeleted: Boolean;
   VCategoryID: Integer;
@@ -469,7 +469,7 @@ begin
   end;
 end;
 
-procedure TMarksDb.SetAllMarksInCategoryVisible(ACategory: IMarkCategory;
+procedure TMarksDb.SetAllMarksInCategoryVisible(ACategory: ICategory;
   ANewVisible: Boolean);
 var
   VVisible: Boolean;
@@ -559,7 +559,7 @@ begin
   Result := FFactory;
 end;
 
-function TMarksDb.GetMarskIdListByCategory(ACategory: IMarkCategory): IInterfaceList;
+function TMarksDb.GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
 var
   VMarkId: IMarkId;
   VCategoryID: Integer;
@@ -623,7 +623,7 @@ end;
 
 function TMarksDb.GetMarksSubset(ARect: TDoubleRect;
   ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
-  function GetCategoryID(ACategory: IMarkCategory): Integer;
+  function GetCategoryID(ACategory: ICategory): Integer;
   var
     VCategoryInternal: IMarkCategorySMLInternal;
   begin
@@ -649,10 +649,10 @@ function TMarksDb.GetMarksSubset(ARect: TDoubleRect;
       Result := Result + ' and ';
     end;
     if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
-      VCategoryID := GetCategoryID(IMarkCategory(ACategoryList[0]));
+      VCategoryID := GetCategoryID(ICategory(ACategoryList[0]));
       VCategoryFilter := IntToStr(VCategoryID);
       for i :=  1 to ACategoryList.Count - 1 do begin
-        VCategoryID := GetCategoryID(IMarkCategory(ACategoryList[i]));
+        VCategoryID := GetCategoryID(ICategory(ACategoryList[i]));
         VCategoryFilter := VCategoryFilter + ', ' + IntToStr(VCategoryID);
       end;
       VCategoryFilter := '(categoryid in (' + VCategoryFilter + ')) and';
