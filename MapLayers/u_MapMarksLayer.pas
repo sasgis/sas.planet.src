@@ -283,6 +283,7 @@ var
   VGeoConverter: ICoordConverter;
 begin
   VList := nil;
+  Result := nil;
   if FConfigStatic.IsUseMarks then begin
     VConverter := LayerCoordConverter;
     if VConverter <> nil then begin
@@ -304,8 +305,6 @@ begin
         VList := nil;
       end;
     end;
-  end else begin
-    Result := nil;
   end;
 end;
 
