@@ -78,6 +78,7 @@ uses
   u_MapMarksLayer,
   u_MapGPSLayer,
   u_MapLayerNavToMark,
+  u_MapLayerSearchResults,
   u_MapLayerFillingMap,
   u_MiniMapLayer,
   u_MapLayerGrids,
@@ -339,12 +340,12 @@ type
     NAnimateMove: TTBXItem;
     tbiSearch: TTBXComboBoxItem;
     NSearchResults: TTBXVisibilityToggleItem;
+    TBXSelect2GISSrch: TTBXItem;
+    tbiEdit2GISSrch: TTBEditItem;
     TBSearchWindow: TTBXDockablePanel;
     PanelSearch: TPanel;
     TBXDockForSearch: TTBXDock;
     ScrollBoxSearchWindow: TScrollBox;
-    TBXSelect2GISSrch: TTBXItem;
-    tbiEdit2GISSrch: TTBEditItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -473,6 +474,7 @@ type
     procedure tbitmShowMarkCaptionClick(Sender: TObject);
     procedure NAnimateMoveClick(Sender: TObject);
     procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
+    procedure TBSearchWindowClose(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -507,6 +509,7 @@ type
     FLayerGrids: TMapLayerGrids;
     FLayerTileGrid: TMapLayerTileGrid;
     LayerMapNavToMark: TNavToMarkLayer;
+    LayerSearchResults: TSearchResultsLayer;
     FUIDownLoader: TTileDownloaderUI;
 
     ProgramStart: Boolean;
@@ -978,6 +981,23 @@ begin
         FConfig.LayersConfig.SelectionRectLayerConfig
       );
     FLayersList.Add(FSelectionRectLayer);
+    LayerSearchResults :=
+      TSearchResultsLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FConfig.LastSearchResultConfig,
+        TBitmapMarkerProviderChangeableFaked.Create(
+          TBitmapMarkerProviderStaticFromDataProvider.Create(
+            GState.ResourceProvider,
+            GState.ContentTypeManager,
+            'FOUNDPNT.png',
+            DoublePoint(8, 8),
+            False,
+            0
+          )
+        )
+      );
+    FLayersList.Add(LayerSearchResults);
     FLayerGoto :=
       TGotoLayer.Create(
         map,
@@ -1276,6 +1296,7 @@ begin
       ScrollBoxSearchWindow,
       TBSearchWindow,
       GState.ValueToStringConverterConfig,
+      FConfig.LastSearchResultConfig,
       FConfig.ViewPortState
     );
   VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
@@ -4061,6 +4082,11 @@ begin
   VPolygon := PolygonFromRect(VLonLatRect);
   setalloperationfalse(ao_movemap);
   FFormRegionProcess.Show_(VZoom, VPolygon);
+end;
+
+procedure TfrmMain.TBSearchWindowClose(Sender: TObject);
+begin
+  FConfig.LastSearchResultConfig.ClearGeoCodeResult;
 end;
 
 procedure TfrmMain.TBGPSToPointCenterClick(Sender: TObject);

@@ -140,7 +140,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 238
+      Left = 242
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -172,7 +172,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 365
+      Left = 369
       Top = 25
       DockPos = 352
       DockRow = 1
@@ -183,7 +183,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 536
+      Left = 540
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -439,7 +439,6 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NSearchResults: TTBXVisibilityToggleItem
-            Control = TBSearchWindow
             Caption = 'Search Results'
             Hint = ''
           end
@@ -1198,12 +1197,13 @@ object frmMain: TfrmMain
       DockPos = -6
       DockRow = 2
       TabOrder = 2
+      OnClose = TBSearchWindowClose
       Caption = 'Search Results'
       object PanelSearch: TPanel
         Left = 0
         Top = 0
         Width = 170
-        Height = 447
+        Height = 445
         Align = alClient
         AutoSize = True
         BevelOuter = bvNone
@@ -1218,7 +1218,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 9
           Width = 170
-          Height = 438
+          Height = 436
           HorzScrollBar.Visible = False
           VertScrollBar.Smooth = True
           VertScrollBar.Tracking = True

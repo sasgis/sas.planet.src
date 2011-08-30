@@ -31,6 +31,7 @@ uses
   i_FillingMapLayerConfig,
   i_DownloadUIConfig,
   i_GotoLayerConfig,
+  I_LastSearchResultConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -157,6 +158,9 @@ type
 
     function GetMapMovingConfig: IMapMovingConfig;
     property MapMovingConfig: IMapMovingConfig read GetMapMovingConfig;
+
+    function GetLastSearchResultConfig: ILastSearchResultConfig;
+    property LastSearchResultConfig: ILastSearchResultConfig read GetLastSearchResultConfig;
  end;
 
 implementation
