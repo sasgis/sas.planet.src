@@ -11,13 +11,10 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TLastSearchResultConfig = class(TConfigDataElementBase, ILastSearchResultConfig)
+  TLastSearchResultConfig = class(TConfigDataElementBaseEmptySaveLoad, ILastSearchResultConfig)
   private
     FIsActive: Boolean;
     FGeoCodeResult: IGeoCodeResult;
-  protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetIsActive: Boolean;
     function GetGeoCodeResult:IGeoCodeResult;
@@ -26,17 +23,6 @@ type
   end;
 
 implementation
-
-
-procedure TLastSearchResultConfig.DoReadConfig(AConfigData: IConfigDataProvider);
-begin
-  inherited;
-end;
-
-procedure TLastSearchResultConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
-begin
-  inherited;
-end;
 
 function TLastSearchResultConfig.GetGeoCodeResult:IGeoCodeResult;
 begin
