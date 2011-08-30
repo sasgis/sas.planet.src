@@ -21,6 +21,7 @@ type
     property Points: TArrayOfDoublePoint read GetPoints;
 
     function GetHintText: string;
+    function GetHintTextWithoutDesc: string;
     function GetInfoHTML: string;
     function GetInfoCaption: string;
 

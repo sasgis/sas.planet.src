@@ -3501,6 +3501,16 @@ begin
         VPWL.descr := VWikiItem.Desc;
         VPWL.S := VMarkS;
       end;
+
+      VWikiItem := nil;
+      LayerSearchResults.MouseOnReg(Point(x,y), VWikiItem, VMarkS);
+      if VWikiItem <> nil then begin
+        VPWL.find := True;
+        VPWL.name := VWikiItem.Name;
+        VPWL.descr := VWikiItem.Desc;
+        VPWL.S := VMarkS;
+      end;
+
       VMark := nil;
       if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
         FLayerMapMarks.MouseOnReg(Point(x,y), VMark, VMarkS);
@@ -3515,9 +3525,7 @@ begin
       end;
       if VPWL.find  then begin
         if VPWL.descr <> '' then begin
-          stw:='<HTML><BODY>';
           stw:=VPWL.descr;
-          stw:=stw+'</BODY></HTML>';
           frmIntrnalBrowser.showmessage(VPWL.name,stw);
         end;
       end;
@@ -3645,6 +3653,14 @@ begin
       VItemFound := True;
       VItemS := VMarkS;
       VItemHint := VWikiItem.GetHintText;
+    end;
+
+    VWikiItem := nil;
+    LayerSearchResults.MouseOnReg(VMousePos, VWikiItem, VMarkS);
+    if VWikiItem <> nil then begin
+      VItemFound := True;
+      VItemS := VMarkS;
+      VItemHint := VWikiItem.GetHintTextWithoutDesc;
     end;
 
     VMark := nil;

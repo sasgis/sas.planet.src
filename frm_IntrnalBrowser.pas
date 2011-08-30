@@ -73,6 +73,7 @@ end;
 
 procedure TfrmIntrnalBrowser.showmessage(ACaption,AText: string);
 begin
+  EmbeddedWB1.GoAboutBlank;
   EmbeddedWB1.HTMLCode.Text:=AText;
   Caption:=ACaption;
   show;

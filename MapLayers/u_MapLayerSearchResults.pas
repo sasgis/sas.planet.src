@@ -16,7 +16,10 @@ uses
   i_LastSearchResultConfig,
   i_BitmapMarker,
   i_ViewPortState,
+  i_VectorDataItemSimple,
   i_GeoCoder,
+  u_VectorDataItemPoint,
+  u_HtmlToHintTextConverterStuped,
   u_MapLayerBasic;
 
 type
@@ -33,6 +36,7 @@ type
   public
     procedure StartThreads; override;
   public
+    procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple; out AItemS: Double);
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
@@ -126,6 +130,51 @@ begin
       VTargetPoint.X := VFixedOnView.X - (VMarker.BitmapSize.X div 2);
       VTargetPoint.Y := VFixedOnView.Y - (VMarker.BitmapSize.Y div 2);
       ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
+    end;
+  end;
+end;
+
+procedure TSearchResultsLayer.MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple;
+  out AItemS: Double);
+var
+  VLonLatRect: TDoubleRect;
+  VRect: TRect;
+  VConverter: ICoordConverter;
+  VMarkLonLatRect: TDoubleRect;
+  VPixelPos: TDoublePoint;
+  VZoom: Byte;
+  VMapRect: TDoubleRect;
+  VLocalConverter: ILocalCoordConverter;
+  VVisualConverter: ILocalCoordConverter;
+  i: integer;
+  VEnum: IEnumUnknown;
+  VPlacemark: IGeoCodePlacemark;
+  VMarker: IBitmapMarker;
+begin
+  AItem := nil;
+  AItemS := 0;
+  if FLastSearchResults.GeoCodeResult<>nil then begin
+    VMarker := FMarkerProviderStatic.GetMarker;
+    VRect.Left := xy.X - (VMarker.Bitmap.Width div 2);
+    VRect.Top := xy.Y - (VMarker.Bitmap.Height div 2);
+    VRect.Right := xy.X + (VMarker.Bitmap.Width div 2);
+    VRect.Bottom := xy.Y + (VMarker.Bitmap.Height div 2);
+    VLocalConverter := LayerCoordConverter;
+    VConverter := VLocalConverter.GetGeoConverter;
+    VZoom := VLocalConverter.GetZoom;
+    VVisualConverter := ViewCoordConverter;
+    VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
+    VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+    VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+    VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
+    VEnum:=FLastSearchResults.GeoCodeResult.GetPlacemarks;
+    while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
+      if((VLonLatRect.Right>VPlacemark.GetPoint.X)and(VLonLatRect.Left<VPlacemark.GetPoint.X)and
+        (VLonLatRect.Bottom<VPlacemark.GetPoint.Y)and(VLonLatRect.Top>VPlacemark.GetPoint.Y))then begin
+         AItem := TVectorDataItemPoint.Create(THtmlToHintTextConverterStuped.Create,VPlacemark.GetAddress+#13#10+VPlacemark.GetDesc,VPlacemark.GetFullDesc,VPlacemark.GetPoint);
+         AItemS := 0;
+         exit;
+      end;
     end;
   end;
 end;

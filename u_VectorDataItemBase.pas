@@ -19,6 +19,7 @@ type
     function GetLLRect: TDoubleRect;  virtual; abstract;
     function GetPoints: TArrayOfDoublePoint;  virtual; abstract;
     function GetHintText: string;
+    function GetHintTextWithoutDesc: string;
     function GetInfoCaption: string;
     function GetInfoHTML: string;
 
@@ -58,6 +59,11 @@ end;
 function TVectorDataItemBase.GetHintText: string;
 begin
   Result := FHintConverter.Convert(FName, FDesc);
+end;
+
+function TVectorDataItemBase.GetHintTextWithoutDesc: string;
+begin
+  Result := FHintConverter.Convert(FName, '');
 end;
 
 function TVectorDataItemBase.GetInfoCaption: string;
