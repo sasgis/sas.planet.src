@@ -109,11 +109,12 @@ begin
   if VTempItem.FVisibleName = '' then begin
     VTempItem.FVisibleName := VVisibleName;
   end;
-  if VTempItem.FData = nil then begin
-    VTempItem.FData := AItem;
-  end;
   if VTrailExists then begin
     AddItemToList(AItem, VTrailName, VTempItem.FSubList);
+  end else begin
+    if VTempItem.FData = nil then begin
+      VTempItem.FData := AItem;
+    end;
   end;
 end;
 
@@ -144,6 +145,7 @@ var
   VTempItem: TTempTreeItem;
   VTreeItem: IStaticTreeItem;
 begin
+  Result := nil;
   if AList.Count > 0 then begin
     Result := TInterfaceList.Create;
     for i := 0 to AList.Count - 1 do begin
