@@ -529,6 +529,7 @@ type
     FMapMoving: Boolean;
     FMapMovingButton: TMouseButton;
     FMapZoomAnimtion: Boolean;
+    FMapMoveAnimtion: Boolean;
     FEditMarkLine: IMarkLine;
     FEditMarkPoly: IMarkPoly;
     FCurrentOper: TAOperation;
@@ -2224,38 +2225,43 @@ var
   VLastDrawTime:double;
   VMousePPS: Double;
 begin
-  VMousePPS := sqrt(sqr(AMouseMoveSpeed.X)+sqr(AMouseMoveSpeed.Y));
+  FMapMoveAnimtion:=True;
+  try
+    VMousePPS := sqrt(sqr(AMouseMoveSpeed.X)+sqr(AMouseMoveSpeed.Y));
 
-  if (FConfig.MapMovingConfig.AnimateMove)and(VMousePPS>FConfig.MapMovingConfig.AnimateMinStartSpeed) then begin
-    VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime / 1000; // максимальное время отображения инерции
-    VTime := 0; // время прошедшее с начала анимации
+    if (FConfig.MapMovingConfig.AnimateMove)and(VMousePPS>FConfig.MapMovingConfig.AnimateMinStartSpeed) then begin
+      VMaxTime := FConfig.MapMovingConfig.AnimateMoveTime / 1000; // максимальное время отображения инерции
+      VTime := 0; // время прошедшее с начала анимации
 
-    VMapDeltaXYmul.X := AMouseMoveSpeed.X / VMousePPS;
-    VMapDeltaXYmul.Y := AMouseMoveSpeed.Y / VMousePPS;
+      VMapDeltaXYmul.X := AMouseMoveSpeed.X / VMousePPS;
+      VMapDeltaXYmul.Y := AMouseMoveSpeed.Y / VMousePPS;
 
-    if VMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
-      VMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
+      if VMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
+        VMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
+      end;
+
+      repeat
+        Vk:=VMousePPS * VMaxTime; //расстояние в пикселах, которое мы пройдем со скоростью AMousePPS за время VMaxTime
+        Vk:=Vk*(ALastTime/VMaxTime); //из этого расстояния вычленяем то, которое мы прошли за время ALastTime (время потраченное на последнее ChangeMapPixelByDelta)
+        Vk:=Vk*(exp(-VTime/VMaxTime)-exp(-1)); //замедляем экспоненциально, -exp(-1) нужно для того, чтоб к окончанию времени VMaxTime у нас смещение было =0
+        VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
+        VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
+
+        QueryPerformanceCounter(ts1);
+        FConfig.ViewPortState.ChangeMapPixelByDelta(VMapDeltaXY);
+        application.ProcessMessages;
+        QueryPerformanceCounter(ts2);
+        QueryPerformanceFrequency(fr);
+
+        VLastDrawTime := (ts2-ts1)/fr;
+        VTime := VTime + VLastDrawTime;
+        ALastTime:=ALastTime+0.3*(VLastDrawTime-ALastTime); //время последней итерации сглаженное с предыдущими (чтоб поменьше было рывков во время движения)
+      until (VTime>=VMaxTime)or(AZoom<>FConfig.ViewPortState.GetCurrentZoom)or
+            (AMousePos.X<>FMouseState.GetLastUpPos(FMapMovingButton).X)or
+            (AMousePos.Y<>FMouseState.GetLastUpPos(FMapMovingButton).Y);
     end;
-
-    repeat
-      Vk:=VMousePPS * VMaxTime; //расстояние в пикселах, которое мы пройдем со скоростью AMousePPS за время VMaxTime
-      Vk:=Vk*(ALastTime/VMaxTime); //из этого расстояния вычленяем то, которое мы прошли за время ALastTime (время потраченное на последнее ChangeMapPixelByDelta)
-      Vk:=Vk*(exp(-VTime/VMaxTime)-exp(-1)); //замедляем экспоненциально, -exp(-1) нужно для того, чтоб к окончанию времени VMaxTime у нас смещение было =0
-      VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
-      VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
-
-      QueryPerformanceCounter(ts1);
-      FConfig.ViewPortState.ChangeMapPixelByDelta(VMapDeltaXY);
-      application.ProcessMessages;
-      QueryPerformanceCounter(ts2);
-      QueryPerformanceFrequency(fr);
-
-      VLastDrawTime := (ts2-ts1)/fr;
-      VTime := VTime + VLastDrawTime;
-      ALastTime:=ALastTime+0.3*(VLastDrawTime-ALastTime); //время последней итерации сглаженное с предыдущими (чтоб поменьше было рывков во время движения)
-    until (VTime>=VMaxTime)or(AZoom<>FConfig.ViewPortState.GetCurrentZoom)or
-          (AMousePos.X<>FMouseState.GetLastUpPos(FMapMovingButton).X)or
-          (AMousePos.Y<>FMouseState.GetLastUpPos(FMapMovingButton).Y);
+  finally
+    FMapMoveAnimtion:=false;
   end;
 end;
 
@@ -3644,7 +3650,7 @@ begin
     end;
  end;
  FShowActivHint:=false;
- if not(FMapMoving)and((VMousePos.x<>VLastMouseMove.X)or(VMousePos.y<>VLastMouseMove.y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
+ if (not FMapMoveAnimtion)and(not FMapMoving)and((VMousePos.x<>VLastMouseMove.X)or(VMousePos.y<>VLastMouseMove.y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
     VItemFound := False;
     VItemS := 0;
     VWikiItem := nil;
