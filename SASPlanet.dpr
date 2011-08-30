@@ -367,6 +367,8 @@ uses
   u_UserInterfaceItemBase in 'u_UserInterfaceItemBase.pas',
   i_StaticTreeItem in 'i_StaticTreeItem.pas',
   u_StaticTreeItem in 'u_StaticTreeItem.pas',
+  i_StaticTreeBuilder in 'i_StaticTreeBuilder.pas',
+  u_StaticTreeBuilderBase in 'u_StaticTreeBuilderBase.pas',
   i_TreeChangeable in 'i_TreeChangeable.pas',
   u_TreeByPathDetalizeProviderList in 'u_TreeByPathDetalizeProviderList.pas',
   u_TreeChangeableBase in 'u_TreeChangeableBase.pas',

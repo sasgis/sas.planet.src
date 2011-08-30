@@ -38,7 +38,7 @@ type
       AName: string;
       AVisible: Boolean;
       APic: IMarkPicture;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       APoint: TDoublePoint;
       ATextColor: TColor32;
@@ -50,7 +50,7 @@ type
       ASource: IMarkLine;
       AName: string;
       AVisible: Boolean;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       APoints: TArrayOfDoublePoint;
       ALineColor: TColor32;
@@ -60,7 +60,7 @@ type
       ASource: IMarkPoly;
       AName: string;
       AVisible: Boolean;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       APoints: TArrayOfDoublePoint;
       ABorderColor: TColor32;

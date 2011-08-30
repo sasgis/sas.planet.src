@@ -20,7 +20,7 @@ type
     function IsSameInternal(ATemplate: IMarkTemplate): Boolean;
   protected
     function GetNewName: string;
-    function GetCategory: IMarkCategory;
+    function GetCategory: ICategory;
     function GetCategoryId: Integer;
   public
     constructor Create(
@@ -115,7 +115,7 @@ begin
   FCategoryId := ACategoryId;
 end;
 
-function FMarkTemplateBase.GetCategory: IMarkCategory;
+function FMarkTemplateBase.GetCategory: ICategory;
 begin
   Result := FCategoryDb.GetCategoryByID(FCategoryId);
 end;

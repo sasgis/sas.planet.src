@@ -41,7 +41,7 @@ type
       AVisible: Boolean;
       const APicName: string;
       APic: IMarkPicture;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       const ADesc: string;
       const APoint: TDoublePoint;
       ATextColor: TColor32;
@@ -63,7 +63,7 @@ constructor TMarkPoint.Create(
   AVisible: Boolean;
   const APicName: string;
   APic: IMarkPicture;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   const ADesc: string;
   const APoint: TDoublePoint;
   ATextColor, ATextBgColor: TColor32;

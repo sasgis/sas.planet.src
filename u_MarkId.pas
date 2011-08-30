@@ -13,7 +13,7 @@ type
     FDbCode: Integer;
     FName: string;
     FId: Integer;
-    FCategory: IMarkCategory;
+    FCategory: ICategory;
     FCategoryId: Integer;
     FVisible: Boolean;
   protected
@@ -23,7 +23,7 @@ type
   protected
     function GetDbCode: Integer;
     function GetId: Integer;
-    function GetCategory: IMarkCategory;
+    function GetCategory: ICategory;
     function GetCategoryId: Integer;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
@@ -33,7 +33,7 @@ type
       ADbCode: Integer;
       AName: string;
       AId: Integer;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       AVisible: Boolean
     );
   end;
@@ -49,7 +49,7 @@ constructor TMarkId.Create(
   ADbCode: Integer;
   AName: string;
   AId: Integer;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   AVisible: Boolean
 );
 var
@@ -68,7 +68,7 @@ begin
   FVisible := AVisible;
 end;
 
-function TMarkId.GetCategory: IMarkCategory;
+function TMarkId.GetCategory: ICategory;
 begin
   Result := FCategory;
 end;

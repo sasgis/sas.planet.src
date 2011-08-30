@@ -20,8 +20,8 @@ type
     ['{52794019-3681-4C92-B50F-0853D5B070DE}']
     function GetName: string;
     property Name: string read GetName;
-    function GetCategory: IMarkCategory;
-    property Category: IMarkCategory read GetCategory;
+    function GetCategory: ICategory;
+    property Category: ICategory read GetCategory;
     function GetDesc: string;
     property Desc: string read GetDesc;
     function GetLLRect: TDoubleRect;

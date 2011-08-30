@@ -127,8 +127,8 @@ begin
     VEnum:=FLastSearchResults.GeoCodeResult.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
       VFixedOnView :=  VVisualConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint);
-      VTargetPoint.X := VFixedOnView.X - (VMarker.BitmapSize.X div 2);
-      VTargetPoint.Y := VFixedOnView.Y - (VMarker.BitmapSize.Y div 2);
+      VTargetPoint.X := VFixedOnView.X - VMarker.AnchorPoint.X;
+      VTargetPoint.Y := VFixedOnView.Y - VMarker.AnchorPoint.Y;
       ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
     end;
   end;

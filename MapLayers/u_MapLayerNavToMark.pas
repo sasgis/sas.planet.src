@@ -30,7 +30,6 @@ type
     FReachedMarker: IBitmapMarker;
 
     FMarker: TCustomBitmap32;
-    FFixedOnBitmap: TDoublePoint;
     FMarkPoint: TDoublePoint;
     procedure OnNavToPointChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
@@ -176,8 +175,8 @@ begin
   end;
   FMarker.Lock;
   try
-    VTargetPoint.X := VFixedOnView.X - FFixedOnBitmap.X - (VMarker.BitmapSize.X div 2);
-    VTargetPoint.Y := VFixedOnView.Y - FFixedOnBitmap.Y - (VMarker.BitmapSize.Y div 2);
+    VTargetPoint.X := VFixedOnView.X - VMarker.AnchorPoint.X;
+    VTargetPoint.Y := VFixedOnView.Y - VMarker.AnchorPoint.Y;
     if PixelPointInRect(VTargetPoint, DoubleRect(ALocalConverter.GetLocalRect)) then begin
       ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
     end;

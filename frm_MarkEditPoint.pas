@@ -84,7 +84,7 @@ type
     frLonLatPoint: TfrLonLat;
     FMarkDBGUI: TMarksDbGUIHelper;
     FCategoryList: IInterfaceList;
-    FCategory: IMarkCategory;
+    FCategory: ICategory;
     procedure DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
   public
     constructor Create(AOwner: TComponent); override;
@@ -108,7 +108,7 @@ function TfrmMarkEditPoint.EditMark(AMark: IMarkPoint; AMarkDBGUI: TMarksDbGUIHe
 var
   VLastUsedCategoryName:string;
   i: Integer;
-  VCategory: IMarkCategory;
+  VCategory: ICategory;
   VPicCount: Integer;
   VColCount: Integer;
   VRowCount: Integer;
@@ -144,7 +144,7 @@ begin
     FCategory := AMark.Category;
     if FCategory <> nil then begin
       for i := 0 to CBKateg.Items.Count - 1 do begin
-        VCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[i]));
+        VCategory := ICategory(Pointer(CBKateg.Items.Objects[i]));
         if VCategory <> nil then begin
           if VCategory.IsSame(FCategory) then begin
             CBKateg.ItemIndex := i;
@@ -197,7 +197,7 @@ begin
     VIndex:= CBKateg.Items.IndexOf(VCategoryText);
   end;
   if VIndex >= 0 then begin
-    FCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
+    FCategory := ICategory(Pointer(CBKateg.Items.Objects[VIndex]));
   end;
   if FCategory = nil then begin
     FCategory := FMarkDBGUI.AddKategory(VCategoryText);

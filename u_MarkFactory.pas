@@ -37,7 +37,7 @@ type
       APicName: string;
       APic: IMarkPicture;
       ACategoryId: Integer;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       APoint: TDoublePoint;
       ATextColor, ATextBgColor: TColor32;
@@ -48,7 +48,7 @@ type
       AName: string;
       AVisible: Boolean;
       ACategoryId: Integer;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       ARect: TDoubleRect;
       APoints: TArrayOfDoublePoint;
@@ -60,7 +60,7 @@ type
       AName: string;
       AVisible: Boolean;
       ACategoryId: Integer;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       ARect: TDoubleRect;
       APoints: TArrayOfDoublePoint;
@@ -92,7 +92,7 @@ type
       AName: string;
       AVisible: Boolean;
       APic: IMarkPicture;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       APoint: TDoublePoint;
       ATextColor: TColor32;
@@ -104,7 +104,7 @@ type
       ASource: IMarkLine;
       AName: string;
       AVisible: Boolean;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       APoints: TArrayOfDoublePoint;
       ALineColor: TColor32;
@@ -114,7 +114,7 @@ type
       ASource: IMarkPoly;
       AName: string;
       AVisible: Boolean;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       APoints: TArrayOfDoublePoint;
       ABorderColor: TColor32;
@@ -195,7 +195,7 @@ function TMarkFactory.CreateNewLine(APoints: TArrayOfDoublePoint; AName,
 var
   VTemplate: IMarkTemplateLine;
   VTemplateSML: IMarkTemplateSMLInternal;
-  VCategory: IMarkCategory;
+  VCategory: ICategory;
   VCategoryID: Integer;
   VName: string;
   VPoints: TArrayOfDoublePoint;
@@ -238,7 +238,7 @@ var
   VTemplate: IMarkTemplatePoint;
   VTemplateSML: IMarkTemplateSMLInternal;
   VName: string;
-  VCategory: IMarkCategory;
+  VCategory: ICategory;
   VCategoryID: Integer;
 begin
   VTemplate := ATemplate;
@@ -280,7 +280,7 @@ var
   VTemplateSML: IMarkTemplateSMLInternal;
   VName: string;
   VPoints: TArrayOfDoublePoint;
-  VCategory: IMarkCategory;
+  VCategory: ICategory;
   VCategoryID: Integer;
 begin
   VTemplate := ATemplate;
@@ -323,7 +323,7 @@ function TMarkFactory.CreatePoint(
   APicName: string;
   APic: IMarkPicture;
   ACategoryId: Integer;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   ADesc: string;
   APoint: TDoublePoint;
   ATextColor, ATextBgColor: TColor32;
@@ -333,7 +333,7 @@ var
   VPicIndex: Integer;
   VPic: IMarkPicture;
   VPicName: string;
-  VCategory: IMarkCategory;
+  VCategory: ICategory;
 begin
   VPic := APic;
   if VPic = nil then begin
@@ -376,7 +376,7 @@ function TMarkFactory.CreateLine(
   AName: string;
   AVisible: Boolean;
   ACategoryId: Integer;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   ADesc: string;
   ARect: TDoubleRect;
   APoints: TArrayOfDoublePoint;
@@ -384,7 +384,7 @@ function TMarkFactory.CreateLine(
   ALineWidth: Integer
 ): IMarkLine;
 var
-  VCategory: IMarkCategory;
+  VCategory: ICategory;
 begin
   VCategory := ACategory;
   if VCategory = nil then begin
@@ -409,7 +409,7 @@ end;
 function TMarkFactory.CreatePoly(
   AID: Integer; AName: string; AVisible: Boolean;
   ACategoryId: Integer;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   ADesc: string;
   ARect: TDoubleRect;
   APoints: TArrayOfDoublePoint;
@@ -417,7 +417,7 @@ function TMarkFactory.CreatePoly(
   ALineWidth: Integer
 ): IMarkPoly;
 var
-  VCategory: IMarkCategory;
+  VCategory: ICategory;
 begin
   VCategory := ACategory;
   if VCategory = nil then begin
@@ -476,7 +476,7 @@ function TMarkFactory.CreateMarkId(
   AVisible: Boolean
 ): IMarkID;
 var
-  VCategory: IMarkCategory;
+  VCategory: ICategory;
 begin
   VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
   Result := TMarkId.Create(FDbCode, AName, AId, VCategory, AVisible);
@@ -568,7 +568,7 @@ function TMarkFactory.ModifyPoint(
   AName: string;
   AVisible: Boolean;
   APic: IMarkPicture;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   ADesc: string;
   APoint: TDoublePoint;
   ATextColor: TColor32;
@@ -621,7 +621,7 @@ function TMarkFactory.ModifyLine(
   ASource: IMarkLine;
   AName: string;
   AVisible: Boolean;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   ADesc: string;
   APoints: TArrayOfDoublePoint;
   ALineColor: TColor32;
@@ -667,7 +667,7 @@ function TMarkFactory.ModifyPoly(
   ASource: IMarkPoly;
   AName: string;
   AVisible: Boolean;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   ADesc: string;
   APoints: TArrayOfDoublePoint;
   ABorderColor: TColor32;

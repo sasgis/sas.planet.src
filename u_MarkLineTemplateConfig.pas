@@ -22,7 +22,7 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       AColor1: TColor32;
       AScale1: Integer
     ): IMarkTemplateLine;
@@ -60,7 +60,7 @@ begin
 end;
 
 function TMarkLineTemplateConfig.CreateTemplate(
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   AColor1: TColor32;
   AScale1: Integer
 ): IMarkTemplateLine;
