@@ -8,6 +8,7 @@ uses
   Classes,
   Controls,
   OleCtrls,
+  SysUtils,
   EwbCore,
   EmbeddedWB,
   SHDocVw_EWB,
@@ -66,7 +67,7 @@ end;
 procedure TfrmIntrnalBrowser.Navigate(ACaption, AUrl: string);
 begin
   EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
-  Caption:=ACaption;
+  Caption:=StringReplace(ACaption,#13#10,', ',[rfReplaceAll]);
   show;
   EmbeddedWB1.Navigate(AUrl);
 end;
@@ -75,7 +76,7 @@ procedure TfrmIntrnalBrowser.showmessage(ACaption,AText: string);
 begin
   EmbeddedWB1.GoAboutBlank;
   EmbeddedWB1.HTMLCode.Text:=AText;
-  Caption:=ACaption;
+  Caption:=StringReplace(ACaption,#13#10,', ',[rfReplaceAll]);
   show;
 end;
 
