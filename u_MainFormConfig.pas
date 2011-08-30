@@ -18,6 +18,7 @@ uses
   i_GeoCoderList,
   i_DownloadUIConfig,
   i_InternalPerformanceCounter,
+  I_LastSearchResultConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -35,6 +36,7 @@ type
     FKeyMovingConfig: IKeyMovingConfig;
     FMapZoomingConfig: IMapZoomingConfig;
     FMapMovingConfig: IMapMovingConfig;
+    FLastSearchResultConfig: ILastSearchResultConfig;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
@@ -48,6 +50,7 @@ type
     function GetKeyMovingConfig: IKeyMovingConfig;
     function GetMapZoomingConfig: IMapZoomingConfig;
     function GetMapMovingConfig: IMapMovingConfig;
+    function GetLastSearchResultConfig: ILastSearchResultConfig;
   public
     constructor Create(
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -75,7 +78,8 @@ uses
   u_MapZoomingConfig,
   u_DownloadUIConfig,
   u_KeyMovingConfig,
-  u_MainFormMainConfig;
+  u_MainFormMainConfig,
+  u_LastSearchResultConfig;
 
 { TMainFormConfig }
 
@@ -113,6 +117,8 @@ begin
   Add(FMapZoomingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Zooming'));
   FMapMovingConfig := TMapMovingConfig.Create;
   Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MouseMoving'));
+  FLastSearchResultConfig := TLastSearchResultConfig.create;
+  Add(FLastSearchResultConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('LastSearchResult'));
 end;
 
 function TMainFormConfig.GetDownloadUIConfig: IDownloadUIConfig;
@@ -158,6 +164,11 @@ end;
 function TMainFormConfig.GetMapMovingConfig: IMapMovingConfig;
 begin
   Result := FMapMovingConfig;
+end;
+
+function TMainFormConfig.GetLastSearchResultConfig: ILastSearchResultConfig;
+begin
+  Result := FLastSearchResultConfig;
 end;
 
 function TMainFormConfig.GetNavToPoint: INavigationToPoint;

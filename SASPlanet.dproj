@@ -198,6 +198,7 @@
     <DCCReference Include="i_KmlLayerConfig.pas" />
     <DCCReference Include="i_LanguageManager.pas" />
     <DCCReference Include="i_LastResponseInfo.pas" />
+    <DCCReference Include="I_LastSearchResultConfig.pas" />
     <DCCReference Include="i_LastSelectionInfo.pas" />
     <DCCReference Include="i_LastSelectionLayerConfig.pas" />
     <DCCReference Include="i_LayerBitmapClearStrategy.pas" />
@@ -317,6 +318,7 @@
     <DCCReference Include="MapLayers\u_MapLayerGPSMarker.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGrids.pas" />
     <DCCReference Include="MapLayers\u_MapLayerNavToMark.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerSearchResults.pas" />
     <DCCReference Include="MapLayers\u_MapLayerShowError.pas" />
     <DCCReference Include="MapLayers\u_MapLayerTileGrid.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWiki.pas" />
@@ -550,6 +552,7 @@
     <DCCReference Include="u_LanguagesEx.pas" />
     <DCCReference Include="u_LanguageTBXItem.pas" />
     <DCCReference Include="u_LastResponseInfo.pas" />
+    <DCCReference Include="u_LastSearchResultConfig.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
     <DCCReference Include="u_LastSelectionLayerConfig.pas" />
     <DCCReference Include="u_LayerBitmapClearStrategy.pas" />

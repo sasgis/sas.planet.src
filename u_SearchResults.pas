@@ -8,6 +8,7 @@ uses
   i_MapViewGoto,
   i_ViewPortState,
   i_ValueToStringConverter,
+  i_LastSearchResultConfig,
   i_GeoCoder,
   i_SearchResultPresenter,
   fr_SearchResultsItem;
@@ -20,6 +21,7 @@ type
     FDrawParent:TWinControl;
     FSearchWindow:TWinControl;
     FValueConverterConfig: IValueToStringConverterConfig;
+    FLastSearchResults: ILastSearchResultConfig;
     FSearchItems:array of TfrSearchResultsItem;
   protected
     procedure ClearSearchResults;
@@ -30,6 +32,7 @@ type
       ADrawParent: TWinControl;
       ASearchWindow: TWinControl;
       AValueConverterConfig: IValueToStringConverterConfig;
+      ALastSearchResults: ILastSearchResultConfig;
       AViewPortState: IViewPortState
     );
     destructor Destroy; override;
@@ -48,6 +51,7 @@ constructor TSearchResultPresenterOnPanel.Create(
   ADrawParent: TWinControl;
   ASearchWindow: TWinControl;
   AValueConverterConfig: IValueToStringConverterConfig;
+  ALastSearchResults: ILastSearchResultConfig;
   AViewPortState: IViewPortState
 );
 begin
@@ -55,6 +59,7 @@ begin
   FValueConverterConfig := AValueConverterConfig;
   FViewPortState := AViewPortState;
   FDrawParent := ADrawParent;
+  FLastSearchResults := ALastSearchResults;
   FSearchWindow := ASearchWindow;
 end;
 
@@ -86,9 +91,13 @@ begin
   ClearSearchResults;
   VItemForGoTo := nil;
   VEnum := ASearchResult.GetPlacemarks;
+
+  FLastSearchResults.ClearGeoCodeResult;
   if ASearchResult.GetPlacemarksCount>1 then begin
     FSearchWindow.Show;
+    FLastSearchResults.GeoCodeResult:=ASearchResult;
   end;
+
   while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
     if VItemForGoTo = nil then begin
       VItemForGoTo := VPlacemark;
