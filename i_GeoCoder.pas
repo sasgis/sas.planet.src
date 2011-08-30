@@ -4,7 +4,8 @@ interface
 
 uses
   ActiveX,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_LocalCoordConverter;
 
 type
   IGeoCodeResult = interface
@@ -27,10 +28,9 @@ type
 
   IGeoCoder = interface
     ['{D9293293-080A-44B7-92F8-3093D35A551B}']
-    function GetLocations(const ASearch: WideString; const ACurrentPos: TDoublePoint): IGeoCodeResult; safecall;
+    function GetLocations(const ASearch: WideString; const ALocalConverter: ILocalCoordConverter): IGeoCodeResult; safecall;
   end;
 
 implementation
 
 end.
- 

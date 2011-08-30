@@ -4145,7 +4145,7 @@ begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
   VText := Trim(NewText);
-  VResult := VItem.GetGeoCoder.GetLocations(VText, VLocalConverter.GetCenterLonLat);
+  VResult := VItem.GetGeoCoder.GetLocations(VText, VLocalConverter);
   FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
   FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
 end;
@@ -4164,7 +4164,7 @@ begin
     if VItem <> nil then begin
       VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
       VText := Trim(NewText);
-      VResult := VItem.GetGeoCoder.GetLocations(VText, VLocalConverter.GetCenterLonLat);
+      VResult := VItem.GetGeoCoder.GetLocations(VText, VLocalConverter);
       FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
       FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
     end;
@@ -4179,7 +4179,7 @@ var
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VZoom := VLocalConverter.GetZoom;
-  if frmGoTo.ShowGeocodeModal(VLocalConverter.GetCenterLonLat, VResult, VZoom, FMarkDBGUI) then begin
+  if frmGoTo.ShowGeocodeModal(VLocalConverter, VResult, VZoom, FMarkDBGUI) then begin
     FSearchPresenter.ShowSearchResults(VResult, VZoom);
   end;
 end;

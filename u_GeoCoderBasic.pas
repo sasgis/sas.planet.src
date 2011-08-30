@@ -8,19 +8,20 @@ uses
   Classes,
   t_GeoTypes,
   i_ProxySettings,
-  i_GeoCoder;
+  i_GeoCoder,
+  i_LocalCoordConverter;
 
 type
   TGeoCoderBasic = class(TInterfacedObject, IGeoCoder)
   protected
-    FCurrentPos: TDoublePoint;
+    FLocalConverter: ILocalCoordConverter;
     FInetSettings: IProxySettings;
     function URLEncode(const S: string): string; virtual;
     function PrepareURL(ASearch: WideString): string; virtual; abstract;
     function GetDataFromInet(ASearch: WideString): string; virtual;
     function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; virtual; abstract;
   protected
-    function GetLocations(const ASearch: WideString; const ACurrentPos: TDoublePoint): IGeoCodeResult; virtual; safecall;
+    function GetLocations(const ASearch: WideString; const ALocalConverter: ILocalCoordConverter): IGeoCodeResult; virtual; safecall;
   public
     constructor Create(AInetSettings: IProxySettings);
     destructor Destroy; override;
@@ -124,7 +125,7 @@ end;
 
 function TGeoCoderBasic.GetLocations(
   const ASearch: WideString;
-  const ACurrentPos: TDoublePoint
+  const ALocalConverter: ILocalCoordConverter
 ): IGeoCodeResult;
 var
   VServerResult: string;
@@ -134,7 +135,7 @@ var
 begin
   VResultCode := 200;
   VMessage := '';
-  FCurrentPos:=ACurrentPos;
+  FLocalConverter:=ALocalConverter;
   try
     if not (ASearch = '') then begin
       VServerResult := GetDataFromInet(ASearch);

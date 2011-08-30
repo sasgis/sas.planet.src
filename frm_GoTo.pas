@@ -13,6 +13,7 @@ uses
   Controls,
   t_GeoTypes,
   i_GeoCoder,
+  i_LocalCoordConverter,
   u_CommonFormAndFrameParents,
   u_MarksDbGUIHelper,
   fr_LonLat;
@@ -36,7 +37,7 @@ type
     procedure cbbAllMarksDropDown(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    FLonLat: TDoublePoint;
+    FLocalConverter: ILocalCoordConverter;
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
     FMarkDBGUI: TMarksDbGUIHelper;
@@ -49,7 +50,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function ShowGeocodeModal(
-      ALonLat: TDoublePoint;
+      ALocalConverter: ILocalCoordConverter;
       var AResult: IGeoCodeResult;
       var AZoom: Byte;
       AMarkDBGUI: TMarksDbGUIHelper
@@ -158,7 +159,7 @@ begin
       VGeoCoderItem := IGeoCoderListEntity(Pointer(cbbSearcherType.Items.Objects[VIndex]));
     end;
     if VGeoCoderItem <> nil then begin
-      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, FLonLat);
+      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, FLocalConverter);
       GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.AddItem(textsrch);
       GState.MainFormConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VGeoCoderItem.GetGUID;
       ModalResult := mrOk;
@@ -175,17 +176,17 @@ begin
 end;
 
 function TfrmGoTo.ShowGeocodeModal(
-  ALonLat: TDoublePoint;
+  ALocalConverter: ILocalCoordConverter;
   var AResult: IGeoCodeResult;
   var AZoom: Byte;
   AMarkDBGUI: TMarksDbGUIHelper
 ): Boolean;
 begin
-  FLonLat := ALonLat;
+  FLocalConverter := ALocalConverter;
   FMarkDBGUI := AMarkDBGUI;
   frLonLatPoint.Parent := tsCoordinates;
   cbbZoom.ItemIndex := Azoom;
-  frLonLatPoint.LonLat := FLonLat;
+  frLonLatPoint.LonLat := FLocalConverter.GetCenterLonLat;
   InitGeoCoders;
   InitHistory;
   try

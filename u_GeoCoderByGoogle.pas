@@ -9,6 +9,7 @@ uses
   XMLIntf,
   msxmldom,
   XMLDoc,
+  i_CoordConverter,
   u_GeoCoderBasic;
 
 type
@@ -92,6 +93,10 @@ end;
 function TGeoCoderByGoogle.PrepareURL(ASearch: WideString): string;
 var
   VSearch: String;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMapRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
   i: integer;
 begin
   VSearch := ASearch;
@@ -100,11 +105,17 @@ begin
       VSearch[i] := '+';
     end;
   end;
+  VConverter:=FLocalConverter.GetGeoConverter;
+  VZoom := FLocalConverter.GetZoom;
+  VMapRect := FLocalConverter.GetRectInMapPixelFloat;
+  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   Result := 'http://maps.google.com/maps/geo?q=' +
     URLEncode(AnsiToUtf8(VSearch)) +
     '&output=xml' + SAS_STR_GoogleSearchLanguage +
     '&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA'+
-    '&ll='+R2StrPoint(FCurrentPos.x)+','+R2StrPoint(FCurrentPos.y);
+    '&ll='+R2StrPoint(FLocalConverter.GetCenterLonLat.x)+','+R2StrPoint(FLocalConverter.GetCenterLonLat.y)+
+    '&spn='+R2StrPoint(VLonLatRect.Right-VLonLatRect.Left)+','+R2StrPoint(VLonLatRect.Top-VLonLatRect.Bottom);
 end;
 
 end.

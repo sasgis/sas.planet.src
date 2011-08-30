@@ -9,6 +9,7 @@ uses
   XMLIntf,
   msxmldom,
   XMLDoc,
+  i_CoordConverter,
   u_GeoCoderBasic;
 
 type
@@ -86,12 +87,27 @@ end;
 function TGeoCoderBy2GIS.PrepareURL(ASearch: WideString): string;
 var
   VSearch: String;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMapRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VRadius: integer;
 begin
   VSearch := ASearch;
+  VConverter:=FLocalConverter.GetGeoConverter;
+  VZoom := FLocalConverter.GetZoom;
+  VMapRect := FLocalConverter.GetRectInMapPixelFloat;
+  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+
+  VRadius:=round(FLocalConverter.GetGeoConverter.Datum.CalcDist(VLonLatRect.TopLeft,VLonLatRect.BottomRight));
+  if VRadius>40000 then begin
+    VRadius:=40000;
+  end;
   //point='+R2StrPoint(FCurrentPos.x)+','+R2StrPoint(FCurrentPos.y)+'&radius=40000&where=новосибирск'
   Result := 'http://catalog.api.2gis.ru/search?what='+URLEncode(AnsiToUtf8(VSearch))+
-            '&point='+R2StrPoint(FCurrentPos.x)+','+R2StrPoint(FCurrentPos.y)+
-            '&radius='+inttostr(40000)+
+            '&point='+R2StrPoint(FLocalConverter.GetCenterLonLat.x)+','+R2StrPoint(FLocalConverter.GetCenterLonLat.y)+
+            '&radius='+inttostr(VRadius)+
             '&page=1&pagesize=50&key=ruihvk0699&version=1.3&sort=relevance&output=xml';
 end;
 

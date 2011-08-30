@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  i_CoordConverter,
   u_GeoTostr,
   u_GeoCoderBasic;
 
@@ -91,9 +92,20 @@ end;
 function TGeoCoderByYandex.PrepareURL(ASearch: WideString): string;
 var
   VSearch: String;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMapRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
 begin
   VSearch := ASearch;
-  Result := 'http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(VSearch))+'&ll='+R2StrPoint(FCurrentPos.x)+','+R2StrPoint(FCurrentPos.y);
+  VConverter:=FLocalConverter.GetGeoConverter;
+  VZoom := FLocalConverter.GetZoom;
+  VMapRect := FLocalConverter.GetRectInMapPixelFloat;
+  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  Result := 'http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(VSearch))+
+            '&ll='+R2StrPoint(FLocalConverter.GetCenterLonLat.x)+','+R2StrPoint(FLocalConverter.GetCenterLonLat.y)+
+            '&spn='+R2StrPoint(VLonLatRect.Right-VLonLatRect.Left)+','+R2StrPoint(VLonLatRect.Top-VLonLatRect.Bottom);
 end;
 
 end.
