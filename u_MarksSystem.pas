@@ -7,6 +7,7 @@ uses
   Classes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_MarksSimple,
   i_MarkPicture,
   i_HtmlToHintTextConverter,
   i_MarksFactoryConfig,
@@ -16,6 +17,8 @@ uses
   i_MarkCategoryDBSmlInternal,
   i_MarksDb,
   i_MarksDbSmlInternal,
+  i_StaticTreeItem,
+  i_StaticTreeBuilder,
   u_MarksDb,
   u_MarkCategoryDB;
 
@@ -28,6 +31,8 @@ type
     FMarksDbInternal: IMarksDbSmlInternal;
     FCategoryDB: IMarkCategoryDB;
     FCategoryDBInternal: IMarkCategoryDBSmlInternal;
+    FCategoryTreeBuilder: IStaticTreeBuilder;
+    FMarksSubsetTreeBuilder: IStaticTreeBuilder;
   public
     constructor Create(
       ABasePath: string;
@@ -46,6 +51,9 @@ type
 
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;
     procedure DeleteCategoryWithMarks(ACategory: IMarkCategory);
+
+    function MarksSubsetToStaticTree(ASubset: IMarksSubset): IStaticTreeItem;
+    function CategoryListToStaticTree(AList: IInterfaceList): IStaticTreeItem;
   end;
 
 
@@ -53,9 +61,79 @@ implementation
 
 uses
   SysUtils,
+  ActiveX,
+  u_StaticTreeBuilderBase,
   u_MarksFactoryConfig;
 
-{ TMarksDB }
+type
+  TStaticTreeByCategoryListBuilder = class(TStaticTreeBuilderBaseBySlash)
+  protected
+    procedure ProcessItems(ASource: IInterface; AList: TStringList); override;
+    function GetNameFromItem(AItem: IInterface): string; override;
+  end;
+
+{ TStaticTreeByCategoryListBuilder }
+
+function TStaticTreeByCategoryListBuilder.GetNameFromItem(
+  AItem: IInterface): string;
+begin
+  Result := (AItem as ICategory).Name;
+end;
+
+procedure TStaticTreeByCategoryListBuilder.ProcessItems(
+  ASource: IInterface;
+  AList: TStringList
+);
+var
+  VList: IInterfaceList;
+  i: Integer;
+begin
+  inherited;
+  VList := ASource as IInterfaceList;
+  for i := 0 to VList.Count - 1 do begin
+    ProcessItem(VList.Items[i], AList);
+  end;
+end;
+
+type
+  TStaticTreeByMarksSubsetBuilder = class(TStaticTreeBuilderBaseBySlash)
+  protected
+    procedure ProcessItems(ASource: IInterface; AList: TStringList); override;
+    function GetNameFromItem(AItem: IInterface): string; override;
+  end;
+
+{ TStaticTreeByMarksSubsetBuilder }
+
+function TStaticTreeByMarksSubsetBuilder.GetNameFromItem(
+  AItem: IInterface): string;
+var
+  VMark: IMark;
+begin
+  VMark := AItem as IMark;
+  if VMark.Category <> nil then begin
+    Result := VMark.Category.Name + LevelsSeparator + VMark.Name;
+  end else begin
+    Result := LevelsSeparator + VMark.Name;
+  end;
+end;
+
+procedure TStaticTreeByMarksSubsetBuilder.ProcessItems(ASource: IInterface;
+  AList: TStringList);
+var
+  VSubset: IMarksSubset;
+  VEnum: IEnumUnknown;
+  VMark: IMark;
+  i: Cardinal;
+begin
+  inherited;
+  VSubset := ASource as IMarksSubset;
+  VEnum := VSubset.GetEnum;
+  while (VEnum.Next(1, VMark, @i) = S_OK) do begin
+    ProcessItem(VMark, AList);
+  end;
+end;
+
+{ TMarksSystem }
 
 constructor TMarksSystem.Create(
   ABasePath: string;
@@ -85,6 +163,8 @@ begin
     );
   FMarksDb := VMarksDb;
   FMarksDbInternal := VMarksDb;
+  FCategoryTreeBuilder := TStaticTreeByCategoryListBuilder.Create('\', '');
+  FMarksSubsetTreeBuilder := TStaticTreeByMarksSubsetBuilder.Create('\', '');
 end;
 
 destructor TMarksSystem.Destroy;
@@ -95,6 +175,12 @@ begin
   FCategoryDBInternal := nil;
   FMarksFactoryConfig := nil;
   inherited;
+end;
+
+function TMarksSystem.CategoryListToStaticTree(
+  AList: IInterfaceList): IStaticTreeItem;
+begin
+  Result := FCategoryTreeBuilder.BuildStatic(AList);
 end;
 
 procedure TMarksSystem.DeleteCategoryWithMarks(ACategory: IMarkCategory);
@@ -121,6 +207,12 @@ begin
       Result.Add(VCategory);
     end;
   end;
+end;
+
+function TMarksSystem.MarksSubsetToStaticTree(
+  ASubset: IMarksSubset): IStaticTreeItem;
+begin
+  Result := FMarksSubsetTreeBuilder.BuildStatic(ASubset);
 end;
 
 procedure TMarksSystem.ReadConfig(AConfigData: IConfigDataProvider);

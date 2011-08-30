@@ -55,6 +55,7 @@ uses
   SysUtils,
   Dialogs,
   i_Datum,
+  i_StaticTreeItem,
   u_ResStrings,
   frm_MarkEditPoint,
   frm_MarkEditPoly,
@@ -112,90 +113,43 @@ begin
 end;
 
 procedure TMarksDbGUIHelper.CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
-var
-  VNodesCached: TStringList;
-
-  function GetKey(AParent: TTreeNode; const VNamePart: string): string;
-  begin
-    Result := VNamePart + IntToStr(Integer(AParent));
-  end;
-
-  function CreateNodeWithText(AParent: TTreeNode; const VNamePart: string; const AKey: string): TTreeNode;
-  begin
-    Result := ATreeItems.AddChildObject(AParent, VNamePart, nil);
-    Result.StateIndex:=0;
-    VNodesCached.AddObject(AKey, Result);
-  end;
-
-  function FindNodeWithText(AParent: TTreeNode; const VNamePart: string; const AKey: string): TTreeNode;
+  procedure AddTreeSubItems(ATree: IStaticTreeItem; AParentNode: TTreeNode);
   var
     i: Integer;
+    VTree: IStaticTreeItem;
+    VNode: TTreeNode;
+    VCategory: IMarkCategory;
+    VName: string;
   begin
-    i := VNodesCached.IndexOf(AKey);
-    if i > -1 then begin
-      Result := Pointer(VNodesCached.Objects[i])
-    end else begin
-      Result := CreateNodeWithText(AParent, VNamePart, AKey);
-    end
-  end;
-  
-  procedure AddItem(AParentNode: TTreeNode; const AName: string; Data: IMarkCategory);
-  var
-    VNamePrefix: string;
-    VDelimPos: Integer;
-    aNode: TTreeNode;
-    VNameSufix: string;
-  begin
-    VDelimPos:=Pos('\', AName);
-    VNamePrefix:='';
-    if VDelimPos > 0 then begin
-      VNamePrefix := Copy(AName, 1, VDelimPos - 1);
-      if VNamePrefix = '' then begin
-        VNamePrefix := '(NoName)';
+    for i := 0 to ATree.SubItemCount - 1 do begin
+      VTree := ATree.SubItem[i];
+      VName := VTree.Name;
+      if VName = '' then begin
+        VName := '(NoName)';
       end;
-      VNameSufix := Copy(AName, VDelimPos + 1, Length(AName));
-      if VNameSufix = '' then begin
-        VNameSufix := '(NoName)';
+      VNode := ATreeItems.AddChildObject(AParentNode, VName, nil);
+      VNode.StateIndex:=0;
+      if Supports(VTree.Data, IMarkCategory, VCategory) then begin
+        VNode.Data := Pointer(VCategory);
+        if VCategory.Visible then begin
+          VNode.StateIndex := 1;
+        end else begin
+          VNode.StateIndex := 2;
+        end;
       end;
-      aNode := FindNodeWithText(AParentNode, VNamePrefix, GetKey(AParentNode, VNamePrefix));
-      AddItem(aNode, VNameSufix, Data);
-    end else begin
-      VNamePrefix := AName;
-      if VNamePrefix = '' then begin
-        VNamePrefix := '(NoName)';
-      end;
-      aNode := FindNodeWithText(AParentNode, VNamePrefix, GetKey(AParentNode, VNamePrefix));
-      if aNode.StateIndex > 0 then begin
-        aNode := CreateNodeWithText(AParentNode, VNamePrefix, GetKey(AParentNode, VNamePrefix));
-      end;
-      aNode.Data := Pointer(Data);
-      aNode.StateIndex := 2;
-      if Data.visible then begin
-        aNode.StateIndex := 1
-      end;
+      AddTreeSubItems(VTree, VNode);
     end;
   end;
-
 var
-  i: Integer;
-  VCategory: IMarkCategory;
+  VTree: IStaticTreeItem;
 begin
-  VNodesCached := TStringList.Create;
+  VTree := MarksDB.CategoryListToStaticTree(AList);
+  ATreeItems.BeginUpdate;
   try
-    VNodesCached.Duplicates := dupIgnore;
-    VNodesCached.Sorted := True;
     ATreeItems.Clear;
-    ATreeItems.BeginUpdate;
-    try
-      for i := 0 to AList.Count - 1 do begin
-        VCategory := IMarkCategory(AList[i]);
-        AddItem(nil, VCategory.name, VCategory);
-      end;
-    finally
-      ATreeItems.EndUpdate;
-    end;
+    AddTreeSubItems(VTree, nil);
   finally
-    VNodesCached.Free;
+    ATreeItems.EndUpdate;
   end;
 end;
 
