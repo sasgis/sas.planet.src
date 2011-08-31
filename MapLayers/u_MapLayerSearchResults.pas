@@ -28,7 +28,6 @@ type
     FLastSearchResults: ILastSearchResultConfig;
     FMarkerProvider: IBitmapMarkerProviderChangeable;
     FMarkerProviderStatic: IBitmapMarkerProvider;
-    FSearchResultsForm:TControl;
     procedure OnLastSearchResultsChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
@@ -140,7 +139,6 @@ var
   VLonLatRect: TDoubleRect;
   VRect: TRect;
   VConverter: ICoordConverter;
-  VMarkLonLatRect: TDoubleRect;
   VPixelPos: TDoublePoint;
   VZoom: Byte;
   VMapRect: TDoubleRect;
