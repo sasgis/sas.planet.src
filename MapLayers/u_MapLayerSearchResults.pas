@@ -115,13 +115,14 @@ var
   VFixedOnView: TDoublePoint;
   VMarker: IBitmapMarker;
   i:integer;
+  VSearchResults: IGeoCodeResult;
 begin
   VVisualConverter := ViewCoordConverter;
   VConverter := VVisualConverter.GetGeoConverter;
   VMarker := FMarkerProviderStatic.GetMarker;
-
-  if FLastSearchResults.GeoCodeResult<>nil then begin
-    VEnum:=FLastSearchResults.GeoCodeResult.GetPlacemarks;
+  VSearchResults := FLastSearchResults.GeoCodeResult;
+  if VSearchResults <> nil then begin
+    VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
       VFixedOnView :=  VVisualConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint);
       VTargetPoint.X := VFixedOnView.X - VMarker.AnchorPoint.X;
@@ -146,10 +147,12 @@ var
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePlacemark;
   VMarker: IBitmapMarker;
+  VSearchResults: IGeoCodeResult;
 begin
   AItem := nil;
   AItemS := 0;
-  if FLastSearchResults.GeoCodeResult<>nil then begin
+  VSearchResults := FLastSearchResults.GeoCodeResult;
+  if VSearchResults <> nil then begin
     VMarker := FMarkerProviderStatic.GetMarker;
     VRect.Left := xy.X - (VMarker.Bitmap.Width div 2);
     VRect.Top := xy.Y - (VMarker.Bitmap.Height div 2);
@@ -163,7 +166,7 @@ begin
     VConverter.CheckPixelRectFloat(VMapRect, VZoom);
     VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
     VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
-    VEnum:=FLastSearchResults.GeoCodeResult.GetPlacemarks;
+    VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
       if((VLonLatRect.Right>VPlacemark.GetPoint.X)and(VLonLatRect.Left<VPlacemark.GetPoint.X)and
         (VLonLatRect.Bottom<VPlacemark.GetPoint.Y)and(VLonLatRect.Top>VPlacemark.GetPoint.Y))then begin
