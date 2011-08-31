@@ -7,7 +7,6 @@ uses
   t_GeoTypes,
   i_MarksSimple,
   i_MarkCategory,
-  i_MarkPicture,
   i_HtmlToHintTextConverter,
   u_MarkFullBase;
 

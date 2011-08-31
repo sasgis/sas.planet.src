@@ -6,7 +6,6 @@ uses
   Windows,
   Types,
   GR32,
-  GR32_Transforms,
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,

@@ -5,9 +5,6 @@ interface
 uses
   i_LastSearchResultConfig,
   i_GeoCoder,
-  t_GeoTypes,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   u_ConfigDataElementBase;
 
 type

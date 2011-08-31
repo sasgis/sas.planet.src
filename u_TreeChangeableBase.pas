@@ -37,8 +37,7 @@ implementation
 uses
   SysUtils,
   u_JclNotify,
-  u_NotifyEventListener,
-  u_StaticTreeItem;
+  u_NotifyEventListener;
 
 { TTreeChangeableBase }
 

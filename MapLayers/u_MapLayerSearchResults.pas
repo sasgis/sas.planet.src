@@ -49,9 +49,7 @@ implementation
 
 uses
   SysUtils,
-  Math,
   i_CoordConverter,
-  u_GeoFun,
   u_NotifyEventListener;
 
 { TSearchResultsLayer }
