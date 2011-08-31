@@ -6,7 +6,6 @@ uses
   Windows,
   Types,
   GR32,
-  GR32_Transforms,
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
@@ -21,7 +20,6 @@ type
   TNavToMarkLayer = class(TMapLayerBasicNoBitmap)
   private
     FConfig: IMapLayerNavToPointMarkerConfig;
-    FTransform: TAffineTransformation;
     FNavToPoint:  INavigationToPoint;
     FArrowMarkerProvider: IBitmapMarkerProviderChangeable;
     FArrowMarkerProviderStatic: IBitmapMarkerProvider;
@@ -29,7 +27,6 @@ type
     FReachedMarkerProviderStatic: IBitmapMarkerProvider;
     FReachedMarker: IBitmapMarker;
 
-    FMarker: TCustomBitmap32;
     FMarkPoint: TDoublePoint;
     procedure OnNavToPointChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
@@ -46,7 +43,6 @@ type
       AReachedMarkerProvider: IBitmapMarkerProviderChangeable;
       AConfig: IMapLayerNavToPointMarkerConfig
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -75,11 +71,6 @@ begin
   FReachedMarkerProvider := AReachedMarkerProvider;
   FConfig := AConfig;
 
-  FMarker := TCustomBitmap32.Create;
-  FMarker.DrawMode := dmBlend;
-  FMarker.CombineMode := cmBlend;
-
-  FTransform := TAffineTransformation.Create;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
@@ -96,13 +87,6 @@ begin
     TNotifyEventListener.Create(Self.OnNavToPointChange),
     FNavToPoint.GetChangeNotifier
   );
-end;
-
-destructor TNavToMarkLayer.Destroy;
-begin
-  FreeAndNil(FTransform);
-  FreeAndNil(FMarker);
-  inherited;
 end;
 
 procedure TNavToMarkLayer.OnConfigChange(Sender: TObject);
@@ -173,15 +157,10 @@ begin
     end;
     VMarker := FArrowMarkerProviderStatic.GetMarkerWithRotation(VAngle);
   end;
-  FMarker.Lock;
-  try
-    VTargetPoint.X := VFixedOnView.X - VMarker.AnchorPoint.X;
-    VTargetPoint.Y := VFixedOnView.Y - VMarker.AnchorPoint.Y;
-    if PixelPointInRect(VTargetPoint, DoubleRect(ALocalConverter.GetLocalRect)) then begin
-      ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
-    end;
-  finally
-    FMarker.Unlock;
+  VTargetPoint.X := VFixedOnView.X - VMarker.AnchorPoint.X;
+  VTargetPoint.Y := VFixedOnView.Y - VMarker.AnchorPoint.Y;
+  if PixelPointInRect(VTargetPoint, DoubleRect(ALocalConverter.GetLocalRect)) then begin
+    ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
   end;
 end;
 

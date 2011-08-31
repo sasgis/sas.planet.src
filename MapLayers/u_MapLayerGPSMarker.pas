@@ -51,7 +51,6 @@ type
       AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
       AGPSRecorder: IGPSRecorder
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -102,11 +101,6 @@ begin
   );
 
   FGpsPosChangeCounter := 0;
-end;
-
-destructor TMapLayerGPSMarker.Destroy;
-begin
-  inherited;
 end;
 
 procedure TMapLayerGPSMarker.GPSReceiverReceive(Sender: TObject);
