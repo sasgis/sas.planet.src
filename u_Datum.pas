@@ -114,6 +114,15 @@ end;
 
 function TDatum.CalcPoligonArea(const polygon: TArrayOfDoublePoint): Double;
 
+ function sign(Avalue: double):integer;
+ begin
+   if AValue < 0 then begin
+     Result := -1
+   end else begin
+     Result := 1;
+   end;
+ end;
+
  function Orientation(APoints: TArrayOfDoublePoint):extended;
  var i:integer;
      s:double;
