@@ -30,11 +30,9 @@ type
 
     FGpsPosChangeCounter: Integer;
     FStopedMarker: IBitmapMarker;
-    FTransform: TAffineTransformation;
-    FMarker: TCustomBitmap32;
+    FMarker: IBitmapMarker;
 
     FFixedLonLat: TDoublePoint;
-    FFixedOnBitmap: TDoublePoint;
 
     procedure GPSReceiverReceive(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
@@ -82,10 +80,6 @@ begin
   FGPSRecorder := AGPSRecorder;
   FMovedMarkerProvider := AMovedMarkerProvider;
   FStopedMarkerProvider := AStopedMarkerProvider;
-  FMarker := TCustomBitmap32.Create;
-  FMarker.DrawMode := dmBlend;
-  FMarker.CombineMode := cmBlend;
-  FTransform := TAffineTransformation.Create;
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnTimer),
@@ -113,8 +107,6 @@ end;
 
 destructor TMapLayerGPSMarker.Destroy;
 begin
-  FreeAndNil(FTransform);
-  FreeAndNil(FMarker);
   inherited;
 end;
 
@@ -157,23 +149,21 @@ end;
 procedure TMapLayerGPSMarker.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   VTargetPoint: TDoublePoint;
+  VMarker: IBitmapMarker;
 begin
-  FMarker.Lock;
-  try
+  VMarker := FMarker;
+  if VMarker <> nil then begin
     VTargetPoint := ALocalConverter.LonLat2LocalPixelFloat(FFixedLonLat);
-    VTargetPoint.X := VTargetPoint.X - FFixedOnBitmap.X;
-    VTargetPoint.Y := VTargetPoint.Y - FFixedOnBitmap.Y;
+    VTargetPoint.X := VTargetPoint.X - VMarker.AnchorPoint.X;
+    VTargetPoint.Y := VTargetPoint.Y - VMarker.AnchorPoint.Y;
     if PixelPointInRect(VTargetPoint, DoubleRect(ALocalConverter.GetLocalRect)) then begin
-      ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), FMarker);
+      ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
     end;
-  finally
-    FMarker.Unlock;
   end;
 end;
 
 procedure TMapLayerGPSMarker.PrepareMarker(ASpeed, AAngle: Double);
 var
-  VSizeTarget: TPoint;
   VMarker: IBitmapMarker;
 begin
   if ASpeed > FConfig.MinMoveSpeed then begin
@@ -181,15 +171,7 @@ begin
   end else begin
     VMarker := FStopedMarker;
   end;
-  FMarker.Lock;
-  try
-    VSizeTarget := VMarker.BitmapSize;
-    FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
-    FFixedOnBitmap := VMarker.AnchorPoint;
-    FMarker.Assign(VMarker.Bitmap);
-  finally
-    FMarker.Unlock;
-  end;
+  FMarker := VMarker;
 end;
 
 procedure TMapLayerGPSMarker.StartThreads;
