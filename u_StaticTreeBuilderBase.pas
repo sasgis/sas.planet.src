@@ -11,8 +11,8 @@ type
   TStaticTreeBuilderBase = class(TInterfacedObject, IStaticTreeBuilder)
   protected
     procedure ProcessItems(ASource: IInterface; AList: TStringList); virtual; abstract;
-    procedure ProcessItem(AItem: IInterface; AList: TStringList);
-    function GetNameFromItem(AItem: IInterface): string; virtual; abstract;
+    procedure ProcessItem(ASource: IInterface; AItem: IInterface; AList: TStringList);
+    function GetNameFromItem(ASource: IInterface; AItem: IInterface): string; virtual; abstract;
     function GetLevelName(const AName: string; out ACurLevelName, ATrailName: string): Boolean; virtual; abstract;
     procedure GetGroupAndVisibleName(const AName: string; out AGroupName, AVisibleName: string); virtual; abstract;
     procedure AddItemToList(AItem: IInterface; AName: string; AList: TStringList);
@@ -162,10 +162,13 @@ begin
   end;
 end;
 
-procedure TStaticTreeBuilderBase.ProcessItem(AItem: IInterface;
-  AList: TStringList);
+procedure TStaticTreeBuilderBase.ProcessItem(
+  ASource: IInterface;
+  AItem: IInterface;
+  AList: TStringList
+);
 begin
-  AddItemToList(AItem, GetNameFromItem(AItem), AList);
+  AddItemToList(AItem, GetNameFromItem(ASource, AItem), AList);
 end;
 
 { TStaticTreeBuilderBaseBySlash }
