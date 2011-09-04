@@ -346,6 +346,7 @@ type
     PanelSearch: TPanel;
     TBXDockForSearch: TTBXDock;
     ScrollBoxSearchWindow: TScrollBox;
+    TBEditMagnetDraw: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -475,6 +476,7 @@ type
     procedure NAnimateMoveClick(Sender: TObject);
     procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure TBSearchWindowClose(Sender: TObject);
+    procedure TBEditMagnetDrawClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1681,6 +1683,7 @@ begin
  TBEditPathOk.Visible:=(newop=ao_select_poly);
  TBEditPathLabel.Visible:=(newop=ao_calc_line);
  TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
+ TBEditMagnetDraw.Visible:=(newop=ao_Add_line)or(newop=ao_Add_Poly)or(newop=ao_Edit_line)or(newop=ao_Edit_Poly);
   if FLineOnMapEdit <> nil then begin
     FLineOnMapEdit.Empty;
   end;
@@ -1818,6 +1821,7 @@ begin
   tbitmShowMarkCaption.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.ShowPointCaption;
 
   TBHideMarks.Checked := not(FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
+  TBEditMagnetDraw.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw;
 
   if FConfig.MainConfig.ShowMapName then begin
     TBSMB.Caption := FConfig.MainMapsConfig.GetSelectedMapType.MapType.Name;
@@ -3291,12 +3295,19 @@ begin
       end;
       if Vlastpoint < 0 then begin
         VMark := nil;
-        if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
+        if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
+           (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw) then begin
           FLayerMapMarks.MouseOnReg(Point(x, y), VMark);
         end;
         if VMark <> nil then begin
           if Supports(VMark, IMarkPoint, VMarkPoint) then begin
             VClickLonLat := VMarkPoint.Point;
+          end;
+          if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+            FLayerMapMarks.GetIntersection(VClickLonLat,VClickLonLat, VMarkPoly, VConverter, VZoom)
+          end;
+          if Supports(VMark, IMarkLine, VMarkLine) then begin
+            FLayerMapMarks.GetIntersection(VClickLonLat,VClickLonLat, VMarkLine, VConverter, VZoom)
           end;
         end;
         FLineOnMapEdit.InsertPoint(VClickLonLat);
@@ -3556,9 +3567,12 @@ var
   VLastMouseMove: TPoint;
   VMousePos: TPoint;
   VMark: IMark;
+  VLastMark: IMark;
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
   VMarkPoint: IMarkPoint;
+  VMarkPoly: IMarkPoly;
+  VMarkLine: IMarkLine;
 begin
   if ProgramClose then begin
     exit;
@@ -3582,11 +3596,18 @@ begin
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   if (FLineOnMapEdit <> nil) and (movepoint) then begin
     VMark := nil;
-    if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
+    if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
+       (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw)  then
       FLayerMapMarks.MouseOnReg(VMousePos, VMark);
     if VMark <> nil then begin
       if Supports(VMark, IMarkPoint, VMarkPoint) then begin
         VLonLat := VMarkPoint.Point;
+      end;
+      if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+        FLayerMapMarks.GetIntersection(VLonLat,VLonLat, VMarkPoly, VConverter, VZoomCurr)
+      end;
+      if Supports(VMark, IMarkLine, VMarkLine) then begin
+        FLayerMapMarks.GetIntersection(VLonLat,VLonLat, VMarkLine, VConverter, VZoomCurr)
       end;
     end;
     FLineOnMapEdit.MoveActivePoint(VLonLat);
@@ -3808,6 +3829,11 @@ begin
     setalloperationfalse(ao_movemap);
     FLayerMapMarks.Redraw;
   end;
+end;
+
+procedure TfrmMain.TBEditMagnetDrawClick(Sender: TObject);
+begin
+  FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw := TBEditMagnetDraw.Checked;
 end;
 
 procedure TfrmMain.TBEditPathClose(Sender: TObject);

@@ -33,6 +33,10 @@ type
     procedure SetOverSizeRect(AValue: TRect);
     property OverSizeRect: TRect read GetOverSizeRect write SetOverSizeRect;
 
+    function GetMagnetDraw: Boolean;
+    procedure SetMagnetDraw(AValue: Boolean);
+    property MagnetDraw: Boolean read GetMagnetDraw write SetMagnetDraw;
+
     function GetStatic: IMarksDrawConfigStatic;
   end;
 
