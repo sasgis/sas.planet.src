@@ -36,6 +36,7 @@ type
   function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
   function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
+  function ConveryPolyline2Polygon(APolyline: TArrayOfDoublePoint; ARadius: Double; Aconverter: ICoordConverter; Azoom: byte): TArrayOfDoublePoint;
 
   function DoublePointsEqual(p1,p2: TDoublePoint): Boolean;
   function DoubleRectsEqual(ARect1, ARect2: TDoubleRect): Boolean;
@@ -326,6 +327,78 @@ begin
   end;
 end;
 
+function ConveryPolyline2Polygon(APolyline: TArrayOfDoublePoint; ARadius: Double; Aconverter: ICoordConverter; Azoom: byte): TArrayOfDoublePoint;
+var
+  i: Integer;
+  VCurrPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VPoinsCount,VResPoinsCount: Integer;
+  s, c: Extended;
+  VRadius:double;
+  LonLatMul,a1,a2,a3,Angle:double;
+  ResultPixelPos:TDoublePoint;
+begin
+  VPoinsCount := Length(APolyline);
+  if VPoinsCount > 1 then begin
+    VResPoinsCount:=VPoinsCount*2+1;
+    SetLength(Result,VResPoinsCount);
+    for i := 1 to VPoinsCount - 1 do begin
+      VPrevPoint := Aconverter.LonLat2PixelPosFloat(APolyline[i-1],Azoom);
+      VCurrPoint := Aconverter.LonLat2PixelPosFloat(APolyline[i],Azoom);
+      LonLatMul:=ARadius/Aconverter.Datum.CalcDist(APolyline[i-1],APolyline[i]);
+      LonLatMul:=LonLatMul*sqrt(sqr(VCurrPoint.y - VPrevPoint.y)+sqr(VCurrPoint.x - VPrevPoint.x));
+      a1:=Math.Arctan2((VCurrPoint.y - VPrevPoint.y),(VCurrPoint.x - VPrevPoint.x));
+      if a1<0 then begin
+        a1:=2*pi+a1;
+      end;
+
+      if i>1 then begin
+        Angle:=(a1+a2)/2;
+        if abs(A2-A1)>Pi then begin
+          Angle:=Angle-Pi;
+        end;
+      end else begin
+        Angle:=a1;
+      end;
+
+      if i=1 then begin
+        Angle:=a1;
+        VRadius := LonLatMul/sin(pi/4);
+        SinCos(pi/2+pi/4+Angle, s, c);
+        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        Result[0]:=Aconverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        SinCos(pi/2-pi/4+Angle+pi, s, c);
+        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        Result[VResPoinsCount-2]:=Aconverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        Result[VResPoinsCount-1]:=Result[0];
+      end else begin
+        a3:=abs((pi/2+Angle)-a1);
+        if a3>Pi then begin
+          a3:=a3-Pi;
+        end;
+        VRadius := LonLatMul/sin(a3);
+        SinCos(pi/2+Angle, s, c);
+        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        Result[i-1]:=Aconverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        SinCos(pi/2+Angle+pi, s, c);
+        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        Result[VResPoinsCount-2-(i-1)]:=Aconverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+      end;
+
+      if i = VPoinsCount - 1 then begin
+        Angle:=a1;
+        VRadius := LonLatMul/sin(pi/4);
+        SinCos(pi/4+Angle, s, c);
+        ResultPixelPos:=DoublePoint(VCurrPoint.x + VRadius * c, VCurrPoint.y + VRadius * s);
+        Result[i]:=Aconverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        SinCos(pi/2+pi/4+Angle+pi, s, c);
+        ResultPixelPos:=DoublePoint(VCurrPoint.x + VRadius * c, VCurrPoint.y + VRadius * s);
+        Result[VResPoinsCount-2-i]:=Aconverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+      end;
+      a2:=a1;
+    end;
+  end;
+end;
 
 function PolygonSquare(Poly:TArrayOfPoint): Double;
 var
