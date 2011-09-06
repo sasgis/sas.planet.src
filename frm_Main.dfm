@@ -1230,6 +1230,7 @@ object frmMain: TfrmMain
       DockPos = -6
       DockRow = 2
       TabOrder = 2
+      Visible = False
       OnClose = TBSearchWindowClose
       Caption = 'Search Results'
       object PanelSearch: TPanel
