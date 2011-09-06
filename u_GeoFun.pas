@@ -380,6 +380,10 @@ begin
           a3:=a3-Pi;
         end;
         VRadius := LonLatMul/sin(a3);
+        if VRadius>LonLatMul*7 then begin
+          VRadius:=LonLatMul*7;
+        end;
+
         SinCos(pi/2+Angle, s, c);
         ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
         Result[i-1]:=Aconverter.GetGeoConverter.PixelPosFloat2LonLat(ResultPixelPos,Vzoom);

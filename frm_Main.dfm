@@ -1203,7 +1203,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object TBEditSelectPolylineRadius: TTBXSpinEditItem
-        EditWidth = 100
+        EditWidth = 70
         ValueType = evtFloat
         OnValueToText = TBEditSelectPolylineRadiusValueToText
         Caption = ''
