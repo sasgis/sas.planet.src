@@ -91,6 +91,7 @@ uses
   u_MarkPolyLineLayer,
   u_MarkPolygonLayer,
   u_SelectionPolygonLayer,
+  u_SelectionPolylineLayer,
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
@@ -108,7 +109,8 @@ type
     ao_edit_poly,
     ao_calc_line,
     ao_select_rect,
-    ao_select_poly
+    ao_select_poly,
+    ao_select_line
   );
 
   TfrmMain = class(TCommonFormParent)
@@ -347,6 +349,10 @@ type
     TBXDockForSearch: TTBXDock;
     ScrollBoxSearchWindow: TScrollBox;
     TBEditMagnetDraw: TTBXItem;
+    TBPolylineSelect: TTBXItem;
+    TBEditSelectPolylineRadius: TTBXSpinEditItem;
+    TBEditSelectPolylineRadiusCap1: TTBXLabelItem;
+    TBEditSelectPolylineRadiusCap2: TTBXLabelItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -477,6 +483,10 @@ type
     procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure TBSearchWindowClose(Sender: TObject);
     procedure TBEditMagnetDrawClick(Sender: TObject);
+    procedure TBPolylineSelectClick(Sender: TObject);
+    procedure TBEditSelectPolylineRadiusValueToText(
+      Sender: TTBXCustomSpinEditItem; const AValue: Extended;
+      var Text: WideString);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -499,6 +509,7 @@ type
     FMarkPolyLineLayer: TMarkPolyLineLayer;
     FMarkPolygonLayer: TMarkPolygonLayer;
     FSelectionPolygonLayer: TSelectionPolygonLayer;
+    FSelectionPolylineLayer: TSelectionPolylineLayer;
     FSelectionRectLayer: TSelectionRectLayer;
     FLayerMapGPS: TMapGPSLayer;
     FLayerGoto: TGotoLayer;
@@ -737,6 +748,7 @@ begin
   FLineOnMapByOperation[ao_edit_poly] := FLineOnMapByOperation[ao_add_poly];
   FLineOnMapByOperation[ao_calc_line] := TLineOnMapEdit.Create;
   FLineOnMapByOperation[ao_select_poly] := TLineOnMapEdit.Create;
+  FLineOnMapByOperation[ao_select_line] := TLineOnMapEdit.Create;
 
   FSelectionRect :=
     TSelectionRect.Create(
@@ -761,6 +773,10 @@ begin
   FLinksList.Add(
     VLineOnMapEditChangeListener,
     FLineOnMapByOperation[ao_select_poly].GetChangeNotifier
+  );
+  FLinksList.Add(
+    VLineOnMapEditChangeListener,
+    FLineOnMapByOperation[ao_select_line].GetChangeNotifier
   );
 
   FRuller:=TBitmap32.Create;
@@ -976,6 +992,14 @@ begin
         FConfig.LayersConfig.SelectionPolygonLayerConfig
       );
     FLayersList.Add(FSelectionPolygonLayer);
+    FSelectionPolylineLayer :=
+      TSelectionPolylineLayer.Create(
+        map,
+        FConfig.ViewPortState,
+        FLineOnMapByOperation[ao_select_line],
+        FConfig.LayersConfig.SelectionPolylineLayerConfig
+      );
+    FLayersList.Add(FSelectionPolylineLayer);
     FSelectionRectLayer :=
       TSelectionRectLayer.Create(
         map,
@@ -1674,25 +1698,31 @@ begin
  FMarshrutComment:='';
  TBmove.Checked:=newop=ao_movemap;
  TBCalcRas.Checked:=newop=ao_calc_line;
- TBRectSave.Checked:=(newop=ao_select_poly)or(newop=ao_select_rect);
+ TBRectSave.Checked:=(newop=ao_select_poly)or(newop=ao_select_rect)or(newop=ao_select_line);
  TBAdd_Point.Checked:=newop=ao_Add_Point;
  TBAdd_Line.Checked:=newop=ao_Add_line;
  TBAdd_Poly.Checked:=newop=ao_Add_Poly;
  TBEditPath.Visible:=false;
  TBEditPathSave.Visible:=(newop=ao_Add_line)or(newop=ao_Add_Poly)or(newop=ao_Edit_line)or(newop=ao_Edit_Poly);
- TBEditPathOk.Visible:=(newop=ao_select_poly);
+ TBEditPathOk.Visible:=(newop=ao_select_poly)or(newop=ao_select_line);
  TBEditPathLabel.Visible:=(newop=ao_calc_line);
  TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
  TBEditMagnetDraw.Visible:=(newop=ao_Add_line)or(newop=ao_Add_Poly)or(newop=ao_Edit_line)or(newop=ao_Edit_Poly);
+ TBEditSelectPolylineRadius.Visible:=newop=ao_select_line;
+ TBEditSelectPolylineRadiusCap1.Visible:=newop=ao_select_line;
+ TBEditSelectPolylineRadiusCap2.Visible:=newop=ao_select_line;
   if FLineOnMapEdit <> nil then begin
     FLineOnMapEdit.Empty;
   end;
   FLineOnMapEdit := FLineOnMapByOperation[newop];
+ if newop=ao_select_line then begin
+   TBEditSelectPolylineRadius.Value:=FConfig.LayersConfig.SelectionPolylineLayerConfig.GetRadius;
+ end;
 
  case newop of
   ao_movemap:  map.Cursor:=crDefault;
   ao_calc_line:     map.Cursor:=2;
-  ao_select_poly,ao_select_rect: map.Cursor:=crDrag;
+  ao_select_poly,ao_select_rect,ao_select_line: map.Cursor:=crDrag;
   ao_Add_Point,ao_Add_Poly,ao_Add_Line,ao_edit_Line,ao_edit_poly: map.Cursor:=4;
  end;
   FCurrentOper:=newop;
@@ -2037,6 +2067,7 @@ begin
             Handled := True;
           end;
           ao_select_poly,
+          ao_select_line,
           ao_calc_line,
           ao_add_line,
           ao_add_poly,
@@ -2065,7 +2096,8 @@ begin
             end;
           end;
           ao_add_line,
-          ao_edit_line: begin
+          ao_edit_line,
+          ao_select_line: begin
             if FLineOnMapEdit <> nil then begin
               if FLineOnMapEdit.GetCount > 1 then begin
                 TBEditPathSaveClick(Self);
@@ -2689,7 +2721,17 @@ begin
    20: begin
          TBScreenSelectClick(sender);
        end;
+   21: begin
+         setalloperationfalse(ao_select_line);
+       end;
   end;
+end;
+
+procedure TfrmMain.TBPolylineSelectClick(Sender: TObject);
+begin
+ TBRectSave.ImageIndex:=21;
+ TBRectSave.Checked:=true;
+ setalloperationfalse(ao_select_line);
 end;
 
 procedure TfrmMain.TBPreviousClick(Sender: TObject);
@@ -3831,6 +3873,12 @@ begin
   end;
 end;
 
+procedure TfrmMain.TBEditSelectPolylineRadiusValueToText(
+  Sender: TTBXCustomSpinEditItem; const AValue: Extended; var Text: WideString);
+begin
+  FConfig.LayersConfig.SelectionPolylineLayerConfig.SetRadius(TBEditSelectPolylineRadius.Value);
+end;
+
 procedure TfrmMain.TBEditMagnetDrawClick(Sender: TObject);
 begin
   FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw := TBEditMagnetDraw.Checked;
@@ -3968,6 +4016,11 @@ begin
   case FCurrentOper of
     ao_select_poly: begin
       VPoly := Copy(FLineOnMapEdit.GetPoints);
+      setalloperationfalse(ao_movemap);
+      FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPoly);
+    end;
+    ao_select_line: begin
+      VPoly := ConveryPolyline2Polygon(FLineOnMapEdit.GetPoints, FConfig.LayersConfig.SelectionPolylineLayerConfig.GetRadius, FConfig.ViewPortState.GetVisualCoordConverter);
       setalloperationfalse(ao_movemap);
       FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPoly);
     end;

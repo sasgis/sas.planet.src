@@ -26,6 +26,7 @@ uses
   i_CalcLineLayerConfig,
   i_SelectionRectLayerConfig,
   i_SelectionPolygonLayerConfig,
+  i_SelectionPolylineLayerConfig,
   i_MarkPolygonLayerConfig,
   i_MarkPolyLineLayerConfig,
   i_FillingMapLayerConfig,
@@ -107,6 +108,9 @@ type
 
     function GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
     property SelectionPolygonLayerConfig: ISelectionPolygonLayerConfig read GetSelectionPolygonLayerConfig;
+
+    function GetSelectionPolylineLayerConfig: ISelectionPolylineLayerConfig;
+    property SelectionPolylineLayerConfig: ISelectionPolylineLayerConfig read GetSelectionPolylineLayerConfig;
 
     function GetMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     property MarkPolygonLayerConfig: IMarkPolygonLayerConfig read GetMarkPolygonLayerConfig;

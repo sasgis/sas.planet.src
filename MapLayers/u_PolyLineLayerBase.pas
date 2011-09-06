@@ -38,8 +38,6 @@ type
     FLinePolygon: TPolygon32;
 
 
-    function LonLatArrayToVisualFloatArray(ALocalConverter: ILocalCoordConverter; APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
-
     procedure DrawPolyPoint(
       ABuffer: TBitmap32;
       const ABitmapSize: TPoint;
@@ -159,31 +157,6 @@ begin
   end;
 end;
 
-function TPolyLineLayerBase.LonLatArrayToVisualFloatArray(
-  ALocalConverter: ILocalCoordConverter;
-  APolygon: TArrayOfDoublePoint
-): TArrayOfDoublePoint;
-var
-  i: Integer;
-  VPointsCount: Integer;
-  VLonLat: TDoublePoint;
-  VGeoConvert: ICoordConverter;
-begin
-  VPointsCount := Length(APolygon);
-  SetLength(Result, VPointsCount);
-
-  VGeoConvert := ALocalConverter.GetGeoConverter;
-  for i := 0 to VPointsCount - 1 do begin
-    VLonLat := APolygon[i];
-    if PointIsEmpty(VLonLat) then begin
-      Result[i] := VLonLat;
-    end else begin
-      VGeoConvert.CheckLonLatPos(VLonLat);
-      Result[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
-    end;
-  end;
-end;
-
 procedure TPolyLineLayerBase.OnConfigChange(Sender: TObject);
 begin
   ViewUpdateLock;
@@ -278,7 +251,7 @@ begin
     Inc(VLocalRect.Right, 10);
     Inc(VLocalRect.Bottom, 10);
     VBitmapClip := TPolygonClipByRect.Create(VLocalRect);
-    FPointsOnBitmap := LonLatArrayToVisualFloatArray(ALocalConverter, FSourcePolygon);
+    FPointsOnBitmap := ALocalConverter.LonLatArrayToVisualFloatArray(FSourcePolygon);
 
     VPointsProcessedCount := VBitmapClip.Clip(FPointsOnBitmap[0], VPointsCount, VPointsOnBitmapPrepared);
     if VPointsProcessedCount > 0 then begin

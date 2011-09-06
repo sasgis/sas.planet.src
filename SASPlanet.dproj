@@ -266,6 +266,7 @@
     <DCCReference Include="i_ScaleLineConfig.pas" />
     <DCCReference Include="i_SearchResultPresenter.pas" />
     <DCCReference Include="i_SelectionPolygonLayerConfig.pas" />
+    <DCCReference Include="i_SelectionPolylineLayerConfig.pas" />
     <DCCReference Include="i_SelectionRect.pas" />
     <DCCReference Include="i_SelectionRectLayerConfig.pas" />
     <DCCReference Include="i_Sensor.pas" />
@@ -332,6 +333,7 @@
     <DCCReference Include="MapLayers\u_PolyLineLayerBase.pas" />
     <DCCReference Include="MapLayers\u_SelectionLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionPolygonLayer.pas" />
+    <DCCReference Include="MapLayers\u_SelectionPolylineLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionRectLayer.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
@@ -660,6 +662,7 @@
     <DCCReference Include="u_ScaleLineConfig.pas" />
     <DCCReference Include="u_SearchResults.pas" />
     <DCCReference Include="u_SelectionPolygonLayerConfig.pas" />
+    <DCCReference Include="u_SelectionPolylineLayerConfig.pas" />
     <DCCReference Include="u_SelectionRect.pas" />
     <DCCReference Include="u_SelectionRectLayerConfig.pas" />
     <DCCReference Include="u_SensorBase.pas" />

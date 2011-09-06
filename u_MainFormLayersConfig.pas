@@ -18,6 +18,7 @@ uses
   i_CalcLineLayerConfig,
   i_SelectionRectLayerConfig,
   i_SelectionPolygonLayerConfig,
+  i_SelectionPolylineLayerConfig,
   i_MarkPolygonLayerConfig,
   i_MarkPolyLineLayerConfig,
   i_FillingMapLayerConfig,
@@ -43,6 +44,7 @@ type
     FCalcLineLayerConfig: ICalcLineLayerConfig;
     FSelectionRectLayerConfig: ISelectionRectLayerConfig;
     FSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
+    FSelectionPolylineLayerConfig: ISelectionPolylineLayerConfig;
     FMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     FMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     FFillingMapLayerConfig: IFillingMapLayerConfig;
@@ -62,6 +64,7 @@ type
     function GetCalcLineLayerConfig: ICalcLineLayerConfig;
     function GetSelectionRectLayerConfig: ISelectionRectLayerConfig;
     function GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
+    function GetSelectionPolylineLayerConfig: ISelectionPolylineLayerConfig;
     function GetMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     function GetMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     function GetFillingMapLayerConfig: IFillingMapLayerConfig;
@@ -91,6 +94,7 @@ uses
   u_CalcLineLayerConfig,
   u_SelectionRectLayerConfig,
   u_SelectionPolygonLayerConfig,
+  u_SelectionPolyLineLayerConfig,
   u_MarkPolygonLayerConfig,
   u_MarkPolyLineLayerConfig,
   u_FillingMapLayerConfig,
@@ -133,6 +137,8 @@ begin
   Add(FSelectionRectLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SelectionRect'));
   FSelectionPolygonLayerConfig := TSelectionPolygonLayerConfig.Create;
   Add(FSelectionPolygonLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SelectionPolygon'));
+  FSelectionPolylineLayerConfig := TSelectionPolylineLayerConfig.Create;
+  Add(FSelectionPolylineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SelectionPolyline'));
   FMarkPolygonLayerConfig := TMarkPolygonLayerConfig.Create;
   Add(FMarkPolygonLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolygon'));
   FMarkPolyLineLayerConfig := TMarkPolyLineLayerConfig.Create;
@@ -221,6 +227,11 @@ end;
 function TMainFormLayersConfig.GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
 begin
   Result := FSelectionPolygonLayerConfig;
+end;
+
+function TMainFormLayersConfig.GetSelectionPolylineLayerConfig: ISelectionPolylineLayerConfig;
+begin
+  Result := FSelectionPolylineLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetSelectionRectLayerConfig: ISelectionRectLayerConfig;
