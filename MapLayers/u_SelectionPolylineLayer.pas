@@ -37,6 +37,7 @@ type
       ALineOnMapEdit: ILineOnMapEdit;
       AConfig: ISelectionPolylineLayerConfig
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -74,6 +75,13 @@ begin
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
+end;
+
+destructor TSelectionPolylineLayer.Destroy;
+begin
+  FreeAndNil(FShadowPolygon);
+  FreeAndNil(FShadowLinePolygon);
+  inherited;
 end;
 
 procedure TSelectionPolylineLayer.DoConfigChange;
