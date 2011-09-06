@@ -124,6 +124,7 @@ var
 begin
   VScale1 := AMarkLine.LineWidth;
   TestArrLenLonLatRect := AMarkLine.LLRect;
+  ALocalConverter.GetGeoConverter.CheckLonLatRect(TestArrLenLonLatRect);
   TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
   if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
     VGeoConvert := ALocalConverter.GetGeoConverter;
@@ -202,6 +203,7 @@ var
 begin
   VScale1 := AMarkPoly.LineWidth;
   TestArrLenLonLatRect := AMarkPoly.LLRect;
+  ALocalConverter.GetGeoConverter.CheckLonLatRect(TestArrLenLonLatRect);
   TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
   if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
     VGeoConvert := ALocalConverter.GetGeoConverter;
