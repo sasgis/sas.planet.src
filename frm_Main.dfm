@@ -1172,24 +1172,6 @@ object frmMain: TfrmMain
         Caption = ''
         Hint = 'Show/Hide Captions'
       end
-      object TBEditPathSave: TTBXItem
-        ImageIndex = 25
-        Images = MenusImageList
-        OnClick = TBEditPathSaveClick
-        Caption = ''
-        Hint = 'Add to Database'
-      end
-      object TBEditPathOk: TTBXItem
-        FontSettings.Bold = tsTrue
-        FontSettings.Color = clNavy
-        FontSettings.Name = 'Arial'
-        ImageIndex = 38
-        Images = MenusImageList
-        Options = [tboImageAboveCaption, tboNoRotation, tboSameWidth]
-        OnClick = TBEditPathOkClick
-        Caption = ''
-        Hint = 'Manage Selection'
-      end
       object TBEditMagnetDraw: TTBXItem
         AutoCheck = True
         ImageIndex = 41
@@ -1199,6 +1181,7 @@ object frmMain: TfrmMain
         Hint = 'Attract to The Existing Markers'
       end
       object TBEditSelectPolylineRadiusCap1: TTBXLabelItem
+        Margin = 2
         Caption = 'Radius'
         Hint = ''
       end
@@ -1220,6 +1203,24 @@ object frmMain: TfrmMain
         Options = [tboDropdownArrow]
         Caption = ''
         Hint = 'Route Calculation'
+      end
+      object TBEditPathOk: TTBXItem
+        FontSettings.Bold = tsTrue
+        FontSettings.Color = clNavy
+        FontSettings.Name = 'Arial'
+        ImageIndex = 38
+        Images = MenusImageList
+        Options = [tboImageAboveCaption, tboNoRotation, tboSameWidth]
+        OnClick = TBEditPathOkClick
+        Caption = ''
+        Hint = 'Manage Selection'
+      end
+      object TBEditPathSave: TTBXItem
+        ImageIndex = 25
+        Images = MenusImageList
+        OnClick = TBEditPathSaveClick
+        Caption = ''
+        Hint = 'Add to Database'
       end
     end
     object TBSearchWindow: TTBXDockablePanel

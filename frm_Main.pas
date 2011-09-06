@@ -1707,7 +1707,8 @@ begin
  TBEditPathOk.Visible:=(newop=ao_select_poly)or(newop=ao_select_line);
  TBEditPathLabel.Visible:=(newop=ao_calc_line);
  TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
- TBEditMagnetDraw.Visible:=(newop=ao_Add_line)or(newop=ao_Add_Poly)or(newop=ao_Edit_line)or(newop=ao_Edit_Poly);
+ TBEditMagnetDraw.Visible:=(newop=ao_Add_line)or(newop=ao_Add_Poly)or(newop=ao_Edit_line)or(newop=ao_Edit_Poly)
+                           or(newop=ao_select_poly)or(newop=ao_select_line);
  TBEditSelectPolylineRadius.Visible:=newop=ao_select_line;
  TBEditSelectPolylineRadiusCap1.Visible:=newop=ao_select_line;
  TBEditSelectPolylineRadiusCap2.Visible:=newop=ao_select_line;
