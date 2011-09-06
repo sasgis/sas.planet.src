@@ -196,9 +196,10 @@
     <DCCReference Include="i_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
     <DCCReference Include="i_KmlLayerConfig.pas" />
+    <DCCReference Include="i_LanguageListStatic.pas" />
     <DCCReference Include="i_LanguageManager.pas" />
     <DCCReference Include="i_LastResponseInfo.pas" />
-    <DCCReference Include="I_LastSearchResultConfig.pas" />
+    <DCCReference Include="i_LastSearchResultConfig.pas" />
     <DCCReference Include="i_LastSelectionInfo.pas" />
     <DCCReference Include="i_LastSelectionLayerConfig.pas" />
     <DCCReference Include="i_LayerBitmapClearStrategy.pas" />
@@ -551,6 +552,7 @@
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />
     <DCCReference Include="u_KmlLayerConfig.pas" />
     <DCCReference Include="u_KmzInfoSimpleParser.pas" />
+    <DCCReference Include="u_LanguageListStatic.pas" />
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
     <DCCReference Include="u_LanguageTBXItem.pas" />
