@@ -29,7 +29,10 @@ type
   TStaticTreeByPathDetalizeProviderListBuilder = class(TStaticTreeBuilderBaseBySlash)
   protected
     procedure ProcessItems(ASource: IInterface; AList: TStringList); override;
-    function GetNameFromItem(AItem: IInterface): string; override;
+    function GetNameFromItem(
+      ASource: IInterface;
+      AItem: IInterface
+    ): string; override;
   public
     constructor Create;
   end;
@@ -42,7 +45,9 @@ begin
 end;
 
 function TStaticTreeByPathDetalizeProviderListBuilder.GetNameFromItem(
-  AItem: IInterface): string;
+  ASource: IInterface;
+  AItem: IInterface
+): string;
 begin
   Result := (AItem as IPathDetalizeProviderListEntity).MenuItemName;
 end;
@@ -62,7 +67,7 @@ begin
   VEnum := VList.GetGUIDEnum;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
     VItem := VList.Get(VGUID);
-    ProcessItem(VItem, AList);
+    ProcessItem(ASource, VItem, AList);
   end;
 end;
 

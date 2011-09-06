@@ -69,13 +69,18 @@ type
   TStaticTreeByCategoryListBuilder = class(TStaticTreeBuilderBaseBySlash)
   protected
     procedure ProcessItems(ASource: IInterface; AList: TStringList); override;
-    function GetNameFromItem(AItem: IInterface): string; override;
+    function GetNameFromItem(
+      ASource: IInterface;
+      AItem: IInterface
+    ): string; override;
   end;
 
 { TStaticTreeByCategoryListBuilder }
 
 function TStaticTreeByCategoryListBuilder.GetNameFromItem(
-  AItem: IInterface): string;
+  ASource: IInterface;
+  AItem: IInterface
+): string;
 begin
   Result := (AItem as ICategory).Name;
 end;
@@ -91,7 +96,7 @@ begin
   inherited;
   VList := ASource as IInterfaceList;
   for i := 0 to VList.Count - 1 do begin
-    ProcessItem(VList.Items[i], AList);
+    ProcessItem(ASource, VList.Items[i], AList);
   end;
 end;
 
@@ -99,13 +104,18 @@ type
   TStaticTreeByMarksSubsetBuilder = class(TStaticTreeBuilderBaseBySlash)
   protected
     procedure ProcessItems(ASource: IInterface; AList: TStringList); override;
-    function GetNameFromItem(AItem: IInterface): string; override;
+    function GetNameFromItem(
+      ASource: IInterface;
+      AItem: IInterface
+    ): string; override;
   end;
 
 { TStaticTreeByMarksSubsetBuilder }
 
 function TStaticTreeByMarksSubsetBuilder.GetNameFromItem(
-  AItem: IInterface): string;
+  ASource: IInterface;
+  AItem: IInterface
+): string;
 var
   VMark: IMark;
 begin
@@ -129,7 +139,7 @@ begin
   VSubset := ASource as IMarksSubset;
   VEnum := VSubset.GetEnum;
   while (VEnum.Next(1, VMark, @i) = S_OK) do begin
-    ProcessItem(VMark, AList);
+    ProcessItem(ASource, VMark, AList);
   end;
 end;
 
@@ -178,7 +188,8 @@ begin
 end;
 
 function TMarksSystem.CategoryListToStaticTree(
-  AList: IInterfaceList): IStaticTreeItem;
+  AList: IInterfaceList
+): IStaticTreeItem;
 begin
   Result := FCategoryTreeBuilder.BuildStatic(AList);
 end;
@@ -210,7 +221,8 @@ begin
 end;
 
 function TMarksSystem.MarksSubsetToStaticTree(
-  ASubset: IMarksSubset): IStaticTreeItem;
+  ASubset: IMarksSubset
+): IStaticTreeItem;
 begin
   Result := FMarksSubsetTreeBuilder.BuildStatic(ASubset);
 end;
