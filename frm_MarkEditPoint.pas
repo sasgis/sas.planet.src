@@ -139,7 +139,7 @@ begin
     seIconSize.Value:=AMark.MarkerSize;
     seTransp.Value:=100-round(AlphaComponent(AMark.TextColor)/255*100);
     clrbxTextColor.Selected:=WinColor(AMark.TextColor);
-    clrbxShadowColor.Selected:=WinColor(AMark.TextColor);
+    clrbxShadowColor.Selected:=WinColor(AMark.TextBgColor);
     chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);
     FCategory := AMark.Category;
     if FCategory <> nil then begin
