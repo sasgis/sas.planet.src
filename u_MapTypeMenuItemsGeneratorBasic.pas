@@ -72,7 +72,7 @@ begin
   end;
   if VMapType <> nil then begin
     VGUID := VMapType.Zmp.GUID;
-    Result.Caption := VMapType.name;
+    Result.Caption := VMapType.GUIConfig.Name.Value;
   end else begin
     VGUID := CGUID_Zero;
     Result.Caption := SAS_STR_MiniMapAsMainMap;
@@ -142,7 +142,7 @@ begin
     VSubMenuName := '';
     if VActiveMap.GetMapType <> nil then begin
       if VActiveMap.GetMapType.MapType <> nil then begin
-        VSubMenuName := VActiveMap.GetMapType.MapType.ParentSubMenu;
+        VSubMenuName := VActiveMap.GetMapType.MapType.GUIConfig.ParentSubMenu.Value;
       end;
     end;
     VSubMenu := GetParentMenuItem(VSubMenuName);
@@ -153,7 +153,7 @@ begin
     if VActiveMap.GetMapType <> nil then begin
       VMapType:=VActiveMap.GetMapType.MapType;
     end;
-    if (VMapType<>nil)and(VActiveMap.GetMapType.MapType.separator) then begin
+    if (VMapType<>nil)and(VActiveMap.GetMapType.MapType.GUIConfig.Separator) then begin
       VSubMenu.Add(TTBSeparatorItem.Create(FRootMenu));
     end;
   end;
@@ -165,7 +165,7 @@ var
 begin
   ProcessSubItemGUID(CGUID_Zero);
   for i := 0 to GState.MapType.Count - 1 do begin
-    if GState.MapType[i].Enabled then begin
+    if GState.MapType[i].GUIConfig.Enabled then begin
       ProcessSubItemGUID(GState.MapType[i].Zmp.GUID);
     end;
   end;

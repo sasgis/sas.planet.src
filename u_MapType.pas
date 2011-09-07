@@ -37,6 +37,7 @@ uses
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
   i_ZmpInfo,
+  i_MapTypeGUIConfig,
   i_ProxySettings,
   i_CoordConverterFactory,
   i_TileFileNameGeneratorsList,
@@ -52,7 +53,6 @@ type
  TMapType = class
    private
     FZmp: IZmpInfo;
-    FName: string;
     FasLayer: boolean;
     FTileRect: TRect;
     FUseDwn: boolean;
@@ -81,6 +81,7 @@ type
     FImageResamplerConfig: IImageResamplerConfig;
     FContentTypeManager: IContentTypeManager;
     FDownloadConfig: IGlobalDownloadConfig;
+    FGUIConfig: IMapTypeGUIConfig;
 
     function GetUseDwn: Boolean;
     function GetIsCanShowOnSmMap: boolean;
@@ -134,12 +135,6 @@ type
       ACache: ITileObjCacheBitmap = nil
     ): boolean;
    public
-    FSortIndex: integer;
-    HotKey: TShortCut;
-    separator: boolean;
-    ParentSubMenu: string;
-    Enabled: boolean;
-
     function GetLink(AXY: TPoint; Azoom: byte): string;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
@@ -230,7 +225,7 @@ type
     property IsCropOnDownload: Boolean read GetIsCropOnDownload;
 
     property TileStorage: TTileStorageAbstract read FStorage;
-    property Name: string read FName;
+    property GUIConfig: IMapTypeGUIConfig read FGUIConfig;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
     property TileRequestBuilderConfig: ITileRequestBuilderConfig read FTileRequestBuilderConfig;
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
@@ -279,6 +274,7 @@ uses
   u_DownloadResultFactoryProvider,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
+  u_MapTypeGUIConfig,
   u_LastResponseInfo,
   u_MapVersionConfig,
   u_DownloadCheckerStuped,
@@ -366,15 +362,9 @@ procedure TMapType.LoadUIParams(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
 begin
+  FGUIConfig.ReadConfig(AConfig);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-
-  FName := Zmp.GUI.Name;
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
-  HotKey:=VParams.ReadInteger('HotKey',Zmp.GUI.HotKey);
-  ParentSubMenu:=VParams.ReadString('LOCAL:ParentSubMenu', Zmp.GUI.ParentSubMenu);
-  separator:=VParams.ReadBool('separator', Zmp.GUI.Separator);
-  Enabled:=VParams.ReadBool('Enabled', Zmp.GUI.Enabled);
-  FSortIndex:=VParams.ReadInteger('pnum', Zmp.GUI.SortIndex);
 end;
 
 procedure TMapType.LoadDownloader(
@@ -422,9 +412,6 @@ begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FasLayer:= VParams.ReadBool('asLayer', false);
   LoadUIParams(AConfig);
-  if FSortIndex < 0 then begin
-    FSortIndex := 1000;
-  end;
   FVersionConfig.ReadConfig(VParams);
   FTileDownloaderConfig.ReadConfig(VParams);
   LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory, AConfig);
@@ -678,6 +665,11 @@ constructor TMapType.Create(
 );
 begin
   FZmp := AZmp;
+  FGUIConfig :=
+    TMapTypeGUIConfig.Create(
+      ALanguageManager,
+      FZmp.GUI
+    );
   FLanguageManager := ALanguageManager;
   FImageResamplerConfig := AImageResamplerConfig;
   FDownloadConfig := ADownloadConfig;

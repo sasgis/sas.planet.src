@@ -91,18 +91,18 @@ begin
   cbbHybr.Items.AddObject(SAS_STR_No,nil);
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
-    if (VMapType.IsBitmapTiles)and(VMapType.Enabled) then begin
+    if (VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
       if (not(VMapType.asLayer)) then begin
-        VAddedIndex := cbbSat.Items.AddObject(VMapType.name,VMapType);
+        VAddedIndex := cbbSat.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
         if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
           cbbSat.ItemIndex:=VAddedIndex;
         end;
-        VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
+        VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
         if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
           cbbMap.ItemIndex:=VAddedIndex;
         end;
       end else if(VMapType.IsHybridLayer) then begin
-        VAddedIndex := cbbHybr.Items.AddObject(VMapType.name,VMapType);
+        VAddedIndex := cbbHybr.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
         if (cbbHybr.ItemIndex=-1) then begin
           if GState.MainFormConfig.MainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VMapType.Zmp.GUID) then begin
             cbbHybr.ItemIndex:=VAddedIndex;

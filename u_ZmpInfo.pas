@@ -8,11 +8,13 @@ uses
   Classes,
   i_CoordConverter,
   i_ConfigDataProvider,
+  i_LanguageListStatic,
   i_MapVersionInfo,
   i_ContentTypeSubst,
   i_TileRequestBuilderConfig,
   i_TileDownloaderConfig,
   i_LanguageManager,
+  i_StringByLanguage,
   i_CoordConverterFactory,
   i_ZmpInfo;
 
@@ -20,44 +22,47 @@ type
   TZmpInfoGUI = class(TInterfacedObject, IZmpInfoGUI)
   private
     FGUID: TGUID;
-    FNameDef: string;
-    FName: string;
+    FName: IStringByLanguage;
+    FParentSubMenu: IStringByLanguage;
+
+    FInfoUrl: IStringByLanguage;
+
     FSortIndex: Integer;
-    FInfoUrl: string;
     FBmp18: TBitmap;
     FBmp24: TBitmap;
     FHotKey: TShortCut;
     FSeparator: Boolean;
-    FParentSubMenuDef: string;
-    FParentSubMenu: string;
     FEnabled: Boolean;
   private
     procedure LoadConfig(
-      AConfig: IConfigDataProvider;
-      AConfigIni: IConfigDataProvider;
-      AConfigIniParams: IConfigDataProvider
-    );
-    procedure LoadIcons(AConfig : IConfigDataProvider);
-    procedure LoadUIParams(AConfig : IConfigDataProvider);
-    procedure LoadInfo(AConfig : IConfigDataProvider);
-
-    procedure LoadByLang(
+      ALangList: ILanguageListStatic;
       AConfig: IConfigDataProvider;
       AConfigIni: IConfigDataProvider;
       AConfigIniParams: IConfigDataProvider;
-      ALanguageCode: string
+      Apnum: Integer
     );
-    procedure LoadInfoLang(AConfig : IConfigDataProvider; ALanguageCode: string);
-    procedure LoadUIParamsLang(AConfig : IConfigDataProvider; ALanguageCode: string);
+    procedure LoadIcons(
+      AConfig : IConfigDataProvider;
+      Apnum: Integer
+    );
+    procedure LoadUIParams(
+      ALangList: ILanguageListStatic;
+      AConfig : IConfigDataProvider;
+      Apnum: Integer
+    );
+    procedure LoadInfo(
+      ALangList: ILanguageListStatic;
+      AConfig : IConfigDataProvider
+    );
   protected
-    function GetName: string;
+    function GetName: IStringByLanguage;
     function GetSortIndex: Integer;
-    function GetInfoUrl: string;
+    function GetInfoUrl: IStringByLanguage;
     function GetBmp18: TBitmap;
     function GetBmp24: TBitmap;
     function GetHotKey: TShortCut;
     function GetSeparator: Boolean;
-    function GetParentSubMenu: string;
+    function GetParentSubMenu: IStringByLanguage;
     function GetEnabled: Boolean;
   public
     constructor Create(
@@ -128,6 +133,7 @@ implementation
 
 uses
   gnugettext,
+  u_StringByLanguageWithStaticList,
   u_TileRequestBuilderConfig,
   u_TileDownloaderConfigStatic,
   u_ContentTypeSubstByList,
@@ -146,13 +152,12 @@ constructor TZmpInfoGUI.Create(
 );
 var
   VCurrentLanguageCode: string;
+  VLangList: ILanguageListStatic;
 begin
   FGUID := AGUID;
-  FNameDef:='map#'+inttostr(Apnum);
-
+  VLangList := ALanguageManager.LanguageList;
   VCurrentLanguageCode := ALanguageManager.GetCurrentLanguageCode;
-  LoadConfig(AConfig, AConfigIni, AConfigIniParams);
-  LoadByLang(AConfig, AConfigIni, AConfigIniParams, VCurrentLanguageCode);
+  LoadConfig(VLangList, AConfig, AConfigIni, AConfigIniParams, Apnum);
 end;
 
 destructor TZmpInfoGUI.Destroy;
@@ -182,17 +187,17 @@ begin
   Result := FHotKey;
 end;
 
-function TZmpInfoGUI.GetInfoUrl: string;
+function TZmpInfoGUI.GetInfoUrl: IStringByLanguage;
 begin
   Result := FInfoUrl;
 end;
 
-function TZmpInfoGUI.GetName: string;
+function TZmpInfoGUI.GetName: IStringByLanguage;
 begin
   Result := FName;
 end;
 
-function TZmpInfoGUI.GetParentSubMenu: string;
+function TZmpInfoGUI.GetParentSubMenu: IStringByLanguage;
 begin
   Result := FParentSubMenu;
 end;
@@ -207,31 +212,26 @@ begin
   Result := FSortIndex;
 end;
 
-procedure TZmpInfoGUI.LoadByLang(
+procedure TZmpInfoGUI.LoadConfig(
+  ALangList: ILanguageListStatic;
   AConfig: IConfigDataProvider;
   AConfigIni: IConfigDataProvider;
   AConfigIniParams: IConfigDataProvider;
-  ALanguageCode: string
+  Apnum: Integer
 );
 begin
-  LoadInfoLang(AConfig, ALanguageCode);
-  LoadUIParamsLang(AConfigIniParams, ALanguageCode);
+  LoadUIParams(ALangList, AConfigIniParams, Apnum);
+  LoadIcons(AConfig, Apnum);
+  LoadInfo(ALangList, AConfig);
 end;
 
-procedure TZmpInfoGUI.LoadConfig(
+procedure TZmpInfoGUI.LoadIcons(
   AConfig: IConfigDataProvider;
-  AConfigIni: IConfigDataProvider;
-  AConfigIniParams: IConfigDataProvider
+  Apnum: Integer
 );
-begin
-  LoadUIParams(AConfigIniParams);
-  LoadIcons(AConfig);
-  LoadInfo(AConfig);
-end;
-
-procedure TZmpInfoGUI.LoadIcons(AConfig: IConfigDataProvider);
 var
-  VStream:TMemoryStream;
+  VStream: TMemoryStream;
+  VNameDef: string;
 begin
   Fbmp24:=TBitmap.create;
   VStream:=TMemoryStream.Create;
@@ -241,10 +241,11 @@ begin
       VStream.Position:=0;
       Fbmp24.LoadFromStream(VStream);
     except
+      VNameDef:=inttostr(Apnum);
       Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
       Fbmp24.Width:=24;
       Fbmp24.Height:=24;
-      Fbmp24.Canvas.TextOut(7,3,copy(FNameDef,1,1));
+      Fbmp24.Canvas.TextOut(7,3,copy(VNameDef,1,1));
     end;
   finally
     FreeAndNil(VStream);
@@ -257,59 +258,105 @@ begin
       VStream.Position:=0;
       Fbmp18.LoadFromStream(VStream);
     except
+      VNameDef:=inttostr(Apnum);
       Fbmp18.Canvas.FillRect(Fbmp18.Canvas.ClipRect);
       Fbmp18.Width:=18;
       Fbmp18.Height:=18;
-      Fbmp18.Canvas.TextOut(3,2,copy(FName,1,1));
+      Fbmp18.Canvas.TextOut(3,2,copy(VNameDef,1,1));
     end;
   finally
     FreeAndNil(VStream);
   end;
 end;
 
-procedure TZmpInfoGUI.LoadInfo(AConfig: IConfigDataProvider);
-begin
-  if AConfig.ReadString('index.html', '') <> '' then begin
-    FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/';
-  end else if AConfig.ReadString('info.txt', '') <> '' then begin
-    FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/info.txt';
-  end else begin
-    FInfoUrl := '';
-  end;
-end;
-
-procedure TZmpInfoGUI.LoadInfoLang(AConfig: IConfigDataProvider;
-  ALanguageCode: string);
+procedure TZmpInfoGUI.LoadInfo(
+  ALangList: ILanguageListStatic;
+  AConfig: IConfigDataProvider
+);
 var
+  VDefValue: string;
   VFileName: string;
+  i: Integer;
+  VLanguageCode: string;
+  VValueList: TStringList;
+  VValue: string;
 begin
-  VFileName := 'index_'+ALanguageCode+'.html';
-  if AConfig.ReadString(VFileName, '') <> '' then begin
-    FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/' + VFileName;
+  // 'sas://ZmpInfo/' + GUIDToString(FGUID)
+  if AConfig.ReadString('index.html', '') <> '' then begin
+    VDefValue := '/';
+  end else if AConfig.ReadString('info.txt', '') <> '' then begin
+    VDefValue := '/info.txt';
   end else begin
-    VFileName := 'info_'+ALanguageCode+'.txt';
-    if AConfig.ReadString(VFileName, '') <> '' then begin
-      FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/' + VFileName;
+    VDefValue := '';
+  end;
+  VValueList := TStringList.Create;
+  try
+    for i := 0 to ALangList.Count - 1 do begin
+      VValue := VDefValue;
+      VLanguageCode := ALangList.Code[i];
+      VFileName := 'index_'+VLanguageCode+'.html';
+      if AConfig.ReadString(VFileName, '') <> '' then begin
+        VValue := '/' + VFileName;
+      end else begin
+        VFileName := 'info_'+VLanguageCode+'.txt';
+        if AConfig.ReadString(VFileName, '') <> '' then begin
+          VValue := '/' + VFileName;
+        end;
+      end;
+      VValueList.Add(VValue);
     end;
+    FInfoUrl := TStringByLanguageWithStaticList.Create(VValueList);
+  finally
+    VValueList.Free;
   end;
 end;
 
-procedure TZmpInfoGUI.LoadUIParams(AConfig: IConfigDataProvider);
+procedure TZmpInfoGUI.LoadUIParams(
+  ALangList: ILanguageListStatic;
+  AConfig: IConfigDataProvider;
+  Apnum: Integer
+);
+var
+  VDefValue: string;
+  i: Integer;
+  VLanguageCode: string;
+  VValueList: TStringList;
+  VValue: string;
 begin
-  FNameDef := AConfig.ReadString('name', FNameDef);
+  VDefValue := 'map#'+inttostr(Apnum);
+  VDefValue := AConfig.ReadString('name', VDefValue);
+  VValueList := TStringList.Create;
+  try
+    for i := 0 to ALangList.Count - 1 do begin
+      VValue := VDefValue;
+      VLanguageCode := ALangList.Code[i];
+      VValue := AConfig.ReadString('name_' + VLanguageCode, VDefValue);
+      VValueList.Add(VValue);
+    end;
+    FName := TStringByLanguageWithStaticList.Create(VValueList);
+  finally
+    VValueList.Free;
+  end;
+
+  VDefValue := AConfig.ReadString('ParentSubMenu', VDefValue);
+  VValueList := TStringList.Create;
+  try
+    for i := 0 to ALangList.Count - 1 do begin
+      VValue := VDefValue;
+      VLanguageCode := ALangList.Code[i];
+      VValue := AConfig.ReadString('ParentSubMenu_' + VLanguageCode, VDefValue);
+      VValueList.Add(VValue);
+    end;
+    FParentSubMenu := TStringByLanguageWithStaticList.Create(VValueList);
+  finally
+    VValueList.Free;
+  end;
+
   FHotKey :=AConfig.ReadInteger('DefHotKey', 0);
   FHotKey :=AConfig.ReadInteger('HotKey', FHotKey);
-  FParentSubMenuDef := AConfig.ReadString('ParentSubMenu', '');
   FSeparator := AConfig.ReadBool('separator', false);
   FEnabled := AConfig.ReadBool('Enabled', true);
   FSortIndex := AConfig.ReadInteger('pnum', -1);
-end;
-
-procedure TZmpInfoGUI.LoadUIParamsLang(AConfig: IConfigDataProvider;
-  ALanguageCode: string);
-begin
-  FName := AConfig.ReadString('name_' + ALanguageCode, FNameDef);
-  FParentSubMenu := AConfig.ReadString('ParentSubMenu_' + ALanguageCode, FParentSubMenuDef);
 end;
 
 { TZmpInfo }

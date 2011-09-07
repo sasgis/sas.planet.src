@@ -151,7 +151,7 @@ begin
   Result := nil;
   for i := 0 to Length(FMapType) - 1 do begin
     VMap := FMapType[i];
-    if VMap.HotKey = AHotKey then begin
+    if VMap.GUIConfig.HotKey = AHotKey then begin
       Result := VMap;
       Break;
     end;
@@ -324,8 +324,7 @@ begin
     VMapType := FMapType[i];
     VGUIDString := GUIDToString(VMapType.Zmp.GUID);
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
-    VSubItem.WriteInteger('pnum', VMapType.FSortIndex);
-    VSubItem.WriteString('name', VMapType.Name);
+    VMapType.GUIConfig.WriteConfig(VSubItem);
 
     if VMapType.TileRequestBuilderConfig.URLBase <> VMapType.Zmp.TileRequestBuilderConfig.UrlBase then begin
       VSubItem.WriteString('URLBase', VMapType.TileRequestBuilderConfig.URLBase);
@@ -347,22 +346,10 @@ begin
       VSubItem.DeleteValue('RequestHead');
     end;
 
-    if VMapType.HotKey <> VMapType.Zmp.GUI.HotKey then begin
-      VSubItem.WriteInteger('HotKey', VMapType.HotKey);
-    end else begin
-      VSubItem.DeleteValue('HotKey');
-    end;
-
     if VMapType.TileStorage.CacheConfig.cachetype <> VMapType.TileStorage.CacheConfig.defcachetype then begin
       VSubItem.WriteInteger('CacheType', VMapType.TileStorage.CacheConfig.CacheType);
     end else begin
       VSubItem.DeleteValue('CacheType');
-    end;
-
-    if VMapType.separator <> VMapType.Zmp.GUI.Separator then begin
-      VSubItem.WriteBool('separator', VMapType.separator);
-    end else begin
-      VSubItem.DeleteValue('separator');
     end;
 
     if VMapType.TileStorage.CacheConfig.NameInCache <> VMapType.TileStorage.CacheConfig.DefNameInCache then begin
@@ -375,18 +362,6 @@ begin
       VSubItem.WriteInteger('Sleep', VMapType.TileDownloaderConfig.WaitInterval);
     end else begin
       VSubItem.DeleteValue('Sleep');
-    end;
-
-    if VMapType.ParentSubMenu <> VMapType.Zmp.GUI.ParentSubMenu then begin
-      VSubItem.WriteString('ParentSubMenu', VMapType.ParentSubMenu);
-    end else begin
-      VSubItem.DeleteValue('ParentSubMenu');
-    end;
-
-    if VMapType.Enabled <> VMapType.Zmp.GUI.Enabled then begin
-      VSubItem.WriteBool('Enabled', VMapType.Enabled);
-    end else begin
-      VSubItem.DeleteValue('Enabled');
     end;
 
     if VMapType.VersionConfig.Version <> VMapType.Zmp.VersionConfig.Version then begin
@@ -406,7 +381,7 @@ begin
   while k > 0 do begin
     for i := 0 to length(FMapType) - k - 1 do begin
       j := i;
-      while (j >= 0) and (FMapType[j].FSortIndex > FMapType[j + k].FSortIndex) do begin
+      while (j >= 0) and (FMapType[j].GUIConfig.SortIndex > FMapType[j + k].GUIConfig.SortIndex) do begin
         MTb := FMapType[j];
         FMapType[j] := FMapType[j + k];
         FMapType[j + k] := MTb;
@@ -420,7 +395,7 @@ begin
     k := k shr 1;
   end;
   for i := 0 to length(FMapType) - 1 do begin
-    FMapType[i].FSortIndex := i + 1;
+    FMapType[i].GUIConfig.SortIndex := i + 1;
   end;
 end;
 

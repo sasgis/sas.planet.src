@@ -1453,7 +1453,7 @@ begin
       if VMapType.asLayer then begin
         NDwnItem:=TTBXItem.Create(ldm);
         FNDwnItemList.Add(VMapType.Zmp.GUID, NDwnItem);
-        NDwnItem.Caption:=VMapType.name;
+        NDwnItem.Caption:=VMapType.GUIConfig.Name.Value;
         NDwnItem.ImageIndex:=VIcon18Index;
         NDwnItem.OnClick:=N21Click;
         NDwnItem.Tag:=longint(VMapType);
@@ -1461,7 +1461,7 @@ begin
 
         NDelItem:=TTBXItem.Create(dlm);
         FNDelItemList.Add(VMapType.Zmp.GUID, NDelItem);
-        NDelItem.Caption:=VMapType.name;
+        NDelItem.Caption:=VMapType.GUIConfig.Name.Value;
         NDelItem.ImageIndex:=VIcon18Index;
         NDelItem.OnClick:=NDelClick;
         NDelItem.Tag:=longint(VMapType);
@@ -1469,7 +1469,7 @@ begin
 
         NOpenDirItem:=TTBXItem.Create(TBOpenDirLayer);
         FNOpenDirItemList.Add(VMapType.Zmp.GUID, NOpenDirItem);
-        NOpenDirItem.Caption:=VMapType.name;
+        NOpenDirItem.Caption:=VMapType.GUIConfig.Name.Value;
         NOpenDirItem.ImageIndex:=VIcon18Index;
         NOpenDirItem.OnClick:=N25Click;
         NOpenDirItem.Tag:=longint(VMapType);
@@ -1477,7 +1477,7 @@ begin
 
         NCopyLinkItem:=TTBXItem.Create(TBCopyLinkLayer);
         FNCopyLinkItemList.Add(VMapType.Zmp.GUID, NCopyLinkItem);
-        NCopyLinkItem.Caption:=VMapType.name;
+        NCopyLinkItem.Caption:=VMapType.GUIConfig.Name.Value;
         NCopyLinkItem.ImageIndex:=VIcon18Index;
         NCopyLinkItem.OnClick:=N13Click;
         NCopyLinkItem.Tag:=longint(VMapType);
@@ -1485,7 +1485,7 @@ begin
 
         NLayerParamsItem:=TTBXItem.Create(NLayerParams);
         FNLayerParamsItemList.Add(VMapType.Zmp.GUID, NLayerParamsItem);
-        NLayerParamsItem.Caption:=VMapType.name;
+        NLayerParamsItem.Caption:=VMapType.GUIConfig.Name.Value;
         NLayerParamsItem.ImageIndex:=VIcon18Index;
         NLayerParamsItem.OnClick:=NMapParamsClick;
         NLayerParamsItem.Tag:=longint(VMapType);
@@ -1493,7 +1493,7 @@ begin
 
         NLayerInfoItem:=TTBXItem.Create(TBLayerInfo);
         FNLayerInfoItemList.Add(VMapType.Zmp.GUID, NLayerInfoItem);
-        NLayerInfoItem.Caption:=VMapType.name;
+        NLayerInfoItem.Caption:=VMapType.GUIConfig.Name.Value;
         NLayerInfoItem.ImageIndex:=VIcon18Index;
         NLayerInfoItem.OnClick:=NMapInfoClick;
         NLayerInfoItem.Tag:=longint(VMapType);
@@ -1855,7 +1855,7 @@ begin
   TBEditMagnetDraw.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw;
 
   if FConfig.MainConfig.ShowMapName then begin
-    TBSMB.Caption := FConfig.MainMapsConfig.GetSelectedMapType.MapType.Name;
+    TBSMB.Caption := FConfig.MainMapsConfig.GetSelectedMapType.MapType.GUIConfig.Name.Value;
   end else begin
     TBSMB.Caption := '';
   end;
@@ -1887,7 +1887,7 @@ begin
   TBSMB.ImageIndex := GState.MapType.MapTypeIcons24List.GetIconIndexByGUID(VGUID);
   if FConfig.MainConfig.ShowMapName then begin
     VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsSet.GetMapTypeByGUID(VGUID);
-    TBSMB.Caption := VMapType.MapType.Name;
+    TBSMB.Caption := VMapType.MapType.GUIConfig.Name.Value;
   end else begin
     TBSMB.Caption := '';
   end;
@@ -4031,14 +4031,17 @@ end;
 procedure TfrmMain.NMapInfoClick(Sender: TObject);
 var
   VMapType: TMapType;
+  VUrl: string;
 begin
   if TMenuItem(sender).Tag<>0 then begin
     VMapType := TMapType(TMenuItem(sender).Tag);
   end else begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
-  if VMapType.Zmp.GUI.InfoUrl <> '' then begin
-    frmIntrnalBrowser.Navigate(VMapType.Zmp.FileName, VMapType.Zmp.GUI.InfoUrl);
+  VUrl := VMapType.GUIConfig.InfoUrl.Value;
+  if VUrl <> '' then begin
+    VUrl := 'sas://ZmpInfo/' + GUIDToString(VMapType.Zmp.GUID) + VUrl;
+    frmIntrnalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
   end;
 end;
 
@@ -4410,7 +4413,7 @@ begin
       VMenuItem := TTBXItem(FNLayerInfoItemList.GetByGUID(VGUID));
       VMenuItem.Visible := VLayerIsActive;
       if VLayerIsActive then begin
-        VMenuItem.Enabled := VMapType.Zmp.GUI.InfoUrl <> '';
+        VMenuItem.Enabled := VMapType.GUIConfig.InfoUrl.Value <> '';
       end;
       if VLayerIsActive then begin
         ldm.Visible:=true;
@@ -4422,7 +4425,7 @@ begin
     end;
   end;
   VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-  NMapInfo.Enabled:=VMapType.Zmp.GUI.InfoUrl<>'';
+  NMapInfo.Enabled:=VMapType.GUIConfig.InfoUrl.Value<>'';
 end;
 
 procedure TfrmMain.NGoToForumClick(Sender: TObject);

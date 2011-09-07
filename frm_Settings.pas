@@ -322,7 +322,7 @@ begin
  VNeedReboot:=false;
  For i:=0 to MapList.Items.Count-1 do
   begin
-   TMapType(MapList.Items.Item[i].data).FSortIndex:=i+1;
+   TMapType(MapList.Items.Item[i].data).GUIConfig.SortIndex:=i+1;
   end;
  GState.MapType.SortList;
 
@@ -802,7 +802,7 @@ begin
   if Self.Visible then begin
     if Item.Data<>nil then begin
       VMap := TMapType(Item.Data);
-      btnMapInfo.Enabled:=VMap.Zmp.GUI.InfoUrl<>'';
+      btnMapInfo.Enabled:=VMap.GUIConfig.InfoUrl.Value<>'';
     end;
   end;
 end;
@@ -810,7 +810,7 @@ end;
 procedure TfrmSettings.MapListCustomDrawSubItem(Sender:TCustomListView; Item:TListItem; SubItem:Integer; State:TCustomDrawState; var DefaultDraw:Boolean);
 begin
  if item = nil then EXIT;
- if TMapType(Item.Data).separator then
+ if TMapType(Item.Data).GUIConfig.Separator then
   begin
    sender.canvas.Pen.Color:=clGray;
    sender.canvas.MoveTo(2,Item.DisplayRect(drBounds).Bottom-1);
@@ -845,10 +845,13 @@ end;
 procedure TfrmSettings.btnMapInfoClick(Sender: TObject);
 var
   VMap: TMapType;
+  VUrl: string;
 begin
   VMap := TMapType(MapList.Selected.Data);
-  if VMap.Zmp.GUI.InfoUrl <> '' then begin
-    frmIntrnalBrowser.Navigate(VMap.Zmp.FileName, VMap.Zmp.GUI.InfoUrl);
+  VUrl := VMap.GUIConfig.InfoUrl.Value;
+  if VUrl <> '' then begin
+    VUrl := 'sas://ZmpInfo/' + GUIDToString(VMap.Zmp.GUID) + VUrl;
+    frmIntrnalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
   end;
 end;
 
@@ -861,17 +864,17 @@ begin
   for i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     With VMapType do begin
-      MapList.AddItem(VMapType.name,nil);
+      MapList.AddItem(VMapType.GUIConfig.Name.Value, nil);
       MapList.Items.Item[i].Data:=VMapType;
       MapList.Items.Item[i].SubItems.Add(VMapType.TileStorage.CacheConfig.NameInCache);
       if VMapType.asLayer then begin
-        MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.ParentSubMenu);
+        MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
       end else begin
-        MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.ParentSubMenu);
+        MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
       end;
-      MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.HotKey));
+      MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.GUIConfig.HotKey));
       MapList.Items.Item[i].SubItems.Add(VMapType.Zmp.FileName);
-      if VMapType.Enabled then begin
+      if VMapType.GUIConfig.Enabled then begin
         MapList.Items.Item[i].SubItems.Add(SAS_STR_Yes)
       end else begin
         MapList.Items.Item[i].SubItems.Add(SAS_STR_No)

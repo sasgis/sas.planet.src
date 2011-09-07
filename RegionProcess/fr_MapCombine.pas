@@ -165,14 +165,14 @@ begin
   cbbHybr.Items.Add(SAS_STR_No);
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
-    if (VMapType.UseStick)and(VMapType.IsBitmapTiles)and(VMapType.Enabled) then begin
+    if (VMapType.UseStick)and(VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
       if not VMapType.asLayer then begin
-        VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
+        VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
         if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
           cbbMap.ItemIndex:=VAddedIndex;
         end;
       end else begin
-        VAddedIndex := cbbHybr.Items.AddObject(VMapType.name,VMapType);
+        VAddedIndex := cbbHybr.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
         if (cbbHybr.ItemIndex=-1) then begin
           if GState.MainFormConfig.MainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VMapType.Zmp.GUID) then begin
             cbbHybr.ItemIndex:=VAddedIndex;
