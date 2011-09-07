@@ -7,6 +7,7 @@ uses
   Classes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_LanguageListStatic,
   i_LanguageManager,
   u_ConfigDataElementBase,
   u_LanguagesEx;
@@ -14,6 +15,7 @@ uses
 type
   TLanguageManager = class(TConfigDataElementBase, ILanguageManager)
   private
+    FList: ILanguageListStatic;
     FDefaultLangCode: string;
     FLanguagesEx: TLanguagesEx;
     FNames : TStringList;
@@ -28,7 +30,8 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetCurrentLanguageCode: string;
-    procedure SetCurrentLanguage(ACode: string);
+    procedure SetCurrentLanguageCode(ACode: string);
+    function GetLanguageList: ILanguageListStatic;
     procedure GetInstalledLanguageCodes(AList: TStrings);
     function GetLanguageNameByCode(ACode: string): WideString;
     procedure GetLangNames(AList: TStrings);
@@ -43,8 +46,6 @@ type
     destructor Destroy; override;
   end;
 
-
-
 implementation
 
 uses
@@ -57,7 +58,8 @@ uses
   GR32,
   EmbeddedWB,
   gnugettext,
-  u_CommonFormAndFrameParents;
+  u_CommonFormAndFrameParents,
+  u_LanguageListStatic;
 
 { TLanguageManager }
 
@@ -78,6 +80,7 @@ begin
   SetTranslateIgnore;
 
   LoadLangs;
+  FList := TLanguageListStatic.Create(FCodes);
 end;
 
 destructor TLanguageManager.Destroy;
@@ -107,7 +110,7 @@ procedure TLanguageManager.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    SetCurrentLanguage(AConfigData.ReadString('Lang', ''));
+    SetCurrentLanguageCode(AConfigData.ReadString('Lang', ''));
   end;
 end;
 
@@ -182,6 +185,11 @@ begin
   AList.Assign(FNames);
 end;
 
+function TLanguageManager.GetLanguageList: ILanguageListStatic;
+begin
+  Result := FList;
+end;
+
 function TLanguageManager.GetLanguageNameByCode(ACode: string): WideString;
 var codeIndex : integer;
 begin
@@ -250,7 +258,7 @@ begin
   end;
 end;
 
-procedure TLanguageManager.SetCurrentLanguage(ACode: string);
+procedure TLanguageManager.SetCurrentLanguageCode(ACode: string);
 var
   VIndex: Integer;
 begin
