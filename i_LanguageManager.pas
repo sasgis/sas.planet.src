@@ -3,7 +3,6 @@ unit i_LanguageManager;
 interface
 
 uses
-  Classes,
   i_ConfigDataElement,
   i_LanguageListStatic;
 

@@ -13,22 +13,16 @@ uses
   i_TileRequestBuilderConfig;
 
 type
-  IZmpInfo = interface
-    ['{4AD18200-DD3B-42E4-AC57-44C12634C0EB}']
-    function GetGUID: TGUID;
-    property GUID: TGUID read GetGUID;
-
-    function GetFileName: string;
-    property FileName: string read GetFileName;
-
+  IZmpInfoGUI = interface
+    ['{60EC2C98-6197-47CE-99FD-C5D9BEA3E750}']
     function GetName: string;
     property Name: string read GetName;
 
-    function GetInfoUrl: string;
-    property InfoUrl: string read GetInfoUrl;
-
     function GetSortIndex: Integer;
     property SortIndex: Integer read GetSortIndex;
+
+    function GetInfoUrl: string;
+    property InfoUrl: string read GetInfoUrl;
 
     function GetBmp18: TBitmap;
     property Bmp18: TBitmap read GetBmp18;
@@ -47,6 +41,18 @@ type
 
     function GetEnabled: Boolean;
     property Enabled: Boolean read GetEnabled;
+  end;
+
+  IZmpInfo = interface
+    ['{4AD18200-DD3B-42E4-AC57-44C12634C0EB}']
+    function GetGUID: TGUID;
+    property GUID: TGUID read GetGUID;
+
+    function GetFileName: string;
+    property FileName: string read GetFileName;
+
+    function GetGUI: IZmpInfoGUI;
+    property GUI: IZmpInfoGUI read GetGUI;
 
     function GetVersionConfig: IMapVersionInfo;
     property VersionConfig: IMapVersionInfo read GetVersionConfig;

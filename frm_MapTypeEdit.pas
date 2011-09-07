@@ -135,14 +135,14 @@ procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
   EditURL.Text := FmapType.Zmp.TileRequestBuilderConfig.UrlBase;
   EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
-  EditParSubMenu.Text:=FmapType.Zmp.ParentSubMenu;
+  EditParSubMenu.Text:=FmapType.Zmp.GUI.ParentSubMenu;
   SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
-  EditHotKey.HotKey:=FmapType.Zmp.HotKey;
+  EditHotKey.HotKey:=FmapType.Zmp.GUI.HotKey;
   if FMapType.TileStorage.CacheConfig.CacheType <> 5 then begin
     CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
   end;
-  CheckBox1.Checked:=FmapType.Zmp.Separator;
-  CheckEnabled.Checked:=FMapType.Zmp.Enabled;
+  CheckBox1.Checked:=FmapType.Zmp.GUI.Separator;
+  CheckEnabled.Checked:=FMapType.Zmp.GUI.Enabled;
   edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
   mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
 end;
@@ -159,12 +159,12 @@ end;
 
 procedure TfrmMapTypeEdit.Button5Click(Sender: TObject);
 begin
- EditParSubMenu.Text := FMapType.Zmp.ParentSubMenu;
+ EditParSubMenu.Text := FMapType.Zmp.GUI.ParentSubMenu;
 end;
 
 procedure TfrmMapTypeEdit.Button7Click(Sender: TObject);
 begin
- EditHotKey.HotKey := FMapType.Zmp.HotKey;
+ EditHotKey.HotKey := FMapType.Zmp.GUI.HotKey;
 end;
 
 procedure TfrmMapTypeEdit.Button8Click(Sender: TObject);

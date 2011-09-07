@@ -802,7 +802,7 @@ begin
   if Self.Visible then begin
     if Item.Data<>nil then begin
       VMap := TMapType(Item.Data);
-      btnMapInfo.Enabled:=VMap.Zmp.InfoUrl<>'';
+      btnMapInfo.Enabled:=VMap.Zmp.GUI.InfoUrl<>'';
     end;
   end;
 end;
@@ -847,8 +847,8 @@ var
   VMap: TMapType;
 begin
   VMap := TMapType(MapList.Selected.Data);
-  if VMap.Zmp.InfoUrl <> '' then begin
-    frmIntrnalBrowser.Navigate(VMap.Zmp.FileName, VMap.Zmp.InfoUrl);
+  if VMap.Zmp.GUI.InfoUrl <> '' then begin
+    frmIntrnalBrowser.Navigate(VMap.Zmp.FileName, VMap.Zmp.GUI.InfoUrl);
   end;
 end;
 

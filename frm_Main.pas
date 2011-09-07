@@ -4037,8 +4037,8 @@ begin
   end else begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
-  if VMapType.Zmp.InfoUrl <> '' then begin
-    frmIntrnalBrowser.Navigate(VMapType.Zmp.FileName, VMapType.Zmp.InfoUrl);
+  if VMapType.Zmp.GUI.InfoUrl <> '' then begin
+    frmIntrnalBrowser.Navigate(VMapType.Zmp.FileName, VMapType.Zmp.GUI.InfoUrl);
   end;
 end;
 
@@ -4410,7 +4410,7 @@ begin
       VMenuItem := TTBXItem(FNLayerInfoItemList.GetByGUID(VGUID));
       VMenuItem.Visible := VLayerIsActive;
       if VLayerIsActive then begin
-        VMenuItem.Enabled := VMapType.Zmp.InfoUrl <> '';
+        VMenuItem.Enabled := VMapType.Zmp.GUI.InfoUrl <> '';
       end;
       if VLayerIsActive then begin
         ldm.Visible:=true;
@@ -4422,7 +4422,7 @@ begin
     end;
   end;
   VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-  NMapInfo.Enabled:=VMapType.Zmp.InfoUrl<>'';
+  NMapInfo.Enabled:=VMapType.Zmp.GUI.InfoUrl<>'';
 end;
 
 procedure TfrmMain.NGoToForumClick(Sender: TObject);

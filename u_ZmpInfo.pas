@@ -17,10 +17,9 @@ uses
   i_ZmpInfo;
 
 type
-  TZmpInfo = class(TInterfacedObject, IZmpInfo)
+  TZmpInfoGUI = class(TInterfacedObject, IZmpInfoGUI)
   private
     FGUID: TGUID;
-    FFileName: string;
     FNameDef: string;
     FName: string;
     FSortIndex: Integer;
@@ -32,40 +31,25 @@ type
     FParentSubMenuDef: string;
     FParentSubMenu: string;
     FEnabled: Boolean;
-    FVersionConfig: IMapVersionInfo;
-    FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
-    FTileDownloaderConfig: ITileDownloaderConfigStatic;
-    FContentTypeSubst: IContentTypeSubst;
-    FGeoConvert: ICoordConverter;
-    FViewGeoConvert: ICoordConverter;
-
-    FConfig: IConfigDataProvider;
-    FConfigIni: IConfigDataProvider;
-    FConfigIniParams: IConfigDataProvider;
-    FCurrentLanguageCode: string;
-    FLanguageManager: ILanguageManager;
   private
     procedure LoadConfig(
-      ACoordConverterFactory: ICoordConverterFactory
+      AConfig: IConfigDataProvider;
+      AConfigIni: IConfigDataProvider;
+      AConfigIniParams: IConfigDataProvider
     );
-    function LoadGUID(AConfig : IConfigDataProvider): TGUID;
-    procedure LoadVersion(AConfig : IConfigDataProvider);
     procedure LoadIcons(AConfig : IConfigDataProvider);
-    procedure LoadProjectionInfo(
-      AConfig : IConfigDataProvider;
-      ACoordConverterFactory: ICoordConverterFactory
-    );
     procedure LoadUIParams(AConfig : IConfigDataProvider);
     procedure LoadInfo(AConfig : IConfigDataProvider);
-    procedure LoadTileRequestBuilderConfig(AConfig : IConfigDataProvider);
-    procedure LoadTileDownloaderConfig(AConfig: IConfigDataProvider);
 
-    procedure LoadByLang(ALanguageCode: string);
+    procedure LoadByLang(
+      AConfig: IConfigDataProvider;
+      AConfigIni: IConfigDataProvider;
+      AConfigIniParams: IConfigDataProvider;
+      ALanguageCode: string
+    );
     procedure LoadInfoLang(AConfig : IConfigDataProvider; ALanguageCode: string);
     procedure LoadUIParamsLang(AConfig : IConfigDataProvider; ALanguageCode: string);
   protected
-    function GetGUID: TGUID;
-    function GetFileName: string;
     function GetName: string;
     function GetSortIndex: Integer;
     function GetInfoUrl: string;
@@ -75,6 +59,49 @@ type
     function GetSeparator: Boolean;
     function GetParentSubMenu: string;
     function GetEnabled: Boolean;
+  public
+    constructor Create(
+      AGUID: TGUID;
+      ALanguageManager: ILanguageManager;
+      AConfig: IConfigDataProvider;
+      AConfigIni: IConfigDataProvider;
+      AConfigIniParams: IConfigDataProvider;
+      Apnum: Integer
+    );
+    destructor Destroy; override;
+  end;
+
+  TZmpInfo = class(TInterfacedObject, IZmpInfo)
+  private
+    FGUID: TGUID;
+    FFileName: string;
+    FVersionConfig: IMapVersionInfo;
+    FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
+    FTileDownloaderConfig: ITileDownloaderConfigStatic;
+    FContentTypeSubst: IContentTypeSubst;
+    FGeoConvert: ICoordConverter;
+    FViewGeoConvert: ICoordConverter;
+    FGUI: IZmpInfoGUI;
+
+    FConfig: IConfigDataProvider;
+    FConfigIni: IConfigDataProvider;
+    FConfigIniParams: IConfigDataProvider;
+  private
+    procedure LoadConfig(
+      ACoordConverterFactory: ICoordConverterFactory
+    );
+    function LoadGUID(AConfig : IConfigDataProvider): TGUID;
+    procedure LoadVersion(AConfig : IConfigDataProvider);
+    procedure LoadProjectionInfo(
+      AConfig : IConfigDataProvider;
+      ACoordConverterFactory: ICoordConverterFactory
+    );
+    procedure LoadTileRequestBuilderConfig(AConfig : IConfigDataProvider);
+    procedure LoadTileDownloaderConfig(AConfig: IConfigDataProvider);
+  protected
+    function GetGUID: TGUID;
+    function GetGUI: IZmpInfoGUI;
+    function GetFileName: string;
     function GetVersionConfig: IMapVersionInfo;
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
@@ -90,7 +117,6 @@ type
       AConfig: IConfigDataProvider;
       Apnum: Integer
     );
-    destructor Destroy; override;
   end;
 
   EZmpError = class(Exception);
@@ -108,167 +134,102 @@ uses
   u_MapVersionInfo,
   u_ResStrings;
 
-{ TZmpInfo }
+{ TZmpInfoGUI }
 
-constructor TZmpInfo.Create(
+constructor TZmpInfoGUI.Create(
+  AGUID: TGUID;
   ALanguageManager: ILanguageManager;
-  ACoordConverterFactory: ICoordConverterFactory;
-  AFileName: string;
   AConfig: IConfigDataProvider;
+  AConfigIni: IConfigDataProvider;
+  AConfigIniParams: IConfigDataProvider;
   Apnum: Integer
 );
+var
+  VCurrentLanguageCode: string;
 begin
-  FLanguageManager := ALanguageManager;
+  FGUID := AGUID;
   FNameDef:='map#'+inttostr(Apnum);
-  FFileName := AFileName;
-  FConfig := AConfig;
-  FConfigIni := FConfig.GetSubItem('params.txt');
-  if FConfigIni = nil then begin
-    raise EZmpIniNotFound.Create(_('Not found "params.txt" in zmp'));
-  end;
-  FConfigIniParams := FConfigIni.GetSubItem('PARAMS');
-  if FConfigIniParams = nil then begin
-    raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
-  end;
 
-  FCurrentLanguageCode := FLanguageManager.GetCurrentLanguageCode;
-  LoadConfig(ACoordConverterFactory);
-  LoadByLang(FCurrentLanguageCode);
+  VCurrentLanguageCode := ALanguageManager.GetCurrentLanguageCode;
+  LoadConfig(AConfig, AConfigIni, AConfigIniParams);
+  LoadByLang(AConfig, AConfigIni, AConfigIniParams, VCurrentLanguageCode);
 end;
 
-destructor TZmpInfo.Destroy;
+destructor TZmpInfoGUI.Destroy;
 begin
   FreeAndNil(FBmp18);
   FreeAndNil(FBmp24);
   inherited;
 end;
 
-function TZmpInfo.GetBmp18: TBitmap;
+function TZmpInfoGUI.GetBmp18: TBitmap;
 begin
   Result := FBmp18;
 end;
 
-function TZmpInfo.GetBmp24: TBitmap;
+function TZmpInfoGUI.GetBmp24: TBitmap;
 begin
   Result := FBmp24;
 end;
 
-function TZmpInfo.GetContentTypeSubst: IContentTypeSubst;
-begin
-  Result := FContentTypeSubst;
-end;
-
-function TZmpInfo.GetDataProvider: IConfigDataProvider;
-begin
-  Result := FConfig;
-end;
-
-function TZmpInfo.GetEnabled: Boolean;
+function TZmpInfoGUI.GetEnabled: Boolean;
 begin
   Result := FEnabled;
 end;
 
-function TZmpInfo.GetFileName: string;
-begin
-  Result := FFileName;
-end;
-
-function TZmpInfo.GetGeoConvert: ICoordConverter;
-begin
-  Result := FGeoConvert;
-end;
-
-function TZmpInfo.GetGUID: TGUID;
-begin
-  Result := FGUID;
-end;
-
-function TZmpInfo.GetHotKey: TShortCut;
+function TZmpInfoGUI.GetHotKey: TShortCut;
 begin
   Result := FHotKey;
 end;
 
-function TZmpInfo.GetViewGeoConvert: ICoordConverter;
-begin
-  Result := FViewGeoConvert;
-end;
-
-function TZmpInfo.GetInfoUrl: string;
+function TZmpInfoGUI.GetInfoUrl: string;
 begin
   Result := FInfoUrl;
 end;
 
-function TZmpInfo.GetName: string;
+function TZmpInfoGUI.GetName: string;
 begin
   Result := FName;
 end;
 
-function TZmpInfo.GetParentSubMenu: string;
+function TZmpInfoGUI.GetParentSubMenu: string;
 begin
   Result := FParentSubMenu;
 end;
 
-function TZmpInfo.GetSeparator: Boolean;
+function TZmpInfoGUI.GetSeparator: Boolean;
 begin
   Result := FSeparator;
 end;
 
-function TZmpInfo.GetSortIndex: Integer;
+function TZmpInfoGUI.GetSortIndex: Integer;
 begin
   Result := FSortIndex;
 end;
 
-function TZmpInfo.GetTileDownloaderConfig: ITileDownloaderConfigStatic;
+procedure TZmpInfoGUI.LoadByLang(
+  AConfig: IConfigDataProvider;
+  AConfigIni: IConfigDataProvider;
+  AConfigIniParams: IConfigDataProvider;
+  ALanguageCode: string
+);
 begin
-  Result := FTileDownloaderConfig;
+  LoadInfoLang(AConfig, ALanguageCode);
+  LoadUIParamsLang(AConfigIniParams, ALanguageCode);
 end;
 
-function TZmpInfo.GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
+procedure TZmpInfoGUI.LoadConfig(
+  AConfig: IConfigDataProvider;
+  AConfigIni: IConfigDataProvider;
+  AConfigIniParams: IConfigDataProvider
+);
 begin
-  Result := FTileRequestBuilderConfig;
+  LoadUIParams(AConfigIniParams);
+  LoadIcons(AConfig);
+  LoadInfo(AConfig);
 end;
 
-function TZmpInfo.GetVersionConfig: IMapVersionInfo;
-begin
-  Result := FVersionConfig;
-end;
-
-procedure TZmpInfo.LoadByLang(ALanguageCode: string);
-begin
-  LoadInfoLang(FConfig, ALanguageCode);
-  LoadUIParamsLang(FConfigIniParams, ALanguageCode);
-end;
-
-procedure TZmpInfo.LoadConfig(ACoordConverterFactory: ICoordConverterFactory);
-begin
-  FGUID := LoadGUID(FConfigIniParams);
-  LoadVersion(FConfigIniParams);
-  LoadUIParams(FConfigIniParams);
-  LoadIcons(FConfig);
-  LoadInfo(FConfig);
-  LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
-  LoadTileRequestBuilderConfig(FConfigIniParams);
-  LoadTileDownloaderConfig(FConfigIniParams);
-  FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
-end;
-
-function TZmpInfo.LoadGUID(AConfig: IConfigDataProvider): TGUID;
-var
-  VGUIDStr: String;
-begin
-  VGUIDStr := AConfig.ReadString('GUID', '');
-  if Length(VGUIDStr) > 0 then begin
-    try
-      Result := StringToGUID(VGUIDStr);
-    except
-      raise EZmpGUIDError.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
-    end;
-  end else begin
-    raise EZmpGUIDError.CreateRes(@SAS_ERR_MapGUIDEmpty);
-  end;
-end;
-
-procedure TZmpInfo.LoadIcons(AConfig: IConfigDataProvider);
+procedure TZmpInfoGUI.LoadIcons(AConfig: IConfigDataProvider);
 var
   VStream:TMemoryStream;
 begin
@@ -306,7 +267,7 @@ begin
   end;
 end;
 
-procedure TZmpInfo.LoadInfo(AConfig: IConfigDataProvider);
+procedure TZmpInfoGUI.LoadInfo(AConfig: IConfigDataProvider);
 begin
   if AConfig.ReadString('index.html', '') <> '' then begin
     FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/';
@@ -317,7 +278,8 @@ begin
   end;
 end;
 
-procedure TZmpInfo.LoadInfoLang(AConfig: IConfigDataProvider; ALanguageCode: string);
+procedure TZmpInfoGUI.LoadInfoLang(AConfig: IConfigDataProvider;
+  ALanguageCode: string);
 var
   VFileName: string;
 begin
@@ -329,6 +291,124 @@ begin
     if AConfig.ReadString(VFileName, '') <> '' then begin
       FInfoUrl := 'sas://ZmpInfo/' + GUIDToString(FGUID) + '/' + VFileName;
     end;
+  end;
+end;
+
+procedure TZmpInfoGUI.LoadUIParams(AConfig: IConfigDataProvider);
+begin
+  FNameDef := AConfig.ReadString('name', FNameDef);
+  FHotKey :=AConfig.ReadInteger('DefHotKey', 0);
+  FHotKey :=AConfig.ReadInteger('HotKey', FHotKey);
+  FParentSubMenuDef := AConfig.ReadString('ParentSubMenu', '');
+  FSeparator := AConfig.ReadBool('separator', false);
+  FEnabled := AConfig.ReadBool('Enabled', true);
+  FSortIndex := AConfig.ReadInteger('pnum', -1);
+end;
+
+procedure TZmpInfoGUI.LoadUIParamsLang(AConfig: IConfigDataProvider;
+  ALanguageCode: string);
+begin
+  FName := AConfig.ReadString('name_' + ALanguageCode, FNameDef);
+  FParentSubMenu := AConfig.ReadString('ParentSubMenu_' + ALanguageCode, FParentSubMenuDef);
+end;
+
+{ TZmpInfo }
+
+constructor TZmpInfo.Create(
+  ALanguageManager: ILanguageManager;
+  ACoordConverterFactory: ICoordConverterFactory;
+  AFileName: string;
+  AConfig: IConfigDataProvider;
+  Apnum: Integer
+);
+begin
+  FFileName := AFileName;
+  FConfig := AConfig;
+  FConfigIni := FConfig.GetSubItem('params.txt');
+  if FConfigIni = nil then begin
+    raise EZmpIniNotFound.Create(_('Not found "params.txt" in zmp'));
+  end;
+  FConfigIniParams := FConfigIni.GetSubItem('PARAMS');
+  if FConfigIniParams = nil then begin
+    raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
+  end;
+  LoadConfig(ACoordConverterFactory);
+  FGUI := TZmpInfoGUI.Create(FGUID, ALanguageManager, FConfig, FConfigIni, FConfigIniParams, Apnum);
+end;
+
+function TZmpInfo.GetContentTypeSubst: IContentTypeSubst;
+begin
+  Result := FContentTypeSubst;
+end;
+
+function TZmpInfo.GetDataProvider: IConfigDataProvider;
+begin
+  Result := FConfig;
+end;
+
+function TZmpInfo.GetFileName: string;
+begin
+  Result := FFileName;
+end;
+
+function TZmpInfo.GetGeoConvert: ICoordConverter;
+begin
+  Result := FGeoConvert;
+end;
+
+function TZmpInfo.GetGUI: IZmpInfoGUI;
+begin
+  Result := FGUI;
+end;
+
+function TZmpInfo.GetGUID: TGUID;
+begin
+  Result := FGUID;
+end;
+
+function TZmpInfo.GetViewGeoConvert: ICoordConverter;
+begin
+  Result := FViewGeoConvert;
+end;
+
+function TZmpInfo.GetTileDownloaderConfig: ITileDownloaderConfigStatic;
+begin
+  Result := FTileDownloaderConfig;
+end;
+
+function TZmpInfo.GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
+begin
+  Result := FTileRequestBuilderConfig;
+end;
+
+function TZmpInfo.GetVersionConfig: IMapVersionInfo;
+begin
+  Result := FVersionConfig;
+end;
+
+procedure TZmpInfo.LoadConfig(ACoordConverterFactory: ICoordConverterFactory);
+begin
+  FGUID := LoadGUID(FConfigIniParams);
+  LoadVersion(FConfigIniParams);
+  LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
+  LoadTileRequestBuilderConfig(FConfigIniParams);
+  LoadTileDownloaderConfig(FConfigIniParams);
+  FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
+end;
+
+function TZmpInfo.LoadGUID(AConfig: IConfigDataProvider): TGUID;
+var
+  VGUIDStr: String;
+begin
+  VGUIDStr := AConfig.ReadString('GUID', '');
+  if Length(VGUIDStr) > 0 then begin
+    try
+      Result := StringToGUID(VGUIDStr);
+    except
+      raise EZmpGUIDError.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
+    end;
+  end else begin
+    raise EZmpGUIDError.CreateRes(@SAS_ERR_MapGUIDEmpty);
   end;
 end;
 
@@ -381,23 +461,6 @@ begin
   VRequestHead := AConfig.ReadString('RequestHead', '');
   VRequestHead := StringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
   FTileRequestBuilderConfig := TTileRequestBuilderConfigStatic.Create(VUrlBase, VRequestHead);
-end;
-
-procedure TZmpInfo.LoadUIParams(AConfig: IConfigDataProvider);
-begin
-  FNameDef := AConfig.ReadString('name', FNameDef);
-  FHotKey :=AConfig.ReadInteger('DefHotKey', 0);
-  FHotKey :=AConfig.ReadInteger('HotKey', FHotKey);
-  FParentSubMenuDef := AConfig.ReadString('ParentSubMenu', '');
-  FSeparator := AConfig.ReadBool('separator', false);
-  FEnabled := AConfig.ReadBool('Enabled', true);
-  FSortIndex := AConfig.ReadInteger('pnum', -1);
-end;
-
-procedure TZmpInfo.LoadUIParamsLang(AConfig: IConfigDataProvider; ALanguageCode: string);
-begin
-  FName := AConfig.ReadString('name_' + ALanguageCode, FNameDef);
-  FParentSubMenu := AConfig.ReadString('ParentSubMenu_' + ALanguageCode, FParentSubMenuDef);
 end;
 
 procedure TZmpInfo.LoadVersion(AConfig: IConfigDataProvider);

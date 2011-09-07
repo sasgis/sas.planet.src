@@ -200,8 +200,8 @@ begin
 
   for i := 0 to GetCount - 1 do begin
     VMapType := Items[i];
-    VList18.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp18);
-    VList24.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp24);
+    VList18.Add(VMapType.Zmp.GUID, VMapType.Zmp.GUI.Bmp18);
+    VList24.Add(VMapType.Zmp.GUID, VMapType.Zmp.GUI.Bmp24);
   end;
 end;
 
@@ -347,7 +347,7 @@ begin
       VSubItem.DeleteValue('RequestHead');
     end;
 
-    if VMapType.HotKey <> VMapType.Zmp.HotKey then begin
+    if VMapType.HotKey <> VMapType.Zmp.GUI.HotKey then begin
       VSubItem.WriteInteger('HotKey', VMapType.HotKey);
     end else begin
       VSubItem.DeleteValue('HotKey');
@@ -359,7 +359,7 @@ begin
       VSubItem.DeleteValue('CacheType');
     end;
 
-    if VMapType.separator <> VMapType.Zmp.Separator then begin
+    if VMapType.separator <> VMapType.Zmp.GUI.Separator then begin
       VSubItem.WriteBool('separator', VMapType.separator);
     end else begin
       VSubItem.DeleteValue('separator');
@@ -377,13 +377,13 @@ begin
       VSubItem.DeleteValue('Sleep');
     end;
 
-    if VMapType.ParentSubMenu <> VMapType.Zmp.ParentSubMenu then begin
+    if VMapType.ParentSubMenu <> VMapType.Zmp.GUI.ParentSubMenu then begin
       VSubItem.WriteString('ParentSubMenu', VMapType.ParentSubMenu);
     end else begin
       VSubItem.DeleteValue('ParentSubMenu');
     end;
 
-    if VMapType.Enabled <> VMapType.Zmp.Enabled then begin
+    if VMapType.Enabled <> VMapType.Zmp.GUI.Enabled then begin
       VSubItem.WriteBool('Enabled', VMapType.Enabled);
     end else begin
       VSubItem.DeleteValue('Enabled');

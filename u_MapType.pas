@@ -303,11 +303,11 @@ begin
         );
     except
       on E: Exception do begin
-        ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.Name, E.Message, FZmp.FileName]);
+        ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.GUI.Name, E.Message, FZmp.FileName]);
         FTileRequestBuilder := nil;
       end;
     else
-      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.Name, FZmp.FileName]);
+      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.GUI.Name, FZmp.FileName]);
       FTileRequestBuilder := nil;
     end;
   end;
@@ -368,13 +368,13 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
 
-  FName := Zmp.Name;
+  FName := Zmp.GUI.Name;
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
-  HotKey:=VParams.ReadInteger('HotKey',Zmp.HotKey);
-  ParentSubMenu:=VParams.ReadString('LOCAL:ParentSubMenu', Zmp.ParentSubMenu);
-  separator:=VParams.ReadBool('separator', Zmp.Separator);
-  Enabled:=VParams.ReadBool('Enabled', Zmp.Enabled);
-  FSortIndex:=VParams.ReadInteger('pnum', Zmp.SortIndex);
+  HotKey:=VParams.ReadInteger('HotKey',Zmp.GUI.HotKey);
+  ParentSubMenu:=VParams.ReadString('LOCAL:ParentSubMenu', Zmp.GUI.ParentSubMenu);
+  separator:=VParams.ReadBool('separator', Zmp.GUI.Separator);
+  Enabled:=VParams.ReadBool('Enabled', Zmp.GUI.Enabled);
+  FSortIndex:=VParams.ReadInteger('pnum', Zmp.GUI.SortIndex);
 end;
 
 procedure TMapType.LoadDownloader(
