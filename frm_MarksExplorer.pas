@@ -348,7 +348,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    if FMarkDBGUI.OperationMark(VMark, GState.MainFormConfig.ViewPortState.GetCurrentZoom) then begin
+    if FMarkDBGUI.OperationMark(VMark, GState.MainFormConfig.ViewPortState.GetCurrentZoom, GState.MainFormConfig.ViewPortState.GetCurrentCoordConverter) then begin
       ModalResult := mrOk;
     end;
   end;

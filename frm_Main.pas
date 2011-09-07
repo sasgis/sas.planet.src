@@ -3111,7 +3111,7 @@ begin
     VMark
   );
   if VMark <> nil then begin
-    FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.GetCurrentZoom);
+    FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.GetCurrentZoom, FConfig.ViewPortState.GetCurrentCoordConverter);
   end;
 end;
 

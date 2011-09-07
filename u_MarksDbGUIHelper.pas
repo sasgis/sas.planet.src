@@ -28,7 +28,7 @@ type
     procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
 
     function DeleteMarkModal(AMarkID: IMarkID; handle:THandle):boolean;
-    function OperationMark(AMark: IMark; AZoom: Byte):boolean;
+    function OperationMark(AMark: IMark; AZoom: Byte; AConverter: ICoordConverter):boolean;
     function AddKategory(name:string): IMarkCategory;
     procedure ShowMarkLength(AMark: IMarkLine; AConverter: ICoordConverter; AHandle: THandle); overload;
     procedure ShowMarkLength(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle); overload;
@@ -57,6 +57,8 @@ uses
   i_Datum,
   i_StaticTreeItem,
   u_ResStrings,
+  u_GeoFun,
+  u_GeoToStr,
   frm_MarkEditPoint,
   frm_MarkEditPoly,
   frm_MarkEditPath;
@@ -253,16 +255,35 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.OperationMark(AMark: IMark; AZoom: Byte): boolean;
+function TMarksDbGUIHelper.OperationMark(AMark: IMark; AZoom: Byte; AConverter: ICoordConverter): boolean;
 var
   VMarkPoly: IMarkPoly;
+  VMarkLine: IMarkLine;
+  VPoints: TArrayOfDoublePoint;
+  VRadius: double;
+  VDefRadius: String;
 begin
   Result:=false;
   if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     FFormRegionProcess.Show_(AZoom, VMarkPoly.Points);
     Result:=true;
   end else begin
-    ShowMessage(SAS_MSG_FunExForPoly);
+    if Supports(AMark, IMarkLine, VMarkLine) then begin
+      VDefRadius:='100';
+      if InputQuery('','Radius , m', VDefRadius) then begin
+        try
+          VRadius:=str2r(VDefRadius);
+        except
+          ShowMessage(SAS_ERR_ParamsInput);
+          Exit;
+        end;
+        VPoints:=ConveryPolyline2Polygon(VMarkLine.Points, VRadius, AConverter, AZoom);
+        FFormRegionProcess.Show_(AZoom, VPoints);
+        Result:=true;
+      end;
+    end else begin
+      ShowMessage(SAS_MSG_FunExForPoly);
+    end;
   end;
 end;
 
