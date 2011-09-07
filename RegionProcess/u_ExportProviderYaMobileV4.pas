@@ -1,4 +1,4 @@
-unit u_ExportProviderYaMapsNew;
+unit u_ExportProviderYaMobileV4;
 
 interface
 
@@ -27,7 +27,7 @@ implementation
 
 uses
   SysUtils,
-  u_ThreadExportYaMapsNew,
+  u_ThreadExportYaMobileV4,
   u_ResStrings,
   u_MapType;
 
