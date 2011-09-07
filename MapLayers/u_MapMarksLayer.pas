@@ -156,6 +156,7 @@ begin
     VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
 
     VTileToDrawBmp := TCustomBitmap32.Create;
+    VTileToDrawBmp.CombineMode:=cmMerge;
     try
       if not AIsStop then begin
         while VTileIterator.Next(VTile) do begin
