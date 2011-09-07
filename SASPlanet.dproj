@@ -279,6 +279,8 @@
     <DCCReference Include="i_StatBarConfig.pas" />
     <DCCReference Include="i_StaticTreeBuilder.pas" />
     <DCCReference Include="i_StaticTreeItem.pas" />
+    <DCCReference Include="i_StringByLanguage.pas" />
+    <DCCReference Include="i_StringConfigDataElement.pas" />
     <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
@@ -682,6 +684,8 @@
     <DCCReference Include="u_StatBarConfig.pas" />
     <DCCReference Include="u_StaticTreeBuilderBase.pas" />
     <DCCReference Include="u_StaticTreeItem.pas" />
+    <DCCReference Include="u_StringByLanguageWithStaticList.pas" />
+    <DCCReference Include="u_StringConfigDataElementWithLanguage.pas" />
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
