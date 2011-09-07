@@ -32,7 +32,6 @@ type
     function GetCurrentLanguageCode: string;
     procedure SetCurrentLanguageCode(ACode: string);
     function GetLanguageList: ILanguageListStatic;
-    procedure GetInstalledLanguageCodes(AList: TStrings);
     function GetLanguageNameByCode(ACode: string): WideString;
     procedure GetLangNames(AList: TStrings);
     function GetCount: Integer;
@@ -161,12 +160,6 @@ begin
   if Result < 0 then begin
     Result := GetIndexByCode(FDefaultLangCode);
   end;
-end;
-
-procedure TLanguageManager.GetInstalledLanguageCodes(AList: TStrings);
-begin
-  AList.Clear;
-  AList.Assign(FCodes);
 end;
 
 function TLanguageManager.GetLangCodeByIndex(AIndex: Integer): string;

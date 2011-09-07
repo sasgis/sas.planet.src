@@ -21,7 +21,6 @@ type
     function GetLanguageList: ILanguageListStatic;
     property LanguageList: ILanguageListStatic read GetLanguageList;
 
-    procedure GetInstalledLanguageCodes(list: TStrings);
     function GetLanguageNameByCode(ACode: string): WideString;
     procedure GetLangNames(AList: TStrings);
     function GetCount: Integer;
