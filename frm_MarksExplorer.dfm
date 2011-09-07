@@ -43,7 +43,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 0
         OnClick = btnExportClick
-        ExplicitTop = 30
         Caption = 'Export'
       end
       object btnImport: TTBXButton
@@ -56,7 +55,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 1
         OnClick = btnImportClick
-        ExplicitTop = 3
         Caption = 'Import'
       end
       object btnCancel: TButton
@@ -70,7 +68,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Caption = 'Cancel'
         ModalResult = 2
         TabOrder = 2
-        ExplicitTop = 88
       end
       object btnOk: TButton
         AlignWithMargins = True
@@ -82,7 +79,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Caption = 'Ok'
         ModalResult = 1
         TabOrder = 3
-        ExplicitTop = 53
       end
       object btnApply: TButton
         AlignWithMargins = True
@@ -94,9 +90,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Caption = 'Apply'
         TabOrder = 4
         OnClick = btnApplyClick
-        ExplicitLeft = 56
-        ExplicitTop = 168
-        ExplicitWidth = 75
       end
     end
     object pnlMain: TPanel
@@ -237,7 +230,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           TabOrder = 0
           OnClick = CheckBox2Click
         end
-        object TreeView1: TTreeView
+        object CategoryTreeView: TTreeView
           AlignWithMargins = True
           Left = 5
           Top = 46
@@ -248,9 +241,9 @@ object frmMarksExplorer: TfrmMarksExplorer
           ReadOnly = True
           StateImages = imlStates
           TabOrder = 1
-          OnChange = TreeView1Change
-          OnKeyUp = TreeView1KeyUp
-          OnMouseUp = TreeView1MouseUp
+          OnChange = CategoryTreeViewChange
+          OnKeyUp = CategoryTreeViewKeyUp
+          OnMouseUp = CategoryTreeViewMouseUp
         end
         object TBXDockCategory: TTBXDock
           Left = 2

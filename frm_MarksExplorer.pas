@@ -38,7 +38,7 @@ type
     CheckBox2: TCheckBox;
     CheckBox1: TCheckBox;
     OpenDialog1: TOpenDialog;
-    TreeView1: TTreeView;
+    CategoryTreeView: TTreeView;
     imlStates: TImageList;
     pnlButtons: TPanel;
     pnlMainWithButtons: TPanel;
@@ -77,11 +77,11 @@ type
     procedure MarksListBoxKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CheckBox2Click(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
-    procedure TreeView1MouseUp(Sender: TObject; Button: TMouseButton;
+    procedure CategoryTreeViewMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure TreeView1KeyUp(Sender: TObject; var Key: Word;
+    procedure CategoryTreeViewKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
+    procedure CategoryTreeViewChange(Sender: TObject; Node: TTreeNode);
     procedure btnExportClick(Sender: TObject);
     procedure btnExportCategoryClick(Sender: TObject);
     procedure btnImportClick(Sender: TObject);
@@ -125,19 +125,19 @@ uses
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
 begin
-  TreeView1.OnChange:=nil;
+  CategoryTreeView.OnChange:=nil;
   try
-    TreeView1.Items.BeginUpdate;
+    CategoryTreeView.Items.BeginUpdate;
     try
-      TreeView1.SortType := stNone;
+      CategoryTreeView.SortType := stNone;
       FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
-      FMarkDBGUI.CategoryListToTree(FCategoryList, TreeView1.Items);
-      TreeView1.SortType:=stText;
+      FMarkDBGUI.CategoryListToTree(FCategoryList, CategoryTreeView.Items);
+      CategoryTreeView.SortType:=stText;
     finally
-      TreeView1.Items.EndUpdate;
+      CategoryTreeView.Items.EndUpdate;
     end;
   finally
-    TreeView1.OnChange := Self.TreeView1Change;
+    CategoryTreeView.OnChange := Self.CategoryTreeViewChange;
   end;
 end;
 
@@ -166,8 +166,8 @@ end;
 function TfrmMarksExplorer.GetSelectedCategory: IMarkCategory;
 begin
   Result := nil;
-  if TreeView1.Selected <> nil then begin
-    Result := IMarkCategory(TreeView1.Selected.Data);
+  if CategoryTreeView.Selected <> nil then begin
+    Result := IMarkCategory(CategoryTreeView.Selected.Data);
   end;
 end;
 
@@ -232,7 +232,7 @@ begin
   if VCategory <> nil then begin
     if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
       FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategory);
-      UpdateCategoryTree;
+      CategoryTreeView.Items.Delete(CategoryTreeView.Selected);
       UpdateMarksList;
     end;
   end;
@@ -373,12 +373,12 @@ begin
     end;
 end;
 
-procedure TfrmMarksExplorer.TreeView1Change(Sender: TObject; Node: TTreeNode);
+procedure TfrmMarksExplorer.CategoryTreeViewChange(Sender: TObject; Node: TTreeNode);
 begin
   UpdateMarksList;
 end;
 
-procedure TfrmMarksExplorer.TreeView1KeyUp(Sender: TObject; var Key: Word;
+procedure TfrmMarksExplorer.CategoryTreeViewKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
   VCategory: IMarkCategory;
@@ -398,28 +398,28 @@ begin
     VCategory := GetSelectedCategory;
     if VCategory <> nil then begin
       FCategoryList.Remove(VCategory);
-      if TreeView1.Selected.StateIndex = 1 then begin
+      if CategoryTreeView.Selected.StateIndex = 1 then begin
         VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategory, False);
-        TreeView1.Selected.StateIndex:=2;
+        CategoryTreeView.Selected.StateIndex:=2;
       end else begin
         VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategory, True);
-        TreeView1.Selected.StateIndex:=1;
+        CategoryTreeView.Selected.StateIndex:=1;
       end;
       FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
       FCategoryList.Add(VCategory);
-      TreeView1.Selected.Data := Pointer(VCategory);
+      CategoryTreeView.Selected.Data := Pointer(VCategory);
     end;
   end;
 end;
 
-procedure TfrmMarksExplorer.TreeView1MouseUp(Sender: TObject;
+procedure TfrmMarksExplorer.CategoryTreeViewMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   VCategory: IMarkCategory;
   VTreeNode: TTreeNode;
 begin
-  if htOnStateIcon in TreeView1.GetHitTestInfoAt(X,Y) then begin
-    VTreeNode := TreeView1.GetNodeAt(X,Y);
+  if htOnStateIcon in CategoryTreeView.GetHitTestInfoAt(X,Y) then begin
+    VTreeNode := CategoryTreeView.GetNodeAt(X,Y);
     VCategory := IMarkCategory(VTreeNode.Data);
     if VCategory <> nil then begin
       FCategoryList.Remove(VCategory);
@@ -489,7 +489,7 @@ procedure TfrmMarksExplorer.CheckBox2Click(Sender: TObject);
 var
   VNewVisible: Boolean;
 begin
-  if TreeView1.Items.Count>0 then begin
+  if CategoryTreeView.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
     FMarkDBGUI.MarksDB.CategoryDB.SetAllCategoriesVisible(VNewVisible);
     UpdateCategoryTree;
@@ -513,8 +513,8 @@ begin
       btnApplyClick(nil);
     end;
   finally
-    TreeView1.OnChange:=nil;
-    TreeView1.Items.Clear;
+    CategoryTreeView.OnChange:=nil;
+    CategoryTreeView.Items.Clear;
     MarksListBox.Clear;
     FCategoryList := nil;
     FMarksList := nil;
