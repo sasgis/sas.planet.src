@@ -389,8 +389,8 @@
     <DCCReference Include="RegionProcess\u_ExportProviderGEKml.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderIPhone.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderTar.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderYaMaps.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderYaMapsNew.pas" />
+    <DCCReference Include="RegionProcess\u_ExportProviderYaMobileV3.pas" />
+    <DCCReference Include="RegionProcess\u_ExportProviderYaMobileV4.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderZip.pas" />
     <DCCReference Include="RegionProcess\u_ProviderMapCombine.pas" />
     <DCCReference Include="RegionProcess\u_ProviderTilesCopy.pas" />
@@ -406,8 +406,8 @@
     <DCCReference Include="RegionProcess\u_ThreadExportToFileSystem.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToTar.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToZip.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportYaMaps.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportYaMapsNew.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV3.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV4.pas" />
     <DCCReference Include="RegionProcess\u_ThreadGenPrevZoom.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombineBase.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombineBMP.pas" />
@@ -739,7 +739,6 @@
     <DCCReference Include="u_VectorDataItemPoint.pas" />
     <DCCReference Include="u_VectorDataItemPolygon.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
-    <DCCReference Include="u_YaMobileWrite.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
     <DCCReference Include="u_ZmpInfo.pas" />
   </ItemGroup>

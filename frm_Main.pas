@@ -3111,7 +3111,7 @@ begin
     VMark
   );
   if VMark <> nil then begin
-    FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.GetCurrentZoom);
+    FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.GetCurrentZoom, FConfig.ViewPortState.GetCurrentCoordConverter);
   end;
 end;
 
@@ -4021,7 +4021,7 @@ begin
       FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPoly);
     end;
     ao_select_line: begin
-      VPoly := ConveryPolyline2Polygon(FLineOnMapEdit.GetPoints, FConfig.LayersConfig.SelectionPolylineLayerConfig.GetRadius, FConfig.ViewPortState.GetVisualCoordConverter);
+      VPoly := ConveryPolyline2Polygon(FLineOnMapEdit.GetPoints, FConfig.LayersConfig.SelectionPolylineLayerConfig.GetRadius, FConfig.ViewPortState.GetVisualCoordConverter.GetGeoConverter, FConfig.ViewPortState.GetVisualCoordConverter.GetZoom);
       setalloperationfalse(ao_movemap);
       FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPoly);
     end;

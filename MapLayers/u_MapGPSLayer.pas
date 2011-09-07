@@ -168,6 +168,7 @@ begin
     if (VPointsCount > 1) then begin
       if not AIsStop then begin
         VTileToDrawBmp := TCustomBitmap32.Create;
+        VTileToDrawBmp.CombineMode:=cmMerge;
         try
           VGeoConvert := VLocalConverter.GetGeoConverter;
           VZoom := VLocalConverter.GetZoom;

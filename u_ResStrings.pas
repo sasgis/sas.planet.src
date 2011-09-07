@@ -13,7 +13,7 @@ ResourceString
   SAS_MSG_FileExists = 'Tile %0:s is available in cache.'#13#10 +
     'Replace?';
   SAS_MSG_NeedHL = 'Please select at least one region';
-  SAS_MSG_FunExForPoly = 'The feature can be used on polygons only';
+  SAS_MSG_FunExForPoly = 'The feature can be used on polygons and polylines';
   SAS_MSG_FileBeCreateTime = 'The tile is newer than the entered age, skipping.';
   SAS_MSG_FileBeCreateLen = 'The tile size is equal to the existing one, skipping.';
   SAS_MSG_ProcessFilesComplete = 'The task is completed!';

@@ -72,8 +72,8 @@ implementation
 uses
   gnugettext,
   u_GlobalState,
-  u_ExportProviderYaMaps,
-  u_ExportProviderYaMapsNew,
+  u_ExportProviderYaMobileV3,
+  u_ExportProviderYaMobileV4,
   u_ExportProviderGEKml,
   u_ExportProviderIPhone,
   u_ExportProviderAUX,
