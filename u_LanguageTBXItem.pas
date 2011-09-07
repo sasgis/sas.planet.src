@@ -39,7 +39,7 @@ constructor TLanguageTBXItem.Create(
 );
 begin
   inherited Create(AOwner);
-  Assert(ALangIndex < ALanguageManager.GetCount);
+  Assert(ALangIndex < ALanguageManager.LanguageList.Count);
   FLanguageManager := ALanguageManager;
   FLangIndex := ALangIndex;
   FParentMenu := AParentMenu;

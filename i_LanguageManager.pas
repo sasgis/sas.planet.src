@@ -21,11 +21,6 @@ type
     function GetLanguageList: ILanguageListStatic;
     property LanguageList: ILanguageListStatic read GetLanguageList;
 
-    function GetLanguageNameByCode(ACode: string): WideString;
-    procedure GetLangNames(AList: TStrings);
-    function GetCount: Integer;
-    function GetIndexByLangCode(ACode: string): Integer;
-    function GetLangCodeByIndex(AIndex: Integer): string;
     function GetLangNameByIndex(AIndex: Integer): string;
   end;
 

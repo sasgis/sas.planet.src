@@ -572,14 +572,19 @@ procedure TfrmSettings.FormShow(Sender: TObject);
 var
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
+  i: Integer;
 begin
  InitMapsList;
 
  FMapsEdit:=false;
  CBoxLocal.Clear;
  frShortCutList.Parent := GroupBox5;
- GState.LanguageManager.GetLangNames(CBoxLocal.Items);
- CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLanguageIndex;
+
+  CBoxLocal.Items.Clear;
+  for i := 0 to GState.LanguageManager.LanguageList.Count - 1 do begin
+    CBoxLocal.Items.Add(GState.LanguageManager.GetLangNameByIndex(i));
+  end;
+  CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLanguageIndex;
 
  MiniMapAlphaEdit.Value:=GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
 

@@ -9,6 +9,8 @@ type
     property Count: Integer read GetCount;
 
     function GetCode(AIndex: Integer): string;
+    property Code[AIndex: Integer]: string read GetCode;
+
     function FindCode(ACode: string; out AIndex: Integer): Boolean;
   end;
 

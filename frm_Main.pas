@@ -1369,7 +1369,7 @@ var
   VManager: ILanguageManager;
 begin
   VManager := GState.LanguageManager;
-  for i := 0 to VManager.GetCount - 1 do begin
+  for i := 0 to VManager.LanguageList.Count - 1 do begin
     TLanguageTBXItem.Create(Self, TBLang, VManager, i);
   end;
 end;
