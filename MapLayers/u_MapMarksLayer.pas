@@ -175,7 +175,7 @@ begin
           VTileToDrawBmp.Clear(0);
           VProv.GetBitmapRect(
             VTileToDrawBmp,
-            ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
+            ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
           );
           Layer.Bitmap.Lock;
           try
