@@ -164,7 +164,6 @@ uses
   u_TileDownloaderConfig in 'u_TileDownloaderConfig.pas',
   i_GSMGeoCodeConfig in 'i_GSMGeoCodeConfig.pas',
   u_GSMGeoCodeConfig in 'u_GSMGeoCodeConfig.pas',
-  u_YaMobileWrite in 'u_YaMobileWrite.pas',
   u_PosFromGSM in 'u_PosFromGSM.pas',
   i_DownloadInfoSimple in 'i_DownloadInfoSimple.pas',
   u_DownloadInfoSimple in 'u_DownloadInfoSimple.pas',

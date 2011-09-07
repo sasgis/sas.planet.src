@@ -735,7 +735,6 @@
     <DCCReference Include="u_VectorDataItemPoint.pas" />
     <DCCReference Include="u_VectorDataItemPolygon.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
-    <DCCReference Include="u_YaMobileWrite.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
     <DCCReference Include="u_ZmpInfo.pas" />
   </ItemGroup>
