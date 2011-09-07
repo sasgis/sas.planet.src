@@ -12,9 +12,11 @@ type
   ['{F8D76CED-2681-4DD4-AB24-4C6ECE89CE4D}']
     function GetCurrentLanguageCode: string;
     procedure SetCurrentLanguageCode(ACode: string);
+    property CurrentLanguageCode: string read GetCurrentLanguageCode write SetCurrentLanguageCode;
 
-    function GetCurrentLangIndex: Integer;
-    procedure SetCurrentLangIndex(AValue: Integer);
+    function GetCurrentLanguageIndex: Integer;
+    procedure SetCurrentLanguageIndex(AValue: Integer);
+    property CurrentLanguageIndex: Integer read GetCurrentLanguageIndex write SetCurrentLanguageIndex;
 
     function GetLanguageList: ILanguageListStatic;
     property LanguageList: ILanguageListStatic read GetLanguageList;

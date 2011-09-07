@@ -36,8 +36,8 @@ type
     function GetLanguageNameByCode(ACode: string): WideString;
     procedure GetLangNames(AList: TStrings);
     function GetCount: Integer;
-    function GetCurrentLangIndex: Integer;
-    procedure SetCurrentLangIndex(AValue: Integer);
+    function GetCurrentLanguageIndex: Integer;
+    procedure SetCurrentLanguageIndex(AValue: Integer);
     function GetIndexByLangCode(ACode: string): Integer;
     function GetLangCodeByIndex(AIndex: Integer): string;
     function GetLangNameByIndex(AIndex: Integer): string;
@@ -125,7 +125,7 @@ begin
   Result := FCodes.Count;
 end;
 
-function TLanguageManager.GetCurrentLangIndex: Integer;
+function TLanguageManager.GetCurrentLanguageIndex: Integer;
 begin
   Result := GetIndexByLangCode(GetCurrentLanguage);
 end;
@@ -134,7 +134,7 @@ function TLanguageManager.GetCurrentLanguageCode: string;
 var
   VIndex: Integer;
 begin
-  VIndex := GetCurrentLangIndex;
+  VIndex := GetCurrentLanguageIndex;
   if VIndex >= 0 then begin
     Result := FCodes[VIndex];
   end else begin
@@ -236,7 +236,7 @@ begin
   end;
 end;
 
-procedure TLanguageManager.SetCurrentLangIndex(AValue: Integer);
+procedure TLanguageManager.SetCurrentLanguageIndex(AValue: Integer);
 var
   VLastUsedCode: string;
   VCurrCode: string;
@@ -263,7 +263,7 @@ var
   VIndex: Integer;
 begin
   VIndex := GetIndexByCode(ACode);
-  SetCurrentLangIndex(VIndex);
+  SetCurrentLanguageIndex(VIndex);
 end;
 
 procedure TLanguageManager.SetTranslateIgnore;

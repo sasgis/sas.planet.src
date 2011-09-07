@@ -471,7 +471,7 @@ begin
     GState.MainFormConfig.LayersConfig.KmlLayerConfig.UnlockWrite;
   end;
 
- GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
+ GState.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
 
  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
@@ -518,7 +518,7 @@ end;
 
 procedure TfrmSettings.CBoxLocalChange(Sender: TObject);
 begin
- GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
+ GState.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
 end;
 
 procedure TfrmSettings.CBProxyusedClick(Sender: TObject);
@@ -579,7 +579,7 @@ begin
  CBoxLocal.Clear;
  frShortCutList.Parent := GroupBox5;
  GState.LanguageManager.GetLangNames(CBoxLocal.Items);
- CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLangIndex;
+ CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLanguageIndex;
 
  MiniMapAlphaEdit.Value:=GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
 

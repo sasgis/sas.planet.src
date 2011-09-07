@@ -65,12 +65,12 @@ end;
 
 procedure TLanguageTBXItem.OnClickItem(Sender: TObject);
 begin
-  FLanguageManager.SetCurrentLangIndex(FLangIndex);
+  FLanguageManager.SetCurrentLanguageIndex(FLangIndex);
 end;
 
 procedure TLanguageTBXItem.OnLangChange(Sender: TObject);
 begin
-  if FLangIndex = FLanguageManager.GetCurrentLangIndex then begin
+  if FLangIndex = FLanguageManager.GetCurrentLanguageIndex then begin
     Self.Checked := True;
   end else begin
     Self.Checked := False;
