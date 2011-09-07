@@ -3,20 +3,28 @@ unit u_MapTypeGUIConfig;
 interface
 
 uses
+  Graphics,
+  Classes,
+  i_StringConfigDataElement,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_LanguageManager,
   i_MapTypeGUIConfig,
+  i_ZmpInfo,
   u_ConfigDataElementBase;
 
 type
   TMapTypeGUIConfig = class(TConfigDataElementBase, IMapTypeGUIConfig)
   private
-    FDefConfig: IMapTypeGUIConfigStatic;
-    FName: string;
+    FDefConfig: IZmpInfoGUI;
+    FName: IStringConfigDataElement;
     FSortIndex: Integer;
+    FHotKey: TShortCut;
     FSeparator: Boolean;
-    FParentSubMenu: string;
+    FParentSubMenu: IStringConfigDataElement;
     FEnabled: Boolean;
+    FInfoUrl: IStringConfigDataElement;
+
     FStatic: IMapTypeGUIConfigStatic;
     function CreateStatic: IMapTypeGUIConfigStatic;
   protected
@@ -24,53 +32,92 @@ type
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetName: string;
-    procedure SetName(const AValue: string);
+    function GetName: IStringConfigDataElement;
 
     function GetSortIndex: Integer;
     procedure SetSortIndex(const AValue: Integer);
 
+    function GetHotKey: TShortCut;
+    procedure SetHotKey(const AValue: TShortCut);
+
     function GetSeparator: Boolean;
     procedure SetSeparator(const AValue: Boolean);
 
-    function GetParentSubMenu: string;
-    procedure SetParentSubMenu(const AValue: string);
+    function GetParentSubMenu: IStringConfigDataElement;
 
     function GetEnabled: Boolean;
     procedure SetEnabled(const AValue: Boolean);
 
+    function GetInfoUrl: IStringConfigDataElement;
+
+    function GetBmp18: TBitmap;
+    function GetBmp24: TBitmap;
+
     function GetStatic: IMapTypeGUIConfigStatic;
   public
-    constructor Create(ADefConfig: IMapTypeGUIConfigStatic);
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      ADefConfig: IZmpInfoGUI
+    );
   end;
 
 implementation
 
 uses
+  u_StringConfigDataElementWithLanguage,
   u_MapTypeGUIConfigStatic;
 
 { TMapTypeGUIConfig }
 
-constructor TMapTypeGUIConfig.Create(ADefConfig: IMapTypeGUIConfigStatic);
+constructor TMapTypeGUIConfig.Create(
+  ALanguageManager: ILanguageManager;
+  ADefConfig: IZmpInfoGUI
+);
 begin
   inherited Create;
   FDefConfig := ADefConfig;
-  FName := FDefConfig.Name;
+  FName :=
+    TStringConfigDataElementWithLanguage.Create(
+      ALanguageManager,
+      FDefConfig.Name,
+      True,
+      'Name',
+      False
+    );
   FSortIndex := FDefConfig.SortIndex;
   FSeparator := FDefConfig.Separator;
-  FParentSubMenu := FDefConfig.ParentSubMenu;
+  FParentSubMenu :=
+    TStringConfigDataElementWithLanguage.Create(
+      ALanguageManager,
+      FDefConfig.ParentSubMenu,
+      True,
+      'ParentSubMenu',
+      False
+    );
   FEnabled := FDefConfig.Enabled;
+  FInfoUrl :=
+    TStringConfigDataElementWithLanguage.Create(
+      ALanguageManager,
+      FDefConfig.InfoUrl,
+      False,
+      'InfoUrl',
+      False
+    );
 end;
 
 function TMapTypeGUIConfig.CreateStatic: IMapTypeGUIConfigStatic;
 begin
   Result :=
     TMapTypeGUIConfigStatic.Create(
-      FName,
+      FName.Value,
       FSortIndex,
+      FHotKey,
       FSeparator,
-      FParentSubMenu,
-      FEnabled
+      FParentSubMenu.Value,
+      FEnabled,
+      FInfoUrl.Value,
+      FDefConfig.Bmp18,
+      FDefConfig.Bmp24
     );
 end;
 
@@ -89,8 +136,9 @@ procedure TMapTypeGUIConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FName := AConfigData.ReadString('name', FName);
-    FParentSubMenu := AConfigData.ReadString('ParentSubMenu', FParentSubMenu);
+    FName.ReadConfig(AConfigData);
+    FParentSubMenu.ReadConfig(AConfigData);
+    FInfoUrl.ReadConfig(AConfigData);
     FSeparator := AConfigData.ReadBool('separator', FSeparator);
     FEnabled := AConfigData.ReadBool('Enabled', FEnabled);
     FSortIndex := AConfigData.ReadInteger('pnum', FSortIndex);
@@ -102,11 +150,35 @@ procedure TMapTypeGUIConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteString('name', FName);
-  AConfigData.WriteString('ParentSubMenu', FParentSubMenu);
-  AConfigData.WriteBool('separator', FSeparator);
-  AConfigData.WriteBool('Enabled', FEnabled);
-  AConfigData.WriteInteger('pnum', FSortIndex);
+  FName.WriteConfig(AConfigData);
+  FParentSubMenu.WriteConfig(AConfigData);
+  FInfoUrl.WriteConfig(AConfigData);
+
+  if FSeparator <> FDefConfig.Separator then begin
+    AConfigData.WriteBool('Separator', FSeparator);
+  end else begin
+    AConfigData.DeleteValue('Separator');
+  end;
+  if FEnabled <> FDefConfig.Enabled then begin
+    AConfigData.WriteBool('Enabled', FEnabled);
+  end else begin
+    AConfigData.DeleteValue('Enabled');
+  end;
+  if FSortIndex <> FDefConfig.SortIndex then begin
+    AConfigData.WriteInteger('pnum', FSortIndex);
+  end else begin
+    AConfigData.DeleteValue('pnum');
+  end;
+end;
+
+function TMapTypeGUIConfig.GetBmp18: TBitmap;
+begin
+  Result := FDefConfig.Bmp18;
+end;
+
+function TMapTypeGUIConfig.GetBmp24: TBitmap;
+begin
+  Result := FDefConfig.Bmp24;
 end;
 
 function TMapTypeGUIConfig.GetEnabled: Boolean;
@@ -119,24 +191,29 @@ begin
   end;
 end;
 
-function TMapTypeGUIConfig.GetName: string;
+function TMapTypeGUIConfig.GetHotKey: TShortCut;
 begin
   LockRead;
   try
-    Result := FName;
+    Result := FHotKey;
   finally
     UnlockRead;
   end;
 end;
 
-function TMapTypeGUIConfig.GetParentSubMenu: string;
+function TMapTypeGUIConfig.GetInfoUrl: IStringConfigDataElement;
 begin
-  LockRead;
-  try
-    Result := FParentSubMenu;
-  finally
-    UnlockRead;
-  end;
+  Result := FInfoUrl;
+end;
+
+function TMapTypeGUIConfig.GetName: IStringConfigDataElement;
+begin
+  Result := FName;
+end;
+
+function TMapTypeGUIConfig.GetParentSubMenu: IStringConfigDataElement;
+begin
+  Result := FParentSubMenu;
 end;
 
 function TMapTypeGUIConfig.GetSeparator: Boolean;
@@ -177,25 +254,12 @@ begin
   end;
 end;
 
-procedure TMapTypeGUIConfig.SetName(const AValue: string);
+procedure TMapTypeGUIConfig.SetHotKey(const AValue: TShortCut);
 begin
   LockWrite;
   try
-    if FName <> AValue then begin
-      FName := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMapTypeGUIConfig.SetParentSubMenu(const AValue: string);
-begin
-  LockWrite;
-  try
-    if FParentSubMenu <> AValue then begin
-      FParentSubMenu := AValue;
+    if FHotKey <> AValue then begin
+      FHotKey := AValue;
       SetChanged;
     end;
   finally

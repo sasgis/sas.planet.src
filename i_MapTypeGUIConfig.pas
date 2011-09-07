@@ -3,6 +3,9 @@ unit i_MapTypeGUIConfig;
 interface
 
 uses
+  Graphics,
+  Classes,
+  i_StringConfigDataElement,
   i_ConfigDataElement;
 
 type
@@ -14,6 +17,9 @@ type
     function GetSortIndex: Integer;
     property SortIndex: Integer read GetSortIndex;
 
+    function GetHotKey: TShortCut;
+    property HotKey: TShortCut read GetHotKey;
+
     function GetSeparator: Boolean;
     property Separator: Boolean read GetSeparator;
 
@@ -22,29 +28,49 @@ type
 
     function GetEnabled: Boolean;
     property Enabled: Boolean read GetEnabled;
+
+    function GetInfoUrl: string;
+    property InfoUrl: string read GetInfoUrl;
+
+    function GetBmp18: TBitmap;
+    property Bmp18: TBitmap read GetBmp18;
+
+    function GetBmp24: TBitmap;
+    property Bmp24: TBitmap read GetBmp24;
   end;
 
   IMapTypeGUIConfig = interface(IConfigDataElement)
     ['{E597028D-5B2B-4771-A68D-1F9BD4111EC1}']
-    function GetName: string;
-    procedure SetName(const AValue: string);
-    property Name: string read GetName write SetName;
+    function GetName: IStringConfigDataElement;
+    property Name: IStringConfigDataElement read GetName;
 
     function GetSortIndex: Integer;
     procedure SetSortIndex(const AValue: Integer);
     property SortIndex: Integer read GetSortIndex write SetSortIndex;
 
+    function GetHotKey: TShortCut;
+    procedure SetHotKey(const AValue: TShortCut);
+    property HotKey: TShortCut read GetHotKey write SetHotKey;
+
     function GetSeparator: Boolean;
     procedure SetSeparator(const AValue: Boolean);
     property Separator: Boolean read GetSeparator write SetSeparator;
 
-    function GetParentSubMenu: string;
-    procedure SetParentSubMenu(const AValue: string);
-    property ParentSubMenu: string read GetParentSubMenu write SetParentSubMenu;
+    function GetParentSubMenu: IStringConfigDataElement;
+    property ParentSubMenu: IStringConfigDataElement read GetParentSubMenu;
 
     function GetEnabled: Boolean;
     procedure SetEnabled(const AValue: Boolean);
     property Enabled: Boolean read GetEnabled write SetEnabled;
+
+    function GetInfoUrl: IStringConfigDataElement;
+    property InfoUrl: IStringConfigDataElement read GetInfoUrl;
+
+    function GetBmp18: TBitmap;
+    property Bmp18: TBitmap read GetBmp18;
+
+    function GetBmp24: TBitmap;
+    property Bmp24: TBitmap read GetBmp24;
 
     function GetStatic: IMapTypeGUIConfigStatic;
   end;
