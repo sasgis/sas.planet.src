@@ -283,7 +283,7 @@ begin
   VMarkId := GetSelectedMarkId;
   if VMarkId <> nil then begin
     if FMarkDBGUI.DeleteMarkModal(VMarkId, Self.Handle) then begin
-      UpdateMarksList;
+      MarksListBox.DeleteSelected;
     end;
   end;
 end;
