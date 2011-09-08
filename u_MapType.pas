@@ -362,8 +362,8 @@ procedure TMapType.LoadUIParams(AConfig: IConfigDataProvider);
 var
   VParams: IConfigDataProvider;
 begin
-  FGUIConfig.ReadConfig(AConfig);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
+  FGUIConfig.ReadConfig(VParams);
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
 end;
 
