@@ -4,7 +4,7 @@ object frmMain: TfrmMain
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Caption = 'SAS.Planet'
-  ClientHeight = 535
+  ClientHeight = 639
   ClientWidth = 842
   Color = clBtnFace
   ParentFont = True
@@ -20,10 +20,10 @@ object frmMain: TfrmMain
   PixelsPerInch = 96
   TextHeight = 13
   object map: TImage32
-    Left = 207
+    Left = 239
     Top = 59
-    Width = 471
-    Height = 467
+    Width = 439
+    Height = 571
     Align = alClient
     Bitmap.CombineMode = cmMerge
     Bitmap.ResamplerClassName = 'TLinearResampler'
@@ -40,6 +40,9 @@ object frmMain: TfrmMain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
+    ExplicitLeft = 207
+    ExplicitWidth = 471
+    ExplicitHeight = 467
   end
   object TBDock: TTBXDock
     Left = 0
@@ -1050,23 +1053,24 @@ object frmMain: TfrmMain
   end
   object TBDockBottom: TTBXDock
     Left = 0
-    Top = 526
+    Top = 630
     Width = 842
     Height = 9
     PopupMenu = TBXPopupPanels
     Position = dpBottom
+    ExplicitTop = 526
   end
   object TBDockLeft: TTBXDock
     Left = 0
     Top = 59
-    Width = 207
-    Height = 467
+    Width = 239
+    Height = 571
     PopupMenu = TBXPopupPanels
     Position = dpLeft
     object ZoomToolBar: TTBXToolbar
       Left = 0
       Top = 0
-      DockPos = 6
+      DockPos = -6
       Stretch = True
       TabOrder = 0
       OnDockChanging = ZoomToolBarDockChanging
@@ -1118,7 +1122,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 8
+        Left = 24
         Top = 221
         Width = 14
         Height = 13
@@ -1138,7 +1142,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 2
+        Left = 18
         Top = 32
         Width = 25
         Height = 153
@@ -1152,11 +1156,54 @@ object frmMain: TfrmMain
         OnMouseUp = ZSliderMouseUp
       end
     end
+    object TBSearchWindow: TTBXDockablePanel
+      Left = 65
+      Top = 0
+      DockedWidth = 170
+      DockPos = -6
+      DockRow = 2
+      TabOrder = 1
+      Visible = False
+      OnClose = TBSearchWindowClose
+      Caption = 'Search Results'
+      object PanelSearch: TPanel
+        Left = 0
+        Top = 0
+        Width = 170
+        Height = 549
+        Align = alClient
+        AutoSize = True
+        BevelOuter = bvNone
+        TabOrder = 0
+        ExplicitHeight = 445
+        object TBXDockForSearch: TTBXDock
+          Left = 0
+          Top = 0
+          Width = 170
+          Height = 9
+        end
+        object ScrollBoxSearchWindow: TScrollBox
+          Left = 0
+          Top = 9
+          Width = 170
+          Height = 540
+          HorzScrollBar.Visible = False
+          VertScrollBar.Smooth = True
+          VertScrollBar.Tracking = True
+          Align = alClient
+          Color = clWhite
+          ParentColor = False
+          TabOrder = 1
+          ExplicitLeft = 2
+          ExplicitTop = 6
+        end
+      end
+    end
     object TBEditPath: TTBXToolbar
       Left = 0
-      Top = 246
-      DockPos = 246
-      TabOrder = 1
+      Top = 244
+      DockPos = 221
+      TabOrder = 2
       OnClose = TBEditPathClose
       object TBEditPathDel: TTBXItem
         ImageIndex = 36
@@ -1185,15 +1232,13 @@ object frmMain: TfrmMain
         Caption = 'Radius'
         Hint = ''
       end
-      object TBEditSelectPolylineRadius: TTBXSpinEditItem
-        EditWidth = 70
-        ValueType = evtFloat
-        OnValueToText = TBEditSelectPolylineRadiusValueToText
+      object TBControlItem4: TTBControlItem
+        Control = TBEditSelectPolylineRadius
         Caption = ''
         Hint = ''
-        Text = '0,00'
       end
       object TBEditSelectPolylineRadiusCap2: TTBXLabelItem
+        Margin = 2
         Caption = 'm'
         Hint = ''
       end
@@ -1222,45 +1267,16 @@ object frmMain: TfrmMain
         Caption = ''
         Hint = 'Add to Database'
       end
-    end
-    object TBSearchWindow: TTBXDockablePanel
-      Left = 33
-      Top = 0
-      DockedWidth = 170
-      DockPos = -6
-      DockRow = 2
-      TabOrder = 2
-      Visible = False
-      OnClose = TBSearchWindowClose
-      Caption = 'Search Results'
-      object PanelSearch: TPanel
+      object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0
-        Top = 0
-        Width = 170
-        Height = 445
-        Align = alClient
-        AutoSize = True
-        BevelOuter = bvNone
+        Top = 112
+        Width = 61
+        Height = 22
+        MaxValue = 100000
+        MinValue = 1
         TabOrder = 0
-        object TBXDockForSearch: TTBXDock
-          Left = 0
-          Top = 0
-          Width = 170
-          Height = 9
-        end
-        object ScrollBoxSearchWindow: TScrollBox
-          Left = 0
-          Top = 9
-          Width = 170
-          Height = 436
-          HorzScrollBar.Visible = False
-          VertScrollBar.Smooth = True
-          VertScrollBar.Tracking = True
-          Align = alClient
-          Color = clWhite
-          ParentColor = False
-          TabOrder = 1
-        end
+        Value = 100000
+        OnChange = TBEditSelectPolylineRadiusChange
       end
     end
   end
@@ -1268,13 +1284,14 @@ object frmMain: TfrmMain
     Left = 678
     Top = 59
     Width = 164
-    Height = 467
+    Height = 571
     PopupMenu = TBXPopupPanels
     Position = dpRight
+    ExplicitHeight = 467
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
-      ClientAreaHeight = 457
+      ClientAreaHeight = 561
       ClientAreaWidth = 160
       DockPos = -6
       PopupMenu = TBXPopupMenuSensors
@@ -1287,7 +1304,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 160
-        Height = 457
+        Height = 561
         Align = alClient
         AutoScroll = False
         AutoSize = True
@@ -1295,6 +1312,7 @@ object frmMain: TfrmMain
         BevelOuter = bvNone
         BorderStyle = bsNone
         TabOrder = 0
+        ExplicitHeight = 457
         object TBXDock1: TTBXDock
           Left = 0
           Top = 0

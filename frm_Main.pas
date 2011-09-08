@@ -96,7 +96,7 @@ uses
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
   frm_RegionProcess,
-  u_TileDownloaderUI;
+  u_TileDownloaderUI, Spin;
 
 type
   TAOperation = (
@@ -128,7 +128,6 @@ type
     ZoomToolBar: TTBXToolbar;
     TBControlItem2: TTBControlItem;
     labZoom: TLabel;
-    TBEditPath: TTBXToolbar;
     TBDockRight: TTBXDock;
     TBXSeparatorItem1: TTBXSeparatorItem;
     TBXSeparatorItem2: TTBXSeparatorItem;
@@ -172,11 +171,6 @@ type
     N14: TTBXItem;
     NCalcRast: TTBXItem;
     N6: TTBXItem;
-    TBEditPathDel: TTBXItem;
-    TBEditPathLabel: TTBXItem;
-    TBEditPathSave: TTBXItem;
-    TBEditPathOk: TTBXItem;
-    TBEditPathMarsh: TTBXSubmenuItem;
     TBItem5: TTBXItem;
     TBItemDelTrack: TTBXItem;
     NFoolSize: TTBXItem;
@@ -348,11 +342,18 @@ type
     PanelSearch: TPanel;
     TBXDockForSearch: TTBXDock;
     ScrollBoxSearchWindow: TScrollBox;
-    TBEditMagnetDraw: TTBXItem;
     TBPolylineSelect: TTBXItem;
-    TBEditSelectPolylineRadius: TTBXSpinEditItem;
+    TBEditPath: TTBXToolbar;
+    TBEditPathDel: TTBXItem;
+    TBEditPathLabel: TTBXItem;
+    TBEditMagnetDraw: TTBXItem;
     TBEditSelectPolylineRadiusCap1: TTBXLabelItem;
+    TBControlItem4: TTBControlItem;
     TBEditSelectPolylineRadiusCap2: TTBXLabelItem;
+    TBEditPathMarsh: TTBXSubmenuItem;
+    TBEditPathOk: TTBXItem;
+    TBEditPathSave: TTBXItem;
+    TBEditSelectPolylineRadius: TSpinEdit;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -484,9 +485,7 @@ type
     procedure TBSearchWindowClose(Sender: TObject);
     procedure TBEditMagnetDrawClick(Sender: TObject);
     procedure TBPolylineSelectClick(Sender: TObject);
-    procedure TBEditSelectPolylineRadiusValueToText(
-      Sender: TTBXCustomSpinEditItem; const AValue: Extended;
-      var Text: WideString);
+    procedure TBEditSelectPolylineRadiusChange(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -1717,7 +1716,7 @@ begin
   end;
   FLineOnMapEdit := FLineOnMapByOperation[newop];
  if newop=ao_select_line then begin
-   TBEditSelectPolylineRadius.Value:=FConfig.LayersConfig.SelectionPolylineLayerConfig.GetRadius;
+   TBEditSelectPolylineRadius.Value:=Round(FConfig.LayersConfig.SelectionPolylineLayerConfig.GetRadius);
  end;
 
  case newop of
@@ -2946,6 +2945,11 @@ begin
   FConfig.LayersConfig.StatBar.Visible := TTBXItem(Sender).Checked;
 end;
 
+procedure TfrmMain.TBEditSelectPolylineRadiusChange(Sender: TObject);
+begin
+  FConfig.LayersConfig.SelectionPolylineLayerConfig.SetRadius(TBEditSelectPolylineRadius.Value);
+end;
+
 procedure TfrmMain.ShowMiniMapClick(Sender: TObject);
 begin
   GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.Visible := TTBXItem(Sender).Checked;
@@ -3872,12 +3876,6 @@ begin
     setalloperationfalse(ao_movemap);
     FLayerMapMarks.Redraw;
   end;
-end;
-
-procedure TfrmMain.TBEditSelectPolylineRadiusValueToText(
-  Sender: TTBXCustomSpinEditItem; const AValue: Extended; var Text: WideString);
-begin
-  FConfig.LayersConfig.SelectionPolylineLayerConfig.SetRadius(TBEditSelectPolylineRadius.Value);
 end;
 
 procedure TfrmMain.TBEditMagnetDrawClick(Sender: TObject);
