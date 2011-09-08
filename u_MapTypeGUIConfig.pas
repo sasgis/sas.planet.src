@@ -11,10 +11,10 @@ uses
   i_LanguageManager,
   i_MapTypeGUIConfig,
   i_ZmpInfo,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementComplexBase;
 
 type
-  TMapTypeGUIConfig = class(TConfigDataElementBase, IMapTypeGUIConfig)
+  TMapTypeGUIConfig = class(TConfigDataElementComplexBase, IMapTypeGUIConfig)
   private
     FDefConfig: IZmpInfoGUI;
     FName: IStringConfigDataElement;
@@ -65,6 +65,7 @@ implementation
 
 uses
   u_StringConfigDataElementWithLanguage,
+  u_ConfigSaveLoadStrategyBasicUseProvider,
   u_MapTypeGUIConfigStatic;
 
 { TMapTypeGUIConfig }
@@ -84,7 +85,11 @@ begin
       'Name',
       False
     );
+  Add(FName, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FSortIndex := FDefConfig.SortIndex;
+  if FSortIndex < 0 then begin
+    FSortIndex := 1000;
+  end;
   FSeparator := FDefConfig.Separator;
   FParentSubMenu :=
     TStringConfigDataElementWithLanguage.Create(
@@ -94,6 +99,7 @@ begin
       'ParentSubMenu',
       False
     );
+  Add(FParentSubMenu, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FEnabled := FDefConfig.Enabled;
   FInfoUrl :=
     TStringConfigDataElementWithLanguage.Create(
@@ -103,6 +109,7 @@ begin
       'InfoUrl',
       False
     );
+  Add(FInfoUrl, nil);
 end;
 
 function TMapTypeGUIConfig.CreateStatic: IMapTypeGUIConfigStatic;
@@ -136,9 +143,6 @@ procedure TMapTypeGUIConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FName.ReadConfig(AConfigData);
-    FParentSubMenu.ReadConfig(AConfigData);
-    FInfoUrl.ReadConfig(AConfigData);
     FSeparator := AConfigData.ReadBool('separator', FSeparator);
     FEnabled := AConfigData.ReadBool('Enabled', FEnabled);
     FSortIndex := AConfigData.ReadInteger('pnum', FSortIndex);
@@ -150,10 +154,6 @@ procedure TMapTypeGUIConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  FName.WriteConfig(AConfigData);
-  FParentSubMenu.WriteConfig(AConfigData);
-  FInfoUrl.WriteConfig(AConfigData);
-
   if FSeparator <> FDefConfig.Separator then begin
     AConfigData.WriteBool('Separator', FSeparator);
   end else begin
