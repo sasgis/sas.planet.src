@@ -316,6 +316,9 @@ begin
        )
        and(length(Tiles2Block)>0) then begin
       WriteBlock(filestream,Tiles2Block);
+      for i := 0 to length(Tiles2Block) - 1 do begin
+        Tiles2Block[i].data.Free;
+      end;
       SetLength(Tiles2Block,0);
     end;
 
