@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   Classes,
+  i_LanguageManager,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MarksSimple,
@@ -35,6 +36,7 @@ type
     FMarksSubsetTreeBuilder: IStaticTreeBuilder;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       ABasePath: string;
       AMarkPictureList: IMarkPictureList;
       AHintConverter: IHtmlToHintTextConverter;
@@ -146,6 +148,7 @@ end;
 { TMarksSystem }
 
 constructor TMarksSystem.Create(
+  ALanguageManager: ILanguageManager;
   ABasePath: string;
   AMarkPictureList: IMarkPictureList;
   AHintConverter: IHtmlToHintTextConverter;
@@ -161,6 +164,7 @@ begin
   FCategoryDBInternal := VCategoryDb;
   FMarksFactoryConfig :=
     TMarksFactoryConfig.Create(
+      ALanguageManager,
       FCategoryDBInternal,
       AMarkPictureList
     );

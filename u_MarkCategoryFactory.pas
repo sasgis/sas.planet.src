@@ -82,7 +82,7 @@ begin
   FConfig.LockRead;
   try
     if VName = '' then begin
-      VName := FConfig.DefaultName;
+      VName := FConfig.DefaultName.Value;
     end;
     VAfterScale := FConfig.AfterScale;
     VBeforeScale := FConfig.BeforeScale;
@@ -115,7 +115,7 @@ begin
   FConfig.LockRead;
   try
     if VName = '' then begin
-      VName := FConfig.DefaultName;
+      VName := FConfig.DefaultName.Value;
     end;
   finally
     FConfig.UnlockRead;
