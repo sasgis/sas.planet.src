@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Classes,
   Forms,
   GR32_Image,
   t_GeoTypes,
@@ -21,7 +22,7 @@ type
     FTimeFromFirstToLast: Double;
     FWasSecondKeyPress: Boolean;
     FMapMoveAnimtion: Boolean;
-    FMoveVector: TDoublePoint;
+    FMoveVector: TPoint;
   protected
     procedure MapMoveAnimate;
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
@@ -149,7 +150,7 @@ begin
                    (GetAsyncKeyState(VK_DOWN) = 0)and
                    (GetAsyncKeyState(VK_UP) = 0);
         if VAllKeyUp then begin
-          FMoveVector:=DoublePoint(0,0);
+          FMoveVector:=Point(0,0);
         end;
       until ((FMoveVector.x=0)and(FMoveVector.y=0))or(VZoom<>FViewPortState.GetCurrentZoom);
     finally
