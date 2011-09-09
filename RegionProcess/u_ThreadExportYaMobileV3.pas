@@ -14,7 +14,7 @@ uses
   u_ThreadExportAbstract;
 
 type
-  TThreadExportYaMaps = class(TThreadExportAbstract)
+  TThreadExportYaMobileV3 = class(TThreadExportAbstract)
   private
     FMapTypeArr: array of TMapType;
     FIsReplace: boolean;
@@ -58,7 +58,7 @@ uses
 const
   YaHeaderSize: integer = 1024;
 
-constructor TThreadExportYaMaps.Create(
+constructor TThreadExportYaMobileV3.Create(
   APath: string;
   APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean;
@@ -80,7 +80,7 @@ begin
   end;
 end;
 
-function TThreadExportYaMaps.GetMobileFile(X,Y: Integer; Z: Byte; AMapType: Byte): string;
+function TThreadExportYaMobileV3.GetMobileFile(X,Y: Integer; Z: Byte; AMapType: Byte): string;
 var
   Mask, Num: Integer;
 begin
@@ -109,7 +109,7 @@ begin
   Result := LowerCase(Result + IntToHex(Num, 3));
 end;
 
-function TThreadExportYaMaps.TileToTablePos(ATile: TPoint): Integer;
+function TThreadExportYaMobileV3.TileToTablePos(ATile: TPoint): Integer;
 var
   X,Y: Integer;
 begin
@@ -131,7 +131,7 @@ begin
             ((X and $01) shl 2);
 end;
 
-procedure TThreadExportYaMaps.CreateNilFile(AFileName: string; ATableSize: Integer);
+procedure TThreadExportYaMobileV3.CreateNilFile(AFileName: string; ATableSize: Integer);
 var
   VYaMob: TMemoryStream;
   VInitSize: Integer;
@@ -157,7 +157,7 @@ begin
   end;
 end;
 
-procedure TThreadExportYaMaps.WriteTileToYaCache(
+procedure TThreadExportYaMobileV3.WriteTileToYaCache(
   ATile: TPoint;
   AZoom, AMapType, sm_xy: Byte;
   AExportPath: string;
@@ -207,7 +207,7 @@ begin
   end;
 end;
 
-procedure TThreadExportYaMaps.ProcessRegion;
+procedure TThreadExportYaMobileV3.ProcessRegion;
 var
   i, j, xi, yi, hxyi, sizeim: integer;
   VZoom: Byte;

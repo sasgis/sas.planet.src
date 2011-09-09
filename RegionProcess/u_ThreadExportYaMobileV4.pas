@@ -21,7 +21,7 @@ type
     y:word;
   end;
 
-  TThreadExportYaMapsNew = class(TThreadExportAbstract)
+  TThreadExportYaMobileV4 = class(TThreadExportAbstract)
   private
     FMapTypeArr: array of TMapType;
     FIsReplace: boolean;
@@ -61,7 +61,7 @@ uses
   u_GlobalState;
 
 
-constructor TThreadExportYaMapsNew.Create(
+constructor TThreadExportYaMobileV4.Create(
   APath: string;
   APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean;
@@ -83,7 +83,7 @@ begin
   end;
 end;
 
-function TThreadExportYaMapsNew.GetFilePath(Ax,Ay,Azoom,Aid:integer): string;
+function TThreadExportYaMobileV4.GetFilePath(Ax,Ay,Azoom,Aid:integer): string;
  function heightTreeForZooms(i:integer):integer;
  var heightZoom:integer;
      j,tilesInZoom:Int64;
@@ -144,7 +144,7 @@ begin
  result:=path;
 end;
 
-procedure TThreadExportYaMapsNew.WriteHeader(FilesStream:TFileStream);
+procedure TThreadExportYaMobileV4.WriteHeader(FilesStream:TFileStream);
 var headersize:word;
     blocksize,ostblocksize:word;
     version:word;
@@ -172,7 +172,7 @@ begin
   FilesStream.Size:=32768*2;
 end;
 
-procedure TThreadExportYaMapsNew.WriteTile(FilesStream:TFileStream;TileStream:TMemoryStream;recordpos:integer);
+procedure TThreadExportYaMobileV4.WriteTile(FilesStream:TFileStream;TileStream:TMemoryStream;recordpos:integer);
 var records:word;
     version:word;
     time:Integer;
@@ -200,12 +200,12 @@ begin
   FilesStream.Write(TileStream.Memory^,datasize); //данные
 end;
 
-function TThreadExportYaMapsNew.calcTileIndex(x,y:word):word;
+function TThreadExportYaMobileV4.calcTileIndex(x,y:word):word;
 begin
   result:= x or (y shl 7);
 end;
 
-procedure TThreadExportYaMapsNew.WriteBlock(FilesStream:TFileStream;TileStreams:array of TTileStream);
+procedure TThreadExportYaMobileV4.WriteBlock(FilesStream:TFileStream;TileStreams:array of TTileStream);
 var records:word;
     version:word;
     flag:byte;
@@ -271,7 +271,7 @@ begin
   end;
 end;
 
-procedure TThreadExportYaMapsNew.AddTileToCache(TileStream:TMemoryStream;x,y:integer;z:byte;cacheid:integer;last:boolean);
+procedure TThreadExportYaMobileV4.AddTileToCache(TileStream:TMemoryStream;x,y:integer;z:byte;cacheid:integer;last:boolean);
   procedure createdirif(path:string);
   begin
    path:=copy(path, 1, LastDelimiter(PathDelim, path));
@@ -336,7 +336,7 @@ begin
   CurrentFilePath:=newFilePath;
 end;
 
-procedure TThreadExportYaMapsNew.ProcessRegion;
+procedure TThreadExportYaMobileV4.ProcessRegion;
 var
   i, j, xi, yi, hxyi, sizeim: integer;
   VZoom: Byte;

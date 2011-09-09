@@ -6,12 +6,12 @@ uses
   Forms,
   t_GeoTypes,
   u_ExportProviderAbstract,
-  fr_ExportYaMapsNew;
+  fr_ExportYaMobileV4;
 
 type
-  TExportProviderYaMapsNew = class(TExportProviderAbstract)
+  TExportProviderYaMobileV4 = class(TExportProviderAbstract)
   private
-    FFrame: TfrExportYaMapsNew;
+    FFrame: TfrExportYaMobileV4;
   public
     destructor Destroy; override;
     function GetCaption: string; override;
@@ -33,28 +33,28 @@ uses
 
 { TExportProviderYaMaps }
 
-destructor TExportProviderYaMapsNew.Destroy;
+destructor TExportProviderYaMobileV4.Destroy;
 begin
   FreeAndNil(FFrame);
   inherited;
 end;
 
-function TExportProviderYaMapsNew.GetCaption: string;
+function TExportProviderYaMobileV4.GetCaption: string;
 begin
-  Result := SAS_STR_ExportYaMapsNewCaption;
+  Result := SAS_STR_ExportYaMobileV4Caption;
 end;
 
-procedure TExportProviderYaMapsNew.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
+procedure TExportProviderYaMobileV4.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportYaMapsNew.Create(nil);
+    FFrame := TfrExportYaMobileV4.Create(nil);
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;
   FFrame.Init;
 end;
 
-procedure TExportProviderYaMapsNew.RefreshTranslation;
+procedure TExportProviderYaMobileV4.RefreshTranslation;
 begin
   inherited;
   if FFrame <> nil then begin
@@ -62,7 +62,7 @@ begin
   end;
 end;
 
-procedure TExportProviderYaMapsNew.Hide;
+procedure TExportProviderYaMobileV4.Hide;
 begin
   inherited;
   if FFrame <> nil then begin
@@ -72,7 +72,7 @@ begin
   end;
 end;
 
-procedure TExportProviderYaMapsNew.Show;
+procedure TExportProviderYaMobileV4.Show;
 begin
   inherited;
   if FFrame <> nil then begin
@@ -82,7 +82,7 @@ begin
   end;
 end;
 
-procedure TExportProviderYaMapsNew.StartProcess(APolygon: TArrayOfDoublePoint);
+procedure TExportProviderYaMobileV4.StartProcess(APolygon: TArrayOfDoublePoint);
 var
   i:integer;
   path:string;
@@ -99,7 +99,7 @@ begin
   comprSat:=FFrame.seSatCompress.Value;
   comprMap:=FFrame.seMapCompress.Value;
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
-  TThreadExportYaMapsNew.Create(path,APolygon,ZoomArr,typemaparr,true,comprSat,comprMap);
+  TThreadExportYaMobileV4.Create(path,APolygon,ZoomArr,typemaparr,true,comprSat,comprMap);
 end;
 
 end.

@@ -357,12 +357,12 @@
       <Form>frExportToFileCont</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportYaMaps.pas">
-      <Form>frExportYaMaps</Form>
+    <DCCReference Include="RegionProcess\fr_ExportYaMobileV3.pas">
+      <Form>frExportYaMobileV3</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportYaMapsNew.pas">
-      <Form>frExportYaMapsNew</Form>
+    <DCCReference Include="RegionProcess\fr_ExportYaMobileV4.pas">
+      <Form>frExportYaMobileV4</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_MapCombine.pas">

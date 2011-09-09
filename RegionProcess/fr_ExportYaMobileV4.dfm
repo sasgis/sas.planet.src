@@ -1,4 +1,4 @@
-object frExportYaMapsNew: TfrExportYaMapsNew
+object frExportYaMobileV4: TfrExportYaMobileV4
   Left = 0
   Top = 0
   Width = 451

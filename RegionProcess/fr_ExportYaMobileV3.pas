@@ -1,4 +1,4 @@
-unit fr_ExportYaMaps;
+unit fr_ExportYaMobileV3;
 
 interface
 
@@ -19,7 +19,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportYaMaps = class(TFrame)
+  TfrExportYaMobileV3 = class(TFrame)
     pnlCenter: TPanel;
     pnlTop: TPanel;
     lblTargetPath: TLabel;
@@ -61,7 +61,7 @@ uses
 
 {$R *.dfm}
 
-procedure TfrExportYaMaps.btnSelectTargetPathClick(Sender: TObject);
+procedure TfrExportYaMobileV3.btnSelectTargetPathClick(Sender: TObject);
 var
   TempPath: string;
 begin
@@ -70,7 +70,7 @@ begin
   end;
 end;
 
-procedure TfrExportYaMaps.Init;
+procedure TfrExportYaMobileV3.Init;
 var
   i: integer;
   VMapType: TMapType;

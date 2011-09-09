@@ -210,9 +210,9 @@ begin
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   VExportProvider := TExportProviderGEKml.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderYaMaps.Create(pnlExport);
+  VExportProvider := TExportProviderYaMobileV3.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderYaMapsNew.Create(pnlExport);
+  VExportProvider := TExportProviderYaMobileV4.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   VExportProvider := TExportProviderAUX.Create(pnlExport);
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
