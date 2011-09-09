@@ -7,6 +7,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_LanguageManager,
   i_MarkPicture,
   i_MarkTemplate,
   i_MarkCategory,
@@ -38,6 +39,7 @@ type
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoint);
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       ACategoryDb: IMarkCategoryDBSmlInternal;
       AMarkPictureList: IMarkPictureList
     );
@@ -49,19 +51,30 @@ uses
   SysUtils,
   i_MarksDbSmlInternal,
   u_ConfigProviderHelpers,
+  u_StringConfigDataElementWithDefByStringRec,
   u_ResStrings,
   u_MarkTemplates;
 
 { TMarkPointTemplateConfig }
 
 constructor TMarkPointTemplateConfig.Create(
+  ALanguageManager: ILanguageManager;
   ACategoryDb: IMarkCategoryDBSmlInternal;
   AMarkPictureList: IMarkPictureList
 );
 var
   VPic: IMarkPicture;
 begin
-  inherited Create(ACategoryDb, SAS_STR_NewMark);
+  inherited Create(
+    ACategoryDb,
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager,
+      @SAS_STR_NewMark,
+      True,
+      'FormatString',
+      True
+    )
+  );
 
   FMarkPictureList := AMarkPictureList;
   if FMarkPictureList.Count > 0 then begin

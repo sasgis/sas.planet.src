@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   i_MarkNameGenerator,
+  i_StringConfigDataElement,
   i_MarkCategoryDBSmlInternal,
   u_ConfigDataElementComplexBase;
 
@@ -21,7 +22,7 @@ type
   public
     constructor Create(
       ACategoryDb: IMarkCategoryDBSmlInternal;
-      AFormatStringDefault: string
+      AFormatString: IStringConfigDataElement
     );
   end;
 
@@ -35,13 +36,13 @@ uses
 
 constructor TMarkTemplateConfigBase.Create(
   ACategoryDb: IMarkCategoryDBSmlInternal;
-  AFormatStringDefault: string
+  AFormatString: IStringConfigDataElement
 );
 begin
   inherited Create;
   FCategoryDb := ACategoryDb;
 
-  FNameGenerator := TMarkNameGenerator.Create(AFormatStringDefault);
+  FNameGenerator := TMarkNameGenerator.Create(AFormatString);
   Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);
 end;
 

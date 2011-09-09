@@ -7,6 +7,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_LanguageManager,
   i_MarkTemplate,
   i_MarkCategory,
   i_MarksFactoryConfig,
@@ -31,6 +32,7 @@ type
     procedure SetDefaultTemplate(AValue: IMarkTemplateLine);
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       ACategoryDb: IMarkCategoryDBSmlInternal
     );
   end;
@@ -40,6 +42,7 @@ implementation
 uses
   SysUtils,
   i_MarksDbSmlInternal,
+  u_StringConfigDataElementWithDefByStringRec,
   u_ConfigProviderHelpers,
   u_ResStrings,
   u_MarkTemplates;
@@ -47,10 +50,20 @@ uses
 { TMarkLineTemplateConfig }
 
 constructor TMarkLineTemplateConfig.Create(
+  ALanguageManager: ILanguageManager;
   ACategoryDb: IMarkCategoryDBSmlInternal
 );
 begin
-  inherited Create(ACategoryDb, SAS_STR_NewPath);
+  inherited Create(
+    ACategoryDb,
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager,
+      @SAS_STR_NewPath,
+      True,
+      'FormatString',
+      True
+    )
+  );
 
   FDefaultTemplate := CreateTemplate(
     nil,

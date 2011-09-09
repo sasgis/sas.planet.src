@@ -339,6 +339,7 @@ begin
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);
   FMarksDB :=
     TMarksSystem.Create(
+      FLanguageManager,
       FProgramPath,
       FMarkPictureList,
       THtmlToHintTextConverterStuped.Create,

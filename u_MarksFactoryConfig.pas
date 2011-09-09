@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  i_LanguageManager,
   i_MarkPicture,
   i_MarksFactoryConfig,
   i_MarkCategoryDBSmlInternal,
@@ -21,6 +22,7 @@ type
     function GetPolyTemplateConfig: IMarkPolyTemplateConfig;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       ACategoryDb: IMarkCategoryDBSmlInternal;
       AMarkPictureList: IMarkPictureList
     );
@@ -37,19 +39,20 @@ uses
 { TMarksFactoryConfig }
 
 constructor TMarksFactoryConfig.Create(
+  ALanguageManager: ILanguageManager;
   ACategoryDb: IMarkCategoryDBSmlInternal;
   AMarkPictureList: IMarkPictureList
 );
 begin
   inherited Create;
 
-  FPointTemplateConfig := TMarkPointTemplateConfig.Create(ACategoryDb, AMarkPictureList);
+  FPointTemplateConfig := TMarkPointTemplateConfig.Create(ALanguageManager, ACategoryDb, AMarkPictureList);
   Add(FPointTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewPoint'));
 
-  FLineTemplateConfig := TMarkLineTemplateConfig.Create(ACategoryDb);
+  FLineTemplateConfig := TMarkLineTemplateConfig.Create(ALanguageManager, ACategoryDb);
   Add(FLineTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewLine'));
 
-  FPolyTemplateConfig := TMarkPolyTemplateConfig.Create(ACategoryDb);
+  FPolyTemplateConfig := TMarkPolyTemplateConfig.Create(ALanguageManager, ACategoryDb);
   Add(FPolyTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewPoly'));
 end;
 
