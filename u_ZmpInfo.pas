@@ -13,6 +13,7 @@ uses
   i_ContentTypeSubst,
   i_TileRequestBuilderConfig,
   i_TileDownloaderConfig,
+  i_TilePostDownloadCropConfig,
   i_LanguageManager,
   i_StringByLanguage,
   i_CoordConverterFactory,
@@ -83,6 +84,7 @@ type
     FVersionConfig: IMapVersionInfo;
     FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     FTileDownloaderConfig: ITileDownloaderConfigStatic;
+    FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     FContentTypeSubst: IContentTypeSubst;
     FGeoConvert: ICoordConverter;
     FViewGeoConvert: ICoordConverter;
@@ -95,6 +97,7 @@ type
     procedure LoadConfig(
       ACoordConverterFactory: ICoordConverterFactory
     );
+    procedure LoadCropConfig(AConfig : IConfigDataProvider);
     function LoadGUID(AConfig : IConfigDataProvider): TGUID;
     procedure LoadVersion(AConfig : IConfigDataProvider);
     procedure LoadProjectionInfo(
@@ -110,6 +113,7 @@ type
     function GetVersionConfig: IMapVersionInfo;
     function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
+    function GetTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     function GetContentTypeSubst: IContentTypeSubst;
     function GetGeoConvert: ICoordConverter;
     function GetViewGeoConvert: ICoordConverter;
@@ -132,10 +136,12 @@ type
 implementation
 
 uses
+  Types,
   gnugettext,
   u_StringByLanguageWithStaticList,
   u_TileRequestBuilderConfig,
   u_TileDownloaderConfigStatic,
+  u_TilePostDownloadCropConfigStatic,
   u_ContentTypeSubstByList,
   u_MapVersionInfo,
   u_ResStrings;
@@ -423,6 +429,11 @@ begin
   Result := FTileDownloaderConfig;
 end;
 
+function TZmpInfo.GetTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
+begin
+  Result := FTilePostDownloadCropConfig;
+end;
+
 function TZmpInfo.GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
 begin
   Result := FTileRequestBuilderConfig;
@@ -440,7 +451,19 @@ begin
   LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
   LoadTileRequestBuilderConfig(FConfigIniParams);
   LoadTileDownloaderConfig(FConfigIniParams);
+  LoadCropConfig(FConfigIniParams);
   FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
+end;
+
+procedure TZmpInfo.LoadCropConfig(AConfig: IConfigDataProvider);
+var
+  VRect: TRect;
+begin
+  VRect.Left := AConfig.ReadInteger('TileRLeft',0);
+  VRect.Top := AConfig.ReadInteger('TileRTop',0);
+  VRect.Right := AConfig.ReadInteger('TileRRight',0);
+  VRect.Bottom := AConfig.ReadInteger('TileRBottom',0);
+  FTilePostDownloadCropConfig := TTilePostDownloadCropConfigStatic.Create(VRect);
 end;
 
 function TZmpInfo.LoadGUID(AConfig: IConfigDataProvider): TGUID;

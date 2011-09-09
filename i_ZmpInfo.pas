@@ -9,6 +9,7 @@ uses
   i_CoordConverter,
   i_ContentTypeSubst,
   i_TileDownloaderConfig,
+  i_TilePostDownloadCropConfig,
   i_StringByLanguage,
   i_MapVersionInfo,
   i_TileRequestBuilderConfig;
@@ -63,6 +64,9 @@ type
 
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     property TileDownloaderConfig: ITileDownloaderConfigStatic read GetTileDownloaderConfig;
+
+    function GetTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
+    property TilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic read GetTilePostDownloadCropConfig;
 
     function GetContentTypeSubst: IContentTypeSubst;
     property ContentTypeSubst: IContentTypeSubst read GetContentTypeSubst;
