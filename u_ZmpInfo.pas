@@ -289,7 +289,7 @@ var
 begin
   // 'sas://ZmpInfo/' + GUIDToString(FGUID)
   if AConfig.ReadString('index.html', '') <> '' then begin
-    VDefValue := '/';
+    VDefValue := '/index.html';
   end else if AConfig.ReadString('info.txt', '') <> '' then begin
     VDefValue := '/info.txt';
   end else begin
@@ -344,6 +344,7 @@ begin
     VValueList.Free;
   end;
 
+  VDefValue := '';
   VDefValue := AConfig.ReadString('ParentSubMenu', VDefValue);
   VValueList := TStringList.Create;
   try
