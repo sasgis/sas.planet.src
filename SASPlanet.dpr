@@ -110,6 +110,8 @@ uses
   u_TileRequestBuilderConfig in 'u_TileRequestBuilderConfig.pas',
   i_LastResponseInfo in 'i_LastResponseInfo.pas',
   u_LastResponseInfo in 'u_LastResponseInfo.pas',
+  i_TilePostDownloadCropConfig in 'i_TilePostDownloadCropConfig.pas',
+  u_TilePostDownloadCropConfigStatic in 'u_TilePostDownloadCropConfigStatic.pas',
   i_ZmpInfo in 'i_ZmpInfo.pas',
   u_ZmpInfo in 'u_ZmpInfo.pas',
   u_NotifyEventListener in 'u_NotifyEventListener.pas',
