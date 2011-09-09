@@ -336,7 +336,7 @@ begin
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FInetConfig.ProxyConfig as IProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FContentTypeManager);
-  FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
+  FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);
   FMarksDB :=
     TMarksSystem.Create(
       FProgramPath,
