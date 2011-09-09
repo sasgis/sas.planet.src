@@ -4105,7 +4105,7 @@ begin
  PosFromGSM:=TPosFromGSM.Create(GState.GSMpar, Self.topos);
  try
    PosFromGSM.GetPos(FConfig.ViewPortState.GetCurrentZoom);
- finally
+ except
    PosFromGSM.Free;
  end;
 end;

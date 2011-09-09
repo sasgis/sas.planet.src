@@ -183,6 +183,7 @@ begin
  if GetCoordFromGoogle(LL) then begin
     FToPos(LL, FZoom, true);
  end;
+ free;
 end;
 
 function GetWord(Str, Smb: string; WordNmbr: Byte): string;
