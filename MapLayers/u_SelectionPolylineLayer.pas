@@ -20,7 +20,6 @@ type
   TSelectionPolylineLayer = class(TPolyLineLayerBase)
   private
     FConfig: ISelectionPolylineLayerConfig;
-    FFillColor: TColor32;
     FPolygonFill: TPolygon32;
     FShadowPointsOnBitmap: TArrayOfDoublePoint;
     FShadowPolygon: TPolygon32;
@@ -99,7 +98,6 @@ end;
 
 procedure TSelectionPolylineLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
-  VPosOnBitmap: TDoublePoint;
   VPointsCount: Integer;
 begin
   inherited;

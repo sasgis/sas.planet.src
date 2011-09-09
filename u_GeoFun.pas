@@ -340,6 +340,7 @@ var
   ResultPixelPos:TDoublePoint;
 begin
   VPoinsCount := Length(APolyline);
+  a2 := 0;
   if VPoinsCount > 1 then begin
     VResPoinsCount:=VPoinsCount*2+1;
     SetLength(Result,VResPoinsCount);

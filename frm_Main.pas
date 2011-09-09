@@ -3614,7 +3614,6 @@ var
   VLastMouseMove: TPoint;
   VMousePos: TPoint;
   VMark: IMark;
-  VLastMark: IMark;
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
   VMarkPoint: IMarkPoint;

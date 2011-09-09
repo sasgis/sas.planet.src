@@ -108,6 +108,7 @@ begin
       FWasSecondKeyPress := True;
       FKeyMovingLastTick := VCurrTick;
       FTimeFromFirstToLast := 0;
+      VTimeFromLast := 0;
       VZoom:=FViewPortState.GetCurrentZoom;
       FConfig.LockRead;
       try
