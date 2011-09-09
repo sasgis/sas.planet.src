@@ -54,7 +54,6 @@ type
    private
     FZmp: IZmpInfo;
     FasLayer: boolean;
-    FTileRect: TRect;
     FUseDwn: boolean;
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
@@ -86,7 +85,6 @@ type
     function GetUseDwn: Boolean;
     function GetIsCanShowOnSmMap: boolean;
     function GetUseStick: boolean;
-    function GetIsCropOnDownload: Boolean;
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
@@ -222,7 +220,6 @@ type
     property UseGenPrevious: boolean read GetUseGenPrevious;
     property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
     property UseStick: boolean read GetUseStick;
-    property IsCropOnDownload: Boolean read GetIsCropOnDownload;
 
     property TileStorage: TTileStorageAbstract read FStorage;
     property GUIConfig: IMapTypeGUIConfig read FGUIConfig;
@@ -349,12 +346,6 @@ var
   VParams: IConfigDataProvider;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-
-  FTileRect.Left:=VParams.ReadInteger('TileRLeft',0);
-  FTileRect.Top:=VParams.ReadInteger('TileRTop',0);
-  FTileRect.Right:=VParams.ReadInteger('TileRRight',0);
-  FTileRect.Bottom:=VParams.ReadInteger('TileRBottom',0);
-
   FUseDwn:=VParams.ReadBool('UseDwn',true);
 end;
 
@@ -524,7 +515,7 @@ var
   VMemStream: TMemoryStream;
 begin
   if FStorage.GetUseSave then begin
-    if GetIsBitmapTiles and IsCropOnDownload then begin
+    if GetIsBitmapTiles and FZmp.TilePostDownloadCropConfig.IsCropOnDownload then begin
       VContentType := FContentTypeManager.GetInfo(AMimeType);
       if VContentType <> nil then begin
         if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
@@ -846,26 +837,13 @@ begin
     VBtmDest := TCustomBitmap32.Create;
     try
       VBtmDest.SetSize(ATileSize.X, ATileSize.Y);
-      VBtmDest.Draw(Bounds(0, 0, ATileSize.X, ATileSize.Y), FTileRect, VBtmSrc);
+      VBtmDest.Draw(Bounds(0, 0, ATileSize.X, ATileSize.Y), FZmp.TilePostDownloadCropConfig.CropRect, VBtmSrc);
       ABtm.Assign(VBtmDest);
     finally
       VBtmDest.Free;
     end;
   finally
     VBtmSrc.Free;
-  end;
-end;
-
-function TMapType.GetIsCropOnDownload: Boolean;
-begin
-  if (FTileRect.Left<>0)
-    or (FTileRect.Top<>0)
-    or (FTileRect.Right<>0)
-    or (FTileRect.Bottom<>0)
-  then begin
-    Result := True;
-  end else begin
-    Result := False;
   end;
 end;
 
