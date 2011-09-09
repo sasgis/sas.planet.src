@@ -90,6 +90,7 @@ begin
   if FSortIndex < 0 then begin
     FSortIndex := 1000;
   end;
+  FHotKey := FDefConfig.HotKey;
   FSeparator := FDefConfig.Separator;
   FParentSubMenu :=
     TStringConfigDataElementWithLanguage.Create(
@@ -143,6 +144,7 @@ procedure TMapTypeGUIConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
+    FHotKey := AConfigData.ReadInteger('HotKey', FHotKey);
     FSeparator := AConfigData.ReadBool('separator', FSeparator);
     FEnabled := AConfigData.ReadBool('Enabled', FEnabled);
     FSortIndex := AConfigData.ReadInteger('pnum', FSortIndex);
@@ -168,6 +170,11 @@ begin
     AConfigData.WriteInteger('pnum', FSortIndex);
   end else begin
     AConfigData.DeleteValue('pnum');
+  end;
+  if FHotKey <> FDefConfig.HotKey then begin
+    AConfigData.WriteInteger('HotKey', FHotKey);
+  end else begin
+    AConfigData.DeleteValue('HotKey');
   end;
 end;
 
