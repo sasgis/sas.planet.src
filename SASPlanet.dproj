@@ -686,6 +686,7 @@
     <DCCReference Include="u_StaticTreeBuilderBase.pas" />
     <DCCReference Include="u_StaticTreeItem.pas" />
     <DCCReference Include="u_StringByLanguageWithStaticList.pas" />
+    <DCCReference Include="u_StringConfigDataElementWithDefByStringRec.pas" />
     <DCCReference Include="u_StringConfigDataElementWithLanguage.pas" />
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />

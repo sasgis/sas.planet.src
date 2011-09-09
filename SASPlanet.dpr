@@ -416,6 +416,7 @@ uses
   u_LanguageManager in 'u_LanguageManager.pas',
   i_StringConfigDataElement in 'i_StringConfigDataElement.pas',
   u_StringConfigDataElementWithLanguage in 'u_StringConfigDataElementWithLanguage.pas',
+  u_StringConfigDataElementWithDefByStringRec in 'u_StringConfigDataElementWithDefByStringRec.pas',
   u_LanguagesEx in 'u_LanguagesEx.pas',
   u_LanguageTBXItem in 'u_LanguageTBXItem.pas',
   i_ImageResamplerFactory in 'i_ImageResamplerFactory.pas',
