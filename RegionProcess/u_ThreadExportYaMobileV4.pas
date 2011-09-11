@@ -9,34 +9,46 @@ uses
   Classes,
   GR32,
   MD5,
+  t_GeoTypes,
   u_MapType,
   u_ResStrings,
-  t_GeoTypes,
   u_ThreadExportAbstract;
 
 type
   TTileStream = record
-    data:TMemoryStream;
-    x:word;
-    y:word;
+    Data: TMemoryStream;
+    X: Word;
+    Y: Word;
   end;
 
   TThreadExportYaMobileV4 = class(TThreadExportAbstract)
   private
     FMapTypeArr: array of TMapType;
-    FIsReplace: boolean;
+    FIsReplace: Boolean;
     FExportPath: string;
-    csat, cmap: byte;
-    CurrentFilePath:string;
-    Tiles2Block:array of TTileStream;
+    FCurrentFilePath: string;
+    FTiles2Block: array of TTileStream;
+    cSat, cMap: Byte;
+    procedure WriteHeader(ACacheFile: TFileStream);
+    procedure WriteTile(
+      ACacheFile: TFileStream;
+      ATileData: TMemoryStream;
+      ARecordPos: Integer
+    );
+    procedure WriteBlock(
+      ACacheFile: TFileStream;
+      ATilesArray: array of TTileStream
+    );
+    function GetFilePath(APoint: TPoint; AZoom, AMapID: Integer): string;
+    procedure AddTileToCache(
+      ATileData: TMemoryStream;
+      ATilePoint: TPoint;
+      AZoom: Byte;
+      AMapID: Integer;
+      AFinalize: Boolean
+    );
   protected
     procedure ProcessRegion; override;
-    procedure WriteHeader(FilesStream:TFileStream);
-    procedure WriteTile(FilesStream:TFileStream;TileStream:TMemoryStream;recordpos:integer);
-    procedure WriteBlock(FilesStream:TFileStream;TileStreams:array of TTileStream);
-    function GetFilePath(Ax,Ay,Azoom,Aid:integer): string;
-    function calcTileIndex(x,y:word):word;
-    procedure AddTileToCache(TileStream:TMemoryStream;x,y:integer;z:byte;cacheid:integer;last:boolean);
   public
     constructor Create(
       APath: string;
@@ -54,9 +66,9 @@ implementation
 uses
   c_CoordConverter,
   i_CoordConverter,
+  i_BitmapTileSaveLoad,
   i_TileIterator,
   u_TileIteratorStuped,
-  i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
   u_GlobalState;
 
@@ -81,131 +93,132 @@ begin
   for i := 1 to length(Atypemaparr) do begin
     FMapTypeArr[i - 1] := Atypemaparr[i - 1];
   end;
+  SetLength(FTiles2Block, 0);
+  FCurrentFilePath := '';
 end;
 
-function TThreadExportYaMobileV4.GetFilePath(Ax,Ay,Azoom,Aid:integer): string;
- function heightTreeForZooms(i:integer):integer;
- var heightZoom:integer;
-     j,tilesInZoom:Int64;
- begin
-    heightZoom:=0;
-    tilesInZoom:=Int64(4) shl (i shl 1);
-    j:=1;
-    while j<tilesInZoom do begin
-      inc(heightZoom);
-      j:=j shl 8;
+function TThreadExportYaMobileV4.GetFilePath(APoint: TPoint; AZoom, AMapID: Integer): string;
+
+  function GetHeightTreeForZoom(Zoom: Integer): Integer;
+  var
+    VHeightZoom: Integer;
+    VTilesInZoom, I: Int64;
+  begin
+    VHeightZoom := 0;
+    VTilesInZoom := Int64(4) shl (Zoom shl 1);
+    I := 1;
+    while I < VTilesInZoom do begin
+      Inc(VHeightZoom);
+      I := I shl 8;
     end;
-    result:=heightZoom;
- end;
-
-var path:string;
-    xNode,yNode:integer;
-    xChild,yChild:integer;
-    fileX,fileY:integer;
-    sizeNode:integer;
-    i:integer;
-    heightTreeForZoom:integer;
-    block127:integer;
-begin
-  heightTreeForZoom:=heightTreeForZooms(Azoom);
-
-  path:=FExportPath;
-  path:=path+inttostr(Aid)+PathDelim;
-  path:=path+inttostr(Azoom)+PathDelim;
-
-  xNode:=0;
-  yNode:=0;
-  sizeNode:=1 shl ((4 * (heightTreeForZoom - 1) {- 1}));
-
-  xChild:=0;
-  yChild:=0;
-
-  for i:=0 to heightTreeForZoom - 3 do begin
-    xChild:=(AX-xNode)div sizeNode;
-    yChild:=(AY-yNode)div sizeNode;
-    xNode:=xNode+sizeNode*xChild;
-    yNode:=yNode+sizeNode*yChild;
-    sizeNode:=sizeNode shr 4;
-    if (i < heightTreeForZoom - 3) then begin
-      path:=path+IntToHex(xChild,1);
-      path:=path+IntToHex(yChild,1);
-      path:=path+PathDelim;
-    end;
+    Result := VHeightZoom;
   end;
-  path:=path+IntToHex(xChild,1);
-  path:=path+IntToHex(yChild,1);
- 
-  fileX:=AX-xNode;
-  fileY:=AY-yNode;
 
-  block127:=((fileX shr 7) shl 1) or (fileY shr 7);
-
- path:=path+IntToHex(block127,1);
- result:=path;
-end;
-
-procedure TThreadExportYaMobileV4.WriteHeader(FilesStream:TFileStream);
-var headersize:word;
-    blocksize,ostblocksize:word;
-    version:word;
-    flag:byte;
+const
+  HexSymbol: array [0..15] of PChar =
+    ( '0', '1', '2', '3', '4', '5', '6', '7',
+      '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' );
+var
+  VFilePath: string;
+  VHeightTreeForZoom: Integer;
+  VNode, VChild, VFile: TPoint;
+  VNodeSize: Integer;
+  VBlock127: Integer;
+  I: Integer;
 begin
-  FilesStream.Write('YMCF',4);
-  headersize:=32;
-  flag:=0;
-  version:=1;
-  blocksize:=32;
-  ostblocksize:=0;
-  FilesStream.Write(headersize,2); //Размер заголовка, в килобайтах = 32
-  FilesStream.Write(version,2); //Версия формата = 1
-  FilesStream.Size:=FilesStream.Size+4; //Платформа, на которой создали
-  FilesStream.Position:=FilesStream.Size;
-  FilesStream.Write(blocksize,2); //Размер блока регулярных данных, в килобайтах = 32
-  FilesStream.Write(ostblocksize,2);   //Размер фрагмента блока остаточных данных, в килобайтах = 1
-  FilesStream.Size:=FilesStream.Size+8192; //Битовая таблица свободных блоков данных
-  FilesStream.Size:=FilesStream.Size+512; //Таблица номеров остаточных блоков данных
-  FilesStream.Size:=FilesStream.Size+496; //Резерв
-  FilesStream.Position:=FilesStream.Size;
-  FilesStream.Write('YBLK',4);
-  FilesStream.Write(version,1);
-  FilesStream.Write(flag,1);
-  FilesStream.Size:=32768*2;
+  VFilePath := FExportPath + IntToStr(AMapID) + PathDelim + IntToStr(AZoom) + PathDelim;
+  VHeightTreeForZoom := GetHeightTreeForZoom(AZoom);
+  VNodeSize := 1 shl (4*(VHeightTreeForZoom - 1) {- 1}); // ?? -1 - опечатка в даташите ??
+  VNode.X := 0;
+  VNode.Y := 0;
+  VChild.X := 0;
+  VChild.Y := 0;
+  I := 0;
+  while ( I < (VHeightTreeForZoom - 2) ) do begin
+    VChild.X := (APoint.X - VNode.X) div VNodeSize;
+    VChild.Y := (APoint.Y - VNode.Y) div VNodeSize;
+    VNode.X := VNode.X + VNodeSize * VChild.X;
+    VNode.Y := VNode.Y + VNodeSize * VChild.Y;
+    VNodeSize := VNodeSize shr 4;
+    if ( I < (VHeightTreeForZoom - 3) ) then begin
+      if (VChild.X > 15) or (VChild.X < 0) or (VChild.Y > 15) or (VChild.Y < 0) then begin
+        raise Exception.Create(
+                'Child value overflow: ' + #13#10 +
+                'X = ' + IntToStr(VChild.X) + #13#10 +
+                'Y = ' + IntToStr(VChild.Y)
+              );
+      end;
+      VFilePath := VFilePath + HexSymbol[VChild.X] + HexSymbol[VChild.Y] + PathDelim;
+    end;
+    Inc(I);
+  end;
+  VFile.X := APoint.X - VNode.X;
+  VFile.Y := APoint.Y - VNode.Y;
+  VBlock127 := ( (VFile.X shr 7) shl 1 ) or (VFile.Y shr 7);
+  if (VChild.X > 15) or (VChild.X < 0) or (VChild.Y > 15) or (VChild.Y < 0) then begin
+    raise Exception.Create(
+            'Child value overflow: ' + #13#10 +
+            'X = ' + IntToStr(VChild.X) + #13#10 +
+            'Y = ' + IntToStr(VChild.Y)
+          );
+  end;
+  if (VBlock127 > 15) or (VBlock127 < 0) then begin
+    raise Exception.Create('Block127 value overflow: ' + IntToStr(VBlock127));
+  end;
+  Result := VFilePath + HexSymbol[VChild.X] + HexSymbol[VChild.Y] + HexSymbol[VBlock127];
 end;
 
-procedure TThreadExportYaMobileV4.WriteTile(FilesStream:TFileStream;TileStream:TMemoryStream;recordpos:integer);
-var records:word;
-    version:word;
-    time:Integer;
-    datasize:integer;
-    dataid:integer;
-    MD5arr:TMD5Digest;
+procedure TThreadExportYaMobileV4.WriteHeader(ACacheFile: TFileStream);
 begin
-  records:=1;
-  version:=1;
-  time:=0;
-  dataid:=0;
-  datasize:=TileStream.Size;
-  FilesStream.Position:=recordpos;
-  FilesStream.Write('YTLD',4);
-  FilesStream.Write(records,2);//количество записей в таблице разметки данных (пока всегда = 1)
-  FilesStream.Write(version,2);//номер версии формата = 1
-  MD5arr:=MD5Buffer(TileStream.Memory,TileStream.Size);
-  FilesStream.Write(MD5arr.v,16);//MD5-чексумма
-  version:=5;
-  FilesStream.Write(version,2);//номер версии карт-основы
-  FilesStream.Write(time,4);//время (пока не используется = 0)
-  FilesStream.Write(dataid,4);//идентификатор данных (сейчас всегда 0)
-  FilesStream.Write(datasize,4);//размер данных
-  TileStream.Position:=0;
-  FilesStream.Write(TileStream.Memory^,datasize); //данные
+  ACacheFile.Size := 2*32*1024;      // Заголовок (32k) + таблица смещений (32k)
+  ACacheFile.Position := 0;
+  ACacheFile.Write('YMCF', 4);       // YMCF -> Yandex Mobile Cache File
+  ACacheFile.Write(#32#00, 2);       // Размер заголовка, в килобайтах = 32
+  ACacheFile.Write(#01#00, 2);       // Версия формата = 1
+  ACacheFile.Write(#00#00#00#00, 4); // Платформа, на которой создали: SYMB, ANDR, IOSX
+  ACacheFile.Write(#32#00, 2);       // Размер блока регулярных данных, в килобайтах = 32
+  ACacheFile.Write(#00#00, 2);       // Размер фрагмента блока остаточных данных, в килобайтах = 1
+  ACacheFile.Position := 9*1024;
+  ACacheFile.Write('YBLK', 4);
+  ACacheFile.Write(#01#00, 2);
+  ACacheFile.Write(#00#00, 1);
+  ACacheFile.Position := ACacheFile.Size;
 end;
 
-function TThreadExportYaMobileV4.calcTileIndex(x,y:word):word;
+procedure TThreadExportYaMobileV4.WriteTile(
+  ACacheFile: TFileStream;
+  ATileData: TMemoryStream;
+  ARecordPos: Integer
+);
+var
+  VTileSize: Integer;
+  MD5: TMD5Digest;
 begin
-  result:= x or (y shl 7);
+  VTileSize := ATileData.Size;
+  ATileData.Position:=0;
+  MD5 := MD5Buffer(ATileData.Memory, VTileSize);
+  ACacheFile.Position := ARecordPos;
+  ACacheFile.Write('YTLD', 4);                    // YTLD -> Yandex Tile Data
+  ACacheFile.Write(#01#00, 2);                    // количество записей в таблице разметки данных (пока всегда = 1)
+  ACacheFile.Write(#01#00, 2);                    // номер версии формата = 1
+  ACacheFile.Write(MD5.v, 16);                    // MD5-чексумма
+  ACacheFile.Write(#01#00, 2);                    // номер версии карт-основы
+  ACacheFile.Write(#00#00#00#00, 4);              // время (пока не используется = 0)
+  ACacheFile.Write(#00#00#00#00, 4);              // идентификатор данных (сейчас всегда 0)
+  ACacheFile.Write(VTileSize, 4);                 // размер данных
+  ACacheFile.Write(ATileData.Memory^, VTileSize); // данные
 end;
 
-procedure TThreadExportYaMobileV4.WriteBlock(FilesStream:TFileStream;TileStreams:array of TTileStream);
+procedure TThreadExportYaMobileV4.WriteBlock(
+  ACacheFile: TFileStream;
+  ATilesArray: array of TTileStream
+);
+
+  function CalcTileIndex(X, Y: Word): Word; inline;
+  begin
+    Result := X or (Y shl 7);
+  end;
+
 var records:word;
     version:word;
     flag:byte;
@@ -218,12 +231,12 @@ var records:word;
     blockPos:integer;
     i:integer;
 begin
-  FilesStream.Position:=16;
+  ACacheFile.Position := 16;
   freeblocknum:=0;
   blockindexpos:=0;
   while (blockindexpos<=8192) do begin
     if (blockindexpos mod 8)=0 then begin
-      FilesStream.Read(blocks8indexes,1);
+      ACacheFile.Read(blocks8indexes,1);
     end;
     if ((blocks8indexes shr (7-(blockindexpos mod 8))) mod 2) = 0 then begin
       freeblocknum:=blockindexpos+1;
@@ -232,108 +245,127 @@ begin
     inc(blockindexpos);
   end;
 
-  FilesStream.Position:=16+((freeblocknum-1) div 8);
-  FilesStream.read(blocks8indexes,1);
+  ACacheFile.Position:=16+((freeblocknum-1) div 8);
+  ACacheFile.read(blocks8indexes,1);
   blocks8indexes:=blocks8indexes or ($01 shl (7-(blockindexpos mod 8)));
-  FilesStream.Position:=16+((freeblocknum-1) div 8);
-  FilesStream.write(blocks8indexes,1);
+  ACacheFile.Position:=16+((freeblocknum-1) div 8);
+  ACacheFile.write(blocks8indexes,1);
 
   blockPos:=32768*(freeblocknum+1);
 
   version:=1;
   flag:=3;
   nexttablesize:=0;
-  records:=length(TileStreams);
-  if FilesStream.size<blockPos+32768 then begin
-     FilesStream.size:=blockPos+32768;               //заполняем нулями весь блок
+  records:=length(ATilesArray);
+  if ACacheFile.size<blockPos+32768 then begin
+     ACacheFile.size:=blockPos+32768;               //заполняем нулями весь блок
   end;
-  FilesStream.Position:=blockPos;
+  ACacheFile.Position:=blockPos;
 
-  FilesStream.Write('YBLK',4);
-  FilesStream.Write(version,2); //Версия формата блока = 1
-  FilesStream.Write(flag,1); //Флаги (см. ниже)
-  FilesStream.Write(nexttablesize,1); //Размер таблицы размещения следующих блоков
-  FilesStream.Write(records,2); //Количество ячеек данных
+  ACacheFile.Write('YBLK',4);
+  ACacheFile.Write(version,2); //Версия формата блока = 1
+  ACacheFile.Write(flag,1); //Флаги (см. ниже)
+  ACacheFile.Write(nexttablesize,1); //Размер таблицы размещения следующих блоков
+  ACacheFile.Write(records,2); //Количество ячеек данных
 
   for i := 0 to records - 1 do begin
-    datasize:=TileStreams[i].data.Size+38; //38-байт на заголовок окромя тайла
-    dataid:=calcTileIndex(TileStreams[i].x,TileStreams[i].y);
-    FilesStream.Write(datasize,4);  //Размер элемента
-    FilesStream.Write(dataid,2);   //Индекс тайла
+    datasize:=ATilesArray[i].data.Size+38; //38-байт на заголовок окромя тайла
+    dataid:=calcTileIndex(ATilesArray[i].x,ATilesArray[i].y);
+    ACacheFile.Write(datasize,4);  //Размер элемента
+    ACacheFile.Write(dataid,2);   //Индекс тайла
   end;
   for i := 0 to records - 1 do begin
-    WriteTile(FilesStream,TileStreams[i].data,FilesStream.Position);
+    WriteTile(ACacheFile,ATilesArray[i].data,ACacheFile.Position);
   end;
   for i := 0 to records - 1 do begin
-    dataid:=calcTileIndex(TileStreams[i].x,TileStreams[i].y);
-    FilesStream.Position:=32768+(dataid*2);
-    FilesStream.Write(freeblocknum,2);
+    dataid:=calcTileIndex(ATilesArray[i].x,ATilesArray[i].y);
+    ACacheFile.Position:=32768+(dataid*2);
+    ACacheFile.Write(freeblocknum,2);
   end;
 end;
 
-procedure TThreadExportYaMobileV4.AddTileToCache(TileStream:TMemoryStream;x,y:integer;z:byte;cacheid:integer;last:boolean);
-  procedure createdirif(path:string);
-  begin
-   path:=copy(path, 1, LastDelimiter(PathDelim, path));
-   if not(DirectoryExists(path)) then ForceDirectories(path);
-  end;
-
-var newFilePath:string;
-    TilesSize:integer;
-    i:Integer;
-    filestream:TFileStream;
+procedure TThreadExportYaMobileV4.AddTileToCache(
+  ATileData: TMemoryStream;
+  ATilePoint: TPoint;
+  AZoom: Byte;
+  AMapID: Integer;
+  AFinalize: Boolean
+);
+var
+  VNewFilePath: string;
+  VTilesSize: Int64;
+  VCacheFile: TFileStream;
+  VPath: string;
+  I:Integer;
 begin
-  if last then begin
-    newFilePath:=CurrentFilePath;
-  end else begin
-    newFilePath:=GetFilePath(x,y,z,cacheid);
-  end;
-
-  if length(Tiles2Block)=0 then begin
-    CurrentFilePath:=newFilePath;
-  end;
-
-  TilesSize:=0;
-  for i := 0 to length(Tiles2Block) - 1 do begin
-    TilesSize:=TilesSize+Tiles2Block[i].data.size;
-  end;
-
-  if FileExists(CurrentFilePath) then begin
-    filestream:=TFileStream.Create(CurrentFilePath,fmOpenReadWrite);
-  end else begin
-    createdirif(CurrentFilePath);
-    filestream:=TFileStream.Create(CurrentFilePath,fmCreate);
-  end;
+  VNewFilePath := '';
+  VCacheFile := nil;
   try
-    if filestream.Size=0 then begin
-      WriteHeader(filestream);
+    if AFinalize then begin
+      VNewFilePath := FCurrentFilePath;
+    end else begin
+      VNewFilePath := GetFilePath(ATilePoint, AZoom, AMapID);
     end;
 
-    if (
-       (last)or
-       (TilesSize+TileStream.Size+10+6*(length(Tiles2Block))>32768)or
-       (CurrentFilePath<>newFilePath)
-       )
-       and(length(Tiles2Block)>0) then begin
-      WriteBlock(filestream,Tiles2Block);
-      for i := 0 to length(Tiles2Block) - 1 do begin
-        Tiles2Block[i].data.Free;
+    if Length(FTiles2Block) = 0 then begin
+      FCurrentFilePath := VNewFilePath;
+    end;
+
+    VTilesSize:=0;
+    for I := 0 to Length(FTiles2Block) - 1 do begin
+      VTilesSize := VTilesSize + FTiles2Block[I].Data.Size;
+    end;
+
+    if FileExists(FCurrentFilePath) then begin
+      VCacheFile := TFileStream.Create(FCurrentFilePath, fmOpenReadWrite);
+    end else begin
+      VPath := ExtractFilePath(FCurrentFilePath);
+      if VPath <> '' then begin
+        if not DirectoryExists(VPath) then begin
+          if not ForceDirectories(VPath) then begin
+            Exit;
+          end;
+        end;
+        VCacheFile := TFileStream.Create(FCurrentFilePath, fmCreate);
       end;
-      SetLength(Tiles2Block,0);
     end;
-
-    if (not(last))and(TileStream<>nil) then begin
-      SetLength(Tiles2Block,length(Tiles2Block)+1);
-      Tiles2Block[length(Tiles2Block)-1].data:=TMemoryStream.Create;
-      TileStream.Position:=0;
-      Tiles2Block[length(Tiles2Block)-1].data.CopyFrom(TileStream,TileStream.Size);
-      Tiles2Block[length(Tiles2Block)-1].x:=x mod 128;
-      Tiles2Block[length(Tiles2Block)-1].y:=y mod 128;
+    if not Assigned(VCacheFile) then begin
+      raise Exception.Create('Can''t open cache file: ' + FCurrentFilePath);
+      Exit;
+    end;
+    try
+      if VCacheFile.Size = 0 then begin
+        WriteHeader(VCacheFile);
+      end;
+      if ( AFinalize or
+          ((VTilesSize + ATileData.Size + 10 + 6*Length(FTiles2Block) ) > 32768 ) or
+          (FCurrentFilePath <> VNewFilePath)
+         ) and (Length(FTiles2Block) > 0) then
+      try
+        WriteBlock(VCacheFile, FTiles2Block);
+      finally
+        try
+          for I := 0 to Length(FTiles2Block) - 1 do begin
+            FTiles2Block[I].Data.Free;
+          end;
+        finally
+          SetLength(FTiles2Block, 0);
+        end;
+      end;
+      if ( not AFinalize and Assigned(ATileData) ) then begin
+        ATileData.Position := 0;
+        SetLength(FTiles2Block, Length(FTiles2Block) + 1);
+        FTiles2Block[Length(FTiles2Block) - 1].Data := TMemoryStream.Create;
+        FTiles2Block[Length(FTiles2Block) - 1].Data.CopyFrom(ATileData, ATileData.Size);
+        FTiles2Block[Length(FTiles2Block) - 1].X := ATilePoint.X mod 128;
+        FTiles2Block[Length(FTiles2Block) - 1].Y := ATilePoint.Y mod 128;
+      end;
+    finally
+      FreeAndNil(VCacheFile);
     end;
   finally
-    filestream.Free;
+    FCurrentFilePath := VNewFilePath;
   end;
-  CurrentFilePath:=newFilePath;
 end;
 
 procedure TThreadExportYaMobileV4.ProcessRegion;
@@ -419,7 +451,13 @@ begin
                       bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
                       TileStream.Clear;
                       VSaver.SaveToStream(bmp32crop, TileStream);
-                      AddTileToCache(TileStream,VTile.X*2+Xi,VTile.Y*2+Yi,VZoom,10+j,false);
+                      AddTileToCache(
+                        TileStream,
+                        Types.Point(2*VTile.X + Xi, 2*VTile.Y + Yi),
+                        VZoom,
+                        (10 + j),
+                        False
+                      );
                    end;
                   end;
                 end;
@@ -432,7 +470,7 @@ begin
             end;
           end;
         end;
-        AddTileToCache(nil,0,0,0,0,true);
+        AddTileToCache(nil, Types.Point(0,0), 0, 0, True);
       finally
         for i := 0 to Length(FZooms)-1 do begin
           VTileIterators[i] := nil;
@@ -447,7 +485,5 @@ begin
     bmp322.Free;
   end;
 end;
-
-
 
 end.
