@@ -132,10 +132,6 @@ begin
   FLog := ALog;
   FRarProgress := TRarProgress.Create(Self);
   with FRarProgress do begin
-
-    Left := 8;
-    Top := 200;
-    Width := 314;
     Height := 17;
     Min := 0;
     Max := 100;
