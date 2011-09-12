@@ -398,85 +398,89 @@ begin
       bmp32.DrawMode := dmBlend;
       bmp322.DrawMode := dmBlend;
       bmp32crop := TCustomBitmap32.Create;
-      bmp32crop.Width := sizeim;
-      bmp32crop.Height := sizeim;
-      VGeoConvert := GState.CoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
-      FTilesToProcess := 0;
-      SetLength(VTileIterators,Length(FZooms));
+      try
+        bmp32crop.Width := sizeim;
+        bmp32crop.Height := sizeim;
+        VGeoConvert := GState.CoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
+        FTilesToProcess := 0;
+        SetLength(VTileIterators,Length(FZooms));
 
-      for i := 0 to Length(FZooms) - 1 do begin
-        VZoom := FZooms[i];
-        VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
-        for j := 0 to 2 do begin
-          if (FMapTypeArr[j] <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-            FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
+        for i := 0 to Length(FZooms) - 1 do begin
+          VZoom := FZooms[i];
+          VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+          for j := 0 to 2 do begin
+            if (FMapTypeArr[j] <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
+              FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
+            end;
           end;
         end;
-      end;
-      try
-        FTilesProcessed := 0;
+        try
+          FTilesProcessed := 0;
 
-        ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
-        ProgressFormUpdateOnProgress;
+          ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
+          ProgressFormUpdateOnProgress;
 
-        tc := GetTickCount;
-        for j := 0 to length(FMapTypeArr)-1 do begin
-          VMapType:=FMapTypeArr[j];
-          for i := 0 to Length(FZooms) - 1 do begin
-            VZoom := FZooms[i];
-            VTileIterators[i].Reset;
-            while VTileIterators[i].Next(VTile) do begin
-              if IsCancel then begin
-                exit;
-              end;
-              if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-                bmp322.Clear;
-                if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                  FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, VGeoConvert, False, False, True);
+          tc := GetTickCount;
+          for j := 0 to length(FMapTypeArr)-1 do begin
+            VMapType:=FMapTypeArr[j];
+            for i := 0 to Length(FZooms) - 1 do begin
+              VZoom := FZooms[i];
+              VTileIterators[i].Reset;
+              while VTileIterators[i].Next(VTile) do begin
+                if IsCancel then begin
+                  exit;
                 end;
-                bmp32.Clear;
-                if VMapType.LoadTileUni(bmp32, VTile, VZoom, VGeoConvert, False, False, True) then begin
+                if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
+                  bmp322.Clear;
                   if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                    bmp322.Draw(0, 0, bmp32);
-                    bmp32.Draw(0, 0, bmp322);
+                    FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, VGeoConvert, False, False, True);
                   end;
-                  if (j = 2) or (j = 0) then begin
-                    VSaver := JPGSaver;
-                  end else begin
-                    VSaver := PNGSaver;
+                  bmp32.Clear;
+                  if VMapType.LoadTileUni(bmp32, VTile, VZoom, VGeoConvert, False, False, True) then begin
+                    if (j = 2) and (FMapTypeArr[0] <> nil) then begin
+                      bmp322.Draw(0, 0, bmp32);
+                      bmp32.Draw(0, 0, bmp322);
+                    end;
+                    if (j = 2) or (j = 0) then begin
+                      VSaver := JPGSaver;
+                    end else begin
+                      VSaver := PNGSaver;
+                    end;
+                    for xi := 0 to hxyi do begin
+                      for yi := 0 to hxyi do begin
+                        bmp32crop.Clear;
+                        bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
+                        TileStream.Clear;
+                        VSaver.SaveToStream(bmp32crop, TileStream);
+                        AddTileToCache(
+                          TileStream,
+                          Types.Point(2*VTile.X + Xi, 2*VTile.Y + Yi),
+                          VZoom,
+                          (10 + j),
+                          False
+                        );
+                     end;
+                    end;
                   end;
-                  for xi := 0 to hxyi do begin
-                    for yi := 0 to hxyi do begin
-                      bmp32crop.Clear;
-                      bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
-                      TileStream.Clear;
-                      VSaver.SaveToStream(bmp32crop, TileStream);
-                      AddTileToCache(
-                        TileStream,
-                        Types.Point(2*VTile.X + Xi, 2*VTile.Y + Yi),
-                        VZoom,
-                        (10 + j),
-                        False
-                      );
-                   end;
+                  inc(FTilesProcessed);
+                  if (GetTickCount - tc > 1000) then begin
+                    tc := GetTickCount;
+                    ProgressFormUpdateOnProgress;
                   end;
-                end;
-                inc(FTilesProcessed);
-                if (GetTickCount - tc > 1000) then begin
-                  tc := GetTickCount;
-                  ProgressFormUpdateOnProgress;
                 end;
               end;
             end;
           end;
+          AddTileToCache(nil, Types.Point(0,0), 0, 0, True);
+        finally
+          for i := 0 to Length(FZooms)-1 do begin
+            VTileIterators[i] := nil;
+          end;
         end;
-        AddTileToCache(nil, Types.Point(0,0), 0, 0, True);
+        ProgressFormUpdateOnProgress
       finally
-        for i := 0 to Length(FZooms)-1 do begin
-          VTileIterators[i] := nil;
-        end;
+        bmp32crop.Free;
       end;
-      ProgressFormUpdateOnProgress
     finally
       TileStream.Free;
     end;
