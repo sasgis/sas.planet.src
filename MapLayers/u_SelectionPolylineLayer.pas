@@ -67,7 +67,7 @@ begin
 
   FShadowLinePolygon := TPolygon32.Create;
 
-  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, FPolygonFill);
+  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, FPolygonFill, false);
   FConfig := AConfig;
 
   LinksList.Add(

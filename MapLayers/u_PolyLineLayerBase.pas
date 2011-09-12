@@ -37,6 +37,7 @@ type
     FPolygon: TPolygon32;
     FLinePolygon: TPolygon32;
 
+    FClosed: boolean;
 
     procedure DrawPolyPoint(
       ABuffer: TBitmap32;
@@ -65,7 +66,8 @@ type
       AViewPortState: IViewPortState;
       ALineOnMapEdit: ILineOnMapEdit;
       AConfig: IPolyLineLayerConfig;
-      APolygon: TPolygon32
+      APolygon: TPolygon32;
+      AClosed: boolean
     );
     destructor Destroy; override;
   end;
@@ -85,7 +87,8 @@ constructor TPolyLineLayerBase.Create(
   AViewPortState: IViewPortState;
   ALineOnMapEdit: ILineOnMapEdit;
   AConfig: IPolyLineLayerConfig;
-  APolygon: TPolygon32
+  APolygon: TPolygon32;
+  AClosed: boolean
 );
 begin
   inherited Create(AParentMap, AViewPortState);
@@ -94,6 +97,8 @@ begin
   FPolygon := APolygon;
 
   FLinePolygon := TPolygon32.Create;
+
+  FClosed := AClosed;
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
@@ -252,7 +257,7 @@ begin
     Inc(VLocalRect.Bottom, 10);
     VBitmapClip := TPolygonClipByRect.Create(VLocalRect);
     FPointsOnBitmap := ALocalConverter.LonLatArrayToVisualFloatArray(FSourcePolygon);
-    if FPolygon<>nil then begin
+    if FClosed then begin
       SetLength(FPointsOnBitmap,VPointsCount+1);
       FPointsOnBitmap[VPointsCount]:=FPointsOnBitmap[0];
       inc(VPointsCount);

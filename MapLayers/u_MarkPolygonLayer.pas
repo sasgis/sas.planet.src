@@ -53,7 +53,7 @@ begin
   FPolygonFill.Closed := True;
   FPolygonFill.Antialiased := true;
   FPolygonFill.AntialiasMode := am4times;
-  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, FPolygonFill);
+  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, FPolygonFill, true);
   FConfig := AConfig;
 end;
 

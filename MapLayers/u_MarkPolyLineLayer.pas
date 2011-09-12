@@ -45,7 +45,7 @@ begin
   VPolygon.Closed := False;
   VPolygon.Antialiased := true;
   VPolygon.AntialiasMode := am4times;
-  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, VPolygon);
+  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, VPolygon, false);
   FConfig := AConfig;
 end;
 
