@@ -53,7 +53,7 @@ begin
   inherited;
 
   FShowPointCaption := True;
-  FUseSimpleDrawOrder := True;
+  FUseSimpleDrawOrder := false;
   FOverSizeRect := Rect(256, 128, 64, 128);
 
   SetChanged;
