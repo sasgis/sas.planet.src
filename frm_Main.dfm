@@ -40,9 +40,6 @@ object frmMain: TfrmMain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
-    ExplicitLeft = 207
-    ExplicitWidth = 471
-    ExplicitHeight = 467
   end
   object TBDock: TTBXDock
     Left = 0
@@ -177,10 +174,10 @@ object frmMain: TfrmMain
     object TBMarksToolbar: TTBXToolbar
       Left = 369
       Top = 25
-      DockPos = 352
+      DockPos = 363
       DockRow = 1
       Images = PanelsImageList
-      LinkSubitems = NMarks
+      LinkSubitems = NMarksGroup
       Stretch = True
       TabOrder = 2
       Caption = 'Placemarks'
@@ -744,13 +741,6 @@ object frmMain: TfrmMain
           Caption = 'Debug Info'
           Hint = ''
         end
-        object tbitmShowMarkCaption: TTBXItem
-          AutoCheck = True
-          Checked = True
-          OnClick = tbitmShowMarkCaptionClick
-          Caption = 'Placemark Names'
-          Hint = ''
-        end
       end
       object NSources: TTBXSubmenuItem
         Caption = '&Source'
@@ -808,51 +798,63 @@ object frmMain: TfrmMain
         Images = MenusImageList
         Caption = 'Placemarks'
         Hint = ''
-        object TBAdd_Point: TTBXItem
-          GroupIndex = 1
-          ImageIndex = 15
-          Images = PanelsImageList
-          Options = [tboShowHint]
-          Stretch = True
-          OnClick = TBAdd_PointClick
-          Caption = 'Add Placemark'
-          Hint = 'Add new placemark'
-        end
-        object TBAdd_Line: TTBXItem
-          ImageIndex = 16
-          Images = PanelsImageList
-          MaskOptions = [tboShowHint]
-          OnClick = TBAdd_LineClick
-          Caption = 'Add Path'
-          Hint = 'Add new path'
-        end
-        object TBAdd_Poly: TTBXItem
-          ImageIndex = 17
-          Images = PanelsImageList
-          Options = [tboShowHint]
-          OnClick = TBAdd_PolyClick
-          Caption = 'Add Polygon'
-          Hint = 'Add polygon'
-        end
-        object TBXSeparatorItem12: TTBXSeparatorItem
+        object NMarksGroup: TTBGroupItem
           Caption = ''
           Hint = ''
+          object TBAdd_Point: TTBXItem
+            GroupIndex = 1
+            ImageIndex = 15
+            Images = PanelsImageList
+            Options = [tboShowHint]
+            Stretch = True
+            OnClick = TBAdd_PointClick
+            Caption = 'Add Placemark'
+            Hint = 'Add new placemark'
+          end
+          object TBAdd_Line: TTBXItem
+            ImageIndex = 16
+            Images = PanelsImageList
+            MaskOptions = [tboShowHint]
+            OnClick = TBAdd_LineClick
+            Caption = 'Add Path'
+            Hint = 'Add new path'
+          end
+          object TBAdd_Poly: TTBXItem
+            ImageIndex = 17
+            Images = PanelsImageList
+            Options = [tboShowHint]
+            OnClick = TBAdd_PolyClick
+            Caption = 'Add Polygon'
+            Hint = 'Add polygon'
+          end
+          object TBXSeparatorItem12: TTBXSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          object TBItem6: TTBXItem
+            ImageIndex = 18
+            Images = PanelsImageList
+            Options = [tboShowHint]
+            OnClick = TBItem6Click
+            Caption = 'Placemark Manager'
+            Hint = 'Placemark manager'
+          end
+          object TBHideMarks: TTBXItem
+            AutoCheck = True
+            ImageIndex = 19
+            Images = PanelsImageList
+            OnClick = TBHideMarksClick
+            Caption = 'Hide All Placemarks'
+            Hint = 'Hide all placemarks'
+          end
         end
-        object TBItem6: TTBXItem
-          ImageIndex = 18
-          Images = PanelsImageList
-          Options = [tboShowHint]
-          OnClick = TBItem6Click
-          Caption = 'Placemark Manager'
-          Hint = 'Placemark manager'
-        end
-        object TBHideMarks: TTBXItem
+        object tbitmShowMarkCaption: TTBXItem
           AutoCheck = True
-          ImageIndex = 19
+          Checked = True
           Images = PanelsImageList
-          OnClick = TBHideMarksClick
-          Caption = 'Hide All Placemarks'
-          Hint = 'Hide all placemarks'
+          OnClick = tbitmShowMarkCaptionClick
+          Caption = 'Placemark Names'
+          Hint = ''
         end
       end
       object tbsbmGPS: TTBXSubmenuItem
@@ -1058,7 +1060,6 @@ object frmMain: TfrmMain
     Height = 9
     PopupMenu = TBXPopupPanels
     Position = dpBottom
-    ExplicitTop = 526
   end
   object TBDockLeft: TTBXDock
     Left = 0
@@ -1175,7 +1176,6 @@ object frmMain: TfrmMain
         AutoSize = True
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitHeight = 445
         object TBXDockForSearch: TTBXDock
           Left = 0
           Top = 0
@@ -1194,8 +1194,6 @@ object frmMain: TfrmMain
           Color = clWhite
           ParentColor = False
           TabOrder = 1
-          ExplicitLeft = 2
-          ExplicitTop = 6
         end
       end
     end
@@ -1287,7 +1285,6 @@ object frmMain: TfrmMain
     Height = 571
     PopupMenu = TBXPopupPanels
     Position = dpRight
-    ExplicitHeight = 467
     object TBXSensorsBar: TTBXToolWindow
       Left = 0
       Top = 0
@@ -1312,7 +1309,6 @@ object frmMain: TfrmMain
         BevelOuter = bvNone
         BorderStyle = bsNone
         TabOrder = 0
-        ExplicitHeight = 457
         object TBXDock1: TTBXDock
           Left = 0
           Top = 0

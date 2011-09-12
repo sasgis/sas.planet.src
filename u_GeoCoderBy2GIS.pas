@@ -40,6 +40,7 @@ var
   i:Integer;
   VPoint: TDoublePoint;
   VDesc: string;
+  VFullDesc: string;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
@@ -67,8 +68,10 @@ begin
             VPoint.Y:=StrToFloat(PlacemarkNode.ChildNodes.FindNode('lat').Text, VFormatSettings);
             VDesc:=PlacemarkNode.ChildNodes.FindNode('city_name').Text+', '+
                    PlacemarkNode.ChildNodes.FindNode('address').text;
+            VFullDesc:='http://sasgis.ru/stat/2GIS/2gis.php?id='+PlacemarkNode.ChildNodes.FindNode('id').Text+
+                       '&hash='+PlacemarkNode.ChildNodes.FindNode('hash').Text;
             if (AddressNode<>nil) then begin
-              VPlace := TGeoCodePlacemark.Create(VPoint, AddressNode.Text, VDesc, '', 4);
+              VPlace := TGeoCodePlacemark.Create(VPoint, AddressNode.Text, VDesc, VFullDesc, 4);
               VList.Add(VPlace);
             end;
           except

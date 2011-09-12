@@ -146,10 +146,6 @@ type
     NSRCic: TTBXItem;
     NSRCinet: TTBXItem;
     NSRCesh: TTBXItem;
-    TBAdd_Point: TTBXItem;
-    TBAdd_Line: TTBXItem;
-    TBAdd_Poly: TTBXItem;
-    TBItem6: TTBXItem;
     TBGPSconn: TTBXItem;
     TBGPSPath: TTBXSubmenuItem;
     TBSrc: TTBXSubmenuItem;
@@ -229,7 +225,6 @@ type
     TBXSeparatorItem9: TTBXSeparatorItem;
     TBXSeparatorItem10: TTBXSeparatorItem;
     TBXSeparatorItem11: TTBXSeparatorItem;
-    TBXSeparatorItem12: TTBXSeparatorItem;
     tbsprtGPS1: TTBXSeparatorItem;
     TBXSeparatorItem14: TTBXSeparatorItem;
     TBXSeparatorItem15: TTBXSeparatorItem;
@@ -263,7 +258,6 @@ type
     tbtmHelpBugTrack: TTBXItem;
     tbitmShowDebugInfo: TTBXItem;
     PanelsImageList: TTBXImageList;
-    TBHideMarks: TTBXItem;
     ZSlider: TImage32;
     TBControlItem1: TTBControlItem;
     TBXPopupPanels: TTBXPopupMenu;
@@ -332,7 +326,6 @@ type
     TrayItemRestore: TTBItem;
     TBSeparatorItem1: TTBSeparatorItem;
     TrayItemQuit: TTBItem;
-    tbitmShowMarkCaption: TTBXItem;
     NAnimateMove: TTBXItem;
     tbiSearch: TTBXComboBoxItem;
     NSearchResults: TTBXVisibilityToggleItem;
@@ -354,6 +347,14 @@ type
     TBEditPathOk: TTBXItem;
     TBEditPathSave: TTBXItem;
     TBEditSelectPolylineRadius: TSpinEdit;
+    tbitmShowMarkCaption: TTBXItem;
+    NMarksGroup: TTBGroupItem;
+    TBAdd_Point: TTBXItem;
+    TBAdd_Line: TTBXItem;
+    TBAdd_Poly: TTBXItem;
+    TBXSeparatorItem12: TTBXSeparatorItem;
+    TBItem6: TTBXItem;
+    TBHideMarks: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
