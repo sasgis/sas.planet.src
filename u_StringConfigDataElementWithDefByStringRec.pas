@@ -87,8 +87,6 @@ end;
 
 procedure TStringConfigDataElementWithDefByStringRec.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
-var
-  VDefValue: string;
 begin
   inherited;
   if FUseSotre then begin
