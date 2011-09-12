@@ -252,6 +252,11 @@ begin
     Inc(VLocalRect.Bottom, 10);
     VBitmapClip := TPolygonClipByRect.Create(VLocalRect);
     FPointsOnBitmap := ALocalConverter.LonLatArrayToVisualFloatArray(FSourcePolygon);
+    if FPolygon<>nil then begin
+      SetLength(FPointsOnBitmap,VPointsCount+1);
+      FPointsOnBitmap[VPointsCount]:=FPointsOnBitmap[0];
+      inc(VPointsCount);
+    end;
 
     VPointsProcessedCount := VBitmapClip.Clip(FPointsOnBitmap[0], VPointsCount, VPointsOnBitmapPrepared);
     if VPointsProcessedCount > 0 then begin
