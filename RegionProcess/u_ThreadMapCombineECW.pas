@@ -203,7 +203,6 @@ begin
         101 - FQuality,
         COMPRESS_HINT_BEST,
         ReadLineECW,
-        nil,
         Datum,
         Proj,
         Units,

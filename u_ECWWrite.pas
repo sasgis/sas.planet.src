@@ -15,7 +15,6 @@ type
   PlineRGB = ^TlineRGB;
 
   TEcwRead = function(Line:cardinal; var lineR,LineG,LineB:PLineRGB):boolean of object;
-  TEcwStatus = procedure(Line:cardinal) of object;
 
 type
   TECWWrite = class
@@ -25,7 +24,6 @@ type
     FReadDelegate: TEcwRead;
     FOperationID: Integer;
     FCancelNotifier: IOperationNotifier;
-    FStatusDelegate: TEcwStatus;
   public
     constructor Create(ALibPath: string);
     function Encode(
@@ -36,7 +34,6 @@ type
       CompressRatio:Single;
       Hint:CompressHint;
       AReadDelegate:TEcwRead;
-      AStatusDelegate:TEcwStatus;
       Datum,Projection:string;
       SizeUnits:TCellSizeUnits;
       CellIncrementX,CellIncrementY,OriginX,OriginY:double
@@ -85,7 +82,6 @@ function TECWWrite.Encode(
   CompressRatio:Single;
   Hint:CompressHint;
   AReadDelegate:TEcwRead;
-  AStatusDelegate:TEcwStatus;
   Datum,Projection:string;
   SizeUnits: TCellSizeUnits;
   CellIncrementX,CellIncrementY,OriginX,OriginY:double
@@ -104,7 +100,6 @@ begin
   @_NCSEcwCompressFreeClient := GetProcAddress(FDllHandle, 'NCSEcwCompressFreeClient');
 
   FReadDelegate := AReadDelegate;
-  FStatusDelegate := AStatusDelegate;
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
   FEcwData^.pClientData := Self;
