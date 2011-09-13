@@ -7,20 +7,20 @@ uses
   Classes,
   SyncObjs,
   Types,
-  i_OperationCancelNotifier,
-  u_OperationCancelNotifier,
+  i_OperationNotifier,
+  u_OperationNotifier,
   u_MapType;
 
 type
   TTileDownloaderThreadBase = class(TThread)
   private
-    FCancelNotifierInternal: TOperationCancelNotifier;
+    FCancelNotifierInternal: IOperationNotifierInternal;
   protected
     FMapType: TMapType;
     FZoom: byte;
     FLoadUrl: string;
     FCancelEvent: TEvent;
-    FCancelNotifier: IOperationCancelNotifier;
+    FCancelNotifier: IOperationNotifier;
 
     procedure SleepCancelable(ATime: Cardinal);
   public
@@ -36,11 +36,14 @@ uses
   SysUtils;
 
 constructor TTileDownloaderThreadBase.Create(CreateSuspended: Boolean);
+var
+  VOperationNotifier: TOperationNotifier;
 begin
   inherited Create(CreateSuspended);
   FCancelEvent := TEvent.Create;
-  FCancelNotifierInternal := TOperationCancelNotifier.Create;
-  FCancelNotifier := FCancelNotifierInternal;
+  VOperationNotifier := TOperationNotifier.Create;
+  FCancelNotifierInternal := VOperationNotifier;
+  FCancelNotifier := VOperationNotifier;
 end;
 
 destructor TTileDownloaderThreadBase.Destroy;
@@ -61,7 +64,7 @@ procedure TTileDownloaderThreadBase.Terminate;
 begin
   inherited;
   FCancelEvent.SetEvent;
-  FCancelNotifierInternal.SetCanceled;
+  FCancelNotifierInternal.NextOperation;
 end;
 
 end.

@@ -254,9 +254,10 @@ var
   VResultOk: IDownloadResultOk;
   VResultBadContentType: IDownloadResultBadContentType;
   VResultDownloadError: IDownloadResultError;
+  VOperatonID: Integer;
 begin
   FStartTime := Now;
-
+  VOperatonID := FCancelNotifier.CurrentOperation;
   VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, FMapType.GeoConvert);
   try
     FTotalInRegion := VTileIterator.TilesTotal;
@@ -310,7 +311,7 @@ begin
                     FLastSuccessfulPoint := VTile;
                     VGotoNextTile := True;
                   end else begin
-                    VResult:=FMapType.DownloadTile(FCancelNotifier, VTile, FZoom, FCheckExistTileSize);
+                    VResult:=FMapType.DownloadTile(VOperatonID, FCancelNotifier, VTile, FZoom, FCheckExistTileSize);
                     if Terminated then begin
                       Break;
                     end;

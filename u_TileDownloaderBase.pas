@@ -8,7 +8,7 @@ uses
   SyncObjs,
   Classes,
   i_JclNotify,
-  i_OperationCancelNotifier,
+  i_OperationNotifier,
   i_ProxySettings,
   i_DownloadChecker,
   i_DownloadRequest,
@@ -24,12 +24,12 @@ type
     FConfig: ITileDownloaderConfig;
     FConfigStatic: ITileDownloaderConfigStatic;
     FConfigListener: IJclListener;
-    FCancelListener: IJclListener;
+    FDownloadCancelListener: IJclListener;
+    FWaitCancelListener: IJclListener;
     FCancelEvent: TEvent;
     procedure OnConfigChange(Sender: TObject);
     procedure OnDownloadCanceled(Sender: TObject);
-    procedure SetIsCanceled;
-    procedure SetNotCanceled;
+    procedure OnWaitCanceled(Sender: TObject);
     procedure SleepCancelable(ATime: Cardinal);
   protected
     FSessionHandle: HInternet;
@@ -67,7 +67,8 @@ type
     procedure GetResponsHead(AFileHandle: HInternet; var AResponseHead: string);
   protected
     function DownloadTile(
-      ACancelNotifier: IOperationCancelNotifier;
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest;
       ADownloadChecker: IDownloadChecker
@@ -91,22 +92,25 @@ begin
   FDownloadMutex := TMutex.Create;
   FSessionCS := TCriticalSection.Create;
   FCancelEvent := TEvent.Create;
-  FCancelListener := TNotifyEventListener.Create(Self.OnDownloadCanceled);
+  FWaitCancelListener := TNotifyEventListener.Create(Self.OnWaitCanceled);
+  FDownloadCancelListener := TNotifyEventListener.Create(Self.OnDownloadCanceled);
 
   FConfigListener := TNotifyEventListener.Create(Self.OnConfigChange);
   FConfig.GetChangeNotifier.Add(FConfigListener);
   OnConfigChange(nil);
 
   FWasConnectError := False;
+  FCancelEvent.ResetEvent;
 end;
 
 destructor TTileDownloaderBase.Destroy;
 begin
-  SetIsCanceled;
+  FCancelEvent.SetEvent;
   FConfig.GetChangeNotifier.Remove(FConfigListener);
   FConfigListener := nil;
   FConfig := nil;
-  FCancelListener := nil;
+  FDownloadCancelListener := nil;
+  FWaitCancelListener := nil;
   FConfigStatic := nil;
   CloseSession;
   FreeAndNil(FDownloadMutex);
@@ -129,7 +133,8 @@ begin
 end;
 
 function TTileDownloaderBase.DownloadTile(
-  ACancelNotifier: IOperationCancelNotifier;
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   AResultFactory: IDownloadResultFactory;
   ARequest: IDownloadRequest;
   ADownloadChecker: IDownloadChecker
@@ -147,53 +152,56 @@ begin
   VConfig := FConfigStatic;
   VDownloadTryCount := VConfig.InetConfigStatic.DownloadTryCount;
 
-  SetNotCanceled;
-  if ACancelNotifier <> nil then begin
-    ACancelNotifier.AddListener(FCancelListener);
-  end;
-  try
-    VHandles[0] := FDownloadMutex.Handle;
-    VHandles[1] := FCancelEvent.Handle;
-    while Result = nil do begin
-      if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
-        Result := AResultFactory.BuildCanceled;
-      end else begin
-        VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
-        case VWaitResult of
-          WAIT_OBJECT_0: begin
-            try
-              VTryNo := 0;
-              repeat
-                VSleepTime := GetSleepTime(VConfig);
-                if VSleepTime > 0 then begin
-                  SleepCancelable(VSleepTime);
+  if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+    ACancelNotifier.AddListener(FWaitCancelListener);
+    try
+      VHandles[0] := FDownloadMutex.Handle;
+      VHandles[1] := FCancelEvent.Handle;
+      while Result = nil do begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          FCancelEvent.ResetEvent;
+          Result := AResultFactory.BuildCanceled;
+        end else begin
+          VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
+          case VWaitResult of
+            WAIT_OBJECT_0: begin
+              try
+                VTryNo := 0;
+                repeat
+                  VSleepTime := GetSleepTime(VConfig);
+                  if VSleepTime > 0 then begin
+                    SleepCancelable(VSleepTime);
                   end;
-                if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
-                  Result := AResultFactory.BuildCanceled;
-                  Exit;
-                end;
-                Result := TryDownload(VConfig.InetConfigStatic, AResultFactory, ARequest, ADownloadChecker);
-                if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
-                  Result := AResultFactory.BuildCanceled;
-                  Exit;
-                end;
-                Inc(VTryNo);
-                FWasConnectError := not Result.IsServerExists;
-                FLastDownloadTime := GetTickCount;
-                if FWasConnectError then begin
-                  CloseSession;
-                end;
-              until (not FWasConnectError) or (VTryNo >= VDownloadTryCount);
-            finally
-              FDownloadMutex.Release;
+                  if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+                    Result := AResultFactory.BuildCanceled;
+                    Exit;
+                  end;
+                  ACancelNotifier.AddListener(FDownloadCancelListener);
+                  try
+                    Result := TryDownload(VConfig.InetConfigStatic, AResultFactory, ARequest, ADownloadChecker);
+                  finally
+                    ACancelNotifier.RemoveListener(FDownloadCancelListener);
+                  end;
+                  if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+                    Result := AResultFactory.BuildCanceled;
+                    Exit;
+                  end;
+                  Inc(VTryNo);
+                  FWasConnectError := not Result.IsServerExists;
+                  FLastDownloadTime := GetTickCount;
+                  if FWasConnectError then begin
+                    CloseSession;
+                  end;
+                until (not FWasConnectError) or (VTryNo >= VDownloadTryCount);
+              finally
+                FDownloadMutex.Release;
+              end;
             end;
           end;
         end;
       end;
-    end;
-  finally
-    if ACancelNotifier <> nil then begin
-      ACancelNotifier.RemoveListener(FCancelListener);
+    finally
+      ACancelNotifier.RemoveListener(FWaitCancelListener);
     end;
   end;
 end;
@@ -327,7 +335,7 @@ begin
   FConfigStatic := FConfig.GetStatic;
   FSessionCS.Acquire;
   try
-    SetIsCanceled;
+    FCancelEvent.SetEvent;
     CloseSession;
   finally
     FSessionCS.Release;
@@ -336,8 +344,18 @@ end;
 
 procedure TTileDownloaderBase.OnDownloadCanceled(Sender: TObject);
 begin
-  SetIsCanceled;
-  CloseSession;
+  FSessionCS.Acquire;
+  try
+    FCancelEvent.SetEvent;
+    CloseSession;
+  finally
+    FSessionCS.Release;
+  end;
+end;
+
+procedure TTileDownloaderBase.OnWaitCanceled(Sender: TObject);
+begin
+  FCancelEvent.SetEvent;
 end;
 
 function TTileDownloaderBase.OpenSession(AConfig: IInetConfigStatic): HInternet;
@@ -453,16 +471,6 @@ begin
       InternetSetOption(ASessionHandle, INTERNET_OPTION_CONNECTED_STATE, @ci, SizeOf(ci));
     end;
   end;
-end;
-
-procedure TTileDownloaderBase.SetIsCanceled;
-begin
-  FCancelEvent.SetEvent;
-end;
-
-procedure TTileDownloaderBase.SetNotCanceled;
-begin
-  FCancelEvent.ResetEvent;
 end;
 
 procedure TTileDownloaderBase.SleepCancelable(ATime: Cardinal);

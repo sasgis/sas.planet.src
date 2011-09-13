@@ -12,7 +12,7 @@ uses
   t_CommonTypes,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
-  i_OperationCancelNotifier,
+  i_OperationNotifier,
   i_TileObjCache,
   i_DownloadResult,
   i_TileDownloaderConfig,
@@ -53,11 +53,15 @@ type
  TMapType = class
    private
     FZmp: IZmpInfo;
+
     FasLayer: boolean;
-    FUseDwn: boolean;
     FIsCanShowOnSmMap: Boolean;
     FUseStick: boolean;
     FUseGenPrevious: boolean;
+
+
+    FUseDwn: boolean;
+
     FAntiBan: IAntiBan;
     FCacheBitmap: ITileObjCacheBitmap;
     FCacheVector: ITileObjCacheVector;
@@ -202,7 +206,8 @@ type
     ): boolean;
     function GetShortFolderName: string;
     function DownloadTile(
-      ACancelNotifier: IOperationCancelNotifier;
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       ATile: TPoint;
       AZoom: byte;
       ACheckTileSize: Boolean
@@ -701,7 +706,8 @@ begin
 end;
 
 function TMapType.DownloadTile(
-  ACancelNotifier: IOperationCancelNotifier;
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   ATile: TPoint;
   AZoom: byte;
   ACheckTileSize: Boolean
@@ -725,15 +731,15 @@ begin
     if VRequest = nil then begin
       Result := VResultFactory.BuildNotNecessary('Empty request', '');
     end else begin
-      VPoolElement := FPoolOfDownloaders.TryGetPoolElement(ACancelNotifier);
-      if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
+      VPoolElement := FPoolOfDownloaders.TryGetPoolElement(AOperationID, ACancelNotifier);
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Result := VResultFactory.BuildCanceled;
       end else begin
         VDownloader := VPoolElement.GetObject as ITileDownlodSession;
         if FAntiBan <> nil then begin
           FAntiBan.PreDownload(VDownloader, ATile, AZoom, VRequest.Url);
         end;
-        if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Result := VResultFactory.BuildCanceled;
         end else begin
           VConfig := FTileDownloaderConfig.GetStatic;
@@ -746,7 +752,14 @@ begin
             ACheckTileSize,
             VOldTileSize
           );
-          Result := VDownloader.DownloadTile(ACancelNotifier, VResultFactory, VRequest, VDownloadChecker);
+          Result :=
+            VDownloader.DownloadTile(
+              AOperationID,
+              ACancelNotifier,
+              VResultFactory,
+              VRequest,
+              VDownloadChecker
+            );
           if FAntiBan <> nil then begin
             Result :=
               FAntiBan.PostCheckDownload(

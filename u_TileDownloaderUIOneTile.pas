@@ -76,10 +76,12 @@ var
   VErrorString: string;
   VResultOk: IDownloadResultOk;
   VResultDownloadError: IDownloadResultError;
+  VOperatonID: Integer;
 begin
+  VOperatonID := FCancelNotifier.CurrentOperation;
   if FMapType.UseDwn then begin
       try
-        VResult := FMapType.DownloadTile(FCancelNotifier, FLoadXY, FZoom, false);
+        VResult := FMapType.DownloadTile(VOperatonID, FCancelNotifier, FLoadXY, FZoom, false);
         if not Terminated then begin
           VErrorString := '';
           if Supports(VResult, IDownloadResultOk, VResultOk) then begin

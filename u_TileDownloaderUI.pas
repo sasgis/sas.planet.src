@@ -9,8 +9,8 @@ uses
   i_JclNotify,
   i_JclListenerNotifierLinksList,
   t_CommonTypes,
-  i_OperationCancelNotifier,
-  u_OperationCancelNotifier,
+  i_OperationNotifier,
+  u_OperationNotifier,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_TileError,
@@ -31,8 +31,8 @@ type
     FViewPortState: IViewPortState;
     FErrorLogger: ITileErrorLogger;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
-    FCancelNotifierInternal: TOperationCancelNotifier;
-    FCancelNotifier: IOperationCancelNotifier;
+    FCancelNotifierInternal: IOperationNotifierInternal;
+    FCancelNotifier: IOperationNotifier;
 
 
     FTileMaxAgeInInternet: TDateTime;
@@ -91,12 +91,14 @@ constructor TTileDownloaderUI.Create(
 );
 var
   VChangePosListener: IJclListener;
+  VOperationNotifier: TOperationNotifier;
 begin
   inherited Create(True);
   FConfig := AConfig;
 
-  FCancelNotifierInternal := TOperationCancelNotifier.Create;
-  FCancelNotifier := FCancelNotifierInternal;
+  VOperationNotifier := TOperationNotifier.Create;
+  FCancelNotifierInternal := VOperationNotifier;
+  FCancelNotifier := VOperationNotifier;
 
   FViewPortState := AViewPortState;
   FMapsSet := AMapsSet;
@@ -164,7 +166,7 @@ procedure TTileDownloaderUI.SendTerminateToThreads;
 begin
   inherited;
   FLinksList.DeactivateLinks;
-  FCancelNotifierInternal.SetCanceled;
+  FCancelNotifierInternal.NextOperation;
   Terminate;
 end;
 
@@ -208,6 +210,7 @@ var
   VMapsList: IInterfaceList;
   VAllIteratorsFinished: Boolean;
   VErrorString: string;
+  VOperatonID: Integer;
 begin
   VIteratorsList := TInterfaceList.Create;
   VMapsList := TInterfaceList.Create;
@@ -305,10 +308,11 @@ begin
                     end;
                   end;
                 end;
+                VOperatonID := FCancelNotifier.CurrentOperation;
                 if VNeedDownload then begin
                     VErrorString := '';
                     try
-                      VResult := FMapType.DownloadTile(FCancelNotifier, FLoadXY, VZoom, false);
+                      VResult := FMapType.DownloadTile(VOperatonID, FCancelNotifier, FLoadXY, VZoom, false);
                       if Terminated then begin
                         break;
                       end;

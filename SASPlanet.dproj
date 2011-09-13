@@ -255,7 +255,7 @@
     <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
     <DCCReference Include="i_ObjectWithTTL.pas" />
-    <DCCReference Include="i_OperationCancelNotifier.pas" />
+    <DCCReference Include="i_OperationNotifier.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
     <DCCReference Include="i_PathDetalizeProviderList.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
@@ -644,7 +644,7 @@
     <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_NotifyEventPosChangeListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
-    <DCCReference Include="u_OperationCancelNotifier.pas" />
+    <DCCReference Include="u_OperationNotifier.pas" />
     <DCCReference Include="u_PathDetalizeProviderCloudMade.pas" />
     <DCCReference Include="u_PathDetalizeProviderListBase.pas" />
     <DCCReference Include="u_PathDetalizeProviderListEntity.pas" />

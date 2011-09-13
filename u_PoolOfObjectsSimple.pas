@@ -7,7 +7,7 @@ uses
   Classes,
   SyncObjs,
   i_JclNotify,
-  i_OperationCancelNotifier,
+  i_OperationNotifier,
   i_SimpleFactory,
   i_ObjectWithTTL,
   i_PoolElement,
@@ -29,7 +29,8 @@ type
     procedure OnDownloadCanceled(Sender: TObject);
   protected { IPoolOfObjectsSimple }
     function TryGetPoolElement(
-      ACancelNotifier: IOperationCancelNotifier
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
     ): IPoolElement;
     function GetPoolSize: Cardinal;
   protected { IObjectWithTTL }
@@ -137,7 +138,8 @@ begin
 end;
 
 function TPoolOfObjectsSimple.TryGetPoolElement(
-  ACancelNotifier: IOperationCancelNotifier
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
 ): IPoolElement;
 var
   i: integer;
@@ -145,33 +147,31 @@ var
   VWaitResult: DWORD;
 begin
   Result := nil;
-  if ACancelNotifier <> nil then begin
+  if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     ACancelNotifier.AddListener(FCancelListener);
-  end;
-  try
-    VHandles[0] := FSemaphore;
-    VHandles[1] := FCancelEvent.Handle;
-    while Result = nil do begin
-      if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
-        Break;
-      end;
-      VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
-      if VWaitResult = WAIT_OBJECT_0 then begin
-        while Result = nil do begin
-          if (ACancelNotifier <> nil) and ACancelNotifier.Canceled then begin
-            Break;
-          end;
-          for i := 0 to FList.Count - 1 do begin
-            Result := TPoolElement(FList.Items[i]).TryLock;
-            if Result <> nil then begin
+    try
+      VHandles[0] := FSemaphore;
+      VHandles[1] := FCancelEvent.Handle;
+      while Result = nil do begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Break;
+        end;
+        VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
+        if VWaitResult = WAIT_OBJECT_0 then begin
+          while Result = nil do begin
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               Break;
+            end;
+            for i := 0 to FList.Count - 1 do begin
+              Result := TPoolElement(FList.Items[i]).TryLock;
+              if Result <> nil then begin
+                Break;
+              end;
             end;
           end;
         end;
       end;
-    end;
-  finally
-    if ACancelNotifier <> nil then begin
+    finally
       ACancelNotifier.RemoveListener(FCancelListener);
     end;
   end;

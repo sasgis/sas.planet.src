@@ -3,7 +3,7 @@ unit i_TileDownlodSession;
 interface
 
 uses
-  i_OperationCancelNotifier,
+  i_OperationNotifier,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
@@ -13,7 +13,8 @@ type
   ITileDownlodSession = interface
     ['{2F41E328-BD28-4893-AAC5-8DC93FCC2BCF}']
     function DownloadTile(
-      ACancelNotifier: IOperationCancelNotifier;
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest;
       ADownloadChecker: IDownloadChecker
