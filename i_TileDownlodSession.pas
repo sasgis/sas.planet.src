@@ -15,7 +15,6 @@ type
     function DownloadTile(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
-      AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;

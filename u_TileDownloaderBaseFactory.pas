@@ -4,6 +4,7 @@ interface
 
 uses
   i_TileDownloaderConfig,
+  i_DownloadResultFactory,
   i_TileDownlodSession,
   i_SimpleFactory;
 
@@ -16,10 +17,14 @@ type
   TTileDownloaderFactory = class(TTileDownloaderFactoryBase, ISimpleFactory)
   private
     FConfig: ITileDownloaderConfig;
+    FResultFactory: IDownloadResultFactory;
     function CreateInstance: IInterface;
     function CreateSession: ITileDownlodSession; override;
   public
-    constructor Create(AConfig: ITileDownloaderConfig);
+    constructor Create(
+      AResultFactory: IDownloadResultFactory;
+      AConfig: ITileDownloaderConfig
+    );
   end;
 
 implementation
@@ -29,10 +34,14 @@ uses
 
 { TTileDownloaderBaseFactory }
 
-constructor TTileDownloaderFactory.Create(AConfig: ITileDownloaderConfig);
+constructor TTileDownloaderFactory.Create(
+  AResultFactory: IDownloadResultFactory;
+  AConfig: ITileDownloaderConfig
+);
 begin
   inherited Create;
   FConfig := AConfig;
+  FResultFactory := AResultFactory;
 end;
 
 function TTileDownloaderFactory.CreateInstance: IInterface;
@@ -42,7 +51,7 @@ end;
 
 function TTileDownloaderFactory.CreateSession: ITileDownlodSession;
 begin
-  Result := TTileDownloaderBase.Create(FConfig);
+  Result := TTileDownloaderBase.Create(FResultFactory, FConfig);
 end;
 
 { TTileDownloaderFactoryBase }

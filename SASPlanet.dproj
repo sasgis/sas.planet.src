@@ -165,7 +165,6 @@
     <DCCReference Include="i_DownloadRequest.pas" />
     <DCCReference Include="i_DownloadResult.pas" />
     <DCCReference Include="i_DownloadResultFactory.pas" />
-    <DCCReference Include="i_DownloadResultFactoryProvider.pas" />
     <DCCReference Include="i_DownloadResultTextProvider.pas" />
     <DCCReference Include="i_DownloadUIConfig.pas" />
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
@@ -484,7 +483,6 @@
     <DCCReference Include="u_DownloadInfoSimple.pas" />
     <DCCReference Include="u_DownloadResult.pas" />
     <DCCReference Include="u_DownloadResultFactory.pas" />
-    <DCCReference Include="u_DownloadResultFactoryProvider.pas" />
     <DCCReference Include="u_DownloadResultTextProvider.pas" />
     <DCCReference Include="u_DownloadUIConfig.pas" />
     <DCCReference Include="u_ECWWrite.pas" />

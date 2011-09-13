@@ -24,6 +24,7 @@ type
     FConfig: ITileDownloaderConfig;
     FConfigStatic: ITileDownloaderConfigStatic;
     FConfigListener: IJclListener;
+    FResultFactory: IDownloadResultFactory;
     FDownloadCancelListener: IJclListener;
     FWaitCancelListener: IJclListener;
     FCancelEvent: TEvent;
@@ -47,7 +48,6 @@ type
     procedure CloseSession; virtual;
     function TryDownload(
       AConfig: IInetConfigStatic;
-      AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
@@ -58,7 +58,7 @@ type
       var AContentType: string
     );
     function ProxyAuth(
-      AResultFactory: IDownloadResultFactory;
+      ARequest: IDownloadRequest;
       AProxyConfig: IProxyConfigStatic;
       AFileHandle: HInternet;
       out AStatusCode: Cardinal
@@ -69,12 +69,13 @@ type
     function DownloadTile(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
-      AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
   public
-    constructor Create(AConfig: ITileDownloaderConfig);
+    constructor Create(
+      AResultFactory: IDownloadResultFactory;
+      AConfig: ITileDownloaderConfig);
     destructor Destroy; override;
   end;
 
@@ -86,9 +87,13 @@ uses
 
 { TTileDownloaderBase }
 
-constructor TTileDownloaderBase.Create(AConfig: ITileDownloaderConfig);
+constructor TTileDownloaderBase.Create(
+  AResultFactory: IDownloadResultFactory;
+  AConfig: ITileDownloaderConfig
+);
 begin
   FConfig := AConfig;
+  FResultFactory := AResultFactory;
   FDownloadMutex := TMutex.Create;
   FSessionCS := TCriticalSection.Create;
   FCancelEvent := TEvent.Create;
@@ -135,7 +140,6 @@ end;
 function TTileDownloaderBase.DownloadTile(
   AOperationID: Integer;
   ACancelNotifier: IOperationNotifier;
-  AResultFactory: IDownloadResultFactory;
   ARequest: IDownloadRequest;
   ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
@@ -160,7 +164,7 @@ begin
       while Result = nil do begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           FCancelEvent.ResetEvent;
-          Result := AResultFactory.BuildCanceled;
+          Result := FResultFactory.BuildCanceled(ARequest);
         end else begin
           VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
           case VWaitResult of
@@ -173,17 +177,17 @@ begin
                     SleepCancelable(VSleepTime);
                   end;
                   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-                    Result := AResultFactory.BuildCanceled;
+                    Result := FResultFactory.BuildCanceled(ARequest);
                     Exit;
                   end;
                   ACancelNotifier.AddListener(FDownloadCancelListener);
                   try
-                    Result := TryDownload(VConfig.InetConfigStatic, AResultFactory, ARequest, ADownloadChecker);
+                    Result := TryDownload(VConfig.InetConfigStatic, ARequest, ADownloadChecker);
                   finally
                     ACancelNotifier.RemoveListener(FDownloadCancelListener);
                   end;
                   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-                    Result := AResultFactory.BuildCanceled;
+                    Result := FResultFactory.BuildCanceled(ARequest);
                     Exit;
                   end;
                   Inc(VTryNo);
@@ -516,7 +520,7 @@ begin
 end;
 
 function TTileDownloaderBase.ProxyAuth(
-  AResultFactory: IDownloadResultFactory;
+  ARequest: IDownloadRequest;
   AProxyConfig: IProxyConfigStatic;
   AFileHandle: HInternet;
   out AStatusCode: Cardinal
@@ -528,7 +532,7 @@ begin
     not AProxyConfig.UseProxy or
     not AProxyConfig.UseLogin
   then begin
-    Result := AResultFactory.BuildUnexpectedProxyAuth;
+    Result := FResultFactory.BuildUnexpectedProxyAuth(ARequest);
     Exit;
   end;
   VLogin := AProxyConfig.Login;
@@ -539,14 +543,13 @@ begin
 
   AStatusCode := GetStatusCode(AFileHandle);
   if AStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-    Result := AResultFactory.BuildBadProxyAuth;
+    Result := FResultFactory.BuildBadProxyAuth(ARequest);
     Exit;
   end;
 end;
 
 function TTileDownloaderBase.TryDownload(
   AConfig: IInetConfigStatic;
-  AResultFactory: IDownloadResultFactory;
   ARequest: IDownloadRequest;
   ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
@@ -564,14 +567,14 @@ begin
     VSessionHandle := OpenSession(AConfig);
   except
     on E: EOSError do begin
-      Result := AResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode);
+      Result := FResultFactory.BuildNoConnetctToServerByErrorCode(ARequest, E.ErrorCode);
       Exit;
     end;
   end;
   if Result <> nil then Exit;
   VHeader := ARequest.RequestHeader;
   if ADownloadChecker <> nil then begin
-    Result := ADownloadChecker.BeforeRequest(ARequest.Url, VHeader);
+    Result := ADownloadChecker.BeforeRequest(ARequest);
     if Result <> nil then Exit;
   end;
   try
@@ -593,7 +596,7 @@ begin
     try
       VStatusCode := GetStatusCode(VFileHandle);
       if VStatusCode = HTTP_STATUS_PROXY_AUTH_REQ then begin
-        Result := ProxyAuth(AResultFactory, VProxyConfig, VFileHandle, VStatusCode);
+        Result := ProxyAuth(ARequest, VProxyConfig, VFileHandle, VStatusCode);
         if Result <> nil then Exit;
       end;
       GetResponsHead(VFileHandle, VResponseHead);
@@ -602,30 +605,30 @@ begin
         VRecivedData := TMemoryStream.Create;
         try
           if ADownloadChecker <> nil then begin
-            Result := ADownloadChecker.AfterResponse(VStatusCode, VContentType, VResponseHead);
+            Result := ADownloadChecker.AfterResponse(ARequest, VStatusCode, VContentType, VResponseHead);
             if Result <> nil then Exit;
           end;
           GetData(VFileHandle, VRecivedData);
           if ADownloadChecker <> nil then begin
-            Result := ADownloadChecker.AfterReciveData(VRecivedData.Size, VRecivedData.Memory, VStatusCode, VResponseHead);
+            Result := ADownloadChecker.AfterReciveData(ARequest, VRecivedData.Size, VRecivedData.Memory, VStatusCode, VResponseHead);
             if Result <> nil then Exit;
           end;
           if VRecivedData.Size = 0 then begin
-            Result := AResultFactory.BuildDataNotExistsZeroSize(VResponseHead);
+            Result := FResultFactory.BuildDataNotExistsZeroSize(ARequest, VResponseHead);
             Exit;
           end;
-          Result := AResultFactory.BuildOk(VStatusCode, VResponseHead, VContentType, VRecivedData.Size, VRecivedData.Memory);
+          Result := FResultFactory.BuildOk(ARequest, VStatusCode, VResponseHead, VContentType, VRecivedData.Size, VRecivedData.Memory);
         finally
           VRecivedData.Free;
         end;
       end else if IsDownloadErrorStatus(VStatusCode) then begin
-        Result := AResultFactory.BuildLoadErrorByStatusCode(VStatusCode);
+        Result := FResultFactory.BuildLoadErrorByStatusCode(ARequest, VStatusCode);
         Exit;
       end else if IsTileNotExistStatus(VStatusCode) then begin
-        Result := AResultFactory.BuildDataNotExistsByStatusCode(VResponseHead, VStatusCode);
+        Result := FResultFactory.BuildDataNotExistsByStatusCode(ARequest, VResponseHead, VStatusCode);
         Exit;
       end else begin
-        Result := AResultFactory.BuildLoadErrorByUnknownStatusCode(VStatusCode);
+        Result := FResultFactory.BuildLoadErrorByUnknownStatusCode(ARequest, VStatusCode);
         Exit;
       end;
     finally
@@ -634,11 +637,11 @@ begin
   except
     on E: EOSError do begin
       if IsConnectError(E.ErrorCode) then begin
-        Result := AResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
+        Result := FResultFactory.BuildNoConnetctToServerByErrorCode(ARequest, E.ErrorCode)
       end else if IsDownloadError(E.ErrorCode) then begin
-        Result := AResultFactory.BuildLoadErrorByErrorCode(E.ErrorCode)
+        Result := FResultFactory.BuildLoadErrorByErrorCode(ARequest, E.ErrorCode)
       end else begin
-        Result := AResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
+        Result := FResultFactory.BuildNoConnetctToServerByErrorCode(ARequest, E.ErrorCode)
       end;
     end;
   end;

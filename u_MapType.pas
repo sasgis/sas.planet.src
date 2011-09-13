@@ -28,7 +28,7 @@ uses
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
   i_ListOfObjectsWithTTL,
-  i_DownloadResultFactoryProvider,
+  i_DownloadResultFactory,
   i_AntiBan,
   i_MemObjCache,
   i_InetConfig,
@@ -80,7 +80,7 @@ type
     FVersionConfig: IMapVersionConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
-    FDownloadResultFactoryProvider: IDownloadResultFactoryProvider;
+    FDownloadResultFactory: IDownloadResultFactory;
     FImageResamplerConfig: IImageResamplerConfig;
     FContentTypeManager: IContentTypeManager;
     FDownloadConfig: IGlobalDownloadConfig;
@@ -264,7 +264,6 @@ uses
   Types,
   GR32_Resamplers,
   i_ObjectWithTTL,
-  i_DownloadResultFactory,
   i_PoolElement,
   i_TileInfoBasic,
   i_ContentConverter,
@@ -274,7 +273,7 @@ uses
   u_TileRequestBuilderConfig,
   u_TileRequestBuilderPascalScript,
   u_TileDownloaderBaseFactory,
-  u_DownloadResultFactoryProvider,
+  u_DownloadResultFactory,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
   u_MapTypeGUIConfig,
@@ -374,7 +373,7 @@ var
 begin
   if FUseDwn then begin
     try
-      VDownloader := TTileDownloaderFactory.Create(FTileDownloaderConfig);
+      VDownloader := TTileDownloaderFactory.Create(FDownloadResultFactory, FTileDownloaderConfig);
       FPoolOfDownloaders :=
         TPoolOfObjectsSimple.Create(
           FTileDownloaderConfig.MaxConnectToServerCount,
@@ -688,6 +687,10 @@ begin
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
   FLastResponseInfo := TLastResponseInfo.Create;
   FVersionConfig := TMapVersionConfig.Create(Zmp.VersionConfig);
+  FDownloadResultFactory :=
+    TDownloadResultFactory.Create(
+      ADownloadResultTextProvider
+    );
   LoadMapType(
     AMemCacheBitmap,
     AMemCacheVector,
@@ -703,10 +706,6 @@ begin
   end else begin
     FLoadPrevMaxZoomDelta := 6;
   end;
-  FDownloadResultFactoryProvider :=
-    TDownloadResultFactoryProvider.Create(
-      ADownloadResultTextProvider
-    );
 end;
 
 destructor TMapType.Destroy;
@@ -731,7 +730,6 @@ var
   VDownloader: ITileDownlodSession;
   VDownloadChecker: IDownloadChecker;
   VConfig: ITileDownloaderConfigStatic;
-  VResultFactory: IDownloadResultFactory;
   VResultOk: IDownloadResultOk;
   VOldTileSize: Integer;
   VResultStream: TMemoryStream;
@@ -741,25 +739,24 @@ begin
   if FUseDwn then begin
     FCoordConverter.CheckTilePosStrict(ATile, AZoom, True);
     VRequest := FTileRequestBuilder.BuildRequest(ATile, AZoom, FVersionConfig.GetStatic, FLastResponseInfo);
-    VResultFactory := FDownloadResultFactoryProvider.BuildFactory(VRequest);
     if VRequest = nil then begin
-      Result := VResultFactory.BuildNotNecessary('Empty request', '');
+      Result := FDownloadResultFactory.BuildNotNecessary(VRequest, 'Empty request', '');
     end else begin
       VPoolElement := FPoolOfDownloaders.TryGetPoolElement(AOperationID, ACancelNotifier);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Result := VResultFactory.BuildCanceled;
+        Result := FDownloadResultFactory.BuildCanceled(VRequest);
       end else begin
         VDownloader := VPoolElement.GetObject as ITileDownlodSession;
         if FAntiBan <> nil then begin
-          FAntiBan.PreDownload(VDownloader, ATile, AZoom, VRequest.Url);
+          FAntiBan.PreDownload(VRequest, VDownloader);
         end;
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Result := VResultFactory.BuildCanceled;
+          Result := FDownloadResultFactory.BuildCanceled(VRequest);
         end else begin
           VConfig := FTileDownloaderConfig.GetStatic;
           VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersionConfig.GetStatic).GetSize;
           VDownloadChecker := TDownloadCheckerStuped.Create(
-            VResultFactory,
+            FDownloadResultFactory,
             VConfig.IgnoreMIMEType,
             VConfig.ExpectedMIMETypes,
             VConfig.DefaultMIMEType,
@@ -770,14 +767,13 @@ begin
             VDownloader.DownloadTile(
               AOperationID,
               ACancelNotifier,
-              VResultFactory,
               VRequest,
               VDownloadChecker
             );
           if FAntiBan <> nil then begin
             Result :=
               FAntiBan.PostCheckDownload(
-                VResultFactory,
+                FDownloadResultFactory,
                 VDownloader,
                 Result
               );

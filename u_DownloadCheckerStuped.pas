@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadChecker;
@@ -19,15 +20,16 @@ type
     FExistsFileSize: Integer;
   protected
     function BeforeRequest(
-      const AUrl:  string;
-      const ARequestHead: string
+      ARequest: IDownloadRequest
     ): IDownloadResult;
     function AfterResponse(
+      ARequest: IDownloadRequest;
       var AStatusCode: Cardinal;
       var AContentType: string;
       var AResponseHead: string
     ): IDownloadResult;
     function AfterReciveData(
+      ARequest: IDownloadRequest;
       const ARecivedSize: Integer;
       const ARecivedBuffer: Pointer;
       var AStatusCode: Cardinal;
@@ -69,12 +71,13 @@ begin
 end;
 
 function TDownloadCheckerStuped.BeforeRequest(
-  const AUrl, ARequestHead: string
+  ARequest: IDownloadRequest
 ): IDownloadResult;
 begin
 end;
 
 function TDownloadCheckerStuped.AfterResponse(
+  ARequest: IDownloadRequest;
   var AStatusCode: Cardinal;
   var AContentType: string;
   var AResponseHead: string
@@ -89,7 +92,7 @@ begin
     if (AContentType = '') then begin
       AContentType := FDefaultMIMEType;
     end else if (Pos(AContentType, FExpectedMIMETypes) <= 0) then begin
-      Result := FResultFactory.BuildBadContentType(AContentType, AResponseHead);
+      Result := FResultFactory.BuildBadContentType(ARequest, AContentType, AResponseHead);
       Exit;
     end;
   end;
@@ -98,7 +101,7 @@ begin
     if VContentLenAsStr <> '' then begin
       if TryStrToInt64(VContentLenAsStr, VContentLen) then begin
         if VContentLen = FExistsFileSize then begin
-          Result := FResultFactory.BuildNotNecessary('Одинаковый размер тайла', AResponseHead);
+          Result := FResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);
           Exit;
         end;
       end;
@@ -107,6 +110,7 @@ begin
 end;
 
 function TDownloadCheckerStuped.AfterReciveData(
+  ARequest: IDownloadRequest;
   const ARecivedSize: Integer;
   const ARecivedBuffer: Pointer;
   var AStatusCode: Cardinal;
@@ -115,7 +119,7 @@ function TDownloadCheckerStuped.AfterReciveData(
 begin
   if FCheckTileSize then begin
     if ARecivedSize = FExistsFileSize then begin
-      Result := FResultFactory.BuildNotNecessary('Одинаковый размер тайла', AResponseHead);
+      Result := FResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);
       Exit;
     end;
   end;

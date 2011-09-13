@@ -8,6 +8,7 @@ uses
   i_ConfigDataProvider,
   i_AntiBan,
   i_ProxySettings,
+  i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_TileDownlodSession;
@@ -36,10 +37,8 @@ type
     );
     destructor Destroy; override;
     procedure PreDownload(
-      ADownloader: ITileDownlodSession;
-      const ATile: TPoint;
-      const AZoom: Byte;
-      const AUrl: string
+      ARequest: IDownloadRequest;
+      ADownloader: ITileDownlodSession
     );
     function PostCheckDownload(
       AResultFactory: IDownloadResultFactory;
@@ -162,7 +161,7 @@ function TAntiBanStuped.PostCheckDownload(
 begin
   Result := ADownloadResult;
   if CheckIsBan(ADownloadResult) then begin
-    Result := AResultFactory.BuildBanned('X3');
+    Result := AResultFactory.BuildBanned(ADownloadResult.Request, 'X3');
   end;
 
   if Supports(Result, IDownloadResultBanned) then begin
@@ -175,10 +174,8 @@ begin
 end;
 
 procedure TAntiBanStuped.PreDownload(
-  ADownloader: ITileDownlodSession;
-  const ATile: TPoint;
-  const AZoom: Byte;
-  const AUrl: string
+  ARequest: IDownloadRequest;
+  ADownloader: ITileDownlodSession
 );
 begin
   IncDownloadedAndCheckAntiBan;
