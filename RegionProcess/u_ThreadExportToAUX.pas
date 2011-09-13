@@ -73,7 +73,7 @@ begin
     VFileStream := TFileStream.Create(FFileName, fmCreate);
     try
       while VTileIterator.Next(VTile) do begin
-        if IsCancel then begin
+        if CancelNotifier.IsOperationCanceled(OperationID) then begin
           exit;
         end;
         if FMapType.TileExists(VTile, FZoom) then begin

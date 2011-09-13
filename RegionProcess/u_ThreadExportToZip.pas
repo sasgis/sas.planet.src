@@ -107,7 +107,7 @@ begin
           VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FTargetFile) + FMapType.GetShortFolderName);
           VTileIterator := VTileIterators[i];
           while VTileIterator.Next(VTile) do begin
-            if IsCancel then begin
+            if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
             VMemStream.Position := 0;

@@ -263,7 +263,7 @@ begin
         for i := 0 to Length(FZooms) - 1 do begin
           VZoom := FZooms[i];
           while VTileIterators[i].Next(VTile) do begin
-            if IsCancel then begin
+            if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
             for j := 0 to 2 do begin

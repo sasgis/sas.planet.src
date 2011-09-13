@@ -8,6 +8,7 @@ uses
   Classes,
   GR32,
   t_CommonTypes,
+  i_OperationNotifier,
   i_ConfigDataProvider,
   i_CoordConverter,
   i_CoordConverterFactory,
@@ -99,12 +100,13 @@ type
     ); override;
 
     function LoadFillingMap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       btm: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
       AVersionInfo: IMapVersionInfo;
-      AIsStop: TIsCancelChecker;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
       ATNEColor: TColor32
@@ -308,11 +310,12 @@ begin
 end;
 
 function TTileStorageFileSystem.LoadFillingMap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
   AVersionInfo: IMapVersionInfo;
-  AIsStop: TIsCancelChecker;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
   ATNEColor: TColor32
@@ -358,7 +361,7 @@ begin
         or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
       while VIterator.Next(VCurrTile) do begin
-        if AIsStop then break;
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
         VFileName := FCacheConfig.GetTileFileName(VCurrTile, ASourceZoom);
         VFolderName := ExtractFilePath(VFileName);
         if VFolderName = VPrevFolderName then begin
@@ -375,7 +378,7 @@ begin
         end;
 
         if not VFileExists then begin
-          if AIsStop then break;
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
           VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
           if VSourceTilePixels.Left < VPixelsRect.Left then begin
@@ -421,7 +424,7 @@ begin
         end;
       end;
     end;
-    if AIsStop then begin
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Result := false;
     end;
   except

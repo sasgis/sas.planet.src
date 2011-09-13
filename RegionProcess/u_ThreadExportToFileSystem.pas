@@ -103,7 +103,7 @@ begin
         VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
         VTileIterator := VTileIterators[j, i];
         while VTileIterator.Next(VTile) do begin
-          if IsCancel then begin
+          if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
           if VMapType.TileExists(VTile, VZoom) then begin

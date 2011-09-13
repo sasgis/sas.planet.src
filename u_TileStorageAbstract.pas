@@ -7,6 +7,7 @@ uses
   Classes,
   GR32,
   t_CommonTypes,
+  i_OperationNotifier,
   i_CoordConverter,
   i_ContentTypeInfo,
   i_MapVersionInfo,
@@ -68,12 +69,13 @@ type
     ); virtual; abstract;
 
     function LoadFillingMap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       btm: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
       AVersionInfo: IMapVersionInfo;
-      AIsStop: TIsCancelChecker;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
       ATNEColor: TColor32
@@ -94,11 +96,12 @@ uses
 { TTileStorageAbstract }
 
 function TTileStorageAbstract.LoadFillingMap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
   AVersionInfo: IMapVersionInfo;
-  AIsStop: TIsCancelChecker;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
   ATNEColor: TColor32
@@ -140,10 +143,10 @@ begin
         or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
       while VIterator.Next(VCurrTile) do begin
-        if AIsStop then break;
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
         VTileInfo := GetTileInfo(VCurrTile, ASourceZoom, AVersionInfo);
         if not VTileInfo.GetIsExists then begin
-          if AIsStop then break;
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
           VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
           if VSourceTilePixels.Left < VPixelsRect.Left then begin
@@ -185,7 +188,7 @@ begin
         end;
       end;
     end;
-    if AIsStop then begin
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Result := false;
     end;
   except

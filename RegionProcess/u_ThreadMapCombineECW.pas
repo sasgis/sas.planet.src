@@ -193,8 +193,25 @@ begin
       FMapPieceSize.X, FMapPieceSize.Y, FTypeMap.GeoConvert,
       CellIncrementX, CellIncrementY, OriginX, OriginY
       );
-    errecw := FECWWriter.Encode(FCurrentFileName, FMapPieceSize.X, FMapPieceSize.Y, 101 - FQuality, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
-      Datum, Proj, Units, CellIncrementX, CellIncrementY, OriginX, OriginY);
+    errecw :=
+      FECWWriter.Encode(
+        OperationID,
+        CancelNotifier,
+        FCurrentFileName,
+        FMapPieceSize.X,
+        FMapPieceSize.Y,
+        101 - FQuality,
+        COMPRESS_HINT_BEST,
+        ReadLineECW,
+        nil,
+        Datum,
+        Proj,
+        Units,
+        CellIncrementX,
+        CellIncrementY,
+        OriginX,
+        OriginY
+      );
     if (errecw > 0) and (errecw <> 52) then begin
       path := FTypeMap.GetTileShowName(FLastTile, FZoom);
       ShowMessageSync(SAS_ERR_Save + ' ' + SAS_ERR_Code + inttostr(errecw) + #13#10 + path);

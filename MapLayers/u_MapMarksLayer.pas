@@ -8,6 +8,7 @@ uses
   i_JclNotify,
   t_CommonTypes,
   t_GeoTypes,
+  i_OperationNotifier,
   i_ImageResamplerConfig,
   i_LayerBitmapClearStrategy,
   i_UsedMarksConfig,
@@ -36,7 +37,10 @@ type
     procedure OnConfigChange(Sender: TObject);
     function GetMarksSubset: IMarksSubset;
   protected
-    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
+    procedure DrawBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    ); override;
     procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
     procedure StartThreads; override;
@@ -107,7 +111,10 @@ begin
   );
 end;
 
-procedure TMapMarksLayer.DrawBitmap(AIsStop: TIsCancelChecker);
+procedure TMapMarksLayer.DrawBitmap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
 var
   VTileToDrawBmp: TCustomBitmap32;
 
@@ -158,9 +165,9 @@ begin
     VTileToDrawBmp := TCustomBitmap32.Create;
     VTileToDrawBmp.CombineMode:=cmMerge;
     try
-      if not AIsStop then begin
+      if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         while VTileIterator.Next(VTile) do begin
-          if AIsStop then begin
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
           VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
@@ -175,12 +182,14 @@ begin
           VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
           VTileToDrawBmp.Clear(0);
           VProv.GetBitmapRect(
+            AOperationID,
+            ACancelNotifier,
             VTileToDrawBmp,
             ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
           );
           Layer.Bitmap.Lock;
           try
-            if AIsStop then begin
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               break;
             end;
             Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);

@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_LocalCoordConverter,
+  i_OperationNotifier,
   i_MarksDrawConfig,
   i_MarkPicture,
   i_MarksSimple,
@@ -29,6 +30,8 @@ type
     FPathPointsOnBitmapPrepared: TArrayOfDoublePoint;
     FPathFixedPoints: TArrayOfFixedPoint;
     function DrawSubset(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       AMarksSubset: IMarksSubset;
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
@@ -50,6 +53,8 @@ type
     );
   protected
     function GetBitmapRect(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
     ): Boolean;
@@ -297,6 +302,8 @@ begin
 end;
 
 function TMapMarksBitmapLayerProviderByMarksSubset.DrawSubset(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   AMarksSubset: IMarksSubset;
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter
@@ -316,6 +323,9 @@ begin
     VEnumMarks := AMarksSubset.GetEnum;
     if FConfig.UseSimpleDrawOrder then begin
       while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Break;
+        end;
         if Supports(VMark, IMarkPoint, VMarkPoint) then begin
           DrawPoint(
             ATargetBmp,
@@ -338,6 +348,9 @@ begin
       end;
     end else begin
       while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Break;
+        end;
         if Supports(VMark, IMarkPoly, VMarkPoly) then begin
           DrawPoly(
             ATargetBmp,
@@ -348,6 +361,9 @@ begin
       end;
       VEnumMarks.Reset;
       while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Break;
+        end;
         if Supports(VMark, IMarkLine, VMarkLine) then begin
           drawPath(
             ATargetBmp,
@@ -358,6 +374,9 @@ begin
       end;
       VEnumMarks.Reset;
       while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Break;
+        end;
         if Supports(VMark, IMarkPoint, VMarkPoint) then begin
           DrawPoint(
             ATargetBmp,
@@ -374,6 +393,8 @@ begin
 end;
 
 function TMapMarksBitmapLayerProviderByMarksSubset.GetBitmapRect(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter
 ): Boolean;
@@ -401,7 +422,7 @@ begin
   VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
 
   FBitmapClip := TPolygonClipByRect.Create(VRectWithDelta);
-  Result := DrawSubset(VMarksSubset, ATargetBmp, ALocalConverter);
+  Result := DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, ATargetBmp, ALocalConverter);
   FBitmapClip := nil;
 end;
 

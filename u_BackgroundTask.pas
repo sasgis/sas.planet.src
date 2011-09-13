@@ -6,21 +6,27 @@ uses
   Windows,
   SyncObjs,
   Classes,
+  i_OperationNotifier,
   i_BackgroundTask,
+  u_OperationNotifier,
   u_InterfacedThread;
 
 type
   TBackgroundTask = class(TInterfacedThread, IBackgroundTask)
   private
+    FCancelNotifierInternal: IOperationNotifierInternal;
+    FCancelNotifier: IOperationNotifier;
     FStopThread: TEvent;
     FAllowExecute: TEvent;
     FCS: TCriticalSection;
-    FNeedStopExecute: Boolean;
   protected
-    procedure ExecuteTask; virtual; abstract;
+    procedure ExecuteTask(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    ); virtual; abstract;
     procedure Execute; override;
     procedure Terminate; override;
-    function IsNeedStopExecute(): Boolean;
+    property CancelNotifier: IOperationNotifier read FCancelNotifier;
   protected
     procedure StartExecute; virtual;
     procedure StopExecute; virtual;
@@ -37,12 +43,17 @@ uses
 { TBackgroundTask }
 
 constructor TBackgroundTask.Create(APriority: TThreadPriority);
+var
+  VOperationNotifier: TOperationNotifier;
 begin
   inherited Create;
   FStopThread := TEvent.Create(nil, True, False, '');
   FAllowExecute := TEvent.Create(nil, True, False, '');
   FCS := TCriticalSection.Create;
   SetPriority(APriority);
+  VOperationNotifier := TOperationNotifier.Create;
+  FCancelNotifierInternal := VOperationNotifier;
+  FCancelNotifier := VOperationNotifier;
 end;
 
 destructor TBackgroundTask.Destroy;
@@ -58,6 +69,7 @@ procedure TBackgroundTask.Execute;
 var
   VHandles: array [0..1] of THandle;
   VWaitResult: DWORD;
+  VOperatonID: Integer;
 begin
   inherited;
   VHandles[0] := FAllowExecute.Handle;
@@ -69,14 +81,14 @@ begin
       begin
         FCS.Acquire;
         try
-          FNeedStopExecute := False;
+          VOperatonID := FCancelNotifier.CurrentOperation;
         finally
           FCS.Release;
         end;
-        ExecuteTask;
+        ExecuteTask(VOperatonID, FCancelNotifier);
         FCS.Acquire;
         try
-          if not FNeedStopExecute then begin
+          if not FCancelNotifier.IsOperationCanceled(VOperatonID) then begin
             FAllowExecute.ResetEvent;
           end;
         finally
@@ -85,11 +97,6 @@ begin
       end;
     end;
   end;
-end;
-
-function TBackgroundTask.IsNeedStopExecute: Boolean;
-begin
-  Result := FNeedStopExecute;
 end;
 
 procedure TBackgroundTask.StartExecute;
@@ -106,7 +113,7 @@ procedure TBackgroundTask.StopExecute;
 begin
   FCS.Acquire;
   try
-    FNeedStopExecute := True;
+    FCancelNotifierInternal.NextOperation;
     FAllowExecute.ResetEvent;
   finally
     FCS.Release;

@@ -16,6 +16,7 @@ uses
   u_MapLayerBasic,
   t_GeoTypes,
   i_MapTypes,
+  i_OperationNotifier,
   i_ActiveMapsConfig,
   i_KmlLayerConfig,
   i_ImageResamplerConfig,
@@ -52,21 +53,24 @@ type
       ALocalConverter: ILocalCoordConverter
     );
     procedure AddElementsFromMap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       AElments: IInterfaceList;
-      AIsStop: TIsCancelChecker;
       Alayer: TMapType;
       ALocalConverter: ILocalCoordConverter
     );
     procedure PrepareWikiElements(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       AElments: IInterfaceList;
-      AIsStop: TIsCancelChecker;
       ALocalConverter: ILocalCoordConverter
     );
     procedure OnConfigChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
     procedure GetBitmapRect(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       AElments: IInterfaceList;
-      AIsStop: TIsCancelChecker;
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
       AColorMain: TColor32;
@@ -74,12 +78,16 @@ type
       APointColor: TColor32
     );
     procedure ProcessDraw(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       AElments: IInterfaceList;
-      AIsStop: TIsCancelChecker;
       ALocalConverter: ILocalCoordConverter
     );
   protected
-    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
+    procedure DrawBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    ); override;
     procedure DoHide; override;
   public
     constructor Create(
@@ -189,8 +197,9 @@ begin
 end;
 
 procedure TWikiLayer.AddElementsFromMap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   AElments: IInterfaceList;
-  AIsStop: TIsCancelChecker;
   Alayer: TMapType;
   ALocalConverter: ILocalCoordConverter
 );
@@ -219,7 +228,7 @@ begin
 
   while VTileIterator.Next(VTile) do begin
     if Alayer.LoadTile(kml, VTile, Vzoom, True, Alayer.CacheVector) then begin
-      if AIsStop then begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
       end else begin
         for ii := 0 to KML.Count - 1 do begin
@@ -232,8 +241,9 @@ begin
 end;
 
 procedure TWikiLayer.PrepareWikiElements(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   AElments: IInterfaceList;
-  AIsStop: TIsCancelChecker;
   ALocalConverter: ILocalCoordConverter
 );
 var
@@ -251,8 +261,8 @@ begin
       VItem := VVectorMapsSet.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsKmlTiles then begin
-        AddElementsFromMap(AElments, AIsStop, VMapType, ALocalConverter);
-        if AIsStop then begin
+        AddElementsFromMap(AOperationID, ACancelNotifier, AElments, VMapType, ALocalConverter);
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Break;
         end;
       end;
@@ -260,8 +270,12 @@ begin
   end;
 end;
 
-procedure TWikiLayer.ProcessDraw(AElments: IInterfaceList;
-  AIsStop: TIsCancelChecker; ALocalConverter: ILocalCoordConverter);
+procedure TWikiLayer.ProcessDraw(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  AElments: IInterfaceList;
+  ALocalConverter: ILocalCoordConverter
+);
 var
   VColorMain: TColor32;
   VColorBG: TColor32;
@@ -294,7 +308,7 @@ begin
     FConfig.UnlockRead;
   end;
   if AElments.Count > 0 then begin
-    if not AIsStop then begin
+    if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       VTileToDrawBmp := TCustomBitmap32.Create;
       try
         VGeoConvert := ALocalConverter.GetGeoConverter;
@@ -306,7 +320,7 @@ begin
         VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
         VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
         while VTileIterator.Next(VTile) do begin
-          if AIsStop then begin
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
           VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
@@ -321,8 +335,9 @@ begin
           VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
           VTileToDrawBmp.Clear(0);
           GetBitmapRect(
+            AOperationID,
+            ACancelNotifier,
             AElments,
-            AIsStop,
             VTileToDrawBmp,
             ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
             VColorMain,
@@ -332,7 +347,7 @@ begin
 
           Layer.Bitmap.Lock;
           try
-            if AIsStop then begin
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               break;
             end;
             Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
@@ -376,7 +391,10 @@ begin
   OnLayerSetChange(nil);
 end;
 
-procedure TWikiLayer.DrawBitmap(AIsStop: TIsCancelChecker);
+procedure TWikiLayer.DrawBitmap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
 var
   VLocalConverter: ILocalCoordConverter;
   i: Integer;
@@ -385,7 +403,7 @@ begin
   inherited;
   VLocalConverter := LayerCoordConverter;
   ElementsClear;
-  PrepareWikiElements(FElments, AIsStop, VLocalConverter);
+  PrepareWikiElements(AOperationID, ACancelNotifier, FElments, VLocalConverter);
   VList := TInterfaceList.Create;
   FElments.Lock;
   try
@@ -396,13 +414,14 @@ begin
     FElments.Unlock;
   end;
   if VList.Count > 0 then begin
-    ProcessDraw(VList, AIsStop, VLocalConverter);
+    ProcessDraw(AOperationID, ACancelNotifier, VList, VLocalConverter);
   end;
 end;
 
 procedure TWikiLayer.GetBitmapRect(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   AElments: IInterfaceList;
-  AIsStop: TIsCancelChecker;
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter; AColorMain, AColorBG,
   APointColor: TColor32);
@@ -431,7 +450,7 @@ begin
       (VLLRect.Top >= VMarkLonLatRect.Bottom))
     then begin
       DrawWikiElement(ATargetBmp, AColorMain, AColorBG, APointColor, VItem, ALocalConverter);
-      if AIsStop then begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
       end;
     end;

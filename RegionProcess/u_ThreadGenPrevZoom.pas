@@ -133,7 +133,7 @@ begin
         VZoom := FZooms[i];
         VTileIterator := VTileIterators[i];
         while VTileIterator.Next(VTile) do begin
-          if IsCancel then begin
+          if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
           VCurrentTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);

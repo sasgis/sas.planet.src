@@ -5,16 +5,24 @@ interface
 uses
   Classes,
   t_CommonTypes,
+  i_OperationNotifier,
   u_BackgroundTask;
 
 type
-  TBgPaintLayerEvent = procedure(AIsStop: TIsCancelChecker) of object;
+  TBgPaintLayerEvent =
+    procedure(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    ) of object;
 
   TBackgroundTaskLayerDrawBase = class(TBackgroundTask)
   private
     FOnBgPaintLayer: TBgPaintLayerEvent;
   protected
-    procedure ExecuteTask; override;
+    procedure ExecuteTask(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    ); override;
   public
     constructor Create(AOnBgPaintLayer: TBgPaintLayerEvent; APriority: TThreadPriority = tpLowest);
   end;
@@ -32,11 +40,14 @@ begin
   FOnBgPaintLayer := AOnBgPaintLayer;
 end;
 
-procedure TBackgroundTaskLayerDrawBase.ExecuteTask;
+procedure TBackgroundTaskLayerDrawBase.ExecuteTask(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
 begin
   inherited;
   if Assigned(FOnBgPaintLayer) then begin
-    FOnBgPaintLayer(IsNeedStopExecute);
+    FOnBgPaintLayer(AOperationID, ACancelNotifier);
   end;
 end;
 

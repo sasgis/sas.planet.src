@@ -244,7 +244,7 @@ begin
           VZoom := FZooms[i];
           VTileIterator := VTileIterators[i];
           while VTileIterator.Next(VTile) do begin
-            if IsCancel then begin
+            if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
             for j := 0 to Length(FMapTypeArr) - 1 do begin

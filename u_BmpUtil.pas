@@ -2,6 +2,9 @@ unit u_BmpUtil;
 
 interface
 
+uses
+  i_OperationNotifier;
+
 type
   TBGR= record
    b,g,r:byte;
@@ -11,9 +14,14 @@ type
   TlineRGBb = array[0..0] of TBGR;
 
   TBMPRead = procedure(Line:cardinal;InputArray:PLineRGBb) of object;
-  TBmpCancel = function(): Boolean of object;
 
-  procedure SaveBMP(W, H : integer; tPath : string; readcallback:TBMPRead; ACancelDelegate: TBmpCancel);
+  procedure SaveBMP(
+    AOperationID: Integer;
+    ACancelNotifier: IOperationNotifier;
+    W, H : integer;
+    tPath : string;
+    readcallback:TBMPRead
+  );
 
 implementation
 
@@ -68,7 +76,13 @@ begin
    Result.f.Size:=Result.i.SizI + Result.f.OfBm;   // полный размер файла
 end;
 
-procedure SaveBMP(W, H : integer; tPath : string; readcallback:TBMPRead; ACancelDelegate: TBmpCancel);  // Запись на диск файла
+procedure SaveBMP(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  W, H : integer;
+  tPath : string;
+  readcallback:TBMPRead
+);  // Запись на диск файла
 Var f : file;
     nNextLine: integer;
     InputArray:PlineRGBb;
@@ -88,10 +102,8 @@ begin
    getmem(InputArray,W*3);
 
    for nNextLine:=0 to h-1 do begin
-     if Assigned(ACancelDelegate) then begin
-       if ACancelDelegate then begin
-         break;
-       end;
+     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+       break;
      end;
      BMPRead(nNextLine,InputArray);
      seek(f,(h-nNextLine-1)*(W*3+ (w mod 4) )+54);

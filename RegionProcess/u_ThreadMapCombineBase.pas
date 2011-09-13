@@ -7,6 +7,7 @@ uses
   Types,
   GR32,
   t_GeoTypes,
+  i_OperationNotifier,
   i_MarksSimple,
   i_BitmapLayerProvider,
   i_BitmapPostProcessingConfig,
@@ -49,7 +50,10 @@ type
     FBackGroundColor: TColor32;
 
     function CreateConverterForTileImage(ATile: TPoint): ILocalCoordConverter;
-    procedure PrepareTileBitmap(ATargetBitmap: TCustomBitmap32; AConverter: ILocalCoordConverter);
+    procedure PrepareTileBitmap(
+      ATargetBitmap: TCustomBitmap32;
+      AConverter: ILocalCoordConverter
+    );
     procedure ProgressFormUpdateOnProgress; virtual;
 
     procedure saveRECT; virtual; abstract;
@@ -155,7 +159,9 @@ begin
 end;
 
 procedure TThreadMapCombineBase.PrepareTileBitmap(
-  ATargetBitmap: TCustomBitmap32; AConverter: ILocalCoordConverter);
+  ATargetBitmap: TCustomBitmap32;
+  AConverter: ILocalCoordConverter
+);
 var
   VSize: TPoint;
 begin
@@ -168,7 +174,7 @@ begin
   end;
   ProcessRecolor(ATargetBitmap);
   if FMarksImageProvider <> nil then begin
-    FMarksImageProvider.GetBitmapRect(ATargetBitmap, AConverter);
+    FMarksImageProvider.GetBitmapRect(OperationID, CancelNotifier, ATargetBitmap, AConverter);
   end;
 end;
 

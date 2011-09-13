@@ -14,6 +14,7 @@ uses
   i_JclNotify,
   t_GeoTypes,
   t_CommonTypes,
+  i_OperationNotifier,
   i_MapTypes,
   i_MapTypeIconsList,
   i_ActiveMapsConfig,
@@ -93,11 +94,17 @@ type
 
     procedure OnMainMapChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
-    procedure OnDrawBitmap(AIsStop: TIsCancelChecker);
+    procedure OnDrawBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    );
     procedure OnTimer(Sender: TObject);
 
     procedure SetBitmapChanged;
-    procedure DrawBitmap(AIsStop: TIsCancelChecker);
+    procedure DrawBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    );
     function DrawMap(
       ATargetBmp: TCustomBitmap32;
       AMapType: TMapType;
@@ -452,7 +459,10 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.DrawBitmap(AIsStop: TIsCancelChecker);
+procedure TMiniMapLayer.DrawBitmap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
 var
   i: Cardinal;
   VMapType: TMapType;
@@ -496,9 +506,9 @@ begin
 
   VTileToDrawBmp := TCustomBitmap32.Create;
   try
-    if not AIsStop then begin
+    if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       while VTileIterator.Next(VTile) do begin
-        if AIsStop then begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           break;
         end;
         VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
@@ -519,7 +529,7 @@ begin
             VTileToDrawBmp.Clear(0);
           end;
         end;
-        if AIsStop then begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           break;
         end;
 
@@ -534,7 +544,7 @@ begin
                 VTileIsEmpty := False;
               end;
             end;
-            if AIsStop then begin
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               break;
             end;
           end;
@@ -542,14 +552,14 @@ begin
 
         if not VTileIsEmpty then begin
           VRecolorConfig.ProcessBitmap(VTileToDrawBmp);
-          if AIsStop then begin
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
         end;
 
         FLayer.Bitmap.Lock;
         try
-          if AIsStop then begin
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
           FLayer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
@@ -887,13 +897,16 @@ begin
   ViewUpdate;
 end;
 
-procedure TMiniMapLayer.OnDrawBitmap(AIsStop: TIsCancelChecker);
+procedure TMiniMapLayer.OnDrawBitmap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
 var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   VCounterContext := FBgDrawCounter.StartOperation;
   try
-    DrawBitmap(AIsStop);
+    DrawBitmap(AOperationID, ACancelNotifier);
   finally
     FBgDrawCounter.FinishOperation(VCounterContext);
   end;

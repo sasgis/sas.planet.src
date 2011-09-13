@@ -195,11 +195,12 @@ type
     // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
     // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
     function LoadFillingMap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       btm: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      AIsStop: TIsCancelChecker;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
       ATNEColor: TColor32
@@ -626,16 +627,29 @@ begin
 end;
 
 function TMapType.LoadFillingMap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
-  AIsStop: TIsCancelChecker;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
   ATNEColor: TColor32
 ): boolean;
 begin
-  Result := FStorage.LoadFillingMap(btm, AXY, Azoom, ASourceZoom, FVersionConfig.GetStatic, AIsStop, ANoTileColor, AShowTNE, ATNEColor);
+  Result :=
+    FStorage.LoadFillingMap(
+      AOperationID,
+      ACancelNotifier,
+      btm,
+      AXY,
+      Azoom,
+      ASourceZoom,
+      FVersionConfig.GetStatic,
+      ANoTileColor,
+      AShowTNE,
+      ATNEColor
+    );
 end;
 
 function TMapType.GetShortFolderName: string;

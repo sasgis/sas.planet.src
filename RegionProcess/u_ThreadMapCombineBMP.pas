@@ -8,6 +8,7 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_OperationNotifier,
   u_GeoFun,
   u_BmpUtil,
   u_ThreadMapCombineBase;
@@ -112,7 +113,7 @@ begin
     for k := 0 to 255 do begin
       getmem(FArray256BGR[k], (FMapPieceSize.X + 1) * 3);
     end;
-    SaveBMP(FMapPieceSize.X, FMapPieceSize.Y, FCurrentFileName, ReadLineBMP, IsCancel);
+    SaveBMP(OperationID, CancelNotifier, FMapPieceSize.X, FMapPieceSize.Y, FCurrentFileName, ReadLineBMP);
   finally
     {$IFDEF VER80}
     for k := 0 to 255 do begin

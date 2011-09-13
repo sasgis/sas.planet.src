@@ -7,7 +7,8 @@ uses
   Dialogs,
   ECWwriter,
   ECWreader,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_OperationNotifier;
 
 type
   TlineRGB = array[0..0] of single;
@@ -15,7 +16,6 @@ type
 
   TEcwRead = function(Line:cardinal; var lineR,LineG,LineB:PLineRGB):boolean of object;
   TEcwStatus = procedure(Line:cardinal) of object;
-  TEcwCancel = function(): Boolean of object;
 
 type
   TECWWrite = class
@@ -23,17 +23,19 @@ type
     FDllHandle: LongWord;
     FEcwData: PNCSEcwCompressClient;
     FReadDelegate: TEcwRead;
-    FCancelDelegate: TEcwCancel;
+    FOperationID: Integer;
+    FCancelNotifier: IOperationNotifier;
     FStatusDelegate: TEcwStatus;
   public
     constructor Create(ALibPath: string);
     function Encode(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       FileName:string;
       Width,Height:cardinal;
       CompressRatio:Single;
       Hint:CompressHint;
       AReadDelegate:TEcwRead;
-      ACancelDelegate:TEcwCancel;
       AStatusDelegate:TEcwStatus;
       Datum,Projection:string;
       SizeUnits:TCellSizeUnits;
@@ -72,16 +74,17 @@ var
   VECWWrite: TECWWrite;
 begin
   VECWWrite := TECWWrite(pClient.pClientData);
-  result:= VECWWrite.FCancelDelegate;
+  result:= VECWWrite.FCancelNotifier.IsOperationCanceled(VECWWrite.FOperationID);
 end;
 
 function TECWWrite.Encode(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   FileName:string;
   Width,Height:cardinal;
   CompressRatio:Single;
   Hint:CompressHint;
   AReadDelegate:TEcwRead;
-  ACancelDelegate:TEcwCancel;
   AStatusDelegate:TEcwStatus;
   Datum,Projection:string;
   SizeUnits: TCellSizeUnits;
@@ -102,7 +105,8 @@ begin
 
   FReadDelegate := AReadDelegate;
   FStatusDelegate := AStatusDelegate;
-  FCancelDelegate := ACancelDelegate;
+  FOperationID := AOperationID;
+  FCancelNotifier := ACancelNotifier;
   FEcwData^.pClientData := Self;
   FEcwData^.nInputBands:=3;
   FEcwData^.nInOutSizeX:=Width;

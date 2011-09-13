@@ -169,11 +169,11 @@ begin
         if VImage.Bits <> nil then begin
           for k := 0 to iHeight - 1 do begin
             ReadLineBMP(k, Pointer(integer(VImage.Bits) + ((iWidth * 3) * k)));
-            if IsCancel then begin
+            if CancelNotifier.IsOperationCanceled(OperationID) then begin
               break;
             end;
           end;
-          if not IsCancel then begin
+          if not CancelNotifier.IsOperationCanceled(OperationID) then begin
             SetLength(IArray, 1);
             IArray[0] := VImage;
             if not VFormat.SaveToFile(FCurrentFileName, IArray, True) then begin
