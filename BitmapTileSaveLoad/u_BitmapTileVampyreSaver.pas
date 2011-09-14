@@ -189,7 +189,8 @@ end;
 { TVampyreBasicBitmapTileSaverPNGPalette }
 
 procedure TVampyreBasicBitmapTileSaverPNGPalette.PrepareData(
-  var AImage: TImageData);
+  var AImage: TImageData
+);
 begin
   ConvertImage(AImage, ifIndex8);
 end;
