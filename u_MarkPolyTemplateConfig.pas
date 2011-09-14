@@ -59,7 +59,7 @@ begin
     ACategoryDb,
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
-      @SAS_STR_NewPath,
+      @SAS_STR_NewPoly,
       True,
       'FormatString',
       True
