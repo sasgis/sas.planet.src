@@ -1072,14 +1072,21 @@ end;
 
 function TCoordConverterAbstract.IsSameConverter(
   AOtherMapCoordConv: ICoordConverter): Boolean;
+var
+  VSelf: ICoordConverter;
 begin
-  Result :=
-    (Self.GetTileSplitCode <> 0) and
-    (AOtherMapCoordConv.GetTileSplitCode <> 0) and
-    (AOtherMapCoordConv.GetTileSplitCode = Self.GetTileSplitCode) and
-    (AOtherMapCoordConv.GetProjectionEPSG <> 0) and
-    (Self.GetProjectionEPSG <> 0) and
-    (AOtherMapCoordConv.GetProjectionEPSG = Self.GetProjectionEPSG);
+  VSelf := Self;
+  if VSelf = AOtherMapCoordConv then begin
+    Result := True;
+  end else begin
+    Result :=
+      (Self.GetTileSplitCode <> 0) and
+      (AOtherMapCoordConv.GetTileSplitCode <> 0) and
+      (AOtherMapCoordConv.GetTileSplitCode = Self.GetTileSplitCode) and
+      (AOtherMapCoordConv.GetProjectionEPSG <> 0) and
+      (Self.GetProjectionEPSG <> 0) and
+      (AOtherMapCoordConv.GetProjectionEPSG = Self.GetProjectionEPSG);
+  end;
 end;
 
 end.
