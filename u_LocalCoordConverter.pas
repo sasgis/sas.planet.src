@@ -112,13 +112,20 @@ end;
 
 function TLocalCoordConverter.GetIsSameConverter(
   AConverter: ILocalCoordConverter): Boolean;
+var
+  VSelf: ILocalCoordConverter;
 begin
-  Result := False;
-  if EqualRect(FLocalRect, AConverter.GetLocalRect) then begin
+  VSelf := Self;
+  if VSelf = AConverter then begin
+    Result := True;
+  end else begin
+    Result := False;
     if FZoom = AConverter.GetZoom then begin
-      if FGeoConverter.IsSameConverter(AConverter.GetGeoConverter) then begin
-        if EqualRect(AConverter.GetRectInMapPixel, GetRectInMapPixel) then begin
-          Result := True;
+      if EqualRect(FLocalRect, AConverter.GetLocalRect) then begin
+        if FGeoConverter.IsSameConverter(AConverter.GetGeoConverter) then begin
+          if EqualRect(AConverter.GetRectInMapPixel, GetRectInMapPixel) then begin
+            Result := True;
+          end;
         end;
       end;
     end;

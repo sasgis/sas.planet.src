@@ -243,8 +243,15 @@ begin
 end;
 
 function TDatum.IsSameDatum(ADatum: IDatum): Boolean;
+var
+  VSelf: IDatum;
 begin
-  Result := (ADatum.EPSG <> 0) and (FEPSG <> 0) and (FEPSG = ADatum.EPSG);
+  VSelf := Self;
+  if VSelf = ADatum then begin
+    Result := True;
+  end else begin
+    Result := (ADatum.EPSG <> 0) and (FEPSG <> 0) and (FEPSG = ADatum.EPSG);
+  end;
 end;
 
 end.
