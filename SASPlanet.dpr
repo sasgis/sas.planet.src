@@ -140,6 +140,8 @@ uses
   u_KmzInfoSimpleParser in 'u_KmzInfoSimpleParser.pas',
   u_ECWWrite in 'u_ECWWrite.pas',
   u_BmpUtil in 'u_BmpUtil.pas',
+  i_ARGBToPaletteConverter in 'i_ARGBToPaletteConverter.pas',
+  u_ARGBToPaletteConverter in 'u_ARGBToPaletteConverter.pas',
   i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',
   u_BitmapTileVampyreLoader in 'BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas',
   u_BitmapTileVampyreSaver in 'BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas',

@@ -69,6 +69,7 @@ uses
   i_BitmapTileSaveLoad,
   i_TileIterator,
   u_TileIteratorStuped,
+  u_ARGBToPaletteConverter,
   u_BitmapTileVampyreSaver,
   u_GlobalState;
 
@@ -392,7 +393,7 @@ begin
     hxyi := 1;
     sizeim := 128;
     JPGSaver := TVampyreBasicBitmapTileSaverJPG.create(cSat);
-    PNGSaver := TVampyreBasicBitmapTileSaverPNGPalette.create(cMap);
+    PNGSaver := TVampyreBasicBitmapTileSaverPNGPalette.create(TARGBToPaletteConverter.Create, cMap);
     TileStream := TMemoryStream.Create;
     try
       bmp32.DrawMode := dmBlend;

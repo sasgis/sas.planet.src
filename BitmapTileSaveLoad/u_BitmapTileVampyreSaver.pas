@@ -7,6 +7,7 @@ uses
   Imaging,
   ImagingTypes,
   GR32,
+  i_ARGBToPaletteConverter,
   i_BitmapTileSaveLoad;
 
 type
@@ -34,8 +35,15 @@ type
   end;
 
   TVampyreBasicBitmapTileSaverPNGPalette = class(TVampyreBasicBitmapTileSaverPNG)
+  private
+    FConverter: IARGBToPaletteConverter;
   protected
     procedure PrepareData(var AImage: TImageData); override;
+  public
+    constructor Create(
+      AConverter: IARGBToPaletteConverter;
+      ACompressLevel: LongInt
+    );
   end;
 
   TVampyreBasicBitmapTileSaverGIF = class(TVampyreBasicBitmapTileSaver)
@@ -188,11 +196,18 @@ end;
 
 { TVampyreBasicBitmapTileSaverPNGPalette }
 
+constructor TVampyreBasicBitmapTileSaverPNGPalette.Create(
+  AConverter: IARGBToPaletteConverter; ACompressLevel: Integer);
+begin
+  inherited Create(ACompressLevel);
+  FConverter := AConverter;
+end;
+
 procedure TVampyreBasicBitmapTileSaverPNGPalette.PrepareData(
   var AImage: TImageData
 );
 begin
-  ConvertImage(AImage, ifIndex8);
+  FConverter.Convert(AImage);
 end;
 
 { TVampyreBasicBitmapTileSaverJPG }
