@@ -16,10 +16,8 @@ uses
 type
   TAntiBanStuped = class(TInterfacedObject, IAntiBan)
   private
-    FContent_Type: string;
     FUsePreloadPage: integer;
     FPreloadPage: string;
-    FBanIfLen: integer;
     FDownloadTilesCount: Longint;
     FBanFlag: Boolean;
     FBanCS: TCriticalSection;
@@ -108,8 +106,6 @@ begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FUsePreloadPage := VParams.ReadInteger('UsePreloadPage', 0);
   FPreloadPage := VParams.ReadString('PreloadPage', '');
-  FBanIfLen := VParams.ReadInteger('BanIfLen', 0);
-  FContent_Type := VParams.ReadString('ContentType', 'image/jpg');
 end;
 
 destructor TAntiBanStuped.Destroy;

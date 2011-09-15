@@ -93,13 +93,11 @@ type
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
     procedure LoadUrlScript(
-      ACoordConverterFactory: ICoordConverterFactory;
-      AConfig : IConfigDataProvider
+      ACoordConverterFactory: ICoordConverterFactory
     );
     procedure LoadDownloader(
       AGCList: IListOfObjectsWithTTL;
-      AProxyConfig: IProxyConfig;
-      AConfig : IConfigDataProvider
+      AProxyConfig: IProxyConfig
     );
     procedure LoadStorageParams(
       AMemCacheBitmap: IMemObjCacheBitmap;
@@ -109,8 +107,6 @@ type
       ACoordConverterFactory: ICoordConverterFactory;
       AConfig : IConfigDataProvider
     );
-    procedure LoadWebSourceParams(AConfig : IConfigDataProvider);
-    procedure LoadUIParams(AConfig : IConfigDataProvider);
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
     procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
@@ -284,8 +280,7 @@ uses
   u_TileStorageFileSystem;
 
 procedure TMapType.LoadUrlScript(
-  ACoordConverterFactory: ICoordConverterFactory;
-  AConfig: IConfigDataProvider
+  ACoordConverterFactory: ICoordConverterFactory
 );
 begin
   FTileRequestBuilder := nil;
@@ -346,27 +341,9 @@ begin
   FCacheVector := TTileCacheSimpleGlobalVector.Create(FZmp.GUID, AMemCacheVector);
 end;
 
-procedure TMapType.LoadWebSourceParams(AConfig: IConfigDataProvider);
-var
-  VParams: IConfigDataProvider;
-begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FUseDwn:=VParams.ReadBool('UseDwn',true);
-end;
-
-procedure TMapType.LoadUIParams(AConfig: IConfigDataProvider);
-var
-  VParams: IConfigDataProvider;
-begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FGUIConfig.ReadConfig(VParams);
-  FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
-end;
-
 procedure TMapType.LoadDownloader(
   AGCList: IListOfObjectsWithTTL;
-  AProxyConfig: IProxyConfig;
-  AConfig: IConfigDataProvider
+  AProxyConfig: IProxyConfig
 );
 var
   VDownloader: TTileDownloaderFactory;
@@ -382,7 +359,7 @@ begin
           60000
         );
       AGCList.AddObject(FPoolOfDownloaders as IObjectWithTTL);
-      FAntiBan := TAntiBanStuped.Create(AProxyConfig, AConfig);
+      FAntiBan := TAntiBanStuped.Create(AProxyConfig, FZmp.DataProvider);
     except
       if ExceptObject <> nil then begin
         ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
@@ -407,18 +384,19 @@ var
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FasLayer:= VParams.ReadBool('asLayer', false);
-  LoadUIParams(AConfig);
+  FGUIConfig.ReadConfig(VParams);
+  FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
   FVersionConfig.ReadConfig(VParams);
   FTileDownloaderConfig.ReadConfig(VParams);
   LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory, AConfig);
   FCoordConverter := FStorage.GetCoordConverter;
   FViewCoordConverter := Zmp.ViewGeoConvert;
-  LoadWebSourceParams(AConfig);
+  FUseDwn:=VParams.ReadBool('UseDwn',true);
   FUsestick:=VParams.ReadBool('Usestick',true);
   FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
   FTileRequestBuilderConfig.ReadConfig(VParams);
-  LoadUrlScript(ACoordConverterFactory, AConfig);
-  LoadDownloader(AGCList, AProxyConfig, AConfig);
+  LoadUrlScript(ACoordConverterFactory);
+  LoadDownloader(AGCList, AProxyConfig);
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
