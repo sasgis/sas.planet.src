@@ -324,51 +324,7 @@ begin
     VMapType := FMapType[i];
     VGUIDString := GUIDToString(VMapType.Zmp.GUID);
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
-    VMapType.GUIConfig.WriteConfig(VSubItem);
-
-    if VMapType.TileRequestBuilderConfig.URLBase <> VMapType.Zmp.TileRequestBuilderConfig.UrlBase then begin
-      VSubItem.WriteString('URLBase', VMapType.TileRequestBuilderConfig.URLBase);
-    end else begin
-      VSubItem.DeleteValue('URLBase');
-    end;
-
-    if VMapType.TileRequestBuilderConfig.RequestHeader <> VMapType.Zmp.TileRequestBuilderConfig.RequestHeader then begin
-      VSubItem.WriteString(
-        'RequestHead',
-        StringReplace(
-          VMapType.TileRequestBuilderConfig.RequestHeader,
-          #13#10,
-          '\r\n',
-          [rfIgnoreCase, rfReplaceAll]
-        )
-      );
-    end else begin
-      VSubItem.DeleteValue('RequestHead');
-    end;
-
-    if VMapType.TileStorage.CacheConfig.cachetype <> VMapType.TileStorage.CacheConfig.defcachetype then begin
-      VSubItem.WriteInteger('CacheType', VMapType.TileStorage.CacheConfig.CacheType);
-    end else begin
-      VSubItem.DeleteValue('CacheType');
-    end;
-
-    if VMapType.TileStorage.CacheConfig.NameInCache <> VMapType.TileStorage.CacheConfig.DefNameInCache then begin
-      VSubItem.WriteString('NameInCache', VMapType.TileStorage.CacheConfig.NameInCache);
-    end else begin
-      VSubItem.DeleteValue('NameInCache');
-    end;
-
-    if VMapType.TileDownloaderConfig.WaitInterval <> VMapType.Zmp.TileDownloaderConfig.WaitInterval then begin
-      VSubItem.WriteInteger('Sleep', VMapType.TileDownloaderConfig.WaitInterval);
-    end else begin
-      VSubItem.DeleteValue('Sleep');
-    end;
-
-    if VMapType.VersionConfig.Version <> VMapType.Zmp.VersionConfig.Version then begin
-      VSubItem.WriteString('Version', VMapType.VersionConfig.Version);
-    end else begin
-      VSubItem.DeleteValue('Version');
-    end;
+    VMapType.SaveConfig(VSubItem);
   end;
 end;
 

@@ -10,6 +10,8 @@ uses
   i_ContentTypeSubst,
   i_TileDownloaderConfig,
   i_TilePostDownloadCropConfig,
+  i_SimpleTileStorageConfig,
+  i_MapAbilitiesConfig,
   i_StringByLanguage,
   i_MapVersionInfo,
   i_TileRequestBuilderConfig;
@@ -76,6 +78,12 @@ type
 
     function GetViewGeoConvert: ICoordConverter;
     property ViewGeoConvert: ICoordConverter read GetViewGeoConvert;
+
+    function GetAbilities: IMapAbilitiesConfigStatic;
+    property Abilities: IMapAbilitiesConfigStatic read GetAbilities;
+
+    function GetStorageConfig: ISimpleTileStorageConfigStatic;
+    property StorageConfig: ISimpleTileStorageConfigStatic read GetStorageConfig;
 
     function GetDataProvider: IConfigDataProvider;
     property DataProvider: IConfigDataProvider read GetDataProvider;

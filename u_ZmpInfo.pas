@@ -17,6 +17,8 @@ uses
   i_LanguageManager,
   i_StringByLanguage,
   i_CoordConverterFactory,
+  i_MapAbilitiesConfig,
+  i_SimpleTileStorageConfig,
   i_ZmpInfo;
 
 type
@@ -89,6 +91,8 @@ type
     FGeoConvert: ICoordConverter;
     FViewGeoConvert: ICoordConverter;
     FGUI: IZmpInfoGUI;
+    FAbilities: IMapAbilitiesConfigStatic;
+    FStorageConfig: ISimpleTileStorageConfigStatic;
 
     FConfig: IConfigDataProvider;
     FConfigIni: IConfigDataProvider;
@@ -98,6 +102,8 @@ type
       ACoordConverterFactory: ICoordConverterFactory
     );
     procedure LoadCropConfig(AConfig : IConfigDataProvider);
+    procedure LoadAbilities(AConfig : IConfigDataProvider);
+    procedure LoadStorageConfig(AConfig : IConfigDataProvider);
     function LoadGUID(AConfig : IConfigDataProvider): TGUID;
     procedure LoadVersion(AConfig : IConfigDataProvider);
     procedure LoadProjectionInfo(
@@ -117,6 +123,8 @@ type
     function GetContentTypeSubst: IContentTypeSubst;
     function GetGeoConvert: ICoordConverter;
     function GetViewGeoConvert: ICoordConverter;
+    function GetAbilities: IMapAbilitiesConfigStatic;
+    function GetStorageConfig: ISimpleTileStorageConfigStatic;
     function GetDataProvider: IConfigDataProvider;
   public
     constructor Create(
@@ -143,6 +151,8 @@ uses
   u_TileDownloaderConfigStatic,
   u_TilePostDownloadCropConfigStatic,
   u_ContentTypeSubstByList,
+  u_MapAbilitiesConfigStatic,
+  u_SimpleTileStorageConfigStatic,
   u_MapVersionInfo,
   u_ResStrings;
 
@@ -390,6 +400,11 @@ begin
   FGUI := TZmpInfoGUI.Create(FGUID, ALanguageManager, FConfig, FConfigIni, FConfigIniParams, Apnum);
 end;
 
+function TZmpInfo.GetAbilities: IMapAbilitiesConfigStatic;
+begin
+  Result := FAbilities;
+end;
+
 function TZmpInfo.GetContentTypeSubst: IContentTypeSubst;
 begin
   Result := FContentTypeSubst;
@@ -420,6 +435,11 @@ begin
   Result := FGUID;
 end;
 
+function TZmpInfo.GetStorageConfig: ISimpleTileStorageConfigStatic;
+begin
+  Result := FStorageConfig;
+end;
+
 function TZmpInfo.GetViewGeoConvert: ICoordConverter;
 begin
   Result := FViewGeoConvert;
@@ -445,6 +465,30 @@ begin
   Result := FVersionConfig;
 end;
 
+procedure TZmpInfo.LoadAbilities(AConfig: IConfigDataProvider);
+var
+  VIsLayer: Boolean;
+  VIsShowOnSmMap: Boolean;
+  VIsUseStick: Boolean;
+  VIsUseGenPrevious: Boolean;
+  VUseDownload: Boolean;
+begin
+  VIsLayer := AConfig.ReadBool('asLayer', False);
+  VIsShowOnSmMap := AConfig.ReadBool('CanShowOnSmMap', True);
+  VIsUseStick := AConfig.ReadBool('Usestick', True);
+  VIsUseGenPrevious := AConfig.ReadBool('UseGenPrevious', True);
+  VUseDownload := AConfig.ReadBool('UseDwn', True);
+
+  FAbilities :=
+    TMapAbilitiesConfigStatic.Create(
+      VIsLayer,
+      VIsShowOnSmMap,
+      VIsUseStick,
+      VIsUseGenPrevious,
+      VUseDownload
+    );
+end;
+
 procedure TZmpInfo.LoadConfig(ACoordConverterFactory: ICoordConverterFactory);
 begin
   FGUID := LoadGUID(FConfigIniParams);
@@ -453,6 +497,8 @@ begin
   LoadTileRequestBuilderConfig(FConfigIniParams);
   LoadTileDownloaderConfig(FConfigIniParams);
   LoadCropConfig(FConfigIniParams);
+  LoadStorageConfig(FConfigIniParams);
+  LoadAbilities(FConfigIniParams);
   FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
 end;
 
@@ -495,6 +541,48 @@ begin
   if FViewGeoConvert = nil then begin
     FViewGeoConvert := FGeoConvert;
   end;
+end;
+
+procedure TZmpInfo.LoadStorageConfig(AConfig: IConfigDataProvider);
+var
+  VCacheTypeCode: Integer;
+  VNameInCache: string;
+  VTileFileExt: string;
+  VIsStoreFileCache: Boolean;
+  VIsReadOnly: boolean;
+  VAllowDelete: boolean;
+  VAllowAdd: boolean;
+  VAllowReplace: boolean;
+begin
+  VNameInCache := AConfig.ReadString('NameInCache', '');
+  VCacheTypeCode := AConfig.ReadInteger('CacheType', 0);
+  if VCacheTypeCode = 5  then begin
+    VTileFileExt := '.ge_image';
+    VIsStoreFileCache := False;
+    VIsReadOnly := True;
+    VAllowDelete := True;
+    VAllowAdd := True;
+    VAllowReplace := True;
+  end else begin
+    VTileFileExt := LowerCase(AConfig.ReadString('Ext', '.jpg'));
+    VIsStoreFileCache := True;
+    VIsReadOnly := False;
+    VAllowDelete := False;
+    VAllowAdd := False;
+    VAllowReplace := False;
+  end;
+
+  FStorageConfig :=
+    TSimpleTileStorageConfigStatic.Create(
+      VCacheTypeCode,
+      VNameInCache,
+      VTileFileExt,
+      VIsStoreFileCache,
+      VIsReadOnly,
+      VAllowDelete,
+      VAllowAdd,
+      VAllowReplace
+    );
 end;
 
 procedure TZmpInfo.LoadTileDownloaderConfig(AConfig: IConfigDataProvider);

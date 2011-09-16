@@ -12,6 +12,7 @@ uses
   t_CommonTypes,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
   i_OperationNotifier,
   i_TileObjCache,
   i_DownloadResult,
@@ -36,6 +37,8 @@ uses
   i_ImageResamplerConfig,
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
+  i_MapAbilitiesConfig,
+  i_SimpleTileStorageConfig,
   i_ZmpInfo,
   i_MapTypeGUIConfig,
   i_ProxySettings,
@@ -85,6 +88,9 @@ type
     FContentTypeManager: IContentTypeManager;
     FDownloadConfig: IGlobalDownloadConfig;
     FGUIConfig: IMapTypeGUIConfig;
+    FAbilitiesConfig: IMapAbilitiesConfig;
+    FAbilitiesConfigStatic: IMapAbilitiesConfigStatic;
+    FStorageConfig: ISimpleTileStorageConfig;
 
     function GetUseDwn: Boolean;
     function GetIsCanShowOnSmMap: boolean;
@@ -133,6 +139,7 @@ type
       ACache: ITileObjCacheBitmap = nil
     ): boolean;
    public
+    procedure SaveConfig(ALocalConfig: IConfigDataWriteProvider);
     function GetLink(AXY: TPoint; Azoom: byte): string;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
@@ -214,6 +221,8 @@ type
     property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
     property VersionConfig: IMapVersionConfig read FVersionConfig;
 
+    property Abilities: IMapAbilitiesConfigStatic read FAbilitiesConfigStatic;
+    property StorageConfig: ISimpleTileStorageConfig read FStorageConfig;
     property asLayer: boolean read FasLayer;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
@@ -272,6 +281,8 @@ uses
   u_DownloadResultFactory,
   u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
+  u_SimpleTileStorageConfig,
+  u_MapAbilitiesConfig,
   u_MapTypeGUIConfig,
   u_LastResponseInfo,
   u_MapVersionConfig,
@@ -386,6 +397,9 @@ begin
   FasLayer:= VParams.ReadBool('asLayer', false);
   FGUIConfig.ReadConfig(VParams);
   FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
+  FStorageConfig.ReadConfig(VParams);
+  FAbilitiesConfig.ReadConfig(VParams);
+  FAbilitiesConfigStatic := FAbilitiesConfig.GetStatic;
   FVersionConfig.ReadConfig(VParams);
   FTileDownloaderConfig.ReadConfig(VParams);
   LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory, AConfig);
@@ -450,6 +464,55 @@ begin
     FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream);
   finally
     VMemStream.Free;
+  end;
+end;
+
+procedure TMapType.SaveConfig(ALocalConfig: IConfigDataWriteProvider);
+begin
+  FGUIConfig.WriteConfig(ALocalConfig);
+
+  if FTileRequestBuilderConfig.URLBase <> FZmp.TileRequestBuilderConfig.UrlBase then begin
+    ALocalConfig.WriteString('URLBase', FTileRequestBuilderConfig.URLBase);
+  end else begin
+    ALocalConfig.DeleteValue('URLBase');
+  end;
+
+  if FTileRequestBuilderConfig.RequestHeader <> FZmp.TileRequestBuilderConfig.RequestHeader then begin
+    ALocalConfig.WriteString(
+      'RequestHead',
+      StringReplace(
+        FTileRequestBuilderConfig.RequestHeader,
+        #13#10,
+        '\r\n',
+        [rfIgnoreCase, rfReplaceAll]
+      )
+    );
+  end else begin
+    ALocalConfig.DeleteValue('RequestHead');
+  end;
+
+  if TileStorage.CacheConfig.cachetype <> TileStorage.CacheConfig.defcachetype then begin
+    ALocalConfig.WriteInteger('CacheType', TileStorage.CacheConfig.CacheType);
+  end else begin
+    ALocalConfig.DeleteValue('CacheType');
+  end;
+
+  if TileStorage.CacheConfig.NameInCache <> TileStorage.CacheConfig.DefNameInCache then begin
+    ALocalConfig.WriteString('NameInCache', TileStorage.CacheConfig.NameInCache);
+  end else begin
+    ALocalConfig.DeleteValue('NameInCache');
+  end;
+
+  if FTileDownloaderConfig.WaitInterval <> FZmp.TileDownloaderConfig.WaitInterval then begin
+    ALocalConfig.WriteInteger('Sleep', FTileDownloaderConfig.WaitInterval);
+  end else begin
+    ALocalConfig.DeleteValue('Sleep');
+  end;
+
+  if FVersionConfig.Version <> FZmp.VersionConfig.Version then begin
+    ALocalConfig.WriteString('Version', FVersionConfig.Version);
+  end else begin
+    ALocalConfig.DeleteValue('Version');
   end;
 end;
 
@@ -664,7 +727,13 @@ begin
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
   FLastResponseInfo := TLastResponseInfo.Create;
-  FVersionConfig := TMapVersionConfig.Create(Zmp.VersionConfig);
+  FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig);
+  FStorageConfig := TSimpleTileStorageConfig.Create(FZmp.StorageConfig);
+  FAbilitiesConfig :=
+    TMapAbilitiesConfig.Create(
+      FZmp.Abilities,
+      FStorageConfig
+    );
   FDownloadResultFactory :=
     TDownloadResultFactory.Create(
       ADownloadResultTextProvider
