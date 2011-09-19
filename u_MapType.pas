@@ -484,6 +484,7 @@ begin
     Result := FStorage.LoadTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream, VTileInfo);
     if Result then  begin
       FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
+      Result := AKml <> nil;
     end;
   finally
     VMemStream.Free;
