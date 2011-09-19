@@ -5,6 +5,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_CoordConverter,
   i_SimpleTileStorageConfig,
   u_ConfigDataElementBase;
 
@@ -27,6 +28,8 @@ type
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
+    function GetCoordConverter: ICoordConverter;
+
     function GetCacheTypeCode: Integer;
     procedure SetCacheTypeCode(AValue: Integer);
 
@@ -79,6 +82,7 @@ function TSimpleTileStorageConfig.CreateStatic: ISimpleTileStorageConfigStatic;
 begin
   Result :=
     TSimpleTileStorageConfigStatic.Create(
+      FDefConfig.CoordConverter,
       FCacheTypeCode,
       FNameInCache,
       FDefConfig.TileFileExt,
@@ -172,6 +176,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TSimpleTileStorageConfig.GetCoordConverter: ICoordConverter;
+begin
+  Result := FDefConfig.CoordConverter;
 end;
 
 function TSimpleTileStorageConfig.GetIsReadOnly: boolean;

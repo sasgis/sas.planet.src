@@ -560,20 +560,21 @@ begin
     VTileFileExt := '.ge_image';
     VIsStoreFileCache := False;
     VIsReadOnly := True;
-    VAllowDelete := True;
-    VAllowAdd := True;
-    VAllowReplace := True;
+    VAllowDelete := False;
+    VAllowAdd := False;
+    VAllowReplace := False;
   end else begin
     VTileFileExt := LowerCase(AConfig.ReadString('Ext', '.jpg'));
     VIsStoreFileCache := True;
     VIsReadOnly := False;
-    VAllowDelete := False;
-    VAllowAdd := False;
-    VAllowReplace := False;
+    VAllowDelete := True;
+    VAllowAdd := True;
+    VAllowReplace := True;
   end;
 
   FStorageConfig :=
     TSimpleTileStorageConfigStatic.Create(
+      FGeoConvert,
       VCacheTypeCode,
       VNameInCache,
       VTileFileExt,

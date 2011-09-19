@@ -3,11 +3,15 @@ unit i_SimpleTileStorageConfig;
 interface
 
 uses
+  i_CoordConverter,
   i_ConfigDataElement;
 
 type
   ISimpleTileStorageConfigStatic = interface
     ['{594D2502-ACE4-4986-9459-DFD4B75C052D}']
+    function GetCoordConverter: ICoordConverter;
+    property CoordConverter: ICoordConverter read GetCoordConverter;
+
     function GetCacheTypeCode: Integer;
     property CacheTypeCode: Integer read GetCacheTypeCode;
 
@@ -35,6 +39,9 @@ type
 
   ISimpleTileStorageConfig = interface(IConfigDataElement)
     ['{536CD168-FDBE-43F8-B090-E3B5FCE97ACE}']
+    function GetCoordConverter: ICoordConverter;
+    property CoordConverter: ICoordConverter read GetCoordConverter;
+
     function GetCacheTypeCode: Integer;
     procedure SetCacheTypeCode(AValue: Integer);
     property CacheTypeCode: Integer read GetCacheTypeCode write SetCacheTypeCode;

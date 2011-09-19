@@ -3,11 +3,13 @@ unit u_SimpleTileStorageConfigStatic;
 interface
 
 uses
+  i_CoordConverter,
   i_SimpleTileStorageConfig;
 
 type
   TSimpleTileStorageConfigStatic = class(TInterfacedObject, ISimpleTileStorageConfigStatic)
   private
+    FCoordConverter: ICoordConverter;
     FCacheTypeCode: Integer;
     FNameInCache: string;
     FTileFileExt: string;
@@ -17,6 +19,7 @@ type
     FAllowAdd: boolean;
     FAllowReplace: boolean;
   protected
+    function GetCoordConverter: ICoordConverter;
     function GetCacheTypeCode: Integer;
     function GetNameInCache: string;
     function GetTileFileExt: string;
@@ -27,6 +30,7 @@ type
     function GetAllowReplace: boolean;
   public
     constructor Create(
+      ACoordConverter: ICoordConverter;
       ACacheTypeCode: Integer;
       ANameInCache: string;
       ATileFileExt: string;
@@ -43,12 +47,14 @@ implementation
 { TSimpleTileStorageConfigStatic }
 
 constructor TSimpleTileStorageConfigStatic.Create(
+  ACoordConverter: ICoordConverter;
   ACacheTypeCode: Integer;
   ANameInCache: string;
   ATileFileExt: string;
   AIsStoreFileCache, AIsReadOnly, AAllowDelete, AAllowAdd, AAllowReplace: boolean
 );
 begin
+  FCoordConverter := ACoordConverter;
   FCacheTypeCode := ACacheTypeCode;
   FNameInCache := ANameInCache;
   FTileFileExt := ATileFileExt;
@@ -77,6 +83,11 @@ end;
 function TSimpleTileStorageConfigStatic.GetCacheTypeCode: Integer;
 begin
   Result := FCacheTypeCode;
+end;
+
+function TSimpleTileStorageConfigStatic.GetCoordConverter: ICoordConverter;
+begin
+  Result := FCoordConverter;
 end;
 
 function TSimpleTileStorageConfigStatic.GetIsReadOnly: boolean;
