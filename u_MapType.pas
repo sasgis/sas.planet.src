@@ -379,19 +379,16 @@ procedure TMapType.LoadMapType(
   ACoordConverterFactory: ICoordConverterFactory;
   AConfig: IConfigDataProvider
 );
-var
-  VParams: IConfigDataProvider;
 begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FGUIConfig.ReadConfig(VParams);
-  FStorageConfig.ReadConfig(VParams);
-  FAbilitiesConfig.ReadConfig(VParams);
-  FVersionConfig.ReadConfig(VParams);
-  FTileDownloaderConfig.ReadConfig(VParams);
+  FGUIConfig.ReadConfig(AConfig);
+  FStorageConfig.ReadConfig(AConfig);
+  FAbilitiesConfig.ReadConfig(AConfig);
+  FVersionConfig.ReadConfig(AConfig);
+  FTileDownloaderConfig.ReadConfig(AConfig);
   LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory);
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := Zmp.ViewGeoConvert;
-  FTileRequestBuilderConfig.ReadConfig(VParams);
+  FTileRequestBuilderConfig.ReadConfig(AConfig);
   LoadUrlScript(ACoordConverterFactory);
   LoadDownloader(AGCList, AProxyConfig);
 end;

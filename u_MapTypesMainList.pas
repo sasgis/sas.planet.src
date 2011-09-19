@@ -228,7 +228,6 @@ var
 
   VZmpMapConfig: IConfigDataProvider;
   VLocalMapConfig: IConfigDataProvider;
-  VMapConfig: IConfigDataProvider;
   VFileName: WideString;
   VFullFileName: string;
   VMapTypeCount: integer;
@@ -269,7 +268,6 @@ begin
       end;
 
       VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VZmp.GUID));
-      VMapConfig := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
       VMapType :=
         TMapType.Create(
           ALanguageManager,
@@ -285,7 +283,7 @@ begin
           AContentTypeManager,
           ACoordConverterFactory,
           ADownloadResultTextProvider,
-          VMapConfig
+          VLocalMapConfig
         );
     except
       if ExceptObject <> nil then begin
