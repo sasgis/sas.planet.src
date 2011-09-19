@@ -119,9 +119,11 @@ end;
 
 procedure TGlobalCahceConfig.SetDefCache(const Value: byte);
 begin
-  if FDefCache <> Value then begin
-    FDefCache := Value;
-    FCacheChangeNotifier.Notify(nil);
+  if Value in [1, 2, 3, 4, 41] then begin
+    if FDefCache <> Value then begin
+      FDefCache := Value;
+      FCacheChangeNotifier.Notify(nil);
+    end;
   end;
 end;
 
