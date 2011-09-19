@@ -57,14 +57,6 @@ type
    private
     FZmp: IZmpInfo;
 
-    FasLayer: boolean;
-    FIsCanShowOnSmMap: Boolean;
-    FUseStick: boolean;
-    FUseGenPrevious: boolean;
-
-
-    FUseDwn: boolean;
-
     FAntiBan: IAntiBan;
     FCacheBitmap: ITileObjCacheBitmap;
     FCacheVector: ITileObjCacheVector;
@@ -89,12 +81,8 @@ type
     FDownloadConfig: IGlobalDownloadConfig;
     FGUIConfig: IMapTypeGUIConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
-    FAbilitiesConfigStatic: IMapAbilitiesConfigStatic;
     FStorageConfig: ISimpleTileStorageConfig;
 
-    function GetUseDwn: Boolean;
-    function GetIsCanShowOnSmMap: boolean;
-    function GetUseStick: boolean;
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
@@ -110,8 +98,7 @@ type
       AMemCacheVector: IMemObjCacheVector;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      ACoordConverterFactory: ICoordConverterFactory;
-      AConfig : IConfigDataProvider
+      ACoordConverterFactory: ICoordConverterFactory
     );
     procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
     procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
@@ -130,7 +117,6 @@ type
       AConfig : IConfigDataProvider
     );
 
-    function GetUseGenPrevious: boolean;
     function LoadTileFromPreZ(
       spr: TCustomBitmap32;
       AXY: TPoint;
@@ -138,6 +124,7 @@ type
       IgnoreError: Boolean;
       ACache: ITileObjCacheBitmap = nil
     ): boolean;
+    function GetAbilitiesConfigStatic: IMapAbilitiesConfigStatic;
    public
     procedure SaveConfig(ALocalConfig: IConfigDataWriteProvider);
     function GetLink(AXY: TPoint; Azoom: byte): string;
@@ -221,16 +208,11 @@ type
     property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
     property VersionConfig: IMapVersionConfig read FVersionConfig;
 
-    property Abilities: IMapAbilitiesConfigStatic read FAbilitiesConfigStatic;
+    property Abilities: IMapAbilitiesConfigStatic read GetAbilitiesConfigStatic;
     property StorageConfig: ISimpleTileStorageConfig read FStorageConfig;
-    property asLayer: boolean read FasLayer;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
     property IsHybridLayer: Boolean read GetIsHybridLayer;
-    property UseDwn: Boolean read GetUseDwn;
-    property UseGenPrevious: boolean read GetUseGenPrevious;
-    property IsCanShowOnSmMap: boolean read GetIsCanShowOnSmMap;
-    property UseStick: boolean read GetUseStick;
 
     property TileStorage: TTileStorageAbstract read FStorage;
     property GUIConfig: IMapTypeGUIConfig read FGUIConfig;
@@ -295,28 +277,33 @@ procedure TMapType.LoadUrlScript(
 );
 begin
   FTileRequestBuilder := nil;
-  if FUseDwn then begin
-    try
-      FTileRequestBuilder :=
-        TTileRequestBuilderPascalScript.Create(
-          FZmp,
-          FTileRequestBuilderConfig,
-          Zmp.DataProvider,
-          ACoordConverterFactory,
-          FLanguageManager
-        );
-    except
-      on E: Exception do begin
-        ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.GUI.Name, E.Message, FZmp.FileName]);
+  FAbilitiesConfig.LockWrite;
+  try
+    if FAbilitiesConfig.UseDownload then begin
+      try
+        FTileRequestBuilder :=
+          TTileRequestBuilderPascalScript.Create(
+            FZmp,
+            FTileRequestBuilderConfig,
+            Zmp.DataProvider,
+            ACoordConverterFactory,
+            FLanguageManager
+          );
+      except
+        on E: Exception do begin
+          ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.GUI.Name, E.Message, FZmp.FileName]);
+          FTileRequestBuilder := nil;
+        end;
+      else
+        ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.GUI.Name, FZmp.FileName]);
         FTileRequestBuilder := nil;
       end;
-    else
-      ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.GUI.Name, FZmp.FileName]);
-      FTileRequestBuilder := nil;
     end;
-  end;
-  if FTileRequestBuilder = nil then begin
-    FUseDwn := False;
+    if FTileRequestBuilder = nil then begin
+      FAbilitiesConfig.UseDownload := False;
+    end;
+  finally
+    FAbilitiesConfig.UnlockWrite;
   end;
 end;
 
@@ -325,24 +312,21 @@ procedure TMapType.LoadStorageParams(
   AMemCacheVector: IMemObjCacheVector;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  ACoordConverterFactory: ICoordConverterFactory;
-  AConfig: IConfigDataProvider
+  ACoordConverterFactory: ICoordConverterFactory
 );
 var
-  VParams: IConfigDataProvider;
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
 begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  if VParams.ReadInteger('CacheType', 0) = 5  then begin
-    FStorage := TTileStorageGE.Create(AGlobalCacheConfig, ACoordConverterFactory, FContentTypeManager, AConfig);
+  if FStorageConfig.CacheTypeCode = 5  then begin
+    FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin
-    FStorage := TTileStorageFileSystem.Create(AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory, FContentTypeManager, AConfig);
+    FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);
   end;
   FContentType := FStorage.GetMainContentType;
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
     FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
-    if FStorage.GetUseSave then begin
+    if FStorageConfig.AllowAdd then begin
       FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
     end;
   end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
@@ -359,24 +343,29 @@ procedure TMapType.LoadDownloader(
 var
   VDownloader: TTileDownloaderFactory;
 begin
-  if FUseDwn then begin
-    try
-      VDownloader := TTileDownloaderFactory.Create(FDownloadResultFactory, FTileDownloaderConfig);
-      FPoolOfDownloaders :=
-        TPoolOfObjectsSimple.Create(
-          FTileDownloaderConfig.MaxConnectToServerCount,
-          VDownloader,
-          60000,
-          60000
-        );
-      AGCList.AddObject(FPoolOfDownloaders as IObjectWithTTL);
-      FAntiBan := TAntiBanStuped.Create(AProxyConfig, FZmp.DataProvider);
-    except
-      if ExceptObject <> nil then begin
-        ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
+  FAbilitiesConfig.LockWrite;
+  try
+    if FAbilitiesConfig.UseDownload then begin
+      try
+        VDownloader := TTileDownloaderFactory.Create(FDownloadResultFactory, FTileDownloaderConfig);
+        FPoolOfDownloaders :=
+          TPoolOfObjectsSimple.Create(
+            FTileDownloaderConfig.MaxConnectToServerCount,
+            VDownloader,
+            60000,
+            60000
+          );
+        AGCList.AddObject(FPoolOfDownloaders as IObjectWithTTL);
+        FAntiBan := TAntiBanStuped.Create(AProxyConfig, FZmp.DataProvider);
+      except
+        if ExceptObject <> nil then begin
+          ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
+        end;
+        FAbilitiesConfig.UseDownload := false;
       end;
-      FUseDwn := false;
     end;
+  finally
+    FAbilitiesConfig.UnlockWrite;
   end;
 end;
 
@@ -394,20 +383,14 @@ var
   VParams: IConfigDataProvider;
 begin
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FasLayer:= VParams.ReadBool('asLayer', false);
   FGUIConfig.ReadConfig(VParams);
-  FIsCanShowOnSmMap := VParams.ReadBool('CanShowOnSmMap', true);
   FStorageConfig.ReadConfig(VParams);
   FAbilitiesConfig.ReadConfig(VParams);
-  FAbilitiesConfigStatic := FAbilitiesConfig.GetStatic;
   FVersionConfig.ReadConfig(VParams);
   FTileDownloaderConfig.ReadConfig(VParams);
-  LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory, AConfig);
-  FCoordConverter := FStorage.GetCoordConverter;
+  LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory);
+  FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := Zmp.ViewGeoConvert;
-  FUseDwn:=VParams.ReadBool('UseDwn',true);
-  FUsestick:=VParams.ReadBool('Usestick',true);
-  FUseGenPrevious:=VParams.ReadBool('UseGenPrevious',true);
   FTileRequestBuilderConfig.ReadConfig(VParams);
   LoadUrlScript(ACoordConverterFactory);
   LoadDownloader(AGCList, AProxyConfig);
@@ -418,7 +401,7 @@ var
   VRequest: ITileDownloadRequest;
 begin
   Result := '';
-  if FUseDwn then begin
+  if FAbilitiesConfig.UseDownload then begin
     FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
     VRequest := FTileRequestBuilder.BuildRequest(AXY, AZoom, FVersionConfig.GetStatic, FLastResponseInfo);
     if VRequest <> nil then begin
@@ -473,18 +456,7 @@ begin
   FTileRequestBuilderConfig.WriteConfig(ALocalConfig);
   FTileDownloaderConfig.WriteConfig(ALocalConfig);
   FVersionConfig.WriteConfig(ALocalConfig);
-
-  if TileStorage.CacheConfig.cachetype <> TileStorage.CacheConfig.defcachetype then begin
-    ALocalConfig.WriteInteger('CacheType', TileStorage.CacheConfig.CacheType);
-  end else begin
-    ALocalConfig.DeleteValue('CacheType');
-  end;
-
-  if TileStorage.CacheConfig.NameInCache <> TileStorage.CacheConfig.DefNameInCache then begin
-    ALocalConfig.WriteString('NameInCache', TileStorage.CacheConfig.NameInCache);
-  end else begin
-    ALocalConfig.DeleteValue('NameInCache');
-  end;
+  FStorageConfig.WriteConfig(ALocalConfig);
 end;
 
 function TMapType.LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte;
@@ -531,7 +503,7 @@ var
   VLoader: IBitmapTileLoader;
   VMemStream: TMemoryStream;
 begin
-  if FStorage.GetUseSave then begin
+  if FStorageConfig.AllowAdd then begin
     if GetIsBitmapTiles and FZmp.TilePostDownloadCropConfig.IsCropOnDownload then begin
       VContentType := FContentTypeManager.GetInfo(AMimeType);
       if VContentType <> nil then begin
@@ -665,7 +637,7 @@ end;
 
 function TMapType.GetShortFolderName: string;
 begin
-  Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FStorage.CacheConfig.NameInCache)));
+  Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FStorageConfig.NameInCache)));
 end;
 
 constructor TMapType.Create(
@@ -719,7 +691,7 @@ begin
     ACoordConverterFactory,
     AConfig
   );
-  if FasLayer then begin
+  if FAbilitiesConfig.IsLayer then begin
     FLoadPrevMaxZoomDelta := 4;
   end else begin
     FLoadPrevMaxZoomDelta := 6;
@@ -754,7 +726,7 @@ var
   VContentType: string;
   VRequest: ITileDownloadRequest;
 begin
-  if FUseDwn then begin
+  if FAbilitiesConfig.UseDownload then begin
     FCoordConverter.CheckTilePosStrict(ATile, AZoom, True);
     VRequest := FTileRequestBuilder.BuildRequest(ATile, AZoom, FVersionConfig.GetStatic, FLastResponseInfo);
     if VRequest = nil then begin
@@ -822,47 +794,10 @@ end;
 
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
 begin
-  if FStorage.GetIsStoreFileCache then begin
+  if FStorageConfig.IsStoreFileCache then begin
     Result := FStorage.CacheConfig.GetTileFileName(AXY, Azoom)
   end else begin
     Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
-  end;
-end;
-
-function TMapType.GetUseDwn: Boolean;
-begin
-  if FStorage.GetUseSave then begin
-    Result := FUseDwn;
-  end else begin
-    Result := false;
-  end;
-end;
-
-function TMapType.GetUseGenPrevious: boolean;
-begin
-  Result := False;
-  if FStorage.GetUseSave then begin
-    if GetIsBitmapTiles then begin
-      Result := FUseGenPrevious;
-    end;
-  end;
-end;
-
-function TMapType.GetUseStick: boolean;
-begin
-  if GetIsBitmapTiles then begin
-    Result := FUseStick;
-  end else begin
-    Result := False;
-  end;
-end;
-
-function TMapType.GetIsCanShowOnSmMap: boolean;
-begin
-  if GetIsBitmapTiles then begin
-    Result := FIsCanShowOnSmMap;
-  end else begin
-    Result := False;
   end;
 end;
 
@@ -888,6 +823,11 @@ begin
   end;
 end;
 
+function TMapType.GetAbilitiesConfigStatic: IMapAbilitiesConfigStatic;
+begin
+  Result := FAbilitiesConfig.GetStatic;
+end;
+
 function TMapType.GetIsBitmapTiles: Boolean;
 begin
   Result := FBitmapLoaderFromStorage <> nil;
@@ -900,7 +840,7 @@ end;
 
 function TMapType.GetIsHybridLayer: Boolean;
 begin
-  Result := IsBitmapTiles and asLayer;
+  Result := IsBitmapTiles and FAbilitiesConfig.IsLayer;
 end;
 
 function TMapType.LoadTile(

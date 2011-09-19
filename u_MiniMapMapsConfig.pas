@@ -91,7 +91,7 @@ begin
   VEnun := VSourceSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMap := VSourceSet.GetMapTypeByGUID(VGUID);
-    if VMap.MapType.IsCanShowOnSmMap then begin
+    if VMap.MapType.Abilities.IsShowOnSmMap then begin
       VList.Add(VMap);
     end;
   end;
@@ -113,7 +113,7 @@ begin
   VEnun := VSourceSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMap := VSourceSet.GetMapTypeByGUID(VGUID);
-    if VMap.MapType.IsCanShowOnSmMap then begin
+    if VMap.MapType.Abilities.IsShowOnSmMap then begin
       VList.Add(VMap);
     end;
   end;

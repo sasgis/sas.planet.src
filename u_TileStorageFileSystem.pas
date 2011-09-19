@@ -10,6 +10,7 @@ uses
   t_CommonTypes,
   i_OperationNotifier,
   i_ConfigDataProvider,
+  i_SimpleTileStorageConfig,
   i_CoordConverter,
   i_CoordConverterFactory,
   i_MapVersionInfo,
@@ -24,12 +25,7 @@ uses
 type
   TTileStorageFileSystem = class(TTileStorageAbstract)
   private
-    FUseDel: boolean;
-    FIsStoreReadOnly: Boolean;
-    FUseSave: boolean;
-    FTileFileExt: string;
     FCacheConfig: TMapTypeCacheConfigAbstract;
-    FCoordConverter: ICoordConverter;
     FMainContentType: IContentTypeInfoBasic;
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByPath(
@@ -38,23 +34,16 @@ type
     ): ITileInfoBasic;
   public
     constructor Create(
+      AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      ACoordConverterFactory: ICoordConverterFactory;
-      AContentTypeManager: IContentTypeManager;
-      AConfig: IConfigDataProvider
+      AContentTypeManager: IContentTypeManager
     );
     destructor Destroy; override;
 
     function GetMainContentType: IContentTypeInfoBasic; override;
     function GetAllowDifferentContentTypes: Boolean; override;
 
-    function GetIsStoreFileCache: Boolean; override;
-    function GetUseDel: boolean; override;
-    function GetUseSave: boolean; override;
-    function GetIsStoreReadOnly: boolean; override;
-    function GetTileFileExt: string; override;
-    function GetCoordConverter: ICoordConverter; override;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
     function GetTileFileName(
@@ -125,28 +114,15 @@ uses
 { TTileStorageFileSystem }
 
 constructor TTileStorageFileSystem.Create(
+  AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  ACoordConverterFactory: ICoordConverterFactory;
-  AContentTypeManager: IContentTypeManager;
-  AConfig: IConfigDataProvider
+  AContentTypeManager: IContentTypeManager
 );
-var
-  VParamsTXT: IConfigDataProvider;
-  VParams: IConfigDataProvider;
 begin
-  VParamsTXT := AConfig.GetSubItem('params.txt');
-  VParams := VParamsTXT.GetSubItem('Storage');
-  if VParams = nil then begin
-    VParams := VParamsTXT.GetSubItem('PARAMS');
-  end;
-  FUseDel:=VParams.ReadBool('Usedel',true);
-  FIsStoreReadOnly:=VParams.ReadBool('ReadOnly', false);
-  FUseSave:=VParams.ReadBool('Usesave',true);
-  FTileFileExt:=LowerCase(VParams.ReadString('Ext','.jpg'));
-  FCacheConfig := TMapTypeCacheConfig.Create(AGlobalCacheConfig, ATileNameGeneratorList, AConfig);
-  FCoordConverter := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
-  FMainContentType := AContentTypeManager.GetInfoByExt(FTileFileExt);
+  inherited Create(AConfig);
+  FCacheConfig := TMapTypeCacheConfig.Create(AConfig, AGlobalCacheConfig, ATileNameGeneratorList);
+  FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
 end;
 
 procedure TTileStorageFileSystem.CreateDirIfNotExists(APath: string);
@@ -169,7 +145,7 @@ var
   VPath: string;
 begin
   Result := false;
-  if FUseDel then begin
+  if Config.AllowDelete then begin
     try
       VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
       if FileExists(VPath) then begin
@@ -193,7 +169,7 @@ var
   VPath: string;
 begin
   Result := False;
-  if FUseDel then begin
+  if Config.AllowDelete then begin
     try
       VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
       VPath := ChangeFileExt(VPath, '.tne');
@@ -224,29 +200,9 @@ begin
   Result := FCacheConfig;
 end;
 
-function TTileStorageFileSystem.GetCoordConverter: ICoordConverter;
-begin
-  Result := FCoordConverter;
-end;
-
-function TTileStorageFileSystem.GetIsStoreFileCache: Boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageFileSystem.GetIsStoreReadOnly: boolean;
-begin
-  Result := FIsStoreReadOnly;
-end;
-
 function TTileStorageFileSystem.GetMainContentType: IContentTypeInfoBasic;
 begin
   Result := FMainContentType;
-end;
-
-function TTileStorageFileSystem.GetTileFileExt: string;
-begin
-  Result := FTileFileExt;
 end;
 
 function TTileStorageFileSystem.GetTileFileName(
@@ -299,16 +255,6 @@ begin
   Result := GetTileInfoByPath(VPath, AVersionInfo);
 end;
 
-function TTileStorageFileSystem.GetUseDel: boolean;
-begin
-  Result := FUseDel;
-end;
-
-function TTileStorageFileSystem.GetUseSave: boolean;
-begin
-  Result := FUseSave;
-end;
-
 function TTileStorageFileSystem.LoadFillingMap(
   AOperationID: Integer;
   ACancelNotifier: IOperationNotifier;
@@ -340,7 +286,7 @@ var
 begin
   Result := true;
   try
-    VGeoConvert := GetCoordConverter;
+    VGeoConvert := Config.CoordConverter;
     VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
     VGeoConvert.CheckZoom(ASourceZoom);
 
@@ -475,7 +421,7 @@ var
   VPath: String;
   VMemStream: TMemoryStream;
 begin
-  if FUseSave then begin
+  if Config.AllowAdd then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     CreateDirIfNotExists(VPath);
     if AStream is TMemoryStream then begin
@@ -504,7 +450,7 @@ var
   VPath: String;
   F:textfile;
 begin
-  if FUseSave then begin
+  if Config.AllowAdd then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     VPath := ChangeFileExt(VPath, '.tne');
     if not FileExists(VPath) then begin

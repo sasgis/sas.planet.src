@@ -185,20 +185,24 @@ begin
 end;
 
 function TGEIndexFile.getServID:word;
+var
+  VCode:  Integer;
+  VNameInCache: string;
 begin
-  if FCacheConfig.NameInCache='1' then begin
-    Result:=1;
-  end else
-  if FCacheConfig.NameInCache='2' then begin
-    Result:=2;
-  end else
-  if FCacheConfig.NameInCache='3' then begin
-    Result:=3;
+  VNameInCache := FCacheConfig.GetNameInCache;
+  if VNameInCache = '' then begin
+    Result := 0;
+  end else if VNameInCache = '1' then begin
+    Result := 1;
+  end else if VNameInCache = '2' then begin
+    Result := 2;
+  end else if VNameInCache = '3' then begin
+    Result := 3;
   end else begin
-    try
-      Result:=StrToInt(FCacheConfig.NameInCache);
-    except
-      Result:=0;
+    if TryStrToInt(VNameInCache, VCode) then begin
+      Result := VCode;
+    end else begin
+      Result := 0;
     end;
   end;
 end;

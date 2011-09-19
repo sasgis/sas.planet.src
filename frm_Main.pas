@@ -1450,7 +1450,7 @@ begin
     for i:=0 to GState.MapType.Count-1 do begin
       VMapType := GState.MapType[i];
       VIcon18Index := GState.MapType.MapTypeIcons18List.GetIconIndexByGUID(VMapType.Zmp.GUID);
-      if VMapType.asLayer then begin
+      if VMapType.Abilities.IsLayer then begin
         NDwnItem:=TTBXItem.Create(ldm);
         FNDwnItemList.Add(VMapType.Zmp.GUID, NDwnItem);
         NDwnItem.Caption:=VMapType.GUIConfig.Name.Value;
@@ -2123,7 +2123,7 @@ begin
     else
       VMapType := GState.MapType.GetMapTypeByHotKey(VShortCut);
       if VMapType <> nil then begin
-        if VMapType.asLayer then begin
+        if VMapType.Abilities.IsLayer then begin
           FConfig.MainMapsConfig.LockWrite;
           try
             if not FConfig.MainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VMapType.Zmp.GUID) then begin
@@ -2527,7 +2527,7 @@ var
   VTile: TPoint;
 begin
   VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-  if VMapType.TileStorage.GetIsStoreFileCache then begin
+  if VMapType.StorageConfig.IsStoreFileCache then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VZoomCurr := VLocalConverter.GetZoom;
@@ -2599,7 +2599,7 @@ var
   VMapType: TMapType;
 begin
   VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-  if VMapType.TileStorage.GetIsStoreFileCache then begin
+  if VMapType.StorageConfig.IsStoreFileCache then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VZoomCurr := VLocalConverter.GetZoom;
@@ -2632,7 +2632,7 @@ begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
 
-  if VMapType.TileStorage.GetIsStoreFileCache then begin
+  if VMapType.StorageConfig.IsStoreFileCache then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VZoomCurr := VLocalConverter.GetZoom;
@@ -3135,7 +3135,7 @@ begin
   end else begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
-  if VMapType.UseDwn then begin
+  if VMapType.Abilities.UseDownload then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
@@ -3935,7 +3935,7 @@ begin
   VActiveLayersSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
-    if (VMapType.asLayer) then begin
+    if (VMapType.Abilities.IsLayer) then begin
       VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VMapType.Zmp.GUID) <> nil;
       TTBXItem(FNLayerParamsItemList.GetByGUID(VMapType.Zmp.GUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
@@ -4401,7 +4401,7 @@ begin
   VActiveLayersSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
-    if (VMapType.asLayer) then begin
+    if (VMapType.Abilities.IsLayer) then begin
       VGUID := VMapType.Zmp.GUID;
       VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VGUID) <> nil;
       TTBXItem(FNDwnItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;

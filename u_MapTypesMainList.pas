@@ -116,7 +116,7 @@ begin
   Result := nil;
   for i := 0 to length(FMapType) - 1 do begin
     VMapType := FMapType[i];
-    if not VMapType.asLayer then begin
+    if not VMapType.Abilities.IsLayer then begin
       result := VMapType;
       exit;
     end;
@@ -177,7 +177,7 @@ begin
     VMap := FMapType[i];
     VMapType := TMapTypeBasic.Create(VMap);
     VFullMapsList.Add(VMapType);
-    if VMap.asLayer then begin
+    if VMap.Abilities.IsLayer then begin
       VLayersList.Add(VMapType);
     end else begin
       VMapsList.Add(VMapType);
@@ -296,7 +296,7 @@ begin
     if VMapType <> nil then begin
       SetLength(FMapType, VMapTypeCount + 1);
       FMapType[VMapTypeCount] := VMapType;
-      if not VMapType.asLayer then begin
+      if not VMapType.Abilities.IsLayer then begin
         Inc(VMapOnlyCount);
       end;
       inc(VMapTypeCount);

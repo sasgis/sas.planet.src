@@ -79,7 +79,7 @@ var
   VOperatonID: Integer;
 begin
   VOperatonID := FCancelNotifier.CurrentOperation;
-  if FMapType.UseDwn then begin
+  if FMapType.Abilities.UseDownload then begin
       try
         VResult := FMapType.DownloadTile(VOperatonID, FCancelNotifier, FLoadXY, FZoom, false);
         if not Terminated then begin

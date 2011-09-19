@@ -9,6 +9,7 @@ uses
   t_CommonTypes,
   i_OperationNotifier,
   i_CoordConverter,
+  i_SimpleTileStorageConfig,
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_TileInfoBasic,
@@ -16,16 +17,17 @@ uses
 
 type
   TTileStorageAbstract = class
+  private
+    FConfig: ISimpleTileStorageConfig;
+  protected
+    property Config: ISimpleTileStorageConfig read FConfig;
   public
+    constructor Create(
+      AConfig: ISimpleTileStorageConfig
+    );
     function GetMainContentType: IContentTypeInfoBasic; virtual; abstract;
     function GetAllowDifferentContentTypes: Boolean; virtual; abstract;
 
-    function GetIsStoreFileCache: Boolean; virtual; abstract;
-    function GetUseDel: boolean; virtual; abstract;
-    function GetUseSave: boolean; virtual; abstract;
-    function GetIsStoreReadOnly: boolean; virtual; abstract;
-    function GetTileFileExt: string; virtual; abstract;
-    function GetCoordConverter: ICoordConverter; virtual; abstract;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; virtual; abstract;
 
     function GetTileFileName(
@@ -82,8 +84,6 @@ type
     ): boolean; virtual;
 
     property CacheConfig: TMapTypeCacheConfigAbstract read GetCacheConfig;
-    property TileFileExt: string read GetTileFileExt;
-//    property GeoConvert: ICoordConverter read FCoordConverter;
   end;
 
 implementation
@@ -94,6 +94,11 @@ uses
   u_TileIteratorByRect;
 
 { TTileStorageAbstract }
+
+constructor TTileStorageAbstract.Create(AConfig: ISimpleTileStorageConfig);
+begin
+  FConfig := AConfig;
+end;
 
 function TTileStorageAbstract.LoadFillingMap(
   AOperationID: Integer;
@@ -121,7 +126,7 @@ var
 begin
   Result := true;
   try
-    VGeoConvert := GetCoordConverter;
+    VGeoConvert := FConfig.CoordConverter;
 
     VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
     VGeoConvert.CheckZoom(ASourceZoom);

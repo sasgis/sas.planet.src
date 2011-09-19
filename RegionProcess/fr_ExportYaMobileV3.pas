@@ -92,7 +92,7 @@ begin
   For i:=0 to GState.MapType.Count-1 do begin
     VMapType := GState.MapType[i];
     if (VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
-      if (not(VMapType.asLayer)) then begin
+      if (not(VMapType.Abilities.IsLayer)) then begin
         VAddedIndex := cbbSat.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
         if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
           cbbSat.ItemIndex:=VAddedIndex;

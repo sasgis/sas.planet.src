@@ -99,7 +99,7 @@ begin
       for j := 0 to length(FMapTypeArr) - 1 do begin
         VMapType := FMapTypeArr[j];
         VGeoConvert := VMapType.GeoConvert;
-        VExt := VMapType.TileStorage.TileFileExt;
+        VExt := VMapType.StorageConfig.TileFileExt;
         VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
         VTileIterator := VTileIterators[j, i];
         while VTileIterator.Next(VTile) do begin

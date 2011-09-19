@@ -261,7 +261,7 @@ begin
             VMap := VActiveMapsSet.GetMapTypeByGUID(VGUID);
             if VMap <> nil then begin
               FMapType := VMap.MapType;
-              if FMapType.UseDwn then begin
+              if FMapType.Abilities.UseDownload then begin
                 VMapGeoConverter := FMapType.GeoConvert;
                 VLonLatRectInMap := VLonLatRect;
                 VMapGeoConverter.CheckLonLatRect(VLonLatRectInMap);

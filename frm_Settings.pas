@@ -866,8 +866,8 @@ begin
     With VMapType do begin
       MapList.AddItem(VMapType.GUIConfig.Name.Value, nil);
       MapList.Items.Item[i].Data:=VMapType;
-      MapList.Items.Item[i].SubItems.Add(VMapType.TileStorage.CacheConfig.NameInCache);
-      if VMapType.asLayer then begin
+      MapList.Items.Item[i].SubItems.Add(VMapType.StorageConfig.NameInCache);
+      if VMapType.Abilities.IsLayer then begin
         MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
       end else begin
         MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.GUIConfig.ParentSubMenu.Value);

@@ -6,6 +6,7 @@ uses
   Types,
   i_JclNotify,
   i_ConfigDataProvider,
+  i_SimpleTileStorageConfig,
   i_TileFileNameGeneratorsList,
   u_GlobalCahceConfig,
   i_TileFileNameGenerator;
@@ -13,42 +14,25 @@ uses
 type
   TMapTypeCacheConfigAbstract = class
   private
+    FConfig: ISimpleTileStorageConfig;
+
     FGlobalCacheConfig: TGlobalCahceConfig;
     FGlobalSettingsListener: IJclListener;
     procedure OnSettingsEdit(Sender: TObject); virtual; abstract;
   protected
-    FTileFileExt: string;
-
-    FDefCachetype: byte;
-    FCacheType: byte;
     FEffectiveCacheType: Byte;
-
-    FDefNameInCache: string;
-    FNameInCache: string;
-
     FBasePath: String;
     FFileNameGenerator: ITileFileNameGenerator;
 
     FConfigChangeNotifier: IJclNotifier;
-
-    procedure SetCacheType(const Value: byte); virtual; abstract;
-    procedure SetNameInCache(const Value: string); virtual;
   public
     constructor Create(
+      AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig
     );
     destructor Destroy; override;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
 
-    property DefCachetype: byte read FDefCachetype;
-    property CacheType: byte read FCacheType write SetCacheType;
-
-    property EffectiveCacheType: byte read FEffectiveCacheType;
-
-    property DefNameInCache: string read FDefNameInCache;
-    property NameInCache: string read FNameInCache write SetNameInCache;
-
-    property BasePath: string read FBasePath;
     property ConfigChangeNotifier: IJclNotifier read FConfigChangeNotifier;
   end;
 
@@ -56,29 +40,25 @@ type
   private
     FTileNameGeneratorList: ITileFileNameGeneratorsList;
     procedure OnSettingsEdit(Sender: TObject); override;
-  protected
-    procedure SetCacheType(const Value: byte); override;
-    procedure SetNameInCache(const Value: string); override;
   public
     constructor Create(
+      AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      AConfig: IConfigDataProvider
+      ATileNameGeneratorList: ITileFileNameGeneratorsList
     );
   end;
 
   TMapTypeCacheConfigGE = class(TMapTypeCacheConfigAbstract)
   protected
     procedure OnSettingsEdit(Sender: TObject); override;
-    procedure SetCacheType(const Value: byte); override;
-    procedure SetNameInCache(const Value: string); override;
   public
     constructor Create(
-      AGlobalCacheConfig: TGlobalCahceConfig;
-      AConfig: IConfigDataProvider
+      AConfig: ISimpleTileStorageConfig;
+      AGlobalCacheConfig: TGlobalCahceConfig
     );
     function GetIndexFileName: string;
     function GetDataFileName: string;
+    function GetNameInCache: string;
   end;
 
 
@@ -92,9 +72,11 @@ uses
 { TMapTypeCacheConfigAbstract }
 
 constructor TMapTypeCacheConfigAbstract.Create(
+  AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig
 );
 begin
+  FConfig := AConfig;
   FGlobalCacheConfig := AGlobalCacheConfig;
   FConfigChangeNotifier := TJclBaseNotifier.Create;
 
@@ -113,35 +95,19 @@ end;
 
 function TMapTypeCacheConfigAbstract.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, Azoom) + FTileFileExt;
-end;
-
-procedure TMapTypeCacheConfigAbstract.SetNameInCache(const Value: string);
-begin
-  if FNameInCache <> Value then begin
-    FNameInCache := Value;
-  end;
+  Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, Azoom) + FConfig.GetStatic.TileFileExt;
 end;
 
 { TMapTypeCacheConfig }
 
 constructor TMapTypeCacheConfig.Create(
+  AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  AConfig: IConfigDataProvider
+  ATileNameGeneratorList: ITileFileNameGeneratorsList
 );
-var
-  VParams: IConfigDataProvider;
 begin
-  inherited Create(AGlobalCacheConfig);
+  inherited Create(AConfig, AGlobalCacheConfig);
   FTileNameGeneratorList := ATileNameGeneratorList;
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-
-  FTileFileExt := LowerCase(VParams.ReadString('Ext', '.jpg'));
-  FCacheType := VParams.ReadInteger('CacheType', 0);
-  FDefCacheType := VParams.ReadInteger('MAIN:CacheType', 0);
-  FNameInCache := VParams.ReadString('NameInCache', 'Sat');
-  FDefNameInCache := VParams.ReadString('MAIN:NameInCache', 'Sat');
   OnSettingsEdit(nil);
 end;
 
@@ -149,15 +115,17 @@ procedure TMapTypeCacheConfig.OnSettingsEdit(Sender: TObject);
 var
   VCacheType: Byte;
   VBasePath: string;
+  VConfig: ISimpleTileStorageConfigStatic;
 begin
-  VCacheType := FCacheType;
+  VConfig := FConfig.GetStatic;
+  VCacheType := VConfig.CacheTypeCode;
   if VCacheType = 0 then begin
     VCacheType := FGlobalCacheConfig.DefCache;
   end;
   FEffectiveCacheType := VCacheType;
   FFileNameGenerator := FTileNameGeneratorList.GetGenerator(FEffectiveCacheType);
 
-  VBasePath := FNameInCache;
+  VBasePath := VConfig.NameInCache;
   //TODO: — этим бардаком нужно что-то будет сделать
   if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
     case FEffectiveCacheType of
@@ -186,39 +154,14 @@ begin
   FBasePath := VBasePath;
 end;
 
-procedure TMapTypeCacheConfig.SetCacheType(const Value: byte);
-begin
-  if FCacheType <> Value then begin
-    FCacheType := Value;
-    OnSettingsEdit(nil);
-  end;
-end;
-
-procedure TMapTypeCacheConfig.SetNameInCache(const Value: string);
-begin
-  if FNameInCache <> Value then begin
-    FNameInCache := Value;
-    OnSettingsEdit(nil);
-  end;
-end;
-
 { TMapTypeCacheConfigGE }
 
 constructor TMapTypeCacheConfigGE.Create(
-  AGlobalCacheConfig: TGlobalCahceConfig;
-  AConfig: IConfigDataProvider
+  AConfig: ISimpleTileStorageConfig;
+  AGlobalCacheConfig: TGlobalCahceConfig
 );
-var
-  VParams: IConfigDataProvider;
 begin
-  inherited Create(AGlobalCacheConfig);
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FTileFileExt := '';
-  FCacheType := 5;
-  FEffectiveCacheType := 5;
-  FDefCacheType := FCacheType;
-  FNameInCache := VParams.ReadString('NameInCache', '');
-  FDefNameInCache := VParams.ReadString('MAIN:NameInCache', '');
+  inherited Create(AConfig, AGlobalCacheConfig);
   OnSettingsEdit(nil);
 end;
 
@@ -235,18 +178,6 @@ begin
   FBasePath := VBasePath;
 end;
 
-procedure TMapTypeCacheConfigGE.SetCacheType(const Value: byte);
-begin
-end;
-
-procedure TMapTypeCacheConfigGE.SetNameInCache(const Value: string);
-begin
-  if FNameInCache <> Value then begin
-    FNameInCache := Value;
-    OnSettingsEdit(nil);
-  end;
-end;
- 
 function TMapTypeCacheConfigGE.GetDataFileName: string;
 begin
   Result := FBasePath + 'dbCache.dat';
@@ -255,6 +186,11 @@ end;
 function TMapTypeCacheConfigGE.GetIndexFileName: string;
 begin
   Result := FBasePath + 'dbCache.dat.index';
+end;
+
+function TMapTypeCacheConfigGE.GetNameInCache: string;
+begin
+  Result := FConfig.GetStatic.NameInCache;
 end;
 
 end.
