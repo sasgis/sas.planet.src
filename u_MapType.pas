@@ -472,6 +472,7 @@ begin
   FGUIConfig.WriteConfig(ALocalConfig);
   FTileRequestBuilderConfig.WriteConfig(ALocalConfig);
   FTileDownloaderConfig.WriteConfig(ALocalConfig);
+  FVersionConfig.WriteConfig(ALocalConfig);
 
   if TileStorage.CacheConfig.cachetype <> TileStorage.CacheConfig.defcachetype then begin
     ALocalConfig.WriteInteger('CacheType', TileStorage.CacheConfig.CacheType);
@@ -483,12 +484,6 @@ begin
     ALocalConfig.WriteString('NameInCache', TileStorage.CacheConfig.NameInCache);
   end else begin
     ALocalConfig.DeleteValue('NameInCache');
-  end;
-
-  if FVersionConfig.Version <> FZmp.VersionConfig.Version then begin
-    ALocalConfig.WriteString('Version', FVersionConfig.Version);
-  end else begin
-    ALocalConfig.DeleteValue('Version');
   end;
 end;
 

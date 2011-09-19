@@ -12,6 +12,7 @@ uses
 type
   TMapVersionConfig = class(TConfigDataElementBase, IMapVersionConfig)
   private
+    FDefConfig: IMapVersionInfo;
     FVersion: Variant;
     FStatic: IMapVersionInfo;
     function CreateStatic: IMapVersionInfo;
@@ -39,7 +40,8 @@ uses
 constructor TMapVersionConfig.Create(ADefConfig: IMapVersionInfo);
 begin
   inherited Create;
-  FVersion := ADefConfig.Version;
+  FDefConfig := ADefConfig;
+  FVersion := FDefConfig.Version;
 end;
 
 function TMapVersionConfig.CreateStatic: IMapVersionInfo;
@@ -71,7 +73,11 @@ procedure TMapVersionConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteString('Version', FVersion);
+  if FVersion <> FDefConfig.Version then begin
+    AConfigData.WriteString('Version', FVersion);
+  end else begin
+    AConfigData.DeleteValue('Version');
+  end;
 end;
 
 function TMapVersionConfig.GetStatic: IMapVersionInfo;
