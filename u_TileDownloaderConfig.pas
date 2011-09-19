@@ -12,6 +12,7 @@ uses
 type
   TTileDownloaderConfig = class(TConfigDataElementComplexBase, ITileDownloaderConfig)
   private
+    FDefConfig: ITileDownloaderConfigStatic;
     FIntetConfig: IInetConfig;
     FWaitInterval: Cardinal;
     FMaxConnectToServerCount: Cardinal;
@@ -58,12 +59,13 @@ uses
 constructor TTileDownloaderConfig.Create(AIntetConfig: IInetConfig; ADefault: ITileDownloaderConfigStatic);
 begin
   inherited Create;
+  FDefConfig := ADefault;
   FIntetConfig := AIntetConfig;
-  FWaitInterval := ADefault.WaitInterval;
-  FMaxConnectToServerCount := ADefault.MaxConnectToServerCount;
-  FIgnoreMIMEType := ADefault.IgnoreMIMEType;
-  FDefaultMIMEType := ADefault.DefaultMIMEType;
-  FExpectedMIMETypes := ADefault.ExpectedMIMETypes;
+  FWaitInterval := FDefConfig.WaitInterval;
+  FMaxConnectToServerCount := FDefConfig.MaxConnectToServerCount;
+  FIgnoreMIMEType := FDefConfig.IgnoreMIMEType;
+  FDefaultMIMEType := FDefConfig.DefaultMIMEType;
+  FExpectedMIMETypes := FDefConfig.ExpectedMIMETypes;
 
   Add(FIntetConfig, nil, False, False, False, True);
 end;
@@ -114,6 +116,17 @@ procedure TTileDownloaderConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
+  if FWaitInterval <> FDefConfig.WaitInterval then begin
+    AConfigData.WriteInteger('Sleep', FWaitInterval);
+  end else begin
+    AConfigData.DeleteValue('Sleep');
+  end;
+
+  if FMaxConnectToServerCount <> FDefConfig.MaxConnectToServerCount then begin
+    AConfigData.WriteInteger('MaxConnectToServerCount', FMaxConnectToServerCount);
+  end else begin
+    AConfigData.DeleteValue('MaxConnectToServerCount');
+  end;
 end;
 
 function TTileDownloaderConfig.GetDefaultMIMEType: string;

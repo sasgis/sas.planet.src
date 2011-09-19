@@ -471,6 +471,7 @@ procedure TMapType.SaveConfig(ALocalConfig: IConfigDataWriteProvider);
 begin
   FGUIConfig.WriteConfig(ALocalConfig);
   FTileRequestBuilderConfig.WriteConfig(ALocalConfig);
+  FTileDownloaderConfig.WriteConfig(ALocalConfig);
 
   if TileStorage.CacheConfig.cachetype <> TileStorage.CacheConfig.defcachetype then begin
     ALocalConfig.WriteInteger('CacheType', TileStorage.CacheConfig.CacheType);
@@ -482,12 +483,6 @@ begin
     ALocalConfig.WriteString('NameInCache', TileStorage.CacheConfig.NameInCache);
   end else begin
     ALocalConfig.DeleteValue('NameInCache');
-  end;
-
-  if FTileDownloaderConfig.WaitInterval <> FZmp.TileDownloaderConfig.WaitInterval then begin
-    ALocalConfig.WriteInteger('Sleep', FTileDownloaderConfig.WaitInterval);
-  end else begin
-    ALocalConfig.DeleteValue('Sleep');
   end;
 
   if FVersionConfig.Version <> FZmp.VersionConfig.Version then begin
