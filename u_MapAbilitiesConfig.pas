@@ -77,6 +77,7 @@ begin
 
   FStorageConfigListener := TNotifyEventListener.Create(Self.OnStorageConfigChange);
   FStorageConfig.GetChangeNotifier.Add(FStorageConfigListener);
+  FStatic := CreateStatic;
 end;
 
 destructor TMapAbilitiesConfig.Destroy;

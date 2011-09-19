@@ -76,6 +76,7 @@ begin
   FAllowDelete := FDefConfig.AllowDelete;
   FAllowAdd := FDefConfig.AllowAdd;
   FAllowReplace := FDefConfig.AllowReplace;
+  FStatic := CreateStatic;
 end;
 
 function TSimpleTileStorageConfig.CreateStatic: ISimpleTileStorageConfigStatic;
