@@ -25,6 +25,7 @@ type
 
   TTileRequestBuilderConfig = class(TConfigDataElementBase, ITileRequestBuilderConfig)
   private
+    FDefConfig: ITileRequestBuilderConfigStatic;
     FUrlBase: string;
     FRequestHeader: string;
   protected
@@ -50,8 +51,9 @@ uses
 constructor TTileRequestBuilderConfig.Create(ADefConfig: ITileRequestBuilderConfigStatic);
 begin
   inherited Create;
-  FUrlBase := ADefConfig.UrlBase;
-  FRequestHeader := ADefConfig.RequestHeader;
+  FDefConfig := ADefConfig;
+  FUrlBase := FDefConfig.UrlBase;
+  FRequestHeader := FDefConfig.RequestHeader;
 end;
 
 procedure TTileRequestBuilderConfig.DoReadConfig(
@@ -70,8 +72,25 @@ procedure TTileRequestBuilderConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteString('URLBase', FUrlBase);
-  AConfigData.WriteString('RequestHead', StringReplace(FRequestHeader, #13#10, '\r\n', [rfIgnoreCase, rfReplaceAll]));
+  if FURLBase <> FDefConfig.UrlBase then begin
+    AConfigData.WriteString('URLBase', FURLBase);
+  end else begin
+    AConfigData.DeleteValue('URLBase');
+  end;
+
+  if FRequestHeader <> FDefConfig.RequestHeader then begin
+    AConfigData.WriteString(
+      'RequestHead',
+      StringReplace(
+        FRequestHeader,
+        #13#10,
+        '\r\n',
+        [rfIgnoreCase, rfReplaceAll]
+      )
+    );
+  end else begin
+    AConfigData.DeleteValue('RequestHead');
+  end;
 end;
 
 function TTileRequestBuilderConfig.GetRequestHeader: string;

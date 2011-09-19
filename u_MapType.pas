@@ -470,26 +470,7 @@ end;
 procedure TMapType.SaveConfig(ALocalConfig: IConfigDataWriteProvider);
 begin
   FGUIConfig.WriteConfig(ALocalConfig);
-
-  if FTileRequestBuilderConfig.URLBase <> FZmp.TileRequestBuilderConfig.UrlBase then begin
-    ALocalConfig.WriteString('URLBase', FTileRequestBuilderConfig.URLBase);
-  end else begin
-    ALocalConfig.DeleteValue('URLBase');
-  end;
-
-  if FTileRequestBuilderConfig.RequestHeader <> FZmp.TileRequestBuilderConfig.RequestHeader then begin
-    ALocalConfig.WriteString(
-      'RequestHead',
-      StringReplace(
-        FTileRequestBuilderConfig.RequestHeader,
-        #13#10,
-        '\r\n',
-        [rfIgnoreCase, rfReplaceAll]
-      )
-    );
-  end else begin
-    ALocalConfig.DeleteValue('RequestHead');
-  end;
+  FTileRequestBuilderConfig.WriteConfig(ALocalConfig);
 
   if TileStorage.CacheConfig.cachetype <> TileStorage.CacheConfig.defcachetype then begin
     ALocalConfig.WriteInteger('CacheType', TileStorage.CacheConfig.CacheType);
