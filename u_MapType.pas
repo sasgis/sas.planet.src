@@ -9,7 +9,6 @@ uses
   Dialogs,
   GR32,
   t_GeoTypes,
-  t_CommonTypes,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -51,8 +50,6 @@ uses
   u_ResStrings;
 
 type
-  EBadGUID = class(Exception);
-
  TMapType = class
    private
     FZmp: IZmpInfo;
@@ -182,8 +179,7 @@ type
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
     function TileSize(AXY: TPoint; Azoom: byte): integer;
     function TileExportToFile(AXY: TPoint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean;
-    // Строит карту заполнения дл тайла на уровне AZoom тайлами уровня ASourceZoom
-    // Должна регулярно проверять по указателю IsStop не нужно ли прерваться
+
     function LoadFillingMap(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
