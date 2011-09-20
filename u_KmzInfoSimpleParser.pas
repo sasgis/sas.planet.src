@@ -59,24 +59,26 @@ begin
       try
         VMemStream.LoadFromStream(AStream);
         UnZip.Open(VMemStream);
-        VStreamKml := TMemoryStream.Create;
-        try
-          VIndex := UnZip.Entries.IndexOf('doc.kml');
-          if VIndex < 0 then begin
-            for i := 0 to UnZip.Entries.Count - 1 do begin
-              if ExtractFileExt(UnZip.Entries.Items[i].FileName) =  '.kml' then begin
-                VIndex := i;
-                Break;
+        if UnZip.Entries.Count > 0 then begin
+          VStreamKml := TMemoryStream.Create;
+          try
+            VIndex := UnZip.Entries.IndexOf('doc.kml');
+            if VIndex < 0 then begin
+              for i := 0 to UnZip.Entries.Count - 1 do begin
+                if ExtractFileExt(UnZip.Entries.Items[i].FileName) =  '.kml' then begin
+                  VIndex := i;
+                  Break;
+                end;
               end;
             end;
+            if VIndex < 0 then begin
+              VIndex := 0;
+            end;
+            UnZip.Entries.Items[VIndex].ExtractToStream(VStreamKml);
+            inherited LoadFromStream(VStreamKml, AItems);
+          finally
+            VStreamKml.Free;
           end;
-          if VIndex < 0 then begin
-            VIndex := 0;
-          end;
-          UnZip.Entries.Items[VIndex].ExtractToStream(VStreamKml);
-          inherited LoadFromStream(VStreamKml, AItems);
-        finally
-          VStreamKml.Free;
         end;
       finally
         FreeAndNil(VMemStream);
