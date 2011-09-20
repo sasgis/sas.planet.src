@@ -6,6 +6,7 @@ uses
   Windows,
   Types,
   Classes,
+  SysUtils,
   GR32,
   t_CommonTypes,
   i_OperationNotifier,
@@ -25,8 +26,10 @@ uses
 type
   TTileStorageFileSystem = class(TTileStorageAbstract)
   private
+    FLock: IReadWriteSync;
     FCacheConfig: TMapTypeCacheConfigAbstract;
     FMainContentType: IContentTypeInfoBasic;
+    FFormatSettings: TFormatSettings;
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByPath(
       APath: string;
@@ -105,7 +108,6 @@ type
 implementation
 
 uses
-  SysUtils,
   t_GeoTypes,
   i_TileIterator,
   u_TileIteratorByRect,
@@ -121,6 +123,15 @@ constructor TTileStorageFileSystem.Create(
 );
 begin
   inherited Create(AConfig);
+  FFormatSettings.DecimalSeparator := '.';
+  FFormatSettings.DateSeparator := '-';
+  FFormatSettings.ShortDateFormat := 'yyyy-MM-dd';
+  FFormatSettings.TimeSeparator := '-';
+  FFormatSettings.LongTimeFormat := 'HH-mm-ss';
+  FFormatSettings.ShortTimeFormat := 'HH-mm-ss';
+  FFormatSettings.ListSeparator := ';';
+  FFormatSettings.TwoDigitYearCenturyWindow := 50;
+  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
   FCacheConfig := TMapTypeCacheConfig.Create(AConfig, AGlobalCacheConfig, ATileNameGeneratorList);
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
 end;
@@ -148,10 +159,15 @@ begin
   if Config.AllowDelete then begin
     try
       VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-      if FileExists(VPath) then begin
-        result := DeleteFile(VPath);
+      FLock.BeginWrite;
+      try
+        if FileExists(VPath) then begin
+          result := DeleteFile(VPath);
+        end;
+        DeleteTNE(AXY, Azoom, AVersionInfo);
+      finally
+        FLock.EndWrite;
       end;
-      DeleteTNE(AXY, Azoom, AVersionInfo);
     except
       Result := false;
     end;
@@ -173,8 +189,13 @@ begin
     try
       VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
       VPath := ChangeFileExt(VPath, '.tne');
-      if FileExists(VPath) then begin
-        result := DeleteFile(VPath);
+      FLock.BeginWrite;
+      try
+        if FileExists(VPath) then begin
+          result := DeleteFile(VPath);
+        end;
+      finally
+        FLock.EndWrite;
       end;
     except
       Result := false;
@@ -222,24 +243,29 @@ var
   InfoFile: TSearchRec;
   VSearchResult: Integer;
 begin
-  VSearchResult := FindFirst(APath, faAnyFile, InfoFile);
-  if VSearchResult <> 0 then begin
-    APath := ChangeFileExt(APath, '.tne');
+  FLock.BeginRead;
+  try
     VSearchResult := FindFirst(APath, faAnyFile, InfoFile);
     if VSearchResult <> 0 then begin
-      Result := TTileInfoBasicNotExists.Create(0, nil);
+      APath := ChangeFileExt(APath, '.tne');
+      VSearchResult := FindFirst(APath, faAnyFile, InfoFile);
+      if VSearchResult <> 0 then begin
+        Result := TTileInfoBasicNotExists.Create(0, nil);
+      end else begin
+        Result := TTileInfoBasicTNE.Create(FileDateToDateTime(InfoFile.Time), nil);
+        FindClose(InfoFile);
+      end;
     end else begin
-      Result := TTileInfoBasicTNE.Create(FileDateToDateTime(InfoFile.Time), nil);
+      Result := TTileInfoBasicExists.Create(
+        FileDateToDateTime(InfoFile.Time),
+        InfoFile.Size,
+        nil,
+        FMainContentType
+      );
       FindClose(InfoFile);
     end;
-  end else begin
-    Result := TTileInfoBasicExists.Create(
-      FileDateToDateTime(InfoFile.Time),
-      InfoFile.Size,
-      nil,
-      FMainContentType
-    );
-    FindClose(InfoFile);
+  finally
+    FLock.EndRead;
   end;
 end;
 
@@ -392,19 +418,24 @@ begin
   VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
   ATileInfo := GetTileInfoByPath(VPath, AVersionInfo);
   if ATileInfo.GetIsExists then begin
-    if AStream is TMemoryStream then begin
-      VMemStream := TMemoryStream(AStream);
-      VMemStream.LoadFromFile(VPath);
-      Result := True;
-    end else begin
-      VMemStream := TMemoryStream.Create;
-      try
+    FLock.BeginRead;
+    try
+      if AStream is TMemoryStream then begin
+        VMemStream := TMemoryStream(AStream);
         VMemStream.LoadFromFile(VPath);
-        VMemStream.SaveToStream(AStream);
         Result := True;
-      finally
-        VMemStream.Free;
+      end else begin
+        VMemStream := TMemoryStream.Create;
+        try
+          VMemStream.LoadFromFile(VPath);
+          VMemStream.SaveToStream(AStream);
+          Result := True;
+        finally
+          VMemStream.Free;
+        end;
       end;
+    finally
+      FLock.EndRead;
     end;
   end else begin
     Result := False;
@@ -420,21 +451,41 @@ procedure TTileStorageFileSystem.SaveTile(
 var
   VPath: String;
   VMemStream: TMemoryStream;
+  VFileStream: TFileStream;
 begin
   if Config.AllowAdd then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     CreateDirIfNotExists(VPath);
-    if AStream is TMemoryStream then begin
-      VMemStream := TMemoryStream(AStream);
-      VMemStream.SaveToFile(VPath);
-    end else begin
-      VMemStream := TMemoryStream.Create;
-      try
-        VMemStream.LoadFromStream(AStream);
-        VMemStream.SaveToFile(VPath);
-      finally
-        VMemStream.Free;
+    FLock.BeginWrite;
+    try
+      if AStream is TMemoryStream then begin
+        VFileStream := TFileStream.Create(VPath, fmCreate);
+        try
+          VMemStream := TMemoryStream(AStream);
+          VFileStream.Size := VMemStream.Size;
+          VFileStream.Position := 0;
+          VMemStream.SaveToStream(VFileStream);
+        finally
+          VFileStream.Free;
+        end;
+      end else begin
+        VMemStream := TMemoryStream.Create;
+        try
+          VFileStream := TFileStream.Create(VPath, fmCreate);
+          try
+            VMemStream.LoadFromStream(AStream);
+            VFileStream.Size := VMemStream.Size;
+            VFileStream.Position := 0;
+            VMemStream.SaveToStream(VFileStream);
+          finally
+            VFileStream.Free;
+          end;
+        finally
+          VMemStream.Free;
+        end;
       end;
+    finally
+      FLock.EndWrite;
     end;
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
@@ -448,17 +499,28 @@ procedure TTileStorageFileSystem.SaveTNE(
 );
 var
   VPath: String;
-  F:textfile;
+  VNow: TDateTime;
+  VDateString: string;
+  VFileStream: TFileStream;
 begin
   if Config.AllowAdd then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     VPath := ChangeFileExt(VPath, '.tne');
-    if not FileExists(VPath) then begin
-      CreateDirIfNotExists(VPath);
-      AssignFile(f,VPath);
-      Rewrite(F);
-      Writeln(f, DateTimeToStr(now));
-      CloseFile(f);
+    FLock.BeginWrite;
+    try
+      if not FileExists(VPath) then begin
+        CreateDirIfNotExists(VPath);
+        VNow := Now;
+        DateTimeToString(VDateString, 'yyyy-mm-dd-hh-nn-ss', VNow, FFormatSettings);
+        VFileStream := TFileStream.Create(VPath, fmCreate);
+        try
+          VFileStream.Write(VDateString[1], Length(VDateString) * SizeOf(VDateString[1]));
+        finally
+          VFileStream.Free;
+        end;
+      end;
+    finally
+      FLock.EndWrite;
     end;
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
