@@ -86,7 +86,7 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FList.Capacity := AConfigData.ReadInteger('Capacity', FList.Capacity);
-    for i := 0 to FList.Capacity - 1 do begin
+    for i := FList.Capacity - 1 downto 0 do begin
       AddItem(AConfigData.ReadString('Item' + IntToStr(i),''));
     end;
     SetChanged;
