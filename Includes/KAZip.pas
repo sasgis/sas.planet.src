@@ -324,7 +324,7 @@ type
     FZipStream  : TStream;
     //**************************************************************************
     Procedure   LoadFromFile(FileName:String);
-    Procedure   LoadFromStream(MS : TStream);
+    Procedure   LoadFromStream(MS : TStream; AExternalStream: Boolean);
     //**************************************************************************
     Procedure   RebuildLocalFiles(MS : TStream);
     Procedure   RebuildCentralDirectory(MS : TStream);
@@ -2719,7 +2719,7 @@ begin
               FZipStream := TFileStream.Create(FileName,fmOpenReadWrite or fmShareDenyNone);
               FReadOnly  := False;
             End;
-         LoadFromStream(FZipStream);
+         LoadFromStream(FZipStream, False);
       End
    Else
       Begin
@@ -2727,9 +2727,10 @@ begin
       End;
 end;
 
-procedure TKAZip.LoadFromStream(MS : TStream);
+procedure TKAZip.LoadFromStream(MS : TStream; AExternalStream: Boolean);
 begin
   FZipStream := MS;
+  FExternalStream := AExternalStream;
   FZipHeader.ParseZip(MS);
   FIsZipFile := FZipHeader.FIsZipFile;
   if Not FIsZipFile Then Close;
@@ -2763,12 +2764,8 @@ end;
 
 procedure TKAZip.Open(MS: TStream);
 begin
- Try
-   Close;
-   LoadFromStream(MS);
- Finally
-   FExternalStream   := True;
- End;
+  Close;
+  LoadFromStream(MS, True);
 end;
 
 procedure TKAZip.SetIsZipFile(const Value: Boolean);
