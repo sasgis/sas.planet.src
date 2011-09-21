@@ -185,6 +185,7 @@
     <DCCReference Include="i_GPSPositionFactory.pas" />
     <DCCReference Include="i_GPSRecorder.pas" />
     <DCCReference Include="i_GSMGeoCodeConfig.pas" />
+    <DCCReference Include="i_GUIDListStatic.pas" />
     <DCCReference Include="i_HtmlToHintTextConverter.pas" />
     <DCCReference Include="i_ImageResamplerConfig.pas" />
     <DCCReference Include="i_ImageResamplerFactory.pas" />
@@ -531,6 +532,7 @@
     <DCCReference Include="u_GPSSatellitesInView.pas" />
     <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
+    <DCCReference Include="u_GUIDListStatic.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
     <DCCReference Include="u_IeEmbeddedProtocol.pas" />
     <DCCReference Include="u_IeEmbeddedProtocolFactory.pas" />
