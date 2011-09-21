@@ -1,4 +1,4 @@
-unit u_MapTypeList;
+unit u_MapTypeSet;
 
 interface
 

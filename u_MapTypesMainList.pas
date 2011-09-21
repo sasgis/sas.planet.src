@@ -87,7 +87,7 @@ uses
   u_ConfigDataProviderZmpComplex,
   u_MapTypeBasic,
   u_MapTypeIconsList,
-  u_MapTypeList,
+  u_MapTypeSet,
   u_ResStrings;
 
 { TMapTypesMainList }

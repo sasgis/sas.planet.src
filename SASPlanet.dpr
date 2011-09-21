@@ -400,7 +400,7 @@ uses
   u_AntiBanStuped in 'u_AntiBanStuped.pas',
   i_MapTypes in 'i_MapTypes.pas',
   u_MapTypeBasic in 'u_MapTypeBasic.pas',
-  u_MapTypeList in 'u_MapTypeList.pas',
+  u_MapTypeSet in 'u_MapTypeSet.pas',
   u_ActiveMapTBXItem in 'u_ActiveMapTBXItem.pas',
   u_MapTypeMenuItemsGeneratorBasic in 'u_MapTypeMenuItemsGeneratorBasic.pas',
   i_PosChangeMessage in 'i_PosChangeMessage.pas',

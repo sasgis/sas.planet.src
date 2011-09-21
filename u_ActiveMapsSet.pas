@@ -49,7 +49,7 @@ implementation
 
 uses
   ActiveX,
-  u_MapTypeList,
+  u_MapTypeSet,
   u_NotifyWithGUIDEvent;
 
 { TActiveMapsSet }

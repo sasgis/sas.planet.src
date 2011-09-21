@@ -31,7 +31,7 @@ implementation
 uses
   ActiveX,
   u_NotifyWithGUIDEvent,
-  u_MapTypeList,
+  u_MapTypeSet,
   u_ActiveMapsSet;
 
 { TMainMapsConfig }

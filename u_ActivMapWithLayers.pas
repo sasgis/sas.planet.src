@@ -48,7 +48,7 @@ uses
   ActiveX,
   c_ZeroGUID,
   u_GUIDInterfaceList,
-  u_MapTypeList,
+  u_MapTypeSet,
   u_ActiveMapSingleAbstract,
   u_ActiveMapsSet;
 

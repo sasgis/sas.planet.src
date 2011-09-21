@@ -35,7 +35,7 @@ uses
   u_NotifyEventListener,
   u_NotifyWithGUIDEvent,
   u_MapTypeBasic,
-  u_MapTypeList;
+  u_MapTypeSet;
 
 { TFillingMapMapsConfig }
 

@@ -602,8 +602,8 @@
     <DCCReference Include="u_MapTypeGUIConfig.pas" />
     <DCCReference Include="u_MapTypeGUIConfigStatic.pas" />
     <DCCReference Include="u_MapTypeIconsList.pas" />
-    <DCCReference Include="u_MapTypeList.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
+    <DCCReference Include="u_MapTypeSet.pas" />
     <DCCReference Include="u_MapTypesMainList.pas" />
     <DCCReference Include="u_MapVersionConfig.pas" />
     <DCCReference Include="u_MapVersionInfo.pas" />
