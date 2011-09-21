@@ -3,7 +3,7 @@ unit u_ActivMapWithLayers;
 interface
 
 uses
-  i_GUIDList,
+  i_GUIDSet,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapTypes,
@@ -18,13 +18,13 @@ type
     FLayerSetUnselectNotyfier: INotifierWithGUID;
 
     FAllMapsSet: IMapTypeSet;
-    FAllMapsSingleList: IGUIDInterfaceList;
+    FAllMapsSingleList: IGUIDInterfaceSet;
     FActiveLayersSet: IActiveMapsSet;
     FAllActiveMapsSet: IActiveMapsSet;
   protected
     property LayerSetSelectNotyfier: INotifierWithGUID read FLayerSetSelectNotyfier;
     property LayerSetUnselectNotyfier: INotifierWithGUID read FLayerSetUnselectNotyfier;
-    property AllMapsSingleList: IGUIDInterfaceList read FAllMapsSingleList;
+    property AllMapsSingleList: IGUIDInterfaceSet read FAllMapsSingleList;
   protected
     procedure SelectLayerByGUID(const AMapGUID: TGUID);
     procedure UnSelectLayerByGUID(const AMapGUID: TGUID);
@@ -47,8 +47,8 @@ uses
   SysUtils,
   ActiveX,
   c_ZeroGUID,
-  u_GUIDInterfaceList,
-  u_MapTypeList,
+  u_GUIDInterfaceSet,
+  u_MapTypeSet,
   u_ActiveMapSingleAbstract,
   u_ActiveMapsSet;
 
@@ -70,7 +70,7 @@ begin
   FLayerSetSelectNotyfier := TNotifierWithGUID.Create;
   FLayerSetUnselectNotyfier := TNotifierWithGUID.Create;
 
-  FAllMapsSingleList := TGUIDInterfaceList.Create(False);
+  FAllMapsSingleList := TGUIDInterfaceSet.Create(False);
   VAllMapsList := TMapTypeSet.Create(True);
 
   VEnun := AMapsSet.GetIterator;

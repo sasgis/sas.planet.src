@@ -1,17 +1,17 @@
-unit u_PathDetalizeProviderListBase;  
+unit u_PathDetalizeProviderListBase;
 
 interface
 
 uses
   ActiveX,
   u_ConfigDataElementBase,
-  i_GUIDList,
+  i_GUIDSet,
   i_PathDetalizeProviderList;
 
 type
   TPathDetalizeProviderListBase = class(TConfigDataElementBaseEmptySaveLoad, IPathDetalizeProviderList)
   private
-    FList: IGUIDInterfaceList;
+    FList: IGUIDInterfaceSet;
   protected { IPathDetalizeProviderList }
     function GetGUIDEnum: IEnumGUID;
     function Get(AGUID: TGUID): IPathDetalizeProviderListEntity;
@@ -24,14 +24,14 @@ type
 implementation
 
 uses
-  u_GUIDInterfaceList;
+  u_GUIDInterfaceSet;
 
 { TPathDetalizeProviderListBase }
 
 constructor TPathDetalizeProviderListBase.Create;
 begin
   inherited;
-  FList := TGUIDInterfaceList.Create(False);
+  FList := TGUIDInterfaceSet.Create(False);
 end;
 
 procedure TPathDetalizeProviderListBase.Add(

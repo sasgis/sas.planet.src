@@ -6,7 +6,7 @@ uses
   Windows,
   SysUtils,
   i_JclNotify,
-  i_GUIDList,
+  i_GUIDSet,
   i_MapTypes,
   i_ActiveMapsConfig,
   u_ConfigDataElementBase;
@@ -16,7 +16,7 @@ type
   private
     FSelectedGUID: TGUID;
     FMapsSet: IMapTypeSet;
-    FSingeMapsList: IGUIDInterfaceList;
+    FSingeMapsList: IGUIDInterfaceSet;
   protected
     FMainMapChangeNotyfier: IJclNotifier;
     FMainMapListener: IJclListener;
@@ -26,7 +26,7 @@ type
     function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
     function GetMapsSet: IMapTypeSet;
   public
-    constructor Create(AMainMapChangeNotyfier: IJclNotifier; ASingeMapsList: IGUIDInterfaceList; AMapsSet: IMapTypeSet);
+    constructor Create(AMainMapChangeNotyfier: IJclNotifier; ASingeMapsList: IGUIDInterfaceSet; AMapsSet: IMapTypeSet);
     destructor Destroy; override;
   end;
 
@@ -39,7 +39,7 @@ uses
 { TActiveMapConfigNew }
 
 constructor TActiveMapConfig.Create(AMainMapChangeNotyfier: IJclNotifier;
-  ASingeMapsList: IGUIDInterfaceList; AMapsSet: IMapTypeSet);
+  ASingeMapsList: IGUIDInterfaceSet; AMapsSet: IMapTypeSet);
 var
   i: Cardinal;
 begin

@@ -8,12 +8,14 @@ uses
   TBX,
   i_MapTypes,
   i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   i_MapTypeIconsList,
   u_MapType;
 
 type
   TMapMenuGeneratorBasic = class
   private
+    FGUIConfigList: IMapTypeGUIConfigList;
     FIconsList: IMapTypeIconsList;
     FRootMenu: TTBCustomItem;
     FMapsSet: IActiveMapsSet;
@@ -26,6 +28,7 @@ type
     function CreateMenuItem(AMapActive: IActiveMapSingle): TTBXCustomItem; virtual;
   public
     constructor Create(
+      AGUIConfigList: IMapTypeGUIConfigList;
       AMapsSet: IActiveMapsSet;
       ARootMenu: TTBCustomItem;
       AOnClick: TNotifyEvent;
@@ -39,6 +42,7 @@ implementation
 uses
   SysUtils,
   c_ZeroGUID,
+  i_GUIDListStatic,
   u_TBXSubmenuItemWithIndicator,
   u_ActiveMapTBXItem,
   u_ResStrings,
@@ -47,12 +51,14 @@ uses
 { TMapMenuGeneratorBasic }
 
 constructor TMapMenuGeneratorBasic.Create(
+  AGUIConfigList: IMapTypeGUIConfigList;
   AMapsSet: IActiveMapsSet;
   ARootMenu: TTBCustomItem;
   AOnClick: TNotifyEvent;
   AIconsList: IMapTypeIconsList
 );
 begin
+  FGUIConfigList := AGUIConfigList;
   FMapsSet := AMapsSet;
   FRootMenu := ARootMenu;
   FIconsList := AIconsList;
@@ -136,25 +142,30 @@ var
   VMenuItem: TTBXCustomItem;
   VSubMenuName: string;
   VMapType: TMapType;
+  VEnabled: Boolean;
 begin
   VActiveMap := FMapsSet.GetMapSingle(AGUID);
   if VActiveMap <> nil then begin
     VSubMenuName := '';
+    VEnabled := True;
     if VActiveMap.GetMapType <> nil then begin
       if VActiveMap.GetMapType.MapType <> nil then begin
+        VEnabled := VActiveMap.GetMapType.MapType.GUIConfig.Enabled;
         VSubMenuName := VActiveMap.GetMapType.MapType.GUIConfig.ParentSubMenu.Value;
       end;
     end;
-    VSubMenu := GetParentMenuItem(VSubMenuName);
-    Assert(VSubMenu <> nil);
-    VMenuItem := CreateMenuItem(VActiveMap);
-    VSubMenu.Add(VMenuItem);
-    VMapType := nil;
-    if VActiveMap.GetMapType <> nil then begin
-      VMapType:=VActiveMap.GetMapType.MapType;
-    end;
-    if (VMapType<>nil)and(VActiveMap.GetMapType.MapType.GUIConfig.Separator) then begin
-      VSubMenu.Add(TTBSeparatorItem.Create(FRootMenu));
+    if VEnabled then begin
+      VSubMenu := GetParentMenuItem(VSubMenuName);
+      Assert(VSubMenu <> nil);
+      VMenuItem := CreateMenuItem(VActiveMap);
+      VSubMenu.Add(VMenuItem);
+      VMapType := nil;
+      if VActiveMap.GetMapType <> nil then begin
+        VMapType:=VActiveMap.GetMapType.MapType;
+      end;
+      if (VMapType<>nil)and(VActiveMap.GetMapType.MapType.GUIConfig.Separator) then begin
+        VSubMenu.Add(TTBSeparatorItem.Create(FRootMenu));
+      end;
     end;
   end;
 end;
@@ -162,12 +173,12 @@ end;
 procedure TMapMenuGeneratorBasic.ProcessSubItemsCreate;
 var
   i: Integer;
+  VStaticList: IGUIDListStatic;
 begin
   ProcessSubItemGUID(CGUID_Zero);
-  for i := 0 to GState.MapType.Count - 1 do begin
-    if GState.MapType[i].GUIConfig.Enabled then begin
-      ProcessSubItemGUID(GState.MapType[i].Zmp.GUID);
-    end;
+  VStaticList := FGUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VStaticList.Count - 1 do begin
+    ProcessSubItemGUID(VStaticList.Items[i]);
   end;
 end;
 

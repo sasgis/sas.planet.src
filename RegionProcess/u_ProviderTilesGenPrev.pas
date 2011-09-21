@@ -51,7 +51,12 @@ end;
 procedure TProviderTilesGenPrev.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrTilesGenPrev.Create(nil);
+    FFrame := TfrTilesGenPrev.Create(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;

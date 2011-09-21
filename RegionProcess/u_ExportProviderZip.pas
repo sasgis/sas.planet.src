@@ -49,7 +49,14 @@ end;
 procedure TExportProviderZip.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportToFileCont.CreateForFileType(nil, 'Zip |*.zip', 'zip');
+    FFrame := TfrExportToFileCont.CreateForFileType(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList,
+      'Zip |*.zip',
+      'zip'
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;

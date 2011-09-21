@@ -8,13 +8,13 @@ uses
   ActiveX,
   Graphics,
   ImgList,
-  i_GUIDList,
+  i_GUIDSet,
   i_MapTypeIconsList;
 
 type
   TMapTypeIconsList = class(TInterfacedObject, IMapTypeIconsList)
   private
-    FList: IGUIDObjectList;
+    FList: IGUIDObjectSet;
     FImageList: TCustomImageList;
     function GetImageList: TCustomImageList;
     function GetIconIndexByGUID(AGUID: TGUID): Integer;
@@ -29,7 +29,7 @@ implementation
 
 uses
   SysUtils,
-  u_GUIDObjectList;
+  u_GUIDObjectSet;
 
 { TMapTypeIconsList }
 
@@ -51,7 +51,7 @@ begin
   FImageList := TCustomImageList.Create(nil);
   FImageList.Height := AHeight;
   FImageList.Width := AWidth;
-  FList := TGUIDObjectList.Create(True);
+  FList := TGUIDObjectSet.Create(True);
 end;
 
 destructor TMapTypeIconsList.Destroy;

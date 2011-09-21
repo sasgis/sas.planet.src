@@ -4,7 +4,7 @@ interface
 
 uses
   i_JclNotify,
-  i_GUIDList,
+  i_GUIDSet,
   i_MapTypes,
   i_ActiveMapsConfig,
   u_ConfigDataElementBase;
@@ -14,7 +14,7 @@ type
   private
     FMapsSet: IMapTypeSet;
 
-    FSingeMapsSet: IGUIDInterfaceList;
+    FSingeMapsSet: IGUIDInterfaceSet;
     FSelectedMapsList: IMapTypeSet;
 
     FMainMapChangeNotyfier: IJclNotifier;
@@ -37,7 +37,7 @@ type
   public
     constructor Create(
       AMapsSet: IMapTypeSet;
-      ASingeMapsList: IGUIDInterfaceList;
+      ASingeMapsList: IGUIDInterfaceSet;
       AMainMapChangeNotyfier: IJclNotifier;
       ALayerSetSelectNotyfier: IJclNotifier;
       ALayerSetUnselectNotyfier: IJclNotifier
@@ -49,13 +49,13 @@ implementation
 
 uses
   ActiveX,
-  u_MapTypeList,
+  u_MapTypeSet,
   u_NotifyWithGUIDEvent;
 
 { TActiveMapsSet }
 
 constructor TActiveMapsSet.Create(AMapsSet: IMapTypeSet;
-  ASingeMapsList: IGUIDInterfaceList; AMainMapChangeNotyfier,
+  ASingeMapsList: IGUIDInterfaceSet; AMainMapChangeNotyfier,
   ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier);
 begin
   inherited Create;

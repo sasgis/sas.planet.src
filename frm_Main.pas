@@ -41,7 +41,7 @@ uses
   TBXSASTheme,
   u_CommonFormAndFrameParents,
   i_JclNotify,
-  i_GUIDList,
+  i_GUIDSet,
   t_GeoTypes,
   i_JclListenerNotifierLinksList,
   i_ConfigDataProvider,
@@ -528,12 +528,12 @@ type
     ProgramStart: Boolean;
     ProgramClose: Boolean;
 
-    FNLayerParamsItemList: IGUIDObjectList; //Пункт гланого меню Параметры/Параметры слоя
-    FNDwnItemList: IGUIDObjectList; //Пункт контекстного меню Загрузить тайл слоя
-    FNDelItemList: IGUIDObjectList; //Пункт контекстного меню Удалить тайл слоя
-    FNOpenDirItemList: IGUIDObjectList; //Пункт контекстного меню Открыть папку слоя
-    FNCopyLinkItemList: IGUIDObjectList; //Пункт контекстного меню копировать ссылку на тайл слоя
-    FNLayerInfoItemList: IGUIDObjectList; //Пункт контекстного меню информация о слое
+    FNLayerParamsItemList: IGUIDObjectSet; //Пункт гланого меню Параметры/Параметры слоя
+    FNDwnItemList: IGUIDObjectSet; //Пункт контекстного меню Загрузить тайл слоя
+    FNDelItemList: IGUIDObjectSet; //Пункт контекстного меню Удалить тайл слоя
+    FNOpenDirItemList: IGUIDObjectSet; //Пункт контекстного меню Открыть папку слоя
+    FNCopyLinkItemList: IGUIDObjectSet; //Пункт контекстного меню копировать ссылку на тайл слоя
+    FNLayerInfoItemList: IGUIDObjectSet; //Пункт контекстного меню информация о слое
 
     FShortCutManager: TShortcutManager;
     FLayersList: TWindowLayerBasicList;
@@ -559,7 +559,7 @@ type
 
     FRuller:TBitmap32;
     FTumbler:TBitmap32;
-    FSensorViewList: IGUIDInterfaceList;
+    FSensorViewList: IGUIDInterfaceSet;
     FFormRegionProcess: TfrmRegionProcess;
 
     FPathProvidersTree: ITreeChangeable;
@@ -623,7 +623,7 @@ var
 implementation
 
 uses
-  u_GUIDObjectList,
+  u_GUIDObjectSet,
   u_GlobalState,
   frm_GoTo,
   frm_About,
@@ -695,9 +695,16 @@ begin
   VMouseState := TMouseState.Create;
   FMouseHandler := VMouseState;
   FMouseState := VMouseState;
-  FFormRegionProcess := TfrmRegionProcess.Create(Self, Self.OnMapUpdate);
-  FLinksList := TJclListenerNotifierLinksList.Create;
   FConfig := GState.MainFormConfig;
+  FFormRegionProcess :=
+    TfrmRegionProcess.Create(
+      Self,
+      FConfig.MainMapsConfig,
+      GState.MapType.FullMapsSet,
+      GState.MapType.GUIConfigList,
+      Self.OnMapUpdate
+    );
+  FLinksList := TJclListenerNotifierLinksList.Create;
 
   VLogger := TTileErrorLogProviedrStuped.Create;
   FTileErrorLogger := VLogger;
@@ -719,12 +726,12 @@ begin
   TBCopyLinkLayer.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
   TBLayerInfo.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
 
-  FNLayerParamsItemList := TGUIDObjectList.Create(False);
-  FNDwnItemList := TGUIDObjectList.Create(False);
-  FNDelItemList := TGUIDObjectList.Create(False);
-  FNOpenDirItemList := TGUIDObjectList.Create(False);
-  FNCopyLinkItemList := TGUIDObjectList.Create(False);
-  FNLayerInfoItemList := TGUIDObjectList.Create(False);
+  FNLayerParamsItemList := TGUIDObjectSet.Create(False);
+  FNDwnItemList := TGUIDObjectSet.Create(False);
+  FNDelItemList := TGUIDObjectSet.Create(False);
+  FNOpenDirItemList := TGUIDObjectSet.Create(False);
+  FNCopyLinkItemList := TGUIDObjectSet.Create(False);
+  FNLayerInfoItemList := TGUIDObjectSet.Create(False);
 
   FLayersList := TWindowLayerBasicList.Create(GState.PerfCounterList);
   FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
@@ -1101,6 +1108,7 @@ begin
         FConfig.LayersConfig.MiniMapLayerConfig,
         GState.ViewConfig,
         GState.BitmapPostProcessingConfig,
+        GState.MapType.GUIConfigList,
         GState.MapType.MapTypeIcons18List,
         GState.GUISyncronizedTimerNotifier
       );
@@ -1389,6 +1397,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
+    GState.MapType.GUIConfigList,
     FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetActiveMapsSet,
     TBFillingTypeMap,
     Self.TBfillMapAsMainClick,
@@ -1406,6 +1415,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
+    GState.MapType.GUIConfigList,
     FConfig.MainMapsConfig.GetActiveLayersSet,
     TBLayerSel,
     Self.OnClickLayerItem,
@@ -1508,6 +1518,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
+    GState.MapType.GUIConfigList,
     FConfig.MainMapsConfig.GetActiveMapsSet,
     TBSMB,
     Self.OnClickMapItem,

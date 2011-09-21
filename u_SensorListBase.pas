@@ -5,13 +5,13 @@ interface
 uses
   ActiveX,
   u_ConfigDataElementBase,
-  i_GUIDList,
+  i_GUIDSet,
   i_SensorList;
 
 type
   TSensorListBase = class(TConfigDataElementBaseEmptySaveLoad, ISensorList)
   private
-    FList: IGUIDInterfaceList;
+    FList: IGUIDInterfaceSet;
   protected { ISensorList }
     function GetGUIDEnum: IEnumGUID;
     function Get(AGUID: TGUID): ISensorListEntity;
@@ -24,14 +24,14 @@ type
 implementation
 
 uses
-  u_GUIDInterfaceList;
+  u_GUIDInterfaceSet;
 
 { TSensorListBase }
 
 constructor TSensorListBase.Create;
 begin
   inherited;
-  FList := TGUIDInterfaceList.Create(False);
+  FList := TGUIDInterfaceSet.Create(False);
 end;
 
 procedure TSensorListBase.Add(AItem: ISensorListEntity);

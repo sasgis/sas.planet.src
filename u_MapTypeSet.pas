@@ -1,16 +1,16 @@
-unit u_MapTypeList;
+unit u_MapTypeSet;
 
 interface
 
 uses
   ActiveX,
-  i_GUIDList,
+  i_GUIDSet,
   i_MapTypes;
 
 type
   TMapTypeSet = class(TInterfacedObject, IMapTypeSet)
   private
-    FList: IGUIDInterfaceList;
+    FList: IGUIDInterfaceSet;
     function GetMapTypeByGUID(AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
   public
@@ -22,7 +22,7 @@ type
 implementation
 
 uses
-  u_GUIDInterfaceList,
+  u_GUIDInterfaceSet,
   c_ZeroGUID;
 
 { TMapTypeList }
@@ -41,7 +41,7 @@ end;
 
 constructor TMapTypeSet.Create(AAllowNil: Boolean);
 begin
-  FList := TGUIDInterfaceList.Create(AAllowNil);
+  FList := TGUIDInterfaceSet.Create(AAllowNil);
 end;
 
 destructor TMapTypeSet.Destroy;

@@ -42,6 +42,7 @@ uses
   u_MarksSystem,
   u_MapTypesMainList,
   u_MemFileCache,
+  i_ZmpInfoSet,
   i_GPSConfig,
   i_MarkCategoryFactoryConfig,
   i_GlobalViewMainConfig,
@@ -61,6 +62,7 @@ type
   TGlobalState = class
   private
     FMainConfigProvider: IConfigDataWriteProvider;
+    FZmpInfoSet: IZmpInfoSet;
     FResourceProvider: IConfigDataProvider;
     FGlobalAppConfig: IGlobalAppConfig;
     FStartUpLogoConfig: IStartUpLogoConfig;
@@ -186,6 +188,7 @@ uses
   u_ConfigDataWriteProviderByIniFile,
   i_ListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
+  i_FileNameIterator,
   u_ContentTypeManagerSimple,
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
@@ -220,6 +223,8 @@ uses
   u_LayerBitmapClearStrategyFactory,
   u_DownloadResultTextProvider,
   u_MainFormConfig,
+  u_ZmpInfoSet,
+  u_ZmpFileNamesIteratorFactory,
   u_SensorListStuped,
   u_HtmlToHintTextConverterStuped,
   u_InternalPerformanceCounterList,
@@ -240,6 +245,8 @@ var
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
   VKmlLoader: IVectorDataLoader;
   VKmzLoader: IVectorDataLoader;
+  VFilesIteratorFactory: IFileNameIteratorFactory;
+  VFilesIterator: IFileNameIterator;
 begin
   FProgramPath := ExtractFilePath(ParamStr(0));
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
@@ -259,7 +266,6 @@ begin
 
   FCacheConfig := TGlobalCahceConfig.Create(ProgramPath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
-  FMainMapsList := TMapTypesMainList.Create;
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
   FLanguageManager := TLanguageManager.Create;
   FLanguageManager.ReadConfig(VViewCnonfig);
@@ -345,13 +351,22 @@ begin
       THtmlToHintTextConverterStuped.Create,
       FMarksCategoryFactoryConfig
     );
+  VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
+  VFilesIterator := VFilesIteratorFactory.CreateIterator(MapsPath, '');
+  FZmpInfoSet :=
+    TZmpInfoSet.Create(
+      FCoordConverterFactory,
+      FLanguageManager,
+      VFilesIterator
+    );
+  FMainMapsList := TMapTypesMainList.Create(FZmpInfoSet);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
   FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, VKmlLoader);
   VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
   VInternalDomainInfoProviderList.Add(
     'ZmpInfo',
-    TInternalDomainInfoProviderByMapTypeList.Create(FMainMapsList, FContentTypeManager)
+    TInternalDomainInfoProviderByMapTypeList.Create(FZmpInfoSet, FContentTypeManager)
   );
   FProtocol := TIeEmbeddedProtocolRegistration.Create('sas', TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));
 end;
@@ -472,8 +487,7 @@ begin
     FContentTypeManager,
     FDownloadResultTextProvider,
     FCoordConverterFactory,
-    VLocalMapsConfig,
-    MapsPath
+    VLocalMapsConfig
   );
   FMainFormConfig := TMainFormConfig.Create(
     FLocalConverterFactory,
