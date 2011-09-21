@@ -1,10 +1,10 @@
-unit u_GUIDObjectList;
+unit u_GUIDObjectSet;
 
 interface
 
 uses
-  i_GUIDList,
-  u_GUIDList;
+  i_GUIDSet,
+  u_GUIDSet;
 
 type
   TObjectWithGUID = record

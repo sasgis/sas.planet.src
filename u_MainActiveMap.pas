@@ -3,7 +3,7 @@ unit u_MainActiveMap;
 interface
 
 uses
-  i_GUIDList,
+  i_GUIDSet,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapTypes,
@@ -38,7 +38,7 @@ implementation
 uses
   SysUtils,
   ActiveX,
-  u_GUIDInterfaceList,
+  u_GUIDInterfaceSet,
   u_ActiveMapSingleAbstract,
   u_ActiveMapsSet,
   u_ActiveMapConfig;

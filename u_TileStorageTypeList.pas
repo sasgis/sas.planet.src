@@ -4,7 +4,7 @@ interface
 
 uses
   ActiveX,
-  i_GUIDList,
+  i_GUIDSet,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ConfigDataElement,
@@ -39,7 +39,7 @@ implementation
 uses
   SysUtils,
   c_ZeroGUID,
-  u_GUIDInterfaceList;
+  u_GUIDInterfaceSet;
 
 { TTileStorageTypeList }
 

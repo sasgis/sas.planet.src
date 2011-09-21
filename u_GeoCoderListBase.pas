@@ -7,7 +7,7 @@ uses
   ActiveX,
   i_JclNotify,
   i_GeoCoderList,
-  i_GUIDList;
+  i_GUIDSet;
 
 type
   TGeoCoderListBase = class(TInterfacedObject, IGeoCoderList)
@@ -31,7 +31,7 @@ implementation
 uses
   SysUtils,
   u_JclNotify,
-  u_GUIDInterfaceList;
+  u_GUIDInterfaceSet;
 
 { TGeoCoderListBase }
 

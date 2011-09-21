@@ -8,7 +8,7 @@ uses
   TB2Item,
   TB2Dock,
   i_JclNotify,
-  i_GUIDList,
+  i_GUIDSet,
   i_SensorList,
   i_SensorViewListGenerator;
 
@@ -41,7 +41,7 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  u_GUIDInterfaceList,
+  u_GUIDInterfaceSet,
   c_SensorsGUIDSimple,
   i_Sensor,
   u_SensorViewTextTBXPanel,

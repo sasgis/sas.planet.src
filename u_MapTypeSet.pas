@@ -4,7 +4,7 @@ interface
 
 uses
   ActiveX,
-  i_GUIDList,
+  i_GUIDSet,
   i_MapTypes;
 
 type
@@ -22,7 +22,7 @@ type
 implementation
 
 uses
-  u_GUIDInterfaceList,
+  u_GUIDInterfaceSet,
   c_ZeroGUID;
 
 { TMapTypeList }

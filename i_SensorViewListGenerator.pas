@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_GUIDList,
+  i_GUIDSet,
   i_SensorList;
 
 type

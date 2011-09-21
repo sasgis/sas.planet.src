@@ -41,7 +41,7 @@ uses
   TBXSASTheme,
   u_CommonFormAndFrameParents,
   i_JclNotify,
-  i_GUIDList,
+  i_GUIDSet,
   t_GeoTypes,
   i_JclListenerNotifierLinksList,
   i_ConfigDataProvider,
@@ -623,7 +623,7 @@ var
 implementation
 
 uses
-  u_GUIDObjectList,
+  u_GUIDObjectSet,
   u_GlobalState,
   frm_GoTo,
   frm_About,

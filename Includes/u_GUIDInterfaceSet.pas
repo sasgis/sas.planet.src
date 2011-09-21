@@ -19,13 +19,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 *******************************************************************************}
-unit u_GUIDInterfaceList;
+unit u_GUIDInterfaceSet;
 
 interface
 
 uses
-  i_GUIDList,
-  u_GUIDList;
+  i_GUIDSet,
+  u_GUIDSet;
 
 type
   TInterfaceWithGUID = record

@@ -3,7 +3,7 @@ unit u_ActivMapWithLayers;
 interface
 
 uses
-  i_GUIDList,
+  i_GUIDSet,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapTypes,
@@ -47,7 +47,7 @@ uses
   SysUtils,
   ActiveX,
   c_ZeroGUID,
-  u_GUIDInterfaceList,
+  u_GUIDInterfaceSet,
   u_MapTypeSet,
   u_ActiveMapSingleAbstract,
   u_ActiveMapsSet;

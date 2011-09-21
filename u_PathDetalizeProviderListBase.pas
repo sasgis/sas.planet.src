@@ -1,11 +1,11 @@
-unit u_PathDetalizeProviderListBase;  
+unit u_PathDetalizeProviderListBase;
 
 interface
 
 uses
   ActiveX,
   u_ConfigDataElementBase,
-  i_GUIDList,
+  i_GUIDSet,
   i_PathDetalizeProviderList;
 
 type
@@ -24,7 +24,7 @@ type
 implementation
 
 uses
-  u_GUIDInterfaceList;
+  u_GUIDInterfaceSet;
 
 { TPathDetalizeProviderListBase }
 

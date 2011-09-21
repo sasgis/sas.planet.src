@@ -8,7 +8,7 @@ uses
   ActiveX,
   Graphics,
   ImgList,
-  i_GUIDList,
+  i_GUIDSet,
   i_MapTypeIconsList;
 
 type
@@ -29,7 +29,7 @@ implementation
 
 uses
   SysUtils,
-  u_GUIDObjectList;
+  u_GUIDObjectSet;
 
 { TMapTypeIconsList }
 
