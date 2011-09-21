@@ -17,8 +17,8 @@ uses
 type
   TTileStream = record
     Data: TMemoryStream;
-    X: Word;
-    Y: Word;
+    X: Integer;
+    Y: Integer;
   end;
 
   TThreadExportYaMobileV4 = class(TThreadExportAbstract)
@@ -29,11 +29,11 @@ type
     FCurrentFilePath: string;
     FTiles2Block: array of TTileStream;
     cSat, cMap: Byte;
-    function GetTileIndex(X, Y: Word): Word; inline;
-    function GetHeightTreeForZoom(AZoom: Integer): Integer; inline;
+    function GetTileIndex(X, Y: Integer): Integer; inline;
+    function GetHeightTreeForZoom(AZoom: Byte): Integer; inline;
     function GetFilePath(
       APoint: TPoint;
-      AZoom: Integer;
+      AZoom: Byte;
       AMapID: Integer
     ): string;
     procedure WriteHeader(ACacheFile: TFileStream);
@@ -92,6 +92,7 @@ const
   YaCacheBlockSize       : Word = 32768; // 32k
   YaCacheBitTableOffset         = 16;
   YaCacheTotalBlocksCount       = 65536; // 64k
+  YaCacheYTLDHeaderSize         = 38;
 
 constructor TThreadExportYaMobileV4.Create(
   APath: string;
@@ -117,12 +118,12 @@ begin
   FCurrentFilePath := '';
 end;
 
-function TThreadExportYaMobileV4.GetTileIndex(X, Y: Word): Word;
+function TThreadExportYaMobileV4.GetTileIndex(X, Y: Integer): Integer;
 begin
   Result := X or (Y shl 7);
 end;
 
-function TThreadExportYaMobileV4.GetHeightTreeForZoom(AZoom: Integer): Integer;
+function TThreadExportYaMobileV4.GetHeightTreeForZoom(AZoom: Byte): Integer;
 var
   VHeightZoom: Integer;
   VTilesInZoom, I: Int64;
@@ -139,7 +140,7 @@ end;
 
 function TThreadExportYaMobileV4.GetFilePath(
   APoint: TPoint;
-  AZoom: Integer;
+  AZoom: Byte;
   AMapID: Integer
 ): string;
 const
@@ -205,11 +206,10 @@ begin
   ACacheFile.Write(#01#00, 2);       // Версия формата = 1
   ACacheFile.Write(#00#00#00#00, 4); // Платформа, на которой создали: SYMB, ANDR, IOSX
   ACacheFile.Write(#32#00, 2);       // Размер блока регулярных данных, в килобайтах = 32
-  ACacheFile.Write(#01#00, 2);       // Размер фрагмента блока остаточных данных, в килобайтах = 1
+  ACacheFile.Write(#00#00, 2);       // Размер фрагмента блока остаточных данных, в килобайтах = 1 ?? а в реале всегда = 0 ??
   ACacheFile.Position := 9*1024;     // Первый остаточный блок = 23k
   ACacheFile.Write('YBLK', 4);       // YBLK -> Yandex Block
   ACacheFile.Write(#01#00, 2);       // Версия формата блока = 1
-  ACacheFile.Write(#00#00, 1);       // Флаги
   ACacheFile.Position := ACacheFile.Size;
 end;
 
@@ -228,11 +228,11 @@ begin
   ACacheFile.Position := APosition;
   ACacheFile.Write('YBLK', 4);        // YBLK -> Yandex Block
   ACacheFile.Write(#01#00, 2);        // Версия формата блока = 1
-  ACacheFile.Write(#03#00, 1);        // Флаги
+  ACacheFile.Write(#03#00, 1);        // Флаги (11000000 -> регулярный блок + начало группы)
   ACacheFile.Write(#00#00, 1);        // Размер таблицы размещения следующих блоков
   ACacheFile.Write(VRecordsCount, 2); // Количество ячеек данных
   for I := 0 to VRecordsCount - 1 do begin
-    VRecordSize := 38 + ATilesArray[I].Data.Size;
+    VRecordSize := YaCacheYTLDHeaderSize + ATilesArray[I].Data.Size;
     VTileIndex := GetTileIndex(ATilesArray[I].X, ATilesArray[I].Y);
     ACacheFile.Write(VRecordSize, 4); // Размер элемента
     ACacheFile.Write(VTileIndex, 2);  // Индекс тайла
@@ -283,12 +283,10 @@ procedure TThreadExportYaMobileV4.WriteBlock(
       if (VBlockNumber mod 8) = 0 then begin
         ACacheFile.Read(VBuf, 1);
       end;
-      if (VBuf and 1 = 0) then begin
+      if ( (VBuf shr (7-(VBlockNumber mod 8))) and 1 = 0) then begin
         ABlock := VBlockNumber; // Нумерация блоков с 0
         Result := True;
         Break;
-      end else begin
-        VBuf := VBuf shr 1;
       end;
     end;
   end;
@@ -299,10 +297,10 @@ procedure TThreadExportYaMobileV4.WriteBlock(
     VBuf: Byte;
     VBitTablePos: Integer;
   begin
-    VBitTablePos := YaCacheBitTableOffset + ( ABlockNumber div 8);
+    VBitTablePos := YaCacheBitTableOffset + (ABlockNumber div 8);
     ACacheFile.Position := VBitTablePos;
     ACacheFile.Read(VBuf, 1);
-    VBuf := VBuf or ( Byte(1) shl ( 7 - (ABlockNumber mod 8) ) ); // set bit
+    VBuf := VBuf or (Byte(1) shl (7 - (ABlockNumber mod 8))); // set bit
     ACacheFile.Position := VBitTablePos;
     ACacheFile.Write(VBuf, 1);
   end;
@@ -310,10 +308,12 @@ procedure TThreadExportYaMobileV4.WriteBlock(
   procedure UpdateOffsetTableState(ABlockNumber: Word);
   var
     I: Integer;
+    VBlock: Word;
   begin
+    VBlock := ABlockNumber + 1; // В таблице смещений нумерация блоков с 1
     for I := 0 to Length(ATilesArray) - 1 do begin
-      ACacheFile.Position := YaCacheHeaderSize + 2 * GetTileIndex(ATilesArray[i].X, ATilesArray[i].Y);
-      ACacheFile.Write(ABlockNumber, 2);
+      ACacheFile.Position := YaCacheHeaderSize + (2*GetTileIndex(ATilesArray[i].X, ATilesArray[i].Y));
+      ACacheFile.Write(VBlock, 2);
     end;
   end;
 
@@ -339,6 +339,19 @@ procedure TThreadExportYaMobileV4.AddTileToCache(
   AMapID: Integer;
   AFinalize: Boolean
 );
+
+  function BlockDataSizeOverflow(
+    AMemCachedTilesSize: Integer;
+    AMemCachedTilesCount: Word;
+    ANewTileAddSize: Integer
+  ): Boolean; inline;
+  begin
+    Result := ( AMemCachedTilesSize + ANewTileAddSize +          // Собственно данные
+                10 + 6*(AMemCachedTilesCount + 1) +              // Хедер в YBLK
+                YaCacheYTLDHeaderSize*(AMemCachedTilesCount + 1) // Хедер в YTLD
+              ) >= YaCacheBlockSize                              // def = 32k
+  end;
+
 var
   VNewFilePath: string;
   VTilesSize: Int64;
@@ -361,7 +374,9 @@ begin
 
     VTilesSize:=0;
     for I := 0 to Length(FTiles2Block) - 1 do begin
-      VTilesSize := VTilesSize + FTiles2Block[I].Data.Size;
+      if Assigned(FTiles2Block[I].Data) then begin
+        VTilesSize := VTilesSize + FTiles2Block[I].Data.Size;
+      end;
     end;
 
     if FileExists(FCurrentFilePath) then begin
@@ -385,22 +400,21 @@ begin
       if VCacheFile.Size = 0 then begin
         WriteHeader(VCacheFile);
       end;
-      if ( AFinalize or
-          ((VTilesSize + ATileData.Size + 10 + 6*Length(FTiles2Block) ) > 32768 ) or
-          (FCurrentFilePath <> VNewFilePath)
-         ) and (Length(FTiles2Block) > 0) then
+      if ( AFinalize or (FCurrentFilePath <> VNewFilePath) or
+           BlockDataSizeOverflow(VTilesSize, Length(FTiles2Block), ATileData.Size) )
+           and (Length(FTiles2Block) > 0) then
       try
         WriteBlock(VCacheFile, FTiles2Block);
       finally
         try
           for I := 0 to Length(FTiles2Block) - 1 do begin
-            FTiles2Block[I].Data.Free;
+            FreeAndNil(FTiles2Block[I].Data);
           end;
         finally
           SetLength(FTiles2Block, 0);
         end;
       end;
-      if ( not AFinalize and Assigned(ATileData) ) then begin
+      if not AFinalize and Assigned(ATileData) then begin
         ATileData.Position := 0;
         SetLength(FTiles2Block, Length(FTiles2Block) + 1);
         FTiles2Block[Length(FTiles2Block) - 1].Data := TMemoryStream.Create;
