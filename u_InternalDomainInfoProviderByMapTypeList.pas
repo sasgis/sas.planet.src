@@ -6,6 +6,7 @@ uses
   Classes,
   i_ConfigDataProvider,
   i_ZmpInfo,
+  i_ZmpInfoSet,
   i_ContentTypeManager,
   u_MapTypesMainList,
   i_InternalDomainInfoProvider;
@@ -13,7 +14,7 @@ uses
 type
   TInternalDomainInfoProviderByMapTypeList = class(TInterfacedObject, IInternalDomainInfoProvider)
   private
-    FMapTypeLsit: TMapTypesMainList;
+    FZmpInfoSet: IZmpInfoSet;
     FContentTypeManager: IContentTypeManager;
     function ParseFilePath(AFilePath: string; out AZmpGUID: TGUID; out AFileName: string): Boolean;
     function LoadStreamFromZmp(AZmp: IZmpInfo; AFileName: string; AStream: TStream; out AContentType: string): Boolean;
@@ -23,7 +24,7 @@ type
     function LoadStreamByFilePath(AFilePath: string; AStream: TStream; out AContentType: string): Boolean;
   public
     constructor Create(
-      AMapTypeLsit: TMapTypesMainList;
+      AZmpInfoSet: IZmpInfoSet;
       AContentTypeManager: IContentTypeManager
     );
   end;
@@ -43,9 +44,11 @@ const
 { TInternalDomainInfoProviderByMapTypeList }
 
 constructor TInternalDomainInfoProviderByMapTypeList.Create(
-  AMapTypeLsit: TMapTypesMainList; AContentTypeManager: IContentTypeManager);
+  AZmpInfoSet: IZmpInfoSet;
+  AContentTypeManager: IContentTypeManager
+);
 begin
-  FMapTypeLsit := AMapTypeLsit;
+  FZmpInfoSet := AZmpInfoSet;
   FContentTypeManager := AContentTypeManager;
 end;
 
@@ -53,15 +56,15 @@ function TInternalDomainInfoProviderByMapTypeList.LoadStreamByFilePath(
   AFilePath: string; AStream: TStream; out AContentType: string): Boolean;
 var
   VGuid: TGUID;
-  VMapType: TMapType;
+  VZmp: IZmpInfo;
   VFileName: string;
 begin
   Result := ParseFilePath(AFilePath, VGuid, VFileName);
   if Result then begin
     Result := False;
-    VMapType := FMapTypeLsit.GetMapFromID(VGuid);
-    if VMapType <> nil then begin
-      Result := LoadStreamFromZmp(VMapType.Zmp, VFileName, AStream, AContentType);
+    VZmp := FZmpInfoSet.GetZmpByGUID(VGuid);
+    if VZmp <> nil then begin
+      Result := LoadStreamFromZmp(VZmp, VFileName, AStream, AContentType);
     end;
   end;
 end;
