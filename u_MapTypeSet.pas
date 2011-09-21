@@ -10,7 +10,7 @@ uses
 type
   TMapTypeSet = class(TInterfacedObject, IMapTypeSet)
   private
-    FList: IGUIDInterfaceList;
+    FList: IGUIDInterfaceSet;
     function GetMapTypeByGUID(AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
   public
@@ -41,7 +41,7 @@ end;
 
 constructor TMapTypeSet.Create(AAllowNil: Boolean);
 begin
-  FList := TGUIDInterfaceList.Create(AAllowNil);
+  FList := TGUIDInterfaceSet.Create(AAllowNil);
 end;
 
 destructor TMapTypeSet.Destroy;

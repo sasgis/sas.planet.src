@@ -11,7 +11,7 @@ uses
 type
   TPathDetalizeProviderListBase = class(TConfigDataElementBaseEmptySaveLoad, IPathDetalizeProviderList)
   private
-    FList: IGUIDInterfaceList;
+    FList: IGUIDInterfaceSet;
   protected { IPathDetalizeProviderList }
     function GetGUIDEnum: IEnumGUID;
     function Get(AGUID: TGUID): IPathDetalizeProviderListEntity;
@@ -31,7 +31,7 @@ uses
 constructor TPathDetalizeProviderListBase.Create;
 begin
   inherited;
-  FList := TGUIDInterfaceList.Create(False);
+  FList := TGUIDInterfaceSet.Create(False);
 end;
 
 procedure TPathDetalizeProviderListBase.Add(

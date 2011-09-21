@@ -17,7 +17,7 @@ uses
 type
   TTileStorageTypeList = class(TConfigDataElementBase, ITileStorageTypeList)
   private
-    FList: IGUIDInterfaceList;
+    FList: IGUIDInterfaceSet;
     FDefault: ITileStorageTypeListItem;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -38,7 +38,8 @@ implementation
 
 uses
   SysUtils,
-  c_ZeroGUID;
+  c_ZeroGUID,
+  u_GUIDInterfaceList;
 
 { TTileStorageTypeList }
 
@@ -47,6 +48,7 @@ constructor TTileStorageTypeList.Create(
 begin
   inherited Create;
   Assert(AFirstType.CanUseAsDefault);
+  FList := TGUIDInterfaceSet.Create(False);
   Add(AFirstType);
   FDefault := AFirstType;
 end;

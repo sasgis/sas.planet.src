@@ -12,7 +12,7 @@ uses
 type
   TGeoCoderListBase = class(TInterfacedObject, IGeoCoderList)
   private
-    FList: IGUIDInterfaceList;
+    FList: IGUIDInterfaceSet;
     FCS: TCriticalSection;
     FAddNotifier: IJclNotifier;
   protected
@@ -38,7 +38,7 @@ uses
 constructor TGeoCoderListBase.Create;
 begin
   FCS := TCriticalSection.Create;
-  FList := TGUIDInterfaceList.Create(False);
+  FList := TGUIDInterfaceSet.Create(False);
   FAddNotifier := TJclBaseNotifier.Create;
 end;
 

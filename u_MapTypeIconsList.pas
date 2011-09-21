@@ -14,7 +14,7 @@ uses
 type
   TMapTypeIconsList = class(TInterfacedObject, IMapTypeIconsList)
   private
-    FList: IGUIDObjectList;
+    FList: IGUIDObjectSet;
     FImageList: TCustomImageList;
     function GetImageList: TCustomImageList;
     function GetIconIndexByGUID(AGUID: TGUID): Integer;
@@ -51,7 +51,7 @@ begin
   FImageList := TCustomImageList.Create(nil);
   FImageList.Height := AHeight;
   FImageList.Width := AWidth;
-  FList := TGUIDObjectList.Create(True);
+  FList := TGUIDObjectSet.Create(True);
 end;
 
 destructor TMapTypeIconsList.Destroy;

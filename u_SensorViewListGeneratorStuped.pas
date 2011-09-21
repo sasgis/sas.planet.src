@@ -21,10 +21,10 @@ type
     FParentMenu: TTBCustomItem;
     FImages: TCustomImageList;
     FImageIndexReset: TImageIndex;
-    procedure AddSensor(ASensor: ISensorListEntity; AResult: IGUIDInterfaceList);
-    procedure AddSensorsInFixedOrder(ASensorList: ISensorList; AResult: IGUIDInterfaceList);
+    procedure AddSensor(ASensor: ISensorListEntity; AResult: IGUIDInterfaceSet);
+    procedure AddSensorsInFixedOrder(ASensorList: ISensorList; AResult: IGUIDInterfaceSet);
   protected
-    function CreateSensorViewList(ASensorList: ISensorList): IGUIDInterfaceList;
+    function CreateSensorViewList(ASensorList: ISensorList): IGUIDInterfaceSet;
   public
     constructor Create(
       ATimerNoifier: IJclNotifier;
@@ -50,7 +50,7 @@ uses
 { TSensorViewListGeneratorStuped }
 
 procedure TSensorViewListGeneratorStuped.AddSensor(ASensor: ISensorListEntity;
-  AResult: IGUIDInterfaceList);
+  AResult: IGUIDInterfaceSet);
 var
   VSensorViewConfig: ISensorViewConfig;
   VSensorView: ISensorView;
@@ -79,7 +79,7 @@ begin
 end;
 
 procedure TSensorViewListGeneratorStuped.AddSensorsInFixedOrder(
-  ASensorList: ISensorList; AResult: IGUIDInterfaceList);
+  ASensorList: ISensorList; AResult: IGUIDInterfaceSet);
 var
   VSensor: ISensorListEntity;
 begin
@@ -123,7 +123,7 @@ begin
 end;
 
 function TSensorViewListGeneratorStuped.CreateSensorViewList(
-  ASensorList: ISensorList): IGUIDInterfaceList;
+  ASensorList: ISensorList): IGUIDInterfaceSet;
 var
   VGUID: TGUID;
   i: Cardinal;
@@ -132,7 +132,7 @@ var
 begin
   FDefaultDoc.BeginUpdate;
   try
-    Result := TGUIDInterfaceList.Create;
+    Result := TGUIDInterfaceSet.Create;
     ASensorList.LockRead;
     try
       AddSensorsInFixedOrder(ASensorList, Result);

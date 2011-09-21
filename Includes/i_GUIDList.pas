@@ -26,7 +26,7 @@ uses
   ActiveX;
 
 type
-  IGUIDInterfaceList = interface(IInterface)
+  IGUIDInterfaceSet = interface(IInterface)
   ['{BA17FFE8-E281-4E2E-8B92-8F39ACC67036}']
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Возвращает хранимый объект
@@ -55,7 +55,7 @@ type
     property Count: Integer read GetCount write SetCount;
   end;
 
-  IGUIDObjectList = interface(IInterface)
+  IGUIDObjectSet = interface(IInterface)
   ['{9E176E50-3182-455C-AF58-9B6FB8E30E15}']
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Если список является владельцем объектов и переданный объект не равен хранимому, то он будет удален

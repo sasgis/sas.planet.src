@@ -14,7 +14,7 @@ type
   private
     FMapsSet: IMapTypeSet;
 
-    FSingeMapsSet: IGUIDInterfaceList;
+    FSingeMapsSet: IGUIDInterfaceSet;
     FSelectedMapsList: IMapTypeSet;
 
     FMainMapChangeNotyfier: IJclNotifier;
@@ -37,7 +37,7 @@ type
   public
     constructor Create(
       AMapsSet: IMapTypeSet;
-      ASingeMapsList: IGUIDInterfaceList;
+      ASingeMapsList: IGUIDInterfaceSet;
       AMainMapChangeNotyfier: IJclNotifier;
       ALayerSetSelectNotyfier: IJclNotifier;
       ALayerSetUnselectNotyfier: IJclNotifier
@@ -55,7 +55,7 @@ uses
 { TActiveMapsSet }
 
 constructor TActiveMapsSet.Create(AMapsSet: IMapTypeSet;
-  ASingeMapsList: IGUIDInterfaceList; AMainMapChangeNotyfier,
+  ASingeMapsList: IGUIDInterfaceSet; AMainMapChangeNotyfier,
   ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier);
 begin
   inherited Create;

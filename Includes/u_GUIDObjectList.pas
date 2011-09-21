@@ -21,7 +21,7 @@ type
   TObjectWithGUIDListSortCompare = function (const Item1, Item2: TGUID): Integer of object;
 
 type
-  TGUIDObjectList = class(TGUIDListBase, IGUIDObjectList)
+  TGUIDObjectSet = class(TGUIDSetBase, IGUIDObjectSet)
   protected
     FList: PObjectWithGUIDList;
     procedure SetCapacity(NewCapacity: Integer); override;
@@ -46,7 +46,7 @@ type
   end;
 
 resourcestring
-  SObjectIsNilError = 'Interface is nil';
+  SObjectIsNilError = 'Object is nil';
 
 implementation
 
@@ -58,7 +58,7 @@ uses
 
 { TGUIDList }
 
-function TGUIDObjectList.Add(AGUID: TGUID; AObj: TObject): TObject;
+function TGUIDObjectSet.Add(AGUID: TGUID; AObj: TObject): TObject;
 var
   VIndex: Integer;
 begin
@@ -74,7 +74,7 @@ begin
 end;
 
 
-procedure TGUIDObjectList.Delete(Index: Integer);
+procedure TGUIDObjectSet.Delete(Index: Integer);
 begin
   if (Index < 0) or (Index >= FCount) then begin
     Error(@SListIndexError, Index);
@@ -87,7 +87,7 @@ begin
   end;
 end;
 
-function TGUIDObjectList.GetByGUID(AGUID: TGUID): TObject;
+function TGUIDObjectSet.GetByGUID(AGUID: TGUID): TObject;
 var
   VIndex: Integer;
 begin
@@ -98,17 +98,17 @@ begin
   end;
 end;
 
-function TGUIDObjectList.GetIsObjectOwner: Boolean;
+function TGUIDObjectSet.GetIsObjectOwner: Boolean;
 begin
   Result := False;
 end;
 
-function TGUIDObjectList.GetItemGUID(Index: Integer): TGUID;
+function TGUIDObjectSet.GetItemGUID(Index: Integer): TGUID;
 begin
   Result := FList^[Index].GUID;
 end;
 
-procedure TGUIDObjectList.Insert(Index: Integer; AGUID: TGUID; AObj: TObject);
+procedure TGUIDObjectSet.Insert(Index: Integer; AGUID: TGUID; AObj: TObject);
 begin
   if (Index < 0) or (Index > FCount) then begin
     Error(@SListIndexError, Index);
@@ -126,7 +126,7 @@ begin
   Inc(FCount);
 end;
 
-procedure TGUIDObjectList.Replace(AGUID: TGUID; AObj: TObject);
+procedure TGUIDObjectSet.Replace(AGUID: TGUID; AObj: TObject);
 var
   VIndex: Integer;
 begin
@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TGUIDObjectList.SetCapacity(NewCapacity: Integer);
+procedure TGUIDObjectSet.SetCapacity(NewCapacity: Integer);
 begin
   if (NewCapacity < FCount) or (NewCapacity > MaxListSize) then begin
     Error(@SListCapacityError, NewCapacity);
@@ -151,7 +151,7 @@ begin
   end;
 end;
 
-procedure TGUIDObjectList.SetCount(NewCount: Integer);
+procedure TGUIDObjectSet.SetCount(NewCount: Integer);
 var
   I: Integer;
 begin
@@ -203,7 +203,7 @@ begin
   until I >= R;
 end;
 
-procedure TGUIDObjectList.Sort();
+procedure TGUIDObjectSet.Sort();
 begin
   if (FList <> nil) and (Count > 0) then begin
     QuickSort(FList, 0, Count - 1, CompareGUIDs);

@@ -16,12 +16,12 @@ type
   private
     FMapsSet: IMapTypeSet;
     FMainMapChangeNotyfier: INotifierWithGUID;
-    FSingeMapsList: IGUIDInterfaceList;
+    FSingeMapsList: IGUIDInterfaceSet;
     FActiveMap: IActiveMap;
     FActiveMapsSet: IActiveMapsSet;
   protected
     property MainMapChangeNotyfier: INotifierWithGUID read FMainMapChangeNotyfier;
-    property SingeMapsList: IGUIDInterfaceList read FSingeMapsList;
+    property SingeMapsList: IGUIDInterfaceSet read FSingeMapsList;
   protected
     procedure SelectMainByGUID(const AMapGUID: TGUID);
     function GetActiveMap: IActiveMap;
@@ -59,7 +59,7 @@ begin
   inherited Create;
   FMapsSet := AMapsSet;
   FMainMapChangeNotyfier := TNotifierWithGUID.Create;
-  FSingeMapsList := TGUIDInterfaceList.Create(False);
+  FSingeMapsList := TGUIDInterfaceSet.Create(False);
 
   VEnun := FMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin

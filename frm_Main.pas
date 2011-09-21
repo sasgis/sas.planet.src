@@ -528,12 +528,12 @@ type
     ProgramStart: Boolean;
     ProgramClose: Boolean;
 
-    FNLayerParamsItemList: IGUIDObjectList; //Пункт гланого меню Параметры/Параметры слоя
-    FNDwnItemList: IGUIDObjectList; //Пункт контекстного меню Загрузить тайл слоя
-    FNDelItemList: IGUIDObjectList; //Пункт контекстного меню Удалить тайл слоя
-    FNOpenDirItemList: IGUIDObjectList; //Пункт контекстного меню Открыть папку слоя
-    FNCopyLinkItemList: IGUIDObjectList; //Пункт контекстного меню копировать ссылку на тайл слоя
-    FNLayerInfoItemList: IGUIDObjectList; //Пункт контекстного меню информация о слое
+    FNLayerParamsItemList: IGUIDObjectSet; //Пункт гланого меню Параметры/Параметры слоя
+    FNDwnItemList: IGUIDObjectSet; //Пункт контекстного меню Загрузить тайл слоя
+    FNDelItemList: IGUIDObjectSet; //Пункт контекстного меню Удалить тайл слоя
+    FNOpenDirItemList: IGUIDObjectSet; //Пункт контекстного меню Открыть папку слоя
+    FNCopyLinkItemList: IGUIDObjectSet; //Пункт контекстного меню копировать ссылку на тайл слоя
+    FNLayerInfoItemList: IGUIDObjectSet; //Пункт контекстного меню информация о слое
 
     FShortCutManager: TShortcutManager;
     FLayersList: TWindowLayerBasicList;
@@ -559,7 +559,7 @@ type
 
     FRuller:TBitmap32;
     FTumbler:TBitmap32;
-    FSensorViewList: IGUIDInterfaceList;
+    FSensorViewList: IGUIDInterfaceSet;
     FFormRegionProcess: TfrmRegionProcess;
 
     FPathProvidersTree: ITreeChangeable;
@@ -719,12 +719,12 @@ begin
   TBCopyLinkLayer.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
   TBLayerInfo.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
 
-  FNLayerParamsItemList := TGUIDObjectList.Create(False);
-  FNDwnItemList := TGUIDObjectList.Create(False);
-  FNDelItemList := TGUIDObjectList.Create(False);
-  FNOpenDirItemList := TGUIDObjectList.Create(False);
-  FNCopyLinkItemList := TGUIDObjectList.Create(False);
-  FNLayerInfoItemList := TGUIDObjectList.Create(False);
+  FNLayerParamsItemList := TGUIDObjectSet.Create(False);
+  FNDwnItemList := TGUIDObjectSet.Create(False);
+  FNDelItemList := TGUIDObjectSet.Create(False);
+  FNOpenDirItemList := TGUIDObjectSet.Create(False);
+  FNCopyLinkItemList := TGUIDObjectSet.Create(False);
+  FNLayerInfoItemList := TGUIDObjectSet.Create(False);
 
   FLayersList := TWindowLayerBasicList.Create(GState.PerfCounterList);
   FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);

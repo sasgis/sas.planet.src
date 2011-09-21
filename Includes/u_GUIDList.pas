@@ -28,7 +28,7 @@ uses
   ActiveX;
 
 type
-  TGUIDListBase = class(TInterfacedObject)
+  TGUIDSetBase = class(TInterfacedObject)
   protected
     FCount: Integer;
     FCapacity: Integer;
@@ -81,10 +81,10 @@ uses
 type
   TGUIDListEnum = class(TInterfacedObject, IEnumGUID)
   protected
-    FGUIDList: TGUIDListBase;
+    FGUIDList: TGUIDSetBase;
     FCurrentIndex: integer;
   public
-    constructor Create(AGUIDList: TGUIDListBase);
+    constructor Create(AGUIDList: TGUIDSetBase);
     function Next(celt: UINT; out rgelt: TGUID; out pceltFetched: UINT): HResult; stdcall;
     function Skip(celt: UINT): HResult; stdcall;
     function Reset: HResult; stdcall;
@@ -103,7 +103,7 @@ begin
   Result := S_OK;
 end;
 
-constructor TGUIDListEnum.Create(AGUIDList: TGUIDListBase);
+constructor TGUIDListEnum.Create(AGUIDList: TGUIDSetBase);
 begin
   FGUIDList := AGUIDList;
   FCurrentIndex := 0;
@@ -149,13 +149,13 @@ end;
 
 { TGUIDList }
 
-procedure TGUIDListBase.Clear;
+procedure TGUIDSetBase.Clear;
 begin
   SetCount(0);
   SetCapacity(0);
 end;
 
-function TGUIDListBase.CompareGUIDs(const G1, G2: TGUID): Integer;
+function TGUIDSetBase.CompareGUIDs(const G1, G2: TGUID): Integer;
 begin
   if G1.D1 > G2.D1 then begin
     Result := 1;
@@ -257,29 +257,29 @@ begin
   end;
 end;
 
-constructor TGUIDListBase.Create;
+constructor TGUIDSetBase.Create;
 begin
   FAllowNil := false;
   inherited;
 end;
 
-constructor TGUIDListBase.Create(AAllowNil: Boolean);
+constructor TGUIDSetBase.Create(AAllowNil: Boolean);
 begin
   FAllowNil := AAllowNil;
 end;
 
-destructor TGUIDListBase.Destroy;
+destructor TGUIDSetBase.Destroy;
 begin
   Clear;
   inherited;
 end;
 
-class procedure TGUIDListBase.Error(Msg: PResStringRec; Data: Integer);
+class procedure TGUIDSetBase.Error(Msg: PResStringRec; Data: Integer);
 begin
-  TGUIDListBase.Error(LoadResString(Msg), Data);
+  TGUIDSetBase.Error(LoadResString(Msg), Data);
 end;
 
-class procedure TGUIDListBase.Error(const Msg: string; Data: Integer);
+class procedure TGUIDSetBase.Error(const Msg: string; Data: Integer);
   function ReturnAddr: Pointer;
   asm
           MOV     EAX,[EBP+4]
@@ -289,7 +289,7 @@ begin
   raise EListError.CreateFmt(Msg, [Data]) at ReturnAddr;
 end;
 
-function TGUIDListBase.Find(AGUID: TGUID; var Index: Integer): Boolean;
+function TGUIDSetBase.Find(AGUID: TGUID; var Index: Integer): Boolean;
 var
   L, H, I, C: Integer;
 begin
@@ -310,7 +310,7 @@ begin
   Index := L;
 end;
 
-function TGUIDListBase.IsExists(AGUID: TGUID): boolean;
+function TGUIDSetBase.IsExists(AGUID: TGUID): boolean;
 var
   VIndex: Integer;
 begin
@@ -318,17 +318,17 @@ begin
 end;
 
 
-function TGUIDListBase.GetCount: Integer;
+function TGUIDSetBase.GetCount: Integer;
 begin
   Result := FCount;
 end;
 
-function TGUIDListBase.GetGUIDEnum: IEnumGUID;
+function TGUIDSetBase.GetGUIDEnum: IEnumGUID;
 begin
   Result := TGUIDListEnum.Create(Self);
 end;
 
-procedure TGUIDListBase.Grow;
+procedure TGUIDSetBase.Grow;
 var
   Delta: Integer;
 begin
@@ -344,7 +344,7 @@ begin
   SetCapacity(FCapacity + Delta);
 end;
 
-procedure TGUIDListBase.Remove(AGUID: TGUID);
+procedure TGUIDSetBase.Remove(AGUID: TGUID);
 var
   VIndex: Integer;
 begin

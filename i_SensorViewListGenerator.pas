@@ -10,7 +10,7 @@ uses
 type
   ISensorViewListGenerator = interface
     ['{886AABDC-90D7-4F6F-BCBF-E7AFBABA545B}']
-    function CreateSensorViewList(ASensorList: ISensorList): IGUIDInterfaceList;
+    function CreateSensorViewList(ASensorList: ISensorList): IGUIDInterfaceSet;
   end;
 
 implementation

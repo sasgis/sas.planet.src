@@ -11,7 +11,7 @@ uses
 type
   TSensorListBase = class(TConfigDataElementBaseEmptySaveLoad, ISensorList)
   private
-    FList: IGUIDInterfaceList;
+    FList: IGUIDInterfaceSet;
   protected { ISensorList }
     function GetGUIDEnum: IEnumGUID;
     function Get(AGUID: TGUID): ISensorListEntity;
@@ -31,7 +31,7 @@ uses
 constructor TSensorListBase.Create;
 begin
   inherited;
-  FList := TGUIDInterfaceList.Create(False);
+  FList := TGUIDInterfaceSet.Create(False);
 end;
 
 procedure TSensorListBase.Add(AItem: ISensorListEntity);

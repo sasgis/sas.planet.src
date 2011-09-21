@@ -41,7 +41,7 @@ type
   TInterfaceWithGUIDList = array[0..MaxInterfaceWithGUIDListSize - 1] of TInterfaceWithGUID;
   TInterfaceWithGUIDListSortCompare = function (const Item1, Item2: TGUID): Integer of object;
 
-  TGUIDInterfaceList = class(TGUIDListBase, IGUIDInterfaceList)
+  TGUIDInterfaceSet = class(TGUIDSetBase, IGUIDInterfaceSet)
   protected
     FList: PInterfaceWithGUIDList;
     procedure SetCapacity(NewCapacity: Integer); override;
@@ -74,7 +74,7 @@ uses
 
 { TGUIDList }
 
-function TGUIDInterfaceList.Add(AGUID: TGUID; AInterface: IInterface): IInterface;
+function TGUIDInterfaceSet.Add(AGUID: TGUID; AInterface: IInterface): IInterface;
 var
   VIndex: Integer;
 begin
@@ -89,7 +89,7 @@ begin
   end;
 end;
 
-procedure TGUIDInterfaceList.Delete(Index: Integer);
+procedure TGUIDInterfaceSet.Delete(Index: Integer);
 begin
   if (Index < 0) or (Index >= FCount) then begin
     Error(@SListIndexError, Index);
@@ -102,7 +102,7 @@ begin
   end;
 end;
 
-function TGUIDInterfaceList.GetByGUID(AGUID: TGUID): IInterface;
+function TGUIDInterfaceSet.GetByGUID(AGUID: TGUID): IInterface;
 var
   VIndex: Integer;
 begin
@@ -113,12 +113,12 @@ begin
   end;
 end;
 
-function TGUIDInterfaceList.GetItemGUID(Index: Integer): TGUID;
+function TGUIDInterfaceSet.GetItemGUID(Index: Integer): TGUID;
 begin
   Result := FList^[Index].GUID;
 end;
 
-procedure TGUIDInterfaceList.Insert(Index: Integer; AGUID: TGUID; AObj: IInterface);
+procedure TGUIDInterfaceSet.Insert(Index: Integer; AGUID: TGUID; AObj: IInterface);
 begin
   if (Index < 0) or (Index > FCount) then begin
     Error(@SListIndexError, Index);
@@ -136,7 +136,7 @@ begin
   Inc(FCount);
 end;
 
-procedure TGUIDInterfaceList.Replace(AGUID: TGUID; AInterface: IInterface);
+procedure TGUIDInterfaceSet.Replace(AGUID: TGUID; AInterface: IInterface);
 var
   VIndex: Integer;
 begin
@@ -150,7 +150,7 @@ begin
   end;
 end;
 
-procedure TGUIDInterfaceList.SetCapacity(NewCapacity: Integer);
+procedure TGUIDInterfaceSet.SetCapacity(NewCapacity: Integer);
 begin
   if (NewCapacity < FCount) or (NewCapacity > MaxListSize) then begin
     Error(@SListCapacityError, NewCapacity);
@@ -161,7 +161,7 @@ begin
   end;
 end;
 
-procedure TGUIDInterfaceList.SetCount(NewCount: Integer);
+procedure TGUIDInterfaceSet.SetCount(NewCount: Integer);
 var
   I: Integer;
 begin
@@ -213,7 +213,7 @@ begin
   until I >= R;
 end;
 
-procedure TGUIDInterfaceList.Sort();
+procedure TGUIDInterfaceSet.Sort();
 begin
   if (FList <> nil) and (Count > 0) then begin
     QuickSort(FList, 0, Count - 1, CompareGUIDs);
