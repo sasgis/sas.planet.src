@@ -695,9 +695,16 @@ begin
   VMouseState := TMouseState.Create;
   FMouseHandler := VMouseState;
   FMouseState := VMouseState;
-  FFormRegionProcess := TfrmRegionProcess.Create(Self, Self.OnMapUpdate);
-  FLinksList := TJclListenerNotifierLinksList.Create;
   FConfig := GState.MainFormConfig;
+  FFormRegionProcess :=
+    TfrmRegionProcess.Create(
+      Self,
+      FConfig.MainMapsConfig,
+      GState.MapType.FullMapsSet,
+      GState.MapType.GUIConfigList,
+      Self.OnMapUpdate
+    );
+  FLinksList := TJclListenerNotifierLinksList.Create;
 
   VLogger := TTileErrorLogProviedrStuped.Create;
   FTileErrorLogger := VLogger;
@@ -1101,6 +1108,7 @@ begin
         FConfig.LayersConfig.MiniMapLayerConfig,
         GState.ViewConfig,
         GState.BitmapPostProcessingConfig,
+        GState.MapType.GUIConfigList,
         GState.MapType.MapTypeIcons18List,
         GState.GUISyncronizedTimerNotifier
       );
@@ -1389,6 +1397,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
+    GState.MapType.GUIConfigList,
     FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetActiveMapsSet,
     TBFillingTypeMap,
     Self.TBfillMapAsMainClick,
@@ -1406,6 +1415,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
+    GState.MapType.GUIConfigList,
     FConfig.MainMapsConfig.GetActiveLayersSet,
     TBLayerSel,
     Self.OnClickLayerItem,
@@ -1508,6 +1518,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
+    GState.MapType.GUIConfigList,
     FConfig.MainMapsConfig.GetActiveMapsSet,
     TBSMB,
     Self.OnClickMapItem,

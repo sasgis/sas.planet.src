@@ -15,6 +15,9 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_CommonFormAndFrameParents;
 
 type
@@ -37,8 +40,18 @@ type
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
   private
+    FMainMapsConfig: IMainMapsConfig;
+    FFullMapsSet: IMapTypeSet;
+    FGUIConfigList: IMapTypeGUIConfigList;
   public
-    constructor CreateForFileType(AOwner: TComponent; AFileFilters: string; AFileExtDefault: string);
+    constructor CreateForFileType(
+      AOwner : TComponent;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      AFileFilters: string;
+      AFileExtDefault: string
+    );
     procedure Init;
     procedure RefreshTranslation; override;
   end;
@@ -46,7 +59,7 @@ type
 implementation
 
 uses
-  u_GlobalState,
+  i_GUIDListStatic,
   u_MapType;
 
 {$R *.dfm}
@@ -67,10 +80,19 @@ begin
   end;
 end;
 
-constructor TfrExportToFileCont.CreateForFileType(AOwner: TComponent; AFileFilters,
-  AFileExtDefault: string);
+constructor TfrExportToFileCont.CreateForFileType(
+  AOwner : TComponent;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  AFileFilters: string;
+  AFileExtDefault: string
+);
 begin
   inherited Create(AOwner);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
   cbbNamesType.ItemIndex := 1;
@@ -82,16 +104,20 @@ var
   VMapType: TMapType;
   VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   chklstZooms.Items.Clear;
   for i:=1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
 
-  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
   cbbMap.items.Clear;
-  For i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  For i := 0 to VGUIDList.Count-1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     if (VMapType.GUIConfig.Enabled) then begin
       VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin

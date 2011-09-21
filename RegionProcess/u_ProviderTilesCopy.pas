@@ -49,7 +49,12 @@ end;
 procedure TProviderTilesCopy.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrTilesCopy.Create(nil);
+    FFrame := TfrTilesCopy.Create(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;

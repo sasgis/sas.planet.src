@@ -7,6 +7,9 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   fr_ExportIPhone;
 
@@ -16,7 +19,13 @@ type
     FFrame: TfrExportIPhone;
     FNewFormat: Boolean;
   public
-    constructor Create(AParent: TWinControl; ANewFormat: Boolean);
+    constructor Create(
+      AParent: TWinControl;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      ANewFormat: Boolean
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
@@ -38,9 +47,14 @@ uses
 { TExportProviderIPhone }
 
 constructor TExportProviderIPhone.Create(
-  AParent: TWinControl; ANewFormat: Boolean);
+  AParent: TWinControl;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  ANewFormat: Boolean
+);
 begin
-  inherited Create(AParent);
+  inherited Create(AParent, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
   FNewFormat := ANewFormat;
 end;
 
@@ -62,7 +76,12 @@ end;
 procedure TExportProviderIPhone.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportIPhone.Create(nil);
+    FFrame := TfrExportIPhone.Create(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;

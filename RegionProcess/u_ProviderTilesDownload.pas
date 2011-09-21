@@ -7,6 +7,9 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_MapType,
   u_ExportProviderAbstract,
   fr_TilesDownload;
@@ -19,6 +22,9 @@ type
   public
     constructor Create(
       AParent: TWinControl;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
       AMapUpdateEvent: TMapUpdateEvent
     );
     destructor Destroy; override;
@@ -44,10 +50,15 @@ uses
 
 { TProviderTilesDownload }
 
-constructor TProviderTilesDownload.Create(AParent: TWinControl;
-  AMapUpdateEvent: TMapUpdateEvent);
+constructor TProviderTilesDownload.Create(
+  AParent: TWinControl;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  AMapUpdateEvent: TMapUpdateEvent
+);
 begin
-  inherited Create(AParent);
+  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FMapUpdateEvent := AMapUpdateEvent;
 end;
 
@@ -65,7 +76,12 @@ end;
 procedure TProviderTilesDownload.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrTilesDownload.Create(nil);
+    FFrame := TfrTilesDownload.Create(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;

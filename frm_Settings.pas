@@ -230,11 +230,11 @@ type
     FMapsEdit: boolean;
     frShortCutList: TfrShortCutList;
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
+    procedure InitMapsList;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Save(AProvider: IConfigDataWriteProvider);
-    procedure InitMapsList;
     procedure RefreshTranslation; override;
     procedure SatellitePaint;
   end;

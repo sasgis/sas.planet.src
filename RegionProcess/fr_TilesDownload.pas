@@ -16,6 +16,9 @@ uses
   StdCtrls,
   ComCtrls,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_CommonFormAndFrameParents;
 
 type
@@ -43,14 +46,23 @@ type
     procedure cbbZoomChange(Sender: TObject);
   private
     FPolygLL: TArrayOfDoublePoint;
+    FMainMapsConfig: IMainMapsConfig;
+    FFullMapsSet: IMapTypeSet;
+    FGUIConfigList: IMapTypeGUIConfigList;
   public
+    constructor Create(
+      AOwner : TComponent;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList
+    ); reintroduce;
     procedure Init(AZoom: Byte; APolygLL: TArrayOfDoublePoint);
   end;
 
 implementation
 
 uses
-  u_GlobalState,
+  i_GUIDListStatic,
   u_GeoFun,
   u_ResStrings,
   u_MapType;
@@ -97,12 +109,24 @@ begin
   dtpReplaceOlderDate.Enabled := chkReplaceOlder.Enabled and chkReplaceOlder.Checked;
 end;
 
+constructor TfrTilesDownload.Create(AOwner: TComponent;
+  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList);
+begin
+  inherited Create(AOwner);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
+end;
+
 procedure TfrTilesDownload.Init(AZoom: Byte; APolygLL: TArrayOfDoublePoint);
 var
   i: integer;
   VMapType: TMapType;
   VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   FPolygLL := APolygLL;
   cbbZoom.Items.Clear;
@@ -111,10 +135,12 @@ begin
   end;
   cbbZoom.ItemIndex := AZoom;
 
-  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
   cbbMap.items.Clear;
-  For i:=0 to GState.MapType.Count - 1 do begin
-    VMapType := GState.MapType[i];
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  For i := 0 to VGUIDList.Count-1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     if (VMapType.Abilities.UseDownload)and(VMapType.GUIConfig.Enabled) then begin
       VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin

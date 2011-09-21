@@ -15,6 +15,9 @@ uses
   inifiles,
   ComCtrls,
   u_CommonFormAndFrameParents,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   t_GeoTypes,
   u_MapType,
@@ -45,6 +48,9 @@ type
     procedure CBFormatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
+    FMainMapsConfig: IMainMapsConfig;
+    FFullMapsSet: IMapTypeSet;
+    FGUIConfigList: IMapTypeGUIConfigList;
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
     FProviderTilesDelte: TExportProviderAbstract;
@@ -60,7 +66,13 @@ type
     procedure ExportREG(APolyLL: TArrayOfDoublePoint);
     procedure InitExportsList;
   public
-    constructor Create(AOwner: TComponent; AMapUpdateEvent: TMapUpdateEvent); reintroduce;
+    constructor Create(
+      AOwner: TComponent;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      AMapUpdateEvent: TMapUpdateEvent
+    ); reintroduce;
     destructor Destroy; override;
     procedure LoadSelFromFile(FileName:string);
     procedure Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
@@ -88,18 +100,58 @@ uses
 
 {$R *.dfm}
 
-constructor TfrmRegionProcess.Create(AOwner: TComponent; AMapUpdateEvent: TMapUpdateEvent);
+constructor TfrmRegionProcess.Create(
+  AOwner: TComponent;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  AMapUpdateEvent: TMapUpdateEvent
+);
 begin
   TP_Ignore(Self, 'CBFormat.Items');
   inherited Create(AOwner);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
 
   InitExportsList;
 
-  FProviderTilesDelte := TProviderTilesDelete.Create(TabSheet4);
-  FProviderTilesGenPrev := TProviderTilesGenPrev.Create(TabSheet3);
-  FProviderTilesCopy := TProviderTilesCopy.Create(TabSheet6);
-  FProviderTilesDownload := TProviderTilesDownload.Create(TabSheet1, AMapUpdateEvent);
-  FProviderMapCombine := TProviderMapCombine.Create(TabSheet2);
+  FProviderTilesDelte :=
+    TProviderTilesDelete.Create(
+      TabSheet4,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
+  FProviderTilesGenPrev :=
+    TProviderTilesGenPrev.Create(
+      TabSheet3,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
+  FProviderTilesCopy :=
+    TProviderTilesCopy.Create(
+      TabSheet6,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
+  FProviderTilesDownload :=
+    TProviderTilesDownload.Create(
+      TabSheet1,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList,
+      AMapUpdateEvent
+    );
+  FProviderMapCombine :=
+    TProviderMapCombine.Create(
+      TabSheet2,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
 end;
 
 destructor TfrmRegionProcess.Destroy;
@@ -204,22 +256,80 @@ procedure TfrmRegionProcess.InitExportsList;
 var
   VExportProvider: TExportProviderAbstract;
 begin
-  VExportProvider := TExportProviderIPhone.Create(pnlExport, True);
+  VExportProvider :=
+    TExportProviderIPhone.Create(
+      pnlExport,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList,
+      True
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderIPhone.Create(pnlExport, False);
+
+  VExportProvider :=
+    TExportProviderIPhone.Create(
+      pnlExport,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList,
+      False
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderGEKml.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderGEKml.Create(
+      pnlExport,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderYaMobileV3.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderYaMobileV3.Create(
+      pnlExport,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderYaMobileV4.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderYaMobileV4.Create(
+      pnlExport,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderAUX.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderAUX.Create(
+      pnlExport,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderZip.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderZip.Create(
+      pnlExport,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderTar.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderTar.Create(
+      pnlExport,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+  
   CBFormat.ItemIndex := 0;
 end;
 

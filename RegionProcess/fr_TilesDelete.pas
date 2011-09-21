@@ -15,6 +15,9 @@ uses
   ExtCtrls,
   StdCtrls,
   Spin,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_CommonFormAndFrameParents;
 
 type
@@ -33,19 +36,38 @@ type
     flwpnlDelBySize: TFlowPanel;
     lblDelSize: TLabel;
   private
+    FMainMapsConfig: IMainMapsConfig;
+    FFullMapsSet: IMapTypeSet;
+    FGUIConfigList: IMapTypeGUIConfigList;
   public
+    constructor Create(
+      AOwner : TComponent;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList
+    ); reintroduce;
     procedure Init(AZoom: Byte);
   end;
 
 implementation
 
 uses
-  u_GlobalState,
+  i_GUIDListStatic,
   u_MapType;
 
 {$R *.dfm}
 
 { TFrame3 }
+
+constructor TfrTilesDelete.Create(AOwner: TComponent;
+  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList);
+begin
+  inherited Create(AOwner);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
+end;
 
 procedure TfrTilesDelete.Init(AZoom: Byte);
 var
@@ -53,6 +75,8 @@ var
   VMapType: TMapType;
   VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   cbbZoom.Items.Clear;
   for i:=1 to 24 do begin
@@ -60,10 +84,12 @@ begin
   end;
   cbbZoom.ItemIndex := AZoom;
 
-  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
   cbbMap.items.Clear;
-  For i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  For i := 0 to VGUIDList.Count-1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     if (VMapType.StorageConfig.AllowDelete)and(VMapType.GUIConfig.Enabled) then begin
       VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin

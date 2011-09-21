@@ -3,8 +3,12 @@ unit u_ExportProviderYaMobileV3;
 interface
 
 uses
+  Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   fr_ExportYaMobileV3;
 
@@ -47,7 +51,13 @@ end;
 procedure TExportProviderYaMobileV3.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportYaMobileV3.Create(nil);
+    FFrame :=
+      TfrExportYaMobileV3.Create(
+        nil,
+        FMainMapsConfig,
+        FFullMapsSet,
+        FGUIConfigList
+      );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;

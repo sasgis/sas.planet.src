@@ -48,7 +48,14 @@ end;
 procedure TExportProviderTar.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportToFileCont.CreateForFileType(nil, 'Tar |*.tar', 'tar');
+    FFrame := TfrExportToFileCont.CreateForFileType(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList,
+      'Tar |*.tar',
+      'tar'
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;

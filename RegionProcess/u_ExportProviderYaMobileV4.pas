@@ -47,7 +47,12 @@ end;
 procedure TExportProviderYaMobileV4.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportYaMobileV4.Create(nil);
+    FFrame := TfrExportYaMobileV4.Create(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;

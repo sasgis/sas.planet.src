@@ -48,7 +48,12 @@ end;
 procedure TProviderTilesDelete.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrTilesDelete.Create(nil);
+    FFrame := TfrTilesDelete.Create(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;

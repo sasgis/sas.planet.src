@@ -26,6 +26,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_GlobalViewMainConfig,
   i_ViewPortState,
+  i_MapTypeGUIConfigList,
   i_MiniMapLayerConfig,
   i_BitmapPostProcessingConfig,
   u_MapType,
@@ -38,6 +39,7 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FParentMap: TImage32;
     FCoordConverterFactory: ILocalCoordConverterFactorySimpe;
+    FGUIConfigList: IMapTypeGUIConfigList;
 
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
@@ -141,6 +143,7 @@ type
       AConfig: IMiniMapLayerConfig;
       AViewConfig: IGlobalViewMainConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
+      AGUIConfigList: IMapTypeGUIConfigList;
       AIconsList: IMapTypeIconsList;
       ATimerNoifier: IJclNotifier
     );
@@ -188,12 +191,14 @@ constructor TMiniMapLayer.Create(
   AConfig: IMiniMapLayerConfig;
   AViewConfig: IGlobalViewMainConfig;
   APostProcessingConfig:IBitmapPostProcessingConfig;
+  AGUIConfigList: IMapTypeGUIConfigList;
   AIconsList: IMapTypeIconsList;
   ATimerNoifier: IJclNotifier
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
+  FGUIConfigList := AGUIConfigList;
   FClearStrategyFactory := AClearStrategyFactory;
   FViewConfig := AViewConfig;
   FCoordConverterFactory := ACoordConverterFactory;
@@ -357,6 +362,7 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
+    FGUIConfigList,
     FConfig.MapsConfig.GetActiveMapsSet,
     AMapssSubMenu,
     Self.OnClickMapItem,
@@ -368,6 +374,7 @@ begin
     FreeAndNil(VGenerator);
   end;
   VGenerator := TMapMenuGeneratorBasic.Create(
+    FGUIConfigList,
     FConfig.MapsConfig.GetActiveLayersSet,
     ALayersSubMenu,
     Self.OnClickLayerItem,

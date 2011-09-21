@@ -16,6 +16,9 @@ uses
   StdCtrls,
   CheckLst,
   Spin,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_CommonFormAndFrameParents,
   t_GeoTypes;
 
@@ -61,10 +64,18 @@ type
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
+    FMainMapsConfig: IMainMapsConfig;
+    FFullMapsSet: IMapTypeSet;
+    FGUIConfigList: IMapTypeGUIConfigList;
     FPolygLL: TArrayOfDoublePoint;
     procedure UpdatePanelSizes;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(
+      AOwner : TComponent;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList
+    ); reintroduce;
     procedure RefreshTranslation; override;
     procedure Init(AZoom: Byte; APolygLL: TArrayOfDoublePoint);
   end;
@@ -74,6 +85,7 @@ implementation
 uses
   i_MapCalibration,
   u_GlobalState,
+  i_GUIDListStatic,
   u_GeoFun,
   u_ResStrings,
   u_MapType;
@@ -137,9 +149,17 @@ begin
   end;
 end;
 
-constructor TfrMapCombine.Create(AOwner: TComponent);
+constructor TfrMapCombine.Create(
+  AOwner : TComponent;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList
+);
 begin
-  inherited;
+  inherited Create(AOwner);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
   cbbOutputFormat.ItemIndex := 0;
   UpdatePanelSizes;
 end;
@@ -151,6 +171,8 @@ var
   VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
   VMapCalibration: IMapCalibration;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   FPolygLL := APolygLL;
   cbbZoom.Items.Clear;
@@ -159,12 +181,14 @@ begin
   end;
   cbbZoom.ItemIndex := AZoom;
 
-  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
   cbbMap.Items.Clear;
   cbbHybr.Items.Clear;
   cbbHybr.Items.Add(SAS_STR_No);
-  For i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  For i := 0 to VGUIDList.Count-1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     if (VMapType.Abilities.IsUseStick)and(VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
       if not VMapType.Abilities.IsLayer then begin
         VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
@@ -174,7 +198,7 @@ begin
       end else begin
         VAddedIndex := cbbHybr.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
         if (cbbHybr.ItemIndex=-1) then begin
-          if GState.MainFormConfig.MainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VMapType.Zmp.GUID) then begin
+          if FMainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VGUID) then begin
             cbbHybr.ItemIndex:=VAddedIndex;
           end;
         end;
