@@ -647,6 +647,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   i_ValueToStringConverter,
+  i_GUIDListStatic,
   i_ActiveMapsConfig,
   i_LanguageManager,
   i_VectorDataItemSimple,
@@ -1386,12 +1387,10 @@ end;
 
 procedure TfrmMain.CreateMapUI;
 begin
-  if GState.MapType.Count>0 then begin
-    CreateMapUIMapsList;
-    CreateMapUILayersList;
-    CreateMapUIFillingList;
-    CreateMapUILayerSubMenu;
-  end;
+  CreateMapUIMapsList;
+  CreateMapUILayersList;
+  CreateMapUIFillingList;
+  CreateMapUILayerSubMenu;
 end;
 
 procedure TfrmMain.CreateMapUIFillingList;
@@ -1443,6 +1442,8 @@ var
   NLayerInfoItem: TTBXItem;
 
   VIcon18Index: Integer;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   ldm.Clear;
   dlm.Clear;
@@ -1458,59 +1459,59 @@ begin
   FNOpenDirItemList.Clear;
   FNCopyLinkItemList.Clear;
 
-  if GState.MapType.Count>0 then begin
-    for i:=0 to GState.MapType.Count-1 do begin
-      VMapType := GState.MapType[i];
-      VIcon18Index := GState.MapType.MapTypeIcons18List.GetIconIndexByGUID(VMapType.Zmp.GUID);
-      if VMapType.Abilities.IsLayer then begin
-        NDwnItem:=TTBXItem.Create(ldm);
-        FNDwnItemList.Add(VMapType.Zmp.GUID, NDwnItem);
-        NDwnItem.Caption:=VMapType.GUIConfig.Name.Value;
-        NDwnItem.ImageIndex:=VIcon18Index;
-        NDwnItem.OnClick:=N21Click;
-        NDwnItem.Tag:=longint(VMapType);
-        ldm.Add(NDwnItem);
+  VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VIcon18Index := GState.MapType.MapTypeIcons18List.GetIconIndexByGUID(VGUID);
+    if VMapType.Abilities.IsLayer then begin
+      NDwnItem:=TTBXItem.Create(ldm);
+      FNDwnItemList.Add(VGUID, NDwnItem);
+      NDwnItem.Caption:=VMapType.GUIConfig.Name.Value;
+      NDwnItem.ImageIndex:=VIcon18Index;
+      NDwnItem.OnClick:=N21Click;
+      NDwnItem.Tag:=longint(VMapType);
+      ldm.Add(NDwnItem);
 
-        NDelItem:=TTBXItem.Create(dlm);
-        FNDelItemList.Add(VMapType.Zmp.GUID, NDelItem);
-        NDelItem.Caption:=VMapType.GUIConfig.Name.Value;
-        NDelItem.ImageIndex:=VIcon18Index;
-        NDelItem.OnClick:=NDelClick;
-        NDelItem.Tag:=longint(VMapType);
-        dlm.Add(NDelItem);
+      NDelItem:=TTBXItem.Create(dlm);
+      FNDelItemList.Add(VGUID, NDelItem);
+      NDelItem.Caption:=VMapType.GUIConfig.Name.Value;
+      NDelItem.ImageIndex:=VIcon18Index;
+      NDelItem.OnClick:=NDelClick;
+      NDelItem.Tag:=longint(VMapType);
+      dlm.Add(NDelItem);
 
-        NOpenDirItem:=TTBXItem.Create(TBOpenDirLayer);
-        FNOpenDirItemList.Add(VMapType.Zmp.GUID, NOpenDirItem);
-        NOpenDirItem.Caption:=VMapType.GUIConfig.Name.Value;
-        NOpenDirItem.ImageIndex:=VIcon18Index;
-        NOpenDirItem.OnClick:=N25Click;
-        NOpenDirItem.Tag:=longint(VMapType);
-        TBOpenDirLayer.Add(NOpenDirItem);
+      NOpenDirItem:=TTBXItem.Create(TBOpenDirLayer);
+      FNOpenDirItemList.Add(VGUID, NOpenDirItem);
+      NOpenDirItem.Caption:=VMapType.GUIConfig.Name.Value;
+      NOpenDirItem.ImageIndex:=VIcon18Index;
+      NOpenDirItem.OnClick:=N25Click;
+      NOpenDirItem.Tag:=longint(VMapType);
+      TBOpenDirLayer.Add(NOpenDirItem);
 
-        NCopyLinkItem:=TTBXItem.Create(TBCopyLinkLayer);
-        FNCopyLinkItemList.Add(VMapType.Zmp.GUID, NCopyLinkItem);
-        NCopyLinkItem.Caption:=VMapType.GUIConfig.Name.Value;
-        NCopyLinkItem.ImageIndex:=VIcon18Index;
-        NCopyLinkItem.OnClick:=N13Click;
-        NCopyLinkItem.Tag:=longint(VMapType);
-        TBCopyLinkLayer.Add(NCopyLinkItem);
+      NCopyLinkItem:=TTBXItem.Create(TBCopyLinkLayer);
+      FNCopyLinkItemList.Add(VGUID, NCopyLinkItem);
+      NCopyLinkItem.Caption:=VMapType.GUIConfig.Name.Value;
+      NCopyLinkItem.ImageIndex:=VIcon18Index;
+      NCopyLinkItem.OnClick:=N13Click;
+      NCopyLinkItem.Tag:=longint(VMapType);
+      TBCopyLinkLayer.Add(NCopyLinkItem);
 
-        NLayerParamsItem:=TTBXItem.Create(NLayerParams);
-        FNLayerParamsItemList.Add(VMapType.Zmp.GUID, NLayerParamsItem);
-        NLayerParamsItem.Caption:=VMapType.GUIConfig.Name.Value;
-        NLayerParamsItem.ImageIndex:=VIcon18Index;
-        NLayerParamsItem.OnClick:=NMapParamsClick;
-        NLayerParamsItem.Tag:=longint(VMapType);
-        NLayerParams.Add(NLayerParamsItem);
+      NLayerParamsItem:=TTBXItem.Create(NLayerParams);
+      FNLayerParamsItemList.Add(VGUID, NLayerParamsItem);
+      NLayerParamsItem.Caption:=VMapType.GUIConfig.Name.Value;
+      NLayerParamsItem.ImageIndex:=VIcon18Index;
+      NLayerParamsItem.OnClick:=NMapParamsClick;
+      NLayerParamsItem.Tag:=longint(VMapType);
+      NLayerParams.Add(NLayerParamsItem);
 
-        NLayerInfoItem:=TTBXItem.Create(TBLayerInfo);
-        FNLayerInfoItemList.Add(VMapType.Zmp.GUID, NLayerInfoItem);
-        NLayerInfoItem.Caption:=VMapType.GUIConfig.Name.Value;
-        NLayerInfoItem.ImageIndex:=VIcon18Index;
-        NLayerInfoItem.OnClick:=NMapInfoClick;
-        NLayerInfoItem.Tag:=longint(VMapType);
-        TBLayerInfo.Add(NLayerInfoItem);
-      end;
+      NLayerInfoItem:=TTBXItem.Create(TBLayerInfo);
+      FNLayerInfoItemList.Add(VGUID, NLayerInfoItem);
+      NLayerInfoItem.Caption:=VMapType.GUIConfig.Name.Value;
+      NLayerInfoItem.ImageIndex:=VIcon18Index;
+      NLayerInfoItem.OnClick:=NMapInfoClick;
+      NLayerInfoItem.Tag:=longint(VMapType);
+      TBLayerInfo.Add(NLayerInfoItem);
     end;
   end;
 end;
@@ -1569,7 +1570,7 @@ begin
   FUIDownLoader.SendTerminateToThreads;
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
-  if GState.MapType.Count > 0 then frmSettings.Save(GState.MainConfigProvider);
+  frmSettings.Save(GState.MainConfigProvider);
   Application.ProcessMessages;
   FreeAndNil(FLayersList);
   FreeAndNil(FUIDownLoader);
@@ -3943,14 +3944,18 @@ var
   VMapType: TMapType;
   VLayerIsActive: Boolean;
   VActiveLayersSet: IMapTypeSet;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   NLayerParams.Visible:=false;
   VActiveLayersSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
-  For i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
+  VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     if (VMapType.Abilities.IsLayer) then begin
-      VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VMapType.Zmp.GUID) <> nil;
-      TTBXItem(FNLayerParamsItemList.GetByGUID(VMapType.Zmp.GUID)).Visible := VLayerIsActive;
+      VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VGUID) <> nil;
+      TTBXItem(FNLayerParamsItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin
         NLayerParams.Visible:=true;
       end
@@ -4407,6 +4412,7 @@ var
   VActiveLayersSet: IMapTypeSet;
   VMenuItem: TTBXItem;
   VGUID: TGUID;
+  VGUIDList: IGUIDListStatic;
 begin
   ldm.Visible:=false;
   dlm.Visible:=false;
@@ -4414,10 +4420,11 @@ begin
   TBCopyLinkLayer.Visible:=false;
   TBLayerInfo.Visible:=false;
   VActiveLayersSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
-  For i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
+  VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     if (VMapType.Abilities.IsLayer) then begin
-      VGUID := VMapType.Zmp.GUID;
       VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VGUID) <> nil;
       TTBXItem(FNDwnItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       TTBXItem(FNDelItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
