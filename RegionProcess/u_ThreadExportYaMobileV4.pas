@@ -21,12 +21,19 @@ type
     Y: Integer;
   end;
 
+  TMemCachedRec = record
+    Name: string;
+    Stream: TFileStream;
+    BitTable: TMemoryStream;
+    OffsetTable: TMemoryStream;
+  end;
+
   TThreadExportYaMobileV4 = class(TThreadExportAbstract)
   private
     FMapTypeArr: array of TMapType;
     FIsReplace: Boolean;
     FExportPath: string;
-    FCurrentFilePath: string;
+    FCacheFile: TMemCachedRec;
     FTiles2Block: array of TTileStream;
     cSat, cMap: Byte;
     function GetTileIndex(X, Y: Integer): Integer; inline;
@@ -46,19 +53,18 @@ type
       ACacheFile: TFileStream;
       ATileData: TMemoryStream;
       APosition: Int64
-    );
-
+    );       
     procedure WriteBlock(
       ACacheFile: TFileStream;
       ATilesArray: array of TTileStream
     );
-
+    procedure CloseCacheFile;
+    function OpenCacheFile(AFilePath: string): Boolean;
     procedure AddTileToCache(
       ATileData: TMemoryStream;
       ATilePoint: TPoint;
       AZoom: Byte;
-      AMapID: Integer;
-      AFinalize: Boolean
+      AMapID: Integer
     );
   protected
     procedure ProcessRegion; override;
@@ -115,7 +121,7 @@ begin
     FMapTypeArr[i - 1] := Atypemaparr[i - 1];
   end;
   SetLength(FTiles2Block, 0);
-  FCurrentFilePath := '';
+  ZeroMemory(@FCacheFile, SizeOf(FCacheFile));
 end;
 
 function TThreadExportYaMobileV4.GetTileIndex(X, Y: Integer): Integer;
@@ -278,10 +284,10 @@ procedure TThreadExportYaMobileV4.WriteBlock(
     VBlockNumber: Word;
   begin
     Result := False;
-    ACacheFile.Position := YaCacheBitTableOffset;
+    FCacheFile.BitTable.Position := 0;
     for VBlockNumber := 0 to YaCacheTotalBlocksCount - 1 do begin
       if (VBlockNumber mod 8) = 0 then begin
-        ACacheFile.Read(VBuf, 1);
+        FCacheFile.BitTable.Read(VBuf, 1);
       end;
       if ( (VBuf shr (7-(VBlockNumber mod 8))) and 1 = 0) then begin
         ABlock := VBlockNumber; // Нумерация блоков с 0
@@ -297,12 +303,12 @@ procedure TThreadExportYaMobileV4.WriteBlock(
     VBuf: Byte;
     VBitTablePos: Integer;
   begin
-    VBitTablePos := YaCacheBitTableOffset + (ABlockNumber div 8);
-    ACacheFile.Position := VBitTablePos;
-    ACacheFile.Read(VBuf, 1);
+    VBitTablePos := ABlockNumber div 8;
+    FCacheFile.BitTable.Position := VBitTablePos;
+    FCacheFile.BitTable.Read(VBuf, 1);
     VBuf := VBuf or (Byte(1) shl (7 - (ABlockNumber mod 8))); // set bit
-    ACacheFile.Position := VBitTablePos;
-    ACacheFile.Write(VBuf, 1);
+    FCacheFile.BitTable.Position := VBitTablePos;
+    FCacheFile.BitTable.Write(VBuf, 1);
   end;
 
   procedure UpdateOffsetTableState(ABlockNumber: Word);
@@ -312,8 +318,8 @@ procedure TThreadExportYaMobileV4.WriteBlock(
   begin
     VBlock := ABlockNumber + 1; // В таблице смещений нумерация блоков с 1
     for I := 0 to Length(ATilesArray) - 1 do begin
-      ACacheFile.Position := YaCacheHeaderSize + (2*GetTileIndex(ATilesArray[i].X, ATilesArray[i].Y));
-      ACacheFile.Write(VBlock, 2);
+      FCacheFile.OffsetTable.Position := 2 * GetTileIndex(ATilesArray[i].X, ATilesArray[i].Y);
+      FCacheFile.OffsetTable.Write(VBlock, 2);
     end;
   end;
 
@@ -321,14 +327,91 @@ var
   VEmptyBlockNumber: Word;
   VEmptyBlockOffset: Int64;
 begin
-  if GetFirstEmptyBlock(VEmptyBlockNumber) then begin
-    VEmptyBlockOffset := YaCacheHeaderSize + YaCacheOffsetTableSize + YaCacheBlockSize * VEmptyBlockNumber;
-    if ACacheFile.Size < VEmptyBlockOffset + YaCacheBlockSize then begin
-      ACacheFile.Size := VEmptyBlockOffset + YaCacheBlockSize;
+  if Length(ATilesArray) > 0 then begin
+    if GetFirstEmptyBlock(VEmptyBlockNumber) then begin
+      VEmptyBlockOffset := YaCacheHeaderSize + YaCacheOffsetTableSize + YaCacheBlockSize * VEmptyBlockNumber;
+      if ACacheFile.Size < VEmptyBlockOffset + YaCacheBlockSize then begin
+        ACacheFile.Size := VEmptyBlockOffset + YaCacheBlockSize;
+      end;
+      WriteBlockData(ACacheFile, ATilesArray, VEmptyBlockOffset);
+      MarkBlockAsNotEmpty(VEmptyBlockNumber);
+      UpdateOffsetTableState(VEmptyBlockNumber);
     end;
-    WriteBlockData(ACacheFile, ATilesArray, VEmptyBlockOffset);
-    MarkBlockAsNotEmpty(VEmptyBlockNumber);
-    UpdateOffsetTableState(VEmptyBlockNumber);
+  end;
+end;
+
+procedure TThreadExportYaMobileV4.CloseCacheFile;
+var
+  I: Integer;
+begin
+  try
+    try
+      if Assigned(FCacheFile.Stream) then begin
+        WriteBlock(FCacheFile.Stream, FTiles2Block);
+        FCacheFile.BitTable.Position := 0;
+        FCacheFile.Stream.Position := YaCacheBitTableOffset;
+        FCacheFile.Stream.Write(FCacheFile.BitTable.Memory^, 8*1024);
+        FCacheFile.OffsetTable.Position := 0;
+        FCacheFile.Stream.Position := 32*1024;
+        FCacheFile.Stream.Write(FCacheFile.OffsetTable.Memory^, 32*1024);
+      end;
+    finally
+      try
+        for I := 0 to Length(FTiles2Block) - 1 do begin
+          FreeAndNil(FTiles2Block[I].Data);
+          ZeroMemory(@FTiles2Block[I], SizeOf(FTiles2Block[I]));
+        end;
+      finally
+        SetLength(FTiles2Block, 0);
+      end;
+    end;
+  finally
+    FCacheFile.Name := '';
+    FreeAndNil(FCacheFile.Stream);
+    FreeAndNil(FCacheFile.BitTable);
+    FreeAndNil(FCacheFile.OffsetTable);
+  end;
+end;
+
+function TThreadExportYaMobileV4.OpenCacheFile(AFilePath: string): Boolean;
+var
+  VPath: string;
+begin
+  if FCacheFile.Name <> AFilePath then begin
+    CloseCacheFile;
+  end else begin
+    Result := Assigned(FCacheFile.Stream) and
+              Assigned(FCacheFile.BitTable) and
+              Assigned(FCacheFile.OffsetTable);
+    Exit;
+  end;
+  FCacheFile.Name := AFilePath;
+  if FileExists(FCacheFile.Name) then begin
+    FCacheFile.Stream := TFileStream.Create(FCacheFile.Name, fmOpenReadWrite);
+  end else begin
+    VPath := ExtractFilePath(FCacheFile.Name);
+    if VPath <> '' then begin
+      if not DirectoryExists(VPath) then begin
+        if not ForceDirectories(VPath) then begin
+          raise Exception.Create('Can''t create dir: ' + VPath);
+        end;
+      end;
+      FCacheFile.Stream := TFileStream.Create(FCacheFile.Name, fmCreate);
+    end;
+  end;
+  if Assigned(FCacheFile.Stream) then begin
+    if FCacheFile.Stream.Size = 0 then begin
+      WriteHeader(FCacheFile.Stream);
+    end;
+    FCacheFile.BitTable := TMemoryStream.Create;
+    FCacheFile.Stream.Position := YaCacheBitTableOffset;
+    FCacheFile.BitTable.CopyFrom(FCacheFile.Stream, 8*1024);
+    FCacheFile.OffsetTable := TMemoryStream.Create;
+    FCacheFile.Stream.Position := 32*1024;
+    FCacheFile.OffsetTable.CopyFrom(FCacheFile.Stream, 32*1024);
+    Result := True;
+  end else begin
+    raise Exception.Create('Can''t open cache file: ' + AFilePath);
   end;
 end;
 
@@ -336,8 +419,7 @@ procedure TThreadExportYaMobileV4.AddTileToCache(
   ATileData: TMemoryStream;
   ATilePoint: TPoint;
   AZoom: Byte;
-  AMapID: Integer;
-  AFinalize: Boolean
+  AMapID: Integer
 );
 
   function BlockDataSizeOverflow(
@@ -353,80 +435,39 @@ procedure TThreadExportYaMobileV4.AddTileToCache(
   end;
 
 var
-  VNewFilePath: string;
+  VCacheFilePath: string;
   VTilesSize: Int64;
-  VCacheFile: TFileStream;
-  VPath: string;
   I:Integer;
 begin
-  VNewFilePath := '';
-  VCacheFile := nil;
+  VTilesSize:=0;
+  for I := 0 to Length(FTiles2Block) - 1 do begin
+    if Assigned(FTiles2Block[I].Data) then begin
+      VTilesSize := VTilesSize + FTiles2Block[I].Data.Size;
+    end;
+  end;
+  if BlockDataSizeOverflow(VTilesSize, Length(FTiles2Block), ATileData.Size) then
   try
-    if AFinalize then begin
-      VNewFilePath := FCurrentFilePath;
-    end else begin
-      VNewFilePath := GetFilePath(ATilePoint, AZoom, AMapID);
-    end;
-
-    if Length(FTiles2Block) = 0 then begin
-      FCurrentFilePath := VNewFilePath;
-    end;
-
-    VTilesSize:=0;
-    for I := 0 to Length(FTiles2Block) - 1 do begin
-      if Assigned(FTiles2Block[I].Data) then begin
-        VTilesSize := VTilesSize + FTiles2Block[I].Data.Size;
-      end;
-    end;
-
-    if FileExists(FCurrentFilePath) then begin
-      VCacheFile := TFileStream.Create(FCurrentFilePath, fmOpenReadWrite);
-    end else begin
-      VPath := ExtractFilePath(FCurrentFilePath);
-      if VPath <> '' then begin
-        if not DirectoryExists(VPath) then begin
-          if not ForceDirectories(VPath) then begin
-            Exit;
-          end;
-        end;
-        VCacheFile := TFileStream.Create(FCurrentFilePath, fmCreate);
-      end;
-    end;
-    if not Assigned(VCacheFile) then begin
-      raise Exception.Create('Can''t open cache file: ' + FCurrentFilePath);
-      Exit;
-    end;
-    try
-      if VCacheFile.Size = 0 then begin
-        WriteHeader(VCacheFile);
-      end;
-      if ( AFinalize or (FCurrentFilePath <> VNewFilePath) or
-           BlockDataSizeOverflow(VTilesSize, Length(FTiles2Block), ATileData.Size) )
-           and (Length(FTiles2Block) > 0) then
-      try
-        WriteBlock(VCacheFile, FTiles2Block);
-      finally
-        try
-          for I := 0 to Length(FTiles2Block) - 1 do begin
-            FreeAndNil(FTiles2Block[I].Data);
-          end;
-        finally
-          SetLength(FTiles2Block, 0);
-        end;
-      end;
-      if not AFinalize and Assigned(ATileData) then begin
-        ATileData.Position := 0;
-        SetLength(FTiles2Block, Length(FTiles2Block) + 1);
-        FTiles2Block[Length(FTiles2Block) - 1].Data := TMemoryStream.Create;
-        FTiles2Block[Length(FTiles2Block) - 1].Data.CopyFrom(ATileData, ATileData.Size);
-        FTiles2Block[Length(FTiles2Block) - 1].X := ATilePoint.X mod 128;
-        FTiles2Block[Length(FTiles2Block) - 1].Y := ATilePoint.Y mod 128;
-      end;
-    finally
-      FreeAndNil(VCacheFile);
+    VCacheFilePath := GetFilePath(ATilePoint, AZoom, AMapID);
+    if OpenCacheFile(VCacheFilePath) then begin
+      WriteBlock(FCacheFile.Stream, FTiles2Block);
     end;
   finally
-    FCurrentFilePath := VNewFilePath;
+    try
+      for I := 0 to Length(FTiles2Block) - 1 do begin
+        FreeAndNil(FTiles2Block[I].Data);
+        ZeroMemory(@FTiles2Block[I], SizeOf(FTiles2Block[I]));
+      end;
+    finally
+      SetLength(FTiles2Block, 0);
+    end;
+  end;
+  if Assigned(ATileData) then begin
+    ATileData.Position := 0;
+    SetLength(FTiles2Block, Length(FTiles2Block) + 1);
+    FTiles2Block[Length(FTiles2Block) - 1].Data := TMemoryStream.Create;
+    FTiles2Block[Length(FTiles2Block) - 1].Data.CopyFrom(ATileData, ATileData.Size);
+    FTiles2Block[Length(FTiles2Block) - 1].X := ATilePoint.X mod 128;
+    FTiles2Block[Length(FTiles2Block) - 1].Y := ATilePoint.Y mod 128;
   end;
 end;
 
@@ -483,57 +524,59 @@ begin
           ProgressFormUpdateOnProgress;
 
           tc := GetTickCount;
-          for j := 0 to length(FMapTypeArr)-1 do begin
-            VMapType:=FMapTypeArr[j];
-            for i := 0 to Length(FZooms) - 1 do begin
-              VZoom := FZooms[i];
-              VTileIterators[i].Reset;
-              while VTileIterators[i].Next(VTile) do begin
-                if CancelNotifier.IsOperationCanceled(OperationID) then begin
-                  exit;
-                end;
-                if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-                  bmp322.Clear;
-                  if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                    FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, VGeoConvert, False, False, True);
+          try
+            for j := 0 to length(FMapTypeArr)-1 do begin
+              VMapType:=FMapTypeArr[j];
+              for i := 0 to Length(FZooms) - 1 do begin
+                VZoom := FZooms[i];
+                VTileIterators[i].Reset;
+                while VTileIterators[i].Next(VTile) do begin
+                  if CancelNotifier.IsOperationCanceled(OperationID) then begin
+                    exit;
                   end;
-                  bmp32.Clear;
-                  if VMapType.LoadTileUni(bmp32, VTile, VZoom, VGeoConvert, False, False, True) then begin
+                  if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
+                    bmp322.Clear;
                     if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                      bmp322.Draw(0, 0, bmp32);
-                      bmp32.Draw(0, 0, bmp322);
+                      FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, VGeoConvert, False, False, True);
                     end;
-                    if (j = 2) or (j = 0) then begin
-                      VSaver := JPGSaver;
-                    end else begin
-                      VSaver := PNGSaver;
+                    bmp32.Clear;
+                    if VMapType.LoadTileUni(bmp32, VTile, VZoom, VGeoConvert, False, False, True) then begin
+                      if (j = 2) and (FMapTypeArr[0] <> nil) then begin
+                        bmp322.Draw(0, 0, bmp32);
+                        bmp32.Draw(0, 0, bmp322);
+                      end;
+                      if (j = 2) or (j = 0) then begin
+                        VSaver := JPGSaver;
+                      end else begin
+                        VSaver := PNGSaver;
+                      end;
+                      for xi := 0 to hxyi do begin
+                        for yi := 0 to hxyi do begin
+                          bmp32crop.Clear;
+                          bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
+                          TileStream.Clear;
+                          VSaver.SaveToStream(bmp32crop, TileStream);
+                          AddTileToCache(
+                            TileStream,
+                            Types.Point(2*VTile.X + Xi, 2*VTile.Y + Yi),
+                            VZoom,
+                            (10 + j)
+                          );
+                        end;
+                      end;
                     end;
-                    for xi := 0 to hxyi do begin
-                      for yi := 0 to hxyi do begin
-                        bmp32crop.Clear;
-                        bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
-                        TileStream.Clear;
-                        VSaver.SaveToStream(bmp32crop, TileStream);
-                        AddTileToCache(
-                          TileStream,
-                          Types.Point(2*VTile.X + Xi, 2*VTile.Y + Yi),
-                          VZoom,
-                          (10 + j),
-                          False
-                        );
-                     end;
+                    inc(FTilesProcessed);
+                    if (GetTickCount - tc > 1000) then begin
+                      tc := GetTickCount;
+                      ProgressFormUpdateOnProgress;
                     end;
-                  end;
-                  inc(FTilesProcessed);
-                  if (GetTickCount - tc > 1000) then begin
-                    tc := GetTickCount;
-                    ProgressFormUpdateOnProgress;
                   end;
                 end;
               end;
             end;
+          finally
+            CloseCacheFile;
           end;
-          AddTileToCache(nil, Types.Point(0,0), 0, 0, True);
         finally
           for i := 0 to Length(FZooms)-1 do begin
             VTileIterators[i] := nil;
