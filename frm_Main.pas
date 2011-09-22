@@ -702,6 +702,8 @@ begin
       FConfig.MainMapsConfig,
       GState.MapType.FullMapsSet,
       GState.MapType.GUIConfigList,
+      GState.DownloadConfig,
+      GState.DownloadInfo,
       Self.OnMapUpdate
     );
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -4152,8 +4154,10 @@ begin
         VThread :=
           TThreadDownloadTiles.Create(
             VSimpleLog,
+            GState.MapType.FullMapsSet,
             VFileName,
-            GState.DownloadConfig.IsUseSessionLastSuccess,
+            GState.DownloadConfig,
+            GState.DownloadInfo,
             FConfig.ViewPortState.GetCurrentZoom
           );
         TfrmProgressDownload.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);

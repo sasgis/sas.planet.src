@@ -10,6 +10,8 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_GlobalDownloadConfig,
+  i_DownloadInfoSimple,
   u_MapType,
   u_ExportProviderAbstract,
   fr_TilesDownload;
@@ -18,6 +20,8 @@ type
   TProviderTilesDownload = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesDownload;
+    FDownloadConfig: IGlobalDownloadConfig;
+    FDownloadInfo: IDownloadInfoSimple;
     FMapUpdateEvent: TMapUpdateEvent;
   public
     constructor Create(
@@ -25,6 +29,8 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      ADownloadConfig: IGlobalDownloadConfig;
+      ADownloadInfo: IDownloadInfoSimple;
       AMapUpdateEvent: TMapUpdateEvent
     );
     destructor Destroy; override;
@@ -55,10 +61,14 @@ constructor TProviderTilesDownload.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  ADownloadConfig: IGlobalDownloadConfig;
+  ADownloadInfo: IDownloadInfoSimple;
   AMapUpdateEvent: TMapUpdateEvent
 );
 begin
   inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FDownloadConfig := ADownloadConfig;
+  FDownloadInfo := ADownloadInfo;
   FMapUpdateEvent := AMapUpdateEvent;
 end;
 
@@ -133,6 +143,8 @@ begin
   VThread := TThreadDownloadTiles.Create(
     VSimpleLog,
     APolygon,
+    FDownloadConfig,
+    FDownloadInfo,
     FFrame.chkReplace.Checked,
     FFrame.chkReplaceIfDifSize.Checked,
     FFrame.chkReplaceOlder.Checked,

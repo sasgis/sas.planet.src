@@ -15,6 +15,8 @@ uses
   inifiles,
   ComCtrls,
   u_CommonFormAndFrameParents,
+  i_GlobalDownloadConfig,
+  i_DownloadInfoSimple,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -71,6 +73,8 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      ADownloadConfig: IGlobalDownloadConfig;
+      ADownloadInfo: IDownloadInfoSimple;
       AMapUpdateEvent: TMapUpdateEvent
     ); reintroduce;
     destructor Destroy; override;
@@ -105,6 +109,8 @@ constructor TfrmRegionProcess.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  ADownloadConfig: IGlobalDownloadConfig;
+  ADownloadInfo: IDownloadInfoSimple;
   AMapUpdateEvent: TMapUpdateEvent
 );
 begin
@@ -143,6 +149,8 @@ begin
       FMainMapsConfig,
       FFullMapsSet,
       FGUIConfigList,
+      ADownloadConfig,
+      ADownloadInfo,
       AMapUpdateEvent
     );
   FProviderMapCombine :=
