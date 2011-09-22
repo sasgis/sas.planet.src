@@ -38,8 +38,7 @@ type
 implementation
 
 uses
-  Messages,
-  u_GeoFun;
+  Messages;
 
 { TKeyMovingHandler }
 

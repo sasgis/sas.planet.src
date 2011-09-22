@@ -232,7 +232,6 @@ uses
   u_PathDetalizeProviderListSimple,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
-  u_ResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }

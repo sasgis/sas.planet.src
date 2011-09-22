@@ -13,7 +13,6 @@ uses
   GR32_Layers,
   i_JclNotify,
   t_GeoTypes,
-  t_CommonTypes,
   i_OperationNotifier,
   i_MapTypes,
   i_MapTypeIconsList,

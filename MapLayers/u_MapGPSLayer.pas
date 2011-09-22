@@ -10,7 +10,6 @@ uses
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
-  t_CommonTypes,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_OperationNotifier,

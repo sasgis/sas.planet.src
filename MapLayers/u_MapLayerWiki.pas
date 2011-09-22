@@ -10,7 +10,6 @@ uses
   GR32_Polygons,
   GR32_Image,
   i_JclNotify,
-  t_CommonTypes,
   u_GeoFun,
   u_MapType,
   u_MapLayerBasic,

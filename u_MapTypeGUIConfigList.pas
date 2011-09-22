@@ -5,7 +5,6 @@ interface
 uses
   ActiveX,
   i_GUIDListStatic,
-  i_ConfigDataElement,
   i_MapTypeHotKeyListStatic,
   i_MapTypeGUIConfigList,
   u_ConfigDataElementComplexBase,
@@ -34,8 +33,7 @@ implementation
 
 uses
   u_GUIDListStatic,
-  u_MapTypeHotKeyListStatic,
-  u_MapType;
+  u_MapTypeHotKeyListStatic;
 
 { TMapTypeGUIConfigList }
 

@@ -77,7 +77,6 @@ implementation
 uses
   SysUtils,
   u_GeoFun,
-  i_CoordConverter,
   u_NotifyEventListener;
 
 { TPolyLineLayerBase }

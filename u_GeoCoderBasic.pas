@@ -6,7 +6,6 @@ uses
   Windows,
   SysUtils,
   Classes,
-  t_GeoTypes,
   i_ProxySettings,
   i_GeoCoder,
   i_LocalCoordConverter;

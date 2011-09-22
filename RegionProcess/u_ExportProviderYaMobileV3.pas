@@ -6,9 +6,6 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
-  i_MapTypes,
-  i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   fr_ExportYaMobileV3;
 

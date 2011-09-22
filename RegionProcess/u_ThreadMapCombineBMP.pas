@@ -8,7 +8,6 @@ uses
   SysUtils,
   Classes,
   GR32,
-  i_OperationNotifier,
   u_GeoFun,
   u_BmpUtil,
   u_ThreadMapCombineBase;

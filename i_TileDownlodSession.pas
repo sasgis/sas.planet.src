@@ -6,7 +6,6 @@ uses
   i_OperationNotifier,
   i_DownloadRequest,
   i_DownloadResult,
-  i_DownloadResultFactory,
   i_DownloadChecker;
 
 type

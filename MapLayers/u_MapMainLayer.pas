@@ -8,7 +8,6 @@ uses
   GR32,
   GR32_Image,
   i_JclNotify,
-  t_CommonTypes,
   i_CoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_OperationNotifier,

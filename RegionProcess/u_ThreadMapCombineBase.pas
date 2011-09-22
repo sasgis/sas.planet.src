@@ -7,7 +7,6 @@ uses
   Types,
   GR32,
   t_GeoTypes,
-  i_OperationNotifier,
   i_MarksSimple,
   i_BitmapLayerProvider,
   i_BitmapPostProcessingConfig,

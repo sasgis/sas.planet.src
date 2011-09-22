@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  i_LanguageListStatic,
   i_StringByLanguage;
 
 type

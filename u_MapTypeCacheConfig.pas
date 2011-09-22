@@ -5,7 +5,6 @@ interface
 uses
   Types,
   i_JclNotify,
-  i_ConfigDataProvider,
   i_SimpleTileStorageConfig,
   i_TileFileNameGeneratorsList,
   u_GlobalCahceConfig,
@@ -60,7 +59,6 @@ type
     function GetDataFileName: string;
     function GetNameInCache: string;
   end;
-
 
 implementation
 

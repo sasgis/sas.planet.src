@@ -10,7 +10,6 @@ uses
   i_ConfigDataWriteProvider,
   i_LanguageManager,
   i_CoordConverterFactory,
-  i_MapTypeIconsList,
   i_ZmpInfoSet,
   i_MemObjCache,
   i_ListOfObjectsWithTTL,
@@ -76,17 +75,10 @@ implementation
 uses
   Dialogs,
   c_ZeroGUID,
-  i_FileNameIterator,
   i_GUIDListStatic,
   i_ZmpInfo,
-  u_ZmpInfo,
-  u_ZmpFileNamesIteratorFactory,
-  u_ConfigDataProviderByFolder,
-  u_ConfigDataProviderByKaZip,
-  u_ConfigDataProviderZmpComplex,
   u_MapTypeGUIConfigList,
   u_MapTypeBasic,
-  u_MapTypeIconsList,
   u_MapTypeSet,
   u_ResStrings;
 

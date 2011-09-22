@@ -6,7 +6,6 @@ uses
   GR32,
   GR32_Image,
   i_JclNotify,
-  t_CommonTypes,
   t_GeoTypes,
   i_OperationNotifier,
   i_ImageResamplerConfig,

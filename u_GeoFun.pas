@@ -7,8 +7,7 @@ uses
   Types,
   GR32,
   t_GeoTypes,
-  i_CoordConverter,
-  i_LocalCoordConverter;
+  i_CoordConverter;
 
 type
   TResObj = record

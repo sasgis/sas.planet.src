@@ -45,8 +45,7 @@ uses
   i_GUIDListStatic,
   u_TBXSubmenuItemWithIndicator,
   u_ActiveMapTBXItem,
-  u_ResStrings,
-  u_GlobalState;
+  u_ResStrings;
 
 { TMapMenuGeneratorBasic }
 

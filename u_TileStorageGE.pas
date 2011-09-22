@@ -5,14 +5,11 @@ interface
 uses
   Types,
   Classes,
-  i_CoordConverter,
-  i_ConfigDataProvider,
   i_SimpleTileStorageConfig,
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_TileInfoBasic,
   i_ContentTypeManager,
-  i_CoordConverterFactory,
   u_MapTypeCacheConfig,
   u_GlobalCahceConfig,
   u_GEIndexFile,
@@ -86,7 +83,6 @@ implementation
 uses
   SysUtils,
   Variants,
-  c_CoordConverter,
   u_TileInfoBasic,
   u_GECrypt;
 

@@ -8,7 +8,6 @@ uses
   i_ZmpInfo,
   i_ZmpInfoSet,
   i_ContentTypeManager,
-  u_MapTypesMainList,
   i_InternalDomainInfoProvider;
 
 type
@@ -35,7 +34,6 @@ uses
   StrUtils,
   SysUtils,
   i_ContentTypeInfo,
-  u_MapType,
   c_ZeroGUID;
 
 const
