@@ -26,6 +26,7 @@ type
     Stream: TFileStream;
     BitTable: TMemoryStream;
     OffsetTable: TMemoryStream;
+    Tiles2Block: array of TTileStream;
   end;
 
   TThreadExportYaMobileV4 = class(TThreadExportAbstract)
@@ -34,7 +35,6 @@ type
     FIsReplace: Boolean;
     FExportPath: string;
     FCacheFile: TMemCachedRec;
-    FTiles2Block: array of TTileStream;
     cSat, cMap: Byte;
     function GetTileIndex(X, Y: Integer): Integer; inline;
     function GetHeightTreeForZoom(AZoom: Byte): Integer; inline;
@@ -120,7 +120,6 @@ begin
   for i := 1 to length(Atypemaparr) do begin
     FMapTypeArr[i - 1] := Atypemaparr[i - 1];
   end;
-  SetLength(FTiles2Block, 0);
   ZeroMemory(@FCacheFile, SizeOf(FCacheFile));
 end;
 
@@ -345,24 +344,23 @@ var
   I: Integer;
 begin
   try
+    if Assigned(FCacheFile.Stream) then
     try
-      if Assigned(FCacheFile.Stream) then begin
-        WriteBlock(FCacheFile.Stream, FTiles2Block);
-        FCacheFile.BitTable.Position := 0;
-        FCacheFile.Stream.Position := YaCacheBitTableOffset;
-        FCacheFile.Stream.Write(FCacheFile.BitTable.Memory^, 8*1024);
-        FCacheFile.OffsetTable.Position := 0;
-        FCacheFile.Stream.Position := 32*1024;
-        FCacheFile.Stream.Write(FCacheFile.OffsetTable.Memory^, 32*1024);
-      end;
+      WriteBlock(FCacheFile.Stream, FCacheFile.Tiles2Block);
+      FCacheFile.BitTable.Position := 0;
+      FCacheFile.Stream.Position := YaCacheBitTableOffset;
+      FCacheFile.Stream.Write(FCacheFile.BitTable.Memory^, 8*1024);
+      FCacheFile.OffsetTable.Position := 0;
+      FCacheFile.Stream.Position := 32*1024;
+      FCacheFile.Stream.Write(FCacheFile.OffsetTable.Memory^, 32*1024);
     finally
       try
-        for I := 0 to Length(FTiles2Block) - 1 do begin
-          FreeAndNil(FTiles2Block[I].Data);
-          ZeroMemory(@FTiles2Block[I], SizeOf(FTiles2Block[I]));
+        for I := 0 to Length(FCacheFile.Tiles2Block) - 1 do begin
+          FreeAndNil(FCacheFile.Tiles2Block[I].Data);
+          ZeroMemory(@FCacheFile.Tiles2Block[I], SizeOf(FCacheFile.Tiles2Block[I]));
         end;
       finally
-        SetLength(FTiles2Block, 0);
+        SetLength(FCacheFile.Tiles2Block, 0);
       end;
     end;
   finally
@@ -409,6 +407,7 @@ begin
     FCacheFile.OffsetTable := TMemoryStream.Create;
     FCacheFile.Stream.Position := 32*1024;
     FCacheFile.OffsetTable.CopyFrom(FCacheFile.Stream, 32*1024);
+    SetLength(FCacheFile.Tiles2Block, 0);
     Result := True;
   end else begin
     raise Exception.Create('Can''t open cache file: ' + AFilePath);
@@ -439,35 +438,36 @@ var
   VTilesSize: Int64;
   I:Integer;
 begin
-  VTilesSize:=0;
-  for I := 0 to Length(FTiles2Block) - 1 do begin
-    if Assigned(FTiles2Block[I].Data) then begin
-      VTilesSize := VTilesSize + FTiles2Block[I].Data.Size;
-    end;
-  end;
-  if BlockDataSizeOverflow(VTilesSize, Length(FTiles2Block), ATileData.Size) then
-  try
-    VCacheFilePath := GetFilePath(ATilePoint, AZoom, AMapID);
-    if OpenCacheFile(VCacheFilePath) then begin
-      WriteBlock(FCacheFile.Stream, FTiles2Block);
-    end;
-  finally
-    try
-      for I := 0 to Length(FTiles2Block) - 1 do begin
-        FreeAndNil(FTiles2Block[I].Data);
-        ZeroMemory(@FTiles2Block[I], SizeOf(FTiles2Block[I]));
+  VCacheFilePath := GetFilePath(ATilePoint, AZoom, AMapID);
+  if OpenCacheFile(VCacheFilePath) then begin
+    VTilesSize:=0;
+    for I := 0 to Length(FCacheFile.Tiles2Block) - 1 do begin
+      if Assigned(FCacheFile.Tiles2Block[I].Data) then begin
+        VTilesSize := VTilesSize + FCacheFile.Tiles2Block[I].Data.Size;
       end;
-    finally
-      SetLength(FTiles2Block, 0);
     end;
-  end;
-  if Assigned(ATileData) then begin
-    ATileData.Position := 0;
-    SetLength(FTiles2Block, Length(FTiles2Block) + 1);
-    FTiles2Block[Length(FTiles2Block) - 1].Data := TMemoryStream.Create;
-    FTiles2Block[Length(FTiles2Block) - 1].Data.CopyFrom(ATileData, ATileData.Size);
-    FTiles2Block[Length(FTiles2Block) - 1].X := ATilePoint.X mod 128;
-    FTiles2Block[Length(FTiles2Block) - 1].Y := ATilePoint.Y mod 128;
+    if BlockDataSizeOverflow(VTilesSize, Length(FCacheFile.Tiles2Block), ATileData.Size) then
+    try
+      WriteBlock(FCacheFile.Stream, FCacheFile.Tiles2Block);
+    finally
+      try
+        for I := 0 to Length(FCacheFile.Tiles2Block) - 1 do begin
+          FreeAndNil(FCacheFile.Tiles2Block[I].Data);
+          ZeroMemory(@FCacheFile.Tiles2Block[I], SizeOf(FCacheFile.Tiles2Block[I]));
+        end;
+      finally
+        SetLength(FCacheFile.Tiles2Block, 0);
+      end;
+    end;
+    if Assigned(ATileData) then begin
+      ATileData.Position := 0;
+      I := Length(FCacheFile.Tiles2Block);
+      SetLength(FCacheFile.Tiles2Block, I + 1);
+      FCacheFile.Tiles2Block[I].Data := TMemoryStream.Create;
+      FCacheFile.Tiles2Block[I].Data.CopyFrom(ATileData, ATileData.Size);
+      FCacheFile.Tiles2Block[I].X := ATilePoint.X mod 128;
+      FCacheFile.Tiles2Block[I].Y := ATilePoint.Y mod 128;
+    end;
   end;
 end;
 
