@@ -41,8 +41,6 @@ type
     FMapTypeIcons18List: IMapTypeIconsList;
     FMapTypeIcons24List: IMapTypeIconsList;
 
-    function GetMapType(Index: Integer): TMapType;
-    function GetCount: Integer;
     procedure BuildMapsLists;
     function GetFirstMainMap: TMapType;
   public
@@ -50,8 +48,6 @@ type
       AZmpInfoSet: IZmpInfoSet
     );
     destructor Destroy; override;
-    property Items[Index : Integer]: TMapType read GetMapType; default;
-    property Count: Integer read GetCount;
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
     property MapsSet: IMapTypeSet read FMapsSet;
     property LayersSet: IMapTypeSet read FLayersSet;
@@ -77,7 +73,6 @@ type
     );
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
     function GetMapFromID(id: TGUID): TMapType;
-    procedure SortList;
     procedure LoadMapIconsList;
     function GetMapTypeByHotKey(AHotKey: TShortCut): TMapType;
 
@@ -120,11 +115,6 @@ begin
   inherited;
 end;
 
-function TMapTypesMainList.GetCount: Integer;
-begin
-  Result := Length(FMapType);
-end;
-
 function TMapTypesMainList.GetFirstMainMap: TMapType;
 var
   i: integer;
@@ -158,11 +148,6 @@ begin
       exit;
     end;
   end;
-end;
-
-function TMapTypesMainList.GetMapType(Index: Integer): TMapType;
-begin
-  Result := FMapType[index];
 end;
 
 function TMapTypesMainList.GetMapTypeByHotKey(AHotKey: TShortCut): TMapType;
@@ -220,8 +205,8 @@ begin
   VList24 := TMapTypeIconsList.Create(24, 24);
   FMapTypeIcons24List := VList24;
 
-  for i := 0 to GetCount - 1 do begin
-    VMapType := Items[i];
+  for i := 0 to Length(FMapType) - 1 do begin
+    VMapType := FMapType[i];
     VList18.Add(VMapType.Zmp.GUID, VMapType.Zmp.GUI.Bmp18);
     VList24.Add(VMapType.Zmp.GUID, VMapType.Zmp.GUI.Bmp24);
   end;
@@ -323,7 +308,6 @@ begin
     raise Exception.Create(SAS_ERR_MainMapNotExists);
   end;
 
-  SortList;
   BuildMapsLists;
   FGUIConfigList := TMapTypeGUIConfigList.Create(FFullMapsSet);
 end;
@@ -340,33 +324,6 @@ begin
     VGUIDString := GUIDToString(VMapType.Zmp.GUID);
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
     VMapType.SaveConfig(VSubItem);
-  end;
-end;
-
-procedure TMapTypesMainList.SortList;
-var
-  i, j, k: integer;
-  MTb: TMapType;
-begin
-  k := length(FMapType) shr 1;
-  while k > 0 do begin
-    for i := 0 to length(FMapType) - k - 1 do begin
-      j := i;
-      while (j >= 0) and (FMapType[j].GUIConfig.SortIndex > FMapType[j + k].GUIConfig.SortIndex) do begin
-        MTb := FMapType[j];
-        FMapType[j] := FMapType[j + k];
-        FMapType[j + k] := MTb;
-        if j > k then begin
-          Dec(j, k);
-        end else begin
-          j := 0;
-        end;
-      end;
-    end;
-    k := k shr 1;
-  end;
-  for i := 0 to length(FMapType) - 1 do begin
-    FMapType[i].GUIConfig.SortIndex := i + 1;
   end;
 end;
 
