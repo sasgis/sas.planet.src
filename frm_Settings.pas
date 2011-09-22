@@ -871,22 +871,21 @@ begin
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    With VMapType do begin
-      MapList.AddItem(VMapType.GUIConfig.Name.Value, nil);
-      MapList.Items.Item[i].Data:=VMapType;
-      MapList.Items.Item[i].SubItems.Add(VMapType.StorageConfig.NameInCache);
-      if VMapType.Abilities.IsLayer then begin
-        MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
-      end else begin
-        MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
-      end;
-      MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.GUIConfig.HotKey));
-      MapList.Items.Item[i].SubItems.Add(VMapType.Zmp.FileName);
-      if VMapType.GUIConfig.Enabled then begin
-        MapList.Items.Item[i].SubItems.Add(SAS_STR_Yes)
-      end else begin
-        MapList.Items.Item[i].SubItems.Add(SAS_STR_No)
-      end;
+
+    MapList.AddItem(VMapType.GUIConfig.Name.Value, nil);
+    MapList.Items.Item[i].Data:=VMapType;
+    MapList.Items.Item[i].SubItems.Add(VMapType.StorageConfig.NameInCache);
+    if VMapType.Abilities.IsLayer then begin
+      MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
+    end else begin
+      MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
+    end;
+    MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.GUIConfig.HotKey));
+    MapList.Items.Item[i].SubItems.Add(VMapType.Zmp.FileName);
+    if VMapType.GUIConfig.Enabled then begin
+      MapList.Items.Item[i].SubItems.Add(SAS_STR_Yes)
+    end else begin
+      MapList.Items.Item[i].SubItems.Add(SAS_STR_No)
     end;
   end;
   if MapList.Items.Count > 0 then begin
