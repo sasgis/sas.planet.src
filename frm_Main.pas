@@ -60,6 +60,7 @@ uses
   i_SelectionRect,
   i_LineOnMapEdit,
   i_PathDetalizeProvider,
+  i_MapTypeIconsList,
   i_MessageHandler,
   i_MouseState,
   i_MouseHandler,
@@ -528,6 +529,9 @@ type
     ProgramStart: Boolean;
     ProgramClose: Boolean;
 
+    FMapTypeIcons18List: IMapTypeIconsList;
+    FMapTypeIcons24List: IMapTypeIconsList;
+
     FNLayerParamsItemList: IGUIDObjectSet; //Пункт гланого меню Параметры/Параметры слоя
     FNDwnItemList: IGUIDObjectSet; //Пункт контекстного меню Загрузить тайл слоя
     FNDelItemList: IGUIDObjectSet; //Пункт контекстного меню Удалить тайл слоя
@@ -567,6 +571,7 @@ type
     FPathProvidersMenuBuilder: IMenuGeneratorByTree;
 
     procedure InitSearchers;
+    procedure LoadMapIconsList;
     procedure CreateMapUIMapsList;
     procedure CreateMapUILayersList;
     procedure CreateMapUIFillingList;
@@ -656,6 +661,7 @@ uses
   u_MainWindowPositionConfig,
   u_TileErrorLogProviedrStuped,
   u_LineOnMapEdit,
+  u_MapTypeIconsList,
   u_SelectionRect,
   u_KeyMovingHandler,
   i_MapViewGoto,
@@ -707,6 +713,8 @@ begin
       GState.DownloadInfo,
       Self.OnMapUpdate
     );
+  LoadMapIconsList;
+
   FLinksList := TJclListenerNotifierLinksList.Create;
 
   VLogger := TTileErrorLogProviedrStuped.Create;
@@ -716,18 +724,18 @@ begin
   FGpsPosChangeCounter := 0;
   FCenterToGPSDelta := DoublePoint(NaN, NaN);
 
-  TBSMB.Images := GState.MapType.MapTypeIcons24List.GetImageList;
-  TBSMB.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
-  TBLayerSel.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
-  TBFillingTypeMap.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
-  NSMB.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
-  NLayerSel.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
-  NLayerParams.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
-  ldm.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
-  dlm.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
-  TBOpenDirLayer.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
-  TBCopyLinkLayer.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
-  TBLayerInfo.SubMenuImages := GState.MapType.MapTypeIcons18List.GetImageList;
+  TBSMB.Images := FMapTypeIcons24List.GetImageList;
+  TBSMB.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  TBLayerSel.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  TBFillingTypeMap.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  NSMB.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  NLayerSel.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  NLayerParams.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  ldm.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  dlm.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  TBOpenDirLayer.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  TBCopyLinkLayer.SubMenuImages := FMapTypeIcons18List.GetImageList;
+  TBLayerInfo.SubMenuImages := FMapTypeIcons18List.GetImageList;
 
   FNLayerParamsItemList := TGUIDObjectSet.Create(False);
   FNDwnItemList := TGUIDObjectSet.Create(False);
@@ -1112,7 +1120,7 @@ begin
         GState.ViewConfig,
         GState.BitmapPostProcessingConfig,
         GState.MapType.GUIConfigList,
-        GState.MapType.MapTypeIcons18List,
+        FMapTypeIcons18List,
         GState.GUISyncronizedTimerNotifier
       );
     FLayersList.Add(FLayerMiniMap);
@@ -1402,7 +1410,7 @@ begin
     FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetActiveMapsSet,
     TBFillingTypeMap,
     Self.TBfillMapAsMainClick,
-    GState.MapType.MapTypeIcons18List
+    FMapTypeIcons18List
   );
   try
     VGenerator.BuildControls;
@@ -1420,7 +1428,7 @@ begin
     FConfig.MainMapsConfig.GetActiveLayersSet,
     TBLayerSel,
     Self.OnClickLayerItem,
-    GState.MapType.MapTypeIcons18List
+    FMapTypeIcons18List
   );
   try
    VGenerator.BuildControls;
@@ -1463,7 +1471,7 @@ begin
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    VIcon18Index := GState.MapType.MapTypeIcons18List.GetIconIndexByGUID(VGUID);
+    VIcon18Index := FMapTypeIcons18List.GetIconIndexByGUID(VGUID);
     if VMapType.Abilities.IsLayer then begin
       NDwnItem:=TTBXItem.Create(ldm);
       FNDwnItemList.Add(VGUID, NDwnItem);
@@ -1525,7 +1533,7 @@ begin
     FConfig.MainMapsConfig.GetActiveMapsSet,
     TBSMB,
     Self.OnClickMapItem,
-    GState.MapType.MapTypeIcons18List
+    FMapTypeIcons18List
   );
   try
     VGenerator.BuildControls;
@@ -1896,9 +1904,9 @@ var
   VGUID: TGUID;
   VMapType: IMapType;
 begin
-  VGUID := FConfig.MainMapsConfig. GetActiveMap.GetSelectedGUID;
+  VGUID := FConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
 
-  TBSMB.ImageIndex := GState.MapType.MapTypeIcons24List.GetIconIndexByGUID(VGUID);
+  TBSMB.ImageIndex := FMapTypeIcons24List.GetIconIndexByGUID(VGUID);
   if FConfig.MainConfig.ShowMapName then begin
     VMapType := FConfig.MainMapsConfig.GetActiveMap.GetMapsSet.GetMapTypeByGUID(VGUID);
     TBSMB.Caption := VMapType.MapType.GUIConfig.Name.Value;
@@ -4402,6 +4410,29 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard('http://www.bing.com/maps/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoom));
+end;
+
+procedure TfrmMain.LoadMapIconsList;
+var
+  VMapType: TMapType;
+  VList18: TMapTypeIconsList;
+  VList24: TMapTypeIconsList;
+  VEnum: IEnumGUID;
+  VGUID: TGUID;
+  VGetCount: Cardinal;
+begin
+  VList18 := TMapTypeIconsList.Create(18, 18);
+  FMapTypeIcons18List := VList18;
+
+  VList24 := TMapTypeIconsList.Create(24, 24);
+  FMapTypeIcons24List := VList24;
+
+  VEnum := GState.MapType.FullMapsSet.GetIterator;
+  while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VList18.Add(VGUID, VMapType.GUIConfig.Bmp18);
+    VList24.Add(VGUID, VMapType.GUIConfig.Bmp24);
+  end;
 end;
 
 procedure TfrmMain.MainPopupMenuPopup(Sender: TObject);

@@ -38,9 +38,6 @@ type
     FMapsSet: IMapTypeSet;
     FLayersSet: IMapTypeSet;
 
-    FMapTypeIcons18List: IMapTypeIconsList;
-    FMapTypeIcons24List: IMapTypeIconsList;
-
     procedure BuildMapsLists;
     function GetFirstMainMapGUID: TGUID;
   public
@@ -52,9 +49,6 @@ type
     property MapsSet: IMapTypeSet read FMapsSet;
     property LayersSet: IMapTypeSet read FLayersSet;
     property FirstMainMapGUID: TGUID read GetFirstMainMapGUID;
-
-    property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
-    property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
 
     procedure LoadMaps(
       ALanguageManager: ILanguageManager;
@@ -72,7 +66,6 @@ type
       ALocalMapsConfig: IConfigDataProvider
     );
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
-    procedure LoadMapIconsList;
     function GetMapTypeByHotKey(AHotKey: TShortCut): TMapType;
 
     function GetGUIConfigList: IMapTypeGUIConfigList;
@@ -177,26 +170,6 @@ begin
     end else begin
       VMapsList.Add(VMapType);
     end;
-  end;
-end;
-
-procedure TMapTypesMainList.LoadMapIconsList;
-var
-  i: Integer;
-  VMapType: TMapType;
-  VList18: TMapTypeIconsList;
-  VList24: TMapTypeIconsList;
-begin
-  VList18 := TMapTypeIconsList.Create(18, 18);
-  FMapTypeIcons18List := VList18;
-
-  VList24 := TMapTypeIconsList.Create(24, 24);
-  FMapTypeIcons24List := VList24;
-
-  for i := 0 to Length(FMapType) - 1 do begin
-    VMapType := FMapType[i];
-    VList18.Add(VMapType.Zmp.GUID, VMapType.Zmp.GUI.Bmp18);
-    VList24.Add(VMapType.Zmp.GUID, VMapType.Zmp.GUI.Bmp24);
   end;
 end;
 
