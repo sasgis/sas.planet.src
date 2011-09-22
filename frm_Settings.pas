@@ -227,7 +227,6 @@ type
     procedure MapListChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
   private
-    FMapsEdit: boolean;
     frShortCutList: TfrShortCutList;
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
     procedure InitMapsList;
@@ -577,7 +576,6 @@ var
 begin
  InitMapsList;
 
- FMapsEdit:=false;
  CBoxLocal.Clear;
  frShortCutList.Parent := GroupBox5;
 
@@ -755,33 +753,37 @@ begin
 end;
 
 procedure ExchangeItems(lv: TListView; const i, j: Integer);
-var tempLI: TListItem;
+var
+  tempLI: TListItem;
 begin
- lv.Items.BeginUpdate;
- try
-  tempLI := TListItem.Create(lv.Items);
-  tempLI.Assign(lv.Items.Item[i]);
-  lv.Items.Item[i].Assign(lv.Items.Item[j]);
-  lv.Items.Item[j].Assign(tempLI);
-  lv.Items.Item[j].Selected:=true;
-  tempLI.Free;
- finally
-  lv.Items.EndUpdate
- end;
+  lv.Items.BeginUpdate;
+  try
+    tempLI := TListItem.Create(lv.Items);
+    try
+      tempLI.Assign(lv.Items.Item[i]);
+      lv.Items.Item[i].Assign(lv.Items.Item[j]);
+      lv.Items.Item[j].Assign(tempLI);
+      lv.Items.Item[j].Selected:=true;
+    finally
+      tempLI.Free;
+    end;
+  finally
+    lv.Items.EndUpdate
+  end;
 end;
 
 procedure TfrmSettings.Button12Click(Sender: TObject);
 begin
- FMapsEdit:=true;
- If (MapList.Selected<>nil)and(MapList.Selected.Index>0) then
-  ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index-1);
+  If (MapList.Selected<>nil)and(MapList.Selected.Index>0) then begin
+    ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index-1);
+  end;
 end;
 
 procedure TfrmSettings.Button11Click(Sender: TObject);
 begin
- FMapsEdit:=true;
- If (MapList.Selected<>nil)and(MapList.Selected.Index<MapList.Items.Count-1) then
-  ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index+1)
+  If (MapList.Selected<>nil)and(MapList.Selected.Index<MapList.Items.Count-1) then begin
+    ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index+1)
+  end;
 end;
 
 procedure TfrmSettings.Button15Click(Sender: TObject);
@@ -790,7 +792,6 @@ var
 begin
   VMapType := TMapType(MapList.Selected.Data);
   if frmMapTypeEdit.EditMapModadl(VMapType) then begin
-    FMapsEdit := True;
     InitMapsList;
   end;
 end;
