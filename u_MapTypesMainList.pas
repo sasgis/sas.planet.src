@@ -230,13 +230,8 @@ procedure TMapTypesMainList.LoadMaps(
 );
 var
   VMapType: TMapType;
-  VMapTypeLoaded: TMapType;
   VMapOnlyCount: integer;
-
-  VZmpMapConfig: IConfigDataProvider;
   VLocalMapConfig: IConfigDataProvider;
-  VFileName: WideString;
-  VFullFileName: string;
   VMapTypeCount: integer;
   VZmp: IZmpInfo;
   VEnum: IEnumGUID;
@@ -333,10 +328,14 @@ var
   VGUIDString: string;
   VMapType: TMapType;
   VSubItem: IConfigDataWriteProvider;
+  VGUID: TGUID;
+  VGUIDList: IGUIDListStatic;
 begin
-  for i := 0 to length(FMapType) - 1 do begin
-    VMapType := FMapType[i];
-    VGUIDString := GUIDToString(VMapType.Zmp.GUID);
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType :=FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VGUIDString := GUIDToString(VGUID);
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
     VMapType.SaveConfig(VSubItem);
   end;
