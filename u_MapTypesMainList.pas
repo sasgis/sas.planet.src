@@ -42,7 +42,7 @@ type
     FMapTypeIcons24List: IMapTypeIconsList;
 
     procedure BuildMapsLists;
-    function GetFirstMainMap: TMapType;
+    function GetFirstMainMapGUID: TGUID;
   public
     constructor Create(
       AZmpInfoSet: IZmpInfoSet
@@ -51,7 +51,7 @@ type
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
     property MapsSet: IMapTypeSet read FMapsSet;
     property LayersSet: IMapTypeSet read FLayersSet;
-    property FirstMainMap: TMapType read GetFirstMainMap;
+    property FirstMainMapGUID: TGUID read GetFirstMainMapGUID;
 
     property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
     property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
@@ -83,6 +83,7 @@ implementation
 
 uses
   Dialogs,
+  c_ZeroGUID,
   i_FileNameIterator,
   i_GUIDListStatic,
   i_ZmpInfo,
@@ -115,16 +116,18 @@ begin
   inherited;
 end;
 
-function TMapTypesMainList.GetFirstMainMap: TMapType;
+function TMapTypesMainList.GetFirstMainMapGUID: TGUID;
 var
   i: integer;
-  VMapType: TMapType;
+  VGUID: TGUID;
+  VGUIDList: IGUIDListStatic;
 begin
-  Result := nil;
-  for i := 0 to length(FMapType) - 1 do begin
-    VMapType := FMapType[i];
-    if not VMapType.Abilities.IsLayer then begin
-      result := VMapType;
+  Result := CGUID_Zero;
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[i];
+    if FMapsSet.GetMapTypeByGUID(VGUID) <> nil then begin
+      result := VGUID;
       exit;
     end;
   end;

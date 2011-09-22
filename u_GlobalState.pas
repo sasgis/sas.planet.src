@@ -495,7 +495,7 @@ begin
     FGeoCoderList,
     FMainMapsList.MapsSet,
     FMainMapsList.LayersSet,
-    FMainMapsList.FirstMainMap.Zmp.GUID,
+    FMainMapsList.FirstMainMapGUID,
     FPerfCounterList.CreateAndAddNewSubList('ViewState')
   );
 
