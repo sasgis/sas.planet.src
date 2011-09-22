@@ -83,7 +83,7 @@ begin
       FDefConfig.Name,
       True,
       'Name',
-      False
+      True
     );
   Add(FName, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FSortIndex := FDefConfig.SortIndex;
