@@ -56,7 +56,7 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList
-    );
+    ); reintroduce;
     procedure Init(AZoom: Byte);
   end;
 
