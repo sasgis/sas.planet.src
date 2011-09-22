@@ -72,7 +72,6 @@ type
       ALocalMapsConfig: IConfigDataProvider
     );
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
-    function GetMapFromID(id: TGUID): TMapType;
     procedure LoadMapIconsList;
     function GetMapTypeByHotKey(AHotKey: TShortCut): TMapType;
 
@@ -134,21 +133,6 @@ end;
 function TMapTypesMainList.GetGUIConfigList: IMapTypeGUIConfigList;
 begin
   Result := FGUIConfigList;
-end;
-
-function TMapTypesMainList.GetMapFromID(id: TGUID): TMapType;
-var
-  i: integer;
-  VMapType: TMapType;
-begin
-  Result := nil;
-  for i := 0 to length(FMapType) - 1 do begin
-    VMapType := FMapType[i];
-    if IsEqualGUID(VMapType.Zmp.GUID, id) then begin
-      result := VMapType;
-      exit;
-    end;
-  end;
 end;
 
 function TMapTypesMainList.GetMapTypeByHotKey(AHotKey: TShortCut): TMapType;
