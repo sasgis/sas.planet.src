@@ -480,9 +480,6 @@ begin
  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
  save(GState.MainConfigProvider);
- if FMapsEdit then begin
-   frmMain.CreateMapUI;
- end;
  if VNeedReboot then begin
    ShowMessage(SAS_MSG_need_reload_application_curln);
  end;

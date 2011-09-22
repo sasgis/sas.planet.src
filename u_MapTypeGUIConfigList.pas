@@ -6,6 +6,7 @@ uses
   ActiveX,
   i_GUIDListStatic,
   i_ConfigDataElement,
+  i_MapTypeHotKeyListStatic,
   i_MapTypeGUIConfigList,
   u_ConfigDataElementComplexBase,
   i_MapTypes;
@@ -15,11 +16,14 @@ type
   private
     FMapsSet: IMapTypeSet;
     FOrderedMapGUIDList: IGUIDListStatic;
+    FHotKeyList: IMapTypeHotKeyListStatic;
+    function CreateHotKeyList: IMapTypeHotKeyListStatic;
     function CreateOrderedList: IGUIDListStatic;
   protected
     procedure DoBeforeChangeNotify; override;
   protected
     function GetOrderedMapGUIDList: IGUIDListStatic;
+    function GetHotKeyList: IMapTypeHotKeyListStatic;
   public
     constructor Create(
       AMapsSet: IMapTypeSet
@@ -30,6 +34,7 @@ implementation
 
 uses
   u_GUIDListStatic,
+  u_MapTypeHotKeyListStatic,
   u_MapType;
 
 { TMapTypeGUIConfigList }
@@ -44,11 +49,17 @@ begin
   inherited Create;
   FMapsSet := AMapsSet;
   FOrderedMapGUIDList := CreateOrderedList;
+  FHotKeyList := CreateHotKeyList;
   VEnum := FMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
     VMap := FMapsSet.GetMapTypeByGUID(VGUID);
     Add(VMap.MapType.GUIConfig, nil);
   end;
+end;
+
+function TMapTypeGUIConfigList.CreateHotKeyList: IMapTypeHotKeyListStatic;
+begin
+  Result := TMapTypeHotKeyListStatic.Create(FMapsSet);
 end;
 
 function TMapTypeGUIConfigList.CreateOrderedList: IGUIDListStatic;
@@ -130,9 +141,15 @@ begin
   LockWrite;
   try
     FOrderedMapGUIDList := CreateOrderedList;
+    FHotKeyList := CreateHotKeyList;
   finally
     UnlockWrite;
   end;
+end;
+
+function TMapTypeGUIConfigList.GetHotKeyList: IMapTypeHotKeyListStatic;
+begin
+  Result := FHotKeyList;
 end;
 
 function TMapTypeGUIConfigList.GetOrderedMapGUIDList: IGUIDListStatic;

@@ -66,7 +66,6 @@ type
       ALocalMapsConfig: IConfigDataProvider
     );
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
-    function GetMapTypeByHotKey(AHotKey: TShortCut): TMapType;
 
     function GetGUIConfigList: IMapTypeGUIConfigList;
     property GUIConfigList: IMapTypeGUIConfigList read GetGUIConfigList;
@@ -129,21 +128,6 @@ end;
 function TMapTypesMainList.GetGUIConfigList: IMapTypeGUIConfigList;
 begin
   Result := FGUIConfigList;
-end;
-
-function TMapTypesMainList.GetMapTypeByHotKey(AHotKey: TShortCut): TMapType;
-var
-  i: Integer;
-  VMap: TMapType;
-begin
-  Result := nil;
-  for i := 0 to Length(FMapType) - 1 do begin
-    VMap := FMapType[i];
-    if VMap.GUIConfig.HotKey = AHotKey then begin
-      Result := VMap;
-      Break;
-    end;
-  end;
 end;
 
 procedure TMapTypesMainList.BuildMapsLists;

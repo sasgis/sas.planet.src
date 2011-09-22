@@ -53,6 +53,7 @@ uses
   i_GPS,
   i_GPSRecorder,
   i_GeoCoder,
+  i_MapTypeHotKeyListStatic,
   i_MarksSimple,
   i_MainFormConfig,
   i_SearchResultPresenter,
@@ -569,6 +570,7 @@ type
     FPathProvidersTree: ITreeChangeable;
     FPathProvidersTreeStatic: IStaticTreeItem;
     FPathProvidersMenuBuilder: IMenuGeneratorByTree;
+    FMapHotKeyList: IMapTypeHotKeyListStatic;
 
     procedure InitSearchers;
     procedure LoadMapIconsList;
@@ -578,6 +580,7 @@ type
     procedure CreateMapUILayerSubMenu;
     procedure CreateLangMenu;
 
+    procedure OnMapGUIChange(Sender: TObject);
     procedure OnSearchhistoryChange(Sender: TObject);
     procedure OnWinPositionChange(Sender: TObject);
     procedure OnToolbarsLockChange(Sender: TObject);
@@ -616,7 +619,6 @@ type
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure CreateMapUI;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     procedure LayerMapMarksRedraw;
     procedure OnMinimize(Sender: TObject);
@@ -1135,7 +1137,11 @@ begin
         FTileErrorLogger
       );
 
-    CreateMapUI;
+    FLinksList.Add(
+      TNotifyEventListener.Create(Self.OnMapGUIChange),
+      GState.MapType.GUIConfigList.GetChangeNotifier
+    );
+    OnMapGUIChange(nil);
 
     VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
     NGShScale10000.Checked := VScale = 10000;
@@ -1391,14 +1397,6 @@ begin
   for i := 0 to VManager.LanguageList.Count - 1 do begin
     TLanguageTBXItem.Create(Self, TBLang, VManager, i);
   end;
-end;
-
-procedure TfrmMain.CreateMapUI;
-begin
-  CreateMapUIMapsList;
-  CreateMapUILayersList;
-  CreateMapUIFillingList;
-  CreateMapUILayerSubMenu;
 end;
 
 procedure TfrmMain.CreateMapUIFillingList;
@@ -1915,6 +1913,15 @@ begin
   end;
 end;
 
+procedure TfrmMain.OnMapGUIChange(Sender: TObject);
+begin
+  FMapHotKeyList := GState.MapType.GUIConfigList.HotKeyList;
+  CreateMapUIMapsList;
+  CreateMapUILayersList;
+  CreateMapUIFillingList;
+  CreateMapUILayerSubMenu;
+end;
+
 procedure TfrmMain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
   ATile: TPoint);
 begin
@@ -2055,6 +2062,7 @@ end;
 procedure TfrmMain.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
 var
   VShortCut: TShortCut;
+  VMap: IMapType;
   VMapType: TMapType;
   VCancelSelection: Boolean;
 begin
@@ -2143,8 +2151,9 @@ begin
         Handled := True;
       end;
     else
-      VMapType := GState.MapType.GetMapTypeByHotKey(VShortCut);
-      if VMapType <> nil then begin
+      VMap := FMapHotKeyList.GetMapTypeGUIDByHotKey(VShortCut);
+      if VMap <> nil then begin
+        VMapType := VMap.MapType;
         if VMapType.Abilities.IsLayer then begin
           FConfig.MainMapsConfig.LockWrite;
           try
@@ -3300,10 +3309,7 @@ begin
   end else begin
     VMapType := TMapType(TTBXItem(sender).Tag);
   end;
-  if frmMapTypeEdit.EditMapModadl(VMapType) then begin
-    CreateMapUI;
-    OnMapUpdate(VMapType);
-  end;
+  frmMapTypeEdit.EditMapModadl(VMapType);
 end;
 
 procedure TfrmMain.mapMouseDown(Sender: TObject; Button: TMouseButton;
