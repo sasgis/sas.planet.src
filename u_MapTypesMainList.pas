@@ -85,6 +85,7 @@ implementation
 uses
   Dialogs,
   i_FileNameIterator,
+  i_GUIDListStatic,
   i_ZmpInfo,
   u_ZmpInfo,
   u_ZmpFileNamesIteratorFactory,
@@ -241,6 +242,8 @@ var
   VEnum: IEnumGUID;
   VGUID: TGUID;
   VGetCount: Cardinal;
+  VGUIDList: IGUIDListStatic;
+  i: Integer;
 begin
   SetLength(FMapType, 0);
   VMapOnlyCount := 0;
@@ -310,6 +313,18 @@ begin
 
   BuildMapsLists;
   FGUIConfigList := TMapTypeGUIConfigList.Create(FFullMapsSet);
+
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  FGUIConfigList.LockWrite;
+  try
+    for i := 0 to VGUIDList.Count - 1 do begin
+      VGUID := VGUIDList.Items[i];
+      VMapType :=FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+      VMapType.GUIConfig.SortIndex := i + 1;
+    end;
+  finally
+    FGUIConfigList.UnlockWrite;
+  end;
 end;
 
 procedure TMapTypesMainList.SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
