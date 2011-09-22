@@ -251,6 +251,7 @@ uses
   t_CommonTypes,
   i_ProxySettings,
   i_InetConfig,
+  i_GUIDListStatic,
   u_GlobalState,
   frm_Main,
   frm_IntrnalBrowser,
@@ -319,14 +320,17 @@ var
   VInetConfig: IInetConfig;
   VNeedReboot: boolean;
 begin
- VNeedReboot:=false;
- For i:=0 to MapList.Items.Count-1 do
-  begin
-   TMapType(MapList.Items.Item[i].data).GUIConfig.SortIndex:=i+1;
+  VNeedReboot:=false;
+  GState.MapType.GUIConfigList.LockWrite;
+  try
+    For i:=0 to MapList.Items.Count-1 do begin
+      TMapType(MapList.Items.Item[i].data).GUIConfig.SortIndex := i+1;
+    end;
+  finally
+    GState.MapType.GUIConfigList.UnlockWrite;
   end;
- GState.MapType.SortList;
 
- GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
+  GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
 
   GState.DownloadConfig.LockWrite;
   try
@@ -859,10 +863,14 @@ procedure TfrmSettings.InitMapsList;
 var
   i: integer;
   VMapType: TMapType;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   MapList.Clear;
-  for i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
+  VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     With VMapType do begin
       MapList.AddItem(VMapType.GUIConfig.Name.Value, nil);
       MapList.Items.Item[i].Data:=VMapType;
@@ -881,8 +889,8 @@ begin
       end;
     end;
   end;
-  if MapList.Items.Count>0 then begin
-    MapList.Items.Item[0].Selected:=true;
+  if MapList.Items.Count > 0 then begin
+    MapList.Items.Item[0].Selected := True;
   end;
 end;
 
