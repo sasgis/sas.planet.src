@@ -450,6 +450,8 @@ uses
   i_MapTypeGUIConfig in 'i_MapTypeGUIConfig.pas',
   u_MapTypeGUIConfigStatic in 'u_MapTypeGUIConfigStatic.pas',
   u_MapTypeGUIConfig in 'u_MapTypeGUIConfig.pas',
+  i_MapTypeHotKeyListStatic in 'i_MapTypeHotKeyListStatic.pas',
+  u_MapTypeHotKeyListStatic in 'u_MapTypeHotKeyListStatic.pas',
   i_MapTypeGUIConfigList in 'i_MapTypeGUIConfigList.pas',
   u_MapTypeGUIConfigList in 'u_MapTypeGUIConfigList.pas',
   i_MainFormBehaviourByGPSConfig in 'i_MainFormBehaviourByGPSConfig.pas',

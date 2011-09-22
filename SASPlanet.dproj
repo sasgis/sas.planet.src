@@ -224,6 +224,7 @@
     <DCCReference Include="i_MapMovingConfig.pas" />
     <DCCReference Include="i_MapTypeGUIConfig.pas" />
     <DCCReference Include="i_MapTypeGUIConfigList.pas" />
+    <DCCReference Include="i_MapTypeHotKeyListStatic.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_MapVersionConfig.pas" />
@@ -606,6 +607,7 @@
     <DCCReference Include="u_MapTypeGUIConfig.pas" />
     <DCCReference Include="u_MapTypeGUIConfigList.pas" />
     <DCCReference Include="u_MapTypeGUIConfigStatic.pas" />
+    <DCCReference Include="u_MapTypeHotKeyListStatic.pas" />
     <DCCReference Include="u_MapTypeIconsList.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypeSet.pas" />
