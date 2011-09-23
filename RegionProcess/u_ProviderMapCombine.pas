@@ -10,14 +10,22 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_UsedMarksConfig,
+  i_MarksDrawConfig,
   i_MapCalibration,
+  i_GlobalViewMainConfig,
   u_ExportProviderAbstract,
+  u_MarksSystem,
   fr_MapCombine;
 
 type
   TProviderMapCombine = class(TExportProviderAbstract)
   private
     FFrame: TfrMapCombine;
+    FViewConfig: IGlobalViewMainConfig;
+    FMarksDB: TMarksSystem;
+    FMarksShowConfig: IUsedMarksConfig;
+    FMarksDrawConfig: IMarksDrawConfig;
     FMapCalibrationList: IMapCalibrationList;
   public
     constructor Create(
@@ -25,6 +33,10 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      AViewConfig: IGlobalViewMainConfig;
+      AMarksShowConfig: IUsedMarksConfig;
+      AMarksDrawConfig: IMarksDrawConfig;
+      AMarksDB: TMarksSystem;
       AMapCalibrationList: IMapCalibrationList
     );
     destructor Destroy; override;
@@ -44,8 +56,6 @@ uses
   SysUtils,
   i_MarksSimple,
   i_BitmapLayerProvider,
-  i_UsedMarksConfig,
-  u_MarksSystem,
   u_MapMarksBitmapLayerProviderByMarksSubset,
   u_GlobalState,
   u_ThreadMapCombineBMP,
@@ -62,11 +72,19 @@ constructor TProviderMapCombine.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  AViewConfig: IGlobalViewMainConfig;
+  AMarksShowConfig: IUsedMarksConfig;
+  AMarksDrawConfig: IMarksDrawConfig;
+  AMarksDB: TMarksSystem;
   AMapCalibrationList: IMapCalibrationList
 );
 begin
   inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FMapCalibrationList := AMapCalibrationList;
+  FViewConfig := AViewConfig;
+  FMarksShowConfig := AMarksShowConfig;
+  FMarksDrawConfig := AMarksDrawConfig;
+  FMarksDB := AMarksDB;
 end;
 
 destructor TProviderMapCombine.Destroy;
@@ -137,7 +155,6 @@ var
   VMarksConfigStatic: IUsedMarksConfigStatic;
   VZoom: Byte;
   VList: IInterfaceList;
-  VMarkDB: TMarksSystem;
   VMarksImageProvider: IBitmapLayerProvider;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
@@ -155,12 +172,11 @@ begin
   VZoom := FFrame.cbbZoom.ItemIndex+1;
   VMarksSubset := nil;
   if FFrame.chkUseMapMarks.Checked then begin
-    VMarkDB := GState.MarksDB;
-    VMarksConfigStatic := GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.GetStatic;
+    VMarksConfigStatic := FMarksShowConfig.GetStatic;
     if VMarksConfigStatic.IsUseMarks then begin
       VList := nil;
       if not VMarksConfigStatic.IgnoreCategoriesVisible then begin
-        VList := VMarkDB.GetVisibleCategories(VZoom);
+        VList := FMarksDB.GetVisibleCategories(VZoom);
       end;
       try
         if (VList <> nil) and (VList.Count = 0) then begin
@@ -182,7 +198,7 @@ begin
               VLonLatRect.Bottom := APolygon[i].Y;
             end;
           end;
-          VMarksSubset := VMarkDB.MarksDb.GetMarksSubset(VLonLatRect, VList, VMarksConfigStatic.IgnoreMarksVisible);
+          VMarksSubset := FMarksDB.MarksDb.GetMarksSubset(VLonLatRect, VList, VMarksConfigStatic.IgnoreMarksVisible);
         end;
       finally
         VList := nil;
@@ -195,13 +211,13 @@ begin
   if VMarksSubset <> nil then begin
     VMarksImageProvider :=
       TMapMarksBitmapLayerProviderByMarksSubset.Create(
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.GetStatic,
+        FMarksDrawConfig.GetStatic,
         VMarksSubset
       );
   end;
   if (VFileExt='.ECW')or(VFileExt='.JP2') then begin
     TThreadMapCombineECW.Create(
-      GState.ViewConfig,
+      FViewConfig,
       VMarksImageProvider,
       GState.LocalConverterFactory,
       VPrTypes,
@@ -217,7 +233,7 @@ begin
     );
   end else if (VFileExt='.BMP') then begin
     TThreadMapCombineBMP.Create(
-      GState.ViewConfig,
+      FViewConfig,
       VMarksImageProvider,
       GState.LocalConverterFactory,
       VPrTypes,
@@ -231,7 +247,7 @@ begin
     );
   end else if (VFileExt='.KMZ') then begin
     TThreadMapCombineKMZ.Create(
-      GState.ViewConfig,
+      FViewConfig,
       VMarksImageProvider,
       GState.LocalConverterFactory,
       VPrTypes,
@@ -246,7 +262,7 @@ begin
     );
   end else begin
     TThreadMapCombineJPG.Create(
-      GState.ViewConfig,
+      FViewConfig,
       VMarksImageProvider,
       GState.LocalConverterFactory,
       VPrTypes,

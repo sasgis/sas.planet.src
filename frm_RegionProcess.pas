@@ -20,6 +20,8 @@ uses
   i_ImageResamplerConfig,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
+  i_UsedMarksConfig,
+  i_MarksDrawConfig,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapCalibration,
@@ -28,6 +30,7 @@ uses
   u_ExportProviderAbstract,
   t_GeoTypes,
   u_MapType,
+  u_MarksSystem,
   u_GeoTostr;
 
 type
@@ -62,6 +65,7 @@ type
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FViewConfig: IGlobalViewMainConfig;
     FImageResamplerConfig: IImageResamplerConfig;
+    FMarksDB: TMarksSystem;
     FMapCalibrationList: IMapCalibrationList;
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
@@ -87,6 +91,9 @@ type
       ATileNameGenerator: ITileFileNameGeneratorsList;
       AViewConfig: IGlobalViewMainConfig;
       AImageResamplerConfig: IImageResamplerConfig;
+      AMarksShowConfig: IUsedMarksConfig;
+      AMarksDrawConfig: IMarksDrawConfig;
+      AMarksDB: TMarksSystem;
       AMapCalibrationList: IMapCalibrationList;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
@@ -128,6 +135,9 @@ constructor TfrmRegionProcess.Create(
   ATileNameGenerator: ITileFileNameGeneratorsList;
   AViewConfig: IGlobalViewMainConfig;
   AImageResamplerConfig: IImageResamplerConfig;
+  AMarksShowConfig: IUsedMarksConfig;
+  AMarksDrawConfig: IMarksDrawConfig;
+  AMarksDB: TMarksSystem;
   AMapCalibrationList: IMapCalibrationList;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
@@ -143,6 +153,7 @@ begin
   FTileNameGenerator := ATileNameGenerator;
   FViewConfig := AViewConfig;
   FImageResamplerConfig := AImageResamplerConfig;
+  FMarksDB := AMarksDB;
   FMapCalibrationList := AMapCalibrationList;
 
   InitExportsList;
@@ -187,6 +198,10 @@ begin
       FMainMapsConfig,
       FFullMapsSet,
       FGUIConfigList,
+      FViewConfig,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      FMarksDB,
       FMapCalibrationList
     );
 end;
