@@ -44,7 +44,6 @@ type
 implementation
 
 constructor TECWWrite.Create(AEcwDll: IEcwDll);
-var _NCSEcwCompressAllocClient:NCSEcwCompressAllocClient;
 begin
   FEcwDll := AEcwDll;
   FEcwData := FEcwDll.CompressAllocClient;
