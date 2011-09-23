@@ -3,8 +3,13 @@ unit u_ExportProviderYaMobileV4;
 interface
 
 uses
+  Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
+  i_CoordConverterFactory,
   u_ExportProviderAbstract,
   fr_ExportYaMobileV4;
 
@@ -12,7 +17,15 @@ type
   TExportProviderYaMobileV4 = class(TExportProviderAbstract)
   private
     FFrame: TfrExportYaMobileV4;
+    FCoordConverterFactory: ICoordConverterFactory;
   public
+    constructor Create(
+      AParent: TWinControl;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      ACoordConverterFactory: ICoordConverterFactory
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
@@ -32,6 +45,15 @@ uses
   u_MapType;
 
 { TExportProviderYaMaps }
+
+constructor TExportProviderYaMobileV4.Create(AParent: TWinControl;
+  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  ACoordConverterFactory: ICoordConverterFactory);
+begin
+  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FCoordConverterFactory := ACoordConverterFactory;
+end;
 
 destructor TExportProviderYaMobileV4.Destroy;
 begin
@@ -104,7 +126,16 @@ begin
   comprSat:=FFrame.seSatCompress.Value;
   comprMap:=FFrame.seMapCompress.Value;
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
-  TThreadExportYaMobileV4.Create(path,APolygon,ZoomArr,typemaparr,true,comprSat,comprMap);
+  TThreadExportYaMobileV4.Create(
+    FCoordConverterFactory,
+    path,
+    APolygon,
+    ZoomArr,
+    typemaparr,
+    true,
+    comprSat,
+    comprMap
+  );
 end;
 
 end.

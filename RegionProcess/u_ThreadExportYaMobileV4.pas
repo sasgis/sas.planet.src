@@ -10,6 +10,7 @@ uses
   GR32,
   MD5,
   t_GeoTypes,
+  i_CoordConverterFactory,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;
@@ -36,6 +37,7 @@ type
     FExportPath: string;
     FCacheFile: TMemCachedRec;
     cSat, cMap: Byte;
+    FCoordConverterFactory: ICoordConverterFactory;
     function GetTileIndex(X, Y: Integer): Integer; inline;
     function GetHeightTreeForZoom(AZoom: Byte): Integer; inline;
     function GetFilePath(
@@ -70,6 +72,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
+      ACoordConverterFactory: ICoordConverterFactory;
       APath: string;
       APolygon: TArrayOfDoublePoint;
       Azoomarr: array of boolean;
@@ -89,8 +92,7 @@ uses
   i_TileIterator,
   u_TileIteratorStuped,
   u_ARGBToPaletteConverter,
-  u_BitmapTileVampyreSaver,
-  u_GlobalState;
+  u_BitmapTileVampyreSaver;
 
 const
   YaCacheHeaderSize      : Word = 32768; // 32k
@@ -101,6 +103,7 @@ const
   YaCacheYTLDHeaderSize         = 38;
 
 constructor TThreadExportYaMobileV4.Create(
+  ACoordConverterFactory: ICoordConverterFactory;
   APath: string;
   APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean;
@@ -112,6 +115,7 @@ var
   i: integer;
 begin
   inherited Create(APolygon, Azoomarr);
+  FCoordConverterFactory := ACoordConverterFactory;
   cSat := Acsat;
   cMap := Acmap;
   FExportPath := APath;
@@ -504,7 +508,7 @@ begin
       try
         bmp32crop.Width := sizeim;
         bmp32crop.Height := sizeim;
-        VGeoConvert := GState.CoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
+        VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
         FTilesToProcess := 0;
         SetLength(VTileIterators,Length(FZooms));
 

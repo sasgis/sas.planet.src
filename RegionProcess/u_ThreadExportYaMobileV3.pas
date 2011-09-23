@@ -11,6 +11,7 @@ uses
   u_MapType,
   u_ResStrings,
   t_GeoTypes,
+  i_CoordConverterFactory,
   u_ThreadExportAbstract;
 
 type
@@ -20,6 +21,7 @@ type
     FIsReplace: boolean;
     FExportPath: string;
     csat, cmap: byte;
+    FCoordConverterFactory: ICoordConverterFactory;
     function GetMobileFile(X,Y: Integer; Z: Byte; AMapType: Byte): string;
     function TileToTablePos(ATile: TPoint): Integer;
     procedure CreateNilFile(AFileName: string; ATableSize: Integer);
@@ -34,6 +36,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
+      ACoordConverterFactory: ICoordConverterFactory;
       APath: string;
       APolygon: TArrayOfDoublePoint;
       Azoomarr: array of boolean;
@@ -53,13 +56,13 @@ uses
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
-  u_ARGBToPaletteConverter,
-  u_GlobalState;
+  u_ARGBToPaletteConverter;
 
 const
   YaHeaderSize: integer = 1024;
 
 constructor TThreadExportYaMobileV3.Create(
+  ACoordConverterFactory: ICoordConverterFactory;
   APath: string;
   APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean;
@@ -71,6 +74,7 @@ var
   i: integer;
 begin
   inherited Create(APolygon, Azoomarr);
+  FCoordConverterFactory := ACoordConverterFactory;
   cSat := Acsat;
   cMap := Acmap;
   FExportPath := APath;
@@ -241,7 +245,7 @@ begin
       bmp322.DrawMode := dmBlend;
       bmp32crop.Width := sizeim;
       bmp32crop.Height := sizeim;
-      VGeoConvert := GState.CoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
+      VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
       FTilesToProcess := 0;
       SetLength(VTileIterators,Length(FZooms));
 

@@ -305,7 +305,8 @@ begin
       pnlExport,
       FMainMapsConfig,
       FFullMapsSet,
-      FGUIConfigList
+      FGUIConfigList,
+      FCoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
@@ -314,7 +315,8 @@ begin
       pnlExport,
       FMainMapsConfig,
       FFullMapsSet,
-      FGUIConfigList
+      FGUIConfigList,
+      FCoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
