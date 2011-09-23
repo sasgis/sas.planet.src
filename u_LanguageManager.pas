@@ -20,7 +20,7 @@ type
     procedure LoadLangs;
     procedure SetTranslateIgnore;
   protected
-    procedure DoChangeNotify; override;
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -70,10 +70,11 @@ begin
   inherited;
 end;
 
-procedure TLanguageManager.DoChangeNotify;
+procedure TLanguageManager.DoBeforeChangeNotify;
 var
   i: Integer;
 begin
+  inherited;
   // force reloading forms with new selection
   for i := 0 to application.ComponentCount - 1 do begin
     if application.Components[i] is TCommonFormParent then begin
@@ -82,7 +83,6 @@ begin
       TCommonFrameParent(application.Components[i]).RefreshTranslation;
     end;
   end;
-  inherited;
 end;
 
 procedure TLanguageManager.DoReadConfig(AConfigData: IConfigDataProvider);

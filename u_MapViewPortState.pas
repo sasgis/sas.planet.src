@@ -21,8 +21,6 @@ type
   TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
     FMapZoomingConfig: IMapZoomingConfig;
-    FBeforeChangeNotifier: IJclNotifier;
-    FAfterChangeNotifier: IJclNotifier;
     FScaleChangeNotifier: IJclNotifier;
     FMainCoordConverter: ICoordConverter;
     FVisibleCoordConverter: ILocalCoordConverter;
@@ -72,8 +70,6 @@ type
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload;
     procedure ScaleTo(AScale: Double); overload;
 
-    function GetBeforeChangeNotifier: IJclNotifier;
-    function GetAfterChangeNotifier: IJclNotifier;
     function GetScaleChangeNotifier: IJclNotifier;
   public
     constructor Create(
@@ -108,8 +104,6 @@ begin
   FScaleChangeCounter := APerfCounterList.CreateAndAddNewCounter('ScaleChange');
 
   FScaleChangeNotifier := TJclBaseNotifier.Create;
-  FBeforeChangeNotifier := TJclBaseNotifier.Create;
-  FAfterChangeNotifier := TJclBaseNotifier.Create;
   FVisibleCoordConverterFactory := ACoordConverterFactory;
   FMainMapConfig := AMainMapConfig;
   FMapZoomingConfig := AMapZoomingConfig;
@@ -333,12 +327,7 @@ var
 begin
   VCounterContext := FPosChangeCounter.StartOperation;
   try
-    FBeforeChangeNotifier.Notify(nil);
-    try
-      inherited;
-    finally
-      FAfterChangeNotifier.Notify(nil);
-    end;
+    inherited;
   finally
     FPosChangeCounter.FinishOperation(VCounterContext);
   end;
@@ -375,16 +364,6 @@ begin
   AConfigData.WriteInteger('Zoom', FZoom);
   AConfigData.WriteFloat('X', VLonLat.X);
   AConfigData.WriteFloat('Y', VLonLat.Y);
-end;
-
-function TMapViewPortState.GetAfterChangeNotifier: IJclNotifier;
-begin
-  Result := FAfterChangeNotifier;
-end;
-
-function TMapViewPortState.GetBeforeChangeNotifier: IJclNotifier;
-begin
-  Result := FBeforeChangeNotifier;
 end;
 
 function TMapViewPortState.GetCurrentCoordConverter: ICoordConverter;
@@ -468,11 +447,11 @@ var
 begin
   VCounterContext := FScaleChangeCounter.StartOperation;
   try
-    FBeforeChangeNotifier.Notify(nil);
+    DoBeforeChangeNotify;
     try
       FScaleChangeNotifier.Notify(nil);
     finally
-      FAfterChangeNotifier.Notify(nil);
+      DoAfterChangeNotify;
     end;
   finally
     FScaleChangeCounter.FinishOperation(VCounterContext);

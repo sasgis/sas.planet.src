@@ -18,7 +18,15 @@ type
     procedure WriteConfig(AConfigData: IConfigDataWriteProvider);
     procedure StopNotify;
     procedure StartNotify;
+
+    function GetBeforeChangeNotifier: IJclNotifier;
+    property BeforeChangeNotifier: IJclNotifier read GetBeforeChangeNotifier;
+
     function GetChangeNotifier: IJclNotifier;
+    property ChangeNotifier: IJclNotifier read GetChangeNotifier;
+
+    function GetAfterChangeNotifier: IJclNotifier;
+    property AfterChangeNotifier: IJclNotifier read GetAfterChangeNotifier;
   end;
 
 implementation
