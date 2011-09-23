@@ -16,6 +16,8 @@ uses
   ComCtrls,
   u_CommonFormAndFrameParents,
   i_CoordConverterFactory,
+  i_GlobalViewMainConfig,
+  i_ImageResamplerConfig,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
   i_MapTypes,
@@ -57,6 +59,8 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
     FCoordConverterFactory: ICoordConverterFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
+    FViewConfig: IGlobalViewMainConfig;
+    FImageResamplerConfig: IImageResamplerConfig;
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
     FProviderTilesDelte: TExportProviderAbstract;
@@ -79,6 +83,8 @@ type
       AGUIConfigList: IMapTypeGUIConfigList;
       ACoordConverterFactory: ICoordConverterFactory;
       ATileNameGenerator: ITileFileNameGeneratorsList;
+      AViewConfig: IGlobalViewMainConfig;
+      AImageResamplerConfig: IImageResamplerConfig;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
       AMapUpdateEvent: TMapUpdateEvent
@@ -117,6 +123,8 @@ constructor TfrmRegionProcess.Create(
   AGUIConfigList: IMapTypeGUIConfigList;
   ACoordConverterFactory: ICoordConverterFactory;
   ATileNameGenerator: ITileFileNameGeneratorsList;
+  AViewConfig: IGlobalViewMainConfig;
+  AImageResamplerConfig: IImageResamplerConfig;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
   AMapUpdateEvent: TMapUpdateEvent
@@ -129,6 +137,8 @@ begin
   FGUIConfigList := AGUIConfigList;
   FCoordConverterFactory := ACoordConverterFactory;
   FTileNameGenerator := ATileNameGenerator;
+  FViewConfig := AViewConfig;
+  FImageResamplerConfig := AImageResamplerConfig;
 
   InitExportsList;
 
@@ -144,7 +154,9 @@ begin
       TabSheet3,
       FMainMapsConfig,
       FFullMapsSet,
-      FGUIConfigList
+      FGUIConfigList,
+      FViewConfig,
+      FImageResamplerConfig
     );
   FProviderTilesCopy :=
     TProviderTilesCopy.Create(

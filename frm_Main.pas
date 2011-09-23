@@ -713,6 +713,8 @@ begin
       GState.MapType.GUIConfigList,
       GState.CoordConverterFactory,
       GState.TileNameGenerator,
+      GState.ViewConfig,
+      GState.ImageResamplerConfig,
       GState.DownloadConfig,
       GState.DownloadInfo,
       Self.OnMapUpdate

@@ -4,8 +4,14 @@ interface
 
 uses
   Windows,
+  Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
+  i_ImageResamplerConfig,
+  i_GlobalViewMainConfig,
   u_ExportProviderAbstract,
   fr_TilesGenPrev;
 
@@ -13,7 +19,17 @@ type
   TProviderTilesGenPrev = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesGenPrev;
+    FImageResamplerConfig: IImageResamplerConfig;
+    FViewConfig: IGlobalViewMainConfig;
   public
+    constructor Create(
+      AParent: TWinControl;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      AViewConfig: IGlobalViewMainConfig;
+      AImageResamplerConfig: IImageResamplerConfig
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
@@ -31,11 +47,24 @@ uses
   GR32,
   i_ImageResamplerFactory,
   u_ThreadGenPrevZoom,
-  u_GlobalState,
   u_ResStrings,
   u_MapType;
 
 { TProviderTilesGenPrev }
+
+constructor TProviderTilesGenPrev.Create(
+  AParent: TWinControl;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  AViewConfig: IGlobalViewMainConfig;
+  AImageResamplerConfig: IImageResamplerConfig
+);
+begin
+  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FViewConfig := AViewConfig;
+  FImageResamplerConfig := AImageResamplerConfig;
+end;
 
 destructor TProviderTilesGenPrev.Destroy;
 begin
@@ -56,7 +85,7 @@ begin
       FMainMapsConfig,
       FFullMapsSet,
       FGUIConfigList,
-      GState.ImageResamplerConfig
+      FImageResamplerConfig
     );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
@@ -115,9 +144,13 @@ begin
     end;
   end;
   try
-    VResampler := GState.ImageResamplerConfig.GetList.Items[FFrame.cbbResampler.ItemIndex];
+    if FFrame.cbbResampler.ItemIndex >= 0 then begin
+      VResampler := FImageResamplerConfig.GetList.Items[FFrame.cbbResampler.ItemIndex];
+    end else begin
+      VResampler := FImageResamplerConfig.GetActiveFactory;
+    end;
   except
-    VResampler := GState.ImageResamplerConfig.GetActiveFactory;
+    VResampler := FImageResamplerConfig.GetActiveFactory;
   end;
 
   TThreadGenPrevZoom.Create(
@@ -128,7 +161,7 @@ begin
     FFrame.chkReplace.Checked,
     FFrame.chkSaveFullOnly.Checked,
     FFrame.chkFromPrevZoom.Checked,
-    Color32(GState.ViewConfig.BackGroundColor),
+    Color32(FViewConfig.BackGroundColor),
     VResampler
   );
 end;
