@@ -8,6 +8,9 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_GlobalViewMainConfig,
+  i_BitmapLayerProvider,
+  i_LocalCoordConverterFactorySimpe,
   u_MapType,
   u_GeoFun,
   u_BmpUtil,
@@ -39,6 +42,9 @@ type
     procedure saveRECT; override;
   public
     constructor Create(
+      AViewConfig: IGlobalViewMainConfig;
+      AMarksImageProvider: IBitmapLayerProvider;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
       APolygon: TArrayOfDoublePoint;
@@ -48,7 +54,6 @@ type
       AHtypemap: TMapType;
       AusedReColor: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic;
-      AMarksSubset: IMarksSubset;
       AQuality: Integer
     );
   end;
@@ -62,6 +67,9 @@ uses
   u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(
+  AViewConfig: IGlobalViewMainConfig;
+  AMarksImageProvider: IBitmapLayerProvider;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
   APolygon: TArrayOfDoublePoint;
@@ -70,12 +78,23 @@ constructor TThreadMapCombineKMZ.Create(
   Atypemap, AHtypemap: TMapType;
   AusedReColor: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic;
-  AMarksSubset: IMarksSubset;
   AQuality: Integer
 );
 begin
-  inherited Create(AMapCalibrationList, AFileName, APolygon, ASplitCount,
-    Azoom, Atypemap, AHtypemap, AusedReColor, ARecolorConfig, AMarksSubset);
+  inherited Create(
+    AViewConfig,
+    AMarksImageProvider,
+    ALocalConverterFactory,
+    AMapCalibrationList,
+    AFileName,
+    APolygon,
+    ASplitCount,
+    Azoom,
+    Atypemap,
+    AHtypemap,
+    AusedReColor,
+    ARecolorConfig,
+  );
   FQuality := AQuality;
 end;
 

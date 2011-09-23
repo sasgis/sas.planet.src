@@ -31,8 +31,10 @@ uses
   Classes,
   SysUtils,
   i_MarksSimple,
+  i_BitmapLayerProvider,
   i_UsedMarksConfig,
   u_MarksSystem,
+  u_MapMarksBitmapLayerProviderByMarksSubset,
   u_GlobalState,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
@@ -111,6 +113,7 @@ var
   VZoom: Byte;
   VList: IInterfaceList;
   VMarkDB: TMarksSystem;
+  VMarksImageProvider: IBitmapLayerProvider;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
@@ -163,8 +166,19 @@ begin
   end else begin
     VMarksSubset := nil;
   end;
+  VMarksImageProvider := nil;
+  if VMarksSubset <> nil then begin
+    VMarksImageProvider :=
+      TMapMarksBitmapLayerProviderByMarksSubset.Create(
+        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.GetStatic,
+        VMarksSubset
+      );
+  end;
   if (VFileExt='.ECW')or(VFileExt='.JP2') then begin
     TThreadMapCombineECW.Create(
+      GState.ViewConfig,
+      VMarksImageProvider,
+      GState.LocalConverterFactory,
       VPrTypes,
       VFileName,
       APolygon,
@@ -173,11 +187,13 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
-      VMarksSubset,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt='.BMP') then begin
     TThreadMapCombineBMP.Create(
+      GState.ViewConfig,
+      VMarksImageProvider,
+      GState.LocalConverterFactory,
       VPrTypes,
       VFileName,
       APolygon,
@@ -186,10 +202,12 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
-      VMarksSubset
     );
   end else if (VFileExt='.KMZ') then begin
     TThreadMapCombineKMZ.Create(
+      GState.ViewConfig,
+      VMarksImageProvider,
+      GState.LocalConverterFactory,
       VPrTypes,
       VFileName,
       APolygon,
@@ -198,11 +216,13 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
-      VMarksSubset,
       FFrame.seJpgQuality.Value
     );
   end else begin
     TThreadMapCombineJPG.Create(
+      GState.ViewConfig,
+      VMarksImageProvider,
+      GState.LocalConverterFactory,
       VPrTypes,
       VFileName,
       APolygon,
@@ -211,7 +231,6 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
-      VMarksSubset,
       FFrame.seJpgQuality.Value
     );
   end;
