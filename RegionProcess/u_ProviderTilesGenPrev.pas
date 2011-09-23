@@ -55,7 +55,8 @@ begin
       nil,
       FMainMapsConfig,
       FFullMapsSet,
-      FGUIConfigList
+      FGUIConfigList,
+      GState.ImageResamplerConfig
     );
     FFrame.Visible := False;
     FFrame.Parent := FParent;

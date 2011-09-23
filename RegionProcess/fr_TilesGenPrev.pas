@@ -19,6 +19,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_ImageResamplerConfig,
   u_CommonFormAndFrameParents;
 
 type
@@ -49,13 +50,15 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FImageResamplerConfig: IImageResamplerConfig;
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
   public
     constructor Create(
       AOwner : TComponent;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList
+      AGUIConfigList: IMapTypeGUIConfigList;
+      AImageResamplerConfig: IImageResamplerConfig
     ); reintroduce;
     procedure Init(AZoom: Byte);
   end;
@@ -64,7 +67,6 @@ implementation
 
 uses
   gnugettext,
-  u_GlobalState,
   i_GUIDListStatic,
   u_MapType;
 
@@ -161,7 +163,8 @@ constructor TfrTilesGenPrev.Create(
   AOwner : TComponent;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList
+  AGUIConfigList: IMapTypeGUIConfigList;
+  AImageResamplerConfig: IImageResamplerConfig
 );
 begin
   TP_Ignore(Self, 'cbbResampler.Items');
@@ -170,6 +173,7 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+  FImageResamplerConfig := AImageResamplerConfig;
 end;
 
 procedure TfrTilesGenPrev.Init(AZoom: Byte);
@@ -206,8 +210,8 @@ begin
   if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
     cbbMap.ItemIndex := 0;
   end;
-  InitResamplersList(GState.ImageResamplerConfig.GetList, cbbResampler);
-  cbbResampler.ItemIndex := GState.ImageResamplerConfig.ActiveIndex;
+  InitResamplersList(FImageResamplerConfig.GetList, cbbResampler);
+  cbbResampler.ItemIndex := FImageResamplerConfig.ActiveIndex;
 end;
 
 procedure TfrTilesGenPrev.InitResamplersList(AList: IImageResamplerFactoryList;
