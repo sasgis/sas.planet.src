@@ -39,6 +39,7 @@ type
       AReplace: boolean;
       Asavefull: boolean;
       AGenFormPrev: boolean;
+      ABackGroundColor: TColor32;
       AResamplerFactory: IImageResamplerFactory
     );
   end;
@@ -60,6 +61,7 @@ constructor TThreadGenPrevZoom.Create(
   AReplace: boolean;
   Asavefull: boolean;
   AGenFormPrev: boolean;
+  ABackGroundColor: TColor32;
   AResamplerFactory: IImageResamplerFactory
 );
 begin
@@ -73,7 +75,7 @@ begin
   FSourceZoom := Azoom;
   FMapType := Atypemap;
   FResamplerFactory := AResamplerFactory;
-  FBackGroundColor := Color32(GState.ViewConfig.BackGroundColor);
+  FBackGroundColor := ABackGroundColor;
 end;
 
 procedure TThreadGenPrevZoom.ProcessRegion;

@@ -127,6 +127,7 @@ begin
     FFrame.chkReplace.Checked,
     FFrame.chkSaveFullOnly.Checked,
     FFrame.chkFromPrevZoom.Checked,
+    Color32(GState.ViewConfig.BackGroundColor),
     VResampler
   );
 end;
