@@ -151,7 +151,8 @@ begin
       TabSheet6,
       FMainMapsConfig,
       FFullMapsSet,
-      FGUIConfigList
+      FGUIConfigList,
+      FTileNameGenerator
     );
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
