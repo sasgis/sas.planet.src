@@ -4,18 +4,25 @@ interface
 
 uses
   ActiveX,
+  i_JclNotify,
   i_GUIDListStatic,
   i_MapTypeHotKeyListStatic,
   i_MapTypeGUIConfigList,
+  i_LanguageManager,
   u_ConfigDataElementComplexBase,
   i_MapTypes;
 
 type
   TMapTypeGUIConfigList = class(TConfigDataElementComplexBase, IMapTypeGUIConfigList)
   private
+    FLanguageManager: ILanguageManager;
     FMapsSet: IMapTypeSet;
     FOrderedMapGUIDList: IGUIDListStatic;
     FHotKeyList: IMapTypeHotKeyListStatic;
+    FBeforeLangChangeListener: IJclListener;
+    FAfterLangChangeListener: IJclListener;
+    procedure OnBeforeLangChange(Sender: TObject);
+    procedure OnAfterLangChange(Sender: TObject);
     function CreateHotKeyList: IMapTypeHotKeyListStatic;
     function CreateOrderedList: IGUIDListStatic;
   protected
@@ -25,19 +32,25 @@ type
     function GetHotKeyList: IMapTypeHotKeyListStatic;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AMapsSet: IMapTypeSet
     );
+    destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  u_NotifyEventListener,
   u_GUIDListStatic,
   u_MapTypeHotKeyListStatic;
 
 { TMapTypeGUIConfigList }
 
-constructor TMapTypeGUIConfigList.Create(AMapsSet: IMapTypeSet);
+constructor TMapTypeGUIConfigList.Create(
+  ALanguageManager: ILanguageManager;
+  AMapsSet: IMapTypeSet
+);
 var
   VGUID: TGUID;
   VEnum: IEnumGUID;
@@ -45,6 +58,7 @@ var
   VMap: IMapType;
 begin
   inherited Create;
+  FLanguageManager := ALanguageManager;
   FMapsSet := AMapsSet;
   FOrderedMapGUIDList := CreateOrderedList;
   FHotKeyList := CreateHotKeyList;
@@ -53,6 +67,21 @@ begin
     VMap := FMapsSet.GetMapTypeByGUID(VGUID);
     Add(VMap.MapType.GUIConfig, nil);
   end;
+  FBeforeLangChangeListener := TNotifyEventListener.Create(Self.OnBeforeLangChange);
+  FLanguageManager.BeforeChangeNotifier.Add(FBeforeLangChangeListener);
+  FAfterLangChangeListener := TNotifyEventListener.Create(Self.OnAfterLangChange);
+  FLanguageManager.AfterChangeNotifier.Add(FAfterLangChangeListener);
+end;
+
+destructor TMapTypeGUIConfigList.Destroy;
+begin
+  FLanguageManager.BeforeChangeNotifier.Remove(FBeforeLangChangeListener);
+  FLanguageManager.AfterChangeNotifier.Remove(FAfterLangChangeListener);
+  FBeforeLangChangeListener := nil;
+  FAfterLangChangeListener := nil;
+  FLanguageManager := nil;
+
+  inherited;
 end;
 
 function TMapTypeGUIConfigList.CreateHotKeyList: IMapTypeHotKeyListStatic;
@@ -153,6 +182,16 @@ end;
 function TMapTypeGUIConfigList.GetOrderedMapGUIDList: IGUIDListStatic;
 begin
   Result := FOrderedMapGUIDList;
+end;
+
+procedure TMapTypeGUIConfigList.OnAfterLangChange(Sender: TObject);
+begin
+  StartNotify;
+end;
+
+procedure TMapTypeGUIConfigList.OnBeforeLangChange(Sender: TObject);
+begin
+  StopNotify;
 end;
 
 end.

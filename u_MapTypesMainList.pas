@@ -243,7 +243,11 @@ begin
   end;
 
   BuildMapsLists;
-  FGUIConfigList := TMapTypeGUIConfigList.Create(FFullMapsSet);
+  FGUIConfigList :=
+    TMapTypeGUIConfigList.Create(
+      ALanguageManager,
+      FFullMapsSet
+    );
 
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   FGUIConfigList.LockWrite;
