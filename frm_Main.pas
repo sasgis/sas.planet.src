@@ -1920,6 +1920,12 @@ begin
   CreateMapUILayersList;
   CreateMapUIFillingList;
   CreateMapUILayerSubMenu;
+
+  if FConfig.MainConfig.ShowMapName then begin
+    TBSMB.Caption := FConfig.MainMapsConfig.GetSelectedMapType.MapType.GUIConfig.Name.Value;
+  end else begin
+    TBSMB.Caption := '';
+  end;
 end;
 
 procedure TfrmMain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
