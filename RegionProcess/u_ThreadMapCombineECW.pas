@@ -7,6 +7,7 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_EcwDll,
   i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_LocalCoordConverterFactorySimpe,
@@ -35,6 +36,7 @@ type
 
   TThreadMapCombineECW = class(TThreadMapCombineBase)
   private
+    FEcwDll: IEcwDll;
     sx, ex, sy, ey: integer;
     Rarr: P256rgb;
     Garr: P256rgb;
@@ -60,6 +62,7 @@ type
       AHtypemap: TMapType;
       AusedReColor: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic;
+      AEcwDll: IEcwDll;
       AQuality: Integer
     );
   end;
@@ -84,6 +87,7 @@ constructor TThreadMapCombineECW.Create(
   Atypemap, AHtypemap: TMapType;
   AusedReColor: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic;
+  AEcwDll: IEcwDll;
   AQuality: Integer
 );
 begin
@@ -101,6 +105,7 @@ begin
     AusedReColor,
     ARecolorConfig,
   );
+  FEcwDll := AEcwDll;
   FQuality := AQuality;
 end;
 
@@ -187,7 +192,7 @@ begin
   ex := (FCurrentPieceRect.Right mod 256);
   ey := (FCurrentPieceRect.Bottom mod 256);
   try
-    FECWWriter := TECWWrite.Create(GState.ProgramPath);
+    FECWWriter := TECWWrite.Create(FEcwDll);
     btmm := TCustomBitmap32.Create;
     btmm.Width := 256;
     btmm.Height := 256;

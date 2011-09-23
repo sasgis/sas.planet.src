@@ -8,6 +8,7 @@ uses
   ECWwriter,
   ECWreader,
   t_GeoTypes,
+  i_EcwDll,
   i_OperationNotifier;
 
 type
@@ -19,13 +20,13 @@ type
 type
   TECWWrite = class
   private
-    FDllHandle: LongWord;
+    FEcwDll: IEcwDll;
     FEcwData: PNCSEcwCompressClient;
     FReadDelegate: TEcwRead;
     FOperationID: Integer;
     FCancelNotifier: IOperationNotifier;
   public
-    constructor Create(ALibPath: string);
+    constructor Create(AEcwDll: IEcwDll);
     function Encode(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
@@ -42,17 +43,11 @@ type
 
 implementation
 
-constructor TECWWrite.Create(ALibPath: string);
+constructor TECWWrite.Create(AEcwDll: IEcwDll);
 var _NCSEcwCompressAllocClient:NCSEcwCompressAllocClient;
 begin
-  inherited create;
-  FDllHandle := LoadLibrary(PChar(ALibPath + 'NCSEcwC.dll'));
-  if FDllHandle = 0 then begin
-    ShowMessage('Ошибка при загрузке библиотеки NCSEcwC.dll');
-    Halt
-  end;
-  @_NCSEcwCompressAllocClient := GetProcAddress(FDllHandle, 'NCSEcwCompressAllocClient');
-  FEcwData := _NCSEcwCompressAllocClient;
+  FEcwDll := AEcwDll;
+  FEcwData := FEcwDll.CompressAllocClient;
 end;
 
 function ReadCallbackFunc(pClient:PNCSEcwCompressClient;nNextLine:cardinal;InputArray:Pointer):boolean; cdecl;
@@ -88,17 +83,8 @@ function TECWWrite.Encode(
 ):integer;
 var
   i:integer;
-  _NCSEcwCompress:NCSEcwCompress;
-  _NCSEcwCompressOpen:NCSEcwCompressOpen;
-  _NCSEcwCompressClose:NCSEcwCompressClose;
-  _NCSEcwCompressFreeClient:NCSEcwCompressFreeClient;
   VNCSError:NCSError;
 begin
-  @_NCSEcwCompress := GetProcAddress(FDllHandle, 'NCSEcwCompress');
-  @_NCSEcwCompressOpen := GetProcAddress(FDllHandle, 'NCSEcwCompressOpen');
-  @_NCSEcwCompressClose := GetProcAddress(FDllHandle, 'NCSEcwCompressClose');
-  @_NCSEcwCompressFreeClient := GetProcAddress(FDllHandle, 'NCSEcwCompressFreeClient');
-
   FReadDelegate := AReadDelegate;
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
@@ -128,16 +114,13 @@ begin
   FEcwData^.pReadCallback := ReadCallbackFunc;
   FEcwData^.pStatusCallback:=nil;
   FEcwData^.pCancelCallback:=cancel;
-  VNCSError:=_NCSEcwCompressOpen(FEcwData, false);
+  VNCSError:= FEcwDll.CompressOpen(FEcwData, false);
   if VNCSError = NCS_SUCCESS then begin
-    VNCSError:=_NCSEcwCompress(FEcwData);
-    _NCSEcwCompressClose(FEcwData);
+    VNCSError:=FEcwDll.Compress(FEcwData);
+    FEcwDll.CompressClose(FEcwData);
   end;
-  _NCSEcwCompressFreeClient(FEcwData);
+  FEcwDll.CompressFreeClient(FEcwData);
 
-	if(VNCSError = NCS_SUCCESS) then begin
-     FreeLibrary(FDllHandle);
-  end;
   result:=integer(VNCSError);
 end;
 

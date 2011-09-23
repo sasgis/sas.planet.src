@@ -187,6 +187,7 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       GState.BitmapPostProcessingConfig.GetStatic,
+      GState.EcwDll,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt='.BMP') then begin
