@@ -3,8 +3,13 @@ unit u_ExportProviderZip;
 interface
 
 uses
+  Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
+  i_TileFileNameGeneratorsList,
   u_ExportProviderAbstract,
   fr_ExportToFileCont;
 
@@ -12,7 +17,15 @@ type
   TExportProviderZip = class(TExportProviderAbstract)
   private
     FFrame: TfrExportToFileCont;
+    FTileNameGenerator: ITileFileNameGeneratorsList;
   public
+    constructor Create(
+      AParent: TWinControl;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      ATileNameGenerator: ITileFileNameGeneratorsList
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
@@ -28,12 +41,20 @@ implementation
 uses
   SysUtils,
   i_TileFileNameGenerator,
-  u_GlobalState,
   u_ThreadExportToZip,
   u_ResStrings,
   u_MapType;
 
 { TExportProviderKml }
+
+constructor TExportProviderZip.Create(AParent: TWinControl;
+  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  ATileNameGenerator: ITileFileNameGeneratorsList);
+begin
+  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FTileNameGenerator := ATileNameGenerator;
+end;
 
 destructor TExportProviderZip.Destroy;
 begin
@@ -105,7 +126,7 @@ begin
   end;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   path:=FFrame.edtTargetFile.Text;
-  VNameGenerator := GState.TileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1);
+  VNameGenerator := FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1);
   TThreadExportToZip.Create(path, APolygon, Zoomarr, VMapType, VNameGenerator);
 end;
 

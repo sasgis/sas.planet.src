@@ -712,6 +712,7 @@ begin
       GState.MapType.FullMapsSet,
       GState.MapType.GUIConfigList,
       GState.CoordConverterFactory,
+      GState.TileNameGenerator,
       GState.DownloadConfig,
       GState.DownloadInfo,
       Self.OnMapUpdate

@@ -20,6 +20,7 @@ uses
   i_DownloadInfoSimple,
   i_MapTypes,
   i_ActiveMapsConfig,
+  i_TileFileNameGeneratorsList,
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   t_GeoTypes,
@@ -55,6 +56,7 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FCoordConverterFactory: ICoordConverterFactory;
+    FTileNameGenerator: ITileFileNameGeneratorsList;
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
     FProviderTilesDelte: TExportProviderAbstract;
@@ -76,6 +78,7 @@ type
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
       ACoordConverterFactory: ICoordConverterFactory;
+      ATileNameGenerator: ITileFileNameGeneratorsList;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
       AMapUpdateEvent: TMapUpdateEvent
@@ -113,6 +116,7 @@ constructor TfrmRegionProcess.Create(
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
   ACoordConverterFactory: ICoordConverterFactory;
+  ATileNameGenerator: ITileFileNameGeneratorsList;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
   AMapUpdateEvent: TMapUpdateEvent
@@ -124,6 +128,7 @@ begin
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
   FCoordConverterFactory := ACoordConverterFactory;
+  FTileNameGenerator := ATileNameGenerator;
 
   InitExportsList;
 
@@ -334,7 +339,8 @@ begin
       pnlExport,
       FMainMapsConfig,
       FFullMapsSet,
-      FGUIConfigList
+      FGUIConfigList,
+      FTileNameGenerator
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
@@ -343,7 +349,8 @@ begin
       pnlExport,
       FMainMapsConfig,
       FFullMapsSet,
-      FGUIConfigList
+      FGUIConfigList,
+      FTileNameGenerator
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
   
