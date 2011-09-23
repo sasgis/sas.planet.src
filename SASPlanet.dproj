@@ -168,6 +168,7 @@
     <DCCReference Include="i_DownloadResultFactory.pas" />
     <DCCReference Include="i_DownloadResultTextProvider.pas" />
     <DCCReference Include="i_DownloadUIConfig.pas" />
+    <DCCReference Include="i_EcwDll.pas" />
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
     <DCCReference Include="i_GeoCoderList.pas" />
@@ -493,6 +494,7 @@
     <DCCReference Include="u_DownloadResultFactory.pas" />
     <DCCReference Include="u_DownloadResultTextProvider.pas" />
     <DCCReference Include="u_DownloadUIConfig.pas" />
+    <DCCReference Include="u_EcwDllSimple.pas" />
     <DCCReference Include="u_ECWWrite.pas" />
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
