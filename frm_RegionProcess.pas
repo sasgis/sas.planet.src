@@ -22,6 +22,7 @@ uses
   i_DownloadInfoSimple,
   i_MapTypes,
   i_ActiveMapsConfig,
+  i_MapCalibration,
   i_TileFileNameGeneratorsList,
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
@@ -61,6 +62,7 @@ type
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FViewConfig: IGlobalViewMainConfig;
     FImageResamplerConfig: IImageResamplerConfig;
+    FMapCalibrationList: IMapCalibrationList;
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
     FProviderTilesDelte: TExportProviderAbstract;
@@ -85,6 +87,7 @@ type
       ATileNameGenerator: ITileFileNameGeneratorsList;
       AViewConfig: IGlobalViewMainConfig;
       AImageResamplerConfig: IImageResamplerConfig;
+      AMapCalibrationList: IMapCalibrationList;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
       AMapUpdateEvent: TMapUpdateEvent
@@ -125,6 +128,7 @@ constructor TfrmRegionProcess.Create(
   ATileNameGenerator: ITileFileNameGeneratorsList;
   AViewConfig: IGlobalViewMainConfig;
   AImageResamplerConfig: IImageResamplerConfig;
+  AMapCalibrationList: IMapCalibrationList;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
   AMapUpdateEvent: TMapUpdateEvent
@@ -139,6 +143,7 @@ begin
   FTileNameGenerator := ATileNameGenerator;
   FViewConfig := AViewConfig;
   FImageResamplerConfig := AImageResamplerConfig;
+  FMapCalibrationList := AMapCalibrationList;
 
   InitExportsList;
 
@@ -181,7 +186,8 @@ begin
       TabSheet2,
       FMainMapsConfig,
       FFullMapsSet,
-      FGUIConfigList
+      FGUIConfigList,
+      FMapCalibrationList
     );
 end;
 

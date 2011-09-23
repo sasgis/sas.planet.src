@@ -715,6 +715,7 @@ begin
       GState.TileNameGenerator,
       GState.ViewConfig,
       GState.ImageResamplerConfig,
+      GState.MapCalibrationList,
       GState.DownloadConfig,
       GState.DownloadInfo,
       Self.OnMapUpdate

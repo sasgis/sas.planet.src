@@ -45,6 +45,7 @@ uses
   u_MemFileCache,
   i_ZmpInfoSet,
   i_GPSConfig,
+  i_MapCalibration,
   i_MarkCategoryFactoryConfig,
   i_GlobalViewMainConfig,
   i_GlobalDownloadConfig,
@@ -70,7 +71,7 @@ type
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
     FContentTypeManager: IContentTypeManager;
-    FMapCalibrationList: IInterfaceList;
+    FMapCalibrationList: IMapCalibrationList;
     FCacheConfig: TGlobalCahceConfig;
     FLanguageManager: ILanguageManager;
     FLastSelectionInfo: ILastSelectionInfo;
@@ -132,7 +133,7 @@ type
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
-    property MapCalibrationList: IInterfaceList read FMapCalibrationList;
+    property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
 
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;

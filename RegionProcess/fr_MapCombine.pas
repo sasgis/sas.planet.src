@@ -19,6 +19,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_MapCalibration,
   u_CommonFormAndFrameParents,
   t_GeoTypes;
 
@@ -67,6 +68,7 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FMapCalibrationList: IMapCalibrationList;
     FPolygLL: TArrayOfDoublePoint;
     procedure UpdatePanelSizes;
   public
@@ -74,7 +76,8 @@ type
       AOwner : TComponent;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList
+      AGUIConfigList: IMapTypeGUIConfigList;
+      AMapCalibrationList: IMapCalibrationList
     ); reintroduce;
     procedure RefreshTranslation; override;
     procedure Init(AZoom: Byte; APolygLL: TArrayOfDoublePoint);
@@ -83,8 +86,6 @@ type
 implementation
 
 uses
-  i_MapCalibration,
-  u_GlobalState,
   i_GUIDListStatic,
   u_GeoFun,
   u_ResStrings,
@@ -153,13 +154,15 @@ constructor TfrMapCombine.Create(
   AOwner : TComponent;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList
+  AGUIConfigList: IMapTypeGUIConfigList;
+  AMapCalibrationList: IMapCalibrationList
 );
 begin
   inherited Create(AOwner);
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+  FMapCalibrationList := AMapCalibrationList;
   cbbOutputFormat.ItemIndex := 0;
   UpdatePanelSizes;
 end;
@@ -213,14 +216,9 @@ begin
   end;
 
   chklstPrTypes.Clear;
-  GState.MapCalibrationList.Lock;
-  try
-    for i := 0 to GState.MapCalibrationList.Count - 1 do begin
-      VMapCalibration := GState.MapCalibrationList.Get(i) as IMapCalibration;
-      chklstPrTypes.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
-    end;
-  finally
-    GState.MapCalibrationList.Unlock;
+  for i := 0 to FMapCalibrationList.Count - 1 do begin
+    VMapCalibration := FMapCalibrationList.Get(i);
+    chklstPrTypes.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
   end;
   cbbOutputFormatChange(cbbOutputFormat);
   cbbZoomChange(nil);

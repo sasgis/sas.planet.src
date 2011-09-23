@@ -7,6 +7,10 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
+  i_MapCalibration,
   u_ExportProviderAbstract,
   fr_MapCombine;
 
@@ -14,7 +18,15 @@ type
   TProviderMapCombine = class(TExportProviderAbstract)
   private
     FFrame: TfrMapCombine;
+    FMapCalibrationList: IMapCalibrationList;
   public
+    constructor Create(
+      AParent: TWinControl;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      AMapCalibrationList: IMapCalibrationList
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
@@ -45,6 +57,18 @@ uses
 
 { TProviderTilesDelete }
 
+constructor TProviderMapCombine.Create(
+  AParent: TWinControl;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  AMapCalibrationList: IMapCalibrationList
+);
+begin
+  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FMapCalibrationList := AMapCalibrationList;
+end;
+
 destructor TProviderMapCombine.Destroy;
 begin
   FreeAndNil(FFrame);
@@ -63,7 +87,8 @@ begin
       nil,
       FMainMapsConfig,
       FFullMapsSet,
-      FGUIConfigList
+      FGUIConfigList,
+      FMapCalibrationList
     );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
