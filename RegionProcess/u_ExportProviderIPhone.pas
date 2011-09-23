@@ -9,6 +9,7 @@ uses
   t_GeoTypes,
   i_MapTypes,
   i_ActiveMapsConfig,
+  i_CoordConverterFactory,
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   fr_ExportIPhone;
@@ -17,6 +18,7 @@ type
   TExportProviderIPhone = class(TExportProviderAbstract)
   private
     FFrame: TfrExportIPhone;
+    FCoordConverterFactory: ICoordConverterFactory;
     FNewFormat: Boolean;
   public
     constructor Create(
@@ -24,6 +26,7 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      ACoordConverterFactory: ICoordConverterFactory;
       ANewFormat: Boolean
     );
     destructor Destroy; override;
@@ -51,10 +54,12 @@ constructor TExportProviderIPhone.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  ACoordConverterFactory: ICoordConverterFactory;
   ANewFormat: Boolean
 );
 begin
   inherited Create(AParent, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
+  FCoordConverterFactory := ACoordConverterFactory;
   FNewFormat := ANewFormat;
 end;
 
@@ -153,7 +158,19 @@ begin
   comprHyb:=FFrame.seHybrCompress.Value;
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
   Replace:=FFrame.chkAppendTilse.Checked;
-  TThreadExportIPhone.Create(path,APolygon,ZoomArr,typemaparr,VActiveMapIndex,Replace,FNewFormat,comprSat,comprMap,comprHyb)
+  TThreadExportIPhone.Create(
+    FCoordConverterFactory,
+    path,
+    APolygon,
+    ZoomArr,
+    typemaparr,
+    VActiveMapIndex,
+    Replace,
+    FNewFormat,
+    comprSat,
+    comprMap,
+    comprHyb
+  )
 end;
 
 end.

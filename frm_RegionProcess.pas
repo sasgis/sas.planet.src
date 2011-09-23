@@ -15,6 +15,7 @@ uses
   inifiles,
   ComCtrls,
   u_CommonFormAndFrameParents,
+  i_CoordConverterFactory,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
   i_MapTypes,
@@ -53,6 +54,7 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FCoordConverterFactory: ICoordConverterFactory;
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
     FProviderTilesDelte: TExportProviderAbstract;
@@ -73,6 +75,7 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      ACoordConverterFactory: ICoordConverterFactory;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
       AMapUpdateEvent: TMapUpdateEvent
@@ -109,6 +112,7 @@ constructor TfrmRegionProcess.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  ACoordConverterFactory: ICoordConverterFactory;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
   AMapUpdateEvent: TMapUpdateEvent
@@ -119,6 +123,7 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+  FCoordConverterFactory := ACoordConverterFactory;
 
   InitExportsList;
 
@@ -270,6 +275,7 @@ begin
       FMainMapsConfig,
       FFullMapsSet,
       FGUIConfigList,
+      FCoordConverterFactory,
       True
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -280,6 +286,7 @@ begin
       FMainMapsConfig,
       FFullMapsSet,
       FGUIConfigList,
+      FCoordConverterFactory,
       False
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);

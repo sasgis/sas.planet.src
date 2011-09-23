@@ -711,6 +711,7 @@ begin
       FConfig.MainMapsConfig,
       GState.MapType.FullMapsSet,
       GState.MapType.GUIConfigList,
+      GState.CoordConverterFactory,
       GState.DownloadConfig,
       GState.DownloadInfo,
       Self.OnMapUpdate

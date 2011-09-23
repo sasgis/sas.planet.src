@@ -72,8 +72,7 @@ implementation
 uses
   ECWWriter,
   i_CoordConverter,
-  i_LocalCoordConverter,
-  u_GlobalState;
+  i_LocalCoordConverter;
 
 constructor TThreadMapCombineECW.Create(
   AViewConfig: IGlobalViewMainConfig;
