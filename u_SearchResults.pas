@@ -104,7 +104,7 @@ begin
     end;
     LengthFSearchItems:=length(FSearchItems);
     SetLength(FSearchItems,LengthFSearchItems+1);
-    FSearchItems[LengthFSearchItems]:=TfrSearchResultsItem.Create(nil, FDrawParent, VPlacemark, FMapGoto);
+    FSearchItems[LengthFSearchItems]:=TfrSearchResultsItem.Create(nil, FDrawParent, VPlacemark, FViewPortState, FMapGoto);
     if LengthFSearchItems>0 then begin
       FSearchItems[LengthFSearchItems].Top:=FSearchItems[LengthFSearchItems-1].Top+1
     end;
