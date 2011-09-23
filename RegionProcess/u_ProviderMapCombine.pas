@@ -227,7 +227,7 @@ begin
       VZoom,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
-      GState.BitmapPostProcessingConfig.GetStatic,
+      GState.BitmapPostProcessingConfig.GetStatic
     );
   end else if (VFileExt='.KMZ') then begin
     TThreadMapCombineKMZ.Create(
