@@ -61,17 +61,6 @@ type
     procedure CBFormatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    FMainMapsConfig: IMainMapsConfig;
-    FFullMapsSet: IMapTypeSet;
-    FGUIConfigList: IMapTypeGUIConfigList;
-    FCoordConverterFactory: ICoordConverterFactory;
-    FTileNameGenerator: ITileFileNameGeneratorsList;
-    FViewConfig: IGlobalViewMainConfig;
-    FImageResamplerConfig: IImageResamplerConfig;
-    FMarksDB: TMarksSystem;
-    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
-    FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-    FMapCalibrationList: IMapCalibrationList;
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
     FProviderTilesDelte: TExportProviderAbstract;
@@ -85,7 +74,13 @@ type
     procedure scleitRECT(APolyLL: TArrayOfDoublePoint);
     procedure savefilesREG(APolyLL: TArrayOfDoublePoint);
     procedure ExportREG(APolyLL: TArrayOfDoublePoint);
-    procedure InitExportsList;
+    procedure InitExportsList(
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      ACoordConverterFactory: ICoordConverterFactory;
+      ATileNameGenerator: ITileFileNameGeneratorsList
+    );
   public
     constructor Create(
       AOwner: TComponent;
@@ -157,50 +152,44 @@ constructor TfrmRegionProcess.Create(
 begin
   TP_Ignore(Self, 'CBFormat.Items');
   inherited Create(AOwner);
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
-  FCoordConverterFactory := ACoordConverterFactory;
-  FTileNameGenerator := ATileNameGenerator;
-  FViewConfig := AViewConfig;
-  FImageResamplerConfig := AImageResamplerConfig;
-  FMarksDB := AMarksDB;
-  FMapCalibrationList := AMapCalibrationList;
-  FLocalConverterFactory := ALocalConverterFactory;
-  FBitmapPostProcessingConfig := ABitmapPostProcessingConfig;
-
-  InitExportsList;
+  InitExportsList(
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList,
+    ACoordConverterFactory,
+    ATileNameGenerator
+  );
 
   FProviderTilesDelte :=
     TProviderTilesDelete.Create(
       TabSheet4,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList
     );
   FProviderTilesGenPrev :=
     TProviderTilesGenPrev.Create(
       TabSheet3,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
-      FViewConfig,
-      FImageResamplerConfig
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      AViewConfig,
+      AImageResamplerConfig
     );
   FProviderTilesCopy :=
     TProviderTilesCopy.Create(
       TabSheet6,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
-      FTileNameGenerator
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ATileNameGenerator
     );
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
       TabSheet1,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
       ADownloadConfig,
       ADownloadInfo,
       AMapUpdateEvent
@@ -208,17 +197,17 @@ begin
   FProviderMapCombine :=
     TProviderMapCombine.Create(
       TabSheet2,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
-      FViewConfig,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      AViewConfig,
       AMarksShowConfig,
       AMarksDrawConfig,
-      FMarksDB,
-      FLocalConverterFactory,
-      FBitmapPostProcessingConfig,
+      AMarksDB,
+      ALocalConverterFactory,
+      ABitmapPostProcessingConfig,
       AEcwDll,
-      FMapCalibrationList
+      AMapCalibrationList
     );
 end;
 
@@ -320,17 +309,23 @@ begin
   FProviderTilesGenPrev.StartProcess(APolyLL);
 end;
 
-procedure TfrmRegionProcess.InitExportsList;
+procedure TfrmRegionProcess.InitExportsList(
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  ACoordConverterFactory: ICoordConverterFactory;
+  ATileNameGenerator: ITileFileNameGeneratorsList
+);
 var
   VExportProvider: TExportProviderAbstract;
 begin
   VExportProvider :=
     TExportProviderIPhone.Create(
       pnlExport,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
-      FCoordConverterFactory,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory,
       True
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -338,10 +333,10 @@ begin
   VExportProvider :=
     TExportProviderIPhone.Create(
       pnlExport,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
-      FCoordConverterFactory,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory,
       False
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -349,61 +344,61 @@ begin
   VExportProvider :=
     TExportProviderGEKml.Create(
       pnlExport,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
   VExportProvider :=
     TExportProviderYaMobileV3.Create(
       pnlExport,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
-      FCoordConverterFactory
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
   VExportProvider :=
     TExportProviderYaMobileV4.Create(
       pnlExport,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
-      FCoordConverterFactory
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
   VExportProvider :=
     TExportProviderAUX.Create(
       pnlExport,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
   VExportProvider :=
     TExportProviderZip.Create(
       pnlExport,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
-      FTileNameGenerator
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ATileNameGenerator
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
   VExportProvider :=
     TExportProviderTar.Create(
       pnlExport,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
-      FTileNameGenerator
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ATileNameGenerator
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  
+
   CBFormat.ItemIndex := 0;
 end;
 
