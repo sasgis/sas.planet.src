@@ -229,7 +229,13 @@ constructor TfrmMarkEditPoint.Create(AOwner: TComponent);
 begin
   inherited;
   frMarkDescription := TfrMarkDescription.Create(nil);
-  frLonLatPoint := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig, tssCenter);
+  frLonLatPoint :=
+    TfrLonLat.Create(
+      nil,
+      GState.MainFormConfig.ViewPortState,
+      GState.ValueToStringConverterConfig,
+      tssCenter
+    );
 end;
 
 destructor TfrmMarkEditPoint.Destroy;
