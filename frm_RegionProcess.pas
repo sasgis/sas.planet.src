@@ -18,6 +18,8 @@ uses
   i_CoordConverterFactory,
   i_GlobalViewMainConfig,
   i_ImageResamplerConfig,
+  i_LocalCoordConverterFactorySimpe,
+  i_BitmapPostProcessingConfig,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
   i_UsedMarksConfig,
@@ -66,6 +68,8 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FImageResamplerConfig: IImageResamplerConfig;
     FMarksDB: TMarksSystem;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
+    FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FMapCalibrationList: IMapCalibrationList;
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
@@ -94,6 +98,8 @@ type
       AMarksShowConfig: IUsedMarksConfig;
       AMarksDrawConfig: IMarksDrawConfig;
       AMarksDB: TMarksSystem;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       AMapCalibrationList: IMapCalibrationList;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
@@ -138,6 +144,8 @@ constructor TfrmRegionProcess.Create(
   AMarksShowConfig: IUsedMarksConfig;
   AMarksDrawConfig: IMarksDrawConfig;
   AMarksDB: TMarksSystem;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
   AMapCalibrationList: IMapCalibrationList;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
@@ -155,6 +163,8 @@ begin
   FImageResamplerConfig := AImageResamplerConfig;
   FMarksDB := AMarksDB;
   FMapCalibrationList := AMapCalibrationList;
+  FLocalConverterFactory := ALocalConverterFactory;
+  FBitmapPostProcessingConfig := ABitmapPostProcessingConfig;
 
   InitExportsList;
 
@@ -202,6 +212,8 @@ begin
       AMarksShowConfig,
       AMarksDrawConfig,
       FMarksDB,
+      FLocalConverterFactory,
+      FBitmapPostProcessingConfig,
       FMapCalibrationList
     );
 end;

@@ -10,6 +10,8 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_LocalCoordConverterFactorySimpe,
+  i_BitmapPostProcessingConfig,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MapCalibration,
@@ -26,6 +28,8 @@ type
     FMarksDB: TMarksSystem;
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
+    FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FMapCalibrationList: IMapCalibrationList;
   public
     constructor Create(
@@ -37,6 +41,8 @@ type
       AMarksShowConfig: IUsedMarksConfig;
       AMarksDrawConfig: IMarksDrawConfig;
       AMarksDB: TMarksSystem;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       AMapCalibrationList: IMapCalibrationList
     );
     destructor Destroy; override;
@@ -76,6 +82,8 @@ constructor TProviderMapCombine.Create(
   AMarksShowConfig: IUsedMarksConfig;
   AMarksDrawConfig: IMarksDrawConfig;
   AMarksDB: TMarksSystem;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
   AMapCalibrationList: IMapCalibrationList
 );
 begin
@@ -85,6 +93,8 @@ begin
   FMarksShowConfig := AMarksShowConfig;
   FMarksDrawConfig := AMarksDrawConfig;
   FMarksDB := AMarksDB;
+  FLocalConverterFactory := ALocalConverterFactory;
+  FBitmapPostProcessingConfig := ABitmapPostProcessingConfig;
 end;
 
 destructor TProviderMapCombine.Destroy;
@@ -219,7 +229,7 @@ begin
     TThreadMapCombineECW.Create(
       FViewConfig,
       VMarksImageProvider,
-      GState.LocalConverterFactory,
+      FLocalConverterFactory,
       VPrTypes,
       VFileName,
       APolygon,
@@ -227,7 +237,7 @@ begin
       VZoom,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
-      GState.BitmapPostProcessingConfig.GetStatic,
+      FBitmapPostProcessingConfig.GetStatic,
       GState.EcwDll,
       FFrame.seJpgQuality.Value
     );

@@ -718,6 +718,8 @@ begin
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
       GState.MarksDB,
+      GState.LocalConverterFactory,
+      GState.BitmapPostProcessingConfig,
       GState.MapCalibrationList,
       GState.DownloadConfig,
       GState.DownloadInfo,
