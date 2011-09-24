@@ -15,6 +15,7 @@ uses
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MapCalibration,
+  i_EcwDll,
   i_GlobalViewMainConfig,
   u_ExportProviderAbstract,
   u_MarksSystem,
@@ -30,6 +31,7 @@ type
     FMarksDrawConfig: IMarksDrawConfig;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+    FEcwDll: IEcwDll;
     FMapCalibrationList: IMapCalibrationList;
   public
     constructor Create(
@@ -43,6 +45,7 @@ type
       AMarksDB: TMarksSystem;
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+      AEcwDll: IEcwDll;
       AMapCalibrationList: IMapCalibrationList
     );
     destructor Destroy; override;
@@ -63,7 +66,6 @@ uses
   i_MarksSimple,
   i_BitmapLayerProvider,
   u_MapMarksBitmapLayerProviderByMarksSubset,
-  u_GlobalState,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,
@@ -84,6 +86,7 @@ constructor TProviderMapCombine.Create(
   AMarksDB: TMarksSystem;
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+  AEcwDll: IEcwDll;
   AMapCalibrationList: IMapCalibrationList
 );
 begin
@@ -95,6 +98,7 @@ begin
   FMarksDB := AMarksDB;
   FLocalConverterFactory := ALocalConverterFactory;
   FBitmapPostProcessingConfig := ABitmapPostProcessingConfig;
+  FEcwDll := AEcwDll;
 end;
 
 destructor TProviderMapCombine.Destroy;
@@ -238,14 +242,14 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       FBitmapPostProcessingConfig.GetStatic,
-      GState.EcwDll,
+      FEcwDll,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt='.BMP') then begin
     TThreadMapCombineBMP.Create(
       FViewConfig,
       VMarksImageProvider,
-      GState.LocalConverterFactory,
+      FLocalConverterFactory,
       VPrTypes,
       VFileName,
       APolygon,
@@ -253,13 +257,13 @@ begin
       VZoom,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
-      GState.BitmapPostProcessingConfig.GetStatic
+      FBitmapPostProcessingConfig.GetStatic
     );
   end else if (VFileExt='.KMZ') then begin
     TThreadMapCombineKMZ.Create(
       FViewConfig,
       VMarksImageProvider,
-      GState.LocalConverterFactory,
+      FLocalConverterFactory,
       VPrTypes,
       VFileName,
       APolygon,
@@ -267,14 +271,14 @@ begin
       VZoom,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
-      GState.BitmapPostProcessingConfig.GetStatic,
+      FBitmapPostProcessingConfig.GetStatic,
       FFrame.seJpgQuality.Value
     );
   end else begin
     TThreadMapCombineJPG.Create(
       FViewConfig,
       VMarksImageProvider,
-      GState.LocalConverterFactory,
+      FLocalConverterFactory,
       VPrTypes,
       VFileName,
       APolygon,
@@ -282,7 +286,7 @@ begin
       VZoom,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
-      GState.BitmapPostProcessingConfig.GetStatic,
+      FBitmapPostProcessingConfig.GetStatic,
       FFrame.seJpgQuality.Value
     );
   end;
