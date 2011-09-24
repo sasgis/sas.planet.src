@@ -708,6 +708,7 @@ begin
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
       Self,
+      GState.LastSelectionInfo,
       FConfig.MainMapsConfig,
       GState.MapType.FullMapsSet,
       GState.MapType.GUIConfigList,

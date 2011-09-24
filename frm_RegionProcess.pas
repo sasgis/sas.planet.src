@@ -15,6 +15,7 @@ uses
   inifiles,
   ComCtrls,
   u_CommonFormAndFrameParents,
+  i_LastSelectionInfo,
   i_CoordConverterFactory,
   i_GlobalViewMainConfig,
   i_ImageResamplerConfig,
@@ -61,6 +62,7 @@ type
     procedure CBFormatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
+    FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
     FProviderTilesDelte: TExportProviderAbstract;
@@ -84,6 +86,7 @@ type
   public
     constructor Create(
       AOwner: TComponent;
+      ALastSelectionInfo: ILastSelectionInfo;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -112,7 +115,6 @@ implementation
 
 uses
   gnugettext,
-  u_GlobalState,
   u_ExportProviderYaMobileV3,
   u_ExportProviderYaMobileV4,
   u_ExportProviderGEKml,
@@ -131,6 +133,7 @@ uses
 
 constructor TfrmRegionProcess.Create(
   AOwner: TComponent;
+  ALastSelectionInfo: ILastSelectionInfo;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -152,6 +155,7 @@ constructor TfrmRegionProcess.Create(
 begin
   TP_Ignore(Self, 'CBFormat.Items');
   inherited Create(AOwner);
+  FLastSelectionInfo := ALastSelectionInfo;
   InitExportsList(
     AMainMapsConfig,
     AFullMapsSet,
@@ -439,7 +443,7 @@ begin
     end;
   end;
 
-  GState.LastSelectionInfo.SetPolygon(FPolygonLL, FZoom_rect);
+  FLastSelectionInfo.SetPolygon(FPolygonLL, FZoom_rect);
   for i := 0 to CBFormat.Items.Count - 1 do begin
     VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
     if VExportProvider <> nil then begin
@@ -482,8 +486,13 @@ begin
  if (SaveSelDialog.Execute)and(SaveSelDialog.FileName<>'') then
   begin
    If FileExists(SaveSelDialog.FileName) then DeleteFile(SaveSelDialog.FileName);
-   VZoom := GState.LastSelectionInfo.Zoom;
-   VPolygon := copy(GState.LastSelectionInfo.Polygon);
+   FLastSelectionInfo.LockRead;
+   try
+     VZoom := FLastSelectionInfo.Zoom;
+     VPolygon := copy(FLastSelectionInfo.Polygon);
+   finally
+     FLastSelectionInfo.UnlockRead;
+   end;
    Ini:=TiniFile.Create(SaveSelDialog.FileName);
    try
    if length(VPolygon)>0 then
