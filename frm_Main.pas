@@ -614,12 +614,13 @@ type
     procedure OnMapUpdate(AMapType: TMapType);
     procedure OnBeforeViewChange(Sender: TObject);
     procedure OnAfterViewChange(Sender: TObject);
+    procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
   public
     property ShortCutManager: TShortcutManager read FShortCutManager;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
+    procedure SaveConfig;
     procedure LayerMapMarksRedraw;
     procedure OnMinimize(Sender: TObject);
   end;
@@ -1588,7 +1589,7 @@ begin
   FUIDownLoader.SendTerminateToThreads;
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
-  frmSettings.Save(GState.MainConfigProvider);
+  SaveConfig;
   Application.ProcessMessages;
   FreeAndNil(FLayersList);
   FreeAndNil(FUIDownLoader);
@@ -4075,6 +4076,15 @@ end;
 procedure TfrmMain.NAnimateMoveClick(Sender: TObject);
 begin
   FConfig.MapMovingConfig.AnimateMove := (Sender as TTBXItem).Checked;
+end;
+
+procedure TfrmMain.SaveConfig;
+begin
+  try
+    GState.SaveMainParams;
+    SaveWindowConfigToIni(GState.MainConfigProvider);
+  except
+  end;
 end;
 
 procedure TfrmMain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);

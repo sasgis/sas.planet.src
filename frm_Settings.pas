@@ -237,7 +237,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Save(AProvider: IConfigDataWriteProvider);
     procedure RefreshTranslation; override;
   end;
 
@@ -262,15 +261,6 @@ uses
   frm_MapTypeEdit;
 
 {$R *.dfm}
-
-procedure TfrmSettings.Save(AProvider: IConfigDataWriteProvider);
-begin
-  try
-    GState.SaveMainParams;
-    frmMain.SaveWindowConfigToIni(AProvider);
-  except
-  end;
-end;
 
 procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
@@ -485,7 +475,7 @@ begin
  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
  frShortCutList.ApplyChanges;
- save(GState.MainConfigProvider);
+ frmMain.SaveConfig;
  if VNeedReboot then begin
    ShowMessage(SAS_MSG_need_reload_application_curln);
  end;
