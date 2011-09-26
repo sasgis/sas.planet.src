@@ -81,8 +81,6 @@ type
       AShowTNE: Boolean;
       ATNEColor: TColor32
     ): boolean; virtual;
-
-    property CacheConfig: TMapTypeCacheConfigAbstract read GetCacheConfig;
   end;
 
 implementation
