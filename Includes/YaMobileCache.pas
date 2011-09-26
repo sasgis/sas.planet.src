@@ -550,6 +550,7 @@ begin
     VTileSize := VTileSize + ATileData.ElementsTable[I].DataSize;
   end;
   FreeMem(ATileData.Data, VTileSize);
+  SetLength(ATileData.ElementsTable, 0);
   ZeroMemory(@ATileData, SizeOf(TYaMobileTileData));
 end;
 
@@ -611,6 +612,7 @@ begin
   end;
   if (ATileData.ElementsCount > 0) and (VWriteCount > 0) then begin
     Result := FStream.Write(ATileData.Data^, VWriteCount) = VWriteCount;
+    FreeTileDataBlock(ATileData);
   end;
 end;
 
