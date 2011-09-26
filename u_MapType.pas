@@ -45,7 +45,6 @@ uses
   i_TileFileNameGeneratorsList,
   i_VectorDataItemSimple,
   u_GlobalCahceConfig,
-  u_MapTypeCacheConfig,
   u_TileStorageAbstract,
   u_ResStrings;
 

@@ -50,8 +50,7 @@ uses
   i_CoordConverter,
   i_TileIterator,
   u_TileIteratorStuped,
-  u_TileIteratorByRect,
-  u_GlobalState;
+  u_TileIteratorByRect;
 
 constructor TThreadGenPrevZoom.Create(
   Azoom: byte;
