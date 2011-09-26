@@ -279,6 +279,8 @@
     <DCCReference Include="i_Sensor.pas" />
     <DCCReference Include="i_SensorList.pas" />
     <DCCReference Include="i_SensorViewListGenerator.pas" />
+    <DCCReference Include="i_ShortCutModalEdit.pas" />
+    <DCCReference Include="i_ShortCutSingleConfig.pas" />
     <DCCReference Include="i_SimpleDownloader.pas" />
     <DCCReference Include="i_SimpleFactory.pas" />
     <DCCReference Include="i_SimpleTileStorageConfig.pas" />
@@ -696,6 +698,7 @@
     <DCCReference Include="u_SensorViewListGeneratorStuped.pas" />
     <DCCReference Include="u_SensorViewTextTBXPanel.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
+    <DCCReference Include="u_ShortCutSingleConfig.pas" />
     <DCCReference Include="u_SimpleTileStorageConfig.pas" />
     <DCCReference Include="u_SimpleTileStorageConfigStatic.pas" />
     <DCCReference Include="u_StartUpLogoConfig.pas" />
