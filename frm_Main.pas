@@ -444,7 +444,6 @@ type
     procedure NMarkNavClick(Sender: TObject);
     procedure TBEditPathMarshClick(Sender: TObject);
     procedure AdjustFont(Item: TTBCustomItem; Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
-    procedure NParamsClick(Sender: TObject);
     procedure TBfillMapAsMainClick(Sender: TObject);
     procedure NMarksCalcsLenClick(Sender: TObject);
     procedure NMarksCalcsSqClick(Sender: TObject);
@@ -485,6 +484,7 @@ type
     procedure tbitmShowMarkCaptionClick(Sender: TObject);
     procedure NAnimateMoveClick(Sender: TObject);
     procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
+    procedure NParamsPopup(Sender: TTBCustomItem; FromLink: Boolean);
     procedure TBSearchWindowClose(Sender: TObject);
     procedure TBEditMagnetDrawClick(Sender: TObject);
     procedure TBPolylineSelectClick(Sender: TObject);
@@ -3970,31 +3970,6 @@ begin
                            else TTBXItem(Item).FontSettings.Bold:=tsDefault;
 end;
 
-procedure TfrmMain.NParamsClick(Sender: TObject);
-var
-  i:Integer;
-  VMapType: TMapType;
-  VLayerIsActive: Boolean;
-  VActiveLayersSet: IMapTypeSet;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
-begin
-  NLayerParams.Visible:=false;
-  VActiveLayersSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
-  VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
-  for i := 0 to VGUIDList.Count - 1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.Abilities.IsLayer) then begin
-      VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VGUID) <> nil;
-      TTBXItem(FNLayerParamsItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
-      if VLayerIsActive then begin
-        NLayerParams.Visible:=true;
-      end
-    end;
-  end;
-end;
-
 procedure TfrmMain.TBfillMapAsMainClick(Sender: TObject);
 var
   VSender: TComponent;
@@ -4511,6 +4486,31 @@ end;
 procedure TfrmMain.NGoToSiteClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru/');
+end;
+
+procedure TfrmMain.NParamsPopup(Sender: TTBCustomItem; FromLink: Boolean);
+var
+  i:Integer;
+  VMapType: TMapType;
+  VLayerIsActive: Boolean;
+  VActiveLayersSet: IMapTypeSet;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
+begin
+  NLayerParams.Visible:=false;
+  VActiveLayersSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
+  VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    if (VMapType.Abilities.IsLayer) then begin
+      VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VGUID) <> nil;
+      TTBXItem(FNLayerParamsItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
+      if VLayerIsActive then begin
+        NLayerParams.Visible:=true;
+      end
+    end;
+  end;
 end;
 
 procedure TfrmMain.tbtmHelpBugTrackClick(Sender: TObject);
