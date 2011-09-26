@@ -8,7 +8,6 @@ uses
   GR32,
   t_GeoTypes,
   i_GlobalViewMainConfig,
-  i_MarksSimple,
   i_BitmapLayerProvider,
   i_BitmapPostProcessingConfig,
   i_LocalCoordConverter,
@@ -83,7 +82,6 @@ implementation
 uses
   SysUtils,
   i_MapCalibration,
-  u_MapMarksBitmapLayerProviderByMarksSubset,
   u_ResStrings,
   u_GeoFun;
 

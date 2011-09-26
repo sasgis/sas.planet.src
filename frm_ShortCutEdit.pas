@@ -11,6 +11,7 @@ uses
   StdCtrls,
   Buttons,
   ExtCtrls,
+  u_ShortcutManager,
   u_CommonFormAndFrameParents;
 
 type
@@ -25,7 +26,7 @@ type
     procedure btnClearClick(Sender: TObject);
   private
   public
-    
+    function EditHotKeyModal(AShortCutInfo: TShortCutInfo): Boolean;
   end;
 
 var
@@ -40,6 +41,16 @@ implementation
 procedure TfrmShortCutEdit.btnClearClick(Sender: TObject);
 begin
   HotKey.HotKey := 0;
+end;
+
+function TfrmShortCutEdit.EditHotKeyModal(AShortCutInfo: TShortCutInfo): Boolean;
+begin
+  HotKey.HotKey := AShortCutInfo.ShortCut;
+  if ShowModal = mrOK then begin
+    AShortCutInfo.ShortCut := HotKey.HotKey;
+  end else begin
+    Result := False;
+  end;
 end;
 
 procedure TfrmShortCutEdit.FormShow(Sender: TObject);

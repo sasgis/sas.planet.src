@@ -223,6 +223,7 @@
     <DCCReference Include="i_MapLayerGridsConfig.pas" />
     <DCCReference Include="i_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="i_MapMovingConfig.pas" />
+    <DCCReference Include="i_MapTypeConfigModalEdit.pas" />
     <DCCReference Include="i_MapTypeGUIConfig.pas" />
     <DCCReference Include="i_MapTypeGUIConfigList.pas" />
     <DCCReference Include="i_MapTypeHotKeyListStatic.pas" />
@@ -278,6 +279,8 @@
     <DCCReference Include="i_Sensor.pas" />
     <DCCReference Include="i_SensorList.pas" />
     <DCCReference Include="i_SensorViewListGenerator.pas" />
+    <DCCReference Include="i_ShortCutModalEdit.pas" />
+    <DCCReference Include="i_ShortCutSingleConfig.pas" />
     <DCCReference Include="i_SimpleDownloader.pas" />
     <DCCReference Include="i_SimpleFactory.pas" />
     <DCCReference Include="i_SimpleTileStorageConfig.pas" />
@@ -606,6 +609,7 @@
     <DCCReference Include="u_MapType.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeCacheConfig.pas" />
+    <DCCReference Include="u_MapTypeConfigModalEditByForm.pas" />
     <DCCReference Include="u_MapTypeGUIConfig.pas" />
     <DCCReference Include="u_MapTypeGUIConfigList.pas" />
     <DCCReference Include="u_MapTypeGUIConfigStatic.pas" />
@@ -694,6 +698,7 @@
     <DCCReference Include="u_SensorViewListGeneratorStuped.pas" />
     <DCCReference Include="u_SensorViewTextTBXPanel.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
+    <DCCReference Include="u_ShortCutSingleConfig.pas" />
     <DCCReference Include="u_SimpleTileStorageConfig.pas" />
     <DCCReference Include="u_SimpleTileStorageConfigStatic.pas" />
     <DCCReference Include="u_StartUpLogoConfig.pas" />

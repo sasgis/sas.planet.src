@@ -15,7 +15,6 @@ uses
   u_GeoFun,
   u_BmpUtil,
   t_GeoTypes,
-  i_MarksSimple,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
   u_ThreadMapCombineBase,

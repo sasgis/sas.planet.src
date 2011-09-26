@@ -45,7 +45,6 @@ uses
   i_TileFileNameGeneratorsList,
   i_VectorDataItemSimple,
   u_GlobalCahceConfig,
-  u_MapTypeCacheConfig,
   u_TileStorageAbstract,
   u_ResStrings;
 
@@ -789,7 +788,7 @@ end;
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
 begin
   if FStorageConfig.IsStoreFileCache then begin
-    Result := FStorage.CacheConfig.GetTileFileName(AXY, Azoom)
+    Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.GetStatic)
   end else begin
     Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
   end;

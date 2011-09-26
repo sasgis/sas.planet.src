@@ -24,7 +24,9 @@ uses
   GR32_Image,
   u_CommonFormAndFrameParents,
   i_ConfigDataWriteProvider,
+  i_JclListenerNotifierLinksList,
   i_ImageResamplerFactory,
+  i_MapTypeConfigModalEdit,
   fr_ShortCutList,
   u_MapType,
   u_ResStrings;
@@ -227,15 +229,18 @@ type
     procedure MapListChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
   private
+    FLinksList: IJclListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
+    FMapTypeEditor: IMapTypeConfigModalEdit;
+    procedure SatellitePaint;
+    procedure GPSReceiverReceive(Sender: TObject);
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
     procedure InitMapsList;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Save(AProvider: IConfigDataWriteProvider);
     procedure RefreshTranslation; override;
-    procedure SatellitePaint;
+    property MapTypeEditor: IMapTypeConfigModalEdit read FMapTypeEditor;
   end;
 
 var
@@ -251,6 +256,9 @@ uses
   i_ProxySettings,
   i_InetConfig,
   i_GUIDListStatic,
+  u_JclListenerNotifierLinksList,
+  u_NotifyEventListener,
+  u_MapTypeConfigModalEditByForm,
   u_GlobalState,
   frm_Main,
   frm_IntrnalBrowser,
@@ -258,17 +266,9 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmSettings.Save(AProvider: IConfigDataWriteProvider);
-begin
-  try
-    GState.SaveMainParams;
-    frmMain.SaveWindowConfigToIni(AProvider);
-  except
-  end;
-end;
-
 procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
+  frShortCutList.CancelChanges;
   Close
 end;
 
@@ -478,7 +478,8 @@ begin
 
  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
- save(GState.MainConfigProvider);
+ frShortCutList.ApplyChanges;
+ frmMain.SaveConfig;
  if VNeedReboot then begin
    ShowMessage(SAS_MSG_need_reload_application_curln);
  end;
@@ -558,7 +559,13 @@ end;
 constructor TfrmSettings.Create(AOwner: TComponent);
 begin
   inherited;
+  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.GPSReceiverReceive),
+    GState.GPSpar.DataReciveNotifier
+  );
   frShortCutList := TfrShortCutList.Create(nil);
+  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create;
   PageControl1.ActivePageIndex:=0;
 end;
 
@@ -574,6 +581,7 @@ var
   VInetConfig: IInetConfig;
   i: Integer;
 begin
+  FLinksList.ActivateLinks;
  InitMapsList;
 
  CBoxLocal.Clear;
@@ -724,6 +732,11 @@ begin
  SatellitePaint;
 end;
 
+procedure TfrmSettings.GPSReceiverReceive(Sender: TObject);
+begin
+  if Self.Visible then SatellitePaint;
+end;
+
 procedure TfrmSettings.FormCreate(Sender: TObject);
 var i:integer;
 begin
@@ -791,7 +804,7 @@ var
   VMapType: TMapType;
 begin
   VMapType := TMapType(MapList.Selected.Data);
-  if frmMapTypeEdit.EditMapModadl(VMapType) then begin
+  if FMapTypeEditor.EditMap(VMapType) then begin
     InitMapsList;
   end;
 end;
