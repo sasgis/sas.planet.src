@@ -19,18 +19,11 @@ type
     lblAuthorCaption: TLabel;
     lblWebSiteCaption: TLabel;
     lblEMailCaption: TLabel;
-    lblDonateCaption: TLabel;
     lblProgramName: TLabel;
-    edtWME: TEdit;
-    edtWMZ: TEdit;
-    edtYandexMoney: TEdit;
-    lblWMCaption: TLabel;
     lblVersion: TLabel;
     lblAuthor: TLabel;
     lblEMail: TLabel;
-    lblYandexMoneyCaption: TLabel;
     lblWebSite: TLabel;
-    edtWMR: TEdit;
     pnlBottom: TPanel;
     procedure btnCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
