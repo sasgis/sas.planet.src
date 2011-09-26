@@ -26,6 +26,7 @@ uses
   i_ConfigDataWriteProvider,
   i_JclListenerNotifierLinksList,
   i_ImageResamplerFactory,
+  i_MapTypeConfigModalEdit,
   fr_ShortCutList,
   u_MapType,
   u_ResStrings;
@@ -230,6 +231,7 @@ type
   private
     FLinksList: IJclListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
+    FMapTypeEditor: IMapTypeConfigModalEdit;
     procedure SatellitePaint;
     procedure GPSReceiverReceive(Sender: TObject);
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
@@ -238,6 +240,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure RefreshTranslation; override;
+    property MapTypeEditor: IMapTypeConfigModalEdit read FMapTypeEditor;
   end;
 
 var
@@ -255,6 +258,7 @@ uses
   i_GUIDListStatic,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
+  u_MapTypeConfigModalEditByForm,
   u_GlobalState,
   frm_Main,
   frm_IntrnalBrowser,
@@ -561,6 +565,7 @@ begin
     GState.GPSpar.DataReciveNotifier
   );
   frShortCutList := TfrShortCutList.Create(nil);
+  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create;
   PageControl1.ActivePageIndex:=0;
 end;
 
@@ -799,7 +804,7 @@ var
   VMapType: TMapType;
 begin
   VMapType := TMapType(MapList.Selected.Data);
-  if frmMapTypeEdit.EditMapModadl(VMapType) then begin
+  if FMapTypeEditor.EditMap(VMapType) then begin
     InitMapsList;
   end;
 end;

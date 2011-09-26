@@ -83,9 +83,6 @@ type
     function EditMapModadl(AMapType: TMapType): Boolean;
   end;
 
-var
-  frmMapTypeEdit: TfrmMapTypeEdit;
-
 implementation
 
 uses

@@ -3327,7 +3327,7 @@ begin
   end else begin
     VMapType := TMapType(TTBXItem(sender).Tag);
   end;
-  frmMapTypeEdit.EditMapModadl(VMapType);
+  frmSettings.MapTypeEditor.EditMap(VMapType);
 end;
 
 procedure TfrmMain.mapMouseDown(Sender: TObject; Button: TMouseButton;

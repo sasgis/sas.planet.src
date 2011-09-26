@@ -665,7 +665,6 @@ begin
     Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
     Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
     Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
-    Application.CreateForm(TfrmMapTypeEdit, frmMapTypeEdit);
     Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
     frmInvisibleBrowser := TfrmInvisibleBrowser.Create(Application, GState.InetConfig.ProxyConfig);
     if GState.GlobalAppConfig.IsShowDebugInfo then begin
