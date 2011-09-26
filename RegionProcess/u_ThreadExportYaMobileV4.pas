@@ -86,7 +86,9 @@ begin
   for i := 1 to length(Atypemaparr) do begin
     FMapTypeArr[i - 1] := Atypemaparr[i - 1];
   end;
-  ZeroMemory(FCacheFile[0], Length(FCacheFile));
+  for I := 0 to Length(FCacheFile) - 1 do begin
+    FCacheFile[I] := nil;
+  end;
   FCacheCount := 0;
 end;
 
@@ -139,10 +141,10 @@ var
   VCacheFile: TYaMobileCacheFile;
   VTileData: TTileStream;
 begin
-  VCacheFile := nil;
-  VCacheFilePath := GetFilePath(FExportPath, ATilePoint, AZoom, AMapID);
-  if OpenCacheFile(VCacheFilePath, VCacheFile) then begin
-    if Assigned(ATileData) then begin
+  if Assigned(ATileData) then begin
+    VCacheFile := nil;
+    VCacheFilePath := GetFilePath(FExportPath, ATilePoint, AZoom, AMapID);
+    if OpenCacheFile(VCacheFilePath, VCacheFile) then begin
       ATileData.Position := 0;
       VTileData.Data := ATileData;
       VTileData.Point := Types.Point(ATilePoint.X mod 128, ATilePoint.Y mod 128);

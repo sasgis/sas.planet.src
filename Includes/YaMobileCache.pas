@@ -174,6 +174,8 @@ begin
   if Assigned(FStream) then begin
     if not InitializeCacheStructures then begin
       raise Exception.Create('Can''t initialize cache file: ' + AFilePath);
+    end else begin
+      FInitialized := True;
     end;
   end else begin
     raise Exception.Create('Can''t open cache file: ' + AFilePath);
@@ -252,7 +254,7 @@ begin
   if FStream.Size = 0 then begin
     ZeroMemory(@FHeader, SizeOf(TYaMobileCacheHeader));
     FHeader.Magic := StrToMagic('YMCF');
-    FHeader.Size := YaCacheHeaderSize;
+    FHeader.Size := YaCacheHeaderSize div 1024;
     FHeader.FormatVersion := 1;
     FHeader.CreationPlatform := 0;
     FHeader.RegularBlockSize := YaCacheBlockSize div 1024;
@@ -282,7 +284,7 @@ end;
 function TYaMobileCacheFile.WriteHeader: Boolean;
 begin
   FStream.Position := 0;
-  Result := FStream.Write(FHeader, FHeader.Size) = FHeader.Size;
+  Result := FStream.Write(FHeader, (FHeader.Size * 1024) ) = FHeader.Size * 1024;
 end;
 
 function TYaMobileCacheFile.InitializeOffsetTable: Boolean;
@@ -388,11 +390,13 @@ function TYaMobileCacheFile.WriteRegularBlock(
 var
   I: Integer;
   VPos: Int64;
+  VEndPos: Int64;
 begin
   if ARegularBlock.DataCellsCount = 0 then begin
     MarkBlockNumberAsEmpty(ABlockNumber);
   end;
   FStream.Position := GetRegularBlockOffset(ABlockNumber);
+  VEndPos := FStream.Position + FHeader.RegularBlockSize * 1024;
   FStream.Write(ARegularBlock.Magic, SizeOf(ARegularBlock.Magic));
   FStream.Write(ARegularBlock.FormatVersion, SizeOf(ARegularBlock.FormatVersion));
   FStream.Write(ARegularBlock.Flags, SizeOf(ARegularBlock.Flags));
@@ -411,6 +415,9 @@ begin
   for I := 0 to Length(ARegularBlock.Tiles) - 1 do begin
     WriteTileDataBlock(ARegularBlock.Tiles[I], VPos);
     VPos := VPos + ARegularBlock.DataTable[I].Size;
+  end;
+  while FStream.Position < VEndPos do begin
+    FStream.Write(#00#00, 1); // добиваем нулями до конца блока
   end;
   Result := True;
 end;
@@ -501,7 +508,7 @@ begin
                 SizeOf(TYaMobileDataTableElement) +                              // Добавка в хидер в YBLK (6b)
                 YaCacheYTLDHeaderSize +                                          // Собственный хидер в YTLD (38b)
                 AAddTileDataSize                                                 // Собственно, тайл
-              ) >= FHeader.RegularBlockSize;                                     // Def = 32k
+              ) >= (FHeader.RegularBlockSize * 1024);                            // Def = 32k
   end else begin
     Result := False;
   end;
