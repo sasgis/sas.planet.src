@@ -30,6 +30,8 @@ type
     FShortCutManager: TShortcutManager;
   public
     procedure SetShortCutManager(AShortCutManager: TShortcutManager);
+    procedure CancelChanges;
+    procedure ApplyChanges;
     procedure RefreshTranslation; override;
   end;
 
@@ -42,28 +44,28 @@ uses
 
 {$R *.dfm}
 
+procedure TfrShortCutList.ApplyChanges;
+begin
+  FShortCutManager.ApplyChanges;
+end;
+
+procedure TfrShortCutList.CancelChanges;
+begin
+  FShortCutManager.CancelChanges;
+end;
+
 procedure TfrShortCutList.lstShortCutListDblClick(Sender: TObject);
-
-  function ShortCutExists(A:TShortcut):Boolean;
-  var i:Integer;
-  begin
-    Result := False;
-    for i := 0 to lstShortCutList.Items.Count-1 do begin
-      if TShortCutInfo(lstShortCutList.Items.Objects[i]).ShortCut = A then begin
-        Result := True;
-        Break;
-      end;
-    end;
-  end;
-
+var
+  VTempShortCut: TShortCutInfo;
+  VExistsShortCut: TShortCutInfo;
 begin
   if lstShortCutList.ItemIndex<>-1 then begin
-    frmShortCutEdit.HotKey.HotKey := TShortCutInfo(lstShortCutList.Items.Objects[lstShortCutList.ItemIndex]).ShortCut;
-    if frmShortCutEdit.ShowModal = mrOK then begin
-      if (ShortCutExists(frmShortCutEdit.HotKey.HotKey))and(frmShortCutEdit.HotKey.HotKey<>0) then begin
-        ShowMessage(SAS_MSG_HotKeyExists)
-      end else begin
-        TShortCutInfo(lstShortCutList.Items.Objects[lstShortCutList.ItemIndex]).ShortCut := frmShortCutEdit.HotKey.HotKey;
+    VTempShortCut := TShortCutInfo(lstShortCutList.Items.Objects[lstShortCutList.ItemIndex]);
+    if frmShortCutEdit.EditHotKeyModal(VTempShortCut) then begin
+      VExistsShortCut := FShortCutManager.GetShortCutInfoByShortCut(VTempShortCut.ShortCut);
+      if (VExistsShortCut <> nil) and (VExistsShortCut <> VTempShortCut) then begin
+        VTempShortCut.ResetShortCut;
+        ShowMessage(SAS_MSG_HotKeyExists);
       end;
       lstShortCutList.Repaint;
     end;
@@ -75,13 +77,15 @@ procedure TfrShortCutList.lstShortCutListDrawItem(Control: TWinControl;
 var
   ShortCut:String;
   VTempShortCut: TShortCutInfo;
+  VBitmap: TBitmap;
 begin
   with lstShortCutList.Canvas do begin
     FillRect(Rect);
     VTempShortCut := TShortCutInfo(lstShortCutList.Items.Objects[Index]);
     ShortCut := ShortCutToText(VTempShortCut.ShortCut);
-    if VTempShortCut.Bitmap <> nil then begin
-      CopyRect(Bounds(2,Rect.Top+1,18,18),VTempShortCut.Bitmap.Canvas,bounds(0,0,VTempShortCut.Bitmap.Width,VTempShortCut.Bitmap.Height));
+    VBitmap := VTempShortCut.Bitmap;
+    if VBitmap <> nil then begin
+      CopyRect(Bounds(2,Rect.Top+1,18,18),VBitmap.Canvas,bounds(0,0,VBitmap.Width,VBitmap.Height));
     end;
     TextOut(22,Rect.Top+3, lstShortCutList.Items[Index]);
     TextOut(Rect.Right-TextWidth(ShortCut)-9,Rect.Top+3, ShortCut);

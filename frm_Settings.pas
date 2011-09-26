@@ -269,6 +269,7 @@ end;
 
 procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
+  frShortCutList.CancelChanges;
   Close
 end;
 
@@ -478,6 +479,7 @@ begin
 
  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
+ frShortCutList.ApplyChanges;
  save(GState.MainConfigProvider);
  if VNeedReboot then begin
    ShowMessage(SAS_MSG_need_reload_application_curln);
