@@ -3240,7 +3240,6 @@ var
   VDelta: Double;
 begin
   VPosition := GState.GPSRecorder.CurrentPosition;
-  if frmSettings.Visible then frmSettings.SatellitePaint;
   if TBXSignalStrengthBar.Visible then UpdateGPSSatellites(VPosition);
   if (VPosition.IsFix=0) then exit;
   if not((FMapMoving)or(FMapZoomAnimtion)) then begin

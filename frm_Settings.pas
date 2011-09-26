@@ -24,6 +24,7 @@ uses
   GR32_Image,
   u_CommonFormAndFrameParents,
   i_ConfigDataWriteProvider,
+  i_JclListenerNotifierLinksList,
   i_ImageResamplerFactory,
   fr_ShortCutList,
   u_MapType,
@@ -227,7 +228,10 @@ type
     procedure MapListChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
   private
+    FLinksList: IJclListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
+    procedure SatellitePaint;
+    procedure GPSReceiverReceive(Sender: TObject);
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
     procedure InitMapsList;
   public
@@ -235,7 +239,6 @@ type
     destructor Destroy; override;
     procedure Save(AProvider: IConfigDataWriteProvider);
     procedure RefreshTranslation; override;
-    procedure SatellitePaint;
   end;
 
 var
@@ -251,6 +254,8 @@ uses
   i_ProxySettings,
   i_InetConfig,
   i_GUIDListStatic,
+  u_JclListenerNotifierLinksList,
+  u_NotifyEventListener,
   u_GlobalState,
   frm_Main,
   frm_IntrnalBrowser,
@@ -560,6 +565,11 @@ end;
 constructor TfrmSettings.Create(AOwner: TComponent);
 begin
   inherited;
+  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.GPSReceiverReceive),
+    GState.GPSpar.DataReciveNotifier
+  );
   frShortCutList := TfrShortCutList.Create(nil);
   PageControl1.ActivePageIndex:=0;
 end;
@@ -576,6 +586,7 @@ var
   VInetConfig: IInetConfig;
   i: Integer;
 begin
+  FLinksList.ActivateLinks;
  InitMapsList;
 
  CBoxLocal.Clear;
@@ -724,6 +735,11 @@ begin
  chkUseIEProxyClick(chkUseIEProxy);
  frShortCutList.SetShortCutManager(frmMain.ShortCutManager);
  SatellitePaint;
+end;
+
+procedure TfrmSettings.GPSReceiverReceive(Sender: TObject);
+begin
+  if Self.Visible then SatellitePaint;
 end;
 
 procedure TfrmSettings.FormCreate(Sender: TObject);
