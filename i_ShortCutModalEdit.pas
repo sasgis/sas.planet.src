@@ -22,9 +22,13 @@ unit i_ShortCutModalEdit;
 
 interface
 
+uses
+  i_ShortCutSingleConfig;
+
 type
   IShortCutModalEdit = interface
     ['{A2955208-9A2C-4E56-8C12-7121EE60E880}']
+    function EditHotKeyModal(AShortCutInfo: IShortCutSingleConfig): Boolean;
   end;
 
 implementation

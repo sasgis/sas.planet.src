@@ -28,39 +28,21 @@ uses
   Graphics,
   TB2Item,
   i_ConfigDataProvider,
-  i_ConfigDataWriteProvider;
+  i_ConfigDataWriteProvider,
+  i_ShortCutSingleConfig;
 
 type
-  TShortCutInfo = class(TObject)
-  private
-    FBitmap: TBitmap;
-    FMenuItem: TTBCustomItem;
-    FShortCut:TShortCut;
-    function GetBitmap(aMenu: TTBCustomItem): TBitmap;
-  public
-    constructor Create(AMenuItem: TTBCustomItem);
-    destructor Destroy; override;
-    procedure Load(AProvider: IConfigDataProvider);
-    procedure Save(AProvider: IConfigDataWriteProvider);
-    function GetCaption: String;
-    procedure ResetShortCut;
-    procedure ApplyShortCut;
-    property ShortCut:TShortCut read FShortCut write FShortCut;
-    property Bitmap: TBitmap read FBitmap;
-  end;
-
   TShortcutManager = class
   private
-    FMainMenu: TTBCustomItem;
     FIgnoredItems: TList;
-    FItemsList: TList;
+    FItemsList: IInterfaceList;
     procedure LoadItems(Menu: TTBCustomItem);
   public
     constructor Create(AMainMenu: TTBCustomItem; AIgnoredItems: TList);
     destructor Destroy; override;
     function GetCount: Integer;
-    function GetItem(AIndex: Integer): TShortCutInfo;
-    function GetShortCutInfoByShortCut(AShortCut:TShortCut): TShortCutInfo;
+    function GetItem(AIndex: Integer): IShortCutSingleConfig;
+    function GetShortCutInfoByShortCut(AShortCut:TShortCut): IShortCutSingleConfig;
     procedure Load(AProvider: IConfigDataProvider);
     procedure Save(AProvider: IConfigDataWriteProvider);
     procedure CancelChanges;
@@ -70,100 +52,22 @@ type
 implementation
 
 uses
-  SysUtils;
-
-{ TShortCutInfo }
-
-constructor TShortCutInfo.Create(AMenuItem: TTBCustomItem);
-begin
-  FMenuItem := AMenuItem;
-  ResetShortCut;
-  FBitmap := GetBitmap(AMenuItem);
-end;
-
-destructor TShortCutInfo.Destroy;
-begin
-  FreeAndNil(FBitmap);
-  inherited;
-end;
-
-procedure TShortCutInfo.ApplyShortCut;
-begin
-  FMenuItem.ShortCut := FShortCut;
-end;
-
-function TShortCutInfo.GetBitmap(AMenu: TTBCustomItem): TBitmap;
-begin
-  Result := nil;
-  if AMenu.ImageIndex >= 0 then begin
-    Result := TBitmap.Create;
-    AMenu.Images.GetBitmap(AMenu.ImageIndex, Result);
-  end;
-end;
-
-function TShortCutInfo.GetCaption: String;
-var
-  Menu: TTBCustomItem;
-  AddName: String;
-begin
-  Result := '';
-  Menu := FMenuItem;
-  repeat
-    AddName := Menu.Caption;
-    if Pos('&', AddName) <> 0 then begin
-      Delete(AddName, Pos('&', AddName), 1);
-    end;
-    if Result = '' then begin
-      Result := AddName
-    end else begin
-      if AddName <> '' then begin
-        Result :=AddName+' -> '+Result;
-      end;
-    end;
-
-    if Assigned(Menu.Parent) then begin
-      Menu := Menu.Parent
-    end else begin
-      Break;
-    end;
-  until Menu.HasParent = False;
-end;
-
-procedure TShortCutInfo.Load(AProvider: IConfigDataProvider);
-begin
-  FMenuItem.ShortCut := AProvider.ReadInteger(FMenuItem.name, FMenuItem.ShortCut);
-  ResetShortCut;
-end;
-
-procedure TShortCutInfo.ResetShortCut;
-begin
-  FShortCut := FMenuItem.ShortCut;
-end;
-
-procedure TShortCutInfo.Save(AProvider: IConfigDataWriteProvider);
-begin
-  AProvider.WriteInteger(FMenuItem.Name, FMenuItem.ShortCut);
-end;
+  SysUtils,
+  u_ShortCutSingleConfig;
 
 { TShortcutManager }
 
 constructor TShortcutManager.Create(AMainMenu: TTBCustomItem;
   AIgnoredItems: TList);
 begin
-  FMainMenu := AMainMenu;
   FIgnoredItems := AIgnoredItems;
-  FItemsList := TList.Create;
-  LoadItems(FMainMenu);
+  FItemsList := TInterfaceList.Create;
+  LoadItems(AMainMenu);
 end;
 
 destructor TShortcutManager.Destroy;
-var
-  i: Integer;
 begin
-  for i := 0 to FItemsList.Count - 1 do begin
-    TObject(FItemsList.Items[i]).Free;
-  end;
-  FreeAndNil(FItemsList);
+  FItemsList := nil;
   FreeAndNil(FIgnoredItems);
   inherited;
 end;
@@ -171,10 +75,10 @@ end;
 procedure TShortcutManager.ApplyChanges;
 var
   i: Integer;
-  VShortCutInfo: TShortCutInfo;
+  VShortCutInfo: IShortCutSingleConfig;
 begin
   for i := 0 to FItemsList.Count - 1 do begin
-    VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
+    VShortCutInfo := IShortCutSingleConfig(FItemsList.Items[i]);
     VShortCutInfo.ApplyShortCut;
   end;
 end;
@@ -182,10 +86,10 @@ end;
 procedure TShortcutManager.CancelChanges;
 var
   i: Integer;
-  VShortCutInfo: TShortCutInfo;
+  VShortCutInfo: IShortCutSingleConfig;
 begin
   for i := 0 to FItemsList.Count - 1 do begin
-    VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
+    VShortCutInfo := IShortCutSingleConfig(FItemsList.Items[i]);
     VShortCutInfo.ResetShortCut;
   end;
 end;
@@ -195,21 +99,21 @@ begin
   Result := FItemsList.Count;
 end;
 
-function TShortcutManager.GetItem(AIndex: Integer): TShortCutInfo;
+function TShortcutManager.GetItem(AIndex: Integer): IShortCutSingleConfig;
 begin
-  Result := TShortCutInfo(FItemsList.Items[AIndex]);
+  Result := IShortCutSingleConfig(FItemsList.Items[AIndex]);
 end;
 
 function TShortcutManager.GetShortCutInfoByShortCut(
-  AShortCut: TShortCut): TShortCutInfo;
+  AShortCut: TShortCut): IShortCutSingleConfig;
 var
   i: Integer;
-  VShortCutInfo: TShortCutInfo;
+  VShortCutInfo: IShortCutSingleConfig;
 begin
   Result := nil;
   if AShortCut <> 0 then begin
     for i := 0 to FItemsList.Count - 1 do begin
-      VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
+      VShortCutInfo := IShortCutSingleConfig(FItemsList.Items[i]);
       if VShortCutInfo.ShortCut = AShortCut then begin
         Result := VShortCutInfo;
         Break;
@@ -221,12 +125,12 @@ end;
 procedure TShortcutManager.Load(AProvider: IConfigDataProvider);
 var
   i: Integer;
-  VShortCutInfo: TShortCutInfo;
+  VShortCutInfo: IShortCutSingleConfig;
 begin
   if AProvider <> nil then begin
     for i := 0 to FItemsList.Count - 1 do begin
-      VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
-      VShortCutInfo.Load(AProvider);
+      VShortCutInfo := IShortCutSingleConfig(FItemsList.Items[i]);
+      VShortCutInfo.ReadConfig(AProvider);
     end;
   end;
 end;
@@ -234,7 +138,7 @@ end;
 procedure TShortcutManager.LoadItems(Menu: TTBCustomItem);
 var
   i: Integer;
-  VShortCutInfo: TShortCutInfo;
+  VShortCutInfo: IShortCutSingleConfig;
   VMenuItem: TTBCustomItem;
 begin
   for i := 0 to Menu.Count-1 do begin
@@ -242,7 +146,7 @@ begin
     if not(VMenuItem is TTBSeparatorItem) then begin
       if (FIgnoredItems = nil) or (FIgnoredItems.IndexOf(VMenuItem) < 0) then begin
         if Assigned(VMenuItem.OnClick) then begin
-          VShortCutInfo := TShortCutInfo.Create(VMenuItem);
+          VShortCutInfo := TShortCutSingleConfig.Create(VMenuItem);
           FItemsList.Add(VShortCutInfo);
         end;
         if VMenuItem.Count > 0 then begin
@@ -256,11 +160,11 @@ end;
 procedure TShortcutManager.Save(AProvider: IConfigDataWriteProvider);
 var
   i: Integer;
-  VShortCutInfo: TShortCutInfo;
+  VShortCutInfo: IShortCutSingleConfig;
 begin
   for i := 0 to FItemsList.Count - 1 do begin
-    VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
-    VShortCutInfo.Save(AProvider);
+    VShortCutInfo := IShortCutSingleConfig(FItemsList.Items[i]);
+    VShortCutInfo.WriteConfig(AProvider);
   end;
 end;
 

@@ -34,6 +34,7 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
+  i_ShortCutSingleConfig,
   u_CommonFormAndFrameParents,
   u_ShortcutManager;
 
@@ -78,22 +79,24 @@ end;
 procedure TfrShortCutList.LoadList(AList: TStrings);
 var
   i: Integer;
-  VShortCutInfo: TShortCutInfo;
+  VShortCutInfo: IShortCutSingleConfig;
 begin
   AList.Clear;
   for i := 0 to FShortCutManager.GetCount - 1 do begin
     VShortCutInfo := FShortCutManager.GetItem(i);
-    AList.AddObject(VShortCutInfo.GetCaption, VShortCutInfo);
+    AList.AddObject(VShortCutInfo.GetCaption, Pointer(VShortCutInfo));
   end;
 end;
 
 procedure TfrShortCutList.lstShortCutListDblClick(Sender: TObject);
 var
-  VTempShortCut: TShortCutInfo;
-  VExistsShortCut: TShortCutInfo;
+  VTempShortCut: IShortCutSingleConfig;
+  VExistsShortCut: IShortCutSingleConfig;
+  VIndex: Integer;
 begin
-  if lstShortCutList.ItemIndex<>-1 then begin
-    VTempShortCut := TShortCutInfo(lstShortCutList.Items.Objects[lstShortCutList.ItemIndex]);
+  VIndex := lstShortCutList.ItemIndex;
+  if VIndex >= 0 then begin
+    VTempShortCut := IShortCutSingleConfig(Pointer(lstShortCutList.Items.Objects[VIndex]));
     if frmShortCutEdit.EditHotKeyModal(VTempShortCut) then begin
       VExistsShortCut := FShortCutManager.GetShortCutInfoByShortCut(VTempShortCut.ShortCut);
       if (VExistsShortCut <> nil) and (VExistsShortCut <> VTempShortCut) then begin
@@ -109,14 +112,14 @@ procedure TfrShortCutList.lstShortCutListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 var
   ShortCut:String;
-  VTempShortCut: TShortCutInfo;
+  VTempShortCut: IShortCutSingleConfig;
   VBitmap: TBitmap;
 begin
   with lstShortCutList.Canvas do begin
     FillRect(Rect);
-    VTempShortCut := TShortCutInfo(lstShortCutList.Items.Objects[Index]);
+    VTempShortCut := IShortCutSingleConfig(Pointer(lstShortCutList.Items.Objects[Index]));
     ShortCut := ShortCutToText(VTempShortCut.ShortCut);
-    VBitmap := VTempShortCut.Bitmap;
+    VBitmap := VTempShortCut.IconBitmap;
     if VBitmap <> nil then begin
       CopyRect(Bounds(2,Rect.Top+1,18,18),VBitmap.Canvas,bounds(0,0,VBitmap.Width,VBitmap.Height));
     end;

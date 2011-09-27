@@ -31,6 +31,7 @@ uses
   StdCtrls,
   Buttons,
   ExtCtrls,
+  i_ShortCutSingleConfig,
   u_ShortcutManager,
   u_CommonFormAndFrameParents;
 
@@ -46,7 +47,7 @@ type
     procedure btnClearClick(Sender: TObject);
   private
   public
-    function EditHotKeyModal(AShortCutInfo: TShortCutInfo): Boolean;
+    function EditHotKeyModal(AShortCutInfo: IShortCutSingleConfig): Boolean;
   end;
 
 var
@@ -63,7 +64,7 @@ begin
   HotKey.HotKey := 0;
 end;
 
-function TfrmShortCutEdit.EditHotKeyModal(AShortCutInfo: TShortCutInfo): Boolean;
+function TfrmShortCutEdit.EditHotKeyModal(AShortCutInfo: IShortCutSingleConfig): Boolean;
 begin
   HotKey.HotKey := AShortCutInfo.ShortCut;
   if ShowModal = mrOK then begin
