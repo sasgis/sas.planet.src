@@ -98,6 +98,9 @@ type
       APoints: TArrayOfDoublePoint
     ): IMarkPoly;
 
+    function GetMarkPictureList: IMarkPictureList;
+    property MarkPictureList: IMarkPictureList read GetMarkPictureList;
+
     function GetConfig: IMarksFactoryConfig;
     property Config: IMarksFactoryConfig read GetConfig;
   end;

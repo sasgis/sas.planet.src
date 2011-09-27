@@ -152,6 +152,7 @@ type
       APoints: TArrayOfDoublePoint
     ): IMarkPoly;
 
+    function GetMarkPictureList: IMarkPictureList;
     function GetConfig: IMarksFactoryConfig;
   protected
     function CreateMark(
@@ -768,6 +769,11 @@ begin
     Result.Right := 0;
     Result.Bottom := 0;
   end;
+end;
+
+function TMarkFactory.GetMarkPictureList: IMarkPictureList;
+begin
+  Result := FMarkPictureList;
 end;
 
 procedure TMarkFactory.PreparePathPoints(var APoints: TArrayOfDoublePoint);
