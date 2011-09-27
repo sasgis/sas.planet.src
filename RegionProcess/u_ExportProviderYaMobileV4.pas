@@ -132,7 +132,7 @@ begin
     APolygon,
     ZoomArr,
     typemaparr,
-    true,
+    FFrame.chkReplaseTiles.Checked,
     comprSat,
     comprMap
   );

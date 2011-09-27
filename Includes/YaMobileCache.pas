@@ -519,7 +519,6 @@ var
   VTileData: TYaMobileTileData;
   MD5: TMD5Digest;
   I: Integer;
-  P: Pointer;
 begin
   ZeroMemory(@VTileData, SizeOf(TYaMobileTileData));
   ATile.Data.Position := 0;
@@ -534,9 +533,8 @@ begin
   SetLength(VTileData.ElementsTable, VTileData.ElementsCount);
   VTileData.ElementsTable[0].DataID := 0;
   VTileData.ElementsTable[0].DataSize := ATile.Data.Size;
-  GetMem(P, ATile.Data.Size);
-  ATile.Data.Read(P^, ATile.Data.Size);
-  VTileData.Data := P;
+  GetMem(VTileData.Data, ATile.Data.Size);
+  ATile.Data.Read(VTileData.Data^, ATile.Data.Size);
   Result := VTileData;
 end;
 
@@ -597,21 +595,24 @@ var
   I: Integer;
   VWriteCount: Integer;
 begin
-  Result := False;
-  FStream.Position := AStreamPos;
-  FStream.Write(ATileData.Magic, SizeOf(ATileData.Magic));
-  FStream.Write(ATileData.ElementsCount, SizeOf(ATileData.ElementsCount));
-  FStream.Write(ATileData.FormatVersion, SizeOf(ATileData.FormatVersion));
-  FStream.Write(ATileData.MD5[0], Length(ATileData.MD5));
-  FStream.Write(ATileData.MapVersion, SizeOf(ATileData.MapVersion));
-  FStream.Write(ATileData.DateTime, SizeOf(ATileData.DateTime));
-  VWriteCount := 0;
-  for I := 0 to Length(ATileData.ElementsTable) - 1 do begin
-    FStream.Write(ATileData.ElementsTable[I], SizeOf(ATileData.ElementsTable[I]));
-    VWriteCount := VWriteCount + Integer(ATileData.ElementsTable[I].DataSize);
-  end;
-  if (ATileData.ElementsCount > 0) and (VWriteCount > 0) then begin
-    Result := FStream.Write(ATileData.Data^, VWriteCount) = VWriteCount;
+  try
+    Result := False;
+    FStream.Position := AStreamPos;
+    FStream.Write(ATileData.Magic, SizeOf(ATileData.Magic));
+    FStream.Write(ATileData.ElementsCount, SizeOf(ATileData.ElementsCount));
+    FStream.Write(ATileData.FormatVersion, SizeOf(ATileData.FormatVersion));
+    FStream.Write(ATileData.MD5[0], Length(ATileData.MD5));
+    FStream.Write(ATileData.MapVersion, SizeOf(ATileData.MapVersion));
+    FStream.Write(ATileData.DateTime, SizeOf(ATileData.DateTime));
+    VWriteCount := 0;
+    for I := 0 to Length(ATileData.ElementsTable) - 1 do begin
+      FStream.Write(ATileData.ElementsTable[I], SizeOf(ATileData.ElementsTable[I]));
+      VWriteCount := VWriteCount + Integer(ATileData.ElementsTable[I].DataSize);
+    end;
+    if (ATileData.ElementsCount > 0) and (VWriteCount > 0) then begin
+      Result := FStream.Write(ATileData.Data^, VWriteCount) = VWriteCount;
+    end;
+  finally
     FreeTileDataBlock(ATileData);
   end;
 end;

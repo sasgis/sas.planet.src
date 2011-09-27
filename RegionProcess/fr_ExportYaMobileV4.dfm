@@ -309,6 +309,15 @@ object frExportYaMobileV4: TfrExportYaMobileV4
           ExplicitHeight = 13
         end
       end
+      object chkReplaseTiles: TCheckBox
+        Left = 0
+        Top = 93
+        Width = 360
+        Height = 20
+        Align = alTop
+        Caption = 'Replace existing tiles'
+        TabOrder = 1
+      end
     end
   end
   object pnlTop: TPanel
