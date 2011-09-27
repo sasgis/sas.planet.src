@@ -50,12 +50,7 @@ type
     function EditHotKeyModal(AShortCutInfo: IShortCutSingleConfig): Boolean;
   end;
 
-var
-  frmShortCutEdit: TfrmShortCutEdit;
-
 implementation
-
-
 
 {$R *.dfm}
 

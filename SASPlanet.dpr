@@ -584,6 +584,7 @@ uses
   i_MapTypeConfigModalEdit in 'i_MapTypeConfigModalEdit.pas',
   u_MapTypeConfigModalEditByForm in 'u_MapTypeConfigModalEditByForm.pas',
   i_ShortCutModalEdit in 'i_ShortCutModalEdit.pas',
+  u_ShortCutModalEditByForm in 'u_ShortCutModalEditByForm.pas',
   u_ExportProviderAbstract in 'RegionProcess\u_ExportProviderAbstract.pas',
   u_SearchResults in 'u_SearchResults.pas',
   fr_ExportYaMobileV3 in 'RegionProcess\fr_ExportYaMobileV3.pas' {frExportYaMobileV3: TFrame},
@@ -668,7 +669,6 @@ begin
     Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
     Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
     Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
-    Application.CreateForm(TfrmShortCutEdit, frmShortCutEdit);
     frmInvisibleBrowser := TfrmInvisibleBrowser.Create(Application, GState.InetConfig.ProxyConfig);
     if GState.GlobalAppConfig.IsShowDebugInfo then begin
       frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);

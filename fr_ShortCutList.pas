@@ -35,6 +35,7 @@ uses
   StdCtrls,
   ExtCtrls,
   i_ShortCutSingleConfig,
+  i_ShortCutModalEdit,
   u_CommonFormAndFrameParents,
   u_ShortcutManager;
 
@@ -48,9 +49,11 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure lstShortCutListDblClick(Sender: TObject);
   private
+    FShortCutEdit: IShortCutModalEdit;
     FShortCutManager: TShortcutManager;
     procedure LoadList(AList: TStrings);
   public
+    constructor Create(AOwner: TComponent); override;
     procedure SetShortCutManager(AShortCutManager: TShortcutManager);
     procedure CancelChanges;
     procedure ApplyChanges;
@@ -61,8 +64,8 @@ implementation
 
 uses
   Menus,
-  u_ResStrings,
-  frm_ShortCutEdit;
+  u_ShortCutModalEditByForm,
+  u_ResStrings;
 
 {$R *.dfm}
 
@@ -74,6 +77,12 @@ end;
 procedure TfrShortCutList.CancelChanges;
 begin
   FShortCutManager.CancelChanges;
+end;
+
+constructor TfrShortCutList.Create(AOwner: TComponent);
+begin
+  inherited;
+  FShortCutEdit := TShortCutModalEditByForm.Create;
 end;
 
 procedure TfrShortCutList.LoadList(AList: TStrings);
@@ -97,7 +106,7 @@ begin
   VIndex := lstShortCutList.ItemIndex;
   if VIndex >= 0 then begin
     VTempShortCut := IShortCutSingleConfig(Pointer(lstShortCutList.Items.Objects[VIndex]));
-    if frmShortCutEdit.EditHotKeyModal(VTempShortCut) then begin
+    if FShortCutEdit.EditShortCut(VTempShortCut) then begin
       VExistsShortCut := FShortCutManager.GetShortCutInfoByShortCut(VTempShortCut.ShortCut);
       if (VExistsShortCut <> nil) and (VExistsShortCut <> VTempShortCut) then begin
         VTempShortCut.ResetShortCut;
