@@ -25,6 +25,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FCacheFile: array [0..7] of TYaMobileCacheFile;
     FCacheCount: Byte;
+    procedure GenUserXml(const AMapID, AMapName: string);
     function OpenCacheFile(
       const ACachePath: string;
       out ACacheFile: TYaMobileCacheFile
@@ -155,6 +156,54 @@ begin
   end;
 end;
 
+procedure TThreadExportYaMobileV4.GenUserXml(const AMapID, AMapName: string);
+var
+  VUserXml: string;
+  VUserXmlPath: string;
+  VStream: TMemoryStream;
+  VAddStr: string;
+  BOM: array[0..2] of Byte;
+  VSize: Integer;
+begin
+  VStream := TMemoryStream.Create;
+  try
+    VUserXmlPath := FExportPath + 'config' + PathDelim + 'user.xml';
+    if ForceDirectories(ExtractFilePath(VUserXmlPath)) then begin
+      VAddStr := '    <l id="' + AMapID + '" request="" name="' + AMapName + '" service="0" size_in_pixels="128" ver="1" />' + #10 + '</map_layers>' + #10;
+      if not FileExists(VUserXmlPath) then begin
+        VUserXml := '<?xml version="1.0" encoding="utf-8" ?>' + #10 + '<map_layers>' + #10 + VAddStr;
+      end else begin
+        VStream.LoadFromFile(VUserXmlPath);
+        VStream.Position := 0;
+        VStream.Read(BOM[0], 3);
+        if (BOM[0] = $EF) and (BOM[1] = $BB) and (BOM[2] = $BF) then begin
+          VSize := VStream.Size - 3;
+          VStream.Position := 3;
+        end else begin
+          VSize := VStream.Size;
+          VStream.Position := 0;
+        end;
+        SetLength(VUserXml, VSize);
+        VStream.Read(Pointer(VUserXml)^, Length(VUserXml));
+        VUserXml := Utf8ToAnsi(VUserXml);
+        VUserXml := StringReplace(VUserXml, '</map_layers>'#10, '', [rfIgnoreCase, rfReplaceAll]);
+        if VUserXml <> '' then begin
+          VUserXml := VUserXml + VAddStr;
+        end;
+      end;
+      if VUserXml <> '' then begin
+        VUserXml := #239#187#191 + AnsiToUtf8(VUserXml);
+        VStream.Clear;
+        VStream.Position := 0;
+        VStream.Write(Pointer(VUserXml)^, Length(VUserXml));
+        VStream.SaveToFile(VUserXmlPath);
+      end;
+    end;
+  finally
+    FreeAndNil(VStream);
+  end;
+end;
+
 procedure TThreadExportYaMobileV4.ProcessRegion;
 var
   i, j, xi, yi, hxyi, sizeim: integer;
@@ -168,6 +217,7 @@ var
   VMapType: TMapType;
   VSaver: IBitmapTileSaver;
   VTileIterators: array of ITileIterator;
+  VMapID: Integer;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -210,49 +260,53 @@ begin
           tc := GetTickCount;
           try
             for j := 0 to length(FMapTypeArr)-1 do begin
-              VMapType:=FMapTypeArr[j];
-              for i := 0 to Length(FZooms) - 1 do begin
-                VZoom := FZooms[i];
-                VTileIterators[i].Reset;
-                while VTileIterators[i].Next(VTile) do begin
-                  if CancelNotifier.IsOperationCanceled(OperationID) then begin
-                    exit;
-                  end;
-                  if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-                    bmp322.Clear;
-                    if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                      FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, VGeoConvert, False, False, True);
+              VMapType := FMapTypeArr[j];
+              if VMapType <> nil then begin
+                VMapID := 10 + j;
+                GenUserXml(IntToStr(VMapID), VMapType.GUIConfig.Name.Value);
+                for i := 0 to Length(FZooms) - 1 do begin
+                  VZoom := FZooms[i];
+                  VTileIterators[i].Reset;
+                  while VTileIterators[i].Next(VTile) do begin
+                    if CancelNotifier.IsOperationCanceled(OperationID) then begin
+                      exit;
                     end;
-                    bmp32.Clear;
-                    if VMapType.LoadTileUni(bmp32, VTile, VZoom, VGeoConvert, False, False, True) then begin
+                    if not ( (j = 0) and (FMapTypeArr[2] <> nil) ) then begin
+                      bmp322.Clear;
                       if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                        bmp322.Draw(0, 0, bmp32);
-                        bmp32.Draw(0, 0, bmp322);
+                        FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, VGeoConvert, False, False, True);
                       end;
-                      if (j = 2) or (j = 0) then begin
-                        VSaver := JPGSaver;
-                      end else begin
-                        VSaver := PNGSaver;
-                      end;
-                      for xi := 0 to hxyi do begin
-                        for yi := 0 to hxyi do begin
-                          bmp32crop.Clear;
-                          bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
-                          TileStream.Clear;
-                          VSaver.SaveToStream(bmp32crop, TileStream);
-                          AddTileToCache(
-                            TileStream,
-                            Types.Point(2*VTile.X + Xi, 2*VTile.Y + Yi),
-                            VZoom,
-                            (10 + j)
-                          );
+                      bmp32.Clear;
+                      if VMapType.LoadTileUni(bmp32, VTile, VZoom, VGeoConvert, False, False, True) then begin
+                        if (j = 2) and (FMapTypeArr[0] <> nil) then begin
+                          bmp322.Draw(0, 0, bmp32);
+                          bmp32.Draw(0, 0, bmp322);
+                        end;
+                        if (j = 2) or (j = 0) then begin
+                          VSaver := JPGSaver;
+                        end else begin
+                          VSaver := PNGSaver;
+                        end;
+                        for xi := 0 to hxyi do begin
+                          for yi := 0 to hxyi do begin
+                            bmp32crop.Clear;
+                            bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
+                            TileStream.Clear;
+                            VSaver.SaveToStream(bmp32crop, TileStream);
+                            AddTileToCache(
+                              TileStream,
+                              Types.Point(2*VTile.X + Xi, 2*VTile.Y + Yi),
+                              VZoom,
+                              VMapID
+                            );
+                          end;
                         end;
                       end;
-                    end;
-                    inc(FTilesProcessed);
-                    if (GetTickCount - tc > 1000) then begin
-                      tc := GetTickCount;
-                      ProgressFormUpdateOnProgress;
+                      inc(FTilesProcessed);
+                      if (GetTickCount - tc > 1000) then begin
+                        tc := GetTickCount;
+                        ProgressFormUpdateOnProgress;
+                      end;
                     end;
                   end;
                 end;
