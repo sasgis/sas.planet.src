@@ -127,6 +127,10 @@
       <Form>frLonLat</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="fr_MarkCategorySelectOrAdd.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frMarkCategorySelectOrAdd</Form>
+    </DCCReference>
     <DCCReference Include="fr_MarkDescription.pas">
       <Form>frMarkDescription</Form>
       <DesignClass>TFrame</DesignClass>
