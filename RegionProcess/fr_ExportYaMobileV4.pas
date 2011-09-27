@@ -45,6 +45,7 @@ type
     lblMap: TLabel;
     lblSat: TLabel;
     lblMaps: TLabel;
+    chkReplaseTiles: TCheckBox;
     procedure btnSelectTargetPathClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
