@@ -48,6 +48,7 @@ type
     procedure lstShortCutListDblClick(Sender: TObject);
   private
     FShortCutManager: TShortcutManager;
+    procedure LoadList(AList: TStrings);
   public
     procedure SetShortCutManager(AShortCutManager: TShortcutManager);
     procedure CancelChanges;
@@ -72,6 +73,18 @@ end;
 procedure TfrShortCutList.CancelChanges;
 begin
   FShortCutManager.CancelChanges;
+end;
+
+procedure TfrShortCutList.LoadList(AList: TStrings);
+var
+  i: Integer;
+  VShortCutInfo: TShortCutInfo;
+begin
+  AList.Clear;
+  for i := 0 to FShortCutManager.GetCount - 1 do begin
+    VShortCutInfo := FShortCutManager.GetItem(i);
+    AList.AddObject(VShortCutInfo.GetCaption, VShortCutInfo);
+  end;
 end;
 
 procedure TfrShortCutList.lstShortCutListDblClick(Sender: TObject);
@@ -121,7 +134,7 @@ begin
   inherited;
   if FShortCutManager <> nil then begin
     FShortCutManager.CancelChanges;
-    FShortCutManager.GetObjectsList(lstShortCutList.Items);
+    LoadList(lstShortCutList.Items);
   end;
 end;
 
@@ -131,7 +144,7 @@ begin
   if FShortCutManager <> AShortCutManager then begin
     FShortCutManager := AShortCutManager;
     if FShortCutManager <> nil then begin
-      FShortCutManager.GetObjectsList(lstShortCutList.Items);
+      LoadList(lstShortCutList.Items);
     end;
   end;
 end;

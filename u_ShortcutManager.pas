@@ -58,10 +58,11 @@ type
   public
     constructor Create(AMainMenu: TTBCustomItem; AIgnoredItems: TList);
     destructor Destroy; override;
+    function GetCount: Integer;
+    function GetItem(AIndex: Integer): TShortCutInfo;
     function GetShortCutInfoByShortCut(AShortCut:TShortCut): TShortCutInfo;
     procedure Load(AProvider: IConfigDataProvider);
     procedure Save(AProvider: IConfigDataWriteProvider);
-    procedure GetObjectsList(AList: TStrings);
     procedure CancelChanges;
     procedure ApplyChanges;
   end;
@@ -189,16 +190,14 @@ begin
   end;
 end;
 
-procedure TShortcutManager.GetObjectsList(AList: TStrings);
-var
-  i: Integer;
-  VShortCutInfo: TShortCutInfo;
+function TShortcutManager.GetCount: Integer;
 begin
-  AList.Clear;
-  for i := 0 to FItemsList.Count - 1 do begin
-    VShortCutInfo := TShortCutInfo(FItemsList.Items[i]);
-    AList.AddObject(VShortCutInfo.GetCaption, VShortCutInfo);
-  end;
+  Result := FItemsList.Count;
+end;
+
+function TShortcutManager.GetItem(AIndex: Integer): TShortCutInfo;
+begin
+  Result := TShortCutInfo(FItemsList.Items[AIndex]);
 end;
 
 function TShortcutManager.GetShortCutInfoByShortCut(
