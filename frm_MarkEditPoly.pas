@@ -34,6 +34,7 @@ uses
   ExtCtrls,
   Buttons,
   GR32,
+  t_GeoTypes,
   u_CommonFormAndFrameParents,
   u_ResStrings,
   i_MarksSimple,
@@ -41,8 +42,7 @@ uses
   i_MarkCategoryDB,
   i_MarksDb,
   fr_MarkDescription,
-  fr_MarkCategorySelectOrAdd,
-  t_GeoTypes;
+  fr_MarkCategorySelectOrAdd;
 
 type
   TfrmMarkEditPoly = class(TCommonFormParent)
@@ -90,7 +90,7 @@ type
       AOwner: TComponent;
       ACategoryDB: IMarkCategoryDB;
       AMarksDb: IMarksDb
-    );
+    ); reintroduce;
     destructor Destroy; override;
     function EditMark(AMark: IMarkPoly): IMarkPoly;
     procedure RefreshTranslation; override;
@@ -126,10 +126,6 @@ begin
 end;
 
 function TfrmMarkEditPoly.EditMark(AMark: IMarkPoly): IMarkPoly;
-var
-  VLastUsedCategoryName: string;
-  i: Integer;
-  VCategory: ICategory;
 begin
   frMarkCategory.Init(AMark.Category);
   try

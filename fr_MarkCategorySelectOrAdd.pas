@@ -27,7 +27,7 @@ type
     FLastUsedCategoryName: string;
     procedure CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
   public
-    constructor Create(AOwner: TComponent; ACategoryDB: IMarkCategoryDB);
+    constructor Create(AOwner: TComponent; ACategoryDB: IMarkCategoryDB); reintroduce;
     destructor Destroy; override;
     procedure Init(ACategory: ICategory);
     function GetCategory: ICategory;

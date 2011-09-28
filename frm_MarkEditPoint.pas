@@ -37,6 +37,7 @@ uses
   Spin,
   GR32,
   GR32_Resamplers,
+  t_GeoTypes,
   u_CommonFormAndFrameParents,
   u_ResStrings,
   i_MarkPicture,
@@ -46,8 +47,7 @@ uses
   i_MarksDb,
   fr_MarkDescription,
   fr_LonLat,
-  fr_MarkCategorySelectOrAdd,
-  t_GeoTypes;
+  fr_MarkCategorySelectOrAdd;
 
 type
   TfrmMarkEditPoint = class(TCommonFormParent)
@@ -111,7 +111,7 @@ type
       AOwner: TComponent;
       ACategoryDB: IMarkCategoryDB;
       AMarksDb: IMarksDb
-    );
+    ); reintroduce;
     destructor Destroy; override;
     function EditMark(AMark: IMarkPoint): IMarkPoint;
     procedure RefreshTranslation; override;
@@ -160,9 +160,6 @@ end;
 
 function TfrmMarkEditPoint.EditMark(AMark: IMarkPoint): IMarkPoint;
 var
-  VLastUsedCategoryName:string;
-  i: Integer;
-  VCategory: ICategory;
   VPicCount: Integer;
   VColCount: Integer;
   VRowCount: Integer;

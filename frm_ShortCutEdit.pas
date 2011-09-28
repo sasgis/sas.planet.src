@@ -64,6 +64,7 @@ begin
   HotKey.HotKey := AShortCutInfo.ShortCut;
   if ShowModal = mrOK then begin
     AShortCutInfo.ShortCut := HotKey.HotKey;
+    Result := True;
   end else begin
     Result := False;
   end;
