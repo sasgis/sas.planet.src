@@ -3,6 +3,8 @@ object frMarkCategorySelectOrAdd: TfrMarkCategorySelectOrAdd
   Top = 0
   Width = 320
   Height = 27
+  Align = alTop
+  AutoSize = True
   TabOrder = 0
   object lblCategory: TLabel
     AlignWithMargins = True

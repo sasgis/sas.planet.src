@@ -29,8 +29,8 @@ type
   public
     constructor Create(AOwner: TComponent; ACategoryDB: IMarkCategoryDB);
     destructor Destroy; override;
-    procedure Init(ACategory: IMarkCategory);
-    function GetCategory: IMarkCategory;
+    procedure Init(ACategory: ICategory);
+    function GetCategory: ICategory;
     procedure Clear;
   end;
 
@@ -75,7 +75,7 @@ begin
   CBKateg.Items.Clear;
 end;
 
-function TfrMarkCategorySelectOrAdd.GetCategory: IMarkCategory;
+function TfrMarkCategorySelectOrAdd.GetCategory: ICategory;
 var
   VIndex: Integer;
   VCategoryText: string;
@@ -87,7 +87,7 @@ begin
     VIndex:= CBKateg.Items.IndexOf(VCategoryText);
   end;
   if VIndex >= 0 then begin
-    Result := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
+    Result := ICategory(Pointer(CBKateg.Items.Objects[VIndex]));
   end;
   if Result = nil then begin
     VCategory := FCategoryDB.Factory.CreateNew(VCategoryText);
@@ -101,7 +101,7 @@ begin
   end;
 end;
 
-procedure TfrMarkCategorySelectOrAdd.Init(ACategory: IMarkCategory);
+procedure TfrMarkCategorySelectOrAdd.Init(ACategory: ICategory);
 var
   i: Integer;
   VCategory: ICategory;
@@ -109,7 +109,6 @@ begin
   FCategoryList := FCategoryDB.GetCategoriesList;
   CategoryListToStrings(FCategoryList, CBKateg.Items);
   CBKateg.Sorted := True;
-  CBKateg.Text := FLastUsedCategoryName;
   if ACategory <> nil then begin
     for i := 0 to CBKateg.Items.Count - 1 do begin
       VCategory := ICategory(Pointer(CBKateg.Items.Objects[i]));
@@ -121,6 +120,8 @@ begin
       end;
     end;
   end else begin
+    VCategory := FCategoryDB.Factory.CreateNew(FLastUsedCategoryName);
+    CBKateg.Text := VCategory.Name;
     CBKateg.ItemIndex := -1;
   end;
 end;
