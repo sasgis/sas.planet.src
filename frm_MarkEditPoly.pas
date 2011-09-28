@@ -38,8 +38,10 @@ uses
   u_ResStrings,
   i_MarksSimple,
   i_MarkCategory,
-  u_MarksDbGUIHelper,
+  i_MarkCategoryDB,
+  i_MarksDb,
   fr_MarkDescription,
+  fr_MarkCategorySelectOrAdd,
   t_GeoTypes;
 
 type
@@ -79,37 +81,58 @@ type
     procedure btnFillColorClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
+    FCategoryDB: IMarkCategoryDB;
+    FMarksDb: IMarksDb;
     frMarkDescription: TfrMarkDescription;
-    FMarkDBGUI: TMarksDbGUIHelper;
-    FCategoryList: IInterfaceList;
-    FCategory: ICategory;
+    frMarkCategory: TfrMarkCategorySelectOrAdd;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(
+      AOwner: TComponent;
+      ACategoryDB: IMarkCategoryDB;
+      AMarksDb: IMarksDb
+    );
     destructor Destroy; override;
-    function EditMark(AMark: IMarkPoly; AMarkDBGUI: TMarksDbGUIHelper): IMarkPoly;
+    function EditMark(AMark: IMarkPoly): IMarkPoly;
     procedure RefreshTranslation; override;
   end;
-
-var
-  frmMarkEditPoly: TfrmMarkEditPoly;
 
 implementation
 
 {$R *.dfm}
 
-function TfrmMarkEditPoly.EditMark(AMark: IMarkPoly; AMarkDBGUI: TMarksDbGUIHelper): IMarkPoly;
+constructor TfrmMarkEditPoly.Create(
+  AOwner: TComponent;
+  ACategoryDB: IMarkCategoryDB;
+  AMarksDb: IMarksDb
+);
+begin
+  inherited Create(AOwner);
+  FMarksDb := AMarksDb;
+  FCategoryDB := ACategoryDB;
+
+  frMarkDescription := TfrMarkDescription.Create(nil);
+  frMarkCategory :=
+    TfrMarkCategorySelectOrAdd.Create(
+      nil,
+      FCategoryDB
+    );
+end;
+
+destructor TfrmMarkEditPoly.Destroy;
+begin
+  FreeAndNil(frMarkDescription);
+  FreeAndNil(frMarkCategory);
+  inherited;
+end;
+
+function TfrmMarkEditPoly.EditMark(AMark: IMarkPoly): IMarkPoly;
 var
   VLastUsedCategoryName: string;
   i: Integer;
   VCategory: ICategory;
 begin
-  FMarkDBGUI := AMarkDBGUI;
-  VLastUsedCategoryName:=CBKateg.Text;
-  FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
+  frMarkCategory.Init(AMark.Category);
   try
-    FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
-    CBKateg.Sorted:=true;
-    CBKateg.Text:=VLastUsedCategoryName;
     edtName.Text:=AMark.name;
     frMarkDescription.Description:=AMark.Desc;
     seLineTransp.Value:=100-round(AlphaComponent(AMark.BorderColor)/255*100);
@@ -117,32 +140,18 @@ begin
     seLineWidth.Value:=AMark.LineWidth;
     clrbxLineColor.Selected:=WinColor(AMark.BorderColor);
     clrbxFillColor.Selected:=WinColor(AMark.FillColor);
-    chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);
-    FCategory := AMark.Category;
-    if FCategory <> nil then begin
-      for i := 0 to CBKateg.Items.Count - 1 do begin
-        VCategory := ICategory(Pointer(CBKateg.Items.Objects[i]));
-        if VCategory <> nil then begin
-          if VCategory.IsSame(FCategory) then begin
-            CBKateg.ItemIndex := i;
-            Break;
-          end;
-        end;
-      end;
-    end else begin
-      CBKateg.ItemIndex := -1;
-    end;
+    chkVisible.Checked:= FMarksDb.GetMarkVisible(AMark);
     if AMark.IsNew then begin
       Caption:=SAS_STR_AddNewPoly;
     end else begin
       Caption:=SAS_STR_EditPoly;
     end;
     if ShowModal=mrOk then begin
-      Result := AMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoly(
+      Result := FMarksDb.Factory.ModifyPoly(
         AMark,
         edtName.Text,
         chkVisible.Checked,
-        FCategory,
+        frMarkCategory.GetCategory,
         frMarkDescription.Description,
         AMark.Points,
         SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
@@ -153,12 +162,13 @@ begin
       Result := nil;
     end;
   finally
-    FCategoryList := nil;
+    frMarkCategory.Clear;
   end;
 end;
 
 procedure TfrmMarkEditPoly.FormShow(Sender: TObject);
 begin
+  frMarkCategory.Parent := pnlCategory;
   frMarkDescription.Parent := pnlDescription;
   edtName.SetFocus;
 end;
@@ -167,38 +177,12 @@ procedure TfrmMarkEditPoly.RefreshTranslation;
 begin
   inherited;
   frMarkDescription.RefreshTranslation;
+  frMarkCategory.RefreshTranslation;
 end;
 
 procedure TfrmMarkEditPoly.btnOkClick(Sender: TObject);
-var
-  VIndex: Integer;
-  VCategoryText: string;
 begin
-  FCategory := nil;
-  VCategoryText := CBKateg.Text;
-  VIndex := CBKateg.ItemIndex;
-  if VIndex < 0 then begin
-    VIndex:= CBKateg.Items.IndexOf(VCategoryText);
-  end;
-  if VIndex >= 0 then begin
-    FCategory := ICategory(Pointer(CBKateg.Items.Objects[VIndex]));
-  end;
-  if FCategory = nil then begin
-    FCategory := FMarkDBGUI.AddKategory(VCategoryText);
-  end;
   ModalResult := mrOk;
-end;
-
-constructor TfrmMarkEditPoly.Create(AOwner: TComponent);
-begin
-  inherited;
-  frMarkDescription := TfrMarkDescription.Create(nil);
-end;
-
-destructor TfrmMarkEditPoly.Destroy;
-begin
-  FreeAndNil(frMarkDescription);
-  inherited;
 end;
 
 procedure TfrmMarkEditPoly.btnLineColorClick(Sender: TObject);

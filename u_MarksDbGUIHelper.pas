@@ -32,6 +32,9 @@ uses
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
+  frm_MarkEditPoint,
+  frm_MarkEditPath,
+  frm_MarkEditPoly,
   frm_RegionProcess,
   u_MarksSystem;
 
@@ -42,6 +45,9 @@ type
     FMarkPictureList: IMarkPictureList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FFormRegionProcess: TfrmRegionProcess;
+    FfrmMarkEditPoint: TfrmMarkEditPoint;
+    FfrmMarkEditPath: TfrmMarkEditPath;
+    FfrmMarkEditPoly: TfrmMarkEditPoly;
   public
     procedure CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
     procedure CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
@@ -67,6 +73,7 @@ type
       AMarkPictureList: IMarkPictureList;
       AFormRegionProcess: TfrmRegionProcess
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -78,12 +85,33 @@ uses
   i_StaticTreeItem,
   u_ResStrings,
   u_GeoFun,
-  u_GeoToStr,
-  frm_MarkEditPoint,
-  frm_MarkEditPoly,
-  frm_MarkEditPath;
+  u_GeoToStr;
 
 { TMarksDbGUIHelper }
+
+constructor TMarksDbGUIHelper.Create(
+  AMarksDB: TMarksSystem;
+  AValueToStringConverterConfig: IValueToStringConverterConfig;
+  AMarkPictureList: IMarkPictureList;
+  AFormRegionProcess: TfrmRegionProcess
+);
+begin
+  FMarkPictureList := AMarkPictureList;
+  FMarksDB := AMarksDB;
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FFormRegionProcess := AFormRegionProcess;
+  FfrmMarkEditPoint := TfrmMarkEditPoint.Create(nil, FMarksDB.CategoryDB, FMarksDB.MarksDb);
+  FfrmMarkEditPath := TfrmMarkEditPath.Create(nil, FMarksDB.CategoryDB, FMarksDB.MarksDb);
+  FfrmMarkEditPoly := TfrmMarkEditPoly.Create(nil, FMarksDB.CategoryDB, FMarksDB.MarksDb);
+end;
+
+destructor TMarksDbGUIHelper.Destroy;
+begin
+  FreeAndNil(FfrmMarkEditPoint);
+  FreeAndNil(FfrmMarkEditPath);
+  FreeAndNil(FfrmMarkEditPoly);
+  inherited;
+end;
 
 function TMarksDbGUIHelper.AddKategory(name: string): IMarkCategory;
 var
@@ -102,7 +130,7 @@ var
 begin
   Result := False;
   VMark := FMarksDB.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
-  VMark := frmMarkEditPoint.EditMark(VMark, Self);
+  VMark := FfrmMarkEditPoint.EditMark(VMark);
   if VMark <> nil then begin
     FMarksDb.MarksDb.WriteMark(VMark);
     Result := True;
@@ -175,19 +203,6 @@ begin
   end;
 end;
 
-constructor TMarksDbGUIHelper.Create(
-  AMarksDB: TMarksSystem;
-  AValueToStringConverterConfig: IValueToStringConverterConfig;
-  AMarkPictureList: IMarkPictureList;
-  AFormRegionProcess: TfrmRegionProcess
-);
-begin
-  FMarkPictureList := AMarkPictureList;
-  FMarksDB := AMarksDB;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
-  FFormRegionProcess := AFormRegionProcess;
-end;
-
 function TMarksDbGUIHelper.DeleteMarkModal(AMarkID: IMarkID;
   handle: THandle): boolean;
 begin
@@ -207,11 +222,11 @@ var
 begin
   Result := nil;
   if Supports(AMark, IMarkPoint, VMarkPoint) then begin
-    Result := frmMarkEditPoint.EditMark(VMarkPoint, Self);
+    Result := FfrmMarkEditPoint.EditMark(VMarkPoint);
   end else if Supports(AMark, IMarkLine, VMarkLine) then begin
-    Result := frmMarkEditPath.EditMark(VMarkLine, Self);
+    Result := FfrmMarkEditPath.EditMark(VMarkLine);
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
-    Result := frmMarkEditPoly.EditMark(VMarkPoly, Self);
+    Result := FfrmMarkEditPoly.EditMark(VMarkPoly);
   end;
 end;
 
@@ -319,7 +334,7 @@ begin
     VMark := FMarksDB.MarksDb.Factory.CreateNewLine(ANewArrLL, '', ADescription);
   end;
   if VMark <> nil then begin
-    VMark := frmMarkEditPath.EditMark(VMark, Self);
+    VMark := FfrmMarkEditPath.EditMark(VMark);
     if VMark <> nil then begin
       FMarksDb.MarksDb.WriteMark(VMark);
       Result := True;
@@ -341,7 +356,7 @@ begin
     VMark := FMarksDB.MarksDb.Factory.CreateNewPoly(ANewArrLL, '', '');
   end;
   if VMark <> nil then begin
-    VMark := frmMarkEditPoly.EditMark(VMark, Self);
+    VMark := FfrmMarkEditPoly.EditMark(VMark);
     if VMark <> nil then begin
       FMarksDb.MarksDb.WriteMark(VMark);
       Result := True;

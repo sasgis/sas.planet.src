@@ -666,10 +666,7 @@ begin
     Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
     Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
     Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
-    Application.CreateForm(TfrmMarkEditPoint, frmMarkEditPoint);
     Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
-    Application.CreateForm(TfrmMarkEditPath, frmMarkEditPath);
-    Application.CreateForm(TfrmMarkEditPoly, frmMarkEditPoly);
     frmInvisibleBrowser := TfrmInvisibleBrowser.Create(Application, GState.InetConfig.ProxyConfig);
     if GState.GlobalAppConfig.IsShowDebugInfo then begin
       frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);

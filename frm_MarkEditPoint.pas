@@ -42,9 +42,11 @@ uses
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
-  u_MarksDbGUIHelper,
+  i_MarkCategoryDB,
+  i_MarksDb,
   fr_MarkDescription,
   fr_LonLat,
+  fr_MarkCategorySelectOrAdd,
   t_GeoTypes;
 
 type
@@ -68,8 +70,6 @@ type
     btnTextColor: TSpeedButton;
     btnShadowColor: TSpeedButton;
     ColorDialog1: TColorDialog;
-    lblCategory: TLabel;
-    CBKateg: TComboBox;
     drwgrdIcons: TDrawGrid;
     imgIcon: TImage;
     pnlBottomButtons: TPanel;
@@ -99,22 +99,23 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure FormShow(Sender: TObject);
   private
+    FCategoryDB: IMarkCategoryDB;
+    FMarksDb: IMarksDb;
     FPic: IMarkPicture;
     frMarkDescription: TfrMarkDescription;
     frLonLatPoint: TfrLonLat;
-    FMarkDBGUI: TMarksDbGUIHelper;
-    FCategoryList: IInterfaceList;
-    FCategory: ICategory;
+    frMarkCategory: TfrMarkCategorySelectOrAdd;
     procedure DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(
+      AOwner: TComponent;
+      ACategoryDB: IMarkCategoryDB;
+      AMarksDb: IMarksDb
+    );
     destructor Destroy; override;
-    function EditMark(AMark: IMarkPoint; AMarkDBGUI: TMarksDbGUIHelper): IMarkPoint;
+    function EditMark(AMark: IMarkPoint): IMarkPoint;
     procedure RefreshTranslation; override;
   end;
-
-var
-  frmMarkEditPoint: TfrmMarkEditPoint;
 
 implementation
 
@@ -124,7 +125,40 @@ uses
 
 {$R *.dfm}
 
-function TfrmMarkEditPoint.EditMark(AMark: IMarkPoint; AMarkDBGUI: TMarksDbGUIHelper): IMarkPoint;
+constructor TfrmMarkEditPoint.Create(
+  AOwner: TComponent;
+  ACategoryDB: IMarkCategoryDB;
+  AMarksDb: IMarksDb
+);
+begin
+  inherited Create(AOwner);
+  FMarksDb := AMarksDb;
+  FCategoryDB := ACategoryDB;
+
+  frMarkDescription := TfrMarkDescription.Create(nil);
+  frLonLatPoint :=
+    TfrLonLat.Create(
+      nil,
+      GState.MainFormConfig.ViewPortState,
+      GState.ValueToStringConverterConfig,
+      tssCenter
+    );
+  frMarkCategory :=
+    TfrMarkCategorySelectOrAdd.Create(
+      nil,
+      FCategoryDB
+    );
+end;
+
+destructor TfrmMarkEditPoint.Destroy;
+begin
+  FreeAndNil(frMarkDescription);
+  FreeAndNil(frLonLatPoint);
+  FreeAndNil(frMarkCategory);
+  inherited;
+end;
+
+function TfrmMarkEditPoint.EditMark(AMark: IMarkPoint): IMarkPoint;
 var
   VLastUsedCategoryName:string;
   i: Integer;
@@ -135,46 +169,27 @@ var
   VPictureList: IMarkPictureList;
   VLonLat:TDoublePoint;
 begin
-  FMarkDBGUI := AMarkDBGUI;
   frMarkDescription.Description:='';
-  VLastUsedCategoryName:=CBKateg.Text;
-  FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
+  VPictureList := FMarksDb.Factory.MarkPictureList;
+  VPicCount := VPictureList.Count;
+  VColCount := drwgrdIcons.ColCount;
+  VRowCount := VPicCount div VColCount;
+  if (VPicCount mod VColCount) > 0 then begin
+    Inc(VRowCount);
+  end;
+  drwgrdIcons.RowCount := VRowCount;
+  drwgrdIcons.Repaint;
+  FPic := AMark.Pic;
+  edtName.Text:=AMark.name;
+  frMarkDescription.Description:=AMark.Desc;
+  seFontSize.Value:=AMark.FontSize;
+  seIconSize.Value:=AMark.MarkerSize;
+  seTransp.Value:=100-round(AlphaComponent(AMark.TextColor)/255*100);
+  clrbxTextColor.Selected:=WinColor(AMark.TextColor);
+  clrbxShadowColor.Selected:=WinColor(AMark.TextBgColor);
+  chkVisible.Checked:= FMarksDb.GetMarkVisible(AMark);
+  frMarkCategory.Init(AMark.Category);
   try
-    FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
-    CBKateg.Sorted:=true;
-    CBKateg.Text:=VLastUsedCategoryName;
-    VPictureList := FMarkDBGUI.MarkPictureList;
-    VPicCount := VPictureList.Count;
-    VColCount := drwgrdIcons.ColCount;
-    VRowCount := VPicCount div VColCount;
-    if (VPicCount mod VColCount) > 0 then begin
-      Inc(VRowCount);
-    end;
-    drwgrdIcons.RowCount := VRowCount;
-    drwgrdIcons.Repaint;
-    FPic := AMark.Pic;
-    edtName.Text:=AMark.name;
-    frMarkDescription.Description:=AMark.Desc;
-    seFontSize.Value:=AMark.FontSize;
-    seIconSize.Value:=AMark.MarkerSize;
-    seTransp.Value:=100-round(AlphaComponent(AMark.TextColor)/255*100);
-    clrbxTextColor.Selected:=WinColor(AMark.TextColor);
-    clrbxShadowColor.Selected:=WinColor(AMark.TextBgColor);
-    chkVisible.Checked:= FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(AMark);
-    FCategory := AMark.Category;
-    if FCategory <> nil then begin
-      for i := 0 to CBKateg.Items.Count - 1 do begin
-        VCategory := ICategory(Pointer(CBKateg.Items.Objects[i]));
-        if VCategory <> nil then begin
-          if VCategory.IsSame(FCategory) then begin
-            CBKateg.ItemIndex := i;
-            Break;
-          end;
-        end;
-      end;
-    end else begin
-      CBKateg.ItemIndex := -1;
-    end;
     if AMark.IsNew then begin
       Caption:=SAS_STR_AddNewMark;
     end else begin
@@ -184,12 +199,12 @@ begin
     frLonLatPoint.LonLat := AMark.Point;
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
-      Result := AMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoint(
+      Result := FMarksDb.Factory.ModifyPoint(
         AMark,
         edtName.Text,
         chkVisible.Checked,
         FPic,
-        FCategory,
+        frMarkCategory.GetCategory,
         frMarkDescription.Description,
         VLonLat,
         SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
@@ -201,32 +216,18 @@ begin
       Result := nil;
     end;
   finally
-    FCategoryList := nil;
+    frMarkCategory.Clear;
   end;
 end;
 
 procedure TfrmMarkEditPoint.btnOkClick(Sender: TObject);
-var
-  VIndex: Integer;
-  VCategoryText: string;
 begin
-  FCategory := nil;
-  VCategoryText := CBKateg.Text;
-  VIndex := CBKateg.ItemIndex;
-  if VIndex < 0 then begin
-    VIndex:= CBKateg.Items.IndexOf(VCategoryText);
-  end;
-  if VIndex >= 0 then begin
-    FCategory := ICategory(Pointer(CBKateg.Items.Objects[VIndex]));
-  end;
-  if FCategory = nil then begin
-    FCategory := FMarkDBGUI.AddKategory(VCategoryText);
-  end;
   ModalResult := mrOk;
 end;
 
 procedure TfrmMarkEditPoint.FormShow(Sender: TObject);
 begin
+  frMarkCategory.Parent := pnlCategory;
   frLonLatPoint.Parent := pnlLonLat;
   frMarkDescription.Parent := pnlDescription;
   edtName.SetFocus;
@@ -243,26 +244,6 @@ end;
 procedure TfrmMarkEditPoint.btnShadowColorClick(Sender: TObject);
 begin
  if ColorDialog1.Execute then clrbxShadowColor.Selected:=ColorDialog1.Color;
-end;
-
-constructor TfrmMarkEditPoint.Create(AOwner: TComponent);
-begin
-  inherited;
-  frMarkDescription := TfrMarkDescription.Create(nil);
-  frLonLatPoint :=
-    TfrLonLat.Create(
-      nil,
-      GState.MainFormConfig.ViewPortState,
-      GState.ValueToStringConverterConfig,
-      tssCenter
-    );
-end;
-
-destructor TfrmMarkEditPoint.Destroy;
-begin
-  FreeAndNil(frMarkDescription);
-  FreeAndNil(frLonLatPoint);
-  inherited;
 end;
 
 procedure TfrmMarkEditPoint.DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
@@ -303,7 +284,7 @@ var
   VPictureList: IMarkPictureList;
 begin
   i:=(Arow*drwgrdIcons.ColCount)+ACol;
-  VPictureList := FMarkDBGUI.MarkPictureList;
+  VPictureList := FMarksDb.Factory.MarkPictureList;
   if i < VPictureList.Count then
     DrawFromMarkIcons(drwgrdIcons.Canvas, VPictureList.Get(i), drwgrdIcons.CellRect(ACol,ARow));
 end;
@@ -320,6 +301,7 @@ begin
   inherited;
   frLonLatPoint.RefreshTranslation;
   frMarkDescription.RefreshTranslation;
+  frMarkCategory.RefreshTranslation;
 end;
 
 procedure TfrmMarkEditPoint.drwgrdIconsMouseUp(Sender: TObject;
@@ -331,7 +313,7 @@ var
 begin
  drwgrdIcons.MouseToCell(X,Y,ACol,ARow);
  i:=(ARow*drwgrdIcons.ColCount)+ACol;
- VPictureList := FMarkDBGUI.MarkPictureList;
+ VPictureList := FMarksDb.Factory.MarkPictureList;
  if (ARow>-1)and(ACol>-1) and (i < VPictureList.Count) then begin
    FPic := VPictureList.Get(i);
    imgIcon.Canvas.FillRect(imgIcon.Canvas.ClipRect);
