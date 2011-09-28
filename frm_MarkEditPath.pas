@@ -122,7 +122,7 @@ begin
     seWidth.Value:=AMark.LineWidth;
     clrbxLineColor.Selected:=WinColor(AMark.LineColor);
     chkVisible.Checked:= FMarksDb.GetMarkVisible(AMark);
-    if AMark.IsNew then begin
+    if FMarksDb.GetMarkIsNew(AMark) then begin
       Caption:=SAS_STR_AddNewPath;
     end else begin
       Caption:=SAS_STR_EditPath;

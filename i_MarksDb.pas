@@ -40,6 +40,7 @@ type
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(AMark: IMark): Boolean; overload;
+    function GetMarkIsNew(AMark: IMark): Boolean;
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
 

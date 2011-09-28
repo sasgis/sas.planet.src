@@ -37,8 +37,6 @@ type
     FCategoryId: Integer;
     FVisible: Boolean;
   protected
-    function IsNew: Boolean;
-  protected
     function GetName: string;
   protected
     function GetDbCode: Integer;
@@ -116,11 +114,6 @@ end;
 function TMarkId.GetVisible: Boolean;
 begin
   Result := FVisible;
-end;
-
-function TMarkId.IsNew: Boolean;
-begin
-  Result := FId < 0;
 end;
 
 function TMarkId.IsSameId(AMarkId: IMarkID): Boolean;

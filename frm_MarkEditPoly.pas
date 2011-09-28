@@ -137,7 +137,7 @@ begin
     clrbxLineColor.Selected:=WinColor(AMark.BorderColor);
     clrbxFillColor.Selected:=WinColor(AMark.FillColor);
     chkVisible.Checked:= FMarksDb.GetMarkVisible(AMark);
-    if AMark.IsNew then begin
+    if FMarksDb.GetMarkIsNew(AMark) then begin
       Caption:=SAS_STR_AddNewPoly;
     end else begin
       Caption:=SAS_STR_EditPoly;

@@ -72,6 +72,7 @@ type
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(AMark: IMark): Boolean; overload;
+    function GetMarkIsNew(AMark: IMark): Boolean;
     function GetFactory: IMarkFactory;
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
@@ -338,6 +339,18 @@ begin
       finally
         UnlockRead;
       end;
+    end;
+  end;
+end;
+
+function TMarksDb.GetMarkIsNew(AMark: IMark): Boolean;
+var
+  VMarkInternal: IMarkSMLInternal;
+begin
+  Result := True;
+  if AMark <> nil then begin
+    if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
+      Result := VMarkInternal.Id >= 0;
     end;
   end;
 end;

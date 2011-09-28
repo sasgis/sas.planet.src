@@ -187,7 +187,7 @@ begin
   chkVisible.Checked:= FMarksDb.GetMarkVisible(AMark);
   frMarkCategory.Init(AMark.Category);
   try
-    if AMark.IsNew then begin
+    if FMarksDb.GetMarkIsNew(AMark) then begin
       Caption:=SAS_STR_AddNewMark;
     end else begin
       Caption:=SAS_STR_EditMark;

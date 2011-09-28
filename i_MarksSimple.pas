@@ -49,7 +49,6 @@ type
 
     function GetHintText: string;
     function GetInfoHTML: string;
-    function IsNew: Boolean;
     function IsSameId(AMarkId: IMarkID): Boolean;
     function GetGoToLonLat: TDoublePoint;
   end;
