@@ -41,7 +41,11 @@ type
     function GetTilesTotal: Int64; override;
     function GetTilesRect: TRect; override;
   public
-    constructor Create(AZoom: byte; APolygLL: TArrayOfDoublePoint; AGeoConvert: ICoordConverter); override;
+    constructor Create(
+      AZoom: byte;
+      APolygLL: TArrayOfDoublePoint;
+      AGeoConvert: ICoordConverter
+    ); override;
     destructor Destroy; override;
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset; override;
@@ -53,7 +57,12 @@ type
     FSubRectWidth: integer;
     FSubRectHeight: integer;
   public
-    constructor Create(AZoom: byte; APolygLL: TArrayOfDoublePoint; AGeoConvert: ICoordConverter; ASubRectWidth, ASubRectHeight: integer);
+    constructor Create(
+      AZoom: byte;
+      APolygLL: TArrayOfDoublePoint;
+      AGeoConvert: ICoordConverter;
+      ASubRectWidth, ASubRectHeight: integer
+    ); reintroduce;
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset; override;
   end;
