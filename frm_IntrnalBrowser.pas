@@ -44,6 +44,8 @@ type
     procedure EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
       ScanCode: Word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
+  private
+    procedure SetGoodCaption(const ACaption: String);
   public
     procedure showmessage(ACaption, AText: string);
     procedure Navigate(ACaption, AUrl: string);
@@ -87,16 +89,22 @@ end;
 procedure TfrmIntrnalBrowser.Navigate(ACaption, AUrl: string);
 begin
   EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
-  Caption:=StringReplace(ACaption,#13#10,', ',[rfReplaceAll]);
+  SetGoodCaption(ACaption);
   show;
   EmbeddedWB1.Navigate(AUrl);
+end;
+
+procedure TfrmIntrnalBrowser.SetGoodCaption(const ACaption: String);
+begin
+  Caption:=StringReplace(StringReplace(ACaption,'&quot;','"',[rfReplaceAll,rfIgnoreCase]),#13#10,', ',[rfReplaceAll]);
 end;
 
 procedure TfrmIntrnalBrowser.showmessage(ACaption,AText: string);
 begin
   EmbeddedWB1.GoAboutBlank;
+  Application.ProcessMessages; // sometimes it shows empty window without this line (only for first run)
   EmbeddedWB1.HTMLCode.Text:=AText;
-  Caption:=StringReplace(ACaption,#13#10,', ',[rfReplaceAll]);
+  SetGoodCaption(ACaption);
   show;
 end;
 
