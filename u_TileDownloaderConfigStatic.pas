@@ -23,6 +23,7 @@ unit u_TileDownloaderConfigStatic;
 interface
 
 uses
+  Types,
   i_InetConfig,
   i_TileDownloaderConfig;
 
@@ -35,6 +36,7 @@ type
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
+    FIteratorSubRectSize: TPoint;
   protected
     function GetInetConfigStatic: IInetConfigStatic;
     function GetWaitInterval: Cardinal;
@@ -42,6 +44,7 @@ type
     function GetIgnoreMIMEType: Boolean;
     function GetExpectedMIMETypes: string;
     function GetDefaultMIMEType: string;
+    function GetIteratorSubRectSize: TPoint;
   public
     constructor Create(
       AInetConfigStatic: IInetConfigStatic;
@@ -49,7 +52,8 @@ type
       AMaxConnectToServerCount: Cardinal;
       AIgnoreMIMEType: Boolean;
       AExpectedMIMETypes: string;
-      ADefaultMIMEType: string
+      ADefaultMIMEType: string;
+      AIteratorSubRectSize: TPoint
     );
   end;
 
@@ -62,7 +66,8 @@ constructor TTileDownloaderConfigStatic.Create(
   AWaitInterval: Cardinal;
   AMaxConnectToServerCount: Cardinal;
   AIgnoreMIMEType: Boolean;
-  AExpectedMIMETypes, ADefaultMIMEType: string
+  AExpectedMIMETypes, ADefaultMIMEType: string;
+  AIteratorSubRectSize: TPoint
 );
 begin
   FInetConfigStatic := AInetConfigStatic;
@@ -71,6 +76,12 @@ begin
   FIgnoreMIMEType := AIgnoreMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
   FDefaultMIMEType := ADefaultMIMEType;
+  FIteratorSubRectSize := AIteratorSubRectSize;
+end;
+
+function TTileDownloaderConfigStatic.GetIteratorSubRectSize: TPoint;
+begin
+  Result := FIteratorSubRectSize;
 end;
 
 function TTileDownloaderConfigStatic.GetDefaultMIMEType: string;

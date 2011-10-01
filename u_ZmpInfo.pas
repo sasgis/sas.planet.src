@@ -613,13 +613,24 @@ var
   VExpectedMIMETypes: string;
   VWaitInterval: Cardinal;
   VMaxConnectToServerCount: Cardinal;
+  VIteratorSubRectSize: TPoint;
+  fL : TStringList;
 begin
   VIgnoreMIMEType := AConfig.ReadBool('IgnoreContentType', False);
   VDefaultMIMEType := AConfig.ReadString('DefaultContentType', 'image/jpg');
   VExpectedMIMETypes := AConfig.ReadString('ContentType', 'image/jpg');
   VWaitInterval := AConfig.ReadInteger('Sleep', 0);
   VMaxConnectToServerCount := AConfig.ReadInteger('MaxConnectToServerCount', 1);
-
+  fL := TStringList.Create;
+  try
+    fL.Delimiter := ',';
+    fL.StrictDelimiter := True;
+    fL.DelimitedText := AConfig.ReadString('IteratorSubRectSize', '1,1');
+    VIteratorSubRectSize.x:=StrToInt(fL[0]);
+    VIteratorSubRectSize.y:=StrToInt(fL[1]);
+  finally
+    fL.Free
+  end;
   FTileDownloaderConfig :=
     TTileDownloaderConfigStatic.Create(
       nil,
@@ -627,7 +638,8 @@ begin
       VMaxConnectToServerCount,
       VIgnoreMIMEType,
       VExpectedMIMETypes,
-      VDefaultMIMEType
+      VDefaultMIMEType,
+      VIteratorSubRectSize
     );
 end;
 

@@ -23,6 +23,7 @@ unit u_TileDownloaderConfig;
 interface
 
 uses
+  Types,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_InetConfig,
@@ -39,6 +40,7 @@ type
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
+    FIteratorSubRectSize: TPoint;
 
     FStatic: ITileDownloaderConfigStatic;
     function CreateStatic: ITileDownloaderConfigStatic;
@@ -64,6 +66,9 @@ type
     function GetDefaultMIMEType: string;
     procedure SetDefaultMIMEType(AValue: string);
 
+    function GetIteratorSubRectSize: TPoint;
+    procedure SetIteratorSubRectSize(AValue: TPoint);
+
     function GetStatic: ITileDownloaderConfigStatic;
   public
     constructor Create(AIntetConfig: IInetConfig; ADefault: ITileDownloaderConfigStatic);
@@ -86,6 +91,7 @@ begin
   FIgnoreMIMEType := FDefConfig.IgnoreMIMEType;
   FDefaultMIMEType := FDefConfig.DefaultMIMEType;
   FExpectedMIMETypes := FDefConfig.ExpectedMIMETypes;
+  FIteratorSubRectSize := FDefConfig.IteratorSubRectSize;
 
   Add(FIntetConfig, nil, False, False, False, True);
 end;
@@ -101,7 +107,8 @@ begin
       FMaxConnectToServerCount,
       FIgnoreMIMEType,
       FExpectedMIMETypes,
-      FDefaultMIMEType
+      FDefaultMIMEType,
+      FIteratorSubRectSize
     );
   finally
     FIntetConfig.UnlockRead;
@@ -146,6 +153,16 @@ begin
     AConfigData.WriteInteger('MaxConnectToServerCount', FMaxConnectToServerCount);
   end else begin
     AConfigData.DeleteValue('MaxConnectToServerCount');
+  end;
+end;
+
+function TTileDownloaderConfig.GetIteratorSubRectSize: TPoint;
+begin
+  LockRead;
+  try
+    Result := FIteratorSubRectSize;
+  finally
+    UnlockRead;
   end;
 end;
 
@@ -206,6 +223,20 @@ begin
     Result := FWaitInterval;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TTileDownloaderConfig.SetIteratorSubRectSize(AValue: TPoint);
+begin
+  LockWrite;
+  try
+    if (FIteratorSubRectSize.x <> AValue.x)or
+       (FIteratorSubRectSize.y <> AValue.y) then begin
+      FIteratorSubRectSize := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

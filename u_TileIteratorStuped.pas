@@ -61,7 +61,7 @@ type
       AZoom: byte;
       APolygLL: TArrayOfDoublePoint;
       AGeoConvert: ICoordConverter;
-      ASubRectWidth, ASubRectHeight: integer
+      ASubRectSize: TPoint
     ); reintroduce;
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset; override;
@@ -136,11 +136,11 @@ end;
 { TTileIteratorBySubRect }
 
 constructor TTileIteratorBySubRect.Create(AZoom: byte; APolygLL: TArrayOfDoublePoint;
-                AGeoConvert: ICoordConverter; ASubRectWidth, ASubRectHeight: integer);
+                AGeoConvert: ICoordConverter; ASubRectSize: TPoint);
 begin
   inherited Create(AZoom, APolygLL, AGeoConvert);
-  FSubRectWidth:=ASubRectWidth;
-  FSubRectHeight:=ASubRectHeight;
+  FSubRectWidth:=ASubRectSize.x;
+  FSubRectHeight:=ASubRectSize.y;
   Reset;
 end;
 
