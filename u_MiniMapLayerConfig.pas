@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MiniMapLayerConfig;
 
 interface
@@ -20,6 +40,7 @@ type
     FZoomDelta: Integer;
     FMasterAlpha: Integer;
     FVisible: Boolean;
+    FBottomMargin: Integer;
 
     FPlusButtonFileName: string;
     FPlusButton: TCustomBitmap32;
@@ -41,6 +62,9 @@ type
 
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
+
+    function GetBottomMargin: Integer;
+    procedure SetBottomMargin(AValue: Integer);
 
     function GetPlusButton: TCustomBitmap32;
     function GetMinusButton: TCustomBitmap32;
@@ -118,6 +142,16 @@ begin
   AConfigData.WriteBool('Visible', FVisible);
 end;
 
+function TMiniMapLayerConfig.GetBottomMargin: Integer;
+begin
+  LockRead;
+  try
+    Result := FBottomMargin;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TMiniMapLayerConfig.GetMapsConfig: IMiniMapMapsConfig;
 begin
   Result := FMapsConfig;
@@ -180,6 +214,19 @@ begin
     Result := FZoomDelta;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TMiniMapLayerConfig.SetBottomMargin(AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FBottomMargin <> AValue then begin
+      FBottomMargin := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

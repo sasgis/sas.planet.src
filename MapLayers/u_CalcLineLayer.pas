@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_ViewPortState,
   i_LocalCoordConverter,
+  i_LineOnMapEdit,
   i_ValueToStringConverter,
   i_CalcLineLayerConfig,
   u_PolyLineLayerBase,
@@ -45,6 +46,7 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      ALineOnMapEdit: ILineOnMapEdit;
       AConfig: ICalcLineLayerConfig;
       AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -63,6 +65,7 @@ uses
 constructor TCalcLineLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  ALineOnMapEdit: ILineOnMapEdit;
   AConfig: ICalcLineLayerConfig;
   AValueToStringConverterConfig: IValueToStringConverterConfig
 );
@@ -73,7 +76,7 @@ begin
   VPolygon.Closed := False;
   VPolygon.Antialiased := true;
   VPolygon.AntialiasMode := am4times;
-  inherited Create(AParentMap, AViewPortState, AConfig, VPolygon);
+  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, VPolygon, false);
   FConfig := AConfig;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
@@ -119,7 +122,7 @@ begin
   FLenShow := FConfig.LenShow;
   FTextColor := FConfig.TextColor;
   FTextBGColor := FConfig.TextBGColor;
-  FValueConverter := FValueToStringConverterConfig.GetStaticConverter;
+  FValueConverter := FValueToStringConverterConfig.GetStatic;
 end;
 
 procedure TCalcLineLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);

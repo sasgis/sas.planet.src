@@ -1,9 +1,31 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_GeoCoderByYandex;
 
 interface
 
 uses
   Classes,
+  i_CoordConverter,
+  u_GeoTostr,
   u_GeoCoderBasic;
 
 type
@@ -29,23 +51,42 @@ uses
 function TGeoCoderByYandex.ParseStringToPlacemarksList(
   AStr: string; ASearch: WideString): IInterfaceList;
 var
-  slat, slon, sname: string;
+  slat, slon, sname, sdesc, sfulldesc: string;
   i, j: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
 begin
+  sfulldesc:='';
   if AStr = '' then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
+  VList := TInterfaceList.Create;
   i:=PosEx('"items":[{', AStr);
-  if i > 0 then begin
-    i := PosEx('"text":"', AStr, i+10);
+  while (PosEx('"name":"', AStr, i) > i)and(i>0) do begin
+    j := i;
+    i := PosEx('"CompanyMetaData":{"id":"', AStr, i);
+    if i>j then begin
+      j := PosEx('",', AStr, i + 25);
+      sfulldesc:='http://maps.yandex.ru/sprav/'+Copy(AStr, i + 25, j - (i + 25))+'/';
+    end;
+
+    i := PosEx('"name":"', AStr, j);
     j := PosEx('",', AStr, i + 8);
     sname:= Utf8ToAnsi(Copy(AStr, i + 8, j - (i + 8)));
-    i := PosEx('"point":[', AStr);
+    i := PosEx('"address":"', AStr, j);
+    if i>j then begin
+      j := PosEx('",', AStr, i + 11);
+      sdesc:=Utf8ToAnsi(Copy(AStr, i + 11, j - (i + 11)));
+    end;
+    i := PosEx('"description":"', AStr, j);
+    if i>j then begin
+      j := PosEx('",', AStr, i + 15);
+      sdesc:=Utf8ToAnsi(Copy(AStr, i + 15, j - (i + 15)));
+    end;
+    i := PosEx('"point":[', AStr, j);
     j := PosEx(',', AStr, i + 9);
     slon := Copy(AStr, i + 9, j - (i + 9));
     i := PosEx(']', AStr, j);
@@ -62,20 +103,29 @@ begin
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    VPlace := TGeoCodePlacemark.Create(VPoint, sname, 4);
-    VList := TInterfaceList.Create;
+    VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
-    Result := VList;
   end;
+  Result := VList;
 end;
 
 function TGeoCoderByYandex.PrepareURL(ASearch: WideString): string;
 var
   VSearch: String;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMapRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
 begin
   VSearch := ASearch;
-  Result := 'http://maps.yandex.ru/?text=' +
-    URLEncode(AnsiToUtf8(VSearch));
+  VConverter:=FLocalConverter.GetGeoConverter;
+  VZoom := FLocalConverter.GetZoom;
+  VMapRect := FLocalConverter.GetRectInMapPixelFloat;
+  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  Result := 'http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(VSearch))+
+            '&ll='+R2StrPoint(FLocalConverter.GetCenterLonLat.x)+','+R2StrPoint(FLocalConverter.GetCenterLonLat.y)+
+            '&spn='+R2StrPoint(VLonLatRect.Right-VLonLatRect.Left)+','+R2StrPoint(VLonLatRect.Top-VLonLatRect.Bottom);
 end;
 
 end.

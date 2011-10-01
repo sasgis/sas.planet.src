@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MarkPointTemplateConfig;
 
 interface
@@ -7,6 +27,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_LanguageManager,
   i_MarkPicture,
   i_MarkTemplate,
   i_MarkCategory,
@@ -25,7 +46,7 @@ type
   protected
     function CreateTemplate(
       APic: IMarkPicture;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
@@ -38,6 +59,7 @@ type
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoint);
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       ACategoryDb: IMarkCategoryDBSmlInternal;
       AMarkPictureList: IMarkPictureList
     );
@@ -49,19 +71,30 @@ uses
   SysUtils,
   i_MarksDbSmlInternal,
   u_ConfigProviderHelpers,
+  u_StringConfigDataElementWithDefByStringRec,
   u_ResStrings,
   u_MarkTemplates;
 
 { TMarkPointTemplateConfig }
 
 constructor TMarkPointTemplateConfig.Create(
+  ALanguageManager: ILanguageManager;
   ACategoryDb: IMarkCategoryDBSmlInternal;
   AMarkPictureList: IMarkPictureList
 );
 var
   VPic: IMarkPicture;
 begin
-  inherited Create(ACategoryDb, SAS_STR_NewMark);
+  inherited Create(
+    ACategoryDb,
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager,
+      @SAS_STR_NewMark,
+      True,
+      'FormatString',
+      True
+    )
+  );
 
   FMarkPictureList := AMarkPictureList;
   if FMarkPictureList.Count > 0 then begin
@@ -82,7 +115,7 @@ end;
 
 function TMarkPointTemplateConfig.CreateTemplate(
   APic: IMarkPicture;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   AColor1, AColor2: TColor32;
   AScale1, AScale2: Integer
 ): IMarkTemplatePoint;
@@ -115,8 +148,8 @@ var
   VPic: IMarkPicture;
   VPicIndex: Integer;
   VCategoryId: Integer;
-  VColor1, VColor2: TColor32;
-  VScale1, VScale2: Integer;
+  VTextColor, VTextBgColor: TColor32;
+  VFontSize, VMarkerSize: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
@@ -124,10 +157,10 @@ begin
   if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
-  VColor1 := FDefaultTemplate.Color1;
-  VColor2 := FDefaultTemplate.Color2;
-  VScale1 := FDefaultTemplate.Scale1;
-  VScale2 := FDefaultTemplate.Scale2;
+  VTextColor := FDefaultTemplate.TextColor;
+  VTextBgColor := FDefaultTemplate.TextBgColor;
+  VFontSize := FDefaultTemplate.FontSize;
+  VMarkerSize := FDefaultTemplate.MarkerSize;
   VPic := FDefaultTemplate.Pic;
   if VPic = nil then begin
     VPic := FMarkPictureList.GetDefaultPicture;
@@ -148,20 +181,20 @@ begin
       end;
     end;
     VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
-    VColor1 := ReadColor32(AConfigData, 'TextColor', VColor1);
-    VColor2 := ReadColor32(AConfigData, 'ShadowColor', VColor2);
-    VScale1 := AConfigData.ReadInteger('FontSize', VScale1);
-    VScale2 := AConfigData.ReadInteger('IconSize', VScale2);
+    VTextColor := ReadColor32(AConfigData, 'TextColor', VTextColor);
+    VTextBgColor := ReadColor32(AConfigData, 'ShadowColor', VTextBgColor);
+    VFontSize := AConfigData.ReadInteger('FontSize', VFontSize);
+    VMarkerSize := AConfigData.ReadInteger('IconSize', VMarkerSize);
   end;
   SetDefaultTemplate(
     TMarkTemplatePoint.Create(
       CategoryDb,
       NameGenerator,
       VCategoryId,
-      VColor1,
-      VColor2,
-      VScale1,
-      VScale2,
+      VTextColor,
+      VTextBgColor,
+      VFontSize,
+      VMarkerSize,
       VPic
     )
   );
@@ -187,10 +220,10 @@ begin
   end;
   AConfigData.WriteString('IconName', VPicName);
   AConfigData.WriteInteger('CategoryId', VCategoryId);
-  WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.Color1);
-  WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.Color2);
-  AConfigData.WriteInteger('FontSize', FDefaultTemplate.Scale1);
-  AConfigData.WriteInteger('IconSize', FDefaultTemplate.Scale2);
+  WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.TextColor);
+  WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.TextBgColor);
+  AConfigData.WriteInteger('FontSize', FDefaultTemplate.FontSize);
+  AConfigData.WriteInteger('IconSize', FDefaultTemplate.MarkerSize);
 end;
 
 function TMarkPointTemplateConfig.GetDefaultTemplate: IMarkTemplatePoint;

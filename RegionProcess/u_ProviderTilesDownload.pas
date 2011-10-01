@@ -7,6 +7,11 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
+  i_GlobalDownloadConfig,
+  i_DownloadInfoSimple,
   u_MapType,
   u_ExportProviderAbstract,
   fr_TilesDownload;
@@ -15,10 +20,17 @@ type
   TProviderTilesDownload = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesDownload;
+    FDownloadConfig: IGlobalDownloadConfig;
+    FDownloadInfo: IDownloadInfoSimple;
     FMapUpdateEvent: TMapUpdateEvent;
   public
     constructor Create(
       AParent: TWinControl;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      ADownloadConfig: IGlobalDownloadConfig;
+      ADownloadInfo: IDownloadInfoSimple;
       AMapUpdateEvent: TMapUpdateEvent
     );
     destructor Destroy; override;
@@ -44,10 +56,19 @@ uses
 
 { TProviderTilesDownload }
 
-constructor TProviderTilesDownload.Create(AParent: TWinControl;
-  AMapUpdateEvent: TMapUpdateEvent);
+constructor TProviderTilesDownload.Create(
+  AParent: TWinControl;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  ADownloadConfig: IGlobalDownloadConfig;
+  ADownloadInfo: IDownloadInfoSimple;
+  AMapUpdateEvent: TMapUpdateEvent
+);
 begin
-  inherited Create(AParent);
+  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FDownloadConfig := ADownloadConfig;
+  FDownloadInfo := ADownloadInfo;
   FMapUpdateEvent := AMapUpdateEvent;
 end;
 
@@ -65,7 +86,12 @@ end;
 procedure TProviderTilesDownload.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrTilesDownload.Create(nil);
+    FFrame := TfrTilesDownload.Create(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;
@@ -117,6 +143,8 @@ begin
   VThread := TThreadDownloadTiles.Create(
     VSimpleLog,
     APolygon,
+    FDownloadConfig,
+    FDownloadInfo,
     FFrame.chkReplace.Checked,
     FFrame.chkReplaceIfDifSize.Checked,
     FFrame.chkReplaceOlder.Checked,

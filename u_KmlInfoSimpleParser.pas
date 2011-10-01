@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_KmlInfoSimpleParser;
 
 interface
@@ -6,15 +26,17 @@ uses
   Classes,
   SysUtils,
   t_GeoTypes,
+  i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
   i_InternalPerformanceCounter,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   BMSEARCH;
 
 type
-  TKmlInfoSimpleParser = class(TInterfacedObject, IKmlInfoSimpleLoader)
+  TKmlInfoSimpleParser = class(TInterfacedObject, IVectorDataLoader)
   private
     FLoadKmlStreamCounter: IInternalPerformanceCounter;
+    FHintConverter: IHtmlToHintTextConverter;
 
     FFormat: TFormatSettings;
     FBMSrchPlacemark: TSearchBM;
@@ -23,25 +45,24 @@ type
     FBMSrchCloseQ: TSearchBM;
     FBMSrchNameE: TSearchBM;
     FBMSrchId: TSearchBM;
-    FBMSrchCDATA: TSearchBM;
-    FBMSrchCDATAE: TSearchBM;
     FBMSrchDesc: TSearchBM;
     FBMSrchDescE: TSearchBM;
-    FBMSrchLt: TSearchBM;
-    FBMSrchGt: TSearchBM;
     FBMSrchCoord: TSearchBM;
     FBMSrchCoordE: TSearchBM;
-    function PosOfChar(APattern: Char; AText: PChar; ALen: Integer): PChar;
-    function parse(buffer: string; AList: IInterfaceList): boolean;
-    function parseCoordinates(AText: PChar; ALen: integer; var Adata: TArrayOfDoublePoint; var ARect: TDoubleRect): boolean;
-    procedure parseName(var Name: string);
-    procedure parseDescription(var Description: string);
+    function PosOfChar(APattern: AnsiChar; AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
+    function PosOfNonSpaceChar(AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
+    function PosOfSpaceChar(AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
+    function parse(buffer: AnsiString; AList: IInterfaceList): boolean;
+    function parseCoordinates(AText: PAnsiChar; ALen: integer; var Adata: TArrayOfDoublePoint; var ARect: TDoubleRect): boolean;
+    procedure parseName(var Name: AnsiString);
+    procedure parseDescription(var Description: AnsiString);
     function BuildItem(AName, ADesc: string; Adata: TArrayOfDoublePoint; ARect: TDoubleRect): IVectorDataItemSimple;
   protected
     procedure LoadFromFile(AFileName: string; out AItems: IVectorDataItemList); virtual;
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
   public
     constructor Create(
+      AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -58,55 +79,6 @@ uses
   u_VectorDataItemList,
   u_GeoFun;
 
-function Sha_SpaceCompress(const s: string): string;
-var
-  p, q, t: pchar;
-  ch: char;
-  len: Integer;
-label
-  rt;
-begin
-  p := PChar(s);
-  q := nil;
-  if p <> nil then begin
-    len := length(s);
-    t := p + len;
-    if p < t then begin
-      repeat
-        dec(t);
-        if p > t then begin
-          goto rt;
-        end;
-      until (t^ > ' ');
-      SetString(Result, nil, (t - p) + 1);
-      q := pchar(Result);
-      repeat
-        repeat
-          ch := p^;
-          inc(p);
-        until ch > ' ';
-        repeat
-          q^ := ch;
-          ch := p^;
-          inc(q);
-          inc(p);
-        until ch <= ' ';
-        q^ := ' ';
-        inc(q);
-      until p > t;
-    end;
-  end;
-  rt:
-    if q <> nil then begin
-      dec(q);
-      q^ := #0;
-      SetLength(Result, q - PChar(Result));
-    end else begin
-      Result := '';
-    end;
-end;
-
-
 { TKmlInfoSimpleParser }
 
 function TKmlInfoSimpleParser.BuildItem(AName, ADesc: string;
@@ -118,51 +90,35 @@ begin
   VPointCount := Length(Adata);
   if VPointCount > 0 then begin
     if VPointCount = 1 then begin
-      Result := TVectorDataItemPoint.Create(AName, ADesc, AData[0]);
+      Result := TVectorDataItemPoint.Create(FHintConverter, AName, ADesc, AData[0]);
     end else begin
-      if DoublePoitnsEqual(Adata[0], Adata[VPointCount - 1]) then begin
-        Result := TVectorDataItemPoly.Create(AName, ADesc, Adata, ARect);
+      if DoublePointsEqual(Adata[0], Adata[VPointCount - 1]) then begin
+        Result := TVectorDataItemPoly.Create(FHintConverter, AName, ADesc, Adata, ARect);
       end else begin
-        Result := TVectorDataItemPath.Create(AName, ADesc, Adata, ARect);
+        Result := TVectorDataItemPath.Create(FHintConverter, AName, ADesc, Adata, ARect);
       end;
     end;
   end;
 end;
 
 constructor TKmlInfoSimpleParser.Create(
+  AHintConverter: IHtmlToHintTextConverter;
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  FHintConverter := AHintConverter;
   FLoadKmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadKmlStream');
   FFormat.DecimalSeparator := '.';
-  FBMSrchPlacemark := TSearchBM.Create;
-  FBMSrchPlacemark.PrepareStr('<Placemark', False);
-  FBMSrchPlacemarkE := TSearchBM.Create;
-  FBMSrchPlacemarkE.PrepareStr('</Placemark', False);
-  FBMSrchName := TSearchBM.Create;
-  FBMSrchName.PrepareStr('<name', False);
-  FBMSrchCloseQ := TSearchBM.Create;
-  FBMSrchCloseQ.PrepareStr('>', False);
-  FBMSrchNameE := TSearchBM.Create;
-  FBMSrchNameE.PrepareStr('</name', False);
-  FBMSrchId := TSearchBM.Create;
-  FBMSrchId.PrepareStr('id=', False);
-  FBMSrchCDATA := TSearchBM.Create;
-  FBMSrchCDATA.PrepareStr('<![CDATA[', False);
-  FBMSrchCDATAE := TSearchBM.Create;
-  FBMSrchCDATAE.PrepareStr(']]>', False);
-  FBMSrchDesc := TSearchBM.Create;
-  FBMSrchDesc.PrepareStr('<description', False);
-  FBMSrchDescE := TSearchBM.Create;
-  FBMSrchDescE.PrepareStr('</description', False);
-  FBMSrchLt := TSearchBM.Create;
-  FBMSrchLt.PrepareStr('&lt;', False);
-  FBMSrchGt := TSearchBM.Create;
-  FBMSrchGt.PrepareStr('&gt;', False);
-  FBMSrchCoord := TSearchBM.Create;
-  FBMSrchCoord.PrepareStr('<coordinates', False);
-  FBMSrchCoordE := TSearchBM.Create;
-  FBMSrchCoordE.PrepareStr('</coordinates', False);
+  FBMSrchPlacemark := TSearchBM.Create('<Placemark');
+  FBMSrchPlacemarkE := TSearchBM.Create('</Placemark');
+  FBMSrchName := TSearchBM.Create('<name');
+  FBMSrchCloseQ := TSearchBM.Create('>');
+  FBMSrchNameE := TSearchBM.Create('</name');
+  FBMSrchId := TSearchBM.Create('id=');
+  FBMSrchDesc := TSearchBM.Create('<description');
+  FBMSrchDescE := TSearchBM.Create('</description');
+  FBMSrchCoord := TSearchBM.Create('<coordinates');
+  FBMSrchCoordE := TSearchBM.Create('</coordinates');
 end;
 
 destructor TKmlInfoSimpleParser.Destroy;
@@ -173,12 +129,8 @@ begin
   FreeAndNil(FBMSrchCloseQ);
   FreeAndNil(FBMSrchNameE);
   FreeAndNil(FBMSrchId);
-  FreeAndNil(FBMSrchCDATA);
-  FreeAndNil(FBMSrchCDATAE);
   FreeAndNil(FBMSrchDesc);
   FreeAndNil(FBMSrchDescE);
-  FreeAndNil(FBMSrchLt);
-  FreeAndNil(FBMSrchGt);
   FreeAndNil(FBMSrchCoord);
   FreeAndNil(FBMSrchCoordE);
   inherited;
@@ -200,7 +152,7 @@ end;
 procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
    out AItems: IVectorDataItemList);
 
-  function GetAnsiString(AStream: TStream): string;
+  function GetAnsiString(AStream: TStream): AnsiString;
   var
     VBOMSize: Integer;
     VKmlDoc: Pointer;
@@ -220,8 +172,7 @@ procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
         VCustomCodec := VUnicodeCodec.Create;
         try
           VCustomCodec.DecodeStr(VKmlDoc, VKmlDocSize, VStr);
-          Result := VStr;
-          Result := AnsiToUtf8(Result); // парсер KML воспринимает только UTF-8
+          Result := Utf8Encode(VStr); // парсер KML воспринимает только UTF-8
         finally
           VCustomCodec.Free;
         end;
@@ -236,7 +187,7 @@ procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
   end;
 
 var
-  VKml: string;
+  VKml: AnsiString;
   VList: IInterfaceList;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
@@ -257,7 +208,7 @@ begin
   end;
 end;
 
-procedure TKmlInfoSimpleParser.parseName(var Name: string);
+procedure TKmlInfoSimpleParser.parseName(var Name: AnsiString);
 var
   pb: integer;
 begin
@@ -268,7 +219,7 @@ begin
   end;
 end;
 
-procedure TKmlInfoSimpleParser.parseDescription(var Description: string);
+procedure TKmlInfoSimpleParser.parseDescription(var Description: AnsiString);
 var
   pb: integer;
   iip: integer;
@@ -292,7 +243,7 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.parse(buffer: string; AList: IInterfaceList): boolean;
+function TKmlInfoSimpleParser.parse(buffer: AnsiString; AList: IInterfaceList): boolean;
 var
   position, PosStartPlace, PosTag1, PosTag2,PosTag3, PosEndPlace, sLen, sStart: integer;
   VName: string;
@@ -302,7 +253,6 @@ var
   VItem: IVectorDataItemSimple;
 begin
   result := true;
-  buffer := Sha_SpaceCompress(buffer);
   sLen := Length(buffer);
   sStart := Integer(@buffer[1]);
   position := 1;
@@ -369,88 +319,83 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.parseCoordinates(AText: PChar; ALen: integer;
+function TKmlInfoSimpleParser.parseCoordinates(AText: PAnsiChar; ALen: integer;
   var Adata: TArrayOfDoublePoint; var ARect: TDoubleRect): boolean;
 var
-  ii: integer;
-  len: Integer;
-  VCurPos: PChar;
-  VNumEndPos: PChar;
-  VComa: PChar;
-  VSpace: PChar;
-  VLineStart: PChar;
+  VCurPos: PAnsiChar;
+  VNumEndPos: PAnsiChar;
+  VComa: PAnsiChar;
+  VSpace: PAnsiChar;
+  VLineStart: PAnsiChar;
   VCurCoord: TDoublePoint;
   VAllocated: Integer;
   VUsed: Integer;
   VValue: Extended;
+  VLastPos: PAnsiChar;
+  i: Integer;
 begin
-  len := ALen;
-  ii := 1;
   VUsed := 0;
   VAllocated := 32;
   SetLength(Adata, VAllocated);
   VLineStart := AText;
   VCurPos := VLineStart;
+  VLastPos := AText + ALen;
   try
-    while ii <= len do begin
-      if VCurPos^ = ' ' then begin
-        inc(VCurPos);
-        inc(ii);
-      end;
-      if ii <= len then begin
-        VNumEndPos := PosOfChar(',', VCurPos, len - ii + 1);
+    while VCurPos <> nil do begin
+      VCurPos := PosOfNonSpaceChar(VCurPos, VLastPos);
+      if VCurPos <> nil then begin
+        VNumEndPos := PosOfChar(',', VCurPos, VLastPos);
         if VNumEndPos <> nil then begin
           VNumEndPos^ := #0;
           if TextToFloat(VCurPos, VValue, fvExtended, FFormat) then begin
             VCurCoord.x := VValue;
             VCurPos := VNumEndPos;
             Inc(VCurPos);
-            ii := VCurPos - VLineStart + 1;
-            if VCurPos^ = ' ' then begin
-              inc(ii);
-              inc(VCurPos);
-            end;
-            VComa := PosOfChar(',', VCurPos, len - ii + 1);
-            VSpace := PosOfChar(' ', VCurPos, len - ii + 1);
-            if (VSpace <> nil) or (VComa <> nil) then begin
-              if VComa <> nil then begin
-                if (VSpace <> nil) and (VSpace < VComa) then begin
-                  VNumEndPos := VSpace;
+            if VCurPos <  VLastPos then begin
+              VCurPos := PosOfNonSpaceChar(VCurPos, VLastPos);
+              if VCurPos <> nil then begin
+                VComa := PosOfChar(',', VCurPos, VLastPos);
+                VSpace := PosOfSpaceChar(VCurPos, VLastPos);
+                if (VSpace <> nil) or (VComa <> nil) then begin
+                  if VComa <> nil then begin
+                    if (VSpace <> nil) and (VSpace < VComa) then begin
+                      VNumEndPos := VSpace;
+                    end else begin
+                      VNumEndPos := VComa;
+                    end;
+                  end else begin
+                    VNumEndPos := VSpace;
+                  end;
                 end else begin
-                  VNumEndPos := VComa;
+                  VNumEndPos := VLastPos;
                 end;
-              end else begin
-                VNumEndPos := VSpace;
+                VNumEndPos^ := #0;
+                if TextToFloat(VCurPos, VValue, fvExtended, FFormat) then begin
+                  VCurCoord.Y := VValue;
+                  if VUsed >= VAllocated then begin
+                    VAllocated := VAllocated * 2;
+                    SetLength(Adata, VAllocated);
+                  end;
+                  Adata[VUsed] := VCurCoord;
+                  Inc(VUsed);
+                end;
+                VCurPos := VNumEndPos;
+                Inc(VCurPos);
+                if VCurPos < VLastPos then begin
+                  if (VComa = VNumEndPos) then begin
+                    VCurPos := PosOfSpaceChar(VCurPos, VLastPos);
+                  end;
+                end else begin
+                  VCurPos := nil;
+                end;
               end;
             end else begin
-              VNumEndPos := VLineStart + Len;
-            end;
-            VNumEndPos^ := #0;
-            if TextToFloat(VCurPos, VValue, fvExtended, FFormat) then begin
-              VCurCoord.Y := VValue;
-              if VUsed >= VAllocated then begin
-                VAllocated := VAllocated * 2;
-                SetLength(Adata, VAllocated);
-              end;
-              Adata[VUsed] := VCurCoord;
-              Inc(VUsed);
-            end;
-            VCurPos := VNumEndPos;
-            Inc(VCurPos);
-            ii := VCurPos - VLineStart + 1;
-            if (VComa = VNumEndPos) then begin
-              while ((VCurPos^ in ['0'..'9', 'e', 'E', '.', '-'])) do begin
-                inc(ii);
-                inc(VCurPos);
-              end;
+              VCurPos := nil;
             end;
           end else begin
             VCurPos := VNumEndPos;
             Inc(VCurPos);
-            ii := VCurPos - VLineStart + 1;
           end;
-        end else begin
-          ii := len + 1;
         end;
       end;
     end;
@@ -461,18 +406,18 @@ begin
   if VUsed > 0 then begin
     ARect.TopLeft := Adata[0];
     ARect.BottomRight := Adata[0];
-    for ii := 0 to length(Adata) - 1 do begin
-      if ARect.Left > Adata[ii].X then begin
-        ARect.Left := Adata[ii].X;
+    for i := 0 to length(Adata) - 1 do begin
+      if ARect.Left > Adata[i].X then begin
+        ARect.Left := Adata[i].X;
       end;
-      if ARect.Right < Adata[ii].X then begin
-        ARect.Right := Adata[ii].X;
+      if ARect.Right < Adata[i].X then begin
+        ARect.Right := Adata[i].X;
       end;
-      if ARect.Top < Adata[ii].y then begin
-        ARect.Top := Adata[ii].y;
+      if ARect.Top < Adata[i].y then begin
+        ARect.Top := Adata[i].y;
       end;
-      if ARect.Bottom > Adata[ii].y then begin
-        ARect.Bottom := Adata[ii].y;
+      if ARect.Bottom > Adata[i].y then begin
+        ARect.Bottom := Adata[i].y;
       end;
     end;
     Result := True;
@@ -481,22 +426,50 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.PosOfChar(APattern: Char; AText: PChar;
-  ALen: Integer): PChar;
+function TKmlInfoSimpleParser.PosOfChar(APattern: AnsiChar; AText: PAnsiChar;
+  ALast: PAnsiChar): PAnsiChar;
 var
-  i: integer;
-  VCurr: PChar;
+  VCurr: PAnsiChar;
 begin
-  i := 0;
   VCurr := AText;
   Result := nil;
-  while i < ALen do begin
+  while VCurr < ALast do begin
     if VCurr^ = APattern then begin
       Result := VCurr;
       Break;
     end;
     Inc(VCurr);
-    Inc(i);
+  end;
+end;
+
+function TKmlInfoSimpleParser.PosOfNonSpaceChar(AText: PAnsiChar;
+  ALast: PAnsiChar): PAnsiChar;
+var
+  VCurr: PAnsiChar;
+begin
+  VCurr := AText;
+  Result := nil;
+  while VCurr < ALast do begin
+    if VCurr^ > ' ' then begin
+      Result := VCurr;
+      Break;
+    end;
+    Inc(VCurr);
+  end;
+end;
+
+function TKmlInfoSimpleParser.PosOfSpaceChar(AText, ALast: PAnsiChar): PAnsiChar;
+var
+  VCurr: PAnsiChar;
+begin
+  VCurr := AText;
+  Result := nil;
+  while VCurr < ALast do begin
+    if VCurr^ <= ' ' then begin
+      Result := VCurr;
+      Break;
+    end;
+    Inc(VCurr);
   end;
 end;
 

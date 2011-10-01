@@ -1,9 +1,30 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MarksFactoryConfig;
 
 interface
 
 uses
   Classes,
+  i_LanguageManager,
   i_MarkPicture,
   i_MarksFactoryConfig,
   i_MarkCategoryDBSmlInternal,
@@ -21,6 +42,7 @@ type
     function GetPolyTemplateConfig: IMarkPolyTemplateConfig;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       ACategoryDb: IMarkCategoryDBSmlInternal;
       AMarkPictureList: IMarkPictureList
     );
@@ -37,19 +59,20 @@ uses
 { TMarksFactoryConfig }
 
 constructor TMarksFactoryConfig.Create(
+  ALanguageManager: ILanguageManager;
   ACategoryDb: IMarkCategoryDBSmlInternal;
   AMarkPictureList: IMarkPictureList
 );
 begin
   inherited Create;
 
-  FPointTemplateConfig := TMarkPointTemplateConfig.Create(ACategoryDb, AMarkPictureList);
+  FPointTemplateConfig := TMarkPointTemplateConfig.Create(ALanguageManager, ACategoryDb, AMarkPictureList);
   Add(FPointTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewPoint'));
 
-  FLineTemplateConfig := TMarkLineTemplateConfig.Create(ACategoryDb);
+  FLineTemplateConfig := TMarkLineTemplateConfig.Create(ALanguageManager, ACategoryDb);
   Add(FLineTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewLine'));
 
-  FPolyTemplateConfig := TMarkPolyTemplateConfig.Create(ACategoryDb);
+  FPolyTemplateConfig := TMarkPolyTemplateConfig.Create(ALanguageManager, ACategoryDb);
   Add(FPolyTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewPoly'));
 end;
 

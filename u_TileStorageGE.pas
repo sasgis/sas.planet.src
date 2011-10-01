@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_TileStorageGE;
 
 interface
@@ -5,13 +25,11 @@ interface
 uses
   Types,
   Classes,
-  i_CoordConverter,
-  i_ConfigDataProvider,
+  i_SimpleTileStorageConfig,
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_TileInfoBasic,
   i_ContentTypeManager,
-  i_CoordConverterFactory,
   u_MapTypeCacheConfig,
   u_GlobalCahceConfig,
   u_GEIndexFile,
@@ -21,27 +39,19 @@ type
   TTileStorageGE = class(TTileStorageAbstract)
   private
     FCacheConfig: TMapTypeCacheConfigGE;
-    FCoordConverter: ICoordConverter;
     FIndex: TGEIndexFile;
     FMainContentType: IContentTypeInfoBasic;
   public
     constructor Create(
+      AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      ACoordConverterFactory: ICoordConverterFactory;
-      AContentTypeManager: IContentTypeManager;
-      AConfig: IConfigDataProvider
+      AContentTypeManager: IContentTypeManager
     );
     destructor Destroy; override;
 
     function GetMainContentType: IContentTypeInfoBasic; override;
     function GetAllowDifferentContentTypes: Boolean; override;
 
-    function GetIsStoreFileCache: Boolean; override;
-    function GetUseDel: boolean; override;
-    function GetUseSave: boolean; override;
-    function GetIsStoreReadOnly: boolean; override;
-    function GetTileFileExt: string; override;
-    function GetCoordConverter: ICoordConverter; override;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
     function GetTileFileName(
@@ -93,21 +103,19 @@ implementation
 uses
   SysUtils,
   Variants,
-  c_CoordConverter,
   u_TileInfoBasic,
   u_GECrypt;
 
 { TTileStorageGEStuped }
 
 constructor TTileStorageGE.Create(
+  AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  ACoordConverterFactory: ICoordConverterFactory;
-  AContentTypeManager: IContentTypeManager;
-  AConfig: IConfigDataProvider
+  AContentTypeManager: IContentTypeManager
 );
 begin
-  FCacheConfig := TMapTypeCacheConfigGE.Create(AGlobalCacheConfig, AConfig);
-  FCoordConverter := ACoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
+  inherited Create(AConfig);
+  FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig);
   FIndex := TGEIndexFile.Create(FCacheConfig);
   FMainContentType := AContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');
 end;
@@ -147,29 +155,9 @@ begin
   Result := FCacheConfig;
 end;
 
-function TTileStorageGE.GetCoordConverter: ICoordConverter;
-begin
-  Result := FCoordConverter;
-end;
-
-function TTileStorageGE.GetIsStoreFileCache: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageGE.GetIsStoreReadOnly: boolean;
-begin
-  Result := True;
-end;
-
 function TTileStorageGE.GetMainContentType: IContentTypeInfoBasic;
 begin
   Result := FMainContentType;
-end;
-
-function TTileStorageGE.GetTileFileExt: string;
-begin
-  Result := FMainContentType.GetDefaultExt;
 end;
 
 function TTileStorageGE.GetTileFileName(
@@ -202,16 +190,6 @@ begin
   end else begin
     Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
   end;
-end;
-
-function TTileStorageGE.GetUseDel: boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageGE.GetUseSave: boolean;
-begin
-  Result := False;
 end;
 
 function TTileStorageGE.LoadTile(

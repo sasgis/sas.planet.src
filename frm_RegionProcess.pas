@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit frm_RegionProcess;
 
 interface
@@ -15,9 +35,26 @@ uses
   inifiles,
   ComCtrls,
   u_CommonFormAndFrameParents,
+  i_LastSelectionInfo,
+  i_CoordConverterFactory,
+  i_GlobalViewMainConfig,
+  i_ImageResamplerConfig,
+  i_LocalCoordConverterFactorySimpe,
+  i_BitmapPostProcessingConfig,
+  i_GlobalDownloadConfig,
+  i_DownloadInfoSimple,
+  i_UsedMarksConfig,
+  i_MarksDrawConfig,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapCalibration,
+  i_EcwDll,
+  i_TileFileNameGeneratorsList,
+  i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   t_GeoTypes,
   u_MapType,
+  u_MarksSystem,
   u_GeoTostr;
 
 type
@@ -44,8 +81,8 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure FormActivate(Sender: TObject);
   private
+    FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect:byte;
     FPolygonLL: TArrayOfDoublePoint;
     FProviderTilesDelte: TExportProviderAbstract;
@@ -59,9 +96,35 @@ type
     procedure scleitRECT(APolyLL: TArrayOfDoublePoint);
     procedure savefilesREG(APolyLL: TArrayOfDoublePoint);
     procedure ExportREG(APolyLL: TArrayOfDoublePoint);
-    procedure InitExportsList;
+    procedure InitExportsList(
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      ACoordConverterFactory: ICoordConverterFactory;
+      ATileNameGenerator: ITileFileNameGeneratorsList
+    );
   public
-    constructor Create(AOwner: TComponent; AMapUpdateEvent: TMapUpdateEvent); reintroduce;
+    constructor Create(
+      AOwner: TComponent;
+      ALastSelectionInfo: ILastSelectionInfo;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      ACoordConverterFactory: ICoordConverterFactory;
+      ATileNameGenerator: ITileFileNameGeneratorsList;
+      AViewConfig: IGlobalViewMainConfig;
+      AImageResamplerConfig: IImageResamplerConfig;
+      AMarksShowConfig: IUsedMarksConfig;
+      AMarksDrawConfig: IMarksDrawConfig;
+      AMarksDB: TMarksSystem;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+      AEcwDll: IEcwDll;
+      AMapCalibrationList: IMapCalibrationList;
+      ADownloadConfig: IGlobalDownloadConfig;
+      ADownloadInfo: IDownloadInfoSimple;
+      AMapUpdateEvent: TMapUpdateEvent
+    ); reintroduce;
     destructor Destroy; override;
     procedure LoadSelFromFile(FileName:string);
     procedure Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
@@ -72,9 +135,8 @@ implementation
 
 uses
   gnugettext,
-  u_GlobalState,
-  u_ExportProviderYaMaps,
-  u_ExportProviderYaMapsNew,
+  u_ExportProviderYaMobileV3,
+  u_ExportProviderYaMobileV4,
   u_ExportProviderGEKml,
   u_ExportProviderIPhone,
   u_ExportProviderAUX,
@@ -89,18 +151,88 @@ uses
 
 {$R *.dfm}
 
-constructor TfrmRegionProcess.Create(AOwner: TComponent; AMapUpdateEvent: TMapUpdateEvent);
+constructor TfrmRegionProcess.Create(
+  AOwner: TComponent;
+  ALastSelectionInfo: ILastSelectionInfo;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  ACoordConverterFactory: ICoordConverterFactory;
+  ATileNameGenerator: ITileFileNameGeneratorsList;
+  AViewConfig: IGlobalViewMainConfig;
+  AImageResamplerConfig: IImageResamplerConfig;
+  AMarksShowConfig: IUsedMarksConfig;
+  AMarksDrawConfig: IMarksDrawConfig;
+  AMarksDB: TMarksSystem;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+  AEcwDll: IEcwDll;
+  AMapCalibrationList: IMapCalibrationList;
+  ADownloadConfig: IGlobalDownloadConfig;
+  ADownloadInfo: IDownloadInfoSimple;
+  AMapUpdateEvent: TMapUpdateEvent
+);
 begin
   TP_Ignore(Self, 'CBFormat.Items');
   inherited Create(AOwner);
+  FLastSelectionInfo := ALastSelectionInfo;
+  InitExportsList(
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList,
+    ACoordConverterFactory,
+    ATileNameGenerator
+  );
 
-  InitExportsList;
-
-  FProviderTilesDelte := TProviderTilesDelete.Create(TabSheet4);
-  FProviderTilesGenPrev := TProviderTilesGenPrev.Create(TabSheet3);
-  FProviderTilesCopy := TProviderTilesCopy.Create(TabSheet6);
-  FProviderTilesDownload := TProviderTilesDownload.Create(TabSheet1, AMapUpdateEvent);
-  FProviderMapCombine := TProviderMapCombine.Create(TabSheet2);
+  FProviderTilesDelte :=
+    TProviderTilesDelete.Create(
+      TabSheet4,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList
+    );
+  FProviderTilesGenPrev :=
+    TProviderTilesGenPrev.Create(
+      TabSheet3,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      AViewConfig,
+      AImageResamplerConfig
+    );
+  FProviderTilesCopy :=
+    TProviderTilesCopy.Create(
+      TabSheet6,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ATileNameGenerator
+    );
+  FProviderTilesDownload :=
+    TProviderTilesDownload.Create(
+      TabSheet1,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ADownloadConfig,
+      ADownloadInfo,
+      AMapUpdateEvent
+    );
+  FProviderMapCombine :=
+    TProviderMapCombine.Create(
+      TabSheet2,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      AViewConfig,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      ALocalConverterFactory,
+      ABitmapPostProcessingConfig,
+      AEcwDll,
+      AMapCalibrationList
+    );
 end;
 
 destructor TfrmRegionProcess.Destroy;
@@ -201,26 +333,96 @@ begin
   FProviderTilesGenPrev.StartProcess(APolyLL);
 end;
 
-procedure TfrmRegionProcess.InitExportsList;
+procedure TfrmRegionProcess.InitExportsList(
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  ACoordConverterFactory: ICoordConverterFactory;
+  ATileNameGenerator: ITileFileNameGeneratorsList
+);
 var
   VExportProvider: TExportProviderAbstract;
 begin
-  VExportProvider := TExportProviderIPhone.Create(pnlExport, True);
+  VExportProvider :=
+    TExportProviderIPhone.Create(
+      pnlExport,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory,
+      True
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderIPhone.Create(pnlExport, False);
+
+  VExportProvider :=
+    TExportProviderIPhone.Create(
+      pnlExport,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory,
+      False
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderGEKml.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderGEKml.Create(
+      pnlExport,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderYaMaps.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderYaMobileV3.Create(
+      pnlExport,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderYaMapsNew.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderYaMobileV4.Create(
+      pnlExport,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderAUX.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderAUX.Create(
+      pnlExport,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderZip.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderZip.Create(
+      pnlExport,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ATileNameGenerator
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-  VExportProvider := TExportProviderTar.Create(pnlExport);
+
+  VExportProvider :=
+    TExportProviderTar.Create(
+      pnlExport,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ATileNameGenerator
+    );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+
   CBFormat.ItemIndex := 0;
 end;
 
@@ -255,13 +457,13 @@ begin
   FPolygonLL := copy(polygon_);
   VPointsCount := Length(FPolygonLL);
   if VPointsCount > 1 then begin
-    if not DoublePoitnsEqual(FPolygonLL[0], FPolygonLL[VPointsCount - 1]) then begin
+    if not DoublePointsEqual(FPolygonLL[0], FPolygonLL[VPointsCount - 1]) then begin
       SetLength(FPolygonLL, VPointsCount + 1);
       FPolygonLL[VPointsCount] := FPolygonLL[0];
     end;
   end;
 
-  GState.LastSelectionInfo.SetPolygon(FPolygonLL, FZoom_rect);
+  FLastSelectionInfo.SetPolygon(FPolygonLL, FZoom_rect);
   for i := 0 to CBFormat.Items.Count - 1 do begin
     VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
     if VExportProvider <> nil then begin
@@ -271,11 +473,6 @@ begin
   Self.Show;
 end;
 
-
-procedure TfrmRegionProcess.FormActivate(Sender: TObject);
-begin
-  PageControl1.ActivePageIndex:=0;
-end;
 
 procedure TfrmRegionProcess.FormShow(Sender: TObject);
 begin
@@ -290,6 +487,8 @@ begin
   FProviderTilesDownload.Show;
   FProviderMapCombine.InitFrame(FZoom_rect, FPolygonLL);
   FProviderMapCombine.Show;
+
+  PageControl1.ActivePageIndex:=0;
 end;
 
 procedure TfrmRegionProcess.Button3Click(Sender: TObject);
@@ -307,8 +506,13 @@ begin
  if (SaveSelDialog.Execute)and(SaveSelDialog.FileName<>'') then
   begin
    If FileExists(SaveSelDialog.FileName) then DeleteFile(SaveSelDialog.FileName);
-   VZoom := GState.LastSelectionInfo.Zoom;
-   VPolygon := copy(GState.LastSelectionInfo.Polygon);
+   FLastSelectionInfo.LockRead;
+   try
+     VZoom := FLastSelectionInfo.Zoom;
+     VPolygon := copy(FLastSelectionInfo.Polygon);
+   finally
+     FLastSelectionInfo.UnlockRead;
+   end;
    Ini:=TiniFile.Create(SaveSelDialog.FileName);
    try
    if length(VPolygon)>0 then

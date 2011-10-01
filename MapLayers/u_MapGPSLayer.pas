@@ -10,9 +10,9 @@ uses
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
-  t_CommonTypes,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_OperationNotifier,
   i_LayerBitmapClearStrategy,
   i_ImageResamplerConfig,
   i_GPSRecorder,
@@ -33,7 +33,8 @@ type
     procedure OnGPSRecorderChange(Sender: TObject);
     procedure OnTimer(Sender: TObject);
     procedure DrawPath(
-      AIsStop: TIsCancelChecker;
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
       ATrackColorer: ITrackColorerStatic;
@@ -48,7 +49,10 @@ type
       ASpeed: Double
     );
   protected
-    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
+    procedure DrawBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    ); override;
   public
     procedure StartThreads; override;
   public
@@ -126,7 +130,10 @@ begin
   inherited;
 end;
 
-procedure TMapGPSLayer.DrawBitmap(AIsStop: TIsCancelChecker);
+procedure TMapGPSLayer.DrawBitmap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
 var
   VTrackColorer: ITrackColorerStatic;
   VPointsCount: Integer;
@@ -166,8 +173,9 @@ begin
     VLocalConverter := LayerCoordConverter;
     VPointsCount := FGPSRecorder.LastPoints(VPointsCount, FPoints);
     if (VPointsCount > 1) then begin
-      if not AIsStop then begin
+      if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         VTileToDrawBmp := TCustomBitmap32.Create;
+        VTileToDrawBmp.CombineMode:=cmMerge;
         try
           VGeoConvert := VLocalConverter.GetGeoConverter;
           VZoom := VLocalConverter.GetZoom;
@@ -178,7 +186,7 @@ begin
           VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
           VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
           while VTileIterator.Next(VTile) do begin
-            if AIsStop then begin
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               break;
             end;
             VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
@@ -193,7 +201,8 @@ begin
             VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
             VTileToDrawBmp.Clear(0);
             DrawPath(
-              AIsStop,
+              AOperationID,
+              ACancelNotifier,
               VTileToDrawBmp,
               ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
               VTrackColorer,
@@ -203,7 +212,7 @@ begin
 
             Layer.Bitmap.Lock;
             try
-              if AIsStop then begin
+              if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
                 break;
               end;
               Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
@@ -221,7 +230,8 @@ begin
 end;
 
 procedure TMapGPSLayer.DrawPath(
-  AIsStop: TIsCancelChecker;
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
   ATrackColorer: ITrackColorerStatic;
@@ -293,7 +303,7 @@ begin
       if not VPointPrevIsEmpty then begin
         if (VPointPrevLLCode and VPointCurrLLCode) = 0 then begin
           if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
-            if not AIsStop then begin
+            if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrev, VPointCurr,  FPoints[i].Speed);
             end;
             VIsChangePrevPoint := True;
@@ -315,11 +325,11 @@ begin
       VPointPrevIsEmpty := VPointCurrIsEmpty;
       VPointPrevLLCode := VPointCurrLLCode;
     end;
-    if AIsStop then begin
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Break;
     end;
   end;
-  if not AIsStop then begin
+  if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     SetBitmapChanged;
   end;
 end;

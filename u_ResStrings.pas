@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_ResStrings;
 
 interface
@@ -13,7 +33,7 @@ ResourceString
   SAS_MSG_FileExists = 'Tile %0:s is available in cache.'#13#10 +
     'Replace?';
   SAS_MSG_NeedHL = 'Please select at least one region';
-  SAS_MSG_FunExForPoly = 'The feature can be used on polygons only';
+  SAS_MSG_FunExForPoly = 'The feature can be used on polygons and polylines';
   SAS_MSG_FileBeCreateTime = 'The tile is newer than the entered age, skipping.';
   SAS_MSG_FileBeCreateLen = 'The tile size is equal to the existing one, skipping.';
   SAS_MSG_ProcessFilesComplete = 'The task is completed!';
@@ -145,8 +165,8 @@ ResourceString
   SAS_STR_Layers = 'Layers';
   SAS_STR_InputLacitp = 'Enter comma-separated MNC, MCC, LAC, CellID (example: 02,250,7718,11942)';
   SAS_STR_InputLacitpCaption = 'Enter parameters';
-  SAS_STR_ExportYaMapsCaption = 'Mobile Yandex.Maps (version 3)';
-  SAS_STR_ExportYaMapsNewCaption = 'Mobile Yandex.Maps (version 3.91 and above)';
+  SAS_STR_ExportYaMobileV3Caption = 'Mobile Yandex.Maps (version 3)';
+  SAS_STR_ExportYaMobileV4Caption = 'Mobile Yandex.Maps (version 3.91 and above)';
   SAS_STR_ExportGEKmlExportCaption = 'KML (for Google Earth)';
   SAS_STR_ExportIPhone128Caption = 'iPhone (version 2.2 and above, 128x128)';
   SAS_STR_ExportIPhone64Caption = 'iPhone (version prior to 2.2, 64x64)';

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit frm_MapTypeEdit;
 
 interface
@@ -83,9 +103,6 @@ type
     function EditMapModadl(AMapType: TMapType): Boolean;
   end;
 
-var
-  frmMapTypeEdit: TfrmMapTypeEdit;
-
 implementation
 
 uses
@@ -100,23 +117,36 @@ end;
 
 procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
 begin
- FmapType.TileRequestBuilderConfig.UrlBase := EditURL.Text;
- FmapType.TileStorage.CacheConfig.NameInCache:=EditNameinCache.Text;
- FmapType.ParentSubMenu:=EditParSubMenu.Text;
- FmapType.TileDownloaderConfig.WaitInterval:=SESleep.Value;
- FmapType.HotKey:=EditHotKey.HotKey;
- FMapType.Enabled:=CheckEnabled.Checked;
- if CBCacheType.ItemIndex > 0 then begin
-   FmapType.TileStorage.CacheConfig.cachetype:=CBCacheType.ItemIndex;
- end else begin
-   FmapType.TileStorage.CacheConfig.cachetype:=0;
- end;
- FmapType.separator:=CheckBox1.Checked;
- FMapType.VersionConfig.Version := edtVersion.Text;
- FMapType.TileRequestBuilderConfig.RequestHeader := mmoHeader.Text;
- pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
+  FmapType.TileRequestBuilderConfig.UrlBase := EditURL.Text;
 
- ModalResult := mrOk;
+  FMapType.GUIConfig.LockWrite;
+  try
+    FmapType.GUIConfig.ParentSubMenu.Value:=EditParSubMenu.Text;
+    FmapType.GUIConfig.HotKey:=EditHotKey.HotKey;
+    FMapType.GUIConfig.Enabled:=CheckEnabled.Checked;
+    FmapType.GUIConfig.separator:=CheckBox1.Checked;
+  finally
+    FMapType.GUIConfig.UnlockWrite;
+  end;
+
+  FmapType.TileDownloaderConfig.WaitInterval:=SESleep.Value;
+  FmapType.StorageConfig.LockWrite;
+  try
+    FmapType.StorageConfig.NameInCache := EditNameinCache.Text;
+    if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
+      if CBCacheType.ItemIndex > 0 then begin
+        FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex;
+      end else begin
+        FMapType.StorageConfig.CacheTypeCode := 0;
+      end;
+    end;
+  finally
+    FmapType.StorageConfig.UnlockWrite;
+  end;
+  FMapType.VersionConfig.Version := edtVersion.Text;
+  FMapType.TileRequestBuilderConfig.RequestHeader := mmoHeader.Text;
+
+  ModalResult := mrOk;
 end;
 
 procedure TfrmMapTypeEdit.btnVersionResetClick(Sender: TObject);
@@ -131,16 +161,19 @@ end;
 
 procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
- EditURL.Text := FmapType.Zmp.TileRequestBuilderConfig.UrlBase;
- EditNameinCache.Text:=FmapType.TileStorage.CacheConfig.DefNameInCache;
- EditParSubMenu.Text:=FmapType.Zmp.ParentSubMenu;
- SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
- EditHotKey.HotKey:=FmapType.Zmp.HotKey;
- CBCacheType.ItemIndex:=FmapType.TileStorage.CacheConfig.CacheType;
- CheckBox1.Checked:=FmapType.Zmp.Separator;
- CheckEnabled.Checked:=FMapType.Zmp.Enabled;
- edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
- mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
+  EditURL.Text := FmapType.Zmp.TileRequestBuilderConfig.UrlBase;
+  EditNameinCache.Text := FMapType.Zmp.StorageConfig.NameInCache;
+  SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
+  EditHotKey.HotKey:=FmapType.Zmp.GUI.HotKey;
+  if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
+    CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode;
+  end;
+
+  EditParSubMenu.Text:=FmapType.GUIConfig.ParentSubMenu.GetDefaultValue;
+  CheckBox1.Checked:=FmapType.Zmp.GUI.Separator;
+  CheckEnabled.Checked:=FMapType.Zmp.GUI.Enabled;
+  edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
+  mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
 end;
 
 procedure TfrmMapTypeEdit.Button6Click(Sender: TObject);
@@ -150,17 +183,17 @@ end;
 
 procedure TfrmMapTypeEdit.Button4Click(Sender: TObject);
 begin
- EditNameinCache.Text := FMapType.TileStorage.CacheConfig.DefNameInCache;
+  EditNameinCache.Text := FMapType.Zmp.StorageConfig.NameInCache;
 end;
 
 procedure TfrmMapTypeEdit.Button5Click(Sender: TObject);
 begin
- EditParSubMenu.Text := FMapType.Zmp.ParentSubMenu;
+  EditParSubMenu.Text := FmapType.GUIConfig.ParentSubMenu.GetDefaultValue;
 end;
 
 procedure TfrmMapTypeEdit.Button7Click(Sender: TObject);
 begin
- EditHotKey.HotKey := FMapType.Zmp.HotKey;
+ EditHotKey.HotKey := FMapType.Zmp.GUI.HotKey;
 end;
 
 procedure TfrmMapTypeEdit.Button8Click(Sender: TObject);
@@ -170,25 +203,42 @@ end;
 
 procedure TfrmMapTypeEdit.Button9Click(Sender: TObject);
 begin
-  CBCacheType.ItemIndex := FMapType.TileStorage.CacheConfig.defcachetype;
+  if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
+    CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode;
+  end;
 end;
 
 function TfrmMapTypeEdit.EditMapModadl(AMapType: TMapType): Boolean;
 begin
   FMapType := AMapType;
 
-  Caption:=SAS_STR_EditMap+' '+FmapType.name;
+  Caption:=SAS_STR_EditMap+' '+FmapType.GUIConfig.Name.Value;
   edtZmp.Text := AMapType.Zmp.FileName;
   EditURL.Text:=FMapType.TileRequestBuilderConfig.UrlBase;
-  EditNameinCache.Text:=FMapType.TileStorage.CacheConfig.NameInCache;
+
   SESleep.Value:=FMapType.TileDownloaderConfig.WaitInterval;
-  EditParSubMenu.Text:=FMapType.ParentSubMenu;
-  EditHotKey.HotKey:=FMapType.HotKey;
-  CBCacheType.ItemIndex:=FMapType.TileStorage.CacheConfig.cachetype;
-  CheckBox1.Checked:=FMapType.separator;
-  CheckEnabled.Checked:=FMapType.Enabled;
+  EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.Value;
+  EditHotKey.HotKey:=FMapType.GUIConfig.HotKey;
+
+  FMapType.StorageConfig.LockRead;
+  try
+    EditNameinCache.Text := FMapType.StorageConfig.NameInCache;
+    if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
+      pnlCacheType.Visible := True;
+      pnlCacheType.Enabled := True;
+      CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode;
+    end else begin
+      pnlCacheType.Visible := False;
+      pnlCacheType.Enabled := False;
+    end;
+  finally
+    FMapType.StorageConfig.UnlockRead;
+  end;
+  CheckBox1.Checked:=FMapType.GUIConfig.separator;
+  CheckEnabled.Checked:=FMapType.GUIConfig.Enabled;
   edtVersion.Text := FMapType.VersionConfig.Version;
   mmoHeader.Text := FMapType.TileRequestBuilderConfig.RequestHeader;
+  pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
 
   Result := ShowModal = mrOk;
 end;

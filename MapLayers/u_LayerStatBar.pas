@@ -7,6 +7,7 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_JclNotify,
   t_GeoTypes,
   i_LocalCoordConverter,
   i_StatBarConfig,
@@ -30,8 +31,10 @@ type
     FMinUpdate: Cardinal;
     FBgColor: TColor32;
     FTextColor: TColor32;
+    FAALevel: Integer;
     function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
     procedure OnConfigChange(Sender: TObject);
+    procedure OnTimerEvent(Sender: TObject);
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
@@ -46,6 +49,7 @@ type
       AConfig: IStatBarConfig;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
       AMouseState: IMouseState;
+      ATimerNoifier: IJclNotifier;
       ADownloadInfo: IDownloadInfoSimple;
       AMainMapsConfig: IMainMapsConfig
     );
@@ -72,6 +76,7 @@ constructor TLayerStatBar.Create(
   AConfig: IStatBarConfig;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
   AMouseState: IMouseState;
+  ATimerNoifier: IJclNotifier;
   ADownloadInfo: IDownloadInfoSimple;
   AMainMapsConfig: IMainMapsConfig
 );
@@ -84,6 +89,10 @@ begin
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimerEvent),
+    ATimerNoifier
   );
   FMainMapsConfig := AMainMapsConfig;
   FLastUpdateTick := 0;
@@ -130,6 +139,7 @@ begin
       FBgColor := FConfig.BgColor;
       FTextColor := FConfig.TextColor;
       VVisible := FConfig.Visible;
+      FAALevel := 0;
     finally
       FConfig.UnlockRead;
     end;
@@ -139,6 +149,11 @@ begin
     ViewUpdateUnlock;
   end;
   ViewUpdate;
+end;
+
+procedure TLayerStatBar.OnTimerEvent(Sender: TObject);
+begin
+  Redraw;
 end;
 
 procedure TLayerStatBar.SetViewCoordConverter(AValue: ILocalCoordConverter);
@@ -177,7 +192,7 @@ begin
   inherited;
   VCurrentTick := GetTickCount;
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + FMinUpdate) then begin
-    VValueConverter := FValueToStringConverterConfig.GetStaticConverter;
+    VValueConverter := FValueToStringConverterConfig.GetStatic;
     VVisualCoordConverter := ViewCoordConverter;
     VMousePos := FMouseState.CurentPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
@@ -196,16 +211,16 @@ begin
 
     FLayer.Bitmap.Clear(FBgColor);
     FLayer.Bitmap.Line(0, 0, VSize.X, 0, SetAlpha(clBlack32, 256));
-    FLayer.Bitmap.RenderText(4, 1, 'z' + inttostr(VZoomCurr + 1), 0, FTextColor);
-    FLayer.Bitmap.RenderText(29, 1, '| ' + SAS_STR_coordinates + ' ' + VLonLatStr, 0, FTextColor);
+    FLayer.Bitmap.RenderText(4, 1, 'z' + inttostr(VZoomCurr + 1), FAALevel, FTextColor);
+    FLayer.Bitmap.RenderText(29, 1, '| ' + SAS_STR_coordinates + ' ' + VLonLatStr, FAALevel, FTextColor);
 
     VRad := VConverter.Datum.GetSpheroidRadiusA;
     VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
-    subs2 := VValueConverter.DistConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(ll.y * D2R)))) + SAS_UNITS_mperp;
-    FLayer.Bitmap.RenderText(278, 1, ' | ' + SAS_STR_Scale + ' ' + subs2, 0, FTextColor);
+    subs2 := VValueConverter.DistPerPixelConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(ll.y * D2R))));
+    FLayer.Bitmap.RenderText(278, 1, ' | ' + SAS_STR_Scale + ' ' + subs2, FAALevel, FTextColor);
     posnext := 273 + FLayer.Bitmap.TextWidth(subs2) + 70;
     TameTZ := GetTimeInLonLat(ll);
-    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_time + ' ' + TimeToStr(TameTZ), 0, FTextColor);
+    FLayer.Bitmap.RenderText(posnext, 1, ' | ' + SAS_STR_time + ' ' + TimeToStr(TameTZ), FAALevel, FTextColor);
     posnext := posnext + FLayer.Bitmap.TextWidth(SAS_STR_time + ' ' + TimeToStr(TameTZ)) + 10;
     subs2 := VMap.GetTileShowName(VTile, VZoomCurr);
     FLayer.Bitmap.RenderText(
@@ -214,7 +229,7 @@ begin
       inttostr(FDownloadInfo.TileCount) + ' (' +
       VValueConverter.DataSizeConvert(FDownloadInfo.Size/1024) +
       ') | ' + SAS_STR_file + ' ' + subs2,
-       0, FTextColor
+       FAALevel, FTextColor
     );
     FLastUpdateTick := GetTickCount;
   end;

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_PathDetalizeProviderMailRu;
 
 interface
@@ -198,17 +218,17 @@ end;
 
 function TPathDetalizeProviderMailRuShortest.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Shortest) by Maps@mail.ru');
+  Result := _('By car (Shortest) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuShortest.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Shortest) by Maps@mail.ru');
+  Result := _('Detalize route by car (Shortest) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuShortest.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Shortest)');
+  Result := _('Maps@mail.ru') + '|0020~\' +  _('By Car (Shortest)') + '|0010';
 end;
 
 { TPathDetalizeProviderMailRuFastest }
@@ -228,17 +248,17 @@ end;
 
 function TPathDetalizeProviderMailRuFastest.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Fastest) by Maps@mail.ru');
+  Result := _('By car (Fastest) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuFastest.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Fastest) by Maps@mail.ru');
+  Result := _('Detalize route by car (Fastest) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuFastest.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Fastest)');
+  Result := _('Maps@mail.ru') + '|0020~\' +  _('By Car (Fastest)') + '|0020';
 end;
 
 { TPathDetalizeProviderMailRuFastestWithTraffic }
@@ -258,17 +278,17 @@ end;
 
 function TPathDetalizeProviderMailRuFastestWithTraffic.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Fastest with traffic) by Maps@mail.ru');
+  Result := _('By car (Fastest with traffic) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuFastestWithTraffic.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Fastest with traffic) by Maps@mail.ru');
+  Result := _('Detalize route by car (Fastest with traffic) with Maps@mail.ru');
 end;
 
 function TPathDetalizeProviderMailRuFastestWithTraffic.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Fastest with traffic)');
+  Result := _('Maps@mail.ru') + '|0020~\' +  _('By Car (Fastest with traffic)') + '|0030';
 end;
 
 end.

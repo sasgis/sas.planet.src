@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit i_MarkTemplate;
 
 interface
@@ -12,23 +32,23 @@ type
     ['{2D6A0C13-754C-4BC1-9003-361CA28D311E}']
     function GetNewName: string;
 
-    function GetCategory: IMarkCategory;
-    property Category: IMarkCategory read GetCategory;
+    function GetCategory: ICategory;
+    property Category: ICategory read GetCategory;
   end;
 
   IMarkTemplatePoint = interface(IMarkTemplate)
     ['{B36731B8-7D98-4D56-996F-E6B77AA6FAB3}']
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
+    function GetTextColor: TColor32;
+    property TextColor: TColor32 read GetTextColor;
 
-    function GetColor2: TColor32;
-    property Color2: TColor32 read GetColor2;
+    function GetTextBgColor: TColor32;
+    property TextBgColor: TColor32 read GetTextBgColor;
 
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
+    function GetFontSize: Integer;
+    property FontSize: Integer read GetFontSize;
 
-    function GetScale2: Integer;
-    property Scale2: Integer read GetScale2;
+    function GetMarkerSize: Integer;
+    property MarkerSize: Integer read GetMarkerSize;
 
     function GetPic: IMarkPicture;
     property Pic: IMarkPicture read GetPic;
@@ -38,25 +58,25 @@ type
 
   IMarkTemplateLine = interface(IMarkTemplate)
     ['{BF4FF116-98E1-43C5-A7FD-DCE3BF26E8D4}']
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
+    function GetLineColor: TColor32;
+    property LineColor: TColor32 read GetLineColor;
 
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
+    function GetLineWidth: Integer;
+    property LineWidth: Integer read GetLineWidth;
 
     function IsSame(ATemplate: IMarkTemplateLine): Boolean;
   end;
 
   IMarkTemplatePoly = interface(IMarkTemplate)
     ['{81CB621A-112D-4914-B801-BBBAAE11C797}']
-    function GetColor1: TColor32;
-    property Color1: TColor32 read GetColor1;
+    function GetBorderColor: TColor32;
+    property BorderColor: TColor32 read GetBorderColor;
 
-    function GetColor2: TColor32;
-    property Color2: TColor32 read GetColor2;
+    function GetFillColor: TColor32;
+    property FillColor: TColor32 read GetFillColor;
 
-    function GetScale1: Integer;
-    property Scale1: Integer read GetScale1;
+    function GetLineWidth: Integer;
+    property LineWidth: Integer read GetLineWidth;
 
     function IsSame(ATemplate: IMarkTemplatePoly): Boolean;
   end;

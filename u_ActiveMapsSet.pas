@@ -1,10 +1,30 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_ActiveMapsSet;
 
 interface
 
 uses
   i_JclNotify,
-  i_GUIDList,
+  i_GUIDSet,
   i_MapTypes,
   i_ActiveMapsConfig,
   u_ConfigDataElementBase;
@@ -14,7 +34,7 @@ type
   private
     FMapsSet: IMapTypeSet;
 
-    FSingeMapsSet: IGUIDInterfaceList;
+    FSingeMapsSet: IGUIDInterfaceSet;
     FSelectedMapsList: IMapTypeSet;
 
     FMainMapChangeNotyfier: IJclNotifier;
@@ -37,7 +57,7 @@ type
   public
     constructor Create(
       AMapsSet: IMapTypeSet;
-      ASingeMapsList: IGUIDInterfaceList;
+      ASingeMapsList: IGUIDInterfaceSet;
       AMainMapChangeNotyfier: IJclNotifier;
       ALayerSetSelectNotyfier: IJclNotifier;
       ALayerSetUnselectNotyfier: IJclNotifier
@@ -49,13 +69,13 @@ implementation
 
 uses
   ActiveX,
-  u_MapTypeList,
+  u_MapTypeSet,
   u_NotifyWithGUIDEvent;
 
 { TActiveMapsSet }
 
 constructor TActiveMapsSet.Create(AMapsSet: IMapTypeSet;
-  ASingeMapsList: IGUIDInterfaceList; AMainMapChangeNotyfier,
+  ASingeMapsList: IGUIDInterfaceSet; AMainMapChangeNotyfier,
   ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier);
 begin
   inherited Create;

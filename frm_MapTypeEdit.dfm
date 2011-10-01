@@ -130,8 +130,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         'GoogleMV'
         'SAS.Planet'
         'EarthSlicer 1.95'
-        'Googe maps tiles'
-        'Google Earth')
+        'GlobalMapper Tiles')
     end
     object Button9: TButton
       AlignWithMargins = True

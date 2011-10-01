@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_LocalCoordConverter;
 
 interface
@@ -5,6 +25,7 @@ interface
 uses
   Types,
   t_GeoTypes,
+  u_GeoFun,
   i_CoordConverter,
   i_LocalCoordConverter;
 
@@ -45,6 +66,8 @@ type
     function LonLat2LocalPixel(const APoint: TDoublePoint): TPoint;
     function LonLat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint;
     function LonLatRect2LocalRectFloat(const ARect: TDoubleRect): TDoubleRect;
+
+    function LonLatArrayToVisualFloatArray(const APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
 
     function GetCenterMapPixelFloat: TDoublePoint;
     function GetCenterLonLat: TDoublePoint;
@@ -109,13 +132,20 @@ end;
 
 function TLocalCoordConverter.GetIsSameConverter(
   AConverter: ILocalCoordConverter): Boolean;
+var
+  VSelf: ILocalCoordConverter;
 begin
-  Result := False;
-  if EqualRect(FLocalRect, AConverter.GetLocalRect) then begin
+  VSelf := Self;
+  if VSelf = AConverter then begin
+    Result := True;
+  end else begin
+    Result := False;
     if FZoom = AConverter.GetZoom then begin
-      if FGeoConverter.IsSameConverter(AConverter.GetGeoConverter) then begin
-        if EqualRect(AConverter.GetRectInMapPixel, GetRectInMapPixel) then begin
-          Result := True;
+      if EqualRect(FLocalRect, AConverter.GetLocalRect) then begin
+        if FGeoConverter.IsSameConverter(AConverter.GetGeoConverter) then begin
+          if EqualRect(AConverter.GetRectInMapPixel, GetRectInMapPixel) then begin
+            Result := True;
+          end;
         end;
       end;
     end;
@@ -222,6 +252,28 @@ begin
     MapRectFloat2LocalRectFloat(
       FGeoConverter.LonLatRect2PixelRectFloat(ARect, FZoom)
     );
+end;
+
+function TLocalCoordConverter.LonLatArrayToVisualFloatArray(const APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
+var
+  i: Integer;
+  VPointsCount: Integer;
+  VLonLat: TDoublePoint;
+  VGeoConvert: ICoordConverter;
+begin
+  VPointsCount := Length(APolygon);
+  SetLength(Result, VPointsCount);
+
+  VGeoConvert := GetGeoConverter;
+  for i := 0 to VPointsCount - 1 do begin
+    VLonLat := APolygon[i];
+    if PointIsEmpty(VLonLat) then begin
+      Result[i] := VLonLat;
+    end else begin
+      VGeoConvert.CheckLonLatPos(VLonLat);
+      Result[i] := LonLat2LocalPixelFloat(VLonLat);
+    end;
+  end;
 end;
 
 function TLocalCoordConverter.MapPixel2LocalPixel(const APoint: TPoint): TPoint;

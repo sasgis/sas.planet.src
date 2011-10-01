@@ -1,14 +1,36 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MapTypesMainList;
 
 interface
 
 uses
+  ActiveX,
+  Classes,
   SysUtils,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LanguageManager,
   i_CoordConverterFactory,
-  i_MapTypeIconsList,
+  i_ZmpInfoSet,
   i_MemObjCache,
   i_ListOfObjectsWithTTL,
   i_InetConfig,
@@ -17,6 +39,7 @@ uses
   i_ContentTypeManager,
   i_DownloadResultTextProvider,
   i_TileFileNameGeneratorsList,
+  i_MapTypeGUIConfigList,
   i_MapTypes,
   u_GlobalCahceConfig,
   u_MapType;
@@ -26,31 +49,26 @@ type
 
   TMapTypesMainList = class
   private
+    FGUIConfigList: IMapTypeGUIConfigList;
+    FZmpInfoSet: IZmpInfoSet;
+
     FMapType: array of TMapType;
     FFullMapsSet: IMapTypeSet;
     FMapsSet: IMapTypeSet;
     FLayersSet: IMapTypeSet;
 
-    FMapTypeIcons18List: IMapTypeIconsList;
-    FMapTypeIcons24List: IMapTypeIconsList;
-
-    function GetMapType(Index: Integer): TMapType;
-    function GetCount: Integer;
     procedure BuildMapsLists;
-    function GetFirstMainMap: TMapType;
+    function GetFirstMainMapGUID: TGUID;
   public
+    constructor Create(
+      AZmpInfoSet: IZmpInfoSet
+    );
     destructor Destroy; override;
-    property Items[Index : Integer]: TMapType read GetMapType; default;
-    property Count: Integer read GetCount;
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
     property MapsSet: IMapTypeSet read FMapsSet;
     property LayersSet: IMapTypeSet read FLayersSet;
-    property FirstMainMap: TMapType read GetFirstMainMap;
+    property FirstMainMapGUID: TGUID read GetFirstMainMapGUID;
 
-    property MapTypeIcons18List: IMapTypeIconsList read FMapTypeIcons18List;
-    property MapTypeIcons24List: IMapTypeIconsList read FMapTypeIcons24List;
-
-    procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
     procedure LoadMaps(
       ALanguageManager: ILanguageManager;
       AMemCacheBitmap: IMemObjCacheBitmap;
@@ -64,31 +82,32 @@ type
       AContentTypeManager: IContentTypeManager;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
       ACoordConverterFactory: ICoordConverterFactory;
-      ALocalMapsConfig: IConfigDataProvider;
-      AMapsPath: string
+      ALocalMapsConfig: IConfigDataProvider
     );
-    function GetMapFromID(id: TGUID): TMapType;
-    procedure SortList;
-    procedure LoadMapIconsList;
+    procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
+
+    function GetGUIConfigList: IMapTypeGUIConfigList;
+    property GUIConfigList: IMapTypeGUIConfigList read GetGUIConfigList;
   end;
 
 implementation
 
 uses
   Dialogs,
-  i_FileNameIterator,
+  c_ZeroGUID,
+  i_GUIDListStatic,
   i_ZmpInfo,
-  u_ZmpInfo,
-  u_ZmpFileNamesIteratorFactory,
-  u_ConfigDataProviderByFolder,
-  u_ConfigDataProviderByKaZip,
-  u_ConfigDataProviderZmpComplex,
+  u_MapTypeGUIConfigList,
   u_MapTypeBasic,
-  u_MapTypeIconsList,
-  u_MapTypeList,
+  u_MapTypeSet,
   u_ResStrings;
 
 { TMapTypesMainList }
+
+constructor TMapTypesMainList.Create(AZmpInfoSet: IZmpInfoSet);
+begin
+  FZmpInfoSet := AZmpInfoSet;
+end;
 
 destructor TMapTypesMainList.Destroy;
 var
@@ -101,44 +120,26 @@ begin
   inherited;
 end;
 
-function TMapTypesMainList.GetCount: Integer;
-begin
-  Result := Length(FMapType);
-end;
-
-function TMapTypesMainList.GetFirstMainMap: TMapType;
+function TMapTypesMainList.GetFirstMainMapGUID: TGUID;
 var
   i: integer;
-  VMapType: TMapType;
+  VGUID: TGUID;
+  VGUIDList: IGUIDListStatic;
 begin
-  Result := nil;
-  for i := 0 to length(FMapType) - 1 do begin
-    VMapType := FMapType[i];
-    if not VMapType.asLayer then begin
-      result := VMapType;
+  Result := CGUID_Zero;
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[i];
+    if FMapsSet.GetMapTypeByGUID(VGUID) <> nil then begin
+      result := VGUID;
       exit;
     end;
   end;
 end;
 
-function TMapTypesMainList.GetMapFromID(id: TGUID): TMapType;
-var
-  i: integer;
-  VMapType: TMapType;
+function TMapTypesMainList.GetGUIConfigList: IMapTypeGUIConfigList;
 begin
-  Result := nil;
-  for i := 0 to length(FMapType) - 1 do begin
-    VMapType := FMapType[i];
-    if IsEqualGUID(VMapType.Zmp.GUID, id) then begin
-      result := VMapType;
-      exit;
-    end;
-  end;
-end;
-
-function TMapTypesMainList.GetMapType(Index: Integer): TMapType;
-begin
-  Result := FMapType[index];
+  Result := FGUIConfigList;
 end;
 
 procedure TMapTypesMainList.BuildMapsLists;
@@ -160,31 +161,11 @@ begin
     VMap := FMapType[i];
     VMapType := TMapTypeBasic.Create(VMap);
     VFullMapsList.Add(VMapType);
-    if VMap.asLayer then begin
+    if VMap.Abilities.IsLayer then begin
       VLayersList.Add(VMapType);
     end else begin
       VMapsList.Add(VMapType);
     end;
-  end;
-end;
-
-procedure TMapTypesMainList.LoadMapIconsList;
-var
-  i: Integer;
-  VMapType: TMapType;
-  VList18: TMapTypeIconsList;
-  VList24: TMapTypeIconsList;
-begin
-  VList18 := TMapTypeIconsList.Create(18, 18);
-  FMapTypeIcons18List := VList18;
-
-  VList24 := TMapTypeIconsList.Create(24, 24);
-  FMapTypeIcons24List := VList24;
-
-  for i := 0 to GetCount - 1 do begin
-    VMapType := Items[i];
-    VList18.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp18);
-    VList24.Add(VMapType.Zmp.GUID, VMapType.Zmp.Bmp24);
   end;
 end;
 
@@ -201,58 +182,46 @@ procedure TMapTypesMainList.LoadMaps(
   AContentTypeManager: IContentTypeManager;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
   ACoordConverterFactory: ICoordConverterFactory;
-  ALocalMapsConfig: IConfigDataProvider;
-  AMapsPath: string
+  ALocalMapsConfig: IConfigDataProvider
 );
 var
   VMapType: TMapType;
-  VMapTypeLoaded: TMapType;
   VMapOnlyCount: integer;
-
-  VZmpMapConfig: IConfigDataProvider;
   VLocalMapConfig: IConfigDataProvider;
-  VMapConfig: IConfigDataProvider;
-  VFileName: WideString;
-  VFullFileName: string;
   VMapTypeCount: integer;
-  VFilesIteratorFactory: IFileNameIteratorFactory;
-  VFilesIterator: IFileNameIterator;
   VZmp: IZmpInfo;
+  VEnum: IEnumGUID;
+  VGUID: TGUID;
+  VGetCount: Cardinal;
+  VGUIDList: IGUIDListStatic;
+  i: Integer;
 begin
   SetLength(FMapType, 0);
   VMapOnlyCount := 0;
   VMapTypeCount := 0;
-  VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
-  VFilesIterator := VFilesIteratorFactory.CreateIterator(AMapsPath, '');
-  while VFilesIterator.Next(VFileName) do begin
-    VFullFileName := VFilesIterator.GetRootFolderName + VFileName;
+
+  VEnum := FZmpInfoSet.GetIterator;
+  while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
+    VZmp := FZmpInfoSet.GetZmpByGUID(VGUID);
+    if not VZmp.Abilities.IsLayer then begin
+      Inc(VMapOnlyCount);
+    end;
+    Inc(VMapTypeCount);
+  end;
+
+  if VMapTypeCount = 0 then begin
+    raise EMapTypesNoMaps.Create(SAS_ERR_NoMaps);
+  end;
+  if VMapOnlyCount = 0 then begin
+    raise Exception.Create(SAS_ERR_MainMapNotExists);
+  end;
+  VEnum.Reset;
+  VMapOnlyCount := 0;
+  VMapTypeCount := 0;
+  while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
     try
-      if FileExists(VFullFileName) then begin
-        VZmpMapConfig := TConfigDataProviderByKaZip.Create(VFullFileName);
-      end else begin
-        VZmpMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);
-      end;
-      try
-        VZmp := TZmpInfo.Create(
-          ALanguageManager,
-          ACoordConverterFactory,
-          VFileName,
-          VZmpMapConfig,
-          VMapTypeCount
-        );
-      except
-        on E: EZmpError do begin
-          raise Exception.CreateResFmt(@SAS_ERR_MapGUIDError, [VFileName, E.Message]);
-        end;
-      end;
-
-      VMapTypeLoaded := GetMapFromID(VZmp.GUID);
-      if VMapTypeLoaded <> nil then begin
-        raise Exception.CreateFmt(SAS_ERR_MapGUIDDuplicate, [VMapTypeLoaded.Zmp.FileName, VFullFileName]);
-      end;
-
+      VZmp := FZmpInfoSet.GetZmpByGUID(VGUID);
       VLocalMapConfig := ALocalMapsConfig.GetSubItem(GUIDToString(VZmp.GUID));
-      VMapConfig := TConfigDataProviderZmpComplex.Create(VZmpMapConfig, VLocalMapConfig);
       VMapType :=
         TMapType.Create(
           ALanguageManager,
@@ -268,7 +237,7 @@ begin
           AContentTypeManager,
           ACoordConverterFactory,
           ADownloadResultTextProvider,
-          VMapConfig
+          VLocalMapConfig
         );
     except
       if ExceptObject <> nil then begin
@@ -279,21 +248,38 @@ begin
     if VMapType <> nil then begin
       SetLength(FMapType, VMapTypeCount + 1);
       FMapType[VMapTypeCount] := VMapType;
-      if not VMapType.asLayer then begin
+      if not VMapType.Abilities.IsLayer then begin
         Inc(VMapOnlyCount);
       end;
       inc(VMapTypeCount);
     end;
   end;
 
-  if Length(FMapType) = 0 then begin
+  if VMapTypeCount = 0 then begin
     raise EMapTypesNoMaps.Create(SAS_ERR_NoMaps);
   end;
   if VMapOnlyCount = 0 then begin
     raise Exception.Create(SAS_ERR_MainMapNotExists);
   end;
-  SortList;
+
   BuildMapsLists;
+  FGUIConfigList :=
+    TMapTypeGUIConfigList.Create(
+      ALanguageManager,
+      FFullMapsSet
+    );
+
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  FGUIConfigList.LockWrite;
+  try
+    for i := 0 to VGUIDList.Count - 1 do begin
+      VGUID := VGUIDList.Items[i];
+      VMapType :=FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+      VMapType.GUIConfig.SortIndex := i + 1;
+    end;
+  finally
+    FGUIConfigList.UnlockWrite;
+  end;
 end;
 
 procedure TMapTypesMainList.SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
@@ -302,108 +288,16 @@ var
   VGUIDString: string;
   VMapType: TMapType;
   VSubItem: IConfigDataWriteProvider;
+  VGUID: TGUID;
+  VGUIDList: IGUIDListStatic;
 begin
-  for i := 0 to length(FMapType) - 1 do begin
-    VMapType := FMapType[i];
-    VGUIDString := GUIDToString(VMapType.Zmp.GUID);
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType :=FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VGUIDString := GUIDToString(VGUID);
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
-    VSubItem.WriteInteger('pnum', VMapType.FSortIndex);
-    VSubItem.WriteString('name', VMapType.Name);
-
-    if VMapType.TileRequestBuilderConfig.URLBase <> VMapType.Zmp.TileRequestBuilderConfig.UrlBase then begin
-      VSubItem.WriteString('URLBase', VMapType.TileRequestBuilderConfig.URLBase);
-    end else begin
-      VSubItem.DeleteValue('URLBase');
-    end;
-
-    if VMapType.TileRequestBuilderConfig.RequestHeader <> VMapType.Zmp.TileRequestBuilderConfig.RequestHeader then begin
-      VSubItem.WriteString(
-        'RequestHead',
-        StringReplace(
-          VMapType.TileRequestBuilderConfig.RequestHeader,
-          #13#10,
-          '\r\n',
-          [rfIgnoreCase, rfReplaceAll]
-        )
-      );
-    end else begin
-      VSubItem.DeleteValue('RequestHead');
-    end;
-
-    if VMapType.HotKey <> VMapType.Zmp.HotKey then begin
-      VSubItem.WriteInteger('HotKey', VMapType.HotKey);
-    end else begin
-      VSubItem.DeleteValue('HotKey');
-    end;
-
-    if VMapType.TileStorage.CacheConfig.cachetype <> VMapType.TileStorage.CacheConfig.defcachetype then begin
-      VSubItem.WriteInteger('CacheType', VMapType.TileStorage.CacheConfig.CacheType);
-    end else begin
-      VSubItem.DeleteValue('CacheType');
-    end;
-
-    if VMapType.separator <> VMapType.Zmp.Separator then begin
-      VSubItem.WriteBool('separator', VMapType.separator);
-    end else begin
-      VSubItem.DeleteValue('separator');
-    end;
-
-    if VMapType.TileStorage.CacheConfig.NameInCache <> VMapType.TileStorage.CacheConfig.DefNameInCache then begin
-      VSubItem.WriteString('NameInCache', VMapType.TileStorage.CacheConfig.NameInCache);
-    end else begin
-      VSubItem.DeleteValue('NameInCache');
-    end;
-
-    if VMapType.TileDownloaderConfig.WaitInterval <> VMapType.Zmp.TileDownloaderConfig.WaitInterval then begin
-      VSubItem.WriteInteger('Sleep', VMapType.TileDownloaderConfig.WaitInterval);
-    end else begin
-      VSubItem.DeleteValue('Sleep');
-    end;
-
-    if VMapType.ParentSubMenu <> VMapType.Zmp.ParentSubMenu then begin
-      VSubItem.WriteString('ParentSubMenu', VMapType.ParentSubMenu);
-    end else begin
-      VSubItem.DeleteValue('ParentSubMenu');
-    end;
-
-    if VMapType.Enabled <> VMapType.Zmp.Enabled then begin
-      VSubItem.WriteBool('Enabled', VMapType.Enabled);
-    end else begin
-      VSubItem.DeleteValue('Enabled');
-    end;
-
-    if VMapType.VersionConfig.Version <> VMapType.Zmp.VersionConfig.Version then begin
-      VSubItem.WriteString('Version', VMapType.VersionConfig.Version);
-    end else begin
-      VSubItem.DeleteValue('Version');
-    end;
-  end;
-end;
-
-procedure TMapTypesMainList.SortList;
-var
-  i, j, k: integer;
-  MTb: TMapType;
-begin
-  k := length(FMapType) shr 1;
-  while k > 0 do begin
-    for i := 0 to length(FMapType) - k - 1 do begin
-      j := i;
-      while (j >= 0) and (FMapType[j].FSortIndex > FMapType[j + k].FSortIndex) do begin
-        MTb := FMapType[j];
-        FMapType[j] := FMapType[j + k];
-        FMapType[j + k] := MTb;
-        if j > k then begin
-          Dec(j, k);
-        end else begin
-          j := 0;
-        end;
-      end;
-    end;
-    k := k shr 1;
-  end;
-  for i := 0 to length(FMapType) - 1 do begin
-    FMapType[i].FSortIndex := i + 1;
+    VMapType.SaveConfig(VSubItem);
   end;
 end;
 

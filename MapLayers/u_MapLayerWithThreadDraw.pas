@@ -8,8 +8,8 @@ uses
   GR32,
   GR32_Image,
   i_JclNotify,
-  t_CommonTypes,
   i_BackgroundTask,
+  i_OperationNotifier,
   i_ImageResamplerConfig,
   i_LayerBitmapClearStrategy,
   i_LocalCoordConverter,
@@ -24,10 +24,16 @@ type
     FDrawTask: IBackgroundTask;
     FUpdateCounter: Integer;
     FBgDrawCounter: IInternalPerformanceCounter;
-    procedure OnDrawBitmap(AIsStop: TIsCancelChecker);
+    procedure OnDrawBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    );
     procedure OnTimer(Sender: TObject);
   protected
-    procedure DrawBitmap(AIsStop: TIsCancelChecker); virtual; abstract;
+    procedure DrawBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    ); virtual; abstract;
     procedure SetBitmapChanged;
     property DrawTask: IBackgroundTask read FDrawTask;
   protected
@@ -113,13 +119,16 @@ begin
   end;
 end;
 
-procedure TMapLayerWithThreadDraw.OnDrawBitmap(AIsStop: TIsCancelChecker);
+procedure TMapLayerWithThreadDraw.OnDrawBitmap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
 var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   VCounterContext := FBgDrawCounter.StartOperation;
   try
-    DrawBitmap(AIsStop);
+    DrawBitmap(AOperationID, ACancelNotifier);
   finally
     FBgDrawCounter.FinishOperation(VCounterContext);
   end;

@@ -1,69 +1,58 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_GotoLayerConfig;
 
 interface
 uses
-  GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ContentTypeManager,
   i_GotoLayerConfig,
   u_ConfigDataElementBase;
 
 type
   TGotoLayerConfig = class(TConfigDataElementBase, IGotoLayerConfig)
   private
-    FContentTypeManager: IContentTypeManager;
-
-    FMarkerFileName: string;
-    FMarker: TCustomBitmap32;
-    FMarkerFixedPoint: TPoint;
     FShowTickCount: Cardinal;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetMarker: TCustomBitmap32;
-
-    function GetMarkerFileName: string;
-    procedure SetMarkerFileName(AValue: string);
-
-    function GetMarkerFixedPoint: TPoint;
-    procedure SetMarkerFixedPoint(AValue: TPoint);
-
     function GetShowTickCount: Cardinal;
     procedure SetShowTickCount(AValue: Cardinal);
   public
-    constructor Create(
-      AContentTypeManager: IContentTypeManager
-    );
-    destructor Destroy; override;
+    constructor Create;
   end;
 
 implementation
 
 uses
   Types,
-  SysUtils,
-  u_ConfigProviderHelpers;
+  SysUtils;
 
 { TGotoLayerConfig }
 
-constructor TGotoLayerConfig.Create(
-  AContentTypeManager: IContentTypeManager
-);
+constructor TGotoLayerConfig.Create;
 begin
-  inherited Create;
-  FContentTypeManager := AContentTypeManager;
-  FShowTickCount := 20000;
-  FMarker := TCustomBitmap32.Create;
-  FMarkerFileName := 'sas:\Resource\ICONIII.png';
-  FMarkerFixedPoint := Point(7, 6);
-end;
-
-destructor TGotoLayerConfig.Destroy;
-begin
-  FreeAndNil(FMarker);
   inherited;
+  FShowTickCount := 20000;
 end;
 
 procedure TGotoLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -71,9 +60,6 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FShowTickCount := AConfigData.ReadInteger('ShowTickCount', FShowTickCount);
-    FMarkerFileName  := AConfigData.ReadString('MarkerFile', FMarkerFileName);
-
-    ReadBitmapByFileRef(AConfigData, FMarkerFileName, FContentTypeManager, FMarker);
     SetChanged;
   end;
 end;
@@ -84,37 +70,6 @@ begin
   AConfigData.WriteInteger('ShowTickCount', FShowTickCount);
 end;
 
-function TGotoLayerConfig.GetMarker: TCustomBitmap32;
-begin
-  LockRead;
-  try
-    Result := TCustomBitmap32.Create;
-    Result.Assign(FMarker);
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TGotoLayerConfig.GetMarkerFileName: string;
-begin
-  LockRead;
-  try
-    Result := FMarkerFileName;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TGotoLayerConfig.GetMarkerFixedPoint: TPoint;
-begin
-  LockRead;
-  try
-    Result := FMarkerFixedPoint;
-  finally
-    UnlockRead;
-  end;
-end;
-
 function TGotoLayerConfig.GetShowTickCount: Cardinal;
 begin
   LockRead;
@@ -122,32 +77,6 @@ begin
     Result := FShowTickCount;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TGotoLayerConfig.SetMarkerFileName(AValue: string);
-begin
-  LockWrite;
-  try
-    if FMarkerFileName <> AValue then begin
-      FMarkerFileName := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TGotoLayerConfig.SetMarkerFixedPoint(AValue: TPoint);
-begin
-  LockWrite;
-  try
-    if (FMarkerFixedPoint.X <> AValue.X) or (FMarkerFixedPoint.Y <> AValue.Y) then begin
-      FMarkerFixedPoint := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
   end;
 end;
 

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MapLayerGPSMarkerConfig;
 
 interface
@@ -8,53 +28,36 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapLayerGPSMarkerConfig,
-  u_ConfigDataElementBase;
+  i_BitmapMarkerProviderSimpleConfig,
+  u_ConfigDataElementComplexBase;
 
 type
-  TMapLayerGPSMarkerConfig = class(TConfigDataElementBase, IMapLayerGPSMarkerConfig)
+  TMapLayerGPSMarkerConfig = class(TConfigDataElementComplexBase, IMapLayerGPSMarkerConfig)
   private
     FMinMoveSpeed: Double;
-    FMarkerMovedSize: Integer;
-    FMarkerMovedColor: TColor32;
-    FMarkerStopedSize: Integer;
-    FMarkerStopedColor: TColor32;
-    FMarkerMoved: TCustomBitmap32;
-    FMarkerStoped: TCustomBitmap32;
-    procedure PrepareMarker;
+    FMovedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    FStopedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
-    procedure SetChanged; override;
   protected
     function GetMinMoveSpeed: Double;
     procedure SetMinMoveSpeed(AValue: Double);
 
-    function GetMarkerMovedSize: Integer;
-    procedure SetMarkerMovedSize(AValue: Integer);
-
-    function GetMarkerMovedColor: TColor32;
-    procedure SetMarkerMovedColor(AValue: TColor32);
-
-    function GetMarkerStopedSize: Integer;
-    procedure SetMarkerStopedSize(AValue: Integer);
-
-    function GetMarkerStopedColor: TColor32;
-    procedure SetMarkerStopedColor(AValue: TColor32);
-
-    function GetMarkerMoved: TCustomBitmap32;
-    function GetMarkerStoped: TCustomBitmap32;
+    function GetMovedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    function GetStopedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
   SysUtils,
-  GR32_Polygons,
-  t_GeoTypes,
-  u_ConfigProviderHelpers;
+  u_BitmapMarkerProviderSimpleConfig,
+  u_BitmapMarkerProviderSimpleConfigStatic,
+  u_ConfigSaveLoadStrategyBasicProviderSubItem;
 
 { TMapLayerGPSMarkerConfig }
 
@@ -63,27 +66,25 @@ begin
   inherited;
   FMinMoveSpeed := 1;
 
-  FMarkerMovedSize := 25;
-  FMarkerMovedColor := SetAlpha(clRed32, 150);
+  FMovedMarkerConfig :=
+    TBitmapMarkerProviderSimpleConfig.Create(
+      TBitmapMarkerProviderSimpleConfigStatic.Create(
+        25,
+        SetAlpha(clRed32, 150),
+        SetAlpha(clBlack32, 200)
+      )
+    );
+  Add(FMovedMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkerMoved'));
 
-  FMarkerStopedSize := FMarkerMovedSize div 3;
-  FMarkerStopedColor := SetAlpha(clRed32, 200);
-
-  FMarkerMoved := TCustomBitmap32.Create;
-  FMarkerMoved.DrawMode:=dmBlend;
-  FMarkerMoved.CombineMode:=cmMerge;
-
-  FMarkerStoped := TCustomBitmap32.Create;
-  FMarkerStoped.DrawMode:=dmBlend;
-  FMarkerStoped.CombineMode:=cmMerge;
-end;
-
-destructor TMapLayerGPSMarkerConfig.Destroy;
-begin
-  FreeAndNil(FMarkerMoved);
-  FreeAndNil(FMarkerStoped);
-
-  inherited;
+  FStopedMarkerConfig :=
+    TBitmapMarkerProviderSimpleConfig.Create(
+      TBitmapMarkerProviderSimpleConfigStatic.Create(
+        10,
+        SetAlpha(clRed32, 200),
+        SetAlpha(clBlack32, 200)
+      )
+    );
+  Add(FStopedMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkerStoped'));
 end;
 
 procedure TMapLayerGPSMarkerConfig.DoReadConfig(
@@ -92,10 +93,6 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FMinMoveSpeed := AConfigData.ReadFloat('MinSpeed', FMinMoveSpeed);
-    FMarkerMovedSize := AConfigData.ReadInteger('MarkerMovedSize', FMarkerMovedSize);
-    FMarkerMovedColor := ReadColor32(AConfigData, 'MarkerMovedColor', FMarkerMovedColor);
-    FMarkerStopedSize := AConfigData.ReadInteger('MarkerStopedSize', FMarkerStopedSize);
-    FMarkerStopedColor := ReadColor32(AConfigData, 'MarkerStopedColor', FMarkerStopedColor);
     SetChanged;
   end;
 end;
@@ -105,70 +102,6 @@ procedure TMapLayerGPSMarkerConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteFloat('MinSpeed', FMinMoveSpeed);
-  AConfigData.WriteInteger('MarkerMovedSize', FMarkerMovedSize);
-  WriteColor32(AConfigData, 'MarkerMovedColor', FMarkerMovedColor);
-  AConfigData.WriteInteger('MarkerStopedSize', FMarkerStopedSize);
-  WriteColor32(AConfigData, 'MarkerStopedColor', FMarkerStopedColor);
-end;
-
-function TMapLayerGPSMarkerConfig.GetMarkerMoved: TCustomBitmap32;
-begin
-  LockRead;
-  try
-    Result := FMarkerMoved;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMapLayerGPSMarkerConfig.GetMarkerMovedColor: TColor32;
-begin
-  LockRead;
-  try
-    Result := FMarkerMovedColor;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMapLayerGPSMarkerConfig.GetMarkerMovedSize: Integer;
-begin
-  LockRead;
-  try
-    Result := FMarkerMovedSize;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMapLayerGPSMarkerConfig.GetMarkerStoped: TCustomBitmap32;
-begin
-  LockRead;
-  try
-    Result := FMarkerStoped;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMapLayerGPSMarkerConfig.GetMarkerStopedColor: TColor32;
-begin
-  LockRead;
-  try
-    Result := FMarkerStopedColor;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMapLayerGPSMarkerConfig.GetMarkerStopedSize: Integer;
-begin
-  LockRead;
-  try
-    Result := FMarkerStopedSize;
-  finally
-    UnlockRead;
-  end;
 end;
 
 function TMapLayerGPSMarkerConfig.GetMinMoveSpeed: Double;
@@ -181,106 +114,14 @@ begin
   end;
 end;
 
-procedure TMapLayerGPSMarkerConfig.PrepareMarker;
-var
-  VSize: TPoint;
-  VPolygon: TPolygon32;
-  VPointHalfSize: Double;
-  VMarkRect: TRect;
-  VCenterPoint: TDoublePoint;
+function TMapLayerGPSMarkerConfig.GetMovedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
 begin
-  VSize := Point(FMarkerMovedSize, FMarkerMovedSize);
-
-  VCenterPoint.X := VSize.X / 2;
-  VCenterPoint.Y := VSize.Y / 2;
-
-  FMarkerMoved.SetSize(VSize.Y, VSize.Y);
-  FMarkerMoved.Clear(0);
-  VPolygon := TPolygon32.Create;
-  try
-    VPolygon.Antialiased := true;
-    VPolygon.AntialiasMode := am32times;
-    VPolygon.Add(FixedPoint(VCenterPoint.X, 0));
-    VPolygon.Add(FixedPoint(VCenterPoint.X - FMarkerMovedSize / 3, VSize.Y));
-    VPolygon.Add(FixedPoint(VCenterPoint.X + FMarkerMovedSize / 3, VSize.Y));
-    VPolygon.DrawFill(FMarkerMoved, FMarkerMovedColor);
-  finally
-    FreeAndNil(VPolygon);
-  end;
-
-  VPointHalfSize := FMarkerStopedSize / 2;
-  FMarkerStoped.SetSize(VSize.Y, VSize.Y);
-  FMarkerStoped.Clear(0);
-  VMarkRect := Bounds(
-    Trunc(VCenterPoint.X - VPointHalfSize),
-    Trunc(VCenterPoint.y - VPointHalfSize),
-    FMarkerStopedSize,
-    FMarkerStopedSize
-  );
-  FMarkerStoped.FillRectS(VMarkRect, FMarkerStopedColor);
+  Result := FMovedMarkerConfig;
 end;
 
-procedure TMapLayerGPSMarkerConfig.SetChanged;
+function TMapLayerGPSMarkerConfig.GetStopedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
 begin
-  inherited;
-  LockWrite;
-  try
-    PrepareMarker;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMapLayerGPSMarkerConfig.SetMarkerMovedColor(AValue: TColor32);
-begin
-  LockWrite;
-  try
-    if FMarkerMovedColor <> AValue then begin
-      FMarkerMovedColor := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMapLayerGPSMarkerConfig.SetMarkerMovedSize(AValue: Integer);
-begin
-  LockWrite;
-  try
-    if FMarkerMovedSize <> AValue then begin
-      FMarkerMovedSize := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMapLayerGPSMarkerConfig.SetMarkerStopedColor(AValue: TColor32);
-begin
-  LockWrite;
-  try
-    if FMarkerStopedColor <> AValue then begin
-      FMarkerStopedColor := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMapLayerGPSMarkerConfig.SetMarkerStopedSize(AValue: Integer);
-begin
-  LockWrite;
-  try
-    if FMarkerStopedSize <> AValue then begin
-      FMarkerStopedSize := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
+  Result := FStopedMarkerConfig;
 end;
 
 procedure TMapLayerGPSMarkerConfig.SetMinMoveSpeed(AValue: Double);

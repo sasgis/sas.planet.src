@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit i_MainFormConfig;
 
 interface
@@ -26,11 +46,13 @@ uses
   i_CalcLineLayerConfig,
   i_SelectionRectLayerConfig,
   i_SelectionPolygonLayerConfig,
+  i_SelectionPolylineLayerConfig,
   i_MarkPolygonLayerConfig,
   i_MarkPolyLineLayerConfig,
   i_FillingMapLayerConfig,
   i_DownloadUIConfig,
   i_GotoLayerConfig,
+  I_LastSearchResultConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -107,6 +129,9 @@ type
     function GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
     property SelectionPolygonLayerConfig: ISelectionPolygonLayerConfig read GetSelectionPolygonLayerConfig;
 
+    function GetSelectionPolylineLayerConfig: ISelectionPolylineLayerConfig;
+    property SelectionPolylineLayerConfig: ISelectionPolylineLayerConfig read GetSelectionPolylineLayerConfig;
+
     function GetMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     property MarkPolygonLayerConfig: IMarkPolygonLayerConfig read GetMarkPolygonLayerConfig;
 
@@ -157,6 +182,9 @@ type
 
     function GetMapMovingConfig: IMapMovingConfig;
     property MapMovingConfig: IMapMovingConfig read GetMapMovingConfig;
+
+    function GetLastSearchResultConfig: ILastSearchResultConfig;
+    property LastSearchResultConfig: ILastSearchResultConfig read GetLastSearchResultConfig;
  end;
 
 implementation

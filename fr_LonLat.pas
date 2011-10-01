@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit fr_LonLat;
 
 interface
@@ -22,6 +42,8 @@ uses
   i_ViewPortState;
 
 type
+  TTileSelectStyle = (tssCenter, tssTopLeft, tssBottomRight);
+
   TfrLonLat = class(TFrame)
     pnlTop: TPanel;
     cbbCoordType: TComboBox;
@@ -44,6 +66,7 @@ type
     FCoordinates: TDoublePoint;
     FViewPortState: IViewPortState;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
     function Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
@@ -51,7 +74,8 @@ type
     constructor Create(
       AOwner: TComponent;
       AViewPortState: IViewPortState;
-      AValueToStringConverterConfig: IValueToStringConverterConfig
+      AValueToStringConverterConfig: IValueToStringConverterConfig;
+      ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
   end;
@@ -83,11 +107,12 @@ begin
 end;
 
 constructor TfrLonLat.Create(AOwner: TComponent; AViewPortState: IViewPortState;
-  AValueToStringConverterConfig: IValueToStringConverterConfig);
+  AValueToStringConverterConfig: IValueToStringConverterConfig; ATileSelectStyle: TTileSelectStyle);
 begin
   inherited Create(AOwner);
   FViewPortState := AViewPortState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FTileSelectStyle:=ATileSelectStyle;
 end;
 
 function TfrLonLat.Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
@@ -185,8 +210,11 @@ begin
         end;
         VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
         XYRect:=VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,cbbZoom.ItemIndex);
-        XYPoint:=Point(XYRect.Right-(XYRect.Right-XYRect.Left)div 2,
-                       XYRect.Bottom-(XYRect.Bottom-XYRect.top)div 2);
+        case FTileSelectStyle of
+          tssCenter: XYPoint:=Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
+          tssTopLeft: XYPoint:=XYRect.TopLeft;
+          tssBottomRight: XYPoint:=XYRect.BottomRight;
+        end;
         Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,cbbZoom.ItemIndex);
       end;
   end;
@@ -200,7 +228,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   FCoordinates:=Value;
-  VValueConverter := FValueToStringConverterConfig.GetStaticConverter;
+  VValueConverter := FValueToStringConverterConfig.GetStatic;
   CurrZoom:=FViewPortState.GetCurrentZoom;
   cbbZoom.ItemIndex:=CurrZoom;
   if cbbCoordType.ItemIndex=-1 then begin

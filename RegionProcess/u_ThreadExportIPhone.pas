@@ -10,6 +10,7 @@ uses
   DISQLite3Database,
   DISQLite3Api,
   GR32,
+  i_CoordConverterFactory,
   i_CoordConverter,
   u_MapType,
   u_GeoFun,
@@ -27,6 +28,7 @@ type
     FExportPath: string;
     FSQLite3Db: TDISQLite3Database;
     csat, cmap, chib: byte;
+    FCoordConverterFactory: ICoordConverterFactory;
 
     procedure WritePListFile(AGeoConvert: ICoordConverter);
     function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom, Ax, Ay, Aflags: integer): Int64;
@@ -34,6 +36,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
+      ACoordConverterFactory: ICoordConverterFactory;
       APath: string;
       APolygon: TArrayOfDoublePoint;
       Azoomarr: array of boolean;
@@ -56,10 +59,10 @@ uses
   i_TileIterator,
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
-  u_BitmapTileVampyreSaver,
-  u_GlobalState;
+  u_BitmapTileVampyreSaver;
 
 constructor TThreadExportIPhone.Create(
+  ACoordConverterFactory: ICoordConverterFactory;
   APath: string;
   APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean;
@@ -72,6 +75,7 @@ var
   i: integer;
 begin
   inherited Create(APolygon, Azoomarr);
+  FCoordConverterFactory := ACoordConverterFactory;
   cSat := Acsat;
   cMap := Acmap;
   cHib := Achib;
@@ -164,7 +168,7 @@ begin
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
     exit;
   end;
-  VGeoConvert := GState.CoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
+  VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 
   WritePListFile(VGeoConvert);
 
@@ -244,7 +248,7 @@ begin
           VZoom := FZooms[i];
           VTileIterator := VTileIterators[i];
           while VTileIterator.Next(VTile) do begin
-            if IsCancel then begin
+            if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
             for j := 0 to Length(FMapTypeArr) - 1 do begin

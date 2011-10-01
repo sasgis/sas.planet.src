@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MainFormLayersConfig;
 
 interface
@@ -18,6 +38,7 @@ uses
   i_CalcLineLayerConfig,
   i_SelectionRectLayerConfig,
   i_SelectionPolygonLayerConfig,
+  i_SelectionPolylineLayerConfig,
   i_MarkPolygonLayerConfig,
   i_MarkPolyLineLayerConfig,
   i_FillingMapLayerConfig,
@@ -43,6 +64,7 @@ type
     FCalcLineLayerConfig: ICalcLineLayerConfig;
     FSelectionRectLayerConfig: ISelectionRectLayerConfig;
     FSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
+    FSelectionPolylineLayerConfig: ISelectionPolylineLayerConfig;
     FMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     FMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     FFillingMapLayerConfig: IFillingMapLayerConfig;
@@ -62,6 +84,7 @@ type
     function GetCalcLineLayerConfig: ICalcLineLayerConfig;
     function GetSelectionRectLayerConfig: ISelectionRectLayerConfig;
     function GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
+    function GetSelectionPolylineLayerConfig: ISelectionPolylineLayerConfig;
     function GetMarkPolygonLayerConfig: IMarkPolygonLayerConfig;
     function GetMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     function GetFillingMapLayerConfig: IFillingMapLayerConfig;
@@ -91,6 +114,7 @@ uses
   u_CalcLineLayerConfig,
   u_SelectionRectLayerConfig,
   u_SelectionPolygonLayerConfig,
+  u_SelectionPolyLineLayerConfig,
   u_MarkPolygonLayerConfig,
   u_MarkPolyLineLayerConfig,
   u_FillingMapLayerConfig,
@@ -133,13 +157,15 @@ begin
   Add(FSelectionRectLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SelectionRect'));
   FSelectionPolygonLayerConfig := TSelectionPolygonLayerConfig.Create;
   Add(FSelectionPolygonLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SelectionPolygon'));
+  FSelectionPolylineLayerConfig := TSelectionPolylineLayerConfig.Create;
+  Add(FSelectionPolylineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SelectionPolyline'));
   FMarkPolygonLayerConfig := TMarkPolygonLayerConfig.Create;
   Add(FMarkPolygonLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolygon'));
   FMarkPolyLineLayerConfig := TMarkPolyLineLayerConfig.Create;
   Add(FMarkPolyLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolyLine'));
   FFillingMapLayerConfig := TFillingMapLayerConfig.Create(AMapsConfig);
   Add(FFillingMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FillingLayer'));
-  FGotoLayerConfig := TGotoLayerConfig.Create(AContentTypeManager);
+  FGotoLayerConfig := TGotoLayerConfig.Create;
   Add(FGotoLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GotoMarker'));
 end;
 
@@ -221,6 +247,11 @@ end;
 function TMainFormLayersConfig.GetSelectionPolygonLayerConfig: ISelectionPolygonLayerConfig;
 begin
   Result := FSelectionPolygonLayerConfig;
+end;
+
+function TMainFormLayersConfig.GetSelectionPolylineLayerConfig: ISelectionPolylineLayerConfig;
+begin
+  Result := FSelectionPolylineLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetSelectionRectLayerConfig: ISelectionRectLayerConfig;

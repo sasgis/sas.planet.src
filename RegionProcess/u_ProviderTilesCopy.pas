@@ -4,8 +4,13 @@ interface
 
 uses
   Windows,
+  Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
+  i_TileFileNameGeneratorsList,
   u_ExportProviderAbstract,
   fr_TilesCopy;
 
@@ -13,7 +18,15 @@ type
   TProviderTilesCopy = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesCopy;
+    FTileNameGenerator: ITileFileNameGeneratorsList;
   public
+    constructor Create(
+      AParent: TWinControl;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      ATileNameGenerator: ITileFileNameGeneratorsList
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
@@ -28,12 +41,20 @@ implementation
 
 uses
   SysUtils,
-  u_GlobalState,
   u_ThreadExportToFileSystem,
   u_ResStrings,
   u_MapType;
 
 { TProviderTilesDelete }
+
+constructor TProviderTilesCopy.Create(AParent: TWinControl;
+  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  ATileNameGenerator: ITileFileNameGeneratorsList);
+begin
+  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FTileNameGenerator := ATileNameGenerator;
+end;
 
 destructor TProviderTilesCopy.Destroy;
 begin
@@ -49,7 +70,12 @@ end;
 procedure TProviderTilesCopy.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrTilesCopy.Create(nil);
+    FFrame := TfrTilesCopy.Create(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;
@@ -111,7 +137,7 @@ begin
     typemaparr,
     FFrame.chkDeleteSource.Checked,
     Replace,
-    GState.TileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1)
+    FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1)
   )
 end;
 

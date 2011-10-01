@@ -8,11 +8,13 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_GlobalViewMainConfig,
+  i_BitmapLayerProvider,
+  i_LocalCoordConverterFactorySimpe,
   u_MapType,
   u_GeoFun,
   u_BmpUtil,
   t_GeoTypes,
-  i_MarksSimple,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
   u_ThreadMapCombineBase,
@@ -39,6 +41,9 @@ type
     procedure saveRECT; override;
   public
     constructor Create(
+      AViewConfig: IGlobalViewMainConfig;
+      AMarksImageProvider: IBitmapLayerProvider;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
       APolygon: TArrayOfDoublePoint;
@@ -48,7 +53,6 @@ type
       AHtypemap: TMapType;
       AusedReColor: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic;
-      AMarksSubset: IMarksSubset;
       AQuality: Integer
     );
   end;
@@ -59,6 +63,9 @@ uses
   i_LocalCoordConverter;
 
 constructor TThreadMapCombineJPG.Create(
+  AViewConfig: IGlobalViewMainConfig;
+  AMarksImageProvider: IBitmapLayerProvider;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
   APolygon: TArrayOfDoublePoint;
@@ -67,12 +74,23 @@ constructor TThreadMapCombineJPG.Create(
   Atypemap, AHtypemap: TMapType;
   AusedReColor: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic;
-  AMarksSubset: IMarksSubset;
   AQuality: Integer
 );
 begin
-  inherited Create(AMapCalibrationList, AFileName, APolygon, ASplitCount,
-    Azoom, Atypemap, AHtypemap, AusedReColor, ARecolorConfig, AMarksSubset);
+  inherited Create(
+    AViewConfig,
+    AMarksImageProvider,
+    ALocalConverterFactory,
+    AMapCalibrationList,
+    AFileName,
+    APolygon,
+    ASplitCount,
+    Azoom,
+    Atypemap,
+    AHtypemap,
+    AusedReColor,
+    ARecolorConfig,
+  );
   FQuality := AQuality;
 end;
 
@@ -169,11 +187,11 @@ begin
         if VImage.Bits <> nil then begin
           for k := 0 to iHeight - 1 do begin
             ReadLineBMP(k, Pointer(integer(VImage.Bits) + ((iWidth * 3) * k)));
-            if IsCancel then begin
+            if CancelNotifier.IsOperationCanceled(OperationID) then begin
               break;
             end;
           end;
-          if not IsCancel then begin
+          if not CancelNotifier.IsOperationCanceled(OperationID) then begin
             SetLength(IArray, 1);
             IArray[0] := VImage;
             if not VFormat.SaveToFile(FCurrentFileName, IArray, True) then begin

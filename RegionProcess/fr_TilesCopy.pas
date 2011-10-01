@@ -15,6 +15,9 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_CommonFormAndFrameParents;
 
 type
@@ -40,9 +43,17 @@ type
     procedure chkAllZoomsClick(Sender: TObject);
     procedure chkAllMapsClick(Sender: TObject);
   private
+    FMainMapsConfig: IMainMapsConfig;
+    FFullMapsSet: IMapTypeSet;
+    FGUIConfigList: IMapTypeGUIConfigList;
   public
+    constructor Create(
+      AOwner : TComponent;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList
+    ); reintroduce;
     procedure Init;
-    constructor Create(AOwner: TComponent); override;
     procedure RefreshTranslation; override;
   end;
 
@@ -52,7 +63,7 @@ uses
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
-  u_GlobalState,
+  i_GUIDListStatic,
   u_MapType;
 
 {$R *.dfm}
@@ -84,9 +95,17 @@ begin
   end;
 end;
 
-constructor TfrTilesCopy.Create(AOwner: TComponent);
+constructor TfrTilesCopy.Create(
+  AOwner : TComponent;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList
+);
 begin
-  inherited;
+  inherited Create(AOwner);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
   cbbNamesType.ItemIndex := 1;
 end;
 
@@ -96,18 +115,22 @@ var
   VMapType: TMapType;
   VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   chklstZooms.Items.Clear;
   for i:=1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
 
-  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
   chklstMaps.Items.Clear;
-  For i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
-    if (VMapType.Enabled) then begin
-      VAddedIndex := chklstMaps.Items.AddObject(VMapType.name, VMapType);
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  For i := 0 to VGUIDList.Count-1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    if (VMapType.GUIConfig.Enabled) then begin
+      VAddedIndex := chklstMaps.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         chklstMaps.ItemIndex := VAddedIndex;
       end;

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_PathDetalizeProviderCloudMade;
 
 interface
@@ -258,17 +278,17 @@ end;
 
 function TPathDetalizeProviderCloudMadeFastestByCar.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Fastest) by cloudmade.com');
+  Result := _('By car (Fastest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByCar.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Fastest) by cloudmade.com');
+  Result := _('Detalize route by car (Fastest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Fastest)');
+  Result :=_('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Fastest)') + '|0010';
 end;
 
 { TPathDetalizeProviderCloudMadeFastestByFoot }
@@ -283,17 +303,17 @@ end;
 
 function TPathDetalizeProviderCloudMadeFastestByFoot.GetCaptionTranslated: string;
 begin
-  Result := _('On foot (Fastest) by cloudmade.com');
+  Result := _('By foot (Fastest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByFoot.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on foot (Fastest) by cloudmade.com');
+  Result := _('Detalize route by foot (Fastest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByFoot.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On foot (Fastest)');
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Foot (Fastest)') + '|0020';
 end;
 
 { TPathDetalizeProviderCloudMadeFastestByBicycle }
@@ -308,17 +328,17 @@ end;
 
 function TPathDetalizeProviderCloudMadeFastestByBicycle.GetCaptionTranslated: string;
 begin
-  Result := _('On bicycle (Fastest) by cloudmade.com');
+  Result := _('By bicycle (Fastest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByBicycle.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on bicycle (Fastest) by cloudmade.com');
+  Result := _('Detalize route by bicycle (Fastest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On bicycle (Fastest)');
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Bicycle (Fastest)') + '|0030';
 end;
 
 { TPathDetalizeProviderCloudMadeShortestByCar }
@@ -333,17 +353,17 @@ end;
 
 function TPathDetalizeProviderCloudMadeShortestByCar.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Shortest) by cloudmade.com');
+  Result := _('By car (Shortest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByCar.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Shortest) by cloudmade.com');
+  Result := _('Detalize route by car (Shortest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Shortest)');
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Shortest)') + '|0040';
 end;
 
 { TPathDetalizeProviderCloudMadeShortestByFoot }
@@ -358,17 +378,17 @@ end;
 
 function TPathDetalizeProviderCloudMadeShortestByFoot.GetCaptionTranslated: string;
 begin
-  Result := _('On foot (Shortest) by cloudmade.com');
+  Result := _('By foot (Shortest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByFoot.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on foot (Shortest) by cloudmade.com');
+  Result := _('Detalize route by foot (Shortest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByFoot.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On foot (Shortest)');
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Foot (Shortest)') + '|0050';
 end;
 
 { TPathDetalizeProviderCloudMadeShortestByBicycle }
@@ -383,17 +403,17 @@ end;
 
 function TPathDetalizeProviderCloudMadeShortestByBicycle.GetCaptionTranslated: string;
 begin
-  Result := _('On bicycle (Shortest) by cloudmade.com');
+  Result := _('By bicycle (Shortest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByBicycle.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on bicycle (Shortest) by cloudmade.com');
+  Result := _('Detalize route by bicycle (Shortest) with cloudmade.com');
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On bicycle (Shortest)');
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Bicycle (Shortest)') + '|0060';
 end;
 
 end.

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_ECWWrite;
 
 interface
@@ -7,34 +27,34 @@ uses
   Dialogs,
   ECWwriter,
   ECWreader,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_EcwDll,
+  i_OperationNotifier;
 
 type
   TlineRGB = array[0..0] of single;
   PlineRGB = ^TlineRGB;
 
   TEcwRead = function(Line:cardinal; var lineR,LineG,LineB:PLineRGB):boolean of object;
-  TEcwStatus = procedure(Line:cardinal) of object;
-  TEcwCancel = function(): Boolean of object;
 
 type
   TECWWrite = class
   private
-    FDllHandle: LongWord;
+    FEcwDll: IEcwDll;
     FEcwData: PNCSEcwCompressClient;
     FReadDelegate: TEcwRead;
-    FCancelDelegate: TEcwCancel;
-    FStatusDelegate: TEcwStatus;
+    FOperationID: Integer;
+    FCancelNotifier: IOperationNotifier;
   public
-    constructor Create(ALibPath: string);
+    constructor Create(AEcwDll: IEcwDll);
     function Encode(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       FileName:string;
       Width,Height:cardinal;
       CompressRatio:Single;
       Hint:CompressHint;
       AReadDelegate:TEcwRead;
-      ACancelDelegate:TEcwCancel;
-      AStatusDelegate:TEcwStatus;
       Datum,Projection:string;
       SizeUnits:TCellSizeUnits;
       CellIncrementX,CellIncrementY,OriginX,OriginY:double
@@ -43,17 +63,10 @@ type
 
 implementation
 
-constructor TECWWrite.Create(ALibPath: string);
-var _NCSEcwCompressAllocClient:NCSEcwCompressAllocClient;
+constructor TECWWrite.Create(AEcwDll: IEcwDll);
 begin
-  inherited create;
-  FDllHandle := LoadLibrary(PChar(ALibPath + 'NCSEcwC.dll'));
-  if FDllHandle = 0 then begin
-    ShowMessage('Ошибка при загрузке библиотеки NCSEcwC.dll');
-    Halt
-  end;
-  @_NCSEcwCompressAllocClient := GetProcAddress(FDllHandle, 'NCSEcwCompressAllocClient');
-  FEcwData := _NCSEcwCompressAllocClient;
+  FEcwDll := AEcwDll;
+  FEcwData := FEcwDll.CompressAllocClient;
 end;
 
 function ReadCallbackFunc(pClient:PNCSEcwCompressClient;nNextLine:cardinal;InputArray:Pointer):boolean; cdecl;
@@ -72,37 +85,28 @@ var
   VECWWrite: TECWWrite;
 begin
   VECWWrite := TECWWrite(pClient.pClientData);
-  result:= VECWWrite.FCancelDelegate;
+  result:= VECWWrite.FCancelNotifier.IsOperationCanceled(VECWWrite.FOperationID);
 end;
 
 function TECWWrite.Encode(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   FileName:string;
   Width,Height:cardinal;
   CompressRatio:Single;
   Hint:CompressHint;
   AReadDelegate:TEcwRead;
-  ACancelDelegate:TEcwCancel;
-  AStatusDelegate:TEcwStatus;
   Datum,Projection:string;
   SizeUnits: TCellSizeUnits;
   CellIncrementX,CellIncrementY,OriginX,OriginY:double
 ):integer;
 var
   i:integer;
-  _NCSEcwCompress:NCSEcwCompress;
-  _NCSEcwCompressOpen:NCSEcwCompressOpen;
-  _NCSEcwCompressClose:NCSEcwCompressClose;
-  _NCSEcwCompressFreeClient:NCSEcwCompressFreeClient;
   VNCSError:NCSError;
 begin
-  @_NCSEcwCompress := GetProcAddress(FDllHandle, 'NCSEcwCompress');
-  @_NCSEcwCompressOpen := GetProcAddress(FDllHandle, 'NCSEcwCompressOpen');
-  @_NCSEcwCompressClose := GetProcAddress(FDllHandle, 'NCSEcwCompressClose');
-  @_NCSEcwCompressFreeClient := GetProcAddress(FDllHandle, 'NCSEcwCompressFreeClient');
-
   FReadDelegate := AReadDelegate;
-  FStatusDelegate := AStatusDelegate;
-  FCancelDelegate := ACancelDelegate;
+  FOperationID := AOperationID;
+  FCancelNotifier := ACancelNotifier;
   FEcwData^.pClientData := Self;
   FEcwData^.nInputBands:=3;
   FEcwData^.nInOutSizeX:=Width;
@@ -129,16 +133,13 @@ begin
   FEcwData^.pReadCallback := ReadCallbackFunc;
   FEcwData^.pStatusCallback:=nil;
   FEcwData^.pCancelCallback:=cancel;
-  VNCSError:=_NCSEcwCompressOpen(FEcwData, false);
+  VNCSError:= FEcwDll.CompressOpen(FEcwData, false);
   if VNCSError = NCS_SUCCESS then begin
-    VNCSError:=_NCSEcwCompress(FEcwData);
-    _NCSEcwCompressClose(FEcwData);
+    VNCSError:=FEcwDll.Compress(FEcwData);
+    FEcwDll.CompressClose(FEcwData);
   end;
-  _NCSEcwCompressFreeClient(FEcwData);
+  FEcwDll.CompressFreeClient(FEcwData);
 
-	if(VNCSError = NCS_SUCCESS) then begin
-     FreeLibrary(FDllHandle);
-  end;
   result:=integer(VNCSError);
 end;
 

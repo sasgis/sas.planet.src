@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MainGeoCoderConfig;
 
 interface
@@ -6,18 +26,21 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_GeoCoderList,
+  i_StringHistory,
   i_MainGeoCoderConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementComplexBase;
 
 type
-  TMainGeoCoderConfig = class(TConfigDataElementBase, IMainGeoCoderConfig)
+  TMainGeoCoderConfig = class(TConfigDataElementComplexBase, IMainGeoCoderConfig)
   private
     FList: IGeoCoderList;
     FActiveGeoCoderGUID: TGUID;
+    FSearchHistory: IStringHistory;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
+    function GetSearchHistory: IStringHistory;
     function GetList: IGeoCoderList;
     function GetActiveGeoCoderGUID: TGUID;
     procedure SetActiveGeoCoderGUID(AValue: TGUID);
@@ -30,7 +53,9 @@ implementation
 
 uses
   SysUtils,
-  c_ZeroGUID;
+  c_ZeroGUID,
+  u_ConfigSaveLoadStrategyBasicProviderSubItem,
+  u_StringHistory;
 
 { TMainGeoCoderConfig }
 
@@ -43,6 +68,8 @@ begin
   if FList.GetGUIDEnum.Next(1, FActiveGeoCoderGUID, i) <> S_OK then begin
     raise Exception.Create('В списке геокодеров пусто');
   end;
+  FSearchHistory := TStringHistory.Create;
+  Add(FSearchHistory, TConfigSaveLoadStrategyBasicProviderSubItem.Create('History'));
 end;
 
 procedure TMainGeoCoderConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -95,6 +122,11 @@ end;
 function TMainGeoCoderConfig.GetList: IGeoCoderList;
 begin
   Result := FList;
+end;
+
+function TMainGeoCoderConfig.GetSearchHistory: IStringHistory;
+begin
+  Result := FSearchHistory;
 end;
 
 procedure TMainGeoCoderConfig.SetActiveGeoCoderGUID(AValue: TGUID);

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_TileDownloaderConfig;
 
 interface
@@ -12,6 +32,7 @@ uses
 type
   TTileDownloaderConfig = class(TConfigDataElementComplexBase, ITileDownloaderConfig)
   private
+    FDefConfig: ITileDownloaderConfigStatic;
     FIntetConfig: IInetConfig;
     FWaitInterval: Cardinal;
     FMaxConnectToServerCount: Cardinal;
@@ -22,7 +43,7 @@ type
     FStatic: ITileDownloaderConfigStatic;
     function CreateStatic: ITileDownloaderConfigStatic;
   protected
-    procedure SetChanged; override;
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -58,12 +79,13 @@ uses
 constructor TTileDownloaderConfig.Create(AIntetConfig: IInetConfig; ADefault: ITileDownloaderConfigStatic);
 begin
   inherited Create;
+  FDefConfig := ADefault;
   FIntetConfig := AIntetConfig;
-  FWaitInterval := ADefault.WaitInterval;
-  FMaxConnectToServerCount := ADefault.MaxConnectToServerCount;
-  FIgnoreMIMEType := ADefault.IgnoreMIMEType;
-  FDefaultMIMEType := ADefault.DefaultMIMEType;
-  FExpectedMIMETypes := ADefault.ExpectedMIMETypes;
+  FWaitInterval := FDefConfig.WaitInterval;
+  FMaxConnectToServerCount := FDefConfig.MaxConnectToServerCount;
+  FIgnoreMIMEType := FDefConfig.IgnoreMIMEType;
+  FDefaultMIMEType := FDefConfig.DefaultMIMEType;
+  FExpectedMIMETypes := FDefConfig.ExpectedMIMETypes;
 
   Add(FIntetConfig, nil, False, False, False, True);
 end;
@@ -86,6 +108,17 @@ begin
   end;
 end;
 
+procedure TTileDownloaderConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TTileDownloaderConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
@@ -103,6 +136,17 @@ procedure TTileDownloaderConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
+  if FWaitInterval <> FDefConfig.WaitInterval then begin
+    AConfigData.WriteInteger('Sleep', FWaitInterval);
+  end else begin
+    AConfigData.DeleteValue('Sleep');
+  end;
+
+  if FMaxConnectToServerCount <> FDefConfig.MaxConnectToServerCount then begin
+    AConfigData.WriteInteger('MaxConnectToServerCount', FMaxConnectToServerCount);
+  end else begin
+    AConfigData.DeleteValue('MaxConnectToServerCount');
+  end;
 end;
 
 function TTileDownloaderConfig.GetDefaultMIMEType: string;
@@ -162,17 +206,6 @@ begin
     Result := FWaitInterval;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TTileDownloaderConfig.SetChanged;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
   end;
 end;
 

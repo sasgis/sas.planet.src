@@ -1,10 +1,30 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_PathDetalizeProviderYourNavigation;
 
 interface
 
 uses
   t_GeoTypes,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   i_LanguageManager,
   i_ProxySettings,
   u_PathDetalizeProviderListEntity;
@@ -14,7 +34,7 @@ type
   private
     FBaseUrl: string;
     FProxyConfig: IProxyConfig;
-    FKmlLoader: IKmlInfoSimpleLoader;
+    FKmlLoader: IVectorDataLoader;
   protected { IPathDetalizeProvider }
     function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
   public
@@ -22,7 +42,7 @@ type
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader;
+      AKmlLoader: IVectorDataLoader;
       ABaseUrl: string
     );
   end;
@@ -37,7 +57,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader
+      AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -51,7 +71,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader
+      AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -65,7 +85,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader
+      AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -79,7 +99,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
-      AKmlLoader: IKmlInfoSimpleLoader
+      AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -99,7 +119,7 @@ constructor TPathDetalizeProviderYourNavigation.Create(
   AGUID: TGUID;
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader;
+  AKmlLoader: IVectorDataLoader;
   ABaseUrl: string
 );
 begin
@@ -161,7 +181,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationFastestByCar.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader
+  AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -175,17 +195,17 @@ end;
 
 function TPathDetalizeProviderYourNavigationFastestByCar.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Fastest) by yournavigation.org');
+  Result := _('By car (Fastest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationFastestByCar.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Fastest) by yournavigation.org');
+  Result := _('Detalize route by car (Fastest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationFastestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Fastest)');
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Car (Fastest)') + '|0010';
 end;
 
 { TPathDetalizeProviderYourNavigationShortestByCar }
@@ -193,7 +213,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationShortestByCar.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader
+  AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -207,17 +227,17 @@ end;
 
 function TPathDetalizeProviderYourNavigationShortestByCar.GetCaptionTranslated: string;
 begin
-  Result := _('On car (Shortest) by yournavigation.org');
+  Result := _('By car (Shortest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationShortestByCar.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on car (Shortest) by yournavigation.org');
+  Result := _('Detalize route by car (Shortest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationShortestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On car (Shortest)');
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Car (Shortest)') + '|0020';
 end;
 
 { TPathDetalizeProviderYourNavigationFastestByBicycle }
@@ -225,7 +245,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationFastestByBicycle.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader
+  AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -239,17 +259,17 @@ end;
 
 function TPathDetalizeProviderYourNavigationFastestByBicycle.GetCaptionTranslated: string;
 begin
-  Result := _('On bicycle (Fastest) by yournavigation.org');
+  Result := _('By bicycle (Fastest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationFastestByBicycle.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on bicycle (Fastest) by yournavigation.org');
+  Result := _('Detalize route by bicycle (Fastest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationFastestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On bicycle (Fastest)');
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Bicycle (Fastest)') + '|0030';
 end;
 
 { TPathDetalizeProviderYourNavigationShortestByBicycle }
@@ -257,7 +277,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationShortestByBicycle.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
-  AKmlLoader: IKmlInfoSimpleLoader
+  AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -271,17 +291,17 @@ end;
 
 function TPathDetalizeProviderYourNavigationShortestByBicycle.GetCaptionTranslated: string;
 begin
-  Result := _('On bicycle (Shortest) by yournavigation.org');
+  Result := _('By bicycle (Shortest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationShortestByBicycle.GetDescriptionTranslated: string;
 begin
-  Result := _('Detalize route on bicycle (Shortest) by yournavigation.org');
+  Result := _('Detalize route by bicycle (Shortest) with yournavigation.org');
 end;
 
 function TPathDetalizeProviderYourNavigationShortestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('On bicycle (Shortest)');
+  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Bicycle (Shortest)') + '|0040';
 end;
 
 end.

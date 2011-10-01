@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MarkPolyTemplateConfig;
 
 interface
@@ -7,6 +27,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_LanguageManager,
   i_MarkTemplate,
   i_MarkCategory,
   i_MarksFactoryConfig,
@@ -22,7 +43,7 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer
@@ -32,6 +53,7 @@ type
     procedure SetDefaultTemplate(AValue: IMarkTemplatePoly);
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       ACategoryDb: IMarkCategoryDBSmlInternal
     );
   end;
@@ -41,6 +63,7 @@ implementation
 uses
   SysUtils,
   i_MarksDbSmlInternal,
+  u_StringConfigDataElementWithDefByStringRec,
   u_ConfigProviderHelpers,
   u_ResStrings,
   u_MarkTemplates;
@@ -48,10 +71,20 @@ uses
 { TMarkPolyTemplateConfig }
 
 constructor TMarkPolyTemplateConfig.Create(
+  ALanguageManager: ILanguageManager;
   ACategoryDb: IMarkCategoryDBSmlInternal
 );
 begin
-  inherited Create(ACategoryDb, SAS_STR_NewPoly);
+  inherited Create(
+    ACategoryDb,
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager,
+      @SAS_STR_NewPoly,
+      True,
+      'FormatString',
+      True
+    )
+  );
 
   FDefaultTemplate := CreateTemplate(
     nil,
@@ -62,7 +95,7 @@ begin
 end;
 
 function TMarkPolyTemplateConfig.CreateTemplate(
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   AColor1: TColor32;
   AColor2: TColor32;
   AScale1: Integer
@@ -91,8 +124,8 @@ procedure TMarkPolyTemplateConfig.DoReadConfig(
   AConfigData: IConfigDataProvider);
 var
   VCategoryId: Integer;
-  VColor1, VColor2: TColor32;
-  VScale1: Integer;
+  VBorderColor, VFillColor: TColor32;
+  VLineWidth: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
@@ -100,23 +133,23 @@ begin
   if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
-  VColor1 := FDefaultTemplate.Color1;
-  VColor2 := FDefaultTemplate.Color2;
-  VScale1 := FDefaultTemplate.Scale1;
+  VBorderColor := FDefaultTemplate.BorderColor;
+  VFillColor := FDefaultTemplate.FillColor;
+  VLineWidth := FDefaultTemplate.LineWidth;
   if AConfigData <> nil then begin
     VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
-    VColor1 := ReadColor32(AConfigData, 'LineColor', VColor1);
-    VColor2 := ReadColor32(AConfigData, 'FillColor', VColor2);
-    VScale1 := AConfigData.ReadInteger('LineWidth', VScale1);
+    VBorderColor := ReadColor32(AConfigData, 'LineColor', VBorderColor);
+    VFillColor := ReadColor32(AConfigData, 'FillColor', VFillColor);
+    VLineWidth := AConfigData.ReadInteger('LineWidth', VLineWidth);
   end;
   SetDefaultTemplate(
     TMarkTemplatePoly.Create(
       CategoryDb,
       NameGenerator,
       VCategoryId,
-      VColor1,
-      VColor2,
-      VScale1
+      VBorderColor,
+      VFillColor,
+      VLineWidth
     )
   );
 end;
@@ -133,9 +166,9 @@ begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
   AConfigData.WriteInteger('CategoryId', VCategoryId);
-  WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.Color1);
-  WriteColor32(AConfigData, 'FillColor', FDefaultTemplate.Color2);
-  AConfigData.WriteInteger('LineWidth', FDefaultTemplate.Scale1);
+  WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.BorderColor);
+  WriteColor32(AConfigData, 'FillColor', FDefaultTemplate.FillColor);
+  AConfigData.WriteInteger('LineWidth', FDefaultTemplate.LineWidth);
 end;
 
 function TMarkPolyTemplateConfig.GetDefaultTemplate: IMarkTemplatePoly;

@@ -1,6 +1,29 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_BmpUtil;
 
 interface
+
+uses
+  i_OperationNotifier;
 
 type
   TBGR= record
@@ -11,9 +34,14 @@ type
   TlineRGBb = array[0..0] of TBGR;
 
   TBMPRead = procedure(Line:cardinal;InputArray:PLineRGBb) of object;
-  TBmpCancel = function(): Boolean of object;
 
-  procedure SaveBMP(W, H : integer; tPath : string; readcallback:TBMPRead; ACancelDelegate: TBmpCancel);
+  procedure SaveBMP(
+    AOperationID: Integer;
+    ACancelNotifier: IOperationNotifier;
+    W, H : integer;
+    tPath : string;
+    readcallback:TBMPRead
+  );
 
 implementation
 
@@ -68,7 +96,13 @@ begin
    Result.f.Size:=Result.i.SizI + Result.f.OfBm;   // полный размер файла
 end;
 
-procedure SaveBMP(W, H : integer; tPath : string; readcallback:TBMPRead; ACancelDelegate: TBmpCancel);  // Запись на диск файла
+procedure SaveBMP(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  W, H : integer;
+  tPath : string;
+  readcallback:TBMPRead
+);  // Запись на диск файла
 Var f : file;
     nNextLine: integer;
     InputArray:PlineRGBb;
@@ -88,10 +122,8 @@ begin
    getmem(InputArray,W*3);
 
    for nNextLine:=0 to h-1 do begin
-     if Assigned(ACancelDelegate) then begin
-       if ACancelDelegate then begin
-         break;
-       end;
+     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+       break;
      end;
      BMPRead(nNextLine,InputArray);
      seek(f,(h-nNextLine-1)*(W*3+ (w mod 4) )+54);

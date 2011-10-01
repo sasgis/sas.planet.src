@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MapTypeMenuItemsGeneratorBasic;
 
 interface
@@ -8,17 +28,18 @@ uses
   TBX,
   i_MapTypes,
   i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   i_MapTypeIconsList,
   u_MapType;
 
 type
   TMapMenuGeneratorBasic = class
   private
+    FGUIConfigList: IMapTypeGUIConfigList;
     FIconsList: IMapTypeIconsList;
     FRootMenu: TTBCustomItem;
     FMapsSet: IActiveMapsSet;
     FOnClick: TNotifyEvent;
-    FShortCut: boolean;
     procedure ClearLists; virtual;
     procedure ProcessSubItemsCreate; virtual;
     procedure ProcessSubItemGUID(AGUID: TGUID); virtual;
@@ -27,11 +48,11 @@ type
     function CreateMenuItem(AMapActive: IActiveMapSingle): TTBXCustomItem; virtual;
   public
     constructor Create(
+      AGUIConfigList: IMapTypeGUIConfigList;
       AMapsSet: IActiveMapsSet;
       ARootMenu: TTBCustomItem;
       AOnClick: TNotifyEvent;
-      AIconsList: IMapTypeIconsList;
-      AShortCut: boolean
+      AIconsList: IMapTypeIconsList
     );
     procedure BuildControls;
   end;
@@ -41,26 +62,26 @@ implementation
 uses
   SysUtils,
   c_ZeroGUID,
+  i_GUIDListStatic,
   u_TBXSubmenuItemWithIndicator,
   u_ActiveMapTBXItem,
-  u_ResStrings,
-  u_GlobalState;
+  u_ResStrings;
 
 { TMapMenuGeneratorBasic }
 
 constructor TMapMenuGeneratorBasic.Create(
+  AGUIConfigList: IMapTypeGUIConfigList;
   AMapsSet: IActiveMapsSet;
   ARootMenu: TTBCustomItem;
   AOnClick: TNotifyEvent;
-  AIconsList: IMapTypeIconsList;
-  AShortCut: boolean
+  AIconsList: IMapTypeIconsList
 );
 begin
+  FGUIConfigList := AGUIConfigList;
   FMapsSet := AMapsSet;
   FRootMenu := ARootMenu;
   FIconsList := AIconsList;
   FOnClick := AOnClick;
-  FShortCut:=AShortCut;
 end;
 
 function TMapMenuGeneratorBasic.CreateMenuItem(
@@ -76,10 +97,7 @@ begin
   end;
   if VMapType <> nil then begin
     VGUID := VMapType.Zmp.GUID;
-    Result.Caption := VMapType.name;
-    if FShortCut then begin
-      Result.ShortCut:= VMapType.HotKey;
-    end;
+    Result.Caption := VMapType.GUIConfig.Name.Value;
   end else begin
     VGUID := CGUID_Zero;
     Result.Caption := SAS_STR_MiniMapAsMainMap;
@@ -143,25 +161,30 @@ var
   VMenuItem: TTBXCustomItem;
   VSubMenuName: string;
   VMapType: TMapType;
+  VEnabled: Boolean;
 begin
   VActiveMap := FMapsSet.GetMapSingle(AGUID);
   if VActiveMap <> nil then begin
     VSubMenuName := '';
+    VEnabled := True;
     if VActiveMap.GetMapType <> nil then begin
       if VActiveMap.GetMapType.MapType <> nil then begin
-        VSubMenuName := VActiveMap.GetMapType.MapType.ParentSubMenu;
+        VEnabled := VActiveMap.GetMapType.MapType.GUIConfig.Enabled;
+        VSubMenuName := VActiveMap.GetMapType.MapType.GUIConfig.ParentSubMenu.Value;
       end;
     end;
-    VSubMenu := GetParentMenuItem(VSubMenuName);
-    Assert(VSubMenu <> nil);
-    VMenuItem := CreateMenuItem(VActiveMap);
-    VSubMenu.Add(VMenuItem);
-    VMapType := nil;
-    if VActiveMap.GetMapType <> nil then begin
-      VMapType:=VActiveMap.GetMapType.MapType;
-    end;
-    if (VMapType<>nil)and(VActiveMap.GetMapType.MapType.separator) then begin
-      VSubMenu.Add(TTBSeparatorItem.Create(FRootMenu));
+    if VEnabled then begin
+      VSubMenu := GetParentMenuItem(VSubMenuName);
+      Assert(VSubMenu <> nil);
+      VMenuItem := CreateMenuItem(VActiveMap);
+      VSubMenu.Add(VMenuItem);
+      VMapType := nil;
+      if VActiveMap.GetMapType <> nil then begin
+        VMapType:=VActiveMap.GetMapType.MapType;
+      end;
+      if (VMapType<>nil)and(VActiveMap.GetMapType.MapType.GUIConfig.Separator) then begin
+        VSubMenu.Add(TTBSeparatorItem.Create(FRootMenu));
+      end;
     end;
   end;
 end;
@@ -169,12 +192,12 @@ end;
 procedure TMapMenuGeneratorBasic.ProcessSubItemsCreate;
 var
   i: Integer;
+  VStaticList: IGUIDListStatic;
 begin
   ProcessSubItemGUID(CGUID_Zero);
-  for i := 0 to GState.MapType.Count - 1 do begin
-    if GState.MapType[i].Enabled then begin
-      ProcessSubItemGUID(GState.MapType[i].Zmp.GUID);
-    end;
+  VStaticList := FGUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VStaticList.Count - 1 do begin
+    ProcessSubItemGUID(VStaticList.Items[i]);
   end;
 end;
 

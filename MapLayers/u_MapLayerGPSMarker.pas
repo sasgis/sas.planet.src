@@ -6,13 +6,13 @@ uses
   Windows,
   Types,
   GR32,
-  GR32_Transforms,
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
   i_LocalCoordConverter,
   i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
+  i_BitmapMarker,
   i_ViewPortState,
   u_MapLayerBasic;
 
@@ -22,13 +22,16 @@ type
   private
     FConfig: IMapLayerGPSMarkerConfig;
     FGPSRecorder: IGPSRecorder;
+    FMovedMarkerProvider: IBitmapMarkerProviderChangeable;
+    FMovedMarkerProviderStatic: IBitmapMarkerProvider;
+    FStopedMarkerProvider: IBitmapMarkerProviderChangeable;
+    FStopedMarkerProviderStatic: IBitmapMarkerProvider;
 
     FGpsPosChangeCounter: Integer;
-    FTransform: TAffineTransformation;
-    FMarker: TCustomBitmap32;
+    FStopedMarker: IBitmapMarker;
+    FMarker: IBitmapMarker;
 
     FFixedLonLat: TDoublePoint;
-    FFixedOnBitmap: TDoublePoint;
 
     procedure GPSReceiverReceive(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
@@ -44,16 +47,16 @@ type
       AViewPortState: IViewPortState;
       ATimerNoifier: IJclNotifier;
       AConfig: IMapLayerGPSMarkerConfig;
+      AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
+      AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
       AGPSRecorder: IGPSRecorder
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
   SysUtils,
-  GR32_Math,
   u_GeoFun,
   i_GPS,
   u_NotifyEventListener;
@@ -65,16 +68,17 @@ constructor TMapLayerGPSMarker.Create(
   AViewPortState: IViewPortState;
   ATimerNoifier: IJclNotifier;
   AConfig: IMapLayerGPSMarkerConfig;
+  AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
+  AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
   AGPSRecorder: IGPSRecorder
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
-  FMarker := TCustomBitmap32.Create;
-  FMarker.DrawMode := dmBlend;
-  FMarker.CombineMode := cmMerge;
-  FTransform := TAffineTransformation.Create;
+  FMovedMarkerProvider := AMovedMarkerProvider;
+  FStopedMarkerProvider := AStopedMarkerProvider;
+
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnTimer),
     ATimerNoifier
@@ -84,18 +88,19 @@ begin
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FMovedMarkerProvider.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FStopedMarkerProvider.GetChangeNotifier
+  );
+  LinksList.Add(
     TNotifyEventListener.Create(Self.GPSReceiverReceive),
     FGPSRecorder.GetChangeNotifier
   );
 
   FGpsPosChangeCounter := 0;
-end;
-
-destructor TMapLayerGPSMarker.Destroy;
-begin
-  FreeAndNil(FTransform);
-  FreeAndNil(FMarker);
-  inherited;
 end;
 
 procedure TMapLayerGPSMarker.GPSReceiverReceive(Sender: TObject);
@@ -105,6 +110,9 @@ end;
 
 procedure TMapLayerGPSMarker.OnConfigChange(Sender: TObject);
 begin
+  FMovedMarkerProviderStatic := FMovedMarkerProvider.GetStatic;
+  FStopedMarkerProviderStatic := FStopedMarkerProvider.GetStatic;
+  FStopedMarker := FStopedMarkerProviderStatic.GetMarker;
   GPSReceiverReceive(nil);
 end;
 
@@ -134,71 +142,29 @@ end;
 procedure TMapLayerGPSMarker.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   VTargetPoint: TDoublePoint;
+  VMarker: IBitmapMarker;
 begin
-  FMarker.Lock;
-  try
+  VMarker := FMarker;
+  if VMarker <> nil then begin
     VTargetPoint := ALocalConverter.LonLat2LocalPixelFloat(FFixedLonLat);
-    VTargetPoint.X := VTargetPoint.X - FFixedOnBitmap.X;
-    VTargetPoint.Y := VTargetPoint.Y - FFixedOnBitmap.Y;
+    VTargetPoint.X := VTargetPoint.X - VMarker.AnchorPoint.X;
+    VTargetPoint.Y := VTargetPoint.Y - VMarker.AnchorPoint.Y;
     if PixelPointInRect(VTargetPoint, DoubleRect(ALocalConverter.GetLocalRect)) then begin
-      ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), FMarker);
+      ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
     end;
-  finally
-    FMarker.Unlock;
   end;
 end;
 
 procedure TMapLayerGPSMarker.PrepareMarker(ASpeed, AAngle: Double);
 var
-  VSizeSource: TPoint;
-  VSizeSourceFloat: TFloatPoint;
-  VSizeTarget: TPoint;
-  VMarker: TCustomBitmap32;
-  VDiag: Integer;
-  VFixedOnBitmap: TFloatPoint;
+  VMarker: IBitmapMarker;
 begin
-  FConfig.LockRead;
-  try
-    if ASpeed > FConfig.MinMoveSpeed then begin
-      VMarker := FConfig.GetMarkerMoved;
-      VSizeSource := Point(VMarker.Width, VMarker.Height);
-      VSizeSourceFloat := FloatPoint(VSizeSource.X, VSizeSource.Y);
-      VDiag := Trunc(Hypot(VSizeSourceFloat.X, VSizeSourceFloat.Y));
-      VSizeTarget.X := VDiag;
-      VSizeTarget.Y := VDiag;
-      FMarker.Lock;
-      try
-        FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
-        FTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-        FTransform.Clear;
-        FTransform.Translate(-VSizeSource.X / 2, -VSizeSource.Y / 2);
-        FTransform.Rotate(0, 0, -AAngle);
-        FTransform.Translate(VSizeTarget.X / 2, VSizeTarget.Y / 2);
-        FMarker.Clear(0);
-        Transform(FMarker, VMarker, FTransform);
-        SinCos(-AAngle*Pi/180, VSizeSource.Y / 2, VFixedOnBitmap.X, VFixedOnBitmap.Y);
-        FFixedOnBitmap.X := VSizeTarget.X / 2 + VFixedOnBitmap.X;
-        FFixedOnBitmap.Y := VSizeTarget.Y / 2 + VFixedOnBitmap.Y;
-      finally
-        FMarker.Unlock;
-      end;
-    end else begin
-      VMarker := FConfig.GetMarkerStoped;
-      VSizeSource := Point(VMarker.Width, VMarker.Height);
-      VSizeTarget := VSizeSource;
-      FMarker.Lock;
-      try
-        FMarker.SetSize(VSizeTarget.X, VSizeTarget.Y);
-        FFixedOnBitmap.X := VSizeTarget.X / 2;
-        FFixedOnBitmap.Y := VSizeTarget.Y / 2;
-        VMarker.DrawTo(FMarker);
-      finally
-        FMarker.Unlock;
-      end;
-    end;
-  finally
-    FConfig.UnlockRead;
+  if ASpeed > FConfig.MinMoveSpeed then begin
+    VMarker := FMovedMarkerProviderStatic.GetMarkerWithRotation(AAngle);
+  end else begin
+    VMarker := FStopedMarker;
   end;
+  FMarker := VMarker;
 end;
 
 procedure TMapLayerGPSMarker.StartThreads;

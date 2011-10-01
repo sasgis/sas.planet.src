@@ -1,9 +1,30 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_DownloadCheckerStuped;
 
 interface
 
 uses
   Classes,
+  i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadChecker;
@@ -19,15 +40,16 @@ type
     FExistsFileSize: Integer;
   protected
     function BeforeRequest(
-      const AUrl:  string;
-      const ARequestHead: string
+      ARequest: IDownloadRequest
     ): IDownloadResult;
     function AfterResponse(
+      ARequest: IDownloadRequest;
       var AStatusCode: Cardinal;
       var AContentType: string;
       var AResponseHead: string
     ): IDownloadResult;
     function AfterReciveData(
+      ARequest: IDownloadRequest;
       const ARecivedSize: Integer;
       const ARecivedBuffer: Pointer;
       var AStatusCode: Cardinal;
@@ -69,12 +91,13 @@ begin
 end;
 
 function TDownloadCheckerStuped.BeforeRequest(
-  const AUrl, ARequestHead: string
+  ARequest: IDownloadRequest
 ): IDownloadResult;
 begin
 end;
 
 function TDownloadCheckerStuped.AfterResponse(
+  ARequest: IDownloadRequest;
   var AStatusCode: Cardinal;
   var AContentType: string;
   var AResponseHead: string
@@ -89,7 +112,7 @@ begin
     if (AContentType = '') then begin
       AContentType := FDefaultMIMEType;
     end else if (Pos(AContentType, FExpectedMIMETypes) <= 0) then begin
-      Result := FResultFactory.BuildBadContentType(AContentType, AResponseHead);
+      Result := FResultFactory.BuildBadContentType(ARequest, AContentType, AResponseHead);
       Exit;
     end;
   end;
@@ -98,7 +121,7 @@ begin
     if VContentLenAsStr <> '' then begin
       if TryStrToInt64(VContentLenAsStr, VContentLen) then begin
         if VContentLen = FExistsFileSize then begin
-          Result := FResultFactory.BuildNotNecessary('Одинаковый размер тайла', AResponseHead);
+          Result := FResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);
           Exit;
         end;
       end;
@@ -107,6 +130,7 @@ begin
 end;
 
 function TDownloadCheckerStuped.AfterReciveData(
+  ARequest: IDownloadRequest;
   const ARecivedSize: Integer;
   const ARecivedBuffer: Pointer;
   var AStatusCode: Cardinal;
@@ -115,7 +139,7 @@ function TDownloadCheckerStuped.AfterReciveData(
 begin
   if FCheckTileSize then begin
     if ARecivedSize = FExistsFileSize then begin
-      Result := FResultFactory.BuildNotNecessary('Одинаковый размер тайла', AResponseHead);
+      Result := FResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);
       Exit;
     end;
   end;

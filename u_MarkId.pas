@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MarkId;
 
 interface
@@ -13,17 +33,15 @@ type
     FDbCode: Integer;
     FName: string;
     FId: Integer;
-    FCategory: IMarkCategory;
+    FCategory: ICategory;
     FCategoryId: Integer;
     FVisible: Boolean;
-  protected
-    function IsNew: Boolean;
   protected
     function GetName: string;
   protected
     function GetDbCode: Integer;
     function GetId: Integer;
-    function GetCategory: IMarkCategory;
+    function GetCategory: ICategory;
     function GetCategoryId: Integer;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
@@ -33,7 +51,7 @@ type
       ADbCode: Integer;
       AName: string;
       AId: Integer;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       AVisible: Boolean
     );
   end;
@@ -49,7 +67,7 @@ constructor TMarkId.Create(
   ADbCode: Integer;
   AName: string;
   AId: Integer;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   AVisible: Boolean
 );
 var
@@ -68,7 +86,7 @@ begin
   FVisible := AVisible;
 end;
 
-function TMarkId.GetCategory: IMarkCategory;
+function TMarkId.GetCategory: ICategory;
 begin
   Result := FCategory;
 end;
@@ -96,11 +114,6 @@ end;
 function TMarkId.GetVisible: Boolean;
 begin
   Result := FVisible;
-end;
-
-function TMarkId.IsNew: Boolean;
-begin
-  Result := FId < 0;
 end;
 
 function TMarkId.IsSameId(AMarkId: IMarkID): Boolean;

@@ -82,7 +82,7 @@ object frmProgressDownload: TfrmProgressDownload
       ExplicitTop = 169
     end
     object LabelName0: TLabel
-      Left = 11
+      Left = 8
       Top = 92
       Width = 112
       Height = 13
@@ -91,10 +91,9 @@ object frmProgressDownload: TfrmProgressDownload
       Caption = 'Process not more than:'
       ParentBiDiMode = False
       Layout = tlCenter
-      ExplicitTop = 121
     end
     object LabelName1: TLabel
-      Left = 11
+      Left = 8
       Top = 108
       Width = 78
       Height = 13
@@ -103,10 +102,9 @@ object frmProgressDownload: TfrmProgressDownload
       Caption = 'Processed total:'
       ParentBiDiMode = False
       Layout = tlCenter
-      ExplicitTop = 137
     end
     object LabelName2: TLabel
-      Left = 11
+      Left = 8
       Top = 124
       Width = 88
       Height = 13
@@ -115,10 +113,9 @@ object frmProgressDownload: TfrmProgressDownload
       Caption = 'Downloaded total:'
       ParentBiDiMode = False
       Layout = tlCenter
-      ExplicitTop = 153
     end
     object LabelName3: TLabel
-      Left = 11
+      Left = 8
       Top = 140
       Width = 75
       Height = 13
@@ -127,10 +124,9 @@ object frmProgressDownload: TfrmProgressDownload
       Caption = 'Time remaining:'
       ParentBiDiMode = False
       Layout = tlCenter
-      ExplicitTop = 169
     end
     object LabelName4: TLabel
-      Left = 11
+      Left = 8
       Top = 156
       Width = 105
       Height = 13
@@ -139,7 +135,6 @@ object frmProgressDownload: TfrmProgressDownload
       Caption = 'Approx. to download:'
       ParentBiDiMode = False
       Layout = tlCenter
-      ExplicitTop = 185
     end
     object LabelValue4: TLabel
       Left = 315
@@ -170,10 +165,12 @@ object frmProgressDownload: TfrmProgressDownload
       Top = 189
       Width = 320
       Height = 26
+      Margins.Top = 0
       Align = alBottom
       AutoSize = True
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitLeft = 2
       object Button2: TButton
         AlignWithMargins = True
         Left = 242
@@ -221,13 +218,19 @@ object frmProgressDownload: TfrmProgressDownload
       end
     end
     object pnlProgress: TPanel
-      Left = 1
-      Top = 169
-      Width = 326
+      AlignWithMargins = True
+      Left = 6
+      Top = 172
+      Width = 316
       Height = 17
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 5
+      Margins.Bottom = 0
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 2
+      ExplicitTop = 169
     end
   end
   object SaveSessionDialog: TSaveDialog

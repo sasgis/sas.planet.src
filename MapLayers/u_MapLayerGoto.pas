@@ -8,7 +8,9 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  i_BitmapMarker,
   i_ViewPortState,
+  i_LocalCoordConverter,
   i_GotoLayerConfig,
   u_MapLayerBasic;
 
@@ -16,16 +18,24 @@ type
   TGotoLayer = class(TMapLayerFixedWithBitmap)
   private
     FConfig: IGotoLayerConfig;
+
+    FMarkerProvider: IBitmapMarkerProviderChangeable;
+    FMarkerProviderStatic: IBitmapMarkerProvider;
+    FMarker: IBitmapMarker;
+
     FShowTickCount: Cardinal;
     FShowTick: Cardinal;
 
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
+    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
+  public
+    procedure StartThreads; override;
   public
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AMarkerProvider: IBitmapMarkerProviderChangeable;
       AConfig: IGotoLayerConfig
     );
     procedure ShowGotoIcon(APoint: TDoublePoint);
@@ -37,28 +47,34 @@ implementation
 
 uses
   SysUtils,
-  u_NotifyEventListener,
-  u_GeoFun;
+  u_NotifyEventListener;
 
 { TGotoLayer }
 
 constructor TGotoLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AMarkerProvider: IBitmapMarkerProviderChangeable;
   AConfig: IGotoLayerConfig
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
+  FMarkerProvider := AMarkerProvider;
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
-  OnConfigChange(nil);
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnConfigChange),
+    FMarkerProvider.GetChangeNotifier
+  );
 end;
 
-procedure TGotoLayer.DoUpdateLayerLocation(ANewLocation: TFloatRect);
+function TGotoLayer.GetVisibleForNewPos(
+  ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
 var
   VCurrTime: Cardinal;
 begin
@@ -66,43 +82,35 @@ begin
     VCurrTime := GetTickCount;
     if (FShowTick <= VCurrTime) then begin
       if (VCurrTime < FShowTick + FShowTickCount) then begin
-        inherited;
+         Result := inherited GetVisibleForNewPos(ANewVisualCoordConverter);
       end else begin
-        Visible := False;
+        Result := False;
         FShowTick := 0;
       end;
     end else begin
-      Visible := False;
+      Result := False;
       FShowTick := 0;
     end;
   end else begin
-    Visible := False;
+    Result := False;
   end;
 end;
 
 procedure TGotoLayer.OnConfigChange(Sender: TObject);
 var
-  VBitmap: TCustomBitmap32;
   VBitmapSize: TPoint;
+  VMarker: IBitmapMarker;
 begin
+  FMarkerProviderStatic := FMarkerProvider.GetStatic;
+  VMarker := FMarkerProviderStatic.GetMarker;
+  FMarker := VMarker;
   ViewUpdateLock;
   try
-    FConfig.LockRead;
-    try
-      VBitmap := FConfig.GetMarker;
-      try
-        FLayer.Bitmap.Assign(VBitmap);
-        FLayer.Bitmap.DrawMode := dmBlend;
-        VBitmapSize.X := VBitmap.Width;
-        VBitmapSize.Y := VBitmap.Height;
-        FFixedOnBitmap := DoublePoint(FConfig.MarkerFixedPoint);
-        FShowTickCount := FConfig.ShowTickCount;
-      finally
-        VBitmap.Free;
-      end;
-    finally
-      FConfig.UnlockRead;
-    end;
+    FLayer.Bitmap.Assign(VMarker.Bitmap);
+    FLayer.Bitmap.DrawMode := dmBlend;
+    VBitmapSize := VMarker.BitmapSize;
+    FFixedOnBitmap := VMarker.AnchorPoint;
+    FShowTickCount := FConfig.ShowTickCount;
     DoUpdateLayerSize(VBitmapSize);
     SetNeedRedraw;
   finally
@@ -113,10 +121,22 @@ end;
 
 procedure TGotoLayer.ShowGotoIcon(APoint: TDoublePoint);
 begin
-  FFixedLonLat := APoint;
-  FShowTick := GetTickCount;
-  Visible := True;
-  UpdateLayerLocation;
+  ViewUpdateLock;
+  try
+    FFixedLonLat := APoint;
+    FShowTick := GetTickCount;
+    Show;
+    SetNeedUpdateLocation;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
+end;
+
+procedure TGotoLayer.StartThreads;
+begin
+  inherited;
+  OnConfigChange(nil);
 end;
 
 end.

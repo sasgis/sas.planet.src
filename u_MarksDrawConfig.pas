@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MarksDrawConfig;
 
 interface
@@ -15,11 +35,12 @@ type
     FShowPointCaption: Boolean;
     FUseSimpleDrawOrder: Boolean;
     FOverSizeRect: TRect;
+    FMagnetDraw: Boolean;
 
     FStatic: IMarksDrawConfigStatic;
     function CreateStatic: IMarksDrawConfigStatic;
   protected
-    procedure SetChanged; override;
+    procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -31,6 +52,9 @@ type
 
     function GetOverSizeRect: TRect;
     procedure SetOverSizeRect(AValue: TRect);
+
+    function GetMagnetDraw: Boolean;
+    procedure SetMagnetDraw(AValue: Boolean);
 
     function GetStatic: IMarksDrawConfigStatic;
   public
@@ -49,7 +73,7 @@ begin
   inherited;
 
   FShowPointCaption := True;
-  FUseSimpleDrawOrder := True;
+  FUseSimpleDrawOrder := false;
   FOverSizeRect := Rect(256, 128, 64, 128);
 
   SetChanged;
@@ -61,8 +85,20 @@ begin
     TMarksDrawConfigStatic.Create(
       FShowPointCaption,
       FUseSimpleDrawOrder,
+      FMagnetDraw,
       FOverSizeRect
     );
+end;
+
+procedure TMarksDrawConfig.DoBeforeChangeNotify;
+begin
+  inherited;
+  LockWrite;
+  try
+    FStatic := CreateStatic;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TMarksDrawConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -71,6 +107,7 @@ begin
   if AConfigData <> nil then begin
     FShowPointCaption := AConfigData.ReadBool('ShowPointCaption', FShowPointCaption);
     FUseSimpleDrawOrder := AConfigData.ReadBool('UseSimpleDrawOrder', FUseSimpleDrawOrder);
+    FMagnetDraw := AConfigData.ReadBool('MagnetDraw', FMagnetDraw);
     FOverSizeRect.Left := AConfigData.ReadInteger('OverSizeRect.Left', FOverSizeRect.Left);
     FOverSizeRect.Top := AConfigData.ReadInteger('OverSizeRect.Top', FOverSizeRect.Top);
     FOverSizeRect.Right := AConfigData.ReadInteger('OverSizeRect.Right', FOverSizeRect.Right);
@@ -84,6 +121,7 @@ begin
   inherited;
   AConfigData.WriteBool('ShowPointCaption', FShowPointCaption);
   AConfigData.WriteBool('UseSimpleDrawOrder', FUseSimpleDrawOrder);
+  AConfigData.WriteBool('MagnetDraw', FMagnetDraw);
   AConfigData.WriteInteger('OverSizeRect.Left', FOverSizeRect.Left);
   AConfigData.WriteInteger('OverSizeRect.Top', FOverSizeRect.Top);
   AConfigData.WriteInteger('OverSizeRect.Right', FOverSizeRect.Right);
@@ -120,6 +158,16 @@ begin
   end;
 end;
 
+function TMarksDrawConfig.GetMagnetDraw: Boolean;
+begin
+  LockRead;
+  try
+    Result := FMagnetDraw;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TMarksDrawConfig.GetStatic: IMarksDrawConfigStatic;
 begin
   LockRead;
@@ -127,17 +175,6 @@ begin
     Result := FStatic;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TMarksDrawConfig.SetChanged;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
   end;
 end;
 
@@ -173,6 +210,19 @@ begin
   try
     if FUseSimpleDrawOrder <> AValue then begin
       FUseSimpleDrawOrder := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMarksDrawConfig.SetMagnetDraw(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FMagnetDraw <> AValue then begin
+      FMagnetDraw := AValue;
       SetChanged;
     end;
   finally

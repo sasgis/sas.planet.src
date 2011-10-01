@@ -152,7 +152,7 @@ begin
     while p_x < max.x do begin
       p_y := min.Y;
       while p_y < max.Y do begin
-        if not IsCancel then begin
+        if not CancelNotifier.IsOperationCanceled(OperationID) then begin
           if (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
             KmlFileWrite(p_x, p_y, VZoom, 1);
           end;

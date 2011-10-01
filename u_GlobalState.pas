@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_GlobalState;
 
 interface
@@ -13,6 +33,7 @@ uses
   {$ENDIF SasDebugWithJcl}
   i_JclNotify,
   i_GPSPositionFactory,
+  i_EcwDll,
   i_LanguageManager,
   i_MemObjCache,
   i_InetConfig,
@@ -20,7 +41,7 @@ uses
   i_ConfigDataProvider,
   i_TileFileNameGeneratorsList,
   i_ContentTypeManager,
-  i_KmlInfoSimpleLoader,
+  i_VectorDataLoader,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,
@@ -39,10 +60,12 @@ uses
   i_InternalPerformanceCounter,
   i_LayerBitmapClearStrategy,
   u_LastSelectionInfo,
-  u_MarksDb,
+  u_MarksSystem,
   u_MapTypesMainList,
   u_MemFileCache,
+  i_ZmpInfoSet,
   i_GPSConfig,
+  i_MapCalibration,
   i_MarkCategoryFactoryConfig,
   i_GlobalViewMainConfig,
   i_GlobalDownloadConfig,
@@ -61,19 +84,18 @@ type
   TGlobalState = class
   private
     FMainConfigProvider: IConfigDataWriteProvider;
-
+    FZmpInfoSet: IZmpInfoSet;
+    FResourceProvider: IConfigDataProvider;
     FGlobalAppConfig: IGlobalAppConfig;
     FStartUpLogoConfig: IStartUpLogoConfig;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FGCThread: TGarbageCollectorThread;
     FContentTypeManager: IContentTypeManager;
-    FMapCalibrationList: IInterfaceList;
-    FKmlLoader: IKmlInfoSimpleLoader;
-    FKmzLoader: IKmlInfoSimpleLoader;
+    FMapCalibrationList: IMapCalibrationList;
     FCacheConfig: TGlobalCahceConfig;
     FLanguageManager: ILanguageManager;
     FLastSelectionInfo: ILastSelectionInfo;
-    FMarksDB: TMarksDB;
+    FMarksDB: TMarksSystem;
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
@@ -107,6 +129,7 @@ type
     FProtocol: TIeEmbeddedProtocolRegistration;
     FPathDetalizeList: IPathDetalizeProviderList;
     FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+    FEcwDll: IEcwDll;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -121,7 +144,7 @@ type
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
     property GCThread: TGarbageCollectorThread read FGCThread;
-    property MarksDB: TMarksDB read FMarksDB;
+    property MarksDB: TMarksSystem read FMarksDB;
     property GPSpar: TGPSpar read FGPSpar;
     property ProgramPath: string read FProgramPath;
 
@@ -130,9 +153,10 @@ type
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
-    property MapCalibrationList: IInterfaceList read FMapCalibrationList;
+    property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
 
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
+    property ResourceProvider: IConfigDataProvider read FResourceProvider;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
     property MainMemCacheBitmap: IMemObjCacheBitmap read FMainMemCacheBitmap;
     property MainMemCacheVector: IMemObjCacheVector read FMainMemCacheVector;
@@ -161,6 +185,7 @@ type
     property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property ClearStrategyFactory: ILayerBitmapClearStrategyFactory read FClearStrategyFactory;
+    property EcwDll: IEcwDll read FEcwDll;
 
     constructor Create;
     destructor Destroy; override;
@@ -183,10 +208,12 @@ uses
   Forms,
   u_JclNotify,
   u_SASMainConfigProvider,
+  u_EcwDllSimple,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   i_ListOfObjectsWithTTL,
   u_ListOfObjectsWithTTL,
+  i_FileNameIterator,
   u_ContentTypeManagerSimple,
   u_MapCalibrationListBasic,
   u_KmlInfoSimpleParser,
@@ -197,6 +224,7 @@ uses
   u_StartUpLogoConfig,
   u_InetConfig,
   u_Datum,
+  u_PLTSimpleParser,
   u_GSMGeoCodeConfig,
   u_GPSConfig,
   u_MarkCategoryFactoryConfig,
@@ -220,13 +248,15 @@ uses
   u_LayerBitmapClearStrategyFactory,
   u_DownloadResultTextProvider,
   u_MainFormConfig,
+  u_ZmpInfoSet,
+  u_ZmpFileNamesIteratorFactory,
   u_SensorListStuped,
+  u_HtmlToHintTextConverterStuped,
   u_InternalPerformanceCounterList,
   u_IeEmbeddedProtocolFactory,
   u_PathDetalizeProviderListSimple,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
-  u_ResStrings,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -237,10 +267,15 @@ var
   VViewCnonfig: IConfigDataProvider;
   VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
+  VKmlLoader: IVectorDataLoader;
+  VKmzLoader: IVectorDataLoader;
+  VFilesIteratorFactory: IFileNameIteratorFactory;
+  VFilesIterator: IFileNameIterator;
 begin
   FProgramPath := ExtractFilePath(ParamStr(0));
+  FEcwDll := TEcwDllSimple.Create(FProgramPath);
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
-
+  FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
   FGUISyncronizedTimer.Interval := 500;
@@ -256,7 +291,6 @@ begin
 
   FCacheConfig := TGlobalCahceConfig.Create(ProgramPath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
-  FMainMapsList := TMapTypesMainList.Create;
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
   FLanguageManager := TLanguageManager.Create;
   FLanguageManager.ReadConfig(VViewCnonfig);
@@ -288,16 +322,35 @@ begin
   FMainMemCacheVector := TMemFileCacheVector.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('VectorCache'));
 
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create(FCacheConfig);
-  FContentTypeManager := TContentTypeManagerSimple.Create(FPerfCounterList);
+  FContentTypeManager :=
+    TContentTypeManagerSimple.Create(
+      THtmlToHintTextConverterStuped.Create,
+      FPerfCounterList
+    );
 
   FStartUpLogoConfig := TStartUpLogoConfig.Create(FContentTypeManager);
   FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
-  FKmlLoader := TKmlInfoSimpleParser.Create(VMarksKmlLoadCounterList);
-  FKmzLoader := TKmzInfoSimpleParser.Create(VMarksKmlLoadCounterList);
-  FImportFileByExt := TImportByFileExt.Create(FKmlLoader, FKmzLoader);
+  VKmlLoader :=
+    TKmlInfoSimpleParser.Create(
+      THtmlToHintTextConverterStuped.Create,
+      VMarksKmlLoadCounterList
+    );
+  VKmzLoader :=
+    TKmzInfoSimpleParser.Create(
+      THtmlToHintTextConverterStuped.Create,
+      VMarksKmlLoadCounterList
+    );
+  FImportFileByExt := TImportByFileExt.Create(
+    TPLTSimpleParser.Create(
+      THtmlToHintTextConverterStuped.Create,
+      VMarksKmlLoadCounterList
+    ),
+    VKmlLoader,
+    VKmzLoader
+  );
   VList := TListOfObjectsWithTTL.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
@@ -314,15 +367,31 @@ begin
   FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList := TGeoCoderListSimple.Create(FInetConfig.ProxyConfig as IProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FContentTypeManager);
-  FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(SAS_STR_NewCategory);
-  FMarksDB := TMarksDB.Create(FProgramPath, FMarkPictureList, FMarksCategoryFactoryConfig);
+  FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);
+  FMarksDB :=
+    TMarksSystem.Create(
+      FLanguageManager,
+      FProgramPath,
+      FMarkPictureList,
+      THtmlToHintTextConverterStuped.Create,
+      FMarksCategoryFactoryConfig
+    );
+  VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
+  VFilesIterator := VFilesIteratorFactory.CreateIterator(MapsPath, '');
+  FZmpInfoSet :=
+    TZmpInfoSet.Create(
+      FCoordConverterFactory,
+      FLanguageManager,
+      VFilesIterator
+    );
+  FMainMapsList := TMapTypesMainList.Create(FZmpInfoSet);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
-  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, FKmlLoader);
+  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, VKmlLoader);
   VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
   VInternalDomainInfoProviderList.Add(
     'ZmpInfo',
-    TInternalDomainInfoProviderByMapTypeList.Create(FMainMapsList, FContentTypeManager)
+    TInternalDomainInfoProviderByMapTypeList.Create(FZmpInfoSet, FContentTypeManager)
   );
   FProtocol := TIeEmbeddedProtocolRegistration.Create('sas', TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));
 end;
@@ -338,8 +407,6 @@ begin
   FTileNameGenerator := nil;
   FContentTypeManager := nil;
   FMapCalibrationList := nil;
-  FKmlLoader := nil;
-  FKmzLoader := nil;
   FreeAndNil(FMarksDB);
   FLastSelectionInfo := nil;
   FGPSConfig := nil;
@@ -445,8 +512,7 @@ begin
     FContentTypeManager,
     FDownloadResultTextProvider,
     FCoordConverterFactory,
-    VLocalMapsConfig,
-    MapsPath
+    VLocalMapsConfig
   );
   FMainFormConfig := TMainFormConfig.Create(
     FLocalConverterFactory,
@@ -454,7 +520,7 @@ begin
     FGeoCoderList,
     FMainMapsList.MapsSet,
     FMainMapsList.LayersSet,
-    FMainMapsList.FirstMainMap.Zmp.GUID,
+    FMainMapsList.FirstMainMapGUID,
     FPerfCounterList.CreateAndAddNewSubList('ViewState')
   );
 
@@ -466,7 +532,6 @@ begin
       FValueToStringConverterConfig
     );
 
-  MapType.LoadMapIconsList;
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorder.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));

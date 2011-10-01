@@ -39,6 +39,7 @@ type
       AReplace: boolean;
       Asavefull: boolean;
       AGenFormPrev: boolean;
+      ABackGroundColor: TColor32;
       AResamplerFactory: IImageResamplerFactory
     );
   end;
@@ -49,8 +50,7 @@ uses
   i_CoordConverter,
   i_TileIterator,
   u_TileIteratorStuped,
-  u_TileIteratorByRect,
-  u_GlobalState;
+  u_TileIteratorByRect;
 
 constructor TThreadGenPrevZoom.Create(
   Azoom: byte;
@@ -60,6 +60,7 @@ constructor TThreadGenPrevZoom.Create(
   AReplace: boolean;
   Asavefull: boolean;
   AGenFormPrev: boolean;
+  ABackGroundColor: TColor32;
   AResamplerFactory: IImageResamplerFactory
 );
 begin
@@ -73,7 +74,7 @@ begin
   FSourceZoom := Azoom;
   FMapType := Atypemap;
   FResamplerFactory := AResamplerFactory;
-  FBackGroundColor := Color32(GState.ViewConfig.BackGroundColor);
+  FBackGroundColor := ABackGroundColor;
 end;
 
 procedure TThreadGenPrevZoom.ProcessRegion;
@@ -133,7 +134,7 @@ begin
         VZoom := FZooms[i];
         VTileIterator := VTileIterators[i];
         while VTileIterator.Next(VTile) do begin
-          if IsCancel then begin
+          if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
           VCurrentTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);

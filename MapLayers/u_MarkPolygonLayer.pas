@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_ViewPortState,
+  i_LineOnMapEdit,
   i_MarkPolygonLayerConfig,
   u_PolyLineLayerBase,
   u_MapLayerBasic;
@@ -21,15 +22,16 @@ type
     FFillColor: TColor32;
     FPolygonFill: TPolygon32;
   protected
+    procedure SetSourcePolygon(const Value: TArrayOfDoublePoint); override;
     procedure DoConfigChange; override;
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      ALineOnMapEdit: ILineOnMapEdit;
       AConfig: IMarkPolygonLayerConfig
     );
-    procedure DrawLine(APathLonLat: TArrayOfDoublePoint; AActiveIndex: Integer); override;
   end;
 
 implementation
@@ -43,6 +45,7 @@ uses
 constructor TMarkPolygonLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  ALineOnMapEdit: ILineOnMapEdit;
   AConfig: IMarkPolygonLayerConfig
 );
 begin
@@ -50,7 +53,7 @@ begin
   FPolygonFill.Closed := True;
   FPolygonFill.Antialiased := true;
   FPolygonFill.AntialiasMode := am4times;
-  inherited Create(AParentMap, AViewPortState, AConfig, FPolygonFill);
+  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, FPolygonFill, true);
   FConfig := AConfig;
 end;
 
@@ -60,34 +63,33 @@ begin
   FFillColor := FConfig.FillColor;
 end;
 
-procedure TMarkPolygonLayer.DrawLine(APathLonLat: TArrayOfDoublePoint;
-  AActiveIndex: Integer);
+procedure TMarkPolygonLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
+begin
+  FPolygonFill.DrawFill(ABuffer, FFillColor);
+  inherited;
+end;
+
+procedure TMarkPolygonLayer.SetSourcePolygon(const Value: TArrayOfDoublePoint);
 var
   VPathLonLat: TArrayOfDoublePoint;
   VPointsCount: Integer;
   i: Integer;
 begin
-  VPointsCount := Length(APathLonLat);
+  VPointsCount := Length(Value);
   if VPointsCount > 2 then begin
-    if DoublePoitnsEqual(APathLonLat[0], APathLonLat[VPointsCount - 1]) then begin
-      VPathLonLat := APathLonLat;
+    if DoublePointsEqual(Value[0], Value[VPointsCount - 1]) then begin
+      VPathLonLat := Value;
     end else begin
       SetLength(VPathLonLat, VPointsCount + 1);
       for i := 0 to VPointsCount - 1 do begin
-        VPathLonLat[i] := APathLonLat[i];
+        VPathLonLat[i] := Value[i];
       end;
       VPathLonLat[VPointsCount] := VPathLonLat[0];
     end;
   end else begin
-    VPathLonLat := APathLonLat;
+    VPathLonLat := Value;
   end;
-  inherited DrawLine(VPathLonLat, AActiveIndex);
-end;
-
-procedure TMarkPolygonLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
-begin
-  FPolygonFill.DrawFill(ABuffer, FFillColor);
-  inherited;
+  inherited SetSourcePolygon(VPathLonLat);
 end;
 
 end.

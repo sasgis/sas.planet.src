@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit frm_ProgressDownload;
 
 interface
@@ -132,10 +152,6 @@ begin
   FLog := ALog;
   FRarProgress := TRarProgress.Create(Self);
   with FRarProgress do begin
-
-    Left := 8;
-    Top := 200;
-    Width := 314;
     Height := 17;
     Min := 0;
     Max := 100;
@@ -196,7 +212,7 @@ begin
   end else begin
     VComplete := '~%';
   end;
-  VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
+  VValueConverter := GState.ValueToStringConverterConfig.GetStatic;
   if FDownloadThread.Finished then begin
     if not FFinished then begin
       FFinished := True;
@@ -255,7 +271,7 @@ begin
   if loaded=0 then begin
     result:='~ Кб';
   end else begin
-    VValueConverter := GState.ValueToStringConverterConfig.GetStaticConverter;
+    VValueConverter := GState.ValueToStringConverterConfig.GetStatic;
     Result:= VValueConverter.DataSizeConvert((len/loaded)*(loadAll-obrab));
   end;
 end;

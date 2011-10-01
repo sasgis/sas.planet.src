@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit frm_IntrnalBrowser;
 
 interface
@@ -8,6 +28,7 @@ uses
   Classes,
   Controls,
   OleCtrls,
+  SysUtils,
   EwbCore,
   EmbeddedWB,
   SHDocVw_EWB,
@@ -23,6 +44,8 @@ type
     procedure EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
       ScanCode: Word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
+  private
+    procedure SetGoodCaption(const ACaption: String);
   public
     procedure showmessage(ACaption, AText: string);
     procedure Navigate(ACaption, AUrl: string);
@@ -66,15 +89,22 @@ end;
 procedure TfrmIntrnalBrowser.Navigate(ACaption, AUrl: string);
 begin
   EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
-  Caption:=ACaption;
+  SetGoodCaption(ACaption);
   show;
   EmbeddedWB1.Navigate(AUrl);
 end;
 
+procedure TfrmIntrnalBrowser.SetGoodCaption(const ACaption: String);
+begin
+  Caption:=StringReplace(StringReplace(ACaption,'&quot;','"',[rfReplaceAll,rfIgnoreCase]),#13#10,', ',[rfReplaceAll]);
+end;
+
 procedure TfrmIntrnalBrowser.showmessage(ACaption,AText: string);
 begin
+  EmbeddedWB1.GoAboutBlank;
+  Application.ProcessMessages; // sometimes it shows empty window without this line (only for first run)
   EmbeddedWB1.HTMLCode.Text:=AText;
-  Caption:=ACaption;
+  SetGoodCaption(ACaption);
   show;
 end;
 

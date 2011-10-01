@@ -1,15 +1,35 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit i_DownloadResult;
 
 interface
 
+uses
+  i_DownloadRequest;
+
 type
   IDownloadResult = interface
     ['{E93918EB-D64B-479E-B4D6-E49B30425824}']
-    function GetUrl: string;
-    property Url: string read GetUrl;
-
-    function GetRequestHead: string;
-    property RequestHead: string read GetRequestHead;
+    function GetRequest: IDownloadRequest;
+    property Request: IDownloadRequest read GetRequest;
 
     function GetIsOk: Boolean;
     property IsOk: Boolean read GetIsOk;

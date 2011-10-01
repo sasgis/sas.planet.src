@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_TileRequestBuilderPascalScript;
 
 interface
@@ -13,10 +33,12 @@ uses
   i_JclNotify,
   i_ConfigDataProvider,
   i_CoordConverter,
+  i_ZmpInfo,
   i_MapVersionInfo,
   i_LanguageManager,
   i_CoordConverterFactory,
   i_LastResponseInfo,
+  i_TileDownloadRequest,
   i_TileRequestBuilderConfig,
   u_TileRequestBuilder;
 
@@ -26,6 +48,7 @@ type
 
   TTileRequestBuilderPascalScript = class(TTileRequestBuilder)
   private
+    FZmp: IZmpInfo;
     FCoordConverter: ICoordConverterSimple;
     FPascalScript: string;
     FScriptBuffer: string;
@@ -68,21 +91,15 @@ type
     );
     procedure OnLangChange(Sender: TObject);
   protected
-    function  BuildRequestUrl(
-      ATileXY: TPoint;
-      AZoom: Byte;
-      AVersionInfo: IMapVersionInfo
-    ): string; override;
-    procedure BuildRequest(
+    function BuildRequest(
       ATileXY: TPoint;
       AZoom: Byte;
       AVersionInfo: IMapVersionInfo;
-      ALastResponseInfo: ILastResponseInfo;
-      out AUrl: string;
-      out ARequestHeader: string
-    ); override;
+      ALastResponseInfo: ILastResponseInfo
+    ): ITileDownloadRequest; override;
   public
     constructor Create(
+      AZmp: IZmpInfo;
       AConfig: ITileRequestBuilderConfig;
       AConfigData: IConfigDataProvider;
       ACoordConverterFactory: ICoordConverterFactory;
@@ -99,6 +116,7 @@ uses
   u_NotifyEventListener,
   t_GeoTypes,
   u_GeoToStr,
+  u_TileDownloadRequest,
   u_TileRequestBuilderHelpers,
   u_ResStrings;
 
@@ -110,6 +128,7 @@ function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean; f
 { TTileRequestBuilderPascalScript }
 
 constructor TTileRequestBuilderPascalScript.Create(
+  AZmp: IZmpInfo;
   AConfig: ITileRequestBuilderConfig;
   AConfigData: IConfigDataProvider;
   ACoordConverterFactory: ICoordConverterFactory;
@@ -117,6 +136,7 @@ constructor TTileRequestBuilderPascalScript.Create(
 );
 begin
   inherited Create(AConfig);
+  FZmp := AZmp;
   PrepareCoordConverter(ACoordConverterFactory, AConfigData);
   PreparePascalScript(AConfigData);
 
@@ -143,34 +163,9 @@ begin
   InterlockedIncrement(FLangChangeCount);
 end;
 
-function TTileRequestBuilderPascalScript.BuildRequestUrl(
-  ATileXY: TPoint;
-  AZoom: Byte;
-  AVersionInfo: IMapVersionInfo
-): string;
-begin
-  Lock;
-  try
-    SetVar(nil, AVersionInfo, ATileXY, AZoom);
-    try
-      FExec.RunScript;
-    except on E: Exception do
-      raise EPascalScriptRunError.Create(E.Message);
-    end;
-    Result := FpResultUrl.Data;
-  finally
-    Unlock;
-  end;
-end;
-
-procedure TTileRequestBuilderPascalScript.BuildRequest(
-  ATileXY: TPoint;
-  AZoom: Byte;
-  AVersionInfo: IMapVersionInfo;
-  ALastResponseInfo: ILastResponseInfo;
-  out AUrl: string;
-  out ARequestHeader: string
-);
+function TTileRequestBuilderPascalScript.BuildRequest(ATileXY: TPoint;
+  AZoom: Byte; AVersionInfo: IMapVersionInfo;
+  ALastResponseInfo: ILastResponseInfo): ITileDownloadRequest;
 begin
   Lock;
   try
@@ -180,8 +175,16 @@ begin
     except on E: Exception do
       raise EPascalScriptRunError.Create(E.Message);
     end;
-    AUrl := FpResultUrl.Data;
-    ARequestHeader := FpRequestHead.Data;
+    if FpResultUrl.Data <> '' then begin
+      Result :=
+        TTileDownloadRequest.Create(
+          FpResultUrl.Data,
+          FpRequestHead.Data,
+          FZmp,
+          ATileXY,
+          AZoom
+        );
+    end;
     FScriptBuffer := FpScriptBuffer.Data;
   finally
     Unlock;

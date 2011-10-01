@@ -9,6 +9,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_ViewPortState,
+  i_SelectionRect,
   i_SelectionRectLayerConfig,
   u_MapLayerBasic;
 
@@ -16,6 +17,7 @@ type
   TSelectionRectLayer = class(TMapLayerBasicNoBitmap)
   private
     FConfig: ISelectionRectLayerConfig;
+    FSelection: ISelectionRect;
     FSelectedLonLat: TDoubleRect;
 
     FFillColor: TColor32;
@@ -23,15 +25,19 @@ type
     FFontSize: Integer;
     FZoomDeltaColors: TArrayOfColor32;
 
+    procedure OnSelectionChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ISelectionRectLayerConfig);
-    procedure DrawNothing;
-    procedure DrawSelectionRect(ASelectedLonLat: TDoubleRect);
+    constructor Create(
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      ASelection: ISelectionRect;
+      AConfig: ISelectionRectLayerConfig
+    );
   end;
 
 
@@ -47,33 +53,22 @@ uses
 constructor TSelectionRectLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  ASelection: ISelectionRect;
   AConfig: ISelectionRectLayerConfig
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
+  FSelection := ASelection;
+
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
-end;
-
-procedure TSelectionRectLayer.DrawNothing;
-begin
-  Hide;
-end;
-
-procedure TSelectionRectLayer.DrawSelectionRect(ASelectedLonLat: TDoubleRect);
-begin
-  ViewUpdateLock;
-  try
-    FSelectedLonLat := ASelectedLonLat;
-    SetNeedRedraw;
-    Show;
-  finally
-    ViewUpdateUnlock;
-  end;
-  ViewUpdate;
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnSelectionChange),
+    FSelection.GetChangeNotifier
+  );
 end;
 
 procedure TSelectionRectLayer.OnConfigChange(Sender: TObject);
@@ -90,6 +85,23 @@ begin
       FConfig.UnlockRead;
     end;
     SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
+end;
+
+procedure TSelectionRectLayer.OnSelectionChange(Sender: TObject);
+begin
+  ViewUpdateLock;
+  try
+    if FSelection.IsEmpty then begin
+      Hide
+    end else begin
+      FSelectedLonLat := FSelection.GetRect;
+      SetNeedRedraw;
+      Show;
+    end;
   finally
     ViewUpdateUnlock;
   end;

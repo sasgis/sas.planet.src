@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MarkPoly;
 
 interface
@@ -7,46 +27,38 @@ uses
   t_GeoTypes,
   i_MarksSimple,
   i_MarkCategory,
-  i_MarkPicture,
-  u_MarkId;
+  i_HtmlToHintTextConverter,
+  u_MarkFullBase;
 
 type
-  TMarkPoly = class(TMarkId, IMarkFull)
+  TMarkPoly = class(TMarkFullBase, IMarkPoly)
   private
-    FDesc: string;
     FLLRect: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
-    FColor1: TColor32;
-    FColor2: TColor32;
-    FScale1: Integer;
+    FBorderColor: TColor32;
+    FFillColor: TColor32;
+    FLineWidth: Integer;
   protected
-    function GetDesc: string;
-    function GetLLRect: TDoubleRect;
+    function GetLLRect: TDoubleRect; override;
     function GetPoints: TArrayOfDoublePoint;
-    function GetColor1: TColor32;
-    function GetColor2: TColor32;
-    function GetScale1: Integer;
-    function GetScale2: Integer;
-    function GetPicName: string;
-    function GetPic: IMarkPicture;
-    function IsEmpty: Boolean;
-    function IsPoint: Boolean;
-    function IsLine: Boolean;
-    function IsPoly: Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetBorderColor: TColor32;
+    function GetFillColor: TColor32;
+    function GetLineWidth: Integer;
+    function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
+      AHintConverter: IHtmlToHintTextConverter;
       ADbCode: Integer;
       AName: string;
       AId: Integer;
       AVisible: Boolean;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       ALLRect: TDoubleRect;
       APoints: TArrayOfDoublePoint;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer
+      ABorderColor: TColor32;
+      AFillColor: TColor32;
+      ALineWidth: Integer
     );
   end;
 
@@ -55,40 +67,35 @@ implementation
 { TMarkFull }
 
 constructor TMarkPoly.Create(
+  AHintConverter: IHtmlToHintTextConverter;
   ADbCode: Integer;
   AName: string;
   AId: Integer;
   AVisible: Boolean;
-  ACategory: IMarkCategory;
+  ACategory: ICategory;
   ADesc: string;
   ALLRect: TDoubleRect;
   APoints: TArrayOfDoublePoint;
-  AColor1, AColor2: TColor32;
-  AScale1: Integer
+  ABorderColor, AFillColor: TColor32;
+  ALineWidth: Integer
 );
 begin
-  inherited Create(ADbCode, AName, AId, ACategory, AVisible);
-  FDesc := ADesc;
+  inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
   FLLRect := ALLRect;
   FPoints := APoints;
-  FColor1 := AColor1;
-  FColor2 := AColor2;
-  FScale1 := AScale1;
+  FBorderColor := ABorderColor;
+  FFillColor := AFillColor;
+  FLineWidth := ALineWidth;
 end;
 
-function TMarkPoly.GetColor1: TColor32;
+function TMarkPoly.GetBorderColor: TColor32;
 begin
-  Result := FColor1;
+  Result := FBorderColor;
 end;
 
-function TMarkPoly.GetColor2: TColor32;
+function TMarkPoly.GetFillColor: TColor32;
 begin
-  Result := FColor2;
-end;
-
-function TMarkPoly.GetDesc: string;
-begin
-  Result := FDesc;
+  Result := FFillColor;
 end;
 
 function TMarkPoly.GetGoToLonLat: TDoublePoint;
@@ -102,49 +109,14 @@ begin
   Result := FLLRect;
 end;
 
-function TMarkPoly.GetPic: IMarkPicture;
-begin
-  Result := nil;
-end;
-
-function TMarkPoly.GetPicName: string;
-begin
-  Result := '';
-end;
-
 function TMarkPoly.GetPoints: TArrayOfDoublePoint;
 begin
   Result := FPoints;
 end;
 
-function TMarkPoly.GetScale1: Integer;
+function TMarkPoly.GetLineWidth: Integer;
 begin
-  Result := FScale1;
-end;
-
-function TMarkPoly.GetScale2: Integer;
-begin
-  Result := 0;
-end;
-
-function TMarkPoly.IsEmpty: Boolean;
-begin
-  Result := False;
-end;
-
-function TMarkPoly.IsLine: Boolean;
-begin
-  Result := False;
-end;
-
-function TMarkPoly.IsPoint: Boolean;
-begin
-  Result := False;
-end;
-
-function TMarkPoly.IsPoly: Boolean;
-begin
-  Result := True;
+  Result := FLineWidth;
 end;
 
 end.

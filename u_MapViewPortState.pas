@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MapViewPortState;
 
 interface
@@ -21,8 +41,6 @@ type
   TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
     FMapZoomingConfig: IMapZoomingConfig;
-    FBeforeChangeNotifier: IJclNotifier;
-    FAfterChangeNotifier: IJclNotifier;
     FScaleChangeNotifier: IJclNotifier;
     FMainCoordConverter: ICoordConverter;
     FVisibleCoordConverter: ILocalCoordConverter;
@@ -72,8 +90,6 @@ type
     procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload;
     procedure ScaleTo(AScale: Double); overload;
 
-    function GetBeforeChangeNotifier: IJclNotifier;
-    function GetAfterChangeNotifier: IJclNotifier;
     function GetScaleChangeNotifier: IJclNotifier;
   public
     constructor Create(
@@ -108,8 +124,6 @@ begin
   FScaleChangeCounter := APerfCounterList.CreateAndAddNewCounter('ScaleChange');
 
   FScaleChangeNotifier := TJclBaseNotifier.Create;
-  FBeforeChangeNotifier := TJclBaseNotifier.Create;
-  FAfterChangeNotifier := TJclBaseNotifier.Create;
   FVisibleCoordConverterFactory := ACoordConverterFactory;
   FMainMapConfig := AMainMapConfig;
   FMapZoomingConfig := AMapZoomingConfig;
@@ -147,7 +161,7 @@ begin
     VLonLat := ALonLat;
     FActiveCoordConverter.CheckLonLatPos(VLonLat);
     VPixelPos := FActiveCoordConverter.LonLat2PixelPosFloat(VLonLat, FZoom);
-    VPosChanged := not DoublePoitnsEqual(FCenterPos, VPixelPos);
+    VPosChanged := not DoublePointsEqual(FCenterPos, VPixelPos);
     FCenterPos := VPixelPos;
     ResetScaleAndMove;
     if VPosChanged then begin
@@ -172,7 +186,7 @@ begin
     VNewPos.Y := FCenterPos.Y + ADelta.Y / FBaseScale.Y;
     ResetScaleAndMove;
     FActiveCoordConverter.CheckPixelPosFloatStrict(VNewPos, VZoom, True);
-    VChanged := not DoublePoitnsEqual(FCenterPos, VNewPos);
+    VChanged := not DoublePointsEqual(FCenterPos, VNewPos);
     FCenterPos := VNewPos;
     if VChanged then begin
       CreateVisibleCoordConverter;
@@ -195,7 +209,7 @@ begin
     VZoom := FZoom;
     VNewPos := FVisibleCoordConverter.LocalPixel2MapPixelFloat(AVisualPoint);
     FActiveCoordConverter.CheckPixelPosFloatStrict(VNewPos, VZoom, True);
-    VChanged := not DoublePoitnsEqual(FCenterPos, VNewPos);;
+    VChanged := not DoublePointsEqual(FCenterPos, VNewPos);;
     ResetScaleAndMove;
     FCenterPos := VNewPos;
     if VChanged then begin
@@ -333,12 +347,7 @@ var
 begin
   VCounterContext := FPosChangeCounter.StartOperation;
   try
-    FBeforeChangeNotifier.Notify(nil);
-    try
-      inherited;
-    finally
-      FAfterChangeNotifier.Notify(nil);
-    end;
+    inherited;
   finally
     FPosChangeCounter.FinishOperation(VCounterContext);
   end;
@@ -375,16 +384,6 @@ begin
   AConfigData.WriteInteger('Zoom', FZoom);
   AConfigData.WriteFloat('X', VLonLat.X);
   AConfigData.WriteFloat('Y', VLonLat.Y);
-end;
-
-function TMapViewPortState.GetAfterChangeNotifier: IJclNotifier;
-begin
-  Result := FAfterChangeNotifier;
-end;
-
-function TMapViewPortState.GetBeforeChangeNotifier: IJclNotifier;
-begin
-  Result := FBeforeChangeNotifier;
 end;
 
 function TMapViewPortState.GetCurrentCoordConverter: ICoordConverter;
@@ -440,13 +439,13 @@ begin
   VChanged := False;
   LockWrite;
   try
-    if not DoublePoitnsEqual(FMapScale, FBaseScale) then begin
+    if not DoublePointsEqual(FMapScale, FBaseScale) then begin
       FMapScale := FBaseScale;
       VChanged := True;
     end;
     VVisibleMove.X := Pnt.X;
     VVisibleMove.Y := Pnt.Y;
-    if not DoublePoitnsEqual(FVisibleMove, VVisibleMove) then begin
+    if not DoublePointsEqual(FVisibleMove, VVisibleMove) then begin
       FVisibleMove := VVisibleMove;
       VChanged := True;
     end;
@@ -468,11 +467,11 @@ var
 begin
   VCounterContext := FScaleChangeCounter.StartOperation;
   try
-    FBeforeChangeNotifier.Notify(nil);
+    DoBeforeChangeNotify;
     try
       FScaleChangeNotifier.Notify(nil);
     finally
-      FAfterChangeNotifier.Notify(nil);
+      DoAfterChangeNotify;
     end;
   finally
     FScaleChangeCounter.FinishOperation(VCounterContext);
@@ -506,7 +505,7 @@ begin
   VVisiblePointFixed.Y := ACenterPoint.Y;
   LockWrite;
   try
-    if not DoublePoitnsEqual(FVisibleMove, DoublePoint(0,0)) then begin
+    if not DoublePointsEqual(FVisibleMove, DoublePoint(0,0)) then begin
       FVisibleMove.X := 0;
       FVisibleMove.Y := 0;
       VChanged := True;
@@ -514,7 +513,7 @@ begin
 
     VNewMapScale.X := FBaseScale.X * AScale;
     VNewMapScale.Y := FBaseScale.X * AScale;
-    if not DoublePoitnsEqual(FMapScale, VNewMapScale) then begin
+    if not DoublePointsEqual(FMapScale, VNewMapScale) then begin
       FMapScale := VNewMapScale;
       VChanged := True;
     end;
@@ -525,7 +524,7 @@ begin
 
     VNewVisibleMove.X := VNewVisualPoint.X - VVisiblePointFixed.X;
     VNewVisibleMove.Y := VNewVisualPoint.Y - VVisiblePointFixed.Y;
-    if not DoublePoitnsEqual(FVisibleMove, VNewVisibleMove) then begin
+    if not DoublePointsEqual(FVisibleMove, VNewVisibleMove) then begin
       FVisibleMove := VNewVisibleMove;
       VChanged := True;
     end;
@@ -557,7 +556,7 @@ begin
     VVisiblePointFixed.X := VViewCenter.X;
     VVisiblePointFixed.Y := VViewCenter.Y;
     VMapPointFixed := FVisibleCoordConverter.LocalPixelFloat2MapPixelFloat(VVisiblePointFixed);
-    if not DoublePoitnsEqual(FVisibleMove, DoublePoint(0,0)) then begin
+    if not DoublePointsEqual(FVisibleMove, DoublePoint(0,0)) then begin
       FVisibleMove.X := 0;
       FVisibleMove.Y := 0;
       VChanged := True;
@@ -565,7 +564,7 @@ begin
 
     VNewMapScale.X := FBaseScale.X * AScale;
     VNewMapScale.Y := FBaseScale.X * AScale;
-    if not DoublePoitnsEqual(FMapScale, VNewMapScale) then begin
+    if not DoublePointsEqual(FMapScale, VNewMapScale) then begin
       FMapScale := VNewMapScale;
       VChanged := True;
     end;
@@ -574,7 +573,7 @@ begin
     VNewVisualPoint.Y := (VMapPointFixed.Y - FCenterPos.Y) * FMapScale.Y + VViewCenter.Y;
     VNewVisibleMove.X := VNewVisualPoint.X - VVisiblePointFixed.X;
     VNewVisibleMove.Y := VNewVisualPoint.Y - VVisiblePointFixed.Y;
-    if not DoublePoitnsEqual(FVisibleMove, VNewVisibleMove) then begin
+    if not DoublePointsEqual(FVisibleMove, VNewVisibleMove) then begin
       FVisibleMove := VNewVisibleMove;
       VChanged := True;
     end;

@@ -7,7 +7,7 @@ uses
   Types,
   GR32,
   t_GeoTypes,
-  i_MarksSimple,
+  i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_BitmapPostProcessingConfig,
   i_LocalCoordConverter,
@@ -49,7 +49,10 @@ type
     FBackGroundColor: TColor32;
 
     function CreateConverterForTileImage(ATile: TPoint): ILocalCoordConverter;
-    procedure PrepareTileBitmap(ATargetBitmap: TCustomBitmap32; AConverter: ILocalCoordConverter);
+    procedure PrepareTileBitmap(
+      ATargetBitmap: TCustomBitmap32;
+      AConverter: ILocalCoordConverter
+    );
     procedure ProgressFormUpdateOnProgress; virtual;
 
     procedure saveRECT; virtual; abstract;
@@ -58,6 +61,9 @@ type
     procedure ProcessRecolor(Bitmap: TCustomBitmap32);
   public
     constructor Create(
+      AViewConfig: IGlobalViewMainConfig;
+      AMarksImageProvider: IBitmapLayerProvider;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
       APolygon: TArrayOfDoublePoint;
@@ -66,8 +72,7 @@ type
       Atypemap: TMapType;
       AHtypemap: TMapType;
       AusedReColor: Boolean;
-      ARecolorConfig: IBitmapPostProcessingConfigStatic;
-      AMarksSubset: IMarksSubset
+      ARecolorConfig: IBitmapPostProcessingConfigStatic
     );
     destructor Destroy; override;
   end;
@@ -77,14 +82,15 @@ implementation
 uses
   SysUtils,
   i_MapCalibration,
-  u_MapMarksBitmapLayerProviderByMarksSubset,
-  u_GlobalState,
   u_ResStrings,
   u_GeoFun;
 
 { TMapCombineThreadBase }
 
 constructor TThreadMapCombineBase.Create(
+  AViewConfig: IGlobalViewMainConfig;
+  AMarksImageProvider: IBitmapLayerProvider;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
   APolygon: TArrayOfDoublePoint;
@@ -93,8 +99,7 @@ constructor TThreadMapCombineBase.Create(
   Atypemap: TMapType;
   AHtypemap: TMapType;
   AusedReColor: Boolean;
-  ARecolorConfig: IBitmapPostProcessingConfigStatic;
-  AMarksSubset: IMarksSubset
+  ARecolorConfig: IBitmapPostProcessingConfigStatic
 );
 begin
   inherited Create(APolygon);
@@ -107,19 +112,13 @@ begin
   FHTypeMap := AHtypemap;
   FUsedReColor := AusedReColor;
   FRecolorConfig := ARecolorConfig;
-  if AMarksSubset <> nil then begin
-    FMarksImageProvider :=
-      TMapMarksBitmapLayerProviderByMarksSubset.Create(
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.GetStatic,
-        AMarksSubset
-      );
-  end;
+  FMarksImageProvider := AMarksImageProvider;
   FMapCalibrationList := AMapCalibrationList;
-  FConverterFactory := GState.LocalConverterFactory;
+  FConverterFactory := ALocalConverterFactory;
   FTempBitmap := TCustomBitmap32.Create;
-  FUsePrevZoomAtMap := GState.ViewConfig.UsePrevZoomAtMap;
-  FUsePrevZoomAtLayer := GState.ViewConfig.UsePrevZoomAtLayer;
-  FBackGroundColor := Color32(GState.ViewConfig.BackGroundColor);
+  FUsePrevZoomAtMap := AViewConfig.UsePrevZoomAtMap;
+  FUsePrevZoomAtLayer := AViewConfig.UsePrevZoomAtLayer;
+  FBackGroundColor := Color32(AViewConfig.BackGroundColor);
 end;
 
 procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress;
@@ -155,7 +154,9 @@ begin
 end;
 
 procedure TThreadMapCombineBase.PrepareTileBitmap(
-  ATargetBitmap: TCustomBitmap32; AConverter: ILocalCoordConverter);
+  ATargetBitmap: TCustomBitmap32;
+  AConverter: ILocalCoordConverter
+);
 var
   VSize: TPoint;
 begin
@@ -168,7 +169,7 @@ begin
   end;
   ProcessRecolor(ATargetBitmap);
   if FMarksImageProvider <> nil then begin
-    FMarksImageProvider.GetBitmapRect(ATargetBitmap, AConverter);
+    FMarksImageProvider.GetBitmapRect(OperationID, CancelNotifier, ATargetBitmap, AConverter);
   end;
 end;
 

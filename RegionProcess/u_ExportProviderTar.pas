@@ -3,8 +3,13 @@ unit u_ExportProviderTar;
 interface
 
 uses
+  Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
+  i_TileFileNameGeneratorsList,
   u_ExportProviderAbstract,
   fr_ExportToFileCont;
 
@@ -12,7 +17,15 @@ type
   TExportProviderTar = class(TExportProviderAbstract)
   private
     FFrame: TfrExportToFileCont;
+    FTileNameGenerator: ITileFileNameGeneratorsList;
   public
+    constructor Create(
+      AParent: TWinControl;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      ATileNameGenerator: ITileFileNameGeneratorsList
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
@@ -27,12 +40,20 @@ implementation
 uses
   SysUtils,
   i_TileFileNameGenerator,
-  u_GlobalState,
   u_ThreadExportToTar,
   u_ResStrings,
   u_MapType;
 
 { TExportProviderTar }
+
+constructor TExportProviderTar.Create(AParent: TWinControl;
+  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  ATileNameGenerator: ITileFileNameGeneratorsList);
+begin
+  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FTileNameGenerator := ATileNameGenerator;
+end;
 
 destructor TExportProviderTar.Destroy;
 begin
@@ -48,7 +69,14 @@ end;
 procedure TExportProviderTar.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportToFileCont.CreateForFileType(nil, 'Tar |*.tar', 'tar');
+    FFrame := TfrExportToFileCont.CreateForFileType(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList,
+      'Tar |*.tar',
+      'tar'
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;
@@ -97,7 +125,7 @@ begin
   end;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   path:=FFrame.edtTargetFile.Text;
-  VNameGenerator := GState.TileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1);
+  VNameGenerator := FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1);
   TThreadExportToTar.Create(path, APolygon, Zoomarr, VMapType, VNameGenerator);
 end;
 

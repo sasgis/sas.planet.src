@@ -114,7 +114,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         Value = 100.000000000000000000
       end>
     TabOrder = 4
-    ExplicitTop = 286
     DesignSize = (
       314
       83)
@@ -162,7 +161,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 16
         object lblTextColor: TLabel
           AlignWithMargins = True
           Left = 3
@@ -201,7 +199,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 173
         object lblFontSize: TLabel
           AlignWithMargins = True
           Left = 3
@@ -267,7 +264,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 21
         object lblShadowColor: TLabel
           AlignWithMargins = True
           Left = 3
@@ -305,7 +301,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         AutoWrap = False
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 175
         object lblIconSize: TLabel
           AlignWithMargins = True
           Left = 3
@@ -337,7 +332,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitLeft = 91
       object lblTransp: TLabel
         AlignWithMargins = True
         Left = 3
@@ -369,7 +363,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitHeight = 141
   end
   object pnlLonLat: TPanel
     Left = 0
@@ -426,28 +419,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        object lblCategory: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 3
-          Width = 49
-          Height = 20
-          Align = alLeft
-          Caption = 'Category:'
-          Layout = tlCenter
-          ExplicitHeight = 13
-        end
-        object CBKateg: TComboBox
-          AlignWithMargins = True
-          Left = 58
-          Top = 3
-          Width = 194
-          Height = 21
-          Align = alClient
-          ItemHeight = 13
-          TabOrder = 0
-          Text = 'New Category'
-        end
       end
       object pnlName: TPanel
         Left = 0
@@ -462,7 +433,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
           Left = 3
           Top = 3
           Width = 31
-          Height = 21
+          Height = 24
           Align = alLeft
           Caption = 'Name:'
           Layout = tlCenter

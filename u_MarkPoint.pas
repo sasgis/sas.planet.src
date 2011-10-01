@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MarkPoint;
 
 interface
@@ -9,51 +29,45 @@ uses
   i_MarkCategory,
   i_MarksDbSmlInternal,
   i_MarkPicture,
-  u_MarkId;
+  i_HtmlToHintTextConverter,
+  u_MarkFullBase;
 
 type
-  TMarkPoint = class(TMarkId, IMarkFull, IMarkPointSMLInternal)
+  TMarkPoint = class(TMarkFullBase, IMarkPoint, IMarkPointSMLInternal)
   private
     FPicName: string;
     FPic: IMarkPicture;
-    FDesc: string;
-    FLLRect: TDoubleRect;
-    FPoints: TArrayOfDoublePoint;
-    FColor1: TColor32;
-    FColor2: TColor32;
-    FScale1: Integer;
-    FScale2: Integer;
+    FPoint: TDoublePoint;
+    FTextColor: TColor32;
+    FTextBgColor: TColor32;
+    FFontSize: Integer;
+    FMarkerSize: Integer;
   protected
-    function GetDesc: string;
-    function GetLLRect: TDoubleRect;
-    function GetPoints: TArrayOfDoublePoint;
-    function GetColor1: TColor32;
-    function GetColor2: TColor32;
-    function GetScale1: Integer;
-    function GetScale2: Integer;
+    function GetLLRect: TDoubleRect; override;
+    function GetPoint: TDoublePoint;
+    function GetTextColor: TColor32;
+    function GetTextBgColor: TColor32;
+    function GetFontSize: Integer;
+    function GetMarkerSize: Integer;
     function GetPicName: string;
     function GetPic: IMarkPicture;
-    function IsEmpty: Boolean;
-    function IsPoint: Boolean;
-    function IsLine: Boolean;
-    function IsPoly: Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
+      AHintConverter: IHtmlToHintTextConverter;
       ADbCode: Integer;
-      AName: string;
+      const AName: string;
       AId: Integer;
       AVisible: Boolean;
-      APicName: string;
+      const APicName: string;
       APic: IMarkPicture;
-      ACategory: IMarkCategory;
-      ADesc: string;
-      ALLRect: TDoubleRect;
-      APoint: TDoublePoint;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer;
-      AScale2: Integer
+      ACategory: ICategory;
+      const ADesc: string;
+      const APoint: TDoublePoint;
+      ATextColor: TColor32;
+      ATextBgColor: TColor32;
+      AFontSize: Integer;
+      AMarkerSize: Integer
     );
   end;
 
@@ -62,56 +76,49 @@ implementation
 { TMarkPoint }
 
 constructor TMarkPoint.Create(
+  AHintConverter: IHtmlToHintTextConverter;
   ADbCode: Integer;
-  AName: string;
+  const AName: string;
   AId: Integer;
   AVisible: Boolean;
-  APicName: string;
+  const APicName: string;
   APic: IMarkPicture;
-  ACategory: IMarkCategory;
-  ADesc: string;
-  ALLRect: TDoubleRect;
-  APoint: TDoublePoint;
-  AColor1, AColor2: TColor32;
-  AScale1, AScale2: Integer
+  ACategory: ICategory;
+  const ADesc: string;
+  const APoint: TDoublePoint;
+  ATextColor, ATextBgColor: TColor32;
+  AFontSize, AMarkerSize: Integer
 );
 begin
-  inherited Create(ADbCode, AName, AId, ACategory, AVisible);
+  inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
   FPicName := APicName;
   FPic := APic;
-  FDesc := ADesc;
-  FLLRect := ALLRect;
-  SetLength(FPoints, 1);
-  FPoints[0] := APoint;
-  FColor1 := AColor1;
-  FColor2 := AColor2;
-  FScale1 := AScale1;
-  FScale2 := AScale2;
+  FPoint := APoint;
+  FTextColor := ATextColor;
+  FTextBgColor := ATextBgColor;
+  FFontSize := AFontSize;
+  FMarkerSize := AMarkerSize;
 end;
 
-function TMarkPoint.GetColor1: TColor32;
+function TMarkPoint.GetTextColor: TColor32;
 begin
-  Result := FColor1;
+  Result := FTextColor;
 end;
 
-function TMarkPoint.GetColor2: TColor32;
+function TMarkPoint.GetTextBgColor: TColor32;
 begin
-  Result := FColor2;
-end;
-
-function TMarkPoint.GetDesc: string;
-begin
-  Result := FDesc;
+  Result := FTextBgColor;
 end;
 
 function TMarkPoint.GetGoToLonLat: TDoublePoint;
 begin
-  Result := FPoints[0];
+  Result := FPoint;
 end;
 
 function TMarkPoint.GetLLRect: TDoubleRect;
 begin
-  Result := FLLRect;
+  Result.TopLeft := FPoint;
+  Result.BottomRight := FPoint;
 end;
 
 function TMarkPoint.GetPic: IMarkPicture;
@@ -124,39 +131,19 @@ begin
   Result := FPicName;
 end;
 
-function TMarkPoint.GetPoints: TArrayOfDoublePoint;
+function TMarkPoint.GetPoint: TDoublePoint;
 begin
-  Result := FPoints;
+  Result := FPoint;
 end;
 
-function TMarkPoint.GetScale1: Integer;
+function TMarkPoint.GetFontSize: Integer;
 begin
-  Result := FScale1;
+  Result := FFontSize;
 end;
 
-function TMarkPoint.GetScale2: Integer;
+function TMarkPoint.GetMarkerSize: Integer;
 begin
-  Result := FScale2;
-end;
-
-function TMarkPoint.IsEmpty: Boolean;
-begin
-  Result := False;
-end;
-
-function TMarkPoint.IsLine: Boolean;
-begin
-  Result := False;
-end;
-
-function TMarkPoint.IsPoint: Boolean;
-begin
-  Result := True;
-end;
-
-function TMarkPoint.IsPoly: Boolean;
-begin
-  Result := False;
+  Result := FMarkerSize;
 end;
 
 end.

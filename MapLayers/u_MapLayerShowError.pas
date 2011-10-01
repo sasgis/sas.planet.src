@@ -90,6 +90,7 @@ end;
 
 procedure TTileErrorInfoLayer.DoRedraw;
 var
+  VText: string;
   VTextWidth: integer;
   VSize: TPoint;
   VErrorInfo: ITileErrorInfo;
@@ -100,8 +101,9 @@ begin
     VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
     FLayer.Bitmap.Clear(0);
     if VErrorInfo.MapType <> nil then begin
-      VTextWidth := FLayer.Bitmap.TextWidth(VErrorInfo.MapType.name);
-      FLayer.Bitmap.RenderText((VSize.X - VTextWidth) div 2, VSize.Y div 4, VErrorInfo.MapType.name, 0, clBlack32);
+      VText := VErrorInfo.MapType.GUIConfig.Name.Value;
+      VTextWidth := FLayer.Bitmap.TextWidth(VText);
+      FLayer.Bitmap.RenderText((VSize.X - VTextWidth) div 2, VSize.Y div 4, VText, 0, clBlack32);
 
       VTextWidth := FLayer.Bitmap.TextWidth(VErrorInfo.ErrorText);
       FLayer.Bitmap.RenderText((VSize.X - VTextWidth) div 2, (VSize.Y div 4) * 3, VErrorInfo.ErrorText, 0, clBlack32);

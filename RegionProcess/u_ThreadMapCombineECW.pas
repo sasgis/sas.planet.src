@@ -7,12 +7,15 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_EcwDll,
+  i_GlobalViewMainConfig,
+  i_BitmapLayerProvider,
+  i_LocalCoordConverterFactorySimpe,
   u_ECWWrite,
   u_MapType,
   u_GeoFun,
   u_BmpUtil,
   t_GeoTypes,
-  i_MarksSimple,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
   u_ThreadMapCombineBase;
@@ -32,6 +35,7 @@ type
 
   TThreadMapCombineECW = class(TThreadMapCombineBase)
   private
+    FEcwDll: IEcwDll;
     sx, ex, sy, ey: integer;
     Rarr: P256rgb;
     Garr: P256rgb;
@@ -45,6 +49,9 @@ type
     procedure saveRECT; override;
   public
     constructor Create(
+      AViewConfig: IGlobalViewMainConfig;
+      AMarksImageProvider: IBitmapLayerProvider;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
       APolygon: TArrayOfDoublePoint;
@@ -54,7 +61,7 @@ type
       AHtypemap: TMapType;
       AusedReColor: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic;
-      AMarksSubset: IMarksSubset;
+      AEcwDll: IEcwDll;
       AQuality: Integer
     );
   end;
@@ -64,10 +71,12 @@ implementation
 uses
   ECWWriter,
   i_CoordConverter,
-  i_LocalCoordConverter,
-  u_GlobalState;
+  i_LocalCoordConverter;
 
 constructor TThreadMapCombineECW.Create(
+  AViewConfig: IGlobalViewMainConfig;
+  AMarksImageProvider: IBitmapLayerProvider;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
   APolygon: TArrayOfDoublePoint;
@@ -76,12 +85,25 @@ constructor TThreadMapCombineECW.Create(
   Atypemap, AHtypemap: TMapType;
   AusedReColor: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic;
-  AMarksSubset: IMarksSubset;
+  AEcwDll: IEcwDll;
   AQuality: Integer
 );
 begin
-  inherited Create(AMapCalibrationList, AFileName, APolygon, ASplitCount,
-    Azoom, Atypemap, AHtypemap, AusedReColor, ARecolorConfig, AMarksSubset);
+  inherited Create(
+    AViewConfig,
+    AMarksImageProvider,
+    ALocalConverterFactory,
+    AMapCalibrationList,
+    AFileName,
+    APolygon,
+    ASplitCount,
+    Azoom,
+    Atypemap,
+    AHtypemap,
+    AusedReColor,
+    ARecolorConfig,
+  );
+  FEcwDll := AEcwDll;
   FQuality := AQuality;
 end;
 
@@ -168,7 +190,7 @@ begin
   ex := (FCurrentPieceRect.Right mod 256);
   ey := (FCurrentPieceRect.Bottom mod 256);
   try
-    FECWWriter := TECWWrite.Create(GState.ProgramPath);
+    FECWWriter := TECWWrite.Create(FEcwDll);
     btmm := TCustomBitmap32.Create;
     btmm.Width := 256;
     btmm.Height := 256;
@@ -193,8 +215,24 @@ begin
       FMapPieceSize.X, FMapPieceSize.Y, FTypeMap.GeoConvert,
       CellIncrementX, CellIncrementY, OriginX, OriginY
       );
-    errecw := FECWWriter.Encode(FCurrentFileName, FMapPieceSize.X, FMapPieceSize.Y, 101 - FQuality, COMPRESS_HINT_BEST, ReadLineECW, IsCancel, nil,
-      Datum, Proj, Units, CellIncrementX, CellIncrementY, OriginX, OriginY);
+    errecw :=
+      FECWWriter.Encode(
+        OperationID,
+        CancelNotifier,
+        FCurrentFileName,
+        FMapPieceSize.X,
+        FMapPieceSize.Y,
+        101 - FQuality,
+        COMPRESS_HINT_BEST,
+        ReadLineECW,
+        Datum,
+        Proj,
+        Units,
+        CellIncrementX,
+        CellIncrementY,
+        OriginX,
+        OriginY
+      );
     if (errecw > 0) and (errecw <> 52) then begin
       path := FTypeMap.GetTileShowName(FLastTile, FZoom);
       ShowMessageSync(SAS_ERR_Save + ' ' + SAS_ERR_Code + inttostr(errecw) + #13#10 + path);

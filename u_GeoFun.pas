@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_GeoFun;
 
 interface
@@ -17,6 +37,8 @@ type
    descr:String;
   end;
 
+  function CalcAngleDelta(ADerg1, ADegr2: Double): Double;
+
   function PolygonFromRect(ARect: TDoubleRect): TArrayOfDoublePoint;
   function DoublePoint(APoint: TPoint): TDoublePoint; overload;
   function DoublePoint(X, Y: Double): TDoublePoint; overload;
@@ -34,8 +56,10 @@ type
   function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
   function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
+  function ConveryPolyline2Polygon(APolyline: TArrayOfDoublePoint; ARadius: Double; Aconverter: ICoordConverter; AZoom: byte): TArrayOfDoublePoint;
 
-  function DoublePoitnsEqual(p1,p2:TDoublePoint):boolean;
+  function DoublePointsEqual(p1,p2: TDoublePoint): Boolean;
+  function DoubleRectsEqual(ARect1, ARect2: TDoubleRect): Boolean;
   function PolygonSquare(Poly:TArrayOfPoint): Double; overload;
   function PolygonSquare(Poly:TArrayOfDoublePoint): Double; overload;
   function PointOnPath(APoint:TDoublePoint; APath: TArrayOfDoublePoint; ADist: Double): Boolean;
@@ -56,6 +80,19 @@ implementation
 
 uses
   Math;
+
+function CalcAngleDelta(ADerg1, ADegr2: Double): Double;
+begin
+  Result := ADerg1 - ADegr2;
+  if (Result > 360) or (Result < 360) then begin
+    Result := Result - Trunc(Result / 360.0) * 360.0;
+  end;
+  if Result > 180.0 then begin
+    Result := Result - 360.0;
+  end else if Result < -180.0 then begin
+    Result := Result + 360.0;
+  end;
+end;
 
 function RgnAndRect(Polyg:TArrayOfPoint; ARect: TRect):boolean;
 var
@@ -310,6 +347,91 @@ begin
   end;
 end;
 
+function ConveryPolyline2Polygon(APolyline: TArrayOfDoublePoint; ARadius: Double; Aconverter: ICoordConverter; AZoom: byte): TArrayOfDoublePoint;
+var
+  i: Integer;
+  VCurrPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VPoinsCount,VResPoinsCount: Integer;
+  s, c: Extended;
+  VRadius:double;
+  LonLatMul,a1,a2,a3,Angle:double;
+  ResultPixelPos:TDoublePoint;
+begin
+  VPoinsCount := Length(APolyline);
+  a2 := 0;
+  if VPoinsCount > 1 then begin
+    VResPoinsCount:=VPoinsCount*2+1;
+    SetLength(Result,VResPoinsCount);
+    for i := 1 to VPoinsCount - 1 do begin
+      VPrevPoint := AConverter.LonLat2PixelPosFloat(APolyline[i-1],Azoom);
+      VCurrPoint := AConverter.LonLat2PixelPosFloat(APolyline[i],Azoom);
+      LonLatMul:=ARadius/AConverter.Datum.CalcDist(APolyline[i-1],APolyline[i]);
+      LonLatMul:=LonLatMul*sqrt(sqr(VCurrPoint.y - VPrevPoint.y)+sqr(VCurrPoint.x - VPrevPoint.x));
+      a1:=Math.Arctan2((VCurrPoint.y - VPrevPoint.y),(VCurrPoint.x - VPrevPoint.x));
+      if a1<0 then begin
+        a1:=2*pi+a1;
+      end;
+
+      if i>1 then begin
+        Angle:=(a1+a2)/2;
+        if abs(A2-A1)>Pi then begin
+          Angle:=Angle-Pi;
+        end;
+      end else begin
+        Angle:=a1;
+      end;
+
+      if i=1 then begin
+        Angle:=a1;
+        VRadius := LonLatMul/sin(pi/4);
+        SinCos(pi/2+pi/4+Angle, s, c);
+        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
+        Result[0]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        SinCos(pi/2-pi/4+Angle+pi, s, c);
+        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
+        Result[VResPoinsCount-2]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        Result[VResPoinsCount-1]:=Result[0];
+      end else begin
+        a3:=abs((pi/2+Angle)-a1);
+        if a3>Pi then begin
+          a3:=a3-Pi;
+        end;
+        VRadius := LonLatMul/sin(a3);
+        if VRadius>LonLatMul*7 then begin
+          VRadius:=LonLatMul*7;
+        end;
+
+        SinCos(pi/2+Angle, s, c);
+        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
+        Result[i-1]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        SinCos(pi/2+Angle+pi, s, c);
+        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
+        Result[VResPoinsCount-2-(i-1)]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+      end;
+
+      if i = VPoinsCount - 1 then begin
+        Angle:=a1;
+        VRadius := LonLatMul/sin(pi/4);
+        SinCos(pi/4+Angle, s, c);
+        ResultPixelPos:=DoublePoint(VCurrPoint.x + VRadius * c, VCurrPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
+        Result[i]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        SinCos(pi/2+pi/4+Angle+pi, s, c);
+        ResultPixelPos:=DoublePoint(VCurrPoint.x + VRadius * c, VCurrPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
+        Result[VResPoinsCount-2-i]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+      end;
+      a2:=a1;
+    end;
+  end else begin
+    Result:=APolyline;
+  end;
+end;
 
 function PolygonSquare(Poly:TArrayOfPoint): Double;
 var
@@ -394,10 +516,19 @@ begin
    end;
 end;
 
-function DoublePoitnsEqual(p1,p2:TDoublePoint):boolean;
+function DoublePointsEqual(p1,p2:TDoublePoint):boolean;
 begin
  if (p1.x=p2.X)and(p1.y=p2.y) then result:=true
                               else result:=false;
+end;
+
+function DoubleRectsEqual(ARect1, ARect2: TDoubleRect): Boolean;
+begin
+  Result :=
+    (ARect1.Left = ARect2.Left) and
+    (ARect1.Top = ARect2.Top) and
+    (ARect1.Right = ARect2.Right) and
+    (ARect1.Bottom = ARect2.Bottom);
 end;
 
 function PolygonFromRect(ARect: TDoubleRect): TArrayOfDoublePoint;

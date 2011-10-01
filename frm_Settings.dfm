@@ -20,7 +20,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 658
     Height = 415
-    ActivePage = tsGPS
+    ActivePage = tsCache
     Align = alClient
     TabOrder = 0
     object tsMaps: TTabSheet
@@ -164,7 +164,7 @@ object frmSettings: TfrmSettings
         ColumnCollection = <
           item
             SizeStyle = ssAbsolute
-            Value = 150.000000000000000000
+            Value = 200.000000000000000000
           end
           item
             Value = 100.000000000000000000
@@ -320,8 +320,8 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 144
-          Height = 21
+          Width = 194
+          Height = 24
           Align = alClient
           Caption = 'Native cache folder:'
           Layout = tlCenter
@@ -330,9 +330,9 @@ object frmSettings: TfrmSettings
         end
         object NewCpath: TEdit
           AlignWithMargins = True
-          Left = 153
+          Left = 203
           Top = 3
-          Width = 454
+          Width = 404
           Height = 21
           Align = alClient
           TabOrder = 0
@@ -363,8 +363,8 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 3
           Top = 30
-          Width = 144
-          Height = 21
+          Width = 194
+          Height = 24
           Align = alClient
           Caption = 'GoogleMV cache folder:'
           Layout = tlCenter
@@ -373,9 +373,9 @@ object frmSettings: TfrmSettings
         end
         object OldCpath: TEdit
           AlignWithMargins = True
-          Left = 153
+          Left = 203
           Top = 30
-          Width = 454
+          Width = 404
           Height = 21
           Align = alClient
           TabOrder = 3
@@ -406,8 +406,8 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 3
           Top = 57
-          Width = 144
-          Height = 21
+          Width = 194
+          Height = 24
           Align = alClient
           Caption = 'EarthSlicer cache folder:'
           Layout = tlCenter
@@ -416,9 +416,9 @@ object frmSettings: TfrmSettings
         end
         object EScPath: TEdit
           AlignWithMargins = True
-          Left = 153
+          Left = 203
           Top = 57
-          Width = 454
+          Width = 404
           Height = 21
           Align = alClient
           TabOrder = 6
@@ -449,19 +449,19 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 3
           Top = 84
-          Width = 144
-          Height = 21
+          Width = 194
+          Height = 24
           Align = alClient
-          Caption = 'GoogleMaps cache folder:'
+          Caption = 'GlobalMapper Tiles (GMT) cache folder:'
           Layout = tlCenter
-          ExplicitWidth = 124
+          ExplicitWidth = 187
           ExplicitHeight = 13
         end
         object GMTilesPath: TEdit
           AlignWithMargins = True
-          Left = 153
+          Left = 203
           Top = 84
-          Width = 454
+          Width = 404
           Height = 21
           Align = alClient
           TabOrder = 9
@@ -492,8 +492,8 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 3
           Top = 111
-          Width = 144
-          Height = 21
+          Width = 194
+          Height = 24
           Align = alClient
           Caption = 'GoogleEarth cache folder:'
           Layout = tlCenter
@@ -502,9 +502,9 @@ object frmSettings: TfrmSettings
         end
         object GECachePath: TEdit
           AlignWithMargins = True
-          Left = 153
+          Left = 203
           Top = 111
-          Width = 454
+          Width = 404
           Height = 21
           Align = alClient
           TabOrder = 12
@@ -535,8 +535,8 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 3
           Top = 138
-          Width = 144
-          Height = 19
+          Width = 194
+          Height = 22
           Align = alClient
           Caption = 'Default cache type'
           Layout = tlCenter
@@ -545,9 +545,9 @@ object frmSettings: TfrmSettings
         end
         object CBCacheType: TComboBox
           AlignWithMargins = True
-          Left = 153
+          Left = 203
           Top = 138
-          Width = 454
+          Width = 404
           Height = 21
           Align = alClient
           Style = csDropDownList
@@ -559,7 +559,7 @@ object frmSettings: TfrmSettings
             'GoogleMV'
             'SAS.Planet'
             'EarthSlicer 1.95'
-            'Googe maps tiles')
+            'GlobalMapper Tiles')
         end
       end
     end
@@ -666,7 +666,7 @@ object frmSettings: TfrmSettings
               Left = 24
               Top = 3
               Width = 94
-              Height = 17
+              Height = 20
               Align = alLeft
               Caption = 'Use proxy (IP:port)'
               Layout = tlCenter
@@ -935,7 +935,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 47
-              Height = 23
+              Height = 26
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Language'
@@ -1107,9 +1107,9 @@ object frmSettings: TfrmSettings
             end
             object flwpnlFillMap: TFlowPanel
               Left = 3
-              Top = 22
+              Top = 19
               Width = 311
-              Height = 24
+              Height = 27
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 0
@@ -1168,7 +1168,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 82
-              Height = 22
+              Height = 25
               Align = alLeft
               Caption = 'Background color'
               Layout = tlCenter
@@ -1201,7 +1201,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 78
-              Height = 25
+              Height = 28
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Resize algorithm'
@@ -1674,7 +1674,7 @@ object frmSettings: TfrmSettings
                 Left = 31
                 Top = 3
                 Width = 74
-                Height = 11
+                Height = 14
                 Margins.Left = 10
                 Margins.Top = 0
                 Margins.Right = 0
@@ -1724,7 +1724,7 @@ object frmSettings: TfrmSettings
                 Left = 31
                 Top = 3
                 Width = 85
-                Height = 11
+                Height = 14
                 Margins.Left = 10
                 Margins.Top = 0
                 Margins.Right = 0
@@ -1747,7 +1747,7 @@ object frmSettings: TfrmSettings
                 Left = 31
                 Top = 3
                 Width = 104
-                Height = 11
+                Height = 14
                 Margins.Left = 10
                 Margins.Top = 0
                 Margins.Right = 0

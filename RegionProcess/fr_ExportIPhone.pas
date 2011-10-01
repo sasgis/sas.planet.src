@@ -16,6 +16,9 @@ uses
   CheckLst,
   Spin,
   ExtCtrls,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_CommonFormAndFrameParents;
 
 type
@@ -52,7 +55,16 @@ type
     procedure chkAllZoomsClick(Sender: TObject);
     procedure btnSelectTargetPathClick(Sender: TObject);
   private
+    FMainMapsConfig: IMainMapsConfig;
+    FFullMapsSet: IMapTypeSet;
+    FGUIConfigList: IMapTypeGUIConfigList;
   public
+    constructor Create(
+      AOwner : TComponent;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList
+    ); reintroduce;
     procedure Init;
   end;
 
@@ -62,7 +74,7 @@ uses
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
-  u_GlobalState,
+  i_GUIDListStatic,
   u_ResStrings,
   u_MapType;
 
@@ -86,19 +98,31 @@ begin
   end;
 end;
 
+constructor TfrExportIPhone.Create(AOwner: TComponent;
+  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList);
+begin
+  inherited Create(AOwner);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
+end;
+
 procedure TfrExportIPhone.Init;
 var
   i: integer;
   VMapType: TMapType;
   VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   chklstZooms.Items.Clear;
   for i:=1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
 
-  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
 
   cbbSat.items.Clear;
   cbbMap.items.Clear;
@@ -107,22 +131,24 @@ begin
   cbbMap.Items.AddObject(SAS_STR_No,nil);
   cbbHybr.Items.AddObject(SAS_STR_No,nil);
 
-  For i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
-    if (VMapType.IsBitmapTiles)and(VMapType.Enabled) then begin
-      if (not(VMapType.asLayer)) then begin
-        VAddedIndex := cbbSat.Items.AddObject(VMapType.name,VMapType);
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  For i := 0 to VGUIDList.Count-1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    if (VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
+      if (not(VMapType.Abilities.IsLayer)) then begin
+        VAddedIndex := cbbSat.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
         if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
           cbbSat.ItemIndex:=VAddedIndex;
         end;
-        VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
+        VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
         if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
           cbbMap.ItemIndex:=VAddedIndex;
         end;
       end else if(VMapType.IsHybridLayer) then begin
-        VAddedIndex := cbbHybr.Items.AddObject(VMapType.name,VMapType);
+        VAddedIndex := cbbHybr.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
         if (cbbHybr.ItemIndex=-1) then begin
-          if GState.MainFormConfig.MainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VMapType.Zmp.GUID) then begin
+          if FMainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VGUID) then begin
             cbbHybr.ItemIndex:=VAddedIndex;
           end;
         end;

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MapMovingConfig;
 
 interface
@@ -14,6 +34,7 @@ type
     FAnimateMove: Boolean;
     FAnimateMoveTime: Cardinal;
     FAnimateMaxStartSpeed: Cardinal;
+    FAnimateMinStartSpeed: Cardinal;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -26,6 +47,9 @@ type
 
     function GetAnimateMaxStartSpeed: Cardinal;
     procedure SetAnimateMaxStartSpeed(AValue: Cardinal);
+
+    function GetAnimateMinStartSpeed: Cardinal;
+    procedure SetAnimateMinStartSpeed(AValue: Cardinal);
   public
     constructor Create;
   end;
@@ -38,8 +62,9 @@ constructor TMapMovingConfig.Create;
 begin
   inherited;
   FAnimateMove := True;
-  FAnimateMoveTime := 200;
+  FAnimateMoveTime := 600;
   FAnimateMaxStartSpeed := 4000;
+  FAnimateMinStartSpeed := 100;
 end;
 
 procedure TMapMovingConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -49,6 +74,7 @@ begin
     FAnimateMove := AConfigData.ReadBool('AnimateMove', FAnimateMove);
     FAnimateMoveTime := AConfigData.ReadInteger('AnimateMoveTime', FAnimateMoveTime);
     FAnimateMaxStartSpeed := AConfigData.ReadInteger('AnimateMaxStartSpeed', FAnimateMaxStartSpeed);
+    FAnimateMinStartSpeed := AConfigData.ReadInteger('AnimateMinStartSpeed', FAnimateMinStartSpeed);
     SetChanged;
   end;
 end;
@@ -60,6 +86,7 @@ begin
   AConfigData.WriteBool('AnimateMove', FAnimateMove);
   AConfigData.WriteInteger('AnimateMoveTime', FAnimateMoveTime);
   AConfigData.WriteInteger('AnimateMaxStartSpeed', FAnimateMaxStartSpeed);
+  AConfigData.WriteInteger('AnimateMinStartSpeed', FAnimateMinStartSpeed);
 end;
 
 function TMapMovingConfig.GetAnimateMove: Boolean;
@@ -87,6 +114,16 @@ begin
   LockRead;
   try
     Result := FAnimateMaxStartSpeed;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMapMovingConfig.GetAnimateMinStartSpeed: Cardinal;
+begin
+  LockRead;
+  try
+    Result := FAnimateMinStartSpeed;
   finally
     UnlockRead;
   end;
@@ -124,6 +161,19 @@ begin
   try
     if FAnimateMaxStartSpeed <> AValue then begin
       FAnimateMaxStartSpeed := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMapMovingConfig.SetAnimateMinStartSpeed(AValue: Cardinal);
+begin
+  LockWrite;
+  try
+    if FAnimateMinStartSpeed <> AValue then begin
+      FAnimateMinStartSpeed := AValue;
       SetChanged;
     end;
   finally

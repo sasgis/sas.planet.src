@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_GEIndexFile;
 
 interface
@@ -37,6 +57,7 @@ type
     procedure GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte; out ANameHi, ANameLo: LongWord);
     procedure _UpdateIndexInfo;
     procedure OnConfigChange(Sender: TObject);
+    function getServID:word;
   protected
   public
     constructor Create(ACacheConfig: TMapTypeCacheConfigGE);
@@ -149,7 +170,7 @@ begin
           for i := Length(FIndexInfo) - 1 downto 0 do begin
             if FIndexInfo[i].Magic = $7593BFD5 then begin
               if FIndexInfo[i].TileID = 130 then begin
-                if FIndexInfo[i].ServID = 0 then begin
+                if FIndexInfo[i].ServID = getServID then begin
                   if FIndexInfo[i].Zoom = AZoom then begin
                     if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
                       AOffset := FIndexInfo[i].Offset;
@@ -180,6 +201,29 @@ begin
     FFileInited := False;
   finally
     FSync.EndWrite;
+  end;
+end;
+
+function TGEIndexFile.getServID:word;
+var
+  VCode:  Integer;
+  VNameInCache: string;
+begin
+  VNameInCache := FCacheConfig.GetNameInCache;
+  if VNameInCache = '' then begin
+    Result := 0;
+  end else if VNameInCache = '1' then begin
+    Result := 1;
+  end else if VNameInCache = '2' then begin
+    Result := 2;
+  end else if VNameInCache = '3' then begin
+    Result := 3;
+  end else begin
+    if TryStrToInt(VNameInCache, VCode) then begin
+      Result := VCode;
+    end else begin
+      Result := 0;
+    end;
   end;
 end;
 

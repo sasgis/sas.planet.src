@@ -6,11 +6,16 @@ uses
   Classes,
   Forms,
   t_GeoTypes,
+  i_OperationNotifier,
+  u_OperationNotifier,
   frm_ProgressSimple;
 
 type
   TThreadRegionProcessAbstract = class(TThread)
   private
+    FCancelNotifierInternal: IOperationNotifierInternal;
+    FCancelNotifier: IOperationNotifier;
+    FOperationID: Integer;
     FProgressForm: TfrmProgressSimple;
     FMessageForShow: string;
     FShowFormCaption: string;
@@ -36,11 +41,13 @@ type
     procedure ProgressFormUpdateCaption(ALine0, ACaption: string);
 
     procedure ShowMessageSync(AMessage: string);
-    function IsCancel: Boolean;
 
     procedure ProcessRegion; virtual; abstract;
     procedure Execute; override;
     procedure Terminate; reintroduce; virtual;
+
+    property CancelNotifier: IOperationNotifier read FCancelNotifier;
+    property OperationID: Integer read FOperationID;
   public
     constructor Create(
       APolygon: TArrayOfDoublePoint
@@ -61,6 +68,8 @@ begin
 end;
 
 constructor TThreadRegionProcessAbstract.Create(APolygon: TArrayOfDoublePoint);
+var
+  VOperationNotifier: TOperationNotifier;
 begin
   inherited Create(false);
   Priority := tpLowest;
@@ -71,10 +80,15 @@ begin
   FProgressForm.ProgressBar1.Max := 100;
   FProgressForm.Visible := true;
   FPolygLL := Copy(APolygon);
+  VOperationNotifier := TOperationNotifier.Create;
+  FCancelNotifierInternal := VOperationNotifier;
+  FCancelNotifier := VOperationNotifier;
+  FOperationID := FCancelNotifier.CurrentOperation;
 end;
 
 destructor TThreadRegionProcessAbstract.Destroy;
 begin
+  FCancelNotifierInternal.NextOperation;
   FPolygLL := nil;
   inherited;
 end;
@@ -93,11 +107,6 @@ begin
   finally
     Synchronize(UpdateProgressFormClose);
   end;
-end;
-
-function TThreadRegionProcessAbstract.IsCancel: Boolean;
-begin
-  result := Terminated;
 end;
 
 procedure TThreadRegionProcessAbstract.ProgressFormUpdateCaption(ALine0,
@@ -142,6 +151,7 @@ end;
 
 procedure TThreadRegionProcessAbstract.Terminate;
 begin
+  FCancelNotifierInternal.NextOperation;
   inherited;
 end;
 

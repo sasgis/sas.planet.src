@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit i_MarkFactory;
 
 interface
@@ -19,64 +39,67 @@ type
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplatePoint = nil
-    ): IMarkFull;
+    ): IMarkPoint;
     function CreateNewLine(
       APoints: TArrayOfDoublePoint;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplateLine = nil
-    ): IMarkFull;
+    ): IMarkLine;
     function CreateNewPoly(
       APoints: TArrayOfDoublePoint;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplatePoly = nil
-    ): IMarkFull;
+    ): IMarkPoly;
 
     function ModifyPoint(
-      ASource: IMarkFull;
+      ASource: IMarkPoint;
       AName: string;
       AVisible: Boolean;
       APic: IMarkPicture;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       APoint: TDoublePoint;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer;
-      AScale2: Integer
-    ): IMarkFull;
+      ATextColor: TColor32;
+      ATextBgColor: TColor32;
+      AFontSize: Integer;
+      AMarkerSize: Integer
+    ): IMarkPoint;
     function ModifyLine(
-      ASource: IMarkFull;
+      ASource: IMarkLine;
       AName: string;
       AVisible: Boolean;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       APoints: TArrayOfDoublePoint;
-      AColor1: TColor32;
-      AScale1: Integer
-    ): IMarkFull;
+      ALineColor: TColor32;
+      ALineWidth: Integer
+    ): IMarkLine;
     function ModifyPoly(
-      ASource: IMarkFull;
+      ASource: IMarkPoly;
       AName: string;
       AVisible: Boolean;
-      ACategory: IMarkCategory;
+      ACategory: ICategory;
       ADesc: string;
       APoints: TArrayOfDoublePoint;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer
-    ): IMarkFull;
+      ABorderColor: TColor32;
+      AFillColor: TColor32;
+      ALineWidth: Integer
+    ): IMarkPoly;
 
     function SimpleModifyLine(
-      ASource: IMarkFull;
+      ASource: IMarkLine;
       APoints: TArrayOfDoublePoint;
       ADesc: string
-    ): IMarkFull;
+    ): IMarkLine;
     function SimpleModifyPoly(
-      ASource: IMarkFull;
+      ASource: IMarkPoly;
       APoints: TArrayOfDoublePoint
-    ): IMarkFull;
+    ): IMarkPoly;
+
+    function GetMarkPictureList: IMarkPictureList;
+    property MarkPictureList: IMarkPictureList read GetMarkPictureList;
 
     function GetConfig: IMarksFactoryConfig;
     property Config: IMarksFactoryConfig read GetConfig;

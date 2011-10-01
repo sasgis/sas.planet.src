@@ -7,6 +7,10 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_CoordConverterFactory,
+  i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   fr_ExportIPhone;
 
@@ -14,9 +18,17 @@ type
   TExportProviderIPhone = class(TExportProviderAbstract)
   private
     FFrame: TfrExportIPhone;
+    FCoordConverterFactory: ICoordConverterFactory;
     FNewFormat: Boolean;
   public
-    constructor Create(AParent: TWinControl; ANewFormat: Boolean);
+    constructor Create(
+      AParent: TWinControl;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      ACoordConverterFactory: ICoordConverterFactory;
+      ANewFormat: Boolean
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
@@ -38,9 +50,16 @@ uses
 { TExportProviderIPhone }
 
 constructor TExportProviderIPhone.Create(
-  AParent: TWinControl; ANewFormat: Boolean);
+  AParent: TWinControl;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  ACoordConverterFactory: ICoordConverterFactory;
+  ANewFormat: Boolean
+);
 begin
-  inherited Create(AParent);
+  inherited Create(AParent, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
+  FCoordConverterFactory := ACoordConverterFactory;
   FNewFormat := ANewFormat;
 end;
 
@@ -62,7 +81,12 @@ end;
 procedure TExportProviderIPhone.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportIPhone.Create(nil);
+    FFrame := TfrExportIPhone.Create(
+      nil,
+      FMainMapsConfig,
+      FFullMapsSet,
+      FGUIConfigList
+    );
     FFrame.Visible := False;
     FFrame.Parent := FParent;
   end;
@@ -134,7 +158,19 @@ begin
   comprHyb:=FFrame.seHybrCompress.Value;
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
   Replace:=FFrame.chkAppendTilse.Checked;
-  TThreadExportIPhone.Create(path,APolygon,ZoomArr,typemaparr,VActiveMapIndex,Replace,FNewFormat,comprSat,comprMap,comprHyb)
+  TThreadExportIPhone.Create(
+    FCoordConverterFactory,
+    path,
+    APolygon,
+    ZoomArr,
+    typemaparr,
+    VActiveMapIndex,
+    Replace,
+    FNewFormat,
+    comprSat,
+    comprMap,
+    comprHyb
+  )
 end;
 
 end.

@@ -1,10 +1,30 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit i_MapLayerNavToPointMarkerConfig;
 
 interface
 
 uses
-  GR32,
-  i_ConfigDataElement;
+  i_ConfigDataElement,
+  i_BitmapMarkerProviderSimpleConfig;
 
 type
   IMapLayerNavToPointMarkerConfig = interface(IConfigDataElement)
@@ -13,24 +33,11 @@ type
     procedure SetCrossDistInPixels(AValue: Double);
     property CrossDistInPixels: Double read GetCrossDistInPixels write SetCrossDistInPixels;
 
-    function GetMarkerArrowSize: Integer;
-    procedure SetMarkerArrowSize(AValue: Integer);
-    property MarkerArrowSize: Integer read GetMarkerArrowSize write SetMarkerArrowSize;
+    function GetArrowMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    property ArrowMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetArrowMarkerConfig;
 
-    function GetMarkerArrowColor: TColor32;
-    procedure SetMarkerArrowColor(AValue: TColor32);
-    property MarkerArrowColor: TColor32 read GetMarkerArrowColor write SetMarkerArrowColor;
-
-    function GetMarkerCrossSize: Integer;
-    procedure SetMarkerCrossSize(AValue: Integer);
-    property MarkerCrossSize: Integer read GetMarkerCrossSize write SetMarkerCrossSize;
-
-    function GetMarkerCrossColor: TColor32;
-    procedure SetMarkerCrossColor(AValue: TColor32);
-    property MarkerCrossColor: TColor32 read GetMarkerCrossColor write SetMarkerCrossColor;
-
-    function GetMarkerArrow: TCustomBitmap32;
-    function GetMarkerCross: TCustomBitmap32;
+    function GetReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    property ReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetReachedMarkerConfig;
   end;
 
 implementation

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_SensorViewListGeneratorStuped;
 
 interface
@@ -8,7 +28,7 @@ uses
   TB2Item,
   TB2Dock,
   i_JclNotify,
-  i_GUIDList,
+  i_GUIDSet,
   i_SensorList,
   i_SensorViewListGenerator;
 
@@ -21,10 +41,10 @@ type
     FParentMenu: TTBCustomItem;
     FImages: TCustomImageList;
     FImageIndexReset: TImageIndex;
-    procedure AddSensor(ASensor: ISensorListEntity; AResult: IGUIDInterfaceList);
-    procedure AddSensorsInFixedOrder(ASensorList: ISensorList; AResult: IGUIDInterfaceList);
+    procedure AddSensor(ASensor: ISensorListEntity; AResult: IGUIDInterfaceSet);
+    procedure AddSensorsInFixedOrder(ASensorList: ISensorList; AResult: IGUIDInterfaceSet);
   protected
-    function CreateSensorViewList(ASensorList: ISensorList): IGUIDInterfaceList;
+    function CreateSensorViewList(ASensorList: ISensorList): IGUIDInterfaceSet;
   public
     constructor Create(
       ATimerNoifier: IJclNotifier;
@@ -41,7 +61,7 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  u_GUIDInterfaceList,
+  u_GUIDInterfaceSet,
   c_SensorsGUIDSimple,
   i_Sensor,
   u_SensorViewTextTBXPanel,
@@ -50,7 +70,7 @@ uses
 { TSensorViewListGeneratorStuped }
 
 procedure TSensorViewListGeneratorStuped.AddSensor(ASensor: ISensorListEntity;
-  AResult: IGUIDInterfaceList);
+  AResult: IGUIDInterfaceSet);
 var
   VSensorViewConfig: ISensorViewConfig;
   VSensorView: ISensorView;
@@ -79,7 +99,7 @@ begin
 end;
 
 procedure TSensorViewListGeneratorStuped.AddSensorsInFixedOrder(
-  ASensorList: ISensorList; AResult: IGUIDInterfaceList);
+  ASensorList: ISensorList; AResult: IGUIDInterfaceSet);
 var
   VSensor: ISensorListEntity;
 begin
@@ -123,7 +143,7 @@ begin
 end;
 
 function TSensorViewListGeneratorStuped.CreateSensorViewList(
-  ASensorList: ISensorList): IGUIDInterfaceList;
+  ASensorList: ISensorList): IGUIDInterfaceSet;
 var
   VGUID: TGUID;
   i: Cardinal;
@@ -132,7 +152,7 @@ var
 begin
   FDefaultDoc.BeginUpdate;
   try
-    Result := TGUIDInterfaceList.Create;
+    Result := TGUIDInterfaceSet.Create;
     ASensorList.LockRead;
     try
       AddSensorsInFixedOrder(ASensorList, Result);

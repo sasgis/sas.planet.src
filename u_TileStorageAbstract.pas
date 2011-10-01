@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_TileStorageAbstract;
 
 interface
@@ -6,8 +26,9 @@ uses
   Types,
   Classes,
   GR32,
-  t_CommonTypes,
+  i_OperationNotifier,
   i_CoordConverter,
+  i_SimpleTileStorageConfig,
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_TileInfoBasic,
@@ -15,16 +36,17 @@ uses
 
 type
   TTileStorageAbstract = class
+  private
+    FConfig: ISimpleTileStorageConfig;
+  protected
+    property Config: ISimpleTileStorageConfig read FConfig;
   public
+    constructor Create(
+      AConfig: ISimpleTileStorageConfig
+    );
     function GetMainContentType: IContentTypeInfoBasic; virtual; abstract;
     function GetAllowDifferentContentTypes: Boolean; virtual; abstract;
 
-    function GetIsStoreFileCache: Boolean; virtual; abstract;
-    function GetUseDel: boolean; virtual; abstract;
-    function GetUseSave: boolean; virtual; abstract;
-    function GetIsStoreReadOnly: boolean; virtual; abstract;
-    function GetTileFileExt: string; virtual; abstract;
-    function GetCoordConverter: ICoordConverter; virtual; abstract;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; virtual; abstract;
 
     function GetTileFileName(
@@ -68,20 +90,17 @@ type
     ); virtual; abstract;
 
     function LoadFillingMap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       btm: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
       AVersionInfo: IMapVersionInfo;
-      AIsStop: TIsCancelChecker;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
       ATNEColor: TColor32
     ): boolean; virtual;
-
-    property CacheConfig: TMapTypeCacheConfigAbstract read GetCacheConfig;
-    property TileFileExt: string read GetTileFileExt;
-//    property GeoConvert: ICoordConverter read FCoordConverter;
   end;
 
 implementation
@@ -93,12 +112,18 @@ uses
 
 { TTileStorageAbstract }
 
+constructor TTileStorageAbstract.Create(AConfig: ISimpleTileStorageConfig);
+begin
+  FConfig := AConfig;
+end;
+
 function TTileStorageAbstract.LoadFillingMap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
   btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
   AVersionInfo: IMapVersionInfo;
-  AIsStop: TIsCancelChecker;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
   ATNEColor: TColor32
@@ -118,7 +143,7 @@ var
 begin
   Result := true;
   try
-    VGeoConvert := GetCoordConverter;
+    VGeoConvert := FConfig.CoordConverter;
 
     VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
     VGeoConvert.CheckZoom(ASourceZoom);
@@ -140,10 +165,10 @@ begin
         or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
       while VIterator.Next(VCurrTile) do begin
-        if AIsStop then break;
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
         VTileInfo := GetTileInfo(VCurrTile, ASourceZoom, AVersionInfo);
         if not VTileInfo.GetIsExists then begin
-          if AIsStop then break;
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
           VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
           if VSourceTilePixels.Left < VPixelsRect.Left then begin
@@ -185,7 +210,7 @@ begin
         end;
       end;
     end;
-    if AIsStop then begin
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Result := false;
     end;
   except

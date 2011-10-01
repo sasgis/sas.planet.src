@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MarkTemplates;
 
 interface
@@ -20,7 +40,7 @@ type
     function IsSameInternal(ATemplate: IMarkTemplate): Boolean;
   protected
     function GetNewName: string;
-    function GetCategory: IMarkCategory;
+    function GetCategory: ICategory;
     function GetCategoryId: Integer;
   public
     constructor Create(
@@ -32,16 +52,16 @@ type
 
   TMarkTemplatePoint = class(FMarkTemplateBase, IMarkTemplatePoint)
   private
-    FColor1: TColor32;
-    FColor2: TColor32;
-    FScale1: Integer;
-    FScale2: Integer;
+    FTextColor: TColor32;
+    FTextBgColor: TColor32;
+    FFontSize: Integer;
+    FMarkerSize: Integer;
     FPic: IMarkPicture;
   protected
-    function GetColor1: TColor32;
-    function GetColor2: TColor32;
-    function GetScale1: Integer;
-    function GetScale2: Integer;
+    function GetTextColor: TColor32;
+    function GetTextBgColor: TColor32;
+    function GetFontSize: Integer;
+    function GetMarkerSize: Integer;
     function GetPic: IMarkPicture;
     function IsSame(ATemplate: IMarkTemplatePoint): Boolean;
   public
@@ -49,50 +69,50 @@ type
       ACategoryDb: IMarkCategoryDBSmlInternal;
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer;
-      AScale2: Integer;
+      ATextColor: TColor32;
+      ATextBgColor: TColor32;
+      AFontSize: Integer;
+      AMarkerSize: Integer;
       APic: IMarkPicture
     );
   end;
 
   TMarkTemplateLine = class(FMarkTemplateBase, IMarkTemplateLine)
   private
-    FColor1: TColor32;
-    FScale1: Integer;
+    FLineColor: TColor32;
+    FLineWidth: Integer;
   protected
-    function GetColor1: TColor32;
-    function GetScale1: Integer;
+    function GetLineColor: TColor32;
+    function GetLineWidth: Integer;
     function IsSame(ATemplate: IMarkTemplateLine): Boolean;
   public
     constructor Create(
       ACategoryDb: IMarkCategoryDBSmlInternal;
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
-      AColor1: TColor32;
-      AScale1: Integer
+      ALineColor: TColor32;
+      ALineWidth: Integer
     );
   end;
 
   TMarkTemplatePoly = class(FMarkTemplateBase, IMarkTemplatePoly)
   private
-    FColor1: TColor32;
-    FColor2: TColor32;
-    FScale1: Integer;
+    FBorderColor: TColor32;
+    FFillColor: TColor32;
+    FLineWidth: Integer;
   protected
-    function GetColor1: TColor32;
-    function GetColor2: TColor32;
-    function GetScale1: Integer;
+    function GetBorderColor: TColor32;
+    function GetFillColor: TColor32;
+    function GetLineWidth: Integer;
     function IsSame(ATemplate: IMarkTemplatePoly): Boolean;
   public
     constructor Create(
       ACategoryDb: IMarkCategoryDBSmlInternal;
       ANameGenerator: IMarkNameGenerator;
       ACategoryId: Integer;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer
+      ABorderColor: TColor32;
+      AFillColor: TColor32;
+      ALineWidth: Integer
     );
   end;
 
@@ -115,7 +135,7 @@ begin
   FCategoryId := ACategoryId;
 end;
 
-function FMarkTemplateBase.GetCategory: IMarkCategory;
+function FMarkTemplateBase.GetCategory: ICategory;
 begin
   Result := FCategoryDb.GetCategoryByID(FCategoryId);
 end;
@@ -149,27 +169,27 @@ constructor TMarkTemplatePoint.Create(
   ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
   ACategoryId: Integer;
-  AColor1, AColor2: TColor32;
-  AScale1, AScale2: Integer;
+  ATextColor, ATextBgColor: TColor32;
+  AFontSize, AMarkerSize: Integer;
   APic: IMarkPicture
 );
 begin
   inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
-  FColor1 := AColor1;
-  FColor2 := AColor2;
-  FScale1 := AScale1;
-  FScale2 := AScale2;
+  FTextColor := ATextColor;
+  FTextBgColor := ATextBgColor;
+  FFontSize := AFontSize;
+  FMarkerSize := AMarkerSize;
   FPic := APic;
 end;
 
-function TMarkTemplatePoint.GetColor1: TColor32;
+function TMarkTemplatePoint.GetTextColor: TColor32;
 begin
-  Result := FColor1;
+  Result := FTextColor;
 end;
 
-function TMarkTemplatePoint.GetColor2: TColor32;
+function TMarkTemplatePoint.GetTextBgColor: TColor32;
 begin
-  Result := FColor2;
+  Result := FTextBgColor;
 end;
 
 function TMarkTemplatePoint.GetPic: IMarkPicture;
@@ -177,14 +197,14 @@ begin
   Result := FPic;
 end;
 
-function TMarkTemplatePoint.GetScale1: Integer;
+function TMarkTemplatePoint.GetFontSize: Integer;
 begin
-  Result := FScale1;
+  Result := FFontSize;
 end;
 
-function TMarkTemplatePoint.GetScale2: Integer;
+function TMarkTemplatePoint.GetMarkerSize: Integer;
 begin
-  Result := FScale2;
+  Result := FMarkerSize;
 end;
 
 function TMarkTemplatePoint.IsSame(ATemplate: IMarkTemplatePoint): Boolean;
@@ -192,10 +212,10 @@ begin
   Result := IsSameInternal(ATemplate);
   if Result then begin
     Result :=
-      (FColor1 = ATemplate.Color1) and
-      (FColor2 = ATemplate.Color2) and
-      (FScale1 = ATemplate.Scale1) and
-      (FScale2 = ATemplate.Scale2) and
+      (FTextColor = ATemplate.TextColor) and
+      (FTextBgColor = ATemplate.TextBgColor) and
+      (FFontSize = ATemplate.FontSize) and
+      (FMarkerSize = ATemplate.MarkerSize) and
       (FPic = ATemplate.Pic);
   end;
 end;
@@ -205,22 +225,23 @@ end;
 constructor TMarkTemplateLine.Create(
   ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
-  ACategoryId: Integer; AColor1: TColor32;
-  AScale1: Integer);
+  ACategoryId: Integer;
+  ALineColor: TColor32;
+  ALineWidth: Integer);
 begin
   inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
-  FColor1 := AColor1;
-  FScale1 := AScale1;
+  FLineColor := ALineColor;
+  FLineWidth := ALineWidth;
 end;
 
-function TMarkTemplateLine.GetColor1: TColor32;
+function TMarkTemplateLine.GetLineColor: TColor32;
 begin
-  Result := FColor1;
+  Result := FLineColor;
 end;
 
-function TMarkTemplateLine.GetScale1: Integer;
+function TMarkTemplateLine.GetLineWidth: Integer;
 begin
-  Result := FScale1;
+  Result := FLineWidth;
 end;
 
 function TMarkTemplateLine.IsSame(ATemplate: IMarkTemplateLine): Boolean;
@@ -228,8 +249,8 @@ begin
   Result := IsSameInternal(ATemplate);
   if Result then begin
     Result :=
-      (FColor1 = ATemplate.Color1) and
-      (FScale1 = ATemplate.Scale1);
+      (FLineColor = ATemplate.LineColor) and
+      (FLineWidth = ATemplate.LineWidth);
   end;
 end;
 
@@ -238,28 +259,28 @@ end;
 constructor TMarkTemplatePoly.Create(
   ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
-  ACategoryId: Integer; AColor1,
-  AColor2: TColor32; AScale1: Integer);
+  ACategoryId: Integer; ABorderColor,
+  AFillColor: TColor32; ALineWidth: Integer);
 begin
   inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
-  FColor1 := AColor1;
-  FColor2 := AColor2;
-  FScale1 := AScale1;
+  FBorderColor := ABorderColor;
+  FFillColor := AFillColor;
+  FLineWidth := ALineWidth;
 end;
 
-function TMarkTemplatePoly.GetColor1: TColor32;
+function TMarkTemplatePoly.GetBorderColor: TColor32;
 begin
-  Result := FColor1;
+  Result := FBorderColor;
 end;
 
-function TMarkTemplatePoly.GetColor2: TColor32;
+function TMarkTemplatePoly.GetFillColor: TColor32;
 begin
-  Result := FColor2;
+  Result := FFillColor;
 end;
 
-function TMarkTemplatePoly.GetScale1: Integer;
+function TMarkTemplatePoly.GetLineWidth: Integer;
 begin
-  Result := FScale1;
+  Result := FLineWidth;
 end;
 
 function TMarkTemplatePoly.IsSame(ATemplate: IMarkTemplatePoly): Boolean;
@@ -267,9 +288,9 @@ begin
   Result := IsSameInternal(ATemplate);
   if Result then begin
     Result :=
-      (FColor1 = ATemplate.Color1) and
-      (FColor2 = ATemplate.Color2) and
-      (FScale1 = ATemplate.Scale1);
+      (FBorderColor = ATemplate.BorderColor) and
+      (FFillColor = ATemplate.FillColor) and
+      (FLineWidth = ATemplate.LineWidth);
   end;
 end;
 

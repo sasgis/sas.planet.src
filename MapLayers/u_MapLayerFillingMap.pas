@@ -7,7 +7,7 @@ uses
   GR32,
   GR32_Image,
   i_JclNotify,
-  t_CommonTypes,
+  i_OperationNotifier,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ImageResamplerConfig,
@@ -23,7 +23,10 @@ type
     FConfigStatic: IFillingMapLayerConfigStatic;
     procedure OnConfigChange(Sender: TObject);
   protected
-    procedure DrawBitmap(AIsStop: TIsCancelChecker); override;
+    procedure DrawBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    ); override;
     function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
   public
     constructor Create(
@@ -81,7 +84,10 @@ begin
   OnConfigChange(nil);
 end;
 
-procedure TMapLayerFillingMap.DrawBitmap(AIsStop: TIsCancelChecker);
+procedure TMapLayerFillingMap.DrawBitmap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
 var
   VZoom: Byte;
   VZoomSource: Byte;
@@ -152,7 +158,7 @@ begin
       VGeoConvert := VLocalConverter.GetGeoConverter;
 
       VBitmapOnMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
-      if not AIsStop then begin
+      if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
         VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
         VSourceGeoConvert.CheckLonLatRect(VSourceLonLatRect);
@@ -160,7 +166,7 @@ begin
         VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
         VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
         while VTileIterator.Next(VTile) do begin
-          if AIsStop then begin
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
           VCurrTilePixelRectSource := VSourceGeoConvert.TilePos2PixelRect(VTile, VZoom);
@@ -191,18 +197,16 @@ begin
           VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
           VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
 
-          if AIsStop then begin
-            break;
-          end;
           VCurrTilePixelRectAtBitmap.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
           VCurrTilePixelRectAtBitmap.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
-          if AIsStop then begin
+
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
-          if VSourceMapType.LoadFillingMap(VBmp, VTile, VZoom, VZoomSource, AIsStop, VConfig.NoTileColor, VConfig.ShowTNE, VConfig.TNEColor) then begin
+          if VSourceMapType.LoadFillingMap(AOperationID, ACancelNotifier, VBmp, VTile, VZoom, VZoomSource, VConfig.NoTileColor, VConfig.ShowTNE, VConfig.TNEColor) then begin
             Layer.Bitmap.Lock;
             try
-              if not AIsStop then begin
+              if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
                 Layer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
                 SetBitmapChanged;
               end;

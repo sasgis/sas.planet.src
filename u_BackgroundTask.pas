@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_BackgroundTask;
 
 interface
@@ -6,21 +26,27 @@ uses
   Windows,
   SyncObjs,
   Classes,
+  i_OperationNotifier,
   i_BackgroundTask,
+  u_OperationNotifier,
   u_InterfacedThread;
 
 type
   TBackgroundTask = class(TInterfacedThread, IBackgroundTask)
   private
+    FCancelNotifierInternal: IOperationNotifierInternal;
+    FCancelNotifier: IOperationNotifier;
     FStopThread: TEvent;
     FAllowExecute: TEvent;
     FCS: TCriticalSection;
-    FNeedStopExecute: Boolean;
   protected
-    procedure ExecuteTask; virtual; abstract;
+    procedure ExecuteTask(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    ); virtual; abstract;
     procedure Execute; override;
     procedure Terminate; override;
-    function IsNeedStopExecute(): Boolean;
+    property CancelNotifier: IOperationNotifier read FCancelNotifier;
   protected
     procedure StartExecute; virtual;
     procedure StopExecute; virtual;
@@ -37,12 +63,17 @@ uses
 { TBackgroundTask }
 
 constructor TBackgroundTask.Create(APriority: TThreadPriority);
+var
+  VOperationNotifier: TOperationNotifier;
 begin
   inherited Create;
   FStopThread := TEvent.Create(nil, True, False, '');
   FAllowExecute := TEvent.Create(nil, True, False, '');
   FCS := TCriticalSection.Create;
   SetPriority(APriority);
+  VOperationNotifier := TOperationNotifier.Create;
+  FCancelNotifierInternal := VOperationNotifier;
+  FCancelNotifier := VOperationNotifier;
 end;
 
 destructor TBackgroundTask.Destroy;
@@ -58,6 +89,7 @@ procedure TBackgroundTask.Execute;
 var
   VHandles: array [0..1] of THandle;
   VWaitResult: DWORD;
+  VOperatonID: Integer;
 begin
   inherited;
   VHandles[0] := FAllowExecute.Handle;
@@ -69,14 +101,14 @@ begin
       begin
         FCS.Acquire;
         try
-          FNeedStopExecute := False;
+          VOperatonID := FCancelNotifier.CurrentOperation;
         finally
           FCS.Release;
         end;
-        ExecuteTask;
+        ExecuteTask(VOperatonID, FCancelNotifier);
         FCS.Acquire;
         try
-          if not FNeedStopExecute then begin
+          if not FCancelNotifier.IsOperationCanceled(VOperatonID) then begin
             FAllowExecute.ResetEvent;
           end;
         finally
@@ -85,11 +117,6 @@ begin
       end;
     end;
   end;
-end;
-
-function TBackgroundTask.IsNeedStopExecute: Boolean;
-begin
-  Result := FNeedStopExecute;
 end;
 
 procedure TBackgroundTask.StartExecute;
@@ -106,7 +133,7 @@ procedure TBackgroundTask.StopExecute;
 begin
   FCS.Acquire;
   try
-    FNeedStopExecute := True;
+    FCancelNotifierInternal.NextOperation;
     FAllowExecute.ResetEvent;
   finally
     FCS.Release;

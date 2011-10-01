@@ -98,21 +98,21 @@ begin
       ProgressFormUpdateOnProgress;
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
-        VExt := FMapType.TileStorage.TileFileExt;
+        VExt := FMapType.StorageConfig.TileFileExt;
         VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FTargetFile) + FMapType.GetShortFolderName);
         VTileIterator := VTileIterators[i];
         while VTileIterator.Next(VTile) do begin
-          if IsCancel then begin
+          if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
           VMemStream.Position := 0;
           VTileInfo := VTileStorage.GetTileInfo(VTile, VZoom, nil);
           if VTileStorage.LoadTile(VTile, VZoom, nil, VMemStream, VTileInfo) then begin
             VFileTime := VTileInfo.GetLoadDate;
-            VMemStream.Position := 0;   
+            VMemStream.Position := 0;
             FTar.AddStream(
               VMemStream,
-              FTileNameGen.GetTileFileName(VTile, VZoom)+ VTileStorage.GetTileFileExt,
+              FTileNameGen.GetTileFileName(VTile, VZoom)+ VExt,
               VFileTime
             );
           end;

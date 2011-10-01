@@ -13,17 +13,19 @@ uses
   GR32_Layers,
   i_JclNotify,
   t_GeoTypes,
-  t_CommonTypes,
+  i_OperationNotifier,
   i_MapTypes,
   i_MapTypeIconsList,
   i_ActiveMapsConfig,
   i_BackgroundTask,
   i_InternalPerformanceCounter,
+  i_LayerBitmapClearStrategy,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_GlobalViewMainConfig,
   i_ViewPortState,
+  i_MapTypeGUIConfigList,
   i_MiniMapLayerConfig,
   i_BitmapPostProcessingConfig,
   u_MapType,
@@ -36,6 +38,7 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FParentMap: TImage32;
     FCoordConverterFactory: ILocalCoordConverterFactorySimpe;
+    FGUIConfigList: IMapTypeGUIConfigList;
 
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
@@ -51,10 +54,8 @@ type
     FPosMoved: Boolean;
     FViewRectMoveDelta: TDoublePoint;
 
-    FBottomMargin: Integer;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-    FBackGroundColor: TColor32;
 
     FMainMap: IMapType;
     FLayersSet: IMapTypeSet;
@@ -63,6 +64,8 @@ type
     FDrawTask: IBackgroundTask;
     FUpdateCounter: Integer;
     FBgDrawCounter: IInternalPerformanceCounter;
+    FClearStrategy: ILayerBitmapClearStrategy;
+    FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
 
     procedure DrawMainViewRect;
 
@@ -89,15 +92,20 @@ type
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
-    procedure SetBottomMargin(const Value: Integer);
 
     procedure OnMainMapChange(Sender: TObject);
     procedure OnLayerSetChange(Sender: TObject);
-    procedure OnDrawBitmap(AIsStop: TIsCancelChecker);
+    procedure OnDrawBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    );
     procedure OnTimer(Sender: TObject);
 
     procedure SetBitmapChanged;
-    procedure DrawBitmap(AIsStop: TIsCancelChecker);
+    procedure DrawBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    );
     function DrawMap(
       ATargetBmp: TCustomBitmap32;
       AMapType: TMapType;
@@ -108,6 +116,7 @@ type
       AUsePre: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic
     ): Boolean;
+    procedure ClearLayerBitmap;
   protected
     procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
     function GetMapLayerLocationRect: TFloatRect; override;
@@ -129,14 +138,15 @@ type
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       AConfig: IMiniMapLayerConfig;
       AViewConfig: IGlobalViewMainConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
+      AGUIConfigList: IMapTypeGUIConfigList;
       AIconsList: IMapTypeIconsList;
       ATimerNoifier: IJclNotifier
     );
     destructor Destroy; override;
-    property BottomMargin: Integer read FBottomMargin write SetBottomMargin;
   end;
 
 implementation
@@ -157,19 +167,38 @@ uses
 
 { TMapMainLayer }
 
+procedure TMiniMapLayer.ClearLayerBitmap;
+begin
+  if Visible then begin
+    FLayer.Bitmap.Lock;
+    try
+      if FClearStrategy <> nil then begin
+        FClearStrategy.Clear(FLayer.Bitmap);
+        FClearStrategy := nil;
+      end;
+    finally
+      FLayer.Bitmap.UnLock;
+    end;
+  end;
+end;
+
 constructor TMiniMapLayer.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   AConfig: IMiniMapLayerConfig;
   AViewConfig: IGlobalViewMainConfig;
   APostProcessingConfig:IBitmapPostProcessingConfig;
+  AGUIConfigList: IMapTypeGUIConfigList;
   AIconsList: IMapTypeIconsList;
   ATimerNoifier: IJclNotifier
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
+  FGUIConfigList := AGUIConfigList;
+  FClearStrategyFactory := AClearStrategyFactory;
   FViewConfig := AViewConfig;
   FCoordConverterFactory := ACoordConverterFactory;
   FPostProcessingConfig := APostProcessingConfig;
@@ -332,11 +361,11 @@ var
   VGenerator: TMapMenuGeneratorBasic;
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
+    FGUIConfigList,
     FConfig.MapsConfig.GetActiveMapsSet,
     AMapssSubMenu,
     Self.OnClickMapItem,
-    FIconsList,
-    false
+    FIconsList
   );
   try
     VGenerator.BuildControls;
@@ -344,11 +373,11 @@ begin
     FreeAndNil(VGenerator);
   end;
   VGenerator := TMapMenuGeneratorBasic.Create(
+    FGUIConfigList,
     FConfig.MapsConfig.GetActiveLayersSet,
     ALayersSubMenu,
     Self.OnClickLayerItem,
-    FIconsList,
-    false
+    FIconsList
   );
   try
    VGenerator.BuildControls;
@@ -361,12 +390,7 @@ procedure TMiniMapLayer.DoRedraw;
 begin
   FDrawTask.StopExecute;
   inherited;
-  FLayer.Bitmap.Lock;
-  try
-    FLayer.Bitmap.Clear(FBackGroundColor);
-  finally
-    FLayer.Bitmap.Unlock;
-  end;
+  ClearLayerBitmap;
   DrawMainViewRect;
   if Visible then begin
     FDrawTask.StartExecute;
@@ -441,7 +465,10 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.DrawBitmap(AIsStop: TIsCancelChecker);
+procedure TMiniMapLayer.DrawBitmap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
 var
   i: Cardinal;
   VMapType: TMapType;
@@ -485,9 +512,9 @@ begin
 
   VTileToDrawBmp := TCustomBitmap32.Create;
   try
-    if not AIsStop then begin
+    if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       while VTileIterator.Next(VTile) do begin
-        if AIsStop then begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           break;
         end;
         VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
@@ -508,7 +535,7 @@ begin
             VTileToDrawBmp.Clear(0);
           end;
         end;
-        if AIsStop then begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           break;
         end;
 
@@ -523,7 +550,7 @@ begin
                 VTileIsEmpty := False;
               end;
             end;
-            if AIsStop then begin
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               break;
             end;
           end;
@@ -531,14 +558,14 @@ begin
 
         if not VTileIsEmpty then begin
           VRecolorConfig.ProcessBitmap(VTileToDrawBmp);
-          if AIsStop then begin
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
         end;
 
         FLayer.Bitmap.Lock;
         try
-          if AIsStop then begin
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
           FLayer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
@@ -604,7 +631,7 @@ begin
   VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   VViewSize := ViewCoordConverter.GetLocalRectSize;
   Result.Right := VViewSize.X;
-  Result.Bottom := VViewSize.Y - FBottomMargin;
+  Result.Bottom := VViewSize.Y - FConfig.BottomMargin;
   Result.Left := Result.Right - VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;
@@ -841,7 +868,6 @@ begin
   try
     FViewConfig.LockRead;
     try
-      FBackGroundColor := Color32(FViewConfig.BackGroundColor);
       FUsePrevZoomAtMap := FViewConfig.UsePrevZoomAtMap;
       FUsePrevZoomAtLayer := FViewConfig.UsePrevZoomAtLayer;
     finally
@@ -858,7 +884,12 @@ begin
       FPlusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
       FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
       FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-      FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+      FLayer.Bitmap.Lock;
+      try
+        FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+      finally
+        FLayer.Bitmap.Unlock;
+      end;
       SetVisible(FConfig.Visible);
       PosChange(ViewCoordConverter);
       SetNeedRedraw;
@@ -872,13 +903,16 @@ begin
   ViewUpdate;
 end;
 
-procedure TMiniMapLayer.OnDrawBitmap(AIsStop: TIsCancelChecker);
+procedure TMiniMapLayer.OnDrawBitmap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
 var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   VCounterContext := FBgDrawCounter.StartOperation;
   try
-    DrawBitmap(AIsStop);
+    DrawBitmap(AOperationID, ACancelNotifier);
   finally
     FBgDrawCounter.FinishOperation(VCounterContext);
   end;
@@ -952,18 +986,6 @@ begin
   InterlockedIncrement(FUpdateCounter);
 end;
 
-procedure TMiniMapLayer.SetBottomMargin(const Value: Integer);
-begin
-  ViewUpdateLock;
-  try
-    FBottomMargin := Value;
-    SetNeedUpdateLocation;
-  finally
-    ViewUpdateUnlock;
-  end;
-  ViewUpdate;
-end;
-
 procedure TMiniMapLayer.SetLayerCoordConverter(AValue: ILocalCoordConverter);
 var
   VNewSize: TPoint;
@@ -971,16 +993,21 @@ begin
   VNewSize := GetLayerSizeForView(AValue);
   FLayer.Bitmap.Lock;
   try
+    if Visible then begin
+      FClearStrategy := FClearStrategyFactory.GetStrategy(LayerCoordConverter, AValue, FLayer.Bitmap, FClearStrategy);
+    end else begin
+      FClearStrategy := nil;
+    end;
     if (FLayer.Bitmap.Width <> VNewSize.X) or (FLayer.Bitmap.Height <> VNewSize.Y) then begin
       SetNeedUpdateLayerSize;
     end;
   finally
     FLayer.Bitmap.Unlock;
   end;
-
   if (LayerCoordConverter = nil) or (not LayerCoordConverter.GetIsSameConverter(AValue)) then begin
     SetNeedRedraw;
   end;
+  SetNeedUpdateLocation;
   inherited;
 end;
 

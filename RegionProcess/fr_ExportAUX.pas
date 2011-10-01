@@ -14,6 +14,9 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
   u_CommonFormAndFrameParents;
 
 type
@@ -32,14 +35,23 @@ type
     cbbZoom: TComboBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
+    FMainMapsConfig: IMainMapsConfig;
+    FFullMapsSet: IMapTypeSet;
+    FGUIConfigList: IMapTypeGUIConfigList;
   public
+    constructor Create(
+      AOwner : TComponent;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList
+    ); reintroduce;
     procedure Init(AZoom: Byte);
   end;
 
 implementation
 
 uses
-  u_GlobalState,
+  i_GUIDListStatic,
   u_MapType;
 
 {$R *.dfm}
@@ -53,12 +65,24 @@ begin
   end;
 end;
 
+constructor TfrExportAUX.Create(AOwner: TComponent;
+  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList);
+begin
+  inherited Create(AOwner);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
+end;
+
 procedure TfrExportAUX.Init(AZoom: Byte);
 var
   i: integer;
   VMapType: TMapType;
   VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   cbbZoom.Items.Clear;
   for i:=1 to 24 do begin
@@ -67,12 +91,14 @@ begin
   cbbMap.items.Clear;
   cbbZoom.ItemIndex := AZoom;
 
-  VActiveMapGUID := GState.MainFormConfig.MainMapsConfig.GetActiveMap.GetSelectedGUID;
-  For i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
-    if (VMapType.IsBitmapTiles)and(VMapType.Enabled) then begin
-      if VMapType.TileStorage.GetIsStoreFileCache then begin
-        VAddedIndex := cbbMap.Items.AddObject(VMapType.name,VMapType);
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+  For i := 0 to VGUIDList.Count-1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    if (VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
+      if VMapType.StorageConfig.IsStoreFileCache then begin
+        VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
         if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
           cbbMap.ItemIndex:=VAddedIndex;
         end;

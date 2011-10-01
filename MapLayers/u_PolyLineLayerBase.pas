@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_ViewPortState,
   i_LocalCoordConverter,
+  i_LineOnMapEdit,
   i_PolyLineLayerConfig,
   u_ClipPolygonByRect,
   u_MapLayerBasic;
@@ -18,6 +19,7 @@ type
   TPolyLineLayerBase = class(TMapLayerBasicNoBitmap)
   private
     FConfig: IPolyLineLayerConfig;
+    FLineOnMapEdit: ILineOnMapEdit;
 
     FLineColor: TColor32;
     FLineWidth: Integer;
@@ -35,8 +37,7 @@ type
     FPolygon: TPolygon32;
     FLinePolygon: TPolygon32;
 
-
-    function LonLatArrayToVisualFloatArray(ALocalConverter: ILocalCoordConverter; APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
+    FClosed: boolean;
 
     procedure DrawPolyPoint(
       ABuffer: TBitmap32;
@@ -47,12 +48,14 @@ type
       const ARectColor: TColor32
     );
   protected
+    procedure SetSourcePolygon(const Value: TArrayOfDoublePoint); virtual;
+    procedure OnLineOnMapEditChange(Sender: TObject); virtual;
     procedure OnConfigChange(Sender: TObject); virtual;
     procedure DoConfigChange; virtual;
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter); virtual;
     property BitmapSize: TPoint read FBitmapSize;
     property PointsOnBitmap: TArrayOfDoublePoint read FPointsOnBitmap;
-    property SourcePolygon: TArrayOfDoublePoint read FSourcePolygon;
+    property SourcePolygon: TArrayOfDoublePoint read FSourcePolygon write SetSourcePolygon;
   protected
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
@@ -61,12 +64,12 @@ type
     constructor Create(
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      ALineOnMapEdit: ILineOnMapEdit;
       AConfig: IPolyLineLayerConfig;
-      APolygon: TPolygon32
+      APolygon: TPolygon32;
+      AClosed: boolean
     );
     destructor Destroy; override;
-    procedure DrawLine(APathLonLat: TArrayOfDoublePoint; AActiveIndex: Integer); virtual;
-    procedure DrawNothing; virtual;
   end;
 
 implementation
@@ -74,7 +77,6 @@ implementation
 uses
   SysUtils,
   u_GeoFun,
-  i_CoordConverter,
   u_NotifyEventListener;
 
 { TPolyLineLayerBase }
@@ -82,19 +84,29 @@ uses
 constructor TPolyLineLayerBase.Create(
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  ALineOnMapEdit: ILineOnMapEdit;
   AConfig: IPolyLineLayerConfig;
-  APolygon: TPolygon32
+  APolygon: TPolygon32;
+  AClosed: boolean
 );
 begin
   inherited Create(AParentMap, AViewPortState);
   FConfig := AConfig;
+  FLineOnMapEdit := ALineOnMapEdit;
   FPolygon := APolygon;
 
   FLinePolygon := TPolygon32.Create;
 
+  FClosed := AClosed;
+
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
+  );
+
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnLineOnMapEditChange),
+    FLineOnMapEdit.GetChangeNotifier
   );
 end;
 
@@ -114,40 +126,6 @@ begin
   FPointFirstColor := FConfig.PointFirstColor;
   FPointActiveColor := FConfig.PointActiveColor;
   FPointSize := FConfig.PointSize;
-end;
-
-procedure TPolyLineLayerBase.DrawLine(APathLonLat: TArrayOfDoublePoint;
-  AActiveIndex: Integer);
-var
-  VPointsCount: Integer;
-begin
-  ViewUpdateLock;
-  try
-    FSourcePolygon := Copy(APathLonLat);
-    FPolyActivePointIndex := AActiveIndex;
-
-    VPointsCount := Length(FSourcePolygon);
-    if VPointsCount > 0 then begin
-      SetNeedRedraw;
-      Show;
-    end else begin
-      Hide;
-    end;
-  finally
-    ViewUpdateUnlock;
-  end;
-  ViewUpdate;
-end;
-
-procedure TPolyLineLayerBase.DrawNothing;
-begin
-  ViewUpdateLock;
-  try
-    Hide;
-  finally
-    ViewUpdateUnlock;
-  end;
-  ViewUpdate;
 end;
 
 procedure TPolyLineLayerBase.DrawPolyPoint(
@@ -183,31 +161,6 @@ begin
   end;
 end;
 
-function TPolyLineLayerBase.LonLatArrayToVisualFloatArray(
-  ALocalConverter: ILocalCoordConverter;
-  APolygon: TArrayOfDoublePoint
-): TArrayOfDoublePoint;
-var
-  i: Integer;
-  VPointsCount: Integer;
-  VLonLat: TDoublePoint;
-  VGeoConvert: ICoordConverter;
-begin
-  VPointsCount := Length(APolygon);
-  SetLength(Result, VPointsCount);
-
-  VGeoConvert := ALocalConverter.GetGeoConverter;
-  for i := 0 to VPointsCount - 1 do begin
-    VLonLat := APolygon[i];
-    if PointIsEmpty(VLonLat) then begin
-      Result[i] := VLonLat;
-    end else begin
-      VGeoConvert.CheckLonLatPos(VLonLat);
-      Result[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
-    end;
-  end;
-end;
-
 procedure TPolyLineLayerBase.OnConfigChange(Sender: TObject);
 begin
   ViewUpdateLock;
@@ -217,6 +170,38 @@ begin
       DoConfigChange;
     finally
       FConfig.UnlockRead;
+    end;
+  finally
+    ViewUpdateUnlock;
+  end;
+  ViewUpdate;
+end;
+
+procedure TPolyLineLayerBase.OnLineOnMapEditChange(Sender: TObject);
+var
+  VPoints: TArrayOfDoublePoint;
+  VActiveIndex: Integer;
+  VPointsCount: Integer;
+begin
+  FLineOnMapEdit.LockRead;
+  try
+    VPoints := Copy(FLineOnMapEdit.GetPoints);
+    VActiveIndex := FLineOnMapEdit.GetActiveIndex;
+  finally
+    FLineOnMapEdit.UnlockRead;
+  end;
+
+  ViewUpdateLock;
+  try
+    FSourcePolygon := VPoints;
+    FPolyActivePointIndex := VActiveIndex;
+
+    VPointsCount := Length(FSourcePolygon);
+    if VPointsCount > 0 then begin
+      SetNeedRedraw;
+      Show;
+    end else begin
+      Hide;
     end;
   finally
     ViewUpdateUnlock;
@@ -270,7 +255,12 @@ begin
     Inc(VLocalRect.Right, 10);
     Inc(VLocalRect.Bottom, 10);
     VBitmapClip := TPolygonClipByRect.Create(VLocalRect);
-    FPointsOnBitmap := LonLatArrayToVisualFloatArray(ALocalConverter, FSourcePolygon);
+    FPointsOnBitmap := ALocalConverter.LonLatArrayToVisualFloatArray(FSourcePolygon);
+    if FClosed then begin
+      SetLength(FPointsOnBitmap,VPointsCount+1);
+      FPointsOnBitmap[VPointsCount]:=FPointsOnBitmap[0];
+      inc(VPointsCount);
+    end;
 
     VPointsProcessedCount := VBitmapClip.Clip(FPointsOnBitmap[0], VPointsCount, VPointsOnBitmapPrepared);
     if VPointsProcessedCount > 0 then begin
@@ -302,6 +292,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TPolyLineLayerBase.SetSourcePolygon(const Value: TArrayOfDoublePoint);
+begin
+  FSourcePolygon := Value;
 end;
 
 procedure TPolyLineLayerBase.StartThreads;

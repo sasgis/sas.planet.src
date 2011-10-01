@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit frm_Settings;
 
 interface
@@ -24,7 +44,9 @@ uses
   GR32_Image,
   u_CommonFormAndFrameParents,
   i_ConfigDataWriteProvider,
+  i_JclListenerNotifierLinksList,
   i_ImageResamplerFactory,
+  i_MapTypeConfigModalEdit,
   fr_ShortCutList,
   u_MapType,
   u_ResStrings;
@@ -227,16 +249,18 @@ type
     procedure MapListChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
   private
-    FMapsEdit: boolean;
+    FLinksList: IJclListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
+    FMapTypeEditor: IMapTypeConfigModalEdit;
+    procedure SatellitePaint;
+    procedure GPSReceiverReceive(Sender: TObject);
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
+    procedure InitMapsList;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Save(AProvider: IConfigDataWriteProvider);
-    procedure InitMapsList;
     procedure RefreshTranslation; override;
-    procedure SatellitePaint;
+    property MapTypeEditor: IMapTypeConfigModalEdit read FMapTypeEditor;
   end;
 
 var
@@ -251,6 +275,10 @@ uses
   t_CommonTypes,
   i_ProxySettings,
   i_InetConfig,
+  i_GUIDListStatic,
+  u_JclListenerNotifierLinksList,
+  u_NotifyEventListener,
+  u_MapTypeConfigModalEditByForm,
   u_GlobalState,
   frm_Main,
   frm_IntrnalBrowser,
@@ -258,17 +286,9 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmSettings.Save(AProvider: IConfigDataWriteProvider);
-begin
-  try
-    GState.SaveMainParams;
-    frmMain.SaveWindowConfigToIni(AProvider);
-  except
-  end;
-end;
-
 procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
+  frShortCutList.CancelChanges;
   Close
 end;
 
@@ -319,14 +339,17 @@ var
   VInetConfig: IInetConfig;
   VNeedReboot: boolean;
 begin
- VNeedReboot:=false;
- For i:=0 to MapList.Items.Count-1 do
-  begin
-   TMapType(MapList.Items.Item[i].data).FSortIndex:=i+1;
+  VNeedReboot:=false;
+  GState.MapType.GUIConfigList.LockWrite;
+  try
+    For i:=0 to MapList.Items.Count-1 do begin
+      TMapType(MapList.Items.Item[i].data).GUIConfig.SortIndex := i+1;
+    end;
+  finally
+    GState.MapType.GUIConfigList.UnlockWrite;
   end;
- GState.MapType.SortList;
 
- GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
+  GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
 
   GState.DownloadConfig.LockWrite;
   try
@@ -352,7 +375,6 @@ begin
 
   GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
 
- GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
  GState.BitmapPostProcessingConfig.LockWrite;
  try
    GState.BitmapPostProcessingConfig.InvertColor:=CBinvertcolor.Checked;
@@ -384,7 +406,13 @@ begin
 
   GState.ImageResamplerConfig.ActiveIndex := ComboBox2.ItemIndex;
 
-  GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedSize := SESizeStr.Value;
+  GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockWrite;
+  try
+    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
+    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize := SESizeStr.Value;
+  finally
+    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockWrite;
+  end;
   GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockWrite;
   try
     GState.MainFormConfig.LayersConfig.GPSTrackConfig.LineWidth := SESizeTrack.Value;
@@ -466,14 +494,12 @@ begin
     GState.MainFormConfig.LayersConfig.KmlLayerConfig.UnlockWrite;
   end;
 
- GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
+ GState.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
 
  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
- save(GState.MainConfigProvider);
- if FMapsEdit then begin
-   frmMain.CreateMapUI;
- end;
+ frShortCutList.ApplyChanges;
+ frmMain.SaveConfig;
  if VNeedReboot then begin
    ShowMessage(SAS_MSG_need_reload_application_curln);
  end;
@@ -513,7 +539,7 @@ end;
 
 procedure TfrmSettings.CBoxLocalChange(Sender: TObject);
 begin
- GState.LanguageManager.SetCurrentLangIndex(CBoxLocal.ItemIndex);
+ GState.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
 end;
 
 procedure TfrmSettings.CBProxyusedClick(Sender: TObject);
@@ -553,7 +579,13 @@ end;
 constructor TfrmSettings.Create(AOwner: TComponent);
 begin
   inherited;
+  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.GPSReceiverReceive),
+    GState.GPSpar.DataReciveNotifier
+  );
   frShortCutList := TfrShortCutList.Create(nil);
+  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create;
   PageControl1.ActivePageIndex:=0;
 end;
 
@@ -567,14 +599,19 @@ procedure TfrmSettings.FormShow(Sender: TObject);
 var
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
+  i: Integer;
 begin
+  FLinksList.ActivateLinks;
  InitMapsList;
 
- FMapsEdit:=false;
  CBoxLocal.Clear;
  frShortCutList.Parent := GroupBox5;
- GState.LanguageManager.GetLangNames(CBoxLocal.Items);
- CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLangIndex;
+
+  CBoxLocal.Items.Clear;
+  for i := 0 to GState.LanguageManager.LanguageList.Count - 1 do begin
+    CBoxLocal.Items.Add(GState.LanguageManager.GetLangNameByIndex(i));
+  end;
+  CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLanguageIndex;
 
  MiniMapAlphaEdit.Value:=GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
 
@@ -621,7 +658,6 @@ begin
     GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
   end;
  CBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
-  ColorBoxGPSstr.Selected := WinColor(GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedColor);
   GState.BitmapPostProcessingConfig.LockRead;
   try
     CBinvertcolor.Checked := GState.BitmapPostProcessingConfig.InvertColor;
@@ -672,7 +708,15 @@ begin
   finally
     GState.GPSConfig.UnlockRead;
   end;
-  SESizeStr.Value:=GState.MainFormConfig.LayersConfig.GPSMarker.MarkerMovedSize;
+
+  GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;
+  try
+    ColorBoxGPSstr.Selected := WinColor(GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor);
+    SESizeStr.Value:=GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize;
+  finally
+    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockRead;
+  end;
+
   GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockRead;
   try
     SESizeTrack.Value := Trunc(GState.MainFormConfig.LayersConfig.GPSTrackConfig.LineWidth);
@@ -708,6 +752,11 @@ begin
  SatellitePaint;
 end;
 
+procedure TfrmSettings.GPSReceiverReceive(Sender: TObject);
+begin
+  if Self.Visible then SatellitePaint;
+end;
+
 procedure TfrmSettings.FormCreate(Sender: TObject);
 var i:integer;
 begin
@@ -737,33 +786,37 @@ begin
 end;
 
 procedure ExchangeItems(lv: TListView; const i, j: Integer);
-var tempLI: TListItem;
+var
+  tempLI: TListItem;
 begin
- lv.Items.BeginUpdate;
- try
-  tempLI := TListItem.Create(lv.Items);
-  tempLI.Assign(lv.Items.Item[i]);
-  lv.Items.Item[i].Assign(lv.Items.Item[j]);
-  lv.Items.Item[j].Assign(tempLI);
-  lv.Items.Item[j].Selected:=true;
-  tempLI.Free;
- finally
-  lv.Items.EndUpdate
- end;
+  lv.Items.BeginUpdate;
+  try
+    tempLI := TListItem.Create(lv.Items);
+    try
+      tempLI.Assign(lv.Items.Item[i]);
+      lv.Items.Item[i].Assign(lv.Items.Item[j]);
+      lv.Items.Item[j].Assign(tempLI);
+      lv.Items.Item[j].Selected:=true;
+    finally
+      tempLI.Free;
+    end;
+  finally
+    lv.Items.EndUpdate
+  end;
 end;
 
 procedure TfrmSettings.Button12Click(Sender: TObject);
 begin
- FMapsEdit:=true;
- If (MapList.Selected<>nil)and(MapList.Selected.Index>0) then
-  ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index-1);
+  If (MapList.Selected<>nil)and(MapList.Selected.Index>0) then begin
+    ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index-1);
+  end;
 end;
 
 procedure TfrmSettings.Button11Click(Sender: TObject);
 begin
- FMapsEdit:=true;
- If (MapList.Selected<>nil)and(MapList.Selected.Index<MapList.Items.Count-1) then
-  ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index+1)
+  If (MapList.Selected<>nil)and(MapList.Selected.Index<MapList.Items.Count-1) then begin
+    ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index+1)
+  end;
 end;
 
 procedure TfrmSettings.Button15Click(Sender: TObject);
@@ -771,8 +824,7 @@ var
   VMapType: TMapType;
 begin
   VMapType := TMapType(MapList.Selected.Data);
-  if frmMapTypeEdit.EditMapModadl(VMapType) then begin
-    FMapsEdit := True;
+  if FMapTypeEditor.EditMap(VMapType) then begin
     InitMapsList;
   end;
 end;
@@ -785,7 +837,7 @@ begin
   if Self.Visible then begin
     if Item.Data<>nil then begin
       VMap := TMapType(Item.Data);
-      btnMapInfo.Enabled:=VMap.Zmp.InfoUrl<>'';
+      btnMapInfo.Enabled:=VMap.GUIConfig.InfoUrl.Value<>'';
     end;
   end;
 end;
@@ -793,7 +845,7 @@ end;
 procedure TfrmSettings.MapListCustomDrawSubItem(Sender:TCustomListView; Item:TListItem; SubItem:Integer; State:TCustomDrawState; var DefaultDraw:Boolean);
 begin
  if item = nil then EXIT;
- if TMapType(Item.Data).separator then
+ if TMapType(Item.Data).GUIConfig.Separator then
   begin
    sender.canvas.Pen.Color:=clGray;
    sender.canvas.MoveTo(2,Item.DisplayRect(drBounds).Bottom-1);
@@ -828,10 +880,13 @@ end;
 procedure TfrmSettings.btnMapInfoClick(Sender: TObject);
 var
   VMap: TMapType;
+  VUrl: string;
 begin
   VMap := TMapType(MapList.Selected.Data);
-  if VMap.Zmp.InfoUrl <> '' then begin
-    frmIntrnalBrowser.Navigate(VMap.Zmp.FileName, VMap.Zmp.InfoUrl);
+  VUrl := VMap.GUIConfig.InfoUrl.Value;
+  if VUrl <> '' then begin
+    VUrl := 'sas://ZmpInfo/' + GUIDToString(VMap.Zmp.GUID) + VUrl;
+    frmIntrnalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
   end;
 end;
 
@@ -839,30 +894,33 @@ procedure TfrmSettings.InitMapsList;
 var
   i: integer;
   VMapType: TMapType;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
 begin
   MapList.Clear;
-  for i:=0 to GState.MapType.Count-1 do begin
-    VMapType := GState.MapType[i];
-    With VMapType do begin
-      MapList.AddItem(VMapType.name,nil);
-      MapList.Items.Item[i].Data:=VMapType;
-      MapList.Items.Item[i].SubItems.Add(VMapType.TileStorage.CacheConfig.NameInCache);
-      if VMapType.asLayer then begin
-        MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.ParentSubMenu);
-      end else begin
-        MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.ParentSubMenu);
-      end;
-      MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.HotKey));
-      MapList.Items.Item[i].SubItems.Add(VMapType.Zmp.FileName);
-      if VMapType.Enabled then begin
-        MapList.Items.Item[i].SubItems.Add(SAS_STR_Yes)
-      end else begin
-        MapList.Items.Item[i].SubItems.Add(SAS_STR_No)
-      end;
+  VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
+  for i := 0 to VGUIDList.Count - 1 do begin
+    VGUID := VGUIDList.Items[i];
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+
+    MapList.AddItem(VMapType.GUIConfig.Name.Value, nil);
+    MapList.Items.Item[i].Data:=VMapType;
+    MapList.Items.Item[i].SubItems.Add(VMapType.StorageConfig.NameInCache);
+    if VMapType.Abilities.IsLayer then begin
+      MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
+    end else begin
+      MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
+    end;
+    MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.GUIConfig.HotKey));
+    MapList.Items.Item[i].SubItems.Add(VMapType.Zmp.FileName);
+    if VMapType.GUIConfig.Enabled then begin
+      MapList.Items.Item[i].SubItems.Add(SAS_STR_Yes)
+    end else begin
+      MapList.Items.Item[i].SubItems.Add(SAS_STR_No)
     end;
   end;
-  if MapList.Items.Count>0 then begin
-    MapList.Items.Item[0].Selected:=true;
+  if MapList.Items.Count > 0 then begin
+    MapList.Items.Item[0].Selected := True;
   end;
 end;
 

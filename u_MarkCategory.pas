@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MarkCategory;
 
 interface
@@ -7,7 +27,7 @@ uses
   i_MarksDbSmlInternal;
 
 type
-  TMarkCategory = class(TInterfacedObject, IMarkCategory, IMarkCategorySMLInternal)
+  TMarkCategory = class(TInterfacedObject, ICategory, IMarkCategory, IMarkCategorySMLInternal)
   private
     FDbCode: Integer;
     FId: Integer;
@@ -20,11 +40,12 @@ type
     function GetId: integer; stdcall;
   protected
     function GetName: string; stdcall;
+    function IsSame(ACategory: ICategory): Boolean;
+  protected
     function GetVisible: boolean; stdcall;
     function GetAfterScale: integer; stdcall;
     function GetBeforeScale: integer; stdcall;
     function IsNew: Boolean;
-    function IsSame(ACategory: IMarkCategory): Boolean;
   public
     constructor Create(
       ADbCode: Integer;
@@ -91,7 +112,7 @@ begin
   Result := FId < 0;
 end;
 
-function TMarkCategory.IsSame(ACategory: IMarkCategory): Boolean;
+function TMarkCategory.IsSame(ACategory: ICategory): Boolean;
 var
   VCategoryInternal: IMarkCategorySMLInternal;
 begin
