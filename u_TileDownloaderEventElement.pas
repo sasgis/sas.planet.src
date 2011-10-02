@@ -8,28 +8,32 @@ uses
   SysUtils,
   SyncObjs,
   i_JclNotify,
-  i_OperationCancelNotifier,
+  i_OperationNotifier,
+  i_MapVersionInfo,
+  i_LastResponseInfo,
   i_TileDownloader,
   i_TileDownloaderConfig,
   i_TileError,
   i_DownloadResult,
+  i_DownloadInfoSimple,
+  i_TileDownloadRequest,
   i_DownloadChecker,
   i_DownloadResultFactory,
   u_DownloadCheckerStuped,
-  u_DownloadResultFactoryTileDownload,
+  u_DownloadResultFactory,
   u_MapType;
 
 type
   TEventElementStatus = class
   private
-    FCancelNotifier: IOperationCancelNotifier;
+    FCancelNotifier: IOperationNotifier;
     FCancelListener: IJclListener;
     FThreadSafeCS: TCriticalSection;
     FCancelled: Boolean;
     function GetIsCanselled: Boolean;
     procedure OnCancelEvent(Sender: TObject);
   public
-    constructor Create(ACancelNotifier: IOperationCancelNotifier);
+    constructor Create(ACancelNotifier: IOperationNotifier);
     destructor Destroy; override;
     property IsCanceled: Boolean read GetIsCanselled;
   end;
@@ -41,17 +45,18 @@ type
     FCallBackList: TList;
     FRES_TileDownloadUnexpectedError: string;
 
+    FDownloadInfo: IDownloadInfoSimple;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorLogger: ITileErrorLogger;
     FMapType: TMapType;
     FDownloadResult: IDownloadResult;
     FResultFactory: IDownloadResultFactory;
     FDownloadChecker: IDownloadChecker;
-    FCancelNotifier: IOperationCancelNotifier;
+    FCancelNotifier: IOperationNotifier;
 
-    FUrl: string;
-    FRawRequestHeader: string;
-    FRawResponseHeader: string;
+    FRequest: ITileDownloadRequest;
+    FLastResponseInfo: ILastResponseInfo;
+    FVersionInfo: IMapVersionInfo;
     FTileXY: TPoint;
     FTileZoom: Byte;
     FTileSize: Cardinal;
@@ -65,10 +70,11 @@ type
     procedure GuiSync;
   public
     constructor Create(
+      ADownloadInfo: IDownloadInfoSimple;
       AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger;
       AMapType: TMapType;
-      ACancelNotifier: IOperationCancelNotifier
+      ACancelNotifier: IOperationNotifier
     );
     destructor Destroy; override;
 
@@ -78,38 +84,38 @@ type
     procedure ExecCallBackList;
 
     procedure OnBeforeRequest(AConfig: ITileDownloaderConfigStatic);
-    procedure OnAfterResponse();
+    procedure OnAfterResponse(const ARawResponseHeader: string);
 
-    function  GetUrl: string;
-    procedure SetUrl(Value: string);
-    function  GetRawRequestHeader: string;
-    procedure SetRawRequestHeader(Value: string);
-    function  GetRawResponseHeader: string;
-    procedure SetRawResponseHeader(Value: string);
+    function  GetRequest: ITileDownloadRequest;
+    procedure SetRequest(AValue: ITileDownloadRequest);
+    function  GetLastResponseInfo: ILastResponseInfo;
+    procedure SetLastResponseInfo(AValue: ILastResponseInfo);
+    function  GetVersionInfo: IMapVersionInfo;
+    procedure SetVersionInfo(AValue: IMapVersionInfo);
     function  GetTileXY: TPoint;
-    procedure SetTileXY(Value: TPoint);
+    procedure SetTileXY(AValue: TPoint);
     function  GetTileZoom: Byte;
-    procedure SetTileZoom(Value: Byte);
+    procedure SetTileZoom(AValue: Byte);
     function  GetTileSize: Cardinal;
-    procedure SetTileSize(Value: Cardinal);
+    procedure SetTileSize(AValue: Cardinal);
     function  GetCheckTileSize: Boolean;
-    procedure SetCheckTileSize(Value: Boolean);
+    procedure SetCheckTileSize(AValue: Boolean);
     function  GetOldTileSize: Cardinal;
-    procedure SetOldTileSize(Value: Cardinal);
+    procedure SetOldTileSize(AValue: Cardinal);
     function  GetTileMIME: string;
-    procedure SetTileMIME(Value: string);
+    procedure SetTileMIME(AValue: string);
     function  GetTileStream: TMemoryStream;
-    procedure SetTileStream(Value: TMemoryStream);
+    procedure SetTileStream(AValue: TMemoryStream);
     function  GetHttpStatusCode: Cardinal;
-    procedure SetHttpStatusCode(Value: Cardinal);
+    procedure SetHttpStatusCode(AValue: Cardinal);
     function  GetDownloadResult: IDownloadResult;
-    procedure SetDownloadResult(Value: IDownloadResult);
+    procedure SetDownloadResult(AValue: IDownloadResult);
     function  GetResultFactory: IDownloadResultFactory;
-    function GetCancelNotifier: IOperationCancelNotifier;
+    function  GetCancelNotifier: IOperationNotifier;
 
-    property Url: string read GetUrl write SetUrl;
-    property RawRequestHeader: string read GetRawRequestHeader write SetRawRequestHeader;
-    property RawResponseHeader: string read GetRawResponseHeader write SetRawResponseHeader;
+    property Request: ITileDownloadRequest read GetRequest write SetRequest;
+    property LastResponseInfo: ILastResponseInfo read GetLastResponseInfo write SetLastResponseInfo;
+    property VersionInfo: IMapVersionInfo read GetVersionInfo write SetVersionInfo;
     property TileXY: TPoint read GetTileXY write SetTileXY;
     property TileZoom: Byte read GetTileZoom write SetTileZoom;
     property TileSize: Cardinal read GetTileSize write SetTileSize;
@@ -120,7 +126,7 @@ type
     property HttpStatusCode: Cardinal read GetHttpStatusCode write SetHttpStatusCode;
     property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
     property ResultFactory: IDownloadResultFactory read GetResultFactory;
-    property CancelNotifier: IOperationCancelNotifier read GetCancelNotifier;
+    property CancelNotifier: IOperationNotifier read GetCancelNotifier;
   end;
 
 implementation
@@ -133,7 +139,7 @@ uses
 
 { TEventElementStatus }
 
-constructor TEventElementStatus.Create(ACancelNotifier: IOperationCancelNotifier);
+constructor TEventElementStatus.Create(ACancelNotifier: IOperationNotifier);
 begin
   inherited Create;
   FCancelled := False;
@@ -180,26 +186,28 @@ end;
 { TTileDownloaderEventElement }
 
 constructor TTileDownloaderEventElement.Create(
+  ADownloadInfo: IDownloadInfoSimple;
   AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger;
   AMapType: TMapType;
-  ACancelNotifier: IOperationCancelNotifier
+  ACancelNotifier: IOperationNotifier
 );
 begin
   inherited Create;
   FCancelNotifier := ACancelNotifier;
   FEventStatus := TEventElementStatus.Create(FCancelNotifier);
   FProcessed := False;
+  FDownloadInfo := ADownloadInfo;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorLogger := AErrorLogger;
   FMapType := AMapType;
   FDownloadResult := nil;
   FResultFactory := nil;
   FDownloadChecker := nil;
-
-  FUrl := '';
-  FRawRequestHeader := '';
-  FRawResponseHeader := '';
+  
+  FRequest := nil;
+  FLastResponseInfo := nil;
+  FVersionInfo := nil;
   FTileXY.X := 0;
   FTileXY.Y := 0;
   FTileZoom := 0;
@@ -240,13 +248,9 @@ end;
 procedure TTileDownloaderEventElement.OnBeforeRequest(AConfig: ITileDownloaderConfigStatic);
 begin
   if not FEventStatus.IsCanceled then begin
-    FResultFactory := TDownloadResultFactoryTileDownload.Create(
-      GState.DownloadResultTextProvider,
-      FTileZoom,
-      FTileXY,
-      FMapType,
-      FUrl,
-      FRawRequestHeader
+
+    FResultFactory := TDownloadResultFactory.Create(
+      GState.DownloadResultTextProvider   // TODO: Избавиться от GState
     );
 
     FDownloadChecker := TDownloadCheckerStuped.Create(
@@ -258,27 +262,49 @@ begin
       FOldTileSize
     );
 
-    FDownloadResult := FDownloadChecker.BeforeRequest(FUrl, FRawRequestHeader);
+    FDownloadResult := FDownloadChecker.BeforeRequest(FRequest);
   end;
 end;
 
-procedure TTileDownloaderEventElement.OnAfterResponse();
+procedure TTileDownloaderEventElement.OnAfterResponse(const ARawResponseHeader: string);
+var
+  VHeader: string;
 begin
+  VHeader := ARawResponseHeader;
   if not FEventStatus.IsCanceled then begin
-    FDownloadResult := FDownloadChecker.AfterResponse(FHttpStatusCode, FTileMIME, FRawResponseHeader);
+    FDownloadResult :=
+      FDownloadChecker.AfterResponse(
+        FRequest,
+        FHttpStatusCode,
+        FTileMIME,
+        VHeader
+      );
     if FDownloadResult = nil then begin
-      FDownloadResult := FDownloadChecker.AfterReciveData(FTileStream.Size, FTileStream.Memory, FHttpStatusCode, FRawResponseHeader);
+      FDownloadResult :=
+        FDownloadChecker.AfterReciveData(
+          FRequest,
+          FTileStream.Size,
+          FTileStream.Memory,
+          FHttpStatusCode,
+          VHeader
+        );
       if FDownloadResult = nil then begin
         if FTileStream.Size = 0 then begin
-          FDownloadResult := FResultFactory.BuildDataNotExistsZeroSize(FRawResponseHeader)
+          FDownloadResult :=
+            FResultFactory.BuildDataNotExistsZeroSize(
+              FRequest,
+              VHeader
+            );
         end else begin
-          FDownloadResult := FResultFactory.BuildOk(
-            FHttpStatusCode,
-            FRawResponseHeader,
-            FTileMIME,
-            FTileStream.Size,
-            FTileStream.Memory
-          );
+          FDownloadResult :=
+            FResultFactory.BuildOk(
+              FRequest,
+              FHttpStatusCode,
+              VHeader,
+              FTileMIME,
+              FTileStream.Size,
+              FTileStream.Memory
+            );
         end;
       end;
     end; 
@@ -303,8 +329,8 @@ begin
     try
       ExecCallBackList;
       if Supports(FDownloadResult, IDownloadResultOk, VResultOk) then begin
-        if not FEventStatus.IsCanceled then begin
-          GState.DownloadInfo.Add(1, VResultOk.Size);
+        if not FEventStatus.IsCanceled and (FDownloadInfo <> nil) then begin
+          FDownloadInfo.Add(1, VResultOk.Size);
         end;
       end else if Supports(FDownloadResult, IDownloadResultError, VResultDownloadError) then begin
         VErrorString := VResultDownloadError.ErrorText;
@@ -378,39 +404,39 @@ begin
   end;
 end;
 
-procedure TTileDownloaderEventElement.SetUrl(Value: string);
+procedure TTileDownloaderEventElement.SetRequest(AValue: ITileDownloadRequest);
 begin
-  FUrl := Value;
+  FRequest := AValue;
 end;
 
-function TTileDownloaderEventElement.GetUrl: string;
+function TTileDownloaderEventElement.GetRequest: ITileDownloadRequest;
 begin
-  Result := FUrl;
+  Result := FRequest;
 end;
 
-procedure TTileDownloaderEventElement.SetRawRequestHeader(Value: string);
+procedure TTileDownloaderEventElement.SetLastResponseInfo(AValue: ILastResponseInfo);
 begin
-  FRawRequestHeader := Value;
+  FLastResponseInfo := AValue;
 end;
 
-function TTileDownloaderEventElement.GetRawRequestHeader: string;
+function TTileDownloaderEventElement.GetLastResponseInfo: ILastResponseInfo;
 begin
-  Result := FRawRequestHeader;
+  Result := FLastResponseInfo;
 end;
 
-procedure TTileDownloaderEventElement.SetRawResponseHeader(Value: string);
+procedure TTileDownloaderEventElement.SetVersionInfo(AValue: IMapVersionInfo);
 begin
-  FRawResponseHeader := Value;
+  FVersionInfo := AValue;
 end;
 
-function TTileDownloaderEventElement.GetRawResponseHeader: string;
+function TTileDownloaderEventElement.GetVersionInfo: IMapVersionInfo;
 begin
-  Result := FRawResponseHeader;
+  Result := FVersionInfo;
 end;
 
-procedure TTileDownloaderEventElement.SetTileXY(Value: TPoint);
+procedure TTileDownloaderEventElement.SetTileXY(AValue: TPoint);
 begin
-  FTileXY := Value;
+  FTileXY := AValue;
 end;
 
 function TTileDownloaderEventElement.GetTileXY: TPoint;
@@ -418,9 +444,9 @@ begin
   Result := FTileXY;
 end;
 
-procedure TTileDownloaderEventElement.SetTileZoom(Value: Byte);
+procedure TTileDownloaderEventElement.SetTileZoom(AValue: Byte);
 begin
-  FTileZoom := Value;
+  FTileZoom := AValue;
 end;
 
 function TTileDownloaderEventElement.GetTileZoom: Byte;
@@ -428,9 +454,9 @@ begin
   Result := FTileZoom;
 end;
 
-procedure TTileDownloaderEventElement.SetTileSize(Value: Cardinal);
+procedure TTileDownloaderEventElement.SetTileSize(AValue: Cardinal);
 begin
-  FTileSize := Value;
+  FTileSize := AValue;
 end;
 
 function TTileDownloaderEventElement.GetTileSize: Cardinal;
@@ -438,9 +464,9 @@ begin
   Result := FTileSize;
 end;
 
-procedure TTileDownloaderEventElement.SetCheckTileSize(Value: Boolean);
+procedure TTileDownloaderEventElement.SetCheckTileSize(AValue: Boolean);
 begin
-  FCheckTileSize := Value;
+  FCheckTileSize := AValue;
 end;
 
 function TTileDownloaderEventElement.GetCheckTileSize: Boolean;
@@ -448,9 +474,9 @@ begin
   Result := FCheckTileSize;
 end;
 
-procedure TTileDownloaderEventElement.SetOldTileSize(Value: Cardinal);
+procedure TTileDownloaderEventElement.SetOldTileSize(AValue: Cardinal);
 begin
-  FOldTileSize := Value;
+  FOldTileSize := AValue;
 end;
 
 function TTileDownloaderEventElement.GetOldTileSize: Cardinal;
@@ -458,9 +484,9 @@ begin
   Result := FOldTileSize;
 end;
 
-procedure TTileDownloaderEventElement.SetTileMIME(Value: string);
+procedure TTileDownloaderEventElement.SetTileMIME(AValue: string);
 begin
-  FTileMIME := Value;
+  FTileMIME := AValue;
 end;
 
 function TTileDownloaderEventElement.GetTileMIME: string;
@@ -468,9 +494,9 @@ begin
   Result := FTileMIME;
 end;
 
-procedure TTileDownloaderEventElement.SetTileStream(Value: TMemoryStream);
+procedure TTileDownloaderEventElement.SetTileStream(AValue: TMemoryStream);
 begin
-  FTileStream := Value;
+  FTileStream := AValue;
 end;
 
 function TTileDownloaderEventElement.GetTileStream: TMemoryStream;
@@ -478,9 +504,9 @@ begin
   Result := FTileStream;
 end;
 
-procedure TTileDownloaderEventElement.SetHttpStatusCode(Value: Cardinal);
+procedure TTileDownloaderEventElement.SetHttpStatusCode(AValue: Cardinal);
 begin
-  FHttpStatusCode := Value;
+  FHttpStatusCode := AValue;
 end;
 
 function TTileDownloaderEventElement.GetHttpStatusCode: Cardinal;
@@ -488,9 +514,9 @@ begin
   Result := HttpStatusCode;
 end;
 
-procedure TTileDownloaderEventElement.SetDownloadResult(Value: IDownloadResult);
+procedure TTileDownloaderEventElement.SetDownloadResult(AValue: IDownloadResult);
 begin
-  FDownloadResult := Value;
+  FDownloadResult := AValue;
 end;
 
 function TTileDownloaderEventElement.GetDownloadResult: IDownloadResult;
@@ -503,7 +529,7 @@ begin
   Result := FResultFactory;
 end;
 
-function TTileDownloaderEventElement.GetCancelNotifier: IOperationCancelNotifier;
+function TTileDownloaderEventElement.GetCancelNotifier: IOperationNotifier;
 begin
   Result := FCancelNotifier;
 end;

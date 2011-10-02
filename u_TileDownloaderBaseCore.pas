@@ -29,7 +29,6 @@ type
     FLangManager: ILanguageManager;
     FSemaphore: THandle;
     FDownloadesList: TList;
-    FRawResponseHeader: string;
     FCS: TCriticalSection;
     procedure Lock;
     procedure UnLock;
@@ -47,7 +46,6 @@ type
     destructor Destroy; override;
     function GetIsEnabled: Boolean;
     procedure Download(AEvent: ITileDownloaderEvent);
-    procedure OnTileDownload(AEvent: ITileDownloaderEvent);
     property Enabled: Boolean read GetIsEnabled;
   end;
 
@@ -121,6 +119,7 @@ function TTileDownloaderBaseCore.CreateNewTileRequestBuilder: ITileRequestBuilde
 begin
   try
     Result := TTileRequestBuilderPascalScript.Create(
+      FZmp,
       FTileRequestBuilderConfig,
       FZmp.DataProvider,
       FCoordConverterFactory,
@@ -130,11 +129,11 @@ begin
   except
     on E: Exception do begin
       Result := nil;
-      ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.Name, E.Message, FZmp.FileName]);
+      ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.GUI.Name.GetDefault, E.Message, FZmp.FileName]);
     end;
   else
     Result := nil;
-    ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.Name, FZmp.FileName]);
+    ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.GUI.Name.GetDefault, FZmp.FileName]);
   end;
   if Result = nil then begin
     FEnabled := False;
@@ -182,9 +181,7 @@ begin
   if Assigned(VDwnThr) then begin
     Lock;
     try
-      AEvent.AddToCallBackList(OnTileDownload);
       VDwnThr.TileDownloaderConfig := FTileDownloaderConfig;
-      VDwnThr.RawResponseHeader := FRawResponseHeader;
       VDwnThr.Semaphore := FSemaphore;
       VDwnThr.AddEvent(AEvent);
     finally
@@ -192,18 +189,6 @@ begin
     end;
   end else begin
     raise Exception.Create('No free connections!');
-  end;
-end;
-
-procedure TTileDownloaderBaseCore.OnTileDownload(AEvent: ITileDownloaderEvent);
-begin
-  Lock;
-  try
-    if Assigned(AEvent) then begin
-      FRawResponseHeader := AEvent.RawResponseHeader;
-    end;
-  finally
-    Unlock;
   end;
 end;
 

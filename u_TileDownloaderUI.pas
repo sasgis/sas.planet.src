@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_TileDownloaderUI;
 
 interface
@@ -9,8 +29,8 @@ uses
   i_JclNotify,
   i_JclListenerNotifierLinksList,
   t_CommonTypes,
-  i_OperationCancelNotifier,
-  u_OperationCancelNotifier,
+  i_OperationNotifier,
+  u_OperationNotifier,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_TileError,
@@ -27,13 +47,9 @@ type
   private
     FConfig: IDownloadUIConfig;
     FMapsSet: IActiveMapsSet;
-    FDownloadInfo: IDownloadInfoSimple;
     FViewPortState: IViewPortState;
-    FErrorLogger: ITileErrorLogger;
-    FMapTileUpdateEvent: TMapTileUpdateEvent;
-    FCancelNotifierInternal: TOperationCancelNotifier;
-    FCancelNotifier: IOperationCancelNotifier;
-
+    FCancelNotifierInternal: IOperationNotifierInternal;
+    FCancelNotifier: IOperationNotifier;
 
     FTileMaxAgeInInternet: TDateTime;
     FTilesOut: Integer;
@@ -48,7 +64,6 @@ type
     FLoadXY: TPoint;
 
     procedure GetCurrentMapAndPos;
-    //procedure AfterWriteToFile;
     procedure OnPosChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
@@ -67,9 +82,6 @@ type
     procedure SendTerminateToThreads;
   end;
 
-const
-  MaxThreadsUICount = 32;
-
 implementation
 
 uses
@@ -84,6 +96,9 @@ uses
   u_TileErrorInfo,
   u_ResStrings;
 
+const
+  CMaxThreadsUICount = 32; // Максимальное число потоков, для всех видимых в гуе карт
+
 constructor TTileDownloaderUI.Create(
   AConfig: IDownloadUIConfig;
   AViewPortState: IViewPortState;
@@ -94,22 +109,20 @@ constructor TTileDownloaderUI.Create(
 );
 var
   VChangePosListener: IJclListener;
+  VOperationNotifier: TOperationNotifier;
 begin
-  inherited Create(True, AMapTileUpdateEvent, AErrorLogger, MaxThreadsUICount);
+  inherited Create(True, ADownloadInfo, AMapTileUpdateEvent, AErrorLogger, CMaxThreadsUICount);
   FConfig := AConfig;
 
-  FCancelNotifierInternal := TOperationCancelNotifier.Create;
-  FCancelNotifier := FCancelNotifierInternal;
+  VOperationNotifier := TOperationNotifier.Create;
+  FCancelNotifierInternal := VOperationNotifier;
+  FCancelNotifier := VOperationNotifier;
 
   FViewPortState := AViewPortState;
   FMapsSet := AMapsSet;
-  FDownloadInfo := ADownloadInfo;
-  FMapTileUpdateEvent := AMapTileUpdateEvent;
-  FErrorLogger := AErrorLogger;
   FViewPortState := AViewPortState;
   FLinksList := TJclListenerNotifierLinksList.Create;
 
-  FMapType := nil;
   Priority := tpLower;
   FUseDownload := tsCache;
   randomize;
@@ -167,7 +180,7 @@ procedure TTileDownloaderUI.SendTerminateToThreads;
 begin
   inherited;
   FLinksList.DeactivateLinks;
-  FCancelNotifierInternal.SetCanceled;
+  FCancelNotifierInternal.NextOperation;
   Terminate;
 end;
 
@@ -179,18 +192,8 @@ begin
   Resume;
 end;
 
-//procedure TTileDownloaderUI.AfterWriteToFile;
-//begin
-//  if Addr(FMapTileUpdateEvent) <> nil then begin
-//    FMapTileUpdateEvent(FMapType, FVisualCoordConverter.GetZoom, FLoadXY);
-//  end;
-//end;
-
 procedure TTileDownloaderUI.Execute;
 var
-//  VResult: IDownloadResult;
-//  VResultOk: IDownloadResultOk;
-//  VResultDownloadError: IDownloadResultError;
   VNeedDownload: Boolean;
   VIterator: ITileIterator;
   VTile: TPoint;
@@ -210,7 +213,7 @@ var
   VIteratorsList: IInterfaceList;
   VMapsList: IInterfaceList;
   VAllIteratorsFinished: Boolean;
-//  VErrorString: string;
+  VOperatonID: Integer;
 begin
   VIteratorsList := TInterfaceList.Create;
   VMapsList := TInterfaceList.Create;
@@ -261,7 +264,7 @@ begin
             VMap := VActiveMapsSet.GetMapTypeByGUID(VGUID);
             if VMap <> nil then begin
               FMapType := VMap.MapType;
-              if FMapType.UseDwn then begin
+              if FMapType.Abilities.UseDownload then begin
                 VMapGeoConverter := FMapType.GeoConvert;
                 VLonLatRectInMap := VLonLatRect;
                 VMapGeoConverter.CheckLonLatRect(VLonLatRectInMap);
@@ -308,6 +311,7 @@ begin
                     end;
                   end;
                 end;
+                VOperatonID := FCancelNotifier.CurrentOperation; //TODO: Заюзать VOperatonID
                 if VNeedDownload then begin
                   try
                     Download(VTile, VZoom, OnTileDownload, False, FCancelNotifier);

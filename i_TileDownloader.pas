@@ -5,9 +5,12 @@ interface
 uses
   Windows,
   Classes,
-  i_OperationCancelNotifier,
+  i_OperationNotifier,
   i_DownloadResult,
   i_DownloadResultFactory,
+  i_MapVersionInfo,
+  i_LastResponseInfo,
+  i_TileDownloadRequest,
   i_TileRequestBuilderConfig,
   i_TileDownloaderConfig;
 
@@ -32,61 +35,61 @@ type
     procedure ExecCallBackList;
 
     procedure OnBeforeRequest(AConfig: ITileDownloaderConfigStatic);
-    procedure OnAfterResponse();
+    procedure OnAfterResponse(const ARawResponseHeader: string);
 
-    function GetUrl: string;
-    procedure SetUrl(Value: string);
-    property Url: string read GetUrl write SetUrl;
+    function GetRequest: ITileDownloadRequest;
+    procedure SetRequest(Value: ITileDownloadRequest);
+    property Request: ITileDownloadRequest read GetRequest write SetRequest;
 
-    function GetRawRequestHeader: string;
-    procedure SetRawRequestHeader(Value: string);
-    property RawRequestHeader: string read GetRawRequestHeader write SetRawRequestHeader;
+    function GetLastResponseInfo: ILastResponseInfo;
+    procedure SetLastResponseInfo(AValue: ILastResponseInfo);
+    property LastResponseInfo: ILastResponseInfo read GetLastResponseInfo write SetLastResponseInfo;
 
-    function GetRawResponseHeader: string;
-    procedure SetRawResponseHeader(Value: string);
-    property RawResponseHeader: string read GetRawResponseHeader write SetRawResponseHeader;
+    function GetVersionInfo: IMapVersionInfo;
+    procedure SetVersionInfo(AValue: IMapVersionInfo);
+    property VersionInfo: IMapVersionInfo read GetVersionInfo write SetVersionInfo;
 
     function GetTileXY: TPoint;
     procedure SetTileXY(Value: TPoint);
     property TileXY: TPoint read GetTileXY write SetTileXY;
 
     function GetTileZoom: Byte;
-    procedure SetTileZoom(Value: Byte);
+    procedure SetTileZoom(AValue: Byte);
     property TileZoom: Byte read GetTileZoom write SetTileZoom;
 
     function GetTileSize: Cardinal;
-    procedure SetTileSize(Value: Cardinal);
+    procedure SetTileSize(AValue: Cardinal);
     property TileSize: Cardinal read GetTileSize write SetTileSize;
 
     function GetCheckTileSize: Boolean;
-    procedure SetCheckTileSize(Value: Boolean);
+    procedure SetCheckTileSize(AValue: Boolean);
     property CheckTileSize: Boolean read GetCheckTileSize write SetCheckTileSize;
 
     function GetOldTileSize: Cardinal;
-    procedure SetOldTileSize(Value: Cardinal);
+    procedure SetOldTileSize(AValue: Cardinal);
     property OldTileSize: Cardinal read GetOldTileSize write SetOldTileSize;
 
     function GetTileMIME: string;
-    procedure SetTileMIME(Value: string);
+    procedure SetTileMIME(AValue: string);
     property TileMIME: string read GetTileMIME write SetTileMIME;
 
     function GetTileStream: TMemoryStream;
-    procedure SetTileStream(Value: TMemoryStream);
+    procedure SetTileStream(AValue: TMemoryStream);
     property TileStream: TMemoryStream read GetTileStream write SetTileStream;
 
     function GetHttpStatusCode: Cardinal;
-    procedure SetHttpStatusCode(Value: Cardinal);
+    procedure SetHttpStatusCode(AValue: Cardinal);
     property HttpStatusCode: Cardinal read GetHttpStatusCode write SetHttpStatusCode;
 
     function GetDownloadResult: IDownloadResult;
-    procedure SetDownloadResult(Value: IDownloadResult);
+    procedure SetDownloadResult(AValue: IDownloadResult);
     property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
 
     function GetResultFactory: IDownloadResultFactory;
     property ResultFactory: IDownloadResultFactory read GetResultFactory;
 
-    function GetCancelNotifier: IOperationCancelNotifier;
-    property CancelNotifier: IOperationCancelNotifier read GetCancelNotifier;
+    function GetCancelNotifier: IOperationNotifier;
+    property CancelNotifier: IOperationNotifier read GetCancelNotifier;
   end;
 
 implementation

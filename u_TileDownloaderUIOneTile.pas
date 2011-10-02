@@ -14,12 +14,8 @@ uses
 type
   TTileDownloaderUIOneTile = class(TTileDownloaderThread)
   private
-    //FMapTileUpdateEvent: TMapTileUpdateEvent;
-    FErrorLogger: ITileErrorLogger;
-    FDownloadInfo: IDownloadInfoSimple;
     FLoadXY: TPoint;
     FZoom: Byte;
-    //procedure AfterWriteToFile;
   protected
     procedure Execute; override;
   public
@@ -50,34 +46,34 @@ constructor TTileDownloaderUIOneTile.Create(
   AErrorLogger: ITileErrorLogger
 );
 begin
-  inherited Create(False, AMapTileUpdateEvent, AErrorLogger, 1);
-  //FMapTileUpdateEvent := AMapTileUpdateEvent;
-  FDownloadInfo := ADownloadInfo;
-  FErrorLogger := AErrorLogger;
+  inherited Create(False, ADownloadInfo, AMapTileUpdateEvent, AErrorLogger, 1);
   FLoadXY := AXY;
   FZoom := AZoom;
   FMapType := AMapType;
-
   Priority := tpLower;
   FreeOnTerminate := true;
   randomize;
 end;
 
-//procedure TTileDownloaderUIOneTile.AfterWriteToFile;
-//begin
-//  if Addr(FMapTileUpdateEvent) <> nil then begin
-//    FMapTileUpdateEvent(FMapType, FZoom, FLoadXY);
-//  end;
-//end;
-
 procedure TTileDownloaderUIOneTile.Execute;
+var
+  VOperatonID: Integer;
 begin
-  if FMapType.UseDwn then
+  if FMapType.Abilities.UseDownload  then
   try
+    VOperatonID := FCancelNotifier.CurrentOperation;  //TODO: Заюзать VOperatonID
     Download(FLoadXY, FZoom, OnTileDownload, False, FCancelNotifier);
   except
-    on E: Exception do
-      FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, FZoom, FLoadXY, E.Message) );
+    on E: Exception do begin
+      FErrorLogger.LogError(
+        TTileErrorInfo.Create(
+          FMapType,
+          FZoom,
+          FLoadXY,
+          E.Message
+        )
+      );
+    end;
   end;
 end;
 

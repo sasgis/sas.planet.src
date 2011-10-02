@@ -6,8 +6,9 @@ uses
   Windows,
   Classes,
   SyncObjs,
-  i_OperationCancelNotifier,
-  u_OperationCancelNotifier,
+  i_DownloadInfoSimple,
+  i_OperationNotifier,
+  u_OperationNotifier,
   i_TileError,
   i_TileDownloader,
   u_MapType,
@@ -16,13 +17,15 @@ uses
 type
   TTileDownloaderThread = class (TThread)
   private
-    FCancelNotifierInternal: TOperationCancelNotifier;
+    FCancelNotifierInternal: IOperationNotifierInternal;
   protected
-    FCancelEvent: TEvent;
-    FCancelNotifier: IOperationCancelNotifier;
     FMapType: TMapType;
     FErrorLogger: ITileErrorLogger;
+    FDownloadInfo: IDownloadInfoSimple;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
+    
+    FCancelEvent: TEvent;
+    FCancelNotifier: IOperationNotifier;
     FMaxRequestCount: Integer;
     FSemaphore: THandle;
     function  GetNewEventElement(
@@ -30,19 +33,20 @@ type
       AZoom: Byte;
       ACallBack: TOnDownloadCallBack;
       ACheckExistsTileSize: Boolean;
-      ACancelNotifier: IOperationCancelNotifier
+      ACancelNotifier: IOperationNotifier
     ): ITileDownloaderEvent;
     procedure Download(
       ATile: TPoint;
       AZoom: Byte;
       ACallBack: TOnDownloadCallBack;
       ACheckExistsTileSize: Boolean;
-      ACancelNotifier: IOperationCancelNotifier
+      ACancelNotifier: IOperationNotifier
     );
     procedure SleepCancelable(ATime: Cardinal);
   public
     constructor Create(
       ACreateSuspended: Boolean;
+      ADownloadInfo: IDownloadInfoSimple;
       AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger;
       AMaxRequestCount: Integer
@@ -61,15 +65,20 @@ uses
 
 constructor TTileDownloaderThread.Create(
   ACreateSuspended: Boolean;
+  ADownloadInfo: IDownloadInfoSimple;
   AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger;
   AMaxRequestCount: Integer);
+var
+  VOperationNotifier: TOperationNotifier;
 begin
   inherited Create(ACreateSuspended);
   FCancelEvent := TEvent.Create;
-  FCancelNotifierInternal := TOperationCancelNotifier.Create;
-  FCancelNotifier := FCancelNotifierInternal;
+  VOperationNotifier := TOperationNotifier.Create;
+  FCancelNotifierInternal := VOperationNotifier;
+  FCancelNotifier := VOperationNotifier;
   FMapType := nil;
+  FDownloadInfo := ADownloadInfo;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorLogger := AErrorLogger;
   FMaxRequestCount := AMaxRequestCount;
@@ -91,7 +100,7 @@ procedure TTileDownloaderThread.Terminate;
 begin
   inherited;
   FCancelEvent.SetEvent;
-  FCancelNotifierInternal.SetCanceled;
+  FCancelNotifierInternal.NextOperation;
 end;
 
 procedure TTileDownloaderThread.SleepCancelable(ATime: Cardinal);
@@ -111,10 +120,11 @@ function TTileDownloaderThread.GetNewEventElement(
   AZoom: Byte;
   ACallBack: TOnDownloadCallBack;
   ACheckExistsTileSize: Boolean;
-  ACancelNotifier: IOperationCancelNotifier
+  ACancelNotifier: IOperationNotifier
 ): ITileDownloaderEvent;
 begin
   Result := TTileDownloaderEventElement.Create(
+              FDownloadInfo,
               FMapTileUpdateEvent,
               FErrorLogger,
               FMapType,
@@ -131,7 +141,7 @@ procedure TTileDownloaderThread.Download(
   AZoom: Byte;
   ACallBack: TOnDownloadCallBack;
   ACheckExistsTileSize: Boolean;
-  ACancelNotifier: IOperationCancelNotifier
+  ACancelNotifier: IOperationNotifier
 );
 begin
   repeat // Стартуем закачку

@@ -11,7 +11,7 @@ uses
   ALHttpClient,
   ALWinInetHttpClient,
   i_JclNotify,
-  i_OperationCancelNotifier,
+  i_OperationNotifier,
   i_InetConfig,
   i_ProxySettings,
   i_TileRequestBuilder,
@@ -28,7 +28,6 @@ type
     FTileRequestBuilder: ITileRequestBuilder;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloaderConfigStatic: ITileDownloaderConfigStatic;
-    FRawResponseHeader: string;
     FEvent: ITileDownloaderEvent;
     FSemaphore: THandle;
     FParentSemaphore: THandle;
@@ -61,7 +60,6 @@ type
     property TileRequestBuilder: ITileRequestBuilder write FTileRequestBuilder default nil;
     property TileDownloaderConfig: ITileDownloaderConfig write FTileDownloaderConfig default nil;
     property Semaphore: THandle read FParentSemaphore write FParentSemaphore;
-    property RawResponseHeader: string write FRawResponseHeader;
   end;
 
 implementation
@@ -77,7 +75,6 @@ uses
 
 constructor TTileDownloaderBaseThread.Create;
 begin
-  FRawResponseHeader := '';
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
   FIsCanceled := False;
@@ -140,22 +137,18 @@ procedure TTileDownloaderBaseThread.PreProcess;
     end;
   end;
 
-var
-  VUrl: string;
-  VRawRequestHeader: string;
 begin
   SleepIfConnectErrorOrWaitInterval;
-  FTileRequestBuilder.BuildRequest(
+  FEvent.Request := FTileRequestBuilder.BuildRequest(
     FEvent.TileXY,
     FEvent.TileZoom,
-    nil,
-    nil,
-    VUrl,
-    VRawRequestHeader
+    FEvent.VersionInfo,
+    FEvent.LastResponseInfo
   );
-  FEvent.Url := VUrl;
-  FEvent.RawRequestHeader := VRawRequestHeader;
-  PrepareHttpClientConfig(FTileDownloaderConfigStatic.DefaultMIMEType, FEvent.RawRequestHeader);
+  PrepareHttpClientConfig(
+    FTileDownloaderConfigStatic.DefaultMIMEType,
+    FEvent.Request.RequestHeader
+  );
   FEvent.OnBeforeRequest(FTileDownloaderConfigStatic);
 end;
 
@@ -163,19 +156,31 @@ procedure TTileDownloaderBaseThread.PostProcess;
 var
   VStatusCode: Cardinal;
 begin
-  FRawResponseHeader := FResponseHeader.RawHeaderText;
-  FEvent.RawResponseHeader := FRawResponseHeader;
-  FEvent.TileMIME := FResponseHeader.ContentType;
   VStatusCode := StrToIntDef(FResponseHeader.StatusCode, 0);
   FEvent.HttpStatusCode := VStatusCode;
+  FEvent.LastResponseInfo.ResponseHead := FResponseHeader.RawHeaderText;
+  FEvent.TileMIME := FResponseHeader.ContentType;
   if IsOkStatus(VStatusCode) then begin
-    FEvent.OnAfterResponse
+    FEvent.OnAfterResponse(FResponseHeader.RawHeaderText)
   end else if IsDownloadErrorStatus(VStatusCode) then begin
-    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByStatusCode(VStatusCode)
+    FEvent.DownloadResult :=
+      FEvent.ResultFactory.BuildLoadErrorByStatusCode(
+        FEvent.Request,
+        VStatusCode
+      );
   end else if IsTileNotExistStatus(VStatusCode) then begin
-    FEvent.DownloadResult := FEvent.ResultFactory.BuildDataNotExistsByStatusCode(FEvent.RawResponseHeader, VStatusCode)
+    FEvent.DownloadResult :=
+      FEvent.ResultFactory.BuildDataNotExistsByStatusCode(
+        FEvent.Request,
+        FResponseHeader.RawHeaderText,
+        VStatusCode
+      );
   end else begin
-    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByUnknownStatusCode(VStatusCode);
+    FEvent.DownloadResult :=
+      FEvent.ResultFactory.BuildLoadErrorByUnknownStatusCode(
+        FEvent.Request,
+        VStatusCode
+      );
   end;
 end;
 
@@ -201,32 +206,32 @@ begin
             repeat
               PreProcess;
               if IsCanceled then begin
-                FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled;
+                FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled(FEvent.Request);
                 Exit;
               end;
               try
                 FResponseHeader.Clear;
-                FHttpClient.Get(FEvent.Url, FEvent.TileStream, FResponseHeader);
+                FHttpClient.Get(FEvent.Request.Url, FEvent.TileStream, FResponseHeader);
               except
                 on E: EALHTTPClientException do begin
                   if E.StatusCode = 0 then begin
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNotNecessary(E.Message, FResponseHeader.RawHeaderText)
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNotNecessary(FEvent.Request, E.Message, FResponseHeader.RawHeaderText)
                   end else begin
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByStatusCode(E.StatusCode);
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByStatusCode(FEvent.Request, E.StatusCode);
                   end;
                 end;
                 on E: EOSError do begin
                   if IsConnectError(E.ErrorCode) then begin
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(FEvent.Request, E.ErrorCode)
                   end else if IsDownloadError(E.ErrorCode) then begin
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByErrorCode(E.ErrorCode)
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByErrorCode(FEvent.Request, E.ErrorCode)
                   end else begin
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(E.ErrorCode)
+                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(FEvent.Request, E.ErrorCode)
                   end;
                 end;
               end;
               if IsCanceled then begin
-                FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled;
+                FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled(FEvent.Request);
                 Exit;
               end;
               Inc(VCount);
