@@ -40,7 +40,8 @@ uses
   u_GeoCoderListEntity,
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex,
-  u_GeoCoderBy2GIS;
+  u_GeoCoderBy2GIS,
+  u_GeoCoderByOSM;
 
 { TGeoCoderListSimple }
 
@@ -68,6 +69,14 @@ begin
       TGeoCoderBy2GIS.Create(AProxy)
     )
   );
+  Add(
+    TGeoCoderListEntity.Create(
+      CGeoCoderOSMGUID,
+      'OSM',
+      TGeoCoderByOSM.Create(AProxy)
+    )
+  );
+
 end;
 
 end.

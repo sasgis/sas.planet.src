@@ -125,6 +125,12 @@ object frmMain: TfrmMain
           Hint = ''
           EditCaption = '2GIS'
         end
+        object tbiEditOSMSrch: TTBEditItem
+          EditCaption = 'OSM'
+          Caption = 'OSM'
+          Hint = ''
+          EditCaption = 'OSM'
+        end
       end
       object TBXSeparatorItem5: TTBXSeparatorItem
         Caption = ''
@@ -1036,6 +1042,12 @@ object frmMain: TfrmMain
           GroupIndex = 1
           RadioItem = True
           Caption = '2GIS'
+          Hint = ''
+        end
+        object TBXSelectOSMSrch: TTBXItem
+          GroupIndex = 1
+          RadioItem = True
+          Caption = 'OSM'
           Hint = ''
         end
       end
