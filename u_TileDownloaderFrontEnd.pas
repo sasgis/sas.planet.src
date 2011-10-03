@@ -48,15 +48,13 @@ constructor TTileDownloaderFrontEnd.Create(
   ALangManager: ILanguageManager
 );
 var
-  VParams: IConfigDataProvider;
   VDownloaderStr: string;
 begin
   inherited Create;
   FDownloader := nil;
   FUseDwn := False;
   try
-    VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-    VDownloaderStr := VParams.ReadString('Downloader', 'sasplanet');
+    VDownloaderStr := AConfig.ReadString('Downloader', 'sasplanet');
     if LowerCase(VDownloaderStr) = 'sasplanet' then begin
       FDownloader := TTileDownloaderBaseCore.Create(
         AConfig,

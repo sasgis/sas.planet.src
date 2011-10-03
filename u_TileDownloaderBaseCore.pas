@@ -73,8 +73,6 @@ constructor TTileDownloaderBaseCore.Create(
   ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager
 );
-var
-  VParams: IConfigDataProvider;
 begin
   inherited Create;
   FTileDownloaderConfig := ATileDownloaderConfig;
@@ -83,9 +81,8 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FLangManager := ALangManager;
   FCS := TCriticalSection.Create;
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  FTileRequestBuilderConfig.ReadConfig(VParams);
-  FTileDownloaderConfig.ReadConfig(VParams);
+  FTileRequestBuilderConfig.ReadConfig(AConfig);
+  FTileDownloaderConfig.ReadConfig(AConfig);
   FMaxConnectToServerCount := FTileDownloaderConfig.MaxConnectToServerCount;
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
   FDownloadesList := TList.Create;
