@@ -84,6 +84,12 @@ begin
   FTileRequestBuilderConfig.ReadConfig(AConfig);
   FTileDownloaderConfig.ReadConfig(AConfig);
   FMaxConnectToServerCount := FTileDownloaderConfig.MaxConnectToServerCount;
+
+  // В целях упрощения отладки, жёстко задаём число потоков для карты,
+  // иначе, это число берётся из zmp карты, из параметра MaxConnectToServerCount (см. выше)
+  FMaxConnectToServerCount := 4;
+  // --
+
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
   FDownloadesList := TList.Create;
   FEnabled := True;
