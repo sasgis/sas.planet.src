@@ -33,14 +33,16 @@ type
       AZoom: Byte;
       ACallBack: TOnDownloadCallBack;
       ACheckExistsTileSize: Boolean;
-      ACancelNotifier: IOperationNotifier
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
     ): ITileDownloaderEvent;
     procedure Download(
       ATile: TPoint;
       AZoom: Byte;
       ACallBack: TOnDownloadCallBack;
       ACheckExistsTileSize: Boolean;
-      ACancelNotifier: IOperationNotifier
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
     );
     procedure SleepCancelable(ATime: Cardinal);
   public
@@ -120,7 +122,8 @@ function TTileDownloaderThread.GetNewEventElement(
   AZoom: Byte;
   ACallBack: TOnDownloadCallBack;
   ACheckExistsTileSize: Boolean;
-  ACancelNotifier: IOperationNotifier
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer
 ): ITileDownloaderEvent;
 begin
   Result := TTileDownloaderEventElement.Create(
@@ -128,7 +131,8 @@ begin
               FMapTileUpdateEvent,
               FErrorLogger,
               FMapType,
-              ACancelNotifier
+              ACancelNotifier,
+              AOperationID
             );
   Result.AddToCallBackList(ACallBack);
   Result.TileXY := ATile;
@@ -141,7 +145,8 @@ procedure TTileDownloaderThread.Download(
   AZoom: Byte;
   ACallBack: TOnDownloadCallBack;
   ACheckExistsTileSize: Boolean;
-  ACancelNotifier: IOperationNotifier
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer
 );
 begin
   repeat // Стартуем закачку
@@ -152,7 +157,8 @@ begin
           AZoom,
           ACallBack,
           ACheckExistsTileSize,
-          ACancelNotifier
+          ACancelNotifier,
+          AOperationID
         )
       );
       Break;

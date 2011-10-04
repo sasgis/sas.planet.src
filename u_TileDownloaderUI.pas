@@ -311,10 +311,10 @@ begin
                     end;
                   end;
                 end;
-                VOperatonID := FCancelNotifier.CurrentOperation; //TODO: Заюзать VOperatonID
+                VOperatonID := FCancelNotifier.CurrentOperation;
                 if VNeedDownload then begin
                   try
-                    Download(VTile, VZoom, OnTileDownload, False, FCancelNotifier);
+                    Download(VTile, VZoom, OnTileDownload, False, FCancelNotifier, VOperatonID);
                   except
                     on E:Exception do
                       FErrorLogger.LogError( TTileErrorInfo.Create(FMapType, VZoom, VTile, E.Message) );

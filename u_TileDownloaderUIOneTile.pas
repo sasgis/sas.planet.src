@@ -59,10 +59,10 @@ procedure TTileDownloaderUIOneTile.Execute;
 var
   VOperatonID: Integer;
 begin
-  if FMapType.Abilities.UseDownload  then
+  if FMapType.Abilities.UseDownload then
   try
-    VOperatonID := FCancelNotifier.CurrentOperation;  //TODO: Заюзать VOperatonID
-    Download(FLoadXY, FZoom, OnTileDownload, False, FCancelNotifier);
+    VOperatonID := FCancelNotifier.CurrentOperation;
+    Download(FLoadXY, FZoom, OnTileDownload, False, FCancelNotifier, VOperatonID);
   except
     on E: Exception do begin
       FErrorLogger.LogError(

@@ -30,12 +30,15 @@ type
     FCancelListener: IJclListener;
     FThreadSafeCS: TCriticalSection;
     FCancelled: Boolean;
+    FOperationID: Integer;
     function GetIsCanselled: Boolean;
+    function GetNotifier: IOperationNotifier;
     procedure OnCancelEvent(Sender: TObject);
   public
-    constructor Create(ACancelNotifier: IOperationNotifier);
+    constructor Create(ACancelNotifier: IOperationNotifier; AOperationID: Integer);
     destructor Destroy; override;
     property IsCanceled: Boolean read GetIsCanselled;
+    property Notifier: IOperationNotifier read GetNotifier;
   end;
 
   TTileDownloaderEventElement = class(TInterfacedObject, ITileDownloaderEvent)
@@ -52,7 +55,6 @@ type
     FDownloadResult: IDownloadResult;
     FResultFactory: IDownloadResultFactory;
     FDownloadChecker: IDownloadChecker;
-    FCancelNotifier: IOperationNotifier;
 
     FRequest: ITileDownloadRequest;
     FLastResponseInfo: ILastResponseInfo;
@@ -74,7 +76,8 @@ type
       AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger;
       AMapType: TMapType;
-      ACancelNotifier: IOperationNotifier
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
     );
     destructor Destroy; override;
 
@@ -139,10 +142,14 @@ uses
 
 { TEventElementStatus }
 
-constructor TEventElementStatus.Create(ACancelNotifier: IOperationNotifier);
+constructor TEventElementStatus.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer
+);
 begin
   inherited Create;
   FCancelled := False;
+  FOperationID := AOperationID;
   FThreadSafeCS := TCriticalSection.Create;
   FCancelNotifier := ACancelNotifier;
   FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
@@ -177,7 +184,17 @@ function TEventElementStatus.GetIsCanselled: Boolean;
 begin
   FThreadSafeCS.Acquire;
   try
-    Result := FCancelled;
+    Result := FCancelled or FCancelNotifier.IsOperationCanceled(FOperationID);
+  finally
+    FThreadSafeCS.Release;
+  end;
+end;
+
+function TEventElementStatus.GetNotifier: IOperationNotifier;
+begin
+  FThreadSafeCS.Acquire;
+  try
+    Result := FCancelNotifier;
   finally
     FThreadSafeCS.Release;
   end;
@@ -190,12 +207,12 @@ constructor TTileDownloaderEventElement.Create(
   AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger;
   AMapType: TMapType;
-  ACancelNotifier: IOperationNotifier
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer
 );
 begin
   inherited Create;
-  FCancelNotifier := ACancelNotifier;
-  FEventStatus := TEventElementStatus.Create(FCancelNotifier);
+  FEventStatus := TEventElementStatus.Create(ACancelNotifier, AOperationID);
   FProcessed := False;
   FDownloadInfo := ADownloadInfo;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
@@ -313,7 +330,7 @@ end;
 
 procedure TTileDownloaderEventElement.GuiSync;
 begin
-  if Addr(FMapTileUpdateEvent) <> nil then begin
+  if not FEventStatus.IsCanceled and (Addr(FMapTileUpdateEvent) <> nil) then begin
     FMapTileUpdateEvent(FMapType, FTileZoom, FTileXY);
   end;
 end;
@@ -531,7 +548,7 @@ end;
 
 function TTileDownloaderEventElement.GetCancelNotifier: IOperationNotifier;
 begin
-  Result := FCancelNotifier;
+  Result := FEventStatus.Notifier;
 end;
 
 end.

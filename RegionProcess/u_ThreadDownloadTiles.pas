@@ -333,7 +333,7 @@ var
   VOperatonID: Integer;
 begin
   FStartTime := Now;
-  VOperatonID := FCancelNotifier.CurrentOperation;  //TODO: Заюзать VOperatonID
+  VOperatonID := FCancelNotifier.CurrentOperation;
   if (FMapType.TileDownloaderConfig.IteratorSubRectSize.X=1)and
      (FMapType.TileDownloaderConfig.IteratorSubRectSize.Y=1) then begin
     VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, FMapType.GeoConvert);
@@ -386,25 +386,25 @@ begin
               FLastProcessedPoint := VTile;
               FGoToNextTile := True;
             end else begin
-                try
-                  if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(FDownloadConfig.IsSaveTileNotExists) then begin
-                    FLog.WriteText('(tne exists)', 0);
-                    FLastProcessedPoint := VTile;
-                    FLastSuccessfulPoint := VTile;
-                    FGoToNextTile := True;
-                  end else begin
-                    Download(VTile, FZoom, OnTileDownload, FCheckExistTileSize, FCancelNotifier);
-                    if Terminated then begin
-                      Break;
-                    end;
-                    FLastProcessedPoint := VTile;
+              try
+                if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(FDownloadConfig.IsSaveTileNotExists) then begin
+                  FLog.WriteText('(tne exists)', 0);
+                  FLastProcessedPoint := VTile;
+                  FLastSuccessfulPoint := VTile;
+                  FGoToNextTile := True;
+                end else begin
+                  Download(VTile, FZoom, OnTileDownload, FCheckExistTileSize, FCancelNotifier, VOperatonID);
+                  if Terminated then begin
+                    Break;
                   end;
-                except
-                  on E: Exception do begin
-                    FLog.WriteText(E.Message, 0);
-                    FGoToNextTile := True;
-                  end;
+                  FLastProcessedPoint := VTile;
                 end;
+              except
+                on E: Exception do begin
+                  FLog.WriteText(E.Message, 0);
+                  FGoToNextTile := True;
+                end;
+              end;
             end;
           end else begin
             FLog.WriteText(FRES_FileExistsShort, 0);
