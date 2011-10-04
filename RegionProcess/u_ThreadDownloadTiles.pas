@@ -334,7 +334,13 @@ var
 begin
   FStartTime := Now;
   VOperatonID := FCancelNotifier.CurrentOperation;  //TODO: Заюзать VOperatonID
-  VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, FMapType.GeoConvert);
+  if (FMapType.TileDownloaderConfig.IteratorSubRectSize.X=1)and
+     (FMapType.TileDownloaderConfig.IteratorSubRectSize.Y=1) then begin
+    VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, FMapType.GeoConvert);
+  end else begin
+    VTileIterator := TTileIteratorBySubRect.Create(FZoom, FPolygLL, FMapType.GeoConvert,
+                      FMapType.TileDownloaderConfig.IteratorSubRectSize);
+  end;
   try
     FTotalInRegion := VTileIterator.TilesTotal;
     FLastSuccessfulPoint := Point(-1,-1);

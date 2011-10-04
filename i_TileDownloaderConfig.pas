@@ -23,6 +23,7 @@ unit i_TileDownloaderConfig;
 interface
 
 uses
+  Types,
   i_ConfigDataElement,
   i_InetConfig;
 
@@ -46,6 +47,9 @@ type
 
     function GetDefaultMIMEType: string;
     property DefaultMIMEType: string read GetDefaultMIMEType;
+
+    function GetIteratorSubRectSize: TPoint;
+    property IteratorSubRectSize: TPoint read GetIteratorSubRectSize;
   end;
 
   ITileDownloaderConfig = interface(IConfigDataElement)
@@ -72,6 +76,10 @@ type
     function GetDefaultMIMEType: string;
     procedure SetDefaultMIMEType(AValue: string);
     property DefaultMIMEType: string read GetDefaultMIMEType write SetDefaultMIMEType;
+
+    function GetIteratorSubRectSize: TPoint;
+    procedure SetIteratorSubRectSize(AValue: TPoint);
+    property IteratorSubRectSize: TPoint read GetIteratorSubRectSize write SetIteratorSubRectSize;
 
     function GetStatic: ITileDownloaderConfigStatic;
   end;
