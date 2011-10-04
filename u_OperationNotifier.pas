@@ -24,6 +24,7 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   i_JclNotify,
   i_OperationNotifier;
 
@@ -36,6 +37,7 @@ type
   private
     FNotifier: IJclNotifier;
     FCurrentOperationID: Integer;
+    FCS: TCriticalSection;
   protected
     procedure NextOperation;
   protected
@@ -46,6 +48,7 @@ type
     procedure RemoveListener(AListener: IJclListener); stdcall;
   public
     constructor Create();
+    destructor Destroy; override;
   end;
 
 implementation
@@ -53,37 +56,70 @@ implementation
 uses
   u_JclNotify;
 
-{ TOperationCancelNotifier }
+{ TOperationNotifier }
 
 constructor TOperationNotifier.Create;
 begin
+  inherited Create;
+  FCS := TCriticalSection.Create;
   FNotifier := TJclBaseNotifier.Create;
   FCurrentOperationID := 0;
 end;
 
+destructor TOperationNotifier.Destroy;
+begin
+  FCS.Free;
+  inherited Destroy;
+end;
+
 procedure TOperationNotifier.AddListener(AListener: IJclListener);
 begin
-  FNotifier.Add(AListener);
+  FCS.Acquire;
+  try
+    FNotifier.Add(AListener);
+  finally
+    FCS.Release;
+  end;
 end;
 
 function TOperationNotifier.IsOperationCanceled(AID: Integer): Boolean;
 begin
-  Result := FCurrentOperationID <> AID;
+  FCS.Acquire;
+  try
+    Result := FCurrentOperationID <> AID;
+  finally
+    FCS.Release;
+  end;
 end;
 
 function TOperationNotifier.GetCurrentOperation: Integer;
 begin
-  Result := FCurrentOperationID;
+  FCS.Acquire;
+  try
+    Result := FCurrentOperationID;
+  finally
+    FCS.Release;
+  end;
 end;
 
 procedure TOperationNotifier.NextOperation;
 begin
-  InterlockedIncrement(FCurrentOperationID);
+  FCS.Acquire;
+  try
+    Inc(FCurrentOperationID);
+  finally
+    FCS.Release;
+  end;
 end;
 
 procedure TOperationNotifier.RemoveListener(AListener: IJclListener);
 begin
-  FNotifier.Remove(AListener);
+  FCS.Acquire;
+  try
+    FNotifier.Remove(AListener);
+  finally
+    FCS.Release;
+  end;
 end;
 
 end.
