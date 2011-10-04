@@ -206,32 +206,65 @@ begin
             repeat
               PreProcess;
               if IsCanceled then begin
-                FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled(FEvent.Request);
+                if FEvent.ResultFactory <> nil then begin
+                  FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled(FEvent.Request);
+                end;
                 Exit;
               end;
               try
                 FResponseHeader.Clear;
-                FHttpClient.Get(FEvent.Request.Url, FEvent.TileStream, FResponseHeader);
+                FHttpClient.Get(
+                  FEvent.Request.Url,
+                  FEvent.TileStream,
+                  FResponseHeader
+                );
               except
                 on E: EALHTTPClientException do begin
-                  if E.StatusCode = 0 then begin
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNotNecessary(FEvent.Request, E.Message, FResponseHeader.RawHeaderText)
-                  end else begin
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByStatusCode(FEvent.Request, E.StatusCode);
+                  if FEvent.ResultFactory <> nil then begin
+                    if E.StatusCode = 0 then begin
+                      FEvent.DownloadResult :=
+                        FEvent.ResultFactory.BuildNotNecessary(
+                          FEvent.Request,
+                          E.Message,
+                          FResponseHeader.RawHeaderText
+                        );
+                    end else begin
+                      FEvent.DownloadResult :=
+                        FEvent.ResultFactory.BuildLoadErrorByStatusCode(
+                          FEvent.Request,
+                          E.StatusCode
+                        );
+                    end;
                   end;
                 end;
                 on E: EOSError do begin
-                  if IsConnectError(E.ErrorCode) then begin
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(FEvent.Request, E.ErrorCode)
-                  end else if IsDownloadError(E.ErrorCode) then begin
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildLoadErrorByErrorCode(FEvent.Request, E.ErrorCode)
-                  end else begin
-                    FEvent.DownloadResult := FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(FEvent.Request, E.ErrorCode)
+                  if FEvent.ResultFactory <> nil then begin
+                    if IsConnectError(E.ErrorCode) then begin
+                      FEvent.DownloadResult :=
+                        FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(
+                          FEvent.Request,
+                          E.ErrorCode
+                        );
+                    end else if IsDownloadError(E.ErrorCode) then begin
+                      FEvent.DownloadResult :=
+                        FEvent.ResultFactory.BuildLoadErrorByErrorCode(
+                          FEvent.Request,
+                          E.ErrorCode
+                        );
+                    end else begin
+                      FEvent.DownloadResult :=
+                        FEvent.ResultFactory.BuildNoConnetctToServerByErrorCode(
+                          FEvent.Request,
+                          E.ErrorCode
+                        );
+                    end;
                   end;
-                end;
+                end; 
               end;
               if IsCanceled then begin
-                FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled(FEvent.Request);
+                if FEvent.ResultFactory <> nil then begin
+                  FEvent.DownloadResult := FEvent.ResultFactory.BuildCanceled(FEvent.Request);
+                end;
                 Exit;
               end;
               Inc(VCount);
