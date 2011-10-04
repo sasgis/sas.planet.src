@@ -107,6 +107,7 @@ begin
   FCS.Acquire;
   try
     Inc(FCurrentOperationID);
+    FNotifier.Notify(nil);
   finally
     FCS.Release;
   end;
