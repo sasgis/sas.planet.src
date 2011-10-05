@@ -41,7 +41,8 @@ uses
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex,
   u_GeoCoderBy2GIS,
-  u_GeoCoderByOSM;
+  u_GeoCoderByOSM,
+  u_GeoCoderByWikiMapia;
 
 { TGeoCoderListSimple }
 
@@ -76,6 +77,13 @@ begin
       TGeoCoderByOSM.Create(AProxy)
     )
   );
+  Add(
+    TGeoCoderListEntity.Create(
+      CGeoCoderWikiMapiaGUID,
+      'WikiMapia',
+      TGeoCoderByWikiMapia.Create(AProxy)
+    )
+  )
 
 end;
 
