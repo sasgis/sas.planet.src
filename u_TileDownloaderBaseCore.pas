@@ -39,6 +39,12 @@ uses
   u_TileDownloaderBaseThread;
 
 type
+  TDownloaderRec = record
+    ThreadID: Cardinal;
+    DownloaderThread: TTileDownloaderBaseThread;
+    TileRequestBuilder: ITileRequestBuilder;
+  end;
+
   TTileDownloaderBaseCore = class(TInterfacedObject, ITileDownloader)
   private
     FEnabled: Boolean;
@@ -50,7 +56,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLangManager: ILanguageManager;
     FSemaphore: THandle;
-    FDownloadesList: TList;
+    FDownloadesList: array of TDownloaderRec;
     FCS: TCriticalSection;
     procedure Lock;
     procedure UnLock;
@@ -68,6 +74,7 @@ type
     destructor Destroy; override;
     function GetIsEnabled: Boolean;
     procedure Download(AEvent: ITileDownloaderEvent);
+    procedure OnThreadTTL(Sender: TObject; AThreadID: Cardinal);
     property Enabled: Boolean read GetIsEnabled;
   end;
 
@@ -96,6 +103,8 @@ constructor TTileDownloaderBaseCore.Create(
   ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager
 );
+var
+  I: Integer;
 begin
   inherited Create;
   FTileDownloaderConfig := ATileDownloaderConfig;
@@ -115,27 +124,36 @@ begin
   // --
 
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
-  FDownloadesList := TList.Create;
+
+  SetLength(FDownloadesList, FMaxConnectToServerCount);
+  for I := 0 to Length(FDownloadesList) - 1 do begin
+    FDownloadesList[I].ThreadID := 0;
+    FDownloadesList[I].DownloaderThread := nil;
+    FDownloadesList[I].TileRequestBuilder := nil;
+  end;
+
   FEnabled := True;
 end;
 
 destructor TTileDownloaderBaseCore.Destroy;
 var
   I: Integer;
-  VDwnThr: TTileDownloaderBaseThread;
 begin
   try
-    for I := 0 to FDownloadesList.Count - 1 do
+    for I := 0 to Length(FDownloadesList) - 1 do
     try
-      VDwnThr := FDownloadesList.Items[I];
-      if Assigned(VDwnThr) then begin
-        VDwnThr.Terminate;
+      if Assigned(FDownloadesList[I].DownloaderThread) then begin
+        FDownloadesList[I].DownloaderThread.Terminate;
+        FDownloadesList[I].ThreadID := 0;
+        FDownloadesList[I].DownloaderThread := nil;
+      end;
+      if Assigned(FDownloadesList[I].TileRequestBuilder) then begin
+        FDownloadesList[I].TileRequestBuilder := nil;
       end;
     except
       // ignore all
     end;
-    FDownloadesList.Clear;
-    FreeAndNil(FDownloadesList);
+    SetLength(FDownloadesList, 0);
     FAntiBan := nil;
   finally
     FSemaphore := 0;
@@ -169,6 +187,20 @@ begin
 end;
 
 function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread;
+
+  function CreateNewDownloaderThread(I: Integer): TTileDownloaderBaseThread;
+  begin
+    FDownloadesList[I].DownloaderThread := TTileDownloaderBaseThread.Create(FAntiBan);
+    FDownloadesList[I].ThreadID := FDownloadesList[I].DownloaderThread.ThreadID;
+    if FDownloadesList[I].TileRequestBuilder = nil then begin
+      FDownloadesList[I].TileRequestBuilder := CreateNewTileRequestBuilder;
+    end;
+    FDownloadesList[I].DownloaderThread.TileRequestBuilder := FDownloadesList[I].TileRequestBuilder;
+    FDownloadesList[I].DownloaderThread.TileDownloaderConfig := FTileDownloaderConfig;
+    FDownloadesList[I].DownloaderThread.OnTTL := Self.OnThreadTTL;
+    Result := FDownloadesList[I].DownloaderThread;
+  end;
+
 var
   I: Integer;
 begin
@@ -176,24 +208,19 @@ begin
   if WaitForSingleObject(FSemaphore, FTileDownloaderConfig.InetConfigStatic.TimeOut) = WAIT_OBJECT_0 then begin
     Lock;
     try
-      for I := 0 to FDownloadesList.Count - 1 do
+      for I := 0 to Length(FDownloadesList) - 1 do
       try
-        Result := FDownloadesList.Items[I];
-        if Assigned(Result) then begin
-          if Result.Busy then begin
-            Result := nil
-          end else begin
+        if Assigned(FDownloadesList[I].DownloaderThread) then begin
+          if not FDownloadesList[I].DownloaderThread.Busy then begin
+            Result := FDownloadesList[I].DownloaderThread;
             Break;
           end;
+        end else begin
+          Result := CreateNewDownloaderThread(I);
+          Break;
         end;
       except
         Result := nil;
-      end;
-      if not Assigned(Result) and (FDownloadesList.Count < integer(FMaxConnectToServerCount)) then begin
-        Result := TTileDownloaderBaseThread.Create(FAntiBan);
-        Result.TileRequestBuilder := CreateNewTileRequestBuilder;
-        Result.TileDownloaderConfig := FTileDownloaderConfig;
-        FDownloadesList.Add(Result);
       end;
     finally
       UnLock;
@@ -209,7 +236,6 @@ begin
   if Assigned(VDwnThr) then begin
     Lock;
     try
-      VDwnThr.TileDownloaderConfig := FTileDownloaderConfig;
       VDwnThr.Semaphore := FSemaphore;
       VDwnThr.AddEvent(AEvent);
     finally
@@ -217,6 +243,27 @@ begin
     end;
   end else begin
     raise Exception.Create('No free connections!');
+  end;
+end;
+
+procedure TTileDownloaderBaseCore.OnThreadTTL(Sender: TObject; AThreadID: Cardinal);
+var
+  I: Integer;
+begin
+  Lock;
+  try
+    for I := 0 to Length(FDownloadesList) - 1 do begin
+      if FDownloadesList[I].ThreadID = AThreadID then begin
+        if Assigned(FDownloadesList[I].DownloaderThread) then begin
+          FDownloadesList[I].DownloaderThread.Terminate;
+          FDownloadesList[I].ThreadID := 0;
+          FDownloadesList[I].DownloaderThread := nil;
+        end;
+        Break;
+      end;
+    end;
+  finally
+    UnLock;
   end;
 end;
 

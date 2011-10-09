@@ -37,6 +37,8 @@ uses
   u_TileDownloaderHttp;
 
 type
+  TThreadTTLEvent = procedure(Sender: TObject; AThreadID: Cardinal) of object;
+
   TTileDownloaderBaseThread = class(TThread)
   private
     FCancelListener: IJclListener;
@@ -52,6 +54,8 @@ type
     FLastDownloadTime: Cardinal;
     FIsCanceled: Boolean;
     FSessionCS: TCriticalSection;
+    FOnTTLEvent: TThreadTTLEvent;
+    FLastUsedTime: Cardinal;
     procedure DoRequest;
     function IsCanceled: Boolean;
     procedure SetIsCanceled;
@@ -64,11 +68,15 @@ type
     destructor Destroy; override;
     procedure AddEvent(AEvent: ITileDownloaderEvent);
     procedure OnCancelEvent(Sender: TObject);
+    property OnTTL: TThreadTTLEvent write FOnTTLEvent default nil;
     property Busy: Boolean read FBusy default False;
     property TileRequestBuilder: ITileRequestBuilder write FTileRequestBuilder default nil;
     property TileDownloaderConfig: ITileDownloaderConfig write FTileDownloaderConfig default nil;
     property Semaphore: THandle read FParentSemaphore write FParentSemaphore;
   end;
+
+const
+  CThreadTTL = 30000; // ms, время, в течении которого поток ожидает нового запроса
 
 implementation
 
@@ -87,6 +95,8 @@ begin
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
   FHttpDownloader := TTileDownloaderHttp.Create(AAntiBan);
   FWasConnectError := False;
+  FOnTTLEvent := nil;
+  FLastUsedTime := GetTickCount;
   FreeOnTerminate := True;
   inherited Create(False);
 end;
@@ -224,10 +234,18 @@ begin
         Break
       end else if Terminated then begin
         Break;
+      end else if (GetTickCount - FLastUsedTime) > CThreadTTL then begin
+        if Addr(FOnTTLEvent) <> nil then begin
+          FOnTTLEvent(Self, Self.ThreadID)
+        end;
       end;
     until False;
     if Assigned(FEvent) then begin
-      DoRequest;
+      try
+        DoRequest;
+      finally
+        FLastUsedTime := GetTickCount;
+      end;
     end;
   until False;
 end;
