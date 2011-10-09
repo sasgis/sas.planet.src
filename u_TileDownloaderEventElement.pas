@@ -248,10 +248,13 @@ begin
 end;
 
 procedure TTileDownloaderEventElement.ProcessEvent;
+const
+  CErrorStrBufLength = 40;
 var
   VErrorString: string;
   VResultOk: IDownloadResultOk;
   VResultDownloadError: IDownloadResultError;
+  VResultNotNecessary: IDownloadResultNotNecessary;
 begin
   try
     VErrorString := '';
@@ -263,6 +266,10 @@ begin
         end;
       end else if Supports(FDownloadResult, IDownloadResultError, VResultDownloadError) then begin
         VErrorString := VResultDownloadError.ErrorText;
+      end else if Supports(FDownloadResult, IDownloadResultNotNecessary, VResultNotNecessary) then begin
+        VErrorString := VResultNotNecessary.ReasonText;
+      end else begin
+        VErrorString := FRES_TileDownloadUnexpectedError;
       end;
     except
       on E: Exception do begin
@@ -274,6 +281,11 @@ begin
     end;
     if VErrorString <> '' then begin
       if (FErrorLogger <> nil) and (not FEventStatus.IsCanceled) then begin
+        VErrorString := 'Error: ' + VErrorString;
+        if Length(VErrorString) > CErrorStrBufLength then begin
+          SetLength(VErrorString, CErrorStrBufLength);
+          VErrorString := VErrorString + '..';
+        end;
         FErrorLogger.LogError(
           TTileErrorInfo.Create(
             FMapType,
