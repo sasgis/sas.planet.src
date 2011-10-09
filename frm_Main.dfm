@@ -131,6 +131,12 @@ object frmMain: TfrmMain
           Hint = ''
           EditCaption = 'OSM'
         end
+        object tbiEditWikiMapiaSrch: TTBEditItem
+          EditCaption = 'WikiMapia'
+          Caption = 'WikiMapia'
+          Hint = ''
+          EditCaption = 'WikiMapia'
+        end
       end
       object TBXSeparatorItem5: TTBXSeparatorItem
         Caption = ''
@@ -1050,6 +1056,12 @@ object frmMain: TfrmMain
           Caption = 'OSM'
           Hint = ''
         end
+        object TBXSelectWikiMapiaSrch: TTBXItem
+          GroupIndex = 1
+          RadioItem = True
+          Caption = 'WikiMapia'
+          Hint = ''
+        end        
       end
       object tbiSearch: TTBXComboBoxItem
         EditCaption = 'Search'

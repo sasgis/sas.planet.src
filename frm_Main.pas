@@ -379,6 +379,8 @@ type
     TBHideMarks: TTBXItem;
     TBXSelectOSMSrch: TTBXItem;
     tbiEditOSMSrch: TTBEditItem;
+    TBXSelectWikiMapiaSrch: TTBXItem;
+    tbiEditWikiMapiaSrch: TTBEditItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -1425,6 +1427,18 @@ begin
   VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderOSMGUID);
   VTBXItem := TBXSelectOSMSrch;
   VTBEditItem := tbiEditOSMSrch;
+
+  VTBEditItem.Tag := Integer(VItem);
+  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
+  VTBEditItem.EditCaption := VItem.GetCaption;
+  VTBEditItem.Caption := VItem.GetCaption;
+  VTBXItem.Tag := Integer(VItem);
+  VTBXItem.OnClick := Self.TBXSelectSrchClick;
+  VTBXItem.Caption := VItem.GetCaption;
+  
+  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderWikiMapiaGUID);
+  VTBXItem := TBXSelectWikiMapiaSrch;
+  VTBEditItem := tbiEditWikiMapiaSrch;
 
   VTBEditItem.Tag := Integer(VItem);
   VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
