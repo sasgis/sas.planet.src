@@ -157,6 +157,7 @@ begin
     FAntiBan := nil;
   finally
     FSemaphore := 0;
+    FreeAndNil(FCS);
     inherited Destroy;
   end;
 end;
