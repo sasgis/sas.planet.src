@@ -717,6 +717,7 @@
     <DCCReference Include="u_TileDownloaderConfigStatic.pas" />
     <DCCReference Include="u_TileDownloaderEventElement.pas" />
     <DCCReference Include="u_TileDownloaderFrontEnd.pas" />
+    <DCCReference Include="u_TileDownloaderHttp.pas" />
     <DCCReference Include="u_TileDownloaderThread.pas" />
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />

@@ -7,7 +7,6 @@ uses
   Classes,
   i_OperationNotifier,
   i_DownloadResult,
-  i_DownloadResultFactory,
   i_MapVersionInfo,
   i_LastResponseInfo,
   i_TileDownloadRequest,
@@ -33,10 +32,7 @@ type
 
     procedure AddToCallBackList(ACallBack: TOnDownloadCallBack);
     procedure ExecCallBackList;
-
-    procedure OnBeforeRequest(AConfig: ITileDownloaderConfigStatic);
-    procedure OnAfterResponse(const ARawResponseHeader: string);
-
+    
     function GetRequest: ITileDownloadRequest;
     procedure SetRequest(Value: ITileDownloadRequest);
     property Request: ITileDownloadRequest read GetRequest write SetRequest;
@@ -57,10 +53,6 @@ type
     procedure SetTileZoom(AValue: Byte);
     property TileZoom: Byte read GetTileZoom write SetTileZoom;
 
-    function GetTileSize: Cardinal;
-    procedure SetTileSize(AValue: Cardinal);
-    property TileSize: Cardinal read GetTileSize write SetTileSize;
-
     function GetCheckTileSize: Boolean;
     procedure SetCheckTileSize(AValue: Boolean);
     property CheckTileSize: Boolean read GetCheckTileSize write SetCheckTileSize;
@@ -69,24 +61,9 @@ type
     procedure SetOldTileSize(AValue: Cardinal);
     property OldTileSize: Cardinal read GetOldTileSize write SetOldTileSize;
 
-    function GetTileMIME: string;
-    procedure SetTileMIME(AValue: string);
-    property TileMIME: string read GetTileMIME write SetTileMIME;
-
-    function GetTileStream: TMemoryStream;
-    procedure SetTileStream(AValue: TMemoryStream);
-    property TileStream: TMemoryStream read GetTileStream write SetTileStream;
-
-    function GetHttpStatusCode: Cardinal;
-    procedure SetHttpStatusCode(AValue: Cardinal);
-    property HttpStatusCode: Cardinal read GetHttpStatusCode write SetHttpStatusCode;
-
     function GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(AValue: IDownloadResult);
     property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
-
-    function GetResultFactory: IDownloadResultFactory;
-    property ResultFactory: IDownloadResultFactory read GetResultFactory;
 
     function GetCancelNotifier: IOperationNotifier;
     property CancelNotifier: IOperationNotifier read GetCancelNotifier;

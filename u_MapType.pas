@@ -733,15 +733,21 @@ end;
 procedure TMapType.OnTileDownload(AEvent: ITileDownloaderEvent);
 var
   VResultOk: IDownloadResultOk;
+  VResultStream: TMemoryStream;
+  VContentType: string;
 begin
   if Assigned(AEvent) then begin
     if Supports(AEvent.DownloadResult, IDownloadResultOk, VResultOk) then begin
-
-      // скорее всего лишнее, т.к. мы уже записали заголовки в AEvent.LastResponseInfo
       FLastResponseInfo.ResponseHead := VResultOk.RawResponseHeader;
-      //-----
-
-      SaveTileDownload(AEvent.TileXY, AEvent.TileZoom, AEvent.TileStream, AEvent.TileMIME);
+      VResultStream := TMemoryStream.Create;
+      try
+        VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);
+        VContentType := VResultOk.ContentType;
+        VContentType := Zmp.ContentTypeSubst.GetContentType(VContentType);
+        SaveTileDownload(AEvent.TileXY, AEvent.TileZoom, VResultStream, VContentType);
+      finally
+        VResultStream.Free;
+      end;
     end else if Supports(AEvent.DownloadResult, IDownloadResultDataNotExists) then begin
       if FDownloadConfig.IsSaveTileNotExists then begin
         SaveTileNotExists(AEvent.TileXY, AEvent.TileZoom);
