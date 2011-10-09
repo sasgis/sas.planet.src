@@ -69,6 +69,8 @@ uses
   u_HtmlToHintTextConverterStuped in 'u_HtmlToHintTextConverterStuped.pas',
   i_ContentTypeSubst in 'i_ContentTypeSubst.pas',
   u_ContentTypeSubstByList in 'u_ContentTypeSubstByList.pas',
+  i_AntiBan in 'i_AntiBan.pas',
+  u_AntiBanStuped in 'u_AntiBanStuped.pas',
   i_DownloadResult in 'i_DownloadResult.pas',
   u_DownloadResult in 'u_DownloadResult.pas',
   i_DownloadResultFactory in 'i_DownloadResultFactory.pas',

@@ -9,6 +9,7 @@ uses
   ALHTTPCommon,
   ALHttpClient,
   ALWinInetHttpClient,
+  i_AntiBan,
   i_InetConfig,
   i_ProxySettings,
   i_DownloadResult,
@@ -24,6 +25,7 @@ type
     FHttpResponseHeader: TALHTTPResponseHeader;
     FHttpResponseBody: TMemoryStream;
     FResultFactory: IDownloadResultFactory;
+    FAntiBan: IAntiBan;
     function OnBeforeRequest(
       ARequest: ITileDownloadRequest;
       AResultFactory: IDownloadResultFactory;
@@ -59,7 +61,7 @@ type
     function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean;
     function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean;
   public
-    constructor Create;
+    constructor Create(AAntiBan: IAntiBan);
     destructor Destroy; override;
     function Get(
       ARequest: ITileDownloadRequest;
@@ -82,7 +84,7 @@ uses
 
 { TTileDownloaderHttp }
 
-constructor TTileDownloaderHttp.Create;
+constructor TTileDownloaderHttp.Create(AAntiBan: IAntiBan);
 begin
   inherited Create;
   FHttpClient := TALWinInetHTTPClient.Create(nil);
@@ -91,6 +93,7 @@ begin
   FResultFactory := TDownloadResultFactory.Create(
     GState.DownloadResultTextProvider   // TODO: Избавиться от GState
   );
+  FAntiBan := AAntiBan;
 end;
 
 destructor TTileDownloaderHttp.Destroy;
@@ -100,6 +103,7 @@ begin
   FreeAndNil(FHttpResponseBody);
   FreeAndNil(FHttpClient);
   FResultFactory := nil;
+  FAntiBan := nil;
   inherited Destroy;
 end;
 
@@ -178,6 +182,10 @@ function TTileDownloaderHttp.OnBeforeRequest(
   out ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
 begin
+  if FAntiBan <> nil then begin
+    FAntiBan.PreDownload(ARequest);
+  end;
+
   FHttpResponseHeader.Clear;
   FHttpResponseBody.Clear;
 
@@ -310,6 +318,12 @@ begin
       Result := AResultFactory.BuildLoadErrorByUnknownStatusCode(
         ARequest,
         VStatusCode
+      );
+    end;
+    if FAntiBan <> nil then begin
+      Result := FAntiBan.PostCheckDownload(
+        AResultFactory,
+        Result
       );
     end;
   end;

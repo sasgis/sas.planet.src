@@ -7,6 +7,7 @@ uses
   SysUtils,
   Classes,
   SyncObjs,
+  i_AntiBan,
   i_JclNotify,
   i_OperationNotifier,
   i_InetConfig,
@@ -39,7 +40,7 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create;
+    constructor Create(AAntiBan: IAntiBan);
     destructor Destroy; override;
     procedure AddEvent(AEvent: ITileDownloaderEvent);
     procedure OnCancelEvent(Sender: TObject);
@@ -57,14 +58,14 @@ uses
 
 { TTileDownloaderBaseThread }
 
-constructor TTileDownloaderBaseThread.Create;
+constructor TTileDownloaderBaseThread.Create(AAntiBan: IAntiBan);
 begin
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
   FIsCanceled := False;
   FSessionCS := TCriticalSection.Create;
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
-  FHttpDownloader := TTileDownloaderHttp.Create;
+  FHttpDownloader := TTileDownloaderHttp.Create(AAntiBan);
   FWasConnectError := False;
   FreeOnTerminate := True;
   inherited Create(False);

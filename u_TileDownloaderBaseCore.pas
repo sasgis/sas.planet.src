@@ -7,6 +7,7 @@ uses
   Classes,
   SysUtils,
   SyncObjs,
+  i_AntiBan,
   i_ConfigDataProvider,
   i_CoordConverterFactory,
   i_LanguageManager,
@@ -22,6 +23,7 @@ type
   private
     FEnabled: Boolean;
     FZmp: IZmpInfo;
+    FAntiBan: IAntiBan;
     FMaxConnectToServerCount: Cardinal;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
@@ -54,6 +56,7 @@ implementation
 uses
   Dialogs,
   IniFiles,
+  u_AntiBanStuped,
   u_GlobalState,
   u_ConfigDataProviderByKaZip,
   u_ConfigDataProviderByFolder,
@@ -78,6 +81,7 @@ begin
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileRequestBuilderConfig := ATileRequestBuilderConfig;
   FZmp := AZmp;
+  FAntiBan := TAntiBanStuped.Create(FZmp.DataProvider);
   FCoordConverterFactory := ACoordConverterFactory;
   FLangManager := ALangManager;
   FCS := TCriticalSection.Create;
@@ -112,6 +116,7 @@ begin
     end;
     FDownloadesList.Clear;
     FreeAndNil(FDownloadesList);
+    FAntiBan := nil;
   finally
     FSemaphore := 0;
     inherited Destroy;
@@ -165,7 +170,7 @@ begin
         Result := nil;
       end;
       if not Assigned(Result) and (FDownloadesList.Count < integer(FMaxConnectToServerCount)) then begin
-        Result := TTileDownloaderBaseThread.Create;
+        Result := TTileDownloaderBaseThread.Create(FAntiBan);
         Result.TileRequestBuilder := CreateNewTileRequestBuilder;
         Result.TileDownloaderConfig := FTileDownloaderConfig;
         FDownloadesList.Add(Result);

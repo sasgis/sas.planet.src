@@ -144,6 +144,7 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="i_ActiveMapsConfig.pas" />
+    <DCCReference Include="i_AntiBan.pas" />
     <DCCReference Include="i_ARGBToPaletteConverter.pas" />
     <DCCReference Include="i_BackgroundTask.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
@@ -435,6 +436,7 @@
     <DCCReference Include="u_ActiveMapsSet.pas" />
     <DCCReference Include="u_ActiveMapTBXItem.pas" />
     <DCCReference Include="u_ActivMapWithLayers.pas" />
+    <DCCReference Include="u_AntiBanStuped.pas" />
     <DCCReference Include="u_ARGBToPaletteConverter.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BackgroundTaskLayerDrawBase.pas" />
