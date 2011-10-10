@@ -298,16 +298,18 @@ begin
                 FMapType := VMap.MapType;
                 FLoadXY := VTile;
                 VNeedDownload := False;
-                if FMapType.TileExists(FLoadXY, VZoom) then begin
-                  if FUseDownload = tsInternet then begin
-                    if Now - FMapType.TileLoadDate(FLoadXY, VZoom) > FTileMaxAgeInInternet then begin
-                      VNeedDownload := True;
+                if not TileExistsInProcessList(FMapType.Zmp.GUID, VTile, VZoom) then begin
+                  if FMapType.TileExists(FLoadXY, VZoom) then begin
+                    if FUseDownload = tsInternet then begin
+                      if Now - FMapType.TileLoadDate(FLoadXY, VZoom) > FTileMaxAgeInInternet then begin
+                        VNeedDownload := True;
+                      end;
                     end;
-                  end;
-                end else begin
-                  if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
-                    if not(FMapType.TileNotExistsOnServer(FLoadXY, VZoom)) then begin
-                      VNeedDownload := True;
+                  end else begin
+                    if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
+                      if not(FMapType.TileNotExistsOnServer(FLoadXY, VZoom)) then begin
+                        VNeedDownload := True;
+                      end;
                     end;
                   end;
                 end;

@@ -31,10 +31,18 @@ uses
   u_OperationNotifier,
   i_TileError,
   i_TileDownloader,
+  i_TileDownloadRequest,
   u_MapType,
   u_TileDownloaderEvent;
 
 type
+  PTileRec = ^TTileRec;
+  TTileRec = record
+    MapGUID: TGUID;
+    Tile: TPoint;
+    Zoom: Byte;
+  end;
+
   TTileDownloaderThread = class (TThread)
   private
     FCancelNotifierInternal: IOperationNotifierInternal;
@@ -43,11 +51,12 @@ type
     FErrorLogger: ITileErrorLogger;
     FDownloadInfo: IDownloadInfoSimple;
     FMapTileUpdateEvent: TMapTileUpdateEvent;
-    
+    FProcessList: TList;
     FCancelEvent: TEvent;
     FCancelNotifier: IOperationNotifier;
     FMaxRequestCount: Integer;
     FSemaphore: THandle;
+    FCS: TCriticalSection;
     function CreateNewTileDownloaderEvent(
       ATile: TPoint;
       AZoom: Byte;
@@ -65,6 +74,22 @@ type
       AOperationID: Integer
     );
     procedure SleepCancelable(ATime: Cardinal);
+    procedure AddTileToProcessList(
+      AMapGUID: TGUID;
+      ATile: TPoint;
+      AZoom: Byte
+    );
+    procedure RemoveTileFromProcessList(
+      AMapGUID: TGUID;
+      ATile: TPoint;
+      AZoom: Byte
+    );
+    function TileExistsInProcessList(
+      AMapGUID: TGUID;
+      ATile: TPoint;
+      AZoom: Byte
+    ): Boolean;
+    procedure ClearProcessList;
   public
     constructor Create(
       ACreateSuspended: Boolean;
@@ -95,6 +120,7 @@ var
   VOperationNotifier: TOperationNotifier;
 begin
   inherited Create(ACreateSuspended);
+  FCS := TCriticalSection.Create;
   FCancelEvent := TEvent.Create;
   VOperationNotifier := TOperationNotifier.Create;
   FCancelNotifierInternal := VOperationNotifier;
@@ -105,6 +131,7 @@ begin
   FErrorLogger := AErrorLogger;
   FMaxRequestCount := AMaxRequestCount;
   FSemaphore := CreateSemaphore(nil, FMaxRequestCount, FMaxRequestCount, nil);
+  FProcessList := TList.Create;
 end;
 
 destructor TTileDownloaderThread.Destroy;
@@ -113,6 +140,9 @@ begin
     Terminate;
     FreeAndNil(FCancelEvent);
     CloseHandle(FSemaphore);
+    ClearProcessList;
+    FreeAndNil(FProcessList);
+    FreeAndNil(FCS);
   finally
     inherited Destroy;
   end;
@@ -133,8 +163,18 @@ begin
 end;
 
 procedure TTileDownloaderThread.OnTileDownload(AEvent: ITileDownloaderEvent);
+var
+  VRequest: ITileDownloadRequest;
 begin
   ReleaseSemaphore(FSemaphore, 1, nil);
+  VRequest := AEvent.Request;
+  if VRequest <> nil then begin
+    RemoveTileFromProcessList(
+      VRequest.Zmp.GUID,
+      VRequest.Tile,
+      VRequest.Zoom
+    );
+  end;                                 
 end;
 
 function TTileDownloaderThread.CreateNewTileDownloaderEvent(
@@ -171,6 +211,9 @@ procedure TTileDownloaderThread.Download(
 begin
   repeat // Стартуем закачку
     if WaitForSingleObject(FSemaphore, 300) = WAIT_OBJECT_0 then begin
+
+      AddTileToProcessList(FMapType.Zmp.GUID, ATile, AZoom);
+
       FMapType.DownloadTile(
         CreateNewTileDownloaderEvent(
           ATile,
@@ -195,6 +238,107 @@ begin
         Break;
       end;
     until False;
+  end;
+end;
+
+procedure TTileDownloaderThread.AddTileToProcessList(
+  AMapGUID: TGUID;
+  ATile: TPoint;
+  AZoom: Byte
+);
+var
+  VTileRec: PTileRec;
+begin
+  if not TileExistsInProcessList(AMapGUID, ATile, AZoom) then begin
+    New(VTileRec);
+    VTileRec.MapGUID := AMapGUID;
+    VTileRec.Tile := ATile;
+    VTileRec.Zoom := AZoom;
+    FCS.Acquire;
+    try
+      FProcessList.Add(VTileRec);
+    finally
+      FCS.Release;
+    end;
+  end;
+end;
+
+procedure TTileDownloaderThread.RemoveTileFromProcessList(
+  AMapGUID: TGUID;
+  ATile: TPoint;
+  AZoom: Byte
+);
+var
+  I: Integer;
+  VTileRec: PTileRec;
+begin
+  FCS.Acquire;
+  try
+    for I := 0 to FProcessList.Count - 1 do begin
+      VTileRec := FProcessList.Items[I];
+      if Assigned(VTileRec) then begin
+        if (VTileRec.Zoom = AZoom) and
+           (VTileRec.Tile.X = ATile.X) and
+           (VTileRec.Tile.Y = ATile.Y) and
+            IsEqualGUID(VTileRec.MapGUID, AMapGUID) then
+        begin
+          FProcessList.Delete(I);
+          Dispose(VTileRec);
+          Break;
+        end;
+      end;
+    end;
+  finally
+    FCS.Release;
+  end;
+end;
+
+function TTileDownloaderThread.TileExistsInProcessList(
+  AMapGUID: TGUID;
+  ATile: TPoint;
+  AZoom: Byte
+): Boolean;
+var
+  I: Integer;
+  VTileRec: PTileRec;
+begin
+  Result := False;
+  FCS.Acquire;
+  try
+    for I := 0 to FProcessList.Count - 1 do begin
+      VTileRec := FProcessList.Items[I];
+      if Assigned(VTileRec) then begin
+        if (VTileRec.Zoom = AZoom) and
+           (VTileRec.Tile.X = ATile.X) and
+           (VTileRec.Tile.Y = ATile.Y) and
+            IsEqualGUID(VTileRec.MapGUID, AMapGUID) then
+        begin
+          Result := True;
+          Break;
+        end;
+      end;
+    end;
+  finally
+    FCS.Release;
+  end;
+end;
+
+procedure TTileDownloaderThread.ClearProcessList;
+var
+  I: Integer;
+  VTileRec: PTileRec;
+begin
+  FCS.Acquire;
+  try
+    for I := 0 to FProcessList.Count - 1 do begin
+      VTileRec := FProcessList.Items[I];
+      if Assigned(VTileRec) then begin
+        Dispose(VTileRec);
+      end;
+    end;
+    FProcessList.Clear;
+  finally
+    FCS.Release;
   end;
 end;
 
