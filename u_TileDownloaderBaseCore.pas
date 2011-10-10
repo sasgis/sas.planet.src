@@ -120,7 +120,7 @@ begin
 
   // В целях упрощения отладки, жёстко задаём число потоков для карты,
   // иначе, это число берётся из zmp карты, из параметра MaxConnectToServerCount (см. выше)
-  FMaxConnectToServerCount := 4;
+  FMaxConnectToServerCount := 12;
   // --
 
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);

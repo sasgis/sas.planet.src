@@ -147,7 +147,7 @@ procedure TTileDownloaderBaseThread.DoRequest;
     end else begin
       if VTimeFromLastDownload < ATileDownloaderConfigStatic.WaitInterval then begin
         VSleepTime := ATileDownloaderConfigStatic.WaitInterval - VTimeFromLastDownload;
-        SleepCancelable(VSleepTime);
+        //SleepCancelable(VSleepTime); отключено в целях упрощения отладки
       end;
     end;
   end;
