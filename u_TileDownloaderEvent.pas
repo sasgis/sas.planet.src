@@ -46,20 +46,23 @@ type
     FCancelListener: IJclListener;
     FThreadSafeCS: TCriticalSection;
     FCancelled: Boolean;
+    FProcessed: Boolean;
     FOperationID: Integer;
     function GetIsCanselled: Boolean;
+    function GetIsProcessed: Boolean;
+    procedure SetIsProcessed(AValue: Boolean);
     function GetNotifier: IOperationNotifier;
     procedure OnCancelEvent(Sender: TObject);
   public
     constructor Create(ACancelNotifier: IOperationNotifier; AOperationID: Integer);
     destructor Destroy; override;
     property IsCanceled: Boolean read GetIsCanselled;
+    property IsProcessed: Boolean read GetIsProcessed write SetIsProcessed;
     property Notifier: IOperationNotifier read GetNotifier;
   end;
 
   TTileDownloaderEvent = class(TInterfacedObject, ITileDownloaderEvent)
   private
-    FProcessed: Boolean;
     FEventStatus: TEventStatus;
     FCallBackList: TList;
     FRES_TileDownloadUnexpectedError: string;
@@ -138,6 +141,7 @@ constructor TEventStatus.Create(
 begin
   inherited Create;
   FCancelled := False;
+  FProcessed := False;
   FOperationID := AOperationID;
   FThreadSafeCS := TCriticalSection.Create;
   FCancelNotifier := ACancelNotifier;
@@ -153,6 +157,8 @@ begin
     if FCancelNotifier <> nil then begin
       FCancelNotifier.RemoveListener(FCancelListener);
     end;
+    FCancelNotifier := nil;
+    FCancelListener := nil;
     FreeAndNil(FThreadSafeCS);
   finally
     inherited;
@@ -174,6 +180,26 @@ begin
   FThreadSafeCS.Acquire;
   try
     Result := FCancelled or FCancelNotifier.IsOperationCanceled(FOperationID);
+  finally
+    FThreadSafeCS.Release;
+  end;
+end;
+
+function TEventStatus.GetIsProcessed: Boolean;
+begin
+  FThreadSafeCS.Acquire;
+  try
+    Result := FProcessed;
+  finally
+    FThreadSafeCS.Release;
+  end;
+end;
+
+procedure TEventStatus.SetIsProcessed(AValue: Boolean);
+begin
+  FThreadSafeCS.Acquire;
+  try
+    FProcessed := AValue;
   finally
     FThreadSafeCS.Release;
   end;
@@ -202,7 +228,6 @@ constructor TTileDownloaderEvent.Create(
 begin
   inherited Create;
   FEventStatus := TEventStatus.Create(ACancelNotifier, AOperationID);
-  FProcessed := False;
   FDownloadInfo := ADownloadInfo;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorLogger := AErrorLogger;
@@ -224,17 +249,18 @@ destructor TTileDownloaderEvent.Destroy;
 begin
   try
     try
-      if Assigned(FEventStatus) and
-         not FEventStatus.IsCanceled and
-         not FProcessed then
-      begin
-        ProcessEvent;
-      end;
+      ProcessEvent;
       FCallBackList.Clear;
       FreeAndNil(FCallBackList);
     finally
       FreeAndNil(FEventStatus);
-    end; 
+      FDownloadInfo := nil;
+      FErrorLogger := nil;
+      FDownloadResult := nil;
+      FRequest := nil;
+      FLastResponseInfo := nil;
+      FVersionInfo := nil;
+    end;
   finally
     inherited Destroy;
   end;
@@ -256,12 +282,19 @@ var
   VResultDownloadError: IDownloadResultError;
   VResultNotNecessary: IDownloadResultNotNecessary;
 begin
-  try
+  if not FEventStatus.IsProcessed then begin
+    FEventStatus.IsProcessed := True;
     VErrorString := '';
     try
-      ExecCallBackList;
+      ExecCallBackList; // Обрабатываем все колбэки, даже если загрузка отменена
+    except
+      on E: Exception do begin
+        VErrorString := E.Message;
+      end;
+    end;
+    if not FEventStatus.IsCanceled then begin
       if Supports(FDownloadResult, IDownloadResultOk, VResultOk) then begin
-        if not FEventStatus.IsCanceled and (FDownloadInfo <> nil) then begin
+        if FDownloadInfo <> nil then begin
           FDownloadInfo.Add(1, VResultOk.Size);
         end;
       end else if Supports(FDownloadResult, IDownloadResultError, VResultDownloadError) then begin
@@ -271,37 +304,26 @@ begin
       end else begin
         VErrorString := FRES_TileDownloadUnexpectedError;
       end;
-    except
-      on E: Exception do begin
-        VErrorString := E.Message;
-      end
-      else begin
-        VErrorString := FRES_TileDownloadUnexpectedError;
-      end;
-    end;
-    if VErrorString <> '' then begin
-      if (FErrorLogger <> nil) and (not FEventStatus.IsCanceled) then begin
-        VErrorString := 'Error: ' + VErrorString;
-        if Length(VErrorString) > CErrorStrBufLength then begin
-          SetLength(VErrorString, CErrorStrBufLength);
-          VErrorString := VErrorString + '..';
+      if VErrorString <> '' then begin
+        if FErrorLogger <> nil then begin
+          VErrorString := 'Error: ' + VErrorString;
+          if Length(VErrorString) > CErrorStrBufLength then begin
+            SetLength(VErrorString, CErrorStrBufLength);
+            VErrorString := VErrorString + '..';
+          end;
+          FErrorLogger.LogError(
+            TTileErrorInfo.Create(
+              FMapType,
+              FTileZoom,
+              FTileXY,
+              VErrorString
+            )
+          );
         end;
-        FErrorLogger.LogError(
-          TTileErrorInfo.Create(
-            FMapType,
-            FTileZoom,
-            FTileXY,
-            VErrorString
-          )
-        );
-      end;
-    end else begin
-      if not FEventStatus.IsCanceled then begin
+      end else begin
         TThread.Synchronize(nil, GuiSync);
       end;
     end;
-  finally
-    FProcessed := True;
   end;
 end;
 

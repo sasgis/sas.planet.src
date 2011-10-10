@@ -216,6 +216,7 @@ begin
       FEvent.ProcessEvent;
     end;
   finally
+    FEvent := nil;
     FBusy := False;
     if FParentSemaphore <> 0 then begin
       ReleaseSemaphore(FParentSemaphore, 1, nil);

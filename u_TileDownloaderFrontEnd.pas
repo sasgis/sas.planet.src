@@ -97,6 +97,7 @@ end;
 
 destructor TTileDownloaderFrontEnd.Destroy;
 begin
+  FDownloader := nil;
   inherited Destroy;
 end;
 

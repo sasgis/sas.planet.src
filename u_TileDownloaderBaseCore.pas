@@ -155,6 +155,11 @@ begin
     end;
     SetLength(FDownloadesList, 0);
     FAntiBan := nil;
+    FZmp := nil;
+    FTileRequestBuilderConfig := nil;
+    FTileDownloaderConfig := nil;
+    FCoordConverterFactory := nil;
+    FLangManager := nil;
   finally
     FSemaphore := 0;
     FreeAndNil(FCS);
