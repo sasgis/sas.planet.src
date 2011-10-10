@@ -32,7 +32,7 @@ uses
   i_TileError,
   i_TileDownloader,
   u_MapType,
-  u_TileDownloaderEventElement;
+  u_TileDownloaderEvent;
 
 type
   TTileDownloaderThread = class (TThread)
@@ -48,7 +48,7 @@ type
     FCancelNotifier: IOperationNotifier;
     FMaxRequestCount: Integer;
     FSemaphore: THandle;
-    function  GetNewEventElement(
+    function CreateNewTileDownloaderEvent(
       ATile: TPoint;
       AZoom: Byte;
       ACallBack: TOnDownloadCallBack;
@@ -137,7 +137,7 @@ begin
   ReleaseSemaphore(FSemaphore, 1, nil);
 end;
 
-function TTileDownloaderThread.GetNewEventElement(
+function TTileDownloaderThread.CreateNewTileDownloaderEvent(
   ATile: TPoint;
   AZoom: Byte;
   ACallBack: TOnDownloadCallBack;
@@ -146,7 +146,7 @@ function TTileDownloaderThread.GetNewEventElement(
   AOperationID: Integer
 ): ITileDownloaderEvent;
 begin
-  Result := TTileDownloaderEventElement.Create(
+  Result := TTileDownloaderEvent.Create(
               FDownloadInfo,
               FMapTileUpdateEvent,
               FErrorLogger,
@@ -172,7 +172,7 @@ begin
   repeat // Стартуем закачку
     if WaitForSingleObject(FSemaphore, 300) = WAIT_OBJECT_0 then begin
       FMapType.DownloadTile(
-        GetNewEventElement(
+        CreateNewTileDownloaderEvent(
           ATile,
           AZoom,
           ACallBack,

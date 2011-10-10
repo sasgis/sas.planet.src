@@ -99,7 +99,7 @@ uses
   i_TileDownloader in 'i_TileDownloader.pas',
   u_TileDownloaderBaseCore in 'u_TileDownloaderBaseCore.pas',
   u_TileDownloaderBaseThread in 'u_TileDownloaderBaseThread.pas',
-  u_TileDownloaderEventElement in 'u_TileDownloaderEventElement.pas',
+  u_TileDownloaderEvent in 'u_TileDownloaderEvent.pas',
   u_TileDownloaderFrontEnd in 'u_TileDownloaderFrontEnd.pas',
   u_TileDownloaderHttp in 'u_TileDownloaderHttp.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',

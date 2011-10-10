@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileDownloaderEventElement;
+unit u_TileDownloaderEvent;
 
 interface
 
@@ -40,7 +40,7 @@ uses
   u_MapType;
 
 type
-  TEventElementStatus = class
+  TEventStatus = class
   private
     FCancelNotifier: IOperationNotifier;
     FCancelListener: IJclListener;
@@ -57,10 +57,10 @@ type
     property Notifier: IOperationNotifier read GetNotifier;
   end;
 
-  TTileDownloaderEventElement = class(TInterfacedObject, ITileDownloaderEvent)
+  TTileDownloaderEvent = class(TInterfacedObject, ITileDownloaderEvent)
   private
     FProcessed: Boolean;
-    FEventStatus: TEventElementStatus;
+    FEventStatus: TEventStatus;
     FCallBackList: TList;
     FRES_TileDownloadUnexpectedError: string;
     FDownloadInfo: IDownloadInfoSimple;
@@ -129,9 +129,9 @@ uses
   u_ResStrings,
   u_NotifyEventListener;
 
-{ TEventElementStatus }
+{ TEventStatus }
 
-constructor TEventElementStatus.Create(
+constructor TEventStatus.Create(
   ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 );
@@ -147,7 +147,7 @@ begin
   end;
 end;
 
-destructor TEventElementStatus.Destroy;
+destructor TEventStatus.Destroy;
 begin
   try
     if FCancelNotifier <> nil then begin
@@ -159,7 +159,7 @@ begin
   end;
 end;
 
-procedure TEventElementStatus.OnCancelEvent(Sender: TObject);
+procedure TEventStatus.OnCancelEvent(Sender: TObject);
 begin
   FThreadSafeCS.Acquire;
   try
@@ -169,7 +169,7 @@ begin
   end;
 end;
 
-function TEventElementStatus.GetIsCanselled: Boolean;
+function TEventStatus.GetIsCanselled: Boolean;
 begin
   FThreadSafeCS.Acquire;
   try
@@ -179,7 +179,7 @@ begin
   end;
 end;
 
-function TEventElementStatus.GetNotifier: IOperationNotifier;
+function TEventStatus.GetNotifier: IOperationNotifier;
 begin
   FThreadSafeCS.Acquire;
   try
@@ -189,9 +189,9 @@ begin
   end;
 end;
 
-{ TTileDownloaderEventElement }
+{ TTileDownloaderEvent }
 
-constructor TTileDownloaderEventElement.Create(
+constructor TTileDownloaderEvent.Create(
   ADownloadInfo: IDownloadInfoSimple;
   AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger;
@@ -201,7 +201,7 @@ constructor TTileDownloaderEventElement.Create(
 );
 begin
   inherited Create;
-  FEventStatus := TEventElementStatus.Create(ACancelNotifier, AOperationID);
+  FEventStatus := TEventStatus.Create(ACancelNotifier, AOperationID);
   FProcessed := False;
   FDownloadInfo := ADownloadInfo;
   FMapTileUpdateEvent := AMapTileUpdateEvent;
@@ -220,7 +220,7 @@ begin
   FRES_TileDownloadUnexpectedError := SAS_ERR_TileDownloadUnexpectedError;
 end;
 
-destructor TTileDownloaderEventElement.Destroy;
+destructor TTileDownloaderEvent.Destroy;
 begin
   try
     try
@@ -240,14 +240,14 @@ begin
   end;
 end;
 
-procedure TTileDownloaderEventElement.GuiSync;
+procedure TTileDownloaderEvent.GuiSync;
 begin
   if not FEventStatus.IsCanceled and (Addr(FMapTileUpdateEvent) <> nil) then begin
     FMapTileUpdateEvent(FMapType, FTileZoom, FTileXY);
   end;
 end;
 
-procedure TTileDownloaderEventElement.ProcessEvent;
+procedure TTileDownloaderEvent.ProcessEvent;
 const
   CErrorStrBufLength = 40;
 var
@@ -305,7 +305,7 @@ begin
   end;
 end;
 
-procedure TTileDownloaderEventElement.AddToCallBackList(ACallBack: TOnDownloadCallBack);
+procedure TTileDownloaderEvent.AddToCallBackList(ACallBack: TOnDownloadCallBack);
 var
   VCallBack: POnDownloadCallBack;
 begin
@@ -319,7 +319,7 @@ begin
   end;
 end;
 
-procedure TTileDownloaderEventElement.ExecCallBackList;
+procedure TTileDownloaderEvent.ExecCallBackList;
 var
   i: Integer;
   VCallBack: POnDownloadCallBack;
@@ -345,87 +345,87 @@ begin
   end;
 end;
 
-procedure TTileDownloaderEventElement.SetRequest(AValue: ITileDownloadRequest);
+procedure TTileDownloaderEvent.SetRequest(AValue: ITileDownloadRequest);
 begin
   FRequest := AValue;
 end;
 
-function TTileDownloaderEventElement.GetRequest: ITileDownloadRequest;
+function TTileDownloaderEvent.GetRequest: ITileDownloadRequest;
 begin
   Result := FRequest;
 end;
 
-procedure TTileDownloaderEventElement.SetLastResponseInfo(AValue: ILastResponseInfo);
+procedure TTileDownloaderEvent.SetLastResponseInfo(AValue: ILastResponseInfo);
 begin
   FLastResponseInfo := AValue;
 end;
 
-function TTileDownloaderEventElement.GetLastResponseInfo: ILastResponseInfo;
+function TTileDownloaderEvent.GetLastResponseInfo: ILastResponseInfo;
 begin
   Result := FLastResponseInfo;
 end;
 
-procedure TTileDownloaderEventElement.SetVersionInfo(AValue: IMapVersionInfo);
+procedure TTileDownloaderEvent.SetVersionInfo(AValue: IMapVersionInfo);
 begin
   FVersionInfo := AValue;
 end;
 
-function TTileDownloaderEventElement.GetVersionInfo: IMapVersionInfo;
+function TTileDownloaderEvent.GetVersionInfo: IMapVersionInfo;
 begin
   Result := FVersionInfo;
 end;
 
-procedure TTileDownloaderEventElement.SetTileXY(AValue: TPoint);
+procedure TTileDownloaderEvent.SetTileXY(AValue: TPoint);
 begin
   FTileXY := AValue;
 end;
 
-function TTileDownloaderEventElement.GetTileXY: TPoint;
+function TTileDownloaderEvent.GetTileXY: TPoint;
 begin
   Result := FTileXY;
 end;
 
-procedure TTileDownloaderEventElement.SetTileZoom(AValue: Byte);
+procedure TTileDownloaderEvent.SetTileZoom(AValue: Byte);
 begin
   FTileZoom := AValue;
 end;
 
-function TTileDownloaderEventElement.GetTileZoom: Byte;
+function TTileDownloaderEvent.GetTileZoom: Byte;
 begin
   Result := FTileZoom;
 end;
 
-procedure TTileDownloaderEventElement.SetCheckTileSize(AValue: Boolean);
+procedure TTileDownloaderEvent.SetCheckTileSize(AValue: Boolean);
 begin
   FCheckTileSize := AValue;
 end;
 
-function TTileDownloaderEventElement.GetCheckTileSize: Boolean;
+function TTileDownloaderEvent.GetCheckTileSize: Boolean;
 begin
   Result := FCheckTileSize;
 end;
 
-procedure TTileDownloaderEventElement.SetOldTileSize(AValue: Cardinal);
+procedure TTileDownloaderEvent.SetOldTileSize(AValue: Cardinal);
 begin
   FOldTileSize := AValue;
 end;
 
-function TTileDownloaderEventElement.GetOldTileSize: Cardinal;
+function TTileDownloaderEvent.GetOldTileSize: Cardinal;
 begin
   Result := FOldTileSize;
 end;
 
-procedure TTileDownloaderEventElement.SetDownloadResult(AValue: IDownloadResult);
+procedure TTileDownloaderEvent.SetDownloadResult(AValue: IDownloadResult);
 begin
   FDownloadResult := AValue;
 end;
 
-function TTileDownloaderEventElement.GetDownloadResult: IDownloadResult;
+function TTileDownloaderEvent.GetDownloadResult: IDownloadResult;
 begin
   Result := FDownloadResult;
 end;
 
-function TTileDownloaderEventElement.GetCancelNotifier: IOperationNotifier;
+function TTileDownloaderEvent.GetCancelNotifier: IOperationNotifier;
 begin
   Result := FEventStatus.Notifier;
 end;
