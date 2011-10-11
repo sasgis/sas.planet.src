@@ -75,7 +75,7 @@ implementation
 uses
   Classes,
   SysUtils,
-  frm_InvisibleBrowser;
+  u_InetFunc;
 
 type
   TExecOnBan = class

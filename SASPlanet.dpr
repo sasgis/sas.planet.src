@@ -570,6 +570,7 @@ uses
   u_GPSModuleByCOMPortSettings in 'u_GPSModuleByCOMPortSettings.pas',
   i_SatellitesInViewMapDraw in 'i_SatellitesInViewMapDraw.pas',
   u_SatellitesInViewMapDrawSimple in 'u_SatellitesInViewMapDrawSimple.pas',
+  u_InetFunc in 'u_InetFunc.pas',
   i_InvisibleBrowser in 'i_InvisibleBrowser.pas',
   u_InvisibleBrowserByFormSynchronize in 'u_InvisibleBrowserByFormSynchronize.pas',
   i_GPSConfig in 'i_GPSConfig.pas',
