@@ -59,6 +59,7 @@ uses
   i_MapAbilitiesConfig,
   i_SimpleTileStorageConfig,
   i_ZmpInfo,
+  i_InvisibleBrowser,
   i_MapTypeGUIConfig,
   i_ProxySettings,
   i_CoordConverterFactory,
@@ -107,6 +108,7 @@ type
     );
     procedure LoadDownloader(
       AGCList: IListOfObjectsWithTTL;
+      AInvisibleBrowser: IInvisibleBrowser;
       AProxyConfig: IProxyConfig
     );
     procedure LoadStorageParams(
@@ -130,6 +132,7 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
       ACoordConverterFactory: ICoordConverterFactory;
+      AInvisibleBrowser: IInvisibleBrowser;
       AConfig : IConfigDataProvider
     );
 
@@ -250,6 +253,7 @@ type
       AContentTypeManager: IContentTypeManager;
       ACoordConverterFactory: ICoordConverterFactory;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
+      AInvisibleBrowser: IInvisibleBrowser;
       AConfig: IConfigDataProvider
     );
     destructor Destroy; override;
@@ -353,6 +357,7 @@ end;
 
 procedure TMapType.LoadDownloader(
   AGCList: IListOfObjectsWithTTL;
+  AInvisibleBrowser: IInvisibleBrowser;
   AProxyConfig: IProxyConfig
 );
 var
@@ -371,7 +376,7 @@ begin
             60000
           );
         AGCList.AddObject(FPoolOfDownloaders as IObjectWithTTL);
-        FAntiBan := TAntiBanStuped.Create(AProxyConfig, FZmp.DataProvider);
+        FAntiBan := TAntiBanStuped.Create(AProxyConfig, AInvisibleBrowser, FZmp.DataProvider);
       except
         if ExceptObject <> nil then begin
           ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
@@ -392,6 +397,7 @@ procedure TMapType.LoadMapType(
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
   ACoordConverterFactory: ICoordConverterFactory;
+  AInvisibleBrowser: IInvisibleBrowser;
   AConfig: IConfigDataProvider
 );
 begin
@@ -405,7 +411,7 @@ begin
   FViewCoordConverter := Zmp.ViewGeoConvert;
   FTileRequestBuilderConfig.ReadConfig(AConfig);
   LoadUrlScript(ACoordConverterFactory);
-  LoadDownloader(AGCList, AProxyConfig);
+  LoadDownloader(AGCList, AInvisibleBrowser, AProxyConfig);
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
@@ -667,6 +673,7 @@ constructor TMapType.Create(
   AContentTypeManager: IContentTypeManager;
   ACoordConverterFactory: ICoordConverterFactory;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
+  AInvisibleBrowser: IInvisibleBrowser;
   AConfig: IConfigDataProvider
 );
 begin
@@ -702,6 +709,7 @@ begin
     AGlobalCacheConfig,
     ATileNameGeneratorList,
     ACoordConverterFactory,
+    AInvisibleBrowser,
     AConfig
   );
   if FAbilitiesConfig.IsLayer then begin

@@ -53,9 +53,6 @@ type
     procedure NavigateAndWait(AUrl: WideString);
   end;
 
-var
-  frmInvisibleBrowser: TfrmInvisibleBrowser;
-
 procedure OpenUrlInBrowser(URL: string);
 function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string; AProxyConfig: IProxyConfigStatic):integer;
 

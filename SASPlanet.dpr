@@ -570,6 +570,8 @@ uses
   u_GPSModuleByCOMPortSettings in 'u_GPSModuleByCOMPortSettings.pas',
   i_SatellitesInViewMapDraw in 'i_SatellitesInViewMapDraw.pas',
   u_SatellitesInViewMapDrawSimple in 'u_SatellitesInViewMapDrawSimple.pas',
+  i_InvisibleBrowser in 'i_InvisibleBrowser.pas',
+  u_InvisibleBrowserByFormSynchronize in 'u_InvisibleBrowserByFormSynchronize.pas',
   i_GPSConfig in 'i_GPSConfig.pas',
   u_GPSConfig in 'u_GPSConfig.pas',
   u_GPSSatelliteInfo in 'u_GPSSatelliteInfo.pas',
@@ -667,7 +669,6 @@ begin
     Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
     Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
     Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
-    frmInvisibleBrowser := TfrmInvisibleBrowser.Create(Application, GState.InetConfig.ProxyConfig);
     if GState.GlobalAppConfig.IsShowDebugInfo then begin
       frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
     end;
