@@ -3177,11 +3177,11 @@ begin
     VMark
   );
   if VMark <> nil then begin
-    KMLExport:=TExportMarks2KML.Create(false);
+    KMLExport:=TExportMarks2KML.Create;
     try
       frmMarksExplorer.ExportDialog.FileName := VMark.Name;
       if (frmMarksExplorer.ExportDialog.Execute)and(frmMarksExplorer.ExportDialog.FileName<>'') then begin
-        KMLExport.ExportMarkToKML(VMark,frmMarksExplorer.ExportDialog.FileName);
+        KMLExport.ExportMarkToKML(frmMarksExplorer.ExportDialog.FileName, VMark);
       end;
     finally
       KMLExport.free;

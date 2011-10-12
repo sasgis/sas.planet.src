@@ -62,20 +62,19 @@ type
     ):boolean;
     function Color32toKMLColor(Color32:TColor32):string;
   public
-    constructor Create(AOnlyVisible:boolean);
+    constructor Create;
     destructor Destroy; override;
 
-    procedure ExportToKML(AFileName:string);
-    procedure ExportCategoryToKML(ACategory: IMarkCategory; AFileName: string);
-    procedure ExportMarkToKML(Mark:IMark; AFileName:string);
+    procedure ExportToKML(AFileName: string; AOnlyVisible: boolean);
+    procedure ExportCategoryToKML(AFileName: string; ACategory: IMarkCategory; AOnlyVisible: boolean);
+    procedure ExportMarkToKML(AFileName: string; Mark: IMark);
   end;
 
 implementation
 
-constructor TExportMarks2KML.Create(AOnlyVisible:boolean);
+constructor TExportMarks2KML.Create;
 var child:iXMLNode;
 begin
-  OnlyVisible:=AOnlyVisible;
   kmldoc:=TXMLDocument.Create(Application);
   kmldoc.Options:=kmldoc.Options + [doNodeAutoIndent];
   kmldoc.Active:=true;
@@ -87,11 +86,12 @@ begin
   Zip := TKaZip.Create(nil);
 end;
 
-procedure TExportMarks2KML.ExportToKML(AFileName:string);
+procedure TExportMarks2KML.ExportToKML(AFileName: string; AOnlyVisible: boolean);
 var
   VCategoryList: IInterfaceList;
   KMLStream:TMemoryStream;
 begin
+  OnlyVisible:=AOnlyVisible;
   filename:=Afilename;
   inKMZ:=ExtractFileExt(filename)='.kmz';
   VCategoryList := GState.MarksDb.CategoryDB.GetCategoriesList;
@@ -115,12 +115,17 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.ExportCategoryToKML(ACategory: IMarkCategory; AFileName: string);
+procedure TExportMarks2KML.ExportCategoryToKML(
+  AFileName: string;
+  ACategory: IMarkCategory;
+  AOnlyVisible: boolean
+);
 var
   VCategoryList: IInterfaceList;
   KMLStream:TMemoryStream;
 begin
   filename:=Afilename;
+  OnlyVisible:=AOnlyVisible;
   inKMZ:=ExtractFileExt(filename)='.kmz';
   VCategoryList:=TInterfaceList.Create;
   VCategoryList.Add(ACategory);
@@ -144,10 +149,11 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.ExportMarkToKML(Mark:IMark;AFileName:string);
+procedure TExportMarks2KML.ExportMarkToKML(AFileName: string; Mark: IMark);
 var KMLStream:TMemoryStream;
 begin
   filename:=Afilename;
+  OnlyVisible := False;
   inKMZ:=ExtractFileExt(filename)='.kmz';
   if inKMZ then begin
     Zip.FileName := filename;

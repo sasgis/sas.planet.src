@@ -261,10 +261,10 @@ end;
 procedure TfrmMarksExplorer.btnExportClick(Sender: TObject);
 var KMLExport:TExportMarks2KML;
 begin
-  KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
+  KMLExport:=TExportMarks2KML.Create;
   try
     if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-      KMLExport.ExportToKML(ExportDialog.FileName);
+      KMLExport.ExportToKML(ExportDialog.FileName, TComponent(Sender).tag=1);
     end;
   finally
     KMLExport.free;
@@ -381,11 +381,11 @@ var
 begin
     VMark := GetSelectedMarkFull;
     if VMark <> nil then begin
-      KMLExport:=TExportMarks2KML.Create(false);
+      KMLExport:=TExportMarks2KML.Create;
       try
         ExportDialog.FileName:=VMark.name;
         if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-          KMLExport.ExportMarkToKML(VMark,ExportDialog.FileName);
+          KMLExport.ExportMarkToKML(ExportDialog.FileName, VMark);
         end;
       finally
         KMLExport.free;
@@ -478,11 +478,11 @@ var
 begin
   VCategory := GetSelectedCategory;
   if VCategory<>nil then begin
-    KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
+    KMLExport:=TExportMarks2KML.Create;
     try
       ExportDialog.FileName:=StringReplace(VCategory.name,'\','-',[rfReplaceAll]);
       if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-        KMLExport.ExportCategoryToKML(VCategory,ExportDialog.FileName);
+        KMLExport.ExportCategoryToKML(ExportDialog.FileName, VCategory, TComponent(Sender).tag=1);
       end;
     finally
       KMLExport.free;
