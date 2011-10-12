@@ -61,6 +61,7 @@ type
       AData: IMarkCategory
     ):boolean;
     function Color32toKMLColor(Color32:TColor32):string;
+
   public
     constructor Create;
     destructor Destroy; override;
@@ -84,6 +85,15 @@ begin
   child.Attributes['xmlns']:='http://earth.google.com/kml/2.2';
   doc:=child.AddChild('Document');
   Zip := TKaZip.Create(nil);
+end;
+
+destructor TExportMarks2KML.Destroy;
+begin
+  Zip.Active := false;
+  Zip.Close;
+  Zip.Free;
+  kmldoc.Free;
+  inherited;
 end;
 
 procedure TExportMarks2KML.ExportToKML(AFileName: string; AOnlyVisible: boolean);
@@ -385,15 +395,6 @@ begin
           IntToHex(BlueComponent(Color32),2)+
           IntToHex(GreenComponent(Color32),2)+
           IntToHex(RedComponent(Color32),2);
-end;
-
-destructor TExportMarks2KML.Destroy;
-begin
-  Zip.Active := false;
-  Zip.Close;
-  Zip.Free;
-  kmldoc.Free;
-  inherited;
 end;
 
 end.
