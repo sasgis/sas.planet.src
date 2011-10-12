@@ -48,24 +48,22 @@ type
     doc:iXMLNode;
     Zip: TKaZip;
     OnlyVisible:boolean;
-    procedure AddMark(Mark:IMark; inNode:iXMLNode);
-    function SaveMarkIcon(Mark:IMarkPoint): string;
     procedure AddFolders(ACategoryList: IInterfaceList);
-    function AddMarks(
-      ACategoryList: IInterfaceList;
-      inNode:iXMLNode
-    ): Boolean;
     function AddFolder(
       AParentNode: IXMLNode;
       ACategoryNamePostfix: string;
       AData: IMarkCategory
     ):boolean;
+    function AddMarks(
+      ACategoryList: IInterfaceList;
+      inNode:iXMLNode
+    ): Boolean;
+    procedure AddMark(Mark:IMark; inNode:iXMLNode);
+    function SaveMarkIcon(Mark:IMarkPoint): string;
     function Color32toKMLColor(Color32:TColor32):string;
-
   public
     constructor Create;
     destructor Destroy; override;
-
     procedure ExportToKML(AFileName: string; AOnlyVisible: boolean);
     procedure ExportCategoryToKML(AFileName: string; ACategory: IMarkCategory; AOnlyVisible: boolean);
     procedure ExportMarkToKML(AFileName: string; Mark: IMark);
@@ -198,54 +196,6 @@ begin
   end;
 end;
 
-function TExportMarks2KML.SaveMarkIcon(Mark:IMarkPoint): string;
-var
-  VTargetPath: string;
-  VTargetFullName: string;
-  VPicName: string;
-  VMemStream: TMemoryStream;
-begin
-  Result := '';
-  if Mark.Pic <> nil then begin
-    VMemStream := TMemoryStream.Create;
-    try
-      Mark.Pic.ExportToStream(VMemStream);
-      VPicName := Mark.Pic.GetName;
-      VTargetPath := 'files' + PathDelim;
-      Result := VTargetPath  + VPicName;
-      if inKMZ then begin
-        Zip.AddStream(Result, VMemStream);
-      end else begin
-        VTargetPath := ExtractFilePath(filename) + VTargetPath;
-        VTargetFullName := VTargetPath + VPicName;
-        CreateDir(VTargetPath);
-        VMemStream.SaveToFile(VTargetFullName);
-      end;
-    finally
-      VMemStream.Free;
-    end;
-  end;
-end;
-
-function TExportMarks2KML.AddMarks(
-  ACategoryList: IInterfaceList;
-  inNode:iXMLNode
-): Boolean;
-var
-  MarksList:IMarksSubset;
-  Mark:IMark;
-  VEnumMarks:IEnumUnknown;
-  i:integer;
-begin
-  Result := False;
-  MarksList:=GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), ACategoryList, (not OnlyVisible));
-  VEnumMarks := MarksList.GetEnum;
-  while (VEnumMarks.Next(1, Mark, @i) = S_OK) do begin
-    AddMark(Mark,inNode);
-    Result := True;
-  end;
-end;
-
 function TExportMarks2KML.AddFolder(
   AParentNode: IXMLNode;
   ACategoryNamePostfix: string;
@@ -310,6 +260,25 @@ begin
     if (not Result) and (VCreatedNode) then begin
       AParentNode.ChildNodes.Remove(VNode);
     end;
+  end;
+end;
+
+function TExportMarks2KML.AddMarks(
+  ACategoryList: IInterfaceList;
+  inNode:iXMLNode
+): Boolean;
+var
+  MarksList:IMarksSubset;
+  Mark:IMark;
+  VEnumMarks:IEnumUnknown;
+  i:integer;
+begin
+  Result := False;
+  MarksList:=GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), ACategoryList, (not OnlyVisible));
+  VEnumMarks := MarksList.GetEnum;
+  while (VEnumMarks.Next(1, Mark, @i) = S_OK) do begin
+    AddMark(Mark,inNode);
+    Result := True;
   end;
 end;
 
@@ -395,6 +364,35 @@ begin
           IntToHex(BlueComponent(Color32),2)+
           IntToHex(GreenComponent(Color32),2)+
           IntToHex(RedComponent(Color32),2);
+end;
+
+function TExportMarks2KML.SaveMarkIcon(Mark:IMarkPoint): string;
+var
+  VTargetPath: string;
+  VTargetFullName: string;
+  VPicName: string;
+  VMemStream: TMemoryStream;
+begin
+  Result := '';
+  if Mark.Pic <> nil then begin
+    VMemStream := TMemoryStream.Create;
+    try
+      Mark.Pic.ExportToStream(VMemStream);
+      VPicName := Mark.Pic.GetName;
+      VTargetPath := 'files' + PathDelim;
+      Result := VTargetPath  + VPicName;
+      if inKMZ then begin
+        Zip.AddStream(Result, VMemStream);
+      end else begin
+        VTargetPath := ExtractFilePath(filename) + VTargetPath;
+        VTargetFullName := VTargetPath + VPicName;
+        CreateDir(VTargetPath);
+        VMemStream.SaveToFile(VTargetFullName);
+      end;
+    finally
+      VMemStream.Free;
+    end;
+  end;
 end;
 
 end.
