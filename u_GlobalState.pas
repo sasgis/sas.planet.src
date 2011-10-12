@@ -402,6 +402,7 @@ begin
   );
   FProtocol := TIeEmbeddedProtocolRegistration.Create('sas', TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));
   FInvisibleBrowser := TInvisibleBrowserByFormSynchronize.Create(FInetConfig.ProxyConfig);
+  FInternalBrowser := TInternalBrowserByForm.Create(FInetConfig.ProxyConfig) 
 end;
 
 destructor TGlobalState.Destroy;
