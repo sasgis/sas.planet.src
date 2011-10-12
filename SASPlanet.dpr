@@ -571,6 +571,8 @@ uses
   i_SatellitesInViewMapDraw in 'i_SatellitesInViewMapDraw.pas',
   u_SatellitesInViewMapDrawSimple in 'u_SatellitesInViewMapDrawSimple.pas',
   u_InetFunc in 'u_InetFunc.pas',
+  i_InternalBrowser in 'i_InternalBrowser.pas',
+  u_InternalBrowserByForm in 'u_InternalBrowserByForm.pas',
   i_InvisibleBrowser in 'i_InvisibleBrowser.pas',
   u_InvisibleBrowserByFormSynchronize in 'u_InvisibleBrowserByFormSynchronize.pas',
   i_GPSConfig in 'i_GPSConfig.pas',
@@ -669,7 +671,6 @@ begin
     Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
     Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
     Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
-    Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
     if GState.GlobalAppConfig.IsShowDebugInfo then begin
       frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
     end;

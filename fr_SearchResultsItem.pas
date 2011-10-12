@@ -31,6 +31,7 @@ uses
   i_GeoCoder,
   i_ViewPortState,
   i_MapViewGoto,
+  i_InternalBrowser,
   Classes;
 
 type
@@ -50,20 +51,19 @@ type
     FPlacemark: IGeoCodePlacemark;
     FViewPortState: IViewPortState;
     FMapGoto: IMapViewGoto;
+    FIntrnalBrowser: IInternalBrowser;
   public
     constructor Create(
       AOwner: TComponent;
       AParent:TWinControl;
       APlacemark: IGeoCodePlacemark;
       AViewPortState: IViewPortState;
+      AIntrnalBrowser: IInternalBrowser;
       AMapGoto: IMapViewGoto
     ); reintroduce;
   end;
 
 implementation
-
-uses
-  frm_IntrnalBrowser;
 
 {$R *.dfm}
 constructor TfrSearchResultsItem.Create(
@@ -71,12 +71,14 @@ constructor TfrSearchResultsItem.Create(
   AParent:TWinControl;
   APlacemark: IGeoCodePlacemark;
   AViewPortState: IViewPortState;
+  AIntrnalBrowser: IInternalBrowser;
   AMapGoto: IMapViewGoto
 );
 begin
   inherited Create(AOwner);
   Parent:=AParent;
   FPlacemark:=APlacemark;
+  FIntrnalBrowser := AIntrnalBrowser;
   LabelCaption.Caption:=FPlacemark.GetAddress;
   LabelDesc.Caption:=FPlacemark.GetDesc;
   FMapGoto:=AMapGoto;
@@ -98,7 +100,7 @@ end;
 procedure TfrSearchResultsItem.LabelFullDescMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  frmIntrnalBrowser.showmessage(FPlacemark.GetAddress,FPlacemark.GetFullDesc);
+  FIntrnalBrowser.ShowMessage(FPlacemark.GetAddress, FPlacemark.GetFullDesc);
 end;
 
 end.

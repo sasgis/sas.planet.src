@@ -281,7 +281,6 @@ uses
   u_MapTypeConfigModalEditByForm,
   u_GlobalState,
   frm_Main,
-  frm_IntrnalBrowser,
   frm_MapTypeEdit;
 
 {$R *.dfm}
@@ -886,7 +885,7 @@ begin
   VUrl := VMap.GUIConfig.InfoUrl.Value;
   if VUrl <> '' then begin
     VUrl := 'sas://ZmpInfo/' + GUIDToString(VMap.Zmp.GUID) + VUrl;
-    frmIntrnalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
+    GState.InternalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
   end;
 end;
 

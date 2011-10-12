@@ -32,7 +32,8 @@ uses
   EwbCore,
   EmbeddedWB,
   SHDocVw_EWB,
-  u_CommonFormAndFrameParents;
+  u_CommonFormAndFrameParents,
+  i_ProxySettings;
 
 type
   TfrmIntrnalBrowser = class(TCommonFormParent)
@@ -45,30 +46,34 @@ type
       ScanCode: Word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
   private
+    FProxyConfig: IProxyConfig;
     procedure SetGoodCaption(const ACaption: String);
   public
+    constructor Create(AOwner: TComponent; AProxyConfig: IProxyConfig); reintroduce;
     procedure showmessage(ACaption, AText: string);
     procedure Navigate(ACaption, AUrl: string);
   end;
 
-var
-  frmIntrnalBrowser: TfrmIntrnalBrowser;
-
 implementation
 
 uses
-  u_ResStrings,
-  i_ProxySettings,
-  u_GlobalState;
+  u_ResStrings;
 
 {$R *.dfm}
+
+constructor TfrmIntrnalBrowser.Create(AOwner: TComponent;
+  AProxyConfig: IProxyConfig);
+begin
+  inherited Create(AOwner);
+  FProxyConfig := AProxyConfig;
+end;
 
 procedure TfrmIntrnalBrowser.EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
 var
   VProxyConfig: IProxyConfigStatic;
   VUseLogin: Boolean;
 begin
-  VProxyConfig := GState.InetConfig.ProxyConfig.GetStatic;
+  VProxyConfig := FProxyConfig.GetStatic;
   VUselogin := (not VProxyConfig.UseIESettings) and VProxyConfig.UseProxy and VProxyConfig.UseLogin;
   if VUselogin then begin
     szUserName := VProxyConfig.Login;

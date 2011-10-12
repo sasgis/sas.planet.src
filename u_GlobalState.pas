@@ -77,6 +77,7 @@ uses
   i_SatellitesInViewMapDraw,
   i_SensorList,
   i_InvisibleBrowser,
+  i_InternalBrowser,
   u_IeEmbeddedProtocolRegistration,
   u_GPSState,
   u_GlobalCahceConfig;
@@ -132,6 +133,7 @@ type
     FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
     FEcwDll: IEcwDll;
     FInvisibleBrowser: IInvisibleBrowser;
+    FInternalBrowser: IInternalBrowser;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -188,6 +190,7 @@ type
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property ClearStrategyFactory: ILayerBitmapClearStrategyFactory read FClearStrategyFactory;
     property EcwDll: IEcwDll read FEcwDll;
+    property InternalBrowser: IInternalBrowser read FInternalBrowser;
 
     constructor Create;
     destructor Destroy; override;
@@ -255,6 +258,7 @@ uses
   u_SensorListStuped,
   u_HtmlToHintTextConverterStuped,
   u_InvisibleBrowserByFormSynchronize,
+  u_InternalBrowserByForm,
   u_InternalPerformanceCounterList,
   u_IeEmbeddedProtocolFactory,
   u_PathDetalizeProviderListSimple,

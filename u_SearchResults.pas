@@ -30,6 +30,7 @@ uses
   i_ValueToStringConverter,
   i_LastSearchResultConfig,
   i_GeoCoder,
+  i_InternalBrowser,
   i_SearchResultPresenter,
   fr_SearchResultsItem;
 
@@ -38,6 +39,7 @@ type
   private
     FMapGoto: IMapViewGoto;
     FViewPortState: IViewPortState;
+    FIntrnalBrowser: IInternalBrowser;
     FDrawParent:TWinControl;
     FSearchWindow:TWinControl;
     FValueConverterConfig: IValueToStringConverterConfig;
@@ -48,6 +50,7 @@ type
     procedure ShowSearchResults(ASearchResult: IGeoCodeResult; AZoom: Byte);
   public
     constructor Create(
+      AIntrnalBrowser: IInternalBrowser;
       AMapGoto: IMapViewGoto;
       ADrawParent: TWinControl;
       ASearchWindow: TWinControl;
@@ -67,6 +70,7 @@ uses
 { TSearchResultPresenterOnPanel }
 
 constructor TSearchResultPresenterOnPanel.Create(
+  AIntrnalBrowser: IInternalBrowser;
   AMapGoto: IMapViewGoto;
   ADrawParent: TWinControl;
   ASearchWindow: TWinControl;
@@ -75,6 +79,7 @@ constructor TSearchResultPresenterOnPanel.Create(
   AViewPortState: IViewPortState
 );
 begin
+  FIntrnalBrowser := AIntrnalBrowser;
   FMapGoto := AMapGoto;
   FValueConverterConfig := AValueConverterConfig;
   FViewPortState := AViewPortState;
@@ -124,7 +129,15 @@ begin
     end;
     LengthFSearchItems:=length(FSearchItems);
     SetLength(FSearchItems,LengthFSearchItems+1);
-    FSearchItems[LengthFSearchItems]:=TfrSearchResultsItem.Create(nil, FDrawParent, VPlacemark, FViewPortState, FMapGoto);
+    FSearchItems[LengthFSearchItems]:=
+      TfrSearchResultsItem.Create(
+        nil,
+        FDrawParent,
+        VPlacemark,
+        FViewPortState,
+        FIntrnalBrowser,
+        FMapGoto
+      );
     if LengthFSearchItems>0 then begin
       FSearchItems[LengthFSearchItems].Top:=FSearchItems[LengthFSearchItems-1].Top+1
     end;

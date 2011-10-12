@@ -662,7 +662,6 @@ uses
   frm_Settings,
   frm_LonLatRectEdit,
   frm_MapTypeEdit,
-  frm_IntrnalBrowser,
   frm_MarksExplorer,
   frm_DGAvailablePic,
   c_ZeroGUID,
@@ -710,8 +709,8 @@ uses
   u_PosFromGSM,
   u_ExportMarks2KML,
   u_SearchResults,
+  u_InetFunc,
   frm_ProgressDownload,
-  frm_InvisibleBrowser,
   frm_DebugInfo,
   frm_StartLogo,
   frm_ImportConfigEdit;
@@ -1377,6 +1376,7 @@ begin
   VGoto := TMapViewGotoOnFMain.Create(Self.topos);
   FSearchPresenter :=
     TSearchResultPresenterOnPanel.Create(
+      GState.InternalBrowser,
       VGoto,
       ScrollBoxSearchWindow,
       TBSearchWindow,
@@ -3681,7 +3681,7 @@ begin
       if VPWL.find  then begin
         if VPWL.descr <> '' then begin
           stw:=VPWL.descr;
-          frmIntrnalBrowser.showmessage(VPWL.name,stw);
+          GState.InternalBrowser.showmessage(VPWL.name,stw);
         end;
       end;
     end;
@@ -4108,7 +4108,7 @@ begin
   VUrl := VMapType.GUIConfig.InfoUrl.Value;
   if VUrl <> '' then begin
     VUrl := 'sas://ZmpInfo/' + GUIDToString(VMapType.Zmp.GUID) + VUrl;
-    frmIntrnalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
+    GState.InternalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
   end;
 end;
 
@@ -4365,7 +4365,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  frmIntrnalBrowser.Navigate('http://ws.geonames.org/srtm3', 'http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  GState.InternalBrowser.Navigate('http://ws.geonames.org/srtm3', 'http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TfrmMain.NGTOPO30Click(Sender: TObject);
@@ -4382,7 +4382,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  frmIntrnalBrowser.Navigate('http://ws.geonames.org/gtopo30', 'http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  GState.InternalBrowser.Navigate('http://ws.geonames.org/gtopo30', 'http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TfrmMain.Google1Click(Sender: TObject);
