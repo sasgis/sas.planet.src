@@ -5,18 +5,23 @@ interface
 uses
   i_ProxySettings,
   i_InternalBrowser,
+  i_LanguageManager,
   frm_IntrnalBrowser;
 
 type
   TInternalBrowserByForm = class(TInterfacedObject, IInternalBrowser)
   private
+    FLanguageManager: ILanguageManager;
     FProxyConfig: IProxyConfig;
     FfrmInternalBrowser: TfrmIntrnalBrowser;
   protected
     procedure ShowMessage(ACaption, AText: string);
     procedure Navigate(ACaption, AUrl: string);
   public
-    constructor Create(AProxyConfig: IProxyConfig);
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
+    );
     destructor Destroy; override;
   end;
 
@@ -27,8 +32,12 @@ uses
 
 { TInternalBrowserByForm }
 
-constructor TInternalBrowserByForm.Create(AProxyConfig: IProxyConfig);
+constructor TInternalBrowserByForm.Create(
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
+  FLanguageManager := ALanguageManager;
   FProxyConfig := AProxyConfig;
 end;
 
@@ -43,7 +52,7 @@ end;
 procedure TInternalBrowserByForm.Navigate(ACaption, AUrl: string);
 begin
   if FfrmInternalBrowser = nil then begin
-    FfrmInternalBrowser := TfrmIntrnalBrowser.Create(nil, FProxyConfig);
+    FfrmInternalBrowser := TfrmIntrnalBrowser.Create(FLanguageManager, FProxyConfig);
   end;
   FfrmInternalBrowser.Navigate(ACaption, AUrl);
 end;
@@ -51,7 +60,7 @@ end;
 procedure TInternalBrowserByForm.ShowMessage(ACaption, AText: string);
 begin
   if FfrmInternalBrowser = nil then begin
-    FfrmInternalBrowser := TfrmIntrnalBrowser.Create(nil, FProxyConfig);
+    FfrmInternalBrowser := TfrmIntrnalBrowser.Create(FLanguageManager, FProxyConfig);
   end;
   FfrmInternalBrowser.showmessage(ACaption, AText);
 end;

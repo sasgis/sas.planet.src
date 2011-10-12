@@ -24,6 +24,7 @@ interface
 
 uses
   Windows,
+  i_LanguageManager,
   i_MapTypeConfigModalEdit,
   u_MapType,
   frm_MapTypeEdit;
@@ -31,12 +32,15 @@ uses
 type
   TMapTypeConfigModalEditByForm = class(TInterfacedObject, IMapTypeConfigModalEdit)
   private
+    FLanguageManager: ILanguageManager;
     FEditCounter: Longint;
     FfrmMapTypeEdit: TfrmMapTypeEdit;
   protected
     function EditMap(AMapType: TMapType): Boolean;
   public
-    constructor Create;
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
     destructor Destroy; override;
   end;
 
@@ -47,8 +51,11 @@ uses
 
 { TMapTypeConfigModalEditByForm }
 
-constructor TMapTypeConfigModalEditByForm.Create;
+constructor TMapTypeConfigModalEditByForm.Create(
+  ALanguageManager: ILanguageManager
+);
 begin
+  FLanguageManager := ALanguageManager;
   FEditCounter := 0;
 end;
 
@@ -70,7 +77,7 @@ begin
   try
     if VCounter = 1 then begin
       if FfrmMapTypeEdit = nil then begin
-        FfrmMapTypeEdit := TfrmMapTypeEdit.Create(nil);
+        FfrmMapTypeEdit := TfrmMapTypeEdit.Create(FLanguageManager);
       end;
       Result := FfrmMapTypeEdit.EditMapModadl(AMapType);
     end else begin

@@ -40,6 +40,7 @@ uses
   t_GeoTypes,
   u_CommonFormAndFrameParents,
   u_ResStrings,
+  i_LanguageManager,
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
@@ -50,7 +51,7 @@ uses
   fr_MarkCategorySelectOrAdd;
 
 type
-  TfrmMarkEditPoint = class(TCommonFormParent)
+  TfrmMarkEditPoint = class(TFormWitghLanguageManager)
     edtName: TEdit;
     lblName: TLabel;
     btnOk: TButton;
@@ -108,7 +109,7 @@ type
     procedure DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
   public
     constructor Create(
-      AOwner: TComponent;
+      ALanguageManager: ILanguageManager;
       ACategoryDB: IMarkCategoryDB;
       AMarksDb: IMarksDb
     ); reintroduce;
@@ -126,12 +127,12 @@ uses
 {$R *.dfm}
 
 constructor TfrmMarkEditPoint.Create(
-  AOwner: TComponent;
+  ALanguageManager: ILanguageManager;
   ACategoryDB: IMarkCategoryDB;
   AMarksDb: IMarksDb
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FMarksDb := AMarksDb;
   FCategoryDB := ACategoryDB;
 

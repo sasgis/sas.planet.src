@@ -583,8 +583,8 @@ begin
     TNotifyEventListener.Create(Self.GPSReceiverReceive),
     GState.GPSpar.DataReciveNotifier
   );
-  frShortCutList := TfrShortCutList.Create(nil);
-  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create;
+  frShortCutList := TfrShortCutList.Create(GState.LanguageManager);
+  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);
   PageControl1.ActivePageIndex:=0;
 end;
 

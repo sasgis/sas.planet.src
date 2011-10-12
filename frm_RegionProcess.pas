@@ -35,6 +35,7 @@ uses
   inifiles,
   ComCtrls,
   u_CommonFormAndFrameParents,
+  i_LanguageManager,
   i_LastSelectionInfo,
   i_CoordConverterFactory,
   i_GlobalViewMainConfig,
@@ -58,7 +59,7 @@ uses
   u_GeoTostr;
 
 type
-  TfrmRegionProcess = class(TCommonFormParent)
+  TfrmRegionProcess = class(TFormWitghLanguageManager)
     Button1: TButton;
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
@@ -105,7 +106,7 @@ type
     );
   public
     constructor Create(
-      AOwner: TComponent;
+      ALanguageManager: ILanguageManager;
       ALastSelectionInfo: ILastSelectionInfo;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
@@ -152,7 +153,7 @@ uses
 {$R *.dfm}
 
 constructor TfrmRegionProcess.Create(
-  AOwner: TComponent;
+  ALanguageManager: ILanguageManager;
   ALastSelectionInfo: ILastSelectionInfo;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
@@ -174,7 +175,7 @@ constructor TfrmRegionProcess.Create(
 );
 begin
   TP_Ignore(Self, 'CBFormat.Items');
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
   InitExportsList(
     AMainMapsConfig,

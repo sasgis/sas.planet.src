@@ -33,10 +33,11 @@ uses
   EmbeddedWB,
   SHDocVw_EWB,
   u_CommonFormAndFrameParents,
+  i_LanguageManager,
   i_ProxySettings;
 
 type
-  TfrmIntrnalBrowser = class(TCommonFormParent)
+  TfrmIntrnalBrowser = class(TFormWitghLanguageManager)
     EmbeddedWB1: TEmbeddedWB;
     procedure EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB;
       var hwnd: HWND; var szUserName, szPassWord: WideString;
@@ -49,7 +50,7 @@ type
     FProxyConfig: IProxyConfig;
     procedure SetGoodCaption(const ACaption: String);
   public
-    constructor Create(AOwner: TComponent; AProxyConfig: IProxyConfig); reintroduce;
+    constructor Create(ALanguageManager: ILanguageManager; AProxyConfig: IProxyConfig); reintroduce;
     procedure showmessage(ACaption, AText: string);
     procedure Navigate(ACaption, AUrl: string);
   end;
@@ -61,10 +62,10 @@ uses
 
 {$R *.dfm}
 
-constructor TfrmIntrnalBrowser.Create(AOwner: TComponent;
+constructor TfrmIntrnalBrowser.Create(ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig);
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FProxyConfig := AProxyConfig;
 end;
 

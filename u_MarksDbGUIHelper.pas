@@ -27,11 +27,13 @@ uses
   Classes,
   ComCtrls,
   t_GeoTypes,
+  i_LanguageManager,
   i_CoordConverter,
   i_ValueToStringConverter,
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
+  frm_MarkCategoryEdit,
   frm_MarkEditPoint,
   frm_MarkEditPath,
   frm_MarkEditPoly,
@@ -48,6 +50,7 @@ type
     FfrmMarkEditPoint: TfrmMarkEditPoint;
     FfrmMarkEditPath: TfrmMarkEditPath;
     FfrmMarkEditPoly: TfrmMarkEditPoly;
+    FfrmMarkCategoryEdit: TfrmMarkCategoryEdit;
   public
     procedure CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
     procedure CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
@@ -60,6 +63,7 @@ type
     procedure ShowMarkLength(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle); overload;
     procedure ShowMarkSq(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle);
     function EditMarkModal(AMark: IMark): IMark;
+    function EditCategoryModal(ACategory: IMarkCategory): IMarkCategory;
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
     function SavePolyModal(AMark: IMarkPoly; ANewArrLL: TArrayOfDoublePoint): Boolean;
     function SaveLineModal(AMark: IMarkLine; ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
@@ -68,6 +72,7 @@ type
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AMarksDB: TMarksSystem;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
       AMarkPictureList: IMarkPictureList;
@@ -90,6 +95,7 @@ uses
 { TMarksDbGUIHelper }
 
 constructor TMarksDbGUIHelper.Create(
+  ALanguageManager: ILanguageManager;
   AMarksDB: TMarksSystem;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
   AMarkPictureList: IMarkPictureList;
@@ -100,9 +106,10 @@ begin
   FMarksDB := AMarksDB;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FFormRegionProcess := AFormRegionProcess;
-  FfrmMarkEditPoint := TfrmMarkEditPoint.Create(nil, FMarksDB.CategoryDB, FMarksDB.MarksDb);
-  FfrmMarkEditPath := TfrmMarkEditPath.Create(nil, FMarksDB.CategoryDB, FMarksDB.MarksDb);
-  FfrmMarkEditPoly := TfrmMarkEditPoly.Create(nil, FMarksDB.CategoryDB, FMarksDB.MarksDb);
+  FfrmMarkEditPoint := TfrmMarkEditPoint.Create(ALanguageManager, FMarksDB.CategoryDB, FMarksDB.MarksDb);
+  FfrmMarkEditPath := TfrmMarkEditPath.Create(ALanguageManager, FMarksDB.CategoryDB, FMarksDB.MarksDb);
+  FfrmMarkEditPoly := TfrmMarkEditPoly.Create(ALanguageManager, FMarksDB.CategoryDB, FMarksDB.MarksDb);
+  FfrmMarkCategoryEdit := TfrmMarkCategoryEdit.Create(ALanguageManager, FMarksDB.CategoryDB.Factory);
 end;
 
 destructor TMarksDbGUIHelper.Destroy;
@@ -110,6 +117,7 @@ begin
   FreeAndNil(FfrmMarkEditPoint);
   FreeAndNil(FfrmMarkEditPath);
   FreeAndNil(FfrmMarkEditPoly);
+  FreeAndNil(FfrmMarkCategoryEdit);
   inherited;
 end;
 
@@ -212,6 +220,12 @@ begin
       result := FMarksDb.MarksDb.DeleteMark(AMarkID);
     end;
   end;
+end;
+
+function TMarksDbGUIHelper.EditCategoryModal(
+  ACategory: IMarkCategory): IMarkCategory;
+begin
+  Result := FfrmMarkCategoryEdit.EditCategory(ACategory);
 end;
 
 function TMarksDbGUIHelper.EditMarkModal(AMark: IMark): IMark;

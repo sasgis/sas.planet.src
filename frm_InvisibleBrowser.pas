@@ -37,10 +37,12 @@ uses
   SHDocVw_EWB,
   EwbCore,
   EmbeddedWB,
+  u_CommonFormAndFrameParents,
+  i_LanguageManager,
   i_ProxySettings;
 
 type
-  TfrmInvisibleBrowser = class(TForm)
+  TfrmInvisibleBrowser = class(TFormWitghLanguageManager)
     WebBrowser1: TEmbeddedWB;
     procedure FormCreate(Sender: TObject);
     procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
@@ -48,7 +50,10 @@ type
     FCS: TCriticalSection;
     FProxyConfig: IProxyConfig;
   public
-    constructor Create(AOwner: TComponent; AProxyConfig: IProxyConfig); reintroduce;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
+    ); reintroduce;
     destructor Destroy; override;
     procedure NavigateAndWait(AUrl: WideString);
   end;
@@ -62,9 +67,12 @@ uses
   ShellAPI,
   WinInet;
 
-constructor TfrmInvisibleBrowser.Create(AOwner: TComponent; AProxyConfig: IProxyConfig);
+constructor TfrmInvisibleBrowser.Create(
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FProxyConfig := AProxyConfig;
   FCS := TCriticalSection.Create;
 end;

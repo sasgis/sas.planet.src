@@ -5,6 +5,7 @@ interface
 uses
   SyncObjs,
   i_InvisibleBrowser,
+  i_LanguageManager,
   i_ProxySettings,
   frm_InvisibleBrowser;
 
@@ -13,11 +14,15 @@ type
   private
     FCS: TCriticalSection;
     FProxyConfig: IProxyConfig;
+    FLanguageManager: ILanguageManager;
     FfrmInvisibleBrowser: TfrmInvisibleBrowser;
   protected
     procedure NavigateAndWait(AUrl: WideString);
   public
-    constructor Create(AProxyConfig: IProxyConfig);
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AProxyConfig: IProxyConfig
+    );
     destructor Destroy; override;
   end;
 
@@ -59,10 +64,14 @@ end;
 
 { TInvisibleBrowserByFormSynchronize }
 
-constructor TInvisibleBrowserByFormSynchronize.Create(AProxyConfig: IProxyConfig);
+constructor TInvisibleBrowserByFormSynchronize.Create(
+  ALanguageManager: ILanguageManager;
+  AProxyConfig: IProxyConfig
+);
 begin
   FCS := TCriticalSection.Create;
   FProxyConfig := AProxyConfig;
+  FLanguageManager := ALanguageManager;
 end;
 
 destructor TInvisibleBrowserByFormSynchronize.Destroy;
@@ -81,7 +90,7 @@ begin
   FCS.Acquire;
   try
     if FfrmInvisibleBrowser = nil then begin
-      FfrmInvisibleBrowser := TfrmInvisibleBrowser.Create(nil, FProxyConfig);
+      FfrmInvisibleBrowser := TfrmInvisibleBrowser.Create(FLanguageManager, FProxyConfig);
     end;
   finally
     FCS.Release;

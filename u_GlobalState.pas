@@ -401,8 +401,16 @@ begin
     TInternalDomainInfoProviderByMapTypeList.Create(FZmpInfoSet, FContentTypeManager)
   );
   FProtocol := TIeEmbeddedProtocolRegistration.Create('sas', TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));
-  FInvisibleBrowser := TInvisibleBrowserByFormSynchronize.Create(FInetConfig.ProxyConfig);
-  FInternalBrowser := TInternalBrowserByForm.Create(FInetConfig.ProxyConfig) 
+  FInvisibleBrowser :=
+    TInvisibleBrowserByFormSynchronize.Create(
+      FLanguageManager,
+      FInetConfig.ProxyConfig
+    );
+  FInternalBrowser :=
+    TInternalBrowserByForm.Create(
+      FLanguageManager,
+      FInetConfig.ProxyConfig
+    )
 end;
 
 destructor TGlobalState.Destroy;

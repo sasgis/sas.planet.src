@@ -36,6 +36,7 @@ uses
   GR32,
   t_GeoTypes,
   u_CommonFormAndFrameParents,
+  i_LanguageManager,
   u_ResStrings,
   i_MarksSimple,
   i_MarkCategory,
@@ -45,7 +46,7 @@ uses
   fr_MarkCategorySelectOrAdd;
 
 type
-  TfrmMarkEditPath = class(TCommonFormParent)
+  TfrmMarkEditPath = class(TFormWitghLanguageManager)
     lblName: TLabel;
     lblLineColor: TLabel;
     lblWidth: TLabel;
@@ -74,7 +75,7 @@ type
     frMarkCategory: TfrMarkCategorySelectOrAdd;
   public
     constructor Create(
-      AOwner: TComponent;
+      ALanguageManager: ILanguageManager;
       ACategoryDB: IMarkCategoryDB;
       AMarksDb: IMarksDb
     ); reintroduce;
@@ -88,12 +89,12 @@ implementation
 {$R *.dfm}
 
 constructor TfrmMarkEditPath.Create(
-  AOwner: TComponent;
+  ALanguageManager: ILanguageManager;
   ACategoryDB: IMarkCategoryDB;
   AMarksDb: IMarksDb
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FMarksDb := AMarksDb;
   FCategoryDB := ACategoryDB;
 

@@ -731,7 +731,7 @@ begin
   FConfig := GState.MainFormConfig;
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
-      Self,
+      GState.LanguageManager,
       GState.LastSelectionInfo,
       FConfig.MainMapsConfig,
       GState.MapType.FullMapsSet,
@@ -867,6 +867,7 @@ begin
   TBEditPath.Visible:=false;
   FMarkDBGUI :=
     TMarksDbGUIHelper.Create(
+      GState.LanguageManager,
       GState.MarksDB,
       GState.ValueToStringConverterConfig,
       GState.MarksDB.MarksFactoryConfig.PointTemplateConfig.MarkPictureList,
@@ -1655,6 +1656,7 @@ begin
   FLinksList := nil;
   FreeAndNil(FTumbler);
   FreeAndNil(FRuller);
+  FreeAndNil(FFormRegionProcess);
   inherited;
 end;
 

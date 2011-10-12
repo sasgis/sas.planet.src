@@ -34,6 +34,7 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
+  i_LanguageManager,
   i_ShortCutSingleConfig,
   i_ShortCutModalEdit,
   u_CommonFormAndFrameParents,
@@ -53,7 +54,9 @@ type
     FShortCutManager: TShortcutManager;
     procedure LoadList(AList: TStrings);
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    ); reintroduce;
     procedure SetShortCutManager(AShortCutManager: TShortcutManager);
     procedure CancelChanges;
     procedure ApplyChanges;
@@ -79,10 +82,12 @@ begin
   FShortCutManager.CancelChanges;
 end;
 
-constructor TfrShortCutList.Create(AOwner: TComponent);
+constructor TfrShortCutList.Create(
+  ALanguageManager: ILanguageManager
+);
 begin
-  inherited;
-  FShortCutEdit := TShortCutModalEditByForm.Create;
+  inherited Create(nil);
+  FShortCutEdit := TShortCutModalEditByForm.Create(ALanguageManager);
 end;
 
 procedure TfrShortCutList.LoadList(AList: TStrings);
