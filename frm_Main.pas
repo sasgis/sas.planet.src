@@ -870,7 +870,6 @@ begin
       GState.LanguageManager,
       GState.MarksDB,
       GState.ValueToStringConverterConfig,
-      GState.MarksDB.MarksFactoryConfig.PointTemplateConfig.MarkPictureList,
       FFormRegionProcess
     );
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');

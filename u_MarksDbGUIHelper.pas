@@ -46,7 +46,6 @@ type
   TMarksDbGUIHelper = class
   private
     FMarksDB: TMarksSystem;
-    FMarkPictureList: IMarkPictureList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FFormRegionProcess: TfrmRegionProcess;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
@@ -55,7 +54,6 @@ type
     FfrmMarkCategoryEdit: TfrmMarkCategoryEdit;
     FfrmImportConfigEdit: TfrmImportConfigEdit;
   public
-    procedure CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
     procedure CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
     procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
 
@@ -73,13 +71,11 @@ type
     function EditModalImportConfig: IImportConfig;
 
     property MarksDB: TMarksSystem read FMarksDB;
-    property MarkPictureList: IMarkPictureList read FMarkPictureList;
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
       AMarksDB: TMarksSystem;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
-      AMarkPictureList: IMarkPictureList;
       AFormRegionProcess: TfrmRegionProcess
     );
     destructor Destroy; override;
@@ -102,11 +98,9 @@ constructor TMarksDbGUIHelper.Create(
   ALanguageManager: ILanguageManager;
   AMarksDB: TMarksSystem;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
-  AMarkPictureList: IMarkPictureList;
   AFormRegionProcess: TfrmRegionProcess
 );
 begin
-  FMarkPictureList := AMarkPictureList;
   FMarksDB := AMarksDB;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FFormRegionProcess := AFormRegionProcess;
@@ -161,18 +155,6 @@ begin
   for i := 0 to AList.Count - 1 do begin
     VMarkId := IMarkId(AList[i]);
     AStrings.AddObject(VMarkId.name, Pointer(VMarkId));
-  end;
-end;
-
-procedure TMarksDbGUIHelper.CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
-var
-  i: Integer;
-  VCategory: IMarkCategory;
-begin
-  AStrings.Clear;
-  for i := 0 to AList.Count - 1 do begin
-    VCategory := IMarkCategory(AList[i]);
-    AStrings.AddObject(VCategory.name, Pointer(VCategory));
   end;
 end;
 
