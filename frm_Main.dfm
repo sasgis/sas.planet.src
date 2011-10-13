@@ -3104,6 +3104,11 @@ object frmMain: TfrmMain
         Caption = 'URL to Bing Maps'
         Hint = ''
       end
+      object osmorg1: TTBXItem
+        OnClick = osmorg1Click
+        Caption = 'URL to osm.org'
+        Hint = ''
+      end
       object N51: TTBXSeparatorItem
         Caption = ''
         Hint = ''

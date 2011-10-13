@@ -381,6 +381,7 @@ type
     tbiEditOSMSrch: TTBEditItem;
     TBXSelectWikiMapiaSrch: TTBXItem;
     tbiEditWikiMapiaSrch: TTBEditItem;
+    osmorg1: TTBXItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -513,6 +514,7 @@ type
     procedure TBEditMagnetDrawClick(Sender: TObject);
     procedure TBPolylineSelectClick(Sender: TObject);
     procedure TBEditSelectPolylineRadiusChange(Sender: TObject);
+    procedure osmorg1Click(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4202,6 +4204,23 @@ end;
 procedure TfrmMain.tbitmShowMarkCaptionClick(Sender: TObject);
 begin
   FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.ShowPointCaption := (Sender as TTBXItem).Checked;
+end;
+
+procedure TfrmMain.osmorg1Click(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat:TDoublePoint;
+begin
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  CopyStringToClipboard('http://www.openstreetmap.org/?mlat='+R2StrPoint(VLonLat.y)+'&mlon='+R2StrPoint(VLonLat.x)+'&zoom='+inttostr(VZoom));
 end;
 
 procedure TfrmMain.TBXItem6Click(Sender: TObject);
