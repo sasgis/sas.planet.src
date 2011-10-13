@@ -1773,7 +1773,10 @@ end;
 
 procedure TfrmMain.setalloperationfalse(newop: TAOperation);
 begin
- if FCurrentOper=newop then newop:=ao_movemap;
+  if FCurrentOper=newop then newop:=ao_movemap;
+  if newop=ao_movemap then begin
+    FSelectionRect.Reset;
+  end;
  FMarshrutComment:='';
  TBmove.Checked:=newop=ao_movemap;
  TBCalcRas.Checked:=newop=ao_calc_line;
