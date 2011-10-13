@@ -33,11 +33,13 @@ uses
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
+  i_ImportConfig,
   frm_MarkCategoryEdit,
   frm_MarkEditPoint,
   frm_MarkEditPath,
   frm_MarkEditPoly,
   frm_RegionProcess,
+  frm_ImportConfigEdit,
   u_MarksSystem;
 
 type
@@ -51,6 +53,7 @@ type
     FfrmMarkEditPath: TfrmMarkEditPath;
     FfrmMarkEditPoly: TfrmMarkEditPoly;
     FfrmMarkCategoryEdit: TfrmMarkCategoryEdit;
+    FfrmImportConfigEdit: TfrmImportConfigEdit;
   public
     procedure CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
     procedure CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
@@ -67,6 +70,7 @@ type
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
     function SavePolyModal(AMark: IMarkPoly; ANewArrLL: TArrayOfDoublePoint): Boolean;
     function SaveLineModal(AMark: IMarkLine; ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
+    function EditModalImportConfig: IImportConfig;
 
     property MarksDB: TMarksSystem read FMarksDB;
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
@@ -110,6 +114,7 @@ begin
   FfrmMarkEditPath := TfrmMarkEditPath.Create(ALanguageManager, FMarksDB.CategoryDB, FMarksDB.MarksDb);
   FfrmMarkEditPoly := TfrmMarkEditPoly.Create(ALanguageManager, FMarksDB.CategoryDB, FMarksDB.MarksDb);
   FfrmMarkCategoryEdit := TfrmMarkCategoryEdit.Create(ALanguageManager, FMarksDB.CategoryDB.Factory);
+  FfrmImportConfigEdit := TfrmImportConfigEdit.Create(ALanguageManager, FMarksDB.CategoryDB, FMarksDB.MarksDb);
 end;
 
 destructor TMarksDbGUIHelper.Destroy;
@@ -118,6 +123,7 @@ begin
   FreeAndNil(FfrmMarkEditPath);
   FreeAndNil(FfrmMarkEditPoly);
   FreeAndNil(FfrmMarkCategoryEdit);
+  FreeAndNil(FfrmImportConfigEdit);
   inherited;
 end;
 
@@ -242,6 +248,11 @@ begin
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     Result := FfrmMarkEditPoly.EditMark(VMarkPoly);
   end;
+end;
+
+function TMarksDbGUIHelper.EditModalImportConfig: IImportConfig;
+begin
+  Result := FfrmImportConfigEdit.GetImportConfig;
 end;
 
 procedure TMarksDbGUIHelper.ShowMarkLength(AMark: IMarkLine; AConverter: ICoordConverter; AHandle: THandle);

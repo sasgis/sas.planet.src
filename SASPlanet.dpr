@@ -668,7 +668,6 @@ begin
     Application.CreateForm(TfrmAbout, frmAbout);
     Application.CreateForm(TfrmSettings, frmSettings);
     Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
-    Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
     Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
     if GState.GlobalAppConfig.IsShowDebugInfo then begin
       frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);

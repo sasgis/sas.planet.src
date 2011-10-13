@@ -234,7 +234,7 @@ begin
   If (OpenDialog1.Execute) then begin
     VFileName := OpenDialog1.FileName;
     if (FileExists(VFileName)) then begin
-      VImportConfig := frmImportConfigEdit.GetImportConfig(FMarkDBGUI);
+      VImportConfig := FMarkDBGUI.EditModalImportConfig;
       if VImportConfig <> nil then begin
         GState.ImportFileByExt.ProcessImport(VFileName, VImportConfig);
       end;

@@ -4232,7 +4232,7 @@ begin
         setalloperationfalse(ao_movemap);
         FFormRegionProcess.LoadSelFromFile(VFileName);
       end else begin
-        VImportConfig := frmImportConfigEdit.GetImportConfig(FMarkDBGUI);
+        VImportConfig := FMarkDBGUI.EditModalImportConfig;
         if VImportConfig <> nil then begin
           GState.ImportFileByExt.ProcessImport(VFileName, VImportConfig);
         end;
