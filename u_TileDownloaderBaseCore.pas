@@ -145,7 +145,7 @@ begin
       if Assigned(FDownloadesList[I].DownloaderThread) then begin
         FDownloadesList[I].DownloaderThread.Terminate;
         FDownloadesList[I].ThreadID := 0;
-        FDownloadesList[I].DownloaderThread := nil;
+        FreeAndNil(FDownloadesList[I].DownloaderThread);
       end;
       if Assigned(FDownloadesList[I].TileRequestBuilder) then begin
         FDownloadesList[I].TileRequestBuilder := nil;

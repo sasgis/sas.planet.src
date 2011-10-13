@@ -66,6 +66,7 @@ type
   public
     constructor Create(AAntiBan: IAntiBan);
     destructor Destroy; override;
+    procedure Terminate; overload;
     procedure AddEvent(AEvent: ITileDownloaderEvent);
     procedure OnCancelEvent(Sender: TObject);
     property OnTTL: TThreadTTLEvent write FOnTTLEvent default nil;
@@ -97,20 +98,28 @@ begin
   FWasConnectError := False;
   FOnTTLEvent := nil;
   FLastUsedTime := GetTickCount;
-  FreeOnTerminate := True;
+  FreeOnTerminate := False;
   inherited Create(False);
 end;
 
 destructor TTileDownloaderBaseThread.Destroy;
 begin
   try
-    SetIsCanceled;
     FreeAndNil(FHttpDownloader);
     CloseHandle(FSemaphore);
-    FreeAndNil(FSessionCS);
     FreeAndNil(FCancelEvent);
+    FreeAndNil(FSessionCS);
   finally
     inherited Destroy;
+  end;
+end;
+
+procedure TTileDownloaderBaseThread.Terminate;
+begin
+  try
+    ReleaseSemaphore(FSemaphore, 1, nil);
+  finally
+    inherited Terminate;
   end;
 end;
 
@@ -152,14 +161,6 @@ procedure TTileDownloaderBaseThread.DoRequest;
     end;
   end;
 
-  function OperationCanceled: Boolean;
-  begin
-    Result := IsCanceled;
-    if Result then begin
-      FEvent.DownloadResult := FHttpDownloader.Cancel(FEvent.Request);
-    end;
-  end;
-
 var
   VCount: Integer;
   VTryCount: Integer;
@@ -180,7 +181,8 @@ begin
             FWasConnectError := False;
             FLastDownloadTime := MaxInt;
             repeat
-              if OperationCanceled then begin
+              if IsCanceled then begin
+                FEvent.DownloadResult := FHttpDownloader.Cancel(FEvent.Request);
                 Break;
               end;
               SleepIfConnectErrorOrWaitInterval(VTileDownloaderConfigStatic);
@@ -196,9 +198,6 @@ begin
                 FEvent.CheckTileSize,
                 FEvent.OldTileSize
               );
-              if OperationCanceled then begin
-                Break;
-              end;
               Inc(VCount);
               FLastDownloadTime := GetTickCount;
               if FEvent.DownloadResult <> nil then begin
@@ -253,10 +252,10 @@ end;
 
 procedure TTileDownloaderBaseThread.OnCancelEvent(Sender: TObject);
 begin
-  SetIsCanceled;
   if Assigned(FHttpDownloader) then begin
     FHttpDownloader.Disconnect;
   end;
+  SetIsCanceled;
 end;
 
 function TTileDownloaderBaseThread.IsCanceled: Boolean;
