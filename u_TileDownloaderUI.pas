@@ -97,7 +97,7 @@ uses
   u_ResStrings;
 
 const
-  CMaxThreadsUICount = 32; // ћаксимальное число потоков, дл€ всех видимых в гуе карт
+  CMaxRequestsCount = 32; // ћаксимальное число одновременных запросов 
 
 constructor TTileDownloaderUI.Create(
   AConfig: IDownloadUIConfig;
@@ -111,7 +111,7 @@ var
   VChangePosListener: IJclListener;
   VOperationNotifier: TOperationNotifier;
 begin
-  inherited Create(True, ADownloadInfo, AMapTileUpdateEvent, AErrorLogger, CMaxThreadsUICount);
+  inherited Create(True, ADownloadInfo, AMapTileUpdateEvent, AErrorLogger, CMaxRequestsCount);
   FConfig := AConfig;
 
   VOperationNotifier := TOperationNotifier.Create;
