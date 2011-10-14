@@ -189,7 +189,11 @@ begin
   for i:=2 to 24 do begin
     cbbFromZoom.Items.Add(inttostr(i));
   end;
-  cbbFromZoom.ItemIndex := AZoom;
+  if AZoom > 0 then begin
+    cbbFromZoom.ItemIndex := AZoom - 1;
+  end else begin
+    cbbFromZoom.ItemIndex := 0;
+  end;
   cbbFromZoomChange(cbbFromZoom);
 
   VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
