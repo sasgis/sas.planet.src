@@ -616,15 +616,16 @@ function TMarksDb.GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList
 var
   VMarkId: IMarkId;
   VCategoryID: Integer;
+  VFilter: string;
 begin
   Result := TInterfaceList.Create;
   VCategoryID := GetCategoryID(ACategory);
-
-  if VCategoryID >= 0 then begin
+  VFilter := GetFilterTextByCategory(ACategory);
+  if VFilter <> '' then begin
     LockRead;
     try
       FCdsMarks.Filtered := false;
-      FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FCdsMarks.Filter := VFilter;
       FCdsMarks.Filtered := true;
       FCdsMarks.First;
       while not (FCdsMarks.Eof) do begin
