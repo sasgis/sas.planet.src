@@ -100,10 +100,12 @@ begin
 
   FGlobalSettingsListener := TNotifyEventListener.Create(Self.OnSettingsEdit);
   FGlobalCacheConfig.CacheChangeNotifier.Add(FGlobalSettingsListener);
+  FConfig.ChangeNotifier.Add(FGlobalSettingsListener);
 end;
 
 destructor TMapTypeCacheConfigAbstract.Destroy;
 begin
+  FConfig.ChangeNotifier.Remove(FGlobalSettingsListener);
   FGlobalCacheConfig.CacheChangeNotifier.Remove(FGlobalSettingsListener);
   FGlobalSettingsListener := nil;
 
