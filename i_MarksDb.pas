@@ -46,7 +46,8 @@ type
 
     procedure SetAllMarksInCategoryVisible(ACategory: ICategory; ANewVisible: Boolean);
 
-    function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
+    function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset; overload;
+    function GetMarksSubset(ARect: TDoubleRect; ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
 
     function GetFactory: IMarkFactory;
     property Factory: IMarkFactory read GetFactory;
