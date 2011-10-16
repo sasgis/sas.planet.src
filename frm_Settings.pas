@@ -118,7 +118,9 @@ type
     Label27: TLabel;
     Label28: TLabel;
     SpinEditBorderAlpha: TSpinEdit;
+    SpinEditGenshtabBorderAlpha: TSpinEdit;
     ColorBoxBorder: TColorBox;
+    GenshtabBoxBorder: TColorBox;
     CBDblDwnl: TCheckBox;
     CkBGoNextTile: TCheckBox;
     tsMaps: TTabSheet;
@@ -140,6 +142,7 @@ type
     Label65: TLabel;
     CBSaveTileNotExists: TCheckBox;
     CBBorderText: TCheckBox;
+    CBGenshtabBorderText: TCheckBox;
     Label23: TLabel;
     Label24: TLabel;
     Label26: TLabel;
@@ -191,7 +194,9 @@ type
     pnlImageProcess: TPanel;
     pnlResize: TPanel;
     flwpnlTileBorders: TFlowPanel;
+    flwpnlGenshtabBorders: TFlowPanel;
     pnlTileBorders: TPanel;
+    pnlGenshtabBorders: TPanel;
     pnlUIRight: TPanel;
     flwpnlMiniMapAlfa: TFlowPanel;
     flwpnlTileBorder: TFlowPanel;
@@ -386,6 +391,9 @@ begin
   try
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor := SetAlpha(Color32(ColorBoxBorder.Selected),SpinEditBorderAlpha.Value);
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText:=CBBorderText.Checked;
+
+    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor := SetAlpha(Color32(GenshtabBoxBorder.Selected),SpinEditGenshtabBorderAlpha.Value);
+    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText:=CBGenshtabBorderText.Checked;
   finally
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
   end;
@@ -677,6 +685,10 @@ begin
     ColorBoxBorder.Selected:=WinColor(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
     SpinEditBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
     CBBorderText.Checked:=GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText;
+
+    GenshtabBoxBorder.Selected:=WinColor(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
+    SpinEditGenshtabBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
+    CBGenshtabBorderText.Checked:=GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText;
   finally
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockRead;
   end;

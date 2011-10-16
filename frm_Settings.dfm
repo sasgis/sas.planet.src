@@ -1107,9 +1107,9 @@ object frmSettings: TfrmSettings
             end
             object flwpnlFillMap: TFlowPanel
               Left = 3
-              Top = 19
+              Top = 22
               Width = 311
-              Height = 27
+              Height = 24
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 0
@@ -1155,7 +1155,7 @@ object frmSettings: TfrmSettings
             Left = 3
             Top = 68
             Width = 317
-            Height = 36
+            Height = 33
             Align = alTop
             AutoSize = True
             BevelEdges = [beBottom]
@@ -1168,7 +1168,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 82
-              Height = 25
+              Height = 22
               Align = alLeft
               Caption = 'Background color'
               Layout = tlCenter
@@ -1190,7 +1190,7 @@ object frmSettings: TfrmSettings
             Left = 3
             Top = 3
             Width = 317
-            Height = 37
+            Height = 30
             Align = alTop
             AutoSize = True
             BevelOuter = bvNone
@@ -1201,7 +1201,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 78
-              Height = 28
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Resize algorithm'
@@ -1226,7 +1226,7 @@ object frmSettings: TfrmSettings
             Left = 3
             Top = 155
             Width = 317
-            Height = 69
+            Height = 36
             Align = alTop
             AutoSize = True
             BevelEdges = [beBottom]
@@ -1300,9 +1300,89 @@ object frmSettings: TfrmSettings
               end
             end
           end
-          object pnlImageProcess: TPanel
+          object pnlGenshtabBorders: TPanel
             Left = 3
             Top = 224
+            Width = 317
+            Height = 68
+            Align = alTop
+            AutoSize = True
+            BevelEdges = [beBottom]
+            BevelKind = bkTile
+            BevelOuter = bvNone
+            BorderWidth = 3
+            TabOrder = 4
+            object LabelGsh1: TLabel
+              Left = 3
+              Top = 3
+              Width = 311
+              Height = 13
+              Align = alTop
+              Caption = 'Show Genshtab borders:'
+              ExplicitWidth = 119
+            end
+            object flwpnlGenshtabBorders: TFlowPanel
+              Left = 3
+              Top = 16
+              Width = 311
+              Height = 25
+              Align = alTop
+              AutoSize = True
+              BevelEdges = [beBottom]
+              BevelOuter = bvNone
+              Padding.Top = 3
+              TabOrder = 0
+              object LabelGsh2: TLabel
+                AlignWithMargins = True
+                Left = 3
+                Top = 6
+                Width = 25
+                Height = 13
+                Caption = 'Color'
+              end
+              object GenshtabBoxBorder: TColorBox
+                Left = 31
+                Top = 3
+                Width = 78
+                Height = 22
+                Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+                ItemHeight = 16
+                TabOrder = 0
+              end
+              object LabelGsh3: TLabel
+                AlignWithMargins = True
+                Left = 112
+                Top = 6
+                Width = 37
+                Height = 13
+                Caption = 'Opacity'
+              end
+              object SpinEditGenshtabBorderAlpha: TSpinEdit
+                Left = 152
+                Top = 3
+                Width = 41
+                Height = 22
+                MaxValue = 255
+                MinValue = 0
+                TabOrder = 1
+                Value = 255
+              end
+            end
+            object CBGenshtabBorderText: TCheckBox
+              AlignWithMargins = True
+              Left = 6
+              Top = 44
+              Width = 150
+              Height = 16
+              Align = alLeft
+              Caption = 'Names'
+              TabOrder = 1
+              ExplicitHeight = 6
+            end
+          end
+          object pnlImageProcess: TPanel
+            Left = 3
+            Top = 292
             Width = 317
             Height = 105
             Align = alTop
@@ -1310,6 +1390,7 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 5
+            ExplicitTop = 271
             object LabelGamma: TLabel
               Left = 3
               Top = 3
