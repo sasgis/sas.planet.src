@@ -615,11 +615,9 @@ end;
 function TMarksDb.GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
 var
   VMarkId: IMarkId;
-  VCategoryID: Integer;
   VFilter: string;
 begin
   Result := TInterfaceList.Create;
-  VCategoryID := GetCategoryID(ACategory);
   VFilter := GetFilterTextByCategory(ACategory);
   if VFilter <> '' then begin
     LockRead;
