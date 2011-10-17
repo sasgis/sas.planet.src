@@ -398,7 +398,7 @@ begin
       try
         ExportDialog.FileName:=VMark.name;
         if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-          KMLExport.ExportMarkToKML(ExportDialog.FileName, VMark);
+          KMLExport.ExportMarkToKML(VMark, ExportDialog.FileName);
         end;
       finally
         KMLExport.free;
@@ -488,6 +488,7 @@ procedure TfrmMarksExplorer.btnExportCategoryClick(Sender: TObject);
 var
   KMLExport: TExportMarks2KML;
   VCategory: IMarkCategory;
+  VMarksSubset: IMarksSubset;
 begin
   VCategory := GetSelectedCategory;
   if VCategory<>nil then begin
@@ -495,7 +496,8 @@ begin
     try
       ExportDialog.FileName:=StringReplace(VCategory.name,'\','-',[rfReplaceAll]);
       if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-        KMLExport.ExportCategoryToKML(ExportDialog.FileName, VCategory, TComponent(Sender).tag=1);
+        VMarksSubset := GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategory, (not TComponent(Sender).tag=1));
+        KMLExport.ExportCategoryToKML(VCategory, VMarksSubset, ExportDialog.FileName);
       end;
     finally
       KMLExport.free;

@@ -3185,7 +3185,7 @@ begin
     try
       frmMarksExplorer.ExportDialog.FileName := VMark.Name;
       if (frmMarksExplorer.ExportDialog.Execute)and(frmMarksExplorer.ExportDialog.FileName<>'') then begin
-        KMLExport.ExportMarkToKML(frmMarksExplorer.ExportDialog.FileName, VMark);
+        KMLExport.ExportMarkToKML(VMark, frmMarksExplorer.ExportDialog.FileName);
       end;
     finally
       KMLExport.free;

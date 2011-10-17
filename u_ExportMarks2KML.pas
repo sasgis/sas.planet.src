@@ -35,9 +35,7 @@ uses
   ActiveX,
   i_MarksSimple,
   i_MarkCategory,
-  u_GlobalState,
-  u_GeoToStr,
-  u_GeoFun;
+  u_GeoToStr;
 
 type
   TExportMarks2KML = class
@@ -71,8 +69,15 @@ type
       AMarksSubset: IMarksSubset;
       AFileName: string
     );
-    procedure ExportCategoryToKML(AFileName: string; ACategory: IMarkCategory; AOnlyVisible: boolean);
-    procedure ExportMarkToKML(AFileName: string; Mark: IMark);
+    procedure ExportCategoryToKML(
+      ACategory: IMarkCategory;
+      AMarksSubset: IMarksSubset;
+      AFileName: string
+    );
+    procedure ExportMarkToKML(
+      Mark: IMark;
+      AFileName: string
+    );
   end;
 
 implementation
@@ -131,23 +136,21 @@ begin
 end;
 
 procedure TExportMarks2KML.ExportCategoryToKML(
-  AFileName: string;
   ACategory: IMarkCategory;
-  AOnlyVisible: boolean
+  AMarksSubset: IMarksSubset;
+  AFileName: string
 );
 var
   KMLStream:TMemoryStream;
-  VMarksSubset: IMarksSubset;
 begin
   filename:=Afilename;
   inKMZ:=ExtractFileExt(filename)='.kmz';
-  VMarksSubset := GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), ACategory, (not AOnlyVisible));
   if inKMZ then begin
     Zip.FileName := filename;
     Zip.CreateZip(filename);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
-    AddFolder(doc, ACategory.name, VMarksSubset);
+    AddFolder(doc, ACategory.name, AMarksSubset);
     KMLStream:=TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
@@ -157,13 +160,17 @@ begin
       KMLStream.Free;
     end;
   end else begin
-    AddFolder(doc, ACategory.name, VMarksSubset);
+    AddFolder(doc, ACategory.name, AMarksSubset);
     kmldoc.SaveToFile(FileName);
   end;
 end;
 
-procedure TExportMarks2KML.ExportMarkToKML(AFileName: string; Mark: IMark);
-var KMLStream:TMemoryStream;
+procedure TExportMarks2KML.ExportMarkToKML(
+  Mark: IMark;
+  AFileName: string
+);
+var
+  KMLStream:TMemoryStream;
 begin
   filename:=Afilename;
   inKMZ:=ExtractFileExt(filename)='.kmz';
