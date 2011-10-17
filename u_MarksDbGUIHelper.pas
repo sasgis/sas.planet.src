@@ -30,6 +30,7 @@ uses
   i_LanguageManager,
   i_CoordConverter,
   i_ValueToStringConverter,
+  i_ViewPortState,
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
@@ -75,6 +76,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AMarksDB: TMarksSystem;
+      AViewPortState: IViewPortState;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
       AFormRegionProcess: TfrmRegionProcess
     );
@@ -97,6 +99,7 @@ uses
 constructor TMarksDbGUIHelper.Create(
   ALanguageManager: ILanguageManager;
   AMarksDB: TMarksSystem;
+  AViewPortState: IViewPortState;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
   AFormRegionProcess: TfrmRegionProcess
 );
@@ -104,11 +107,37 @@ begin
   FMarksDB := AMarksDB;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FFormRegionProcess := AFormRegionProcess;
-  FfrmMarkEditPoint := TfrmMarkEditPoint.Create(ALanguageManager, FMarksDB.CategoryDB, FMarksDB.MarksDb);
-  FfrmMarkEditPath := TfrmMarkEditPath.Create(ALanguageManager, FMarksDB.CategoryDB, FMarksDB.MarksDb);
-  FfrmMarkEditPoly := TfrmMarkEditPoly.Create(ALanguageManager, FMarksDB.CategoryDB, FMarksDB.MarksDb);
-  FfrmMarkCategoryEdit := TfrmMarkCategoryEdit.Create(ALanguageManager, FMarksDB.CategoryDB.Factory);
-  FfrmImportConfigEdit := TfrmImportConfigEdit.Create(ALanguageManager, FMarksDB.CategoryDB, FMarksDB.MarksDb);
+  FfrmMarkEditPoint :=
+    TfrmMarkEditPoint.Create(
+      ALanguageManager,
+      FMarksDB.CategoryDB,
+      FMarksDB.MarksDb,
+      AViewPortState,
+      AValueToStringConverterConfig
+    );
+  FfrmMarkEditPath :=
+    TfrmMarkEditPath.Create(
+      ALanguageManager,
+      FMarksDB.CategoryDB,
+      FMarksDB.MarksDb
+    );
+  FfrmMarkEditPoly :=
+    TfrmMarkEditPoly.Create(
+      ALanguageManager,
+      FMarksDB.CategoryDB,
+      FMarksDB.MarksDb
+    );
+  FfrmMarkCategoryEdit :=
+    TfrmMarkCategoryEdit.Create(
+      ALanguageManager,
+      FMarksDB.CategoryDB.Factory
+    );
+  FfrmImportConfigEdit :=
+    TfrmImportConfigEdit.Create(
+      ALanguageManager,
+      FMarksDB.CategoryDB,
+      FMarksDB.MarksDb
+    );
 end;
 
 destructor TMarksDbGUIHelper.Destroy;

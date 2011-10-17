@@ -41,6 +41,8 @@ uses
   u_CommonFormAndFrameParents,
   u_ResStrings,
   i_LanguageManager,
+  i_ViewPortState,
+  i_ValueToStringConverter,
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
@@ -111,7 +113,9 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       ACategoryDB: IMarkCategoryDB;
-      AMarksDb: IMarksDb
+      AMarksDb: IMarksDb;
+      AViewPortState: IViewPortState;
+      AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(AMark: IMarkPoint): IMarkPoint;
@@ -121,15 +125,16 @@ type
 implementation
 
 uses
-  Math,
-  u_GlobalState;
+  Math;
 
 {$R *.dfm}
 
 constructor TfrmMarkEditPoint.Create(
   ALanguageManager: ILanguageManager;
   ACategoryDB: IMarkCategoryDB;
-  AMarksDb: IMarksDb
+  AMarksDb: IMarksDb;
+  AViewPortState: IViewPortState;
+  AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create(ALanguageManager);
@@ -140,8 +145,8 @@ begin
   frLonLatPoint :=
     TfrLonLat.Create(
       nil,
-      GState.MainFormConfig.ViewPortState,
-      GState.ValueToStringConverterConfig,
+      AViewPortState,
+      AValueToStringConverterConfig,
       tssCenter
     );
   frMarkCategory :=

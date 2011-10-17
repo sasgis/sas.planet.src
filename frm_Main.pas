@@ -881,6 +881,7 @@ begin
     TMarksDbGUIHelper.Create(
       GState.LanguageManager,
       GState.MarksDB,
+      FConfig.ViewPortState,
       GState.ValueToStringConverterConfig,
       FFormRegionProcess
     );
