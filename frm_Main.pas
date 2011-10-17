@@ -3037,7 +3037,12 @@ var
   VLonLatRect: TDoubleRect;
 begin
   TBRectSave.ImageIndex:=12;
-  VSelLonLat:= TfrmLonLatRectEdit.Create(Self);
+  VSelLonLat:=
+    TfrmLonLatRectEdit.Create(
+      nil,
+      FConfig.ViewPortState,
+      GState.ValueToStringConverterConfig
+    );
   Try
     Poly := GState.LastSelectionInfo.Polygon;
     GetMinMax(VLonLatRect, Poly);

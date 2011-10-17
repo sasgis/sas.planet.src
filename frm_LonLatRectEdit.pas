@@ -33,6 +33,8 @@ uses
   ExtCtrls,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
+  i_ValueToStringConverter,
+  i_ViewPortState,
   fr_LonLat;
 
 type
@@ -48,7 +50,11 @@ type
     FfrLonLatTopLeft: TfrLonLat;
     FfrLonLatBottomRight: TfrLonLat;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(
+      AOwner: TComponent;
+      AViewPortState: IViewPortState;
+      AValueToStringConverterConfig: IValueToStringConverterConfig
+    ); reintroduce;
     destructor Destroy; override;
     function Execute(var ALonLatRect: TDoubleRect): Boolean;
     procedure RefreshTranslation; override;
@@ -57,26 +63,29 @@ type
 implementation
 
 uses
-  u_ResStrings,
-  u_GlobalState;
+  u_ResStrings;
 
 {$R *.dfm}
 
-constructor TfrmLonLatRectEdit.Create(AOwner: TComponent);
+constructor TfrmLonLatRectEdit.Create(
+  AOwner: TComponent;
+  AViewPortState: IViewPortState;
+  AValueToStringConverterConfig: IValueToStringConverterConfig
+);
 begin
-  inherited;
+  inherited Create(AOwner);
   FfrLonLatTopLeft :=
     TfrLonLat.Create(
       nil,
-      GState.MainFormConfig.ViewPortState,
-      GState.ValueToStringConverterConfig,
+      AViewPortState,
+      AValueToStringConverterConfig,
       tssTopLeft
     );
   FfrLonLatBottomRight :=
     TfrLonLat.Create(
       nil,
-      GState.MainFormConfig.ViewPortState,
-      GState.ValueToStringConverterConfig,
+      AViewPortState,
+      AValueToStringConverterConfig,
       tssBottomRight
     );
 end;
