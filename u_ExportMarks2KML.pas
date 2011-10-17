@@ -47,12 +47,14 @@ type
     inKMZ:boolean;
     doc:iXMLNode;
     Zip: TKaZip;
-    OnlyVisible:boolean;
-    procedure AddFolders(ACategoryList: IInterfaceList);
+    procedure AddFolders(
+      AMarksSet: IMarksSubset;
+      ACategoryList: IInterfaceList
+    );
     function AddFolder(
       AParentNode: IXMLNode;
       ACategoryNamePostfix: string;
-      AData: IMarkCategory
+      AMarksSubset: IMarksSubset
     ):boolean;
     function AddMarks(
       AMarksSubset: IMarksSubset;
@@ -98,17 +100,22 @@ procedure TExportMarks2KML.ExportToKML(AFileName: string; AOnlyVisible: boolean)
 var
   VCategoryList: IInterfaceList;
   KMLStream:TMemoryStream;
+  VMarksSubset: IMarksSubset;
 begin
-  OnlyVisible:=AOnlyVisible;
   filename:=Afilename;
   inKMZ:=ExtractFileExt(filename)='.kmz';
-  VCategoryList := GState.MarksDb.CategoryDB.GetCategoriesList;
+  if AOnlyVisible then begin
+    VCategoryList := GState.MarksDb.GetVisibleCategoriesIgnoreZoom;
+  end else begin
+    VCategoryList := GState.MarksDb.CategoryDB.GetCategoriesList;
+  end;
+  VMarksSubset := GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategoryList, (not AOnlyVisible));
   if inKMZ then begin
     Zip.FileName := filename;
     Zip.CreateZip(filename);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
-    AddFolders(VCategoryList);
+    AddFolders(VMarksSubset, VCategoryList);
     KMLStream:=TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
@@ -118,7 +125,7 @@ begin
       KMLStream.Free;
     end;
   end else begin
-    AddFolders(VCategoryList);
+    AddFolders(VMarksSubset, VCategoryList);
     kmldoc.SaveToFile(FileName);
   end;
 end;
@@ -129,20 +136,18 @@ procedure TExportMarks2KML.ExportCategoryToKML(
   AOnlyVisible: boolean
 );
 var
-  VCategoryList: IInterfaceList;
   KMLStream:TMemoryStream;
+  VMarksSubset: IMarksSubset;
 begin
   filename:=Afilename;
-  OnlyVisible:=AOnlyVisible;
   inKMZ:=ExtractFileExt(filename)='.kmz';
-  VCategoryList:=TInterfaceList.Create;
-  VCategoryList.Add(ACategory);
+  VMarksSubset := GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), ACategory, (not AOnlyVisible));
   if inKMZ then begin
     Zip.FileName := filename;
     Zip.CreateZip(filename);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
-    AddFolders(VCategoryList);
+    AddFolder(doc, ACategory.name, VMarksSubset);
     KMLStream:=TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
@@ -152,7 +157,7 @@ begin
       KMLStream.Free;
     end;
   end else begin
-    AddFolders(VCategoryList);
+    AddFolder(doc, ACategory.name, VMarksSubset);
     kmldoc.SaveToFile(FileName);
   end;
 end;
@@ -161,7 +166,6 @@ procedure TExportMarks2KML.ExportMarkToKML(AFileName: string; Mark: IMark);
 var KMLStream:TMemoryStream;
 begin
   filename:=Afilename;
-  OnlyVisible := False;
   inKMZ:=ExtractFileExt(filename)='.kmz';
   if inKMZ then begin
     Zip.FileName := filename;
@@ -183,23 +187,26 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.AddFolders(ACategoryList: IInterfaceList);
+procedure TExportMarks2KML.AddFolders(
+  AMarksSet: IMarksSubset;
+  ACategoryList: IInterfaceList
+);
 var
   K: Integer;
   VCategory: IMarkCategory;
+  VMarksSubset: IMarksSubset;
 begin
   for K := 0 to ACategoryList.Count - 1 do begin
     VCategory := IMarkCategory(Pointer(ACategoryList.Items[K]));
-    if (VCategory.Visible) or (not OnlyVisible) then begin
-      AddFolder(doc, VCategory.name, VCategory);
-    end;
+    VMarksSubset := AMarksSet.GetSubsetByCategory(VCategory);
+    AddFolder(doc, VCategory.name, VMarksSubset);
   end;
 end;
 
 function TExportMarks2KML.AddFolder(
   AParentNode: IXMLNode;
   ACategoryNamePostfix: string;
-  AData: IMarkCategory
+  AMarksSubset: IMarksSubset
 ): boolean;
   function FindNodeWithText(AParent: iXMLNode; const ACategoryNameElement: string): IXMLNode;
   var
@@ -222,13 +229,10 @@ var
   VCatgoryNamePostfix: string;
   VDelimiterPos: Integer;
   VNode: IXMLNode;
-  VMarksSubset: IMarksSubset;
   VCreatedNode: Boolean;
 begin
-  //Result := False; // [DCC Warning] u_ExportMarks2KML.pas(171): H2077 Value assigned to 'AddItem' never used
   if ACategoryNamePostfix='' then begin
-    VMarksSubset := GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), AData, (not OnlyVisible));
-    Result := AddMarks(VMarksSubset, AParentNode);
+    Result := AddMarks(AMarksSubset, AParentNode);
   end else begin
     VDelimiterPos:=Pos('\', ACategoryNamePostfix);
     if VDelimiterPos > 0 then begin
@@ -254,7 +258,7 @@ begin
         VCreatedNode := True;
       end;
     end;
-    Result := AddFolder(VNode, VCatgoryNamePostfix, AData);
+    Result := AddFolder(VNode, VCatgoryNamePostfix, AMarksSubset);
     if (not Result) and (VCreatedNode) then begin
       AParentNode.ChildNodes.Remove(VNode);
     end;
