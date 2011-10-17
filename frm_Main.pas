@@ -3190,7 +3190,6 @@ end;
 
 procedure TfrmMain.NMarkExportClick(Sender: TObject);
 var
-  KMLExport:TExportMarks2KML;
   VMark: IMark;
 begin
   FLayerMapMarks.MouseOnReg(
@@ -3198,15 +3197,7 @@ begin
     VMark
   );
   if VMark <> nil then begin
-    KMLExport:=TExportMarks2KML.Create;
-    try
-      frmMarksExplorer.ExportDialog.FileName := VMark.Name;
-      if (frmMarksExplorer.ExportDialog.Execute)and(frmMarksExplorer.ExportDialog.FileName<>'') then begin
-        KMLExport.ExportMarkToKML(VMark, frmMarksExplorer.ExportDialog.FileName);
-      end;
-    finally
-      KMLExport.free;
-    end;
+    frmMarksExplorer.ExportMark(VMark);
   end;
 end;
 

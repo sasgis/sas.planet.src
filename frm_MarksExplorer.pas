@@ -126,6 +126,7 @@ type
     function GetSelectedMarkFull: IMark;
   public
     procedure EditMarks(AMarkDBGUI: TMarksDbGUIHelper; AMapGoto: IMapViewGoto);
+    procedure ExportMark(AMark: IMark);
   end;
 
 var
@@ -553,6 +554,23 @@ begin
     MarksListBox.Clear;
     FCategoryList := nil;
     FMarksList := nil;
+  end;
+end;
+
+procedure TfrmMarksExplorer.ExportMark(AMark: IMark);
+var
+  KMLExport:TExportMarks2KML;
+begin
+  if AMark <> nil then begin
+    KMLExport:=TExportMarks2KML.Create;
+    try
+      ExportDialog.FileName := AMark.Name;
+      if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
+        KMLExport.ExportMarkToKML(AMark, ExportDialog.FileName);
+      end;
+    finally
+      KMLExport.free;
+    end;
   end;
 end;
 
