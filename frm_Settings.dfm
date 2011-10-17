@@ -1372,10 +1372,10 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 6
               Top = 44
-              Width = 150
+              Width = 300
               Height = 16
               Align = alLeft
-              Caption = 'Names'
+              Caption = 'Genshtab Map names'
               TabOrder = 1
               ExplicitHeight = 6
             end
