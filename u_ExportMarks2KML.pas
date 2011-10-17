@@ -66,7 +66,11 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure ExportToKML(AFileName: string; AOnlyVisible: boolean);
+    procedure ExportToKML(
+      ACategoryList: IInterfaceList;
+      AMarksSubset: IMarksSubset;
+      AFileName: string
+    );
     procedure ExportCategoryToKML(AFileName: string; ACategory: IMarkCategory; AOnlyVisible: boolean);
     procedure ExportMarkToKML(AFileName: string; Mark: IMark);
   end;
@@ -96,26 +100,22 @@ begin
   inherited;
 end;
 
-procedure TExportMarks2KML.ExportToKML(AFileName: string; AOnlyVisible: boolean);
+procedure TExportMarks2KML.ExportToKML(
+  ACategoryList: IInterfaceList;
+  AMarksSubset: IMarksSubset;
+  AFileName: string
+);
 var
-  VCategoryList: IInterfaceList;
   KMLStream:TMemoryStream;
-  VMarksSubset: IMarksSubset;
 begin
   filename:=Afilename;
   inKMZ:=ExtractFileExt(filename)='.kmz';
-  if AOnlyVisible then begin
-    VCategoryList := GState.MarksDb.GetVisibleCategoriesIgnoreZoom;
-  end else begin
-    VCategoryList := GState.MarksDb.CategoryDB.GetCategoriesList;
-  end;
-  VMarksSubset := GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategoryList, (not AOnlyVisible));
   if inKMZ then begin
     Zip.FileName := filename;
     Zip.CreateZip(filename);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
-    AddFolders(VMarksSubset, VCategoryList);
+    AddFolders(AMarksSubset, ACategoryList);
     KMLStream:=TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
@@ -125,7 +125,7 @@ begin
       KMLStream.Free;
     end;
   end else begin
-    AddFolders(VMarksSubset, VCategoryList);
+    AddFolders(AMarksSubset, ACategoryList);
     kmldoc.SaveToFile(FileName);
   end;
 end;

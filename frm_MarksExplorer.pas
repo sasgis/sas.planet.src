@@ -138,6 +138,7 @@ uses
   i_ImportConfig,
   i_UsedMarksConfig,
   u_ExportMarks2KML,
+  u_GeoFun,
   frm_ImportConfigEdit,
   frm_MarkCategoryEdit;
 
@@ -259,12 +260,24 @@ begin
 end;
 
 procedure TfrmMarksExplorer.btnExportClick(Sender: TObject);
-var KMLExport:TExportMarks2KML;
+var
+  KMLExport:TExportMarks2KML;
+  VCategoryList: IInterfaceList;
+  VMarksSubset: IMarksSubset;
+  VOnlyVisible: Boolean;
 begin
   KMLExport:=TExportMarks2KML.Create;
   try
     if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-      KMLExport.ExportToKML(ExportDialog.FileName, TComponent(Sender).tag=1);
+      VOnlyVisible := (TComponent(Sender).tag = 1);
+      if VOnlyVisible then begin
+        VCategoryList := GState.MarksDb.GetVisibleCategoriesIgnoreZoom;
+      end else begin
+        VCategoryList := GState.MarksDb.CategoryDB.GetCategoriesList;
+      end;
+      VMarksSubset := GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategoryList, (not VOnlyVisible));
+
+      KMLExport.ExportToKML(VCategoryList, VMarksSubset, ExportDialog.FileName);
     end;
   finally
     KMLExport.free;
