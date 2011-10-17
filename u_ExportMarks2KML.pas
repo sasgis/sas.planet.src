@@ -55,7 +55,7 @@ type
       AData: IMarkCategory
     ):boolean;
     function AddMarks(
-      ACategoryList: IInterfaceList;
+      AMarksSubset: IMarksSubset;
       inNode:iXMLNode
     ): Boolean;
     procedure AddMark(Mark:IMark; inNode:iXMLNode);
@@ -222,15 +222,13 @@ var
   VCatgoryNamePostfix: string;
   VDelimiterPos: Integer;
   VNode: IXMLNode;
-  VCatIdList: IInterfaceList;
+  VMarksSubset: IMarksSubset;
   VCreatedNode: Boolean;
 begin
   //Result := False; // [DCC Warning] u_ExportMarks2KML.pas(171): H2077 Value assigned to 'AddItem' never used
   if ACategoryNamePostfix='' then begin
-    VCatIdList:=TInterfaceList.Create;
-    VCatIdList.Add(AData);
-    Result := AddMarks(VCatIdList, AParentNode);
-    VCatIdList := nil;
+    VMarksSubset := GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), AData, (not OnlyVisible));
+    Result := AddMarks(VMarksSubset, AParentNode);
   end else begin
     VDelimiterPos:=Pos('\', ACategoryNamePostfix);
     if VDelimiterPos > 0 then begin
@@ -264,18 +262,16 @@ begin
 end;
 
 function TExportMarks2KML.AddMarks(
-  ACategoryList: IInterfaceList;
+  AMarksSubset:IMarksSubset;
   inNode:iXMLNode
 ): Boolean;
 var
-  MarksList:IMarksSubset;
   Mark:IMark;
   VEnumMarks:IEnumUnknown;
   i:integer;
 begin
   Result := False;
-  MarksList:=GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), ACategoryList, (not OnlyVisible));
-  VEnumMarks := MarksList.GetEnum;
+  VEnumMarks := AMarksSubset.GetEnum;
   while (VEnumMarks.Next(1, Mark, @i) = S_OK) do begin
     AddMark(Mark,inNode);
     Result := True;
