@@ -664,7 +664,6 @@ begin
     end;
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
-    Application.CreateForm(TfrmGoTo, frmGoTo);
     Application.CreateForm(TfrmAbout, frmAbout);
     Application.CreateForm(TfrmSettings, frmSettings);
     Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);

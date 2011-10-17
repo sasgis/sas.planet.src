@@ -118,6 +118,7 @@ uses
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
   frm_RegionProcess,
+  frm_GoTo,
   u_TileDownloaderUI, Spin;
 
 type
@@ -592,6 +593,7 @@ type
     FTumbler:TBitmap32;
     FSensorViewList: IGUIDInterfaceSet;
     FFormRegionProcess: TfrmRegionProcess;
+    FfrmGoTo: TfrmGoTo;
 
     FPathProvidersTree: ITreeChangeable;
     FPathProvidersTreeStatic: IStaticTreeItem;
@@ -659,7 +661,6 @@ implementation
 uses
   u_GUIDObjectSet,
   u_GlobalState,
-  frm_GoTo,
   frm_About,
   frm_Settings,
   frm_LonLatRectEdit,
@@ -753,6 +754,15 @@ begin
       GState.DownloadInfo,
       Self.OnMapUpdate
     );
+  FfrmGoTo :=
+    TfrmGoTo.Create(
+      GState.LanguageManager,
+      GState.MarksDB.MarksDb,
+      FConfig.MainGeoCoderConfig,
+      FConfig.ViewPortState,
+      GState.ValueToStringConverterConfig
+    );
+
   LoadMapIconsList;
 
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -1658,6 +1668,7 @@ begin
   FreeAndNil(FTumbler);
   FreeAndNil(FRuller);
   FreeAndNil(FFormRegionProcess);
+  FreeAndNil(FfrmGoTo);
   inherited;
 end;
 
@@ -4364,12 +4375,9 @@ end;
 procedure TfrmMain.TBSubmenuItem1Click(Sender: TObject);
 var
   VResult: IGeoCodeResult;
-  VLocalConverter: ILocalCoordConverter;
   VZoom: Byte;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VZoom := VLocalConverter.GetZoom;
-  if frmGoTo.ShowGeocodeModal(VLocalConverter, VResult, VZoom, FMarkDBGUI) then begin
+  if FfrmGoTo.ShowGeocodeModal(VResult, VZoom) then begin
     FSearchPresenter.ShowSearchResults(VResult, VZoom);
   end;
 end;
