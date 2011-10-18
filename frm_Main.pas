@@ -649,12 +649,10 @@ type
     procedure OnAfterViewChange(Sender: TObject);
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     procedure OnMinimize(Sender: TObject);
+    procedure SaveConfig(Sender: TObject);
   public
-    property ShortCutManager: TShortcutManager read FShortCutManager;
-
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure SaveConfig(Sender: TObject);
     procedure LayerMapMarksRedraw;
   end;
 
@@ -4166,7 +4164,7 @@ var
   VProvider: IConfigDataWriteProvider;
 begin
   VProvider := AProvider.GetOrCreateSubItem('HOTKEY');
-  ShortCutManager.Save(VProvider);
+  FShortCutManager.Save(VProvider);
 
   VProvider := AProvider.GetOrCreateSubItem('MainForm');
   FWinPosition.WriteConfig(VProvider);
