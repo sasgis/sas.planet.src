@@ -667,7 +667,6 @@ begin
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
     Application.CreateForm(TfrmAbout, frmAbout);
-    Application.CreateForm(TfrmSettings, frmSettings);
     Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
     GState.StartExceptionTracking;
     try

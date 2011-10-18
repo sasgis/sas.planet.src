@@ -119,6 +119,7 @@ uses
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
   u_TileDownloaderUI,
+  frm_Settings,
   frm_RegionProcess,
   frm_DGAvailablePic,
   frm_GoTo;
@@ -597,6 +598,7 @@ type
     FFormRegionProcess: TfrmRegionProcess;
     FfrmGoTo: TfrmGoTo;
     FfrmDGAvailablePic: TfrmDGAvailablePic;
+    FfrmSettings: TfrmSettings;
 
     FPathProvidersTree: ITreeChangeable;
     FPathProvidersTreeStatic: IStaticTreeItem;
@@ -646,14 +648,14 @@ type
     procedure OnBeforeViewChange(Sender: TObject);
     procedure OnAfterViewChange(Sender: TObject);
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
+    procedure OnMinimize(Sender: TObject);
   public
     property ShortCutManager: TShortcutManager read FShortCutManager;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure SaveConfig;
+    procedure SaveConfig(Sender: TObject);
     procedure LayerMapMarksRedraw;
-    procedure OnMinimize(Sender: TObject);
   end;
 
 var
@@ -665,7 +667,6 @@ uses
   u_GUIDObjectSet,
   u_GlobalState,
   frm_About,
-  frm_Settings,
   frm_LonLatRectEdit,
   frm_MarksExplorer,
   c_ZeroGUID,
@@ -1360,7 +1361,14 @@ begin
     CreateLangMenu;
     FMapMoving:=false;
 
-    SetProxy;
+    FfrmSettings :=
+      TfrmSettings.Create(
+        GState.LanguageManager,
+        FShortCutManager,
+        Self.SaveConfig
+      );
+
+    FfrmSettings.SetProxy;
 
     FLinksList.ActivateLinks;
     FLayersList.StartThreads;
@@ -1651,7 +1659,7 @@ begin
   FUIDownLoader.SendTerminateToThreads;
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
-  SaveConfig;
+  SaveConfig(nil);
   Application.ProcessMessages;
   FreeAndNil(FLayersList);
   FreeAndNil(FUIDownLoader);
@@ -1676,6 +1684,7 @@ begin
   FreeAndNil(FFormRegionProcess);
   FreeAndNil(FfrmGoTo);
   FreeAndNil(FfrmDGAvailablePic);
+  FreeAndNil(FfrmSettings);
   inherited;
 end;
 
@@ -2537,7 +2546,7 @@ end;
 
 procedure TfrmMain.N8Click(Sender: TObject);
 begin
-  frmSettings.ShowModal;
+  FfrmSettings.ShowModal;
 end;
 
 procedure TfrmMain.NbackloadClick(Sender: TObject);
@@ -3391,7 +3400,7 @@ begin
   end else begin
     VMapType := TMapType(TTBXItem(sender).Tag);
   end;
-  frmSettings.MapTypeEditor.EditMap(VMapType);
+  FfrmSettings.MapTypeEditor.EditMap(VMapType);
 end;
 
 procedure TfrmMain.mapMouseDown(Sender: TObject; Button: TMouseButton;
@@ -4142,7 +4151,7 @@ begin
   FConfig.MapMovingConfig.AnimateMove := (Sender as TTBXItem).Checked;
 end;
 
-procedure TfrmMain.SaveConfig;
+procedure TfrmMain.SaveConfig(Sender: TObject);
 begin
   try
     GState.SaveMainParams;
@@ -4276,8 +4285,7 @@ end;
 
 procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);
 begin
- frmSettings.tsGPS.Show;
- frmSettings.ShowModal;
+  FfrmSettings.ShowGPSSettings;
 end;
 
 procedure TfrmMain.TBScreenSelectClick(Sender: TObject);

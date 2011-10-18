@@ -46,12 +46,13 @@ uses
   i_JclListenerNotifierLinksList,
   i_ImageResamplerFactory,
   i_MapTypeConfigModalEdit,
-  fr_ShortCutList,
+  i_LanguageManager,
   u_MapType,
-  u_ResStrings;
+  u_ShortcutManager,
+  fr_ShortCutList;
 
 type
-  TfrmSettings = class(TCommonFormParent)
+  TfrmSettings = class(TFormWitghLanguageManager)
     PageControl1: TPageControl;
     tsCache: TTabSheet;
     tsInternet: TTabSheet;
@@ -253,6 +254,8 @@ type
     procedure MapListChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
   private
+    FShortCutManager: TShortcutManager;
+    FOnSave: TNotifyEvent;
     FLinksList: IJclListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
     FMapTypeEditor: IMapTypeConfigModalEdit;
@@ -261,15 +264,17 @@ type
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
     procedure InitMapsList;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AShortCutManager: TShortcutManager;
+      AOnSave: TNotifyEvent
+    ); reintroduce;
     destructor Destroy; override;
+    procedure SetProxy;
+    procedure ShowGPSSettings;
     procedure RefreshTranslation; override;
     property MapTypeEditor: IMapTypeConfigModalEdit read FMapTypeEditor;
   end;
-
-var
-  frmSettings: TfrmSettings;
-  procedure SetProxy;
 
 implementation
 
@@ -284,9 +289,28 @@ uses
   u_NotifyEventListener,
   u_MapTypeConfigModalEditByForm,
   u_GlobalState,
-  frm_Main;
+  u_ResStrings;
 
 {$R *.dfm}
+
+constructor TfrmSettings.Create(
+  ALanguageManager: ILanguageManager;
+  AShortCutManager: TShortcutManager;
+  AOnSave: TNotifyEvent
+);
+begin
+  inherited Create(ALanguageManager);
+  FShortCutManager := AShortCutManager;
+  FOnSave := AOnSave;
+  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.GPSReceiverReceive),
+    GState.GPSpar.DataReciveNotifier
+  );
+  frShortCutList := TfrShortCutList.Create(GState.LanguageManager);
+  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);
+  PageControl1.ActivePageIndex:=0;
+end;
 
 procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
@@ -294,7 +318,7 @@ begin
   Close
 end;
 
-procedure SetProxy;
+procedure TfrmSettings.SetProxy;
 var
   PIInfo : PInternetProxyInfo;
   VProxyConfig: IProxyConfig;
@@ -332,6 +356,12 @@ begin
     UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
   end;
   Dispose (PIInfo) ;
+end;
+
+procedure TfrmSettings.ShowGPSSettings;
+begin
+  tsGPS.Show;
+  ShowModal;
 end;
 
 procedure TfrmSettings.btnApplyClick(Sender: TObject);
@@ -504,7 +534,9 @@ begin
  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
  frShortCutList.ApplyChanges;
- frmMain.SaveConfig;
+  if Assigned(FOnSave) then begin
+    FOnSave(nil);
+  end;
  if VNeedReboot then begin
    ShowMessage(SAS_MSG_need_reload_application_curln);
  end;
@@ -579,19 +611,6 @@ begin
   CBProxyused.Enabled := not VUseIeProxy;
   lblUseProxy.Enabled := not VUseIeProxy;
   CBProxyusedClick(CBProxyused);
-end;
-
-constructor TfrmSettings.Create(AOwner: TComponent);
-begin
-  inherited;
-  FLinksList := TJclListenerNotifierLinksList.Create;
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.GPSReceiverReceive),
-    GState.GPSpar.DataReciveNotifier
-  );
-  frShortCutList := TfrShortCutList.Create(GState.LanguageManager);
-  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);
-  PageControl1.ActivePageIndex:=0;
 end;
 
 destructor TfrmSettings.Destroy;
@@ -757,7 +776,7 @@ begin
 
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
- frShortCutList.SetShortCutManager(frmMain.ShortCutManager);
+ frShortCutList.SetShortCutManager(FShortCutManager);
  SatellitePaint;
 end;
 
