@@ -45,10 +45,10 @@ type
   private
     FReadyToHide: Boolean;
     FConfig: IStartUpLogoConfig;
-  public
     constructor Create(AOwner: TComponent; AConfig: IStartUpLogoConfig); reintroduce;
+  public
     destructor Destroy; override;
-    
+
     class procedure ShowLogo(AConfig: IStartUpLogoConfig);
     class procedure ReadyToHideLogo;
   end;
@@ -64,12 +64,6 @@ var
   frmStartLogo: TfrmStartLogo;
 
 {$R *.dfm}
-
-procedure TfrmStartLogo.tmrLogoTimer(Sender: TObject);
-begin
-  tmrLogo.Enabled:=false;
-  Self.Close;
-end;
 
 constructor TfrmStartLogo.Create(AOwner: TComponent;
   AConfig: IStartUpLogoConfig);
@@ -106,6 +100,12 @@ begin
   imgLogo.Bitmap.SetSize(VBitmapSize.X, VBitmapSize.Y);
   lblVersion.Caption:='v '+SASVersion;
   FReadyToHide := False;
+end;
+
+procedure TfrmStartLogo.tmrLogoTimer(Sender: TObject);
+begin
+  tmrLogo.Enabled:=false;
+  Self.Close;
 end;
 
 procedure TfrmStartLogo.imgLogoClick(Sender: TObject);
