@@ -39,7 +39,6 @@ uses
   ExtCtrls,
   u_CommonFormAndFrameParents,
   i_LocalCoordConverter,
-  u_ResStrings,
   t_GeoTypes;
 
 type
@@ -83,6 +82,17 @@ type
 
 var
   frmDGAvailablePic: TfrmDGAvailablePic;
+
+implementation
+
+uses
+  i_CoordConverter,
+  i_ProxySettings,
+  u_GlobalState,
+  u_ResStrings,
+  u_GeoToStr;
+
+var
   Stacks : array [0..13,0..3] of string =
             (
              ('227400001','1','GlobeXplorer Premium Stack','020100S'),
@@ -138,13 +148,8 @@ var
              ('7327000291','54','DigitalGlobe GeoCells','020100S'),
              ('7327000291','55','DigitalGlobe NGA Ortho Imagery','020100S')
              );  }
-implementation
 
-uses
-  i_CoordConverter,
-  i_ProxySettings,
-  u_GlobalState,
-  u_GeoToStr;
+
 function EncodeDG(S: string): string;
 var i: integer;
 begin
