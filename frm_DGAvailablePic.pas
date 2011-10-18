@@ -68,12 +68,10 @@ type
     procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
-    //ms:TMemoryStream;
     FLonLat:TDoublePoint;
     tids,ls:string;
     mpp:extended;
     hi,wi:integer;
-    //procedure CreateTree;
     procedure FormTidList;
     procedure CopyStringToClipboard(s: Widestring);
   public
@@ -388,46 +386,7 @@ begin
     List.Free;
   end;
 end;
-{
-procedure TfrmDGAvailablePic.CreateTree;
-var pltstr:TStringList;
-    datesat:string;
-    i,j:integer;
-    added:boolean;
-    node:TTreeNode;
-begin
- pltstr:=TStringList.Create;
- pltstr.LoadFromStream(ms);
- for i:=0 to pltstr.Count-1 do
-  try
-   datesat:=GetWord(pltstr[i], ',', 2);
-   datesat[5]:=DateSeparator;
-   datesat[8]:=DateSeparator;
-   added:=false;
-   for j:=0 to TreeView1.Items.Count-1 do
-    if TreeView1.Items.Item[j].Text=datesat then
-     begin
-      node:=TreeView1.Items.AddChild(TreeView1.Items.Item[j],GetWord(pltstr[i], ',', 1));
-      added:=true;
-      break;
-     end;
-   if not(added) then
-    node:=TreeView1.Items.AddChild(TreeView1.Items.Add(nil,datesat),GetWord(pltstr[i], ',', 1));
-   node.Data:=TDGPicture.Create;
-   with TDGPicture(node.Data) do
-    begin
-     tid:=GetWord(pltstr[i], ',', 1);
-     date:=GetWord(pltstr[i], ',', 2);
-     provider:=GetWord(pltstr[i], ',', 3);
-     color:=GetWord(pltstr[i], ',', 6);
-     resolution:=GetWord(pltstr[i], ',', 5);
-    end;
-  except
-  end;
- TreeView1.AlphaSort();
- pltstr.Free;
-end;
-}
+
 procedure TfrmDGAvailablePic.ShowInfo(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
 var
   VSize: TPoint;
