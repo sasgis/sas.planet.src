@@ -93,7 +93,8 @@ var
 begin
   if chkAllZooms.State <> cbGrayed then begin
     for i := 0 to chklstZooms.Count - 1 do begin
-      if chklstZooms.ItemEnabled[i] then begin
+      if chklstZooms.ItemEnabled[i] or chkFromPrevZoom.Checked then begin
+        if chkFromPrevZoom.Checked then chklstZooms.ItemEnabled[i] := true;
         chklstZooms.Checked[i] := chkAllZooms.Checked;
       end;
     end;
