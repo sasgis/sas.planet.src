@@ -43,6 +43,7 @@ uses
   ExtCtrls,
   Buttons,
   Dialogs,
+  Spin,
   ImgList,
   GR32,
   GR32_Layers,
@@ -117,9 +118,9 @@ uses
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
+  u_TileDownloaderUI,
   frm_RegionProcess,
-  frm_GoTo,
-  u_TileDownloaderUI, Spin;
+  frm_GoTo;
 
 type
   TAOperation = (
