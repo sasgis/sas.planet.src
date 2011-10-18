@@ -77,7 +77,7 @@ type
     procedure FormTidList;
     procedure CopyStringToClipboard(s: Widestring);
   public
-    procedure setup(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
+    procedure ShowInfo(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
   end;
 
 var
@@ -428,7 +428,7 @@ begin
  pltstr.Free;
 end;
 }
-procedure TfrmDGAvailablePic.setup(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
+procedure TfrmDGAvailablePic.ShowInfo(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
 var
   VSize: TPoint;
   VRad: Extended;

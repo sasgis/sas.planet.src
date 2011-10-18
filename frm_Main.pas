@@ -3259,7 +3259,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  frmDGAvailablePic.setup(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  frmDGAvailablePic.ShowInfo(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
 end;
 
 procedure TfrmMain.mapMouseLeave(Sender: TObject);
@@ -3603,7 +3603,7 @@ begin
         end;
       end;
       if HiWord(GetKeyState(VK_F6))<>0 then begin
-        frmDGAvailablePic.setup(VLocalConverter, Point(X, y));
+        frmDGAvailablePic.ShowInfo(VLocalConverter, Point(X, Y));
         Exit;
       end;
     end;
