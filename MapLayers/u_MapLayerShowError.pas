@@ -43,7 +43,6 @@ type
 implementation
 
 uses
-  Graphics,
   Types,
   i_CoordConverter,
   u_NotifyEventListener,

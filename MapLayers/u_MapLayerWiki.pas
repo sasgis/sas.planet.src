@@ -110,7 +110,6 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  Graphics,
   i_CoordConverter,
   i_TileIterator,
   u_NotifyEventListener,

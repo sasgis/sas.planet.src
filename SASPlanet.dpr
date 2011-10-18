@@ -571,6 +571,8 @@ uses
   i_SatellitesInViewMapDraw in 'i_SatellitesInViewMapDraw.pas',
   u_SatellitesInViewMapDrawSimple in 'u_SatellitesInViewMapDrawSimple.pas',
   u_InetFunc in 'u_InetFunc.pas',
+  i_DebugInfoWindow in 'i_DebugInfoWindow.pas',
+  u_DebugInfoWindow in 'u_DebugInfoWindow.pas',
   i_InternalBrowser in 'i_InternalBrowser.pas',
   u_InternalBrowserByForm in 'u_InternalBrowserByForm.pas',
   i_InvisibleBrowser in 'i_InvisibleBrowser.pas',
@@ -668,9 +670,7 @@ begin
     Application.CreateForm(TfrmSettings, frmSettings);
     Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
     Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
-    if GState.GlobalAppConfig.IsShowDebugInfo then begin
-      frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
-    end;
+
     GState.StartExceptionTracking;
     try
       Application.Run;

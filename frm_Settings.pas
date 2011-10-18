@@ -43,7 +43,6 @@ uses
   GR32,
   GR32_Image,
   u_CommonFormAndFrameParents,
-  i_ConfigDataWriteProvider,
   i_JclListenerNotifierLinksList,
   i_ImageResamplerFactory,
   i_MapTypeConfigModalEdit,
@@ -285,8 +284,7 @@ uses
   u_NotifyEventListener,
   u_MapTypeConfigModalEditByForm,
   u_GlobalState,
-  frm_Main,
-  frm_MapTypeEdit;
+  frm_Main;
 
 {$R *.dfm}
 

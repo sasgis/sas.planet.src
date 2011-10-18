@@ -59,9 +59,6 @@ type
     constructor Create(AOwner: TComponent; APerfCounterList: IInternalPerformanceCounterList); reintroduce;
   end;
 
-var
-  frmDebugInfo: TfrmDebugInfo;
-
 implementation
 
 uses
