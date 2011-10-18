@@ -669,8 +669,6 @@ begin
     Application.CreateForm(TfrmAbout, frmAbout);
     Application.CreateForm(TfrmSettings, frmSettings);
     Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
-    Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
-
     GState.StartExceptionTracking;
     try
       Application.Run;

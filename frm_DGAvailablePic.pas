@@ -38,11 +38,13 @@ uses
   CommCtrl,
   ExtCtrls,
   u_CommonFormAndFrameParents,
+  i_LanguageManager,
+  i_InetConfig,
   i_LocalCoordConverter,
   t_GeoTypes;
 
 type
-  TfrmDGAvailablePic = class(TCommonFormParent)
+  TfrmDGAvailablePic = class(TFormWitghLanguageManager)
     GroupBox1: TGroupBox;
     LabelDate: TLabel;
     LabelResolution: TLabel;
@@ -68,6 +70,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
+    FInetConfig: IInetConfig;
     FLonLat:TDoublePoint;
     tids,ls:string;
     mpp:extended;
@@ -75,11 +78,12 @@ type
     procedure FormTidList;
     procedure CopyStringToClipboard(s: Widestring);
   public
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AInetConfig: IInetConfig
+    ); reintroduce;
     procedure ShowInfo(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
   end;
-
-var
-  frmDGAvailablePic: TfrmDGAvailablePic;
 
 implementation
 
@@ -547,6 +551,13 @@ begin
       CloseClipboard;
     end;
   end
+end;
+
+constructor TfrmDGAvailablePic.Create(ALanguageManager: ILanguageManager;
+  AInetConfig: IInetConfig);
+begin
+  inherited Create(ALanguageManager);
+  FInetConfig := AInetConfig;
 end;
 
 procedure TfrmDGAvailablePic.Button3Click(Sender: TObject);

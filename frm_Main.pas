@@ -120,6 +120,7 @@ uses
   u_MarksDbGUIHelper,
   u_TileDownloaderUI,
   frm_RegionProcess,
+  frm_DGAvailablePic,
   frm_GoTo;
 
 type
@@ -595,6 +596,7 @@ type
     FSensorViewList: IGUIDInterfaceSet;
     FFormRegionProcess: TfrmRegionProcess;
     FfrmGoTo: TfrmGoTo;
+    FfrmDGAvailablePic: TfrmDGAvailablePic;
 
     FPathProvidersTree: ITreeChangeable;
     FPathProvidersTreeStatic: IStaticTreeItem;
@@ -666,7 +668,6 @@ uses
   frm_Settings,
   frm_LonLatRectEdit,
   frm_MarksExplorer,
-  frm_DGAvailablePic,
   c_ZeroGUID,
   c_SasVersion,
   c_GeoCoderGUIDSimple,
@@ -759,6 +760,12 @@ begin
       FConfig.MainGeoCoderConfig,
       FConfig.ViewPortState,
       GState.ValueToStringConverterConfig
+    );
+
+  FfrmDGAvailablePic :=
+    TfrmDGAvailablePic.Create(
+      GState.LanguageManager,
+      GState.InetConfig
     );
 
   LoadMapIconsList;
@@ -1668,6 +1675,7 @@ begin
   FreeAndNil(FRuller);
   FreeAndNil(FFormRegionProcess);
   FreeAndNil(FfrmGoTo);
+  FreeAndNil(FfrmDGAvailablePic);
   inherited;
 end;
 
@@ -3259,7 +3267,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  frmDGAvailablePic.ShowInfo(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  FfrmDGAvailablePic.ShowInfo(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
 end;
 
 procedure TfrmMain.mapMouseLeave(Sender: TObject);
@@ -3603,7 +3611,7 @@ begin
         end;
       end;
       if HiWord(GetKeyState(VK_F6))<>0 then begin
-        frmDGAvailablePic.ShowInfo(VLocalConverter, Point(X, Y));
+        FfrmDGAvailablePic.ShowInfo(VLocalConverter, Point(X, Y));
         Exit;
       end;
     end;
