@@ -62,11 +62,6 @@ implementation
 
 {$R *.dfm}
 
-uses
-  StrUtils,
-  ShellAPI,
-  WinInet;
-
 constructor TfrmInvisibleBrowser.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig

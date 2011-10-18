@@ -664,7 +664,6 @@ uses
   frm_About,
   frm_Settings,
   frm_LonLatRectEdit,
-  frm_MapTypeEdit,
   frm_MarksExplorer,
   frm_DGAvailablePic,
   c_ZeroGUID,
@@ -710,13 +709,10 @@ uses
   u_TreeByPathDetalizeProviderList,
   u_MenuGeneratorByStaticTreeSimple,
   u_PosFromGSM,
-  u_ExportMarks2KML,
   u_SearchResults,
   u_InetFunc,
   frm_ProgressDownload,
-  frm_DebugInfo,
-  frm_StartLogo,
-  frm_ImportConfigEdit;
+  frm_StartLogo;
 
 {$R *.dfm}
 

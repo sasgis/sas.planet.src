@@ -139,9 +139,7 @@ uses
   i_ImportConfig,
   i_UsedMarksConfig,
   u_ExportMarks2KML,
-  u_GeoFun,
-  frm_ImportConfigEdit,
-  frm_MarkCategoryEdit;
+  u_GeoFun;
 
 {$R *.dfm}
 

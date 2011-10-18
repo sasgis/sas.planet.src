@@ -7,7 +7,6 @@ uses
   Types,
   ActiveX,
   Classes,
-  Controls,
   GR32,
   GR32_Image,
   i_JclNotify,

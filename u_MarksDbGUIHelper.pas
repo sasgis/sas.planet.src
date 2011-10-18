@@ -31,7 +31,6 @@ uses
   i_CoordConverter,
   i_ValueToStringConverter,
   i_ViewPortState,
-  i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
   i_ImportConfig,

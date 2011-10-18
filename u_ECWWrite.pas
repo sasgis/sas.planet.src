@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  Dialogs,
   ECWwriter,
   ECWreader,
   t_GeoTypes,
