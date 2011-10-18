@@ -4204,9 +4204,7 @@ end;
 
 procedure TfrmMain.tbitmShowDebugInfoClick(Sender: TObject);
 begin
-  if frmDebugInfo <> nil then begin
-    frmDebugInfo.Show;
-  end;
+  GState.DebugInfoWindow.Show;
 end;
 
 procedure TfrmMain.tbitmShowMarkCaptionClick(Sender: TObject);

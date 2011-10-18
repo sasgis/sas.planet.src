@@ -165,6 +165,7 @@
     <DCCReference Include="i_CoordConverter.pas" />
     <DCCReference Include="i_CoordConverterFactory.pas" />
     <DCCReference Include="i_Datum.pas" />
+    <DCCReference Include="i_DebugInfoWindow.pas" />
     <DCCReference Include="i_DownloadChecker.pas" />
     <DCCReference Include="i_DownloadInfoSimple.pas" />
     <DCCReference Include="i_DownloadRequest.pas" />
@@ -497,6 +498,7 @@
     <DCCReference Include="u_CoordConverterMercatorOnSphere.pas" />
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="u_Datum.pas" />
+    <DCCReference Include="u_DebugInfoWindow.pas" />
     <DCCReference Include="u_DownloadCheckerStuped.pas" />
     <DCCReference Include="u_DownloadInfoSimple.pas" />
     <DCCReference Include="u_DownloadResult.pas" />

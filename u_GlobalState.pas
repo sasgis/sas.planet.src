@@ -78,6 +78,7 @@ uses
   i_SensorList,
   i_InvisibleBrowser,
   i_InternalBrowser,
+  i_DebugInfoWindow,
   u_IeEmbeddedProtocolRegistration,
   u_GPSState,
   u_GlobalCahceConfig;
@@ -134,6 +135,7 @@ type
     FEcwDll: IEcwDll;
     FInvisibleBrowser: IInvisibleBrowser;
     FInternalBrowser: IInternalBrowser;
+    FDebugInfoWindow: IDebugInfoWindow;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -191,6 +193,7 @@ type
     property ClearStrategyFactory: ILayerBitmapClearStrategyFactory read FClearStrategyFactory;
     property EcwDll: IEcwDll read FEcwDll;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
+    property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
 
     constructor Create;
     destructor Destroy; override;
@@ -259,6 +262,7 @@ uses
   u_HtmlToHintTextConverterStuped,
   u_InvisibleBrowserByFormSynchronize,
   u_InternalBrowserByForm,
+  u_DebugInfoWindow,
   u_InternalPerformanceCounterList,
   u_IeEmbeddedProtocolFactory,
   u_PathDetalizeProviderListSimple,
@@ -410,7 +414,12 @@ begin
     TInternalBrowserByForm.Create(
       FLanguageManager,
       FInetConfig.ProxyConfig
-    )
+    );
+  FDebugInfoWindow :=
+    TDebugInfoWindow.Create(
+      FGlobalAppConfig,
+      FPerfCounterList
+    );
 end;
 
 destructor TGlobalState.Destroy;
