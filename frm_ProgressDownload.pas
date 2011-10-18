@@ -35,6 +35,7 @@ uses
   RarProgress,
   u_CommonFormAndFrameParents,
   i_LogForTaskThread,
+  i_ValueToStringConverter,
   u_MapType,
   u_ResStrings,
   u_ThreadDownloadTiles;
@@ -70,6 +71,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Panel1Resize(Sender: TObject);
   private
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadThread: TThreadDownloadTiles;
     FLog: ILogForTaskThread;
     FLastLogID: Cardinal;
@@ -87,6 +89,7 @@ type
   public
     constructor Create(
       AOwner: TComponent;
+      AValueToStringConverterConfig: IValueToStringConverterConfig;
       ADownloadThread: TThreadDownloadTiles;
       ALog: ILogForTaskThread;
       AMapUpdateEvent: TMapUpdateEvent
@@ -102,9 +105,7 @@ implementation
 
 uses
   SysUtils,
-  Graphics,
-  i_ValueToStringConverter,
-  u_GlobalState;
+  Graphics;
 
 {$R *.dfm}
 
@@ -141,12 +142,14 @@ end;
 
 constructor TfrmProgressDownload.Create(
   AOwner: TComponent;
+  AValueToStringConverterConfig: IValueToStringConverterConfig;
   ADownloadThread: TThreadDownloadTiles;
   ALog: ILogForTaskThread;
   AMapUpdateEvent: TMapUpdateEvent
 );
 begin
   inherited Create(AOwner);
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
   FMapUpdateEvent := AMapUpdateEvent;
   FDownloadThread := ADownloadThread;
   FLog := ALog;
@@ -212,7 +215,7 @@ begin
   end else begin
     VComplete := '~%';
   end;
-  VValueConverter := GState.ValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverterConfig.GetStatic;
   if FDownloadThread.Finished then begin
     if not FFinished then begin
       FFinished := True;
@@ -271,7 +274,7 @@ begin
   if loaded=0 then begin
     result:='~ Κα';
   end else begin
-    VValueConverter := GState.ValueToStringConverterConfig.GetStatic;
+    VValueConverter := FValueToStringConverterConfig.GetStatic;
     Result:= VValueConverter.DataSizeConvert((len/loaded)*(loadAll-obrab));
   end;
 end;

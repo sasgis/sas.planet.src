@@ -10,6 +10,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_ValueToStringConverter,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
   u_MapType,
@@ -20,12 +21,14 @@ type
   TProviderTilesDownload = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesDownload;
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
     FMapUpdateEvent: TMapUpdateEvent;
   public
     constructor Create(
       AParent: TWinControl;
+      AValueToStringConverterConfig: IValueToStringConverterConfig;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -58,6 +61,7 @@ uses
 
 constructor TProviderTilesDownload.Create(
   AParent: TWinControl;
+  AValueToStringConverterConfig: IValueToStringConverterConfig;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -67,6 +71,7 @@ constructor TProviderTilesDownload.Create(
 );
 begin
   inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
   FDownloadConfig := ADownloadConfig;
   FDownloadInfo := ADownloadInfo;
   FMapUpdateEvent := AMapUpdateEvent;
@@ -155,6 +160,7 @@ begin
   );
   TfrmProgressDownload.Create(
     Application,
+    FValueToStringConverterConfig,
     VThread,
     VThreadLog,
     FMapUpdateEvent

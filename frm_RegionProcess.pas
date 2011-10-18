@@ -51,6 +51,7 @@ uses
   i_MapCalibration,
   i_EcwDll,
   i_TileFileNameGeneratorsList,
+  i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   t_GeoTypes,
@@ -124,6 +125,7 @@ type
       AMapCalibrationList: IMapCalibrationList;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
+      AValueToStringConverterConfig: IValueToStringConverterConfig;
       AMapUpdateEvent: TMapUpdateEvent
     ); reintroduce;
     destructor Destroy; override;
@@ -171,6 +173,7 @@ constructor TfrmRegionProcess.Create(
   AMapCalibrationList: IMapCalibrationList;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
+  AValueToStringConverterConfig: IValueToStringConverterConfig;
   AMapUpdateEvent: TMapUpdateEvent
 );
 begin
@@ -212,6 +215,7 @@ begin
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
       TabSheet1,
+      AValueToStringConverterConfig,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
