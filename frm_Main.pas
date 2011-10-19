@@ -125,6 +125,7 @@ uses
   frm_Settings,
   frm_RegionProcess,
   frm_DGAvailablePic,
+  frm_MarksExplorer,
   frm_GoTo;
 
 type
@@ -623,6 +624,7 @@ type
     FfrmGoTo: TfrmGoTo;
     FfrmDGAvailablePic: TfrmDGAvailablePic;
     FfrmSettings: TfrmSettings;
+    FfrmMarksExplorer: TfrmMarksExplorer;
 
     FPathProvidersTree: ITreeChangeable;
     FPathProvidersTreeStatic: IStaticTreeItem;
@@ -675,10 +677,10 @@ type
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     procedure OnMinimize(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
+    procedure LayerMapMarksRedraw(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure LayerMapMarksRedraw;
   end;
 
 var
@@ -691,7 +693,6 @@ uses
   u_GlobalState,
   frm_About,
   frm_LonLatRectEdit,
-  frm_MarksExplorer,
   c_ZeroGUID,
   c_SasVersion,
   c_GeoCoderGUIDSimple,
@@ -1401,6 +1402,18 @@ begin
 
     FfrmSettings.SetProxy;
 
+    FfrmMarksExplorer :=
+      TfrmMarksExplorer.Create(
+        GState.LanguageManager,
+        GState.ImportFileByExt,
+        FConfig.ViewPortState,
+        FConfig.NavToPoint,
+        FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
+        FMarkDBGUI,
+        Self.LayerMapMarksRedraw,
+        TMapViewGotoOnFMain.Create(Self.topos)
+      );
+
     FLinksList.ActivateLinks;
     FLayersList.StartThreads;
     GState.StartThreads;
@@ -1716,6 +1729,7 @@ begin
   FreeAndNil(FfrmGoTo);
   FreeAndNil(FfrmDGAvailablePic);
   FreeAndNil(FfrmSettings);
+  FreeAndNil(FfrmMarksExplorer);
   inherited;
 end;
 
@@ -3333,7 +3347,7 @@ begin
     VMark
   );
   if VMark <> nil then begin
-    frmMarksExplorer.ExportMark(VMark);
+    FfrmMarksExplorer.ExportMark(VMark);
   end;
 end;
 
@@ -4130,10 +4144,10 @@ end;
 
 procedure TfrmMain.TBItem6Click(Sender: TObject);
 begin
-  frmMarksExplorer.EditMarks(FMarkDBGUI, TMapViewGotoOnFMain.Create(Self.topos));
+  FfrmMarksExplorer.EditMarks;
 end;
 
-procedure TfrmMain.LayerMapMarksRedraw;
+procedure TfrmMain.LayerMapMarksRedraw(Sender: TObject);
 begin
   FLayerMapMarks.Redraw;
 end;

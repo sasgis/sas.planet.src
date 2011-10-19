@@ -44,15 +44,19 @@ uses
   u_ResStrings,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
+  i_LanguageManager,
+  i_ViewPortState,
+  i_NavigationToPoint,
+  i_UsedMarksConfig,
   i_MapViewGoto,
+  i_ImportFile,
   i_MarksSimple,
   i_MarkCategory,
   i_StaticTreeItem,
-  u_MarksDbGUIHelper,
-  frm_Main;
+  u_MarksDbGUIHelper;
 
 type
-  TfrmMarksExplorer = class(TCommonFormParent)
+  TfrmMarksExplorer = class(TFormWitghLanguageManager)
     grpMarks: TGroupBox;
     MarksListBox: TCheckListBox;
     grpCategory: TGroupBox;
@@ -120,29 +124,60 @@ type
     FCategoryList: IInterfaceList;
     FMarksList: IInterfaceList;
     FMarkDBGUI: TMarksDbGUIHelper;
+    FImportFileByExt: IImportFile;
+    FMarksShowConfig: IUsedMarksConfig;
+    FViewPortState: IViewPortState;
+    FNavToPoint: INavigationToPoint;
+    FOnNeedRedraw: TNotifyEvent;
     procedure UpdateCategoryTree;
     function GetSelectedCategory: IMarkCategory;
     procedure UpdateMarksList;
     function GetSelectedMarkId: IMarkId;
     function GetSelectedMarkFull: IMark;
   public
-    procedure EditMarks(AMarkDBGUI: TMarksDbGUIHelper; AMapGoto: IMapViewGoto);
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AImportFileByExt: IImportFile;
+      AViewPortState: IViewPortState;
+      ANavToPoint: INavigationToPoint;
+      AMarksShowConfig: IUsedMarksConfig;
+      AMarkDBGUI: TMarksDbGUIHelper;
+      AOnNeedRedraw: TNotifyEvent;
+      AMapGoto: IMapViewGoto
+    ); reintroduce;
+    procedure EditMarks;
     procedure ExportMark(AMark: IMark);
   end;
-
-var
-  frmMarksExplorer: TfrmMarksExplorer;
 
 implementation
 
 uses
-  u_GlobalState,
   i_ImportConfig,
-  i_UsedMarksConfig,
   u_ExportMarks2KML,
   u_GeoFun;
 
 {$R *.dfm}
+
+constructor TfrmMarksExplorer.Create(
+  ALanguageManager: ILanguageManager;
+  AImportFileByExt: IImportFile;
+  AViewPortState: IViewPortState;
+  ANavToPoint: INavigationToPoint;
+  AMarksShowConfig: IUsedMarksConfig;
+  AMarkDBGUI: TMarksDbGUIHelper;
+  AOnNeedRedraw: TNotifyEvent;
+  AMapGoto: IMapViewGoto
+);
+begin
+  inherited Create(ALanguageManager);
+  FMarkDBGUI := AMarkDBGUI;
+  FMapGoto := AMapGoto;
+  FImportFileByExt := AImportFileByExt;
+  FMarksShowConfig := AMarksShowConfig;
+  FViewPortState := AViewPortState;
+  FNavToPoint := ANavToPoint;
+  FOnNeedRedraw := AOnNeedRedraw;
+end;
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
   procedure AddTreeSubItems(ATree: IStaticTreeItem; AParentNode: TTreeNode; ATreeItems: TTreeNodes);
@@ -268,7 +303,7 @@ begin
     if (FileExists(VFileName)) then begin
       VImportConfig := FMarkDBGUI.EditModalImportConfig;
       if VImportConfig <> nil then begin
-        GState.ImportFileByExt.ProcessImport(VFileName, VImportConfig);
+        FImportFileByExt.ProcessImport(VFileName, VImportConfig);
       end;
       UpdateCategoryTree;
       UpdateMarksList;
@@ -302,11 +337,11 @@ begin
     if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
       VOnlyVisible := (TComponent(Sender).tag = 1);
       if VOnlyVisible then begin
-        VCategoryList := GState.MarksDb.GetVisibleCategoriesIgnoreZoom;
+        VCategoryList := FMarkDBGUI.MarksDb.GetVisibleCategoriesIgnoreZoom;
       end else begin
-        VCategoryList := GState.MarksDb.CategoryDB.GetCategoriesList;
+        VCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
       end;
-      VMarksSubset := GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategoryList, (not VOnlyVisible));
+      VMarksSubset := FMarkDBGUI.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategoryList, (not VOnlyVisible));
 
       KMLExport.ExportToKML(VCategoryList, VMarksSubset, ExportDialog.FileName);
     end;
@@ -317,27 +352,29 @@ end;
 
 procedure TfrmMarksExplorer.btnApplyClick(Sender: TObject);
 begin
-  GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.LockWrite;
+  FMarksShowConfig.LockWrite;
   try
     case rgMarksShowMode.ItemIndex of
       0: begin
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := True;
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreCategoriesVisible := False;
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible := False;
+        FMarksShowConfig.IsUseMarks := True;
+        FMarksShowConfig.IgnoreCategoriesVisible := False;
+        FMarksShowConfig.IgnoreMarksVisible := False;
 
       end;
       1: begin
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := True;
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreCategoriesVisible := True;
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible := True;
+        FMarksShowConfig.IsUseMarks := True;
+        FMarksShowConfig.IgnoreCategoriesVisible := True;
+        FMarksShowConfig.IgnoreMarksVisible := True;
       end;
     else
-      GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := False;
+      FMarksShowConfig.IsUseMarks := False;
     end;
   finally
-    GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.UnlockWrite;
+    FMarksShowConfig.UnlockWrite;
   end;
-  frmMain.LayerMapMarksRedraw;
+  if Assigned(FOnNeedRedraw) then begin
+    FOnNeedRedraw(nil);
+  end;
 end;
 
 procedure TfrmMarksExplorer.btnDelMarkClick(Sender: TObject);
@@ -372,7 +409,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    FMapGoto.GotoPos(VMark.GetGoToLonLat, GState.MainFormConfig.ViewPortState.GetCurrentZoom);
+    FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetCurrentZoom);
   end;
 end;
 
@@ -397,12 +434,12 @@ begin
     VMark := GetSelectedMarkFull;
     if VMark <> nil then begin
       LL := VMark.GetGoToLonLat;
-      GState.MainFormConfig.NavToPoint.StartNavToMark(VMark as IMarkId, LL);
+      FNavToPoint.StartNavToMark(VMark as IMarkId, LL);
     end else begin
       btnNavOnMark.Checked:=not btnNavOnMark.Checked;
     end;
   end else begin
-    GState.MainFormConfig.NavToPoint.StopNav;
+    FNavToPoint.StopNav;
   end;
 end;
 
@@ -412,7 +449,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    if FMarkDBGUI.OperationMark(VMark, GState.MainFormConfig.ViewPortState.GetCurrentZoom, GState.MainFormConfig.ViewPortState.GetCurrentCoordConverter) then begin
+    if FMarkDBGUI.OperationMark(VMark, FViewPortState.GetCurrentZoom, FViewPortState.GetCurrentCoordConverter) then begin
       ModalResult := mrOk;
     end;
   end;
@@ -527,7 +564,7 @@ begin
     try
       ExportDialog.FileName:=StringReplace(VCategory.name,'\','-',[rfReplaceAll]);
       if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-        VMarksSubset := GState.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategory, (not TComponent(Sender).tag=1));
+        VMarksSubset := FMarkDBGUI.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategory, (not TComponent(Sender).tag=1));
         KMLExport.ExportCategoryToKML(VCategory, VMarksSubset, ExportDialog.FileName);
       end;
     finally
@@ -562,17 +599,13 @@ begin
   end;
 end;
 
-procedure TfrmMarksExplorer.EditMarks(
-  AMarkDBGUI: TMarksDbGUIHelper; AMapGoto: IMapViewGoto
-);
+procedure TfrmMarksExplorer.EditMarks;
 var
   VModalResult: Integer;
 begin
-  FMarkDBGUI := AMarkDBGUI;
-  FMapGoto := AMapGoto;
   UpdateCategoryTree;
   UpdateMarksList;
-  btnNavOnMark.Checked:= GState.MainFormConfig.NavToPoint.IsActive;
+  btnNavOnMark.Checked:= FNavToPoint.IsActive;
   try
     VModalResult := ShowModal;
     if VModalResult = mrOk then begin
@@ -608,7 +641,7 @@ procedure TfrmMarksExplorer.FormActivate(Sender: TObject);
 var
   VMarksConfig: IUsedMarksConfigStatic;
 begin
-  VMarksConfig := GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.GetStatic;
+  VMarksConfig := FMarksShowConfig.GetStatic;
   if VMarksConfig.IsUseMarks then begin
     if VMarksConfig.IgnoreCategoriesVisible and VMarksConfig.IgnoreMarksVisible then begin
       rgMarksShowMode.ItemIndex := 1;

@@ -670,7 +670,6 @@ begin
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
     Application.CreateForm(TfrmAbout, frmAbout);
-    Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
     GState.StartExceptionTracking;
     try
       Application.Run;
