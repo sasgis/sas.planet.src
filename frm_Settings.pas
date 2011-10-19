@@ -308,7 +308,7 @@ begin
     TNotifyEventListener.Create(Self.GPSReceiverReceive),
     GState.GPSpar.DataReciveNotifier
   );
-  frShortCutList := TfrShortCutList.Create(GState.LanguageManager);
+  frShortCutList := TfrShortCutList.Create(ALanguageManager);
   PageControl1.ActivePageIndex:=0;
 end;
 
