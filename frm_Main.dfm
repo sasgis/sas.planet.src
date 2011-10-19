@@ -552,6 +552,50 @@ object frmMain: TfrmMain
             Caption = ''
             Hint = ''
           end
+          object TBXSeparatorItem20: TTBXSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          object NFillMode1: TTBXItem
+            Tag = 99
+            Checked = True
+            GroupIndex = 2
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NFillMode1Click
+            Caption = 'Mark Unexisting Tiles'
+            Hint = ''
+          end
+          object NFillMode2: TTBXItem
+            Tag = 99
+            GroupIndex = 2
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NFillMode2Click
+            Caption = 'Mark Existing Tiles'
+            Hint = ''
+          end
+          object NFillMode3: TTBXItem
+            Tag = 99
+            GroupIndex = 2
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NFillMode3Click
+            Caption = 'FileAge Gradient'
+            Hint = ''
+          end
+          object TBXSeparatorItem21: TTBXSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          object NFillToolBar: TTBXItem
+            Tag = 99
+            GroupIndex = 1
+            Images = MenusImageList
+            OnClick = NFillToolBarClick
+            Caption = 'Show Time Interval'
+            Hint = ''
+          end
         end
         object NShowGran: TTBXSubmenuItem
           ImageIndex = 3
@@ -1125,6 +1169,69 @@ object frmMain: TfrmMain
         Caption = ''
         Hint = ''
         EditCaption = 'Search'
+      end
+    end
+    object FillToolBar: TTBXToolbar
+      Left = 629
+      Top = 0
+      DefaultDock = TBDock
+      DockPos = 643
+      TabOrder = 7
+      Visible = False
+      Caption = 'FillToolBar'
+      object TBControlItem7: TTBControlItem
+        Control = Label1
+        Caption = ''
+        Hint = ''
+      end
+      object TBControlItem6: TTBControlItem
+        Control = DateTimePicker1
+        Caption = ''
+        Hint = ''
+      end
+      object TBControlItem8: TTBControlItem
+        Control = Label2
+        Caption = ''
+        Hint = ''
+      end
+      object TBControlItem9: TTBControlItem
+        Control = DateTimePicker2
+        Caption = ''
+        Hint = ''
+      end
+      object Label1: TLabel
+        Left = 0
+        Top = 4
+        Width = 42
+        Height = 13
+        Caption = 'Fill From '
+      end
+      object Label2: TLabel
+        Left = 123
+        Top = 4
+        Width = 15
+        Height = 13
+        Caption = 'To '
+      end
+      object DateTimePicker1: TDateTimePicker
+        Left = 42
+        Top = 0
+        Width = 81
+        Height = 21
+        Date = 40830.496065717590000000
+        Time = 40830.496065717590000000
+        TabOrder = 0
+        OnChange = DateTimePicker1Change
+      end
+      object DateTimePicker2: TDateTimePicker
+        Left = 203
+        Top = 21
+        Width = 81
+        Height = 21
+        Date = 40830.496065717590000000
+        Time = 40830.496065717590000000
+        TabOrder = 1
+        OnChange = DateTimePicker2Change
       end
     end
   end

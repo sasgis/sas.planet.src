@@ -29,6 +29,7 @@ uses
   Dialogs,
   GR32,
   t_GeoTypes,
+  t_FillingMapModes,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -211,7 +212,11 @@ type
       ASourceZoom: byte;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
-      ATNEColor: TColor32
+      ATNEColor: TColor32;
+      AFillMode: TFillMode;
+      AFilterMode: Boolean;
+      AFillFirstDay: TDateTime;
+      AFillLastDay: TDateTime
     ): boolean;
     function GetShortFolderName: string;
     function DownloadTile(
@@ -636,7 +641,11 @@ function TMapType.LoadFillingMap(
   Azoom, ASourceZoom: byte;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
-  ATNEColor: TColor32
+  ATNEColor: TColor32;
+  AFillMode: TFillMode;
+  AFilterMode: Boolean;
+  AFillFirstDay: TDateTime;
+  AFillLastDay: TDateTime
 ): boolean;
 begin
   Result :=
@@ -650,7 +659,11 @@ begin
       FVersionConfig.GetStatic,
       ANoTileColor,
       AShowTNE,
-      ATNEColor
+      ATNEColor,
+      AFillMode,
+      AFilterMode,
+      AFillFirstDay,
+      AFillLastDay
     );
 end;
 

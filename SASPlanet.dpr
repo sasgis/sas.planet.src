@@ -16,6 +16,7 @@ uses
   c_SensorsGUIDSimple in 'c_SensorsGUIDSimple.pas',
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
+  t_FillingMapModes in 't_FillingMapModes.pas',
   i_GUIDListStatic in 'i_GUIDListStatic.pas',
   u_GUIDListStatic in 'u_GUIDListStatic.pas',
   i_Datum in 'i_Datum.pas',

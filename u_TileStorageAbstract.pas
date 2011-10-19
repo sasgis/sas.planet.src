@@ -26,6 +26,7 @@ uses
   Types,
   Classes,
   GR32,
+  t_FillingMapModes,
   i_OperationNotifier,
   i_CoordConverter,
   i_SimpleTileStorageConfig,
@@ -99,7 +100,11 @@ type
       AVersionInfo: IMapVersionInfo;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
-      ATNEColor: TColor32
+      ATNEColor: TColor32;
+      AFillMode: TFillMode;
+      AFilterMode: Boolean;
+      AFillFirstDay: TDateTime;
+      AFillLastDay: TDateTime
     ): boolean; virtual;
   end;
 
@@ -126,7 +131,11 @@ function TTileStorageAbstract.LoadFillingMap(
   AVersionInfo: IMapVersionInfo;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
-  ATNEColor: TColor32
+  ATNEColor: TColor32;
+  AFillMode: TFillMode;
+  AFilterMode: Boolean;
+  AFillFirstDay: TDateTime;
+  AFillLastDay: TDateTime
 ): boolean;
 var
   VPixelsRect: TRect;

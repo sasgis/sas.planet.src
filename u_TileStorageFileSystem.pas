@@ -27,7 +27,9 @@ uses
   Types,
   Classes,
   SysUtils,
+  DateUtils,
   GR32,
+  t_FillingMapModes,
   i_OperationNotifier,
   i_SimpleTileStorageConfig,
   i_CoordConverter,
@@ -118,7 +120,11 @@ type
       AVersionInfo: IMapVersionInfo;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
-      ATNEColor: TColor32
+      ATNEColor: TColor32;
+      AFillMode: TFillMode;
+      AFilterMode: Boolean;
+      AFillFirstDay: TDateTime;
+      AFillLastDay: TDateTime
     ): boolean; override;
   end;
 
@@ -307,7 +313,11 @@ function TTileStorageFileSystem.LoadFillingMap(
   AVersionInfo: IMapVersionInfo;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
-  ATNEColor: TColor32
+  ATNEColor: TColor32;
+  AFillMode: TFillMode;
+  AFilterMode: Boolean;
+  AFillFirstDay: TDateTime;
+  AFillLastDay: TDateTime
 ): boolean;
 var
   VPixelsRect: TRect;
@@ -326,6 +336,14 @@ var
   VFolderExists: Boolean;
   VFileExists: Boolean;
   VGeoConvert: ICoordConverter;
+  VDrawing: Boolean;
+  VFileDate: TDateTime;
+  VDateCompare: TValueRelationship;
+  VFileAttributes: TWin32FileAttributeData;
+  VSystemTime: TSystemTime;
+  VGradientColor: TColor32;
+  VC1,VC2: Double;
+  VGradientDays: integer;
 begin
   Result := true;
   try
@@ -346,6 +364,7 @@ begin
     VPrevFolderName := '';
     VPrevFolderExist := False;
     begin
+      VGradientDays:=Trunc(AFillLastDay+1.0-AFillFirstDay);
       VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
         or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
@@ -365,8 +384,58 @@ begin
         end else begin
           VFileExists := False;
         end;
-
-        if not VFileExists then begin
+        VDrawing := False;
+        VTileColor := ANoTileColor;
+        if (not VFileExists) and (AFillMode=fmUnexisting) then VDrawing := True;
+        if VFileExists and (AFillMode=fmExisting) then begin
+          if AFilterMode then begin
+            ZeroMemory(@VFileAttributes, SizeOf(TWin32FileAttributeData));
+            GetFileAttributesEx(PAnsiChar(VFileName), GetFileExInfoStandard, @VFileAttributes);
+            FileTimeToLocalFileTime(VFileAttributes.ftLastWriteTime, VFileAttributes.ftLastWriteTime);
+            FileTimeToSystemTime(VFileAttributes.ftLastWriteTime, VSystemTime);
+            VFileDate := SystemTimeToDateTime(VSystemTime);
+            VDateCompare :=CompareDate(VFileDate,AFillLastDay);
+            if(VDateCompare<GreaterThanValue) then begin
+              VDateCompare :=CompareDate(VFileDate,AFillFirstDay);
+              if(VDateCompare>LessThanValue) then VDrawing := True;
+            end;
+          end else begin
+            VDrawing := True;
+          end;
+        end;
+        if VFileExists and (AFillMode=fmGradient) then begin
+          ZeroMemory(@VFileAttributes, SizeOf(TWin32FileAttributeData));
+          GetFileAttributesEx(PAnsiChar(VFileName), GetFileExInfoStandard, @VFileAttributes);
+          FileTimeToLocalFileTime(VFileAttributes.ftLastWriteTime, VFileAttributes.ftLastWriteTime);
+          FileTimeToSystemTime(VFileAttributes.ftLastWriteTime, VSystemTime);
+          VFileDate := SystemTimeToDateTime(VSystemTime);
+          VDateCompare :=CompareDate(VFileDate,AFillLastDay);
+          if(VDateCompare<>GreaterThanValue) then begin
+            VDateCompare :=CompareDate(VFileDate,AFillFirstDay);
+            if(VDateCompare<>LessThanValue) then begin
+              VFileDate := AFillLastDay+1.0-VFileDate;
+              VDrawing := True;
+              VC1 := 255.0*(-1.0+2.0*VFileDate/VGradientDays);
+              if(VC1>255.0) then VC1 := 255.0;
+              if(VC1<0.0) then VC1 := 0.0;
+              VC2 := 255.0*2.0*VFileDate/VGradientDays;
+              if(VC2>255.0) then VC2 := 255.0;
+              if(VC2<0.0) then VC2 := 0.0;
+              TColor32Entry(VGradientColor).A := 0;
+              TColor32Entry(VGradientColor).R := Trunc(VC1);
+              TColor32Entry(VGradientColor).G := Trunc(255.0-VC2);
+              TColor32Entry(VGradientColor).B := Trunc(VC2-VC1);
+              VTileColor := SetAlpha(VGradientColor,AlphaComponent(ANoTileColor));
+            end;
+          end;
+        end;
+        if (not VFileExists) and AShowTNE then begin
+          if VFolderExists then begin
+            VFileName := ChangeFileExt(VFileName, '.tne');
+            if FileExists(VFileName) then VTileColor := ATNEColor;
+          end;
+        end;
+        if VDrawing then begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
           VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
@@ -389,20 +458,6 @@ begin
           if not VSolidDrow then begin
             Dec(VSourceTilePixels.Right);
             Dec(VSourceTilePixels.Bottom);
-          end;
-          if AShowTNE then begin
-            if VFolderExists then begin
-              VFileName := ChangeFileExt(VFileName, '.tne');
-              if FileExists(VFileName) then begin
-                VTileColor := ATNEColor;
-              end else begin
-                VTileColor := ANoTileColor;
-              end;
-            end else begin
-              VTileColor := ANoTileColor;
-            end;
-          end else begin
-            VTileColor := ANoTileColor;
           end;
           if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
              ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
