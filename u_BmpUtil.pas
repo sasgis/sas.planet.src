@@ -66,8 +66,8 @@ type
   private
     FStream: TFileStream;
     FBitmapSize: Int64;
-    FWidth: LongInt;
-    FHeight: LongInt;
+    FWidth: Int64;
+    FHeight: Int64;
     function WriteHeader(AWidth: Integer; AHeight: Integer): Boolean;
   public
     constructor Create(
@@ -101,7 +101,7 @@ begin
   FStream := nil;
   FWidth := AWidth;
   FHeight := AHeight;
-  FBitmapSize := AWidth * AHeight * 3 + (AWidth mod 4) * AHeight;
+  FBitmapSize := FWidth * FHeight * 3 + (FWidth mod 4) * FHeight;
   if FBitmapSize < BMP_SIZE_LIMIT then begin
     FStream := TFileStream.Create(AFileName, fmCreate);
     FStream.Size := SizeOf(TBitmapFileHeader) + SizeOf(TBitmapInfoHeader) + FBitmapSize;
