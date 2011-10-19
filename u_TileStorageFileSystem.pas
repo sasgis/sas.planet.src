@@ -49,6 +49,7 @@ type
     FCacheConfig: TMapTypeCacheConfigAbstract;
     FMainContentType: IContentTypeInfoBasic;
     FFormatSettings: TFormatSettings;
+    FTileNotExistsTileInfo: ITileInfoBasic;
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByPath(
       APath: string;
@@ -154,6 +155,7 @@ begin
   FFormatSettings.ShortTimeFormat := 'HH-mm-ss';
   FFormatSettings.ListSeparator := ';';
   FFormatSettings.TwoDigitYearCenturyWindow := 50;
+  FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
   FCacheConfig := TMapTypeCacheConfig.Create(AConfig, AGlobalCacheConfig, ATileNameGeneratorList);
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
@@ -273,7 +275,7 @@ begin
       APath := ChangeFileExt(APath, '.tne');
       VSearchResult := FindFirst(APath, faAnyFile, InfoFile);
       if VSearchResult <> 0 then begin
-        Result := TTileInfoBasicNotExists.Create(0, nil);
+        Result := FTileNotExistsTileInfo;
       end else begin
         Result := TTileInfoBasicTNE.Create(FileDateToDateTime(InfoFile.Time), nil);
         FindClose(InfoFile);
