@@ -156,7 +156,7 @@ function TBitmapFile.Write(
 var
   VInputArray: PLineRGBb;
   I: Integer;
-  k1,k2: Integer;
+  k1,k2: Int64;
   ReadLine: TBMPRead;
 begin
   Result := False;
