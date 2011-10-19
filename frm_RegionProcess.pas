@@ -99,6 +99,7 @@ type
     procedure savefilesREG(APolyLL: TArrayOfDoublePoint);
     procedure ExportREG(APolyLL: TArrayOfDoublePoint);
     procedure InitExportsList(
+      ALanguageManager: ILanguageManager;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -181,6 +182,7 @@ begin
   inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
   InitExportsList(
+    ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,
     AGUIConfigList,
@@ -191,6 +193,7 @@ begin
   FProviderTilesDelte :=
     TProviderTilesDelete.Create(
       TabSheet4,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList
@@ -198,6 +201,7 @@ begin
   FProviderTilesGenPrev :=
     TProviderTilesGenPrev.Create(
       TabSheet3,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -207,6 +211,7 @@ begin
   FProviderTilesCopy :=
     TProviderTilesCopy.Create(
       TabSheet6,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -215,6 +220,7 @@ begin
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
       TabSheet1,
+      ALanguageManager,
       AValueToStringConverterConfig,
       AMainMapsConfig,
       AFullMapsSet,
@@ -226,6 +232,7 @@ begin
   FProviderMapCombine :=
     TProviderMapCombine.Create(
       TabSheet2,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -339,6 +346,7 @@ begin
 end;
 
 procedure TfrmRegionProcess.InitExportsList(
+  ALanguageManager: ILanguageManager;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -351,6 +359,7 @@ begin
   VExportProvider :=
     TExportProviderIPhone.Create(
       pnlExport,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -362,6 +371,7 @@ begin
   VExportProvider :=
     TExportProviderIPhone.Create(
       pnlExport,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -373,6 +383,7 @@ begin
   VExportProvider :=
     TExportProviderGEKml.Create(
       pnlExport,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList
@@ -382,6 +393,7 @@ begin
   VExportProvider :=
     TExportProviderYaMobileV3.Create(
       pnlExport,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -392,6 +404,7 @@ begin
   VExportProvider :=
     TExportProviderYaMobileV4.Create(
       pnlExport,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -402,6 +415,7 @@ begin
   VExportProvider :=
     TExportProviderAUX.Create(
       pnlExport,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList
@@ -411,6 +425,7 @@ begin
   VExportProvider :=
     TExportProviderZip.Create(
       pnlExport,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -421,6 +436,7 @@ begin
   VExportProvider :=
     TExportProviderTar.Create(
       pnlExport,
+      ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,

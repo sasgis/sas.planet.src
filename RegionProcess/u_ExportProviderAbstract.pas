@@ -6,6 +6,7 @@ uses
   Classes,
   Controls,
   Forms,
+  i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -13,14 +14,22 @@ uses
 
 type
   TExportProviderAbstract = class
-  protected
+  private
     FParent: TWinControl;
+    FLanguageManager: ILanguageManager;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+  protected
+    property Parent: TWinControl read FParent;
+    property LanguageManager: ILanguageManager read FLanguageManager;
+    property MainMapsConfig: IMainMapsConfig read FMainMapsConfig;
+    property FullMapsSet: IMapTypeSet read FFullMapsSet;
+    property GUIConfigList: IMapTypeGUIConfigList read FGUIConfigList;
   public
     constructor Create(
       AParent: TWinControl;
+      ALanguageManager: ILanguageManager;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList
@@ -39,12 +48,14 @@ implementation
 
 constructor TExportProviderAbstract.Create(
   AParent: TWinControl;
+  ALanguageManager: ILanguageManager;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList
 );
 begin
   FParent := AParent;
+  FLanguageManager := ALanguageManager;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;

@@ -6,6 +6,7 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -21,6 +22,7 @@ type
   public
     constructor Create(
       AParent: TWinControl;
+      ALanguageManager: ILanguageManager;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -46,12 +48,16 @@ uses
 
 { TExportProviderTar }
 
-constructor TExportProviderTar.Create(AParent: TWinControl;
-  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
+constructor TExportProviderTar.Create(
+  AParent: TWinControl;
+  ALanguageManager: ILanguageManager;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
-  ATileNameGenerator: ITileFileNameGeneratorsList);
+  ATileNameGenerator: ITileFileNameGeneratorsList
+);
 begin
-  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FTileNameGenerator := ATileNameGenerator;
 end;
 
@@ -71,14 +77,14 @@ begin
   if FFrame = nil then begin
     FFrame := TfrExportToFileCont.CreateForFileType(
       nil,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList,
       'Tar |*.tar',
       'tar'
     );
     FFrame.Visible := False;
-    FFrame.Parent := FParent;
+    FFrame.Parent := Self.Parent;
   end;
   FFrame.Init;
 end;

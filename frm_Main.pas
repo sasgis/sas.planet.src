@@ -4390,7 +4390,7 @@ begin
             GState.DownloadInfo,
             FConfig.ViewPortState.GetCurrentZoom
           );
-        TfrmProgressDownload.Create(Application, GState.ValueToStringConverterConfig, VThread, VThreadLog, Self.OnMapUpdate);
+        TfrmProgressDownload.Create(GState.LanguageManager, GState.ValueToStringConverterConfig, VThread, VThreadLog, Self.OnMapUpdate);
       end else if ExtractFileExt(VFileName)='.hlg' then begin
         setalloperationfalse(ao_movemap);
         FFormRegionProcess.LoadSelFromFile(VFileName);

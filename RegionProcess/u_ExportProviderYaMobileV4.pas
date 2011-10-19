@@ -6,6 +6,7 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -21,6 +22,7 @@ type
   public
     constructor Create(
       AParent: TWinControl;
+      ALanguageManager: ILanguageManager;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -46,12 +48,16 @@ uses
 
 { TExportProviderYaMaps }
 
-constructor TExportProviderYaMobileV4.Create(AParent: TWinControl;
-  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
+constructor TExportProviderYaMobileV4.Create(
+  AParent: TWinControl;
+  ALanguageManager: ILanguageManager;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
-  ACoordConverterFactory: ICoordConverterFactory);
+  ACoordConverterFactory: ICoordConverterFactory
+);
 begin
-  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FCoordConverterFactory := ACoordConverterFactory;
 end;
 
@@ -71,12 +77,12 @@ begin
   if FFrame = nil then begin
     FFrame := TfrExportYaMobileV4.Create(
       nil,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList
     );
     FFrame.Visible := False;
-    FFrame.Parent := FParent;
+    FFrame.Parent := Self.Parent;
   end;
   FFrame.Init;
 end;

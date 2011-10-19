@@ -35,13 +35,14 @@ uses
   RarProgress,
   u_CommonFormAndFrameParents,
   i_LogForTaskThread,
+  i_LanguageManager,
   i_ValueToStringConverter,
   u_MapType,
   u_ResStrings,
   u_ThreadDownloadTiles;
 
 type
-  TfrmProgressDownload = class(TCommonFormParent)
+  TfrmProgressDownload = class(TFormWitghLanguageManager)
     Panel1: TPanel;
     Memo1: TMemo;
     LabelValue0: TLabel;
@@ -88,14 +89,13 @@ type
     procedure StopThread;
   public
     constructor Create(
-      AOwner: TComponent;
+      ALanguageManager: ILanguageManager;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
       ADownloadThread: TThreadDownloadTiles;
       ALog: ILogForTaskThread;
       AMapUpdateEvent: TMapUpdateEvent
     ); reintroduce; virtual;
     destructor Destroy; override;
-    procedure RefreshTranslation; override;
 
     property DownloadThread: TThreadDownloadTiles read FDownloadThread;
   public
@@ -141,14 +141,14 @@ begin
 end;
 
 constructor TfrmProgressDownload.Create(
-  AOwner: TComponent;
+  ALanguageManager: ILanguageManager;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
   ADownloadThread: TThreadDownloadTiles;
   ALog: ILogForTaskThread;
   AMapUpdateEvent: TMapUpdateEvent
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FMapUpdateEvent := AMapUpdateEvent;
   FDownloadThread := ADownloadThread;
@@ -198,11 +198,6 @@ procedure TfrmProgressDownload.Panel1Resize(Sender: TObject);
 begin
   FRarProgress.Top:=TPanel(sender).Height-48;
   FRarProgress.Width:=TPanel(sender).Width-14;
-end;
-
-procedure TfrmProgressDownload.RefreshTranslation;
-begin
-  inherited;
 end;
 
 procedure TfrmProgressDownload.UpdateProgressForm;
