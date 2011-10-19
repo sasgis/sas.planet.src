@@ -99,6 +99,7 @@ end;
 procedure TThreadMapCombineBMP.saveRECT;
 var
   k: integer;
+  VBMP: TBitmapFile;
 begin
   sx := (FCurrentPieceRect.Left mod 256);
   sy := (FCurrentPieceRect.Top mod 256);
@@ -112,7 +113,12 @@ begin
     for k := 0 to 255 do begin
       getmem(FArray256BGR[k], (FMapPieceSize.X + 1) * 3);
     end;
-    SaveBMP(OperationID, CancelNotifier, FMapPieceSize.X, FMapPieceSize.Y, FCurrentFileName, ReadLineBMP);
+    VBMP := TBitmapFile.Create(FCurrentFileName, FMapPieceSize.X, FMapPieceSize.Y);
+    try
+      VBMP.Write(OperationID, CancelNotifier, ReadLineBMP);
+    finally
+      VBMP.Free;
+    end;
   finally
     {$IFDEF VER80}
     for k := 0 to 255 do begin

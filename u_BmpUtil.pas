@@ -23,115 +23,164 @@ unit u_BmpUtil;
 interface
 
 uses
+  Windows,
+  Classes,
+  SysUtils,
   i_OperationNotifier;
 
 type
   TBGR= record
-   b,g,r:byte;
+   B: Byte;
+   G: Byte;
+   R: Byte;
   end;
 
-  PlineRGBb = ^TlineRGBb;
-  TlineRGBb = array[0..0] of TBGR;
+  PLineRGBb = ^TlineRGBb;
+  TLineRGBb = array[0..0] of TBGR;
 
-  TBMPRead = procedure(Line:cardinal;InputArray:PLineRGBb) of object;
+  TBMPRead = procedure(ALine: Cardinal; AInputArray: PLineRGBb) of object;
 
-  procedure SaveBMP(
-    AOperationID: Integer;
-    ACancelNotifier: IOperationNotifier;
-    W, H : integer;
-    tPath : string;
-    readcallback:TBMPRead
-  );
+  TBitmapFileHeader = packed record  // File Header for Windows/OS2 bitmap file
+    Magic: Word;                     // Сигнатура: 'BM'
+    Size: LongWord;                  // Размер файла
+    Reserved1: Word;                 // -
+    Reserved2: Word;                 // -
+    Offset: LongWord;                // Смещение от начала файла до начала изображения
+  end;
+
+  TBitmapInfoHeader = packed record  // Info Header for Windows bitmap file
+    Size: LongWord;                  // Длина заголовка, byte (=40)
+    Width: LongInt;                  // Ширина изображения, pix
+    Height: LongInt;                 // Высота изображения, pix
+    Planes: Word;                    // Число плоскостей (=1)
+    BitCount: Word;                  // Глубина цвета, bit/pix (=24)
+    Compression: LongWord;           // Тип сжатия для сжатых изображений (=0)
+    SizeImage: LongWord;             // Размер изображения, byte
+    XPelsPerMeter: LongInt;          // Горизонтальное разрешение в пикселах на метр
+    YPelsPerMeter: LongInt;          // Вертикальное разрешение в пикселах на метр
+    ClrUsed: LongInt;                // Число цветов (0 - использовать максимально-допустимое)
+    ClrImportant: LongInt;           // Число основных цветов
+  end;
+
+  TBitmapFile = class
+  private
+    FStream: TFileStream;
+    FBitmapSize: Int64;
+    FWidth: LongInt;
+    FHeight: LongInt;
+    function WriteHeader(AWidth: Integer; AHeight: Integer): Boolean;
+  public
+    constructor Create(
+      const AFileName: string;
+      AWidth: LongInt;
+      AHeight: LongInt
+    );
+    destructor Destroy; override;
+    function Write(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
+      AReadCallBack: TBMPRead
+    ): Boolean;
+  end;
 
 implementation
 
-type
-  bmFileHeader = record	{заголовок файла}
-    //Typf : word;        {сигнатура }
-    Size : longint;     {длина файла в байтах}
-    Res1 : word;        {зарезервировано}
-    Res2 : word;        {зарезервировано}
-    OfBm : longint;     {смещение изображения в байтах (1078) = $36}
-  end;
-  bmInfoHeader = record   {информационный заголовок}
-    Size : longint;       {длина заголовка в байтах (40) = $28}
-    Widt : longint;       {ширина изображения (в точках)}
-    Heig : longint;       {высота изображения (в точках)}
-    Plan : word;          {число плоскостей (1)}
-    BitC : word;          {глубина цвета (бит на точку) (8)}
-    Comp : longint;       {тип компрессии (0 - нет)}
-    SizI : longint;       {размер изображения в байтах}
-    XppM : longint;       {горизонтальное разрешение}
- 		          {(точек на метр - обычно 0)}
-    YppM : longint;       {вертикальное разрешение}
-		          {(точек на метр - обычно 0)}
-    NCoL : longint;       {число цветов}
-		          {(если максимально допустимое - 0)}
-    NCoI : longint;       {число основных цветов}
-  end;
-  bmHeader = record       {полный заголовок файла}
-    f : bmFileHeader;     {заголовок файла}
-    i : bmInfoHeader;     {информационный заголовок}
-    //p : array[0..255,0..3]of byte; {таблица палитры}
-  end;
+const
+  BMP_MAGIC: Word = $4D42;     // 'BM'
+  BMP_SIZE_LIMIT = $FFFFFFFF;  // 4Gb
 
-function SaveBMPHeader(filename:string;W : longint;H : longint): bmHeader;
+{ TBitmapFile }
+
+constructor TBitmapFile.Create(
+  const AFileName: string;
+  AWidth: LongInt;
+  AHeight: LongInt
+);
 begin
-   Result.i.Size:=$28; //40;
-   Result.i.Widt:=W;
-   Result.i.Heig:=H;
-   Result.i.Plan:=1;
-   Result.i.BitC:=$18;    // количество цветов 24
-   Result.i.Comp:=0;
-
-   Result.i.SizI:=W * H * 3 + (W mod 4)*H;// размер витмапа
-   Result.i.XppM:=0;
-   Result.i.YppM:=0;
-   Result.i.NCoL:=0;
-   Result.i.NCoI:=0;
-
-   Result.f.Res1:=0;
-   Result.f.Res2:=0;
-   Result.f.OfBm:=$36;        // $36 = 54  // смещение витмапа от начала файла
-   Result.f.Size:=Result.i.SizI + Result.f.OfBm;   // полный размер файла
+  inherited Create;
+  FStream := nil;
+  FWidth := AWidth;
+  FHeight := AHeight;
+  FBitmapSize := AWidth * AHeight * 3 + (AWidth mod 4) * AHeight;
+  if FBitmapSize < BMP_SIZE_LIMIT then begin
+    FStream := TFileStream.Create(AFileName, fmCreate);
+    FStream.Size := SizeOf(TBitmapFileHeader) + SizeOf(TBitmapInfoHeader) + FBitmapSize;
+    WriteHeader(AWidth, AHeight);
+  end else begin
+    raise Exception.Create('Image is too big! Maximum size = 4Gb (current size = '
+      + IntToStr(FBitmapSize div (1024*1024*1024)) + ' Gb)');
+  end;
 end;
 
-procedure SaveBMP(
+destructor TBitmapFile.Destroy;
+begin
+  if Assigned(FStream) then begin
+    FreeAndNil(FStream);
+  end;
+  inherited Destroy;    
+end;
+
+function TBitmapFile.WriteHeader(AWidth: Integer; AHeight: Integer): Boolean;
+var
+  VFileHeader: TBitmapFileHeader;
+  VInfoHeader: TBitmapInfoHeader;
+begin
+  Result := False;
+
+  ZeroMemory(@VFileHeader, SizeOf(TBitmapFileHeader));
+  VFileHeader.Magic := BMP_MAGIC;
+  VFileHeader.Size := SizeOf(TBitmapFileHeader);
+  VFileHeader.Offset := SizeOf(TBitmapFileHeader) + SizeOf(TBitmapInfoHeader);
+
+  ZeroMemory(@VInfoHeader, SizeOf(TBitmapInfoHeader));
+  VInfoHeader.Size := SizeOf(TBitmapInfoHeader);
+  VInfoHeader.Width := AWidth;
+  VInfoHeader.Height := AHeight;
+  VInfoHeader.Planes := 1;
+  VInfoHeader.BitCount := 24;
+  VInfoHeader.SizeImage := FBitmapSize;
+
+  if Assigned(FStream) then begin
+    FStream.Position := 0;
+    if FStream.Write(VFileHeader, SizeOf(TBitmapFileHeader)) = SizeOf(TBitmapFileHeader) then begin
+      Result := FStream.Write(VInfoHeader, SizeOf(TBitmapInfoHeader)) = SizeOf(TBitmapInfoHeader);
+    end;
+  end;
+end;
+
+function TBitmapFile.Write(
   AOperationID: Integer;
   ACancelNotifier: IOperationNotifier;
-  W, H : integer;
-  tPath : string;
-  readcallback:TBMPRead
-);  // Запись на диск файла
-Var f : file;
-    nNextLine: integer;
-    InputArray:PlineRGBb;
-    TypeBmp:Word;
-    Header: bmHeader;
-  BMPRead:TBMPRead;
+  AReadCallBack: TBMPRead
+): Boolean;
+var
+  VInputArray: PLineRGBb;
+  I: Integer;
+  k1,k2: Integer;
+  ReadLine: TBMPRead;
 begin
-   Header:=SaveBMPHeader(tPath,W,H);
-   AssignFile(f,tPath);
-   ReWrite(f,1);
-   TypeBmp  := $4D42;
-
-   BlockWrite(f,TypeBmp,sizeof(TypeBmp));
-   BlockWrite(f,Header,sizeof(Header));
-
-   BMPRead:=readcallback;
-   getmem(InputArray,W*3);
-
-   for nNextLine:=0 to h-1 do begin
-     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-       break;
-     end;
-     BMPRead(nNextLine,InputArray);
-     seek(f,(h-nNextLine-1)*(W*3+ (w mod 4) )+54);
-     BlockWrite(f,InputArray^,(W*3+ (w mod 4) ));
+  Result := False;
+  ReadLine := AReadCallBack;
+  if Assigned(FStream) and (Addr(ReadLine) <> nil) then begin
+    GetMem(VInputArray, FWidth * 3);
+    try
+      k1 := FWidth * 3 + (FWidth mod 4);
+      k2 := (FHeight - 1) * k1 + SizeOf(TBitmapFileHeader) + SizeOf(TBitmapInfoHeader);
+      for I := 0 to FHeight - 1 do begin
+       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+         Break;
+       end;
+       ReadLine(I, VInputArray);
+       FStream.Position := k2 - I * k1;
+       Result := FStream.Write(VInputArray^, k1) = k1;
+       if not Result then begin
+         Break;
+       end;
+      end;
+    finally
+      FreeMem(VInputArray);
     end;
-
-   FreeMem(InputArray);
-   CloseFile(F);
+  end;
 end;
 
 end.
