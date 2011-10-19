@@ -74,6 +74,7 @@ uses
   i_GPS,
   i_GPSRecorder,
   i_GeoCoder,
+  i_MapTypeConfigModalEdit,
   i_MapTypeHotKeyListStatic,
   i_MarksSimple,
   i_MainFormConfig,
@@ -604,6 +605,7 @@ type
     FPathProvidersTreeStatic: IStaticTreeItem;
     FPathProvidersMenuBuilder: IMenuGeneratorByTree;
     FMapHotKeyList: IMapTypeHotKeyListStatic;
+    FMapTypeEditor: IMapTypeConfigModalEdit;
 
     procedure InitSearchers;
     procedure LoadMapIconsList;
@@ -697,6 +699,7 @@ uses
   u_MapViewGotoOnFMain,
   u_LanguageTBXItem,
   u_MouseState,
+  u_MapTypeConfigModalEditByForm,
   i_ImportConfig,
   u_BitmapMarkerProviderSimpleBase,
   u_BitmapMarkerProviderSimpleSquare,
@@ -766,6 +769,8 @@ begin
       GState.LanguageManager,
       GState.InetConfig
     );
+
+  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);
 
   LoadMapIconsList;
 
@@ -1363,6 +1368,7 @@ begin
       TfrmSettings.Create(
         GState.LanguageManager,
         FShortCutManager,
+        FMapTypeEditor,
         Self.SaveConfig
       );
 
@@ -3398,7 +3404,7 @@ begin
   end else begin
     VMapType := TMapType(TTBXItem(sender).Tag);
   end;
-  FfrmSettings.MapTypeEditor.EditMap(VMapType);
+  FMapTypeEditor.EditMap(VMapType);
 end;
 
 procedure TfrmMain.mapMouseDown(Sender: TObject; Button: TMouseButton;

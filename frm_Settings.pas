@@ -267,13 +267,13 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AShortCutManager: TShortcutManager;
+      AMapTypeEditor: IMapTypeConfigModalEdit;
       AOnSave: TNotifyEvent
     ); reintroduce;
     destructor Destroy; override;
     procedure SetProxy;
     procedure ShowGPSSettings;
     procedure RefreshTranslation; override;
-    property MapTypeEditor: IMapTypeConfigModalEdit read FMapTypeEditor;
   end;
 
 implementation
@@ -287,7 +287,6 @@ uses
   i_GUIDListStatic,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
-  u_MapTypeConfigModalEditByForm,
   u_GlobalState,
   u_ResStrings;
 
@@ -296,10 +295,12 @@ uses
 constructor TfrmSettings.Create(
   ALanguageManager: ILanguageManager;
   AShortCutManager: TShortcutManager;
+  AMapTypeEditor: IMapTypeConfigModalEdit;
   AOnSave: TNotifyEvent
 );
 begin
   inherited Create(ALanguageManager);
+  FMapTypeEditor := AMapTypeEditor;
   FShortCutManager := AShortCutManager;
   FOnSave := AOnSave;
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -308,7 +309,6 @@ begin
     GState.GPSpar.DataReciveNotifier
   );
   frShortCutList := TfrShortCutList.Create(GState.LanguageManager);
-  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);
   PageControl1.ActivePageIndex:=0;
 end;
 
