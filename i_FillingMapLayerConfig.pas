@@ -26,6 +26,7 @@ uses
   GR32,
   t_FillingMapModes,
   i_LocalCoordConverter,
+  i_FillingMapColorer,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ConfigDataElement;
@@ -67,6 +68,9 @@ type
 
     function GetFillLastDay: TDateTime;
     property FillLastDay: TDateTime read GetFillLastDay;
+
+    function GetColorer: IFillingMapColorer;
+    property Colorer: IFillingMapColorer read GetColorer;
   end;
 
   IFillingMapMapsConfig = interface(IMainActiveMap)

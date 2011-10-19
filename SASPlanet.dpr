@@ -494,6 +494,8 @@ uses
   u_MarkPolygonLayerConfig in 'u_MarkPolygonLayerConfig.pas',
   i_MarkPolyLineLayerConfig in 'i_MarkPolyLineLayerConfig.pas',
   u_MarkPolyLineLayerConfig in 'u_MarkPolyLineLayerConfig.pas',
+  i_FillingMapColorer in 'i_FillingMapColorer.pas',
+  u_FillingMapColorerSimple in 'u_FillingMapColorerSimple.pas',
   i_FillingMapLayerConfig in 'i_FillingMapLayerConfig.pas',
   u_FillingMapLayerConfigStatic in 'u_FillingMapLayerConfigStatic.pas',
   u_FillingMapLayerConfig in 'u_FillingMapLayerConfig.pas',

@@ -203,7 +203,7 @@ begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
-          if VSourceMapType.LoadFillingMap(AOperationID, ACancelNotifier, VBmp, VTile, VZoom, VZoomSource, VConfig.NoTileColor, VConfig.ShowTNE, VConfig.TNEColor, VConfig.FillMode, VConfig.FilterMode, VConfig.FillFirstDay, VConfig.FillLastDay) then begin
+          if VSourceMapType.LoadFillingMap(AOperationID, ACancelNotifier, VBmp, VTile, VZoom, VZoomSource, VConfig.Colorer) then begin
             Layer.Bitmap.Lock;
             try
               if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin

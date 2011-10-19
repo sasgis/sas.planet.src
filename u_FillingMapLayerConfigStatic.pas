@@ -26,6 +26,7 @@ uses
   GR32,
   t_FillingMapModes,
   i_LocalCoordConverter,
+  i_FillingMapColorer,
   i_MapTypes,
   i_FillingMapLayerConfig;
 
@@ -43,6 +44,7 @@ type
     FFilterMode: Boolean;
     FFillFirstDay: TDateTime;
     FFillLastDay: TDateTime;
+    FColorer: IFillingMapColorer;
   protected
     function GetVisible: Boolean;
     function GetSourceMap: IMapType;
@@ -57,6 +59,7 @@ type
     function GetFillLastDay: TDateTime;
 
     function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+    function GetColorer: IFillingMapColorer;
   public
     constructor Create(
       AVisible: Boolean;
@@ -74,6 +77,9 @@ type
   end;
 
 implementation
+
+uses
+  u_FillingMapColorerSimple;
 
 { TFillingMapLayerConfigStatic }
 
@@ -102,6 +108,16 @@ begin
   FFilterMode := AFilterMode;
   FFillFirstDay := AFillFirstDay;
   FFillLastDay := AFillLastDay;
+  FColorer :=
+    TFillingMapColorerSimple.Create(
+      FNoTileColor,
+      FShowTNE,
+      FTNEColor,
+      FFillMode,
+      FFilterMode,
+      FFillFirstDay,
+      FFillLastDay
+    );
 end;
 
 function TFillingMapLayerConfigStatic.GetActualZoom(
@@ -119,6 +135,11 @@ begin
     Result := VZoom;
     ALocalConverter.GetGeoConverter.CheckZoom(Result);
   end;
+end;
+
+function TFillingMapLayerConfigStatic.GetColorer: IFillingMapColorer;
+begin
+  Result := FColorer;
 end;
 
 function TFillingMapLayerConfigStatic.GetNoTileColor: TColor32;
