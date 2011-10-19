@@ -129,7 +129,7 @@ begin
 
   ZeroMemory(@VFileHeader, SizeOf(TBitmapFileHeader));
   VFileHeader.Magic := BMP_MAGIC;
-  VFileHeader.Size := SizeOf(TBitmapFileHeader);
+  VFileHeader.Size := SizeOf(TBitmapFileHeader) + SizeOf(TBitmapInfoHeader) + FBitmapSize;
   VFileHeader.Offset := SizeOf(TBitmapFileHeader) + SizeOf(TBitmapInfoHeader);
 
   ZeroMemory(@VInfoHeader, SizeOf(TBitmapInfoHeader));
