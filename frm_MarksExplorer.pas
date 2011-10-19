@@ -47,6 +47,7 @@ uses
   i_MapViewGoto,
   i_MarksSimple,
   i_MarkCategory,
+  i_StaticTreeItem,
   u_MarksDbGUIHelper,
   frm_Main;
 
@@ -144,14 +145,45 @@ uses
 {$R *.dfm}
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
+  procedure AddTreeSubItems(ATree: IStaticTreeItem; AParentNode: TTreeNode; ATreeItems: TTreeNodes);
+  var
+    i: Integer;
+    VTree: IStaticTreeItem;
+    VNode: TTreeNode;
+    VCategory: IMarkCategory;
+    VName: string;
+  begin
+    for i := 0 to ATree.SubItemCount - 1 do begin
+      VTree := ATree.SubItem[i];
+      VName := VTree.Name;
+      if VName = '' then begin
+        VName := '(NoName)';
+      end;
+      VNode := ATreeItems.AddChildObject(AParentNode, VName, nil);
+      VNode.StateIndex:=0;
+      if Supports(VTree.Data, IMarkCategory, VCategory) then begin
+        VNode.Data := Pointer(VCategory);
+        if VCategory.Visible then begin
+          VNode.StateIndex := 1;
+        end else begin
+          VNode.StateIndex := 2;
+        end;
+      end;
+      AddTreeSubItems(VTree, VNode, ATreeItems);
+    end;
+  end;
+var
+  VTree: IStaticTreeItem;
 begin
+  FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
+  VTree := FMarkDBGUI.MarksDB.CategoryListToStaticTree(FCategoryList);
   CategoryTreeView.OnChange:=nil;
   try
     CategoryTreeView.Items.BeginUpdate;
     try
       CategoryTreeView.SortType := stNone;
-      FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
-      FMarkDBGUI.CategoryListToTree(FCategoryList, CategoryTreeView.Items);
+      CategoryTreeView.Items.Clear;
+      AddTreeSubItems(VTree, nil, CategoryTreeView.Items);
       CategoryTreeView.SortType:=stText;
     finally
       CategoryTreeView.Items.EndUpdate;

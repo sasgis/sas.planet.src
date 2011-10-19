@@ -54,7 +54,6 @@ type
     FfrmMarkCategoryEdit: TfrmMarkCategoryEdit;
     FfrmImportConfigEdit: TfrmImportConfigEdit;
   public
-    procedure CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
     procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
 
     function DeleteMarkModal(AMarkID: IMarkID; handle:THandle):boolean;
@@ -183,47 +182,6 @@ begin
   for i := 0 to AList.Count - 1 do begin
     VMarkId := IMarkId(AList[i]);
     AStrings.AddObject(VMarkId.name, Pointer(VMarkId));
-  end;
-end;
-
-procedure TMarksDbGUIHelper.CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
-  procedure AddTreeSubItems(ATree: IStaticTreeItem; AParentNode: TTreeNode);
-  var
-    i: Integer;
-    VTree: IStaticTreeItem;
-    VNode: TTreeNode;
-    VCategory: IMarkCategory;
-    VName: string;
-  begin
-    for i := 0 to ATree.SubItemCount - 1 do begin
-      VTree := ATree.SubItem[i];
-      VName := VTree.Name;
-      if VName = '' then begin
-        VName := '(NoName)';
-      end;
-      VNode := ATreeItems.AddChildObject(AParentNode, VName, nil);
-      VNode.StateIndex:=0;
-      if Supports(VTree.Data, IMarkCategory, VCategory) then begin
-        VNode.Data := Pointer(VCategory);
-        if VCategory.Visible then begin
-          VNode.StateIndex := 1;
-        end else begin
-          VNode.StateIndex := 2;
-        end;
-      end;
-      AddTreeSubItems(VTree, VNode);
-    end;
-  end;
-var
-  VTree: IStaticTreeItem;
-begin
-  VTree := MarksDB.CategoryListToStaticTree(AList);
-  ATreeItems.BeginUpdate;
-  try
-    ATreeItems.Clear;
-    AddTreeSubItems(VTree, nil);
-  finally
-    ATreeItems.EndUpdate;
   end;
 end;
 
