@@ -28,18 +28,14 @@ uses
   Types,
   i_TileError,
   i_DownloadInfoSimple,
-  u_TileDownloaderThreadBase,
+  u_TileDownloaderThread,
   u_MapType;
 
 type
-  TTileDownloaderUIOneTile = class(TTileDownloaderThreadBase)
+  TTileDownloaderUIOneTile = class(TTileDownloaderThread)
   private
-    FMapTileUpdateEvent: TMapTileUpdateEvent;
-    FErrorLogger: ITileErrorLogger;
-    FDownloadInfo: IDownloadInfoSimple;
     FLoadXY: TPoint;
-
-    procedure AfterWriteToFile;
+    FZoom: Byte;
   protected
     procedure Execute; override;
   public
@@ -70,64 +66,31 @@ constructor TTileDownloaderUIOneTile.Create(
   AErrorLogger: ITileErrorLogger
 );
 begin
-  inherited Create(False);
-  FMapTileUpdateEvent := AMapTileUpdateEvent;
-  FDownloadInfo := ADownloadInfo;
-  FErrorLogger := AErrorLogger;
+  inherited Create(False, ADownloadInfo, AMapTileUpdateEvent, AErrorLogger, 1);
   FLoadXY := AXY;
   FZoom := AZoom;
   FMapType := AMapType;
-
   Priority := tpLower;
   FreeOnTerminate := true;
   randomize;
 end;
 
-procedure TTileDownloaderUIOneTile.AfterWriteToFile;
-begin
-  if Addr(FMapTileUpdateEvent) <> nil then begin
-    FMapTileUpdateEvent(FMapType, FZoom, FLoadXY);
-  end;
-end;
-
 procedure TTileDownloaderUIOneTile.Execute;
 var
-  VResult: IDownloadResult;
-  VErrorString: string;
-  VResultOk: IDownloadResultOk;
-  VResultDownloadError: IDownloadResultError;
   VOperatonID: Integer;
 begin
-  VOperatonID := FCancelNotifier.CurrentOperation;
-  if FMapType.Abilities.UseDownload then begin
-      try
-        VResult := FMapType.DownloadTile(VOperatonID, FCancelNotifier, FLoadXY, FZoom, false);
-        if not Terminated then begin
-          VErrorString := '';
-          if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-            FDownloadInfo.Add(1, VResultOk.Size);
-          end else if Supports(VResult, IDownloadResultError, VResultDownloadError) then begin
-            VErrorString := VResultDownloadError.ErrorText;
-          end;
-        end;
-      except
-        on E: Exception do begin
-          VErrorString := E.Message;
-        end;
-      end;
-  end else begin
-    VErrorString := SAS_ERR_NotLoads;
-  end;
-  if not Terminated then begin
-    if VErrorString = '' then begin
-      Synchronize(AfterWriteToFile);
-    end else begin
+  if FMapType.Abilities.UseDownload then
+  try
+    VOperatonID := FCancelNotifier.CurrentOperation;
+    Download(FLoadXY, FZoom, OnTileDownload, False, FCancelNotifier, VOperatonID);
+  except
+    on E: Exception do begin
       FErrorLogger.LogError(
         TTileErrorInfo.Create(
           FMapType,
           FZoom,
           FLoadXY,
-          VErrorString
+          E.Message
         )
       );
     end;

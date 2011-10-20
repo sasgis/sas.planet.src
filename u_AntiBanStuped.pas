@@ -27,12 +27,10 @@ uses
   SyncObjs,
   i_ConfigDataProvider,
   i_AntiBan,
-  i_ProxySettings,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
-  i_InvisibleBrowser,
-  i_TileDownlodSession;
+  i_InvisibleBrowser;
 
 type
   TAntiBanStuped = class(TInterfacedObject, IAntiBan)
@@ -43,7 +41,6 @@ type
     FDownloadTilesCount: Longint;
     FBanFlag: Boolean;
     FBanCS: TCriticalSection;
-    FProxyConfig: IProxyConfig;
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan();
     function CheckIsBan(
@@ -52,18 +49,15 @@ type
     procedure ExecOnBan(ALastUrl: String);
   public
     constructor Create(
-      AProxyConfig: IProxyConfig;
       AInvisibleBrowser: IInvisibleBrowser;
       AConfig: IConfigDataProvider
     );
     destructor Destroy; override;
     procedure PreDownload(
-      ARequest: IDownloadRequest;
-      ADownloader: ITileDownlodSession
+      ARequest: IDownloadRequest
     );
     function PostCheckDownload(
       AResultFactory: IDownloadResultFactory;
-      ADownloader: ITileDownlodSession;
       ADownloadResult: IDownloadResult
     ): IDownloadResult;
   end;
@@ -121,14 +115,12 @@ begin
 end;
 
 constructor TAntiBanStuped.Create(
-  AProxyConfig: IProxyConfig;
   AInvisibleBrowser: IInvisibleBrowser;
   AConfig: IConfigDataProvider
 );
 var
   VParams: IConfigDataProvider;
 begin
-  FProxyConfig := AProxyConfig;
   FInvisibleBrowser := AInvisibleBrowser;
   FBanCS := TCriticalSection.Create;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
@@ -179,7 +171,6 @@ end;
 
 function TAntiBanStuped.PostCheckDownload(
   AResultFactory: IDownloadResultFactory;
-  ADownloader: ITileDownlodSession;
   ADownloadResult: IDownloadResult
 ): IDownloadResult;
 begin
@@ -198,8 +189,7 @@ begin
 end;
 
 procedure TAntiBanStuped.PreDownload(
-  ARequest: IDownloadRequest;
-  ADownloader: ITileDownlodSession
+  ARequest: IDownloadRequest
 );
 begin
   IncDownloadedAndCheckAntiBan;

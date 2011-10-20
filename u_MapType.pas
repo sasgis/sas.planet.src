@@ -40,17 +40,15 @@ uses
   i_LanguageManager,
   i_CoordConverter,
   i_DownloadChecker,
-  i_TileDownlodSession,
+  i_TileDownloader,
   i_LastResponseInfo,
   i_MapVersionConfig,
   i_TileRequestBuilder,
   i_TileRequestBuilderConfig,
-  i_IPoolOfObjectsSimple,
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
   i_ListOfObjectsWithTTL,
   i_DownloadResultFactory,
-  i_AntiBan,
   i_MemObjCache,
   i_InetConfig,
   i_DownloadResultTextProvider,
@@ -68,6 +66,7 @@ uses
   i_VectorDataItemSimple,
   u_GlobalCahceConfig,
   u_TileStorageAbstract,
+  u_TileDownloaderFrontEnd,
   u_ResStrings;
 
 type
@@ -75,7 +74,6 @@ type
    private
     FZmp: IZmpInfo;
 
-    FAntiBan: IAntiBan;
     FCacheBitmap: ITileObjCacheBitmap;
     FCacheVector: ITileObjCacheVector;
     FStorage: TTileStorageAbstract;
@@ -85,7 +83,6 @@ type
     FKmlLoaderFromStorage: IVectorDataLoader;
     FCoordConverter : ICoordConverter;
     FViewCoordConverter : ICoordConverter;
-    FPoolOfDownloaders: IPoolOfObjectsSimple;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
@@ -100,7 +97,8 @@ type
     FGUIConfig: IMapTypeGUIConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
-
+    FTileDownloader: TTileDownloaderFrontEnd;
+    
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
@@ -108,9 +106,9 @@ type
       ACoordConverterFactory: ICoordConverterFactory
     );
     procedure LoadDownloader(
-      AGCList: IListOfObjectsWithTTL;
-      AInvisibleBrowser: IInvisibleBrowser;
-      AProxyConfig: IProxyConfig
+      AConfig : IConfigDataProvider;
+      ACoordConverterFactory: ICoordConverterFactory;
+      AInvisibleBrowser: IInvisibleBrowser
     );
     procedure LoadStorageParams(
       AMemCacheBitmap: IMemObjCacheBitmap;
@@ -213,13 +211,9 @@ type
       AColorer: IFillingMapColorer
     ): boolean;
     function GetShortFolderName: string;
-    function DownloadTile(
-      AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ATile: TPoint;
-      AZoom: byte;
-      ACheckTileSize: Boolean
-    ): IDownloadResult;
+    procedure DownloadTile(AEvent: ITileDownloaderEvent);
+    procedure OnTileDownload(AEvent: ITileDownloaderEvent);
+
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
     property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
@@ -269,17 +263,13 @@ uses
   Types,
   GR32_Resamplers,
   i_ObjectWithTTL,
-  i_PoolElement,
   i_TileInfoBasic,
   i_ContentConverter,
   i_TileDownloadRequest,
-  u_PoolOfObjectsSimple,
   u_TileDownloaderConfig,
   u_TileRequestBuilderConfig,
   u_TileRequestBuilderPascalScript,
-  u_TileDownloaderBaseFactory,
   u_DownloadResultFactory,
-  u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
@@ -355,27 +345,25 @@ begin
 end;
 
 procedure TMapType.LoadDownloader(
-  AGCList: IListOfObjectsWithTTL;
-  AInvisibleBrowser: IInvisibleBrowser;
-  AProxyConfig: IProxyConfig
+  AConfig: IConfigDataProvider;
+  ACoordConverterFactory: ICoordConverterFactory;
+  AInvisibleBrowser: IInvisibleBrowser
 );
-var
-  VDownloader: TTileDownloaderFactory;
 begin
   FAbilitiesConfig.LockWrite;
   try
     if FAbilitiesConfig.UseDownload then begin
       try
-        VDownloader := TTileDownloaderFactory.Create(FDownloadResultFactory, FTileDownloaderConfig);
-        FPoolOfDownloaders :=
-          TPoolOfObjectsSimple.Create(
-            FTileDownloaderConfig.MaxConnectToServerCount,
-            VDownloader,
-            60000,
-            60000
-          );
-        AGCList.AddObject(FPoolOfDownloaders as IObjectWithTTL);
-        FAntiBan := TAntiBanStuped.Create(AProxyConfig, AInvisibleBrowser, FZmp.DataProvider);
+        FTileDownloader := TTileDownloaderFrontEnd.Create(
+          AConfig,
+          FTileDownloaderConfig,
+          FTileRequestBuilderConfig,
+          FZmp,
+          ACoordConverterFactory,
+          FLanguageManager,
+          AInvisibleBrowser
+        );
+        FAbilitiesConfig.UseDownload := Assigned(FTileDownloader);
       except
         if ExceptObject <> nil then begin
           ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
@@ -410,7 +398,7 @@ begin
   FViewCoordConverter := Zmp.ViewGeoConvert;
   FTileRequestBuilderConfig.ReadConfig(AConfig);
   LoadUrlScript(ACoordConverterFactory);
-  LoadDownloader(AGCList, AInvisibleBrowser, AProxyConfig);
+  LoadDownloader(AConfig, ACoordConverterFactory, AInvisibleBrowser);
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
@@ -717,94 +705,62 @@ end;
 destructor TMapType.Destroy;
 begin
   FCoordConverter := nil;
-  FPoolOfDownloaders := nil;
+  //FPoolOfDownloaders := nil;
   FCacheBitmap := nil;
   FCacheVector := nil;
   FreeAndNil(FStorage);
+  FreeAndNil(FTileDownloader); // <--
   inherited;
 end;
 
-function TMapType.DownloadTile(
-  AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ATile: TPoint;
-  AZoom: byte;
-  ACheckTileSize: Boolean
-): IDownloadResult;
+procedure TMapType.OnTileDownload(AEvent: ITileDownloaderEvent);
 var
-  VPoolElement: IPoolElement;
-  VDownloader: ITileDownlodSession;
-  VDownloadChecker: IDownloadChecker;
-  VConfig: ITileDownloaderConfigStatic;
   VResultOk: IDownloadResultOk;
-  VOldTileSize: Integer;
   VResultStream: TMemoryStream;
   VContentType: string;
-  VRequest: ITileDownloadRequest;
 begin
-  if FAbilitiesConfig.UseDownload then begin
-    FCoordConverter.CheckTilePosStrict(ATile, AZoom, True);
-    VRequest := FTileRequestBuilder.BuildRequest(ATile, AZoom, FVersionConfig.GetStatic, FLastResponseInfo);
-    if VRequest = nil then begin
-      Result := FDownloadResultFactory.BuildNotNecessary(VRequest, 'Empty request', '');
-    end else begin
-      VPoolElement := FPoolOfDownloaders.TryGetPoolElement(AOperationID, ACancelNotifier);
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Result := FDownloadResultFactory.BuildCanceled(VRequest);
-      end else begin
-        VDownloader := VPoolElement.GetObject as ITileDownlodSession;
-        if FAntiBan <> nil then begin
-          FAntiBan.PreDownload(VRequest, VDownloader);
-        end;
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Result := FDownloadResultFactory.BuildCanceled(VRequest);
-        end else begin
-          VConfig := FTileDownloaderConfig.GetStatic;
-          VOldTileSize := FStorage.GetTileInfo(ATile, AZoom, FVersionConfig.GetStatic).GetSize;
-          VDownloadChecker := TDownloadCheckerStuped.Create(
-            FDownloadResultFactory,
-            VConfig.IgnoreMIMEType,
-            VConfig.ExpectedMIMETypes,
-            VConfig.DefaultMIMEType,
-            ACheckTileSize,
-            VOldTileSize
-          );
-          Result :=
-            VDownloader.DownloadTile(
-              AOperationID,
-              ACancelNotifier,
-              VRequest,
-              VDownloadChecker
-            );
-          if FAntiBan <> nil then begin
-            Result :=
-              FAntiBan.PostCheckDownload(
-                FDownloadResultFactory,
-                VDownloader,
-                Result
-              );
-          end;
-        end;
-      end;
-    end;
-    if Supports(Result, IDownloadResultOk, VResultOk) then begin
+  if Assigned(AEvent) then begin
+    if Supports(AEvent.DownloadResult, IDownloadResultOk, VResultOk) then begin
       FLastResponseInfo.ResponseHead := VResultOk.RawResponseHeader;
       VResultStream := TMemoryStream.Create;
       try
         VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);
         VContentType := VResultOk.ContentType;
         VContentType := Zmp.ContentTypeSubst.GetContentType(VContentType);
-        SaveTileDownload(ATile, AZoom, VResultStream, VContentType);
+        SaveTileDownload(AEvent.TileXY, AEvent.TileZoom, VResultStream, VContentType);
       finally
         VResultStream.Free;
       end;
-    end else if Supports(Result, IDownloadResultDataNotExists) then begin
+    end else if Supports(AEvent.DownloadResult, IDownloadResultDataNotExists) then begin
       if FDownloadConfig.IsSaveTileNotExists then begin
-        SaveTileNotExists(ATile, AZoom);
+        SaveTileNotExists(AEvent.TileXY, AEvent.TileZoom);
       end;
     end;
-  end else begin
-    raise Exception.Create('Для этой карты загрузка запрещена.');
+  end;
+end;
+
+procedure TMapType.DownloadTile(AEvent: ITileDownloaderEvent);
+var
+  VTile: TPoint;
+  VZoom: Byte;
+begin
+  if Assigned(AEvent) then begin
+    if FAbilitiesConfig.UseDownload then begin
+      AEvent.VersionInfo := FVersionConfig.GetStatic;
+      AEvent.LastResponseInfo := FLastResponseInfo;
+      VTile := AEvent.TileXY;
+      VZoom := AEvent.TileZoom;
+      FCoordConverter.CheckTilePosStrict(VTile, VZoom, True);
+      AEvent.TileXY := VTile;
+      AEvent.TileZoom := VZoom;
+      if AEvent.CheckTileSize then begin
+        AEvent.OldTileSize := FStorage.GetTileInfo(AEvent.TileXY, AEvent.TileZoom, AEvent.VersionInfo).GetSize;
+      end;
+      AEvent.AddToCallBackList(Self.OnTileDownload);
+      FTileDownloader.Download(AEvent);
+    end else begin
+      raise Exception.Create('Для этой карты загрузка запрещена.');
+    end;
   end;
 end;
 

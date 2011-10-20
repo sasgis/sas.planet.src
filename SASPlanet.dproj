@@ -274,7 +274,6 @@
     <DCCReference Include="i_PathDetalizeProviderList.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
     <DCCReference Include="i_PolyLineLayerConfig.pas" />
-    <DCCReference Include="i_PoolElement.pas" />
     <DCCReference Include="i_PosChangeMessage.pas" />
     <DCCReference Include="i_ProxySettings.pas" />
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
@@ -300,9 +299,9 @@
     <DCCReference Include="i_StringConfigDataElement.pas" />
     <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_Thread.pas" />
+    <DCCReference Include="i_TileDownloader.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownloadRequest.pas" />
-    <DCCReference Include="i_TileDownlodSession.pas" />
     <DCCReference Include="i_TileError.pas" />
     <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="i_TileFileNameGenerator.pas" />
@@ -685,8 +684,6 @@
     <DCCReference Include="u_PLTSimpleParser.pas" />
     <DCCReference Include="u_PolygonLayerConfig.pas" />
     <DCCReference Include="u_PolyLineLayerConfig.pas" />
-    <DCCReference Include="u_PoolElement.pas" />
-    <DCCReference Include="u_PoolOfObjectsSimple.pas" />
     <DCCReference Include="u_PosChangeListener.pas" />
     <DCCReference Include="u_PosChangeMessage.pas" />
     <DCCReference Include="u_PosFromGSM.pas" />
@@ -726,11 +723,14 @@
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
-    <DCCReference Include="u_TileDownloaderBase.pas" />
-    <DCCReference Include="u_TileDownloaderBaseFactory.pas" />
+    <DCCReference Include="u_TileDownloaderBaseCore.pas" />
+    <DCCReference Include="u_TileDownloaderBaseThread.pas" />
     <DCCReference Include="u_TileDownloaderConfig.pas" />
     <DCCReference Include="u_TileDownloaderConfigStatic.pas" />
-    <DCCReference Include="u_TileDownloaderThreadBase.pas" />
+    <DCCReference Include="u_TileDownloaderEvent.pas" />
+    <DCCReference Include="u_TileDownloaderFrontEnd.pas" />
+    <DCCReference Include="u_TileDownloaderHttp.pas" />
+    <DCCReference Include="u_TileDownloaderThread.pas" />
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
     <DCCReference Include="u_TileDownloadRequest.pas" />

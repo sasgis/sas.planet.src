@@ -26,19 +26,16 @@ uses
   Types,
   i_DownloadRequest,
   i_DownloadResult,
-  i_DownloadResultFactory,
-  i_TileDownlodSession;
+  i_DownloadResultFactory;
 
 type
   IAntiBan = interface
     ['{19B5BF44-50AA-43C9-BC2C-94A92A85A209}']
     procedure PreDownload(
-      ARequest: IDownloadRequest;
-      ADownloader: ITileDownlodSession
+      ARequest: IDownloadRequest
     );
     function PostCheckDownload(
       AResultFactory: IDownloadResultFactory;
-      ADownloader: ITileDownlodSession;
       ADownloadResult: IDownloadResult
     ): IDownloadResult;
   end;
