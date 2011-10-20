@@ -90,6 +90,7 @@ uses
   i_MouseState,
   i_MouseHandler,
   i_TreeChangeable,
+  i_MapViewGoto,
   i_StaticTreeItem,
   i_MenuGeneratorByTree,
   u_WindowLayerBasicList,
@@ -614,6 +615,8 @@ type
     FMapHotKeyList: IMapTypeHotKeyListStatic;
     FMapTypeEditor: IMapTypeConfigModalEdit;
 
+    FMapGoto: IMapViewGoto;
+
     procedure InitSearchers;
     procedure LoadMapIconsList;
     procedure CreateMapUIMapsList;
@@ -651,7 +654,6 @@ type
 
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
     Procedure TrayControl(Var Msg: TMessage); Message WM_SYSCOMMAND;
-    procedure topos(LL: TDoublePoint; zoom_: byte; draw: boolean);
     procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
     procedure OnMapUpdate(AMapType: TMapType);
     procedure OnBeforeViewChange(Sender: TObject);
@@ -701,8 +703,7 @@ uses
   u_MapTypeIconsList,
   u_SelectionRect,
   u_KeyMovingHandler,
-  i_MapViewGoto,
-  u_MapViewGotoOnFMain,
+  u_MapViewGoto,
   u_LanguageTBXItem,
   u_MouseState,
   u_MapTypeConfigModalEditByForm,
@@ -901,6 +902,7 @@ begin
       FFormRegionProcess
     );
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
+  FMapGoto := TMapViewGoto.Create(FConfig.ViewPortState);
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -1140,6 +1142,7 @@ begin
             0
           )
         ),
+        FMapGoto,
         FConfig.LayersConfig.GotoLayerConfig
       );
     FLayersList.Add(FLayerGoto);
@@ -1416,7 +1419,7 @@ begin
         FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
         FMarkDBGUI,
         Self.LayerMapMarksRedraw,
-        TMapViewGotoOnFMain.Create(Self.topos)
+        FMapGoto
       );
 
     FLinksList.ActivateLinks;
@@ -1443,16 +1446,14 @@ end;
 
 procedure TfrmMain.InitSearchers;
 var
-  VGoto: IMapViewGoto;
   VItem: IGeoCoderListEntity;
   VTBXItem: TTBXItem;
   VTBEditItem: TTBEditItem;
 begin
-  VGoto := TMapViewGotoOnFMain.Create(Self.topos);
   FSearchPresenter :=
     TSearchResultPresenterOnPanel.Create(
       GState.InternalBrowser,
-      VGoto,
+      FMapGoto,
       ScrollBoxSearchWindow,
       TBSearchWindow,
       GState.ValueToStringConverterConfig,
@@ -2348,20 +2349,6 @@ begin
        end;
     end;
    end;
-end;
-
-procedure TfrmMain.topos(LL:TDoublePoint;zoom_:byte;draw:boolean);
-begin
-  FConfig.ViewPortState.LockWrite;
-  try
-    FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(zoom_);
-    FConfig.ViewPortState.ChangeLonLat(LL);
-  finally
-    FConfig.ViewPortState.UnlockWrite;
-  end;
-  if draw then begin
-    FLayerGoto.ShowGotoIcon(LL);
-  end;
 end;
 
 procedure TfrmMain.zooming(ANewZoom:byte; AMousePos: TPoint; move:boolean);
@@ -4349,7 +4336,7 @@ procedure TfrmMain.tbitmPositionByGSMClick(Sender: TObject);
 var
   PosFromGSM: TPosFromGSM;
 begin
- PosFromGSM:=TPosFromGSM.Create(GState.GSMpar, TMapViewGotoOnFMain.Create(Self.topos));
+ PosFromGSM:=TPosFromGSM.Create(GState.GSMpar, FMapGoto);
  try
    PosFromGSM.GetPos(FConfig.ViewPortState.GetCurrentZoom);
  except

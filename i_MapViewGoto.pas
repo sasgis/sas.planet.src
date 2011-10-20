@@ -23,15 +23,33 @@ unit i_MapViewGoto;
 interface
 
 uses
-  t_GeoTypes;
+  t_GeoTypes,
+  i_JclNotify;
 
 type
+  IGotoPosStatic = interface
+    ['{D9988166-EFD3-4C84-B43C-B0FE95194FB1}']
+    function GetLonLat: TDoublePoint;
+    property LonLat: TDoublePoint read GetLonLat;
+
+    function GetZoom: Byte;
+    property Zoom: Byte read GetZoom;
+
+    function GetGotoTime: TDateTime;
+    property GotoTime: TDateTime read GetGotoTime;
+  end;
+
   IMapViewGoto = interface
     ['{33FDD537-B089-4ED6-8AB4-720E47B3C8B8}']
     procedure GotoPos(ALonLat: TDoublePoint; AZoom: Byte);
+
+    function GetLastGotoPos: IGotoPosStatic;
+    property LastGotoPos: IGotoPosStatic read GetLastGotoPos;
+
+    function GetChangeNotifier: IJclNotifier;
+    property ChangeNotifier: IJclNotifier read GetChangeNotifier;
   end;
 
 implementation
 
 end.
- 

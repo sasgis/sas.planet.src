@@ -257,7 +257,7 @@ uses
   u_LayerBitmapClearStrategy in 'u_LayerBitmapClearStrategy.pas',
   u_LayerBitmapClearStrategyFactory in 'u_LayerBitmapClearStrategyFactory.pas',
   i_MapViewGoto in 'i_MapViewGoto.pas',
-  u_MapViewGotoOnFMain in 'u_MapViewGotoOnFMain.pas',
+  u_MapViewGoto in 'u_MapViewGoto.pas',
   i_GotoLayerConfig in 'i_GotoLayerConfig.pas',
   u_GotoLayerConfig in 'u_GotoLayerConfig.pas',
   i_StringHistory in 'i_StringHistory.pas',
