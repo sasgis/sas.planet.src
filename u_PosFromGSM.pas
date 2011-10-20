@@ -36,14 +36,14 @@ uses
   SwinHttp,
   CPDrv,
   t_GeoTypes,
+  i_MapViewGoto,
   i_GSMGeoCodeConfig;
 
 type
-  TToPos = procedure (LL:TDoublePoint;zoom_:byte;draw:boolean) of object;
   TPosFromGSM = class
   private
     FConfig: IGSMGeoCodeConfig;
-    FToPos:TToPos;
+    FMapGoto: IMapViewGoto;
     FZoom: Byte;
     CommPortDriver:TCommPortDriver;
     LAC:string;
@@ -53,7 +53,7 @@ type
     procedure CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
     function GetCoordFromGoogle(var LL:TDoublePoint): boolean;
   public
-    constructor Create(AConfig: IGSMGeoCodeConfig; AOnToPos: TToPos);
+    constructor Create(AConfig: IGSMGeoCodeConfig; AMapGoto: IMapViewGoto);
     function GetPos(AZoom: Byte):boolean;
   end;
 
@@ -64,10 +64,10 @@ uses
 
 { TPosFromGSM }
 
-constructor TPosFromGSM.Create(AConfig: IGSMGeoCodeConfig; AOnToPos: TToPos);
+constructor TPosFromGSM.Create(AConfig: IGSMGeoCodeConfig; AMapGoto: IMapViewGoto);
 begin
   FConfig := AConfig;
-  FToPos := AOnToPos;
+  FMapGoto := AMapGoto;
 end;
 
 function TPosFromGSM.GetCoordFromGoogle(var LL:TDoublePoint): boolean;
@@ -200,9 +200,9 @@ begin
  end;
  CommPortDriver.SendString('AT+CREG=1'+#13);
  CommPortDriver.Disconnect;
- if GetCoordFromGoogle(LL) then begin
-    FToPos(LL, FZoom, true);
- end;
+  if GetCoordFromGoogle(LL) then begin
+    FMapGoto.GotoPos(LL, FZoom);
+  end;
  free;
 end;
 
@@ -274,7 +274,7 @@ begin
      LAC:= IntToHex(strtoint(GetWord(paramss,',',3)),4);
      CellID:= IntToHex(strtoint(GetWord(paramss,',',4)),4);
      if GetCoordFromGoogle(LL) then begin
-        FToPos(LL, FZoom,true);
+        FMapGoto.GotoPos(LL, FZoom);
         Result:=true;
      end else begin
         Result:=false;
