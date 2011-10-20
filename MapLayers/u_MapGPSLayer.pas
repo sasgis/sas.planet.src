@@ -12,6 +12,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_InternalPerformanceCounter,
   i_OperationNotifier,
   i_LayerBitmapClearStrategy,
   i_ImageResamplerConfig,
@@ -57,6 +58,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -83,6 +85,7 @@ uses
 { TMapGPSLayer }
 
 constructor TMapGPSLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -94,6 +97,7 @@ constructor TMapGPSLayer.Create(
 );
 begin
   inherited Create(
+    APerfList,
     AParentMap,
     AViewPortState,
     AResamplerConfig,

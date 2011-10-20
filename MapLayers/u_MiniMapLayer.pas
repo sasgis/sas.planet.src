@@ -118,7 +118,6 @@ type
     ): Boolean;
     procedure ClearLayerBitmap;
   protected
-    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoShow; override;
     procedure DoHide; override;
@@ -135,6 +134,7 @@ type
     procedure SendTerminateToThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -183,6 +183,7 @@ begin
 end;
 
 constructor TMiniMapLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -195,7 +196,8 @@ constructor TMiniMapLayer.Create(
   ATimerNoifier: IJclNotifier
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
+  FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   FConfig := AConfig;
   FGUIConfigList := AGUIConfigList;
   FClearStrategyFactory := AClearStrategyFactory;
@@ -1021,13 +1023,6 @@ procedure TMiniMapLayer.SetNeedUpdateLayerSize;
 begin
   inherited;
   FDrawTask.StopExecute;
-end;
-
-procedure TMiniMapLayer.SetPerfList(
-  const Value: IInternalPerformanceCounterList);
-begin
-  inherited;
-  FBgDrawCounter := Value.CreateAndAddNewCounter('BgDraw');
 end;
 
 procedure TMiniMapLayer.StartThreads;

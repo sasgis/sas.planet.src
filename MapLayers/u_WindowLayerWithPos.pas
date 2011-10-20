@@ -43,7 +43,11 @@ type
     property ViewCoordConverter: ILocalCoordConverter read FViewCoordConverter;
     property LayerCoordConverter: ILocalCoordConverter read FLayerCoordConverter;
   public
-    constructor Create(AViewPortState: IViewPortState; AListenScaleChange: Boolean);
+    constructor Create(
+      APerfList: IInternalPerformanceCounterList;
+      AViewPortState: IViewPortState;
+      AListenScaleChange: Boolean
+    );
     destructor Destroy; override;
 
     procedure StartThreads; override;
@@ -85,9 +89,13 @@ type
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     procedure DoViewUpdate; override;
-    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
-    constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState; AListenScaleChange: Boolean);
+    constructor Create(
+      APerfList: IInternalPerformanceCounterList;
+      ALayer: TPositionedLayer;
+      AViewPortState: IViewPortState;
+      AListenScaleChange: Boolean
+    );
     destructor Destroy; override;
     procedure Redraw; virtual;
   end;
@@ -108,7 +116,11 @@ type
     procedure DoShow; override;
     procedure DoViewUpdate; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+    constructor Create(
+      APerfList: IInternalPerformanceCounterList;
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState
+    );
   end;
 
   TWindowLayerFixedSizeWithBitmap = class(TWindowLayerWithBitmap)
@@ -126,10 +138,13 @@ uses
 
 { TWindowLayerWithPosBase }
 
-constructor TWindowLayerWithPosBase.Create(AViewPortState: IViewPortState;
-  AListenScaleChange: Boolean);
+constructor TWindowLayerWithPosBase.Create(
+  APerfList: IInternalPerformanceCounterList;
+  AViewPortState: IViewPortState;
+  AListenScaleChange: Boolean
+);
 begin
-  inherited Create;
+  inherited Create(APerfList);
   FViewUpdateLock := 0;
   FViewPortState := AViewPortState;
 
@@ -256,10 +271,16 @@ end;
 
 { TWindowLayerBasic }
 
-constructor TWindowLayerBasic.Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState; AListenScaleChange: Boolean);
+constructor TWindowLayerBasic.Create(
+  APerfList: IInternalPerformanceCounterList;
+  ALayer: TPositionedLayer;
+  AViewPortState: IViewPortState;
+  AListenScaleChange: Boolean
+);
 begin
-  inherited Create(AViewPortState, AListenScaleChange);
+  inherited Create(APerfList, AViewPortState, AListenScaleChange);
   FLayer := ALayer;
+  FRedrawCounter := PerfList.CreateAndAddNewCounter('Redraw');
 
   FLayer.MouseEvents := false;
   FLayer.Visible := false;
@@ -439,13 +460,6 @@ begin
   end;
 end;
 
-procedure TWindowLayerBasic.SetPerfList(
-  const Value: IInternalPerformanceCounterList);
-begin
-  inherited;
-  FRedrawCounter := Value.CreateAndAddNewCounter('Redraw');
-end;
-
 procedure TWindowLayerBasic.SetVisible(const Value: Boolean);
 begin
   if Value then begin
@@ -457,11 +471,14 @@ end;
 
 { TWindowLayerWithBitmap }
 
-constructor TWindowLayerWithBitmap.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState);
+constructor TWindowLayerWithBitmap.Create(
+  APerfList: IInternalPerformanceCounterList;
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState
+);
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
-  inherited Create(FLayer, AViewPortState, True);
+  inherited Create(APerfList, FLayer, AViewPortState, True);
 
   FLayer.Bitmap.DrawMode := dmBlend;
 end;

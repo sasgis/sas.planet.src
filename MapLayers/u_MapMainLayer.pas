@@ -10,6 +10,7 @@ uses
   i_JclNotify,
   i_CoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_InternalPerformanceCounter,
   i_OperationNotifier,
   i_LayerBitmapClearStrategy,
   i_MapTypes,
@@ -53,6 +54,7 @@ type
     ); override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -83,6 +85,7 @@ uses
 { TMapMainLayer }
 
 constructor TMapMainLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -96,6 +99,7 @@ constructor TMapMainLayer.Create(
 );
 begin
   inherited Create(
+    APerfList,
     AParentMap,
     AViewPortState,
     AResamplerConfig,

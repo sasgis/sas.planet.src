@@ -40,11 +40,11 @@ type
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier
     ); override;
-    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -78,6 +78,7 @@ uses
 { TMapMarksLayer }
 
 constructor TMapMarksLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -89,6 +90,7 @@ constructor TMapMarksLayer.Create(
 );
 begin
   inherited Create(
+    APerfList,
     AParentMap,
     AViewPortState,
     AResamplerConfig,
@@ -97,6 +99,9 @@ begin
     ATimerNoifier,
     tpLower
   );
+  FGetMarksCounter := PerfList.CreateAndAddNewCounter('GetMarks');
+  FMouseOnRegCounter := PerfList.CreateAndAddNewCounter('MouseOnReg');
+
   FConfig := AConfig;
   FMarkDBGUI := AMarkDBGUI;
 
@@ -441,14 +446,6 @@ begin
     ViewUpdateUnlock;
   end;
   ViewUpdate;
-end;
-
-procedure TMapMarksLayer.SetPerfList(
-  const Value: IInternalPerformanceCounterList);
-begin
-  inherited;
-  FGetMarksCounter := Value.CreateAndAddNewCounter('GetMarks');
-  FMouseOnRegCounter := Value.CreateAndAddNewCounter('MouseOnReg');
 end;
 
 procedure TMapMarksLayer.StartThreads;

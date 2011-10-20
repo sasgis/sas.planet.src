@@ -962,6 +962,7 @@ begin
 
     FMainLayer :=
       TMapMainLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -976,6 +977,7 @@ begin
     FLayersList.Add(FMainLayer);
     FLayerGrids :=
       TMapLayerGrids.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -985,6 +987,7 @@ begin
     FLayersList.Add(FLayerGrids);
     FLayerTileGrid :=
       TMapLayerTileGrid.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid
@@ -992,6 +995,7 @@ begin
     FLayersList.Add(FLayerTileGrid);
     FWikiLayer :=
       TWikiLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -1004,6 +1008,7 @@ begin
     FLayersList.Add(FWikiLayer);
     FLayerFillingMap :=
       TMapLayerFillingMap.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -1014,6 +1019,7 @@ begin
     FLayersList.Add(FLayerFillingMap);
     FLayerMapMarks:=
       TMapMarksLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -1026,6 +1032,7 @@ begin
     FLayersList.Add(FLayerMapMarks);
     FLayerMapGPS:=
       TMapGPSLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -1038,6 +1045,7 @@ begin
     FLayersList.Add(FLayerMapGPS);
     FLayerGPSMarker :=
       TMapLayerGPSMarker.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.GUISyncronizedTimerNotifier,
@@ -1055,6 +1063,7 @@ begin
     FLayersList.Add(FLayerGPSMarker);
     FLayerSelection :=
       TSelectionLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.LastSelectionLayerConfig,
@@ -1063,6 +1072,7 @@ begin
     FLayersList.Add(FLayerSelection);
     FCalcLineLayer :=
       TCalcLineLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_calc_line],
@@ -1072,6 +1082,7 @@ begin
     FLayersList.Add(FCalcLineLayer);
     FMarkPolyLineLayer :=
       TMarkPolyLineLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_add_line],
@@ -1080,6 +1091,7 @@ begin
     FLayersList.Add(FMarkPolyLineLayer);
     FMarkPolygonLayer :=
       TMarkPolygonLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_add_poly],
@@ -1088,6 +1100,7 @@ begin
     FLayersList.Add(FMarkPolygonLayer);
     FSelectionPolygonLayer :=
       TSelectionPolygonLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_select_poly],
@@ -1096,6 +1109,7 @@ begin
     FLayersList.Add(FSelectionPolygonLayer);
     FSelectionPolylineLayer :=
       TSelectionPolylineLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_select_line],
@@ -1104,6 +1118,7 @@ begin
     FLayersList.Add(FSelectionPolylineLayer);
     FSelectionRectLayer :=
       TSelectionRectLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FSelectionRect,
@@ -1112,6 +1127,7 @@ begin
     FLayersList.Add(FSelectionRectLayer);
     LayerSearchResults :=
       TSearchResultsLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LastSearchResultConfig,
@@ -1129,6 +1145,7 @@ begin
     FLayersList.Add(LayerSearchResults);
     FLayerGoto :=
       TGotoLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         TBitmapMarkerProviderChangeableFaked.Create(
@@ -1146,6 +1163,7 @@ begin
     FLayersList.Add(FLayerGoto);
     LayerMapNavToMark :=
       TNavToMarkLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.NavToPoint,
@@ -1162,6 +1180,7 @@ begin
     FLayersList.Add(LayerMapNavToMark);
     FShowErrorLayer :=
       TTileErrorInfoLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FTileErrorLogProvider,
@@ -1170,6 +1189,7 @@ begin
     FLayersList.Add(FShowErrorLayer);
     FLayerMapCenterScale :=
       TCenterScale.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.CenterScaleConfig
@@ -1177,6 +1197,7 @@ begin
     FLayersList.Add(FLayerMapCenterScale);
     FLayerScaleLine :=
       TLayerScaleLine.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.ScaleLineConfig
@@ -1184,6 +1205,7 @@ begin
     FLayersList.Add(FLayerScaleLine);
     FLayerStatBar :=
       TLayerStatBar.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.StatBar,
@@ -1196,6 +1218,7 @@ begin
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap :=
       TMiniMapLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.LocalConverterFactory,

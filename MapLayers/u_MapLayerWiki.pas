@@ -22,6 +22,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_LayerBitmapClearStrategy,
+  i_InternalPerformanceCounter,
   i_ViewPortState,
   i_VectorDataItemSimple,
   u_MapLayerWithThreadDraw;
@@ -90,6 +91,7 @@ type
     procedure DoHide; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -119,6 +121,7 @@ uses
 { TWikiLayer }
 
 constructor TWikiLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -130,6 +133,7 @@ constructor TWikiLayer.Create(
 );
 begin
   inherited Create(
+    APerfList,
     AParentMap,
     AViewPortState,
     AResamplerConfig,

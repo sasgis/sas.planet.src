@@ -40,9 +40,9 @@ type
     procedure SetNeedRedraw; override;
     procedure SetNeedUpdateLayerSize; override;
     procedure DoRedraw; override;
-    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -64,6 +64,7 @@ type
     procedure ClearLayerBitmap; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -85,6 +86,7 @@ uses
 { TMapLayerWithThreadDraw }
 
 constructor TMapLayerWithThreadDraw.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -93,7 +95,8 @@ constructor TMapLayerWithThreadDraw.Create(
   APriority: TThreadPriority
 );
 begin
-  inherited Create(AParentMap, AViewPortState, AResamplerConfig, AConverterFactory);
+  inherited Create(APerfList, AParentMap, AViewPortState, AResamplerConfig, AConverterFactory);
+  FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   Layer.Bitmap.BeginUpdate;
   FDrawTask := TBackgroundTaskLayerDrawBase.Create(OnDrawBitmap, APriority);
   FUpdateCounter := 0;
@@ -164,13 +167,6 @@ begin
   inherited;
 end;
 
-procedure TMapLayerWithThreadDraw.SetPerfList(
-  const Value: IInternalPerformanceCounterList);
-begin
-  inherited;
-  FBgDrawCounter := Value.CreateAndAddNewCounter('BgDraw');
-end;
-
 procedure TMapLayerWithThreadDraw.StartThreads;
 begin
   inherited;
@@ -183,6 +179,7 @@ end;
 { TMapLayerTiledWithThreadDraw }
 
 constructor TMapLayerTiledWithThreadDraw.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -193,6 +190,7 @@ constructor TMapLayerTiledWithThreadDraw.Create(
 );
 begin
   inherited Create(
+    APerfList,
     AParentMap,
     AViewPortState,
     AResamplerConfig,

@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_ViewPortState,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_LineOnMapEdit,
   i_PolyLineLayerConfig,
   u_ClipPolygonByRect,
@@ -62,6 +63,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ALineOnMapEdit: ILineOnMapEdit;
@@ -82,6 +84,7 @@ uses
 { TPolyLineLayerBase }
 
 constructor TPolyLineLayerBase.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ALineOnMapEdit: ILineOnMapEdit;
@@ -90,7 +93,7 @@ constructor TPolyLineLayerBase.Create(
   AClosed: boolean
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   FLineOnMapEdit := ALineOnMapEdit;
   FPolygon := APolygon;
