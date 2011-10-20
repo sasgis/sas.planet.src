@@ -31,6 +31,7 @@ uses
   i_ConfigDataProvider,
   i_CoordConverterFactory,
   i_LanguageManager,
+  i_InvisibleBrowser,
   i_TileRequestBuilder,
   i_TileRequestBuilderConfig,
   i_TileDownloader,
@@ -69,7 +70,8 @@ type
       ATileRequestBuilderConfig: ITileRequestBuilderConfig;
       AZmp: IZmpInfo;
       ACoordConverterFactory: ICoordConverterFactory;
-      ALangManager: ILanguageManager
+      ALangManager: ILanguageManager;
+      AInvisibleBrowser: IInvisibleBrowser
     );
     destructor Destroy; override;
     function GetIsEnabled: Boolean;
@@ -101,7 +103,8 @@ constructor TTileDownloaderBaseCore.Create(
   ATileRequestBuilderConfig: ITileRequestBuilderConfig;
   AZmp: IZmpInfo;
   ACoordConverterFactory: ICoordConverterFactory;
-  ALangManager: ILanguageManager
+  ALangManager: ILanguageManager;
+  AInvisibleBrowser: IInvisibleBrowser
 );
 var
   I: Integer;
@@ -110,7 +113,7 @@ begin
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileRequestBuilderConfig := ATileRequestBuilderConfig;
   FZmp := AZmp;
-  FAntiBan := TAntiBanStuped.Create(FZmp.DataProvider);
+  FAntiBan := TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider);
   FCoordConverterFactory := ACoordConverterFactory;
   FLangManager := ALangManager;
   FCS := TCriticalSection.Create;

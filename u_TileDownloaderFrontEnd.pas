@@ -28,6 +28,7 @@ uses
   i_ConfigDataProvider,
   i_CoordConverterFactory,
   i_LanguageManager,
+  i_InvisibleBrowser,
   i_TileRequestBuilderConfig,
   i_TileDownloader,
   i_TileDownloaderConfig,
@@ -45,7 +46,8 @@ type
       ATileRequestBuilderConfig: ITileRequestBuilderConfig;
       AZmp: IZmpInfo;
       ACoordConverterFactory: ICoordConverterFactory;
-      ALangManager: ILanguageManager
+      ALangManager: ILanguageManager;
+      AInvisibleBrowser: IInvisibleBrowser
     );
     destructor Destroy; override;
     procedure Download(AEvent: ITileDownloaderEvent);
@@ -65,7 +67,8 @@ constructor TTileDownloaderFrontEnd.Create(
   ATileRequestBuilderConfig: ITileRequestBuilderConfig;
   AZmp: IZmpInfo;
   ACoordConverterFactory: ICoordConverterFactory;
-  ALangManager: ILanguageManager
+  ALangManager: ILanguageManager;
+  AInvisibleBrowser: IInvisibleBrowser
 );
 var
   VDownloaderStr: string;
@@ -82,7 +85,8 @@ begin
         ATileRequestBuilderConfig,
         AZmp,
         ACoordConverterFactory,
-        ALangManager
+        ALangManager,
+        AInvisibleBrowser
       );
       if Assigned(FDownloader) then begin
         FUseDwn := FDownloader.Enabled;

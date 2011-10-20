@@ -29,11 +29,13 @@ uses
   i_AntiBan,
   i_DownloadRequest,
   i_DownloadResult,
-  i_DownloadResultFactory;
+  i_DownloadResultFactory,
+  i_InvisibleBrowser;
 
 type
   TAntiBanStuped = class(TInterfacedObject, IAntiBan)
   private
+    FInvisibleBrowser: IInvisibleBrowser;
     FUsePreloadPage: integer;
     FPreloadPage: string;
     FDownloadTilesCount: Longint;
@@ -47,6 +49,7 @@ type
     procedure ExecOnBan(ALastUrl: String);
   public
     constructor Create(
+      AInvisibleBrowser: IInvisibleBrowser;
       AConfig: IConfigDataProvider
     );
     destructor Destroy; override;
@@ -66,7 +69,7 @@ implementation
 uses
   Classes,
   SysUtils,
-  frm_InvisibleBrowser;
+  u_InetFunc;
 
 type
   TExecOnBan = class
@@ -93,12 +96,15 @@ end;
 { TAntiBanStuped }
 
 procedure TAntiBanStuped.addDwnforban;
+var
+  VUrl: WideString;
 begin
   if FPreloadPage = '' then begin
-    frmInvisibleBrowser.NavigateAndWait('http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8');
+    VUrl := 'http://maps.google.com/?ie=UTF8&ll=' + inttostr(random(100) - 50) + ',' + inttostr(random(300) - 150) + '&spn=1,1&t=k&z=8';
   end else begin
-    frmInvisibleBrowser.NavigateAndWait(FPreloadPage);
+    VUrl := FPreloadPage;
   end;
+  FInvisibleBrowser.NavigateAndWait(VUrl);
 end;
 
 function TAntiBanStuped.CheckIsBan(
@@ -109,11 +115,13 @@ begin
 end;
 
 constructor TAntiBanStuped.Create(
+  AInvisibleBrowser: IInvisibleBrowser;
   AConfig: IConfigDataProvider
 );
 var
   VParams: IConfigDataProvider;
 begin
+  FInvisibleBrowser := AInvisibleBrowser;
   FBanCS := TCriticalSection.Create;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FUsePreloadPage := VParams.ReadInteger('UsePreloadPage', 0);
@@ -156,7 +164,7 @@ begin
       RunAntiBan := (cnt = 1);
     end;
     if RunAntiBan then begin
-      TThread.Synchronize(nil, addDwnforban);
+      addDwnforban;
     end;
   end;
 end;

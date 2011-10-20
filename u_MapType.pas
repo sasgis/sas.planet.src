@@ -40,18 +40,15 @@ uses
   i_LanguageManager,
   i_CoordConverter,
   i_DownloadChecker,
-  i_TileDownloader,             // <--
-  //i_TileDownlodSession,
+  i_TileDownloader,
   i_LastResponseInfo,
   i_MapVersionConfig,
   i_TileRequestBuilder,
   i_TileRequestBuilderConfig,
-  //i_IPoolOfObjectsSimple,
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
   i_ListOfObjectsWithTTL,
   i_DownloadResultFactory,
-  //i_AntiBan,
   i_MemObjCache,
   i_InetConfig,
   i_DownloadResultTextProvider,
@@ -69,7 +66,7 @@ uses
   i_VectorDataItemSimple,
   u_GlobalCahceConfig,
   u_TileStorageAbstract,
-  u_TileDownloaderFrontEnd, // <--
+  u_TileDownloaderFrontEnd,
   u_ResStrings;
 
 type
@@ -77,7 +74,6 @@ type
    private
     FZmp: IZmpInfo;
 
-    //FAntiBan: IAntiBan;
     FCacheBitmap: ITileObjCacheBitmap;
     FCacheVector: ITileObjCacheVector;
     FStorage: TTileStorageAbstract;
@@ -87,7 +83,6 @@ type
     FKmlLoaderFromStorage: IVectorDataLoader;
     FCoordConverter : ICoordConverter;
     FViewCoordConverter : ICoordConverter;
-    //FPoolOfDownloaders: IPoolOfObjectsSimple;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
@@ -102,8 +97,7 @@ type
     FGUIConfig: IMapTypeGUIConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
-    
-    FTileDownloader: TTileDownloaderFrontEnd; // <--
+    FTileDownloader: TTileDownloaderFrontEnd;
     
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
@@ -112,10 +106,9 @@ type
       ACoordConverterFactory: ICoordConverterFactory
     );
     procedure LoadDownloader(
-      //AGCList: IListOfObjectsWithTTL;
-      AInvisibleBrowser: IInvisibleBrowser;
-      AConfig : IConfigDataProvider;                    // <--
-      ACoordConverterFactory: ICoordConverterFactory    // <--
+      AConfig : IConfigDataProvider;
+      ACoordConverterFactory: ICoordConverterFactory;
+      AInvisibleBrowser: IInvisibleBrowser
     );
     procedure LoadStorageParams(
       AMemCacheBitmap: IMemObjCacheBitmap;
@@ -218,18 +211,9 @@ type
       AColorer: IFillingMapColorer
     ): boolean;
     function GetShortFolderName: string;
-    {
-    function DownloadTile(
-      AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ATile: TPoint;
-      AZoom: byte;
-      ACheckTileSize: Boolean
-    ): IDownloadResult;
-    }    
-    procedure DownloadTile(AEvent: ITileDownloaderEvent); // <--
-    procedure OnTileDownload(AEvent: ITileDownloaderEvent); // <--
-    
+    procedure DownloadTile(AEvent: ITileDownloaderEvent);
+    procedure OnTileDownload(AEvent: ITileDownloaderEvent);
+
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
     property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
@@ -279,17 +263,13 @@ uses
   Types,
   GR32_Resamplers,
   i_ObjectWithTTL,
-  //i_PoolElement,
   i_TileInfoBasic,
   i_ContentConverter,
   i_TileDownloadRequest,
-  //u_PoolOfObjectsSimple,
   u_TileDownloaderConfig,
   u_TileRequestBuilderConfig,
   u_TileRequestBuilderPascalScript,
-  //u_TileDownloaderBaseFactory,
   u_DownloadResultFactory,
-  //u_AntiBanStuped,
   u_TileCacheSimpleGlobal,
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
@@ -366,7 +346,8 @@ end;
 
 procedure TMapType.LoadDownloader(
   AConfig: IConfigDataProvider;
-  AInvisibleBrowser: IInvisibleBrowser;
+  ACoordConverterFactory: ICoordConverterFactory;
+  AInvisibleBrowser: IInvisibleBrowser
 );
 begin
   FAbilitiesConfig.LockWrite;
@@ -379,7 +360,8 @@ begin
           FTileRequestBuilderConfig,
           FZmp,
           ACoordConverterFactory,
-          FLanguageManager
+          FLanguageManager,
+          AInvisibleBrowser
         );
         FAbilitiesConfig.UseDownload := Assigned(FTileDownloader);
       except
@@ -416,7 +398,7 @@ begin
   FViewCoordConverter := Zmp.ViewGeoConvert;
   FTileRequestBuilderConfig.ReadConfig(AConfig);
   LoadUrlScript(ACoordConverterFactory);
-  LoadDownloader(AConfig, ACoordConverterFactory);
+  LoadDownloader(AConfig, ACoordConverterFactory, AInvisibleBrowser);
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
