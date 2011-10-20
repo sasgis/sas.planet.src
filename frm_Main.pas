@@ -560,7 +560,6 @@ type
 
     FMainLayer: TMapMainLayer;
     FWikiLayer: TWikiLayer;
-    FLayerGoto: TGotoLayer;
     FLayerMapMarks: TMapMarksLayer;
     FLayerSearchResults: TSearchResultsLayer;
     FUIDownLoader: TTileDownloaderUI;
@@ -1127,7 +1126,7 @@ begin
         )
       );
     FLayersList.Add(FLayerSearchResults);
-    FLayerGoto :=
+    FLayersList.Add(
       TGotoLayer.Create(
         GState.PerfCounterList,
         map,
@@ -1144,8 +1143,8 @@ begin
         ),
         FMapGoto,
         FConfig.LayersConfig.GotoLayerConfig
-      );
-    FLayersList.Add(FLayerGoto);
+      )
+    );
     FLayersList.Add(
       TNavToMarkLayer.Create(
         GState.PerfCounterList,
