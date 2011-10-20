@@ -558,28 +558,10 @@ type
     movepoint: boolean;
 
     FMainLayer: TMapMainLayer;
-    FLayerStatBar: TLayerStatBar;
-    FShowErrorLayer: TTileErrorInfoLayer;
     FWikiLayer: TWikiLayer;
-    FLayerScaleLine: TLayerScaleLine;
-    FCalcLineLayer: TCalcLineLayer;
-    FMarkPolyLineLayer: TMarkPolyLineLayer;
-    FMarkPolygonLayer: TMarkPolygonLayer;
-    FSelectionPolygonLayer: TSelectionPolygonLayer;
-    FSelectionPolylineLayer: TSelectionPolylineLayer;
-    FSelectionRectLayer: TSelectionRectLayer;
-    FLayerMapGPS: TMapGPSLayer;
     FLayerGoto: TGotoLayer;
-    FLayerFillingMap: TMapLayerFillingMap;
     FLayerMapMarks: TMapMarksLayer;
-    FLayerMapCenterScale: TCenterScale;
-    FLayerMiniMap: TMiniMapLayer;
-    FLayerSelection: TSelectionLayer;
-    FLayerGPSMarker: TMapLayerGPSMarker;
-    FLayerGrids: TMapLayerGrids;
-    FLayerTileGrid: TMapLayerTileGrid;
-    LayerMapNavToMark: TNavToMarkLayer;
-    LayerSearchResults: TSearchResultsLayer;
+    FLayerSearchResults: TSearchResultsLayer;
     FUIDownLoader: TTileDownloaderUI;
 
     ProgramStart: Boolean;
@@ -975,7 +957,7 @@ begin
         GState.GUISyncronizedTimerNotifier
       );
     FLayersList.Add(FMainLayer);
-    FLayerGrids :=
+    FLayersList.Add(
       TMapLayerGrids.Create(
         GState.PerfCounterList,
         map,
@@ -983,16 +965,16 @@ begin
         GState.ImageResamplerConfig,
         GState.LocalConverterFactory,
         FConfig.LayersConfig.MapLayerGridsConfig
-      );
-    FLayersList.Add(FLayerGrids);
-    FLayerTileGrid :=
+      )
+    );
+    FLayersList.Add(
       TMapLayerTileGrid.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid
-      );
-    FLayersList.Add(FLayerTileGrid);
+      )
+    );
     FWikiLayer :=
       TWikiLayer.Create(
         GState.PerfCounterList,
@@ -1006,7 +988,7 @@ begin
         FConfig.MainMapsConfig.GetActiveKmlLayersSet
       );
     FLayersList.Add(FWikiLayer);
-    FLayerFillingMap :=
+    FLayersList.Add(
       TMapLayerFillingMap.Create(
         GState.PerfCounterList,
         map,
@@ -1015,8 +997,8 @@ begin
         GState.LocalConverterFactory,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.FillingMapLayerConfig
-      );
-    FLayersList.Add(FLayerFillingMap);
+      )
+    );
     FLayerMapMarks:=
       TMapMarksLayer.Create(
         GState.PerfCounterList,
@@ -1030,7 +1012,7 @@ begin
         FMarkDBGUI
       );
     FLayersList.Add(FLayerMapMarks);
-    FLayerMapGPS:=
+    FLayersList.Add(
       TMapGPSLayer.Create(
         GState.PerfCounterList,
         map,
@@ -1041,9 +1023,9 @@ begin
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.GPSTrackConfig,
         GState.GPSRecorder
-      );
-    FLayersList.Add(FLayerMapGPS);
-    FLayerGPSMarker :=
+      )
+    );
+    FLayersList.Add(
       TMapLayerGPSMarker.Create(
         GState.PerfCounterList,
         map,
@@ -1059,18 +1041,18 @@ begin
           FConfig.LayersConfig.GPSMarker.StopedMarkerConfig
         ),
         GState.GPSRecorder
-      );
-    FLayersList.Add(FLayerGPSMarker);
-    FLayerSelection :=
+      )
+    );
+    FLayersList.Add(
       TSelectionLayer.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.LastSelectionLayerConfig,
         GState.LastSelectionInfo
-      );
-    FLayersList.Add(FLayerSelection);
-    FCalcLineLayer :=
+      )
+    );
+    FLayersList.Add(
       TCalcLineLayer.Create(
         GState.PerfCounterList,
         map,
@@ -1078,54 +1060,54 @@ begin
         FLineOnMapByOperation[ao_calc_line],
         FConfig.LayersConfig.CalcLineLayerConfig,
         GState.ValueToStringConverterConfig
-      );
-    FLayersList.Add(FCalcLineLayer);
-    FMarkPolyLineLayer :=
+      )
+    );
+    FLayersList.Add(
       TMarkPolyLineLayer.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_add_line],
         FConfig.LayersConfig.MarkPolyLineLayerConfig
-      );
-    FLayersList.Add(FMarkPolyLineLayer);
-    FMarkPolygonLayer :=
+      )
+    );
+    FLayersList.Add(
       TMarkPolygonLayer.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_add_poly],
         FConfig.LayersConfig.MarkPolygonLayerConfig
-      );
-    FLayersList.Add(FMarkPolygonLayer);
-    FSelectionPolygonLayer :=
+      )
+    );
+    FLayersList.Add(
       TSelectionPolygonLayer.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_select_poly],
         FConfig.LayersConfig.SelectionPolygonLayerConfig
-      );
-    FLayersList.Add(FSelectionPolygonLayer);
-    FSelectionPolylineLayer :=
+      )
+    );
+    FLayersList.Add(
       TSelectionPolylineLayer.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_select_line],
         FConfig.LayersConfig.SelectionPolylineLayerConfig
-      );
-    FLayersList.Add(FSelectionPolylineLayer);
-    FSelectionRectLayer :=
+      )
+    );
+    FLayersList.Add(
       TSelectionRectLayer.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FSelectionRect,
         FConfig.LayersConfig.SelectionRectLayerConfig
-      );
-    FLayersList.Add(FSelectionRectLayer);
-    LayerSearchResults :=
+      )
+    );
+    FLayerSearchResults :=
       TSearchResultsLayer.Create(
         GState.PerfCounterList,
         map,
@@ -1142,7 +1124,7 @@ begin
           )
         )
       );
-    FLayersList.Add(LayerSearchResults);
+    FLayersList.Add(FLayerSearchResults);
     FLayerGoto :=
       TGotoLayer.Create(
         GState.PerfCounterList,
@@ -1161,7 +1143,7 @@ begin
         FConfig.LayersConfig.GotoLayerConfig
       );
     FLayersList.Add(FLayerGoto);
-    LayerMapNavToMark :=
+    FLayersList.Add(
       TNavToMarkLayer.Create(
         GState.PerfCounterList,
         map,
@@ -1176,34 +1158,34 @@ begin
           FConfig.LayersConfig.NavToPointMarkerConfig.ReachedMarkerConfig
         ),
         FConfig.LayersConfig.NavToPointMarkerConfig
-      );
-    FLayersList.Add(LayerMapNavToMark);
-    FShowErrorLayer :=
+      )
+    );
+    FLayersList.Add(
       TTileErrorInfoLayer.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FTileErrorLogProvider,
         GState.GUISyncronizedTimerNotifier
-      );
-    FLayersList.Add(FShowErrorLayer);
-    FLayerMapCenterScale :=
+      )
+    );
+    FLayersList.Add(
       TCenterScale.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.CenterScaleConfig
-      );
-    FLayersList.Add(FLayerMapCenterScale);
-    FLayerScaleLine :=
+      )
+    );
+    FLayersList.Add(
       TLayerScaleLine.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.ScaleLineConfig
-      );
-    FLayersList.Add(FLayerScaleLine);
-    FLayerStatBar :=
+      )
+    );
+    FLayersList.Add(
       TLayerStatBar.Create(
         GState.PerfCounterList,
         map,
@@ -1214,9 +1196,9 @@ begin
         GState.GUISyncronizedTimerNotifier,
         GState.DownloadInfo,
         FConfig.MainMapsConfig
-      );
-    FLayersList.Add(FLayerStatBar);
-    FLayerMiniMap :=
+      )
+    );
+    FLayersList.Add(
       TMiniMapLayer.Create(
         GState.PerfCounterList,
         map,
@@ -1229,8 +1211,8 @@ begin
         GState.MapType.GUIConfigList,
         FMapTypeIcons18List,
         GState.GUISyncronizedTimerNotifier
-      );
-    FLayersList.Add(FLayerMiniMap);
+      )
+    );
 
     FUIDownLoader :=
       TTileDownloaderUI.Create(
@@ -3845,7 +3827,7 @@ begin
       end;
 
       VWikiItem := nil;
-      LayerSearchResults.MouseOnReg(Point(x,y), VWikiItem, VMarkS);
+      FLayerSearchResults.MouseOnReg(Point(x,y), VWikiItem, VMarkS);
       if VWikiItem <> nil then begin
         VPWL.find := True;
         VPWL.name := VWikiItem.Name;
@@ -4007,7 +3989,7 @@ begin
     end;
 
     VWikiItem := nil;
-    LayerSearchResults.MouseOnReg(VMousePos, VWikiItem, VMarkS);
+    FLayerSearchResults.MouseOnReg(VMousePos, VWikiItem, VMarkS);
     if VWikiItem <> nil then begin
       VItemFound := True;
       VItemS := VMarkS;
