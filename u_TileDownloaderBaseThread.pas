@@ -98,6 +98,7 @@ begin
   FWasConnectError := False;
   FOnTTLEvent := nil;
   FLastUsedTime := GetTickCount;
+  FLastDownloadTime := MaxInt;
   FreeOnTerminate := False;
   inherited Create(False);
 end;
@@ -179,7 +180,6 @@ begin
             VCount := 0;
             VTryCount := VTileDownloaderConfigStatic.InetConfigStatic.DownloadTryCount;
             FWasConnectError := False;
-            FLastDownloadTime := MaxInt;
             repeat
               if IsCanceled then begin
                 FEvent.DownloadResult := FHttpDownloader.Cancel(FEvent.Request);
