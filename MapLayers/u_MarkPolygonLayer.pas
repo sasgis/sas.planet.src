@@ -9,6 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_ViewPortState,
   i_LineOnMapEdit,
   i_MarkPolygonLayerConfig,
@@ -27,6 +28,7 @@ type
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ALineOnMapEdit: ILineOnMapEdit;
@@ -43,6 +45,7 @@ uses
 { TMarkPolyLineLayer }
 
 constructor TMarkPolygonLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ALineOnMapEdit: ILineOnMapEdit;
@@ -53,7 +56,7 @@ begin
   FPolygonFill.Closed := True;
   FPolygonFill.Antialiased := true;
   FPolygonFill.AntialiasMode := am4times;
-  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, FPolygonFill, true);
+  inherited Create(APerfList, AParentMap, AViewPortState, ALineOnMapEdit, AConfig, FPolygonFill, true);
   FConfig := AConfig;
 end;
 

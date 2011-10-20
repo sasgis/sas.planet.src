@@ -25,7 +25,6 @@ interface
 uses
   Types,
   Classes,
-  Graphics,
   TB2Item,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

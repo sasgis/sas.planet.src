@@ -8,6 +8,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_ViewPortState,
+  i_InternalPerformanceCounter,
   i_LocalCoordConverter,
   i_MapLayerGridsConfig,
   u_MapLayerBasic;
@@ -23,7 +24,12 @@ type
   public
     procedure StartThreads; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ITileGridConfig);
+    constructor Create(
+      APerfList: IInternalPerformanceCounterList;
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConfig: ITileGridConfig
+    );
   end;
 
 implementation
@@ -35,10 +41,14 @@ uses
 
 { TMapLayerTileGrid }
 
-constructor TMapLayerTileGrid.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState; AConfig: ITileGridConfig);
+constructor TMapLayerTileGrid.Create(
+  APerfList: IInternalPerformanceCounterList;
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConfig: ITileGridConfig
+);
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
 
   LinksList.Add(

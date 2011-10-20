@@ -16,6 +16,7 @@ uses
   c_SensorsGUIDSimple in 'c_SensorsGUIDSimple.pas',
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
+  t_FillingMapModes in 't_FillingMapModes.pas',
   i_GUIDListStatic in 'i_GUIDListStatic.pas',
   u_GUIDListStatic in 'u_GUIDListStatic.pas',
   i_Datum in 'i_Datum.pas',
@@ -493,6 +494,8 @@ uses
   u_MarkPolygonLayerConfig in 'u_MarkPolygonLayerConfig.pas',
   i_MarkPolyLineLayerConfig in 'i_MarkPolyLineLayerConfig.pas',
   u_MarkPolyLineLayerConfig in 'u_MarkPolyLineLayerConfig.pas',
+  i_FillingMapColorer in 'i_FillingMapColorer.pas',
+  u_FillingMapColorerSimple in 'u_FillingMapColorerSimple.pas',
   i_FillingMapLayerConfig in 'i_FillingMapLayerConfig.pas',
   u_FillingMapLayerConfigStatic in 'u_FillingMapLayerConfigStatic.pas',
   u_FillingMapLayerConfig in 'u_FillingMapLayerConfig.pas',
@@ -570,6 +573,13 @@ uses
   u_GPSModuleByCOMPortSettings in 'u_GPSModuleByCOMPortSettings.pas',
   i_SatellitesInViewMapDraw in 'i_SatellitesInViewMapDraw.pas',
   u_SatellitesInViewMapDrawSimple in 'u_SatellitesInViewMapDrawSimple.pas',
+  u_InetFunc in 'u_InetFunc.pas',
+  i_DebugInfoWindow in 'i_DebugInfoWindow.pas',
+  u_DebugInfoWindow in 'u_DebugInfoWindow.pas',
+  i_InternalBrowser in 'i_InternalBrowser.pas',
+  u_InternalBrowserByForm in 'u_InternalBrowserByForm.pas',
+  i_InvisibleBrowser in 'i_InvisibleBrowser.pas',
+  u_InvisibleBrowserByFormSynchronize in 'u_InvisibleBrowserByFormSynchronize.pas',
   i_GPSConfig in 'i_GPSConfig.pas',
   u_GPSConfig in 'u_GPSConfig.pas',
   u_GPSSatelliteInfo in 'u_GPSSatelliteInfo.pas',
@@ -659,18 +669,7 @@ begin
     end;
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
-    Application.CreateForm(TfrmGoTo, frmGoTo);
     Application.CreateForm(TfrmAbout, frmAbout);
-    Application.CreateForm(TfrmSettings, frmSettings);
-    Application.CreateForm(TfrmMarksExplorer, frmMarksExplorer);
-    Application.CreateForm(TfrmImportConfigEdit, frmImportConfigEdit);
-    Application.CreateForm(TfrmMarkCategoryEdit, frmMarkCategoryEdit);
-    Application.CreateForm(TfrmDGAvailablePic, frmDGAvailablePic);
-    Application.CreateForm(TfrmIntrnalBrowser, frmIntrnalBrowser);
-    frmInvisibleBrowser := TfrmInvisibleBrowser.Create(Application, GState.InetConfig.ProxyConfig);
-    if GState.GlobalAppConfig.IsShowDebugInfo then begin
-      frmDebugInfo := TfrmDebugInfo.Create(Application, GState.PerfCounterList);
-    end;
     GState.StartExceptionTracking;
     try
       Application.Run;

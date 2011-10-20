@@ -40,6 +40,9 @@ uses
   t_GeoTypes,
   u_CommonFormAndFrameParents,
   u_ResStrings,
+  i_LanguageManager,
+  i_ViewPortState,
+  i_ValueToStringConverter,
   i_MarkPicture,
   i_MarksSimple,
   i_MarkCategory,
@@ -50,7 +53,7 @@ uses
   fr_MarkCategorySelectOrAdd;
 
 type
-  TfrmMarkEditPoint = class(TCommonFormParent)
+  TfrmMarkEditPoint = class(TFormWitghLanguageManager)
     edtName: TEdit;
     lblName: TLabel;
     btnOk: TButton;
@@ -108,9 +111,11 @@ type
     procedure DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
   public
     constructor Create(
-      AOwner: TComponent;
+      ALanguageManager: ILanguageManager;
       ACategoryDB: IMarkCategoryDB;
-      AMarksDb: IMarksDb
+      AMarksDb: IMarksDb;
+      AViewPortState: IViewPortState;
+      AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(AMark: IMarkPoint): IMarkPoint;
@@ -120,18 +125,19 @@ type
 implementation
 
 uses
-  Math,
-  u_GlobalState;
+  Math;
 
 {$R *.dfm}
 
 constructor TfrmMarkEditPoint.Create(
-  AOwner: TComponent;
+  ALanguageManager: ILanguageManager;
   ACategoryDB: IMarkCategoryDB;
-  AMarksDb: IMarksDb
+  AMarksDb: IMarksDb;
+  AViewPortState: IViewPortState;
+  AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FMarksDb := AMarksDb;
   FCategoryDB := ACategoryDB;
 
@@ -139,8 +145,8 @@ begin
   frLonLatPoint :=
     TfrLonLat.Create(
       nil,
-      GState.MainFormConfig.ViewPortState,
-      GState.ValueToStringConverterConfig,
+      AViewPortState,
+      AValueToStringConverterConfig,
       tssCenter
     );
   frMarkCategory :=

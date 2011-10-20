@@ -43,7 +43,9 @@ uses
   ExtCtrls,
   Buttons,
   Dialogs,
+  Spin,
   ImgList,
+  ComCtrls,
   GR32,
   GR32_Layers,
   GR32_Image,
@@ -63,6 +65,7 @@ uses
   i_JclNotify,
   i_GUIDSet,
   t_GeoTypes,
+  t_FillingMapModes,
   i_JclListenerNotifierLinksList,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -73,6 +76,7 @@ uses
   i_GPS,
   i_GPSRecorder,
   i_GeoCoder,
+  i_MapTypeConfigModalEdit,
   i_MapTypeHotKeyListStatic,
   i_MarksSimple,
   i_MainFormConfig,
@@ -117,8 +121,12 @@ uses
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
+  u_TileDownloaderUI,
+  frm_Settings,
   frm_RegionProcess,
-  u_TileDownloaderUI, Spin;
+  frm_DGAvailablePic,
+  frm_MarksExplorer,
+  frm_GoTo;
 
 type
   TAOperation = (
@@ -381,6 +389,22 @@ type
     tbiEditOSMSrch: TTBEditItem;
     TBXSelectWikiMapiaSrch: TTBXItem;
     tbiEditWikiMapiaSrch: TTBEditItem;
+    osmorg1: TTBXItem;
+    TBXSeparatorItem20: TTBXSeparatorItem;
+    NFillMode3: TTBXItem;
+    NFillMode2: TTBXItem;
+    NFillMode1: TTBXItem;
+    TBXSeparatorItem21: TTBXSeparatorItem;
+    NFillToolBar: TTBXItem;
+    FillToolBar: TTBXToolbar;
+    TBControlItem7: TTBControlItem;
+    TBControlItem6: TTBControlItem;
+    TBControlItem8: TTBControlItem;
+    TBControlItem9: TTBControlItem;
+    Label1: TLabel;
+    Label2: TLabel;
+    DateTimePicker1: TDateTimePicker;
+    DateTimePicker2: TDateTimePicker;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -513,6 +537,13 @@ type
     procedure TBEditMagnetDrawClick(Sender: TObject);
     procedure TBPolylineSelectClick(Sender: TObject);
     procedure TBEditSelectPolylineRadiusChange(Sender: TObject);
+    procedure osmorg1Click(Sender: TObject);
+    procedure NFillMode1Click(Sender: TObject);
+    procedure NFillMode2Click(Sender: TObject);
+    procedure NFillMode3Click(Sender: TObject);
+    procedure NFillToolBarClick(Sender: TObject);
+    procedure DateTimePicker1Change(Sender: TObject);
+    procedure DateTimePicker2Change(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -590,11 +621,16 @@ type
     FTumbler:TBitmap32;
     FSensorViewList: IGUIDInterfaceSet;
     FFormRegionProcess: TfrmRegionProcess;
+    FfrmGoTo: TfrmGoTo;
+    FfrmDGAvailablePic: TfrmDGAvailablePic;
+    FfrmSettings: TfrmSettings;
+    FfrmMarksExplorer: TfrmMarksExplorer;
 
     FPathProvidersTree: ITreeChangeable;
     FPathProvidersTreeStatic: IStaticTreeItem;
     FPathProvidersMenuBuilder: IMenuGeneratorByTree;
     FMapHotKeyList: IMapTypeHotKeyListStatic;
+    FMapTypeEditor: IMapTypeConfigModalEdit;
 
     procedure InitSearchers;
     procedure LoadMapIconsList;
@@ -639,14 +675,12 @@ type
     procedure OnBeforeViewChange(Sender: TObject);
     procedure OnAfterViewChange(Sender: TObject);
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
+    procedure OnMinimize(Sender: TObject);
+    procedure SaveConfig(Sender: TObject);
+    procedure LayerMapMarksRedraw(Sender: TObject);
   public
-    property ShortCutManager: TShortcutManager read FShortCutManager;
-
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure SaveConfig;
-    procedure LayerMapMarksRedraw;
-    procedure OnMinimize(Sender: TObject);
   end;
 
 var
@@ -657,14 +691,8 @@ implementation
 uses
   u_GUIDObjectSet,
   u_GlobalState,
-  frm_GoTo,
   frm_About,
-  frm_Settings,
   frm_LonLatRectEdit,
-  frm_MapTypeEdit,
-  frm_IntrnalBrowser,
-  frm_MarksExplorer,
-  frm_DGAvailablePic,
   c_ZeroGUID,
   c_SasVersion,
   c_GeoCoderGUIDSimple,
@@ -695,6 +723,7 @@ uses
   u_MapViewGotoOnFMain,
   u_LanguageTBXItem,
   u_MouseState,
+  u_MapTypeConfigModalEditByForm,
   i_ImportConfig,
   u_BitmapMarkerProviderSimpleBase,
   u_BitmapMarkerProviderSimpleSquare,
@@ -708,13 +737,10 @@ uses
   u_TreeByPathDetalizeProviderList,
   u_MenuGeneratorByStaticTreeSimple,
   u_PosFromGSM,
-  u_ExportMarks2KML,
   u_SearchResults,
+  u_InetFunc,
   frm_ProgressDownload,
-  frm_InvisibleBrowser,
-  frm_DebugInfo,
-  frm_StartLogo,
-  frm_ImportConfigEdit;
+  frm_StartLogo;
 
 {$R *.dfm}
 
@@ -732,7 +758,7 @@ begin
   FConfig := GState.MainFormConfig;
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
-      Self,
+      GState.LanguageManager,
       GState.LastSelectionInfo,
       FConfig.MainMapsConfig,
       GState.MapType.FullMapsSet,
@@ -750,8 +776,26 @@ begin
       GState.MapCalibrationList,
       GState.DownloadConfig,
       GState.DownloadInfo,
+      GState.ValueToStringConverterConfig,
       Self.OnMapUpdate
     );
+  FfrmGoTo :=
+    TfrmGoTo.Create(
+      GState.LanguageManager,
+      GState.MarksDB.MarksDb,
+      FConfig.MainGeoCoderConfig,
+      FConfig.ViewPortState,
+      GState.ValueToStringConverterConfig
+    );
+
+  FfrmDGAvailablePic :=
+    TfrmDGAvailablePic.Create(
+      GState.LanguageManager,
+      GState.InetConfig
+    );
+
+  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);
+
   LoadMapIconsList;
 
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -868,9 +912,10 @@ begin
   TBEditPath.Visible:=false;
   FMarkDBGUI :=
     TMarksDbGUIHelper.Create(
+      GState.LanguageManager,
       GState.MarksDB,
+      FConfig.ViewPortState,
       GState.ValueToStringConverterConfig,
-      GState.MarksDB.MarksFactoryConfig.PointTemplateConfig.MarkPictureList,
       FFormRegionProcess
     );
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
@@ -917,6 +962,7 @@ begin
 
     FMainLayer :=
       TMapMainLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -931,6 +977,7 @@ begin
     FLayersList.Add(FMainLayer);
     FLayerGrids :=
       TMapLayerGrids.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -940,6 +987,7 @@ begin
     FLayersList.Add(FLayerGrids);
     FLayerTileGrid :=
       TMapLayerTileGrid.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid
@@ -947,6 +995,7 @@ begin
     FLayersList.Add(FLayerTileGrid);
     FWikiLayer :=
       TWikiLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -959,6 +1008,7 @@ begin
     FLayersList.Add(FWikiLayer);
     FLayerFillingMap :=
       TMapLayerFillingMap.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -969,6 +1019,7 @@ begin
     FLayersList.Add(FLayerFillingMap);
     FLayerMapMarks:=
       TMapMarksLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -981,6 +1032,7 @@ begin
     FLayersList.Add(FLayerMapMarks);
     FLayerMapGPS:=
       TMapGPSLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -993,6 +1045,7 @@ begin
     FLayersList.Add(FLayerMapGPS);
     FLayerGPSMarker :=
       TMapLayerGPSMarker.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.GUISyncronizedTimerNotifier,
@@ -1010,6 +1063,7 @@ begin
     FLayersList.Add(FLayerGPSMarker);
     FLayerSelection :=
       TSelectionLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.LastSelectionLayerConfig,
@@ -1018,6 +1072,7 @@ begin
     FLayersList.Add(FLayerSelection);
     FCalcLineLayer :=
       TCalcLineLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_calc_line],
@@ -1027,6 +1082,7 @@ begin
     FLayersList.Add(FCalcLineLayer);
     FMarkPolyLineLayer :=
       TMarkPolyLineLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_add_line],
@@ -1035,6 +1091,7 @@ begin
     FLayersList.Add(FMarkPolyLineLayer);
     FMarkPolygonLayer :=
       TMarkPolygonLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_add_poly],
@@ -1043,6 +1100,7 @@ begin
     FLayersList.Add(FMarkPolygonLayer);
     FSelectionPolygonLayer :=
       TSelectionPolygonLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_select_poly],
@@ -1051,6 +1109,7 @@ begin
     FLayersList.Add(FSelectionPolygonLayer);
     FSelectionPolylineLayer :=
       TSelectionPolylineLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_select_line],
@@ -1059,6 +1118,7 @@ begin
     FLayersList.Add(FSelectionPolylineLayer);
     FSelectionRectLayer :=
       TSelectionRectLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FSelectionRect,
@@ -1067,6 +1127,7 @@ begin
     FLayersList.Add(FSelectionRectLayer);
     LayerSearchResults :=
       TSearchResultsLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LastSearchResultConfig,
@@ -1084,6 +1145,7 @@ begin
     FLayersList.Add(LayerSearchResults);
     FLayerGoto :=
       TGotoLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         TBitmapMarkerProviderChangeableFaked.Create(
@@ -1101,6 +1163,7 @@ begin
     FLayersList.Add(FLayerGoto);
     LayerMapNavToMark :=
       TNavToMarkLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.NavToPoint,
@@ -1117,6 +1180,7 @@ begin
     FLayersList.Add(LayerMapNavToMark);
     FShowErrorLayer :=
       TTileErrorInfoLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FTileErrorLogProvider,
@@ -1125,6 +1189,7 @@ begin
     FLayersList.Add(FShowErrorLayer);
     FLayerMapCenterScale :=
       TCenterScale.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.CenterScaleConfig
@@ -1132,6 +1197,7 @@ begin
     FLayersList.Add(FLayerMapCenterScale);
     FLayerScaleLine :=
       TLayerScaleLine.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.ScaleLineConfig
@@ -1139,6 +1205,7 @@ begin
     FLayersList.Add(FLayerScaleLine);
     FLayerStatBar :=
       TLayerStatBar.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.StatBar,
@@ -1151,6 +1218,7 @@ begin
     FLayersList.Add(FLayerStatBar);
     FLayerMiniMap :=
       TMiniMapLayer.Create(
+        GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
         GState.LocalConverterFactory,
@@ -1302,6 +1370,10 @@ begin
       FConfig.MainGeoCoderConfig.SearchHistory.GetChangeNotifier
     );
 
+    FillToolBar.Visible := FConfig.LayersConfig.FillingMapLayerConfig.FilterMode;
+    DateTimePicker1.DateTime := FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay;
+    DateTimePicker2.DateTime := FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay;
+
     ProgramStart:=false;
 
     if ParamCount > 1 then begin
@@ -1343,11 +1415,27 @@ begin
     CreateLangMenu;
     FMapMoving:=false;
 
-    SetProxy;
+    FfrmSettings :=
+      TfrmSettings.Create(
+        GState.LanguageManager,
+        FShortCutManager,
+        FMapTypeEditor,
+        Self.SaveConfig
+      );
 
-    if GState.GlobalAppConfig.IsSendStatistic then begin
-      frmInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
-    end;
+    FfrmSettings.SetProxy;
+
+    FfrmMarksExplorer :=
+      TfrmMarksExplorer.Create(
+        GState.LanguageManager,
+        GState.ImportFileByExt,
+        FConfig.ViewPortState,
+        FConfig.NavToPoint,
+        FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
+        FMarkDBGUI,
+        Self.LayerMapMarksRedraw,
+        TMapViewGotoOnFMain.Create(Self.topos)
+      );
 
     FLinksList.ActivateLinks;
     FLayersList.StartThreads;
@@ -1381,6 +1469,7 @@ begin
   VGoto := TMapViewGotoOnFMain.Create(Self.topos);
   FSearchPresenter :=
     TSearchResultPresenterOnPanel.Create(
+      GState.InternalBrowser,
       VGoto,
       ScrollBoxSearchWindow,
       TBSearchWindow,
@@ -1637,7 +1726,7 @@ begin
   FUIDownLoader.SendTerminateToThreads;
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
-  SaveConfig;
+  SaveConfig(nil);
   Application.ProcessMessages;
   FreeAndNil(FLayersList);
   FreeAndNil(FUIDownLoader);
@@ -1659,6 +1748,11 @@ begin
   FLinksList := nil;
   FreeAndNil(FTumbler);
   FreeAndNil(FRuller);
+  FreeAndNil(FFormRegionProcess);
+  FreeAndNil(FfrmGoTo);
+  FreeAndNil(FfrmDGAvailablePic);
+  FreeAndNil(FfrmSettings);
+  FreeAndNil(FfrmMarksExplorer);
   inherited;
 end;
 
@@ -1775,7 +1869,10 @@ end;
 
 procedure TfrmMain.setalloperationfalse(newop: TAOperation);
 begin
- if FCurrentOper=newop then newop:=ao_movemap;
+  if FCurrentOper=newop then newop:=ao_movemap;
+  if newop=ao_movemap then begin
+    FSelectionRect.Reset;
+  end;
  FMarshrutComment:='';
  TBmove.Checked:=newop=ao_movemap;
  TBCalcRas.Checked:=newop=ao_calc_line;
@@ -2517,7 +2614,7 @@ end;
 
 procedure TfrmMain.N8Click(Sender: TObject);
 begin
-  frmSettings.ShowModal;
+  FfrmSettings.ShowModal;
 end;
 
 procedure TfrmMain.NbackloadClick(Sender: TObject);
@@ -2855,12 +2952,20 @@ var
   VRelative: Boolean;
   VZoom: Byte;
   VSelectedCell: TPoint;
+  VFillMode: TFillMode;
+  VFilterMode: Boolean;
+  VFillFirstDay: TDateTime;
+  VFillLastDay: TDateTime;
 begin
   FConfig.LayersConfig.FillingMapLayerConfig.LockRead;
   try
     VVisible := FConfig.LayersConfig.FillingMapLayerConfig.Visible;
     VRelative := FConfig.LayersConfig.FillingMapLayerConfig.UseRelativeZoom;
     VZoom := FConfig.LayersConfig.FillingMapLayerConfig.Zoom;
+    VFillMode :=FConfig.LayersConfig.FillingMapLayerConfig.FillMode;
+    VFilterMode := FConfig.LayersConfig.FillingMapLayerConfig.FilterMode;
+    VFillFirstDay := FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay;
+    VFillLastDay:= FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay;
   finally
     FConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
   end;
@@ -2876,6 +2981,88 @@ begin
     VSelectedCell := Point(0,0);
   end;
   TBXToolPalette1.SelectedCell := VSelectedCell;
+  if(VFillMode=fmUnexisting) then begin
+    NFillMode1.Checked :=True;
+  end;
+  if(VFillMode=fmExisting) then begin
+    NFillMode2.Checked :=True;
+  end;
+  if(VFillMode=fmGradient) then begin
+    NFillMode3.Checked :=True;
+  end;
+  NFillToolBar.Checked := VFilterMode;
+  FillToolBar.Visible := VFilterMode;
+  DateTimePicker1.DateTime := VFillFirstDay;
+  DateTimePicker2.DateTime := VFillLastDay;
+end;
+
+procedure TfrmMain.NFillMode1Click(Sender: TObject);
+begin
+  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
+  try
+    FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmUnexisting;
+  finally
+    FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
+  end;
+end;
+
+procedure TfrmMain.NFillMode2Click(Sender: TObject);
+begin
+  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
+  try
+    FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmExisting;
+  finally
+    FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
+  end;
+end;
+
+procedure TfrmMain.NFillMode3Click(Sender: TObject);
+begin
+  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
+  try
+    FConfig.LayersConfig.FillingMapLayerConfig.FillMode := fmGradient;
+  finally
+    FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
+  end;
+end;
+
+procedure TfrmMain.NFillToolBarClick(Sender: TObject);
+var
+  VFilter: Boolean;
+begin
+  VFilter := not NFillToolBar.Checked;
+  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
+  try
+    FConfig.LayersConfig.FillingMapLayerConfig.FilterMode :=  VFilter;
+  finally
+    FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
+  end;
+  NFillToolBar.Checked := VFilter;
+  FillToolBar.Visible := VFilter;
+end;
+
+procedure TfrmMain.DateTimePicker1Change(Sender: TObject);
+begin
+  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
+  if(DateTimePicker2.DateTime<DateTimePicker1.DateTime) then DateTimePicker2.DateTime := DateTimePicker1.DateTime;
+  try
+    FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay := DateTimePicker1.DateTime;
+    FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay := DateTimePicker2.DateTime;
+  finally
+    FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
+  end;
+end;
+
+procedure TfrmMain.DateTimePicker2Change(Sender: TObject);
+begin
+  FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
+  if(DateTimePicker1.DateTime>DateTimePicker2.DateTime) then DateTimePicker1.DateTime := DateTimePicker2.DateTime;
+  try
+    FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay := DateTimePicker1.DateTime;
+    FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay := DateTimePicker2.DateTime;
+  finally
+    FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
+  end;
 end;
 
 procedure TfrmMain.TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette; var ACol, ARow: Integer; var AllowChange: Boolean);
@@ -3023,7 +3210,12 @@ var
   VLonLatRect: TDoubleRect;
 begin
   TBRectSave.ImageIndex:=12;
-  VSelLonLat:= TfrmLonLatRectEdit.Create(Self);
+  VSelLonLat:=
+    TfrmLonLatRectEdit.Create(
+      nil,
+      FConfig.ViewPortState,
+      GState.ValueToStringConverterConfig
+    );
   Try
     Poly := GState.LastSelectionInfo.Polygon;
     GetMinMax(VLonLatRect, Poly);
@@ -3171,7 +3363,6 @@ end;
 
 procedure TfrmMain.NMarkExportClick(Sender: TObject);
 var
-  KMLExport:TExportMarks2KML;
   VMark: IMark;
 begin
   FLayerMapMarks.MouseOnReg(
@@ -3179,15 +3370,7 @@ begin
     VMark
   );
   if VMark <> nil then begin
-    KMLExport:=TExportMarks2KML.Create(false);
-    try
-      frmMarksExplorer.ExportDialog.FileName := VMark.Name;
-      if (frmMarksExplorer.ExportDialog.Execute)and(frmMarksExplorer.ExportDialog.FileName<>'') then begin
-        KMLExport.ExportMarkToKML(VMark,frmMarksExplorer.ExportDialog.FileName);
-      end;
-    finally
-      KMLExport.free;
-    end;
+    FfrmMarksExplorer.ExportMark(VMark);
   end;
 end;
 
@@ -3251,7 +3434,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  frmDGAvailablePic.setup(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  FfrmDGAvailablePic.ShowInfo(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
 end;
 
 procedure TfrmMain.mapMouseLeave(Sender: TObject);
@@ -3375,7 +3558,7 @@ begin
   end else begin
     VMapType := TMapType(TTBXItem(sender).Tag);
   end;
-  frmSettings.MapTypeEditor.EditMap(VMapType);
+  FMapTypeEditor.EditMap(VMapType);
 end;
 
 procedure TfrmMain.mapMouseDown(Sender: TObject; Button: TMouseButton;
@@ -3595,7 +3778,7 @@ begin
         end;
       end;
       if HiWord(GetKeyState(VK_F6))<>0 then begin
-        frmDGAvailablePic.setup(VLocalConverter, Point(X, y));
+        FfrmDGAvailablePic.ShowInfo(VLocalConverter, Point(X, Y));
         Exit;
       end;
     end;
@@ -3685,7 +3868,7 @@ begin
       if VPWL.find  then begin
         if VPWL.descr <> '' then begin
           stw:=VPWL.descr;
-          frmIntrnalBrowser.showmessage(VPWL.name,stw);
+          GState.InternalBrowser.showmessage(VPWL.name,stw);
         end;
       end;
     end;
@@ -3984,10 +4167,10 @@ end;
 
 procedure TfrmMain.TBItem6Click(Sender: TObject);
 begin
-  frmMarksExplorer.EditMarks(FMarkDBGUI, TMapViewGotoOnFMain.Create(Self.topos));
+  FfrmMarksExplorer.EditMarks;
 end;
 
-procedure TfrmMain.LayerMapMarksRedraw;
+procedure TfrmMain.LayerMapMarksRedraw(Sender: TObject);
 begin
   FLayerMapMarks.Redraw;
 end;
@@ -4112,7 +4295,7 @@ begin
   VUrl := VMapType.GUIConfig.InfoUrl.Value;
   if VUrl <> '' then begin
     VUrl := 'sas://ZmpInfo/' + GUIDToString(VMapType.Zmp.GUID) + VUrl;
-    frmIntrnalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
+    GState.InternalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
   end;
 end;
 
@@ -4126,7 +4309,7 @@ begin
   FConfig.MapMovingConfig.AnimateMove := (Sender as TTBXItem).Checked;
 end;
 
-procedure TfrmMain.SaveConfig;
+procedure TfrmMain.SaveConfig(Sender: TObject);
 begin
   try
     GState.SaveMainParams;
@@ -4141,7 +4324,7 @@ var
   VProvider: IConfigDataWriteProvider;
 begin
   VProvider := AProvider.GetOrCreateSubItem('HOTKEY');
-  ShortCutManager.Save(VProvider);
+  FShortCutManager.Save(VProvider);
 
   VProvider := AProvider.GetOrCreateSubItem('MainForm');
   FWinPosition.WriteConfig(VProvider);
@@ -4194,14 +4377,29 @@ end;
 
 procedure TfrmMain.tbitmShowDebugInfoClick(Sender: TObject);
 begin
-  if frmDebugInfo <> nil then begin
-    frmDebugInfo.Show;
-  end;
+  GState.DebugInfoWindow.Show;
 end;
 
 procedure TfrmMain.tbitmShowMarkCaptionClick(Sender: TObject);
 begin
   FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.ShowPointCaption := (Sender as TTBXItem).Checked;
+end;
+
+procedure TfrmMain.osmorg1Click(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat:TDoublePoint;
+begin
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  CopyStringToClipboard('http://www.openstreetmap.org/?mlat='+R2StrPoint(VLonLat.y)+'&mlon='+R2StrPoint(VLonLat.x)+'&zoom='+inttostr(VZoom));
 end;
 
 procedure TfrmMain.TBXItem6Click(Sender: TObject);
@@ -4229,12 +4427,12 @@ begin
             GState.DownloadInfo,
             FConfig.ViewPortState.GetCurrentZoom
           );
-        TfrmProgressDownload.Create(Application, VThread, VThreadLog, Self.OnMapUpdate);
+        TfrmProgressDownload.Create(GState.LanguageManager, GState.ValueToStringConverterConfig, VThread, VThreadLog, Self.OnMapUpdate);
       end else if ExtractFileExt(VFileName)='.hlg' then begin
         setalloperationfalse(ao_movemap);
         FFormRegionProcess.LoadSelFromFile(VFileName);
       end else begin
-        VImportConfig := frmImportConfigEdit.GetImportConfig(FMarkDBGUI);
+        VImportConfig := FMarkDBGUI.EditModalImportConfig;
         if VImportConfig <> nil then begin
           GState.ImportFileByExt.ProcessImport(VFileName, VImportConfig);
         end;
@@ -4245,8 +4443,7 @@ end;
 
 procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);
 begin
- frmSettings.tsGPS.Show;
- frmSettings.ShowModal;
+  FfrmSettings.ShowGPSSettings;
 end;
 
 procedure TfrmMain.TBScreenSelectClick(Sender: TObject);
@@ -4345,12 +4542,9 @@ end;
 procedure TfrmMain.TBSubmenuItem1Click(Sender: TObject);
 var
   VResult: IGeoCodeResult;
-  VLocalConverter: ILocalCoordConverter;
   VZoom: Byte;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VZoom := VLocalConverter.GetZoom;
-  if frmGoTo.ShowGeocodeModal(VLocalConverter, VResult, VZoom, FMarkDBGUI) then begin
+  if FfrmGoTo.ShowGeocodeModal(VResult, VZoom) then begin
     FSearchPresenter.ShowSearchResults(VResult, VZoom);
   end;
 end;
@@ -4369,7 +4563,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  frmIntrnalBrowser.Navigate('http://ws.geonames.org/srtm3', 'http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  GState.InternalBrowser.Navigate('http://ws.geonames.org/srtm3', 'http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TfrmMain.NGTOPO30Click(Sender: TObject);
@@ -4386,7 +4580,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  frmIntrnalBrowser.Navigate('http://ws.geonames.org/gtopo30', 'http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  GState.InternalBrowser.Navigate('http://ws.geonames.org/gtopo30', 'http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
 end;
 
 procedure TfrmMain.Google1Click(Sender: TObject);

@@ -10,6 +10,7 @@ uses
   i_OperationNotifier,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_InternalPerformanceCounter,
   i_ImageResamplerConfig,
   i_ViewPortState,
   i_FillingMapLayerConfig,
@@ -30,6 +31,7 @@ type
     function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -54,6 +56,7 @@ uses
 { TMapLayerFillingMap }
 
 constructor TMapLayerFillingMap.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -63,6 +66,7 @@ constructor TMapLayerFillingMap.Create(
 );
 begin
   inherited Create(
+    APerfList,
     AParentMap,
     AViewPortState,
     AResamplerConfig,
@@ -203,7 +207,7 @@ begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
-          if VSourceMapType.LoadFillingMap(AOperationID, ACancelNotifier, VBmp, VTile, VZoom, VZoomSource, VConfig.NoTileColor, VConfig.ShowTNE, VConfig.TNEColor) then begin
+          if VSourceMapType.LoadFillingMap(AOperationID, ACancelNotifier, VBmp, VTile, VZoom, VZoomSource, VConfig.Colorer) then begin
             Layer.Bitmap.Lock;
             try
               if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin

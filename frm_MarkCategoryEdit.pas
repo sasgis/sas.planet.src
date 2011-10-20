@@ -31,13 +31,13 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
+  i_LanguageManager,
   i_MarkCategory,
-  u_CommonFormAndFrameParents,
-  u_MarksDbGUIHelper,
-  u_ResStrings;
+  i_MarkCategoryFactory,
+  u_CommonFormAndFrameParents;
 
 type
-  TfrmMarkCategoryEdit = class(TCommonFormParent)
+  TfrmMarkCategoryEdit = class(TFormWitghLanguageManager)
     Label1: TLabel;
     EditName: TEdit;
     CBShow: TCheckBox;
@@ -53,21 +53,33 @@ type
     flwpnlZooms: TFlowPanel;
     pnlName: TPanel;
   private
-    FMarkDBGUI: TMarksDbGUIHelper;
+    FFactory: IMarkCategoryFactory;
   public
-   function EditCategory(ACategory: IMarkCategory; AMarkDBGUI: TMarksDbGUIHelper): IMarkCategory;
+    function EditCategory(ACategory: IMarkCategory): IMarkCategory;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AFactory: IMarkCategoryFactory
+    ); reintroduce;
   end;
-
-var
-  frmMarkCategoryEdit: TfrmMarkCategoryEdit;
 
 implementation
 
+uses
+  u_ResStrings;
+
 {$R *.dfm}
 
-function TfrmMarkCategoryEdit.EditCategory(ACategory: IMarkCategory; AMarkDBGUI: TMarksDbGUIHelper): IMarkCategory;
+constructor TfrmMarkCategoryEdit.Create(
+  ALanguageManager: ILanguageManager;
+  AFactory: IMarkCategoryFactory
+);
 begin
-  FMarkDBGUI := AMarkDBGUI;
+  inherited Create(ALanguageManager);
+  FFactory := AFactory;
+end;
+
+function TfrmMarkCategoryEdit.EditCategory(ACategory: IMarkCategory): IMarkCategory;
+begin
   EditName.Text:=SAS_STR_NewPoly;
   if ACategory.IsNew then begin
     Self.Caption:=SAS_STR_AddNewCategory;
@@ -79,7 +91,7 @@ begin
   EditS2.Value:=ACategory.BeforeScale;
   CBShow.Checked:=ACategory.visible;
   if ShowModal = mrOk then begin
-    Result := FMarkDBGUI.MarksDB.CategoryDB.Factory.Modify(
+    Result := FFactory.Modify(
         ACategory,
         EditName.Text,
         CBShow.Checked,

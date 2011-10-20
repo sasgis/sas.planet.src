@@ -50,12 +50,12 @@ begin
   if FFrame = nil then begin
     FFrame := TfrTilesDelete.Create(
       nil,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList
     );
     FFrame.Visible := False;
-    FFrame.Parent := FParent;
+    FFrame.Parent := Self.Parent;
   end;
   FFrame.Init(Azoom);
 end;

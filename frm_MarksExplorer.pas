@@ -44,14 +44,19 @@ uses
   u_ResStrings,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
+  i_LanguageManager,
+  i_ViewPortState,
+  i_NavigationToPoint,
+  i_UsedMarksConfig,
   i_MapViewGoto,
+  i_ImportFile,
   i_MarksSimple,
   i_MarkCategory,
-  u_MarksDbGUIHelper,
-  frm_Main;
+  i_StaticTreeItem,
+  u_MarksDbGUIHelper;
 
 type
-  TfrmMarksExplorer = class(TCommonFormParent)
+  TfrmMarksExplorer = class(TFormWitghLanguageManager)
     grpMarks: TGroupBox;
     MarksListBox: TCheckListBox;
     grpCategory: TGroupBox;
@@ -119,39 +124,101 @@ type
     FCategoryList: IInterfaceList;
     FMarksList: IInterfaceList;
     FMarkDBGUI: TMarksDbGUIHelper;
+    FImportFileByExt: IImportFile;
+    FMarksShowConfig: IUsedMarksConfig;
+    FViewPortState: IViewPortState;
+    FNavToPoint: INavigationToPoint;
+    FOnNeedRedraw: TNotifyEvent;
     procedure UpdateCategoryTree;
     function GetSelectedCategory: IMarkCategory;
     procedure UpdateMarksList;
     function GetSelectedMarkId: IMarkId;
     function GetSelectedMarkFull: IMark;
   public
-    procedure EditMarks(AMarkDBGUI: TMarksDbGUIHelper; AMapGoto: IMapViewGoto);
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AImportFileByExt: IImportFile;
+      AViewPortState: IViewPortState;
+      ANavToPoint: INavigationToPoint;
+      AMarksShowConfig: IUsedMarksConfig;
+      AMarkDBGUI: TMarksDbGUIHelper;
+      AOnNeedRedraw: TNotifyEvent;
+      AMapGoto: IMapViewGoto
+    ); reintroduce;
+    procedure EditMarks;
+    procedure ExportMark(AMark: IMark);
   end;
-
-var
-  frmMarksExplorer: TfrmMarksExplorer;
 
 implementation
 
 uses
-  u_GlobalState,
   i_ImportConfig,
-  i_UsedMarksConfig,
   u_ExportMarks2KML,
-  frm_ImportConfigEdit,
-  frm_MarkCategoryEdit;
+  u_GeoFun;
 
 {$R *.dfm}
 
-procedure TfrmMarksExplorer.UpdateCategoryTree;
+constructor TfrmMarksExplorer.Create(
+  ALanguageManager: ILanguageManager;
+  AImportFileByExt: IImportFile;
+  AViewPortState: IViewPortState;
+  ANavToPoint: INavigationToPoint;
+  AMarksShowConfig: IUsedMarksConfig;
+  AMarkDBGUI: TMarksDbGUIHelper;
+  AOnNeedRedraw: TNotifyEvent;
+  AMapGoto: IMapViewGoto
+);
 begin
+  inherited Create(ALanguageManager);
+  FMarkDBGUI := AMarkDBGUI;
+  FMapGoto := AMapGoto;
+  FImportFileByExt := AImportFileByExt;
+  FMarksShowConfig := AMarksShowConfig;
+  FViewPortState := AViewPortState;
+  FNavToPoint := ANavToPoint;
+  FOnNeedRedraw := AOnNeedRedraw;
+end;
+
+procedure TfrmMarksExplorer.UpdateCategoryTree;
+  procedure AddTreeSubItems(ATree: IStaticTreeItem; AParentNode: TTreeNode; ATreeItems: TTreeNodes);
+  var
+    i: Integer;
+    VTree: IStaticTreeItem;
+    VNode: TTreeNode;
+    VCategory: IMarkCategory;
+    VName: string;
+  begin
+    for i := 0 to ATree.SubItemCount - 1 do begin
+      VTree := ATree.SubItem[i];
+      VName := VTree.Name;
+      if VName = '' then begin
+        VName := '(NoName)';
+      end;
+      VNode := ATreeItems.AddChildObject(AParentNode, VName, nil);
+      VNode.StateIndex:=0;
+      if Supports(VTree.Data, IMarkCategory, VCategory) then begin
+        VNode.Data := Pointer(VCategory);
+        if VCategory.Visible then begin
+          VNode.StateIndex := 1;
+        end else begin
+          VNode.StateIndex := 2;
+        end;
+      end;
+      AddTreeSubItems(VTree, VNode, ATreeItems);
+    end;
+  end;
+var
+  VTree: IStaticTreeItem;
+begin
+  FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
+  VTree := FMarkDBGUI.MarksDB.CategoryListToStaticTree(FCategoryList);
   CategoryTreeView.OnChange:=nil;
   try
     CategoryTreeView.Items.BeginUpdate;
     try
       CategoryTreeView.SortType := stNone;
-      FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
-      FMarkDBGUI.CategoryListToTree(FCategoryList, CategoryTreeView.Items);
+      CategoryTreeView.Items.Clear;
+      AddTreeSubItems(VTree, nil, CategoryTreeView.Items);
       CategoryTreeView.SortType:=stText;
     finally
       CategoryTreeView.Items.EndUpdate;
@@ -234,9 +301,9 @@ begin
   If (OpenDialog1.Execute) then begin
     VFileName := OpenDialog1.FileName;
     if (FileExists(VFileName)) then begin
-      VImportConfig := frmImportConfigEdit.GetImportConfig(FMarkDBGUI);
+      VImportConfig := FMarkDBGUI.EditModalImportConfig;
       if VImportConfig <> nil then begin
-        GState.ImportFileByExt.ProcessImport(VFileName, VImportConfig);
+        FImportFileByExt.ProcessImport(VFileName, VImportConfig);
       end;
       UpdateCategoryTree;
       UpdateMarksList;
@@ -259,12 +326,24 @@ begin
 end;
 
 procedure TfrmMarksExplorer.btnExportClick(Sender: TObject);
-var KMLExport:TExportMarks2KML;
+var
+  KMLExport:TExportMarks2KML;
+  VCategoryList: IInterfaceList;
+  VMarksSubset: IMarksSubset;
+  VOnlyVisible: Boolean;
 begin
-  KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
+  KMLExport:=TExportMarks2KML.Create;
   try
     if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-      KMLExport.ExportToKML(ExportDialog.FileName);
+      VOnlyVisible := (TComponent(Sender).tag = 1);
+      if VOnlyVisible then begin
+        VCategoryList := FMarkDBGUI.MarksDb.GetVisibleCategoriesIgnoreZoom;
+      end else begin
+        VCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
+      end;
+      VMarksSubset := FMarkDBGUI.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategoryList, (not VOnlyVisible));
+
+      KMLExport.ExportToKML(VCategoryList, VMarksSubset, ExportDialog.FileName);
     end;
   finally
     KMLExport.free;
@@ -273,27 +352,29 @@ end;
 
 procedure TfrmMarksExplorer.btnApplyClick(Sender: TObject);
 begin
-  GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.LockWrite;
+  FMarksShowConfig.LockWrite;
   try
     case rgMarksShowMode.ItemIndex of
       0: begin
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := True;
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreCategoriesVisible := False;
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible := False;
+        FMarksShowConfig.IsUseMarks := True;
+        FMarksShowConfig.IgnoreCategoriesVisible := False;
+        FMarksShowConfig.IgnoreMarksVisible := False;
 
       end;
       1: begin
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := True;
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreCategoriesVisible := True;
-        GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible := True;
+        FMarksShowConfig.IsUseMarks := True;
+        FMarksShowConfig.IgnoreCategoriesVisible := True;
+        FMarksShowConfig.IgnoreMarksVisible := True;
       end;
     else
-      GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := False;
+      FMarksShowConfig.IsUseMarks := False;
     end;
   finally
-    GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.UnlockWrite;
+    FMarksShowConfig.UnlockWrite;
   end;
-  frmMain.LayerMapMarksRedraw;
+  if Assigned(FOnNeedRedraw) then begin
+    FOnNeedRedraw(nil);
+  end;
 end;
 
 procedure TfrmMarksExplorer.btnDelMarkClick(Sender: TObject);
@@ -328,7 +409,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    FMapGoto.GotoPos(VMark.GetGoToLonLat, GState.MainFormConfig.ViewPortState.GetCurrentZoom);
+    FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetCurrentZoom);
   end;
 end;
 
@@ -337,7 +418,7 @@ var
   VCategory: IMarkCategory;
 begin
   VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.CreateNew('');
-  VCategory := frmMarkCategoryEdit.EditCategory(VCategory, FMarkDBGUI);
+  VCategory := FMarkDBGUI.EditCategoryModal(VCategory);
   if VCategory <> nil then begin
     FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
     UpdateCategoryTree;
@@ -353,12 +434,12 @@ begin
     VMark := GetSelectedMarkFull;
     if VMark <> nil then begin
       LL := VMark.GetGoToLonLat;
-      GState.MainFormConfig.NavToPoint.StartNavToMark(VMark as IMarkId, LL);
+      FNavToPoint.StartNavToMark(VMark as IMarkId, LL);
     end else begin
       btnNavOnMark.Checked:=not btnNavOnMark.Checked;
     end;
   end else begin
-    GState.MainFormConfig.NavToPoint.StopNav;
+    FNavToPoint.StopNav;
   end;
 end;
 
@@ -368,7 +449,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    if FMarkDBGUI.OperationMark(VMark, GState.MainFormConfig.ViewPortState.GetCurrentZoom, GState.MainFormConfig.ViewPortState.GetCurrentCoordConverter) then begin
+    if FMarkDBGUI.OperationMark(VMark, FViewPortState.GetCurrentZoom, FViewPortState.GetCurrentCoordConverter) then begin
       ModalResult := mrOk;
     end;
   end;
@@ -381,11 +462,11 @@ var
 begin
     VMark := GetSelectedMarkFull;
     if VMark <> nil then begin
-      KMLExport:=TExportMarks2KML.Create(false);
+      KMLExport:=TExportMarks2KML.Create;
       try
         ExportDialog.FileName:=VMark.name;
         if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-          KMLExport.ExportMarkToKML(VMark,ExportDialog.FileName);
+          KMLExport.ExportMarkToKML(VMark, ExportDialog.FileName);
         end;
       finally
         KMLExport.free;
@@ -463,7 +544,7 @@ var
 begin
   VCategory := GetSelectedCategory;
   if VCategory <> nil then begin
-    VCategory := frmMarkCategoryEdit.EditCategory(VCategory, FMarkDBGUI);
+    VCategory := FMarkDBGUI.EditCategoryModal(VCategory);
     if VCategory <> nil then begin
       FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
       UpdateCategoryTree;
@@ -475,14 +556,16 @@ procedure TfrmMarksExplorer.btnExportCategoryClick(Sender: TObject);
 var
   KMLExport: TExportMarks2KML;
   VCategory: IMarkCategory;
+  VMarksSubset: IMarksSubset;
 begin
   VCategory := GetSelectedCategory;
   if VCategory<>nil then begin
-    KMLExport:=TExportMarks2KML.Create(TComponent(Sender).tag=1);
+    KMLExport:=TExportMarks2KML.Create;
     try
       ExportDialog.FileName:=StringReplace(VCategory.name,'\','-',[rfReplaceAll]);
       if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-        KMLExport.ExportCategoryToKML(VCategory,ExportDialog.FileName);
+        VMarksSubset := FMarkDBGUI.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategory, (not TComponent(Sender).tag=1));
+        KMLExport.ExportCategoryToKML(VCategory, VMarksSubset, ExportDialog.FileName);
       end;
     finally
       KMLExport.free;
@@ -516,17 +599,13 @@ begin
   end;
 end;
 
-procedure TfrmMarksExplorer.EditMarks(
-  AMarkDBGUI: TMarksDbGUIHelper; AMapGoto: IMapViewGoto
-);
+procedure TfrmMarksExplorer.EditMarks;
 var
   VModalResult: Integer;
 begin
-  FMarkDBGUI := AMarkDBGUI;
-  FMapGoto := AMapGoto;
   UpdateCategoryTree;
   UpdateMarksList;
-  btnNavOnMark.Checked:= GState.MainFormConfig.NavToPoint.IsActive;
+  btnNavOnMark.Checked:= FNavToPoint.IsActive;
   try
     VModalResult := ShowModal;
     if VModalResult = mrOk then begin
@@ -541,11 +620,28 @@ begin
   end;
 end;
 
+procedure TfrmMarksExplorer.ExportMark(AMark: IMark);
+var
+  KMLExport:TExportMarks2KML;
+begin
+  if AMark <> nil then begin
+    KMLExport:=TExportMarks2KML.Create;
+    try
+      ExportDialog.FileName := AMark.Name;
+      if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
+        KMLExport.ExportMarkToKML(AMark, ExportDialog.FileName);
+      end;
+    finally
+      KMLExport.free;
+    end;
+  end;
+end;
+
 procedure TfrmMarksExplorer.FormActivate(Sender: TObject);
 var
   VMarksConfig: IUsedMarksConfigStatic;
 begin
-  VMarksConfig := GState.MainFormConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.GetStatic;
+  VMarksConfig := FMarksShowConfig.GetStatic;
   if VMarksConfig.IsUseMarks then begin
     if VMarksConfig.IgnoreCategoriesVisible and VMarksConfig.IgnoreMarksVisible then begin
       rgMarksShowMode.ItemIndex := 1;

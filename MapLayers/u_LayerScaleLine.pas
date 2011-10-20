@@ -7,6 +7,7 @@ uses
   GR32,
   GR32_Image,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_ViewPortState,
   i_ScaleLineConfig,
   u_WindowLayerWithPos;
@@ -24,6 +25,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AConfig: IScaleLineConfig
@@ -46,6 +48,7 @@ const
 { TLayerScaleLine }
 
 constructor TLayerScaleLine.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AConfig: IScaleLineConfig
@@ -53,7 +56,7 @@ constructor TLayerScaleLine.Create(
 var
   VSize: TPoint;
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),

@@ -165,6 +165,7 @@
     <DCCReference Include="i_CoordConverter.pas" />
     <DCCReference Include="i_CoordConverterFactory.pas" />
     <DCCReference Include="i_Datum.pas" />
+    <DCCReference Include="i_DebugInfoWindow.pas" />
     <DCCReference Include="i_DownloadChecker.pas" />
     <DCCReference Include="i_DownloadInfoSimple.pas" />
     <DCCReference Include="i_DownloadRequest.pas" />
@@ -173,6 +174,7 @@
     <DCCReference Include="i_DownloadResultTextProvider.pas" />
     <DCCReference Include="i_DownloadUIConfig.pas" />
     <DCCReference Include="i_EcwDll.pas" />
+    <DCCReference Include="i_FillingMapColorer.pas" />
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
     <DCCReference Include="i_GeoCoderList.pas" />
@@ -197,8 +199,10 @@
     <DCCReference Include="i_ImportConfig.pas" />
     <DCCReference Include="i_ImportFile.pas" />
     <DCCReference Include="i_InetConfig.pas" />
+    <DCCReference Include="i_InternalBrowser.pas" />
     <DCCReference Include="i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="i_InternalPerformanceCounter.pas" />
+    <DCCReference Include="i_InvisibleBrowser.pas" />
     <DCCReference Include="i_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
     <DCCReference Include="i_KmlLayerConfig.pas" />
@@ -430,6 +434,7 @@
     <DCCReference Include="RegionProcess\u_ThreadMapCombineKMZ.pas" />
     <DCCReference Include="RegionProcess\u_ThreadRegionProcessAbstract.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
+    <DCCReference Include="t_FillingMapModes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
@@ -494,6 +499,7 @@
     <DCCReference Include="u_CoordConverterMercatorOnSphere.pas" />
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="u_Datum.pas" />
+    <DCCReference Include="u_DebugInfoWindow.pas" />
     <DCCReference Include="u_DownloadCheckerStuped.pas" />
     <DCCReference Include="u_DownloadInfoSimple.pas" />
     <DCCReference Include="u_DownloadResult.pas" />
@@ -505,6 +511,7 @@
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
     <DCCReference Include="u_ExportMarks2KML.pas" />
+    <DCCReference Include="u_FillingMapColorerSimple.pas" />
     <DCCReference Include="u_FillingMapLayerConfig.pas" />
     <DCCReference Include="u_FillingMapLayerConfigStatic.pas" />
     <DCCReference Include="u_FillingMapMapsConfig.pas" />
@@ -559,11 +566,14 @@
     <DCCReference Include="u_ImportMpSimple.pas" />
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InetConfigStatic.pas" />
+    <DCCReference Include="u_InetFunc.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
+    <DCCReference Include="u_InternalBrowserByForm.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByMapTypeList.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderList.pas" />
     <DCCReference Include="u_InternalPerformanceCounter.pas" />
     <DCCReference Include="u_InternalPerformanceCounterList.pas" />
+    <DCCReference Include="u_InvisibleBrowserByFormSynchronize.pas" />
     <DCCReference Include="u_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="u_KeyMovingConfig.pas" />
     <DCCReference Include="u_KeyMovingHandler.pas" />

@@ -10,6 +10,7 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
   i_BitmapMarker,
@@ -43,6 +44,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ATimerNoifier: IJclNotifier;
@@ -64,6 +66,7 @@ uses
 { TMapLayerGPSMarker }
 
 constructor TMapLayerGPSMarker.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ATimerNoifier: IJclNotifier;
@@ -73,7 +76,7 @@ constructor TMapLayerGPSMarker.Create(
   AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   FMovedMarkerProvider := AMovedMarkerProvider;

@@ -8,6 +8,7 @@ uses
   GR32_Image,
   i_LocalCoordConverter,
   i_ViewPortState,
+  i_InternalPerformanceCounter,
   i_CenterScaleConfig,
   u_WindowLayerWithPos;
 
@@ -22,7 +23,12 @@ type
   public
     procedure StartThreads; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ICenterScaleConfig);
+    constructor Create(
+      APerfList: IInternalPerformanceCounterList;
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConfig: ICenterScaleConfig
+    );
   end;
 
 implementation
@@ -33,9 +39,14 @@ uses
 
 { TCenterScale }
 
-constructor TCenterScale.Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ICenterScaleConfig);
+constructor TCenterScale.Create(
+  APerfList: IInternalPerformanceCounterList;
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState;
+  AConfig: ICenterScaleConfig
+);
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),

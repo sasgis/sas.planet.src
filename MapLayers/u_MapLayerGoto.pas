@@ -8,6 +8,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  i_InternalPerformanceCounter,
   i_BitmapMarker,
   i_ViewPortState,
   i_LocalCoordConverter,
@@ -33,6 +34,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AMarkerProvider: IBitmapMarkerProviderChangeable;
@@ -52,13 +54,14 @@ uses
 { TGotoLayer }
 
 constructor TGotoLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AMarkerProvider: IBitmapMarkerProviderChangeable;
   AConfig: IGotoLayerConfig
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   FMarkerProvider := AMarkerProvider;
 

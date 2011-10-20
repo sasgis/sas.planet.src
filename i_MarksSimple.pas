@@ -104,6 +104,7 @@ type
   IMarksSubset = interface
     ['{D2DBC018-AAF5-44CB-A2B1-B5AC1C3341C5}']
     function GetSubsetByLonLatRect(ARect: TDoubleRect): IMarksSubset;
+    function GetSubsetByCategory(ACategory: ICategory): IMarksSubset;
     function GetEnum: IEnumUnknown;
     function IsEmpty: Boolean;
   end;

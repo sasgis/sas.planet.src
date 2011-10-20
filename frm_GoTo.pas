@@ -32,15 +32,19 @@ uses
   ComCtrls,
   Controls,
   t_GeoTypes,
+  i_LanguageManager,
+  i_MarksDb,
+  i_MainGeoCoderConfig,
+  i_ViewPortState,
+  i_ValueToStringConverter,
   i_GeoCoder,
   i_LocalCoordConverter,
   u_CommonFormAndFrameParents,
-  u_MarksDbGUIHelper,
   fr_LonLat;
 
 type
 
-  TfrmGoTo = class(TCommonFormParent)
+  TfrmGoTo = class(TFormWitghLanguageManager)
     lblZoom: TLabel;
     btnGoTo: TButton;
     cbbZoom: TComboBox;
@@ -57,29 +61,34 @@ type
     procedure cbbAllMarksDropDown(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
+    FMarksDb: IMarksDb;
+    FMainGeoCoderConfig: IMainGeoCoderConfig;
+    FViewPortState: IViewPortState;
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     FLocalConverter: ILocalCoordConverter;
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
-    FMarkDBGUI: TMarksDbGUIHelper;
     FMarksList: IInterfaceList;
     function GeocodeResultFromLonLat(ASearch: WideString; ALonLat: TDoublePoint; AMessage: WideString): IGeoCodeResult;
     procedure InitHistory;
     procedure InitGeoCoders;
     procedure EmptyGeoCoders;
+    procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AMarksDb: IMarksDb;
+      AMainGeoCoderConfig: IMainGeoCoderConfig;
+      AViewPortState: IViewPortState;
+      AValueToStringConverterConfig: IValueToStringConverterConfig
+    ); reintroduce;
     destructor Destroy; override;
     function ShowGeocodeModal(
-      ALocalConverter: ILocalCoordConverter;
-      var AResult: IGeoCodeResult;
-      var AZoom: Byte;
-      AMarkDBGUI: TMarksDbGUIHelper
+      out AResult: IGeoCodeResult;
+      out AZoom: Byte
     ): Boolean;
     procedure RefreshTranslation; override;
   end;
-
-var
-  frmGoTo: TfrmGoTo;
 
 implementation
 
@@ -87,7 +96,6 @@ uses
   ActiveX,
   i_GeoCoderList,
   i_MarksSimple,
-  u_GlobalState,
   u_GeoCodeResult,
   u_GeoCodePlacemark;
 
@@ -115,11 +123,11 @@ var
   VActiveGUID: TGUID;
   VActiveIndex: Integer;
 begin
-  VEnum := GState.MainFormConfig.MainGeoCoderConfig.GetList.GetGUIDEnum;
-  VActiveGUID := GState.MainFormConfig.MainGeoCoderConfig.ActiveGeoCoderGUID;
+  VEnum := FMainGeoCoderConfig.GetList.GetGUIDEnum;
+  VActiveGUID := FMainGeoCoderConfig.ActiveGeoCoderGUID;
   VActiveIndex := -1;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
-    VItem := GState.MainFormConfig.MainGeoCoderConfig.GetList.Get(VGUID);
+    VItem := FMainGeoCoderConfig.GetList.Get(VGUID);
     VItem._AddRef;
     VIndex := cbbSearcherType.Items.AddObject(VItem.GetCaption, Pointer(VItem));
     if IsEqualGUID(VGUID, VActiveGUID) then begin
@@ -136,13 +144,26 @@ procedure TfrmGoTo.InitHistory;
 var
   i: Integer;
 begin
-  GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.LockRead;
+  FMainGeoCoderConfig.SearchHistory.LockRead;
   try
-    for i := 0 to GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.Count - 1 do begin
-      cbbGeoCode.Items.Add(GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.GetItem(i));
+    for i := 0 to FMainGeoCoderConfig.SearchHistory.Count - 1 do begin
+      cbbGeoCode.Items.Add(FMainGeoCoderConfig.SearchHistory.GetItem(i));
     end;
   finally
-    GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.UnlockRead;
+    FMainGeoCoderConfig.SearchHistory.UnlockRead;
+  end;
+end;
+
+procedure TfrmGoTo.MarksListToStrings(AList: IInterfaceList;
+  AStrings: TStrings);
+var
+  i: Integer;
+  VMarkId: IMarkId;
+begin
+  AStrings.Clear;
+  for i := 0 to AList.Count - 1 do begin
+    VMarkId := IMarkId(AList[i]);
+    AStrings.AddObject(VMarkId.name, Pointer(VMarkId));
   end;
 end;
 
@@ -159,7 +180,7 @@ begin
     VIndex := cbbAllMarks.ItemIndex;
     if VIndex >= 0 then begin
       VMarkId := IMarkId(Pointer(cbbAllMarks.Items.Objects[VIndex]));
-      VMark := GState.MarksDb.MarksDb.GetMarkByID(VMarkId);
+      VMark := FMarksDb.GetMarkByID(VMarkId);
       VLonLat := VMark.GetGoToLonLat;
       FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.name);
       ModalResult := mrOk;
@@ -168,7 +189,7 @@ begin
     end;
   end else if pgcSearchType.ActivePage = tsCoordinates then begin
     VLonLat := frLonLatPoint.LonLat;
-    textsrch := GState.ValueToStringConverterConfig.GetStatic.LonLatConvert(VLonLat);
+    textsrch := FValueToStringConverterConfig.GetStatic.LonLatConvert(VLonLat);
     FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
     ModalResult := mrOk;
   end else if pgcSearchType.ActivePage = tsSearch then begin
@@ -180,8 +201,8 @@ begin
     end;
     if VGeoCoderItem <> nil then begin
       FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, FLocalConverter);
-      GState.MainFormConfig.MainGeoCoderConfig.SearchHistory.AddItem(textsrch);
-      GState.MainFormConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VGeoCoderItem.GetGUID;
+      FMainGeoCoderConfig.SearchHistory.AddItem(textsrch);
+      FMainGeoCoderConfig.ActiveGeoCoderGUID := VGeoCoderItem.GetGUID;
       ModalResult := mrOk;
     end else begin
       ModalResult := mrCancel;
@@ -196,17 +217,17 @@ begin
 end;
 
 function TfrmGoTo.ShowGeocodeModal(
-  ALocalConverter: ILocalCoordConverter;
-  var AResult: IGeoCodeResult;
-  var AZoom: Byte;
-  AMarkDBGUI: TMarksDbGUIHelper
+  out AResult: IGeoCodeResult;
+  out AZoom: Byte
 ): Boolean;
+var
+  VLocalConverter: ILocalCoordConverter;
 begin
-  FLocalConverter := ALocalConverter;
-  FMarkDBGUI := AMarkDBGUI;
   frLonLatPoint.Parent := tsCoordinates;
+  VLocalConverter := FViewPortState.GetVisualCoordConverter;
+  AZoom := VLocalConverter.GetZoom;
   cbbZoom.ItemIndex := Azoom;
-  frLonLatPoint.LonLat := FLocalConverter.GetCenterLonLat;
+  frLonLatPoint.LonLat := VLocalConverter.GetCenterLonLat;
   InitGeoCoders;
   InitHistory;
   try
@@ -230,15 +251,25 @@ end;
 procedure TfrmGoTo.cbbAllMarksDropDown(Sender: TObject);
 begin
   if cbbAllMarks.Items.Count=0 then begin
-    FMarksList := FMarkDBGUI.MarksDB.MarksDb.GetAllMarskIdList;
-    FMarkDBGUI.MarksListToStrings(FMarksList, cbbAllMarks.Items);
+    FMarksList := FMarksDb.GetAllMarskIdList;
+    MarksListToStrings(FMarksList, cbbAllMarks.Items);
   end;
 end;
 
-constructor TfrmGoTo.Create(AOwner: TComponent);
+constructor TfrmGoTo.Create(
+  ALanguageManager: ILanguageManager;
+  AMarksDb: IMarksDb;
+  AMainGeoCoderConfig: IMainGeoCoderConfig;
+  AViewPortState: IViewPortState;
+  AValueToStringConverterConfig: IValueToStringConverterConfig
+);
 begin
-  inherited;
-  frLonLatPoint := TfrLonLat.Create(nil, GState.MainFormConfig.ViewPortState, GState.ValueToStringConverterConfig, tssCenter);
+  inherited Create(ALanguageManager);
+  FMarksDb := AMarksDb;
+  FMainGeoCoderConfig := AMainGeoCoderConfig;
+  FViewPortState := AViewPortState;
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  frLonLatPoint := TfrLonLat.Create(nil, FViewPortState, FValueToStringConverterConfig, tssCenter);
   frLonLatPoint.Width:= tsCoordinates.Width;
   frLonLatPoint.Height:= tsCoordinates.Height;
 end;

@@ -24,7 +24,9 @@ interface
 
 uses
   GR32,
+  t_FillingMapModes,
   i_LocalCoordConverter,
+  i_FillingMapColorer,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ConfigDataElement;
@@ -54,6 +56,21 @@ type
     property TNEColor: TColor32 read GetTNEColor;
 
     function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+
+    function GetFillMode: TFillMode;
+    property FillMode: TFillMode read GetFillMode;
+
+    function GetFilterMode: Boolean;
+    property FilterMode: Boolean read GetFilterMode;
+
+    function GetFillFirstDay: TDateTime;
+    property FillFirstDay: TDateTime read GetFillFirstDay;
+
+    function GetFillLastDay: TDateTime;
+    property FillLastDay: TDateTime read GetFillLastDay;
+
+    function GetColorer: IFillingMapColorer;
+    property Colorer: IFillingMapColorer read GetColorer;
   end;
 
   IFillingMapMapsConfig = interface(IMainActiveMap)
@@ -90,6 +107,22 @@ type
     function GetSourceMap: IFillingMapMapsConfig;
     function GetStatic: IFillingMapLayerConfigStatic;
     function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+
+    function GetFillMode: TFillMode;
+    procedure SetFillMode(const AValue: TFillMode);
+    property FillMode: TFillMode read GetFillMode write SetFillMode;
+
+    function GetFilterMode: Boolean;
+    procedure SetFilterMode(const AValue: Boolean);
+    property FilterMode: Boolean read GetFilterMode write SetFilterMode;
+
+    function GetFillFirstDay: TDateTime;
+    procedure SetFillFirstDay(const AValue: TDateTime);
+    property FillFirstDay: TDateTime read GetFillFirstDay write SetFillFirstDay;
+
+    function GetFillLastDay: TDateTime;
+    procedure SetFillLastDay(const AValue: TDateTime);
+    property FillLastDay: TDateTime read GetFillLastDay write SetFillLastDay;
   end;
 
 implementation

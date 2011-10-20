@@ -76,6 +76,9 @@ uses
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
   i_SensorList,
+  i_InvisibleBrowser,
+  i_InternalBrowser,
+  i_DebugInfoWindow,
   u_IeEmbeddedProtocolRegistration,
   u_GPSState,
   u_GlobalCahceConfig;
@@ -130,6 +133,9 @@ type
     FPathDetalizeList: IPathDetalizeProviderList;
     FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
     FEcwDll: IEcwDll;
+    FInvisibleBrowser: IInvisibleBrowser;
+    FInternalBrowser: IInternalBrowser;
+    FDebugInfoWindow: IDebugInfoWindow;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -186,6 +192,8 @@ type
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property ClearStrategyFactory: ILayerBitmapClearStrategyFactory read FClearStrategyFactory;
     property EcwDll: IEcwDll read FEcwDll;
+    property InternalBrowser: IInternalBrowser read FInternalBrowser;
+    property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
 
     constructor Create;
     destructor Destroy; override;
@@ -252,6 +260,9 @@ uses
   u_ZmpFileNamesIteratorFactory,
   u_SensorListStuped,
   u_HtmlToHintTextConverterStuped,
+  u_InvisibleBrowserByFormSynchronize,
+  u_InternalBrowserByForm,
+  u_DebugInfoWindow,
   u_InternalPerformanceCounterList,
   u_IeEmbeddedProtocolFactory,
   u_PathDetalizeProviderListSimple,
@@ -394,6 +405,21 @@ begin
     TInternalDomainInfoProviderByMapTypeList.Create(FZmpInfoSet, FContentTypeManager)
   );
   FProtocol := TIeEmbeddedProtocolRegistration.Create('sas', TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));
+  FInvisibleBrowser :=
+    TInvisibleBrowserByFormSynchronize.Create(
+      FLanguageManager,
+      FInetConfig.ProxyConfig
+    );
+  FInternalBrowser :=
+    TInternalBrowserByForm.Create(
+      FLanguageManager,
+      FInetConfig.ProxyConfig
+    );
+  FDebugInfoWindow :=
+    TDebugInfoWindow.Create(
+      FGlobalAppConfig,
+      FPerfCounterList
+    );
 end;
 
 destructor TGlobalState.Destroy;
@@ -461,6 +487,9 @@ end;
 
 procedure TGlobalState.StartThreads;
 begin
+  if FGlobalAppConfig.IsSendStatistic then begin
+    FInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
+  end;
   GPSpar.StartThreads;
   FGUISyncronizedTimer.Enabled := True;
 end;
@@ -512,6 +541,7 @@ begin
     FContentTypeManager,
     FDownloadResultTextProvider,
     FCoordConverterFactory,
+    FInvisibleBrowser,
     VLocalMapsConfig
   );
   FMainFormConfig := TMainFormConfig.Create(

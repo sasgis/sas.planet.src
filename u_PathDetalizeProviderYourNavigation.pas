@@ -111,7 +111,7 @@ uses
   c_PathDetalizeProvidersGUID,
   u_GeoToStr,
   i_VectorDataItemSimple,
-  frm_InvisibleBrowser;
+  u_InetFunc;
 
 { TPathDetalizeProviderYourNavigation }
 

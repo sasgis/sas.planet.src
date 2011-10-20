@@ -37,6 +37,7 @@ uses
   i_ImageResamplerConfig,
   i_GlobalDownloadConfig,
   i_ContentTypeManager,
+  i_InvisibleBrowser,
   i_DownloadResultTextProvider,
   i_TileFileNameGeneratorsList,
   i_MapTypeGUIConfigList,
@@ -82,6 +83,7 @@ type
       AContentTypeManager: IContentTypeManager;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
       ACoordConverterFactory: ICoordConverterFactory;
+      AInvisibleBrowser: IInvisibleBrowser;
       ALocalMapsConfig: IConfigDataProvider
     );
     procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
@@ -182,6 +184,7 @@ procedure TMapTypesMainList.LoadMaps(
   AContentTypeManager: IContentTypeManager;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
   ACoordConverterFactory: ICoordConverterFactory;
+  AInvisibleBrowser: IInvisibleBrowser;
   ALocalMapsConfig: IConfigDataProvider
 );
 var
@@ -237,6 +240,7 @@ begin
           AContentTypeManager,
           ACoordConverterFactory,
           ADownloadResultTextProvider,
+          AInvisibleBrowser,
           VLocalMapConfig
         );
     except

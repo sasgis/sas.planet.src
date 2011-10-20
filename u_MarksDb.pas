@@ -55,6 +55,23 @@ type
     function GetMarksBackUpFileName: string;
     function GetDbCode: Integer;
     procedure InitEmptyDS;
+    function AppendFilter(ALeft,ARight: string): string;
+    function GetCategoryID(ACategory: ICategory): Integer;
+    function GetFilterTextVisibleOnly: string;
+    function GetFilterTextByRect(const ALonLatRect: TDoubleRect): string;
+    function GetFilterTextByCategory(ACategory: ICategory): string;
+    function GetFilterTextByCategoryList(ACategoryList: IInterfaceList): string;
+    function GetFilterText(
+      ARect: TDoubleRect;
+      ACategoryList: IInterfaceList;
+      AIgnoreVisible: Boolean
+    ): string; overload;
+    function GetFilterText(
+      ARect: TDoubleRect;
+      ACategory: ICategory;
+      AIgnoreVisible: Boolean
+    ): string; overload;
+
   protected
     procedure LockRead; virtual;
     procedure LockWrite; virtual;
@@ -79,7 +96,8 @@ type
 
     procedure SetAllMarksInCategoryVisible(ACategory: ICategory; ANewVisible: Boolean);
 
-    function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
+    function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset; overload;
+    function GetMarksSubset(ARect: TDoubleRect; ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
   public
     constructor Create(
       ABasePath: string;
@@ -473,20 +491,16 @@ end;
 procedure TMarksDb.DeleteMarksByCategoryID(ACategory: ICategory);
 var
   VDeleted: Boolean;
-  VCategoryID: Integer;
-  VCategoryInternal: IMarkCategorySMLInternal;
+  VFilter: string;
 begin
   Assert(ACategory <> nil);
-  VCategoryID := -1;
-  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    VCategoryID := VCategoryInternal.Id;
-  end;
+  VFilter := GetFilterTextByCategory(ACategory);
   VDeleted := False;
-  if VCategoryID >= 0 then begin
+  if VFilter <> '' then begin
     LockWrite;
     try
       FCdsMarks.Filtered := false;
-      FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FCdsMarks.Filter := VFilter;
       FCdsMarks.Filtered := true;
       FCdsMarks.First;
       while not (FCdsMarks.Eof) do begin
@@ -506,19 +520,14 @@ procedure TMarksDb.SetAllMarksInCategoryVisible(ACategory: ICategory;
   ANewVisible: Boolean);
 var
   VVisible: Boolean;
-  VCategoryID: Integer;
-  VCategoryInternal: IMarkCategorySMLInternal;
+  VFilter: string;
 begin
-  VCategoryID := -1;
-  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    VCategoryID := VCategoryInternal.Id;
-  end;
-
-  if VCategoryID >= 0 then begin
+  VFilter := GetFilterTextByCategory(ACategory);
+  if VFilter <> '' then begin
     LockRead;
     try
       FCdsMarks.Filtered := false;
-      FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FCdsMarks.Filter := VFilter;
       FCdsMarks.Filtered := true;
       FCdsMarks.First;
       while not (FCdsMarks.Eof) do begin
@@ -592,23 +601,29 @@ begin
   Result := FFactory;
 end;
 
+function TMarksDb.GetCategoryID(ACategory: ICategory): Integer;
+var
+  VCategoryInternal: IMarkCategorySMLInternal;
+begin
+  Assert(ACategory <> nil);
+  Result := -1;
+  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    Result := VCategoryInternal.Id;
+  end;
+end;
+
 function TMarksDb.GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
 var
   VMarkId: IMarkId;
-  VCategoryID: Integer;
-  VCategoryInternal: IMarkCategorySMLInternal;
+  VFilter: string;
 begin
   Result := TInterfaceList.Create;
-  VCategoryID := -1;
-  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    VCategoryID := VCategoryInternal.Id;
-  end;
-
-  if VCategoryID >= 0 then begin
+  VFilter := GetFilterTextByCategory(ACategory);
+  if VFilter <> '' then begin
     LockRead;
     try
       FCdsMarks.Filtered := false;
-      FCdsMarks.Filter := 'categoryid = ' + inttostr(VCategoryID);
+      FCdsMarks.Filter := VFilter;
       FCdsMarks.Filtered := true;
       FCdsMarks.First;
       while not (FCdsMarks.Eof) do begin
@@ -654,50 +669,93 @@ begin
   FCdsMarks.Open;
 end;
 
-function TMarksDb.GetMarksSubset(ARect: TDoubleRect;
-  ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
-  function GetCategoryID(ACategory: ICategory): Integer;
-  var
-    VCategoryInternal: IMarkCategorySMLInternal;
-  begin
-    Assert(ACategory <> nil);
-    Result := -1;
-    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-      Result := VCategoryInternal.Id;
+function TMarksDb.GetFilterTextByCategory(ACategory: ICategory): string;
+var
+  VCategoryID: Integer;
+begin
+  Result := '';
+  if (ACategory <> nil) then begin
+    VCategoryID := GetCategoryID(ACategory);
+    if VCategoryID >= 0 then begin
+      Result := '(categoryid = ' + IntToStr(VCategoryID) + ')';
     end;
   end;
-  function GetFilterText(
-    ARect: TDoubleRect;
-    ACategoryList: IInterfaceList;
-    AIgnoreVisible: Boolean
-  ): string;
-  var
-    VCategoryFilter: string;
-    VCategoryID: Integer;
-    i: Integer;
-  begin
-    Result := '';
-    if not AIgnoreVisible then begin
-      Result := Result + '(visible=1)';
+end;
+
+function TMarksDb.GetFilterTextByCategoryList(
+  ACategoryList: IInterfaceList): string;
+var
+  VCategoryFilter: string;
+  VCategoryID: Integer;
+  i: Integer;
+begin
+  Result := '';
+  if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
+    VCategoryID := GetCategoryID(ICategory(ACategoryList[0]));
+    VCategoryFilter := IntToStr(VCategoryID);
+    for i :=  1 to ACategoryList.Count - 1 do begin
+      VCategoryID := GetCategoryID(ICategory(ACategoryList[i]));
+      VCategoryFilter := VCategoryFilter + ', ' + IntToStr(VCategoryID);
+    end;
+    VCategoryFilter := '(categoryid in (' + VCategoryFilter + '))';
+    Result := VCategoryFilter;
+  end;
+end;
+
+function TMarksDb.GetFilterTextByRect(const ALonLatRect: TDoubleRect): string;
+begin
+  Result :=
+    '(' +
+    ' LonR>' + floattostr(ALonLatRect.Left) + ' and' +
+    ' LonL<' + floattostr(ALonLatRect.Right) + ' and' +
+    ' LatB<' + floattostr(ALonLatRect.Top) + ' and' +
+    ' LatT>' + floattostr(ALonLatRect.Bottom) +
+    ')';
+end;
+
+function TMarksDb.GetFilterTextVisibleOnly: string;
+begin
+  Result := '(visible=1)';
+end;
+
+function TMarksDb.AppendFilter(ALeft, ARight: string): string;
+begin
+  Result := ALeft;
+  if ARight <> '' then begin
+    if (Result <>  '') then begin
       Result := Result + ' and ';
     end;
-    if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
-      VCategoryID := GetCategoryID(ICategory(ACategoryList[0]));
-      VCategoryFilter := IntToStr(VCategoryID);
-      for i :=  1 to ACategoryList.Count - 1 do begin
-        VCategoryID := GetCategoryID(ICategory(ACategoryList[i]));
-        VCategoryFilter := VCategoryFilter + ', ' + IntToStr(VCategoryID);
-      end;
-      VCategoryFilter := '(categoryid in (' + VCategoryFilter + ')) and';
-      Result := Result + VCategoryFilter;
-    end;
-    Result := Result + '(' +
-      ' LonR>' + floattostr(ARect.Left) + ' and' +
-      ' LonL<' + floattostr(ARect.Right) + ' and' +
-      ' LatB<' + floattostr(ARect.Top) + ' and' +
-      ' LatT>' + floattostr(ARect.Bottom) +
-      ')';
+    Result := Result + ARight;
   end;
+end;
+
+function TMarksDb.GetFilterText(ARect: TDoubleRect;
+  ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): string;
+begin
+  Result := '';
+  if not AIgnoreVisible then begin
+    Result := AppendFilter(Result, GetFilterTextVisibleOnly);
+  end;
+  Result := AppendFilter(Result, GetFilterTextByCategoryList(ACategoryList));
+  Result := AppendFilter(Result, GetFilterTextByRect(ARect));
+end;
+
+function TMarksDb.GetFilterText(
+  ARect: TDoubleRect;
+  ACategory: ICategory;
+  AIgnoreVisible: Boolean
+): string;
+begin
+  Result := '';
+  if not AIgnoreVisible then begin
+    Result := AppendFilter(Result, GetFilterTextVisibleOnly);
+  end;
+  Result := AppendFilter(Result, GetFilterTextByCategory(ACategory));
+  Result := AppendFilter(Result, GetFilterTextByRect(ARect));
+end;
+
+function TMarksDb.GetMarksSubset(ARect: TDoubleRect;
+  ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
 var
   VMark: IMark;
   VList: IInterfaceList;
@@ -710,6 +768,37 @@ begin
     try
       FCdsMarks.Filtered := false;
       FCdsMarks.Filter := GetFilterText(ARect, ACategoryList, AIgnoreVisible);
+      FCdsMarks.Filtered := true;
+      FCdsMarks.First;
+      while not (FCdsMarks.Eof) do begin
+        VMark := ReadCurrentMark;
+        if VMark <> nil then begin
+          VList.Add(VMark);
+        end;
+        FCdsMarks.Next;
+      end;
+    finally
+      UnlockRead;
+    end;
+  finally
+    VList.Unlock;
+  end;
+end;
+
+function TMarksDb.GetMarksSubset(ARect: TDoubleRect; ACategory: ICategory;
+  AIgnoreVisible: Boolean): IMarksSubset;
+var
+  VMark: IMark;
+  VList: IInterfaceList;
+begin
+  VList := TInterfaceList.Create;
+  Result := TMarksSubset.Create(VList);
+  VList.Lock;
+  try
+    LockRead;
+    try
+      FCdsMarks.Filtered := false;
+      FCdsMarks.Filter := GetFilterText(ARect, ACategory, AIgnoreVisible);
       FCdsMarks.Filtered := true;
       FCdsMarks.First;
       while not (FCdsMarks.Eof) do begin

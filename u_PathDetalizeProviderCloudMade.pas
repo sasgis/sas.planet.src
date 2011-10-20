@@ -136,7 +136,7 @@ uses
   c_PathDetalizeProvidersGUID,
   u_GeoToStr,
   u_ResStrings,
-  frm_InvisibleBrowser;
+  u_InetFunc;
 
 { TPathDetalizeProviderCloudMade }
 

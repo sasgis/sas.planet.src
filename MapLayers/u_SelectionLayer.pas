@@ -11,6 +11,7 @@ uses
   t_GeoTypes,
   i_ViewPortState,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_LastSelectionLayerConfig,
   i_LastSelectionInfo,
   u_MapLayerBasic;
@@ -41,7 +42,13 @@ type
   public
     procedure StartThreads; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState; AConfig: ILastSelectionLayerConfig; ALastSelectionInfo: ILastSelectionInfo);
+    constructor Create(
+      APerfList: IInternalPerformanceCounterList;
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState;
+      AConfig: ILastSelectionLayerConfig;
+      ALastSelectionInfo: ILastSelectionInfo
+    );
     destructor Destroy; override;    
   end;
 
@@ -57,13 +64,14 @@ uses
 { TSelectionLayer }
 
 constructor TSelectionLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AConfig: ILastSelectionLayerConfig;
   ALastSelectionInfo: ILastSelectionInfo
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   FLastSelectionInfo := ALastSelectionInfo;
 

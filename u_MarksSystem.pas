@@ -72,6 +72,7 @@ type
     property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
 
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;
+    function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
     procedure DeleteCategoryWithMarks(ACategory: IMarkCategory);
 
     function MarksSubsetToStaticTree(ASubset: IMarksSubset): IStaticTreeItem;
@@ -239,6 +240,22 @@ begin
       (VCategory.AfterScale <= AZoom + 1) and
       (VCategory.BeforeScale >= AZoom + 1)
     then begin
+      Result.Add(VCategory);
+    end;
+  end;
+end;
+
+function TMarksSystem.GetVisibleCategoriesIgnoreZoom: IInterfaceList;
+var
+  VList: IInterfaceList;
+  VCategory: IMarkCategory;
+  i: Integer;
+begin
+  Result := TInterfaceList.Create;
+  VList := FCategoryDB.GetCategoriesList;
+  for i := 0 to VList.Count - 1 do begin
+    VCategory := IMarkCategory(VList[i]);
+    if VCategory.visible then begin
       Result.Add(VCategory);
     end;
   end;

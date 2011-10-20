@@ -8,6 +8,7 @@ uses
   GR32_Image,
   i_JclNotify,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_ViewPortState,
   i_TileError,
   i_TileErrorLogProviedrStuped,
@@ -32,6 +33,7 @@ type
     procedure DoRedraw; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ALogProvider: ITileErrorLogProviedrStuped;
@@ -43,7 +45,6 @@ type
 implementation
 
 uses
-  Graphics,
   Types,
   i_CoordConverter,
   u_NotifyEventListener,
@@ -53,6 +54,7 @@ uses
 { TTileErrorInfoLayer }
 
 constructor TTileErrorInfoLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ALogProvider: ITileErrorLogProviedrStuped;
@@ -61,7 +63,7 @@ constructor TTileErrorInfoLayer.Create(
 var
   VBitmapSize: TPoint;
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FLogProvider := ALogProvider;
   FTimerNoifier := ATimerNoifier;
   FErrorInfo := nil;

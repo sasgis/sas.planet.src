@@ -8,8 +8,10 @@ uses
   Forms,
   t_GeoTypes,
   i_MapTypes,
+  i_LanguageManager,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_ValueToStringConverter,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
   u_MapType,
@@ -20,12 +22,15 @@ type
   TProviderTilesDownload = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesDownload;
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
     FMapUpdateEvent: TMapUpdateEvent;
   public
     constructor Create(
       AParent: TWinControl;
+      ALanguageManager: ILanguageManager;
+      AValueToStringConverterConfig: IValueToStringConverterConfig;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -58,6 +63,8 @@ uses
 
 constructor TProviderTilesDownload.Create(
   AParent: TWinControl;
+  ALanguageManager: ILanguageManager;
+  AValueToStringConverterConfig: IValueToStringConverterConfig;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -66,7 +73,8 @@ constructor TProviderTilesDownload.Create(
   AMapUpdateEvent: TMapUpdateEvent
 );
 begin
-  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
   FDownloadConfig := ADownloadConfig;
   FDownloadInfo := ADownloadInfo;
   FMapUpdateEvent := AMapUpdateEvent;
@@ -88,12 +96,12 @@ begin
   if FFrame = nil then begin
     FFrame := TfrTilesDownload.Create(
       nil,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList
     );
     FFrame.Visible := False;
-    FFrame.Parent := FParent;
+    FFrame.Parent := Self.Parent;
   end;
   FFrame.Init(Azoom,APolygon);
 end;
@@ -154,7 +162,8 @@ begin
     FFrame.dtpReplaceOlderDate.DateTime
   );
   TfrmProgressDownload.Create(
-    Application,
+    Self.LanguageManager,
+    FValueToStringConverterConfig,
     VThread,
     VThreadLog,
     FMapUpdateEvent

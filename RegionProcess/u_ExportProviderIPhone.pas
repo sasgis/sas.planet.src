@@ -7,6 +7,7 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
@@ -23,6 +24,7 @@ type
   public
     constructor Create(
       AParent: TWinControl;
+      ALanguageManager: ILanguageManager;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -51,6 +53,7 @@ uses
 
 constructor TExportProviderIPhone.Create(
   AParent: TWinControl;
+  ALanguageManager: ILanguageManager;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -58,7 +61,7 @@ constructor TExportProviderIPhone.Create(
   ANewFormat: Boolean
 );
 begin
-  inherited Create(AParent, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
   FCoordConverterFactory := ACoordConverterFactory;
   FNewFormat := ANewFormat;
 end;
@@ -83,12 +86,12 @@ begin
   if FFrame = nil then begin
     FFrame := TfrExportIPhone.Create(
       nil,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList
     );
     FFrame.Visible := False;
-    FFrame.Parent := FParent;
+    FFrame.Parent := Self.Parent;
   end;
   FFrame.Init;
 end;

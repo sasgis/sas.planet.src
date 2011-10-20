@@ -38,13 +38,14 @@ uses
   GR32_Resamplers,
   u_CommonFormAndFrameParents,
   i_MarkCategory,
+  i_LanguageManager,
   i_ImportConfig,
-  u_MarksDbGUIHelper;
+  i_MarksDb,
+  i_MarkCategoryDB,
+  fr_MarkCategorySelectOrAdd;
 
 type
-  TfrmImportConfigEdit = class(TCommonFormParent)
-    lblCategory: TLabel;
-    CBKateg: TComboBox;
+  TfrmImportConfigEdit = class(TFormWitghLanguageManager)
     grpPoint: TGroupBox;
     lblPointTextColor: TLabel;
     lblPointShadowColor: TLabel;
@@ -89,6 +90,7 @@ type
     chkPointIgnore: TCheckBox;
     chkLineIgnore: TCheckBox;
     chkPolyIgnore: TCheckBox;
+    pnlCategory: TPanel;
     procedure btnPointTextColorClick(Sender: TObject);
     procedure btnPointShadowColorClick(Sender: TObject);
     procedure cbbPointIconDrawItem(Control: TWinControl; Index: Integer;
@@ -97,17 +99,21 @@ type
     procedure btnOkClick(Sender: TObject);
     procedure btnPolyLineColorClick(Sender: TObject);
     procedure btnPolyFillColorClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
-    { Private declarations }
-    FMarkDBGUI: TMarksDbGUIHelper;
-    FCategoryList: IInterfaceList;
-    FCategory: IMarkCategory;
+    frMarkCategory: TfrMarkCategorySelectOrAdd;
+    FCategoryDB: IMarkCategoryDB;
+    FMarksDb: IMarksDb;
   public
-    function GetImportConfig(AMarkDBGUI: TMarksDbGUIHelper): IImportConfig;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      ACategoryDB: IMarkCategoryDB;
+      AMarksDb: IMarksDb
+    ); reintroduce;
+    destructor Destroy; override;
+    function GetImportConfig: IImportConfig;
+    procedure RefreshTranslation; override;
   end;
-
-var
-  frmImportConfigEdit: TfrmImportConfigEdit;
 
 implementation
 
@@ -117,6 +123,29 @@ uses
   u_ImportConfig;
 
 {$R *.dfm}
+
+constructor TfrmImportConfigEdit.Create(
+  ALanguageManager: ILanguageManager;
+  ACategoryDB: IMarkCategoryDB;
+  AMarksDb: IMarksDb
+);
+begin
+  inherited Create(ALanguageManager);
+  FMarksDb := AMarksDb;
+  FCategoryDB := ACategoryDB;
+
+  frMarkCategory :=
+    TfrMarkCategorySelectOrAdd.Create(
+      nil,
+      FCategoryDB
+    );
+end;
+
+destructor TfrmImportConfigEdit.Destroy;
+begin
+  FreeAndNil(frMarkCategory);
+  inherited;
+end;
 
 procedure TfrmImportConfigEdit.btnPointTextColorClick(Sender: TObject);
 begin
@@ -178,7 +207,7 @@ begin
   end;
 end;
 
-function TfrmImportConfigEdit.GetImportConfig(AMarkDBGUI: TMarksDbGUIHelper): IImportConfig;
+function TfrmImportConfigEdit.GetImportConfig: IImportConfig;
 var
   VIndex: Integer;
   VPic: IMarkPicture;
@@ -187,9 +216,9 @@ var
   VMarkTemplatePoly: IMarkTemplatePoly;
   VPictureList: IMarkPictureList;
   i: Integer;
+  VCategory: ICategory;
 begin
-  FMarkDBGUI := AMarkDBGUI;
-  VPictureList := FMarkDBGUI.MarkPictureList;
+  VPictureList := FMarksDb.Factory.MarkPictureList;
   cbbPointIcon.Items.Clear;
   for i := 0 to VPictureList.Count - 1 do begin
     cbbPointIcon.Items.AddObject(VPictureList.GetName(i), Pointer(VPictureList.Get(i)));
@@ -198,9 +227,8 @@ begin
     cbbPointIcon.Repaint;
     cbbPointIcon.ItemIndex:=0;
 
-    FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
+    frMarkCategory.Init(nil);
     try
-      FMarkDBGUI.CategoryListToStrings(FCategoryList, CBKateg.Items);
       if ShowModal = mrOk then begin
         if not chkPointIgnore.Checked then begin
           VIndex := cbbPointIcon.ItemIndex;
@@ -209,10 +237,11 @@ begin
           end else begin
             VPic := IMarkPicture(Pointer(cbbPointIcon.Items.Objects[VIndex]));
           end;
+          VCategory := frMarkCategory.GetCategory;
           VMarkTemplatePoint :=
-            FMarkDBGUI.MarksDB.MarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
+            FMarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
               VPic,
-              FCategory,
+              VCategory,
               SetAlpha(Color32(clrbxPointTextColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
               SetAlpha(Color32(clrbxPointShadowColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
               sePointFontSize.Value,
@@ -222,8 +251,8 @@ begin
         VMarkTemplateLine := nil;
         if not chkLineIgnore.Checked then begin
           VMarkTemplateLine :=
-            FMarkDBGUI.MarksDB.MarksDb.Factory.Config.LineTemplateConfig.CreateTemplate(
-              FCategory,
+            FMarksDb.Factory.Config.LineTemplateConfig.CreateTemplate(
+              VCategory,
               SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
               seLineWidth.Value
             );
@@ -231,8 +260,8 @@ begin
         VMarkTemplatePoly := nil;
         if not chkPolyIgnore.Checked then begin
           VMarkTemplatePoly :=
-            FMarkDBGUI.MarksDB.MarksDb.Factory.Config.PolyTemplateConfig.CreateTemplate(
-              FCategory,
+            FMarksDb.Factory.Config.PolyTemplateConfig.CreateTemplate(
+              VCategory,
               SetAlpha(Color32(clrbxPolyLineColor.Selected),round(((100-sePolyLineTransp.Value)/100)*256)),
               SetAlpha(Color32(clrbxPolyFillColor.Selected),round(((100-sePolyFillTransp.Value)/100)*256)),
               sePolyLineWidth.Value
@@ -240,7 +269,7 @@ begin
         end;
         Result :=
           TImportConfig.Create(
-            FMarkDBGUI.MarksDB.MarksDb,
+            FMarksDb,
             VMarkTemplatePoint,
             VMarkTemplateLine,
             VMarkTemplatePoly
@@ -249,31 +278,27 @@ begin
         Result := nil;
       end;
     finally
-      FCategoryList := nil;
+      frMarkCategory.Clear;
     end;
   finally
     cbbPointIcon.Items.Clear;
   end;
 end;
 
-procedure TfrmImportConfigEdit.btnOkClick(Sender: TObject);
-var
-  VCategoryText: string;
-  VIndex: Integer;
+procedure TfrmImportConfigEdit.RefreshTranslation;
 begin
-  FCategory := nil;
-  VCategoryText := CBKateg.Text;
-  VIndex := CBKateg.ItemIndex;
-  if VIndex < 0 then begin
-    VIndex:= CBKateg.Items.IndexOf(VCategoryText);
-  end;
-  if VIndex >= 0 then begin
-    FCategory := IMarkCategory(Pointer(CBKateg.Items.Objects[VIndex]));
-  end;
-  if FCategory = nil then begin
-    FCategory := FMarkDBGUI.AddKategory(VCategoryText);
-  end;
+  inherited;
+  frMarkCategory.RefreshTranslation;
+end;
+
+procedure TfrmImportConfigEdit.btnOkClick(Sender: TObject);
+begin
   ModalResult := mrOk;
+end;
+
+procedure TfrmImportConfigEdit.FormShow(Sender: TObject);
+begin
+  frMarkCategory.Parent := pnlCategory;
 end;
 
 end.

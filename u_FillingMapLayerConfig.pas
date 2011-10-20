@@ -24,6 +24,9 @@ interface
 
 uses
   GR32,
+  DateUtils,
+  SysUtils,
+  t_FillingMapModes,
   i_LocalCoordConverter,
   i_ActiveMapsConfig,
   i_ConfigDataProvider,
@@ -42,6 +45,10 @@ type
     FTNEColor: TColor32;
     FSourceMap: IFillingMapMapsConfig;
     FStatic: IFillingMapLayerConfigStatic;
+    FFillMode: TFillMode;
+    FFilterMode: Boolean;
+    FFillFirstDay: TDateTime;
+    FFillLastDay: TDateTime;
     function CreateStatic: IFillingMapLayerConfigStatic;
   protected
     procedure DoBeforeChangeNotify; override;
@@ -69,6 +76,18 @@ type
     function GetSourceMap: IFillingMapMapsConfig;
     function GetStatic: IFillingMapLayerConfigStatic;
     function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+
+    function GetFillMode: TFillMode;
+    procedure SetFillMode(const AValue: TFillMode);
+
+    function GetFilterMode: Boolean;
+    procedure SetFilterMode(const AValue: Boolean);
+
+    function GetFillFirstDay: TDateTime;
+    procedure SetFillFirstDay(const AValue: TDateTime);
+
+    function GetFillLastDay: TDateTime;
+    procedure SetFillLastDay(const AValue: TDateTime);
   public
     constructor Create(AMapsConfig: IMainMapsConfig);
   end;
@@ -92,7 +111,10 @@ begin
   FShowTNE := True;
   FNoTileColor := SetAlpha(clBlack32, 110);
   FTNEColor := SetAlpha(clRed32, 110);
-
+  FFillMode := fmUnexisting;
+  FFilterMode := False;
+  FFillFirstDay := EncodeDate(2000,1,1);
+  FFillLastDay := DateOf(Now);
   FSourceMap := TFillingMapMapsConfig.Create(AMapsConfig);
   Add(FSourceMap, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FStatic := CreateStatic;
@@ -108,7 +130,11 @@ begin
       FZoom,
       FNoTileColor,
       FShowTNE,
-      FTNEColor
+      FTNEColor,
+      FFillMode,
+      FFilterMode,
+      FFillFirstDay,
+      FFillLastDay
     );
 end;
 
@@ -133,6 +159,7 @@ begin
     FShowTNE := AConfigData.ReadBool('ShowTNE', FShowTNE);
     FNoTileColor := ReadColor32(AConfigData, 'NoTileColor', FNoTileColor);
     FTNEColor := ReadColor32(AConfigData, 'TNEColor', FTNEColor);
+    FFillMode := TFillMode(AConfigData.ReadInteger('FillingMapMode', Ord(FFillMode)));
 
     SetChanged;
   end;
@@ -148,6 +175,7 @@ begin
   AConfigData.WriteBool('ShowTNE', FShowTNE);
   WriteColor32(AConfigData, 'NoTileColor', FNoTileColor);
   WriteColor32(AConfigData, 'TNEColor', FTNEColor);
+  AConfigData.WriteInteger('FillingMapMode', Ord(FFillMode));
 end;
 
 function TFillingMapLayerConfig.GetActualZoom(
@@ -249,6 +277,46 @@ begin
   end;
 end;
 
+function TFillingMapLayerConfig.GetFillMode: TFillMode;
+begin
+  LockRead;
+  try
+    Result := FFillMode;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TFillingMapLayerConfig.GetFilterMode: Boolean;
+begin
+  LockRead;
+  try
+    Result := FFilterMode;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TFillingMapLayerConfig.GetFillFirstDay: TDateTime;
+begin
+  LockRead;
+  try
+    Result := FFillFirstDay;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TFillingMapLayerConfig.GetFillLastDay: TDateTime;
+begin
+  LockRead;
+  try
+    Result := FFillLastDay;
+  finally
+    UnlockRead;
+  end;
+end;
+
 procedure TFillingMapLayerConfig.SetNoTileColor(const AValue: TColor32);
 begin
   LockWrite;
@@ -320,6 +388,58 @@ begin
   try
     if FVisible <> AValue then begin
       FVisible := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TFillingMapLayerConfig.SetFillMode(const AValue: TFillMode);
+begin
+  LockWrite;
+  try
+    if FFillMode <> AValue then begin
+      FFillMode := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TFillingMapLayerConfig.SetFilterMode(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FFilterMode <> AValue then begin
+      FFilterMode := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TFillingMapLayerConfig.SetFillFirstDay(const AValue: TDateTime);
+begin
+  LockWrite;
+  try
+    if FFillFirstDay <> AValue then begin
+      FFillFirstDay := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TFillingMapLayerConfig.SetFillLastDay(const AValue: TDateTime);
+begin
+  LockWrite;
+  try
+    if FFillLastDay <> AValue then begin
+      FFillLastDay := AValue;
       SetChanged;
     end;
   finally

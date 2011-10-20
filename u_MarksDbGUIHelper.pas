@@ -27,30 +27,33 @@ uses
   Classes,
   ComCtrls,
   t_GeoTypes,
+  i_LanguageManager,
   i_CoordConverter,
   i_ValueToStringConverter,
-  i_MarkPicture,
+  i_ViewPortState,
   i_MarksSimple,
   i_MarkCategory,
+  i_ImportConfig,
+  frm_MarkCategoryEdit,
   frm_MarkEditPoint,
   frm_MarkEditPath,
   frm_MarkEditPoly,
   frm_RegionProcess,
+  frm_ImportConfigEdit,
   u_MarksSystem;
 
 type
   TMarksDbGUIHelper = class
   private
     FMarksDB: TMarksSystem;
-    FMarkPictureList: IMarkPictureList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FFormRegionProcess: TfrmRegionProcess;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
     FfrmMarkEditPath: TfrmMarkEditPath;
     FfrmMarkEditPoly: TfrmMarkEditPoly;
+    FfrmMarkCategoryEdit: TfrmMarkCategoryEdit;
+    FfrmImportConfigEdit: TfrmImportConfigEdit;
   public
-    procedure CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
-    procedure CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
     procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
 
     function DeleteMarkModal(AMarkID: IMarkID; handle:THandle):boolean;
@@ -60,17 +63,19 @@ type
     procedure ShowMarkLength(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle); overload;
     procedure ShowMarkSq(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle);
     function EditMarkModal(AMark: IMark): IMark;
+    function EditCategoryModal(ACategory: IMarkCategory): IMarkCategory;
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
     function SavePolyModal(AMark: IMarkPoly; ANewArrLL: TArrayOfDoublePoint): Boolean;
     function SaveLineModal(AMark: IMarkLine; ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
+    function EditModalImportConfig: IImportConfig;
 
     property MarksDB: TMarksSystem read FMarksDB;
-    property MarkPictureList: IMarkPictureList read FMarkPictureList;
   public
     constructor Create(
+      ALanguageManager: ILanguageManager;
       AMarksDB: TMarksSystem;
+      AViewPortState: IViewPortState;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
-      AMarkPictureList: IMarkPictureList;
       AFormRegionProcess: TfrmRegionProcess
     );
     destructor Destroy; override;
@@ -90,19 +95,47 @@ uses
 { TMarksDbGUIHelper }
 
 constructor TMarksDbGUIHelper.Create(
+  ALanguageManager: ILanguageManager;
   AMarksDB: TMarksSystem;
+  AViewPortState: IViewPortState;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
-  AMarkPictureList: IMarkPictureList;
   AFormRegionProcess: TfrmRegionProcess
 );
 begin
-  FMarkPictureList := AMarkPictureList;
   FMarksDB := AMarksDB;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FFormRegionProcess := AFormRegionProcess;
-  FfrmMarkEditPoint := TfrmMarkEditPoint.Create(nil, FMarksDB.CategoryDB, FMarksDB.MarksDb);
-  FfrmMarkEditPath := TfrmMarkEditPath.Create(nil, FMarksDB.CategoryDB, FMarksDB.MarksDb);
-  FfrmMarkEditPoly := TfrmMarkEditPoly.Create(nil, FMarksDB.CategoryDB, FMarksDB.MarksDb);
+  FfrmMarkEditPoint :=
+    TfrmMarkEditPoint.Create(
+      ALanguageManager,
+      FMarksDB.CategoryDB,
+      FMarksDB.MarksDb,
+      AViewPortState,
+      AValueToStringConverterConfig
+    );
+  FfrmMarkEditPath :=
+    TfrmMarkEditPath.Create(
+      ALanguageManager,
+      FMarksDB.CategoryDB,
+      FMarksDB.MarksDb
+    );
+  FfrmMarkEditPoly :=
+    TfrmMarkEditPoly.Create(
+      ALanguageManager,
+      FMarksDB.CategoryDB,
+      FMarksDB.MarksDb
+    );
+  FfrmMarkCategoryEdit :=
+    TfrmMarkCategoryEdit.Create(
+      ALanguageManager,
+      FMarksDB.CategoryDB.Factory
+    );
+  FfrmImportConfigEdit :=
+    TfrmImportConfigEdit.Create(
+      ALanguageManager,
+      FMarksDB.CategoryDB,
+      FMarksDB.MarksDb
+    );
 end;
 
 destructor TMarksDbGUIHelper.Destroy;
@@ -110,6 +143,8 @@ begin
   FreeAndNil(FfrmMarkEditPoint);
   FreeAndNil(FfrmMarkEditPath);
   FreeAndNil(FfrmMarkEditPoly);
+  FreeAndNil(FfrmMarkCategoryEdit);
+  FreeAndNil(FfrmImportConfigEdit);
   inherited;
 end;
 
@@ -150,59 +185,6 @@ begin
   end;
 end;
 
-procedure TMarksDbGUIHelper.CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
-var
-  i: Integer;
-  VCategory: IMarkCategory;
-begin
-  AStrings.Clear;
-  for i := 0 to AList.Count - 1 do begin
-    VCategory := IMarkCategory(AList[i]);
-    AStrings.AddObject(VCategory.name, Pointer(VCategory));
-  end;
-end;
-
-procedure TMarksDbGUIHelper.CategoryListToTree(AList: IInterfaceList; ATreeItems: TTreeNodes);
-  procedure AddTreeSubItems(ATree: IStaticTreeItem; AParentNode: TTreeNode);
-  var
-    i: Integer;
-    VTree: IStaticTreeItem;
-    VNode: TTreeNode;
-    VCategory: IMarkCategory;
-    VName: string;
-  begin
-    for i := 0 to ATree.SubItemCount - 1 do begin
-      VTree := ATree.SubItem[i];
-      VName := VTree.Name;
-      if VName = '' then begin
-        VName := '(NoName)';
-      end;
-      VNode := ATreeItems.AddChildObject(AParentNode, VName, nil);
-      VNode.StateIndex:=0;
-      if Supports(VTree.Data, IMarkCategory, VCategory) then begin
-        VNode.Data := Pointer(VCategory);
-        if VCategory.Visible then begin
-          VNode.StateIndex := 1;
-        end else begin
-          VNode.StateIndex := 2;
-        end;
-      end;
-      AddTreeSubItems(VTree, VNode);
-    end;
-  end;
-var
-  VTree: IStaticTreeItem;
-begin
-  VTree := MarksDB.CategoryListToStaticTree(AList);
-  ATreeItems.BeginUpdate;
-  try
-    ATreeItems.Clear;
-    AddTreeSubItems(VTree, nil);
-  finally
-    ATreeItems.EndUpdate;
-  end;
-end;
-
 function TMarksDbGUIHelper.DeleteMarkModal(AMarkID: IMarkID;
   handle: THandle): boolean;
 begin
@@ -212,6 +194,12 @@ begin
       result := FMarksDb.MarksDb.DeleteMark(AMarkID);
     end;
   end;
+end;
+
+function TMarksDbGUIHelper.EditCategoryModal(
+  ACategory: IMarkCategory): IMarkCategory;
+begin
+  Result := FfrmMarkCategoryEdit.EditCategory(ACategory);
 end;
 
 function TMarksDbGUIHelper.EditMarkModal(AMark: IMark): IMark;
@@ -228,6 +216,11 @@ begin
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     Result := FfrmMarkEditPoly.EditMark(VMarkPoly);
   end;
+end;
+
+function TMarksDbGUIHelper.EditModalImportConfig: IImportConfig;
+begin
+  Result := FfrmImportConfigEdit.GetImportConfig;
 end;
 
 procedure TMarksDbGUIHelper.ShowMarkLength(AMark: IMarkLine; AConverter: ICoordConverter; AHandle: THandle);

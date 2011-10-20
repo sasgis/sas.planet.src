@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_InternalPerformanceCounter,
   i_ImageResamplerConfig,
   i_MapLayerGridsConfig,
   i_ViewPortState,
@@ -29,6 +30,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -52,6 +54,7 @@ const
 { TMapLayerGrids }
 
 constructor TMapLayerGrids.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -60,6 +63,7 @@ constructor TMapLayerGrids.Create(
 );
 begin
   inherited Create(
+    APerfList,
     AParentMap,
     AViewPortState,
     AResamplerConfig,

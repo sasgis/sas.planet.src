@@ -26,6 +26,7 @@ uses
   Classes,
   ActiveX,
   t_GeoTypes,
+  i_MarkCategory,
   i_MarksSimple;
 
 type
@@ -34,6 +35,7 @@ type
     FList: IInterfaceList;
   protected
     function GetSubsetByLonLatRect(ARect: TDoubleRect): IMarksSubset;
+    function GetSubsetByCategory(ACategory: ICategory): IMarksSubset;
     function GetEnum: IEnumUnknown;
     function IsEmpty: Boolean;
   public
@@ -55,6 +57,33 @@ end;
 function TMarksSubset.GetEnum: IEnumUnknown;
 begin
   Result := TEnumUnknown.Create(FList);
+end;
+
+function TMarksSubset.GetSubsetByCategory(ACategory: ICategory): IMarksSubset;
+var
+  VNewList: IInterfaceList;
+  i: Integer;
+  VCategory: ICategory;
+  VMark: IMark;
+begin
+  VNewList := TInterfaceList.Create;
+  VNewList.Lock;
+  try
+    for i := 0 to FList.Count - 1 do begin
+      VMark := IMark(FList.Items[i]);
+      VCategory := VMark.Category;
+      if (ACategory <> nil) and (VCategory <> nil) then begin
+        if VCategory.IsSame(ACategory) then begin
+          VNewList.Add(VMark);
+        end;
+      end else if (ACategory = nil) and (VCategory = nil) then begin
+        VNewList.Add(VMark);
+      end;
+    end;
+  finally
+    VNewList.Unlock;
+  end;
+  Result := TMarksSubset.Create(VNewList);
 end;
 
 function TMarksSubset.GetSubsetByLonLatRect(ARect: TDoubleRect): IMarksSubset;

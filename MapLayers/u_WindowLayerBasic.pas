@@ -13,14 +13,13 @@ type
     FPerfList: IInternalPerformanceCounterList;
     FLinksList: IJclListenerNotifierLinksList;
   protected
-    procedure SetPerfList(const Value: IInternalPerformanceCounterList); virtual;
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
+    property PerfList: IInternalPerformanceCounterList read FPerfList;
   public
-    constructor Create;
+    constructor Create(APerfList: IInternalPerformanceCounterList);
     destructor Destroy; override;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
-    property PerfList: IInternalPerformanceCounterList read FPerfList write SetPerfList;
   end;
 
 implementation
@@ -32,8 +31,9 @@ uses
 
 { TWindowLayerAbstract }
 
-constructor TWindowLayerAbstract.Create;
+constructor TWindowLayerAbstract.Create(APerfList: IInternalPerformanceCounterList);
 begin
+  FPerfList := APerfList.CreateAndAddNewSubList(ClassName);
   FLinksList := TJclListenerNotifierLinksList.Create;
 end;
 
@@ -46,12 +46,6 @@ end;
 procedure TWindowLayerAbstract.SendTerminateToThreads;
 begin
   FLinksList.DeactivateLinks;
-end;
-
-procedure TWindowLayerAbstract.SetPerfList(
-  const Value: IInternalPerformanceCounterList);
-begin
-  FPerfList := Value;
 end;
 
 procedure TWindowLayerAbstract.StartThreads;

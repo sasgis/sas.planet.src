@@ -32,11 +32,10 @@ uses
   Buttons,
   ExtCtrls,
   i_ShortCutSingleConfig,
-  u_ShortcutManager,
   u_CommonFormAndFrameParents;
 
 type
-  TfrmShortCutEdit = class(TCommonFormParent)
+  TfrmShortCutEdit = class(TFormWitghLanguageManager)
     GroupBox1: TGroupBox;
     HotKey: THotKey;
     btnOk: TButton;

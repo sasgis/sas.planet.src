@@ -29,6 +29,7 @@ uses
   Dialogs,
   GR32,
   t_GeoTypes,
+  i_FillingMapColorer,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -60,6 +61,7 @@ uses
   i_MapAbilitiesConfig,
   i_SimpleTileStorageConfig,
   i_ZmpInfo,
+  i_InvisibleBrowser,
   i_MapTypeGUIConfig,
   i_ProxySettings,
   i_CoordConverterFactory,
@@ -111,7 +113,7 @@ type
     );
     procedure LoadDownloader(
       //AGCList: IListOfObjectsWithTTL;
-      //AProxyConfig: IProxyConfig;
+      AInvisibleBrowser: IInvisibleBrowser;
       AConfig : IConfigDataProvider;                    // <--
       ACoordConverterFactory: ICoordConverterFactory    // <--
     );
@@ -136,6 +138,7 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
       ACoordConverterFactory: ICoordConverterFactory;
+      AInvisibleBrowser: IInvisibleBrowser;
       AConfig : IConfigDataProvider
     );
 
@@ -212,9 +215,7 @@ type
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      ANoTileColor: TColor32;
-      AShowTNE: Boolean;
-      ATNEColor: TColor32
+      AColorer: IFillingMapColorer
     ): boolean;
     function GetShortFolderName: string;
     {
@@ -261,6 +262,7 @@ type
       AContentTypeManager: IContentTypeManager;
       ACoordConverterFactory: ICoordConverterFactory;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
+      AInvisibleBrowser: IInvisibleBrowser;
       AConfig: IConfigDataProvider
     );
     destructor Destroy; override;
@@ -364,7 +366,7 @@ end;
 
 procedure TMapType.LoadDownloader(
   AConfig: IConfigDataProvider;
-  ACoordConverterFactory: ICoordConverterFactory
+  AInvisibleBrowser: IInvisibleBrowser;
 );
 begin
   FAbilitiesConfig.LockWrite;
@@ -400,6 +402,7 @@ procedure TMapType.LoadMapType(
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
   ACoordConverterFactory: ICoordConverterFactory;
+  AInvisibleBrowser: IInvisibleBrowser;
   AConfig: IConfigDataProvider
 );
 begin
@@ -636,9 +639,7 @@ function TMapType.LoadFillingMap(
   btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
-  ANoTileColor: TColor32;
-  AShowTNE: Boolean;
-  ATNEColor: TColor32
+  AColorer: IFillingMapColorer
 ): boolean;
 begin
   Result :=
@@ -650,9 +651,7 @@ begin
       Azoom,
       ASourceZoom,
       FVersionConfig.GetStatic,
-      ANoTileColor,
-      AShowTNE,
-      ATNEColor
+      AColorer
     );
 end;
 
@@ -675,6 +674,7 @@ constructor TMapType.Create(
   AContentTypeManager: IContentTypeManager;
   ACoordConverterFactory: ICoordConverterFactory;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
+  AInvisibleBrowser: IInvisibleBrowser;
   AConfig: IConfigDataProvider
 );
 begin
@@ -710,6 +710,7 @@ begin
     AGlobalCacheConfig,
     ATileNameGeneratorList,
     ACoordConverterFactory,
+    AInvisibleBrowser,
     AConfig
   );
   if FAbilitiesConfig.IsLayer then begin

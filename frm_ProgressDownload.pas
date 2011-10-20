@@ -35,12 +35,14 @@ uses
   RarProgress,
   u_CommonFormAndFrameParents,
   i_LogForTaskThread,
+  i_LanguageManager,
+  i_ValueToStringConverter,
   u_MapType,
   u_ResStrings,
   u_ThreadDownloadTiles;
 
 type
-  TfrmProgressDownload = class(TCommonFormParent)
+  TfrmProgressDownload = class(TFormWitghLanguageManager)
     Panel1: TPanel;
     Memo1: TMemo;
     LabelValue0: TLabel;
@@ -70,6 +72,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Panel1Resize(Sender: TObject);
   private
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadThread: TThreadDownloadTiles;
     FLog: ILogForTaskThread;
     FLastLogID: Cardinal;
@@ -86,13 +89,13 @@ type
     procedure StopThread;
   public
     constructor Create(
-      AOwner: TComponent;
+      ALanguageManager: ILanguageManager;
+      AValueToStringConverterConfig: IValueToStringConverterConfig;
       ADownloadThread: TThreadDownloadTiles;
       ALog: ILogForTaskThread;
       AMapUpdateEvent: TMapUpdateEvent
     ); reintroduce; virtual;
     destructor Destroy; override;
-    procedure RefreshTranslation; override;
 
     property DownloadThread: TThreadDownloadTiles read FDownloadThread;
   public
@@ -102,9 +105,7 @@ implementation
 
 uses
   SysUtils,
-  Graphics,
-  i_ValueToStringConverter,
-  u_GlobalState;
+  Graphics;
 
 {$R *.dfm}
 
@@ -140,13 +141,15 @@ begin
 end;
 
 constructor TfrmProgressDownload.Create(
-  AOwner: TComponent;
+  ALanguageManager: ILanguageManager;
+  AValueToStringConverterConfig: IValueToStringConverterConfig;
   ADownloadThread: TThreadDownloadTiles;
   ALog: ILogForTaskThread;
   AMapUpdateEvent: TMapUpdateEvent
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
   FMapUpdateEvent := AMapUpdateEvent;
   FDownloadThread := ADownloadThread;
   FLog := ALog;
@@ -197,11 +200,6 @@ begin
   FRarProgress.Width:=TPanel(sender).Width-14;
 end;
 
-procedure TfrmProgressDownload.RefreshTranslation;
-begin
-  inherited;
-end;
-
 procedure TfrmProgressDownload.UpdateProgressForm;
 var
   VComplete: string;
@@ -212,7 +210,7 @@ begin
   end else begin
     VComplete := '~%';
   end;
-  VValueConverter := GState.ValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverterConfig.GetStatic;
   if FDownloadThread.Finished then begin
     if not FFinished then begin
       FFinished := True;
@@ -271,7 +269,7 @@ begin
   if loaded=0 then begin
     result:='~ Κα';
   end else begin
-    VValueConverter := GState.ValueToStringConverterConfig.GetStatic;
+    VValueConverter := FValueToStringConverterConfig.GetStatic;
     Result:= VValueConverter.DataSizeConvert((len/loaded)*(loadAll-obrab));
   end;
 end;

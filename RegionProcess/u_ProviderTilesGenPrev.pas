@@ -7,6 +7,7 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -24,6 +25,7 @@ type
   public
     constructor Create(
       AParent: TWinControl;
+      ALanguageManager: ILanguageManager;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -54,6 +56,7 @@ uses
 
 constructor TProviderTilesGenPrev.Create(
   AParent: TWinControl;
+  ALanguageManager: ILanguageManager;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -61,7 +64,7 @@ constructor TProviderTilesGenPrev.Create(
   AImageResamplerConfig: IImageResamplerConfig
 );
 begin
-  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FViewConfig := AViewConfig;
   FImageResamplerConfig := AImageResamplerConfig;
 end;
@@ -82,13 +85,13 @@ begin
   if FFrame = nil then begin
     FFrame := TfrTilesGenPrev.Create(
       nil,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList,
       FImageResamplerConfig
     );
     FFrame.Visible := False;
-    FFrame.Parent := FParent;
+    FFrame.Parent := Self.Parent;
   end;
   FFrame.Init(Azoom);
 end;

@@ -7,12 +7,12 @@ uses
   Types,
   ActiveX,
   Classes,
-  Controls,
   GR32,
   GR32_Image,
   i_JclNotify,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_LastSearchResultConfig,
   i_BitmapMarker,
   i_ViewPortState,
@@ -37,6 +37,7 @@ type
   public
     procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple; out AItemS: Double);
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ALastSearchResults: ILastSearchResultConfig;
@@ -55,13 +56,14 @@ uses
 { TSearchResultsLayer }
 
 constructor TSearchResultsLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ALastSearchResults: ILastSearchResultConfig;
   AMarkerProvider: IBitmapMarkerProviderChangeable
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FLastSearchResults:=ALastSearchResults;
   FMarkerProvider := AMarkerProvider;
 

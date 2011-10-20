@@ -43,16 +43,16 @@ uses
   GR32,
   GR32_Image,
   u_CommonFormAndFrameParents,
-  i_ConfigDataWriteProvider,
   i_JclListenerNotifierLinksList,
   i_ImageResamplerFactory,
   i_MapTypeConfigModalEdit,
-  fr_ShortCutList,
+  i_LanguageManager,
   u_MapType,
-  u_ResStrings;
+  u_ShortcutManager,
+  fr_ShortCutList;
 
 type
-  TfrmSettings = class(TCommonFormParent)
+  TfrmSettings = class(TFormWitghLanguageManager)
     PageControl1: TPageControl;
     tsCache: TTabSheet;
     tsInternet: TTabSheet;
@@ -118,7 +118,9 @@ type
     Label27: TLabel;
     Label28: TLabel;
     SpinEditBorderAlpha: TSpinEdit;
+    SpinEditGenshtabBorderAlpha: TSpinEdit;
     ColorBoxBorder: TColorBox;
+    GenshtabBoxBorder: TColorBox;
     CBDblDwnl: TCheckBox;
     CkBGoNextTile: TCheckBox;
     tsMaps: TTabSheet;
@@ -140,6 +142,7 @@ type
     Label65: TLabel;
     CBSaveTileNotExists: TCheckBox;
     CBBorderText: TCheckBox;
+    CBGenshtabBorderText: TCheckBox;
     Label23: TLabel;
     Label24: TLabel;
     Label26: TLabel;
@@ -191,7 +194,9 @@ type
     pnlImageProcess: TPanel;
     pnlResize: TPanel;
     flwpnlTileBorders: TFlowPanel;
+    flwpnlGenshtabBorders: TFlowPanel;
     pnlTileBorders: TPanel;
+    pnlGenshtabBorders: TPanel;
     pnlUIRight: TPanel;
     flwpnlMiniMapAlfa: TFlowPanel;
     flwpnlTileBorder: TFlowPanel;
@@ -249,6 +254,8 @@ type
     procedure MapListChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
   private
+    FShortCutManager: TShortcutManager;
+    FOnSave: TNotifyEvent;
     FLinksList: IJclListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
     FMapTypeEditor: IMapTypeConfigModalEdit;
@@ -257,15 +264,17 @@ type
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
     procedure InitMapsList;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AShortCutManager: TShortcutManager;
+      AMapTypeEditor: IMapTypeConfigModalEdit;
+      AOnSave: TNotifyEvent
+    ); reintroduce;
     destructor Destroy; override;
+    procedure SetProxy;
+    procedure ShowGPSSettings;
     procedure RefreshTranslation; override;
-    property MapTypeEditor: IMapTypeConfigModalEdit read FMapTypeEditor;
   end;
-
-var
-  frmSettings: TfrmSettings;
-  procedure SetProxy;
 
 implementation
 
@@ -278,13 +287,30 @@ uses
   i_GUIDListStatic,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
-  u_MapTypeConfigModalEditByForm,
   u_GlobalState,
-  frm_Main,
-  frm_IntrnalBrowser,
-  frm_MapTypeEdit;
+  u_ResStrings;
 
 {$R *.dfm}
+
+constructor TfrmSettings.Create(
+  ALanguageManager: ILanguageManager;
+  AShortCutManager: TShortcutManager;
+  AMapTypeEditor: IMapTypeConfigModalEdit;
+  AOnSave: TNotifyEvent
+);
+begin
+  inherited Create(ALanguageManager);
+  FMapTypeEditor := AMapTypeEditor;
+  FShortCutManager := AShortCutManager;
+  FOnSave := AOnSave;
+  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList.Add(
+    TNotifyEventListener.Create(Self.GPSReceiverReceive),
+    GState.GPSpar.DataReciveNotifier
+  );
+  frShortCutList := TfrShortCutList.Create(ALanguageManager);
+  PageControl1.ActivePageIndex:=0;
+end;
 
 procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
@@ -292,7 +318,7 @@ begin
   Close
 end;
 
-procedure SetProxy;
+procedure TfrmSettings.SetProxy;
 var
   PIInfo : PInternetProxyInfo;
   VProxyConfig: IProxyConfig;
@@ -330,6 +356,12 @@ begin
     UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
   end;
   Dispose (PIInfo) ;
+end;
+
+procedure TfrmSettings.ShowGPSSettings;
+begin
+  tsGPS.Show;
+  ShowModal;
 end;
 
 procedure TfrmSettings.btnApplyClick(Sender: TObject);
@@ -387,6 +419,9 @@ begin
   try
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor := SetAlpha(Color32(ColorBoxBorder.Selected),SpinEditBorderAlpha.Value);
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText:=CBBorderText.Checked;
+
+    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor := SetAlpha(Color32(GenshtabBoxBorder.Selected),SpinEditGenshtabBorderAlpha.Value);
+    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText:=CBGenshtabBorderText.Checked;
   finally
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
   end;
@@ -499,7 +534,9 @@ begin
  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
  frShortCutList.ApplyChanges;
- frmMain.SaveConfig;
+  if Assigned(FOnSave) then begin
+    FOnSave(nil);
+  end;
  if VNeedReboot then begin
    ShowMessage(SAS_MSG_need_reload_application_curln);
  end;
@@ -574,19 +611,6 @@ begin
   CBProxyused.Enabled := not VUseIeProxy;
   lblUseProxy.Enabled := not VUseIeProxy;
   CBProxyusedClick(CBProxyused);
-end;
-
-constructor TfrmSettings.Create(AOwner: TComponent);
-begin
-  inherited;
-  FLinksList := TJclListenerNotifierLinksList.Create;
-  FLinksList.Add(
-    TNotifyEventListener.Create(Self.GPSReceiverReceive),
-    GState.GPSpar.DataReciveNotifier
-  );
-  frShortCutList := TfrShortCutList.Create(nil);
-  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create;
-  PageControl1.ActivePageIndex:=0;
 end;
 
 destructor TfrmSettings.Destroy;
@@ -678,6 +702,10 @@ begin
     ColorBoxBorder.Selected:=WinColor(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
     SpinEditBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
     CBBorderText.Checked:=GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText;
+
+    GenshtabBoxBorder.Selected:=WinColor(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
+    SpinEditGenshtabBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
+    CBGenshtabBorderText.Checked:=GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText;
   finally
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockRead;
   end;
@@ -748,7 +776,7 @@ begin
 
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
- frShortCutList.SetShortCutManager(frmMain.ShortCutManager);
+ frShortCutList.SetShortCutManager(FShortCutManager);
  SatellitePaint;
 end;
 
@@ -886,7 +914,7 @@ begin
   VUrl := VMap.GUIConfig.InfoUrl.Value;
   if VUrl <> '' then begin
     VUrl := 'sas://ZmpInfo/' + GUIDToString(VMap.Zmp.GUID) + VUrl;
-    frmIntrnalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
+    GState.InternalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
   end;
 end;
 

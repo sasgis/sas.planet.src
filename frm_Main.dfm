@@ -152,7 +152,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 242
+      Left = 248
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -184,7 +184,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 369
+      Left = 375
       Top = 25
       DockPos = 363
       DockRow = 1
@@ -195,7 +195,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 540
+      Left = 546
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -295,6 +295,7 @@ object frmMain: TfrmMain
         Caption = '&Operations'
         Hint = ''
         object N35: TTBXItem
+          Images = MenusImageList
           OnClick = N35Click
           Caption = 'Create Shortcut'
           Hint = ''
@@ -351,6 +352,7 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object NRectSave: TTBXSubmenuItem
+          Images = MenusImageList
           Caption = 'Selection Manager'
           Hint = ''
           object TBRECT: TTBXItem
@@ -425,51 +427,61 @@ object frmMain: TfrmMain
         Caption = '&View'
         Hint = ''
         object NPanels: TTBXSubmenuItem
+          Images = MenusImageList
           Caption = 'Toolbars'
           Hint = ''
           object NMainToolBarShow: TTBXVisibilityToggleItem
             Control = TBMainToolBar
+            Images = MenusImageList
             Caption = 'Main'
             Hint = ''
           end
           object NZoomToolBarShow: TTBXVisibilityToggleItem
             Control = ZoomToolBar
+            Images = MenusImageList
             Caption = 'Zoom'
             Hint = ''
           end
           object NsrcToolBarShow: TTBXVisibilityToggleItem
             Control = SrcToolbar
+            Images = MenusImageList
             Caption = 'Sources'
             Hint = ''
           end
           object NGPSToolBarShow: TTBXVisibilityToggleItem
             Control = GPSToolbar
+            Images = MenusImageList
             Caption = 'GPS'
             Hint = ''
           end
           object TBXVisibilityToggleItem1: TTBXVisibilityToggleItem
             Control = TBMarksToolbar
+            Images = MenusImageList
             Caption = 'Placemarks'
             Hint = ''
           end
           object TBXVisibilityToggleItem2: TTBXVisibilityToggleItem
             Control = TBXToolBarSearch
+            Images = MenusImageList
             Caption = 'Search'
             Hint = ''
           end
           object NSearchResults: TTBXVisibilityToggleItem
             Control = TBSearchWindow
+            Images = MenusImageList
             Caption = 'Search Results'
             Hint = ''
           end
           object NSensors: TTBXSubmenuItem
             AutoCheck = True
             DropdownCombo = True
+            Images = MenusImageList
             OnClick = NSensorsClick
             Caption = 'Sensors'
             Hint = ''
             object NSignalStrengthBar: TTBXVisibilityToggleItem
               Control = TBXSignalStrengthBar
+              Images = MenusImageList
               Caption = 'Satellite Signal Strength'
               Hint = ''
             end
@@ -480,16 +492,19 @@ object frmMain: TfrmMain
           end
           object NBlock_toolbars: TTBXItem
             AutoCheck = True
+            Images = MenusImageList
             OnClick = NBlock_toolbarsClick
             Caption = 'Lock Toolbars'
             Hint = ''
           end
         end
         object N31: TTBXSubmenuItem
+          Images = MenusImageList
           Caption = 'Interface'
           Hint = ''
           object Showstatus: TTBXItem
             AutoCheck = True
+            Images = MenusImageList
             ShortCut = 32851
             OnClick = ShowstatusClick
             Caption = 'Status Bar'
@@ -497,6 +512,7 @@ object frmMain: TfrmMain
           end
           object ShowMiniMap: TTBXItem
             AutoCheck = True
+            Images = MenusImageList
             ShortCut = 32845
             OnClick = ShowMiniMapClick
             Caption = 'Minimap'
@@ -504,6 +520,7 @@ object frmMain: TfrmMain
           end
           object ShowLine: TTBXItem
             AutoCheck = True
+            Images = MenusImageList
             ShortCut = 32844
             OnClick = ShowLineClick
             Caption = 'Ruler'
@@ -517,6 +534,7 @@ object frmMain: TfrmMain
           Caption = 'Cached Tiles Map'
           Hint = ''
           object TBFillingTypeMap: TTBXSubmenuItem
+            Images = MenusImageList
             Options = [tboDropdownArrow]
             Caption = 'Show for...'
             Hint = ''
@@ -534,6 +552,50 @@ object frmMain: TfrmMain
             Caption = ''
             Hint = ''
           end
+          object TBXSeparatorItem20: TTBXSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          object NFillMode1: TTBXItem
+            Tag = 99
+            Checked = True
+            GroupIndex = 2
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NFillMode1Click
+            Caption = 'Mark Unexisting Tiles'
+            Hint = ''
+          end
+          object NFillMode2: TTBXItem
+            Tag = 99
+            GroupIndex = 2
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NFillMode2Click
+            Caption = 'Mark Existing Tiles'
+            Hint = ''
+          end
+          object NFillMode3: TTBXItem
+            Tag = 99
+            GroupIndex = 2
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NFillMode3Click
+            Caption = 'FileAge Gradient'
+            Hint = ''
+          end
+          object TBXSeparatorItem21: TTBXSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          object NFillToolBar: TTBXItem
+            Tag = 99
+            GroupIndex = 1
+            Images = MenusImageList
+            OnClick = NFillToolBarClick
+            Caption = 'Show Time Interval'
+            Hint = ''
+          end
         end
         object NShowGran: TTBXSubmenuItem
           ImageIndex = 3
@@ -543,6 +605,7 @@ object frmMain: TfrmMain
           Hint = ''
           object N000: TTBXItem
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = N000Click
             Caption = 'No'
@@ -551,6 +614,7 @@ object frmMain: TfrmMain
           object N001: TTBXItem
             Tag = 99
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = N000Click
             Caption = 'Current Zoom'
@@ -559,6 +623,7 @@ object frmMain: TfrmMain
           object N002: TTBXItem
             Tag = 2
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = N000Click
             Caption = '2'
@@ -567,6 +632,7 @@ object frmMain: TfrmMain
           object N003: TTBXItem
             Tag = 3
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = N000Click
             Caption = '3'
@@ -575,6 +641,7 @@ object frmMain: TfrmMain
           object N004: TTBXItem
             Tag = 4
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = N000Click
             Caption = '4'
@@ -583,6 +650,7 @@ object frmMain: TfrmMain
           object N005: TTBXItem
             Tag = 5
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = N000Click
             Caption = '5'
@@ -591,6 +659,7 @@ object frmMain: TfrmMain
           object N006: TTBXItem
             Tag = 6
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = N000Click
             Caption = '6'
@@ -599,6 +668,7 @@ object frmMain: TfrmMain
           object N007: TTBXItem
             Tag = 7
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = N000Click
             Caption = '7'
@@ -606,11 +676,13 @@ object frmMain: TfrmMain
           end
         end
         object N40: TTBXSubmenuItem
+          Images = MenusImageList
           Caption = 'GenShtab Maps Boundaries'
           Hint = ''
           object NGShScale0: TTBXItem
             AutoCheck = True
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = NGShScale01Click
             Caption = 'No'
@@ -620,6 +692,7 @@ object frmMain: TfrmMain
             Tag = 1000000
             AutoCheck = True
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = NGShScale01Click
             Caption = '1:1 000 000 (10 km)'
@@ -629,6 +702,7 @@ object frmMain: TfrmMain
             Tag = 500000
             AutoCheck = True
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = NGShScale01Click
             Caption = '1:500 000 (5 km)'
@@ -638,6 +712,7 @@ object frmMain: TfrmMain
             Tag = 200000
             AutoCheck = True
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = NGShScale01Click
             Caption = '1:200 000 (2 km)'
@@ -647,6 +722,7 @@ object frmMain: TfrmMain
             Tag = 100000
             AutoCheck = True
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = NGShScale01Click
             Caption = '1:100 000 (1 km)'
@@ -656,6 +732,7 @@ object frmMain: TfrmMain
             Tag = 50000
             AutoCheck = True
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = NGShScale01Click
             Caption = '1:50 000 (500 m)'
@@ -665,6 +742,7 @@ object frmMain: TfrmMain
             Tag = 25000
             AutoCheck = True
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = NGShScale01Click
             Caption = '1:25 000 (250 m)'
@@ -674,6 +752,7 @@ object frmMain: TfrmMain
             Tag = 10000
             AutoCheck = True
             GroupIndex = 1
+            Images = MenusImageList
             RadioItem = True
             OnClick = NGShScale01Click
             Caption = '1:10 000 (100 m)'
@@ -696,6 +775,7 @@ object frmMain: TfrmMain
         object NGoToCur: TTBXItem
           AutoCheck = True
           Checked = True
+          Images = MenusImageList
           OnClick = NGoToCurClick
           Caption = 'Zoom to Cursor'
           Hint = ''
@@ -703,6 +783,7 @@ object frmMain: TfrmMain
         object Nbackload: TTBXItem
           AutoCheck = True
           Checked = True
+          Images = MenusImageList
           OnClick = NbackloadClick
           Caption = 'Use Maps from Lower Zooms'
           Hint = ''
@@ -710,6 +791,7 @@ object frmMain: TfrmMain
         object NbackloadLayer: TTBXItem
           AutoCheck = True
           Checked = True
+          Images = MenusImageList
           OnClick = NbackloadLayerClick
           Caption = 'Use Layers from Lower Zooms'
           Hint = ''
@@ -717,6 +799,7 @@ object frmMain: TfrmMain
         object Nanimate: TTBXItem
           AutoCheck = True
           Checked = True
+          Images = MenusImageList
           OnClick = NanimateClick
           Caption = 'Zoom Animation'
           Hint = ''
@@ -724,18 +807,21 @@ object frmMain: TfrmMain
         object NAnimateMove: TTBXItem
           AutoCheck = True
           Checked = True
+          Images = MenusImageList
           OnClick = NAnimateMoveClick
           Caption = 'Inertial Movement'
           Hint = ''
         end
         object N32: TTBXItem
           AutoCheck = True
+          Images = MenusImageList
           OnClick = N32Click
           Caption = 'Gauge'
           Hint = ''
         end
         object Ninvertcolor: TTBXItem
           AutoCheck = True
+          Images = MenusImageList
           ShortCut = 32846
           OnClick = NinvertcolorClick
           Caption = 'Night Mode (Color Inversion)'
@@ -743,11 +829,13 @@ object frmMain: TfrmMain
         end
         object NShowSelection: TTBXItem
           AutoCheck = True
+          Images = MenusImageList
           OnClick = NShowSelectionClick
           Caption = 'Previous Selection'
           Hint = ''
         end
         object tbitmShowDebugInfo: TTBXItem
+          Images = MenusImageList
           Visible = False
           OnClick = tbitmShowDebugInfoClick
           Caption = 'Debug Info'
@@ -807,7 +895,6 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object NMarks: TTBXSubmenuItem
-        Images = MenusImageList
         Caption = 'Placemarks'
         Hint = ''
         object NMarksGroup: TTBGroupItem
@@ -900,6 +987,7 @@ object frmMain: TfrmMain
         end
         object tbitmGPSToPointCenter: TTBXItem
           AutoCheck = True
+          Images = MenusImageList
           OnClick = TBGPSToPointCenterClick
           Caption = 'Centered GPS Position'
           Hint = ''
@@ -935,6 +1023,7 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmPositionByGSM: TTBXItem
+          Images = MenusImageList
           OnClick = tbitmPositionByGSMClick
           Caption = 'Get Locaton from GSM (Google Query)'
           Hint = ''
@@ -956,12 +1045,14 @@ object frmMain: TfrmMain
         Caption = 'Settings'
         Hint = ''
         object NMapParams: TTBXItem
+          Images = MenusImageList
           ShortCut = 49232
           OnClick = NMapParamsClick
           Caption = 'Map Settings'
           Hint = ''
         end
         object NLayerParams: TTBXSubmenuItem
+          Images = MenusImageList
           Caption = 'Layer Settings'
           Hint = ''
         end
@@ -977,6 +1068,7 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object TBLang: TTBXSubmenuItem
+          Images = MenusImageList
           Caption = 'Language'
           Hint = ''
         end
@@ -1004,16 +1096,19 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object NGoToSite: TTBXItem
+          Images = MenusImageList
           OnClick = NGoToSiteClick
           Caption = 'Web Site (http://www.sasgis.ru)'
           Hint = ''
         end
         object tbtmHelpBugTrack: TTBXItem
+          Images = MenusImageList
           OnClick = tbtmHelpBugTrackClick
           Caption = 'Issue Tracker (http://sasgis.ru/mantis)'
           Hint = ''
         end
         object NGoToForum: TTBXItem
+          Images = MenusImageList
           OnClick = NGoToForumClick
           Caption = 'Community  (http://www.sasgis.ru/forum)'
           Hint = ''
@@ -1021,7 +1116,7 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 413
+      Left = 419
       Top = 0
       DockPos = 413
       Options = [tboNoRotation]
@@ -1061,7 +1156,7 @@ object frmMain: TfrmMain
           RadioItem = True
           Caption = 'WikiMapia'
           Hint = ''
-        end        
+        end
       end
       object tbiSearch: TTBXComboBoxItem
         EditCaption = 'Search'
@@ -1074,6 +1169,69 @@ object frmMain: TfrmMain
         Caption = ''
         Hint = ''
         EditCaption = 'Search'
+      end
+    end
+    object FillToolBar: TTBXToolbar
+      Left = 629
+      Top = 0
+      DefaultDock = TBDock
+      DockPos = 643
+      TabOrder = 7
+      Visible = False
+      Caption = 'FillToolBar'
+      object TBControlItem7: TTBControlItem
+        Control = Label1
+        Caption = ''
+        Hint = ''
+      end
+      object TBControlItem6: TTBControlItem
+        Control = DateTimePicker1
+        Caption = ''
+        Hint = ''
+      end
+      object TBControlItem8: TTBControlItem
+        Control = Label2
+        Caption = ''
+        Hint = ''
+      end
+      object TBControlItem9: TTBControlItem
+        Control = DateTimePicker2
+        Caption = ''
+        Hint = ''
+      end
+      object Label1: TLabel
+        Left = 0
+        Top = 4
+        Width = 42
+        Height = 13
+        Caption = 'Fill From '
+      end
+      object Label2: TLabel
+        Left = 123
+        Top = 4
+        Width = 15
+        Height = 13
+        Caption = 'To '
+      end
+      object DateTimePicker1: TDateTimePicker
+        Left = 42
+        Top = 0
+        Width = 81
+        Height = 21
+        Date = 40830.496065717590000000
+        Time = 40830.496065717590000000
+        TabOrder = 0
+        OnChange = DateTimePicker1Change
+      end
+      object DateTimePicker2: TDateTimePicker
+        Left = 203
+        Top = 21
+        Width = 81
+        Height = 21
+        Date = 40830.496065717590000000
+        Time = 40830.496065717590000000
+        TabOrder = 1
+        OnChange = DateTimePicker2Change
       end
     end
   end
@@ -1195,7 +1353,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 170
-        Height = 549
+        Height = 546
         Align = alClient
         AutoSize = True
         BevelOuter = bvNone
@@ -1210,7 +1368,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 9
           Width = 170
-          Height = 540
+          Height = 537
           HorzScrollBar.Visible = False
           VertScrollBar.Smooth = True
           VertScrollBar.Tracking = True
@@ -1291,7 +1449,7 @@ object frmMain: TfrmMain
       end
       object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0
-        Top = 112
+        Top = 113
         Width = 61
         Height = 22
         MaxValue = 100000
@@ -3102,6 +3260,11 @@ object frmMain: TfrmMain
       object livecom1: TTBXItem
         OnClick = livecom1Click
         Caption = 'URL to Bing Maps'
+        Hint = ''
+      end
+      object osmorg1: TTBXItem
+        OnClick = osmorg1Click
+        Caption = 'URL to osm.org'
         Hint = ''
       end
       object N51: TTBXSeparatorItem

@@ -22,7 +22,11 @@ type
     procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
   public
-    constructor Create(ALayer: TPositionedLayer; AViewPortState: IViewPortState);
+    constructor Create(
+      APerfList: IInternalPerformanceCounterList;
+      ALayer: TPositionedLayer;
+      AViewPortState: IViewPortState
+    );
   end;
 
   TMapLayerBasicFullView = class(TMapLayerBase)
@@ -39,9 +43,12 @@ type
   protected
     procedure DoRedraw; override;
     procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
-    procedure SetPerfList(const Value: IInternalPerformanceCounterList); override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+    constructor Create(
+      APerfList: IInternalPerformanceCounterList;
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState
+    );
     procedure StartThreads; override;
   end;
 
@@ -55,7 +62,11 @@ type
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
   public
-    constructor Create(AParentMap: TImage32; AViewPortState: IViewPortState);
+    constructor Create(
+      APerfList: IInternalPerformanceCounterList;
+      AParentMap: TImage32;
+      AViewPortState: IViewPortState
+    );
   end;
 
   TMapLayerBasic = class(TMapLayerBasicFullView)
@@ -84,6 +95,7 @@ type
     procedure DoRedraw; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -103,11 +115,12 @@ uses
 { TMapLayerBase }
 
 constructor TMapLayerBase.Create(
+  APerfList: IInternalPerformanceCounterList;
   ALayer: TPositionedLayer;
   AViewPortState: IViewPortState
 );
 begin
-  inherited Create(ALayer, AViewPortState, True);
+  inherited Create(APerfList, ALayer, AViewPortState, True);
 end;
 
 procedure TMapLayerBase.SetLayerCoordConverter(AValue: ILocalCoordConverter);
@@ -139,10 +152,13 @@ end;
 
 { TMapLayerFixedWithBitmap }
 
-constructor TMapLayerFixedWithBitmap.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState);
+constructor TMapLayerFixedWithBitmap.Create(
+  APerfList: IInternalPerformanceCounterList;
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState
+);
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
 end;
 
 procedure TMapLayerFixedWithBitmap.DoRedraw;
@@ -213,6 +229,7 @@ begin
 end;
 
 constructor TMapLayerBasic.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -221,7 +238,7 @@ constructor TMapLayerBasic.Create(
 begin
   FConverterFactory := ACoordConverterFactory;
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
-  inherited Create(FLayer, AViewPortState);
+  inherited Create(APerfList, FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
 //  FLayer.Bitmap.Resampler := AResamplerConfig.GetActiveFactory.CreateResampler;
   FNeedUpdateLayerSizeCS := TCriticalSection.Create;
@@ -405,10 +422,14 @@ end;
 
 { TMapLayerBasicNoBitmap }
 
-constructor TMapLayerBasicNoBitmap.Create(AParentMap: TImage32;
-  AViewPortState: IViewPortState);
+constructor TMapLayerBasicNoBitmap.Create(
+  APerfList: IInternalPerformanceCounterList;
+  AParentMap: TImage32;
+  AViewPortState: IViewPortState
+);
 begin
-  inherited Create(TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+  inherited Create(APerfList, TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+  FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
 end;
 
 procedure TMapLayerBasicNoBitmap.DoRedraw;
@@ -432,13 +453,6 @@ begin
       FOnPaintCounter.FinishOperation(VCounterContext);
     end;
   end;
-end;
-
-procedure TMapLayerBasicNoBitmap.SetPerfList(
-  const Value: IInternalPerformanceCounterList);
-begin
-  inherited;
-  FOnPaintCounter := Value.CreateAndAddNewCounter('OnPaint');
 end;
 
 procedure TMapLayerBasicNoBitmap.SetViewCoordConverter(

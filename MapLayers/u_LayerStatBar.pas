@@ -10,6 +10,7 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_StatBarConfig,
   i_ViewPortState,
   i_MouseState,
@@ -44,6 +45,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AConfig: IStatBarConfig;
@@ -71,6 +73,7 @@ const
 { TLayerStatBar }
 
 constructor TLayerStatBar.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AConfig: IStatBarConfig;
@@ -81,7 +84,7 @@ constructor TLayerStatBar.Create(
   AMainMapsConfig: IMainMapsConfig
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FDownloadInfo := ADownloadInfo;

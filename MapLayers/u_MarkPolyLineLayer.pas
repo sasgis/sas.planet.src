@@ -6,6 +6,7 @@ uses
   Types,
   GR32_Image,
   i_ViewPortState,
+  i_InternalPerformanceCounter,
   i_LineOnMapEdit,
   i_MarkPolyLineLayerConfig,
   u_PolyLineLayerBase,
@@ -17,6 +18,7 @@ type
     FConfig: IMarkPolyLineLayerConfig;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ALineOnMapEdit: ILineOnMapEdit;
@@ -33,6 +35,7 @@ uses
 { TMarkPolyLineLayer }
 
 constructor TMarkPolyLineLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ALineOnMapEdit: ILineOnMapEdit;
@@ -45,7 +48,15 @@ begin
   VPolygon.Closed := False;
   VPolygon.Antialiased := true;
   VPolygon.AntialiasMode := am4times;
-  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, VPolygon, false);
+  inherited Create(
+    APerfList,
+    AParentMap,
+    AViewPortState,
+    ALineOnMapEdit,
+    AConfig,
+    VPolygon,
+    false
+  );
   FConfig := AConfig;
 end;
 

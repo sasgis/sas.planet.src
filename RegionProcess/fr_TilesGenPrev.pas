@@ -93,7 +93,8 @@ var
 begin
   if chkAllZooms.State <> cbGrayed then begin
     for i := 0 to chklstZooms.Count - 1 do begin
-      if chklstZooms.ItemEnabled[i] then begin
+      if chklstZooms.ItemEnabled[i] or chkFromPrevZoom.Checked then begin
+        if chkFromPrevZoom.Checked then chklstZooms.ItemEnabled[i] := true;
         chklstZooms.Checked[i] := chkAllZooms.Checked;
       end;
     end;
@@ -189,7 +190,11 @@ begin
   for i:=2 to 24 do begin
     cbbFromZoom.Items.Add(inttostr(i));
   end;
-  cbbFromZoom.ItemIndex := AZoom;
+  if AZoom > 0 then begin
+    cbbFromZoom.ItemIndex := AZoom - 1;
+  end else begin
+    cbbFromZoom.ItemIndex := 0;
+  end;
   cbbFromZoomChange(cbbFromZoom);
 
   VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;

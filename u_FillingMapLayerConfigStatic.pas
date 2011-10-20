@@ -24,7 +24,9 @@ interface
 
 uses
   GR32,
+  t_FillingMapModes,
   i_LocalCoordConverter,
+  i_FillingMapColorer,
   i_MapTypes,
   i_FillingMapLayerConfig;
 
@@ -38,6 +40,11 @@ type
     FNoTileColor: TColor32;
     FShowTNE: Boolean;
     FTNEColor: TColor32;
+    FFillMode: TFillMode;
+    FFilterMode: Boolean;
+    FFillFirstDay: TDateTime;
+    FFillLastDay: TDateTime;
+    FColorer: IFillingMapColorer;
   protected
     function GetVisible: Boolean;
     function GetSourceMap: IMapType;
@@ -46,8 +53,13 @@ type
     function GetNoTileColor: TColor32;
     function GetShowTNE: Boolean;
     function GetTNEColor: TColor32;
+    function GetFillMode: TFillMode;
+    function GetFilterMode: Boolean;
+    function GetFillFirstDay: TDateTime;
+    function GetFillLastDay: TDateTime;
 
     function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+    function GetColorer: IFillingMapColorer;
   public
     constructor Create(
       AVisible: Boolean;
@@ -56,11 +68,18 @@ type
       AZoom: Byte;
       ANoTileColor: TColor32;
       AShowTNE: Boolean;
-      ATNEColor: TColor32
+      ATNEColor: TColor32;
+      AFillMode: TFillMode;
+      AFilterMode: Boolean;
+      AFillFirstDay: TDateTime;
+      AFillLastDay: TDateTime
     );
   end;
 
 implementation
+
+uses
+  u_FillingMapColorerSimple;
 
 { TFillingMapLayerConfigStatic }
 
@@ -71,7 +90,11 @@ constructor TFillingMapLayerConfigStatic.Create(
   AZoom: Byte;
   ANoTileColor: TColor32;
   AShowTNE: Boolean;
-  ATNEColor: TColor32
+  ATNEColor: TColor32;
+  AFillMode: TFillMode;
+  AFilterMode: Boolean;
+  AFillFirstDay: TDateTime;
+  AFillLastDay: TDateTime
 );
 begin
   FVisible := AVisible;
@@ -81,6 +104,20 @@ begin
   FNoTileColor := ANoTileColor;
   FShowTNE := AShowTNE;
   FTNEColor := ATNEColor;
+  FFillMode := AFillMode;
+  FFilterMode := AFilterMode;
+  FFillFirstDay := AFillFirstDay;
+  FFillLastDay := AFillLastDay;
+  FColorer :=
+    TFillingMapColorerSimple.Create(
+      FNoTileColor,
+      FShowTNE,
+      FTNEColor,
+      FFillMode,
+      FFilterMode,
+      FFillFirstDay,
+      FFillLastDay
+    );
 end;
 
 function TFillingMapLayerConfigStatic.GetActualZoom(
@@ -98,6 +135,11 @@ begin
     Result := VZoom;
     ALocalConverter.GetGeoConverter.CheckZoom(Result);
   end;
+end;
+
+function TFillingMapLayerConfigStatic.GetColorer: IFillingMapColorer;
+begin
+  Result := FColorer;
 end;
 
 function TFillingMapLayerConfigStatic.GetNoTileColor: TColor32;
@@ -133,6 +175,26 @@ end;
 function TFillingMapLayerConfigStatic.GetVisible: Boolean;
 begin
   Result := FVisible;
+end;
+
+function TFillingMapLayerConfigStatic.GetFillMode: TFillMode;
+begin
+  Result := FFillMode;
+end;
+
+function TFillingMapLayerConfigStatic.GetFilterMode: Boolean;
+begin
+  Result := FFilterMode;
+end;
+
+function TFillingMapLayerConfigStatic.GetFillFirstDay: TDateTime;
+begin
+  Result := FFillFirstDay;
+end;
+
+function TFillingMapLayerConfigStatic.GetFillLastDay: TDateTime;
+begin
+  Result := FFillLastDay;
 end;
 
 end.

@@ -8,6 +8,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_ViewPortState,
   i_SelectionRect,
   i_SelectionRectLayerConfig,
@@ -33,6 +34,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ASelection: ISelectionRect;
@@ -51,13 +53,14 @@ uses
 { TSelectionRectLayer }
 
 constructor TSelectionRectLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ASelection: ISelectionRect;
   AConfig: ISelectionRectLayerConfig
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   FSelection := ASelection;
 

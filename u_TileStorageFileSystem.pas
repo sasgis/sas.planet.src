@@ -27,7 +27,9 @@ uses
   Types,
   Classes,
   SysUtils,
+  DateUtils,
   GR32,
+  i_FillingMapColorer,
   i_OperationNotifier,
   i_SimpleTileStorageConfig,
   i_CoordConverter,
@@ -47,6 +49,7 @@ type
     FCacheConfig: TMapTypeCacheConfigAbstract;
     FMainContentType: IContentTypeInfoBasic;
     FFormatSettings: TFormatSettings;
+    FTileNotExistsTileInfo: ITileInfoBasic;
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByPath(
       APath: string;
@@ -116,9 +119,7 @@ type
       Azoom: byte;
       ASourceZoom: byte;
       AVersionInfo: IMapVersionInfo;
-      ANoTileColor: TColor32;
-      AShowTNE: Boolean;
-      ATNEColor: TColor32
+      AColorer: IFillingMapColorer
     ): boolean; override;
   end;
 
@@ -148,6 +149,7 @@ begin
   FFormatSettings.ShortTimeFormat := 'HH-mm-ss';
   FFormatSettings.ListSeparator := ';';
   FFormatSettings.TwoDigitYearCenturyWindow := 50;
+  FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
   FCacheConfig := TMapTypeCacheConfig.Create(AConfig, AGlobalCacheConfig, ATileNameGeneratorList);
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
@@ -267,7 +269,7 @@ begin
       APath := ChangeFileExt(APath, '.tne');
       VSearchResult := FindFirst(APath, faAnyFile, InfoFile);
       if VSearchResult <> 0 then begin
-        Result := TTileInfoBasicNotExists.Create(0, nil);
+        Result := FTileNotExistsTileInfo;
       end else begin
         Result := TTileInfoBasicTNE.Create(FileDateToDateTime(InfoFile.Time), nil);
         FindClose(InfoFile);
@@ -305,9 +307,7 @@ function TTileStorageFileSystem.LoadFillingMap(
   AXY: TPoint;
   Azoom, ASourceZoom: byte;
   AVersionInfo: IMapVersionInfo;
-  ANoTileColor: TColor32;
-  AShowTNE: Boolean;
-  ATNEColor: TColor32
+  AColorer: IFillingMapColorer
 ): boolean;
 var
   VPixelsRect: TRect;
@@ -324,8 +324,8 @@ var
   VPrevFolderName: string;
   VPrevFolderExist: Boolean;
   VFolderExists: Boolean;
-  VFileExists: Boolean;
   VGeoConvert: ICoordConverter;
+  VTileInfo: ITileInfoBasic;
 begin
   Result := true;
   try
@@ -361,12 +361,12 @@ begin
           VPrevFolderExist := VFolderExists;
         end;
         if VFolderExists then begin
-          VFileExists := FileExists(VFileName);
+          VTileInfo := GetTileInfoByPath(VFileName, AVersionInfo);
         end else begin
-          VFileExists := False;
+          VTileInfo := FTileNotExistsTileInfo;
         end;
-
-        if not VFileExists then begin
+        VTileColor := AColorer.GetColor(VTileInfo);
+        if VTileColor <> 0 then begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
           VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
@@ -389,20 +389,6 @@ begin
           if not VSolidDrow then begin
             Dec(VSourceTilePixels.Right);
             Dec(VSourceTilePixels.Bottom);
-          end;
-          if AShowTNE then begin
-            if VFolderExists then begin
-              VFileName := ChangeFileExt(VFileName, '.tne');
-              if FileExists(VFileName) then begin
-                VTileColor := ATNEColor;
-              end else begin
-                VTileColor := ANoTileColor;
-              end;
-            end else begin
-              VTileColor := ANoTileColor;
-            end;
-          end else begin
-            VTileColor := ANoTileColor;
           end;
           if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
              ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin

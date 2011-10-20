@@ -9,6 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_ViewPortState,
+  i_InternalPerformanceCounter,
   i_LocalCoordConverter,
   i_LineOnMapEdit,
   i_ValueToStringConverter,
@@ -44,6 +45,7 @@ type
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter); override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ALineOnMapEdit: ILineOnMapEdit;
@@ -63,6 +65,7 @@ uses
 { TCalcLineLayer }
 
 constructor TCalcLineLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ALineOnMapEdit: ILineOnMapEdit;
@@ -76,7 +79,15 @@ begin
   VPolygon.Closed := False;
   VPolygon.Antialiased := true;
   VPolygon.AntialiasMode := am4times;
-  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, VPolygon, false);
+  inherited Create(
+    APerfList,
+    AParentMap,
+    AViewPortState,
+    ALineOnMapEdit,
+    AConfig,
+    VPolygon,
+    false
+  );
   FConfig := AConfig;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 

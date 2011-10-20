@@ -30,11 +30,22 @@ type
   ITileInfoBasic = interface
     ['{7916FA97-49F1-451E-B2C1-0669B9336291}']
     function GetIsExists: Boolean;
+    property IsExists: Boolean read GetIsExists;
+
     function GetIsExistsTNE: Boolean;
+    property IsExistsTNE: Boolean read GetIsExistsTNE;
+
     function GetLoadDate: TDateTime;
+    property LoadDate: TDateTime read GetLoadDate;
+
     function GetSize: Cardinal;
+    property Size: Cardinal read GetSize;
+
     function GetVersionInfo: IMapVersionInfo;
+    property VersionInfo: IMapVersionInfo read GetVersionInfo;
+
     function GetContentType: IContentTypeInfoBasic;
+    property ContentType: IContentTypeInfoBasic read GetContentType;
   end;
 
 

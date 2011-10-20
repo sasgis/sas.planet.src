@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  i_LanguageManager,
   i_ShortCutSingleConfig,
   i_ShortCutModalEdit,
   frm_ShortCutEdit;
@@ -11,12 +12,15 @@ uses
 type
   TShortCutModalEditByForm = class(TInterfacedObject, IShortCutModalEdit)
   private
+    FLanguageManager: ILanguageManager;
     FEditCounter: Longint;
     FfrmShortCutEdit: TfrmShortCutEdit;
   protected
     function EditShortCut(AShortCutInfo: IShortCutSingleConfig): Boolean;
   public
-    constructor Create;
+    constructor Create(
+      ALanguageManager: ILanguageManager
+    );
     destructor Destroy; override;
   end;
 
@@ -27,8 +31,11 @@ uses
 
 { TShortCutModalEditByForm }
 
-constructor TShortCutModalEditByForm.Create;
+constructor TShortCutModalEditByForm.Create(
+  ALanguageManager: ILanguageManager
+);
 begin
+  FLanguageManager := ALanguageManager;
   FEditCounter := 0;
 end;
 
@@ -50,7 +57,7 @@ begin
   try
     if VCounter = 1 then begin
       if FfrmShortCutEdit = nil then begin
-        FfrmShortCutEdit := TfrmShortCutEdit.Create(nil);
+        FfrmShortCutEdit := TfrmShortCutEdit.Create(FLanguageManager);
       end;
       Result := FfrmShortCutEdit.EditHotKeyModal(AShortCutInfo);
     end else begin

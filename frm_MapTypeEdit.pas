@@ -40,7 +40,7 @@ uses
   u_ResStrings;
 
 type
-  TfrmMapTypeEdit = class(TCommonFormParent)
+  TfrmMapTypeEdit = class(TFormWitghLanguageManager)
     EditNameinCache: TEdit;
     EditParSubMenu: TEdit;
     Label1: TLabel;

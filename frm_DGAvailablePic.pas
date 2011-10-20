@@ -38,12 +38,13 @@ uses
   CommCtrl,
   ExtCtrls,
   u_CommonFormAndFrameParents,
+  i_LanguageManager,
+  i_InetConfig,
   i_LocalCoordConverter,
-  u_ResStrings,
   t_GeoTypes;
 
 type
-  TfrmDGAvailablePic = class(TCommonFormParent)
+  TfrmDGAvailablePic = class(TFormWitghLanguageManager)
     GroupBox1: TGroupBox;
     LabelDate: TLabel;
     LabelResolution: TLabel;
@@ -69,20 +70,30 @@ type
     procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
-    //ms:TMemoryStream;
+    FInetConfig: IInetConfig;
     FLonLat:TDoublePoint;
     tids,ls:string;
     mpp:extended;
     hi,wi:integer;
-    //procedure CreateTree;
     procedure FormTidList;
     procedure CopyStringToClipboard(s: Widestring);
   public
-    procedure setup(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AInetConfig: IInetConfig
+    ); reintroduce;
+    procedure ShowInfo(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
   end;
 
+implementation
+
+uses
+  i_CoordConverter,
+  i_ProxySettings,
+  u_ResStrings,
+  u_GeoToStr;
+
 var
-  frmDGAvailablePic: TfrmDGAvailablePic;
   Stacks : array [0..13,0..3] of string =
             (
              ('227400001','1','GlobeXplorer Premium Stack','020100S'),
@@ -138,13 +149,8 @@ var
              ('7327000291','54','DigitalGlobe GeoCells','020100S'),
              ('7327000291','55','DigitalGlobe NGA Ortho Imagery','020100S')
              );  }
-implementation
 
-uses
-  i_CoordConverter,
-  i_ProxySettings,
-  u_GlobalState,
-  u_GeoToStr;
+
 function EncodeDG(S: string): string;
 var i: integer;
 begin
@@ -190,6 +196,7 @@ type
     Link:string;
     ErrCode:integer;
   private
+    FInetConfig: IInetConfig;
     FForm: TfrmDGAvailablePic;
     list:TStringList;
     function GetStreamFromURL1(var ms:TMemoryStream;url:string;conttype:string):integer;
@@ -198,7 +205,11 @@ type
     procedure ShowList;
     procedure ShowError;
   public
-    constructor Create(ALink:string; AForm: TfrmDGAvailablePic);
+    constructor Create(
+      AInetConfig: IInetConfig;
+      ALink:string;
+      AForm: TfrmDGAvailablePic
+    );
   end;
 
 const
@@ -232,9 +243,14 @@ begin
                    else Result := '';
 end;
 
-constructor TGetList.Create(ALink:string; AForm: TfrmDGAvailablePic);
+constructor TGetList.Create(
+  AInetConfig: IInetConfig;
+  ALink:string;
+  AForm: TfrmDGAvailablePic
+);
 begin
   inherited Create(True);
+  FInetConfig := AInetConfig;
   FreeOnTerminate:=true;
   Priority:=tpLower;
   Link:=ALink;
@@ -265,7 +281,7 @@ var par,ty:string;
   VPassword: string;
 begin
   Result := 0;
-  VProxyConfig := GState.InetConfig.ProxyConfig;
+  VProxyConfig := FInetConfig.ProxyConfig;
   VProxyConfig.LockRead;
   try
     VUselogin := (not VProxyConfig.GetUseIESettings) and VProxyConfig.GetUseProxy and VProxyConfig.GetUseLogin;
@@ -383,47 +399,8 @@ begin
     List.Free;
   end;
 end;
-{
-procedure TfrmDGAvailablePic.CreateTree;
-var pltstr:TStringList;
-    datesat:string;
-    i,j:integer;
-    added:boolean;
-    node:TTreeNode;
-begin
- pltstr:=TStringList.Create;
- pltstr.LoadFromStream(ms);
- for i:=0 to pltstr.Count-1 do
-  try
-   datesat:=GetWord(pltstr[i], ',', 2);
-   datesat[5]:=DateSeparator;
-   datesat[8]:=DateSeparator;
-   added:=false;
-   for j:=0 to TreeView1.Items.Count-1 do
-    if TreeView1.Items.Item[j].Text=datesat then
-     begin
-      node:=TreeView1.Items.AddChild(TreeView1.Items.Item[j],GetWord(pltstr[i], ',', 1));
-      added:=true;
-      break;
-     end;
-   if not(added) then
-    node:=TreeView1.Items.AddChild(TreeView1.Items.Add(nil,datesat),GetWord(pltstr[i], ',', 1));
-   node.Data:=TDGPicture.Create;
-   with TDGPicture(node.Data) do
-    begin
-     tid:=GetWord(pltstr[i], ',', 1);
-     date:=GetWord(pltstr[i], ',', 2);
-     provider:=GetWord(pltstr[i], ',', 3);
-     color:=GetWord(pltstr[i], ',', 6);
-     resolution:=GetWord(pltstr[i], ',', 5);
-    end;
-  except
-  end;
- TreeView1.AlphaSort();
- pltstr.Free;
-end;
-}
-procedure TfrmDGAvailablePic.setup(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
+
+procedure TfrmDGAvailablePic.ShowInfo(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
 var
   VSize: TPoint;
   VRad: Extended;
@@ -551,7 +528,7 @@ begin
  GetWord(ComboBox2.Text, ',', 1);
  encrypt:= Encode64(EncodeDG('cmd=info&id='+stacks[ComboBox2.ItemIndex,0]+'&appid='+stacks[ComboBox2.ItemIndex,3]+'&ls='+ls+'&xc='+R2StrPoint(FLonLat.x)+'&yc='+R2StrPoint(FLonLat.y)+'&mpp='+R2StrPoint(mpp)+'&iw='+inttostr(wi)+'&ih='+inttostr(hi)+'&extentset=all'));
 
- with TGetList.Create('http://image.globexplorer.com/gexservlets/gex?encrypt='+encrypt, Self) do
+ with TGetList.Create(FInetConfig, 'http://image.globexplorer.com/gexservlets/gex?encrypt='+encrypt, Self) do
   begin
    GetListThId:=ThreadID;
    Resume;
@@ -583,6 +560,13 @@ begin
       CloseClipboard;
     end;
   end
+end;
+
+constructor TfrmDGAvailablePic.Create(ALanguageManager: ILanguageManager;
+  AInetConfig: IInetConfig);
+begin
+  inherited Create(ALanguageManager);
+  FInetConfig := AInetConfig;
 end;
 
 procedure TfrmDGAvailablePic.Button3Click(Sender: TObject);

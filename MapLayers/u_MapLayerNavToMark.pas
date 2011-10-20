@@ -10,6 +10,7 @@ uses
   i_JclNotify,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_NavigationToPoint,
   i_MapLayerNavToPointMarkerConfig,
   i_BitmapMarker,
@@ -36,6 +37,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ANavToPoint: INavigationToPoint;
@@ -57,6 +59,7 @@ uses
 { TNavToMarkLayer }
 
 constructor TNavToMarkLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ANavToPoint: INavigationToPoint;
@@ -65,7 +68,7 @@ constructor TNavToMarkLayer.Create(
   AConfig: IMapLayerNavToPointMarkerConfig
 );
 begin
-  inherited Create(AParentMap, AViewPortState);
+  inherited Create(APerfList, AParentMap, AViewPortState);
   FNavToPoint := ANavToPoint;
   FArrowMarkerProvider := AArrowMarkerProvider;
   FReachedMarkerProvider := AReachedMarkerProvider;

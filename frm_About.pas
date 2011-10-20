@@ -59,7 +59,7 @@ implementation
 
 uses
   c_SasVersion,
-  frm_InvisibleBrowser;
+  u_InetFunc;
 
 {$R *.dfm}
 

@@ -9,6 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_InternalPerformanceCounter,
   i_ViewPortState,
   i_LineOnMapEdit,
   i_SelectionPolylineLayerConfig,
@@ -31,6 +32,7 @@ type
     procedure PrepareShadowPolygon(ALocalConverter: ILocalCoordConverter);
   public
     constructor Create(
+      APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ALineOnMapEdit: ILineOnMapEdit;
@@ -49,6 +51,7 @@ uses
 { TMarkPolyLineLayer }
 
 constructor TSelectionPolylineLayer.Create(
+  APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ALineOnMapEdit: ILineOnMapEdit;
@@ -67,7 +70,14 @@ begin
 
   FShadowLinePolygon := TPolygon32.Create;
 
-  inherited Create(AParentMap, AViewPortState, ALineOnMapEdit, AConfig, FPolygonFill, false);
+  inherited Create(
+    APerfList,
+    AParentMap,
+    AViewPortState,
+    ALineOnMapEdit,
+    AConfig, FPolygonFill,
+    false
+  );
   FConfig := AConfig;
 
   LinksList.Add(

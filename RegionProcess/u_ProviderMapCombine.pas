@@ -7,6 +7,7 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -36,6 +37,7 @@ type
   public
     constructor Create(
       AParent: TWinControl;
+      ALanguageManager: ILanguageManager;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -77,6 +79,7 @@ uses
 
 constructor TProviderMapCombine.Create(
   AParent: TWinControl;
+  ALanguageManager: ILanguageManager;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -90,7 +93,7 @@ constructor TProviderMapCombine.Create(
   AMapCalibrationList: IMapCalibrationList
 );
 begin
-  inherited Create(AParent, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
   FMarksShowConfig := AMarksShowConfig;
@@ -117,13 +120,13 @@ begin
   if FFrame = nil then begin
     FFrame := TfrMapCombine.Create(
       nil,
-      FMainMapsConfig,
-      FFullMapsSet,
-      FGUIConfigList,
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList,
       FMapCalibrationList
     );
     FFrame.Visible := False;
-    FFrame.Parent := FParent;
+    FFrame.Parent := Self.Parent;
   end;
   FFrame.Init(Azoom, APolygon);
 end;

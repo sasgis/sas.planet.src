@@ -24,13 +24,27 @@ interface
 
 uses
   Classes,
-  Forms;
+  Forms,
+  i_JclNotify,
+  i_LanguageManager;
 
 type
   TCommonFormParent = class(TForm)
   public
     constructor Create(AOwner : TComponent); override;
     procedure RefreshTranslation; virtual;
+  end;
+
+  TFormWitghLanguageManager = class(TForm)
+  private
+    FLanguageChangeListener: IJclListener;
+    FLanguageManager: ILanguageManager;
+    procedure OnLangChange(Sender: TObject);
+  protected
+    procedure RefreshTranslation; virtual;
+  public
+    constructor Create(ALanguageManager: ILanguageManager); reintroduce;
+    destructor Destroy; override;
   end;
 
   TCommonFrameParent = class(Forms.TFrame)
@@ -44,7 +58,8 @@ type
 implementation
 
 uses
-  gnugettext;
+  gnugettext,
+  u_NotifyEventListener;
 
 { TCommonFormParent }
 
@@ -74,6 +89,37 @@ begin
   if (Owner = Application) or (Owner = nil) then begin
     ReTranslateComponent(self);
   end;
+end;
+
+{ TFormWitghLanguageManager }
+
+constructor TFormWitghLanguageManager.Create(
+  ALanguageManager: ILanguageManager);
+begin
+  inherited Create(nil);
+  TranslateComponent(self);
+  FLanguageManager := ALanguageManager;
+  FLanguageChangeListener := TNotifyEventListener.Create(Self.OnLangChange);
+  FLanguageManager.ChangeNotifier.Add(FLanguageChangeListener);
+end;
+
+destructor TFormWitghLanguageManager.Destroy;
+begin
+  FLanguageManager.ChangeNotifier.Remove(FLanguageChangeListener);
+  FLanguageChangeListener := nil;
+  FLanguageManager := nil;
+
+  inherited;
+end;
+
+procedure TFormWitghLanguageManager.OnLangChange(Sender: TObject);
+begin
+  RefreshTranslation;
+end;
+
+procedure TFormWitghLanguageManager.RefreshTranslation;
+begin
+  ReTranslateComponent(self);
 end;
 
 end.

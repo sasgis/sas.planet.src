@@ -71,7 +71,6 @@ end;
 
 function TWindowLayerBasicList.Add(AItem: TWindowLayerAbstract): Integer;
 begin
-  AItem.PerfList := FPerfList.CreateAndAddNewSubList(AItem.ClassName);
   Result := FList.Add(AItem);
 end;
 
