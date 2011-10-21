@@ -131,6 +131,7 @@ begin
       VShortCutInfo := IShortCutSingleConfig(FItemsList.Items[i]);
       VShortCutInfo.ReadConfig(AProvider);
     end;
+    ApplyChanges;
   end;
 end;
 
