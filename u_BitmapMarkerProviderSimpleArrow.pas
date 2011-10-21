@@ -32,7 +32,7 @@ uses
 type
   TBitmapMarkerProviderSimpleArrow = class(TBitmapMarkerProviderSimpleBase)
   protected
-    function CreateMarker(ASize: Integer): IBitmapMarker; override;
+    function CreateMarker(ASize: Integer; ADirection: Double): IBitmapMarker; override;
   public
     constructor CreateProvider(
       AConfig: IBitmapMarkerProviderSimpleConfigStatic
@@ -43,6 +43,7 @@ implementation
 
 uses
   GR32_Polygons,
+  GR32_Transforms,
   t_GeoTypes,
   u_GeoFun,
   u_BitmapMarker;
@@ -52,16 +53,17 @@ uses
 constructor TBitmapMarkerProviderSimpleArrow.CreateProvider(
   AConfig: IBitmapMarkerProviderSimpleConfigStatic);
 begin
-  inherited Create(True, 0, AConfig);
+  inherited Create(0, AConfig);
 end;
 
-function TBitmapMarkerProviderSimpleArrow.CreateMarker(ASize: Integer): IBitmapMarker;
+function TBitmapMarkerProviderSimpleArrow.CreateMarker(ASize: Integer; ADirection: Double): IBitmapMarker;
 var
   VConfig: IBitmapMarkerProviderSimpleConfigStatic;
   VMarkerBitmap: TCustomBitmap32;
   VSize: TPoint;
   VPolygon: TPolygon32;
   VCenterPoint: TDoublePoint;
+  VTransform: TAffineTransformation;
 begin
   VMarkerBitmap := TCustomBitmap32.Create;
   try
@@ -73,24 +75,30 @@ begin
 
     VMarkerBitmap.SetSize(VSize.Y, VSize.Y);
     VMarkerBitmap.Clear(0);
-    VPolygon := TPolygon32.Create;
+    VTransform := TAffineTransformation.Create;
     try
-      VPolygon.Antialiased := true;
-      VPolygon.AntialiasMode := am32times;
-      VPolygon.Add(FixedPoint(VCenterPoint.X, 0));
-      VPolygon.Add(FixedPoint(VCenterPoint.X - VSize.X / 3, VSize.Y - 1));
-      VPolygon.Add(FixedPoint(VCenterPoint.X + VSize.X / 3, VSize.Y - 1));
-      VPolygon.DrawFill(VMarkerBitmap, VConfig.MarkerColor);
-      VPolygon.DrawEdge(VMarkerBitmap, VConfig.BorderColor);
+      VTransform.Rotate(VCenterPoint.X, VCenterPoint.Y, -ADirection);
+      VPolygon := TPolygon32.Create;
+      try
+        VPolygon.Antialiased := true;
+        VPolygon.AntialiasMode := am32times;
+        VPolygon.Add(VTransform.Transform(FixedPoint(VCenterPoint.X, 0)));
+        VPolygon.Add(VTransform.Transform(FixedPoint(VCenterPoint.X - VSize.X / 3, VSize.Y - 1)));
+        VPolygon.Add(VTransform.Transform(FixedPoint(VCenterPoint.X + VSize.X / 3, VSize.Y - 1)));
+
+        VPolygon.DrawFill(VMarkerBitmap, VConfig.MarkerColor);
+        VPolygon.DrawEdge(VMarkerBitmap, VConfig.BorderColor);
+      finally
+        VPolygon.Free;
+      end;
     finally
-      VPolygon.Free;
+      VTransform.Free;
     end;
     Result :=
-      TBitmapMarker.Create(
+      TBitmapMarkerWithDirection.Create(
         VMarkerBitmap,
         DoublePoint(VCenterPoint.X, 0),
-        True,
-        0
+        ADirection
       );
   finally
     VMarkerBitmap.Free;

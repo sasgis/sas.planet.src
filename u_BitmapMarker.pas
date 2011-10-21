@@ -34,22 +34,29 @@ type
     FBitmapSize: TPoint;
     FBitmap: TCustomBitmap32;
     FAnchorPoint: TDoublePoint;
-    FUseDirection: Boolean;
-    FDirection: Double;
   protected
     function GetBitmapSize: TPoint;
     function GetBitmap: TCustomBitmap32;
     function GetAnchorPoint: TDoublePoint;
-    function GetUseDirection: Boolean;
+  public
+    constructor Create(
+      ABitmap: TCustomBitmap32;
+      AAnchorPoint: TDoublePoint
+    );
+    destructor Destroy; override;
+  end;
+
+  TBitmapMarkerWithDirection = class(TBitmapMarker, IBitmapMarkerWithDirection)
+  private
+    FDirection: Double;
+  protected
     function GetDirection: Double;
   public
     constructor Create(
       ABitmap: TCustomBitmap32;
       AAnchorPoint: TDoublePoint;
-      AUseDirection: Boolean;
       ADirection: Double
     );
-    destructor Destroy; override;
   end;
 
 
@@ -60,8 +67,10 @@ uses
 
 { TBitmapMarker }
 
-constructor TBitmapMarker.Create(ABitmap: TCustomBitmap32; AAnchorPoint: TDoublePoint;
-  AUseDirection: Boolean; ADirection: Double);
+constructor TBitmapMarker.Create(
+  ABitmap: TCustomBitmap32;
+  AAnchorPoint: TDoublePoint
+);
 begin
   FBitmap := TCustomBitmap32.Create;
   FBitmap.Assign(ABitmap);
@@ -69,8 +78,6 @@ begin
   FBitmap.CombineMode := cmBlend;
   FBitmapSize := Point(FBitmap.Width, FBitmap.Height);
   FAnchorPoint := AAnchorPoint;
-  FUseDirection := AUseDirection;
-  FDirection := ADirection;
 end;
 
 destructor TBitmapMarker.Destroy;
@@ -94,14 +101,21 @@ begin
   Result := FBitmapSize;
 end;
 
-function TBitmapMarker.GetDirection: Double;
+{ TBitmapMarkerWithDirection }
+
+constructor TBitmapMarkerWithDirection.Create(
+  ABitmap: TCustomBitmap32;
+  AAnchorPoint: TDoublePoint;
+  ADirection: Double
+);
 begin
-  Result := FDirection;
+  inherited Create(ABitmap, AAnchorPoint);
+  FDirection := ADirection;
 end;
 
-function TBitmapMarker.GetUseDirection: Boolean;
+function TBitmapMarkerWithDirection.GetDirection: Double;
 begin
-  Result := FUseDirection;
+  Result := FDirection;
 end;
 
 end.

@@ -38,10 +38,10 @@ type
 
     function GetAnchorPoint: TDoublePoint;
     property AnchorPoint: TDoublePoint read GetAnchorPoint;
+  end;
 
-    function GetUseDirection: Boolean;
-    property UseDirection: Boolean read GetUseDirection;
-
+  IBitmapMarkerWithDirection = interface(IBitmapMarker)
+    ['{A27674DB-F074-4E54-8BBA-DF29972191BF}']
     function GetDirection: Double;
     property Direction: Double read GetDirection;
   end;

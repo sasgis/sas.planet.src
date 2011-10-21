@@ -24,7 +24,6 @@ interface
 
 uses
   Types,
-  GR32,
   i_JclNotify,
   i_BitmapMarker,
   i_BitmapMarkerProviderSimpleConfig;
@@ -36,10 +35,9 @@ type
     FUseDirection: Boolean;
     FDefaultDirection: Double;
     FMarker: IBitmapMarker;
-    function ModifyMarkerWithRotation(ASourceMarker: IBitmapMarker; AAngle: Double): IBitmapMarker;
   protected
     property Config: IBitmapMarkerProviderSimpleConfigStatic read FConfig;
-    function CreateMarker(ASize: Integer): IBitmapMarker; virtual; abstract;
+    function CreateMarker(ASize: Integer; ADirection: Double): IBitmapMarker; virtual; abstract;
   protected
     function GetUseDirection: Boolean;
 
@@ -50,7 +48,6 @@ type
   public
     constructor CreateProvider(AConfig: IBitmapMarkerProviderSimpleConfigStatic); virtual; abstract;
     constructor Create(
-      AUseDirection: Boolean;
       ADefaultDirection: Double;
       AConfig: IBitmapMarkerProviderSimpleConfigStatic
     );
@@ -82,14 +79,10 @@ type
 implementation
 
 uses
-  GR32_Blend,
-  GR32_Rasterizers,
-  GR32_Resamplers,
-  GR32_Transforms,
+  SysUtils,
   u_JclNotify,
   u_NotifyEventListener,
-  u_GeoFun,
-  u_BitmapMarker;
+  u_GeoFun;
 
 const
   CAngleDelta = 1.0;
@@ -97,16 +90,22 @@ const
 { TBitmapMarkerProviderSimpleBase }
 
 constructor TBitmapMarkerProviderSimpleBase.Create(
-  AUseDirection: Boolean;
   ADefaultDirection: Double;
   AConfig: IBitmapMarkerProviderSimpleConfigStatic
 );
+var
+  VMarkerWithDirection: IBitmapMarkerWithDirection;
 begin
   FConfig := AConfig;
-  FUseDirection := AUseDirection;
-  FDefaultDirection := ADefaultDirection;
 
-  FMarker := CreateMarker(FConfig.MarkerSize);
+  FMarker := CreateMarker(FConfig.MarkerSize, ADefaultDirection);
+  if Supports(FMarker, IBitmapMarkerWithDirection, VMarkerWithDirection) then begin
+    FUseDirection := True;
+    FDefaultDirection := VMarkerWithDirection.Direction;
+  end else begin
+    FUseDirection := False;
+    FDefaultDirection := 0;
+  end;
 end;
 
 function TBitmapMarkerProviderSimpleBase.GetMarker: IBitmapMarker;
@@ -120,7 +119,7 @@ begin
   if ASize = FConfig.MarkerSize then begin
     Result := FMarker;
   end else begin
-    Result := CreateMarker(ASize);
+    Result := CreateMarker(ASize, FDefaultDirection);
   end;
 end;
 
@@ -130,7 +129,7 @@ begin
   if (not FUseDirection) or (Abs(CalcAngleDelta(AAngle, FDefaultDirection)) < CAngleDelta) then begin
     Result := FMarker;
   end else begin
-    Result := ModifyMarkerWithRotation(FMarker, AAngle);
+    Result := CreateMarker(FConfig.MarkerSize, AAngle);
   end;
 end;
 
@@ -140,81 +139,13 @@ begin
   if (not FUseDirection) or (Abs(CalcAngleDelta(AAngle, FDefaultDirection)) < CAngleDelta) then begin
     Result := GetMarkerBySize(ASize);
   end else begin
-    Result := ModifyMarkerWithRotation(GetMarkerBySize(ASize), AAngle);
+    Result := CreateMarker(ASize, AAngle);
   end;
 end;
 
 function TBitmapMarkerProviderSimpleBase.GetUseDirection: Boolean;
 begin
   Result := FUseDirection;
-end;
-
-function TBitmapMarkerProviderSimpleBase.ModifyMarkerWithRotation(
-  ASourceMarker: IBitmapMarker; AAngle: Double): IBitmapMarker;
-var
-  VSizeSource: TPoint;
-  VTargetRect: TFloatRect;
-  VSizeTarget: TPoint;
-  VBitmap: TCustomBitmap32;
-  VFixedOnBitmap: TFloatPoint;
-  VTransform: TAffineTransformation;
-  VRasterizer: TRasterizer;
-  VTransformer: TTransformer;
-  VCombineInfo: TCombineInfo;
-  VSampler: TCustomResampler;
-begin
-  VTransform := TAffineTransformation.Create;
-  try
-    VSizeSource := ASourceMarker.BitmapSize;
-    VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-    VTransform.Rotate(0, 0, ASourceMarker.Direction - AAngle);
-    VTargetRect := VTransform.GetTransformedBounds;
-    VSizeTarget.X := Trunc(VTargetRect.Right - VTargetRect.Left) + 1;
-    VSizeTarget.Y := Trunc(VTargetRect.Bottom - VTargetRect.Top) + 1;
-    VTransform.Translate(-VTargetRect.Left, -VTargetRect.Top);
-    VBitmap := TCustomBitmap32.Create;
-    try
-      VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
-      VBitmap.Clear(0);
-
-      VRasterizer := TRegularRasterizer.Create;
-      try
-        VSampler := TLinearResampler.Create;
-        try
-          VSampler.Bitmap := ASourceMarker.Bitmap;
-          VTransformer := TTransformer.Create(VSampler, VTransform);
-          try
-            VRasterizer.Sampler := VTransformer;
-            VCombineInfo.SrcAlpha := 255;
-            VCombineInfo.DrawMode := dmOpaque;
-            VCombineInfo.CombineMode := cmBlend;
-            VCombineInfo.TransparentColor := 0;
-            VRasterizer.Rasterize(VBitmap, VBitmap.BoundsRect, VCombineInfo);
-          finally
-            EMMS;
-            VTransformer.Free;
-          end;
-        finally
-          VSampler.Free;
-        end;
-      finally
-        VRasterizer.Free;
-      end;
-
-      VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-      Result :=
-        TBitmapMarker.Create(
-          VBitmap,
-          DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
-          True,
-          AAngle
-        );
-    finally
-      VBitmap.Free;
-    end;
-  finally
-    VTransform.Free;
-  end;
 end;
 
 { TBitmapMarkerProviderChangeableWithConfig }

@@ -38,9 +38,9 @@ type
     FDefaultDirection: Double;
     FMarker: IBitmapMarker;
     FChangeNotifier: IJclNotifier;
-    function ModifyMarkerWithRotation(ASourceMarker: IBitmapMarker; AAngle: Double): IBitmapMarker;
+    function ModifyMarkerWithRotation(ASourceMarker: IBitmapMarkerWithDirection; AAngle: Double): IBitmapMarker;
     function ModifyMarkerWithResize(ASourceMarker: IBitmapMarker; ASize: Integer): IBitmapMarker;
-    function ModifyMarkerWithRotationAndResize(ASourceMarker: IBitmapMarker; ASize: Integer; AAngle: Double): IBitmapMarker;
+    function ModifyMarkerWithRotationAndResize(ASourceMarker: IBitmapMarkerWithDirection; ASize: Integer; AAngle: Double): IBitmapMarker;
   protected
     function GetUseDirection: Boolean;
 
@@ -124,13 +124,20 @@ begin
       end;
     end;
 
-    FMarker :=
-      TBitmapMarker.Create(
-        VBitmap,
-        AAnchorPoint,
-        AUseDirection,
-        ADefaultDirection
-      );
+    if AUseDirection then begin
+      FMarker :=
+        TBitmapMarkerWithDirection.Create(
+          VBitmap,
+          AAnchorPoint,
+          ADefaultDirection
+        );
+    end else begin
+      FMarker :=
+        TBitmapMarker.Create(
+          VBitmap,
+          AAnchorPoint
+        );
+    end;
   finally
     VBitmap.Free;
   end;
@@ -163,12 +170,14 @@ function TBitmapMarkerProviderStaticFromDataProvider.GetMarkerWithRotation(
   AAngle: Double): IBitmapMarker;
 var
   VMarker: IBitmapMarker;
+  VMarkerWithDirection: IBitmapMarkerWithDirection;
 begin
   VMarker := FMarker;
-  if (not FUseDirection) or (Abs(CalcAngleDelta(AAngle, VMarker.Direction)) < CAngleDelta) then begin
-    Result := VMarker;
-  end else begin
-    Result := ModifyMarkerWithRotation(VMarker, AAngle);
+  Result := VMarker;
+  if Supports(VMarker, IBitmapMarkerWithDirection, VMarkerWithDirection) then begin
+    if Abs(CalcAngleDelta(AAngle, VMarkerWithDirection.Direction)) > CAngleDelta then begin
+      Result := ModifyMarkerWithRotation(VMarkerWithDirection, AAngle);
+    end;
   end;
 end;
 
@@ -176,21 +185,30 @@ function TBitmapMarkerProviderStaticFromDataProvider.GetMarkerWithRotationBySize
   AAngle: Double; ASize: Integer): IBitmapMarker;
 var
   VMarker: IBitmapMarker;
+  VMarkerWithDirection: IBitmapMarkerWithDirection;
 begin
   VMarker := FMarker;
-  if (not FUseDirection) or (Abs(CalcAngleDelta(AAngle, VMarker.Direction)) < CAngleDelta) then begin
+  Result := VMarker;
+  if Supports(VMarker, IBitmapMarkerWithDirection, VMarkerWithDirection) then begin
+    if Abs(CalcAngleDelta(AAngle, VMarkerWithDirection.Direction)) > CAngleDelta then begin
+      if (VMarker.BitmapSize.X = ASize) then begin
+        Result := ModifyMarkerWithRotation(VMarkerWithDirection, AAngle);
+      end else begin
+        Result := ModifyMarkerWithRotationAndResize(VMarkerWithDirection, ASize, AAngle);
+      end;
+    end else begin
+      if (VMarker.BitmapSize.X <> ASize) then begin
+        Result := ModifyMarkerWithResize(VMarker, ASize);
+      end;
+    end;
+  end else begin
     if (VMarker.BitmapSize.X = ASize) then begin
       Result := VMarker;
     end else begin
       Result := ModifyMarkerWithResize(VMarker, ASize);
     end;
-  end else begin
-    if (VMarker.BitmapSize.X = ASize) then begin
-      Result := ModifyMarkerWithRotation(VMarker, AAngle);
-    end else begin
-      Result := ModifyMarkerWithRotationAndResize(VMarker, ASize, AAngle);
-    end;
   end;
+
 end;
 
 function TBitmapMarkerProviderStaticFromDataProvider.GetUseDirection: Boolean;
@@ -212,6 +230,7 @@ var
   VTransformer: TTransformer;
   VCombineInfo: TCombineInfo;
   VSampler: TCustomResampler;
+  VMarkerWithDirection: IBitmapMarkerWithDirection;
 begin
   VTransform := TAffineTransformation.Create;
   try
@@ -252,13 +271,21 @@ begin
       end;
 
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-      Result :=
-        TBitmapMarker.Create(
-          VBitmap,
-          DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
-          ASourceMarker.UseDirection,
-          ASourceMarker.Direction
-        );
+
+      if Supports(ASourceMarker, IBitmapMarkerWithDirection, VMarkerWithDirection) then begin
+        Result :=
+          TBitmapMarkerWithDirection.Create(
+            VBitmap,
+            DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
+            VMarkerWithDirection.Direction
+          );
+      end else begin
+        Result :=
+          TBitmapMarker.Create(
+            VBitmap,
+            DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y)
+          );
+      end;
     finally
       VBitmap.Free;
     end;
@@ -268,7 +295,7 @@ begin
 end;
 
 function TBitmapMarkerProviderStaticFromDataProvider.ModifyMarkerWithRotation(
-  ASourceMarker: IBitmapMarker; AAngle: Double): IBitmapMarker;
+  ASourceMarker: IBitmapMarkerWithDirection; AAngle: Double): IBitmapMarker;
 var
   VTransform: TAffineTransformation;
   VSizeSource: TPoint;
@@ -318,10 +345,9 @@ begin
       end;
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
       Result :=
-        TBitmapMarker.Create(
+        TBitmapMarkerWithDirection.Create(
           VBitmap,
           DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
-          True,
           AAngle
         );
     finally
@@ -333,7 +359,10 @@ begin
 end;
 
 function TBitmapMarkerProviderStaticFromDataProvider.ModifyMarkerWithRotationAndResize(
-  ASourceMarker: IBitmapMarker; ASize: Integer; AAngle: Double): IBitmapMarker;
+  ASourceMarker: IBitmapMarkerWithDirection;
+  ASize: Integer;
+  AAngle: Double
+): IBitmapMarker;
 var
   VTransform: TAffineTransformation;
   VSizeSource: TPoint;
@@ -386,10 +415,9 @@ begin
       end;
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
       Result :=
-        TBitmapMarker.Create(
+        TBitmapMarkerWithDirection.Create(
           VBitmap,
           DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
-          True,
           AAngle
         );
     finally
