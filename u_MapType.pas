@@ -106,7 +106,6 @@ type
       ACoordConverterFactory: ICoordConverterFactory
     );
     procedure LoadDownloader(
-      AConfig : IConfigDataProvider;
       ACoordConverterFactory: ICoordConverterFactory;
       AInvisibleBrowser: IInvisibleBrowser
     );
@@ -345,7 +344,6 @@ begin
 end;
 
 procedure TMapType.LoadDownloader(
-  AConfig: IConfigDataProvider;
   ACoordConverterFactory: ICoordConverterFactory;
   AInvisibleBrowser: IInvisibleBrowser
 );
@@ -355,7 +353,6 @@ begin
     if FAbilitiesConfig.UseDownload then begin
       try
         FTileDownloader := TTileDownloaderFrontEnd.Create(
-          AConfig,
           FTileDownloaderConfig,
           FTileRequestBuilderConfig,
           FZmp,
@@ -398,7 +395,7 @@ begin
   FViewCoordConverter := Zmp.ViewGeoConvert;
   FTileRequestBuilderConfig.ReadConfig(AConfig);
   LoadUrlScript(ACoordConverterFactory);
-  LoadDownloader(AConfig, ACoordConverterFactory, AInvisibleBrowser);
+  LoadDownloader(ACoordConverterFactory, AInvisibleBrowser);
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;

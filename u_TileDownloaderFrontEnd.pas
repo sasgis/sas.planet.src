@@ -41,7 +41,6 @@ type
     FUseDwn: Boolean;
   public
     constructor Create(
-      AConfig: IConfigDataProvider;
       ATileDownloaderConfig: ITileDownloaderConfig;
       ATileRequestBuilderConfig: ITileRequestBuilderConfig;
       AZmp: IZmpInfo;
@@ -51,7 +50,6 @@ type
     );
     destructor Destroy; override;
     procedure Download(AEvent: ITileDownloaderEvent);
-    property UseDwn: Boolean read FUseDwn;
   end;
 
 implementation
@@ -62,7 +60,6 @@ uses
 { TTileDownloaderFrontEnd }
 
 constructor TTileDownloaderFrontEnd.Create(
-  AConfig: IConfigDataProvider;
   ATileDownloaderConfig: ITileDownloaderConfig;
   ATileRequestBuilderConfig: ITileRequestBuilderConfig;
   AZmp: IZmpInfo;
@@ -70,27 +67,21 @@ constructor TTileDownloaderFrontEnd.Create(
   ALangManager: ILanguageManager;
   AInvisibleBrowser: IInvisibleBrowser
 );
-var
-  VDownloaderStr: string;
 begin
   inherited Create;
   FDownloader := nil;
   FUseDwn := False;
   try
-    VDownloaderStr := AConfig.ReadString('Downloader', 'sasplanet');
-    if LowerCase(VDownloaderStr) = 'sasplanet' then begin
-      FDownloader := TTileDownloaderBaseCore.Create(
-        AConfig,
-        ATileDownloaderConfig,
-        ATileRequestBuilderConfig,
-        AZmp,
-        ACoordConverterFactory,
-        ALangManager,
-        AInvisibleBrowser
-      );
-      if Assigned(FDownloader) then begin
-        FUseDwn := FDownloader.Enabled;
-      end;
+    FDownloader := TTileDownloaderBaseCore.Create(
+      ATileDownloaderConfig,
+      ATileRequestBuilderConfig,
+      AZmp,
+      ACoordConverterFactory,
+      ALangManager,
+      AInvisibleBrowser
+    );
+    if Assigned(FDownloader) then begin
+      FUseDwn := FDownloader.Enabled;
     end;
   finally
     if FDownloader = nil then begin

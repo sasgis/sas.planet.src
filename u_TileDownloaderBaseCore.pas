@@ -65,7 +65,6 @@ type
     function TryGetDownloadThread: TTileDownloaderBaseThread;
   public
     constructor Create(
-      AConfig: IConfigDataProvider;
       ATileDownloaderConfig: ITileDownloaderConfig;
       ATileRequestBuilderConfig: ITileRequestBuilderConfig;
       AZmp: IZmpInfo;
@@ -98,7 +97,6 @@ uses
 { TTileDownloaderBaseCore }
 
 constructor TTileDownloaderBaseCore.Create(
-  AConfig: IConfigDataProvider;
   ATileDownloaderConfig: ITileDownloaderConfig;
   ATileRequestBuilderConfig: ITileRequestBuilderConfig;
   AZmp: IZmpInfo;
@@ -117,8 +115,6 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FLangManager := ALangManager;
   FCS := TCriticalSection.Create;
-  FTileRequestBuilderConfig.ReadConfig(AConfig);
-  FTileDownloaderConfig.ReadConfig(AConfig);
   FMaxConnectToServerCount := FTileDownloaderConfig.MaxConnectToServerCount;
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
 
