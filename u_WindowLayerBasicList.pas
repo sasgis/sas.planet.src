@@ -35,14 +35,14 @@ type
     function GetCount: Integer;
   protected
     function Get(AIndex: Integer): TWindowLayerAbstract;
+    property Items[Index: Integer]: TWindowLayerAbstract read Get; default;
+    property Count: Integer read GetCount;
   public
     constructor Create(AParentPerfList: IInternalPerformanceCounterList);
     destructor Destroy; override;
     function Add(AItem: TWindowLayerAbstract): Integer;
     procedure StartThreads;
     procedure SendTerminateToThreads;
-    property Items[Index: Integer]: TWindowLayerAbstract read Get; default;
-    property Count: Integer read GetCount;
   end;
 
 implementation
