@@ -32,11 +32,7 @@ uses
 type
   TBitmapMarkerProviderSimpleCross = class(TBitmapMarkerProviderSimpleBase)
   protected
-    function CreateMarker(ASize: Integer; ADirection: Double): IBitmapMarker; override;
-  public
-    constructor CreateProvider(
-      AConfig: IBitmapMarkerProviderSimpleConfigStatic
-    ); override;
+    function CreateMarker(ASize: Integer): IBitmapMarker; override;
   end;
 
 implementation
@@ -48,13 +44,7 @@ uses
 
 { TBitmapMarkerProviderSimpleCross }
 
-constructor TBitmapMarkerProviderSimpleCross.CreateProvider(
-  AConfig: IBitmapMarkerProviderSimpleConfigStatic);
-begin
-  inherited Create(0, AConfig);
-end;
-
-function TBitmapMarkerProviderSimpleCross.CreateMarker(ASize: Integer; ADirection: Double): IBitmapMarker;
+function TBitmapMarkerProviderSimpleCross.CreateMarker(ASize: Integer): IBitmapMarker;
 var
   VConfig: IBitmapMarkerProviderSimpleConfigStatic;
   VMarkerBitmap: TCustomBitmap32;

@@ -29,36 +29,52 @@ uses
   i_BitmapMarkerProviderSimpleConfig;
 
 type
-  TBitmapMarkerProviderSimpleBase = class(TInterfacedObject, IBitmapMarkerProvider)
+  TBitmapMarkerProviderSimpleAbstract = class(TInterfacedObject, IBitmapMarkerProvider)
   private
     FConfig: IBitmapMarkerProviderSimpleConfigStatic;
+  protected
+    property Config: IBitmapMarkerProviderSimpleConfigStatic read FConfig;
+  protected
+    function GetMarker: IBitmapMarker; virtual; abstract;
+    function GetMarkerBySize(ASize: Integer): IBitmapMarker; virtual; abstract;
+  public
+    constructor CreateProvider(AConfig: IBitmapMarkerProviderSimpleConfigStatic); virtual;
+  end;
+
+  TBitmapMarkerProviderSimpleBase = class(TBitmapMarkerProviderSimpleAbstract)
+  private
     FUseDirection: Boolean;
     FDefaultDirection: Double;
     FMarker: IBitmapMarker;
   protected
-    property Config: IBitmapMarkerProviderSimpleConfigStatic read FConfig;
-    function CreateMarker(ASize: Integer; ADirection: Double): IBitmapMarker; virtual; abstract;
+    function CreateMarker(ASize: Integer): IBitmapMarker; virtual; abstract;
   protected
-    function GetUseDirection: Boolean;
-
-    function GetMarker: IBitmapMarker;
-    function GetMarkerBySize(ASize: Integer): IBitmapMarker;
-    function GetMarkerWithRotation(AAngle: Double): IBitmapMarker;
-    function GetMarkerWithRotationBySize(AAngle: Double;  ASize: Integer): IBitmapMarker;
+    function GetMarker: IBitmapMarker; override;
+    function GetMarkerBySize(ASize: Integer): IBitmapMarker; override;
   public
-    constructor CreateProvider(AConfig: IBitmapMarkerProviderSimpleConfigStatic); virtual; abstract;
-    constructor Create(
-      ADefaultDirection: Double;
-      AConfig: IBitmapMarkerProviderSimpleConfigStatic
-    );
+    constructor CreateProvider(AConfig: IBitmapMarkerProviderSimpleConfigStatic); override;
   end;
 
-  TBitmapMarkerProviderSimpleBaseClass = class of TBitmapMarkerProviderSimpleBase;
+  TBitmapMarkerWithDirectionProviderSimpleBase = class(TBitmapMarkerProviderSimpleAbstract, IBitmapMarkerWithDirectionProvider)
+  private
+    FMarker: IBitmapMarkerWithDirection;
+  protected
+    function CreateMarker(ASize: Integer; ADirection: Double): IBitmapMarkerWithDirection; virtual; abstract;
+  protected
+    function GetMarker: IBitmapMarker; override;
+    function GetMarkerBySize(ASize: Integer): IBitmapMarker; override;
+    function GetMarkerWithRotation(AAngle: Double): IBitmapMarkerWithDirection;
+    function GetMarkerWithRotationBySize(AAngle: Double;  ASize: Integer): IBitmapMarkerWithDirection;
+  public
+    constructor CreateProvider(AConfig: IBitmapMarkerProviderSimpleConfigStatic); override;
+  end;
+
+  TBitmapMarkerProviderSimpleClass = class of TBitmapMarkerProviderSimpleAbstract;
 
   TBitmapMarkerProviderChangeableWithConfig = class(TInterfacedObject, IBitmapMarkerProviderChangeable)
   private
     FConfig: IBitmapMarkerProviderSimpleConfig;
-    FProviderClass: TBitmapMarkerProviderSimpleBaseClass;
+    FProviderClass: TBitmapMarkerProviderSimpleClass;
     FProviderStatic: IBitmapMarkerProvider;
 
     FConfigChangeListener: IJclListener;
@@ -69,7 +85,7 @@ type
     function GetChangeNotifier: IJclNotifier;
   public
     constructor Create(
-      AProviderClass: TBitmapMarkerProviderSimpleBaseClass;
+      AProviderClass: TBitmapMarkerProviderSimpleClass;
       AConfig: IBitmapMarkerProviderSimpleConfig
     );
     destructor Destroy; override;
@@ -87,25 +103,24 @@ uses
 const
   CAngleDelta = 1.0;
 
+{ TBitmapMarkerProviderSimpleAbstract }
+
+constructor TBitmapMarkerProviderSimpleAbstract.CreateProvider(
+  AConfig: IBitmapMarkerProviderSimpleConfigStatic);
+begin
+  FConfig := AConfig;
+end;
+
 { TBitmapMarkerProviderSimpleBase }
 
-constructor TBitmapMarkerProviderSimpleBase.Create(
-  ADefaultDirection: Double;
+constructor TBitmapMarkerProviderSimpleBase.CreateProvider(
   AConfig: IBitmapMarkerProviderSimpleConfigStatic
 );
 var
   VMarkerWithDirection: IBitmapMarkerWithDirection;
 begin
-  FConfig := AConfig;
-
-  FMarker := CreateMarker(FConfig.MarkerSize, ADefaultDirection);
-  if Supports(FMarker, IBitmapMarkerWithDirection, VMarkerWithDirection) then begin
-    FUseDirection := True;
-    FDefaultDirection := VMarkerWithDirection.Direction;
-  end else begin
-    FUseDirection := False;
-    FDefaultDirection := 0;
-  end;
+  inherited;
+  FMarker := CreateMarker(Config.MarkerSize);
 end;
 
 function TBitmapMarkerProviderSimpleBase.GetMarker: IBitmapMarker;
@@ -116,42 +131,61 @@ end;
 function TBitmapMarkerProviderSimpleBase.GetMarkerBySize(
   ASize: Integer): IBitmapMarker;
 begin
-  if ASize = FConfig.MarkerSize then begin
+  if ASize = Config.MarkerSize then begin
     Result := FMarker;
   end else begin
-    Result := CreateMarker(ASize, FDefaultDirection);
+    Result := CreateMarker(ASize);
   end;
 end;
 
-function TBitmapMarkerProviderSimpleBase.GetMarkerWithRotation(
-  AAngle: Double): IBitmapMarker;
+{ TBitmapMarkerWithDirectionProviderSimpleBase }
+
+constructor TBitmapMarkerWithDirectionProviderSimpleBase.CreateProvider(
+  AConfig: IBitmapMarkerProviderSimpleConfigStatic);
 begin
-  if (not FUseDirection) or (Abs(CalcAngleDelta(AAngle, FDefaultDirection)) < CAngleDelta) then begin
+  inherited;
+  FMarker := CreateMarker(Config.MarkerSize, 0);
+end;
+
+function TBitmapMarkerWithDirectionProviderSimpleBase.GetMarker: IBitmapMarker;
+begin
+  Result := FMarker;
+end;
+
+function TBitmapMarkerWithDirectionProviderSimpleBase.GetMarkerBySize(
+  ASize: Integer): IBitmapMarker;
+begin
+  if ASize = Config.MarkerSize then begin
     Result := FMarker;
   end else begin
-    Result := CreateMarker(FConfig.MarkerSize, AAngle);
+    Result := CreateMarker(ASize, FMarker.Direction);
   end;
 end;
 
-function TBitmapMarkerProviderSimpleBase.GetMarkerWithRotationBySize(
-  AAngle: Double; ASize: Integer): IBitmapMarker;
+function TBitmapMarkerWithDirectionProviderSimpleBase.GetMarkerWithRotation(
+  AAngle: Double): IBitmapMarkerWithDirection;
 begin
-  if (not FUseDirection) or (Abs(CalcAngleDelta(AAngle, FDefaultDirection)) < CAngleDelta) then begin
-    Result := GetMarkerBySize(ASize);
+  if (Abs(CalcAngleDelta(AAngle, FMarker.Direction)) < CAngleDelta) then begin
+    Result := FMarker;
+  end else begin
+    Result := CreateMarker(Config.MarkerSize, AAngle);
+  end;
+end;
+
+function TBitmapMarkerWithDirectionProviderSimpleBase.GetMarkerWithRotationBySize(
+  AAngle: Double; ASize: Integer): IBitmapMarkerWithDirection;
+begin
+  if (Abs(CalcAngleDelta(AAngle, FMarker.Direction)) < CAngleDelta) and (ASize = Config.MarkerSize) then begin
+    Result := FMarker;
   end else begin
     Result := CreateMarker(ASize, AAngle);
   end;
 end;
 
-function TBitmapMarkerProviderSimpleBase.GetUseDirection: Boolean;
-begin
-  Result := FUseDirection;
-end;
-
 { TBitmapMarkerProviderChangeableWithConfig }
 
 constructor TBitmapMarkerProviderChangeableWithConfig.Create(
-  AProviderClass: TBitmapMarkerProviderSimpleBaseClass;
+  AProviderClass: TBitmapMarkerProviderSimpleClass;
   AConfig: IBitmapMarkerProviderSimpleConfig);
 begin
   FProviderClass := AProviderClass;

@@ -151,13 +151,13 @@ begin
     VFixedOnView :=  VVisualConverter.LonLat2LocalPixelFloat(FMarkPoint);
     VMarker := FReachedMarker;
   end else begin
+    VDeltaNormed.X := VDelta.X / VDistInPixel * VCrossDist;
+    VDeltaNormed.Y := VDelta.Y / VDistInPixel * VCrossDist;
+    VMarkMapPos.X := VScreenCenterMapPos.X + VDeltaNormed.X;
+    VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
+    VFixedOnView := VVisualConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
     VMarkerProvider := FArrowMarkerProviderStatic;
     if Supports(VMarkerProvider, IBitmapMarkerWithDirectionProvider, VMarkerWithDirectionProvider) then begin
-      VDeltaNormed.X := VDelta.X / VDistInPixel * VCrossDist;
-      VDeltaNormed.Y := VDelta.Y / VDistInPixel * VCrossDist;
-      VMarkMapPos.X := VScreenCenterMapPos.X + VDeltaNormed.X;
-      VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
-      VFixedOnView := VVisualConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
       VAngle := ArcSin(VDelta.X/VDistInPixel) / Pi * 180;
       if VDelta.Y > 0 then begin
         VAngle := 180 - VAngle;

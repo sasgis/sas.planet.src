@@ -1119,9 +1119,7 @@ begin
             GState.ResourceProvider,
             GState.ContentTypeManager,
             'FOUNDPNT.png',
-            DoublePoint(8, 8),
-            False,
-            0
+            DoublePoint(8, 8)
           )
         )
       );
@@ -1136,9 +1134,7 @@ begin
             GState.ResourceProvider,
             GState.ContentTypeManager,
             'ICONIII.png',
-            DoublePoint(7, 6),
-            False,
-            0
+            DoublePoint(7, 6)
           )
         ),
         FMapGoto,

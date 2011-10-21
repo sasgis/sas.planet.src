@@ -34,29 +34,37 @@ uses
 type
   TBitmapMarkerProviderStaticFromDataProvider = class(TInterfacedObject, IBitmapMarkerProvider)
   private
-    FUseDirection: Boolean;
-    FDefaultDirection: Double;
     FMarker: IBitmapMarker;
-    FChangeNotifier: IJclNotifier;
-    function ModifyMarkerWithRotation(ASourceMarker: IBitmapMarkerWithDirection; AAngle: Double): IBitmapMarker;
     function ModifyMarkerWithResize(ASourceMarker: IBitmapMarker; ASize: Integer): IBitmapMarker;
-    function ModifyMarkerWithRotationAndResize(ASourceMarker: IBitmapMarkerWithDirection; ASize: Integer; AAngle: Double): IBitmapMarker;
   protected
-    function GetUseDirection: Boolean;
-
     function GetMarker: IBitmapMarker;
-    function GetMarkerWithRotation(AAngle: Double): IBitmapMarker;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
-    function GetMarkerWithRotationBySize(AAngle: Double;  ASize: Integer): IBitmapMarker;
+  public
+    constructor Create(
+      AResourceDataProvider: IConfigDataProvider;
+      AContentTypeManager: IContentTypeManager;
+      AResourceName: string;
+      AAnchorPoint: TDoublePoint
+    );
+  end;
 
-    function GetChangeNotifier: IJclNotifier;
+  TBitmapMarkerWithDirectionProviderStaticFromDataProvider = class(TInterfacedObject, IBitmapMarkerProvider, IBitmapMarkerWithDirectionProvider)
+  private
+    FMarker: IBitmapMarkerWithDirection;
+    function ModifyMarkerWithRotation(ASourceMarker: IBitmapMarkerWithDirection; AAngle: Double): IBitmapMarkerWithDirection;
+    function ModifyMarkerWithResize(ASourceMarker: IBitmapMarkerWithDirection; ASize: Integer): IBitmapMarkerWithDirection;
+    function ModifyMarkerWithRotationAndResize(ASourceMarker: IBitmapMarkerWithDirection; ASize: Integer; AAngle: Double): IBitmapMarkerWithDirection;
+  protected
+    function GetMarker: IBitmapMarker;
+    function GetMarkerWithRotation(AAngle: Double): IBitmapMarkerWithDirection;
+    function GetMarkerBySize(ASize: Integer): IBitmapMarker;
+    function GetMarkerWithRotationBySize(AAngle: Double;  ASize: Integer): IBitmapMarkerWithDirection;
   public
     constructor Create(
       AResourceDataProvider: IConfigDataProvider;
       AContentTypeManager: IContentTypeManager;
       AResourceName: string;
       AAnchorPoint: TDoublePoint;
-      AUseDirection: Boolean;
       ADefaultDirection: Double
     );
   end;
@@ -84,9 +92,7 @@ constructor TBitmapMarkerProviderStaticFromDataProvider.Create(
   AResourceDataProvider: IConfigDataProvider;
   AContentTypeManager: IContentTypeManager;
   AResourceName: string;
-  AAnchorPoint: TDoublePoint;
-  AUseDirection: Boolean;
-  ADefaultDirection: Double
+  AAnchorPoint: TDoublePoint
 );
 var
   VFileName: string;
@@ -96,11 +102,6 @@ var
   VBitmap: TCustomBitmap32;
   VStream: TMemoryStream;
 begin
-  FUseDirection := AUseDirection;
-  FDefaultDirection := ADefaultDirection;
-
-  FChangeNotifier := TJclBaseNotifier.Create;
-
   VFileName := ExtractFileName(AResourceName);
   VFileExt := ExtractFileExt(VFileName);
   VBitmap := TCustomBitmap32.Create;
@@ -124,28 +125,14 @@ begin
       end;
     end;
 
-    if AUseDirection then begin
-      FMarker :=
-        TBitmapMarkerWithDirection.Create(
-          VBitmap,
-          AAnchorPoint,
-          ADefaultDirection
-        );
-    end else begin
-      FMarker :=
-        TBitmapMarker.Create(
-          VBitmap,
-          AAnchorPoint
-        );
-    end;
+    FMarker :=
+      TBitmapMarker.Create(
+        VBitmap,
+        AAnchorPoint
+      );
   finally
     VBitmap.Free;
   end;
-end;
-
-function TBitmapMarkerProviderStaticFromDataProvider.GetChangeNotifier: IJclNotifier;
-begin
-  Result := FChangeNotifier;
 end;
 
 function TBitmapMarkerProviderStaticFromDataProvider.GetMarker: IBitmapMarker;
@@ -166,55 +153,50 @@ begin
   end;
 end;
 
-function TBitmapMarkerProviderStaticFromDataProvider.GetMarkerWithRotation(
-  AAngle: Double): IBitmapMarker;
-var
-  VMarker: IBitmapMarker;
-  VMarkerWithDirection: IBitmapMarkerWithDirection;
-begin
-  VMarker := FMarker;
-  Result := VMarker;
-  if Supports(VMarker, IBitmapMarkerWithDirection, VMarkerWithDirection) then begin
-    if Abs(CalcAngleDelta(AAngle, VMarkerWithDirection.Direction)) > CAngleDelta then begin
-      Result := ModifyMarkerWithRotation(VMarkerWithDirection, AAngle);
-    end;
-  end;
-end;
-
-function TBitmapMarkerProviderStaticFromDataProvider.GetMarkerWithRotationBySize(
-  AAngle: Double; ASize: Integer): IBitmapMarker;
-var
-  VMarker: IBitmapMarker;
-  VMarkerWithDirection: IBitmapMarkerWithDirection;
-begin
-  VMarker := FMarker;
-  Result := VMarker;
-  if Supports(VMarker, IBitmapMarkerWithDirection, VMarkerWithDirection) then begin
-    if Abs(CalcAngleDelta(AAngle, VMarkerWithDirection.Direction)) > CAngleDelta then begin
-      if (VMarker.BitmapSize.X = ASize) then begin
-        Result := ModifyMarkerWithRotation(VMarkerWithDirection, AAngle);
-      end else begin
-        Result := ModifyMarkerWithRotationAndResize(VMarkerWithDirection, ASize, AAngle);
-      end;
-    end else begin
-      if (VMarker.BitmapSize.X <> ASize) then begin
-        Result := ModifyMarkerWithResize(VMarker, ASize);
-      end;
-    end;
-  end else begin
-    if (VMarker.BitmapSize.X = ASize) then begin
-      Result := VMarker;
-    end else begin
-      Result := ModifyMarkerWithResize(VMarker, ASize);
-    end;
-  end;
-
-end;
-
-function TBitmapMarkerProviderStaticFromDataProvider.GetUseDirection: Boolean;
-begin
-  Result := FUseDirection;
-end;
+//function TBitmapMarkerProviderStaticFromDataProvider.GetMarkerWithRotation(
+//  AAngle: Double): IBitmapMarkerWithDirection;
+//var
+//  VMarker: IBitmapMarker;
+//  VMarkerWithDirection: IBitmapMarkerWithDirection;
+//begin
+//  VMarker := FMarker;
+//  Result := VMarker;
+//  if Supports(VMarker, IBitmapMarkerWithDirection, VMarkerWithDirection) then begin
+//    if Abs(CalcAngleDelta(AAngle, VMarkerWithDirection.Direction)) > CAngleDelta then begin
+//      Result := ModifyMarkerWithRotation(VMarkerWithDirection, AAngle);
+//    end;
+//  end;
+//end;
+//
+//function TBitmapMarkerProviderStaticFromDataProvider.GetMarkerWithRotationBySize(
+//  AAngle: Double; ASize: Integer): IBitmapMarkerWithDirection;
+//var
+//  VMarker: IBitmapMarker;
+//  VMarkerWithDirection: IBitmapMarkerWithDirection;
+//begin
+//  VMarker := FMarker;
+//  Result := VMarker;
+//  if Supports(VMarker, IBitmapMarkerWithDirection, VMarkerWithDirection) then begin
+//    if Abs(CalcAngleDelta(AAngle, VMarkerWithDirection.Direction)) > CAngleDelta then begin
+//      if (VMarker.BitmapSize.X = ASize) then begin
+//        Result := ModifyMarkerWithRotation(VMarkerWithDirection, AAngle);
+//      end else begin
+//        Result := ModifyMarkerWithRotationAndResize(VMarkerWithDirection, ASize, AAngle);
+//      end;
+//    end else begin
+//      if (VMarker.BitmapSize.X <> ASize) then begin
+//        Result := ModifyMarkerWithResize(VMarker, ASize);
+//      end;
+//    end;
+//  end else begin
+//    if (VMarker.BitmapSize.X = ASize) then begin
+//      Result := VMarker;
+//    end else begin
+//      Result := ModifyMarkerWithResize(VMarker, ASize);
+//    end;
+//  end;
+//
+//end;
 
 function TBitmapMarkerProviderStaticFromDataProvider.ModifyMarkerWithResize(
   ASourceMarker: IBitmapMarker; ASize: Integer): IBitmapMarker;
@@ -294,8 +276,312 @@ begin
   end;
 end;
 
-function TBitmapMarkerProviderStaticFromDataProvider.ModifyMarkerWithRotation(
-  ASourceMarker: IBitmapMarkerWithDirection; AAngle: Double): IBitmapMarker;
+//function TBitmapMarkerProviderStaticFromDataProvider.ModifyMarkerWithRotation(
+//  ASourceMarker: IBitmapMarkerWithDirection; AAngle: Double): IBitmapMarker;
+//var
+//  VTransform: TAffineTransformation;
+//  VSizeSource: TPoint;
+//  VTargetRect: TFloatRect;
+//  VSizeTarget: TPoint;
+//  VBitmap: TCustomBitmap32;
+//  VFixedOnBitmap: TFloatPoint;
+//  VRasterizer: TRasterizer;
+//  VTransformer: TTransformer;
+//  VCombineInfo: TCombineInfo;
+//  VSampler: TCustomResampler;
+//begin
+//  VTransform := TAffineTransformation.Create;
+//  try
+//    VSizeSource := ASourceMarker.BitmapSize;
+//    VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
+//    VTransform.Rotate(0, 0, ASourceMarker.Direction - AAngle);
+//    VTargetRect := VTransform.GetTransformedBounds;
+//    VSizeTarget.X := Trunc(VTargetRect.Right - VTargetRect.Left) + 1;
+//    VSizeTarget.Y := Trunc(VTargetRect.Bottom - VTargetRect.Top) + 1;
+//    VTransform.Translate(-VTargetRect.Left, -VTargetRect.Top);
+//    VBitmap := TCustomBitmap32.Create;
+//    try
+//      VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
+//      VBitmap.Clear(0);
+//      VRasterizer := TRegularRasterizer.Create;
+//      try
+//        VSampler := TLinearResampler.Create;
+//        try
+//          VSampler.Bitmap := ASourceMarker.Bitmap;
+//          VTransformer := TTransformer.Create(VSampler, VTransform);
+//          try
+//            VRasterizer.Sampler := VTransformer;
+//            VCombineInfo.SrcAlpha := 255;
+//            VCombineInfo.DrawMode := dmOpaque;
+//            VCombineInfo.TransparentColor := 0;
+//            VRasterizer.Rasterize(VBitmap, VBitmap.BoundsRect, VCombineInfo);
+//          finally
+//            EMMS;
+//            VTransformer.Free;
+//          end;
+//        finally
+//          VSampler.Free;
+//        end;
+//      finally
+//        VRasterizer.Free;
+//      end;
+//      VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
+//      Result :=
+//        TBitmapMarkerWithDirection.Create(
+//          VBitmap,
+//          DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
+//          AAngle
+//        );
+//    finally
+//      VBitmap.Free;
+//    end;
+//  finally
+//    VTransform.Free;
+//  end;
+//end;
+
+//function TBitmapMarkerProviderStaticFromDataProvider.ModifyMarkerWithRotationAndResize(
+//  ASourceMarker: IBitmapMarkerWithDirection;
+//  ASize: Integer;
+//  AAngle: Double
+//): IBitmapMarker;
+//var
+//  VTransform: TAffineTransformation;
+//  VSizeSource: TPoint;
+//  VTargetRect: TFloatRect;
+//  VSizeTarget: TPoint;
+//  VBitmap: TCustomBitmap32;
+//  VFixedOnBitmap: TFloatPoint;
+//  VScale: Double;
+//  VRasterizer: TRasterizer;
+//  VTransformer: TTransformer;
+//  VCombineInfo: TCombineInfo;
+//  VSampler: TCustomResampler;
+//begin
+//  VTransform := TAffineTransformation.Create;
+//  try
+//    VSizeSource := ASourceMarker.BitmapSize;
+//    VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
+//    VTransform.Rotate(0, 0, ASourceMarker.Direction - AAngle);
+//    VScale := ASize / ASourceMarker.BitmapSize.X;
+//    VTransform.Scale(VScale, VScale);
+//    VTargetRect := VTransform.GetTransformedBounds;
+//    VSizeTarget.X := Trunc(VTargetRect.Right - VTargetRect.Left) + 1;
+//    VSizeTarget.Y := Trunc(VTargetRect.Bottom - VTargetRect.Top) + 1;
+//    VTransform.Translate(-VTargetRect.Left, -VTargetRect.Top);
+//    VBitmap := TCustomBitmap32.Create;
+//    try
+//      VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
+//      VBitmap.Clear(0);
+//      VRasterizer := TRegularRasterizer.Create;
+//      try
+//        VSampler := TLinearResampler.Create;
+//        try
+//          VSampler.Bitmap := ASourceMarker.Bitmap;
+//          VTransformer := TTransformer.Create(VSampler, VTransform);
+//          try
+//            VRasterizer.Sampler := VTransformer;
+//            VCombineInfo.SrcAlpha := 255;
+//            VCombineInfo.DrawMode := dmOpaque;
+//            VCombineInfo.TransparentColor := 0;
+//            VRasterizer.Rasterize(VBitmap, VBitmap.BoundsRect, VCombineInfo);
+//          finally
+//            EMMS;
+//            VTransformer.Free;
+//          end;
+//        finally
+//          VSampler.Free;
+//        end;
+//      finally
+//        VRasterizer.Free;
+//      end;
+//      VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
+//      Result :=
+//        TBitmapMarkerWithDirection.Create(
+//          VBitmap,
+//          DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
+//          AAngle
+//        );
+//    finally
+//      VBitmap.Free;
+//    end;
+//  finally
+//    VTransform.Free;
+//  end;
+//end;
+
+{ TBitmapMarkerWithDirectionProviderStaticFromDataProvider }
+
+constructor TBitmapMarkerWithDirectionProviderStaticFromDataProvider.Create(
+  AResourceDataProvider: IConfigDataProvider;
+  AContentTypeManager: IContentTypeManager; AResourceName: string;
+  AAnchorPoint: TDoublePoint; ADefaultDirection: Double);
+var
+  VFileName: string;
+  VFileExt: string;
+  VInfoBasic: IContentTypeInfoBasic;
+  VBitmapContntType: IContentTypeInfoBitmap;
+  VBitmap: TCustomBitmap32;
+  VStream: TMemoryStream;
+begin
+  VFileName := ExtractFileName(AResourceName);
+  VFileExt := ExtractFileExt(VFileName);
+  VBitmap := TCustomBitmap32.Create;
+  try
+    VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
+    if VInfoBasic <> nil then begin
+      if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
+        VStream := TMemoryStream.Create;
+        try
+          if AResourceDataProvider.ReadBinaryStream(VFileName, VStream) > 0 then begin
+            VStream.Position := 0;
+            try
+              VBitmapContntType.GetLoader.LoadFromStream(VStream, VBitmap);
+            except
+              Assert(False, 'Ошибка при загрузке картинки ' + AResourceName);
+            end;
+          end;
+        finally
+          VStream.Free;
+        end;
+      end;
+    end;
+
+    FMarker :=
+      TBitmapMarkerWithDirection.Create(
+        VBitmap,
+        AAnchorPoint,
+        ADefaultDirection
+      );
+  finally
+    VBitmap.Free;
+  end;
+end;
+
+function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.GetMarker: IBitmapMarker;
+begin
+  Result := FMarker;
+end;
+
+function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.GetMarkerBySize(
+  ASize: Integer): IBitmapMarker;
+var
+  VMarker: IBitmapMarkerWithDirection;
+begin
+  VMarker := FMarker;
+  if ASize = VMarker.BitmapSize.X then begin
+    Result := VMarker;
+  end else begin
+    Result := ModifyMarkerWithResize(VMarker, ASize);
+  end;
+end;
+
+function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.GetMarkerWithRotation(
+  AAngle: Double): IBitmapMarkerWithDirection;
+var
+  VMarker: IBitmapMarkerWithDirection;
+begin
+  VMarker := FMarker;
+  Result := VMarker;
+  if Abs(CalcAngleDelta(AAngle, VMarker.Direction)) > CAngleDelta then begin
+    Result := ModifyMarkerWithRotation(VMarker, AAngle);
+  end;
+end;
+
+function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.GetMarkerWithRotationBySize(
+  AAngle: Double; ASize: Integer): IBitmapMarkerWithDirection;
+var
+  VMarker: IBitmapMarkerWithDirection;
+begin
+  VMarker := FMarker;
+  Result := VMarker;
+  if Abs(CalcAngleDelta(AAngle, VMarker.Direction)) > CAngleDelta then begin
+    if (VMarker.BitmapSize.X = ASize) then begin
+      Result := ModifyMarkerWithRotation(VMarker, AAngle);
+    end else begin
+      Result := ModifyMarkerWithRotationAndResize(VMarker, ASize, AAngle);
+    end;
+  end else begin
+    if (VMarker.BitmapSize.X <> ASize) then begin
+      Result := ModifyMarkerWithResize(VMarker, ASize);
+    end;
+  end;
+end;
+
+function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.ModifyMarkerWithResize(
+  ASourceMarker: IBitmapMarkerWithDirection;
+  ASize: Integer): IBitmapMarkerWithDirection;
+var
+  VTransform: TAffineTransformation;
+  VSizeSource: TPoint;
+  VTargetRect: TFloatRect;
+  VSizeTarget: TPoint;
+  VBitmap: TCustomBitmap32;
+  VFixedOnBitmap: TFloatPoint;
+  VScale: Double;
+  VRasterizer: TRasterizer;
+  VTransformer: TTransformer;
+  VCombineInfo: TCombineInfo;
+  VSampler: TCustomResampler;
+  VMarkerWithDirection: IBitmapMarkerWithDirection;
+begin
+  VTransform := TAffineTransformation.Create;
+  try
+    VSizeSource := ASourceMarker.BitmapSize;
+    VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
+    VScale := ASize / ASourceMarker.BitmapSize.X;
+    VTransform.Scale(VScale, VScale);
+    VTargetRect := VTransform.GetTransformedBounds;
+    VSizeTarget.X := Trunc(VTargetRect.Right - VTargetRect.Left) + 1;
+    VSizeTarget.Y := Trunc(VTargetRect.Bottom - VTargetRect.Top) + 1;
+    VBitmap := TCustomBitmap32.Create;
+    try
+      VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
+      VBitmap.Clear(0);
+
+      VRasterizer := TRegularRasterizer.Create;
+      try
+        VSampler := TLinearResampler.Create;
+        try
+          VSampler.Bitmap := ASourceMarker.Bitmap;
+          VTransformer := TTransformer.Create(VSampler, VTransform);
+          try
+            VRasterizer.Sampler := VTransformer;
+            VCombineInfo.SrcAlpha := 255;
+            VCombineInfo.DrawMode := dmOpaque;
+            VCombineInfo.CombineMode := cmBlend;
+            VCombineInfo.TransparentColor := 0;
+            VRasterizer.Rasterize(VBitmap, VBitmap.BoundsRect, VCombineInfo);
+          finally
+            EMMS;
+            VTransformer.Free;
+          end;
+        finally
+          VSampler.Free;
+        end;
+      finally
+        VRasterizer.Free;
+      end;
+
+      VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
+
+      Result :=
+        TBitmapMarkerWithDirection.Create(
+          VBitmap,
+          DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
+          VMarkerWithDirection.Direction
+        );
+    finally
+      VBitmap.Free;
+    end;
+  finally
+    VTransform.Free;
+  end;
+end;
+
+function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.ModifyMarkerWithRotation(
+  ASourceMarker: IBitmapMarkerWithDirection;
+  AAngle: Double): IBitmapMarkerWithDirection;
 var
   VTransform: TAffineTransformation;
   VSizeSource: TPoint;
@@ -358,11 +644,9 @@ begin
   end;
 end;
 
-function TBitmapMarkerProviderStaticFromDataProvider.ModifyMarkerWithRotationAndResize(
-  ASourceMarker: IBitmapMarkerWithDirection;
-  ASize: Integer;
-  AAngle: Double
-): IBitmapMarker;
+function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.ModifyMarkerWithRotationAndResize(
+  ASourceMarker: IBitmapMarkerWithDirection; ASize: Integer;
+  AAngle: Double): IBitmapMarkerWithDirection;
 var
   VTransform: TAffineTransformation;
   VSizeSource: TPoint;

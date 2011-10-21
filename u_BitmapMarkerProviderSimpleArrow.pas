@@ -30,13 +30,12 @@ uses
   u_BitmapMarkerProviderSimpleBase;
 
 type
-  TBitmapMarkerProviderSimpleArrow = class(TBitmapMarkerProviderSimpleBase)
+  TBitmapMarkerProviderSimpleArrow = class(TBitmapMarkerWithDirectionProviderSimpleBase)
   protected
-    function CreateMarker(ASize: Integer; ADirection: Double): IBitmapMarker; override;
-  public
-    constructor CreateProvider(
-      AConfig: IBitmapMarkerProviderSimpleConfigStatic
-    ); override;
+    function CreateMarker(
+      ASize: Integer;
+      ADirection: Double
+    ): IBitmapMarkerWithDirection; override;
   end;
 
 implementation
@@ -50,13 +49,10 @@ uses
 
 { TBitmapMarkerProviderSimpleArrow }
 
-constructor TBitmapMarkerProviderSimpleArrow.CreateProvider(
-  AConfig: IBitmapMarkerProviderSimpleConfigStatic);
-begin
-  inherited Create(0, AConfig);
-end;
-
-function TBitmapMarkerProviderSimpleArrow.CreateMarker(ASize: Integer; ADirection: Double): IBitmapMarker;
+function TBitmapMarkerProviderSimpleArrow.CreateMarker(
+  ASize: Integer;
+  ADirection: Double
+): IBitmapMarkerWithDirection;
 var
   VConfig: IBitmapMarkerProviderSimpleConfigStatic;
   VMarkerBitmap: TCustomBitmap32;
