@@ -38,7 +38,7 @@ type
   TTileDownloaderFrontEnd = class
   private
     FDownloader: ITileDownloader;
-    FUseDwn: Boolean;
+    FEnabled: Boolean;
   public
     constructor Create(
       ATileDownloaderConfig: ITileDownloaderConfig;
@@ -50,6 +50,7 @@ type
     );
     destructor Destroy; override;
     procedure Download(AEvent: ITileDownloaderEvent);
+    property Enabled: Boolean read FEnabled;
   end;
 
 implementation
@@ -69,25 +70,16 @@ constructor TTileDownloaderFrontEnd.Create(
 );
 begin
   inherited Create;
-  FDownloader := nil;
-  FUseDwn := False;
-  try
-    FDownloader := TTileDownloaderBaseCore.Create(
-      ATileDownloaderConfig,
-      ATileRequestBuilderConfig,
-      AZmp,
-      ACoordConverterFactory,
-      ALangManager,
-      AInvisibleBrowser
-    );
-    if Assigned(FDownloader) then begin
-      FUseDwn := FDownloader.Enabled;
-    end;
-  finally
-    if FDownloader = nil then begin
-      FUseDwn := False;
-    end;
-  end;
+  FEnabled := False;
+  FDownloader := TTileDownloaderBaseCore.Create(
+    ATileDownloaderConfig,
+    ATileRequestBuilderConfig,
+    AZmp,
+    ACoordConverterFactory,
+    ALangManager,
+    AInvisibleBrowser
+  );
+  FEnabled := FDownloader.Enabled;
 end;
 
 destructor TTileDownloaderFrontEnd.Destroy;
@@ -98,12 +90,8 @@ end;
 
 procedure TTileDownloaderFrontEnd.Download(AEvent: ITileDownloaderEvent);
 begin
-  if FUseDwn and Assigned(AEvent) then begin
-    if Assigned(FDownloader) then begin
-      FDownloader.Download(AEvent)
-    end else begin
-      FUseDwn := False;
-    end;
+  if Assigned(AEvent) then begin
+    FDownloader.Download(AEvent)
   end;
 end;
 

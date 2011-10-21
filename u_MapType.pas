@@ -360,12 +360,12 @@ begin
           FLanguageManager,
           AInvisibleBrowser
         );
-        FAbilitiesConfig.UseDownload := Assigned(FTileDownloader);
+        FAbilitiesConfig.UseDownload := FTileDownloader.Enabled;
       except
         if ExceptObject <> nil then begin
           ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
         end;
-        FAbilitiesConfig.UseDownload := false;
+        FAbilitiesConfig.UseDownload := False;
       end;
     end;
   finally
@@ -702,11 +702,10 @@ end;
 destructor TMapType.Destroy;
 begin
   FCoordConverter := nil;
-  //FPoolOfDownloaders := nil;
   FCacheBitmap := nil;
   FCacheVector := nil;
   FreeAndNil(FStorage);
-  FreeAndNil(FTileDownloader); // <--
+  FreeAndNil(FTileDownloader);
   inherited;
 end;
 
