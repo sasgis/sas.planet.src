@@ -167,7 +167,6 @@ var
   VTransformer: TTransformer;
   VCombineInfo: TCombineInfo;
   VSampler: TCustomResampler;
-  VMarkerWithDirection: IBitmapMarkerWithDirection;
 begin
   VTransform := TAffineTransformation.Create;
   try
@@ -209,20 +208,11 @@ begin
 
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
 
-      if Supports(ASourceMarker, IBitmapMarkerWithDirection, VMarkerWithDirection) then begin
-        Result :=
-          TBitmapMarkerWithDirection.Create(
-            VBitmap,
-            DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
-            VMarkerWithDirection.Direction
-          );
-      end else begin
-        Result :=
-          TBitmapMarker.Create(
-            VBitmap,
-            DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y)
-          );
-      end;
+      Result :=
+        TBitmapMarker.Create(
+          VBitmap,
+          DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y)
+        );
     finally
       VBitmap.Free;
     end;
