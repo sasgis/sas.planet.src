@@ -48,13 +48,14 @@ type
 
   IBitmapMarkerProvider = interface
     ['{A186F046-0CFB-456A-A6C3-271046CB2CA0}']
-    function GetUseDirection: Boolean;
-    property UseDirection: Boolean read GetUseDirection;
-
     function GetMarker: IBitmapMarker;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
-    function GetMarkerWithRotation(AAngle: Double): IBitmapMarker;
-    function GetMarkerWithRotationBySize(AAngle: Double;  ASize: Integer): IBitmapMarker;
+  end;
+
+  IBitmapMarkerWithDirectionProvider = interface(IBitmapMarkerProvider)
+    ['{80B3D3EB-E42E-4D40-A20D-6C15F7E446A0}']
+    function GetMarkerWithRotation(AAngle: Double): IBitmapMarkerWithDirection;
+    function GetMarkerWithRotationBySize(AAngle: Double;  ASize: Integer): IBitmapMarkerWithDirection;
   end;
 
   IBitmapMarkerProviderChangeable = interface

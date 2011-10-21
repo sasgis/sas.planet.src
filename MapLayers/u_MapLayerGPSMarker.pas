@@ -161,9 +161,16 @@ end;
 procedure TMapLayerGPSMarker.PrepareMarker(ASpeed, AAngle: Double);
 var
   VMarker: IBitmapMarker;
+  VMarkerProvider: IBitmapMarkerProvider;
+  VMarkerWithDirectionProvider: IBitmapMarkerWithDirectionProvider;
 begin
   if ASpeed > FConfig.MinMoveSpeed then begin
-    VMarker := FMovedMarkerProviderStatic.GetMarkerWithRotation(AAngle);
+    VMarkerProvider := FMovedMarkerProviderStatic;
+    if Supports(VMarkerProvider, IBitmapMarkerWithDirectionProvider, VMarkerWithDirectionProvider) then begin
+      VMarker := VMarkerWithDirectionProvider.GetMarkerWithRotation(AAngle);
+    end else begin
+      VMarker := VMarkerProvider.GetMarker;
+    end;
   end else begin
     VMarker := FStopedMarker;
   end;
