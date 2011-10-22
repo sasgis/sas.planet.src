@@ -164,6 +164,7 @@ begin
     FFrame.chkReplace.Checked,
     FFrame.chkSaveFullOnly.Checked,
     FFrame.chkFromPrevZoom.Checked,
+    FFrame.chkUsePrevTiles.Checked,    
     Color32(FViewConfig.BackGroundColor),
     VResampler
   );

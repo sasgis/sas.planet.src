@@ -20,6 +20,7 @@ type
     FIsReplace: boolean;
     FIsSaveFullOnly: boolean;
     FGenFormPrevZoom: boolean;
+    FUsePrevTiles: boolean;
     FSourceZoom: byte;
     FZooms: TArrayOfByte;
     FMapType: TMapType;
@@ -39,6 +40,7 @@ type
       AReplace: boolean;
       Asavefull: boolean;
       AGenFormPrev: boolean;
+      AUsePrevTiles: boolean;      
       ABackGroundColor: TColor32;
       AResamplerFactory: IImageResamplerFactory
     );
@@ -60,6 +62,7 @@ constructor TThreadGenPrevZoom.Create(
   AReplace: boolean;
   Asavefull: boolean;
   AGenFormPrev: boolean;
+  AUsePrevTiles: boolean;  
   ABackGroundColor: TColor32;
   AResamplerFactory: IImageResamplerFactory
 );
@@ -68,6 +71,7 @@ begin
   FIsReplace := AReplace;
   FIsSaveFullOnly := Asavefull;
   FGenFormPrevZoom := AGenFormPrev;
+  FUsePrevTiles:=AUsePrevTiles;
   FZooms := AInZooms;
   FPolygLL := APolygLL;
   FTileInProc := 0;
@@ -142,6 +146,13 @@ begin
             if not (FIsReplace) then begin
               continue;
             end;
+          if not (FUsePrevTiles) then begin
+              bmp_ex.SetSize(
+                VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
+                VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top
+              );
+              bmp_ex.Clear(FBackGroundColor);
+            end else
             if not FMapType.LoadTile(bmp_Ex, VTile, VZoom, True) then begin
               bmp_ex.SetSize(
                 VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
@@ -149,6 +160,7 @@ begin
               );
               bmp_ex.Clear(FBackGroundColor);
             end;
+
           end else begin
             bmp_ex.SetSize(
               VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
@@ -156,6 +168,7 @@ begin
             );
             bmp_ex.Clear(FBackGroundColor);
           end;
+
           VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, VZoom);
           VRectOfSubTiles := VGeoConvert.RelativeRect2TileRect(VRelativeRect, VZoomPrev);
           VSubTileIterator := TTileIteratorByRect.Create(VRectOfSubTiles);
