@@ -33,11 +33,48 @@ type
     function Convert(AName, ADescription: string): string;
   end;
 
+function StupedHtmlToTextConverter(const ASource: String): String;
+
 implementation
 
 uses
   SysUtils,
   StrUtils;
+
+function StupedHtmlToTextConverter(const ASource: String): String;
+begin
+  Result := ASource;
+  Result := StringReplace(Result, '&#36;',     '$', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#37;',     '%', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#39;',     '''', [rfReplaceAll]);
+
+  Result := StringReplace(Result, '&amp;',     '&', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#38;',     '&', [rfReplaceAll]);
+
+  Result := StringReplace(Result, '&quot;',    '"', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#34;',     '"', [rfReplaceAll]);
+
+  Result := StringReplace(Result, '&lt;',      '<', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#60;',     '<', [rfReplaceAll]);
+
+  Result := StringReplace(Result, '&gt;',      '>', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#62;',     '>', [rfReplaceAll]);
+
+  Result := StringReplace(Result, '&nbsp;',    ' ', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#160;',    ' ', [rfReplaceAll]);
+
+  Result := StringReplace(Result, '&raquo;',   '»', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#187;',    '»', [rfReplaceAll]);
+
+  Result := StringReplace(Result, '&laquo;',   '«', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#171',     '«', [rfReplaceAll]);
+
+  Result := StringReplace(Result, '&copy;',    '©', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#169;',    '©', [rfReplaceAll]);
+
+  Result := StringReplace(Result, '&reg;',     '®', [rfReplaceAll]);
+  Result := StringReplace(Result, '&#174;',    '®', [rfReplaceAll]);
+end;
 
 { THtmlToHintTextConverterStuped }
 
@@ -45,17 +82,32 @@ function THtmlToHintTextConverterStuped.Convert(AName,
   ADescription: string): string;
 var
   i,j: Integer;
+  VNameInDesc: Boolean;
 begin
   Result := '';
+
   if (length(AName)>0) then begin
-   if System.Pos('<',AName)>0 then Result:=HTML2Txt(AName)
-                                 else Result:=AName;
+    // if name found in description - dont show name
+    VNameInDesc:=(System.Pos(AName,ADescription)>0);
+    if (not VNameInDesc) then begin
+      if System.Pos('<',AName)>0 then
+        Result:=HTML2Txt(AName)
+      else
+        Result:=AName;
+    end;
   end;
+  
   if (length(ADescription)>0) then begin
-   if length(Result)>0 then Result:=Result+#13#10;
-   if System.Pos('<',ADescription)>0 then Result:=Result+HTML2Txt(ADescription)
-                                  else Result:=Result+ADescription;
+    if length(Result)>0 then
+      Result:=Result+#13#10;
+    if System.Pos('<',ADescription)>0 then
+      Result:=Result+HTML2Txt(ADescription)
+    else
+      Result:=Result+ADescription;
   end;
+
+  Result := Trim(Result);
+
   i:=1;
   j:=0;
   while (i<length(Result))and(i<>0) do begin
@@ -117,9 +169,7 @@ begin
     NoHTML   := MidStr(OrigHTML, '<', '>', True);
     OrigHTML := StringReplace(OrigHTML, NoHTML, '', [rfReplaceAll, rfIgnoreCase]);
   end;
-  OrigHTML := StringReplace(OrigHTML, '&#36;',     '$', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '#37;',      '%', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&#187;',    '?', [rfReplaceAll]);
+  OrigHTML := StupedHtmlToTextConverter(OrigHTML);
   OrigHTML := StringReplace(OrigHTML, '&aacute;',  '?', [rfReplaceAll]);
   OrigHTML := StringReplace(OrigHTML, '&atilde;',  '?', [rfReplaceAll]);
   OrigHTML := StringReplace(OrigHTML, '&ccedil;',  '?', [rfReplaceAll]);
@@ -138,15 +188,6 @@ begin
   OrigHTML := StringReplace(OrigHTML, '&Oacute;',  '?', [rfReplaceAll]);
   OrigHTML := StringReplace(OrigHTML, '&Ocirc;',   '?', [rfReplaceAll]);
   OrigHTML := StringReplace(OrigHTML, '&Otilde;',  '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&amp;',     '&', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&quot;',    '"', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&lt;',      '<', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&gt;',      '>', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&nbsp;',    ' ', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&copy;',    '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&reg;',     '?', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&raquo;',   '»', [rfReplaceAll]);
-  OrigHTML := StringReplace(OrigHTML, '&laquo;',   '«', [rfReplaceAll]);
   OrigHTML := StringReplace(OrigHTML, '&Uacute;',  '?', [rfReplaceAll]);
   OrigHTML := StringReplace(OrigHTML, '&uacute;',  '?', [rfReplaceAll]);
   OrigHTML := StringReplace(OrigHTML, '&uuml;',    '?', [rfReplaceAll]);
