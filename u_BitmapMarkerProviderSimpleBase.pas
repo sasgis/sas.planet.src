@@ -43,8 +43,6 @@ type
 
   TBitmapMarkerProviderSimpleBase = class(TBitmapMarkerProviderSimpleAbstract)
   private
-    FUseDirection: Boolean;
-    FDefaultDirection: Double;
     FMarker: IBitmapMarker;
   protected
     function CreateMarker(ASize: Integer): IBitmapMarker; virtual; abstract;
@@ -116,8 +114,6 @@ end;
 constructor TBitmapMarkerProviderSimpleBase.CreateProvider(
   AConfig: IBitmapMarkerProviderSimpleConfigStatic
 );
-var
-  VMarkerWithDirection: IBitmapMarkerWithDirection;
 begin
   inherited;
   FMarker := CreateMarker(Config.MarkerSize);
