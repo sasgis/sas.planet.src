@@ -26,6 +26,7 @@ uses
   Windows,
   SyncObjs,
   SysUtils,
+  i_TileRequest,
   i_TileRequestBuilder,
   i_MapVersionInfo,
   i_LastResponseInfo,
@@ -42,9 +43,7 @@ type
     procedure Unlock;
   protected
     function BuildRequest(
-      ATileXY: TPoint;
-      AZoom: Byte;
-      AVersionInfo: IMapVersionInfo;
+      ASource: ITileRequest;
       ALastResponseInfo: ILastResponseInfo
     ): ITileDownloadRequest; virtual; abstract;
   public

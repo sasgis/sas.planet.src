@@ -43,6 +43,7 @@ uses
   i_TileDownloader,
   i_LastResponseInfo,
   i_MapVersionConfig,
+  i_TileRequest,
   i_TileRequestBuilder,
   i_TileRequestBuilderConfig,
   i_BitmapTileSaveLoad,
@@ -63,6 +64,7 @@ uses
   i_ProxySettings,
   i_CoordConverterFactory,
   i_TileFileNameGeneratorsList,
+  i_TileDownloadRequest,
   i_VectorDataItemSimple,
   u_GlobalCahceConfig,
   u_TileStorageAbstract,
@@ -144,6 +146,7 @@ type
     function GetAbilitiesConfigStatic: IMapAbilitiesConfigStatic;
    public
     procedure SaveConfig(ALocalConfig: IConfigDataWriteProvider);
+    function GetRequest(AXY: TPoint; Azoom: byte): ITileRequest;
     function GetLink(AXY: TPoint; Azoom: byte): string;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
@@ -264,12 +267,13 @@ uses
   i_ObjectWithTTL,
   i_TileInfoBasic,
   i_ContentConverter,
-  i_TileDownloadRequest,
   u_TileDownloaderConfig,
   u_TileRequestBuilderConfig,
   u_TileRequestBuilderPascalScript,
   u_DownloadResultFactory,
   u_TileCacheSimpleGlobal,
+  u_TileDownloadRequest,
+  u_TileRequest,
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
   u_MapTypeGUIConfig,
@@ -400,15 +404,27 @@ end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
 var
-  VRequest: ITileDownloadRequest;
+  VRequest: ITileRequest;
+  VDownloadRequest: ITileDownloadRequest;
 begin
   Result := '';
   if FAbilitiesConfig.UseDownload then begin
-    FCoordConverter.CheckTilePosStrict(AXY, Azoom, True);
-    VRequest := FTileRequestBuilder.BuildRequest(AXY, AZoom, FVersionConfig.GetStatic, FLastResponseInfo);
+    VRequest := GetRequest(AXY, Azoom);
+    VDownloadRequest:= nil;
     if VRequest <> nil then begin
-      Result := VRequest.Url;
+      VDownloadRequest := FTileRequestBuilder.BuildRequest(VRequest, FLastResponseInfo);
     end;
+    if VDownloadRequest <> nil then begin
+      Result := VDownloadRequest.Url;
+    end;
+  end;
+end;
+
+function TMapType.GetRequest(AXY: TPoint; Azoom: byte): ITileRequest;
+begin
+  Result := nil;
+  if FCoordConverter.CheckTilePosStrict(AXY, Azoom, False) then begin
+    Result := TTileRequest.Create(FZmp, AXY, Azoom, FVersionConfig.GetStatic);
   end;
 end;
 
@@ -723,13 +739,13 @@ begin
         VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);
         VContentType := VResultOk.ContentType;
         VContentType := Zmp.ContentTypeSubst.GetContentType(VContentType);
-        SaveTileDownload(AEvent.TileXY, AEvent.TileZoom, VResultStream, VContentType);
+        SaveTileDownload(AEvent.Request.Tile, AEvent.Request.Zoom, VResultStream, VContentType);
       finally
         VResultStream.Free;
       end;
     end else if Supports(AEvent.DownloadResult, IDownloadResultDataNotExists) then begin
       if FDownloadConfig.IsSaveTileNotExists then begin
-        SaveTileNotExists(AEvent.TileXY, AEvent.TileZoom);
+        SaveTileNotExists(AEvent.Request.Tile, AEvent.Request.Zoom);
       end;
     end;
   end;
@@ -737,21 +753,22 @@ end;
 
 procedure TMapType.DownloadTile(AEvent: ITileDownloaderEvent);
 var
-  VTile: TPoint;
-  VZoom: Byte;
+  VDownloadChecker: IDownloadChecker;
+  VConfig: ITileDownloaderConfigStatic;
 begin
+  Assert(AEvent <> nil);
   if Assigned(AEvent) then begin
     if FAbilitiesConfig.UseDownload then begin
-      AEvent.VersionInfo := FVersionConfig.GetStatic;
       AEvent.LastResponseInfo := FLastResponseInfo;
-      VTile := AEvent.TileXY;
-      VZoom := AEvent.TileZoom;
-      FCoordConverter.CheckTilePosStrict(VTile, VZoom, True);
-      AEvent.TileXY := VTile;
-      AEvent.TileZoom := VZoom;
-      if AEvent.CheckTileSize then begin
-        AEvent.OldTileSize := FStorage.GetTileInfo(AEvent.TileXY, AEvent.TileZoom, AEvent.VersionInfo).GetSize;
-      end;
+      VConfig := FTileDownloaderConfig.GetStatic;
+      VDownloadChecker := TDownloadCheckerStuped.Create(
+        VConfig.IgnoreMIMEType,
+        VConfig.ExpectedMIMETypes,
+        VConfig.DefaultMIMEType,
+        AEvent.CheckTileSize,
+        FStorage
+      );
+      AEvent.DownloadChecker := VDownloadChecker;
       AEvent.AddToCallBackList(Self.OnTileDownload);
       FTileDownloader.Download(AEvent);
     end else begin

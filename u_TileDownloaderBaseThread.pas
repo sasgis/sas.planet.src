@@ -182,21 +182,18 @@ begin
             FWasConnectError := False;
             repeat
               if IsCanceled then begin
-                FEvent.DownloadResult := FHttpDownloader.Cancel(FEvent.Request);
+                FEvent.DownloadResult := FHttpDownloader.Cancel(FEvent.DownloadRequest);
                 Break;
               end;
               SleepIfConnectErrorOrWaitInterval(VTileDownloaderConfigStatic);
-              FEvent.Request := FTileRequestBuilder.BuildRequest(
-                FEvent.TileXY,
-                FEvent.TileZoom,
-                FEvent.VersionInfo,
+              FEvent.DownloadRequest := FTileRequestBuilder.BuildRequest(
+                FEvent.Request,
                 FEvent.LastResponseInfo
               );
               FEvent.DownloadResult := FHttpDownloader.Get(
-                FEvent.Request,
+                FEvent.DownloadRequest,
                 VTileDownloaderConfigStatic,
-                FEvent.CheckTileSize,
-                FEvent.OldTileSize
+                FEvent.DownloadChecker
               );
               Inc(VCount);
               FLastDownloadTime := GetTickCount;

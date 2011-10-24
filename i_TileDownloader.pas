@@ -29,6 +29,8 @@ uses
   i_DownloadResult,
   i_MapVersionInfo,
   i_LastResponseInfo,
+  i_DownloadChecker,
+  i_TileRequest,
   i_TileDownloadRequest,
   i_TileRequestBuilderConfig,
   i_TileDownloaderConfig;
@@ -52,34 +54,24 @@ type
 
     procedure AddToCallBackList(ACallBack: TOnDownloadCallBack);
     procedure ExecCallBackList;
-    
-    function GetRequest: ITileDownloadRequest;
-    procedure SetRequest(Value: ITileDownloadRequest);
-    property Request: ITileDownloadRequest read GetRequest write SetRequest;
+
+    function GetRequest: ITileRequest;
+    property Request: ITileRequest read GetRequest;
+
+    function GetDownloadRequest: ITileDownloadRequest;
+    procedure SetDownloadRequest(Value: ITileDownloadRequest);
+    property DownloadRequest: ITileDownloadRequest read GetDownloadRequest write SetDownloadRequest;
 
     function GetLastResponseInfo: ILastResponseInfo;
     procedure SetLastResponseInfo(AValue: ILastResponseInfo);
     property LastResponseInfo: ILastResponseInfo read GetLastResponseInfo write SetLastResponseInfo;
 
-    function GetVersionInfo: IMapVersionInfo;
-    procedure SetVersionInfo(AValue: IMapVersionInfo);
-    property VersionInfo: IMapVersionInfo read GetVersionInfo write SetVersionInfo;
-
-    function GetTileXY: TPoint;
-    procedure SetTileXY(Value: TPoint);
-    property TileXY: TPoint read GetTileXY write SetTileXY;
-
-    function GetTileZoom: Byte;
-    procedure SetTileZoom(AValue: Byte);
-    property TileZoom: Byte read GetTileZoom write SetTileZoom;
-
     function GetCheckTileSize: Boolean;
-    procedure SetCheckTileSize(AValue: Boolean);
-    property CheckTileSize: Boolean read GetCheckTileSize write SetCheckTileSize;
+    property CheckTileSize: Boolean read GetCheckTileSize;
 
-    function GetOldTileSize: Cardinal;
-    procedure SetOldTileSize(AValue: Cardinal);
-    property OldTileSize: Cardinal read GetOldTileSize write SetOldTileSize;
+    function GetDownloadChecker: IDownloadChecker;
+    procedure SetDownloadChecker(AValue: IDownloadChecker);
+    property DownloadChecker: IDownloadChecker read GetDownloadChecker write SetDownloadChecker;
 
     function GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(AValue: IDownloadResult);

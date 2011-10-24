@@ -34,6 +34,8 @@ uses
   i_LastResponseInfo,
   i_TileDownloader,
   i_TileError,
+  i_TileRequest,
+  i_DownloadChecker,
   i_DownloadResult,
   i_DownloadInfoSimple,
   i_TileDownloadRequest,
@@ -71,13 +73,11 @@ type
     FErrorLogger: ITileErrorLogger;
     FMapType: TMapType;
     FDownloadResult: IDownloadResult;
-    FRequest: ITileDownloadRequest;
+    FDownloadRequest: ITileDownloadRequest;
     FLastResponseInfo: ILastResponseInfo;
-    FVersionInfo: IMapVersionInfo;
-    FTileXY: TPoint;
-    FTileZoom: Byte;
     FCheckTileSize: Boolean;
-    FOldTileSize: Cardinal;
+    FDownloadChecker: IDownloadChecker;
+    FRequest: ITileRequest;
     FErrorString: string;
     procedure GuiSync;
   public
@@ -86,6 +86,8 @@ type
       AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger;
       AMapType: TMapType;
+      ARequest: ITileRequest;
+      ACheckTileSize: Boolean;
       ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     );
@@ -96,33 +98,17 @@ type
     procedure AddToCallBackList(ACallBack: TOnDownloadCallBack);
     procedure ExecCallBackList;
 
-    function  GetRequest: ITileDownloadRequest;
-    procedure SetRequest(AValue: ITileDownloadRequest);
+    function  GetRequest: ITileRequest;
+    function  GetDownloadRequest: ITileDownloadRequest;
+    procedure SetDownloadRequest(AValue: ITileDownloadRequest);
     function  GetLastResponseInfo: ILastResponseInfo;
     procedure SetLastResponseInfo(AValue: ILastResponseInfo);
-    function  GetVersionInfo: IMapVersionInfo;
-    procedure SetVersionInfo(AValue: IMapVersionInfo);
-    function  GetTileXY: TPoint;
-    procedure SetTileXY(AValue: TPoint);
-    function  GetTileZoom: Byte;
-    procedure SetTileZoom(AValue: Byte);
+    function GetDownloadChecker: IDownloadChecker;
+    procedure SetDownloadChecker(AValue: IDownloadChecker);
     function  GetCheckTileSize: Boolean;
-    procedure SetCheckTileSize(AValue: Boolean);
-    function  GetOldTileSize: Cardinal;
-    procedure SetOldTileSize(AValue: Cardinal);
     function  GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(AValue: IDownloadResult);
     function  GetCancelNotifier: IOperationNotifier;
-
-    property Request: ITileDownloadRequest read GetRequest write SetRequest;
-    property LastResponseInfo: ILastResponseInfo read GetLastResponseInfo write SetLastResponseInfo;
-    property VersionInfo: IMapVersionInfo read GetVersionInfo write SetVersionInfo;
-    property TileXY: TPoint read GetTileXY write SetTileXY;
-    property TileZoom: Byte read GetTileZoom write SetTileZoom;
-    property CheckTileSize: Boolean read GetCheckTileSize write SetCheckTileSize;
-    property OldTileSize: Cardinal read GetOldTileSize write SetOldTileSize;
-    property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
-    property CancelNotifier: IOperationNotifier read GetCancelNotifier;
   end;
 
 implementation
@@ -222,6 +208,8 @@ constructor TTileDownloaderEvent.Create(
   AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger;
   AMapType: TMapType;
+  ARequest: ITileRequest;
+  ACheckTileSize: Boolean;
   ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 );
@@ -233,13 +221,11 @@ begin
   FErrorLogger := AErrorLogger;
   FMapType := AMapType;
   FDownloadResult := nil;
-  FRequest := nil;
+  FRequest := ARequest;
+  FCheckTileSize := ACheckTileSize;
+  FDownloadRequest := nil;
   FLastResponseInfo := nil;
-  FVersionInfo := nil;
-  FTileXY := Types.Point(0,0);
-  FTileZoom := 0;
   FCheckTileSize := False;
-  FOldTileSize := 0;
   FErrorString := '';
   FCallBackList := TList.Create;
   FRES_TileDownloadUnexpectedError := SAS_ERR_TileDownloadUnexpectedError;
@@ -259,7 +245,6 @@ begin
       FDownloadResult := nil;
       FRequest := nil;
       FLastResponseInfo := nil;
-      FVersionInfo := nil;
     end;
   finally
     inherited Destroy;
@@ -269,7 +254,7 @@ end;
 procedure TTileDownloaderEvent.GuiSync;
 begin
   if not FEventStatus.IsCanceled and (Addr(FMapTileUpdateEvent) <> nil) then begin
-    FMapTileUpdateEvent(FMapType, FTileZoom, FTileXY);
+    FMapTileUpdateEvent(FMapType, FRequest.Zoom, FRequest.Tile);
   end;
 end;
 
@@ -314,8 +299,8 @@ begin
           FErrorLogger.LogError(
             TTileErrorInfo.Create(
               FMapType,
-              FTileZoom,
-              FTileXY,
+              FRequest.Zoom,
+              FRequest.Tile,
               VErrorString
             )
           );
@@ -367,12 +352,7 @@ begin
   end;
 end;
 
-procedure TTileDownloaderEvent.SetRequest(AValue: ITileDownloadRequest);
-begin
-  FRequest := AValue;
-end;
-
-function TTileDownloaderEvent.GetRequest: ITileDownloadRequest;
+function TTileDownloaderEvent.GetRequest: ITileRequest;
 begin
   Result := FRequest;
 end;
@@ -387,59 +367,34 @@ begin
   Result := FLastResponseInfo;
 end;
 
-procedure TTileDownloaderEvent.SetVersionInfo(AValue: IMapVersionInfo);
-begin
-  FVersionInfo := AValue;
-end;
-
-function TTileDownloaderEvent.GetVersionInfo: IMapVersionInfo;
-begin
-  Result := FVersionInfo;
-end;
-
-procedure TTileDownloaderEvent.SetTileXY(AValue: TPoint);
-begin
-  FTileXY := AValue;
-end;
-
-function TTileDownloaderEvent.GetTileXY: TPoint;
-begin
-  Result := FTileXY;
-end;
-
-procedure TTileDownloaderEvent.SetTileZoom(AValue: Byte);
-begin
-  FTileZoom := AValue;
-end;
-
-function TTileDownloaderEvent.GetTileZoom: Byte;
-begin
-  Result := FTileZoom;
-end;
-
-procedure TTileDownloaderEvent.SetCheckTileSize(AValue: Boolean);
-begin
-  FCheckTileSize := AValue;
-end;
-
 function TTileDownloaderEvent.GetCheckTileSize: Boolean;
 begin
   Result := FCheckTileSize;
 end;
 
-procedure TTileDownloaderEvent.SetOldTileSize(AValue: Cardinal);
+procedure TTileDownloaderEvent.SetDownloadChecker(AValue: IDownloadChecker);
 begin
-  FOldTileSize := AValue;
+  FDownloadChecker := AValue;
 end;
 
-function TTileDownloaderEvent.GetOldTileSize: Cardinal;
+procedure TTileDownloaderEvent.SetDownloadRequest(AValue: ITileDownloadRequest);
 begin
-  Result := FOldTileSize;
+  FDownloadRequest := AValue;
 end;
 
 procedure TTileDownloaderEvent.SetDownloadResult(AValue: IDownloadResult);
 begin
   FDownloadResult := AValue;
+end;
+
+function TTileDownloaderEvent.GetDownloadChecker: IDownloadChecker;
+begin
+  Result := FDownloadChecker;
+end;
+
+function TTileDownloaderEvent.GetDownloadRequest: ITileDownloadRequest;
+begin
+  Result := FDownloadRequest;
 end;
 
 function TTileDownloaderEvent.GetDownloadResult: IDownloadResult;

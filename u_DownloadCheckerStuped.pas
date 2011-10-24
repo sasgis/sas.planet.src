@@ -27,28 +27,35 @@ uses
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
-  i_DownloadChecker;
+  i_DownloadChecker,
+  i_TileInfoBasic,
+  u_TileStorageAbstract;
 
 type
   TDownloadCheckerStuped = class(TInterfacedObject, IDownloadChecker)
   private
-    FResultFactory: IDownloadResultFactory;
     FIgnoreMIMEType: Boolean;
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
     FCheckTileSize: Boolean;
-    FExistsFileSize: Integer;
+    FExistsTileInfo: ITileInfoBasic;
+    FStorage: TTileStorageAbstract;
+    function PrepareOldTileInfo(ARequest: IDownloadRequest): ITileInfoBasic;
+    function CheckOldTileSize(ARequest: IDownloadRequest; ANewSize: Cardinal): Boolean;
   protected
     function BeforeRequest(
+      AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest
     ): IDownloadResult;
     function AfterResponse(
+      AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest;
       var AStatusCode: Cardinal;
       var AContentType: string;
       var AResponseHead: string
     ): IDownloadResult;
     function AfterReciveData(
+      AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest;
       const ARecivedSize: Integer;
       const ARecivedBuffer: Pointer;
@@ -57,12 +64,11 @@ type
     ): IDownloadResult;
   public
     constructor Create(
-      AResultFactory: IDownloadResultFactory;
       AIgnoreMIMEType: Boolean;
       AExpectedMIMETypes: string;
       ADefaultMIMEType: string;
       ACheckTileSize: Boolean;
-      AExistsFileSize: Integer
+      AStorage: TTileStorageAbstract
     );
   end;
 
@@ -70,33 +76,61 @@ implementation
 
 uses
   SysUtils,
+  i_TileDownloadRequest,
   u_TileRequestBuilderHelpers;
 
 { TDownloadCheckerStuped }
 
 constructor TDownloadCheckerStuped.Create(
-  AResultFactory: IDownloadResultFactory;
   AIgnoreMIMEType: Boolean;
   AExpectedMIMETypes, ADefaultMIMEType: string;
   ACheckTileSize: Boolean;
-  AExistsFileSize: Integer
+  AStorage: TTileStorageAbstract
 );
 begin
-  FResultFactory := AResultFactory;
   FIgnoreMIMEType := AIgnoreMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
   FDefaultMIMEType := ADefaultMIMEType;
   FCheckTileSize := ACheckTileSize;
-  FExistsFileSize := AExistsFileSize;
+  FStorage := AStorage;
+end;
+
+function TDownloadCheckerStuped.PrepareOldTileInfo(
+  ARequest: IDownloadRequest): ITileInfoBasic;
+var
+  VTileDownloadRequest: ITileDownloadRequest;
+begin
+  if Supports(ARequest, ITileDownloadRequest, VTileDownloadRequest) then begin
+    Result := FStorage.GetTileInfo(VTileDownloadRequest.Source.Tile, VTileDownloadRequest.Source.Zoom, VTileDownloadRequest.Source.VersionInfo);
+  end;
+end;
+
+function TDownloadCheckerStuped.CheckOldTileSize(ARequest: IDownloadRequest;
+  ANewSize: Cardinal): Boolean;
+var
+  VOldTileSize: Cardinal;
+begin
+  Result := False;
+  if FExistsTileInfo = nil then begin
+    FExistsTileInfo := PrepareOldTileInfo(ARequest);
+  end;
+  if FExistsTileInfo <> nil then begin
+    VOldTileSize := FExistsTileInfo.GetSize;
+    if ANewSize = VOldTileSize then begin
+      Result := True;
+    end;
+  end;
 end;
 
 function TDownloadCheckerStuped.BeforeRequest(
+  AResultFactory: IDownloadResultFactory;
   ARequest: IDownloadRequest
 ): IDownloadResult;
 begin
 end;
 
 function TDownloadCheckerStuped.AfterResponse(
+  AResultFactory: IDownloadResultFactory;
   ARequest: IDownloadRequest;
   var AStatusCode: Cardinal;
   var AContentType: string;
@@ -112,7 +146,7 @@ begin
     if (AContentType = '') then begin
       AContentType := FDefaultMIMEType;
     end else if (Pos(AContentType, FExpectedMIMETypes) <= 0) then begin
-      Result := FResultFactory.BuildBadContentType(ARequest, AContentType, AResponseHead);
+      Result := AResultFactory.BuildBadContentType(ARequest, AContentType, AResponseHead);
       Exit;
     end;
   end;
@@ -120,8 +154,8 @@ begin
     VContentLenAsStr := GetHeaderValue(AResponseHead, 'Content-Length');
     if VContentLenAsStr <> '' then begin
       if TryStrToInt64(VContentLenAsStr, VContentLen) then begin
-        if VContentLen = FExistsFileSize then begin
-          Result := FResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);
+        if CheckOldTileSize(ARequest, VContentLen) then begin
+          Result := AResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);
           Exit;
         end;
       end;
@@ -130,6 +164,7 @@ begin
 end;
 
 function TDownloadCheckerStuped.AfterReciveData(
+  AResultFactory: IDownloadResultFactory;
   ARequest: IDownloadRequest;
   const ARecivedSize: Integer;
   const ARecivedBuffer: Pointer;
@@ -138,8 +173,8 @@ function TDownloadCheckerStuped.AfterReciveData(
 ): IDownloadResult;
 begin
   if FCheckTileSize then begin
-    if ARecivedSize = FExistsFileSize then begin
-      Result := FResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);
+    if CheckOldTileSize(ARequest, ARecivedSize) then begin
+      Result := AResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);
       Exit;
     end;
   end;

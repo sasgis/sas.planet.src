@@ -26,6 +26,7 @@ uses
   Types,
   i_ZmpInfo,
   i_DownloadRequest,
+  i_TileRequest,
   i_TileDownloadRequest;
 
 type
@@ -33,23 +34,17 @@ type
   private
     FUrl: string;
     FRequestHeader: string;
-    FZmp: IZmpInfo;
-    FTile: TPoint;
-    FZoom: Byte;
+    FSource: ITileRequest;
   protected
     function GetUrl: string;
     function GetRequestHeader: string;
   protected
-    function GetZmp: IZmpInfo;
-    function GetTile: TPoint;
-    function GetZoom: Byte;
+    function GetSource: ITileRequest;
   public
     constructor Create(
       AUrl: string;
       ARequestHeader: string;
-      AZmp: IZmpInfo;
-      ATile: TPoint;
-      AZoom: Byte
+      ASource: ITileRequest
     );
   end;
 
@@ -57,14 +52,14 @@ implementation
 
 { TTileDownloadRequest }
 
-constructor TTileDownloadRequest.Create(AUrl, ARequestHeader: string;
-  AZmp: IZmpInfo; ATile: TPoint; AZoom: Byte);
+constructor TTileDownloadRequest.Create(
+  AUrl, ARequestHeader: string;
+  ASource: ITileRequest
+);
 begin
   FUrl := AUrl;
   FRequestHeader := ARequestHeader;
-  FZmp := AZmp;
-  FTile := ATile;
-  FZoom := AZoom;
+  FSource := ASource;
 end;
 
 function TTileDownloadRequest.GetRequestHeader: string;
@@ -72,24 +67,14 @@ begin
   Result := FRequestHeader;
 end;
 
-function TTileDownloadRequest.GetTile: TPoint;
+function TTileDownloadRequest.GetSource: ITileRequest;
 begin
-  Result := FTile;
+  Result := FSource;
 end;
 
 function TTileDownloadRequest.GetUrl: string;
 begin
   Result := FUrl;
-end;
-
-function TTileDownloadRequest.GetZmp: IZmpInfo;
-begin
-  Result := FZmp;
-end;
-
-function TTileDownloadRequest.GetZoom: Byte;
-begin
-  Result := FZoom;
 end;
 
 end.

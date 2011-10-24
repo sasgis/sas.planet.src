@@ -50,9 +50,7 @@ type
       ARequest: ITileDownloadRequest;
       AResultFactory: IDownloadResultFactory;
       ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
-      ACheckTileSize: Boolean;
-      AOldTileSize: Cardinal;
-      out ADownloadChecker: IDownloadChecker
+      ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
     function OnHttpError(
       ARequest: ITileDownloadRequest;
@@ -86,8 +84,7 @@ type
     function Get(
       ARequest: ITileDownloadRequest;
       ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
-      ACheckTileSize: Boolean;
-      AOldTileSize: Cardinal
+      ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
     function Cancel(ARequest: ITileDownloadRequest): IDownloadResult;
     procedure Disconnect;
@@ -130,19 +127,14 @@ end;
 function TTileDownloaderHttp.Get(
   ARequest: ITileDownloadRequest;
   ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
-  ACheckTileSize: Boolean;
-  AOldTileSize: Cardinal
+  ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
-var
-  VDownloadChecker: IDownloadChecker;
 begin
   Result := OnBeforeRequest(
     ARequest,
     FResultFactory,
     ATileDownloaderConfigStatic,
-    ACheckTileSize,
-    AOldTileSize,
-    VDownloadChecker
+    ADownloadChecker
   );
   if Result = nil then
   try
@@ -172,7 +164,7 @@ begin
     Result := OnAfterResponse(
       ARequest,
       FResultFactory,
-      VDownloadChecker
+      ADownloadChecker
     );
   end;
 end;
@@ -197,9 +189,7 @@ function TTileDownloaderHttp.OnBeforeRequest(
   ARequest: ITileDownloadRequest;
   AResultFactory: IDownloadResultFactory;
   ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
-  ACheckTileSize: Boolean;
-  AOldTileSize: Cardinal;
-  out ADownloadChecker: IDownloadChecker
+  ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
 begin
   if FAntiBan <> nil then begin
@@ -215,16 +205,7 @@ begin
     ATileDownloaderConfigStatic.InetConfigStatic
   );
 
-  ADownloadChecker := TDownloadCheckerStuped.Create(
-    AResultFactory,
-    ATileDownloaderConfigStatic.IgnoreMIMEType,
-    ATileDownloaderConfigStatic.ExpectedMIMETypes,
-    ATileDownloaderConfigStatic.DefaultMIMEType,
-    ACheckTileSize,
-    AOldTileSize
-  );
-
-  Result := ADownloadChecker.BeforeRequest(ARequest);
+  Result := ADownloadChecker.BeforeRequest(AResultFactory, ARequest);
 end;
 
 function TTileDownloaderHttp.OnHttpError(
@@ -292,6 +273,7 @@ begin
     VStatusCode := StrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
       Result := ADownloadChecker.AfterResponse(
+        AResultFactory,
         ARequest,
         VStatusCode,
         VContentType,
@@ -299,6 +281,7 @@ begin
       );
       if Result = nil then begin
         Result := ADownloadChecker.AfterReciveData(
+          AResultFactory,
           ARequest,
           FHttpResponseBody.Size,
           FHttpResponseBody.Memory,

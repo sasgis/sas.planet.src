@@ -34,6 +34,7 @@ uses
   i_ConfigDataProvider,
   i_CoordConverter,
   i_ZmpInfo,
+  i_TileRequest,
   i_MapVersionInfo,
   i_LanguageManager,
   i_CoordConverterFactory,
@@ -92,9 +93,7 @@ type
     procedure OnLangChange(Sender: TObject);
   protected
     function BuildRequest(
-      ATileXY: TPoint;
-      AZoom: Byte;
-      AVersionInfo: IMapVersionInfo;
+      ASource: ITileRequest;
       ALastResponseInfo: ILastResponseInfo
     ): ITileDownloadRequest; override;
   public
@@ -163,13 +162,14 @@ begin
   InterlockedIncrement(FLangChangeCount);
 end;
 
-function TTileRequestBuilderPascalScript.BuildRequest(ATileXY: TPoint;
-  AZoom: Byte; AVersionInfo: IMapVersionInfo;
-  ALastResponseInfo: ILastResponseInfo): ITileDownloadRequest;
+function TTileRequestBuilderPascalScript.BuildRequest(
+  ASource: ITileRequest;
+  ALastResponseInfo: ILastResponseInfo
+): ITileDownloadRequest;
 begin
   Lock;
   try
-    SetVar(ALastResponseInfo, AVersionInfo, ATileXY, AZoom);
+    SetVar(ALastResponseInfo, ASource.VersionInfo, ASource.Tile, ASource.Zoom);
     try
       FExec.RunScript;
     except on E: Exception do
@@ -180,9 +180,7 @@ begin
         TTileDownloadRequest.Create(
           FpResultUrl.Data,
           FpRequestHead.Data,
-          FZmp,
-          ATileXY,
-          AZoom
+          ASource
         );
     end;
     FScriptBuffer := FpScriptBuffer.Data;

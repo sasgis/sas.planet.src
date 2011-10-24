@@ -283,12 +283,12 @@ var
 begin
   try
     if Supports(AEvent.DownloadResult, IDownloadResultOk, VResultOk) then begin
-      FLastSuccessfulPoint := AEvent.TileXY;
+      FLastSuccessfulPoint := AEvent.Request.Tile;
       FGoToNextTile := True;
       FDownloadInfo.Add(1, VResultOk.Size);
       FLog.WriteText('(Ok!)', 0);
     end else if Supports(AEvent.DownloadResult, IDownloadResultNotNecessary) then begin
-      FLastSuccessfulPoint := AEvent.TileXY;
+      FLastSuccessfulPoint := AEvent.Request.Tile;
       FLog.WriteText(FRES_FileBeCreateLen, 0);
       FGoToNextTile := True;
     end else if Supports(AEvent.DownloadResult, IDownloadResultProxyError) then begin

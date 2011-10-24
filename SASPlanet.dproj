@@ -310,6 +310,7 @@
     <DCCReference Include="i_TileIterator.pas" />
     <DCCReference Include="i_TileObjCache.pas" />
     <DCCReference Include="i_TilePostDownloadCropConfig.pas" />
+    <DCCReference Include="i_TileRequest.pas" />
     <DCCReference Include="i_TileRequestBuilder.pas" />
     <DCCReference Include="i_TileRequestBuilderConfig.pas" />
     <DCCReference Include="i_TileStorage.pas" />
@@ -749,6 +750,7 @@
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="u_TileIteratorStuped.pas" />
     <DCCReference Include="u_TilePostDownloadCropConfigStatic.pas" />
+    <DCCReference Include="u_TileRequest.pas" />
     <DCCReference Include="u_TileRequestBuilder.pas" />
     <DCCReference Include="u_TileRequestBuilderConfig.pas" />
     <DCCReference Include="u_TileRequestBuilderHelpers.pas" />

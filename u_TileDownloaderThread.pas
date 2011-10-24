@@ -32,6 +32,7 @@ uses
   i_TileError,
   i_TileDownloader,
   i_TileDownloadRequest,
+  i_TileRequest,
   u_MapType,
   u_TileDownloaderEvent;
 
@@ -164,7 +165,7 @@ end;
 
 procedure TTileDownloaderThread.OnTileDownload(AEvent: ITileDownloaderEvent);
 var
-  VRequest: ITileDownloadRequest;
+  VRequest: ITileRequest;
 begin
   ReleaseSemaphore(FSemaphore, 1, nil);
   VRequest := AEvent.Request;
@@ -191,13 +192,12 @@ begin
               FMapTileUpdateEvent,
               FErrorLogger,
               FMapType,
+              FMapType.GetRequest(ATile, AZoom),
+              ACheckExistsTileSize,
               ACancelNotifier,
               AOperationID
             );
   Result.AddToCallBackList(ACallBack);
-  Result.TileXY := ATile;
-  Result.TileZoom := AZoom;
-  Result.CheckTileSize := ACheckExistsTileSize;
 end;
 
 procedure TTileDownloaderThread.Download(

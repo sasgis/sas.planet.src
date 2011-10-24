@@ -52,6 +52,8 @@ uses
   i_ConfigSaveLoadStrategy in 'i_ConfigSaveLoadStrategy.pas',
   u_ConfigSaveLoadStrategyBasicUseProvider in 'u_ConfigSaveLoadStrategyBasicUseProvider.pas',
   u_ConfigSaveLoadStrategyBasicProviderSubItem in 'u_ConfigSaveLoadStrategyBasicProviderSubItem.pas',
+  i_TileRequest in 'i_TileRequest.pas',
+  u_TileRequest in 'u_TileRequest.pas',
   i_TileError in 'i_TileError.pas',
   u_TileErrorInfo in 'u_TileErrorInfo.pas',
   i_TileErrorLogProviedrStuped in 'i_TileErrorLogProviedrStuped.pas',
