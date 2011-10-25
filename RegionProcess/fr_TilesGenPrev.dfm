@@ -192,25 +192,48 @@ object frTilesGenPrev: TfrTilesGenPrev
         Align = alTop
         Caption = 'Overwrite existing tiles'
         TabOrder = 2
+        OnClick = chkReplaceClick
       end
       object chkSaveFullOnly: TCheckBox
         Left = 3
-        Top = 108
+        Top = 131
         Width = 331
         Height = 17
         Align = alTop
         Caption = 'Save only complete tiles'
-        TabOrder = 3
+        TabOrder = 4
       end
       object chkFromPrevZoom: TCheckBox
         Left = 3
-        Top = 125
+        Top = 148
         Width = 331
         Height = 17
         Align = alTop
         Caption = 'Generate each zoom from previous one'
-        TabOrder = 4
+        TabOrder = 5
         OnClick = chkFromPrevZoomClick
+      end
+      object pnlUsePrevTiles: TPanel
+        Left = 3
+        Top = 108
+        Width = 331
+        Height = 23
+        Align = alTop
+        AutoSize = True
+        BevelOuter = bvNone
+        Padding.Left = 15
+        TabOrder = 3
+        object chkUsePrevTiles: TCheckBox
+          AlignWithMargins = True
+          Left = 18
+          Top = 3
+          Width = 310
+          Height = 17
+          Align = alTop
+          Caption = 'Use tiles from current level if upper tiles not exist'
+          Enabled = False
+          TabOrder = 0
+        end
       end
     end
   end

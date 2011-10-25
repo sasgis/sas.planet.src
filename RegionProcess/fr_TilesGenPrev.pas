@@ -41,11 +41,13 @@ type
     chkReplace: TCheckBox;
     chkSaveFullOnly: TCheckBox;
     chkFromPrevZoom: TCheckBox;
+    chkUsePrevTiles: TCheckBox;
     Bevel1: TBevel;
     procedure cbbFromZoomChange(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
     procedure chkFromPrevZoomClick(Sender: TObject);
     procedure chklstZoomsClickCheck(Sender: TObject);
+    procedure chkReplaceClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -158,6 +160,11 @@ begin
   end else begin
     chkAllZooms.State := cbGrayed;
   end;
+end;
+
+procedure TfrTilesGenPrev.chkReplaceClick(Sender: TObject);
+begin
+ chkUsePrevTiles.Enabled:= chkReplace.Checked;
 end;
 
 constructor TfrTilesGenPrev.Create(
