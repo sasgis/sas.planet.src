@@ -587,7 +587,7 @@ object frmMain: TfrmMain
             Images = MenusImageList
             RadioItem = True
             OnClick = NFillMode3Click
-            Caption = 'Existing Files Age Gradient'
+            Caption = 'Mark Existing Tiles Within Age Gradient'
             Hint = ''
           end
           object TBXSeparatorItem21: TTBXSeparatorItem
