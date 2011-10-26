@@ -188,7 +188,7 @@ function TTileDownloaderHttp.OnBeforeRequest(
 begin
   Result := ADownloadChecker.BeforeRequest(AResultFactory, ARequest);
 
-  if Result <> nil then begin
+  if Result = nil then begin
     FHttpResponseHeader.Clear;
     FHttpResponseBody.Clear;
 
