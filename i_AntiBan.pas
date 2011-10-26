@@ -36,7 +36,11 @@ type
     );
     function PostCheckDownload(
       AResultFactory: IDownloadResultFactory;
-      ADownloadResult: IDownloadResult
+      ARequest: IDownloadRequest;
+      const ARecivedSize: Integer;
+      const ARecivedBuffer: Pointer;
+      var AStatusCode: Cardinal;
+      var AResponseHead: string
     ): IDownloadResult;
   end;
 
