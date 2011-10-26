@@ -186,12 +186,12 @@ function TTileDownloaderHttp.OnBeforeRequest(
   ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
 begin
+  FHttpResponseHeader.Clear;
+  FHttpResponseBody.Clear;
+
   Result := ADownloadChecker.BeforeRequest(AResultFactory, ARequest);
 
   if Result = nil then begin
-    FHttpResponseHeader.Clear;
-    FHttpResponseBody.Clear;
-
     PreConfigHttpClient(
       ATileDownloaderConfigStatic.DefaultMIMEType,
       ARequest.RequestHeader,
