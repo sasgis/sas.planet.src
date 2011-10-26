@@ -315,13 +315,6 @@ begin
         VStatusCode
       );
     end;
-//    if FAntiBan <> nil then begin
-//      Result := FAntiBan.PostCheckDownload(
-//        AResultFactory,
-//        ARequest
-//        Result
-//      );
-//    end;
   end;
 end;
 
