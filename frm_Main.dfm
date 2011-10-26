@@ -472,6 +472,12 @@ object frmMain: TfrmMain
             Caption = 'Search Results'
             Hint = ''
           end
+          object TBXVisibilityToggleItem3: TTBXVisibilityToggleItem
+            Control = FillDates
+            Images = MenusImageList
+            Caption = 'Time Interval'
+            Hint = ''
+          end
           object NSensors: TTBXSubmenuItem
             AutoCheck = True
             DropdownCombo = True
@@ -581,19 +587,19 @@ object frmMain: TfrmMain
             Images = MenusImageList
             RadioItem = True
             OnClick = NFillMode3Click
-            Caption = 'FileAge Gradient'
+            Caption = 'Existing Files Age Gradient'
             Hint = ''
           end
           object TBXSeparatorItem21: TTBXSeparatorItem
             Caption = ''
             Hint = ''
           end
-          object NFillToolBar: TTBXItem
+          object NShowFillDates: TTBXItem
             Tag = 99
             GroupIndex = 1
             Images = MenusImageList
-            OnClick = NFillToolBarClick
-            Caption = 'Show Time Interval'
+            OnClick = NShowFillDatesClick
+            Caption = 'Mark Existing Tiles At Interval Only'
             Hint = ''
           end
         end
@@ -1171,14 +1177,14 @@ object frmMain: TfrmMain
         EditCaption = 'Search'
       end
     end
-    object FillToolBar: TTBXToolbar
+    object FillDates: TTBXToolbar
       Left = 629
       Top = 0
       DefaultDock = TBDock
       DockPos = 643
       TabOrder = 7
       Visible = False
-      Caption = 'FillToolBar'
+      Caption = 'FillDates'
       object TBControlItem7: TTBControlItem
         Control = Label1
         Caption = ''
@@ -1209,9 +1215,9 @@ object frmMain: TfrmMain
       object Label2: TLabel
         Left = 123
         Top = 4
-        Width = 15
+        Width = 18
         Height = 13
-        Caption = 'To '
+        Caption = ' To '
       end
       object DateTimePicker1: TDateTimePicker
         Left = 42

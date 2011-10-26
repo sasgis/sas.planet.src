@@ -396,8 +396,8 @@ type
     NFillMode2: TTBXItem;
     NFillMode1: TTBXItem;
     TBXSeparatorItem21: TTBXSeparatorItem;
-    NFillToolBar: TTBXItem;
-    FillToolBar: TTBXToolbar;
+    NShowFillDates: TTBXItem;
+    FillDates: TTBXToolbar;
     TBControlItem7: TTBControlItem;
     TBControlItem6: TTBControlItem;
     TBControlItem8: TTBControlItem;
@@ -406,6 +406,7 @@ type
     Label2: TLabel;
     DateTimePicker1: TDateTimePicker;
     DateTimePicker2: TDateTimePicker;
+    TBXVisibilityToggleItem3: TTBXVisibilityToggleItem;
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -542,7 +543,7 @@ type
     procedure NFillMode1Click(Sender: TObject);
     procedure NFillMode2Click(Sender: TObject);
     procedure NFillMode3Click(Sender: TObject);
-    procedure NFillToolBarClick(Sender: TObject);
+    procedure NShowFillDatesClick(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
     procedure DateTimePicker2Change(Sender: TObject);
   private
@@ -1350,7 +1351,6 @@ begin
       FConfig.MainGeoCoderConfig.SearchHistory.GetChangeNotifier
     );
 
-    FillToolBar.Visible := FConfig.LayersConfig.FillingMapLayerConfig.FilterMode;
     DateTimePicker1.DateTime := FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay;
     DateTimePicker2.DateTime := FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay;
 
@@ -2954,8 +2954,7 @@ begin
   if(VFillMode=fmGradient) then begin
     NFillMode3.Checked :=True;
   end;
-  NFillToolBar.Checked := VFilterMode;
-  FillToolBar.Visible := VFilterMode;
+  NShowFillDates.Checked := VFilterMode;
   DateTimePicker1.DateTime := VFillFirstDay;
   DateTimePicker2.DateTime := VFillLastDay;
 end;
@@ -2990,19 +2989,18 @@ begin
   end;
 end;
 
-procedure TfrmMain.NFillToolBarClick(Sender: TObject);
+procedure TfrmMain.NShowFillDatesClick(Sender: TObject);
 var
   VFilter: Boolean;
 begin
-  VFilter := not NFillToolBar.Checked;
+  VFilter := not NShowFillDates.Checked;
   FConfig.LayersConfig.FillingMapLayerConfig.LockWrite;
   try
     FConfig.LayersConfig.FillingMapLayerConfig.FilterMode :=  VFilter;
   finally
     FConfig.LayersConfig.FillingMapLayerConfig.UnlockWrite;
   end;
-  NFillToolBar.Checked := VFilter;
-  FillToolBar.Visible := VFilter;
+  NShowFillDates.Checked := VFilter;
 end;
 
 procedure TfrmMain.DateTimePicker1Change(Sender: TObject);

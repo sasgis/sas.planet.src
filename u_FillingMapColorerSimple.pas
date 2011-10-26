@@ -37,6 +37,7 @@ implementation
 
 uses
   Types,
+  SysUtils,
   DateUtils;
 
 { TFillingMapColorerSimple }
@@ -55,8 +56,13 @@ begin
   FTNEColor := ATNEColor;
   FFillMode := AFillMode;
   FFilterMode := AFilterMode;
-  FFillFirstDay := AFillFirstDay;
-  FFillLastDay := AFillLastDay;
+  if FFilterMode then begin
+    FFillFirstDay := AFillFirstDay;
+    FFillLastDay := AFillLastDay;
+  end else begin
+    FFillFirstDay := EncodeDate(2000,1,1);
+    FFillLastDay := DateOf(Now);
+  end;
   FGradientDays:=Trunc(FFillLastDay + 1.0 - FFillFirstDay);
 end;
 
