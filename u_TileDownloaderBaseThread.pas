@@ -27,7 +27,6 @@ uses
   SysUtils,
   Classes,
   SyncObjs,
-  i_AntiBan,
   i_JclNotify,
   i_OperationNotifier,
   i_InetConfig,
@@ -71,8 +70,7 @@ type
       AOnTTL: TThreadTTLEvent;
       AParentSemaphore: THandle;
       ATileRequestBuilder: ITileRequestBuilder;
-      ATileDownloaderConfig: ITileDownloaderConfig;
-      AAntiBan: IAntiBan
+      ATileDownloaderConfig: ITileDownloaderConfig
     );
     destructor Destroy; override;
     procedure Terminate; overload;
@@ -96,8 +94,7 @@ constructor TTileDownloaderBaseThread.Create(
   AOnTTL: TThreadTTLEvent;
   AParentSemaphore: THandle;
   ATileRequestBuilder: ITileRequestBuilder;
-  ATileDownloaderConfig: ITileDownloaderConfig;
-  AAntiBan: IAntiBan
+  ATileDownloaderConfig: ITileDownloaderConfig
 );
 begin
   FCancelEvent := TEvent.Create;
@@ -105,7 +102,7 @@ begin
   FIsCanceled := False;
   FSessionCS := TCriticalSection.Create;
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
-  FHttpDownloader := TTileDownloaderHttp.Create(AResultFactory, AAntiBan);
+  FHttpDownloader := TTileDownloaderHttp.Create(AResultFactory);
   FWasConnectError := False;
   FOnTTLEvent := AOnTTL;
   FParentSemaphore := AParentSemaphore;

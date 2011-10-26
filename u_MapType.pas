@@ -52,6 +52,7 @@ uses
   i_DownloadResultFactory,
   i_MemObjCache,
   i_InetConfig,
+  i_AntiBan,
   i_DownloadResultTextProvider,
   i_ImageResamplerConfig,
   i_ContentTypeManager,
@@ -100,7 +101,8 @@ type
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
     FTileDownloader: TTileDownloaderFrontEnd;
-    
+    FAntiBan: IAntiBan;
+
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
@@ -267,6 +269,7 @@ uses
   i_ObjectWithTTL,
   i_TileInfoBasic,
   i_ContentConverter,
+  u_AntiBanStuped,
   u_TileDownloaderConfig,
   u_TileRequestBuilderConfig,
   u_TileRequestBuilderPascalScript,
@@ -365,6 +368,7 @@ begin
           AInvisibleBrowser
         );
         FAbilitiesConfig.UseDownload := FTileDownloader.Enabled;
+        FAntiBan := TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider);
       except
         if ExceptObject <> nil then begin
           ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
@@ -762,6 +766,7 @@ begin
       AEvent.LastResponseInfo := FLastResponseInfo;
       VConfig := FTileDownloaderConfig.GetStatic;
       VDownloadChecker := TDownloadCheckerStuped.Create(
+        FAntiBan,
         VConfig.IgnoreMIMEType,
         VConfig.ExpectedMIMETypes,
         VConfig.DefaultMIMEType,

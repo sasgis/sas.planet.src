@@ -29,7 +29,6 @@ uses
   ALHTTPCommon,
   ALHttpClient,
   ALWinInetHttpClient,
-  i_AntiBan,
   i_InetConfig,
   i_ProxySettings,
   i_DownloadResult,
@@ -45,7 +44,6 @@ type
     FHttpResponseHeader: TALHTTPResponseHeader;
     FHttpResponseBody: TMemoryStream;
     FResultFactory: IDownloadResultFactory;
-    FAntiBan: IAntiBan;
     function OnBeforeRequest(
       ARequest: IDownloadRequest;
       AResultFactory: IDownloadResultFactory;
@@ -80,8 +78,7 @@ type
     function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean;
   public
     constructor Create(
-      AResultFactory: IDownloadResultFactory;
-      AAntiBan: IAntiBan
+      AResultFactory: IDownloadResultFactory
     );
     destructor Destroy; override;
     function Get(
@@ -101,8 +98,7 @@ uses
 { TTileDownloaderHttp }
 
 constructor TTileDownloaderHttp.Create(
-  AResultFactory: IDownloadResultFactory;
-  AAntiBan: IAntiBan
+  AResultFactory: IDownloadResultFactory
 );
 begin
   inherited Create;
@@ -110,7 +106,6 @@ begin
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
   FHttpResponseBody := TMemoryStream.Create;
   FResultFactory := AResultFactory;
-  FAntiBan := AAntiBan;
 end;
 
 destructor TTileDownloaderHttp.Destroy;
@@ -120,7 +115,6 @@ begin
   FreeAndNil(FHttpResponseBody);
   FreeAndNil(FHttpClient);
   FResultFactory := nil;
-  FAntiBan := nil;
   inherited Destroy;
 end;
 
@@ -192,20 +186,18 @@ function TTileDownloaderHttp.OnBeforeRequest(
   ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
 begin
-  if FAntiBan <> nil then begin
-    FAntiBan.PreDownload(ARequest);
-  end;
-
-  FHttpResponseHeader.Clear;
-  FHttpResponseBody.Clear;
-
-  PreConfigHttpClient(
-    ATileDownloaderConfigStatic.DefaultMIMEType,
-    ARequest.RequestHeader,
-    ATileDownloaderConfigStatic.InetConfigStatic
-  );
-
   Result := ADownloadChecker.BeforeRequest(AResultFactory, ARequest);
+
+  if Result <> nil then begin
+    FHttpResponseHeader.Clear;
+    FHttpResponseBody.Clear;
+
+    PreConfigHttpClient(
+      ATileDownloaderConfigStatic.DefaultMIMEType,
+      ARequest.RequestHeader,
+      ATileDownloaderConfigStatic.InetConfigStatic
+    );
+  end;
 end;
 
 function TTileDownloaderHttp.OnHttpError(
@@ -323,12 +315,13 @@ begin
         VStatusCode
       );
     end;
-    if FAntiBan <> nil then begin
-      Result := FAntiBan.PostCheckDownload(
-        AResultFactory,
-        Result
-      );
-    end;
+//    if FAntiBan <> nil then begin
+//      Result := FAntiBan.PostCheckDownload(
+//        AResultFactory,
+//        ARequest
+//        Result
+//      );
+//    end;
   end;
 end;
 

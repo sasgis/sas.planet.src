@@ -27,7 +27,6 @@ uses
   Classes,
   SysUtils,
   SyncObjs,
-  i_AntiBan,
   i_CoordConverterFactory,
   i_DownloadResultFactory,
   i_LanguageManager,
@@ -51,7 +50,6 @@ type
     FEnabled: Boolean;
     FZmp: IZmpInfo;
     FResultFactory: IDownloadResultFactory;
-    FAntiBan: IAntiBan;
     FMaxConnectToServerCount: Cardinal;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
@@ -106,7 +104,6 @@ begin
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileRequestBuilderConfig := ATileRequestBuilderConfig;
   FZmp := AZmp;
-  FAntiBan := TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider);
   FCoordConverterFactory := ACoordConverterFactory;
   FLangManager := ALangManager;
   FCS := TCriticalSection.Create;
@@ -145,7 +142,6 @@ begin
       // ignore all
     end;
     SetLength(FDownloadesList, 0);
-    FAntiBan := nil;
     FZmp := nil;
     FTileRequestBuilderConfig := nil;
     FTileDownloaderConfig := nil;
@@ -196,8 +192,7 @@ function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread
         Self.OnThreadTTL,
         FSemaphore,
         FDownloadesList[I].TileRequestBuilder,
-        FTileDownloaderConfig,
-        FAntiBan
+        FTileDownloaderConfig
       );
     FDownloadesList[I].ThreadID := FDownloadesList[I].DownloaderThread.ThreadID;
     Result := FDownloadesList[I].DownloaderThread;

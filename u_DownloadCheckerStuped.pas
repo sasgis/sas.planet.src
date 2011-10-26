@@ -28,6 +28,7 @@ uses
   i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadChecker,
+  i_AntiBan,
   i_TileInfoBasic,
   u_TileStorageAbstract;
 
@@ -40,6 +41,7 @@ type
     FCheckTileSize: Boolean;
     FExistsTileInfo: ITileInfoBasic;
     FStorage: TTileStorageAbstract;
+    FAntiBan: IAntiBan;
     function PrepareOldTileInfo(ARequest: IDownloadRequest): ITileInfoBasic;
     function CheckOldTileSize(ARequest: IDownloadRequest; ANewSize: Cardinal): Boolean;
   protected
@@ -64,6 +66,7 @@ type
     ): IDownloadResult;
   public
     constructor Create(
+      AAntiBan: IAntiBan;
       AIgnoreMIMEType: Boolean;
       AExpectedMIMETypes: string;
       ADefaultMIMEType: string;
@@ -82,12 +85,14 @@ uses
 { TDownloadCheckerStuped }
 
 constructor TDownloadCheckerStuped.Create(
+  AAntiBan: IAntiBan;
   AIgnoreMIMEType: Boolean;
   AExpectedMIMETypes, ADefaultMIMEType: string;
   ACheckTileSize: Boolean;
   AStorage: TTileStorageAbstract
 );
 begin
+  FAntiBan := AAntiBan;
   FIgnoreMIMEType := AIgnoreMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
   FDefaultMIMEType := ADefaultMIMEType;
@@ -127,6 +132,9 @@ function TDownloadCheckerStuped.BeforeRequest(
   ARequest: IDownloadRequest
 ): IDownloadResult;
 begin
+  if FAntiBan <> nil then begin
+    FAntiBan.PreDownload(ARequest);
+  end;
 end;
 
 function TDownloadCheckerStuped.AfterResponse(
@@ -177,6 +185,16 @@ begin
       Result := AResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);
       Exit;
     end;
+  end;
+  if FAntiBan <> nil then begin
+    Result := FAntiBan.PostCheckDownload(
+      AResultFactory,
+      ARequest,
+      ARecivedSize,
+      ARecivedBuffer,
+      AStatusCode,
+      AResponseHead
+    );
   end;
 end;
 

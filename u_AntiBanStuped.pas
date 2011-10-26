@@ -43,9 +43,6 @@ type
     FBanCS: TCriticalSection;
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan();
-    function CheckIsBan(
-      ADownloadResult: IDownloadResult
-    ): Boolean;
     procedure ExecOnBan(ALastUrl: String);
   public
     constructor Create(
@@ -58,7 +55,11 @@ type
     );
     function PostCheckDownload(
       AResultFactory: IDownloadResultFactory;
-      ADownloadResult: IDownloadResult
+      ARequest: IDownloadRequest;
+      const ARecivedSize: Integer;
+      const ARecivedBuffer: Pointer;
+      var AStatusCode: Cardinal;
+      var AResponseHead: string
     ): IDownloadResult;
   end;
 
@@ -105,13 +106,6 @@ begin
     VUrl := FPreloadPage;
   end;
   FInvisibleBrowser.NavigateAndWait(VUrl);
-end;
-
-function TAntiBanStuped.CheckIsBan(
-  ADownloadResult: IDownloadResult
-): Boolean;
-begin
-  Result := false;
 end;
 
 constructor TAntiBanStuped.Create(
@@ -171,16 +165,20 @@ end;
 
 function TAntiBanStuped.PostCheckDownload(
   AResultFactory: IDownloadResultFactory;
-  ADownloadResult: IDownloadResult
+  ARequest: IDownloadRequest;
+  const ARecivedSize: Integer;
+  const ARecivedBuffer: Pointer;
+  var AStatusCode: Cardinal;
+  var AResponseHead: string
 ): IDownloadResult;
 begin
-  Result := ADownloadResult;
-  if CheckIsBan(ADownloadResult) then begin
-    Result := AResultFactory.BuildBanned(ADownloadResult.Request, 'X3');
+  Result := nil;
+  if false then begin // TODO: сделать хоть какую-то проверку
+    Result := AResultFactory.BuildBanned(ARequest, 'X3');
   end;
 
   if Supports(Result, IDownloadResultBanned) then begin
-    ExecOnBan(ADownloadResult.Request.Url);
+    ExecOnBan(ARequest.Url);
   end else if Supports(Result, IDownloadResultOk) then begin
     FBanCS.Acquire;
     FBanFlag := True;
