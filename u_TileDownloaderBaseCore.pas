@@ -28,7 +28,6 @@ uses
   SysUtils,
   SyncObjs,
   i_AntiBan,
-  i_ConfigDataProvider,
   i_CoordConverterFactory,
   i_DownloadResultFactory,
   i_LanguageManager,
@@ -65,6 +64,8 @@ type
     procedure UnLock;
     function CreateNewTileRequestBuilder: ITileRequestBuilder;
     function TryGetDownloadThread: TTileDownloaderBaseThread;
+    procedure OnThreadTTL(Sender: TObject; AThreadID: Cardinal);
+    function GetIsEnabled: Boolean;
   public
     constructor Create(
       ATileDownloaderConfig: ITileDownloaderConfig;
@@ -75,25 +76,16 @@ type
       AInvisibleBrowser: IInvisibleBrowser
     );
     destructor Destroy; override;
-    function GetIsEnabled: Boolean;
     procedure Download(AEvent: ITileDownloaderEvent);
-    procedure OnThreadTTL(Sender: TObject; AThreadID: Cardinal);
-    property Enabled: Boolean read GetIsEnabled;
   end;
 
 implementation
 
 uses
   Dialogs,
-  IniFiles,
   u_AntiBanStuped,
   u_GlobalState,
-  u_ConfigDataProviderByKaZip,
-  u_ConfigDataProviderByFolder,
-  u_ConfigDataProviderByIniFile,
-  u_ConfigDataProviderZmpComplex,
   u_DownloadResultFactory,
-  u_TileRequestBuilder,
   u_TileRequestBuilderPascalScript,
   u_ResStrings;
 

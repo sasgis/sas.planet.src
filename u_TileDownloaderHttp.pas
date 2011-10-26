@@ -33,7 +33,7 @@ uses
   i_InetConfig,
   i_ProxySettings,
   i_DownloadResult,
-  i_TileDownloadRequest,
+  i_DownloadRequest,
   i_TileDownloaderConfig,
   i_DownloadResultFactory,
   i_DownloadChecker;
@@ -47,24 +47,24 @@ type
     FResultFactory: IDownloadResultFactory;
     FAntiBan: IAntiBan;
     function OnBeforeRequest(
-      ARequest: ITileDownloadRequest;
+      ARequest: IDownloadRequest;
       AResultFactory: IDownloadResultFactory;
       ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
     function OnHttpError(
-      ARequest: ITileDownloadRequest;
+      ARequest: IDownloadRequest;
       AResultFactory: IDownloadResultFactory;
       AStatusCode: Cardinal;
       const AMessage: string
     ): IDownloadResult;
     function OnOSError(
-      ARequest: ITileDownloadRequest;
+      ARequest: IDownloadRequest;
       AResultFactory: IDownloadResultFactory;
       AErrorCode: Cardinal
     ): IDownloadResult;
     function OnAfterResponse(
-      ARequest: ITileDownloadRequest;
+      ARequest: IDownloadRequest;
       AResultFactory: IDownloadResultFactory;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
@@ -85,21 +85,18 @@ type
     );
     destructor Destroy; override;
     function Get(
-      ARequest: ITileDownloadRequest;
+      ARequest: IDownloadRequest;
       ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
-    function Cancel(ARequest: ITileDownloadRequest): IDownloadResult;
+    function Cancel(ARequest: IDownloadRequest): IDownloadResult;
     procedure Disconnect;
   end;
 
 implementation
 
 uses
-  WinInet,
-  u_GlobalState,
-  u_DownloadResultFactory,
-  u_DownloadCheckerStuped;
+  WinInet;
 
 { TTileDownloaderHttp }
 
@@ -128,7 +125,7 @@ begin
 end;
 
 function TTileDownloaderHttp.Get(
-  ARequest: ITileDownloadRequest;
+  ARequest: IDownloadRequest;
   ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
   ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
@@ -172,7 +169,7 @@ begin
   end;
 end;
 
-function TTileDownloaderHttp.Cancel(ARequest: ITileDownloadRequest): IDownloadResult;
+function TTileDownloaderHttp.Cancel(ARequest: IDownloadRequest): IDownloadResult;
 begin
   try
     Disconnect;
@@ -189,7 +186,7 @@ begin
 end;
 
 function TTileDownloaderHttp.OnBeforeRequest(
-  ARequest: ITileDownloadRequest;
+  ARequest: IDownloadRequest;
   AResultFactory: IDownloadResultFactory;
   ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
   ADownloadChecker: IDownloadChecker
@@ -212,7 +209,7 @@ begin
 end;
 
 function TTileDownloaderHttp.OnHttpError(
-  ARequest: ITileDownloadRequest;
+  ARequest: IDownloadRequest;
   AResultFactory: IDownloadResultFactory;
   AStatusCode: Cardinal;
   const AMessage: string
@@ -235,7 +232,7 @@ begin
 end;
 
 function TTileDownloaderHttp.OnOSError(
-  ARequest: ITileDownloadRequest;
+  ARequest: IDownloadRequest;
   AResultFactory: IDownloadResultFactory;
   AErrorCode: Cardinal
 ): IDownloadResult;
@@ -261,7 +258,7 @@ begin
 end;
 
 function TTileDownloaderHttp.OnAfterResponse(
-  ARequest: ITileDownloadRequest;
+  ARequest: IDownloadRequest;
   AResultFactory: IDownloadResultFactory;
   ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
