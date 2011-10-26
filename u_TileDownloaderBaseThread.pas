@@ -31,6 +31,7 @@ uses
   i_JclNotify,
   i_OperationNotifier,
   i_InetConfig,
+  i_DownloadResultFactory,
   i_TileRequestBuilder,
   i_TileDownloader,
   i_TileDownloaderConfig,
@@ -61,19 +62,22 @@ type
     procedure SetIsCanceled;
     procedure SetNotCanceled;
     procedure SleepCancelable(ATime: Cardinal);
+    procedure OnCancelEvent(Sender: TObject);
   protected
     procedure Execute; override;
   public
-    constructor Create(AAntiBan: IAntiBan);
+    constructor Create(
+      AResultFactory: IDownloadResultFactory;
+      AOnTTL: TThreadTTLEvent;
+      AParentSemaphore: THandle;
+      ATileRequestBuilder: ITileRequestBuilder;
+      ATileDownloaderConfig: ITileDownloaderConfig;
+      AAntiBan: IAntiBan
+    );
     destructor Destroy; override;
     procedure Terminate; overload;
     procedure AddEvent(AEvent: ITileDownloaderEvent);
-    procedure OnCancelEvent(Sender: TObject);
-    property OnTTL: TThreadTTLEvent write FOnTTLEvent default nil;
     property Busy: Boolean read FBusy default False;
-    property TileRequestBuilder: ITileRequestBuilder write FTileRequestBuilder default nil;
-    property TileDownloaderConfig: ITileDownloaderConfig write FTileDownloaderConfig default nil;
-    property Semaphore: THandle read FParentSemaphore write FParentSemaphore;
   end;
 
 const
@@ -87,16 +91,26 @@ uses
 
 { TTileDownloaderBaseThread }
 
-constructor TTileDownloaderBaseThread.Create(AAntiBan: IAntiBan);
+constructor TTileDownloaderBaseThread.Create(
+  AResultFactory: IDownloadResultFactory;
+  AOnTTL: TThreadTTLEvent;
+  AParentSemaphore: THandle;
+  ATileRequestBuilder: ITileRequestBuilder;
+  ATileDownloaderConfig: ITileDownloaderConfig;
+  AAntiBan: IAntiBan
+);
 begin
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
   FIsCanceled := False;
   FSessionCS := TCriticalSection.Create;
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
-  FHttpDownloader := TTileDownloaderHttp.Create(AAntiBan);
+  FHttpDownloader := TTileDownloaderHttp.Create(AResultFactory, AAntiBan);
   FWasConnectError := False;
-  FOnTTLEvent := nil;
+  FOnTTLEvent := AOnTTL;
+  FParentSemaphore := AParentSemaphore;
+  FTileRequestBuilder := ATileRequestBuilder;
+  FTileDownloaderConfig := ATileDownloaderConfig;
   FLastUsedTime := GetTickCount;
   FLastDownloadTime := MaxInt;
   FreeOnTerminate := False;

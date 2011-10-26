@@ -79,7 +79,10 @@ type
     function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean;
     function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean;
   public
-    constructor Create(AAntiBan: IAntiBan);
+    constructor Create(
+      AResultFactory: IDownloadResultFactory;
+      AAntiBan: IAntiBan
+    );
     destructor Destroy; override;
     function Get(
       ARequest: ITileDownloadRequest;
@@ -88,7 +91,6 @@ type
     ): IDownloadResult;
     function Cancel(ARequest: ITileDownloadRequest): IDownloadResult;
     procedure Disconnect;
-    property ResultFactory: IDownloadResultFactory read FResultFactory;
   end;
 
 implementation
@@ -101,15 +103,16 @@ uses
 
 { TTileDownloaderHttp }
 
-constructor TTileDownloaderHttp.Create(AAntiBan: IAntiBan);
+constructor TTileDownloaderHttp.Create(
+  AResultFactory: IDownloadResultFactory;
+  AAntiBan: IAntiBan
+);
 begin
   inherited Create;
   FHttpClient := TALWinInetHTTPClient.Create(nil);
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
   FHttpResponseBody := TMemoryStream.Create;
-  FResultFactory := TDownloadResultFactory.Create(
-    GState.DownloadResultTextProvider   // TODO: Избавиться от GState
-  );
+  FResultFactory := AResultFactory;
   FAntiBan := AAntiBan;
 end;
 

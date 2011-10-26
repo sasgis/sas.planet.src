@@ -30,6 +30,7 @@ uses
   i_AntiBan,
   i_ConfigDataProvider,
   i_CoordConverterFactory,
+  i_DownloadResultFactory,
   i_LanguageManager,
   i_InvisibleBrowser,
   i_TileRequestBuilder,
@@ -50,6 +51,7 @@ type
   private
     FEnabled: Boolean;
     FZmp: IZmpInfo;
+    FResultFactory: IDownloadResultFactory;
     FAntiBan: IAntiBan;
     FMaxConnectToServerCount: Cardinal;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
@@ -90,6 +92,7 @@ uses
   u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataProviderZmpComplex,
+  u_DownloadResultFactory,
   u_TileRequestBuilder,
   u_TileRequestBuilderPascalScript,
   u_ResStrings;
@@ -116,6 +119,9 @@ begin
   FLangManager := ALangManager;
   FCS := TCriticalSection.Create;
   FMaxConnectToServerCount := FTileDownloaderConfig.MaxConnectToServerCount;
+  FResultFactory := TDownloadResultFactory.Create(
+    GState.DownloadResultTextProvider   // TODO: Избавиться от GState
+  );
   FSemaphore := CreateSemaphore(nil, FMaxConnectToServerCount, FMaxConnectToServerCount, nil);
 
   SetLength(FDownloadesList, FMaxConnectToServerCount);
@@ -189,14 +195,19 @@ function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread
 
   function CreateNewDownloaderThread(I: Integer): TTileDownloaderBaseThread;
   begin
-    FDownloadesList[I].DownloaderThread := TTileDownloaderBaseThread.Create(FAntiBan);
-    FDownloadesList[I].ThreadID := FDownloadesList[I].DownloaderThread.ThreadID;
     if FDownloadesList[I].TileRequestBuilder = nil then begin
       FDownloadesList[I].TileRequestBuilder := CreateNewTileRequestBuilder;
     end;
-    FDownloadesList[I].DownloaderThread.TileRequestBuilder := FDownloadesList[I].TileRequestBuilder;
-    FDownloadesList[I].DownloaderThread.TileDownloaderConfig := FTileDownloaderConfig;
-    FDownloadesList[I].DownloaderThread.OnTTL := Self.OnThreadTTL;
+    FDownloadesList[I].DownloaderThread :=
+      TTileDownloaderBaseThread.Create(
+        FResultFactory,
+        Self.OnThreadTTL,
+        FSemaphore,
+        FDownloadesList[I].TileRequestBuilder,
+        FTileDownloaderConfig,
+        FAntiBan
+      );
+    FDownloadesList[I].ThreadID := FDownloadesList[I].DownloaderThread.ThreadID;
     Result := FDownloadesList[I].DownloaderThread;
   end;
 
@@ -235,7 +246,6 @@ begin
   if Assigned(VDwnThr) then begin
     Lock;
     try
-      VDwnThr.Semaphore := FSemaphore;
       VDwnThr.AddEvent(AEvent);
     finally
       UnLock;
