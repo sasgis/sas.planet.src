@@ -203,7 +203,6 @@ begin
               );
               FEvent.DownloadResult := FHttpDownloader.Get(
                 FEvent.DownloadRequest,
-                VTileDownloaderConfigStatic,
                 FEvent.DownloadChecker
               );
               Inc(VCount);

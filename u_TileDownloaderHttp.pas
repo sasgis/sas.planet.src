@@ -47,7 +47,6 @@ type
     function OnBeforeRequest(
       ARequest: IDownloadRequest;
       AResultFactory: IDownloadResultFactory;
-      ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
     function OnHttpError(
@@ -67,7 +66,6 @@ type
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
     procedure PreConfigHttpClient(
-      const AAcceptEncoding: string;
       const ARawHttpRequestHeader: string;
       AInetConfig: IInetConfigStatic
     );
@@ -83,7 +81,6 @@ type
     destructor Destroy; override;
     function Get(
       ARequest: IDownloadRequest;
-      ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
       ADownloadChecker: IDownloadChecker
     ): IDownloadResult;
     function Cancel(ARequest: IDownloadRequest): IDownloadResult;
@@ -120,14 +117,12 @@ end;
 
 function TTileDownloaderHttp.Get(
   ARequest: IDownloadRequest;
-  ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
   ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
 begin
   Result := OnBeforeRequest(
     ARequest,
     FResultFactory,
-    ATileDownloaderConfigStatic,
     ADownloadChecker
   );
   if Result = nil then
@@ -182,7 +177,6 @@ end;
 function TTileDownloaderHttp.OnBeforeRequest(
   ARequest: IDownloadRequest;
   AResultFactory: IDownloadResultFactory;
-  ATileDownloaderConfigStatic: ITileDownloaderConfigStatic;
   ADownloadChecker: IDownloadChecker
 ): IDownloadResult;
 begin
@@ -193,9 +187,8 @@ begin
 
   if Result = nil then begin
     PreConfigHttpClient(
-      ATileDownloaderConfigStatic.DefaultMIMEType,
       ARequest.RequestHeader,
-      ATileDownloaderConfigStatic.InetConfigStatic
+      ARequest.InetConfig
     );
   end;
 end;
@@ -319,7 +312,6 @@ begin
 end;
 
 procedure TTileDownloaderHttp.PreConfigHttpClient(
-  const AAcceptEncoding: string;
   const ARawHttpRequestHeader: string;
   AInetConfig: IInetConfigStatic
 );
@@ -327,12 +319,6 @@ var
   VProxyConfig: IProxyConfigStatic;
 begin
   FHttpClient.RequestHeader.Clear;
-  FHttpClient.RequestHeader.UserAgent := AInetConfig.UserAgentString;
-  if AAcceptEncoding <> '' then begin
-    FHttpClient.RequestHeader.Accept := AAcceptEncoding
-  end else begin
-    FHttpClient.RequestHeader.Accept := '*/*';
-  end;
   if ARawHttpRequestHeader <> '' then begin
     FHttpClient.RequestHeader.RawHeaderText := ARawHttpRequestHeader;
   end;

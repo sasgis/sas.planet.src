@@ -34,6 +34,7 @@ uses
   i_ConfigDataProvider,
   i_CoordConverter,
   i_ZmpInfo,
+  i_TileDownloaderConfig,
   i_TileRequest,
   i_MapVersionInfo,
   i_LanguageManager,
@@ -50,6 +51,7 @@ type
   TTileRequestBuilderPascalScript = class(TTileRequestBuilder)
   private
     FZmp: IZmpInfo;
+    FTileDownloaderConfig: ITileDownloaderConfig;
     FCoordConverter: ICoordConverterSimple;
     FPascalScript: string;
     FScriptBuffer: string;
@@ -86,9 +88,8 @@ type
     procedure PreparePascalScript(AConfig: IConfigDataProvider);
     procedure SetVar(
       ALastResponseInfo: ILastResponseInfo;
-      AVersionInfo: IMapVersionInfo;
-      AXY: TPoint;
-      AZoom: Byte
+      ADownloaderConfig: ITileDownloaderConfigStatic;
+      ASource: ITileRequest
     );
     procedure OnLangChange(Sender: TObject);
   protected
@@ -100,6 +101,7 @@ type
     constructor Create(
       AZmp: IZmpInfo;
       AConfig: ITileRequestBuilderConfig;
+      ATileDownloaderConfig: ITileDownloaderConfig;
       AConfigData: IConfigDataProvider;
       ACoordConverterFactory: ICoordConverterFactory;
       ALangManager: ILanguageManager
@@ -129,6 +131,7 @@ function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean; f
 constructor TTileRequestBuilderPascalScript.Create(
   AZmp: IZmpInfo;
   AConfig: ITileRequestBuilderConfig;
+  ATileDownloaderConfig: ITileDownloaderConfig;
   AConfigData: IConfigDataProvider;
   ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager
@@ -136,6 +139,7 @@ constructor TTileRequestBuilderPascalScript.Create(
 begin
   inherited Create(AConfig);
   FZmp := AZmp;
+  FTileDownloaderConfig := ATileDownloaderConfig;
   PrepareCoordConverter(ACoordConverterFactory, AConfigData);
   PreparePascalScript(AConfigData);
 
@@ -166,10 +170,17 @@ function TTileRequestBuilderPascalScript.BuildRequest(
   ASource: ITileRequest;
   ALastResponseInfo: ILastResponseInfo
 ): ITileDownloadRequest;
+var
+  VDownloaderConfig: ITileDownloaderConfigStatic;
 begin
   Lock;
   try
-    SetVar(ALastResponseInfo, ASource.VersionInfo, ASource.Tile, ASource.Zoom);
+    VDownloaderConfig := FTileDownloaderConfig.GetStatic;
+    SetVar(
+      ALastResponseInfo,
+      VDownloaderConfig,
+      ASource
+    );
     try
       FExec.RunScript;
     except on E: Exception do
@@ -180,6 +191,7 @@ begin
         TTileDownloadRequest.Create(
           FpResultUrl.Data,
           FpRequestHead.Data,
+          VDownloaderConfig.InetConfigStatic,
           ASource
         );
     end;
@@ -363,27 +375,31 @@ end;
 
 procedure TTileRequestBuilderPascalScript.SetVar(
   ALastResponseInfo: ILastResponseInfo;
-  AVersionInfo: IMapVersionInfo;
-  AXY: TPoint;
-  AZoom: Byte
+  ADownloaderConfig: ITileDownloaderConfigStatic;
+  ASource: ITileRequest
 );
 var
   XY: TPoint;
   Ll: TDoublePoint;
+  VTile: TPoint;
+  VZoom: Byte;
+  VAccept: string;
 begin
-  FpGetX.Data := AXY.X;
-  FpGetY.Data := AXY.Y;
-  FpGetZ.Data := AZoom + 1;
-  Ll := FCoordConverter.Pos2LonLat(AXY, AZoom);
+  VTile := ASource.Tile;
+  VZoom := ASource.Zoom;
+  FpGetX.Data := VTile.X;
+  FpGetY.Data := VTile.Y;
+  FpGetZ.Data := VZoom + 1;
+  Ll := FCoordConverter.Pos2LonLat(VTile, VZoom);
   FpGetLlon.Data := Ll.X;
   FpGetTLat.Data := Ll.Y;
   Ll := FCoordConverter.LonLat2Metr(LL);
   FpGetLMetr.Data := Ll.X;
   FpGetTMetr.Data := Ll.Y;
-  XY := AXY;
+  XY := VTile;
   Inc(XY.X);
   Inc(XY.Y);
-  Ll := FCoordConverter.Pos2LonLat(XY, AZoom);
+  Ll := FCoordConverter.Pos2LonLat(XY, VZoom);
   FpGetRLon.Data := Ll.X;
   FpGetBLat.Data := Ll.Y;
   Ll := FCoordConverter.LonLat2Metr(LL);
@@ -395,17 +411,29 @@ begin
   try
     FpGetURLBase.Data := FConfig.URLBase;
     FpRequestHead.Data := FConfig.RequestHeader;
+
   finally
     FConfig.UnlockRead;
   end;
+
+  // TODO:  Заменить DefaultMIMEType на отдельную настройку
+  if ADownloaderConfig.DefaultMIMEType <> '' then begin
+    VAccept := ADownloaderConfig.DefaultMIMEType
+  end else begin
+    VAccept := '*/*';
+  end;
+
+  SetHeaderValue(FpRequestHead.Data, 'Accept', VAccept);
+  SetHeaderValue(FpRequestHead.Data, 'User-Agent', ADownloaderConfig.InetConfigStatic.UserAgentString);
+
   if ALastResponseInfo <> nil then begin
     FpResponseHead.Data := ALastResponseInfo.ResponseHead;
   end else begin
     FpResponseHead.Data := '';
   end;
   FpScriptBuffer.Data := FScriptBuffer;
-  if AVersionInfo <> nil then begin
-    FpVersion.Data := VarToStrDef(AVersionInfo.Version, '');
+  if ASource.VersionInfo <> nil then begin
+    FpVersion.Data := VarToStrDef(ASource.VersionInfo.Version, '');
   end else begin
     FpVersion.Data := '';
   end;

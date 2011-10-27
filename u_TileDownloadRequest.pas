@@ -26,6 +26,7 @@ uses
   Types,
   i_ZmpInfo,
   i_DownloadRequest,
+  i_InetConfig,
   i_TileRequest,
   i_TileDownloadRequest;
 
@@ -34,16 +35,19 @@ type
   private
     FUrl: string;
     FRequestHeader: string;
+    FInetConfig: IInetConfigStatic;
     FSource: ITileRequest;
   protected
     function GetUrl: string;
     function GetRequestHeader: string;
+    function GetInetConfig: IInetConfigStatic;
   protected
     function GetSource: ITileRequest;
   public
     constructor Create(
       AUrl: string;
       ARequestHeader: string;
+      AInetConfig: IInetConfigStatic;
       ASource: ITileRequest
     );
   end;
@@ -54,12 +58,19 @@ implementation
 
 constructor TTileDownloadRequest.Create(
   AUrl, ARequestHeader: string;
+  AInetConfig: IInetConfigStatic;
   ASource: ITileRequest
 );
 begin
   FUrl := AUrl;
   FRequestHeader := ARequestHeader;
+  FInetConfig := AInetConfig;
   FSource := ASource;
+end;
+
+function TTileDownloadRequest.GetInetConfig: IInetConfigStatic;
+begin
+  Result := FInetConfig;
 end;
 
 function TTileDownloadRequest.GetRequestHeader: string;

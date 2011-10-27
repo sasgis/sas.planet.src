@@ -299,6 +299,7 @@ begin
           TTileRequestBuilderPascalScript.Create(
             FZmp,
             FTileRequestBuilderConfig,
+            FTileDownloaderConfig,
             Zmp.DataProvider,
             ACoordConverterFactory,
             FLanguageManager

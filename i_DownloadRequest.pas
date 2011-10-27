@@ -22,6 +22,9 @@ unit i_DownloadRequest;
 
 interface
 
+uses
+  i_InetConfig;
+
 type
   IDownloadRequest = interface
     ['{CE40F570-AB2A-465C-843D-0217CB2CFC47}']
@@ -30,6 +33,9 @@ type
 
     function GetRequestHeader: string;
     property RequestHeader: string read GetRequestHeader;
+
+    function GetInetConfig: IInetConfigStatic;
+    property InetConfig: IInetConfigStatic read GetInetConfig;
   end;
 
 implementation

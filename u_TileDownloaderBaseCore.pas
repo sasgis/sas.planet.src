@@ -160,6 +160,7 @@ begin
     Result := TTileRequestBuilderPascalScript.Create(
       FZmp,
       FTileRequestBuilderConfig,
+      FTileDownloaderConfig,
       FZmp.DataProvider,
       FCoordConverterFactory,
       FLangManager
