@@ -97,7 +97,7 @@ uses
   u_ResStrings;
 
 const
-  CMaxRequestsCount = 1; // ћаксимальное число одновременных запросов 
+  CMaxRequestsCount = 32; // ћаксимальное число одновременных запросов
 
 constructor TTileDownloaderUI.Create(
   AConfig: IDownloadUIConfig;
