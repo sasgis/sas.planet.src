@@ -86,9 +86,9 @@ begin
       j := PosEx('",', AStr, i + 15);
       sdesc:=Utf8ToAnsi(Copy(AStr, i + 15, j - (i + 15)));
     end;
-    i := PosEx('"point":[', AStr, j);
-    j := PosEx(',', AStr, i + 9);
-    slon := Copy(AStr, i + 9, j - (i + 9));
+    i := PosEx('"coordinates":[', AStr, j);
+    j := PosEx(',', AStr, i + 15);
+    slon := Copy(AStr, i + 15, j - (i + 15));
     i := PosEx(']', AStr, j);
     slat := Copy(AStr, j + 1, i - (j + 1));
     if slat[1] = '\' then begin
@@ -124,8 +124,12 @@ begin
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   Result := 'http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(VSearch))+
-            '&ll='+R2StrPoint(FLocalConverter.GetCenterLonLat.x)+','+R2StrPoint(FLocalConverter.GetCenterLonLat.y)+
-            '&spn='+R2StrPoint(VLonLatRect.Right-VLonLatRect.Left)+','+R2StrPoint(VLonLatRect.Top-VLonLatRect.Bottom);
-end;
+            '&sll='+R2StrPoint(FLocalConverter.GetCenterLonLat.x)+','+R2StrPoint(FLocalConverter.GetCenterLonLat.y)+
+            '&sspn='+R2StrPoint(VLonLatRect.Right-VLonLatRect.Left)+','+R2StrPoint(VLonLatRect.Top-VLonLatRect.Bottom)+
+            '&z='+inttostr(VZoom)+'&source=form&output=json';
 
+end;
 end.
+// examples
+//  http://maps.yandex.ru/?text=%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D1%8F%2C%20%D0%A2%D1%8E%D0%BC%D0%B5%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%20%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C%2C%20%D0%A2%D1%8E%D0%BC%D0%B5%D0%BD%D1%8C&sll=65.558412%2C57.182627&ll=38.975277%2C45.035407&spn=0.469666%2C0.261446&z=11&l=map
+//  http://maps.yandex.ru/?text=%D0%B1%D0%B0%D0%BB%D0%BE%D1%87%D0%BA%D0%B0&sll=38.975276999999984%2C45.03540700001939&sspn=0.469666%2C0.261446&z=11&source=form&output=json
