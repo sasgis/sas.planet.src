@@ -322,6 +322,12 @@ begin
   if ARawHttpRequestHeader <> '' then begin
     FHttpClient.RequestHeader.RawHeaderText := ARawHttpRequestHeader;
   end;
+  if FHttpClient.RequestHeader.UserAgent = '' then begin
+    FHttpClient.RequestHeader.UserAgent := AInetConfig.UserAgentString;
+  end;
+  if FHttpClient.RequestHeader.Accept = '' then begin
+    FHttpClient.RequestHeader.Accept := '*/*';
+  end;   
   FHttpClient.ConnectTimeout := AInetConfig.TimeOut;
   FHttpClient.SendTimeout := AInetConfig.TimeOut;
   FHttpClient.ReceiveTimeout := AInetConfig.TimeOut;
