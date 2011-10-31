@@ -404,19 +404,31 @@ var
 begin
   inherited;
   VLocalConverter := LayerCoordConverter;
-  ElementsClear;
-  PrepareWikiElements(AOperationID, ACancelNotifier, FElments, VLocalConverter);
-  VList := TInterfaceList.Create;
-  FElments.Lock;
-  try
-    for i := 0 to FElments.Count - 1 do begin
-      VList.Add(FElments[i]);
+  if VLocalConverter <> nil then begin
+    ElementsClear;
+    PrepareWikiElements(AOperationID, ACancelNotifier, FElments, VLocalConverter);
+    VList := TInterfaceList.Create;
+    FElments.Lock;
+    try
+      for i := 0 to FElments.Count - 1 do begin
+        VList.Add(FElments[i]);
+      end;
+    finally
+      FElments.Unlock;
     end;
-  finally
-    FElments.Unlock;
-  end;
-  if VList.Count > 0 then begin
-    ProcessDraw(AOperationID, ACancelNotifier, VList, VLocalConverter);
+    if VList.Count > 0 then begin
+      ProcessDraw(AOperationID, ACancelNotifier, VList, VLocalConverter);
+    end else begin
+      Layer.Bitmap.Lock;
+      try
+        if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Layer.Bitmap.Clear(0);
+          SetBitmapChanged;
+        end;
+      finally
+        Layer.Bitmap.UnLock;
+      end;
+    end;
   end;
 end;
 
