@@ -20,7 +20,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
-  u_MarksDbGUIHelper,
+  u_MarksSystem,
   u_MapLayerWithThreadDraw;
 
 type
@@ -29,7 +29,7 @@ type
     FConfig: IMarksLayerConfig;
     FConfigStatic: IUsedMarksConfigStatic;
     FDrawConfigStatic: IMarksDrawConfigStatic;
-    FMarkDBGUI: TMarksDbGUIHelper;
+    FMarkDB: TMarksSystem;
     FMarksSubset: IMarksSubset;
     FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
@@ -52,7 +52,7 @@ type
       AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       ATimerNoifier: IJclNotifier;
       AConfig: IMarksLayerConfig;
-      AMarkDBGUI: TMarksDbGUIHelper
+      AMarkDB: TMarksSystem
     );
     procedure MouseOnReg(xy: TPoint; out AMark: IMark; out AMarkS: Double); overload;
     procedure MouseOnReg(xy: TPoint; out AMark: IMark); overload;
@@ -86,7 +86,7 @@ constructor TMapMarksLayer.Create(
   AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   ATimerNoifier: IJclNotifier;
   AConfig: IMarksLayerConfig;
-  AMarkDBGUI: TMarksDbGUIHelper
+  AMarkDB: TMarksSystem
 );
 begin
   inherited Create(
@@ -103,7 +103,7 @@ begin
   FMouseOnRegCounter := PerfList.CreateAndAddNewCounter('MouseOnReg');
 
   FConfig := AConfig;
-  FMarkDBGUI := AMarkDBGUI;
+  FMarkDB := AMarkDB;
 
   LinksList.Add(
     TNotifyEventListener.Create(Self.OnConfigChange),
@@ -308,7 +308,7 @@ begin
     if VConverter <> nil then begin
       VZoom := VConverter.GetZoom;
       if not FConfigStatic.IgnoreCategoriesVisible then begin
-        VList := FMarkDBGUI.MarksDB.GetVisibleCategories(VZoom);
+        VList := FMarkDB.GetVisibleCategories(VZoom);
       end;
       try
         if (VList <> nil) and (VList.Count = 0) then begin
@@ -318,7 +318,7 @@ begin
           VMapPixelRect := VConverter.GetRectInMapPixelFloat;
           VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
           VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-          Result := FMarkDBGUI.MarksDB.MarksDb.GetMarksSubset(VLonLatRect, VList, FConfigStatic.IgnoreMarksVisible);
+          Result := FMarkDB.MarksDb.GetMarksSubset(VLonLatRect, VList, FConfigStatic.IgnoreMarksVisible);
         end;
       finally
         VList := nil;

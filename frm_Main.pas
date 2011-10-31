@@ -1011,7 +1011,7 @@ begin
         GState.ClearStrategyFactory,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.MarksLayerConfig,
-        FMarkDBGUI
+        FMarkDBGUI.MarksDB
       );
     FLayersList.Add(FLayerMapMarks);
     FLayersList.Add(
