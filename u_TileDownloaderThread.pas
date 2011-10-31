@@ -193,7 +193,6 @@ begin
               FErrorLogger,
               FMapType,
               FMapType.GetRequest(ATile, AZoom, ACheckExistsTileSize),
-              ACheckExistsTileSize,
               ACancelNotifier,
               AOperationID
             );

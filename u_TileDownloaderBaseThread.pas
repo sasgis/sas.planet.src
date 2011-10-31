@@ -30,6 +30,7 @@ uses
   i_JclNotify,
   i_OperationNotifier,
   i_InetConfig,
+  i_DownloadChecker,
   i_DownloadResultFactory,
   i_TileRequestBuilder,
   i_TileDownloader,
@@ -66,6 +67,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
+      ADownloadChecker: IDownloadChecker;
       AResultFactory: IDownloadResultFactory;
       AOnTTL: TThreadTTLEvent;
       AParentSemaphore: THandle;
@@ -90,6 +92,7 @@ uses
 { TTileDownloaderBaseThread }
 
 constructor TTileDownloaderBaseThread.Create(
+  ADownloadChecker: IDownloadChecker;
   AResultFactory: IDownloadResultFactory;
   AOnTTL: TThreadTTLEvent;
   AParentSemaphore: THandle;
@@ -102,7 +105,7 @@ begin
   FIsCanceled := False;
   FSessionCS := TCriticalSection.Create;
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
-  FHttpDownloader := TTileDownloaderHttp.Create(AResultFactory);
+  FHttpDownloader := TTileDownloaderHttp.Create(ADownloadChecker, AResultFactory);
   FWasConnectError := False;
   FOnTTLEvent := AOnTTL;
   FParentSemaphore := AParentSemaphore;
@@ -202,8 +205,7 @@ begin
                 FEvent.LastResponseInfo
               );
               FEvent.DownloadResult := FHttpDownloader.Get(
-                FEvent.DownloadRequest,
-                FEvent.DownloadChecker
+                FEvent.DownloadRequest
               );
               Inc(VCount);
               FLastDownloadTime := GetTickCount;

@@ -75,8 +75,6 @@ type
     FDownloadResult: IDownloadResult;
     FDownloadRequest: ITileDownloadRequest;
     FLastResponseInfo: ILastResponseInfo;
-    FCheckTileSize: Boolean;
-    FDownloadChecker: IDownloadChecker;
     FRequest: ITileRequest;
     FErrorString: string;
     procedure GuiSync;
@@ -87,7 +85,6 @@ type
       AErrorLogger: ITileErrorLogger;
       AMapType: TMapType;
       ARequest: ITileRequest;
-      ACheckTileSize: Boolean;
       ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     );
@@ -103,9 +100,6 @@ type
     procedure SetDownloadRequest(AValue: ITileDownloadRequest);
     function  GetLastResponseInfo: ILastResponseInfo;
     procedure SetLastResponseInfo(AValue: ILastResponseInfo);
-    function GetDownloadChecker: IDownloadChecker;
-    procedure SetDownloadChecker(AValue: IDownloadChecker);
-    function  GetCheckTileSize: Boolean;
     function  GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(AValue: IDownloadResult);
     function  GetCancelNotifier: IOperationNotifier;
@@ -209,7 +203,6 @@ constructor TTileDownloaderEvent.Create(
   AErrorLogger: ITileErrorLogger;
   AMapType: TMapType;
   ARequest: ITileRequest;
-  ACheckTileSize: Boolean;
   ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 );
@@ -222,10 +215,8 @@ begin
   FMapType := AMapType;
   FDownloadResult := nil;
   FRequest := ARequest;
-  FCheckTileSize := ACheckTileSize;
   FDownloadRequest := nil;
   FLastResponseInfo := nil;
-  FCheckTileSize := False;
   FErrorString := '';
   FCallBackList := TList.Create;
   FRES_TileDownloadUnexpectedError := SAS_ERR_TileDownloadUnexpectedError;
@@ -367,16 +358,6 @@ begin
   Result := FLastResponseInfo;
 end;
 
-function TTileDownloaderEvent.GetCheckTileSize: Boolean;
-begin
-  Result := FCheckTileSize;
-end;
-
-procedure TTileDownloaderEvent.SetDownloadChecker(AValue: IDownloadChecker);
-begin
-  FDownloadChecker := AValue;
-end;
-
 procedure TTileDownloaderEvent.SetDownloadRequest(AValue: ITileDownloadRequest);
 begin
   FDownloadRequest := AValue;
@@ -385,11 +366,6 @@ end;
 procedure TTileDownloaderEvent.SetDownloadResult(AValue: IDownloadResult);
 begin
   FDownloadResult := AValue;
-end;
-
-function TTileDownloaderEvent.GetDownloadChecker: IDownloadChecker;
-begin
-  Result := FDownloadChecker;
 end;
 
 function TTileDownloaderEvent.GetDownloadRequest: ITileDownloadRequest;

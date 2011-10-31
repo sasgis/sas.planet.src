@@ -44,10 +44,10 @@ type
     FHttpResponseHeader: TALHTTPResponseHeader;
     FHttpResponseBody: TMemoryStream;
     FResultFactory: IDownloadResultFactory;
+    FDownloadChecker: IDownloadChecker;
     function OnBeforeRequest(
       ARequest: IDownloadRequest;
-      AResultFactory: IDownloadResultFactory;
-      ADownloadChecker: IDownloadChecker
+      AResultFactory: IDownloadResultFactory
     ): IDownloadResult;
     function OnHttpError(
       ARequest: IDownloadRequest;
@@ -62,8 +62,7 @@ type
     ): IDownloadResult;
     function OnAfterResponse(
       ARequest: IDownloadRequest;
-      AResultFactory: IDownloadResultFactory;
-      ADownloadChecker: IDownloadChecker
+      AResultFactory: IDownloadResultFactory
     ): IDownloadResult;
     procedure PreConfigHttpClient(
       const ARawHttpRequestHeader: string;
@@ -76,12 +75,12 @@ type
     function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean;
   public
     constructor Create(
+      ADownloadChecker: IDownloadChecker;
       AResultFactory: IDownloadResultFactory
     );
     destructor Destroy; override;
     function Get(
-      ARequest: IDownloadRequest;
-      ADownloadChecker: IDownloadChecker
+      ARequest: IDownloadRequest
     ): IDownloadResult;
     function Cancel(ARequest: IDownloadRequest): IDownloadResult;
     procedure Disconnect;
@@ -95,6 +94,7 @@ uses
 { TTileDownloaderHttp }
 
 constructor TTileDownloaderHttp.Create(
+  ADownloadChecker: IDownloadChecker;
   AResultFactory: IDownloadResultFactory
 );
 begin
@@ -103,6 +103,7 @@ begin
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
   FHttpResponseBody := TMemoryStream.Create;
   FResultFactory := AResultFactory;
+  FDownloadChecker := ADownloadChecker;
 end;
 
 destructor TTileDownloaderHttp.Destroy;
@@ -112,18 +113,17 @@ begin
   FreeAndNil(FHttpResponseBody);
   FreeAndNil(FHttpClient);
   FResultFactory := nil;
-  inherited Destroy;
+  FDownloadChecker := nil;
+  inherited;
 end;
 
 function TTileDownloaderHttp.Get(
-  ARequest: IDownloadRequest;
-  ADownloadChecker: IDownloadChecker
+  ARequest: IDownloadRequest
 ): IDownloadResult;
 begin
   Result := OnBeforeRequest(
     ARequest,
-    FResultFactory,
-    ADownloadChecker
+    FResultFactory
   );
   if Result = nil then
   try
@@ -152,8 +152,7 @@ begin
   if Result = nil then begin
     Result := OnAfterResponse(
       ARequest,
-      FResultFactory,
-      ADownloadChecker
+      FResultFactory
     );
   end;
 end;
@@ -176,14 +175,13 @@ end;
 
 function TTileDownloaderHttp.OnBeforeRequest(
   ARequest: IDownloadRequest;
-  AResultFactory: IDownloadResultFactory;
-  ADownloadChecker: IDownloadChecker
+  AResultFactory: IDownloadResultFactory
 ): IDownloadResult;
 begin
   FHttpResponseHeader.Clear;
   FHttpResponseBody.Clear;
 
-  Result := ADownloadChecker.BeforeRequest(AResultFactory, ARequest);
+  Result := FDownloadChecker.BeforeRequest(AResultFactory, ARequest);
 
   if Result = nil then begin
     PreConfigHttpClient(
@@ -244,8 +242,7 @@ end;
 
 function TTileDownloaderHttp.OnAfterResponse(
   ARequest: IDownloadRequest;
-  AResultFactory: IDownloadResultFactory;
-  ADownloadChecker: IDownloadChecker
+  AResultFactory: IDownloadResultFactory
 ): IDownloadResult;
 var
   VRawHeaderText: string;
@@ -257,7 +254,7 @@ begin
     VContentType := FHttpResponseHeader.ContentType;
     VStatusCode := StrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
-      Result := ADownloadChecker.AfterResponse(
+      Result := FDownloadChecker.AfterResponse(
         AResultFactory,
         ARequest,
         VStatusCode,
@@ -265,7 +262,7 @@ begin
         VRawHeaderText
       );
       if Result = nil then begin
-        Result := ADownloadChecker.AfterReciveData(
+        Result := FDownloadChecker.AfterReciveData(
           AResultFactory,
           ARequest,
           FHttpResponseBody.Size,

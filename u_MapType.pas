@@ -364,6 +364,7 @@ begin
           FTileDownloaderConfig,
           FTileRequestBuilderConfig,
           FZmp,
+          FDownloadChecker,
           ACoordConverterFactory,
           FLanguageManager,
           AInvisibleBrowser
@@ -770,7 +771,6 @@ begin
   if Assigned(AEvent) then begin
     if FAbilitiesConfig.UseDownload then begin
       AEvent.LastResponseInfo := FLastResponseInfo;
-      AEvent.DownloadChecker := FDownloadChecker;
       AEvent.AddToCallBackList(Self.OnTileDownload);
       FTileDownloader.Download(AEvent);
     end else begin

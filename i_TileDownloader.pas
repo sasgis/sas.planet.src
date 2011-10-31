@@ -66,13 +66,6 @@ type
     procedure SetLastResponseInfo(AValue: ILastResponseInfo);
     property LastResponseInfo: ILastResponseInfo read GetLastResponseInfo write SetLastResponseInfo;
 
-    function GetCheckTileSize: Boolean;
-    property CheckTileSize: Boolean read GetCheckTileSize;
-
-    function GetDownloadChecker: IDownloadChecker;
-    procedure SetDownloadChecker(AValue: IDownloadChecker);
-    property DownloadChecker: IDownloadChecker read GetDownloadChecker write SetDownloadChecker;
-
     function GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(AValue: IDownloadResult);
     property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
