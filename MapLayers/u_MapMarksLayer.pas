@@ -34,7 +34,7 @@ type
     FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
     procedure OnConfigChange(Sender: TObject);
-    function GetMarksSubset: IMarksSubset;
+    function GetMarksSubset(ALocalConverter: ILocalCoordConverter): IMarksSubset;
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
@@ -144,67 +144,69 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   VCounterContext := FGetMarksCounter.StartOperation;
-  try
-    FMarksSubset := GetMarksSubset;
-    VMarksSubset := FMarksSubset;
-  finally
-    FGetMarksCounter.FinishOperation(VCounterContext);
-  end;
   VBitmapConverter := LayerCoordConverter;
-  if (VMarksSubset <> nil) and (VBitmapConverter <> nil) and (not VMarksSubset.IsEmpty) then begin
-    VProv :=
-      TMapMarksBitmapLayerProviderByMarksSubset.Create(
-        FDrawConfigStatic,
-        VMarksSubset
-      );
-    VGeoConvert := VBitmapConverter.GetGeoConverter;
-    VZoom := VBitmapConverter.GetZoom;
-
-    VBitmapOnMapPixelRect := VBitmapConverter.GetRectInMapPixel;
-    VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
-
-    VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
-    VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
-
-    VTileToDrawBmp := TCustomBitmap32.Create;
-    VTileToDrawBmp.CombineMode:=cmMerge;
+  if VBitmapConverter <> nil then begin
     try
-      if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        while VTileIterator.Next(VTile) do begin
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-            break;
-          end;
-          VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
+      VMarksSubset := GetMarksSubset(VBitmapConverter);
+      FMarksSubset := VMarksSubset;
+    finally
+      FGetMarksCounter.FinishOperation(VCounterContext);
+    end;
+    if (VMarksSubset <> nil) and (not VMarksSubset.IsEmpty) then begin
+      VProv :=
+        TMapMarksBitmapLayerProviderByMarksSubset.Create(
+          FDrawConfigStatic,
+          VMarksSubset
+        );
+      VGeoConvert := VBitmapConverter.GetGeoConverter;
+      VZoom := VBitmapConverter.GetZoom;
 
-          VTilePixelsToDraw.TopLeft := Point(0, 0);
-          VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
-          VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
+      VBitmapOnMapPixelRect := VBitmapConverter.GetRectInMapPixel;
+      VGeoConvert.CheckPixelRect(VBitmapOnMapPixelRect, VZoom);
 
-          VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
-          VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+      VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
+      VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
 
-          VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
-          VTileToDrawBmp.Clear(0);
-          VProv.GetBitmapRect(
-            AOperationID,
-            ACancelNotifier,
-            VTileToDrawBmp,
-            ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
-          );
-          Layer.Bitmap.Lock;
-          try
+      VTileToDrawBmp := TCustomBitmap32.Create;
+      VTileToDrawBmp.CombineMode:=cmMerge;
+      try
+        if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          while VTileIterator.Next(VTile) do begin
             if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               break;
             end;
-            Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
-            SetBitmapChanged;
-          finally
-            Layer.Bitmap.UnLock;
-          end;
+            VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
+
+            VTilePixelsToDraw.TopLeft := Point(0, 0);
+            VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
+            VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
+
+            VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
+            VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+
+            VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
+            VTileToDrawBmp.Clear(0);
+            VProv.GetBitmapRect(
+              AOperationID,
+              ACancelNotifier,
+              VTileToDrawBmp,
+              ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
+            );
+            Layer.Bitmap.Lock;
+            try
+              if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+                break;
+              end;
+              Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+              SetBitmapChanged;
+            finally
+              Layer.Bitmap.UnLock;
+            end;
+        end;
+        end;
+      finally
+        VTileToDrawBmp.Free;
       end;
-      end;
-    finally
-      VTileToDrawBmp.Free;
     end;
   end;
 end;
@@ -292,10 +294,11 @@ begin
   end;
 end;
 
-function TMapMarksLayer.GetMarksSubset: IMarksSubset;
+function TMapMarksLayer.GetMarksSubset(
+  ALocalConverter: ILocalCoordConverter
+): IMarksSubset;
 var
   VList: IInterfaceList;
-  VConverter: ILocalCoordConverter;
   VZoom: Byte;
   VMapPixelRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
@@ -304,25 +307,22 @@ begin
   VList := nil;
   Result := nil;
   if FConfigStatic.IsUseMarks then begin
-    VConverter := LayerCoordConverter;
-    if VConverter <> nil then begin
-      VZoom := VConverter.GetZoom;
-      if not FConfigStatic.IgnoreCategoriesVisible then begin
-        VList := FMarkDB.GetVisibleCategories(VZoom);
+    VZoom := ALocalConverter.GetZoom;
+    if not FConfigStatic.IgnoreCategoriesVisible then begin
+      VList := FMarkDB.GetVisibleCategories(VZoom);
+    end;
+    try
+      if (VList <> nil) and (VList.Count = 0) then begin
+        Result := nil;
+      end else begin
+        VGeoConverter := ALocalConverter.GetGeoConverter;
+        VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
+        VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+        VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+        Result := FMarkDB.MarksDb.GetMarksSubset(VLonLatRect, VList, FConfigStatic.IgnoreMarksVisible);
       end;
-      try
-        if (VList <> nil) and (VList.Count = 0) then begin
-          Result := nil;
-        end else begin
-          VGeoConverter := VConverter.GetGeoConverter;
-          VMapPixelRect := VConverter.GetRectInMapPixelFloat;
-          VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
-          VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-          Result := FMarkDB.MarksDb.GetMarksSubset(VLonLatRect, VList, FConfigStatic.IgnoreMarksVisible);
-        end;
-      finally
-        VList := nil;
-      end;
+    finally
+      VList := nil;
     end;
   end;
 end;
