@@ -127,7 +127,7 @@ constructor TThreadDownloadTiles.Create(
   AReplaceOlderDate: TDateTime
 );
 begin
-  inherited Create(False, ADownloadInfo, nil, nil, 1);
+  inherited Create(False, TDownloadInfoSimple.Create(ADownloadInfo), nil, nil, 1);
 
   FPausedSleepTime := 100;
   FBanSleepTime := 5000;
@@ -136,7 +136,6 @@ begin
   PrepareStrings;
 
   FDownloadConfig := ADownloadConfig;
-  FDownloadInfo := TDownloadInfoSimple.Create(ADownloadInfo);
   FLog := ALog;
   Priority := tpLower;
   FReplaceExistTiles:=Azamena;
@@ -285,7 +284,6 @@ begin
     if Supports(AEvent.DownloadResult, IDownloadResultOk, VResultOk) then begin
       FLastSuccessfulPoint := AEvent.Request.Tile;
       FGoToNextTile := True;
-      FDownloadInfo.Add(1, VResultOk.Size);
       FLog.WriteText('(Ok!)', 0);
     end else if Supports(AEvent.DownloadResult, IDownloadResultNotNecessary) then begin
       FLastSuccessfulPoint := AEvent.Request.Tile;
