@@ -121,10 +121,10 @@ procedure TMiniMapLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FWidth := AConfigData.ReadInteger('Width', FWidth);
-    FZoomDelta := AConfigData.ReadInteger('ZoomDelta', FZoomDelta);
-    FMasterAlpha := AConfigData.ReadInteger('Alpha', FMasterAlpha);
-    FVisible := AConfigData.ReadBool('Visible', FVisible);
+    SetWidth(AConfigData.ReadInteger('Width', FWidth));
+    SetZoomDelta(AConfigData.ReadInteger('ZoomDelta', FZoomDelta));
+    SetMasterAlpha(AConfigData.ReadInteger('Alpha', FMasterAlpha));
+    SetVisible(AConfigData.ReadBool('Visible', FVisible));
 
     ReadBitmapByFileRef(AConfigData, FPlusButtonFileName, FContentTypeManager, FPlusButton);
     ReadBitmapByFileRef(AConfigData, FMinusButtonFileName, FContentTypeManager, FMinusButton);

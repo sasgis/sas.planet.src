@@ -81,10 +81,15 @@ procedure TTileRequestBuilderConfig.DoReadConfig(
 begin
   inherited;
   if AConfigData <> nil then begin
-    FUrlBase := AConfigData.ReadString('URLBase', FUrlBase);
-    FRequestHeader := AConfigData.ReadString('RequestHead', FRequestHeader);
-    FRequestHeader := StringReplace(FRequestHeader, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
-    SetChanged;
+    SetUrlBase(AConfigData.ReadString('URLBase', FUrlBase));
+    SetRequestHeader(
+      StringReplace(
+        AConfigData.ReadString('RequestHead', FRequestHeader),
+        '\r\n',
+        #13#10,
+        [rfIgnoreCase, rfReplaceAll]
+      )
+    );
   end;
 end;
 

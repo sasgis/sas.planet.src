@@ -67,6 +67,8 @@ var
   i: Integer;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
+  VPolygon: TArrayOfDoublePoint;
+  VZoom: Byte;
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -76,15 +78,15 @@ begin
       VPoint.Y := AConfigData.ReadFloat('PointY_'+inttostr(i), 1000000);
       VValidPoint := (Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360);
       if VValidPoint then begin
-        SetLength(FPolygon, i);
-        FPolygon[i - 1] := VPoint;
+        SetLength(VPolygon, i);
+        VPolygon[i - 1] := VPoint;
         inc(i);
       end;
     until not VValidPoint;
-    if length(FPolygon)>0 then begin
-      FZoom := AConfigData.Readinteger('Zoom', FZoom);
+    if length(VPolygon)>0 then begin
+      VZoom := AConfigData.Readinteger('Zoom', FZoom);
     end;
-    SetChanged;
+    SetPolygon(VPolygon, VZoom);
   end;
 end;
 

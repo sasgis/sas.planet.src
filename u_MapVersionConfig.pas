@@ -84,7 +84,7 @@ procedure TMapVersionConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FVersion := AConfigData.ReadString('Version', FVersion);
+    SetVersion(AConfigData.ReadString('Version', FVersion));
     SetChanged;
   end;
 end;
