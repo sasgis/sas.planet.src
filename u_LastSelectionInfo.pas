@@ -85,8 +85,8 @@ begin
     until not VValidPoint;
     if length(VPolygon)>0 then begin
       VZoom := AConfigData.Readinteger('Zoom', FZoom);
+      SetPolygon(VPolygon, VZoom);
     end;
-    SetPolygon(VPolygon, VZoom);
   end;
 end;
 
