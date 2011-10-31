@@ -207,6 +207,16 @@ begin
       finally
         VTileToDrawBmp.Free;
       end;
+    end else begin
+      Layer.Bitmap.Lock;
+      try
+        if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Layer.Bitmap.Clear(0);
+          SetBitmapChanged;
+        end;
+      finally
+        Layer.Bitmap.UnLock;
+      end;
     end;
   end;
 end;
