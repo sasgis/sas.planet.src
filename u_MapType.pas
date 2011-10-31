@@ -360,6 +360,11 @@ begin
   try
     if FAbilitiesConfig.UseDownload then begin
       try
+        FDownloadChecker := TDownloadCheckerStuped.Create(
+          TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider),
+          FTileDownloaderConfig,
+          FStorage
+        );
         FTileDownloader := TTileDownloaderFrontEnd.Create(
           FTileDownloaderConfig,
           FTileRequestBuilderConfig,
@@ -370,11 +375,6 @@ begin
           AInvisibleBrowser
         );
         FAbilitiesConfig.UseDownload := FTileDownloader.Enabled;
-        FDownloadChecker := TDownloadCheckerStuped.Create(
-          TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider),
-          FTileDownloaderConfig,
-          FStorage
-        );
       except
         if ExceptObject <> nil then begin
           ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
