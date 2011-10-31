@@ -23,6 +23,10 @@ type
     property VersionInfo: IMapVersionInfo read GetVersionInfo;
   end;
 
+  ITileRequestWithSizeCheck = interface(ITileRequest)
+    ['{7F77BF27-E741-40BD-9F8B-D25CDC09C57B}']
+  end;
+
 implementation
 
 end.

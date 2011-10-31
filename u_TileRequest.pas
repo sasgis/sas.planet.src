@@ -29,6 +29,8 @@ type
     );
   end;
 
+  TTileRequestWithSizeCheck = class(TTileRequest, ITileRequestWithSizeCheck);
+
 implementation
 
 { TTileRequest }

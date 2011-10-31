@@ -101,7 +101,7 @@ type
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
     FTileDownloader: TTileDownloaderFrontEnd;
-    FAntiBan: IAntiBan;
+    FDownloadChecker: IDownloadChecker;
 
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
@@ -148,7 +148,7 @@ type
     function GetAbilitiesConfigStatic: IMapAbilitiesConfigStatic;
    public
     procedure SaveConfig(ALocalConfig: IConfigDataWriteProvider);
-    function GetRequest(AXY: TPoint; Azoom: byte): ITileRequest;
+    function GetRequest(AXY: TPoint; Azoom: byte; ACheckTileSize: Boolean): ITileRequest;
     function GetLink(AXY: TPoint; Azoom: byte): string;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
@@ -369,7 +369,11 @@ begin
           AInvisibleBrowser
         );
         FAbilitiesConfig.UseDownload := FTileDownloader.Enabled;
-        FAntiBan := TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider);
+        FDownloadChecker := TDownloadCheckerStuped.Create(
+          TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider),
+          FTileDownloaderConfig,
+          FStorage
+        );
       except
         if ExceptObject <> nil then begin
           ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
@@ -414,7 +418,7 @@ var
 begin
   Result := '';
   if FAbilitiesConfig.UseDownload then begin
-    VRequest := GetRequest(AXY, Azoom);
+    VRequest := GetRequest(AXY, Azoom, False);
     VDownloadRequest:= nil;
     if VRequest <> nil then begin
       VDownloadRequest := FTileRequestBuilder.BuildRequest(VRequest, FLastResponseInfo);
@@ -425,11 +429,15 @@ begin
   end;
 end;
 
-function TMapType.GetRequest(AXY: TPoint; Azoom: byte): ITileRequest;
+function TMapType.GetRequest(AXY: TPoint; Azoom: byte; ACheckTileSize: Boolean): ITileRequest;
 begin
   Result := nil;
   if FCoordConverter.CheckTilePosStrict(AXY, Azoom, False) then begin
-    Result := TTileRequest.Create(FZmp, AXY, Azoom, FVersionConfig.GetStatic);
+    if ACheckTileSize then begin
+      Result := TTileRequestWithSizeCheck.Create(FZmp, AXY, Azoom, FVersionConfig.GetStatic);
+    end else begin
+      Result := TTileRequest.Create(FZmp, AXY, Azoom, FVersionConfig.GetStatic);
+    end;
   end;
 end;
 
@@ -757,24 +765,12 @@ begin
 end;
 
 procedure TMapType.DownloadTile(AEvent: ITileDownloaderEvent);
-var
-  VDownloadChecker: IDownloadChecker;
-  VConfig: ITileDownloaderConfigStatic;
 begin
   Assert(AEvent <> nil);
   if Assigned(AEvent) then begin
     if FAbilitiesConfig.UseDownload then begin
       AEvent.LastResponseInfo := FLastResponseInfo;
-      VConfig := FTileDownloaderConfig.GetStatic;
-      VDownloadChecker := TDownloadCheckerStuped.Create(
-        FAntiBan,
-        VConfig.IgnoreMIMEType,
-        VConfig.ExpectedMIMETypes,
-        VConfig.DefaultMIMEType,
-        AEvent.CheckTileSize,
-        FStorage
-      );
-      AEvent.DownloadChecker := VDownloadChecker;
+      AEvent.DownloadChecker := FDownloadChecker;
       AEvent.AddToCallBackList(Self.OnTileDownload);
       FTileDownloader.Download(AEvent);
     end else begin

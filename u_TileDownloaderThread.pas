@@ -192,7 +192,7 @@ begin
               FMapTileUpdateEvent,
               FErrorLogger,
               FMapType,
-              FMapType.GetRequest(ATile, AZoom),
+              FMapType.GetRequest(ATile, AZoom, ACheckExistsTileSize),
               ACheckExistsTileSize,
               ACancelNotifier,
               AOperationID
