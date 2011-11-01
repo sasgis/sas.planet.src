@@ -96,7 +96,6 @@ type
     btnCancel: TButton;
     btnOk: TButton;
     btnApply: TButton;
-    TBXItem1: TTBXItem;
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
@@ -120,7 +119,6 @@ type
     procedure btnNavOnMarkClick(Sender: TObject);
     procedure btnSaveMarkClick(Sender: TObject);
     procedure TBXItem4Click(Sender: TObject);
-    procedure TBXItem1Click(Sender: TObject);
   private
     FMapGoto: IMapViewGoto;
     FCategoryList: IInterfaceList;
@@ -136,6 +134,7 @@ type
     procedure UpdateMarksList;
     function GetSelectedMarkId: IMarkId;
     function GetSelectedMarkFull: IMark;
+    function GetSelectedMarksIdList: IInterfaceList;
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
@@ -179,6 +178,7 @@ begin
   FViewPortState := AViewPortState;
   FNavToPoint := ANavToPoint;
   FOnNeedRedraw := AOnNeedRedraw;
+  MarksListBox.MultiSelect:=true;
 end;
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
@@ -268,6 +268,22 @@ begin
   VMarkId := GetSelectedMarkId;
   if VMarkId <> nil then begin
     Result := FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(VMarkId);
+  end;
+end;
+
+function TfrmMarksExplorer.GetSelectedMarksIdList: IInterfaceList;
+var
+  VMarkId: IMarkId;
+  i:integer;
+begin
+  Result := TInterfaceList.Create;
+  for i:=0 to MarksListBox.Count-1 do begin
+    if MarksListBox.selected[i] then begin
+      Result.Add(IMarkId(Pointer(MarksListBox.Items.Objects[i])))
+    end;
+  end;
+  if Result.Count=0 then begin
+    Result:=nil;
   end;
 end;
 
@@ -381,11 +397,11 @@ end;
 
 procedure TfrmMarksExplorer.btnDelMarkClick(Sender: TObject);
 var
-  VMarkId: IMarkId;
+  VMarkIdList: IInterfaceList;
 begin
-  VMarkId := GetSelectedMarkId;
-  if VMarkId <> nil then begin
-    if FMarkDBGUI.DeleteMarkModal(VMarkId, Self.Handle) then begin
+  VMarkIdList:=GetSelectedMarksIdList;;
+  if VMarkIdList <> nil then begin
+    if FMarkDBGUI.DeleteMarksModal(VMarkIdList, Self.Handle) then begin
       MarksListBox.DeleteSelected;
     end;
   end;
@@ -393,14 +409,84 @@ end;
 
 procedure TfrmMarksExplorer.btnEditMarkClick(Sender: TObject);
 var
+  VMarkIdList: IInterfaceList;
   VMark: IMark;
-begin           
-  VMark := GetSelectedMarkFull;
-  if VMark <> nil then begin
-    VMark := FMarkDBGUI.EditMarkModal(VMark);
-    if VMark <> nil then begin
-      FMarkDBGUI.MarksDb.MarksDb.WriteMark(VMark);
-      UpdateMarksList;
+  VImportConfig: IImportConfig;
+  VMarkPoint: IMarkPoint;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
+  VMarkId: IMarkId;
+  VCategory: IMarkCategory;
+  i:integer;
+begin
+  VMarkIdList:=GetSelectedMarksIdList;
+  if VMarkIdList <> nil then begin
+    if VMarkIdList.Count=1 then begin
+      VMark:=FMarkDBGUI.MarksDB.MarksDb.GetMarkByID(IMarkId(VMarkIdList[0]));
+      VMark := FMarkDBGUI.EditMarkModal(VMark);
+      if VMark <> nil then begin
+        FMarkDBGUI.MarksDb.MarksDb.WriteMark(VMark);
+        UpdateMarksList;
+      end;
+    end else begin
+      VImportConfig := FMarkDBGUI.MarksMultiEditModal(GetSelectedCategory);
+      if (VImportConfig <> nil) then begin
+        VMarkIdList:=GetSelectedMarksIdList;
+        if (VMarkIdList <> nil) then begin
+          for i := 0 to VMarkIdList.Count - 1 do begin
+            VMarkId := IMarkId(VMarkIdList[i]);
+            VMark:=FMarkDBGUI.MarksDB.MarksDb.GetMarkByID(VMarkId);
+            if Supports(VMark, IMarkPoint, VMarkPoint) then begin
+              if VImportConfig.TemplateNewPoint<>nil then begin
+                VMark:=FMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoint(
+                  VMarkPoint,
+                  VMarkPoint.Name,
+                  FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
+                  VImportConfig.TemplateNewPoint.Pic,
+                  VImportConfig.TemplateNewPoint.Category,
+                  VMarkPoint.Desc,
+                  VMarkPoint.Point,
+                  VImportConfig.TemplateNewPoint.TextColor,
+                  VImportConfig.TemplateNewPoint.TextBgColor,
+                  VImportConfig.TemplateNewPoint.FontSize,
+                  VImportConfig.TemplateNewPoint.MarkerSize
+                );
+              end;
+            end else if Supports(VMark, IMarkLine, VMarkLine) then begin
+              if VImportConfig.TemplateNewLine<>nil then begin
+                VMark:=FMarkDBGUI.MarksDB.MarksDb.Factory.ModifyLine(
+                  VMarkLine,
+                  VMarkLine.Name,
+                  FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
+                  VImportConfig.TemplateNewLine.Category,
+                  VMarkLine.Desc,
+                  VMarkLine.Points,
+                  VImportConfig.TemplateNewLine.LineColor,
+                  VImportConfig.TemplateNewLine.LineWidth
+                );
+              end;
+            end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+              if VImportConfig.TemplateNewPoly<>nil then begin
+                VMark:=FMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoly(
+                  VMarkPoly,
+                  VMarkPoly.Name,
+                  FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
+                  VImportConfig.TemplateNewPoly.Category,
+                  VMarkPoly.Desc,
+                  VMarkPoly.Points,
+                  VImportConfig.TemplateNewPoly.BorderColor,
+                  VImportConfig.TemplateNewPoly.FillColor,
+                  VImportConfig.TemplateNewPoly.LineWidth
+                );
+              end;
+            end;
+            if VMark <> nil then begin
+              FMarkDBGUI.MarksDb.MarksDb.WriteMark(VMark);
+            end;
+          end;
+          UpdateMarksList;
+        end;
+      end;
     end;
   end;
 end;
@@ -412,73 +498,6 @@ begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
     FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetCurrentZoom);
-  end;
-end;
-
-procedure TfrmMarksExplorer.TBXItem1Click(Sender: TObject);
-var
-  VImportConfig: IImportConfig;
-  VMarkPoint: IMarkPoint;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
-  VMarkId: IMarkId;
-  VMark: IMark;
-  VCategory: IMarkCategory;
-  i:integer;
-begin
-  VImportConfig := FMarkDBGUI.MarksMultiEditModal;
-  if (VImportConfig <> nil)and(FMarksList <> nil) then begin
-    for i := 0 to FMarksList.Count - 1 do begin
-      VMarkId := IMarkId(FMarksList[i]);
-      VMark:=FMarkDBGUI.MarksDB.MarksDb.GetMarkByID(VMarkId);
-      if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-        if VImportConfig.TemplateNewPoint<>nil then begin
-          VMark:=FMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoint(
-            VMarkPoint,
-            VMarkPoint.Name,
-            FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
-            VImportConfig.TemplateNewPoint.Pic,
-            VMarkPoint.Category,
-            VMarkPoint.Desc,
-            VMarkPoint.Point,
-            VImportConfig.TemplateNewPoint.TextColor,
-            VImportConfig.TemplateNewPoint.TextBgColor,
-            VImportConfig.TemplateNewPoint.FontSize,
-            VImportConfig.TemplateNewPoint.MarkerSize
-          );
-        end;
-      end else if Supports(VMark, IMarkLine, VMarkLine) then begin
-        if VImportConfig.TemplateNewLine<>nil then begin
-          VMark:=FMarkDBGUI.MarksDB.MarksDb.Factory.ModifyLine(
-            VMarkLine,
-            VMarkLine.Name,
-            FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
-            VMarkLine.Category,
-            VMarkLine.Desc,
-            VMarkLine.Points,
-            VImportConfig.TemplateNewLine.LineColor,
-            VImportConfig.TemplateNewLine.LineWidth
-          );
-        end;
-      end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-        if VImportConfig.TemplateNewPoly<>nil then begin
-          VMark:=FMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoly(
-            VMarkPoly,
-            VMarkPoly.Name,
-            FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
-            VMarkPoly.Category,
-            VMarkPoly.Desc,
-            VMarkPoly.Points,
-            VImportConfig.TemplateNewPoly.BorderColor,
-            VImportConfig.TemplateNewPoly.FillColor,
-            VImportConfig.TemplateNewPoly.LineWidth
-          );
-        end;
-      end;
-      if VMark <> nil then begin
-        FMarkDBGUI.MarksDb.MarksDb.WriteMark(VMark);
-      end;
-    end;
   end;
 end;
 

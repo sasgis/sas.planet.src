@@ -49,18 +49,22 @@ type
     btnOk: TButton;
     btnCancel: TButton;
     pnlMarksGeneralOptions: TPanel;
+    pnlCategory: TPanel;
     procedure btnOkClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
+    frMarkCategory: TfrMarkCategorySelectOrAdd;
     frMarksGeneralOptions: TfrMarksGeneralOptions;
+    FCategoryDB: IMarkCategoryDB;
     FMarksDb: IMarksDb;
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
+      ACategoryDB: IMarkCategoryDB;
       AMarksDb: IMarksDb
     ); reintroduce;
     destructor Destroy; override;
-    function GetImportConfig: IImportConfig;
+    function GetImportConfig(ACategory:ICategory): IImportConfig;
     procedure RefreshTranslation; override;
   end;
 
@@ -75,11 +79,19 @@ uses
 
 constructor TfrmMarksMultiEdit.Create(
   ALanguageManager: ILanguageManager;
+  ACategoryDB: IMarkCategoryDB;
   AMarksDb: IMarksDb
 );
 begin
   inherited Create(ALanguageManager);
   FMarksDb := AMarksDb;
+  FCategoryDB := ACategoryDB;
+
+  frMarkCategory :=
+    TfrMarkCategorySelectOrAdd.Create(
+      nil,
+      FCategoryDB
+    );
 
   frMarksGeneralOptions:= TfrMarksGeneralOptions.Create(nil);
   frMarksGeneralOptions.chkPointIgnore.Checked:=true;
@@ -90,10 +102,11 @@ end;
 destructor TfrmMarksMultiEdit.Destroy;
 begin
   FreeAndNil(frMarksGeneralOptions);
+  FreeAndNil(frMarkCategory);
   inherited;
 end;
 
-function TfrmMarksMultiEdit.GetImportConfig: IImportConfig;
+function TfrmMarksMultiEdit.GetImportConfig(ACategory:ICategory): IImportConfig;
 var
   VIndex: Integer;
   VPic: IMarkPicture;
@@ -103,6 +116,7 @@ var
   VCategory: ICategory;
 begin
     frMarksGeneralOptions.Init(FMarksDb);
+    frMarkCategory.Init(ACategory);
     try
       if ShowModal = mrOk then begin
         if not frMarksGeneralOptions.chkPointIgnore.Checked then begin
@@ -112,7 +126,7 @@ begin
           end else begin
             VPic := IMarkPicture(Pointer(frMarksGeneralOptions.cbbPointIcon.Items.Objects[VIndex]));
           end;
-          VCategory := nil;
+          VCategory := frMarkCategory.GetCategory;
           VMarkTemplatePoint :=
             FMarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
               VPic,
@@ -153,6 +167,7 @@ begin
         Result := nil;
       end;
     finally
+      frMarkCategory.Clear;
       frMarksGeneralOptions.Clear;
     end;
 end;
@@ -160,6 +175,7 @@ end;
 procedure TfrmMarksMultiEdit.RefreshTranslation;
 begin
   inherited;
+  frMarkCategory.RefreshTranslation;
   frMarksGeneralOptions.RefreshTranslation;
 end;
 
@@ -170,6 +186,7 @@ end;
 
 procedure TfrmMarksMultiEdit.FormShow(Sender: TObject);
 begin
+  frMarkCategory.Parent := pnlCategory;
   frMarksGeneralOptions.Parent := pnlMarksGeneralOptions;
 end;
 

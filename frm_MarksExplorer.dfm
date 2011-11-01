@@ -153,7 +153,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             Align = alTop
             BorderStyle = bsNone
             CloseButton = False
-            DockPos = 2
+            DockPos = -3
             Images = frmMain.MenusImageList
             ParentBackground = True
             ParentColor = True
@@ -171,12 +171,6 @@ object frmMarksExplorer: TfrmMarksExplorer
               OnClick = btnDelMarkClick
               Caption = ''
               Hint = 'Delete selected placemark'
-            end
-            object TBXItem1: TTBXItem
-              ImageIndex = 42
-              OnClick = TBXItem1Click
-              Caption = ''
-              Hint = 'Edit Placemarks In This Category'
             end
             object TBXSeparatorItem1: TTBXSeparatorItem
               Caption = ''

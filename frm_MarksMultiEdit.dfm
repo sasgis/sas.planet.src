@@ -3,7 +3,7 @@ object frmMarksMultiEdit: TfrmMarksMultiEdit
   Top = 207
   BorderStyle = bsDialog
   Caption = 'Marks Parameters'
-  ClientHeight = 358
+  ClientHeight = 379
   ClientWidth = 505
   Color = clBtnFace
   ParentFont = True
@@ -15,7 +15,7 @@ object frmMarksMultiEdit: TfrmMarksMultiEdit
   TextHeight = 13
   object btnOk: TButton
     Left = 422
-    Top = 326
+    Top = 349
     Width = 75
     Height = 25
     Caption = 'Start'
@@ -24,7 +24,7 @@ object frmMarksMultiEdit: TfrmMarksMultiEdit
   end
   object btnCancel: TButton
     Left = 342
-    Top = 326
+    Top = 349
     Width = 75
     Height = 25
     Cancel = True
@@ -34,12 +34,23 @@ object frmMarksMultiEdit: TfrmMarksMultiEdit
   end
   object pnlMarksGeneralOptions: TPanel
     Left = 0
-    Top = 0
+    Top = 26
     Width = 505
     Height = 320
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitTop = 26
+    ExplicitTop = 23
+  end
+  object pnlCategory: TPanel
+    Left = 0
+    Top = 0
+    Width = 505
+    Height = 26
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 3
+    ExplicitLeft = 8
+    ExplicitTop = -8
   end
 end

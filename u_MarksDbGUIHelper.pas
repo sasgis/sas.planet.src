@@ -59,6 +59,7 @@ type
     procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
 
     function DeleteMarkModal(AMarkID: IMarkID; handle:THandle):boolean;
+    function DeleteMarksModal(AMarkIDList: IInterfaceList; handle:THandle):boolean;
     function OperationMark(AMark: IMark; AZoom: Byte; AConverter: ICoordConverter):boolean;
     function AddKategory(name:string): IMarkCategory;
     procedure ShowMarkLength(AMark: IMarkLine; AConverter: ICoordConverter; AHandle: THandle); overload;
@@ -70,7 +71,7 @@ type
     function SavePolyModal(AMark: IMarkPoly; ANewArrLL: TArrayOfDoublePoint): Boolean;
     function SaveLineModal(AMark: IMarkLine; ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
     function EditModalImportConfig: IImportConfig;
-    function MarksMultiEditModal: IImportConfig;
+    function MarksMultiEditModal(ACategory:ICategory): IImportConfig;
 
     property MarksDB: TMarksSystem read FMarksDB;
   public
@@ -142,6 +143,7 @@ begin
   FfrmMarksMultiEdit :=
     TfrmMarksMultiEdit.Create(
       ALanguageManager,
+      FMarksDB.CategoryDB,
       FMarksDB.MarksDb
     );
 end;
@@ -205,6 +207,30 @@ begin
   end;
 end;
 
+function TMarksDbGUIHelper.DeleteMarksModal(AMarkIDList: IInterfaceList;
+  handle: THandle): boolean;
+var
+  VMark: IMarkId;
+  i: integer;
+begin
+  Result := false;
+  if AMarkIDList <> nil then begin
+    if AMarkIDList.Count=1 then begin
+      VMark:=IMarkId(AMarkIDList[0]);
+      if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+VMark.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
+        result := FMarksDb.MarksDb.DeleteMark(VMark);
+      end;
+    end else begin
+      if MessageBox(handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
+        for I := 0 to AMarkIDList.Count - 1 do begin
+          VMark:=IMarkId(AMarkIDList[i]);
+          result := FMarksDb.MarksDb.DeleteMark(VMark);
+        end;
+      end;
+    end;
+  end;
+end;
+
 function TMarksDbGUIHelper.EditCategoryModal(
   ACategory: IMarkCategory): IMarkCategory;
 begin
@@ -232,9 +258,9 @@ begin
   Result := FfrmImportConfigEdit.GetImportConfig;
 end;
 
-function TMarksDbGUIHelper.MarksMultiEditModal: IImportConfig;
+function TMarksDbGUIHelper.MarksMultiEditModal(ACategory:ICategory): IImportConfig;
 begin
-  Result := FfrmMarksMultiEdit.GetImportConfig;
+  Result := FfrmMarksMultiEdit.GetImportConfig(ACategory);
 end;
 
 procedure TMarksDbGUIHelper.ShowMarkLength(AMark: IMarkLine; AConverter: ICoordConverter; AHandle: THandle);
