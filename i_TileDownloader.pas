@@ -72,6 +72,9 @@ type
 
     function GetCancelNotifier: IOperationNotifier;
     property CancelNotifier: IOperationNotifier read GetCancelNotifier;
+
+    function GetOperationID: Integer;
+    property OperationID: Integer read GetOperationID;
   end;
 
 implementation

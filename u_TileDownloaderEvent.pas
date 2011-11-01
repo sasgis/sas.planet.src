@@ -55,6 +55,7 @@ type
     procedure SetIsProcessed(AValue: Boolean);
     function GetNotifier: IOperationNotifier;
     procedure OnCancelEvent(Sender: TObject);
+    function GetOperationID: Integer;
   public
     constructor Create(ACancelNotifier: IOperationNotifier; AOperationID: Integer);
     destructor Destroy; override;
@@ -103,6 +104,7 @@ type
     function  GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(AValue: IDownloadResult);
     function  GetCancelNotifier: IOperationNotifier;
+    function GetOperationID: Integer;
   end;
 
 implementation
@@ -193,6 +195,11 @@ begin
   finally
     FThreadSafeCS.Release;
   end;
+end;
+
+function TEventStatus.GetOperationID: Integer;
+begin
+  Result := FOperationID;
 end;
 
 { TTileDownloaderEvent }
@@ -356,6 +363,11 @@ end;
 function TTileDownloaderEvent.GetLastResponseInfo: ILastResponseInfo;
 begin
   Result := FLastResponseInfo;
+end;
+
+function TTileDownloaderEvent.GetOperationID: Integer;
+begin
+  Result := FEventStatus.GetOperationID;
 end;
 
 procedure TTileDownloaderEvent.SetDownloadRequest(AValue: ITileDownloadRequest);

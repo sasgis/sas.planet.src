@@ -29,6 +29,8 @@ uses
   ALHTTPCommon,
   ALHttpClient,
   ALWinInetHttpClient,
+  i_JclNotify,
+  i_OperationNotifier,
   i_InetConfig,
   i_ProxySettings,
   i_DownloadResult,
@@ -40,6 +42,7 @@ uses
 type
   TTileDownloaderHttp = class
   private
+    FCancelListener: IJclListener;
     FHttpClient: TALWinInetHTTPClient;
     FHttpResponseHeader: TALHTTPResponseHeader;
     FHttpResponseBody: TMemoryStream;
@@ -73,6 +76,8 @@ type
     function IsOkStatus(AStatusCode: Cardinal): Boolean;
     function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean;
     function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean;
+    procedure Disconnect;
+    procedure OnCancelEvent(Sender: TObject);
   public
     constructor Create(
       ADownloadChecker: IDownloadChecker;
@@ -80,16 +85,17 @@ type
     );
     destructor Destroy; override;
     function Get(
-      ARequest: IDownloadRequest
+      ARequest: IDownloadRequest;
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
     ): IDownloadResult;
-    function Cancel(ARequest: IDownloadRequest): IDownloadResult;
-    procedure Disconnect;
   end;
 
 implementation
 
 uses
-  WinInet;
+  WinInet,
+  u_NotifyEventListener;
 
 { TTileDownloaderHttp }
 
@@ -102,6 +108,7 @@ begin
   FHttpClient := TALWinInetHTTPClient.Create(nil);
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
   FHttpResponseBody := TMemoryStream.Create;
+  FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
   FResultFactory := AResultFactory;
   FDownloadChecker := ADownloadChecker;
 end;
@@ -118,51 +125,54 @@ begin
 end;
 
 function TTileDownloaderHttp.Get(
-  ARequest: IDownloadRequest
+  ARequest: IDownloadRequest;
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer
 ): IDownloadResult;
 begin
-  Result := OnBeforeRequest(
-    ARequest,
-    FResultFactory
-  );
-  if Result = nil then
+  ACancelNotifier.AddListener(FCancelListener);
   try
-    FHttpClient.Get(
-      ARequest.Url,
-      FHttpResponseBody,
-      FHttpResponseHeader
-    );
-  except
-    on E: EALHTTPClientException do begin
-      Result := OnHttpError(
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Result := FResultFactory.BuildCanceled(ARequest);
+    end;
+    if Result = nil then begin
+      Result := OnBeforeRequest(
         ARequest,
-        FResultFactory,
-        E.StatusCode,
-        E.Message
+        FResultFactory
       );
     end;
-    on E: EOSError do begin
-      Result := OnOSError(
+    if Result = nil then
+    try
+      FHttpClient.Get(
+        ARequest.Url,
+        FHttpResponseBody,
+        FHttpResponseHeader
+      );
+    except
+      on E: EALHTTPClientException do begin
+        Result := OnHttpError(
+          ARequest,
+          FResultFactory,
+          E.StatusCode,
+          E.Message
+        );
+      end;
+      on E: EOSError do begin
+        Result := OnOSError(
+          ARequest,
+          FResultFactory,
+          E.ErrorCode
+        );
+      end;
+    end;
+    if Result = nil then begin
+      Result := OnAfterResponse(
         ARequest,
-        FResultFactory,
-        E.ErrorCode
+        FResultFactory
       );
     end;
-  end;
-  if Result = nil then begin
-    Result := OnAfterResponse(
-      ARequest,
-      FResultFactory
-    );
-  end;
-end;
-
-function TTileDownloaderHttp.Cancel(ARequest: IDownloadRequest): IDownloadResult;
-begin
-  try
-    Disconnect;
   finally
-    Result := FResultFactory.BuildCanceled(ARequest);
+    ACancelNotifier.RemoveListener(FCancelListener);
   end;
 end;
 
@@ -189,6 +199,11 @@ begin
       ARequest.InetConfig
     );
   end;
+end;
+
+procedure TTileDownloaderHttp.OnCancelEvent(Sender: TObject);
+begin
+  Disconnect;
 end;
 
 function TTileDownloaderHttp.OnHttpError(

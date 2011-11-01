@@ -44,6 +44,7 @@ type
   private
     FCancelListener: IJclListener;
     FCancelEvent: TEvent;
+    FResultFactory: IDownloadResultFactory;
     FTileRequestBuilder: ITileRequestBuilder;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FHttpDownloader: TTileDownloaderHttp;
@@ -53,12 +54,10 @@ type
     FBusy: Boolean;
     FWasConnectError: Boolean;
     FLastDownloadTime: Cardinal;
-    FIsCanceled: Boolean;
     FSessionCS: TCriticalSection;
     FOnTTLEvent: TThreadTTLEvent;
     FLastUsedTime: Cardinal;
     procedure DoRequest;
-    function IsCanceled: Boolean;
     procedure SetIsCanceled;
     procedure SetNotCanceled;
     procedure SleepCancelable(ATime: Cardinal);
@@ -102,9 +101,9 @@ constructor TTileDownloaderBaseThread.Create(
 begin
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
-  FIsCanceled := False;
   FSessionCS := TCriticalSection.Create;
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
+  FResultFactory := AResultFactory;
   FHttpDownloader := TTileDownloaderHttp.Create(ADownloadChecker, AResultFactory);
   FWasConnectError := False;
   FOnTTLEvent := AOnTTL;
@@ -187,26 +186,33 @@ begin
     try
       if (VTileDownloaderConfigStatic <> nil) and (FTileRequestBuilder <> nil) then begin
         try
-          if FEvent.CancelNotifier <> nil then begin
-            FEvent.CancelNotifier.AddListener(FCancelListener);
-          end;
-          if FEvent.DownloadResult = nil then begin
+          FEvent.CancelNotifier.AddListener(FCancelListener);
+          if FEvent.CancelNotifier.IsOperationCanceled(FEvent.OperationID)then begin
+            FEvent.DownloadResult := nil;
+          end else begin
             VCount := 0;
             VTryCount := VTileDownloaderConfigStatic.InetConfigStatic.DownloadTryCount;
             FWasConnectError := False;
             repeat
-              if IsCanceled then begin
-                FEvent.DownloadResult := FHttpDownloader.Cancel(FEvent.DownloadRequest);
+              SleepIfConnectErrorOrWaitInterval(VTileDownloaderConfigStatic);
+              if FEvent.CancelNotifier.IsOperationCanceled(FEvent.OperationID)then begin
+                FEvent.DownloadResult := nil;
                 Break;
               end;
-              SleepIfConnectErrorOrWaitInterval(VTileDownloaderConfigStatic);
               FEvent.DownloadRequest := FTileRequestBuilder.BuildRequest(
                 FEvent.Request,
                 FEvent.LastResponseInfo
               );
-              FEvent.DownloadResult := FHttpDownloader.Get(
-                FEvent.DownloadRequest
-              );
+              if FEvent.CancelNotifier.IsOperationCanceled(FEvent.OperationID)then begin
+                FEvent.DownloadResult := FResultFactory.BuildCanceled(FEvent.DownloadRequest);
+                Break;
+              end;
+              FEvent.DownloadResult :=
+                FHttpDownloader.Get(
+                  FEvent.DownloadRequest,
+                  FEvent.CancelNotifier,
+                  FEvent.OperationID
+                );
               Inc(VCount);
               FLastDownloadTime := GetTickCount;
               if FEvent.DownloadResult <> nil then begin
@@ -215,9 +221,7 @@ begin
             until (not FWasConnectError) or (VCount >= VTryCount);
           end;
         finally
-          if FEvent.CancelNotifier <> nil then begin
-            FEvent.CancelNotifier.RemoveListener(FCancelListener);
-          end;
+          FEvent.CancelNotifier.RemoveListener(FCancelListener);
         end;
       end;
     finally
@@ -261,20 +265,7 @@ end;
 
 procedure TTileDownloaderBaseThread.OnCancelEvent(Sender: TObject);
 begin
-  if Assigned(FHttpDownloader) then begin
-    FHttpDownloader.Disconnect;
-  end;
   SetIsCanceled;
-end;
-
-function TTileDownloaderBaseThread.IsCanceled: Boolean;
-begin
-  FSessionCS.Acquire;
-  try
-    Result := FIsCanceled;
-  finally
-    FSessionCS.Release;
-  end;
 end;
 
 procedure TTileDownloaderBaseThread.SetIsCanceled;
@@ -282,7 +273,6 @@ begin
   FSessionCS.Acquire;
   try
     FCancelEvent.SetEvent;
-    FIsCanceled := True;
   finally
     FSessionCS.Release;
   end;
@@ -293,7 +283,6 @@ begin
   FSessionCS.Acquire;
   try
     FCancelEvent.ResetEvent;
-    FIsCanceled := False;
   finally
     FSessionCS.Release;
   end;

@@ -27,6 +27,8 @@ uses
   u_TBXSubmenuItemWithIndicator in 'u_TBXSubmenuItemWithIndicator.pas',
   i_EcwDll in 'i_EcwDll.pas',
   u_EcwDllSimple in 'u_EcwDllSimple.pas',
+  i_TileRectUpdateNotifier in 'i_TileRectUpdateNotifier.pas',
+  u_TileRectUpdateNotifier in 'u_TileRectUpdateNotifier.pas',
   i_ConfigDataProvider in 'i_ConfigDataProvider.pas',
   i_ConfigDataWriteProvider in 'i_ConfigDataWriteProvider.pas',
   u_ConfigDataProviderByKaZip in 'u_ConfigDataProviderByKaZip.pas',
