@@ -65,7 +65,6 @@ type
     FMainGeoCoderConfig: IMainGeoCoderConfig;
     FViewPortState: IViewPortState;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
-    FLocalConverter: ILocalCoordConverter;
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
     FMarksList: IInterfaceList;
@@ -175,7 +174,9 @@ var
   VMark: IMark;
   VLonLat: TDoublePoint;
   VGeoCoderItem: IGeoCoderListEntity;
+  VLocalConverter: ILocalCoordConverter;
 begin
+  VLocalConverter := FViewPortState.GetVisualCoordConverter;
   if pgcSearchType.ActivePage = tsPlaceMarks then begin
     VIndex := cbbAllMarks.ItemIndex;
     if VIndex >= 0 then begin
@@ -200,7 +201,7 @@ begin
       VGeoCoderItem := IGeoCoderListEntity(Pointer(cbbSearcherType.Items.Objects[VIndex]));
     end;
     if VGeoCoderItem <> nil then begin
-      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, FLocalConverter);
+      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, VLocalConverter);
       FMainGeoCoderConfig.SearchHistory.AddItem(textsrch);
       FMainGeoCoderConfig.ActiveGeoCoderGUID := VGeoCoderItem.GetGUID;
       ModalResult := mrOk;
@@ -223,7 +224,7 @@ function TfrmGoTo.ShowGeocodeModal(
 var
   VLocalConverter: ILocalCoordConverter;
 begin
-  frLonLatPoint.Parent := tsCoordinates;
+   frLonLatPoint.Parent := tsCoordinates;
   VLocalConverter := FViewPortState.GetVisualCoordConverter;
   AZoom := VLocalConverter.GetZoom;
   cbbZoom.ItemIndex := Azoom;
