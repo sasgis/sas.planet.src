@@ -624,6 +624,7 @@ uses
   u_ProviderTilesDownload in 'RegionProcess\u_ProviderTilesDownload.pas',
   fr_ShortCutList in 'fr_ShortCutList.pas' {frShortCutList: TFrame},
   fr_MarkCategorySelectOrAdd in 'fr_MarkCategorySelectOrAdd.pas' {frMarkCategorySelectOrAdd: TFrame},
+  fr_MarksGeneralOptions in 'fr_MarksGeneralOptions.pas' {frMarksGeneralOptions: TFrame},
   fr_MarkDescription in 'fr_MarkDescription.pas' {frMarkDescription: TFrame},
   fr_LonLat in 'fr_LonLat.pas' {frLonLat: TFrame},
   fr_SearchResultsItem in 'fr_SearchResultsItem.pas' {frSearchResultsItem: TFrame},
@@ -647,8 +648,8 @@ uses
   frm_ImportConfigEdit in 'frm_ImportConfigEdit.pas' {frmImportConfigEdit},
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
+  frm_MarksMultiEdit in 'frm_MarksMultiEdit.pas' {frmMarksMultiEdit},
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
-
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}
 {$R .\Resources\Common.res}

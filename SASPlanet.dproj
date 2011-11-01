@@ -60,6 +60,10 @@
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
+    <DCCReference Include="frMarksGeneralOptions.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frMarksGeneralOptions</Form>
+    </DCCReference>
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
     </DCCReference>
@@ -105,6 +109,9 @@
     <DCCReference Include="frm_MarksExplorer.pas">
       <Form>frmMarksExplorer</Form>
     </DCCReference>
+    <DCCReference Include="frm_MarksMultiEdit.pas">
+      <Form>frmMarksMultiEdit</Form>
+    </DCCReference>
     <DCCReference Include="frm_ProgressDownload.pas">
       <Form>frmProgressDownload</Form>
     </DCCReference>
@@ -128,11 +135,15 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_MarkCategorySelectOrAdd.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frMarkCategorySelectOrAdd</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_MarkDescription.pas">
       <Form>frMarkDescription</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="fr_MarksGeneralOptions.pas">
+      <Form>frMarksGeneralOptions</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_SearchResultsItem.pas">

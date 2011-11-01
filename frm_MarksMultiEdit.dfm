@@ -1,9 +1,9 @@
-object frmImportConfigEdit: TfrmImportConfigEdit
+object frmMarksMultiEdit: TfrmMarksMultiEdit
   Left = 245
   Top = 207
   BorderStyle = bsDialog
-  Caption = 'Import Parameters'
-  ClientHeight = 385
+  Caption = 'Marks Parameters'
+  ClientHeight = 358
   ClientWidth = 505
   Color = clBtnFace
   ParentFont = True
@@ -14,8 +14,8 @@ object frmImportConfigEdit: TfrmImportConfigEdit
   PixelsPerInch = 96
   TextHeight = 13
   object btnOk: TButton
-    Left = 424
-    Top = 352
+    Left = 422
+    Top = 326
     Width = 75
     Height = 25
     Caption = 'Start'
@@ -23,8 +23,8 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     OnClick = btnOkClick
   end
   object btnCancel: TButton
-    Left = 344
-    Top = 352
+    Left = 342
+    Top = 326
     Width = 75
     Height = 25
     Cancel = True
@@ -32,22 +32,14 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     ModalResult = 2
     TabOrder = 1
   end
-  object pnlCategory: TPanel
-    Left = 0
-    Top = 0
-    Width = 505
-    Height = 26
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 2
-  end
   object pnlMarksGeneralOptions: TPanel
     Left = 0
-    Top = 26
+    Top = 0
     Width = 505
     Height = 320
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 2
+    ExplicitTop = 26
   end
 end

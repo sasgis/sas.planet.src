@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit frm_ImportConfigEdit;
+unit frm_MarksMultiEdit;
 
 interface
 
@@ -45,22 +45,18 @@ uses
   fr_MarkCategorySelectOrAdd;
 
 type
-  TfrmImportConfigEdit = class(TFormWitghLanguageManager)
+  TfrmMarksMultiEdit = class(TFormWitghLanguageManager)
     btnOk: TButton;
     btnCancel: TButton;
-    pnlCategory: TPanel;
     pnlMarksGeneralOptions: TPanel;
     procedure btnOkClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    frMarkCategory: TfrMarkCategorySelectOrAdd;
     frMarksGeneralOptions: TfrMarksGeneralOptions;
-    FCategoryDB: IMarkCategoryDB;
     FMarksDb: IMarksDb;
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      ACategoryDB: IMarkCategoryDB;
       AMarksDb: IMarksDb
     ); reintroduce;
     destructor Destroy; override;
@@ -77,32 +73,27 @@ uses
 
 {$R *.dfm}
 
-constructor TfrmImportConfigEdit.Create(
+constructor TfrmMarksMultiEdit.Create(
   ALanguageManager: ILanguageManager;
-  ACategoryDB: IMarkCategoryDB;
   AMarksDb: IMarksDb
 );
 begin
   inherited Create(ALanguageManager);
   FMarksDb := AMarksDb;
-  FCategoryDB := ACategoryDB;
 
-  frMarkCategory :=
-    TfrMarkCategorySelectOrAdd.Create(
-      nil,
-      FCategoryDB
-    );
   frMarksGeneralOptions:= TfrMarksGeneralOptions.Create(nil);
+  frMarksGeneralOptions.chkPointIgnore.Checked:=true;
+  frMarksGeneralOptions.chkLineIgnore.Checked:=true;
+  frMarksGeneralOptions.chkPolyIgnore.Checked:=true;
 end;
 
-destructor TfrmImportConfigEdit.Destroy;
+destructor TfrmMarksMultiEdit.Destroy;
 begin
-  FreeAndNil(frMarkCategory);
   FreeAndNil(frMarksGeneralOptions);
   inherited;
 end;
 
-function TfrmImportConfigEdit.GetImportConfig: IImportConfig;
+function TfrmMarksMultiEdit.GetImportConfig: IImportConfig;
 var
   VIndex: Integer;
   VPic: IMarkPicture;
@@ -112,7 +103,6 @@ var
   VCategory: ICategory;
 begin
     frMarksGeneralOptions.Init(FMarksDb);
-    frMarkCategory.Init(nil);
     try
       if ShowModal = mrOk then begin
         if not frMarksGeneralOptions.chkPointIgnore.Checked then begin
@@ -122,7 +112,7 @@ begin
           end else begin
             VPic := IMarkPicture(Pointer(frMarksGeneralOptions.cbbPointIcon.Items.Objects[VIndex]));
           end;
-          VCategory := frMarkCategory.GetCategory;
+          VCategory := nil;
           VMarkTemplatePoint :=
             FMarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
               VPic,
@@ -163,26 +153,23 @@ begin
         Result := nil;
       end;
     finally
-      frMarkCategory.Clear;
       frMarksGeneralOptions.Clear;
     end;
 end;
 
-procedure TfrmImportConfigEdit.RefreshTranslation;
+procedure TfrmMarksMultiEdit.RefreshTranslation;
 begin
   inherited;
-  frMarkCategory.RefreshTranslation;
   frMarksGeneralOptions.RefreshTranslation;
 end;
 
-procedure TfrmImportConfigEdit.btnOkClick(Sender: TObject);
+procedure TfrmMarksMultiEdit.btnOkClick(Sender: TObject);
 begin
   ModalResult := mrOk;
 end;
 
-procedure TfrmImportConfigEdit.FormShow(Sender: TObject);
+procedure TfrmMarksMultiEdit.FormShow(Sender: TObject);
 begin
-  frMarkCategory.Parent := pnlCategory;
   frMarksGeneralOptions.Parent := pnlMarksGeneralOptions;
 end;
 

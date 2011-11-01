@@ -40,6 +40,7 @@ uses
   frm_MarkEditPoly,
   frm_RegionProcess,
   frm_ImportConfigEdit,
+  frm_MarksMultiEdit,
   u_MarksSystem;
 
 type
@@ -53,6 +54,7 @@ type
     FfrmMarkEditPoly: TfrmMarkEditPoly;
     FfrmMarkCategoryEdit: TfrmMarkCategoryEdit;
     FfrmImportConfigEdit: TfrmImportConfigEdit;
+    FfrmMarksMultiEdit: TfrmMarksMultiEdit;
   public
     procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
 
@@ -68,6 +70,7 @@ type
     function SavePolyModal(AMark: IMarkPoly; ANewArrLL: TArrayOfDoublePoint): Boolean;
     function SaveLineModal(AMark: IMarkLine; ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
     function EditModalImportConfig: IImportConfig;
+    function MarksMultiEditModal: IImportConfig;
 
     property MarksDB: TMarksSystem read FMarksDB;
   public
@@ -136,6 +139,11 @@ begin
       FMarksDB.CategoryDB,
       FMarksDB.MarksDb
     );
+  FfrmMarksMultiEdit :=
+    TfrmMarksMultiEdit.Create(
+      ALanguageManager,
+      FMarksDB.MarksDb
+    );
 end;
 
 destructor TMarksDbGUIHelper.Destroy;
@@ -145,6 +153,7 @@ begin
   FreeAndNil(FfrmMarkEditPoly);
   FreeAndNil(FfrmMarkCategoryEdit);
   FreeAndNil(FfrmImportConfigEdit);
+  FreeAndNil(FfrmMarksMultiEdit);
   inherited;
 end;
 
@@ -221,6 +230,11 @@ end;
 function TMarksDbGUIHelper.EditModalImportConfig: IImportConfig;
 begin
   Result := FfrmImportConfigEdit.GetImportConfig;
+end;
+
+function TMarksDbGUIHelper.MarksMultiEditModal: IImportConfig;
+begin
+  Result := FfrmMarksMultiEdit.GetImportConfig;
 end;
 
 procedure TMarksDbGUIHelper.ShowMarkLength(AMark: IMarkLine; AConverter: ICoordConverter; AHandle: THandle);
