@@ -399,7 +399,7 @@ procedure TfrmMarksExplorer.btnDelMarkClick(Sender: TObject);
 var
   VMarkIdList: IInterfaceList;
 begin
-  VMarkIdList:=GetSelectedMarksIdList;;
+  VMarkIdList:=GetSelectedMarksIdList;
   if VMarkIdList <> nil then begin
     if FMarkDBGUI.DeleteMarksModal(VMarkIdList, Self.Handle) then begin
       MarksListBox.DeleteSelected;
@@ -410,6 +410,7 @@ end;
 procedure TfrmMarksExplorer.btnEditMarkClick(Sender: TObject);
 var
   VMarkIdList: IInterfaceList;
+  VMarksList: IInterfaceList;
   VMark: IMark;
   VImportConfig: IImportConfig;
   VMarkPoint: IMarkPoint;
@@ -433,6 +434,7 @@ begin
       if (VImportConfig <> nil) then begin
         VMarkIdList:=GetSelectedMarksIdList;
         if (VMarkIdList <> nil) then begin
+          VMarksList:=TInterfaceList.Create;
           for i := 0 to VMarkIdList.Count - 1 do begin
             VMarkId := IMarkId(VMarkIdList[i]);
             VMark:=FMarkDBGUI.MarksDB.MarksDb.GetMarkByID(VMarkId);
@@ -481,8 +483,11 @@ begin
               end;
             end;
             if VMark <> nil then begin
-              FMarkDBGUI.MarksDb.MarksDb.WriteMark(VMark);
+              VMarksList.Add(VMark);
             end;
+          end;
+          if (VMarksList<>nil) then begin
+            FMarkDBGUI.MarksDb.MarksDb.WriteMarksList(VMarksList);
           end;
           UpdateMarksList;
         end;

@@ -139,6 +139,7 @@ begin
         end;
         VMarkTemplateLine := nil;
         if not frMarksGeneralOptions.chkLineIgnore.Checked then begin
+          VCategory := frMarkCategory.GetCategory;
           VMarkTemplateLine :=
             FMarksDb.Factory.Config.LineTemplateConfig.CreateTemplate(
               VCategory,
@@ -148,6 +149,7 @@ begin
         end;
         VMarkTemplatePoly := nil;
         if not frMarksGeneralOptions.chkPolyIgnore.Checked then begin
+          VCategory := frMarkCategory.GetCategory;
           VMarkTemplatePoly :=
             FMarksDb.Factory.Config.PolyTemplateConfig.CreateTemplate(
               VCategory,

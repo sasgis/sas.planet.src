@@ -34,6 +34,7 @@ type
     ['{0B5DFEC6-E519-4D06-8DBA-2D24E2F9A372}']
     function GetMarkByID(AMarkId: IMarkId): IMark;
     function DeleteMark(AMarkId: IMarkId): Boolean;
+    procedure DeleteMarksList(AMarkList: IInterfaceList);
     procedure DeleteMarksByCategoryID(ACategory: ICategory);
     procedure WriteMark(AMark: IMark);
     procedure WriteMarksList(AMarkList: IInterfaceList);

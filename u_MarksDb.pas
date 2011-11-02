@@ -83,6 +83,7 @@ type
   protected
     function GetMarkByID(AMarkId: IMarkId): IMark;
     function DeleteMark(AMarkId: IMarkId): Boolean;
+    procedure DeleteMarksList(AMarkList: IInterfaceList);
     procedure DeleteMarksByCategoryID(ACategory: ICategory);
     procedure WriteMark(AMark: IMark);
     procedure WriteMarksList(AMarkList: IInterfaceList);
@@ -454,6 +455,34 @@ begin
       end;
       WriteCurrentMark(VMark);
       FCdsMarks.Post;
+    end;
+  finally
+    UnlockWrite;
+  end;
+  SaveMarks2File;
+end;
+
+procedure TMarksDb.DeleteMarksList(AMarkList: IInterfaceList);
+var
+  i: Integer;
+  VMark: IMark;
+  VId: Integer;
+  VMarkVisible: IMarkSMLInternal;
+begin
+  LockWrite;
+  try
+    FCdsMarks.Filtered := false;
+    for i := 0 to AMarkList.Count - 1 do begin
+      VMark := IMark(AMarkList.Items[i]);
+      VId := -1;
+      if Supports(VMark, IMarkSMLInternal, VMarkVisible) then begin
+        VId := VMarkVisible.Id;
+      end;
+      if VId >= 0 then begin
+        if FCdsMarks.Locate('id', VId, []) then begin
+          FCdsMarks.Delete;
+        end;
+      end;
     end;
   finally
     UnlockWrite;

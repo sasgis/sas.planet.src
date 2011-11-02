@@ -222,10 +222,8 @@ begin
       end;
     end else begin
       if MessageBox(handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
-        for I := 0 to AMarkIDList.Count - 1 do begin
-          VMark:=IMarkId(AMarkIDList[i]);
-          result := FMarksDb.MarksDb.DeleteMark(VMark);
-        end;
+        FMarksDb.MarksDb.DeleteMarksList(AMarkIDList);
+        result := true;
       end;
     end;
   end;
