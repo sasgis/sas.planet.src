@@ -2801,8 +2801,7 @@ begin
     VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
     VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
     s := VMapType.GetTileFileName(VTile, VZoomCurr);
-    s := ExtractFilePath(s);
-    ShellExecute(0,'open',PChar(s),nil,nil,SW_SHOWNORMAL);
+    winexec(PChar('explorer /select,' + s), SW_SHOWNORMAL)
   end else begin
     ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
