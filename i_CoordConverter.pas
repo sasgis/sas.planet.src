@@ -54,6 +54,9 @@ type
     function GetDatum: IDatum; stdcall;
     property Datum: IDatum read GetDatum;
 
+    // Минимальный и максимальный зумы обычно с 0 до 23
+    function GetMinZoom: Byte; stdcall;
+    function GetMaxZoom: Byte; stdcall;
     // Возвращает количество тайлов в заданном зуме
     function TilesAtZoom(const AZoom: byte): Longint; stdcall;
     function TilesAtZoomFloat(const AZoom: byte): Double; stdcall;

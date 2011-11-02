@@ -135,6 +135,9 @@ type
   protected
     function GetDatum: IDatum; stdcall;
 
+    function GetMinZoom: Byte; stdcall;
+    function GetMaxZoom: Byte; stdcall;
+
     function TilesAtZoom(const AZoom: byte): Longint; stdcall;
     function TilesAtZoomFloat(const AZoom: byte): Double; stdcall;
     function PixelsAtZoom(const AZoom: byte): Longint; stdcall;
@@ -1055,6 +1058,16 @@ end;
 function TCoordConverterAbstract.GetDatum: IDatum;
 begin
   Result := FDatum;
+end;
+
+function TCoordConverterAbstract.GetMaxZoom: Byte;
+begin
+  Result := 23;
+end;
+
+function TCoordConverterAbstract.GetMinZoom: Byte;
+begin
+  Result := 0;
 end;
 
 function TCoordConverterAbstract.GetProjectionEPSG: Integer;
