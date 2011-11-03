@@ -15,7 +15,7 @@ type
     Rect: TRect;
   end;
 
-  TTileRectUpdateNotifier = class(TInterfacedObject, ITileRectUpdateNotifier)
+  TTileRectUpdateNotifier = class(TInterfacedObject, ITileRectUpdateNotifier, ITileRectUpdateNotifierInternal)
   private
     FGeoCoder: ICoordConverter;
     FZoom: Byte;
@@ -63,6 +63,9 @@ begin
   for i := 0 to FCount - 1 do begin
     FList[i].Listener := nil;
   end;
+  FList := nil;
+  FGeoCoder := nil;
+  FreeAndNil(FSynchronizer);
   inherited;
 end;
 

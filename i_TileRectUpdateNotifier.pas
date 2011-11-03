@@ -18,7 +18,11 @@ type
 
     procedure Add(AListener: IJclListener; ATileRect: TRect); stdcall;
     procedure Remove(AListener: IJclListener); stdcall;
+  end;
+  ITileRectUpdateNotifierInternal = interface
+    ['{86C0C887-1DD8-43B8-9B5A-0504B4BFA809}']
     procedure TileUpdateNotify(ATile: TPoint); stdcall;
+//    procedure TileRectUpdateNotify(ARect: TRect); stdcall;
   end;
 
 implementation
