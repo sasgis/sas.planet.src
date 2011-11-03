@@ -42,6 +42,7 @@ type
     procedure btnSelectTargetPathClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
     procedure chkAllMapsClick(Sender: TObject);
+    procedure chklstZoomsDblClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -90,9 +91,19 @@ procedure TfrTilesCopy.chkAllZoomsClick(Sender: TObject);
 var
   i: byte;
 begin
+  if chkAllZooms.state<>cbGrayed then
   for i:=0 to chklstZooms.Count-1 do begin
     chklstZooms.Checked[i] := TCheckBox(sender).Checked;
   end;
+end;
+
+procedure TfrTilesCopy.chklstZoomsDblClick(Sender: TObject);
+var
+  i: Integer;
+begin
+  for I := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i]:=true;
+  if chklstZooms.ItemIndex<chklstZooms.count-1 then for I := chklstZooms.ItemIndex+1 to chklstZooms.count-1 do chklstZooms.Checked[i]:=false;
+  if chklstZooms.ItemIndex=chklstZooms.count then chkAllZooms.state:=cbChecked else chkAllZooms.state:=cbGrayed;
 end;
 
 constructor TfrTilesCopy.Create(
