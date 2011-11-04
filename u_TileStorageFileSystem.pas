@@ -190,6 +190,9 @@ begin
     except
       Result := false;
     end;
+    if Result then begin
+      NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
+    end;
   end else begin
     Exception.Create('Для этой карты запрещено удаление тайлов.');
   end;
@@ -490,6 +493,7 @@ begin
     finally
       FLock.EndWrite;
     end;
+    NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;

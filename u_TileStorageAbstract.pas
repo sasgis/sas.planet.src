@@ -33,18 +33,28 @@ uses
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_TileInfoBasic,
+  i_TileRectUpdateNotifier,
   u_MapTypeCacheConfig;
 
 type
   TTileStorageAbstract = class
   private
     FConfig: ISimpleTileStorageConfig;
+    FMinValidZoom: Byte;
+    FMaxValidZoom: Byte;
+    FNotifierByZoom: array of ITileRectUpdateNotifier;
+    FNotifierByZoomInternal: array of ITileRectUpdateNotifierInternal;
+    function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
+    function GetNotifierByZoomInternal(
+      AZoom: Byte): ITileRectUpdateNotifierInternal;
   protected
     property Config: ISimpleTileStorageConfig read FConfig;
+    property NotifierByZoomInternal[AZoom: Byte]: ITileRectUpdateNotifierInternal read GetNotifierByZoomInternal;
   public
     constructor Create(
       AConfig: ISimpleTileStorageConfig
     );
+    destructor Destroy; override;
     function GetMainContentType: IContentTypeInfoBasic; virtual; abstract;
     function GetAllowDifferentContentTypes: Boolean; virtual; abstract;
 
@@ -100,6 +110,8 @@ type
       AVersionInfo: IMapVersionInfo;
       AColorer: IFillingMapColorer
     ): boolean; virtual;
+
+    property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
   end;
 
 implementation
@@ -107,13 +119,58 @@ implementation
 uses
   t_GeoTypes,
   i_TileIterator,
+  u_TileRectUpdateNotifier,
   u_TileIteratorByRect;
 
 { TTileStorageAbstract }
 
 constructor TTileStorageAbstract.Create(AConfig: ISimpleTileStorageConfig);
+var
+  VCount: Integer;
+  i: Integer;
+  VNotifier: TTileRectUpdateNotifier;
 begin
   FConfig := AConfig;
+  FMinValidZoom := FConfig.CoordConverter.GetMinZoom;
+  FMaxValidZoom := FConfig.CoordConverter.GetMaxZoom;
+  Assert(FMinValidZoom <= FMaxValidZoom);
+  VCount := FMaxValidZoom - FMinValidZoom + 1;
+  SetLength(FNotifierByZoom, VCount);
+  SetLength(FNotifierByZoomInternal, VCount);
+  for i := 0 to VCount - 1 do begin
+    VNotifier := TTileRectUpdateNotifier.Create(FMinValidZoom + i, FConfig.CoordConverter);
+    FNotifierByZoom[i] := VNotifier;
+    FNotifierByZoomInternal[i] := VNotifier;
+  end;
+end;
+
+destructor TTileStorageAbstract.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to Length(FNotifierByZoom) - 1 do begin
+    FNotifierByZoom[i] := nil;
+  end;
+  for i := 0 to Length(FNotifierByZoomInternal) - 1 do begin
+    FNotifierByZoomInternal[i] := nil;
+  end;
+  inherited;
+end;
+
+function TTileStorageAbstract.GetNotifierByZoom(
+  AZoom: Byte
+): ITileRectUpdateNotifier;
+begin
+  Result := nil;
+  if (AZoom >= FMinValidZoom) and (AZoom <= FMaxValidZoom) then begin
+    Result := FNotifierByZoom[AZoom - FMinValidZoom];
+  end;
+end;
+
+function TTileStorageAbstract.GetNotifierByZoomInternal(
+  AZoom: Byte): ITileRectUpdateNotifierInternal;
+begin
+  Result := FNotifierByZoomInternal[AZoom - FMinValidZoom];
 end;
 
 function TTileStorageAbstract.LoadFillingMap(

@@ -65,6 +65,7 @@ uses
   i_ProxySettings,
   i_CoordConverterFactory,
   i_TileFileNameGeneratorsList,
+  i_TileRectUpdateNotifier,
   i_TileDownloadRequest,
   i_VectorDataItemSimple,
   u_GlobalCahceConfig,
@@ -146,6 +147,7 @@ type
       ACache: ITileObjCacheBitmap = nil
     ): boolean;
     function GetAbilitiesConfigStatic: IMapAbilitiesConfigStatic;
+    function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
    public
     procedure SaveConfig(ALocalConfig: IConfigDataWriteProvider);
     function GetRequest(AXY: TPoint; Azoom: byte; ACheckTileSize: Boolean): ITileRequest;
@@ -235,6 +237,7 @@ type
     property TileRequestBuilderConfig: ITileRequestBuilderConfig read FTileRequestBuilderConfig;
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
     property CacheVector: ITileObjCacheVector read FCacheVector;
+    property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
 
     constructor Create(
       ALanguageManager: ILanguageManager;
@@ -428,6 +431,11 @@ begin
       Result := VDownloadRequest.Url;
     end;
   end;
+end;
+
+function TMapType.GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
+begin
+  Result := FStorage.NotifierByZoom[AZoom];
 end;
 
 function TMapType.GetRequest(AXY: TPoint; Azoom: byte; ACheckTileSize: Boolean): ITileRequest;
