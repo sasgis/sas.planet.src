@@ -69,6 +69,7 @@ uses
   i_ObjectWithTTL in 'i_ObjectWithTTL.pas',
   i_MemObjCache in 'i_MemObjCache.pas',
   i_TileObjCache in 'i_TileObjCache.pas',
+  u_MemTileCache in 'u_MemTileCache.pas',
   u_TileCacheSimpleGlobal in 'u_TileCacheSimpleGlobal.pas',
   i_HtmlToHintTextConverter in 'i_HtmlToHintTextConverter.pas',
   u_HtmlToHintTextConverterStuped in 'u_HtmlToHintTextConverterStuped.pas',

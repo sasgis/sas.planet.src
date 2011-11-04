@@ -679,6 +679,7 @@
     <DCCReference Include="u_MarkTemplateConfigBase.pas" />
     <DCCReference Include="u_MarkTemplates.pas" />
     <DCCReference Include="u_MemFileCache.pas" />
+    <DCCReference Include="u_MemTileCache.pas" />
     <DCCReference Include="u_MenuGeneratorByStaticTreeSimple.pas" />
     <DCCReference Include="u_MiniMapLayerConfig.pas" />
     <DCCReference Include="u_MiniMapMapsConfig.pas" />
