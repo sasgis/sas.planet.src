@@ -899,7 +899,6 @@ var
   VMinZoom: Integer;
 begin
   result:=false;
-  if (ACache = nil) or (not ACache.TryLoadTilePreFromCache(spr, AXY, Azoom)) then begin
     VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
     VMinZoom :=  Azoom - FLoadPrevMaxZoomDelta;
     if VMinZoom < 0 then begin
@@ -932,9 +931,6 @@ begin
               spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
               spr.Draw(VTileTargetBounds, VTileSourceBounds, VBmp);
               Result := true;
-              if ACache <> nil then begin
-                ACache.AddTilePreToCache(spr, AXY, Azoom);
-              end;
               Break;
             except
               if not IgnoreError then begin
@@ -947,9 +943,6 @@ begin
         FreeAndNil(VBmp);
       end;
     end;
-  end else begin
-    result:=true;
-  end;
 end;
 
 function TMapType.LoadTileOrPreZ(

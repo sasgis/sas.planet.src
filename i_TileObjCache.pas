@@ -41,8 +41,6 @@ type
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
     procedure AddTileToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte);
     function TryLoadTileFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean;
-    procedure AddTilePreToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte);
-    function TryLoadTilePreFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean;
   end;
 
 
