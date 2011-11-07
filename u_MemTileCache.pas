@@ -11,13 +11,18 @@ uses
   i_MainMemCacheConfig,
   i_VectorDataItemSimple,
   i_ObjectWithTTL,
-  i_TileObjCache;
+  i_TileObjCache,
+  i_CoordConverter,
+  u_TileStorageAbstract;
 
 type
   TMemTileCacheBase = class(TInterfacedObject, IObjectWithTTL)
   private
     FConfig: IMainMemCacheConfig;
     FConfigListener: IJclListener;
+    FTileStorage: TTileStorageAbstract;
+    FCoordConverter: ICoordConverter;
+    FStorageChangeListener: IJclListener;
 
     FCacheList: TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
@@ -26,6 +31,7 @@ type
     FTTL: Cardinal;
     FCheckInterval: Cardinal;
     procedure OnChangeConfig(Sender: TObject);
+    procedure OnTileStorageChange(Sender: TObject);
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
   protected
     procedure ItemFree(AIndex: Integer); virtual; abstract;
@@ -37,6 +43,8 @@ type
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
   public
     constructor Create(
+      ATileStorage: TTileStorageAbstract;
+      ACoordConverter: ICoordConverter;
       AConfig: IMainMemCacheConfig
     );
     destructor Destroy; override;
@@ -61,17 +69,35 @@ type
 implementation
 
 uses
+  i_TileRectUpdateNotifier,
   u_NotifyEventListener;
 
 { TTileCacheBase }
 
 constructor TMemTileCacheBase.Create(
+  ATileStorage: TTileStorageAbstract;
+  ACoordConverter: ICoordConverter;
   AConfig: IMainMemCacheConfig
 );
+var
+  i: Integer;
+  VNotifier: ITileRectUpdateNotifier;
 begin
   FConfig := AConfig;
   FConfigListener := TNotifyEventListener.Create(Self.OnChangeConfig);
   FConfig.GetChangeNotifier.Add(FConfigListener);
+
+  if ATileStorage <> nil then begin
+    FTileStorage := ATileStorage;
+    FCoordConverter := ACoordConverter;
+    FStorageChangeListener := TNotifyEventListener.Create(Self.OnTileStorageChange);
+    for i := FCoordConverter.MinZoom to FCoordConverter.MaxZoom do begin
+      VNotifier := FTileStorage.NotifierByZoom[i];
+      if VNotifier <> nil then begin
+        VNotifier.Add(FStorageChangeListener, FCoordConverter.TileRectAtZoom(i));
+      end;
+    end;
+  end;
 
   FCacheList := TStringList.Create;
   FCacheList.Capacity := FConfig.MaxSize;
@@ -82,10 +108,23 @@ begin
 end;
 
 destructor TMemTileCacheBase.Destroy;
+var
+  i: Integer;
+  VNotifier: ITileRectUpdateNotifier;
 begin
   FConfig.GetChangeNotifier.Remove(FConfigListener);
   FConfigListener := nil;
   FConfig := nil;
+
+  for i := FCoordConverter.MinZoom to FCoordConverter.MaxZoom do begin
+    VNotifier := FTileStorage.NotifierByZoom[i];
+    if VNotifier <> nil then begin
+      VNotifier.Remove(FStorageChangeListener);
+    end;
+  end;
+  FStorageChangeListener := nil;
+  FCoordConverter := nil;
+  FTileStorage := nil;
 
   Clear;
   FreeAndNil(FSync);
@@ -173,6 +212,11 @@ begin
   finally
     FSync.EndWrite;
   end;
+end;
+
+procedure TMemTileCacheBase.OnTileStorageChange(Sender: TObject);
+begin
+  Clear;
 end;
 
 { TMemTileCacheVector }
