@@ -44,7 +44,6 @@ type
       AZoom: byte;
       AMapType: TMapType;
       ADownloadInfo: IDownloadInfoSimple;
-      AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger
     ); overload;
   end;
@@ -62,11 +61,10 @@ constructor TTileDownloaderUIOneTile.Create(
   AZoom: byte;
   AMapType: TMapType;
   ADownloadInfo: IDownloadInfoSimple;
-  AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger
 );
 begin
-  inherited Create(False, ADownloadInfo, AMapTileUpdateEvent, AErrorLogger, 1);
+  inherited Create(False, ADownloadInfo, AErrorLogger, 1);
   FLoadXY := AXY;
   FZoom := AZoom;
   FMapType := AMapType;

@@ -126,8 +126,7 @@ type
       AMapCalibrationList: IMapCalibrationList;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
-      AValueToStringConverterConfig: IValueToStringConverterConfig;
-      AMapUpdateEvent: TMapUpdateEvent
+      AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
     procedure LoadSelFromFile(FileName:string);
@@ -174,8 +173,7 @@ constructor TfrmRegionProcess.Create(
   AMapCalibrationList: IMapCalibrationList;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
-  AValueToStringConverterConfig: IValueToStringConverterConfig;
-  AMapUpdateEvent: TMapUpdateEvent
+  AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   TP_Ignore(Self, 'CBFormat.Items');
@@ -226,8 +224,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       ADownloadConfig,
-      ADownloadInfo,
-      AMapUpdateEvent
+      ADownloadInfo
     );
   FProviderMapCombine :=
     TProviderMapCombine.Create(

@@ -51,7 +51,6 @@ type
     FMapType: TMapType;
     FErrorLogger: ITileErrorLogger;
     FDownloadInfo: IDownloadInfoSimple;
-    FMapTileUpdateEvent: TMapTileUpdateEvent;
     FProcessList: TList;
     FCancelEvent: TEvent;
     FCancelNotifier: IOperationNotifier;
@@ -95,7 +94,6 @@ type
     constructor Create(
       ACreateSuspended: Boolean;
       ADownloadInfo: IDownloadInfoSimple;
-      AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger;
       AMaxRequestCount: Integer
     );
@@ -114,7 +112,6 @@ uses
 constructor TTileDownloaderThread.Create(
   ACreateSuspended: Boolean;
   ADownloadInfo: IDownloadInfoSimple;
-  AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger;
   AMaxRequestCount: Integer);
 var
@@ -128,7 +125,6 @@ begin
   FCancelNotifier := VOperationNotifier;
   FMapType := nil;
   FDownloadInfo := ADownloadInfo;
-  FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorLogger := AErrorLogger;
   FMaxRequestCount := AMaxRequestCount;
   FSemaphore := CreateSemaphore(nil, FMaxRequestCount, FMaxRequestCount, nil);
@@ -189,7 +185,6 @@ function TTileDownloaderThread.CreateNewTileDownloaderEvent(
 begin
   Result := TTileDownloaderEvent.Create(
               FDownloadInfo,
-              FMapTileUpdateEvent,
               FErrorLogger,
               FMapType,
               FMapType.GetRequest(ATile, AZoom, ACheckExistsTileSize),

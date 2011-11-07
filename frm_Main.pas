@@ -654,8 +654,6 @@ type
 
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
     Procedure TrayControl(Var Msg: TMessage); Message WM_SYSCOMMAND;
-    procedure OnMapTileUpdate(AMapType: TMapType; AZoom: Byte; ATile: TPoint);
-    procedure OnMapUpdate(AMapType: TMapType);
     procedure OnBeforeViewChange(Sender: TObject);
     procedure OnAfterViewChange(Sender: TObject);
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
@@ -759,8 +757,7 @@ begin
       GState.MapCalibrationList,
       GState.DownloadConfig,
       GState.DownloadInfo,
-      GState.ValueToStringConverterConfig,
-      Self.OnMapUpdate
+      GState.ValueToStringConverterConfig
     );
   FfrmGoTo :=
     TfrmGoTo.Create(
@@ -1219,7 +1216,6 @@ begin
         FConfig.ViewPortState,
         FConfig.MainMapsConfig.GetAllActiveMapsSet,
         GState.DownloadInfo,
-        Self.OnMapTileUpdate,
         FTileErrorLogger
       );
 
@@ -2064,41 +2060,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.OnMapTileUpdate(AMapType: TMapType; AZoom: Byte;
-  ATile: TPoint);
-begin
-  if AMapType <> nil then begin
-    if AMapType.IsBitmapTiles then begin
-      AMapType.CacheBitmap.DeleteTileFromCache(ATile, AZoom);
-      if FMainLayer <> nil then begin
-        FMainLayer.Redraw;
-      end;
-    end else if AMapType.IsKmlTiles then begin
-      AMapType.CacheVector.DeleteTileFromCache(ATile, AZoom);
-      if FWikiLayer <> nil then begin
-        FWikiLayer.Redraw;
-      end;
-    end;
-  end;
-end;
-
-procedure TfrmMain.OnMapUpdate(AMapType: TMapType);
-begin
-  if AMapType <> nil then begin
-    if AMapType.IsBitmapTiles then begin
-      AMapType.CacheBitmap.Clear;
-      if FMainLayer <> nil then begin
-        FMainLayer.Redraw;
-      end;
-    end else if AMapType.IsKmlTiles then begin
-      AMapType.CacheVector.Clear;
-      if FWikiLayer <> nil then begin
-        FWikiLayer.Redraw;
-      end;
-    end;
-  end;
-end;
-
 procedure TfrmMain.SetToolbarsLock(AValue: Boolean);
 begin
   TBDock.AllowDrag := not AValue;
@@ -2739,7 +2700,6 @@ begin
           VZoomCurr,
           VMapType,
           GState.DownloadInfo,
-          Self.OnMapTileUpdate,
           FTileErrorLogger
         );
       end;
@@ -2835,7 +2795,6 @@ begin
       s:=VMapType.GetTileShowName(VTile, VZoomCurr);
       if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
         VMapType.DeleteTile(VTile, VZoomCurr);
-        OnMapTileUpdate(VMapType, VZoomCurr, VTile);
       end;
     end;
   end;
@@ -3723,7 +3682,6 @@ begin
         VTile := VMapType.GeoConvert.LonLat2TilePos(VLonLat, VZoomCurr);
         if HiWord(GetKeyState(VK_DELETE))<>0 then begin
           VMapType.DeleteTile(VTile, VZoomCurr);
-          OnMapTileUpdate(VMapType, VZoomCurr, VTile);
           Exit;
         end;
         if HiWord(GetKeyState(VK_INSERT))<>0 then begin
@@ -3732,7 +3690,6 @@ begin
             VZoomCurr,
             VMapType,
             GState.DownloadInfo,
-            Self.OnMapTileUpdate,
             FTileErrorLogger
           );
           Exit;
@@ -4388,7 +4345,12 @@ begin
             GState.DownloadInfo,
             FConfig.ViewPortState.GetCurrentZoom
           );
-        TfrmProgressDownload.Create(GState.LanguageManager, GState.ValueToStringConverterConfig, VThread, VThreadLog, Self.OnMapUpdate);
+        TfrmProgressDownload.Create(
+          GState.LanguageManager,
+          GState.ValueToStringConverterConfig,
+          VThread,
+          VThreadLog
+        );
       end else if ExtractFileExt(VFileName)='.hlg' then begin
         setalloperationfalse(ao_movemap);
         FFormRegionProcess.LoadSelFromFile(VFileName);

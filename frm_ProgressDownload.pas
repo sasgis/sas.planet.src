@@ -79,21 +79,18 @@ type
     FStoped: boolean;
     FFinished: Boolean;
     FRarProgress: TRarProgress;
-    FMapUpdateEvent: TMapUpdateEvent;
     procedure InitProgressForm;
     procedure UpdateProgressForm;
     procedure UpdateMemoProgressForm;
     function GetTimeEnd(loadAll,load:integer; AElapsedTime: TDateTime):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
-    procedure ThreadFinish;
     procedure StopThread;
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
       ADownloadThread: TThreadDownloadTiles;
-      ALog: ILogForTaskThread;
-      AMapUpdateEvent: TMapUpdateEvent
+      ALog: ILogForTaskThread
     ); reintroduce; virtual;
     destructor Destroy; override;
 
@@ -144,13 +141,11 @@ constructor TfrmProgressDownload.Create(
   ALanguageManager: ILanguageManager;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
   ADownloadThread: TThreadDownloadTiles;
-  ALog: ILogForTaskThread;
-  AMapUpdateEvent: TMapUpdateEvent
+  ALog: ILogForTaskThread
 );
 begin
   inherited Create(ALanguageManager);
   FValueToStringConverterConfig := AValueToStringConverterConfig;
-  FMapUpdateEvent := AMapUpdateEvent;
   FDownloadThread := ADownloadThread;
   FLog := ALog;
   FRarProgress := TRarProgress.Create(Self);
@@ -226,7 +221,6 @@ begin
       FRarProgress.Progress1 := FDownloadThread.Processed;
       FRarProgress.Progress2 := FDownloadThread.Downloaded;
       Repaint;
-      ThreadFinish;
     end;
   end else begin
     UpdateMemoProgressForm;
@@ -299,13 +293,6 @@ procedure TfrmProgressDownload.ButtonSaveClick(Sender: TObject);
 begin
   if (SaveSessionDialog.Execute)and(SaveSessionDialog.FileName<>'') then begin
     FDownloadThread.SaveToFile(SaveSessionDialog.FileName);
-  end;
-end;
-
-procedure TfrmProgressDownload.ThreadFinish;
-begin
-  if Addr(FMapUpdateEvent) <> nil then begin
-    FMapUpdateEvent(FDownloadThread.MapType);
   end;
 end;
 

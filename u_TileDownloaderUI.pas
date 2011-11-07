@@ -74,7 +74,6 @@ type
       AViewPortState: IViewPortState;
       AMapsSet: IActiveMapsSet;
       ADownloadInfo: IDownloadInfoSimple;
-      AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger
     ); overload;
     destructor Destroy; override;
@@ -104,14 +103,13 @@ constructor TTileDownloaderUI.Create(
   AViewPortState: IViewPortState;
   AMapsSet: IActiveMapsSet;
   ADownloadInfo: IDownloadInfoSimple;
-  AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger
 );
 var
   VChangePosListener: IJclListener;
   VOperationNotifier: TOperationNotifier;
 begin
-  inherited Create(True, ADownloadInfo, AMapTileUpdateEvent, AErrorLogger, CMaxRequestsCount);
+  inherited Create(True, ADownloadInfo, AErrorLogger, CMaxRequestsCount);
   FConfig := AConfig;
 
   VOperationNotifier := TOperationNotifier.Create;

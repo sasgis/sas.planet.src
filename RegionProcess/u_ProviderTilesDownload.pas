@@ -25,7 +25,6 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
-    FMapUpdateEvent: TMapUpdateEvent;
   public
     constructor Create(
       AParent: TWinControl;
@@ -35,8 +34,7 @@ type
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
       ADownloadConfig: IGlobalDownloadConfig;
-      ADownloadInfo: IDownloadInfoSimple;
-      AMapUpdateEvent: TMapUpdateEvent
+      ADownloadInfo: IDownloadInfoSimple
     );
     destructor Destroy; override;
     function GetCaption: string; override;
@@ -69,15 +67,13 @@ constructor TProviderTilesDownload.Create(
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
   ADownloadConfig: IGlobalDownloadConfig;
-  ADownloadInfo: IDownloadInfoSimple;
-  AMapUpdateEvent: TMapUpdateEvent
+  ADownloadInfo: IDownloadInfoSimple
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FDownloadConfig := ADownloadConfig;
   FDownloadInfo := ADownloadInfo;
-  FMapUpdateEvent := AMapUpdateEvent;
 end;
 
 destructor TProviderTilesDownload.Destroy;
@@ -165,8 +161,7 @@ begin
     Self.LanguageManager,
     FValueToStringConverterConfig,
     VThread,
-    VThreadLog,
-    FMapUpdateEvent
+    VThreadLog
   );
 end;
 

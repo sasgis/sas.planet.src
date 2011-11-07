@@ -70,7 +70,6 @@ type
     FCallBackList: TList;
     FRES_TileDownloadUnexpectedError: string;
     FDownloadInfo: IDownloadInfoSimple;
-    FMapTileUpdateEvent: TMapTileUpdateEvent;
     FErrorLogger: ITileErrorLogger;
     FMapType: TMapType;
     FDownloadResult: IDownloadResult;
@@ -78,11 +77,9 @@ type
     FLastResponseInfo: ILastResponseInfo;
     FRequest: ITileRequest;
     FErrorString: string;
-    procedure GuiSync;
   public
     constructor Create(
       ADownloadInfo: IDownloadInfoSimple;
-      AMapTileUpdateEvent: TMapTileUpdateEvent;
       AErrorLogger: ITileErrorLogger;
       AMapType: TMapType;
       ARequest: ITileRequest;
@@ -206,7 +203,6 @@ end;
 
 constructor TTileDownloaderEvent.Create(
   ADownloadInfo: IDownloadInfoSimple;
-  AMapTileUpdateEvent: TMapTileUpdateEvent;
   AErrorLogger: ITileErrorLogger;
   AMapType: TMapType;
   ARequest: ITileRequest;
@@ -217,7 +213,6 @@ begin
   inherited Create;
   FEventStatus := TEventStatus.Create(ACancelNotifier, AOperationID);
   FDownloadInfo := ADownloadInfo;
-  FMapTileUpdateEvent := AMapTileUpdateEvent;
   FErrorLogger := AErrorLogger;
   FMapType := AMapType;
   FDownloadResult := nil;
@@ -246,13 +241,6 @@ begin
     end;
   finally
     inherited Destroy;
-  end;
-end;
-
-procedure TTileDownloaderEvent.GuiSync;
-begin
-  if not FEventStatus.IsCanceled and (Addr(FMapTileUpdateEvent) <> nil) then begin
-    FMapTileUpdateEvent(FMapType, FRequest.Zoom, FRequest.Tile);
   end;
 end;
 
@@ -303,8 +291,6 @@ begin
             )
           );
         end;
-      end else begin
-        TThread.Synchronize(nil, GuiSync);
       end;
     end;
   end;

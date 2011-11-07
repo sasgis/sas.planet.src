@@ -127,7 +127,7 @@ constructor TThreadDownloadTiles.Create(
   AReplaceOlderDate: TDateTime
 );
 begin
-  inherited Create(False, TDownloadInfoSimple.Create(ADownloadInfo), nil, nil, 1);
+  inherited Create(False, TDownloadInfoSimple.Create(ADownloadInfo), nil, 1);
 
   FPausedSleepTime := 100;
   FBanSleepTime := 5000;
@@ -167,7 +167,7 @@ var
   VGuid: TGUID;
   VMap: IMapType;
 begin
-  inherited Create(False, ADownloadInfo, nil, nil, 1);
+  inherited Create(False, ADownloadInfo, nil, 1);
   FPausedSleepTime := 100;
   FBanSleepTime := 5000;
   FProxyAuthErrorSleepTime := 10000;
