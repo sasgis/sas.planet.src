@@ -49,14 +49,14 @@ implementation
 constructor TMainMemCacheConfig.Create;
 begin
   inherited;
-  FMaxSize := 150;
+  FMaxSize := 100;
 end;
 
 procedure TMainMemCacheConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    SetMaxSize(AConfigData.ReadInteger('MainMemCacheSize', FMaxSize));
+    SetMaxSize(AConfigData.ReadInteger('UICachePerZmp', FMaxSize));
   end;
 end;
 
@@ -64,7 +64,7 @@ procedure TMainMemCacheConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteInteger('MainMemCacheSize', FMaxSize);
+  AConfigData.WriteInteger('UICachePerZmp', FMaxSize);
 end;
 
 function TMainMemCacheConfig.GetMaxSize: Integer;
