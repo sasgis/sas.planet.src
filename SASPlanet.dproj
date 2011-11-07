@@ -60,10 +60,6 @@
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
-    <DCCReference Include="frMarksGeneralOptions.pas">
-      <DesignClass>TFrame</DesignClass>
-      <Form>frMarksGeneralOptions</Form>
-    </DCCReference>
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
     </DCCReference>

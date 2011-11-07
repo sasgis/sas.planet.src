@@ -273,7 +273,6 @@ end;
 
 function TfrmMarksExplorer.GetSelectedMarksIdList: IInterfaceList;
 var
-  VMarkId: IMarkId;
   i:integer;
 begin
   Result := TInterfaceList.Create;
@@ -417,7 +416,6 @@ var
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
   VMarkId: IMarkId;
-  VCategory: IMarkCategory;
   i:integer;
 begin
   VMarkIdList:=GetSelectedMarksIdList;
