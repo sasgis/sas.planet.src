@@ -146,6 +146,14 @@ type
       IgnoreError: Boolean;
       ACache: ITileObjCacheBitmap = nil
     ): boolean;
+    function LoadTileOrPreZ(
+      spr: TCustomBitmap32;
+      AXY: TPoint;
+      Azoom: byte;
+      IgnoreError: Boolean;
+      AUsePre: Boolean;
+      ACache: ITileObjCacheBitmap = nil
+    ): boolean;
     function GetAbilitiesConfigStatic: IMapAbilitiesConfigStatic;
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
    public
@@ -170,14 +178,6 @@ type
       IgnoreError: Boolean;
       ACache: ITileObjCacheVector = nil
     ): boolean; overload;
-    function LoadTileOrPreZ(
-      spr: TCustomBitmap32;
-      AXY: TPoint;
-      Azoom: byte;
-      IgnoreError: Boolean;
-      AUsePre: Boolean;
-      ACache: ITileObjCacheBitmap = nil
-    ): boolean;
     function LoadTileUni(
       spr: TCustomBitmap32;
       AXY: TPoint;
