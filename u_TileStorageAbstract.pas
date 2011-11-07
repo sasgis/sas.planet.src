@@ -131,8 +131,8 @@ var
   VNotifier: TTileRectUpdateNotifier;
 begin
   FConfig := AConfig;
-  FMinValidZoom := FConfig.CoordConverter.GetMinZoom;
-  FMaxValidZoom := FConfig.CoordConverter.GetMaxZoom;
+  FMinValidZoom := FConfig.CoordConverter.MinZoom;
+  FMaxValidZoom := FConfig.CoordConverter.MaxZoom;
   Assert(FMinValidZoom <= FMaxValidZoom);
   VCount := FMaxValidZoom - FMinValidZoom + 1;
   SetLength(FNotifierByZoom, VCount);

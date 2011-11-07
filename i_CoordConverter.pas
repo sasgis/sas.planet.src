@@ -56,7 +56,16 @@ type
 
     // Минимальный и максимальный зумы обычно с 0 до 23
     function GetMinZoom: Byte; stdcall;
+    property MinZoom: Byte read GetMinZoom;
+
     function GetMaxZoom: Byte; stdcall;
+    property MaxZoom: Byte read GetMaxZoom;
+
+    // Возвращает прямоугольник тайлов допустимый в заданном зуме
+    function TileRectAtZoom(const AZoom: byte): TRect; stdcall;
+    // Возвращает прямоугольник пикселов допустимый в заданном зуме
+    function PixelRectAtZoom(const AZoom: byte): TRect; stdcall;
+
     // Возвращает количество тайлов в заданном зуме
     function TilesAtZoom(const AZoom: byte): Longint; stdcall;
     function TilesAtZoomFloat(const AZoom: byte): Double; stdcall;

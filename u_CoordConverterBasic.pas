@@ -54,6 +54,9 @@ type
     procedure CheckLonLatPosInternal(var XY: TDoublePoint); override;
     procedure CheckLonLatRectInternal(var XY: TDoubleRect); override;
 
+    function TileRectAtZoomInternal(const AZoom: byte): TRect; override;
+    function PixelRectAtZoomInternal(const AZoom: byte): TRect; override;
+
     function TilesAtZoomInternal(AZoom: byte): Longint; override;
     function TilesAtZoomFloatInternal(AZoom: byte): Double; override;
     function PixelsAtZoomInternal(AZoom: byte): Longint; override;
@@ -762,6 +765,14 @@ begin
   Result := Result * 256;
 end;
 
+function TCoordConverterBasic.PixelRectAtZoomInternal(const AZoom: byte): TRect;
+var
+  VCnt: Longint;
+begin
+  VCnt := PixelsAtZoomInternal(AZoom);
+  Result := Rect(0, 0, VCnt, VCnt);
+end;
+
 function TCoordConverterBasic.TilesAtZoomInternal(AZoom: byte): Longint;
 begin
   Result := 1 shl AZoom;
@@ -771,6 +782,14 @@ function TCoordConverterBasic.TilesAtZoomFloatInternal(
   AZoom: byte): Double;
 begin
   Result := 1 shl AZoom;
+end;
+
+function TCoordConverterBasic.TileRectAtZoomInternal(const AZoom: byte): TRect;
+var
+  VCnt: Longint;
+begin
+  VCnt := TilesAtZoomInternal(AZoom);
+  Result := Rect(0, 0, VCnt, VCnt);
 end;
 
 //------------------------------------------------------------------------------
