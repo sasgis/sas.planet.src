@@ -25,12 +25,11 @@ type
     FLastUseTime: Cardinal;
     FTTL: Cardinal;
     FCheckInterval: Cardinal;
-    procedure IncUpdateCounter;
     procedure OnChangeConfig(Sender: TObject);
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
   protected
     procedure ItemFree(AIndex: Integer); virtual; abstract;
-    procedure UpdateLastUseTime;
+    procedure IncUpdateCounter;
   protected
     function CheckTTLAndGetNextCheckTime(ANow: Cardinal): Cardinal;
   protected
@@ -176,11 +175,6 @@ begin
   end;
 end;
 
-procedure TMemTileCacheBase.UpdateLastUseTime;
-begin
-
-end;
-
 { TMemTileCacheVector }
 
 procedure TMemTileCacheVector.AddTileToCache(AObj: IVectorDataItemList;
@@ -224,10 +218,13 @@ begin
     i := FCacheList.IndexOf(VKey);
     if i >= 0 then begin
       AObj := IVectorDataItemList(Pointer(FCacheList.Objects[i]));
-      result := true;
+      Result := true;
     end;
   finally
     FSync.EndRead;
+  end;
+  if Result then begin
+    IncUpdateCounter;
   end;
 end;
 
@@ -280,6 +277,9 @@ begin
     end;
   finally
     FSync.EndRead;
+  end;
+  if Result then begin
+    IncUpdateCounter;
   end;
 end;
 
