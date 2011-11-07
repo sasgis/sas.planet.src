@@ -64,6 +64,7 @@ uses
   i_MapTypeGUIConfig,
   i_ProxySettings,
   i_CoordConverterFactory,
+  i_MainMemCacheConfig,
   i_TileFileNameGeneratorsList,
   i_TileRectUpdateNotifier,
   i_TileDownloadRequest,
@@ -115,8 +116,8 @@ type
       AInvisibleBrowser: IInvisibleBrowser
     );
     procedure LoadStorageParams(
-      AMemCacheBitmap: IMemObjCacheBitmap;
-      AMemCacheVector: IMemObjCacheVector;
+      AMainMemCacheConfig: IMainMemCacheConfig;
+      AGCList: IListOfObjectsWithTTL;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
       ACoordConverterFactory: ICoordConverterFactory
@@ -128,8 +129,7 @@ type
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; var AKml: IVectorDataItemList): boolean;
     procedure LoadMapType(
-      AMemCacheBitmap: IMemObjCacheBitmap;
-      AMemCacheVector: IMemObjCacheVector;
+      AMainMemCacheConfig: IMainMemCacheConfig;
       AGCList: IListOfObjectsWithTTL;
       AProxyConfig: IProxyConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
@@ -242,8 +242,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AZmp: IZmpInfo;
-      AMemCacheBitmap: IMemObjCacheBitmap;
-      AMemCacheVector: IMemObjCacheVector;
+      AMainMemCacheConfig: IMainMemCacheConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
       AGCList: IListOfObjectsWithTTL;
@@ -277,6 +276,7 @@ uses
   u_TileRequestBuilderConfig,
   u_TileRequestBuilderPascalScript,
   u_DownloadResultFactory,
+  u_MemTileCache,
   u_TileCacheSimpleGlobal,
   u_TileDownloadRequest,
   u_TileRequest,
@@ -326,8 +326,8 @@ begin
 end;
 
 procedure TMapType.LoadStorageParams(
-  AMemCacheBitmap: IMemObjCacheBitmap;
-  AMemCacheVector: IMemObjCacheVector;
+  AMainMemCacheConfig: IMainMemCacheConfig;
+  AGCList: IListOfObjectsWithTTL;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
   ACoordConverterFactory: ICoordConverterFactory
@@ -335,6 +335,8 @@ procedure TMapType.LoadStorageParams(
 var
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
+  VCacheBitmap: TMemTileCacheBitmap;
+  VCacheVector: TMemTileCacheVector;
 begin
   if FStorageConfig.CacheTypeCode = 5  then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
@@ -347,11 +349,15 @@ begin
     if FStorageConfig.AllowAdd then begin
       FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
     end;
+    VCacheBitmap := TMemTileCacheBitmap.Create(FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
+    FCacheBitmap := VCacheBitmap;
+    AGCList.AddObject(VCacheBitmap);
   end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
     FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
+    VCacheVector := TMemTileCacheVector.Create(FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
+    FCacheVector := VCacheVector;
+    AGCList.AddObject(VCacheVector);
   end;
-  FCacheBitmap := TTileCacheSimpleGlobalBitmap.Create(FZmp.GUID, AMemCacheBitmap);
-  FCacheVector := TTileCacheSimpleGlobalVector.Create(FZmp.GUID, AMemCacheVector);
 end;
 
 procedure TMapType.LoadDownloader(
@@ -391,8 +397,7 @@ begin
 end;
 
 procedure TMapType.LoadMapType(
-  AMemCacheBitmap: IMemObjCacheBitmap;
-  AMemCacheVector: IMemObjCacheVector;
+  AMainMemCacheConfig: IMainMemCacheConfig;
   AGCList: IListOfObjectsWithTTL;
   AProxyConfig: IProxyConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
@@ -407,7 +412,13 @@ begin
   FAbilitiesConfig.ReadConfig(AConfig);
   FVersionConfig.ReadConfig(AConfig);
   FTileDownloaderConfig.ReadConfig(AConfig);
-  LoadStorageParams(AMemCacheBitmap, AMemCacheVector, AGlobalCacheConfig, ATileNameGeneratorList, ACoordConverterFactory);
+  LoadStorageParams(
+    AMainMemCacheConfig,
+    AGCList,
+    AGlobalCacheConfig,
+    ATileNameGeneratorList,
+    ACoordConverterFactory
+  );
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := Zmp.ViewGeoConvert;
   FTileRequestBuilderConfig.ReadConfig(AConfig);
@@ -588,7 +599,6 @@ begin
         raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
       end;
     end;
-    FCacheBitmap.DeleteTileFromCache(AXY, Azoom);
   end else begin
     raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
@@ -680,8 +690,7 @@ end;
 constructor TMapType.Create(
   ALanguageManager: ILanguageManager;
   AZmp: IZmpInfo;
-  AMemCacheBitmap: IMemObjCacheBitmap;
-  AMemCacheVector: IMemObjCacheVector;
+  AMainMemCacheConfig: IMainMemCacheConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
   AGCList: IListOfObjectsWithTTL;
@@ -720,8 +729,7 @@ begin
       ADownloadResultTextProvider
     );
   LoadMapType(
-    AMemCacheBitmap,
-    AMemCacheVector,
+    AMainMemCacheConfig,
     AGCList,
     AInetConfig.ProxyConfig,
     AGlobalCacheConfig,

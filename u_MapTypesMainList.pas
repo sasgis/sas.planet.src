@@ -40,6 +40,7 @@ uses
   i_InvisibleBrowser,
   i_DownloadResultTextProvider,
   i_TileFileNameGeneratorsList,
+  i_MainMemCacheConfig,
   i_MapTypeGUIConfigList,
   i_MapTypes,
   u_GlobalCahceConfig,
@@ -72,8 +73,7 @@ type
 
     procedure LoadMaps(
       ALanguageManager: ILanguageManager;
-      AMemCacheBitmap: IMemObjCacheBitmap;
-      AMemCacheVector: IMemObjCacheVector;
+      AMainMemCacheConfig: IMainMemCacheConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
       AGCList: IListOfObjectsWithTTL;
@@ -173,8 +173,7 @@ end;
 
 procedure TMapTypesMainList.LoadMaps(
   ALanguageManager: ILanguageManager;
-  AMemCacheBitmap: IMemObjCacheBitmap;
-  AMemCacheVector: IMemObjCacheVector;
+  AMainMemCacheConfig: IMainMemCacheConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
   AGCList: IListOfObjectsWithTTL;
@@ -229,8 +228,7 @@ begin
         TMapType.Create(
           ALanguageManager,
           VZmp,
-          AMemCacheBitmap,
-          AMemCacheVector,
+          AMainMemCacheConfig,
           AGlobalCacheConfig,
           ATileNameGeneratorList,
           AGCList,

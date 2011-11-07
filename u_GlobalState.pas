@@ -530,8 +530,7 @@ begin
 
   FMainMapsList.LoadMaps(
     FLanguageManager,
-    FMainMemCacheBitmap,
-    FMainMemCacheVector,
+    FMainMemCacheConfig,
     FCacheConfig,
     FTileNameGenerator,
     FGCThread.List,
