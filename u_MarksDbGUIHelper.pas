@@ -211,7 +211,6 @@ function TMarksDbGUIHelper.DeleteMarksModal(AMarkIDList: IInterfaceList;
   handle: THandle): boolean;
 var
   VMark: IMarkId;
-  i: integer;
 begin
   Result := false;
   if AMarkIDList <> nil then begin
