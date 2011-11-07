@@ -13,6 +13,7 @@ uses
   i_InternalPerformanceCounter,
   i_OperationNotifier,
   i_LayerBitmapClearStrategy,
+  i_LocalCoordConverter,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,
@@ -34,6 +35,12 @@ type
     FLayersSet: IMapTypeSet;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
+
+    FTileUpdateCounter: Integer;
+    FTileChangeListener: IJclListener;
+    procedure OnTileChange(Sender: TObject);
+    procedure OnTimer(Sender: TObject);
+
     function DrawMap(
       ATargetBmp: TCustomBitmap32;
       AMapType: TMapType;
@@ -52,6 +59,7 @@ type
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier
     ); override;
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
@@ -67,6 +75,7 @@ type
       ATimerNoifier: IJclNotifier
     );
     procedure StartThreads; override;
+    procedure SendTerminateToThreads; override;
   end;
 
 implementation
@@ -75,8 +84,9 @@ uses
   ActiveX,
   Classes,
   SysUtils,
-  i_LocalCoordConverter,
+  t_GeoTypes,
   i_TileIterator,
+  i_TileRectUpdateNotifier,
   u_ResStrings,
   u_TileErrorInfo,
   u_NotifyEventListener,
@@ -132,6 +142,12 @@ begin
     TNotifyEventListener.Create(Self.OnConfigChange),
     FPostProcessingConfig.GetChangeNotifier
   );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimer),
+    ATimerNoifier
+  );
+  FTileChangeListener := TNotifyEventListener.Create(Self.OnTileChange);
+  FTileUpdateCounter := 0;
 end;
 
 procedure TMapMainLayer.DrawBitmap(
@@ -326,15 +342,115 @@ begin
 end;
 
 procedure TMapMainLayer.OnMainMapChange(Sender: TObject);
+var
+  VOldMainMap: IMapType;
+  VZoom: Byte;
+  VLocalConverter: ILocalCoordConverter;
+  VNotifier: ITileRectUpdateNotifier;
+  VMapPixelRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VTileRect: TRect;
 begin
   ViewUpdateLock;
   try
+    VOldMainMap := FMainMap;
     FMainMap := FMapsConfig.GetSelectedMapType;
+    if VOldMainMap <> FMainMap then begin
+      VLocalConverter := LayerCoordConverter;
+      VZoom := VLocalConverter.GetZoom;
+      if VOldMainMap <> nil then begin
+        VNotifier := VOldMainMap.MapType.NotifierByZoom[VZoom];
+        if VNotifier <> nil then begin
+          VNotifier.Remove(FTileChangeListener);
+        end;
+      end;
+      if FMainMap <> nil then begin
+        VNotifier := FMainMap.MapType.NotifierByZoom[VZoom];
+        if VNotifier <> nil then begin
+          VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
+          VLocalConverter.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+          VLonLatRect := VLocalConverter.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+          FMainMap.MapType.GeoConvert.CheckLonLatRect(VLonLatRect);
+          VTileRect := FMainMap.MapType.GeoConvert.LonLatRect2TileRect(VLonLatRect, VZoom);
+          VNotifier.Add(FTileChangeListener, VTileRect);
+        end;
+      end;
+    end;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
   end;
   ViewUpdate;
+end;
+
+procedure TMapMainLayer.OnTileChange(Sender: TObject);
+begin
+  InterlockedIncrement(FTileUpdateCounter);
+end;
+
+procedure TMapMainLayer.OnTimer(Sender: TObject);
+begin
+  if InterlockedExchange(FTileUpdateCounter, 0) > 0 then begin
+    ViewUpdateLock;
+    try
+      SetNeedRedraw;
+    finally
+      ViewUpdateUnlock;
+    end;
+    ViewUpdate;
+  end;
+end;
+
+procedure TMapMainLayer.SendTerminateToThreads;
+var
+  VZoom: Byte;
+  VNotifier: ITileRectUpdateNotifier;
+begin
+  inherited;
+  VZoom := LayerCoordConverter.GetZoom;
+  if FMainMap <> nil then begin
+    VNotifier := FMainMap.MapType.NotifierByZoom[VZoom];
+    if VNotifier <> nil then begin
+      VNotifier.Remove(FTileChangeListener);
+    end;
+  end;
+end;
+
+procedure TMapMainLayer.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+var
+  VOldZoom: Byte;
+  VZoom: Byte;
+  VNotifier: ITileRectUpdateNotifier;
+  VMapPixelRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VTileRect: TRect;
+begin
+  VOldZoom := 255;
+  if LayerCoordConverter <> nil then begin
+    VOldZoom := LayerCoordConverter.GetZoom;
+  end;
+  inherited;
+  VZoom := AValue.GetZoom;
+  if VZoom <> VOldZoom then begin
+    if FMainMap <> nil then begin
+      VNotifier := FMainMap.MapType.NotifierByZoom[VOldZoom];
+      if VNotifier <> nil then begin
+        VNotifier.Remove(FTileChangeListener);
+      end;
+    end;
+  end;
+  if FMainMap <> nil then begin
+    VNotifier := FMainMap.MapType.NotifierByZoom[VZoom];
+    if VNotifier <> nil then begin
+      VMapPixelRect := AValue.GetRectInMapPixelFloat;
+      AValue.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+      VLonLatRect := AValue.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+      FMainMap.MapType.GeoConvert.CheckLonLatRect(VLonLatRect);
+      VTileRect := FMainMap.MapType.GeoConvert.LonLatRect2TileRect(VLonLatRect, VZoom);
+      VNotifier.Add(FTileChangeListener, VTileRect);
+    end;
+  end;
+
 end;
 
 procedure TMapMainLayer.StartThreads;
