@@ -31,7 +31,6 @@ uses
   i_LanguageManager,
   i_CoordConverterFactory,
   i_ZmpInfoSet,
-  i_MemObjCache,
   i_ListOfObjectsWithTTL,
   i_InetConfig,
   i_ImageResamplerConfig,

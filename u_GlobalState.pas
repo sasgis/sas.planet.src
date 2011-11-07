@@ -35,7 +35,6 @@ uses
   i_GPSPositionFactory,
   i_EcwDll,
   i_LanguageManager,
-  i_MemObjCache,
   i_InetConfig,
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
@@ -62,7 +61,6 @@ uses
   u_LastSelectionInfo,
   u_MarksSystem,
   u_MapTypesMainList,
-  u_MemFileCache,
   i_ZmpInfoSet,
   i_GPSConfig,
   i_MapCalibration,
@@ -114,8 +112,6 @@ type
     FProgramPath: string;
     FImageResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
-    FMainMemCacheBitmap: IMemObjCacheBitmap;
-    FMainMemCacheVector: IMemObjCacheVector;
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
     FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
@@ -164,8 +160,6 @@ type
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
-    property MainMemCacheBitmap: IMemObjCacheBitmap read FMainMemCacheBitmap;
-    property MainMemCacheVector: IMemObjCacheVector read FMainMemCacheVector;
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property DownloadResultTextProvider: IDownloadResultTextProvider read FDownloadResultTextProvider;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
@@ -329,9 +323,6 @@ begin
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
   FViewConfig := TGlobalViewMainConfig.Create;
 
-  FMainMemCacheBitmap := TMemFileCacheBitmap.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('BitmapCache'));
-  FMainMemCacheVector := TMemFileCacheVector.Create(FMainMemCacheConfig, FPerfCounterList.CreateAndAddNewSubList('VectorCache'));
-
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create(FCacheConfig);
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
@@ -428,8 +419,6 @@ begin
   FGCThread.WaitFor;
   FreeAndNil(FGCThread);
   FLanguageManager := nil;
-  FMainMemCacheBitmap := nil;
-  FMainMemCacheVector := nil;
   FTileNameGenerator := nil;
   FContentTypeManager := nil;
   FMapCalibrationList := nil;

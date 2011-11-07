@@ -209,7 +209,6 @@ begin
       bmp_ex.Free;
       bmp.Free;
     end;
-    FMapType.CacheBitmap.Clear;
   finally
     for i := 0 to Length(VTileIterators) - 1 do begin
       VTileIterators[i] := nil;

@@ -67,10 +67,8 @@ uses
   i_SimpleFactory in 'i_SimpleFactory.pas',
   i_ListOfObjectsWithTTL in 'i_ListOfObjectsWithTTL.pas',
   i_ObjectWithTTL in 'i_ObjectWithTTL.pas',
-  i_MemObjCache in 'i_MemObjCache.pas',
   i_TileObjCache in 'i_TileObjCache.pas',
   u_MemTileCache in 'u_MemTileCache.pas',
-  u_TileCacheSimpleGlobal in 'u_TileCacheSimpleGlobal.pas',
   i_HtmlToHintTextConverter in 'i_HtmlToHintTextConverter.pas',
   u_HtmlToHintTextConverterStuped in 'u_HtmlToHintTextConverterStuped.pas',
   i_ContentTypeSubst in 'i_ContentTypeSubst.pas',
@@ -179,7 +177,6 @@ uses
   u_MapTypesMainList in 'u_MapTypesMainList.pas',
   i_MapTypeIconsList in 'i_MapTypeIconsList.pas',
   u_MapTypeIconsList in 'u_MapTypeIconsList.pas',
-  u_MemFileCache in 'u_MemFileCache.pas',
   u_ProxyConfig in 'u_ProxyConfig.pas',
   i_InetConfig in 'i_InetConfig.pas',
   u_InetConfigStatic in 'u_InetConfigStatic.pas',
@@ -356,7 +353,6 @@ uses
   u_TileStorageAbstract in 'u_TileStorageAbstract.pas',
   u_TileStorageGE in 'u_TileStorageGE.pas',
   u_TileStorageFileSystem in 'u_TileStorageFileSystem.pas',
-  i_MemCache in 'i_MemCache.pas',
   u_TileFileNameGeneratorsSimpleList in 'u_TileFileNameGeneratorsSimpleList.pas',
   u_GarbageCollectorThread in 'u_GarbageCollectorThread.pas',
   u_ListOfObjectsWithTTL in 'u_ListOfObjectsWithTTL.pas',
@@ -653,6 +649,7 @@ uses
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
   frm_MarksMultiEdit in 'frm_MarksMultiEdit.pas' {frmMarksMultiEdit},
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
+
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}
 {$R .\Resources\Common.res}

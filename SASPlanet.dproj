@@ -271,8 +271,6 @@
     <DCCReference Include="i_MarksLayerConfig.pas" />
     <DCCReference Include="i_MarksSimple.pas" />
     <DCCReference Include="i_MarkTemplate.pas" />
-    <DCCReference Include="i_MemCache.pas" />
-    <DCCReference Include="i_MemObjCache.pas" />
     <DCCReference Include="i_MenuGeneratorByTree.pas" />
     <DCCReference Include="i_MessageHandler.pas" />
     <DCCReference Include="i_MiniMapLayerConfig.pas" />
@@ -678,7 +676,6 @@
     <DCCReference Include="u_MarksSystem.pas" />
     <DCCReference Include="u_MarkTemplateConfigBase.pas" />
     <DCCReference Include="u_MarkTemplates.pas" />
-    <DCCReference Include="u_MemFileCache.pas" />
     <DCCReference Include="u_MemTileCache.pas" />
     <DCCReference Include="u_MenuGeneratorByStaticTreeSimple.pas" />
     <DCCReference Include="u_MiniMapLayerConfig.pas" />
@@ -736,7 +733,6 @@
     <DCCReference Include="u_StringConfigDataElementWithLanguage.pas" />
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
-    <DCCReference Include="u_TileCacheSimpleGlobal.pas" />
     <DCCReference Include="u_TileDownloaderBaseCore.pas" />
     <DCCReference Include="u_TileDownloaderBaseThread.pas" />
     <DCCReference Include="u_TileDownloaderConfig.pas" />
