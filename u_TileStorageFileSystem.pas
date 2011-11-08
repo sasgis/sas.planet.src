@@ -27,7 +27,6 @@ uses
   Types,
   Classes,
   SysUtils,
-  DateUtils,
   GR32,
   i_FillingMapColorer,
   i_OperationNotifier,

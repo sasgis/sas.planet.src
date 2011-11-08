@@ -37,7 +37,6 @@ uses
   i_LogForTaskThread,
   i_LanguageManager,
   i_ValueToStringConverter,
-  u_MapType,
   u_ResStrings,
   u_ThreadDownloadTiles;
 

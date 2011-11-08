@@ -25,7 +25,6 @@ interface
 uses
   Types,
   GR32,
-  i_JclNotify,
   t_GeoTypes,
   i_ConfigDataProvider,
   i_ContentTypeManager,
@@ -78,7 +77,6 @@ uses
   GR32_Rasterizers,
   GR32_Resamplers,
   GR32_Transforms,
-  u_JclNotify,
   i_ContentTypeInfo,
   u_GeoFun,
   u_BitmapMarker;

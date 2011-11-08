@@ -91,7 +91,6 @@ uses
   SysUtils,
   Dialogs,
   i_Datum,
-  i_StaticTreeItem,
   u_ResStrings,
   u_GeoFun,
   u_GeoToStr;

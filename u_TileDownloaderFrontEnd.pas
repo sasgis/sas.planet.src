@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   SysUtils,
-  i_ConfigDataProvider,
   i_CoordConverterFactory,
   i_LanguageManager,
   i_InvisibleBrowser,

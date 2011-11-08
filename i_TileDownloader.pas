@@ -27,13 +27,9 @@ uses
   Classes,
   i_OperationNotifier,
   i_DownloadResult,
-  i_MapVersionInfo,
   i_LastResponseInfo,
-  i_DownloadChecker,
   i_TileRequest,
-  i_TileDownloadRequest,
-  i_TileRequestBuilderConfig,
-  i_TileDownloaderConfig;
+  i_TileDownloadRequest;
 
 type
   ITileDownloaderEvent = interface;

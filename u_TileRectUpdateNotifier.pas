@@ -41,9 +41,6 @@ type
 
 implementation
 
-uses
-  u_JclNotify;
-
 { TTileRectUpdateNotifier }
 
 constructor TTileRectUpdateNotifier.Create(

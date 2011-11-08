@@ -28,7 +28,6 @@ uses
   SysUtils,
   i_TileRequest,
   i_TileRequestBuilder,
-  i_MapVersionInfo,
   i_LastResponseInfo,
   i_TileDownloadRequest,
   i_TileRequestBuilderConfig;

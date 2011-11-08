@@ -36,7 +36,6 @@ uses
   i_ZmpInfo,
   i_TileDownloaderConfig,
   i_TileRequest,
-  i_MapVersionInfo,
   i_LanguageManager,
   i_CoordConverterFactory,
   i_LastResponseInfo,

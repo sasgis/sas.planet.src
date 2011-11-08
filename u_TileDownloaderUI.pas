@@ -87,13 +87,11 @@ uses
   SysUtils,
   ActiveX,
   t_GeoTypes,
-  i_DownloadResult,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   i_TileIterator,
   u_TileIteratorSpiralByRect,
-  u_TileErrorInfo,
-  u_ResStrings;
+  u_TileErrorInfo;
 
 const
   CMaxRequestsCount = 32; // ћаксимальное число одновременных запросов

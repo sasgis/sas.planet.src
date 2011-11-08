@@ -24,7 +24,6 @@ interface
 
 uses
   Types,
-  i_ZmpInfo,
   i_DownloadRequest,
   i_InetConfig,
   i_TileRequest,

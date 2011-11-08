@@ -35,7 +35,6 @@ uses
   i_ProxySettings,
   i_DownloadResult,
   i_DownloadRequest,
-  i_TileDownloaderConfig,
   i_DownloadResultFactory,
   i_DownloadChecker;
 

@@ -84,7 +84,6 @@ implementation
 
 uses
   Dialogs,
-  u_AntiBanStuped,
   u_GlobalState,
   u_DownloadResultFactory,
   u_TileRequestBuilderPascalScript,

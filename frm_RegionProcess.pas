@@ -55,7 +55,6 @@ uses
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   t_GeoTypes,
-  u_MapType,
   u_MarksSystem,
   u_GeoTostr;
 

@@ -52,9 +52,7 @@ implementation
 
 uses
   SysUtils,
-  i_DownloadResult,
-  u_TileErrorInfo,
-  u_ResStrings;
+  u_TileErrorInfo;
 
 constructor TTileDownloaderUIOneTile.Create(
   AXY: TPoint;

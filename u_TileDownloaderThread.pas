@@ -31,7 +31,6 @@ uses
   u_OperationNotifier,
   i_TileError,
   i_TileDownloader,
-  i_TileDownloadRequest,
   i_TileRequest,
   u_MapType,
   u_TileDownloaderEvent;
