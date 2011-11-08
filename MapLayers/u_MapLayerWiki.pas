@@ -38,6 +38,12 @@ type
 
     FFixedPointArray: TArrayOfFixedPoint;
     FPolygon: TPolygon32;
+
+    FTileUpdateCounter: Integer;
+    FTileChangeListener: IJclListener;
+    procedure OnTileChange(Sender: TObject);
+    procedure OnTimer(Sender: TObject);
+
     procedure ElementsClear;
     procedure DrawWikiElement(
       ATargetBmp: TCustomBitmap32;
@@ -88,6 +94,7 @@ type
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier
     ); override;
+    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     procedure DoHide; override;
   public
     constructor Create(
@@ -103,6 +110,7 @@ type
     );
     destructor Destroy; override;
     procedure StartThreads; override;
+    procedure SendTerminateToThreads; override;
     procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple; out AItemS: Double); overload;
     procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple); overload;
   end;
@@ -114,6 +122,7 @@ uses
   SysUtils,
   i_CoordConverter,
   i_TileIterator,
+  i_TileRectUpdateNotifier,
   u_NotifyEventListener,
   u_TileIteratorByRect,
   u_TileIteratorSpiralByRect;
@@ -154,6 +163,12 @@ begin
     TNotifyEventListener.Create(Self.OnLayerSetChange),
     FLayersSet.GetChangeNotifier
   );
+  LinksList.Add(
+    TNotifyEventListener.Create(Self.OnTimer),
+    ATimerNoifier
+  );
+  FTileChangeListener := TNotifyEventListener.Create(Self.OnTileChange);
+  FTileUpdateCounter := 0;
 
   FElments := TInterfaceList.Create;
   SetLength(FFixedPointArray, 256);
@@ -373,18 +388,174 @@ end;
 
 procedure TWikiLayer.OnLayerSetChange(Sender: TObject);
 var
+  VOldLayersSet: IMapTypeSet;
+  VNewLayersSet: IMapTypeSet;
+  VEnum: IEnumGUID;
   VGUID: TGUID;
-  i: Cardinal;
+  cnt: Cardinal;
+  VNotifier: ITileRectUpdateNotifier;
+  VMap: IMapType;
+  VLocalConverter: ILocalCoordConverter;
+  VZoom: Byte;
+  VMapPixelRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VTileRect: TRect;
+  VMapConverter: ICoordConverter;
 begin
-  FVectorMapsSet := FLayersSet.GetSelectedMapsSet;
   ViewUpdateLock;
   try
+    FVectorMapsSet := FLayersSet.GetSelectedMapsSet;
+    VOldLayersSet := FVectorMapsSet;
+    VNewLayersSet := FLayersSet.GetSelectedMapsSet;
+    FVectorMapsSet := VNewLayersSet;
+    VLocalConverter := LayerCoordConverter;
+    if VLocalConverter <> nil then begin
+      VZoom := VLocalConverter.GetZoom;
+      if VOldLayersSet <> nil then begin
+        VEnum := VOldLayersSet.GetIterator;
+        while VEnum.Next(1, VGUID, cnt) = S_OK do begin
+          if (VNewLayersSet = nil) or (VNewLayersSet.GetMapTypeByGUID(VGUID) = nil) then begin
+            VMap := VOldLayersSet.GetMapTypeByGUID(VGUID);
+            if VMap <> nil then begin
+              VNotifier := VMap.MapType.NotifierByZoom[VZoom];
+              if VNotifier <> nil then begin
+                VNotifier.Remove(FTileChangeListener);
+              end;
+            end;
+          end;
+        end;
+      end;
+      if VNewLayersSet <> nil then begin
+        VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
+        VLocalConverter.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+        VLonLatRect := VLocalConverter.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+        VEnum := VNewLayersSet.GetIterator;
+        while VEnum.Next(1, VGUID, cnt) = S_OK do begin
+          if (VOldLayersSet = nil) or (VOldLayersSet.GetMapTypeByGUID(VGUID) = nil) then begin
+            VMap := VNewLayersSet.GetMapTypeByGUID(VGUID);
+            if VMap <> nil then begin
+              VNotifier := VMap.MapType.NotifierByZoom[VZoom];
+              if VNotifier <> nil then begin
+                VMapConverter := VMap.MapType.GeoConvert;
+                VMapConverter.CheckLonLatRect(VLonLatRect);
+                VTileRect := VMapConverter.LonLatRect2TileRect(VLonLatRect, VZoom);
+                VNotifier.Add(FTileChangeListener, VTileRect);
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
     SetNeedRedraw;
-    SetVisible(FVectorMapsSet.GetIterator.Next(1, VGUID, i) = S_OK);
+    SetVisible(FVectorMapsSet.GetIterator.Next(1, VGUID, cnt) = S_OK);
   finally
     ViewUpdateUnlock;
   end;
   ViewUpdate;
+end;
+
+procedure TWikiLayer.OnTileChange(Sender: TObject);
+begin
+  InterlockedIncrement(FTileUpdateCounter);
+end;
+
+procedure TWikiLayer.OnTimer(Sender: TObject);
+begin
+  if InterlockedExchange(FTileUpdateCounter, 0) > 0 then begin
+    ViewUpdateLock;
+    try
+      SetNeedRedraw;
+    finally
+      ViewUpdateUnlock;
+    end;
+    ViewUpdate;
+  end;
+end;
+
+procedure TWikiLayer.SendTerminateToThreads;
+var
+  VZoom: Byte;
+  VMap: IMapType;
+  VNotifier: ITileRectUpdateNotifier;
+  VLayersSet: IMapTypeSet;
+  VEnum: IEnumGUID;
+  VGUID: TGUID;
+  cnt: Cardinal;
+begin
+  inherited;
+  if LayerCoordConverter <> nil then begin
+    VZoom := LayerCoordConverter.GetZoom;
+    VLayersSet := FVectorMapsSet;
+    if VLayersSet <> nil then begin
+      VEnum := VLayersSet.GetIterator;
+      while VEnum.Next(1, VGUID, cnt) = S_OK do begin
+        VMap := VLayersSet.GetMapTypeByGUID(VGUID);
+        if VMap <> nil then begin
+          VNotifier := VMap.MapType.NotifierByZoom[VZoom];
+          if VNotifier <> nil then begin
+            VNotifier.Remove(FTileChangeListener);
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TWikiLayer.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+var
+  VOldZoom: Byte;
+  VZoom: Byte;
+  VMap: IMapType;
+  VNotifier: ITileRectUpdateNotifier;
+  VLayersSet: IMapTypeSet;
+  VEnum: IEnumGUID;
+  VGUID: TGUID;
+  cnt: Cardinal;
+  VMapPixelRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VTileRect: TRect;
+begin
+  VOldZoom := 255;
+  if LayerCoordConverter <> nil then begin
+    VOldZoom := LayerCoordConverter.GetZoom;
+  end;
+  inherited;
+  VZoom := AValue.GetZoom;
+  if VZoom <> VOldZoom then begin
+    if VOldZoom <> 255 then begin
+      VLayersSet := FVectorMapsSet;
+      if VLayersSet <> nil then begin
+        VEnum := VLayersSet.GetIterator;
+        while VEnum.Next(1, VGUID, cnt) = S_OK do begin
+          VMap := VLayersSet.GetMapTypeByGUID(VGUID);
+          if VMap <> nil then begin
+            VNotifier := VMap.MapType.NotifierByZoom[VOldZoom];
+            if VNotifier <> nil then begin
+              VNotifier.Remove(FTileChangeListener);
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+  VMapPixelRect := AValue.GetRectInMapPixelFloat;
+  AValue.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+  VLonLatRect := AValue.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+  VLayersSet := FVectorMapsSet;
+  if VLayersSet <> nil then begin
+    VEnum := VLayersSet.GetIterator;
+    while VEnum.Next(1, VGUID, cnt) = S_OK do begin
+      VMap := VLayersSet.GetMapTypeByGUID(VGUID);
+      if VMap <> nil then begin
+        VNotifier := VMap.MapType.NotifierByZoom[VZoom];
+        if VNotifier <> nil then begin
+          VMap.MapType.GeoConvert.CheckLonLatRect(VLonLatRect);
+          VTileRect := VMap.MapType.GeoConvert.LonLatRect2TileRect(VLonLatRect, VZoom);
+          VNotifier.Add(FTileChangeListener, VTileRect);
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TWikiLayer.StartThreads;
