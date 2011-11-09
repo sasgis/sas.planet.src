@@ -209,7 +209,7 @@ begin
                 Break;
               end;
               FEvent.DownloadResult :=
-                FHttpDownloader.Get(
+                FHttpDownloader.DoRequest(
                   FEvent.DownloadRequest,
                   FEvent.CancelNotifier,
                   FEvent.OperationID

@@ -31,7 +31,7 @@ uses
 type
   ISimpleDownloader = interface
     ['{08A98FF9-5EDE-4F6E-9D5B-351FBF4C05BE}']
-    function Get(
+    function DoRequest(
       ARequest: IDownloadRequest;
       ACancelNotifier: IOperationNotifier;
       AOperationID: Integer

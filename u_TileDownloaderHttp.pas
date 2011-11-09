@@ -79,7 +79,7 @@ type
     procedure Disconnect;
     procedure OnCancelEvent(Sender: TObject);
   protected
-    function Get(
+    function DoRequest(
       ARequest: IDownloadRequest;
       ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
@@ -125,7 +125,7 @@ begin
   inherited;
 end;
 
-function TTileDownloaderHttp.Get(
+function TTileDownloaderHttp.DoRequest(
   ARequest: IDownloadRequest;
   ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
