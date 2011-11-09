@@ -559,7 +559,6 @@ type
     FMarshrutComment: string;
     movepoint: boolean;
 
-    FMainLayer: TMapMainLayer;
     FWikiLayer: TWikiLayer;
     FLayerMapMarks: TMapMarksLayer;
     FLayerSearchResults: TSearchResultsLayer;
@@ -941,7 +940,7 @@ begin
 
     tbitmShowDebugInfo.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
 
-    FMainLayer :=
+    FLayersList.Add(
       TMapMainLayer.Create(
         GState.PerfCounterList,
         map,
@@ -954,8 +953,8 @@ begin
         GState.ViewConfig,
         FTileErrorLogger,
         GState.GUISyncronizedTimerNotifier
-      );
-    FLayersList.Add(FMainLayer);
+      )
+    );
     FLayersList.Add(
       TMapLayerGrids.Create(
         GState.PerfCounterList,
