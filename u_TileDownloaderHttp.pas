@@ -25,6 +25,7 @@ interface
 uses
   Windows,
   Classes,
+  SyncObjs,
   SysUtils,
   ALHTTPCommon,
   ALHttpClient,
@@ -42,6 +43,7 @@ uses
 type
   TTileDownloaderHttp = class(TInterfacedObject, ISimpleDownloader)
   private
+    FCS: TCriticalSection;
     FCancelListener: IJclListener;
     FHttpClient: TALWinInetHTTPClient;
     FHttpResponseHeader: TALHTTPResponseHeader;
@@ -78,6 +80,9 @@ type
     function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean;
     procedure Disconnect;
     procedure OnCancelEvent(Sender: TObject);
+    procedure DoGetRequest(ARequest: IDownloadRequest);
+    procedure DoHeadRequest(ARequest: IDownloadHeadRequest);
+    procedure DoPostRequest(ARequest: IDownloadPostRequest);
   protected
     function DoRequest(
       ARequest: IDownloadRequest;
@@ -106,6 +111,7 @@ constructor TTileDownloaderHttp.Create(
 );
 begin
   inherited Create;
+  FCS := TCriticalSection.Create;
   FHttpClient := TALWinInetHTTPClient.Create(nil);
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
   FHttpResponseBody := TMemoryStream.Create;
@@ -117,6 +123,7 @@ end;
 destructor TTileDownloaderHttp.Destroy;
 begin
   Disconnect;
+  FreeAndNil(FCS);
   FreeAndNil(FHttpResponseHeader);
   FreeAndNil(FHttpResponseBody);
   FreeAndNil(FHttpClient);
@@ -125,55 +132,116 @@ begin
   inherited;
 end;
 
+procedure TTileDownloaderHttp.DoGetRequest(ARequest: IDownloadRequest);
+begin
+  FHttpClient.Get(
+    ARequest.Url,
+    FHttpResponseBody,
+    FHttpResponseHeader
+  );
+end;
+
+procedure TTileDownloaderHttp.DoHeadRequest(ARequest: IDownloadHeadRequest);
+begin
+  FHttpClient.Head(
+    ARequest.Url,
+    FHttpResponseBody,
+    FHttpResponseHeader
+  );
+end;
+
+procedure TTileDownloaderHttp.DoPostRequest(ARequest: IDownloadPostRequest);
+var
+  VStream: TMemoryStream;
+begin
+  if ARequest.PostDataSize > 0 then begin
+    VStream := TMemoryStream.Create;
+    try
+      VStream.Write(ARequest.PostData^, ARequest.PostDataSize);
+      VStream.Position := 0;
+      FHttpClient.Post(
+        ARequest.Url,
+        VStream,
+        FHttpResponseBody,
+        FHttpResponseHeader
+      );
+    finally
+      VStream.Free;
+    end;
+  end else begin
+    FHttpClient.Post(
+      ARequest.Url,
+      FHttpResponseBody,
+      FHttpResponseHeader
+    );
+  end;
+end;
+
 function TTileDownloaderHttp.DoRequest(
   ARequest: IDownloadRequest;
   ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 ): IDownloadResult;
+var
+  VPostRequest: IDownloadPostRequest;
+  VHeadRequest: IDownloadHeadRequest;
 begin
-  ACancelNotifier.AddListener(FCancelListener);
+  Result := nil;
+  FCS.Acquire;
   try
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Result := FResultFactory.BuildCanceled(ARequest);
     end;
     if Result = nil then begin
-      Result := OnBeforeRequest(
-        ARequest,
-        FResultFactory
-      );
-    end;
-    if Result = nil then
-    try
-      FHttpClient.Get(
-        ARequest.Url,
-        FHttpResponseBody,
-        FHttpResponseHeader
-      );
-    except
-      on E: EALHTTPClientException do begin
-        Result := OnHttpError(
-          ARequest,
-          FResultFactory,
-          E.StatusCode,
-          E.Message
-        );
+      ACancelNotifier.AddListener(FCancelListener);
+      try
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Result := FResultFactory.BuildCanceled(ARequest);
+        end;
+        if Result = nil then begin
+          Result := OnBeforeRequest(
+            ARequest,
+            FResultFactory
+          );
+        end;
+        if Result = nil then
+        try
+          if Supports(ARequest, IDownloadHeadRequest, VHeadRequest) then begin
+            DoHeadRequest(VHeadRequest);
+          end else if Supports(ARequest, IDownloadPostRequest, VPostRequest) then begin
+            DoPostRequest(VPostRequest);
+          end else begin
+            DoGetRequest(ARequest);
+          end;
+        except
+          on E: EALHTTPClientException do begin
+            Result := OnHttpError(
+              ARequest,
+              FResultFactory,
+              E.StatusCode,
+              E.Message
+            );
+          end;
+          on E: EOSError do begin
+            Result := OnOSError(
+              ARequest,
+              FResultFactory,
+              E.ErrorCode
+            );
+          end;
+        end;
+        if Result = nil then begin
+          Result := OnAfterResponse(
+            ARequest,
+            FResultFactory
+          );
+        end;
+      finally
+        ACancelNotifier.RemoveListener(FCancelListener);
       end;
-      on E: EOSError do begin
-        Result := OnOSError(
-          ARequest,
-          FResultFactory,
-          E.ErrorCode
-        );
-      end;
-    end;
-    if Result = nil then begin
-      Result := OnAfterResponse(
-        ARequest,
-        FResultFactory
-      );
     end;
   finally
-    ACancelNotifier.RemoveListener(FCancelListener);
+    FCS.Release;
   end;
 end;
 
