@@ -299,11 +299,11 @@ begin
           );
       except
         on E: Exception do begin
-          ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.GUI.Name, E.Message, FZmp.FileName]);
+          ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.GUI.Name.GetDefault, E.Message, FZmp.FileName]);
           FTileRequestBuilder := nil;
         end;
       else
-        ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.GUI.Name, FZmp.FileName]);
+        ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.GUI.Name.GetDefault, FZmp.FileName]);
         FTileRequestBuilder := nil;
       end;
     end;
