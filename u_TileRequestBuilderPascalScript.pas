@@ -139,12 +139,13 @@ begin
   inherited Create(AConfig);
   FZmp := AZmp;
   FTileDownloaderConfig := ATileDownloaderConfig;
-  PrepareCoordConverter(ACoordConverterFactory, AConfigData);
-  PreparePascalScript(AConfigData);
-
   FLangManager := ALangManager;
+
   FLangListener := TNotifyEventListener.Create(Self.OnLangChange);
   FLangManager.GetChangeNotifier.Add(FLangListener);
+
+  PrepareCoordConverter(ACoordConverterFactory, AConfigData);
+  PreparePascalScript(AConfigData);
 
   OnLangChange(nil);
 end;
@@ -157,7 +158,8 @@ begin
 
   FreeAndNil(FExec);
   FCoordConverter := nil;
-  inherited Destroy;
+  
+  inherited;
 end;
 
 procedure TTileRequestBuilderPascalScript.OnLangChange(Sender: TObject);
