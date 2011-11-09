@@ -115,6 +115,7 @@ begin
     frMarkCategory.Init(nil);
     try
       if ShowModal = mrOk then begin
+        VCategory := frMarkCategory.GetCategory;
         if not frMarksGeneralOptions.chkPointIgnore.Checked then begin
           VIndex := frMarksGeneralOptions.cbbPointIcon.ItemIndex;
           if VIndex < 0 then begin
@@ -122,7 +123,6 @@ begin
           end else begin
             VPic := IMarkPicture(Pointer(frMarksGeneralOptions.cbbPointIcon.Items.Objects[VIndex]));
           end;
-          VCategory := frMarkCategory.GetCategory;
           VMarkTemplatePoint :=
             FMarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
               VPic,
