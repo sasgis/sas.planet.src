@@ -29,6 +29,7 @@ uses
   SyncObjs,
   i_JclNotify,
   i_OperationNotifier,
+  i_SimpleDownloader,
   i_InetConfig,
   i_DownloadChecker,
   i_DownloadResultFactory,
@@ -47,7 +48,7 @@ type
     FResultFactory: IDownloadResultFactory;
     FTileRequestBuilder: ITileRequestBuilder;
     FTileDownloaderConfig: ITileDownloaderConfig;
-    FHttpDownloader: TTileDownloaderHttp;
+    FHttpDownloader: ISimpleDownloader;
     FEvent: ITileDownloaderEvent;
     FSemaphore: THandle;
     FParentSemaphore: THandle;
@@ -119,7 +120,7 @@ end;
 destructor TTileDownloaderBaseThread.Destroy;
 begin
   try
-    FreeAndNil(FHttpDownloader);
+    FHttpDownloader := nil;
     CloseHandle(FSemaphore);
     FreeAndNil(FCancelEvent);
     FreeAndNil(FSessionCS);

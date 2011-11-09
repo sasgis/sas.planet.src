@@ -38,6 +38,19 @@ type
     property InetConfig: IInetConfigStatic read GetInetConfig;
   end;
 
+  IDownloadPostRequest = interface(IDownloadRequest)
+    ['{5AFD72E6-E99C-49B8-8594-13773AB8914A}']
+    function GetPostData: Pointer;
+    property PostData: Pointer read GetPostData;
+
+    function GetPostDataSize: Integer;
+    property PostDataSize: Integer read GetPostDataSize;
+  end;
+
+  IDownloadHeadRequest = interface(IDownloadRequest)
+    ['{3CE70650-F3B7-4687-B19D-98A324EB877A}']
+  end;
+
 implementation
 
 end.

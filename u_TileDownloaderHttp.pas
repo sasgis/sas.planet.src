@@ -31,6 +31,7 @@ uses
   ALWinInetHttpClient,
   i_JclNotify,
   i_OperationNotifier,
+  i_SimpleDownloader,
   i_InetConfig,
   i_ProxySettings,
   i_DownloadResult,
@@ -39,7 +40,7 @@ uses
   i_DownloadChecker;
 
 type
-  TTileDownloaderHttp = class
+  TTileDownloaderHttp = class(TInterfacedObject, ISimpleDownloader)
   private
     FCancelListener: IJclListener;
     FHttpClient: TALWinInetHTTPClient;
@@ -77,17 +78,18 @@ type
     function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean;
     procedure Disconnect;
     procedure OnCancelEvent(Sender: TObject);
+  protected
+    function Get(
+      ARequest: IDownloadRequest;
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
+    ): IDownloadResult;
   public
     constructor Create(
       ADownloadChecker: IDownloadChecker;
       AResultFactory: IDownloadResultFactory
     );
     destructor Destroy; override;
-    function Get(
-      ARequest: IDownloadRequest;
-      ACancelNotifier: IOperationNotifier;
-      AOperationID: Integer
-    ): IDownloadResult;
   end;
 
 implementation

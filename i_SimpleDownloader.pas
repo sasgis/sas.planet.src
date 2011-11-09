@@ -23,35 +23,19 @@ unit i_SimpleDownloader;
 interface
 
 uses
-  Classes;
+  Classes,
+  i_OperationNotifier,
+  i_DownloadResult,
+  i_DownloadRequest;
 
 type
-  TSimpleDownloaderEvent = procedure (
-    Sender: TObject;
-    AResponseCode: Cardinal;
-    const AContentType: string;
-    const AResponseHead: string;
-    AResponseBuf: TMemoryStream
-  ) of object;
-
   ISimpleDownloader = interface
-    ['{B45879E0-C88E-4C4F-954B-72991CF39FF4}']
-    function GetFromInternet(
-      AUrl: string;
-      AAcceptEncoding: string;
-      ARequestHead: string;
-      ARequestBuf: TMemoryStream;
-      AResponseBuf: TMemoryStream;
-      out AContentType: string;
-      out AResponseHead: string
-    ): Cardinal;
-    procedure GetFromInternetAsync(
-      AUrl: string;
-      AAcceptEncoding: string;
-      ARequestHead: string;
-      ARequestBuf: TMemoryStream;
-      AOnDownload: TSimpleDownloaderEvent
-    );
+    ['{08A98FF9-5EDE-4F6E-9D5B-351FBF4C05BE}']
+    function Get(
+      ARequest: IDownloadRequest;
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
+    ): IDownloadResult;
   end;
 
 implementation
