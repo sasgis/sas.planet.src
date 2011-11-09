@@ -57,54 +57,134 @@ var
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
+  cur_pos:integer;// позиция текущего символа
+  br_level:integer;//глубина вложенности {=плюс один   }=минус один
+  Buffer:string; // сюда складываем временно считанную строку
+  cur_char:string; // текущий символ
+  err:boolean;// признак окончания поиска когда уже всё нашли...
+  ParseErr:boolean; // признак ошибки разбора строки
 begin
-  sfulldesc:='';
+  Buffer:='';
   if AStr = '' then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
-  i:=PosEx('"items":[{', AStr);
-  while (PosEx('"name":"', AStr, i) > i)and(i>0) do begin
-    j := i;
-    i := PosEx('"CompanyMetaData":{"id":"', AStr, i);
+
+  cur_pos:=PosEx('{"GeoObjectCollection":', AStr)-1;
+
+  while (cur_pos<length(AStr)) and (not err)do begin
+   inc (cur_pos);
+   cur_char:=copy(AStr,cur_pos,1);
+
+   Buffer:=Buffer+cur_char;
+
+   if cur_char='{' then inc(br_level);
+   if cur_char='}' then begin
+    dec(br_level);
+    if br_level=2 then  begin
+   // подстрока готова. теперь будем её парсит и дёргатьнужные нам значения
+     sdesc:='';
+     sname:='';
+     sfulldesc:='';
+     ParseErr:=False;
+     j:=1;
+     i:=1;
+     // если есть адресная информация - добавляем её
+     // это же является признаком того что точку нужно обрабатывать
+     i := PosEx('{"AddressLine":"', Buffer, 1);
+     if i>0  then begin
+      if i>j then begin
+       j := PosEx('",', Buffer, i + 16);
+       sdesc:=Utf8ToAnsi(Copy(Buffer, i + 16, j - (i + 16)));
+      end;
+     end
+    else
+    // у НЯК всё совсем по другому. проверяем няковские поля
+    if PosEx('PSearchMetaData', Buffer, 1)>1 then begin
+     i:=PosEx('"PSearchMetaData":{"id":"', Buffer, 1);
+     j := PosEx('",', Buffer, i + 25);
+     sfulldesc:='http://n.maps.yandex.ru/?l=wmap&oid='+Copy(Buffer, i + 25, j - (i + 25));
+   end
+   else ParseErr:=true; // дальше строку не разбираем ибо отсутствует наименование.
+
+   if ParseErr=false then begin // если нашли признак валидности данных
+    // делаем ссылку на описание если оно есть.
+    i:=1;j:=1;
+    i:= PosEx('"CompanyMetaData":{"id":"', Buffer, 1);
     if i>j then begin
-      j := PosEx('",', AStr, i + 25);
-      sfulldesc:='http://maps.yandex.ru/sprav/'+Copy(AStr, i + 25, j - (i + 25))+'/';
+     j := PosEx('",', Buffer, i + 25);
+     sfulldesc:='http://maps.yandex.ru/sprav/'+Copy(Buffer, i + 25, j - (i + 25))+'/';
     end;
 
-    i := PosEx('"name":"', AStr, j);
-    j := PosEx('",', AStr, i + 8);
-    sname:= Utf8ToAnsi(Copy(AStr, i + 8, j - (i + 8)));
-    i := PosEx('"address":"', AStr, j);
-    if i>j then begin
-      j := PosEx('",', AStr, i + 11);
-      sdesc:=Utf8ToAnsi(Copy(AStr, i + 11, j - (i + 11)));
-    end;
-    i := PosEx('"description":"', AStr, j);
-    if i>j then begin
-      j := PosEx('",', AStr, i + 15);
-      sdesc:=Utf8ToAnsi(Copy(AStr, i + 15, j - (i + 15)));
-    end;
-    i := PosEx('"coordinates":[', AStr, j);
-    j := PosEx(',', AStr, i + 15);
-    slon := Copy(AStr, i + 15, j - (i + 15));
-    i := PosEx(']', AStr, j);
-    slat := Copy(AStr, j + 1, i - (j + 1));
-    if slat[1] = '\' then begin
-      delete(slat, 1, 1);
-    end;
-    if slon[1] = '\' then begin
-      delete(slon, 1, 1);
-    end;
-    try
+     // достаём наименование
+     i:=1;j:=1;
+     i := PosEx('},"name":"', Buffer, j);
+     j := PosEx('",', Buffer, i + 10);
+     sname:= Utf8ToAnsi(Copy(Buffer, i + 10, j - (i + 10)));
+     // прибавляем статусную часть (улица,посёлок..) если она идёт сразу за наименованием
+     if Copy(Buffer,j,8)='","type"' then begin
+      i := PosEx('"type":"', Buffer, j);
+      j := PosEx('",', Buffer, i + 8);
+      sname:= sname+' '+Utf8ToAnsi(Copy(Buffer, i + 8, j - (i + 8)));
+     end;
+
+     // Достаём координаты
+     i := PosEx('"coordinates":[', Buffer, j);
+     j := PosEx(',', Buffer, i + 15);
+     slon := Copy(Buffer, i + 15, j - (i + 15));
+     i := PosEx(']', Buffer, j);
+     slat := Copy(Buffer, j + 1, i - (j + 1));
+     if slat[1] = '\' then delete(slat, 1, 1);
+     if slon[1] = '\' then delete(slon, 1, 1);
+
+
+     i:=1;j:=1;
+     if PosEx('"Categories":', Buffer, i)>i then begin// значит есть категория
+      sdesc:=sdesc+' (';
+      while PosEx('{"name":"', Buffer, i)>i do begin // названий категорий может быть несколько поэтому будем их сцеплять (банки-банкоматы)
+       i := PosEx('{"name":"', Buffer, i);
+       j := PosEx('","', Buffer, i);
+       sdesc:=sdesc+' '+Utf8ToAnsi(Copy(Buffer, i + 9, j - (i + 9)));
+       i:=j;
+       end;
+      sdesc:=sdesc+')';
+      end;
+
+     // описание из НЯК
+     i:=1;j:=1;
+     i:= PosEx('{"locality":"', Buffer, 1);
+     if i>j then begin
+      j := PosEx('"', Buffer, i + 13);
+      sdesc:='(НЯК) '+Utf8ToAnsi(Copy(Buffer, i + 13, j - (i + 13)));
+      end;
+
+     // описание из НЯК
+     i:=1;j:=1;
+     i:= PosEx('"category_name":"', Buffer, 1);
+     if i>j then begin
+      j := PosEx('"', Buffer, i + 17);
+      if sdesc='' then sdesc:='(НЯК) ';
+      sdesc:=sdesc+' ('+Utf8ToAnsi(Copy(Buffer, i + 17, j - (i + 17)))+')';
+      end;
+
+     try
       VPoint.Y := StrToFloat(slat, VFormatSettings);
       VPoint.X := StrToFloat(slon, VFormatSettings);
-    except
+     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
+     end;
+
+      // если нашли что-нибудь - тогда добавляем точку.
+     if sdesc<>'' then begin
+      VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+      VList.Add(VPlace);
+     end;
     end;
-    VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-    VList.Add(VPlace);
+    Buffer:='';
+   end;
+   if br_level=1 then err:=true;//  Хватит. Довольно. Выходим.
+   end;
   end;
   Result := VList;
 end;
