@@ -259,8 +259,12 @@ begin
   FExec.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
   FExec.RegisterDelphiFunction(@DoHttpRequest, 'DoHttpRequest', cdRegister);
 
-  if not FExec.LoadData(VData) then
-    raise Exception.Create(SAS_ERR_UrlScriptByteCodeLoad);
+  if not FExec.LoadData(VData) then begin
+    raise Exception.Create(
+      SAS_ERR_UrlScriptByteCodeLoad + #13#10 +
+      TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString)
+    );
+  end;
 
   FpResultUrl := PPSVariantAString(FExec.GetVar2('ResultURL'));
   FpGetURLBase := PPSVariantAString(FExec.GetVar2('GetURLBase'));
