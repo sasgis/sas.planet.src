@@ -59,6 +59,7 @@ object frTilesCopy: TfrTilesCopy
         Align = alClient
         ItemHeight = 13
         TabOrder = 1
+        OnDblClick = chklstZoomsDblClick
       end
     end
     object pnlMain: TPanel
