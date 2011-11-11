@@ -27,14 +27,17 @@ uses
   i_DownloadRequest,
   i_InetConfig,
   i_TileRequest,
+  i_DownloadChecker,
+  i_TileDownloadChecker,
   i_TileDownloadRequest;
 
 type
-  TTileDownloadRequest = class(TInterfacedObject, IDownloadRequest, ITileDownloadRequest)
+  TTileDownloadRequest = class(TInterfacedObject, IDownloadRequest, ITileDownloadRequest, IRequestWithChecker)
   private
     FUrl: string;
     FRequestHeader: string;
     FInetConfig: IInetConfigStatic;
+    FCheker: IDownloadChecker;
     FSource: ITileRequest;
   protected
     function GetUrl: string;
@@ -42,6 +45,8 @@ type
     function GetInetConfig: IInetConfigStatic;
   protected
     function GetSource: ITileRequest;
+  protected
+    function GetChecker: IDownloadChecker;
   public
     constructor Create(
       AUrl: string;
@@ -53,6 +58,9 @@ type
 
 implementation
 
+uses
+  SysUtils;
+
 { TTileDownloadRequest }
 
 constructor TTileDownloadRequest.Create(
@@ -60,11 +68,21 @@ constructor TTileDownloadRequest.Create(
   AInetConfig: IInetConfigStatic;
   ASource: ITileRequest
 );
+var
+  VRequest: ITileRequestWithChecker;
 begin
   FUrl := AUrl;
   FRequestHeader := ARequestHeader;
   FInetConfig := AInetConfig;
   FSource := ASource;
+  if Supports(FSource, ITileRequestWithChecker, VRequest) then begin
+    FCheker := VRequest.Checker;
+  end;
+end;
+
+function TTileDownloadRequest.GetChecker: IDownloadChecker;
+begin
+  Result := FCheker;
 end;
 
 function TTileDownloadRequest.GetInetConfig: IInetConfigStatic;

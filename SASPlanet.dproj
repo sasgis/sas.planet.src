@@ -304,6 +304,7 @@
     <DCCReference Include="i_StringConfigDataElement.pas" />
     <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_Thread.pas" />
+    <DCCReference Include="i_TileDownloadChecker.pas" />
     <DCCReference Include="i_TileDownloader.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownloadRequest.pas" />

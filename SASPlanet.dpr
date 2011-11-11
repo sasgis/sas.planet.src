@@ -80,6 +80,7 @@ uses
   i_DownloadResultFactory in 'i_DownloadResultFactory.pas',
   u_DownloadResultFactory in 'u_DownloadResultFactory.pas',
   i_DownloadChecker in 'i_DownloadChecker.pas',
+  i_TileDownloadChecker in 'i_TileDownloadChecker.pas',
   u_DownloadCheckerStuped in 'u_DownloadCheckerStuped.pas',
   u_ThreadDownloadTiles in 'RegionProcess\u_ThreadDownloadTiles.pas',
   u_ThreadMapCombineBase in 'RegionProcess\u_ThreadMapCombineBase.pas',

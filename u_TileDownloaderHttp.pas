@@ -260,7 +260,9 @@ begin
   FHttpResponseHeader.Clear;
   FHttpResponseBody.Clear;
 
-  Result := FDownloadChecker.BeforeRequest(AResultFactory, ARequest);
+  if FDownloadChecker <> nil then begin
+    Result := FDownloadChecker.BeforeRequest(AResultFactory, ARequest);
+  end;
 
   if Result = nil then begin
     PreConfigHttpClient(
@@ -338,15 +340,17 @@ begin
     VContentType := FHttpResponseHeader.ContentType;
     VStatusCode := StrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
-      Result := FDownloadChecker.AfterReciveData(
-        AResultFactory,
-        ARequest,
-        FHttpResponseBody.Size,
-        FHttpResponseBody.Memory,
-        VStatusCode,
-        VContentType,
-        VRawHeaderText
-      );
+      if FDownloadChecker <> nil then begin
+        Result := FDownloadChecker.AfterReciveData(
+          AResultFactory,
+          ARequest,
+          FHttpResponseBody.Size,
+          FHttpResponseBody.Memory,
+          VStatusCode,
+          VContentType,
+          VRawHeaderText
+        );
+      end;
       if Result = nil then begin
         if FHttpResponseBody.Size = 0 then begin
           Result := AResultFactory.BuildDataNotExistsZeroSize(

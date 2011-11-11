@@ -46,6 +46,12 @@ type
     ): IDownloadResult;
   end;
 
+  IRequestWithChecker = interface
+    ['{76BA399A-D581-424E-8D8E-6809C590CA30}']
+    function GetChecker: IDownloadChecker;
+    property Checker: IDownloadChecker read GetChecker;
+  end;
+
 implementation
 
 end.

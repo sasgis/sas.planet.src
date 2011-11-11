@@ -6,26 +6,31 @@ uses
   Types,
   i_ZmpInfo,
   i_TileRequest,
+  i_TileDownloadChecker,
   i_MapVersionInfo;
 
 type
-  TTileRequest = class(TInterfacedObject, ITileRequest)
+  TTileRequest = class(TInterfacedObject, ITileRequest, ITileRequestWithChecker)
   private
     FZmp: IZmpInfo;
     FTile: TPoint;
     FZoom: Byte;
     FVersionInfo: IMapVersionInfo;
+    FChecker: ITileDownloadChecker;
   protected
     function GetZmp: IZmpInfo;
     function GetTile: TPoint;
     function GetZoom: Byte;
     function GetVersionInfo: IMapVersionInfo;
+  protected
+    function GetChecker: ITileDownloadChecker;
   public
     constructor Create(
       AZmp: IZmpInfo;
       ATile: TPoint;
       AZoom: Byte;
-      AVersionInfo: IMapVersionInfo
+      AVersionInfo: IMapVersionInfo;
+      AChecker: ITileDownloadChecker
     );
   end;
 
@@ -39,13 +44,20 @@ constructor TTileRequest.Create(
   AZmp: IZmpInfo;
   ATile: TPoint;
   AZoom: Byte;
-  AVersionInfo: IMapVersionInfo
+  AVersionInfo: IMapVersionInfo;
+  AChecker: ITileDownloadChecker
 );
 begin
   FZmp := AZmp;
   FTile := ATile;
   FZoom := AZoom;
   FVersionInfo := AVersionInfo;
+  FChecker := AChecker;
+end;
+
+function TTileRequest.GetChecker: ITileDownloadChecker;
+begin
+  Result := FChecker;
 end;
 
 function TTileRequest.GetTile: TPoint;

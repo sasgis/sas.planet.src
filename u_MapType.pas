@@ -61,6 +61,7 @@ uses
   i_InvisibleBrowser,
   i_MapTypeGUIConfig,
   i_ProxySettings,
+  i_TileDownloadChecker,
   i_CoordConverterFactory,
   i_MainMemCacheConfig,
   i_TileFileNameGeneratorsList,
@@ -101,7 +102,7 @@ type
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
     FTileDownloader: TTileDownloaderFrontEnd;
-    FDownloadChecker: IDownloadChecker;
+    FDownloadChecker: ITileDownloadChecker;
 
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
@@ -362,6 +363,12 @@ begin
         FDownloadChecker := TDownloadCheckerStuped.Create(
           TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider),
           FTileDownloaderConfig,
+          FDownloadConfig,
+          FLastResponseInfo,
+          FContentTypeManager,
+          FZmp.ContentTypeSubst,
+          FZmp.TilePostDownloadCropConfig,
+          FStorageConfig,
           FStorage
         );
         FTileDownloader := TTileDownloaderFrontEnd.Create(
@@ -444,9 +451,9 @@ begin
   Result := nil;
   if FCoordConverter.CheckTilePosStrict(AXY, Azoom, False) then begin
     if ACheckTileSize then begin
-      Result := TTileRequestWithSizeCheck.Create(FZmp, AXY, Azoom, FVersionConfig.GetStatic);
+      Result := TTileRequestWithSizeCheck.Create(FZmp, AXY, Azoom, FVersionConfig.GetStatic, FDownloadChecker);
     end else begin
-      Result := TTileRequest.Create(FZmp, AXY, Azoom, FVersionConfig.GetStatic);
+      Result := TTileRequest.Create(FZmp, AXY, Azoom, FVersionConfig.GetStatic, FDownloadChecker);
     end;
   end;
 end;
