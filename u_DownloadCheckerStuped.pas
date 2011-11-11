@@ -47,19 +47,13 @@ type
       AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest
     ): IDownloadResult;
-    function AfterResponse(
-      AResultFactory: IDownloadResultFactory;
-      ARequest: IDownloadRequest;
-      var AStatusCode: Cardinal;
-      var AContentType: string;
-      var AResponseHead: string
-    ): IDownloadResult;
     function AfterReciveData(
       AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest;
       const ARecivedSize: Integer;
       const ARecivedBuffer: Pointer;
       var AStatusCode: Cardinal;
+      var AContentType: string;
       var AResponseHead: string
     ): IDownloadResult;
   public
@@ -138,16 +132,16 @@ begin
   end;
 end;
 
-function TDownloadCheckerStuped.AfterResponse(
+function TDownloadCheckerStuped.AfterReciveData(
   AResultFactory: IDownloadResultFactory;
   ARequest: IDownloadRequest;
+  const ARecivedSize: Integer;
+  const ARecivedBuffer: Pointer;
   var AStatusCode: Cardinal;
   var AContentType: string;
   var AResponseHead: string
 ): IDownloadResult;
 var
-  VContentLenAsStr: string;
-  VContentLen: Int64;
   VConfig: ITileDownloaderConfigStatic;
 begin
   VConfig := FTileDownloaderConfig.GetStatic;
@@ -161,28 +155,6 @@ begin
       Exit;
     end;
   end;
-  if IsNeedCheckTileSize(ARequest) then begin
-    VContentLenAsStr := GetHeaderValue(AResponseHead, 'Content-Length');
-    if VContentLenAsStr <> '' then begin
-      if TryStrToInt64(VContentLenAsStr, VContentLen) then begin
-        if CheckOldTileSize(ARequest, VContentLen) then begin
-          Result := AResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);
-          Exit;
-        end;
-      end;
-    end;
-  end;
-end;
-
-function TDownloadCheckerStuped.AfterReciveData(
-  AResultFactory: IDownloadResultFactory;
-  ARequest: IDownloadRequest;
-  const ARecivedSize: Integer;
-  const ARecivedBuffer: Pointer;
-  var AStatusCode: Cardinal;
-  var AResponseHead: string
-): IDownloadResult;
-begin
   if IsNeedCheckTileSize(ARequest) then begin
     if CheckOldTileSize(ARequest, ARecivedSize) then begin
       Result := AResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AResponseHead);

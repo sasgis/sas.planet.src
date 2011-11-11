@@ -338,38 +338,30 @@ begin
     VContentType := FHttpResponseHeader.ContentType;
     VStatusCode := StrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
-      Result := FDownloadChecker.AfterResponse(
+      Result := FDownloadChecker.AfterReciveData(
         AResultFactory,
         ARequest,
+        FHttpResponseBody.Size,
+        FHttpResponseBody.Memory,
         VStatusCode,
         VContentType,
         VRawHeaderText
       );
       if Result = nil then begin
-        Result := FDownloadChecker.AfterReciveData(
-          AResultFactory,
-          ARequest,
-          FHttpResponseBody.Size,
-          FHttpResponseBody.Memory,
-          VStatusCode,
-          VRawHeaderText
-        );
-        if Result = nil then begin
-          if FHttpResponseBody.Size = 0 then begin
-            Result := AResultFactory.BuildDataNotExistsZeroSize(
-              ARequest,
-              VRawHeaderText
-            );
-          end else begin
-            Result := AResultFactory.BuildOk(
-              ARequest,
-              VStatusCode,
-              VRawHeaderText,
-              VContentType,
-              FHttpResponseBody.Size,
-              FHttpResponseBody.Memory
-            );
-          end;
+        if FHttpResponseBody.Size = 0 then begin
+          Result := AResultFactory.BuildDataNotExistsZeroSize(
+            ARequest,
+            VRawHeaderText
+          );
+        end else begin
+          Result := AResultFactory.BuildOk(
+            ARequest,
+            VStatusCode,
+            VRawHeaderText,
+            VContentType,
+            FHttpResponseBody.Size,
+            FHttpResponseBody.Memory
+          );
         end;
       end;
     end else if IsDownloadErrorStatus(VStatusCode) then begin

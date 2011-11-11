@@ -35,19 +35,13 @@ type
       AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest
     ): IDownloadResult;
-    function AfterResponse(
-      AResultFactory: IDownloadResultFactory;
-      ARequest: IDownloadRequest;
-      var AStatusCode: Cardinal;
-      var AContentType: string;
-      var AResponseHead: string
-    ): IDownloadResult;
     function AfterReciveData(
       AResultFactory: IDownloadResultFactory;
       ARequest: IDownloadRequest;
       const ARecivedSize: Integer;
       const ARecivedBuffer: Pointer;
       var AStatusCode: Cardinal;
+      var AContentType: string;
       var AResponseHead: string
     ): IDownloadResult;
   end;

@@ -62,6 +62,10 @@ object frmRegionProcess: TfrmRegionProcess
       Tag = 4
       Caption = 'Export'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Bevel5: TBevel
         Left = 0
         Top = 0
@@ -84,7 +88,7 @@ object frmRegionProcess: TfrmRegionProcess
         Width = 249
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         OnChange = CBFormatChange
       end
