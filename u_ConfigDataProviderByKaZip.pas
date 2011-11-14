@@ -176,7 +176,7 @@ begin
           FUnZip.Entries.Items[VIndex].ExtractToStream(VStream);
           SetLength(Result, VStream.Size);
           VStream.Position := 0;
-          VStream.Read(Result[1], VStream.Size);
+          VStream.ReadBuffer(Result[1], VStream.Size);
         finally
           VStream.Free;
         end;
