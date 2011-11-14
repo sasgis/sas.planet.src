@@ -36,7 +36,7 @@ type
     FEvent: TPosChangeNotifyEvent;
   protected
     procedure DoEvent(AMessage: IPosChangeMessage); virtual;
-    procedure Notification(msg: IJclNotificationMessage); override;
+    procedure Notification(msg: IInterface); override;
   public
     constructor Create(AEvent: TPosChangeNotifyEvent);
   end;
@@ -58,7 +58,7 @@ begin
 end;
 
 procedure TPosChangeNotifyEventListener.Notification(
-  msg: IJclNotificationMessage);
+  msg: IInterface);
 begin
   inherited;
   DoEvent(IPosChangeMessage(msg));

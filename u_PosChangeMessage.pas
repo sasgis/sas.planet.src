@@ -29,7 +29,7 @@ uses
   i_PosChangeMessage;
 
 type
-  TPosChangeMessage = class(TJclBaseNotificationMessage, IPosChangeMessage)
+  TPosChangeMessage = class(TInterfacedObject, IPosChangeMessage)
   private
     FVisualCoordConverter: ILocalCoordConverter;
     function GetVisualCoordConverter: ILocalCoordConverter; stdcall;

@@ -35,7 +35,7 @@ type
   private
     FEvent: TPosChangeEvent;
   protected
-    procedure Notification(msg: IJclNotificationMessage); override;
+    procedure Notification(msg: IInterface); override;
   public
     constructor Create(AEvent: TPosChangeEvent);
   end;
@@ -49,7 +49,7 @@ begin
   FEvent := AEvent;
 end;
 
-procedure TPosChangeListener.Notification(msg: IJclNotificationMessage);
+procedure TPosChangeListener.Notification(msg: IInterface);
 var
   VMessage: IPosChangeMessage;
 begin

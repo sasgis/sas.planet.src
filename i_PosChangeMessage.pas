@@ -28,7 +28,7 @@ uses
   i_LocalCoordConverter;
 
 type
-  IPosChangeMessage = interface(IJclNotificationMessage)
+  IPosChangeMessage = interface
     ['{D804ACF7-73BF-4FD3-9907-6FF1F1334D01}']
     function GetVisualCoordConverter: ILocalCoordConverter; stdcall;
   end;

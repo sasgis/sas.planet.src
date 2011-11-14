@@ -30,13 +30,13 @@ type
   TNotifyWithGUIDEvent = procedure(const AGUID: TGUID) of object;
 
 type
-  INotificationMessageWithGUID = interface(IJclNotificationMessage)
+  INotificationMessageWithGUID = interface
     ['{1C88C4F8-5990-42DA-A841-CB9597C97AB6}']
     function GetGUID: TGUID;
   end;
 
 type
-  TNotificationMessageWithGUID = class(TJclBaseNotificationMessage, INotificationMessageWithGUID)
+  TNotificationMessageWithGUID = class(TInterfacedObject, INotificationMessageWithGUID)
   private
     FGUID: TGUID;
   protected
@@ -50,7 +50,7 @@ type
   private
     FEvent: TNotifyWithGUIDEvent;
   protected
-    procedure Notification(msg: IJclNotificationMessage); override;
+    procedure Notification(msg: IInterface); override;
   public
     constructor Create(AEvent: TNotifyWithGUIDEvent);
   end;
@@ -89,7 +89,8 @@ begin
 end;
 
 procedure TNotifyWithGUIDEventListener.Notification(
-  msg: IJclNotificationMessage);
+  msg: IInterface
+);
 begin
   FEvent(INotificationMessageWithGUID(msg).GetGUID);
 end;

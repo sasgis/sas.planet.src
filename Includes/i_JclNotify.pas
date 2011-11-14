@@ -41,23 +41,18 @@ interface
 type
   // forward declarations
   IJclListener = interface;
-  IJclNotificationMessage = interface;
   IJclNotifier = interface;
 
   IJclListener = interface
     ['{26A52ECC-4C22-4B71-BC88-D0EB98AF4ED5}']
-    procedure Notification(msg: IJclNotificationMessage); stdcall;
-  end;
-
-  IJclNotificationMessage = interface
-    ['{2618CCC6-0C7D-47EE-9A91-7A7F5264385D}']
+    procedure Notification(msg: IInterface); stdcall;
   end;
 
   IJclNotifier = interface
     ['{CAAD7814-DD04-497C-91AC-558C2D5BFF81}']
     procedure Add(listener: IJclListener); stdcall;
     procedure Remove(listener: IJclListener); stdcall;
-    procedure Notify(msg: IJclNotificationMessage); stdcall;
+    procedure Notify(msg: IInterface); stdcall;
   end;
 
 implementation

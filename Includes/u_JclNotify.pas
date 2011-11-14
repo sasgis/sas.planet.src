@@ -45,10 +45,7 @@ uses
 type
   TJclBaseListener = class (TInterfacedObject, IJclListener)
   protected
-    procedure Notification(msg: IJclNotificationMessage); virtual; stdcall;
-  end;
-
-  TJclBaseNotificationMessage = class (TInterfacedObject, IJclNotificationMessage)
+    procedure Notification(msg: IInterface); virtual; stdcall;
   end;
 
   TJclBaseNotifier = class (TInterfacedObject, IJclNotifier)
@@ -60,14 +57,14 @@ type
     FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
   protected
     procedure Add(listener: IJclListener); stdcall;
-    procedure Notify(msg: IJclNotificationMessage); stdcall;
+    procedure Notify(msg: IInterface); stdcall;
     procedure Remove(listener: IJclListener); stdcall;
   end;
 
   TJclBaseNotifierFaked = class (TInterfacedObject, IJclNotifier)
   protected
     procedure Add(listener: IJclListener); stdcall;
-    procedure Notify(msg: IJclNotificationMessage); stdcall;
+    procedure Notify(msg: IInterface); stdcall;
     procedure Remove(listener: IJclListener); stdcall;
   end;
 
@@ -105,7 +102,7 @@ begin
   end;
 end;
 
-procedure TJclBaseNotifier.Notify(msg: IJclNotificationMessage);
+procedure TJclBaseNotifier.Notify(msg: IInterface);
 var
   idx: Integer;
 begin
@@ -134,7 +131,7 @@ end;
 
 { TJclBaseListener }
 
-procedure TJclBaseListener.Notification(msg: IJclNotificationMessage);
+procedure TJclBaseListener.Notification(msg: IInterface);
 begin
   // do nothing; descendants should override this method to process incoming notifications
 end;
@@ -146,7 +143,7 @@ begin
   // do nothing;
 end;
 
-procedure TJclBaseNotifierFaked.Notify(msg: IJclNotificationMessage);
+procedure TJclBaseNotifierFaked.Notify(msg: IInterface);
 begin
   // do nothing;
 end;

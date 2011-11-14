@@ -40,12 +40,12 @@ type
 
   TNotifyEventListener = class(TNotifyEventListenerBase)
   protected
-    procedure Notification(msg: IJclNotificationMessage); override;
+    procedure Notification(msg: IInterface); override;
   end;
 
   TNotifyEventListenerSync = class(TNotifyEventListenerBase)
   protected
-    procedure Notification(msg: IJclNotificationMessage); override;
+    procedure Notification(msg: IInterface); override;
   end;
 
 implementation
@@ -67,7 +67,7 @@ end;
 
 { TSimpleEventListener }
 
-procedure TNotifyEventListener.Notification(msg: IJclNotificationMessage);
+procedure TNotifyEventListener.Notification(msg: IInterface);
 begin
   inherited;
   DoEvent;
@@ -75,7 +75,7 @@ end;
 
 { TNotifyEventListenerSync }
 
-procedure TNotifyEventListenerSync.Notification(msg: IJclNotificationMessage);
+procedure TNotifyEventListenerSync.Notification(msg: IInterface);
 begin
   inherited;
   TThread.Synchronize(nil, DoEvent);
