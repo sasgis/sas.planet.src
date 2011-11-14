@@ -75,6 +75,7 @@ type
     FLastResponseInfo: ILastResponseInfo;
     FRequest: ITileRequest;
     FErrorString: string;
+    procedure ExecCallBackList;
   public
     constructor Create(
       ADownloadInfo: IDownloadInfoSimple;
@@ -89,13 +90,10 @@ type
     procedure ProcessEvent;
 
     procedure AddToCallBackList(ACallBack: TOnDownloadCallBack);
-    procedure ExecCallBackList;
 
     function  GetRequest: ITileRequest;
     function  GetDownloadRequest: ITileDownloadRequest;
     procedure SetDownloadRequest(AValue: ITileDownloadRequest);
-    function  GetLastResponseInfo: ILastResponseInfo;
-    procedure SetLastResponseInfo(AValue: ILastResponseInfo);
     function  GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(AValue: IDownloadResult);
     function  GetCancelNotifier: IOperationNotifier;
@@ -337,16 +335,6 @@ end;
 function TTileDownloaderEvent.GetRequest: ITileRequest;
 begin
   Result := FRequest;
-end;
-
-procedure TTileDownloaderEvent.SetLastResponseInfo(AValue: ILastResponseInfo);
-begin
-  FLastResponseInfo := AValue;
-end;
-
-function TTileDownloaderEvent.GetLastResponseInfo: ILastResponseInfo;
-begin
-  Result := FLastResponseInfo;
 end;
 
 function TTileDownloaderEvent.GetOperationID: Integer;

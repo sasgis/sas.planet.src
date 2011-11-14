@@ -31,6 +31,7 @@ uses
   i_DownloadResultFactory,
   i_LanguageManager,
   i_InvisibleBrowser,
+  i_LastResponseInfo,
   i_DownloadChecker,
   i_TileRequestBuilder,
   i_TileRequestBuilderConfig,
@@ -50,7 +51,6 @@ type
   private
     FEnabled: Boolean;
     FZmp: IZmpInfo;
-    FDownloadChecker: IDownloadChecker;
     FResultFactory: IDownloadResultFactory;
     FMaxConnectToServerCount: Cardinal;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
@@ -71,7 +71,6 @@ type
       ATileDownloaderConfig: ITileDownloaderConfig;
       ATileRequestBuilderConfig: ITileRequestBuilderConfig;
       AZmp: IZmpInfo;
-      ADownloadChecker: IDownloadChecker;
       ACoordConverterFactory: ICoordConverterFactory;
       ALangManager: ILanguageManager;
       AInvisibleBrowser: IInvisibleBrowser
@@ -95,7 +94,6 @@ constructor TTileDownloaderBaseCore.Create(
   ATileDownloaderConfig: ITileDownloaderConfig;
   ATileRequestBuilderConfig: ITileRequestBuilderConfig;
   AZmp: IZmpInfo;
-  ADownloadChecker: IDownloadChecker;
   ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager;
   AInvisibleBrowser: IInvisibleBrowser
@@ -107,7 +105,6 @@ begin
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileRequestBuilderConfig := ATileRequestBuilderConfig;
   FZmp := AZmp;
-  FDownloadChecker := ADownloadChecker;
   FCoordConverterFactory := ACoordConverterFactory;
   FLangManager := ALangManager;
   FCS := TCriticalSection.Create;
@@ -193,7 +190,6 @@ function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread
     end;
     FDownloadesList[I].DownloaderThread :=
       TTileDownloaderBaseThread.Create(
-        FDownloadChecker,
         FResultFactory,
         Self.OnThreadTTL,
         FSemaphore,

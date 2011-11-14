@@ -48,7 +48,7 @@ type
     function GetIsOk: Boolean; override;
   end;
 
-  TDownloadResultOk = class(TDownloadResult, IDownloadResultOk)
+  TDownloadResultOk = class(TDownloadResult, IDownloadResultOk, IDownloadResultWithServerRespond)
   private
     FStatusCode: Cardinal;
     FRawResponseHeader: string;
@@ -140,7 +140,7 @@ type
     );
   end;
 
-  TDownloadResultBanned = class(TDownloadResultError, IDownloadResultBanned)
+  TDownloadResultBanned = class(TDownloadResultError, IDownloadResultBanned, IDownloadResultWithServerRespond)
   private
     FRawResponseHeader: string;
   protected
@@ -154,7 +154,7 @@ type
     );
   end;
 
-  TDownloadResultBadContentType = class(TDownloadResultError, IDownloadResultBadContentType)
+  TDownloadResultBadContentType = class(TDownloadResultError, IDownloadResultBadContentType, IDownloadResultWithServerRespond)
   private
     FRawResponseHeader: string;
     FContentType: string;
@@ -172,7 +172,7 @@ type
     );
   end;
 
-  TDownloadResultDataNotExists = class(TDownloadResult, IDownloadResultDataNotExists)
+  TDownloadResultDataNotExists = class(TDownloadResult, IDownloadResultDataNotExists, IDownloadResultWithServerRespond)
   private
     FReasonText: string;
     FRawResponseHeader: string;
@@ -209,7 +209,7 @@ type
     );
   end;
 
-  TDownloadResultNotNecessary = class(TDownloadResult, IDownloadResultNotNecessary)
+  TDownloadResultNotNecessary = class(TDownloadResult, IDownloadResultNotNecessary, IDownloadResultWithServerRespond)
   private
     FReasonText: string;
     FRawResponseHeader: string;

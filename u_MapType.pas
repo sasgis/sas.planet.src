@@ -90,7 +90,6 @@ type
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
-    FLastResponseInfo: ILastResponseInfo;
     FVersionConfig: IMapVersionConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileRequestBuilderConfig: ITileRequestBuilderConfig;
@@ -121,9 +120,6 @@ type
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
       ACoordConverterFactory: ICoordConverterFactory
     );
-    procedure SaveTileDownload(AXY: TPoint; Azoom: byte; ATileStream: TCustomMemoryStream; AMimeType: string);
-    procedure SaveTileNotExists(AXY: TPoint; Azoom: byte);
-    procedure CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; var AKml: IVectorDataItemList): boolean;
@@ -217,7 +213,6 @@ type
     ): boolean;
     function GetShortFolderName: string;
     procedure DownloadTile(AEvent: ITileDownloaderEvent);
-    procedure OnTileDownload(AEvent: ITileDownloaderEvent);
 
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
@@ -364,7 +359,6 @@ begin
           TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider),
           FTileDownloaderConfig,
           FDownloadConfig,
-          FLastResponseInfo,
           FContentTypeManager,
           FZmp.ContentTypeSubst,
           FZmp.TilePostDownloadCropConfig,
@@ -375,7 +369,6 @@ begin
           FTileDownloaderConfig,
           FTileRequestBuilderConfig,
           FZmp,
-          FDownloadChecker,
           ACoordConverterFactory,
           FLanguageManager,
           AInvisibleBrowser
@@ -433,7 +426,7 @@ begin
     VRequest := GetRequest(AXY, Azoom, False);
     VDownloadRequest:= nil;
     if VRequest <> nil then begin
-      VDownloadRequest := FTileRequestBuilder.BuildRequest(VRequest, FLastResponseInfo);
+      VDownloadRequest := FTileRequestBuilder.BuildRequest(VRequest, nil);
     end;
     if VDownloadRequest <> nil then begin
       Result := VDownloadRequest.Url;
@@ -542,65 +535,6 @@ begin
   end;
 end;
 
-procedure TMapType.SaveTileDownload(AXY: TPoint; Azoom: byte;
-  ATileStream: TCustomMemoryStream; AMimeType: string);
-var
-  btmSrc:TCustomBitmap32;
-  VContentType: IContentTypeInfoBasic;
-  VContentTypeBitmap: IContentTypeInfoBitmap;
-  VConverter: IContentConverter;
-  VLoader: IBitmapTileLoader;
-  VMemStream: TMemoryStream;
-begin
-  if FStorageConfig.AllowAdd then begin
-    if GetIsBitmapTiles and FZmp.TilePostDownloadCropConfig.IsCropOnDownload then begin
-      VContentType := FContentTypeManager.GetInfo(AMimeType);
-      if VContentType <> nil then begin
-        if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
-          VLoader := VContentTypeBitmap.GetLoader;
-          if VLoader <> nil then begin
-            btmsrc := TCustomBitmap32.Create;
-            try
-              ATileStream.Position := 0;
-              VLoader.LoadFromStream(ATileStream, btmSrc);
-              CropOnDownload(btmSrc, FCoordConverter.GetTileSize(AXY, Azoom));
-              SaveBitmapTileToStorage(AXY, Azoom, btmSrc);
-            finally
-              FreeAndNil(btmSrc);
-            end;
-          end else begin
-            raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
-          end;
-        end else begin
-          raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
-        end;
-      end else begin
-        raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
-      end;
-    end else begin
-      VConverter := FContentTypeManager.GetConverter(AMimeType, FContentType.GetContentType);
-      if VConverter <> nil then begin
-        if VConverter.GetIsSimpleCopy then begin
-          FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, ATileStream);
-        end else begin
-          VMemStream := TMemoryStream.Create;
-          try
-            ATileStream.Position := 0;
-            VConverter.ConvertStream(ATileStream, VMemStream);
-            FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream);
-          finally
-            VMemStream.Free;
-          end;
-        end;
-      end else begin
-        raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AMimeType]);
-      end;
-    end;
-  end else begin
-    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
-  end;
-end;
-
 function TMapType.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
 var
   VTileInfo: ITileInfoBasic;
@@ -615,11 +549,6 @@ var
 begin
   VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.GetStatic);
   Result := VTileInfo.GetSize;
-end;
-
-procedure TMapType.SaveTileNotExists(AXY: TPoint; Azoom: byte);
-begin
-  FStorage.SaveTNE(AXY, Azoom, FVersionConfig.GetStatic);
 end;
 
 procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
@@ -713,7 +642,6 @@ begin
   FContentTypeManager := AContentTypeManager;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, Zmp.TileDownloaderConfig);
   FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
-  FLastResponseInfo := TLastResponseInfo.Create;
   FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig);
   FStorageConfig := TSimpleTileStorageConfig.Create(FZmp.StorageConfig);
   FAbilitiesConfig :=
@@ -752,39 +680,11 @@ begin
   inherited;
 end;
 
-procedure TMapType.OnTileDownload(AEvent: ITileDownloaderEvent);
-var
-  VResultOk: IDownloadResultOk;
-  VResultStream: TMemoryStream;
-  VContentType: string;
-begin
-  if Assigned(AEvent) then begin
-    if Supports(AEvent.DownloadResult, IDownloadResultOk, VResultOk) then begin
-      FLastResponseInfo.ResponseHead := VResultOk.RawResponseHeader;
-      VResultStream := TMemoryStream.Create;
-      try
-        VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);
-        VContentType := VResultOk.ContentType;
-        VContentType := Zmp.ContentTypeSubst.GetContentType(VContentType);
-        SaveTileDownload(AEvent.Request.Tile, AEvent.Request.Zoom, VResultStream, VContentType);
-      finally
-        VResultStream.Free;
-      end;
-    end else if Supports(AEvent.DownloadResult, IDownloadResultDataNotExists) then begin
-      if FDownloadConfig.IsSaveTileNotExists then begin
-        SaveTileNotExists(AEvent.Request.Tile, AEvent.Request.Zoom);
-      end;
-    end;
-  end;
-end;
-
 procedure TMapType.DownloadTile(AEvent: ITileDownloaderEvent);
 begin
   Assert(AEvent <> nil);
   if Assigned(AEvent) then begin
     if FAbilitiesConfig.UseDownload then begin
-      AEvent.LastResponseInfo := FLastResponseInfo;
-      AEvent.AddToCallBackList(Self.OnTileDownload);
       FTileDownloader.Download(AEvent);
     end else begin
       raise Exception.Create('Для этой карты загрузка запрещена.');
@@ -798,28 +698,6 @@ begin
     Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.GetStatic)
   end else begin
     Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
-  end;
-end;
-
-procedure TMapType.CropOnDownload(ABtm: TCustomBitmap32; ATileSize: TPoint);
-var
-  VBtmSrc: TCustomBitmap32;
-  VBtmDest: TCustomBitmap32;
-begin
-  VBtmSrc := TCustomBitmap32.Create;
-  try
-    VBtmSrc.Assign(ABtm);
-    VBtmSrc.Resampler := TLinearResampler.Create;
-    VBtmDest := TCustomBitmap32.Create;
-    try
-      VBtmDest.SetSize(ATileSize.X, ATileSize.Y);
-      VBtmDest.Draw(Bounds(0, 0, ATileSize.X, ATileSize.Y), FZmp.TilePostDownloadCropConfig.CropRect, VBtmSrc);
-      ABtm.Assign(VBtmDest);
-    finally
-      VBtmDest.Free;
-    end;
-  finally
-    VBtmSrc.Free;
   end;
 end;
 

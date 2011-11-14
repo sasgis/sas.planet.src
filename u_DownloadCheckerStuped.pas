@@ -55,7 +55,6 @@ type
     FAntiBan: IAntiBan;
     FContentTypeManager: IContentTypeManager;
     FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
-    FLastResponseInfo: ILastResponseInfo;
     FContentTypeSubst: IContentTypeSubst;
     function PrepareOldTileInfo(ARequest: IDownloadRequest): ITileInfoBasic;
     function CheckOldTileSize(ARequest: IDownloadRequest; ANewSize: Cardinal): Boolean;
@@ -93,7 +92,6 @@ type
       AAntiBan: IAntiBan;
       ATileDownloaderConfig: ITileDownloaderConfig;
       ADownloadConfig: IGlobalDownloadConfig;
-      ALastResponseInfo: ILastResponseInfo;
       AContentTypeManager: IContentTypeManager;
       AContentTypeSubst: IContentTypeSubst;
       ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
@@ -120,7 +118,6 @@ constructor TDownloadCheckerStuped.Create(
   AAntiBan: IAntiBan;
   ATileDownloaderConfig: ITileDownloaderConfig;
   ADownloadConfig: IGlobalDownloadConfig;
-  ALastResponseInfo: ILastResponseInfo;
   AContentTypeManager: IContentTypeManager;
   AContentTypeSubst: IContentTypeSubst;
   ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
@@ -131,7 +128,6 @@ begin
   FAntiBan := AAntiBan;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FDownloadConfig := ADownloadConfig;
-  FLastResponseInfo := ALastResponseInfo;
   FContentTypeManager := AContentTypeManager;
   FContentTypeSubst := AContentTypeSubst;
   FTilePostDownloadCropConfig := ATilePostDownloadCropConfig;
@@ -293,12 +289,13 @@ var
   VResultOk: IDownloadResultOk;
   VResultStream: TMemoryStream;
   VContentType: string;
+  VTileDownloadRequest: ITileDownloadRequest;
   VTileRequest: ITileRequest;
 begin
   if Assigned(AResult) then begin
-    if Supports(AResult.Request, ITileRequest, VTileRequest) then begin
+    if Supports(AResult.Request, ITileDownloadRequest, VTileDownloadRequest) then begin
+      VTileRequest := VTileDownloadRequest.Source;
       if Supports(AResult, IDownloadResultOk, VResultOk) then begin
-        FLastResponseInfo.ResponseHead := VResultOk.RawResponseHeader;
         VResultStream := TMemoryStream.Create;
         try
           VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);

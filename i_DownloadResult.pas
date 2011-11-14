@@ -42,6 +42,12 @@ type
     ['{2A22DD2C-6D70-4F27-AC7F-FB5ADB66B5A6}']
   end;
 
+  IDownloadResultWithServerRespond = interface
+    ['{55E0EC03-1D16-408A-B972-A706FE4D4247}']
+    function GetRawResponseHeader: string;
+    property RawResponseHeader: string read GetRawResponseHeader;
+  end;
+
   IDownloadResultOk = interface(IDownloadResult)
     ['{EBBAA70B-60D4-421C-829D-F75CFFB43068}']
     function GetStatusCode: Cardinal;
@@ -76,8 +82,6 @@ type
 
   IDownloadResultBanned = interface(IDownloadResultError)
     ['{C51C4998-89C4-440C-9605-A57F85BB7491}']
-    function GetRawResponseHeader: string;
-    property RawResponseHeader: string read GetRawResponseHeader;
   end;
 
   IDownloadResultBadContentType = interface(IDownloadResultError)

@@ -31,6 +31,7 @@ uses
   i_OperationNotifier,
   i_SimpleDownloader,
   i_InetConfig,
+  i_LastResponseInfo,
   i_DownloadChecker,
   i_DownloadResultFactory,
   i_TileRequestBuilder,
@@ -45,6 +46,7 @@ type
   private
     FCancelListener: IJclListener;
     FCancelEvent: TEvent;
+    FLastResponseInfo: ILastResponseInfo;
     FResultFactory: IDownloadResultFactory;
     FTileRequestBuilder: ITileRequestBuilder;
     FTileDownloaderConfig: ITileDownloaderConfig;
@@ -67,7 +69,6 @@ type
     procedure Execute; override;
   public
     constructor Create(
-      ADownloadChecker: IDownloadChecker;
       AResultFactory: IDownloadResultFactory;
       AOnTTL: TThreadTTLEvent;
       AParentSemaphore: THandle;
@@ -87,12 +88,14 @@ implementation
 
 uses
   i_DownloadResult,
-  u_NotifyEventListener;
+  i_TileDownloadRequest,
+  i_TileDownloadChecker,
+  u_NotifyEventListener,
+  u_LastResponseInfo;
 
 { TTileDownloaderBaseThread }
 
 constructor TTileDownloaderBaseThread.Create(
-  ADownloadChecker: IDownloadChecker;
   AResultFactory: IDownloadResultFactory;
   AOnTTL: TThreadTTLEvent;
   AParentSemaphore: THandle;
@@ -100,12 +103,13 @@ constructor TTileDownloaderBaseThread.Create(
   ATileDownloaderConfig: ITileDownloaderConfig
 );
 begin
+  FLastResponseInfo := TLastResponseInfo.Create;
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
   FSessionCS := TCriticalSection.Create;
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
   FResultFactory := AResultFactory;
-  FHttpDownloader := TTileDownloaderHttp.Create(ADownloadChecker, AResultFactory);
+  FHttpDownloader := TTileDownloaderHttp.Create(AResultFactory);
   FWasConnectError := False;
   FOnTTLEvent := AOnTTL;
   FParentSemaphore := AParentSemaphore;
@@ -180,6 +184,9 @@ var
   VCount: Integer;
   VTryCount: Integer;
   VTileDownloaderConfigStatic: ITileDownloaderConfigStatic;
+  VDownloadRequest: ITileDownloadRequest;
+  VResultWithRespond: IDownloadResultWithServerRespond;
+  VTileRequestWithChecker: ITileRequestWithChecker;
 begin
   VTileDownloaderConfigStatic := FTileDownloaderConfig.GetStatic;
   SetNotCanceled;
@@ -200,24 +207,33 @@ begin
                 FEvent.DownloadResult := nil;
                 Break;
               end;
-              FEvent.DownloadRequest := FTileRequestBuilder.BuildRequest(
+              VDownloadRequest := FTileRequestBuilder.BuildRequest(
                 FEvent.Request,
-                FEvent.LastResponseInfo
+                FLastResponseInfo
               );
               if FEvent.CancelNotifier.IsOperationCanceled(FEvent.OperationID)then begin
-                FEvent.DownloadResult := FResultFactory.BuildCanceled(FEvent.DownloadRequest);
+                FEvent.DownloadResult := FResultFactory.BuildCanceled(VDownloadRequest);
                 Break;
               end;
               FEvent.DownloadResult :=
                 FHttpDownloader.DoRequest(
-                  FEvent.DownloadRequest,
+                  VDownloadRequest,
                   FEvent.CancelNotifier,
                   FEvent.OperationID
                 );
               Inc(VCount);
               FLastDownloadTime := GetTickCount;
               if FEvent.DownloadResult <> nil then begin
-                FWasConnectError := not FEvent.DownloadResult.IsServerExists;
+                if FEvent.DownloadResult.IsServerExists then begin
+                  if Supports(FEvent.DownloadResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
+                    FLastResponseInfo.ResponseHead := VResultWithRespond.RawResponseHeader;
+                  end;
+                end else begin
+                  FWasConnectError := not FEvent.DownloadResult.IsServerExists;
+                end;
+              end;
+              if Supports(FEvent.Request, ITileRequestWithChecker, VTileRequestWithChecker) then begin
+                VTileRequestWithChecker.Checker.AfterDownload(FEvent.DownloadResult);
               end;
             until (not FWasConnectError) or (VCount >= VTryCount);
           end;

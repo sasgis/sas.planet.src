@@ -29,6 +29,7 @@ uses
   i_LanguageManager,
   i_InvisibleBrowser,
   i_DownloadChecker,
+  i_LastResponseInfo,
   i_TileRequestBuilderConfig,
   i_TileDownloader,
   i_TileDownloaderConfig,
@@ -44,7 +45,6 @@ type
       ATileDownloaderConfig: ITileDownloaderConfig;
       ATileRequestBuilderConfig: ITileRequestBuilderConfig;
       AZmp: IZmpInfo;
-      ADownloadChecker: IDownloadChecker;
       ACoordConverterFactory: ICoordConverterFactory;
       ALangManager: ILanguageManager;
       AInvisibleBrowser: IInvisibleBrowser
@@ -65,7 +65,6 @@ constructor TTileDownloaderFrontEnd.Create(
   ATileDownloaderConfig: ITileDownloaderConfig;
   ATileRequestBuilderConfig: ITileRequestBuilderConfig;
   AZmp: IZmpInfo;
-  ADownloadChecker: IDownloadChecker;
   ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager;
   AInvisibleBrowser: IInvisibleBrowser
@@ -77,7 +76,6 @@ begin
     ATileDownloaderConfig,
     ATileRequestBuilderConfig,
     AZmp,
-    ADownloadChecker,
     ACoordConverterFactory,
     ALangManager,
     AInvisibleBrowser

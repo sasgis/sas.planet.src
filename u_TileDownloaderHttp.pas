@@ -49,7 +49,6 @@ type
     FHttpResponseHeader: TALHTTPResponseHeader;
     FHttpResponseBody: TMemoryStream;
     FResultFactory: IDownloadResultFactory;
-    FDownloadChecker: IDownloadChecker;
     function OnBeforeRequest(
       ARequest: IDownloadRequest;
       AResultFactory: IDownloadResultFactory
@@ -91,7 +90,6 @@ type
     ): IDownloadResult;
   public
     constructor Create(
-      ADownloadChecker: IDownloadChecker;
       AResultFactory: IDownloadResultFactory
     );
     destructor Destroy; override;
@@ -106,7 +104,6 @@ uses
 { TTileDownloaderHttp }
 
 constructor TTileDownloaderHttp.Create(
-  ADownloadChecker: IDownloadChecker;
   AResultFactory: IDownloadResultFactory
 );
 begin
@@ -117,7 +114,6 @@ begin
   FHttpResponseBody := TMemoryStream.Create;
   FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
   FResultFactory := AResultFactory;
-  FDownloadChecker := ADownloadChecker;
 end;
 
 destructor TTileDownloaderHttp.Destroy;
@@ -128,7 +124,6 @@ begin
   FreeAndNil(FHttpResponseBody);
   FreeAndNil(FHttpClient);
   FResultFactory := nil;
-  FDownloadChecker := nil;
   inherited;
 end;
 
@@ -256,12 +251,14 @@ function TTileDownloaderHttp.OnBeforeRequest(
   ARequest: IDownloadRequest;
   AResultFactory: IDownloadResultFactory
 ): IDownloadResult;
+var
+  VRequestWithChecker: IRequestWithChecker;
 begin
   FHttpResponseHeader.Clear;
   FHttpResponseBody.Clear;
 
-  if FDownloadChecker <> nil then begin
-    Result := FDownloadChecker.BeforeRequest(AResultFactory, ARequest);
+  if Supports(ARequest, IRequestWithChecker, VRequestWithChecker) then begin
+    VRequestWithChecker.Checker.BeforeRequest(AResultFactory, ARequest);
   end;
 
   if Result = nil then begin
@@ -334,14 +331,15 @@ var
   VRawHeaderText: string;
   VStatusCode: Cardinal;
   VContentType: string;
+  VRequestWithChecker: IRequestWithChecker;
 begin
   if AResultFactory <> nil then begin
     VRawHeaderText := FHttpResponseHeader.RawHeaderText;
     VContentType := FHttpResponseHeader.ContentType;
     VStatusCode := StrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
-      if FDownloadChecker <> nil then begin
-        Result := FDownloadChecker.AfterReciveData(
+      if Supports(ARequest, IRequestWithChecker, VRequestWithChecker) then begin
+        Result := VRequestWithChecker.Checker.AfterReciveData(
           AResultFactory,
           ARequest,
           FHttpResponseBody.Size,
@@ -351,6 +349,7 @@ begin
           VRawHeaderText
         );
       end;
+
       if Result = nil then begin
         if FHttpResponseBody.Size = 0 then begin
           Result := AResultFactory.BuildDataNotExistsZeroSize(
