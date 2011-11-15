@@ -33,8 +33,8 @@ uses
   i_InvisibleBrowser,
   i_LastResponseInfo,
   i_DownloadChecker,
-  i_TileRequestBuilder,
-  i_TileRequestBuilderConfig,
+  i_TileDownloadRequestBuilder,
+  i_TileDownloadRequestBuilderConfig,
   i_TileDownloader,
   i_TileDownloaderConfig,
   i_ZmpInfo,
@@ -44,7 +44,7 @@ type
   TDownloaderRec = record
     ThreadID: Cardinal;
     DownloaderThread: TTileDownloaderBaseThread;
-    TileRequestBuilder: ITileRequestBuilder;
+    TileDownloadRequestBuilder: ITileDownloadRequestBuilder;
   end;
 
   TTileDownloaderBaseCore = class(TInterfacedObject, ITileDownloader)
@@ -53,7 +53,7 @@ type
     FZmp: IZmpInfo;
     FResultFactory: IDownloadResultFactory;
     FMaxConnectToServerCount: Cardinal;
-    FTileRequestBuilderConfig: ITileRequestBuilderConfig;
+    FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCoordConverterFactory: ICoordConverterFactory;
     FLangManager: ILanguageManager;
@@ -62,14 +62,14 @@ type
     FCS: TCriticalSection;
     procedure Lock;
     procedure UnLock;
-    function CreateNewTileRequestBuilder: ITileRequestBuilder;
+    function CreateNewTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     function TryGetDownloadThread: TTileDownloaderBaseThread;
     procedure OnThreadTTL(Sender: TObject; AThreadID: Cardinal);
     function GetIsEnabled: Boolean;
   public
     constructor Create(
       ATileDownloaderConfig: ITileDownloaderConfig;
-      ATileRequestBuilderConfig: ITileRequestBuilderConfig;
+      ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
       AZmp: IZmpInfo;
       ACoordConverterFactory: ICoordConverterFactory;
       ALangManager: ILanguageManager;
@@ -85,14 +85,14 @@ uses
   Dialogs,
   u_GlobalState,
   u_DownloadResultFactory,
-  u_TileRequestBuilderPascalScript,
+  u_TileDownloadRequestBuilderPascalScript,
   u_ResStrings;
 
 { TTileDownloaderBaseCore }
 
 constructor TTileDownloaderBaseCore.Create(
   ATileDownloaderConfig: ITileDownloaderConfig;
-  ATileRequestBuilderConfig: ITileRequestBuilderConfig;
+  ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
   AZmp: IZmpInfo;
   ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager;
@@ -103,7 +103,7 @@ var
 begin
   inherited Create;
   FTileDownloaderConfig := ATileDownloaderConfig;
-  FTileRequestBuilderConfig := ATileRequestBuilderConfig;
+  FTileDownloadRequestBuilderConfig := ATileDownloadRequestBuilderConfig;
   FZmp := AZmp;
   FCoordConverterFactory := ACoordConverterFactory;
   FLangManager := ALangManager;
@@ -118,7 +118,7 @@ begin
   for I := 0 to Length(FDownloadesList) - 1 do begin
     FDownloadesList[I].ThreadID := 0;
     FDownloadesList[I].DownloaderThread := nil;
-    FDownloadesList[I].TileRequestBuilder := nil;
+    FDownloadesList[I].TileDownloadRequestBuilder := nil;
   end;
 
   FEnabled := True;
@@ -136,15 +136,15 @@ begin
         FDownloadesList[I].ThreadID := 0;
         FreeAndNil(FDownloadesList[I].DownloaderThread);
       end;
-      if Assigned(FDownloadesList[I].TileRequestBuilder) then begin
-        FDownloadesList[I].TileRequestBuilder := nil;
+      if Assigned(FDownloadesList[I].TileDownloadRequestBuilder) then begin
+        FDownloadesList[I].TileDownloadRequestBuilder := nil;
       end;
     except
       // ignore all
     end;
     SetLength(FDownloadesList, 0);
     FZmp := nil;
-    FTileRequestBuilderConfig := nil;
+    FTileDownloadRequestBuilderConfig := nil;
     FTileDownloaderConfig := nil;
     FCoordConverterFactory := nil;
     FLangManager := nil;
@@ -155,12 +155,12 @@ begin
   end;
 end;
 
-function TTileDownloaderBaseCore.CreateNewTileRequestBuilder: ITileRequestBuilder;
+function TTileDownloaderBaseCore.CreateNewTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
 begin
   try
-    Result := TTileRequestBuilderPascalScript.Create(
+    Result := TTileDownloadRequestBuilderPascalScript.Create(
       FZmp,
-      FTileRequestBuilderConfig,
+      FTileDownloadRequestBuilderConfig,
       FTileDownloaderConfig,
       FZmp.DataProvider,
       FCoordConverterFactory,
@@ -185,15 +185,15 @@ function TTileDownloaderBaseCore.TryGetDownloadThread: TTileDownloaderBaseThread
 
   function CreateNewDownloaderThread(I: Integer): TTileDownloaderBaseThread;
   begin
-    if FDownloadesList[I].TileRequestBuilder = nil then begin
-      FDownloadesList[I].TileRequestBuilder := CreateNewTileRequestBuilder;
+    if FDownloadesList[I].TileDownloadRequestBuilder = nil then begin
+      FDownloadesList[I].TileDownloadRequestBuilder := CreateNewTileDownloadRequestBuilder;
     end;
     FDownloadesList[I].DownloaderThread :=
       TTileDownloaderBaseThread.Create(
         FResultFactory,
         Self.OnThreadTTL,
         FSemaphore,
-        FDownloadesList[I].TileRequestBuilder,
+        FDownloadesList[I].TileDownloadRequestBuilder,
         FTileDownloaderConfig
       );
     FDownloadesList[I].ThreadID := FDownloadesList[I].DownloaderThread.ThreadID;

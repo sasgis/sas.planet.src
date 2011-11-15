@@ -34,7 +34,7 @@ uses
   i_LastResponseInfo,
   i_DownloadChecker,
   i_DownloadResultFactory,
-  i_TileRequestBuilder,
+  i_TileDownloadRequestBuilder,
   i_TileDownloader,
   i_TileDownloaderConfig,
   u_TileDownloaderHttp;
@@ -48,7 +48,7 @@ type
     FCancelEvent: TEvent;
     FLastResponseInfo: ILastResponseInfo;
     FResultFactory: IDownloadResultFactory;
-    FTileRequestBuilder: ITileRequestBuilder;
+    FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FHttpDownloader: ISimpleDownloader;
     FEvent: ITileDownloaderEvent;
@@ -72,7 +72,7 @@ type
       AResultFactory: IDownloadResultFactory;
       AOnTTL: TThreadTTLEvent;
       AParentSemaphore: THandle;
-      ATileRequestBuilder: ITileRequestBuilder;
+      ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
       ATileDownloaderConfig: ITileDownloaderConfig
     );
     destructor Destroy; override;
@@ -99,7 +99,7 @@ constructor TTileDownloaderBaseThread.Create(
   AResultFactory: IDownloadResultFactory;
   AOnTTL: TThreadTTLEvent;
   AParentSemaphore: THandle;
-  ATileRequestBuilder: ITileRequestBuilder;
+  ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
   ATileDownloaderConfig: ITileDownloaderConfig
 );
 begin
@@ -113,7 +113,7 @@ begin
   FWasConnectError := False;
   FOnTTLEvent := AOnTTL;
   FParentSemaphore := AParentSemaphore;
-  FTileRequestBuilder := ATileRequestBuilder;
+  FTileDownloadRequestBuilder := ATileDownloadRequestBuilder;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FLastUsedTime := GetTickCount;
   FLastDownloadTime := MaxInt;
@@ -192,7 +192,7 @@ begin
   SetNotCanceled;
   try
     try
-      if (VTileDownloaderConfigStatic <> nil) and (FTileRequestBuilder <> nil) then begin
+      if (VTileDownloaderConfigStatic <> nil) and (FTileDownloadRequestBuilder <> nil) then begin
         try
           FEvent.CancelNotifier.AddListener(FCancelListener);
           if FEvent.CancelNotifier.IsOperationCanceled(FEvent.OperationID)then begin
@@ -207,7 +207,7 @@ begin
                 FEvent.DownloadResult := nil;
                 Break;
               end;
-              VDownloadRequest := FTileRequestBuilder.BuildRequest(
+              VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(
                 FEvent.Request,
                 FLastResponseInfo
               );

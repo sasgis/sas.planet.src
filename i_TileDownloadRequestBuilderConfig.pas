@@ -18,63 +18,35 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileRequestBuilder;
+unit i_TileDownloadRequestBuilderConfig;
 
 interface
 
 uses
-  Windows,
-  SyncObjs,
-  SysUtils,
-  i_TileRequest,
-  i_TileRequestBuilder,
-  i_LastResponseInfo,
-  i_TileDownloadRequest,
-  i_TileRequestBuilderConfig;
+  i_ConfigDataElement;
 
 type
-  TTileRequestBuilder = class(TInterfacedObject, ITileRequestBuilder)
-  private
-    FCS: TCriticalSection;
-  protected
-    FConfig: ITileRequestBuilderConfig;
-    procedure Lock;
-    procedure Unlock;
-  protected
-    function BuildRequest(
-      ASource: ITileRequest;
-      ALastResponseInfo: ILastResponseInfo
-    ): ITileDownloadRequest; virtual; abstract;
-  public
-    constructor Create(AConfig: ITileRequestBuilderConfig);
-    destructor Destroy; override;
+  ITileDownloadRequestBuilderConfigStatic = interface
+    ['{84B1A72C-951D-4591-80E4-3DA0CDC30ED7}']
+    function  GetUrlBase: string;
+    property UrlBase: string read GetUrlBase;
+
+    function  GetRequestHeader: string;
+    property RequestHeader: string read GetRequestHeader;
+  end;
+
+
+  ITileDownloadRequestBuilderConfig = interface(IConfigDataElement)
+    ['{FA554C29-EDAF-4E3C-9B59-BC881502F33A}']
+    function  GetUrlBase: string;
+    procedure SetUrlBase(AValue: string);
+    property UrlBase: string read GetUrlBase write SetUrlBase;
+
+    function  GetRequestHeader: string;
+    procedure SetRequestHeader(AValue: string);
+    property RequestHeader: string read GetRequestHeader write SetRequestHeader;
   end;
 
 implementation
-
-{ TTileRequestBuilder }
-
-constructor TTileRequestBuilder.Create(AConfig: ITileRequestBuilderConfig);
-begin
-  inherited Create;
-  FConfig := AConfig;
-  FCS := TCriticalSection.Create;
-end;
-
-destructor TTileRequestBuilder.Destroy;
-begin
-  FreeAndNil(FCS);
-  inherited Destroy;
-end;
-
-procedure TTileRequestBuilder.Lock;
-begin
-  FCS.Acquire;
-end;
-
-procedure TTileRequestBuilder.Unlock;
-begin
-  FCS.Release;
-end;
 
 end.

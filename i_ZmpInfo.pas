@@ -34,7 +34,7 @@ uses
   i_MapAbilitiesConfig,
   i_StringByLanguage,
   i_MapVersionInfo,
-  i_TileRequestBuilderConfig;
+  i_TileDownloadRequestBuilderConfig;
 
 type
   IZmpInfoGUI = interface
@@ -81,8 +81,8 @@ type
     function GetVersionConfig: IMapVersionInfo;
     property VersionConfig: IMapVersionInfo read GetVersionConfig;
 
-    function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
-    property TileRequestBuilderConfig: ITileRequestBuilderConfigStatic read GetTileRequestBuilderConfig;
+    function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic;
+    property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic read GetTileDownloadRequestBuilderConfig;
 
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     property TileDownloaderConfig: ITileDownloaderConfigStatic read GetTileDownloaderConfig;

@@ -18,26 +18,63 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_TileRequestBuilder;
+unit u_TileDownloadRequestBuilder;
 
 interface
 
 uses
-  Types,
+  Windows,
+  SyncObjs,
+  SysUtils,
   i_TileRequest,
+  i_TileDownloadRequestBuilder,
   i_LastResponseInfo,
-  i_TileDownloadRequest;
+  i_TileDownloadRequest,
+  i_TileDownloadRequestBuilderConfig;
 
 type
-  ITileRequestBuilder = interface
-    ['{3F65B989-F693-460B-AE98-FD1DAECEA04B}']
+  TTileDownloadRequestBuilder = class(TInterfacedObject, ITileDownloadRequestBuilder)
+  private
+    FCS: TCriticalSection;
+  protected
+    FConfig: ITileDownloadRequestBuilderConfig;
+    procedure Lock;
+    procedure Unlock;
+  protected
     function BuildRequest(
       ASource: ITileRequest;
       ALastResponseInfo: ILastResponseInfo
-    ): ITileDownloadRequest;
+    ): ITileDownloadRequest; virtual; abstract;
+  public
+    constructor Create(AConfig: ITileDownloadRequestBuilderConfig);
+    destructor Destroy; override;
   end;
 
-
 implementation
+
+{ TTileDownloadRequestBuilder }
+
+constructor TTileDownloadRequestBuilder.Create(AConfig: ITileDownloadRequestBuilderConfig);
+begin
+  inherited Create;
+  FConfig := AConfig;
+  FCS := TCriticalSection.Create;
+end;
+
+destructor TTileDownloadRequestBuilder.Destroy;
+begin
+  FreeAndNil(FCS);
+  inherited Destroy;
+end;
+
+procedure TTileDownloadRequestBuilder.Lock;
+begin
+  FCS.Acquire;
+end;
+
+procedure TTileDownloadRequestBuilder.Unlock;
+begin
+  FCS.Release;
+end;
 
 end.

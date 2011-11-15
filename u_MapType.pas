@@ -44,8 +44,8 @@ uses
   i_LastResponseInfo,
   i_MapVersionConfig,
   i_TileRequest,
-  i_TileRequestBuilder,
-  i_TileRequestBuilderConfig,
+  i_TileDownloadRequestBuilder,
+  i_TileDownloadRequestBuilderConfig,
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
   i_ListOfObjectsWithTTL,
@@ -81,7 +81,7 @@ type
     FCacheBitmap: ITileObjCacheBitmap;
     FCacheVector: ITileObjCacheVector;
     FStorage: TTileStorageAbstract;
-    FTileRequestBuilder: ITileRequestBuilder;
+    FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IVectorDataLoader;
@@ -92,7 +92,7 @@ type
     FLanguageManager: ILanguageManager;
     FVersionConfig: IMapVersionConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
-    FTileRequestBuilderConfig: ITileRequestBuilderConfig;
+    FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     FDownloadResultFactory: IDownloadResultFactory;
     FImageResamplerConfig: IImageResamplerConfig;
     FContentTypeManager: IContentTypeManager;
@@ -228,7 +228,7 @@ type
     property TileStorage: TTileStorageAbstract read FStorage;
     property GUIConfig: IMapTypeGUIConfig read FGUIConfig;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
-    property TileRequestBuilderConfig: ITileRequestBuilderConfig read FTileRequestBuilderConfig;
+    property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read FTileDownloadRequestBuilderConfig;
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
     property CacheVector: ITileObjCacheVector read FCacheVector;
     property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
@@ -261,8 +261,8 @@ uses
   i_ContentConverter,
   u_AntiBanStuped,
   u_TileDownloaderConfig,
-  u_TileRequestBuilderConfig,
-  u_TileRequestBuilderPascalScript,
+  u_TileDownloadRequestBuilderConfig,
+  u_TileDownloadRequestBuilderPascalScript,
   u_DownloadResultFactory,
   u_MemTileCache,
   u_TileRequest,
@@ -279,15 +279,15 @@ procedure TMapType.LoadUrlScript(
   ACoordConverterFactory: ICoordConverterFactory
 );
 begin
-  FTileRequestBuilder := nil;
+  FTileDownloadRequestBuilder := nil;
   FAbilitiesConfig.LockWrite;
   try
     if FAbilitiesConfig.UseDownload then begin
       try
-        FTileRequestBuilder :=
-          TTileRequestBuilderPascalScript.Create(
+        FTileDownloadRequestBuilder :=
+          TTileDownloadRequestBuilderPascalScript.Create(
             FZmp,
-            FTileRequestBuilderConfig,
+            FTileDownloadRequestBuilderConfig,
             FTileDownloaderConfig,
             Zmp.DataProvider,
             ACoordConverterFactory,
@@ -296,14 +296,14 @@ begin
       except
         on E: Exception do begin
           ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.GUI.Name.GetDefault, E.Message, FZmp.FileName]);
-          FTileRequestBuilder := nil;
+          FTileDownloadRequestBuilder := nil;
         end;
       else
         ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.GUI.Name.GetDefault, FZmp.FileName]);
-        FTileRequestBuilder := nil;
+        FTileDownloadRequestBuilder := nil;
       end;
     end;
-    if FTileRequestBuilder = nil then begin
+    if FTileDownloadRequestBuilder = nil then begin
       FAbilitiesConfig.UseDownload := False;
     end;
   finally
@@ -367,7 +367,7 @@ begin
         );
         FTileDownloader := TTileDownloaderFrontEnd.Create(
           FTileDownloaderConfig,
-          FTileRequestBuilderConfig,
+          FTileDownloadRequestBuilderConfig,
           FZmp,
           ACoordConverterFactory,
           FLanguageManager,
@@ -411,7 +411,7 @@ begin
   );
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := Zmp.ViewGeoConvert;
-  FTileRequestBuilderConfig.ReadConfig(AConfig);
+  FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
   LoadUrlScript(ACoordConverterFactory);
   LoadDownloader(ACoordConverterFactory, AInvisibleBrowser);
 end;
@@ -426,7 +426,7 @@ begin
     VRequest := GetRequest(AXY, Azoom, False);
     VDownloadRequest:= nil;
     if VRequest <> nil then begin
-      VDownloadRequest := FTileRequestBuilder.BuildRequest(VRequest, nil);
+      VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(VRequest, nil);
     end;
     if VDownloadRequest <> nil then begin
       Result := VDownloadRequest.Url;
@@ -494,7 +494,7 @@ end;
 procedure TMapType.SaveConfig(ALocalConfig: IConfigDataWriteProvider);
 begin
   FGUIConfig.WriteConfig(ALocalConfig);
-  FTileRequestBuilderConfig.WriteConfig(ALocalConfig);
+  FTileDownloadRequestBuilderConfig.WriteConfig(ALocalConfig);
   FTileDownloaderConfig.WriteConfig(ALocalConfig);
   FVersionConfig.WriteConfig(ALocalConfig);
   FStorageConfig.WriteConfig(ALocalConfig);
@@ -641,7 +641,7 @@ begin
   FDownloadConfig := ADownloadConfig;
   FContentTypeManager := AContentTypeManager;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, Zmp.TileDownloaderConfig);
-  FTileRequestBuilderConfig := TTileRequestBuilderConfig.Create(Zmp.TileRequestBuilderConfig);
+  FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(Zmp.TileDownloadRequestBuilderConfig);
   FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig);
   FStorageConfig := TSimpleTileStorageConfig.Create(FZmp.StorageConfig);
   FAbilitiesConfig :=

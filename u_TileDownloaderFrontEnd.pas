@@ -30,7 +30,7 @@ uses
   i_InvisibleBrowser,
   i_DownloadChecker,
   i_LastResponseInfo,
-  i_TileRequestBuilderConfig,
+  i_TileDownloadRequestBuilderConfig,
   i_TileDownloader,
   i_TileDownloaderConfig,
   i_ZmpInfo;
@@ -43,7 +43,7 @@ type
   public
     constructor Create(
       ATileDownloaderConfig: ITileDownloaderConfig;
-      ATileRequestBuilderConfig: ITileRequestBuilderConfig;
+      ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
       AZmp: IZmpInfo;
       ACoordConverterFactory: ICoordConverterFactory;
       ALangManager: ILanguageManager;
@@ -63,7 +63,7 @@ uses
 
 constructor TTileDownloaderFrontEnd.Create(
   ATileDownloaderConfig: ITileDownloaderConfig;
-  ATileRequestBuilderConfig: ITileRequestBuilderConfig;
+  ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
   AZmp: IZmpInfo;
   ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager;
@@ -74,7 +74,7 @@ begin
   FEnabled := False;
   FDownloader := TTileDownloaderBaseCore.Create(
     ATileDownloaderConfig,
-    ATileRequestBuilderConfig,
+    ATileDownloadRequestBuilderConfig,
     AZmp,
     ACoordConverterFactory,
     ALangManager,

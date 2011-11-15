@@ -112,12 +112,12 @@ uses
 
 procedure TfrmMapTypeEdit.btnHeaderResetClick(Sender: TObject);
 begin
-  mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
+  mmoHeader.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader;
 end;
 
 procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
 begin
-  FmapType.TileRequestBuilderConfig.UrlBase := EditURL.Text;
+  FmapType.TileDownloadRequestBuilderConfig.UrlBase := EditURL.Text;
 
   FMapType.GUIConfig.LockWrite;
   try
@@ -144,7 +144,7 @@ begin
     FmapType.StorageConfig.UnlockWrite;
   end;
   FMapType.VersionConfig.Version := edtVersion.Text;
-  FMapType.TileRequestBuilderConfig.RequestHeader := mmoHeader.Text;
+  FMapType.TileDownloadRequestBuilderConfig.RequestHeader := mmoHeader.Text;
 
   ModalResult := mrOk;
 end;
@@ -161,7 +161,7 @@ end;
 
 procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
-  EditURL.Text := FmapType.Zmp.TileRequestBuilderConfig.UrlBase;
+  EditURL.Text := FmapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase;
   EditNameinCache.Text := FMapType.Zmp.StorageConfig.NameInCache;
   SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
   EditHotKey.HotKey:=FmapType.Zmp.GUI.HotKey;
@@ -173,12 +173,12 @@ begin
   CheckBox1.Checked:=FmapType.Zmp.GUI.Separator;
   CheckEnabled.Checked:=FMapType.Zmp.GUI.Enabled;
   edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
-  mmoHeader.Text := FMapType.Zmp.TileRequestBuilderConfig.RequestHeader;
+  mmoHeader.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader;
 end;
 
 procedure TfrmMapTypeEdit.Button6Click(Sender: TObject);
 begin
- EditURL.Text := FMapType.Zmp.TileRequestBuilderConfig.UrlBase;
+ EditURL.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase;
 end;
 
 procedure TfrmMapTypeEdit.Button4Click(Sender: TObject);
@@ -214,7 +214,7 @@ begin
 
   Caption:=SAS_STR_EditMap+' '+FmapType.GUIConfig.Name.Value;
   edtZmp.Text := AMapType.Zmp.FileName;
-  EditURL.Text:=FMapType.TileRequestBuilderConfig.UrlBase;
+  EditURL.Text:=FMapType.TileDownloadRequestBuilderConfig.UrlBase;
 
   SESleep.Value:=FMapType.TileDownloaderConfig.WaitInterval;
   EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.Value;
@@ -237,7 +237,7 @@ begin
   CheckBox1.Checked:=FMapType.GUIConfig.separator;
   CheckEnabled.Checked:=FMapType.GUIConfig.Enabled;
   edtVersion.Text := FMapType.VersionConfig.Version;
-  mmoHeader.Text := FMapType.TileRequestBuilderConfig.RequestHeader;
+  mmoHeader.Text := FMapType.TileDownloadRequestBuilderConfig.RequestHeader;
   pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
 
   Result := ShowModal = mrOk;

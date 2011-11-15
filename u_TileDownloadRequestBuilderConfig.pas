@@ -18,18 +18,18 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileRequestBuilderConfig;
+unit u_TileDownloadRequestBuilderConfig;
 
 interface
 
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_TileRequestBuilderConfig,
+  i_TileDownloadRequestBuilderConfig,
   u_ConfigDataElementBase;
 
 type
-  TTileRequestBuilderConfigStatic = class(TInterfacedObject, ITileRequestBuilderConfigStatic)
+  TTileDownloadRequestBuilderConfigStatic = class(TInterfacedObject, ITileDownloadRequestBuilderConfigStatic)
   private
     FUrlBase: string;
     FRequestHeader: string;
@@ -43,9 +43,9 @@ type
     );
   end;
 
-  TTileRequestBuilderConfig = class(TConfigDataElementBase, ITileRequestBuilderConfig)
+  TTileDownloadRequestBuilderConfig = class(TConfigDataElementBase, ITileDownloadRequestBuilderConfig)
   private
-    FDefConfig: ITileRequestBuilderConfigStatic;
+    FDefConfig: ITileDownloadRequestBuilderConfigStatic;
     FUrlBase: string;
     FRequestHeader: string;
   protected
@@ -58,7 +58,7 @@ type
     function  GetRequestHeader: string;
     procedure SetRequestHeader(AValue: string);
   public
-    constructor Create(ADefConfig: ITileRequestBuilderConfigStatic);
+    constructor Create(ADefConfig: ITileDownloadRequestBuilderConfigStatic);
   end;
 
 implementation
@@ -66,9 +66,9 @@ implementation
 uses
   SysUtils;
 
-{ TTileRequestBuilderConfig }
+{ TTileDownloadRequestBuilderConfig }
 
-constructor TTileRequestBuilderConfig.Create(ADefConfig: ITileRequestBuilderConfigStatic);
+constructor TTileDownloadRequestBuilderConfig.Create(ADefConfig: ITileDownloadRequestBuilderConfigStatic);
 begin
   inherited Create;
   FDefConfig := ADefConfig;
@@ -76,7 +76,7 @@ begin
   FRequestHeader := FDefConfig.RequestHeader;
 end;
 
-procedure TTileRequestBuilderConfig.DoReadConfig(
+procedure TTileDownloadRequestBuilderConfig.DoReadConfig(
   AConfigData: IConfigDataProvider);
 begin
   inherited;
@@ -93,7 +93,7 @@ begin
   end;
 end;
 
-procedure TTileRequestBuilderConfig.DoWriteConfig(
+procedure TTileDownloadRequestBuilderConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
@@ -118,7 +118,7 @@ begin
   end;
 end;
 
-function TTileRequestBuilderConfig.GetRequestHeader: string;
+function TTileDownloadRequestBuilderConfig.GetRequestHeader: string;
 begin
   LockRead;
   try
@@ -128,7 +128,7 @@ begin
   end;
 end;
 
-function TTileRequestBuilderConfig.GetUrlBase: string;
+function TTileDownloadRequestBuilderConfig.GetUrlBase: string;
 begin
   LockRead;
   try
@@ -138,7 +138,7 @@ begin
   end;
 end;
 
-procedure TTileRequestBuilderConfig.SetRequestHeader(AValue: string);
+procedure TTileDownloadRequestBuilderConfig.SetRequestHeader(AValue: string);
 begin
   LockWrite;
   try
@@ -151,7 +151,7 @@ begin
   end;
 end;
 
-procedure TTileRequestBuilderConfig.SetUrlBase(AValue: string);
+procedure TTileDownloadRequestBuilderConfig.SetUrlBase(AValue: string);
 begin
   LockWrite;
   try
@@ -164,21 +164,21 @@ begin
   end;
 end;
 
-{ TTileRequestBuilderConfigStatic }
+{ TTileDownloadRequestBuilderConfigStatic }
 
-constructor TTileRequestBuilderConfigStatic.Create(AUrlBase,
+constructor TTileDownloadRequestBuilderConfigStatic.Create(AUrlBase,
   ARequestHeader: string);
 begin
   FUrlBase := AUrlBase;
   FRequestHeader := ARequestHeader;
 end;
 
-function TTileRequestBuilderConfigStatic.GetRequestHeader: string;
+function TTileDownloadRequestBuilderConfigStatic.GetRequestHeader: string;
 begin
   Result := FRequestHeader;
 end;
 
-function TTileRequestBuilderConfigStatic.GetUrlBase: string;
+function TTileDownloadRequestBuilderConfigStatic.GetUrlBase: string;
 begin
   Result := FUrlBase;
 end;

@@ -31,7 +31,7 @@ uses
   i_LanguageListStatic,
   i_MapVersionInfo,
   i_ContentTypeSubst,
-  i_TileRequestBuilderConfig,
+  i_TileDownloadRequestBuilderConfig,
   i_TileDownloaderConfig,
   i_TilePostDownloadCropConfig,
   i_LanguageManager,
@@ -104,7 +104,7 @@ type
     FGUID: TGUID;
     FFileName: string;
     FVersionConfig: IMapVersionInfo;
-    FTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
+    FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic;
     FTileDownloaderConfig: ITileDownloaderConfigStatic;
     FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     FContentTypeSubst: IContentTypeSubst;
@@ -137,7 +137,7 @@ type
     function GetGUI: IZmpInfoGUI;
     function GetFileName: string;
     function GetVersionConfig: IMapVersionInfo;
-    function GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
+    function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic;
     function GetTileDownloaderConfig: ITileDownloaderConfigStatic;
     function GetTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     function GetContentTypeSubst: IContentTypeSubst;
@@ -167,7 +167,7 @@ uses
   Types,
   gnugettext,
   u_StringByLanguageWithStaticList,
-  u_TileRequestBuilderConfig,
+  u_TileDownloadRequestBuilderConfig,
   u_TileDownloaderConfigStatic,
   u_TilePostDownloadCropConfigStatic,
   u_ContentTypeSubstByList,
@@ -475,9 +475,9 @@ begin
   Result := FTilePostDownloadCropConfig;
 end;
 
-function TZmpInfo.GetTileRequestBuilderConfig: ITileRequestBuilderConfigStatic;
+function TZmpInfo.GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic;
 begin
-  Result := FTileRequestBuilderConfig;
+  Result := FTileDownloadRequestBuilderConfig;
 end;
 
 function TZmpInfo.GetVersionConfig: IMapVersionInfo;
@@ -652,7 +652,7 @@ begin
   VURLBase := AConfig.ReadString('URLBase', VURLBase);
   VRequestHead := AConfig.ReadString('RequestHead', '');
   VRequestHead := StringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
-  FTileRequestBuilderConfig := TTileRequestBuilderConfigStatic.Create(VUrlBase, VRequestHead);
+  FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfigStatic.Create(VUrlBase, VRequestHead);
 end;
 
 procedure TZmpInfo.LoadVersion(AConfig: IConfigDataProvider);

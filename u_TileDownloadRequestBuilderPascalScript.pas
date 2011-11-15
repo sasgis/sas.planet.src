@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileRequestBuilderPascalScript;
+unit u_TileDownloadRequestBuilderPascalScript;
 
 interface
 
@@ -40,14 +40,14 @@ uses
   i_CoordConverterFactory,
   i_LastResponseInfo,
   i_TileDownloadRequest,
-  i_TileRequestBuilderConfig,
-  u_TileRequestBuilder;
+  i_TileDownloadRequestBuilderConfig,
+  u_TileDownloadRequestBuilder;
 
 type
   EPascalScriptCompileError = class(Exception);
   EPascalScriptRunError = class(Exception);
 
-  TTileRequestBuilderPascalScript = class(TTileRequestBuilder)
+  TTileDownloadRequestBuilderPascalScript = class(TTileDownloadRequestBuilder)
   private
     FZmp: IZmpInfo;
     FTileDownloaderConfig: ITileDownloaderConfig;
@@ -99,7 +99,7 @@ type
   public
     constructor Create(
       AZmp: IZmpInfo;
-      AConfig: ITileRequestBuilderConfig;
+      AConfig: ITileDownloadRequestBuilderConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
       AConfigData: IConfigDataProvider;
       ACoordConverterFactory: ICoordConverterFactory;
@@ -127,9 +127,9 @@ function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean; f
 
 { TTileRequestBuilderPascalScript }
 
-constructor TTileRequestBuilderPascalScript.Create(
+constructor TTileDownloadRequestBuilderPascalScript.Create(
   AZmp: IZmpInfo;
-  AConfig: ITileRequestBuilderConfig;
+  AConfig: ITileDownloadRequestBuilderConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
   AConfigData: IConfigDataProvider;
   ACoordConverterFactory: ICoordConverterFactory;
@@ -150,7 +150,7 @@ begin
   OnLangChange(nil);
 end;
 
-destructor TTileRequestBuilderPascalScript.Destroy;
+destructor TTileDownloadRequestBuilderPascalScript.Destroy;
 begin
   FLangManager.GetChangeNotifier.Remove(FLangListener);
   FLangManager := nil;
@@ -162,12 +162,12 @@ begin
   inherited;
 end;
 
-procedure TTileRequestBuilderPascalScript.OnLangChange(Sender: TObject);
+procedure TTileDownloadRequestBuilderPascalScript.OnLangChange(Sender: TObject);
 begin
   InterlockedIncrement(FLangChangeCount);
 end;
 
-function TTileRequestBuilderPascalScript.BuildRequest(
+function TTileDownloadRequestBuilderPascalScript.BuildRequest(
   ASource: ITileRequest;
   ALastResponseInfo: ILastResponseInfo
 ): ITileDownloadRequest;
@@ -202,7 +202,7 @@ begin
   end;
 end;
 
-procedure TTileRequestBuilderPascalScript.PrepareCoordConverter(
+procedure TTileDownloadRequestBuilderPascalScript.PrepareCoordConverter(
   ACoordConverterFactory: ICoordConverterFactory;
   AConfig: IConfigDataProvider
 );
@@ -215,7 +215,7 @@ begin
   FCoordConverter := VCoordConverter as ICoordConverterSimple;
 end;
 
-procedure TTileRequestBuilderPascalScript.PreparePascalScript(AConfig: IConfigDataProvider);
+procedure TTileDownloadRequestBuilderPascalScript.PreparePascalScript(AConfig: IConfigDataProvider);
 var
   i: integer;
   VCompilerMsg: string;
@@ -378,7 +378,7 @@ begin
   end;
 end;
 
-procedure TTileRequestBuilderPascalScript.SetVar(
+procedure TTileDownloadRequestBuilderPascalScript.SetVar(
   ALastResponseInfo: ILastResponseInfo;
   ADownloaderConfig: ITileDownloaderConfigStatic;
   ASource: ITileRequest
