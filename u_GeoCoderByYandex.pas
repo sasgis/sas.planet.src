@@ -57,39 +57,40 @@ var
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
-  cur_pos:integer;// позиция текущего символа
-  br_level:integer;//глубина вложенности {=плюс один   }=минус один
+  CurPos:integer;// позиция текущего символа
+  BrLevel:integer;//глубина вложенности {=плюс один   }=минус один
   Buffer:string; // сюда складываем временно считанную строку
-  cur_char:string; // текущий символ
+  CurChar:string; // текущий символ
   err:boolean;// признак окончания поиска когда уже всё нашли...
   ParseErr:boolean; // признак ошибки разбора строки
 begin
-  Buffer:='';
+  Buffer := '';
+  BrLevel := 0;
+  err := false;
   if AStr = '' then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
 
-  cur_pos:=PosEx('{"GeoObjectCollection":', AStr)-1;
+  CurPos:=PosEx('{"GeoObjectCollection":', AStr)-1;
 
-  while (cur_pos<length(AStr)) and (not err)do begin
-   inc (cur_pos);
-   cur_char:=copy(AStr,cur_pos,1);
+  while (CurPos<length(AStr)) and (not err)do begin
+   inc (CurPos);
+   CurChar:=copy(AStr,CurPos,1);
 
-   Buffer:=Buffer+cur_char;
+   Buffer:=Buffer+CurChar;
 
-   if cur_char='{' then inc(br_level);
-   if cur_char='}' then begin
-    dec(br_level);
-    if br_level=2 then  begin
+   if CurChar='{' then inc(BrLevel);
+   if CurChar='}' then begin
+    dec(BrLevel);
+    if BrLevel=2 then  begin
    // подстрока готова. теперь будем её парсит и дёргатьнужные нам значения
      sdesc:='';
      sname:='';
      sfulldesc:='';
      ParseErr:=False;
      j:=1;
-     i:=1;
      // если есть адресная информация - добавляем её
      // это же является признаком того что точку нужно обрабатывать
      i := PosEx('{"AddressLine":"', Buffer, 1);
@@ -110,7 +111,7 @@ begin
 
    if ParseErr=false then begin // если нашли признак валидности данных
     // делаем ссылку на описание если оно есть.
-    i:=1;j:=1;
+    j:=1;
     i:= PosEx('"CompanyMetaData":{"id":"', Buffer, 1);
     if i>j then begin
      j := PosEx('",', Buffer, i + 25);
@@ -118,8 +119,7 @@ begin
     end;
 
      // достаём наименование
-     i:=1;j:=1;
-     i := PosEx('},"name":"', Buffer, j);
+     i := PosEx('},"name":"', Buffer, 1);
      j := PosEx('",', Buffer, i + 10);
      sname:= Utf8ToAnsi(Copy(Buffer, i + 10, j - (i + 10)));
      // прибавляем статусную часть (улица,посёлок..) если она идёт сразу за наименованием
@@ -139,7 +139,7 @@ begin
      if slon[1] = '\' then delete(slon, 1, 1);
 
 
-     i:=1;j:=1;
+     i:=1;
      if PosEx('"Categories":', Buffer, i)>i then begin// значит есть категория
       sdesc:=sdesc+' (';
       while PosEx('{"name":"', Buffer, i)>i do begin // названий категорий может быть несколько поэтому будем их сцеплять (банки-банкоматы)
@@ -152,7 +152,7 @@ begin
       end;
 
      // описание из НЯК
-     i:=1;j:=1;
+     j:=1;
      i:= PosEx('{"locality":"', Buffer, 1);
      if i>j then begin
       j := PosEx('"', Buffer, i + 13);
@@ -160,7 +160,7 @@ begin
       end;
 
      // описание из НЯК
-     i:=1;j:=1;
+     j:=1;
      i:= PosEx('"category_name":"', Buffer, 1);
      if i>j then begin
       j := PosEx('"', Buffer, i + 17);
@@ -183,7 +183,7 @@ begin
     end;
     Buffer:='';
    end;
-   if br_level=1 then err:=true;//  Хватит. Довольно. Выходим.
+   if BrLevel=1 then err:=true;//  Хватит. Довольно. Выходим.
    end;
   end;
   Result := VList;
