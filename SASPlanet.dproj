@@ -279,7 +279,6 @@
     <DCCReference Include="i_PathDetalizeProviderList.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
     <DCCReference Include="i_PolyLineLayerConfig.pas" />
-    <DCCReference Include="i_PosChangeMessage.pas" />
     <DCCReference Include="i_ProxySettings.pas" />
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
     <DCCReference Include="i_ScaleLineConfig.pas" />
@@ -308,6 +307,8 @@
     <DCCReference Include="i_TileDownloader.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownloadRequest.pas" />
+    <DCCReference Include="i_TileDownloadRequestBuilder.pas" />
+    <DCCReference Include="i_TileDownloadRequestBuilderConfig.pas" />
     <DCCReference Include="i_TileError.pas" />
     <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="i_TileFileNameGenerator.pas" />
@@ -318,8 +319,7 @@
     <DCCReference Include="i_TilePostDownloadCropConfig.pas" />
     <DCCReference Include="i_TileRectUpdateNotifier.pas" />
     <DCCReference Include="i_TileRequest.pas" />
-    <DCCReference Include="i_TileRequestBuilder.pas" />
-    <DCCReference Include="i_TileRequestBuilderConfig.pas" />
+    <DCCReference Include="i_TileRequestResult.pas" />
     <DCCReference Include="i_TileStorage.pas" />
     <DCCReference Include="i_TileStorageConfig.pas" />
     <DCCReference Include="i_TileStorageInfo.pas" />
@@ -680,7 +680,6 @@
     <DCCReference Include="u_MouseState.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />
-    <DCCReference Include="u_NotifyEventPosChangeListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_OperationNotifier.pas" />
     <DCCReference Include="u_PathDetalizeProviderCloudMade.pas" />
@@ -692,8 +691,6 @@
     <DCCReference Include="u_PLTSimpleParser.pas" />
     <DCCReference Include="u_PolygonLayerConfig.pas" />
     <DCCReference Include="u_PolyLineLayerConfig.pas" />
-    <DCCReference Include="u_PosChangeListener.pas" />
-    <DCCReference Include="u_PosChangeMessage.pas" />
     <DCCReference Include="u_PosFromGSM.pas" />
     <DCCReference Include="u_ProxyConfig.pas" />
     <DCCReference Include="u_ResStrings.pas" />
@@ -741,6 +738,9 @@
     <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
     <DCCReference Include="u_TileDownloadRequest.pas" />
+    <DCCReference Include="u_TileDownloadRequestBuilder.pas" />
+    <DCCReference Include="u_TileDownloadRequestBuilderConfig.pas" />
+    <DCCReference Include="u_TileDownloadRequestBuilderPascalScript.pas" />
     <DCCReference Include="u_TileErrorInfo.pas" />
     <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="u_TileFileNameES.pas" />
@@ -758,10 +758,7 @@
     <DCCReference Include="u_TilePostDownloadCropConfigStatic.pas" />
     <DCCReference Include="u_TileRectUpdateNotifier.pas" />
     <DCCReference Include="u_TileRequest.pas" />
-    <DCCReference Include="u_TileRequestBuilder.pas" />
-    <DCCReference Include="u_TileRequestBuilderConfig.pas" />
     <DCCReference Include="u_TileRequestBuilderHelpers.pas" />
-    <DCCReference Include="u_TileRequestBuilderPascalScript.pas" />
     <DCCReference Include="u_TileStorageAbstract.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />
