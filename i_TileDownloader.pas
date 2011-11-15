@@ -34,8 +34,8 @@ uses
 type
   ITileDownloaderEvent = interface;
 
-  POnDownloadCallBack = ^TOnDownloadCallBack;
   TOnDownloadCallBack = procedure (AEvent: ITileDownloaderEvent) of object;
+  POnDownloadCallBack = ^TOnDownloadCallBack;
 
   ITileDownloader = interface
     ['{EAF443E6-FC84-46A3-95AA-8217117A2A6B}']
@@ -49,18 +49,9 @@ type
     procedure ProcessEvent;
 
     procedure AddToCallBackList(ACallBack: TOnDownloadCallBack);
-    procedure ExecCallBackList;
 
     function GetRequest: ITileRequest;
     property Request: ITileRequest read GetRequest;
-
-    function GetDownloadRequest: ITileDownloadRequest;
-    procedure SetDownloadRequest(Value: ITileDownloadRequest);
-    property DownloadRequest: ITileDownloadRequest read GetDownloadRequest write SetDownloadRequest;
-
-    function GetLastResponseInfo: ILastResponseInfo;
-    procedure SetLastResponseInfo(AValue: ILastResponseInfo);
-    property LastResponseInfo: ILastResponseInfo read GetLastResponseInfo write SetLastResponseInfo;
 
     function GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(AValue: IDownloadResult);
