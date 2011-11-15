@@ -31,9 +31,6 @@ type
     function GetRequest: IDownloadRequest;
     property Request: IDownloadRequest read GetRequest;
 
-    function GetIsOk: Boolean;
-    property IsOk: Boolean read GetIsOk;
-
     function GetIsServerExists: Boolean;
     property IsServerExists: Boolean read GetIsServerExists;
   end;

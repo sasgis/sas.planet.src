@@ -34,7 +34,6 @@ type
     FRequest: IDownloadRequest;
   protected
     function GetRequest: IDownloadRequest;
-    function GetIsOk: Boolean; virtual; abstract;
     function GetIsServerExists: Boolean; virtual; abstract;
   public
     constructor Create(
@@ -45,7 +44,6 @@ type
   TDownloadResultCanceled = class(TDownloadResult, IDownloadResultCanceled)
   protected
     function GetIsServerExists: Boolean; override;
-    function GetIsOk: Boolean; override;
   end;
 
   TDownloadResultOk = class(TDownloadResult, IDownloadResultOk, IDownloadResultWithServerRespond)
@@ -55,7 +53,6 @@ type
     FContentType: string;
     FBuffer: TMemoryStream;
   protected
-    function GetIsOk: Boolean; override;
     function GetIsServerExists: Boolean; override;
   protected
     function GetStatusCode: Cardinal;
@@ -78,8 +75,6 @@ type
   TDownloadResultError = class(TDownloadResult, IDownloadResultError)
   private
     FErrorText: string;
-  protected
-    function GetIsOk: Boolean; override;
   protected
     function GetErrorText: string;
   public
@@ -177,7 +172,6 @@ type
     FReasonText: string;
     FRawResponseHeader: string;
   protected
-    function GetIsOk: Boolean; override;
     function GetIsServerExists: Boolean; override;
   protected
     function GetReasonText: string;
@@ -214,7 +208,6 @@ type
     FReasonText: string;
     FRawResponseHeader: string;
   protected
-    function GetIsOk: Boolean; override;
     function GetIsServerExists: Boolean; override;
   protected
     function GetReasonText: string;
@@ -279,11 +272,6 @@ begin
   Result := FContentType;
 end;
 
-function TDownloadResultOk.GetIsOk: Boolean;
-begin
-  Result := True;
-end;
-
 function TDownloadResultOk.GetIsServerExists: Boolean;
 begin
   Result := True;
@@ -318,11 +306,6 @@ end;
 function TDownloadResultError.GetErrorText: string;
 begin
   Result := FErrorText;
-end;
-
-function TDownloadResultError.GetIsOk: Boolean;
-begin
-  Result := False;
 end;
 
 { TDownloadResultProxyError }
@@ -439,11 +422,6 @@ begin
   FRawResponseHeader := ARawResponseHeader;
 end;
 
-function TDownloadResultDataNotExists.GetIsOk: Boolean;
-begin
-  Result := True;
-end;
-
 function TDownloadResultDataNotExists.GetIsServerExists: Boolean;
 begin
   Result := True;
@@ -469,11 +447,6 @@ begin
   inherited Create(ARequest);
   FReasonText := AReasonText;
   FRawResponseHeader := ARawResponseHeader;
-end;
-
-function TDownloadResultNotNecessary.GetIsOk: Boolean;
-begin
-  Result := True;
 end;
 
 function TDownloadResultNotNecessary.GetIsServerExists: Boolean;
@@ -524,11 +497,6 @@ begin
 end;
 
 { TDownloadResultCanceled }
-
-function TDownloadResultCanceled.GetIsOk: Boolean;
-begin
-  Result := False;
-end;
 
 function TDownloadResultCanceled.GetIsServerExists: Boolean;
 begin
