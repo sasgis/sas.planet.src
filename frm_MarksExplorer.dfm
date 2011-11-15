@@ -318,9 +318,10 @@ object frmMarksExplorer: TfrmMarksExplorer
   object OpenDialog1: TOpenDialog
     DefaultExt = '*.kml'
     Filter = 
-      'Google KML files (*.kml)|*.kml|OziExplorer Track Point File Vers' +
-      'ion 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Selection (' +
-      '*.hlg)|*.hlg'
+      'All compatible formats (*.kml,*.plt,*.kmz,*.hlg)|*.kml;*.plt;*.k' +
+      'mz;*.hlg|Google KML files (*.kml)|*.kml|OziExplorer Track Point ' +
+      'File Version 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Se' +
+      'lection (*.hlg)|*.hlg'
     Left = 352
     Top = 144
   end
