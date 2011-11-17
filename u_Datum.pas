@@ -151,7 +151,7 @@ function TDatum.CalcPoligonArea(const polygon: TArrayOfDoublePoint): Double;
    s:=0;
    VPointsCount:=length(APoints)-1;
    for i:=0 to VPointsCount-1 do begin
-     s:=s+(APoints[(i+1) mod VPointsCount].x-APoints[i].x)*(APoints[(i+1) mod VPointsCount].y+APoints[i].y);
+     s := s+(APoints[(i+1) mod VPointsCount].x-APoints[i].x)*(APoints[(i+1) mod VPointsCount].y+APoints[i].y);
    end;
    result:=-s/2;
  end;
@@ -210,17 +210,17 @@ begin
          if (PointsA[NodeN]=1)and(InTriangle(Node,p[0],p[1],p[2])) then begin
            inPoint := true;  // Проверка не попала ли вершина в отсекаемый треугольник
          end;
-         Noden:=(NodeN+1) mod VPointsCount;
+         Noden := (NodeN+1) mod VPointsCount;
          Node := polygon[NodeN];
        end;
      end else begin
        inPoint:=true;
      end;
      if (not InPoint) then begin
-       s:=s+SphericalTriangleSquare(p);
+       s := s+SphericalTriangleSquare(p);
        PointsA[pn[1]]:=0;    //Удаление вершины из рассмотрения
        dec(PointsNum);
-       ErrNum:=0;
+       ErrNum := 0;
      end else begin
        pn[0] := pn[1];          //  Переход к следущему треугольнику
        p[0] := polygon[pn[0]];
