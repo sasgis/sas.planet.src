@@ -96,6 +96,7 @@ type
     btnCancel: TButton;
     btnOk: TButton;
     btnApply: TButton;
+    lblMarksCount: TStaticText;
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
@@ -246,6 +247,7 @@ begin
       for i:=0 to MarksListBox.Count-1 do begin
         MarksListBox.Checked[i] := FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(IMarkId(Pointer(MarksListBox.Items.Objects[i])));
       end;
+      lblMarksCount.Caption:='('+inttostr(MarksListBox.Count)+')';
     finally
       MarksListBox.Items.EndUpdate;
     end;

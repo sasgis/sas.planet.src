@@ -116,6 +116,9 @@ object frmMarksExplorer: TfrmMarksExplorer
         Align = alClient
         Caption = 'Placemarks'
         TabOrder = 0
+        DesignSize = (
+          310
+          352)
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
@@ -123,7 +126,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           Width = 300
           Height = 278
           OnClickCheck = MarksListBoxClickCheck
-          Align = alClient
+          Anchors = [akLeft, akTop, akRight, akBottom]
           ItemHeight = 13
           Sorted = True
           TabOrder = 0
@@ -131,11 +134,11 @@ object frmMarksExplorer: TfrmMarksExplorer
         end
         object CheckBox1: TCheckBox
           AlignWithMargins = True
-          Left = 5
+          Left = 6
           Top = 330
-          Width = 300
+          Width = 43
           Height = 17
-          Align = alBottom
+          Anchors = [akLeft, akBottom]
           Caption = 'All'
           TabOrder = 1
           OnClick = CheckBox1Click
@@ -206,6 +209,14 @@ object frmMarksExplorer: TfrmMarksExplorer
               Hint = 'Export selected placemark'
             end
           end
+        end
+        object lblMarksCount: TStaticText
+          Left = 50
+          Top = 332
+          Width = 4
+          Height = 4
+          Anchors = [akLeft, akBottom]
+          TabOrder = 3
         end
       end
       object grpCategory: TGroupBox
