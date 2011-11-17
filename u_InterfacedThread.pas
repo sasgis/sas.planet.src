@@ -34,14 +34,15 @@ type
     FCS: TCriticalSection;
     FTerminated: Boolean;
   protected
+    procedure Synchronize(AMethod: TThreadMethod);
+    procedure Execute; virtual; abstract;
+    property Terminated: Boolean read FTerminated;
+  protected
     procedure Start; virtual;
     procedure Terminate; virtual;
     function GetPriority: TThreadPriority;
     procedure SetPriority(Value: TThreadPriority);
     function WaitFor: LongWord; virtual;
-    procedure Synchronize(AMethod: TThreadMethod);
-    procedure Execute; virtual; abstract;
-    property Terminated: Boolean read FTerminated;
   public
     constructor Create();
     destructor Destroy; override;

@@ -4316,7 +4316,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  CopyStringToClipboard('http://www.openstreetmap.org/?mlat='+R2StrPoint(VLonLat.y)+'&mlon='+R2StrPoint(VLonLat.x)+'&zoom='+inttostr(VZoom));
+  CopyStringToClipboard('http://www.openstreetmap.org/?lat='+R2StrPoint(VLonLat.y)+'&lon='+R2StrPoint(VLonLat.x)+'&zoom='+inttostr(VZoom));
 end;
 
 procedure TfrmMain.TBXItem6Click(Sender: TObject);
