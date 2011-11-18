@@ -221,7 +221,6 @@
     <DCCReference Include="i_LastSelectionLayerConfig.pas" />
     <DCCReference Include="i_LayerBitmapClearStrategy.pas" />
     <DCCReference Include="i_LineOnMapEdit.pas" />
-    <DCCReference Include="i_ListOfObjectsWithTTL.pas" />
     <DCCReference Include="i_LocalCoordConverter.pas" />
     <DCCReference Include="i_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="i_LogForTaskThread.pas" />
@@ -273,7 +272,6 @@
     <DCCReference Include="i_MouseHandler.pas" />
     <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
-    <DCCReference Include="i_ObjectWithTTL.pas" />
     <DCCReference Include="i_OperationNotifier.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
     <DCCReference Include="i_PathDetalizeProviderList.pas" />
@@ -330,6 +328,8 @@
     <DCCReference Include="i_TileStorageTypeListItem.pas" />
     <DCCReference Include="i_TrackWriter.pas" />
     <DCCReference Include="i_TreeChangeable.pas" />
+    <DCCReference Include="i_TTLCheckListener.pas" />
+    <DCCReference Include="i_TTLCheckNotifier.pas" />
     <DCCReference Include="i_UrlByCoordProvider.pas" />
     <DCCReference Include="i_UsedMarksConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
@@ -599,7 +599,6 @@
     <DCCReference Include="u_LayerBitmapClearStrategy.pas" />
     <DCCReference Include="u_LayerBitmapClearStrategyFactory.pas" />
     <DCCReference Include="u_LineOnMapEdit.pas" />
-    <DCCReference Include="u_ListOfObjectsWithTTL.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
@@ -773,6 +772,8 @@
     <DCCReference Include="u_TreeByMapActiveMapsSet.pas" />
     <DCCReference Include="u_TreeByPathDetalizeProviderList.pas" />
     <DCCReference Include="u_TreeChangeableBase.pas" />
+    <DCCReference Include="u_TTLCheckListener.pas" />
+    <DCCReference Include="u_TTLCheckNotifier.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="u_UserInterfaceItemBase.pas" />

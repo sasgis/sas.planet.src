@@ -25,24 +25,24 @@ interface
 uses
   Windows,
   Classes,
-  i_ListOfObjectsWithTTL;
+  i_TTLCheckNotifier;
 
 type
   TGarbageCollectorThread = class(TThread)
   private
-    FList: IListOfObjectsWithTTL;
+    FList: ITTLCheckNotifier;
     FSleepTime: Cardinal;
   protected
     procedure Execute; override;
   public
-    constructor Create(AList: IListOfObjectsWithTTL; ASleepTime: Cardinal);
+    constructor Create(AList: ITTLCheckNotifier; ASleepTime: Cardinal);
     destructor Destroy; override;
-    property List: IListOfObjectsWithTTL read FList;
+    property List: ITTLCheckNotifier read FList;
   end;
 
 implementation
 
-constructor TGarbageCollectorThread.Create(AList: IListOfObjectsWithTTL;
+constructor TGarbageCollectorThread.Create(AList: ITTLCheckNotifier;
   ASleepTime: Cardinal);
 begin
   inherited Create(false);

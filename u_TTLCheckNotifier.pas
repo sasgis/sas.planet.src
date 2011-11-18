@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_ListOfObjectsWithTTL;
+unit u_TTLCheckNotifier;
 
 interface
 
@@ -26,11 +26,11 @@ uses
   Windows,
   Classes,
   SysUtils,
-  i_ObjectWithTTL,
-  i_ListOfObjectsWithTTL;
+  i_TTLCheckListener,
+  i_TTLCheckNotifier;
 
 type
-  TListOfObjectsWithTTL = class(TInterfacedObject, IListOfObjectsWithTTL)
+  TTTLCheckNotifier = class(TInterfacedObject, ITTLCheckNotifier)
   private
     FList: TList;
     FSync: IReadWriteSync;
@@ -38,55 +38,55 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure AddObject(AObj: IObjectWithTTL);
-    procedure RemoveObject(AObj: IObjectWithTTL);
+    procedure Add(AListener: ITTLCheckListener);
+    procedure Remove(AListener: ITTLCheckListener);
     procedure ProcessObjectsTrim;
     function GetNextCheck: Cardinal;
   end;
 
 implementation
 
-{ TListOfObjectsWithTTL }
+{ TTTLCheckNotifier }
 
-procedure TListOfObjectsWithTTL.AddObject(AObj: IObjectWithTTL);
-begin
-  FSync.BeginWrite;
-  try
-    AObj._AddRef;
-    FList.Add(Pointer(AObj));
-  finally
-    FSync.EndWrite;
-  end;
-end;
-
-constructor TListOfObjectsWithTTL.Create;
+constructor TTTLCheckNotifier.Create;
 begin
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   FList := TList.Create;
 end;
 
-destructor TListOfObjectsWithTTL.Destroy;
+destructor TTTLCheckNotifier.Destroy;
 var
   i: integer;
 begin
   FSync := nil;
   for i := 0 to FList.Count - 1 do begin
-    IObjectWithTTL(FList.Items[i])._Release;
+    ITTLCheckListener(FList.Items[i])._Release;
   end;
   FreeAndNil(FList);
   inherited;
 end;
 
-function TListOfObjectsWithTTL.GetNextCheck: Cardinal;
+procedure TTTLCheckNotifier.Add(AListener: ITTLCheckListener);
+begin
+  FSync.BeginWrite;
+  try
+    AListener._AddRef;
+    FList.Add(Pointer(AListener));
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
+function TTTLCheckNotifier.GetNextCheck: Cardinal;
 begin
   Result := FNextCheck;
 end;
 
-procedure TListOfObjectsWithTTL.ProcessObjectsTrim;
+procedure TTTLCheckNotifier.ProcessObjectsTrim;
 var
   i: integer;
   VNow: Cardinal;
-  VObj: IObjectWithTTL;
+  VObj: ITTLCheckListener;
   VNextCheck: Cardinal;
   VObjNextCheck: Cardinal;
 begin
@@ -95,7 +95,7 @@ begin
   FSync.BeginRead;
   try
     for i := 0 to FList.Count - 1 do begin
-      VObj := IObjectWithTTL(FList.Items[i]);
+      VObj := ITTLCheckListener(FList.Items[i]);
       VObjNextCheck := VObj.CheckTTLAndGetNextCheckTime(VNow);
       if (VNextCheck <= 0) or (VNextCheck > VObjNextCheck) then begin
         VNextCheck := VObjNextCheck;
@@ -107,12 +107,12 @@ begin
   end;
 end;
 
-procedure TListOfObjectsWithTTL.RemoveObject(AObj: IObjectWithTTL);
+procedure TTTLCheckNotifier.Remove(AListener: ITTLCheckListener);
 begin
   FSync.BeginWrite;
   try
-    FList.Remove(Pointer(AObj));
-    AObj._Release;
+    FList.Remove(Pointer(AListener));
+    AListener._Release;
   finally
     FSync.EndWrite;
   end;

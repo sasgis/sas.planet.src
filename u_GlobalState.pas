@@ -213,8 +213,8 @@ uses
   u_EcwDllSimple,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
-  i_ListOfObjectsWithTTL,
-  u_ListOfObjectsWithTTL,
+  i_TTLCheckNotifier,
+  u_TTLCheckNotifier,
   i_FileNameIterator,
   u_ContentTypeManagerSimple,
   u_MapCalibrationListBasic,
@@ -268,7 +268,7 @@ uses
 
 constructor TGlobalState.Create;
 var
-  VList: IListOfObjectsWithTTL;
+  VList: ITTLCheckNotifier;
   VViewCnonfig: IConfigDataProvider;
   VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
@@ -353,7 +353,7 @@ begin
     VKmlLoader,
     VKmzLoader
   );
-  VList := TListOfObjectsWithTTL.Create;
+  VList := TTTLCheckNotifier.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, 1000);
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);

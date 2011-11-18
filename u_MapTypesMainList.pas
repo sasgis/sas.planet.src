@@ -31,7 +31,7 @@ uses
   i_LanguageManager,
   i_CoordConverterFactory,
   i_ZmpInfoSet,
-  i_ListOfObjectsWithTTL,
+  i_TTLCheckNotifier,
   i_InetConfig,
   i_ImageResamplerConfig,
   i_GlobalDownloadConfig,
@@ -75,7 +75,7 @@ type
       AMainMemCacheConfig: IMainMemCacheConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      AGCList: IListOfObjectsWithTTL;
+      AGCList: ITTLCheckNotifier;
       AInetConfig: IInetConfig;
       AImageResamplerConfig: IImageResamplerConfig;
       ADownloadConfig: IGlobalDownloadConfig;
@@ -175,7 +175,7 @@ procedure TMapTypesMainList.LoadMaps(
   AMainMemCacheConfig: IMainMemCacheConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  AGCList: IListOfObjectsWithTTL;
+  AGCList: ITTLCheckNotifier;
   AInetConfig: IInetConfig;
   AImageResamplerConfig: IImageResamplerConfig;
   ADownloadConfig: IGlobalDownloadConfig;

@@ -18,17 +18,20 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_ObjectWithTTL;
+unit i_TTLCheckNotifier;
 
 interface
 
 uses
-  Types;
+  i_TTLCheckListener;
 
 type
-  IObjectWithTTL = interface
-    ['{1DA8EB6F-499D-4FB7-9E3F-5AC865E7D044}']
-    function CheckTTLAndGetNextCheckTime(ANow: Cardinal): Cardinal;
+  ITTLCheckNotifier = interface
+    ['{25465366-07F9-459A-9D54-1597E4BD6306}']
+    procedure Add(AListener: ITTLCheckListener);
+    procedure Remove(AListener: ITTLCheckListener);
+    procedure ProcessObjectsTrim;
+    function GetNextCheck: Cardinal;
   end;
 
 implementation

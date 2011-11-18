@@ -10,13 +10,14 @@ uses
   i_JclNotify,
   i_MainMemCacheConfig,
   i_VectorDataItemSimple,
-  i_ObjectWithTTL,
+  i_TTLCheckListener,
+  i_TTLCheckNotifier,
   i_TileObjCache,
   i_CoordConverter,
   u_TileStorageAbstract;
 
 type
-  TMemTileCacheBase = class(TInterfacedObject, IObjectWithTTL)
+  TMemTileCacheBase = class(TInterfacedObject, ITTLCheckListener)
   private
     FConfig: IMainMemCacheConfig;
     FConfigListener: IJclListener;
@@ -43,6 +44,7 @@ type
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
   public
     constructor Create(
+      AGCList: ITTLCheckNotifier;
       ATileStorage: TTileStorageAbstract;
       ACoordConverter: ICoordConverter;
       AConfig: IMainMemCacheConfig
@@ -75,6 +77,7 @@ uses
 { TTileCacheBase }
 
 constructor TMemTileCacheBase.Create(
+  AGCList: ITTLCheckNotifier;
   ATileStorage: TTileStorageAbstract;
   ACoordConverter: ICoordConverter;
   AConfig: IMainMemCacheConfig
@@ -105,6 +108,7 @@ begin
   FTTL := 40000;
   FCheckInterval := 1000;
   FUpdateCounter := 0;
+  AGCList.AddObject(Self);
 end;
 
 destructor TMemTileCacheBase.Destroy;
