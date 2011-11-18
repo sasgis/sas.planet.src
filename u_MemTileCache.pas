@@ -17,28 +17,25 @@ uses
   u_TileStorageAbstract;
 
 type
-  TMemTileCacheBase = class(TInterfacedObject, ITTLCheckListener)
+  TMemTileCacheBase = class(TInterfacedObject)
   private
     FConfig: IMainMemCacheConfig;
+    FGCList: ITTLCheckNotifier;
     FConfigListener: IJclListener;
     FTileStorage: TTileStorageAbstract;
     FCoordConverter: ICoordConverter;
     FStorageChangeListener: IJclListener;
+    FTTLListener: ITTLCheckListener;
 
     FCacheList: TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
-    FUpdateCounter: Integer;
-    FLastUseTime: Cardinal;
-    FTTL: Cardinal;
-    FCheckInterval: Cardinal;
     procedure OnChangeConfig(Sender: TObject);
     procedure OnTileStorageChange(Sender: TObject);
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+    procedure OnTTLTrim(Sender: TObject);
   protected
     procedure ItemFree(AIndex: Integer); virtual; abstract;
     procedure IncUpdateCounter;
-  protected
-    function CheckTTLAndGetNextCheckTime(ANow: Cardinal): Cardinal;
   protected
     procedure Clear;
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
@@ -72,6 +69,7 @@ implementation
 
 uses
   i_TileRectUpdateNotifier,
+  u_TTLCheckListener,
   u_NotifyEventListener;
 
 { TTileCacheBase }
@@ -87,6 +85,7 @@ var
   VNotifier: ITileRectUpdateNotifier;
 begin
   FConfig := AConfig;
+  FGCList := AGCList;
   FConfigListener := TNotifyEventListener.Create(Self.OnChangeConfig);
   FConfig.GetChangeNotifier.Add(FConfigListener);
 
@@ -105,10 +104,8 @@ begin
   FCacheList := TStringList.Create;
   FCacheList.Capacity := FConfig.MaxSize;
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
-  FTTL := 40000;
-  FCheckInterval := 1000;
-  FUpdateCounter := 0;
-  AGCList.AddObject(Self);
+  FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 40000, 1000);
+  FGCList.Add(FTTLListener);
 end;
 
 destructor TMemTileCacheBase.Destroy;
@@ -119,6 +116,10 @@ begin
   FConfig.GetChangeNotifier.Remove(FConfigListener);
   FConfigListener := nil;
   FConfig := nil;
+
+  FGCList.Remove(FTTLListener);
+  FTTLListener := nil;
+  FGCList := nil;
 
   for i := FCoordConverter.MinZoom to FCoordConverter.MaxZoom do begin
     VNotifier := FTileStorage.NotifierByZoom[i];
@@ -134,23 +135,6 @@ begin
   FreeAndNil(FSync);
   FreeAndNil(FCacheList);
   inherited;
-end;
-
-function TMemTileCacheBase.CheckTTLAndGetNextCheckTime(ANow: Cardinal): Cardinal;
-var
-  VCleanTime: Cardinal;
-  VCounter: Integer;
-begin
-  VCounter := InterlockedExchange(FUpdateCounter, 0);
-  if VCounter > 0 then begin
-    FLastUseTime := ANow;
-  end else begin
-    VCleanTime := FLastUseTime + FTTL;
-    if (VCleanTime <= ANow) or ((ANow < 1 shl 29) and (VCleanTime > 1 shl 30)) then begin
-      Clear;
-    end;
-  end;
-  Result := ANow + FCheckInterval;
 end;
 
 procedure TMemTileCacheBase.Clear;
@@ -193,7 +177,7 @@ end;
 
 procedure TMemTileCacheBase.IncUpdateCounter;
 begin
-  InterlockedIncrement(FUpdateCounter);
+  FTTLListener.UpdateUseTime;
 end;
 
 procedure TMemTileCacheBase.OnChangeConfig(Sender: TObject);
@@ -219,6 +203,11 @@ begin
 end;
 
 procedure TMemTileCacheBase.OnTileStorageChange(Sender: TObject);
+begin
+  Clear;
+end;
+
+procedure TMemTileCacheBase.OnTTLTrim(Sender: TObject);
 begin
   Clear;
 end;
