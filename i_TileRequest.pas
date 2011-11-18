@@ -4,6 +4,8 @@ interface
 
 uses
   Types,
+  i_JclNotify,
+  i_OperationNotifier,
   i_ZmpInfo,
   i_MapVersionInfo;
 
@@ -21,6 +23,12 @@ type
 
     function GetVersionInfo: IMapVersionInfo;
     property VersionInfo: IMapVersionInfo read GetVersionInfo;
+
+    function GetStartNotifier: IJclNotifier;
+    property StartNotifier: IJclNotifier read GetStartNotifier;
+
+    function GetFinishNotifier: IJclNotifier;
+    property FinishNotifier: IJclNotifier read GetFinishNotifier;
   end;
 
   ITileRequestWithSizeCheck = interface(ITileRequest)
