@@ -45,7 +45,6 @@ type
       ATileDownloaderConfig: ITileDownloaderConfig;
       ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
       AZmp: IZmpInfo;
-      ACoordConverterFactory: ICoordConverterFactory;
       ALangManager: ILanguageManager;
       AInvisibleBrowser: IInvisibleBrowser
     );
@@ -65,7 +64,6 @@ constructor TTileDownloaderFrontEnd.Create(
   ATileDownloaderConfig: ITileDownloaderConfig;
   ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
   AZmp: IZmpInfo;
-  ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager;
   AInvisibleBrowser: IInvisibleBrowser
 );
@@ -76,7 +74,6 @@ begin
     ATileDownloaderConfig,
     ATileDownloadRequestBuilderConfig,
     AZmp,
-    ACoordConverterFactory,
     ALangManager,
     AInvisibleBrowser
   );

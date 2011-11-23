@@ -130,7 +130,10 @@ type
       AConfig : IConfigDataProvider;
       ACoordConverterFactory: ICoordConverterFactory
     );
-    procedure LoadTileRequestBuilderConfig(AConfig : IConfigDataProvider);
+    procedure LoadTileRequestBuilderConfig(
+      ACoordConverterFactory: ICoordConverterFactory;
+      AConfig : IConfigDataProvider
+    );
     procedure LoadTileDownloaderConfig(AConfig: IConfigDataProvider);
   protected
     function GetGUID: TGUID;
@@ -514,7 +517,7 @@ begin
   FGUID := LoadGUID(FConfigIniParams);
   LoadVersion(FConfigIniParams);
   LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
-  LoadTileRequestBuilderConfig(FConfigIniParams);
+  LoadTileRequestBuilderConfig(ACoordConverterFactory, FConfigIniParams);
   LoadTileDownloaderConfig(FConfigIniParams);
   LoadCropConfig(FConfigIniParams);
   LoadStorageConfig(FConfigIniParams);
@@ -643,16 +646,26 @@ begin
     );
 end;
 
-procedure TZmpInfo.LoadTileRequestBuilderConfig(AConfig: IConfigDataProvider);
+procedure TZmpInfo.LoadTileRequestBuilderConfig(
+  ACoordConverterFactory: ICoordConverterFactory;
+  AConfig: IConfigDataProvider
+);
 var
   VUrlBase: string;
   VRequestHead: string;
+  VCoordConverter: ICoordConverter;
 begin
   VURLBase := AConfig.ReadString('DefURLBase', '');
   VURLBase := AConfig.ReadString('URLBase', VURLBase);
   VRequestHead := AConfig.ReadString('RequestHead', '');
   VRequestHead := StringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
-  FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfigStatic.Create(VUrlBase, VRequestHead);
+  VCoordConverter := ACoordConverterFactory.GetCoordConverterByConfig(AConfig);
+  FTileDownloadRequestBuilderConfig :=
+    TTileDownloadRequestBuilderConfigStatic.Create(
+      VUrlBase,
+      VRequestHead,
+      VCoordConverter
+    );
 end;
 
 procedure TZmpInfo.LoadVersion(AConfig: IConfigDataProvider);

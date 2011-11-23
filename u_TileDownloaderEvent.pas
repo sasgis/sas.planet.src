@@ -81,9 +81,7 @@ type
       ADownloadInfo: IDownloadInfoSimple;
       AErrorLogger: ITileErrorLogger;
       AMapType: TMapType;
-      ARequest: ITileRequest;
-      ACancelNotifier: IOperationNotifier;
-      AOperationID: Integer
+      ARequest: ITileRequest
     );
     destructor Destroy; override;
 
@@ -96,8 +94,6 @@ type
     procedure SetDownloadRequest(AValue: ITileDownloadRequest);
     function  GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(AValue: IDownloadResult);
-    function  GetCancelNotifier: IOperationNotifier;
-    function GetOperationID: Integer;
   end;
 
 implementation
@@ -201,13 +197,11 @@ constructor TTileDownloaderEvent.Create(
   ADownloadInfo: IDownloadInfoSimple;
   AErrorLogger: ITileErrorLogger;
   AMapType: TMapType;
-  ARequest: ITileRequest;
-  ACancelNotifier: IOperationNotifier;
-  AOperationID: Integer
+  ARequest: ITileRequest
 );
 begin
   inherited Create;
-  FEventStatus := TEventStatus.Create(ACancelNotifier, AOperationID);
+  FEventStatus := TEventStatus.Create(ARequest.CancelNotifier, ARequest.OperationID);
   FDownloadInfo := ADownloadInfo;
   FErrorLogger := AErrorLogger;
   FMapType := AMapType;
@@ -337,11 +331,6 @@ begin
   Result := FRequest;
 end;
 
-function TTileDownloaderEvent.GetOperationID: Integer;
-begin
-  Result := FEventStatus.GetOperationID;
-end;
-
 procedure TTileDownloaderEvent.SetDownloadRequest(AValue: ITileDownloadRequest);
 begin
   FDownloadRequest := AValue;
@@ -360,11 +349,6 @@ end;
 function TTileDownloaderEvent.GetDownloadResult: IDownloadResult;
 begin
   Result := FDownloadResult;
-end;
-
-function TTileDownloaderEvent.GetCancelNotifier: IOperationNotifier;
-begin
-  Result := FEventStatus.Notifier;
 end;
 
 end.

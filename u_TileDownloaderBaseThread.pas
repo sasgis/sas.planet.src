@@ -194,8 +194,8 @@ begin
     try
       if (VTileDownloaderConfigStatic <> nil) and (FTileDownloadRequestBuilder <> nil) then begin
         try
-          FEvent.CancelNotifier.AddListener(FCancelListener);
-          if FEvent.CancelNotifier.IsOperationCanceled(FEvent.OperationID)then begin
+          FEvent.Request.CancelNotifier.AddListener(FCancelListener);
+          if FEvent.Request.CancelNotifier.IsOperationCanceled(FEvent.Request.OperationID)then begin
             FEvent.DownloadResult := nil;
           end else begin
             VCount := 0;
@@ -203,7 +203,7 @@ begin
             FWasConnectError := False;
             repeat
               SleepIfConnectErrorOrWaitInterval(VTileDownloaderConfigStatic);
-              if FEvent.CancelNotifier.IsOperationCanceled(FEvent.OperationID)then begin
+              if FEvent.Request.CancelNotifier.IsOperationCanceled(FEvent.Request.OperationID)then begin
                 FEvent.DownloadResult := nil;
                 Break;
               end;
@@ -211,15 +211,15 @@ begin
                 FEvent.Request,
                 FLastResponseInfo
               );
-              if FEvent.CancelNotifier.IsOperationCanceled(FEvent.OperationID)then begin
+              if FEvent.Request.CancelNotifier.IsOperationCanceled(FEvent.Request.OperationID)then begin
                 FEvent.DownloadResult := FResultFactory.BuildCanceled(VDownloadRequest);
                 Break;
               end;
               FEvent.DownloadResult :=
                 FHttpDownloader.DoRequest(
                   VDownloadRequest,
-                  FEvent.CancelNotifier,
-                  FEvent.OperationID
+                  FEvent.Request.CancelNotifier,
+                  FEvent.Request.OperationID
                 );
               Inc(VCount);
               FLastDownloadTime := GetTickCount;
@@ -238,7 +238,7 @@ begin
             until (not FWasConnectError) or (VCount >= VTryCount);
           end;
         finally
-          FEvent.CancelNotifier.RemoveListener(FCancelListener);
+          FEvent.Request.CancelNotifier.RemoveListener(FCancelListener);
         end;
       end;
     finally

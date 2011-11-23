@@ -186,9 +186,13 @@ begin
               FDownloadInfo,
               FErrorLogger,
               FMapType,
-              FMapType.GetRequest(ATile, AZoom, ACheckExistsTileSize),
-              ACancelNotifier,
-              AOperationID
+              FMapType.GetRequest(
+                ACancelNotifier,
+                AOperationID,
+                ATile,
+                AZoom,
+                ACheckExistsTileSize
+              )
             );
   Result.AddToCallBackList(ACallBack);
 end;

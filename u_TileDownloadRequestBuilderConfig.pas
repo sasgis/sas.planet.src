@@ -25,6 +25,7 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_CoordConverter,
   i_TileDownloadRequestBuilderConfig,
   u_ConfigDataElementBase;
 
@@ -33,13 +34,16 @@ type
   private
     FUrlBase: string;
     FRequestHeader: string;
+    FGeoCoder: ICoordConverter;
   protected
     function  GetUrlBase: string;
     function  GetRequestHeader: string;
+    function GetGeoCoder: ICoordConverter;
   public
     constructor Create(
       AUrlBase: string;
-      ARequestHeader: string
+      ARequestHeader: string;
+      AGeoCoder: ICoordConverter
     );
   end;
 
@@ -48,6 +52,7 @@ type
     FDefConfig: ITileDownloadRequestBuilderConfigStatic;
     FUrlBase: string;
     FRequestHeader: string;
+    FGeoCoder: ICoordConverter;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -57,6 +62,8 @@ type
 
     function  GetRequestHeader: string;
     procedure SetRequestHeader(AValue: string);
+
+    function GetGeoCoder: ICoordConverter;
   public
     constructor Create(ADefConfig: ITileDownloadRequestBuilderConfigStatic);
   end;
@@ -74,6 +81,7 @@ begin
   FDefConfig := ADefConfig;
   FUrlBase := FDefConfig.UrlBase;
   FRequestHeader := FDefConfig.RequestHeader;
+  FGeoCoder := ADefConfig.GeoCoder;
 end;
 
 procedure TTileDownloadRequestBuilderConfig.DoReadConfig(
@@ -116,6 +124,11 @@ begin
   end else begin
     AConfigData.DeleteValue('RequestHead');
   end;
+end;
+
+function TTileDownloadRequestBuilderConfig.GetGeoCoder: ICoordConverter;
+begin
+  Result := FGeoCoder;
 end;
 
 function TTileDownloadRequestBuilderConfig.GetRequestHeader: string;
@@ -166,11 +179,19 @@ end;
 
 { TTileDownloadRequestBuilderConfigStatic }
 
-constructor TTileDownloadRequestBuilderConfigStatic.Create(AUrlBase,
-  ARequestHeader: string);
+constructor TTileDownloadRequestBuilderConfigStatic.Create(
+  AUrlBase, ARequestHeader: string;
+  AGeoCoder: ICoordConverter
+);
 begin
   FUrlBase := AUrlBase;
   FRequestHeader := ARequestHeader;
+  FGeoCoder := AGeoCoder;
+end;
+
+function TTileDownloadRequestBuilderConfigStatic.GetGeoCoder: ICoordConverter;
+begin
+  Result := FGeoCoder;
 end;
 
 function TTileDownloadRequestBuilderConfigStatic.GetRequestHeader: string;

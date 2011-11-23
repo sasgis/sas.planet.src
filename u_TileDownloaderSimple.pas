@@ -22,6 +22,7 @@ type
     FHttpDownloader: ISimpleDownloader;
     FLastResponseInfo: ILastResponseInfo;
 
+    FCS: TCriticalSection;
     FCancelListener: IJclListener;
     FCancelEvent: TEvent;
     FWasConnectError: Boolean;
@@ -34,9 +35,7 @@ type
     );
   protected
     procedure Download(
-      ATileRequest: ITileRequest;
-      ACancelNotifier: IOperationNotifier;
-      AOperationID: Integer
+      ATileRequest: ITileRequest
     );
   public
     constructor Create(
@@ -45,6 +44,7 @@ type
       AHttpDownloader: ISimpleDownloader;
       ALastResponseInfo: ILastResponseInfo
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -72,15 +72,20 @@ begin
   FHttpDownloader := AHttpDownloader;
   FLastResponseInfo := ALastResponseInfo;
 
+  FCS := TCriticalSection.Create;
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
   FWasConnectError := False;
 end;
 
+destructor TTileDownloaderSimple.Destroy;
+begin
+  FreeAndNil(FCS);
+  inherited;
+end;
+
 procedure TTileDownloaderSimple.Download(
-  ATileRequest: ITileRequest;
-  ACancelNotifier: IOperationNotifier;
-  AOperationID: Integer
+  ATileRequest: ITileRequest
 );
 var
   VTileDownloaderConfigStatic: ITileDownloaderConfigStatic;
@@ -91,59 +96,64 @@ var
   VTryCount: Integer;
   VResultWithRespond: IDownloadResultWithServerRespond;
 begin
-  FCancelEvent.ResetEvent;
-  ACancelNotifier.AddListener(FCancelListener);
+  FCS.Acquire;
   try
-    if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      VTileRequestResult := nil;
-      ATileRequest.StartNotifier.Notify(ATileRequest);
-      try
-        VTileDownloaderConfigStatic := FTileDownloaderConfig.GetStatic;
-        VCount := 0;
-        VTryCount := VTileDownloaderConfigStatic.InetConfigStatic.DownloadTryCount;
-        repeat
-          SleepIfConnectErrorOrWaitInterval(VTileDownloaderConfigStatic);
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-            VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
-            Break;
-          end;
-          VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(
-            ATileRequest,
-            FLastResponseInfo
-          );
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-            VTileRequestResult := TTileRequestResultCanceledAfterBuildDownloadRequest.Create(VDownloadRequest);
-            Break;
-          end;
-          VDownloadResult :=
-            FHttpDownloader.DoRequest(
-              VDownloadRequest,
-              ACancelNotifier,
-              AOperationID
-            );
-          Inc(VCount);
-          FLastDownloadTime := GetTickCount;
-          if VDownloadResult <> nil then begin
-            if VDownloadResult.IsServerExists then begin
-              if Supports(VDownloadResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
-                FLastResponseInfo.ResponseHead := VResultWithRespond.RawResponseHeader;
-              end;
-            end else begin
-              FWasConnectError := True;
+    FCancelEvent.ResetEvent;
+    ATileRequest.CancelNotifier.AddListener(FCancelListener);
+    try
+      if not ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
+        VTileRequestResult := nil;
+        ATileRequest.StartNotifier.Notify(ATileRequest);
+        try
+          VTileDownloaderConfigStatic := FTileDownloaderConfig.GetStatic;
+          VCount := 0;
+          VTryCount := VTileDownloaderConfigStatic.InetConfigStatic.DownloadTryCount;
+          repeat
+            SleepIfConnectErrorOrWaitInterval(VTileDownloaderConfigStatic);
+            if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
+              VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
+              Break;
             end;
-          end;
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-            VTileRequestResult := TTileRequestResultCanceledAfterDownloadRequest.Create(VDownloadResult);
-            Break;
-          end;
-          VTileRequestResult := TTileRequestResultOk.Create(VDownloadResult);
-        until (not FWasConnectError) or (VCount >= VTryCount);
-      finally
-        ATileRequest.FinishNotifier.Notify(VTileRequestResult);
+            VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(
+              ATileRequest,
+              FLastResponseInfo
+            );
+            if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
+              VTileRequestResult := TTileRequestResultCanceledAfterBuildDownloadRequest.Create(VDownloadRequest);
+              Break;
+            end;
+            VDownloadResult :=
+              FHttpDownloader.DoRequest(
+                VDownloadRequest,
+                ATileRequest.CancelNotifier,
+                ATileRequest.OperationID
+              );
+            Inc(VCount);
+            FLastDownloadTime := GetTickCount;
+            if VDownloadResult <> nil then begin
+              if VDownloadResult.IsServerExists then begin
+                if Supports(VDownloadResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
+                  FLastResponseInfo.ResponseHead := VResultWithRespond.RawResponseHeader;
+                end;
+              end else begin
+                FWasConnectError := True;
+              end;
+            end;
+            if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
+              VTileRequestResult := TTileRequestResultCanceledAfterDownloadRequest.Create(VDownloadResult);
+              Break;
+            end;
+            VTileRequestResult := TTileRequestResultOk.Create(VDownloadResult);
+          until (not FWasConnectError) or (VCount >= VTryCount);
+        finally
+          ATileRequest.FinishNotifier.Notify(VTileRequestResult);
+        end;
       end;
+    finally
+      ATileRequest.CancelNotifier.RemoveListener(FCancelListener);
     end;
   finally
-    ACancelNotifier.RemoveListener(FCancelListener);
+    FCS.Release;
   end;
 end;
 

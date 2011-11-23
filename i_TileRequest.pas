@@ -29,6 +29,12 @@ type
 
     function GetFinishNotifier: IJclNotifier;
     property FinishNotifier: IJclNotifier read GetFinishNotifier;
+
+    function GetCancelNotifier: IOperationNotifier;
+    property CancelNotifier: IOperationNotifier read GetCancelNotifier;
+
+    function GetOperationID: Integer;
+    property OperationID: Integer read GetOperationID;
   end;
 
   ITileRequestWithSizeCheck = interface(ITileRequest)

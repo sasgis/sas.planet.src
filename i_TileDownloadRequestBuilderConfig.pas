@@ -23,7 +23,8 @@ unit i_TileDownloadRequestBuilderConfig;
 interface
 
 uses
-  i_ConfigDataElement;
+  i_ConfigDataElement,
+  i_CoordConverter;
 
 type
   ITileDownloadRequestBuilderConfigStatic = interface
@@ -33,6 +34,9 @@ type
 
     function  GetRequestHeader: string;
     property RequestHeader: string read GetRequestHeader;
+
+    function GetGeoCoder: ICoordConverter;
+    property GeoCoder: ICoordConverter read GetGeoCoder;
   end;
 
 
@@ -45,6 +49,9 @@ type
     function  GetRequestHeader: string;
     procedure SetRequestHeader(AValue: string);
     property RequestHeader: string read GetRequestHeader write SetRequestHeader;
+
+    function GetGeoCoder: ICoordConverter;
+    property GeoCoder: ICoordConverter read GetGeoCoder;
   end;
 
 implementation

@@ -25,6 +25,7 @@ interface
 uses
   Windows,
   Classes,
+  i_JclNotify,
   i_OperationNotifier,
   i_DownloadResult,
   i_LastResponseInfo,
@@ -40,10 +41,11 @@ type
   ITileDownloader = interface
     ['{EAF443E6-FC84-46A3-95AA-8217117A2A6B}']
     procedure Download(AEvent: ITileDownloaderEvent);
+
     function GetIsEnabled: Boolean;
     property Enabled: Boolean read GetIsEnabled;
   end;
-  
+
   ITileDownloaderEvent = interface
     ['{6AF695C6-FBCF-49FD-BDDE-04C4568D31F7}']
     procedure ProcessEvent;
@@ -56,12 +58,6 @@ type
     function GetDownloadResult: IDownloadResult;
     procedure SetDownloadResult(AValue: IDownloadResult);
     property DownloadResult: IDownloadResult read GetDownloadResult write SetDownloadResult;
-
-    function GetCancelNotifier: IOperationNotifier;
-    property CancelNotifier: IOperationNotifier read GetCancelNotifier;
-
-    function GetOperationID: Integer;
-    property OperationID: Integer read GetOperationID;
   end;
 
 implementation

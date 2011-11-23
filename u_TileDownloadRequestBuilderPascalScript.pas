@@ -49,7 +49,6 @@ type
 
   TTileDownloadRequestBuilderPascalScript = class(TTileDownloadRequestBuilder)
   private
-    FZmp: IZmpInfo;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCoordConverter: ICoordConverterSimple;
     FPascalScript: string;
@@ -80,10 +79,6 @@ type
     FpGetTMetr: PPSVariantDouble;
     FpGetBMetr: PPSVariantDouble;
     FpConverter: PPSVariantInterface;
-    procedure PrepareCoordConverter(
-      ACoordConverterFactory: ICoordConverterFactory;
-      AConfig: IConfigDataProvider
-    );
     procedure PreparePascalScript(AConfig: IConfigDataProvider);
     procedure SetVar(
       ALastResponseInfo: ILastResponseInfo;
@@ -101,8 +96,6 @@ type
       AZmp: IZmpInfo;
       AConfig: ITileDownloadRequestBuilderConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
-      AConfigData: IConfigDataProvider;
-      ACoordConverterFactory: ICoordConverterFactory;
       ALangManager: ILanguageManager
     );
     destructor Destroy; override;
@@ -131,21 +124,18 @@ constructor TTileDownloadRequestBuilderPascalScript.Create(
   AZmp: IZmpInfo;
   AConfig: ITileDownloadRequestBuilderConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
-  AConfigData: IConfigDataProvider;
-  ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager
 );
 begin
   inherited Create(AConfig);
-  FZmp := AZmp;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FLangManager := ALangManager;
 
   FLangListener := TNotifyEventListener.Create(Self.OnLangChange);
   FLangManager.GetChangeNotifier.Add(FLangListener);
 
-  PrepareCoordConverter(ACoordConverterFactory, AConfigData);
-  PreparePascalScript(AConfigData);
+  FCoordConverter := FConfig.GeoCoder as ICoordConverterSimple;
+  PreparePascalScript(AZmp.DataProvider);
 
   OnLangChange(nil);
 end;
@@ -200,19 +190,6 @@ begin
   finally
     Unlock;
   end;
-end;
-
-procedure TTileDownloadRequestBuilderPascalScript.PrepareCoordConverter(
-  ACoordConverterFactory: ICoordConverterFactory;
-  AConfig: IConfigDataProvider
-);
-var
-  VParams: IConfigDataProvider;
-  VCoordConverter: ICoordConverter;
-begin
-  VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
-  VCoordConverter := ACoordConverterFactory.GetCoordConverterByConfig(VParams);
-  FCoordConverter := VCoordConverter as ICoordConverterSimple;
 end;
 
 procedure TTileDownloadRequestBuilderPascalScript.PreparePascalScript(AConfig: IConfigDataProvider);

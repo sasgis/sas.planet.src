@@ -106,9 +106,7 @@ type
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
-    procedure LoadUrlScript(
-      ACoordConverterFactory: ICoordConverterFactory
-    );
+    procedure LoadUrlScript;
     procedure LoadDownloader(
       ACoordConverterFactory: ICoordConverterFactory;
       AInvisibleBrowser: IInvisibleBrowser
@@ -153,7 +151,13 @@ type
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
    public
     procedure SaveConfig(ALocalConfig: IConfigDataWriteProvider);
-    function GetRequest(AXY: TPoint; Azoom: byte; ACheckTileSize: Boolean): ITileRequest;
+    function GetRequest(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AXY: TPoint;
+      Azoom: byte;
+      ACheckTileSize: Boolean
+    ): ITileRequest;
     function GetLink(AXY: TPoint; Azoom: byte): string;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
@@ -275,9 +279,7 @@ uses
   u_TileStorageGE,
   u_TileStorageFileSystem;
 
-procedure TMapType.LoadUrlScript(
-  ACoordConverterFactory: ICoordConverterFactory
-);
+procedure TMapType.LoadUrlScript;
 begin
   FTileDownloadRequestBuilder := nil;
   FAbilitiesConfig.LockWrite;
@@ -289,8 +291,6 @@ begin
             FZmp,
             FTileDownloadRequestBuilderConfig,
             FTileDownloaderConfig,
-            Zmp.DataProvider,
-            ACoordConverterFactory,
             FLanguageManager
           );
       except
@@ -363,7 +363,6 @@ begin
           FTileDownloaderConfig,
           FTileDownloadRequestBuilderConfig,
           FZmp,
-          ACoordConverterFactory,
           FLanguageManager,
           AInvisibleBrowser
         );
@@ -406,7 +405,7 @@ begin
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := Zmp.ViewGeoConvert;
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
-  LoadUrlScript(ACoordConverterFactory);
+  LoadUrlScript;
   LoadDownloader(ACoordConverterFactory, AInvisibleBrowser);
 end;
 
@@ -417,7 +416,13 @@ var
 begin
   Result := '';
   if FAbilitiesConfig.UseDownload then begin
-    VRequest := GetRequest(AXY, Azoom, False);
+    VRequest := GetRequest(
+      nil,
+      0,
+      AXY,
+      Azoom,
+      False
+    );
     VDownloadRequest:= nil;
     if VRequest <> nil then begin
       VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(VRequest, nil);
@@ -433,14 +438,38 @@ begin
   Result := FStorage.NotifierByZoom[AZoom];
 end;
 
-function TMapType.GetRequest(AXY: TPoint; Azoom: byte; ACheckTileSize: Boolean): ITileRequest;
+function TMapType.GetRequest(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AXY: TPoint;
+  Azoom: byte;
+  ACheckTileSize: Boolean
+): ITileRequest;
 begin
   Result := nil;
   if FCoordConverter.CheckTilePosStrict(AXY, Azoom, False) then begin
     if ACheckTileSize then begin
-      Result := TTileRequestWithSizeCheck.Create(FZmp, AXY, Azoom, FVersionConfig.GetStatic, FDownloadChecker);
+      Result :=
+        TTileRequestWithSizeCheck.Create(
+          FZmp,
+          AXY,
+          Azoom,
+          FVersionConfig.GetStatic,
+          FDownloadChecker,
+          ACancelNotifier,
+          AOperationID
+        );
     end else begin
-      Result := TTileRequest.Create(FZmp, AXY, Azoom, FVersionConfig.GetStatic, FDownloadChecker);
+      Result :=
+        TTileRequest.Create(
+          FZmp,
+          AXY,
+          Azoom,
+          FVersionConfig.GetStatic,
+          FDownloadChecker,
+          ACancelNotifier,
+          AOperationID
+        );
     end;
   end;
 end;

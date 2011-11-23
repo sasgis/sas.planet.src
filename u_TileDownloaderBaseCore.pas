@@ -55,7 +55,6 @@ type
     FMaxConnectToServerCount: Cardinal;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
-    FCoordConverterFactory: ICoordConverterFactory;
     FLangManager: ILanguageManager;
     FSemaphore: THandle;
     FDownloadesList: array of TDownloaderRec;
@@ -71,7 +70,6 @@ type
       ATileDownloaderConfig: ITileDownloaderConfig;
       ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
       AZmp: IZmpInfo;
-      ACoordConverterFactory: ICoordConverterFactory;
       ALangManager: ILanguageManager;
       AInvisibleBrowser: IInvisibleBrowser
     );
@@ -94,7 +92,6 @@ constructor TTileDownloaderBaseCore.Create(
   ATileDownloaderConfig: ITileDownloaderConfig;
   ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
   AZmp: IZmpInfo;
-  ACoordConverterFactory: ICoordConverterFactory;
   ALangManager: ILanguageManager;
   AInvisibleBrowser: IInvisibleBrowser
 );
@@ -105,7 +102,6 @@ begin
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileDownloadRequestBuilderConfig := ATileDownloadRequestBuilderConfig;
   FZmp := AZmp;
-  FCoordConverterFactory := ACoordConverterFactory;
   FLangManager := ALangManager;
   FCS := TCriticalSection.Create;
   FMaxConnectToServerCount := FTileDownloaderConfig.MaxConnectToServerCount;
@@ -146,7 +142,6 @@ begin
     FZmp := nil;
     FTileDownloadRequestBuilderConfig := nil;
     FTileDownloaderConfig := nil;
-    FCoordConverterFactory := nil;
     FLangManager := nil;
   finally
     FSemaphore := 0;
@@ -162,8 +157,6 @@ begin
       FZmp,
       FTileDownloadRequestBuilderConfig,
       FTileDownloaderConfig,
-      FZmp.DataProvider,
-      FCoordConverterFactory,
       FLangManager
     );
     FEnabled := True;
