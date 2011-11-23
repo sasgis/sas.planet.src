@@ -133,7 +133,7 @@ begin
   VStatic := FStatic;
   VCount := FTileDownloaderConfig.MaxConnectToServerCount;
   VOldCount := 0;
-  if VStatic = nil then begin
+  if VStatic <> nil then begin
     VOldCount := VStatic.Count;
   end;
 

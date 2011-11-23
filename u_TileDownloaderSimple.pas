@@ -81,6 +81,7 @@ end;
 destructor TTileDownloaderSimple.Destroy;
 begin
   FreeAndNil(FCS);
+  FreeAndNil(FCancelEvent);
   inherited;
 end;
 
