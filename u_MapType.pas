@@ -41,6 +41,7 @@ uses
   i_CoordConverter,
   i_DownloadChecker,
   i_TileDownloader,
+  i_TileDownloaderAsync,
   i_LastResponseInfo,
   i_MapVersionConfig,
   i_TileRequest,
@@ -100,7 +101,8 @@ type
     FGUIConfig: IMapTypeGUIConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
-    FTileDownloader: TTileDownloaderFrontEnd;
+    FTileDownloader: ITileDownloader;
+    FTileDownloaderFrontEnd: TTileDownloaderFrontEnd;
     FDownloadChecker: ITileDownloadChecker;
 
     function GetIsBitmapTiles: Boolean;
@@ -108,6 +110,7 @@ type
     function GetIsHybridLayer: Boolean;
     procedure LoadUrlScript;
     procedure LoadDownloader(
+      AGCList: ITTLCheckNotifier;
       ACoordConverterFactory: ICoordConverterFactory;
       AInvisibleBrowser: IInvisibleBrowser
     );
@@ -229,6 +232,7 @@ type
     property IsKmlTiles: Boolean read GetIsKmlTiles;
     property IsHybridLayer: Boolean read GetIsHybridLayer;
 
+    property TileDownloader: ITileDownloader read FTileDownloader;
     property TileStorage: TTileStorageAbstract read FStorage;
     property GUIConfig: IMapTypeGUIConfig read FGUIConfig;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
@@ -263,6 +267,9 @@ uses
   GR32_Resamplers,
   i_TileInfoBasic,
   i_ContentConverter,
+  i_TileDownloaderList,
+  u_TileDownloaderList,
+  u_TileDownloaderWithQueue,
   u_AntiBanStuped,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
@@ -341,9 +348,12 @@ begin
 end;
 
 procedure TMapType.LoadDownloader(
+  AGCList: ITTLCheckNotifier;
   ACoordConverterFactory: ICoordConverterFactory;
   AInvisibleBrowser: IInvisibleBrowser
 );
+var
+  VDownloaderList: ITileDownloaderList;
 begin
   FAbilitiesConfig.LockWrite;
   try
@@ -359,14 +369,27 @@ begin
           FStorageConfig,
           FStorage
         );
-        FTileDownloader := TTileDownloaderFrontEnd.Create(
+        VDownloaderList :=
+          TTileDownloaderList.Create(
+            AGCList,
+            FDownloadResultFactory,
+            FTileDownloaderConfig,
+            FTileDownloadRequestBuilderConfig,
+            FZmp,
+            FLanguageManager
+          );
+          FTileDownloader := TTileDownloaderWithQueue.Create(
+            AGCList,
+            256
+          );
+        FTileDownloaderFrontEnd := TTileDownloaderFrontEnd.Create(
           FTileDownloaderConfig,
           FTileDownloadRequestBuilderConfig,
           FZmp,
           FLanguageManager,
           AInvisibleBrowser
         );
-        FAbilitiesConfig.UseDownload := FTileDownloader.Enabled;
+        FAbilitiesConfig.UseDownload := FTileDownloaderFrontEnd.Enabled;
       except
         if ExceptObject <> nil then begin
           ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
@@ -406,7 +429,11 @@ begin
   FViewCoordConverter := Zmp.ViewGeoConvert;
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
   LoadUrlScript;
-  LoadDownloader(ACoordConverterFactory, AInvisibleBrowser);
+  LoadDownloader(
+    AGCList,
+    ACoordConverterFactory,
+    AInvisibleBrowser
+  );
 end;
 
 function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
@@ -699,7 +726,7 @@ begin
   FCacheBitmap := nil;
   FCacheVector := nil;
   FreeAndNil(FStorage);
-  FreeAndNil(FTileDownloader);
+  FreeAndNil(FTileDownloaderFrontEnd);
   inherited;
 end;
 
@@ -708,7 +735,7 @@ begin
   Assert(AEvent <> nil);
   if Assigned(AEvent) then begin
     if FAbilitiesConfig.UseDownload then begin
-      FTileDownloader.Download(AEvent);
+      FTileDownloaderFrontEnd.Download(AEvent);
     end else begin
       raise Exception.Create('Для этой карты загрузка запрещена.');
     end;
