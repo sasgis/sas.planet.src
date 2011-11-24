@@ -378,10 +378,11 @@ begin
             FZmp,
             FLanguageManager
           );
-          FTileDownloader := TTileDownloaderWithQueue.Create(
-            AGCList,
-            256
-          );
+        FTileDownloader := TTileDownloaderWithQueue.Create(
+          VDownloaderList,
+          AGCList,
+          256
+        );
         FTileDownloaderFrontEnd := TTileDownloaderFrontEnd.Create(
           FTileDownloaderConfig,
           FTileDownloadRequestBuilderConfig,

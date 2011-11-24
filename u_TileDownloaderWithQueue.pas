@@ -6,6 +6,7 @@ uses
   Windows,
   i_TileRequest,
   i_TileRequestQueue,
+  i_TileDownloaderList,
   i_TileDownloaderAsync,
   i_ITileRequestProcessorPool,
   i_TTLCheckNotifier;
@@ -21,6 +22,7 @@ type
     );
   public
     constructor Create(
+      ATileDownloaderList: ITileDownloaderList;
       AGCList: ITTLCheckNotifier;
       AQueueCapacity: Integer
     );
@@ -29,13 +31,25 @@ type
 
 implementation
 
+uses
+  u_TileRequestQueue,
+  u_TileRequestProcessorPool;
+
 { TTileDownloaderWithQueue }
 
 constructor TTileDownloaderWithQueue.Create(
+  ATileDownloaderList: ITileDownloaderList;
   AGCList: ITTLCheckNotifier;
   AQueueCapacity: Integer
 );
 begin
+  FQueue := TTileRequestQueue.Create(AGCList, AQueueCapacity);
+  FSyncTileRequestProcessorPull :=
+    TTileRequestProcessorPool.Create(
+      AGCList,
+      FQueue,
+      ATileDownloaderList
+    );
 end;
 
 destructor TTileDownloaderWithQueue.Destroy;
