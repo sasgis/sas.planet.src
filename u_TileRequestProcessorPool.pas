@@ -92,6 +92,7 @@ var
   VDownloaderList: ITileDownloaderListStatic;
   i: Integer;
 begin
+  FTTLListener.UpdateUseTime;
   if FThreadArray = nil then begin
     FCS.Acquire;
     try

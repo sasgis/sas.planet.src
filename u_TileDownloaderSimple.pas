@@ -24,15 +24,18 @@ type
 
     FCS: TCriticalSection;
     FCancelListener: IJclListener;
+    FConfigChangeListener: IJclListener;
     FCancelEvent: TEvent;
     FWasConnectError: Boolean;
     FLastDownloadTime: Cardinal;
 
+    FDownloadTryCount: Integer;
+    FSleepOnResetConnection: Cardinal;
+    FSleepAfterDownload: Cardinal;
+    procedure OnConfigChange(Sender: TObject);
     procedure OnCancelEvent(Sender: TObject);
     procedure SleepCancelable(ATime: Cardinal);
-    procedure SleepIfConnectErrorOrWaitInterval(
-      ATileDownloaderConfigStatic: ITileDownloaderConfigStatic
-    );
+    procedure SleepIfConnectErrorOrWaitInterval;
   protected
     procedure Download(
       ATileRequest: ITileRequest
@@ -53,6 +56,7 @@ uses
   SysUtils,
   i_InetConfig,
   i_DownloadResult,
+  i_TileDownloadChecker,
   i_TileDownloadRequest,
   i_TileRequestResult,
   u_NotifyEventListener,
@@ -75,11 +79,17 @@ begin
   FCS := TCriticalSection.Create;
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
+  FConfigChangeListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  FTileDownloaderConfig.ChangeNotifier.Add(FConfigChangeListener);
   FWasConnectError := False;
 end;
 
 destructor TTileDownloaderSimple.Destroy;
 begin
+  FTileDownloaderConfig.ChangeNotifier.Remove(FConfigChangeListener);
+  FConfigChangeListener := nil;
+  FTileDownloaderConfig := nil;
+
   FreeAndNil(FCS);
   FreeAndNil(FCancelEvent);
   inherited;
@@ -89,78 +99,97 @@ procedure TTileDownloaderSimple.Download(
   ATileRequest: ITileRequest
 );
 var
-  VTileDownloaderConfigStatic: ITileDownloaderConfigStatic;
   VDownloadRequest: ITileDownloadRequest;
   VTileRequestResult: ITileRequestResult;
   VDownloadResult: IDownloadResult;
   VCount: Integer;
   VTryCount: Integer;
   VResultWithRespond: IDownloadResultWithServerRespond;
+  VTileRequestWithChecker: ITileRequestWithChecker;
 begin
-  FCS.Acquire;
+  ATileRequest.StartNotifier.Notify(ATileRequest);
   try
-    FCancelEvent.ResetEvent;
-    ATileRequest.CancelNotifier.AddListener(FCancelListener);
-    try
-      if not ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
-        VTileRequestResult := nil;
-        ATileRequest.StartNotifier.Notify(ATileRequest);
-        try
-          VTileDownloaderConfigStatic := FTileDownloaderConfig.GetStatic;
-          VCount := 0;
-          VTryCount := VTileDownloaderConfigStatic.InetConfigStatic.DownloadTryCount;
-          repeat
-            SleepIfConnectErrorOrWaitInterval(VTileDownloaderConfigStatic);
-            if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
-              VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
-              Break;
-            end;
-            VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(
-              ATileRequest,
-              FLastResponseInfo
-            );
-            if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
-              VTileRequestResult := TTileRequestResultCanceledAfterBuildDownloadRequest.Create(VDownloadRequest);
-              Break;
-            end;
-            VDownloadResult :=
-              FHttpDownloader.DoRequest(
-                VDownloadRequest,
-                ATileRequest.CancelNotifier,
-                ATileRequest.OperationID
-              );
-            Inc(VCount);
-            FLastDownloadTime := GetTickCount;
-            if VDownloadResult <> nil then begin
-              if VDownloadResult.IsServerExists then begin
-                if Supports(VDownloadResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
-                  FLastResponseInfo.ResponseHead := VResultWithRespond.RawResponseHeader;
+    if not ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
+      FCS.Acquire;
+      try
+        if not ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
+          FCancelEvent.ResetEvent;
+          ATileRequest.CancelNotifier.AddListener(FCancelListener);
+          try
+            if not ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
+              VTileRequestResult := nil;
+              VCount := 0;
+              VTryCount := FDownloadTryCount;
+              repeat
+                SleepIfConnectErrorOrWaitInterval;
+                if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
+                  VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
+                  Break;
                 end;
-              end else begin
-                FWasConnectError := True;
-              end;
+                VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(
+                  ATileRequest,
+                  FLastResponseInfo
+                );
+                if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
+                  VTileRequestResult := TTileRequestResultCanceledAfterBuildDownloadRequest.Create(VDownloadRequest);
+                  Break;
+                end;
+                VDownloadResult :=
+                  FHttpDownloader.DoRequest(
+                    VDownloadRequest,
+                    ATileRequest.CancelNotifier,
+                    ATileRequest.OperationID
+                  );
+                Inc(VCount);
+                FLastDownloadTime := GetTickCount;
+                if VDownloadResult <> nil then begin
+                  if VDownloadResult.IsServerExists then begin
+                    FWasConnectError := False;
+                    if Supports(VDownloadResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
+                      FLastResponseInfo.ResponseHead := VResultWithRespond.RawResponseHeader;
+                    end;
+                  end else begin
+                    FWasConnectError := True;
+                  end;
+                end;
+                if Supports(ATileRequest, ITileRequestWithChecker, VTileRequestWithChecker) then begin
+                  VTileRequestWithChecker.Checker.AfterDownload(VDownloadResult);
+                end;
+                VTileRequestResult := TTileRequestResultOk.Create(VDownloadResult);
+              until (not FWasConnectError) or (VCount >= VTryCount);
+            end else begin
+              VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
             end;
-            if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
-              VTileRequestResult := TTileRequestResultCanceledAfterDownloadRequest.Create(VDownloadResult);
-              Break;
-            end;
-            VTileRequestResult := TTileRequestResultOk.Create(VDownloadResult);
-          until (not FWasConnectError) or (VCount >= VTryCount);
-        finally
-          ATileRequest.FinishNotifier.Notify(VTileRequestResult);
+          finally
+            ATileRequest.CancelNotifier.RemoveListener(FCancelListener);
+          end;
+        end else begin
+          VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
         end;
+      finally
+        FCS.Release;
       end;
-    finally
-      ATileRequest.CancelNotifier.RemoveListener(FCancelListener);
+    end else begin
+      VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
     end;
   finally
-    FCS.Release;
+    ATileRequest.FinishNotifier.Notify(VTileRequestResult);
   end;
 end;
 
 procedure TTileDownloaderSimple.OnCancelEvent(Sender: TObject);
 begin
   FCancelEvent.SetEvent;
+end;
+
+procedure TTileDownloaderSimple.OnConfigChange(Sender: TObject);
+var
+  VTileDownloaderConfigStatic: ITileDownloaderConfigStatic;
+begin
+  VTileDownloaderConfigStatic := FTileDownloaderConfig.GetStatic;
+  FDownloadTryCount := VTileDownloaderConfigStatic.InetConfigStatic.DownloadTryCount;
+  FSleepOnResetConnection := VTileDownloaderConfigStatic.InetConfigStatic.SleepOnResetConnection;
+  FSleepAfterDownload := VTileDownloaderConfigStatic.WaitInterval;
 end;
 
 procedure TTileDownloaderSimple.SleepCancelable(ATime: Cardinal);
@@ -170,32 +199,30 @@ begin
   end;
 end;
 
-procedure TTileDownloaderSimple.SleepIfConnectErrorOrWaitInterval(
-  ATileDownloaderConfigStatic: ITileDownloaderConfigStatic
-);
+procedure TTileDownloaderSimple.SleepIfConnectErrorOrWaitInterval;
 var
   VNow: Cardinal;
   VTimeFromLastDownload: Cardinal;
   VSleepTime: Cardinal;
-  VInetConfig: IInetConfigStatic;
+  VInterval: Cardinal;
 begin
-  VInetConfig := ATileDownloaderConfigStatic.InetConfigStatic;
   VNow := GetTickCount;
+
   if VNow >= FLastDownloadTime then begin
     VTimeFromLastDownload := VNow - FLastDownloadTime;
   end else begin
     VTimeFromLastDownload := MaxInt;
   end;
+
   if FWasConnectError then begin
-    if VTimeFromLastDownload < VInetConfig.SleepOnResetConnection then begin
-      VSleepTime := VInetConfig.SleepOnResetConnection - VTimeFromLastDownload;
-      SleepCancelable(VSleepTime);
-    end;
+    VInterval := FSleepOnResetConnection;
   end else begin
-    if VTimeFromLastDownload < ATileDownloaderConfigStatic.WaitInterval then begin
-      VSleepTime := ATileDownloaderConfigStatic.WaitInterval - VTimeFromLastDownload;
-      SleepCancelable(VSleepTime);
-    end;
+    VInterval := FSleepAfterDownload;
+  end;
+
+  if VTimeFromLastDownload < VInterval then begin
+    VSleepTime := VInterval - VTimeFromLastDownload;
+    SleepCancelable(VSleepTime);
   end;
 end;
 
