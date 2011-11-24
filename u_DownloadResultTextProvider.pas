@@ -44,7 +44,7 @@ type
     FMessageNoConnetctToServerByErrorCode: string;
     FMessageUnexpectedProxyAuth: string;
 
-    procedure OnLangChange(Sender: TObject);
+    procedure OnLangChange;
   protected
     function GetMessageBadContentType: string;
     function GetMessageBadProxyAuth: string;
@@ -74,10 +74,10 @@ uses
 constructor TDownloadResultTextProvider.Create(ALangManager: ILanguageManager);
 begin
   FLangManager := ALangManager;
-  FLangListener := TNotifyEventListener.Create(Self.OnLangChange);
+  FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLangManager.GetChangeNotifier.Add(FLangListener);
 
-  OnLangChange(nil);
+  OnLangChange;
 end;
 
 destructor TDownloadResultTextProvider.Destroy;
@@ -138,7 +138,7 @@ begin
   Result := FMessageUnexpectedProxyAuth;
 end;
 
-procedure TDownloadResultTextProvider.OnLangChange(Sender: TObject);
+procedure TDownloadResultTextProvider.OnLangChange;
 begin
   FMessageBadContentType := _('Server returned unexpected type "%0:s"');
   FMessageBadProxyAuth := _('Proxy authorization error');

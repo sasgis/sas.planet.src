@@ -25,8 +25,8 @@ type
     FHideAfterTime: Cardinal;
     FErrorInfo: ITileErrorInfo;
 
-    procedure OnTimer(Sender: TObject);
-    procedure OnErrorRecive(Sender: TObject);
+    procedure OnTimer;
+    procedure OnErrorRecive;
   protected
     function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
     procedure DoHide; override;
@@ -74,11 +74,11 @@ begin
   FLayer.Bitmap.SetSize(VBitmapSize.X, VBitmapSize.Y);
   DoUpdateLayerSize(VBitmapSize);
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnErrorRecive),
+    TNotifyNoMmgEventListener.Create(Self.OnErrorRecive),
     FLogProvider.GetNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
+    TNotifyNoMmgEventListener.Create(Self.OnTimer),
     FTimerNoifier
   );
 end;
@@ -136,12 +136,12 @@ begin
   end;
 end;
 
-procedure TTileErrorInfoLayer.OnErrorRecive(Sender: TObject);
+procedure TTileErrorInfoLayer.OnErrorRecive;
 begin
   InterlockedIncrement(FNeedUpdateCounter);
 end;
 
-procedure TTileErrorInfoLayer.OnTimer(Sender: TObject);
+procedure TTileErrorInfoLayer.OnTimer;
 var
   VCounter: Integer;
   VErrorInfo: ITileErrorInfo;

@@ -37,7 +37,7 @@ type
 
     FGlobalCacheConfig: TGlobalCahceConfig;
     FGlobalSettingsListener: IJclListener;
-    procedure OnSettingsEdit(Sender: TObject); virtual; abstract;
+    procedure OnSettingsEdit; virtual; abstract;
   protected
     FEffectiveCacheType: Byte;
     FBasePath: String;
@@ -58,7 +58,7 @@ type
   TMapTypeCacheConfig = class(TMapTypeCacheConfigAbstract)
   private
     FTileNameGeneratorList: ITileFileNameGeneratorsList;
-    procedure OnSettingsEdit(Sender: TObject); override;
+    procedure OnSettingsEdit; override;
   public
     constructor Create(
       AConfig: ISimpleTileStorageConfig;
@@ -69,7 +69,7 @@ type
 
   TMapTypeCacheConfigGE = class(TMapTypeCacheConfigAbstract)
   protected
-    procedure OnSettingsEdit(Sender: TObject); override;
+    procedure OnSettingsEdit; override;
   public
     constructor Create(
       AConfig: ISimpleTileStorageConfig;
@@ -98,7 +98,7 @@ begin
   FGlobalCacheConfig := AGlobalCacheConfig;
   FConfigChangeNotifier := TJclBaseNotifier.Create;
 
-  FGlobalSettingsListener := TNotifyEventListener.Create(Self.OnSettingsEdit);
+  FGlobalSettingsListener := TNotifyNoMmgEventListener.Create(Self.OnSettingsEdit);
   FGlobalCacheConfig.CacheChangeNotifier.Add(FGlobalSettingsListener);
   FConfig.ChangeNotifier.Add(FGlobalSettingsListener);
 end;
@@ -128,10 +128,10 @@ constructor TMapTypeCacheConfig.Create(
 begin
   inherited Create(AConfig, AGlobalCacheConfig);
   FTileNameGeneratorList := ATileNameGeneratorList;
-  OnSettingsEdit(nil);
+  OnSettingsEdit;
 end;
 
-procedure TMapTypeCacheConfig.OnSettingsEdit(Sender: TObject);
+procedure TMapTypeCacheConfig.OnSettingsEdit;
 var
   VCacheType: Byte;
   VBasePath: string;
@@ -182,10 +182,10 @@ constructor TMapTypeCacheConfigGE.Create(
 );
 begin
   inherited Create(AConfig, AGlobalCacheConfig);
-  OnSettingsEdit(nil);
+  OnSettingsEdit;
 end;
 
-procedure TMapTypeCacheConfigGE.OnSettingsEdit(Sender: TObject);
+procedure TMapTypeCacheConfigGE.OnSettingsEdit;
 var
   VBasePath: string;
 begin

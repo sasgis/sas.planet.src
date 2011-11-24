@@ -30,7 +30,7 @@ type
     FGotoPos: IGotoPosStatic;
     FShowTimeDelta: TDateTime;
 
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
   protected
     function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
@@ -77,7 +77,7 @@ begin
   FMarkerProvider := AMarkerProvider;
   FMapGoto := AMapGoto;
 
-  VListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  VListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   LinksList.Add(
     VListener,
     FConfig.GetChangeNotifier
@@ -126,7 +126,7 @@ begin
   end;
 end;
 
-procedure TGotoLayer.OnConfigChange(Sender: TObject);
+procedure TGotoLayer.OnConfigChange;
 var
   VMarker: IBitmapMarker;
 begin
@@ -175,7 +175,7 @@ end;
 procedure TGotoLayer.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

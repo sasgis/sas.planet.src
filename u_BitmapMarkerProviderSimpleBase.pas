@@ -77,7 +77,7 @@ type
 
     FConfigChangeListener: IJclListener;
     FChangeNotifier: IJclNotifier;
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
   protected
     function GetStatic: IBitmapMarkerProvider;
     function GetChangeNotifier: IJclNotifier;
@@ -187,11 +187,11 @@ begin
   FProviderClass := AProviderClass;
   FConfig := AConfig;
 
-  FConfigChangeListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.GetChangeNotifier.Add(FConfigChangeListener);
 
   FChangeNotifier := TJclBaseNotifier.Create;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 destructor TBitmapMarkerProviderChangeableWithConfig.Destroy;
@@ -212,8 +212,7 @@ begin
   Result := FProviderStatic;
 end;
 
-procedure TBitmapMarkerProviderChangeableWithConfig.OnConfigChange(
-  Sender: TObject);
+procedure TBitmapMarkerProviderChangeableWithConfig.OnConfigChange;
 begin
   FProviderStatic := FProviderClass.CreateProvider(FConfig.GetStatic);
   FChangeNotifier.Notify(nil);

@@ -35,7 +35,7 @@ type
   private
     FMapActive: IActiveMapSingle;
     FListener: IJclListener;
-    procedure OnMapChangeState(Sender: TObject);
+    procedure OnMapChangeState;
     procedure AdjustFont(Item: TTBCustomItem;
       Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
   public
@@ -56,9 +56,9 @@ begin
   inherited Create(AOwner);
   FMapActive := AMapActive;
   OnAdjustFont := Self.AdjustFont;
-  FListener := TNotifyEventListener.Create(Self.OnMapChangeState);
+  FListener := TNotifyNoMmgEventListener.Create(Self.OnMapChangeState);
   FMapActive.GetChangeNotifier.Add(FListener);
-  OnMapChangeState(nil);
+  OnMapChangeState;
 end;
 
 destructor TActiveMapTBXItem.Destroy;
@@ -78,7 +78,7 @@ begin
   end;
 end;
 
-procedure TActiveMapTBXItem.OnMapChangeState(Sender: TObject);
+procedure TActiveMapTBXItem.OnMapChangeState;
 begin
   Self.Checked := FMapActive.GetIsActive;
 end;

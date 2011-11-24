@@ -32,8 +32,8 @@ type
     FDownloadTryCount: Integer;
     FSleepOnResetConnection: Cardinal;
     FSleepAfterDownload: Cardinal;
-    procedure OnConfigChange(Sender: TObject);
-    procedure OnCancelEvent(Sender: TObject);
+    procedure OnConfigChange;
+    procedure OnCancelEvent;
     procedure SleepCancelable(ATime: Cardinal);
     procedure SleepIfConnectErrorOrWaitInterval;
   protected
@@ -78,8 +78,8 @@ begin
 
   FCS := TCriticalSection.Create;
   FCancelEvent := TEvent.Create;
-  FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
-  FConfigChangeListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
+  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FTileDownloaderConfig.ChangeNotifier.Add(FConfigChangeListener);
   FWasConnectError := False;
 end;
@@ -177,12 +177,12 @@ begin
   end;
 end;
 
-procedure TTileDownloaderSimple.OnCancelEvent(Sender: TObject);
+procedure TTileDownloaderSimple.OnCancelEvent;
 begin
   FCancelEvent.SetEvent;
 end;
 
-procedure TTileDownloaderSimple.OnConfigChange(Sender: TObject);
+procedure TTileDownloaderSimple.OnConfigChange;
 var
   VTileDownloaderConfigStatic: ITileDownloaderConfigStatic;
 begin

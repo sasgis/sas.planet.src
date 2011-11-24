@@ -41,8 +41,8 @@ type
 
     FTileUpdateCounter: Integer;
     FTileChangeListener: IJclListener;
-    procedure OnTileChange(Sender: TObject);
-    procedure OnTimer(Sender: TObject);
+    procedure OnTileChange;
+    procedure OnTimer;
 
     procedure ElementsClear;
     procedure DrawWikiElement(
@@ -71,8 +71,8 @@ type
       AElments: IInterfaceList;
       ALocalConverter: ILocalCoordConverter
     );
-    procedure OnConfigChange(Sender: TObject);
-    procedure OnLayerSetChange(Sender: TObject);
+    procedure OnConfigChange;
+    procedure OnLayerSetChange;
     procedure GetBitmapRect(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
@@ -155,19 +155,19 @@ begin
   FLayersSet := ALayersSet;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnLayerSetChange),
+    TNotifyNoMmgEventListener.Create(Self.OnLayerSetChange),
     FLayersSet.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
+    TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
-  FTileChangeListener := TNotifyEventListener.Create(Self.OnTileChange);
+  FTileChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileChange);
   FTileUpdateCounter := 0;
 
   FElments := TInterfaceList.Create;
@@ -380,13 +380,13 @@ begin
   end;
 end;
 
-procedure TWikiLayer.OnConfigChange(Sender: TObject);
+procedure TWikiLayer.OnConfigChange;
 begin
   SetNeedRedraw;
   ViewUpdate;
 end;
 
-procedure TWikiLayer.OnLayerSetChange(Sender: TObject);
+procedure TWikiLayer.OnLayerSetChange;
 var
   VOldLayersSet: IMapTypeSet;
   VNewLayersSet: IMapTypeSet;
@@ -454,12 +454,12 @@ begin
   ViewUpdate;
 end;
 
-procedure TWikiLayer.OnTileChange(Sender: TObject);
+procedure TWikiLayer.OnTileChange;
 begin
   InterlockedIncrement(FTileUpdateCounter);
 end;
 
-procedure TWikiLayer.OnTimer(Sender: TObject);
+procedure TWikiLayer.OnTimer;
 begin
   if InterlockedExchange(FTileUpdateCounter, 0) > 0 then begin
     ViewUpdateLock;
@@ -561,7 +561,7 @@ end;
 procedure TWikiLayer.StartThreads;
 begin
   inherited;
-  OnLayerSetChange(nil);
+  OnLayerSetChange;
 end;
 
 procedure TWikiLayer.DrawBitmap(

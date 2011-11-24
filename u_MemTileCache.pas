@@ -29,8 +29,8 @@ type
 
     FCacheList: TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
-    procedure OnChangeConfig(Sender: TObject);
-    procedure OnTileStorageChange(Sender: TObject);
+    procedure OnChangeConfig;
+    procedure OnTileStorageChange;
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
     procedure OnTTLTrim(Sender: TObject);
   protected
@@ -86,13 +86,13 @@ var
 begin
   FConfig := AConfig;
   FGCList := AGCList;
-  FConfigListener := TNotifyEventListener.Create(Self.OnChangeConfig);
+  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnChangeConfig);
   FConfig.GetChangeNotifier.Add(FConfigListener);
 
   if ATileStorage <> nil then begin
     FTileStorage := ATileStorage;
     FCoordConverter := ACoordConverter;
-    FStorageChangeListener := TNotifyEventListener.Create(Self.OnTileStorageChange);
+    FStorageChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileStorageChange);
     for i := FCoordConverter.MinZoom to FCoordConverter.MaxZoom do begin
       VNotifier := FTileStorage.NotifierByZoom[i];
       if VNotifier <> nil then begin
@@ -180,7 +180,7 @@ begin
   FTTLListener.UpdateUseTime;
 end;
 
-procedure TMemTileCacheBase.OnChangeConfig(Sender: TObject);
+procedure TMemTileCacheBase.OnChangeConfig;
 var
   VNewSize: Integer;
   i: Integer;
@@ -202,7 +202,7 @@ begin
   end;
 end;
 
-procedure TMemTileCacheBase.OnTileStorageChange(Sender: TObject);
+procedure TMemTileCacheBase.OnTileStorageChange;
 begin
   Clear;
 end;

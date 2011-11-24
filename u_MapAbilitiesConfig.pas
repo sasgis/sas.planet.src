@@ -44,7 +44,7 @@ type
 
     FStatic: IMapAbilitiesConfigStatic;
     function CreateStatic: IMapAbilitiesConfigStatic;
-    procedure OnStorageConfigChange(Sender: TObject);
+    procedure OnStorageConfigChange;
   protected
     procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -95,7 +95,7 @@ begin
   FIsUseGenPrevious := FDefConfig.IsUseGenPrevious;
   FUseDownload := FDefConfig.UseDownload;
 
-  FStorageConfigListener := TNotifyEventListener.Create(Self.OnStorageConfigChange);
+  FStorageConfigListener := TNotifyNoMmgEventListener.Create(Self.OnStorageConfigChange);
   FStorageConfig.GetChangeNotifier.Add(FStorageConfigListener);
   FStatic := CreateStatic;
 end;
@@ -220,7 +220,7 @@ begin
   end;
 end;
 
-procedure TMapAbilitiesConfig.OnStorageConfigChange(Sender: TObject);
+procedure TMapAbilitiesConfig.OnStorageConfigChange;
 begin
   LockWrite;
   try

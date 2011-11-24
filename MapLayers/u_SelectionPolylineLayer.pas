@@ -81,7 +81,7 @@ begin
   FConfig := AConfig;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
 end;

@@ -30,9 +30,9 @@ type
     FGpsPosChangeCounter: Integer;
     FPoints: TGPSTrackPointArray;
     FPolygon: TPolygon32;
-    procedure OnConfigChange(Sender: TObject);
-    procedure OnGPSRecorderChange(Sender: TObject);
-    procedure OnTimer(Sender: TObject);
+    procedure OnConfigChange;
+    procedure OnGPSRecorderChange;
+    procedure OnTimer;
     procedure DrawPath(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
@@ -109,15 +109,15 @@ begin
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
+    TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnGPSRecorderChange),
+    TNotifyNoMmgEventListener.Create(Self.OnGPSRecorderChange),
     FGPSRecorder.GetChangeNotifier
   );
 
@@ -367,7 +367,7 @@ begin
   end;
 end;
 
-procedure TMapGPSLayer.OnConfigChange(Sender: TObject);
+procedure TMapGPSLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -379,12 +379,12 @@ begin
   ViewUpdate;
 end;
 
-procedure TMapGPSLayer.OnGPSRecorderChange(Sender: TObject);
+procedure TMapGPSLayer.OnGPSRecorderChange;
 begin
   InterlockedIncrement(FGpsPosChangeCounter);
 end;
 
-procedure TMapGPSLayer.OnTimer(Sender: TObject);
+procedure TMapGPSLayer.OnTimer;
 begin
   if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
     ViewUpdateLock;
@@ -400,7 +400,7 @@ end;
 procedure TMapGPSLayer.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

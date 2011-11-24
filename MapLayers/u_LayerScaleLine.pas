@@ -16,7 +16,7 @@ type
   TLayerScaleLine = class(TWindowLayerFixedSizeWithBitmap)
   private
     FConfig: IScaleLineConfig;
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     function GetMapLayerLocationRect: TFloatRect; override;
@@ -59,7 +59,7 @@ begin
   inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
 
@@ -142,7 +142,7 @@ begin
   Result.Top := Result.Bottom - VSize.Y;
 end;
 
-procedure TLayerScaleLine.OnConfigChange(Sender: TObject);
+procedure TLayerScaleLine.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -164,7 +164,7 @@ end;
 procedure TLayerScaleLine.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

@@ -37,8 +37,8 @@ type
     FValueConverter: IValueToStringConverter;
 
     FLastValue: Double;
-    procedure OnConverterConfigChange(Sender: TObject);
-    procedure OnRecorderChanged(Sender: TObject);
+    procedure OnConverterConfigChange;
+    procedure OnRecorderChanged;
   protected
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property ValueConverter: IValueToStringConverter read FValueConverter;
@@ -78,17 +78,17 @@ begin
   FValueConverterConfig := AValueConverterConfig;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnRecorderChanged),
+    TNotifyNoMmgEventListener.Create(Self.OnRecorderChanged),
     FGPSRecorder.GetChangeNotifier
   );
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConverterConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConverterConfigChange),
     FValueConverterConfig.GetChangeNotifier
   );
 
-  OnConverterConfigChange(nil);
-  OnRecorderChanged(nil);
+  OnConverterConfigChange;
+  OnRecorderChanged;
 end;
 
 function TSensorTextFromGPSRecorder.GetText: string;
@@ -104,7 +104,7 @@ begin
   end;
 end;
 
-procedure TSensorTextFromGPSRecorder.OnConverterConfigChange(Sender: TObject);
+procedure TSensorTextFromGPSRecorder.OnConverterConfigChange;
 begin
   LockWrite;
   try
@@ -115,7 +115,7 @@ begin
   end;
 end;
 
-procedure TSensorTextFromGPSRecorder.OnRecorderChanged(Sender: TObject);
+procedure TSensorTextFromGPSRecorder.OnRecorderChanged;
 var
   VValue: Double;
   VNeedNotify: Boolean;

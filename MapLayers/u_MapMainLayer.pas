@@ -38,8 +38,8 @@ type
 
     FTileUpdateCounter: Integer;
     FTileChangeListener: IJclListener;
-    procedure OnTileChange(Sender: TObject);
-    procedure OnTimer(Sender: TObject);
+    procedure OnTileChange;
+    procedure OnTimer;
 
     function DrawMap(
       ATargetBmp: TCustomBitmap32;
@@ -51,9 +51,9 @@ type
       AUsePre: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic
     ): Boolean;
-    procedure OnMainMapChange(Sender: TObject);
-    procedure OnLayerSetChange(Sender: TObject);
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnMainMapChange;
+    procedure OnLayerSetChange;
+    procedure OnConfigChange;
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
@@ -124,29 +124,29 @@ begin
   FViewConfig := AViewConfig;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnMainMapChange),
+    TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
     FMapsConfig.GetActiveMap.GetChangeNotifier
   );
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnLayerSetChange),
+    TNotifyNoMmgEventListener.Create(Self.OnLayerSetChange),
     FMapsConfig.GetActiveBitmapLayersSet.GetChangeNotifier
   );
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FViewConfig.GetChangeNotifier
   );
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FPostProcessingConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
+    TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
-  FTileChangeListener := TNotifyEventListener.Create(Self.OnTileChange);
+  FTileChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileChange);
   FTileUpdateCounter := 0;
 end;
 
@@ -311,7 +311,7 @@ begin
   end;
 end;
 
-procedure TMapMainLayer.OnConfigChange(Sender: TObject);
+procedure TMapMainLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -329,7 +329,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TMapMainLayer.OnLayerSetChange(Sender: TObject);
+procedure TMapMainLayer.OnLayerSetChange;
 var
   VOldLayersSet: IMapTypeSet;
   VNewLayersSet: IMapTypeSet;
@@ -395,7 +395,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TMapMainLayer.OnMainMapChange(Sender: TObject);
+procedure TMapMainLayer.OnMainMapChange;
 var
   VOldMainMap: IMapType;
   VNewMainMap: IMapType;
@@ -439,12 +439,12 @@ begin
   ViewUpdate;
 end;
 
-procedure TMapMainLayer.OnTileChange(Sender: TObject);
+procedure TMapMainLayer.OnTileChange;
 begin
   InterlockedIncrement(FTileUpdateCounter);
 end;
 
-procedure TMapMainLayer.OnTimer(Sender: TObject);
+procedure TMapMainLayer.OnTimer;
 begin
   if InterlockedExchange(FTileUpdateCounter, 0) > 0 then begin
     ViewUpdateLock;
@@ -569,9 +569,9 @@ end;
 procedure TMapMainLayer.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
-  OnMainMapChange(nil);
-  OnLayerSetChange(nil);
+  OnConfigChange;
+  OnMainMapChange;
+  OnLayerSetChange;
   Visible := True;
 end;
 

@@ -41,8 +41,8 @@ type
     FHotKeyList: IMapTypeHotKeyListStatic;
     FBeforeLangChangeListener: IJclListener;
     FAfterLangChangeListener: IJclListener;
-    procedure OnBeforeLangChange(Sender: TObject);
-    procedure OnAfterLangChange(Sender: TObject);
+    procedure OnBeforeLangChange;
+    procedure OnAfterLangChange;
     function CreateHotKeyList: IMapTypeHotKeyListStatic;
     function CreateOrderedList: IGUIDListStatic;
   protected
@@ -87,9 +87,9 @@ begin
     VMap := FMapsSet.GetMapTypeByGUID(VGUID);
     Add(VMap.MapType.GUIConfig, nil);
   end;
-  FBeforeLangChangeListener := TNotifyEventListener.Create(Self.OnBeforeLangChange);
+  FBeforeLangChangeListener := TNotifyNoMmgEventListener.Create(Self.OnBeforeLangChange);
   FLanguageManager.BeforeChangeNotifier.Add(FBeforeLangChangeListener);
-  FAfterLangChangeListener := TNotifyEventListener.Create(Self.OnAfterLangChange);
+  FAfterLangChangeListener := TNotifyNoMmgEventListener.Create(Self.OnAfterLangChange);
   FLanguageManager.AfterChangeNotifier.Add(FAfterLangChangeListener);
 end;
 
@@ -204,12 +204,12 @@ begin
   Result := FOrderedMapGUIDList;
 end;
 
-procedure TMapTypeGUIConfigList.OnAfterLangChange(Sender: TObject);
+procedure TMapTypeGUIConfigList.OnAfterLangChange;
 begin
   StartNotify;
 end;
 
-procedure TMapTypeGUIConfigList.OnBeforeLangChange(Sender: TObject);
+procedure TMapTypeGUIConfigList.OnBeforeLangChange;
 begin
   StopNotify;
 end;

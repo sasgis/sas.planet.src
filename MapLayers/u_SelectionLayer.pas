@@ -35,8 +35,8 @@ type
       ALocalConverter: ILocalCoordConverter;
       APolygon: TArrayOfDoublePoint
     ): TArrayOfDoublePoint;
-    procedure OnChangeSelection(Sender: TObject);
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnChangeSelection;
+    procedure OnConfigChange;
   protected
     procedure PaintLayer(Buffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
@@ -83,11 +83,11 @@ begin
   FLinePolygon := TPolygon32.Create;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnChangeSelection),
+    TNotifyNoMmgEventListener.Create(Self.OnChangeSelection),
     FLastSelectionInfo.GetChangeNotifier
   );
 end;
@@ -119,7 +119,7 @@ begin
   end;
 end;
 
-procedure TSelectionLayer.OnConfigChange(Sender: TObject);
+procedure TSelectionLayer.OnConfigChange;
 var
   VVisible: Boolean;
 begin
@@ -141,7 +141,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TSelectionLayer.OnChangeSelection(Sender: TObject);
+procedure TSelectionLayer.OnChangeSelection;
 begin
   ViewUpdateLock;
   try
@@ -215,7 +215,7 @@ end;
 procedure TSelectionLayer.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

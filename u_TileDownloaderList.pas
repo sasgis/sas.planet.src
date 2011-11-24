@@ -30,7 +30,7 @@ type
     FStatic: ITileDownloaderListStatic;
     FConfigListener: IJclListener;
 
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
     function CreateDownloader: ITileDownloader;
   protected
     function GetStatic: ITileDownloaderListStatic;
@@ -78,9 +78,9 @@ begin
 
   FChangeNotifier := TJclBaseNotifier.Create;
 
-  FConfigListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FTileDownloaderConfig.ChangeNotifier.Add(FConfigListener);
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 function TTileDownloaderList.CreateDownloader: ITileDownloader;
@@ -121,7 +121,7 @@ begin
   Result := FStatic;
 end;
 
-procedure TTileDownloaderList.OnConfigChange(Sender: TObject);
+procedure TTileDownloaderList.OnConfigChange;
 var
   VStatic: ITileDownloaderListStatic;
   VList: array of ITileDownloader;

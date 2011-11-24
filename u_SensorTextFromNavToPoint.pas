@@ -40,9 +40,9 @@ type
     FValueConverterConfig: IValueToStringConverterConfig;
     FValueConverter: IValueToStringConverter;
 
-    procedure OnConverterConfigChange(Sender: TObject);
-    procedure OnPosChanged(Sender: TObject);
-    procedure OnNavToPointChanged(Sender: TObject);
+    procedure OnConverterConfigChange;
+    procedure OnPosChanged;
+    procedure OnNavToPointChanged;
   protected
     function GetCaptionTranslated: string; override;
     function GetDescriptionTranslated: string; override;
@@ -80,21 +80,21 @@ begin
   FValueConverterConfig := AValueConverterConfig;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnPosChanged),
+    TNotifyNoMmgEventListener.Create(Self.OnPosChanged),
     FViewPortState.GetChangeNotifier
   );
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnNavToPointChanged),
+    TNotifyNoMmgEventListener.Create(Self.OnNavToPointChanged),
     FNavigationToPoint.GetChangeNotifier
   );
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConverterConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConverterConfigChange),
     FValueConverterConfig.GetChangeNotifier
   );
 
-  OnConverterConfigChange(nil);
+  OnConverterConfigChange;
 end;
 
 function TSensorTextFromNavToPoint.GetCaptionTranslated: string;
@@ -143,7 +143,7 @@ begin
   end;
 end;
 
-procedure TSensorTextFromNavToPoint.OnConverterConfigChange(Sender: TObject);
+procedure TSensorTextFromNavToPoint.OnConverterConfigChange;
 begin
   LockWrite;
   try
@@ -154,12 +154,12 @@ begin
   end;
 end;
 
-procedure TSensorTextFromNavToPoint.OnNavToPointChanged(Sender: TObject);
+procedure TSensorTextFromNavToPoint.OnNavToPointChanged;
 begin
   NotifyDataUpdate;
 end;
 
-procedure TSensorTextFromNavToPoint.OnPosChanged(Sender: TObject);
+procedure TSensorTextFromNavToPoint.OnPosChanged;
 begin
   LockWrite;
   try

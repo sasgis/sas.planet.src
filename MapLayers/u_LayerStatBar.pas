@@ -34,8 +34,8 @@ type
     FTextColor: TColor32;
     FAALevel: Integer;
     function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
-    procedure OnConfigChange(Sender: TObject);
-    procedure OnTimerEvent(Sender: TObject);
+    procedure OnConfigChange;
+    procedure OnTimerEvent;
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
@@ -90,11 +90,11 @@ begin
   FDownloadInfo := ADownloadInfo;
   FMouseState := AMouseState;
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimerEvent),
+    TNotifyNoMmgEventListener.Create(Self.OnTimerEvent),
     ATimerNoifier
   );
   FMainMapsConfig := AMainMapsConfig;
@@ -128,7 +128,7 @@ begin
   result := EncodeTime(abs(st.wHour + prH + 24) mod 24, abs(st.wMinute + prM + 60) mod 60, 0, 0);
 end;
 
-procedure TLayerStatBar.OnConfigChange(Sender: TObject);
+procedure TLayerStatBar.OnConfigChange;
 var
   VVisible: Boolean;
 begin
@@ -154,7 +154,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TLayerStatBar.OnTimerEvent(Sender: TObject);
+procedure TLayerStatBar.OnTimerEvent;
 begin
   Redraw;
 end;
@@ -169,7 +169,7 @@ end;
 procedure TLayerStatBar.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 procedure TLayerStatBar.DoRedraw;

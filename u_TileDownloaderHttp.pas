@@ -78,7 +78,7 @@ type
     function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean;
     function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean;
     procedure Disconnect;
-    procedure OnCancelEvent(Sender: TObject);
+    procedure OnCancelEvent;
     procedure DoGetRequest(ARequest: IDownloadRequest);
     procedure DoHeadRequest(ARequest: IDownloadHeadRequest);
     procedure DoPostRequest(ARequest: IDownloadPostRequest);
@@ -112,7 +112,7 @@ begin
   FHttpClient := TALWinInetHTTPClient.Create(nil);
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
   FHttpResponseBody := TMemoryStream.Create;
-  FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
+  FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
   FResultFactory := AResultFactory;
 end;
 
@@ -269,7 +269,7 @@ begin
   end;
 end;
 
-procedure TTileDownloaderHttp.OnCancelEvent(Sender: TObject);
+procedure TTileDownloaderHttp.OnCancelEvent;
 begin
   Disconnect;
 end;

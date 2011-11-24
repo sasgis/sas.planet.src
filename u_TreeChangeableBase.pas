@@ -37,7 +37,7 @@ type
     FConfigChangeListener: IJclListener;
     FConfigChangeNotifier: IJclNotifier;
     FChangeNotifier: IJclNotifier;
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
   protected
     function CreateStatic: IStaticTreeItem;
     function GetSource: IInterface; virtual; abstract;
@@ -69,9 +69,9 @@ begin
   FStaticTreeBuilder := AStaticTreeBuilder;
   FConfigChangeNotifier := AConfigChangeNotifier;
   FChangeNotifier := TJclBaseNotifier.Create;
-  FConfigChangeListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfigChangeNotifier.Add(FConfigChangeListener);
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 destructor TTreeChangeableBase.Destroy;
@@ -98,7 +98,7 @@ begin
   Result := FStaticTree;
 end;
 
-procedure TTreeChangeableBase.OnConfigChange(Sender: TObject);
+procedure TTreeChangeableBase.OnConfigChange;
 begin
   FStaticTree := CreateStatic;
   FChangeNotifier.Notify(nil);

@@ -22,7 +22,7 @@ type
     FConfig: IMapLayerGridsConfig;
     procedure generate_granica;
     procedure DrawGenShBorders;
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
   protected
     procedure DoRedraw; override;
     function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
@@ -71,7 +71,7 @@ begin
   );
   FConfig := AConfig;
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
 end;
@@ -360,7 +360,7 @@ begin
   end;
 end;
 
-procedure TMapLayerGrids.OnConfigChange(Sender: TObject);
+procedure TMapLayerGrids.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -375,7 +375,7 @@ end;
 procedure TMapLayerGrids.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

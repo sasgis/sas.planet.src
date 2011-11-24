@@ -17,7 +17,7 @@ type
   TMapLayerTileGrid = class(TMapLayerBasicNoBitmap)
   private
     FConfig: ITileGridConfig;
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
   protected
     function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
@@ -52,7 +52,7 @@ begin
   FConfig := AConfig;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
 end;
@@ -88,7 +88,7 @@ begin
   end;
 end;
 
-procedure TMapLayerTileGrid.OnConfigChange(Sender: TObject);
+procedure TMapLayerTileGrid.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -202,7 +202,7 @@ end;
 procedure TMapLayerTileGrid.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

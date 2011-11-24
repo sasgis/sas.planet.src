@@ -56,7 +56,7 @@ type
     FFileInited: Boolean;
     procedure GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte; out ANameHi, ANameLo: LongWord);
     procedure _UpdateIndexInfo;
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
     function getServID:word;
   protected
   public
@@ -85,7 +85,7 @@ begin
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   FCacheConfig := ACacheConfig;
   FFileInited := False;
-  FConfigChangeListener := TNotifyEventListener.Create(Self.OnConfigChange);
+  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FCacheConfig.ConfigChangeNotifier.Add(FConfigChangeListener);
 end;
 
@@ -194,7 +194,7 @@ begin
   end;
 end;
 
-procedure TGEIndexFile.OnConfigChange(Sender: TObject);
+procedure TGEIndexFile.OnConfigChange;
 begin
   FSync.BeginWrite;
   try

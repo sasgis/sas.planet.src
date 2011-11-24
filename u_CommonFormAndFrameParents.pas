@@ -39,7 +39,7 @@ type
   private
     FLanguageChangeListener: IJclListener;
     FLanguageManager: ILanguageManager;
-    procedure OnLangChange(Sender: TObject);
+    procedure OnLangChange;
   protected
     procedure RefreshTranslation; virtual;
   public
@@ -99,7 +99,7 @@ begin
   inherited Create(nil);
   TranslateComponent(self);
   FLanguageManager := ALanguageManager;
-  FLanguageChangeListener := TNotifyEventListener.Create(Self.OnLangChange);
+  FLanguageChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLanguageManager.ChangeNotifier.Add(FLanguageChangeListener);
 end;
 
@@ -112,7 +112,7 @@ begin
   inherited;
 end;
 
-procedure TFormWitghLanguageManager.OnLangChange(Sender: TObject);
+procedure TFormWitghLanguageManager.OnLangChange;
 begin
   RefreshTranslation;
 end;

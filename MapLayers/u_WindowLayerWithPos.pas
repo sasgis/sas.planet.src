@@ -20,8 +20,8 @@ type
     FViewPortState: IViewPortState;
     FViewCoordConverter: ILocalCoordConverter;
     FLayerCoordConverter: ILocalCoordConverter;
-    procedure OnViewPortPosChange(Sender: TObject);
-    procedure OnViewPortScaleChange(Sender: TObject);
+    procedure OnViewPortPosChange;
+    procedure OnViewPortScaleChange;
   protected
     procedure SetViewCoordConverter(AValue: ILocalCoordConverter); virtual;
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); virtual;
@@ -149,12 +149,12 @@ begin
   FViewPortState := AViewPortState;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnViewPortPosChange),
+    TNotifyNoMmgEventListener.Create(Self.OnViewPortPosChange),
     FViewPortState.GetChangeNotifier
   );
   if AListenScaleChange then begin
     LinksList.Add(
-      TNotifyEventListener.Create(Self.OnViewPortScaleChange),
+      TNotifyNoMmgEventListener.Create(Self.OnViewPortScaleChange),
       ViewPortState.ScaleChangeNotifier
     );
   end;
@@ -168,7 +168,7 @@ begin
   inherited;
 end;
 
-procedure TWindowLayerWithPosBase.OnViewPortPosChange(Sender: TObject);
+procedure TWindowLayerWithPosBase.OnViewPortPosChange;
 begin
   PosChange(FViewPortState.GetVisualCoordConverter);
 end;
@@ -192,7 +192,7 @@ begin
   SetLayerCoordConverter(GetLayerCoordConverterByViewConverter(ANewVisualCoordConverter));
 end;
 
-procedure TWindowLayerWithPosBase.OnViewPortScaleChange(Sender: TObject);
+procedure TWindowLayerWithPosBase.OnViewPortScaleChange;
 begin
   ScaleChange(FViewPortState.GetVisualCoordConverter);
 end;
@@ -240,7 +240,7 @@ end;
 procedure TWindowLayerWithPosBase.StartThreads;
 begin
   inherited;
-  OnViewPortPosChange(nil);
+  OnViewPortPosChange;
 end;
 
 procedure TWindowLayerWithPosBase.ViewUpdate;

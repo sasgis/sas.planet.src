@@ -92,7 +92,7 @@ begin
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FValueToStringConverterConfig.GetChangeNotifier
   );
 end;

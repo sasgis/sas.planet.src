@@ -41,7 +41,7 @@ type
     FIsLatitudeFirst: Boolean;
     FDegrShowFormat: TDegrShowFormat;
     FStatic: IValueToStringConverter;
-    procedure OnDependentOnElementChange(Sender: TObject);
+    procedure OnDependentOnElementChange;
     function CreateStatic: IValueToStringConverter;
   protected
     procedure DoBeforeChangeNotify; override;
@@ -79,7 +79,7 @@ begin
   FDistStrFormat := dsfKmAndM;
   FDegrShowFormat := dshCharDegrMinSec;
   FDependentOnElement := ADependentOnElement;
-  FDependentOnElementListener := TNotifyEventListener.Create(Self.OnDependentOnElementChange);
+  FDependentOnElementListener := TNotifyNoMmgEventListener.Create(Self.OnDependentOnElementChange);
   FDependentOnElement.GetChangeNotifier.Add(FDependentOnElementListener);
   SetChanged;
 end;
@@ -169,8 +169,7 @@ begin
   Result := FStatic;
 end;
 
-procedure TValueToStringConverterConfig.OnDependentOnElementChange(
-  Sender: TObject);
+procedure TValueToStringConverterConfig.OnDependentOnElementChange;
 begin
   LockWrite;
   try

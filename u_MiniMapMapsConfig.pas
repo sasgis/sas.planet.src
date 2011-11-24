@@ -38,7 +38,7 @@ type
     FMainMapChangeListener: IJclListener;
     function CreateMiniMapMapsSet: IMapTypeSet;
     function CreateMiniMapLayersSet: IMapTypeSet;
-    procedure OnMainMapChange(Sender: TObject);
+    procedure OnMainMapChange;
     procedure OnSelectedChange(const AGUID: TGUID);
     procedure SetActiveMiniMap(AValue: IMapType);
   protected
@@ -65,7 +65,7 @@ begin
   FMainMapsConfig := AMapsConfig;
   inherited Create(CreateMiniMapMapsSet, CreateMiniMapLayersSet);
 
-  FMainMapChangeListener := TNotifyEventListener.Create(Self.OnMainMapChange);
+  FMainMapChangeListener := TNotifyNoMmgEventListener.Create(Self.OnMainMapChange);
   FMainMapsConfig.GetActiveMap.GetChangeNotifier.Add(FMainMapChangeListener);
 
   FSelectedMapChangeListener := TNotifyWithGUIDEventListener.Create(Self.OnSelectedChange);
@@ -139,7 +139,7 @@ begin
   end;
 end;
 
-procedure TMiniMapMapsConfig.OnMainMapChange(Sender: TObject);
+procedure TMiniMapMapsConfig.OnMainMapChange;
 var
   VGUID: TGUID;
 begin

@@ -63,8 +63,8 @@ type
 
     FLoadXY: TPoint;
 
-    procedure OnPosChange(Sender: TObject);
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnPosChange;
+    procedure OnConfigChange;
   protected
     procedure Execute; override;
   public
@@ -123,7 +123,7 @@ begin
   randomize;
   FTileMaxAgeInInternet :=  1/24/60;
 
-  VChangePosListener := TNotifyEventListener.Create(Self.OnPosChange);
+  VChangePosListener := TNotifyNoMmgEventListener.Create(Self.OnPosChange);
   FLinksList.Add(
     VChangePosListener,
     FViewPortState.GetChangeNotifier
@@ -133,7 +133,7 @@ begin
     FMapsSet.GetChangeNotifier
   );
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
 end;
@@ -147,14 +147,14 @@ begin
 end;
 
 
-procedure TTileDownloaderUI.OnPosChange(Sender: TObject);
+procedure TTileDownloaderUI.OnPosChange;
 begin
   change_scene := True;
   FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
   FActiveMapsSet := FMapsSet.GetSelectedMapsSet;
 end;
 
-procedure TTileDownloaderUI.OnConfigChange(Sender: TObject);
+procedure TTileDownloaderUI.OnConfigChange;
 begin
   FConfig.LockRead;
   try
@@ -179,7 +179,7 @@ procedure TTileDownloaderUI.StartThreads;
 begin
   inherited;
   FLinksList.ActivateLinks;
-  OnConfigChange(nil);
+  OnConfigChange;
   Resume;
 end;
 

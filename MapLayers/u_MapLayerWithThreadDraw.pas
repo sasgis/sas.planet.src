@@ -28,7 +28,7 @@ type
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier
     );
-    procedure OnTimer(Sender: TObject);
+    procedure OnTimer;
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
@@ -102,7 +102,7 @@ begin
   FUpdateCounter := 0;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
+    TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
 end;
@@ -137,7 +137,7 @@ begin
   end;
 end;
 
-procedure TMapLayerWithThreadDraw.OnTimer(Sender: TObject);
+procedure TMapLayerWithThreadDraw.OnTimer;
 begin
   if InterlockedExchange(FUpdateCounter, 0) > 0 then begin
     Layer.Changed;

@@ -16,7 +16,7 @@ type
   TCenterScale = class(TWindowLayerFixedSizeWithBitmap)
   private
     FConfig: ICenterScaleConfig;
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
@@ -49,7 +49,7 @@ begin
   inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
 end;
@@ -67,7 +67,7 @@ begin
   Result.Bottom := Result.Top + VSize.Y;
 end;
 
-procedure TCenterScale.OnConfigChange(Sender: TObject);
+procedure TCenterScale.OnConfigChange;
 var
   VBitmap: TCustomBitmap32;
 begin
@@ -99,7 +99,7 @@ end;
 procedure TCenterScale.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

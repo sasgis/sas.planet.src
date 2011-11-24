@@ -469,12 +469,6 @@ type
     procedure N13Click(Sender: TObject);
     procedure DigitalGlobe1Click(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
-    procedure GPSReceiverDisconnect(Sender: TObject);
-    procedure GPSReceiverStateChange(Sender: TObject);
-    procedure GPSReceiverConnect(Sender: TObject);
-    procedure GPSReceiverTimeout(Sender: TObject);
-    procedure GPSReceiverConnectError(Sender: TObject);
-    procedure GPSReceiverReceive(Sender: TObject);
     procedure NMapParamsClick(Sender: TObject);
     procedure mapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure mapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
@@ -624,37 +618,44 @@ type
     procedure CreateMapUILayerSubMenu;
     procedure CreateLangMenu;
 
-    procedure OnMapGUIChange(Sender: TObject);
-    procedure OnSearchhistoryChange(Sender: TObject);
-    procedure OnWinPositionChange(Sender: TObject);
-    procedure OnToolbarsLockChange(Sender: TObject);
-    procedure OnLineOnMapEditChange(Sender: TObject);
-    procedure OnPathProvidesChange(Sender: TObject);
+    procedure GPSReceiverDisconnect;
+    procedure GPSReceiverStateChange;
+    procedure GPSReceiverConnect;
+    procedure GPSReceiverTimeout;
+    procedure GPSReceiverConnectError;
+    procedure GPSReceiverReceive;
+
+    procedure OnMapGUIChange;
+    procedure OnSearchhistoryChange;
+    procedure OnWinPositionChange;
+    procedure OnToolbarsLockChange;
+    procedure OnLineOnMapEditChange;
+    procedure OnPathProvidesChange;
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
     procedure MapMoveAnimate(AMouseMoveSpeed: TDoublePoint; ALastTime:double; AZoom:byte; AMousePos:TPoint);
-    procedure ProcessPosChangeMessage(Sender: TObject);
+    procedure ProcessPosChangeMessage;
     procedure CopyBtmToClipboard(btm: TBitmap);
     function GetIgnoredMenuItemsList: TList;
-    procedure MapLayersVisibleChange(Sender: TObject);
-    procedure OnMainFormMainConfigChange(Sender: TObject);
+    procedure MapLayersVisibleChange;
+    procedure OnMainFormMainConfigChange;
 
     procedure CopyStringToClipboard(s: Widestring);
     procedure setalloperationfalse(newop: TAOperation);
     procedure UpdateGPSSatellites(APosition: IGPSPosition);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
-    procedure OnMainMapChange(Sender: TObject);
-    procedure OnFillingMapChange(Sender: TObject);
+    procedure OnMainMapChange;
+    procedure OnFillingMapChange;
 
     procedure PaintZSlider(zoom:integer);
     procedure SetToolbarsLock(AValue: Boolean);
 
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
     Procedure TrayControl(Var Msg: TMessage); Message WM_SYSCOMMAND;
-    procedure OnBeforeViewChange(Sender: TObject);
-    procedure OnAfterViewChange(Sender: TObject);
+    procedure OnBeforeViewChange;
+    procedure OnAfterViewChange;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
     procedure OnMinimize(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
@@ -809,12 +810,12 @@ begin
   FLayersList := TWindowLayerBasicList.Create(GState.PerfCounterList);
   FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnWinPositionChange),
+    TNotifyNoMmgEventListener.Create(Self.OnWinPositionChange),
     FWinPosition.GetChangeNotifier
   );
 
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnToolbarsLockChange),
+    TNotifyNoMmgEventListener.Create(Self.OnToolbarsLockChange),
     FConfig.ToolbarsLock.GetChangeNotifier
   );
 
@@ -837,7 +838,7 @@ begin
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid
     );
 
-  VLineOnMapEditChangeListener := TNotifyEventListener.Create(Self.OnLineOnMapEditChange);
+  VLineOnMapEditChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLineOnMapEditChange);
   FLinksList.Add(
     VLineOnMapEditChangeListener,
     FLineOnMapByOperation[ao_add_line].GetChangeNotifier
@@ -887,7 +888,7 @@ begin
   VSensorViewGenerator := TSensorViewListGeneratorStuped.Create(GState.GUISyncronizedTimerNotifier, Self, TBXDock1, NSensors, MenusImageList, 40);
   FSensorViewList := VSensorViewGenerator.CreateSensorViewList(GState.SensorList);
   TBConfigProviderLoadPositions(Self, VProvider);
-  OnToolbarsLockChange(nil);
+  OnToolbarsLockChange;
   TBEditPath.Visible:=false;
   FMarkDBGUI :=
     TMarksDbGUIHelper.Create(
@@ -921,7 +922,7 @@ begin
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
   Enabled:=false;
   try
-    OnWinPositionChange(nil);
+    OnWinPositionChange;
 
     movepoint:=false;
 
@@ -1219,10 +1220,10 @@ begin
       );
 
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnMapGUIChange),
+      TNotifyNoMmgEventListener.Create(Self.OnMapGUIChange),
       GState.MapType.GUIConfigList.GetChangeNotifier
     );
-    OnMapGUIChange(nil);
+    OnMapGUIChange;
 
     VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
     NGShScale10000.Checked := VScale = 10000;
@@ -1235,24 +1236,24 @@ begin
     NGShScale0.Checked := VScale = 0;
 
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnBeforeViewChange),
+      TNotifyNoMmgEventListener.Create(Self.OnBeforeViewChange),
       FConfig.ViewPortState.BeforeChangeNotifier
     );
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnAfterViewChange),
+      TNotifyNoMmgEventListener.Create(Self.OnAfterViewChange),
       FConfig.ViewPortState.AfterChangeNotifier
     );
 
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.ProcessPosChangeMessage),
+      TNotifyNoMmgEventListener.Create(Self.ProcessPosChangeMessage),
       FConfig.ViewPortState.GetChangeNotifier
     );
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnMainMapChange),
+      TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
       FConfig.MainMapsConfig.GetActiveMap.GetChangeNotifier
     );
 
-    VMapLayersVsibleChangeListener := TNotifyEventListener.Create(Self.MapLayersVisibleChange);
+    VMapLayersVsibleChangeListener := TNotifyNoMmgEventListener.Create(Self.MapLayersVisibleChange);
     FLinksList.Add(
       VMapLayersVsibleChangeListener,
       FConfig.LayersConfig.StatBar.GetChangeNotifier
@@ -1301,7 +1302,7 @@ begin
       GState.GPSpar.TimeOutNotifier
     );
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.GPSReceiverReceive),
+      TNotifyNoMmgEventListener.Create(Self.GPSReceiverReceive),
       GState.GPSpar.DataReciveNotifier
     );
 
@@ -1337,12 +1338,12 @@ begin
 
 
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnFillingMapChange),
+      TNotifyNoMmgEventListener.Create(Self.OnFillingMapChange),
       FConfig.LayersConfig.FillingMapLayerConfig.GetChangeNotifier
     );
 
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnSearchhistoryChange),
+      TNotifyNoMmgEventListener.Create(Self.OnSearchhistoryChange),
       FConfig.MainGeoCoderConfig.SearchHistory.GetChangeNotifier
     );
 
@@ -1382,7 +1383,7 @@ begin
     FPathProvidersMenuBuilder := TMenuGeneratorByStaticTreeSimple.Create(Self.TBEditPathMarshClick);
 
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnPathProvidesChange),
+      TNotifyNoMmgEventListener.Create(Self.OnPathProvidesChange),
       FPathProvidersTree.ChangeNotifier
     );
 
@@ -1416,13 +1417,13 @@ begin
     FLayersList.StartThreads;
     GState.StartThreads;
     FUIDownLoader.StartThreads;
-    OnMainFormMainConfigChange(nil);
-    MapLayersVisibleChange(nil);
-    OnFillingMapChange(nil);
-    OnMainMapChange(nil);
-    ProcessPosChangeMessage(nil);
-    OnSearchhistoryChange(nil);
-    OnPathProvidesChange(nil);
+    OnMainFormMainConfigChange;
+    MapLayersVisibleChange;
+    OnFillingMapChange;
+    OnMainMapChange;
+    ProcessPosChangeMessage;
+    OnSearchhistoryChange;
+    OnPathProvidesChange;
 
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
     FKeyMovingHandler := TKeyMovingHandler.Create(map, FConfig.ViewPortState, FConfig.KeyMovingConfig);
@@ -1729,7 +1730,7 @@ begin
   inherited;
 end;
 
-procedure TfrmMain.MapLayersVisibleChange(Sender: TObject);
+procedure TfrmMain.MapLayersVisibleChange;
 var
   VUseDownload: TTileSource;
 begin
@@ -1759,7 +1760,7 @@ begin
   mapResize(nil);
 end;
 
-procedure TfrmMain.ProcessPosChangeMessage(Sender: TObject);
+procedure TfrmMain.ProcessPosChangeMessage;
 var
   VZoomCurr: Byte;
   VGPSLonLat: TDoublePoint;
@@ -1886,13 +1887,13 @@ begin
   end;
 end;
 
-procedure TfrmMain.OnAfterViewChange(Sender: TObject);
+procedure TfrmMain.OnAfterViewChange;
 begin
   map.EndUpdate;
   map.Changed;
 end;
 
-procedure TfrmMain.OnBeforeViewChange(Sender: TObject);
+procedure TfrmMain.OnBeforeViewChange;
 begin
   map.BeginUpdate;
 end;
@@ -1942,7 +1943,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.OnFillingMapChange(Sender: TObject);
+procedure TfrmMain.OnFillingMapChange;
 var
   VVisible: Boolean;
   VRelative: Boolean;
@@ -1967,7 +1968,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.OnLineOnMapEditChange(Sender: TObject);
+procedure TfrmMain.OnLineOnMapEditChange;
 var
   VLineOnMapEdit: ILineOnMapEdit;
 begin
@@ -1982,7 +1983,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.OnMainFormMainConfigChange(Sender: TObject);
+procedure TfrmMain.OnMainFormMainConfigChange;
 var
   VGUID: TGUID;
   i: Integer;
@@ -2028,7 +2029,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.OnMainMapChange(Sender: TObject);
+procedure TfrmMain.OnMainMapChange;
 var
   VGUID: TGUID;
   VMapType: IMapType;
@@ -2044,7 +2045,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.OnMapGUIChange(Sender: TObject);
+procedure TfrmMain.OnMapGUIChange;
 begin
   FMapHotKeyList := GState.MapType.GUIConfigList.HotKeyList;
   CreateMapUIMapsList;
@@ -2069,12 +2070,12 @@ begin
   TBXDockForSearch.AllowDrag := not AValue;
 end;
 
-procedure TfrmMain.OnToolbarsLockChange(Sender: TObject);
+procedure TfrmMain.OnToolbarsLockChange;
 begin
   SetToolbarsLock(FConfig.ToolbarsLock.GetIsLock);
 end;
 
-procedure TfrmMain.OnWinPositionChange(Sender: TObject);
+procedure TfrmMain.OnWinPositionChange;
 var
   VIsFullScreen: Boolean;
   VIsMaximized: Boolean;
@@ -3365,7 +3366,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.GPSReceiverDisconnect(Sender: TObject);
+procedure TfrmMain.GPSReceiverDisconnect;
 begin
   if FConfig.GPSBehaviour.SensorsAutoShow then TBXSensorsBar.Visible:=false;
   if TBXSignalStrengthBar.Visible then UpdateGPSSatellites(GState.GPSRecorder.CurrentPosition);
@@ -3375,7 +3376,7 @@ begin
   TBGPSconn.Checked:=false;
 end;
 
-procedure TfrmMain.GPSReceiverReceive(Sender: TObject);
+procedure TfrmMain.GPSReceiverReceive;
 var
   VGPSNewPos: TDoublePoint;
   VCenterToGPSDelta: TDoublePoint;
@@ -3441,13 +3442,13 @@ begin
   end;
 end;
 
-procedure TfrmMain.GPSReceiverStateChange(Sender: TObject);
+procedure TfrmMain.GPSReceiverStateChange;
 begin
   tbitmGPSConnect.Enabled := False;
   TBGPSconn.Enabled := False;
 end;
 
-procedure TfrmMain.GPSReceiverConnect(Sender: TObject);
+procedure TfrmMain.GPSReceiverConnect;
 begin
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
@@ -3456,12 +3457,12 @@ begin
   if FConfig.GPSBehaviour.SensorsAutoShow then TBXSensorsBar.Visible:=true;
 end;
 
-procedure TfrmMain.GPSReceiverConnectError(Sender: TObject);
+procedure TfrmMain.GPSReceiverConnectError;
 begin
   ShowMessage(SAS_ERR_PortOpen);
 end;
 
-procedure TfrmMain.GPSReceiverTimeout(Sender: TObject);
+procedure TfrmMain.GPSReceiverTimeout;
 begin
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
@@ -4784,7 +4785,7 @@ begin
   PostMessage(frmMain.Handle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 end;
 
-procedure TfrmMain.OnPathProvidesChange(Sender: TObject);
+procedure TfrmMain.OnPathProvidesChange;
 var
   VTree: IStaticTreeItem;
 begin
@@ -4793,7 +4794,7 @@ begin
   FPathProvidersTreeStatic := VTree;
 end;
 
-procedure TfrmMain.OnSearchhistoryChange(Sender: TObject);
+procedure TfrmMain.OnSearchhistoryChange;
 var
   i: Integer;
 begin

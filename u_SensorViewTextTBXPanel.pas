@@ -73,10 +73,10 @@ type
     procedure OnBarVisibleChanged(Sender: TObject);
     procedure OnVisibleItemClick(Sender: TObject);
     procedure OnResetClick(Sender: TObject);
-    procedure OnTimer(Sender: TObject);
-    procedure OnConfigChange(Sender: TObject);
-    procedure OnSensorChange(Sender: TObject);
-    procedure OnSensorDataUpdate(Sender: TObject);
+    procedure OnTimer;
+    procedure OnConfigChange;
+    procedure OnSensorChange;
+    procedure OnSensorDataUpdate;
   protected
     function GetConfig: ISensorViewConfig;
     function GetSensor: ISensor;
@@ -132,22 +132,22 @@ begin
   FLinksList := TJclListenerNotifierLinksList.Create;
 
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
 
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
+    TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
 
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnSensorChange),
+    TNotifyNoMmgEventListener.Create(Self.OnSensorChange),
     FListEntity.GetChangeNotifier
   );
 
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnSensorDataUpdate),
+    TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
     FSensor.GetDataUpdateNotifier
   );
 
@@ -156,8 +156,8 @@ begin
   UpdateControls;
 
   FLinksList.ActivateLinks;
-  OnConfigChange(nil);
-  OnSensorDataUpdate(nil);
+  OnConfigChange;
+  OnSensorDataUpdate;
 end;
 
 destructor TSensorViewTextTBXPanel.Destroy;
@@ -269,12 +269,12 @@ end;
 
 { TSensorViewTextTBXPanel }
 
-procedure TSensorViewTextTBXPanel.OnBarVisibleChanged(Sender: TObject);
+procedure TSensorViewTextTBXPanel.OnBarVisibleChanged;
 begin
   FConfig.Visible := FBar.Visible;
 end;
 
-procedure TSensorViewTextTBXPanel.OnConfigChange(Sender: TObject);
+procedure TSensorViewTextTBXPanel.OnConfigChange;
 var
   VVisible: Boolean;
 begin
@@ -310,22 +310,22 @@ begin
   if FSensor.CanReset then begin
     if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
       FSensor.Reset;
-      OnTimer(nil);
+      OnTimer;
     end;
   end;
 end;
 
-procedure TSensorViewTextTBXPanel.OnSensorChange(Sender: TObject);
+procedure TSensorViewTextTBXPanel.OnSensorChange;
 begin
   UpdateControls;
 end;
 
-procedure TSensorViewTextTBXPanel.OnSensorDataUpdate(Sender: TObject);
+procedure TSensorViewTextTBXPanel.OnSensorDataUpdate;
 begin
   InterlockedIncrement(FTextChangeId);
 end;
 
-procedure TSensorViewTextTBXPanel.OnTimer(Sender: TObject);
+procedure TSensorViewTextTBXPanel.OnTimer;
 var
   VText: string;
 begin

@@ -67,15 +67,15 @@ type
     FLastDataReceiveTick: Cardinal;
     FDataReceiveCounter: IInternalPerformanceCounter;
 
-    procedure OnTimer(Sender: TObject);
-    procedure OnGpsConnecting(Sender: TObject);
-    procedure OnGpsConnected(Sender: TObject);
-    procedure OnGpsDataReceive(Sender: TObject);
-    procedure OnGpsDisconnecting(Sender: TObject);
-    procedure OnGpsDisconnected(Sender: TObject);
-    procedure OnGpsTimeout(Sender: TObject);
-    procedure OnGpsConnectError(Sender: TObject);
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnTimer;
+    procedure OnGpsConnecting;
+    procedure OnGpsConnected;
+    procedure OnGpsDataReceive;
+    procedure OnGpsDisconnecting;
+    procedure OnGpsDisconnected;
+    procedure OnGpsTimeout;
+    procedure OnGpsConnectError;
+    procedure OnConfigChange;
 
     procedure CreateModuleAndLinks;
   public
@@ -141,12 +141,12 @@ begin
   FDataReciveNotifier := TJclBaseNotifier.Create;
 
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
 
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
+    TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
 
@@ -169,37 +169,37 @@ begin
     FGPSModuleByCOM := FGPSModuleFactory.CreateGPSModule;
 
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnGpsConnecting),
+      TNotifyNoMmgEventListener.Create(Self.OnGpsConnecting),
       FGPSModuleByCOM.ConnectingNotifier
     );
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnGpsConnected),
+      TNotifyNoMmgEventListener.Create(Self.OnGpsConnected),
       FGPSModuleByCOM.ConnectedNotifier
     );
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnGpsDataReceive),
+      TNotifyNoMmgEventListener.Create(Self.OnGpsDataReceive),
       FGPSModuleByCOM.DataReciveNotifier
     );
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnGpsDisconnecting),
+      TNotifyNoMmgEventListener.Create(Self.OnGpsDisconnecting),
       FGPSModuleByCOM.DisconnectingNotifier
     );
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnGpsDisconnected),
+      TNotifyNoMmgEventListener.Create(Self.OnGpsDisconnected),
       FGPSModuleByCOM.DisconnectedNotifier
     );
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnGpsTimeout),
+      TNotifyNoMmgEventListener.Create(Self.OnGpsTimeout),
       FGPSModuleByCOM.TimeOutNotifier
     );
     FLinksList.Add(
-      TNotifyEventListener.Create(Self.OnGpsConnectError),
+      TNotifyNoMmgEventListener.Create(Self.OnGpsConnectError),
       FGPSModuleByCOM.ConnectErrorNotifier
     );
   end;
 end;
 
-procedure TGPSpar.OnConfigChange(Sender: TObject);
+procedure TGPSpar.OnConfigChange;
 begin
   if FGPSModuleByCOM <> nil then begin
     if FConfig.GPSEnabled then begin
@@ -238,7 +238,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsConnectError(Sender: TObject);
+procedure TGPSpar.OnGpsConnectError;
 begin
   FCS.Acquire;
   try
@@ -248,7 +248,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsConnecting(Sender: TObject);
+procedure TGPSpar.OnGpsConnecting;
 begin
   FCS.Acquire;
   try
@@ -296,7 +296,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsDisconnecting(Sender: TObject);
+procedure TGPSpar.OnGpsDisconnecting;
 begin
   FCS.Acquire;
   try
@@ -306,7 +306,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsTimeout(Sender: TObject);
+procedure TGPSpar.OnGpsTimeout;
 begin
   FCS.Acquire;
   try
@@ -316,7 +316,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnTimer(Sender: TObject);
+procedure TGPSpar.OnTimer;
 var
   VNeedNotify: Boolean;
   VInternalStateNew: TInternalState;
@@ -448,7 +448,7 @@ end;
 procedure TGPSpar.StartThreads;
 begin
   FLinksList.ActivateLinks;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

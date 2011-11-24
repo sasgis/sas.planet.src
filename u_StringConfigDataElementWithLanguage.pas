@@ -43,7 +43,7 @@ type
     FValue: string;
     FLangIndex: Integer;
     FLangChangeListener: IJclListener;
-    procedure OnLangChange(Sender: TObject);
+    procedure OnLangChange;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -86,7 +86,7 @@ begin
   FStoreIdentifier := AStoreIdentifier;
   FIsStoreDefault := AIsStoreDefault;
 
-  FLangChangeListener := TNotifyEventListener.Create(Self.OnLangChange);
+  FLangChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLanguageManager.GetChangeNotifier.Add(FLangChangeListener);
 
   FLangIndex := FLanguageManager.CurrentLanguageIndex;
@@ -148,7 +148,7 @@ begin
   end;
 end;
 
-procedure TStringConfigDataElementWithLanguage.OnLangChange(Sender: TObject);
+procedure TStringConfigDataElementWithLanguage.OnLangChange;
 var
   VNewIndex: Integer;
   VDefValue: string;

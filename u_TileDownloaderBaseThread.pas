@@ -64,7 +64,7 @@ type
     procedure SetIsCanceled;
     procedure SetNotCanceled;
     procedure SleepCancelable(ATime: Cardinal);
-    procedure OnCancelEvent(Sender: TObject);
+    procedure OnCancelEvent;
   protected
     procedure Execute; override;
   public
@@ -105,7 +105,7 @@ constructor TTileDownloaderBaseThread.Create(
 begin
   FLastResponseInfo := TLastResponseInfo.Create;
   FCancelEvent := TEvent.Create;
-  FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
+  FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
   FSessionCS := TCriticalSection.Create;
   FSemaphore := CreateSemaphore(nil, 0, 1, nil);
   FResultFactory := AResultFactory;
@@ -280,7 +280,7 @@ begin
   until False;
 end;
 
-procedure TTileDownloaderBaseThread.OnCancelEvent(Sender: TObject);
+procedure TTileDownloaderBaseThread.OnCancelEvent;
 begin
   SetIsCanceled;
 end;

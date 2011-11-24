@@ -42,7 +42,7 @@ type
     FDefValue: string;
     FValue: string;
     FLangChangeListener: IJclListener;
-    procedure OnLangChange(Sender: TObject);
+    procedure OnLangChange;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -80,7 +80,7 @@ begin
   FIsStoreDefault := AIsStoreDefault;
   FResStringRec := AResStringRec;
 
-  FLangChangeListener := TNotifyEventListener.Create(Self.OnLangChange);
+  FLangChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLanguageManager.GetChangeNotifier.Add(FLangChangeListener);
   FDefValue := LoadResString(FResStringRec);
   FValue := FDefValue;
@@ -138,8 +138,7 @@ begin
   end;
 end;
 
-procedure TStringConfigDataElementWithDefByStringRec.OnLangChange(
-  Sender: TObject);
+procedure TStringConfigDataElementWithDefByStringRec.OnLangChange;
 var
   VDefValueNew: string;
 begin

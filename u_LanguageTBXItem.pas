@@ -36,7 +36,7 @@ type
     FLangIndex: Integer;
     FLanguageManager: ILanguageManager;
     FListener: IJclListener;
-    procedure OnLangChange(Sender: TObject);
+    procedure OnLangChange;
     procedure OnClickItem(Sender: TObject);
   public
     constructor Create(AOwner: TComponent; AParentMenu: TTBCustomItem; ALanguageManager: ILanguageManager; ALangIndex: Integer); reintroduce;
@@ -68,11 +68,11 @@ begin
   Self.Caption := FLanguageManager.GetLangNameByIndex(FLangIndex);
   Self.RadioItem := True;
 
-  FListener := TNotifyEventListener.Create(Self.OnLangChange);
+  FListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLanguageManager.GetChangeNotifier.Add(FListener);
 
   FParentMenu.Add(Self);
-  OnLangChange(nil);
+  OnLangChange;
 end;
 
 destructor TLanguageTBXItem.Destroy;
@@ -88,7 +88,7 @@ begin
   FLanguageManager.SetCurrentLanguageIndex(FLangIndex);
 end;
 
-procedure TLanguageTBXItem.OnLangChange(Sender: TObject);
+procedure TLanguageTBXItem.OnLangChange;
 begin
   if FLangIndex = FLanguageManager.GetCurrentLanguageIndex then begin
     Self.Checked := True;

@@ -28,8 +28,8 @@ type
     FLastSearchResults: ILastSearchResultConfig;
     FMarkerProvider: IBitmapMarkerProviderChangeable;
     FMarkerProviderStatic: IBitmapMarkerProvider;
-    procedure OnLastSearchResultsChange(Sender: TObject);
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnLastSearchResultsChange;
+    procedure OnConfigChange;
   protected
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
@@ -68,11 +68,11 @@ begin
   FMarkerProvider := AMarkerProvider;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FMarkerProvider.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnLastSearchResultsChange),
+    TNotifyNoMmgEventListener.Create(Self.OnLastSearchResultsChange),
     FLastSearchResults.GetChangeNotifier
   );
 end;
@@ -82,7 +82,7 @@ begin
   inherited;
 end;
 
-procedure TSearchResultsLayer.OnConfigChange(Sender: TObject);
+procedure TSearchResultsLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -94,7 +94,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TSearchResultsLayer.OnLastSearchResultsChange(Sender: TObject);
+procedure TSearchResultsLayer.OnLastSearchResultsChange;
 begin
   ViewUpdateLock;
   try
@@ -183,8 +183,8 @@ end;
 procedure TSearchResultsLayer.StartThreads;
 begin
   inherited;
-  OnLastSearchResultsChange(nil);
-  OnConfigChange(nil);
+  OnLastSearchResultsChange;
+  OnConfigChange;
 end;
 
 end.

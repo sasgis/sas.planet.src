@@ -29,7 +29,7 @@ type
     FCS: TCriticalSection;
 
     procedure OnTTLTrim(Sender: TObject);
-    procedure OnDownloadersListChange(Sender: TObject);
+    procedure OnDownloadersListChange;
   protected
     procedure InitThreadsIfNeed;
   public
@@ -63,13 +63,13 @@ begin
 
   FDownloaderList := ADownloaderList;
 
-  FDownloadersListListener := TNotifyEventListener.Create(Self.OnDownloadersListChange);
+  FDownloadersListListener := TNotifyNoMmgEventListener.Create(Self.OnDownloadersListChange);
   FDownloaderList.ChangeNotifier.Add(FDownloadersListListener);
 
   FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 60000, 1000);
   FGCList.Add(FTTLListener);
 
-  FDownloaderListStatic := FDownloaderList.GetStatic;
+  OnDownloadersListChange;
 end;
 
 destructor TTileRequestProcessorPool.Destroy;
@@ -112,7 +112,7 @@ begin
   end;
 end;
 
-procedure TTileRequestProcessorPool.OnDownloadersListChange(Sender: TObject);
+procedure TTileRequestProcessorPool.OnDownloadersListChange;
 begin
   FDownloaderListStatic := FDownloaderList.GetStatic;
   OnTTLTrim(nil);

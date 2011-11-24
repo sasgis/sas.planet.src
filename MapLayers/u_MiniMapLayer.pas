@@ -91,15 +91,15 @@ type
     procedure CreateLayers(AParentMap: TImage32);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
 
-    procedure OnMainMapChange(Sender: TObject);
-    procedure OnLayerSetChange(Sender: TObject);
+    procedure OnMainMapChange;
+    procedure OnLayerSetChange;
     procedure OnDrawBitmap(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier
     );
-    procedure OnTimer(Sender: TObject);
+    procedure OnTimer;
 
     procedure SetBitmapChanged;
     procedure DrawBitmap(
@@ -222,29 +222,29 @@ begin
   BuildPopUpMenu;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnMainMapChange),
+    TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
     FConfig.MapsConfig.GetChangeNotifier
   );
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnLayerSetChange),
+    TNotifyNoMmgEventListener.Create(Self.OnLayerSetChange),
     FConfig.MapsConfig.GetActiveLayersSet.GetChangeNotifier
   );
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FViewConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     APostProcessingConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
+    TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
 end;
@@ -864,7 +864,7 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.OnConfigChange(Sender: TObject);
+procedure TMiniMapLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -920,7 +920,7 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.OnLayerSetChange(Sender: TObject);
+procedure TMiniMapLayer.OnLayerSetChange;
 begin
   ViewUpdateLock;
   try
@@ -932,7 +932,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TMiniMapLayer.OnMainMapChange(Sender: TObject);
+procedure TMiniMapLayer.OnMainMapChange;
 begin
   ViewUpdateLock;
   try
@@ -944,7 +944,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TMiniMapLayer.OnTimer(Sender: TObject);
+procedure TMiniMapLayer.OnTimer;
 begin
   if InterlockedExchange(FUpdateCounter, 0) > 0 then begin
     FLayer.Changed;
@@ -1028,9 +1028,9 @@ end;
 procedure TMiniMapLayer.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
-  OnMainMapChange(nil);
-  OnLayerSetChange(nil);
+  OnConfigChange;
+  OnMainMapChange;
+  OnLayerSetChange;
   FDrawTask.Start;
   if Visible then begin
     FDrawTask.StartExecute;

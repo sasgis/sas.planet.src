@@ -85,7 +85,7 @@ type
       ADownloaderConfig: ITileDownloaderConfigStatic;
       ASource: ITileRequest
     );
-    procedure OnLangChange(Sender: TObject);
+    procedure OnLangChange;
   protected
     function BuildRequest(
       ASource: ITileRequest;
@@ -131,13 +131,13 @@ begin
   FTileDownloaderConfig := ATileDownloaderConfig;
   FLangManager := ALangManager;
 
-  FLangListener := TNotifyEventListener.Create(Self.OnLangChange);
+  FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLangManager.GetChangeNotifier.Add(FLangListener);
 
   FCoordConverter := FConfig.GeoCoder as ICoordConverterSimple;
   PreparePascalScript(AZmp.DataProvider);
 
-  OnLangChange(nil);
+  OnLangChange;
 end;
 
 destructor TTileDownloadRequestBuilderPascalScript.Destroy;
@@ -152,7 +152,7 @@ begin
   inherited;
 end;
 
-procedure TTileDownloadRequestBuilderPascalScript.OnLangChange(Sender: TObject);
+procedure TTileDownloadRequestBuilderPascalScript.OnLangChange;
 begin
   InterlockedIncrement(FLangChangeCount);
 end;

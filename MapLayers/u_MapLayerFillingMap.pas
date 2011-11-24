@@ -22,7 +22,7 @@ type
   private
     FConfig: IFillingMapLayerConfig;
     FConfigStatic: IFillingMapLayerConfigStatic;
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
@@ -77,7 +77,7 @@ begin
   FConfig := AConfig;
 
   LinksList.Add(
-    TNotifyEventListener.Create(OnConfigChange),
+    TNotifyNoMmgEventListener.Create(OnConfigChange),
     FConfig.GetChangeNotifier
   );
 end;
@@ -85,7 +85,7 @@ end;
 procedure TMapLayerFillingMap.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 procedure TMapLayerFillingMap.DrawBitmap(
@@ -241,7 +241,7 @@ begin
   end;
 end;
 
-procedure TMapLayerFillingMap.OnConfigChange(Sender: TObject);
+procedure TMapLayerFillingMap.OnConfigChange;
 begin
   ViewUpdateLock;
   try

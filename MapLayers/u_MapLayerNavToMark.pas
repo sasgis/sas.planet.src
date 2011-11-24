@@ -29,8 +29,8 @@ type
     FReachedMarker: IBitmapMarker;
 
     FMarkPoint: TDoublePoint;
-    procedure OnNavToPointChange(Sender: TObject);
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnNavToPointChange;
+    procedure OnConfigChange;
   protected
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
@@ -75,24 +75,24 @@ begin
   FConfig := AConfig;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FArrowMarkerProvider.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FReachedMarkerProvider.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnNavToPointChange),
+    TNotifyNoMmgEventListener.Create(Self.OnNavToPointChange),
     FNavToPoint.GetChangeNotifier
   );
 end;
 
-procedure TNavToMarkLayer.OnConfigChange(Sender: TObject);
+procedure TNavToMarkLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -106,7 +106,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TNavToMarkLayer.OnNavToPointChange(Sender: TObject);
+procedure TNavToMarkLayer.OnNavToPointChange;
 begin
   ViewUpdateLock;
   try
@@ -177,8 +177,8 @@ end;
 procedure TNavToMarkLayer.StartThreads;
 begin
   inherited;
-  OnNavToPointChange(nil);
-  OnConfigChange(nil);
+  OnNavToPointChange;
+  OnConfigChange;
 end;
 
 end.

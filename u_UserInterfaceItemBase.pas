@@ -36,7 +36,7 @@ type
     FMenuItemName: string;
 
     FLinksList: IJclListenerNotifierLinksList;
-    procedure OnLangChange(Sender: TObject);
+    procedure OnLangChange;
   protected
     function GetCaptionTranslated: string; virtual; abstract;
     function GetDescriptionTranslated: string; virtual; abstract;
@@ -72,10 +72,10 @@ begin
   FLinksList := TJclListenerNotifierLinksList.Create;
   FLinksList.ActivateLinks;
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnLangChange),
+    TNotifyNoMmgEventListener.Create(Self.OnLangChange),
     ALanguageManager.GetChangeNotifier
   );
-  OnLangChange(nil);
+  OnLangChange;
 end;
 
 function TUserInterfaceItemBase.GetCaption: string;
@@ -113,7 +113,7 @@ begin
   end;
 end;
 
-procedure TUserInterfaceItemBase.OnLangChange(Sender: TObject);
+procedure TUserInterfaceItemBase.OnLangChange;
 begin
   LockWrite;
   try

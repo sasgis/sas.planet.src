@@ -26,8 +26,8 @@ type
     FFontSize: Integer;
     FZoomDeltaColors: TArrayOfColor32;
 
-    procedure OnSelectionChange(Sender: TObject);
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnSelectionChange;
+    procedure OnConfigChange;
   protected
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
@@ -65,16 +65,16 @@ begin
   FSelection := ASelection;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnSelectionChange),
+    TNotifyNoMmgEventListener.Create(Self.OnSelectionChange),
     FSelection.GetChangeNotifier
   );
 end;
 
-procedure TSelectionRectLayer.OnConfigChange(Sender: TObject);
+procedure TSelectionRectLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -94,7 +94,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TSelectionRectLayer.OnSelectionChange(Sender: TObject);
+procedure TSelectionRectLayer.OnSelectionChange;
 begin
   ViewUpdateLock;
   try
@@ -171,7 +171,7 @@ end;
 procedure TSelectionRectLayer.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

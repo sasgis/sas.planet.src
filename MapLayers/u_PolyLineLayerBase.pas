@@ -50,8 +50,8 @@ type
     );
   protected
     procedure SetSourcePolygon(const Value: TArrayOfDoublePoint); virtual;
-    procedure OnLineOnMapEditChange(Sender: TObject); virtual;
-    procedure OnConfigChange(Sender: TObject); virtual;
+    procedure OnLineOnMapEditChange; virtual;
+    procedure OnConfigChange; virtual;
     procedure DoConfigChange; virtual;
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter); virtual;
     property BitmapSize: TPoint read FBitmapSize;
@@ -103,12 +103,12 @@ begin
   FClosed := AClosed;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnLineOnMapEditChange),
+    TNotifyNoMmgEventListener.Create(Self.OnLineOnMapEditChange),
     FLineOnMapEdit.GetChangeNotifier
   );
 end;
@@ -164,7 +164,7 @@ begin
   end;
 end;
 
-procedure TPolyLineLayerBase.OnConfigChange(Sender: TObject);
+procedure TPolyLineLayerBase.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -180,7 +180,7 @@ begin
   ViewUpdate;
 end;
 
-procedure TPolyLineLayerBase.OnLineOnMapEditChange(Sender: TObject);
+procedure TPolyLineLayerBase.OnLineOnMapEditChange;
 var
   VPoints: TArrayOfDoublePoint;
   VActiveIndex: Integer;
@@ -305,7 +305,7 @@ end;
 procedure TPolyLineLayerBase.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

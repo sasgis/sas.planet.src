@@ -37,7 +37,7 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FMainMapChangeListener: IJclListener;
     function CreateMapsSet: IMapTypeSet;
-    procedure OnMainMapChange(Sender: TObject);
+    procedure OnMainMapChange;
     procedure OnSelectedChange(const AGUID: TGUID);
     procedure SetActualMap(AValue: IMapType);
   protected
@@ -64,7 +64,7 @@ begin
   FMainMapsConfig := AMapsConfig;
   inherited Create(CreateMapsSet);
 
-  FMainMapChangeListener := TNotifyEventListener.Create(Self.OnMainMapChange);
+  FMainMapChangeListener := TNotifyNoMmgEventListener.Create(Self.OnMainMapChange);
   FMainMapsConfig.GetActiveMap.GetChangeNotifier.Add(FMainMapChangeListener);
 
   FSelectedMapChangeListener := TNotifyWithGUIDEventListener.Create(Self.OnSelectedChange);
@@ -115,7 +115,7 @@ begin
   end;
 end;
 
-procedure TFillingMapMapsConfig.OnMainMapChange(Sender: TObject);
+procedure TFillingMapMapsConfig.OnMainMapChange;
 var
   VGUID: TGUID;
 begin

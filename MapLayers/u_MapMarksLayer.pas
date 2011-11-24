@@ -33,7 +33,7 @@ type
     FMarksSubset: IMarksSubset;
     FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
     function GetMarksSubset(ALocalConverter: ILocalCoordConverter): IMarksSubset;
   protected
     procedure DrawBitmap(
@@ -106,11 +106,11 @@ begin
   FMarkDB := AMarkDB;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.MarksShowConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.MarksDrawConfig.GetChangeNotifier
   );
 end;
@@ -444,7 +444,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.OnConfigChange(Sender: TObject);
+procedure TMapMarksLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -461,7 +461,7 @@ end;
 procedure TMapMarksLayer.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

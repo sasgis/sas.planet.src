@@ -28,57 +28,83 @@ uses
   u_JclNotify;
 
 type
-  TNotifyEventListenerBase = class(TJclBaseListener)
+  TNotifyListenerNoMmgEvent = procedure() of object;
+  TNotifyListenerEvent = procedure(AMsg: IInterface) of object;
+
+  TNotifyEventListener = class(TJclBaseListener)
   private
-    FEvent: TNotifyEvent;
-    FSender: TObject;
+    FEvent: TNotifyListenerEvent;
   protected
-    procedure DoEvent; virtual;
+    procedure Notification(AMsg: IInterface); override;
   public
-    constructor Create(AEvent: TNotifyEvent; ASender: TObject = nil);
+    constructor Create(AEvent: TNotifyListenerEvent);
   end;
 
-  TNotifyEventListener = class(TNotifyEventListenerBase)
+  TNotifyNoMmgEventListener = class(TJclBaseListener)
+  private
+    FEvent: TNotifyListenerNoMmgEvent;
   protected
-    procedure Notification(msg: IInterface); override;
+    procedure Notification(AMsg: IInterface); override;
+  public
+    constructor Create(AEvent: TNotifyListenerNoMmgEvent);
   end;
 
-  TNotifyEventListenerSync = class(TNotifyEventListenerBase)
+  TNotifyEventListenerSync = class(TJclBaseListener)
+  private
+    FEvent: TNotifyListenerNoMmgEvent;
+    procedure DoEvent;
   protected
-    procedure Notification(msg: IInterface); override;
+    procedure Notification(AMsg: IInterface); override;
+  public
+    constructor Create(AEvent: TNotifyListenerNoMmgEvent);
   end;
 
 implementation
 
-{ TSimpleEventListenerBase }
-
-constructor TNotifyEventListenerBase.Create(AEvent: TNotifyEvent; ASender: TObject);
-begin
-  FSender := ASender;
-  FEvent := AEvent;
-end;
-
-procedure TNotifyEventListenerBase.DoEvent;
-begin
-  if Assigned(FEvent) then begin
-    FEvent(FSender);
-  end;
-end;
-
 { TSimpleEventListener }
 
-procedure TNotifyEventListener.Notification(msg: IInterface);
+constructor TNotifyEventListener.Create(AEvent: TNotifyListenerEvent);
+begin
+  FEvent := AEvent;
+  Assert(Assigned(FEvent));
+end;
+
+procedure TNotifyEventListener.Notification(AMsg: IInterface);
 begin
   inherited;
-  DoEvent;
+  FEvent(AMsg);
 end;
 
 { TNotifyEventListenerSync }
 
-procedure TNotifyEventListenerSync.Notification(msg: IInterface);
+constructor TNotifyEventListenerSync.Create(AEvent: TNotifyListenerNoMmgEvent);
+begin
+  FEvent := AEvent;
+  Assert(Assigned(FEvent));
+end;
+
+procedure TNotifyEventListenerSync.DoEvent;
+begin
+  FEvent;
+end;
+
+procedure TNotifyEventListenerSync.Notification(AMsg: IInterface);
 begin
   inherited;
   TThread.Synchronize(nil, DoEvent);
+end;
+
+{ TNotifyNoMmgEventListener }
+
+constructor TNotifyNoMmgEventListener.Create(AEvent: TNotifyListenerNoMmgEvent);
+begin
+  FEvent := AEvent;
+  Assert(Assigned(FEvent));
+end;
+
+procedure TNotifyNoMmgEventListener.Notification(AMsg: IInterface);
+begin
+  FEvent;
 end;
 
 end.

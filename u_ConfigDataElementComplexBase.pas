@@ -37,7 +37,7 @@ type
   private
     FList: TObjectList;
     FItemChangeListener: IJclListener;
-    procedure OnItemChange(Sender: TObject);
+    procedure OnItemChange;
   protected
     procedure DoSubItemChange; virtual;
     procedure Add(AItem: IConfigDataElement; ASaveLoadStrategy: IConfigSaveLoadStrategy); overload;
@@ -127,7 +127,7 @@ constructor TConfigDataElementComplexBase.Create;
 begin
   inherited;
   FList := TObjectList.Create(True);
-  FItemChangeListener := TNotifyEventListener.Create(Self.OnItemChange);
+  FItemChangeListener := TNotifyNoMmgEventListener.Create(Self.OnItemChange);
 end;
 
 destructor TConfigDataElementComplexBase.Destroy;
@@ -259,7 +259,7 @@ begin
   Result := FList.Count;
 end;
 
-procedure TConfigDataElementComplexBase.OnItemChange(Sender: TObject);
+procedure TConfigDataElementComplexBase.OnItemChange;
 begin
   inherited StopNotify;
   try

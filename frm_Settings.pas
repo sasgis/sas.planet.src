@@ -260,7 +260,7 @@ type
     frShortCutList: TfrShortCutList;
     FMapTypeEditor: IMapTypeConfigModalEdit;
     procedure SatellitePaint;
-    procedure GPSReceiverReceive(Sender: TObject);
+    procedure GPSReceiverReceive;
     procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
     procedure InitMapsList;
   public
@@ -305,7 +305,7 @@ begin
   FOnSave := AOnSave;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FLinksList.Add(
-    TNotifyEventListener.Create(Self.GPSReceiverReceive),
+    TNotifyNoMmgEventListener.Create(Self.GPSReceiverReceive),
     GState.GPSpar.DataReciveNotifier
   );
   frShortCutList := TfrShortCutList.Create(ALanguageManager);
@@ -780,7 +780,7 @@ begin
  SatellitePaint;
 end;
 
-procedure TfrmSettings.GPSReceiverReceive(Sender: TObject);
+procedure TfrmSettings.GPSReceiverReceive;
 begin
   if Self.Visible then SatellitePaint;
 end;

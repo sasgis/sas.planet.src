@@ -52,7 +52,7 @@ type
     function GetIsProcessed: Boolean;
     procedure SetIsProcessed(AValue: Boolean);
     function GetNotifier: IOperationNotifier;
-    procedure OnCancelEvent(Sender: TObject);
+    procedure OnCancelEvent;
     function GetOperationID: Integer;
   public
     constructor Create(ACancelNotifier: IOperationNotifier; AOperationID: Integer);
@@ -116,7 +116,7 @@ begin
   FOperationID := AOperationID;
   FThreadSafeCS := TCriticalSection.Create;
   FCancelNotifier := ACancelNotifier;
-  FCancelListener := TNotifyEventListener.Create(Self.OnCancelEvent);
+  FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
   if FCancelNotifier <> nil then begin
     FCancelNotifier.AddListener(FCancelListener);
   end;
@@ -136,7 +136,7 @@ begin
   end;
 end;
 
-procedure TEventStatus.OnCancelEvent(Sender: TObject);
+procedure TEventStatus.OnCancelEvent;
 begin
   FThreadSafeCS.Acquire;
   try

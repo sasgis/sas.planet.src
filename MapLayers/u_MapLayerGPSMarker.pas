@@ -34,9 +34,9 @@ type
 
     FFixedLonLat: TDoublePoint;
 
-    procedure GPSReceiverReceive(Sender: TObject);
-    procedure OnConfigChange(Sender: TObject);
-    procedure OnTimer(Sender: TObject);
+    procedure GPSReceiverReceive;
+    procedure OnConfigChange;
+    procedure OnTimer;
     procedure PrepareMarker(ASpeed, AAngle: Double);
   protected
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
@@ -83,43 +83,43 @@ begin
   FStopedMarkerProvider := AStopedMarkerProvider;
 
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnTimer),
+    TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FMovedMarkerProvider.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.OnConfigChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FStopedMarkerProvider.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyEventListener.Create(Self.GPSReceiverReceive),
+    TNotifyNoMmgEventListener.Create(Self.GPSReceiverReceive),
     FGPSRecorder.GetChangeNotifier
   );
 
   FGpsPosChangeCounter := 0;
 end;
 
-procedure TMapLayerGPSMarker.GPSReceiverReceive(Sender: TObject);
+procedure TMapLayerGPSMarker.GPSReceiverReceive;
 begin
   InterlockedIncrement(FGpsPosChangeCounter);
 end;
 
-procedure TMapLayerGPSMarker.OnConfigChange(Sender: TObject);
+procedure TMapLayerGPSMarker.OnConfigChange;
 begin
   FMovedMarkerProviderStatic := FMovedMarkerProvider.GetStatic;
   FStopedMarkerProviderStatic := FStopedMarkerProvider.GetStatic;
   FStopedMarker := FStopedMarkerProviderStatic.GetMarker;
-  GPSReceiverReceive(nil);
+  GPSReceiverReceive;
 end;
 
-procedure TMapLayerGPSMarker.OnTimer(Sender: TObject);
+procedure TMapLayerGPSMarker.OnTimer;
 var
   VGPSPosition: IGPSPosition;
 begin
@@ -180,7 +180,7 @@ end;
 procedure TMapLayerGPSMarker.StartThreads;
 begin
   inherited;
-  OnConfigChange(nil);
+  OnConfigChange;
 end;
 
 end.

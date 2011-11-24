@@ -61,7 +61,7 @@ type
     FMainMapChangeListener: IJclListener;
     procedure SetActiveCoordConverter;
     procedure CreateVisibleCoordConverter;
-    procedure OnMainMapChange(Sender: TObject);
+    procedure OnMainMapChange;
     procedure ResetScaleAndMove;
     procedure NotifyChangeScale;
   protected
@@ -136,7 +136,7 @@ begin
   ResetScaleAndMove;
   SetActiveCoordConverter;
   CreateVisibleCoordConverter;
-  FMainMapChangeListener := TNotifyEventListener.Create(Self.OnMainMapChange);
+  FMainMapChangeListener := TNotifyNoMmgEventListener.Create(Self.OnMainMapChange);
   FMainMapConfig.GetChangeNotifier.Add(FMainMapChangeListener);
 end;
 
@@ -478,7 +478,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.OnMainMapChange(Sender: TObject);
+procedure TMapViewPortState.OnMainMapChange;
 begin
   SetActiveCoordConverter;
 end;
