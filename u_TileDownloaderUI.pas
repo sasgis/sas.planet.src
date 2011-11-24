@@ -63,7 +63,6 @@ type
 
     FLoadXY: TPoint;
 
-    procedure GetCurrentMapAndPos;
     procedure OnPosChange(Sender: TObject);
     procedure OnConfigChange(Sender: TObject);
   protected
@@ -151,10 +150,6 @@ end;
 procedure TTileDownloaderUI.OnPosChange(Sender: TObject);
 begin
   change_scene := True;
-end;
-
-procedure TTileDownloaderUI.GetCurrentMapAndPos;
-begin
   FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
   FActiveMapsSet := FMapsSet.GetSelectedMapsSet;
 end;
@@ -236,7 +231,6 @@ begin
           break;
         end;
         change_scene := false;
-        GetCurrentMapAndPos;
         if Terminated then begin
           break;
         end;
