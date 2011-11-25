@@ -34,7 +34,6 @@ type
     FCS: TCriticalSection;
     FTerminated: Boolean;
   protected
-    procedure Synchronize(AMethod: TThreadMethod);
     procedure Execute; virtual; abstract;
     property Terminated: Boolean read FTerminated;
   protected
@@ -106,11 +105,6 @@ begin
   finally
     FCS.Release;
   end;
-end;
-
-procedure TInterfacedThread.Synchronize(AMethod: TThreadMethod);
-begin
-  FThread.Synchronize(FThread, AMethod);
 end;
 
 procedure TInterfacedThread.Terminate;
