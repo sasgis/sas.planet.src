@@ -43,6 +43,7 @@ type
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
+      AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -65,6 +66,7 @@ type
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
+      AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -87,6 +89,7 @@ uses
 
 constructor TMapLayerWithThreadDraw.Create(
   APerfList: IInternalPerformanceCounterList;
+  AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -98,7 +101,7 @@ begin
   inherited Create(APerfList, AParentMap, AViewPortState, AResamplerConfig, AConverterFactory);
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   Layer.Bitmap.BeginUpdate;
-  FDrawTask := TBackgroundTaskLayerDrawBase.Create(OnDrawBitmap, APriority);
+  FDrawTask := TBackgroundTaskLayerDrawBase.Create(AAppClosingNotifier, OnDrawBitmap, APriority);
   FUpdateCounter := 0;
 
   LinksList.Add(
@@ -180,6 +183,7 @@ end;
 
 constructor TMapLayerTiledWithThreadDraw.Create(
   APerfList: IInternalPerformanceCounterList;
+  AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -191,6 +195,7 @@ constructor TMapLayerTiledWithThreadDraw.Create(
 begin
   inherited Create(
     APerfList,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState,
     AResamplerConfig,

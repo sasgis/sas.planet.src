@@ -6,6 +6,7 @@ uses
   Windows,
   SyncObjs,
   Classes,
+  i_JclNotify,
   i_OperationNotifier,
   i_TileRequest,
   i_TileRequestQueue,
@@ -15,12 +16,17 @@ uses
 type
   TTileRequestQueueProcessorThread = class(TInterfacedThread)
   private
+    FAppClosingNotifier: IJclNotifier;
     FTileRequestQueue: ITileRequestQueue;
     FTileDownloaderSync: ITileDownloader;
+
+    FAppClosingListener: IJclListener;
+    procedure OnAppClosing;
   protected
     procedure Execute; override;
   public
     constructor Create(
+      AAppClosingNotifier: IJclNotifier;
       ATileRequestQueue: ITileRequestQueue;
       ATileDownloaderSync: ITileDownloader
     );
@@ -30,22 +36,32 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_NotifyEventListener;
 
 { TTileRequestQueueProcessorThread }
 
 constructor TTileRequestQueueProcessorThread.Create(
+  AAppClosingNotifier: IJclNotifier;
   ATileRequestQueue: ITileRequestQueue;
   ATileDownloaderSync: ITileDownloader
 );
 begin
   inherited Create;
+  FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
   FTileDownloaderSync := ATileDownloaderSync;
+
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
+  FAppClosingNotifier.Add(FAppClosingListener);
 end;
 
 destructor TTileRequestQueueProcessorThread.Destroy;
 begin
+  FAppClosingNotifier.Remove(FAppClosingListener);
+  FAppClosingListener := nil;
+  FAppClosingNotifier := nil;
+
   FTileDownloaderSync := nil;
   FTileRequestQueue := nil;
   inherited;
@@ -62,6 +78,11 @@ begin
       FTileDownloaderSync.Download(VTileRequest);
     end;
   end;
+end;
+
+procedure TTileRequestQueueProcessorThread.OnAppClosing;
+begin
+  Terminate;
 end;
 
 end.

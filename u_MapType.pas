@@ -29,6 +29,7 @@ uses
   Dialogs,
   GR32,
   t_GeoTypes,
+  i_JclNotify,
   i_FillingMapColorer,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
@@ -111,6 +112,7 @@ type
     procedure LoadUrlScript;
     procedure LoadDownloader(
       AGCList: ITTLCheckNotifier;
+      AAppClosingNotifier: IJclNotifier;
       ACoordConverterFactory: ICoordConverterFactory;
       AInvisibleBrowser: IInvisibleBrowser
     );
@@ -127,6 +129,7 @@ type
     procedure LoadMapType(
       AMainMemCacheConfig: IMainMemCacheConfig;
       AGCList: ITTLCheckNotifier;
+      AAppClosingNotifier: IJclNotifier;
       AProxyConfig: IProxyConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
@@ -248,6 +251,7 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
       AGCList: ITTLCheckNotifier;
+      AAppClosingNotifier: IJclNotifier;
       AInetConfig: IInetConfig;
       AImageResamplerConfig: IImageResamplerConfig;
       ADownloadConfig: IGlobalDownloadConfig;
@@ -349,6 +353,7 @@ end;
 
 procedure TMapType.LoadDownloader(
   AGCList: ITTLCheckNotifier;
+  AAppClosingNotifier: IJclNotifier;
   ACoordConverterFactory: ICoordConverterFactory;
   AInvisibleBrowser: IInvisibleBrowser
 );
@@ -372,6 +377,7 @@ begin
         VDownloaderList :=
           TTileDownloaderList.Create(
             AGCList,
+            AAppClosingNotifier,
             FDownloadResultFactory,
             FTileDownloaderConfig,
             FTileDownloadRequestBuilderConfig,
@@ -381,6 +387,7 @@ begin
         FTileDownloader := TTileDownloaderWithQueue.Create(
           VDownloaderList,
           AGCList,
+          AAppClosingNotifier,
           256
         );
         FTileDownloaderFrontEnd := TTileDownloaderFrontEnd.Create(
@@ -406,6 +413,7 @@ end;
 procedure TMapType.LoadMapType(
   AMainMemCacheConfig: IMainMemCacheConfig;
   AGCList: ITTLCheckNotifier;
+  AAppClosingNotifier: IJclNotifier;
   AProxyConfig: IProxyConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
@@ -432,6 +440,7 @@ begin
   LoadUrlScript;
   LoadDownloader(
     AGCList,
+    AAppClosingNotifier,
     ACoordConverterFactory,
     AInvisibleBrowser
   );
@@ -671,6 +680,7 @@ constructor TMapType.Create(
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
   AGCList: ITTLCheckNotifier;
+  AAppClosingNotifier: IJclNotifier;
   AInetConfig: IInetConfig;
   AImageResamplerConfig: IImageResamplerConfig;
   ADownloadConfig: IGlobalDownloadConfig;
@@ -707,6 +717,7 @@ begin
   LoadMapType(
     AMainMemCacheConfig,
     AGCList,
+    AAppClosingNotifier,
     AInetConfig.ProxyConfig,
     AGlobalCacheConfig,
     ATileNameGeneratorList,

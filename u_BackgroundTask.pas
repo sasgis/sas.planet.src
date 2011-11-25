@@ -26,6 +26,7 @@ uses
   Windows,
   SyncObjs,
   Classes,
+  i_JclNotify,
   i_OperationNotifier,
   i_BackgroundTask,
   u_OperationNotifier,
@@ -34,11 +35,14 @@ uses
 type
   TBackgroundTask = class(TInterfacedThread, IBackgroundTask)
   private
+    FAppClosingNotifier: IJclNotifier;
     FCancelNotifierInternal: IOperationNotifierInternal;
     FCancelNotifier: IOperationNotifier;
     FStopThread: TEvent;
     FAllowExecute: TEvent;
     FCS: TCriticalSection;
+    FAppClosingListener: IJclListener;
+    procedure OnAppClosing;
   protected
     procedure ExecuteTask(
       AOperationID: Integer;
@@ -51,37 +55,54 @@ type
     procedure StartExecute; virtual;
     procedure StopExecute; virtual;
   public
-    constructor Create(APriority: TThreadPriority = tpLowest);
+    constructor Create(
+      AAppClosingNotifier: IJclNotifier;
+      APriority: TThreadPriority = tpLowest);
     destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_NotifyEventListener;
 
 { TBackgroundTask }
 
-constructor TBackgroundTask.Create(APriority: TThreadPriority);
+constructor TBackgroundTask.Create(
+  AAppClosingNotifier: IJclNotifier;
+  APriority: TThreadPriority
+);
 var
   VOperationNotifier: TOperationNotifier;
 begin
   inherited Create;
-  FStopThread := TEvent.Create(nil, True, False, '');
+  FAppClosingNotifier := AAppClosingNotifier;
+  FStopThread := TEvent.Create;
   FAllowExecute := TEvent.Create(nil, True, False, '');
   FCS := TCriticalSection.Create;
   SetPriority(APriority);
   VOperationNotifier := TOperationNotifier.Create;
   FCancelNotifierInternal := VOperationNotifier;
   FCancelNotifier := VOperationNotifier;
+
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
+  FAppClosingNotifier.Add(FAppClosingListener);
 end;
 
 destructor TBackgroundTask.Destroy;
 begin
+  FAppClosingNotifier.Remove(FAppClosingListener);
+  FAppClosingListener := nil;
+  FAppClosingNotifier := nil;
+
   Terminate;
   FreeAndNil(FStopThread);
   FreeAndNil(FAllowExecute);
   FreeAndNil(FCS);
+  FCancelNotifierInternal := nil;
+  FCancelNotifier := nil;
+
   inherited;
 end;
 
@@ -117,6 +138,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TBackgroundTask.OnAppClosing;
+begin
+  Terminate;
 end;
 
 procedure TBackgroundTask.StartExecute;

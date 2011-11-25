@@ -32,6 +32,7 @@ type
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
+      AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -57,6 +58,7 @@ uses
 
 constructor TMapLayerFillingMap.Create(
   APerfList: IInternalPerformanceCounterList;
+  AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -67,6 +69,7 @@ constructor TMapLayerFillingMap.Create(
 begin
   inherited Create(
     APerfList,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState,
     AResamplerConfig,

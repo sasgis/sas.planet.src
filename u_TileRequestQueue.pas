@@ -6,6 +6,7 @@ uses
   Windows,
   SyncObjs,
   Classes,
+  i_JclNotify,
   i_OperationNotifier,
   i_TileRequest,
   i_TileRequestQueue,
@@ -19,12 +20,14 @@ type
   private
     FCapacity: Integer;
     FGCList: ITTLCheckNotifier;
+    FAppClosingNotifier: IJclNotifier;
 
     FSize: Integer;
     FHeadIndex: Integer;
     FTailIndex: Integer;
     FRequestArray: TArrayOfITileRequest;
     FTTLListener: ITTLCheckListener;
+    FAppClosingListener: IJclListener;
     FCS: TCriticalSection;
     FCapasitySemaphore: THandle;
     FReadyRequestSemaphore: THandle;
@@ -32,12 +35,14 @@ type
 
     procedure OnTTLTrim(Sender: TObject);
     function GetOrInitArray: TArrayOfITileRequest;
+    procedure OnClosing;
   protected
     procedure Push(ARequest: ITileRequest);
     function Pull: ITileRequest;
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
+      AAppClosingNotifier: IJclNotifier;
       ACapacity: Integer
     );
     destructor Destroy; override;
@@ -47,16 +52,19 @@ implementation
 
 uses
   SysUtils,
+  u_NotifyEventListener,
   u_TTLCheckListener;
 
 { TTileRequestQuery }
 
 constructor TTileRequestQueue.Create(
   AGCList: ITTLCheckNotifier;
+  AAppClosingNotifier: IJclNotifier;
   ACapacity: Integer
 );
 begin
   FGCList := AGCList;
+  FAppClosingNotifier := AAppClosingNotifier;
   FCapacity := ACapacity;
   FCS := TCriticalSection.Create;
   FSize := 0;
@@ -69,6 +77,8 @@ begin
 
   FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 100000, 1000);
   FGCList.Add(FTTLListener);
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnClosing);
+  FAppClosingNotifier.Add(FAppClosingListener);
 end;
 
 destructor TTileRequestQueue.Destroy;
@@ -78,6 +88,10 @@ begin
   FGCList.Remove(FTTLListener);
   FTTLListener := nil;
   FGCList := nil;
+
+  FAppClosingNotifier.Remove(FAppClosingListener);
+  FAppClosingListener := nil;
+  FAppClosingNotifier := nil;
 
   FreeAndNil(FCS);
 
@@ -90,10 +104,10 @@ end;
 function TTileRequestQueue.GetOrInitArray: TArrayOfITileRequest;
 begin
   Result := FRequestArray;
-  if Result <> nil then begin
+  if Length(Result) = 0 then begin
     FCS.Acquire;
     try
-      if FRequestArray = nil then begin
+      if Length(Result) = 0 then begin
         SetLength(FRequestArray, FCapacity);
       end;
       Result := FRequestArray;
@@ -101,6 +115,11 @@ begin
       FCS.Release;
     end;
   end;
+end;
+
+procedure TTileRequestQueue.OnClosing;
+begin
+  FStopThreadEvent.SetEvent;
 end;
 
 procedure TTileRequestQueue.OnTTLTrim(Sender: TObject);

@@ -99,6 +99,7 @@ type
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
+      AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
@@ -131,6 +132,7 @@ uses
 
 constructor TWikiLayer.Create(
   APerfList: IInternalPerformanceCounterList;
+  AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
@@ -143,6 +145,7 @@ constructor TWikiLayer.Create(
 begin
   inherited Create(
     APerfList,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState,
     AResamplerConfig,

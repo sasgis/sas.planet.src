@@ -38,6 +38,7 @@ begin
   FOnTrimByTTL := AOnTrimByTTL;
   FTTL := ATTL;
   FCheckInterval := ACheckInterval;
+  FLastUseTime := 0;
 end;
 
 function TTTLCheckListener.CheckTTLAndGetNextCheckTime(
@@ -50,9 +51,13 @@ begin
   if VCounter > 0 then begin
     FLastUseTime := ANow;
   end else begin
-    VCleanTime := FLastUseTime + FTTL;
-    if (VCleanTime <= ANow) or ((ANow < 1 shl 29) and (VCleanTime > 1 shl 30)) then begin
-      FOnTrimByTTL(nil);
+    if FLastUseTime <> 0 then begin
+      VCleanTime := FLastUseTime + FTTL;
+      if (VCleanTime <= ANow) or ((ANow < 1 shl 29) and (VCleanTime > 1 shl 30)) then begin
+        FOnTrimByTTL(nil);
+      end;
+    end else begin
+      FLastUseTime := ANow;
     end;
   end;
   Result := ANow + FCheckInterval;

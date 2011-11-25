@@ -12,7 +12,8 @@ uses
   i_TileRequest,
   i_TileDownloaderConfig,
   i_TileDownloaderAsync,
-  i_TileDownloadRequestBuilder;
+  i_TileDownloadRequestBuilder,
+  u_OperationNotifier;
 
 type
   TTileDownloaderSimple = class(TInterfacedObject, ITileDownloader)
@@ -20,8 +21,14 @@ type
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FHttpDownloader: ISimpleDownloader;
+    FAppClosingNotifier: IJclNotifier;
     FLastResponseInfo: ILastResponseInfo;
 
+    FDestroyNotifierInternal: IOperationNotifierInternal;
+    FDestroyNotifier: IOperationNotifier;
+    FDestroyOperationID: Integer;
+
+    FAppClosingListener: IJclListener;
     FCS: TCriticalSection;
     FCancelListener: IJclListener;
     FConfigChangeListener: IJclListener;
@@ -34,6 +41,7 @@ type
     FSleepAfterDownload: Cardinal;
     procedure OnConfigChange;
     procedure OnCancelEvent;
+    procedure OnAppClosing;
     procedure SleepCancelable(ATime: Cardinal);
     procedure SleepIfConnectErrorOrWaitInterval;
   protected
@@ -42,6 +50,7 @@ type
     );
   public
     constructor Create(
+      AAppClosingNotifier: IJclNotifier;
       ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
       ATileDownloaderConfig: ITileDownloaderConfig;
       AHttpDownloader: ISimpleDownloader;
@@ -65,16 +74,28 @@ uses
 { TITileDownloaderSimple }
 
 constructor TTileDownloaderSimple.Create(
+  AAppClosingNotifier: IJclNotifier;
   ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
   ATileDownloaderConfig: ITileDownloaderConfig;
   AHttpDownloader: ISimpleDownloader;
   ALastResponseInfo: ILastResponseInfo
 );
+var
+  VOperationNotifier: TOperationNotifier;
 begin
+  FAppClosingNotifier := AAppClosingNotifier;
   FTileDownloadRequestBuilder := ATileDownloadRequestBuilder;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FHttpDownloader := AHttpDownloader;
   FLastResponseInfo := ALastResponseInfo;
+
+  VOperationNotifier := TOperationNotifier.Create;
+  FDestroyNotifierInternal := VOperationNotifier;
+  FDestroyNotifier := VOperationNotifier;
+  FDestroyOperationID := FDestroyNotifier.CurrentOperation;
+
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
+  FAppClosingNotifier.Add(FAppClosingListener);
 
   FCS := TCriticalSection.Create;
   FCancelEvent := TEvent.Create;
@@ -86,6 +107,11 @@ end;
 
 destructor TTileDownloaderSimple.Destroy;
 begin
+  FDestroyNotifierInternal.NextOperation;
+  FAppClosingNotifier.Remove(FAppClosingListener);
+  FAppClosingListener := nil;
+  FAppClosingNotifier := nil;
+
   FTileDownloaderConfig.ChangeNotifier.Remove(FConfigChangeListener);
   FConfigChangeListener := nil;
   FTileDownloaderConfig := nil;
@@ -126,10 +152,29 @@ begin
                   VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
                   Break;
                 end;
-                VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(
-                  ATileRequest,
-                  FLastResponseInfo
-                );
+                try
+                  VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(
+                    ATileRequest,
+                    FLastResponseInfo
+                  );
+                except
+                  on E: Exception do begin
+                    VTileRequestResult :=
+                      TTileRequestResultErrorBeforBuildDownloadRequest.Create(
+                        ATileRequest,
+                        E.Message
+                      );
+                    Break;
+                  end;
+                end;
+                if VDownloadRequest = nil then begin
+                  VTileRequestResult :=
+                    TTileRequestResultErrorBeforBuildDownloadRequest.Create(
+                      ATileRequest,
+                      'Tile not exists'
+                    );
+                  Break;
+                end;
                 if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
                   VTileRequestResult := TTileRequestResultCanceledAfterBuildDownloadRequest.Create(VDownloadRequest);
                   Break;
@@ -137,8 +182,8 @@ begin
                 VDownloadResult :=
                   FHttpDownloader.DoRequest(
                     VDownloadRequest,
-                    ATileRequest.CancelNotifier,
-                    ATileRequest.OperationID
+                    FDestroyNotifier,
+                    FDestroyOperationID
                   );
                 Inc(VCount);
                 FLastDownloadTime := GetTickCount;
@@ -175,6 +220,12 @@ begin
   finally
     ATileRequest.FinishNotifier.Notify(VTileRequestResult);
   end;
+end;
+
+procedure TTileDownloaderSimple.OnAppClosing;
+begin
+  FDestroyNotifierInternal.NextOperation;
+  FCancelEvent.SetEvent;
 end;
 
 procedure TTileDownloaderSimple.OnCancelEvent;

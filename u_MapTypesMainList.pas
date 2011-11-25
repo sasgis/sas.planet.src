@@ -26,6 +26,7 @@ uses
   ActiveX,
   Classes,
   SysUtils,
+  i_JclNotify,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LanguageManager,
@@ -76,6 +77,7 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
       AGCList: ITTLCheckNotifier;
+      AAppClosingNotifier: IJclNotifier;
       AInetConfig: IInetConfig;
       AImageResamplerConfig: IImageResamplerConfig;
       ADownloadConfig: IGlobalDownloadConfig;
@@ -176,6 +178,7 @@ procedure TMapTypesMainList.LoadMaps(
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
   AGCList: ITTLCheckNotifier;
+  AAppClosingNotifier: IJclNotifier;
   AInetConfig: IInetConfig;
   AImageResamplerConfig: IImageResamplerConfig;
   ADownloadConfig: IGlobalDownloadConfig;
@@ -231,6 +234,7 @@ begin
           AGlobalCacheConfig,
           ATileNameGeneratorList,
           AGCList,
+          AAppClosingNotifier,
           AInetConfig,
           AImageResamplerConfig,
           ADownloadConfig,

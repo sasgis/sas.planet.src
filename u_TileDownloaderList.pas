@@ -19,6 +19,7 @@ type
   TTileDownloaderList = class(TInterfacedObject, ITileDownloaderList)
   private
     FGCList: ITTLCheckNotifier;
+    FAppClosingNotifier: IJclNotifier;
     FResultFactory: IDownloadResultFactory;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
@@ -38,6 +39,7 @@ type
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
+      AAppClosingNotifier: IJclNotifier;
       AResultFactory: IDownloadResultFactory;
       ATileDownloaderConfig: ITileDownloaderConfig;
       ARequestBuilderConfig: ITileDownloadRequestBuilderConfig;
@@ -62,6 +64,7 @@ uses
 
 constructor TTileDownloaderList.Create(
   AGCList: ITTLCheckNotifier;
+  AAppClosingNotifier: IJclNotifier;
   AResultFactory: IDownloadResultFactory;
   ATileDownloaderConfig: ITileDownloaderConfig;
   ARequestBuilderConfig: ITileDownloadRequestBuilderConfig;
@@ -70,6 +73,7 @@ constructor TTileDownloaderList.Create(
 );
 begin
   FGCList := AGCList;
+  FAppClosingNotifier := AAppClosingNotifier;
   FResultFactory := AResultFactory;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FRequestBuilderConfig := ARequestBuilderConfig;
@@ -87,6 +91,7 @@ function TTileDownloaderList.CreateDownloader: ITileDownloader;
 begin
   Result :=
     TTileDownloaderSimple.Create(
+      FAppClosingNotifier,
       TTileDownloadRequestBuilderPascalScript.Create(
         FZmp,
         FRequestBuilderConfig,

@@ -25,6 +25,8 @@ type
 
   ITileRequestResultError = interface(ITileRequestResult)
     ['{38404B81-9EB3-48AB-87C2-4345EAC5F971}']
+    function GetErrorText: string;
+    property ErrorText: string read GetErrorText;
   end;
 
   ITileRequestResultWithDownloadRequest = interface

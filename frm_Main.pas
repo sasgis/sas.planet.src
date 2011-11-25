@@ -556,7 +556,8 @@ type
     FWikiLayer: TWikiLayer;
     FLayerMapMarks: TMapMarksLayer;
     FLayerSearchResults: TSearchResultsLayer;
-    FUIDownLoader: TTileDownloaderUI;
+//    FUIDownLoader: TTileDownloaderUI;
+    FUIDownload: IInterface;
 
     ProgramStart: Boolean;
     ProgramClose: Boolean;
@@ -704,6 +705,7 @@ uses
   u_MapViewGoto,
   u_LanguageTBXItem,
   u_MouseState,
+  u_UITileDownloadList,
   u_MapTypeConfigModalEditByForm,
   i_ImportConfig,
   u_BitmapMarkerProviderSimpleBase,
@@ -944,6 +946,7 @@ begin
     FLayersList.Add(
       TMapMainLayer.Create(
         GState.PerfCounterList,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -977,6 +980,7 @@ begin
     FWikiLayer :=
       TWikiLayer.Create(
         GState.PerfCounterList,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -990,6 +994,7 @@ begin
     FLayersList.Add(
       TMapLayerFillingMap.Create(
         GState.PerfCounterList,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -1001,6 +1006,7 @@ begin
     FLayerMapMarks:=
       TMapMarksLayer.Create(
         GState.PerfCounterList,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -1014,6 +1020,7 @@ begin
     FLayersList.Add(
       TMapGPSLayer.Create(
         GState.PerfCounterList,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -1197,6 +1204,7 @@ begin
     FLayersList.Add(
       TMiniMapLayer.Create(
         GState.PerfCounterList,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.LocalConverterFactory,
@@ -1210,8 +1218,18 @@ begin
       )
     );
 
-    FUIDownLoader :=
-      TTileDownloaderUI.Create(
+//    FUIDownLoader :=
+//      TTileDownloaderUI.Create(
+//        FConfig.DownloadUIConfig,
+//        FConfig.ViewPortState,
+//        FConfig.MainMapsConfig.GetAllActiveMapsSet,
+//        GState.DownloadInfo,
+//        FTileErrorLogger
+//      );
+    FUIDownload :=
+      TUITileDownloadList.Create(
+        GState.GCThread.List,
+        GState.AppClosingNotifier,
         FConfig.DownloadUIConfig,
         FConfig.ViewPortState,
         FConfig.MainMapsConfig.GetAllActiveMapsSet,
@@ -1416,7 +1434,7 @@ begin
     FLinksList.ActivateLinks;
     FLayersList.StartThreads;
     GState.StartThreads;
-    FUIDownLoader.StartThreads;
+//    FUIDownLoader.StartThreads;
     OnMainFormMainConfigChange;
     MapLayersVisibleChange;
     OnFillingMapChange;
@@ -1697,13 +1715,13 @@ begin
       Screen.Forms[i].Close;
     end;
   end;
-  FUIDownLoader.SendTerminateToThreads;
+//  FUIDownLoader.SendTerminateToThreads;
   FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
   SaveConfig(nil);
   Application.ProcessMessages;
   FreeAndNil(FLayersList);
-  FreeAndNil(FUIDownLoader);
+//  FreeAndNil(FUIDownLoader);
   FreeAndNil(FShortCutManager);
   FreeAndNil(FMarkDBGUI);
 end;

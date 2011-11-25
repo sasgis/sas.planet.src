@@ -135,6 +135,7 @@ type
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
+      AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
       ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -184,6 +185,7 @@ end;
 
 constructor TMiniMapLayer.Create(
   APerfList: IInternalPerformanceCounterList;
+  AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
   ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -216,7 +218,12 @@ begin
   FLayer.Bitmap.BeginUpdate;
   CreateLayers(AParentMap);
 
-  FDrawTask := TBackgroundTaskLayerDrawBase.Create(OnDrawBitmap, tpLower);
+  FDrawTask :=
+    TBackgroundTaskLayerDrawBase.Create(
+      AAppClosingNotifier,
+      OnDrawBitmap,
+      tpLower
+    );
   FUpdateCounter := 0;
 
   BuildPopUpMenu;

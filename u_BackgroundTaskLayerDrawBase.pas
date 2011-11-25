@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_JclNotify,
   i_OperationNotifier,
   u_BackgroundTask;
 
@@ -43,7 +44,11 @@ type
       ACancelNotifier: IOperationNotifier
     ); override;
   public
-    constructor Create(AOnBgPaintLayer: TBgPaintLayerEvent; APriority: TThreadPriority = tpLowest);
+    constructor Create(
+      AAppClosingNotifier: IJclNotifier;
+      AOnBgPaintLayer: TBgPaintLayerEvent;
+      APriority: TThreadPriority = tpLowest
+    );
   end;
 
 implementation
@@ -53,9 +58,13 @@ uses
 
 { TBackgroundTaskLayerDrawBase }
 
-constructor TBackgroundTaskLayerDrawBase.Create(AOnBgPaintLayer: TBgPaintLayerEvent; APriority: TThreadPriority);
+constructor TBackgroundTaskLayerDrawBase.Create(
+  AAppClosingNotifier: IJclNotifier;
+  AOnBgPaintLayer: TBgPaintLayerEvent;
+  APriority: TThreadPriority
+);
 begin
-  inherited Create(APriority);
+  inherited Create(AAppClosingNotifier, APriority);
   FOnBgPaintLayer := AOnBgPaintLayer;
 end;
 

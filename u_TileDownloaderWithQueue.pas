@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  i_JclNotify,
   i_TileRequest,
   i_TileRequestQueue,
   i_TileDownloaderList,
@@ -24,6 +25,7 @@ type
     constructor Create(
       ATileDownloaderList: ITileDownloaderList;
       AGCList: ITTLCheckNotifier;
+      AAppClosingNotifier: IJclNotifier;
       AQueueCapacity: Integer
     );
     destructor Destroy; override;
@@ -40,13 +42,20 @@ uses
 constructor TTileDownloaderWithQueue.Create(
   ATileDownloaderList: ITileDownloaderList;
   AGCList: ITTLCheckNotifier;
+  AAppClosingNotifier: IJclNotifier;
   AQueueCapacity: Integer
 );
 begin
-  FQueue := TTileRequestQueue.Create(AGCList, AQueueCapacity);
+  FQueue :=
+    TTileRequestQueue.Create(
+      AGCList,
+      AAppClosingNotifier,
+      AQueueCapacity
+    );
   FSyncTileRequestProcessorPull :=
     TTileRequestProcessorPool.Create(
       AGCList,
+      AAppClosingNotifier,
       FQueue,
       ATileDownloaderList
     );

@@ -132,6 +132,7 @@ type
     FInvisibleBrowser: IInvisibleBrowser;
     FInternalBrowser: IInternalBrowser;
     FDebugInfoWindow: IDebugInfoWindow;
+    FAppClosingNotifier: IJclNotifier;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -156,6 +157,7 @@ type
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
+    property AppClosingNotifier: IJclNotifier read FAppClosingNotifier;
 
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
@@ -278,6 +280,7 @@ var
   VFilesIterator: IFileNameIterator;
 begin
   FProgramPath := ExtractFilePath(ParamStr(0));
+  FAppClosingNotifier := TJclBaseNotifier.Create;
   FEcwDll := TEcwDllSimple.Create(FProgramPath);
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
@@ -523,6 +526,7 @@ begin
     FCacheConfig,
     FTileNameGenerator,
     FGCThread.List,
+    FAppClosingNotifier,
     FInetConfig,
     FImageResamplerConfig,
     FDownloadConfig,
@@ -605,6 +609,7 @@ end;
 procedure TGlobalState.SendTerminateToThreads;
 begin
   FGUISyncronizedTimer.Enabled := False;
+  FAppClosingNotifier.Notify(nil);
   GPSpar.SendTerminateToThreads;
   FGCThread.Terminate;
 end;

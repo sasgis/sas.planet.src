@@ -61,6 +61,15 @@ type
   end;
 
   TTileRequestResultErrorBeforBuildDownloadRequest = class(TTileRequestResult, ITileRequestResultError)
+  private
+    FErrorText: string;
+  protected
+    function GetErrorText: string;
+  public
+    constructor Create(
+      ARequest: ITileRequest;
+      AErrorText: string
+    );
   end;
 
   TTileRequestResultErrorAfterBuildDownloadRequest = class(TTileRequestResultErrorBeforBuildDownloadRequest, ITileRequestResultWithDownloadRequest)
@@ -70,7 +79,8 @@ type
     function GetDownloadRequest: ITileDownloadRequest;
   public
     constructor Create(
-      ADownloadRequest: ITileDownloadRequest
+      ADownloadRequest: ITileDownloadRequest;
+      AErrorText: string
     );
   end;
 
@@ -81,7 +91,8 @@ type
     function GetDownloadResult: IDownloadResult;
   public
     constructor Create(
-      ADownloadResult: IDownloadResult
+      ADownloadResult: IDownloadResult;
+      AErrorText: string
     );
   end;
 
@@ -155,10 +166,12 @@ end;
 { TTileRequestResultErrorAfterBuildDownloadRequest }
 
 constructor TTileRequestResultErrorAfterBuildDownloadRequest.Create(
-  ADownloadRequest: ITileDownloadRequest);
+  ADownloadRequest: ITileDownloadRequest;
+  AErrorText: string
+);
 begin
   FDownloadRequest := ADownloadRequest;
-  inherited Create(FDownloadRequest.Source);
+  inherited Create(FDownloadRequest.Source, AErrorText);
 end;
 
 function TTileRequestResultErrorAfterBuildDownloadRequest.GetDownloadRequest: ITileDownloadRequest;
@@ -169,18 +182,34 @@ end;
 { TTileRequestResultErrorAfterDownloadRequest }
 
 constructor TTileRequestResultErrorAfterDownloadRequest.Create(
-  ADownloadResult: IDownloadResult);
+  ADownloadResult: IDownloadResult;
+  AErrorText: string
+);
 var
   VRequest: ITileDownloadRequest;
 begin
   FDownloadResult := ADownloadResult;
   VRequest := FDownloadResult.Request as ITileDownloadRequest;
-  inherited Create(VRequest);
+  inherited Create(VRequest, AErrorText);
 end;
 
 function TTileRequestResultErrorAfterDownloadRequest.GetDownloadResult: IDownloadResult;
 begin
   Result := FDownloadResult;
+end;
+
+{ TTileRequestResultErrorBeforBuildDownloadRequest }
+
+constructor TTileRequestResultErrorBeforBuildDownloadRequest.Create(
+  ARequest: ITileRequest; AErrorText: string);
+begin
+  inherited Create(ARequest);
+  FErrorText := AErrorText;
+end;
+
+function TTileRequestResultErrorBeforBuildDownloadRequest.GetErrorText: string;
+begin
+  Result := FErrorText;
 end;
 
 end.

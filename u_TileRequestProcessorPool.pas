@@ -20,6 +20,7 @@ type
   private
     FDownloaderList: ITileDownloaderList;
     FGCList: ITTLCheckNotifier;
+    FAppClosingNotifier: IJclNotifier;
     FTileRequestQueue: ITileRequestQueue;
 
     FDownloaderListStatic: ITileDownloaderListStatic;
@@ -35,6 +36,7 @@ type
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
+      AAppClosingNotifier: IJclNotifier;
       ATileRequestQueue: ITileRequestQueue;
       ADownloaderList: ITileDownloaderList
     );
@@ -52,11 +54,13 @@ uses
 
 constructor TTileRequestProcessorPool.Create(
   AGCList: ITTLCheckNotifier;
+  AAppClosingNotifier: IJclNotifier;
   ATileRequestQueue: ITileRequestQueue;
   ADownloaderList: ITileDownloaderList
 );
 begin
   FGCList := AGCList;
+  FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
 
   FCS := TCriticalSection.Create;
@@ -74,6 +78,7 @@ end;
 
 destructor TTileRequestProcessorPool.Destroy;
 begin
+  OnTTLTrim(nil);
   FDownloaderList.ChangeNotifier.Remove(FDownloadersListListener);
   FGCList.Remove(FTTLListener);
   FTTLListener := nil;
@@ -101,9 +106,10 @@ begin
         if VDownloaderList <> nil then begin
           SetLength(VThreadArray, VDownloaderList.Count);
           for i := 0 to VDownloaderList.Count - 1 do begin
-            VThreadArray[i] := TTileRequestQueueProcessorThread.Create(FTileRequestQueue, VDownloaderList.Item[i]);
+            VThreadArray[i] := TTileRequestQueueProcessorThread.Create(FAppClosingNotifier, FTileRequestQueue, VDownloaderList.Item[i]);
             VThreadArray[i].Start;
           end;
+          FThreadArray := VThreadArray;
         end;
       end;
     finally
