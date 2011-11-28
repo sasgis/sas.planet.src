@@ -57,7 +57,7 @@ implementation
 constructor TDownloadUIConfig.Create;
 begin
   inherited;
-  FUseDownload := tsCache;
+  FUseDownload := tsCacheInternet;
   FTilesOut := 0;
   FTileMaxAgeInInternet := 1/24/60;
 end;
@@ -66,8 +66,9 @@ procedure TDownloadUIConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    case AConfigData.ReadInteger('TileSource', 1) of
+    case AConfigData.ReadInteger('TileSource', Integer(FUseDownload)) of
       0: FUseDownload := tsInternet;
+      1: FUseDownload := tsCache;
       2: FUseDownload := tsCacheInternet;
     else
       FUseDownload := tsCache;

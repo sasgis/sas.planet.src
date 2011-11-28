@@ -23,7 +23,7 @@ unit t_CommonTypes;
 interface
 
 type
-  TTileSource = (tsInternet,tsCache,tsCacheInternet);
+  TTileSource = (tsInternet = 0, tsCache = 1, tsCacheInternet = 2);
 
   { Способ отображения расстояний
   dsfKmAndM - в виде 12 км 299 м
