@@ -61,6 +61,7 @@ uses
   u_LastSelectionInfo,
   u_MarksSystem,
   u_MapTypesMainList,
+  i_ZmpConfig,
   i_ZmpInfoSet,
   i_GPSConfig,
   i_MapCalibration,
@@ -85,6 +86,7 @@ type
   TGlobalState = class
   private
     FMainConfigProvider: IConfigDataWriteProvider;
+    FZmpConfig: IZmpConfig;
     FZmpInfoSet: IZmpInfoSet;
     FResourceProvider: IConfigDataProvider;
     FGlobalAppConfig: IGlobalAppConfig;
@@ -252,6 +254,7 @@ uses
   u_LayerBitmapClearStrategyFactory,
   u_DownloadResultTextProvider,
   u_MainFormConfig,
+  u_ZmpConfig,
   u_ZmpInfoSet,
   u_ZmpFileNamesIteratorFactory,
   u_SensorListStuped,
@@ -383,8 +386,11 @@ begin
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
   VFilesIterator := VFilesIteratorFactory.CreateIterator(MapsPath, '');
+  FZmpConfig := TZmpConfig.Create;
+  FZmpConfig.ReadConfig(FMainConfigProvider.GetSubItem('ZmpDefaultParams'));
   FZmpInfoSet :=
     TZmpInfoSet.Create(
+      FZmpConfig,
       FCoordConverterFactory,
       FLanguageManager,
       VFilesIterator
@@ -589,6 +595,7 @@ begin
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
+  FZmpConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ZmpDefaultParams'));
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FLastSelectionInfo.WriteConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));

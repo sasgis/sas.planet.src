@@ -39,6 +39,7 @@ uses
   i_CoordConverterFactory,
   i_MapAbilitiesConfig,
   i_SimpleTileStorageConfig,
+  i_ZmpConfig,
   i_ZmpInfo;
 
 type
@@ -114,6 +115,7 @@ type
     FAbilities: IMapAbilitiesConfigStatic;
     FStorageConfig: ISimpleTileStorageConfigStatic;
 
+    FZmpConfig: IZmpConfig;
     FConfig: IConfigDataProvider;
     FConfigIni: IConfigDataProvider;
     FConfigIniParams: IConfigDataProvider;
@@ -151,6 +153,7 @@ type
     function GetDataProvider: IConfigDataProvider;
   public
     constructor Create(
+      AZmpConfig: IZmpConfig;
       ALanguageManager: ILanguageManager;
       ACoordConverterFactory: ICoordConverterFactory;
       AFileName: string;
@@ -402,6 +405,7 @@ end;
 { TZmpInfo }
 
 constructor TZmpInfo.Create(
+  AZmpConfig: IZmpConfig;
   ALanguageManager: ILanguageManager;
   ACoordConverterFactory: ICoordConverterFactory;
   AFileName: string;
@@ -410,6 +414,7 @@ constructor TZmpInfo.Create(
 );
 begin
   FFileName := AFileName;
+  FZmpConfig := AZmpConfig;
   FConfig := AConfig;
   FConfigIni := FConfig.GetSubItem('params.txt');
   if FConfigIni = nil then begin

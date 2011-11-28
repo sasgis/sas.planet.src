@@ -125,6 +125,8 @@ uses
   i_MapAbilitiesConfig in 'i_MapAbilitiesConfig.pas',
   u_MapAbilitiesConfigStatic in 'u_MapAbilitiesConfigStatic.pas',
   u_MapAbilitiesConfig in 'u_MapAbilitiesConfig.pas',
+  i_ZmpConfig in 'i_ZmpConfig.pas',
+  u_ZmpConfig in 'u_ZmpConfig.pas',
   i_ZmpInfo in 'i_ZmpInfo.pas',
   u_ZmpInfo in 'u_ZmpInfo.pas',
   i_ZmpInfoSet in 'i_ZmpInfoSet.pas',

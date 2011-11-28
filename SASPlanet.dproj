@@ -339,6 +339,7 @@
     <DCCReference Include="i_VectorDataItemSimple.pas" />
     <DCCReference Include="i_VectorDataLoader.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
+    <DCCReference Include="i_ZmpConfig.pas" />
     <DCCReference Include="i_ZmpInfo.pas" />
     <DCCReference Include="i_ZmpInfoSet.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
@@ -792,6 +793,7 @@
     <DCCReference Include="u_VectorDataItemPoint.pas" />
     <DCCReference Include="u_VectorDataItemPolygon.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
+    <DCCReference Include="u_ZmpConfig.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
     <DCCReference Include="u_ZmpInfo.pas" />
     <DCCReference Include="u_ZmpInfoSet.pas" />

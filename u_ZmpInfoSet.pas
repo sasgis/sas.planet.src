@@ -29,6 +29,7 @@ uses
   i_CoordConverterFactory,
   i_LanguageManager,
   i_FileNameIterator,
+  i_ZmpConfig,
   i_ZmpInfoSet;
 
 type
@@ -40,6 +41,7 @@ type
     function GetIterator: IEnumGUID;
   public
     constructor Create(
+      AZmpConfig: IZmpConfig;
       ACoordConverterFactory: ICoordConverterFactory;
       ALanguageManager: ILanguageManager;
       AFilesIterator: IFileNameIterator
@@ -61,6 +63,7 @@ uses
 { TZmpInfoSet }
 
 constructor TZmpInfoSet.Create(
+  AZmpConfig: IZmpConfig;
   ACoordConverterFactory: ICoordConverterFactory;
   ALanguageManager: ILanguageManager;
   AFilesIterator: IFileNameIterator
@@ -85,6 +88,7 @@ begin
       end;
       try
         VZmp := TZmpInfo.Create(
+          AZmpConfig,
           ALanguageManager,
           ACoordConverterFactory,
           VFileName,
