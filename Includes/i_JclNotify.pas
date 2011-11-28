@@ -48,6 +48,11 @@ type
     procedure Notification(msg: IInterface); stdcall;
   end;
 
+  IJclListenerDisconnectable = interface(IJclListener)
+    ['{7E47F99B-3D00-4743-B6EC-EBEB3257CA08}']
+    procedure Disconnect; stdcall;
+  end;
+
   IJclNotifier = interface
     ['{CAAD7814-DD04-497C-91AC-558C2D5BFF81}']
     procedure Add(listener: IJclListener); stdcall;

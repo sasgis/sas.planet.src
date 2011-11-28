@@ -23,6 +23,7 @@ unit u_NotifyEventListener;
 interface
 
 uses
+  Windows,
   Classes,
   i_JclNotify,
   u_JclNotify;
@@ -31,11 +32,14 @@ type
   TNotifyListenerNoMmgEvent = procedure() of object;
   TNotifyListenerEvent = procedure(AMsg: IInterface) of object;
 
-  TNotifyEventListener = class(TJclBaseListener)
+  TNotifyEventListener = class(TJclBaseListener, IJclListenerDisconnectable)
   private
+    FDisconnectCount: Integer;
     FEvent: TNotifyListenerEvent;
   protected
     procedure Notification(AMsg: IInterface); override;
+  protected
+    procedure Disconnect; stdcall;
   public
     constructor Create(AEvent: TNotifyListenerEvent);
   end;
@@ -66,13 +70,21 @@ implementation
 constructor TNotifyEventListener.Create(AEvent: TNotifyListenerEvent);
 begin
   FEvent := AEvent;
+  FDisconnectCount := 0;
   Assert(Assigned(FEvent));
+end;
+
+procedure TNotifyEventListener.Disconnect;
+begin
+  InterlockedIncrement(FDisconnectCount);
 end;
 
 procedure TNotifyEventListener.Notification(AMsg: IInterface);
 begin
   inherited;
-  FEvent(AMsg);
+  if InterlockedCompareExchange(FDisconnectCount, 0, 0) = 0 then begin
+    FEvent(AMsg);
+  end;
 end;
 
 { TNotifyEventListenerSync }
