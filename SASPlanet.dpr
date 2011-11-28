@@ -107,6 +107,8 @@ uses
   u_TileDownloaderEvent in 'u_TileDownloaderEvent.pas',
   u_TileDownloaderFrontEnd in 'u_TileDownloaderFrontEnd.pas',
   u_TileDownloaderHttp in 'u_TileDownloaderHttp.pas',
+  u_UiTileDownload in 'u_UiTileDownload.pas',
+  u_UITileDownloadList in 'u_UITileDownloadList.pas',
   u_TileDownloaderUI in 'u_TileDownloaderUI.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_TileDownloaderThread in 'u_TileDownloaderThread.pas',

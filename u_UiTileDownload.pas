@@ -1,0 +1,337 @@
+unit u_UiTileDownload;
+
+interface
+
+uses
+  SyncObjs,
+  i_JclNotify,
+  t_CommonTypes,
+  i_OperationNotifier,
+  i_TTLCheckNotifier,
+  i_TTLCheckListener,
+  i_DownloadUIConfig,
+  i_DownloadInfoSimple,
+  i_BackgroundTask,
+  i_TileError,
+  i_ViewPortState,
+  i_JclListenerNotifierLinksList,
+  i_ActiveMapsConfig,
+  i_LocalCoordConverter,
+  u_OperationNotifier;
+
+type
+  TUiTileDownload = class(TInterfacedObject)
+  private
+    FConfig: IDownloadUIConfig;
+    FGCList: ITTLCheckNotifier;
+    FAppClosingNotifier: IJclNotifier;
+    FViewPortState: IViewPortState;
+    FMapTypeActive: IActiveMapSingle;
+    FDownloadInfo: IDownloadInfoSimple;
+    FErrorLogger: ITileErrorLogger;
+
+    FCS: TCriticalSection;
+    FLinksList: IJclListenerNotifierLinksList;
+    FDownloadTask: IBackgroundTask;
+    FTTLListener: ITTLCheckListener;
+    FTileDownloadFinishListener: IJclListener;
+
+    FUseDownload: TTileSource;
+    FTileMaxAgeInInternet: TDateTime;
+    FTilesOut: Integer;
+
+    FMapActive: Boolean;
+    FVisualCoordConverter: ILocalCoordConverter;
+
+    procedure OnTTLTrim(Sender: TObject);
+    procedure OnPosChange;
+    procedure OnMapTypeActiveChange;
+    procedure OnConfigChange;
+    procedure OnProcessDownloadRequests(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier
+    );
+    procedure RetartDownloadIfNeed;
+    procedure OnTileDownloadFinish(AMsg: IInterface);
+    procedure OnAppClosing;
+  public
+    constructor Create(
+      AConfig: IDownloadUIConfig;
+      AGCList: ITTLCheckNotifier;
+      AAppClosingNotifier: IJclNotifier;
+      AViewPortState: IViewPortState;
+      AMapTypeActive: IActiveMapSingle;
+      ADownloadInfo: IDownloadInfoSimple;
+      AErrorLogger: ITileErrorLogger
+    );
+    destructor Destroy; override;
+  end;
+
+implementation
+
+uses
+  Types,
+  Classes,
+  SysUtils,
+  t_GeoTypes,
+  i_TileIterator,
+  i_TileRequest,
+  i_TileRequestResult,
+  i_DownloadResult,
+  i_CoordConverter,
+  u_JclListenerNotifierLinksList,
+  u_NotifyEventListener,
+  u_TTLCheckListener,
+  u_TileIteratorSpiralByRect,
+  u_BackgroundTaskLayerDrawBase,
+  u_MapType,
+  u_TileErrorInfo;
+
+{ TUiTileDownload }
+
+constructor TUiTileDownload.Create(
+  AConfig: IDownloadUIConfig;
+  AGCList: ITTLCheckNotifier;
+  AAppClosingNotifier: IJclNotifier;
+  AViewPortState: IViewPortState;
+  AMapTypeActive: IActiveMapSingle;
+  ADownloadInfo: IDownloadInfoSimple;
+  AErrorLogger: ITileErrorLogger
+);
+begin
+  FConfig := AConfig;
+  FGCList :=  AGCList;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FViewPortState := AViewPortState;
+  FMapTypeActive := AMapTypeActive;
+  FDownloadInfo := ADownloadInfo;
+  FErrorLogger := AErrorLogger;
+
+  FCS := TCriticalSection.Create;
+  FTileDownloadFinishListener := TNotifyEventListener.Create(Self.OnTileDownloadFinish);
+
+  FLinksList := TJclListenerNotifierLinksList.Create;
+
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
+    FConfig.ChangeNotifier
+  );
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnMapTypeActiveChange),
+    FMapTypeActive.ChangeNotifier
+  );
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnPosChange),
+    FViewPortState.ChangeNotifier
+  );
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnAppClosing),
+    FAppClosingNotifier
+  );
+
+  FLinksList.ActivateLinks;
+  OnConfigChange;
+  OnMapTypeActiveChange;
+  OnPosChange;
+
+  FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 30000, 1000);
+  FGCList.Add(FTTLListener);
+end;
+
+destructor TUiTileDownload.Destroy;
+begin
+  FGCList.Remove(FTTLListener);
+  FTTLListener := nil;
+  FGCList := nil;
+
+  FLinksList.DeactivateLinks;
+  FCS.Acquire;
+  try
+    if FDownloadTask <> nil then begin
+      FDownloadTask.Terminate;
+      FDownloadTask := nil;
+    end;
+  finally
+    FCS.Release;
+  end;
+  FreeAndNil(FCS);
+  inherited;
+end;
+
+procedure TUiTileDownload.OnAppClosing;
+begin
+  OnTTLTrim(nil);
+end;
+
+procedure TUiTileDownload.OnConfigChange;
+begin
+  FConfig.LockRead;
+  try
+    FUseDownload := FConfig.UseDownload;
+    FTileMaxAgeInInternet := FConfig.TileMaxAgeInInternet;
+    FTilesOut := FConfig.TilesOut;
+  finally
+    FConfig.UnlockRead;
+  end;
+  RetartDownloadIfNeed;
+end;
+
+procedure TUiTileDownload.OnMapTypeActiveChange;
+begin
+  FMapActive := FMapTypeActive.GetIsActive;
+  RetartDownloadIfNeed;
+end;
+
+procedure TUiTileDownload.OnPosChange;
+begin
+  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
+  RetartDownloadIfNeed;
+end;
+
+procedure TUiTileDownload.OnProcessDownloadRequests(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier
+);
+var
+  VIterator: ITileIterator;
+  VTile: TPoint;
+  VLocalConverter: ILocalCoordConverter;
+  VGeoConverter: ICoordConverter;
+  VMapGeoConverter: ICoordConverter;
+  VMapPixelRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VLonLatRectInMap: TDoubleRect;
+  VMapTileRect: TRect;
+  VZoom: Byte;
+  VMapType: TMapType;
+  VNeedDownload: Boolean;
+  VRequest: ITileRequest;
+begin
+  FTTLListener.UpdateUseTime;
+  VMapType := FMapTypeActive.GetMapType.MapType;
+  VLocalConverter := FVisualCoordConverter;
+  if VLocalConverter <> nil then begin
+    VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
+    VZoom := VLocalConverter.GetZoom;
+    VGeoConverter := VLocalConverter.GetGeoConverter;
+    VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+    VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+
+    VMapGeoConverter := VMapType.GeoConvert;
+    VLonLatRectInMap := VLonLatRect;
+    VMapGeoConverter.CheckLonLatRect(VLonLatRectInMap);
+
+    VMapTileRect := VMapGeoConverter.LonLatRect2TileRect(VLonLatRectInMap, VZoom);
+    Dec(VMapTileRect.Left, FTilesOut);
+    Dec(VMapTileRect.Top, FTilesOut);
+    Inc(VMapTileRect.Right, FTilesOut);
+    Inc(VMapTileRect.Bottom, FTilesOut);
+    VMapGeoConverter.CheckTileRect(VMapTileRect, VZoom);
+    VIterator := TTileIteratorSpiralByRect.Create(VMapTileRect);
+
+    while VIterator.Next(VTile) do begin
+      VNeedDownload := False;
+      if VMapType.TileExists(VTile, VZoom) then begin
+        if FUseDownload = tsInternet then begin
+          if Now - VMapType.TileLoadDate(VTile, VZoom) > FTileMaxAgeInInternet then begin
+            VNeedDownload := True;
+          end;
+        end;
+      end else begin
+        if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
+          if not(VMapType.TileNotExistsOnServer(VTile, VZoom)) then begin
+            VNeedDownload := True;
+          end;
+        end;
+      end;
+      if VNeedDownload then begin
+        VRequest := VMapType.GetRequest(ACancelNotifier, AOperationID, VTile, VZoom, False);
+        VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
+        VMapType.TileDownloader.Download(VRequest);
+      end;
+    end;
+  end;
+end;
+
+procedure TUiTileDownload.OnTileDownloadFinish(AMsg: IInterface);
+var
+  VResult: ITileRequestResult;
+  VResultWithDownload: ITileRequestResultWithDownloadResult;
+  VDownloadResultOk: IDownloadResultOk;
+  VResultDownloadError: IDownloadResultError;
+  VResultNotNecessary: IDownloadResultNotNecessary;
+  VErrorString: string;
+begin
+  VResult := AMsg as ITileRequestResult;
+
+  VErrorString := '';
+  if Supports(VResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
+    if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VDownloadResultOk) then begin
+      if FDownloadInfo <> nil then begin
+        FDownloadInfo.Add(1, VDownloadResultOk.Size);
+      end;
+    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultError, VResultDownloadError) then begin
+      VErrorString := VResultDownloadError.ErrorText;
+    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary, VResultNotNecessary) then begin
+      VErrorString := VResultNotNecessary.ReasonText;
+    end else begin
+      VErrorString := 'Unexpected error';
+    end;
+  end;
+
+  if VErrorString <> '' then begin
+    if FErrorLogger <> nil then begin
+      VErrorString := 'Error: ' + VErrorString;
+      FErrorLogger.LogError(
+        TTileErrorInfo.Create(
+          FMapTypeActive.GetMapType.MapType,
+          VResult.Request.Zoom,
+          VResult.Request.Tile,
+          VErrorString
+        )
+      );
+    end;
+  end;
+end;
+
+procedure TUiTileDownload.OnTTLTrim(Sender: TObject);
+var
+  VDownloadTask: IBackgroundTask;
+begin
+  FCS.Acquire;
+  try
+    VDownloadTask := FDownloadTask;
+    if VDownloadTask <> nil then begin
+      FDownloadTask := nil;
+      VDownloadTask.StopExecute;
+      VDownloadTask.Terminate;
+    end;
+  finally
+    FCS.Release;
+  end;
+end;
+
+procedure TUiTileDownload.RetartDownloadIfNeed;
+var
+  VDownloadTask: IBackgroundTask;
+begin
+  FCS.Acquire;
+  try
+    VDownloadTask := FDownloadTask;
+    if VDownloadTask <> nil then begin
+      VDownloadTask.StopExecute;
+    end;
+    if (FUseDownload in [tsInternet, tsCacheInternet]) and FMapActive and (FVisualCoordConverter <> nil) then begin
+      if VDownloadTask = nil then begin
+        VDownloadTask := TBackgroundTaskLayerDrawBase.Create(FAppClosingNotifier, OnProcessDownloadRequests, tpLowest);
+        VDownloadTask.Start;
+        FDownloadTask := VDownloadTask;
+      end;
+      VDownloadTask.StartExecute;
+    end;
+  finally
+    FCS.Release;
+  end;
+end;
+
+end.
