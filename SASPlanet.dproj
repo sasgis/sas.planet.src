@@ -303,7 +303,6 @@
     <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloadChecker.pas" />
-    <DCCReference Include="i_TileDownloader.pas" />
     <DCCReference Include="i_TileDownloaderAsync.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownloaderList.pas" />
@@ -730,19 +729,13 @@
     <DCCReference Include="u_StringConfigDataElementWithLanguage.pas" />
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
-    <DCCReference Include="u_TileDownloaderBaseCore.pas" />
-    <DCCReference Include="u_TileDownloaderBaseThread.pas" />
     <DCCReference Include="u_TileDownloaderConfig.pas" />
     <DCCReference Include="u_TileDownloaderConfigStatic.pas" />
-    <DCCReference Include="u_TileDownloaderEvent.pas" />
-    <DCCReference Include="u_TileDownloaderFrontEnd.pas" />
     <DCCReference Include="u_TileDownloaderHttp.pas" />
     <DCCReference Include="u_TileDownloaderHttpWithTTL.pas" />
     <DCCReference Include="u_TileDownloaderList.pas" />
     <DCCReference Include="u_TileDownloaderListStatic.pas" />
     <DCCReference Include="u_TileDownloaderSimple.pas" />
-    <DCCReference Include="u_TileDownloaderThread.pas" />
-    <DCCReference Include="u_TileDownloaderUI.pas" />
     <DCCReference Include="u_TileDownloaderUIOneTile.pas" />
     <DCCReference Include="u_TileDownloaderWithQueue.pas" />
     <DCCReference Include="u_TileDownloadRequest.pas" />
