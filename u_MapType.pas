@@ -41,7 +41,6 @@ uses
   i_LanguageManager,
   i_CoordConverter,
   i_DownloadChecker,
-  i_TileDownloader,
   i_TileDownloaderAsync,
   i_LastResponseInfo,
   i_MapVersionConfig,
@@ -72,7 +71,6 @@ uses
   i_VectorDataItemSimple,
   u_GlobalCahceConfig,
   u_TileStorageAbstract,
-  u_TileDownloaderFrontEnd,
   u_ResStrings;
 
 type

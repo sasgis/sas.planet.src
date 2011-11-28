@@ -13,7 +13,6 @@ uses
   i_GlobalDownloadConfig,
   i_TileRequestResult,
   i_DownloadInfoSimple,
-  i_TileDownloader,
   i_MapTypes,
   u_MapType,
   u_OperationNotifier;
@@ -401,7 +400,6 @@ var
   VTileExists: boolean;
   VTile: TPoint;
   VTileIterator: ITileIterator;
-  VOperatonID: Integer;
   VOperationID: Integer;
   VRequest: ITileRequest;
 begin

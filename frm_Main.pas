@@ -122,7 +122,6 @@ uses
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
-  u_TileDownloaderUI,
   frm_Settings,
   frm_RegionProcess,
   frm_DGAvailablePic,
