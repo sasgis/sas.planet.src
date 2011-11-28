@@ -288,11 +288,6 @@ begin
         AMessage,
         FHttpResponseHeader.RawHeaderText
       );
-    end else begin
-      Result := AResultFactory.BuildLoadErrorByStatusCode(
-        ARequest,
-        AStatusCode
-      );
     end;
   end;
 end;
