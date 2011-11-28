@@ -742,6 +742,7 @@ begin
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
       GState.LanguageManager,
+      GState.AppClosingNotifier,
       GState.LastSelectionInfo,
       FConfig.MainMapsConfig,
       GState.MapType.FullMapsSet,
@@ -1218,25 +1219,6 @@ begin
       )
     );
 
-//    FUIDownLoader :=
-//      TTileDownloaderUI.Create(
-//        FConfig.DownloadUIConfig,
-//        FConfig.ViewPortState,
-//        FConfig.MainMapsConfig.GetAllActiveMapsSet,
-//        GState.DownloadInfo,
-//        FTileErrorLogger
-//      );
-    FUIDownload :=
-      TUITileDownloadList.Create(
-        GState.GCThread.List,
-        GState.AppClosingNotifier,
-        FConfig.DownloadUIConfig,
-        FConfig.ViewPortState,
-        FConfig.MainMapsConfig.GetAllActiveMapsSet,
-        GState.DownloadInfo,
-        FTileErrorLogger
-      );
-
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnMapGUIChange),
       GState.MapType.GUIConfigList.GetChangeNotifier
@@ -1434,7 +1416,18 @@ begin
     FLinksList.ActivateLinks;
     FLayersList.StartThreads;
     GState.StartThreads;
-//    FUIDownLoader.StartThreads;
+    
+    FUIDownload :=
+      TUITileDownloadList.Create(
+        GState.GCThread.List,
+        GState.AppClosingNotifier,
+        FConfig.DownloadUIConfig,
+        FConfig.ViewPortState,
+        FConfig.MainMapsConfig.GetAllActiveMapsSet,
+        GState.DownloadInfo,
+        FTileErrorLogger
+      );
+
     OnMainFormMainConfigChange;
     MapLayersVisibleChange;
     OnFillingMapChange;
@@ -4357,7 +4350,8 @@ begin
         VSimpleLog := VLog;
         VThreadLog := VLog;
         VThread :=
-          TThreadDownloadTiles.Create(
+          TThreadDownloadTiles.CreateFromSls(
+            GState.AppClosingNotifier,
             VSimpleLog,
             GState.MapType.FullMapsSet,
             VFileName,

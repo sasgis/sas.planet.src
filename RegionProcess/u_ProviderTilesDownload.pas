@@ -7,6 +7,7 @@ uses
   Controls,
   Forms,
   t_GeoTypes,
+  i_JclNotify,
   i_MapTypes,
   i_LanguageManager,
   i_ActiveMapsConfig,
@@ -22,12 +23,14 @@ type
   TProviderTilesDownload = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesDownload;
+    FAppClosingNotifier: IJclNotifier;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
   public
     constructor Create(
       AParent: TWinControl;
+      AAppClosingNotifier: IJclNotifier;
       ALanguageManager: ILanguageManager;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
       AMainMapsConfig: IMainMapsConfig;
@@ -61,6 +64,7 @@ uses
 
 constructor TProviderTilesDownload.Create(
   AParent: TWinControl;
+  AAppClosingNotifier: IJclNotifier;
   ALanguageManager: ILanguageManager;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
   AMainMapsConfig: IMainMapsConfig;
@@ -71,6 +75,7 @@ constructor TProviderTilesDownload.Create(
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FAppClosingNotifier := AAppClosingNotifier;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FDownloadConfig := ADownloadConfig;
   FDownloadInfo := ADownloadInfo;
@@ -145,6 +150,7 @@ begin
   VSimpleLog := VLog;
   VThreadLog := VLog;
   VThread := TThreadDownloadTiles.Create(
+    FAppClosingNotifier,
     VSimpleLog,
     APolygon,
     FDownloadConfig,

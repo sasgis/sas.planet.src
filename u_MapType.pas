@@ -103,7 +103,6 @@ type
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
     FTileDownloader: ITileDownloader;
-    FTileDownloaderFrontEnd: TTileDownloaderFrontEnd;
     FDownloadChecker: ITileDownloadChecker;
 
     function GetIsBitmapTiles: Boolean;
@@ -222,7 +221,6 @@ type
       AColorer: IFillingMapColorer
     ): boolean;
     function GetShortFolderName: string;
-    procedure DownloadTile(AEvent: ITileDownloaderEvent);
 
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
@@ -391,14 +389,6 @@ begin
           AAppClosingNotifier,
           256
         );
-        FTileDownloaderFrontEnd := TTileDownloaderFrontEnd.Create(
-          FTileDownloaderConfig,
-          FTileDownloadRequestBuilderConfig,
-          FZmp,
-          FLanguageManager,
-          AInvisibleBrowser
-        );
-        FAbilitiesConfig.UseDownload := FTileDownloaderFrontEnd.Enabled;
       except
         if ExceptObject <> nil then begin
           ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
@@ -739,20 +729,7 @@ begin
   FCacheBitmap := nil;
   FCacheVector := nil;
   FreeAndNil(FStorage);
-  FreeAndNil(FTileDownloaderFrontEnd);
   inherited;
-end;
-
-procedure TMapType.DownloadTile(AEvent: ITileDownloaderEvent);
-begin
-  Assert(AEvent <> nil);
-  if Assigned(AEvent) then begin
-    if FAbilitiesConfig.UseDownload then begin
-      FTileDownloaderFrontEnd.Download(AEvent);
-    end else begin
-      raise Exception.Create('Для этой карты загрузка запрещена.');
-    end;
-  end;
 end;
 
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;

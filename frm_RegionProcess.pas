@@ -34,6 +34,7 @@ uses
   ExtCtrls,
   inifiles,
   ComCtrls,
+  i_JclNotify,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_LastSelectionInfo,
@@ -108,6 +109,7 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
       ALastSelectionInfo: ILastSelectionInfo;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
@@ -155,6 +157,7 @@ uses
 
 constructor TfrmRegionProcess.Create(
   ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
   ALastSelectionInfo: ILastSelectionInfo;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
@@ -217,6 +220,7 @@ begin
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
       TabSheet1,
+      AAppClosingNotifier,
       ALanguageManager,
       AValueToStringConverterConfig,
       AMainMapsConfig,
