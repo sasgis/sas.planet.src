@@ -628,7 +628,11 @@ begin
   VDefaultMIMEType := AConfig.ReadString('DefaultContentType', 'image/jpg');
   VExpectedMIMETypes := AConfig.ReadString('ContentType', 'image/jpg');
   VWaitInterval := AConfig.ReadInteger('Sleep', 0);
-  VMaxConnectToServerCount := AConfig.ReadInteger('MaxConnectToServerCount', 1);
+  VMaxConnectToServerCount :=
+    AConfig.ReadInteger(
+      'MaxConnectToServerCount',
+      FZmpConfig.MaxConnectToServerCount
+    );
   fL := TStringList.Create;
   try
     fL.Delimiter := ',';
