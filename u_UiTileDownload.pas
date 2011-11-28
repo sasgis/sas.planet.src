@@ -3,6 +3,7 @@ unit u_UiTileDownload;
 interface
 
 uses
+  Windows,
   SyncObjs,
   i_JclNotify,
   t_CommonTypes,
@@ -34,12 +35,16 @@ type
     FLinksList: IJclListenerNotifierLinksList;
     FDownloadTask: IBackgroundTask;
     FTTLListener: ITTLCheckListener;
-    FTileDownloadFinishListener: IJclListener;
+    FTileDownloadFinishListener: IJclListenerDisconnectable;
 
     FUseDownload: TTileSource;
     FTileMaxAgeInInternet: TDateTime;
     FTilesOut: Integer;
+    FRequestCount: Integer;
 
+    FSemaphore: THandle;
+    FCancelEvent: TEvent;
+    FCancelListener: IJclListener;
     FMapActive: Boolean;
     FVisualCoordConverter: ILocalCoordConverter;
 
@@ -47,7 +52,8 @@ type
     procedure OnPosChange;
     procedure OnMapTypeActiveChange;
     procedure OnConfigChange;
-    procedure OnProcessDownloadRequests(
+    procedure OnCancel;
+    procedure DoProcessDownloadRequests(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier
     );
@@ -87,6 +93,8 @@ uses
   u_MapType,
   u_TileErrorInfo;
 
+const
+  CMaximumRequestCount = 32;
 { TUiTileDownload }
 
 constructor TUiTileDownload.Create(
@@ -106,6 +114,12 @@ begin
   FMapTypeActive := AMapTypeActive;
   FDownloadInfo := ADownloadInfo;
   FErrorLogger := AErrorLogger;
+
+  FRequestCount := 4;
+
+  FSemaphore := CreateSemaphore(nil, FRequestCount, CMaximumRequestCount, nil);
+  FCancelEvent := TEvent.Create;
+  FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancel);
 
   FCS := TCriticalSection.Create;
   FTileDownloadFinishListener := TNotifyEventListener.Create(Self.OnTileDownloadFinish);
@@ -140,6 +154,8 @@ end;
 
 destructor TUiTileDownload.Destroy;
 begin
+  FTileDownloadFinishListener.Disconnect;
+
   FGCList.Remove(FTTLListener);
   FTTLListener := nil;
   FGCList := nil;
@@ -154,6 +170,8 @@ begin
   finally
     FCS.Release;
   end;
+  CloseHandle(FSemaphore);
+  FreeAndNil(FCancelEvent);
   FreeAndNil(FCS);
   inherited;
 end;
@@ -161,6 +179,11 @@ end;
 procedure TUiTileDownload.OnAppClosing;
 begin
   OnTTLTrim(nil);
+end;
+
+procedure TUiTileDownload.OnCancel;
+begin
+  FCancelEvent.SetEvent;
 end;
 
 procedure TUiTileDownload.OnConfigChange;
@@ -188,7 +211,7 @@ begin
   RetartDownloadIfNeed;
 end;
 
-procedure TUiTileDownload.OnProcessDownloadRequests(
+procedure TUiTileDownload.DoProcessDownloadRequests(
   AOperationID: Integer;
   ACancelNotifier: IOperationNotifier
 );
@@ -206,49 +229,70 @@ var
   VMapType: TMapType;
   VNeedDownload: Boolean;
   VRequest: ITileRequest;
+  VHandles: array [0..1] of THandle;
+  VWaitResult: DWORD;
 begin
   FTTLListener.UpdateUseTime;
   VMapType := FMapTypeActive.GetMapType.MapType;
   VLocalConverter := FVisualCoordConverter;
   if VLocalConverter <> nil then begin
-    VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
-    VZoom := VLocalConverter.GetZoom;
-    VGeoConverter := VLocalConverter.GetGeoConverter;
-    VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
-    VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+    FCancelEvent.ResetEvent;
+    ACancelNotifier.AddListener(FCancelListener);
+    try
+      VHandles[0] := FCancelEvent.Handle;
+      VHandles[1] := FSemaphore;
+      VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
+      VZoom := VLocalConverter.GetZoom;
+      VGeoConverter := VLocalConverter.GetGeoConverter;
+      VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+      VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
 
-    VMapGeoConverter := VMapType.GeoConvert;
-    VLonLatRectInMap := VLonLatRect;
-    VMapGeoConverter.CheckLonLatRect(VLonLatRectInMap);
+      VMapGeoConverter := VMapType.GeoConvert;
+      VLonLatRectInMap := VLonLatRect;
+      VMapGeoConverter.CheckLonLatRect(VLonLatRectInMap);
 
-    VMapTileRect := VMapGeoConverter.LonLatRect2TileRect(VLonLatRectInMap, VZoom);
-    Dec(VMapTileRect.Left, FTilesOut);
-    Dec(VMapTileRect.Top, FTilesOut);
-    Inc(VMapTileRect.Right, FTilesOut);
-    Inc(VMapTileRect.Bottom, FTilesOut);
-    VMapGeoConverter.CheckTileRect(VMapTileRect, VZoom);
-    VIterator := TTileIteratorSpiralByRect.Create(VMapTileRect);
+      VMapTileRect := VMapGeoConverter.LonLatRect2TileRect(VLonLatRectInMap, VZoom);
+      Dec(VMapTileRect.Left, FTilesOut);
+      Dec(VMapTileRect.Top, FTilesOut);
+      Inc(VMapTileRect.Right, FTilesOut);
+      Inc(VMapTileRect.Bottom, FTilesOut);
+      VMapGeoConverter.CheckTileRect(VMapTileRect, VZoom);
+      VIterator := TTileIteratorSpiralByRect.Create(VMapTileRect);
 
-    while VIterator.Next(VTile) do begin
-      VNeedDownload := False;
-      if VMapType.TileExists(VTile, VZoom) then begin
-        if FUseDownload = tsInternet then begin
-          if Now - VMapType.TileLoadDate(VTile, VZoom) > FTileMaxAgeInInternet then begin
-            VNeedDownload := True;
+      while VIterator.Next(VTile) do begin
+        VNeedDownload := False;
+        if VMapType.TileExists(VTile, VZoom) then begin
+          if FUseDownload = tsInternet then begin
+            if Now - VMapType.TileLoadDate(VTile, VZoom) > FTileMaxAgeInInternet then begin
+              VNeedDownload := True;
+            end;
+          end;
+        end else begin
+          if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
+            if not(VMapType.TileNotExistsOnServer(VTile, VZoom)) then begin
+              VNeedDownload := True;
+            end;
           end;
         end;
-      end else begin
-        if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
-          if not(VMapType.TileNotExistsOnServer(VTile, VZoom)) then begin
-            VNeedDownload := True;
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Break;
+        end;
+        if VNeedDownload then begin
+          VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
+          case VWaitResult of
+            WAIT_OBJECT_0 + 1: begin
+              if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+                Break;
+              end;
+              VRequest := VMapType.GetRequest(ACancelNotifier, AOperationID, VTile, VZoom, False);
+              VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
+              VMapType.TileDownloader.Download(VRequest);
+            end;
           end;
         end;
       end;
-      if VNeedDownload then begin
-        VRequest := VMapType.GetRequest(ACancelNotifier, AOperationID, VTile, VZoom, False);
-        VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
-        VMapType.TileDownloader.Download(VRequest);
-      end;
+    finally
+      ACancelNotifier.RemoveListener(FCancelListener);
     end;
   end;
 end;
@@ -264,6 +308,7 @@ var
 begin
   VResult := AMsg as ITileRequestResult;
 
+  ReleaseSemaphore(FSemaphore, 1, nil);
   VErrorString := '';
   if Supports(VResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
     if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VDownloadResultOk) then begin
@@ -323,7 +368,7 @@ begin
     end;
     if (FUseDownload in [tsInternet, tsCacheInternet]) and FMapActive and (FVisualCoordConverter <> nil) then begin
       if VDownloadTask = nil then begin
-        VDownloadTask := TBackgroundTaskLayerDrawBase.Create(FAppClosingNotifier, OnProcessDownloadRequests, tpLowest);
+        VDownloadTask := TBackgroundTaskLayerDrawBase.Create(FAppClosingNotifier, DoProcessDownloadRequests, tpLowest);
         VDownloadTask.Start;
         FDownloadTask := VDownloadTask;
       end;
