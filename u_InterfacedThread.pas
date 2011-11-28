@@ -93,6 +93,9 @@ begin
     FCS.Release;
   end;
   FreeAndNil(FCS);
+  if VNeedResume then begin
+    FThread.Resume;
+  end;
   inherited;
 end;
 
