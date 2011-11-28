@@ -33,17 +33,17 @@ type
     FThread: TThread;
     FCS: TCriticalSection;
     FTerminated: Boolean;
+    FStarted: Boolean;
+    FFinished: Boolean;
+    procedure OnTerminate(Sender: TObject);
   protected
     procedure Execute; virtual; abstract;
     property Terminated: Boolean read FTerminated;
   protected
     procedure Start; virtual;
     procedure Terminate; virtual;
-    function GetPriority: TThreadPriority;
-    procedure SetPriority(Value: TThreadPriority);
-    function WaitFor: LongWord; virtual;
   public
-    constructor Create();
+    constructor Create(APriority: TThreadPriority);
     destructor Destroy; override;
   end;
 
@@ -61,46 +61,60 @@ type
     procedure DoTerminate; override;
     procedure Execute; override;
   public
-    constructor Create(AExec: TThreadMethod);
+    constructor Create(APriority: TThreadPriority; AExec: TThreadMethod);
     procedure Start(ARef: IInterface);
   end;
 
 { TInterfacedThread }
 
-constructor TInterfacedThread.Create;
+constructor TInterfacedThread.Create(APriority: TThreadPriority);
 begin
-  inherited;
-  FThread := TThread4InterfacedThread.Create(Self.Execute);
+  inherited Create;
+  FThread := TThread4InterfacedThread.Create(APriority, Self.Execute);
+  FThread.OnTerminate := Self.OnTerminate;
   FTerminated := False;
+  FStarted := False;
+  FFinished := False;
   FCS := TCriticalSection.Create;
 end;
 
 destructor TInterfacedThread.Destroy;
+var
+  VNeedResume: Boolean;
 begin
-  FreeAndNil(FCS);
-  if not FTerminated then begin
-    FThread.Terminate;
+  VNeedResume := False;
+  FCS.Acquire;
+  try
+    if not FStarted then begin
+      FThread.OnTerminate := nil;
+      VNeedResume := True;
+    end;
+  finally
+    FCS.Release;
   end;
-  FreeAndNil(FThread);
+  FreeAndNil(FCS);
   inherited;
 end;
 
-function TInterfacedThread.GetPriority: TThreadPriority;
+procedure TInterfacedThread.OnTerminate(Sender: TObject);
 begin
-  Result := FThread.Priority;
-end;
-
-procedure TInterfacedThread.SetPriority(Value: TThreadPriority);
-begin
-  FThread.Priority := Value;
+  FCS.Acquire;
+  try
+    FFinished := True
+  finally
+    FCS.Release;
+  end;
 end;
 
 procedure TInterfacedThread.Start;
 begin
   FCS.Acquire;
   try
-    if not FTerminated then begin
-      TThread4InterfacedThread(FThread).Start(Self);
+    if not FStarted then begin
+      if not FTerminated then begin
+        FStarted := True;
+        TThread4InterfacedThread(FThread).Start(Self);
+      end;
     end;
   finally
     FCS.Release;
@@ -113,23 +127,22 @@ begin
   try
     if not FTerminated then begin
       FTerminated := True;
-      FThread.Terminate;
+      if not FFinished then begin
+        FThread.Terminate;
+      end;
     end;
   finally
     FCS.Release;
   end;
 end;
 
-function TInterfacedThread.WaitFor: LongWord;
-begin
-  Result := FThread.WaitFor;
-end;
-
 { TThread4InterfacedThread }
 
-constructor TThread4InterfacedThread.Create(AExec: TThreadMethod);
+constructor TThread4InterfacedThread.Create(APriority: TThreadPriority; AExec: TThreadMethod);
 begin
   inherited Create(True);
+  Self.Priority := APriority;
+  Self.FreeOnTerminate := True;
   FExec := AExec;
 end;
 
@@ -142,7 +155,9 @@ end;
 procedure TThread4InterfacedThread.Execute;
 begin
   inherited;
-  FExec;
+  if not Terminated then begin
+    FExec;
+  end;
 end;
 
 procedure TThread4InterfacedThread.Start(ARef: IInterface);

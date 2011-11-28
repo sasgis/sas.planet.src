@@ -24,8 +24,10 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   Classes,
   Types,
+  i_JclNotify,
   i_TileError,
   i_DownloadInfoSimple,
   u_TileDownloaderThread,
@@ -36,6 +38,9 @@ type
   private
     FLoadXY: TPoint;
     FZoom: Byte;
+//    FEvent: TEvent;
+//    FRequestFinishedListener: IJclListener;
+//    procedure OnRequestFinished(Sender: TObject);
   protected
     procedure Execute; override;
   public

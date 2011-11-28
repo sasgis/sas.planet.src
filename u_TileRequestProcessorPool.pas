@@ -4,6 +4,7 @@ interface
 
 uses
   SyncObjs,
+  Classes,
   i_JclNotify,
   i_Thread,
   i_TTLCheckListener,
@@ -20,6 +21,7 @@ type
   private
     FDownloaderList: ITileDownloaderList;
     FGCList: ITTLCheckNotifier;
+    FPriority: TThreadPriority;
     FAppClosingNotifier: IJclNotifier;
     FTileRequestQueue: ITileRequestQueue;
 
@@ -36,6 +38,7 @@ type
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
+      APriority: TThreadPriority;
       AAppClosingNotifier: IJclNotifier;
       ATileRequestQueue: ITileRequestQueue;
       ADownloaderList: ITileDownloaderList
@@ -54,12 +57,14 @@ uses
 
 constructor TTileRequestProcessorPool.Create(
   AGCList: ITTLCheckNotifier;
+  APriority: TThreadPriority;
   AAppClosingNotifier: IJclNotifier;
   ATileRequestQueue: ITileRequestQueue;
   ADownloaderList: ITileDownloaderList
 );
 begin
   FGCList := AGCList;
+  FPriority := APriority;
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
 
@@ -106,7 +111,7 @@ begin
         if VDownloaderList <> nil then begin
           SetLength(VThreadArray, VDownloaderList.Count);
           for i := 0 to VDownloaderList.Count - 1 do begin
-            VThreadArray[i] := TTileRequestQueueProcessorThread.Create(FAppClosingNotifier, FTileRequestQueue, VDownloaderList.Item[i]);
+            VThreadArray[i] := TTileRequestQueueProcessorThread.Create(FPriority, FAppClosingNotifier, FTileRequestQueue, VDownloaderList.Item[i]);
             VThreadArray[i].Start;
           end;
           FThreadArray := VThreadArray;

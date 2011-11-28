@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Classes,
   i_JclNotify,
   i_TileRequest,
   i_TileRequestQueue,
@@ -25,6 +26,7 @@ type
     constructor Create(
       ATileDownloaderList: ITileDownloaderList;
       AGCList: ITTLCheckNotifier;
+      APriority: TThreadPriority;
       AAppClosingNotifier: IJclNotifier;
       AQueueCapacity: Integer
     );
@@ -42,6 +44,7 @@ uses
 constructor TTileDownloaderWithQueue.Create(
   ATileDownloaderList: ITileDownloaderList;
   AGCList: ITTLCheckNotifier;
+  APriority: TThreadPriority;
   AAppClosingNotifier: IJclNotifier;
   AQueueCapacity: Integer
 );
@@ -55,6 +58,7 @@ begin
   FSyncTileRequestProcessorPull :=
     TTileRequestProcessorPool.Create(
       AGCList,
+      APriority,
       AAppClosingNotifier,
       FQueue,
       ATileDownloaderList

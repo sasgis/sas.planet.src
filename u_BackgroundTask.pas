@@ -76,12 +76,11 @@ constructor TBackgroundTask.Create(
 var
   VOperationNotifier: TOperationNotifier;
 begin
-  inherited Create;
+  inherited Create(APriority);
   FAppClosingNotifier := AAppClosingNotifier;
   FStopThread := TEvent.Create;
   FAllowExecute := TEvent.Create(nil, True, False, '');
   FCS := TCriticalSection.Create;
-  SetPriority(APriority);
   VOperationNotifier := TOperationNotifier.Create;
   FCancelNotifierInternal := VOperationNotifier;
   FCancelNotifier := VOperationNotifier;

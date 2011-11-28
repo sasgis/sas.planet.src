@@ -26,6 +26,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
+      APriority: TThreadPriority;
       AAppClosingNotifier: IJclNotifier;
       ATileRequestQueue: ITileRequestQueue;
       ATileDownloaderSync: ITileDownloader
@@ -42,12 +43,13 @@ uses
 { TTileRequestQueueProcessorThread }
 
 constructor TTileRequestQueueProcessorThread.Create(
+  APriority: TThreadPriority;
   AAppClosingNotifier: IJclNotifier;
   ATileRequestQueue: ITileRequestQueue;
   ATileDownloaderSync: ITileDownloader
 );
 begin
-  inherited Create;
+  inherited Create(APriority);
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
   FTileDownloaderSync := ATileDownloaderSync;

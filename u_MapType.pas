@@ -387,6 +387,7 @@ begin
         FTileDownloader := TTileDownloaderWithQueue.Create(
           VDownloaderList,
           AGCList,
+          tpLower,
           AAppClosingNotifier,
           256
         );
