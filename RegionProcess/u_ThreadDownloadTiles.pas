@@ -582,6 +582,9 @@ begin
     FFinishEvent.ResetEvent;
     if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VResultOk) then begin
       FLastSuccessfulPoint := AResult.Request.Tile;
+      if FDownloadInfo <> nil then begin
+        FDownloadInfo.Add(1, VResultOk.Size);
+      end;
       FGoToNextTile := True;
       FLog.WriteText('(Ok!)', 0);
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary) then begin
