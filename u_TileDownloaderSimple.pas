@@ -11,7 +11,7 @@ uses
   i_SimpleDownloader,
   i_TileRequest,
   i_TileDownloaderConfig,
-  i_TileDownloaderAsync,
+  i_TileDownloader,
   i_TileDownloadRequestBuilder,
   u_OperationNotifier;
 

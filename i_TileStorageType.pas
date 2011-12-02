@@ -23,7 +23,7 @@ unit i_TileStorageType;
 interface
 
 uses
-  i_TileStorageTypeInfo,
+  i_StorageTypeAbilities,
   i_TileStorageTypeConfig,
   i_TileStorage;
 
@@ -33,8 +33,8 @@ type
     function GetGUID: TGUID;
     property GUID: TGUID read GetGUID;
 
-    function GetInfo: ITileStorageTypeInfo;
-    property Info: ITileStorageTypeInfo read GetInfo;
+    function GetInfo: IStorageTypeAbilities;
+    property Info: IStorageTypeAbilities read GetInfo;
 
     function GetConfig: ITileStorageTypeConfig;
     property Config: ITileStorageTypeConfig read GetConfig;

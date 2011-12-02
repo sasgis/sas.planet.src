@@ -18,96 +18,73 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileStorageTypeInfo;
+unit u_TileStorageTypeAbilities;
 
 interface
 
 uses
-  i_TileStorageTypeInfo;
+  i_StorageTypeAbilities;
 
 type
-  TTileStorageTypeInfoFieFolder = class(TInterfacedObject, ITileStorageTypeInfo)
+  TTileStorageTypeAbilitiesFieFolder = class(TInterfacedObject, IStorageTypeAbilities)
   protected
-    function GetIsFileCache: Boolean;
     function GetIsReadOnly: boolean;
+    function GetAllowAdd: Boolean;
     function GetAllowDelete: boolean;
-    function GetAllowSave: boolean;
-    function GetAllowMultiWrite: Boolean;
-    function GetAllowMultiRead: Boolean;
+    function GetAllowReplace: boolean;
   end;
 
-  TTileStorageTypeGE = class(TInterfacedObject, ITileStorageTypeInfo)
+  TTileStorageTypeAbilitiesGE = class(TInterfacedObject, IStorageTypeAbilities)
   protected
-    function GetIsFileCache: Boolean;
     function GetIsReadOnly: boolean;
+    function GetAllowAdd: Boolean;
     function GetAllowDelete: boolean;
-    function GetAllowSave: boolean;
-    function GetAllowMultiWrite: Boolean;
-    function GetAllowMultiRead: Boolean;
+    function GetAllowReplace: boolean;
   end;
 
 implementation
 
-{ TTileStorageTypeInfoFieFolder }
 
-function TTileStorageTypeInfoFieFolder.GetAllowDelete: boolean;
+{ TTileStorageTypeAbilitiesFieFolder }
+
+function TTileStorageTypeAbilitiesFieFolder.GetAllowAdd: Boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeInfoFieFolder.GetAllowMultiRead: Boolean;
+function TTileStorageTypeAbilitiesFieFolder.GetAllowDelete: boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeInfoFieFolder.GetAllowMultiWrite: Boolean;
+function TTileStorageTypeAbilitiesFieFolder.GetAllowReplace: boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeInfoFieFolder.GetAllowSave: boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageTypeInfoFieFolder.GetIsFileCache: Boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageTypeInfoFieFolder.GetIsReadOnly: boolean;
+function TTileStorageTypeAbilitiesFieFolder.GetIsReadOnly: boolean;
 begin
   Result := False;
 end;
 
-{ TTileStorageTypeGE }
+{ TTileStorageTypeAbilitiesGE }
 
-function TTileStorageTypeGE.GetAllowDelete: boolean;
+function TTileStorageTypeAbilitiesGE.GetAllowAdd: Boolean;
 begin
   Result := False;
 end;
 
-function TTileStorageTypeGE.GetAllowMultiRead: Boolean;
+function TTileStorageTypeAbilitiesGE.GetAllowDelete: boolean;
 begin
   Result := False;
 end;
 
-function TTileStorageTypeGE.GetAllowMultiWrite: Boolean;
+function TTileStorageTypeAbilitiesGE.GetAllowReplace: boolean;
 begin
   Result := False;
 end;
 
-function TTileStorageTypeGE.GetAllowSave: boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageTypeGE.GetIsFileCache: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageTypeGE.GetIsReadOnly: boolean;
+function TTileStorageTypeAbilitiesGE.GetIsReadOnly: boolean;
 begin
   Result := True;
 end;

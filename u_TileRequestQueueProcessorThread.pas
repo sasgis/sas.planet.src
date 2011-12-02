@@ -10,7 +10,7 @@ uses
   i_OperationNotifier,
   i_TileRequest,
   i_TileRequestQueue,
-  i_TileDownloaderAsync,
+  i_TileDownloader,
   u_InterfacedThread;
 
 type

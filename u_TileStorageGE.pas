@@ -104,6 +104,7 @@ uses
   SysUtils,
   Variants,
   u_TileInfoBasic,
+  u_TileStorageTypeAbilities,
   u_GECrypt;
 
 { TTileStorageGEStuped }
@@ -114,7 +115,7 @@ constructor TTileStorageGE.Create(
   AContentTypeManager: IContentTypeManager
 );
 begin
-  inherited Create(AConfig);
+  inherited Create(TTileStorageTypeAbilitiesGE.Create, AConfig);
   FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig);
   FIndex := TGEIndexFile.Create(FCacheConfig);
   FMainContentType := AContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');

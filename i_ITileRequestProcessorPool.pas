@@ -3,7 +3,7 @@ unit i_ITileRequestProcessorPool;
 interface
 
 uses
-  i_TileDownloaderAsync;
+  i_TileDownloader;
 
 type
   ITileRequestProcessorPool = interface

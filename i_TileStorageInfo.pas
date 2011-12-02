@@ -25,11 +25,11 @@ interface
 uses
   i_CoordConverter,
   i_ContentTypeInfo,
-  i_TileStorageTypeInfo;
+  i_StorageTypeAbilities;
 
 type
   ITileStorageInfo = interface
-    function GetTypeInfo: ITileStorageTypeInfo;
+    function GetTypeInfo: IStorageTypeAbilities;
     function GetMainContentType: IContentTypeInfoBasic;
     function GetAllowDifferentContentTypes: Boolean;
 

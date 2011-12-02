@@ -9,9 +9,10 @@ uses
   i_LanguageManager,
   i_ZmpInfo,
   i_TileDownloaderConfig,
-  i_TileDownloaderAsync,
+  i_TileDownloader,
   i_DownloadResultFactory,
   i_TTLCheckNotifier,
+  i_TileDownloadRequestBuilderFactory,
   i_TileDownloadRequestBuilderConfig,
   i_TileDownloaderList;
 
@@ -22,10 +23,7 @@ type
     FAppClosingNotifier: IJclNotifier;
     FResultFactory: IDownloadResultFactory;
     FTileDownloaderConfig: ITileDownloaderConfig;
-    FRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-    FZmp: IZmpInfo;
-    FLangManager: ILanguageManager;
-
+    FRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
 
     FChangeNotifier: IJclNotifier;
     FStatic: ITileDownloaderListStatic;
@@ -42,9 +40,7 @@ type
       AAppClosingNotifier: IJclNotifier;
       AResultFactory: IDownloadResultFactory;
       ATileDownloaderConfig: ITileDownloaderConfig;
-      ARequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-      AZmp: IZmpInfo;
-      ALangManager: ILanguageManager
+      ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
     );
     destructor Destroy; override;
   end;
@@ -67,18 +63,14 @@ constructor TTileDownloaderList.Create(
   AAppClosingNotifier: IJclNotifier;
   AResultFactory: IDownloadResultFactory;
   ATileDownloaderConfig: ITileDownloaderConfig;
-  ARequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-  AZmp: IZmpInfo;
-  ALangManager: ILanguageManager
+  ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
 );
 begin
   FGCList := AGCList;
   FAppClosingNotifier := AAppClosingNotifier;
   FResultFactory := AResultFactory;
   FTileDownloaderConfig := ATileDownloaderConfig;
-  FRequestBuilderConfig := ARequestBuilderConfig;
-  FZmp := AZmp;
-  FLangManager := ALangManager;
+  FRequestBuilderFactory := ARequestBuilderFactory;
 
   FChangeNotifier := TJclBaseNotifier.Create;
 
@@ -92,12 +84,7 @@ begin
   Result :=
     TTileDownloaderSimple.Create(
       FAppClosingNotifier,
-      TTileDownloadRequestBuilderPascalScript.Create(
-        FZmp,
-        FRequestBuilderConfig,
-        FTileDownloaderConfig,
-        FLangManager
-      ),
+      FRequestBuilderFactory.BuildRequestBuilder,
       FTileDownloaderConfig,
       TTileDownloaderHttpWithTTL.Create(
         FGCList,

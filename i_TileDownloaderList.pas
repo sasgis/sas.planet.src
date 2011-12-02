@@ -4,7 +4,7 @@ interface
 
 uses
   i_JclNotify,
-  i_TileDownloaderAsync;
+  i_TileDownloader;
 
 type
   ITileDownloaderListStatic = interface

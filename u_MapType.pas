@@ -41,7 +41,7 @@ uses
   i_LanguageManager,
   i_CoordConverter,
   i_DownloadChecker,
-  i_TileDownloaderAsync,
+  i_TileDownloader,
   i_LastResponseInfo,
   i_MapVersionConfig,
   i_TileRequest,
@@ -69,6 +69,7 @@ uses
   i_TileRectUpdateNotifier,
   i_TileDownloadRequest,
   i_VectorDataItemSimple,
+  i_TileDownloadRequestBuilderFactory,
   u_GlobalCahceConfig,
   u_TileStorageAbstract,
   u_ResStrings;
@@ -82,6 +83,7 @@ type
     FCacheVector: ITileObjCacheVector;
     FStorage: TTileStorageAbstract;
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
+    FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IVectorDataLoader;
@@ -273,7 +275,8 @@ uses
   u_AntiBanStuped,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
-  u_TileDownloadRequestBuilderPascalScript,
+  u_TileDownloadRequestBuilderFactoryPascalScript,
+  u_TileDownloaderStateInternal,
   u_DownloadResultFactory,
   u_MemTileCache,
   u_TileRequest,
@@ -293,13 +296,15 @@ begin
   try
     if FAbilitiesConfig.UseDownload then begin
       try
-        FTileDownloadRequestBuilder :=
-          TTileDownloadRequestBuilderPascalScript.Create(
-            FZmp,
+        FTileDownloadRequestBuilderFactory :=
+          TTileDownloadRequestBuilderFactoryPascalScript.Create(
+            FZmp.DataProvider,
             FTileDownloadRequestBuilderConfig,
             FTileDownloaderConfig,
             FLanguageManager
           );
+
+        FTileDownloadRequestBuilder := FTileDownloadRequestBuilderFactory.BuildRequestBuilder;
       except
         on E: Exception do begin
           ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.GUI.Name.GetDefault, E.Message, FZmp.FileName]);
@@ -376,9 +381,7 @@ begin
             AAppClosingNotifier,
             FDownloadResultFactory,
             FTileDownloaderConfig,
-            FTileDownloadRequestBuilderConfig,
-            FZmp,
-            FLanguageManager
+            FTileDownloadRequestBuilderFactory
           );
         FTileDownloader := TTileDownloaderWithQueue.Create(
           VDownloaderList,
@@ -477,7 +480,6 @@ begin
     if ACheckTileSize then begin
       Result :=
         TTileRequestWithSizeCheck.Create(
-          FZmp,
           AXY,
           Azoom,
           FVersionConfig.GetStatic,
@@ -488,7 +490,6 @@ begin
     end else begin
       Result :=
         TTileRequest.Create(
-          FZmp,
           AXY,
           Azoom,
           FVersionConfig.GetStatic,

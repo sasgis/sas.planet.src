@@ -18,19 +18,24 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_TileStorageTypeInfo;
+unit i_StorageTypeAbilities;
 
 interface
 
 type
-  ITileStorageTypeInfo = interface
+  IStorageTypeAbilities = interface
     ['{EBB122FB-5382-49CA-A265-3BEA89694B0E}']
-    function GetIsFileCache: Boolean;
     function GetIsReadOnly: boolean;
+    property IsReadOnly: boolean read GetIsReadOnly;
+
+    function GetAllowAdd: Boolean;
+    property AllowAdd: Boolean read GetAllowAdd;
+
     function GetAllowDelete: boolean;
-    function GetAllowSave: boolean;
-    function GetAllowMultiWrite: Boolean;
-    function GetAllowMultiRead: Boolean;
+    property AllowDelete: boolean read GetAllowDelete;
+
+    function GetAllowReplace: boolean;
+    property AllowReplace: boolean read GetAllowReplace;
   end;
   
 implementation

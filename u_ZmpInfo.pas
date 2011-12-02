@@ -616,6 +616,7 @@ end;
 
 procedure TZmpInfo.LoadTileDownloaderConfig(AConfig: IConfigDataProvider);
 var
+  VUseDownload: Boolean;
   VIgnoreMIMEType: Boolean;
   VDefaultMIMEType: string;
   VExpectedMIMETypes: string;
@@ -624,6 +625,7 @@ var
   VIteratorSubRectSize: TPoint;
   fL : TStringList;
 begin
+  VUseDownload := AConfig.ReadBool('UseDwn', True);
   VIgnoreMIMEType := AConfig.ReadBool('IgnoreContentType', False);
   VDefaultMIMEType := AConfig.ReadString('DefaultContentType', 'image/jpg');
   VExpectedMIMETypes := AConfig.ReadString('ContentType', 'image/jpg');
@@ -646,6 +648,7 @@ begin
   FTileDownloaderConfig :=
     TTileDownloaderConfigStatic.Create(
       nil,
+      VUseDownload,
       VWaitInterval,
       VMaxConnectToServerCount,
       VIgnoreMIMEType,

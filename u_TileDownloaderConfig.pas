@@ -35,6 +35,7 @@ type
   private
     FDefConfig: ITileDownloaderConfigStatic;
     FIntetConfig: IInetConfig;
+    FEnabled: Boolean;
     FWaitInterval: Cardinal;
     FMaxConnectToServerCount: Cardinal;
     FIgnoreMIMEType: Boolean;
@@ -50,6 +51,9 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetInetConfigStatic: IInetConfigStatic;
+
+    function GetEnabled: Boolean;
+    procedure SetEnabled(AValue: Boolean);
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);
@@ -86,6 +90,7 @@ begin
   inherited Create;
   FDefConfig := ADefault;
   FIntetConfig := AIntetConfig;
+  FEnabled := FDefConfig.Enabled;
   FWaitInterval := FDefConfig.WaitInterval;
   FMaxConnectToServerCount := FDefConfig.MaxConnectToServerCount;
   FIgnoreMIMEType := FDefConfig.IgnoreMIMEType;
@@ -103,6 +108,7 @@ begin
   Result :=
     TTileDownloaderConfigStatic.Create(
       FIntetConfig.GetStatic,
+      FEnabled,
       FWaitInterval,
       FMaxConnectToServerCount,
       FIgnoreMIMEType,
@@ -171,6 +177,16 @@ begin
   LockRead;
   try
     Result := FDefaultMIMEType;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TTileDownloaderConfig.GetEnabled: Boolean;
+begin
+  LockRead;
+  try
+    Result := FEnabled;
   finally
     UnlockRead;
   end;
@@ -246,6 +262,25 @@ begin
   try
     if FDefaultMIMEType <> AValue then begin
       FDefaultMIMEType := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TTileDownloaderConfig.SetEnabled(AValue: Boolean);
+var
+  VValue: Boolean;
+begin
+  VValue := AValue;
+  if not FDefConfig.Enabled then begin
+    VValue := False;
+  end;
+  LockWrite;
+  try
+    if FEnabled <> VValue then begin
+      FEnabled := VValue;
       SetChanged;
     end;
   finally

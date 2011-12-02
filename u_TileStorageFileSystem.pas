@@ -127,6 +127,7 @@ implementation
 uses
   t_GeoTypes,
   i_TileIterator,
+  u_TileStorageTypeAbilities,
   u_TileIteratorByRect,
   u_TileInfoBasic;
 
@@ -139,7 +140,7 @@ constructor TTileStorageFileSystem.Create(
   AContentTypeManager: IContentTypeManager
 );
 begin
-  inherited Create(AConfig);
+  inherited Create(TTileStorageTypeAbilitiesFieFolder.Create, AConfig);
   FFormatSettings.DecimalSeparator := '.';
   FFormatSettings.DateSeparator := '-';
   FFormatSettings.ShortDateFormat := 'yyyy-MM-dd';
@@ -460,9 +461,9 @@ var
 begin
   if Config.AllowAdd then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    CreateDirIfNotExists(VPath);
     FLock.BeginWrite;
     try
+      CreateDirIfNotExists(VPath);
       if AStream is TMemoryStream then begin
         VFileStream := TFileStream.Create(VPath, fmCreate);
         try

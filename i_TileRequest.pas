@@ -12,9 +12,6 @@ uses
 type
   ITileRequest = interface
     ['{2E7FE7D3-1343-4823-876A-BBAD4D483728}']
-    function GetZmp: IZmpInfo;
-    property Zmp: IZmpInfo read GetZmp;
-
     function GetTile: TPoint;
     property Tile: TPoint read GetTile;
 

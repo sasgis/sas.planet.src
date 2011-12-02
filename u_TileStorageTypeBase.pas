@@ -23,7 +23,7 @@ unit u_TileStorageTypeBase;
 interface
 
 uses
-  i_TileStorageTypeInfo,
+  i_StorageTypeAbilities,
   i_TileStorageTypeConfig,
   i_TileStorage,
   i_TileStorageType;
@@ -33,11 +33,11 @@ type
   private
     FGUID: TGUID;
     FCaption: string;
-    FInfo: ITileStorageTypeInfo;
+    FInfo: IStorageTypeAbilities;
     FConfig: ITileStorageTypeConfig;
   protected
     function GetGUID: TGUID;
-    function GetInfo: ITileStorageTypeInfo;
+    function GetInfo: IStorageTypeAbilities;
     function GetConfig: ITileStorageTypeConfig;
     function BuildStorage(APath: string): ITileStorage; virtual; abstract;
     function GetCaption: string;
@@ -45,7 +45,7 @@ type
     constructor Create(
       AGUID: TGUID;
       ACaption: string;
-      AInfo: ITileStorageTypeInfo;
+      AInfo: IStorageTypeAbilities;
       AConfig: ITileStorageTypeConfig
     );
   end;
@@ -57,7 +57,7 @@ implementation
 constructor TTileStorageTypeBase.Create(
   AGUID: TGUID;
   ACaption: string;
-  AInfo: ITileStorageTypeInfo;
+  AInfo: IStorageTypeAbilities;
   AConfig: ITileStorageTypeConfig
 );
 begin
@@ -82,7 +82,7 @@ begin
   Result := FGUID;
 end;
 
-function TTileStorageTypeBase.GetInfo: ITileStorageTypeInfo;
+function TTileStorageTypeBase.GetInfo: IStorageTypeAbilities;
 begin
   Result := FInfo;
 end;

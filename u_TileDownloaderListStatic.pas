@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_TileDownloaderAsync,
+  i_TileDownloader,
   i_TileDownloaderList;
 
 type

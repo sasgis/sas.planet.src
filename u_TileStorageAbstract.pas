@@ -32,6 +32,9 @@ uses
   i_SimpleTileStorageConfig,
   i_ContentTypeInfo,
   i_MapVersionInfo,
+  i_StorageTypeAbilities,
+  i_StorageState,
+  i_StorageStateInternal,
   i_TileInfoBasic,
   i_TileRectUpdateNotifier,
   u_MapTypeCacheConfig;
@@ -43,6 +46,8 @@ type
     FMinValidZoom: Byte;
     FMaxValidZoom: Byte;
     FNotifierByZoom: array of ITileRectUpdateNotifier;
+    FStorageState: IStorageStateChangeble;
+    FStorageStateInternal: IStorageStateInternal;
     FNotifierByZoomInternal: array of ITileRectUpdateNotifierInternal;
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
     function GetNotifierByZoomInternal(
@@ -52,6 +57,7 @@ type
     property NotifierByZoomInternal[AZoom: Byte]: ITileRectUpdateNotifierInternal read GetNotifierByZoomInternal;
   public
     constructor Create(
+      AStorageTypeAbilities: IStorageTypeAbilities;
       AConfig: ISimpleTileStorageConfig
     );
     destructor Destroy; override;
@@ -110,7 +116,7 @@ type
       AVersionInfo: IMapVersionInfo;
       AColorer: IFillingMapColorer
     ): boolean; virtual;
-
+    property State: IStorageStateChangeble read FStorageState;
     property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
   end;
 
@@ -120,17 +126,26 @@ uses
   t_GeoTypes,
   i_TileIterator,
   u_TileRectUpdateNotifier,
+  u_StorageStateInternal,
   u_TileIteratorByRect;
 
 { TTileStorageAbstract }
 
-constructor TTileStorageAbstract.Create(AConfig: ISimpleTileStorageConfig);
+constructor TTileStorageAbstract.Create(
+  AStorageTypeAbilities: IStorageTypeAbilities;
+  AConfig: ISimpleTileStorageConfig
+);
 var
   VCount: Integer;
   i: Integer;
   VNotifier: TTileRectUpdateNotifier;
+  VState: TStorageStateInternal;
 begin
   FConfig := AConfig;
+  VState := TStorageStateInternal.Create(AStorageTypeAbilities);
+  FStorageStateInternal := VState;
+  FStorageState := VState;
+
   FMinValidZoom := FConfig.CoordConverter.MinZoom;
   FMaxValidZoom := FConfig.CoordConverter.MaxZoom;
   Assert(FMinValidZoom <= FMaxValidZoom);

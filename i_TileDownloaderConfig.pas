@@ -33,6 +33,9 @@ type
     function GetInetConfigStatic: IInetConfigStatic;
     property InetConfigStatic: IInetConfigStatic read GetInetConfigStatic;
 
+    function GetEnabled: Boolean;
+    property Enabled: Boolean read GetEnabled;
+
     function GetWaitInterval: Cardinal;
     property WaitInterval: Cardinal read GetWaitInterval;
 
@@ -56,6 +59,10 @@ type
     ['{FECD40CF-A0AF-479A-8CCC-E3363037773E}']
     function GetInetConfigStatic: IInetConfigStatic;
     property InetConfigStatic: IInetConfigStatic read GetInetConfigStatic;
+
+    function GetEnabled: Boolean;
+    procedure SetEnabled(AValue: Boolean);
+    property Enabled: Boolean read GetEnabled write SetEnabled;
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);

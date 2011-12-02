@@ -9,7 +9,7 @@ uses
   i_TileRequest,
   i_TileRequestQueue,
   i_TileDownloaderList,
-  i_TileDownloaderAsync,
+  i_TileDownloader,
   i_ITileRequestProcessorPool,
   i_TTLCheckNotifier;
 

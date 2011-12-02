@@ -25,13 +25,13 @@ interface
 uses
   i_CoordConverter,
   i_ContentTypeInfo,
-  i_TileStorageTypeInfo,
+  i_StorageTypeAbilities,
   i_TileStorageInfo;
 
 type
   TTileStorageInfo = class(TInterfacedObject, ITileStorageInfo)
   private
-    FTypeInfo: ITileStorageTypeInfo;
+    FTypeInfo: IStorageTypeAbilities;
     FMainContentType: IContentTypeInfoBasic;
     FAllowDifferentContentTypes: Boolean;
 
@@ -40,7 +40,7 @@ type
     FIsReadOnly: boolean;
     FCoordConverter: ICoordConverter;
   protected
-    function GetTypeInfo: ITileStorageTypeInfo;
+    function GetTypeInfo: IStorageTypeAbilities;
     function GetMainContentType: IContentTypeInfoBasic;
     function GetAllowDifferentContentTypes: Boolean;
 
@@ -50,7 +50,7 @@ type
     function GetCoordConverter: ICoordConverter;
   public
     constructor Create(
-      ATypeInfo: ITileStorageTypeInfo;
+      ATypeInfo: IStorageTypeAbilities;
       AMainContentType: IContentTypeInfoBasic;
       AAllowDifferentContentTypes: Boolean;
       AAllowDelete: boolean;
@@ -65,7 +65,7 @@ implementation
 { TTileStorageInfo }
 
 constructor TTileStorageInfo.Create(
-  ATypeInfo: ITileStorageTypeInfo;
+  ATypeInfo: IStorageTypeAbilities;
   AMainContentType: IContentTypeInfoBasic; AAllowDifferentContentTypes,
   AAllowDelete, AAllowSave, AIsReadOnly: boolean;
   ACoordConverter: ICoordConverter
@@ -108,7 +108,7 @@ begin
   Result := FMainContentType;
 end;
 
-function TTileStorageInfo.GetTypeInfo: ITileStorageTypeInfo;
+function TTileStorageInfo.GetTypeInfo: IStorageTypeAbilities;
 begin
   Result := FTypeInfo;
 end;

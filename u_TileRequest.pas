@@ -14,7 +14,6 @@ uses
 type
   TTileRequest = class(TInterfacedObject, ITileRequest, ITileRequestWithChecker)
   private
-    FZmp: IZmpInfo;
     FTile: TPoint;
     FZoom: Byte;
     FVersionInfo: IMapVersionInfo;
@@ -24,7 +23,6 @@ type
     FCancelNotifier: IOperationNotifier;
     FOperationID: Integer;
   protected
-    function GetZmp: IZmpInfo;
     function GetTile: TPoint;
     function GetZoom: Byte;
     function GetVersionInfo: IMapVersionInfo;
@@ -36,7 +34,6 @@ type
     function GetChecker: ITileDownloadChecker;
   public
     constructor Create(
-      AZmp: IZmpInfo;
       ATile: TPoint;
       AZoom: Byte;
       AVersionInfo: IMapVersionInfo;
@@ -56,7 +53,6 @@ uses
 { TTileRequest }
 
 constructor TTileRequest.Create(
-  AZmp: IZmpInfo;
   ATile: TPoint;
   AZoom: Byte;
   AVersionInfo: IMapVersionInfo;
@@ -65,7 +61,6 @@ constructor TTileRequest.Create(
   AOperationID: Integer
 );
 begin
-  FZmp := AZmp;
   FTile := ATile;
   FZoom := AZoom;
   FVersionInfo := AVersionInfo;
@@ -109,11 +104,6 @@ end;
 function TTileRequest.GetVersionInfo: IMapVersionInfo;
 begin
   Result := FVersionInfo;
-end;
-
-function TTileRequest.GetZmp: IZmpInfo;
-begin
-  Result := FZmp;
 end;
 
 function TTileRequest.GetZoom: Byte;

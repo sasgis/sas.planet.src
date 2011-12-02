@@ -1,4 +1,4 @@
-unit i_TileDownloaderAsync;
+unit i_TileDownloader;
 
 interface
 
