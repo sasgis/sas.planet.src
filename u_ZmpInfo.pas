@@ -274,15 +274,24 @@ procedure TZmpInfoGUI.LoadIcons(
 var
   VStream: TMemoryStream;
   VNameDef: string;
+  VNeedIcon: Boolean;
 begin
   Fbmp24:=TBitmap.create;
   VStream:=TMemoryStream.Create;
   try
+    VNeedIcon := False;
     try
       AConfig.ReadBinaryStream('24.bmp', VStream);
-      VStream.Position:=0;
-      Fbmp24.LoadFromStream(VStream);
+      if VStream.Size > 0 then begin
+        VStream.Position:=0;
+        Fbmp24.LoadFromStream(VStream);
+      end else begin
+        VNeedIcon := True;
+      end;
     except
+      VNeedIcon := True;
+    end;
+    if VNeedIcon then begin
       VNameDef:=inttostr(Apnum);
       Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
       Fbmp24.Width:=24;
@@ -295,11 +304,19 @@ begin
   Fbmp18:=TBitmap.create;
   VStream:=TMemoryStream.Create;
   try
+    VNeedIcon := False;
     try
       AConfig.ReadBinaryStream('18.bmp', VStream);
-      VStream.Position:=0;
-      Fbmp18.LoadFromStream(VStream);
+      if VStream.Size > 0 then begin
+        VStream.Position:=0;
+        Fbmp18.LoadFromStream(VStream);
+      end else begin
+        VNeedIcon := True;
+      end;
     except
+      VNeedIcon := True;
+    end;
+    if VNeedIcon then begin
       VNameDef:=inttostr(Apnum);
       Fbmp18.Canvas.FillRect(Fbmp18.Canvas.ClipRect);
       Fbmp18.Width:=18;
