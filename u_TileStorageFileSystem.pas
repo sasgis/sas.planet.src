@@ -125,6 +125,7 @@ type
 implementation
 
 uses
+  t_CommonTypes,
   t_GeoTypes,
   i_TileIterator,
   u_TileStorageTypeAbilities,
@@ -155,6 +156,12 @@ begin
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
 end;
 
+destructor TTileStorageFileSystem.Destroy;
+begin
+  FreeAndNil(FCacheConfig);
+  inherited;
+end;
+
 procedure TTileStorageFileSystem.CreateDirIfNotExists(APath: string);
 var
   i: integer;
@@ -175,7 +182,7 @@ var
   VPath: string;
 begin
   Result := false;
-  if Config.AllowDelete then begin
+  if StorageStateStatic.DeleteAccess <> asDisabled then begin
     try
       VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
       FLock.BeginWrite;
@@ -193,8 +200,6 @@ begin
     if Result then begin
       NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
     end;
-  end else begin
-    Exception.Create('Для этой карты запрещено удаление тайлов.');
   end;
 end;
 
@@ -207,7 +212,7 @@ var
   VPath: string;
 begin
   Result := False;
-  if Config.AllowDelete then begin
+  if StorageStateStatic.DeleteAccess <> asDisabled then begin
     try
       VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
       VPath := ChangeFileExt(VPath, '.tne');
@@ -222,15 +227,7 @@ begin
     except
       Result := false;
     end;
-  end else begin
-    Exception.Create('Для этой карты запрещено удаление тайлов.');
   end;
-end;
-
-destructor TTileStorageFileSystem.Destroy;
-begin
-  FreeAndNil(FCacheConfig);
-  inherited;
 end;
 
 function TTileStorageFileSystem.GetAllowDifferentContentTypes: Boolean;
@@ -299,8 +296,10 @@ function TTileStorageFileSystem.GetTileInfo(
 var
   VPath: String;
 begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  Result := GetTileInfoByPath(VPath, AVersionInfo);
+  if StorageStateStatic.ReadAccess <> asDisabled then begin
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+    Result := GetTileInfoByPath(VPath, AVersionInfo);
+  end;
 end;
 
 function TTileStorageFileSystem.LoadFillingMap(
@@ -330,83 +329,87 @@ var
   VGeoConvert: ICoordConverter;
   VTileInfo: ITileInfoBasic;
 begin
-  Result := true;
-  try
-    VGeoConvert := Config.CoordConverter;
-    VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
-    VGeoConvert.CheckZoom(ASourceZoom);
+  if StorageStateStatic.ReadAccess <> asDisabled then begin
+    Result := true;
+    try
+      VGeoConvert := Config.CoordConverter;
+      VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
+      VGeoConvert.CheckZoom(ASourceZoom);
 
-    VPixelsRect := VGeoConvert.TilePos2PixelRect(AXY, Azoom);
+      VPixelsRect := VGeoConvert.TilePos2PixelRect(AXY, Azoom);
 
-    VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
+      VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
-    btm.Width := VTileSize.X;
-    btm.Height := VTileSize.Y;
-    btm.Clear(0);
+      btm.Width := VTileSize.X;
+      btm.Height := VTileSize.Y;
+      btm.Clear(0);
 
-    VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
-    VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
-    VPrevFolderName := '';
-    VPrevFolderExist := False;
-    begin
-      VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
-        or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
-      VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
-      while VIterator.Next(VCurrTile) do begin
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
-        VFileName := FCacheConfig.GetTileFileName(VCurrTile, ASourceZoom);
-        VFolderName := ExtractFilePath(VFileName);
-        if VFolderName = VPrevFolderName then begin
-          VFolderExists := VPrevFolderExist;
-        end else begin
-          VFolderExists := DirectoryExists(VFolderName);
-          VPrevFolderName := VFolderName;
-          VPrevFolderExist := VFolderExists;
-        end;
-        if VFolderExists then begin
-          VTileInfo := GetTileInfoByPath(VFileName, AVersionInfo);
-        end else begin
-          VTileInfo := FTileNotExistsTileInfo;
-        end;
-        VTileColor := AColorer.GetColor(VTileInfo);
-        if VTileColor <> 0 then begin
+      VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
+      VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
+      VPrevFolderName := '';
+      VPrevFolderExist := False;
+      begin
+        VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
+          or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
+        VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
+        while VIterator.Next(VCurrTile) do begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
-          VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
-          VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
-          if VSourceTilePixels.Left < VPixelsRect.Left then begin
-            VSourceTilePixels.Left := VPixelsRect.Left;
-          end;
-          if VSourceTilePixels.Top < VPixelsRect.Top then begin
-            VSourceTilePixels.Top := VPixelsRect.Top;
-          end;
-          if VSourceTilePixels.Right > VPixelsRect.Right then begin
-            VSourceTilePixels.Right := VPixelsRect.Right;
-          end;
-          if VSourceTilePixels.Bottom > VPixelsRect.Bottom then begin
-            VSourceTilePixels.Bottom := VPixelsRect.Bottom;
-          end;
-          VSourceTilePixels.Left := VSourceTilePixels.Left - VPixelsRect.Left;
-          VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
-          VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
-          VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
-          if not VSolidDrow then begin
-            Dec(VSourceTilePixels.Right);
-            Dec(VSourceTilePixels.Bottom);
-          end;
-          if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
-             ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
-            btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VTileColor;
+          VFileName := FCacheConfig.GetTileFileName(VCurrTile, ASourceZoom);
+          VFolderName := ExtractFilePath(VFileName);
+          if VFolderName = VPrevFolderName then begin
+            VFolderExists := VPrevFolderExist;
           end else begin
-            btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VTileColor);
+            VFolderExists := DirectoryExists(VFolderName);
+            VPrevFolderName := VFolderName;
+            VPrevFolderExist := VFolderExists;
+          end;
+          if VFolderExists then begin
+            VTileInfo := GetTileInfoByPath(VFileName, AVersionInfo);
+          end else begin
+            VTileInfo := FTileNotExistsTileInfo;
+          end;
+          VTileColor := AColorer.GetColor(VTileInfo);
+          if VTileColor <> 0 then begin
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
+            VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
+            VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
+            if VSourceTilePixels.Left < VPixelsRect.Left then begin
+              VSourceTilePixels.Left := VPixelsRect.Left;
+            end;
+            if VSourceTilePixels.Top < VPixelsRect.Top then begin
+              VSourceTilePixels.Top := VPixelsRect.Top;
+            end;
+            if VSourceTilePixels.Right > VPixelsRect.Right then begin
+              VSourceTilePixels.Right := VPixelsRect.Right;
+            end;
+            if VSourceTilePixels.Bottom > VPixelsRect.Bottom then begin
+              VSourceTilePixels.Bottom := VPixelsRect.Bottom;
+            end;
+            VSourceTilePixels.Left := VSourceTilePixels.Left - VPixelsRect.Left;
+            VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
+            VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
+            VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
+            if not VSolidDrow then begin
+              Dec(VSourceTilePixels.Right);
+              Dec(VSourceTilePixels.Bottom);
+            end;
+            if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
+               ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
+              btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VTileColor;
+            end else begin
+              btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VTileColor);
+            end;
           end;
         end;
       end;
-    end;
-    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Result := false;
+      end;
+    except
       Result := false;
     end;
-  except
-    Result := false;
+  end else begin
+    Result := False;
   end;
 end;
 
@@ -421,27 +424,31 @@ var
   VPath: String;
   VMemStream: TMemoryStream;
 begin
-  VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-  ATileInfo := GetTileInfoByPath(VPath, AVersionInfo);
-  if ATileInfo.GetIsExists then begin
-    FLock.BeginRead;
-    try
-      if AStream is TMemoryStream then begin
-        VMemStream := TMemoryStream(AStream);
-        VMemStream.LoadFromFile(VPath);
-        Result := True;
-      end else begin
-        VMemStream := TMemoryStream.Create;
-        try
+  if StorageStateStatic.ReadAccess <> asDisabled then begin
+    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+    ATileInfo := GetTileInfoByPath(VPath, AVersionInfo);
+    if ATileInfo.GetIsExists then begin
+      FLock.BeginRead;
+      try
+        if AStream is TMemoryStream then begin
+          VMemStream := TMemoryStream(AStream);
           VMemStream.LoadFromFile(VPath);
-          VMemStream.SaveToStream(AStream);
           Result := True;
-        finally
-          VMemStream.Free;
+        end else begin
+          VMemStream := TMemoryStream.Create;
+          try
+            VMemStream.LoadFromFile(VPath);
+            VMemStream.SaveToStream(AStream);
+            Result := True;
+          finally
+            VMemStream.Free;
+          end;
         end;
+      finally
+        FLock.EndRead;
       end;
-    finally
-      FLock.EndRead;
+    end else begin
+      Result := False;
     end;
   end else begin
     Result := False;
@@ -459,7 +466,7 @@ var
   VMemStream: TMemoryStream;
   VFileStream: TFileStream;
 begin
-  if Config.AllowAdd then begin
+  if StorageStateStatic.WriteAccess <> asDisabled then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     FLock.BeginWrite;
     try
@@ -494,8 +501,6 @@ begin
       FLock.EndWrite;
     end;
     NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
-  end else begin
-    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
 end;
 
@@ -510,7 +515,7 @@ var
   VDateString: string;
   VFileStream: TFileStream;
 begin
-  if Config.AllowAdd then begin
+  if StorageStateStatic.WriteAccess <> asDisabled then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     VPath := ChangeFileExt(VPath, '.tne');
     FLock.BeginWrite;
@@ -529,8 +534,6 @@ begin
     finally
       FLock.EndWrite;
     end;
-  end else begin
-    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
   end;
 end;
 

@@ -26,6 +26,7 @@ uses
   Types,
   SysUtils,
   i_JclNotify,
+  i_StorageStateInternal,
   i_MapVersionInfo,
   u_MapTypeCacheConfig;
 
@@ -40,7 +41,7 @@ type
     Layer  : Word;      // номер слоя (только для слоя, иначе = 0)
     NameLo : LongWord;  // первая часть имени
     NameHi : LongWord;  // вторая часть имени
-    ServID : Word;      // номер сервера из списка в dbCache.dat 
+    ServID : Word;      // номер сервера из списка в dbCache.dat
     Unk    : Word;      // ? наличие поля зависит от ОС (в Win - есть, в Linux - нет)
     Offset : LongWord;  // позиция тайла в кэше dbCache.dat
     Size   : LongWord;  // размер тайла
@@ -50,8 +51,10 @@ type
   private
     FSync: TMultiReadExclusiveWriteSynchronizer;
     FCacheConfig: TMapTypeCacheConfigGE;
+    FStorageStateInternal: IStorageStateInternal;
     FIndexFileName: string;
     FIndexInfo: array of TIndexRec;
+    FServerID: Word;
     FConfigChangeListener: IJclListener;
     FFileInited: Boolean;
     procedure GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte; out ANameHi, ANameLo: LongWord);
@@ -60,7 +63,10 @@ type
     function getServID:word;
   protected
   public
-    constructor Create(ACacheConfig: TMapTypeCacheConfigGE);
+    constructor Create(
+      AStorageStateInternal: IStorageStateInternal;
+      ACacheConfig: TMapTypeCacheConfigGE
+    );
     destructor Destroy; override;
     function FindTileInfo(
       APoint: TPoint;
@@ -75,15 +81,20 @@ implementation
 
 uses
   Classes,
+  t_CommonTypes,
   u_NotifyEventListener,
   u_MapVersionInfo;
 
 { TGEIndexFile }
 
-constructor TGEIndexFile.Create(ACacheConfig: TMapTypeCacheConfigGE);
+constructor TGEIndexFile.Create(
+  AStorageStateInternal: IStorageStateInternal;
+  ACacheConfig: TMapTypeCacheConfigGE
+);
 begin
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   FCacheConfig := ACacheConfig;
+  FStorageStateInternal := AStorageStateInternal;
   FFileInited := False;
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FCacheConfig.ConfigChangeNotifier.Add(FConfigChangeListener);
@@ -170,7 +181,7 @@ begin
           for i := Length(FIndexInfo) - 1 downto 0 do begin
             if FIndexInfo[i].Magic = $7593BFD5 then begin
               if FIndexInfo[i].TileID = 130 then begin
-                if FIndexInfo[i].ServID = getServID then begin
+                if FIndexInfo[i].ServID = FServerID then begin
                   if FIndexInfo[i].Zoom = AZoom then begin
                     if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
                       AOffset := FIndexInfo[i].Offset;
@@ -243,9 +254,13 @@ begin
         VCount := VFileStream.Size div SizeOf(FIndexInfo[0]);
         SetLength(FIndexInfo, VCount );
         VFileStream.ReadBuffer(FIndexInfo[0], VCount * SizeOf(FIndexInfo[0]));
+        FServerID := getServID;
+        FStorageStateInternal.ReadAccess := asEnabled;
       finally
         FreeAndNil(VFileStream);
       end;
+    end else begin
+      FStorageStateInternal.ReadAccess := asDisabled;
     end;
   end;
   FFileInited := True;

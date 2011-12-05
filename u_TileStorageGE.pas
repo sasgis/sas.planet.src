@@ -103,6 +103,7 @@ implementation
 uses
   SysUtils,
   Variants,
+  t_CommonTypes,
   u_TileInfoBasic,
   u_TileStorageTypeAbilities,
   u_GECrypt;
@@ -117,7 +118,7 @@ constructor TTileStorageGE.Create(
 begin
   inherited Create(TTileStorageTypeAbilitiesGE.Create, AConfig);
   FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig);
-  FIndex := TGEIndexFile.Create(FCacheConfig);
+  FIndex := TGEIndexFile.Create(StorageStateInternal, FCacheConfig);
   FMainContentType := AContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');
 end;
 
@@ -180,16 +181,19 @@ var
   VSize: Integer;
   VVersionInfo: IMapVersionInfo;
 begin
-  VVersionInfo := AVersionInfo;
-  if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize) then begin
-    Result := TTileInfoBasicExists.Create(
-      0,
-      VSize,
-      VVersionInfo,
-      FMainContentType
-    );
-  end else begin
-    Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
+  Result := nil;
+  if StorageStateStatic.ReadAccess <> asDisabled then begin
+    VVersionInfo := AVersionInfo;
+    if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize) then begin
+      Result := TTileInfoBasicExists.Create(
+        0,
+        VSize,
+        VVersionInfo,
+        FMainContentType
+      );
+    end else begin
+      Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
+    end;
   end;
 end;
 
@@ -210,52 +214,54 @@ var
   VVersionInfo: IMapVersionInfo;
 begin
   Result := False;
-  VVersionInfo := AVersionInfo;
-  if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize) then begin
-    VFileName := FCacheConfig.GetDataFileName;
-    if FileExists(VFileName) then begin
-      VFileStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
-      try
-        VFileStream.Position := VOffset + 36;
-        VMemStream := TMemoryStream.Create;
+  if StorageStateStatic.ReadAccess <> asDisabled then begin
+    VVersionInfo := AVersionInfo;
+    if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize) then begin
+      VFileName := FCacheConfig.GetDataFileName;
+      if FileExists(VFileName) then begin
+        VFileStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
         try
-          VMemStream.CopyFrom(VFileStream, VSize);
-          VMemStream.Position := 0;
-          VMemStream.ReadBuffer(VTileStart, SizeOf(VTileStart));
-          case VTileStart of
-            CRYPTED_JPEG: begin
-              GEcrypt(VMemStream.Memory, VMemStream.Size);
-              Result := True;
+          VFileStream.Position := VOffset + 36;
+          VMemStream := TMemoryStream.Create;
+          try
+            VMemStream.CopyFrom(VFileStream, VSize);
+            VMemStream.Position := 0;
+            VMemStream.ReadBuffer(VTileStart, SizeOf(VTileStart));
+            case VTileStart of
+              CRYPTED_JPEG: begin
+                GEcrypt(VMemStream.Memory, VMemStream.Size);
+                Result := True;
+              end;
+              DECRYPTED_JPEG: begin
+                Result := True;
+              end;
+              CRYPTED_DXT1: begin
+                GEcrypt(VMemStream.Memory, VMemStream.Size);
+                Result := True;
+              end;
+              DECRYPTED_DXT1: begin
+                Result := True;
+              end;
             end;
-            DECRYPTED_JPEG: begin
-              Result := True;
+            if Result then begin
+              VMemStream.SaveToStream(AStream);
             end;
-            CRYPTED_DXT1: begin
-              GEcrypt(VMemStream.Memory, VMemStream.Size);
-              Result := True;
-            end;
-            DECRYPTED_DXT1: begin
-              Result := True;
-            end;
+            ATileInfo := TTileInfoBasicExists.Create(
+              0,
+              VSize,
+              VVersionInfo,
+              FMainContentType
+            );
+          finally
+            VMemStream.Free;
           end;
-          if Result then begin
-            VMemStream.SaveToStream(AStream);
-          end;
-          ATileInfo := TTileInfoBasicExists.Create(
-            0,
-            VSize,
-            VVersionInfo,
-            FMainContentType
-          );
         finally
-          VMemStream.Free;
+          VFileStream.Free;
         end;
-      finally
-        VFileStream.Free;
       end;
+    end else begin
+      ATileInfo := TTileInfoBasicNotExists.Create(0, VVersionInfo);
     end;
-  end else begin
-    ATileInfo := TTileInfoBasicNotExists.Create(0, VVersionInfo);
   end;
 end;
 

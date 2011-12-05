@@ -26,6 +26,7 @@ uses
   Types,
   Classes,
   GR32,
+  i_JclNotify,
   i_FillingMapColorer,
   i_OperationNotifier,
   i_CoordConverter,
@@ -46,13 +47,20 @@ type
     FMinValidZoom: Byte;
     FMaxValidZoom: Byte;
     FNotifierByZoom: array of ITileRectUpdateNotifier;
+    FConfigListener: IJclListener;
     FStorageState: IStorageStateChangeble;
+    FStorageStateListener: IJclListener;
+    FStorageStateStatic: IStorageStateStatic;
     FStorageStateInternal: IStorageStateInternal;
     FNotifierByZoomInternal: array of ITileRectUpdateNotifierInternal;
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
     function GetNotifierByZoomInternal(
       AZoom: Byte): ITileRectUpdateNotifierInternal;
+    procedure OnStateChange;
+    procedure OnConfigChange;
   protected
+    property StorageStateStatic: IStorageStateStatic read FStorageStateStatic;
+    property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
     property Config: ISimpleTileStorageConfig read FConfig;
     property NotifierByZoomInternal[AZoom: Byte]: ITileRectUpdateNotifierInternal read GetNotifierByZoomInternal;
   public
@@ -123,8 +131,10 @@ type
 implementation
 
 uses
+  t_CommonTypes,
   t_GeoTypes,
   i_TileIterator,
+  u_NotifyEventListener,
   u_TileRectUpdateNotifier,
   u_StorageStateInternal,
   u_TileIteratorByRect;
@@ -142,9 +152,18 @@ var
   VState: TStorageStateInternal;
 begin
   FConfig := AConfig;
+
   VState := TStorageStateInternal.Create(AStorageTypeAbilities);
   FStorageStateInternal := VState;
   FStorageState := VState;
+
+  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FConfig.ChangeNotifier.Add(FConfigListener);
+  OnConfigChange;
+
+  FStorageStateListener := TNotifyNoMmgEventListener.Create(Self.OnStateChange);
+  FStorageState.ChangeNotifier.Add(FStorageStateListener);
+  OnStateChange;
 
   FMinValidZoom := FConfig.CoordConverter.MinZoom;
   FMaxValidZoom := FConfig.CoordConverter.MaxZoom;
@@ -163,6 +182,12 @@ destructor TTileStorageAbstract.Destroy;
 var
   i: Integer;
 begin
+  FStorageState.ChangeNotifier.Remove(FStorageStateListener);
+  FStorageStateListener := nil;
+
+  FConfig.ChangeNotifier.Remove(FConfigListener);
+  FConfigListener := nil;
+
   for i := 0 to Length(FNotifierByZoom) - 1 do begin
     FNotifierByZoom[i] := nil;
   end;
@@ -210,26 +235,24 @@ var
   VTileColor: TColor32;
   VGeoConvert: ICoordConverter;
 begin
-  Result := true;
-  try
-    VGeoConvert := FConfig.CoordConverter;
+  if StorageStateStatic.ReadAccess <> asDisabled then begin
+    Result := true;
+    try
+      VGeoConvert := FConfig.CoordConverter;
 
-    VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
-    VGeoConvert.CheckZoom(ASourceZoom);
+      VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
+      VGeoConvert.CheckZoom(ASourceZoom);
 
-    VPixelsRect := VGeoConvert.TilePos2PixelRect(AXY, Azoom);
+      VPixelsRect := VGeoConvert.TilePos2PixelRect(AXY, Azoom);
 
-    VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
+      VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
-    btm.Width := VTileSize.X;
-    btm.Height := VTileSize.Y;
-    btm.Clear(0);
+      btm.Width := VTileSize.X;
+      btm.Height := VTileSize.Y;
+      btm.Clear(0);
 
-    VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
-    VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
-   { if (VTileSize.X >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) and
-      (VTileSize.Y >= (VSourceTilesRect.Right - VSourceTilesRect.Left + 1)) then  }
-    begin
+      VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
+      VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
       VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
         or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
       VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
@@ -270,13 +293,52 @@ begin
           end;
         end;
       end;
-    end;
-    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Result := false;
+      end;
+    except
       Result := false;
     end;
-  except
-    Result := false;
+  end else begin
+    Result := False;
   end;
+end;
+
+procedure TTileStorageAbstract.OnConfigChange;
+var
+  VConfig: ISimpleTileStorageConfigStatic;
+begin
+  VConfig := FConfig.GetStatic;
+  FStorageStateInternal.LockWrite;
+  try
+    if VConfig.IsReadOnly then begin
+      FStorageStateInternal.WriteAccess := asDisabled;
+    end else begin
+      FStorageStateInternal.WriteAccess := asUnknown;
+      if VConfig.AllowAdd then begin
+        FStorageStateInternal.AddAccess := asUnknown;
+      end else begin
+        FStorageStateInternal.AddAccess := asDisabled;
+      end;
+      if VConfig.AllowDelete then begin
+        FStorageStateInternal.DeleteAccess := asUnknown;
+      end else begin
+        FStorageStateInternal.DeleteAccess := asDisabled;
+      end;
+      if VConfig.AllowReplace then begin
+        FStorageStateInternal.ReplaceAccess := asUnknown;
+      end else begin
+        FStorageStateInternal.ReplaceAccess := asDisabled;
+      end;
+    end;
+  finally
+    FStorageStateInternal.UnlockWrite;
+  end;
+end;
+
+procedure TTileStorageAbstract.OnStateChange;
+begin
+  FStorageStateStatic := FStorageState.GetStatic;
 end;
 
 end.

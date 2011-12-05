@@ -58,6 +58,7 @@ constructor TStorageStateInternal.Create(
   AStorageTypeAbilities: IStorageTypeAbilities
 );
 begin
+  inherited Create;
   FStorageTypeAbilities := AStorageTypeAbilities;
   
   FReadAccess := asUnknown;
