@@ -157,6 +157,7 @@ function TTileDownloadRequestBuilderPascalScript.BuildRequest(
 var
   VDownloaderConfig: ITileDownloaderConfigStatic;
 begin
+  Result := nil;
   Lock;
   try
     VDownloaderConfig := FTileDownloaderConfig.GetStatic;
