@@ -3,8 +3,7 @@ unit i_TileDownloadResultSaver;
 interface
 
 uses
-  i_DownloadResult,
-  i_DownloadChecker;
+  i_DownloadResult;
 
 type
   ITileDownloadResultSaver = interface

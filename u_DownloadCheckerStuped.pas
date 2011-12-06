@@ -24,23 +24,12 @@ interface
 
 uses
   Classes,
-  Types,
-  GR32,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadChecker,
-  i_TileDownloadResultSaver,
   i_TileDownloaderConfig,
-  i_MapVersionInfo,
-  i_LastResponseInfo,
-  i_ContentTypeInfo,
-  i_ContentTypeManager,
-  i_ContentTypeSubst,
-  i_SimpleTileStorageConfig,
   i_AntiBan,
-  i_TilePostDownloadCropConfig,
-  i_GlobalDownloadConfig,
   i_TileInfoBasic,
   u_TileStorageAbstract;
 
@@ -79,13 +68,8 @@ implementation
 
 uses
   SysUtils,
-  GR32_Resamplers,
   i_TileRequest,
-  i_TileDownloadRequest,
-  i_ContentConverter,
-  i_BitmapTileSaveLoad,
-  u_ResStrings,
-  u_TileRequestBuilderHelpers;
+  i_TileDownloadRequest;
 
 { TDownloadCheckerStuped }
 

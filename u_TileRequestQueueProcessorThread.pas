@@ -4,10 +4,8 @@ interface
 
 uses
   Windows,
-  SyncObjs,
   Classes,
   i_JclNotify,
-  i_OperationNotifier,
   i_TileRequest,
   i_TileRequestQueue,
   i_TileDownloader,

@@ -3,7 +3,6 @@ unit i_TileRequestQueue;
 interface
 
 uses
-  i_OperationNotifier,
   i_TileRequest;
 
 type

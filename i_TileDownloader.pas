@@ -3,7 +3,6 @@ unit i_TileDownloader;
 interface
 
 uses
-  i_OperationNotifier,
   i_TileRequest;
 
 type

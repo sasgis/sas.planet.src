@@ -5,10 +5,8 @@ interface
 uses
   Types,
   i_JclNotify,
-  i_ZmpInfo,
   i_OperationNotifier,
   i_TileRequest,
-  i_TileDownloadResultSaver,
   i_MapVersionInfo;
 
 type

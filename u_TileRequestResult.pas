@@ -4,7 +4,6 @@ interface
 
 uses
   i_TileRequest,
-  i_DownloadRequest,
   i_DownloadResult,
   i_TileDownloadRequest,
   i_TileRequestResult;
@@ -95,8 +94,6 @@ type
       AErrorText: string
     );
   end;
-
-
 
 implementation
 

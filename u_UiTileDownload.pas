@@ -17,8 +17,7 @@ uses
   i_ViewPortState,
   i_JclListenerNotifierLinksList,
   i_ActiveMapsConfig,
-  i_LocalCoordConverter,
-  u_OperationNotifier;
+  i_LocalCoordConverter;
 
 type
   TUiTileDownload = class(TInterfacedObject)

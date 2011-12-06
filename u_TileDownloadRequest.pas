@@ -28,7 +28,6 @@ uses
   i_InetConfig,
   i_TileRequest,
   i_DownloadChecker,
-  i_TileDownloadResultSaver,
   i_TileDownloadRequest;
 
 type

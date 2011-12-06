@@ -102,7 +102,6 @@ implementation
 
 uses
   SysUtils,
-  Variants,
   t_CommonTypes,
   u_TileInfoBasic,
   u_TileStorageTypeAbilities,

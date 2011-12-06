@@ -6,7 +6,6 @@ uses
   Types,
   i_JclNotify,
   i_OperationNotifier,
-  i_ZmpInfo,
   i_MapVersionInfo;
 
 type

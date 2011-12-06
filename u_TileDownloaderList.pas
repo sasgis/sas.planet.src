@@ -4,17 +4,12 @@ interface
 
 uses
   i_JclNotify,
-  i_ConfigDataProvider,
-  i_CoordConverterFactory,
-  i_LanguageManager,
-  i_ZmpInfo,
   i_TileDownloaderConfig,
   i_TileDownloader,
   i_DownloadResultFactory,
   i_TileDownloadResultSaver,
   i_TTLCheckNotifier,
   i_TileDownloadRequestBuilderFactory,
-  i_TileDownloadRequestBuilderConfig,
   i_TileDownloaderList;
 
 type
@@ -54,7 +49,6 @@ uses
   u_JclNotify,
   u_NotifyEventListener,
   u_LastResponseInfo,
-  u_TileDownloadRequestBuilderPascalScript,
   u_TileDownloaderHttpWithTTL,
   u_TileDownloaderSimple,
   u_TileDownloaderListStatic;

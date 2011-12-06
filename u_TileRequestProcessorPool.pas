@@ -11,7 +11,6 @@ uses
   i_TTLCheckNotifier,
   i_TileRequestQueue,
   i_TileDownloaderList,
-  i_TileDownloader,
   i_ITileRequestProcessorPool;
 
 type

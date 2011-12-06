@@ -26,7 +26,6 @@ uses
   i_TileDownloader,
   i_ZmpInfo,
   i_MapVersionConfig,
-  i_TileDownloadResultSaver,
   i_InvisibleBrowser,
   i_TileDownloadSubsystem,
   u_TileStorageAbstract;

@@ -5,7 +5,6 @@ interface
 uses
   i_TileRequest,
   i_TileDownloadRequest,
-  i_DownloadRequest,
   i_DownloadResult;
 
 type
