@@ -8,16 +8,15 @@ uses
   i_ZmpInfo,
   i_OperationNotifier,
   i_TileRequest,
-  i_TileDownloadChecker,
+  i_TileDownloadResultSaver,
   i_MapVersionInfo;
 
 type
-  TTileRequest = class(TInterfacedObject, ITileRequest, ITileRequestWithChecker)
+  TTileRequest = class(TInterfacedObject, ITileRequest)
   private
     FTile: TPoint;
     FZoom: Byte;
     FVersionInfo: IMapVersionInfo;
-    FChecker: ITileDownloadChecker;
     FStartNotifier: IJclNotifier;
     FFinishNotifier: IJclNotifier;
     FCancelNotifier: IOperationNotifier;
@@ -30,14 +29,11 @@ type
     function GetFinishNotifier: IJclNotifier;
     function GetCancelNotifier: IOperationNotifier;
     function GetOperationID: Integer;
-  protected
-    function GetChecker: ITileDownloadChecker;
   public
     constructor Create(
       ATile: TPoint;
       AZoom: Byte;
       AVersionInfo: IMapVersionInfo;
-      AChecker: ITileDownloadChecker;
       ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     );
@@ -56,7 +52,6 @@ constructor TTileRequest.Create(
   ATile: TPoint;
   AZoom: Byte;
   AVersionInfo: IMapVersionInfo;
-  AChecker: ITileDownloadChecker;
   ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 );
@@ -64,7 +59,6 @@ begin
   FTile := ATile;
   FZoom := AZoom;
   FVersionInfo := AVersionInfo;
-  FChecker := AChecker;
   FFinishNotifier := TJclBaseNotifier.Create;
   FStartNotifier := TJclBaseNotifier.Create;
   FCancelNotifier := ACancelNotifier;
@@ -74,11 +68,6 @@ end;
 function TTileRequest.GetCancelNotifier: IOperationNotifier;
 begin
   Result := FCancelNotifier;
-end;
-
-function TTileRequest.GetChecker: ITileDownloadChecker;
-begin
-  Result := FChecker;
 end;
 
 function TTileRequest.GetFinishNotifier: IJclNotifier;

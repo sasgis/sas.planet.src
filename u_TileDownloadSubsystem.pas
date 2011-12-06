@@ -26,7 +26,7 @@ uses
   i_TileDownloader,
   i_ZmpInfo,
   i_MapVersionConfig,
-  i_TileDownloadChecker,
+  i_TileDownloadResultSaver,
   i_InvisibleBrowser,
   i_TileDownloadSubsystem,
   u_TileStorageAbstract;
@@ -44,7 +44,6 @@ type
     FTileDownloader: ITileDownloader;
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
-    FDownloadChecker: ITileDownloadChecker;
   protected
     function GetRequest(
       ACancelNotifier: IOperationNotifier;
@@ -89,10 +88,12 @@ uses
   Classes,
   i_TileDownloadRequest,
   i_TileDownloaderList,
+  i_DownloadChecker,
   u_TileRequest,
   u_TileDownloaderList,
   u_AntiBanStuped,
   u_DownloadCheckerStuped,
+  u_TileDownloadResultSaverStuped,
   u_TileDownloaderWithQueue,
   u_TileDownloadRequestBuilderFactoryPascalScript;
 
@@ -120,6 +121,7 @@ constructor TTileDownloadSubsystem.Create(
 );
 var
   VDownloaderList: ITileDownloaderList;
+  VDownloadChecker: IDownloadChecker;
 begin
   FCoordConverter := ACoordConverter;
   FVersionConfig := AVersionConfig;
@@ -129,39 +131,42 @@ begin
   FZmpDownloadEnabled := AZmp.TileDownloaderConfig.Enabled;
 
   if FZmpDownloadEnabled then begin
+    VDownloadChecker := TDownloadCheckerStuped.Create(
+      TAntiBanStuped.Create(AInvisibleBrowser, AZmpData),
+      FTileDownloaderConfig,
+      AStorage
+    );
     FTileDownloadRequestBuilderFactory :=
       TTileDownloadRequestBuilderFactoryPascalScript.Create(
         AZmpData,
         FTileDownloadRequestBuilderConfig,
         FTileDownloaderConfig,
+        VDownloadChecker,
         ALanguageManager
       );
-      FDownloadChecker := TDownloadCheckerStuped.Create(
-        TAntiBanStuped.Create(AInvisibleBrowser, AZmpData),
-        FTileDownloaderConfig,
-        AGlobalDownloadConfig,
-        AContentTypeManager,
-        AZmp.ContentTypeSubst,
-        AZmp.TilePostDownloadCropConfig,
-        AStorageConfig,
-        AStorage
-      );
-      VDownloaderList :=
-        TTileDownloaderList.Create(
-          AGCList,
-          AAppClosingNotifier,
-          ADownloadResultFactory,
-          FTileDownloaderConfig,
-          FTileDownloadRequestBuilderFactory
-        );
-      FTileDownloader := TTileDownloaderWithQueue.Create(
-        VDownloaderList,
+    VDownloaderList :=
+      TTileDownloaderList.Create(
         AGCList,
-        tpLower,
         AAppClosingNotifier,
-        256
+        ADownloadResultFactory,
+        FTileDownloaderConfig,
+        TTileDownloadResultSaverStuped.Create(
+          AGlobalDownloadConfig,
+          AContentTypeManager,
+          AZmp.ContentTypeSubst,
+          AZmp.TilePostDownloadCropConfig,
+          AStorageConfig,
+          AStorage
+        ),
+        FTileDownloadRequestBuilderFactory
       );
-
+    FTileDownloader := TTileDownloaderWithQueue.Create(
+      VDownloaderList,
+      AGCList,
+      tpLower,
+      AAppClosingNotifier,
+      256
+    );
   end;
 
 end;
@@ -214,7 +219,6 @@ begin
             AXY,
             Azoom,
             FVersionConfig.GetStatic,
-            FDownloadChecker,
             ACancelNotifier,
             AOperationID
           );
@@ -224,7 +228,6 @@ begin
             AXY,
             Azoom,
             FVersionConfig.GetStatic,
-            FDownloadChecker,
             ACancelNotifier,
             AOperationID
           );

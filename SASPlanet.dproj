@@ -305,7 +305,6 @@
     <DCCReference Include="i_StringConfigDataElement.pas" />
     <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_Thread.pas" />
-    <DCCReference Include="i_TileDownloadChecker.pas" />
     <DCCReference Include="i_TileDownloader.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownloaderList.pas" />
@@ -314,6 +313,7 @@
     <DCCReference Include="i_TileDownloadRequestBuilder.pas" />
     <DCCReference Include="i_TileDownloadRequestBuilderConfig.pas" />
     <DCCReference Include="i_TileDownloadRequestBuilderFactory.pas" />
+    <DCCReference Include="i_TileDownloadResultSaver.pas" />
     <DCCReference Include="i_TileDownloadSubsystem.pas" />
     <DCCReference Include="i_TileError.pas" />
     <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
@@ -753,6 +753,7 @@
     <DCCReference Include="u_TileDownloadRequestBuilderConfig.pas" />
     <DCCReference Include="u_TileDownloadRequestBuilderFactoryPascalScript.pas" />
     <DCCReference Include="u_TileDownloadRequestBuilderPascalScript.pas" />
+    <DCCReference Include="u_TileDownloadResultSaverStuped.pas" />
     <DCCReference Include="u_TileDownloadSubsystem.pas" />
     <DCCReference Include="u_TileErrorInfo.pas" />
     <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />

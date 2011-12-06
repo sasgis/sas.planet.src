@@ -10,6 +10,7 @@ uses
   i_LastResponseInfo,
   i_SimpleDownloader,
   i_TileRequest,
+  i_TileDownloadResultSaver,
   i_TileDownloaderConfig,
   i_TileDownloader,
   i_TileDownloadRequestBuilder,
@@ -21,6 +22,7 @@ type
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FHttpDownloader: ISimpleDownloader;
+    FResultSaver: ITileDownloadResultSaver;
     FAppClosingNotifier: IJclNotifier;
     FLastResponseInfo: ILastResponseInfo;
 
@@ -54,6 +56,7 @@ type
       ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
       ATileDownloaderConfig: ITileDownloaderConfig;
       AHttpDownloader: ISimpleDownloader;
+      AResultSaver: ITileDownloadResultSaver;
       ALastResponseInfo: ILastResponseInfo
     );
     destructor Destroy; override;
@@ -65,7 +68,6 @@ uses
   SysUtils,
   i_InetConfig,
   i_DownloadResult,
-  i_TileDownloadChecker,
   i_TileDownloadRequest,
   i_TileRequestResult,
   u_NotifyEventListener,
@@ -78,6 +80,7 @@ constructor TTileDownloaderSimple.Create(
   ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
   ATileDownloaderConfig: ITileDownloaderConfig;
   AHttpDownloader: ISimpleDownloader;
+  AResultSaver: ITileDownloadResultSaver;
   ALastResponseInfo: ILastResponseInfo
 );
 var
@@ -87,7 +90,9 @@ begin
   FTileDownloadRequestBuilder := ATileDownloadRequestBuilder;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FHttpDownloader := AHttpDownloader;
+  FResultSaver := AResultSaver;
   FLastResponseInfo := ALastResponseInfo;
+  Assert(FResultSaver<>nil);
 
   VOperationNotifier := TOperationNotifier.Create;
   FDestroyNotifierInternal := VOperationNotifier;
@@ -131,7 +136,6 @@ var
   VCount: Integer;
   VTryCount: Integer;
   VResultWithRespond: IDownloadResultWithServerRespond;
-  VTileRequestWithChecker: ITileRequestWithChecker;
 begin
   ATileRequest.StartNotifier.Notify(ATileRequest);
   try
@@ -197,10 +201,17 @@ begin
                     FWasConnectError := True;
                   end;
                 end;
-                if Supports(ATileRequest, ITileRequestWithChecker, VTileRequestWithChecker) then begin
-                  VTileRequestWithChecker.Checker.AfterDownload(VDownloadResult);
+                try
+                  FResultSaver.SaveDownloadResult(VDownloadResult);
+                  VTileRequestResult := TTileRequestResultOk.Create(VDownloadResult);
+                except
+                  on E: Exception do begin
+                    VTileRequestResult := TTileRequestResultErrorAfterDownloadRequest.Create(
+                      VDownloadResult,
+                      E.Message
+                    );
+                  end;
                 end;
-                VTileRequestResult := TTileRequestResultOk.Create(VDownloadResult);
               until (not FWasConnectError) or (VCount >= VTryCount);
             end else begin
               VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);

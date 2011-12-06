@@ -8,6 +8,7 @@ uses
   i_ConfigDataProvider,
   i_CoordConverter,
   i_LanguageManager,
+  i_DownloadChecker,
   i_TileDownloaderConfig,
   i_TileDownloaderState,
   i_TileDownloadRequestBuilderConfig,
@@ -24,6 +25,7 @@ type
     FStateInternal: ITileDownloaderStateInternal;
     FConfig: ITileDownloadRequestBuilderConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
+    FCheker: IDownloadChecker;
     FLangManager: ILanguageManager;
     FCompiledData: TbtString;
     function GetScriptText(AConfig: IConfigDataProvider): string;
@@ -36,6 +38,7 @@ type
       AZmpData: IConfigDataProvider;
       AConfig: ITileDownloadRequestBuilderConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
+      ACheker: IDownloadChecker;
       ALangManager: ILanguageManager
     );
   end;
@@ -57,6 +60,7 @@ constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
   AZmpData: IConfigDataProvider;
   AConfig: ITileDownloadRequestBuilderConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
+  ACheker: IDownloadChecker;
   ALangManager: ILanguageManager
 );
 var
@@ -67,6 +71,7 @@ begin
   FStateInternal := VState;
   FState := VState;
   FConfig := AConfig;
+  FCheker := ACheker;
   FLangManager := ALangManager;
   FTileDownloaderConfig := ATileDownloaderConfig;
 
@@ -111,6 +116,7 @@ begin
           FCompiledData,
           FConfig,
           FTileDownloaderConfig,
+          FCheker,
           FLangManager
         );
     except

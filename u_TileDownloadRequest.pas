@@ -28,7 +28,7 @@ uses
   i_InetConfig,
   i_TileRequest,
   i_DownloadChecker,
-  i_TileDownloadChecker,
+  i_TileDownloadResultSaver,
   i_TileDownloadRequest;
 
 type
@@ -52,6 +52,7 @@ type
       AUrl: string;
       ARequestHeader: string;
       AInetConfig: IInetConfigStatic;
+      ACheker: IDownloadChecker;
       ASource: ITileRequest
     );
   end;
@@ -66,18 +67,15 @@ uses
 constructor TTileDownloadRequest.Create(
   AUrl, ARequestHeader: string;
   AInetConfig: IInetConfigStatic;
+  ACheker: IDownloadChecker;
   ASource: ITileRequest
 );
-var
-  VRequest: ITileRequestWithChecker;
 begin
   FUrl := AUrl;
   FRequestHeader := ARequestHeader;
   FInetConfig := AInetConfig;
   FSource := ASource;
-  if Supports(FSource, ITileRequestWithChecker, VRequest) then begin
-    FCheker := VRequest.Checker;
-  end;
+  FCheker := ACheker;
 end;
 
 function TTileDownloadRequest.GetChecker: IDownloadChecker;

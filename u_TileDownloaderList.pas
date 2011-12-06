@@ -11,6 +11,7 @@ uses
   i_TileDownloaderConfig,
   i_TileDownloader,
   i_DownloadResultFactory,
+  i_TileDownloadResultSaver,
   i_TTLCheckNotifier,
   i_TileDownloadRequestBuilderFactory,
   i_TileDownloadRequestBuilderConfig,
@@ -23,6 +24,7 @@ type
     FAppClosingNotifier: IJclNotifier;
     FResultFactory: IDownloadResultFactory;
     FTileDownloaderConfig: ITileDownloaderConfig;
+    FResultSaver: ITileDownloadResultSaver;
     FRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
 
     FChangeNotifier: IJclNotifier;
@@ -40,6 +42,7 @@ type
       AAppClosingNotifier: IJclNotifier;
       AResultFactory: IDownloadResultFactory;
       ATileDownloaderConfig: ITileDownloaderConfig;
+      AResultSaver: ITileDownloadResultSaver;
       ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
     );
     destructor Destroy; override;
@@ -63,6 +66,7 @@ constructor TTileDownloaderList.Create(
   AAppClosingNotifier: IJclNotifier;
   AResultFactory: IDownloadResultFactory;
   ATileDownloaderConfig: ITileDownloaderConfig;
+  AResultSaver: ITileDownloadResultSaver;
   ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
 );
 begin
@@ -70,6 +74,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FResultFactory := AResultFactory;
   FTileDownloaderConfig := ATileDownloaderConfig;
+  FResultSaver := AResultSaver;
   FRequestBuilderFactory := ARequestBuilderFactory;
 
   FChangeNotifier := TJclBaseNotifier.Create;
@@ -90,6 +95,7 @@ begin
         FGCList,
         FResultFactory
       ),
+      FResultSaver,
       TLastResponseInfo.Create
     );
 end;

@@ -36,6 +36,7 @@ uses
   i_ZmpInfo,
   i_TileDownloaderConfig,
   i_TileRequest,
+  i_DownloadChecker,
   i_LanguageManager,
   i_CoordConverterFactory,
   i_LastResponseInfo,
@@ -49,6 +50,7 @@ type
   TTileDownloadRequestBuilderPascalScript = class(TTileDownloadRequestBuilder)
   private
     FTileDownloaderConfig: ITileDownloaderConfig;
+    FCheker: IDownloadChecker;
     FCoordConverter: ICoordConverterSimple;
     FScriptBuffer: string;
 
@@ -94,6 +96,7 @@ type
       ACompiledData: TbtString;
       AConfig: ITileDownloadRequestBuilderConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
+      ACheker: IDownloadChecker;
       ALangManager: ILanguageManager
     );
     destructor Destroy; override;
@@ -117,12 +120,14 @@ constructor TTileDownloadRequestBuilderPascalScript.Create(
   ACompiledData: TbtString;
   AConfig: ITileDownloadRequestBuilderConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
+  ACheker: IDownloadChecker;
   ALangManager: ILanguageManager
 );
 begin
   inherited Create(AConfig);
   FTileDownloaderConfig := ATileDownloaderConfig;
   FLangManager := ALangManager;
+  FCheker := ACheker;
 
   FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLangManager.GetChangeNotifier.Add(FLangListener);
@@ -176,6 +181,7 @@ begin
           FpResultUrl.Data,
           FpRequestHead.Data,
           VDownloaderConfig.InetConfigStatic,
+          FCheker,
           ASource
         );
     end;

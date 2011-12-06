@@ -62,7 +62,7 @@ uses
   i_InvisibleBrowser,
   i_MapTypeGUIConfig,
   i_ProxySettings,
-  i_TileDownloadChecker,
+  i_TileDownloadResultSaver,
   i_CoordConverterFactory,
   i_MainMemCacheConfig,
   i_TileFileNameGeneratorsList,
@@ -103,17 +103,17 @@ type
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
     FTileDownloader: ITileDownloader;
-    FDownloadChecker: ITileDownloadChecker;
 
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
-    procedure LoadUrlScript;
+    procedure LoadUrlScript(
+      AInvisibleBrowser: IInvisibleBrowser
+    );
     procedure LoadDownloader(
       AGCList: ITTLCheckNotifier;
       AAppClosingNotifier: IJclNotifier;
-      ACoordConverterFactory: ICoordConverterFactory;
-      AInvisibleBrowser: IInvisibleBrowser
+      ACoordConverterFactory: ICoordConverterFactory
     );
     procedure LoadStorageParams(
       AMainMemCacheConfig: IMainMemCacheConfig;
@@ -279,6 +279,7 @@ uses
   u_TileDownloaderStateInternal,
   u_DownloadResultFactory,
   u_MemTileCache,
+  u_TileDownloadResultSaverStuped,
   u_TileRequest,
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
@@ -289,18 +290,28 @@ uses
   u_TileStorageGE,
   u_TileStorageFileSystem;
 
-procedure TMapType.LoadUrlScript;
+procedure TMapType.LoadUrlScript(
+  AInvisibleBrowser: IInvisibleBrowser
+);
+var
+  VDownloadChecker: IDownloadChecker;
 begin
   FTileDownloadRequestBuilder := nil;
   FAbilitiesConfig.LockWrite;
   try
     if FAbilitiesConfig.UseDownload then begin
       try
+        VDownloadChecker := TDownloadCheckerStuped.Create(
+          TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider),
+          FTileDownloaderConfig,
+          FStorage
+        );
         FTileDownloadRequestBuilderFactory :=
           TTileDownloadRequestBuilderFactoryPascalScript.Create(
             FZmp.DataProvider,
             FTileDownloadRequestBuilderConfig,
             FTileDownloaderConfig,
+            VDownloadChecker,
             FLanguageManager
           );
 
@@ -355,8 +366,7 @@ end;
 procedure TMapType.LoadDownloader(
   AGCList: ITTLCheckNotifier;
   AAppClosingNotifier: IJclNotifier;
-  ACoordConverterFactory: ICoordConverterFactory;
-  AInvisibleBrowser: IInvisibleBrowser
+  ACoordConverterFactory: ICoordConverterFactory
 );
 var
   VDownloaderList: ITileDownloaderList;
@@ -365,22 +375,20 @@ begin
   try
     if FAbilitiesConfig.UseDownload then begin
       try
-        FDownloadChecker := TDownloadCheckerStuped.Create(
-          TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider),
-          FTileDownloaderConfig,
-          FDownloadConfig,
-          FContentTypeManager,
-          FZmp.ContentTypeSubst,
-          FZmp.TilePostDownloadCropConfig,
-          FStorageConfig,
-          FStorage
-        );
         VDownloaderList :=
           TTileDownloaderList.Create(
             AGCList,
             AAppClosingNotifier,
             FDownloadResultFactory,
             FTileDownloaderConfig,
+            TTileDownloadResultSaverStuped.Create(
+              FDownloadConfig,
+              FContentTypeManager,
+              FZmp.ContentTypeSubst,
+              FZmp.TilePostDownloadCropConfig,
+              FStorageConfig,
+              FStorage
+            ),
             FTileDownloadRequestBuilderFactory
           );
         FTileDownloader := TTileDownloaderWithQueue.Create(
@@ -429,12 +437,11 @@ begin
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := Zmp.ViewGeoConvert;
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
-  LoadUrlScript;
+  LoadUrlScript(AInvisibleBrowser);
   LoadDownloader(
     AGCList,
     AAppClosingNotifier,
-    ACoordConverterFactory,
-    AInvisibleBrowser
+    ACoordConverterFactory
   );
 end;
 
@@ -483,7 +490,6 @@ begin
           AXY,
           Azoom,
           FVersionConfig.GetStatic,
-          FDownloadChecker,
           ACancelNotifier,
           AOperationID
         );
@@ -493,7 +499,6 @@ begin
           AXY,
           Azoom,
           FVersionConfig.GetStatic,
-          FDownloadChecker,
           ACancelNotifier,
           AOperationID
         );
