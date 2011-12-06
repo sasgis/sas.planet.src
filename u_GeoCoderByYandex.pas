@@ -119,9 +119,9 @@ begin
     end;
 
      // достаём наименование
-     i := PosEx('},"name":"', Buffer, 1);
-     j := PosEx('",', Buffer, i + 10);
-     sname:= Utf8ToAnsi(Copy(Buffer, i + 10, j - (i + 10)));
+     i := PosEx(',"name":"', Buffer, 1);
+     j := PosEx('",', Buffer, i + 9);
+     sname:= Utf8ToAnsi(Copy(Buffer, i + 9, j - (i + 9)));
      // прибавляем статусную часть (улица,посёлок..) если она идёт сразу за наименованием
      if Copy(Buffer,j,8)='","type"' then begin
       i := PosEx('"type":"', Buffer, j);
