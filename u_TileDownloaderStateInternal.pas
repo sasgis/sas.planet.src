@@ -17,6 +17,7 @@ type
     property DisableReason: string read GetDisableReason;
 
     procedure Disable(AReason: string);
+    procedure Enable;
 
     function GetStatic: ITileDownloaderStateStatic;
   end;
@@ -36,6 +37,7 @@ type
     function GetDisableReason: string;
 
     procedure Disable(AReason: string);
+    procedure Enable;
 
     function GetStatic: ITileDownloaderStateStatic;
   public
@@ -54,6 +56,7 @@ constructor TTileDownloaderStateInternal.Create;
 begin
   inherited;
   FEnabled := True;
+  FStatic := CreateStatic;
 end;
 
 function TTileDownloaderStateInternal.CreateStatic: ITileDownloaderStateStatic;
@@ -70,7 +73,7 @@ begin
   LockWrite;
   try
     if FEnabled then begin
-      FEnabled := True;
+      FEnabled := False;
       FReason := AReason;
     end;
   finally
@@ -86,6 +89,19 @@ begin
     FStatic := CreateStatic;
   finally
     UnlockWrite;
+  end;
+end;
+
+procedure TTileDownloaderStateInternal.Enable;
+begin
+  LockWrite;
+  try
+    if not FEnabled then begin
+      FEnabled := True;
+      FReason := '';
+    end;
+  finally
+    UnlockWrite
   end;
 end;
 

@@ -4,11 +4,15 @@ interface
 
 uses
   i_JclNotify,
+  i_TileDownloaderState,
   i_TileDownloader;
 
 type
   ITileDownloaderListStatic = interface
     ['{09A9BF9E-8714-484F-9247-F9820138A8D7}']
+    function GetState: ITileDownloaderStateStatic;
+    property State: ITileDownloaderStateStatic read GetState;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 

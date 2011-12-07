@@ -725,6 +725,28 @@ begin
   FCoordConverter := nil;
   FCacheBitmap := nil;
   FCacheVector := nil;
+
+  FTileDownloadRequestBuilder := nil;
+  FTileDownloadRequestBuilderFactory := nil;
+
+  FBitmapLoaderFromStorage := nil;
+  FBitmapSaverToStorage := nil;
+  FKmlLoaderFromStorage := nil;
+  FViewCoordConverter := nil;
+  FContentType := nil;
+  FLanguageManager := nil;
+  FVersionConfig := nil;
+  FTileDownloaderConfig := nil;
+  FTileDownloadRequestBuilderConfig := nil;
+  FDownloadResultFactory := nil;
+  FImageResamplerConfig := nil;
+  FContentTypeManager := nil;
+  FDownloadConfig := nil;
+  FGUIConfig := nil;
+  FAbilitiesConfig := nil;
+  FStorageConfig := nil;
+  FTileDownloader := nil;
+
   FreeAndNil(FStorage);
   inherited;
 end;

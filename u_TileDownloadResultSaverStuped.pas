@@ -6,6 +6,7 @@ uses
   Classes,
   Types,
   GR32,
+  i_JclNotify,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_ContentTypeSubst,
@@ -13,8 +14,10 @@ uses
   i_GlobalDownloadConfig,
   i_TilePostDownloadCropConfig,
   i_DownloadResult,
+  i_TileDownloaderState,
   i_TileDownloadResultSaver,
   i_SimpleTileStorageConfig,
+  u_TileDownloaderStateInternal,
   u_TileStorageAbstract;
 
 type
@@ -27,6 +30,13 @@ type
     FStorageConfig: ISimpleTileStorageConfig;
     FContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
+
+    FStorageStateListener: IJclListener;
+
+    FState: ITileDownloaderStateChangeble;
+    FStateInternal: ITileDownloaderStateInternal;
+
+    procedure OnStorageStateChange;
 
     procedure SaveTileDownload(
       AXY: TPoint;
@@ -41,6 +51,7 @@ type
       ATileSize: TPoint
     );
   protected
+    function GetState: ITileDownloaderStateChangeble;
     procedure SaveDownloadResult(AResult: IDownloadResult);
   public
     constructor Create(
@@ -51,6 +62,7 @@ type
       AStorageConfig: ISimpleTileStorageConfig;
       AStorage: TTileStorageAbstract
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -58,10 +70,12 @@ implementation
 uses
   SysUtils,
   GR32_Resamplers,
+  t_CommonTypes,
   i_ContentConverter,
   i_BitmapTileSaveLoad,
   i_TileRequest,
   i_TileDownloadRequest,
+  u_NotifyEventListener,
   u_ResStrings;
 
 { TTileDownloadResultSaverStuped }
@@ -74,6 +88,8 @@ constructor TTileDownloadResultSaverStuped.Create(
   AStorageConfig: ISimpleTileStorageConfig;
   AStorage: TTileStorageAbstract
 );
+var
+  VState: TTileDownloaderStateInternal;
 begin
   FDownloadConfig := ADownloadConfig;
   FContentTypeManager := AContentTypeManager;
@@ -82,6 +98,28 @@ begin
   FStorageConfig := AStorageConfig;
   FStorage := AStorage;
   FContentType := FStorage.GetMainContentType;
+
+  VState := TTileDownloaderStateInternal.Create;
+  FStateInternal := VState;
+  FState := VState;
+
+  FStorageStateListener := TNotifyNoMmgEventListener.Create(Self.OnStorageStateChange);
+  FStorage.State.ChangeNotifier.Add(FStorageStateListener);
+
+  OnStorageStateChange;
+end;
+
+destructor TTileDownloadResultSaverStuped.Destroy;
+begin
+  FStorage.State.ChangeNotifier.Add(FStorageStateListener);
+  FStorageStateListener := nil;
+
+  inherited;
+end;
+
+function TTileDownloadResultSaverStuped.GetState: ITileDownloaderStateChangeble;
+begin
+  Result := FState;
 end;
 
 procedure TTileDownloadResultSaverStuped.CropOnDownload(
@@ -107,6 +145,15 @@ begin
     end;
   finally
     VBtmSrc.Free;
+  end;
+end;
+
+procedure TTileDownloadResultSaverStuped.OnStorageStateChange;
+begin
+  if FStorage.State.GetStatic.WriteAccess = asDisabled then begin
+    FStateInternal.Disable('No write access to tile storage');
+  end else begin
+    FStateInternal.Enable;
   end;
 end;
 
