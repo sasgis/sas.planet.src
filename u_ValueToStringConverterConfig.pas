@@ -81,7 +81,8 @@ begin
   FDependentOnElement := ADependentOnElement;
   FDependentOnElementListener := TNotifyNoMmgEventListener.Create(Self.OnDependentOnElementChange);
   FDependentOnElement.GetChangeNotifier.Add(FDependentOnElementListener);
-  SetChanged;
+
+  FStatic := CreateStatic;
 end;
 
 destructor TValueToStringConverterConfig.Destroy;

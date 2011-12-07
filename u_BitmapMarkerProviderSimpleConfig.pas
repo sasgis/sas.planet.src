@@ -72,6 +72,8 @@ begin
   FMarkerSize := ADefault.MarkerSize;
   FMarkerColor := ADefault.MarkerColor;
   FBorderColor := ADefault.BorderColor;
+
+  FStatic := CreateStatic;
 end;
 
 function TBitmapMarkerProviderSimpleConfig.CreateStatic: IBitmapMarkerProviderSimpleConfigStatic;

@@ -131,6 +131,8 @@ begin
       False
     );
   Add(FInfoUrl, nil);
+
+  FStatic := CreateStatic;
 end;
 
 function TMapTypeGUIConfig.CreateStatic: IMapTypeGUIConfigStatic;

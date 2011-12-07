@@ -143,6 +143,7 @@ begin
   inherited Create;
   FList := TInterfaceList.Create;
   CreateDefault;
+  FStatic := CreateStatic;
 end;
 
 procedure TTrackColorerConfig.CreateDefault;

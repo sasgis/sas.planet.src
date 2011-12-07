@@ -102,7 +102,7 @@ begin
   FHost := '';
   FLogin := '';
   FPassword := '';
-  SetChanged;
+  FStatic := CreateStatic;
 end;
 
 function TProxyConfig.CreateStatic: IProxyConfigStatic;

@@ -65,7 +65,7 @@ begin
   FInvertColor := False;
   FContrastN := 0;
   FGammaN := 50;
-  FStatic := TBitmapPostProcessingConfigStatic.Create(FInvertColor, FGammaN, FContrastN);
+  FStatic := CreateStatic;
 end;
 
 function TBitmapPostProcessingConfig.CreateStatic: IBitmapPostProcessingConfigStatic;

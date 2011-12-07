@@ -91,6 +91,9 @@ begin
   FLanguageManager.BeforeChangeNotifier.Add(FBeforeLangChangeListener);
   FAfterLangChangeListener := TNotifyNoMmgEventListener.Create(Self.OnAfterLangChange);
   FLanguageManager.AfterChangeNotifier.Add(FAfterLangChangeListener);
+
+  FOrderedMapGUIDList := CreateOrderedList;
+  FHotKeyList := CreateHotKeyList;
 end;
 
 destructor TMapTypeGUIConfigList.Destroy;

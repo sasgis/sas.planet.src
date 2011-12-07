@@ -68,7 +68,7 @@ begin
   FIsUseMarks := True;
   FIgnoreMarksVisible := False;
   FIgnoreCategoriesVisible := False;
-  SetChanged;
+  FStatic := CreateStatic;
 end;
 
 function TUsedMarksConfig.CreateStatic: IUsedMarksConfigStatic;

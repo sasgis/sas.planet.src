@@ -62,6 +62,7 @@ begin
   inherited Create;
   FDefConfig := ADefConfig;
   FVersion := FDefConfig.Version;
+  FStatic := CreateStatic;
 end;
 
 function TMapVersionConfig.CreateStatic: IMapVersionInfo;

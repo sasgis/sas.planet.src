@@ -80,8 +80,11 @@ begin
   FTimeOut := 40000;
   FSleepOnResetConnection := 30000;
   FDownloadTryCount := 2;
+  
   FProxyConfig := TProxyConfig.Create;
   Add(FProxyConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Proxy'));
+
+  FStatic := CreateStatic;
 end;
 
 function TInetConfig.CreateStatic: IInetConfigStatic;

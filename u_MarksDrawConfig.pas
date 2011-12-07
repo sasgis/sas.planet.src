@@ -76,7 +76,7 @@ begin
   FUseSimpleDrawOrder := false;
   FOverSizeRect := Rect(256, 128, 64, 128);
 
-  SetChanged;
+  FStatic := CreateStatic;
 end;
 
 function TMarksDrawConfig.CreateStatic: IMarksDrawConfigStatic;

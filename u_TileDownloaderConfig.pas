@@ -99,6 +99,8 @@ begin
   FIteratorSubRectSize := FDefConfig.IteratorSubRectSize;
 
   Add(FIntetConfig, nil, False, False, False, True);
+
+  FStatic := CreateStatic;
 end;
 
 function TTileDownloaderConfig.CreateStatic: ITileDownloaderConfigStatic;
