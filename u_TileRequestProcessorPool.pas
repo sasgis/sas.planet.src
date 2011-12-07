@@ -48,6 +48,7 @@ implementation
 
 uses
   SysUtils,
+  i_TileDownloader,
   u_NotifyEventListener,
   u_TTLCheckListener,
   u_TileRequestQueueProcessorThread;
@@ -100,6 +101,7 @@ var
   VThreadArray: TArrayOfThread;
   VDownloaderList: ITileDownloaderListStatic;
   i: Integer;
+  VTileDownloaderSync: ITileDownloader;
 begin
   FTTLListener.UpdateUseTime;
   if FThreadArray = nil then begin
@@ -110,8 +112,19 @@ begin
         if VDownloaderList <> nil then begin
           SetLength(VThreadArray, VDownloaderList.Count);
           for i := 0 to VDownloaderList.Count - 1 do begin
-            VThreadArray[i] := TTileRequestQueueProcessorThread.Create(FPriority, FAppClosingNotifier, FTileRequestQueue, VDownloaderList.Item[i]);
-            VThreadArray[i].Start;
+            VTileDownloaderSync := VDownloaderList.Item[i];
+            if VTileDownloaderSync <> nil then begin
+              VThreadArray[i] :=
+                TTileRequestQueueProcessorThread.Create(
+                  FPriority,
+                  FAppClosingNotifier,
+                  FTileRequestQueue,
+                  VTileDownloaderSync
+                );
+              VThreadArray[i].Start;
+            end else begin
+              VThreadArray[i] := nil;
+            end;
           end;
           FThreadArray := VThreadArray;
         end;
@@ -132,6 +145,7 @@ procedure TTileRequestProcessorPool.OnTTLTrim(Sender: TObject);
 var
   VThreadArray: TArrayOfThread;
   i: Integer;
+  VItem: IThread;
 begin
   if FThreadArray <> nil then begin
     FCS.Acquire;
@@ -144,8 +158,12 @@ begin
   end;
   if VThreadArray <> nil then begin
     for i := 0 to Length(VThreadArray) - 1 do begin
-      VThreadArray[i].Terminate;
+      VItem := VThreadArray[i];
       VThreadArray[i] := nil;
+      if VItem <> nil then begin
+        VItem.Terminate;
+        VItem := nil;
+      end;
     end;
     VThreadArray := nil;
   end;
