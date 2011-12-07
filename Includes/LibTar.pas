@@ -117,7 +117,8 @@ TYPE
                ftContiguous,      // Contiguous file, if supported by OS
                ftDumpDir,         // List of files
                ftMultiVolume,     // Multi-volume file part
-               ftVolumeHeader);   // Volume header. Can appear only as first record in the archive
+               ftVolumeHeader,    // Volume header. Can appear only as first record in the archive
+               ftLongNameLink);   // Long filename (> 100 byte)
 
   // --- Mode
   TTarMode  = (tmSetUid, tmSetGid, tmSaveText);
@@ -192,6 +193,7 @@ TYPE
                  PROCEDURE AddSymbolicLink (Filename, Linkname : AnsiString; DateGmt : TDateTime);
                  PROCEDURE AddLink         (Filename, Linkname : AnsiString; DateGmt : TDateTime);
                  PROCEDURE AddVolumeHeader (VolumeId           : AnsiString; DateGmt : TDateTime);
+                 PROCEDURE AddLongLink     (TarFilename: STRING);
                  PROCEDURE Finalize;
                  PROPERTY Permissions : TTarPermissions READ FPermissions WRITE FPermissions;   // Access permissions
                  PROPERTY UID         : INTEGER         READ FUID         WRITE FUID;           // User ID
@@ -206,7 +208,7 @@ TYPE
 CONST
   FILETYPE_NAME : ARRAY [TFileType] OF STRING =
                   ('Regular', 'Link', 'Symbolic Link', 'Char File', 'Block File',
-                   'Directory', 'FIFO File', 'Contiguous', 'Dir Dump', 'Multivol', 'Volume Header');
+                   'Directory', 'FIFO File', 'Contiguous', 'Dir Dump', 'Multivol', 'Volume Header', 'Long Name');
 
   ALL_PERMISSIONS     = [tpReadByOwner, tpWriteByOwner, tpExecuteByOwner,
                          tpReadByGroup, tpWriteByGroup, tpExecuteByGroup,
@@ -521,6 +523,7 @@ BEGIN
     ftDumpDir      : TH.LinkFlag := 'D';
     ftMultiVolume  : TH.LinkFlag := 'M';
     ftVolumeHeader : TH.LinkFlag := 'V';
+    ftLongNameLink : TH.LinkFlag := 'L';
     END;
   StrLCopy (TH.LinkName, PAnsiChar (DirRec.LinkName), NAMSIZ);
   StrLCopy (TH.Magic, PAnsiChar (DirRec.Magic + #32#32#32#32#32#32#32#32), 8);
@@ -812,6 +815,9 @@ VAR
   BytesToRead : INT64;      // Bytes to read from the Source Stream
   BlockSize   : INT64;      // Bytes to write out for the current record
 BEGIN
+  if Length(TarFilename) >= NAMSIZ then
+    AddLongLink(TarFilename);
+
   ClearDirRec (DirRec);
   DirRec.Name        := TarFilename;
   DirRec.Size        := Stream.Size - Stream.Position;
@@ -952,6 +958,47 @@ BEGIN
   DirRec.MinorDevNo  := 0;
 
   WriteTarHeader (FStream, DirRec);
+END;
+
+PROCEDURE TTarWriter.AddLongLink (TarFilename: STRING);
+VAR
+  DirRec      : TTarDirRec;
+  Rec         : ARRAY [0..RECORDSIZE-1] OF CHAR;
+  S           : TStringStream;
+  BytesToRead : INT64;
+  BlockSize   : INT64;
+BEGIN
+  ClearDirRec (DirRec);
+  DirRec.Name        := '././@LongLink';
+  DirRec.Size        := Length(TarFilename);
+  DirRec.DateTime    := Now;
+  DirRec.Permissions := FPermissions;
+  DirRec.FileType    := ftLongNameLink;
+  DirRec.LinkName    := '';
+  DirRec.UID         := FUID;
+  DirRec.GID         := FGID;
+  DirRec.UserName    := FUserName;
+  DirRec.GroupName   := FGroupName;
+  DirRec.ChecksumOK  := TRUE;
+  DirRec.Mode        := FMode;
+  DirRec.Magic       := FMagic;
+  DirRec.MajorDevNo  := 0;
+  DirRec.MinorDevNo  := 0;
+  WriteTarHeader (FStream, DirRec);
+  S := TStringStream.Create (TarFilename);
+  TRY
+    BytesToRead := DirRec.Size;
+    WHILE BytesToRead > 0 DO BEGIN
+      BlockSize := BytesToRead;
+      IF BlockSize > RECORDSIZE THEN BlockSize := RECORDSIZE;
+      FillChar (Rec, RECORDSIZE, 0);
+      S.Read (Rec, BlockSize);
+      FStream.Write (Rec, RECORDSIZE); // write 512 byte to archive
+      DEC (BytesToRead, BlockSize);
+    END;
+  FINALLY
+    S.Free
+  END
 END;
 
 
