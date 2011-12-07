@@ -28,6 +28,7 @@ uses
   i_MapVersionConfig,
   i_InvisibleBrowser,
   i_TileDownloadSubsystem,
+  u_TileDownloaderStateInternal,
   u_TileStorageAbstract;
 
 type
@@ -40,6 +41,7 @@ type
 
     FZmpDownloadEnabled: Boolean;
     FState: ITileDownloaderStateChangeble;
+    FStateInternal: ITileDownloaderStateInternal;
     FTileDownloader: ITileDownloader;
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
@@ -121,6 +123,7 @@ constructor TTileDownloadSubsystem.Create(
 var
   VDownloaderList: ITileDownloaderList;
   VDownloadChecker: IDownloadChecker;
+  VState: TTileDownloaderStateInternal;
 begin
   FCoordConverter := ACoordConverter;
   FVersionConfig := AVersionConfig;
@@ -128,6 +131,10 @@ begin
   FTileDownloadRequestBuilderConfig := ATileDownloadRequestBuilderConfig;
 
   FZmpDownloadEnabled := AZmp.TileDownloaderConfig.Enabled;
+
+  VState := TTileDownloaderStateInternal.Create;
+  FStateInternal := VState;
+  FState := VState;
 
   if FZmpDownloadEnabled then begin
     VDownloadChecker := TDownloadCheckerStuped.Create(
@@ -166,6 +173,8 @@ begin
       AAppClosingNotifier,
       256
     );
+  end else begin
+    FStateInternal.Disable('Disabled by Zmp');
   end;
 
 end;
