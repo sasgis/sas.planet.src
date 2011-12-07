@@ -6,7 +6,7 @@ uses
   Windows,
   SysUtils,
   Classes,
-  TarWriter,
+  LibTar,
   GR32,
   i_TileFileNameGenerator,
   u_MapType,
