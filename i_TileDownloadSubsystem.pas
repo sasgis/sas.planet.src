@@ -6,10 +6,7 @@ uses
   Types,
   i_OperationNotifier,
   i_TileRequest,
-  i_TileDownloaderState,
-  i_TileDownloaderConfig,
-  i_TileDownloadRequestBuilderConfig,
-  i_TileDownloader;
+  i_TileDownloaderState;
 
 type
   ITileDownloadSubsystem = interface

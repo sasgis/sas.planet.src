@@ -108,9 +108,7 @@ implementation
 
 uses
   SysUtils,
-  Types,
-  i_CoordConverter,
-  u_GeoFun;
+  Types;
 
 { TMapLayerBase }
 

@@ -39,11 +39,7 @@ uses
   i_TileDownloaderConfig,
   i_LanguageManager,
   i_CoordConverter,
-  i_DownloadChecker,
-  i_TileDownloader,
   i_MapVersionConfig,
-  i_TileRequest,
-  i_TileDownloadRequestBuilder,
   i_TileDownloadRequestBuilderConfig,
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
@@ -64,13 +60,10 @@ uses
   i_MainMemCacheConfig,
   i_TileFileNameGeneratorsList,
   i_TileRectUpdateNotifier,
-  i_TileDownloadRequest,
   i_VectorDataItemSimple,
-  i_TileDownloadRequestBuilderFactory,
   i_TileDownloadSubsystem,
   u_GlobalCahceConfig,
-  u_TileStorageAbstract,
-  u_ResStrings;
+  u_TileStorageAbstract;
 
 type
  TMapType = class
@@ -249,22 +242,14 @@ implementation
 uses
   Types,
   i_TileInfoBasic,
-  i_TileDownloaderList,
-  u_TileDownloaderList,
-  u_TileDownloaderWithQueue,
-  u_AntiBanStuped,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
-  u_TileDownloadRequestBuilderFactoryPascalScript,
   u_DownloadResultFactory,
   u_MemTileCache,
-  u_TileDownloadResultSaverStuped,
-  u_TileRequest,
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
   u_MapTypeGUIConfig,
   u_MapVersionConfig,
-  u_DownloadCheckerStuped,
   u_TileDownloadSubsystem,
   u_TileStorageGE,
   u_TileStorageFileSystem;

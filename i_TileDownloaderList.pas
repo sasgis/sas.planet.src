@@ -4,7 +4,6 @@ interface
 
 uses
   i_JclNotify,
-  i_TileDownloaderState,
   i_TileDownloader;
 
 type

@@ -23,7 +23,6 @@ unit i_ConfigDataElement;
 interface
 
 uses
-  i_JclNotify,
   i_Changeable,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;

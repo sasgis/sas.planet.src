@@ -25,7 +25,6 @@ uses
   i_TileDownloadRequestBuilderFactory,
   i_TileDownloader,
   i_TileDownloadResultSaver,
-  i_ZmpInfo,
   i_MapAbilitiesConfig,
   i_MapVersionConfig,
   i_InvisibleBrowser,

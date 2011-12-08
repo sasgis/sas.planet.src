@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  i_TileDownloaderState,
   i_TileDownloader,
   i_TileDownloaderList;
 

@@ -5,7 +5,6 @@ interface
 uses
   i_TileDownloaderState,
   i_MapAbilitiesConfig,
-  i_ConfigDataElement,
   u_ConfigDataElementComplexBase;
 
 type
