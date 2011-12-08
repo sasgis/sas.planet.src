@@ -24,11 +24,12 @@ uses
   i_TileDownloadRequestBuilder,
   i_TileDownloadRequestBuilderFactory,
   i_TileDownloader,
+  i_TileDownloadResultSaver,
   i_ZmpInfo,
+  i_MapAbilitiesConfig,
   i_MapVersionConfig,
   i_InvisibleBrowser,
   i_TileDownloadSubsystem,
-  u_TileDownloaderStateInternal,
   u_TileStorageAbstract;
 
 type
@@ -41,7 +42,7 @@ type
 
     FZmpDownloadEnabled: Boolean;
     FState: ITileDownloaderStateChangeble;
-    FStateInternal: ITileDownloaderStateInternal;
+    FDownloadResultSaver: ITileDownloadResultSaver;
     FTileDownloader: ITileDownloader;
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
@@ -54,12 +55,11 @@ type
       ACheckTileSize: Boolean
     ): ITileRequest;
     function GetLink(AXY: TPoint; Azoom: byte): string;
+    procedure Download(
+      ATileRequest: ITileRequest
+    );
 
     function GetState: ITileDownloaderStateChangeble;
-    function GetTileDownloaderConfig: ITileDownloaderConfig;
-    function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-    function GetTileDownloader: ITileDownloader;
-
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
@@ -70,13 +70,14 @@ type
       AGlobalDownloadConfig: IGlobalDownloadConfig;
       AInvisibleBrowser: IInvisibleBrowser;
       ADownloadResultFactory: IDownloadResultFactory;
-      AZmp: IZmpInfo;
+      AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
       AVersionConfig: IMapVersionConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
       ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
       AContentTypeManager: IContentTypeManager;
       AContentTypeSubst: IContentTypeSubst;
       ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
+      AMapAbilitiesConfig: IMapAbilitiesConfig;
       AZmpData: IConfigDataProvider;
       AStorageConfig: ISimpleTileStorageConfig;
       AStorage: TTileStorageAbstract
@@ -94,6 +95,7 @@ uses
   u_TileDownloaderList,
   u_AntiBanStuped,
   u_DownloadCheckerStuped,
+  u_TileDownloadSubsystemState,
   u_TileDownloadResultSaverStuped,
   u_TileDownloaderWithQueue,
   u_TileDownloadRequestBuilderFactoryPascalScript;
@@ -109,13 +111,14 @@ constructor TTileDownloadSubsystem.Create(
   AGlobalDownloadConfig: IGlobalDownloadConfig;
   AInvisibleBrowser: IInvisibleBrowser;
   ADownloadResultFactory: IDownloadResultFactory;
-  AZmp: IZmpInfo;
+  AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
   AVersionConfig: IMapVersionConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
   ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
   AContentTypeManager: IContentTypeManager;
   AContentTypeSubst: IContentTypeSubst;
   ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
+  AMapAbilitiesConfig: IMapAbilitiesConfig;
   AZmpData: IConfigDataProvider;
   AStorageConfig: ISimpleTileStorageConfig;
   AStorage: TTileStorageAbstract
@@ -123,18 +126,13 @@ constructor TTileDownloadSubsystem.Create(
 var
   VDownloaderList: ITileDownloaderList;
   VDownloadChecker: IDownloadChecker;
-  VState: TTileDownloaderStateInternal;
 begin
   FCoordConverter := ACoordConverter;
   FVersionConfig := AVersionConfig;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileDownloadRequestBuilderConfig := ATileDownloadRequestBuilderConfig;
 
-  FZmpDownloadEnabled := AZmp.TileDownloaderConfig.Enabled;
-
-  VState := TTileDownloaderStateInternal.Create;
-  FStateInternal := VState;
-  FState := VState;
+  FZmpDownloadEnabled := AZmpTileDownloaderConfig.Enabled;
 
   if FZmpDownloadEnabled then begin
     VDownloadChecker := TDownloadCheckerStuped.Create(
@@ -150,20 +148,32 @@ begin
         VDownloadChecker,
         ALanguageManager
       );
+    FDownloadResultSaver :=
+      TTileDownloadResultSaverStuped.Create(
+        AGlobalDownloadConfig,
+        AContentTypeManager,
+        AContentTypeSubst,
+        ATilePostDownloadCropConfig,
+        AStorageConfig,
+        AStorage
+      );
+
+    FState :=
+      TTileDownloadSubsystemState.Create(
+        FZmpDownloadEnabled,
+        FTileDownloadRequestBuilderFactory.State,
+        FDownloadResultSaver.State,
+        AMapAbilitiesConfig
+      );
+
     VDownloaderList :=
       TTileDownloaderList.Create(
         AGCList,
         AAppClosingNotifier,
         ADownloadResultFactory,
+        FState,
         FTileDownloaderConfig,
-        TTileDownloadResultSaverStuped.Create(
-          AGlobalDownloadConfig,
-          AContentTypeManager,
-          AZmp.ContentTypeSubst,
-          AZmp.TilePostDownloadCropConfig,
-          AStorageConfig,
-          AStorage
-        ),
+        FDownloadResultSaver,
         FTileDownloadRequestBuilderFactory
       );
     FTileDownloader := TTileDownloaderWithQueue.Create(
@@ -174,9 +184,25 @@ begin
       256
     );
   end else begin
-    FStateInternal.Disable('Disabled by Zmp');
+    FState :=
+      TTileDownloadSubsystemState.Create(
+        FZmpDownloadEnabled,
+        nil,
+        nil,
+        nil
+      );
+
   end;
 
+end;
+
+procedure TTileDownloadSubsystem.Download(ATileRequest: ITileRequest);
+begin
+  if FZmpDownloadEnabled then begin
+    if FState.GetStatic.Enabled then begin
+      FTileDownloader.Download(ATileRequest);
+    end;
+  end;
 end;
 
 function TTileDownloadSubsystem.GetLink(AXY: TPoint; Azoom: byte): string;
@@ -247,21 +273,6 @@ end;
 function TTileDownloadSubsystem.GetState: ITileDownloaderStateChangeble;
 begin
   Result := FState;
-end;
-
-function TTileDownloadSubsystem.GetTileDownloader: ITileDownloader;
-begin
-  Result := FTileDownloader;
-end;
-
-function TTileDownloadSubsystem.GetTileDownloaderConfig: ITileDownloaderConfig;
-begin
-  Result := FTileDownloaderConfig;
-end;
-
-function TTileDownloadSubsystem.GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-begin
-  Result := FTileDownloadRequestBuilderConfig;
 end;
 
 end.

@@ -22,18 +22,12 @@ type
       ACheckTileSize: Boolean
     ): ITileRequest;
     function GetLink(AXY: TPoint; Azoom: byte): string;
+    procedure Download(
+      ATileRequest: ITileRequest
+    );
 
     function GetState: ITileDownloaderStateChangeble;
     property State: ITileDownloaderStateChangeble read GetState;
-
-    function GetTileDownloaderConfig: ITileDownloaderConfig;
-    property TileDownloaderConfig: ITileDownloaderConfig read GetTileDownloaderConfig;
-
-    function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-    property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read GetTileDownloadRequestBuilderConfig;
-
-    function GetTileDownloader: ITileDownloader;
-    property TileDownloader: ITileDownloader read GetTileDownloader;
   end;
 
 implementation

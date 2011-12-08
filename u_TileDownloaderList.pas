@@ -9,6 +9,7 @@ uses
   i_TileDownloader,
   i_DownloadResultFactory,
   i_TileDownloadResultSaver,
+  i_TileDownloaderState,
   i_TTLCheckNotifier,
   i_TileDownloadRequestBuilderFactory,
   i_TileDownloaderList;
@@ -19,6 +20,7 @@ type
     FGCList: ITTLCheckNotifier;
     FAppClosingNotifier: IJclNotifier;
     FResultFactory: IDownloadResultFactory;
+    FDownloadSystemState: ITileDownloaderStateChangeble;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FResultSaver: ITileDownloadResultSaver;
     FRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
@@ -38,6 +40,7 @@ type
       AGCList: ITTLCheckNotifier;
       AAppClosingNotifier: IJclNotifier;
       AResultFactory: IDownloadResultFactory;
+      ADownloadSystemState: ITileDownloaderStateChangeble;
       ATileDownloaderConfig: ITileDownloaderConfig;
       AResultSaver: ITileDownloadResultSaver;
       ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
@@ -49,7 +52,6 @@ implementation
 
 uses
   i_TileDownloadRequestBuilder,
-  i_TileDownloaderState,
   u_JclNotify,
   u_NotifyEventListener,
   u_LastResponseInfo,
@@ -63,6 +65,7 @@ constructor TTileDownloaderList.Create(
   AGCList: ITTLCheckNotifier;
   AAppClosingNotifier: IJclNotifier;
   AResultFactory: IDownloadResultFactory;
+  ADownloadSystemState: ITileDownloaderStateChangeble;
   ATileDownloaderConfig: ITileDownloaderConfig;
   AResultSaver: ITileDownloadResultSaver;
   ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
@@ -71,6 +74,7 @@ begin
   FGCList := AGCList;
   FAppClosingNotifier := AAppClosingNotifier;
   FResultFactory := AResultFactory;
+  FDownloadSystemState := ADownloadSystemState;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FResultSaver := AResultSaver;
   FRequestBuilderFactory := ARequestBuilderFactory;
@@ -80,8 +84,7 @@ begin
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
 
   FTileDownloaderConfig.ChangeNotifier.Add(FConfigListener);
-  FRequestBuilderFactory.State.ChangeNotifier.Add(FConfigListener);
-  FResultSaver.State.ChangeNotifier.Add(FConfigListener);
+  FDownloadSystemState.ChangeNotifier.Add(FConfigListener);
 
   OnConfigChange;
 end;
@@ -89,12 +92,12 @@ end;
 destructor TTileDownloaderList.Destroy;
 begin
   FTileDownloaderConfig.ChangeNotifier.Remove(FConfigListener);
-  FRequestBuilderFactory.State.ChangeNotifier.Remove(FConfigListener);
-  FResultSaver.State.ChangeNotifier.Remove(FConfigListener);
+  FDownloadSystemState.ChangeNotifier.Remove(FConfigListener);
 
   FConfigListener := nil;
   FTileDownloaderConfig := nil;
   FRequestBuilderFactory := nil;
+  FDownloadSystemState := nil;
 
   inherited;
 end;
@@ -139,20 +142,13 @@ var
   VOldCount: Integer;
   VCountForCopy: Integer;
   i: Integer;
-  VRequestBuilderState: ITileDownloaderStateStatic;
-  VResultSaverState: ITileDownloaderStateStatic;
   VState: ITileDownloaderStateStatic;
   VCounter: Integer;
 begin
   VCounter := InterlockedIncrement(FChangeCounter);
   VStatic := FStatic;
   VCount := FTileDownloaderConfig.MaxConnectToServerCount;
-  VRequestBuilderState := FRequestBuilderFactory.State.GetStatic;
-  VResultSaverState := FResultSaver.State.GetStatic;
-  VState := VRequestBuilderState;
-  if VState.Enabled and not VResultSaverState.Enabled then begin
-    VState := VResultSaverState;
-  end;
+  VState := FDownloadSystemState.GetStatic;
   if not VState.Enabled then begin
     VCount := 0;
   end;
@@ -180,13 +176,13 @@ begin
         Exit;
       end;
     end;
-    FStatic := TTileDownloaderListStatic.Create(VState, VList);
+    FStatic := TTileDownloaderListStatic.Create(VList);
     FChangeNotifier.Notify(nil);
   end else if FStatic = nil then begin
     if InterlockedCompareExchange(FChangeCounter, VCounter, VCounter) <> VCounter then begin
       Exit;
     end;
-    FStatic := TTileDownloaderListStatic.Create(VState, VList);
+    FStatic := TTileDownloaderListStatic.Create(VList);
   end;
 end;
 

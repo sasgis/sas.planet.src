@@ -43,9 +43,11 @@ type
       AZoom: Byte;
       AGeoConverter: ICoordConverter
     ): ILocalCoordConverter;
-    function CreateForTileRect(
-      ATileRect: TRect;
-      AZoom: Byte;
+    function CreateBySourceWithStableTileRect(
+      ASource: ILocalCoordConverter
+    ): ILocalCoordConverter;
+    function CreateBySourceWithStableTileRectAndOtherGeo(
+      ASource: ILocalCoordConverter;
       AGeoConverter: ICoordConverter
     ): ILocalCoordConverter;
   end;

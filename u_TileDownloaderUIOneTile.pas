@@ -129,11 +129,11 @@ var
   VRequest: ITileRequest;
 begin
   Randomize;
-  if FMapType.Abilities.UseDownload then begin
+  if FMapType.TileDownloadSubsystem.State.GetStatic.Enabled then begin
     VOperationID := FCancelNotifier.CurrentOperation;
-    VRequest := FMapType.GetRequest(FCancelNotifier, VOperationID, FTile, FZoom, False);
+    VRequest := FMapType.TileDownloadSubsystem.GetRequest(FCancelNotifier, VOperationID, FTile, FZoom, False);
     VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
-    FMapType.TileDownloader.Download(VRequest);
+    FMapType.TileDownloadSubsystem.Download(VRequest);
     FFinishEvent.WaitFor(INFINITE);
     ProcessResult(FResult);
   end;

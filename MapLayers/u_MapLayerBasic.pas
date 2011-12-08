@@ -365,49 +365,8 @@ end;
 
 function TMapLayerBasic.GetLayerCoordConverterByViewConverter(
   ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
-var
-  VZoom: Byte;
-  VSourcePixelRect: TDoubleRect;
-  VConverter: ICoordConverter;
-  VTileRect: TRect;
-  VResultPixelRect: TRect;
-  VViewSize: TPoint;
-  VMovedTile: TPoint;
-  VMovedPixelRect: TRect;
-  VMovedTileRect: TRect;
 begin
-  VConverter := ANewViewCoordConverter.GetGeoConverter;
-  VZoom := ANewViewCoordConverter.GetZoom;
-  VSourcePixelRect := ANewViewCoordConverter.GetRectInMapPixelFloat;
-  VViewSize.X := Trunc(VSourcePixelRect.Right - VSourcePixelRect.Left);
-  VViewSize.Y := Trunc(VSourcePixelRect.Bottom - VSourcePixelRect.Top);
-
-  VConverter.CheckPixelRectFloat(VSourcePixelRect, VZoom);
-
-  VTileRect := VConverter.PixelRectFloat2TileRect(VSourcePixelRect, VZoom);
-  VMovedTile := VTileRect.TopLeft;
-  Inc(VMovedTile.X);
-  Inc(VMovedTile.Y);
-  VConverter.CheckTilePosStrict(VMovedTile, VZoom, False);
-
-  VMovedPixelRect.TopLeft := VConverter.TilePos2PixelPos(VMovedTile, VZoom);
-  VMovedPixelRect.Right := VMovedPixelRect.Left + VViewSize.X;
-  VMovedPixelRect.Bottom := VMovedPixelRect.Top + VViewSize.Y;
-  VConverter.CheckPixelRect(VMovedPixelRect, VZoom);
-
-  VMovedTileRect := VConverter.PixelRect2TileRect(VMovedPixelRect, VZoom);
-  VTileRect.Right := VMovedTileRect.Right;
-  VTileRect.Bottom := VMovedTileRect.Bottom;
-
-  VResultPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
-
-  Result := FConverterFactory.CreateConverter(
-    Rect(0, 0, VResultPixelRect.Right - VResultPixelRect.Left, VResultPixelRect.Bottom - VResultPixelRect.Top),
-    VZoom,
-    VConverter,
-    DoublePoint(1, 1),
-    DoublePoint(VResultPixelRect.TopLeft)
-  );
+  Result := FConverterFactory.CreateBySourceWithStableTileRect(ANewViewCoordConverter);
 end;
 
 function TMapLayerBasic.GetLayerSizeForView(

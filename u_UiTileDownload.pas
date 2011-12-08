@@ -14,6 +14,8 @@ uses
   i_DownloadInfoSimple,
   i_BackgroundTask,
   i_TileError,
+  i_LocalCoordConverterFactorySimpe,
+  i_TileDownloaderState,
   i_ViewPortState,
   i_JclListenerNotifierLinksList,
   i_ActiveMapsConfig,
@@ -25,6 +27,7 @@ type
     FConfig: IDownloadUIConfig;
     FGCList: ITTLCheckNotifier;
     FAppClosingNotifier: IJclNotifier;
+    FConverterFactory: ILocalCoordConverterFactorySimpe;
     FViewPortState: IViewPortState;
     FMapTypeActive: IActiveMapSingle;
     FDownloadInfo: IDownloadInfoSimple;
@@ -35,6 +38,7 @@ type
     FDownloadTask: IBackgroundTask;
     FTTLListener: ITTLCheckListener;
     FTileDownloadFinishListener: IJclListenerDisconnectable;
+    FDownloadState: ITileDownloaderStateChangeble;
 
     FUseDownload: TTileSource;
     FTileMaxAgeInInternet: TDateTime;
@@ -64,6 +68,7 @@ type
       AConfig: IDownloadUIConfig;
       AGCList: ITTLCheckNotifier;
       AAppClosingNotifier: IJclNotifier;
+      ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       AViewPortState: IViewPortState;
       AMapTypeActive: IActiveMapSingle;
       ADownloadInfo: IDownloadInfoSimple;
@@ -100,6 +105,7 @@ constructor TUiTileDownload.Create(
   AConfig: IDownloadUIConfig;
   AGCList: ITTLCheckNotifier;
   AAppClosingNotifier: IJclNotifier;
+  ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   AViewPortState: IViewPortState;
   AMapTypeActive: IActiveMapSingle;
   ADownloadInfo: IDownloadInfoSimple;
@@ -109,10 +115,13 @@ begin
   FConfig := AConfig;
   FGCList :=  AGCList;
   FAppClosingNotifier := AAppClosingNotifier;
+  FConverterFactory := ACoordConverterFactory;
   FViewPortState := AViewPortState;
   FMapTypeActive := AMapTypeActive;
   FDownloadInfo := ADownloadInfo;
   FErrorLogger := AErrorLogger;
+
+  FDownloadState := FMapTypeActive.GetMapType.MapType.TileDownloadSubsystem.State;
 
   FRequestCount := 4;
 
@@ -132,6 +141,10 @@ begin
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMapTypeActiveChange),
     FMapTypeActive.ChangeNotifier
+  );
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnMapTypeActiveChange),
+    FDownloadState.ChangeNotifier
   );
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
@@ -200,14 +213,27 @@ end;
 
 procedure TUiTileDownload.OnMapTypeActiveChange;
 begin
-  FMapActive := FMapTypeActive.GetIsActive;
+  if FDownloadState.GetStatic.Enabled then begin
+    FMapActive := FMapTypeActive.GetIsActive;
+  end else begin
+    FMapActive := False;
+  end;
   RetartDownloadIfNeed;
 end;
 
 procedure TUiTileDownload.OnPosChange;
+var
+  VConverter: ILocalCoordConverter;
 begin
-  FVisualCoordConverter := FViewPortState.GetVisualCoordConverter;
-  RetartDownloadIfNeed;
+  VConverter :=
+    FConverterFactory.CreateBySourceWithStableTileRectAndOtherGeo(
+      FViewPortState.GetVisualCoordConverter,
+      FMapTypeActive.GetMapType.MapType.GeoConvert
+    );
+  if (FVisualCoordConverter = nil) or not VConverter.GetIsSameConverter(FVisualCoordConverter) then begin
+    FVisualCoordConverter := VConverter;
+    RetartDownloadIfNeed;
+  end;
 end;
 
 procedure TUiTileDownload.DoProcessDownloadRequests(
@@ -283,9 +309,9 @@ begin
               if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
                 Break;
               end;
-              VRequest := VMapType.GetRequest(ACancelNotifier, AOperationID, VTile, VZoom, False);
+              VRequest := VMapType.TileDownloadSubsystem.GetRequest(ACancelNotifier, AOperationID, VTile, VZoom, False);
               VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
-              VMapType.TileDownloader.Download(VRequest);
+              VMapType.TileDownloadSubsystem.Download(VRequest);
             end;
           end;
         end;

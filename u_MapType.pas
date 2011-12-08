@@ -67,6 +67,7 @@ uses
   i_TileDownloadRequest,
   i_VectorDataItemSimple,
   i_TileDownloadRequestBuilderFactory,
+  i_TileDownloadSubsystem,
   u_GlobalCahceConfig,
   u_TileStorageAbstract,
   u_ResStrings;
@@ -79,8 +80,8 @@ type
     FCacheBitmap: ITileObjCacheBitmap;
     FCacheVector: ITileObjCacheVector;
     FStorage: TTileStorageAbstract;
-    FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
-    FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
+//    FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
+//    FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IVectorDataLoader;
@@ -99,19 +100,11 @@ type
     FGUIConfig: IMapTypeGUIConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
-    FTileDownloader: ITileDownloader;
+    FTileDownloadSubsystem: ITileDownloadSubsystem;
 
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
-    procedure LoadUrlScript(
-      AInvisibleBrowser: IInvisibleBrowser
-    );
-    procedure LoadDownloader(
-      AGCList: ITTLCheckNotifier;
-      AAppClosingNotifier: IJclNotifier;
-      ACoordConverterFactory: ICoordConverterFactory
-    );
     procedure LoadStorageParams(
       AMainMemCacheConfig: IMainMemCacheConfig;
       AGCList: ITTLCheckNotifier;
@@ -153,14 +146,6 @@ type
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
    public
     procedure SaveConfig(ALocalConfig: IConfigDataWriteProvider);
-    function GetRequest(
-      ACancelNotifier: IOperationNotifier;
-      AOperationID: Integer;
-      AXY: TPoint;
-      Azoom: byte;
-      ACheckTileSize: Boolean
-    ): ITileRequest;
-    function GetLink(AXY: TPoint; Azoom: byte): string;
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
@@ -230,7 +215,7 @@ type
     property IsKmlTiles: Boolean read GetIsKmlTiles;
     property IsHybridLayer: Boolean read GetIsHybridLayer;
 
-    property TileDownloader: ITileDownloader read FTileDownloader;
+    property TileDownloadSubsystem: ITileDownloadSubsystem read FTileDownloadSubsystem;
     property TileStorage: TTileStorageAbstract read FStorage;
     property GUIConfig: IMapTypeGUIConfig read FGUIConfig;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
@@ -280,52 +265,9 @@ uses
   u_MapTypeGUIConfig,
   u_MapVersionConfig,
   u_DownloadCheckerStuped,
+  u_TileDownloadSubsystem,
   u_TileStorageGE,
   u_TileStorageFileSystem;
-
-procedure TMapType.LoadUrlScript(
-  AInvisibleBrowser: IInvisibleBrowser
-);
-var
-  VDownloadChecker: IDownloadChecker;
-begin
-  FTileDownloadRequestBuilder := nil;
-  FAbilitiesConfig.LockWrite;
-  try
-    if FAbilitiesConfig.UseDownload then begin
-      try
-        VDownloadChecker := TDownloadCheckerStuped.Create(
-          TAntiBanStuped.Create(AInvisibleBrowser, FZmp.DataProvider),
-          FTileDownloaderConfig,
-          FStorage
-        );
-        FTileDownloadRequestBuilderFactory :=
-          TTileDownloadRequestBuilderFactoryPascalScript.Create(
-            FZmp.DataProvider,
-            FTileDownloadRequestBuilderConfig,
-            FTileDownloaderConfig,
-            VDownloadChecker,
-            FLanguageManager
-          );
-
-        FTileDownloadRequestBuilder := FTileDownloadRequestBuilderFactory.BuildRequestBuilder;
-      except
-        on E: Exception do begin
-          ShowMessageFmt(SAS_ERR_UrlScriptError, [FZmp.GUI.Name.GetDefault, E.Message, FZmp.FileName]);
-          FTileDownloadRequestBuilder := nil;
-        end;
-      else
-        ShowMessageFmt(SAS_ERR_UrlScriptUnexpectedError, [FZmp.GUI.Name.GetDefault, FZmp.FileName]);
-        FTileDownloadRequestBuilder := nil;
-      end;
-    end;
-    if FTileDownloadRequestBuilder = nil then begin
-      FAbilitiesConfig.UseDownload := False;
-    end;
-  finally
-    FAbilitiesConfig.UnlockWrite;
-  end;
-end;
 
 procedure TMapType.LoadStorageParams(
   AMainMemCacheConfig: IMainMemCacheConfig;
@@ -356,53 +298,6 @@ begin
   end;
 end;
 
-procedure TMapType.LoadDownloader(
-  AGCList: ITTLCheckNotifier;
-  AAppClosingNotifier: IJclNotifier;
-  ACoordConverterFactory: ICoordConverterFactory
-);
-var
-  VDownloaderList: ITileDownloaderList;
-begin
-  FAbilitiesConfig.LockWrite;
-  try
-    if FAbilitiesConfig.UseDownload then begin
-      try
-        VDownloaderList :=
-          TTileDownloaderList.Create(
-            AGCList,
-            AAppClosingNotifier,
-            FDownloadResultFactory,
-            FTileDownloaderConfig,
-            TTileDownloadResultSaverStuped.Create(
-              FDownloadConfig,
-              FContentTypeManager,
-              FZmp.ContentTypeSubst,
-              FZmp.TilePostDownloadCropConfig,
-              FStorageConfig,
-              FStorage
-            ),
-            FTileDownloadRequestBuilderFactory
-          );
-        FTileDownloader := TTileDownloaderWithQueue.Create(
-          VDownloaderList,
-          AGCList,
-          tpLower,
-          AAppClosingNotifier,
-          256
-        );
-      except
-        if ExceptObject <> nil then begin
-          ShowMessageFmt(SAS_ERR_MapDownloadByError,[ZMP.FileName, (ExceptObject as Exception).Message]);
-        end;
-        FAbilitiesConfig.UseDownload := False;
-      end;
-    end;
-  finally
-    FAbilitiesConfig.UnlockWrite;
-  end;
-end;
-
 procedure TMapType.LoadMapType(
   AMainMemCacheConfig: IMainMemCacheConfig;
   AGCList: ITTLCheckNotifier;
@@ -430,73 +325,34 @@ begin
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := Zmp.ViewGeoConvert;
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
-  LoadUrlScript(AInvisibleBrowser);
-  LoadDownloader(
-    AGCList,
-    AAppClosingNotifier,
-    ACoordConverterFactory
-  );
-end;
 
-function TMapType.GetLink(AXY: TPoint; Azoom: byte): string;
-var
-  VRequest: ITileRequest;
-  VDownloadRequest: ITileDownloadRequest;
-begin
-  Result := '';
-  if FAbilitiesConfig.UseDownload then begin
-    VRequest := GetRequest(
-      nil,
-      0,
-      AXY,
-      Azoom,
-      False
+  FTileDownloadSubsystem :=
+    TTileDownloadSubsystem.Create(
+      AGCList,
+      AAppClosingNotifier,
+      FCoordConverter,
+      ACoordConverterFactory,
+      FLanguageManager,
+      FDownloadConfig,
+      AInvisibleBrowser,
+      FDownloadResultFactory,
+      FZmp.TileDownloaderConfig,
+      FVersionConfig,
+      FTileDownloaderConfig,
+      FTileDownloadRequestBuilderConfig,
+      FContentTypeManager,
+      FZmp.ContentTypeSubst,
+      FZmp.TilePostDownloadCropConfig,
+      FAbilitiesConfig,
+      FZmp.DataProvider,
+      FStorageConfig,
+      FStorage
     );
-    VDownloadRequest:= nil;
-    if VRequest <> nil then begin
-      VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(VRequest, nil);
-    end;
-    if VDownloadRequest <> nil then begin
-      Result := VDownloadRequest.Url;
-    end;
-  end;
 end;
 
 function TMapType.GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
 begin
   Result := FStorage.NotifierByZoom[AZoom];
-end;
-
-function TMapType.GetRequest(
-  ACancelNotifier: IOperationNotifier;
-  AOperationID: Integer;
-  AXY: TPoint;
-  Azoom: byte;
-  ACheckTileSize: Boolean
-): ITileRequest;
-begin
-  Result := nil;
-  if FCoordConverter.CheckTilePosStrict(AXY, Azoom, False) then begin
-    if ACheckTileSize then begin
-      Result :=
-        TTileRequestWithSizeCheck.Create(
-          AXY,
-          Azoom,
-          FVersionConfig.GetStatic,
-          ACancelNotifier,
-          AOperationID
-        );
-    end else begin
-      Result :=
-        TTileRequest.Create(
-          AXY,
-          Azoom,
-          FVersionConfig.GetStatic,
-          ACancelNotifier,
-          AOperationID
-        );
-    end;
-  end;
 end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
@@ -726,9 +582,7 @@ begin
   FCacheBitmap := nil;
   FCacheVector := nil;
 
-  FTileDownloadRequestBuilder := nil;
-  FTileDownloadRequestBuilderFactory := nil;
-
+  FTileDownloadSubsystem := nil;
   FBitmapLoaderFromStorage := nil;
   FBitmapSaverToStorage := nil;
   FKmlLoaderFromStorage := nil;
@@ -745,7 +599,6 @@ begin
   FGUIConfig := nil;
   FAbilitiesConfig := nil;
   FStorageConfig := nil;
-  FTileDownloader := nil;
 
   FreeAndNil(FStorage);
   inherited;

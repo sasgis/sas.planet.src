@@ -3,7 +3,7 @@ unit i_TileDownloaderState;
 interface
 
 uses
-  i_JclNotify;
+  i_Changeable;
 
 type
   ITileDownloaderStateStatic = interface
@@ -15,18 +15,9 @@ type
     property DisableReason: string read GetDisableReason;
   end;
 
-  ITileDownloaderStateChangeble = interface
+  ITileDownloaderStateChangeble = interface(IChangeable)
     ['{48AAA474-723C-443E-940E-2D4332ED41F7}']
     function GetStatic: ITileDownloaderStateStatic;
-
-    function GetBeforeChangeNotifier: IJclNotifier;
-    property BeforeChangeNotifier: IJclNotifier read GetBeforeChangeNotifier;
-
-    function GetChangeNotifier: IJclNotifier;
-    property ChangeNotifier: IJclNotifier read GetChangeNotifier;
-
-    function GetAfterChangeNotifier: IJclNotifier;
-    property AfterChangeNotifier: IJclNotifier read GetAfterChangeNotifier;
   end;
 
 implementation

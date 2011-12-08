@@ -1421,6 +1421,7 @@ begin
         GState.GCThread.List,
         GState.AppClosingNotifier,
         FConfig.DownloadUIConfig,
+        GState.LocalConverterFactory,
         FConfig.ViewPortState,
         FConfig.MainMapsConfig.GetAllActiveMapsSet,
         GState.DownloadInfo,
@@ -3347,7 +3348,7 @@ begin
   end else begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
-  if VMapType.Abilities.UseDownload then begin
+  if VMapType.Zmp.TileDownloaderConfig.Enabled then begin
     VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
@@ -3356,7 +3357,7 @@ begin
     VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
     VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
     VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
-    CopyStringToClipboard(VMapType.GetLink(VTile, VZoomCurr));
+    CopyStringToClipboard(VMapType.TileDownloadSubsystem.GetLink(VTile, VZoomCurr));
   end;
 end;
 

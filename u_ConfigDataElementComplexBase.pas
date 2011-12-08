@@ -26,6 +26,7 @@ uses
   Classes,
   Contnrs,
   i_JclNotify,
+  i_Changeable,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ConfigDataElement,
@@ -40,6 +41,7 @@ type
     procedure OnItemChange;
   protected
     procedure DoSubItemChange; virtual;
+    procedure Add(AItem: IChangeable); overload;
     procedure Add(AItem: IConfigDataElement; ASaveLoadStrategy: IConfigSaveLoadStrategy); overload;
     procedure Add(
       AItem: IConfigDataElement;
@@ -50,7 +52,6 @@ type
       ANeedChangedListen: Boolean
     ); overload;
     function GetItemsCount: Integer;
-    function GetItem(AIndex: Integer): IConfigDataElement;
     function GetSaveLoadStrategy(AIndex: Integer): IConfigSaveLoadStrategy;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -73,36 +74,35 @@ uses
   u_NotifyEventListener;
 
 type
-  TSubItemInfo = class
+  TSubItemInfoBase = class
   private
-    FItem: IConfigDataElement;
+    FItem: IChangeable;
     FSaveLoadStrategy: IConfigSaveLoadStrategy;
     FNeedReadLock: Boolean;
     FNeedWriteLock: Boolean;
     FNeedStopNotify: Boolean;
     FNeedChangedListen: Boolean;
   public
+    property Item: IChangeable read FItem;
+    property SaveLoadStrategy: IConfigSaveLoadStrategy read FSaveLoadStrategy;
+    property NeedReadLock: Boolean read FNeedReadLock;
+    property NeedWriteLock: Boolean read FNeedWriteLock;
+    property NeedStopNotify: Boolean read FNeedStopNotify;
+    property NeedChangedListen: Boolean read FNeedChangedListen;
+  public
     constructor Create(
-      AItem: IConfigDataElement;
+      AItem: IChangeable;
       ASaveLoadStrategy: IConfigSaveLoadStrategy;
       ANeedReadLock: Boolean;
       ANeedWriteLock: Boolean;
       ANeedStopNotify: Boolean;
       ANeedChangedListen: Boolean
     );
-    destructor Destroy; override;
-
-    property Item: IConfigDataElement read FItem;
-    property SaveLoadStrategy: IConfigSaveLoadStrategy read FSaveLoadStrategy;
-    property NeedReadLock: Boolean read FNeedReadLock;
-    property NeedWriteLock: Boolean read FNeedWriteLock;
-    property NeedStopNotify: Boolean read FNeedStopNotify;
-    property NeedChangedListen: Boolean read FNeedChangedListen;
   end;
 
-{ TSubItemInfo }
+{ TSubItemInfoBase }
 
-constructor TSubItemInfo.Create(AItem: IConfigDataElement;
+constructor TSubItemInfoBase.Create(AItem: IChangeable;
   ASaveLoadStrategy: IConfigSaveLoadStrategy; ANeedReadLock, ANeedWriteLock,
   ANeedStopNotify, ANeedChangedListen: Boolean);
 begin
@@ -114,11 +114,62 @@ begin
   FNeedChangedListen := ANeedChangedListen;
 end;
 
-destructor TSubItemInfo.Destroy;
+type
+  TSubItemConfigInfo = class(TSubItemInfoBase)
+  private
+    FItem: IConfigDataElement;
+  public
+    constructor Create(
+      AItem: IConfigDataElement;
+      ASaveLoadStrategy: IConfigSaveLoadStrategy;
+      ANeedReadLock: Boolean;
+      ANeedWriteLock: Boolean;
+      ANeedStopNotify: Boolean;
+      ANeedChangedListen: Boolean
+    );
+    property Item: IConfigDataElement read FItem;
+  end;
+
+{ TSubItemConfigInfo }
+
+constructor TSubItemConfigInfo.Create(
+  AItem: IConfigDataElement;
+  ASaveLoadStrategy: IConfigSaveLoadStrategy;
+  ANeedReadLock, ANeedWriteLock, ANeedStopNotify, ANeedChangedListen: Boolean
+);
 begin
-  FItem := nil;
-  FSaveLoadStrategy := nil;
-  inherited;
+  inherited Create(
+    AItem,
+    ASaveLoadStrategy,
+    ANeedReadLock,
+    ANeedWriteLock,
+    ANeedStopNotify,
+    ANeedChangedListen
+  );
+  FItem := AItem;
+end;
+
+type
+  TSubItemChangeableInfo = class(TSubItemInfoBase)
+  public
+    constructor Create(
+      AItem: IChangeable
+    );
+  end;
+
+
+{ TSubItemChangeableInfo }
+
+constructor TSubItemChangeableInfo.Create(AItem: IChangeable);
+begin
+  inherited Create(
+    AItem,
+    nil,
+    False,
+    False,
+    False,
+    True
+  );
 end;
 
 { TConfigDataElementComplexBase }
@@ -133,10 +184,10 @@ end;
 destructor TConfigDataElementComplexBase.Destroy;
 var
   i: Integer;
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
   for i := 0 to GetItemsCount - 1 do begin
-    VItem := TSubItemInfo(FList[i]);
+    VItem := TSubItemInfoBase(FList[i]);
     if VItem.NeedChangedListen then begin
       VItem.Item.GetChangeNotifier.Remove(FItemChangeListener);
     end;
@@ -146,13 +197,24 @@ begin
   inherited;
 end;
 
+procedure TConfigDataElementComplexBase.Add(AItem: IChangeable);
+var
+  VItem: TSubItemInfoBase;
+begin
+  VItem := TSubItemChangeableInfo.Create(AItem);
+  FList.Add(VItem);
+  if VItem.NeedChangedListen then begin
+    VItem.Item.GetChangeNotifier.Add(FItemChangeListener);
+  end;
+end;
+
 procedure TConfigDataElementComplexBase.Add(AItem: IConfigDataElement;
   ASaveLoadStrategy: IConfigSaveLoadStrategy; ANeedReadLock, ANeedWriteLock,
   ANeedStopNotify, ANeedChangedListen: Boolean);
 var
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
-  VItem := TSubItemInfo.Create(
+  VItem := TSubItemConfigInfo.Create(
     AItem,
     ASaveLoadStrategy,
     ANeedReadLock,
@@ -178,13 +240,13 @@ procedure TConfigDataElementComplexBase.DoReadConfig(
   AConfigData: IConfigDataProvider);
 var
   i: Integer;
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
   inherited;
   for i := 0 to GetItemsCount - 1 do begin
-    VItem := TSubItemInfo(FList[i]);
+    VItem := TSubItemInfoBase(FList[i]);
     if VItem.SaveLoadStrategy <> nil then begin
-      VItem.SaveLoadStrategy.ReadConfig(AConfigData, VItem.Item);
+      VItem.SaveLoadStrategy.ReadConfig(AConfigData, TSubItemConfigInfo(VItem).Item);
     end;
   end;
 end;
@@ -197,13 +259,13 @@ procedure TConfigDataElementComplexBase.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 var
   i: Integer;
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
   inherited;
   for i := 0 to GetItemsCount - 1 do begin
-    VItem := TSubItemInfo(FList[i]);
+    VItem := TSubItemInfoBase(FList[i]);
     if VItem.SaveLoadStrategy <> nil then begin
-      VItem.SaveLoadStrategy.WriteConfig(AConfigData, VItem.Item);
+      VItem.SaveLoadStrategy.WriteConfig(AConfigData, TSubItemConfigInfo(VItem).Item);
     end;
   end;
 end;
@@ -211,22 +273,22 @@ end;
 function TConfigDataElementComplexBase.GetSaveLoadStrategy(
   AIndex: Integer): IConfigSaveLoadStrategy;
 var
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
-  VItem := TSubItemInfo(FList[AIndex]);
+  VItem := TSubItemInfoBase(FList[AIndex]);
   Result := VItem.SaveLoadStrategy;
 end;
 
 procedure TConfigDataElementComplexBase.LockRead;
 var
   i: Integer;
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
   inherited;
   for i := 0 to GetItemsCount - 1 do begin
-    VItem := TSubItemInfo(FList[i]);
+    VItem := TSubItemInfoBase(FList[i]);
     if VItem.NeedReadLock then begin
-      VItem.Item.LockRead;
+      TSubItemConfigInfo(VItem).Item.LockRead;
     end;
   end;
 end;
@@ -234,24 +296,15 @@ end;
 procedure TConfigDataElementComplexBase.LockWrite;
 var
   i: Integer;
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
   inherited;
   for i := 0 to GetItemsCount - 1 do begin
-    VItem := TSubItemInfo(FList[i]);
+    VItem := TSubItemInfoBase(FList[i]);
     if VItem.NeedWriteLock then begin
-      VItem.Item.LockWrite;
+      TSubItemConfigInfo(VItem).Item.LockWrite;
     end;
   end;
-end;
-
-function TConfigDataElementComplexBase.GetItem(
-  AIndex: Integer): IConfigDataElement;
-var
-  VItem: TSubItemInfo;
-begin
-  VItem := TSubItemInfo(FList[AIndex]);
-  Result := VItem.Item;
 end;
 
 function TConfigDataElementComplexBase.GetItemsCount: Integer;
@@ -273,12 +326,12 @@ end;
 procedure TConfigDataElementComplexBase.StartNotify;
 var
   i: Integer;
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
   for i := 0 to GetItemsCount - 1 do begin
-    VItem := TSubItemInfo(FList[i]);
+    VItem := TSubItemInfoBase(FList[i]);
     if VItem.FNeedStopNotify then begin
-      VItem.Item.StartNotify;
+      TSubItemConfigInfo(VItem).Item.StartNotify;
     end;
   end;
   inherited;
@@ -287,13 +340,13 @@ end;
 procedure TConfigDataElementComplexBase.StopNotify;
 var
   i: Integer;
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
   inherited;
   for i := 0 to GetItemsCount - 1 do begin
-    VItem := TSubItemInfo(FList[i]);
+    VItem := TSubItemInfoBase(FList[i]);
     if VItem.FNeedStopNotify then begin
-      VItem.Item.StopNotify;
+      TSubItemConfigInfo(VItem).Item.StopNotify;
     end;
   end;
 end;
@@ -301,12 +354,12 @@ end;
 procedure TConfigDataElementComplexBase.UnlockRead;
 var
   i: Integer;
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
   for i := 0 to GetItemsCount - 1 do begin
-    VItem := TSubItemInfo(FList[i]);
+    VItem := TSubItemInfoBase(FList[i]);
     if VItem.NeedReadLock then begin
-      VItem.Item.UnlockRead;
+      TSubItemConfigInfo(VItem).Item.UnlockRead;
     end;
   end;
   inherited;
@@ -315,12 +368,12 @@ end;
 procedure TConfigDataElementComplexBase.UnlockWrite;
 var
   i: Integer;
-  VItem: TSubItemInfo;
+  VItem: TSubItemInfoBase;
 begin
   for i := 0 to GetItemsCount - 1 do begin
-    VItem := TSubItemInfo(FList[i]);
+    VItem := TSubItemInfoBase(FList[i]);
     if VItem.NeedWriteLock then begin
-      VItem.Item.UnlockWrite;
+      TSubItemConfigInfo(VItem).Item.UnlockWrite;
     end;
   end;
   inherited;

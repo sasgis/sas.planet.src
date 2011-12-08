@@ -152,6 +152,7 @@ uses
   i_DownloadResult,
   i_TileRequest,
   i_TileIterator,
+  i_TileDownloaderState,
   u_DownloadInfoSimple,
   u_TileIteratorStuped,
   u_NotifyEventListener,
@@ -166,6 +167,7 @@ constructor TThreadDownloadTiles.CreateInternal(
   ALastProcessedPoint: TPoint; AProcessed: Int64; AElapsedTime: TDateTime);
 var
   VOperationNotifier: TOperationNotifier;
+  VState: ITileDownloaderStateStatic;
 begin
   inherited Create(False);
 
@@ -198,7 +200,14 @@ begin
     Exit;
   end;
   if not FMapType.Abilities.UseDownload then begin
-    ALog.WriteText(Format('Download of map %s disabled', [FMapType.GUIConfig.Name.Value]), 10);
+    ALog.WriteText(Format('Download of map %s disabled by map params', [FMapType.GUIConfig.Name.Value]), 10);
+    Terminate;
+    FFinished := true;
+    Exit;
+  end;
+  VState := FMapType.TileDownloadSubsystem.State.GetStatic;
+  if not VState.Enabled then begin
+    ALog.WriteText(Format('Download of map %s disabled. Reason: %s', [FMapType.GUIConfig.Name.Value, VState.DisableReason]), 10);
     Terminate;
     FFinished := true;
     Exit;
@@ -466,9 +475,9 @@ begin
                   FGoToNextTile := True;
                 end else begin
                   VOperationID := FCancelNotifier.CurrentOperation;
-                  VRequest := FMapType.GetRequest(FCancelNotifier, VOperationID, VTile, FZoom, FCheckExistTileSize);
+                  VRequest := FMapType.TileDownloadSubsystem.GetRequest(FCancelNotifier, VOperationID, VTile, FZoom, FCheckExistTileSize);
                   VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
-                  FMapType.TileDownloader.Download(VRequest);
+                  FMapType.TileDownloadSubsystem.Download(VRequest);
                   FFinishEvent.WaitFor(INFINITE);
                   ProcessResult(FResult);
                   if Terminated then begin

@@ -9,6 +9,7 @@ uses
   i_ViewPortState,
   i_ActiveMapsConfig,
   i_TTLCheckNotifier,
+  i_LocalCoordConverterFactorySimpe,
   i_DownloadInfoSimple,
   i_TileError;
 
@@ -21,6 +22,7 @@ type
       AGCList: ITTLCheckNotifier;
       AAppClosingNotifier: IJclNotifier;
       AConfig: IDownloadUIConfig;
+      ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       AViewPortState: IViewPortState;
       AMapsSet: IActiveMapsSet;
       ADownloadInfo: IDownloadInfoSimple;
@@ -40,6 +42,7 @@ constructor TUITileDownloadList.Create(
   AGCList: ITTLCheckNotifier;
   AAppClosingNotifier: IJclNotifier;
   AConfig: IDownloadUIConfig;
+  ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   AViewPortState: IViewPortState;
   AMapsSet: IActiveMapsSet;
   ADownloadInfo: IDownloadInfoSimple;
@@ -56,12 +59,13 @@ begin
   VEnum := AMapsSet.GetMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
     VMapTypeActive := AMapsSet.GetMapSingle(VGUID);
-    if VMapTypeActive.GetMapType.MapType.Abilities.UseDownload then begin
+    if VMapTypeActive.GetMapType.MapType.Zmp.TileDownloaderConfig.Enabled then begin
       VDownload :=
         TUiTileDownload.Create(
           AConfig,
           AGCList,
           AAppClosingNotifier,
+          ACoordConverterFactory,
           AViewPortState,
           VMapTypeActive,
           ADownloadInfo,

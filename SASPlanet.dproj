@@ -161,6 +161,7 @@
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="i_CalcLineLayerConfig.pas" />
     <DCCReference Include="i_CenterScaleConfig.pas" />
+    <DCCReference Include="i_Changeable.pas" />
     <DCCReference Include="i_ConfigDataElement.pas" />
     <DCCReference Include="i_ConfigDataProvider.pas" />
     <DCCReference Include="i_ConfigDataWriteProvider.pas" />
@@ -755,6 +756,7 @@
     <DCCReference Include="u_TileDownloadRequestBuilderPascalScript.pas" />
     <DCCReference Include="u_TileDownloadResultSaverStuped.pas" />
     <DCCReference Include="u_TileDownloadSubsystem.pas" />
+    <DCCReference Include="u_TileDownloadSubsystemState.pas" />
     <DCCReference Include="u_TileErrorInfo.pas" />
     <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="u_TileFileNameES.pas" />
