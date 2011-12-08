@@ -100,11 +100,10 @@ begin
 
   VResultPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
 
-  Result := TLocalCoordConverter.Create(
+  Result := TLocalCoordConverterNoScale.Create(
     Rect(0, 0, VResultPixelRect.Right - VResultPixelRect.Left, VResultPixelRect.Bottom - VResultPixelRect.Top),
     VZoom,
     VConverter,
-    DoublePoint(1, 1),
     DoublePoint(VResultPixelRect.TopLeft)
   );
 end;
@@ -155,11 +154,10 @@ begin
 
   VResultPixelRect := AGeoConverter.TileRect2PixelRect(VTileRect, VZoom);
 
-  Result := TLocalCoordConverter.Create(
+  Result := TLocalCoordConverterNoScale.Create(
     Rect(0, 0, VResultPixelRect.Right - VResultPixelRect.Left, VResultPixelRect.Bottom - VResultPixelRect.Top),
     VZoom,
     AGeoConverter,
-    DoublePoint(1, 1),
     DoublePoint(VResultPixelRect.TopLeft)
   );
 end;
@@ -186,7 +184,12 @@ begin
   VBitmapTileRect.Top := 0;
   VBitmapTileRect.Right := VPixelRect.Right - VPixelRect.Left;
   VBitmapTileRect.Bottom := VPixelRect.Bottom - VPixelRect.Top;
-  Result := CreateConverter(VBitmapTileRect, AZoom, AGeoConverter, DoublePoint(1, 1), DoublePoint(VPixelRect.TopLeft));
+  Result := TLocalCoordConverterNoScale.Create(
+    VBitmapTileRect,
+    AZoom,
+    AGeoConverter,
+    DoublePoint(VPixelRect.TopLeft)
+  );
 end;
 
 end.

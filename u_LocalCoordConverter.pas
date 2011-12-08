@@ -30,14 +30,13 @@ uses
   i_LocalCoordConverter;
 
 type
-  TLocalCoordConverter = class(TInterfacedObject, ILocalCoordConverter)
+  TLocalCoordConverterBase = class(TInterfacedObject, ILocalCoordConverter)
   private
     FLocalRect: TRect;
     FLocalSize: TPoint;
     FLocalCenter: TDoublePoint;
     FZoom: Byte;
     FGeoConverter: ICoordConverter;
-    FMapScale: TDoublePoint;
     FLocalTopLeftAtMap: TDoublePoint;
   protected
     function GetIsSameConverter(AConverter: ILocalCoordConverter): Boolean;
@@ -50,10 +49,10 @@ type
 
     function LocalPixel2MapPixel(const APoint: TPoint): TPoint;
     function LocalPixel2MapPixelFloat(const APoint: TPoint): TDoublePoint;
-    function LocalPixelFloat2MapPixelFloat(const APoint: TDoublePoint): TDoublePoint;
+    function LocalPixelFloat2MapPixelFloat(const APoint: TDoublePoint): TDoublePoint; virtual; abstract;
     function MapPixel2LocalPixel(const APoint: TPoint): TPoint;
     function MapPixel2LocalPixelFloat(const APoint: TPoint): TDoublePoint;
-    function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint;
+    function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; virtual; abstract;
 
     function LocalRect2MapRect(const ARect: TRect): TRect;
     function LocalRect2MapRectFloat(const ARect: TRect): TDoubleRect;
@@ -77,21 +76,37 @@ type
       ALocalRect: TRect;
       AZoom: Byte;
       AGeoConverter: ICoordConverter;
+      ALocalTopLeftAtMap: TDoublePoint
+    );
+  end;
+
+
+  TLocalCoordConverter = class(TLocalCoordConverterBase)
+  private
+    FMapScale: TDoublePoint;
+  protected
+    function LocalPixelFloat2MapPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
+    function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
+  public
+    constructor Create(
+      ALocalRect: TRect;
+      AZoom: Byte;
+      AGeoConverter: ICoordConverter;
       AMapScale: TDoublePoint;
       ALocalTopLeftAtMap: TDoublePoint
     );
-    destructor Destroy; override;
+  end;
+
+  TLocalCoordConverterNoScale = class(TLocalCoordConverterBase)
+  protected
+    function LocalPixelFloat2MapPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
+    function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
   end;
 
 implementation
 
-{ TLocalCoordConverter }
-
-constructor TLocalCoordConverter.Create(
-  ALocalRect: TRect;
-  AZoom: Byte;
-  AGeoConverter: ICoordConverter;
-  AMapScale, ALocalTopLeftAtMap: TDoublePoint);
+constructor TLocalCoordConverterBase.Create(ALocalRect: TRect; AZoom: Byte;
+  AGeoConverter: ICoordConverter; ALocalTopLeftAtMap: TDoublePoint);
 begin
   FLocalRect := ALocalRect;
   FLocalSize.X := FLocalRect.Right - FLocalRect.Left;
@@ -100,17 +115,10 @@ begin
   FLocalCenter.Y := FLocalRect.Left + FLocalSize.Y / 2;
   FZoom := AZoom;
   FGeoConverter := AGeoConverter;
-  FMapScale := AMapScale;
   FLocalTopLeftAtMap := ALocalTopLeftAtMap;
 end;
 
-destructor TLocalCoordConverter.Destroy;
-begin
-  FGeoConverter := nil;
-  inherited;
-end;
-
-function TLocalCoordConverter.GetCenterLonLat: TDoublePoint;
+function TLocalCoordConverterBase.GetCenterLonLat: TDoublePoint;
 var
   VMapPixel: TDoublePoint;
 begin
@@ -119,17 +127,17 @@ begin
   Result := FGeoConverter.PixelPosFloat2LonLat(VMapPixel, FZoom);
 end;
 
-function TLocalCoordConverter.GetCenterMapPixelFloat: TDoublePoint;
+function TLocalCoordConverterBase.GetCenterMapPixelFloat: TDoublePoint;
 begin
   Result := LocalPixelFloat2MapPixelFloat(FLocalCenter);
 end;
 
-function TLocalCoordConverter.GetGeoConverter: ICoordConverter;
+function TLocalCoordConverterBase.GetGeoConverter: ICoordConverter;
 begin
   Result := FGeoConverter;
 end;
 
-function TLocalCoordConverter.GetIsSameConverter(
+function TLocalCoordConverterBase.GetIsSameConverter(
   AConverter: ILocalCoordConverter): Boolean;
 var
   VSelf: ILocalCoordConverter;
@@ -151,32 +159,32 @@ begin
   end;
 end;
 
-function TLocalCoordConverter.GetLocalRect: TRect;
+function TLocalCoordConverterBase.GetLocalRect: TRect;
 begin
   Result := FLocalRect;
 end;
 
-function TLocalCoordConverter.GetLocalRectSize: TPoint;
+function TLocalCoordConverterBase.GetLocalRectSize: TPoint;
 begin
   Result := FLocalSize;
 end;
 
-function TLocalCoordConverter.GetRectInMapPixel: TRect;
+function TLocalCoordConverterBase.GetRectInMapPixel: TRect;
 begin
   Result := LocalRect2MapRect(GetLocalRect);
 end;
 
-function TLocalCoordConverter.GetRectInMapPixelFloat: TDoubleRect;
+function TLocalCoordConverterBase.GetRectInMapPixelFloat: TDoubleRect;
 begin
   Result := LocalRect2MapRectFloat(GetLocalRect);
 end;
 
-function TLocalCoordConverter.GetZoom: Byte;
+function TLocalCoordConverterBase.GetZoom: Byte;
 begin
   Result := FZoom;
 end;
 
-function TLocalCoordConverter.LocalPixel2MapPixel(const APoint: TPoint): TPoint;
+function TLocalCoordConverterBase.LocalPixel2MapPixel(const APoint: TPoint): TPoint;
 var
   VResultPoint: TDoublePoint;
 begin
@@ -184,7 +192,7 @@ begin
   Result := Point(Trunc(VResultPoint.X), Trunc(VResultPoint.Y));
 end;
 
-function TLocalCoordConverter.LocalPixel2MapPixelFloat(
+function TLocalCoordConverterBase.LocalPixel2MapPixelFloat(
   const APoint: TPoint): TDoublePoint;
 var
   VSourcePoint: TDoublePoint;
@@ -194,34 +202,27 @@ begin
   Result := LocalPixelFloat2MapPixelFloat(VSourcePoint);
 end;
 
-function TLocalCoordConverter.LocalPixelFloat2MapPixelFloat(
-  const APoint: TDoublePoint): TDoublePoint;
-begin
-  Result.X := APoint.X  / FMapScale.X + FLocalTopLeftAtMap.X;
-  Result.Y := APoint.Y  / FMapScale.Y + FLocalTopLeftAtMap.Y;
-end;
-
-function TLocalCoordConverter.LocalRect2MapRect(const ARect: TRect): TRect;
+function TLocalCoordConverterBase.LocalRect2MapRect(const ARect: TRect): TRect;
 begin
   Result.TopLeft := LocalPixel2MapPixel(ARect.TopLeft);
   Result.BottomRight := LocalPixel2MapPixel(ARect.BottomRight);
 end;
 
-function TLocalCoordConverter.LocalRect2MapRectFloat(
+function TLocalCoordConverterBase.LocalRect2MapRectFloat(
   const ARect: TRect): TDoubleRect;
 begin
   Result.TopLeft := LocalPixel2MapPixelFloat(ARect.TopLeft);
   Result.BottomRight := LocalPixel2MapPixelFloat(ARect.BottomRight);
 end;
 
-function TLocalCoordConverter.LocalRectFloat2MapRectFloat(
+function TLocalCoordConverterBase.LocalRectFloat2MapRectFloat(
   const ARect: TDoubleRect): TDoubleRect;
 begin
   Result.TopLeft := LocalPixelFloat2MapPixelFloat(ARect.TopLeft);
   Result.BottomRight := LocalPixelFloat2MapPixelFloat(ARect.BottomRight);
 end;
 
-function TLocalCoordConverter.LonLat2LocalPixel(
+function TLocalCoordConverterBase.LonLat2LocalPixel(
   const APoint: TDoublePoint): TPoint;
 var
   VResultPoint: TDoublePoint;
@@ -230,7 +231,7 @@ begin
   Result := Point(Trunc(VResultPoint.X), Trunc(VResultPoint.Y));
 end;
 
-function TLocalCoordConverter.LonLat2LocalPixelFloat(
+function TLocalCoordConverterBase.LonLat2LocalPixelFloat(
   const APoint: TDoublePoint): TDoublePoint;
 begin
   Result :=
@@ -239,7 +240,7 @@ begin
     );
 end;
 
-function TLocalCoordConverter.LonLatRect2LocalRectFloat(
+function TLocalCoordConverterBase.LonLatRect2LocalRectFloat(
   const ARect: TDoubleRect): TDoubleRect;
 begin
   Result :=
@@ -248,7 +249,7 @@ begin
     );
 end;
 
-function TLocalCoordConverter.LonLatArrayToVisualFloatArray(const APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
+function TLocalCoordConverterBase.LonLatArrayToVisualFloatArray(const APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
 var
   i: Integer;
   VPointsCount: Integer;
@@ -270,7 +271,7 @@ begin
   end;
 end;
 
-function TLocalCoordConverter.MapPixel2LocalPixel(const APoint: TPoint): TPoint;
+function TLocalCoordConverterBase.MapPixel2LocalPixel(const APoint: TPoint): TPoint;
 var
   VResultPoint: TDoublePoint;
 begin
@@ -278,7 +279,7 @@ begin
   Result := Point(Trunc(VResultPoint.X), Trunc(VResultPoint.Y));
 end;
 
-function TLocalCoordConverter.MapPixel2LocalPixelFloat(
+function TLocalCoordConverterBase.MapPixel2LocalPixelFloat(
   const APoint: TPoint): TDoublePoint;
 var
   VSourcePoint: TDoublePoint;
@@ -288,6 +289,45 @@ begin
   Result := MapPixelFloat2LocalPixelFloat(VSourcePoint);
 end;
 
+function TLocalCoordConverterBase.MapRect2LocalRect(const ARect: TRect): TRect;
+begin
+  Result.TopLeft := MapPixel2LocalPixel(ARect.TopLeft);
+  Result.BottomRight := MapPixel2LocalPixel(ARect.BottomRight);
+end;
+
+function TLocalCoordConverterBase.MapRect2LocalRectFloat(
+  const ARect: TRect): TDoubleRect;
+begin
+  Result.TopLeft := MapPixel2LocalPixelFloat(ARect.TopLeft);
+  Result.BottomRight := MapPixel2LocalPixelFloat(ARect.BottomRight);
+end;
+
+function TLocalCoordConverterBase.MapRectFloat2LocalRectFloat(
+  const ARect: TDoubleRect): TDoubleRect;
+begin
+  Result.TopLeft := MapPixelFloat2LocalPixelFloat(ARect.TopLeft);
+  Result.BottomRight := MapPixelFloat2LocalPixelFloat(ARect.BottomRight);
+end;
+
+{ TLocalCoordConverter }
+
+constructor TLocalCoordConverter.Create(
+  ALocalRect: TRect;
+  AZoom: Byte;
+  AGeoConverter: ICoordConverter;
+  AMapScale, ALocalTopLeftAtMap: TDoublePoint);
+begin
+  inherited Create(ALocalRect, AZoom, AGeoConverter, ALocalTopLeftAtMap);
+  FMapScale := AMapScale;
+end;
+
+function TLocalCoordConverter.LocalPixelFloat2MapPixelFloat(
+  const APoint: TDoublePoint): TDoublePoint;
+begin
+  Result.X := APoint.X  / FMapScale.X + FLocalTopLeftAtMap.X;
+  Result.Y := APoint.Y  / FMapScale.Y + FLocalTopLeftAtMap.Y;
+end;
+
 function TLocalCoordConverter.MapPixelFloat2LocalPixelFloat(
   const APoint: TDoublePoint): TDoublePoint;
 begin
@@ -295,24 +335,20 @@ begin
   Result.Y := (APoint.Y - FLocalTopLeftAtMap.Y) * FMapScale.Y;
 end;
 
-function TLocalCoordConverter.MapRect2LocalRect(const ARect: TRect): TRect;
+{ TLocalCoordConverterNoScale }
+
+function TLocalCoordConverterNoScale.LocalPixelFloat2MapPixelFloat(
+  const APoint: TDoublePoint): TDoublePoint;
 begin
-  Result.TopLeft := MapPixel2LocalPixel(ARect.TopLeft);
-  Result.BottomRight := MapPixel2LocalPixel(ARect.BottomRight);
+  Result.X := APoint.X + FLocalTopLeftAtMap.X;
+  Result.Y := APoint.Y + FLocalTopLeftAtMap.Y;
 end;
 
-function TLocalCoordConverter.MapRect2LocalRectFloat(
-  const ARect: TRect): TDoubleRect;
+function TLocalCoordConverterNoScale.MapPixelFloat2LocalPixelFloat(
+  const APoint: TDoublePoint): TDoublePoint;
 begin
-  Result.TopLeft := MapPixel2LocalPixelFloat(ARect.TopLeft);
-  Result.BottomRight := MapPixel2LocalPixelFloat(ARect.BottomRight);
-end;
-
-function TLocalCoordConverter.MapRectFloat2LocalRectFloat(
-  const ARect: TDoubleRect): TDoubleRect;
-begin
-  Result.TopLeft := MapPixelFloat2LocalPixelFloat(ARect.TopLeft);
-  Result.BottomRight := MapPixelFloat2LocalPixelFloat(ARect.BottomRight);
+  Result.X := APoint.X - FLocalTopLeftAtMap.X;
+  Result.Y := APoint.Y - FLocalTopLeftAtMap.Y;
 end;
 
 end.
