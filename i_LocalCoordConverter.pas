@@ -34,7 +34,6 @@ type
 
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
-    function GetLocalRectCenter: TDoublePoint;
     function GetRectInMapPixel: TRect;
     function GetRectInMapPixelFloat: TDoubleRect;
     function GetCenterMapPixelFloat: TDoublePoint;

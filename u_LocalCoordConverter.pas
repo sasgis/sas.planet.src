@@ -44,7 +44,6 @@ type
 
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
-    function GetLocalRectCenter: TDoublePoint;
 
     function GetZoom: Byte;
     function GetGeoConverter: ICoordConverter;
@@ -115,14 +114,14 @@ function TLocalCoordConverter.GetCenterLonLat: TDoublePoint;
 var
   VMapPixel: TDoublePoint;
 begin
-  VMapPixel := LocalPixelFloat2MapPixelFloat(GetLocalRectCenter);
+  VMapPixel := LocalPixelFloat2MapPixelFloat(FLocalCenter);
   FGeoConverter.CheckPixelPosFloat(VMapPixel, FZoom, True);
   Result := FGeoConverter.PixelPosFloat2LonLat(VMapPixel, FZoom);
 end;
 
 function TLocalCoordConverter.GetCenterMapPixelFloat: TDoublePoint;
 begin
-  Result := LocalPixelFloat2MapPixelFloat(GetLocalRectCenter);
+  Result := LocalPixelFloat2MapPixelFloat(FLocalCenter);
 end;
 
 function TLocalCoordConverter.GetGeoConverter: ICoordConverter;
@@ -155,11 +154,6 @@ end;
 function TLocalCoordConverter.GetLocalRect: TRect;
 begin
   Result := FLocalRect;
-end;
-
-function TLocalCoordConverter.GetLocalRectCenter: TDoublePoint;
-begin
-  Result := FLocalCenter;
 end;
 
 function TLocalCoordConverter.GetLocalRectSize: TPoint;
