@@ -1721,20 +1721,33 @@ timezone_13:array [0..6,0..1]of smallint = (
 implementation
 
 
-function PtInTZ(TestPolygon:Pointer;hg:integer; P:TDoublePoint):boolean;
-function GetV(x,y:integer):Single	;
+function PtInTZ(TestPolygon: Pointer; hg: integer; P: TDoublePoint): Boolean;
+  function GetV(x, y: integer): Double;
+  begin
+    result := SmallInt(Pointer(Integer(TestPolygon)+SizeOf(SmallInt)*2*x+SizeOf(SmallInt)*y)^)/100;
+  end;
+var
+  i, j: Integer;
+  VPi, Vpj: TDoublePoint;
 begin
- result:=SmallInt(Pointer(integer(TestPolygon)+SizeOf(SmallInt)*2*x+SizeOf(SmallInt)*y)^)/100;
-end;
-var i,j:integer;
-begin
-  result:=false;
-  for i:=0 to hg-1 do
-   begin
-    if i=0 then j:=hg-1 else j:=i-1;
-    if ((((GetV(i,1)<=P.y)and(P.y<GetV(j,1)))or((GetV(j,1)<=P.y)and(P.y<GetV(i,1))))and
-       (P.x>(GetV(j,0)-GetV(i,0))*(P.y-GetV(i,1))/(GetV(j,1)-GetV(i,1))+GetV(i,0))) then result:=not(result);
-   end;
+  Result := False;
+  for i:=0 to hg-1 do begin
+    if i=0 then begin
+      j := hg - 1;
+      VPj.X := GetV(j,0);
+      VPj.Y := GetV(j,1);
+    end else begin
+      j := i - 1;
+      Vpj := VPi;
+    end;
+    VPi.X := GetV(i,0);
+    VPi.Y := GetV(i,1);
+    if ((((VPi.Y<=P.y)and(P.y<VPj.Y))or((VPj.Y<=P.y)and(P.y<VPi.Y)))and
+      (P.x>(VPj.X-VPi.X)*(P.y-VPi.Y)/(VPj.Y-VPi.Y)+VPi.X))
+    then begin
+      Result := not(Result);
+    end;
+  end;
 end;
 
 
