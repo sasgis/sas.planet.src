@@ -86,6 +86,9 @@ type
     pnlHeaderReset: TPanel;
     btnResetHeader: TButton;
     mmoHeader: TMemo;
+    pnlDownloaderState: TPanel;
+    lblDownloaderState: TLabel;
+    mmoDownloadState: TMemo;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnByDefaultClick(Sender: TObject);
@@ -106,6 +109,7 @@ type
 implementation
 
 uses
+  i_TileDownloaderState,
   u_GlobalState;
 
 {$R *.dfm}
@@ -215,6 +219,8 @@ begin
 end;
 
 function TfrmMapTypeEdit.EditMapModadl(AMapType: TMapType): Boolean;
+var
+  VDownloadState: ITileDownloaderStateStatic;
 begin
   FMapType := AMapType;
 
@@ -251,6 +257,12 @@ begin
   CheckEnabled.Checked:=FMapType.GUIConfig.Enabled;
   edtVersion.Text := FMapType.VersionConfig.Version;
   pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
+  VDownloadState := FMapType.TileDownloadSubsystem.State.GetStatic;
+  if VDownloadState.Enabled then begin
+    mmoDownloadState.Text := SAS_STR_Yes;
+  end else begin
+    mmoDownloadState.Text := VDownloadState.DisableReason;
+  end;
 
   Result := ShowModal = mrOk;
 end;
