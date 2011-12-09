@@ -75,6 +75,7 @@ begin
     if FEnabled then begin
       FEnabled := False;
       FReason := AReason;
+      SetChanged;
     end;
   finally
     UnlockWrite
@@ -99,6 +100,7 @@ begin
     if not FEnabled then begin
       FEnabled := True;
       FReason := '';
+      SetChanged;
     end;
   finally
     UnlockWrite

@@ -179,6 +179,7 @@ begin
     FStatic := TTileDownloaderListStatic.Create(VList);
     FChangeNotifier.Notify(nil);
   end else if FStatic = nil then begin
+    SetLength(VList, 0);
     if InterlockedCompareExchange(FChangeCounter, VCounter, VCounter) <> VCounter then begin
       Exit;
     end;

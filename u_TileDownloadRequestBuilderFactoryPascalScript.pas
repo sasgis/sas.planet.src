@@ -28,14 +28,13 @@ type
     FCheker: IDownloadChecker;
     FLangManager: ILanguageManager;
     FCompiledData: TbtString;
-    function GetScriptText(AConfig: IConfigDataProvider): string;
     procedure PreparePascalScript(APascalScript: string);
   protected
     function GetState: ITileDownloaderStateChangeble;
     function BuildRequestBuilder: ITileDownloadRequestBuilder;
   public
     constructor Create(
-      AZmpData: IConfigDataProvider;
+      AScriptText: string;
       AConfig: ITileDownloadRequestBuilderConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
       ACheker: IDownloadChecker;
@@ -51,20 +50,16 @@ uses
   u_ResStrings,
   u_TileDownloadRequestBuilderPascalScript;
 
-const
-  PascalScriptFileName = 'GetUrlScript.txt';
-
 { TTileDownloadRequestBuilderFactoryPascalScript }
 
 constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
-  AZmpData: IConfigDataProvider;
+  AScriptText: string;
   AConfig: ITileDownloadRequestBuilderConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
   ACheker: IDownloadChecker;
   ALangManager: ILanguageManager
 );
 var
-  VScriptText: string;
   VState: TTileDownloaderStateInternal;
 begin
   VState := TTileDownloaderStateInternal.Create;
@@ -75,13 +70,12 @@ begin
   FLangManager := ALangManager;
   FTileDownloaderConfig := ATileDownloaderConfig;
 
-  VScriptText := GetScriptText(AZmpData);
-  if VScriptText = '' then begin
+  if AScriptText = '' then begin
     FCompiledData := '';
     FStateInternal.Disable('Empty script');
   end else begin
     try
-      PreparePascalScript(VScriptText);
+      PreparePascalScript(AScriptText);
     except
       on E:EPascalScriptCompileError do begin
         FStateInternal.Disable(E.Message);
@@ -93,12 +87,6 @@ begin
       end;
     end;
   end;
-end;
-
-function TTileDownloadRequestBuilderFactoryPascalScript.GetScriptText(
-  AConfig: IConfigDataProvider): string;
-begin
-  Result := AConfig.ReadString(PascalScriptFileName, '');
 end;
 
 function TTileDownloadRequestBuilderFactoryPascalScript.GetState: ITileDownloaderStateChangeble;

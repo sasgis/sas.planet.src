@@ -45,6 +45,7 @@ type
     FTileDownloader: ITileDownloader;
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
+    function GetScriptText(AConfig: IConfigDataProvider): string;
   protected
     function GetRequest(
       ACancelNotifier: IOperationNotifier;
@@ -99,6 +100,9 @@ uses
   u_TileDownloaderWithQueue,
   u_TileDownloadRequestBuilderFactoryPascalScript;
 
+const
+  PascalScriptFileName = 'GetUrlScript.txt';
+
 { TTileDownloadSubsystem }
 
 constructor TTileDownloadSubsystem.Create(
@@ -141,7 +145,7 @@ begin
     );
     FTileDownloadRequestBuilderFactory :=
       TTileDownloadRequestBuilderFactoryPascalScript.Create(
-        AZmpData,
+        GetScriptText(AZmpData),
         FTileDownloadRequestBuilderConfig,
         FTileDownloaderConfig,
         VDownloadChecker,
@@ -267,6 +271,12 @@ begin
       end;
     end;
   end;
+end;
+
+function TTileDownloadSubsystem.GetScriptText(
+  AConfig: IConfigDataProvider): string;
+begin
+  Result := AConfig.ReadString(PascalScriptFileName, '');
 end;
 
 function TTileDownloadSubsystem.GetState: ITileDownloaderStateChangeble;
