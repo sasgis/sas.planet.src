@@ -104,7 +104,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 2
-    object Label5: TLabel
+    object lblCacheType: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 6
@@ -132,7 +132,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         'EarthSlicer 1.95'
         'GlobalMapper Tiles')
     end
-    object Button9: TButton
+    object btnResetCacheType: TButton
       AlignWithMargins = True
       Left = 425
       Top = 6
@@ -144,7 +144,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
-      OnClick = Button9Click
+      OnClick = btnResetCacheTypeClick
     end
   end
   object pnlParentItem: TPanel
@@ -156,7 +156,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 3
-    object Label3: TLabel
+    object lblSubMenu: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 6
@@ -176,7 +176,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Align = alClient
       TabOrder = 0
     end
-    object Button5: TButton
+    object btnResetSubMenu: TButton
       AlignWithMargins = True
       Left = 425
       Top = 6
@@ -188,7 +188,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
-      OnClick = Button5Click
+      OnClick = btnResetSubMenuClick
     end
   end
   object pnlCacheName: TPanel
@@ -200,7 +200,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 4
-    object Label2: TLabel
+    object lblFolder: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 6
@@ -220,7 +220,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Align = alClient
       TabOrder = 0
     end
-    object Button4: TButton
+    object btnResetFolder: TButton
       AlignWithMargins = True
       Left = 425
       Top = 6
@@ -232,7 +232,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
-      OnClick = Button4Click
+      OnClick = btnResetFolderClick
     end
   end
   object pnlUrl: TPanel
@@ -244,7 +244,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 5
-    object Label1: TLabel
+    object lblUrl: TLabel
       AlignWithMargins = True
       Left = 6
       Top = 6
@@ -262,7 +262,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      object Button6: TButton
+      object btnResetUrl: TButton
         AlignWithMargins = True
         Left = 3
         Top = 3
@@ -274,7 +274,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        OnClick = Button6Click
+        OnClick = btnResetUrlClick
       end
     end
     object EditURL: TMemo
@@ -350,12 +350,12 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         end
         item
           Column = 2
-          Control = Button7
+          Control = btnResetHotKey
           Row = 0
         end
         item
           Column = 0
-          Control = Label4
+          Control = lblHotKey
           Row = 0
         end>
       RowCollection = <
@@ -376,7 +376,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Modifiers = []
         TabOrder = 0
       end
-      object Button7: TButton
+      object btnResetHotKey: TButton
         AlignWithMargins = True
         Left = 139
         Top = 3
@@ -387,9 +387,9 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         ParentShowHint = False
         ShowHint = True
         TabOrder = 1
-        OnClick = Button7Click
+        OnClick = btnResetHotKeyClick
       end
-      object Label4: TLabel
+      object lblHotKey: TLabel
         AlignWithMargins = True
         Left = 3
         Top = 7
@@ -421,7 +421,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ControlCollection = <
         item
           Column = 0
-          Control = Label6
+          Control = lblPause
           Row = 0
         end
         item
@@ -431,7 +431,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         end
         item
           Column = 2
-          Control = Button8
+          Control = btnResetPause
           Row = 0
         end>
       RowCollection = <
@@ -442,7 +442,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       DesignSize = (
         153
         27)
-      object Label6: TLabel
+      object lblPause: TLabel
         Left = 0
         Top = 7
         Width = 29
@@ -462,7 +462,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         TabOrder = 0
         Value = 0
       end
-      object Button8: TButton
+      object btnResetPause: TButton
         AlignWithMargins = True
         Left = 129
         Top = 3
@@ -474,7 +474,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         ParentShowHint = False
         ShowHint = True
         TabOrder = 1
-        OnClick = Button8Click
+        OnClick = btnResetPauseClick
       end
     end
   end
@@ -531,7 +531,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Layout = tlCenter
       ExplicitHeight = 13
     end
-    object btnVersionReset: TButton
+    object btnResetVersion: TButton
       AlignWithMargins = True
       Left = 425
       Top = 6
@@ -543,7 +543,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
-      OnClick = btnVersionResetClick
+      OnClick = btnResetVersionClick
     end
     object edtVersion: TEdit
       AlignWithMargins = True
@@ -582,7 +582,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      object btnHeaderReset: TButton
+      object btnResetHeader: TButton
         AlignWithMargins = True
         Left = 3
         Top = 3
@@ -594,7 +594,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        OnClick = btnHeaderResetClick
+        OnClick = btnResetHeaderClick
       end
     end
     object mmoHeader: TMemo

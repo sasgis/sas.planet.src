@@ -43,25 +43,25 @@ type
   TfrmMapTypeEdit = class(TFormWitghLanguageManager)
     EditNameinCache: TEdit;
     EditParSubMenu: TEdit;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
+    lblUrl: TLabel;
+    lblFolder: TLabel;
+    lblSubMenu: TLabel;
     CheckBox1: TCheckBox;
     EditHotKey: THotKey;
     btnOk: TButton;
     btnCancel: TButton;
     btnByDefault: TButton;
-    Button6: TButton;
-    Button4: TButton;
-    Button5: TButton;
-    Button7: TButton;
+    btnResetUrl: TButton;
+    btnResetFolder: TButton;
+    btnResetSubMenu: TButton;
+    btnResetHotKey: TButton;
     EditURL: TMemo;
     SESleep: TSpinEdit;
-    Label6: TLabel;
-    Button8: TButton;
+    lblPause: TLabel;
+    btnResetPause: TButton;
     CBCacheType: TComboBox;
-    Label5: TLabel;
-    Button9: TButton;
+    lblCacheType: TLabel;
+    btnResetCacheType: TButton;
     pnlBottomButtons: TPanel;
     pnlSeparator: TPanel;
     pnlCacheType: TPanel;
@@ -72,31 +72,31 @@ type
     pnlCacheName: TPanel;
     pnlUrl: TPanel;
     pnlUrlRight: TPanel;
-    Label4: TLabel;
+    lblHotKey: TLabel;
     CheckEnabled: TCheckBox;
     pnlTop: TPanel;
     lblZmpName: TLabel;
     edtZmp: TEdit;
     pnlVersion: TPanel;
-    btnVersionReset: TButton;
+    btnResetVersion: TButton;
     edtVersion: TEdit;
     lblVersion: TLabel;
     pnlHeader: TPanel;
     lblHeader: TLabel;
     pnlHeaderReset: TPanel;
-    btnHeaderReset: TButton;
+    btnResetHeader: TButton;
     mmoHeader: TMemo;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnByDefaultClick(Sender: TObject);
-    procedure Button6Click(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
-    procedure Button5Click(Sender: TObject);
-    procedure Button7Click(Sender: TObject);
-    procedure Button8Click(Sender: TObject);
-    procedure Button9Click(Sender: TObject);
-    procedure btnVersionResetClick(Sender: TObject);
-    procedure btnHeaderResetClick(Sender: TObject);
+    procedure btnResetUrlClick(Sender: TObject);
+    procedure btnResetFolderClick(Sender: TObject);
+    procedure btnResetSubMenuClick(Sender: TObject);
+    procedure btnResetHotKeyClick(Sender: TObject);
+    procedure btnResetPauseClick(Sender: TObject);
+    procedure btnResetCacheTypeClick(Sender: TObject);
+    procedure btnResetVersionClick(Sender: TObject);
+    procedure btnResetHeaderClick(Sender: TObject);
   private
     FMapType: TMapType;
   public
@@ -110,7 +110,7 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmMapTypeEdit.btnHeaderResetClick(Sender: TObject);
+procedure TfrmMapTypeEdit.btnResetHeaderClick(Sender: TObject);
 begin
   mmoHeader.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader;
 end;
@@ -154,7 +154,7 @@ begin
   ModalResult := mrOk;
 end;
 
-procedure TfrmMapTypeEdit.btnVersionResetClick(Sender: TObject);
+procedure TfrmMapTypeEdit.btnResetVersionClick(Sender: TObject);
 begin
   edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
 end;
@@ -182,32 +182,32 @@ begin
   edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
 end;
 
-procedure TfrmMapTypeEdit.Button6Click(Sender: TObject);
+procedure TfrmMapTypeEdit.btnResetUrlClick(Sender: TObject);
 begin
  EditURL.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase;
 end;
 
-procedure TfrmMapTypeEdit.Button4Click(Sender: TObject);
+procedure TfrmMapTypeEdit.btnResetFolderClick(Sender: TObject);
 begin
   EditNameinCache.Text := FMapType.Zmp.StorageConfig.NameInCache;
 end;
 
-procedure TfrmMapTypeEdit.Button5Click(Sender: TObject);
+procedure TfrmMapTypeEdit.btnResetSubMenuClick(Sender: TObject);
 begin
   EditParSubMenu.Text := FmapType.GUIConfig.ParentSubMenu.GetDefaultValue;
 end;
 
-procedure TfrmMapTypeEdit.Button7Click(Sender: TObject);
+procedure TfrmMapTypeEdit.btnResetHotKeyClick(Sender: TObject);
 begin
  EditHotKey.HotKey := FMapType.Zmp.GUI.HotKey;
 end;
 
-procedure TfrmMapTypeEdit.Button8Click(Sender: TObject);
+procedure TfrmMapTypeEdit.btnResetPauseClick(Sender: TObject);
 begin
   SESleep.Value := FMapType.TileDownloaderConfig.WaitInterval;
 end;
 
-procedure TfrmMapTypeEdit.Button9Click(Sender: TObject);
+procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
 begin
   if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
     CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode;
