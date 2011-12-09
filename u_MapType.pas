@@ -114,7 +114,6 @@ type
       AUsePre: Boolean;
       ACache: ITileObjCacheBitmap = nil
     ): boolean;
-    function GetAbilitiesConfigStatic: IMapAbilitiesConfigStatic;
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
    public
     procedure SaveConfig(ALocalConfig: IConfigDataWriteProvider);
@@ -181,7 +180,7 @@ type
     property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
     property VersionConfig: IMapVersionConfig read FVersionConfig;
 
-    property Abilities: IMapAbilitiesConfigStatic read GetAbilitiesConfigStatic;
+    property Abilities: IMapAbilitiesConfig read FAbilitiesConfig;
     property StorageConfig: ISimpleTileStorageConfig read FStorageConfig;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
@@ -283,6 +282,7 @@ begin
   FAbilitiesConfig.ReadConfig(AConfig);
   FVersionConfig.ReadConfig(AConfig);
   FTileDownloaderConfig.ReadConfig(AConfig);
+  FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
 
   if FStorageConfig.CacheTypeCode = 5  then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
@@ -292,9 +292,7 @@ begin
   FContentType := FStorage.GetMainContentType;
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
     FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
-    if FStorageConfig.AllowAdd then begin
-      FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
-    end;
+    FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
     FCacheBitmap := TMemTileCacheBitmap.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
   end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
     FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
@@ -303,7 +301,6 @@ begin
 
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := FZmp.ViewGeoConvert;
-  FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
 
   FTileDownloadSubsystem :=
     TTileDownloadSubsystem.Create(
@@ -537,11 +534,6 @@ begin
   end else begin
     Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
   end;
-end;
-
-function TMapType.GetAbilitiesConfigStatic: IMapAbilitiesConfigStatic;
-begin
-  Result := FAbilitiesConfig.GetStatic;
 end;
 
 function TMapType.GetIsBitmapTiles: Boolean;
