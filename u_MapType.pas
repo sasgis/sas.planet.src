@@ -73,8 +73,6 @@ type
     FCacheBitmap: ITileObjCacheBitmap;
     FCacheVector: ITileObjCacheVector;
     FStorage: TTileStorageAbstract;
-//    FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
-//    FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IVectorDataLoader;
@@ -98,28 +96,9 @@ type
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
-    procedure LoadStorageParams(
-      AMainMemCacheConfig: IMainMemCacheConfig;
-      AGCList: ITTLCheckNotifier;
-      AGlobalCacheConfig: TGlobalCahceConfig;
-      ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      ACoordConverterFactory: ICoordConverterFactory
-    );
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function LoadBitmapTileFromStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32): Boolean;
     function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; var AKml: IVectorDataItemList): boolean;
-    procedure LoadMapType(
-      AMainMemCacheConfig: IMainMemCacheConfig;
-      AGCList: ITTLCheckNotifier;
-      AAppClosingNotifier: IJclNotifier;
-      AProxyConfig: IProxyConfig;
-      AGlobalCacheConfig: TGlobalCahceConfig;
-      ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      ACoordConverterFactory: ICoordConverterFactory;
-      AInvisibleBrowser: IInvisibleBrowser;
-      AConfig : IConfigDataProvider
-    );
-
     function LoadTileFromPreZ(
       spr: TCustomBitmap32;
       AXY: TPoint;
@@ -253,87 +232,6 @@ uses
   u_TileDownloadSubsystem,
   u_TileStorageGE,
   u_TileStorageFileSystem;
-
-procedure TMapType.LoadStorageParams(
-  AMainMemCacheConfig: IMainMemCacheConfig;
-  AGCList: ITTLCheckNotifier;
-  AGlobalCacheConfig: TGlobalCahceConfig;
-  ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  ACoordConverterFactory: ICoordConverterFactory
-);
-var
-  VContentTypeBitmap: IContentTypeInfoBitmap;
-  VContentTypeKml: IContentTypeInfoVectorData;
-begin
-  if FStorageConfig.CacheTypeCode = 5  then begin
-    FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
-  end else begin
-    FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);
-  end;
-  FContentType := FStorage.GetMainContentType;
-  if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
-    FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
-    if FStorageConfig.AllowAdd then begin
-      FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
-    end;
-    FCacheBitmap := TMemTileCacheBitmap.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
-  end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
-    FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
-    FCacheVector := TMemTileCacheVector.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
-  end;
-end;
-
-procedure TMapType.LoadMapType(
-  AMainMemCacheConfig: IMainMemCacheConfig;
-  AGCList: ITTLCheckNotifier;
-  AAppClosingNotifier: IJclNotifier;
-  AProxyConfig: IProxyConfig;
-  AGlobalCacheConfig: TGlobalCahceConfig;
-  ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  ACoordConverterFactory: ICoordConverterFactory;
-  AInvisibleBrowser: IInvisibleBrowser;
-  AConfig: IConfigDataProvider
-);
-begin
-  FGUIConfig.ReadConfig(AConfig);
-  FStorageConfig.ReadConfig(AConfig);
-  FAbilitiesConfig.ReadConfig(AConfig);
-  FVersionConfig.ReadConfig(AConfig);
-  FTileDownloaderConfig.ReadConfig(AConfig);
-  LoadStorageParams(
-    AMainMemCacheConfig,
-    AGCList,
-    AGlobalCacheConfig,
-    ATileNameGeneratorList,
-    ACoordConverterFactory
-  );
-  FCoordConverter := FStorageConfig.CoordConverter;
-  FViewCoordConverter := Zmp.ViewGeoConvert;
-  FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
-
-  FTileDownloadSubsystem :=
-    TTileDownloadSubsystem.Create(
-      AGCList,
-      AAppClosingNotifier,
-      FCoordConverter,
-      ACoordConverterFactory,
-      FLanguageManager,
-      FDownloadConfig,
-      AInvisibleBrowser,
-      FDownloadResultFactory,
-      FZmp.TileDownloaderConfig,
-      FVersionConfig,
-      FTileDownloaderConfig,
-      FTileDownloadRequestBuilderConfig,
-      FContentTypeManager,
-      FZmp.ContentTypeSubst,
-      FZmp.TilePostDownloadCropConfig,
-      FAbilitiesConfig,
-      FZmp.DataProvider,
-      FStorageConfig,
-      FStorage
-    );
-end;
 
 function TMapType.GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
 begin
@@ -519,6 +417,9 @@ constructor TMapType.Create(
   AInvisibleBrowser: IInvisibleBrowser;
   AConfig: IConfigDataProvider
 );
+var
+  VContentTypeBitmap: IContentTypeInfoBitmap;
+  VContentTypeKml: IContentTypeInfoVectorData;
 begin
   FZmp := AZmp;
   FGUIConfig :=
@@ -543,17 +444,57 @@ begin
     TDownloadResultFactory.Create(
       ADownloadResultTextProvider
     );
-  LoadMapType(
-    AMainMemCacheConfig,
-    AGCList,
-    AAppClosingNotifier,
-    AInetConfig.ProxyConfig,
-    AGlobalCacheConfig,
-    ATileNameGeneratorList,
-    ACoordConverterFactory,
-    AInvisibleBrowser,
-    AConfig
-  );
+
+  FGUIConfig.ReadConfig(AConfig);
+  FStorageConfig.ReadConfig(AConfig);
+  FAbilitiesConfig.ReadConfig(AConfig);
+  FVersionConfig.ReadConfig(AConfig);
+  FTileDownloaderConfig.ReadConfig(AConfig);
+
+  if FStorageConfig.CacheTypeCode = 5  then begin
+    FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
+  end else begin
+    FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);
+  end;
+  FContentType := FStorage.GetMainContentType;
+  if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+    FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
+    if FStorageConfig.AllowAdd then begin
+      FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
+    end;
+    FCacheBitmap := TMemTileCacheBitmap.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
+  end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
+    FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
+    FCacheVector := TMemTileCacheVector.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
+  end;
+
+  FCoordConverter := FStorageConfig.CoordConverter;
+  FViewCoordConverter := Zmp.ViewGeoConvert;
+  FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
+
+  FTileDownloadSubsystem :=
+    TTileDownloadSubsystem.Create(
+      AGCList,
+      AAppClosingNotifier,
+      FCoordConverter,
+      ACoordConverterFactory,
+      FLanguageManager,
+      FDownloadConfig,
+      AInvisibleBrowser,
+      FDownloadResultFactory,
+      FZmp.TileDownloaderConfig,
+      FVersionConfig,
+      FTileDownloaderConfig,
+      FTileDownloadRequestBuilderConfig,
+      FContentTypeManager,
+      FZmp.ContentTypeSubst,
+      FZmp.TilePostDownloadCropConfig,
+      FAbilitiesConfig,
+      FZmp.DataProvider,
+      FStorageConfig,
+      FStorage
+    );
+
   if FAbilitiesConfig.IsLayer then begin
     FLoadPrevMaxZoomDelta := 4;
   end else begin
