@@ -87,7 +87,7 @@ type
     FDownloadResultFactory: IDownloadResultFactory;
     FImageResamplerConfig: IImageResamplerConfig;
     FContentTypeManager: IContentTypeManager;
-    FDownloadConfig: IGlobalDownloadConfig;
+    FGlobalDownloadConfig: IGlobalDownloadConfig;
     FGUIConfig: IMapTypeGUIConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
@@ -262,10 +262,10 @@ begin
     );
   FLanguageManager := ALanguageManager;
   FImageResamplerConfig := AImageResamplerConfig;
-  FDownloadConfig := ADownloadConfig;
+  FGlobalDownloadConfig := ADownloadConfig;
   FContentTypeManager := AContentTypeManager;
-  FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, Zmp.TileDownloaderConfig);
-  FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(Zmp.TileDownloadRequestBuilderConfig);
+  FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, FZmp.TileDownloaderConfig);
+  FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(FZmp.TileDownloadRequestBuilderConfig);
   FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig);
   FStorageConfig := TSimpleTileStorageConfig.Create(FZmp.StorageConfig);
   FAbilitiesConfig :=
@@ -302,7 +302,7 @@ begin
   end;
 
   FCoordConverter := FStorageConfig.CoordConverter;
-  FViewCoordConverter := Zmp.ViewGeoConvert;
+  FViewCoordConverter := FZmp.ViewGeoConvert;
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
 
   FTileDownloadSubsystem :=
@@ -312,7 +312,7 @@ begin
       FCoordConverter,
       ACoordConverterFactory,
       FLanguageManager,
-      FDownloadConfig,
+      FGlobalDownloadConfig,
       AInvisibleBrowser,
       FDownloadResultFactory,
       FZmp.TileDownloaderConfig,
@@ -354,7 +354,7 @@ begin
   FDownloadResultFactory := nil;
   FImageResamplerConfig := nil;
   FContentTypeManager := nil;
-  FDownloadConfig := nil;
+  FGlobalDownloadConfig := nil;
   FGUIConfig := nil;
   FAbilitiesConfig := nil;
   FStorageConfig := nil;
