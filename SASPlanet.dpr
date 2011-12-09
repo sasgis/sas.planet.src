@@ -200,6 +200,7 @@ uses
   i_TileDownloaderList in 'i_TileDownloaderList.pas',
   u_TileDownloaderListStatic in 'u_TileDownloaderListStatic.pas',
   u_TileDownloaderList in 'u_TileDownloaderList.pas',
+  u_TileDownloadRequestBuilderLazy in 'u_TileDownloadRequestBuilderLazy.pas',
   u_TileDownloadRequestBuilder in 'u_TileDownloadRequestBuilder.pas',
   u_TileDownloadRequestBuilderPascalScript in 'u_TileDownloadRequestBuilderPascalScript.pas',
   u_TileRequestBuilderHelpers in 'u_TileRequestBuilderHelpers.pas',

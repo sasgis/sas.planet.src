@@ -753,6 +753,7 @@
     <DCCReference Include="u_TileDownloadRequestBuilder.pas" />
     <DCCReference Include="u_TileDownloadRequestBuilderConfig.pas" />
     <DCCReference Include="u_TileDownloadRequestBuilderFactoryPascalScript.pas" />
+    <DCCReference Include="u_TileDownloadRequestBuilderLazy.pas" />
     <DCCReference Include="u_TileDownloadRequestBuilderPascalScript.pas" />
     <DCCReference Include="u_TileDownloadResultSaverStuped.pas" />
     <DCCReference Include="u_TileDownloadSubsystem.pas" />

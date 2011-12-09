@@ -3,6 +3,7 @@ unit u_TileDownloadRequestBuilderFactoryPascalScript;
 interface
 
 uses
+  SyncObjs,
   SysUtils,
   uPSUtils,
   i_ConfigDataProvider,
@@ -27,7 +28,10 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCheker: IDownloadChecker;
     FLangManager: ILanguageManager;
+    FScriptText: string;
     FCompiledData: TbtString;
+    FCS: TCriticalSection;
+    FScriptInited: Boolean;
     procedure PreparePascalScript(APascalScript: string);
   protected
     function GetState: ITileDownloaderStateChangeble;
@@ -40,6 +44,7 @@ type
       ACheker: IDownloadChecker;
       ALangManager: ILanguageManager
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -62,31 +67,27 @@ constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
 var
   VState: TTileDownloaderStateInternal;
 begin
-  VState := TTileDownloaderStateInternal.Create;
-  FStateInternal := VState;
-  FState := VState;
   FConfig := AConfig;
   FCheker := ACheker;
   FLangManager := ALangManager;
   FTileDownloaderConfig := ATileDownloaderConfig;
+  FScriptText := AScriptText;
 
-  if AScriptText = '' then begin
+  FCS := TCriticalSection.Create;
+  VState := TTileDownloaderStateInternal.Create;
+  FStateInternal := VState;
+  FState := VState;
+
+  if FScriptText = '' then begin
     FCompiledData := '';
     FStateInternal.Disable('Empty script');
-  end else begin
-    try
-      PreparePascalScript(AScriptText);
-    except
-      on E:EPascalScriptCompileError do begin
-        FStateInternal.Disable(E.Message);
-        FCompiledData := '';
-      end;
-      on E: Exception do begin
-        FStateInternal.Disable('Unknown script compile error: ' + E.Message);
-        FCompiledData := '';
-      end;
-    end;
   end;
+end;
+
+destructor TTileDownloadRequestBuilderFactoryPascalScript.Destroy;
+begin
+  FreeAndNil(FCS);
+  inherited;
 end;
 
 function TTileDownloadRequestBuilderFactoryPascalScript.GetState: ITileDownloaderStateChangeble;
@@ -99,6 +100,28 @@ begin
   Result := nil;
   if FStateInternal.Enabled then begin
     try
+      if not FScriptInited then begin
+        FCS.Acquire;
+        try
+          if not FScriptInited then begin
+            try
+              PreparePascalScript(FScriptText);
+              FScriptInited := True;
+            except
+              on E:EPascalScriptCompileError do begin
+                FStateInternal.Disable(E.Message);
+                FCompiledData := '';
+              end;
+              on E: Exception do begin
+                FStateInternal.Disable('Unknown script compile error: ' + E.Message);
+                FCompiledData := '';
+              end;
+            end;
+          end;
+        finally
+          FCS.Release;
+        end;
+      end;
       Result :=
         TTileDownloadRequestBuilderPascalScript.Create(
           FCompiledData,

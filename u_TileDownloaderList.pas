@@ -55,6 +55,7 @@ uses
   u_JclNotify,
   u_NotifyEventListener,
   u_LastResponseInfo,
+  u_TileDownloadRequestBuilderLazy,
   u_TileDownloaderHttpWithTTL,
   u_TileDownloaderSimple,
   u_TileDownloaderListStatic;
@@ -103,25 +104,19 @@ begin
 end;
 
 function TTileDownloaderList.CreateDownloader: ITileDownloader;
-var
-  VTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
 begin
-  Result := nil;
-  VTileDownloadRequestBuilder := FRequestBuilderFactory.BuildRequestBuilder;
-  if VTileDownloadRequestBuilder <> nil then begin
-    Result :=
-      TTileDownloaderSimple.Create(
-        FAppClosingNotifier,
-        VTileDownloadRequestBuilder,
-        FTileDownloaderConfig,
-        TTileDownloaderHttpWithTTL.Create(
-          FGCList,
-          FResultFactory
-        ),
-        FResultSaver,
-        TLastResponseInfo.Create
-      );
-  end;
+  Result :=
+    TTileDownloaderSimple.Create(
+      FAppClosingNotifier,
+      TTileDownloadRequestBuilderLazy.Create(FRequestBuilderFactory),
+      FTileDownloaderConfig,
+      TTileDownloaderHttpWithTTL.Create(
+        FGCList,
+        FResultFactory
+      ),
+      FResultSaver,
+      TLastResponseInfo.Create
+    );
 end;
 
 function TTileDownloaderList.GetChangeNotifier: IJclNotifier;
