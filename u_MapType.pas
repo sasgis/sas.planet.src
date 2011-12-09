@@ -233,6 +233,136 @@ uses
   u_TileStorageGE,
   u_TileStorageFileSystem;
 
+constructor TMapType.Create(
+  ALanguageManager: ILanguageManager;
+  AZmp: IZmpInfo;
+  AMainMemCacheConfig: IMainMemCacheConfig;
+  AGlobalCacheConfig: TGlobalCahceConfig;
+  ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  AGCList: ITTLCheckNotifier;
+  AAppClosingNotifier: IJclNotifier;
+  AInetConfig: IInetConfig;
+  AImageResamplerConfig: IImageResamplerConfig;
+  ADownloadConfig: IGlobalDownloadConfig;
+  AContentTypeManager: IContentTypeManager;
+  ACoordConverterFactory: ICoordConverterFactory;
+  ADownloadResultTextProvider: IDownloadResultTextProvider;
+  AInvisibleBrowser: IInvisibleBrowser;
+  AConfig: IConfigDataProvider
+);
+var
+  VContentTypeBitmap: IContentTypeInfoBitmap;
+  VContentTypeKml: IContentTypeInfoVectorData;
+begin
+  FZmp := AZmp;
+  FGUIConfig :=
+    TMapTypeGUIConfig.Create(
+      ALanguageManager,
+      FZmp.GUI
+    );
+  FLanguageManager := ALanguageManager;
+  FImageResamplerConfig := AImageResamplerConfig;
+  FDownloadConfig := ADownloadConfig;
+  FContentTypeManager := AContentTypeManager;
+  FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, Zmp.TileDownloaderConfig);
+  FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(Zmp.TileDownloadRequestBuilderConfig);
+  FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig);
+  FStorageConfig := TSimpleTileStorageConfig.Create(FZmp.StorageConfig);
+  FAbilitiesConfig :=
+    TMapAbilitiesConfig.Create(
+      FZmp.Abilities,
+      FStorageConfig
+    );
+  FDownloadResultFactory :=
+    TDownloadResultFactory.Create(
+      ADownloadResultTextProvider
+    );
+
+  FGUIConfig.ReadConfig(AConfig);
+  FStorageConfig.ReadConfig(AConfig);
+  FAbilitiesConfig.ReadConfig(AConfig);
+  FVersionConfig.ReadConfig(AConfig);
+  FTileDownloaderConfig.ReadConfig(AConfig);
+
+  if FStorageConfig.CacheTypeCode = 5  then begin
+    FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
+  end else begin
+    FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);
+  end;
+  FContentType := FStorage.GetMainContentType;
+  if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+    FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
+    if FStorageConfig.AllowAdd then begin
+      FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
+    end;
+    FCacheBitmap := TMemTileCacheBitmap.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
+  end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
+    FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
+    FCacheVector := TMemTileCacheVector.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
+  end;
+
+  FCoordConverter := FStorageConfig.CoordConverter;
+  FViewCoordConverter := Zmp.ViewGeoConvert;
+  FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
+
+  FTileDownloadSubsystem :=
+    TTileDownloadSubsystem.Create(
+      AGCList,
+      AAppClosingNotifier,
+      FCoordConverter,
+      ACoordConverterFactory,
+      FLanguageManager,
+      FDownloadConfig,
+      AInvisibleBrowser,
+      FDownloadResultFactory,
+      FZmp.TileDownloaderConfig,
+      FVersionConfig,
+      FTileDownloaderConfig,
+      FTileDownloadRequestBuilderConfig,
+      FContentTypeManager,
+      FZmp.ContentTypeSubst,
+      FZmp.TilePostDownloadCropConfig,
+      FAbilitiesConfig,
+      FZmp.DataProvider,
+      FStorageConfig,
+      FStorage
+    );
+
+  if FAbilitiesConfig.IsLayer then begin
+    FLoadPrevMaxZoomDelta := 4;
+  end else begin
+    FLoadPrevMaxZoomDelta := 6;
+  end;
+end;
+
+destructor TMapType.Destroy;
+begin
+  FCoordConverter := nil;
+  FCacheBitmap := nil;
+  FCacheVector := nil;
+
+  FTileDownloadSubsystem := nil;
+  FBitmapLoaderFromStorage := nil;
+  FBitmapSaverToStorage := nil;
+  FKmlLoaderFromStorage := nil;
+  FViewCoordConverter := nil;
+  FContentType := nil;
+  FLanguageManager := nil;
+  FVersionConfig := nil;
+  FTileDownloaderConfig := nil;
+  FTileDownloadRequestBuilderConfig := nil;
+  FDownloadResultFactory := nil;
+  FImageResamplerConfig := nil;
+  FContentTypeManager := nil;
+  FDownloadConfig := nil;
+  FGUIConfig := nil;
+  FAbilitiesConfig := nil;
+  FStorageConfig := nil;
+
+  FreeAndNil(FStorage);
+  inherited;
+end;
+
 function TMapType.GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
 begin
   Result := FStorage.NotifierByZoom[AZoom];
@@ -398,136 +528,6 @@ end;
 function TMapType.GetShortFolderName: string;
 begin
   Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FStorageConfig.NameInCache)));
-end;
-
-constructor TMapType.Create(
-  ALanguageManager: ILanguageManager;
-  AZmp: IZmpInfo;
-  AMainMemCacheConfig: IMainMemCacheConfig;
-  AGlobalCacheConfig: TGlobalCahceConfig;
-  ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  AGCList: ITTLCheckNotifier;
-  AAppClosingNotifier: IJclNotifier;
-  AInetConfig: IInetConfig;
-  AImageResamplerConfig: IImageResamplerConfig;
-  ADownloadConfig: IGlobalDownloadConfig;
-  AContentTypeManager: IContentTypeManager;
-  ACoordConverterFactory: ICoordConverterFactory;
-  ADownloadResultTextProvider: IDownloadResultTextProvider;
-  AInvisibleBrowser: IInvisibleBrowser;
-  AConfig: IConfigDataProvider
-);
-var
-  VContentTypeBitmap: IContentTypeInfoBitmap;
-  VContentTypeKml: IContentTypeInfoVectorData;
-begin
-  FZmp := AZmp;
-  FGUIConfig :=
-    TMapTypeGUIConfig.Create(
-      ALanguageManager,
-      FZmp.GUI
-    );
-  FLanguageManager := ALanguageManager;
-  FImageResamplerConfig := AImageResamplerConfig;
-  FDownloadConfig := ADownloadConfig;
-  FContentTypeManager := AContentTypeManager;
-  FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, Zmp.TileDownloaderConfig);
-  FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(Zmp.TileDownloadRequestBuilderConfig);
-  FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig);
-  FStorageConfig := TSimpleTileStorageConfig.Create(FZmp.StorageConfig);
-  FAbilitiesConfig :=
-    TMapAbilitiesConfig.Create(
-      FZmp.Abilities,
-      FStorageConfig
-    );
-  FDownloadResultFactory :=
-    TDownloadResultFactory.Create(
-      ADownloadResultTextProvider
-    );
-
-  FGUIConfig.ReadConfig(AConfig);
-  FStorageConfig.ReadConfig(AConfig);
-  FAbilitiesConfig.ReadConfig(AConfig);
-  FVersionConfig.ReadConfig(AConfig);
-  FTileDownloaderConfig.ReadConfig(AConfig);
-
-  if FStorageConfig.CacheTypeCode = 5  then begin
-    FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
-  end else begin
-    FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);
-  end;
-  FContentType := FStorage.GetMainContentType;
-  if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
-    FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
-    if FStorageConfig.AllowAdd then begin
-      FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
-    end;
-    FCacheBitmap := TMemTileCacheBitmap.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
-  end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
-    FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
-    FCacheVector := TMemTileCacheVector.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
-  end;
-
-  FCoordConverter := FStorageConfig.CoordConverter;
-  FViewCoordConverter := Zmp.ViewGeoConvert;
-  FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
-
-  FTileDownloadSubsystem :=
-    TTileDownloadSubsystem.Create(
-      AGCList,
-      AAppClosingNotifier,
-      FCoordConverter,
-      ACoordConverterFactory,
-      FLanguageManager,
-      FDownloadConfig,
-      AInvisibleBrowser,
-      FDownloadResultFactory,
-      FZmp.TileDownloaderConfig,
-      FVersionConfig,
-      FTileDownloaderConfig,
-      FTileDownloadRequestBuilderConfig,
-      FContentTypeManager,
-      FZmp.ContentTypeSubst,
-      FZmp.TilePostDownloadCropConfig,
-      FAbilitiesConfig,
-      FZmp.DataProvider,
-      FStorageConfig,
-      FStorage
-    );
-
-  if FAbilitiesConfig.IsLayer then begin
-    FLoadPrevMaxZoomDelta := 4;
-  end else begin
-    FLoadPrevMaxZoomDelta := 6;
-  end;
-end;
-
-destructor TMapType.Destroy;
-begin
-  FCoordConverter := nil;
-  FCacheBitmap := nil;
-  FCacheVector := nil;
-
-  FTileDownloadSubsystem := nil;
-  FBitmapLoaderFromStorage := nil;
-  FBitmapSaverToStorage := nil;
-  FKmlLoaderFromStorage := nil;
-  FViewCoordConverter := nil;
-  FContentType := nil;
-  FLanguageManager := nil;
-  FVersionConfig := nil;
-  FTileDownloaderConfig := nil;
-  FTileDownloadRequestBuilderConfig := nil;
-  FDownloadResultFactory := nil;
-  FImageResamplerConfig := nil;
-  FContentTypeManager := nil;
-  FDownloadConfig := nil;
-  FGUIConfig := nil;
-  FAbilitiesConfig := nil;
-  FStorageConfig := nil;
-
-  FreeAndNil(FStorage);
-  inherited;
 end;
 
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
