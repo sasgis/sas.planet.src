@@ -1727,17 +1727,15 @@ function PtInTZ(TestPolygon: Pointer; hg: integer; P: TDoublePoint): Boolean;
     result := SmallInt(Pointer(Integer(TestPolygon)+SizeOf(SmallInt)*2*x+SizeOf(SmallInt)*y)^)/100;
   end;
 var
-  i, j: Integer;
+  i: Integer;
   VPi, Vpj: TDoublePoint;
 begin
   Result := False;
   for i:=0 to hg-1 do begin
     if i=0 then begin
-      j := hg - 1;
-      VPj.X := GetV(j,0);
-      VPj.Y := GetV(j,1);
+      VPj.X := GetV(hg - 1, 0);
+      VPj.Y := GetV(hg - 1, 1);
     end else begin
-      j := i - 1;
       Vpj := VPi;
     end;
     VPi.X := GetV(i,0);
