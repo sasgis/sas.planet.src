@@ -75,6 +75,7 @@ uses
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
   i_SensorList,
+  i_TimeZoneDiffByLonLat,
   i_InvisibleBrowser,
   i_InternalBrowser,
   i_DebugInfoWindow,
@@ -135,6 +136,7 @@ type
     FInternalBrowser: IInternalBrowser;
     FDebugInfoWindow: IDebugInfoWindow;
     FAppClosingNotifier: IJclNotifier;
+    FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -192,6 +194,7 @@ type
     property EcwDll: IEcwDll read FEcwDll;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
+    property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
 
     constructor Create;
     destructor Destroy; override;
@@ -253,6 +256,7 @@ uses
   u_LocalCoordConverterFactorySimpe,
   u_LayerBitmapClearStrategyFactory,
   u_DownloadResultTextProvider,
+  u_TimeZoneDiffByLonLatStuped,
   u_MainFormConfig,
   u_ZmpConfig,
   u_ZmpInfoSet,
@@ -299,6 +303,8 @@ begin
   FGlobalAppConfig := TGlobalAppConfig.Create;
 
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+
+  FTimeZoneDiffByLonLat := TTimeZoneDiffByLonLatStuped.Create;
 
   FCacheConfig := TGlobalCahceConfig.Create(ProgramPath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);

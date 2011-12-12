@@ -11,6 +11,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
+  i_TimeZoneDiffByLonLat,
   i_StatBarConfig,
   i_ViewPortState,
   i_MouseState,
@@ -26,6 +27,7 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FDownloadInfo: IDownloadInfoSimple;
     FMouseState: IMouseState;
+    FTimeZoneDiff: ITimeZoneDiffByLonLat;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
 
     FLastUpdateTick: DWORD;
@@ -52,6 +54,7 @@ type
       AValueToStringConverterConfig: IValueToStringConverterConfig;
       AMouseState: IMouseState;
       ATimerNoifier: IJclNotifier;
+      ATimeZoneDiff: ITimeZoneDiffByLonLat;
       ADownloadInfo: IDownloadInfoSimple;
       AMainMapsConfig: IMainMapsConfig
     );
@@ -64,7 +67,6 @@ uses
   i_CoordConverter,
   u_NotifyEventListener,
   u_ResStrings,
-  u_TimeZones,
   u_MapType;
 
 const
@@ -80,6 +82,7 @@ constructor TLayerStatBar.Create(
   AValueToStringConverterConfig: IValueToStringConverterConfig;
   AMouseState: IMouseState;
   ATimerNoifier: IJclNotifier;
+  ATimeZoneDiff: ITimeZoneDiffByLonLat;
   ADownloadInfo: IDownloadInfoSimple;
   AMainMapsConfig: IMainMapsConfig
 );
@@ -87,6 +90,7 @@ begin
   inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FTimeZoneDiff := ATimeZoneDiff;
   FDownloadInfo := ADownloadInfo;
   FMouseState := AMouseState;
   LinksList.Add(
@@ -117,15 +121,14 @@ end;
 
 function TLayerStatBar.GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
 var
-  prH, prM: integer;
-  tz: real;
+  tz: TDateTime;
   st: TSystemTime;
 begin
-  tz := GetTZ_(ALonLat);
+  tz := FTimeZoneDiff.GetTimeDiff(ALonLat);
   GetSystemTime(st);
-  prH := trunc(tz);
-  prM := round(60 * frac(TZ));
-  result := EncodeTime(abs(st.wHour + prH + 24) mod 24, abs(st.wMinute + prM + 60) mod 60, 0, 0);
+  Result := EncodeTime(st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+  Result := Result + tz;
+  Result := Frac(Result);
 end;
 
 procedure TLayerStatBar.OnConfigChange;

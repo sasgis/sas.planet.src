@@ -1197,6 +1197,7 @@ begin
         GState.ValueToStringConverterConfig,
         FMouseState,
         GState.GUISyncronizedTimerNotifier,
+        GState.TimeZoneDiffByLonLat,
         GState.DownloadInfo,
         FConfig.MainMapsConfig
       )
