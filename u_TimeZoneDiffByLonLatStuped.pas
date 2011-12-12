@@ -67,7 +67,7 @@ implementation
 
 uses
   SysUtils,
-  u_TimeZones;
+  c_TimeZones;
 
 { TTimeZoneArea }
 

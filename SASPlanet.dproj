@@ -60,6 +60,7 @@
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
+    <DCCReference Include="c_TimeZones.pas" />
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
     </DCCReference>
@@ -793,7 +794,6 @@
     <DCCReference Include="u_TileStorageTypeListItem.pas" />
     <DCCReference Include="u_TileStorageTypeListSimple.pas" />
     <DCCReference Include="u_TimeZoneDiffByLonLatStuped.pas" />
-    <DCCReference Include="u_TimeZones.pas" />
     <DCCReference Include="u_TreeByMapActiveMapsSet.pas" />
     <DCCReference Include="u_TreeByPathDetalizeProviderList.pas" />
     <DCCReference Include="u_TreeChangeableBase.pas" />

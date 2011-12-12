@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TimeZones;
+unit c_TimeZones;
 
 interface
 

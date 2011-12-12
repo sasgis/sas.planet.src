@@ -24,7 +24,7 @@ uses
   i_TimeZoneList in 'i_TimeZoneList.pas',
   i_TimeZoneDiffByLonLat in 'i_TimeZoneDiffByLonLat.pas',
   u_TimeZoneDiffByLonLatStuped in 'u_TimeZoneDiffByLonLatStuped.pas',
-  u_TimeZones in 'u_TimeZones.pas',
+  c_TimeZones in 'c_TimeZones.pas',
   u_ResStrings in 'u_ResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
   u_TBXSubmenuItemWithIndicator in 'u_TBXSubmenuItemWithIndicator.pas',
