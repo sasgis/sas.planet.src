@@ -23,7 +23,9 @@ unit u_MarkPictureSimple;
 interface
 
 uses
+  Windows,
   Types,
+  SyncObjs,
   Classes,
   GR32,
   i_BitmapTileSaveLoad,
@@ -33,8 +35,14 @@ type
   TMarkPictureSimple = class(TInterfacedObject, IMarkPicture)
     FFullFileName: string;
     FName: string;
+    FLoader: IBitmapTileLoader;
+
+    FCS: TCriticalSection;
     FBitmap: TCustomBitmap32;
+
+    FInited: Integer;
     FBitmapSize: TPoint;
+    procedure InitPic;
   protected
     function GetName: string;
     procedure ExportToStream(AStream: TStream);
@@ -59,14 +67,17 @@ constructor TMarkPictureSimple.Create(AFullFileName: string; AName: string; ALoa
 begin
   FFullFileName := AFullFileName;
   FName := AName;
+  FLoader := ALoader;
+
   FBitmap := TCustomBitmap32.Create;
-  ALoader.LoadFromFile(FFullFileName, FBitmap);
-  FBitmapSize := Point(FBitmap.Width, FBitmap.Height);
+  FCS := TCriticalSection.Create;
+  FInited := 0;
 end;
 
 destructor TMarkPictureSimple.Destroy;
 begin
   FreeAndNil(FBitmap);
+  FreeAndNil(FCS);
   inherited;
 end;
 
@@ -75,6 +86,7 @@ var
   VMemStream: TMemoryStream;
   VOwnStream: Boolean;
 begin
+  InitPic;
   if AStream is TMemoryStream then begin
     VMemStream := TMemoryStream(AStream);
     VOwnStream := False;
@@ -96,6 +108,7 @@ end;
 
 function TMarkPictureSimple.GetPointInPicture: TPoint;
 begin
+  InitPic;
   Result.X := FBitmapSize.X div 2;
   Result.Y := FBitmapSize.Y;
 end;
@@ -110,8 +123,37 @@ begin
   Result := taVerticalCenter;
 end;
 
+procedure TMarkPictureSimple.InitPic;
+var
+  VMemStream: TMemoryStream;
+begin
+  if InterlockedCompareExchange(FInited, 0, 0) = 0 then begin
+    FCS.Acquire;
+    try
+      if InterlockedCompareExchange(FInited, 0, 0) = 0 then begin
+        try
+          VMemStream := TMemoryStream.Create;
+          try
+            VMemStream.LoadFromFile(FFullFileName);
+            FLoader.LoadFromStream(VMemStream, FBitmap);
+          finally
+            VMemStream.Free;
+          end;
+        except
+          FBitmap.SetSize(0, 0);
+        end;
+        FBitmapSize := Point(FBitmap.Width, FBitmap.Height);
+        InterlockedIncrement(FInited);
+      end;
+    finally
+      FCS.Release;
+    end;
+  end;
+end;
+
 procedure TMarkPictureSimple.LoadBitmap(ABmp: TCustomBitmap32);
 begin
+  InitPic;
   ABmp.SetSize(FBitmapSize.X, FBitmapSize.Y);
   if not FBitmap.Empty then
     MoveLongword(FBitmap.Bits[0], ABmp.Bits[0], FBitmapSize.X * FBitmapSize.Y);
@@ -124,7 +166,8 @@ end;
 
 function TMarkPictureSimple.GetBitmapSize: TPoint;
 begin
-  result:=FBitmapSize;
+  InitPic;
+  Result := FBitmapSize;
 end;
 
 
