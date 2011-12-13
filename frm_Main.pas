@@ -876,7 +876,16 @@ begin
   TBEditPath.Floating:=true;
   TBEditPath.MoveOnScreen(true);
   TBEditPath.FloatingPosition:=Point(Left+map.Left+30,Top+map.Top+70);
-  VSensorViewGenerator := TSensorViewListGeneratorStuped.Create(GState.GUISyncronizedTimerNotifier, Self, TBXDock1, NSensors, MenusImageList, 40);
+
+  VSensorViewGenerator :=
+    TSensorViewListGeneratorStuped.Create(
+      GState.GUISyncronizedTimerNotifier,
+      Self,
+      TBXDock1,
+      NSensors,
+      MenusImageList,
+      40
+    );
   FSensorViewList := VSensorViewGenerator.CreateSensorViewList(GState.SensorList);
   TBConfigProviderLoadPositions(Self, VProvider);
   OnToolbarsLockChange;
@@ -927,7 +936,11 @@ begin
     Map.Cursor:=crDefault;
 
     FMapZoomAnimtion:=False;
-    FShortCutManager := TShortcutManager.Create(TBXMainMenu.Items, GetIgnoredMenuItemsList);
+    FShortCutManager :=
+      TShortcutManager.Create(
+        TBXMainMenu.Items,
+        GetIgnoredMenuItemsList
+      );
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
     tbitmShowDebugInfo.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
@@ -1658,20 +1671,17 @@ var
 begin
   ProgramClose:=true;
   FLinksList.DeactivateLinks;
-  //останавливаем GPS
   GState.SendTerminateToThreads;
+  FLayersList.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
     if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then begin
       Screen.Forms[i].Close;
     end;
   end;
-//  FUIDownLoader.SendTerminateToThreads;
-  FLayersList.SendTerminateToThreads;
   Application.ProcessMessages;
   SaveConfig(nil);
   Application.ProcessMessages;
   FreeAndNil(FLayersList);
-//  FreeAndNil(FUIDownLoader);
   FreeAndNil(FShortCutManager);
   FreeAndNil(FMarkDBGUI);
 end;
@@ -1815,37 +1825,54 @@ begin
   if newop=ao_movemap then begin
     FSelectionRect.Reset;
   end;
- FMarshrutComment:='';
- TBmove.Checked:=newop=ao_movemap;
- TBCalcRas.Checked:=newop=ao_calc_line;
- TBRectSave.Checked:=(newop=ao_select_poly)or(newop=ao_select_rect)or(newop=ao_select_line);
- TBAdd_Point.Checked:=newop=ao_Add_Point;
- TBAdd_Line.Checked:=newop=ao_Add_line;
- TBAdd_Poly.Checked:=newop=ao_Add_Poly;
- TBEditPath.Visible:=false;
- TBEditPathSave.Visible:=(newop=ao_Add_line)or(newop=ao_Add_Poly)or(newop=ao_Edit_line)or(newop=ao_Edit_Poly);
- TBEditPathOk.Visible:=(newop=ao_select_poly)or(newop=ao_select_line);
- TBEditPathLabel.Visible:=(newop=ao_calc_line);
- TBEditPathMarsh.Visible:=(newop=ao_Add_line)or(newop=ao_Edit_line);
- TBEditMagnetDraw.Visible:=(newop=ao_Add_line)or(newop=ao_Add_Poly)or(newop=ao_Edit_line)or(newop=ao_Edit_Poly)
-                           or(newop=ao_select_poly)or(newop=ao_select_line);
- TBEditSelectPolylineRadius.Visible:=newop=ao_select_line;
- TBEditSelectPolylineRadiusCap1.Visible:=newop=ao_select_line;
- TBEditSelectPolylineRadiusCap2.Visible:=newop=ao_select_line;
+  FMarshrutComment:='';
+  TBmove.Checked:=newop=ao_movemap;
+  TBCalcRas.Checked:=newop=ao_calc_line;
+  TBRectSave.Checked :=
+    (newop=ao_select_poly)or
+    (newop=ao_select_rect)or
+    (newop=ao_select_line);
+  TBAdd_Point.Checked := newop=ao_Add_Point;
+  TBAdd_Line.Checked := newop=ao_Add_line;
+  TBAdd_Poly.Checked := newop=ao_Add_Poly;
+  TBEditPath.Visible := false;
+  TBEditPathSave.Visible :=
+    (newop=ao_Add_line)or
+    (newop=ao_Add_Poly)or
+    (newop=ao_Edit_line)or
+    (newop=ao_Edit_Poly);
+  TBEditPathOk.Visible :=
+    (newop=ao_select_poly)or
+    (newop=ao_select_line);
+  TBEditPathLabel.Visible := (newop=ao_calc_line);
+  TBEditPathMarsh.Visible :=
+    (newop=ao_Add_line)or
+    (newop=ao_Edit_line);
+  TBEditMagnetDraw.Visible :=
+    (newop=ao_Add_line)or
+    (newop=ao_Add_Poly)or
+    (newop=ao_Edit_line)or
+    (newop=ao_Edit_Poly)or
+    (newop=ao_select_poly)or
+    (newop=ao_select_line);
+  TBEditSelectPolylineRadius.Visible:=newop=ao_select_line;
+  TBEditSelectPolylineRadiusCap1.Visible:=newop=ao_select_line;
+  TBEditSelectPolylineRadiusCap2.Visible:=newop=ao_select_line;
   if FLineOnMapEdit <> nil then begin
     FLineOnMapEdit.Empty;
   end;
   FLineOnMapEdit := FLineOnMapByOperation[newop];
- if newop=ao_select_line then begin
-   TBEditSelectPolylineRadius.Value:=Round(FConfig.LayersConfig.SelectionPolylineLayerConfig.GetRadius);
- end;
+  if newop=ao_select_line then begin
+   TBEditSelectPolylineRadius.Value :=
+    Round(FConfig.LayersConfig.SelectionPolylineLayerConfig.GetRadius);
+  end;
 
- case newop of
-  ao_movemap:  map.Cursor:=crDefault;
-  ao_calc_line:     map.Cursor:=2;
-  ao_select_poly,ao_select_rect,ao_select_line: map.Cursor:=crDrag;
-  ao_Add_Point,ao_Add_Poly,ao_Add_Line,ao_edit_Line,ao_edit_poly: map.Cursor:=4;
- end;
+  case newop of
+    ao_movemap: map.Cursor:=crDefault;
+    ao_calc_line: map.Cursor:=2;
+    ao_select_poly,ao_select_rect,ao_select_line: map.Cursor:=crDrag;
+    ao_Add_Point,ao_Add_Poly,ao_Add_Line,ao_edit_Line,ao_edit_poly: map.Cursor:=4;
+  end;
   FCurrentOper:=newop;
   if FCurrentOper <> ao_edit_line then begin
     FEditMarkLine := nil;
@@ -2250,8 +2277,8 @@ var
   i,bar_width,bar_height,bar_x1,bar_dy:integer;
   VSattelite: IGPSSatelliteInfo;
 begin
-   TBXSignalStrengthBar.Repaint;
-   if APosition.Satellites.FixCount > 0 then begin
+  TBXSignalStrengthBar.Repaint;
+  if APosition.Satellites.FixCount > 0 then begin
     with TBXSignalStrengthBar do begin
        Canvas.Lock;
        try
@@ -2272,7 +2299,7 @@ begin
          Canvas.Unlock;
        end;
     end;
-   end;
+  end;
 end;
 
 procedure TfrmMain.zooming(ANewZoom:byte; AMousePos: TPoint; move:boolean);
