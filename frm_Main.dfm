@@ -137,6 +137,12 @@ object frmMain: TfrmMain
           Hint = ''
           EditCaption = 'WikiMapia'
         end
+        object tbiEditRosreestrSrch: TTBEditItem
+          EditCaption = 'Rosreestr'
+          Caption = 'Rosreestr'
+          Hint = ''
+          EditCaption = 'Rosreestr'
+        end
       end
       object TBXSeparatorItem5: TTBXSeparatorItem
         Caption = ''
@@ -1161,6 +1167,12 @@ object frmMain: TfrmMain
           GroupIndex = 1
           RadioItem = True
           Caption = 'WikiMapia'
+          Hint = ''
+        end
+        object TBXSelectRosreestrSrch: TTBXItem
+          GroupIndex = 1
+          RadioItem = True
+          Caption = 'Rosreestr'
           Hint = ''
         end
       end

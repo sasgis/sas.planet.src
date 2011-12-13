@@ -42,7 +42,8 @@ uses
   u_GeoCoderByYandex,
   u_GeoCoderBy2GIS,
   u_GeoCoderByOSM,
-  u_GeoCoderByWikiMapia;
+  u_GeoCoderByWikiMapia,
+  u_GeoCoderByRosreestr;
 
 { TGeoCoderListSimple }
 
@@ -83,7 +84,15 @@ begin
       'WikiMapia',
       TGeoCoderByWikiMapia.Create(AProxy)
     )
-  )
+  );
+  Add(
+    TGeoCoderListEntity.Create(
+      CGeoCoderRosreestrGUID,
+      'Rosreestr',
+      TGeoCoderByRosreestr.Create(AProxy)
+    )
+  );
+  
 
 end;
 

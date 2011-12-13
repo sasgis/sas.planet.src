@@ -388,7 +388,9 @@ type
     TBXSelectOSMSrch: TTBXItem;
     tbiEditOSMSrch: TTBEditItem;
     TBXSelectWikiMapiaSrch: TTBXItem;
+    TBXSelectRosreestrSrch: TTBXItem;
     tbiEditWikiMapiaSrch: TTBEditItem;
+    tbiEditRosreestrSrch: TTBEditItem;
     osmorg1: TTBXItem;
     TBXSeparatorItem20: TTBXSeparatorItem;
     NFillMode3: TTBXItem;
@@ -1522,6 +1524,20 @@ begin
   VTBXItem.Tag := Integer(VItem);
   VTBXItem.OnClick := Self.TBXSelectSrchClick;
   VTBXItem.Caption := VItem.GetCaption;
+
+  
+  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderRosreestrGUID);
+  VTBXItem := TBXSelectRosreestrSrch;
+  VTBEditItem := tbiEditRosreestrSrch;
+
+  VTBEditItem.Tag := Integer(VItem);
+  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
+  VTBEditItem.EditCaption := VItem.GetCaption;
+  VTBEditItem.Caption := VItem.GetCaption;
+  VTBXItem.Tag := Integer(VItem);
+  VTBXItem.OnClick := Self.TBXSelectSrchClick;
+  VTBXItem.Caption := VItem.GetCaption;
+
 end;
 
 procedure TfrmMain.CreateLangMenu;
