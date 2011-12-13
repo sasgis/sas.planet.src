@@ -187,8 +187,6 @@ type
     TBRectSave: TTBXSubmenuItem;
     TBMapZap: TTBXSubmenuItem;
     TBGoTo: TTBXSubmenuItem;
-    tbiEditYandexSrch: TTBEditItem;
-    tbiEditGoogleSrch: TTBEditItem;
     TBZoomIn: TTBXItem;
     TBZoom_out: TTBXItem;
     N35: TTBXItem;
@@ -268,8 +266,6 @@ type
     TBXSeparatorItem17: TTBXSeparatorItem;
     TBXToolBarSearch: TTBXToolbar;
     TBXSelectSrchType: TTBXSubmenuItem;
-    TBXSelectGoogleSrch: TTBXItem;
-    TBXSelectYandexSrch: TTBXItem;
     tbsprtGPS2: TTBXSeparatorItem;
     tbitmPositionByGSM: TTBXItem;
     TBXItem6: TTBXItem;
@@ -359,8 +355,6 @@ type
     NAnimateMove: TTBXItem;
     tbiSearch: TTBXComboBoxItem;
     NSearchResults: TTBXVisibilityToggleItem;
-    TBXSelect2GISSrch: TTBXItem;
-    tbiEdit2GISSrch: TTBEditItem;
     TBSearchWindow: TTBXDockablePanel;
     PanelSearch: TPanel;
     TBXDockForSearch: TTBXDock;
@@ -385,12 +379,6 @@ type
     TBXSeparatorItem12: TTBXSeparatorItem;
     TBItem6: TTBXItem;
     TBHideMarks: TTBXItem;
-    TBXSelectOSMSrch: TTBXItem;
-    tbiEditOSMSrch: TTBEditItem;
-    TBXSelectWikiMapiaSrch: TTBXItem;
-    TBXSelectRosreestrSrch: TTBXItem;
-    tbiEditWikiMapiaSrch: TTBEditItem;
-    tbiEditRosreestrSrch: TTBEditItem;
     osmorg1: TTBXItem;
     TBXSeparatorItem20: TTBXSeparatorItem;
     NFillMode3: TTBXItem;
@@ -679,7 +667,6 @@ uses
   frm_LonLatRectEdit,
   c_ZeroGUID,
   c_SasVersion,
-  c_GeoCoderGUIDSimple,
   u_JclListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_LogForTaskThread,
@@ -1454,6 +1441,9 @@ var
   VItem: IGeoCoderListEntity;
   VTBXItem: TTBXItem;
   VTBEditItem: TTBEditItem;
+  VEnum: IEnumGUID;
+  Vcnt: Cardinal;
+  VGUID: TGUID;
 begin
   FSearchPresenter :=
     TSearchResultPresenterOnPanel.Create(
@@ -1465,79 +1455,29 @@ begin
       FConfig.LastSearchResultConfig,
       FConfig.ViewPortState
     );
-  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderGoogleGUID);
-  VTBXItem := TBXSelectGoogleSrch;
-  VTBEditItem := tbiEditGoogleSrch;
 
-  VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
-  VTBEditItem.EditCaption := VItem.GetCaption;
-  VTBEditItem.Caption := VItem.GetCaption;
-  VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectSrchClick;
-  VTBXItem.Caption := VItem.GetCaption;
+  VEnum := FConfig.MainGeoCoderConfig.GetList.GetGUIDEnum;
+  while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
+    VItem := FConfig.MainGeoCoderConfig.GetList.Get(VGUID);
 
-  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderYandexGUID);
-  VTBXItem := TBXSelectYandexSrch;
-  VTBEditItem := tbiEditYandexSrch;
+    VTBXItem := TTBXItem.Create(Self);
+    VTBXItem.GroupIndex := 1;
+    VTBXItem.RadioItem := True;
+    VTBXItem.Tag := Integer(VItem);
+    VTBXItem.OnClick := Self.TBXSelectSrchClick;
+    VTBXItem.Caption := VItem.GetCaption;
+    VTBXItem.Hint := '';
+    TBXSelectSrchType.Add(VTBXItem);
 
-  VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
-  VTBEditItem.EditCaption := VItem.GetCaption;
-  VTBEditItem.Caption := VItem.GetCaption;
-  VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectSrchClick;
-  VTBXItem.Caption := VItem.GetCaption;
-
-  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoder2GISGUID);
-  VTBXItem := TBXSelect2GISSrch;
-  VTBEditItem := tbiEdit2GISSrch;
-
-  VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
-  VTBEditItem.EditCaption := VItem.GetCaption;
-  VTBEditItem.Caption := VItem.GetCaption;
-  VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectSrchClick;
-  VTBXItem.Caption := VItem.GetCaption;
-
-  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderOSMGUID);
-  VTBXItem := TBXSelectOSMSrch;
-  VTBEditItem := tbiEditOSMSrch;
-
-  VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
-  VTBEditItem.EditCaption := VItem.GetCaption;
-  VTBEditItem.Caption := VItem.GetCaption;
-  VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectSrchClick;
-  VTBXItem.Caption := VItem.GetCaption;
-  
-  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderWikiMapiaGUID);
-  VTBXItem := TBXSelectWikiMapiaSrch;
-  VTBEditItem := tbiEditWikiMapiaSrch;
-
-  VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
-  VTBEditItem.EditCaption := VItem.GetCaption;
-  VTBEditItem.Caption := VItem.GetCaption;
-  VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectSrchClick;
-  VTBXItem.Caption := VItem.GetCaption;
-
-  
-  VItem := FConfig.MainGeoCoderConfig.GetList.Get(CGeoCoderRosreestrGUID);
-  VTBXItem := TBXSelectRosreestrSrch;
-  VTBEditItem := tbiEditRosreestrSrch;
-
-  VTBEditItem.Tag := Integer(VItem);
-  VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
-  VTBEditItem.EditCaption := VItem.GetCaption;
-  VTBEditItem.Caption := VItem.GetCaption;
-  VTBXItem.Tag := Integer(VItem);
-  VTBXItem.OnClick := Self.TBXSelectSrchClick;
-  VTBXItem.Caption := VItem.GetCaption;
-
+    VTBEditItem := TTBEditItem.Create(Self);
+    VTBEditItem.EditCaption := VItem.GetCaption;
+    VTBEditItem.Caption := VItem.GetCaption;
+    VTBEditItem.EditWidth := 150;
+    VTBEditItem.Hint := '';
+    VTBEditItem.Tag := Integer(VItem);
+    VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
+    TBGoTo.Add(VTBEditItem);
+  end;
 end;
 
 procedure TfrmMain.CreateLangMenu;

@@ -105,44 +105,6 @@ object frmMain: TfrmMain
         OnClick = TBSubmenuItem1Click
         Caption = ''
         Hint = 'Go to'
-        object tbiEditYandexSrch: TTBEditItem
-          EditCaption = 'Yandex'
-          Caption = 'Yandex'
-          Hint = ''
-          EditCaption = 'Yandex'
-        end
-        object tbiEditGoogleSrch: TTBEditItem
-          EditCaption = 'Google'
-          EditWidth = 150
-          Caption = 'Google'
-          Hint = ''
-          EditCaption = 'Google'
-        end
-        object tbiEdit2GISSrch: TTBEditItem
-          EditCaption = '2GIS'
-          EditWidth = 150
-          Caption = '2GIS'
-          Hint = ''
-          EditCaption = '2GIS'
-        end
-        object tbiEditOSMSrch: TTBEditItem
-          EditCaption = 'OSM'
-          Caption = 'OSM'
-          Hint = ''
-          EditCaption = 'OSM'
-        end
-        object tbiEditWikiMapiaSrch: TTBEditItem
-          EditCaption = 'WikiMapia'
-          Caption = 'WikiMapia'
-          Hint = ''
-          EditCaption = 'WikiMapia'
-        end
-        object tbiEditRosreestrSrch: TTBEditItem
-          EditCaption = 'Rosreestr'
-          Caption = 'Rosreestr'
-          Hint = ''
-          EditCaption = 'Rosreestr'
-        end
       end
       object TBXSeparatorItem5: TTBXSeparatorItem
         Caption = ''
@@ -158,7 +120,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 242
+      Left = 238
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -190,7 +152,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 369
+      Left = 365
       Top = 25
       DockPos = 363
       DockRow = 1
@@ -201,7 +163,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 540
+      Left = 536
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -1139,42 +1101,6 @@ object frmMain: TfrmMain
         Options = [tboDropdownArrow, tboNoRotation]
         Caption = 'Google'
         Hint = ''
-        object TBXSelectYandexSrch: TTBXItem
-          GroupIndex = 1
-          RadioItem = True
-          Caption = 'Yandex'
-          Hint = ''
-        end
-        object TBXSelectGoogleSrch: TTBXItem
-          GroupIndex = 1
-          RadioItem = True
-          Caption = 'Google'
-          Hint = ''
-        end
-        object TBXSelect2GISSrch: TTBXItem
-          GroupIndex = 1
-          RadioItem = True
-          Caption = '2GIS'
-          Hint = ''
-        end
-        object TBXSelectOSMSrch: TTBXItem
-          GroupIndex = 1
-          RadioItem = True
-          Caption = 'OSM'
-          Hint = ''
-        end
-        object TBXSelectWikiMapiaSrch: TTBXItem
-          GroupIndex = 1
-          RadioItem = True
-          Caption = 'WikiMapia'
-          Hint = ''
-        end
-        object TBXSelectRosreestrSrch: TTBXItem
-          GroupIndex = 1
-          RadioItem = True
-          Caption = 'Rosreestr'
-          Hint = ''
-        end
       end
       object tbiSearch: TTBXComboBoxItem
         EditCaption = 'Search'
@@ -1371,7 +1297,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 170
-        Height = 549
+        Height = 551
         Align = alClient
         AutoSize = True
         BevelOuter = bvNone
@@ -1386,7 +1312,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 9
           Width = 170
-          Height = 540
+          Height = 542
           HorzScrollBar.Visible = False
           VertScrollBar.Smooth = True
           VertScrollBar.Tracking = True
