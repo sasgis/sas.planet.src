@@ -149,7 +149,7 @@ begin
       end else begin
         FLastTile := Point(p_x shr 8, p_y shr 8);
         VConverter := CreateConverterForTileImage(FLastTile);
-        PrepareTileBitmap(btmm, VConverter);
+        PrepareTileBitmap(btmm, VConverter, FBackGroundColor);
       end;
       if (p_x + 256) > FCurrentPieceRect.Right then begin
         Aex := ex;

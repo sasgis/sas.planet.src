@@ -51,7 +51,8 @@ type
     function CreateConverterForTileImage(ATile: TPoint): ILocalCoordConverter;
     procedure PrepareTileBitmap(
       ATargetBitmap: TCustomBitmap32;
-      AConverter: ILocalCoordConverter
+      AConverter: ILocalCoordConverter;
+      ABackGroundColor: TColor32
     );
     procedure ProgressFormUpdateOnProgress; virtual;
 
@@ -155,13 +156,16 @@ end;
 
 procedure TThreadMapCombineBase.PrepareTileBitmap(
   ATargetBitmap: TCustomBitmap32;
-  AConverter: ILocalCoordConverter
+  AConverter: ILocalCoordConverter;
+  ABackGroundColor: TColor32
 );
 var
-  VSize: TPoint;
+  VLoadResult: Boolean;
 begin
-  VSize := AConverter.GetLocalRectSize;
-  FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
+  VLoadResult := FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
+  if not VLoadResult then begin
+    ATargetBitmap.Clear(ABackGroundColor);
+  end;
   if FHTypeMap <> nil then begin
     FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
     FTempBitmap.DrawMode := dmBlend;
