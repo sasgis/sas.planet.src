@@ -75,7 +75,7 @@ begin
   FTTLListener.UpdateUseTime;
   VDownloader := FDownloader;
   if VDownloader = nil then begin
-    VDownloader := TTileDownloaderHttp.Create(FResultFactory);
+    VDownloader := TDownloaderHttp.Create(FResultFactory);
     FDownloader := VDownloader;
   end;
   Result := VDownloader.DoRequest(ARequest, ACancelNotifier, AOperationID);

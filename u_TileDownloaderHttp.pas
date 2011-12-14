@@ -41,7 +41,7 @@ uses
   i_DownloadChecker;
 
 type
-  TTileDownloaderHttp = class(TInterfacedObject, IDownloader)
+  TDownloaderHttp = class(TInterfacedObject, IDownloader)
   private
     FCS: TCriticalSection;
     FCancelListener: IJclListener;
@@ -76,7 +76,7 @@ type
     function IsDownloadError(ALastError: Cardinal): Boolean;
     function IsOkStatus(AStatusCode: Cardinal): Boolean;
     function IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean;
-    function IsTileNotExistStatus(AStatusCode: Cardinal): Boolean;
+    function IsContentNotExistStatus(AStatusCode: Cardinal): Boolean;
     procedure Disconnect;
     procedure OnCancelEvent;
     procedure DoGetRequest(ARequest: IDownloadRequest);
@@ -101,9 +101,9 @@ uses
   WinInet,
   u_NotifyEventListener;
 
-{ TTileDownloaderHttp }
+{ TDownloaderHttp }
 
-constructor TTileDownloaderHttp.Create(
+constructor TDownloaderHttp.Create(
   AResultFactory: IDownloadResultFactory
 );
 begin
@@ -116,7 +116,7 @@ begin
   FResultFactory := AResultFactory;
 end;
 
-destructor TTileDownloaderHttp.Destroy;
+destructor TDownloaderHttp.Destroy;
 begin
   Disconnect;
   FreeAndNil(FCS);
@@ -127,7 +127,7 @@ begin
   inherited;
 end;
 
-procedure TTileDownloaderHttp.DoGetRequest(ARequest: IDownloadRequest);
+procedure TDownloaderHttp.DoGetRequest(ARequest: IDownloadRequest);
 begin
   FHttpClient.Get(
     ARequest.Url,
@@ -136,7 +136,7 @@ begin
   );
 end;
 
-procedure TTileDownloaderHttp.DoHeadRequest(ARequest: IDownloadHeadRequest);
+procedure TDownloaderHttp.DoHeadRequest(ARequest: IDownloadHeadRequest);
 begin
   FHttpClient.Head(
     ARequest.Url,
@@ -145,7 +145,7 @@ begin
   );
 end;
 
-procedure TTileDownloaderHttp.DoPostRequest(ARequest: IDownloadPostRequest);
+procedure TDownloaderHttp.DoPostRequest(ARequest: IDownloadPostRequest);
 var
   VStream: TMemoryStream;
 begin
@@ -172,7 +172,7 @@ begin
   end;
 end;
 
-function TTileDownloaderHttp.DoRequest(
+function TDownloaderHttp.DoRequest(
   ARequest: IDownloadRequest;
   ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
@@ -240,14 +240,14 @@ begin
   end;
 end;
 
-procedure TTileDownloaderHttp.Disconnect;
+procedure TDownloaderHttp.Disconnect;
 begin
   if Assigned(FHttpClient) then begin
     FHttpClient.Disconnect;
   end;
 end;
 
-function TTileDownloaderHttp.OnBeforeRequest(
+function TDownloaderHttp.OnBeforeRequest(
   ARequest: IDownloadRequest;
   AResultFactory: IDownloadResultFactory
 ): IDownloadResult;
@@ -269,12 +269,12 @@ begin
   end;
 end;
 
-procedure TTileDownloaderHttp.OnCancelEvent;
+procedure TDownloaderHttp.OnCancelEvent;
 begin
   Disconnect;
 end;
 
-function TTileDownloaderHttp.OnHttpError(
+function TDownloaderHttp.OnHttpError(
   ARequest: IDownloadRequest;
   AResultFactory: IDownloadResultFactory;
   AStatusCode: Cardinal;
@@ -292,7 +292,7 @@ begin
   end;
 end;
 
-function TTileDownloaderHttp.OnOSError(
+function TDownloaderHttp.OnOSError(
   ARequest: IDownloadRequest;
   AResultFactory: IDownloadResultFactory;
   AErrorCode: Cardinal
@@ -318,7 +318,7 @@ begin
   end;
 end;
 
-function TTileDownloaderHttp.OnAfterResponse(
+function TDownloaderHttp.OnAfterResponse(
   ARequest: IDownloadRequest;
   AResultFactory: IDownloadResultFactory
 ): IDownloadResult;
@@ -367,7 +367,7 @@ begin
         ARequest,
         VStatusCode
       );
-    end else if IsTileNotExistStatus(VStatusCode) then begin
+    end else if IsContentNotExistStatus(VStatusCode) then begin
       Result := AResultFactory.BuildDataNotExistsByStatusCode(
         ARequest,
         VRawHeaderText,
@@ -382,7 +382,7 @@ begin
   end;
 end;
 
-procedure TTileDownloaderHttp.PreConfigHttpClient(
+procedure TDownloaderHttp.PreConfigHttpClient(
   const ARawHttpRequestHeader: string;
   AInetConfig: IInetConfigStatic
 );
@@ -427,7 +427,7 @@ begin
   end;
 end;
 
-function TTileDownloaderHttp.IsConnectError(ALastError: Cardinal): Boolean;
+function TDownloaderHttp.IsConnectError(ALastError: Cardinal): Boolean;
 begin
   case ALastError of
     ERROR_INTERNET_OUT_OF_HANDLES,
@@ -462,7 +462,7 @@ begin
   end;
 end;
 
-function TTileDownloaderHttp.IsDownloadError(ALastError: Cardinal): Boolean;
+function TDownloaderHttp.IsDownloadError(ALastError: Cardinal): Boolean;
 begin
   case ALastError of
     ERROR_INTERNET_EXTENDED_ERROR,
@@ -485,7 +485,7 @@ begin
   end;
 end;
 
-function TTileDownloaderHttp.IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean;
+function TDownloaderHttp.IsDownloadErrorStatus(AStatusCode: Cardinal): Boolean;
 begin
   case AStatusCode of
     HTTP_STATUS_SERVER_ERROR,
@@ -503,7 +503,7 @@ begin
   end;
 end;
 
-function TTileDownloaderHttp.IsOkStatus(AStatusCode: Cardinal): Boolean;
+function TDownloaderHttp.IsOkStatus(AStatusCode: Cardinal): Boolean;
 begin
   case AStatusCode of
     HTTP_STATUS_OK,
@@ -522,7 +522,7 @@ begin
   end;
 end;
 
-function TTileDownloaderHttp.IsTileNotExistStatus(AStatusCode: Cardinal): Boolean;
+function TDownloaderHttp.IsContentNotExistStatus(AStatusCode: Cardinal): Boolean;
 begin
   case AStatusCode of
     HTTP_STATUS_NO_CONTENT,
