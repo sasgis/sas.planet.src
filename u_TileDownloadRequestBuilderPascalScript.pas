@@ -30,6 +30,7 @@ uses
   uPSUtils,
   i_JclNotify,
   i_CoordConverter,
+  i_OperationNotifier,
   i_TileDownloaderConfig,
   i_TileRequest,
   i_DownloadChecker,
@@ -84,7 +85,9 @@ type
   protected
     function BuildRequest(
       ASource: ITileRequest;
-      ALastResponseInfo: ILastResponseInfo
+      ALastResponseInfo: ILastResponseInfo;
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
     ): ITileDownloadRequest; override;
   public
     constructor Create(
@@ -152,7 +155,9 @@ end;
 
 function TTileDownloadRequestBuilderPascalScript.BuildRequest(
   ASource: ITileRequest;
-  ALastResponseInfo: ILastResponseInfo
+  ALastResponseInfo: ILastResponseInfo;
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer
 ): ITileDownloadRequest;
 var
   VDownloaderConfig: ITileDownloaderConfigStatic;

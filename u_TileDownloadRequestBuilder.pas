@@ -26,6 +26,7 @@ uses
   Windows,
   SyncObjs,
   SysUtils,
+  i_OperationNotifier,
   i_TileRequest,
   i_TileDownloadRequestBuilder,
   i_LastResponseInfo,
@@ -43,7 +44,9 @@ type
   protected
     function BuildRequest(
       ASource: ITileRequest;
-      ALastResponseInfo: ILastResponseInfo
+      ALastResponseInfo: ILastResponseInfo;
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
     ): ITileDownloadRequest; virtual; abstract;
   public
     constructor Create(AConfig: ITileDownloadRequestBuilderConfig);

@@ -159,7 +159,9 @@ begin
                 try
                   VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(
                     ATileRequest,
-                    FLastResponseInfo
+                    FLastResponseInfo,
+                    FDestroyNotifier,
+                    FDestroyOperationID
                   );
                 except
                   on E: Exception do begin

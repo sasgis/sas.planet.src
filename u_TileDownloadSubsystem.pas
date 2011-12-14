@@ -233,7 +233,7 @@ begin
           );
         VDownloadRequest:= nil;
         if VRequest <> nil then begin
-          VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(VRequest, nil);
+          VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(VRequest, nil, nil, 0);
         end;
         if VDownloadRequest <> nil then begin
           Result := VDownloadRequest.Url;

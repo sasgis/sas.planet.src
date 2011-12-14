@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_OperationNotifier,
   i_TileRequest,
   i_LastResponseInfo,
   i_TileDownloadRequest;
@@ -33,7 +34,9 @@ type
     ['{3F65B989-F693-460B-AE98-FD1DAECEA04B}']
     function BuildRequest(
       ASource: ITileRequest;
-      ALastResponseInfo: ILastResponseInfo
+      ALastResponseInfo: ILastResponseInfo;
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
     ): ITileDownloadRequest;
   end;
 
