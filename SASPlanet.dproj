@@ -176,6 +176,7 @@
     <DCCReference Include="i_Datum.pas" />
     <DCCReference Include="i_DebugInfoWindow.pas" />
     <DCCReference Include="i_DownloadChecker.pas" />
+    <DCCReference Include="i_Downloader.pas" />
     <DCCReference Include="i_DownloadInfoSimple.pas" />
     <DCCReference Include="i_DownloadRequest.pas" />
     <DCCReference Include="i_DownloadResult.pas" />
@@ -293,7 +294,6 @@
     <DCCReference Include="i_SensorViewListGenerator.pas" />
     <DCCReference Include="i_ShortCutModalEdit.pas" />
     <DCCReference Include="i_ShortCutSingleConfig.pas" />
-    <DCCReference Include="i_SimpleDownloader.pas" />
     <DCCReference Include="i_SimpleFactory.pas" />
     <DCCReference Include="i_SimpleTileStorageConfig.pas" />
     <DCCReference Include="i_StartUpLogoConfig.pas" />

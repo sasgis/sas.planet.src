@@ -108,7 +108,7 @@ uses
   u_ThreadExportToAUX in 'RegionProcess\u_ThreadExportToAUX.pas',
   u_ThreadDeleteTiles in 'RegionProcess\u_ThreadDeleteTiles.pas',
   u_ThreadGenPrevZoom in 'RegionProcess\u_ThreadGenPrevZoom.pas',
-  i_SimpleDownloader in 'i_SimpleDownloader.pas',
+  i_Downloader in 'i_Downloader.pas',
   u_TileDownloaderHttp in 'u_TileDownloaderHttp.pas',
   u_UiTileDownload in 'u_UiTileDownload.pas',
   u_UITileDownloadList in 'u_UITileDownloadList.pas',

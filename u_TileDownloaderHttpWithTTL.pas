@@ -10,7 +10,7 @@ uses
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
-  i_SimpleDownloader,
+  i_Downloader,
   u_TileDownloaderHttp;
 
 type

@@ -32,7 +32,7 @@ uses
   ALWinInetHttpClient,
   i_JclNotify,
   i_OperationNotifier,
-  i_SimpleDownloader,
+  i_Downloader,
   i_InetConfig,
   i_ProxySettings,
   i_DownloadResult,

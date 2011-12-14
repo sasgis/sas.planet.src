@@ -8,7 +8,7 @@ uses
   i_JclNotify,
   i_OperationNotifier,
   i_LastResponseInfo,
-  i_SimpleDownloader,
+  i_Downloader,
   i_TileRequest,
   i_TileDownloadResultSaver,
   i_TileDownloaderConfig,

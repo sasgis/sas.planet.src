@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_SimpleDownloader;
+unit i_Downloader;
 
 interface
 
