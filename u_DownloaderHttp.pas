@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileDownloaderHttp;
+unit u_DownloaderHttp;
 
 interface
 

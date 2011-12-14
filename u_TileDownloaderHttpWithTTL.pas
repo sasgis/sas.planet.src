@@ -11,7 +11,7 @@ uses
   i_DownloadResult,
   i_DownloadResultFactory,
   i_Downloader,
-  u_TileDownloaderHttp;
+  u_DownloaderHttp;
 
 type
   TTileDownloaderHttpWithTTL = class(TInterfacedObject, IDownloader)

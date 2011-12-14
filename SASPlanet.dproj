@@ -522,6 +522,7 @@
     <DCCReference Include="u_Datum.pas" />
     <DCCReference Include="u_DebugInfoWindow.pas" />
     <DCCReference Include="u_DownloadCheckerStuped.pas" />
+    <DCCReference Include="u_DownloaderHttp.pas" />
     <DCCReference Include="u_DownloadInfoSimple.pas" />
     <DCCReference Include="u_DownloadResult.pas" />
     <DCCReference Include="u_DownloadResultFactory.pas" />
@@ -743,7 +744,6 @@
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="u_TileDownloaderConfig.pas" />
     <DCCReference Include="u_TileDownloaderConfigStatic.pas" />
-    <DCCReference Include="u_TileDownloaderHttp.pas" />
     <DCCReference Include="u_TileDownloaderHttpWithTTL.pas" />
     <DCCReference Include="u_TileDownloaderList.pas" />
     <DCCReference Include="u_TileDownloaderListStatic.pas" />
