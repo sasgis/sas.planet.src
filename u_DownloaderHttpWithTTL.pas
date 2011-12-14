@@ -1,4 +1,4 @@
-unit u_TileDownloaderHttpWithTTL;
+unit u_DownloaderHttpWithTTL;
 
 interface
 

@@ -215,7 +215,7 @@ uses
   i_TileDownloader in 'i_TileDownloader.pas',
   u_TileRequestQueueProcessorThread in 'u_TileRequestQueueProcessorThread.pas',
   u_TileDownloaderSimple in 'u_TileDownloaderSimple.pas',
-  u_TileDownloaderHttpWithTTL in 'u_TileDownloaderHttpWithTTL.pas',
+  u_DownloaderHttpWithTTL in 'u_DownloaderHttpWithTTL.pas',
   i_CoordConverter in 'i_CoordConverter.pas',
   u_CoordConverterAbstract in 'u_CoordConverterAbstract.pas',
   u_CoordConverterBasic in 'u_CoordConverterBasic.pas',

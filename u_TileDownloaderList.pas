@@ -56,7 +56,7 @@ uses
   u_NotifyEventListener,
   u_LastResponseInfo,
   u_TileDownloadRequestBuilderLazy,
-  u_TileDownloaderHttpWithTTL,
+  u_DownloaderHttpWithTTL,
   u_TileDownloaderSimple,
   u_TileDownloaderListStatic;
 
