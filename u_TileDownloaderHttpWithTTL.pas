@@ -14,14 +14,14 @@ uses
   u_TileDownloaderHttp;
 
 type
-  TTileDownloaderHttpWithTTL = class(TInterfacedObject, ISimpleDownloader)
+  TTileDownloaderHttpWithTTL = class(TInterfacedObject, IDownloader)
   private
     FResultFactory: IDownloadResultFactory;
     FGCList: ITTLCheckNotifier;
 
     FTTLListener: ITTLCheckListener;
 
-    FDownloader: ISimpleDownloader;
+    FDownloader: IDownloader;
     procedure OnTTLTrim(Sender: TObject);
   protected
     function DoRequest(
@@ -70,7 +70,7 @@ function TTileDownloaderHttpWithTTL.DoRequest(
   AOperationID: Integer
 ): IDownloadResult;
 var
-  VDownloader: ISimpleDownloader;
+  VDownloader: IDownloader;
 begin
   FTTLListener.UpdateUseTime;
   VDownloader := FDownloader;

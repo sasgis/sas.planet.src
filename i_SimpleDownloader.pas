@@ -29,7 +29,7 @@ uses
   i_DownloadRequest;
 
 type
-  ISimpleDownloader = interface
+  IDownloader = interface
     ['{08A98FF9-5EDE-4F6E-9D5B-351FBF4C05BE}']
     function DoRequest(
       ARequest: IDownloadRequest;

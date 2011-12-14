@@ -41,7 +41,7 @@ uses
   i_DownloadChecker;
 
 type
-  TTileDownloaderHttp = class(TInterfacedObject, ISimpleDownloader)
+  TTileDownloaderHttp = class(TInterfacedObject, IDownloader)
   private
     FCS: TCriticalSection;
     FCancelListener: IJclListener;

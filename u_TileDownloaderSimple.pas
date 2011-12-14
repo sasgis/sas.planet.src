@@ -21,7 +21,7 @@ type
   private
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloaderConfig: ITileDownloaderConfig;
-    FHttpDownloader: ISimpleDownloader;
+    FHttpDownloader: IDownloader;
     FResultSaver: ITileDownloadResultSaver;
     FAppClosingNotifier: IJclNotifier;
     FLastResponseInfo: ILastResponseInfo;
@@ -55,7 +55,7 @@ type
       AAppClosingNotifier: IJclNotifier;
       ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
       ATileDownloaderConfig: ITileDownloaderConfig;
-      AHttpDownloader: ISimpleDownloader;
+      AHttpDownloader: IDownloader;
       AResultSaver: ITileDownloadResultSaver;
       ALastResponseInfo: ILastResponseInfo
     );
@@ -79,7 +79,7 @@ constructor TTileDownloaderSimple.Create(
   AAppClosingNotifier: IJclNotifier;
   ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
   ATileDownloaderConfig: ITileDownloaderConfig;
-  AHttpDownloader: ISimpleDownloader;
+  AHttpDownloader: IDownloader;
   AResultSaver: ITileDownloadResultSaver;
   ALastResponseInfo: ILastResponseInfo
 );
