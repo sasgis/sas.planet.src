@@ -163,32 +163,36 @@ var
   VDownloaderConfig: ITileDownloaderConfigStatic;
 begin
   Result := nil;
-  Lock;
-  try
-    VDownloaderConfig := FTileDownloaderConfig.GetStatic;
-    SetVar(
-      ALastResponseInfo,
-      VDownloaderConfig,
-      ASource
-    );
+  if (ACancelNotifier <> nil) and (not ACancelNotifier.IsOperationCanceled(AOperationID)) then begin
+    Lock;
     try
-      FExec.RunScript;
-    except on E: Exception do
-      raise EPascalScriptRunError.Create(E.Message);
-    end;
-    if FpResultUrl.Data <> '' then begin
-      Result :=
-        TTileDownloadRequest.Create(
-          FpResultUrl.Data,
-          FpRequestHead.Data,
-          VDownloaderConfig.InetConfigStatic,
-          FCheker,
+      if (ACancelNotifier <> nil) and (not ACancelNotifier.IsOperationCanceled(AOperationID)) then begin
+        VDownloaderConfig := FTileDownloaderConfig.GetStatic;
+        SetVar(
+          ALastResponseInfo,
+          VDownloaderConfig,
           ASource
         );
+        try
+          FExec.RunScript;
+        except on E: Exception do
+          raise EPascalScriptRunError.Create(E.Message);
+        end;
+        if FpResultUrl.Data <> '' then begin
+          Result :=
+            TTileDownloadRequest.Create(
+              FpResultUrl.Data,
+              FpRequestHead.Data,
+              VDownloaderConfig.InetConfigStatic,
+              FCheker,
+              ASource
+            );
+        end;
+        FScriptBuffer := FpScriptBuffer.Data;
+      end;
+    finally
+      Unlock;
     end;
-    FScriptBuffer := FpScriptBuffer.Data;
-  finally
-    Unlock;
   end;
 end;
 

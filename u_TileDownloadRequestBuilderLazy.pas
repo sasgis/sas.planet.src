@@ -44,7 +44,7 @@ function TTileDownloadRequestBuilderLazy.BuildRequest(
 ): ITileDownloadRequest;
 begin
   Result := nil;
-  if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+  if (ACancelNotifier <> nil) and (not ACancelNotifier.IsOperationCanceled(AOperationID)) then begin
     if FFactory.State.GetStatic.Enabled then begin
       if FBuilder = nil then begin
         FBuilder := FFactory.BuildRequestBuilder;
