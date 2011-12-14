@@ -110,7 +110,7 @@ begin
       FAppClosingNotifier,
       TTileDownloadRequestBuilderLazy.Create(FRequestBuilderFactory),
       FTileDownloaderConfig,
-      TTileDownloaderHttpWithTTL.Create(
+      TDownloaderHttpWithTTL.Create(
         FGCList,
         FResultFactory
       ),

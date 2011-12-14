@@ -14,7 +14,7 @@ uses
   u_DownloaderHttp;
 
 type
-  TTileDownloaderHttpWithTTL = class(TInterfacedObject, IDownloader)
+  TDownloaderHttpWithTTL = class(TInterfacedObject, IDownloader)
   private
     FResultFactory: IDownloadResultFactory;
     FGCList: ITTLCheckNotifier;
@@ -42,9 +42,9 @@ implementation
 uses
   u_TTLCheckListener;
 
-{ TTileDownloaderHttpWithTTL }
+{ TDownloaderHttpWithTTL }
 
-constructor TTileDownloaderHttpWithTTL.Create(
+constructor TDownloaderHttpWithTTL.Create(
   AGCList: ITTLCheckNotifier;
   AResultFactory: IDownloadResultFactory
 );
@@ -56,7 +56,7 @@ begin
   FGCList.Add(FTTLListener);
 end;
 
-destructor TTileDownloaderHttpWithTTL.Destroy;
+destructor TDownloaderHttpWithTTL.Destroy;
 begin
   FGCList.Remove(FTTLListener);
   FTTLListener := nil;
@@ -64,7 +64,7 @@ begin
   inherited;
 end;
 
-function TTileDownloaderHttpWithTTL.DoRequest(
+function TDownloaderHttpWithTTL.DoRequest(
   ARequest: IDownloadRequest;
   ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
@@ -82,7 +82,7 @@ begin
   FTTLListener.UpdateUseTime;
 end;
 
-procedure TTileDownloaderHttpWithTTL.OnTTLTrim(Sender: TObject);
+procedure TDownloaderHttpWithTTL.OnTTLTrim(Sender: TObject);
 begin
   FDownloader := nil;
 end;
