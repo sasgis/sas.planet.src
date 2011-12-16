@@ -25,48 +25,25 @@ interface
 uses
   SysUtils,
   t_GeoTypes,
+  vsagps_public_base,
+  vsagps_public_position,
   i_GPS;
 
 type
   TGPSPositionStatic = class(TInterfacedObject, IGPSPosition)
   private
-    FPosition: TDoublePoint;
-    FAltitude: Double;
-    FSpeed_KMH: Double;
-    FHeading: Double;
-    FUTCDateTime: TDateTime;
-    FLocalDateTime: TDateTime;
-    FIsFix: Word;
-    FHDOP: Double;
-    FVDOP: Double;
-    FPDOP: Double;
+    FSingleGPSData: TSingleGPSData;
     FSatellites: IGPSSatellitesInView;
   protected
-    function GetPosition: TDoublePoint; stdcall;
-    function GetAltitude: Double; stdcall;
-    function GetSpeed_KMH: Double; stdcall;
-    function GetHeading: Double; stdcall;
-    function GetUTCDateTime: TDateTime; stdcall;
-    function GetLocalDateTime: TDateTime; stdcall;
-    function GetIsFix: Word; stdcall;
-    function GetHDOP: Double; stdcall;
-    function GetVDOP: Double; stdcall;
-    function GetPDOP: Double; stdcall;
+    function GetPosParams: PSingleGPSData; stdcall;
+
+    function GetTracksParams(var pPos: PSingleGPSData;
+                             var pSatFixAll: PVSAGPS_FIX_ALL): Boolean; stdcall;
+
     function GetSatellites: IGPSSatellitesInView; stdcall;
   public
-    constructor Create(
-      APosition: TDoublePoint;
-      AAltitude: Double;
-      ASpeed_KMH: Double;
-      AHeading: Double;
-      AUTCDateTime: TDateTime;
-      ALocalDateTime: TDateTime;
-      AIsFix: Word;
-      AHDOP: Double;
-      AVDOP: Double;
-      APDOP: Double;
-      ASatellites: IGPSSatellitesInView
-    );
+    constructor Create(const ASingleGPSData: PSingleGPSData;
+                       ASatellites: IGPSSatellitesInView);
     destructor Destroy; override;
   end;
 
@@ -74,21 +51,14 @@ implementation
 
 { TGPSPosition }
 
-constructor TGPSPositionStatic.Create(
-  APosition: TDoublePoint; AAltitude, ASpeed_KMH, AHeading: Double;
-  AUTCDateTime, ALocalDateTime: TDateTime; AIsFix: Word; AHDOP, AVDOP,
-  APDOP: Double; ASatellites: IGPSSatellitesInView);
+constructor TGPSPositionStatic.Create(const ASingleGPSData: PSingleGPSData;
+                                      ASatellites: IGPSSatellitesInView);
 begin
-  FPosition := APosition;
-  FAltitude := AAltitude;
-  FSpeed_KMH := ASpeed_KMH;
-  FHeading := AHeading;
-  FUTCDateTime := AUTCDateTime;
-  FLocalDateTime := ALocalDateTime;
-  FIsFix := AIsFix;
-  FHDOP := AHDOP;
-  FVDOP := AVDOP;
-  FPDOP := APDOP;
+  if (nil=ASingleGPSData) then
+    InitSingleGPSData(@FSingleGPSData)
+  else
+    FSingleGPSData:=ASingleGPSData^;
+    
   FSatellites := ASatellites;
 end;
 
@@ -98,39 +68,9 @@ begin
   inherited;
 end;
 
-function TGPSPositionStatic.GetAltitude: Double;
+function TGPSPositionStatic.GetPosParams: PSingleGPSData;
 begin
-  Result := FAltitude;
-end;
-
-function TGPSPositionStatic.GetHDOP: Double;
-begin
-  Result := FHDOP;
-end;
-
-function TGPSPositionStatic.GetHeading: Double;
-begin
-  Result := FHeading;
-end;
-
-function TGPSPositionStatic.GetIsFix: Word;
-begin
-  Result := FIsFix;
-end;
-
-function TGPSPositionStatic.GetLocalDateTime: TDateTime;
-begin
-  Result := FLocalDateTime;
-end;
-
-function TGPSPositionStatic.GetPDOP: Double;
-begin
-  Result := FPDOP;
-end;
-
-function TGPSPositionStatic.GetPosition: TDoublePoint;
-begin
-  Result := FPosition;
+  Result := @FSingleGPSData;
 end;
 
 function TGPSPositionStatic.GetSatellites: IGPSSatellitesInView;
@@ -138,19 +78,15 @@ begin
   Result := FSatellites;
 end;
 
-function TGPSPositionStatic.GetSpeed_KMH: Double;
+function TGPSPositionStatic.GetTracksParams(var pPos: PSingleGPSData;
+                                            var pSatFixAll: PVSAGPS_FIX_ALL): Boolean;
 begin
-  Result := FSpeed_KMH;
-end;
-
-function TGPSPositionStatic.GetUTCDateTime: TDateTime;
-begin
-  Result := FUTCDateTime;
-end;
-
-function TGPSPositionStatic.GetVDOP: Double;
-begin
-  Result := FVDOP;
+  Result:=TRUE;
+  pPos := @FSingleGPSData;
+  if Assigned(FSatellites) then
+    pSatFixAll:=FSatellites.GetFixedSats
+  else
+    pSatFixAll:=nil;
 end;
 
 end.

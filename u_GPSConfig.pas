@@ -27,6 +27,7 @@ uses
   i_ConfigDataWriteProvider,
   i_GPSModuleByCOMPortConfig,
   i_GPSConfig,
+  vsagps_public_tracks,
   u_ConfigDataElementComplexBase;
 
 type
@@ -34,12 +35,16 @@ type
   private
     FGPSEnabled: Boolean;
     FNoDataTimeOut: Integer;
-    FWriteLog: Boolean;
+    FWriteLogs: array [TVSAGPS_TrackType] of Boolean;
     FLogPath: WideString;
     FModuleConfig: IGPSModuleByCOMPortConfig;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure InternalApplyLogWrite(const AValues: Byte);
+    function InternalGetLogWriteAsInt: Byte;
+    procedure InternalSetWriteLogValue(const ATrackTypes: TVSAGPS_TrackTypes; const AValue: Boolean);
+    function InternalGetWriteLogValue(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
   protected
     function GetGPSEnabled: Boolean;
     procedure SetGPSEnabled(const AValue: Boolean);
@@ -47,11 +52,14 @@ type
     function GetNoDataTimeOut: Integer;
     procedure SetNoDataTimeOut(const AValue: Integer);
 
-    function GetWriteLog: Boolean;
-    procedure SetWriteLog(const AValue: Boolean);
+    function GetWriteLog(const ATrackType: TVSAGPS_TrackType): Boolean;
+    procedure SetWriteLog(const ATrackType: TVSAGPS_TrackType; const AValue: Boolean);
 
     function GetLogPath: WideString;
     function GetModuleConfig: IGPSModuleByCOMPortConfig;
+
+    function AllowWriteLog(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
+    procedure AbortWriteLog(const ATrackTypes: TVSAGPS_TrackTypes);
   public
     constructor Create(ALogPath: string);
   end;
@@ -64,13 +72,34 @@ uses
 
 { TGPSConfig }
 
+procedure TGPSConfig.AbortWriteLog(const ATrackTypes: TVSAGPS_TrackTypes);
+begin
+  LockWrite;
+  try
+    InternalSetWriteLogValue(ATrackTypes, FALSE);
+    SetChanged;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TGPSConfig.AllowWriteLog(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
+begin
+  LockRead;
+  try
+    Result:=InternalGetWriteLogValue(ATrackTypes);
+  finally
+    UnlockRead;
+  end;
+end;
+
 constructor TGPSConfig.Create(ALogPath: string);
 begin
   inherited Create;
   FLogPath := ALogPath;
   FGPSEnabled := False;
-  FWriteLog := True;
-  FNoDataTimeOut := 5000;  
+  InternalApplyLogWrite(0);
+  FNoDataTimeOut := 5000;
   FModuleConfig := TGPSModuleByCOMPortConfig.Create(FLogPath);
   Add(FModuleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Module'));
 end;
@@ -81,7 +110,7 @@ begin
   if AConfigData <> nil then begin
     FGPSEnabled := AConfigData.ReadBool('Enabled', FGPSEnabled);
     FNoDataTimeOut := AConfigData.ReadInteger('NoDataTimeOut', FNoDataTimeOut);
-    FWriteLog := AConfigData.ReadBool('LogWrite', FWriteLog);
+    InternalApplyLogWrite(AConfigData.ReadInteger('LogWrite', 0));
     SetChanged;
   end;
 end;
@@ -90,7 +119,7 @@ procedure TGPSConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('Enabled', FGPSEnabled);
-  AConfigData.WriteBool('LogWrite', FWriteLog);
+  AConfigData.WriteInteger('LogWrite', InternalGetLogWriteAsInt);
   AConfigData.WriteInteger('NoDataTimeOut', FNoDataTimeOut);
 end;
 
@@ -124,13 +153,51 @@ begin
   end;
 end;
 
-function TGPSConfig.GetWriteLog: Boolean;
+function TGPSConfig.GetWriteLog(const ATrackType: TVSAGPS_TrackType): Boolean;
 begin
   LockRead;
   try
-    Result := FWriteLog;
+    Result := FWriteLogs[ATrackType];
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TGPSConfig.InternalApplyLogWrite(const AValues: Byte);
+var VTrackTypes: TVSAGPS_TrackTypes;
+begin
+  VTrackTypes:=TVSAGPS_TrackTypes(AValues);
+  InternalSetWriteLogValue(VTrackTypes, TRUE);
+end;
+
+function TGPSConfig.InternalGetLogWriteAsInt: Byte;
+var VTrackTypes: TVSAGPS_TrackTypes;
+begin
+  InternalGetWriteLogValue(VTrackTypes);
+  Result:=Byte(VTrackTypes);
+end;
+
+function TGPSConfig.InternalGetWriteLogValue(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
+var i: TVSAGPS_TrackType;
+begin
+  Result := FALSE;
+  ATrackTypes := [];
+  // add enabled items
+  for i := Low(TVSAGPS_TrackType) to High(TVSAGPS_TrackType) do
+  if FWriteLogs[i] then begin
+    Result := TRUE;
+    System.Include(ATrackTypes, i);
+  end;
+end;
+
+procedure TGPSConfig.InternalSetWriteLogValue(const ATrackTypes: TVSAGPS_TrackTypes; const AValue: Boolean);
+var i: TVSAGPS_TrackType;
+begin
+  for i := Low(TVSAGPS_TrackType) to High(TVSAGPS_TrackType) do begin
+    if (i in ATrackTypes) then
+      FWriteLogs[i]:=AValue
+    else if AValue then
+      FWriteLogs[i]:=FALSE;
   end;
 end;
 
@@ -160,12 +227,12 @@ begin
   end;
 end;
 
-procedure TGPSConfig.SetWriteLog(const AValue: Boolean);
+procedure TGPSConfig.SetWriteLog(const ATrackType: TVSAGPS_TrackType; const AValue: Boolean);
 begin
   LockWrite;
   try
-    if FWriteLog <> AValue then begin
-      FWriteLog := AValue;
+    if FWriteLogs[ATrackType] <> AValue then begin
+      FWriteLogs[ATrackType] := AValue;
       SetChanged;
     end;
   finally

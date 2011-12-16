@@ -25,40 +25,43 @@ interface
 uses
   ActiveX,
   t_GeoTypes,
+  vsagps_public_base,
+  vsagps_public_position,
+  vsagps_public_events,
   i_GPS;
 
 type
   IGPSPositionFactory = interface
     ['{542F6E48-EC4E-4C8D-9A53-8B392B0E8EA6}']
     function BuildSatelliteInfo(
-      const APseudoRandomCode: Integer;
-      const AElevation: Integer;
-      const AAzimuth: Integer;
-      const ASignalToNoiseRatio: Integer;
-      const AIsFix: Boolean
+      const AData: PSingleSatFixibilityData;
+      const ASky: PSingleSatSkyData
     ): IGPSSatelliteInfo;
 
     function BuildSatellitesInViewEmpty: IGPSSatellitesInView;
+    
     function BuildSatellitesInView(
-      const AFixCount: Integer;
-      const AItemsCount: Integer;
-      const AItems: PUnknownList
+      const AItemsCountGP: Integer;
+      const AItemsGP: PUnknownList;
+      const AItemsCountGL: Integer;
+      const AItemsGL: PUnknownList
     ): IGPSSatellitesInView;
 
     function BuildPositionEmpty: IGPSPosition;
     function BuildPosition(
-      const APosition: TDoublePoint;
-      const AAltitude: Double;
-      const ASpeed_KMH: Double;
-      const AHeading: Double;
-      const AUTCDateTime: TDateTime;
-      const ALocalDateTime: TDateTime;
-      const AIsFix: Word;
-      const AHDOP: Double;
-      const AVDOP: Double;
-      const APDOP: Double;
+      const FSingleGPSData: PSingleGPSData;
       const ASatellites: IGPSSatellitesInView
     ): IGPSPosition;
+
+    function ExecuteGPSCommand(Sender: TObject;
+                               const AUnitIndex: Byte;
+                               const ACommand: LongInt;
+                               const APointer: Pointer): String;
+    procedure SetExecuteGPSCommandHandler(AExecuteGPSCommandEvent: TExecuteGPSCommandEvent);
+
+    procedure SetGPSUnitInfoChangedHandler(AGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event);
+    function GetGPSUnitInfoChangedHandler: TVSAGPS_UNIT_INFO_Changed_Event;
+    property GPSUnitInfoChangedHandler: TVSAGPS_UNIT_INFO_Changed_Event read GetGPSUnitInfoChangedHandler write SetGPSUnitInfoChangedHandler;
   end;
 
 implementation

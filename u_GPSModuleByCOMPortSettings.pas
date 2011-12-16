@@ -23,32 +23,42 @@ unit u_GPSModuleByCOMPortSettings;
 interface
 
 uses
+  Windows,
   i_GPSModuleByCOMPortSettings;
 
 type
   TGPSModuleByCOMPortSettings = class(TInterfacedObject, IGPSModuleByCOMPortSettings)
   private
-    FPort: Integer;
-    FBaudRate: Integer;
-    FConnectionTimeout: Integer;
-    FDelay: Integer;
+    FPort: DWORD;
+    FBaudRate: DWORD;
+    FConnectionTimeout: DWORD;
+    FDelay: DWORD;
     FNMEALog: Boolean;
     FLogPath: WideString;
+    FUSBGarmin: Boolean;
+    FAutodetectCOMOnConnect: Boolean;
+    FAutodetectCOMFlags: DWORD;
   protected
-    function GetPort: Integer; safecall;
-    function GetBaudRate: Integer; safecall;
-    function GetConnectionTimeout: Integer; safecall;
-    function GetDelay: Integer; safecall;
+    function GetPort: DWORD; safecall;
+    function GetBaudRate: DWORD; safecall;
+    function GetConnectionTimeout: DWORD; safecall;
+    function GetDelay: DWORD; safecall;
     function GetNMEALog: Boolean; safecall;
     function GetLogPath: WideString; safecall;
+    function GetUSBGarmin: Boolean; safecall;
+    function GetAutodetectCOMOnConnect: Boolean; safecall;
+    function GetAutodetectCOMFlags: DWORD; safecall;
   public
     constructor Create(
-      APort: Integer;
-      ABaudRate: Integer;
-      AConnectionTimeout: Integer;
-      ADelay: Integer;
-      ANMEALog: Boolean;
-      ALogPath: WideString
+      const APort: DWORD;
+      const ABaudRate: DWORD;
+      const AConnectionTimeout: DWORD;
+      const ADelay: DWORD;
+      const ANMEALog: Boolean;
+      const ALogPath: WideString;
+      const AUSBGarmin: Boolean;
+      const AAutodetectCOMOnConnect: Boolean;
+      const AAutodetectCOMFlags: DWORD
     );
   end;
 
@@ -57,12 +67,15 @@ implementation
 { TGPSModuleByCOMPortSettings }
 
 constructor TGPSModuleByCOMPortSettings.Create(
-  APort,
-  ABaudRate,
-  AConnectionTimeout,
-  ADelay: Integer;
-  ANMEALog: Boolean;
-  ALogPath: WideString
+  const APort: DWORD;
+  const ABaudRate: DWORD;
+  const AConnectionTimeout: DWORD;
+  const ADelay: DWORD;
+  const ANMEALog: Boolean;
+  const ALogPath: WideString;
+  const AUSBGarmin: Boolean;
+  const AAutodetectCOMOnConnect: Boolean;
+  const AAutodetectCOMFlags: DWORD
 );
 begin
   inherited Create;
@@ -72,19 +85,32 @@ begin
   FDelay := ADelay;
   FNMEALog := ANMEALog;
   FLogPath := ALogPath;
+  FUSBGarmin := AUSBGarmin;
+  FAutodetectCOMOnConnect := AAutodetectCOMOnConnect;
+  FAutodetectCOMFlags := AAutodetectCOMFlags;
 end;
 
-function TGPSModuleByCOMPortSettings.GetBaudRate: Integer;
+function TGPSModuleByCOMPortSettings.GetAutodetectCOMFlags: DWORD;
+begin
+  Result := FAutodetectCOMFlags;
+end;
+
+function TGPSModuleByCOMPortSettings.GetAutodetectCOMOnConnect: Boolean;
+begin
+  Result := FAutodetectCOMOnConnect;
+end;
+
+function TGPSModuleByCOMPortSettings.GetBaudRate: DWORD;
 begin
   Result := FBaudRate;
 end;
 
-function TGPSModuleByCOMPortSettings.GetConnectionTimeout: Integer;
+function TGPSModuleByCOMPortSettings.GetConnectionTimeout: DWORD;
 begin
   Result := FConnectionTimeout;
 end;
 
-function TGPSModuleByCOMPortSettings.GetDelay: Integer;
+function TGPSModuleByCOMPortSettings.GetDelay: DWORD;
 begin
   Result := FDelay;
 end;
@@ -99,9 +125,14 @@ begin
   Result := FNMEALog;
 end;
 
-function TGPSModuleByCOMPortSettings.GetPort: Integer;
+function TGPSModuleByCOMPortSettings.GetPort: DWORD;
 begin
   Result := FPort;
+end;
+
+function TGPSModuleByCOMPortSettings.GetUSBGarmin: Boolean;
+begin
+  Result := FUSBGarmin;
 end;
 
 end.

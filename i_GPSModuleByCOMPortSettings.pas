@@ -22,26 +22,38 @@ unit i_GPSModuleByCOMPortSettings;
 
 interface
 
+uses
+  Windows;
+
 type
   IGPSModuleByCOMPortSettings = interface
     ['{1E9AF59D-8988-4747-9952-5D17A0B0DB33}']
-    function GetPort: Integer; safecall;
-    property Port: Integer read GetPort;
+    function GetPort: DWORD; safecall;
+    property Port: DWORD read GetPort;
 
-    function GetBaudRate: Integer; safecall;
-    property BaudRate: Integer read GetBaudRate;
+    function GetBaudRate: DWORD; safecall;
+    property BaudRate: DWORD read GetBaudRate;
 
-    function GetConnectionTimeout: Integer; safecall;
-    property ConnectionTimeout: Integer read GetConnectionTimeout;
+    function GetConnectionTimeout: DWORD; safecall;
+    property ConnectionTimeout: DWORD read GetConnectionTimeout;
 
-    function GetDelay: Integer; safecall;
-    property Delay: Integer read GetDelay;
+    function GetDelay: DWORD; safecall;
+    property Delay: DWORD read GetDelay;
 
     function GetNMEALog: Boolean; safecall;
     property NMEALog: Boolean read GetNMEALog;
 
     function GetLogPath: WideString; safecall;
     property LogPath: WideString read GetLogPath;
+
+    function GetUSBGarmin: Boolean; safecall;
+    property USBGarmin: Boolean read GetUSBGarmin;
+
+    function GetAutodetectCOMOnConnect: Boolean; safecall;
+    property AutodetectCOMOnConnect: Boolean read GetAutodetectCOMOnConnect;
+
+    function GetAutodetectCOMFlags: DWORD; safecall;
+    property AutodetectCOMFlags: DWORD read GetAutodetectCOMFlags;
   end;
 
 implementation

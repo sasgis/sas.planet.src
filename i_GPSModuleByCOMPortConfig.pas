@@ -23,27 +23,28 @@ unit i_GPSModuleByCOMPortConfig;
 interface
 
 uses
+  Windows,
   i_GPSModuleByCOMPortSettings,
   i_ConfigDataElement;
 
 type
   IGPSModuleByCOMPortConfig = interface(IConfigDataElement)
     ['{75AC2DE2-4C88-4A0C-A1D1-D99E51995C78}']
-    function GetPort: Integer;
-    procedure SetPort(const AValue: Integer);
-    property Port: Integer read GetPort write SetPort;
+    function GetPort: DWORD;
+    procedure SetPort(const AValue: DWORD);
+    property Port: DWORD read GetPort write SetPort;
 
-    function GetBaudRate: Integer;
-    procedure SetBaudRate(const AValue: Integer);
-    property BaudRate: Integer read GetBaudRate write SetBaudRate;
+    function GetBaudRate: DWORD;
+    procedure SetBaudRate(const AValue: DWORD);
+    property BaudRate: DWORD read GetBaudRate write SetBaudRate;
 
-    function GetConnectionTimeout: Integer;
-    procedure SetConnectionTimeout(const AValue: Integer);
-    property ConnectionTimeout: Integer read GetConnectionTimeout write SetConnectionTimeout;
+    function GetConnectionTimeout: DWORD;
+    procedure SetConnectionTimeout(const AValue: DWORD);
+    property ConnectionTimeout: DWORD read GetConnectionTimeout write SetConnectionTimeout;
 
-    function GetDelay: Integer;
-    procedure SetDelay(const AValue: Integer);
-    property Delay: Integer read GetDelay write SetDelay;
+    function GetDelay: DWORD;
+    procedure SetDelay(const AValue: DWORD);
+    property Delay: DWORD read GetDelay write SetDelay;
 
     function GetNMEALog: Boolean;
     procedure SetNMEALog(const AValue: Boolean);
@@ -53,6 +54,18 @@ type
     property LogPath: WideString read GetLogPath;
 
     function GetStatic: IGPSModuleByCOMPortSettings;
+
+    function GetUSBGarmin: Boolean;
+    procedure SetUSBGarmin(const AValue: Boolean);
+    property USBGarmin: Boolean read GetUSBGarmin write SetUSBGarmin;
+
+    function GetAutodetectCOMOnConnect: Boolean;
+    procedure SetAutodetectCOMOnConnect(const AValue: Boolean);
+    property AutodetectCOMOnConnect: Boolean read GetAutodetectCOMOnConnect write SetAutodetectCOMOnConnect;
+
+    function GetAutodetectCOMFlags: DWORD;
+    procedure SetAutodetectCOMFlags(const AValue: DWORD);
+    property AutodetectCOMFlags: DWORD read GetAutodetectCOMFlags write SetAutodetectCOMFlags;
   end;
 
 implementation
