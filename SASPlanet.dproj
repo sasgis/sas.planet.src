@@ -523,6 +523,7 @@
     <DCCReference Include="u_Datum.pas" />
     <DCCReference Include="u_DebugInfoWindow.pas" />
     <DCCReference Include="u_DownloadCheckerStuped.pas" />
+    <DCCReference Include="u_DownloaderFaked.pas" />
     <DCCReference Include="u_DownloaderHttp.pas" />
     <DCCReference Include="u_DownloaderHttpWithTTL.pas" />
     <DCCReference Include="u_DownloadInfoSimple.pas" />

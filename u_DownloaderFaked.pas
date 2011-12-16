@@ -1,0 +1,44 @@
+unit u_DownloaderFaked;
+
+interface
+
+uses
+  i_OperationNotifier,
+  i_DownloadRequest,
+  i_DownloadResult,
+  i_DownloadResultFactory,
+  i_Downloader;
+
+type
+  TDownloaderFaked = class(TInterfacedObject, IDownloader)
+  private
+    FResultFactory: IDownloadResultFactory;
+  protected
+    function DoRequest(
+      ARequest: IDownloadRequest;
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
+    ): IDownloadResult;
+  public
+    constructor Create(
+      AResultFactory: IDownloadResultFactory
+    );
+  end;
+
+implementation
+
+
+{ TDownloaderFaked }
+
+constructor TDownloaderFaked.Create(AResultFactory: IDownloadResultFactory);
+begin
+  FResultFactory := AResultFactory;
+end;
+
+function TDownloaderFaked.DoRequest(ARequest: IDownloadRequest;
+  ACancelNotifier: IOperationNotifier; AOperationID: Integer): IDownloadResult;
+begin
+  Result := FResultFactory.BuildCanceled(ARequest);
+end;
+
+end.
