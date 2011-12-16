@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_GPSModuleFactoryByZylGPS;
+unit u_GPSModuleFactoryByVSAGPS;
 
 interface
 
@@ -28,7 +28,7 @@ uses
   i_GPSModuleByCOMFactory;
 
 type
-  TGPSModuleFactoryByZylGPS = class(TInterfacedObject, IGPSModuleByCOMFactory)
+  TGPSModuleFactoryByVSAGPS = class(TInterfacedObject, IGPSModuleByCOMFactory)
   private
     FGPSPositionFactory: IGPSPositionFactory;
   protected
@@ -40,19 +40,19 @@ type
 implementation
 
 uses
-  u_GPSModuleByZylGPS;
+  u_GPSModuleByVSAGPS;
 
 { TGPSModuleFactoryByZylGPS }
 
-constructor TGPSModuleFactoryByZylGPS.Create(
+constructor TGPSModuleFactoryByVSAGPS.Create(
   AGPSPositionFactory: IGPSPositionFactory);
 begin
   FGPSPositionFactory := AGPSPositionFactory;
 end;
 
-function TGPSModuleFactoryByZylGPS.CreateGPSModule: IGPSModuleByCOM;
+function TGPSModuleFactoryByVSAGPS.CreateGPSModule: IGPSModuleByCOM;
 begin
-  Result := TGPSModuleByZylGPS.Create(FGPSPositionFactory);
+  Result := TGPSModuleByVSAGPS.Create(FGPSPositionFactory);
 end;
 
 end.
