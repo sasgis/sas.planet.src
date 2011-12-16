@@ -9,6 +9,7 @@ uses
   i_ConfigDataProvider,
   i_CoordConverter,
   i_LanguageManager,
+  i_Downloader,
   i_DownloadChecker,
   i_TileDownloaderConfig,
   i_TileDownloaderState,
@@ -35,7 +36,7 @@ type
     procedure PreparePascalScript(APascalScript: string);
   protected
     function GetState: ITileDownloaderStateChangeble;
-    function BuildRequestBuilder: ITileDownloadRequestBuilder;
+    function BuildRequestBuilder(ADownloader: IDownloader): ITileDownloadRequestBuilder;
   public
     constructor Create(
       AScriptText: string;
@@ -95,7 +96,9 @@ begin
   Result := FState;
 end;
 
-function TTileDownloadRequestBuilderFactoryPascalScript.BuildRequestBuilder: ITileDownloadRequestBuilder;
+function TTileDownloadRequestBuilderFactoryPascalScript.BuildRequestBuilder(
+  ADownloader: IDownloader
+): ITileDownloadRequestBuilder;
 begin
   Result := nil;
   if FStateInternal.Enabled then begin
@@ -127,6 +130,7 @@ begin
           FCompiledData,
           FConfig,
           FTileDownloaderConfig,
+          ADownloader,
           FCheker,
           FLangManager
         );

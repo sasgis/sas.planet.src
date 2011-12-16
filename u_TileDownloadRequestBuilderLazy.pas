@@ -5,6 +5,7 @@ interface
 uses
   i_OperationNotifier,
   i_TileRequest,
+  i_Downloader,
   i_LastResponseInfo,
   i_TileDownloadRequest,
   i_TileDownloadRequestBuilder,
@@ -14,6 +15,7 @@ type
   TTileDownloadRequestBuilderLazy = class(TInterfacedObject, ITileDownloadRequestBuilder)
   private
     FFactory: ITileDownloadRequestBuilderFactory;
+    FDownloader: IDownloader;
     FBuilder: ITileDownloadRequestBuilder;
   protected
     function BuildRequest(
@@ -23,7 +25,10 @@ type
       AOperationID: Integer
     ): ITileDownloadRequest;
   public
-    constructor Create(AFactory: ITileDownloadRequestBuilderFactory);
+    constructor Create(
+      ADownloader: IDownloader;
+      AFactory: ITileDownloadRequestBuilderFactory
+    );
   end;
 
 implementation
@@ -31,8 +36,11 @@ implementation
 { TTileDownloadRequestBuilderLazy }
 
 constructor TTileDownloadRequestBuilderLazy.Create(
-  AFactory: ITileDownloadRequestBuilderFactory);
+  ADownloader: IDownloader;
+  AFactory: ITileDownloadRequestBuilderFactory
+);
 begin
+  FDownloader := ADownloader;
   FFactory := AFactory;
 end;
 
@@ -47,7 +55,7 @@ begin
   if (ACancelNotifier <> nil) and (not ACancelNotifier.IsOperationCanceled(AOperationID)) then begin
     if FFactory.State.GetStatic.Enabled then begin
       if FBuilder = nil then begin
-        FBuilder := FFactory.BuildRequestBuilder;
+        FBuilder := FFactory.BuildRequestBuilder(FDownloader);
       end;
       if FBuilder <> nil then begin
         Result := FBuilder.BuildRequest(ASource, ALastResponseInfo, ACancelNotifier, AOperationID);

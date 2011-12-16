@@ -33,6 +33,7 @@ uses
   i_OperationNotifier,
   i_TileDownloaderConfig,
   i_TileRequest,
+  i_Downloader,
   i_DownloadChecker,
   i_LanguageManager,
   i_LastResponseInfo,
@@ -47,6 +48,7 @@ type
   private
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCheker: IDownloadChecker;
+    FDownloader: IDownloader;
     FCoordConverter: ICoordConverterSimple;
     FScriptBuffer: string;
 
@@ -94,6 +96,7 @@ type
       ACompiledData: TbtString;
       AConfig: ITileDownloadRequestBuilderConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
+      ADownloader: IDownloader;
       ACheker: IDownloadChecker;
       ALangManager: ILanguageManager
     );
@@ -118,6 +121,7 @@ constructor TTileDownloadRequestBuilderPascalScript.Create(
   ACompiledData: TbtString;
   AConfig: ITileDownloadRequestBuilderConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
+  ADownloader: IDownloader;
   ACheker: IDownloadChecker;
   ALangManager: ILanguageManager
 );
@@ -125,6 +129,7 @@ begin
   inherited Create(AConfig);
   FTileDownloaderConfig := ATileDownloaderConfig;
   FLangManager := ALangManager;
+  FDownloader := ADownloader;
   FCheker := ACheker;
 
   FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
@@ -144,7 +149,8 @@ begin
 
   FreeAndNil(FExec);
   FCoordConverter := nil;
-  
+  FDownloader := nil;
+
   inherited;
 end;
 

@@ -51,6 +51,7 @@ type
 implementation
 
 uses
+  i_Downloader,
   i_TileDownloadRequestBuilder,
   u_JclNotify,
   u_NotifyEventListener,
@@ -104,16 +105,23 @@ begin
 end;
 
 function TTileDownloaderList.CreateDownloader: ITileDownloader;
+var
+  VDownloader: IDownloader;
 begin
+  VDownloader :=
+    TDownloaderHttpWithTTL.Create(
+      FGCList,
+      FResultFactory
+    );
   Result :=
     TTileDownloaderSimple.Create(
       FAppClosingNotifier,
-      TTileDownloadRequestBuilderLazy.Create(FRequestBuilderFactory),
-      FTileDownloaderConfig,
-      TDownloaderHttpWithTTL.Create(
-        FGCList,
-        FResultFactory
+      TTileDownloadRequestBuilderLazy.Create(
+        VDownloader,
+        FRequestBuilderFactory
       ),
+      FTileDownloaderConfig,
+      VDownloader,
       FResultSaver,
       TLastResponseInfo.Create
     );

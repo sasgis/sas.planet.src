@@ -3,6 +3,7 @@ unit i_TileDownloadRequestBuilderFactory;
 interface
 
 uses
+  i_Downloader,
   i_TileDownloaderState,
   i_TileDownloadRequestBuilder;
 
@@ -12,7 +13,7 @@ type
     function GetState: ITileDownloaderStateChangeble;
     property State: ITileDownloaderStateChangeble read GetState;
 
-    function BuildRequestBuilder: ITileDownloadRequestBuilder;
+    function BuildRequestBuilder(ADownloader: IDownloader): ITileDownloadRequestBuilder;
   end;
 
 implementation

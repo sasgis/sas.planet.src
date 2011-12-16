@@ -94,7 +94,9 @@ uses
   u_TileRequest,
   u_TileDownloaderList,
   u_AntiBanStuped,
+  u_DownloaderFaked,
   u_DownloadCheckerStuped,
+  u_TileDownloadRequestBuilderLazy,
   u_TileDownloadSubsystemState,
   u_TileDownloadResultSaverStuped,
   u_TileDownloaderWithQueue,
@@ -150,6 +152,12 @@ begin
         FTileDownloaderConfig,
         VDownloadChecker,
         ALanguageManager
+      );
+
+    FTileDownloadRequestBuilder :=
+      TTileDownloadRequestBuilderLazy.Create(
+        TDownloaderFaked.Create(ADownloadResultFactory),
+        FTileDownloadRequestBuilderFactory
       );
     FDownloadResultSaver :=
       TTileDownloadResultSaverStuped.Create(
@@ -218,10 +226,6 @@ begin
   if FZmpDownloadEnabled then begin
     if FTileDownloadRequestBuilderFactory.State.GetStatic.Enabled then begin
       VBuilder := FTileDownloadRequestBuilder;
-      if VBuilder = nil then begin
-        FTileDownloadRequestBuilder := FTileDownloadRequestBuilderFactory.BuildRequestBuilder;
-        VBuilder := FTileDownloadRequestBuilder;
-      end;
       if FTileDownloadRequestBuilderFactory.State.GetStatic.Enabled then begin
         VRequest :=
           GetRequest(
