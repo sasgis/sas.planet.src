@@ -22,17 +22,19 @@ unit i_TrackWriter;
 
 interface
 
+(*
 uses
+  vsagps_public_tracks,
   i_GPS;
 
 type
   ITrackWriter = interface
     ['{1F62E0F1-F6BD-4DCF-A022-E898920B1B9B}']
-    procedure StartWrite;
+    procedure StartWrite(const ATrackTypes: TVSAGPS_TrackTypes);
     procedure AddPoint(APosition: IGPSPosition);
     procedure CloseLog;
   end;
-
+*)
 implementation
 
 end.

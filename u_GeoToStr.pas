@@ -33,6 +33,7 @@ function str2r(inp:string):Double;
 implementation
 
 uses
+  vsagps_public_base,
   SysUtils;
 
 var
@@ -40,7 +41,10 @@ var
 
 function RoundEx(chislo: Double; Precision: Integer): string;
 begin
-  Result := FloatToStrF(chislo, ffFixed, 18, Precision, GFormatSettings);
+  if NoData_Float64(chislo) then
+    Result := '-'
+  else
+    Result := FloatToStrF(chislo, ffFixed, 18, Precision, GFormatSettings);
 end;
 
 function str2r(inp:string):Double;
