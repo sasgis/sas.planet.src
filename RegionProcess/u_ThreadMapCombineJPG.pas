@@ -212,91 +212,98 @@ begin
 
     // compression struct
     jpeg_create_compress(@jpeg);
-
-    if jpeg.dest = nil then begin
-
-      // allocation space for streaming methods
-      jpeg.dest := jpeg.mem^.alloc_small(@jpeg, JPOOL_PERMANENT, SizeOf(my_dest_mgr));
-
-      // seeting up custom functions
-      with my_dest_mgr_ptr(jpeg.dest)^ do begin
-        pub.init_destination    := init_destination;
-        pub.empty_output_buffer := empty_output_buffer;
-        pub.term_destination    := term_destination;
-
-        pub.next_output_byte    := @DestBuffer[1];
-        pub.free_in_buffer      := Length(DestBuffer);
-
-        DestStream := VStream;
-      end;
-    end;
-
-    // very important state
-    jpeg.global_state := CSTATE_START;
-
-    jpeg.image_width := iWidth;
-    jpeg.image_height := iHeight;
-    jpeg.input_components := 3;
-    jpeg.in_color_space := JCS_RGB;
-
-    // setting defaults
-    jpeg_set_defaults(@jpeg);
-
-    // compression quality
-    jpeg_set_quality(@jpeg, FQuality, True);
-
-    // start compression
-    jpeg_start_compress(@jpeg, true);
-
-    // write marker (comment)
-    VComment := 'Created with SAS.Planet and libjpeg-turbo' + #0;
-    jpeg_write_marker(@jpeg, JPEG_COM, @VComment[1], length(VComment));
-
-    // allocate row
-    GetMem(prow, jpeg.image_width * 3);
-
-    GetMem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
-    for i := 0 to 255 do begin
-      GetMem(FArray256BGR[i], (iWidth + 1) * 3);
-    end;
     try
-      btmm := TCustomBitmap32.Create;
+      if jpeg.dest = nil then begin
+
+        // allocation space for streaming methods
+        jpeg.dest := jpeg.mem^.alloc_small(@jpeg, JPOOL_PERMANENT, SizeOf(my_dest_mgr));
+
+        // seeting up custom functions
+        with my_dest_mgr_ptr(jpeg.dest)^ do begin
+          pub.init_destination    := init_destination;
+          pub.empty_output_buffer := empty_output_buffer;
+          pub.term_destination    := term_destination;
+
+          pub.next_output_byte    := @DestBuffer[1];
+          pub.free_in_buffer      := Length(DestBuffer);
+
+          DestStream := VStream;
+        end;
+      end;
+
+      // very important state
+      jpeg.global_state := CSTATE_START;
+
+      jpeg.image_width := iWidth;
+      jpeg.image_height := iHeight;
+      jpeg.input_components := 3;
+      jpeg.in_color_space := JCS_RGB;
+
+      // setting defaults
+      jpeg_set_defaults(@jpeg);
+
+      // compression quality
+      jpeg_set_quality(@jpeg, FQuality, True);
+
+      // start compression
+      jpeg_start_compress(@jpeg, true);
+
+      // write marker (comment)
+      VComment := 'Created with SAS.Planet and libjpeg-turbo' + #0;
+      jpeg_write_marker(@jpeg, JPEG_COM, @VComment[1], length(VComment));
+
+      // allocate row
+      GetMem(prow, jpeg.image_width * 3);
+
+      GetMem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
+      for i := 0 to 255 do begin
+        GetMem(FArray256BGR[i], (iWidth + 1) * 3);
+      end;
       try
-        btmm.Width := 256;
-        btmm.Height := 256;
+        btmm := TCustomBitmap32.Create;
+        try
+          btmm.Width := 256;
+          btmm.Height := 256;
 
-        for i := 0 to jpeg.image_height - 1 do begin
+          for i := 0 to jpeg.image_height - 1 do begin
 
-          ReadLineBMP(i, prow);
+            if jpeg.global_state = 0 then begin
+              Break;
+            end;
 
-          // BGR to RGB swap
-          for j := 0 to jpeg.image_width - 1 do begin
-            SwapBuf := PByte(Integer(prow) + j*3)^;
-            PByte(Integer(prow) + j*3)^ := PByte(Integer(prow) + j*3 + 2)^;
-            PByte(Integer(prow) + j*3 + 2)^ := SwapBuf;
+            ReadLineBMP(i, prow);
+
+            // BGR to RGB swap
+            for j := 0 to jpeg.image_width - 1 do begin
+              SwapBuf := PByte(Integer(prow) + j*3)^;
+              PByte(Integer(prow) + j*3)^ := PByte(Integer(prow) + j*3 + 2)^;
+              PByte(Integer(prow) + j*3 + 2)^ := SwapBuf;
+            end;
+
+            // write row
+            jpeg_write_scanlines(@jpeg, @prow, 1);
+
+            if CancelNotifier.IsOperationCanceled(OperationID) then begin
+              Break;
+            end;
           end;
-
-          // write row
-          jpeg_write_scanlines(@jpeg, @prow, 1);
-
-          if CancelNotifier.IsOperationCanceled(OperationID) then begin
-            Break;
-          end;
+        finally
+          btmm.Free;
         end;
       finally
-        btmm.Free;
+        for i := 0 to 255 do begin
+          freemem(FArray256BGR[i], (iWidth + 1) * 3);
+        end;
+        freemem(FArray256BGR, 256 * ((iWidth + 1) * 3));
+
+        // freeing row
+        FreeMem(prow);
       end;
     finally
-      for i := 0 to 255 do begin
-        freemem(FArray256BGR[i], (iWidth + 1) * 3);
+      if jpeg.global_state <> 0 then begin
+        // finish compression
+        jpeg_finish_compress(@jpeg);
       end;
-      freemem(FArray256BGR, 256 * ((iWidth + 1) * 3));
-
-      // freeing row
-      FreeMem(prow);
-
-      // finish compression
-      jpeg_finish_compress(@jpeg);
 
       // destroy compression
       jpeg_destroy_compress(@jpeg);
@@ -307,24 +314,28 @@ begin
 end;
 
 procedure error_exit(cinfo: j_common_ptr);
-//var
-//  Msg: String;
+var
+  Msg: String;
+  ErrCode: Integer;
 begin
-//  SetLength(Msg, 256);
-//  cinfo^.err^.format_message(cinfo, pChar(Msg));
-//  Writeln('ERROR [' + IntToStr(cinfo^.err^.msg_code) + '] ', Msg);
+  SetLength(Msg, 256);
+  cinfo^.err^.format_message(cinfo, PChar(Msg));
+  ErrCode := cinfo^.err^.msg_code;
   cinfo^.global_state := 0;
   jpeg_abort(cinfo);
+  raise Exception.Create('LibJPEG: ERROR [' + IntToStr(ErrCode) + '] ' + PChar(Msg) );
 end;
 
 procedure output_message(cinfo: j_common_ptr);
-//var
-//  Msg: String;
+var
+  Msg: String;
+  ErrCode: Integer;
 begin
-//  SetLength(Msg, 256);
-//  cinfo^.err^.format_message(cinfo, pChar(Msg));
-//  Writeln('OUTPUT [' + IntToStr(cinfo^.err^.msg_code) + '] ', Msg);
-    cinfo^.global_state := 0;
+  SetLength(Msg, 256);
+  cinfo^.err^.format_message(cinfo, PChar(Msg));
+  ErrCode := cinfo^.err^.msg_code;
+  cinfo^.global_state := 0;
+  raise Exception.Create('LibJPEG: OUTPUT [' + IntToStr(ErrCode) + '] ' + PChar(Msg) );
 end;
 
 procedure init_destination(cinfo: j_compress_ptr);
