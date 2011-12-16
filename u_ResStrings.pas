@@ -227,6 +227,30 @@ ResourceString
   SAS_STR_SensorBatteryStatusDescription = 'Shows battery status';
   SAS_STR_SensorBatteryStatusMenuItemName = 'Battery';
 
+  SAS_STR_SensorGPSRecorderHDOPCaption = 'HDOP:';
+  SAS_STR_SensorGPSRecorderHDOPDescription = 'Shows HDOP';
+  SAS_STR_SensorGPSRecorderHDOPMenuItemName = 'HDOP'; // Horizontal Dilution of Precision
+
+  SAS_STR_SensorGPSRecorderVDOPCaption = 'VDOP:';
+  SAS_STR_SensorGPSRecorderVDOPDescription = 'Shows VDOP';
+  SAS_STR_SensorGPSRecorderVDOPMenuItemName = 'VDOP'; // Vertical Dilution of Precision
+  
+  SAS_STR_SensorGPSRecorderUTCTimeCaption = 'UTC time:';
+  SAS_STR_SensorGPSRecorderUTCTimeDescription = 'Shows UTC time';
+  SAS_STR_SensorGPSRecorderUTCTimeMenuItemName = 'UTC time'; // UTC time
+
+  SAS_STR_SensorGPSRecorderLocalTimeCaption = 'Local time:';
+  SAS_STR_SensorGPSRecorderLocalTimeDescription = 'Shows local time';
+  SAS_STR_SensorGPSRecorderLocalTimeMenuItemName = 'Local time'; // Local time
+
+  SAS_STR_SensorGPSRecorderDGPSCaption = 'DGPS:';
+  SAS_STR_SensorGPSRecorderDGPSDescription = 'Shows DGPS';
+  SAS_STR_SensorGPSRecorderDGPSMenuItemName = 'DGPS'; // DGPS
+
+  SAS_STR_SensorGPSRecorderGPSUnitInfoCaption = 'Unit info:';
+  SAS_STR_SensorGPSRecorderGPSUnitInfoDescription = 'Shows GPS Unit info';
+  SAS_STR_SensorGPSRecorderGPSUnitInfoMenuItemName = 'Unit info'; // DGPS
+
   SAS_STR_GoogleSearchLanguage = '&hl=en';
 
   SAS_UNITS_kb = 'KB';
