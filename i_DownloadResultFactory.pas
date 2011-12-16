@@ -57,17 +57,26 @@ type
       ARequest: IDownloadRequest;
       const AErrorCode: DWORD
     ): IDownloadResultError;
+    function BuildLoadErrorByUnknownReason(
+      ARequest: IDownloadRequest;
+      const AReason: string
+    ): IDownloadResultError;
     function BuildBadContentType(
       ARequest: IDownloadRequest;
-      const AContentType, ARawResponseHeader: string
+      const AContentType: string;
+      const AStatusCode: DWORD;
+      const ARawResponseHeader: string
     ): IDownloadResultBadContentType;
     function BuildBanned(
       ARequest: IDownloadRequest;
+      const AStatusCode: DWORD;
       const ARawResponseHeader: string
     ): IDownloadResultBanned;
     function BuildDataNotExists(
       ARequest: IDownloadRequest;
-      const AReasonText, ARawResponseHeader: string
+      const AReasonText: string;
+      const AStatusCode: DWORD;
+      const ARawResponseHeader: string
     ): IDownloadResultDataNotExists;
     function BuildDataNotExistsByStatusCode(
       ARequest: IDownloadRequest;
@@ -76,11 +85,14 @@ type
     ): IDownloadResultDataNotExists;
     function BuildDataNotExistsZeroSize(
       ARequest: IDownloadRequest;
+      const AStatusCode: DWORD;
       const ARawResponseHeader: string
     ): IDownloadResultDataNotExists;
     function BuildNotNecessary(
       ARequest: IDownloadRequest;
-      const AReasonText, ARawResponseHeader: string
+      const AReasonText: string;
+      const AStatusCode: DWORD;
+      const ARawResponseHeader: string
     ): IDownloadResultNotNecessary;
   end;
 

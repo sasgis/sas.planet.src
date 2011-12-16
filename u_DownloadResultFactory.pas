@@ -61,17 +61,26 @@ type
       ARequest: IDownloadRequest;
       const AErrorCode: DWORD
     ): IDownloadResultError;
+    function BuildLoadErrorByUnknownReason(
+      ARequest: IDownloadRequest;
+      const AReason: string
+    ): IDownloadResultError;
     function BuildBadContentType(
       ARequest: IDownloadRequest;
-      const AContentType, ARawResponseHeader: string
+      const AContentType: string;
+      const AStatusCode: DWORD;
+      const ARawResponseHeader: string
     ): IDownloadResultBadContentType;
     function BuildBanned(
       ARequest: IDownloadRequest;
+      const AStatusCode: DWORD;
       const ARawResponseHeader: string
     ): IDownloadResultBanned;
     function BuildDataNotExists(
       ARequest: IDownloadRequest;
-      const AReasonText, ARawResponseHeader: string
+      const AReasonText: string;
+      const AStatusCode: DWORD;
+      const ARawResponseHeader: string
     ): IDownloadResultDataNotExists;
     function BuildDataNotExistsByStatusCode(
       ARequest: IDownloadRequest;
@@ -80,11 +89,14 @@ type
     ): IDownloadResultDataNotExists;
     function BuildDataNotExistsZeroSize(
       ARequest: IDownloadRequest;
+      const AStatusCode: DWORD;
       const ARawResponseHeader: string
     ): IDownloadResultDataNotExists;
     function BuildNotNecessary(
       ARequest: IDownloadRequest;
-      const AReasonText, ARawResponseHeader: string
+      const AReasonText: string;
+      const AStatusCode: DWORD;
+      const ARawResponseHeader: string
     ): IDownloadResultNotNecessary;
   public
     constructor Create(
@@ -106,11 +118,14 @@ begin
   FTextProvider := ATextProvider;
 end;
 
-function TDownloadResultFactory.BuildBadContentType(ARequest: IDownloadRequest;
-    const AContentType, ARawResponseHeader: string):
-    IDownloadResultBadContentType;
+function TDownloadResultFactory.BuildBadContentType(
+  ARequest: IDownloadRequest;
+  const AContentType: string;
+  const AStatusCode: DWORD;
+  const ARawResponseHeader: string
+): IDownloadResultBadContentType;
 begin
-  Result := TDownloadResultBadContentType.Create(ARequest, AContentType, ARawResponseHeader, 'Неожиданный тип %s');
+  Result := TDownloadResultBadContentType.Create(ARequest, AContentType, AStatusCode, ARawResponseHeader, 'Неожиданный тип %s');
 end;
 
 function TDownloadResultFactory.BuildBadProxyAuth(ARequest: IDownloadRequest):
@@ -119,10 +134,13 @@ begin
   Result := TDownloadResultProxyError.Create(ARequest, 'Ошибка авторизации на прокси');
 end;
 
-function TDownloadResultFactory.BuildBanned(ARequest: IDownloadRequest; const
-    ARawResponseHeader: string): IDownloadResultBanned;
+function TDownloadResultFactory.BuildBanned(
+  ARequest: IDownloadRequest;
+  const AStatusCode: DWORD;
+  const ARawResponseHeader: string
+): IDownloadResultBanned;
 begin
-  Result := TDownloadResultBanned.Create(ARequest, ARawResponseHeader, 'Похоже вас забанили');
+  Result := TDownloadResultBanned.Create(ARequest, AStatusCode, ARawResponseHeader, 'Похоже вас забанили');
 end;
 
 function TDownloadResultFactory.BuildCanceled(ARequest: IDownloadRequest):
@@ -131,11 +149,14 @@ begin
   Result := TDownloadResultCanceled.Create(ARequest);
 end;
 
-function TDownloadResultFactory.BuildDataNotExists(ARequest: IDownloadRequest;
-    const AReasonText, ARawResponseHeader: string):
-    IDownloadResultDataNotExists;
+function TDownloadResultFactory.BuildDataNotExists(
+  ARequest: IDownloadRequest;
+  const AReasonText: string;
+  const AStatusCode: DWORD;
+  const ARawResponseHeader: string
+): IDownloadResultDataNotExists;
 begin
-  Result := TDownloadResultDataNotExists.Create(ARequest, AReasonText, ARawResponseHeader);
+  Result := TDownloadResultDataNotExists.Create(ARequest, AReasonText, AStatusCode, ARawResponseHeader);
 end;
 
 function TDownloadResultFactory.BuildDataNotExistsByStatusCode(ARequest:
@@ -145,11 +166,13 @@ begin
   Result := TDownloadResultDataNotExistsByStatusCode.Create(ARequest, ARawResponseHeader, 'Данныео отсутствуют. Статус %d', AStatusCode);
 end;
 
-function TDownloadResultFactory.BuildDataNotExistsZeroSize(ARequest:
-    IDownloadRequest; const ARawResponseHeader: string):
-    IDownloadResultDataNotExists;
+function TDownloadResultFactory.BuildDataNotExistsZeroSize(
+  ARequest: IDownloadRequest;
+  const AStatusCode: DWORD;
+  const ARawResponseHeader: string
+): IDownloadResultDataNotExists;
 begin
-  Result := TDownloadResultDataNotExistsZeroSize.Create(ARequest, ARawResponseHeader, 'Получен ответ нулевой длинны');
+  Result := TDownloadResultDataNotExistsZeroSize.Create(ARequest, AStatusCode, ARawResponseHeader, 'Получен ответ нулевой длинны');
 end;
 
 function TDownloadResultFactory.BuildLoadErrorByErrorCode(ARequest:
@@ -162,6 +185,12 @@ function TDownloadResultFactory.BuildLoadErrorByStatusCode(ARequest:
     IDownloadRequest; const AStatusCode: DWORD): IDownloadResultError;
 begin
   Result := TDownloadResultLoadErrorByStatusCode.Create(ARequest, 'Ошибка загрузки. Статус %d', AStatusCode);
+end;
+
+function TDownloadResultFactory.BuildLoadErrorByUnknownReason(
+  ARequest: IDownloadRequest; const AReason: string): IDownloadResultError;
+begin
+  Result := TDownloadResultLoadError.Create(ARequest, 'Ошибка при загрузке:' + AReason);
 end;
 
 function TDownloadResultFactory.BuildLoadErrorByUnknownStatusCode(ARequest:
@@ -177,10 +206,14 @@ begin
   Result := TDownloadResultNoConnetctToServerByErrorCode.Create(ARequest, 'Ошибка подключения к серверу. Код ошибки %d', AErrorCode);
 end;
 
-function TDownloadResultFactory.BuildNotNecessary(ARequest: IDownloadRequest;
-    const AReasonText, ARawResponseHeader: string): IDownloadResultNotNecessary;
+function TDownloadResultFactory.BuildNotNecessary(
+  ARequest: IDownloadRequest;
+  const AReasonText: string;
+  const AStatusCode: DWORD;
+  const ARawResponseHeader: string
+): IDownloadResultNotNecessary;
 begin
-  Result := TDownloadResultNotNecessary.Create(ARequest, AReasonText, ARawResponseHeader);
+  Result := TDownloadResultNotNecessary.Create(ARequest, AReasonText, AStatusCode, ARawResponseHeader);
 end;
 
 function TDownloadResultFactory.BuildOk(ARequest: IDownloadRequest; const

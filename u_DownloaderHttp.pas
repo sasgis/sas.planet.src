@@ -53,12 +53,6 @@ type
       ARequest: IDownloadRequest;
       AResultFactory: IDownloadResultFactory
     ): IDownloadResult;
-    function OnHttpError(
-      ARequest: IDownloadRequest;
-      AResultFactory: IDownloadResultFactory;
-      AStatusCode: Cardinal;
-      const AMessage: string
-    ): IDownloadResult;
     function OnOSError(
       ARequest: IDownloadRequest;
       AResultFactory: IDownloadResultFactory;
@@ -210,12 +204,13 @@ begin
           end;
         except
           on E: EALHTTPClientException do begin
-            Result := OnHttpError(
-              ARequest,
-              FResultFactory,
-              E.StatusCode,
-              E.Message
-            );
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+              Result := FResultFactory.BuildCanceled(ARequest);
+            end else begin
+              if E.StatusCode = 0 then begin
+                Result := FResultFactory.BuildLoadErrorByUnknownReason(ARequest, e.Message);
+              end;
+            end;
           end;
           on E: EOSError do begin
             Result := OnOSError(
@@ -272,24 +267,6 @@ end;
 procedure TDownloaderHttp.OnCancelEvent;
 begin
   Disconnect;
-end;
-
-function TDownloaderHttp.OnHttpError(
-  ARequest: IDownloadRequest;
-  AResultFactory: IDownloadResultFactory;
-  AStatusCode: Cardinal;
-  const AMessage: string
-): IDownloadResult;
-begin
-  if AResultFactory <> nil then begin
-    if AStatusCode = 0 then begin
-      Result := AResultFactory.BuildNotNecessary(
-        ARequest,
-        AMessage,
-        FHttpResponseHeader.RawHeaderText
-      );
-    end;
-  end;
 end;
 
 function TDownloaderHttp.OnOSError(
@@ -349,6 +326,7 @@ begin
         if FHttpResponseBody.Size = 0 then begin
           Result := AResultFactory.BuildDataNotExistsZeroSize(
             ARequest,
+            VStatusCode,
             VRawHeaderText
           );
         end else begin

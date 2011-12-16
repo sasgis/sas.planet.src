@@ -174,7 +174,7 @@ function TAntiBanStuped.PostCheckDownload(
 begin
   Result := nil;
   if false then begin // TODO: сделать хоть какую-то проверку
-    Result := AResultFactory.BuildBanned(ARequest, 'X3');
+    Result := AResultFactory.BuildBanned(ARequest, AStatusCode, AResponseHead);
   end;
 
   if Supports(Result, IDownloadResultBanned) then begin

@@ -137,13 +137,16 @@ type
 
   TDownloadResultBanned = class(TDownloadResultError, IDownloadResultBanned, IDownloadResultWithServerRespond)
   private
+    FStatusCode: Cardinal;
     FRawResponseHeader: string;
   protected
     function GetIsServerExists: Boolean; override;
+    function GetStatusCode: Cardinal;
     function GetRawResponseHeader: string;
   public
     constructor Create(
       ARequest: IDownloadRequest;
+      AStatusCode: Cardinal;
       ARawResponseHeader: string;
       AErrorText: string
     );
@@ -151,17 +154,20 @@ type
 
   TDownloadResultBadContentType = class(TDownloadResultError, IDownloadResultBadContentType, IDownloadResultWithServerRespond)
   private
+    FStatusCode: Cardinal;
     FRawResponseHeader: string;
     FContentType: string;
   protected
     function GetContentType: string;
   protected
     function GetIsServerExists: Boolean; override;
+    function GetStatusCode: Cardinal;
     function GetRawResponseHeader: string;
   public
     constructor Create(
       ARequest: IDownloadRequest;
       AContentType: string;
+      AStatusCode: Cardinal;
       ARawResponseHeader: string;
       AErrorText: string
     );
@@ -170,16 +176,19 @@ type
   TDownloadResultDataNotExists = class(TDownloadResult, IDownloadResultDataNotExists, IDownloadResultWithServerRespond)
   private
     FReasonText: string;
+    FStatusCode: Cardinal;
     FRawResponseHeader: string;
   protected
     function GetIsServerExists: Boolean; override;
   protected
     function GetReasonText: string;
+    function GetStatusCode: Cardinal;
     function GetRawResponseHeader: string;
   public
     constructor Create(
       ARequest: IDownloadRequest;
       AReasonText: string;
+      AStatusCode: Cardinal;
       ARawResponseHeader: string
     );
   end;
@@ -198,6 +207,7 @@ type
   public
     constructor Create(
       ARequest: IDownloadRequest;
+      AStatusCode: Cardinal;
       ARawResponseHeader: string;
       AErrorText: string
     );
@@ -206,16 +216,19 @@ type
   TDownloadResultNotNecessary = class(TDownloadResult, IDownloadResultNotNecessary, IDownloadResultWithServerRespond)
   private
     FReasonText: string;
+    FStatusCode: Cardinal;
     FRawResponseHeader: string;
   protected
     function GetIsServerExists: Boolean; override;
   protected
     function GetReasonText: string;
+    function GetStatusCode: Cardinal;
     function GetRawResponseHeader: string;
   public
     constructor Create(
       ARequest: IDownloadRequest;
       AReasonText: string;
+      AStatusCode: Cardinal;
       ARawResponseHeader: string
     );
   end;
@@ -326,10 +339,12 @@ end;
 
 constructor TDownloadResultBanned.Create(
   ARequest: IDownloadRequest;
+  AStatusCode: Cardinal;
   ARawResponseHeader, AErrorText: string
 );
 begin
   inherited Create(ARequest, AErrorText);
+  FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
 end;
 
@@ -343,15 +358,23 @@ begin
   Result := FRawResponseHeader;
 end;
 
+function TDownloadResultBanned.GetStatusCode: Cardinal;
+begin
+  Result := FStatusCode;
+end;
+
 { TDownloadResultBadContentType }
 
 constructor TDownloadResultBadContentType.Create(
   ARequest: IDownloadRequest;
-  AContentType, ARawResponseHeader, AErrorText: string
+  AContentType: string;
+  AStatusCode: Cardinal;
+  ARawResponseHeader, AErrorText: string
 );
 begin
   inherited Create(ARequest, Format(AErrorText, [AContentType]));
   FContentType := AContentType;
+  FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
 end;
 
@@ -368,6 +391,11 @@ end;
 function TDownloadResultBadContentType.GetRawResponseHeader: string;
 begin
   Result := FRawResponseHeader;
+end;
+
+function TDownloadResultBadContentType.GetStatusCode: Cardinal;
+begin
+  Result := FStatusCode;
 end;
 
 { TDownloadResultNoConnetctToServerByErrorCode }
@@ -414,11 +442,14 @@ end;
 
 constructor TDownloadResultDataNotExists.Create(
   ARequest: IDownloadRequest;
-  AReasonText, ARawResponseHeader: string
+  AReasonText: string;
+  AStatusCode: Cardinal;
+  ARawResponseHeader: string
 );
 begin
   inherited Create(ARequest);
   FReasonText := AReasonText;
+  FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
 end;
 
@@ -437,15 +468,23 @@ begin
   Result := FReasonText;
 end;
 
+function TDownloadResultDataNotExists.GetStatusCode: Cardinal;
+begin
+  Result := FStatusCode;
+end;
+
 { TDownloadResultNotNecessary }
 
 constructor TDownloadResultNotNecessary.Create(
   ARequest: IDownloadRequest;
-  AReasonText, ARawResponseHeader: string
+  AReasonText: string;
+  AStatusCode: Cardinal;
+  ARawResponseHeader: string
 );
 begin
   inherited Create(ARequest);
   FReasonText := AReasonText;
+  FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
 end;
 
@@ -464,6 +503,11 @@ begin
   Result := FReasonText;
 end;
 
+function TDownloadResultNotNecessary.GetStatusCode: Cardinal;
+begin
+  Result := FStatusCode;
+end;
+
 { TDownloadResultDataNotExistsByStatusCode }
 
 constructor TDownloadResultDataNotExistsByStatusCode.Create(
@@ -472,17 +516,18 @@ constructor TDownloadResultDataNotExistsByStatusCode.Create(
   AStatusCode: DWORD
 );
 begin
-  inherited Create(ARequest, Format(AErrorText, [AStatusCode]), ARawResponseHeader);
+  inherited Create(ARequest, Format(AErrorText, [AStatusCode]), AStatusCode, ARawResponseHeader);
 end;
 
 { TDownloadResultDataNotExistsZeroSize }
 
 constructor TDownloadResultDataNotExistsZeroSize.Create(
   ARequest: IDownloadRequest;
+  AStatusCode: Cardinal;
   ARawResponseHeader, AErrorText: string
 );
 begin
-  inherited Create(ARequest, AErrorText, ARawResponseHeader);
+  inherited Create(ARequest, AErrorText, AStatusCode, ARawResponseHeader);
 end;
 
 { TDownloadResultLoadErrorByUnknownStatusCode }

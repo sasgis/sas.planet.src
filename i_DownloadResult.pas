@@ -41,6 +41,9 @@ type
 
   IDownloadResultWithServerRespond = interface
     ['{55E0EC03-1D16-408A-B972-A706FE4D4247}']
+    function GetStatusCode: Cardinal;
+    property StatusCode: Cardinal read GetStatusCode;
+
     function GetRawResponseHeader: string;
     property RawResponseHeader: string read GetRawResponseHeader;
   end;
