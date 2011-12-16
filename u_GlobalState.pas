@@ -249,9 +249,8 @@ uses
   u_GlobalViewMainConfig,
   u_GlobalDownloadConfig,
   u_GPSRecorderStuped,
-  u_GPSLogWriterToPlt,
   u_SatellitesInViewMapDrawSimple,
-  u_GPSModuleFactoryByZylGPS,
+  u_GPSModuleFactoryByVSAGPS,
   u_GPSPositionFactory,
   u_LocalCoordConverterFactorySimpe,
   u_LayerBitmapClearStrategyFactory,
@@ -288,7 +287,11 @@ var
 begin
   FProgramPath := ExtractFilePath(ParamStr(0));
   FAppClosingNotifier := TJclBaseNotifier.Create;
-  FEcwDll := TEcwDllSimple.Create(FProgramPath);
+  try
+    FEcwDll := TEcwDllSimple.Create(FProgramPath);
+  except
+    // allow run without ECWDLL
+  end;
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FGUISyncronizedTimer := TTimer.Create(nil);
@@ -371,8 +374,7 @@ begin
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   FGPSpar :=
     TGPSpar.Create(
-      TGPSModuleFactoryByZylGPS.Create(FGPSPositionFactory),
-      TPltLogWriter.Create(GetTrackLogPath),
+      TGPSModuleFactoryByVSAGPS.Create(FGPSPositionFactory),
       FGPSConfig,
       FGPSRecorder,
       GUISyncronizedTimerNotifier,

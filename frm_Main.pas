@@ -623,6 +623,7 @@ type
     procedure OnPathProvidesChange;
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
+    procedure WMTIMECHANGE(var m: TMessage); message WM_TIMECHANGE;
     procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
     procedure MapMoveAnimate(AMouseMoveSpeed: TDoublePoint; ALastTime:double; AZoom:byte; AMousePos:TPoint);
     procedure ProcessPosChangeMessage;
@@ -710,6 +711,9 @@ uses
   u_PosFromGSM,
   u_SearchResults,
   u_InetFunc,
+  vsagps_public_base,
+  vsagps_public_position,
+  vsagps_public_time,
   frm_ProgressDownload,
   frm_StartLogo;
 
@@ -862,6 +866,7 @@ var
   VProvider: IConfigDataProvider;
   VSensorViewGenerator: ISensorViewListGenerator;
 begin
+  SystemTimeChanged;
   ProgramStart:=true;
   Application.Title:=Caption;
   Application.OnMinimize := Self.OnMinimize;
@@ -1746,15 +1751,21 @@ var
   VCenterMapPoint: TDoublePoint;
   VConverter: ILocalCoordConverter;
   VPosition: IGPSPosition;
+  VpPos: PSingleGPSData;
 begin
   VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VZoomCurr := VConverter.GetZoom;
 
   VPosition := GState.GPSRecorder.CurrentPosition;
-  if VPosition.IsFix = 0 then begin
+  VpPos := VPosition.GetPosParams;
+  if (not VpPos^.PositionOK) then begin
+    // no position
     FCenterToGPSDelta := DoublePoint(NaN, NaN);
   end else begin
-    VGPSLonLat := VPosition.Position;
+    // ok
+    VGPSLonLat.X := VpPos^.PositionLon;
+    VGPSLonLat.Y := VpPos^.PositionLat;
+
     VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSLonLat, VZoomCurr);
 
     VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
@@ -2275,10 +2286,27 @@ end;
 procedure TfrmMain.UpdateGPSSatellites(APosition: IGPSPosition);
 var
   i,bar_width,bar_height,bar_x1,bar_dy:integer;
-  VSattelite: IGPSSatelliteInfo;
+  VFixCount,VALLCount: Integer;
+  VSatFixed: Boolean;
+  VSatFixibility: TSingleSatFixibilityData;
+  VTalkerID: String;
+  VGPSSatellitesInView: IGPSSatellitesInView;
 begin
   TBXSignalStrengthBar.Repaint;
-  if APosition.Satellites.FixCount > 0 then begin
+
+  // show satelites only for one talker_id (TODO: show both satellites)
+  VGPSSatellitesInView:=APosition.Satellites;
+  if Assigned(VGPSSatellitesInView) then begin
+    VTalkerID := VGPSSatellitesInView.GetPreferredTalkerID;
+    VFixCount := VGPSSatellitesInView.FixCount[VTalkerID];
+    VALLCount := VGPSSatellitesInView.Count[VTalkerID];
+  end else begin
+    VTalkerID := '';
+    VFixCount := 0;
+    VALLCount := 0;
+  end;
+
+  if (0<VFixCount) then begin
     with TBXSignalStrengthBar do begin
        Canvas.Lock;
        try
@@ -2286,14 +2314,15 @@ begin
          Canvas.Brush.Color:=clGreen;
          bar_x1:=0;
          bar_dy:=8;
-         bar_width:=((Width-15) div APosition.Satellites.FixCount);
-         for I := 0 to APosition.Satellites.Count-1 do begin
-           VSattelite := APosition.Satellites.Item[i];
-           if VSattelite.IsFix then begin
-             bar_height:=trunc(14*((VSattelite.SignalToNoiseRatio)/100));
-             Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
-             inc(bar_x1,bar_width);
-           end;
+         bar_width:=((Width-15) div VFixCount);
+
+         if (0<VALLCount) then
+         for i := 0 to VALLCount-1 do
+         if VGPSSatellitesInView.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility) then
+         if VSatFixed then begin
+           bar_height:=trunc(14*((VSatFixibility.snr)/100));
+           Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
+           inc(bar_x1,bar_width);
          end;
        finally
          Canvas.Unlock;
@@ -2485,6 +2514,18 @@ begin
   X:=GetDeviceCaps(Canvas.handle,HORZRES)+(Width-ClientWidth);
   Y:=GetDeviceCaps(Canvas.handle,VERTRES)+(Height-ClientHeight);
  end;
+end;
+
+procedure TfrmMain.WMTIMECHANGE(var m: TMessage);
+begin
+  inherited;
+  SystemTimeChanged;
+  // notify track writer
+  try
+    if Assigned(GState.GPSRecorder) then
+      GState.GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_Reserved, gpsc_LocalTimeChanged, nil);
+  except
+  end;
 end;
 
 procedure TfrmMain.TBFullSizeClick(Sender:TObject);
@@ -3380,6 +3421,7 @@ var
   VCenterMapPoint: TDoublePoint;
   VGPSMapPoint: TDoublePoint;
   VPosition: IGPSPosition;
+  VpPos: PSingleGPSData;
   VConverter: ILocalCoordConverter;
   VMapMove: Boolean;
   VMapMoveCentred: Boolean;
@@ -3388,8 +3430,15 @@ var
   VDelta: Double;
 begin
   VPosition := GState.GPSRecorder.CurrentPosition;
-  if TBXSignalStrengthBar.Visible then UpdateGPSSatellites(VPosition);
-  if (VPosition.IsFix=0) then exit;
+  VpPos := VPosition.GetPosParams;
+  
+  if TBXSignalStrengthBar.Visible then
+    UpdateGPSSatellites(VPosition);
+
+  // no position?
+  if (not VpPos^.PositionOK) then
+    Exit;
+    
   if not((FMapMoving)or(FMapZoomAnimtion)) then begin
     FConfig.GPSBehaviour.LockRead;
     try
@@ -3402,7 +3451,8 @@ begin
     end;
     if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
       if (VMapMove) then begin
-        VGPSNewPos := VPosition.Position;
+        VGPSNewPos.X := VpPos^.PositionLon;
+        VGPSNewPos.Y := VpPos^.PositionLat;
         if VMapMoveCentred then begin
           VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
           VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
@@ -4264,14 +4314,19 @@ end;
 procedure TfrmMain.tbitmSaveCurrentPositionClick(Sender: TObject);
 var
   VPosition: IGPSPosition;
+  VpPos: PSingleGPSData;
   VLonLat: TDoublePoint;
 begin
   VPosition := GState.GPSRecorder.CurrentPosition;
-  if VPosition.IsFix > 0 then begin
-    VLonLat := VPosition.Position;
+  VpPos := VPosition.GetPosParams;
+
+  if (VpPos^.PositionOK) then begin
+    VLonLat.X := VpPos^.PositionLon;
+    VLonLat.Y := VpPos^.PositionLat;
   end else begin
     VLonLat := FConfig.ViewPortState.GetVisualCoordConverter.GetCenterLonLat;
   end;
+
   if FMarkDBGUI.AddNewPointModal(VLonLat) then begin
     setalloperationfalse(ao_movemap);
     FLayerMapMarks.Redraw;
