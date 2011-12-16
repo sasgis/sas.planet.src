@@ -167,9 +167,11 @@ begin
     ATargetBitmap.Clear(ABackGroundColor);
   end;
   if FHTypeMap <> nil then begin
-    FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
-    FTempBitmap.DrawMode := dmBlend;
-    ATargetBitmap.Draw(0, 0, FTempBitmap);
+    VLoadResult := FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
+    if VLoadResult then begin
+      FTempBitmap.DrawMode := dmBlend;
+      ATargetBitmap.Draw(0, 0, FTempBitmap);
+    end;
   end;
   ProcessRecolor(ATargetBitmap);
   if FMarksImageProvider <> nil then begin
