@@ -24,12 +24,14 @@ interface
 
 uses
   i_GPSModuleByCOMPortSettings,
+  i_GPSConfig,
   i_GPSModule;
 
 type
   IGPSModuleByCOM = interface(IGPSModule)
     ['{EFB18F84-3019-44D2-9525-A12B3D97B14B}']
-    procedure Connect(AConfig: IGPSModuleByCOMPortSettings); safecall;
+    procedure Connect(const AConfig: IGPSModuleByCOMPortSettings;
+                      const ALogConfig: IGPSConfig); safecall;
     procedure Disconnect; safecall;
 
     function GetIsReadyToConnect: Boolean; safecall;

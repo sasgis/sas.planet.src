@@ -44,7 +44,6 @@ type
   TGPSpar = class
   private
     FConfig: IGPSConfig;
-    FLogWriter: ITrackWriter;
     FGPSRecorder: IGPSRecorder;
     FGPSModuleFactory: IGPSModuleByCOMFactory;
     FGPSModuleByCOM: IGPSModuleByCOM;
@@ -81,7 +80,6 @@ type
   public
     constructor Create(
       AGPSModuleFactory: IGPSModuleByCOMFactory;
-      ATrackWriter: ITrackWriter;
       AConfig: IGPSConfig;
       AGPSRecorder: IGPSRecorder;
       ATimerNoifier: IJclNotifier;
@@ -110,7 +108,6 @@ uses
 
 constructor TGPSpar.Create(
   AGPSModuleFactory: IGPSModuleByCOMFactory;
-  ATrackWriter: ITrackWriter;
   AConfig: IGPSConfig;
   AGPSRecorder: IGPSRecorder;
   ATimerNoifier: IJclNotifier;
@@ -118,7 +115,6 @@ constructor TGPSpar.Create(
 );
 begin
   FConfig := AConfig;
-  FLogWriter := ATrackWriter;
   FGPSRecorder := AGPSRecorder;
   FGPSModuleFactory := AGPSModuleFactory;
 
@@ -159,7 +155,6 @@ begin
   FLinksList := nil;
   FGPSRecorder := nil;
   FGPSModuleByCOM := nil;
-  FLogWriter := nil;
   inherited;
 end;
 
@@ -204,7 +199,7 @@ begin
   if FGPSModuleByCOM <> nil then begin
     if FConfig.GPSEnabled then begin
       if FGPSModuleByCOM.IsReadyToConnect then begin
-        FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic);
+        FGPSModuleByCOM.Connect(FConfig.ModuleConfig.GetStatic, FConfig);
       end;
     end else begin
       FGPSModuleByCOM.Disconnect;
@@ -214,13 +209,6 @@ end;
 
 procedure TGPSpar.OnGpsConnected;
 begin
-  if FConfig.WriteLog then begin
-    try
-      FLogWriter.StartWrite;
-    except
-      FConfig.WriteLog := false;
-    end;
-  end;
   FConfig.GPSEnabled := True;
   FGPSRecorder.LockWrite;
   try
@@ -267,7 +255,6 @@ begin
   try
     VPosition := FGPSModuleByCOM.Position;
     FGPSRecorder.AddPoint(VPosition);
-    FLogWriter.AddPoint(VPosition);
     FCS.Acquire;
     try
       FDataRecived := True;
@@ -284,10 +271,6 @@ procedure TGPSpar.OnGpsDisconnected;
 begin
   FConfig.GPSEnabled := False;
   FGPSRecorder.AddPoint(FGPSModuleByCOM.Position);
-  try
-    FLogWriter.CloseLog;
-  except
-  end;
   FCS.Acquire;
   try
     FModuleState := msDisconnected;

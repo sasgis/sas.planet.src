@@ -25,7 +25,9 @@ interface
 uses
   t_GeoTypes,
   i_GPS,
-  i_ConfigDataElement;
+  i_ConfigDataElement,
+  vsagps_public_base,
+  vsagps_public_position;
 
 type
   TGPSTrackPoint = record
@@ -35,7 +37,7 @@ type
   end;
 
   TGPSTrackPointArray = array of TGPSTrackPoint;
-
+  
   IGPSRecorder = interface(IConfigDataElement)
     ['{E8525CFD-243B-4454-82AA-C66108A74B8F}']
     procedure AddPoint(APosition: IGPSPosition);
@@ -80,6 +82,14 @@ type
 
     function GetCurrentPosition: IGPSPosition;
     property CurrentPosition: IGPSPosition read GetCurrentPosition;
+
+    procedure ExecuteGPSCommand(Sender: TObject;
+                                const AUnitIndex: Byte;
+                                const ACommand: LongInt;
+                                const APointer: Pointer);
+
+    function GetGPSUnitInfo: String;
+    property GPSUnitInfo: String read GetGPSUnitInfo;
   end;
 
 implementation

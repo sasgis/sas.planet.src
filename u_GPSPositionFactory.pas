@@ -26,43 +26,47 @@ uses
   ActiveX,
   t_GeoTypes,
   i_GPSPositionFactory,
-  i_GPS;
+  i_GPS,
+  vsagps_public_base,
+  vsagps_public_position,
+  vsagps_public_events;
 
 type
   TGPSPositionFactory = class(TInterfacedObject, IGPSPositionFactory)
   private
     FSatellitesInViewEmpty: IGPSSatellitesInView;
     FPositionEmpty: IGPSPosition;
+    FExecuteGPSCommandEvent: TExecuteGPSCommandEvent;
+    FGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event;
   protected
     function BuildSatelliteInfo(
-      const APseudoRandomCode: Integer;
-      const AElevation: Integer;
-      const AAzimuth: Integer;
-      const ASignalToNoiseRatio: Integer;
-      const AIsFix: Boolean
+      const AData: PSingleSatFixibilityData;
+      const ASky: PSingleSatSkyData
     ): IGPSSatelliteInfo;
 
     function BuildSatellitesInViewEmpty: IGPSSatellitesInView;
     function BuildSatellitesInView(
-      const AFixCount: Integer;
-      const AItemsCount: Integer;
-      const AItems: PUnknownList
+      const AItemsCountGP: Integer;
+      const AItemsGP: PUnknownList;
+      const AItemsCountGL: Integer;
+      const AItemsGL: PUnknownList
     ): IGPSSatellitesInView;
 
     function BuildPositionEmpty: IGPSPosition;
     function BuildPosition(
-      const APosition: TDoublePoint;
-      const AAltitude: Double;
-      const ASpeed_KMH: Double;
-      const AHeading: Double;
-      const AUTCDateTime: TDateTime;
-      const ALocalDateTime: TDateTime;
-      const AIsFix: Word;
-      const AHDOP: Double;
-      const AVDOP: Double;
-      const APDOP: Double;
+      const ASingleGPSData: PSingleGPSData;
       const ASatellites: IGPSSatellitesInView
     ): IGPSPosition;
+
+    function ExecuteGPSCommand(Sender: TObject;
+                               const AUnitIndex: Byte;
+                               const ACommand: LongInt;
+                               const APointer: Pointer): String;
+                                
+    procedure SetExecuteGPSCommandHandler(AExecuteGPSCommandEvent: TExecuteGPSCommandEvent);
+
+    procedure SetGPSUnitInfoChangedHandler(AGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event);
+    function GetGPSUnitInfoChangedHandler: TVSAGPS_UNIT_INFO_Changed_Event;
   public
     constructor Create;
   end;
@@ -77,40 +81,48 @@ uses
 { TGPSPositionFactory }
 
 constructor TGPSPositionFactory.Create;
-var
-  VPoint: TDoublePoint;
 begin
-  FSatellitesInViewEmpty := TGPSSatellitesInView.Create(0, 0, nil);
-
-  VPoint.X := 0;
-  VPoint.Y := 0;
+  FExecuteGPSCommandEvent := nil;
+  FGPSUnitInfoChangedEvent := nil;
+  FSatellitesInViewEmpty := TGPSSatellitesInView.Create(0, nil, 0, nil);
   FPositionEmpty :=
-    TGPSPositionStatic.Create(
-      VPoint, 0, 0, 0, 0, 0, 0, 0, 0, 0, FSatellitesInViewEmpty
-    );
+    TGPSPositionStatic.Create(nil, FSatellitesInViewEmpty);
+end;
+
+function TGPSPositionFactory.ExecuteGPSCommand(Sender: TObject;
+                                               const AUnitIndex: Byte;
+                                               const ACommand: Integer;
+                                               const APointer: Pointer): String;
+begin
+  if Assigned(FExecuteGPSCommandEvent) then
+    Result := FExecuteGPSCommandEvent(Sender, AUnitIndex, ACommand, APointer)
+  else
+    Result := '';
+end;
+
+function TGPSPositionFactory.GetGPSUnitInfoChangedHandler: TVSAGPS_UNIT_INFO_Changed_Event;
+begin
+  Result := FGPSUnitInfoChangedEvent;
+end;
+
+procedure TGPSPositionFactory.SetExecuteGPSCommandHandler(AExecuteGPSCommandEvent: TExecuteGPSCommandEvent);
+begin
+  FExecuteGPSCommandEvent := AExecuteGPSCommandEvent;
+end;
+
+procedure TGPSPositionFactory.SetGPSUnitInfoChangedHandler(AGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event);
+begin
+  FGPSUnitInfoChangedEvent := AGPSUnitInfoChangedEvent;
 end;
 
 function TGPSPositionFactory.BuildPosition(
-  const APosition: TDoublePoint;
-  const AAltitude, ASpeed_KMH, AHeading: Double;
-  const AUTCDateTime, ALocalDateTime: TDateTime;
-  const AIsFix: Word;
-  const AHDOP, AVDOP, APDOP: Double;
+  const ASingleGPSData: PSingleGPSData;
   const ASatellites: IGPSSatellitesInView
 ): IGPSPosition;
 begin
   Result :=
     TGPSPositionStatic.Create(
-      APosition,
-      AAltitude,
-      ASpeed_KMH,
-      AHeading,
-      AUTCDateTime,
-      ALocalDateTime,
-      AIsFix,
-      AHDOP,
-      AVDOP,
-      APDOP,
+      ASingleGPSData,
       ASatellites
     );
 end;
@@ -121,30 +133,30 @@ begin
 end;
 
 function TGPSPositionFactory.BuildSatelliteInfo(
-  const APseudoRandomCode, AElevation, AAzimuth, ASignalToNoiseRatio: Integer;
-  const AIsFix: Boolean
+  const AData: PSingleSatFixibilityData;
+  const ASky: PSingleSatSkyData
 ): IGPSSatelliteInfo;
 begin
   Result :=
     TGPSSatelliteInfo.Create(
-      APseudoRandomCode,
-      AElevation,
-      AAzimuth,
-      ASignalToNoiseRatio,
-      AIsFix
+      AData,
+      ASky
     );
 end;
 
 function TGPSPositionFactory.BuildSatellitesInView(
-  const AFixCount, AItemsCount: Integer;
-  const AItems: PUnknownList
+  const AItemsCountGP: Integer;
+  const AItemsGP: PUnknownList;
+  const AItemsCountGL: Integer;
+  const AItemsGL: PUnknownList
 ): IGPSSatellitesInView;
 begin
   Result :=
     TGPSSatellitesInView.Create(
-      AFixCount,
-      AItemsCount,
-      AItems
+      AItemsCountGP,
+      AItemsGP,
+      AItemsCountGL,
+      AItemsGL
     )
 end;
 

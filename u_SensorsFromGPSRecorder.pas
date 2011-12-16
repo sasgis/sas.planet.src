@@ -162,12 +162,113 @@ type
     );
   end;
 
+  TSensorFromGPSRecorderHDOP = class(TSensorTextFromGPSRecorder)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
+    function ValueToText(AValue: Double): string; override;
+    function GetValue: Double; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AGPSRecorder: IGPSRecorder;
+      AValueConverterConfig: IValueToStringConverterConfig
+    );
+  end;
+
+  TSensorFromGPSRecorderVDOP = class(TSensorTextFromGPSRecorder)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
+    function ValueToText(AValue: Double): string; override;
+    function GetValue: Double; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AGPSRecorder: IGPSRecorder;
+      AValueConverterConfig: IValueToStringConverterConfig
+    );
+  end;
+
+  TSensorFromGPSRecorderUTCTime = class(TSensorTimeFromGPSRecorder)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+    function GetValue: Double; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AGPSRecorder: IGPSRecorder;
+      AValueConverterConfig: IValueToStringConverterConfig
+    );
+  end;
+
+  TSensorFromGPSRecorderLocalTime = class(TSensorTimeFromGPSRecorder)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+    function GetValue: Double; override;
+    procedure Reset; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AGPSRecorder: IGPSRecorder;
+      AValueConverterConfig: IValueToStringConverterConfig
+    );
+  end;
+
+  TSensorFromGPSRecorderDGPS = class(TSensorTextFromGPSRecorder)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+
+    function ValueToText(AValue: Double): string; override;
+    function GetValue: Double; override;
+    function ValueChanged(const AOld, ANew: Double): Boolean; override;
+    procedure Reset; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AGPSRecorder: IGPSRecorder;
+      AValueConverterConfig: IValueToStringConverterConfig
+    );
+  end;
+
+  TSensorFromGPSRecorderGPSUnitInfo = class(TSensorSimpleTextFromGPSRecorder)
+  protected
+    function GetCaptionTranslated: string; override;
+    function GetDescriptionTranslated: string; override;
+    function GetMenuItemNameTranslated: string; override;
+    function ValueToText(AValue: Double): string; override;
+    procedure Reset; override;
+  public
+    constructor Create(
+      ALanguageManager: ILanguageManager;
+      AGPSRecorder: IGPSRecorder;
+      AValueConverterConfig: IValueToStringConverterConfig
+    );
+  end;
+
+
 implementation
 
 uses
+  SysUtils,
   c_SensorsGUIDSimple,
+  i_GPS,
   u_ResStrings,
-  u_GeoToStr;
+  u_GeoToStr,
+  t_GeoTypes,
+  vsagps_public_base,
+  vsagps_public_position,
+  vsagps_public_time;
 
 { TSensorFromGPSRecorderLastSpeed }
 
@@ -533,6 +634,287 @@ end;
 function TSensorFromGPSRecorderHeading.ValueToText(AValue: Double): string;
 begin
   Result := RoundEx(AValue, 2) + '°';;
+end;
+
+{ TSensorFromGPSRecorderHDOP }
+
+constructor TSensorFromGPSRecorderHDOP.Create(
+  ALanguageManager: ILanguageManager; AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig);
+begin
+  inherited Create(
+    CSensorHDOPGUID,
+    FALSE,
+    ALanguageManager,
+    AGPSRecorder,
+    AValueConverterConfig
+  );
+end;
+
+function TSensorFromGPSRecorderHDOP.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderHDOPCaption;
+end;
+
+function TSensorFromGPSRecorderHDOP.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderHDOPDescription;
+end;
+
+function TSensorFromGPSRecorderHDOP.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderHDOPMenuItemName;
+end;
+
+function TSensorFromGPSRecorderHDOP.GetValue: Double;
+var VPosition: IGPSPosition;
+begin
+  VPosition := GPSRecorder.CurrentPosition;
+  Result := VPosition.GetPosParams^.HDOP;
+end;
+
+function TSensorFromGPSRecorderHDOP.ValueToText(AValue: Double): string;
+begin
+  Result := RoundEx(AValue, 1);
+end;
+
+{ TSensorFromGPSRecorderVDOP }
+
+constructor TSensorFromGPSRecorderVDOP.Create(
+  ALanguageManager: ILanguageManager; AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig);
+begin
+  inherited Create(
+    CSensorVDOPGUID,
+    FALSE,
+    ALanguageManager,
+    AGPSRecorder,
+    AValueConverterConfig
+  );
+end;
+
+function TSensorFromGPSRecorderVDOP.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderVDOPCaption;
+end;
+
+function TSensorFromGPSRecorderVDOP.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderVDOPDescription;
+end;
+
+function TSensorFromGPSRecorderVDOP.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderVDOPMenuItemName;
+end;
+
+function TSensorFromGPSRecorderVDOP.GetValue: Double;
+var VPosition: IGPSPosition;
+begin
+  VPosition := GPSRecorder.CurrentPosition;
+  Result := VPosition.GetPosParams^.VDOP;
+end;
+
+function TSensorFromGPSRecorderVDOP.ValueToText(AValue: Double): string;
+begin
+  Result := RoundEx(AValue, 1);
+end;
+
+{ TSensorFromGPSRecorderUTCTime }
+
+constructor TSensorFromGPSRecorderUTCTime.Create(
+  ALanguageManager: ILanguageManager; AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig);
+begin
+  inherited Create(
+    CSensorUTCTimeGUID,
+    FALSE,
+    ALanguageManager,
+    AGPSRecorder,
+    AValueConverterConfig
+  );
+end;
+
+function TSensorFromGPSRecorderUTCTime.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderUTCTimeCaption;
+end;
+
+function TSensorFromGPSRecorderUTCTime.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderUTCTimeDescription;
+end;
+
+function TSensorFromGPSRecorderUTCTime.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderUTCTimeMenuItemName;
+end;
+
+function TSensorFromGPSRecorderUTCTime.GetValue: Double;
+var VPosition: IGPSPosition;
+begin
+  VPosition := GPSRecorder.CurrentPosition;
+  with VPosition.GetPosParams^ do
+    Result := (UTCDate+UTCTime);
+end;
+
+{ TSensorFromGPSRecorderLocalTime }
+
+constructor TSensorFromGPSRecorderLocalTime.Create(
+  ALanguageManager: ILanguageManager; AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig);
+begin
+  inherited Create(
+    CSensorLocalTimeGUID,
+    TRUE,
+    ALanguageManager,
+    AGPSRecorder,
+    AValueConverterConfig
+  );
+end;
+
+function TSensorFromGPSRecorderLocalTime.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderLocalTimeCaption;
+end;
+
+function TSensorFromGPSRecorderLocalTime.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderLocalTimeDescription;
+end;
+
+function TSensorFromGPSRecorderLocalTime.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderLocalTimeMenuItemName;
+end;
+
+function TSensorFromGPSRecorderLocalTime.GetValue: Double;
+var VPosition: IGPSPosition;
+begin
+  VPosition := GPSRecorder.CurrentPosition;
+  with VPosition.GetPosParams^ do
+  Result := (UTCDate+UTCTime);
+  if (0<>Result) then
+    Result:=SystemTimeToLocalTime(Result);
+end;
+
+procedure TSensorFromGPSRecorderLocalTime.Reset;
+begin
+  inherited;
+  GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_ALL, gpsc_Apply_UTCDateTime, nil);
+end;
+
+{ TSensorFromGPSRecorderDGPS }
+
+constructor TSensorFromGPSRecorderDGPS.Create(
+  ALanguageManager: ILanguageManager; AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig);
+begin
+  inherited Create(
+    CSensorDGPSGUID,
+    TRUE,
+    ALanguageManager,
+    AGPSRecorder,
+    AValueConverterConfig
+  );
+end;
+
+function TSensorFromGPSRecorderDGPS.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderDGPSCaption;
+end;
+
+function TSensorFromGPSRecorderDGPS.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderDGPSDescription;
+end;
+
+function TSensorFromGPSRecorderDGPS.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderDGPSMenuItemName;
+end;
+
+function TSensorFromGPSRecorderDGPS.GetValue: Double;
+var VPosition: IGPSPosition;
+begin
+  VPosition := GPSRecorder.CurrentPosition;
+  Result := Double(VPosition.GetPosParams^.DGPS);
+end;
+
+procedure TSensorFromGPSRecorderDGPS.Reset;
+begin
+  inherited;
+  GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_ALL, gpsc_Reset_DGPS, nil);
+end;
+
+function TSensorFromGPSRecorderDGPS.ValueChanged(const AOld, ANew: Double): Boolean;
+begin
+  Result := (not CompareMem(@AOld, @ANew, sizeof(Double)));
+end;                                                              
+
+function TSensorFromGPSRecorderDGPS.ValueToText(AValue: Double): string;
+begin
+  with TSingleDGPSData(AValue) do begin
+    case Nmea23_Mode of
+    'A': Result:='A'; //'Autonomous';
+    'D': Result:=SAS_STR_Yes ; //'DGPS';
+    'E': Result:='DR'; //'Dead Reckoning';
+    'R': Result:='CP'; //'Coarse Position';
+    'P': Result:='PPS'; //'PPS';
+    else Result:=SAS_STR_No; //#0 if no data or 'N' = Not Valid
+    end;
+
+    if (Dimentions>1) then
+      Result := Result + ' ('+IntToStr(Dimentions)+'D)';
+
+    if (not NoData_Float32(DGPS_Age_Second)) then begin
+      if (DGPS_Age_Second>0) then
+        Result := Result + ': ' + RoundEx(DGPS_Age_Second, 2);//+' '+SAS_UNITS_Secund;
+      if (DGPS_Station_ID>0) then
+        Result := Result + ' #' + IntToStr(DGPS_Station_ID);
+    end;
+  end;
+end;
+
+{ TSensorFromGPSRecorderGPSUnitInfo }
+
+constructor TSensorFromGPSRecorderGPSUnitInfo.Create(
+  ALanguageManager: ILanguageManager; AGPSRecorder: IGPSRecorder;
+  AValueConverterConfig: IValueToStringConverterConfig);
+begin
+  inherited Create(
+    CSensorGPSUnitInfoGUID,
+    TRUE,
+    ALanguageManager,
+    AGPSRecorder,
+    AValueConverterConfig
+  );
+end;
+
+function TSensorFromGPSRecorderGPSUnitInfo.GetCaptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderGPSUnitInfoCaption;
+end;
+
+function TSensorFromGPSRecorderGPSUnitInfo.GetDescriptionTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderGPSUnitInfoDescription;
+end;
+
+function TSensorFromGPSRecorderGPSUnitInfo.GetMenuItemNameTranslated: string;
+begin
+  Result := SAS_STR_SensorGPSRecorderGPSUnitInfoMenuItemName;
+end;
+
+procedure TSensorFromGPSRecorderGPSUnitInfo.Reset;
+begin
+  inherited;
+  GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_ALL, gpsc_Refresh_GPSUnitInfo, nil);
+end;
+
+function TSensorFromGPSRecorderGPSUnitInfo.ValueToText(AValue: Double): string;
+begin
+  Result := GPSRecorder.GPSUnitInfo;
 end;
 
 end.

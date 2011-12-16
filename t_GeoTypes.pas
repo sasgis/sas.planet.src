@@ -23,12 +23,11 @@ unit t_GeoTypes;
 interface
 
 uses
+  vsagps_public_point,
   Types;
 
 type
-  TDoublePoint = record
-    X, Y: Double;
-  end;
+  TDoublePoint = vsagps_public_point.TDoublePoint;
 
   TDoubleRect = packed record
     case Integer of
@@ -45,8 +44,8 @@ type
 
   PDoublePointArray = ^TDoublePointArray;
   TDoublePointArray = array [0..0] of TDoublePoint;
-  PArrayOfDoublePoint = ^TArrayOfDoublePoint;
-  TArrayOfDoublePoint = array of TDoublePoint;
+  PArrayOfDoublePoint = vsagps_public_point.PArrayOfDoublePoint;
+  TArrayOfDoublePoint = vsagps_public_point.TArrayOfDoublePoint;
 
 // Скопировал из ECWReader что бы не добавлять лишние зависимости от того юнита.
 {$MINENUMSIZE 4}

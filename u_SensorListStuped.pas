@@ -93,6 +93,24 @@ begin
 
   VEntity := TSensorFromGPSRecorderHeading.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
   Self.Add(VEntity);
+
+  VEntity := TSensorFromGPSRecorderHDOP.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  Self.Add(VEntity);
+  
+  VEntity := TSensorFromGPSRecorderVDOP.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  Self.Add(VEntity);
+  
+  VEntity := TSensorFromGPSRecorderUTCTime.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  Self.Add(VEntity);
+
+  VEntity := TSensorFromGPSRecorderLocalTime.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  Self.Add(VEntity);
+
+  VEntity := TSensorFromGPSRecorderDGPS.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  Self.Add(VEntity);
+
+  VEntity := TSensorFromGPSRecorderGPSUnitInfo.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  Self.Add(VEntity);
 end;
 
 end.

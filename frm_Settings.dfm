@@ -11,6 +11,7 @@ object frmSettings: TfrmSettings
   OldCreateOrder = False
   Position = poScreenCenter
   ShowHint = True
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
@@ -20,7 +21,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 658
     Height = 415
-    ActivePage = tsCache
+    ActivePage = tsMaps
     Align = alClient
     TabOrder = 0
     object tsMaps: TTabSheet
@@ -321,7 +322,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 3
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'Native cache folder:'
           Layout = tlCenter
@@ -364,7 +365,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 30
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'GoogleMV cache folder:'
           Layout = tlCenter
@@ -407,7 +408,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 57
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'EarthSlicer cache folder:'
           Layout = tlCenter
@@ -450,7 +451,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 84
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'GlobalMapper Tiles (GMT) cache folder:'
           Layout = tlCenter
@@ -493,7 +494,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 111
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'GoogleEarth cache folder:'
           Layout = tlCenter
@@ -536,7 +537,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 138
           Width = 194
-          Height = 22
+          Height = 19
           Align = alClient
           Caption = 'Default cache type'
           Layout = tlCenter
@@ -666,7 +667,7 @@ object frmSettings: TfrmSettings
               Left = 24
               Top = 3
               Width = 94
-              Height = 20
+              Height = 17
               Align = alLeft
               Caption = 'Use proxy (IP:port)'
               Layout = tlCenter
@@ -935,7 +936,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 47
-              Height = 26
+              Height = 23
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Language'
@@ -1055,7 +1056,7 @@ object frmSettings: TfrmSettings
           TabOrder = 1
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
-            Top = 40
+            Top = 33
             Width = 317
             Height = 28
             Align = alTop
@@ -1085,7 +1086,7 @@ object frmSettings: TfrmSettings
           end
           object pnlFillMap: TPanel
             Left = 3
-            Top = 104
+            Top = 94
             Width = 317
             Height = 51
             Align = alTop
@@ -1153,7 +1154,7 @@ object frmSettings: TfrmSettings
           end
           object pnlBgColor: TPanel
             Left = 3
-            Top = 68
+            Top = 61
             Width = 317
             Height = 33
             Align = alTop
@@ -1168,7 +1169,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 82
-              Height = 22
+              Height = 19
               Align = alLeft
               Caption = 'Background color'
               Layout = tlCenter
@@ -1201,7 +1202,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 78
-              Height = 21
+              Height = 18
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Resize algorithm'
@@ -1224,16 +1225,16 @@ object frmSettings: TfrmSettings
           end
           object pnlTileBorders: TPanel
             Left = 3
-            Top = 155
+            Top = 145
             Width = 317
-            Height = 36
+            Height = 69
             Align = alTop
             AutoSize = True
             BevelEdges = [beBottom]
             BevelKind = bkTile
             BevelOuter = bvNone
             BorderWidth = 3
-            TabOrder = 4
+            TabOrder = 6
             object Label23: TLabel
               Left = 3
               Top = 3
@@ -1302,7 +1303,7 @@ object frmSettings: TfrmSettings
           end
           object pnlGenshtabBorders: TPanel
             Left = 3
-            Top = 224
+            Top = 214
             Width = 317
             Height = 68
             Align = alTop
@@ -1377,12 +1378,11 @@ object frmSettings: TfrmSettings
               Align = alLeft
               Caption = 'Genshtab Map names'
               TabOrder = 1
-              ExplicitHeight = 6
             end
           end
           object pnlImageProcess: TPanel
             Left = 3
-            Top = 292
+            Top = 282
             Width = 317
             Height = 105
             Align = alTop
@@ -1390,7 +1390,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 5
-            ExplicitTop = 271
             object LabelGamma: TLabel
               Left = 3
               Top = 3
@@ -1471,7 +1470,7 @@ object frmSettings: TfrmSettings
           Left = 0
           Top = 0
           Width = 397
-          Height = 29
+          Height = 75
           Align = alTop
           AutoSize = True
           BevelEdges = [beBottom]
@@ -1490,11 +1489,21 @@ object frmSettings: TfrmSettings
           object ComboBoxCOM: TComboBox
             Left = 58
             Top = 3
-            Width = 89
+            Width = 68
             Height = 21
             ItemHeight = 13
             TabOrder = 0
             Text = 'COM1'
+          end
+          object btnGPSAutodetectCOM: TButton
+            Left = 126
+            Top = 3
+            Width = 21
+            Height = 21
+            Hint = 'Autodetect COM port'
+            Caption = '?'
+            TabOrder = 2
+            OnClick = btnGPSAutodetectCOMClick
           end
           object Label65: TLabel
             AlignWithMargins = True
@@ -1508,7 +1517,7 @@ object frmSettings: TfrmSettings
           object ComboBoxBoudRate: TComboBox
             Left = 226
             Top = 3
-            Width = 89
+            Width = 63
             Height = 21
             ItemHeight = 13
             ItemIndex = 5
@@ -1528,14 +1537,98 @@ object frmSettings: TfrmSettings
               '57600'
               '115200')
           end
+          object lbGPSDelimiter1: TLabel
+            AlignWithMargins = True
+            Left = 292
+            Top = 6
+            Width = 8
+            Height = 13
+            Alignment = taRightJustify
+            AutoSize = False
+          end
+          object btnGPSSwitch: TButton
+            Left = 303
+            Top = 3
+            Width = 75
+            Height = 21
+            Hint = 'Disable or enable GPS'
+            Caption = 'GPS On/Off'
+            TabOrder = 3
+            OnClick = btnGPSSwitchClick
+          end
+          object CB_GPSAutodetectCOMOnConnect: TCheckBox
+            AlignWithMargins = True
+            Left = 6
+            Top = 27
+            Width = 80
+            Height = 17
+            Hint = 'Autodetect COM port on connect'
+            Caption = 'Autodetect:'
+            TabOrder = 4
+          end
+          object CB_GPSAutodetectCOMSerial: TCheckBox
+            AlignWithMargins = True
+            Left = 92
+            Top = 27
+            Width = 48
+            Height = 17
+            Caption = 'Serial'
+            TabOrder = 5
+          end
+          object CB_GPSAutodetectCOMVirtual: TCheckBox
+            AlignWithMargins = True
+            Left = 146
+            Top = 27
+            Width = 50
+            Height = 17
+            Caption = 'Virtual'
+            TabOrder = 6
+          end
+          object CB_GPSAutodetectCOMBluetooth: TCheckBox
+            AlignWithMargins = True
+            Left = 202
+            Top = 27
+            Width = 67
+            Height = 17
+            Caption = 'Bluetooth'
+            TabOrder = 7
+          end
+          object CB_GPSAutodetectCOMUSBSer: TCheckBox
+            AlignWithMargins = True
+            Left = 275
+            Top = 27
+            Width = 56
+            Height = 17
+            Caption = 'USBSer'
+            TabOrder = 8
+          end
+          object CB_GPSAutodetectCOMOthers: TCheckBox
+            AlignWithMargins = True
+            Left = 337
+            Top = 27
+            Width = 50
+            Height = 17
+            Caption = 'Others'
+            TabOrder = 9
+          end
+          object CB_USBGarmin: TCheckBox
+            AlignWithMargins = True
+            Left = 6
+            Top = 50
+            Width = 82
+            Height = 17
+            Hint = 'Use Garmin via USB (overrides COM settings if checked)'
+            Caption = 'USB Garmin'
+            TabOrder = 10
+          end
         end
         object flwpnlGpsParams: TFlowPanel
           Left = 0
-          Top = 29
+          Top = 75
           Width = 397
           Height = 230
           Align = alTop
-          BevelEdges = [beBottom]
+          BevelEdges = []
           BevelKind = bkTile
           BevelOuter = bvNone
           BorderWidth = 3
@@ -1548,7 +1641,7 @@ object frmSettings: TfrmSettings
             Height = 13
             Caption = 'Device timeout (sec)'
           end
-          object SpinEdit2: TSpinEdit
+          object SE_ConnectionTimeout: TSpinEdit
             Left = 3
             Top = 17
             Width = 57
@@ -1643,42 +1736,45 @@ object frmSettings: TfrmSettings
             Value = 10000
           end
         end
-        object pnlGpsTrackSave: TPanel
+        object GB_GpsTrackSave: TGroupBox
           Left = 0
-          Top = 259
+          Top = 305
           Width = 397
-          Height = 54
+          Height = 42
           Align = alTop
-          AutoSize = True
-          BevelEdges = [beBottom]
-          BevelKind = bkTile
-          BevelOuter = bvNone
-          BorderWidth = 3
+          Caption = 'Autosave track to:'
           TabOrder = 2
-          object CB_GPSlog: TCheckBox
+          object CB_GPSlogPLT: TCheckBox
             AlignWithMargins = True
-            Left = 6
-            Top = 6
-            Width = 385
+            Left = 75
+            Top = 16
+            Width = 51
             Height = 17
-            Align = alTop
-            Caption = 'Autosave tracks to .plt'
+            Caption = '.plt'
             TabOrder = 0
           end
           object CB_GPSlogNmea: TCheckBox
             AlignWithMargins = True
-            Left = 6
-            Top = 29
-            Width = 385
+            Left = 132
+            Top = 16
+            Width = 99
             Height = 17
-            Align = alTop
-            Caption = 'Autosave tracks to .nmea'
+            Caption = '.nmea/.garmin'
             TabOrder = 1
+          end
+          object CB_GPSlogGPX: TCheckBox
+            AlignWithMargins = True
+            Left = 11
+            Top = 16
+            Width = 51
+            Height = 17
+            Caption = '.gpx'
+            TabOrder = 2
           end
         end
         object pnlGpsSensors: TPanel
           Left = 0
-          Top = 313
+          Top = 347
           Width = 397
           Height = 31
           Align = alTop
@@ -1688,6 +1784,7 @@ object frmSettings: TfrmSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 3
+          ExplicitTop = 359
           object CBSensorsBarAutoShow: TCheckBox
             AlignWithMargins = True
             Left = 6
@@ -1755,7 +1852,7 @@ object frmSettings: TfrmSettings
                 Left = 31
                 Top = 3
                 Width = 74
-                Height = 14
+                Height = 11
                 Margins.Left = 10
                 Margins.Top = 0
                 Margins.Right = 0
@@ -1805,7 +1902,7 @@ object frmSettings: TfrmSettings
                 Left = 31
                 Top = 3
                 Width = 85
-                Height = 14
+                Height = 11
                 Margins.Left = 10
                 Margins.Top = 0
                 Margins.Right = 0
@@ -1828,7 +1925,7 @@ object frmSettings: TfrmSettings
                 Left = 31
                 Top = 3
                 Width = 104
-                Height = 14
+                Height = 11
                 Margins.Left = 10
                 Margins.Top = 0
                 Margins.Right = 0

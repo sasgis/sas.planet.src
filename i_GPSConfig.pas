@@ -24,7 +24,8 @@ interface
 
 uses
   i_GPSModuleByCOMPortConfig,
-  i_ConfigDataElement;
+  i_ConfigDataElement,
+  vsagps_public_tracks;
 
 type
   IGPSConfig = interface(IConfigDataElement)
@@ -37,9 +38,12 @@ type
     procedure SetNoDataTimeOut(const AValue: Integer);
     property NoDataTimeOut: Integer read GetNoDataTimeOut write SetNoDataTimeOut;
 
-    function GetWriteLog: Boolean;
-    procedure SetWriteLog(const AValue: Boolean);
-    property WriteLog: Boolean read GetWriteLog write SetWriteLog;
+    function GetWriteLog(const ATrackType: TVSAGPS_TrackType): Boolean;
+    procedure SetWriteLog(const ATrackType: TVSAGPS_TrackType; const AValue: Boolean);
+    property WriteLog[const ATrackType: TVSAGPS_TrackType]: Boolean read GetWriteLog write SetWriteLog;
+
+    function AllowWriteLog(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
+    procedure AbortWriteLog(const ATrackTypes: TVSAGPS_TrackTypes);
 
     function GetLogPath: WideString;
     property LogPath: WideString read GetLogPath;

@@ -61,6 +61,8 @@ uses
   SysUtils,
   u_GeoFun,
   i_GPS,
+  vsagps_public_base,
+  vsagps_public_position,
   u_NotifyEventListener;
 
 { TMapLayerGPSMarker }
@@ -122,16 +124,21 @@ end;
 procedure TMapLayerGPSMarker.OnTimer;
 var
   VGPSPosition: IGPSPosition;
+  VpPos: PSingleGPSData;  
 begin
   if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
     ViewUpdateLock;
     try
       VGPSPosition := FGPSRecorder.CurrentPosition;
-      if VGPSPosition.IsFix = 0 then begin
+      VpPos := VGPSPosition.GetPosParams;
+      if (not VpPos^.PositionOK) then begin
+        // no position
         Hide;
       end else begin
-        FFixedLonLat := VGPSPosition.Position;
-        PrepareMarker(VGPSPosition.Speed_KMH, VGPSPosition.Heading);
+        // ok
+        FFixedLonLat.X := VpPos^.PositionLon;
+        FFixedLonLat.Y := VpPos^.PositionLat;
+        PrepareMarker(VpPos^.Speed_KMH, VpPos^.Heading);
         Show;
         SetNeedRedraw;
       end;

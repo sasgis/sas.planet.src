@@ -23,60 +23,48 @@ unit i_GPS;
 interface
 
 uses
-  t_GeoTypes;
+  t_GeoTypes,
+  vsagps_public_base,
+  vsagps_public_position;
 
 type
   IGPSSatelliteInfo = interface
     ['{38C3C77F-DAC8-4187-B243-0F7001A7DF9B}']
-    function GetPseudoRandomCode: Integer; stdcall;
-    function GetElevation: Integer; stdcall;
-    function GetAzimuth: Integer; stdcall;
-    function GetSignalToNoiseRatio: Integer; stdcall;
-    function GetIsFix: Boolean; stdcall;
-
-    property PseudoRandomCode: Integer read GetPseudoRandomCode;
-    property Elevation: Integer read GetElevation;
-    property Azimuth: Integer read GetAzimuth;
-    property SignalToNoiseRatio: Integer read GetSignalToNoiseRatio;
-    property IsFix: Boolean read GetIsFix;
+    procedure GetBaseSatelliteParams(AParams: PSingleSatFixibilityData); stdcall;
+    procedure GetSkySatelliteParams(AParams: PSingleSatSkyData); stdcall;
   end;
 
   IGPSSatellitesInView = interface
     ['{D8744967-74EB-47A1-A8FD-4626B5CD2B20}']
-    function GetCount: Integer; stdcall;
-    function GetFixCount: Integer; stdcall;
-    function GetItem(AIndex: Integer): IGPSSatelliteInfo; stdcall;
+    function GetCount(const ATalkerID: String): Byte; stdcall;
+    function GetFixCount(const ATalkerID: String): Byte; stdcall;
+    function GetItem(const ATalkerID: String; const AIndex: Byte): IGPSSatelliteInfo; stdcall;
 
-    property Count: Integer read GetCount;
-    property FixCount: Integer read GetFixCount;
-    property Item[Idx: Integer]: IGPSSatelliteInfo read GetItem;
+    procedure SetFixedSats(AFixSatsAll: PVSAGPS_FIX_ALL); stdcall;
+    function GetFixedSats: PVSAGPS_FIX_ALL; stdcall;
+
+    function GetAllSatelliteParams(const AIndex: Byte;
+                                   const ATalkerID: String;
+                                   var AFixed: Boolean;
+                                   AParams: PSingleSatFixibilityData;
+                                   ASky: PSingleSatSkyData = nil): Boolean; stdcall;
+
+    function GetPreferredTalkerID: String; stdcall;
+
+    property Count[const ATalkerID: String]: Byte read GetCount;
+    property FixCount[const ATalkerID: String]: Byte read GetFixCount;
+    property Item[const ATalkerID: String; const AIndex: Byte]: IGPSSatelliteInfo read GetItem;
   end;
 
   IGPSPosition = interface
     ['{B2422759-9B8B-4CC5-AAA5-46A7240759D0}']
-    function GetPosition: TDoublePoint; stdcall;
-    function GetAltitude: Double; stdcall;
-    function GetSpeed_KMH: Double; stdcall;
-    function GetHeading: Double; stdcall;
-    function GetUTCDateTime: TDateTime; stdcall;
-    function GetLocalDateTime: TDateTime; stdcall;
-    function GetIsFix: Word; stdcall;
-    function GetHDOP: Double; stdcall;
-    function GetVDOP: Double; stdcall;
-    function GetPDOP: Double; stdcall;
-    function GetSatellites: IGPSSatellitesInView; stdcall;
+    function GetPosParams: PSingleGPSData; stdcall;
 
-    property Position: TDoublePoint read GetPosition;
-    property Altitude: Double read GetAltitude;
-    property Speed_KMH: Double read GetSpeed_KMH;
-    property Heading: Double read GetHeading;
-    property UTCDateTime: TDateTime read GetUTCDateTime;
-    property LocalDateTime: TDateTime read GetLocalDateTime;
-    property IsFix: Word read GetIsFix;
-    property HDOP: Double read GetHDOP;
-    property VDOP: Double read GetVDOP;
-    property PDOP: Double read GetPDOP;
-    property Satellites: IGPSSatellitesInView  read GetSatellites;
+    function GetTracksParams(var pPos: PSingleGPSData;
+                             var pSatFixAll: PVSAGPS_FIX_ALL): Boolean; stdcall;
+
+    function GetSatellites: IGPSSatellitesInView; stdcall;
+    property Satellites: IGPSSatellitesInView read GetSatellites;
   end;
 
 implementation

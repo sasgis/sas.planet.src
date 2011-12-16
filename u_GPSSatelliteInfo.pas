@@ -23,29 +23,21 @@ unit u_GPSSatelliteInfo;
 interface
 
 uses
-  i_GPS;
+  i_GPS,
+  vsagps_public_base;
 
 type
   TGPSSatelliteInfo = class(TInterfacedObject, IGPSSatelliteInfo)
   private
-    FPseudoRandomCode: Integer;
-    FElevation: Integer;
-    FAzimuth: Integer;
-    FSignalToNoiseRatio: Integer;
-    FIsFix: Boolean;
+    FSingleSatFixibilityData: TSingleSatFixibilityData;
+    FSingleSatSkyData: TSingleSatSkyData;
   protected
-    function GetPseudoRandomCode: Integer; stdcall;
-    function GetElevation: Integer; stdcall;
-    function GetAzimuth: Integer; stdcall;
-    function GetSignalToNoiseRatio: Integer; stdcall;
-    function GetIsFix: Boolean; stdcall;
+    procedure GetBaseSatelliteParams(AParams: PSingleSatFixibilityData); stdcall;
+    procedure GetSkySatelliteParams(AParams: PSingleSatSkyData); stdcall;
   public
     constructor Create(
-      APseudoRandomCode: Integer;
-      AElevation: Integer;
-      AAzimuth: Integer;
-      ASignalToNoiseRatio: Integer;
-      AIsFix: Boolean
+      const ASingleSatFixibilityData: PSingleSatFixibilityData;
+      const ASingleSatSkyData: PSingleSatSkyData
     );
     destructor Destroy; override;
   end;
@@ -55,45 +47,28 @@ implementation
 
 { TGPSSatelliteInfo }
 
-constructor TGPSSatelliteInfo.Create(APseudoRandomCode, AElevation, AAzimuth,
-  ASignalToNoiseRatio: Integer; AIsFix: Boolean);
+constructor TGPSSatelliteInfo.Create(
+  const ASingleSatFixibilityData: PSingleSatFixibilityData;
+  const ASingleSatSkyData: PSingleSatSkyData);
 begin
-  FPseudoRandomCode := APseudoRandomCode;
-  FElevation := AElevation;
-  FAzimuth := AAzimuth;
-  FSignalToNoiseRatio := ASignalToNoiseRatio;
-  FIsFix := AIsFix;
+  FSingleSatFixibilityData := ASingleSatFixibilityData^;
+  FSingleSatSkyData := ASingleSatSkyData^;
 end;
 
 destructor TGPSSatelliteInfo.Destroy;
 begin
-  FPseudoRandomCode := 0;
+  FSingleSatFixibilityData.sat_info.svid := 0;
   inherited;
 end;
 
-function TGPSSatelliteInfo.GetAzimuth: Integer;
+procedure TGPSSatelliteInfo.GetBaseSatelliteParams(AParams: PSingleSatFixibilityData);
 begin
-  Result := FAzimuth;
+  AParams^ := FSingleSatFixibilityData;
 end;
 
-function TGPSSatelliteInfo.GetElevation: Integer;
+procedure TGPSSatelliteInfo.GetSkySatelliteParams(AParams: PSingleSatSkyData);
 begin
-  Result := FElevation;
-end;
-
-function TGPSSatelliteInfo.GetIsFix: Boolean;
-begin
-  Result := FIsFix;
-end;
-
-function TGPSSatelliteInfo.GetPseudoRandomCode: Integer;
-begin
-  Result := FPseudoRandomCode;
-end;
-
-function TGPSSatelliteInfo.GetSignalToNoiseRatio: Integer;
-begin
-  Result := FSignalToNoiseRatio;
+  AParams^ := FSingleSatSkyData;
 end;
 
 end.

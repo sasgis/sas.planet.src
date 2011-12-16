@@ -23,96 +23,187 @@ unit u_GPSSatellitesInView;
 interface
 
 uses
+  Windows,
   ActiveX,
   Classes,
   SysUtils,
-  i_GPS;
+  i_GPS,
+  vsagps_public_base,
+  vsagps_public_position;
 
 type
   TGPSSatellitesInView = class(TInterfacedObject, IGPSSatellitesInView)
   private
-    FFixCount: Integer;
-    FItems: IInterfaceList;
+    FItemsGP: IInterfaceList;
+    FItemsGL: IInterfaceList;
+    FFixSatsALL: TVSAGPS_FIX_ALL;
+    procedure InternalCreateItems(const AItemsCountTI: Integer;
+                                  AItemsTI: PUnknownList;
+                                  var AItemsIfaceTI: IInterfaceList);
   protected
-    function GetCount: Integer; stdcall;
-    function GetFixCount: Integer; stdcall;
-    function GetItem(AIndex: Integer): IGPSSatelliteInfo; stdcall;
+    function GetCount(const ATalkerID: String): Byte; stdcall;
+    function GetFixCount(const ATalkerID: String): Byte; stdcall;
+    function GetItem(const ATalkerID: String; const AIndex: Byte): IGPSSatelliteInfo; stdcall;
+
+    procedure SetFixedSats(AFixSatsALL: PVSAGPS_FIX_ALL); stdcall;
+    function GetFixedSats: PVSAGPS_FIX_ALL; stdcall;
+
+    function GetAllSatelliteParams(const AIndex: Byte;
+                                   const ATalkerID: String;
+                                   var AFixed: Boolean;
+                                   AParams: PSingleSatFixibilityData;
+                                   ASky: PSingleSatSkyData = nil): Boolean; stdcall;
+
+    function GetPreferredTalkerID: String; stdcall;
   public
     constructor Create(
-      AFixCount: Integer;
-      AItemsCount: Integer;
-      AItems: PUnknownList
+      const AItemsCountGP: Integer;
+      AItemsGP: PUnknownList;
+      const AItemsCountGL: Integer;
+      AItemsGL: PUnknownList
     );
     destructor Destroy; override;
   end;
 
 implementation
 
-const
-  CMaxSatellitesCount = 32;
-
 { TGPSSatellitesInView }
 
 constructor TGPSSatellitesInView.Create(
-  AFixCount: Integer;
-  AItemsCount: Integer;
-  AItems: PUnknownList
+  const AItemsCountGP: Integer;
+  AItemsGP: PUnknownList;
+  const AItemsCountGL: Integer;
+  AItemsGL: PUnknownList
 );
+begin
+  // init
+  SetFixedSats(nil);
+  // make
+  InternalCreateItems(AItemsCountGP, AItemsGP, FItemsGP);
+  InternalCreateItems(AItemsCountGL, AItemsGL, FItemsGL);
+end;
+
+destructor TGPSSatellitesInView.Destroy;
+begin
+  FItemsGP := nil;
+  FItemsGL := nil;
+  inherited;
+end;
+
+function TGPSSatellitesInView.GetCount(const ATalkerID: String): Byte;
+begin
+  if SameText(ATalkerID, nmea_ti_GLONASS) then begin
+    // glonass
+    if FItemsGL <> nil then begin
+      Result := FItemsGL.Count;
+    end else begin
+      Result := 0;
+    end;
+  end else begin
+    // gps
+    if FItemsGP <> nil then begin
+      Result := FItemsGP.Count;
+    end else begin
+      Result := 0;
+    end;
+  end;
+end;
+
+function TGPSSatellitesInView.GetFixCount(const ATalkerID: String): Byte;
+var
+  p: PVSAGPS_FIX_SATS;
+begin
+  p:=Select_PVSAGPS_FIX_SATS_from_ALL(@FFixSatsALL, ATalkerID);
+  Result:=Get_PVSAGPS_FIX_SATS_FixCount(p);
+end;
+
+function TGPSSatellitesInView.GetFixedSats: PVSAGPS_FIX_ALL;
+begin
+  Result:=@FFixSatsALL;
+end;
+
+function TGPSSatellitesInView.GetAllSatelliteParams(const AIndex: Byte;
+                                                    const ATalkerID: String;
+                                                    var AFixed: Boolean;
+                                                    AParams: PSingleSatFixibilityData;
+                                                    ASky: PSingleSatSkyData = nil): Boolean;
+var
+  VItem: IGPSSatelliteInfo;
+  VSat: TVSAGPS_FIX_SAT;
+begin
+  Result:=FALSE;
+  VItem:=GetItem(ATalkerID, AIndex);
+  if Assigned(VItem) then begin
+    VItem.GetBaseSatelliteParams(AParams);
+    VSat:=AParams.sat_info;
+    AFixed:=(GetSatNumberIndex(@FFixSatsALL, @(VSat))>=0);
+    if (nil<>ASky) then
+      VItem.GetSkySatelliteParams(ASky);
+    Result:=TRUE;
+  end;
+end;
+
+function TGPSSatellitesInView.GetItem(const ATalkerID: String; const AIndex: Byte): IGPSSatelliteInfo;
+begin
+  if SameText(ATalkerID, nmea_ti_GLONASS) then begin
+    // glonass
+    if FItemsGL <> nil then begin
+      Result := IGPSSatelliteInfo(FItemsGL[AIndex]);
+    end else begin
+      Result := nil;
+    end;
+  end else begin
+    // gps
+    if FItemsGP <> nil then begin
+      Result := IGPSSatelliteInfo(FItemsGP[AIndex]);
+    end else begin
+      Result := nil;
+    end;
+  end;
+end;
+
+function TGPSSatellitesInView.GetPreferredTalkerID: String;
+begin
+  if FFixSatsALL.gl.fix_count>FFixSatsALL.gp.fix_count then
+    Result:=nmea_ti_GLONASS
+  else
+    Result:=nmea_ti_GPS;
+end;
+
+procedure TGPSSatellitesInView.InternalCreateItems(
+  const AItemsCountTI: Integer;
+  AItemsTI: PUnknownList;
+  var AItemsIfaceTI: IInterfaceList
+  );
 var
   i: Integer;
   VItemCount: Integer;
   VItem: IGPSSatelliteInfo;
 begin
-  if (AItemsCount > 0) and (AItems <> nil) then begin
-    VItemCount := AItemsCount;
-    if VItemCount > CMaxSatellitesCount then begin
-      VItemCount := CMaxSatellitesCount;
+  AItemsIfaceTI:=nil;
+  
+  if (AItemsCountTI > 0) and (AItemsTI <> nil) then begin
+    VItemCount := AItemsCountTI;
+    if VItemCount > cNmea_max_sat_count then begin
+      VItemCount := cNmea_max_sat_count;
     end;
 
-    FItems := TInterfaceList.Create;
-    FItems.Capacity := VItemCount;
+    AItemsIfaceTI := TInterfaceList.Create;
+    AItemsIfaceTI.Capacity := VItemCount;
 
     for i := 0 to VItemCount - 1 do begin
-      VItem := IGPSSatelliteInfo(AItems^[i]);
-      FItems.Add(VItem);
+      VItem := IGPSSatelliteInfo(AItemsTI^[i]);
+      AItemsIfaceTI.Add(VItem);
     end;
-    FFixCount := AFixCount;
-    if FItems.Count < FFixCount then begin
-      FFixCount := FItems.Count;
-    end;
-  end else begin
-    FItems := nil;
-    FFixCount := 0;
   end;
 end;
 
-destructor TGPSSatellitesInView.Destroy;
+procedure TGPSSatellitesInView.SetFixedSats(AFixSatsALL: PVSAGPS_FIX_ALL);
 begin
-  FItems := nil;
-  inherited;
-end;
-
-function TGPSSatellitesInView.GetCount: Integer;
-begin
-  if FItems <> nil then begin
-    Result := FItems.Count;
-  end else begin
-    Result := 0;
-  end;
-end;
-
-function TGPSSatellitesInView.GetFixCount: Integer;
-begin
-  Result := FFixCount;
-end;
-
-function TGPSSatellitesInView.GetItem(AIndex: Integer): IGPSSatelliteInfo;
-begin
-  if FItems <> nil then begin
-    Result := IGPSSatelliteInfo(FItems[AIndex]);
-  end else begin
-    Result := nil;
-  end;
+  if (nil=AFixSatsALL) then
+    ZeroMemory(@FFixSatsALL, sizeof(FFixSatsALL))
+  else
+    FFixSatsALL := AFixSatsALL^;
 end;
 
 end.
