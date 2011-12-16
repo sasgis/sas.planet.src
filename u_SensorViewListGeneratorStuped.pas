@@ -123,6 +123,19 @@ begin
   AddSensor(VSensor, AResult);
   VSensor := ASensorList.Get(CSensorHeadingGUID);
   AddSensor(VSensor, AResult);
+
+  VSensor := ASensorList.Get(CSensorHDOPGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorVDOPGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorUTCTimeGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorLocalTimeGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorDGPSGUID);
+  AddSensor(VSensor, AResult);
+  VSensor := ASensorList.Get(CSensorGPSUnitInfoGUID);
+  AddSensor(VSensor, AResult);
 end;
 
 constructor TSensorViewListGeneratorStuped.Create(

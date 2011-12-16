@@ -43,6 +43,8 @@ type
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property ValueConverter: IValueToStringConverter read FValueConverter;
 
+    function ValueChanged(const AOld, ANew: Double): Boolean; virtual;
+
     function ValueToText(AValue: Double): string; virtual; abstract;
     function GetValue: Double; virtual; abstract;
   protected
@@ -55,6 +57,18 @@ type
       AGPSRecorder: IGPSRecorder;
       AValueConverterConfig: IValueToStringConverterConfig
     );
+  end;
+
+  TSensorTimeFromGPSRecorder = class(TSensorTextFromGPSRecorder)
+  protected
+    function ValueChanged(const AOld, ANew: Double): Boolean; override;
+    function ValueToText(AValue: Double): string; override;
+  end;
+
+  TSensorSimpleTextFromGPSRecorder = class(TSensorTextFromGPSRecorder)
+  protected
+    function ValueChanged(const AOld, ANew: Double): Boolean; override;
+    function GetValue: Double; override;
   end;
 
 implementation
@@ -124,7 +138,7 @@ begin
   VValue := GetValue;
   LockWrite;
   try
-    if Abs(FLastValue - VValue) > 0.001 then begin
+    if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
       VNeedNotify := True;
     end;
@@ -134,6 +148,38 @@ begin
   if VNeedNotify then begin
     NotifyDataUpdate;
   end;
+end;
+
+function TSensorTextFromGPSRecorder.ValueChanged(const AOld, ANew: Double): Boolean;
+begin
+  Result := (Abs(AOld - ANew) > 0.001);
+end;
+
+{ TSensorSimpleTextFromGPSRecorder }
+
+function TSensorSimpleTextFromGPSRecorder.GetValue: Double;
+begin
+  Result := 0;
+end;
+
+function TSensorSimpleTextFromGPSRecorder.ValueChanged(const AOld, ANew: Double): Boolean;
+begin
+  Result := TRUE;
+end;
+
+{ TSensorTimeFromGPSRecorder }
+
+function TSensorTimeFromGPSRecorder.ValueChanged(const AOld, ANew: Double): Boolean;
+begin
+  Result:=TRUE;
+end;
+
+function TSensorTimeFromGPSRecorder.ValueToText(AValue: Double): string;
+begin
+  if (0=AValue) then
+    Result:=''
+  else
+    Result := FormatDateTime('hh:nn:ss',AValue);
 end;
 
 end.
