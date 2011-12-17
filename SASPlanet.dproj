@@ -563,7 +563,6 @@
     <DCCReference Include="u_GlobalViewMainConfig.pas" />
     <DCCReference Include="u_GotoLayerConfig.pas" />
     <DCCReference Include="u_GPSConfig.pas" />
-    <DCCReference Include="u_GPSLogWriterToPlt.pas" />
     <DCCReference Include="u_GPSModuleAbstract.pas" />
     <DCCReference Include="u_GPSModuleByCOMPortConfig.pas" />
     <DCCReference Include="u_GPSModuleByCOMPortSettings.pas" />
