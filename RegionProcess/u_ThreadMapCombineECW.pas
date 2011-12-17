@@ -189,84 +189,90 @@ begin
   sy := (FCurrentPieceRect.Top mod 256);
   ex := (FCurrentPieceRect.Right mod 256);
   ey := (FCurrentPieceRect.Bottom mod 256);
+  FECWWriter := TECWWrite.Create(FEcwDll);
   try
-    FECWWriter := TECWWrite.Create(FEcwDll);
     btmm := TCustomBitmap32.Create;
-    btmm.Width := 256;
-    btmm.Height := 256;
-    getmem(Rarr, 256 * sizeof(PRow));
-    for k := 0 to 255 do begin
-      getmem(Rarr[k], (FMapSize.X + 1) * sizeof(byte));
-    end;
-    getmem(Garr, 256 * sizeof(PRow));
-    for k := 0 to 255 do begin
-      getmem(Garr[k], (FMapSize.X + 1) * sizeof(byte));
-    end;
-    getmem(Barr, 256 * sizeof(PRow));
-    for k := 0 to 255 do begin
-      getmem(Barr[k], (FMapSize.X + 1) * sizeof(byte));
-    end;
-    Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.Datum.EPSG);
-    Proj := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetProjectionEPSG);
-    Units := FTypeMap.GeoConvert.GetCellSizeUnits;
-    CalculateWFileParams(
-      FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom),
-      FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom),
-      FMapPieceSize.X, FMapPieceSize.Y, FTypeMap.GeoConvert,
-      CellIncrementX, CellIncrementY, OriginX, OriginY
-      );
-    errecw :=
-      FECWWriter.Encode(
-        OperationID,
-        CancelNotifier,
-        FCurrentFileName,
-        FMapPieceSize.X,
-        FMapPieceSize.Y,
-        101 - FQuality,
-        COMPRESS_HINT_BEST,
-        ReadLineECW,
-        Datum,
-        Proj,
-        Units,
-        CellIncrementX,
-        CellIncrementY,
-        OriginX,
-        OriginY
-      );
-    if (errecw > 0) and (errecw <> 52) then begin
-      path := FTypeMap.GetTileShowName(FLastTile, FZoom);
-      ShowMessageSync(SAS_ERR_Save + ' ' + SAS_ERR_Code + inttostr(errecw) + #13#10 + path);
+    try
+      btmm.Width := 256;
+      btmm.Height := 256;
+      getmem(Rarr, 256 * sizeof(PRow));
+      for k := 0 to 255 do begin
+        getmem(Rarr[k], (FMapSize.X + 1) * sizeof(byte));
+      end;
+      getmem(Garr, 256 * sizeof(PRow));
+      for k := 0 to 255 do begin
+        getmem(Garr[k], (FMapSize.X + 1) * sizeof(byte));
+      end;
+      getmem(Barr, 256 * sizeof(PRow));
+      for k := 0 to 255 do begin
+        getmem(Barr[k], (FMapSize.X + 1) * sizeof(byte));
+      end;
+      try
+        Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.Datum.EPSG);
+        Proj := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetProjectionEPSG);
+        Units := FTypeMap.GeoConvert.GetCellSizeUnits;
+        CalculateWFileParams(
+          FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom),
+          FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom),
+          FMapPieceSize.X, FMapPieceSize.Y, FTypeMap.GeoConvert,
+          CellIncrementX, CellIncrementY, OriginX, OriginY
+          );
+        errecw :=
+          FECWWriter.Encode(
+            OperationID,
+            CancelNotifier,
+            FCurrentFileName,
+            FMapPieceSize.X,
+            FMapPieceSize.Y,
+            101 - FQuality,
+            COMPRESS_HINT_BEST,
+            ReadLineECW,
+            Datum,
+            Proj,
+            Units,
+            CellIncrementX,
+            CellIncrementY,
+            OriginX,
+            OriginY
+          );
+        if (errecw > 0) and (errecw <> 52) then begin
+          path := FTypeMap.GetTileShowName(FLastTile, FZoom);
+          ShowMessageSync(SAS_ERR_Save + ' ' + SAS_ERR_Code + inttostr(errecw) + #13#10 + path);
+        end;
+      finally
+        {$IFDEF VER80}
+        for k := 0 to 255 do begin
+          freemem(Rarr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
+        end;
+        freemem(Rarr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
+        for k := 0 to 255 do begin
+          freemem(Garr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
+        end;
+        freemem(Garr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
+        for k := 0 to 255 do begin
+          freemem(Barr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
+        end;
+        freemem(Barr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
+        {$ELSE}
+        for k := 0 to 255 do begin
+          freemem(Rarr[k]);
+        end;
+        FreeMem(Rarr);
+        for k := 0 to 255 do begin
+          freemem(Garr[k]);
+        end;
+        FreeMem(Garr);
+        for k := 0 to 255 do begin
+          freemem(Barr[k]);
+        end;
+        FreeMem(Barr);
+        {$ENDIF}
+      end;
+    finally
+      btmm.Free;
     end;
   finally
-    {$IFDEF VER80}
-    for k := 0 to 255 do begin
-      freemem(Rarr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
-    end;
-    freemem(Rarr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
-    for k := 0 to 255 do begin
-      freemem(Garr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
-    end;
-    freemem(Garr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
-    for k := 0 to 255 do begin
-      freemem(Barr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
-    end;
-    freemem(Barr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
-    {$ELSE}
-    for k := 0 to 255 do begin
-      freemem(Rarr[k]);
-    end;
-    FreeMem(Rarr);
-    for k := 0 to 255 do begin
-      freemem(Garr[k]);
-    end;
-    FreeMem(Garr);
-    for k := 0 to 255 do begin
-      freemem(Barr[k]);
-    end;
-    FreeMem(Barr);
-    {$ENDIF}
-    btmm.Free;
-    FECWWriter.Free;
+    FreeAndNil(FECWWriter);
   end;
 end;
 

@@ -287,11 +287,7 @@ var
 begin
   FProgramPath := ExtractFilePath(ParamStr(0));
   FAppClosingNotifier := TJclBaseNotifier.Create;
-  try
-    FEcwDll := TEcwDllSimple.Create(FProgramPath);
-  except
-    // allow run without ECWDLL
-  end;
+  FEcwDll := TEcwDllSimple.Create(FProgramPath);
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FGUISyncronizedTimer := TTimer.Create(nil);

@@ -31,12 +31,14 @@ type
   TEcwDllSimple = class(TInterfacedObject, IEcwDll)
   private
     FDllHandle: HMODULE;
-
+    FDllPath: string;
+    FInitialized: Boolean;
     FCompressAllocClient: NCSEcwCompressAllocClient;
     FCompressOpen: NCSEcwCompressOpen;
     FCompress: NCSEcwCompress;
     FCompressClose: NCSEcwCompressClose;
     FCompressFreeClient: NCSEcwCompressFreeClient;
+    function Init: Boolean;
   protected
     function GetCompressAllocClient: NCSEcwCompressAllocClient;
     function GetCompressOpen: NCSEcwCompressOpen;
@@ -58,6 +60,22 @@ uses
 { TEcwDllSimple }
 
 constructor TEcwDllSimple.Create(ADllPath: string);
+begin
+  FDllPath := ADllPath;
+  FDllHandle := 0;
+  FInitialized := False;
+end;
+
+destructor TEcwDllSimple.Destroy;
+begin
+  if FDllHandle <> 0 then begin
+    FreeLibrary(FDllHandle);
+    FDllHandle := 0;
+  end;
+  inherited;
+end;
+
+function TEcwDllSimple.Init: Boolean;
 const
   CDllName = 'NCSEcwC.dll';
   CCompressAllocClientFunctionName = 'NCSEcwCompressAllocClient';
@@ -66,8 +84,9 @@ const
   CCompressCloseFunctionName = 'NCSEcwCompressClose';
   CCompressFreeClientFunctionName = 'NCSEcwCompressFreeClient';
 begin
-  try
-    FDllHandle := LoadLibrary(PChar(ADllPath + CDllName));
+  Result := FInitialized;
+  if not Result then begin
+    FDllHandle := LoadLibrary(PChar(FDllPath + CDllName));
     if FDllHandle = 0 then begin
       RaiseLastOSError;
     end;
@@ -91,18 +110,9 @@ begin
     if not Assigned(FCompressFreeClient) then begin
       raise Exception.CreateFmt('Function %s not found', [CCompressFreeClientFunctionName]);
     end;
-  except
-    raise Exception.Create('Ошибка при загрузке библиотеки ' + CDllName);
+    FInitialized := True;
+    Result := FInitialized;
   end;
-end;
-
-destructor TEcwDllSimple.Destroy;
-begin
-  if FDllHandle <> 0 then begin
-    FreeLibrary(FDllHandle);
-    FDllHandle := 0;
-  end;
-  inherited;
 end;
 
 function TEcwDllSimple.GetCompress: NCSEcwCompress;
@@ -112,7 +122,11 @@ end;
 
 function TEcwDllSimple.GetCompressAllocClient: NCSEcwCompressAllocClient;
 begin
-  Result := FCompressAllocClient
+  if Init then begin
+    Result := FCompressAllocClient;
+  end else begin
+    Result := nil;
+  end;
 end;
 
 function TEcwDllSimple.GetCompressClose: NCSEcwCompressClose;
