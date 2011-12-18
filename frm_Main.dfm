@@ -1249,7 +1249,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 8
+        Left = 24
         Top = 221
         Width = 14
         Height = 13
@@ -1269,7 +1269,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 2
+        Left = 18
         Top = 32
         Width = 25
         Height = 153
@@ -1451,8 +1451,6 @@ object frmMain: TfrmMain
             DockRow = 10
             Stretch = True
             TabOrder = 0
-            ExplicitWidth = 32
-            ExplicitHeight = 32
             DesignSize = (
               150
               32)
