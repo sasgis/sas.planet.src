@@ -4063,6 +4063,7 @@ var
   VTag: Integer;
 begin
   VTag := TTBXItem(sender).Tag;
+  TTBXItem(sender).checked := True;
   FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.LockWrite;
   try
     if VTag = 0 then begin
