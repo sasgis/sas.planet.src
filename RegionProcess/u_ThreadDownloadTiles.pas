@@ -350,12 +350,14 @@ end;
 
 destructor TThreadDownloadTiles.Destroy;
 begin
+  FCancelNotifierInternal.NextOperation;
   FTileDownloadFinishListener.Disconnect;
 
   FAppClosingNotifier.Remove(FAppClosingListener);
   FAppClosingNotifier := nil;
   FAppClosingListener := nil;
 
+  FFinishEvent.SetEvent;
   FreeAndNil(FFinishEvent);
 
   FLog := nil;
@@ -478,7 +480,13 @@ begin
                   VRequest := FMapType.TileDownloadSubsystem.GetRequest(FCancelNotifier, VOperationID, VTile, FZoom, FCheckExistTileSize);
                   VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
                   FMapType.TileDownloadSubsystem.Download(VRequest);
+                  if Terminated then begin
+                    Break;
+                  end;
                   FFinishEvent.WaitFor(INFINITE);
+                  if Terminated then begin
+                    Break;
+                  end;
                   ProcessResult(FResult);
                   if Terminated then begin
                     Break;
