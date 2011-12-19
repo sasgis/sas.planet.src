@@ -94,6 +94,7 @@ uses
   SysUtils,
   GR32_Resamplers,
   GR32_Polygons,
+  i_BitmapMarker,
   u_GeoFun;
 
 const
@@ -290,15 +291,17 @@ var
   VTextSize: TSize;
   VMarkSize: Integer;
   VFontSize: Integer;
+  VMarker: IBitmapMarker;
+  VTargetPoint: TDoublePoint;
 begin
   VMarkSize := AMarkPoint.MarkerSize;
   VFontSize := AMarkPoint.FontSize;
   xy := ALocalConverter.LonLat2LocalPixel(AMarkPoint.Point);
   if (AMarkPoint.Pic <> nil) then begin
-    AMarkPoint.Pic.LoadBitmap(FTempBmp);
-    VDstRect := bounds(xy.x - (VMarkSize div 2), xy.y - VMarkSize, VMarkSize, VMarkSize);
-    VSrcRect := bounds(0, 0, FTempBmp.Width, FTempBmp.Height);
-    ATargetBmp.Draw(VDstRect, VSrcRect, FTempBmp);
+    VMarker := AMarkPoint.Pic.GetMarkerBySize(VMarkSize);
+    VTargetPoint.X := xy.X - VMarker.AnchorPoint.X;
+    VTargetPoint.Y := xy.Y - VMarker.AnchorPoint.Y;
+    ATargetBmp.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
   end;
   if FConfig.ShowPointCaption then begin
     if VFontSize > 0 then begin

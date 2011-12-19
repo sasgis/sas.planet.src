@@ -142,7 +142,7 @@ begin
   Bitmap:=TCustomBitmap32.Create;
   try
     VPic := IMarkPicture(Pointer(cbbPointIcon.Items.Objects[Index]));
-    VPic.LoadBitmap(Bitmap);
+    Bitmap.Assign(VPic.GetMarker.Bitmap);
     Bitmap.DrawMode:=dmBlend;
     Bitmap.Resampler:=TKernelResampler.Create;
     TKernelResampler(Bitmap.Resampler).Kernel:=TCubicKernel.Create;

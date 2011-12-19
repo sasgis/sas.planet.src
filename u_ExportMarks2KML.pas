@@ -312,7 +312,7 @@ begin
       if VMarkPoint.Pic <> nil then begin
         with AddChild('IconStyle') do begin
           VFileName := SaveMarkIcon(VMarkPoint);
-          width:=VMarkPoint.Pic.GetBitmapSize.X;
+          width:=VMarkPoint.Pic.GetMarker.BitmapSize.X;
           ChildValues['scale']:=R2StrPoint(VMarkPoint.MarkerSize/width);
           with AddChild('Icon') do begin
             ChildValues['href']:=VFileName;

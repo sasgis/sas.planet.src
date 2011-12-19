@@ -28,6 +28,7 @@ uses
   SyncObjs,
   Classes,
   GR32,
+  i_BitmapMarker,
   i_BitmapTileSaveLoad,
   i_MarkPicture;
 
@@ -38,19 +39,19 @@ type
     FLoader: IBitmapTileLoader;
 
     FCS: TCriticalSection;
-    FBitmap: TCustomBitmap32;
+    FSimpleMarkerProvider: IBitmapMarkerProvider;
 
     FInited: Integer;
-    FBitmapSize: TPoint;
     procedure InitPic;
+  protected
+    function GetMarker: IBitmapMarker;
+    function GetMarkerBySize(ASize: Integer): IBitmapMarker;
   protected
     function GetName: string;
     procedure ExportToStream(AStream: TStream);
-    procedure LoadBitmap(ABmp: TCustomBitmap32);
-    function GetPointInPicture: TPoint;
+
     function GetTextAlignment: TAlignment;
     function GetTextVerticalAlignment: TVerticalAlignment;
-    function GetBitmapSize: TPoint;
   public
     constructor Create(AFullFileName: string; AName: string; ALoader: IBitmapTileLoader);
     destructor Destroy; override;
@@ -60,7 +61,9 @@ implementation
 
 uses
   SysUtils,
-  GR32_LowLevel;
+  t_GeoTypes,
+  u_BitmapMarker,
+  u_BitmapMarkerProviderStaticFromDataProvider;
 
 { TMarkPictureSimple }
 constructor TMarkPictureSimple.Create(AFullFileName: string; AName: string; ALoader: IBitmapTileLoader);
@@ -69,14 +72,12 @@ begin
   FName := AName;
   FLoader := ALoader;
 
-  FBitmap := TCustomBitmap32.Create;
   FCS := TCriticalSection.Create;
   FInited := 0;
 end;
 
 destructor TMarkPictureSimple.Destroy;
 begin
-  FreeAndNil(FBitmap);
   FreeAndNil(FCS);
   inherited;
 end;
@@ -106,13 +107,6 @@ begin
   end;
 end;
 
-function TMarkPictureSimple.GetPointInPicture: TPoint;
-begin
-  InitPic;
-  Result.X := FBitmapSize.X div 2;
-  Result.Y := FBitmapSize.Y;
-end;
-
 function TMarkPictureSimple.GetTextAlignment: TAlignment;
 begin
   Result := taRightJustify;
@@ -126,23 +120,30 @@ end;
 procedure TMarkPictureSimple.InitPic;
 var
   VMemStream: TMemoryStream;
+  VBitmap: TCustomBitmap32;
+  VAnchor: TDoublePoint;
+  VBaseMarker: IBitmapMarker;
 begin
   if InterlockedCompareExchange(FInited, 0, 0) = 0 then begin
     FCS.Acquire;
     try
       if InterlockedCompareExchange(FInited, 0, 0) = 0 then begin
+        VBitmap := TCustomBitmap32.Create;
         try
           VMemStream := TMemoryStream.Create;
           try
             VMemStream.LoadFromFile(FFullFileName);
-            FLoader.LoadFromStream(VMemStream, FBitmap);
+            FLoader.LoadFromStream(VMemStream, VBitmap);
           finally
             VMemStream.Free;
           end;
         except
-          FBitmap.SetSize(0, 0);
+          VBitmap.SetSize(0, 0);
         end;
-        FBitmapSize := Point(FBitmap.Width, FBitmap.Height);
+        VAnchor.X := VBitmap.Width / 2;
+        VAnchor.Y := VBitmap.Height;
+        VBaseMarker := TBitmapMarker.CreateTakeBitmapOwn(VBitmap, VAnchor);
+        FSimpleMarkerProvider := TBitmapMarkerProviderStatic.Create(VBaseMarker);
         InterlockedIncrement(FInited);
       end;
     finally
@@ -151,24 +152,21 @@ begin
   end;
 end;
 
-procedure TMarkPictureSimple.LoadBitmap(ABmp: TCustomBitmap32);
+function TMarkPictureSimple.GetMarker: IBitmapMarker;
 begin
   InitPic;
-  ABmp.SetSize(FBitmapSize.X, FBitmapSize.Y);
-  if not FBitmap.Empty then
-    MoveLongword(FBitmap.Bits[0], ABmp.Bits[0], FBitmapSize.X * FBitmapSize.Y);
+  Result := FSimpleMarkerProvider.GetMarker;
+end;
+
+function TMarkPictureSimple.GetMarkerBySize(ASize: Integer): IBitmapMarker;
+begin
+  InitPic;
+  Result := FSimpleMarkerProvider.GetMarkerBySize(ASize);
 end;
 
 function TMarkPictureSimple.GetName: string;
 begin
   Result := FName;
 end;
-
-function TMarkPictureSimple.GetBitmapSize: TPoint;
-begin
-  InitPic;
-  Result := FBitmapSize;
-end;
-
 
 end.

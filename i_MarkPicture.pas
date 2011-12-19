@@ -25,16 +25,15 @@ interface
 uses
   Classes,
   GR32,
+  i_BitmapMarker,
   i_ConfigDataElement;
 
 type
-  IMarkPicture = interface
+  IMarkPicture = interface(IBitmapMarkerProvider)
     ['{4F70C829-D49A-4019-AAF6-3AA9BCD2CCAE}']
-    procedure LoadBitmap(ABmp: TCustomBitmap32);
     procedure ExportToStream(AStream: TStream);
     function GetName: string;
-    function GetBitmapSize: TPoint;
-    function GetPointInPicture: TPoint;
+
     function GetTextAlignment: TAlignment;
     function GetTextVerticalAlignment: TVerticalAlignment;
   end;

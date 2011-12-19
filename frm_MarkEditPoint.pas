@@ -260,7 +260,7 @@ begin
     wdth:=min(bound.Right-bound.Left,bound.Bottom-bound.Top);
     Bitmap:=TCustomBitmap32.Create;
     try
-      APic.LoadBitmap(Bitmap);
+      Bitmap.Assign(APic.GetMarker.Bitmap);
       Bitmap.DrawMode:=dmBlend;
       Bitmap.Resampler:=TKernelResampler.Create;
       TKernelResampler(Bitmap.Resampler).Kernel:=TLinearKernel.Create;
