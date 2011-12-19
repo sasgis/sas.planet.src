@@ -43,6 +43,10 @@ type
       ABitmap: TCustomBitmap32;
       AAnchorPoint: TDoublePoint
     );
+    constructor CreateTakeBitmapOwn(
+      ABitmap: TCustomBitmap32;
+      AAnchorPoint: TDoublePoint
+    );
     destructor Destroy; override;
   end;
 
@@ -71,13 +75,22 @@ constructor TBitmapMarker.Create(
   ABitmap: TCustomBitmap32;
   AAnchorPoint: TDoublePoint
 );
+var
+  VBitmap: TCustomBitmap32;
 begin
-  FBitmap := TCustomBitmap32.Create;
-  FBitmap.Assign(ABitmap);
+  VBitmap := TCustomBitmap32.Create;
+  VBitmap.Assign(ABitmap);
+  CreateTakeBitmapOwn(VBitmap, AAnchorPoint);
+end;
+
+constructor TBitmapMarker.CreateTakeBitmapOwn(ABitmap: TCustomBitmap32;
+  AAnchorPoint: TDoublePoint);
+begin
+  FAnchorPoint := AAnchorPoint;
+  FBitmap := ABitmap;
   FBitmap.DrawMode := dmBlend;
   FBitmap.CombineMode := cmBlend;
   FBitmapSize := Point(FBitmap.Width, FBitmap.Height);
-  FAnchorPoint := AAnchorPoint;
 end;
 
 destructor TBitmapMarker.Destroy;
