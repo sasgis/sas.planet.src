@@ -31,13 +31,18 @@ uses
   i_BitmapMarker;
 
 type
-  TBitmapMarkerProviderStaticFromDataProvider = class(TInterfacedObject, IBitmapMarkerProvider)
+  TBitmapMarkerProviderStatic = class(TInterfacedObject, IBitmapMarkerProvider)
   private
     FMarker: IBitmapMarker;
     function ModifyMarkerWithResize(ASourceMarker: IBitmapMarker; ASize: Integer): IBitmapMarker;
   protected
     function GetMarker: IBitmapMarker;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
+  public
+    constructor Create(AMarker: IBitmapMarker);
+  end;
+
+  TBitmapMarkerProviderStaticFromDataProvider = class(TBitmapMarkerProviderStatic)
   public
     constructor Create(
       AResourceDataProvider: IConfigDataProvider;
@@ -84,61 +89,19 @@ uses
 const
   CAngleDelta = 1.0;
 
-{ TBitmapMarkerProviderStaticFromDataProvider }
+{ TBitmapMarkerProviderStatic }
 
-constructor TBitmapMarkerProviderStaticFromDataProvider.Create(
-  AResourceDataProvider: IConfigDataProvider;
-  AContentTypeManager: IContentTypeManager;
-  AResourceName: string;
-  AAnchorPoint: TDoublePoint
-);
-var
-  VFileName: string;
-  VFileExt: string;
-  VInfoBasic: IContentTypeInfoBasic;
-  VBitmapContntType: IContentTypeInfoBitmap;
-  VBitmap: TCustomBitmap32;
-  VStream: TMemoryStream;
+constructor TBitmapMarkerProviderStatic.Create(AMarker: IBitmapMarker);
 begin
-  VFileName := ExtractFileName(AResourceName);
-  VFileExt := ExtractFileExt(VFileName);
-  VBitmap := TCustomBitmap32.Create;
-  try
-    VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
-    if VInfoBasic <> nil then begin
-      if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
-        VStream := TMemoryStream.Create;
-        try
-          if AResourceDataProvider.ReadBinaryStream(VFileName, VStream) > 0 then begin
-            VStream.Position := 0;
-            try
-              VBitmapContntType.GetLoader.LoadFromStream(VStream, VBitmap);
-            except
-              Assert(False, 'Ошибка при загрузке картинки ' + AResourceName);
-            end;
-          end;
-        finally
-          VStream.Free;
-        end;
-      end;
-    end;
-
-    FMarker :=
-      TBitmapMarker.Create(
-        VBitmap,
-        AAnchorPoint
-      );
-  finally
-    VBitmap.Free;
-  end;
+  FMarker := AMarker;
 end;
 
-function TBitmapMarkerProviderStaticFromDataProvider.GetMarker: IBitmapMarker;
+function TBitmapMarkerProviderStatic.GetMarker: IBitmapMarker;
 begin
   Result := FMarker;
 end;
 
-function TBitmapMarkerProviderStaticFromDataProvider.GetMarkerBySize(
+function TBitmapMarkerProviderStatic.GetMarkerBySize(
   ASize: Integer): IBitmapMarker;
 var
   VMarker: IBitmapMarker;
@@ -151,7 +114,7 @@ begin
   end;
 end;
 
-function TBitmapMarkerProviderStaticFromDataProvider.ModifyMarkerWithResize(
+function TBitmapMarkerProviderStatic.ModifyMarkerWithResize(
   ASourceMarker: IBitmapMarker; ASize: Integer): IBitmapMarker;
 var
   VTransform: TAffineTransformation;
@@ -216,6 +179,55 @@ begin
     end;
   finally
     VTransform.Free;
+  end;
+end;
+
+{ TBitmapMarkerProviderStaticFromDataProvider }
+
+constructor TBitmapMarkerProviderStaticFromDataProvider.Create(
+  AResourceDataProvider: IConfigDataProvider;
+  AContentTypeManager: IContentTypeManager;
+  AResourceName: string;
+  AAnchorPoint: TDoublePoint
+);
+var
+  VFileName: string;
+  VFileExt: string;
+  VInfoBasic: IContentTypeInfoBasic;
+  VBitmapContntType: IContentTypeInfoBitmap;
+  VBitmap: TCustomBitmap32;
+  VStream: TMemoryStream;
+begin
+  VFileName := ExtractFileName(AResourceName);
+  VFileExt := ExtractFileExt(VFileName);
+  VBitmap := TCustomBitmap32.Create;
+  try
+    VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
+    if VInfoBasic <> nil then begin
+      if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
+        VStream := TMemoryStream.Create;
+        try
+          if AResourceDataProvider.ReadBinaryStream(VFileName, VStream) > 0 then begin
+            VStream.Position := 0;
+            try
+              VBitmapContntType.GetLoader.LoadFromStream(VStream, VBitmap);
+            except
+              Assert(False, 'Ошибка при загрузке картинки ' + AResourceName);
+            end;
+          end;
+        finally
+          VStream.Free;
+        end;
+      end;
+    end;
+    inherited Create(
+      TBitmapMarker.Create(
+        VBitmap,
+        AAnchorPoint
+      )
+    );
+  finally
+    VBitmap.Free;
   end;
 end;
 
