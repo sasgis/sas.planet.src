@@ -37,15 +37,10 @@ type
     function GetName: string;
     function GetDesc: string;
     function GetLLRect: TDoubleRect;  virtual; abstract;
-    function GetPoints: TArrayOfDoublePoint;  virtual; abstract;
     function GetHintText: string;
     function GetHintTextWithoutDesc: string;
     function GetInfoCaption: string;
     function GetInfoHTML: string;
-
-    function IsPoint: Boolean; virtual; abstract;
-    function IsLine: Boolean; virtual; abstract;
-    function IsPoly: Boolean; virtual; abstract;
   public
     constructor Create(
       AHintConverter: IHtmlToHintTextConverter;

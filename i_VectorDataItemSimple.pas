@@ -37,17 +37,28 @@ type
     function GetLLRect: TDoubleRect;
     property LLRect: TDoubleRect read GetLLRect;
 
-    function GetPoints: TArrayOfDoublePoint;
-    property Points: TArrayOfDoublePoint read GetPoints;
-
     function GetHintText: string;
     function GetHintTextWithoutDesc: string;
     function GetInfoHTML: string;
     function GetInfoCaption: string;
+  end;
 
-    function IsPoint: Boolean;
-    function IsLine: Boolean;
-    function IsPoly: Boolean;
+  IVectorDataItemPoint = interface(IVectorDataItemSimple)
+    ['{C4EF133D-831F-4F8F-BF51-D5B9C89C87D7}']
+    function GetPoint: TDoublePoint;
+    property Point: TDoublePoint read GetPoint;
+  end;
+
+  IVectorDataItemLine = interface(IVectorDataItemSimple)
+    ['{6EF44536-9F01-4053-AF77-B83F7574773E}']
+    function GetPoints: TArrayOfDoublePoint;
+    property Points: TArrayOfDoublePoint read GetPoints;
+  end;
+
+  IVectorDataItemPoly = interface(IVectorDataItemSimple)
+    ['{8693C9BF-C424-4223-AAD2-8DDEAD2344A1}']
+    function GetPoints: TArrayOfDoublePoint;
+    property Points: TArrayOfDoublePoint read GetPoints;
   end;
 
   IVectorDataItemList = interface

@@ -58,6 +58,9 @@ var
   KML: IVectorDataItemList;
   VMark: IMark;
   VItem: IVectorDataItemSimple;
+  VItemPoint: IVectorDataItemPoint;
+  VItemLine: IVectorDataItemLine;
+  VItemPoly: IVectorDataItemPoly;
   i: Integer;
 begin
   Result := TInterfaceList.Create;
@@ -65,30 +68,30 @@ begin
     for i:=0 to KML.Count-1 do begin
       VMark := nil;
       VItem := KML.GetItem(i);
-      if VItem.IsPoint then begin
+      if Supports(VItem, IVectorDataItemPoint, VItemPoint) then begin
         if AConfig.TemplateNewPoint <> nil then begin
           VMark := AConfig.MarkDB.Factory.CreateNewPoint(
-            VItem.Points[0],
-            VItem.Name,
-            VItem.Desc,
+            VItemPoint.Point,
+            VItemPoint.Name,
+            VItemPoint.Desc,
             AConfig.TemplateNewPoint
           );
         end;
-      end else if VItem.IsPoly then begin
+      end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
         if AConfig.TemplateNewPoly <> nil then begin
           VMark := AConfig.MarkDB.Factory.CreateNewPoly(
-            VItem.Points,
-            VItem.Name,
-            VItem.Desc,
+            VItemPoly.Points,
+            VItemPoly.Name,
+            VItemPoly.Desc,
             AConfig.TemplateNewPoly
           );
         end;
-      end else if VItem.IsLine then begin
+      end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
         if AConfig.TemplateNewLine <> nil then begin
           VMark := AConfig.MarkDB.Factory.CreateNewLine(
-            VItem.Points,
-            VItem.Name,
-            VItem.Desc,
+            VItemLine.Points,
+            VItemLine.Name,
+            VItemLine.Desc,
             AConfig.TemplateNewLine
           );
         end;

@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_VectorDataItemSimple,
   i_HtmlToHintTextConverter,
   u_VectorDataItemBase;
 
@@ -33,9 +34,8 @@ type
     FPoints: TArrayOfDoublePoint;
     FLLRect: TDoubleRect;
   protected
-    function IsPoint: Boolean; override;
     function GetLLRect: TDoubleRect;  override;
-    function GetPoints: TArrayOfDoublePoint;  override;
+    function GetPoints: TArrayOfDoublePoint;
   public
     constructor Create(
       AHintConverter: IHtmlToHintTextConverter;
@@ -46,16 +46,10 @@ type
     );
   end;
 
-  TVectorDataItemPath = class(TVectorDataItemPolygon)
-  protected
-    function IsLine: Boolean; override;
-    function IsPoly: Boolean; override;
+  TVectorDataItemPath = class(TVectorDataItemPolygon, IVectorDataItemLine)
   end;
 
-  TVectorDataItemPoly = class(TVectorDataItemPolygon)
-  protected
-    function IsLine: Boolean; override;
-    function IsPoly: Boolean; override;
+  TVectorDataItemPoly = class(TVectorDataItemPolygon, IVectorDataItemPoly)
   end;
 
 
@@ -83,35 +77,6 @@ end;
 function TVectorDataItemPolygon.GetPoints: TArrayOfDoublePoint;
 begin
   Result := FPoints;
-end;
-
-function TVectorDataItemPolygon.IsPoint: Boolean;
-begin
-  Result := False;
-end;
-
-{ TVectorDataItemPath }
-
-function TVectorDataItemPath.IsLine: Boolean;
-begin
-  Result := True;
-end;
-
-function TVectorDataItemPath.IsPoly: Boolean;
-begin
-  Result := False;
-end;
-
-{ TVectorDataItemPoly }
-
-function TVectorDataItemPoly.IsLine: Boolean;
-begin
-  Result := False;
-end;
-
-function TVectorDataItemPoly.IsPoly: Boolean;
-begin
-  Result := True;
 end;
 
 end.

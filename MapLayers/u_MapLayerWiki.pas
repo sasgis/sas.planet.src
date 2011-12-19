@@ -45,6 +45,27 @@ type
     procedure OnTimer;
 
     procedure ElementsClear;
+    procedure DrawPoint(
+      ATargetBmp: TCustomBitmap32;
+      APointColor: TColor32;
+      APointColorBG: TColor32;
+      AData: IVectorDataItemPoint;
+      ALocalConverter: ILocalCoordConverter
+    );
+    procedure DrawLine(
+      ATargetBmp: TCustomBitmap32;
+      AColorMain: TColor32;
+      AColorBG: TColor32;
+      AData: IVectorDataItemLine;
+      ALocalConverter: ILocalCoordConverter
+    );
+    procedure DrawPoly(
+      ATargetBmp: TCustomBitmap32;
+      AColorMain: TColor32;
+      AColorBG: TColor32;
+      AData: IVectorDataItemPoly;
+      ALocalConverter: ILocalCoordConverter
+    );
     procedure DrawWikiElement(
       ATargetBmp: TCustomBitmap32;
       AColorMain: TColor32;
@@ -208,8 +229,8 @@ begin
     VLLRect := AData.LLRect;
     VConverter.CheckLonLatRect(VLLRect);
     VBounds := ALocalConverter.LonLatRect2LocalRectFloat(VLLRect);
-    if AData.IsPoint or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
-      if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
+    if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
+      if Supports(AData, IVectorDataItemPoint) or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
         AElments.Add(AData);
       end;
     end;
@@ -645,6 +666,94 @@ begin
   end;
 end;
 
+procedure TWikiLayer.DrawPoint(
+  ATargetBmp: TCustomBitmap32;
+  APointColor: TColor32;
+  APointColorBG: TColor32;
+  AData: IVectorDataItemPoint;
+  ALocalConverter: ILocalCoordConverter
+);
+var
+  VConverter: ICoordConverter;
+  VPointLL: TDoublePoint;
+  VRect: TRect;
+begin
+  VConverter := ALocalConverter.GetGeoConverter;
+  VPointLL := AData.Point;
+  VConverter.CheckLonLatPos(VPointLL);
+  VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL);
+  VRect.BottomRight := VRect.TopLeft;
+  Dec(VRect.Left, 3);
+  Dec(VRect.Top, 3);
+  Inc(VRect.Right, 3);
+  Inc(VRect.Bottom, 3);
+  ATargetBmp.FillRectS(VRect, APointColorBG);
+  Inc(VRect.Left);
+  Inc(VRect.Top);
+  Dec(VRect.Right);
+  Dec(VRect.Bottom);
+  ATargetBmp.FillRectS(VRect, APointColor);
+end;
+
+procedure TWikiLayer.DrawPoly(ATargetBmp: TCustomBitmap32; AColorMain,
+  AColorBG: TColor32; AData: IVectorDataItemPoly;
+  ALocalConverter: ILocalCoordConverter);
+var
+  VLen: integer;
+  i: integer;
+  VPointLL: TDoublePoint;
+  VConverter: ICoordConverter;
+  VPointOnBitmap: TDoublePoint;
+begin
+  VConverter := ALocalConverter.GetGeoConverter;
+  VLen := Length(AData.Points);
+  if Length(FFixedPointArray) < VLen then begin
+    SetLength(FFixedPointArray, VLen);
+  end;
+  for i := 0 to VLen - 1 do begin
+    VPointLL := AData.Points[i];
+    VConverter.CheckLonLatPos(VPointLL);
+    VPointOnBitmap := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
+    FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
+  end;
+  FPolygon.Clear;
+  FPolygon.AddPoints(FFixedPointArray[0], VLen);
+  FPolygon.DrawEdge(ATargetBmp, AColorBG);
+  FPolygon.Offset(Fixed(0.9), Fixed(0.9));
+  FPolygon.DrawEdge(ATargetBmp, AColorMain);
+end;
+
+procedure TWikiLayer.DrawLine(
+  ATargetBmp: TCustomBitmap32;
+  AColorMain, AColorBG: TColor32;
+  AData: IVectorDataItemLine;
+  ALocalConverter: ILocalCoordConverter
+);
+var
+  VLen: integer;
+  i: integer;
+  VPointLL: TDoublePoint;
+  VConverter: ICoordConverter;
+  VPointOnBitmap: TDoublePoint;
+begin
+  VConverter := ALocalConverter.GetGeoConverter;
+  VLen := Length(AData.Points);
+  if Length(FFixedPointArray) < VLen then begin
+    SetLength(FFixedPointArray, VLen);
+  end;
+  for i := 0 to VLen - 1 do begin
+    VPointLL := AData.Points[i];
+    VConverter.CheckLonLatPos(VPointLL);
+    VPointOnBitmap := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
+    FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
+  end;
+  FPolygon.Clear;
+  FPolygon.AddPoints(FFixedPointArray[0], VLen);
+  FPolygon.DrawEdge(ATargetBmp, AColorBG);
+  FPolygon.Offset(Fixed(0.9), Fixed(0.9));
+  FPolygon.DrawEdge(ATargetBmp, AColorMain);
+end;
+
 procedure TWikiLayer.DrawWikiElement(
   ATargetBmp: TCustomBitmap32;
   AColorMain: TColor32;
@@ -654,46 +763,16 @@ procedure TWikiLayer.DrawWikiElement(
   ALocalConverter: ILocalCoordConverter
 );
 var
-  VLen: integer;
-  i: integer;
-  VRect: TRect;
-  VPointLL: TDoublePoint;
-  VConverter: ICoordConverter;
-  VPointOnBitmap: TDoublePoint;
+  VItemPoint: IVectorDataItemPoint;
+  VItemLine: IVectorDataItemLine;
+  VItemPoly: IVectorDataItemPoly;
 begin
-  VConverter := ALocalConverter.GetGeoConverter;
-  if AData.IsPoint then begin
-    VPointLL := AData.Points[0];
-    VConverter.CheckLonLatPos(VPointLL);
-    VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL);
-    VRect.BottomRight := VRect.TopLeft;
-    Dec(VRect.Left, 3);
-    Dec(VRect.Top, 3);
-    Inc(VRect.Right, 3);
-    Inc(VRect.Bottom, 3);
-    ATargetBmp.FillRectS(VRect, AColorBG);
-    Inc(VRect.Left);
-    Inc(VRect.Top);
-    Dec(VRect.Right);
-    Dec(VRect.Bottom);
-    ATargetBmp.FillRectS(VRect, APointColor);
-  end else begin
-    VLen := Length(AData.Points);
-    if Length(FFixedPointArray) < VLen then begin
-      SetLength(FFixedPointArray, VLen);
-    end;
-    for i := 0 to VLen - 1 do begin
-      VPointLL := AData.Points[i];
-      VConverter.CheckLonLatPos(VPointLL);
-      VPointOnBitmap := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
-      FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
-    end;
-//    FPolygon.Points[0] := Copy(FFixedPointArray, 0, VLen);
-    FPolygon.Clear;
-    FPolygon.AddPoints(FFixedPointArray[0], VLen);
-    FPolygon.DrawEdge(ATargetBmp, AColorBG);
-    FPolygon.Offset(Fixed(0.9), Fixed(0.9));
-    FPolygon.DrawEdge(ATargetBmp, AColorMain);
+  if Supports(AData, IVectorDataItemPoint, VItemPoint) then begin
+    DrawPoint(ATargetBmp, APointColor, AColorBG, VItemPoint, ALocalConverter);
+  end else if Supports(AData, IVectorDataItemLine, VItemLine) then begin
+    DrawLine(ATargetBmp, AColorMain, AColorBG, VItemLine, ALocalConverter);
+  end else if Supports(AData, IVectorDataItemPoly, VItemPoly) then begin
+    DrawPoly(ATargetBmp, AColorMain, AColorBG, VItemPoly, ALocalConverter);
   end;
 end;
 
@@ -720,6 +799,8 @@ var
   i: integer;
   VList: IInterfaceList;
   VItem: IVectorDataItemSimple;
+  VItemLine: IVectorDataItemLine;
+  VItemPoly: IVectorDataItemPoly;
 begin
   AItem := nil;
   AItemS := 0;
@@ -750,27 +831,28 @@ begin
       VMarkLonLatRect := VItem.LLRect;
       if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
       (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
-        if VItem.IsPoint then begin
+        if Supports(VItem, IVectorDataItemPoint) then begin
           AItem := VItem;
           AItemS := 0;
           exit;
-        end else begin
-          VLonLatLine := VItem.Points;
+        end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
+          VLonLatLine := VItemPoly.Points;
           VConverter.CheckLonLatArray(VLonLatLine);
           VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
-          if VItem.IsLine then begin
-            if PointOnPath(VPixelPos, VLineOnBitmap, 2) then begin
+          if PointOnPath(VPixelPos, VLineOnBitmap, 2) then begin
+            AItem := VItem;
+            AItemS := 0;
+            exit;
+          end;
+        end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
+          VLonLatLine := VItemPoly.Points;
+          VConverter.CheckLonLatArray(VLonLatLine);
+          VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
+          if (PtInRgn(VLineOnBitmap,VPixelPos)) then begin
+            VSquare := PolygonSquare(VLineOnBitmap);
+            if (AItem = nil) or (VSquare<AItemS) then begin
               AItem := VItem;
-              AItemS := 0;
-              exit;
-            end;
-          end else begin
-            if (PtInRgn(VLineOnBitmap,VPixelPos)) then begin
-              VSquare := PolygonSquare(VLineOnBitmap);
-              if (AItem = nil) or (VSquare<AItemS) then begin
-                AItem := VItem;
-                AItemS := VSquare;
-              end;
+              AItemS := VSquare;
             end;
           end;
         end;

@@ -107,6 +107,7 @@ implementation
 
 uses
   Classes,
+  SysUtils,
   gnugettext,
   c_PathDetalizeProvidersGUID,
   u_GeoToStr,
@@ -136,10 +137,11 @@ var
   url:string;
   i:integer;
   kml:IVectorDataItemList;
-  s,l:integer;
+  s,VPointsCount:integer;
   conerr:boolean;
   add_line_arr_b:TArrayOfDoublePoint;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItemLine;
+  VPoints: TArrayOfDoublePoint;
 begin
   AComment := '';
   ms:=TMemoryStream.Create;
@@ -155,12 +157,14 @@ begin
         if kml <> nil then begin
           ms.SetSize(0);
           if kml.Count > 0 then begin
-            VItem := kml.GetItem(0);
-            if Length(VItem.Points)>0 then begin
-              s:=length(add_line_arr_b);
-              l:=length(VItem.Points);
-              SetLength(add_line_arr_b,(s+l));
-              Move(VItem.Points[0], add_line_arr_b[s], l*sizeof(TDoublePoint));
+            if Supports(kml.GetItem(0), IVectorDataItemLine, VItem) then begin
+              VPoints := VItem.Points;
+              VPointsCount := Length(VPoints);
+              if VPointsCount > 0 then begin
+                s := Length(add_line_arr_b);
+                SetLength(add_line_arr_b, (s + VPointsCount));
+                Move(VPoints[0], add_line_arr_b[s], VPointsCount * sizeof(TDoublePoint));
+              end;
             end;
           end;
         end;

@@ -24,19 +24,17 @@ interface
 
 uses
   t_GeoTypes,
+  i_VectorDataItemSimple,
   i_HtmlToHintTextConverter,
   u_VectorDataItemBase;
 
 type
-  TVectorDataItemPoint = class(TVectorDataItemBase)
+  TVectorDataItemPoint = class(TVectorDataItemBase, IVectorDataItemPoint)
   private
     FPoint: TDoublePoint;
   protected
-    function IsPoint: Boolean; override;
-    function IsLine: Boolean; override;
-    function IsPoly: Boolean; override;
     function GetLLRect: TDoubleRect;  override;
-    function GetPoints: TArrayOfDoublePoint;  override;
+    function GetPoint: TDoublePoint;
   public
     constructor Create(
       AHintConverter: IHtmlToHintTextConverter;
@@ -66,25 +64,9 @@ begin
   Result.BottomRight := FPoint;
 end;
 
-function TVectorDataItemPoint.GetPoints: TArrayOfDoublePoint;
+function TVectorDataItemPoint.GetPoint: TDoublePoint;
 begin
-  SetLength(Result, 1);
-  Result[0] := FPoint;
-end;
-
-function TVectorDataItemPoint.IsLine: Boolean;
-begin
-  Result := False;
-end;
-
-function TVectorDataItemPoint.IsPoint: Boolean;
-begin
-  Result := True;
-end;
-
-function TVectorDataItemPoint.IsPoly: Boolean;
-begin
-  Result := False;
+  Result := FPoint;
 end;
 
 end.
