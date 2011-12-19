@@ -19,7 +19,6 @@ type
   public
     constructor Create(AFormat: TImageFileFormat);
     destructor Destroy; override;
-    procedure SaveToFile(ABtm: TCustomBitmap32; const AFileName: string);
     procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
   end;
 
@@ -86,37 +85,6 @@ end;
 
 procedure TVampyreBasicBitmapTileSaver.PrepareData(var AImage: TImageData);
 begin
-end;
-
-procedure TVampyreBasicBitmapTileSaver.SaveToFile(
-  ABtm: TCustomBitmap32;
-  const AFileName: string
-);
-var
-  VFormat: TImageFileFormat;
-  VImage: TImageData;
-  IArray: TDynImageDataArray;
-begin
-  if FFormat <> nil then begin
-    VFormat := FFormat;
-  end else begin
-    VFormat := FindImageFileFormatByName(AFileName);
-  end;
-  if VFormat = nil then begin
-    raise Exception.Create('Неизвестный формат файла');
-  end;
-  InitImage(VImage);
-  try
-    ConvertBitmap32ToImageData(ABtm, VImage);
-    PrepareData(VImage);
-    SetLength(IArray, 1);
-    IArray[0] := VImage;
-    if not VFormat.SaveToFile(AFileName, IArray, True) then begin
-      raise Exception.Create('Ошибка записи файла');
-    end;
-  finally
-    FreeImage(VImage);
-  end;
 end;
 
 procedure TVampyreBasicBitmapTileSaver.SaveToStream(ABtm: TCustomBitmap32;

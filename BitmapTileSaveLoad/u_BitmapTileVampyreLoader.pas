@@ -20,7 +20,6 @@ type
       AFormat: TImageFileFormat;
       APerfCounterList: IInternalPerformanceCounterList
     );
-    procedure LoadFromFile(const AFileName: string; ABtm: TCustomBitmap32);
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
   end;
 
@@ -73,48 +72,6 @@ begin
   FFormat := AFormat;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadStream');
   FLoadFileCounter := APerfCounterList.CreateAndAddNewCounter('LoadFile');
-end;
-
-procedure TVampyreBasicBitmapTileLoader.LoadFromFile(
-  const AFileName: string;
-  ABtm: TCustomBitmap32
-);
-var
-  VFormat: TImageFileFormat;
-  VImage: TImageData;
-  IArray: TDynImageDataArray;
-  I: LongInt;
-  VCounterContext: TInternalPerformanceCounterContext;
-begin
-  VCounterContext := FLoadFileCounter.StartOperation;
-  try
-    if FFormat <> nil then begin
-      VFormat := FFormat;
-    end else begin
-      VFormat := FindImageFileFormatByExt(DetermineFileFormat(AFileName));
-    end;
-    if VFormat = nil then begin
-      raise Exception.Create('Неизвестный формат файла');
-    end;
-    InitImage(VImage);
-    try
-      if not VFormat.LoadFromFile(AFileName, IArray, True) then begin
-        raise Exception.Create('Ошибка загрузки файла');
-      end;
-      if Length(IArray) = 0 then begin
-        raise Exception.Create('В файле не найдено изображений');
-      end;
-      VImage := IArray[0];
-      for I := 1 to Length(IArray) - 1 do begin
-        FreeImage(IArray[I]);
-      end;
-      ConvertImageDataToBitmap32(VImage, ABtm);
-    finally
-      FreeImage(VImage);
-    end;
-  finally
-    FLoadFileCounter.FinishOperation(VCounterContext);
-  end;
 end;
 
 procedure TVampyreBasicBitmapTileLoader.LoadFromStream(AStream: TStream;

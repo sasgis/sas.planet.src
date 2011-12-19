@@ -15,7 +15,6 @@ type
     FDXTextureLoader: IBitmapTileLoader;
     procedure LoadFromMemStream(AStream: TCustomMemoryStream; ABtm: TCustomBitmap32);
   protected
-    procedure LoadFromFile(const AFileName: string; ABtm: TCustomBitmap32);
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
   public
     constructor Create(
@@ -49,20 +48,6 @@ begin
   FJpegLoader := nil;
   FDXTextureLoader := nil;
   inherited;
-end;
-
-procedure TBitmapTileGELoader.LoadFromFile(const AFileName: string;
-  ABtm: TCustomBitmap32);
-var
-  VMemStream: TMemoryStream;
-begin
-  VMemStream := TMemoryStream.Create;
-  try
-    VMemStream.LoadFromFile(AFileName);
-    LoadFromMemStream(VMemStream, ABtm);
-  finally
-    VMemStream.Free;
-  end;
 end;
 
 procedure TBitmapTileGELoader.LoadFromStream(AStream: TStream;
