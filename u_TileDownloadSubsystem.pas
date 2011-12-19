@@ -29,6 +29,7 @@ uses
   i_MapVersionConfig,
   i_InvisibleBrowser,
   i_TileDownloadSubsystem,
+  u_OperationNotifier,
   u_TileStorageAbstract;
 
 type
@@ -38,6 +39,12 @@ type
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     FCoordConverter : ICoordConverter;
     FVersionConfig: IMapVersionConfig;
+    FAppClosingNotifier: IJclNotifier;
+
+    FDestroyNotifierInternal: IOperationNotifierInternal;
+    FDestroyNotifier: IOperationNotifier;
+    FDestroyOperationID: Integer;
+    FAppClosingListener: IJclListener;
 
     FZmpDownloadEnabled: Boolean;
     FState: ITileDownloaderStateChangeble;
@@ -46,6 +53,7 @@ type
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
     function GetScriptText(AConfig: IConfigDataProvider): string;
+    procedure OnAppClosing;
   protected
     function GetRequest(
       ACancelNotifier: IOperationNotifier;
@@ -82,6 +90,7 @@ type
       AStorageConfig: ISimpleTileStorageConfig;
       AStorage: TTileStorageAbstract
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -91,6 +100,7 @@ uses
   i_TileDownloadRequest,
   i_TileDownloaderList,
   i_DownloadChecker,
+  u_NotifyEventListener,
   u_TileRequest,
   u_TileDownloaderList,
   u_AntiBanStuped,
@@ -131,11 +141,21 @@ constructor TTileDownloadSubsystem.Create(
 var
   VDownloaderList: ITileDownloaderList;
   VDownloadChecker: IDownloadChecker;
+  VOperationNotifier: TOperationNotifier;
 begin
   FCoordConverter := ACoordConverter;
   FVersionConfig := AVersionConfig;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileDownloadRequestBuilderConfig := ATileDownloadRequestBuilderConfig;
+  FAppClosingNotifier := AAppClosingNotifier;
+
+  VOperationNotifier := TOperationNotifier.Create;
+  FDestroyNotifierInternal := VOperationNotifier;
+  FDestroyNotifier := VOperationNotifier;
+  FDestroyOperationID := FDestroyNotifier.CurrentOperation;
+
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
+  FAppClosingNotifier.Add(FAppClosingListener);
 
   FZmpDownloadEnabled := AZmpTileDownloaderConfig.Enabled;
 
@@ -207,6 +227,16 @@ begin
 
 end;
 
+destructor TTileDownloadSubsystem.Destroy;
+begin
+  FDestroyNotifierInternal.NextOperation;
+  FAppClosingNotifier.Remove(FAppClosingListener);
+  FAppClosingListener := nil;
+  FAppClosingNotifier := nil;
+
+  inherited;
+end;
+
 procedure TTileDownloadSubsystem.Download(ATileRequest: ITileRequest);
 begin
   if FZmpDownloadEnabled then begin
@@ -218,30 +248,26 @@ end;
 
 function TTileDownloadSubsystem.GetLink(AXY: TPoint; Azoom: byte): string;
 var
-  VBuilder: ITileDownloadRequestBuilder;
   VRequest: ITileRequest;
   VDownloadRequest: ITileDownloadRequest;
 begin
   Result := '';
   if FZmpDownloadEnabled then begin
     if FTileDownloadRequestBuilderFactory.State.GetStatic.Enabled then begin
-      VBuilder := FTileDownloadRequestBuilder;
-      if FTileDownloadRequestBuilderFactory.State.GetStatic.Enabled then begin
-        VRequest :=
-          GetRequest(
-            nil,
-            0,
-            AXY,
-            Azoom,
-            False
-          );
-        VDownloadRequest:= nil;
-        if VRequest <> nil then begin
-          VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(VRequest, nil, nil, 0);
-        end;
-        if VDownloadRequest <> nil then begin
-          Result := VDownloadRequest.Url;
-        end;
+      VRequest :=
+        GetRequest(
+          nil,
+          0,
+          AXY,
+          Azoom,
+          False
+        );
+      VDownloadRequest:= nil;
+      if VRequest <> nil then begin
+        VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(VRequest, nil, FDestroyNotifier, FDestroyOperationID);
+      end;
+      if VDownloadRequest <> nil then begin
+        Result := VDownloadRequest.Url;
       end;
     end;
   end;
@@ -286,6 +312,11 @@ end;
 function TTileDownloadSubsystem.GetState: ITileDownloaderStateChangeble;
 begin
   Result := FState;
+end;
+
+procedure TTileDownloadSubsystem.OnAppClosing;
+begin
+  FDestroyNotifierInternal.NextOperation;
 end;
 
 end.
