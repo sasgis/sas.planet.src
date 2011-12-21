@@ -74,6 +74,7 @@ type
   function RgnAndRect(Polyg:TArrayOfPoint; ARect: TRect):boolean;
   function RgnAndRgn(Polyg:TArrayOfPoint;x,y:integer;prefalse:boolean):boolean;
   function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
+  function GetDegBordersStepByScale(AScale: Integer): TDoublePoint;
   function PointIsEmpty(APoint: TDoublePoint): Boolean;
 
 implementation
@@ -578,6 +579,20 @@ begin
       50000: begin Result.X:=0.25; Result.Y:=0.1666666666666666666666666666665; end;
       25000: begin Result.X:=0.125; Result.Y:=0.08333333333333333333333333333325; end;
       10000: begin Result.X:=0.0625; Result.Y:=0.041666666666666666666666666666625; end;
+    else begin Result.X:=360; Result.Y:=180; end;
+  end;
+end;
+
+function GetDegBordersStepByScale(AScale: Integer): TDoublePoint;
+begin
+  case AScale of
+    1000000: begin Result.X:=10; Result.Y:=10; end;
+     500000: begin Result.X:=5; Result.Y:=5; end;
+     200000: begin Result.X:=2; Result.Y:=2; end;
+     100000: begin Result.X:=1; Result.Y:=1; end;
+      50000: begin Result.X:=0.5; Result.Y:=0.5; end;
+      25000: begin Result.X:=0.25; Result.Y:=0.25; end;
+      10000: begin Result.X:=0.125; Result.Y:=0.125; end;
     else begin Result.X:=360; Result.Y:=180; end;
   end;
 end;

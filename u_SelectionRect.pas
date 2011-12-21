@@ -37,6 +37,7 @@ type
     FViewPortState: IViewPortState;
     FTileGridConfig: ITileGridConfig;
     FGenShtabGridConfig: IGenShtabGridConfig;
+    FDegreeGridConfig: IDegreeGridConfig;
 
     FIsEmpty: Boolean;
     FFirstPoint: TDoublePoint;
@@ -56,7 +57,8 @@ type
     constructor Create(
       AViewPortState: IViewPortState;
       ATileGridConfig: ITileGridConfig;
-      AGenShtabGridConfig: IGenShtabGridConfig
+      AGenShtabGridConfig: IGenShtabGridConfig;
+      ADegreeGridConfig: IDegreeGridConfig
     );
   end;
 
@@ -72,12 +74,14 @@ uses
 constructor TSelectionRect.Create(
   AViewPortState: IViewPortState;
   ATileGridConfig: ITileGridConfig;
-  AGenShtabGridConfig: IGenShtabGridConfig
+  AGenShtabGridConfig: IGenShtabGridConfig;
+  ADegreeGridConfig: IDegreeGridConfig
 );
 begin
   inherited Create;
   FTileGridConfig := ATileGridConfig;
   FGenShtabGridConfig := AGenShtabGridConfig;
+  FDegreeGridConfig := ADegreeGridConfig;
   FViewPortState := AViewPortState;
   FIsEmpty := True;
 end;
@@ -131,7 +135,13 @@ begin
     Result := FTileGridConfig.GetRectStickToGrid(VLocalConverter, Result);
   end;
   if (ssShift in Shift) then begin
-    Result := FGenShtabGridConfig.GetRectStickToGrid(VLocalConverter, Result);
+    if FGenShtabGridConfig.scale<>0 then
+     Result := FGenShtabGridConfig.GetRectStickToGrid(VLocalConverter, Result)
+    else
+     Result := FDegreeGridConfig.GetRectStickToGrid(VLocalConverter, Result);
+    end;
+  if (ssAlt in Shift) then begin
+     Result := FDegreeGridConfig.GetRectStickToGrid(VLocalConverter, Result);
   end;
 end;
 

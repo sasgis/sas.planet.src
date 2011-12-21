@@ -67,6 +67,15 @@ type
     function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
   end;
 
+  IDegreeGridConfig = interface(IBaseGridConfig)
+    ['{8592549C-0DC8-4B07-8262-2A802FF6CF24}']
+    function GetScale: Integer;
+    procedure SetScale(AValue: Integer);
+    property Scale: Integer read GetScale write SetScale;
+
+    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+  end;
+
   IMapLayerGridsConfig = interface(IConfigDataElement)
     ['{55B99C82-8734-450D-A4C7-8150A23FF39C}']
     function GetTileGrid: ITileGridConfig;
@@ -74,6 +83,9 @@ type
 
     function GetGenShtabGrid: IGenShtabGridConfig;
     property GenShtabGrid: IGenShtabGridConfig read GetGenShtabGrid;
+
+    function GetDegreeGrid: IDegreeGridConfig;
+    property DegreeGrid: IDegreeGridConfig read GetDegreeGrid;
   end;
 
 implementation

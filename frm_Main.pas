@@ -396,6 +396,16 @@ type
     DateTimePicker1: TDateTimePicker;
     DateTimePicker2: TDateTimePicker;
     TBXVisibilityToggleItem3: TTBXVisibilityToggleItem;
+    DegreedLinesSubMenu: TTBXSubmenuItem;
+    NDegScale10000: TTBXItem;
+    NDegScale25000: TTBXItem;
+    NDegScale50000: TTBXItem;
+    NDegScale100000: TTBXItem;
+    NDegScale200000: TTBXItem;
+    NDegScale500000: TTBXItem;
+    NDegScale1000000: TTBXItem;
+    NDegScale0: TTBXItem;
+
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
     procedure NZoomOutClick(Sender: TObject);
@@ -529,6 +539,7 @@ type
     procedure NShowFillDatesClick(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
     procedure DateTimePicker2Change(Sender: TObject);
+    procedure NDegScale0Click(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -830,7 +841,8 @@ begin
     TSelectionRect.Create(
       FConfig.ViewPortState,
       FConfig.LayersConfig.MapLayerGridsConfig.TileGrid,
-      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid
+      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid,
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid
     );
 
   VLineOnMapEditChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLineOnMapEditChange);
@@ -921,6 +933,7 @@ var
   VMainFormMainConfigChangeListener: IJclListener;
   VGPSReceiverStateChangeListener: IJclListener;
   VScale: Integer;
+  VDegScale: Integer;
   VZoom: Byte;
 begin
   if not ProgramStart then exit;
@@ -973,7 +986,8 @@ begin
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
         GState.LocalConverterFactory,
-        FConfig.LayersConfig.MapLayerGridsConfig
+        FConfig.LayersConfig.MapLayerGridsConfig,
+        GState.ValueToStringConverterConfig
       )
     );
     FLayersList.Add(
@@ -1232,7 +1246,9 @@ begin
     );
     OnMapGUIChange;
 
+
     VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
+    if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible = True then begin
     NGShScale10000.Checked := VScale = 10000;
     NGShScale25000.Checked := VScale = 25000;
     NGShScale50000.Checked := VScale = 50000;
@@ -1241,6 +1257,21 @@ begin
     NGShScale500000.Checked := VScale = 500000;
     NGShScale1000000.Checked := VScale = 1000000;
     NGShScale0.Checked := VScale = 0;
+    end else
+    NGShScale0.Checked := True;
+
+    VDegScale := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale;
+    if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible = True then begin
+    NDegScale10000.Checked := VDegScale = 10000;
+    NDegScale25000.Checked := VDegScale = 25000;
+    NDegScale50000.Checked := VDegScale = 50000;
+    NDegScale100000.Checked := VDegScale = 100000;
+    NDegScale200000.Checked := VDegScale = 200000;
+    NDegScale500000.Checked := VDegScale = 500000;
+    NDegScale1000000.Checked := VDegScale = 1000000;
+    NDegScale0.Checked := VDegScale = 0;
+    end else
+    NDegScale0.Checked := True;
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnBeforeViewChange),
@@ -2804,6 +2835,26 @@ begin
   end;
 end;
 
+procedure TfrmMain.NDegScale0Click(Sender: TObject);
+var    
+  VTag: Integer;
+begin
+  TTBXItem(sender).checked := True;
+  VTag := TTBXItem(sender).Tag;
+  FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
+  try
+    if VTag = 0 then begin
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := False;
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
+    end else begin
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := True;
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
+    end;
+  finally
+    FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.UnlockWrite;
+  end;
+end;
+
 procedure TfrmMain.NDelClick(Sender: TObject);
 var
   s:string;
@@ -3431,7 +3482,7 @@ var
 begin
   VPosition := GState.GPSRecorder.CurrentPosition;
   VpPos := VPosition.GetPosParams;
-  
+
   if TBXSignalStrengthBar.Visible then
     UpdateGPSSatellites(VPosition);
 
@@ -4068,6 +4119,7 @@ begin
   try
     if VTag = 0 then begin
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := False;
+      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag; // всёравно записываем Scale=0 - признак того что сетка отключена  
     end else begin
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := True;
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag;
@@ -4372,6 +4424,7 @@ begin
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard('http://www.openstreetmap.org/?lat='+R2StrPoint(VLonLat.y)+'&lon='+R2StrPoint(VLonLat.x)+'&zoom='+inttostr(VZoom));
 end;
+
 
 procedure TfrmMain.TBXItem6Click(Sender: TObject);
 var
