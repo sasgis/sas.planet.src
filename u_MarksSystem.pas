@@ -220,8 +220,11 @@ begin
 end;
 
 procedure TMarksSystem.DeleteCategoryWithMarks(ACategory: IMarkCategory);
+var
+  VMarkIdList: IInterfaceList;
 begin
-  FMarksDb.DeleteMarksByCategoryID(ACategory);
+  VMarkIdList := FMarksDb.GetMarskIdListByCategory(ACategory);
+  FMarksDb.UpdateMarksList(VMarkIdList, nil);
   FCategoryDB.DeleteCategory(ACategory);
 end;
 

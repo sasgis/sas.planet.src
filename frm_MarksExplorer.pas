@@ -426,7 +426,7 @@ begin
       VMark:=FMarkDBGUI.MarksDB.MarksDb.GetMarkByID(IMarkId(VMarkIdList[0]));
       VMark := FMarkDBGUI.EditMarkModal(VMark);
       if VMark <> nil then begin
-        FMarkDBGUI.MarksDb.MarksDb.WriteMark(VMark);
+        FMarkDBGUI.MarksDb.MarksDb.UpdateMark(VMarkIdList[0], VMark);
         UpdateMarksList;
       end;
     end else begin
@@ -487,7 +487,7 @@ begin
             end;
           end;
           if (VMarksList<>nil) then begin
-            FMarkDBGUI.MarksDb.MarksDb.WriteMarksList(VMarksList);
+            FMarkDBGUI.MarksDb.MarksDb.UpdateMarksList(VMarkIdList, VMarksList);
           end;
           UpdateMarksList;
         end;

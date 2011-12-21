@@ -148,7 +148,7 @@ begin
         AConfig.TemplateNewPoly
       );
       if VMark <> nil then begin
-        AConfig.MarkDB.WriteMark(VMark);
+        AConfig.MarkDB.UpdateMark(nil, VMark);
         Result := True;
       end;
     end;

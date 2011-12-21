@@ -48,7 +48,7 @@ begin
   VList := DoImport(AFileName, AConfig);
   if VList <> nil then begin
     if VList.Count > 0 then begin
-      AConfig.MarkDB.WriteMarksList(VList);
+      AConfig.MarkDB.UpdateMarksList(nil, VList);
       Result := True;
     end;
   end;

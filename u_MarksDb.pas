@@ -39,7 +39,7 @@ uses
   i_MarkFactorySmlInternal;
 
 type
-  TMarksDb =  class(TInterfacedObject, IMarksDb, IMarksDbNew, IMarksDbSmlInternal)
+  TMarksDb =  class(TInterfacedObject, IMarksDb, IMarksDbSmlInternal)
   private
     FSync: IReadWriteSync;
     FBasePath: string;
@@ -72,24 +72,19 @@ type
       AIgnoreVisible: Boolean
     ): string; overload;
     function _UpdateMark(AOldMark: IInterface; ANewMark: IInterface): IMark;
-  protected
+  private
     procedure LockRead; virtual;
     procedure LockWrite; virtual;
     procedure UnlockRead; virtual;
     procedure UnlockWrite; virtual;
-  protected
+  private
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
-  protected
+  private
     function UpdateMark(AOldMark: IInterface; ANewMark: IMark): IMark;
     function UpdateMarksList(AOldMarkList: IInterfaceList; ANewMarkList: IInterfaceList): IInterfaceList;
-  protected
+
     function GetMarkByID(AMarkId: IMarkId): IMark;
-    function DeleteMark(AMarkId: IMarkId): Boolean;
-    procedure DeleteMarksList(AMarkList: IInterfaceList);
-    procedure DeleteMarksByCategoryID(ACategory: ICategory);
-    procedure WriteMark(AMark: IMark);
-    procedure WriteMarksList(AMarkList: IInterfaceList);
     procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
     function GetMarkVisible(AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(AMark: IMark): Boolean; overload;
@@ -515,153 +510,6 @@ begin
     if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
       Result := VMarkInternal.Visible;
     end;
-  end;
-end;
-
-procedure TMarksDb.WriteMark(AMark: IMark);
-var
-  VId: Integer;
-  VMarkInternal: IMarkSMLInternal;
-begin
-  Assert(AMark <> nil);
-  VId := -1;
-  if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
-    VId := VMarkInternal.Id;
-  end;
-  LockWrite;
-  try
-    FCdsMarks.Filtered := false;
-    if VId >= 0 then begin
-      if FCdsMarks.Locate('id', VId, []) then begin
-        FCdsMarks.Edit;
-      end else begin
-        FCdsMarks.Insert;
-      end;
-    end else begin
-      FCdsMarks.Insert;
-    end;
-    WriteCurrentMark(AMark);
-    FCdsMarks.Post;
-  finally
-    UnlockWrite;
-  end;
-  SaveMarks2File;
-end;
-
-procedure TMarksDb.WriteMarksList(AMarkList: IInterfaceList);
-var
-  i: Integer;
-  VMark: IMark;
-  VId: Integer;
-  VMarkInternal: IMarkSMLInternal;
-begin
-  LockWrite;
-  try
-    FCdsMarks.Filtered := false;
-    for i := 0 to AMarkList.Count - 1 do begin
-      VMark := IMark(AMarkList.Items[i]);
-      VId := -1;
-      if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
-        VId := VMarkInternal.Id;
-      end;
-      if VId >= 0 then begin
-        if FCdsMarks.Locate('id', VId, []) then begin
-          FCdsMarks.Edit;
-        end else begin
-          FCdsMarks.Insert;
-        end;
-      end else begin
-        FCdsMarks.Insert;
-      end;
-      WriteCurrentMark(VMark);
-      FCdsMarks.Post;
-    end;
-  finally
-    UnlockWrite;
-  end;
-  SaveMarks2File;
-end;
-
-procedure TMarksDb.DeleteMarksList(AMarkList: IInterfaceList);
-var
-  i: Integer;
-  VMark: IMark;
-  VId: Integer;
-  VMarkVisible: IMarkSMLInternal;
-begin
-  LockWrite;
-  try
-    FCdsMarks.Filtered := false;
-    for i := 0 to AMarkList.Count - 1 do begin
-      VMark := IMark(AMarkList.Items[i]);
-      VId := -1;
-      if Supports(VMark, IMarkSMLInternal, VMarkVisible) then begin
-        VId := VMarkVisible.Id;
-      end;
-      if VId >= 0 then begin
-        if FCdsMarks.Locate('id', VId, []) then begin
-          FCdsMarks.Delete;
-        end;
-      end;
-    end;
-  finally
-    UnlockWrite;
-  end;
-  SaveMarks2File;
-end;
-
-function TMarksDb.DeleteMark(AMarkId: IMarkId): Boolean;
-var
-  VId: Integer;
-  VMarkVisible: IMarkSMLInternal;
-begin
-  result := false;
-  VId := -1;
-  if Supports(AMarkId, IMarkSMLInternal, VMarkVisible) then begin
-    VId := VMarkVisible.Id;
-  end;
-  if VId >= 0 then begin
-    LockWrite;
-    try
-      FCdsMarks.Filtered := false;
-      if FCdsMarks.Locate('id', VId, []) then begin
-        FCdsMarks.Delete;
-        result := true;
-      end;
-    finally
-      UnlockWrite;
-    end;
-  end;
-  if Result then begin
-    SaveMarks2File;
-  end;
-end;
-
-procedure TMarksDb.DeleteMarksByCategoryID(ACategory: ICategory);
-var
-  VDeleted: Boolean;
-  VFilter: string;
-begin
-  Assert(ACategory <> nil);
-  VFilter := GetFilterTextByCategory(ACategory);
-  VDeleted := False;
-  if VFilter <> '' then begin
-    LockWrite;
-    try
-      FCdsMarks.Filtered := false;
-      FCdsMarks.Filter := VFilter;
-      FCdsMarks.Filtered := true;
-      FCdsMarks.First;
-      while not (FCdsMarks.Eof) do begin
-        FCdsMarks.Delete;
-        VDeleted := True;
-      end;
-    finally
-      UnlockWrite;
-    end;
-  end;
-  if VDeleted then begin
-    SaveMarks2File;
   end;
 end;
 

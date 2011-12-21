@@ -177,7 +177,7 @@ begin
   VMark := FMarksDB.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
   VMark := FfrmMarkEditPoint.EditMark(VMark);
   if VMark <> nil then begin
-    FMarksDb.MarksDb.WriteMark(VMark);
+    FMarksDb.MarksDb.UpdateMark(nil, VMark);
     Result := True;
   end;
 end;
@@ -201,7 +201,7 @@ begin
   Result := false;
   if AMarkID <> nil then begin
     if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+AMarkID.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-      result := FMarksDb.MarksDb.DeleteMark(AMarkID);
+      result := FMarksDb.MarksDb.UpdateMark(AMarkID, nil) = nil;
     end;
   end;
 end;
@@ -216,11 +216,11 @@ begin
     if AMarkIDList.Count=1 then begin
       VMark:=IMarkId(AMarkIDList[0]);
       if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+VMark.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-        result := FMarksDb.MarksDb.DeleteMark(VMark);
+        result := FMarksDb.MarksDb.UpdateMark(VMark, nil) = nil;
       end;
     end else begin
       if MessageBox(handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
-        FMarksDb.MarksDb.DeleteMarksList(AMarkIDList);
+        FMarksDb.MarksDb.UpdateMarksList(AMarkIDList, nil);
         result := true;
       end;
     end;
@@ -365,7 +365,7 @@ begin
   if VMark <> nil then begin
     VMark := FfrmMarkEditPath.EditMark(VMark);
     if VMark <> nil then begin
-      FMarksDb.MarksDb.WriteMark(VMark);
+      FMarksDb.MarksDb.UpdateMark(AMark, VMark);
       Result := True;
     end;
   end;
@@ -387,7 +387,7 @@ begin
   if VMark <> nil then begin
     VMark := FfrmMarkEditPoly.EditMark(VMark);
     if VMark <> nil then begin
-      FMarksDb.MarksDb.WriteMark(VMark);
+      FMarksDb.MarksDb.UpdateMark(AMark, VMark);
       Result := True;
     end;
   end;
