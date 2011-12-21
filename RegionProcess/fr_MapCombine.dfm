@@ -107,7 +107,8 @@ object frMapCombine: TfrMapCombine
         'BMP (Bitmap Picture)'
         'KMZ for Garmin'
         'JPEG (Joint Photographic Experts Group)'
-        'JPEG2000')
+        'JPEG2000'
+        'PNG (Portable Network Graphics)')
     end
   end
   object pnlCenter: TPanel
