@@ -329,10 +329,11 @@ object frmMarksExplorer: TfrmMarksExplorer
   object OpenDialog1: TOpenDialog
     DefaultExt = '*.kml'
     Filter = 
-      'All compatible formats (*.kml,*.plt,*.kmz,*.hlg)|*.kml;*.plt;*.k' +
-      'mz;*.hlg|Google KML files (*.kml)|*.kml|OziExplorer Track Point ' +
-      'File Version 2.1 (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Se' +
-      'lection (*.hlg)|*.hlg'
+      'All compatible formats (*.kml,*.plt,*.kmz,*.hlg,*.gpx)|*.kml;*.p' +
+      'lt;*.kmz;*.hlg;*.gpx|Google KML files (*.kml)|*.kml|OziExplorer ' +
+      'Track Point File Version 2.1 (*.plt)|*.plt|Google KMZ files (*.k' +
+      'mz)|*.kmz|Selection (*.hlg)|*.hlg|GPS Exchange files (*.gpx)|*.g' +
+      'px'
     Left = 352
     Top = 144
   end
@@ -342,7 +343,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 312
     Top = 144
     Bitmap = {
-      494C01010300050004000D000D00FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
+      494C01010300080004000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000340000000D0000000100200000000000900A
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -434,7 +435,7 @@ object frmMarksExplorer: TfrmMarksExplorer
       FFFFFFFFFE000000800C006002000000802C01600A000000800C006002000000
       800C006002000000800C006002000000800C006002000000800C006002000000
       800C006002000000800C006002000000800C006002000000800C006002000000
-      FFFFFFFFFE000000}
+      FFFFFFFFFE00000000000000000000000000000000000000000000000000}
   end
   object ExportDialog: TSaveDialog
     DefaultExt = '.kmz'
