@@ -239,7 +239,7 @@ begin
     end;
   end;
   VLocated := False;
-  if VId > 0 then begin
+  if VId >= 0 then begin
       FCdsMarks.Filtered := false;
       if FCdsMarks.Locate('id', VId, []) then begin
         VLocated := True;
