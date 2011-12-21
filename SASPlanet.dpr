@@ -96,6 +96,7 @@ uses
   u_ThreadMapCombineECW in 'RegionProcess\u_ThreadMapCombineECW.pas',
   u_ThreadMapCombineJPG in 'RegionProcess\u_ThreadMapCombineJPG.pas',
   u_ThreadMapCombineKMZ in 'RegionProcess\u_ThreadMapCombineKMZ.pas',
+  u_ThreadMapCombinePNG in 'RegionProcess\u_ThreadMapCombinePNG.pas',
   u_ThreadRegionProcessAbstract in 'RegionProcess\u_ThreadRegionProcessAbstract.pas',
   u_ThreadExportAbstract in 'RegionProcess\u_ThreadExportAbstract.pas',
   u_ThreadExportToZip in 'RegionProcess\u_ThreadExportToZip.pas',

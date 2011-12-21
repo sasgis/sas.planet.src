@@ -113,6 +113,7 @@ begin
     2: VNewExt := 'kmz';
     3: VNewExt := 'jpg';
     4: VNewExt := 'jp2';
+    5: VNewExt := 'png';
   else
     VNewExt := '';
   end;

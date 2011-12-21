@@ -16,10 +16,11 @@ type
     FFormat: TImageFileFormat;
   protected
     procedure PrepareData(var AImage: TImageData); virtual;
+  protected
+    procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
   public
     constructor Create(AFormat: TImageFileFormat);
     destructor Destroy; override;
-    procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
   end;
 
   TVampyreBasicBitmapTileSaverPNG = class(TVampyreBasicBitmapTileSaver)

@@ -12,7 +12,6 @@ type
   TBitmapTileGEDXTextureLoader = class(TInterfacedObject, IBitmapTileLoader)
   private
     FLoadStreamCounter: IInternalPerformanceCounter;
-    FLoadFileCounter: IInternalPerformanceCounter;
     procedure LoadFromMemStream(AStream: TCustomMemoryStream; ABtm: TCustomBitmap32);
   protected
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
@@ -59,7 +58,6 @@ var
 begin
   VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('GEDXTexture');
   FLoadStreamCounter := VPerfCounterList.CreateAndAddNewCounter('LoadStream');
-  FLoadFileCounter := VPerfCounterList.CreateAndAddNewCounter('LoadFile');
 end;
 
 procedure TBitmapTileGEDXTextureLoader.LoadFromStream(AStream: TStream;

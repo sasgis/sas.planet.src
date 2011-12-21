@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  SyncObjs,
   Imaging,
   GR32,
   i_InternalPerformanceCounter,
@@ -12,14 +13,16 @@ uses
 type
   TVampyreBasicBitmapTileLoader = class(TInterfacedObject, IBitmapTileLoader)
   private
+    FCS: TCriticalSection;
+    FMetadata: TMetadata;
     FFormat: TImageFileFormat;
     FLoadStreamCounter: IInternalPerformanceCounter;
-    FLoadFileCounter: IInternalPerformanceCounter;
   public
     constructor Create(
-      AFormat: TImageFileFormat;
+      AFormatClass: TImageFileFormatClass;
       APerfCounterList: IInternalPerformanceCounterList
     );
+    destructor Destroy; override;
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
   end;
 
@@ -65,19 +68,27 @@ uses
 { TVampyreBasicBitmapTileLoader }
 
 constructor TVampyreBasicBitmapTileLoader.Create(
-  AFormat: TImageFileFormat;
+  AFormatClass: TImageFileFormatClass;
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
-  FFormat := AFormat;
+  FCS := TCriticalSection.Create;
+  FMetadata := TMetadata.Create;
+  FFormat := AFormatClass.Create(FMetadata);
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadStream');
-  FLoadFileCounter := APerfCounterList.CreateAndAddNewCounter('LoadFile');
+end;
+
+destructor TVampyreBasicBitmapTileLoader.Destroy;
+begin
+  FreeAndNil(FCS);
+  FreeAndNil(FFormat);
+  FreeAndNil(FMetadata);
+  inherited;
 end;
 
 procedure TVampyreBasicBitmapTileLoader.LoadFromStream(AStream: TStream;
   ABtm: TCustomBitmap32);
 var
-  VFormat: TImageFileFormat;
   VImage: TImageData;
   IArray: TDynImageDataArray;
   I: LongInt;
@@ -85,27 +96,24 @@ var
 begin
   VCounterContext := FLoadStreamCounter.StartOperation;
   try
-    if FFormat <> nil then begin
-      VFormat := FFormat;
-    end else begin
-      VFormat := FindImageFileFormatByExt(DetermineStreamFormat(AStream));
-    end;
-    if VFormat = nil then begin
-      raise Exception.Create('Неизвестный формат файла');
-    end;
     InitImage(VImage);
     try
-      if not VFormat.LoadFromStream(AStream, IArray, True) then begin
-        raise Exception.Create('Ошибка загрузки файла');
+      FCS.Acquire;
+      try
+        if not FFormat.LoadFromStream(AStream, IArray, True) then begin
+          raise Exception.Create('Ошибка загрузки файла');
+        end;
+        if Length(IArray) = 0 then begin
+          raise Exception.Create('В файле не найдено изображений');
+        end;
+        VImage := IArray[0];
+        for I := 1 to Length(IArray) - 1 do begin
+          FreeImage(IArray[I]);
+        end;
+        ConvertImageDataToBitmap32(VImage, ABtm);
+      finally
+        FCS.Release;
       end;
-      if Length(IArray) = 0 then begin
-        raise Exception.Create('В файле не найдено изображений');
-      end;
-      VImage := IArray[0];
-      for I := 1 to Length(IArray) - 1 do begin
-        FreeImage(IArray[I]);
-      end;
-      ConvertImageDataToBitmap32(VImage, ABtm);
     finally
       FreeImage(VImage);
     end;
@@ -120,7 +128,7 @@ constructor TVampyreBasicBitmapTileLoaderPNG.Create(
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
-  inherited Create(FindImageFileFormatByClass(TPNGFileFormat), APerfCounterList.CreateAndAddNewSubList('VampyrePNG'))
+  inherited Create(TPNGFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyrePNG'))
 end;
 
 { TVampyreBasicBitmapTileLoaderGIF }
@@ -129,7 +137,7 @@ constructor TVampyreBasicBitmapTileLoaderGIF.Create(
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
-  inherited Create(FindImageFileFormatByClass(TGIFFileFormat), APerfCounterList.CreateAndAddNewSubList('VampyreGIF'))
+  inherited Create(TGIFFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreGIF'))
 end;
 
 { TVampyreBasicBitmapTileLoaderBMP }
@@ -138,7 +146,7 @@ constructor TVampyreBasicBitmapTileLoaderBMP.Create(
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
-  inherited Create(FindImageFileFormatByClass(TBitmapFileFormat), APerfCounterList.CreateAndAddNewSubList('VampyreBMP'))
+  inherited Create(TBitmapFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreBMP'))
 end;
 
 { TVampyreBasicBitmapTileLoaderJPEG }
@@ -147,7 +155,7 @@ constructor TVampyreBasicBitmapTileLoaderJPEG.Create(
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
-  inherited Create(FindImageFileFormatByClass(TJpegFileFormat), APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'))
+  inherited Create(TJpegFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'))
 end;
 
 end.

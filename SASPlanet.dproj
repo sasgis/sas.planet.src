@@ -454,6 +454,7 @@
     <DCCReference Include="RegionProcess\u_ThreadMapCombineECW.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombineJPG.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombineKMZ.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadMapCombinePNG.pas" />
     <DCCReference Include="RegionProcess\u_ThreadRegionProcessAbstract.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_FillingMapModes.pas" />
