@@ -37,7 +37,7 @@ type
     procedure GPSReceiverReceive;
     procedure OnConfigChange;
     procedure OnTimer;
-    procedure PrepareMarker(ASpeed, AAngle: Double);
+    procedure PrepareMarker(ASpeed, AAngle: Double; AForceStopped: Boolean);
   protected
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
   public
@@ -124,7 +124,8 @@ end;
 procedure TMapLayerGPSMarker.OnTimer;
 var
   VGPSPosition: IGPSPosition;
-  VpPos: PSingleGPSData;  
+  VpPos: PSingleGPSData;
+  VForceStoppedMarker: Boolean;  
 begin
   if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
     ViewUpdateLock;
@@ -138,7 +139,8 @@ begin
         // ok
         FFixedLonLat.X := VpPos^.PositionLon;
         FFixedLonLat.Y := VpPos^.PositionLat;
-        PrepareMarker(VpPos^.Speed_KMH, VpPos^.Heading);
+        VForceStoppedMarker:=((not VpPos^.AllowCalcStats) or NoData_Float64(VpPos^.Speed_KMH) or NoData_Float64(VpPos^.Heading));
+        PrepareMarker(VpPos^.Speed_KMH, VpPos^.Heading, VForceStoppedMarker);
         Show;
         SetNeedRedraw;
       end;
@@ -165,13 +167,13 @@ begin
   end;
 end;
 
-procedure TMapLayerGPSMarker.PrepareMarker(ASpeed, AAngle: Double);
+procedure TMapLayerGPSMarker.PrepareMarker(ASpeed, AAngle: Double; AForceStopped: Boolean);
 var
   VMarker: IBitmapMarker;
   VMarkerProvider: IBitmapMarkerProvider;
   VMarkerWithDirectionProvider: IBitmapMarkerWithDirectionProvider;
 begin
-  if ASpeed > FConfig.MinMoveSpeed then begin
+  if (not AForceStopped) and (ASpeed > FConfig.MinMoveSpeed) then begin
     VMarkerProvider := FMovedMarkerProviderStatic;
     if Supports(VMarkerProvider, IBitmapMarkerWithDirectionProvider, VMarkerWithDirectionProvider) then begin
       VMarker := VMarkerWithDirectionProvider.GetMarkerWithRotation(AAngle);
