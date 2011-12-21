@@ -39,7 +39,7 @@ uses
   i_MarkFactorySmlInternal;
 
 type
-  TMarksDb =  class(TInterfacedObject, IMarksDb, IMarksDbSmlInternal)
+  TMarksDb =  class(TInterfacedObject, IMarksDb, IMarksDbNew, IMarksDbSmlInternal)
   private
     FSync: IReadWriteSync;
     FBasePath: string;
@@ -54,7 +54,7 @@ type
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
     function GetDbCode: Integer;
-    procedure InitEmptyDS;
+    procedure InitEmptyDS(ACdsMarks: TClientDataSet);
     function AppendFilter(ALeft,ARight: string): string;
     function GetCategoryID(ACategory: ICategory): Integer;
     function GetFilterTextVisibleOnly: string;
@@ -71,7 +71,7 @@ type
       ACategory: ICategory;
       AIgnoreVisible: Boolean
     ): string; overload;
-
+    function _UpdateMark(AOldMark: IInterface; ANewMark: IInterface): IMark;
   protected
     procedure LockRead; virtual;
     procedure LockWrite; virtual;
@@ -80,6 +80,9 @@ type
   protected
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
+  protected
+    function UpdateMark(AOldMark: IInterface; ANewMark: IMark): IMark;
+    function UpdateMarksList(AOldMarkList: IInterfaceList; ANewMarkList: IInterfaceList): IInterfaceList;
   protected
     function GetMarkByID(AMarkId: IMarkId): IMark;
     function DeleteMark(AMarkId: IMarkId): Boolean;
@@ -190,7 +193,7 @@ begin
   FFactoryDbInternal := VFactory;
   FCdsMarks := TClientDataSet.Create(nil);
   FCdsMarks.Name := 'CDSmarks';
-  InitEmptyDS;
+  InitEmptyDS(FCdsMarks);
 end;
 
 destructor TMarksDb.Destroy;
@@ -224,6 +227,123 @@ procedure TMarksDb.UnlockWrite;
 begin
   FCdsMarks.EnableControls;
   FSync.EndWrite;
+end;
+
+function TMarksDb._UpdateMark(AOldMark: IInterface; ANewMark: IInterface): IMark;
+var
+  VId: Integer;
+  VMarkInternal: IMarkSMLInternal;
+  VLocated: Boolean;
+  VMark: IMark;
+begin
+  Result := nil;
+  VId := -1;
+  if Supports(AOldMark, IMarkSMLInternal, VMarkInternal) then begin
+    if VMarkInternal.DbCode = GetDbCode then begin
+      VId := VMarkInternal.Id;
+    end;
+  end;
+  VLocated := False;
+  if VId > 0 then begin
+      FCdsMarks.Filtered := false;
+      if FCdsMarks.Locate('id', VId, []) then begin
+        VLocated := True;
+      end;
+  end;
+  if VLocated then begin
+    if Supports(ANewMark, IMark, VMark) then begin
+      FCdsMarks.Edit;
+      WriteCurrentMark(VMark);
+      FCdsMarks.Post;
+      Result := ReadCurrentMark;
+    end else begin
+      FCdsMarks.Delete;
+    end;
+  end else begin
+    if Supports(ANewMark, IMark, VMark) then begin
+      FCdsMarks.Insert;
+      WriteCurrentMark(VMark);
+      FCdsMarks.Post;
+      Result := ReadCurrentMark;
+    end;
+  end;
+end;
+
+function TMarksDb.UpdateMark(AOldMark: IInterface; ANewMark: IMark): IMark;
+begin
+  Assert((AOldMark <> nil) or (ANewMark <> nil));
+  LockWrite;
+  try
+    Result := _UpdateMark(AOldMark, ANewMark);
+  finally
+    UnlockWrite;
+  end;
+  SaveMarks2File;
+end;
+
+function TMarksDb.UpdateMarksList(AOldMarkList,
+  ANewMarkList: IInterfaceList): IInterfaceList;
+var
+  i: Integer;
+  VNew: IInterface;
+  VOld: IInterface;
+  VResult: IMark;
+  VMinCount: Integer;
+  VMaxCount: Integer;
+begin
+  if ANewMarkList <> nil then begin
+    Result := TInterfaceList.Create;
+    Result.Capacity := ANewMarkList.Count;
+
+    LockWrite;
+    try
+      if (AOldMarkList <> nil) then begin
+        if AOldMarkList.Count < ANewMarkList.Count then begin
+          VMinCount := AOldMarkList.Count;
+          VMaxCount := ANewMarkList.Count;
+        end else begin
+          VMinCount := ANewMarkList.Count;
+          VMaxCount := AOldMarkList.Count;
+        end;
+      end else begin
+        VMinCount := 0;
+        VMaxCount := ANewMarkList.Count;
+      end;
+      for i := 0 to VMinCount - 1 do begin
+        VOld := AOldMarkList[i];
+        VNew := ANewMarkList[i];
+        VResult := _UpdateMark(VOld, VNew);
+        Result.Add(VResult);
+      end;
+      for i := VMinCount to VMaxCount - 1 do begin
+        VOld := nil;
+        if (AOldMarkList <> nil) and (i < AOldMarkList.Count) then begin
+          VOld := AOldMarkList[i];
+        end;
+        VNew := nil;
+        if (i < ANewMarkList.Count) then begin
+          VNew := ANewMarkList[i];
+        end;
+        VResult := _UpdateMark(VOld, VNew);
+        if i < Result.Capacity then begin
+          Result.Add(VResult);
+        end;
+      end;
+    finally
+      UnlockWrite;
+    end;
+    SaveMarks2File;
+  end else begin
+    LockWrite;
+    try
+      for i := 0 to AOldMarkList.Count - 1 do begin
+        _UpdateMark(AOldMarkList[i], nil);
+      end;
+    finally
+      UnlockWrite;
+    end;
+    SaveMarks2File;
+  end;
 end;
 
 function TMarksDb.ReadCurrentMarkId: IMarkId;
@@ -666,10 +786,10 @@ begin
   end;
 end;
 
-procedure TMarksDb.InitEmptyDS;
+procedure TMarksDb.InitEmptyDS(ACdsMarks: TClientDataSet);
 begin
-  FCdsMarks.Close;
-  FCdsMarks.XMLData :=
+  ACdsMarks.Close;
+  ACdsMarks.XMLData :=
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
     '<DATAPACKET Version="2.0">'+
     '	<METADATA>'+
@@ -694,8 +814,8 @@ begin
     '	</METADATA>'+
     '	<ROWDATA/>'+
     '</DATAPACKET>';
-  FCdsMarks.IndexFieldNames := 'categoryid;LonR;LonL;LatT;LatB;visible';
-  FCdsMarks.Open;
+  ACdsMarks.IndexFieldNames := 'categoryid;LonR;LonL;LatT;LatB;visible';
+  ACdsMarks.Open;
 end;
 
 function TMarksDb.GetFilterTextByCategory(ACategory: ICategory): string;
@@ -866,7 +986,7 @@ begin
       try
         FCdsMarks.LoadFromFile(VFileName);
       except
-        InitEmptyDS;
+        InitEmptyDS(FCdsMarks);
       end;
       if FCdsMarks.RecordCount > 0 then begin
         CopyFile(PChar(VFileName), PChar(GetMarksBackUpFileName), false);

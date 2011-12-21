@@ -30,6 +30,29 @@ uses
   i_MarksSimple;
 
 type
+  IMarksDbNew = interface
+    ['{66181215-0260-42A3-9CEA-549329D85F74}']
+    function UpdateMark(AOldMark: IInterface; ANewMark: IMark): IMark;
+    function UpdateMarksList(AOldMarkList: IInterfaceList; ANewMarkList: IInterfaceList): IInterfaceList;
+
+    function GetMarkByID(AMarkId: IMarkId): IMark;
+    function GetMarkIsNew(AMark: IMark): Boolean;
+
+    function GetAllMarskIdList: IInterfaceList;
+    function GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
+
+    procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
+    function GetMarkVisible(AMark: IMarkId): Boolean; overload;
+    function GetMarkVisible(AMark: IMark): Boolean; overload;
+    procedure SetAllMarksInCategoryVisible(ACategory: ICategory; ANewVisible: Boolean);
+
+    function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset; overload;
+    function GetMarksSubset(ARect: TDoubleRect; ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
+
+    function GetFactory: IMarkFactory;
+    property Factory: IMarkFactory read GetFactory;
+  end;
+
   IMarksDb = interface
     ['{0B5DFEC6-E519-4D06-8DBA-2D24E2F9A372}']
     function GetMarkByID(AMarkId: IMarkId): IMark;
