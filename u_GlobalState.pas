@@ -225,6 +225,7 @@ uses
   i_FileNameIterator,
   u_ContentTypeManagerSimple,
   u_MapCalibrationListBasic,
+  u_XmlInfoSimpleParser,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_CoordConverterFactorySimple,
@@ -280,6 +281,7 @@ var
   VViewCnonfig: IConfigDataProvider;
   VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
+  VXmlLoader: IVectorDataLoader;
   VKmlLoader: IVectorDataLoader;
   VKmzLoader: IVectorDataLoader;
   VFilesIteratorFactory: IFileNameIteratorFactory;
@@ -346,6 +348,13 @@ begin
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
+
+  // xml loaders
+  VXmlLoader :=
+    TXmlInfoSimpleParser.Create(
+      THtmlToHintTextConverterStuped.Create,
+      VMarksKmlLoadCounterList
+    );
   VKmlLoader :=
     TKmlInfoSimpleParser.Create(
       THtmlToHintTextConverterStuped.Create,
@@ -356,7 +365,9 @@ begin
       THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     );
+
   FImportFileByExt := TImportByFileExt.Create(
+    VXmlLoader,
     TPLTSimpleParser.Create(
       THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList

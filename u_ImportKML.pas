@@ -65,6 +65,8 @@ var
 begin
   Result := TInterfaceList.Create;
     FKmlLoader.LoadFromFile(AFileName, KML);
+    if Assigned(KML) then
+    if (0<KML.Count) then
     for i:=0 to KML.Count-1 do begin
       VMark := nil;
       VItem := KML.GetItem(i);

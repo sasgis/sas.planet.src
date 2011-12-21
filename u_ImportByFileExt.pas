@@ -30,6 +30,7 @@ uses
 type
   TImportByFileExt = class(TInterfacedObject, IImportFile)
   private
+    FImportXML: IImportFile;
     FImportPLT: IImportFile;
     FImportKML: IImportFile;
     FImportKMZ: IImportFile;
@@ -39,6 +40,7 @@ type
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
   public
     constructor Create(
+      AXmlLoader: IVectorDataLoader;
       APltLoader: IVectorDataLoader;
       AKmlLoader: IVectorDataLoader;
       AKmzLoader: IVectorDataLoader
@@ -56,11 +58,13 @@ uses
 { TImportByFileExt }
 
 constructor TImportByFileExt.Create(
+  AXmlLoader: IVectorDataLoader;
   APltLoader: IVectorDataLoader;
   AKmlLoader: IVectorDataLoader;
   AKmzLoader: IVectorDataLoader
 );
 begin
+  FImportXML := TImportKML.Create(AXmlLoader);
   FImportPLT := TImportKML.Create(APltLoader);
   FImportHLG := TImportHLG.Create;
   FImportMP := TImportMpSimple.Create;
@@ -68,19 +72,22 @@ begin
   FImportKMZ := TImportKML.Create(AKmzLoader);
 end;
 
-function TImportByFileExt.ProcessImport(AFileName: string;
-  AConfig: IImportConfig): Boolean;
+function TImportByFileExt.ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+var VExtLwr: String;
 begin
   Result := False;
-  if (LowerCase(ExtractFileExt(AFileName))='.kml') then begin
+  VExtLwr:=LowerCase(ExtractFileExt(AFileName));
+  if ('.gpx'=VExtLwr) then begin
+    Result := FImportXML.ProcessImport(AFileName, AConfig);
+  end else if ('.kml'=VExtLwr) then begin
     Result := FImportKML.ProcessImport(AFileName, AConfig);
-  end else if (LowerCase(ExtractFileExt(AFileName))='.kmz') then begin
+  end else if ('.kmz'=VExtLwr) then begin
     Result := FImportKMZ.ProcessImport(AFileName, AConfig);
-  end else if (LowerCase(ExtractFileExt(AFileName))='.plt') then begin
+  end else if ('.plt'=VExtLwr) then begin
     Result := FImportPLT.ProcessImport(AFileName, AConfig);
-  end else if (LowerCase(ExtractFileExt(AFileName))='.hlg') then begin
+  end else if ('.hlg'=VExtLwr) then begin
     Result := FImportHLG.ProcessImport(AFileName, AConfig);
-  end else if (LowerCase(ExtractFileExt(AFileName))='.mp') then begin
+  end else if ('.mp'=VExtLwr) then begin
     Result := FImportMP.ProcessImport(AFileName, AConfig);
   end;
 end;

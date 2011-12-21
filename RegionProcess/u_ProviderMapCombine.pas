@@ -72,6 +72,7 @@ uses
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,
   u_ThreadMapCombineKMZ,
+  u_ThreadMapCombinePNG,
   u_ResStrings,
   u_MapType;
 
@@ -277,7 +278,7 @@ begin
       FBitmapPostProcessingConfig.GetStatic,
       FFrame.seJpgQuality.Value
     );
-  end else begin
+  end else if (VFileExt='.JPG') then begin
     TThreadMapCombineJPG.Create(
       FViewConfig,
       VMarksImageProvider,
@@ -291,6 +292,20 @@ begin
       FFrame.chkUseRecolor.Checked,
       FBitmapPostProcessingConfig.GetStatic,
       FFrame.seJpgQuality.Value
+    );
+  end else if (VFileExt='.PNG') then begin
+    TThreadMapCombinePNG.Create(
+      FViewConfig,
+      VMarksImageProvider,
+      FLocalConverterFactory,
+      VPrTypes,
+      VFileName,
+      APolygon,
+      VSplitCount,
+      VZoom,
+      Amt,Hmt,
+      FFrame.chkUseRecolor.Checked,
+      FBitmapPostProcessingConfig.GetStatic
     );
   end;
 end;

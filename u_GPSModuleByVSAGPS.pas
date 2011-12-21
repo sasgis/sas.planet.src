@@ -423,6 +423,8 @@ end;
 
 procedure TGPSModuleByVSAGPS.Connect(const AConfig: IGPSModuleByCOMPortSettings;
                                      const ALogConfig: IGPSConfig);
+//const
+  //FlyOnTrackCFG='vsagps_fly-on-track.cfg';
 var
   FGPSPortName: String;
 {$if defined(VSAGPS_AS_DLL)}
@@ -430,12 +432,38 @@ var
 {$ifend}
   FGPSDevType: DWORD;
   VTimeout: DWORD;
+  VFlyOnTrackSource: WideString;
+
+  function _IsFlyOnTrackMode: Boolean;
+  begin
+    Result:=(0<Length(VFlyOnTrackSource));
+  end;
+
+  procedure _LoadFlyOnTrackSource;
+  //var sl: TStringList;
+  begin
+    {
+    if FileExists(FlyOnTrackCFG) then begin
+      sl:=TStringList.Create;
+      try
+        sl.LoadFromFile(FlyOnTrackCFG);
+        VFlyOnTrackSource:=sl.Text;
+      finally
+        sl.Free;
+      end;
+    end;
+    }
+  end;
+
 begin
   FRecvTimeoutOccured:=FALSE;
   LockConnect;
   try
     if FConnectState <> gs_DoneDisconnected then
       Exit;
+
+    VFlyOnTrackSource:='';
+    _LoadFlyOnTrackSource;
 
 {$if defined(VSAGPS_AS_DLL)}
     FszGPSPortName:=nil;
@@ -465,15 +493,25 @@ begin
     if FGPSGPS_DevParams.wWorkerThreadTimeoutMSec>cWorkingThread_MaxDelay_Msec then
       FGPSGPS_DevParams.wWorkerThreadTimeoutMSec:=cWorkingThread_MaxDelay_Msec;
 
-    if (not AConfig.NMEALog) then
+    if (not AConfig.NMEALog) or (_IsFlyOnTrackMode) then
       FGPSGPS_DevParams.pLowLevelHandler:=nil
     else
       FGPSGPS_DevParams.pLowLevelHandler:=rLowLevelHandler;
 
     // reserved for fly-on-track mode
-    //FGPSGPS_DevParams.pTrackPointHandler:=nil;
+    if _IsFlyOnTrackMode then
+      FGPSGPS_DevParams.pTrackPointHandler:=rVSAGPS_TRACKPOINT_HANDLER
+    else
+      FGPSGPS_DevParams.pTrackPointHandler:=nil;
 
-    if AConfig.USBGarmin then begin
+    if _IsFlyOnTrackMode then begin
+      FGPSDevType:=gdt_FILE_Track;
+{$if not defined(VSAGPS_AS_DLL)}
+      FGPSPortName:='';
+{$ifend}
+      FGPSGPS_DevParams.btAutodetectOnConnect:=0; // no autodetect
+      FGPSGPS_DevParams.dwAutodetectFlags:=0;
+    end else if AConfig.USBGarmin then begin
       // USB Garmin - always autodetect (check attached usb devices by guid)
       FGPSDevType:=gdt_USB_Garmin;
 {$if not defined(VSAGPS_AS_DLL)}
@@ -498,7 +536,7 @@ begin
       if (not VSAGPS_Connect(FVSAGPS_HANDLE,
                              FGPSDevType,
                              FszGPSPortName,
-                             nil,
+                             PWideChar(VFlyOnTrackSource),
                              @FGPSGPS_DevParams,
                              nil,
                              rVSAGPS_UNIT_INFO_DLL_Proc,
@@ -507,7 +545,7 @@ begin
 {$else}
       if (not FVSAGPS_Object.GPSConnect(FGPSDevType,
                                         FGPSPortName,
-                                        nil,
+                                        PWideChar(VFlyOnTrackSource),
                                         @FGPSGPS_DevParams,
                                         nil,
                                         rVSAGPS_UNIT_INFO_DLL_Proc,
