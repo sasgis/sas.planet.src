@@ -191,8 +191,12 @@ var
       SetLength(array_points, array_count);
     end;
     // make object and add it to list
-    with PParseXML_Aux(pUserAuxPointer)^ do begin
-      if DoublePointsEqual(array_points[0], array_points[array_count-1]) then begin
+    with PParseXML_Aux(pUserAuxPointer)^ do
+    if (0<array_count) then begin
+      if (1=array_count) then begin
+        // single point in track segment - make as point
+        trk_obj:=TVectorDataItemPoint.Create(FHintConverter, VWSName, VWSDesc, array_points[0]);
+      end else if DoublePointsEqual(array_points[0], array_points[array_count-1]) then begin
         // polygon
         trk_obj:=TVectorDataItemPoly.Create(FHintConverter, VWSName, VWSDesc, array_points, array_rect)
       end else begin
@@ -359,18 +363,6 @@ begin
       AItems := TVectorDataItemList.Create(tAux.list);
       tAux.list := nil;
     end;
-
-    {
-    if AStream.Size > 0 then begin
-      VKml := GetAnsiString(AStream);
-      if VKml <> '' then begin
-        VList := TInterfaceList.Create;
-        parse(VKml, VList);
-        AItems := TVectorDataItemList.Create(VList);
-      end else
-        Assert(False, 'XML data reader - Unknown error');
-    end;
-    }
   finally
     FLoadXmlStreamCounter.FinishOperation(VCounterContext);
   end;
