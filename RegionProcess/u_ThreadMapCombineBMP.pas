@@ -13,12 +13,6 @@ uses
   u_ThreadMapCombineBase;
 
 type
-  PArrayBGR = ^TArrayBGR;
-  TArrayBGR = array [0..0] of TBGR;
-
-  P256ArrayBGR = ^T256ArrayBGR;
-  T256ArrayBGR = array[0..255] of PArrayBGR;
-
   TThreadMapCombineBMP = class(TThreadMapCombineBase)
   private
     FArray256BGR: P256ArrayBGR;
@@ -75,7 +69,7 @@ begin
       end else begin
         FLastTile := Point(p_x shr 8, p_y shr 8);
         VConverter := CreateConverterForTileImage(FLastTile);
-        PrepareTileBitmap(btmm, VConverter, FBackGroundColor);
+        PrepareTileBitmap(btmm, VConverter);
       end;
       if (p_x + 256) > FCurrentPieceRect.Right then begin
         Aex := ex;

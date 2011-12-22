@@ -3,6 +3,7 @@ unit u_ThreadMapCombineBase;
 interface
 
 uses
+  Windows,
   Classes,
   Types,
   GR32,
@@ -16,6 +17,31 @@ uses
   u_ThreadRegionProcessAbstract;
 
 type
+  TBGR = packed record
+    B: Byte;
+    G: Byte;
+    R: Byte;
+  end;
+
+  TABGR = packed record
+    A: Byte;
+    B: Byte;
+    G: Byte;
+    R: Byte;
+  end;
+
+  PArrayBGR = ^TArrayBGR;
+  TArrayBGR = array [0..0] of TBGR;
+
+  PArrayABGR = ^TArrayABGR;
+  TArrayABGR = array [0..0] of TABGR;
+
+  P256ArrayBGR = ^T256ArrayBGR;
+  T256ArrayBGR = array[0..255] of PArrayBGR;
+
+  P256ArrayABGR = ^T256ArrayABGR;
+  T256ArrayABGR = array[0..255] of PArrayABGR;
+
   TThreadMapCombineBase = class(TThreadRegionProcessAbstract)
   private
     FUsedReColor: boolean;
@@ -48,11 +74,14 @@ type
     FUsePrevZoomAtLayer: Boolean;
     FBackGroundColor: TColor32;
 
+    FArray256BGR: P256ArrayBGR;
+    sx, ex, sy, ey: integer;
+    btmm: TCustomBitmap32;
+
     function CreateConverterForTileImage(ATile: TPoint): ILocalCoordConverter;
     procedure PrepareTileBitmap(
       ATargetBitmap: TCustomBitmap32;
-      AConverter: ILocalCoordConverter;
-      ABackGroundColor: TColor32
+      AConverter: ILocalCoordConverter
     );
     procedure ProgressFormUpdateOnProgress; virtual;
 
@@ -60,6 +89,12 @@ type
 
     procedure ProcessRegion; override;
     procedure ProcessRecolor(Bitmap: TCustomBitmap32);
+
+    function ReadLine(
+      ALineNumber: Integer;
+      APLine: Pointer;
+      AReadWithAlfaChanal: Boolean = False
+    ): Boolean; virtual;
   public
     constructor Create(
       AViewConfig: IGlobalViewMainConfig;
@@ -156,15 +191,14 @@ end;
 
 procedure TThreadMapCombineBase.PrepareTileBitmap(
   ATargetBitmap: TCustomBitmap32;
-  AConverter: ILocalCoordConverter;
-  ABackGroundColor: TColor32
+  AConverter: ILocalCoordConverter
 );
 var
   VLoadResult: Boolean;
 begin
   VLoadResult := FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
   if not VLoadResult then begin
-    ATargetBitmap.Clear(ABackGroundColor);
+    ATargetBitmap.Clear(FBackGroundColor);
   end;
   if FHTypeMap <> nil then begin
     VLoadResult := FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
@@ -244,6 +278,68 @@ begin
       saveRECT;
     end;
   end;
+end;
+
+function TThreadMapCombineBase.ReadLine(
+  ALineNumber: Integer;
+  APLine: Pointer;
+  AReadWithAlfaChanal: Boolean = False
+): Boolean;
+var
+  i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
+  p: PColor32array;
+  VConverter: ILocalCoordConverter;
+begin
+  if ALineNumber < (256 - sy) then begin
+    starttile := sy + ALineNumber;
+  end else begin
+    starttile := (ALineNumber - (256 - sy)) mod 256;
+  end;
+  if (starttile = 0) or (ALineNumber = 0) then begin
+    FTilesProcessed := ALineNumber;
+    ProgressFormUpdateOnProgress;
+    p_y := (FCurrentPieceRect.Top + ALineNumber) - ((FCurrentPieceRect.Top + ALineNumber) mod 256);
+    p_x := FCurrentPieceRect.Left - (FCurrentPieceRect.Left mod 256);
+    lrarri := 0;
+    rarri := 0;
+    if ALineNumber > (255 - sy) then begin
+      Asy := 0;
+    end else begin
+      Asy := sy;
+    end;
+    if (p_y div 256) = (FCurrentPieceRect.Bottom div 256) then begin
+      Aey := ey;
+    end else begin
+      Aey := 255;
+    end;
+    Asx := sx;
+    Aex := 255;
+    while p_x <= FCurrentPieceRect.Right do begin
+      if not (RgnAndRgn(FPoly, p_x + 128, p_y + 128, false)) then begin
+        btmm.Clear(FBackGroundColor);
+      end else begin
+        FLastTile := Point(p_x shr 8, p_y shr 8);
+        VConverter := CreateConverterForTileImage(FLastTile);
+        PrepareTileBitmap(btmm, VConverter);
+      end;
+      if (p_x + 256) > FCurrentPieceRect.Right then begin
+        Aex := ex;
+      end;
+      for j := Asy to Aey do begin
+        p := btmm.ScanLine[j];
+        rarri := lrarri;
+        for i := Asx to Aex do begin
+          CopyMemory(@FArray256BGR[j]^[rarri], Pointer(integer(p) + (i * 4)), 3);
+          inc(rarri);
+        end;
+      end;
+      lrarri := rarri;
+      Asx := 0;
+      inc(p_x, 256);
+    end;
+  end;
+  CopyMemory(APLine, FArray256BGR^[starttile], (FCurrentPieceRect.Right - FCurrentPieceRect.Left) * 3);
+  Result := True;
 end;
 
 end.

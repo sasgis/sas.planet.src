@@ -27,24 +27,16 @@ type
   P256rgb = ^T256rgb;
   T256rgb = array[0..255] of PRow;
 
-  PArrayBGR = ^TArrayBGR;
-  TArrayBGR = array [0..0] of TBGR;
-
-  P256ArrayBGR = ^T256ArrayBGR;
-  T256ArrayBGR = array[0..255] of PArrayBGR;
-
   TThreadMapCombineECW = class(TThreadMapCombineBase)
   private
     FEcwDll: IEcwDll;
-    sx, ex, sy, ey: integer;
     Rarr: P256rgb;
     Garr: P256rgb;
     Barr: P256rgb;
     FECWWriter: TECWWrite;
-    btmm: TCustomBitmap32;
     FQuality: Integer;
 
-    function ReadLineECW(ALine: cardinal; var LineR, LineG, LineB: PLineRGB): boolean;
+    function ReadLine(ALine: cardinal; var LineR, LineG, LineB: PLineRGB): Boolean; reintroduce;
   protected
     procedure saveRECT; override;
   public
@@ -107,7 +99,7 @@ begin
   FQuality := AQuality;
 end;
 
-function TThreadMapCombineECW.ReadLineECW(ALine: cardinal; var LineR, LineG,
+function TThreadMapCombineECW.ReadLine(ALine: cardinal; var LineR, LineG,
   LineB: PLineRGB): boolean;
 var
   i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
@@ -149,7 +141,7 @@ begin
       end else begin
         FLastTile := Point(p_x shr 8, p_y shr 8);
         VConverter := CreateConverterForTileImage(FLastTile);
-        PrepareTileBitmap(btmm, VConverter, FBackGroundColor);
+        PrepareTileBitmap(btmm, VConverter);
       end;
       if (p_x + 256) > FCurrentPieceRect.Right then begin
         Aex := ex;
@@ -226,7 +218,7 @@ begin
             FMapPieceSize.Y,
             101 - FQuality,
             COMPRESS_HINT_BEST,
-            ReadLineECW,
+            ReadLine,
             Datum,
             Proj,
             Units,
