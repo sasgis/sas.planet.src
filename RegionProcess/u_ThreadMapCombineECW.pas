@@ -14,7 +14,6 @@ uses
   u_ECWWrite,
   u_MapType,
   u_GeoFun,
-  u_BmpUtil,
   t_GeoTypes,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
@@ -27,26 +26,18 @@ type
   P256rgb = ^T256rgb;
   T256rgb = array[0..255] of PRow;
 
-  PArrayBGR = ^TArrayBGR;
-  TArrayBGR = array [0..0] of TBGR;
-
-  P256ArrayBGR = ^T256ArrayBGR;
-  T256ArrayBGR = array[0..255] of PArrayBGR;
-
   TThreadMapCombineECW = class(TThreadMapCombineBase)
   private
     FEcwDll: IEcwDll;
-    sx, ex, sy, ey: integer;
     Rarr: P256rgb;
     Garr: P256rgb;
     Barr: P256rgb;
     FECWWriter: TECWWrite;
-    btmm: TCustomBitmap32;
     FQuality: Integer;
 
-    function ReadLineECW(ALine: cardinal; var LineR, LineG, LineB: PLineRGB): boolean;
+    function ReadLine(ALine: cardinal; var LineR, LineG, LineB: PLineRGB): Boolean; reintroduce;
   protected
-    procedure saveRECT; override;
+    procedure SaveRect; override;
   public
     constructor Create(
       AViewConfig: IGlobalViewMainConfig;
@@ -101,13 +92,13 @@ begin
     Atypemap,
     AHtypemap,
     AusedReColor,
-    ARecolorConfig,
+    ARecolorConfig
   );
   FEcwDll := AEcwDll;
   FQuality := AQuality;
 end;
 
-function TThreadMapCombineECW.ReadLineECW(ALine: cardinal; var LineR, LineG,
+function TThreadMapCombineECW.ReadLine(ALine: cardinal; var LineR, LineG,
   LineB: PLineRGB): boolean;
 var
   i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
@@ -149,7 +140,7 @@ begin
       end else begin
         FLastTile := Point(p_x shr 8, p_y shr 8);
         VConverter := CreateConverterForTileImage(FLastTile);
-        PrepareTileBitmap(btmm, VConverter, FBackGroundColor);
+        PrepareTileBitmap(btmm, VConverter);
       end;
       if (p_x + 256) > FCurrentPieceRect.Right then begin
         Aex := ex;
@@ -176,7 +167,7 @@ begin
   end;
 end;
 
-procedure TThreadMapCombineECW.saveRECT;
+procedure TThreadMapCombineECW.SaveRect;
 var
   k: integer;
   Datum, Proj: string;
@@ -226,7 +217,7 @@ begin
             FMapPieceSize.Y,
             101 - FQuality,
             COMPRESS_HINT_BEST,
-            ReadLineECW,
+            ReadLine,
             Datum,
             Proj,
             Units,
@@ -240,20 +231,6 @@ begin
           ShowMessageSync(SAS_ERR_Save + ' ' + SAS_ERR_Code + inttostr(errecw) + #13#10 + path);
         end;
       finally
-        {$IFDEF VER80}
-        for k := 0 to 255 do begin
-          freemem(Rarr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
-        end;
-        freemem(Rarr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
-        for k := 0 to 255 do begin
-          freemem(Garr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
-        end;
-        freemem(Garr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
-        for k := 0 to 255 do begin
-          freemem(Barr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
-        end;
-        freemem(Barr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
-        {$ELSE}
         for k := 0 to 255 do begin
           freemem(Rarr[k]);
         end;
@@ -266,7 +243,6 @@ begin
           freemem(Barr[k]);
         end;
         FreeMem(Barr);
-        {$ENDIF}
       end;
     finally
       btmm.Free;

@@ -18,28 +18,16 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_BmpUtil;
+unit LibBMP;
 
 interface
 
 uses
   Windows,
   Classes,
-  SysUtils,
-  i_OperationNotifier;
+  SysUtils;
 
 type
-  TBGR= record
-   B: Byte;
-   G: Byte;
-   R: Byte;
-  end;
-
-  PLineRGBb = ^TlineRGBb;
-  TLineRGBb = array[0..0] of TBGR;
-
-  TBMPRead = procedure(ALine: Cardinal; AInputArray: PLineRGBb) of object;
-
   TBitmapFileHeader = packed record  // File Header for Windows/OS2 bitmap file
     Magic: Word;                     // Сигнатура: 'BM'
     Size: LongWord;                  // Размер файла
@@ -66,38 +54,39 @@ type
   private
     FStream: TFileStream;
     FBitmapSize: Int64;
-    FWidth: Int64;
-    FHeight: Int64;
-    function WriteHeader(AWidth: Integer; AHeight: Integer): Boolean;
+    FWidth: Cardinal;
+    FHeight: Cardinal;
+    FEnabled: Boolean;
+    k1,k2: Int64;
+    function WriteHeader(AWidth: Cardinal; AHeight: Cardinal): Boolean;
   public
     constructor Create(
       const AFileName: string;
-      AWidth: LongInt;
-      AHeight: LongInt
+      AWidth: Cardinal;
+      AHeight: Cardinal
     );
     destructor Destroy; override;
-    function Write(
-      AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      AReadCallBack: TBMPRead
-    ): Boolean;
+    function WriteLine(ALineNumber: Integer; APLine: Pointer): Boolean;
   end;
 
 implementation
 
 const
-  BMP_MAGIC: Word = $4D42;     // 'BM'
-  BMP_SIZE_LIMIT = $FFFFFFFF;  // 4Gb
+  BMP_MAGIC: Word = $4D42; // 'BM'
+  BMP_SIZE_LIMIT = $80000000; // 2Gb
 
 { TBitmapFile }
 
 constructor TBitmapFile.Create(
   const AFileName: string;
-  AWidth: LongInt;
-  AHeight: LongInt
+  AWidth: Cardinal;
+  AHeight: Cardinal
 );
+const
+  BMP_ERR_MSG = 'Output image size is too big!'#13#10'Maximum size = %d Mb (output size = %d Mb)';
 begin
   inherited Create;
+  FEnabled := False;
   FStream := nil;
   FWidth := AWidth;
   FHeight := AHeight;
@@ -105,10 +94,13 @@ begin
   if FBitmapSize < BMP_SIZE_LIMIT then begin
     FStream := TFileStream.Create(AFileName, fmCreate);
     FStream.Size := SizeOf(TBitmapFileHeader) + SizeOf(TBitmapInfoHeader) + FBitmapSize;
-    WriteHeader(AWidth, AHeight);
+    FEnabled := WriteHeader(AWidth, AHeight);
+    if FEnabled then begin
+      k1 := FWidth * 3 + (FWidth mod 4);
+      k2 := (FHeight - 1) * k1 + SizeOf(TBitmapFileHeader) + SizeOf(TBitmapInfoHeader);
+    end;
   end else begin
-    raise Exception.Create('Image is too big! Maximum size = 4Gb (current size = '
-      + IntToStr(FBitmapSize div (1024*1024*1024)) + ' Gb)');
+    raise Exception.CreateFmt(BMP_ERR_MSG, [BMP_SIZE_LIMIT div 1024 div 1024, FBitmapSize div 1024 div 1024]);
   end;
 end;
 
@@ -120,7 +112,7 @@ begin
   inherited Destroy;    
 end;
 
-function TBitmapFile.WriteHeader(AWidth: Integer; AHeight: Integer): Boolean;
+function TBitmapFile.WriteHeader(AWidth: Cardinal; AHeight: Cardinal): Boolean;
 var
   VFileHeader: TBitmapFileHeader;
   VInfoHeader: TBitmapInfoHeader;
@@ -148,38 +140,12 @@ begin
   end;
 end;
 
-function TBitmapFile.Write(
-  AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  AReadCallBack: TBMPRead
-): Boolean;
-var
-  VInputArray: PLineRGBb;
-  I: Integer;
-  k1,k2: Int64;
-  ReadLine: TBMPRead;
+function TBitmapFile.WriteLine(ALineNumber: Integer; APLine: Pointer): Boolean;
 begin
   Result := False;
-  ReadLine := AReadCallBack;
-  if Assigned(FStream) and (Addr(ReadLine) <> nil) then begin
-    GetMem(VInputArray, FWidth * 3);
-    try
-      k1 := FWidth * 3 + (FWidth mod 4);
-      k2 := (FHeight - 1) * k1 + SizeOf(TBitmapFileHeader) + SizeOf(TBitmapInfoHeader);
-      for I := 0 to FHeight - 1 do begin
-       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-         Break;
-       end;
-       ReadLine(I, VInputArray);
-       FStream.Position := k2 - I * k1;
-       Result := FStream.Write(VInputArray^, k1) = k1;
-       if not Result then begin
-         Break;
-       end;
-      end;
-    finally
-      FreeMem(VInputArray);
-    end;
+  if FEnabled then begin
+    FStream.Position := k2 - ALineNumber * k1;
+    Result := FStream.Write(APLine^, k1) = k1;
   end;
 end;
 

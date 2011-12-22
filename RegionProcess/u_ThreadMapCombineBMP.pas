@@ -9,129 +9,86 @@ uses
   Classes,
   GR32,
   u_GeoFun,
-  u_BmpUtil,
-  u_ThreadMapCombineBase;
+  u_ResStrings,
+  u_ThreadMapCombineBase,
+  LibBMP;
 
 type
-  PArrayBGR = ^TArrayBGR;
-  TArrayBGR = array [0..0] of TBGR;
-
-  P256ArrayBGR = ^T256ArrayBGR;
-  T256ArrayBGR = array[0..255] of PArrayBGR;
-
   TThreadMapCombineBMP = class(TThreadMapCombineBase)
-  private
-    FArray256BGR: P256ArrayBGR;
-    sx, ex, sy, ey: integer;
-    btmm: TCustomBitmap32;
-
-    procedure ReadLineBMP(ALine: cardinal; LineRGB: PLineRGBb);
   protected
-    procedure saveRECT; override;
-  public
+    procedure SaveRect; override;
   end;
 
 implementation
 
 uses
+  gnugettext,
   i_LocalCoordConverter;
 
-procedure TThreadMapCombineBMP.ReadLineBMP(ALine: cardinal;
-  LineRGB: PLineRGBb);
+procedure TThreadMapCombineBMP.SaveRect;
+const
+  BMP_MAX_WIDTH = 32768;
+  BMP_MAX_HEIGHT = 32768;
 var
-  i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
-  line: Integer;
-  p: PColor32array;
-  VConverter: ILocalCoordConverter;
-begin
-  line := ALine;
-  if line < (256 - sy) then begin
-    starttile := sy + line;
-  end else begin
-    starttile := (line - (256 - sy)) mod 256;
-  end;
-  if (starttile = 0) or (line = 0) then begin
-    FTilesProcessed := Line;
-    ProgressFormUpdateOnProgress;
-    p_y := (FCurrentPieceRect.Top + line) - ((FCurrentPieceRect.Top + line) mod 256);
-    p_x := FCurrentPieceRect.Left - (FCurrentPieceRect.Left mod 256);
-    lrarri := 0;
-    rarri := 0;
-    if line > (255 - sy) then begin
-      Asy := 0;
-    end else begin
-      Asy := sy;
-    end;
-    if (p_y div 256) = (FCurrentPieceRect.Bottom div 256) then begin
-      Aey := ey;
-    end else begin
-      Aey := 255;
-    end;
-    Asx := sx;
-    Aex := 255;
-    while p_x <= FCurrentPieceRect.Right do begin
-      if not (RgnAndRgn(FPoly, p_x + 128, p_y + 128, false)) then begin
-        btmm.Clear(FBackGroundColor);
-      end else begin
-        FLastTile := Point(p_x shr 8, p_y shr 8);
-        VConverter := CreateConverterForTileImage(FLastTile);
-        PrepareTileBitmap(btmm, VConverter, FBackGroundColor);
-      end;
-      if (p_x + 256) > FCurrentPieceRect.Right then begin
-        Aex := ex;
-      end;
-      for j := Asy to Aey do begin
-        p := btmm.ScanLine[j];
-        rarri := lrarri;
-        for i := Asx to Aex do begin
-          CopyMemory(@FArray256BGR[j]^[rarri], Pointer(integer(p) + (i * 4)), 3);
-          inc(rarri);
-        end;
-      end;
-      lrarri := rarri;
-      Asx := 0;
-      inc(p_x, 256);
-    end;
-  end;
-  CopyMemory(LineRGB, FArray256BGR^[starttile], (FCurrentPieceRect.Right - FCurrentPieceRect.Left) * 3);
-end;
-
-procedure TThreadMapCombineBMP.saveRECT;
-var
-  k: integer;
+  iWidth, iHeight: integer;
+  i: Integer;
   VBMP: TBitmapFile;
+  VLineBGR: PArrayBGR;
 begin
   sx := (FCurrentPieceRect.Left mod 256);
   sy := (FCurrentPieceRect.Top mod 256);
   ex := (FCurrentPieceRect.Right mod 256);
   ey := (FCurrentPieceRect.Bottom mod 256);
+
+  iWidth := FMapPieceSize.X;
+  iHeight := FMapPieceSize.y;
+
+  if (iWidth >= BMP_MAX_WIDTH) or (iHeight >= BMP_MAX_HEIGHT) then begin
+    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['BMP', iWidth, BMP_MAX_WIDTH, iHeight, BMP_MAX_HEIGHT, 'BMP']);
+  end;
+
+  VBMP := TBitmapFile.Create(FCurrentFileName, iWidth, iHeight);
   try
-    btmm := TCustomBitmap32.Create;
-    btmm.Width := 256;
-    btmm.Height := 256;
-    getmem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
-    for k := 0 to 255 do begin
-      getmem(FArray256BGR[k], (FMapPieceSize.X + 1) * 3);
+    GetMem(VLineBGR, iWidth * 3);
+
+    GetMem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
+    for i := 0 to 255 do begin
+      GetMem(FArray256BGR[i], (iWidth + 1) * 3);
     end;
-    VBMP := TBitmapFile.Create(FCurrentFileName, FMapPieceSize.X, FMapPieceSize.Y);
     try
-      VBMP.Write(OperationID, CancelNotifier, ReadLineBMP);
+      btmm := TCustomBitmap32.Create;
+      try
+        btmm.Width := 256;
+        btmm.Height := 256;
+
+        for i := 0 to iHeight - 1 do begin
+
+          if ReadLine(i, VLineBGR) then begin
+
+            if not VBMP.WriteLine(i, VLineBGR) then begin
+              raise Exception.Create( _('BMP: Line write failure!') );
+            end;
+
+          end else begin
+            raise Exception.Create( _('BMP: Fill line failure!') );
+          end;
+
+          if CancelNotifier.IsOperationCanceled(OperationID) then begin
+            Break;
+          end;
+        end;
+      finally
+        btmm.Free;
+      end;
     finally
-      VBMP.Free;
+      for i := 0 to 255 do begin
+        FreeMem(FArray256BGR[i]);
+      end;
+      FreeMem(FArray256BGR);
+      FreeMem(VLineBGR);
     end;
   finally
-    {$IFDEF VER80}
-    for k := 0 to 255 do begin
-      freemem(FArray256BGR[k], (FMapPieceSize.X + 1) * 3);
-    end;
-    freemem(FArray256BGR, 256 * ((FMapPieceSize.X + 1) * 3));
-    {$ELSE}
-    for k := 0 to 255 do begin
-      freemem(FArray256BGR[k]);
-    end;
-    FreeMem(FArray256BGR);
-    {$ENDIF}
-    btmm.Free;
+    VBMP.Free;
   end;
 end;
 

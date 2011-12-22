@@ -13,7 +13,6 @@ uses
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
   u_GeoFun,
-  u_BmpUtil,
   t_GeoTypes,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
@@ -21,21 +20,11 @@ uses
   libJPEG;
 
 type
-  PArrayBGR = ^TArrayBGR;
-  TArrayBGR = array [0..0] of TBGR;
-
-  P256ArrayBGR = ^T256ArrayBGR;
-  T256ArrayBGR = array[0..255] of PArrayBGR;
-
   TThreadMapCombineJPG = class(TThreadMapCombineBase)
   private
-    FArray256BGR: P256ArrayBGR;
-    sx, ex, sy, ey: integer;
-    btmm: TCustomBitmap32;
     FQuality: Integer;
-    procedure ReadLineBMP(ALine: cardinal; LineRGB: JSAMPROW);
   protected
-    procedure saveRECT; override;
+    procedure SaveRect; override;
   public
     constructor Create(
       AViewConfig: IGlobalViewMainConfig;
@@ -57,6 +46,7 @@ type
 implementation
 
 uses
+  gnugettext,
   i_LocalCoordConverter;
 
 type
@@ -107,67 +97,10 @@ begin
   FQuality := AQuality;
 end;
 
-procedure TThreadMapCombineJPG.ReadLineBMP(ALine: cardinal;
-  LineRGB: JSAMPROW);
-var
-  i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
-  line: Integer;
-  p: PColor32array;
-  VConverter: ILocalCoordConverter;
-begin
-  line := ALine;
-  if line < (256 - sy) then begin
-    starttile := sy + line;
-  end else begin
-    starttile := (line - (256 - sy)) mod 256;
-  end;
-  if (starttile = 0) or (line = 0) then begin
-    FTilesProcessed := line;
-    ProgressFormUpdateOnProgress;
-    p_y := (FCurrentPieceRect.Top + line) - ((FCurrentPieceRect.Top + line) mod 256);
-    p_x := FCurrentPieceRect.Left - (FCurrentPieceRect.Left mod 256);
-    lrarri := 0;
-    rarri := 0;
-    if line > (255 - sy) then begin
-      Asy := 0;
-    end else begin
-      Asy := sy;
-    end;
-    if (p_y div 256) = (FCurrentPieceRect.Bottom div 256) then begin
-      Aey := ey;
-    end else begin
-      Aey := 255;
-    end;
-    Asx := sx;
-    Aex := 255;
-    while p_x <= FCurrentPieceRect.Right do begin
-      if not (RgnAndRgn(FPoly, p_x + 128, p_y + 128, false)) then begin
-        btmm.Clear(FBackGroundColor);
-      end else begin
-        FLastTile := Point(p_x shr 8, p_y shr 8);
-        VConverter := CreateConverterForTileImage(FLastTile);
-        PrepareTileBitmap(btmm, VConverter, FBackGroundColor);
-      end;
-      if (p_x + 256) > FCurrentPieceRect.Right then begin
-        Aex := ex;
-      end;
-      for j := Asy to Aey do begin
-        p := btmm.ScanLine[j];
-        rarri := lrarri;
-        for i := Asx to Aex do begin
-          CopyMemory(@FArray256BGR[j]^[rarri], Pointer(integer(p) + (i * 4)), 3);
-          inc(rarri);
-        end;
-      end;
-      lrarri := rarri;
-      Asx := 0;
-      inc(p_x, 256);
-    end;
-  end;
-  CopyMemory(LineRGB, FArray256BGR^[starttile], (FCurrentPieceRect.Right - FCurrentPieceRect.Left) * 3);
-end;
-
-procedure TThreadMapCombineJPG.saveRECT;
+procedure TThreadMapCombineJPG.SaveRect;
+const
+  JPG_MAX_HEIGHT = 65536;
+  JPG_MAX_WIDTH = 65536;
 var
   iWidth, iHeight: integer;
   i,j: integer;
@@ -186,17 +119,12 @@ begin
   iWidth := FMapPieceSize.X;
   iHeight := FMapPieceSize.y;
 
-  if (iWidth >= 65500) or (iHeight >= 65500) then begin
-    raise Exception.Create(
-      'Selected resolution is too big for JPEG format!'+#13#10+
-      'Widht = '+inttostr(iWidth) + ' (max = 65500)' + #13#10+
-      'Height = '+inttostr(iHeight) + ' (max = 65500)' + #13#10+
-      'Try select smaller region to stitch in JPEG or select other output format (ECW is the best).'
-    );
+  if (iWidth >= JPG_MAX_WIDTH) or (iHeight >= JPG_MAX_HEIGHT) then begin
+    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['JPG', iWidth, JPG_MAX_WIDTH, iHeight, JPG_MAX_HEIGHT, 'JPG']);
   end;
 
   if not init_libJPEG then begin
-    raise Exception.Create('Initialization of libJPEG failed.');
+    raise Exception.Create( _('Initialization of LibJPEG failed.') );
   end;
 
   VStream := TFileStream.Create(FCurrentFileName, fmCreate);
@@ -271,7 +199,7 @@ begin
               Break;
             end;
 
-            ReadLineBMP(i, prow);
+            ReadLine(i, prow);
 
             // BGR to RGB swap
             for j := 0 to jpeg.image_width - 1 do begin
