@@ -733,6 +733,82 @@ object frmMain: TfrmMain
             Hint = ''
           end
         end
+        object DegreedLinesSubMenu: TTBXSubmenuItem
+          Caption = 'Degree grid lines'
+          Hint = ''
+          object NDegScale0: TTBXItem
+            AutoCheck = True
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = 'No'
+            Hint = ''
+          end
+          object NDegScale1000000: TTBXItem
+            Tag = 1000000
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = '10'#176
+            Hint = ''
+          end
+          object NDegScale500000: TTBXItem
+            Tag = 500000
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = '5'#176
+            Hint = ''
+          end
+          object NDegScale200000: TTBXItem
+            Tag = 200000
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = '2'#176
+            Hint = ''
+          end
+          object NDegScale100000: TTBXItem
+            Tag = 100000
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = '1'#176
+            Hint = ''
+          end
+          object NDegScale50000: TTBXItem
+            Tag = 50000
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = '0.5'#176
+            Hint = ''
+          end
+          object NDegScale25000: TTBXItem
+            Tag = 25000
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = '0.25'#176
+            Hint = ''
+          end
+          object NDegScale10000: TTBXItem
+            Tag = 10000
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = '0.125'#176
+            Hint = ''
+          end
+        end
         object TBXSeparatorItem10: TTBXSeparatorItem
           Caption = ''
           Hint = ''

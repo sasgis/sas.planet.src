@@ -31,9 +31,11 @@ type
   private
     FTileGrid: ITileGridConfig;
     FGenShtabGrid: IGenShtabGridConfig;
+    FDegreeGrid: IDegreeGridConfig;
   protected
     function GetTileGrid: ITileGridConfig;
     function GetGenShtabGrid: IGenShtabGridConfig;
+    function GetDegreeGrid: IDegreeGridConfig;
   public
     constructor Create;
   end;
@@ -43,7 +45,8 @@ implementation
 uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_TileGridConfig,
-  u_GenShtabGridConfig;
+  u_GenShtabGridConfig,
+  u_DegreeGridConfig;
 
 { TMapLayerGridsConfig }
 
@@ -54,11 +57,18 @@ begin
   Add(FTileGrid, TConfigSaveLoadStrategyBasicProviderSubItem.Create('TileGrid'));
   FGenShtabGrid := TGenShtabGridConfig.Create;
   Add(FGenShtabGrid, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GenShtabGrid'));
+  FDegreeGrid := TDegreeGridConfig.Create;
+  Add(FDegreeGrid, TConfigSaveLoadStrategyBasicProviderSubItem.Create('DegreeGrid'));
 end;
 
 function TMapLayerGridsConfig.GetGenShtabGrid: IGenShtabGridConfig;
 begin
   Result := FGenShtabGrid;
+end;
+
+function TMapLayerGridsConfig.GetDegreeGrid: IDegreeGridConfig;
+begin
+  Result := FDegreeGrid;
 end;
 
 function TMapLayerGridsConfig.GetTileGrid: ITileGridConfig;

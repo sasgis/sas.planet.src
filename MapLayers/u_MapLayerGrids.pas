@@ -14,14 +14,17 @@ uses
   i_ImageResamplerConfig,
   i_MapLayerGridsConfig,
   i_ViewPortState,
+  i_ValueToStringConverter,
   u_MapLayerBasic;
 
 type
   TMapLayerGrids = class(TMapLayerBasic)
   private
     FConfig: IMapLayerGridsConfig;
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     procedure generate_granica;
     procedure DrawGenShBorders;
+    procedure DrawDegreeBorders;
     procedure OnConfigChange;
   protected
     procedure DoRedraw; override;
@@ -35,7 +38,8 @@ type
       AViewPortState: IViewPortState;
       AResamplerConfig: IImageResamplerConfig;
       AConverterFactory: ILocalCoordConverterFactorySimpe;
-      AConfig: IMapLayerGridsConfig
+      AConfig: IMapLayerGridsConfig;
+      AValueToStringConverterConfig: IValueToStringConverterConfig
     );
   end;
 
@@ -46,7 +50,9 @@ uses
   i_CoordConverter,
   u_GeoFun,
   u_NotifyEventListener,
+  u_ValueToStringConverter,
   u_GeoToStr;
+
 
 const
   GSHprec = 100000000;
@@ -59,7 +65,8 @@ constructor TMapLayerGrids.Create(
   AViewPortState: IViewPortState;
   AResamplerConfig: IImageResamplerConfig;
   AConverterFactory: ILocalCoordConverterFactorySimpe;
-  AConfig: IMapLayerGridsConfig
+  AConfig: IMapLayerGridsConfig;
+  AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create(
@@ -70,6 +77,7 @@ begin
     AConverterFactory
   );
   FConfig := AConfig;
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
@@ -84,6 +92,9 @@ begin
   end;
   if FConfig.GenShtabGrid.Visible then begin
     DrawGenShBorders;
+  end;
+  if FConfig.DegreeGrid.Visible then begin
+    DrawDegreeBorders;
   end;
 end;
 
@@ -107,6 +118,150 @@ begin
     Result.Y := trunc(ASource.Y);
   end;
 end;
+
+
+
+procedure TMapLayerGrids.DrawDegreeBorders; //garl
+var
+  z: TDoublePoint;
+  twidth, theight: integer;
+  ListName: WideString;
+  VZoom: Byte;
+  VLoadedRect: TDoubleRect;
+  VLoadedLonLatRect: TDoubleRect;
+  VGridLonLatRect: TDoubleRect;
+  VGridRect: TRect;
+  VDrawLonLatRect: TDoubleRect;
+  VDrawRectFloat: TDoubleRect;
+  VDrawScreenRect: TRect;
+  VCanShowText: Boolean;
+  VLocalConverter: ILocalCoordConverter;
+  VGeoConvert: ICoordConverter;
+  VScale: Integer;
+  VShowText: Boolean;
+  VColor: TColor32;
+
+  VVDrawLonLatRect: TDoubleRect;
+  VVDrawRectFloat: TDoubleRect;
+  VVDrawScreenRect:  TRect;
+  vTempX,vTempY: integer;
+  VDeltaxDegree,VDeltayDegree: integer;
+  VValueConverter: IValueToStringConverter;
+
+begin
+  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  FConfig.DegreeGrid.LockRead;
+  try
+    VScale := FConfig.DegreeGrid.Scale;
+    VShowText := FConfig.DegreeGrid.ShowText;
+    VColor := FConfig.DegreeGrid.GridColor;
+  finally
+    FConfig.DegreeGrid.UnlockRead;
+  end;
+  if VScale = 0 then begin
+    exit;
+  end;
+  vTempx := 0;
+  vTempy := 0;
+  VDeltaxDegree := 0;
+  VDeltayDegree := 0;
+  z := GetDegBordersStepByScale(VScale);
+  VLocalConverter := LayerCoordConverter;
+  VGeoConvert := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
+  VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
+  VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
+  if VLoadedLonLatRect.Top>90 then VLoadedLonLatRect.Top:=90;
+  if VLoadedLonLatRect.Bottom<-90 then VLoadedLonLatRect.Bottom:=-90;
+
+  VGridLonLatRect.Left := VLoadedLonLatRect.Left - z.X;
+  VGridLonLatRect.Top := VLoadedLonLatRect.Top + z.Y;
+  VGridLonLatRect.Right := VLoadedLonLatRect.Right + z.X;
+  VGridLonLatRect.Bottom := VLoadedLonLatRect.Bottom - z.Y;
+  VGeoConvert.CheckLonLatRect(VGridLonLatRect);
+  VGridLonLatRect.Left := VGridLonLatRect.Left;
+  VGridLonLatRect.Top := VGridLonLatRect.Top;
+  VGridLonLatRect.Bottom := VGridLonLatRect.Bottom;
+  VGridRect := VGeoConvert.LonLatRect2PixelRect(VGridLonLatRect, VZoom);
+  VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
+  VDrawLonLatRect.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Bottom);
+  VDrawRectFloat := VGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoom);
+
+  if abs(VDrawRectFloat.Right - VDrawRectFloat.Left) < 3 then begin
+    exit;
+  end;
+
+  if (abs(VDrawRectFloat.Right - VDrawRectFloat.Left) > 30) and (VShowText) then begin
+    VCanShowText := true;
+  end else begin
+    VCanShowText := false;
+  end;
+
+  // вертикаль
+  VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
+  VDrawLonLatRect.Right := VGridLonLatRect.Left;
+  VDrawLonLatRect.Bottom := VGridLonLatRect.Bottom;
+  VDrawLonLatRect.Left := trunc(VDrawLonLatRect.Left/z.x)*z.x;
+  while VDrawLonLatRect.Left <= VGridLonLatRect.Right do begin
+   if (VDeltaXDegree = 0) and (vtempX <> 0 )then VDeltaXDegree := VDrawScreenRect.Left - vtempX;
+   vtempX:=VDrawScreenRect.Left;
+   VDrawRectFloat := VGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoom);
+   VDrawScreenRect.TopLeft := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.TopLeft));
+   VDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.BottomRight));
+   Layer.bitmap.LineAS(
+      VDrawScreenRect.Left, VDrawScreenRect.Top,
+      VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
+    );
+    VVDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
+    VVDrawLonLatRect.Right   := VGridLonLatRect.Right;
+    VVDrawLonLatRect.Bottom  := VGridLonLatRect.Bottom;
+    VVDrawLonLatRect.Top := trunc(VGridLonLatRect.Top/z.y)*z.y;
+
+    while VVDrawLonLatRect.Top>VGridLonLatRect.Bottom  do begin
+      if (VDeltayDegree = 0) and (vtempy <> 0) then VDeltayDegree := vVDrawScreenRect.Top - vtempy;
+      vtempy := vVDrawScreenRect.Top;
+      vVDrawRectFloat := VGeoConvert.LonLatRect2PixelRectFloat(VVDrawLonLatRect, VZoom);
+      vVDrawScreenRect.TopLeft     := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(vVDrawRectFloat.TopLeft));
+      vVDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(vVDrawRectFloat.BottomRight));
+
+      Layer.bitmap.LineAS(
+       vVDrawScreenRect.Left, vVDrawScreenRect.Top,
+       vVDrawScreenRect.Right, vVDrawScreenRect.top, VColor
+      );
+      if VCanShowText then begin
+       ListName := VValueConverter.LatConvert(vVDrawLonLatRect.Top);
+       twidth  := Layer.bitmap.TextWidth(ListName);
+       if twidth > VDeltaXDegree then  begin
+         ListName := floattostr(vVDrawLonLatRect.Top);
+         twidth  := Layer.bitmap.TextWidth(ListName);
+       end;
+       Layer.bitmap.RenderTextW(
+         VDrawScreenRect.Left + VDeltaXDegree div 2 - twidth  div 2,
+         vVDrawScreenRect.Top,
+         ListName, 0, VColor
+       );
+       ListName := VValueConverter.LonConvert(VDrawLonLatRect.Left);
+       twidth  := Layer.bitmap.TextWidth(ListName);
+       theight := Layer.bitmap.TextHeight(ListName);
+       if twidth > VDeltaXDegree then begin
+         ListName := floattostr(VDrawLonLatRect.Left);
+         theight := Layer.bitmap.TextHeight(ListName);
+       end;
+       Layer.bitmap.RenderTextW(
+         VDrawScreenRect.Left +2,
+         vVDrawScreenRect.Top + VDeltaYDegree div 2 - theight div 2,
+         ListName, 0, VColor
+       );
+      end;
+      VVDrawLonLatRect.Top := VVDrawLonLatRect.Top - z.Y;
+   end;
+  VDrawLonLatRect.Left := VDrawLonLatRect.Left + z.X;
+  VDrawLonLatRect.Right := VDrawLonLatRect.Left;
+  end;
+
+end;
+
 
 procedure TMapLayerGrids.DrawGenShBorders;
 var
@@ -250,7 +405,6 @@ begin
     VDrawLonLatRect.Bottom := VDrawLonLatRect.Bottom - z.Y;
   end;
 end;
-
 procedure TMapLayerGrids.generate_granica;
 var
   i, j: integer;
@@ -351,6 +505,11 @@ begin
       end;
       if FConfig.GenShtabGrid.Visible then begin
         if FConfig.GenShtabGrid.Scale > 0 then begin
+          Result := True;
+        end;
+      end;
+      if FConfig.DegreeGrid.Visible then begin
+        if FConfig.DegreeGrid.Scale > 0 then begin
           Result := True;
         end;
       end;
