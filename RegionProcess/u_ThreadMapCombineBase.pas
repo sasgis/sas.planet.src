@@ -85,7 +85,7 @@ type
     );
     procedure ProgressFormUpdateOnProgress; virtual;
 
-    procedure saveRECT; virtual; abstract;
+    procedure SaveRect; virtual; abstract;
 
     procedure ProcessRegion; override;
     procedure ProcessRecolor(Bitmap: TCustomBitmap32);

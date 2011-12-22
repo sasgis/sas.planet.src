@@ -13,7 +13,6 @@ uses
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
   u_GeoFun,
-  u_BmpUtil,
   t_GeoTypes,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
@@ -23,7 +22,7 @@ uses
 type
   TThreadMapCombinePNG = class(TThreadMapCombineBase)
   protected
-    procedure saveRECT; override;
+    procedure SaveRect; override;
   end;
 
 implementation
@@ -70,7 +69,7 @@ end;
 
 { TThreadMapCombinePNG }
 
-procedure TThreadMapCombinePNG.saveRECT;
+procedure TThreadMapCombinePNG.SaveRect;
 const
   PNG_MAX_HEIGHT = 65536;
   PNG_MAX_WIDTH = 65536;
@@ -92,12 +91,7 @@ begin
   iHeight := FMapPieceSize.y;
 
   if (iWidth >= PNG_MAX_WIDTH) or (iHeight >= PNG_MAX_HEIGHT) then begin
-    raise Exception.Create(
-      'Selected resolution is too big for PNG format!'+#13#10+
-      'Widht = '+inttostr(iWidth) + ' (max = ' + IntToStr(PNG_MAX_WIDTH) + ')' + #13#10+
-      'Height = '+inttostr(iHeight) + ' (max = ' + IntToStr(PNG_MAX_HEIGHT) + ')' + #13#10+
-      'Try select smaller region to stitch in PNG or select other output format (ECW is the best).'
-    );
+    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['PNG', iWidth, PNG_MAX_WIDTH, iHeight, PNG_MAX_HEIGHT, 'PNG']);
   end;
 
   if not Init_LibPNG then begin

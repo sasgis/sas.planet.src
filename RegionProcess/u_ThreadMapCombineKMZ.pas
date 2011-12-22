@@ -13,7 +13,6 @@ uses
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
   u_GeoFun,
-  u_BmpUtil,
   t_GeoTypes,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
@@ -27,7 +26,7 @@ type
   private
     FQuality: Integer;
   protected
-    procedure saveRECT; override;
+    procedure SaveRect; override;
   public
     constructor Create(
       AViewConfig: IGlobalViewMainConfig;
@@ -86,7 +85,7 @@ begin
   FQuality := AQuality;
 end;
 
-procedure TThreadMapCombineKMZ.saveRECT;
+procedure TThreadMapCombineKMZ.SaveRect;
 var
   iWidth, iHeight: integer;
   k, i, j: integer;

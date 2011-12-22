@@ -103,6 +103,10 @@ ResourceString
   SAS_ERR_EmptyServerResponse = 'Empty server response';
   SAS_ERR_CoordParseError = 'Error parsing coordinates: Lat=%s Lon=%s';
 
+  SAS_ERR_ImageIsTooBig = 'Selected resolution is too big for %s format!'#13#10 +
+    'Widht = %d (max = %d)'#13#10 + 'Height = %d (max = %d)'#13#10 +
+    'Try select smaller region to stitch in %s or select other output format (ECW is the best).';
+
   SAS_STR_MarshLen = 'Distance:';
   SAS_STR_Marshtime = 'Time to reach:';
   SAS_STR_coordinates = 'Coordinates';

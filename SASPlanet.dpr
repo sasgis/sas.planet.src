@@ -169,7 +169,6 @@ uses
   u_KmlInfoSimpleParser in 'u_KmlInfoSimpleParser.pas',
   u_KmzInfoSimpleParser in 'u_KmzInfoSimpleParser.pas',
   u_ECWWrite in 'u_ECWWrite.pas',
-  u_BmpUtil in 'u_BmpUtil.pas',
   i_ARGBToPaletteConverter in 'i_ARGBToPaletteConverter.pas',
   u_ARGBToPaletteConverter in 'u_ARGBToPaletteConverter.pas',
   i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',

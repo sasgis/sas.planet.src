@@ -13,7 +13,6 @@ uses
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
   u_GeoFun,
-  u_BmpUtil,
   t_GeoTypes,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
@@ -25,7 +24,7 @@ type
   private
     FQuality: Integer;
   protected
-    procedure saveRECT; override;
+    procedure SaveRect; override;
   public
     constructor Create(
       AViewConfig: IGlobalViewMainConfig;
@@ -47,6 +46,7 @@ type
 implementation
 
 uses
+  gnugettext,
   i_LocalCoordConverter;
 
 type
@@ -97,7 +97,10 @@ begin
   FQuality := AQuality;
 end;
 
-procedure TThreadMapCombineJPG.saveRECT;
+procedure TThreadMapCombineJPG.SaveRect;
+const
+  JPG_MAX_HEIGHT = 65536;
+  JPG_MAX_WIDTH = 65536;
 var
   iWidth, iHeight: integer;
   i,j: integer;
@@ -116,17 +119,12 @@ begin
   iWidth := FMapPieceSize.X;
   iHeight := FMapPieceSize.y;
 
-  if (iWidth >= 65500) or (iHeight >= 65500) then begin
-    raise Exception.Create(
-      'Selected resolution is too big for JPEG format!'+#13#10+
-      'Widht = '+inttostr(iWidth) + ' (max = 65500)' + #13#10+
-      'Height = '+inttostr(iHeight) + ' (max = 65500)' + #13#10+
-      'Try select smaller region to stitch in JPEG or select other output format (ECW is the best).'
-    );
+  if (iWidth >= JPG_MAX_WIDTH) or (iHeight >= JPG_MAX_HEIGHT) then begin
+    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['JPG', iWidth, JPG_MAX_WIDTH, iHeight, JPG_MAX_HEIGHT, 'JPG']);
   end;
 
   if not init_libJPEG then begin
-    raise Exception.Create('Initialization of libJPEG failed.');
+    raise Exception.Create( _('Initialization of LibJPEG failed.') );
   end;
 
   VStream := TFileStream.Create(FCurrentFileName, fmCreate);

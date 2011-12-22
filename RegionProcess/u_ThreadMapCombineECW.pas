@@ -14,7 +14,6 @@ uses
   u_ECWWrite,
   u_MapType,
   u_GeoFun,
-  u_BmpUtil,
   t_GeoTypes,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
@@ -38,7 +37,7 @@ type
 
     function ReadLine(ALine: cardinal; var LineR, LineG, LineB: PLineRGB): Boolean; reintroduce;
   protected
-    procedure saveRECT; override;
+    procedure SaveRect; override;
   public
     constructor Create(
       AViewConfig: IGlobalViewMainConfig;
@@ -93,7 +92,7 @@ begin
     Atypemap,
     AHtypemap,
     AusedReColor,
-    ARecolorConfig,
+    ARecolorConfig
   );
   FEcwDll := AEcwDll;
   FQuality := AQuality;
@@ -168,7 +167,7 @@ begin
   end;
 end;
 
-procedure TThreadMapCombineECW.saveRECT;
+procedure TThreadMapCombineECW.SaveRect;
 var
   k: integer;
   Datum, Proj: string;

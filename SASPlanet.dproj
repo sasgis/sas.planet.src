@@ -480,7 +480,6 @@
     <DCCReference Include="u_BitmapMarkerProviderStaticFromDataProvider.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfigStatic.pas" />
-    <DCCReference Include="u_BmpUtil.pas" />
     <DCCReference Include="u_CalcLineLayerConfig.pas" />
     <DCCReference Include="u_CenterScaleConfig.pas" />
     <DCCReference Include="u_ClipPolygonByRect.pas" />
