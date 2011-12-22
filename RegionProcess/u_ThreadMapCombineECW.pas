@@ -240,20 +240,6 @@ begin
           ShowMessageSync(SAS_ERR_Save + ' ' + SAS_ERR_Code + inttostr(errecw) + #13#10 + path);
         end;
       finally
-        {$IFDEF VER80}
-        for k := 0 to 255 do begin
-          freemem(Rarr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
-        end;
-        freemem(Rarr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
-        for k := 0 to 255 do begin
-          freemem(Garr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
-        end;
-        freemem(Garr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
-        for k := 0 to 255 do begin
-          freemem(Barr[k], (Poly1.X - Poly0.X + 1) * sizeof(byte));
-        end;
-        freemem(Barr, 256 * ((Poly1.X - Poly0.X + 1) * sizeof(byte)));
-        {$ELSE}
         for k := 0 to 255 do begin
           freemem(Rarr[k]);
         end;
@@ -266,7 +252,6 @@ begin
           freemem(Barr[k]);
         end;
         FreeMem(Barr);
-        {$ENDIF}
       end;
     finally
       btmm.Free;

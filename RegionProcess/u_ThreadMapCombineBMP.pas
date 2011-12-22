@@ -120,17 +120,10 @@ begin
       VBMP.Free;
     end;
   finally
-    {$IFDEF VER80}
-    for k := 0 to 255 do begin
-      freemem(FArray256BGR[k], (FMapPieceSize.X + 1) * 3);
-    end;
-    freemem(FArray256BGR, 256 * ((FMapPieceSize.X + 1) * 3));
-    {$ELSE}
     for k := 0 to 255 do begin
       freemem(FArray256BGR[k]);
     end;
     FreeMem(FArray256BGR);
-    {$ENDIF}
     btmm.Free;
   end;
 end;
