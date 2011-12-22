@@ -201,6 +201,7 @@ implementation
 
 uses
   SysUtils,
+  vsagps_public_sats_info,
   u_JclNotify;
 
 { TGPSPositionUpdatable }
@@ -378,13 +379,7 @@ function TGPSModuleAbstract.SerializeSatsInfo: String;
         if SatAvailableForShow(sat_info.svid, snr, status) then begin
           si.GetSkySatelliteParams(@ssp);
           // to string
-          s:=IntToHex(Byte(bsp.sat_info.svid),2)+
-             IntToHex(Byte(bsp.sat_info.normalized_flag),2)+
-             IntToHex(Word(bsp.snr),4)+
-             IntToHex(Byte(bsp.status),2)+
-             IntToHex(Byte(bsp.flags),2)+
-             IntToHex(Word(ssp.elevation),4)+
-             IntToHex(Word(ssp.azimuth),4);
+          s:=SerializeSingleSatInfo(@bsp, @ssp);
           // prefix to result
           if (0=v_done) then
             _AddToResult(sats_prefix);
@@ -497,8 +492,27 @@ begin
   end;
 end;
 
-procedure TGPSModuleAbstract._UpdateFromTrackPoint(
-  const pData: PSingleTrackPointData);
+procedure TGPSModuleAbstract._UpdateFromTrackPoint(const pData: PSingleTrackPointData);
+
+  procedure _DoForSats(const a_fix_count: Byte;
+                       const p_sky_1: PSingleSatsInfoData;
+                       const a_talker_id: String);
+  var
+    i: SmallInt;
+  begin
+    if (0<a_fix_count) then
+    for i := 0 to a_fix_count-1 do
+    with p_sky_1^.entries[i] do
+      _UpdateSattelite(a_talker_id,
+                       i,
+                       single_fix.sat_info,
+                       single_sky.elevation,
+                       single_sky.azimuth,
+                       single_fix.snr,
+                       single_fix.status,
+                       single_fix.flags);
+  end;
+  
 begin
   CopyMemory(@FSingleGPSData, @(pData^.gps_data), sizeof(FSingleGPSData));
   FGPSPosChanged:=TRUE;
@@ -507,6 +521,17 @@ begin
     FFixSatsALL.gp.fix_count:=pData^.gpx_sats_count;
     FFixSatsALL.gp.all_count:=pData^.gpx_sats_count;
     FGPSSatChanged:=TRUE;
+  end;
+
+  if (sizeof(TFullTrackPointData) = PData^.full_data_size) then
+  with PFullTrackPointData(PData)^ do begin
+    // apply satellite params
+    // fix params
+    CopyMemory(@FFixSatsALL, @fix_all, sizeof(FFixSatsALL));
+    // other params - gps
+    _DoForSats(fix_all.gp.fix_count, @(sky_fix.gp), nmea_ti_GPS);
+    // other params - glonass
+    _DoForSats(fix_all.gl.fix_count, @(sky_fix.gl), nmea_ti_GLONASS);
   end;
 end;
 

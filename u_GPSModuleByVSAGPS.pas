@@ -470,7 +470,8 @@ begin
 {$ifend}
 
     // logger (create suspended)
-    InternalStartLogger(AConfig, ALogConfig);
+    if (not _IsFlyOnTrackMode) then
+      InternalStartLogger(AConfig, ALogConfig);
 
     // timeouts
     VTimeout:=AConfig.ConnectionTimeout;
