@@ -1042,6 +1042,76 @@ object frmSettings: TfrmSettings
               Value = 0
             end
           end
+          object pnlImageProcess: TPanel
+            Left = 3
+            Top = 282
+            Width = 317
+            Height = 105
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            BorderWidth = 3
+            TabOrder = 5
+            object LabelGamma: TLabel
+              Left = 3
+              Top = 3
+              Width = 311
+              Height = 13
+              Align = alTop
+              Caption = '_'
+              ExplicitWidth = 6
+            end
+            object LabelContrast: TLabel
+              Left = 3
+              Top = 41
+              Width = 311
+              Height = 13
+              Align = alTop
+              Caption = '_'
+              ExplicitWidth = 6
+            end
+            object TrBarGamma: TTrackBar
+              Left = 3
+              Top = 16
+              Width = 311
+              Height = 25
+              Align = alTop
+              Max = 100
+              Min = 1
+              ParentShowHint = False
+              Frequency = 5
+              Position = 1
+              ShowHint = False
+              TabOrder = 0
+              ThumbLength = 15
+              TickMarks = tmTopLeft
+              OnChange = TrBarGammaChange
+            end
+            object TrBarContrast: TTrackBar
+              Left = 3
+              Top = 54
+              Width = 311
+              Height = 25
+              Align = alTop
+              Max = 100
+              Min = -100
+              Frequency = 10
+              TabOrder = 1
+              ThumbLength = 15
+              TickMarks = tmTopLeft
+              OnChange = TrBarContrastChange
+            end
+            object CBinvertcolor: TCheckBox
+              AlignWithMargins = True
+              Left = 6
+              Top = 82
+              Width = 305
+              Height = 17
+              Align = alTop
+              Caption = 'Night mode (color inversion)'
+              TabOrder = 2
+            end
+          end
         end
         object pnlUIRight: TPanel
           Left = 325
@@ -1301,7 +1371,86 @@ object frmSettings: TfrmSettings
               end
             end
           end
-          object pnlGenshtabBorders: TPanel
+         object pnlGenshtabBorders: TPanel
+           Left = 3
+           Top = 214
+           Width = 317
+           Height = 68
+           Align = alTop
+           AutoSize = True
+           BevelEdges = [beBottom]
+           BevelKind = bkTile
+           BevelOuter = bvNone
+           BorderWidth = 3
+           TabOrder = 4
+           object LabelGsh1: TLabel
+             Left = 3
+             Top = 3
+             Width = 311
+             Height = 13
+             Align = alTop
+             Caption = 'Show Genshtab borders:'
+             ExplicitWidth = 119
+           end
+           object flwpnlGenshtabBorders: TFlowPanel
+             Left = 3
+             Top = 16
+             Width = 311
+             Height = 25
+             Align = alTop
+             AutoSize = True
+             BevelEdges = [beBottom]
+             BevelOuter = bvNone
+             Padding.Top = 3
+             TabOrder = 0
+             object LabelGsh2: TLabel
+               AlignWithMargins = True
+               Left = 3
+               Top = 6
+               Width = 25
+               Height = 13
+               Caption = 'Color'
+             end
+             object GenshtabBoxBorder: TColorBox
+               Left = 31
+               Top = 3
+               Width = 78
+               Height = 22
+               Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+               ItemHeight = 16
+               TabOrder = 0
+             end
+             object LabelGsh3: TLabel
+               AlignWithMargins = True
+               Left = 112
+               Top = 6
+               Width = 37
+               Height = 13
+               Caption = 'Opacity'
+             end
+             object SpinEditGenshtabBorderAlpha: TSpinEdit
+               Left = 152
+               Top = 3
+               Width = 41
+               Height = 22
+               MaxValue = 255
+               MinValue = 0
+               TabOrder = 1
+               Value = 255
+             end
+           end
+           object CBGenshtabBorderText: TCheckBox
+             AlignWithMargins = True
+             Left = 6
+             Top = 44
+             Width = 300
+             Height = 16
+             Align = alLeft
+             Caption = 'Genshtab Map names'
+             TabOrder = 1
+           end
+         end
+          object pnlDegreeBorders: TPanel
             Left = 3
             Top = 214
             Width = 317
@@ -1313,16 +1462,16 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 4
-            object LabelGsh1: TLabel
+            object LabelDeg1: TLabel
               Left = 3
               Top = 3
               Width = 311
               Height = 13
               Align = alTop
-              Caption = 'Show Genshtab borders:'
+              Caption = 'Show Degree borders:'
               ExplicitWidth = 119
             end
-            object flwpnlGenshtabBorders: TFlowPanel
+            object flwpnlDegreeBorders: TFlowPanel
               Left = 3
               Top = 16
               Width = 311
@@ -1333,7 +1482,7 @@ object frmSettings: TfrmSettings
               BevelOuter = bvNone
               Padding.Top = 3
               TabOrder = 0
-              object LabelGsh2: TLabel
+              object LabelDeg2: TLabel
                 AlignWithMargins = True
                 Left = 3
                 Top = 6
@@ -1341,7 +1490,7 @@ object frmSettings: TfrmSettings
                 Height = 13
                 Caption = 'Color'
               end
-              object GenshtabBoxBorder: TColorBox
+              object DegreeBoxBorder: TColorBox
                 Left = 31
                 Top = 3
                 Width = 78
@@ -1350,7 +1499,7 @@ object frmSettings: TfrmSettings
                 ItemHeight = 16
                 TabOrder = 0
               end
-              object LabelGsh3: TLabel
+              object LabelDeg3: TLabel
                 AlignWithMargins = True
                 Left = 112
                 Top = 6
@@ -1358,7 +1507,7 @@ object frmSettings: TfrmSettings
                 Height = 13
                 Caption = 'Opacity'
               end
-              object SpinEditGenshtabBorderAlpha: TSpinEdit
+              object SpinEditDegreeBorderAlpha: TSpinEdit
                 Left = 152
                 Top = 3
                 Width = 41
@@ -1369,87 +1518,19 @@ object frmSettings: TfrmSettings
                 Value = 255
               end
             end
-            object CBGenshtabBorderText: TCheckBox
+            object CBDegreeBorderText: TCheckBox
               AlignWithMargins = True
               Left = 6
               Top = 44
               Width = 300
               Height = 16
               Align = alLeft
-              Caption = 'Genshtab Map names'
+              Caption = 'Degree names'
               TabOrder = 1
             end
           end
-          object pnlImageProcess: TPanel
-            Left = 3
-            Top = 282
-            Width = 317
-            Height = 105
-            Align = alTop
-            AutoSize = True
-            BevelOuter = bvNone
-            BorderWidth = 3
-            TabOrder = 5
-            object LabelGamma: TLabel
-              Left = 3
-              Top = 3
-              Width = 311
-              Height = 13
-              Align = alTop
-              Caption = '_'
-              ExplicitWidth = 6
-            end
-            object LabelContrast: TLabel
-              Left = 3
-              Top = 41
-              Width = 311
-              Height = 13
-              Align = alTop
-              Caption = '_'
-              ExplicitWidth = 6
-            end
-            object TrBarGamma: TTrackBar
-              Left = 3
-              Top = 16
-              Width = 311
-              Height = 25
-              Align = alTop
-              Max = 100
-              Min = 1
-              ParentShowHint = False
-              Frequency = 5
-              Position = 1
-              ShowHint = False
-              TabOrder = 0
-              ThumbLength = 15
-              TickMarks = tmTopLeft
-              OnChange = TrBarGammaChange
-            end
-            object TrBarContrast: TTrackBar
-              Left = 3
-              Top = 54
-              Width = 311
-              Height = 25
-              Align = alTop
-              Max = 100
-              Min = -100
-              Frequency = 10
-              TabOrder = 1
-              ThumbLength = 15
-              TickMarks = tmTopLeft
-              OnChange = TrBarContrastChange
-            end
-            object CBinvertcolor: TCheckBox
-              AlignWithMargins = True
-              Left = 6
-              Top = 82
-              Width = 305
-              Height = 17
-              Align = alTop
-              Caption = 'Night mode (color inversion)'
-              TabOrder = 2
-            end
-          end
+
+
         end
       end
     end

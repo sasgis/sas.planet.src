@@ -119,8 +119,10 @@ type
     Label28: TLabel;
     SpinEditBorderAlpha: TSpinEdit;
     SpinEditGenshtabBorderAlpha: TSpinEdit;
+    SpinEditDegreeBorderAlpha: TSpinEdit;
     ColorBoxBorder: TColorBox;
     GenshtabBoxBorder: TColorBox;
+    DegreeBoxBorder: TColorBox;
     CBDblDwnl: TCheckBox;
     CkBGoNextTile: TCheckBox;
     tsMaps: TTabSheet;
@@ -143,6 +145,7 @@ type
     CBSaveTileNotExists: TCheckBox;
     CBBorderText: TCheckBox;
     CBGenshtabBorderText: TCheckBox;
+    CBDegreeBorderText: TCheckBox;
     Label23: TLabel;
     Label24: TLabel;
     Label26: TLabel;
@@ -195,8 +198,10 @@ type
     pnlResize: TPanel;
     flwpnlTileBorders: TFlowPanel;
     flwpnlGenshtabBorders: TFlowPanel;
+    flwpnlDegreeBorders: TFlowPanel;
     pnlTileBorders: TPanel;
     pnlGenshtabBorders: TPanel;
+    pnlDegreeBorders: TPanel;
     pnlUIRight: TPanel;
     flwpnlMiniMapAlfa: TFlowPanel;
     flwpnlTileBorder: TFlowPanel;
@@ -524,6 +529,9 @@ begin
 
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor := SetAlpha(Color32(GenshtabBoxBorder.Selected),SpinEditGenshtabBorderAlpha.Value);
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText:=CBGenshtabBorderText.Checked;
+
+    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor := SetAlpha(Color32(DegreeBoxBorder.Selected),SpinEditDegreeBorderAlpha.Value);
+    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ShowText:=CBDegreeBorderText.Checked;
   finally
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
   end;
@@ -800,6 +808,10 @@ begin
     GenshtabBoxBorder.Selected:=WinColor(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
     SpinEditGenshtabBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
     CBGenshtabBorderText.Checked:=GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText;
+
+    DegreeBoxBorder.Selected:=WinColor(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor);
+    SpinEditDegreeBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor);
+    CBDegreeBorderText.Checked:=GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ShowText;
   finally
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockRead;
   end;
