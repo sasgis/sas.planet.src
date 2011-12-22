@@ -51,6 +51,7 @@ type
   protected
     FTypeMap: TMapType;
     FHTypeMap: TMapType;
+    FMainTypeMap: TMapType;
     FZoom: byte;
     FPoly: TArrayOfPoint;
     FMapCalibrationList: IInterfaceList;
@@ -75,6 +76,7 @@ type
     FBackGroundColor: TColor32;
 
     FArray256BGR: P256ArrayBGR;
+    FArray256ABGR: P256ArrayABGR;
     sx, ex, sy, ey: integer;
     btmm: TCustomBitmap32;
 
@@ -93,7 +95,8 @@ type
     function ReadLine(
       ALineNumber: Integer;
       APLine: Pointer;
-      AReadWithAlfaChanal: Boolean = False
+      APArray256Buffer: Pointer;
+      AReadWithAlphaChannel: Boolean = False
     ): Boolean; virtual;
   public
     constructor Create(
@@ -117,6 +120,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   i_MapCalibration,
   u_ResStrings,
   u_GeoFun;
@@ -146,6 +150,14 @@ begin
   FFileName := ChangeFileExt(ExtractFileName(AFileName), '');
   FTypeMap := Atypemap;
   FHTypeMap := AHtypemap;
+  if FTypeMap <> nil then begin
+    FMainTypeMap := FTypeMap;
+  end else begin
+    FMainTypeMap := FHTypeMap;
+  end;
+  if FMainTypeMap = nil then begin
+    raise Exception.Create( _('No one Map or Layer are selected!') );
+  end;
   FUsedReColor := AusedReColor;
   FRecolorConfig := ARecolorConfig;
   FMarksImageProvider := AMarksImageProvider;
@@ -175,12 +187,12 @@ var
   VTileRect: TRect;
   VBitmapTileRect: TRect;
 begin
-  VTileRect := FTypeMap.GeoConvert.TilePos2PixelRect(ATile, FZoom);
+  VTileRect := FMainTypeMap.GeoConvert.TilePos2PixelRect(ATile, FZoom);
   VBitmapTileRect.Left := 0;
   VBitmapTileRect.Top := 0;
   VBitmapTileRect.Right := VTileRect.Right - VTileRect.Left;
   VBitmapTileRect.Bottom := VTileRect.Bottom - VTileRect.Top;
-  Result := FConverterFactory.CreateConverter(VBitmapTileRect, FZoom, FTypeMap.GeoConvert, DoublePoint(1, 1), DoublePoint(VTileRect.TopLeft));
+  Result := FConverterFactory.CreateConverter(VBitmapTileRect, FZoom, FMainTypeMap.GeoConvert, DoublePoint(1, 1), DoublePoint(VTileRect.TopLeft));
 end;
 
 destructor TThreadMapCombineBase.Destroy;
@@ -196,9 +208,13 @@ procedure TThreadMapCombineBase.PrepareTileBitmap(
 var
   VLoadResult: Boolean;
 begin
-  VLoadResult := FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
-  if not VLoadResult then begin
-    ATargetBitmap.Clear(FBackGroundColor);
+  if FTypeMap <> nil then begin
+    VLoadResult := FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
+    if not VLoadResult then begin
+      ATargetBitmap.Clear(FBackGroundColor);
+    end;
+  end else begin
+    ATargetBitmap.Clear(0);
   end;
   if FHTypeMap <> nil then begin
     VLoadResult := FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
@@ -226,7 +242,7 @@ var
   VProcessTiles: Int64;
 begin
   inherited;
-  FPoly := FTypeMap.GeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
+  FPoly := FMainTypeMap.GeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
 
   VProcessTiles := GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, FPoly, true);
   GetMinMax(FMapRect, FPoly, false);
@@ -283,13 +299,21 @@ end;
 function TThreadMapCombineBase.ReadLine(
   ALineNumber: Integer;
   APLine: Pointer;
-  AReadWithAlfaChanal: Boolean = False
+  APArray256Buffer: Pointer;
+  AReadWithAlphaChannel: Boolean = False
 ): Boolean;
 var
   i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
   p: PColor32array;
+  VBytesToRead: Byte;
   VConverter: ILocalCoordConverter;
+  VBuf: Pointer;
 begin
+  if AReadWithAlphaChannel then begin
+    VBytesToRead := 4;
+  end else begin
+    VBytesToRead := 3;
+  end;
   if ALineNumber < (256 - sy) then begin
     starttile := sy + ALineNumber;
   end else begin
@@ -329,7 +353,12 @@ begin
         p := btmm.ScanLine[j];
         rarri := lrarri;
         for i := Asx to Aex do begin
-          CopyMemory(@FArray256BGR[j]^[rarri], Pointer(integer(p) + (i * 4)), 3);
+          if AReadWithAlphaChannel then begin
+            VBuf := @P256ArrayABGR(APArray256Buffer)[j]^[rarri];
+          end else begin
+            VBuf := @P256ArrayBGR(APArray256Buffer)[j]^[rarri];
+          end;
+          CopyMemory(VBuf, Pointer(integer(p) + (i * 4)), VBytesToRead);
           inc(rarri);
         end;
       end;
@@ -338,7 +367,12 @@ begin
       inc(p_x, 256);
     end;
   end;
-  CopyMemory(APLine, FArray256BGR^[starttile], (FCurrentPieceRect.Right - FCurrentPieceRect.Left) * 3);
+  if AReadWithAlphaChannel then begin
+    VBuf := P256ArrayABGR(APArray256Buffer)^[starttile];
+  end else begin
+    VBuf := P256ArrayBGR(APArray256Buffer)^[starttile];
+  end;
+  CopyMemory(APLine, VBuf, (FCurrentPieceRect.Right - FCurrentPieceRect.Left) * VBytesToRead);
   Result := True;
 end;
 

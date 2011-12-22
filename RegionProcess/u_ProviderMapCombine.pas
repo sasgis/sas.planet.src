@@ -65,6 +65,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  gnugettext,
   i_MarksSimple,
   i_BitmapLayerProvider,
   u_MapMarksBitmapLayerProviderByMarksSubset,
@@ -178,6 +179,9 @@ begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
   VFileName := FFrame.edtTargetFile.Text;
+  if VFileName = '' then begin
+    raise Exception.Create( _('Please, select output file first!') );
+  end;
   VPrTypes := TInterfaceList.Create;
   for i:=0 to FFrame.chklstPrTypes.Items.Count-1 do begin
     if FFrame.chklstPrTypes.Checked[i] then begin
@@ -305,7 +309,8 @@ begin
       VZoom,
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
-      FBitmapPostProcessingConfig.GetStatic
+      FBitmapPostProcessingConfig.GetStatic,
+      FFrame.chkPngWithAlpha.Checked
     );
   end;
 end;

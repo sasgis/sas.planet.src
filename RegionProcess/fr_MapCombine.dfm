@@ -265,7 +265,7 @@ object frMapCombine: TfrMapCombine
       TabOrder = 0
       object chkUseMapMarks: TCheckBox
         Left = 3
-        Top = 20
+        Top = 37
         Width = 204
         Height = 17
         Align = alTop
@@ -274,7 +274,7 @@ object frMapCombine: TfrMapCombine
       end
       object chkUseRecolor: TCheckBox
         Left = 3
-        Top = 3
+        Top = 20
         Width = 204
         Height = 17
         Align = alTop
@@ -283,7 +283,7 @@ object frMapCombine: TfrMapCombine
       end
       object flwpnlJpegQuality: TFlowPanel
         Left = 3
-        Top = 37
+        Top = 54
         Width = 204
         Height = 24
         Align = alTop
@@ -312,6 +312,17 @@ object frMapCombine: TfrMapCombine
           TabOrder = 0
           Value = 95
         end
+      end
+      object chkPngWithAlpha: TCheckBox
+        Left = 3
+        Top = 3
+        Width = 204
+        Height = 17
+        Align = alTop
+        Caption = 'Save PNG with alpha channel'
+        Checked = True
+        State = cbChecked
+        TabOrder = 3
       end
     end
     object pnlPrTypes: TPanel

@@ -61,6 +61,7 @@ type
     lblStat: TLabel;
     pnlBottom: TPanel;
     pnlCenterMain: TPanel;
+    chkPngWithAlpha: TCheckBox;
     procedure cbbOutputFormatChange(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
@@ -188,6 +189,7 @@ begin
   VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
   cbbMap.Items.Clear;
   cbbHybr.Items.Clear;
+  cbbMap.Items.Add(SAS_STR_No);
   cbbHybr.Items.Add(SAS_STR_No);
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   For i := 0 to VGUIDList.Count-1 do begin

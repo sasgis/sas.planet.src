@@ -176,7 +176,7 @@ begin
               NewImage(iWidth, iHeight, ifR8G8B8, VImage);
               if VImage.Bits <> nil then begin
                 for k := 0 to iHeight - 1 do begin
-                  ReadLine(k, Pointer(integer(VImage.Bits) + ((iWidth * 3) * k)));
+                  ReadLine(k, Pointer(integer(VImage.Bits) + ((iWidth * 3) * k)), FArray256BGR);
                   if CancelNotifier.IsOperationCanceled(OperationID) then begin
                     break;
                   end;

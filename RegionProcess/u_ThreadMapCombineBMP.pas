@@ -63,7 +63,7 @@ begin
 
         for i := 0 to iHeight - 1 do begin
 
-          if ReadLine(i, VLineBGR) then begin
+          if ReadLine(i, VLineBGR, FArray256BGR) then begin
 
             if not VBMP.WriteLine(i, VLineBGR) then begin
               raise Exception.Create( _('BMP: Line write failure!') );

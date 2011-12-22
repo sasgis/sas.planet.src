@@ -21,8 +21,28 @@ uses
 
 type
   TThreadMapCombinePNG = class(TThreadMapCombineBase)
+  private
+    FWithAlpha: Boolean;
+    function AllocateArray255(AWidth: Cardinal): Pointer;
+    procedure FreeArray255(APArray: Pointer);
   protected
     procedure SaveRect; override;
+  public
+    constructor Create(
+      AViewConfig: IGlobalViewMainConfig;
+      AMarksImageProvider: IBitmapLayerProvider;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      AMapCalibrationList: IInterfaceList;
+      AFileName: string;
+      APolygon: TArrayOfDoublePoint;
+      ASplitCount: TPoint;
+      Azoom: byte;
+      Atypemap: TMapType;
+      AHtypemap: TMapType;
+      AusedReColor: Boolean;
+      ARecolorConfig: IBitmapPostProcessingConfigStatic;
+      AWithAlpha: Boolean
+    );
   end;
 
 implementation
@@ -69,6 +89,75 @@ end;
 
 { TThreadMapCombinePNG }
 
+constructor TThreadMapCombinePNG.Create(
+  AViewConfig: IGlobalViewMainConfig;
+  AMarksImageProvider: IBitmapLayerProvider;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  AMapCalibrationList: IInterfaceList;
+  AFileName: string;
+  APolygon: TArrayOfDoublePoint;
+  ASplitCount: TPoint;
+  Azoom: byte;
+  Atypemap: TMapType;
+  AHtypemap: TMapType;
+  AusedReColor: Boolean;
+  ARecolorConfig: IBitmapPostProcessingConfigStatic;
+  AWithAlpha: Boolean
+);
+begin
+  inherited Create(
+    AViewConfig,
+    AMarksImageProvider,
+    ALocalConverterFactory,
+    AMapCalibrationList,
+    AFileName,
+    APolygon,
+    ASplitCount,
+    Azoom,
+    Atypemap,
+    AHtypemap,
+    AusedReColor,
+    ARecolorConfig
+  );
+  FWithAlpha := AWithAlpha;
+end;
+
+function TThreadMapCombinePNG.AllocateArray255(AWidth: Cardinal): Pointer;
+var
+  i: Integer;
+begin
+  if FWithAlpha then begin
+    GetMem(FArray256ABGR, 256 * sizeof(P256ArrayABGR));
+    for i := 0 to 255 do begin
+      GetMem(FArray256ABGR[i], (AWidth + 1) * 4);
+    end;
+    Result := FArray256ABGR;
+  end else begin
+    GetMem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
+    for i := 0 to 255 do begin
+      GetMem(FArray256BGR[i], (AWidth + 1) * 3);
+    end;
+    Result := FArray256BGR;
+  end;
+end;
+
+procedure TThreadMapCombinePNG.FreeArray255(APArray: Pointer);
+var
+  i: Integer;
+begin
+  if FWithAlpha then begin
+    for i := 0 to 255 do begin
+      FreeMem(FArray256ABGR[i]);
+    end;
+    FreeMem(FArray256ABGR);
+  end else begin
+    for i := 0 to 255 do begin
+      FreeMem(FArray256BGR[i]);
+    end;
+    FreeMem(FArray256BGR);
+  end;
+end;
+
 procedure TThreadMapCombinePNG.SaveRect;
 const
   PNG_MAX_HEIGHT = 65536;
@@ -81,7 +170,18 @@ var
   prow: png_bytep;
   rw_io: sas_png_rw_io;
   SwapBuf: Byte;
+  VImgBuf: Pointer;
+  VBytesRead: Byte;
+  VPngColorType: Integer;
 begin
+  if FWithAlpha then begin
+    VBytesRead := 4;
+    VPngColorType := PNG_COLOR_TYPE_RGB_ALPHA;
+  end else begin
+    VBytesRead := 3;
+    VPngColorType := PNG_COLOR_TYPE_RGB;
+  end;
+
   sx := (FCurrentPieceRect.Left mod 256);
   sy := (FCurrentPieceRect.Top mod 256);
   ex := (FCurrentPieceRect.Right mod 256);
@@ -114,18 +214,15 @@ begin
         png_set_write_fn(png_ptr, @rw_io, @sas_png_write_data, nil);
 
         // Write header (8 bit colour depth)
-        png_set_IHDR(png_ptr, info_ptr, iWidth, iHeight, 8, PNG_COLOR_TYPE_RGB,
+        png_set_IHDR(png_ptr, info_ptr, iWidth, iHeight, 8, VPngColorType,
           PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
         png_write_info(png_ptr, info_ptr);
 
         // allocate row
-        GetMem(prow, info_ptr.width * 3);
+        GetMem(prow, info_ptr.width * VBytesRead);
 
-        GetMem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
-        for i := 0 to 255 do begin
-          GetMem(FArray256BGR[i], (info_ptr.width + 1) * 3);
-        end;
+        VImgBuf := AllocateArray255(info_ptr.width);
         try
           btmm := TCustomBitmap32.Create;
           try
@@ -133,13 +230,13 @@ begin
             btmm.Height := 256;
 
             for i := 0 to info_ptr.height - 1 do begin
-              ReadLine(i, prow);
+              ReadLine(i, prow, VImgBuf, FWithAlpha);
 
               // BGR to RGB swap
               for j := 0 to info_ptr.width - 1 do begin
-                SwapBuf := PByte(Integer(prow) + j*3)^;
-                PByte(Integer(prow) + j*3)^ := PByte(Integer(prow) + j*3 + 2)^;
-                PByte(Integer(prow) + j*3 + 2)^ := SwapBuf;
+                SwapBuf := PByte(Integer(prow) + j*VBytesRead)^;
+                PByte(Integer(prow) + j*VBytesRead)^ := PByte(Integer(prow) + j*VBytesRead + 2)^;
+                PByte(Integer(prow) + j*VBytesRead + 2)^ := SwapBuf;
               end;
 
               // write row
@@ -153,10 +250,7 @@ begin
             btmm.Free;
           end;
         finally
-          for i := 0 to 255 do begin
-            freemem(FArray256BGR[i], (iWidth + 1) * 3);
-          end;
-          freemem(FArray256BGR, 256 * ((iWidth + 1) * 3));
+          FreeArray255(VImgBuf);
 
           // freeing row
           FreeMem(prow);

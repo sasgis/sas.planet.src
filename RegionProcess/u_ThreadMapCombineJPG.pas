@@ -199,7 +199,7 @@ begin
               Break;
             end;
 
-            ReadLine(i, prow);
+            ReadLine(i, prow, FArray256BGR);
 
             // BGR to RGB swap
             for j := 0 to jpeg.image_width - 1 do begin
