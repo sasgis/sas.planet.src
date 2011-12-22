@@ -404,6 +404,8 @@ begin
         end;
       end;
       if Result > 0 then begin
+        if not PointIsEmpty(PDoublePointArray(@AFirstPoint)[0]) then
+        if not PointIsEmpty(PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then
         if DoublePointsEqual(PDoublePointArray(@AFirstPoint)[0], PDoublePointArray(@AFirstPoint)[APointsCount - 1]) then begin
           VCurrPoint := AResultPoints[0];
           if not DoublePointsEqual(VCurrPoint, AResultPoints[Result - 1]) then begin
