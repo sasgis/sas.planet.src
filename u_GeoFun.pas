@@ -50,7 +50,7 @@ type
 
 
   function PtInRgn(Polyg:TArrayOfPoint; P:TPoint):boolean; overload;
-  function PtInRgn(Polyg:TArrayOfDoublePoint; P:TDoublePoint):boolean; overload;
+  function PtInRgn(APoints: PDoublePointArray; ACount: Integer; APoint: TDoublePoint):boolean; overload;
   function PtInPolygon(const Pt: TPoint; const Points:TArrayOfPoint): Boolean;
   function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
@@ -500,20 +500,27 @@ begin
    end;
 end;
 
-function PtInRgn(Polyg:TArrayOfDoublePoint; P:TDoublePoint):boolean; overload;
+function PtInRgn(APoints: PDoublePointArray; ACount: Integer; APoint: TDoublePoint):boolean; overload;
 var i,j:integer;
 begin
   result:=false;
-  j:=High(Polyg);
-  if ((((Polyg[0].y<=P.y)and(P.y<Polyg[j].y))or((Polyg[j].y<=P.y)and(P.y<Polyg[0].y)))and
-     (P.x>(Polyg[j].x-Polyg[0].x)*(P.y-Polyg[0].y)/(Polyg[j].y-Polyg[0].y)+Polyg[0].x))
-     then result:=not(result);
-  for i:=1 to High(Polyg) do
-   begin
+  j:=ACount - 1;
+  if
+    (((APoints[0].y<=APoint.y)and(APoint.y<APoints[j].y))or
+    ((APoints[j].y<=APoint.y)and(APoint.y<APoints[0].y)))and
+    (APoint.x>(APoints[j].x-APoints[0].x)*(APoint.y-APoints[0].y)/(APoints[j].y-APoints[0].y)+APoints[0].x)
+  then begin
+    result:=not(result);
+  end;
+  for i:=1 to ACount - 1 do begin
     j:=i-1;
-    if ((((Polyg[i].y<=P.y)and(P.y<Polyg[j].y))or((Polyg[j].y<=P.y)and(P.y<Polyg[i].y)))and
-       (P.x>(Polyg[j].x-Polyg[i].x)*(P.y-Polyg[i].y)/(Polyg[j].y-Polyg[i].y)+Polyg[i].x))
-       then result:=not(result);
+    if
+      (((APoints[i].y<=APoint.y)and(APoint.y<APoints[j].y))or
+      ((APoints[j].y<=APoint.y)and(APoint.y<APoints[i].y)))and
+      (APoint.x>(APoints[j].x-APoints[i].x)*(APoint.y-APoints[i].y)/(APoints[j].y-APoints[i].y)+APoints[i].x)
+    then begin
+      result:=not(result);
+    end;
    end;
 end;
 
