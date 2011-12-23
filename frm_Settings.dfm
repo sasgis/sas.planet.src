@@ -1311,7 +1311,7 @@ object frmSettings: TfrmSettings
               Width = 311
               Height = 13
               Align = alTop
-              Caption = 'Show borders:'
+              Caption = 'Tile borders:'
               ExplicitWidth = 70
             end
             object flwpnlTileBorders: TFlowPanel
@@ -1389,7 +1389,7 @@ object frmSettings: TfrmSettings
              Width = 311
              Height = 13
              Align = alTop
-             Caption = 'Show Genshtab borders:'
+             Caption = 'Genshtab Map boundaries:'
              ExplicitWidth = 119
            end
            object flwpnlGenshtabBorders: TFlowPanel
@@ -1468,7 +1468,7 @@ object frmSettings: TfrmSettings
               Width = 311
               Height = 13
               Align = alTop
-              Caption = 'Show Degree borders:'
+              Caption = 'Lat/Lon grid:'
               ExplicitWidth = 119
             end
             object flwpnlDegreeBorders: TFlowPanel
@@ -1525,7 +1525,7 @@ object frmSettings: TfrmSettings
               Width = 300
               Height = 16
               Align = alLeft
-              Caption = 'Degree names'
+              Caption = 'Grid line labels'
               TabOrder = 1
             end
           end

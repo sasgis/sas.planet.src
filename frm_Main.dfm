@@ -537,7 +537,7 @@ object frmMain: TfrmMain
             Images = MenusImageList
             RadioItem = True
             OnClick = NFillMode1Click
-            Caption = 'Mark Unexisting Tiles'
+            Caption = 'Mark Nonexistent Tiles'
             Hint = ''
           end
           object NFillMode2: TTBXItem
@@ -555,7 +555,7 @@ object frmMain: TfrmMain
             Images = MenusImageList
             RadioItem = True
             OnClick = NFillMode3Click
-            Caption = 'Mark Existing Tiles Within Age Gradient'
+            Caption = 'Use Age Gradient'
             Hint = ''
           end
           object TBXSeparatorItem21: TTBXSeparatorItem
@@ -567,7 +567,7 @@ object frmMain: TfrmMain
             GroupIndex = 1
             Images = MenusImageList
             OnClick = NShowFillDatesClick
-            Caption = 'Mark Existing Tiles At Interval Only'
+            Caption = 'Within Time Interval'
             Hint = ''
           end
         end
@@ -734,7 +734,7 @@ object frmMain: TfrmMain
           end
         end
         object DegreedLinesSubMenu: TTBXSubmenuItem
-          Caption = 'Degree grid lines'
+          Caption = 'Lat/Lon Grid'
           Hint = ''
           object NDegScale0: TTBXItem
             AutoCheck = True
