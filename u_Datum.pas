@@ -39,7 +39,7 @@ type
     function GetSpheroidRadiusB: Double; stdcall;
     function IsSameDatum(ADatum: IDatum): Boolean; stdcall;
     function SphericalTriangleSquare(points:array of TDoublePoint):Double;
-    function CalcPoligonArea(const polygon: TArrayOfDoublePoint): Double;
+    function CalcPoligonArea(const APoints: PDoublePointArray; const ACount: Integer): Double;
     function CalcDist(const AStart, AFinish: TDoublePoint): Double;
   public
     constructor Create(
@@ -132,7 +132,7 @@ begin
   Result:=Sqr(FRadiusA)*eps;  //Площадь
 end;
 
-function TDatum.CalcPoligonArea(const polygon: TArrayOfDoublePoint): Double;
+function TDatum.CalcPoligonArea(const APoints: PDoublePointArray; const ACount: Integer): Double;
 
  function sign(Avalue: double):integer;
  begin
@@ -143,15 +143,13 @@ function TDatum.CalcPoligonArea(const polygon: TArrayOfDoublePoint): Double;
    end;
  end;
 
- function Orientation(APoints: TArrayOfDoublePoint):extended;
+ function Orientation(const APoints: PDoublePointArray; const ACount: Integer):extended;
  var i:integer;
      s:double;
-     VPointsCount:integer;
  begin
    s:=0;
-   VPointsCount:=length(APoints)-1;
-   for i:=0 to VPointsCount-1 do begin
-     s := s+(APoints[(i+1) mod VPointsCount].x-APoints[i].x)*(APoints[(i+1) mod VPointsCount].y+APoints[i].y);
+   for i:=0 to ACount-1 do begin
+     s := s+(APoints[(i+1) mod ACount].x-APoints[i].x)*(APoints[(i+1) mod ACount].y+APoints[i].y);
    end;
    result:=-s/2;
  end;
@@ -179,39 +177,37 @@ var Node : TDoublePoint;
     inPoint : Boolean;
     s : double;
     i:integer;
-    VPointsCount:integer;
     PointsA: Array of integer;
     ErrNum:integer;
 begin
    s:=0;
-   VPointsCount:=Length(polygon)-1;
-   if VPointsCount<3 then
+   if ACount<3 then
    begin
     result:=s;
     exit;
    end;
-   Orient := Sign(Orientation(polygon)); //ориентация многоугольника
-   PointsNum:=VPointsCount;
+   Orient := Sign(Orientation(APoints, ACount)); //ориентация многоугольника
+   PointsNum:=ACount;
    ErrNum:=0;
-   SetLength(PointsA, VPointsCount);
-   For NodeN:=0 to VPointsCount-1 do begin
+   SetLength(PointsA, ACount);
+   For NodeN:=0 to ACount-1 do begin
      PointsA[NodeN]:=1;
    end;
    for I := 0 to 2 do begin
      pn[i]:=i;
-     p[i] := polygon[i];
+     p[i] := APoints[i];
    end;
-   while (PointsNum > 3)and(ErrNum<=VPointsCount) do begin
+   while (PointsNum > 3)and(ErrNum<=ACount) do begin
      if Sign(Det(p[0],p[1],p[2]))=Orient then begin//Проверка ориентации треугольника
        inPoint := false;
-       NodeN:=(pn[2]+1) mod VPointsCount;
-       Node := polygon[Noden];
+       NodeN:=(pn[2]+1) mod ACount;
+       Node := APoints[Noden];
        while NodeN <> pn[0] do begin
          if (PointsA[NodeN]=1)and(InTriangle(Node,p[0],p[1],p[2])) then begin
            inPoint := true;  // Проверка не попала ли вершина в отсекаемый треугольник
          end;
-         Noden := (NodeN+1) mod VPointsCount;
-         Node := polygon[NodeN];
+         Noden := (NodeN+1) mod ACount;
+         Node := APoints[NodeN];
        end;
      end else begin
        inPoint:=true;
@@ -223,18 +219,18 @@ begin
        ErrNum := 0;
      end else begin
        pn[0] := pn[1];          //  Переход к следущему треугольнику
-       p[0] := polygon[pn[0]];
+       p[0] := APoints[pn[0]];
        inc(ErrNum);
      end;
      pn[1] := pn[2];  //  Переход к следущему треугольнику
-     p[1] := polygon[pn[1]];
-     pn[2]:=(pn[2]+1) mod VPointsCount;
+     p[1] := APoints[pn[1]];
+     pn[2]:=(pn[2]+1) mod ACount;
      while (PointsA[pn[2]]=0)and(pn[2] <> pn[0]) do begin
-       pn[2]:=(pn[2]+1) mod VPointsCount;
+       pn[2]:=(pn[2]+1) mod ACount;
      end;
-     p[2] := polygon[pn[2]];
+     p[2] := APoints[pn[2]];
    end;
-   if ErrNum<=VPointsCount then begin
+   if ErrNum<=ACount then begin
      s:=s+SphericalTriangleSquare(p);
      result:=s;
    end else begin

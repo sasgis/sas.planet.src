@@ -309,10 +309,12 @@ procedure TMarksDbGUIHelper.ShowMarkSq(AMark: IMarkPoly; AConverter: ICoordConve
 var
   VArea: Double;
   VMessage: string;
+  VCount: Integer;
 begin
   if AMark <> nil then begin
-    if (Length(AMark.Points) > 1) then begin
-      VArea:= AConverter.Datum.CalcPoligonArea(AMark.Points);
+    VCount := Length(AMark.Points);
+    if (VCount > 1) then begin
+      VArea:= AConverter.Datum.CalcPoligonArea(@(AMark.Points[0]), VCount);
       VMessage := SAS_STR_S+' - '+FValueToStringConverterConfig.GetStatic.AreaConvert(VArea);
       MessageBox(AHandle,pchar(VMessage),pchar(AMark.name),0);
     end;
