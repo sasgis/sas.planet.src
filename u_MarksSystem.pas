@@ -39,9 +39,7 @@ uses
   i_MarksDb,
   i_MarksDbSmlInternal,
   i_StaticTreeItem,
-  i_StaticTreeBuilder,
-  u_MarksDb,
-  u_MarkCategoryDB;
+  i_StaticTreeBuilder;
 
 type
   TMarksSystem = class
@@ -86,6 +84,8 @@ uses
   SysUtils,
   ActiveX,
   u_StaticTreeBuilderBase,
+  u_MarksDb,
+  u_MarkCategoryDB,
   u_MarksFactoryConfig;
 
 type
