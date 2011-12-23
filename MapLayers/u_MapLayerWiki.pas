@@ -839,7 +839,7 @@ begin
           VLonLatLine := VItemPoly.Points;
           VConverter.CheckLonLatArray(VLonLatLine);
           VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
-          if PointOnPath(VPixelPos, VLineOnBitmap, 2) then begin
+          if PointOnPath(VPixelPos, @VLineOnBitmap[0], Length(VLineOnBitmap), 2) then begin
             AItem := VItem;
             AItemS := 0;
             exit;

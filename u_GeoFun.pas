@@ -49,9 +49,9 @@ type
   function RectCenter(ARect: TDoubleRect): TDoublePoint; overload;
 
 
-  function PtInRgn(Polyg:TArrayOfPoint; P:TPoint):boolean; overload;
+  function PtInRgn(APoints: PPointArray; ACount: Integer; APoint: TPoint):boolean; overload;
   function PtInRgn(APoints: PDoublePointArray; ACount: Integer; APoint: TDoublePoint):boolean; overload;
-  function PtInPolygon(const Pt: TPoint; const Points:TArrayOfPoint): Boolean;
+  function PtInPolygon(const Pt: TPoint; const APoints: PPointArray; ACount: Integer): Boolean;
   function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
@@ -62,17 +62,17 @@ type
   function DoubleRectsEqual(ARect1, ARect2: TDoubleRect): Boolean;
   function PolygonSquare(Poly:TArrayOfPoint): Double; overload;
   function PolygonSquare(APoints: PDoublePointArray; ACount: Integer): Double; overload;
-  function PointOnPath(APoint:TDoublePoint; APath: TArrayOfDoublePoint; ADist: Double): Boolean;
+  function PointOnPath(APoint:TDoublePoint; APoints: PDoublePointArray; ACount: Integer; ADist: Double): Boolean;
 
   procedure CalculateWFileParams(LL1,LL2:TDoublePoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:Double);
-  Procedure GetMinMax(var min,max:TPoint; Polyg:TArrayOfPoint;round_:boolean); overload;
-  Procedure GetMinMax(var ARect:TRect; Polyg:TArrayOfPoint;round_:boolean); overload;
-  Procedure GetMinMax(var ARect:TDoubleRect; Polyg:TArrayOfDoublePoint); overload;
-  function GetDwnlNum(var min,max:TPoint; Polyg:TArrayOfPoint; getNum:boolean):Int64; overload;
-  function GetDwnlNum(var ARect: TRect; Polyg:TArrayOfPoint; getNum:boolean):Int64; overload;
-  function RgnAndRect(Polyg:TArrayOfPoint; ARect: TRect):boolean;
-  function RgnAndRgn(Polyg:TArrayOfPoint;x,y:integer;prefalse:boolean):boolean;
+  Procedure GetMinMax(var min,max:TPoint; APoints: PPointArray; ACount: Integer;round_:boolean); overload;
+  Procedure GetMinMax(var ARect:TRect; APoints: PPointArray; ACount: Integer;round_:boolean); overload;
+  Procedure GetMinMax(var ARect:TDoubleRect; APoints: PDoublePointArray; ACount: Integer); overload;
+  function GetDwnlNum(var min,max:TPoint; APoints: PPointArray; ACount: Integer; getNum:boolean):Int64; overload;
+  function GetDwnlNum(var ARect: TRect; APoints: PPointArray; ACount: Integer; getNum:boolean):Int64; overload;
+  function RgnAndRect(APoints: PPointArray; ACount: Integer; ARect: TRect):boolean;
+  function RgnAndRgn(APoints: PPointArray; ACount: Integer; x, y: integer; prefalse: boolean):boolean; // Переделать использующий ее код в ближайшее время
   function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
   function GetDegBordersStepByScale(AScale: Integer): TDoublePoint;
   function PointIsEmpty(APoint: TDoublePoint): Boolean;
@@ -95,25 +95,25 @@ begin
   end;
 end;
 
-function RgnAndRect(Polyg:TArrayOfPoint; ARect: TRect):boolean;
+function RgnAndRect(APoints: PPointArray; ACount: Integer; ARect: TRect):boolean;
 var
   i: integer;
 begin
-  if PtInPolygon(ARect.TopLeft,polyg) then begin
+  if PtInPolygon(ARect.TopLeft, APoints, ACount) then begin
     result:=true;
   end else begin
-    if PtInPolygon(Point(ARect.Right, ARect.Top),polyg) then begin
+    if PtInPolygon(Point(ARect.Right, ARect.Top), APoints, ACount) then begin
       result:=true;
     end else begin
-      if PtInPolygon(ARect.BottomRight,polyg) then begin
+      if PtInPolygon(ARect.BottomRight, APoints, ACount) then begin
         result:=true;
       end else begin
-        if PtInPolygon(Point(ARect.Left,ARect.Bottom),polyg) then begin
+        if PtInPolygon(Point(ARect.Left,ARect.Bottom), APoints, ACount) then begin
           result:=true;
         end else begin
           result:=false;
-          for i:=0 to length(polyg)-2 do begin
-            if PtInRect(ARect, polyg[i]) then begin
+          for i:=0 to ACount-2 do begin
+            if PtInRect(ARect, APoints[i]) then begin
               result:=true;
               Break;
             end;
@@ -124,28 +124,28 @@ begin
   end;
 end;
 
-function RgnAndRgn(Polyg:TArrayOfPoint;x,y:integer;prefalse:boolean):boolean;
+function RgnAndRgn(APoints: PPointArray; ACount: Integer;x,y:integer;prefalse:boolean):boolean;
 var i,xm128,ym128,xp128,yp128:integer;
 begin
   xm128:=x-128;
   ym128:=y-128;
-  if (not prefalse)and(PtInPolygon(Point(xm128,ym128),polyg)) then begin
+  if (not prefalse)and(PtInPolygon(Point(xm128,ym128), APoints, ACount)) then begin
     result:=true;
   end else begin
     xp128:=x+128;
-    if (not prefalse)and(PtInPolygon(Point(xp128,ym128),polyg)) then begin
+    if (not prefalse)and(PtInPolygon(Point(xp128,ym128), APoints, ACount)) then begin
       result:=true;
     end else begin
       yp128:=y+128;
-      if PtInPolygon(Point(xp128,yp128),polyg) then begin
+      if PtInPolygon(Point(xp128,yp128), APoints, ACount) then begin
         result:=true;
       end else begin
-        if PtInPolygon(Point(xm128,yp128),polyg) then begin
+        if PtInPolygon(Point(xm128,yp128), APoints, ACount) then begin
           result:=true;
         end else begin
           result:=false;
-          for i:=0 to length(polyg)-2 do begin
-            if (polyg[i].x<xp128)and(polyg[i].x>xm128)and(polyg[i].y<yp128)and(polyg[i].y>ym128) then begin
+          for i:=0 to ACount-2 do begin
+            if (APoints[i].x<xp128)and(APoints[i].x>xm128)and(APoints[i].y<yp128)and(APoints[i].y>ym128) then begin
               result:=true;
               Break;
             end;
@@ -156,17 +156,17 @@ begin
   end;
 end;
 
-Procedure GetMinMax(var min,max:TPoint; Polyg:TArrayOfPoint;round_:boolean);
+Procedure GetMinMax(var min,max:TPoint; APoints: PPointArray; ACount: Integer;round_:boolean);
 var i:integer;
 begin
- max:=Polyg[0];
- min:=Polyg[0];
- for i:=1 to length(Polyg)-1 do
+ max:=APoints[0];
+ min:=APoints[0];
+ for i:=1 to ACount - 1 do
   begin
-   if min.x>Polyg[i].x then min.x:=Polyg[i].x;
-   if min.y>Polyg[i].y then min.y:=Polyg[i].y;
-   if max.x<Polyg[i].x then max.x:=Polyg[i].x;
-   if max.y<Polyg[i].y then max.y:=Polyg[i].y;
+   if min.x>APoints[i].x then min.x:=APoints[i].x;
+   if min.y>APoints[i].y then min.y:=APoints[i].y;
+   if max.x<APoints[i].x then max.x:=APoints[i].x;
+   if max.y<APoints[i].y then max.y:=APoints[i].y;
   end;
  if round_ then
   begin
@@ -181,17 +181,17 @@ begin
   end;
 end;
 
-Procedure GetMinMax(var ARect: TRect; Polyg:TArrayOfPoint;round_:boolean);
+Procedure GetMinMax(var ARect: TRect; APoints: PPointArray; ACount: Integer; round_:boolean);
 var i:integer;
 begin
- ARect.TopLeft:=Polyg[0];
- ARect.BottomRight:=Polyg[0];
- for i:=1 to length(Polyg)-1 do
+ ARect.TopLeft:=APoints[0];
+ ARect.BottomRight:=APoints[0];
+ for i:=1 to ACount - 1 do
   begin
-   if ARect.Left>Polyg[i].x then ARect.Left:=Polyg[i].x;
-   if ARect.Top>Polyg[i].y then ARect.Top:=Polyg[i].y;
-   if ARect.Right<Polyg[i].x then ARect.Right:=Polyg[i].x;
-   if ARect.Bottom<Polyg[i].y then ARect.Bottom:=Polyg[i].y;
+   if ARect.Left>APoints[i].x then ARect.Left:=APoints[i].x;
+   if ARect.Top>APoints[i].y then ARect.Top:=APoints[i].y;
+   if ARect.Right<APoints[i].x then ARect.Right:=APoints[i].x;
+   if ARect.Bottom<APoints[i].y then ARect.Bottom:=APoints[i].y;
   end;
  if round_ then
   begin
@@ -206,46 +206,60 @@ begin
   end;
 end;
 
-function GetDwnlNum(var min,max:TPoint; Polyg:TArrayOfPoint; getNum:boolean):Int64;
-var i,j:integer;
-    prefalse:boolean;
+function GetDwnlNum(var min,max:TPoint; APoints: PPointArray; ACount: Integer; getNum:boolean):Int64;
+type
+  P5PointArray = ^T5PointArray;
+  T5PointArray = array [0..4] of TPoint;
+var
+  i,j:integer;
+  prefalse:boolean;
 begin
- GetMinMax(min,max,polyg,true);
- result:=0;
- if getNum then
-  if (length(Polyg)=5)and(Polyg[0].x=Polyg[3].x)and(Polyg[1].x=Polyg[2].x)
-                      and(Polyg[0].y=Polyg[1].y)and(Polyg[2].y=Polyg[3].y)
+  GetMinMax(min,max, APoints, ACount,true);
+  result:=0;
+  if getNum then begin
+    if (ACount = 5)and
+      (P5PointArray(APoints)[0].x = P5PointArray(APoints)[3].x)and
+      (P5PointArray(APoints)[1].x = P5PointArray(APoints)[2].x)and
+      (P5PointArray(APoints)[0].y = P5PointArray(APoints)[1].y)and
+      (P5PointArray(APoints)[2].y = P5PointArray(APoints)[3].y)
     then begin
-          result:=int64((max.X-min.X) div 256+1)*int64((max.Y-min.Y) div 256+1);
-         end
-    else begin
-          i:=min.X;
-          while i<=max.x do
-          begin
-           j:=min.y;
-           prefalse:=false;
-           while j<=max.y do
-            begin
-             prefalse:=not(RgnAndRgn(Polyg,i,j,prefalse));
-             if not(prefalse) then inc(result);
-             inc(j,256);
-            end;
-           inc(i,256);
-          end;
-         end;
- max.X:=max.X+1;
- max.Y:=max.Y+1;
+      result:=int64((max.X-min.X) div 256+1)*int64((max.Y-min.Y) div 256+1);
+    end else begin
+      i:=min.X;
+      while i<=max.x do
+      begin
+       j:=min.y;
+       prefalse:=false;
+       while j<=max.y do
+        begin
+         prefalse:=not(RgnAndRgn(APoints, ACount,i,j,prefalse));
+         if not(prefalse) then inc(result);
+         inc(j,256);
+        end;
+       inc(i,256);
+      end;
+    end;
+  end;
+  max.X:=max.X+1;
+  max.Y:=max.Y+1;
 end;
 
-function GetDwnlNum(var ARect: TRect; Polyg:TArrayOfPoint; getNum:boolean):Int64;
-var i,j:integer;
-    prefalse:boolean;
+function GetDwnlNum(var ARect: TRect; APoints: PPointArray; ACount: Integer; getNum:boolean):Int64;
+type
+  P5PointArray = ^T5PointArray;
+  T5PointArray = array [0..4] of TPoint;
+var
+  i,j:integer;
+  prefalse:boolean;
 begin
- GetMinMax(ARect,polyg,true);
+ GetMinMax(ARect,APoints, ACount,true);
  result:=0;
  if getNum then
-  if (length(Polyg)=5)and(Polyg[0].x=Polyg[3].x)and(Polyg[1].x=Polyg[2].x)
-                      and(Polyg[0].y=Polyg[1].y)and(Polyg[2].y=Polyg[3].y)
+    if (ACount = 5)and
+      (P5PointArray(APoints)[0].x = P5PointArray(APoints)[3].x)and
+      (P5PointArray(APoints)[1].x = P5PointArray(APoints)[2].x)and
+      (P5PointArray(APoints)[0].y = P5PointArray(APoints)[1].y)and
+      (P5PointArray(APoints)[2].y = P5PointArray(APoints)[3].y)
     then begin
           result:=int64((ARect.Right-ARect.Left) div 256+1)*int64((ARect.Bottom-ARect.Top) div 256+1);
          end
@@ -257,7 +271,7 @@ begin
            prefalse:=false;
            while j<=ARect.Bottom do
             begin
-             prefalse:=not(RgnAndRgn(Polyg,i,j,prefalse));
+             prefalse:=not(RgnAndRgn(APoints, ACount, i,j,prefalse));
              if not(prefalse) then inc(result);
              inc(j,256);
             end;
@@ -298,12 +312,11 @@ begin
   end;
 end;
 
-function PointOnPath(APoint:TDoublePoint; APath: TArrayOfDoublePoint; ADist: Double): Boolean;
+function PointOnPath(APoint:TDoublePoint; APoints: PDoublePointArray; ACount: Integer; ADist: Double): Boolean;
 var
   i: Integer;
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
-  VPoinsCount: Integer;
   VCurrEmpty: Boolean;
   VPrevEmpty: Boolean;
   VVectorW: TDoublePoint;
@@ -315,15 +328,14 @@ var
   VDistSQR: Double;
 begin
   Result := False;
-  VPoinsCount := Length(APath);
-  if VPoinsCount > 1 then begin
+  if ACount > 1 then begin
     VDistSQR := ADist * ADist;
-    VCurrPoint := APath[0];
+    VCurrPoint := APoints[0];
     VCurrEmpty := PointIsEmpty(VPrevPoint);
-    for i := 1 to VPoinsCount - 1 do begin
+    for i := 1 to ACount - 1 do begin
       VPrevPoint := VCurrPoint;
       VPrevEmpty := VCurrEmpty;
-      VCurrPoint := APath[i];
+      VCurrPoint := APoints[i];
       VCurrEmpty := PointIsEmpty(VCurrPoint);
       if not(VPrevEmpty or VCurrEmpty) then begin
         VVectorW.X := APoint.X - VPrevPoint.X;
@@ -469,14 +481,14 @@ begin
   Result := Abs(Result) / 2;
 end;
 
-function PtInPolygon(const Pt: TPoint; const Points:TArrayOfPoint): Boolean;
+function PtInPolygon(const Pt: TPoint; const APoints: PPointArray; ACount: Integer): Boolean;
 var I:Integer;
     iPt,jPt:PPoint;
 begin
   Result:=False;
-  iPt:=@Points[0];
-  jPt:=@Points[High(Points)-1];
-  for I:=0 to High(Points)-1 do
+  iPt:=@APoints[0];
+  jPt:=@APoints[ACount - 1];
+  for I:=0 to ACount - 1 do
   begin
    Result:=Result xor (((Pt.Y>=iPt.Y)xor(Pt.Y>=jPt.Y))and
            (Pt.X-iPt.X<((jPt.X-iPt.X)*(Pt.Y-iPt.Y)/(jPt.Y-iPt.Y))));
@@ -485,19 +497,19 @@ begin
   end;
 end;
 
-function PtInRgn(Polyg:TArrayOfPoint;P:TPoint):boolean;
+function PtInRgn(APoints: PPointArray; ACount: Integer; APoint: TPoint):boolean;
 var i,j:integer;
 begin
   result:=false;
-  j:=High(Polyg);
-  if ((((Polyg[0].y<=P.y)and(P.y<Polyg[j].y))or((Polyg[j].y<=P.y)and(P.y<Polyg[0].y)))and
-     (P.x>(Polyg[j].x-Polyg[0].x)*(P.y-Polyg[0].y)/(Polyg[j].y-Polyg[0].y)+Polyg[0].x))
+  j:=ACount - 1;
+  if ((((APoints[0].y<=APoint.y)and(APoint.y<APoints[j].y))or((APoints[j].y<=APoint.y)and(APoint.y<APoints[0].y)))and
+     (APoint.x>(APoints[j].x-APoints[0].x)*(APoint.y-APoints[0].y)/(APoints[j].y-APoints[0].y)+APoints[0].x))
      then result:=not(result);
-  for i:=1 to High(Polyg) do
+  for i:=1 to ACount - 1 do
    begin
     j:=i-1;
-    if ((((Polyg[i].y<=P.y)and(P.y<Polyg[j].y))or((Polyg[j].y<=P.y)and(P.y<Polyg[i].y)))and
-       (P.x>(Polyg[j].x-Polyg[i].x)*(P.y-Polyg[i].y)/(Polyg[j].y-Polyg[i].y)+Polyg[i].x))
+    if ((((APoints[i].y<=APoint.y)and(APoint.y<APoints[j].y))or((APoints[j].y<=APoint.y)and(APoint.y<APoints[i].y)))and
+       (APoint.x>(APoints[j].x-APoints[i].x)*(APoint.y-APoints[i].y)/(APoints[j].y-APoints[i].y)+APoints[i].x))
        then result:=not(result);
    end;
 end;
@@ -551,25 +563,25 @@ begin
   Result[4] := ARect.TopLeft;
 end;
 
-Procedure GetMinMax(var ARect:TDoubleRect; Polyg:TArrayOfDoublePoint); overload;
+Procedure GetMinMax(var ARect:TDoubleRect; APoints: PDoublePointArray; ACount: Integer); overload;
 var
   i: Integer;
 begin
-  if Length(Polyg) > 0 then begin
-    ARect.TopLeft := Polyg[0];
-    ARect.BottomRight := Polyg[0];
-    for i := 1 to Length(Polyg) - 1 do begin
-      if ARect.Left > Polyg[i].X then begin
-        ARect.Left := Polyg[i].X
+  if ACount > 0 then begin
+    ARect.TopLeft := APoints[0];
+    ARect.BottomRight := APoints[0];
+    for i := 1 to ACount - 1 do begin
+      if ARect.Left > APoints[i].X then begin
+        ARect.Left := APoints[i].X
       end;
-      if ARect.Top < Polyg[i].Y then begin
-        ARect.Top := Polyg[i].Y
+      if ARect.Top < APoints[i].Y then begin
+        ARect.Top := APoints[i].Y
       end;
-      if ARect.Right < Polyg[i].X then begin
-        ARect.Right := Polyg[i].X
+      if ARect.Right < APoints[i].X then begin
+        ARect.Right := APoints[i].X
       end;
-      if ARect.Bottom > Polyg[i].Y then begin
-        ARect.Bottom := Polyg[i].Y
+      if ARect.Bottom > APoints[i].Y then begin
+        ARect.Bottom := APoints[i].Y
       end;
     end;
   end else begin

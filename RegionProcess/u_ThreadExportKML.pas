@@ -133,7 +133,7 @@ begin
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
     polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-    FTilesToProcess := FTilesToProcess + GetDwnlNum(min, max, Polyg, true);
+    FTilesToProcess := FTilesToProcess + GetDwnlNum(min, max, @Polyg[0], Length(Polyg), true);
   end;
   FTilesProcessed := 0;
   ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files);
@@ -147,13 +147,13 @@ begin
 
     VZoom := FZooms[0];
     polyg := FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-    GetDwnlNum(min, max, Polyg, false);
+    GetDwnlNum(min, max, @Polyg[0], Length(Polyg), false);
     p_x := min.x;
     while p_x < max.x do begin
       p_y := min.Y;
       while p_y < max.Y do begin
         if not CancelNotifier.IsOperationCanceled(OperationID) then begin
-          if (RgnAndRgn(Polyg, p_x, p_y, false)) then begin
+          if (RgnAndRgn(@Polyg[0], Length(Polyg), p_x, p_y, false)) then begin
             KmlFileWrite(p_x, p_y, VZoom, 1);
           end;
         end;

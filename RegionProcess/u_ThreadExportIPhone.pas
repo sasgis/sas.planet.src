@@ -129,7 +129,7 @@ var
 begin
   VZoom := FZooms[0];
   VPolyg := AGeoConvert.LonLatArray2PixelArray(FPolygLL, VZoom);
-  GetMinMax(min, max, VPolyg, true);
+  GetMinMax(min, max, @VPolyg[0], Length(VPolyg), true);
   VLLCenter := AGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), VZoom);
   AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
   Rewrite(PList);

@@ -3226,7 +3226,7 @@ begin
     );
   Try
     Poly := GState.LastSelectionInfo.Polygon;
-    GetMinMax(VLonLatRect, Poly);
+    GetMinMax(VLonLatRect, @Poly[0], Length(Poly));
     if VSelLonLat.Execute(VLonLatRect) Then Begin
       Poly := PolygonFromRect(VLonLatRect);
       setalloperationfalse(ao_movemap);

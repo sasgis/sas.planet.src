@@ -244,8 +244,8 @@ begin
   inherited;
   FPoly := FMainTypeMap.GeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
 
-  VProcessTiles := GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, FPoly, true);
-  GetMinMax(FMapRect, FPoly, false);
+  VProcessTiles := GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, @FPoly[0], Length(FPoly), true);
+  GetMinMax(FMapRect, @FPoly[0], Length(FPoly), false);
 
   FMapSize.X := FMapRect.Right - FMapRect.Left;
   FMapSize.Y := FMapRect.Bottom - FMapRect.Top;
@@ -339,7 +339,7 @@ begin
     Asx := sx;
     Aex := 255;
     while p_x <= FCurrentPieceRect.Right do begin
-      if not (RgnAndRgn(FPoly, p_x + 128, p_y + 128, false)) then begin
+      if not (RgnAndRgn(@FPoly[0], Length(FPoly), p_x + 128, p_y + 128, false)) then begin
         btmm.Clear(FBackGroundColor);
       end else begin
         FLastTile := Point(p_x shr 8, p_y shr 8);

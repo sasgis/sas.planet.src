@@ -79,7 +79,7 @@ constructor TTileIteratorStuped.Create(AZoom: byte;
 begin
   inherited;
   FPolyg := FGeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
-  FTilesTotal := GetDwnlNum(FPixelRect, FPolyg, true);
+  FTilesTotal := GetDwnlNum(FPixelRect, @FPolyg[0], Length(FPolyg), true);
   FTilesRect := FGeoConvert.PixelRect2TileRect(FPixelRect, FZoom);
   Reset;
 end;
@@ -107,7 +107,7 @@ begin
     FCurrent.X := p_x shr 8;
     while p_y < FPixelRect.Bottom do begin
       FCurrent.Y := p_y shr 8;
-      if (RgnAndRgn(FPolyg, p_x, p_y, false)) then begin
+      if (RgnAndRgn(@FPolyg[0], Length(FPolyg), p_x, p_y, false)) then begin
         Result := True;
       end;
       inc(p_y, 256);
@@ -151,7 +151,7 @@ begin
     FCurrent.X := p_x shr 8;
     FCurrent.Y := p_y shr 8;
     ATile:= FCurrent;
-    if (RgnAndRgn(FPolyg, p_x, p_y, false)) then begin
+    if (RgnAndRgn(@FPolyg[0], Length(FPolyg), p_x, p_y, false)) then begin
       Result := True;
     end;
 
