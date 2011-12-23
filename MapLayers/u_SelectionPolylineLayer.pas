@@ -134,7 +134,7 @@ var
   VLocalRect: TRect;
   VSourcePolygon: TArrayOfDoublePoint;
 begin
-  VSourcePolygon := u_GeoFun.ConveryPolyline2Polygon(SourcePolygon, FConfig.GetRadius, ALocalConverter.GetGeoConverter, ALocalConverter.GetZoom);
+  VSourcePolygon := u_GeoFun.ConveryPolyline2Polygon(@SourcePolygon[0], Length(SourcePolygon), FConfig.GetRadius, ALocalConverter.GetGeoConverter, ALocalConverter.GetZoom);
   VPointsCount := Length(VSourcePolygon);
   if VPointsCount > 0 then begin
     VLocalRect := ALocalConverter.GetLocalRect;

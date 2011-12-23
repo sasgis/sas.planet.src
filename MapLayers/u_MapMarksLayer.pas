@@ -290,7 +290,7 @@ begin
                 VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
                 if (PtInRgn(@VLineOnBitmap[0], Length(VLineOnBitmap), VPixelPos)) or
                    (PointOnPath(VPixelPos, VLineOnBitmap, (VMarkPoly.LineWidth / 2) + 3)) then begin
-                  VSquare := PolygonSquare(VLineOnBitmap);
+                  VSquare := PolygonSquare(@VLineOnBitmap[0], Length(VLineOnBitmap));
                   if (AMark = nil) or (VSquare<AMarkS) then begin
                     AMark := VMark;
                     AMarkS := VSquare;

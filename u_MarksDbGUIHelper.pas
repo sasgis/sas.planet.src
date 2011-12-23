@@ -343,7 +343,7 @@ begin
           ShowMessage(SAS_ERR_ParamsInput);
           Exit;
         end;
-        VPoints:=ConveryPolyline2Polygon(VMarkLine.Points, VRadius, AConverter, AZoom);
+        VPoints:=ConveryPolyline2Polygon(@VMarkLine.Points[0], Length(VMarkLine.Points), VRadius, AConverter, AZoom);
         FFormRegionProcess.Show_(AZoom, VPoints);
         Result:=true;
       end;

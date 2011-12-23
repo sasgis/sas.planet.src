@@ -849,7 +849,7 @@ begin
           VConverter.CheckLonLatArray(VLonLatLine);
           VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
           if (PtInRgn(@VLineOnBitmap[0], Length(VLineOnBitmap), VPixelPos)) then begin
-            VSquare := PolygonSquare(VLineOnBitmap);
+            VSquare := PolygonSquare(@VLineOnBitmap[0], Length(VLineOnBitmap));
             if (AItem = nil) or (VSquare<AItemS) then begin
               AItem := VItem;
               AItemS := VSquare;
