@@ -734,6 +734,7 @@ object frmMain: TfrmMain
           end
         end
         object DegreedLinesSubMenu: TTBXSubmenuItem
+          Images = MenusImageList
           Caption = 'Lat/Lon Grid'
           Hint = ''
           object NDegScale0: TTBXItem
