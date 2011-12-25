@@ -273,9 +273,9 @@ end;
 
 procedure TMarksSystem.ReadConfig(AConfigData: IConfigDataProvider);
 begin
-  FMarksDbInternal.LoadMarksFromFile;
-  FCategoryDBInternal.LoadCategoriesFromFile;
   FMarksFactoryConfig.ReadConfig(AConfigData);
+  FCategoryDBInternal.LoadCategoriesFromFile;
+  FMarksDbInternal.LoadMarksFromFile;
 end;
 
 procedure TMarksSystem.WriteConfig(AConfigData: IConfigDataWriteProvider);
