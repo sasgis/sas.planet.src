@@ -128,7 +128,7 @@ object frmSettings: TfrmSettings
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
-        Top = 163
+        Top = 190
         Width = 644
         Height = 25
         Align = alTop
@@ -159,7 +159,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 650
-        Height = 160
+        Height = 187
         Align = alTop
         BevelOuter = bvNone
         ColumnCollection = <
@@ -281,15 +281,39 @@ object frmSettings: TfrmSettings
           end
           item
             Column = 0
-            Control = Label37
+            Control = lblBDBCachePath
             Row = 5
           end
           item
             Column = 1
-            Control = CBCacheType
+            Control = edtBDBCachePath
             Row = 5
+          end
+          item
+            Column = 2
+            Control = btnSetDefBDBCachePath
+            Row = 5
+          end
+          item
+            Column = 3
+            Control = btnSetBDBCachePath
+            Row = 5
+          end
+          item
+            Column = 0
+            Control = Label37
+            Row = 6
+          end
+          item
+            Column = 1
+            Control = CBCacheType
+            Row = 6
           end>
         RowCollection = <
+          item
+            SizeStyle = ssAbsolute
+            Value = 27.000000000000000000
+          end
           item
             SizeStyle = ssAbsolute
             Value = 27.000000000000000000
@@ -316,7 +340,7 @@ object frmSettings: TfrmSettings
         TabOrder = 1
         DesignSize = (
           650
-          160)
+          187)
         object Label15: TLabel
           AlignWithMargins = True
           Left = 3
@@ -508,7 +532,7 @@ object frmSettings: TfrmSettings
           Width = 404
           Height = 21
           Align = alClient
-          TabOrder = 12
+          TabOrder = 16
         end
         object Button10: TButton
           Tag = 5
@@ -518,7 +542,7 @@ object frmSettings: TfrmSettings
           Height = 21
           Anchors = []
           Caption = '<>'
-          TabOrder = 13
+          TabOrder = 17
           OnClick = Button4Click
         end
         object Button17: TButton
@@ -529,13 +553,56 @@ object frmSettings: TfrmSettings
           Height = 21
           Anchors = []
           Caption = '...'
+          TabOrder = 18
+          OnClick = Button5Click
+        end
+        object lblBDBCachePath: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 138
+          Width = 194
+          Height = 21
+          Align = alClient
+          Caption = 'BerkeleyDB cache folder:'
+          Layout = tlCenter
+          ExplicitWidth = 120
+          ExplicitHeight = 13
+        end
+        object edtBDBCachePath: TEdit
+          AlignWithMargins = True
+          Left = 203
+          Top = 138
+          Width = 404
+          Height = 21
+          Align = alClient
+          TabOrder = 12
+        end
+        object btnSetDefBDBCachePath: TButton
+          Tag = 6
+          Left = 610
+          Top = 138
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '<>'
+          TabOrder = 13
+          OnClick = Button4Click
+        end
+        object btnSetBDBCachePath: TButton
+          Tag = 6
+          Left = 630
+          Top = 138
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '...'
           TabOrder = 14
           OnClick = Button5Click
         end
         object Label37: TLabel
           AlignWithMargins = True
           Left = 3
-          Top = 138
+          Top = 165
           Width = 194
           Height = 19
           Align = alClient
@@ -547,7 +614,7 @@ object frmSettings: TfrmSettings
         object CBCacheType: TComboBox
           AlignWithMargins = True
           Left = 203
-          Top = 138
+          Top = 165
           Width = 404
           Height = 21
           Align = alClient
@@ -560,7 +627,8 @@ object frmSettings: TfrmSettings
             'GoogleMV'
             'SAS.Planet'
             'EarthSlicer 1.95'
-            'GlobalMapper Tiles')
+            'GlobalMapper Tiles'
+            'BerkeleyDB')
         end
       end
     end

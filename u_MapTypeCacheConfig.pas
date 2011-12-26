@@ -80,6 +80,18 @@ type
     function GetNameInCache: string;
   end;
 
+  TMapTypeCacheConfigBerkeleyDB = class(TMapTypeCacheConfigAbstract)
+  protected
+    procedure OnSettingsEdit; override;
+  public
+    constructor Create(
+      AConfig: ISimpleTileStorageConfig;
+      AFileNameGenerator: ITileFileNameGenerator;
+      AGlobalCacheConfig: TGlobalCahceConfig
+    );
+    function GetTileFileName(AXY: TPoint; Azoom: byte): string; reintroduce;
+  end;
+
 implementation
 
 uses
@@ -164,6 +176,9 @@ begin
       5: begin
         VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.GECachepath)+VBasePath;
       end;
+      6: begin
+        VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.BDBCachepath)+VBasePath;
+      end;
     end;
   end;
   //TODO: — этим бардаком нужно что-то будет сделать
@@ -211,6 +226,37 @@ end;
 function TMapTypeCacheConfigGE.GetNameInCache: string;
 begin
   Result := FConfig.GetStatic.NameInCache;
+end;
+
+{ TMapTypeCacheConfigBerkeleyDB }
+
+constructor TMapTypeCacheConfigBerkeleyDB.Create(
+  AConfig: ISimpleTileStorageConfig;
+  AFileNameGenerator: ITileFileNameGenerator;
+  AGlobalCacheConfig: TGlobalCahceConfig
+);
+begin
+  inherited Create(AConfig, AGlobalCacheConfig);
+  FFileNameGenerator := AFileNameGenerator;
+  OnSettingsEdit;
+end;
+
+procedure TMapTypeCacheConfigBerkeleyDB.OnSettingsEdit;
+var
+  VBasePath: string;
+begin
+  VBasePath := FGlobalCacheConfig.BDBCachepath + FConfig.GetStatic.NameInCache;
+  //TODO: — этим бардаком нужно что-то будет сделать
+  if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
+    VBasePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.CacheGlobalPath) + VBasePath;
+  end;
+  VBasePath := IncludeTrailingPathDelimiter(VBasePath);
+  FBasePath := VBasePath;
+end;
+
+function TMapTypeCacheConfigBerkeleyDB.GetTileFileName(AXY: TPoint; AZoom: Byte): string;
+begin
+  Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + '.db';
 end;
 
 end.

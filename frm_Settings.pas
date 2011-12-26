@@ -160,6 +160,10 @@ type
     Button10: TButton;
     Button17: TButton;
     Label31: TLabel;
+    lblBDBCachePath: TLabel;
+    edtBDBCachePath: TEdit;
+    btnSetDefBDBCachePath: TButton;
+    btnSetBDBCachePath: TButton;
     btnMapInfo: TButton;
     CBSensorsBarAutoShow: TCheckBox;
     Label32: TLabel;
@@ -536,7 +540,11 @@ begin
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
   end;
  if CBCacheType.ItemIndex >= 0 then begin
-  GState.CacheConfig.DefCache := CBCacheType.ItemIndex+1;
+  if CBCacheType.ItemIndex = 4 then begin
+    GState.CacheConfig.DefCache := 6;
+  end else begin
+    GState.CacheConfig.DefCache := CBCacheType.ItemIndex+1;
+  end;
  end else begin
   GState.CacheConfig.DefCache := 2;
  end;
@@ -610,6 +618,7 @@ begin
  GState.CacheConfig.ESCPath:=IncludeTrailingPathDelimiter(EScPath.Text);
  GState.CacheConfig.GMTilesPath:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
  GState.CacheConfig.GECachePath:=IncludeTrailingPathDelimiter(GECachePath.Text);
+ GState.CacheConfig.BDBCachepath:=IncludeTrailingPathDelimiter(edtBDBCachePath.Text);
   GState.MainFormConfig.LayersConfig.KmlLayerConfig.LockWrite;
   try
     GState.MainFormConfig.LayersConfig.KmlLayerConfig.MainColor :=
@@ -651,6 +660,7 @@ begin
  if (sender as TButton).Tag=3 then NewCpath.Text:='cache_es' + PathDelim;
  if (sender as TButton).Tag=4 then GMTilespath.Text:='cache_gmt' + PathDelim;
  if (sender as TButton).Tag=5 then GECachepath.Text:='cache_ge' + PathDelim;
+ if (sender as TButton).Tag=6 then edtBDBCachePath.Text:='cache_db' + PathDelim;
 end;
 
 procedure TfrmSettings.Button5Click(Sender: TObject);
@@ -663,6 +673,7 @@ begin
     if (sender as TButton).Tag=3 then ESCpath.Text:=IncludeTrailingPathDelimiter(TempPath);
     if (sender as TButton).Tag=4 then GMTilesPath.Text:=IncludeTrailingPathDelimiter(TempPath);
     if (sender as TButton).Tag=5 then GECachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
+    if (sender as TButton).Tag=6 then edtBDBCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
   end;
 end;
 
@@ -825,12 +836,17 @@ begin
     GState.MainFormConfig.MainConfig.UnlockRead;
   end;
 
- CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
+ if GState.CacheConfig.DefCache = 6 then begin
+   CBCacheType.ItemIndex := 4;
+ end else begin
+   CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
+ end;
  OldCPath.text:=GState.CacheConfig.OldCPath;
  NewCPath.text:=GState.CacheConfig.NewCPath;
  ESCPath.text:=GState.CacheConfig.ESCPath;
  GMTilesPath.text:=GState.CacheConfig.GMTilesPath;
  GECachePath.text:=GState.CacheConfig.GECachePath;
+ edtBDBCachePath.text:=GState.CacheConfig.BDBCachePath;
 
   // load gps config
   LoadGPSConfig;

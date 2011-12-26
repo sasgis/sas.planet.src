@@ -26,7 +26,7 @@ uses
   i_StorageTypeAbilities;
 
 type
-  TTileStorageTypeAbilitiesFieFolder = class(TInterfacedObject, IStorageTypeAbilities)
+  TTileStorageTypeAbilitiesFileFolder = class(TInterfacedObject, IStorageTypeAbilities)
   protected
     function GetIsReadOnly: boolean;
     function GetAllowAdd: Boolean;
@@ -42,27 +42,35 @@ type
     function GetAllowReplace: boolean;
   end;
 
+  TTileStorageTypeAbilitiesBerkeleyDB = class(TInterfacedObject, IStorageTypeAbilities)
+  protected
+    function GetIsReadOnly: boolean;
+    function GetAllowAdd: Boolean;
+    function GetAllowDelete: boolean;
+    function GetAllowReplace: boolean;
+  end;
+
 implementation
 
 
 { TTileStorageTypeAbilitiesFieFolder }
 
-function TTileStorageTypeAbilitiesFieFolder.GetAllowAdd: Boolean;
+function TTileStorageTypeAbilitiesFileFolder.GetAllowAdd: Boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesFieFolder.GetAllowDelete: boolean;
+function TTileStorageTypeAbilitiesFileFolder.GetAllowDelete: boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesFieFolder.GetAllowReplace: boolean;
+function TTileStorageTypeAbilitiesFileFolder.GetAllowReplace: boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesFieFolder.GetIsReadOnly: boolean;
+function TTileStorageTypeAbilitiesFileFolder.GetIsReadOnly: boolean;
 begin
   Result := False;
 end;
@@ -87,6 +95,28 @@ end;
 function TTileStorageTypeAbilitiesGE.GetIsReadOnly: boolean;
 begin
   Result := True;
+end;
+
+{ TTileStorageTypeAbilitiesBerkeleyDB }
+
+function TTileStorageTypeAbilitiesBerkeleyDB.GetAllowAdd: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageTypeAbilitiesBerkeleyDB.GetAllowDelete: boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageTypeAbilitiesBerkeleyDB.GetAllowReplace: boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageTypeAbilitiesBerkeleyDB.GetIsReadOnly: boolean;
+begin
+  Result := False;
 end;
 
 end.

@@ -230,6 +230,7 @@ uses
   u_MapVersionConfig,
   u_TileDownloadSubsystem,
   u_TileStorageGE,
+  u_TileStorageBerkeleyDB,
   u_TileStorageFileSystem;
 
 constructor TMapType.Create(
@@ -284,7 +285,13 @@ begin
   FTileDownloaderConfig.ReadConfig(AConfig);
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
 
-  if FStorageConfig.CacheTypeCode = 5  then begin
+  if FStorageConfig.CacheTypeCode = 0 then begin
+    FStorageConfig.CacheTypeCode := AGlobalCacheConfig.DefCache;
+  end;
+
+  if FStorageConfig.CacheTypeCode = 6 then begin
+    FStorage := TTileStorageBerkeleyDB.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
+  end else if FStorageConfig.CacheTypeCode = 5  then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin
     FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);

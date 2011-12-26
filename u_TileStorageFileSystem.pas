@@ -141,7 +141,7 @@ constructor TTileStorageFileSystem.Create(
   AContentTypeManager: IContentTypeManager
 );
 begin
-  inherited Create(TTileStorageTypeAbilitiesFieFolder.Create, AConfig);
+  inherited Create(TTileStorageTypeAbilitiesFileFolder.Create, AConfig);
   FFormatSettings.DecimalSeparator := '.';
   FFormatSettings.DateSeparator := '-';
   FFormatSettings.ShortDateFormat := 'yyyy-MM-dd';
