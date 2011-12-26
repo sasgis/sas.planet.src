@@ -43,7 +43,8 @@ uses
   u_GeoCoderBy2GIS,
   u_GeoCoderByOSM,
   u_GeoCoderByWikiMapia,
-  u_GeoCoderByRosreestr;
+  u_GeoCoderByRosreestr,
+  u_GeoCoderByNavitel;
 
 { TGeoCoderListSimple }
 
@@ -92,7 +93,14 @@ begin
       TGeoCoderByRosreestr.Create(AProxy)
     )
   );
-  
+  Add(
+    TGeoCoderListEntity.Create(
+      CGeoCoderNavitelGUID,
+      'Navitel',
+      TGeoCoderByNavitel.Create(AProxy)
+    )
+  );
+
 
 end;
 
