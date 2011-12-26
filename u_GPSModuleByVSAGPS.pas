@@ -679,8 +679,13 @@ begin
 
   if (gpsc_LocalTimeChanged=ACommand) or
      (gpsc_RestartTrackLogs=ACommand) or
-     (gpsc_WriteFileLinkToLog=ACommand) then
-  if (0<>FVSAGPS_GPX_WRITER_PARAMS.btUse_Predefined_Extensions[geSASGIS]) then begin
+     (
+       (0<>FVSAGPS_GPX_WRITER_PARAMS.btUse_Predefined_Extensions[geSASGIS]) and
+       ( // some commands only for sasx
+         (gpsc_WriteFileLinkToLog=ACommand) or
+         (gpsc_CreateStandaloneWpt=ACommand)
+       )
+     ) then begin
     LockLogger;
     try
       if (nil<>FVSAGPS_Logger) then begin
