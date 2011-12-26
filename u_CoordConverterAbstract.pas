@@ -225,7 +225,12 @@ type
       const AResultPoints: PPointArray;
       const AZoom: byte
     ); virtual; stdcall;
-    function LonLatArray2PixelArrayFloat(const APolyg: TArrayOfDoublePoint; const AZoom: byte): TArrayOfDoublePoint; virtual; stdcall;
+    procedure LonLatArray2PixelArrayFloat(
+      const ASourcePoints: PDoublePointArray;
+      const ACount: Integer;
+      const AResultPoints: PDoublePointArray;
+      const AZoom: byte
+    ); virtual; stdcall;
 
     function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; virtual; stdcall; abstract;
     function PixelPos2OtherMap(const AXY: TPoint; const Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; virtual; stdcall;
@@ -247,7 +252,14 @@ type
 
     function CheckLonLatPos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
     function CheckLonLatRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
-    function CheckLonLatArray(var APolyg: TArrayOfDoublePoint): boolean; virtual; stdcall;
+    function CheckLonLatArray(
+      const ASourcePoints: PDoublePointArray;
+      const ACount: Integer
+    ): boolean; virtual; stdcall;
+    function CheckAndCorrectLonLatArray(
+      const ASourcePoints: PDoublePointArray;
+      const ACount: Integer
+    ): boolean;  virtual; stdcall;
 
     function GetProjectionEPSG: Integer; virtual; stdcall;
     function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
@@ -288,20 +300,23 @@ begin
   end;
 end;
 
-function TCoordConverterAbstract.LonLatArray2PixelArrayFloat(
-  const APolyg: TArrayOfDoublePoint; const AZoom: byte): TArrayOfDoublePoint;
+procedure TCoordConverterAbstract.LonLatArray2PixelArrayFloat(
+  const ASourcePoints: PDoublePointArray;
+  const ACount: Integer;
+  const AResultPoints: PDoublePointArray;
+  const AZoom: byte
+);
 var
   i: integer;
   VPoint: TDoublePoint;
 begin
-  SetLength(Result, length(APolyg));
-  for i := 0 to length(APolyg) - 1 do begin
-    VPoint := Apolyg[i];
+  for i := 0 to ACount - 1 do begin
+    VPoint := ASourcePoints[i];
     if PointIsEmpty(VPoint) then begin
-      Result[i] := VPoint;
+      AResultPoints[i] := VPoint;
     end else begin
       CheckLonLatPosInternal(VPoint);
-      Result[i] := LonLat2PixelPosFloatInternal(VPoint, AZoom);
+      AResultPoints[i] := LonLat2PixelPosFloatInternal(VPoint, AZoom);
     end;
   end;
 end;
@@ -1107,19 +1122,39 @@ begin
   Result := FProjEPSG;
 end;
 
-function TCoordConverterAbstract.CheckLonLatArray(
-  var APolyg: TArrayOfDoublePoint): boolean;
+function TCoordConverterAbstract.CheckAndCorrectLonLatArray(
+  const ASourcePoints: PDoublePointArray; const ACount: Integer): boolean;
 var
   i: integer;
   VPoint: TDoublePoint;
 begin
   Result := True;
-  for i := 0 to length(APolyg) - 1 do begin
-    VPoint := Apolyg[i];
+  for i := 0 to ACount - 1 do begin
+    VPoint := ASourcePoints[i];
+    if not PointIsEmpty(VPoint) then begin
+      if not CheckLonLatPos(VPoint) then begin
+        ASourcePoints[i] := VPoint;
+        Result := False;
+      end;
+    end;
+  end;
+end;
+
+function TCoordConverterAbstract.CheckLonLatArray(
+  const ASourcePoints: PDoublePointArray;
+  const ACount: Integer
+): boolean;
+var
+  i: integer;
+  VPoint: TDoublePoint;
+begin
+  Result := True;
+  for i := 0 to ACount - 1 do begin
+    VPoint := ASourcePoints[i];
     if not PointIsEmpty(VPoint) then begin
       if not CheckLonLatPos(VPoint) then begin
         Result := False;
-        Apolyg[i] := VPoint;
+        Exit;
       end;
     end;
   end;

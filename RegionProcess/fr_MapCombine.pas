@@ -143,7 +143,7 @@ begin
     VPolyLL := copy(FPolygLL);
     VLen := Length(VPolyLL);
     Vmt.GeoConvert.CheckZoom(VZoom);
-    Vmt.GeoConvert.CheckLonLatArray(VPolyLL);
+    Vmt.GeoConvert.CheckAndCorrectLonLatArray(@VPolyLL[0], VLen);
     Vmt.GeoConvert.LonLatArray2PixelArray(@VPolyLL[0], VLen, @Polyg[0], VZoom);
     numd:=GetDwnlNum(min,max,@Polyg[0], VLen,true);
     lblStat.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'

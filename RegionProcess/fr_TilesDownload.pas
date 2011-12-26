@@ -85,7 +85,7 @@ begin
     VPolyLL := copy(FPolygLL);
     VLen := Length(VPolyLL);
     Vmt.GeoConvert.CheckZoom(VZoom);
-    Vmt.GeoConvert.CheckLonLatArray(VPolyLL);
+    Vmt.GeoConvert.CheckAndCorrectLonLatArray(@VPolyLL[0], VLen);
     SetLength(Polyg, VLen);
     Vmt.GeoConvert.LonLatArray2PixelArray(@VPolyLL[0], VLen, @Polyg[0], VZoom);
     numd:=GetDwnlNum(min,max,@Polyg[0], VLen,true);

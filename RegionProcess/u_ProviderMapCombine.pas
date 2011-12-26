@@ -234,6 +234,7 @@ begin
     VMarksImageProvider :=
       TMapMarksBitmapLayerProviderByMarksSubset.Create(
         FMarksDrawConfig.GetStatic,
+        nil,
         VMarksSubset
       );
   end;
