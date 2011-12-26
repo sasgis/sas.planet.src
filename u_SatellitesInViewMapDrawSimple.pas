@@ -50,6 +50,8 @@ type
     FSignalBarVertSpaces: Integer;
     FSignalBarMinHorizSpaces: Integer;
 
+    procedure AdjustSignalSatBarsCount(const ASatCount: Integer);
+
     function GetSignalBarRowsCount(ABitmap: TBitmap32): Integer;
     function GetSignalBarHeight(
       ABitmap: TBitmap32;
@@ -113,7 +115,22 @@ uses
   GR32_PolygonsEx,
   vsagps_public_base;
 
+const
+  cDefault_FSignalBarsCount = 12;
+
 { TSatellitesInViewMapDrawSimple }
+
+procedure TSatellitesInViewMapDrawSimple.AdjustSignalSatBarsCount(const ASatCount: Integer);
+begin
+  FSignalBarsCount:=cDefault_FSignalBarsCount;
+  if (cDefault_FSignalBarsCount<ASatCount) then
+  repeat
+    // greater then default - inc by 4
+    Inc(FSignalBarsCount,4);
+    if (ASatCount<=FSignalBarsCount) then
+      break;
+  until FALSE;
+end;
 
 constructor TSatellitesInViewMapDrawSimple.Create;
 begin
@@ -127,7 +144,7 @@ begin
   FSkyMapGridCirclesMinDelta := 20;
   FSkyMapSatRdius := 8;
 
-  FSignalBarsCount := 12;
+  FSignalBarsCount := cDefault_FSignalBarsCount; // default value
   FSignalBarsBGColor := clWhite32;
   FSignalBarBorderColor := clBlue32;
   FSignalBarsFontColor := clBlack32;
@@ -178,6 +195,7 @@ begin
   VRect.Bottom := ABitmap.Height;
   VRect.Top := VRect.Bottom - ARowCount * (ABarHeight + FSignalBarVertSpaces);
   ABitmap.FillRectS(VRect, FSignalBarsBGColor);
+  if (0<FSignalBarsCount) then
   for i := 0 to FSignalBarsCount - 1 do begin
     VRect := GetSignalBarRect(ABitmap, i, ARowCount, ABarHeight, AWidth, AHorizSpace);
     ABitmap.FrameRectS(VRect, FSignalBarBorderColor);
@@ -293,6 +311,9 @@ begin
   // show satelites only for one talker_id (TODO: show both satellites)
   VTalkerID := ASatellites.GetPreferredTalkerID;
   VSatCount := ASatellites.Count[VTalkerID];
+
+  // Adjust count of bars
+  AdjustSignalSatBarsCount(VSatCount);
 
   // first step
   for i := 0 to VSatCount - 1 do
