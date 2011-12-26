@@ -29,6 +29,10 @@ type
     procedure SetSourcePolygon(const Value: TArrayOfDoublePoint); override;
     procedure DoConfigChange; override;
     procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    function LonLatArrayToVisualFloatArray(
+      const APolygon: TArrayOfDoublePoint;
+      ALocalConverter: ILocalCoordConverter
+    ): TArrayOfDoublePoint;
     procedure PrepareShadowPolygon(ALocalConverter: ILocalCoordConverter);
   public
     constructor Create(
@@ -45,6 +49,7 @@ implementation
 
 uses
   SysUtils,
+  i_CoordConverter,
   u_NotifyEventListener,
   u_GeoFun;
 
@@ -120,6 +125,30 @@ begin
   end;
 end;
 
+function TSelectionPolylineLayer.LonLatArrayToVisualFloatArray(
+  const APolygon: TArrayOfDoublePoint;
+  ALocalConverter: ILocalCoordConverter): TArrayOfDoublePoint;
+var
+  i: Integer;
+  VPointsCount: Integer;
+  VLonLat: TDoublePoint;
+  VGeoConvert: ICoordConverter;
+begin
+  VPointsCount := Length(APolygon);
+  SetLength(Result, VPointsCount);
+
+  VGeoConvert := ALocalConverter.GetGeoConverter;
+  for i := 0 to VPointsCount - 1 do begin
+    VLonLat := APolygon[i];
+    if PointIsEmpty(VLonLat) then begin
+      Result[i] := VLonLat;
+    end else begin
+      VGeoConvert.CheckLonLatPos(VLonLat);
+      Result[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
+    end;
+  end;
+end;
+
 procedure TSelectionPolylineLayer.PrepareShadowPolygon(ALocalConverter: ILocalCoordConverter);
 var
   VPointsCount: Integer;
@@ -143,7 +172,7 @@ begin
     Inc(VLocalRect.Right, 10);
     Inc(VLocalRect.Bottom, 10);
     VBitmapClip := TPolygonClipByRect.Create(VLocalRect);
-    FShadowPointsOnBitmap := ALocalConverter.LonLatArrayToVisualFloatArray(VSourcePolygon);
+    FShadowPointsOnBitmap := LonLatArrayToVisualFloatArray(VSourcePolygon, ALocalConverter);
 
     VPointsProcessedCount := VBitmapClip.Clip(FShadowPointsOnBitmap[0], VPointsCount, VPointsOnBitmapPrepared);
     if VPointsProcessedCount > 0 then begin

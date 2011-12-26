@@ -159,6 +159,7 @@ begin
       VProv :=
         TMapMarksBitmapLayerProviderByMarksSubset.Create(
           FDrawConfigStatic,
+          VBitmapConverter,
           VMarksSubset
         );
       VGeoConvert := VBitmapConverter.GetGeoConverter;
@@ -245,6 +246,7 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
+  VLen: Integer;
 begin
   VCounterContext := FMouseOnRegCounter.StartOperation;
   try
@@ -277,20 +279,24 @@ begin
             end else begin
               if Supports(VMark, IMarkLine, VMarkLine) then begin
                 VLonLatLine := VMarkLine.Points;
-                VConverter.CheckLonLatArray(VLonLatLine);
-                VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
-                if PointOnPath(VPixelPos, @VLineOnBitmap[0], Length(VLineOnBitmap), (VMarkLine.LineWidth / 2) + 3) then begin
+                VLen := Length(VLonLatLine);
+                SetLength(VLineOnBitmap, VLen);
+                VConverter.CheckAndCorrectLonLatArray(@VLonLatLine[0], VLen);
+                VConverter.LonLatArray2PixelArrayFloat(@VLonLatLine[0], VLen, @VLineOnBitmap[0], VZoom);
+                if PointOnPath(VPixelPos, @VLineOnBitmap[0], VLen, (VMarkLine.LineWidth / 2) + 3) then begin
                   AMark := VMark;
                   AMarkS := 0;
                   exit;
                 end;
               end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
                 VLonLatLine := VMarkPoly.Points;
-                VConverter.CheckLonLatArray(VLonLatLine);
-                VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
-                if (PtInRgn(@VLineOnBitmap[0], Length(VLineOnBitmap), VPixelPos)) or
-                   (PointOnPath(VPixelPos, @VLineOnBitmap[0], Length(VLineOnBitmap), (VMarkPoly.LineWidth / 2) + 3)) then begin
-                  VSquare := PolygonSquare(@VLineOnBitmap[0], Length(VLineOnBitmap));
+                VLen := Length(VLonLatLine);
+                SetLength(VLineOnBitmap, VLen);
+                VConverter.CheckAndCorrectLonLatArray(@VLonLatLine[0], VLen);
+                VConverter.LonLatArray2PixelArrayFloat(@VLonLatLine[0], VLen, @VLineOnBitmap[0], VZoom);
+                if (PtInRgn(@VLineOnBitmap[0], VLen, VPixelPos)) or
+                   (PointOnPath(VPixelPos, @VLineOnBitmap[0], VLen, (VMarkPoly.LineWidth / 2) + 3)) then begin
+                  VSquare := PolygonSquare(@VLineOnBitmap[0], VLen);
                   if (AMark = nil) or (VSquare<AMarkS) then begin
                     AMark := VMark;
                     AMarkS := VSquare;

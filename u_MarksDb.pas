@@ -814,10 +814,10 @@ begin
   try
     LockRead;
     try
-      if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
+      if (ACategoryList = nil) then begin
         _AddMarksToList(FMarksList, ARect, AIgnoreVisible, VResultList);
       end else begin
-        for i :=  1 to ACategoryList.Count - 1 do begin
+        for i := 0 to ACategoryList.Count - 1 do begin
           VCategoryID := GetCategoryID(ICategory(ACategoryList[i]));
           VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryID));
           if VList <> nil then begin

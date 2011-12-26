@@ -65,8 +65,6 @@ type
     function LonLat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint;
     function LonLatRect2LocalRectFloat(const ARect: TDoubleRect): TDoubleRect;
 
-    function LonLatArrayToVisualFloatArray(const APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
-
     function GetCenterMapPixelFloat: TDoublePoint;
     function GetCenterLonLat: TDoublePoint;
     function GetRectInMapPixel: TRect;
@@ -247,28 +245,6 @@ begin
     MapRectFloat2LocalRectFloat(
       FGeoConverter.LonLatRect2PixelRectFloat(ARect, FZoom)
     );
-end;
-
-function TLocalCoordConverterBase.LonLatArrayToVisualFloatArray(const APolygon: TArrayOfDoublePoint): TArrayOfDoublePoint;
-var
-  i: Integer;
-  VPointsCount: Integer;
-  VLonLat: TDoublePoint;
-  VGeoConvert: ICoordConverter;
-begin
-  VPointsCount := Length(APolygon);
-  SetLength(Result, VPointsCount);
-
-  VGeoConvert := GetGeoConverter;
-  for i := 0 to VPointsCount - 1 do begin
-    VLonLat := APolygon[i];
-    if PointIsEmpty(VLonLat) then begin
-      Result[i] := VLonLat;
-    end else begin
-      VGeoConvert.CheckLonLatPos(VLonLat);
-      Result[i] := LonLat2LocalPixelFloat(VLonLat);
-    end;
-  end;
 end;
 
 function TLocalCoordConverterBase.MapPixel2LocalPixel(const APoint: TPoint): TPoint;

@@ -42,7 +42,9 @@ type
   private
     FConfig: IMarksDrawConfigStatic;
     FMarksSubset: IMarksSubset;
+    FBaseConverter: ILocalCoordConverter;
     FBitmapClip: IPolygonClip;
+
 
     FTempBmp: TCustomBitmap32;
     FBitmapWithText: TBitmap32;
@@ -81,6 +83,7 @@ type
   public
     constructor Create(
       AConfig: IMarksDrawConfigStatic;
+      ABaseConverter: ILocalCoordConverter;
       AMarksSubset: IMarksSubset
     );
     destructor Destroy; override;
@@ -104,10 +107,12 @@ const
 
 constructor TMapMarksBitmapLayerProviderByMarksSubset.Create(
   AConfig: IMarksDrawConfigStatic;
+  ABaseConverter: ILocalCoordConverter;
   AMarksSubset: IMarksSubset
 );
 begin
   FConfig := AConfig;
+  FBaseConverter := ABaseConverter;
   FMarksSubset := AMarksSubset;
 
   FTempBmp := TCustomBitmap32.Create;

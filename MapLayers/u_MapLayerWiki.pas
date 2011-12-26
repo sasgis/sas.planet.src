@@ -801,6 +801,7 @@ var
   VItem: IVectorDataItemSimple;
   VItemLine: IVectorDataItemLine;
   VItemPoly: IVectorDataItemPoly;
+  VLen: Integer;
 begin
   AItem := nil;
   AItemS := 0;
@@ -837,19 +838,23 @@ begin
           exit;
         end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
           VLonLatLine := VItemPoly.Points;
-          VConverter.CheckLonLatArray(VLonLatLine);
-          VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
-          if PointOnPath(VPixelPos, @VLineOnBitmap[0], Length(VLineOnBitmap), 2) then begin
+          VLen := Length(VLonLatLine);
+          SetLength(VLineOnBitmap, VLen);
+          VConverter.CheckAndCorrectLonLatArray(@VLonLatLine[0], VLen);
+          VConverter.LonLatArray2PixelArrayFloat(@VLonLatLine[0], VLen, @VLineOnBitmap[0], VZoom);
+          if PointOnPath(VPixelPos, @VLineOnBitmap[0], VLen, 2) then begin
             AItem := VItem;
             AItemS := 0;
             exit;
           end;
         end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
           VLonLatLine := VItemPoly.Points;
-          VConverter.CheckLonLatArray(VLonLatLine);
-          VLineOnBitmap := VConverter.LonLatArray2PixelArrayFloat(VLonLatLine, VZoom);
-          if (PtInRgn(@VLineOnBitmap[0], Length(VLineOnBitmap), VPixelPos)) then begin
-            VSquare := PolygonSquare(@VLineOnBitmap[0], Length(VLineOnBitmap));
+          VLen := Length(VLonLatLine);
+          SetLength(VLineOnBitmap, VLen);
+          VConverter.CheckAndCorrectLonLatArray(@VLonLatLine[0], VLen);
+          VConverter.LonLatArray2PixelArrayFloat(@VLonLatLine[0], VLen, @VLineOnBitmap[0], VZoom);
+          if (PtInRgn(@VLineOnBitmap[0], VLen, VPixelPos)) then begin
+            VSquare := PolygonSquare(@VLineOnBitmap[0], VLen);
             if (AItem = nil) or (VSquare<AItemS) then begin
               AItem := VItem;
               AItemS := VSquare;

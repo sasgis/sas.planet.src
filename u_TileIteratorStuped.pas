@@ -76,10 +76,14 @@ uses
 
 constructor TTileIteratorStuped.Create(AZoom: byte;
   APolygLL: TArrayOfDoublePoint; AGeoConvert: ICoordConverter);
+var
+  VLen: Integer;
 begin
   inherited;
-  FPolyg := FGeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
-  FTilesTotal := GetDwnlNum(FPixelRect, @FPolyg[0], Length(FPolyg), true);
+  VLen := Length(FPolygLL);
+  SetLength(FPolyg, VLen);
+  FGeoConvert.LonLatArray2PixelArray(@FPolygLL[0], VLen, @FPolyg[0], FZoom);
+  FTilesTotal := GetDwnlNum(FPixelRect, @FPolyg[0], VLen, true);
   FTilesRect := FGeoConvert.PixelRect2TileRect(FPixelRect, FZoom);
   Reset;
 end;
