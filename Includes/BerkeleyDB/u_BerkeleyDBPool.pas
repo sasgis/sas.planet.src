@@ -147,7 +147,12 @@ begin
         if FObjList.Count < FPoolSize then begin
           // если не достигли пределов пула, создаём новый объект
           New(PRec);
-          PRec.Obj := TBerkeleyDB.Create;
+          try
+            PRec.Obj := TBerkeleyDB.Create;
+          except
+            Dispose(PRec);
+            Exit; // видимо, ошибка загрузки dll -> молча уходим
+          end;
           PRec.Obj.FileName := AFileName;
           PRec.AcquireTime := Now;
           PRec.ReleaseTime := MinDateTime;
