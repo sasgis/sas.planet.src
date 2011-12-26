@@ -190,10 +190,10 @@ begin
         if FileExists(VPath) then begin
           result := DeleteFile(VPath);
         end;
-        DeleteTNE(AXY, Azoom, AVersionInfo);
       finally
         FLock.EndWrite;
       end;
+      DeleteTNE(AXY, Azoom, AVersionInfo);
     except
       Result := false;
     end;
