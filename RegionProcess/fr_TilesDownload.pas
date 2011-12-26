@@ -77,18 +77,21 @@ var
   Vmt: TMapType;
   VZoom: byte;
   VPolyLL: TArrayOfDoublePoint;
+  VLen: Integer;
 begin
   if cbbMap.ItemIndex >= 0 then begin
     Vmt := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
     VZoom := cbbZoom.ItemIndex;
     VPolyLL := copy(FPolygLL);
+    VLen := Length(VPolyLL);
     Vmt.GeoConvert.CheckZoom(VZoom);
     Vmt.GeoConvert.CheckLonLatArray(VPolyLL);
-    polyg := Vmt.GeoConvert.LonLatArray2PixelArray(VPolyLL, VZoom);
-    numd:=GetDwnlNum(min,max,@Polyg[0], Length(Polyg),true);
+    SetLength(Polyg, VLen);
+    Vmt.GeoConvert.LonLatArray2PixelArray(@VPolyLL[0], VLen, @Polyg[0], VZoom);
+    numd:=GetDwnlNum(min,max,@Polyg[0], VLen,true);
     lblStat.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                     +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';
-    GetMinMax(min,max,@Polyg[0], Length(Polyg),false);
+    GetMinMax(min,max,@Polyg[0], VLen,false);
     lblStat.Caption:=lblStat.Caption+', '+SAS_STR_Resolution+' '+inttostr(max.x-min.x)+'x'
                   +inttostr(max.y-min.y);
   end;

@@ -167,7 +167,12 @@ type
     function LonLatRect2TileRect(const XY: TDoubleRect; const Azoom: byte): TRect; stdcall;//TODO: Автотест
     function LonLatRect2TileRectFloat(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;//TODO: Автотест
 
-    function LonLatArray2PixelArray(const APolyg: TArrayOfDoublePoint; const AZoom: byte): TArrayOfPoint; stdcall;
+    procedure LonLatArray2PixelArray(
+      const ASourcePoints: PDoublePointArray;
+      const ACount: Integer;
+      const AResultPoints: PPointArray;
+      const AZoom: byte
+    ); stdcall;
     function LonLatArray2PixelArrayFloat(const APolyg: TArrayOfDoublePoint; const AZoom: byte): TArrayOfDoublePoint; stdcall;
 
     function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; stdcall;

@@ -240,12 +240,15 @@ procedure TThreadMapCombineBase.ProcessRegion;
 var
   i, j, pti: integer;
   VProcessTiles: Int64;
+  VLen: Integer;
 begin
   inherited;
-  FPoly := FMainTypeMap.GeoConvert.LonLatArray2PixelArray(FPolygLL, FZoom);
+  VLen := Length(FPolygLL);
+  SetLength(FPoly, VLen);
+  FMainTypeMap.GeoConvert.LonLatArray2PixelArray(@FPolygLL[0], VLen, @FPoly[0], FZoom);
 
-  VProcessTiles := GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, @FPoly[0], Length(FPoly), true);
-  GetMinMax(FMapRect, @FPoly[0], Length(FPoly), false);
+  VProcessTiles := GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, @FPoly[0], VLen, true);
+  GetMinMax(FMapRect, @FPoly[0], VLen, false);
 
   FMapSize.X := FMapRect.Right - FMapRect.Left;
   FMapSize.Y := FMapRect.Bottom - FMapRect.Top;

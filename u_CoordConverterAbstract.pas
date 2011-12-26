@@ -219,7 +219,12 @@ type
     function RelativeRect2PixelRect(const AXY: TDoubleRect; const Azoom: byte): TRect; virtual; stdcall;
     function RelativeRect2PixelRectFloat(const AXY: TDoubleRect; const Azoom: byte): TDoubleRect; virtual; stdcall;
 
-    function LonLatArray2PixelArray(const APolyg: TArrayOfDoublePoint; const AZoom: byte): TArrayOfPoint; virtual; stdcall;
+    procedure LonLatArray2PixelArray(
+      const ASourcePoints: PDoublePointArray;
+      const ACount: Integer;
+      const AResultPoints: PPointArray;
+      const AZoom: byte
+    ); virtual; stdcall;
     function LonLatArray2PixelArrayFloat(const APolyg: TArrayOfDoublePoint; const AZoom: byte): TArrayOfDoublePoint; virtual; stdcall;
 
     function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; virtual; stdcall; abstract;
@@ -262,20 +267,23 @@ uses
 
 { TCoordConverterAbstract }
 
-function TCoordConverterAbstract.LonLatArray2PixelArray(
-  const APolyg: TArrayOfDoublePoint; const AZoom: byte): TArrayOfPoint;
+procedure TCoordConverterAbstract.LonLatArray2PixelArray(
+  const ASourcePoints: PDoublePointArray;
+  const ACount: Integer;
+  const AResultPoints: PPointArray;
+  const AZoom: byte
+);
 var
   i: integer;
   VPoint: TDoublePoint;
 begin
-  SetLength(Result, length(APolyg));
-  for i := 0 to length(APolyg) - 1 do begin
-    VPoint := Apolyg[i];
+  for i := 0 to ACount - 1 do begin
+    VPoint := ASourcePoints[i];
     if PointIsEmpty(VPoint) then begin
-      Result[i] := Point(MaxInt, MaxInt);
+      AResultPoints[i] := Point(MaxInt, MaxInt);
     end else begin
       CheckLonLatPosInternal(VPoint);
-      Result[i] := LonLat2PixelPosInternal(VPoint, AZoom);
+      AResultPoints[i] := LonLat2PixelPosInternal(VPoint, AZoom);
     end;
   end;
 end;
