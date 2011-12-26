@@ -53,6 +53,10 @@ type
     procedure OnLineOnMapEditChange; virtual;
     procedure OnConfigChange; virtual;
     procedure DoConfigChange; virtual;
+    function LonLatArrayToVisualFloatArray(
+      const APolygon: TArrayOfDoublePoint;
+      ALocalConverter: ILocalCoordConverter
+    ): TArrayOfDoublePoint;
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter); virtual;
     property BitmapSize: TPoint read FBitmapSize;
     property PointsOnBitmap: TArrayOfDoublePoint read FPointsOnBitmap;
@@ -78,6 +82,7 @@ implementation
 
 uses
   SysUtils,
+  i_CoordConverter,
   u_GeoFun,
   u_NotifyEventListener;
 
@@ -235,6 +240,31 @@ begin
   end;
 end;
 
+function TPolyLineLayerBase.LonLatArrayToVisualFloatArray(
+  const APolygon: TArrayOfDoublePoint;
+  ALocalConverter: ILocalCoordConverter
+): TArrayOfDoublePoint;
+var
+  i: Integer;
+  VPointsCount: Integer;
+  VLonLat: TDoublePoint;
+  VGeoConvert: ICoordConverter;
+begin
+  VPointsCount := Length(APolygon);
+  SetLength(Result, VPointsCount);
+
+  VGeoConvert := ALocalConverter.GetGeoConverter;
+  for i := 0 to VPointsCount - 1 do begin
+    VLonLat := APolygon[i];
+    if PointIsEmpty(VLonLat) then begin
+      Result[i] := VLonLat;
+    end else begin
+      VGeoConvert.CheckLonLatPos(VLonLat);
+      Result[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
+    end;
+  end;
+end;
+
 procedure TPolyLineLayerBase.PreparePolygon(ALocalConverter: ILocalCoordConverter);
 var
   VPointsCount: Integer;
@@ -258,7 +288,7 @@ begin
     Inc(VLocalRect.Right, 10);
     Inc(VLocalRect.Bottom, 10);
     VBitmapClip := TPolygonClipByRect.Create(VLocalRect);
-    FPointsOnBitmap := ALocalConverter.LonLatArrayToVisualFloatArray(FSourcePolygon);
+    FPointsOnBitmap := LonLatArrayToVisualFloatArray(FSourcePolygon, ALocalConverter);
     if FClosed then begin
       SetLength(FPointsOnBitmap,VPointsCount+1);
       FPointsOnBitmap[VPointsCount]:=FPointsOnBitmap[0];
