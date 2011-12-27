@@ -791,7 +791,7 @@ begin
   FTileErrorLogProvider := VLogger;
 
   FGpsPosChangeCounter := 0;
-  FCenterToGPSDelta := DoublePoint(NaN, NaN);
+  FCenterToGPSDelta := CEmptyDoublePoint;
 
   TBSMB.Images := FMapTypeIcons24List.GetImageList;
   TBSMB.SubMenuImages := FMapTypeIcons18List.GetImageList;
@@ -1791,7 +1791,7 @@ begin
   VpPos := VPosition.GetPosParams;
   if (not VpPos^.PositionOK) then begin
     // no position
-    FCenterToGPSDelta := DoublePoint(NaN, NaN);
+    FCenterToGPSDelta := CEmptyDoublePoint;
   end else begin
     // ok
     VGPSLonLat.X := VpPos^.PositionLon;

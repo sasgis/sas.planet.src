@@ -123,7 +123,7 @@ begin
         end;
       end;
       if (GetWord(AStringList[i], ',', 3)='1') and (i>6) then begin
-        VPoint := DoublePoint(NAN, NAN);
+        VPoint := CEmptyDoublePoint;
         SetLength(APoints,length(APoints)+1);
         APoints[length(APoints)-1] := VPoint;
       end;

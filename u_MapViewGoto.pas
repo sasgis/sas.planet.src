@@ -74,7 +74,7 @@ begin
   inherited Create;
   FViewPortState := AViewPortState;
   FChangeNotifier := TJclBaseNotifier.Create;
-  FLastGotoPos := TGotoPosStatic.Create(DoublePoint(NaN, NaN), 0, NaN);
+  FLastGotoPos := TGotoPosStatic.Create(CEmptyDoublePoint, 0, NaN);
 end;
 
 function TMapViewGoto.GetChangeNotifier: IJclNotifier;

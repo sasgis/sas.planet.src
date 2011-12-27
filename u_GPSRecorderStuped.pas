@@ -114,7 +114,8 @@ type
 implementation
 
 uses
-  Math;
+  Math,
+  u_GeoFun;
 
 { TGPSRecorderStuped }
 
@@ -198,8 +199,7 @@ begin
       // check for alloc
       InternalSafeAlloc;
       // add item to array
-      FTrack[FPointsCount].Point.X := NaN;
-      FTrack[FPointsCount].Point.Y := NaN;
+      FTrack[FPointsCount].Point := CEmptyDoublePoint;
       FTrack[FPointsCount].Speed := 0;
       FTrack[FPointsCount].Time := NaN;
       // done
@@ -234,8 +234,7 @@ begin
           FTrack[FPointsCount].Point.X := pPos^.PositionLon;
           FTrack[FPointsCount].Point.Y := pPos^.PositionLat;
         end else begin
-          FTrack[FPointsCount].Point.X := NaN;
-          FTrack[FPointsCount].Point.Y := NaN;
+          FTrack[FPointsCount].Point := CEmptyDoublePoint;
         end;
 
         if pPos^.UTCDateOK and pPos^.UTCTimeOK then begin

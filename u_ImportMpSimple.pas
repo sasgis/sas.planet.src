@@ -72,7 +72,7 @@ begin
     for i := 0 to VCoordList.Count - 1 do begin
       VString := VCoordList[i];
       if VString <> '' then begin
-        VPoint := DoublePoint(NAN, NaN);
+        VPoint := CEmptyDoublePoint;
         VPos := Pos(',', VString);
         if VPos > 0 then begin
           VYStr := LeftStr(VString, VPos - 1);
