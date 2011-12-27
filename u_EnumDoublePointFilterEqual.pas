@@ -31,7 +31,7 @@ uses
 constructor TEnumDoublePointFilterEqual.Create(ASourceEnum: IEnumDoublePoint);
 begin
   FSourceEnum := ASourceEnum;
-  FPrevEmpty := False;
+  FPrevEmpty := True;
   FFinished := False;
 end;
 

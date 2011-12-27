@@ -18,9 +18,9 @@ type
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      ASourceEnum: IEnumDoublePoint;
       AZoom: Byte;
-      AConverter: ICoordConverter
+      AConverter: ICoordConverter;
+      ASourceEnum: IEnumDoublePoint
     );
   end;
 
@@ -33,9 +33,9 @@ uses
 { TEnumDoublePointLonLatToMapPixels }
 
 constructor TEnumDoublePointLonLatToMapPixel.Create(
-  ASourceEnum: IEnumDoublePoint;
   AZoom: Byte;
-  AConverter: ICoordConverter
+  AConverter: ICoordConverter;
+  ASourceEnum: IEnumDoublePoint
 );
 begin
   FSourceEnum := ASourceEnum;

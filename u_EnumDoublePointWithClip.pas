@@ -21,7 +21,9 @@ type
     function GetPointCode(APoint: TDoublePoint): Byte; virtual; abstract;
     function GetIntersectPoint(APrevPoint, ACurrPoint: TDoublePoint): TDoublePoint; virtual; abstract;
   public
-    constructor Create(ASourceEnum: IEnumDoublePoint);
+    constructor Create(
+      ASourceEnum: IEnumDoublePoint
+    );
   end;
 
   TEnumDoublePointClipByVerticalLine = class(TEnumDoublePointClipByLineAbstract)
@@ -31,7 +33,10 @@ type
     function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; override;
     property LineX: Double read FLineX;
   public
-    constructor Create(ASourceEnum: IEnumDoublePoint; AX: Double);
+    constructor Create(
+      AX: Double;
+      ASourceEnum: IEnumDoublePoint
+    );
   end;
 
   TEnumDoublePointClipByLeftBorder = class(TEnumDoublePointClipByVerticalLine)
@@ -51,7 +56,10 @@ type
     function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; override;
     property LineY: Double read FLineY;
   public
-    constructor Create(ASourceEnum: IEnumDoublePoint; AY: Double);
+    constructor Create(
+      AY: Double;
+      ASourceEnum: IEnumDoublePoint
+    );
   end;
 
   TEnumDoublePointClipByTopBorder = class(TEnumDoublePointClipByHorizontalLine)
@@ -70,19 +78,24 @@ type
   private
     function Next(out APoint: TDoublePoint): Boolean;
   public
-    constructor Create(ASourceEnum: IEnumDoublePoint; ARect: TDoubleRect);
+    constructor Create(
+      AClosed: Boolean;
+      ARect: TDoubleRect;
+      ASourceEnum: IEnumDoublePoint
+    );
   end;
 
 implementation
 
 uses
   u_GeoFun,
-  u_EnumDoublePointFilterEqual;
+  u_EnumDoublePointClosePoly;
 
 { TEnumDoublePointClipByLineAbstract }
 
 constructor TEnumDoublePointClipByLineAbstract.Create(
-  ASourceEnum: IEnumDoublePoint);
+  ASourceEnum: IEnumDoublePoint
+);
 begin
   FSourceEnum := ASourceEnum;
   FFinished := False;
@@ -107,8 +120,9 @@ begin
       if FSourceEnum.Next(VCurrPoint) then begin
         VCurrPointCode := GetPointCode(VCurrPoint);
       end else begin
-        VCurrPointCode := 3;
+        APoint := CEmptyDoublePoint;
         FFinished := True;
+        Break;
       end;
       VLineCode := FPrevPointCode * 16 + VCurrPointCode;
       {
@@ -148,6 +162,7 @@ begin
         end;
         $20: begin
           VIntersectPoint := GetIntersectPoint(FPrevPoint, VCurrPoint);
+          APoint := VIntersectPoint;
           FPrevPoint := VCurrPoint;
           FPrevPointCode := VCurrPointCode;
           Break;
@@ -161,7 +176,9 @@ end;
 { TEnumDoublePointClipByVerticalLine }
 
 constructor TEnumDoublePointClipByVerticalLine.Create(
-  ASourceEnum: IEnumDoublePoint; AX: Double);
+  AX: Double;
+  ASourceEnum: IEnumDoublePoint
+);
 begin
   inherited Create(ASourceEnum);
   FLineX := AX;
@@ -211,7 +228,9 @@ end;
 { TEnumDoublePointClipByHorizontalLine }
 
 constructor TEnumDoublePointClipByHorizontalLine.Create(
-  ASourceEnum: IEnumDoublePoint; AY: Double);
+  AY: Double;
+  ASourceEnum: IEnumDoublePoint
+);
 begin
   inherited Create(ASourceEnum);
   FLineY := AY;
@@ -260,24 +279,53 @@ end;
 
 { TEnumDoublePointClipByRect }
 
-constructor TEnumDoublePointClipByRect.Create(ASourceEnum: IEnumDoublePoint; ARect: TDoubleRect);
+constructor TEnumDoublePointClipByRect.Create(
+  AClosed: Boolean;
+  ARect: TDoubleRect;
+  ASourceEnum: IEnumDoublePoint
+);
 begin
-  FEnum :=
-    TEnumDoublePointFilterEqual.Create(
+  if AClosed then begin
+    FEnum :=
+      TEnumDoublePointClosePoly.Create(
+        TEnumDoublePointClipByLeftBorder.Create(
+          ARect.Left,
+          TEnumDoublePointClosePoly.Create(
+            TEnumDoublePointClipByTopBorder.Create(
+              ARect.Top,
+              TEnumDoublePointClosePoly.Create(
+                TEnumDoublePointClipByRightBorder.Create(
+                  ARect.Right,
+                  TEnumDoublePointClosePoly.Create(
+                    TEnumDoublePointClipByBottomBorder.Create(
+                      ARect.Bottom,
+                      TEnumDoublePointClosePoly.Create(
+                        ASourceEnum
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      );
+  end else begin
+    FEnum :=
       TEnumDoublePointClipByLeftBorder.Create(
+        ARect.Left,
         TEnumDoublePointClipByTopBorder.Create(
+          ARect.Top,
           TEnumDoublePointClipByRightBorder.Create(
+            ARect.Right,
             TEnumDoublePointClipByBottomBorder.Create(
-              ASourceEnum,
-              ARect.Bottom
-            ),
-            ARect.Right
-          ),
-          ARect.Top
-        ),
-        ARect.Left
-      )
-    );
+              ARect.Bottom,
+              ASourceEnum
+            )
+          )
+        )
+      );
+  end;
 end;
 
 function TEnumDoublePointClipByRect.Next(out APoint: TDoublePoint): Boolean;
