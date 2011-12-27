@@ -1,0 +1,51 @@
+unit u_EnumDoublePointsByArray;
+
+interface
+
+uses
+  t_GeoTypes,
+  i_EnumDoublePoint;
+
+type
+  TEnumDoublePointsByArray = class(TInterfacedObject, IEnumDoublePoint)
+  private
+    FPoints: PDoublePointArray;
+    FCount: Integer;
+    FIndex: Integer;
+  private
+    function Next(out APoint: TDoublePoint): Boolean;
+  public
+    constructor Create(
+      APoints: PDoublePointArray;
+      ACount: Integer
+    );
+  end;
+
+implementation
+
+uses
+  u_GeoFun;
+
+{ TEnumDoublePointsByArray }
+
+constructor TEnumDoublePointsByArray.Create(APoints: PDoublePointArray;
+  ACount: Integer);
+begin
+  FPoints := APoints;
+  FCount := ACount;
+  FIndex := 0;
+end;
+
+function TEnumDoublePointsByArray.Next(out APoint: TDoublePoint): Boolean;
+begin
+  if FIndex < FCount then begin
+    APoint := FPoints[FIndex];
+    Inc(FIndex);
+    Result := True;
+  end else begin
+    APoint := CEmptyDoublePoint;
+    Result := False;
+  end;
+end;
+
+end.

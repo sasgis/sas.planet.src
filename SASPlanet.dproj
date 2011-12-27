@@ -184,6 +184,7 @@
     <DCCReference Include="i_DownloadResultTextProvider.pas" />
     <DCCReference Include="i_DownloadUIConfig.pas" />
     <DCCReference Include="i_EcwDll.pas" />
+    <DCCReference Include="i_EnumDoublePoint.pas" />
     <DCCReference Include="i_FillingMapColorer.pas" />
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
@@ -534,6 +535,11 @@
     <DCCReference Include="u_DownloadUIConfig.pas" />
     <DCCReference Include="u_EcwDllSimple.pas" />
     <DCCReference Include="u_ECWWrite.pas" />
+    <DCCReference Include="u_EnumDoublePointFilterEqual.pas" />
+    <DCCReference Include="u_EnumDoublePointLonLatToMapPixel.pas" />
+    <DCCReference Include="u_EnumDoublePointMapPixelToLocalPixel.pas" />
+    <DCCReference Include="u_EnumDoublePointsByArray.pas" />
+    <DCCReference Include="u_EnumDoublePointWithClip.pas" />
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
     <DCCReference Include="u_ExportMarks2KML.pas" />
