@@ -24,6 +24,8 @@ type
     procedure OnePoint;
     procedure SimpleIfNeedAddPoint;
     procedure SimpleIfNoAddPoint;
+    procedure WithEmtyAtEnd;
+    procedure TwoPoly;
   end;
 
 implementation
@@ -115,6 +117,70 @@ begin
   CheckTrue(DoublePointsEqual(VPoint, VData[2]));
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
+  CheckFalse(VTestEnum.Next(VPoint));
+end;
+
+procedure TestTEnumDoublePointClosePoly.TwoPoly;
+var
+  VData: TArrayOfDoublePoint;
+  VDataEnum: IEnumDoublePoint;
+  VTestEnum:  IEnumDoublePoint;
+  VPoint: TDoublePoint;
+begin
+  SetLength(VData, 5);
+  VData[0].X := 1;
+  VData[0].Y := 1;
+  VData[1].X := 0;
+  VData[1].Y := 1;
+  VData[2].X := 1;
+  VData[2].Y := 0;
+  VData[3] := CEmptyDoublePoint;
+  VData[4].X := 4;
+  VData[4].Y := 4;
+
+  VDataEnum := TEnumDoublePointsByArray.Create(@VData[0], Length(VData));
+  VTestEnum := TEnumDoublePointClosePoly.Create(VDataEnum);
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[0]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[1]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[2]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[0]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(PointIsEmpty(VPoint));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[4]));
+  CheckFalse(VTestEnum.Next(VPoint));
+end;
+
+procedure TestTEnumDoublePointClosePoly.WithEmtyAtEnd;
+var
+  VData: TArrayOfDoublePoint;
+  VDataEnum: IEnumDoublePoint;
+  VTestEnum:  IEnumDoublePoint;
+  VPoint: TDoublePoint;
+begin
+  SetLength(VData, 4);
+  VData[0].X := 1;
+  VData[0].Y := 1;
+  VData[1].X := 0;
+  VData[1].Y := 1;
+  VData[2].X := 1;
+  VData[2].Y := 0;
+  VData[3] := CEmptyDoublePoint;
+  VDataEnum := TEnumDoublePointsByArray.Create(@VData[0], Length(VData));
+  VTestEnum := TEnumDoublePointClosePoly.Create(VDataEnum);
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[0]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[1]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[2]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[0]));
+  VTestEnum.Next(VPoint);
   CheckFalse(VTestEnum.Next(VPoint));
 end;
 
