@@ -164,6 +164,8 @@ uses
   u_EnumDoublePointWithClip in 'u_EnumDoublePointWithClip.pas',
   u_EnumDoublePointLonLatToMapPixel in 'u_EnumDoublePointLonLatToMapPixel.pas',
   u_EnumDoublePointMapPixelToLocalPixel in 'u_EnumDoublePointMapPixelToLocalPixel.pas',
+  i_DoublePointsAggregator in 'i_DoublePointsAggregator.pas',
+  u_DoublePointsAggregator in 'u_DoublePointsAggregator.pas',
   u_GlobalCahceConfig in 'u_GlobalCahceConfig.pas',
   u_GlobalState in 'u_GlobalState.pas',
   u_GPSState in 'u_GPSState.pas',
