@@ -162,6 +162,8 @@ uses
   u_EnumDoublePointsByArray in 'u_EnumDoublePointsByArray.pas',
   u_EnumDoublePointFilterEqual in 'u_EnumDoublePointFilterEqual.pas',
   u_EnumDoublePointWithClip in 'u_EnumDoublePointWithClip.pas',
+  u_EnumDoublePointFilterFirstPoly in 'u_EnumDoublePointFilterFirstPoly.pas',
+  u_EnumDoublePointClosePoly in 'u_EnumDoublePointClosePoly.pas',
   u_EnumDoublePointLonLatToMapPixel in 'u_EnumDoublePointLonLatToMapPixel.pas',
   u_EnumDoublePointMapPixelToLocalPixel in 'u_EnumDoublePointMapPixelToLocalPixel.pas',
   i_DoublePointsAggregator in 'i_DoublePointsAggregator.pas',
