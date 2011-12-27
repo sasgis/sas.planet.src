@@ -25,6 +25,7 @@ interface
 uses
   SysUtils,
   Types,
+  Math,
   GR32,
   t_GeoTypes,
   i_CoordConverter;
@@ -77,10 +78,10 @@ type
   function GetDegBordersStepByScale(AScale: Integer): TDoublePoint;
   function PointIsEmpty(APoint: TDoublePoint): Boolean;
 
+const
+  CEmptyDoublePoint: TDoublePoint = (X: NAN; Y: NAN);
+  
 implementation
-
-uses
-  Math;
 
 function CalcAngleDelta(ADerg1, ADegr2: Double): Double;
 begin
