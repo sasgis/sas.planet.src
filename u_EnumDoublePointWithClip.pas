@@ -119,54 +119,54 @@ begin
     end else begin
       if FSourceEnum.Next(VCurrPoint) then begin
         VCurrPointCode := GetPointCode(VCurrPoint);
+        VLineCode := FPrevPointCode * 16 + VCurrPointCode;
+        {
+        Код      Стар Нов Выход
+        $00:     вне-вне нет
+        $01:     вне-на  конечная
+        $02:     вне-вну перес,кон
+        $03:     вне-раз конечная
+        $10:     на -вне нет
+        $11:     на -на  конечная
+        $12:     на -вну конечная
+        $13:     на -раз конечная
+        $20:     вну-вне пересечен
+        $21:     вну-на  конечная
+        $22:     вну-вну конечная
+        $23:     вну-раз конечная
+        $30:     раз-вне нет
+        $31:     раз-на конечная
+        $32:     раз-вну конечная
+        $33:     раз-раз нет
+        }
+        case VLineCode of
+          $01, $10, $12, $21, $22, $03, $13, $23, $31, $32: begin
+            APoint := VCurrPoint;
+            FPrevPoint := VCurrPoint;
+            FPrevPointCode := VCurrPointCode;
+            Break;
+          end;
+          $02: begin
+            VIntersectPoint := GetIntersectPoint(FPrevPoint, VCurrPoint);
+            APoint := VIntersectPoint;
+            FPreparedPoint := VCurrPoint;
+            FPreparedPointExists := True;
+            FPrevPoint := VCurrPoint;
+            FPrevPointCode := VCurrPointCode;
+            Break;
+          end;
+          $20: begin
+            VIntersectPoint := GetIntersectPoint(FPrevPoint, VCurrPoint);
+            APoint := VIntersectPoint;
+            FPrevPoint := VCurrPoint;
+            FPrevPointCode := VCurrPointCode;
+            Break;
+          end;
+        end;
       end else begin
         APoint := CEmptyDoublePoint;
         FFinished := True;
         Break;
-      end;
-      VLineCode := FPrevPointCode * 16 + VCurrPointCode;
-      {
-      Код      Стар Нов Выход
-      $00:     вне-вне нет
-      $01:     вне-на  конечная
-      $02:     вне-вну перес,кон
-      $03:     вне-раз конечная
-      $10:     на -вне нет
-      $11:     на -на  конечная
-      $12:     на -вну конечная
-      $13:     на -раз конечная
-      $20:     вну-вне пересечен
-      $21:     вну-на  конечная
-      $22:     вну-вну конечная
-      $23:     вну-раз конечная
-      $30:     раз-вне нет
-      $31:     раз-на конечная
-      $32:     раз-вну конечная
-      $33:     раз-раз нет
-      }
-      case VLineCode of
-        $01, $10, $12, $21, $22, $03, $13, $23, $31, $32: begin
-          APoint := VCurrPoint;
-          FPrevPoint := VCurrPoint;
-          FPrevPointCode := VCurrPointCode;
-          Break;
-        end;
-        $02: begin
-          VIntersectPoint := GetIntersectPoint(FPrevPoint, VCurrPoint);
-          APoint := VIntersectPoint;
-          FPreparedPoint := VCurrPoint;
-          FPreparedPointExists := True;
-          FPrevPoint := VCurrPoint;
-          FPrevPointCode := VCurrPointCode;
-          Break;
-        end;
-        $20: begin
-          VIntersectPoint := GetIntersectPoint(FPrevPoint, VCurrPoint);
-          APoint := VIntersectPoint;
-          FPrevPoint := VCurrPoint;
-          FPrevPointCode := VCurrPointCode;
-          Break;
-        end;
       end;
     end;
   end;

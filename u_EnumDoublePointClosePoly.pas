@@ -63,6 +63,9 @@ begin
             FFirstPoint := VPoint;
             FPointsInPolyCount := 1;
             FLastPointEqualToFirst := True;
+          end else begin
+            FLastPointEqualToFirst := DoublePointsEqual(VPoint, FFirstPoint);
+            Inc(FPointsInPolyCount);
           end;
           APoint := VPoint;
           Result := True;
