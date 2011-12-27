@@ -142,7 +142,7 @@ procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPath(
   AMarkLine: IMarkLine
 );
 var
-  polygon: TPolygon32;
+  VPolygon: TPolygon32;
   i: Integer;
   VPointsCount: Integer;
   VPointsProcessedCount: Integer;
@@ -150,14 +150,14 @@ var
   VGeoConvert: ICoordConverter;
   VIndex: Integer;
   VScale1: Integer;
-  TestArrLenLonLatRect: TDoubleRect;
-  TestArrLenPixelRect: TDoubleRect;
+  VTestArrLenLonLatRect: TDoubleRect;
+  VTestArrLenPixelRect: TDoubleRect;
 begin
   VScale1 := AMarkLine.LineWidth;
-  TestArrLenLonLatRect := AMarkLine.LLRect;
-  ALocalConverter.GetGeoConverter.CheckLonLatRect(TestArrLenLonLatRect);
-  TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
-  if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
+  VTestArrLenLonLatRect := AMarkLine.LLRect;
+  ALocalConverter.GetGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
+  VTestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(VTestArrLenLonLatRect);
+  if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VScale1 + 2) or (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
     VGeoConvert := ALocalConverter.GetGeoConverter;
     VPointsCount := Length(AMarkLine.Points);
     if VPointsCount > 0 then begin
@@ -176,27 +176,27 @@ begin
       try
         VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap[0], VPointsCount, FPathPointsOnBitmapPrepared);
         if VPointsProcessedCount > 0 then begin
-          polygon := TPolygon32.Create;
+          VPolygon := TPolygon32.Create;
           try
-            polygon.Antialiased := true;
-            polygon.AntialiasMode := am4times;
-            polygon.Closed := False;
+            VPolygon.Antialiased := true;
+            VPolygon.AntialiasMode := am4times;
+            VPolygon.Closed := False;
             if Length(FPathFixedPoints) < VPointsProcessedCount then begin
               SetLength(FPathFixedPoints, VPointsProcessedCount);
             end;
             VIndex := 0;
             for i := 0 to VPointsProcessedCount - 1 do begin
               if PointIsEmpty(FPathPointsOnBitmapPrepared[i]) then begin
-                polygon.AddPoints(FPathFixedPoints[0], VIndex);
-                polygon.NewLine;
+                VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
+                VPolygon.NewLine;
                 VIndex := 0;
               end else begin
                 FPathFixedPoints[VIndex] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
                 Inc(VIndex);
               end;
             end;
-            polygon.AddPoints(FPathFixedPoints[0], VIndex);
-            with Polygon.Outline do try
+            VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
+            with VPolygon.Outline do try
               with Grow(GR32.Fixed(AMarkLine.LineWidth / 2), 0.5) do try
                 FillMode := pfWinding;
                 DrawFill(ATargetBmp, AMarkLine.LineColor);
@@ -207,7 +207,7 @@ begin
               free;
             end;
           finally
-            polygon.Free;
+            VPolygon.Free;
           end;
         end;
       except
@@ -222,21 +222,21 @@ procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPoly(
   AMarkPoly: IMarkPoly
 );
 var
-  polygon: TPolygon32;
+  VPolygon: TPolygon32;
   i: Integer;
   VPointsCount: Integer;
   VPointsProcessedCount: Integer;
   VLonLat: TDoublePoint;
   VGeoConvert: ICoordConverter;
   VScale1: Integer;
-  TestArrLenLonLatRect: TDoubleRect;
-  TestArrLenPixelRect: TDoubleRect;
+  VTestArrLenLonLatRect: TDoubleRect;
+  VTestArrLenPixelRect: TDoubleRect;
 begin
   VScale1 := AMarkPoly.LineWidth;
-  TestArrLenLonLatRect := AMarkPoly.LLRect;
-  ALocalConverter.GetGeoConverter.CheckLonLatRect(TestArrLenLonLatRect);
-  TestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(TestArrLenLonLatRect);
-  if (abs(TestArrLenPixelRect.Left - TestArrLenPixelRect.Right) > VScale1 + 2) or (abs(TestArrLenPixelRect.Top - TestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
+  VTestArrLenLonLatRect := AMarkPoly.LLRect;
+  ALocalConverter.GetGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
+  VTestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(VTestArrLenLonLatRect);
+  if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VScale1 + 2) or (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
     VGeoConvert := ALocalConverter.GetGeoConverter;
     VPointsCount := Length(AMarkPoly.Points);
     if VPointsCount > 0 then begin
@@ -251,20 +251,20 @@ begin
       try
         VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap[0], VPointsCount, FPathPointsOnBitmapPrepared);
         if VPointsProcessedCount > 0 then begin
-          polygon := TPolygon32.Create;
+          VPolygon := TPolygon32.Create;
           try
-            polygon.Antialiased := true;
-            polygon.AntialiasMode := am4times;
-            polygon.Closed := True;
+            VPolygon.Antialiased := true;
+            VPolygon.AntialiasMode := am4times;
+            VPolygon.Closed := True;
               if Length(FPathFixedPoints) < VPointsProcessedCount then begin
                 SetLength(FPathFixedPoints, VPointsProcessedCount);
               end;
               for i := 0 to VPointsProcessedCount - 1 do begin
                 FPathFixedPoints[i] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
               end;
-              polygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
-              Polygon.DrawFill(ATargetBmp, AMarkPoly.FillColor);
-              with Polygon.Outline do try
+              VPolygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
+              VPolygon.DrawFill(ATargetBmp, AMarkPoly.FillColor);
+              with VPolygon.Outline do try
                 with Grow(GR32.Fixed(AMarkPoly.LineWidth / 2), 0.5) do try
                   FillMode := pfWinding;
                   DrawFill(ATargetBmp, AMarkPoly.BorderColor);
@@ -275,7 +275,7 @@ begin
                 free;
               end;
           finally
-            polygon.Free;
+            VPolygon.Free;
           end;
         end;
       except
