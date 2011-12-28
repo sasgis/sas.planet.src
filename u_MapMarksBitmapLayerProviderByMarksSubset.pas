@@ -34,8 +34,8 @@ uses
   i_MarksDrawConfig,
   i_MarkPicture,
   i_MarksSimple,
-  i_BitmapLayerProvider,
-  u_ClipPolygonByRect;
+  i_DoublePointsAggregator,
+  i_BitmapLayerProvider;
 
 type
   TMapMarksBitmapLayerProviderByMarksSubset = class(TInterfacedObject, IBitmapLayerProvider)
@@ -43,13 +43,11 @@ type
     FConfig: IMarksDrawConfigStatic;
     FMarksSubset: IMarksSubset;
     FBaseConverter: ILocalCoordConverter;
-    FBitmapClip: IPolygonClip;
 
 
     FTempBmp: TCustomBitmap32;
     FBitmapWithText: TBitmap32;
-    FPathPointsOnBitmap: TArrayOfDoublePoint;
-    FPathPointsOnBitmapPrepared: TArrayOfDoublePoint;
+    FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FPathFixedPoints: TArrayOfFixedPoint;
     function DrawSubset(
       AOperationID: Integer;
@@ -98,6 +96,14 @@ uses
   GR32_Resamplers,
   GR32_Polygons,
   i_BitmapMarker,
+  i_EnumDoublePoint,
+  u_DoublePointsAggregator,
+  u_EnumDoublePointsByArray,
+  u_EnumDoublePointLonLatToMapPixel,
+  u_EnumDoublePointMapPixelToLocalPixel,
+  u_EnumDoublePointWithClip,
+  u_EnumDoublePointFilterFirstPoly,
+  u_EnumDoublePointFilterEqual,
   u_GeoFun;
 
 const
@@ -127,10 +133,13 @@ begin
   FBitmapWithText.CombineMode := cmMerge;
   FBitmapWithText.Font.Size := CMaxFontSize;
   FBitmapWithText.Resampler := TLinearResampler.Create;
+
+  FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
 end;
 
 destructor TMapMarksBitmapLayerProviderByMarksSubset.Destroy;
 begin
+  FPreparedPointsAggreagtor := nil;
   FreeAndNil(FTempBmp);
   FreeAndNil(FBitmapWithText);
   inherited;
@@ -146,35 +155,53 @@ var
   i: Integer;
   VPointsCount: Integer;
   VPointsProcessedCount: Integer;
-  VLonLat: TDoublePoint;
-  VGeoConvert: ICoordConverter;
   VIndex: Integer;
   VScale1: Integer;
   VTestArrLenLonLatRect: TDoubleRect;
   VTestArrLenPixelRect: TDoubleRect;
+  VEnum: IEnumDoublePoint;
+  VRectWithDelta: TDoubleRect;
+  VLocalRect: TDoubleRect;
+  VPoint: TDoublePoint;
 begin
   VScale1 := AMarkLine.LineWidth;
   VTestArrLenLonLatRect := AMarkLine.LLRect;
   ALocalConverter.GetGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
   VTestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(VTestArrLenLonLatRect);
   if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VScale1 + 2) or (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-    VGeoConvert := ALocalConverter.GetGeoConverter;
     VPointsCount := Length(AMarkLine.Points);
     if VPointsCount > 0 then begin
-      if Length(FPathPointsOnBitmap) < VPointsCount then begin
-        SetLength(FPathPointsOnBitmap, VPointsCount);
-      end;
-      for i := 0 to VPointsCount - 1 do begin
-        VLonLat := AMarkLine.Points[i];
-        if PointIsEmpty(VLonLat) then begin
-          FPathPointsOnBitmap[i] := VLonLat;
-        end else begin
-          VGeoConvert.CheckLonLatPos(VLonLat);
-          FPathPointsOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
-        end;
+      VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
+      VRectWithDelta.Left := VLocalRect.Left - 10;
+      VRectWithDelta.Top := VLocalRect.Top - 10;
+      VRectWithDelta.Right := VLocalRect.Right + 10;
+      VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+      VEnum :=
+        TEnumDoublePointFilterEqual.Create(
+          TEnumDoublePointClipByRect.Create(
+            False,
+            VRectWithDelta,
+            TEnumDoublePointMapPixelToLocalPixel.Create(
+              ALocalConverter,
+              TEnumDoublePointFilterEqual.Create(
+                TEnumDoublePointLonLatToMapPixel.Create(
+                  ALocalConverter.GetZoom,
+                  ALocalConverter.GetGeoConverter,
+                  TEnumDoublePointsByArray.Create(
+                    @(AMarkLine.Points[0]),
+                    VPointsCount
+                  )
+                )
+              )
+            )
+          )
+        );
+      FPreparedPointsAggreagtor.Clear;
+      while VEnum.Next(VPoint) do begin
+        FPreparedPointsAggreagtor.Add(VPoint);
       end;
       try
-        VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap[0], VPointsCount, FPathPointsOnBitmapPrepared);
+        VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
         if VPointsProcessedCount > 0 then begin
           VPolygon := TPolygon32.Create;
           try
@@ -186,12 +213,13 @@ begin
             end;
             VIndex := 0;
             for i := 0 to VPointsProcessedCount - 1 do begin
-              if PointIsEmpty(FPathPointsOnBitmapPrepared[i]) then begin
+              VPoint := FPreparedPointsAggreagtor.Points[i];
+              if PointIsEmpty(VPoint) then begin
                 VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
                 VPolygon.NewLine;
                 VIndex := 0;
               end else begin
-                FPathFixedPoints[VIndex] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
+                FPathFixedPoints[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
                 Inc(VIndex);
               end;
             end;
@@ -226,30 +254,54 @@ var
   i: Integer;
   VPointsCount: Integer;
   VPointsProcessedCount: Integer;
-  VLonLat: TDoublePoint;
-  VGeoConvert: ICoordConverter;
   VScale1: Integer;
   VTestArrLenLonLatRect: TDoubleRect;
   VTestArrLenPixelRect: TDoubleRect;
+  VEnum: IEnumDoublePoint;
+  VRectWithDelta: TDoubleRect;
+  VLocalRect: TDoubleRect;
+  VPoint: TDoublePoint;
 begin
   VScale1 := AMarkPoly.LineWidth;
   VTestArrLenLonLatRect := AMarkPoly.LLRect;
   ALocalConverter.GetGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
   VTestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(VTestArrLenLonLatRect);
   if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VScale1 + 2) or (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-    VGeoConvert := ALocalConverter.GetGeoConverter;
     VPointsCount := Length(AMarkPoly.Points);
     if VPointsCount > 0 then begin
-      if Length(FPathPointsOnBitmap) < VPointsCount then begin
-        SetLength(FPathPointsOnBitmap, VPointsCount);
-      end;
-      for i := 0 to VPointsCount - 1 do begin
-        VLonLat := AMarkPoly.Points[i];
-        VGeoConvert.CheckLonLatPos(VLonLat);
-        FPathPointsOnBitmap[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
+      VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
+      VRectWithDelta.Left := VLocalRect.Left - 10;
+      VRectWithDelta.Top := VLocalRect.Top - 10;
+      VRectWithDelta.Right := VLocalRect.Right + 10;
+      VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+      VEnum :=
+        TEnumDoublePointFilterEqual.Create(
+          TEnumDoublePointClipByRect.Create(
+            True,
+            VRectWithDelta,
+            TEnumDoublePointMapPixelToLocalPixel.Create(
+              ALocalConverter,
+              TEnumDoublePointFilterEqual.Create(
+                TEnumDoublePointLonLatToMapPixel.Create(
+                  ALocalConverter.GetZoom,
+                  ALocalConverter.GetGeoConverter,
+                  TEnumDoublePointFilterFirstPoly.Create(
+                    TEnumDoublePointsByArray.Create(
+                      @(AMarkPoly.Points[0]),
+                      VPointsCount
+                    )
+                  )
+                )
+              )
+            )
+          )
+        );
+      FPreparedPointsAggreagtor.Clear;
+      while VEnum.Next(VPoint) do begin
+        FPreparedPointsAggreagtor.Add(VPoint);
       end;
       try
-        VPointsProcessedCount := FBitmapClip.Clip(FPathPointsOnBitmap[0], VPointsCount, FPathPointsOnBitmapPrepared);
+        VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
         if VPointsProcessedCount > 0 then begin
           VPolygon := TPolygon32.Create;
           try
@@ -260,7 +312,8 @@ begin
                 SetLength(FPathFixedPoints, VPointsProcessedCount);
               end;
               for i := 0 to VPointsProcessedCount - 1 do begin
-                FPathFixedPoints[i] := FixedPoint(FPathPointsOnBitmapPrepared[i].X, FPathPointsOnBitmapPrepared[i].Y);
+                VPoint := FPreparedPointsAggreagtor.Points[i];
+                FPathFixedPoints[i] := FixedPoint(VPoint.X, VPoint.Y);
               end;
               VPolygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
               VPolygon.DrawFill(ATargetBmp, AMarkPoly.FillColor);
@@ -449,9 +502,7 @@ begin
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTargetRect, VZoom);
   VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
 
-  FBitmapClip := TPolygonClipByRect.Create(VRectWithDelta);
   Result := DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, ATargetBmp, ALocalConverter);
-  FBitmapClip := nil;
 end;
 
 end.
