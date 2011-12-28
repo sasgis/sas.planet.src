@@ -76,6 +76,8 @@ uses
   i_TTLCheckListener in 'i_TTLCheckListener.pas',
   i_TileObjCache in 'i_TileObjCache.pas',
   u_MemTileCache in 'u_MemTileCache.pas',
+  i_VectorItems in 'i_VectorItems.pas',
+  i_VectorItmesFactory in 'i_VectorItmesFactory.pas',
   i_HtmlToHintTextConverter in 'i_HtmlToHintTextConverter.pas',
   u_HtmlToHintTextConverterStuped in 'u_HtmlToHintTextConverterStuped.pas',
   i_ContentTypeSubst in 'i_ContentTypeSubst.pas',

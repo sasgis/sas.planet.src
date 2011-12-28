@@ -350,6 +350,8 @@
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_VectorDataItemSimple.pas" />
     <DCCReference Include="i_VectorDataLoader.pas" />
+    <DCCReference Include="i_VectorItems.pas" />
+    <DCCReference Include="i_VectorItmesFactory.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="i_ZmpConfig.pas" />
     <DCCReference Include="i_ZmpInfo.pas" />
