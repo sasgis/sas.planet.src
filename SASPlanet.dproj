@@ -559,6 +559,9 @@
     <DCCReference Include="u_GeoCoderBasic.pas" />
     <DCCReference Include="u_GeoCoderBy2GIS.pas" />
     <DCCReference Include="u_GeoCoderByGoogle.pas" />
+    <DCCReference Include="u_GeoCoderByNavitel.pas" />
+    <DCCReference Include="u_GeoCoderByRosreestr.pas" />
+    <DCCReference Include="u_GeoCoderByWikimapia.pas" />
     <DCCReference Include="u_GeoCoderByYandex.pas" />
     <DCCReference Include="u_GeoCodeResult.pas" />
     <DCCReference Include="u_GeoCoderListBase.pas" />
@@ -826,6 +829,7 @@
     <DCCReference Include="u_VectorDataItemPoint.pas" />
     <DCCReference Include="u_VectorDataItemPolygon.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
+    <DCCReference Include="u_XmlInfoSimpleParser.pas" />
     <DCCReference Include="u_ZmpConfig.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
     <DCCReference Include="u_ZmpInfo.pas" />
