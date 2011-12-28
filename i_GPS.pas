@@ -23,7 +23,6 @@ unit i_GPS;
 interface
 
 uses
-  t_GeoTypes,
   vsagps_public_base,
   vsagps_public_position;
 

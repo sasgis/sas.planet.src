@@ -24,7 +24,6 @@ interface
 
 uses
   SysUtils,
-  t_GeoTypes,
   vsagps_public_base,
   vsagps_public_position,
   i_GPS;

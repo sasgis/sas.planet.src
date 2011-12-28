@@ -52,7 +52,6 @@ type
 implementation
 
 uses
-  Math,
   u_VectorDataItemList,
   u_VectorDataItemPolygon,
   u_GeoFun,

@@ -61,9 +61,7 @@ type
 implementation
 
 uses
-  StrUtils,
   cUnicodeCodecs,
-  u_VectorDataItemBase,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon,
   u_VectorDataItemList,

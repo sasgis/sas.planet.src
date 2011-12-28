@@ -3,7 +3,6 @@ unit u_TimeZoneDiffByLonLatStuped;
 interface
 
 uses
-  Contnrs,
   Classes,
   t_GeoTypes,
   i_TimeZoneList,

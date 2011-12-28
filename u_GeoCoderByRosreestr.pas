@@ -24,14 +24,12 @@ interface
 
 uses
   Classes,
-  forms,
-  u_GeoTostr,
   XMLIntf,
-  msxmldom,
   XMLDoc,
+  msxmldom,
   i_CoordConverter,
-  u_GeoCoderBasic,
-  u_CoordConverterAbstract;
+  u_GeoTostr,
+  u_GeoCoderBasic;
 
 type
   TGeoCoderByRosreestr = class(TGeoCoderBasic)
@@ -46,13 +44,11 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  RegExpr,
   t_GeoTypes,
   i_GeoCoder,
   u_ResStrings,
-  dialogs,
-  u_GeoCodePlacemark,
-  Math,
-  RegExpr;
+  u_GeoCodePlacemark;
 
 { TGeoCoderByRosreestr }
 procedure meters_to_lonlat( in_x,in_y : Double; var outout : TDoublePoint);

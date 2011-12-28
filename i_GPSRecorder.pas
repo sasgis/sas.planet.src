@@ -25,9 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_GPS,
-  i_ConfigDataElement,
-  vsagps_public_base,
-  vsagps_public_position;
+  i_ConfigDataElement;
 
 type
   TGPSTrackPoint = record

@@ -34,7 +34,6 @@ uses
   ExtCtrls,
   Buttons,
   GR32,
-  t_GeoTypes,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   u_ResStrings,

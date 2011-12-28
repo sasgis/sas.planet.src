@@ -265,7 +265,6 @@ uses
   i_GPS,
   u_ResStrings,
   u_GeoToStr,
-  t_GeoTypes,
   vsagps_public_base,
   vsagps_public_position,
   vsagps_public_time;

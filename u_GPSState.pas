@@ -30,7 +30,6 @@ uses
   i_JclListenerNotifierLinksList,
   i_GPSRecorder,
   i_GPSConfig,
-  i_TrackWriter,
   i_InternalPerformanceCounter,
   i_GPSModuleByCOMFactory,
   i_GPSModuleByCOM;

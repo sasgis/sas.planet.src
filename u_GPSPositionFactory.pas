@@ -24,7 +24,6 @@ interface
 
 uses
   ActiveX,
-  t_GeoTypes,
   i_GPSPositionFactory,
   i_GPS,
   vsagps_public_base,

@@ -6,7 +6,6 @@ uses
   SyncObjs,
   SysUtils,
   uPSUtils,
-  i_ConfigDataProvider,
   i_CoordConverter,
   i_LanguageManager,
   i_Downloader,

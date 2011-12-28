@@ -36,7 +36,6 @@ uses
 {$if defined(VSAGPS_AS_DLL)}
   vsagps_public_dll,
 {$else}
-  vsagps_tools,
   vsagps_memory,
   vsagps_object,
   vsagps_track_writer,
@@ -157,7 +156,7 @@ type
 implementation
 
 uses
-  StrUtils,
+  
   DateUtils,
   Math,
   u_ResStrings,

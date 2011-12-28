@@ -12,7 +12,6 @@ uses
   i_BitmapLayerProvider,
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
-  u_GeoFun,
   t_GeoTypes,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
@@ -46,8 +45,7 @@ type
 implementation
 
 uses
-  gnugettext,
-  i_LocalCoordConverter;
+  gnugettext;
 
 type
   my_dest_mgr_ptr = ^my_dest_mgr;

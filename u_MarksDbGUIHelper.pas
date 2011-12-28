@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   Classes,
-  ComCtrls,
   t_GeoTypes,
   i_LanguageManager,
   i_CoordConverter,

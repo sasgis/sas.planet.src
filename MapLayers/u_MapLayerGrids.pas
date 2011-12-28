@@ -50,7 +50,6 @@ uses
   i_CoordConverter,
   u_GeoFun,
   u_NotifyEventListener,
-  u_ValueToStringConverter,
   u_GeoToStr;
 
 

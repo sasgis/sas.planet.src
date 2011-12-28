@@ -26,7 +26,6 @@ uses
   Windows,
   ActiveX,
   Classes,
-  SyncObjs,
   i_JclNotify,
   t_GeoTypes,
   i_GPS,

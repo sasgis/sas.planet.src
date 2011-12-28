@@ -55,7 +55,6 @@ uses
   i_ZmpInfo,
   i_InvisibleBrowser,
   i_MapTypeGUIConfig,
-  i_ProxySettings,
   i_CoordConverterFactory,
   i_MainMemCacheConfig,
   i_TileFileNameGeneratorsList,

@@ -12,7 +12,6 @@ uses
   i_BitmapLayerProvider,
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
-  u_GeoFun,
   t_GeoTypes,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
@@ -48,8 +47,7 @@ type
 implementation
 
 uses
-  gnugettext,
-  i_LocalCoordConverter;
+  gnugettext;
 
 type
   sas_png_rw_io_ptr = ^sas_png_rw_io;

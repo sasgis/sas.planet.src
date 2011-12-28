@@ -28,8 +28,7 @@ uses
   Classes,
   SysUtils,
   i_GPS,
-  vsagps_public_base,
-  vsagps_public_position;
+  vsagps_public_base;
 
 type
   TGPSSatellitesInView = class(TInterfacedObject, IGPSSatellitesInView)

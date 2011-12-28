@@ -12,7 +12,6 @@ uses
   i_BitmapLayerProvider,
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
-  u_GeoFun,
   t_GeoTypes,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
@@ -50,7 +49,7 @@ implementation
 uses
   KAZip,
   i_CoordConverter,
-  i_LocalCoordConverter,
+  
   u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(

@@ -52,7 +52,6 @@ implementation
 
 uses
   i_Downloader,
-  i_TileDownloadRequestBuilder,
   u_JclNotify,
   u_NotifyEventListener,
   u_LastResponseInfo,

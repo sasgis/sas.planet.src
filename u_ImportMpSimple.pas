@@ -39,7 +39,6 @@ implementation
 
 uses
   Classes,
-  Math,
   SysUtils,
   StrUtils,
   i_MarksSimple,

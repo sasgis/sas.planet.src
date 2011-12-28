@@ -28,7 +28,6 @@ uses
   Messages,
   SysUtils,
   Forms,
-  Math,
   ShellApi,
   Classes,
   Menus,

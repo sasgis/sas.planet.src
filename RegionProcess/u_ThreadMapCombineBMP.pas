@@ -8,7 +8,6 @@ uses
   SysUtils,
   Classes,
   GR32,
-  u_GeoFun,
   u_ResStrings,
   u_ThreadMapCombineBase,
   LibBMP;
@@ -22,8 +21,7 @@ type
 implementation
 
 uses
-  gnugettext,
-  i_LocalCoordConverter;
+  gnugettext;
 
 procedure TThreadMapCombineBMP.SaveRect;
 const
