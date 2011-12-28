@@ -184,7 +184,7 @@ begin
         $33:
         }
         case VLineCode of
-          $01, $10, $12, $21, $22, $03, $13, $23, $31, $32: begin
+          $01, $12, $21, $22, $03, $13, $23, $31, $32: begin
             AppendPointToResult(VCurrPoint, AResultPoints, Result, VOutPointsCapacity);
           end;
           $02: begin
