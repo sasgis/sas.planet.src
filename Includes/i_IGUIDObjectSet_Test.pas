@@ -1,4 +1,5 @@
-unit i_IGUIDList_Test;
+unit i_IGUIDObjectSet_Test;
+
 {
 
   Delphi DUnit Test Case
@@ -10,14 +11,21 @@ interface
 uses
   ActiveX,
   TestFramework,
-  i_IGUIDList;
+  i_GUIDSet;
 type
-  // Test methods for interface IGUIDList
+  // Test methods for interface IGUIDObjectSet
 
-  TestIGUIDInterfaceList = class(TTestCase)
+  TestIGUIDObjectSet = class(TTestCase)
   protected
-    FGUIDList: IGUIDInterfaceList;
+    FGUIDList: IGUIDObjectSet;
+    FG1: TObject;
+    FG2: TObject;
+    FG3: TObject;
+    FG4: TObject;
+    FG5: TObject;
+    FG6: TObject;
   public
+    procedure SetUp; override;
     procedure TearDown; override;
   published
     procedure TestAdd;
@@ -35,19 +43,12 @@ uses
   SysUtils;
 
 type
-  ISimple = interface(IInterface)
-    function GetGUID(): TGUID;
-    function GetCounter(): integer;
-    property Counter: integer read GetCounter;
-  end;
-
-  TSimple = class(TInterfacedObject, ISimple, IInterface)
+  TSimple = class
   protected
     FGUID: TGUID;
   public
     constructor Create(AGUID: TGUID);
     function GetGUID(): TGUID;
-    function GetCounter(): integer;
   end;
 
 { TSimple }
@@ -55,11 +56,6 @@ type
 constructor TSimple.Create(AGUID: TGUID);
 begin
   FGUID := AGUID;
-end;
-
-function TSimple.GetCounter: integer;
-begin
-  Result := FRefCount;
 end;
 
 function TSimple.GetGUID: TGUID;
@@ -77,57 +73,107 @@ const
   G7: TGUID = '{F81CCA0A-D467-4962-A9F7-2A50B4BFDD47}';
 
 
-{ TestIGUIDList }
+{ TestIGUIDObjectSet }
 
-procedure TestIGUIDInterfaceList.TearDown;
+procedure TestIGUIDObjectSet.SetUp;
 begin
+  inherited;
+  FG1 := TSimple.Create(G1);
+  FG2 := TSimple.Create(G2);
+  FG3 := TSimple.Create(G3);
+  FG4 := TSimple.Create(G4);
+  FG5 := TSimple.Create(G5);
+  FG6 := TSimple.Create(G6);
+end;
+
+procedure TestIGUIDObjectSet.TearDown;
+begin
+  FG1.Free;
+  FG2.Free;
+  FG3.Free;
+  FG4.Free;
+  FG5.Free;
+  FG6.Free;
   FGUIDList := nil;
 end;
 
-procedure TestIGUIDInterfaceList.TestAdd;
+procedure TestIGUIDObjectSet.TestAdd;
 var
-  VSource: IInterface;
-  VResult: IInterface;
+  VResult: TObject;
+  VSource: TObject;
 begin
-  VSource := TSimple.Create(G1);
-  VResult := FGUIDList.Add(G1, VSource);
+  VResult := FGUIDList.Add(G1, FG1);
   Check(FGUIDList.Count = 1, 'После добавления должно быть элементов: 1');
-  Check(VResult = VSource, 'После добавления функция Add должна вернуть добавленный объект');
-  FGUIDList.Add(G2, TSimple.Create(G2));
+  Check(VResult = FG1, 'После добавления функция Add должна вернуть добавленный объект');
+
+  FGUIDList.Add(G2, FG2);
   Check(FGUIDList.Count = 2, 'После добавления должно быть элементов: 2');
-  FGUIDList.Add(G3, TSimple.Create(G3));
+
+  FGUIDList.Add(G3, FG3);
   Check(FGUIDList.Count = 3, 'После добавления должно быть элементов: 3');
-  FGUIDList.Add(G4, TSimple.Create(G4));
+
+  FGUIDList.Add(G4, FG4);
   Check(FGUIDList.Count = 4, 'После добавления должно быть элементов: 4');
-  FGUIDList.Add(G5, TSimple.Create(G5));
+
+  FGUIDList.Add(G5, FG5);
   Check(FGUIDList.Count = 5, 'После добавления должно быть элементов: 5');
-  FGUIDList.Add(G6, TSimple.Create(G6));
+
+  FGUIDList.Add(G6, FG6);
   Check(FGUIDList.Count = 6, 'После добавления должно быть элементов: 6');
 
-  VResult := FGUIDList.Add(G1, TSimple.Create(G2));
-  Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
-  Check(VResult = VSource, 'Должно вернуть старый объект');
-
-  FGUIDList.Add(G2, TSimple.Create(G3));
-  Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
-  FGUIDList.Add(G3, TSimple.Create(G4));
-  Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
-  FGUIDList.Add(G4, TSimple.Create(G5));
-  Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
-  FGUIDList.Add(G5, TSimple.Create(G6));
-  Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
-  FGUIDList.Add(G6, TSimple.Create(G1));
-  Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+  VSource := TSimple.Create(G2);
+  try
+    VResult := FGUIDList.Add(G1, VSource);
+    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+    Check(VResult = FG1, 'Должно вернуть старый объект');
+  finally
+    VSource.Free;
+  end;
+  VSource := TSimple.Create(G3);
+  try
+    FGUIDList.Add(G2, VSource);
+    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+  finally
+    VSource.Free;
+  end;
+  VSource := TSimple.Create(G4);
+  try
+    FGUIDList.Add(G3, VSource);
+    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+  finally
+    VSource.Free;
+  end;
+  VSource := TSimple.Create(G5);
+  try
+    FGUIDList.Add(G4, VSource);
+    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+  finally
+    VSource.Free;
+  end;
+  VSource := TSimple.Create(G6);
+  try
+    FGUIDList.Add(G5, VSource);
+    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+  finally
+    VSource.Free;
+  end;
+  VSource := TSimple.Create(G1);
+  try
+    FGUIDList.Add(G6, VSource);
+    Check(FGUIDList.Count = 6, 'После добавления неунинкального количество меняться не должно');
+  finally
+    VSource.Free;
+  end;
 end;
 
-procedure TestIGUIDInterfaceList.TestIsExists;
+procedure TestIGUIDObjectSet.TestIsExists;
 begin
-  FGUIDList.Add(G6, TSimple.Create(G6));
-  FGUIDList.Add(G1, TSimple.Create(G1));
-  FGUIDList.Add(G5, TSimple.Create(G5));
-  FGUIDList.Add(G2, TSimple.Create(G2));
-  FGUIDList.Add(G4, TSimple.Create(G4));
-  FGUIDList.Add(G3, TSimple.Create(G3));
+  FGUIDList.Add(G6, FG6);
+  FGUIDList.Add(G1, FG1);
+  FGUIDList.Add(G5, FG5);
+  FGUIDList.Add(G2, FG2);
+  FGUIDList.Add(G4, FG4);
+  FGUIDList.Add(G3, FG3);
 
   Check(FGUIDList.IsExists(G1), 'Ошбка проверки наличия элемента G1');
   Check(FGUIDList.IsExists(G2), 'Ошбка проверки наличия элемента G2');
@@ -138,143 +184,143 @@ begin
   Check(not FGUIDList.IsExists(G7), 'Ошбка проверки наличия элемента G7');
 end;
 
-procedure TestIGUIDInterfaceList.TestGetByGUID;
+procedure TestIGUIDObjectSet.TestGetByGUID;
 var
-  VI: ISimple;
+  VI: TSimple;
 begin
-  FGUIDList.Add(G6, TSimple.Create(G6));
-  FGUIDList.Add(G1, TSimple.Create(G1));
-  FGUIDList.Add(G5, TSimple.Create(G5));
-  FGUIDList.Add(G2, TSimple.Create(G2));
-  FGUIDList.Add(G4, TSimple.Create(G4));
-  FGUIDList.Add(G3, TSimple.Create(G3));
+  FGUIDList.Add(G6, FG6);
+  FGUIDList.Add(G1, FG1);
+  FGUIDList.Add(G5, FG5);
+  FGUIDList.Add(G2, FG2);
+  FGUIDList.Add(G4, FG4);
+  FGUIDList.Add(G3, FG3);
 
-  VI := ISimple(FGUIDList.GetByGUID(G1));
+  VI := TSimple(FGUIDList.GetByGUID(G1));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G1), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G2));
+  VI := TSimple(FGUIDList.GetByGUID(G2));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G2), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G3));
+  VI := TSimple(FGUIDList.GetByGUID(G3));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G3), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G4));
+  VI := TSimple(FGUIDList.GetByGUID(G4));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G4), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G5));
+  VI := TSimple(FGUIDList.GetByGUID(G5));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G5), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G6));
+  VI := TSimple(FGUIDList.GetByGUID(G6));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G6), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G7));
+  VI := TSimple(FGUIDList.GetByGUID(G7));
   Check(VI = nil, 'Найден элемент, которого быть не должно было');
 
 end;
 
-procedure TestIGUIDInterfaceList.TestReplace;
+procedure TestIGUIDObjectSet.TestReplace;
 var
-  VI: ISimple;
+  VI: TSimple;
 begin
-  FGUIDList.Add(G6, TSimple.Create(G6));
-  FGUIDList.Add(G1, TSimple.Create(G1));
-  FGUIDList.Add(G5, TSimple.Create(G5));
-  FGUIDList.Add(G2, TSimple.Create(G2));
-  FGUIDList.Add(G4, TSimple.Create(G4));
-  FGUIDList.Add(G3, TSimple.Create(G3));
+  FGUIDList.Add(G6, FG6);
+  FGUIDList.Add(G1, FG1);
+  FGUIDList.Add(G5, FG5);
+  FGUIDList.Add(G2, FG2);
+  FGUIDList.Add(G4, FG4);
+  FGUIDList.Add(G3, FG3);
 
-  FGUIDList.Replace(G1, TSimple.Create(G2));
-  FGUIDList.Replace(G2, TSimple.Create(G3));
-  FGUIDList.Replace(G3, TSimple.Create(G4));
-  FGUIDList.Replace(G4, TSimple.Create(G5));
-  FGUIDList.Replace(G5, TSimple.Create(G6));
-  FGUIDList.Replace(G6, TSimple.Create(G1));
+  FGUIDList.Replace(G1, FG2);
+  FGUIDList.Replace(G2, FG3);
+  FGUIDList.Replace(G3, FG4);
+  FGUIDList.Replace(G4, FG5);
+  FGUIDList.Replace(G5, FG6);
+  FGUIDList.Replace(G6, FG1);
 
-  VI := ISimple(FGUIDList.GetByGUID(G1));
+  VI := TSimple(FGUIDList.GetByGUID(G1));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G2), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G2));
+  VI := TSimple(FGUIDList.GetByGUID(G2));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G3), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G3));
+  VI := TSimple(FGUIDList.GetByGUID(G3));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G4), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G4));
+  VI := TSimple(FGUIDList.GetByGUID(G4));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G5), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G5));
+  VI := TSimple(FGUIDList.GetByGUID(G5));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G6), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G6));
+  VI := TSimple(FGUIDList.GetByGUID(G6));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G1), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G7));
+  VI := TSimple(FGUIDList.GetByGUID(G7));
   Check(VI = nil, 'Найден элемент, которого быть не должно было');
 end;
 
-procedure TestIGUIDInterfaceList.TestRemove;
+procedure TestIGUIDObjectSet.TestRemove;
 var
-  VI: ISimple;
+  VI: TSimple;
 begin
 
-  FGUIDList.Add(G6, TSimple.Create(G6));
-  FGUIDList.Add(G1, TSimple.Create(G1));
-  FGUIDList.Add(G5, TSimple.Create(G5));
-  FGUIDList.Add(G2, TSimple.Create(G2));
-  FGUIDList.Add(G4, TSimple.Create(G4));
-  FGUIDList.Add(G3, TSimple.Create(G3));
+  FGUIDList.Add(G6, FG6);
+  FGUIDList.Add(G1, FG1);
+  FGUIDList.Add(G5, FG5);
+  FGUIDList.Add(G2, FG2);
+  FGUIDList.Add(G4, FG4);
+  FGUIDList.Add(G3, FG3);
 
   FGUIDList.Remove(G1);
   FGUIDList.Remove(G3);
   FGUIDList.Remove(G5);
 
-  VI := ISimple(FGUIDList.GetByGUID(G1));
+  VI := TSimple(FGUIDList.GetByGUID(G1));
   Check(VI = nil, 'Найден элемент, которого быть не должно было');
 
-  VI := ISimple(FGUIDList.GetByGUID(G2));
+  VI := TSimple(FGUIDList.GetByGUID(G2));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G2), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G3));
+  VI := TSimple(FGUIDList.GetByGUID(G3));
   Check(VI = nil, 'Найден элемент, которого быть не должно было');
 
-  VI := ISimple(FGUIDList.GetByGUID(G4));
+  VI := TSimple(FGUIDList.GetByGUID(G4));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G4), 'Найден ошибочный элемент');
 
-  VI := ISimple(FGUIDList.GetByGUID(G5));
+  VI := TSimple(FGUIDList.GetByGUID(G5));
   Check(VI = nil, 'Найден элемент, которого быть не должно было');
 
-  VI := ISimple(FGUIDList.GetByGUID(G6));
+  VI := TSimple(FGUIDList.GetByGUID(G6));
   Check(VI <> nil, 'Элемент не найден');
   Check(IsEqualGUID(VI.GetGUID, G6), 'Найден ошибочный элемент');
 
 end;
 
-procedure TestIGUIDInterfaceList.TestClear;
+procedure TestIGUIDObjectSet.TestClear;
 var
   VEnum: IEnumGUID;
   VGUID: TGUID;
   I: Cardinal;
 begin
-  FGUIDList.Add(G6, TSimple.Create(G6));
-  FGUIDList.Add(G1, TSimple.Create(G1));
-  FGUIDList.Add(G5, TSimple.Create(G5));
-  FGUIDList.Add(G2, TSimple.Create(G2));
-  FGUIDList.Add(G4, TSimple.Create(G4));
-  FGUIDList.Add(G3, TSimple.Create(G3));
+  FGUIDList.Add(G6, FG6);
+  FGUIDList.Add(G1, FG1);
+  FGUIDList.Add(G5, FG5);
+  FGUIDList.Add(G2, FG2);
+  FGUIDList.Add(G4, FG4);
+  FGUIDList.Add(G3, FG3);
 
   FGUIDList.Clear;
   Check(FGUIDList.Count = 0, 'Список не пустой после очистки');
@@ -285,18 +331,18 @@ begin
   Check(VEnum.Next(1, VGUID, I) = S_FALSE, 'Лишний элемент в итераторе');
 end;
 
-procedure TestIGUIDInterfaceList.TestGetGUIDEnum;
+procedure TestIGUIDObjectSet.TestGetGUIDEnum;
 var
   VGUID: TGUID;
   I: Cardinal;
   VEnum: IEnumGUID;
 begin
-  FGUIDList.Add(G6, TSimple.Create(G6));
-  FGUIDList.Add(G1, TSimple.Create(G1));
-  FGUIDList.Add(G5, TSimple.Create(G5));
-  FGUIDList.Add(G2, TSimple.Create(G2));
-  FGUIDList.Add(G4, TSimple.Create(G4));
-  FGUIDList.Add(G3, TSimple.Create(G3));
+  FGUIDList.Add(G6, FG6);
+  FGUIDList.Add(G1, FG1);
+  FGUIDList.Add(G5, FG5);
+  FGUIDList.Add(G2, FG2);
+  FGUIDList.Add(G4, FG4);
+  FGUIDList.Add(G3, FG3);
 
   VEnum := FGUIDList.GetGUIDEnum;
   Check(VEnum <> nil, 'Итератор не получен');

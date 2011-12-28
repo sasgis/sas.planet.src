@@ -1,5 +1,11 @@
 unit u_EnumDoublePointWithClip_Test;
 
+{
+
+  Delphi DUnit Test Case
+  ----------------------
+}
+
 interface
 
 uses

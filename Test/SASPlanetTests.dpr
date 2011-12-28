@@ -19,6 +19,10 @@ uses
   TestFramework,
   GUITestRunner,
   TextTestRunner,
+  u_WideStrings_Test in '..\Includes\u_WideStrings_Test.pas',
+  i_IGUIDInterfaceSet_Test in '..\Includes\i_IGUIDInterfaceSet_Test.pas',
+  u_GUIDSet_Test in '..\Includes\u_GUIDSet_Test.pas',
+  i_IGUIDObjectSet_Test in '..\Includes\i_IGUIDObjectSet_Test.pas',
   u_EnumDoublePointFilterEqual_Test in '..\u_EnumDoublePointFilterEqual_Test.pas',
   u_EnumDoublePointWithClip_Test in '..\u_EnumDoublePointWithClip_Test.pas',
   u_EnumDoublePointClosePoly_Test in '..\u_EnumDoublePointClosePoly_Test.pas';

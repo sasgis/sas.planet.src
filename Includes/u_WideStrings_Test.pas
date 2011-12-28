@@ -1,14 +1,30 @@
 unit u_WideStrings_Test;
 
+{
+
+  Delphi DUnit Test Case
+  ----------------------
+}
+
 interface
+
+uses
+  SysUtils,
+  TestFramework;
+
+type
+  TestTWideStringList = class(TTestCase)
+  published
+    procedure TestAdd;
+  end;
 
 implementation
 
 uses
   cUnicode,
-  u_WideStrings, SysUtils;
+  u_WideStrings;
 
-procedure TestAdd;
+procedure TestTWideStringList.TestAdd;
 var
   VList: TWideStringList;
   VIndex: Integer;
@@ -16,44 +32,24 @@ begin
   VList := TWideStringList.Create;
   try
     VList.Add(WideString('Test')+ WideLineSeparator);
-    if WideCompareStr(VList[0], 'Test') = 0 then begin
-      raise Exception.Create('Потерялся последний символ.');
-    end;
-    if (VList[0])[1] <> WideChar('T') then begin
-      raise Exception.Create('Потерялся первый символ.');
-    end;
-    if (VList[0])[5] <> WideLineSeparator then begin
-      raise Exception.Create('Потерялся последний символ.');
-    end;
+    Check(WideCompareStr(VList[0], 'Test') <> 0, 'Плохо обработался разделитель строк.');
+    Check((VList[0])[1] = WideChar('T'), 'Потерялся первый символ.');
+    Check((VList[0])[5] = WideLineSeparator, 'Потерялся последний символ.');
     VList[0] := 'Test';
     VList.Values['Test'] := 'Proba';
-    if WideCompareStr(VList.Values['Test'], 'Proba') <> 0 then begin
-      raise Exception.Create('Ошибка работы объекта');
-    end;
+    Check(WideCompareStr(VList.Values['Test'], 'Proba') = 0, 'Не нашлось значение по ключу');
     VList.AddObject('IntTest', TObject(10));
     VIndex := VList.IndexOf('IntTest');
-    if VIndex < 0 then begin
-      raise Exception.Create('Ошибка работы объекта');
-    end;
-    if Integer(VList.Objects[VIndex]) <> 10 then begin
-      raise Exception.Create('Ошибка работы объекта');
-    end;
+    Check(VIndex >= 0, 'Не нашлось по ключу');
+    Check(Integer(VList.Objects[VIndex]) = 10, 'По ключу получен не тот объект, который записали');
     VList.Delete(1);
-    if VList.Count <> 2 then begin
-      raise Exception.Create('Ошибка работы объекта');
-    end;
+    Check(VList.Count = 2,'После удаления должно было остаться 2 строки');
   finally
     FreeAndNil(VList);
   end;
 end;
 
 
-procedure Test;
-begin
-  TestAdd;
-end;
-
 initialization
-  test;
-  Writeln('u_WideStrings_Test passed');
+  RegisterTest(TestTWideStringList.Suite);
 end.
