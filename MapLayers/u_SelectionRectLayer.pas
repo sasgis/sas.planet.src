@@ -3,7 +3,7 @@ unit u_SelectionRectLayer;
 interface
 
 uses
-  Types,
+  
   GR32,
   GR32_Image,
   t_GeoTypes,

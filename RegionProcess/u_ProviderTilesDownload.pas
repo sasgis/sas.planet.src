@@ -3,9 +3,9 @@ unit u_ProviderTilesDownload;
 interface
 
 uses
-  Windows,
+  
   Controls,
-  Forms,
+  
   t_GeoTypes,
   i_JclNotify,
   i_MapTypes,

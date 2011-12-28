@@ -3,7 +3,7 @@ unit u_SelectionLayer;
 interface
 
 uses
-  Types,
+  
   GR32,
   GR32_Polygons,
   GR32_Image,
@@ -53,8 +53,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  i_CoordConverter,
+  SysUtils,  
   u_NotifyEventListener,
   i_EnumDoublePoint,
   u_GeoFun,
@@ -64,8 +63,7 @@ uses
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterFirstPoly,
-  u_EnumDoublePointFilterEqual,
-  u_ClipPolygonByRect;
+  u_EnumDoublePointFilterEqual;
 
 { TSelectionLayer }
 

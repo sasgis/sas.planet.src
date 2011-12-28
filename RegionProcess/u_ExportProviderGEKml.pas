@@ -3,7 +3,7 @@ unit u_ExportProviderGEKml;
 interface
 
 uses
-  Forms,
+  
   t_GeoTypes,
   u_ExportProviderAbstract,
   fr_ExportGEKml;

@@ -39,7 +39,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  
   StrUtils,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

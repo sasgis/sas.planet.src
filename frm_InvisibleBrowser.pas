@@ -24,22 +24,22 @@ interface
 
 uses
   Windows,
-  Messages,
+  
   SysUtils,
-  Variants,
+  
   SyncObjs,
   Classes,
-  Graphics,
+  
   Controls,
   Forms,
-  Dialogs,
-  OleCtrls,
+  
+  
   SHDocVw_EWB,
   EwbCore,
   EmbeddedWB,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
-  i_ProxySettings;
+  i_ProxySettings, OleCtrls;
 
 type
   TfrmInvisibleBrowser = class(TFormWitghLanguageManager)

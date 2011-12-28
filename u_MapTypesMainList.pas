@@ -24,7 +24,7 @@ interface
 
 uses
   ActiveX,
-  Classes,
+  
   SysUtils,
   i_JclNotify,
   i_ConfigDataProvider,

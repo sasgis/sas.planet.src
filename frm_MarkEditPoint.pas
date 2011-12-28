@@ -23,7 +23,7 @@ unit frm_MarkEditPoint;
 interface
 
 uses
-  Windows,
+  
   SysUtils,
   Classes,
   Controls,

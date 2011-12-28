@@ -36,7 +36,7 @@ uses
   ExtCtrls,
   ComCtrls,
   Dialogs,
-  Buttons,
+  
   Spin,
   urlmon,
   wininet,

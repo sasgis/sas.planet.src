@@ -23,7 +23,7 @@ unit u_ECWWrite;
 interface
 
 uses
-  Windows,
+  
   ECWwriter,
   ECWreader,
   t_GeoTypes,

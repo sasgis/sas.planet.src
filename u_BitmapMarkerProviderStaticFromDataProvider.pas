@@ -23,7 +23,7 @@ unit u_BitmapMarkerProviderStaticFromDataProvider;
 interface
 
 uses
-  Types,
+  
   GR32,
   t_GeoTypes,
   i_ConfigDataProvider,

@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  GR32,
+  
   i_BitmapMarker,
   i_ConfigDataElement;
 

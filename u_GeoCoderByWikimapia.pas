@@ -24,11 +24,9 @@ interface
 
 uses
   Classes,
-  forms,
-  u_GeoTostr,
-  XMLIntf,
-  msxmldom,
-  XMLDoc,
+  
+  
+     
   i_CoordConverter,
   u_GeoCoderBasic;
 
@@ -48,7 +46,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   u_ResStrings,
-  dialogs,
+  
   u_GeoCodePlacemark;
 
 

@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  
   u_NotifyEventListener;
 
 { TCenterScale }

@@ -23,7 +23,7 @@ unit i_DownloadChecker;
 interface
 
 uses
-  Classes,
+  
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory;

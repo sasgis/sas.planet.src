@@ -24,11 +24,9 @@ interface
 
 uses
   Classes,
-  XMLIntf,
-  XMLDoc,
-  msxmldom,
+  
   i_CoordConverter,
-  u_GeoTostr,
+  
   u_GeoCoderBasic;
 
 type

@@ -3,15 +3,15 @@ unit fr_TilesDelete;
 interface
 
 uses
-  Windows,
-  Messages,
+  
+  
   SysUtils,
-  Variants,
+  
   Classes,
-  Graphics,
+  
   Controls,
   Forms,
-  Dialogs,
+  
   ExtCtrls,
   StdCtrls,
   Spin,

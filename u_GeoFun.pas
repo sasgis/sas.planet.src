@@ -23,7 +23,7 @@ unit u_GeoFun;
 interface
 
 uses
-  SysUtils,
+  
   Types,
   Math,
   GR32,

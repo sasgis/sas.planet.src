@@ -23,7 +23,7 @@ unit u_BitmapMarkerProviderSimpleConfig;
 interface
 
 uses
-  Types,
+  
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

@@ -24,13 +24,13 @@ interface
 
 uses
   Windows,
-  Messages,
+  
   SysUtils,
-  Variants,
+  
   Classes,
-  Graphics,
-  Controls,
-  Forms,
+  
+  
+  
   Dialogs,
   StrUtils,
   SwinHttp,

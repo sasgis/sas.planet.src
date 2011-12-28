@@ -3,7 +3,7 @@ unit u_ThreadExportKML;
 interface
 
 uses
-  Windows,
+  
   Types,
   SysUtils,
   Classes,

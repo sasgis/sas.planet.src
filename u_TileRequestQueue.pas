@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   SyncObjs,
-  Classes,
+  
   i_JclNotify,
   i_TileRequest,
   i_TileRequestQueue,

@@ -43,9 +43,7 @@ type
 
 implementation
 
-uses
-  Types,
-  SysUtils;
+
 
 { TGotoLayerConfig }
 

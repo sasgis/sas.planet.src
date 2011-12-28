@@ -23,7 +23,7 @@ unit frm_About;
 interface
 
 uses
-  Windows,
+  
   Forms,
   Classes,
   Controls,

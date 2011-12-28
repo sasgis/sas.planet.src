@@ -3,15 +3,15 @@ unit fr_MarkCategorySelectOrAdd;
 interface
 
 uses
-  Windows,
-  Messages,
-  SysUtils,
-  Variants,
+  
+  
+  
+  
   Classes,
-  Graphics,
+  
   Controls,
   Forms,
-  Dialogs,
+  
   StdCtrls,
   u_CommonFormAndFrameParents,
   i_MarkCategory,

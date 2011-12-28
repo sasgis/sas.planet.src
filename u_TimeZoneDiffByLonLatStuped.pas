@@ -65,7 +65,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  
   c_TimeZones;
 
 { TTimeZoneArea }

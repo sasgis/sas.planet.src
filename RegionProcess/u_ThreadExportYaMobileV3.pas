@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  Types,
+  
   SysUtils,
   Classes,
   GR32,

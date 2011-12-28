@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  cUnicodeCodecs,
+  
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon,
   u_VectorDataItemList,

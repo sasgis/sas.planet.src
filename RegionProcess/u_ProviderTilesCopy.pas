@@ -3,9 +3,9 @@ unit u_ProviderTilesCopy;
 interface
 
 uses
-  Windows,
+  
   Controls,
-  Forms,
+  
   t_GeoTypes,
   i_LanguageManager,
   i_MapTypes,

@@ -22,8 +22,7 @@ unit i_Thread;
 
 interface
 
-uses
-  Classes;
+
 
 type
   IThread = interface

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  Forms,
+  
   t_GeoTypes,
   u_ExportProviderAbstract,
   fr_TilesDelete;

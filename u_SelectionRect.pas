@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  Types,
+  
   t_GeoTypes,
   i_SelectionRect,
   i_ViewPortState,

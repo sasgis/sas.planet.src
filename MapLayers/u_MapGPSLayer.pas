@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  Types,
+  
   GR32,
   GR32_Polygons,
   GR32_Image,

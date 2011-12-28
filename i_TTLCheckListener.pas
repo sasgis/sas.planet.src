@@ -22,8 +22,7 @@ unit i_TTLCheckListener;
 
 interface
 
-uses
-  Types;
+
 
 type
   ITTLCheckListener = interface

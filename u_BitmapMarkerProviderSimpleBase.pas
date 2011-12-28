@@ -23,7 +23,7 @@ unit u_BitmapMarkerProviderSimpleBase;
 interface
 
 uses
-  Types,
+  
   i_JclNotify,
   i_BitmapMarker,
   i_BitmapMarkerProviderSimpleConfig;
@@ -93,7 +93,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  
   u_JclNotify,
   u_NotifyEventListener,
   u_GeoFun;

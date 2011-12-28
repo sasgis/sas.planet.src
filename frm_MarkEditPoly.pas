@@ -23,7 +23,7 @@ unit frm_MarkEditPoly;
 interface
 
 uses
-  Windows,
+  
   SysUtils,
   Classes,
   Controls,

@@ -23,7 +23,7 @@ unit u_MarksFactoryConfig;
 interface
 
 uses
-  Classes,
+  
   i_LanguageManager,
   i_MarkPicture,
   i_MarksFactoryConfig,

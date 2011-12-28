@@ -23,7 +23,7 @@ unit i_TileStorage;
 interface
 
 uses
-  Types,
+  
   Classes,
   GR32,
   i_TileInfoBasic,

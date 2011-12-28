@@ -23,7 +23,7 @@ unit u_TileDownloadRequest;
 interface
 
 uses
-  Types,
+  
   i_DownloadRequest,
   i_InetConfig,
   i_TileRequest,
@@ -58,8 +58,7 @@ type
 
 implementation
 
-uses
-  SysUtils;
+
 
 { TTileDownloadRequest }
 

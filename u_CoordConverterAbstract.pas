@@ -274,8 +274,7 @@ type
 implementation
 
 uses
-  u_GeoFun,
-  SysUtils;
+  u_GeoFun;
 
 { TCoordConverterAbstract }
 

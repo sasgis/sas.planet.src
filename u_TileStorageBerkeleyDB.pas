@@ -23,13 +23,11 @@ unit u_TileStorageBerkeleyDB;
 interface
 
 uses
-  Windows,
+  
   Types,
   Classes,
   SysUtils,
-  i_OperationNotifier,
   i_SimpleTileStorageConfig,
-  i_CoordConverter,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_TileInfoBasic,
@@ -129,11 +127,8 @@ implementation
 
 uses
   t_CommonTypes,
-  t_GeoTypes,
-  i_TileIterator,
   u_TileFileNameBDB,
   u_TileStorageTypeAbilities,
-  u_TileIteratorByRect,
   u_TileInfoBasic;
 
 function PBDBDataToMemStream(AData: PBDBData; AStream: TMemoryStream): Boolean;

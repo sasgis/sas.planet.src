@@ -53,8 +53,7 @@ type
 
 implementation
 
-uses
-  Types;
+
 
 { TBackgroundTaskLayerDrawBase }
 

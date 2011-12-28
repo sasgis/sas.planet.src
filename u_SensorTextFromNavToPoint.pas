@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  
   c_SensorsGUIDSimple,
   t_GeoTypes,
   u_NotifyEventListener,

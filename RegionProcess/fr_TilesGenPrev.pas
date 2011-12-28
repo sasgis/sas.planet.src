@@ -3,15 +3,15 @@ unit fr_TilesGenPrev;
 interface
 
 uses
-  Windows,
-  Messages,
+  
+  
   SysUtils,
-  Variants,
+  
   Classes,
-  Graphics,
+  
   Controls,
   Forms,
-  Dialogs,
+  
   StdCtrls,
   CheckLst,
   ExtCtrls,

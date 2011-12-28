@@ -3,7 +3,7 @@ unit u_MapLayerFillingMap;
 interface
 
 uses
-  Types,
+  
   GR32,
   GR32_Image,
   i_JclNotify,
@@ -47,7 +47,7 @@ implementation
 
 uses
   Classes,
-  SysUtils,
+  
   t_GeoTypes,
   i_CoordConverter,
   i_TileIterator,

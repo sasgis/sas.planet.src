@@ -23,8 +23,8 @@ unit u_GPSRecorderStuped;
 interface
 
 uses
-  Windows,
-  SysUtils,
+  
+  
   t_GeoTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

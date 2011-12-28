@@ -26,7 +26,7 @@ interface
 
 uses
   Windows,
-  Classes,
+  
   SysUtils,
   i_GPSPositionFactory,
   i_GPSModuleByCOMPortSettings,
