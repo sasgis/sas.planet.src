@@ -23,8 +23,8 @@ unit frm_MarkCategoryEdit;
 interface
 
 uses
-  Windows,
-  SysUtils,
+  
+  
   Classes,
   Controls,
   Forms,

@@ -3,12 +3,12 @@ unit fr_ExportToFileCont;
 interface
 
 uses
-  Windows,
-  Messages,
+  
+  
   SysUtils,
-  Variants,
+  
   Classes,
-  Graphics,
+  
   Controls,
   Forms,
   Dialogs,

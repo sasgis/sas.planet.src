@@ -3,7 +3,7 @@ unit u_SelectionLayer;
 interface
 
 uses
-  Types,
+  
   GR32,
   GR32_Polygons,
   GR32_Image,

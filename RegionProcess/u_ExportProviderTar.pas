@@ -4,7 +4,7 @@ interface
 
 uses
   Controls,
-  Forms,
+  
   t_GeoTypes,
   i_LanguageManager,
   i_MapTypes,

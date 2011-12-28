@@ -23,7 +23,7 @@ unit i_SensorViewListGenerator;
 interface
 
 uses
-  Classes,
+  
   i_GUIDSet,
   i_SensorList;
 

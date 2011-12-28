@@ -23,7 +23,7 @@ unit u_MarkPointTemplateConfig;
 interface
 
 uses
-  Classes,
+  
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

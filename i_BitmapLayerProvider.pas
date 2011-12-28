@@ -23,7 +23,7 @@ unit i_BitmapLayerProvider;
 interface
 
 uses
-  Types,
+  
   GR32,
   i_OperationNotifier,
   i_LocalCoordConverter;

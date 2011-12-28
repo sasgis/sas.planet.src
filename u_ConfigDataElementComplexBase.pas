@@ -23,7 +23,7 @@ unit u_ConfigDataElementComplexBase;
 interface
 
 uses
-  Classes,
+  
   Contnrs,
   i_JclNotify,
   i_Changeable,

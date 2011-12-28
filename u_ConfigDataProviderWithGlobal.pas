@@ -64,8 +64,7 @@ type
 implementation
 
 uses
-  StrUtils,
-  SysUtils;
+  StrUtils;
 
 { TConfigDataProviderWithGlobal }
 

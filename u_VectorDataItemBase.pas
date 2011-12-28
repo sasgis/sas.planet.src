@@ -51,8 +51,7 @@ type
 
 implementation
 
-uses
-  SysUtils;
+
 
 { TVectorDataItemBase }
 

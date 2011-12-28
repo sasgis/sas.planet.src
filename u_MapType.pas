@@ -26,7 +26,7 @@ uses
   Windows,
   sysutils,
   Classes,
-  Dialogs,
+  
   GR32,
   t_GeoTypes,
   i_JclNotify,

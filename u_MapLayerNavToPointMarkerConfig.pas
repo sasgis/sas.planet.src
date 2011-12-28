@@ -23,7 +23,7 @@ unit u_MapLayerNavToPointMarkerConfig;
 interface
 
 uses
-  Types,
+  
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -53,7 +53,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  
   u_BitmapMarkerProviderSimpleConfig,
   u_BitmapMarkerProviderSimpleConfigStatic,
   u_ConfigSaveLoadStrategyBasicProviderSubItem;

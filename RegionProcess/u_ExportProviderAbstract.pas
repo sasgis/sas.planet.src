@@ -3,9 +3,9 @@ unit u_ExportProviderAbstract;
 interface
 
 uses
-  Classes,
+  
   Controls,
-  Forms,
+  
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,

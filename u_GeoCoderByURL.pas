@@ -23,8 +23,8 @@ unit u_GeoCoderByURL;
 interface
 uses
   Classes,
-  forms,
-  u_GeoTostr,  
+  
+   
   u_GeoCoderBasic,
   i_GeoCoder;
 
@@ -50,8 +50,7 @@ uses
   ALWinInetHttpClient,
   i_InetConfig,
   i_ProxySettings,
-  u_GlobalState,
-  RegExpr;
+  u_GlobalState;
 
 { TGeoCoderByExtLink }
 

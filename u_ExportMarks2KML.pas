@@ -29,7 +29,7 @@ uses
   Windows,
   GR32,
   XMLIntf,
-  msxmldom,
+  
   XMLDoc,
   KaZip,
   ActiveX,

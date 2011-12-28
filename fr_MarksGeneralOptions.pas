@@ -3,10 +3,10 @@ unit fr_MarksGeneralOptions;
 interface
 
 uses
-  Windows,
-  Messages,
-  SysUtils,
-  Variants,
+  
+  
+  
+  
   Classes,
   Graphics,
   Controls,

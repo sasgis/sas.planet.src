@@ -3,7 +3,7 @@ unit u_MapLayerBasic;
 interface
 
 uses
-  Windows,
+  
   SyncObjs,
   GR32,
   GR32_Layers,

@@ -3,12 +3,12 @@ unit fr_ExportAUX;
 interface
 
 uses
-  Windows,
-  Messages,
+  
+  
   SysUtils,
-  Variants,
+  
   Classes,
-  Graphics,
+  
   Controls,
   Forms,
   Dialogs,

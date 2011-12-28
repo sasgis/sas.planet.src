@@ -24,12 +24,12 @@ interface
 
 uses
   Windows,
-  Messages,
+  
   SysUtils,
   StrUtils,
-  Variants,
+  
   Classes,
-  Graphics,
+  
   Controls,
   Forms,
   Dialogs,

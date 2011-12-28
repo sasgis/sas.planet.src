@@ -3,7 +3,7 @@ unit u_SelectionPolygonLayer;
 interface
 
 uses
-  Types,
+  
   GR32,
   GR32_Polygons,
   GR32_Image,
@@ -39,7 +39,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  
   u_GeoFun;
 
 { TMarkPolyLineLayer }

@@ -4,9 +4,9 @@ interface
 
 uses
   Windows,
-  Types,
+  
   ActiveX,
-  Classes,
+  
   GR32,
   GR32_Image,
   i_JclNotify,
@@ -49,7 +49,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  
   i_CoordConverter,
   u_NotifyEventListener;
 

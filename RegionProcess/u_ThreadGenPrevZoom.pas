@@ -3,8 +3,8 @@ unit u_ThreadGenPrevZoom;
 interface
 
 uses
-  Windows,
-  Types,
+  
+  
   SysUtils,
   Classes,
   GR32,

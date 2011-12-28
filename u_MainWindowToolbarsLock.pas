@@ -23,7 +23,7 @@ unit u_MainWindowToolbarsLock;
 interface
 
 uses
-  Types,
+  
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   u_ConfigDataElementBase,

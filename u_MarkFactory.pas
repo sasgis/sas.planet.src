@@ -23,7 +23,7 @@ unit u_MarkFactory;
 interface
 
 uses
-  Windows,
+  
   GR32,
   t_GeoTypes,
   i_MarkPicture,

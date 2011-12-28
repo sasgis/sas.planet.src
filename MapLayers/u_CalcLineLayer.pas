@@ -57,7 +57,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  
   i_Datum,
   u_NotifyEventListener,
   u_ResStrings;

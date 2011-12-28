@@ -23,7 +23,7 @@ unit u_LineOnMapEdit;
 interface
 
 uses
-  Types,
+  
   t_GeoTypes,
   u_ConfigDataElementBase,
   i_LineOnMapEdit;

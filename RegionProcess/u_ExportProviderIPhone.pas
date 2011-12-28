@@ -3,9 +3,9 @@ unit u_ExportProviderIPhone;
 interface
 
 uses
-  Classes,
+  
   Controls,
-  Forms,
+  
   t_GeoTypes,
   i_LanguageManager,
   i_MapTypes,

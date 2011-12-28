@@ -35,7 +35,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  
   c_GeoCoderGUIDSimple,
   u_GeoCoderListEntity,
   u_GeoCoderByGoogle,

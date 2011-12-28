@@ -3,7 +3,7 @@ unit u_TileDownloaderWithQueue;
 interface
 
 uses
-  Windows,
+  
   Classes,
   i_JclNotify,
   i_TileRequest,
