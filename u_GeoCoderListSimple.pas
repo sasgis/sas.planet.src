@@ -44,8 +44,9 @@ uses
   u_GeoCoderByOSM,
   u_GeoCoderByWikiMapia,
   u_GeoCoderByRosreestr,
-  u_GeoCoderByNavitel;
-
+  u_GeoCoderByNavitel,
+  u_GeoCoderByURL;
+  
 { TGeoCoderListSimple }
 
 constructor TGeoCoderListSimple.Create(AProxy: IProxySettings);
@@ -98,6 +99,13 @@ begin
       CGeoCoderNavitelGUID,
       'Navitel',
       TGeoCoderByNavitel.Create(AProxy)
+    )
+  );
+  Add(
+    TGeoCoderListEntity.Create(
+      CGeoCoderURLGUID,
+      'URL',
+      TGeoCoderByURL.Create(AProxy)
     )
   );
 
