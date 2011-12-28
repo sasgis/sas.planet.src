@@ -77,5 +77,6 @@
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
     <DCCReference Include="..\u_EnumDoublePointClosePoly_Test.pas" />
+    <DCCReference Include="..\u_EnumDoublePointFilterEqual_Test.pas" />
   </ItemGroup>
 </Project>
