@@ -26,9 +26,7 @@ uses
   Classes,
   forms,
   u_GeoTostr,
-  XMLIntf,
-  msxmldom,
-  XMLDoc,
+  msxmldom,    
   i_CoordConverter,
   u_GeoCoderBasic;
 

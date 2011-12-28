@@ -24,8 +24,7 @@ interface
 uses
   Classes,
   forms,
-  u_GeoTostr,
-  i_CoordConverter,
+  u_GeoTostr,  
   u_GeoCoderBasic,
   i_GeoCoder;
 
