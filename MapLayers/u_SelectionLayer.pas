@@ -11,6 +11,7 @@ uses
   t_GeoTypes,
   i_ViewPortState,
   i_LocalCoordConverter,
+  i_DoublePointsAggregator,
   i_InternalPerformanceCounter,
   i_LastSelectionLayerConfig,
   i_LastSelectionInfo,
@@ -26,15 +27,11 @@ type
     FLineWidth: Integer;
 
     FSourcePolygon: TArrayOfDoublePoint;
-    FPointsOnBitmap: TArrayOfDoublePoint;
     FPolygon: TPolygon32;
     FLinePolygon: TPolygon32;
+    FPreparedPointsAggreagtor: IDoublePointsAggregator;
 
     procedure PreparePolygon(ALocalConverter: ILocalCoordConverter);
-    function LonLatArrayToVisualFloatArray(
-      ALocalConverter: ILocalCoordConverter;
-      APolygon: TArrayOfDoublePoint
-    ): TArrayOfDoublePoint;
     procedure OnChangeSelection;
     procedure OnConfigChange;
   protected
@@ -49,7 +46,7 @@ type
       AConfig: ILastSelectionLayerConfig;
       ALastSelectionInfo: ILastSelectionInfo
     );
-    destructor Destroy; override;    
+    destructor Destroy; override;
   end;
 
 
@@ -59,6 +56,15 @@ uses
   SysUtils,
   i_CoordConverter,
   u_NotifyEventListener,
+  i_EnumDoublePoint,
+  u_GeoFun,
+  u_DoublePointsAggregator,
+  u_EnumDoublePointsByArray,
+  u_EnumDoublePointLonLatToMapPixel,
+  u_EnumDoublePointMapPixelToLocalPixel,
+  u_EnumDoublePointWithClip,
+  u_EnumDoublePointFilterFirstPoly,
+  u_EnumDoublePointFilterEqual,
   u_ClipPolygonByRect;
 
 { TSelectionLayer }
@@ -90,33 +96,15 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnChangeSelection),
     FLastSelectionInfo.GetChangeNotifier
   );
+  FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
 end;
 
 destructor TSelectionLayer.Destroy;
 begin
+  FPreparedPointsAggreagtor := nil;
   FreeAndNil(FLinePolygon);
   FreeAndNil(FPolygon);
   inherited;
-end;
-
-function TSelectionLayer.LonLatArrayToVisualFloatArray(
-  ALocalConverter: ILocalCoordConverter;
-  APolygon: TArrayOfDoublePoint
-): TArrayOfDoublePoint;
-var
-  i: Integer;
-  VPointsCount: Integer;
-  VCoordConverter: ICoordConverter;
-  VLonLat: TDoublePoint;
-begin
-  VCoordConverter := ALocalConverter.GetGeoConverter;
-  VPointsCount := Length(APolygon);
-  SetLength(Result, VPointsCount);
-  for i := 0 to VPointsCount - 1 do begin
-    VLonLat := APolygon[i];
-    VCoordConverter.CheckLonLatPos(VLonLat);
-    Result[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
-  end;
 end;
 
 procedure TSelectionLayer.OnConfigChange;
@@ -158,7 +146,7 @@ var
 begin
   FSourcePolygon := Copy(FLastSelectionInfo.Polygon);
   PreparePolygon(ViewCoordConverter);
-  VPointsCount := Length(FPointsOnBitmap);
+  VPointsCount := FPreparedPointsAggreagtor.Count;
   if VPointsCount > 0 then begin
     if FLinePolygon <> nil then begin
       FLinePolygon.DrawFill(Buffer, FLineColor);
@@ -173,27 +161,54 @@ var
   VPolygonGrow: TPolygon32;
   i: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
-  VBitmapClip: IPolygonClip;
   VPointsProcessedCount: Integer;
-  VPointsOnBitmapPrepared: TArrayOfDoublePoint;
-  VLocalRect: TRect;
+  VLocalRect: TDoubleRect;
+  VRectWithDelta: TDoubleRect;
+  VEnum: IEnumDoublePoint;
+  VPoint: TDoublePoint;
 begin
   VPointsCount := Length(FSourcePolygon);
   if VPointsCount > 0 then begin
-    VLocalRect := ALocalConverter.GetLocalRect;
-    Dec(VLocalRect.Left, 10);
-    Dec(VLocalRect.Top, 10);
-    Inc(VLocalRect.Right, 10);
-    Inc(VLocalRect.Bottom, 10);
-    VBitmapClip := TPolygonClipByRect.Create(VLocalRect);
-    FPointsOnBitmap := LonLatArrayToVisualFloatArray(ALocalConverter, FSourcePolygon);
+    VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
+    VRectWithDelta.Left := VLocalRect.Left - 10;
+    VRectWithDelta.Top := VLocalRect.Top - 10;
+    VRectWithDelta.Right := VLocalRect.Right + 10;
+    VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+    VEnum :=
+      TEnumDoublePointFilterEqual.Create(
+        TEnumDoublePointClipByRect.Create(
+          True,
+          VRectWithDelta,
+          TEnumDoublePointMapPixelToLocalPixel.Create(
+            ALocalConverter,
+            TEnumDoublePointFilterEqual.Create(
+              TEnumDoublePointLonLatToMapPixel.Create(
+                ALocalConverter.GetZoom,
+                ALocalConverter.GetGeoConverter,
+                TEnumDoublePointFilterFirstPoly.Create(
+                  TEnumDoublePointsByArray.Create(
+                    @(FSourcePolygon[0]),
+                    VPointsCount
+                  )
+                )
+              )
+            )
+          )
+        )
+      );
+    FPreparedPointsAggreagtor.Clear;
+    while VEnum.Next(VPoint) do begin
+      FPreparedPointsAggreagtor.Add(VPoint);
+    end;
+
     FPolygon.Clear;
     FLinePolygon.Clear;
-    VPointsProcessedCount := VBitmapClip.Clip(FPointsOnBitmap[0], VPointsCount, VPointsOnBitmapPrepared);
+    VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
     if VPointsProcessedCount > 0 then begin
       SetLength(VPathFixedPoints, VPointsProcessedCount);
       for i := 0 to VPointsProcessedCount - 1 do begin
-        VPathFixedPoints[i] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
+        VPoint := FPreparedPointsAggreagtor.Points[i];
+        VPathFixedPoints[i] := FixedPoint(VPoint.X, VPoint.Y);
       end;
       FPolygon.AddPoints(VPathFixedPoints[0], VPointsProcessedCount);
 
