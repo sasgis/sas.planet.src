@@ -16,6 +16,8 @@ type
     procedure OnePoint;
     procedure SimpleIfNeedDeletePoint;
     procedure SimpleIfNoDeletePoint;
+    procedure DeleteThreePoints;
+    procedure DeleteTwoPoints;
     procedure WithEmtyAtEnd;
     procedure TwoLines;
   end;
@@ -36,6 +38,46 @@ var
 begin
   VDataEnum := TEnumDoublePointsByArray.Create(@AData[0], Length(AData));
   Result := TEnumDoublePointFilterEqual.Create(VDataEnum);
+end;
+
+procedure TestTEnumDoublePointFilterEqual.DeleteThreePoints;
+var
+  VData: TArrayOfDoublePoint;
+  VTestEnum:  IEnumDoublePoint;
+  VPoint: TDoublePoint;
+begin
+  SetLength(VData, 4);
+  VData[0] := DoublePoint(2, 2);
+  VData[1] := DoublePoint(2.1, 2.1);
+  VData[2] := DoublePoint(2.4, 2.3);
+  VData[3] := DoublePoint(2.1, 2.1);
+
+  VTestEnum := PrepareEnumByArray(VData);
+
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[0]));
+  CheckFalse(VTestEnum.Next(VPoint));
+end;
+
+procedure TestTEnumDoublePointFilterEqual.DeleteTwoPoints;
+var
+  VData: TArrayOfDoublePoint;
+  VTestEnum:  IEnumDoublePoint;
+  VPoint: TDoublePoint;
+begin
+  SetLength(VData, 4);
+  VData[0] := DoublePoint(2, 2);
+  VData[1] := DoublePoint(2.1, 2.1);
+  VData[2] := DoublePoint(2.4, 2.3);
+  VData[3] := DoublePoint(2, 0);
+
+  VTestEnum := PrepareEnumByArray(VData);
+
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[0]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[3]));
+  CheckFalse(VTestEnum.Next(VPoint));
 end;
 
 procedure TestTEnumDoublePointFilterEqual.NoPoints;

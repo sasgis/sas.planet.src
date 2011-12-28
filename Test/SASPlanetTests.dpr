@@ -20,6 +20,7 @@ uses
   GUITestRunner,
   TextTestRunner,
   u_EnumDoublePointFilterEqual_Test in '..\u_EnumDoublePointFilterEqual_Test.pas',
+  u_EnumDoublePointWithClip_Test in '..\u_EnumDoublePointWithClip_Test.pas',
   u_EnumDoublePointClosePoly_Test in '..\u_EnumDoublePointClosePoly_Test.pas';
 
 {$R *.RES}
