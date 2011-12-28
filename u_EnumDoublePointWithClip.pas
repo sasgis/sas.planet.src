@@ -140,7 +140,7 @@ begin
         $33:     раз-раз нет
         }
         case VLineCode of
-          $01, $10, $12, $21, $22, $03, $13, $23, $31, $32: begin
+          $01, $12, $21, $22, $03, $13, $23, $31, $32: begin
             APoint := VCurrPoint;
             FPrevPoint := VCurrPoint;
             FPrevPointCode := VCurrPointCode;
@@ -161,6 +161,10 @@ begin
             FPrevPoint := VCurrPoint;
             FPrevPointCode := VCurrPointCode;
             Break;
+          end;
+          $00, $10, $30: begin
+            FPrevPoint := VCurrPoint;
+            FPrevPointCode := VCurrPointCode;
           end;
         end;
       end else begin
