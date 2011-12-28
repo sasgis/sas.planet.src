@@ -11,6 +11,7 @@ type
   private
     FPoints: TArrayOfDoublePoint;
     FCount: Integer;
+    FCapacity: Integer;
   private
     procedure Add(const APoint: TDoublePoint);
     procedure Clear;
@@ -35,6 +36,7 @@ destructor TDoublePointsAggregator.Destroy;
 begin
   FPoints := nil;
   FCount := 0;
+  FCapacity := 0;
   inherited;
 end;
 
@@ -42,16 +44,16 @@ procedure TDoublePointsAggregator.Add(const APoint: TDoublePoint);
 var
   VSize: Integer;
 begin
-  VSize := Length(FPoints);
-  if FCount <= VSize then begin
-    if VSize < 256 then begin
+  if FCount >= FCapacity then begin
+    if FCapacity < 256 then begin
       VSize := 256;
-    end else if VSize < 4*1024 then begin
-      VSize := VSize * 2;
+    end else if FCapacity < 4*1024 then begin
+      VSize := FCapacity * 2;
     end else begin
-      VSize := VSize + 4*1024;
+      VSize := FCapacity + 4*1024;
     end;
     SetLength(FPoints, VSize);
+    FCapacity := VSize;
   end;
   FPoints[FCount] := APoint;
   Inc(FCount);
