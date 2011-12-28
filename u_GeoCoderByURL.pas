@@ -198,7 +198,7 @@ begin
   sfulldesc := Vlink;
  end else
   // http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
- if PosEx('maps.yandex.ru/?', Vlink, 1) > 0 then begin
+ if PosEx('maps.yandex.ru/?ll=', Vlink, 1) > 0 then begin
   sname := 'Yandex';
   i := PosEx('ll', Vlink, 1);
   j := PosEx(',', Vlink, i);
@@ -272,14 +272,15 @@ begin
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
  end else
- if PosEx('maps.yandex.ru/-/', Vlink, 1) > 0then begin
-  Vlink := astr;
+ if (PosEx('maps.yandex.ru/-/', Vlink, 1) > 0 )or
+    (PosEx('maps.yandex.ru/?oid=', Vlink, 1) > 0 )then begin
+  Vlink := ReplaceStr(astr,'''','');
   sname := 'yandex';
-  i := PosEx('''ll'':''', Vlink, 1);
+  i := PosEx('{ll:', Vlink, 1);
   j := PosEx(',', Vlink, i);
-  slon := Copy(Vlink, i + 6, j - (i + 6));
+  slon := Copy(Vlink, i + 4, j - (i + 4));
   i := j;
-  j := PosEx('''', Vlink, i);
+  j := PosEx(',', Vlink, i+1);
   slat := Copy(Vlink, i + 1, j - (i + 1));
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
@@ -374,27 +375,14 @@ function TGeoCoderByURL.PrepareURL(ASearch: WideString): string;
   VlocalLink :boolean;
 begin
   VlocalLink := true;
-  if PosEx('http://g.co/', ASearch, 1) > 0 then begin
-   VlocalLink := false;
-   Result := ASearch;
-  end;
-  if PosEx('maps.yandex.ru/-/', ASearch, 1) > 0 then begin
-   VlocalLink := false;
-   Result := ASearch;
-  end;
-  if PosEx('binged.it', ASearch, 1) > 0 then begin
-   VlocalLink := false;
-   Result := ASearch;
-  end;
-  if PosEx('osm.org', ASearch, 1) > 0 then begin
-   VlocalLink := false;
-   Result := ASearch;
-  end;
-  if PosEx('permalink.html', ASearch, 1) > 0 then begin
-   VlocalLink := false;
-   Result := ASearch;
-  end;
-  if PosEx('api/index.html?permalink=', ASearch, 1) > 0 then begin
+  if (PosEx('http://g.co/', ASearch, 1) > 0 )or
+     (PosEx('maps.yandex.ru/-/', ASearch, 1) > 0)or
+     (PosEx('yandex.ru/?oid=', ASearch, 1) > 0 )or
+     (PosEx('binged.it', ASearch, 1) > 0 )or
+     (PosEx('osm.org', ASearch, 1) > 0 )or
+     (PosEx('permalink.html', ASearch, 1) > 0 )or
+     (PosEx('api/index.html?permalink=', ASearch, 1) > 0 )
+   then begin
    VlocalLink := false;
    Result := ASearch;
   end;
