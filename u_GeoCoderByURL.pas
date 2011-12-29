@@ -61,7 +61,6 @@ var
   VInetConfig: IInetConfigStatic;
   VProxyConfig: IProxyConfigStatic;
   VTmp:TStringList;
-  cookies : string;
 begin
   try
     VHttpClient := TALWinInetHTTPClient.Create(nil);
@@ -118,7 +117,6 @@ begin
               VHttpClient.Get(ARequestUrl, VHttpResponseBody, VHttpResponseHeader);
             end;
             Result := StrToIntDef(VHttpResponseHeader.StatusCode, 0);
-            cookies := inttostr(VHttpResponseHeader.Cookies.Count);
             AResponseHeader := VHttpResponseHeader.RawHeaderText;
             if VHttpResponseBody.Size > 0 then begin
               VHttpResponseBody.Position := 0;
@@ -246,6 +244,18 @@ begin
 // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
  if PosEx('openstreetmap.org', Vlink, 1) > 0 then begin
   sname := 'OpenStreetMap';
+  i := PosEx('lat=', Vlink, 1);
+  j := PosEx('&', Vlink, i);
+  slat := Copy(Vlink, i + 4, j - (i + 4));
+  i := PosEx('lon=', Vlink, j);
+  j := PosEx('&', Vlink, i);
+  slon := Copy(Vlink, i + 4, j - (i + 4));
+  sdesc := '[ '+slon+' , '+slat+' ]';
+  sfulldesc := Vlink;
+ end  else
+// http://wikimapia.org#lat=45.0328&lon=38.9769&z=10&l=1&m=b
+ if PosEx('wikimapia.org', Vlink, 1) > 0 then begin
+  sname := 'WikiMapia';
   i := PosEx('lat=', Vlink, 1);
   j := PosEx('&', Vlink, i);
   slat := Copy(Vlink, i + 4, j - (i + 4));
@@ -383,7 +393,7 @@ begin
    VlocalLink := false;
    Result := ASearch;
   end;
-  if VlocalLink = true then Result := 'http://127.0.0.1';
+  if VlocalLink = true then Result := '';
 end;
 
 
@@ -397,6 +407,7 @@ end.
 // http://kosmosnimki.ru/?x=44.1053254382903&y=45.6876903573303&z=6&fullscreen=false&mode=satellite
 // http://www.bing.com/maps/default.aspx?v=2&cp=45.5493750107145~41.6883332507903&style=h&lvl=6
 // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
+// http://wikimapia.org#lat=45.0328&lon=38.9769&z=10&l=1&m=b
 
 // Короткие
 // http://g.co/maps/7anbg
@@ -407,3 +418,4 @@ end.
 // http://binged.it/sCjEwT
 // http://kosmosnimki.ru/permalink.html?Na1d0e33d
 // http://maps.kosmosnimki.ru/api/index.html?permalink=ZWUJK&SA5JU
+
