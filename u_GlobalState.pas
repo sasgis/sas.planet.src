@@ -23,7 +23,7 @@ unit u_GlobalState;
 interface
 
 uses
-  
+  Windows,
   ExtCtrls,
   Classes,
   IniFiles,
@@ -213,8 +213,7 @@ var
 implementation
 
 uses
-  
-  
+  Forms,
   u_JclNotify,
   u_SASMainConfigProvider,
   u_EcwDllSimple,
