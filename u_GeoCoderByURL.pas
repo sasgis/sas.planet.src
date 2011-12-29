@@ -259,7 +259,7 @@ begin
  end
  else  // short link
  if PosEx('http://g.co/', Vlink, 1) > 0then begin
-  Vlink := ASearch;
+  Vlink := Astr;
   sname := 'google';
   i := PosEx('ll', Vlink, 1);
   j := PosEx(',', Vlink, i);
@@ -275,7 +275,8 @@ begin
   Vlink := ReplaceStr(astr,'''','');
   sname := 'yandex';
   i := PosEx('{ll:', Vlink, 1);
-  j := PosEx(',', Vlink, i);
+  if i=0 then i := PosEx(',ll:', Vlink, 1); //
+  j := PosEx(',', Vlink, i+1);
   slon := Copy(Vlink, i + 4, j - (i + 4));
   i := j;
   j := PosEx(',', Vlink, i+1);
@@ -284,7 +285,7 @@ begin
   sfulldesc := ASearch;
  end else
  if PosEx('binged.it', Vlink, 1) > 0then begin
-  Vlink := ASearch;
+  Vlink := Astr;
   sname := 'bing';
   i := PosEx('cp=', Vlink, 1);
   j := PosEx('~', Vlink, i);
@@ -296,7 +297,7 @@ begin
   sfulldesc := ASearch;
  end else
  if PosEx('osm.org', Vlink, 1) > 0then begin
-  Vlink := ASearch;
+  Vlink := Astr;
   sname := 'osm';
   i := PosEx('LonLat(', Vlink, 1);
   j := PosEx(',', Vlink, i);
