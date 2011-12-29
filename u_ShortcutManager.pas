@@ -23,7 +23,6 @@ unit u_ShortcutManager;
 interface
 
 uses
-  
   Classes,
   TB2Item,
   i_ConfigDataProvider,

@@ -23,14 +23,9 @@ unit frm_MapTypeEdit;
 interface
 
 uses
-  
-  
-  
   Classes,
-  
   Controls,
   Forms,
-  
   StdCtrls,
   ExtCtrls,
   ComCtrls,

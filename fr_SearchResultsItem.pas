@@ -27,7 +27,6 @@ uses
   Controls,
   ExtCtrls,
   StdCtrls,
-  
   i_GeoCoder,
   i_ViewPortState,
   i_MapViewGoto,

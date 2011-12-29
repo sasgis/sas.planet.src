@@ -3,15 +3,10 @@ unit fr_ExportYaMobileV4;
 interface
 
 uses
-  
-  
   SysUtils,
-  
   Classes,
-  
   Controls,
   Forms,
-  
   StdCtrls,
   CheckLst,
   Spin,

@@ -23,7 +23,6 @@ unit u_MapMarksBitmapLayerProviderByMarksSubset;
 interface
 
 uses
-  
   GR32,
   Graphics,
   WinTypes,

@@ -3,7 +3,6 @@ unit u_ThreadMapCombineJPG;
 interface
 
 uses
-  
   Types,
   SysUtils,
   Classes,

@@ -3,7 +3,6 @@ unit u_TileDownloaderListStatic;
 interface
 
 uses
-  
   i_TileDownloader,
   i_TileDownloaderList;
 

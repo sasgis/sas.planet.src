@@ -3,9 +3,7 @@ unit u_ExportProviderAbstract;
 interface
 
 uses
-  
   Controls,
-  
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,

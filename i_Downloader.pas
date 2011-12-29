@@ -23,7 +23,6 @@ unit i_Downloader;
 interface
 
 uses
-  
   i_OperationNotifier,
   i_DownloadResult,
   i_DownloadRequest;

@@ -22,8 +22,6 @@ unit i_Thread;
 
 interface
 
-
-
 type
   IThread = interface
     ['{4FA6F3B4-32D4-4798-AF4F-3881F3321E40}']

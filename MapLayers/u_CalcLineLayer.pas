@@ -56,8 +56,7 @@ type
 
 implementation
 
-uses
-  
+uses  
   i_Datum,
   u_NotifyEventListener,
   u_ResStrings;

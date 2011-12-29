@@ -23,7 +23,6 @@ unit i_MarksFactoryConfig;
 interface
 
 uses
-  
   GR32,
   i_ConfigDataElement,
   i_MarkPicture,

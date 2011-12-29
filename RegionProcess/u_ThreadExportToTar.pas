@@ -3,7 +3,6 @@ unit u_ThreadExportToTar;
 interface
 
 uses
-  
   SysUtils,
   Classes,
   LibTar,
@@ -38,7 +37,6 @@ type
 implementation
 
 uses
-  
   i_TileIterator,
   i_TileInfoBasic,
   u_TileIteratorStuped,

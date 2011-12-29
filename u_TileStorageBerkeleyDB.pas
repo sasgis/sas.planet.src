@@ -23,7 +23,6 @@ unit u_TileStorageBerkeleyDB;
 interface
 
 uses
-  
   Types,
   Classes,
   SysUtils,

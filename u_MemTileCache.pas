@@ -3,7 +3,6 @@ unit u_MemTileCache;
 interface
 
 uses
-  
   Classes,
   SysUtils,
   GR32,

@@ -23,7 +23,6 @@ unit frm_MarkEditPoint;
 interface
 
 uses
-  
   SysUtils,
   Classes,
   Controls,

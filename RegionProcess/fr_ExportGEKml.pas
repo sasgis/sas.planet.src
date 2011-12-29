@@ -3,12 +3,8 @@ unit fr_ExportGEKml;
 interface
 
 uses
-  
-  
   SysUtils,
-  
   Classes,
-  
   Controls,
   Forms,
   Dialogs,

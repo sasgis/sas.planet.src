@@ -23,17 +23,13 @@ unit frm_MarksMultiEdit;
 interface
 
 uses
-  
   SysUtils,
   Classes,
-  
   Controls,
   Forms,
-  
   StdCtrls,
   Spin,
-  ExtCtrls,
-  
+  ExtCtrls,  
   GR32,
   u_CommonFormAndFrameParents,
   i_MarkCategory,

@@ -23,7 +23,6 @@ unit i_AntiBan;
 interface
 
 uses
-  
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory;

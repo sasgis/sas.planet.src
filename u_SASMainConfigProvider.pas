@@ -39,7 +39,6 @@ type
 implementation
 
 uses
-  
   StrUtils,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

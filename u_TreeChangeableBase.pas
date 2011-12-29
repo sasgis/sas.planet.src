@@ -23,7 +23,6 @@ unit u_TreeChangeableBase;
 interface
 
 uses
-  
   i_JclNotify,
   i_StaticTreeItem,
   i_StaticTreeBuilder,
@@ -55,7 +54,6 @@ type
 implementation
 
 uses
-  
   u_JclNotify,
   u_NotifyEventListener;
 

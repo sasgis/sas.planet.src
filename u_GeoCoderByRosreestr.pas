@@ -24,9 +24,7 @@ interface
 
 uses
   Classes,
-  
   i_CoordConverter,
-  
   u_GeoCoderBasic;
 
 type

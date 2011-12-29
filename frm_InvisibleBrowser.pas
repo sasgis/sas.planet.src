@@ -24,22 +24,18 @@ interface
 
 uses
   Windows,
-  
   SysUtils,
-  
   SyncObjs,
   Classes,
-  
   Controls,
   Forms,
-  
-  
+  OleCtrls,
   SHDocVw_EWB,
   EwbCore,
   EmbeddedWB,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
-  i_ProxySettings, OleCtrls;
+  i_ProxySettings;
 
 type
   TfrmInvisibleBrowser = class(TFormWitghLanguageManager)

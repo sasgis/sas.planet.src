@@ -23,7 +23,6 @@ unit u_CoordConverterMercatorOnEllipsoid;
 interface
 
 uses
-  
   t_GeoTypes,
   u_CoordConverterBasic;
 

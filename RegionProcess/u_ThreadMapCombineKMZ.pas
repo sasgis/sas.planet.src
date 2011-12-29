@@ -3,8 +3,6 @@ unit u_ThreadMapCombineKMZ;
 interface
 
 uses
-  
-  
   SysUtils,
   Classes,
   GR32,
@@ -49,7 +47,6 @@ implementation
 uses
   KAZip,
   i_CoordConverter,
-  
   u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(

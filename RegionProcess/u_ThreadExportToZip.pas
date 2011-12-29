@@ -3,7 +3,6 @@ unit u_ThreadExportToZip;
 interface
 
 uses
-  
   SysUtils,
   Classes,
   KAZip,
@@ -38,7 +37,6 @@ type
 implementation
 
 uses
-  
   i_TileIterator,
   i_TileInfoBasic,
   u_TileIteratorStuped,

@@ -3,7 +3,6 @@ unit u_TileRequestQueueProcessorThread;
 interface
 
 uses
-  
   Classes,
   i_JclNotify,
   i_TileRequest,
@@ -35,7 +34,6 @@ type
 implementation
 
 uses
-  
   u_NotifyEventListener;
 
 { TTileRequestQueueProcessorThread }

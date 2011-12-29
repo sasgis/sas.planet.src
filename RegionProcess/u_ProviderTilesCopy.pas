@@ -3,9 +3,7 @@ unit u_ProviderTilesCopy;
 interface
 
 uses
-  
   Controls,
-  
   t_GeoTypes,
   i_LanguageManager,
   i_MapTypes,

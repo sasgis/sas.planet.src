@@ -24,7 +24,6 @@ interface
 
 uses
   Classes,
-  
   i_BitmapMarker,
   i_ConfigDataElement;
 

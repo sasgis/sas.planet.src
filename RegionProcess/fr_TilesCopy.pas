@@ -3,15 +3,10 @@ unit fr_TilesCopy;
 interface
 
 uses
-  
-  
   SysUtils,
-  
   Classes,
-  
   Controls,
   Forms,
-  
   StdCtrls,
   CheckLst,
   ExtCtrls,

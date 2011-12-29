@@ -23,17 +23,13 @@ unit frm_ImportConfigEdit;
 interface
 
 uses
-  
   SysUtils,
   Classes,
-  
   Controls,
   Forms,
-  
   StdCtrls,
   Spin,
   ExtCtrls,
-  
   GR32,
   u_CommonFormAndFrameParents,
   i_MarkCategory,

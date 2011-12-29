@@ -81,7 +81,6 @@ type
 implementation
 
 uses
-  
   ActiveX,
   u_StaticTreeBuilderBase,
   u_MarksDb,

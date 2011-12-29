@@ -3,15 +3,10 @@ unit fr_ExportIPhone;
 interface
 
 uses
-  
-  
   SysUtils,
-  
   Classes,
-  
   Controls,
   Forms,
-  
   StdCtrls,
   CheckLst,
   Spin,

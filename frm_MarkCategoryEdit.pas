@@ -23,8 +23,6 @@ unit frm_MarkCategoryEdit;
 interface
 
 uses
-  
-  
   Classes,
   Controls,
   Forms,

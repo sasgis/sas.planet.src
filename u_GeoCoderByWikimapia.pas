@@ -24,9 +24,6 @@ interface
 
 uses
   Classes,
-  
-  
-     
   i_CoordConverter,
   u_GeoCoderBasic;
 
@@ -46,7 +43,6 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   u_ResStrings,
-  
   u_GeoCodePlacemark;
 
 

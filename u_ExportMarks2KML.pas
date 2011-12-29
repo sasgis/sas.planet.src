@@ -29,7 +29,6 @@ uses
   Windows,
   GR32,
   XMLIntf,
-  
   XMLDoc,
   KaZip,
   ActiveX,

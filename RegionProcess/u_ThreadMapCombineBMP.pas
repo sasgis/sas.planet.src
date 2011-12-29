@@ -3,8 +3,6 @@ unit u_ThreadMapCombineBMP;
 interface
 
 uses
-  
-  
   SysUtils,
   Classes,
   GR32,

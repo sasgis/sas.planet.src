@@ -23,7 +23,6 @@ unit u_MapLayerGPSMarkerConfig;
 interface
 
 uses
-  
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -54,7 +53,6 @@ type
 implementation
 
 uses
-  
   u_BitmapMarkerProviderSimpleConfig,
   u_BitmapMarkerProviderSimpleConfigStatic,
   u_ConfigSaveLoadStrategyBasicProviderSubItem;

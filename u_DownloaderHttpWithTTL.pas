@@ -3,7 +3,6 @@ unit u_DownloaderHttpWithTTL;
 interface
 
 uses
-  
   i_OperationNotifier,
   i_TTLCheckListener,
   i_TTLCheckNotifier,

@@ -23,7 +23,6 @@ unit u_ActiveMapSingleAbstract;
 interface
 
 uses
-  
   i_JclNotify,
   i_MapTypes,
   i_ActiveMapsConfig,

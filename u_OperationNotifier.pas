@@ -23,7 +23,6 @@ unit u_OperationNotifier;
 interface
 
 uses
-  
   SyncObjs,
   i_JclNotify,
   i_OperationNotifier;

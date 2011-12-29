@@ -28,17 +28,16 @@ uses
   Classes,
   Controls,
   ComCtrls,
-  
   Menus,
   Forms,
   Dialogs,
   StdCtrls,
   CheckLst,
-  
   ExtCtrls,
+  ImgList, 
+  TB2Dock, 
+  TB2Toolbar,
   TB2Item,
-  
-  
   TBX,
   TBXControls,
   u_ResStrings,
@@ -53,7 +52,7 @@ uses
   i_MarksSimple,
   i_MarkCategory,
   i_StaticTreeItem,
-  u_MarksDbGUIHelper, ImgList, TB2Dock, TB2Toolbar;
+  u_MarksDbGUIHelper;
 
 type
   TfrmMarksExplorer = class(TFormWitghLanguageManager)

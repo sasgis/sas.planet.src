@@ -3,7 +3,6 @@ unit u_MarkPolyLineLayer;
 interface
 
 uses
-  
   GR32_Image,
   i_ViewPortState,
   i_InternalPerformanceCounter,
@@ -29,7 +28,6 @@ type
 implementation
 
 uses
-  
   GR32_Polygons;
 
 { TMarkPolyLineLayer }

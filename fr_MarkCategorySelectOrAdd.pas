@@ -3,15 +3,9 @@ unit fr_MarkCategorySelectOrAdd;
 interface
 
 uses
-  
-  
-  
-  
   Classes,
-  
   Controls,
   Forms,
-  
   StdCtrls,
   u_CommonFormAndFrameParents,
   i_MarkCategory,

@@ -23,8 +23,6 @@ unit u_GPSRecorderStuped;
 interface
 
 uses
-  
-  
   t_GeoTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

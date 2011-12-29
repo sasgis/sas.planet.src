@@ -24,13 +24,8 @@ interface
 
 uses
   Windows,
-  
   SysUtils,
-  
   Classes,
-  
-  
-  
   Dialogs,
   StrUtils,
   SwinHttp,

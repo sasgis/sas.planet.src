@@ -3,7 +3,6 @@ unit u_MapLayerGrids;
 interface
 
 uses
-  
   Types,
   GR32,
   GR32_Image,

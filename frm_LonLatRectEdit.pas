@@ -23,7 +23,6 @@ unit frm_LonLatRectEdit;
 interface
 
 uses
-  
   SysUtils,
   Classes,
   Controls,

@@ -3,7 +3,6 @@ unit u_PolyLineLayerBase;
 interface
 
 uses
-  
   GR32,
   GR32_Polygons,
   GR32_Image,

@@ -26,7 +26,6 @@ interface
 
 uses
   Windows,
-  
   SysUtils,
   i_GPSPositionFactory,
   i_GPSModuleByCOMPortSettings,
@@ -156,7 +155,6 @@ type
 implementation
 
 uses
-  
   DateUtils,
   Math,
   u_ResStrings,

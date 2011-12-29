@@ -23,7 +23,6 @@ unit u_MarkTemplateConfigBase;
 interface
 
 uses
-  
   i_MarkNameGenerator,
   i_StringConfigDataElement,
   i_MarkCategoryDBSmlInternal,

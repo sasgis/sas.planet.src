@@ -61,7 +61,6 @@ type
 implementation
 
 uses
-  
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon,
   u_VectorDataItemList,

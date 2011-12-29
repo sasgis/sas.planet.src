@@ -24,12 +24,9 @@ interface
 
 uses
   Windows,
-  
   SysUtils,
   StrUtils,
-  
   Classes,
-  
   Controls,
   Forms,
   Dialogs,

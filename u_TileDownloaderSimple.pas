@@ -1,10 +1,10 @@
 unit u_TileDownloaderSimple;
 
 interface
+
 uses
   Windows,
   SyncObjs,
-  
   i_JclNotify,
   i_OperationNotifier,
   i_LastResponseInfo,

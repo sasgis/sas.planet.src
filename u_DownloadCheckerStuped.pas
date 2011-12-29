@@ -23,7 +23,6 @@ unit u_DownloadCheckerStuped;
 interface
 
 uses
-  
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,

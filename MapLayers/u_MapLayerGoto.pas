@@ -3,8 +3,6 @@ unit u_MapLayerGoto;
 interface
 
 uses
-  
-  
   GR32,
   GR32_Image,
   t_GeoTypes,

@@ -23,7 +23,6 @@ unit u_GPSPositionStatic;
 interface
 
 uses
-  
   vsagps_public_base,
   vsagps_public_position,
   i_GPS;

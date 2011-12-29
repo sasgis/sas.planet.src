@@ -24,24 +24,20 @@ interface
 
 uses
   Windows,
-  
-  
-  
   Classes,
-  
   Controls,
   Forms,
   Dialogs,
   StdCtrls,
   ExtCtrls,
   ExtDlgs,
-  
-  
   TBX,
-  
-  
   TBXGraphics,
-  u_CommonFormAndFrameParents, ImgList, TB2Item, TB2Dock, TB2Toolbar;
+  ImgList, 
+  TB2Item, 
+  TB2Dock, 
+  TB2Toolbar,
+  u_CommonFormAndFrameParents;
 
 type
   TfrMarkDescription = class(TFrame)

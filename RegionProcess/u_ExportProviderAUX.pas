@@ -3,7 +3,6 @@ unit u_ExportProviderAUX;
 interface
 
 uses
-  
   t_GeoTypes,
   u_ExportProviderAbstract,
   fr_ExportAUX;

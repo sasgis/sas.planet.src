@@ -23,7 +23,6 @@ unit frm_MarkEditPath;
 interface
 
 uses
-  
   SysUtils,
   Buttons,
   Classes,

@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  
   SyncObjs,
   Classes,
   GR32,

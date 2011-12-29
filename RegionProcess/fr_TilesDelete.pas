@@ -3,15 +3,10 @@ unit fr_TilesDelete;
 interface
 
 uses
-  
-  
   SysUtils,
-  
   Classes,
-  
   Controls,
   Forms,
-  
   ExtCtrls,
   StdCtrls,
   Spin,

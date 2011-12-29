@@ -3,8 +3,6 @@ unit u_MapLayerNavToMark;
 interface
 
 uses
-  
-  
   GR32,
   GR32_Image,
   i_JclNotify,

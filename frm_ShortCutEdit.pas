@@ -23,7 +23,6 @@ unit frm_ShortCutEdit;
 interface
 
 uses
-  
   Forms,
   Classes,
   Controls,

@@ -34,7 +34,6 @@ type
 implementation
 
 uses
-  
   u_NotifyEventListener;
 
 { TCenterScale }

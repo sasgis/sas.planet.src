@@ -4,14 +4,10 @@ interface
 
 uses
   Windows,
-  
   SysUtils,
-  
   Classes,
-  
   Controls,
   Forms,
-  
   ExtCtrls,
   StdCtrls,
   ComCtrls,

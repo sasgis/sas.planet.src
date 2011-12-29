@@ -21,6 +21,7 @@
 unit u_GotoLayerConfig;
 
 interface
+
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -42,8 +43,6 @@ type
   end;
 
 implementation
-
-
 
 { TGotoLayerConfig }
 

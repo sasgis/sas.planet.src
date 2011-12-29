@@ -3,7 +3,6 @@ unit u_MapLayerTileGrid;
 interface
 
 uses
-  
   GR32,
   GR32_Image,
   t_GeoTypes,
@@ -35,7 +34,6 @@ type
 implementation
 
 uses
-  
   i_CoordConverter,
   u_NotifyEventListener;
 

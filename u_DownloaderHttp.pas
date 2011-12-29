@@ -23,7 +23,6 @@ unit u_DownloaderHttp;
 interface
 
 uses
-  
   Classes,
   SyncObjs,
   SysUtils,

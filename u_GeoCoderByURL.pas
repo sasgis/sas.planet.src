@@ -21,10 +21,9 @@
 unit u_GeoCoderByURL;
 
 interface
+
 uses
   Classes,
-  
-   
   u_GeoCoderBasic,
   i_GeoCoder;
 
@@ -44,7 +43,6 @@ uses
   t_GeoTypes,
   u_ResStrings,
   u_GeoCodePlacemark,
-//
   ALHTTPCommon,
   ALHttpClient,
   ALWinInetHttpClient,

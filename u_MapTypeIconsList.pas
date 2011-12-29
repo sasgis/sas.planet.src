@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  
   ActiveX,
   Graphics,
   ImgList,

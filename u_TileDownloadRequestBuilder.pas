@@ -23,7 +23,6 @@ unit u_TileDownloadRequestBuilder;
 interface
 
 uses
-  
   SyncObjs,
   SysUtils,
   i_OperationNotifier,

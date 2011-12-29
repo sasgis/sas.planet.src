@@ -53,8 +53,6 @@ type
 
 implementation
 
-
-
 { TBackgroundTaskLayerDrawBase }
 
 constructor TBackgroundTaskLayerDrawBase.Create(

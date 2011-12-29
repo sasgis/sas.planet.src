@@ -51,8 +51,6 @@ type
 
 implementation
 
-
-
 { TVectorDataItemBase }
 
 constructor TVectorDataItemBase.Create(

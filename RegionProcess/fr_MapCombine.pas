@@ -4,11 +4,8 @@ interface
 
 uses
   Windows,
-  
   SysUtils,
-  
   Classes,
-  
   Controls,
   Forms,
   Dialogs,

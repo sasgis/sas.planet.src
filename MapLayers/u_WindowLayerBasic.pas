@@ -3,7 +3,6 @@ unit u_WindowLayerBasic;
 interface
 
 uses
-  
   i_InternalPerformanceCounter,
   i_JclListenerNotifierLinksList;
 
@@ -25,8 +24,6 @@ type
 implementation
 
 uses
-  
-  
   u_JclListenerNotifierLinksList;
 
 { TWindowLayerAbstract }

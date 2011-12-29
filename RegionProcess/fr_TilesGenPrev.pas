@@ -3,15 +3,10 @@ unit fr_TilesGenPrev;
 interface
 
 uses
-  
-  
   SysUtils,
-  
   Classes,
-  
   Controls,
   Forms,
-  
   StdCtrls,
   CheckLst,
   ExtCtrls,

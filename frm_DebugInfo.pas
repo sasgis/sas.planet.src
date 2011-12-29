@@ -24,14 +24,10 @@ interface
 
 uses
   Windows,
-  
   SysUtils,
-  
   Classes,
-  
   Controls,
   Forms,
-  
   StdCtrls,
   ExtCtrls,
   Grids,

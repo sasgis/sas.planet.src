@@ -81,7 +81,6 @@ type
 implementation
 
 uses
-  
   SysUtils,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigProviderHelpers,

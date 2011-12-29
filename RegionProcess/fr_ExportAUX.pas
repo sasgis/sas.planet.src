@@ -3,12 +3,8 @@ unit fr_ExportAUX;
 interface
 
 uses
-  
-  
   SysUtils,
-  
   Classes,
-  
   Controls,
   Forms,
   Dialogs,

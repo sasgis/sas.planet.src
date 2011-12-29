@@ -110,7 +110,6 @@ type
 implementation
 
 uses
-  
   u_GeoFun;
 
 { TPolygonClipAbstract }

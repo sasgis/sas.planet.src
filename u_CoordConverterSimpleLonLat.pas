@@ -23,7 +23,6 @@ unit u_CoordConverterSimpleLonLat;
 interface
 
 uses
-  
   t_GeoTypes,
   u_CoordConverterBasic;
 

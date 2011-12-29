@@ -3,10 +3,6 @@ unit fr_MarksGeneralOptions;
 interface
 
 uses
-  
-  
-  
-  
   Classes,
   Graphics,
   Controls,
