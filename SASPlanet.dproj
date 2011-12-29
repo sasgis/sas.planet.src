@@ -283,6 +283,7 @@
     <DCCReference Include="i_PathDetalizeProviderList.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
     <DCCReference Include="i_PolyLineLayerConfig.pas" />
+    <DCCReference Include="i_ProjectionInfo.pas" />
     <DCCReference Include="i_ProxySettings.pas" />
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
     <DCCReference Include="i_ScaleLineConfig.pas" />
@@ -350,7 +351,8 @@
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_VectorDataItemSimple.pas" />
     <DCCReference Include="i_VectorDataLoader.pas" />
-    <DCCReference Include="i_VectorItems.pas" />
+    <DCCReference Include="i_VectorItemLonLat.pas" />
+    <DCCReference Include="i_VectorItemProjected.pas" />
     <DCCReference Include="i_VectorItmesFactory.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="i_ZmpConfig.pas" />
@@ -539,6 +541,8 @@
     <DCCReference Include="u_DownloadUIConfig.pas" />
     <DCCReference Include="u_EcwDllSimple.pas" />
     <DCCReference Include="u_ECWWrite.pas" />
+    <DCCReference Include="u_EnumDoublePointByLineSet.pas" />
+    <DCCReference Include="u_EnumDoublePointBySingleLine.pas" />
     <DCCReference Include="u_EnumDoublePointClosePoly.pas" />
     <DCCReference Include="u_EnumDoublePointFilterEqual.pas" />
     <DCCReference Include="u_EnumDoublePointFilterFirstPoly.pas" />
@@ -635,6 +639,7 @@
     <DCCReference Include="u_LocalCoordConverter.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
+    <DCCReference Include="u_LonLatSingleLine.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="u_MainFormConfig.pas" />
@@ -724,6 +729,8 @@
     <DCCReference Include="u_PolygonLayerConfig.pas" />
     <DCCReference Include="u_PolyLineLayerConfig.pas" />
     <DCCReference Include="u_PosFromGSM.pas" />
+    <DCCReference Include="u_ProjectedSingleLine.pas" />
+    <DCCReference Include="u_ProjectionInfo.pas" />
     <DCCReference Include="u_ProxyConfig.pas" />
     <DCCReference Include="u_ResStrings.pas" />
     <DCCReference Include="u_SASMainConfigProvider.pas" />
@@ -831,6 +838,9 @@
     <DCCReference Include="u_VectorDataItemList.pas" />
     <DCCReference Include="u_VectorDataItemPoint.pas" />
     <DCCReference Include="u_VectorDataItemPolygon.pas" />
+    <DCCReference Include="u_VectorItemLonLat.pas" />
+    <DCCReference Include="u_VectorItemProjected.pas" />
+    <DCCReference Include="u_VectorItmesFactorySimple.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
     <DCCReference Include="u_XmlInfoSimpleParser.pas" />
     <DCCReference Include="u_ZmpConfig.pas" />

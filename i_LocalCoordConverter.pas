@@ -25,12 +25,16 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_CoordConverter;
+  i_CoordConverter,
+  i_ProjectionInfo;
 
 type
   ILocalCoordConverter = interface
     ['{48CD8E96-6EB3-4162-B321-B8B64D71B0AB}']
     function GetIsSameConverter(AConverter: ILocalCoordConverter): Boolean;
+
+    function GetProjectionInfo: IProjectionInfo;
+    property ProjectionInfo: IProjectionInfo read GetProjectionInfo;
 
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
@@ -40,7 +44,10 @@ type
     function GetCenterLonLat: TDoublePoint;
 
     function GetZoom: Byte;
+    property Zoom: Byte read GetZoom;
+
     function GetGeoConverter: ICoordConverter;
+    property GeoConverter: ICoordConverter read GetGeoConverter;
 
     function LocalPixel2MapPixel(const APoint: TPoint): TPoint;
     function LocalPixel2MapPixelFloat(const APoint: TPoint): TDoublePoint;

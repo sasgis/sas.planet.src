@@ -26,10 +26,11 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_LocalCoordConverter;
 
 type
-  TLocalCoordConverterBase = class(TInterfacedObject, ILocalCoordConverter)
+  TLocalCoordConverterBase = class(TInterfacedObject, ILocalCoordConverter, IProjectionInfo)
   private
     FLocalRect: TRect;
     FLocalSize: TPoint;
@@ -39,10 +40,12 @@ type
     FLocalTopLeftAtMap: TDoublePoint;
   protected
     function GetIsSameConverter(AConverter: ILocalCoordConverter): Boolean;
+    function GetIsSameProjectionInfo(AProjection: IProjectionInfo): Boolean;
 
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
 
+    function GetProjectionInfo: IProjectionInfo;
     function GetZoom: Byte;
     function GetGeoConverter: ICoordConverter;
 
@@ -156,6 +159,25 @@ begin
   end;
 end;
 
+function TLocalCoordConverterBase.GetIsSameProjectionInfo(
+  AProjection: IProjectionInfo
+): Boolean;
+var
+  VSelf: IProjectionInfo;
+begin
+  VSelf := Self;
+  if VSelf = AProjection then begin
+    Result := True;
+  end else begin
+    Result := False;
+    if FZoom = AProjection.Zoom then begin
+      if FGeoConverter.IsSameConverter(AProjection.GeoConverter) then begin
+        Result := True;
+      end;
+    end;
+  end;
+end;
+
 function TLocalCoordConverterBase.GetLocalRect: TRect;
 begin
   Result := FLocalRect;
@@ -164,6 +186,11 @@ end;
 function TLocalCoordConverterBase.GetLocalRectSize: TPoint;
 begin
   Result := FLocalSize;
+end;
+
+function TLocalCoordConverterBase.GetProjectionInfo: IProjectionInfo;
+begin
+  Result := Self;
 end;
 
 function TLocalCoordConverterBase.GetRectInMapPixel: TRect;
