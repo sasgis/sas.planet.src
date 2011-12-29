@@ -256,6 +256,18 @@ begin
   slon := Copy(Vlink, i + 4, j - (i + 4));
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := Vlink;
+ end  else
+// http://wikimapia.org#lat=45.0328&lon=38.9769&z=10&l=1&m=b
+ if PosEx('wikimapia.org', Vlink, 1) > 0 then begin
+  sname := 'WikiMapia';
+  i := PosEx('lat=', Vlink, 1);
+  j := PosEx('&', Vlink, i);
+  slat := Copy(Vlink, i + 4, j - (i + 4));
+  i := PosEx('lon=', Vlink, j);
+  j := PosEx('&', Vlink, i);
+  slon := Copy(Vlink, i + 4, j - (i + 4));
+  sdesc := '[ '+slon+' , '+slat+' ]';
+  sfulldesc := Vlink;
  end
  else  // short link
  if PosEx('http://g.co/', Vlink, 1) > 0then begin
