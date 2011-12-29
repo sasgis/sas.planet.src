@@ -95,6 +95,10 @@ begin
   end;
   try
     VUrl := PrepareURL(ASearch);
+    if VUrl = '' then begin
+      Result := '';
+      exit;
+    end;
     hFile := InternetOpenUrl(hSession, PChar(VUrl), PChar(par), length(par), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD, 0);
     if not Assigned(hFile) then begin
       VLastError := GetLastError;
