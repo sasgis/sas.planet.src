@@ -78,7 +78,8 @@ begin
                                           wHttpIo_Pragma_nocache,
                                           wHttpIo_No_cookies,
                                           wHttpIo_Ignore_cert_cn_invalid,
-                                          wHttpIo_Ignore_cert_date_invalid
+                                          wHttpIo_Ignore_cert_date_invalid,
+                                          wHttpIo_No_auto_redirect
                                        ];
         VProxyConfig := VInetConfig.ProxyConfigStatic;
         if Assigned(VProxyConfig) then begin
@@ -125,6 +126,7 @@ begin
               AResponseData := VTmp.Text;
             end;
           finally
+            AResponseHeader := VHttpResponseHeader.RawHeaderText; // save redirect header
             VTmp.Free;
           end;
         finally
@@ -139,7 +141,6 @@ begin
   except
     on E: EALHTTPClientException do begin
       Result := E.StatusCode;
-      AResponseHeader := '';
       AResponseData := E.Message;
     end;
     on E: EOSError do begin
@@ -357,9 +358,24 @@ begin
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
  end else
+ if PosEx('2gis.ru', Vlink, 1) > 0then begin
+  sdesc := vlink;
+  VHeader := 'Cookie: 2gisAPI=c2de06c2dd3109de8ca09a59ee197a4210495664eeae8d4075848.943590';
+  Vlink := '';
+  vErrCode := DoHttpRequest(sdesc, VHeader ,'',sname,Vlink);
+  i := PosEx('center/', sname, 1);
+  j := PosEx(',', sname, i );
+  slon := Copy(sname, i + 7, j - (i + 7));
+  i := j;
+  j := PosEx('/', sname, i );
+  slat := Copy(sname, i + 1, j - (i + 1));
+  sname := '2gis';
+  sdesc := '[ '+slon+' , '+slat+' ]';
+  sfulldesc := ASearch;
+ end else
  VLinkErr := true;
 
- if vErrCode<> 200 then VLinkErr := true;
+ if (vErrCode <> 200)and(vErrCode <> 302) then VLinkErr := true;
  if (slat='') or (slon='') then VLinkErr := true;
 
  if VLinkErr <> true then begin
@@ -418,4 +434,5 @@ end.
 // http://binged.it/sCjEwT
 // http://kosmosnimki.ru/permalink.html?Na1d0e33d
 // http://maps.kosmosnimki.ru/api/index.html?permalink=ZWUJK&SA5JU
+// http://go.2gis.ru/1hox
 
