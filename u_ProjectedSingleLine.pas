@@ -62,6 +62,7 @@ constructor TProjectedLineBase.Create(
 );
 begin
   FProjection := AProjection;
+  FCount := ACount;
   Assert(FCount > 0, 'Empty line');
   if AClosed and not DoublePointsEqual(APoints[0], APoints[ACount - 1]) then begin
     Inc(FCount);

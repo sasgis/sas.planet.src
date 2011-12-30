@@ -253,15 +253,117 @@ end;
 function TVectorItmesFactorySimple.CreateProjectedPath(
   AProjection: IProjectionInfo; APoints: PDoublePointArray;
   ACount: Integer): IProjectedPath;
+var
+  VLine: IProjectedPathLine;
+  i: Integer;
+  VStart: PDoublePointArray;
+  VLineLen: Integer;
+  VLineCount: Integer;
+  VList: IInterfaceList;
+  VPoint: TDoublePoint;
 begin
-
+  VLineCount := 0;
+  VStart := APoints;
+  VLineLen := 0;
+  for i := 0 to ACount - 1 do begin
+    VPoint := APoints[i];
+    if PointIsEmpty(VPoint) then begin
+      if VLineLen > 0 then begin
+        if VLineCount > 0 then begin
+          if VLineCount = 1 then begin
+            VList := TInterfaceList.Create;
+          end;
+          VList.Add(VLine);
+          VLine := nil;
+        end;
+        VLine := TProjectedPathLine.Create(AProjection, VStart, VLineLen);
+        Inc(VLineCount);
+        VLineLen := 0;
+      end;
+    end else begin
+      if VLineLen = 0 then begin
+        VStart := @APoints[i];
+      end;
+      Inc(VLineLen);
+    end;
+  end;
+  if VLineLen > 0 then begin
+    if VLineCount > 0 then begin
+      if VLineCount = 1 then begin
+        VList := TInterfaceList.Create;
+      end;
+      VList.Add(VLine);
+      VLine := nil;
+    end;
+    VLine := TProjectedPathLine.Create(AProjection, VStart, VLineLen);
+    Inc(VLineCount);
+  end;
+  if VLineCount = 0 then begin
+    Result := FEmptyProjectedPath;
+  end else if VLineCount = 1 then begin
+    Result := TProjectedPathOneLine.Create(VLine);
+  end else begin
+    VList.Add(VLine);
+    Result := TProjectedPath.Create(AProjection, VList);
+  end;
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygon(
   AProjection: IProjectionInfo; APoints: PDoublePointArray;
   ACount: Integer): IProjectedPolygon;
+var
+  VLine: IProjectedPolygonLine;
+  i: Integer;
+  VStart: PDoublePointArray;
+  VLineLen: Integer;
+  VLineCount: Integer;
+  VList: IInterfaceList;
+  VPoint: TDoublePoint;
 begin
-
+  VLineCount := 0;
+  VStart := APoints;
+  VLineLen := 0;
+  for i := 0 to ACount - 1 do begin
+    VPoint := APoints[i];
+    if PointIsEmpty(VPoint) then begin
+      if VLineLen > 0 then begin
+        if VLineCount > 0 then begin
+          if VLineCount = 1 then begin
+            VList := TInterfaceList.Create;
+          end;
+          VList.Add(VLine);
+          VLine := nil;
+        end;
+        VLine := TProjectedPolygonLine.Create(AProjection, VStart, VLineLen);
+        Inc(VLineCount);
+        VLineLen := 0;
+      end;
+    end else begin
+      if VLineLen = 0 then begin
+        VStart := @APoints[i];
+      end;
+      Inc(VLineLen);
+    end;
+  end;
+  if VLineLen > 0 then begin
+    if VLineCount > 0 then begin
+      if VLineCount = 1 then begin
+        VList := TInterfaceList.Create;
+      end;
+      VList.Add(VLine);
+      VLine := nil;
+    end;
+    VLine := TProjectedPolygonLine.Create(AProjection, VStart, VLineLen);
+    Inc(VLineCount);
+  end;
+  if VLineCount = 0 then begin
+    Result := FEmptyProjectedPolygon;
+  end else if VLineCount = 1 then begin
+    Result := TProjectedPolygonOneLine.Create(VLine);
+  end else begin
+    VList.Add(VLine);
+    Result := TProjectedPolygon.Create(AProjection, VList);
+  end;
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonLineByRect(
