@@ -22,7 +22,9 @@ type
     function CreateProjectedPath(AProjection: IProjectionInfo; APoints: PDoublePointArray; ACount: Integer): IProjectedPath;
     function CreateProjectedPolygon(AProjection: IProjectionInfo; APoints: PDoublePointArray; ACount: Integer): IProjectedPolygon;
     function CreateLonLatPolygonLineByRect(ARect: TDoubleRect): ILonLatPolygonLine;
+    function CreateLonLatPolygonByRect(ARect: TDoubleRect): ILonLatPolygon;
     function CreateProjectedPolygonLineByRect(AProjection: IProjectionInfo; ARect: TDoubleRect): IProjectedPolygonLine;
+    function CreateProjectedPolygonByRect(AProjection: IProjectionInfo; ARect: TDoubleRect): IProjectedPolygon;
   public
     constructor Create();
   end;
@@ -244,10 +246,24 @@ begin
   end;
 end;
 
+function TVectorItmesFactorySimple.CreateLonLatPolygonByRect(
+  ARect: TDoubleRect): ILonLatPolygon;
+begin
+  Result := TLonLatPolygonOneLine.Create(CreateLonLatPolygonLineByRect(ARect));
+end;
+
 function TVectorItmesFactorySimple.CreateLonLatPolygonLineByRect(
   ARect: TDoubleRect): ILonLatPolygonLine;
+var
+  VPoints: array [0..4] of TDoublePoint;
 begin
-
+  VPoints[0] := ARect.TopLeft;
+  VPoints[1].X := ARect.Right;
+  VPoints[1].Y := ARect.Top;
+  VPoints[2] := ARect.BottomRight;
+  VPoints[3].X := ARect.Left;
+  VPoints[3].Y := ARect.Bottom;
+  Result := TLonLatPolygonLine.Create(@VPoints[0], 4);
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPath(
@@ -366,10 +382,24 @@ begin
   end;
 end;
 
+function TVectorItmesFactorySimple.CreateProjectedPolygonByRect(
+  AProjection: IProjectionInfo; ARect: TDoubleRect): IProjectedPolygon;
+begin
+  Result := TProjectedPolygonOneLine.Create(CreateProjectedPolygonLineByRect(AProjection, ARect));
+end;
+
 function TVectorItmesFactorySimple.CreateProjectedPolygonLineByRect(
   AProjection: IProjectionInfo; ARect: TDoubleRect): IProjectedPolygonLine;
+var
+  VPoints: array [0..4] of TDoublePoint;
 begin
-
+  VPoints[0] := ARect.TopLeft;
+  VPoints[1].X := ARect.Right;
+  VPoints[1].Y := ARect.Top;
+  VPoints[2] := ARect.BottomRight;
+  VPoints[3].X := ARect.Left;
+  VPoints[3].Y := ARect.Bottom;
+  Result := TProjectedPolygonLine.Create(AProjection, @VPoints[0], 4);
 end;
 
 end.

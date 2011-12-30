@@ -16,7 +16,9 @@ type
     function CreateProjectedPath(AProjection: IProjectionInfo; APoints: PDoublePointArray; ACount: Integer): IProjectedPath;
     function CreateProjectedPolygon(AProjection: IProjectionInfo; APoints: PDoublePointArray; ACount: Integer): IProjectedPolygon;
     function CreateLonLatPolygonLineByRect(ARect: TDoubleRect): ILonLatPolygonLine;
+    function CreateLonLatPolygonByRect(ARect: TDoubleRect): ILonLatPolygon;
     function CreateProjectedPolygonLineByRect(AProjection: IProjectionInfo; ARect: TDoubleRect): IProjectedPolygonLine;
+    function CreateProjectedPolygonByRect(AProjection: IProjectionInfo; ARect: TDoubleRect): IProjectedPolygon;
   end;
 
 implementation
