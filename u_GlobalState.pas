@@ -76,6 +76,7 @@ uses
   i_SatellitesInViewMapDraw,
   i_SensorList,
   i_TimeZoneDiffByLonLat,
+  i_VectorItmesFactory,
   i_InvisibleBrowser,
   i_InternalBrowser,
   i_DebugInfoWindow,
@@ -137,6 +138,7 @@ type
     FDebugInfoWindow: IDebugInfoWindow;
     FAppClosingNotifier: IJclNotifier;
     FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
+    FVectorItmesFactory: IVectorItmesFactory;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     function GetMarkIconsPath: string;
@@ -195,6 +197,7 @@ type
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
+    property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
 
     constructor Create;
     destructor Destroy; override;
@@ -267,6 +270,7 @@ uses
   u_DebugInfoWindow,
   u_InternalPerformanceCounterList,
   u_IeEmbeddedProtocolFactory,
+  u_VectorItmesFactorySimple,
   u_PathDetalizeProviderListSimple,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
@@ -291,6 +295,7 @@ begin
   FEcwDll := TEcwDllSimple.Create(FProgramPath);
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
+  FVectorItmesFactory := TVectorItmesFactorySimple.Create;
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
   FGUISyncronizedTimer.Interval := 500;
@@ -386,7 +391,7 @@ begin
       GUISyncronizedTimerNotifier,
       FPerfCounterList
     );
-  FLastSelectionInfo := TLastSelectionInfo.Create;
+  FLastSelectionInfo := TLastSelectionInfo.Create(FVectorItmesFactory);
   FGeoCoderList := TGeoCoderListSimple.Create(FInetConfig.ProxyConfig as IProxySettings);
   FMarkPictureList := TMarkPictureListSimple.Create(GetMarkIconsPath, FContentTypeManager);
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);

@@ -28,6 +28,7 @@ uses
   t_GeoTypes,
   i_LanguageManager,
   i_CoordConverter,
+  i_VectorItmesFactory,
   i_ValueToStringConverter,
   i_ViewPortState,
   i_MarksSimple,
@@ -46,6 +47,7 @@ type
   TMarksDbGUIHelper = class
   private
     FMarksDB: TMarksSystem;
+    FVectorItmesFactory: IVectorItmesFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FFormRegionProcess: TfrmRegionProcess;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
@@ -78,6 +80,7 @@ type
       ALanguageManager: ILanguageManager;
       AMarksDB: TMarksSystem;
       AViewPortState: IViewPortState;
+      AVectorItmesFactory: IVectorItmesFactory;
       AValueToStringConverterConfig: IValueToStringConverterConfig;
       AFormRegionProcess: TfrmRegionProcess
     );
@@ -90,6 +93,7 @@ uses
   SysUtils,
   Dialogs,
   i_Datum,
+  i_VectorItemLonLat,
   u_ResStrings,
   u_GeoFun,
   u_GeoToStr;
@@ -100,11 +104,13 @@ constructor TMarksDbGUIHelper.Create(
   ALanguageManager: ILanguageManager;
   AMarksDB: TMarksSystem;
   AViewPortState: IViewPortState;
+  AVectorItmesFactory: IVectorItmesFactory;
   AValueToStringConverterConfig: IValueToStringConverterConfig;
   AFormRegionProcess: TfrmRegionProcess
 );
 begin
   FMarksDB := AMarksDB;
+  FVectorItmesFactory := AVectorItmesFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FFormRegionProcess := AFormRegionProcess;
   FfrmMarkEditPoint :=
@@ -327,10 +333,13 @@ var
   VPoints: TArrayOfDoublePoint;
   VRadius: double;
   VDefRadius: String;
+  VPolygon: ILonLatPolygon;
 begin
   Result:=false;
   if Supports(AMark, IMarkPoly, VMarkPoly) then begin
-    FFormRegionProcess.Show_(AZoom, VMarkPoly.Points);
+    VPoints := VMarkPoly.Points;
+    VPolygon := FVectorItmesFactory.CreateLonLatPolygon(@VPoints[0], Length(VPoints));
+    FFormRegionProcess.Show_(AZoom, VPolygon);
     Result:=true;
   end else begin
     if Supports(AMark, IMarkLine, VMarkLine) then begin
@@ -343,7 +352,8 @@ begin
           Exit;
         end;
         VPoints:=ConveryPolyline2Polygon(@VMarkLine.Points[0], Length(VMarkLine.Points), VRadius, AConverter, AZoom);
-        FFormRegionProcess.Show_(AZoom, VPoints);
+        VPolygon := FVectorItmesFactory.CreateLonLatPolygon(@VPoints[0], Length(VPoints));
+        FFormRegionProcess.Show_(AZoom, VPolygon);
         Result:=true;
       end;
     end else begin

@@ -7,6 +7,7 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_VectorItemLonLat,
   u_MapType,
   u_GeoFun,
   u_ResStrings,
@@ -27,7 +28,7 @@ type
   public
     constructor Create(
       APath: string;
-      APolygon: TArrayOfDoublePoint;
+      APolygon: ILonLatPolygonLine;
       Azoomarr: array of boolean;
       Atypemap: TMapType;
       ANotSaveNotExists: boolean;
@@ -44,7 +45,7 @@ uses
 
 constructor TThreadExportKML.Create(
   APath: string;
-  APolygon: TArrayOfDoublePoint;
+  APolygon: ILonLatPolygonLine;
   Azoomarr: array of boolean;
   Atypemap: TMapType;
   ANotSaveNotExists: boolean;
@@ -129,11 +130,11 @@ var
 begin
   inherited;
   FTilesToProcess := 0;
-  VLen := Length(FPolygLL);
+  VLen := FPolygLL.Count;
   SetLength(polyg, VLen);
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
-    FMapType.GeoConvert.LonLatArray2PixelArray(@FPolygLL[0], VLen, @Polyg[0], VZoom);
+    FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL.Points, VLen, @Polyg[0], VZoom);
     FTilesToProcess := FTilesToProcess + GetDwnlNum(min, max, @Polyg[0], VLen, true);
   end;
   FTilesProcessed := 0;
@@ -147,7 +148,7 @@ begin
     Write(KMLFile, ToFile);
 
     VZoom := FZooms[0];
-    FMapType.GeoConvert.LonLatArray2PixelArray(@FPolygLL[0], VLen, @Polyg[0], VZoom);
+    FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL.Points, VLen, @Polyg[0], VZoom);
     GetDwnlNum(min, max, @Polyg[0], VLen, false);
     p_x := min.x;
     while p_x < max.x do begin

@@ -26,6 +26,7 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
+  i_VectorItemLonLat,
   u_TileIteratorAbstract;
 
 type
@@ -43,7 +44,7 @@ type
   public
     constructor Create(
       AZoom: byte;
-      APolygLL: TArrayOfDoublePoint;
+      APolygLL: ILonLatPolygonLine;
       AGeoConvert: ICoordConverter
     ); override;
     destructor Destroy; override;
@@ -59,7 +60,7 @@ type
   public
     constructor Create(
       AZoom: byte;
-      APolygLL: TArrayOfDoublePoint;
+      APolygLL: ILonLatPolygonLine;
       AGeoConvert: ICoordConverter;
       ASubRectSize: TPoint
     ); reintroduce;
@@ -74,15 +75,18 @@ uses
 
 { TTileIteratorStuped }
 
-constructor TTileIteratorStuped.Create(AZoom: byte;
-  APolygLL: TArrayOfDoublePoint; AGeoConvert: ICoordConverter);
+constructor TTileIteratorStuped.Create(
+  AZoom: byte;
+  APolygLL: ILonLatPolygonLine;
+  AGeoConvert: ICoordConverter
+);
 var
   VLen: Integer;
 begin
   inherited;
-  VLen := Length(FPolygLL);
+  VLen := FPolygLL.Count;
   SetLength(FPolyg, VLen);
-  FGeoConvert.LonLatArray2PixelArray(@FPolygLL[0], VLen, @FPolyg[0], FZoom);
+  FGeoConvert.LonLatArray2PixelArray(FPolygLL.Points, VLen, @FPolyg[0], FZoom);
   FTilesTotal := GetDwnlNum(FPixelRect, @FPolyg[0], VLen, true);
   FTilesRect := FGeoConvert.PixelRect2TileRect(FPixelRect, FZoom);
   Reset;
@@ -139,8 +143,12 @@ end;
 
 { TTileIteratorBySubRect }
 
-constructor TTileIteratorBySubRect.Create(AZoom: byte; APolygLL: TArrayOfDoublePoint;
-                AGeoConvert: ICoordConverter; ASubRectSize: TPoint);
+constructor TTileIteratorBySubRect.Create(
+  AZoom: byte;
+  APolygLL: ILonLatPolygonLine;
+  AGeoConvert: ICoordConverter;
+  ASubRectSize: TPoint
+);
 begin
   inherited Create(AZoom, APolygLL, AGeoConvert);
   FSubRectWidth:=ASubRectSize.x;

@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_VectorItemLonLat,
   i_ConfigDataElement;
 
 type
@@ -32,10 +33,11 @@ type
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
 
-    function GetPolygon: TArrayOfDoublePoint;
-    property Polygon: TArrayOfDoublePoint read GetPolygon;
+    function GetPolygon: ILonLatPolygon;
+    property Polygon: ILonLatPolygon read GetPolygon;
 
-    procedure SetPolygon(ALonLatPolygon: TArrayOfDoublePoint; AZoom: Byte);
+    procedure SetPolygon(ALonLatPolygon: ILonLatPolygon; AZoom: Byte); overload;
+    procedure SetPolygon(APoints: PDoublePointArray; ACount: Integer; AZoom: Byte); overload;
   end;
 
 implementation

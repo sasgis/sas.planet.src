@@ -14,6 +14,7 @@ uses
   CheckLst,
   Spin,
   i_MapTypes,
+  i_VectorItemLonLat,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_MapCalibration,
@@ -67,7 +68,7 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FMapCalibrationList: IMapCalibrationList;
-    FPolygLL: TArrayOfDoublePoint;
+    FPolygLL: ILonLatPolygon;
     procedure UpdatePanelSizes;
   public
     constructor Create(
@@ -78,7 +79,7 @@ type
       AMapCalibrationList: IMapCalibrationList
     ); reintroduce;
     procedure RefreshTranslation; override;
-    procedure Init(AZoom: Byte; APolygLL: TArrayOfDoublePoint);
+    procedure Init(AZoom: Byte; APolygLL: ILonLatPolygon);
   end;
 
 implementation
@@ -131,18 +132,18 @@ var
   numd:int64 ;
   Vmt: TMapType;
   VZoom: byte;
-  VPolyLL: TArrayOfDoublePoint;
+  VPolyLL: ILonLatPolygon;
   VLen: Integer;
 begin
   if cbbMap.ItemIndex >= 0 then begin
     Vmt := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
     VZoom := cbbZoom.ItemIndex;
-    VPolyLL := copy(FPolygLL);
-    VLen := Length(VPolyLL);
+    VPolyLL := FPolygLL;
+    VLen := VPolyLL.Item[0].Count;
     Vmt.GeoConvert.CheckZoom(VZoom);
-    Vmt.GeoConvert.CheckAndCorrectLonLatArray(@VPolyLL[0], VLen);
+    Vmt.GeoConvert.CheckAndCorrectLonLatArray(VPolyLL.Item[0].Points, VLen);
     SetLength(polyg, VLen);
-    Vmt.GeoConvert.LonLatArray2PixelArray(@VPolyLL[0], VLen, @Polyg[0], VZoom);
+    Vmt.GeoConvert.LonLatArray2PixelArray(VPolyLL.Item[0].Points, VLen, @Polyg[0], VZoom);
     numd:=GetDwnlNum(min,max,@Polyg[0], VLen,true);
     lblStat.Caption:=SAS_STR_filesnum+': '+inttostr((max.x-min.x)div 256+1)+'x'
                     +inttostr((max.y-min.y)div 256+1)+'('+inttostr(numd)+')';
@@ -169,7 +170,7 @@ begin
   UpdatePanelSizes;
 end;
 
-procedure TfrMapCombine.Init(AZoom: Byte; APolygLL: TArrayOfDoublePoint);
+procedure TfrMapCombine.Init(AZoom: Byte; APolygLL: ILonLatPolygon);
 var
   i: Integer;
   VMapType: TMapType;

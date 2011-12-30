@@ -6,6 +6,7 @@ uses
   Controls,
   t_GeoTypes,
   i_LanguageManager,
+  i_VectorItemLonLat,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -29,11 +30,11 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
+    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TArrayOfDoublePoint); override;
+    procedure StartProcess(APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -72,7 +73,7 @@ begin
   Result := SAS_STR_ExportZipPackCaption;
 end;
 
-procedure TExportProviderZip.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
+procedure TExportProviderZip.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportToFileCont.CreateForFileType(
@@ -117,7 +118,7 @@ begin
   end;
 end;
 
-procedure TExportProviderZip.StartProcess(APolygon: TArrayOfDoublePoint);
+procedure TExportProviderZip.StartProcess(APolygon: ILonLatPolygon);
 var
   i:integer;
   path:string;
@@ -132,7 +133,13 @@ begin
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   path:=FFrame.edtTargetFile.Text;
   VNameGenerator := FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1);
-  TThreadExportToZip.Create(path, APolygon, Zoomarr, VMapType, VNameGenerator);
+  TThreadExportToZip.Create(
+    path,
+    APolygon.Item[0],
+    Zoomarr,
+    VMapType,
+    VNameGenerator
+  );
 end;
 
 end.

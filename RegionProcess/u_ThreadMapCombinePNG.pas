@@ -10,6 +10,7 @@ uses
   GR32,
   i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
+  i_VectorItemLonLat,
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
   t_GeoTypes,
@@ -33,7 +34,7 @@ type
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: TArrayOfDoublePoint;
+      APolygon: ILonLatPolygonLine;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -93,7 +94,7 @@ constructor TThreadMapCombinePNG.Create(
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
-  APolygon: TArrayOfDoublePoint;
+  APolygon: ILonLatPolygonLine;
   ASplitCount: TPoint;
   Azoom: byte;
   Atypemap: TMapType;

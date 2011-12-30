@@ -11,6 +11,9 @@ type
     ['{26634DF5-7845-42C1-8B74-C6F4FFA7E27E}']
     function GetEnum: IEnumDoublePoint;
 
+    function GetBounds: TDoubleRect;
+    property Bounds: TDoubleRect read GetBounds;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
@@ -21,6 +24,9 @@ type
   ILonLatPolygonLine = interface
     ['{A1F32B46-8C0B-46F1-97E9-D2347CF9FF5B}']
     function GetEnum: IEnumDoublePoint;
+
+    function GetBounds: TDoubleRect;
+    property Bounds: TDoubleRect read GetBounds;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;

@@ -7,6 +7,7 @@ uses
   SysUtils,
   u_MapType,
   t_GeoTypes,
+  i_VectorItemLonLat,
   u_ThreadRegionProcessAbstract;
 
 type
@@ -20,7 +21,7 @@ type
     procedure ProgressFormUpdateOnProgress; virtual;
   public
     constructor Create(
-      APolygon: TArrayOfDoublePoint;
+      APolygon: ILonLatPolygonLine;
       AZoom: Byte;
       AMapType: TMapType;
       AFileName: string
@@ -37,8 +38,12 @@ uses
 
 { TThreadExportToAUX }
 
-constructor TThreadExportToAUX.Create(APolygon: TArrayOfDoublePoint;
-  AZoom: Byte; AMapType: TMapType; AFileName: string);
+constructor TThreadExportToAUX.Create(
+  APolygon: ILonLatPolygonLine;
+  AZoom: Byte;
+  AMapType: TMapType;
+  AFileName: string
+);
 begin
   inherited Create(APolygon);
   FZoom := AZoom;

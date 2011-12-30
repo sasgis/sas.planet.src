@@ -3,6 +3,7 @@ unit u_SelectionLayer;
 interface
 
 uses
+  Windows,
   GR32,
   GR32_Polygons,
   GR32_Image,
@@ -14,6 +15,8 @@ uses
   i_InternalPerformanceCounter,
   i_LastSelectionLayerConfig,
   i_LastSelectionInfo,
+  i_VectorItemProjected,
+  i_VectorItmesFactory,
   u_MapLayerBasic;
 
 type
@@ -21,11 +24,13 @@ type
   private
     FConfig: ILastSelectionLayerConfig;
     FLastSelectionInfo: ILastSelectionInfo;
+    FVectorItmesFactory: IVectorItmesFactory;
 
     FLineColor: TColor32;
     FLineWidth: Integer;
 
-    FSourcePolygon: TArrayOfDoublePoint;
+    FSourceChangeCount: Integer;
+    FSourceProjected: IProjectedPolygon;
     FPolygon: TPolygon32;
     FLinePolygon: TPolygon32;
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
@@ -42,6 +47,7 @@ type
       APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AVectorItmesFactory: IVectorItmesFactory;
       AConfig: ILastSelectionLayerConfig;
       ALastSelectionInfo: ILastSelectionInfo
     );
@@ -52,9 +58,10 @@ type
 implementation
 
 uses
-  SysUtils,  
+  SysUtils,
   u_NotifyEventListener,
   i_EnumDoublePoint,
+  i_ProjectionInfo,
   u_GeoFun,
   u_DoublePointsAggregator,
   u_EnumDoublePointsByArray,
@@ -70,6 +77,7 @@ constructor TSelectionLayer.Create(
   APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AVectorItmesFactory: IVectorItmesFactory;
   AConfig: ILastSelectionLayerConfig;
   ALastSelectionInfo: ILastSelectionInfo
 );
@@ -77,6 +85,7 @@ begin
   inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
   FLastSelectionInfo := ALastSelectionInfo;
+  FVectorItmesFactory := AVectorItmesFactory;
 
   FPolygon := TPolygon32.Create;
   FPolygon.Closed := True;
@@ -130,6 +139,7 @@ procedure TSelectionLayer.OnChangeSelection;
 begin
   ViewUpdateLock;
   try
+    InterlockedIncrement(FSourceChangeCount);
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -140,8 +150,29 @@ end;
 procedure TSelectionLayer.PaintLayer(Buffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   VPointsCount: Integer;
+  VProjection: IProjectionInfo;
 begin
-  FSourcePolygon := Copy(FLastSelectionInfo.Polygon);
+  VProjection := ALocalConverter.ProjectionInfo;
+  if
+    (InterlockedExchange(FSourceChangeCount, 0) > 0) or
+    (FSourceProjected = nil) or
+    (FSourceProjected.Projection.GetIsSameProjectionInfo(VProjection))
+  then begin
+    FSourceProjected :=
+      FVectorItmesFactory.CreateProjectedPolygonByEnum(
+        VProjection,
+        TEnumDoublePointFilterEqual.Create(
+          TEnumDoublePointLonLatToMapPixel.Create(
+            ALocalConverter.GetZoom,
+            ALocalConverter.GetGeoConverter,
+            TEnumDoublePointFilterFirstPoly.Create(
+              FLastSelectionInfo.Polygon.GetEnum
+            )
+          )
+        ),
+        FPreparedPointsAggreagtor
+      );
+  end;
   PreparePolygon(ViewCoordConverter);
   VPointsCount := FPreparedPointsAggreagtor.Count;
   if VPointsCount > 0 then begin
@@ -153,7 +184,6 @@ end;
 
 procedure TSelectionLayer.PreparePolygon(ALocalConverter: ILocalCoordConverter);
 var
-  VPointsCount: Integer;
   VPolygonOutline: TPolygon32;
   VPolygonGrow: TPolygon32;
   i: Integer;
@@ -163,9 +193,10 @@ var
   VRectWithDelta: TDoubleRect;
   VEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
+  VSourceProjected: IProjectedPolygon;
 begin
-  VPointsCount := Length(FSourcePolygon);
-  if VPointsCount > 0 then begin
+  VSourceProjected := FSourceProjected;
+  if VSourceProjected <> nil then begin
     VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
     VRectWithDelta.Left := VLocalRect.Left - 10;
     VRectWithDelta.Top := VLocalRect.Top - 10;
@@ -178,18 +209,7 @@ begin
           VRectWithDelta,
           TEnumDoublePointMapPixelToLocalPixel.Create(
             ALocalConverter,
-            TEnumDoublePointFilterEqual.Create(
-              TEnumDoublePointLonLatToMapPixel.Create(
-                ALocalConverter.GetZoom,
-                ALocalConverter.GetGeoConverter,
-                TEnumDoublePointFilterFirstPoly.Create(
-                  TEnumDoublePointsByArray.Create(
-                    @(FSourcePolygon[0]),
-                    VPointsCount
-                  )
-                )
-              )
-            )
+            VSourceProjected.GetEnum
           )
         )
       );

@@ -7,6 +7,7 @@ uses
   SysUtils,
   Classes,
   t_GeoTypes,
+  i_VectorItemLonLat,
   u_MapType,
   u_ThreadRegionProcessAbstract,
   u_ResStrings;
@@ -24,7 +25,7 @@ type
     procedure ProgressFormUpdateOnProgress;
   public
     constructor Create(
-      APolyLL: TArrayOfDoublePoint;
+      APolyLL: ILonLatPolygonLine;
       Azoom: byte;
       Atypemap: TMapType;
       ADelByte: boolean;
@@ -39,7 +40,7 @@ uses
   u_TileIteratorStuped;
 
 constructor TThreadDeleteTiles.Create(
-  APolyLL: TArrayOfDoublePoint;
+  APolyLL: ILonLatPolygonLine;
   Azoom: byte;
   Atypemap: TMapType;
   ADelByte: boolean;

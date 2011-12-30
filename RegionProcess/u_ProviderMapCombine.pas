@@ -7,6 +7,7 @@ uses
   Controls,
   t_GeoTypes,
   i_LanguageManager,
+  i_VectorItemLonLat,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -51,11 +52,11 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
+    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TArrayOfDoublePoint); override;
+    procedure StartProcess(APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -116,7 +117,7 @@ begin
   Result := SAS_STR_OperationMapCombineCaption;
 end;
 
-procedure TProviderMapCombine.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
+procedure TProviderMapCombine.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
 begin
   if FFrame = nil then begin
     FFrame := TfrMapCombine.Create(
@@ -160,7 +161,7 @@ begin
   end;
 end;
 
-procedure TProviderMapCombine.StartProcess(APolygon: TArrayOfDoublePoint);
+procedure TProviderMapCombine.StartProcess(APolygon: ILonLatPolygon);
 var
   Amt,Hmt:TMapType;
   i:integer;
@@ -203,22 +204,7 @@ begin
         if (VList <> nil) and (VList.Count = 0) then begin
           VMarksSubset := nil;
         end else begin
-          VLonLatRect.TopLeft := APolygon[0];
-          VLonLatRect.BottomRight := APolygon[0];
-          for i := 1 to Length(APolygon) - 1 do begin
-            if VLonLatRect.Left > APolygon[i].X then begin
-              VLonLatRect.Left := APolygon[i].X;
-            end;
-            if VLonLatRect.Top < APolygon[i].Y then begin
-              VLonLatRect.Top := APolygon[i].Y;
-            end;
-            if VLonLatRect.Right < APolygon[i].X then begin
-              VLonLatRect.Right := APolygon[i].X;
-            end;
-            if VLonLatRect.Bottom > APolygon[i].Y then begin
-              VLonLatRect.Bottom := APolygon[i].Y;
-            end;
-          end;
+          VLonLatRect := APolygon.Item[0].Bounds;
           VMarksSubset := FMarksDB.MarksDb.GetMarksSubset(VLonLatRect, VList, VMarksConfigStatic.IgnoreMarksVisible);
         end;
       finally
@@ -244,7 +230,7 @@ begin
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon,
+      APolygon.Item[0],
       VSplitCount,
       VZoom,
       Amt,Hmt,
@@ -260,7 +246,7 @@ begin
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon,
+      APolygon.Item[0],
       VSplitCount,
       VZoom,
       Amt,Hmt,
@@ -274,7 +260,7 @@ begin
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon,
+      APolygon.Item[0],
       VSplitCount,
       VZoom,
       Amt,Hmt,
@@ -289,7 +275,7 @@ begin
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon,
+      APolygon.Item[0],
       VSplitCount,
       VZoom,
       Amt,Hmt,
@@ -304,7 +290,7 @@ begin
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon,
+      APolygon.Item[0],
       VSplitCount,
       VZoom,
       Amt,Hmt,

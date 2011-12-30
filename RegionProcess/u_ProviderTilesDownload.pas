@@ -7,6 +7,7 @@ uses
   t_GeoTypes,
   i_JclNotify,
   i_MapTypes,
+  i_VectorItemLonLat,
   i_LanguageManager,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -39,11 +40,11 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
+    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TArrayOfDoublePoint); override;
+    procedure StartProcess(APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -90,7 +91,7 @@ begin
   Result := SAS_STR_OperationDownloadCaption;
 end;
 
-procedure TProviderTilesDownload.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
+procedure TProviderTilesDownload.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
 begin
   if FFrame = nil then begin
     FFrame := TfrTilesDownload.Create(
@@ -102,7 +103,7 @@ begin
     FFrame.Visible := False;
     FFrame.Parent := Self.Parent;
   end;
-  FFrame.Init(Azoom,APolygon);
+  FFrame.Init(Azoom, APolygon);
 end;
 
 procedure TProviderTilesDownload.RefreshTranslation;
@@ -133,7 +134,7 @@ begin
   end;
 end;
 
-procedure TProviderTilesDownload.StartProcess(APolygon: TArrayOfDoublePoint);
+procedure TProviderTilesDownload.StartProcess(APolygon: ILonLatPolygon);
 var
   smb:TMapType;
   VZoom: byte;
@@ -150,7 +151,7 @@ begin
   VThread := TThreadDownloadTiles.Create(
     FAppClosingNotifier,
     VSimpleLog,
-    APolygon,
+    APolygon.Item[0],
     FDownloadConfig,
     FDownloadInfo,
     FFrame.chkReplace.Checked,

@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   t_GeoTypes,
+  i_VectorItemLonLat,
   u_ExportProviderAbstract,
   fr_TilesDelete;
 
@@ -15,11 +16,11 @@ type
   public
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
+    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TArrayOfDoublePoint); override;
+    procedure StartProcess(APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -44,7 +45,7 @@ begin
   Result := SAS_STR_OperationDeleteCaption;
 end;
 
-procedure TProviderTilesDelete.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
+procedure TProviderTilesDelete.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
 begin
   if FFrame = nil then begin
     FFrame := TfrTilesDelete.Create(
@@ -87,7 +88,7 @@ begin
   end;
 end;
 
-procedure TProviderTilesDelete.StartProcess(APolygon: TArrayOfDoublePoint);
+procedure TProviderTilesDelete.StartProcess(APolygon: ILonLatPolygon);
 var
   VMapType: TMapType;
   VDelBySize: Boolean;
@@ -104,7 +105,13 @@ begin
     if VDelBySize then begin
       VDelSize := FFrame.seDelSize.Value;
     end;
-    TThreadDeleteTiles.Create(APolygon,FFrame.cbbZoom.ItemIndex,VMapType,VDelBySize, VDelSize);
+    TThreadDeleteTiles.Create(
+      APolygon.Item[0],
+      FFrame.cbbZoom.ItemIndex,
+      VMapType,
+      VDelBySize,
+      VDelSize
+    );
   end;
 end;
 

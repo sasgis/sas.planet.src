@@ -7,6 +7,7 @@ uses
   Classes,
   KAZip,
   GR32,
+  i_VectorItemLonLat,
   i_TileFileNameGenerator,
   u_MapType,
   u_ResStrings,
@@ -26,7 +27,7 @@ type
   public
     constructor Create(
       ATargetFile: string;
-      APolygon: TArrayOfDoublePoint;
+      APolygon: ILonLatPolygonLine;
       Azoomarr: array of boolean;
       AMapType: TMapType;
       ATileNameGen: ITileFileNameGenerator
@@ -44,7 +45,7 @@ uses
 
 constructor TThreadExportToZip.Create(
   ATargetFile: string;
-  APolygon: TArrayOfDoublePoint;
+  APolygon: ILonLatPolygonLine;
   Azoomarr: array of boolean;
   AMapType: TMapType;
   ATileNameGen: ITileFileNameGenerator);

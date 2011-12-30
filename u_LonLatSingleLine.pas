@@ -11,17 +11,25 @@ type
   TLonLatLineBase = class(TInterfacedObject)
   private
     FCount: Integer;
+    FBounds: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
   private
     function GetEnum: IEnumDoublePoint;
+    function GetBounds: TDoubleRect;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
   public
     constructor Create(
       AClosed: Boolean;
+      const ABounds: TDoubleRect;
       APoints: PDoublePointArray;
       ACount: Integer
-    );
+    ); overload;
+    constructor Create(
+      AClosed: Boolean;
+      APoints: PDoublePointArray;
+      ACount: Integer
+    ); overload;
   end;
 
   TLonLatPathLine = class(TLonLatLineBase, ILonLatPathLine)
@@ -53,7 +61,37 @@ constructor TLonLatLineBase.Create(
   APoints: PDoublePointArray;
   ACount: Integer
 );
+var
+  VBounds: TDoubleRect;
+  i: Integer;
 begin
+  VBounds.TopLeft := APoints[0];
+  VBounds.BottomRight := APoints[0];
+  for i := 1 to ACount - 1 do begin
+    if VBounds.Left > APoints[i].X then begin
+      VBounds.Left := APoints[i].X;
+    end;
+    if VBounds.Top < APoints[i].Y then begin
+      VBounds.Top := APoints[i].Y;
+    end;
+    if VBounds.Right < APoints[i].X then begin
+      VBounds.Right := APoints[i].X;
+    end;
+    if VBounds.Bottom > APoints[i].Y then begin
+      VBounds.Bottom := APoints[i].Y;
+    end;
+  end;
+  Create(AClosed, VBounds, APoints, ACount);
+end;
+
+constructor TLonLatLineBase.Create(
+  AClosed: Boolean;
+  const ABounds: TDoubleRect;
+  APoints: PDoublePointArray;
+  ACount: Integer
+);
+begin
+  FBounds := ABounds;
   FCount := ACount;
   Assert(FCount > 0, 'Empty line');
   if AClosed and not DoublePointsEqual(APoints[0], APoints[ACount - 1]) then begin
@@ -65,6 +103,11 @@ begin
     SetLength(FPoints, FCount);
     Move(APoints^, FPoints[0], ACount * SizeOf(TDoublePoint));
   end;
+end;
+
+function TLonLatLineBase.GetBounds: TDoubleRect;
+begin
+  Result := FBounds;
 end;
 
 function TLonLatLineBase.GetCount: Integer;

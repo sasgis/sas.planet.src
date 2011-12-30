@@ -687,6 +687,7 @@ uses
   i_LogSimple,
   i_LogForTaskThread,
   i_CoordConverter,
+  i_VectorItemLonLat,
   i_LocalCoordConverter,
   i_ValueToStringConverter,
   i_GUIDListStatic,
@@ -758,6 +759,7 @@ begin
       GState.MarksDB,
       GState.LocalConverterFactory,
       GState.BitmapPostProcessingConfig,
+      GState.VectorItmesFactory,
       GState.EcwDll,
       GState.MapCalibrationList,
       GState.DownloadConfig,
@@ -911,6 +913,7 @@ begin
       GState.LanguageManager,
       GState.MarksDB,
       FConfig.ViewPortState,
+      GState.VectorItmesFactory,
       GState.ValueToStringConverterConfig,
       FFormRegionProcess
     );
@@ -1074,6 +1077,7 @@ begin
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
+        GState.VectorItmesFactory,
         FConfig.LayersConfig.LastSelectionLayerConfig,
         GState.LastSelectionInfo
       )
@@ -2942,11 +2946,16 @@ end;
 procedure TfrmMain.TBPreviousClick(Sender: TObject);
 var
   VZoom: Byte;
-  VPolygon: TArrayOfDoublePoint;
+  VPolygon: ILonLatPolygon;
 begin
-  VZoom := GState.LastSelectionInfo.Zoom;
-  VPolygon := Copy(GState.LastSelectionInfo.Polygon);
-  if length(VPolygon)>0 then begin
+  GState.LastSelectionInfo.LockRead;
+  try
+    VZoom := GState.LastSelectionInfo.Zoom;
+    VPolygon := GState.LastSelectionInfo.Polygon;
+  finally
+    GState.LastSelectionInfo.UnlockRead;
+  end;
+  if VPolygon.Count > 0 then begin
     setalloperationfalse(ao_movemap);
     FFormRegionProcess.Show_(VZoom, VPolygon);
   end else begin
@@ -3212,7 +3221,7 @@ end;
 
 procedure TfrmMain.TBCOORDClick(Sender: TObject);
 var
-  Poly: TArrayOfDoublePoint;
+  Poly: ILonLatPolygon;
   VSelLonLat: TfrmLonLatRectEdit;
   VLonLatRect: TDoubleRect;
 begin
@@ -3225,9 +3234,14 @@ begin
     );
   Try
     Poly := GState.LastSelectionInfo.Polygon;
-    GetMinMax(VLonLatRect, @Poly[0], Length(Poly));
+    if Poly.Count > 0 then begin
+      VLonLatRect := Poly.Item[0].Bounds;
+    end else begin
+      VLonLatRect.TopLeft := FConfig.ViewPortState.GetVisualCoordConverter.GetCenterLonLat;
+      VLonLatRect.BottomRight := VLonLatRect.TopLeft;
+    end;
     if VSelLonLat.Execute(VLonLatRect) Then Begin
-      Poly := PolygonFromRect(VLonLatRect);
+      Poly := GState.VectorItmesFactory.CreateLonLatPolygonByRect(VLonLatRect);
       setalloperationfalse(ao_movemap);
       FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
       Poly := nil;
@@ -3727,7 +3741,7 @@ var
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
-  VPoly: TArrayOfDoublePoint;
+  VPoly: ILonLatPolygon;
   VMapMoving: Boolean;
   VMapType: TMapType;
   VValidPoint: Boolean;
@@ -3814,7 +3828,7 @@ begin
         FSelectionRect.UnlockWrite;
       end;
       if VSelectionFinished then begin
-        VPoly := PolygonFromRect(VSelectionRect);
+        VPoly := GState.VectorItmesFactory.CreateLonLatPolygonByRect(VSelectionRect);
         setalloperationfalse(ao_movemap);
         FFormRegionProcess.Show_(VZoomCurr, VPoly);
         VPoly := nil;
@@ -4284,16 +4298,19 @@ end;
 
 procedure TfrmMain.TBEditPathOkClick(Sender: TObject);
 var
-  VPoly: TArrayOfDoublePoint;
+  VPoly: ILonLatPolygon;
+  VPoints: TArrayOfDoublePoint;
 begin
   case FCurrentOper of
     ao_select_poly: begin
-      VPoly := Copy(FLineOnMapEdit.GetPoints);
+      VPoints := FLineOnMapEdit.GetPoints;
+      VPoly := GState.VectorItmesFactory.CreateLonLatPolygon(@Vpoints[0], Length(VPoints));
       setalloperationfalse(ao_movemap);
       FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPoly);
     end;
     ao_select_line: begin
-      VPoly := ConveryPolyline2Polygon(@FLineOnMapEdit.GetPoints[0], Length(FLineOnMapEdit.GetPoints), FConfig.LayersConfig.SelectionPolylineLayerConfig.GetRadius, FConfig.ViewPortState.GetVisualCoordConverter.GetGeoConverter, FConfig.ViewPortState.GetVisualCoordConverter.GetZoom);
+      VPoints := ConveryPolyline2Polygon(@FLineOnMapEdit.GetPoints[0], Length(FLineOnMapEdit.GetPoints), FConfig.LayersConfig.SelectionPolylineLayerConfig.GetRadius, FConfig.ViewPortState.GetVisualCoordConverter.GetGeoConverter, FConfig.ViewPortState.GetVisualCoordConverter.GetZoom);
+      VPoly := GState.VectorItmesFactory.CreateLonLatPolygon(@Vpoints[0], Length(VPoints));
       setalloperationfalse(ao_movemap);
       FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPoly);
     end;
@@ -4445,6 +4462,7 @@ begin
         VThread :=
           TThreadDownloadTiles.CreateFromSls(
             GState.AppClosingNotifier,
+            GState.VectorItmesFactory,
             VSimpleLog,
             GState.MapType.FullMapsSet,
             VFileName,
@@ -4483,7 +4501,7 @@ var
   VZoom: Byte;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-  VPolygon: TArrayOfDoublePoint;
+  VPolygon: ILonLatPolygon;
 begin
   TBRectSave.ImageIndex:=20;
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
@@ -4493,7 +4511,7 @@ begin
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
-  VPolygon := PolygonFromRect(VLonLatRect);
+  VPolygon := GState.VectorItmesFactory.CreateLonLatPolygonByRect(VLonLatRect);
   setalloperationfalse(ao_movemap);
   FFormRegionProcess.Show_(VZoom, VPolygon);
 end;

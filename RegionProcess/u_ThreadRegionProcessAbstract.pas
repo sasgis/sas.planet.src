@@ -6,6 +6,7 @@ uses
   Classes,
   Forms,
   t_GeoTypes,
+  i_VectorItemLonLat,
   i_OperationNotifier,
   u_OperationNotifier,
   frm_ProgressSimple;
@@ -32,7 +33,7 @@ type
     procedure UpdateProgressFormClose;
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction); virtual;
   protected
-    FPolygLL: TArrayOfDoublePoint;
+    FPolygLL: ILonLatPolygonLine;
 
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
@@ -50,7 +51,7 @@ type
     property OperationID: Integer read FOperationID;
   public
     constructor Create(
-      APolygon: TArrayOfDoublePoint
+      APolygon: ILonLatPolygonLine
     );
     destructor Destroy; override;
   end;
@@ -67,7 +68,7 @@ begin
   Terminate;
 end;
 
-constructor TThreadRegionProcessAbstract.Create(APolygon: TArrayOfDoublePoint);
+constructor TThreadRegionProcessAbstract.Create(APolygon: ILonLatPolygonLine);
 var
   VOperationNotifier: TOperationNotifier;
 begin
@@ -79,7 +80,7 @@ begin
   FProgressForm.ProgressBar1.Progress1 := 0;
   FProgressForm.ProgressBar1.Max := 100;
   FProgressForm.Visible := true;
-  FPolygLL := Copy(APolygon);
+  FPolygLL := APolygon;
   VOperationNotifier := TOperationNotifier.Create;
   FCancelNotifierInternal := VOperationNotifier;
   FCancelNotifier := VOperationNotifier;

@@ -6,6 +6,7 @@ uses
   Controls,
   t_GeoTypes,
   i_LanguageManager,
+  i_VectorItemLonLat,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
@@ -31,11 +32,11 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
+    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TArrayOfDoublePoint); override;
+    procedure StartProcess(APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -79,7 +80,7 @@ begin
   end;
 end;
 
-procedure TExportProviderIPhone.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
+procedure TExportProviderIPhone.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportIPhone.Create(
@@ -122,7 +123,7 @@ begin
   end;
 end;
 
-procedure TExportProviderIPhone.StartProcess(APolygon: TArrayOfDoublePoint);
+procedure TExportProviderIPhone.StartProcess(APolygon: ILonLatPolygon);
 var
   i:integer;
   path:string;
@@ -162,7 +163,7 @@ begin
   TThreadExportIPhone.Create(
     FCoordConverterFactory,
     path,
-    APolygon,
+    APolygon.Item[0],
     ZoomArr,
     typemaparr,
     VActiveMapIndex,

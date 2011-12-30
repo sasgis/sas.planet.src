@@ -6,6 +6,7 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_VectorItemLonLat,
   u_MapType,
   u_ThreadRegionProcessAbstract,
   i_ImageResamplerFactory,
@@ -33,7 +34,7 @@ type
     constructor Create(
       Azoom: byte;
       AInZooms: TArrayOfByte;
-      APolygLL: TArrayOfDoublePoint;
+      APolygLL: ILonLatPolygonLine;
       Atypemap: TMapType;
       AReplace: boolean;
       Asavefull: boolean;
@@ -55,7 +56,7 @@ uses
 constructor TThreadGenPrevZoom.Create(
   Azoom: byte;
   AInZooms: TArrayOfByte;
-  APolygLL: TArrayOfDoublePoint;
+  APolygLL: ILonLatPolygonLine;
   Atypemap: TMapType;
   AReplace: boolean;
   Asavefull: boolean;

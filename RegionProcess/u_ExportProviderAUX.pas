@@ -4,6 +4,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_VectorItemLonLat,
   u_ExportProviderAbstract,
   fr_ExportAUX;
 
@@ -14,11 +15,11 @@ type
   public
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
+    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TArrayOfDoublePoint); override;
+    procedure StartProcess(APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -43,7 +44,7 @@ begin
   Result := SAS_STR_ExportAUXGeoServerCaption;
 end;
 
-procedure TExportProviderAUX.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
+procedure TExportProviderAUX.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportAUX.Create(
@@ -86,7 +87,7 @@ begin
   end;
 end;
 
-procedure TExportProviderAUX.StartProcess(APolygon: TArrayOfDoublePoint);
+procedure TExportProviderAUX.StartProcess(APolygon: ILonLatPolygon);
 var
   path:string;
   VMapType: TMapType;
@@ -97,7 +98,12 @@ begin
   if FFrame.cbbZoom.ItemIndex < 0 then begin
     FFrame.cbbZoom.ItemIndex := 0;
   end;
-  TThreadExportToAUX.Create(APolygon,FFrame.cbbZoom.ItemIndex,VMapType,path)
+  TThreadExportToAUX.Create(
+    APolygon.Item[0],
+    FFrame.cbbZoom.ItemIndex,
+    VMapType,
+    path
+  )
 end;
 
 end.

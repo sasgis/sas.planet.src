@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   t_GeoTypes,
+  i_VectorItemLonLat,
   u_ThreadRegionProcessAbstract,
   u_ResStrings;
 
@@ -16,7 +17,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      APolygon: TArrayOfDoublePoint;
+      APolygon: ILonLatPolygonLine;
       Azoomarr: array of boolean
     );
     destructor Destroy; override;
@@ -27,7 +28,7 @@ implementation
 uses
   SysUtils;
 
-constructor TThreadExportAbstract.Create(APolygon: TArrayOfDoublePoint;
+constructor TThreadExportAbstract.Create(APolygon: ILonLatPolygonLine;
   Azoomarr: array of boolean);
 var
   i: Integer;

@@ -11,6 +11,7 @@ uses
   i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_BitmapPostProcessingConfig,
+  i_VectorItemLonLat,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
@@ -105,7 +106,7 @@ type
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: TArrayOfDoublePoint;
+      APolygon: ILonLatPolygonLine;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -133,7 +134,7 @@ constructor TThreadMapCombineBase.Create(
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
-  APolygon: TArrayOfDoublePoint;
+  APolygon: ILonLatPolygonLine;
   ASplitCount: TPoint;
   Azoom: byte;
   Atypemap: TMapType;
@@ -243,9 +244,9 @@ var
   VLen: Integer;
 begin
   inherited;
-  VLen := Length(FPolygLL);
+  VLen := FPolygLL.Count;
   SetLength(FPoly, VLen);
-  FMainTypeMap.GeoConvert.LonLatArray2PixelArray(@FPolygLL[0], VLen, @FPoly[0], FZoom);
+  FMainTypeMap.GeoConvert.LonLatArray2PixelArray(FPolygLL.Points, VLen, @FPoly[0], FZoom);
 
   VProcessTiles := GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, @FPoly[0], VLen, true);
   GetMinMax(FMapRect, @FPoly[0], VLen, false);

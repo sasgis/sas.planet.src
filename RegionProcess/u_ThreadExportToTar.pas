@@ -8,6 +8,7 @@ uses
   LibTar,
   GR32,
   i_TileFileNameGenerator,
+  i_VectorItemLonLat,
   u_MapType,
   u_ResStrings,
   t_GeoTypes,
@@ -26,7 +27,7 @@ type
   public
     constructor Create(
       ATargetFile: string;
-      APolygon: TArrayOfDoublePoint;
+      APolygon: ILonLatPolygonLine;
       Azoomarr: array of boolean;
       AMapType: TMapType;
       ATileNameGen: ITileFileNameGenerator
@@ -44,7 +45,7 @@ uses
 
 constructor TThreadExportToTar.Create(
   ATargetFile: string;
-  APolygon: TArrayOfDoublePoint;
+  APolygon: ILonLatPolygonLine;
   Azoomarr: array of boolean;
   AMapType: TMapType;
   ATileNameGen: ITileFileNameGenerator);

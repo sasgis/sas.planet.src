@@ -40,6 +40,8 @@ uses
   i_LastSelectionInfo,
   i_CoordConverterFactory,
   i_GlobalViewMainConfig,
+  i_VectorItemLonLat,
+  i_VectorItmesFactory,
   i_ImageResamplerConfig,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessingConfig,
@@ -84,20 +86,21 @@ type
     procedure CBFormatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
+    FVectorItmesFactory: IVectorItmesFactory;
     FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect:byte;
-    FPolygonLL: TArrayOfDoublePoint;
+    FPolygonLL: ILonLatPolygon;
     FProviderTilesDelte: TExportProviderAbstract;
     FProviderTilesGenPrev: TExportProviderAbstract;
     FProviderTilesCopy: TExportProviderAbstract;
     FProviderTilesDownload: TExportProviderAbstract;
     FProviderMapCombine: TExportProviderAbstract;
-    procedure LoadRegion(APolyLL: TArrayOfDoublePoint);
-    procedure DelRegion(APolyLL: TArrayOfDoublePoint);
-    procedure genbacksatREG(APolyLL: TArrayOfDoublePoint);
-    procedure scleitRECT(APolyLL: TArrayOfDoublePoint);
-    procedure savefilesREG(APolyLL: TArrayOfDoublePoint);
-    procedure ExportREG(APolyLL: TArrayOfDoublePoint);
+    procedure LoadRegion(APolyLL: ILonLatPolygon);
+    procedure DelRegion(APolyLL: ILonLatPolygon);
+    procedure genbacksatREG(APolyLL: ILonLatPolygon);
+    procedure scleitRECT(APolyLL: ILonLatPolygon);
+    procedure savefilesREG(APolyLL: ILonLatPolygon);
+    procedure ExportREG(APolyLL: ILonLatPolygon);
     procedure InitExportsList(
       ALanguageManager: ILanguageManager;
       AMainMapsConfig: IMainMapsConfig;
@@ -123,6 +126,7 @@ type
       AMarksDB: TMarksSystem;
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+      AVectorItmesFactory: IVectorItmesFactory;
       AEcwDll: IEcwDll;
       AMapCalibrationList: IMapCalibrationList;
       ADownloadConfig: IGlobalDownloadConfig;
@@ -131,7 +135,7 @@ type
     ); reintroduce;
     destructor Destroy; override;
     procedure LoadSelFromFile(FileName:string);
-    procedure Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
+    procedure Show_(Azoom:byte; APolygon: ILonLatPolygon);
     procedure RefreshTranslation; override;
   end;
 
@@ -139,6 +143,7 @@ implementation
 
 uses
   gnugettext,
+  i_EnumDoublePoint,
   u_ExportProviderYaMobileV3,
   u_ExportProviderYaMobileV4,
   u_ExportProviderGEKml,
@@ -171,6 +176,7 @@ constructor TfrmRegionProcess.Create(
   AMarksDB: TMarksSystem;
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+  AVectorItmesFactory: IVectorItmesFactory;
   AEcwDll: IEcwDll;
   AMapCalibrationList: IMapCalibrationList;
   ADownloadConfig: IGlobalDownloadConfig;
@@ -181,6 +187,7 @@ begin
   TP_Ignore(Self, 'CBFormat.Items');
   inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
+  FVectorItmesFactory := AVectorItmesFactory;
   InitExportsList(
     ALanguageManager,
     AMainMapsConfig,
@@ -285,7 +292,7 @@ begin
       if length(VPolygon)>0 then
       begin
         VZoom := VIni.Readinteger('HIGHLIGHTING','zoom',1) - 1;
-        Self.Show_(VZoom, VPolygon);
+        Self.Show_(VZoom, FVectorItmesFactory.CreateLonLatPolygon(@VPolygon[0], length(VPolygon)));
       end;
     finally
       VIni.Free;
@@ -314,12 +321,12 @@ begin
   FProviderMapCombine.RefreshTranslation;
 end;
 
-procedure TfrmRegionProcess.DelRegion(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.DelRegion(APolyLL: ILonLatPolygon);
 begin
   FProviderTilesDelte.StartProcess(APolyLL);
 end;
 
-procedure TfrmRegionProcess.ExportREG(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.ExportREG(APolyLL: ILonLatPolygon);
 var
   VExportProvider: TExportProviderAbstract;
 begin
@@ -330,17 +337,17 @@ begin
 end;
 
 
-procedure TfrmRegionProcess.savefilesREG(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.savefilesREG(APolyLL: ILonLatPolygon);
 begin
   FProviderTilesCopy.StartProcess(APolyLL);
 end;
 
-procedure TfrmRegionProcess.LoadRegion(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.LoadRegion(APolyLL: ILonLatPolygon);
 begin
   FProviderTilesDownload.StartProcess(APolyLL);
 end;
 
-procedure TfrmRegionProcess.genbacksatREG(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.genbacksatREG(APolyLL: ILonLatPolygon);
 begin
   FProviderTilesGenPrev.StartProcess(APolyLL);
 end;
@@ -447,7 +454,7 @@ begin
   CBFormat.ItemIndex := 0;
 end;
 
-procedure TfrmRegionProcess.scleitRECT(APolyLL: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.scleitRECT(APolyLL: ILonLatPolygon);
 begin
   FProviderMapCombine.StartProcess(APolyLL);
 end;
@@ -468,23 +475,15 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.Show_(Azoom:byte;Polygon_: TArrayOfDoublePoint);
+procedure TfrmRegionProcess.Show_(Azoom:byte; APolygon: ILonLatPolygon);
 var
   i:integer;
   VExportProvider: TExportProviderAbstract;
-  VPointsCount: Integer;
 begin
   FZoom_rect:=Azoom;
-  FPolygonLL := copy(polygon_);
-  VPointsCount := Length(FPolygonLL);
-  if VPointsCount > 1 then begin
-    if not DoublePointsEqual(FPolygonLL[0], FPolygonLL[VPointsCount - 1]) then begin
-      SetLength(FPolygonLL, VPointsCount + 1);
-      FPolygonLL[VPointsCount] := FPolygonLL[0];
-    end;
-  end;
+  FPolygonLL := APolygon;
 
-  FLastSelectionInfo.SetPolygon(FPolygonLL, FZoom_rect);
+  FLastSelectionInfo.SetPolygon(APolygon, FZoom_rect);
   for i := 0 to CBFormat.Items.Count - 1 do begin
     VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
     if VExportProvider <> nil then begin
@@ -522,32 +521,34 @@ var
   Ini: Tinifile;
   i:integer;
   VZoom: Byte;
-  VPolygon: TArrayOfDoublePoint;
+  VPolygon: ILonLatPolygon;
+  VEnum: IEnumDoublePoint;
+  VPoint: TDoublePoint;
 begin
- if (SaveSelDialog.Execute)and(SaveSelDialog.FileName<>'') then
-  begin
-   If FileExists(SaveSelDialog.FileName) then DeleteFile(SaveSelDialog.FileName);
-   FLastSelectionInfo.LockRead;
-   try
-     VZoom := FLastSelectionInfo.Zoom;
-     VPolygon := copy(FLastSelectionInfo.Polygon);
-   finally
-     FLastSelectionInfo.UnlockRead;
-   end;
-   Ini:=TiniFile.Create(SaveSelDialog.FileName);
-   try
-   if length(VPolygon)>0 then
-    begin
-     Ini.WriteInteger('HIGHLIGHTING','zoom',VZoom + 1);
-     for i:=1 to length(VPolygon) do
-      begin
-       Ini.WriteFloat('HIGHLIGHTING','PointLon_'+inttostr(i),VPolygon[i-1].x);
-       Ini.WriteFloat('HIGHLIGHTING','PointLat_'+inttostr(i),VPolygon[i-1].y);
-      end;
+  if (SaveSelDialog.Execute)and(SaveSelDialog.FileName<>'') then begin
+    If FileExists(SaveSelDialog.FileName) then DeleteFile(SaveSelDialog.FileName);
+    FLastSelectionInfo.LockRead;
+    try
+      VZoom := FLastSelectionInfo.Zoom;
+      VPolygon := FLastSelectionInfo.Polygon;
+    finally
+      FLastSelectionInfo.UnlockRead;
     end;
-   finally
-    ini.Free;
-   end;
+    Ini:=TiniFile.Create(SaveSelDialog.FileName);
+    try
+      if VPolygon.Count > 0 then begin
+        Ini.WriteInteger('HIGHLIGHTING','zoom',VZoom + 1);
+        VEnum := VPolygon.GetEnum;
+        i := 1;
+        while VEnum.Next(VPoint) do begin
+          Ini.WriteFloat('HIGHLIGHTING','PointLon_'+inttostr(i), VPoint.x);
+          Ini.WriteFloat('HIGHLIGHTING','PointLat_'+inttostr(i), VPoint.y);
+          Inc(i);
+        end;
+      end;
+    finally
+      ini.Free;
+    end;
   end;
 end;
 
