@@ -38,49 +38,96 @@ uses
   u_VectorItemLonLat,
   u_VectorItemProjected;
 
-//{ TLineSetEmpty }
-//type
-//  TLineSetEmpty = class(TInterfacedObject, ILonLatPath, ILonLatPolygon, IProjectedPath, IProjectedPolygon)
-//  private
-//    function GetProjection: IProjectionInfo;
-//    function GetCount: Integer;
-//    function GetEnum: IEnumDoublePoint;
-//    function GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;
-//    function GetItemLonLatPolygonLine(AIndex: Integer): ILonLatPolygonLine;
-//    function GetItemProjectedPathLine(AIndex: Integer): IProjectedPathLine;
-//    function GetItemProjectedPolygonLine(AIndex: Integer): IProjectedPolygonLine;
-//    procedure ILonLatPath.GetItem = GetItemLonLatPathLine;
-//    procedure ILonLatPolygon.GetItem = GetItemLonLatPolygonLine;
-//    procedure IProjectedPath.GetItem = GetItemProjectedPathLine;
-//    procedure IProjectedPolygon.GetItem = GetItemProjectedPolygonLine;
-//  end;
-//
-//function TLineSetEmpty.GetCount: Integer;
-//begin
-//  Result := 0;
-//end;
-//
-//function TLineSetEmpty.GetEnum: IEnumDoublePoint;
-//begin
-//  Result := nil;
-//end;
-//
-//function TLineSetEmpty.GetProjection: IProjectionInfo;
-//begin
-//  Result := nil;
-//end;
+{ TEnumDoublePointEmpty }
+
+type
+  TEnumDoublePointEmpty = class(TInterfacedObject, IEnumDoublePoint)
+  private
+    function Next(out APoint: TDoublePoint): Boolean;
+  end;
+
+function TEnumDoublePointEmpty.Next(out APoint: TDoublePoint): Boolean;
+begin
+  APoint := CEmptyDoublePoint;
+  Result := False;
+end;
+
+{ TLineSetEmpty }
+type
+  TLineSetEmpty = class(TInterfacedObject, ILonLatPath, ILonLatPolygon, IProjectedPath, IProjectedPolygon)
+  private
+    FEnum: IEnumDoublePoint;
+  private
+    function GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;
+    function GetItemLonLatPolygonLine(AIndex: Integer): ILonLatPolygonLine;
+    function GetItemProjectedPathLine(AIndex: Integer): IProjectedPathLine;
+    function GetItemProjectedPolygonLine(AIndex: Integer): IProjectedPolygonLine;
+  private
+    function GetProjection: IProjectionInfo;
+    function GetCount: Integer;
+    function GetEnum: IEnumDoublePoint;
+    function ILonLatPath.GetItem = GetItemLonLatPathLine;
+    function ILonLatPolygon.GetItem = GetItemLonLatPolygonLine;
+    function IProjectedPath.GetItem = GetItemProjectedPathLine;
+    function IProjectedPolygon.GetItem = GetItemProjectedPolygonLine;
+  public
+    constructor Create();
+  end;
+
+constructor TLineSetEmpty.Create;
+begin
+  FEnum := TEnumDoublePointEmpty.Create;
+end;
+
+function TLineSetEmpty.GetCount: Integer;
+begin
+  Result := 0;
+end;
+
+function TLineSetEmpty.GetEnum: IEnumDoublePoint;
+begin
+  Result := FEnum;
+end;
+
+function TLineSetEmpty.GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;
+begin
+  Result := nil;
+end;
+
+function TLineSetEmpty.GetItemLonLatPolygonLine(
+  AIndex: Integer): ILonLatPolygonLine;
+begin
+  Result := nil;
+end;
+
+function TLineSetEmpty.GetItemProjectedPathLine(
+  AIndex: Integer): IProjectedPathLine;
+begin
+  Result := nil;
+end;
+
+function TLineSetEmpty.GetItemProjectedPolygonLine(
+  AIndex: Integer): IProjectedPolygonLine;
+begin
+  Result := nil;
+end;
+
+function TLineSetEmpty.GetProjection: IProjectionInfo;
+begin
+  Result := nil;
+end;
 
 { TVectorItmesFactorySimple }
 
 constructor TVectorItmesFactorySimple.Create;
-//var
-//VEmpty: TLineSetEmpty;
+var
+VEmpty: TLineSetEmpty;
 begin
-//  VEmpty := TLineSetEmpty.Create;
-//  FEmptyLonLatPath := VEmpty;
-//  FEmptyLonLatPolygon := VEmpty;
-//  FEmptyProjectedPath := VEmpty;
-//  FEmptyProjectedPolygon := VEmpty;
+  VEmpty := TLineSetEmpty.Create;
+  FEmptyLonLatPath := VEmpty;
+  FEmptyLonLatPolygon := VEmpty;
+  FEmptyProjectedPath := VEmpty;
+  FEmptyProjectedPolygon := VEmpty;
 end;
 
 function TVectorItmesFactorySimple.CreateLonLatPath(APoints: PDoublePointArray;
@@ -135,14 +182,66 @@ begin
   end else if VLineCount = 1 then begin
     Result := TLonLatPathOneLine.Create(VLine);
   end else begin
+    VList.Add(VLine);
     Result := TLonLatPath.Create(VList);
   end;
 end;
 
 function TVectorItmesFactorySimple.CreateLonLatPolygon(
   APoints: PDoublePointArray; ACount: Integer): ILonLatPolygon;
+var
+  VLine: ILonLatPolygonLine;
+  i: Integer;
+  VStart: PDoublePointArray;
+  VLineLen: Integer;
+  VLineCount: Integer;
+  VList: IInterfaceList;
+  VPoint: TDoublePoint;
 begin
-
+  VLineCount := 0;
+  VStart := APoints;
+  VLineLen := 0;
+  for i := 0 to ACount - 1 do begin
+    VPoint := APoints[i];
+    if PointIsEmpty(VPoint) then begin
+      if VLineLen > 0 then begin
+        if VLineCount > 0 then begin
+          if VLineCount = 1 then begin
+            VList := TInterfaceList.Create;
+          end;
+          VList.Add(VLine);
+          VLine := nil;
+        end;
+        VLine := TLonLatPolygonLine.Create(VStart, VLineLen);
+        Inc(VLineCount);
+        VLineLen := 0;
+      end;
+    end else begin
+      if VLineLen = 0 then begin
+        VStart := @APoints[i];
+      end;
+      Inc(VLineLen);
+    end;
+  end;
+  if VLineLen > 0 then begin
+    if VLineCount > 0 then begin
+      if VLineCount = 1 then begin
+        VList := TInterfaceList.Create;
+      end;
+      VList.Add(VLine);
+      VLine := nil;
+    end;
+    VLine := TLonLatPolygonLine.Create(VStart, VLineLen);
+    Inc(VLineCount);
+  end;
+  if VLineCount = 0 then begin
+    Result := FEmptyLonLatPolygon;
+  end else if VLineCount = 1 then begin
+    Result := TLonLatPolygonOneLine.Create(VLine);
+  end else begin
+    VList.Add(VLine);
+    Result := TLonLatPolygon.Create(VList);
+  end;
 end;
 
 function TVectorItmesFactorySimple.CreateLonLatPolygonLineByRect(

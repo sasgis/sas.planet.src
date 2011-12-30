@@ -44,7 +44,7 @@ begin
   FProjected := False;
   FCurrentEnum := nil;
   FCount := ALineSet.Count;
-  FIndex := 0;
+  FIndex := -1;
   FNeedEmptyPoint := False;
   FFinished := False;
   FPreparedPointExists := False;
@@ -57,7 +57,7 @@ begin
   FProjected := False;
   FCurrentEnum := nil;
   FCount := ALineSet.Count;
-  FIndex := 0;
+  FIndex := -1;
   FNeedEmptyPoint := False;
   FFinished := False;
   FPreparedPointExists := False;
@@ -70,7 +70,7 @@ begin
   FProjected := True;
   FCurrentEnum := nil;
   FCount := ALineSet.Count;
-  FIndex := 0;
+  FIndex := -1;
   FNeedEmptyPoint := False;
   FFinished := False;
   FPreparedPointExists := False;
@@ -83,7 +83,7 @@ begin
   FProjected := True;
   FCurrentEnum := nil;
   FCount := ALineSet.Count;
-  FIndex := 0;
+  FIndex := -1;
   FNeedEmptyPoint := False;
   FFinished := False;
   FPreparedPointExists := False;
@@ -124,6 +124,7 @@ begin
         FCurrentEnum := nil;
       end;
     end else begin
+      Inc(FIndex);
       if FIndex < FCount then begin
         FCurrentEnum := GetNextEnum;
         if FCurrentEnum <> nil then begin
@@ -136,13 +137,9 @@ begin
             end;
           end;
         end;
-        Inc(FIndex);
       end else begin
         FFinished := True;
-        if FIndex = FCount then begin
-          FSourceLineSet := nil;
-          Inc(FIndex);
-        end;
+        FSourceLineSet := nil;
       end;
     end;
   end;
