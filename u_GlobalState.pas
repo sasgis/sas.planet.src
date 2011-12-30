@@ -23,14 +23,14 @@ unit u_GlobalState;
 interface
 
 uses
+  {$IFDEF SasDebugWithJcl}
   Windows,
+  JclDebug,
+  {$ENDIF SasDebugWithJcl}
   ExtCtrls,
   Classes,
   IniFiles,
   SysUtils,
-  {$IFDEF SasDebugWithJcl}
-  JclDebug,
-  {$ENDIF SasDebugWithJcl}
   i_JclNotify,
   i_GPSPositionFactory,
   i_EcwDll,
@@ -213,7 +213,9 @@ var
 implementation
 
 uses
+  {$IFDEF SasDebugWithJcl}
   Forms,
+  {$ENDIF}
   u_JclNotify,
   u_SASMainConfigProvider,
   u_EcwDllSimple,
