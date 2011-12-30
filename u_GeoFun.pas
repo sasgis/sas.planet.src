@@ -539,9 +539,21 @@ begin
 end;
 
 function DoublePointsEqual(p1,p2:TDoublePoint):boolean;
+var
+  VP1Empty: Boolean;
+  VP2Empty: Boolean;
 begin
- if (p1.x=p2.X)and(p1.y=p2.y) then result:=true
-                              else result:=false;
+  VP1Empty := IsNan(p1.x) or IsNan(p1.Y);
+  VP2Empty := IsNan(p2.x) or IsNan(p2.Y);
+  if VP1Empty and VP2Empty then begin
+    Result := True;
+  end else begin
+    if not VP1Empty and not VP2Empty then begin
+      Result := (p1.x=p2.X)and(p1.y=p2.y);
+    end else begin
+      Result := False;
+    end;
+  end;
 end;
 
 function DoubleRectsEqual(ARect1, ARect2: TDoubleRect): Boolean;
