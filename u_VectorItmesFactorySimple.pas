@@ -4,8 +4,10 @@ interface
 
 uses
   t_GeoTypes,
-  i_VectorItemLonLat,
   i_ProjectionInfo,
+  i_EnumDoublePoint,
+  i_DoublePointsAggregator,
+  i_VectorItemLonLat,
   i_VectorItemProjected,
   i_VectorItmesFactory;
 
@@ -17,14 +19,50 @@ type
     FEmptyProjectedPath: IProjectedPath;
     FEmptyProjectedPolygon: IProjectedPolygon;
   private
-    function CreateLonLatPath(APoints: PDoublePointArray; ACount: Integer): ILonLatPath;
-    function CreateLonLatPolygon(APoints: PDoublePointArray; ACount: Integer): ILonLatPolygon;
-    function CreateProjectedPath(AProjection: IProjectionInfo; APoints: PDoublePointArray; ACount: Integer): IProjectedPath;
-    function CreateProjectedPolygon(AProjection: IProjectionInfo; APoints: PDoublePointArray; ACount: Integer): IProjectedPolygon;
-    function CreateLonLatPolygonLineByRect(ARect: TDoubleRect): ILonLatPolygonLine;
-    function CreateLonLatPolygonByRect(ARect: TDoubleRect): ILonLatPolygon;
-    function CreateProjectedPolygonLineByRect(AProjection: IProjectionInfo; ARect: TDoubleRect): IProjectedPolygonLine;
-    function CreateProjectedPolygonByRect(AProjection: IProjectionInfo; ARect: TDoubleRect): IProjectedPolygon;
+    function CreateLonLatPath(
+      APoints: PDoublePointArray;
+      ACount: Integer
+    ): ILonLatPath;
+    function CreateLonLatPolygon(
+      APoints: PDoublePointArray;
+      ACount: Integer
+    ): ILonLatPolygon;
+    function CreateProjectedPath(
+      AProjection: IProjectionInfo;
+      APoints: PDoublePointArray;
+      ACount: Integer
+    ): IProjectedPath;
+    function CreateProjectedPolygon(
+      AProjection: IProjectionInfo;
+      APoints: PDoublePointArray;
+      ACount: Integer
+    ): IProjectedPolygon;
+
+    function CreateLonLatPolygonLineByRect(
+      ARect: TDoubleRect
+    ): ILonLatPolygonLine;
+    function CreateLonLatPolygonByRect(
+      ARect: TDoubleRect
+    ): ILonLatPolygon;
+    function CreateProjectedPolygonLineByRect(
+      AProjection: IProjectionInfo;
+      ARect: TDoubleRect
+    ): IProjectedPolygonLine;
+    function CreateProjectedPolygonByRect(
+      AProjection: IProjectionInfo;
+      ARect: TDoubleRect
+    ): IProjectedPolygon;
+
+    function CreateProjectedPathByEnum(
+      AProjection: IProjectionInfo;
+      AEnum: IEnumDoublePoint;
+      ATemp: IDoublePointsAggregator
+    ): IProjectedPath;
+    function CreateProjectedPolygonByEnum(
+      AProjection: IProjectionInfo;
+      AEnum: IEnumDoublePoint;
+      ATemp: IDoublePointsAggregator
+    ): IProjectedPolygon;
   public
     constructor Create();
   end;
@@ -33,7 +71,6 @@ implementation
 
 uses
   Classes,
-  i_EnumDoublePoint,
   u_GeoFun,
   u_LonLatSingleLine,
   u_ProjectedSingleLine,
@@ -324,6 +361,59 @@ begin
   end;
 end;
 
+function TVectorItmesFactorySimple.CreateProjectedPathByEnum(
+  AProjection: IProjectionInfo;
+  AEnum: IEnumDoublePoint;
+  ATemp: IDoublePointsAggregator
+): IProjectedPath;
+var
+  VPoint: TDoublePoint;
+  VLine: IProjectedPathLine;
+  VList: IInterfaceList;
+  VLineCount: Integer;
+begin
+  ATemp.Clear;
+  VLineCount := 0;
+  while AEnum.Next(VPoint) do begin
+    if PointIsEmpty(VPoint) then begin
+      if ATemp.Count > 0 then begin
+        if VLineCount > 0 then begin
+          if VLineCount = 1 then begin
+            VList := TInterfaceList.Create;
+          end;
+          VList.Add(VLine);
+          VLine := nil;
+        end;
+        VLine := TProjectedPathLine.Create(AProjection, ATemp.Points, ATemp.Count);
+        Inc(VLineCount);
+        ATemp.Clear
+      end;
+    end else begin
+      ATemp.Add(VPoint);
+    end;
+  end;
+  if ATemp.Count > 0 then begin
+    if VLineCount > 0 then begin
+      if VLineCount = 1 then begin
+        VList := TInterfaceList.Create;
+      end;
+      VList.Add(VLine);
+      VLine := nil;
+    end;
+    VLine := TProjectedPathLine.Create(AProjection, ATemp.Points, ATemp.Count);
+    Inc(VLineCount);
+    ATemp.Clear
+  end;
+  if VLineCount = 0 then begin
+    Result := FEmptyProjectedPath;
+  end else if VLineCount = 1 then begin
+    Result := TProjectedPathOneLine.Create(VLine);
+  end else begin
+    VList.Add(VLine);
+    Result := TProjectedPath.Create(AProjection, VList);
+  end;
+end;
+
 function TVectorItmesFactorySimple.CreateProjectedPolygon(
   AProjection: IProjectionInfo; APoints: PDoublePointArray;
   ACount: Integer): IProjectedPolygon;
@@ -371,6 +461,57 @@ begin
     end;
     VLine := TProjectedPolygonLine.Create(AProjection, VStart, VLineLen);
     Inc(VLineCount);
+  end;
+  if VLineCount = 0 then begin
+    Result := FEmptyProjectedPolygon;
+  end else if VLineCount = 1 then begin
+    Result := TProjectedPolygonOneLine.Create(VLine);
+  end else begin
+    VList.Add(VLine);
+    Result := TProjectedPolygon.Create(AProjection, VList);
+  end;
+end;
+
+function TVectorItmesFactorySimple.CreateProjectedPolygonByEnum(
+  AProjection: IProjectionInfo; AEnum: IEnumDoublePoint;
+  ATemp: IDoublePointsAggregator): IProjectedPolygon;
+var
+  VPoint: TDoublePoint;
+  VLine: IProjectedPolygonLine;
+  VList: IInterfaceList;
+  VLineCount: Integer;
+begin
+  ATemp.Clear;
+  VLineCount := 0;
+  while AEnum.Next(VPoint) do begin
+    if PointIsEmpty(VPoint) then begin
+      if ATemp.Count > 0 then begin
+        if VLineCount > 0 then begin
+          if VLineCount = 1 then begin
+            VList := TInterfaceList.Create;
+          end;
+          VList.Add(VLine);
+          VLine := nil;
+        end;
+        VLine := TProjectedPolygonLine.Create(AProjection, ATemp.Points, ATemp.Count);
+        Inc(VLineCount);
+        ATemp.Clear
+      end;
+    end else begin
+      ATemp.Add(VPoint);
+    end;
+  end;
+  if ATemp.Count > 0 then begin
+    if VLineCount > 0 then begin
+      if VLineCount = 1 then begin
+        VList := TInterfaceList.Create;
+      end;
+      VList.Add(VLine);
+      VLine := nil;
+    end;
+    VLine := TProjectedPolygonLine.Create(AProjection, ATemp.Points, ATemp.Count);
+    Inc(VLineCount);
+    ATemp.Clear
   end;
   if VLineCount = 0 then begin
     Result := FEmptyProjectedPolygon;
