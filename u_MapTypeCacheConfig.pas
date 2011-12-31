@@ -256,7 +256,7 @@ end;
 
 function TMapTypeCacheConfigBerkeleyDB.GetTileFileName(AXY: TPoint; AZoom: Byte): string;
 begin
-  Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + '.db';
+  Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + '.sdb';
 end;
 
 end.

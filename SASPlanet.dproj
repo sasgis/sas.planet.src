@@ -449,6 +449,7 @@
     <DCCReference Include="RegionProcess\u_ThreadExportIPhone.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportKML.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToAUX.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportToBDB.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToFileSystem.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToTar.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToZip.pas" />

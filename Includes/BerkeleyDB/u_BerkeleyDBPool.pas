@@ -151,7 +151,7 @@ begin
             PRec.Obj := TBerkeleyDB.Create;
           except
             Dispose(PRec);
-            Exit; // видимо, ошибка загрузки dll -> молча уходим
+            raise;
           end;
           PRec.Obj.FileName := AFileName;
           PRec.AcquireTime := Now;
@@ -164,7 +164,13 @@ begin
           PRec := FObjList.Items[VRecIndexOldest];
           if (PRec <> nil) and (PRec.ActiveCount <= 0) then begin
             FreeAndNil(PRec.Obj);
-            PRec.Obj := TBerkeleyDB.Create;
+            try
+              PRec.Obj := TBerkeleyDB.Create;
+            except
+              Dispose(PRec);
+              FObjList.Delete(VRecIndexOldest);
+              raise;
+            end;
             PRec.Obj.FileName := AFileName;
             PRec.AcquireTime := Now;
             PRec.ReleaseTime := MinDateTime;

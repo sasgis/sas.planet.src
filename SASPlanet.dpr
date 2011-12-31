@@ -104,6 +104,7 @@ uses
   u_ThreadExportToZip in 'RegionProcess\u_ThreadExportToZip.pas',
   u_ThreadExportToTar in 'RegionProcess\u_ThreadExportToTar.pas',
   u_ThreadExportToFileSystem in 'RegionProcess\u_ThreadExportToFileSystem.pas',
+  u_ThreadExportToBDB in 'RegionProcess\u_ThreadExportToBDB.pas',
   u_ThreadExportIPhone in 'RegionProcess\u_ThreadExportIPhone.pas',
   u_ThreadExportKML in 'RegionProcess\u_ThreadExportKML.pas',
   u_ThreadExportYaMobileV3 in 'RegionProcess\u_ThreadExportYaMobileV3.pas',
