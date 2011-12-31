@@ -145,7 +145,11 @@ begin
     FmapType.StorageConfig.NameInCache := EditNameinCache.Text;
     if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
       if CBCacheType.ItemIndex > 0 then begin
-        FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex;
+        if CBCacheType.ItemIndex = 5 then begin
+          FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex + 1;
+        end else begin
+          FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex;
+        end;
       end else begin
         FMapType.StorageConfig.CacheTypeCode := 0;
       end;
@@ -177,7 +181,11 @@ begin
   SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
   EditHotKey.HotKey:=FmapType.Zmp.GUI.HotKey;
   if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
-    CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode;
+    if FmapType.Zmp.StorageConfig.CacheTypeCode = 6 then begin
+      CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode - 1;
+    end else begin
+      CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode;
+    end;
   end;
 
   EditParSubMenu.Text:=FmapType.GUIConfig.ParentSubMenu.GetDefaultValue;
@@ -214,7 +222,11 @@ end;
 procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
 begin
   if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
-    CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode;
+    if FmapType.Zmp.StorageConfig.CacheTypeCode = 6 then begin
+      CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode - 1;
+    end else begin
+      CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode;
+    end;
   end;
 end;
 
@@ -245,7 +257,11 @@ begin
     if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
       pnlCacheType.Visible := True;
       pnlCacheType.Enabled := True;
-      CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode;
+      if FMapType.StorageConfig.CacheTypeCode = 6 then begin
+        CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode - 1;
+      end else begin
+        CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode;
+      end;
     end else begin
       pnlCacheType.Visible := False;
       pnlCacheType.Enabled := False;

@@ -135,7 +135,8 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         'GoogleMV'
         'SAS.Planet'
         'EarthSlicer 1.95'
-        'GlobalMapper Tiles')
+        'GlobalMapper Tiles'
+        'BerkeleyDB')
     end
     object btnResetCacheType: TButton
       AlignWithMargins = True

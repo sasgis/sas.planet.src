@@ -99,7 +99,8 @@ object frTilesCopy: TfrTilesCopy
           'GoogleMV'
           'SAS.Planet'
           'ES1.95'
-          'GMT (GlobalMapper >=10.02)')
+          'GMT (GlobalMapper >=10.02)'
+          'BerkeleyDB')
       end
       object chkDeleteSource: TCheckBox
         AlignWithMargins = True

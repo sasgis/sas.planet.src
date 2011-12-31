@@ -22,24 +22,29 @@ unit u_BerkeleyDB;
 
 interface
 
+{.$DEFINE DB_THREAD}  //Open DB handle as free-threaded
+
 uses
   SysUtils,
   SyncObjs,
   db_h;
 
 const
-  BDB_MIN_PAGE_SIZE = $200; // 512 b
-  BDB_MAX_PAGE_SIZE = $10000; // 64 Kb
+  BDB_MIN_PAGE_SIZE : Cardinal  = $200;  //512 b
+  BDB_MAX_PAGE_SIZE : Cardinal  = $10000;  //64 Kb
 
-  BDB_MEM_CACHE_SIZE = $100000; // 1 Mb
+  BDB_MIN_CACHE_SIZE : Cardinal = $5000;  //20k
+  BDB_MAX_CACHE_SIZE : Cardinal = $FFFFFFFF;  //4G for 32-bit OS
 
+  BDB_DEF_CACHE_SIZE = $40000; //256k
+  BDB_DEF_PAGE_SIZE  = 0;      //auto-selected based on the underlying
+                               //filesystem I/O block size (512b - 16k)
 type
   TBerkeleyDB = class(TObject)
   private
     FDB: PDB;
     FFileName: string;
     FDBEnabled: Boolean;
-    FLastErrorStr: string;
     FCS: TCriticalSection;
   public
     constructor Create;
@@ -48,10 +53,10 @@ type
 
     function Open(
       const AFileName: string;
+      APageSize: Cardinal = BDB_DEF_PAGE_SIZE;
+      AMemCacheSize: Cardinal = BDB_DEF_CACHE_SIZE;
       ADBType: DBTYPE = DB_BTREE;
-      AFlags: Cardinal = DB_CREATE_;
-      APageSize: Cardinal = BDB_MAX_PAGE_SIZE;
-      AMemCacheSize: Cardinal = BDB_MEM_CACHE_SIZE
+      AFlags: Cardinal = DB_CREATE_
     ): Boolean;
 
     procedure Close;
@@ -90,31 +95,7 @@ type
 implementation
 
 var
-  BDBLibInitError: Boolean = False;
-  BDBLibInitErrorStr: string = '';
   LibInitCS: TCriticalSection = nil;
-
-function BDBInitLib(out AErrorStr: string): Boolean;
-begin
-  LibInitCS.Acquire;
-  try
-    Result := False;
-    if not BDBLibInitError then begin
-      try
-        InitBerkeleyDB;
-        Result := True;
-      except
-        on E: Exception do begin
-          BDBLibInitError := True;
-          BDBLibInitErrorStr := E.ClassName + ':' + E.Message;
-        end;
-      end;
-    end;
-    AErrorStr := BDBLibInitErrorStr;
-  finally
-    LibInitCS.Release;
-  end;
-end;
 
 { TBerkeleyDB }
 
@@ -124,8 +105,12 @@ begin
   FCS := TCriticalSection.Create;
   FFileName := '';
   FDB := nil;
-  if not BDBInitLib(FLastErrorStr) then begin
-    raise Exception.Create(FLastErrorStr);
+  FDBEnabled := False;
+  LibInitCS.Acquire;
+  try
+    InitBerkeleyDB;
+  finally
+    LibInitCS.Release;
   end;
 end;
 
@@ -138,10 +123,10 @@ end;
 
 function TBerkeleyDB.Open(
   const AFileName: string;
+  APageSize: Cardinal = BDB_DEF_PAGE_SIZE;
+  AMemCacheSize: Cardinal = BDB_DEF_CACHE_SIZE;
   ADBType: DBTYPE = DB_BTREE;
-  AFlags: Cardinal = DB_CREATE_;
-  APageSize: Cardinal = BDB_MAX_PAGE_SIZE;
-  AMemCacheSize: Cardinal = BDB_MEM_CACHE_SIZE
+  AFlags: Cardinal = DB_CREATE_
 ): Boolean;
 begin
   FCS.Acquire;
@@ -153,21 +138,22 @@ begin
         Result := False;
       end;
     end else begin
-      try
-        CheckBDB(db_create(FDB, nil, 0));
-        CheckBDB(FDB.set_alloc(FDB, @GetMemory, @ReallocMemory, @FreeMemory));
-        if not FileExists(FFileName) then begin
-          CheckBDB(FDB.set_pagesize(FDB, APageSize));
-        end;
-        CheckBDB(FDB.set_cachesize(FDB, 0, AMemCacheSize, 0));
-        CheckBDB(FDB.open(FDB, nil, PAnsiChar(AFileName), '', ADBType, AFlags, 0));
-        FDBEnabled := True;
-      except
-        on E: Exception do begin
-          FDBEnabled := False;
-          FLastErrorStr := E.Message;
-        end;
+      FDBEnabled := False;
+      CheckBDB(db_create(FDB, nil, 0));
+      CheckBDB(FDB.set_alloc(FDB, @GetMemory, @ReallocMemory, @FreeMemory));
+      if not FileExists(FFileName) and
+         (APageSize <> Cardinal(BDB_DEF_PAGE_SIZE)) then
+      begin
+        CheckBDB(FDB.set_pagesize(FDB, APageSize));
       end;
+      if AMemCacheSize <> Cardinal(BDB_DEF_CACHE_SIZE) then begin
+        CheckBDB(FDB.set_cachesize(FDB, 0, AMemCacheSize, 0));
+      end;
+      {$IFDEF DB_THREAD}
+      AFlags := AFlags or DB_THREAD;
+      {$ENDIF}
+      CheckBDB(FDB.open(FDB, nil, PAnsiChar(AFileName), '', ADBType, AFlags, 0));
+      FDBEnabled := True;
       Result := FDBEnabled;
     end;
   finally
@@ -197,23 +183,30 @@ function TBerkeleyDB.Read(
 var
   dbtKey, dbtData: DBT;
 begin
+  {$IFNDEF DB_THREAD}
   FCS.Acquire;
   try
+  {$ENDIF}
     Result := False;
     if FDBEnabled then begin
       FillChar(dbtKey, Sizeof(DBT), 0);
       FillChar(dbtData, Sizeof(DBT), 0);
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
+      if (FDB.open_flags and DB_THREAD = DB_THREAD) then begin
+        dbtData.flags := DB_DBT_MALLOC;
+      end;
       Result := CheckAndFoundBDB(FDB.get(FDB, nil, @dbtKey, @dbtData, AFlags));
       if Result then begin
         AData := dbtData.data;
         ADataSize := dbtData.size;
       end;
     end;
+  {$IFNDEF DB_THREAD}
   finally
     FCS.Release;
   end;
+  {$ENDIF}
 end;
 
 function TBerkeleyDB.Write(
@@ -226,8 +219,10 @@ function TBerkeleyDB.Write(
 var
   dbtKey, dbtData: DBT;
 begin
+  {$IFNDEF DB_THREAD}
   FCS.Acquire;
   try
+  {$ENDIF}
     Result := False;
     if FDBEnabled then begin
       FillChar(dbtKey, Sizeof(DBT), 0);
@@ -238,9 +233,11 @@ begin
       dbtData.size := ADataSize;
       Result := CheckAndNotExistsBDB(FDB.put(FDB, nil, @dbtKey, @dbtData, AFlags));
     end;
+  {$IFNDEF DB_THREAD}
   finally
     FCS.Release;
   end;
+  {$ENDIF}
 end;
 
 function TBerkeleyDB.Exists(
@@ -251,20 +248,22 @@ function TBerkeleyDB.Exists(
 var
   dbtKey: DBT;
 begin
+  {$IFNDEF DB_THREAD}
   FCS.Acquire;
   try
+  {$ENDIF}
     Result := False;
     if FDBEnabled then begin
       FillChar(dbtKey, Sizeof(DBT), 0);
-
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
-
       Result := CheckAndFoundBDB(FDB.exists(FDB, nil, @dbtKey, AFlags));
     end;
+  {$IFNDEF DB_THREAD}
   finally
     FCS.Release;
   end;
+  {$ENDIF}
 end;
 
 function TBerkeleyDB.Del(
@@ -275,20 +274,22 @@ function TBerkeleyDB.Del(
 var
   dbtKey: DBT;
 begin
+  {$IFNDEF DB_THREAD}
   FCS.Acquire;
   try
+  {$ENDIF}
     Result := False;
     if FDBEnabled then begin
       FillChar(dbtKey, Sizeof(DBT), 0);
-
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
-
       Result := CheckAndFoundBDB(FDB.del(FDB, nil, @dbtKey, AFlags));
     end;
+  {$IFNDEF DB_THREAD}
   finally
     FCS.Release;
   end;
+  {$ENDIF}
 end;
 
 initialization

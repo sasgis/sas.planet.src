@@ -41,7 +41,19 @@ uses
 
 function TTileFileNameBDB.GetTileFileName(AXY: TPoint; AZoom: Byte): string;
 begin
-  Result := Format('z%d' + PathDelim + '%d' + PathDelim + '%d' + '.' + '%d', [Azoom + 1, AXY.x shr 10, AXY.x shr 8, AXY.y shr 8]);
+  Result := Format(
+    'z%d' + PathDelim +
+    '%d' + PathDelim +
+    '%d' + PathDelim +
+    '%d' + '.' + '%d',
+    [
+      Azoom + 1,
+      AXY.x shr 10,
+      AXY.y shr 10,
+      AXY.x shr 8,
+      AXY.y shr 8
+    ]
+  );
 end;
 
 end.

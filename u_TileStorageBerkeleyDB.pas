@@ -48,10 +48,13 @@ type
   end;
 
   PBDBData = ^TBDBData;
-  TBDBData = packed record
-    TileSize: Cardinal;
-    TileDate: TDateTime;
-    TileBody: Pointer;
+  TBDBData = record
+    BDBRecVer : Byte;
+    TileSize  : Cardinal;
+    TileDate  : TDateTime;
+    TileVer   : PWideChar;
+    TileMIME  : PWideChar;
+    TileBody  : Pointer;
   end;
 
   TTileStorageBerkeleyDB = class(TTileStorageAbstract)
@@ -125,9 +128,18 @@ type
 
   end;
 
+const
+  CBDBRecVerCur = 1;
+  CPageSize = 1024; // 1k
+  CCacheSize = BDB_DEF_CACHE_SIZE;
+
+function PBDBDataToMemStream(AData: PBDBData; out AStream: TMemoryStream): Boolean;
+function RawDataToPBDBData(ARawData: Pointer; AData: PBDBData): Boolean;
+
 implementation
 
 uses
+  Variants,
   t_CommonTypes,
   t_GeoTypes,
   i_TileIterator,
@@ -136,37 +148,65 @@ uses
   u_TileIteratorByRect,
   u_TileInfoBasic;
 
-function PBDBDataToMemStream(AData: PBDBData; AStream: TMemoryStream): Boolean;
+procedure WideCharToStream(APWideChar: PWideChar; AStream: TMemoryStream); inline;
+const
+  CEndLine: WideChar = #0000;
 begin
+  if (APWideChar <> nil) and (Length(APWideChar) > 0) then begin
+    AStream.WriteBuffer( APWideChar^, Length(APWideChar)*SizeOf(WideChar) );
+  end;
+  AStream.WriteBuffer( CEndLine , SizeOf(CEndLine) );
+end;
+
+function PBDBDataToMemStream(AData: PBDBData; out AStream: TMemoryStream): Boolean;
+begin
+  Result := False;
   if (AData <> nil) and Assigned(AStream) then begin
     AStream.Clear;
     AStream.Position := 0;
+    AStream.WriteBuffer( AData.BDBRecVer, SizeOf(AData.BDBRecVer) );
     AStream.WriteBuffer( AData.TileSize, SizeOf(AData.TileSize) );
     AStream.WriteBuffer( AData.TileDate, SizeOf(AData.TileDate) );
+    WideCharToStream(AData.TileVer, AStream);
+    WideCharToStream(AData.TileMIME, AStream);
     if (AData.TileSize > 0) and (AData.TileBody <> nil) then begin
       AStream.WriteBuffer( AData.TileBody^, AData.TileSize );
     end;
     Result := True;
-  end else begin
-    Result := False;
   end;
 end;
 
 function RawDataToPBDBData(ARawData: Pointer; AData: PBDBData): Boolean;
+var
+  VOffset: Integer;
 begin
+  Result := False;
   if (AData <> nil) and (ARawData <> nil) then begin
     FillChar(AData^, SizeOf(TBDBData), 0);
 
-    AData.TileSize := Cardinal(ARawData^);
-    AData.TileDate := PDateTime( Integer(ARawData) + SizeOf(AData.TileSize) )^;
+    AData.BDBRecVer := PByte(ARawData)^;
+    VOffset := SizeOf(AData.BDBRecVer);
 
-    if AData.TileSize > 0 then begin
-      AData.TileBody := Pointer( Integer(ARawData) + SizeOf(AData.TileSize) + SizeOf(AData.TileDate) );
+    if AData.BDBRecVer = CBDBRecVerCur then begin
+
+      AData.TileSize := PCardinal(Integer(ARawData) + VOffset)^;
+      Inc(VOffset, SizeOf(AData.TileSize));
+
+      AData.TileDate := PDateTime(Integer(ARawData) + VOffset)^;
+      Inc( VOffset, SizeOf(AData.TileDate) );
+
+      AData.TileVer := PWideChar(Integer(ARawData) + VOffset);
+      Inc( VOffset, (Length(AData.TileVer) + 1) * SizeOf(WideChar) );
+
+      AData.TileMIME := PWideChar(Integer(ARawData) + VOffset);
+      Inc( VOffset, (Length(AData.TileMIME) + 1) * SizeOf(WideChar) );
+
+      if AData.TileSize > 0 then begin
+        AData.TileBody := Pointer(Integer(ARawData) + VOffset);
+      end;
+
+      Result := True;
     end;
-
-    Result := ((AData.TileSize > 0) and (AData.TileBody <> nil)) or (AData.TileDate > 0);
-  end else begin
-    Result := False;
   end;
 end;
 
@@ -187,8 +227,7 @@ begin
   );
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
   FBDBPool := TBerkeleyDBPool.Create;
-  FBDBPool.Size := 64;
- end;
+end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
 begin
@@ -225,7 +264,7 @@ begin
       if FileExists(VPath) then begin
         VBDB := FBDBPool.Acquire(VPath);
         try
-          if Assigned(VBDB) and VBDB.Open(VPath) then begin
+          if Assigned(VBDB) and VBDB.Open(VPath, CPageSize, CCacheSize) then begin
             VKey.TileX := AXY.X;
             VKey.TileY := AXY.Y;
             Result := VBDB.Del(@VKey, SizeOf(TBDBKey));
@@ -264,7 +303,7 @@ begin
       if FileExists(VPath) then begin
         VBDB := FBDBPool.Acquire(VPath);
         try
-          if Assigned(VBDB) and VBDB.Open(VPath) then begin
+          if Assigned(VBDB) and VBDB.Open(VPath, CPageSize, CCacheSize) then begin
             VKey.TileX := AXY.X;
             VKey.TileY := AXY.Y;
             Result := VBDB.Del(@VKey, SizeOf(TBDBKey));
@@ -313,7 +352,11 @@ var
   VPath: string;
   VBDB: TBerkeleyDB;
   VKey: TBDBKey;
+  VData: TBDBData;
+  VRawData: Pointer;
+  VRawDataSize: Cardinal;
 begin
+  Result := nil;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     if not FileExists(VPath) then begin
@@ -321,16 +364,17 @@ begin
     end else begin
       VBDB := FBDBPool.Acquire(VPath);
       try
-        if Assigned(VBDB) and VBDB.Open(VPath) then begin
+        if Assigned(VBDB) and VBDB.Open(VPath, CPageSize, CCacheSize) then begin
           VKey.TileX := AXY.X;
           VKey.TileY := AXY.Y;
           if VBDB.Exists(@VKey, SizeOf(TBDBKey)) then begin
-            Result := TTileInfoBasicExists.Create(
-              0,
-              0,
-              AVersionInfo,
-              FMainContentType
-            );
+            VRawData := nil;
+            VRawDataSize := 0;
+            if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
+              if RawDataToPBDBData(VRawData, @VData) then begin
+                Result := GetTileInfoByBDBData(@VData, AVersionInfo);
+              end;
+            end;
           end else begin
             Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
           end;
@@ -349,8 +393,8 @@ function TTileStorageBerkeleyDB.GetTileInfoByBDBData(
 begin
   if ABDBData <> nil then begin
     Result := TTileInfoBasicExists.Create(
-      ABDBData^.TileDate,
-      ABDBData^.TileSize,
+      ABDBData.TileDate,
+      ABDBData.TileSize,
       AVersionInfo,
       FMainContentType
     );
@@ -381,7 +425,7 @@ begin
     if FileExists(VPath) then begin
       VBDB := FBDBPool.Acquire(VPath);
       try
-        if Assigned(VBDB) and VBDB.Open(VPath) then begin
+        if Assigned(VBDB) and VBDB.Open(VPath, CPageSize, CCacheSize) then begin
           VKey.TileX := AXY.X;
           VKey.TileY := AXY.Y;
           VRawData := nil;
@@ -422,13 +466,17 @@ begin
     CreateDirIfNotExists(VPath);
     VBDB := FBDBPool.Acquire(VPath);
     try
-      if Assigned(VBDB) and VBDB.Open(VPath) then begin
+      if Assigned(VBDB) and VBDB.Open(VPath, CPageSize, CCacheSize) then begin
         VKey.TileX := AXY.X;
         VKey.TileY := AXY.Y;
         VMemStream := TMemoryStream.Create;
         try
+          VData.BDBRecVer := CBDBRecVerCur;
           VData.TileSize := AStream.Size;
           VData.TileDate := Now;
+          VData.TileVer := PWideChar(VarToWideStrDef(AVersionInfo.Version, ''));
+          VData.TileMIME := PWideChar(FMainContentType.GetContentType);
+
           AStream.Position := 0;
           if AStream is TMemoryStream then begin
             VData.TileBody := TMemoryStream(AStream).Memory;
@@ -473,14 +521,18 @@ begin
     CreateDirIfNotExists(VPath);
     VBDB := FBDBPool.Acquire(VPath);
     try
-      if Assigned(VBDB) and VBDB.Open(VPath) then begin
+      if Assigned(VBDB) and VBDB.Open(VPath, CPageSize, CCacheSize) then begin
         VKey.TileX := AXY.X;
         VKey.TileY := AXY.Y;
         VMemStream := TMemoryStream.Create;
         try
+          VData.BDBRecVer := CBDBRecVerCur;
           VData.TileSize := 0;
           VData.TileDate := Now;
+          VData.TileVer := PWideChar(VarToWideStrDef(AVersionInfo.Version, ''));
+          VData.TileMIME := PWideChar(FMainContentType.GetContentType);
           VData.TileBody := nil;
+
           PBDBDataToMemStream(@VData, VMemStream);
           VMemStream.Position := 0;
           VBDB.Write(@VKey, SizeOf(TBDBKey), VMemStream.Memory, VMemStream.Size);
