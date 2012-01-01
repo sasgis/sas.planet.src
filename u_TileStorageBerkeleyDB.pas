@@ -51,6 +51,7 @@ type
     TileDate  : TDateTime;
     TileVer   : PWideChar;
     TileMIME  : PWideChar;
+    TileDefExt: PWideChar;
     TileBody  : Pointer;
   end;
 
@@ -61,10 +62,7 @@ type
     FMainContentType: IContentTypeInfoBasic;
     FTileNotExistsTileInfo: ITileInfoBasic;
     procedure CreateDirIfNotExists(APath: string);
-    function GetTileInfoByBDBData(
-      ABDBData: PBDBData;
-      AVersionInfo: IMapVersionInfo
-    ): ITileInfoBasic;
+    function GetTileInfoByBDBData(ABDBData: PBDBData): ITileInfoBasic;
   public
     constructor Create(
       AConfig: ISimpleTileStorageConfig;
@@ -126,7 +124,7 @@ type
   end;
 
 const
-  CBDBRecVerCur = 1;
+  CBDBRecVerCur = 2;
   CPageSize = 1024; // 1k
   CCacheSize = BDB_DEF_CACHE_SIZE;
 
@@ -138,6 +136,8 @@ implementation
 uses
   Variants,
   t_CommonTypes,
+  u_ContentTypeInfo,
+  u_MapVersionInfo,
   u_TileFileNameBDB,
   u_TileStorageTypeAbilities,
   u_TileInfoBasic;
@@ -163,6 +163,7 @@ begin
     AStream.WriteBuffer( AData.TileDate, SizeOf(AData.TileDate) );
     WideCharToStream(AData.TileVer, AStream);
     WideCharToStream(AData.TileMIME, AStream);
+    WideCharToStream(AData.TileDefExt, AStream);
     if (AData.TileSize > 0) and (AData.TileBody <> nil) then begin
       AStream.WriteBuffer( AData.TileBody^, AData.TileSize );
     end;
@@ -195,11 +196,16 @@ begin
       AData.TileMIME := PWideChar(Integer(ARawData) + VOffset);
       Inc( VOffset, (Length(AData.TileMIME) + 1) * SizeOf(WideChar) );
 
+      AData.TileDefExt := PWideChar(Integer(ARawData) + VOffset);
+      Inc( VOffset, (Length(AData.TileDefExt) + 1) * SizeOf(WideChar) );
+
       if AData.TileSize > 0 then begin
         AData.TileBody := Pointer(Integer(ARawData) + VOffset);
       end;
 
       Result := True;
+    end else begin
+      raise Exception.Create('BerkeleyDB: Unsupported tile record version!');
     end;
   end;
 end;
@@ -366,7 +372,7 @@ begin
             VRawDataSize := 0;
             if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
               if RawDataToPBDBData(VRawData, @VData) then begin
-                Result := GetTileInfoByBDBData(@VData, AVersionInfo);
+                Result := GetTileInfoByBDBData(@VData);
               end;
             end;
           end else begin
@@ -380,20 +386,22 @@ begin
   end;
 end;
 
-function TTileStorageBerkeleyDB.GetTileInfoByBDBData(
-  ABDBData: PBDBData;
-  AVersionInfo: IMapVersionInfo
-): ITileInfoBasic;
+function TTileStorageBerkeleyDB.GetTileInfoByBDBData(ABDBData: PBDBData): ITileInfoBasic;
 begin
   if ABDBData <> nil then begin
     Result := TTileInfoBasicExists.Create(
       ABDBData.TileDate,
       ABDBData.TileSize,
-      AVersionInfo,
-      FMainContentType
+      TMapVersionInfo.Create(
+        WideString(ABDBData.TileVer)
+      ),
+      TContentTypeInfoBase.Create(
+        WideString(ABDBData.TileMIME),
+        WideString(ABDBData.TileDefExt)
+      )
     );
   end else begin
-    Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
+    Result := TTileInfoBasicNotExists.Create(0, nil);
   end;
 end;
 
@@ -426,7 +434,7 @@ begin
           VRawDataSize := 0;
           if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
             if RawDataToPBDBData(VRawData, @VData) then begin
-              ATileInfo := GetTileInfoByBDBData(@VData, AVersionInfo);
+              ATileInfo := GetTileInfoByBDBData(@VData);
               if ATileInfo.GetIsExists then begin
                 AStream.Position := 0;
                 Result := AStream.Write(VData.TileBody^, VData.TileSize) = Integer(VData.TileSize);
@@ -470,6 +478,7 @@ begin
           VData.TileDate := Now;
           VData.TileVer := PWideChar(VarToWideStrDef(AVersionInfo.Version, ''));
           VData.TileMIME := PWideChar(FMainContentType.GetContentType);
+          VData.TileDefExt := PWideChar(FMainContentType.GetDefaultExt);
 
           AStream.Position := 0;
           if AStream is TMemoryStream then begin
@@ -525,6 +534,7 @@ begin
           VData.TileDate := Now;
           VData.TileVer := PWideChar(VarToWideStrDef(AVersionInfo.Version, ''));
           VData.TileMIME := PWideChar(FMainContentType.GetContentType);
+          VData.TileDefExt := PWideChar(FMainContentType.GetDefaultExt);
           VData.TileBody := nil;
 
           PBDBDataToMemStream(@VData, VMemStream);

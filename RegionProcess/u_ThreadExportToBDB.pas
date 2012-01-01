@@ -68,6 +68,7 @@ type
 implementation
 
 uses
+  Variants,
   i_CoordConverter,
   i_TileIterator,
   i_TileInfoBasic,
@@ -132,7 +133,8 @@ var
   VExists: Boolean;
 begin
   Result := False;
-  VPath := FPathExport + FTileNameGen.GetTileFileName(AXY, AZoom) + '.sdb';
+  VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) +
+    AMapType.GetShortFolderName) + FTileNameGen.GetTileFileName(AXY, AZoom) + '.sdb';
   CreateDirIfNotExists(VPath);
   VBDB := FBDBPool.Acquire(VPath);
   try
@@ -142,14 +144,30 @@ begin
       VExists := VBDB.Exists(@VKey, SizeOf(TBDBKey));
       if not VExists or (VExists and FIsReplace) then begin
         FStream.Clear;
+        VTileInfo := nil;
         if AMapType.TileStorage.LoadTile(AXY, AZoom, nil, FStream, VTileInfo) then begin
+
+          FillChar(VData, Sizeof(TBDBData), 0);
+          
           VData.BDBRecVer := CBDBRecVerCur;
           VData.TileSize := FStream.Size;
-          VData.TileDate := Now;
-          VData.TileVer := ''; // TODO
-          VData.TileMIME := PWideChar(AMapType.TileStorage.GetMainContentType.GetContentType);
-          FStream.Position := 0;
-          VData.TileBody := FStream.Memory; 
+
+          if VData.TileSize > 0 then begin
+            FStream.Position := 0;
+            VData.TileBody := FStream.Memory;
+          end;
+
+          if VTileInfo <> nil then begin
+            VData.TileDate := VTileInfo.LoadDate;
+            if VTileInfo.VersionInfo <> nil then begin
+              VData.TileVer := PWideChar(VarToWideStrDef(VTileInfo.VersionInfo.Version, ''));
+            end;
+            if VTileInfo.ContentType <> nil then begin
+              VData.TileMIME := PWideChar(VTileInfo.ContentType.GetContentType);
+              VData.TileDefExt := PWideChar(VTileInfo.ContentType.GetDefaultExt);
+            end;
+          end;
+
           VMemStream := TMemoryStream.Create;
           try
             PBDBDataToMemStream(@VData, VMemStream);
