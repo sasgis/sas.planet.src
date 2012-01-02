@@ -371,8 +371,13 @@ begin
             VRawData := nil;
             VRawDataSize := 0;
             if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
-              if RawDataToPBDBData(VRawData, @VData) then begin
-                Result := GetTileInfoByBDBData(@VData);
+              if (VRawData <> nil) and (VRawDataSize > 0) then
+              try
+                if RawDataToPBDBData(VRawData, @VData) then begin
+                  Result := GetTileInfoByBDBData(@VData);
+                end;
+              finally
+                FreeMem(VRawData, VRawDataSize);
               end;
             end;
           end else begin
@@ -422,6 +427,7 @@ var
 begin
   Result := False;
   ATileInfo := nil;
+  AStream.Size := 0;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
     if FileExists(VPath) then begin
@@ -433,13 +439,18 @@ begin
           VRawData := nil;
           VRawDataSize := 0;
           if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
-            if RawDataToPBDBData(VRawData, @VData) then begin
-              ATileInfo := GetTileInfoByBDBData(@VData);
-              if ATileInfo.GetIsExists then begin
-                AStream.Position := 0;
-                Result := AStream.Write(VData.TileBody^, VData.TileSize) = Integer(VData.TileSize);
-                AStream.Position := 0;
+            if (VRawData <> nil) and (VRawDataSize > 0) then
+            try
+              if RawDataToPBDBData(VRawData, @VData) then begin
+                ATileInfo := GetTileInfoByBDBData(@VData);
+                if ATileInfo.GetIsExists then begin
+                  AStream.Position := 0;
+                  Result := AStream.Write(VData.TileBody^, VData.TileSize) = Integer(VData.TileSize);
+                  AStream.Position := 0;
+                end;
               end;
+            finally
+              FreeMem(VRawData, VRawDataSize);
             end;
           end;
         end;

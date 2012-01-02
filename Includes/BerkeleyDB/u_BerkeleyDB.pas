@@ -197,9 +197,10 @@ begin
         dbtData.flags := DB_DBT_MALLOC;
       end;
       Result := CheckAndFoundBDB(FDB.get(FDB, nil, @dbtKey, @dbtData, AFlags));
-      if Result then begin
-        AData := dbtData.data;
+      if Result and (dbtData.data <> nil) and (dbtData.size > 0) then begin
         ADataSize := dbtData.size;
+        GetMem(AData, ADataSize);
+        Move(dbtData.data^, AData^, dbtData.size);
       end;
     end;
   {$IFNDEF DB_THREAD}
