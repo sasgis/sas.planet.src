@@ -156,7 +156,7 @@ begin
   if
     (InterlockedExchange(FSourceChangeCount, 0) > 0) or
     (FSourceProjected = nil) or
-    (FSourceProjected.Projection.GetIsSameProjectionInfo(VProjection))
+    (not FSourceProjected.Projection.GetIsSameProjectionInfo(VProjection))
   then begin
     FSourceProjected :=
       FVectorItmesFactory.CreateProjectedPolygonByEnum(
