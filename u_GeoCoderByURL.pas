@@ -388,6 +388,18 @@ begin
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
  end else
+ if PosEx('rambler.ru', Vlink, 1) > 0then begin
+  Vlink := ReplaceStr(astr,'\"','');
+  sname := 'rambler';
+  i := PosEx('lon:', Vlink, 1);
+  j := PosEx(',', Vlink, i+1);
+  slon := Copy(Vlink, i + 4, j - (i + 4));
+  i := PosEx('lat:', Vlink, j);
+  j := PosEx('}', Vlink, i+1);
+  slat := Copy(Vlink, i + 4, j - (i + 4));
+  sdesc := '[ '+slon+' , '+slat+' ]';
+  sfulldesc := ASearch;
+ end else
  VLinkErr := true;
 
  if (vErrCode <> 200)and(vErrCode <> 302) then VLinkErr := true;
@@ -419,7 +431,8 @@ begin
      (PosEx('binged.it', ASearch, 1) > 0 )or
      (PosEx('osm.org', ASearch, 1) > 0 )or
      (PosEx('permalink.html', ASearch, 1) > 0 )or
-     (PosEx('api/index.html?permalink=', ASearch, 1) > 0 )
+     (PosEx('api/index.html?permalink=', ASearch, 1) > 0 ) or
+     (PosEx('rambler.ru/?', ASearch, 1) > 0 )
    then begin
    VlocalLink := false;
    Result := ASearch;
@@ -451,4 +464,5 @@ end.
 // http://kosmosnimki.ru/permalink.html?Na1d0e33d
 // http://maps.kosmosnimki.ru/api/index.html?permalink=ZWUJK&SA5JU
 // http://go.2gis.ru/1hox
+// http://maps.rambler.ru/?6rJJy58
 
