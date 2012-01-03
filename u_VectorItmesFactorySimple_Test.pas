@@ -24,6 +24,7 @@ type
     procedure CreateLonLatPathSimple;
     procedure CreateLonLatPathTwoLines;
     procedure CreateLonLatPathNoLines;
+
     procedure CreateLonLatPolygonSimple;
     procedure CreateLonLatPolygonTwoLines;
     procedure CreateLonLatPolygonNoLines;
@@ -31,6 +32,7 @@ type
     procedure CreateProjectedPathSimple;
     procedure CreateProjectedPathTwoLines;
     procedure CreateProjectedPathNoLines;
+
     procedure CreateProjectedPolygonSimple;
     procedure CreateProjectedPolygonTwoLines;
     procedure CreateProjectedPolygonNoLines;

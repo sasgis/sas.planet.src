@@ -29,6 +29,16 @@ type
     procedure TwoPointsIn;
   end;
 
+  TestTEnumDoublePointClipByRect = class(TTestCase)
+  private
+    function PrepareEnumByArray(AData: TArrayOfDoublePoint): IEnumDoublePoint;
+  published
+    procedure ClosedFirstPointOut;
+    procedure ClosedSecondPointOut;
+    procedure ClosedAllPointsOut;
+    procedure ClosedAllPointsAround;
+  end;
+
 implementation
 
 uses
@@ -260,7 +270,118 @@ begin
   CheckFalse(VTestEnum.Next(VPoint));
 end;
 
+{ TestTEnumDoublePointClipByRect }
+
+procedure TestTEnumDoublePointClipByRect.ClosedAllPointsAround;
+var
+  VData: TArrayOfDoublePoint;
+  VTestEnum:  IEnumDoublePoint;
+  VPoint: TDoublePoint;
+begin
+  SetLength(VData, 5);
+  VData[0] := DoublePoint(1, 0);
+  VData[1] := DoublePoint(8, 0);
+  VData[2] := DoublePoint(10, 10);
+  VData[3] := DoublePoint(0, 10);
+  VData[4] := DoublePoint(1, 0);
+
+  VTestEnum := PrepareEnumByArray(VData);
+
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(2, 0)));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(7, 0)));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(7, 5)));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(2, 5)));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(2, 0)));
+  CheckFalse(VTestEnum.Next(VPoint));
+end;
+
+procedure TestTEnumDoublePointClipByRect.ClosedAllPointsOut;
+var
+  VData: TArrayOfDoublePoint;
+  VTestEnum:  IEnumDoublePoint;
+  VPoint: TDoublePoint;
+begin
+  SetLength(VData, 4);
+  VData[0] := DoublePoint(1, 0);
+  VData[1] := DoublePoint(1, 1);
+  VData[2] := DoublePoint(0, 1);
+  VData[3] := DoublePoint(1, 0);
+
+  VTestEnum := PrepareEnumByArray(VData);
+
+  CheckFalse(VTestEnum.Next(VPoint));
+end;
+
+procedure TestTEnumDoublePointClipByRect.ClosedFirstPointOut;
+var
+  VData: TArrayOfDoublePoint;
+  VTestEnum:  IEnumDoublePoint;
+  VPoint: TDoublePoint;
+begin
+  SetLength(VData, 4);
+  VData[0] := DoublePoint(1, 0);
+  VData[1] := DoublePoint(4, 3);
+  VData[2] := DoublePoint(3, 4);
+  VData[3] := DoublePoint(1, 0);
+
+  VTestEnum := PrepareEnumByArray(VData);
+
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(2, 1)));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[1]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[2]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(2, 2)));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(2, 1)));
+  CheckFalse(VTestEnum.Next(VPoint));
+end;
+
+procedure TestTEnumDoublePointClipByRect.ClosedSecondPointOut;
+var
+  VData: TArrayOfDoublePoint;
+  VTestEnum:  IEnumDoublePoint;
+  VPoint: TDoublePoint;
+begin
+  SetLength(VData, 4);
+  VData[0] := DoublePoint(4, 3);
+  VData[1] := DoublePoint(1, 0);
+  VData[2] := DoublePoint(3, 4);
+  VData[3] := DoublePoint(4, 3);
+
+  VTestEnum := PrepareEnumByArray(VData);
+
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[0]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(2, 1)));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, DoublePoint(2, 2)));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[2]));
+  CheckTrue(VTestEnum.Next(VPoint));
+  CheckTrue(DoublePointsEqual(VPoint, VData[3]));
+  CheckFalse(VTestEnum.Next(VPoint));
+end;
+
+function TestTEnumDoublePointClipByRect.PrepareEnumByArray(
+  AData: TArrayOfDoublePoint): IEnumDoublePoint;
+var
+  VDataEnum: IEnumDoublePoint;
+begin
+  VDataEnum := TEnumDoublePointsByArray.Create(@AData[0], Length(AData));
+  Result := TEnumDoublePointClipByRect.Create(True, DoubleRect(2, 0, 7, 5), VDataEnum);
+end;
+
 initialization
   // Register any test cases with the test runner
   RegisterTest(TestTEnumDoublePointClipByLeftBorder.Suite);
+  RegisterTest(TestTEnumDoublePointClipByRect.Suite);
 end.
