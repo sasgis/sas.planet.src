@@ -159,17 +159,9 @@ begin
     (not FSourceProjected.Projection.GetIsSameProjectionInfo(VProjection))
   then begin
     FSourceProjected :=
-      FVectorItmesFactory.CreateProjectedPolygonByEnum(
+      FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,
-        TEnumDoublePointFilterEqual.Create(
-          TEnumDoublePointLonLatToMapPixel.Create(
-            ALocalConverter.GetZoom,
-            ALocalConverter.GetGeoConverter,
-            TEnumDoublePointFilterFirstPoly.Create(
-              FLastSelectionInfo.Polygon.GetEnum
-            )
-          )
-        ),
+        FLastSelectionInfo.Polygon,
         FPreparedPointsAggreagtor
       );
   end;
@@ -202,6 +194,7 @@ begin
     VRectWithDelta.Top := VLocalRect.Top - 10;
     VRectWithDelta.Right := VLocalRect.Right + 10;
     VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+
     VEnum :=
       TEnumDoublePointFilterEqual.Create(
         TEnumDoublePointClipByRect.Create(
