@@ -79,6 +79,33 @@ type
       ASource: ILonLatPolygon;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
+
+    function CreateProjectedPathWithClipByLonLatEnum(
+      AProjection: IProjectionInfo;
+      AEnum: IEnumDoublePoint;
+      AMapPixelsClipRect: TDoubleRect;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPath;
+    function CreateProjectedPolygonWithClipByLonLatEnum(
+      AProjection: IProjectionInfo;
+      AEnum: IEnumDoublePoint;
+      AMapPixelsClipRect: TDoubleRect;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPolygon;
+
+    function CreateProjectedPathWithClipByLonLatPath(
+      AProjection: IProjectionInfo;
+      ASource: ILonLatPath;
+      AMapPixelsClipRect: TDoubleRect;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPath;
+    function CreateProjectedPolygonWithClipByLonLatPolygon(
+      AProjection: IProjectionInfo;
+      ASource: ILonLatPolygon;
+      AMapPixelsClipRect: TDoubleRect;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPolygon;
+
   end;
 
 implementation
