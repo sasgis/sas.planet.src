@@ -713,9 +713,11 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonWithClipByLonLatEnum(
-  AProjection: IProjectionInfo; AEnum: IEnumDoublePoint;
+  AProjection: IProjectionInfo;
+  AEnum: IEnumDoublePoint;
   AMapPixelsClipRect: TDoubleRect;
-  ATemp: IDoublePointsAggregator): IProjectedPolygon;
+  ATemp: IDoublePointsAggregator
+): IProjectedPolygon;
 begin
   Result :=
     CreateProjectedPolygonByEnum(
