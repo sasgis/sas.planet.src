@@ -11,6 +11,7 @@ uses
   i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_VectorItemLonLat,
+  i_VectorItemProjected,
   i_LocalCoordConverterFactorySimpe,
   u_ECWWrite,
   u_MapType,
@@ -47,6 +48,7 @@ type
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
       APolygon: ILonLatPolygonLine;
+      AProjectedPolygon: IProjectedPolygonLine;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -72,6 +74,7 @@ constructor TThreadMapCombineECW.Create(
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
   APolygon: ILonLatPolygonLine;
+  AProjectedPolygon: IProjectedPolygonLine;
   ASplitCount: TPoint;
   Azoom: byte;
   Atypemap, AHtypemap: TMapType;
@@ -88,6 +91,7 @@ begin
     AMapCalibrationList,
     AFileName,
     APolygon,
+    AProjectedPolygon,
     ASplitCount,
     Azoom,
     Atypemap,

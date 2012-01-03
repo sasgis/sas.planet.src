@@ -11,6 +11,7 @@ uses
   i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_VectorItemLonLat,
+  i_VectorItemProjected,
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
   t_GeoTypes,
@@ -35,6 +36,7 @@ type
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
       APolygon: ILonLatPolygonLine;
+      AProjectedPolygon: IProjectedPolygonLine;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -95,6 +97,7 @@ constructor TThreadMapCombinePNG.Create(
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
   APolygon: ILonLatPolygonLine;
+  AProjectedPolygon: IProjectedPolygonLine;
   ASplitCount: TPoint;
   Azoom: byte;
   Atypemap: TMapType;
@@ -111,6 +114,7 @@ begin
     AMapCalibrationList,
     AFileName,
     APolygon,
+    AProjectedPolygon,
     ASplitCount,
     Azoom,
     Atypemap,

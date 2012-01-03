@@ -27,12 +27,16 @@ uses
   Graphics,
   WinTypes,
   t_GeoTypes,
+  i_IDList,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_LocalCoordConverter,
   i_OperationNotifier,
   i_MarksDrawConfig,
   i_MarkPicture,
   i_MarksSimple,
+  i_VectorItemProjected,
+  i_VectorItmesFactory,
   i_DoublePointsAggregator,
   i_BitmapLayerProvider;
 
@@ -40,14 +44,26 @@ type
   TMapMarksBitmapLayerProviderByMarksSubset = class(TInterfacedObject, IBitmapLayerProvider)
   private
     FConfig: IMarksDrawConfigStatic;
+    FVectorItmesFactory: IVectorItmesFactory;
     FMarksSubset: IMarksSubset;
-    FBaseConverter: ILocalCoordConverter;
+    FProjectionInfo: IProjectionInfo;
+    FMapPixelRect: TDoubleRect;
 
-
+    FLinesClipRect: TDoubleRect;
+    FProjectedLines: IIDInterfaceList;
     FTempBmp: TCustomBitmap32;
     FBitmapWithText: TBitmap32;
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FPathFixedPoints: TArrayOfFixedPoint;
+    function GetProjectedPath(
+      AMarkPath: IMarkLine;
+      AProjectionInfo: IProjectionInfo
+    ): IProjectedPath;
+    function GetProjectedPolygon(
+      AMarkPoly: IMarkPoly;
+      AProjectionInfo: IProjectionInfo
+    ): IProjectedPolygon;
+
     function DrawSubset(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
@@ -80,7 +96,9 @@ type
   public
     constructor Create(
       AConfig: IMarksDrawConfigStatic;
-      ABaseConverter: ILocalCoordConverter;
+      AVectorItmesFactory: IVectorItmesFactory;
+      AProjectionInfo: IProjectionInfo;
+      AMapPixelRect: TDoubleRect;
       AMarksSubset: IMarksSubset
     );
     destructor Destroy; override;
@@ -95,9 +113,11 @@ uses
   GR32_Resamplers,
   GR32_Polygons,
   i_BitmapMarker,
+  u_IDInterfaceList,
   i_EnumDoublePoint,
   u_DoublePointsAggregator,
   u_EnumDoublePointsByArray,
+  u_EnumDoublePointClosePoly,
   u_EnumDoublePointLonLatToMapPixel,
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
@@ -112,13 +132,19 @@ const
 
 constructor TMapMarksBitmapLayerProviderByMarksSubset.Create(
   AConfig: IMarksDrawConfigStatic;
-  ABaseConverter: ILocalCoordConverter;
+  AVectorItmesFactory: IVectorItmesFactory;
+  AProjectionInfo: IProjectionInfo;
+  AMapPixelRect: TDoubleRect;
   AMarksSubset: IMarksSubset
 );
 begin
   FConfig := AConfig;
-  FBaseConverter := ABaseConverter;
+  FVectorItmesFactory := AVectorItmesFactory;
+  FProjectionInfo := AProjectionInfo;
+  FMapPixelRect := AMapPixelRect;
   FMarksSubset := AMarksSubset;
+
+  FProjectedLines := TIDInterfaceList.Create(False);
 
   FTempBmp := TCustomBitmap32.Create;
   FTempBmp.DrawMode := dmBlend;
@@ -134,6 +160,11 @@ begin
   FBitmapWithText.Resampler := TLinearResampler.Create;
 
   FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
+
+  FLinesClipRect.Left := FMapPixelRect.Left - 10;
+  FLinesClipRect.Top := FMapPixelRect.Top - 10;
+  FLinesClipRect.Right := FMapPixelRect.Right + 10;
+  FLinesClipRect.Bottom := FMapPixelRect.Bottom + 10;
 end;
 
 destructor TMapMarksBitmapLayerProviderByMarksSubset.Destroy;
@@ -152,7 +183,6 @@ procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPath(
 var
   VPolygon: TPolygon32;
   i: Integer;
-  VPointsCount: Integer;
   VPointsProcessedCount: Integer;
   VIndex: Integer;
   VScale1: Integer;
@@ -162,14 +192,15 @@ var
   VRectWithDelta: TDoubleRect;
   VLocalRect: TDoubleRect;
   VPoint: TDoublePoint;
+  VProjected: IProjectedPath;
 begin
   VScale1 := AMarkLine.LineWidth;
   VTestArrLenLonLatRect := AMarkLine.LLRect;
   ALocalConverter.GetGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
   VTestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(VTestArrLenLonLatRect);
   if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VScale1 + 2) or (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-    VPointsCount := Length(AMarkLine.Points);
-    if VPointsCount > 0 then begin
+    VProjected := GetProjectedPath(AMarkLine, FProjectionInfo);
+    if VProjected <> nil then begin
       VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
       VRectWithDelta.Left := VLocalRect.Left - 10;
       VRectWithDelta.Top := VLocalRect.Top - 10;
@@ -182,16 +213,7 @@ begin
             VRectWithDelta,
             TEnumDoublePointMapPixelToLocalPixel.Create(
               ALocalConverter,
-              TEnumDoublePointFilterEqual.Create(
-                TEnumDoublePointLonLatToMapPixel.Create(
-                  ALocalConverter.GetZoom,
-                  ALocalConverter.GetGeoConverter,
-                  TEnumDoublePointsByArray.Create(
-                    @(AMarkLine.Points[0]),
-                    VPointsCount
-                  )
-                )
-              )
+              VProjected.GetEnum
             )
           )
         );
@@ -251,7 +273,6 @@ procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPoly(
 var
   VPolygon: TPolygon32;
   i: Integer;
-  VPointsCount: Integer;
   VPointsProcessedCount: Integer;
   VScale1: Integer;
   VTestArrLenLonLatRect: TDoubleRect;
@@ -260,37 +281,29 @@ var
   VRectWithDelta: TDoubleRect;
   VLocalRect: TDoubleRect;
   VPoint: TDoublePoint;
+  VProjected: IProjectedPolygon;
 begin
   VScale1 := AMarkPoly.LineWidth;
   VTestArrLenLonLatRect := AMarkPoly.LLRect;
   ALocalConverter.GetGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
   VTestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(VTestArrLenLonLatRect);
   if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VScale1 + 2) or (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-    VPointsCount := Length(AMarkPoly.Points);
-    if VPointsCount > 0 then begin
+    VProjected := GetProjectedPolygon(AMarkPoly, FProjectionInfo);
+    if VProjected <> nil then begin
       VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
       VRectWithDelta.Left := VLocalRect.Left - 10;
       VRectWithDelta.Top := VLocalRect.Top - 10;
       VRectWithDelta.Right := VLocalRect.Right + 10;
       VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
       VEnum :=
-        TEnumDoublePointFilterEqual.Create(
-          TEnumDoublePointClipByRect.Create(
-            True,
-            VRectWithDelta,
-            TEnumDoublePointMapPixelToLocalPixel.Create(
-              ALocalConverter,
-              TEnumDoublePointFilterEqual.Create(
-                TEnumDoublePointLonLatToMapPixel.Create(
-                  ALocalConverter.GetZoom,
-                  ALocalConverter.GetGeoConverter,
-                  TEnumDoublePointFilterFirstPoly.Create(
-                    TEnumDoublePointsByArray.Create(
-                      @(AMarkPoly.Points[0]),
-                      VPointsCount
-                    )
-                  )
-                )
+        TEnumDoublePointClosePoly.Create(
+          TEnumDoublePointFilterEqual.Create(
+            TEnumDoublePointClipByRect.Create(
+              True,
+              VRectWithDelta,
+              TEnumDoublePointMapPixelToLocalPixel.Create(
+                ALocalConverter,
+                VProjected.GetEnum
               )
             )
           )
@@ -502,6 +515,54 @@ begin
   VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
 
   Result := DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, ATargetBmp, ALocalConverter);
+end;
+
+function TMapMarksBitmapLayerProviderByMarksSubset.GetProjectedPath(
+  AMarkPath: IMarkLine;
+  AProjectionInfo: IProjectionInfo
+): IProjectedPath;
+var
+  VID: Integer;
+begin
+  VID := Integer(AMarkPath);
+  Result := IProjectedPath(FProjectedLines.GetByID(VID));
+  if Result = nil then begin
+    Result :=
+      FVectorItmesFactory.CreateProjectedPathWithClipByLonLatEnum(
+        AProjectionInfo,
+        TEnumDoublePointsByArray.Create(
+          @(AMarkPath.Points[0]),
+          Length(AMarkPath.Points)
+        ),
+        FLinesClipRect,
+        FPreparedPointsAggreagtor
+      );
+    FProjectedLines.Add(VID, Result);
+  end;
+end;
+
+function TMapMarksBitmapLayerProviderByMarksSubset.GetProjectedPolygon(
+  AMarkPoly: IMarkPoly;
+  AProjectionInfo: IProjectionInfo
+): IProjectedPolygon;
+var
+  VID: Integer;
+begin
+  VID := Integer(AMarkPoly);
+  Result := IProjectedPolygon(FProjectedLines.GetByID(VID));
+  if Result = nil then begin
+    Result :=
+      FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatEnum(
+        AProjectionInfo,
+        TEnumDoublePointsByArray.Create(
+          @(AMarkPoly.Points[0]),
+          Length(AMarkPoly.Points)
+        ),
+        FLinesClipRect,
+        FPreparedPointsAggreagtor
+      );
+    FProjectedLines.Add(VID, Result);
+  end;
 end;
 
 end.

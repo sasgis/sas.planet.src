@@ -1032,6 +1032,7 @@ begin
         GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
+        GState.VectorItmesFactory,
         GState.ImageResamplerConfig,
         GState.LocalConverterFactory,
         GState.ClearStrategyFactory,

@@ -17,6 +17,7 @@ uses
   u_GeoFun,
   i_ViewPortState,
   i_CoordConverter,
+  i_VectorItmesFactory,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
@@ -29,6 +30,7 @@ type
     FConfig: IMarksLayerConfig;
     FConfigStatic: IUsedMarksConfigStatic;
     FDrawConfigStatic: IMarksDrawConfigStatic;
+    FVectorItmesFactory: IVectorItmesFactory;
     FMarkDB: TMarksSystem;
     FMarksSubset: IMarksSubset;
     FGetMarksCounter: IInternalPerformanceCounter;
@@ -48,6 +50,7 @@ type
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AVectorItmesFactory: IVectorItmesFactory;
       AResamplerConfig: IImageResamplerConfig;
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
@@ -83,6 +86,7 @@ constructor TMapMarksLayer.Create(
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AVectorItmesFactory: IVectorItmesFactory;
   AResamplerConfig: IImageResamplerConfig;
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
@@ -102,6 +106,7 @@ begin
     ATimerNoifier,
     tpLower
   );
+  FVectorItmesFactory := AVectorItmesFactory;
   FGetMarksCounter := PerfList.CreateAndAddNewCounter('GetMarks');
   FMouseOnRegCounter := PerfList.CreateAndAddNewCounter('MouseOnReg');
 
@@ -159,7 +164,9 @@ begin
       VProv :=
         TMapMarksBitmapLayerProviderByMarksSubset.Create(
           FDrawConfigStatic,
-          VBitmapConverter,
+          FVectorItmesFactory,
+          VBitmapConverter.ProjectionInfo,
+          VBitmapConverter.GetRectInMapPixelFloat,
           VMarksSubset
         );
       VGeoConvert := VBitmapConverter.GetGeoConverter;

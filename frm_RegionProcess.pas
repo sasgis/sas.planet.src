@@ -244,6 +244,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AViewConfig,
+      AVectorItmesFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
