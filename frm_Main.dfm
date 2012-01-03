@@ -1568,10 +1568,11 @@ object frmMain: TfrmMain
   object OpenSessionDialog: TOpenDialog
     DefaultExt = '*.sls'
     Filter = 
-      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg)|*.kml;*.p' +
-      'lt;*.kmz;*.sls;*.hlg|Google KML files (*.kml)|*.kml|OziExplorer ' +
-      'Track Point File Version 2.1 (*.plt)|*.plt|Google KMZ files (*.k' +
-      'mz)|*.kmz|Download session (*.sls)|*.sls|Selection (*.hlg)|*.hlg'
+      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg,*.gpx)|*.k' +
+      'ml;*.plt;*.kmz;*.sls;*.hlg;*.gpx|Google KML files (*.kml)|*.kml|' +
+      'OziExplorer Track Point File Version 2.1 (*.plt)|*.plt|Google KM' +
+      'Z files (*.kmz)|*.kmz|Download session (*.sls)|*.sls|Selection (' +
+      '*.hlg)|*.hlg|GPS Exchange files (*.gpx)|*.gpx'
     Left = 208
     Top = 208
   end
