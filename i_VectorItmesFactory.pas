@@ -50,12 +50,34 @@ type
     function CreateProjectedPathByEnum(
       AProjection: IProjectionInfo;
       AEnum: IEnumDoublePoint;
-      ATemp: IDoublePointsAggregator
+      ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonByEnum(
       AProjection: IProjectionInfo;
       AEnum: IEnumDoublePoint;
-      ATemp: IDoublePointsAggregator
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPolygon;
+
+    function CreateProjectedPathByLonLatEnum(
+      AProjection: IProjectionInfo;
+      AEnum: IEnumDoublePoint;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPath;
+    function CreateProjectedPolygonByLonLatEnum(
+      AProjection: IProjectionInfo;
+      AEnum: IEnumDoublePoint;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPolygon;
+
+    function CreateProjectedPathByLonLatPath(
+      AProjection: IProjectionInfo;
+      ASource: ILonLatPath;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPath;
+    function CreateProjectedPolygonByLonLatPolygon(
+      AProjection: IProjectionInfo;
+      ASource: ILonLatPolygon;
+      ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
   end;
 
