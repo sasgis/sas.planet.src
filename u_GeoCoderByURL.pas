@@ -265,6 +265,21 @@ begin
   slon := Copy(Vlink, i + 4, j - (i + 4));
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := Vlink;
+ end  else
+// http://maps.rosreestr.ru/Portal/?l=11&x=4595254.155000001&y=5398402.163800001&mls=map|anno&cls=cadastre
+ if PosEx('maps.rosreestr.ru', Vlink, 1) > 0 then begin
+  sname := 'Rosreestr';
+  i := PosEx('x=', Vlink, 1);
+  j := PosEx('&', Vlink, i);
+  slon := Copy(Vlink, i + 2, j - (i + 2));
+  i := PosEx('y=', Vlink, j);
+  j := PosEx('&', Vlink, i);
+  slat := Copy(Vlink, i + 2, j - (i + 2));
+  meters_to_lonlat(StrToFloat(slon, VFormatSettings),StrToFloat(slat, VFormatSettings),slon,slat);
+  slon := ReplaceStr(slon,',','.');
+  slat := ReplaceStr(slat,',','.');
+  sdesc := '[ '+slon+' , '+slat+' ]';
+  sfulldesc := Vlink;
  end
  else  // short link
  if PosEx('http://g.co/', Vlink, 1) > 0then begin
@@ -373,6 +388,18 @@ begin
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
  end else
+ if PosEx('rambler.ru', Vlink, 1) > 0then begin
+  Vlink := ReplaceStr(astr,'\"','');
+  sname := 'rambler';
+  i := PosEx('lon:', Vlink, 1);
+  j := PosEx(',', Vlink, i+1);
+  slon := Copy(Vlink, i + 4, j - (i + 4));
+  i := PosEx('lat:', Vlink, j);
+  j := PosEx('}', Vlink, i+1);
+  slat := Copy(Vlink, i + 4, j - (i + 4));
+  sdesc := '[ '+slon+' , '+slat+' ]';
+  sfulldesc := ASearch;
+ end else
  VLinkErr := true;
 
  if (vErrCode <> 200)and(vErrCode <> 302) then VLinkErr := true;
@@ -404,7 +431,8 @@ begin
      (PosEx('binged.it', ASearch, 1) > 0 )or
      (PosEx('osm.org', ASearch, 1) > 0 )or
      (PosEx('permalink.html', ASearch, 1) > 0 )or
-     (PosEx('api/index.html?permalink=', ASearch, 1) > 0 )
+     (PosEx('api/index.html?permalink=', ASearch, 1) > 0 ) or
+     (PosEx('rambler.ru/?', ASearch, 1) > 0 )
    then begin
    VlocalLink := false;
    Result := ASearch;
@@ -424,6 +452,7 @@ end.
 // http://www.bing.com/maps/default.aspx?v=2&cp=45.5493750107145~41.6883332507903&style=h&lvl=6
 // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
 // http://wikimapia.org#lat=45.0328&lon=38.9769&z=10&l=1&m=b
+// http://maps.rosreestr.ru/Portal/?l=11&x=4595254.155000001&y=5398402.163800001&mls=map|anno&cls=cadastre
 
 // Короткие
 // http://g.co/maps/7anbg
@@ -435,4 +464,5 @@ end.
 // http://kosmosnimki.ru/permalink.html?Na1d0e33d
 // http://maps.kosmosnimki.ru/api/index.html?permalink=ZWUJK&SA5JU
 // http://go.2gis.ru/1hox
+// http://maps.rambler.ru/?6rJJy58
 
