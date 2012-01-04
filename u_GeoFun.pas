@@ -363,39 +363,46 @@ end;
 function ConveryPolyline2Polygon(APoints: PDoublePointArray; ACount: Integer; ARadius: Double; Aconverter: ICoordConverter; AZoom: byte): TArrayOfDoublePoint;
 var
   i: Integer;
+  VCurrLonLat: TDoublePoint;
+  VPrevLonLat: TDoublePoint;
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
   VResPoinsCount: Integer;
   s, c: Extended;
   VRadius:double;
-  LonLatMul,a1,a2,a3,Angle:double;
+  LonLatMul: Double;
+  VCurrVectorAngle: Double;
+  VPrevVectorAngle: Double;
+  a3,Angle: Double;
   ResultPixelPos:TDoublePoint;
 begin
-  a2 := 0;
+  VPrevVectorAngle := 0;
   if ACount > 1 then begin
     VResPoinsCount:=ACount*2+1;
     SetLength(Result,VResPoinsCount);
     for i := 1 to ACount - 1 do begin
-      VPrevPoint := AConverter.LonLat2PixelPosFloat(APoints[i-1],Azoom);
-      VCurrPoint := AConverter.LonLat2PixelPosFloat(APoints[i],Azoom);
-      LonLatMul:=ARadius/AConverter.Datum.CalcDist(APoints[i-1],APoints[i]);
+      VPrevLonLat := APoints[i - 1];
+      VCurrLonLat := APoints[i];
+      VPrevPoint := AConverter.LonLat2PixelPosFloat(VPrevLonLat, Azoom);
+      VCurrPoint := AConverter.LonLat2PixelPosFloat(VCurrLonLat, Azoom);
+      LonLatMul:=ARadius/AConverter.Datum.CalcDist(VPrevLonLat, VCurrLonLat);
       LonLatMul:=LonLatMul*sqrt(sqr(VCurrPoint.y - VPrevPoint.y)+sqr(VCurrPoint.x - VPrevPoint.x));
-      a1:=Math.Arctan2((VCurrPoint.y - VPrevPoint.y),(VCurrPoint.x - VPrevPoint.x));
-      if a1<0 then begin
-        a1:=2*pi+a1;
+      VCurrVectorAngle:=Math.Arctan2((VCurrPoint.y - VPrevPoint.y),(VCurrPoint.x - VPrevPoint.x));
+      if VCurrVectorAngle<0 then begin
+        VCurrVectorAngle:=2*pi+VCurrVectorAngle;
       end;
 
       if i>1 then begin
-        Angle:=(a1+a2)/2;
-        if abs(A2-A1)>Pi then begin
+        Angle:=(VCurrVectorAngle+VPrevVectorAngle)/2;
+        if abs(VPrevVectorAngle-VCurrVectorAngle)>Pi then begin
           Angle:=Angle-Pi;
         end;
       end else begin
-        Angle:=a1;
+        Angle:=VCurrVectorAngle;
       end;
 
       if i=1 then begin
-        Angle:=a1;
+        Angle:=VCurrVectorAngle;
         VRadius := LonLatMul/sin(pi/4);
         SinCos(pi/2+pi/4+Angle, s, c);
         ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
@@ -407,7 +414,7 @@ begin
         Result[VResPoinsCount-2]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
         Result[VResPoinsCount-1]:=Result[0];
       end else begin
-        a3:=abs((pi/2+Angle)-a1);
+        a3:=abs((pi/2+Angle)-VCurrVectorAngle);
         if a3>Pi then begin
           a3:=a3-Pi;
         end;
@@ -427,7 +434,7 @@ begin
       end;
 
       if i = ACount - 1 then begin
-        Angle:=a1;
+        Angle:=VCurrVectorAngle;
         VRadius := LonLatMul/sin(pi/4);
         SinCos(pi/4+Angle, s, c);
         ResultPixelPos:=DoublePoint(VCurrPoint.x + VRadius * c, VCurrPoint.y + VRadius * s);
@@ -438,7 +445,7 @@ begin
         AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
         Result[VResPoinsCount-2-i]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
       end;
-      a2:=a1;
+      VPrevVectorAngle:=VCurrVectorAngle;
     end;
   end else begin
     if ACount > 0 then begin
