@@ -376,6 +376,7 @@ var
   a3,Angle: Double;
   VResultPixelPos: TDoublePoint;
   VVector: TDoublePoint;
+  VSinA3: Double;
 begin
   if ACount > 1 then begin
     VResPoinsCount:=ACount*2+1;
@@ -418,9 +419,11 @@ begin
         if a3>Pi then begin
           a3:=a3-Pi;
         end;
-        VRadius := VLonLatMul/sin(a3);
-        if VRadius>VLonLatMul*7 then begin
-          VRadius:=VLonLatMul*7;
+        VSinA3 := sin(a3);
+        if VSinA3 < 1.0/7 then begin
+          VRadius:=VLonLatMul * 7;
+        end else begin
+          VRadius := VLonLatMul / VSinA3;
         end;
 
         SinCos(pi/2+Angle, s, c);
