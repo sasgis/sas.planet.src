@@ -370,23 +370,23 @@ var
   VResPoinsCount: Integer;
   s, c: Extended;
   VRadius:double;
-  LonLatMul: Double;
+  VLonLatMul: Double;
   VCurrVectorAngle: Double;
   VPrevVectorAngle: Double;
   a3,Angle: Double;
-  ResultPixelPos:TDoublePoint;
+  VResultPixelPos: TDoublePoint;
 begin
-  VPrevVectorAngle := 0;
   if ACount > 1 then begin
     VResPoinsCount:=ACount*2+1;
     SetLength(Result,VResPoinsCount);
+    VPrevVectorAngle := 0;
+    VPrevLonLat := APoints[0];
+    VPrevPoint := AConverter.LonLat2PixelPosFloat(VPrevLonLat, Azoom);
     for i := 1 to ACount - 1 do begin
-      VPrevLonLat := APoints[i - 1];
       VCurrLonLat := APoints[i];
-      VPrevPoint := AConverter.LonLat2PixelPosFloat(VPrevLonLat, Azoom);
       VCurrPoint := AConverter.LonLat2PixelPosFloat(VCurrLonLat, Azoom);
-      LonLatMul:=ARadius/AConverter.Datum.CalcDist(VPrevLonLat, VCurrLonLat);
-      LonLatMul:=LonLatMul*sqrt(sqr(VCurrPoint.y - VPrevPoint.y)+sqr(VCurrPoint.x - VPrevPoint.x));
+      VLonLatMul:=ARadius/AConverter.Datum.CalcDist(VPrevLonLat, VCurrLonLat);
+      VLonLatMul:=VLonLatMul*sqrt(sqr(VCurrPoint.y - VPrevPoint.y)+sqr(VCurrPoint.x - VPrevPoint.x));
       VCurrVectorAngle:=Math.Arctan2((VCurrPoint.y - VPrevPoint.y),(VCurrPoint.x - VPrevPoint.x));
       if VCurrVectorAngle<0 then begin
         VCurrVectorAngle:=2*pi+VCurrVectorAngle;
@@ -403,49 +403,51 @@ begin
 
       if i=1 then begin
         Angle:=VCurrVectorAngle;
-        VRadius := LonLatMul/sin(pi/4);
+        VRadius := VLonLatMul/sin(pi/4);
         SinCos(pi/2+pi/4+Angle, s, c);
-        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
-        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
-        Result[0]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        VResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(VResultPixelPos,AZoom,false);
+        Result[0]:=AConverter.PixelPosFloat2LonLat(VResultPixelPos,Azoom);
         SinCos(pi/2-pi/4+Angle+pi, s, c);
-        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
-        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
-        Result[VResPoinsCount-2]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        VResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(VResultPixelPos,AZoom,false);
+        Result[VResPoinsCount-2]:=AConverter.PixelPosFloat2LonLat(VResultPixelPos,Azoom);
         Result[VResPoinsCount-1]:=Result[0];
       end else begin
         a3:=abs((pi/2+Angle)-VCurrVectorAngle);
         if a3>Pi then begin
           a3:=a3-Pi;
         end;
-        VRadius := LonLatMul/sin(a3);
-        if VRadius>LonLatMul*7 then begin
-          VRadius:=LonLatMul*7;
+        VRadius := VLonLatMul/sin(a3);
+        if VRadius>VLonLatMul*7 then begin
+          VRadius:=VLonLatMul*7;
         end;
 
         SinCos(pi/2+Angle, s, c);
-        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
-        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
-        Result[i-1]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        VResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(VResultPixelPos,AZoom,false);
+        Result[i-1]:=AConverter.PixelPosFloat2LonLat(VResultPixelPos,Azoom);
         SinCos(pi/2+Angle+pi, s, c);
-        ResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
-        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
-        Result[VResPoinsCount-2-(i-1)]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        VResultPixelPos:=DoublePoint(VPrevPoint.x + VRadius * c, VPrevPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(VResultPixelPos,AZoom,false);
+        Result[VResPoinsCount-2-(i-1)]:=AConverter.PixelPosFloat2LonLat(VResultPixelPos,Azoom);
       end;
 
       if i = ACount - 1 then begin
         Angle:=VCurrVectorAngle;
-        VRadius := LonLatMul/sin(pi/4);
+        VRadius := VLonLatMul/sin(pi/4);
         SinCos(pi/4+Angle, s, c);
-        ResultPixelPos:=DoublePoint(VCurrPoint.x + VRadius * c, VCurrPoint.y + VRadius * s);
-        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
-        Result[i]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        VResultPixelPos:=DoublePoint(VCurrPoint.x + VRadius * c, VCurrPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(VResultPixelPos,AZoom,false);
+        Result[i]:=AConverter.PixelPosFloat2LonLat(VResultPixelPos,Azoom);
         SinCos(pi/2+pi/4+Angle+pi, s, c);
-        ResultPixelPos:=DoublePoint(VCurrPoint.x + VRadius * c, VCurrPoint.y + VRadius * s);
-        AConverter.CheckPixelPosFloat(ResultPixelPos,AZoom,false);
-        Result[VResPoinsCount-2-i]:=AConverter.PixelPosFloat2LonLat(ResultPixelPos,Azoom);
+        VResultPixelPos:=DoublePoint(VCurrPoint.x + VRadius * c, VCurrPoint.y + VRadius * s);
+        AConverter.CheckPixelPosFloat(VResultPixelPos,AZoom,false);
+        Result[VResPoinsCount-2-i]:=AConverter.PixelPosFloat2LonLat(VResultPixelPos,Azoom);
       end;
-      VPrevVectorAngle:=VCurrVectorAngle;
+      VPrevLonLat := VCurrLonLat;
+      VPrevPoint := VCurrPoint;
+      VPrevVectorAngle := VCurrVectorAngle;
     end;
   end else begin
     if ACount > 0 then begin
