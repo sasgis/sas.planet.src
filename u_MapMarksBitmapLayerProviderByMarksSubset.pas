@@ -530,7 +530,7 @@ begin
     Result :=
       FVectorItmesFactory.CreateProjectedPathWithClipByLonLatEnum(
         AProjectionInfo,
-        TEnumDoublePointsByArray.Create(
+        TEnumLonLatPointsByArray.Create(
           @(AMarkPath.Points[0]),
           Length(AMarkPath.Points)
         ),
@@ -554,7 +554,7 @@ begin
     Result :=
       FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatEnum(
         AProjectionInfo,
-        TEnumDoublePointsByArray.Create(
+        TEnumLonLatPointsByArray.Create(
           @(AMarkPoly.Points[0]),
           Length(AMarkPoly.Points)
         ),

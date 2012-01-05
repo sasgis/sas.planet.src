@@ -21,6 +21,9 @@ type
     );
   end;
 
+  TEnumLonLatPointsByArray = class(TEnumDoublePointsByArray, IEnumLonLatPoint)
+  end;
+
 implementation
 
 uses
