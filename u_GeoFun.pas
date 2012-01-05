@@ -360,7 +360,13 @@ begin
   end;
 end;
 
-function ConveryPolyline2Polygon(APoints: PDoublePointArray; ACount: Integer; ARadius: Double; Aconverter: ICoordConverter; AZoom: byte): TArrayOfDoublePoint;
+function ConveryPolyline2Polygon(
+  APoints: PDoublePointArray;
+  ACount: Integer;
+  ARadius: Double;
+  Aconverter: ICoordConverter;
+  AZoom: byte
+): TArrayOfDoublePoint;
 var
   i: Integer;
   VCurrLonLat: TDoublePoint;
@@ -382,6 +388,8 @@ begin
     VResPoinsCount:=ACount*2+1;
     SetLength(Result,VResPoinsCount);
     VPrevVectorAngle := 0;
+    VCurrVectorAngle := 0;
+    VLonLatMul := 0;
     VPrevLonLat := APoints[0];
     VPrevPoint := AConverter.LonLat2PixelPosFloat(VPrevLonLat, Azoom);
     for i := 1 to ACount - 1 do begin
