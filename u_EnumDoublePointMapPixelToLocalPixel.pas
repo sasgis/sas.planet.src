@@ -10,7 +10,7 @@ uses
 type
   TEnumDoublePointMapPixelToLocalPixel = class(TInterfacedObject, IEnumDoublePoint)
   private
-    FSourceEnum: IEnumDoublePoint;
+    FSourceEnum: IEnumProjectedPoint;
     FLocalConverter: ILocalCoordConverter;
     FFinished: Boolean;
   private
@@ -18,7 +18,7 @@ type
   public
     constructor Create(
       ALocalConverter: ILocalCoordConverter;
-      ASourceEnum: IEnumDoublePoint
+      ASourceEnum: IEnumProjectedPoint
     );
   end;
 
@@ -32,7 +32,7 @@ uses
 
 constructor TEnumDoublePointMapPixelToLocalPixel.Create(
   ALocalConverter: ILocalCoordConverter;
-  ASourceEnum: IEnumDoublePoint
+  ASourceEnum: IEnumProjectedPoint
 );
 begin
   FSourceEnum := ASourceEnum;

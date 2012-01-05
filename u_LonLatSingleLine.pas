@@ -14,7 +14,7 @@ type
     FBounds: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
   private
-    function GetEnum: IEnumDoublePoint;
+    function GetEnum: IEnumLonLatPoint;
     function GetBounds: TDoubleRect;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
@@ -115,9 +115,9 @@ begin
   Result := FCount;
 end;
 
-function TLonLatLineBase.GetEnum: IEnumDoublePoint;
+function TLonLatLineBase.GetEnum: IEnumLonLatPoint;
 begin
-  Result := TEnumDoublePointBySingleLine.Create(Self, @FPoints[0], FCount);
+  Result := TEnumDoublePointBySingleLonLatLine.Create(Self, @FPoints[0], FCount);
 end;
 
 function TLonLatLineBase.GetPoints: PDoublePointArray;

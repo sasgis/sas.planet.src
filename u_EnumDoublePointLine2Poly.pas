@@ -9,14 +9,13 @@ uses
   i_DoublePointsAggregator;
 
 type
-  TEnumDoublePointLine2Poly = class(TInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointLine2Poly = class(TInterfacedObject, IEnumLonLatPoint)
   private
-    FSourceEnum: IEnumDoublePoint;
+    FSourceEnum: IEnumLonLatPoint;
     FRadius: Double;
     FProjection: IProjectionInfo;
     FTemp: IDoublePointsAggregator;
 
-    FStarted: Boolean;
     FLineStarted: Boolean;
     FFinished: Boolean;
     FReturnTemp: Boolean;
@@ -29,7 +28,7 @@ type
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      ASourceEnum: IEnumDoublePoint;
+      ASourceEnum: IEnumLonLatPoint;
       ARadius: Double;
       AProjection: IProjectionInfo;
       ATemp: IDoublePointsAggregator = nil
@@ -46,7 +45,7 @@ uses
 { TEnumDoublePointLine2Poly }
 
 constructor TEnumDoublePointLine2Poly.Create(
-  ASourceEnum: IEnumDoublePoint;
+  ASourceEnum: IEnumLonLatPoint;
   ARadius: Double;
   AProjection: IProjectionInfo;
   ATemp: IDoublePointsAggregator
@@ -61,7 +60,6 @@ begin
   end;
   FReturnTemp := False;
   FFinished := False;
-  FStarted := False;
   FLineStarted := False;
 end;
 
@@ -85,7 +83,6 @@ begin
     Result := True;
     Dec(FTempIndex);
     if FTempIndex < 0 then begin
-      FStarted := False;
       FReturnTemp := False;
     end;
   end else begin
@@ -141,6 +138,7 @@ begin
               Result := True;
               Break;
             end else begin
+              FTemp.Clear;
               FPrevLonLat := VCurrLonLat;
               FPrevPoint := VCurrPoint;
 

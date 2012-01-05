@@ -85,6 +85,16 @@ type
     );
   end;
 
+  TEnumProjectedPointClipByRect = class(TEnumDoublePointClipByRect, IEnumProjectedPoint)
+  public
+    constructor Create(
+      AClosed: Boolean;
+      ARect: TDoubleRect;
+      ASourceEnum: IEnumProjectedPoint
+    );
+  end;
+
+
 implementation
 
 uses
@@ -335,6 +345,14 @@ end;
 function TEnumDoublePointClipByRect.Next(out APoint: TDoublePoint): Boolean;
 begin
   Result := FEnum.Next(APoint);
+end;
+
+{ TEnumProjectedPointClipByRect }
+
+constructor TEnumProjectedPointClipByRect.Create(AClosed: Boolean;
+  ARect: TDoubleRect; ASourceEnum: IEnumProjectedPoint);
+begin
+  inherited Create(AClosed, ARect, ASourceEnum);
 end;
 
 end.

@@ -21,6 +21,20 @@ type
     );
   end;
 
+  TEnumLonLatPointFilterEqual = class(TEnumDoublePointFilterEqual, IEnumLonLatPoint)
+  public
+    constructor Create(
+      ASourceEnum: IEnumLonLatPoint
+    );
+  end;
+
+  TEnumProjectedPointFilterEqual = class(TEnumDoublePointFilterEqual, IEnumProjectedPoint)
+  public
+    constructor Create(
+      ASourceEnum: IEnumProjectedPoint
+    );
+  end;
+
 implementation
 
 uses
@@ -70,6 +84,21 @@ begin
     end;
   end;
   Result := not FFinished;
+end;
+
+{ TEnumLonLatPointFilterEqual }
+
+constructor TEnumLonLatPointFilterEqual.Create(ASourceEnum: IEnumLonLatPoint);
+begin
+  inherited Create(ASourceEnum);
+end;
+
+{ TEnumProjectedPointFilterEqual }
+
+constructor TEnumProjectedPointFilterEqual.Create(
+  ASourceEnum: IEnumProjectedPoint);
+begin
+  inherited Create(ASourceEnum);
 end;
 
 end.

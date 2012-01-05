@@ -26,13 +26,13 @@ type
 
   TProjectedPath = class(TProjectedLineSet, IProjectedPath)
   private
-    function GetEnum: IEnumDoublePoint;
+    function GetEnum: IEnumProjectedPoint;
     function GetItem(AIndex: Integer): IProjectedPathLine;
   end;
 
   TProjectedPolygon = class(TProjectedLineSet, IProjectedPolygon)
   private
-    function GetEnum: IEnumDoublePoint;
+    function GetEnum: IEnumProjectedPoint;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   end;
 
@@ -42,7 +42,7 @@ type
   private
     function GetProjection: IProjectionInfo;
     function GetCount: Integer;
-    function GetEnum: IEnumDoublePoint;
+    function GetEnum: IEnumProjectedPoint;
     function GetItem(AIndex: Integer): IProjectedPathLine;
   public
     constructor Create(
@@ -56,7 +56,7 @@ type
   private
     function GetProjection: IProjectionInfo;
     function GetCount: Integer;
-    function GetEnum: IEnumDoublePoint;
+    function GetEnum: IEnumProjectedPoint;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   public
     constructor Create(
@@ -91,9 +91,9 @@ end;
 
 { TProjectedPath }
 
-function TProjectedPath.GetEnum: IEnumDoublePoint;
+function TProjectedPath.GetEnum: IEnumProjectedPoint;
 begin
-  Result := TEnumDoublePointByLineSet.Create(Self);
+  Result := TEnumProjectedPointByLineSet.Create(Self);
 end;
 
 function TProjectedPath.GetItem(AIndex: Integer): IProjectedPathLine;
@@ -105,9 +105,9 @@ end;
 
 { TProjectedPolygon }
 
-function TProjectedPolygon.GetEnum: IEnumDoublePoint;
+function TProjectedPolygon.GetEnum: IEnumProjectedPoint;
 begin
-  Result := TEnumDoublePointByLineSet.Create(Self);
+  Result := TEnumProjectedPointByLineSet.Create(Self);
 end;
 
 function TProjectedPolygon.GetItem(AIndex: Integer): IProjectedPolygonLine;
@@ -129,7 +129,7 @@ begin
   Result := 1;
 end;
 
-function TProjectedPathOneLine.GetEnum: IEnumDoublePoint;
+function TProjectedPathOneLine.GetEnum: IEnumProjectedPoint;
 begin
   Result := FLine.GetEnum;
 end;
@@ -160,7 +160,7 @@ begin
   Result := 1;
 end;
 
-function TProjectedPolygonOneLine.GetEnum: IEnumDoublePoint;
+function TProjectedPolygonOneLine.GetEnum: IEnumProjectedPoint;
 begin
   Result := FLine.GetEnum;
 end;

@@ -8,9 +8,9 @@ uses
   i_EnumDoublePoint;
 
 type
-  TEnumDoublePointLonLatToMapPixel = class(TInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointLonLatToMapPixel = class(TInterfacedObject, IEnumProjectedPoint)
   private
-    FSourceEnum: IEnumDoublePoint;
+    FSourceEnum: IEnumLonLatPoint;
     FZoom: Byte;
     FConverter: ICoordConverter;
     FFinished: Boolean;
@@ -20,7 +20,7 @@ type
     constructor Create(
       AZoom: Byte;
       AConverter: ICoordConverter;
-      ASourceEnum: IEnumDoublePoint
+      ASourceEnum: IEnumLonLatPoint
     );
   end;
 
@@ -35,7 +35,7 @@ uses
 constructor TEnumDoublePointLonLatToMapPixel.Create(
   AZoom: Byte;
   AConverter: ICoordConverter;
-  ASourceEnum: IEnumDoublePoint
+  ASourceEnum: IEnumLonLatPoint
 );
 begin
   FSourceEnum := ASourceEnum;

@@ -55,23 +55,23 @@ type
 
     function CreateProjectedPathByEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumProjectedPoint;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonByEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumProjectedPoint;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
     function CreateProjectedPathByLonLatEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumLonLatPoint;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonByLonLatEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumLonLatPoint;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
@@ -88,13 +88,13 @@ type
 
     function CreateProjectedPathWithClipByLonLatEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumLonLatPoint;
       AMapPixelsClipRect: TDoubleRect;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonWithClipByLonLatEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumLonLatPoint;
       AMapPixelsClipRect: TDoubleRect;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
@@ -136,7 +136,7 @@ uses
 { TEnumDoublePointEmpty }
 
 type
-  TEnumDoublePointEmpty = class(TInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointEmpty = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint, IEnumProjectedPoint)
   private
     function Next(out APoint: TDoublePoint): Boolean;
   end;
@@ -151,16 +151,25 @@ end;
 type
   TLineSetEmpty = class(TInterfacedObject, ILonLatPath, ILonLatPolygon, IProjectedPath, IProjectedPolygon)
   private
-    FEnum: IEnumDoublePoint;
+    FEnumLonLat: IEnumLonLatPoint;
+    FEnumProjected: IEnumProjectedPoint;
   private
     function GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;
     function GetItemLonLatPolygonLine(AIndex: Integer): ILonLatPolygonLine;
     function GetItemProjectedPathLine(AIndex: Integer): IProjectedPathLine;
     function GetItemProjectedPolygonLine(AIndex: Integer): IProjectedPolygonLine;
+
+    function GetEnumLonLat: IEnumLonLatPoint;
+    function GetEnumProjected: IEnumProjectedPoint;
   private
     function GetProjection: IProjectionInfo;
     function GetCount: Integer;
-    function GetEnum: IEnumDoublePoint;
+
+    function ILonLatPath.GetEnum = GetEnumLonLat;
+    function ILonLatPolygon.GetEnum = GetEnumLonLat;
+    function IProjectedPath.GetEnum = GetEnumProjected;
+    function IProjectedPolygon.GetEnum = GetEnumProjected;
+
     function ILonLatPath.GetItem = GetItemLonLatPathLine;
     function ILonLatPolygon.GetItem = GetItemLonLatPolygonLine;
     function IProjectedPath.GetItem = GetItemProjectedPathLine;
@@ -170,8 +179,12 @@ type
   end;
 
 constructor TLineSetEmpty.Create;
+var
+  VEnum: TEnumDoublePointEmpty;
 begin
-  FEnum := TEnumDoublePointEmpty.Create;
+  VEnum := TEnumDoublePointEmpty.Create;
+  FEnumLonLat := VEnum;
+  FEnumProjected := VEnum;
 end;
 
 function TLineSetEmpty.GetCount: Integer;
@@ -179,9 +192,14 @@ begin
   Result := 0;
 end;
 
-function TLineSetEmpty.GetEnum: IEnumDoublePoint;
+function TLineSetEmpty.GetEnumLonLat: IEnumLonLatPoint;
 begin
-  Result := FEnum;
+  Result := FEnumLonLat;
+end;
+
+function TLineSetEmpty.GetEnumProjected: IEnumProjectedPoint;
+begin
+  Result := FEnumProjected;
 end;
 
 function TLineSetEmpty.GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;
@@ -419,7 +437,7 @@ end;
 
 function TVectorItmesFactorySimple.CreateProjectedPathByEnum(
   AProjection: IProjectionInfo;
-  AEnum: IEnumDoublePoint;
+  AEnum: IEnumProjectedPoint;
   ATemp: IDoublePointsAggregator
 ): IProjectedPath;
 var
@@ -476,13 +494,15 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPathByLonLatEnum(
-  AProjection: IProjectionInfo; AEnum: IEnumDoublePoint;
-  ATemp: IDoublePointsAggregator): IProjectedPath;
+  AProjection: IProjectionInfo;
+  AEnum: IEnumLonLatPoint;
+  ATemp: IDoublePointsAggregator
+): IProjectedPath;
 begin
   Result :=
     CreateProjectedPathByEnum(
       AProjection,
-      TEnumDoublePointFilterEqual.Create(
+      TEnumProjectedPointFilterEqual.Create(
         TEnumDoublePointLonLatToMapPixel.Create(
           AProjection.Zoom,
           AProjection.GeoConverter,
@@ -507,7 +527,7 @@ end;
 
 function TVectorItmesFactorySimple.CreateProjectedPathWithClipByLonLatEnum(
   AProjection: IProjectionInfo;
-  AEnum: IEnumDoublePoint;
+  AEnum: IEnumLonLatPoint;
   AMapPixelsClipRect: TDoubleRect;
   ATemp: IDoublePointsAggregator
 ): IProjectedPath;
@@ -515,10 +535,10 @@ begin
   Result :=
     CreateProjectedPathByEnum(
       AProjection,
-      TEnumDoublePointClipByRect.Create(
+      TEnumProjectedPointClipByRect.Create(
         False,
         AMapPixelsClipRect,
-        TEnumDoublePointFilterEqual.Create(
+        TEnumProjectedPointFilterEqual.Create(
           TEnumDoublePointLonLatToMapPixel.Create(
             AProjection.Zoom,
             AProjection.GeoConverter,
@@ -603,8 +623,10 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonByEnum(
-  AProjection: IProjectionInfo; AEnum: IEnumDoublePoint;
-  ATemp: IDoublePointsAggregator): IProjectedPolygon;
+  AProjection: IProjectionInfo;
+  AEnum: IEnumProjectedPoint;
+  ATemp: IDoublePointsAggregator
+): IProjectedPolygon;
 var
   VPoint: TDoublePoint;
   VLine: IProjectedPolygonLine;
@@ -659,17 +681,19 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonByLonLatEnum(
-  AProjection: IProjectionInfo; AEnum: IEnumDoublePoint;
-  ATemp: IDoublePointsAggregator): IProjectedPolygon;
+  AProjection: IProjectionInfo;
+  AEnum: IEnumLonLatPoint;
+  ATemp: IDoublePointsAggregator
+): IProjectedPolygon;
 begin
   Result :=
     CreateProjectedPolygonByEnum(
       AProjection,
-      TEnumDoublePointFilterEqual.Create(
+      TEnumProjectedPointFilterEqual.Create(
         TEnumDoublePointLonLatToMapPixel.Create(
           AProjection.Zoom,
           AProjection.GeoConverter,
-          TEnumDoublePointFilterFirstPoly.Create(
+          TEnumLonLatPointFilterFirstPoly.Create(
             AEnum
           )
         )
@@ -714,7 +738,7 @@ end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonWithClipByLonLatEnum(
   AProjection: IProjectionInfo;
-  AEnum: IEnumDoublePoint;
+  AEnum: IEnumLonLatPoint;
   AMapPixelsClipRect: TDoubleRect;
   ATemp: IDoublePointsAggregator
 ): IProjectedPolygon;
@@ -722,14 +746,14 @@ begin
   Result :=
     CreateProjectedPolygonByEnum(
       AProjection,
-      TEnumDoublePointClipByRect.Create(
+      TEnumProjectedPointClipByRect.Create(
         True,
         AMapPixelsClipRect,
-        TEnumDoublePointFilterEqual.Create(
+        TEnumProjectedPointFilterEqual.Create(
           TEnumDoublePointLonLatToMapPixel.Create(
             AProjection.Zoom,
             AProjection.GeoConverter,
-            TEnumDoublePointFilterFirstPoly.Create(
+            TEnumLonLatPointFilterFirstPoly.Create(
               AEnum
             )
           )

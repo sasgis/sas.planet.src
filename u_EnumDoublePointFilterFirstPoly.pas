@@ -20,6 +20,21 @@ type
     );
   end;
 
+  TEnumLonLatPointFilterFirstPoly = class(TEnumDoublePointFilterFirstPoly, IEnumLonLatPoint)
+  public
+    constructor Create(
+      ASourceEnum: IEnumLonLatPoint
+    );
+  end;
+
+  TEnumProjectedPointFilterFirstPoly = class(TEnumDoublePointFilterFirstPoly, IEnumProjectedPoint)
+  public
+    constructor Create(
+      ASourceEnum: IEnumProjectedPoint
+    );
+  end;
+
+
 implementation
 
 uses
@@ -61,6 +76,22 @@ begin
     end;
   end;
   Result := not FFinished;
+end;
+
+{ TEnumLonLatPointFilterFirstPoly }
+
+constructor TEnumLonLatPointFilterFirstPoly.Create(
+  ASourceEnum: IEnumLonLatPoint);
+begin
+  inherited Create(ASourceEnum);
+end;
+
+{ TEnumProjectedPointFilterFirstPoly }
+
+constructor TEnumProjectedPointFilterFirstPoly.Create(
+  ASourceEnum: IEnumProjectedPoint);
+begin
+  inherited Create(ASourceEnum);
 end;
 
 end.

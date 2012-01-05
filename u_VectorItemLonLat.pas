@@ -22,13 +22,13 @@ type
 
   TLonLatPath = class(TLonLatLineSet, ILonLatPath)
   private
-    function GetEnum: IEnumDoublePoint;
+    function GetEnum: IEnumLonLatPoint;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   end;
 
   TLonLatPolygon = class(TLonLatLineSet, ILonLatPolygon)
   private
-    function GetEnum: IEnumDoublePoint;
+    function GetEnum: IEnumLonLatPoint;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   end;
 
@@ -37,7 +37,7 @@ type
     FLine: ILonLatPathLine;
   private
     function GetCount: Integer;
-    function GetEnum: IEnumDoublePoint;
+    function GetEnum: IEnumLonLatPoint;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   public
     constructor Create(
@@ -50,7 +50,7 @@ type
     FLine: ILonLatPolygonLine;
   private
     function GetCount: Integer;
-    function GetEnum: IEnumDoublePoint;
+    function GetEnum: IEnumLonLatPoint;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
     constructor Create(
@@ -78,9 +78,9 @@ end;
 
 { TLonLatPath }
 
-function TLonLatPath.GetEnum: IEnumDoublePoint;
+function TLonLatPath.GetEnum: IEnumLonLatPoint;
 begin
-  Result := TEnumDoublePointByLineSet.Create(Self);
+  Result := TEnumLonLatPointByLineSet.Create(Self);
 end;
 
 function TLonLatPath.GetItem(AIndex: Integer): ILonLatPathLine;
@@ -92,9 +92,9 @@ end;
 
 { TLonLatPolygon }
 
-function TLonLatPolygon.GetEnum: IEnumDoublePoint;
+function TLonLatPolygon.GetEnum: IEnumLonLatPoint;
 begin
-  Result := TEnumDoublePointByLineSet.Create(Self);
+  Result := TEnumLonLatPointByLineSet.Create(Self);
 end;
 
 function TLonLatPolygon.GetItem(AIndex: Integer): ILonLatPolygonLine;
@@ -116,7 +116,7 @@ begin
   Result := 1;
 end;
 
-function TLonLatPathOneLine.GetEnum: IEnumDoublePoint;
+function TLonLatPathOneLine.GetEnum: IEnumLonLatPoint;
 begin
   Result := FLine.GetEnum;
 end;
@@ -142,7 +142,7 @@ begin
   Result := 1;
 end;
 
-function TLonLatPolygonOneLine.GetEnum: IEnumDoublePoint;
+function TLonLatPolygonOneLine.GetEnum: IEnumLonLatPoint;
 begin
   Result := FLine.GetEnum;
 end;

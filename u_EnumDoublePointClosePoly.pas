@@ -23,6 +23,20 @@ type
     );
   end;
 
+  TEnumLonLatPointClosePoly = class(TEnumDoublePointClosePoly, IEnumLonLatPoint)
+  public
+    constructor Create(
+      ASourceEnum: IEnumLonLatPoint
+    );
+  end;
+
+  TEnumProjectedPointClosePoly = class(TEnumDoublePointClosePoly, IEnumProjectedPoint)
+  public
+    constructor Create(
+      ASourceEnum: IEnumProjectedPoint
+    );
+  end;
+
 implementation
 
 uses
@@ -85,6 +99,21 @@ begin
     Result := False;
     APoint := CEmptyDoublePoint;
   end;
+end;
+
+{ TEnumLonLatPointClosePoly }
+
+constructor TEnumLonLatPointClosePoly.Create(ASourceEnum: IEnumLonLatPoint);
+begin
+  inherited Create(ASourceEnum);
+end;
+
+{ TEnumProjectedPointClosePoly }
+
+constructor TEnumProjectedPointClosePoly.Create(
+  ASourceEnum: IEnumProjectedPoint);
+begin
+  inherited Create(ASourceEnum);
 end;
 
 end.

@@ -9,7 +9,7 @@ uses
   i_VectorItemProjected;
 
 type
-  TEnumDoublePointBySingleLine = class(TInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointBySingleLineBase = class(TInterfacedObject, IEnumDoublePoint)
   private
     FSourceLine: IInterface;
     FPoints: PDoublePointArray;
@@ -25,14 +25,20 @@ type
     );
   end;
 
+  TEnumDoublePointBySingleLonLatLine = class(TEnumDoublePointBySingleLineBase, IEnumLonLatPoint)
+  end;
+
+  TEnumDoublePointBySingleProjectedLine = class(TEnumDoublePointBySingleLineBase, IEnumProjectedPoint)
+  end;
+
 implementation
 
 uses
   u_GeoFun;
 
-{ TEnumDoublePointBySingleLine }
+{ TEnumDoublePointBySingleLineBase }
 
-constructor TEnumDoublePointBySingleLine.Create(
+constructor TEnumDoublePointBySingleLineBase.Create(
   ADataOwner: IInterface;
   APoints: PDoublePointArray;
   ACount: Integer
@@ -45,7 +51,7 @@ begin
   Assert(FCount > 0, 'No points');
 end;
 
-function TEnumDoublePointBySingleLine.Next(out APoint: TDoublePoint): Boolean;
+function TEnumDoublePointBySingleLineBase.Next(out APoint: TDoublePoint): Boolean;
 begin
   if FIndex < FCount then begin
     APoint := FPoints[FIndex];

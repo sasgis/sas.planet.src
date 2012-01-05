@@ -49,23 +49,23 @@ type
 
     function CreateProjectedPathByEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumProjectedPoint;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonByEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumProjectedPoint;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
     function CreateProjectedPathByLonLatEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumLonLatPoint;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonByLonLatEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumLonLatPoint;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
@@ -82,13 +82,13 @@ type
 
     function CreateProjectedPathWithClipByLonLatEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumLonLatPoint;
       AMapPixelsClipRect: TDoubleRect;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonWithClipByLonLatEnum(
       AProjection: IProjectionInfo;
-      AEnum: IEnumDoublePoint;
+      AEnum: IEnumLonLatPoint;
       AMapPixelsClipRect: TDoubleRect;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;

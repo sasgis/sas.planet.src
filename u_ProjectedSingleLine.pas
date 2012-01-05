@@ -16,7 +16,7 @@ type
     FProjection: IProjectionInfo;
   private
     function GetProjection: IProjectionInfo;
-    function GetEnum: IEnumDoublePoint;
+    function GetEnum: IEnumProjectedPoint;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
   public
@@ -80,9 +80,9 @@ begin
   Result := FCount;
 end;
 
-function TProjectedLineBase.GetEnum: IEnumDoublePoint;
+function TProjectedLineBase.GetEnum: IEnumProjectedPoint;
 begin
-  Result := TEnumDoublePointBySingleLine.Create(Self, @FPoints[0], FCount);
+  Result := TEnumDoublePointBySingleProjectedLine.Create(Self, @FPoints[0], FCount);
 end;
 
 function TProjectedLineBase.GetPoints: PDoublePointArray;
