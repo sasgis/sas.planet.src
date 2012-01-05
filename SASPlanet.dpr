@@ -178,6 +178,7 @@ uses
   u_EnumDoublePointClosePoly in 'u_EnumDoublePointClosePoly.pas',
   u_EnumDoublePointLonLatToMapPixel in 'u_EnumDoublePointLonLatToMapPixel.pas',
   u_EnumDoublePointMapPixelToLocalPixel in 'u_EnumDoublePointMapPixelToLocalPixel.pas',
+  u_EnumDoublePointLine2Poly in 'u_EnumDoublePointLine2Poly.pas',
   i_DoublePointsAggregator in 'i_DoublePointsAggregator.pas',
   u_DoublePointsAggregator in 'u_DoublePointsAggregator.pas',
   u_GlobalCahceConfig in 'u_GlobalCahceConfig.pas',

@@ -44,7 +44,9 @@
     <DCCReference Include="..\Includes\u_WideStrings_Test.pas" />
     <DCCReference Include="..\u_EnumDoublePointClosePoly_Test.pas" />
     <DCCReference Include="..\u_EnumDoublePointFilterEqual_Test.pas" />
+    <DCCReference Include="..\u_EnumDoublePointLine2Poly_Test.pas" />
     <DCCReference Include="..\u_EnumDoublePointWithClip_Test.pas" />
     <DCCReference Include="..\u_VectorItmesFactorySimple_Test.pas" />
+    <DCCReference Include="u_SASTestCase.pas" />
   </ItemGroup>
 </Project>

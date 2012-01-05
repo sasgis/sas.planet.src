@@ -546,6 +546,7 @@
     <DCCReference Include="u_EnumDoublePointClosePoly.pas" />
     <DCCReference Include="u_EnumDoublePointFilterEqual.pas" />
     <DCCReference Include="u_EnumDoublePointFilterFirstPoly.pas" />
+    <DCCReference Include="u_EnumDoublePointLine2Poly.pas" />
     <DCCReference Include="u_EnumDoublePointLonLatToMapPixel.pas" />
     <DCCReference Include="u_EnumDoublePointMapPixelToLocalPixel.pas" />
     <DCCReference Include="u_EnumDoublePointsByArray.pas" />
