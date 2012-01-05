@@ -5,6 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_CoordConverter,
+  i_DoublePointFilter,
   i_EnumDoublePoint;
 
 type
@@ -24,6 +25,19 @@ type
     );
   end;
 
+type
+  TLonLatPointConverter = class(TInterfacedObject, ILonLatPointConverter)
+  private
+    FZoom: Byte;
+    FConverter: ICoordConverter;
+  private
+    function CreateFilteredEnum(ASource: IEnumLonLatPoint): IEnumProjectedPoint;
+  public
+    constructor Create(
+      AZoom: Byte;
+      AConverter: ICoordConverter
+    );
+  end;
 
 implementation
 
@@ -67,6 +81,21 @@ begin
       APoint := CEmptyDoublePoint;
     end;
   end;
+end;
+
+{ TLonLatPointConverter }
+
+constructor TLonLatPointConverter.Create(AZoom: Byte;
+  AConverter: ICoordConverter);
+begin
+  FZoom := AZoom;
+  FConverter := AConverter;
+end;
+
+function TLonLatPointConverter.CreateFilteredEnum(
+  ASource: IEnumLonLatPoint): IEnumProjectedPoint;
+begin
+  Result := TEnumDoublePointLonLatToMapPixel.Create(FZoom, FConverter, ASource);
 end;
 
 end.

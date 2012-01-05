@@ -4,6 +4,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_DoublePointFilter,
   i_EnumDoublePoint;
 
 type
@@ -35,6 +36,21 @@ type
     constructor Create(
       ASourceEnum: IEnumProjectedPoint
     );
+  end;
+
+  TDoublePointFilterPolygonClose = class(TInterfacedObject, IDoublePointFilter)
+  private
+    function CreateFilteredEnum(ASource: IEnumDoublePoint): IEnumDoublePoint;
+  end;
+
+  TLonLatPointFilterPolygonClose = class(TInterfacedObject, ILonLatPointFilter)
+  private
+    function CreateFilteredEnum(ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+  end;
+
+  TProjectedPointFilterPolygonClose = class(TInterfacedObject, IProjectedPointFilter)
+  private
+    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumProjectedPoint;
   end;
 
 implementation
@@ -114,6 +130,30 @@ constructor TEnumProjectedPointClosePoly.Create(
   ASourceEnum: IEnumProjectedPoint);
 begin
   inherited Create(ASourceEnum);
+end;
+
+{ TDoublePointFilterPolygonClose }
+
+function TDoublePointFilterPolygonClose.CreateFilteredEnum(
+  ASource: IEnumDoublePoint): IEnumDoublePoint;
+begin
+  Result := TEnumDoublePointClosePoly.Create(ASource);
+end;
+
+{ TLonLatPointFilterPolygonClose }
+
+function TLonLatPointFilterPolygonClose.CreateFilteredEnum(
+  ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+begin
+  Result := TEnumLonLatPointClosePoly.Create(ASource);
+end;
+
+{ TProjectedPointFilterPolygonClose }
+
+function TProjectedPointFilterPolygonClose.CreateFilteredEnum(
+  ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+begin
+  Result := TEnumProjectedPointClosePoly.Create(ASource);
 end;
 
 end.

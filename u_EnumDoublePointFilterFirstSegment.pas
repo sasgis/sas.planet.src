@@ -1,0 +1,137 @@
+unit u_EnumDoublePointFilterFirstSegment;
+
+interface
+
+uses
+  t_GeoTypes,
+  i_DoublePointFilter,
+  i_EnumDoublePoint;
+
+type
+  TEnumDoublePointFilterFirstSegment = class(TInterfacedObject, IEnumDoublePoint)
+  private
+    FSourceEnum: IEnumDoublePoint;
+    FStarted: Boolean;
+    FFinished: Boolean;
+  private
+    function Next(out APoint: TDoublePoint): Boolean;
+  public
+    constructor Create(
+      ASourceEnum: IEnumDoublePoint
+    );
+  end;
+
+  TEnumLonLatPointFilterFirstSegment = class(TEnumDoublePointFilterFirstSegment, IEnumLonLatPoint)
+  public
+    constructor Create(
+      ASourceEnum: IEnumLonLatPoint
+    );
+  end;
+
+  TEnumProjectedPointFilterFirstSegment = class(TEnumDoublePointFilterFirstSegment, IEnumProjectedPoint)
+  public
+    constructor Create(
+      ASourceEnum: IEnumProjectedPoint
+    );
+  end;
+
+  TDoublePointFilterFirstSegment = class(TInterfacedObject, IDoublePointFilter)
+  private
+    function CreateFilteredEnum(ASource: IEnumDoublePoint): IEnumDoublePoint;
+  end;
+
+  TLonLatPointFilterFirstSegment = class(TInterfacedObject, ILonLatPointFilter)
+  private
+    function CreateFilteredEnum(ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+  end;
+
+  TProjectedPointFilterFirstSegment = class(TInterfacedObject, IProjectedPointFilter)
+  private
+    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+  end;
+
+
+implementation
+
+uses
+  u_GeoFun;
+
+{ TEnumDoublePointFilterFirstSegment }
+
+constructor TEnumDoublePointFilterFirstSegment.Create(
+  ASourceEnum: IEnumDoublePoint);
+begin
+  FSourceEnum := ASourceEnum;
+  FStarted := False;
+  FFinished := False;
+end;
+
+function TEnumDoublePointFilterFirstSegment.Next(
+  out APoint: TDoublePoint): Boolean;
+var
+  VPoint: TDoublePoint;
+begin
+  while not FFinished do begin
+    if FSourceEnum.Next(VPoint) then begin
+      if FStarted then begin
+        if PointIsEmpty(VPoint) then begin
+          FFinished := True;
+        end else begin
+          APoint := VPoint;
+          Break;
+        end;
+      end else begin
+        if not PointIsEmpty(VPoint) then begin
+          FStarted := True;
+          APoint := VPoint;
+          Break;
+        end;
+      end;
+    end else begin
+      FFinished := True;
+    end;
+  end;
+  Result := not FFinished;
+end;
+
+{ TEnumLonLatPointFilterFirstSegment }
+
+constructor TEnumLonLatPointFilterFirstSegment.Create(
+  ASourceEnum: IEnumLonLatPoint);
+begin
+  inherited Create(ASourceEnum);
+end;
+
+{ TEnumProjectedPointFilterFirstSegment }
+
+constructor TEnumProjectedPointFilterFirstSegment.Create(
+  ASourceEnum: IEnumProjectedPoint);
+begin
+  inherited Create(ASourceEnum);
+end;
+
+{ TDoublePointFilterFirstSegment }
+
+function TDoublePointFilterFirstSegment.CreateFilteredEnum(
+  ASource: IEnumDoublePoint): IEnumDoublePoint;
+begin
+  Result := TEnumDoublePointFilterFirstSegment.Create(ASource);
+end;
+
+{ TLonLatPointFilterFirstSegment }
+
+function TLonLatPointFilterFirstSegment.CreateFilteredEnum(
+  ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+begin
+  Result := TEnumLonLatPointFilterFirstSegment.Create(ASource);
+end;
+
+{ TProjectedPointFilterFirstSegment }
+
+function TProjectedPointFilterFirstSegment.CreateFilteredEnum(
+  ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+begin
+  Result := TEnumProjectedPointFilterFirstSegment.Create(ASource);
+end;
+
+end.

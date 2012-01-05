@@ -128,7 +128,7 @@ uses
   u_EnumDoublePointLonLatToMapPixel,
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
-  u_EnumDoublePointFilterFirstPoly,
+  u_EnumDoublePointFilterFirstSegment,
   u_EnumDoublePointFilterEqual,
   u_VectorItemLonLat,
   u_VectorItemProjected;
@@ -693,7 +693,7 @@ begin
         TEnumDoublePointLonLatToMapPixel.Create(
           AProjection.Zoom,
           AProjection.GeoConverter,
-          TEnumLonLatPointFilterFirstPoly.Create(
+          TEnumLonLatPointFilterFirstSegment.Create(
             AEnum
           )
         )
@@ -753,7 +753,7 @@ begin
           TEnumDoublePointLonLatToMapPixel.Create(
             AProjection.Zoom,
             AProjection.GeoConverter,
-            TEnumLonLatPointFilterFirstPoly.Create(
+            TEnumLonLatPointFilterFirstSegment.Create(
               AEnum
             )
           )

@@ -175,6 +175,7 @@
     <DCCReference Include="i_CoordConverterFactory.pas" />
     <DCCReference Include="i_Datum.pas" />
     <DCCReference Include="i_DebugInfoWindow.pas" />
+    <DCCReference Include="i_DoublePointFilter.pas" />
     <DCCReference Include="i_DoublePointsAggregator.pas" />
     <DCCReference Include="i_DownloadChecker.pas" />
     <DCCReference Include="i_Downloader.pas" />
@@ -545,7 +546,7 @@
     <DCCReference Include="u_EnumDoublePointBySingleLine.pas" />
     <DCCReference Include="u_EnumDoublePointClosePoly.pas" />
     <DCCReference Include="u_EnumDoublePointFilterEqual.pas" />
-    <DCCReference Include="u_EnumDoublePointFilterFirstPoly.pas" />
+    <DCCReference Include="u_EnumDoublePointFilterFirstSegment.pas" />
     <DCCReference Include="u_EnumDoublePointLine2Poly.pas" />
     <DCCReference Include="u_EnumDoublePointLonLatToMapPixel.pas" />
     <DCCReference Include="u_EnumDoublePointMapPixelToLocalPixel.pas" />

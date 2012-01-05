@@ -5,6 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
+  i_DoublePointFilter,
   i_ProjectionInfo,
   i_DoublePointsAggregator;
 
@@ -34,6 +35,22 @@ type
       ATemp: IDoublePointsAggregator = nil
     );
   end;
+
+  TLonLatPointFilterLine2Poly = class(TInterfacedObject, ILonLatPointFilter)
+  private
+    FRadius: Double;
+    FProjection: IProjectionInfo;
+    FTemp: IDoublePointsAggregator;
+  private
+    function CreateFilteredEnum(ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+  public
+    constructor Create(
+      ARadius: Double;
+      AProjection: IProjectionInfo;
+      ATemp: IDoublePointsAggregator = nil
+    );
+  end;
+
 
 implementation
 
@@ -213,6 +230,22 @@ begin
       Result := False;
     end;
   end;
+end;
+
+{ TLonLatPointFilterLine2Poly }
+
+constructor TLonLatPointFilterLine2Poly.Create(ARadius: Double;
+  AProjection: IProjectionInfo; ATemp: IDoublePointsAggregator);
+begin
+  FRadius := ARadius;
+  FProjection := AProjection;
+  FTemp := ATemp;
+end;
+
+function TLonLatPointFilterLine2Poly.CreateFilteredEnum(
+  ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+begin
+  Result := TEnumDoublePointLine2Poly.Create(ASource, FRadius, FProjection, FTemp);
 end;
 
 end.

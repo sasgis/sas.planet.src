@@ -68,7 +68,7 @@ uses
   u_EnumDoublePointLonLatToMapPixel,
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
-  u_EnumDoublePointFilterFirstPoly,
+  u_EnumDoublePointFilterFirstSegment,
   u_EnumDoublePointFilterEqual;
 
 { TSelectionLayer }

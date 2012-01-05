@@ -4,6 +4,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_DoublePointFilter,
   i_EnumDoublePoint;
 
 type
@@ -21,18 +22,21 @@ type
     );
   end;
 
-  TEnumLonLatPointFilterEqual = class(TEnumDoublePointFilterEqual, IEnumLonLatPoint)
-  public
-    constructor Create(
-      ASourceEnum: IEnumLonLatPoint
-    );
-  end;
-
   TEnumProjectedPointFilterEqual = class(TEnumDoublePointFilterEqual, IEnumProjectedPoint)
   public
     constructor Create(
       ASourceEnum: IEnumProjectedPoint
     );
+  end;
+
+  TDoublePointFilterRemoveEqual = class(TInterfacedObject, IDoublePointFilter)
+  private
+    function CreateFilteredEnum(ASource: IEnumDoublePoint): IEnumDoublePoint;
+  end;
+
+  TProjectedPointFilterRemoveEqual = class(TInterfacedObject, IProjectedPointFilter)
+  private
+    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumProjectedPoint;
   end;
 
 implementation
@@ -86,19 +90,28 @@ begin
   Result := not FFinished;
 end;
 
-{ TEnumLonLatPointFilterEqual }
-
-constructor TEnumLonLatPointFilterEqual.Create(ASourceEnum: IEnumLonLatPoint);
-begin
-  inherited Create(ASourceEnum);
-end;
-
 { TEnumProjectedPointFilterEqual }
 
 constructor TEnumProjectedPointFilterEqual.Create(
   ASourceEnum: IEnumProjectedPoint);
 begin
   inherited Create(ASourceEnum);
+end;
+
+{ TDoublePointFilterRemoveEqual }
+
+function TDoublePointFilterRemoveEqual.CreateFilteredEnum(
+  ASource: IEnumDoublePoint): IEnumDoublePoint;
+begin
+  Result := TEnumDoublePointFilterEqual.Create(ASource);
+end;
+
+{ TProjectedPointFilterRemoveEqual }
+
+function TProjectedPointFilterRemoveEqual.CreateFilteredEnum(
+  ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+begin
+  Result := TEnumProjectedPointFilterEqual.Create(ASource);
 end;
 
 end.
