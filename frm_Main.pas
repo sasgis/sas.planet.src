@@ -404,6 +404,9 @@ type
     NDegScale500000: TTBXItem;
     NDegScale1000000: TTBXItem;
     NDegScale0: TTBXItem;
+    TBXSeparatorItem22: TTBXSeparatorItem;
+    NDegScaleUser: TTBXItem;
+    NDegValue: TTBXEditItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -539,6 +542,8 @@ type
     procedure DateTimePicker1Change(Sender: TObject);
     procedure DateTimePicker2Change(Sender: TObject);
     procedure NDegScale0Click(Sender: TObject);
+    procedure NDegValueAcceptText(Sender: TObject; var NewText: string;
+      var Accept: Boolean);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -725,7 +730,8 @@ uses
   vsagps_public_position,
   vsagps_public_time,
   frm_ProgressDownload,
-  frm_StartLogo;
+  frm_StartLogo,
+  StrUtils;
 
 {$R *.dfm}
 
@@ -1259,16 +1265,20 @@ begin
     end else
     NGShScale0.Checked := True;
 
+
     VDegScale := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale;
     if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible = True then begin
-    NDegScale10000.Checked := VDegScale = 10000;
-    NDegScale25000.Checked := VDegScale = 25000;
-    NDegScale50000.Checked := VDegScale = 50000;
-    NDegScale100000.Checked := VDegScale = 100000;
-    NDegScale200000.Checked := VDegScale = 200000;
-    NDegScale500000.Checked := VDegScale = 500000;
-    NDegScale1000000.Checked := VDegScale = 1000000;
-    NDegScale0.Checked := VDegScale = 0;
+    if VDegScale = 12500 then NDegScale10000.Checked := true else
+    if VDegScale = 25000 then NDegScale25000.Checked := true else
+    if VDegScale = 50000 then NDegScale50000.Checked := true else
+    if VDegScale = 100000 then NDegScale100000.Checked := true else
+    if VDegScale = 200000 then NDegScale200000.Checked := true else
+    if VDegScale = 500000 then NDegScale500000.Checked := true else
+    if VDegScale = 1000000 then NDegScale1000000.Checked := true else
+    if VDegScale = 0 then NDegScale0.Checked := true else begin
+    NDegScaleUser.Checked := true ;
+    NDegValue.text := Floattostr(VDegScale/100000);
+    end;
     end else
     NDegScale0.Checked := True;
 
@@ -2835,11 +2845,15 @@ begin
 end;
 
 procedure TfrmMain.NDegScale0Click(Sender: TObject);
-var    
+var
   VTag: Integer;
 begin
   TTBXItem(sender).checked := True;
-  VTag := TTBXItem(sender).Tag;
+  if NDegScaleUser.Checked = true then
+    VTag := trunc(strtofloat(ReplaceStr(NDegValue.text,'.',','))*100000)
+  else
+    VTag := TTBXItem(sender).Tag;
+
   FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
   try
     if VTag = 0 then begin
@@ -2852,6 +2866,29 @@ begin
   finally
     FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.UnlockWrite;
   end;
+end;
+
+procedure TfrmMain.NDegValueAcceptText(Sender: TObject; var NewText: string;
+  var Accept: Boolean);
+var
+  VTag: Integer;
+begin
+  NDegScaleUser.checked := True;
+  VTag := trunc(strtofloat(ReplaceStr(NewText,'.',','))*100000);
+  NDegScaleUser.tag := VTag;
+  FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
+  try
+    if VTag = 0 then begin
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := False;
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
+    end else begin
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := True;
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
+    end;
+  finally
+    FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.UnlockWrite;
+  end;
+
 end;
 
 procedure TfrmMain.NDelClick(Sender: TObject);
