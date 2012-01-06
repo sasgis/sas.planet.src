@@ -24,6 +24,8 @@ interface
 
 uses
   t_GeoTypes,
+  i_VectorItemLonLat,
+  i_VectorItmesFactory,
   u_ConfigDataElementBase,
   i_LineOnMapEdit;
 
@@ -47,6 +49,39 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+  end;
+
+  TLineOnMapEditNew = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEditNew)
+  private
+    FFactory: IVectorItmesFactory;
+    FPoints: TArrayOfDoublePoint;
+    FCount: Integer;
+    FSelectedSegmentIndex: Integer;
+    FSelectedPointIndex: Integer;
+  private
+    function GetSelectedPoint: TDoublePoint;
+    function GetSelectedSegmentIndex: Integer;
+    function GetSelectedPointIndex: Integer;
+
+    procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
+    procedure SetSelectedNextPoint;
+    procedure SetSelectedPrevPoint;
+    function SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
+
+    procedure Clear;
+    procedure DeleteActivePoint;
+    procedure InsertPoint(APoint: TDoublePoint);
+    procedure MoveActivePoint(APoint: TDoublePoint);
+  public
+    constructor Create(AFactory: IVectorItmesFactory);
+    destructor Destroy; override;
+  end;
+
+  TPathOnMapEdit = class(TLineOnMapEditNew, IPathOnMapEdit)
+  private
+  private
+    function GetPath: ILonLatPath;
+    procedure SetPath(AValue: ILonLatPath);
   end;
 
 implementation
@@ -244,6 +279,87 @@ begin
   finally
     UnlockWrite;
   end;
+end;
+
+{ TLineOnMapEditNew }
+
+procedure TLineOnMapEditNew.Clear;
+begin
+
+end;
+
+constructor TLineOnMapEditNew.Create(AFactory: IVectorItmesFactory);
+begin
+
+end;
+
+procedure TLineOnMapEditNew.DeleteActivePoint;
+begin
+
+end;
+
+destructor TLineOnMapEditNew.Destroy;
+begin
+
+  inherited;
+end;
+
+function TLineOnMapEditNew.GetSelectedPoint: TDoublePoint;
+begin
+
+end;
+
+function TLineOnMapEditNew.GetSelectedPointIndex: Integer;
+begin
+
+end;
+
+function TLineOnMapEditNew.GetSelectedSegmentIndex: Integer;
+begin
+
+end;
+
+procedure TLineOnMapEditNew.InsertPoint(APoint: TDoublePoint);
+begin
+
+end;
+
+procedure TLineOnMapEditNew.MoveActivePoint(APoint: TDoublePoint);
+begin
+
+end;
+
+function TLineOnMapEditNew.SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
+begin
+
+end;
+
+procedure TLineOnMapEditNew.SetSelectedNextPoint;
+begin
+
+end;
+
+procedure TLineOnMapEditNew.SetSelectedPoint(ASegmentIndex,
+  APointIndex: Integer);
+begin
+
+end;
+
+procedure TLineOnMapEditNew.SetSelectedPrevPoint;
+begin
+
+end;
+
+{ TPathOnMapEdit }
+
+function TPathOnMapEdit.GetPath: ILonLatPath;
+begin
+
+end;
+
+procedure TPathOnMapEdit.SetPath(AValue: ILonLatPath);
+begin
+
 end;
 
 end.

@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_VectorItemLonLat,
   i_ConfigDataElement;
 
 type
@@ -40,6 +41,43 @@ type
     procedure MoveActivePoint(APoint: TDoublePoint);
     procedure SetPoints(AValue: TArrayOfDoublePoint);
   end;
+
+  ILineOnMapEditNew = interface(IConfigDataElement)
+    ['{BD78781E-F5E0-406B-AE16-E5015BA87743}']
+    function GetSelectedPoint: TDoublePoint;
+    property SelectedPoint: TDoublePoint read GetSelectedPoint;
+
+    function GetSelectedSegmentIndex: Integer;
+    property SelectedSegmentIndex: Integer read GetSelectedSegmentIndex;
+
+    function GetSelectedPointIndex: Integer;
+    property SelectedPointIndex: Integer read GetSelectedPointIndex;
+
+    procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
+    procedure SetSelectedNextPoint;
+    procedure SetSelectedPrevPoint;
+    function SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
+
+    procedure Clear;
+    procedure DeleteActivePoint;
+    procedure InsertPoint(APoint: TDoublePoint);
+    procedure MoveActivePoint(APoint: TDoublePoint);
+  end;
+
+  IPathOnMapEdit = interface(ILineOnMapEditNew)
+    ['{A374154F-48FF-4597-8FD1-599FFE6B4345}']
+    function GetPath: ILonLatPath;
+    procedure SetPath(AValue: ILonLatPath);
+    property Path: ILonLatPath read GetPath write SetPath;
+  end;
+
+  IPolygonOnMapEdit = interface(ILineOnMapEditNew)
+    ['{6566E834-169F-4988-99FE-F5489BC985EA}']
+    function GetPolygon: ILonLatPolygon;
+    procedure SetPolygon(AValue: ILonLatPolygon);
+    property Polygon: ILonLatPolygon read GetPolygon write SetPolygon;
+  end;
+
 implementation
 
 end.
