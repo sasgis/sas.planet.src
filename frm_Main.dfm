@@ -801,12 +801,29 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale10000: TTBXItem
-            Tag = 10000
+            Tag = 12500
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
             OnClick = NDegScale0Click
             Caption = '0.125'#176
+            Hint = ''
+          end
+          object TBXSeparatorItem22: TTBXSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          object NDegScaleUser: TTBXItem
+            Tag = 1
+            GroupIndex = 1
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = 'User defined'
+            Hint = ''
+          end
+          object NDegValue: TTBXEditItem
+            OnAcceptText = NDegValueAcceptText
+            Caption = ''
             Hint = ''
           end
         end

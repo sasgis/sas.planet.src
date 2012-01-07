@@ -79,7 +79,7 @@ type
 
 const
   CEmptyDoublePoint: TDoublePoint = (X: NAN; Y: NAN);
-  
+
 implementation
 
 function CalcAngleDelta(ADerg1, ADegr2: Double): Double;
@@ -618,16 +618,11 @@ end;
 
 function GetDegBordersStepByScale(AScale: Integer): TDoublePoint;
 begin
-  case AScale of
-    1000000: begin Result.X:=10; Result.Y:=10; end;
-     500000: begin Result.X:=5; Result.Y:=5; end;
-     200000: begin Result.X:=2; Result.Y:=2; end;
-     100000: begin Result.X:=1; Result.Y:=1; end;
-      50000: begin Result.X:=0.5; Result.Y:=0.5; end;
-      25000: begin Result.X:=0.25; Result.Y:=0.25; end;
-      10000: begin Result.X:=0.125; Result.Y:=0.125; end;
-    else begin Result.X:=360; Result.Y:=180; end;
-  end;
+if AScale > 1000000 then begin Result.X:=10; Result.Y:=10; end else
+if AScale < 0 then begin Result.X:=360; Result.Y:=180; end else begin
+ Result.X := (AScale/100000);
+ Result.Y := Result.X;
+ end;
 end;
 
 function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
