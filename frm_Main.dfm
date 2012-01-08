@@ -747,7 +747,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale1000000: TTBXItem
-            Tag = 1000000
+            Tag = 1000000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -756,7 +756,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale500000: TTBXItem
-            Tag = 500000
+            Tag = 500000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -765,7 +765,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale200000: TTBXItem
-            Tag = 200000
+            Tag = 200000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -774,7 +774,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale100000: TTBXItem
-            Tag = 100000
+            Tag = 100000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -783,7 +783,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale50000: TTBXItem
-            Tag = 50000
+            Tag = 50000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -792,7 +792,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale25000: TTBXItem
-            Tag = 25000
+            Tag = 25000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -801,7 +801,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale10000: TTBXItem
-            Tag = 12500
+            Tag = 12500000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True

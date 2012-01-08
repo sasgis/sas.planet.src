@@ -69,9 +69,9 @@ type
 
   IDegreeGridConfig = interface(IBaseGridConfig)
     ['{8592549C-0DC8-4B07-8262-2A802FF6CF24}']
-    function GetScale: Integer;
-    procedure SetScale(AValue: Integer);
-    property Scale: Integer read GetScale write SetScale;
+    function GetScale: Double;
+    procedure SetScale(AValue: Double);
+    property Scale: Double read GetScale write SetScale;
 
     function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
   end;

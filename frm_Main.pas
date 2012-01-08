@@ -666,6 +666,8 @@ type
     procedure OnMinimize(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
     procedure LayerMapMarksRedraw(Sender: TObject);
+    function ConvLatLon2Scale( Astr:string):Double;
+    function Deg2Strvalue( aDeg:Double):string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -928,6 +930,80 @@ procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   FSensorViewList := nil;
 end;
+        
+function TfrmMain.ConvLatLon2Scale( Astr:string):Double;
+var rest: boolean;
+  res: Double;
+  i,delitel:integer;
+  gms:double;
+  text:string;
+begin
+
+  text := Astr;
+  rest := true;
+  i:=1;
+  while i<=length(text) do begin
+    if (not(text[i] in ['0'..'9','-','+','.',',',' '])) then begin
+      text[i]:=' ';
+      dec(i);
+    end;
+     if ((i=1)and(text[i]=' '))or
+       ((i=length(text))and(text[i]=' '))or
+       ((i<length(text)-1)and(text[i]=' ')and(text[i+1]=' '))or
+       ((i>1) and (text[i]=' ') and (not(text[i-1] in ['0'..'9'])))or
+       ((i<length(text)-1)and(text[i]=',')and(text[i+1]=' ')) then begin
+      Delete(text,i,1);
+      dec(i);
+    end;
+    inc(i);
+  end;
+
+  try
+    res:=0;
+    delitel:=1;
+    repeat
+     i:=posEx(' ',text,1);
+     if i=0 then begin
+       gms:=str2r(text);
+     end else begin
+       gms:=str2r(copy(text,1,i-1));
+       Delete(text,1,i);
+     end;
+     if ((delitel>1)and(abs(gms)>60))or
+        ((delitel=1)and(abs(gms)>180)) then begin
+       Rest:=false;
+     end;
+     if res<0 then begin
+       res:=res-gms/delitel;
+     end else begin
+       res:=res+gms/delitel;
+     end;
+     delitel:=delitel*60;
+    until (i=0)or(delitel>3600)or(rest=false);
+  except
+    res := 0;
+  end;
+  result := res;
+end;
+
+function TfrmMain.deg2strvalue( aDeg:Double):string;
+var
+  Vmin :integer;
+  VDegScale : Double;
+begin
+   // convert to  ° ' "
+   VDegScale := abs(aDeg/100000000);
+   result := IntToStr(Trunc(VDegScale)) + '°';
+   VDegScale := Frac(VDegScale) * 60;
+   Vmin := Trunc(VDegScale);
+   if Vmin < 10 then begin
+     result := result + '0' + IntToStr(Vmin) + '''';
+   end else begin
+     result := result + IntToStr(Vmin) + '''';
+   end;
+   VDegScale := Frac(VDegScale) * 60;
+   result := result + FormatFloat('00.00', VDegScale) + '"';
+end;
 
 procedure TfrmMain.FormActivate(Sender: TObject);
 var
@@ -938,7 +1014,7 @@ var
   VMainFormMainConfigChangeListener: IJclListener;
   VGPSReceiverStateChangeListener: IJclListener;
   VScale: Integer;
-  VDegScale: Integer;
+  VDegScale: Double;
   VZoom: Byte;
 begin
   if not ProgramStart then exit;
@@ -1268,20 +1344,20 @@ begin
 
     VDegScale := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale;
     if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible = True then begin
-    if VDegScale = 12500 then NDegScale10000.Checked := true else
-    if VDegScale = 25000 then NDegScale25000.Checked := true else
-    if VDegScale = 50000 then NDegScale50000.Checked := true else
-    if VDegScale = 100000 then NDegScale100000.Checked := true else
-    if VDegScale = 200000 then NDegScale200000.Checked := true else
-    if VDegScale = 500000 then NDegScale500000.Checked := true else
-    if VDegScale = 1000000 then NDegScale1000000.Checked := true else
-    if VDegScale = 0 then NDegScale0.Checked := true else begin
-    NDegScaleUser.Checked := true ;
-    NDegValue.text := Floattostr(VDegScale/100000);
+     if VDegScale = 12500000 then NDegScale10000.Checked := true else
+     if VDegScale = 25000000 then NDegScale25000.Checked := true else
+     if VDegScale = 50000000 then NDegScale50000.Checked := true else
+     if VDegScale = 100000000 then NDegScale100000.Checked := true else
+     if VDegScale = 200000000 then NDegScale200000.Checked := true else
+     if VDegScale = 500000000 then NDegScale500000.Checked := true else
+     if VDegScale = 1000000000 then NDegScale1000000.Checked := true else
+     if VDegScale = 0 then NDegScale0.Checked := true else begin
+     NDegScaleUser.Checked := true ;
+     NDegValue.text := deg2strvalue(VDegScale);
     end;
     end else
-    NDegScale0.Checked := True;
 
+    NDegScale0.Checked := True;
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnBeforeViewChange),
       FConfig.ViewPortState.BeforeChangeNotifier
@@ -2846,14 +2922,16 @@ end;
 
 procedure TfrmMain.NDegScale0Click(Sender: TObject);
 var
-  VTag: Integer;
+  VTag: Double;
 begin
   TTBXItem(sender).checked := True;
   if NDegScaleUser.Checked = true then
-    VTag := trunc(strtofloat(ReplaceStr(NDegValue.text,'.',','))*100000)
+    VTag := (ConvLatLon2Scale(NDegValue.text)*100000000)
   else
+  begin
     VTag := TTBXItem(sender).Tag;
-
+    NDegValue.text := deg2strvalue(VTag);
+  end;
   FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
   try
     if VTag = 0 then begin
@@ -2871,11 +2949,12 @@ end;
 procedure TfrmMain.NDegValueAcceptText(Sender: TObject; var NewText: string;
   var Accept: Boolean);
 var
-  VTag: Integer;
+  VTag: Double;
 begin
   NDegScaleUser.checked := True;
-  VTag := trunc(strtofloat(ReplaceStr(NewText,'.',','))*100000);
-  NDegScaleUser.tag := VTag;
+  VTag := (ConvLatLon2Scale(NewText)*100000000);
+  NewText := deg2strvalue(VTag);
+//  NDegScaleUser.tag := VTag;
   FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
   try
     if VTag = 0 then begin

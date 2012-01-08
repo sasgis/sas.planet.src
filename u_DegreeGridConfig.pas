@@ -33,13 +33,13 @@ uses
 type
   TDegreeGridConfig = class(TBaseGridConfig, IDegreeGridConfig)
   private
-    FScale: Integer;
+    FScale: Double;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetScale: Integer;
-    procedure SetScale(AValue: Integer);
+    function GetScale: Double;
+    procedure SetScale(AValue: Double);
     function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
   public
     constructor Create;
@@ -65,7 +65,7 @@ procedure TDegreeGridConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    SetScale(AConfigData.ReadInteger('Scale', FScale));
+    SetScale(AConfigData.ReadFloat('Scale', FScale));
   end;
 end;
 
@@ -73,13 +73,13 @@ procedure TDegreeGridConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteInteger('Scale', FScale);
+  AConfigData.WriteFloat('Scale', FScale);
 end;
 
 function TDegreeGridConfig.GetRectStickToGrid(
   ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
 var
-  VScale: Integer;
+  VScale: Double;
   VVisible: Boolean;
   z: TDoublePoint;
 begin
@@ -107,7 +107,7 @@ begin
   end;
 end;
 
-function TDegreeGridConfig.GetScale: Integer;
+function TDegreeGridConfig.GetScale: Double;
 begin
   LockRead;
   try
@@ -117,17 +117,17 @@ begin
   end;
 end;
 
-procedure TDegreeGridConfig.SetScale(AValue: Integer);
+procedure TDegreeGridConfig.SetScale(AValue: Double);
 var
-  VScale: Integer;
+  VScale: Double;
 begin
   VScale := AValue;
-  if VScale >= 1000000 then begin
-    VScale := 1000000;
+  if VScale >= 1000000000 then begin
+    VScale := 1000000000;
   end else if VScale < 0 then begin
     VScale := 0;
   end;
-  
+
   LockWrite;
   try
     if FScale <> VScale then begin
