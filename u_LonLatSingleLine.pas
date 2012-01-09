@@ -14,7 +14,6 @@ type
     FBounds: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
   private
-    function GetEnum: IEnumLonLatPoint;
     function GetBounds: TDoubleRect;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
@@ -33,6 +32,8 @@ type
   end;
 
   TLonLatPathLine = class(TLonLatLineBase, ILonLatPathLine)
+  private
+    function GetEnum: IEnumLonLatPoint;
   public
     constructor Create(
       APoints: PDoublePointArray;
@@ -41,6 +42,8 @@ type
   end;
 
   TLonLatPolygonLine = class(TLonLatLineBase, ILonLatPolygonLine)
+  private
+    function GetEnum: IEnumLonLatPoint;
   public
     constructor Create(
       APoints: PDoublePointArray;
@@ -94,15 +97,13 @@ begin
   FBounds := ABounds;
   FCount := ACount;
   Assert(FCount > 0, 'Empty line');
-  if AClosed and not DoublePointsEqual(APoints[0], APoints[ACount - 1]) then begin
-    Inc(FCount);
-    SetLength(FPoints, FCount);
-    Move(APoints^, FPoints[0], ACount * SizeOf(TDoublePoint));
-    FPoints[FCount - 1] := FPoints[0];
-  end else begin
-    SetLength(FPoints, FCount);
-    Move(APoints^, FPoints[0], ACount * SizeOf(TDoublePoint));
+
+  if AClosed and (FCount > 1) and DoublePointsEqual(APoints[0], APoints[ACount - 1]) then begin
+    Dec(FCount);
   end;
+
+  SetLength(FPoints, FCount);
+  Move(APoints^, FPoints[0], FCount * SizeOf(TDoublePoint));
 end;
 
 function TLonLatLineBase.GetBounds: TDoubleRect;
@@ -113,11 +114,6 @@ end;
 function TLonLatLineBase.GetCount: Integer;
 begin
   Result := FCount;
-end;
-
-function TLonLatLineBase.GetEnum: IEnumLonLatPoint;
-begin
-  Result := TEnumDoublePointBySingleLonLatLine.Create(Self, @FPoints[0], FCount);
 end;
 
 function TLonLatLineBase.GetPoints: PDoublePointArray;
@@ -132,12 +128,22 @@ begin
   inherited Create(False, APoints, ACount);
 end;
 
+function TLonLatPathLine.GetEnum: IEnumLonLatPoint;
+begin
+  Result := TEnumDoublePointBySingleLonLatLine.Create(Self, False, @FPoints[0], FCount);
+end;
+
 { TLonLatPolygonLine }
 
 constructor TLonLatPolygonLine.Create(APoints: PDoublePointArray;
   ACount: Integer);
 begin
   inherited Create(True, APoints, ACount);
+end;
+
+function TLonLatPolygonLine.GetEnum: IEnumLonLatPoint;
+begin
+  Result := TEnumDoublePointBySingleLonLatLine.Create(Self, True, @FPoints[0], FCount);
 end;
 
 end.

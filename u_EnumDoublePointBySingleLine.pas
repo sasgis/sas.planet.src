@@ -12,6 +12,7 @@ type
   TEnumDoublePointBySingleLineBase = class(TInterfacedObject, IEnumDoublePoint)
   private
     FSourceLine: IInterface;
+    FClosed: Boolean;
     FPoints: PDoublePointArray;
     FCount: Integer;
     FIndex: Integer;
@@ -20,6 +21,7 @@ type
   public
     constructor Create(
       ADataOwner: IInterface;
+      AClosed: Boolean;
       APoints: PDoublePointArray;
       ACount: Integer
     );
@@ -40,11 +42,13 @@ uses
 
 constructor TEnumDoublePointBySingleLineBase.Create(
   ADataOwner: IInterface;
+  AClosed: Boolean;
   APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
   FSourceLine := ADataOwner;
+  FClosed := AClosed;
   FPoints := APoints;
   FCount := ACount;
   FIndex := 0;
@@ -58,11 +62,20 @@ begin
     Inc(FIndex);
     Result := True;
   end else begin
-    Result := False;
-    if FIndex = FCount then begin
+    if (FIndex = FCount) then begin
+      if FClosed  then begin
+        APoint := FPoints[0];
+        Result := True;
+      end else begin
+        APoint := CEmptyDoublePoint;
+        Result := False;
+      end;
       FPoints := nil;
       FSourceLine := nil;
       Inc(FIndex);
+    end else begin
+      APoint := CEmptyDoublePoint;
+      Result := False;
     end;
   end;
 end;

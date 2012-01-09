@@ -23,9 +23,11 @@ unit u_LineOnMapEdit;
 interface
 
 uses
+  Classes,
   t_GeoTypes,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
+  i_EnumDoublePoint,
   u_ConfigDataElementBase,
   i_LineOnMapEdit;
 
@@ -51,18 +53,68 @@ type
     destructor Destroy; override;
   end;
 
-  TLineOnMapEditNew = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEditNew)
+  TLonLatLineWithSelectedBase = class(TInterfacedObject)
   private
-    FFactory: IVectorItmesFactory;
-    FPoints: TArrayOfDoublePoint;
-    FCount: Integer;
+    FSelectedPoint: TDoublePoint;
     FSelectedSegmentIndex: Integer;
     FSelectedPointIndex: Integer;
   private
     function GetSelectedPoint: TDoublePoint;
     function GetSelectedSegmentIndex: Integer;
     function GetSelectedPointIndex: Integer;
+  public
+    constructor Create(
+      ASelectedPoint: TDoublePoint;
+      ASelectedSegmentIndex: Integer;
+      ASelectedPointIndex: Integer
+    );
+  end;
 
+  TLonLatPathWithSelected = class(TLonLatLineWithSelectedBase, ILonLatPathWithSelected)
+  private
+    FLine: ILonLatPath;
+  private
+    function GetEnum: IEnumLonLatPoint;
+    function GetCount: Integer;
+    function GetItem(AIndex: Integer): ILonLatPathLine;
+  public
+    constructor Create(
+      ALine: ILonLatPath;
+      ASelectedSegmentIndex: Integer;
+      ASelectedPointIndex: Integer
+    );
+  end;
+
+  TLonLatPolygonWithSelected = class(TLonLatLineWithSelectedBase, ILonLatPolygonWithSelected)
+  private
+    FLine: ILonLatPolygon;
+  private
+    function GetEnum: IEnumLonLatPoint;
+    function GetCount: Integer;
+    function GetItem(AIndex: Integer): ILonLatPolygonLine;
+  public
+    constructor Create(
+      ALine: ILonLatPolygon;
+      ASelectedSegmentIndex: Integer;
+      ASelectedPointIndex: Integer
+    );
+  end;
+
+
+
+
+  TLineOnMapEditNew = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEditNew)
+  private
+    FFactory: IVectorItmesFactory;
+    FPoints: TArrayOfDoublePoint;
+    FSegmentStartInexes: array of Integer;
+    FSegmentsCount: Integer;
+    FPointsCount: Integer;
+    FSelectedSegmentIndex: Integer;
+    FSelectedPointIndex: Integer;
+    procedure _UpdateLineObject; virtual; abstract;
+    procedure _UpdateLineWithSelected; virtual; abstract;
+  private
     procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
     procedure SetSelectedNextPoint;
     procedure SetSelectedPrevPoint;
@@ -80,8 +132,8 @@ type
   TPathOnMapEdit = class(TLineOnMapEditNew, IPathOnMapEdit)
   private
   private
-    function GetPath: ILonLatPath;
-    procedure SetPath(AValue: ILonLatPath);
+    function GetPath: ILonLatPathWithSelected;
+    procedure SetPath(AValue: ILonLatPathWithSelected);
   end;
 
 implementation
@@ -283,19 +335,16 @@ end;
 
 { TLineOnMapEditNew }
 
-procedure TLineOnMapEditNew.Clear;
-begin
-
-end;
-
 constructor TLineOnMapEditNew.Create(AFactory: IVectorItmesFactory);
 begin
-
-end;
-
-procedure TLineOnMapEditNew.DeleteActivePoint;
-begin
-
+  inherited Create;
+  FFactory := AFactory;
+  FSegmentsCount := 0;
+  FPointsCount := 0;
+  FSelectedSegmentIndex := 0;
+  FSelectedPointIndex := 0;
+  SetLength(FSegmentStartInexes, FSegmentsCount + 1);
+  SetLength(FPoints, 0);
 end;
 
 destructor TLineOnMapEditNew.Destroy;
@@ -304,62 +353,219 @@ begin
   inherited;
 end;
 
-function TLineOnMapEditNew.GetSelectedPoint: TDoublePoint;
+procedure TLineOnMapEditNew.Clear;
 begin
-
+  LockWrite;
+  try
+    if FSegmentsCount > 0 then begin
+      FSegmentsCount := 0;
+      FPointsCount := 0;
+      FSelectedSegmentIndex := 0;
+      FSelectedPointIndex := 0;
+      SetLength(FSegmentStartInexes, 1);
+      SetLength(FPoints, 0);
+      _UpdateLineObject;
+    end;
+  finally
+    UnlockWrite;
+  end;
 end;
 
-function TLineOnMapEditNew.GetSelectedPointIndex: Integer;
+procedure TLineOnMapEditNew.DeleteActivePoint;
 begin
+  LockWrite;
+  try
+    if FSegmentsCount > 0 then begin
+      if FSelectedSegmentIndex < FSegmentsCount then begin
 
-end;
+      end else begin
+        FSelectedSegmentIndex := FSegmentsCount - 1;
+      end;
 
-function TLineOnMapEditNew.GetSelectedSegmentIndex: Integer;
-begin
-
+      _UpdateLineObject;
+    end;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TLineOnMapEditNew.InsertPoint(APoint: TDoublePoint);
 begin
+  LockWrite;
+  try
 
+    _UpdateLineObject;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TLineOnMapEditNew.MoveActivePoint(APoint: TDoublePoint);
 begin
+  LockWrite;
+  try
 
+    _UpdateLineObject;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 function TLineOnMapEditNew.SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
 begin
+  LockWrite;
+  try
 
+    _UpdateLineWithSelected;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TLineOnMapEditNew.SetSelectedNextPoint;
 begin
+  LockWrite;
+  try
 
+    _UpdateLineWithSelected;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TLineOnMapEditNew.SetSelectedPoint(ASegmentIndex,
   APointIndex: Integer);
 begin
+  LockWrite;
+  try
 
+    _UpdateLineWithSelected;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TLineOnMapEditNew.SetSelectedPrevPoint;
 begin
+  LockWrite;
+  try
 
+    _UpdateLineWithSelected;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 { TPathOnMapEdit }
 
-function TPathOnMapEdit.GetPath: ILonLatPath;
+function TPathOnMapEdit.GetPath: ILonLatPathWithSelected;
 begin
 
 end;
 
-procedure TPathOnMapEdit.SetPath(AValue: ILonLatPath);
+procedure TPathOnMapEdit.SetPath(AValue: ILonLatPathWithSelected);
 begin
 
+end;
+
+{ TLonLatLineWithSelectedBase }
+
+constructor TLonLatLineWithSelectedBase.Create(ASelectedPoint: TDoublePoint;
+  ASelectedSegmentIndex, ASelectedPointIndex: Integer);
+begin
+  FSelectedPoint := ASelectedPoint;
+  FSelectedSegmentIndex := ASelectedSegmentIndex;
+  FSelectedPointIndex := ASelectedPointIndex;
+end;
+
+function TLonLatLineWithSelectedBase.GetSelectedPoint: TDoublePoint;
+begin
+  Result := FSelectedPoint;
+end;
+
+function TLonLatLineWithSelectedBase.GetSelectedPointIndex: Integer;
+begin
+  Result := FSelectedPointIndex;
+end;
+
+function TLonLatLineWithSelectedBase.GetSelectedSegmentIndex: Integer;
+begin
+  Result := FSelectedSegmentIndex;
+end;
+
+{ TLonLatPathWithSelected }
+
+constructor TLonLatPathWithSelected.Create(ALine: ILonLatPath;
+  ASelectedSegmentIndex, ASelectedPointIndex: Integer);
+var
+  VLine: ILonLatPathLine;
+  VPoint: TDoublePoint;
+begin
+  Assert(ASelectedSegmentIndex >= 0);
+  Assert(ASelectedSegmentIndex < ALine.Count);
+  VLine := ALine.Item[ASelectedSegmentIndex];
+  Assert(ASelectedPointIndex >= 0);
+  Assert(ASelectedPointIndex <= VLine.Count);
+  if ASelectedPointIndex < VLine.Count then begin
+    VPoint := VLine.Points[ASelectedPointIndex];
+  end else begin
+    VPoint := CEmptyDoublePoint;
+  end;
+  inherited Create(VPoint, ASelectedSegmentIndex, ASelectedPointIndex);
+  FLine := ALine;
+end;
+
+function TLonLatPathWithSelected.GetCount: Integer;
+begin
+  Result := FLine.Count;
+end;
+
+function TLonLatPathWithSelected.GetEnum: IEnumLonLatPoint;
+begin
+  Result := FLine.GetEnum;
+end;
+
+function TLonLatPathWithSelected.GetItem(AIndex: Integer): ILonLatPathLine;
+begin
+  Result := FLine.Item[AIndex];
+end;
+
+{ TLonLatPolygonWithSelected }
+
+constructor TLonLatPolygonWithSelected.Create(ALine: ILonLatPolygon;
+  ASelectedSegmentIndex, ASelectedPointIndex: Integer);
+var
+  VLine: ILonLatPolygonLine;
+  VPoint: TDoublePoint;
+begin
+  Assert(ASelectedSegmentIndex >= 0);
+  Assert(ASelectedSegmentIndex < ALine.Count);
+  VLine := ALine.Item[ASelectedSegmentIndex];
+  Assert(ASelectedPointIndex >= 0);
+  Assert(ASelectedPointIndex < VLine.Count);
+  if ASelectedPointIndex < VLine.Count then begin
+    VPoint := VLine.Points[ASelectedPointIndex];
+  end else begin
+    VPoint := CEmptyDoublePoint;
+  end;
+  inherited Create(VPoint, ASelectedSegmentIndex, ASelectedPointIndex);
+  FLine := ALine;
+end;
+
+function TLonLatPolygonWithSelected.GetCount: Integer;
+begin
+  Result := FLine.Count;
+end;
+
+function TLonLatPolygonWithSelected.GetEnum: IEnumLonLatPoint;
+begin
+  Result := FLine.GetEnum;
+end;
+
+function TLonLatPolygonWithSelected.GetItem(
+  AIndex: Integer): ILonLatPolygonLine;
+begin
+  Result := FLine.Item[AIndex];
 end;
 
 end.

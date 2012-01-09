@@ -42,17 +42,22 @@ type
     procedure SetPoints(AValue: TArrayOfDoublePoint);
   end;
 
+  ILonLatPathWithSelected = interface(ILonLatPath)
+    ['{3ED6ABA4-D618-4A82-A428-EFF74D482161}']
+    function GetSelectedPoint: TDoublePoint;
+    function GetSelectedSegmentIndex: Integer;
+    function GetSelectedPointIndex: Integer;
+  end;
+
+  ILonLatPolygonWithSelected = interface(ILonLatPolygon)
+    ['{4F1931DF-57E1-4082-A83F-D23FB74F2F28}']
+    function GetSelectedPoint: TDoublePoint;
+    function GetSelectedSegmentIndex: Integer;
+    function GetSelectedPointIndex: Integer;
+  end;
+
   ILineOnMapEditNew = interface(IConfigDataElement)
     ['{BD78781E-F5E0-406B-AE16-E5015BA87743}']
-    function GetSelectedPoint: TDoublePoint;
-    property SelectedPoint: TDoublePoint read GetSelectedPoint;
-
-    function GetSelectedSegmentIndex: Integer;
-    property SelectedSegmentIndex: Integer read GetSelectedSegmentIndex;
-
-    function GetSelectedPointIndex: Integer;
-    property SelectedPointIndex: Integer read GetSelectedPointIndex;
-
     procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
     procedure SetSelectedNextPoint;
     procedure SetSelectedPrevPoint;
@@ -66,16 +71,16 @@ type
 
   IPathOnMapEdit = interface(ILineOnMapEditNew)
     ['{A374154F-48FF-4597-8FD1-599FFE6B4345}']
-    function GetPath: ILonLatPath;
-    procedure SetPath(AValue: ILonLatPath);
-    property Path: ILonLatPath read GetPath write SetPath;
+    function GetPath: ILonLatPathWithSelected;
+    procedure SetPath(AValue: ILonLatPathWithSelected);
+    property Path: ILonLatPathWithSelected read GetPath write SetPath;
   end;
 
   IPolygonOnMapEdit = interface(ILineOnMapEditNew)
     ['{6566E834-169F-4988-99FE-F5489BC985EA}']
-    function GetPolygon: ILonLatPolygon;
-    procedure SetPolygon(AValue: ILonLatPolygon);
-    property Polygon: ILonLatPolygon read GetPolygon write SetPolygon;
+    function GetPolygon: ILonLatPolygonWithSelected;
+    procedure SetPolygon(AValue: ILonLatPolygonWithSelected);
+    property Polygon: ILonLatPolygonWithSelected read GetPolygon write SetPolygon;
   end;
 
 implementation
