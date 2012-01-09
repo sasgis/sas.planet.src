@@ -826,6 +826,19 @@ object frmMain: TfrmMain
             Caption = ''
             Hint = ''
           end
+          object TBSeparatorItem2: TTBSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          object NDegScaleAuto: TTBXItem
+            Tag = -100000000
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = 'Auto'
+            Hint = ''
+          end
         end
         object TBXSeparatorItem10: TTBXSeparatorItem
           Caption = ''

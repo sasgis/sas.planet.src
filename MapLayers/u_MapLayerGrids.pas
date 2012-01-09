@@ -164,10 +164,10 @@ begin
   vTempy := 0;
   VDeltaxDegree := 0;
   VDeltayDegree := 0;
-  z := GetDegBordersStepByScale(VScale);
   VLocalConverter := LayerCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
+  z := GetDegBordersStepByScale(VScale,VZoom);
   VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
   VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
   VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
@@ -519,7 +519,7 @@ begin
         end;
       end;
       if FConfig.DegreeGrid.Visible then begin
-        if FConfig.DegreeGrid.Scale > 0 then begin
+        if FConfig.DegreeGrid.Scale <> 0 then begin
           Result := True;
         end;
       end;

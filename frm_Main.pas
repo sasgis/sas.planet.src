@@ -407,6 +407,8 @@ type
     TBXSeparatorItem22: TTBXSeparatorItem;
     NDegScaleUser: TTBXItem;
     NDegValue: TTBXEditItem;
+    TBSeparatorItem2: TTBSeparatorItem;
+    NDegScaleAuto: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -1351,13 +1353,15 @@ begin
      if VDegScale = 200000000 then NDegScale200000.Checked := true else
      if VDegScale = 500000000 then NDegScale500000.Checked := true else
      if VDegScale = 1000000000 then NDegScale1000000.Checked := true else
-     if VDegScale = 0 then NDegScale0.Checked := true else begin
-     NDegScaleUser.Checked := true ;
+     if VDegScale = 0 then NDegScale0.Checked := true else
+     if VDegScale < 0 then NDegScaleAuto.Checked := true else
+                           NDegScaleUser.Checked := true ;
      NDegValue.text := deg2strvalue(VDegScale);
-    end;
-    end else
-
+    end else begin
     NDegScale0.Checked := True;
+    VDegScale := 0;
+    end;
+
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnBeforeViewChange),
       FConfig.ViewPortState.BeforeChangeNotifier
@@ -2928,10 +2932,8 @@ begin
   if NDegScaleUser.Checked = true then
     VTag := (ConvLatLon2Scale(NDegValue.text)*100000000)
   else
-  begin
     VTag := TTBXItem(sender).Tag;
-    NDegValue.text := deg2strvalue(VTag);
-  end;
+  NDegValue.text := deg2strvalue(VTag);
   FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
   try
     if VTag = 0 then begin

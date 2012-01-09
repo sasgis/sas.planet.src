@@ -91,8 +91,8 @@ begin
     UnlockRead;
   end;
   Result := ASourceRect;
-  if VVisible and (VScale > 0)  then begin
-    z := GetDegBordersStepByScale(VScale);
+  if VVisible {and (VScale > 0) } then begin
+    z := GetDegBordersStepByScale(VScale,0);
     Result.Left := Result.Left-(round(Result.Left*GSHprec) mod round(z.X*GSHprec))/GSHprec;
     if Result.Left < 0 then Result.Left := Result.Left-z.X;
 
@@ -124,13 +124,11 @@ begin
   VScale := AValue;
   if VScale >= 1000000000 then begin
     VScale := 1000000000;
-  end else if VScale < 0 then begin
-    VScale := 0;
   end;
 
   LockWrite;
   try
-    if FScale <> VScale then begin
+    if( FScale <> VScale )then begin
       FScale := VScale;
       if FScale = 0 then begin
         SetVisible(False);

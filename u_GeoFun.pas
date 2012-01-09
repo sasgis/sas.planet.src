@@ -74,7 +74,7 @@ type
   function RgnAndRect(APoints: PPointArray; ACount: Integer; ARect: TRect):boolean;
   function RgnAndRgn(APoints: PPointArray; ACount: Integer; x, y: integer; prefalse: boolean):boolean; // Переделать использующий ее код в ближайшее время
   function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
-  function GetDegBordersStepByScale(AScale: Double): TDoublePoint;
+  function GetDegBordersStepByScale(AScale: Double; AZoom: Byte): TDoublePoint;
   function PointIsEmpty(APoint: TDoublePoint): Boolean;
 
 const
@@ -616,13 +616,22 @@ begin
   end;
 end;
 
-function GetDegBordersStepByScale(AScale: Double): TDoublePoint;
+function GetDegBordersStepByScale(AScale: Double; AZoom: Byte): TDoublePoint;
 begin
-if AScale > 1000000000 then begin Result.X:=10; Result.Y:=10; end else
-if AScale < 0 then begin Result.X:=360; Result.Y:=180; end else begin
- Result.X := (AScale/100000000);
+
+if AScale > 1000000000 then begin Result.X:=10; Result.Y:=10; end;
+ Result.X := abs(AScale/100000000);
+
+ if AScale <0 then
+  if AZoom <>0 then begin
+   case AZoom of
+    1..3:  Result.X := 10;
+    4..22: Result.X := 320/Power(2,AZoom);
+    23,24: Result.X := 320/Power(2,22);
+    else Result.X := 0;
+   end;
+  end;
  Result.Y := Result.X;
- end;
 end;
 
 function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
