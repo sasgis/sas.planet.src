@@ -1357,10 +1357,8 @@ begin
      if VDegScale < 0 then NDegScaleAuto.Checked := true else
                            NDegScaleUser.Checked := true ;
      NDegValue.text := deg2strvalue(VDegScale);
-    end else begin
+    end else
     NDegScale0.Checked := True;
-    VDegScale := 0;
-    end;
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnBeforeViewChange),
