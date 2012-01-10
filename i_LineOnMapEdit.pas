@@ -72,15 +72,19 @@ type
   IPathOnMapEdit = interface(ILineOnMapEditNew)
     ['{A374154F-48FF-4597-8FD1-599FFE6B4345}']
     function GetPath: ILonLatPathWithSelected;
-    procedure SetPath(AValue: ILonLatPathWithSelected);
-    property Path: ILonLatPathWithSelected read GetPath write SetPath;
+    property Path: ILonLatPathWithSelected read GetPath;
+
+    procedure SetPath(AValue: ILonLatPathWithSelected); overload;
+    procedure SetPath(AValue: ILonLatPath); overload;
   end;
 
   IPolygonOnMapEdit = interface(ILineOnMapEditNew)
     ['{6566E834-169F-4988-99FE-F5489BC985EA}']
     function GetPolygon: ILonLatPolygonWithSelected;
-    procedure SetPolygon(AValue: ILonLatPolygonWithSelected);
-    property Polygon: ILonLatPolygonWithSelected read GetPolygon write SetPolygon;
+    property Polygon: ILonLatPolygonWithSelected read GetPolygon;
+
+    procedure SetPolygon(AValue: ILonLatPolygonWithSelected); overload;
+    procedure SetPolygon(AValue: ILonLatPolygon); overload;
   end;
 
 implementation
