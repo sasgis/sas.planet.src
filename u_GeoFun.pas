@@ -643,7 +643,6 @@ if AScale > 1000000000 then begin Result.X:=10; Result.Y:=10; end;
     21 : Result.X := 1/3600;
     22 : Result.X := 30/216000;
     23 : Result.X := 20/216000;
-    24 : Result.X := 10/216000;
     else Result.X := 0;
    end;
   end;
