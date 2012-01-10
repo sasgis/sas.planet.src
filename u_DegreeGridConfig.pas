@@ -91,8 +91,8 @@ begin
     UnlockRead;
   end;
   Result := ASourceRect;
-  if VVisible {and (VScale > 0) } then begin
-    z := GetDegBordersStepByScale(VScale,0);
+  if VVisible then begin
+    z := GetDegBordersStepByScale(VScale,ALocalConverter.Getzoom);
     Result.Left := Result.Left-(round(Result.Left*GSHprec) mod round(z.X*GSHprec))/GSHprec;
     if Result.Left < 0 then Result.Left := Result.Left-z.X;
 
