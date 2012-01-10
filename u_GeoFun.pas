@@ -625,9 +625,25 @@ if AScale > 1000000000 then begin Result.X:=10; Result.Y:=10; end;
  if AScale <0 then
   if AZoom <>0 then begin
    case AZoom of
-    1..3:  Result.X := 10;
-    4..22: Result.X := 320/Power(2,AZoom);
-    23,24: Result.X := 320/Power(2,22);
+    1..6:  Result.X := 10;
+    7 : Result.X := 5;
+    8 : Result.X := 2;
+    9 : Result.X := 1;
+    10 : Result.X := 30/60;
+    11 : Result.X := 20/60;
+    12 : Result.X := 10/60;
+    13 : Result.X := 5/60;
+    14 : Result.X := 2/60;
+    15 : Result.X := 1/60;
+    16 : Result.X := 30/3600;
+    17 : Result.X := 20/3600;
+    18 : Result.X := 10/3600;
+    19 : Result.X := 5/3600;
+    20 : Result.X := 2/3600;
+    21 : Result.X := 1/3600;
+    22 : Result.X := 30/216000;
+    23 : Result.X := 20/216000;
+    24 : Result.X := 10/216000;
     else Result.X := 0;
    end;
   end;
