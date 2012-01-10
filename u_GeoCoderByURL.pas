@@ -293,6 +293,19 @@ begin
   slat := Copy(Vlink, i + 1, j - (i + 1));
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := Vlink;
+ end  else
+// http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day
+ if PosEx('maps.nokia.com', Vlink, 1) > 0 then begin
+  sname := 'Nokia';
+  i := PosEx('/#|', Vlink, 1);
+  j := PosEx('|', Vlink, i+3);
+  slat := Copy(Vlink, i + 3, j - (i + 3));
+  i := j;
+  j := PosEx('|', Vlink, i+1);
+  if j = 0 then j := length(Vlink) +1;
+  slon := Copy(Vlink, i + 1, j - (i + 1));
+  sdesc := '[ '+slon+' , '+slat+' ]';
+  sfulldesc := Vlink;
  end
  else  // short link
  if PosEx('http://g.co/', Vlink, 1) > 0then begin
@@ -467,6 +480,7 @@ end.
 // http://wikimapia.org#lat=45.0328&lon=38.9769&z=10&l=1&m=b
 // http://maps.rosreestr.ru/Portal/?l=11&x=4595254.155000001&y=5398402.163800001&mls=map|anno&cls=cadastre
 // http://maps.mail.ru/?z=10&ll=37.619948,55.750023
+// http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day
 
 // Короткие
 // http://g.co/maps/7anbg
