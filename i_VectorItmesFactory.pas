@@ -6,6 +6,7 @@ uses
   t_GeoTypes,
   i_ProjectionInfo,
   i_EnumDoublePoint,
+  i_DoublePointFilter,
   i_DoublePointsAggregator,
   i_VectorItemLonLat,
   i_VectorItemProjected;
@@ -106,6 +107,18 @@ type
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
+    function CreateProjectedPathByLonLatPathUseFilter(
+      AProjection: IProjectionInfo;
+      ASource: ILonLatPath;
+      AConverter: ILonLatPointConverter;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPath;
+    function CreateProjectedPolygonByLonLatPolygonUseFilter(
+      AProjection: IProjectionInfo;
+      ASource: ILonLatPolygon;
+      AConverter: ILonLatPointConverter;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPolygon;
   end;
 
 implementation
