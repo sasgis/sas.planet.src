@@ -48,7 +48,8 @@ uses
   ALWinInetHttpClient,
   i_InetConfig,
   i_ProxySettings,
-  u_GlobalState;
+  u_GlobalState,
+  u_GeoToStr;
 
 { TGeoCoderByExtLink }
 
@@ -159,6 +160,318 @@ begin
   out_X := floattostr(in_X/6378137*180/pi);
   out_Y := floattostr(((arctan(exp(in_Y/6378137))-pi/4)*360)/pi);
 end;
+
+function SubstrCount(A_Substr,A_String:string; var LastPos:integer):integer;
+var i:integer;
+begin
+Result := 0;
+if (A_substr<>'') and (Length(A_Substr)<Length(A_String)) then
+ for I := 0 to length(A_string)-length(A_Substr) do
+   if copy(A_String,i,length(A_substr))=A_substr then begin
+   inc(Result);
+   LastPos := i;
+   end;
+end;
+
+
+function Str2Degree(AStr:string; var llat,llon:boolean; Var res:Double):Boolean;
+var
+i,delitel : integer;
+  gms : double;
+  text : string;
+begin
+    result:=true;
+    res:=0;
+    text := Trim(AnsiUpperCase(Astr));
+    llat := false;
+    llon := false;
+
+    if PosEx('W', Text, 1) > 0 then llon := true;
+    if PosEx('E', Text, 1) > 0 then llon := true;
+    if PosEx('З', Text, 1) > 0 then llon := true;
+    if PosEx('В', Text, 1) > 0 then llon := true;
+    if PosEx('LON', Text, 1) > 0 then llon := true;
+    if PosEx('LN', Text, 1) > 0 then llon := true;
+    Text := ReplaceStr(Text,'LON','');
+    Text := ReplaceStr(Text,'LN','');
+
+    if PosEx('S', Text, 1) > 0 then llat := true;
+    if PosEx('N', Text, 1) > 0 then llat := true;
+    if PosEx('Ю', Text, 1) > 0 then llat := true;
+    if PosEx('С', Text, 1) > 0 then llat := true;
+    if PosEx('LAT', Text, 1) > 0 then llat := true;
+    if PosEx('LL', Text, 1) > 0 then llat := true;
+    Text := ReplaceStr(Text,'LAT','');
+    Text := ReplaceStr(Text,'LL','');
+
+    Text := ReplaceStr(Text,'Ш.','');
+    Text := ReplaceStr(Text,'Ш','');
+    Text := ReplaceStr(Text,'Д.','');
+    Text := ReplaceStr(Text,'Д','');
+    Text := ReplaceStr(Text,'=','');
+
+    text := StringReplace(text,'S','-',[rfReplaceAll]);
+    text := StringReplace(text,'W','-',[rfReplaceAll]);
+    text := StringReplace(text,'N','+',[rfReplaceAll]);
+    text := StringReplace(text,'E','+',[rfReplaceAll]);
+    text := StringReplace(text,'Ю','-',[rfReplaceAll]);
+    text := StringReplace(text,'З','-',[rfReplaceAll]);
+    text := StringReplace(text,'В','+',[rfReplaceAll]);
+    text := StringReplace(text,'С','+',[rfReplaceAll]);
+    if (copy(text,length(text),1)='.') then text := copy(text,1,length(text)-1);
+    if (copy(text,length(text),1)=',') then text := copy(text,1,length(text)-1);
+    if (copy(text,length(text),1)='+') or (copy(text,length(text),1)='-') then text:=copy(text,length(text),1)+copy(text,0,length(text)-1);
+
+    if PosEx('+-', Text, 1) > 0 then begin // WE123 NS123
+     llon := true;
+     llat := true;
+     Text := ReplaceStr(Text,'+-','+');
+    end;
+    if PosEx('-+', Text, 1) > 0 then begin // EW123 SN123
+     llon := true;
+     llat := true;
+     Text := ReplaceStr(Text,'-+','-');
+    end;
+
+  i:=1;
+  while i<=length(text) do begin
+    if (not(text[i] in ['0'..'9','-','+','.',',',' '])) then begin
+      text[i]:=' ';
+      dec(i);
+    end;
+
+    if ((i=1)and(text[i]=' '))or
+       ((i=length(text))and(text[i]=' '))or
+       ((i<length(text)-1)and(text[i]=' ')and(text[i+1]=' '))or
+       ((i>1) and (text[i]=' ') and (not(text[i-1] in ['0'..'9'])))or
+       ((i<length(text)-1)and(text[i]=',')and(text[i+1]=' ')) then begin
+      Delete(text,i,1);
+      dec(i);
+    end;
+    inc(i);
+  end;
+  try
+    res:=0;
+    delitel:=1;
+    repeat
+     i:=posEx(' ',text,1);
+     if i=0 then begin
+       gms:=str2r(text);
+     end else begin
+       gms:=str2r(copy(text,1,i-1));
+       Delete(text,1,i);
+     end;
+     if ((delitel>1)and(abs(gms)>60))or
+        ((delitel=1)and(llat)and(abs(gms)>90))or
+        ((delitel=1)and(not llat)and(abs(gms)>180)) then begin
+       Result:=false;
+     end;
+     if res<0 then begin
+       res:=res-gms/delitel;
+     end else begin
+       res:=res+gms/delitel;
+     end;
+     delitel:=delitel*60;
+    until (i=0)or(delitel>3600)or(result=false);
+  except
+    result:=false;
+  end;
+end;
+
+function deg2strvalue( aDeg:Double; Alat,NeedChar:boolean):string;
+var
+  Vmin :integer;
+  VDegScale : Double;
+begin
+   VDegScale := abs(aDeg);
+   result := IntToStr(Trunc(VDegScale)) + '°';
+   VDegScale := Frac(VDegScale) * 60;
+   Vmin := Trunc(VDegScale);
+   if Vmin < 10 then begin
+     result := result + '0' + IntToStr(Vmin) + '''';
+   end else begin
+     result := result + IntToStr(Vmin) + '''';
+   end;
+   VDegScale := Frac(VDegScale) * 60;
+   result := result + FormatFloat('00.00', VDegScale) + '"';
+
+   if NeedChar then
+    if Alat then begin
+    if aDeg>0 then Result := 'N'+ Result else Result := 'S'+ Result ;
+    end else
+    if aDeg>0 then Result := 'E'+ Result else Result := 'W'+ Result ;
+end;
+
+function GetListByText(astr:string ; Var AList:IInterfaceList): boolean;
+var
+ Vtext, V2Search : string;
+ VBLat1, VBlon1: boolean;
+ VBLat2, VBlon2: boolean;
+ VDLat, VDLon : Double;
+ i,j : integer;
+ VPlace : IGeoCodePlacemark;
+ VPoint : TDoublePoint;
+ sname, sdesc, sfulldesc : string;
+
+begin
+result :=true;
+
+  V2Search := ReplaceStr(astr,', ',' '); // разделители
+  V2Search := ReplaceStr(V2Search,' .',' '); // разделители
+  while PosEx('  ',V2Search, 1)>1 do V2Search := ReplaceStr(V2Search,'  ',' ');// убираем двойные пробелы
+
+  i:=SubstrCount(' ',V2Search,j);
+
+  if i = 1 then // один пробел
+    if j > 1 then begin // пробел дальше чем первый символ
+
+      Vtext := Copy(V2Search,1,j-1); //первая половина
+      Str2Degree(Vtext, VBlat1, VBlon1, VDlat);
+      if VBLat1 and VBLon1 then begin Vblat1 := false ; VBLon1 := false end; // если указано 123NE
+
+      Vtext := Copy(astr,j,Length(astr)-j+1); // вторая половина
+      Str2Degree(Vtext, VBLat2, VBlon2, VDlon);
+      if VBLat2 and VBLon2 then begin Vblat2 := false ; VBLon2 := false end;
+      if VBLat1 and VBLat2 then begin Vblat1 := false ; VBLat2 := false end;
+      if VBLon1 and VBLon2 then begin Vblon1 := false ; VBLon2 := false end;
+
+      if VBlat1 then VPoint.Y := VDLat ;
+      if VBlon1 then VPoint.X := VDLat ;
+      if VBlat2 then VPoint.Y := VDLon ;
+      if VBlon2 then VPoint.X := VDLon ;
+
+      if (VBLat1 and VBLon2)or(VBLat2 and VBLon1) then begin // точно определили всего одну пару
+        sname := astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+      end;
+
+      if ((VBLat1 or VBLat2 )and not (VBlon2 or VBLon1))then begin // определена широта и косяк с долготой
+        if VBlat1 then VPoint.X := VDLon ;
+        if VBlat2 then VPoint.X := VDLat ;
+
+        sname := '1.) '+astr ;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+
+        VPoint.X := -VPoint.X ;
+        sname := '2.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+      end;
+
+      if ((VBLon1 or VBLon2 )and not (VBlat2 or VBLat1))then begin // определена широта и косяк с долготой
+        if VBlon1 then VPoint.Y := VDLon ;
+        if VBlon2 then VPoint.Y := VDLat ;
+
+        sname := '1.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+
+        VPoint.Y := -VPoint.Y ;
+        sname := '2.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+      end;
+
+     if VBLat1 or VBLat2 or VBLon1 or Vblon2 = False then begin // все 4 координаты
+//        if abs(VDlon)>91 then begin // типа защита от дурака
+         VPoint.Y := VDLon ;
+         VPoint.X := VDLat ;
+//        end else begin
+//         VPoint.X := VDLon ;
+//         VPoint.Y := VDLat ;
+//        end;
+
+        sname := '1.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+
+        VPoint.Y := -VPoint.Y ;
+
+        sname := '2.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+
+        VPoint.Y := -VPoint.Y ;
+        VPoint.X := -VPoint.X ;
+
+        sname := '3.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+
+        VPoint.Y := -VPoint.Y ;
+
+        sname := '4.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+//  и наоборот
+
+        VPoint.X := VDLon ;
+        VPoint.Y := VDLat ;
+
+        sname := '5.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+
+        VPoint.Y := -VPoint.Y ;
+
+        sname := '6.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+
+        VPoint.Y := -VPoint.Y ;
+        VPoint.X := -VPoint.X ;
+
+        sname := '7.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+
+        VPoint.Y := -VPoint.Y ;
+
+        sname := '8.) '+astr;
+        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+
+
+      end;
+    end else
+    if i=2 then begin // 2 пробела
+
+    end;
+
+//  http://sasgis.ru/mantis/view.php?id=163
+//  http://sasgis.ru/mantis/view.php?id=466
+
+// бланковку Листов ГШ
+// 050k--k38-025-2.gif
+// L-37-143-А.jpg
+// k-37-034.jpg
+// K-37-008-D.png
+// K-38-001-C-b.png
+
+//- Автоматическая методика, работает для НЕСДВОЕННЫХ листов масштаба 10-0,5 км, названия файлов ОБЯЗАТЕЛЬНО должны быть вида:
+//(*--)N(-)37.|_* / (--)N(-)37-D.|_* / (--)N(-)37-02.|_* / (--)N(-)37-004.|_* / (--)N(-)37-004-D.|_*
+//соответственно для 10 / 5 / 2 / 1 / 0,5 - километровок.
+//Где * - любой текст, текст в скобках может либо быть либо не быть, .|_ значит точку (в т.ч. из расширения) или подчеркивание.
+//Если названия не в таком формате или есть проблемы подробнее...
+//
+
+end;
+
 
 function TGeoCoderByURL.ParseStringToPlacemarksList(
   AStr: string; ASearch: WideString): IInterfaceList;
@@ -425,8 +738,11 @@ begin
   slat := Copy(Vlink, i + 4, j - (i + 4));
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
- end else
- VLinkErr := true;
+ end else begin
+ VLinkErr := GetListByText(ASearch,VList);
+ end;
+
+
 
  if (vErrCode <> 200)and(vErrCode <> 302) then VLinkErr := true;
  if (slat='') or (slon='') then VLinkErr := true;
@@ -469,6 +785,7 @@ end;
 
 begin
 end.
+
 
 // Полные ссылки
 // http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10
