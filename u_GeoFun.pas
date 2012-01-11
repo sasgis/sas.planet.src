@@ -697,8 +697,9 @@ end;
 
 function RectCenter(ARect: TRect): TDoublePoint; overload;
 begin
-  Result.X := (ARect.Left + ARect.Right) / 2;
-  Result.Y := (ARect.Top + ARect.Bottom) / 2;
+  Result := DoublePoint(ARect.TopLeft);
+  Result.X := (Result.X + ARect.Right) / 2;
+  Result.Y := (Result.Y + ARect.Bottom) / 2;
 end;
 
 function RectCenter(ARect: TDoubleRect): TDoublePoint; overload;
