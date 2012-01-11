@@ -340,7 +340,8 @@ function TTileStorageBerkeleyDB.GetTileFileName(
 ): string;
 begin
   Result := FCacheConfig.GetTileFileName(AXY, Azoom) +
-    ' (X=' + IntToStr(AXY.X) + ' Y=' + IntToStr(AXY.Y) + ')';
+    '::x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y) +
+    WideCharToString(PWideChar(FMainContentType.GetDefaultExt));
 end;
 
 function TTileStorageBerkeleyDB.GetTileInfo(
