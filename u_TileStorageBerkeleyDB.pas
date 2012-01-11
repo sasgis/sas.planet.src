@@ -339,9 +339,8 @@ function TTileStorageBerkeleyDB.GetTileFileName(
   AVersionInfo: IMapVersionInfo
 ): string;
 begin
-  Result := FCacheConfig.GetTileFileName(AXY, Azoom) +
-    '::x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y) +
-    WideCharToString(PWideChar(FMainContentType.GetDefaultExt));
+  Result := FCacheConfig.GetTileFileName(AXY, Azoom) + PathDelim +
+    'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y) + FMainContentType.GetDefaultExt;
 end;
 
 function TTileStorageBerkeleyDB.GetTileInfo(
