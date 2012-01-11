@@ -619,6 +619,19 @@ begin
   slon := Copy(Vlink, i + 1, j - (i + 1));
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := Vlink;
+ end  else
+// http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
+ if PosEx('yandex.net', Vlink, 1) > 0 then begin
+  sname := 'Nokia';
+  i := PosEx('lat=', Vlink, 1);
+  j := PosEx('&', Vlink, i+3);
+  slat := Copy(Vlink, i + 4, j - (i + 4));
+  i := PosEx('lon=', Vlink, j);
+  j := PosEx('&', Vlink, i);
+  if j = 0 then j := length(Vlink) +1;
+  slon := Copy(Vlink, i + 4, j - (i + 4));
+  sdesc := '[ '+slon+' , '+slat+' ]';
+  sfulldesc := Vlink;
  end
  else  // short link
  if PosEx('http://g.co/', Vlink, 1) > 0then begin
@@ -798,6 +811,7 @@ end.
 // http://maps.rosreestr.ru/Portal/?l=11&x=4595254.155000001&y=5398402.163800001&mls=map|anno&cls=cadastre
 // http://maps.mail.ru/?z=10&ll=37.619948,55.750023
 // http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day
+// http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
 
 // Короткие
 // http://g.co/maps/7anbg
