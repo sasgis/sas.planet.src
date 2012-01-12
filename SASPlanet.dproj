@@ -352,6 +352,7 @@
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_VectorDataItemSimple.pas" />
     <DCCReference Include="i_VectorDataLoader.pas" />
+    <DCCReference Include="i_VectorItemLocal.pas" />
     <DCCReference Include="i_VectorItemLonLat.pas" />
     <DCCReference Include="i_VectorItemProjected.pas" />
     <DCCReference Include="i_VectorItmesFactory.pas" />
@@ -640,6 +641,7 @@
     <DCCReference Include="u_LineOnMapEdit.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
+    <DCCReference Include="u_LocalSingleLine.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_LonLatSingleLine.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
@@ -840,6 +842,7 @@
     <DCCReference Include="u_VectorDataItemList.pas" />
     <DCCReference Include="u_VectorDataItemPoint.pas" />
     <DCCReference Include="u_VectorDataItemPolygon.pas" />
+    <DCCReference Include="u_VectorItemLocal.pas" />
     <DCCReference Include="u_VectorItemLonLat.pas" />
     <DCCReference Include="u_VectorItemProjected.pas" />
     <DCCReference Include="u_VectorItmesFactorySimple.pas" />

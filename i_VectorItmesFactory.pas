@@ -5,11 +5,13 @@ interface
 uses
   t_GeoTypes,
   i_ProjectionInfo,
+  i_LocalCoordConverter,
   i_EnumDoublePoint,
   i_DoublePointFilter,
   i_DoublePointsAggregator,
   i_VectorItemLonLat,
-  i_VectorItemProjected;
+  i_VectorItemProjected,
+  i_VectorItemLocal;
 
 type
   IVectorItmesFactory = interface
@@ -22,6 +24,7 @@ type
       APoints: PDoublePointArray;
       ACount: Integer
     ): ILonLatPolygon;
+
     function CreateProjectedPath(
       AProjection: IProjectionInfo;
       APoints: PDoublePointArray;
@@ -33,16 +36,20 @@ type
       ACount: Integer
     ): IProjectedPolygon;
 
-    function CreateLonLatPolygonLineByRect(
-      ARect: TDoubleRect
-    ): ILonLatPolygonLine;
+    function CreateLocalPath(
+      ALocalConverter: ILocalCoordConverter;
+      APoints: PDoublePointArray;
+      ACount: Integer
+    ): ILocalPath;
+    function CreateLocalPolygon(
+      ALocalConverter: ILocalCoordConverter;
+      APoints: PDoublePointArray;
+      ACount: Integer
+    ): ILocalPolygon;
+
     function CreateLonLatPolygonByRect(
       ARect: TDoubleRect
     ): ILonLatPolygon;
-    function CreateProjectedPolygonLineByRect(
-      AProjection: IProjectionInfo;
-      ARect: TDoubleRect
-    ): IProjectedPolygonLine;
     function CreateProjectedPolygonByRect(
       AProjection: IProjectionInfo;
       ARect: TDoubleRect
@@ -58,6 +65,16 @@ type
       AEnum: IEnumProjectedPoint;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
+    function CreateLocalPathByEnum(
+      ALocalConverter: ILocalCoordConverter;
+      AEnum: IEnumLocalPoint;
+      ATemp: IDoublePointsAggregator = nil
+    ): ILocalPath;
+    function CreateLocalPolygonByEnum(
+      ALocalConverter: ILocalCoordConverter;
+      AEnum: IEnumLocalPoint;
+      ATemp: IDoublePointsAggregator = nil
+    ): ILocalPolygon;
 
     function CreateProjectedPathByLonLatEnum(
       AProjection: IProjectionInfo;
@@ -107,13 +124,13 @@ type
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
-    function CreateProjectedPathByLonLatPathUseFilter(
+    function CreateProjectedPathByLonLatPathUseConverter(
       AProjection: IProjectionInfo;
       ASource: ILonLatPath;
       AConverter: ILonLatPointConverter;
       ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
-    function CreateProjectedPolygonByLonLatPolygonUseFilter(
+    function CreateProjectedPolygonByLonLatPolygonUseConverter(
       AProjection: IProjectionInfo;
       ASource: ILonLatPolygon;
       AConverter: ILonLatPointConverter;

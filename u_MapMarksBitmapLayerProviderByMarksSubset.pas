@@ -207,8 +207,8 @@ begin
       VRectWithDelta.Right := VLocalRect.Right + 10;
       VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
       VEnum :=
-        TEnumDoublePointFilterEqual.Create(
-          TEnumDoublePointClipByRect.Create(
+        TEnumLocalPointFilterEqual.Create(
+          TEnumLocalPointClipByRect.Create(
             False,
             VRectWithDelta,
             TEnumDoublePointMapPixelToLocalPixel.Create(
@@ -297,8 +297,8 @@ begin
       VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
       VEnum :=
         TEnumDoublePointClosePoly.Create(
-          TEnumDoublePointFilterEqual.Create(
-            TEnumDoublePointClipByRect.Create(
+          TEnumLocalPointFilterEqual.Create(
+            TEnumLocalPointClipByRect.Create(
               True,
               VRectWithDelta,
               TEnumDoublePointMapPixelToLocalPixel.Create(

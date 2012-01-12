@@ -196,8 +196,8 @@ begin
     VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
 
     VEnum :=
-      TEnumDoublePointFilterEqual.Create(
-        TEnumDoublePointClipByRect.Create(
+      TEnumLocalPointFilterEqual.Create(
+        TEnumLocalPointClipByRect.Create(
           True,
           VRectWithDelta,
           TEnumDoublePointMapPixelToLocalPixel.Create(

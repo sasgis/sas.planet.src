@@ -8,7 +8,7 @@ uses
   i_EnumDoublePoint;
 
 type
-  TEnumDoublePointClipByLineAbstract = class(TInterfacedObject, IEnumDoublePoint, IEnumProjectedPoint)
+  TEnumDoublePointClipByLineAbstract = class(TInterfacedObject, IEnumDoublePoint, IEnumProjectedPoint, IEnumLocalPoint)
   private
     FSourceEnum: IEnumDoublePoint;
     FFinished: Boolean;
@@ -92,6 +92,15 @@ type
       AClosed: Boolean;
       ARect: TDoubleRect;
       ASourceEnum: IEnumProjectedPoint
+    );
+  end;
+
+  TEnumLocalPointClipByRect = class(TEnumDoublePointClipByRect, IEnumLocalPoint)
+  public
+    constructor Create(
+      AClosed: Boolean;
+      ARect: TDoubleRect;
+      ASourceEnum: IEnumLocalPoint
     );
   end;
 
@@ -378,6 +387,14 @@ end;
 
 constructor TEnumProjectedPointClipByRect.Create(AClosed: Boolean;
   ARect: TDoubleRect; ASourceEnum: IEnumProjectedPoint);
+begin
+  inherited Create(AClosed, ARect, ASourceEnum);
+end;
+
+{ TEnumLocalPointClipByRect }
+
+constructor TEnumLocalPointClipByRect.Create(AClosed: Boolean;
+  ARect: TDoubleRect; ASourceEnum: IEnumLocalPoint);
 begin
   inherited Create(AClosed, ARect, ASourceEnum);
 end;

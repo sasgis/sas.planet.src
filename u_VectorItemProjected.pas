@@ -93,7 +93,7 @@ end;
 
 function TProjectedPath.GetEnum: IEnumProjectedPoint;
 begin
-  Result := TEnumProjectedPointByLineSet.Create(Self);
+  Result := TEnumProjectedPointByPath.Create(Self);
 end;
 
 function TProjectedPath.GetItem(AIndex: Integer): IProjectedPathLine;
@@ -107,7 +107,7 @@ end;
 
 function TProjectedPolygon.GetEnum: IEnumProjectedPoint;
 begin
-  Result := TEnumProjectedPointByLineSet.Create(Self);
+  Result := TEnumProjectedPointByPolygon.Create(Self);
 end;
 
 function TProjectedPolygon.GetItem(AIndex: Integer): IProjectedPolygonLine;

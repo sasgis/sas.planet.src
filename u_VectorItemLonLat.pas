@@ -80,7 +80,7 @@ end;
 
 function TLonLatPath.GetEnum: IEnumLonLatPoint;
 begin
-  Result := TEnumLonLatPointByLineSet.Create(Self);
+  Result := TEnumLonLatPointByPath.Create(Self);
 end;
 
 function TLonLatPath.GetItem(AIndex: Integer): ILonLatPathLine;
@@ -94,7 +94,7 @@ end;
 
 function TLonLatPolygon.GetEnum: IEnumLonLatPoint;
 begin
-  Result := TEnumLonLatPointByLineSet.Create(Self);
+  Result := TEnumLonLatPointByPolygon.Create(Self);
 end;
 
 function TLonLatPolygon.GetItem(AIndex: Integer): ILonLatPolygonLine;

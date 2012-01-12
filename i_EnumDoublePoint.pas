@@ -19,6 +19,10 @@ type
     ['{BC88EBFF-54FA-4322-BB2A-0845A5943804}']
   end;
 
+  IEnumLocalPoint = interface(IEnumDoublePoint)
+    ['{70250A89-1BA1-45BA-8A33-0FE97E714771}']
+  end;
+
 implementation
 
 end.

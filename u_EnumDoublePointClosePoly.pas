@@ -38,6 +38,13 @@ type
     );
   end;
 
+  TEnumLocalPointClosePoly = class(TEnumDoublePointClosePoly, IEnumLocalPoint)
+  public
+    constructor Create(
+      ASourceEnum: IEnumLocalPoint
+    );
+  end;
+
   TDoublePointFilterPolygonClose = class(TInterfacedObject, IDoublePointFilter)
   private
     function CreateFilteredEnum(ASource: IEnumDoublePoint): IEnumDoublePoint;
@@ -51,6 +58,11 @@ type
   TProjectedPointFilterPolygonClose = class(TInterfacedObject, IProjectedPointFilter)
   private
     function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+  end;
+
+  TLocalPointFilterPolygonClose = class(TInterfacedObject, ILocalPointFilter)
+  private
+    function CreateFilteredEnum(ASource: IEnumLocalPoint): IEnumLocalPoint;
   end;
 
 implementation
@@ -132,6 +144,13 @@ begin
   inherited Create(ASourceEnum);
 end;
 
+{ TEnumLocalPointClosePoly }
+
+constructor TEnumLocalPointClosePoly.Create(ASourceEnum: IEnumLocalPoint);
+begin
+  inherited Create(ASourceEnum);
+end;
+
 { TDoublePointFilterPolygonClose }
 
 function TDoublePointFilterPolygonClose.CreateFilteredEnum(
@@ -154,6 +173,14 @@ function TProjectedPointFilterPolygonClose.CreateFilteredEnum(
   ASource: IEnumProjectedPoint): IEnumProjectedPoint;
 begin
   Result := TEnumProjectedPointClosePoly.Create(ASource);
+end;
+
+{ TLocalPointFilterPolygonClose }
+
+function TLocalPointFilterPolygonClose.CreateFilteredEnum(
+  ASource: IEnumLocalPoint): IEnumLocalPoint;
+begin
+  Result := TEnumLocalPointClosePoly.Create(ASource);
 end;
 
 end.

@@ -9,7 +9,7 @@ uses
   i_EnumDoublePoint;
 
 type
-  TEnumDoublePointMapPixelToLocalPixel = class(TInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointMapPixelToLocalPixel = class(TInterfacedObject, IEnumLocalPoint)
   private
     FSourceEnum: IEnumProjectedPoint;
     FLocalConverter: ILocalCoordConverter;
@@ -27,7 +27,7 @@ type
   private
     FLocalConverter: ILocalCoordConverter;
   private
-    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumDoublePoint;
+    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumLocalPoint;
   public
     constructor Create(
       ALocalConverter: ILocalCoordConverter
@@ -84,7 +84,7 @@ begin
 end;
 
 function TProjectedPointConverter.CreateFilteredEnum(
-  ASource: IEnumProjectedPoint): IEnumDoublePoint;
+  ASource: IEnumProjectedPoint): IEnumLocalPoint;
 begin
   Result := TEnumDoublePointMapPixelToLocalPixel.Create(FLocalConverter, ASource);
 end;

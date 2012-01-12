@@ -29,6 +29,13 @@ type
     );
   end;
 
+  TEnumLocalPointFilterEqual = class(TEnumDoublePointFilterEqual, IEnumLocalPoint)
+  public
+    constructor Create(
+      ASourceEnum: IEnumLocalPoint
+    );
+  end;
+
   TDoublePointFilterRemoveEqual = class(TInterfacedObject, IDoublePointFilter)
   private
     function CreateFilteredEnum(ASource: IEnumDoublePoint): IEnumDoublePoint;
@@ -37,6 +44,11 @@ type
   TProjectedPointFilterRemoveEqual = class(TInterfacedObject, IProjectedPointFilter)
   private
     function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+  end;
+
+  TLocalPointFilterRemoveEqual = class(TInterfacedObject, ILocalPointFilter)
+  private
+    function CreateFilteredEnum(ASource: IEnumLocalPoint): IEnumLocalPoint;
   end;
 
 implementation
@@ -93,7 +105,17 @@ end;
 { TEnumProjectedPointFilterEqual }
 
 constructor TEnumProjectedPointFilterEqual.Create(
-  ASourceEnum: IEnumProjectedPoint);
+  ASourceEnum: IEnumProjectedPoint
+);
+begin
+  inherited Create(ASourceEnum);
+end;
+
+{ TEnumLocalPointFilterEqual }
+
+constructor TEnumLocalPointFilterEqual.Create(
+  ASourceEnum: IEnumLocalPoint
+);
 begin
   inherited Create(ASourceEnum);
 end;
@@ -112,6 +134,14 @@ function TProjectedPointFilterRemoveEqual.CreateFilteredEnum(
   ASource: IEnumProjectedPoint): IEnumProjectedPoint;
 begin
   Result := TEnumProjectedPointFilterEqual.Create(ASource);
+end;
+
+{ TLocalPointFilterRemoveEqual }
+
+function TLocalPointFilterRemoveEqual.CreateFilteredEnum(
+  ASource: IEnumLocalPoint): IEnumLocalPoint;
+begin
+  Result := TEnumLocalPointFilterEqual.Create(ASource);
 end;
 
 end.

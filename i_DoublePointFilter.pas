@@ -29,7 +29,12 @@ type
 
   IProjectedPointConverter = interface
     ['{0CD429D3-D095-4015-9B5B-9107FF14FEF0}']
-    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumDoublePoint;
+    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumLocalPoint;
+  end;
+
+  ILocalPointFilter = interface
+    ['{B70EE6B7-D75D-420E-B90F-A0C9AD1DD41A}']
+    function CreateFilteredEnum(ASource: IEnumLocalPoint): IEnumLocalPoint;
   end;
 
 implementation

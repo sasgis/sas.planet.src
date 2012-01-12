@@ -33,6 +33,9 @@ type
   TEnumDoublePointBySingleProjectedLine = class(TEnumDoublePointBySingleLineBase, IEnumProjectedPoint)
   end;
 
+  TEnumLocalPointBySingleLocalLine = class(TEnumDoublePointBySingleLineBase, IEnumLocalPoint)
+  end;
+
 implementation
 
 uses
