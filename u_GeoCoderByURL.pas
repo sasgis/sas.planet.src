@@ -25,7 +25,9 @@ interface
 uses
   Classes,
   u_GeoCoderBasic,
-  i_GeoCoder;
+  i_GeoCoder,
+  RegExpr;
+
 
 type
   TGeoCoderByURL = class(TGeoCoderBasic)
@@ -49,7 +51,10 @@ uses
   i_InetConfig,
   i_ProxySettings,
   u_GlobalState,
-  u_GeoToStr;
+  u_GeoToStr,
+  windows,
+  Math,
+  i_LocalCoordConverter;
 
 { TGeoCoderByExtLink }
 
@@ -302,6 +307,22 @@ begin
     if aDeg>0 then Result := 'E'+ Result else Result := 'W'+ Result ;
 end;
 
+function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
+var
+  VRegExpr: TRegExpr;
+begin
+    VRegExpr  := TRegExpr.Create;
+  try
+    VRegExpr.Expression := AMatchExpr;
+    if VRegExpr.Exec(AStr) then
+      Result := VRegExpr.Replace(AStr, AReplace, True)
+    else
+      Result := AStr;
+  finally
+    FreeAndNil(VRegExpr);
+  end;
+end;
+
 function GetListByText(astr:string ; Var AList:IInterfaceList): boolean;
 var
  Vtext, V2Search : string;
@@ -312,17 +333,28 @@ var
  VPlace : IGeoCodePlacemark;
  VPoint : TDoublePoint;
  sname, sdesc, sfulldesc : string;
-
+ slat , slon : string;
+ vCounter : Integer;
+ vZoom : integer;
+ VLocalConverter: ILocalCoordConverter;
+ XYPoint:TPoint;
+ XYRect:TRect;
+ ViLat, ViLon : integer;
 begin
 result :=true;
+vCounter:=0;
+V2Search := Trim(AnsiUpperCase(astr));
+V2Search := ReplaceStr(V2Search,', ',' '); // разделители
+V2Search := ReplaceStr(V2Search,' .',' '); // разделители
+V2Search := ReplaceStr(V2Search,'%2C',' '); // разделители
+V2Search := ReplaceStr(V2Search,';',' '); // разделители
 
-  V2Search := ReplaceStr(astr,', ',' '); // разделители
-  V2Search := ReplaceStr(V2Search,' .',' '); // разделители
   while PosEx('  ',V2Search, 1)>1 do V2Search := ReplaceStr(V2Search,'  ',' ');// убираем двойные пробелы
 
-  i:=SubstrCount(' ',V2Search,j);
+  i:=SubstrCount(' ',V2Search,j); // считаем количество пробелов и последнее вхождение
 
   if i = 1 then // один пробел
+  begin
     if j > 1 then begin // пробел дальше чем первый символ
 
       Vtext := Copy(V2Search,1,j-1); //первая половина
@@ -342,116 +374,238 @@ result :=true;
 
       if (VBLat1 and VBLon2)or(VBLat2 and VBLon1) then begin // точно определили всего одну пару
         sname := astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
       end;
 
       if ((VBLat1 or VBLat2 )and not (VBlon2 or VBLon1))then begin // определена широта и косяк с долготой
         if VBlat1 then VPoint.X := VDLon ;
         if VBlat2 then VPoint.X := VDLat ;
 
-        sname := '1.) '+astr ;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
+
 
         VPoint.X := -VPoint.X ;
-        sname := '2.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
+
       end;
 
-      if ((VBLon1 or VBLon2 )and not (VBlat2 or VBLat1))then begin // определена широта и косяк с долготой
+      if ((VBLon1 or VBLon2 )and not (VBlat2 or VBLat1))then begin // определена долгота и косяк с широтой
         if VBlon1 then VPoint.Y := VDLon ;
         if VBlon2 then VPoint.Y := VDLat ;
 
-        sname := '1.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
+
 
         VPoint.Y := -VPoint.Y ;
-        sname := '2.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
+
       end;
+
 
      if VBLat1 or VBLat2 or VBLon1 or Vblon2 = False then begin // все 4 координаты
-//        if abs(VDlon)>91 then begin // типа защита от дурака
-         VPoint.Y := VDLon ;
-         VPoint.X := VDLat ;
-//        end else begin
-//         VPoint.X := VDLon ;
-//         VPoint.Y := VDLat ;
-//        end;
 
-        sname := '1.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+        if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+        begin
+         VPoint.X := VDLon ; VPoint.Y := VDLat ;
+        end else begin
+         VPoint.Y := VDLon ; VPoint.X := VDLat ;
+        end;
+
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
 
         VPoint.Y := -VPoint.Y ;
 
-        sname := '2.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
 
         VPoint.Y := -VPoint.Y ;
         VPoint.X := -VPoint.X ;
 
-        sname := '3.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
 
         VPoint.Y := -VPoint.Y ;
 
-        sname := '4.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
+
 //  и наоборот
 
-        VPoint.X := VDLon ;
-        VPoint.Y := VDLat ;
+        if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+        begin
+         VPoint.Y := VDLon ; VPoint.X := VDLat ;
+        end else begin
+         VPoint.X := VDLon ; VPoint.Y := VDLat
+        end;
 
-        sname := '5.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
 
         VPoint.Y := -VPoint.Y ;
 
-        sname := '6.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
 
         VPoint.Y := -VPoint.Y ;
         VPoint.X := -VPoint.X ;
 
-        sname := '7.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
 
         VPoint.Y := -VPoint.Y ;
 
-        sname := '8.) '+astr;
-        sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
-
-
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+        end;
       end;
+     end;
     end else
-    if i=2 then begin // 2 пробела
+    if i=0 then begin // 0 пробелов путь к тайлу 
 
-    end;
+    if ((AnsiUpperCase(copy(V2Search,1,1))>='A')and(AnsiUpperCase(copy(V2Search,1,1))<='Z')and(AnsiUpperCase(copy(V2Search,2,1))=':') )
+    or (AnsiUpperCase(copy(V2Search,1,2))>='\\') then begin
+     i := PosEx('\Z', V2Search, 1);
+     j := PosEx('\', V2Search, i+1);
+     slat := Copy(V2Search, i + 2, j - (i + 2));
+     vZoom := strtoint(slat);
+     if  PosEx('.SDB', V2Search, 1)>0 then begin   // G:\GoogleMV\cache_db\Nokia.Map.Creator.sat\z15\9\5\38.23.sdb\x9961y5888.jpg
+      i := PosEx('\X', V2Search, j); // X значение
+      j := PosEx('Y', V2Search, i+1);
+      slon := Copy(V2Search, i + 2, j - (i + 2));
+      Vilon := strtoint(slon);
+      i := j;
+      j := PosEx('.', V2Search, i+1);
+      slat := Copy(V2Search, i + 1, j - (i + 1));
+      Vilat :=  strtoint(slat);
+     end else
+     if  PosEx('\X', V2Search, 1)>0 then begin   //G:\GoogleMV\cache\yamapng\z13\2\x2491\1\y1473.png
+      i := PosEx('\X', V2Search, j); // X значение
+      j := PosEx('\', V2Search, i+1);
+      slon := Copy(V2Search, i + 2, j - (i + 2));
+      Vilon := strtoint(slon);
+      i := PosEx('\Y', V2Search, j); // Y значение
+      j := PosEx('.', V2Search, i+1);
+      slat := Copy(V2Search, i + 2, j - (i + 2));
+      Vilat := strtoint(slat);
+     end else begin // C:\sas\sas_garl\.bin\cache_gmt\genshtab250m\z9\184\319.jpg
+      i := PosEx('\', V2Search, j); // X значение
+      j := PosEx('\', V2Search, i+1);
+      slon := Copy(V2Search, i + 1, j - (i + 1));
+      Vilat := strtoint(slon);
+      i := j; // Y значение
+      j := PosEx('.', V2Search, i+1);
+      slat := Copy(V2Search, i + 1, j - (i + 1));
+      Vilon := strtoint(slat);
+      inc(VZoom); // в GMT зум отличается на 1
+     end;
+     // ещё бы учитывать qrst ссылку...но это уже на закуску...
+     VLocalConverter := GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+     XYPoint.X:=ViLon;
+     XYPoint.Y:=ViLat;
+     sdesc := 'z='+inttostr(vzoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#10#13;
+     XYRect := VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
+     XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
+     VPoint := VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
+     if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+      inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+      if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+       sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+       sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+      VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+      AList.Add(VPlace);
+      end;
+     //0 пробелов  и не диск\сеть 
+     end;
+
+     end else
+     if i=2 then begin // 2 пробела
+
+     end;
 
 //  http://sasgis.ru/mantis/view.php?id=163
 //  http://sasgis.ru/mantis/view.php?id=466
@@ -468,7 +622,7 @@ result :=true;
 //соответственно для 10 / 5 / 2 / 1 / 0,5 - километровок.
 //Где * - любой текст, текст в скобках может либо быть либо не быть, .|_ значит точку (в т.ч. из расширения) или подчеркивание.
 //Если названия не в таком формате или есть проблемы подробнее...
-//
+
 
 end;
 
@@ -608,11 +762,12 @@ begin
   sfulldesc := Vlink;
  end  else
 // http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day
+// http://maps.nokia.com/mapcreator/?ns=true#|55.32530472503459|37.811186150077816|18|0|0|
  if PosEx('maps.nokia.com', Vlink, 1) > 0 then begin
   sname := 'Nokia';
-  i := PosEx('/#|', Vlink, 1);
-  j := PosEx('|', Vlink, i+3);
-  slat := Copy(Vlink, i + 3, j - (i + 3));
+  i := PosEx('#|', Vlink, 1);
+  j := PosEx('|', Vlink, i+2);
+  slat := Copy(Vlink, i + 2, j - (i + 2));
   i := j;
   j := PosEx('|', Vlink, i+1);
   if j = 0 then j := length(Vlink) +1;
@@ -622,7 +777,7 @@ begin
  end  else
 // http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
  if PosEx('yandex.net', Vlink, 1) > 0 then begin
-  sname := 'Nokia';
+  sname := 'Yandex';
   i := PosEx('lat=', Vlink, 1);
   j := PosEx('&', Vlink, i+3);
   slat := Copy(Vlink, i + 4, j - (i + 4));
@@ -775,6 +930,7 @@ begin
   Result := VList;
 end;
 
+
 function TGeoCoderByURL.PrepareURL(ASearch: WideString): string;
  var
   VlocalLink :boolean;
@@ -794,9 +950,8 @@ begin
   end;
   if VlocalLink = true then Result := '';
 end;
-
-
 begin
+
 end.
 
 
@@ -811,6 +966,7 @@ end.
 // http://maps.rosreestr.ru/Portal/?l=11&x=4595254.155000001&y=5398402.163800001&mls=map|anno&cls=cadastre
 // http://maps.mail.ru/?z=10&ll=37.619948,55.750023
 // http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day
+// http://maps.nokia.com/mapcreator/?ns=true#|55.32530472503459|37.811186150077816|18|0|0|
 // http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
 
 // Короткие

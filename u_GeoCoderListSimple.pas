@@ -45,7 +45,7 @@ uses
   u_GeoCoderByRosreestr,
   u_GeoCoderByNavitel,
   u_GeoCoderByURL;
-  
+
 { TGeoCoderListSimple }
 
 constructor TGeoCoderListSimple.Create(AProxy: IProxySettings);
@@ -103,7 +103,7 @@ begin
   Add(
     TGeoCoderListEntity.Create(
       CGeoCoderURLGUID,
-      'URL',
+      'Link and URL',
       TGeoCoderByURL.Create(AProxy)
     )
   );
