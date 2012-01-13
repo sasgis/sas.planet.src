@@ -158,6 +158,53 @@ begin
 end;
 
 
+function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
+var
+  VRegExpr: TRegExpr;
+begin
+    VRegExpr  := TRegExpr.Create;
+  try
+    VRegExpr.Expression := AMatchExpr;
+    if VRegExpr.Exec(AStr) then
+      Result := VRegExpr.Replace(AStr, AReplace, True)
+    else
+      Result := AStr;
+  finally
+    FreeAndNil(VRegExpr);
+  end;
+end;
+
+function RomanToDig(astr:string):integer;
+var Vfind :string;
+i, lastValue, curValue: integer;
+begin
+ Result := 0;
+ lastValue := 0;
+ curValue := 0;
+ Vfind := Trim(AnsiUpperCase(Astr));
+ Vfind := RegExprReplaceMatchSubStr(Vfind,'-','');
+ if ''= RegExprReplaceMatchSubStr(Vfind,'IVX','') then
+  Result := 0
+  else
+ begin
+  for i := Length(Vfind) downto 1 do
+  begin
+   case UpCase(Vfind[i]) of
+   'C': curValue := 100;
+   'D': curValue := 500;
+   'I': curValue := 1;
+   'L': curValue := 50;
+   'M': curValue := 1000;
+   'V': curValue := 5;
+   'X': curValue := 10;
+   end;
+   if curValue < lastValue then Dec(Result, curValue)
+   else Inc(Result, curValue);
+   lastValue := curValue;
+  end;
+ end;
+end;
+
 procedure meters_to_lonlat( in_x,in_y : Double; var out_x, out_y : string);
 const
  pi = 3.1415926535897932384626433832795;
@@ -307,22 +354,6 @@ begin
     if aDeg>0 then Result := 'E'+ Result else Result := 'W'+ Result ;
 end;
 
-function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
-var
-  VRegExpr: TRegExpr;
-begin
-    VRegExpr  := TRegExpr.Create;
-  try
-    VRegExpr.Expression := AMatchExpr;
-    if VRegExpr.Exec(AStr) then
-      Result := VRegExpr.Replace(AStr, AReplace, True)
-    else
-      Result := AStr;
-  finally
-    FreeAndNil(VRegExpr);
-  end;
-end;
-
 function GetListByText(astr:string ; Var AList:IInterfaceList): boolean;
 var
  Vtext, V2Search : string;
@@ -340,6 +371,7 @@ var
  XYPoint:TPoint;
  XYRect:TRect;
  ViLat, ViLon : integer;
+ VcoordError: boolean;
 begin
 result :=true;
 vCounter:=0;
@@ -361,7 +393,7 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
       Str2Degree(Vtext, VBlat1, VBlon1, VDlat);
       if VBLat1 and VBLon1 then begin Vblat1 := false ; VBLon1 := false end; // если указано 123NE
 
-      Vtext := Copy(astr,j,Length(astr)-j+1); // вторая половина
+      Vtext := Copy(V2Search,j,Length(V2Search)-j+1); // вторая половина
       Str2Degree(Vtext, VBLat2, VBlon2, VDlon);
       if VBLat2 and VBLon2 then begin Vblat2 := false ; VBLon2 := false end;
       if VBLat1 and VBLat2 then begin Vblat1 := false ; VBLat2 := false end;
@@ -545,63 +577,149 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
       end;
      end;
     end else
-    if i=0 then begin // 0 пробелов путь к тайлу 
+    if i=0 then begin // 0 пробелов путь к тайлу
 
-    if ((AnsiUpperCase(copy(V2Search,1,1))>='A')and(AnsiUpperCase(copy(V2Search,1,1))<='Z')and(AnsiUpperCase(copy(V2Search,2,1))=':') )
-    or (AnsiUpperCase(copy(V2Search,1,2))>='\\') then begin
-     i := PosEx('\Z', V2Search, 1);
-     j := PosEx('\', V2Search, i+1);
-     slat := Copy(V2Search, i + 2, j - (i + 2));
-     vZoom := strtoint(slat);
-     if  PosEx('.SDB', V2Search, 1)>0 then begin   // G:\GoogleMV\cache_db\Nokia.Map.Creator.sat\z15\9\5\38.23.sdb\x9961y5888.jpg
-      i := PosEx('\X', V2Search, j); // X значение
-      j := PosEx('Y', V2Search, i+1);
-      slon := Copy(V2Search, i + 2, j - (i + 2));
-      Vilon := strtoint(slon);
-      i := j;
-      j := PosEx('.', V2Search, i+1);
-      slat := Copy(V2Search, i + 1, j - (i + 1));
-      Vilat :=  strtoint(slat);
-     end else
-     if  PosEx('\X', V2Search, 1)>0 then begin   //G:\GoogleMV\cache\yamapng\z13\2\x2491\1\y1473.png
-      i := PosEx('\X', V2Search, j); // X значение
-      j := PosEx('\', V2Search, i+1);
-      slon := Copy(V2Search, i + 2, j - (i + 2));
-      Vilon := strtoint(slon);
-      i := PosEx('\Y', V2Search, j); // Y значение
-      j := PosEx('.', V2Search, i+1);
-      slat := Copy(V2Search, i + 2, j - (i + 2));
-      Vilat := strtoint(slat);
-     end else begin // C:\sas\sas_garl\.bin\cache_gmt\genshtab250m\z9\184\319.jpg
-      i := PosEx('\', V2Search, j); // X значение
-      j := PosEx('\', V2Search, i+1);
-      slon := Copy(V2Search, i + 1, j - (i + 1));
-      Vilat := strtoint(slon);
-      i := j; // Y значение
-      j := PosEx('.', V2Search, i+1);
-      slat := Copy(V2Search, i + 1, j - (i + 1));
-      Vilon := strtoint(slat);
-      inc(VZoom); // в GMT зум отличается на 1
-     end;
-     // ещё бы учитывать qrst ссылку...но это уже на закуску...
-     VLocalConverter := GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
-     XYPoint.X:=ViLon;
-     XYPoint.Y:=ViLat;
-     sdesc := 'z='+inttostr(vzoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#10#13;
-     XYRect := VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
-     XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
-     VPoint := VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
-     if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
-      inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+     if ((copy(V2Search,1,1)>='A')and(copy(V2Search,1,1)<='Z')and(copy(V2Search,2,1)=':') )
+     or (copy(V2Search,1,2)='\\')or (copy(V2Search,1,1)='.') then
+      begin
+       i := PosEx('\Z', V2Search, 1);
+       j := PosEx('\', V2Search, i+1);
+       slat := Copy(V2Search, i + 2, j - (i + 2));
+       vZoom := strtoint(slat);
+       if  PosEx('.SDB', V2Search, 1)>0 then begin   // G:\GoogleMV\cache_db\Nokia.Map.Creator.sat\z15\9\5\38.23.sdb\x9961y5888.jpg
+         i := PosEx('\X', V2Search, j); // X значение
+         j := PosEx('Y', V2Search, i+1);
+         slon := Copy(V2Search, i + 2, j - (i + 2));
+         Vilon := strtoint(slon);
+         i := j;
+         j := PosEx('.', V2Search, i+1);
+         slat := Copy(V2Search, i + 1, j - (i + 1));
+         Vilat :=  strtoint(slat);
+         end else
+       if PosEx('\X', V2Search, 1)>0 then begin   //G:\GoogleMV\cache\yamapng\z13\2\x2491\1\y1473.png
+         i := PosEx('\X', V2Search, j); // X значение
+         j := PosEx('\', V2Search, i+1);
+         slon := Copy(V2Search, i + 2, j - (i + 2));
+         Vilon := strtoint(slon);
+         i := PosEx('\Y', V2Search, j); // Y значение
+         j := PosEx('.', V2Search, i+1);
+         slat := Copy(V2Search, i + 2, j - (i + 2));
+         Vilat := strtoint(slat);
+         end else
+       begin // C:\sas\sas_garl\.bin\cache_gmt\genshtab250m\z9\184\319.jpg
+         i := PosEx('\', V2Search, j); // X значение
+         j := PosEx('\', V2Search, i+1);
+         slon := Copy(V2Search, i + 1, j - (i + 1));
+         Vilat := strtoint(slon);
+         i := j; // Y значение
+         j := PosEx('.', V2Search, i+1);
+         slat := Copy(V2Search, i + 1, j - (i + 1));
+         Vilon := strtoint(slat);
+         inc(VZoom); // в GMT зум отличается на 1
+       end;
+       // ещё бы учитывать qrst ссылку...но это уже на закуску...
+       VLocalConverter := GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+       XYPoint.X:=ViLon;
+       XYPoint.Y:=ViLat;
+       sdesc := 'z='+inttostr(vzoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#10#13;
+       XYRect := VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
+       XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
+       VPoint := VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
+       if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+        inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+        if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        AList.Add(VPlace);
+        end;
+      end else
+      begin      //0 пробелов  и не диск\сеть  ==  Генштаб???
+       // X-XX-XXX-X-X-X
+       // C-II-III-C-C-I  char/integer
+       // C-II-CCCCCC-C-C-C
+       // K-37-XXXVI - 2х километровка - отдельная история RomanToDig()
+
+       VcoordError := false;
+       VDLon := 1;
+
+       if PosEx('--', V2Search, 1)>0 then  V2Search := copy(V2Search,PosEx('--', V2Search, 1)+2,length(V2Search)-PosEx('--', V2Search, 1));
+       if copy(V2Search,length(V2Search)-3,1)='.' then V2Search := copy(V2Search,1,length(V2Search)-4); // убираем расширение
+
+       slon := copy(V2Search,1,1); // ПЕРВОЕ ПОЛЕ
+       if slon[1]='X' then begin
+          slon := copy(V2Search,2,1);
+          VDLon := -1;
+          V2Search := copy(V2Search,2,length(V2Search)-1);
+          end;
+       V2Search := copy(V2Search,2,length(V2Search)-1); // убрали первую букву (или две)
+       if (slon[1]>='A') and (slon[1]<='U') then
+            VDlon := VDlon*(ord(slon[1])-64)*4 -2 else VcoordError := true;
+       if copy(V2Search,1,1)='-' then  V2Search := copy(V2Search,2,length(V2Search)-1); // убрали "-" если он был между разделителми
+
+
+       if VcoordError=false then begin // ВТОРОЕ ПОЛЕ
+         i := PosEx('-', V2Search, 1);
+         if i=0 then  // не найден разделитель, может ввели К001 ?
+         if length(v2search)>3 then VcoordError := true else begin
+            i:=length(v2search)+1;
+            end;
+         if VcoordError=false then begin
+           slat := copy(V2Search,1,i-1);
+           VDLat := strtoint(slat)*6 - 180 -3;
+         end
+       end;
+       V2Search := copy(V2Search,i,length(V2Search)-i);
+       if length(V2Search)>0 then
+         if copy(V2Search,1,1)='-' then  V2Search := copy(V2Search,2,length(V2Search)-1);
+
+
+//       if VcoordError=false then // ТРЕТЬЕ ПОЛЕ
+//       if length(V2Search)>0 then begin
+//
+//        V2Search := ReplaceStr(V2Search,'А','A');
+//        V2Search := ReplaceStr(V2Search,'Б','B');
+//        V2Search := ReplaceStr(V2Search,'В','C');
+//        V2Search := ReplaceStr(V2Search,'Г','D');
+//
+//        if (PosEx('X', V2Search, 1)>0)or(PosEx('I', V2Search, 1)>0)or(PosEx('V', V2Search, 1)>0) then begin // 2 km
+//         i := PosEx('-', V2Search, 1);
+//
+//        end;
+//
+//
+//       end;
+// k-37-abcd\абвг (5км)
+// k-37-XVI (2км)
+// k-37-69
+// vdlat := RomanToDig('xxxV');
+
+
+
+  if VcoordError=false then begin
+
+      VPoint.Y:=VDLon;
+      VPoint.X:=VDLat;
+      if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+      sname := '';
       if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
-       sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-       sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+        sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+        sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
       VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
       AList.Add(VPlace);
       end;
-     //0 пробелов  и не диск\сеть 
-     end;
+  end;
 
+
+
+
+
+
+
+
+       
+
+      end;
      end else
      if i=2 then begin // 2 пробела
 
@@ -616,6 +734,12 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
 // k-37-034.jpg
 // K-37-008-D.png
 // K-38-001-C-b.png
+
+// L37
+// l-37-128
+// L-37-1
+// L-37-A(рус)
+// l-37-001
 
 //- Автоматическая методика, работает для НЕСДВОЕННЫХ листов масштаба 10-0,5 км, названия файлов ОБЯЗАТЕЛЬНО должны быть вида:
 //(*--)N(-)37.|_* / (--)N(-)37-D.|_* / (--)N(-)37-02.|_* / (--)N(-)37-004.|_* / (--)N(-)37-004-D.|_*
@@ -802,15 +926,28 @@ begin
   sfulldesc := ASearch;
  end else
  if (PosEx('maps.yandex.ru/-/', Vlink, 1) > 0 )or
-    (PosEx('maps.yandex.ru/?oid=', Vlink, 1) > 0 )then begin
+    (PosEx('maps.yandex.ru/?oid=', Vlink, 1) > 0 ) then begin 
   Vlink := ReplaceStr(astr,'''','');
   sname := 'yandex';
   i := PosEx('{ll:', Vlink, 1);
-  if i=0 then i := PosEx(',ll:', Vlink, 1); //
+  if i=0 then i := PosEx(',ll:', Vlink, 1);
   j := PosEx(',', Vlink, i+1);
   slon := Copy(Vlink, i + 4, j - (i + 4));
   i := j;
   j := PosEx(',', Vlink, i+1);
+  slat := Copy(Vlink, i + 1, j - (i + 1));
+  sdesc := '[ '+slon+' , '+slat+' ]';
+  sfulldesc := ASearch;
+ end else
+ if (PosEx('maps.yandex.ru/?um=', Vlink, 1) > 0 ) then begin // need 2 more test
+  sname := 'yandex';
+  Vlink := astr;
+  i := PosEx('{''bounds'':[[', Vlink, 1);
+  if i=0 then i := PosEx(',ll:', Vlink, 1);
+  j := PosEx(',', Vlink, i+1);
+  slon := Copy(Vlink, i + 12, j - (i + 12));
+  i := j;
+  j := PosEx(']', Vlink, i+1);
   slat := Copy(Vlink, i + 1, j - (i + 1));
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
@@ -943,7 +1080,8 @@ begin
      (PosEx('osm.org', ASearch, 1) > 0 )or
      (PosEx('permalink.html', ASearch, 1) > 0 )or
      (PosEx('api/index.html?permalink=', ASearch, 1) > 0 ) or
-     (PosEx('rambler.ru/?', ASearch, 1) > 0 )
+     (PosEx('rambler.ru/?', ASearch, 1) > 0 ) or
+     (PosEx('yandex.ru/?um=', ASearch, 1) > 0 )
    then begin
    VlocalLink := false;
    Result := ASearch;
@@ -975,9 +1113,8 @@ end.
 // http://maps.yandex.ru/-/CFVIfLi-#
 // http://osm.org/go/0oqbju
 // http://binged.it/vqaOQQ
-// http://binged.it/sCjEwT
 // http://kosmosnimki.ru/permalink.html?Na1d0e33d
 // http://maps.kosmosnimki.ru/api/index.html?permalink=ZWUJK&SA5JU
 // http://go.2gis.ru/1hox
 // http://maps.rambler.ru/?6rJJy58
-
+// http://maps.yandex.ru/?um=m4VoZPqVSEwQ3YdT5Lmley6KrBsHb2oh&l=sat
