@@ -7,8 +7,7 @@ uses
   Types,
   SysUtils,
   Classes,
-  DISQLite3Database,
-  DISQLite3Api,
+  AlSqlite3Wrapper,
   GR32,
   i_CoordConverterFactory,
   i_CoordConverter,
@@ -27,12 +26,18 @@ type
 
     FIsReplace: boolean;
     FExportPath: string;
-    FSQLite3Db: TDISQLite3Database;
+    FSQLite3Lib: TALSqlite3Library;
+    FSqlite3: PSQLite3;
     csat, cmap, chib: byte;
     FCoordConverterFactory: ICoordConverterFactory;
-
+    procedure CheckSQLiteAPIError(AError: Boolean);
     procedure WritePListFile(AGeoConvert: ICoordConverter);
-    function Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom, Ax, Ay, Aflags: integer): Int64;
+    procedure WriteTileToSQLite3(
+      AXY: TPoint;
+      AZoom: Integer;
+      AMemStream: TMemoryStream;
+      AFlags: Integer
+    );
   protected
     procedure ProcessRegion; override;
   public
@@ -65,7 +70,7 @@ uses
 constructor TThreadExportIPhone.Create(
   ACoordConverterFactory: ICoordConverterFactory;
   APath: string;
-  APolygon: ILonLatPolygonLine;
+  APolygon: TArrayOfDoublePoint;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   AActiveMapIndex: Integer;
@@ -94,29 +99,48 @@ begin
   end;
 end;
 
-function TThreadExportIPhone.Write_Stream_to_Blob_Traditional(const AStream: TStream; Azoom, Ax, Ay, Aflags: integer): Int64;
+procedure TThreadExportIPhone.WriteTileToSQLite3(
+  AXY: TPoint;
+  AZoom: Integer;
+  AMemStream: TMemoryStream;
+  AFlags: Integer
+);
 var
-  l: Integer;
-  p: Pointer;
-  Stmt: TDISQLite3Statement;
+  s: string;
+  stmt: PSQLite3Stmt;
 begin
-  Stmt := FSQLite3Db.Prepare('INSERT INTO Images (data,zoom,x,y,flags,length) VALUES (?,"' + inttostr(Azoom) + '","' + inttostr(Ax) + '","' + inttostr(Ay) + '","' + inttostr(AFlags) + '","' + inttostr(AStream.Size) + '")');
+  s := 'INSERT INTO Images (data,zoom,x,y,flags,length) VALUES '+
+       '(' +
+           '?,' +
+           '"' + IntToStr(AZoom) + '",' +
+           '"' + IntToStr(AXY.X) + '",' +
+           '"' + IntToStr(AXY.Y) + '",' +
+           '"' + IntToStr(AFlags) + '",' +
+           '"' + IntToStr(AMemStream.Size) + '"' +
+       ')';
+  CheckSQLiteAPIError(
+    FSQLite3Lib.sqlite3_prepare_v2(
+      FSqlite3,
+      PChar(s),
+      Length(s),
+      stmt,
+      nil
+    ) <> SQLITE_OK
+  );
   try
-    if AStream is TCustomMemoryStream then begin
-      with AStream as TCustomMemoryStream do begin
-        Stmt.Bind_Blob(1, Memory, Size, SQLITE_STATIC);
-      end;
-    end else begin
-      l := AStream.Size;
-      GetMem(p, l);
-      AStream.Seek(0, soFromBeginning);
-      AStream.Read(p^, l);
-      Stmt.Bind_Blob(1, p, l, sqlite3_Destroy_Mem);
-    end;
-    Stmt.Step;
-    Result := FSQLite3Db.LastInsertRowID;
+    AMemStream.Position := 0;
+    CheckSQLiteAPIError(
+      FSQLite3Lib.sqlite3_bind_blob(
+        stmt,
+        1,
+        AMemStream.Memory,
+        AMemStream.Size,
+        SQLITE_STATIC
+      ) <> SQLITE_OK
+    );
+    CheckSQLiteAPIError(not (FSQLite3Lib.sqlite3_step(stmt) in [SQLITE_DONE, SQLITE_ROW]));
   finally
-    Stmt.Free;
+    CheckSQLiteAPIError(FSQLite3Lib.sqlite3_finalize(stmt) <> SQLITE_OK);
   end;
 end;
 
@@ -130,9 +154,9 @@ var
   VLen: Integer;
 begin
   VZoom := FZooms[0];
-  VLen := FPolygLL.Count;
+  VLen := Length(FPolygLL);
   SetLength(VPolyg, VLen);
-  AGeoConvert.LonLatArray2PixelArray(FPolygLL.Points, VLen, @VPolyg[0], VZoom);
+  AGeoConvert.LonLatArray2PixelArray(@FPolygLL[0], VLen, @VPolyg[0], VZoom);
   GetMinMax(min, max, @VPolyg[0], Length(VPolyg), true);
   VLLCenter := AGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), VZoom);
   AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
@@ -155,6 +179,27 @@ begin
 end;
 
 procedure TThreadExportIPhone.ProcessRegion;
+
+  procedure SQLiteWriteString(const AString: string);
+  var
+    stmt: PSQLite3Stmt;
+  begin
+    CheckSQLiteAPIError(
+      FSQLite3Lib.sqlite3_prepare_v2(
+        FSqlite3,
+        PChar(AString),
+        Length(AString),
+        stmt,
+        nil
+      ) <> SQLITE_OK
+    );
+    try
+      CheckSQLiteAPIError(not (FSQLite3Lib.sqlite3_step(stmt) in [SQLITE_DONE, SQLITE_ROW]));
+    finally
+      CheckSQLiteAPIError(FSQLite3Lib.sqlite3_finalize(stmt) <> SQLITE_OK);
+    end;
+  end;
+
 var
   VZoom: byte;
   i, j, xi, yi, hxyi, sizeim: integer;
@@ -167,6 +212,7 @@ var
   VFlags: array of integer;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
+  VDatabaseName: string;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -211,89 +257,135 @@ begin
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
       VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
-      FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
+      FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;         
     end;
     try
       ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
       ProgressFormUpdateOnProgress;
 
+      FSqlite3 := nil;
+      FSQLite3Lib := TALSqlite3Library.Create;
       try
-        sqlite3_initialize;
-        FSQLite3Db := TDISQLite3Database.Create(nil);
-        FSQLite3Db.DatabaseName := FExportPath + 'MapTiles.sqlitedb';
-        if not (FileExists(FExportPath + 'MapTiles.sqlitedb')) then begin
-          FIsReplace := true;
-        end;
-        If FIsReplace then begin
-          If FileExists(FExportPath + 'MapTiles.sqlitedb') then begin
-            DeleteFile(FExportPath + 'MapTiles.sqlitedb');
+        if FSQLite3Lib.Load then
+        try
+          VDatabaseName := FExportPath + 'MapTiles.sqlitedb';
+          if not FileExists(VDatabaseName) then begin
+            FIsReplace := True;
           end;
-          FSQLite3Db.CreateDatabase;
-          FSQLite3Db.Execute('CREATE TABLE version(version int)');
-          FSQLite3Db.Execute('CREATE TABLE images(zoom int, x int, y int, flags int, length int, data blob);');
-          FSQLite3Db.Execute('CREATE INDEX index1 on images (zoom,x,y,flags)');
-        end else begin
-          FSQLite3Db.Open;
-        end;
-        FSQLite3Db.Execute('PRAGMA locking_mode=EXCLUSIVE');
-        FSQLite3Db.Execute('PRAGMA cache_size=100000');
-        FSQLite3Db.Execute('PRAGMA synchronous=OFF');
-        FSQLite3Db.Connected := true;
-        If FIsReplace then begin
-          if FNewFormat then begin
-            FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("5")');
-          end else begin
-            FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("4")');
-          end;
-          FSQLite3Db.Execute('INSERT INTO version (version) VALUES ("0")');
-        end;
-        FSQLite3Db.Execute('BEGIN TRANSACTION');
-        for i := 0 to Length(FZooms) - 1 do begin
-          VZoom := FZooms[i];
-          VTileIterator := VTileIterators[i];
-          while VTileIterator.Next(VTile) do begin
-            if CancelNotifier.IsOperationCanceled(OperationID) then begin
-              exit;
+          If FIsReplace then begin
+
+            If FileExists(VDatabaseName) then begin
+              DeleteFile(VDatabaseName);
             end;
-            for j := 0 to Length(FMapTypeArr) - 1 do begin
-              if FMapTypeArr[j] <> nil then begin
-                if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, VZoom, VGeoConvert, False, true, true) then begin
-                  if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                    VBitmaps[0].Draw(0, 0, VBitmaps[j]);
-                    VBitmaps[j].Draw(0, 0, VBitmaps[0]);
-                  end;
-                  for xi := 0 to hxyi - 1 do begin
-                    for yi := 0 to hxyi - 1 do begin
-                      Vbmp32crop.Clear;
-                      Vbmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), VBitmaps[j]);
-                      VTileStream.Clear;
-                      VSavers[j].SaveToStream(Vbmp32crop, VTileStream);
-                      Write_Stream_to_Blob_Traditional(
-                        VTileStream, VZoom + 1,
-                        VTile.X * hxyi + xi, VTile.Y * hxyi + yi,
-                        VFlags[j]
-                      );
+
+            try
+              CheckSQLiteAPIError(
+                FSQLite3Lib.sqlite3_open_v2(
+                  PAnsiChar(VDatabaseName),
+                  FSqlite3,
+                  SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE,
+                  nil
+                ) <> SQLITE_OK
+              );
+            except
+              if Assigned(FSqlite3) then begin
+                FSQLite3Lib.sqlite3_close(FSqlite3);
+              end;
+              FSqlite3 := nil;
+              raise;
+            End;
+
+            SQLiteWriteString('CREATE TABLE version(version int)');
+            SQLiteWriteString('CREATE TABLE images(zoom int, x int, y int, flags int, length int, data blob);');
+            SQLiteWriteString('CREATE INDEX index1 on images (zoom,x,y,flags)');
+          end else begin
+
+            try
+              CheckSQLiteAPIError(
+                FSQLite3Lib.sqlite3_open_v2(
+                  PAnsiChar(VDatabaseName),
+                  FSqlite3,
+                  SQLITE_OPEN_READWRITE,
+                  nil
+                ) <> SQLITE_OK
+              );
+            except
+              if Assigned(FSqlite3) then begin
+                FSQLite3Lib.sqlite3_close(FSqlite3);
+              end;
+              FSqlite3 := nil;
+              raise;
+            End;
+
+          end;
+
+          SQLiteWriteString('PRAGMA locking_mode=EXCLUSIVE');
+          SQLiteWriteString('PRAGMA cache_size=100000');
+          SQLiteWriteString('PRAGMA synchronous=OFF');
+
+          If FIsReplace then begin
+            if FNewFormat then begin
+              SQLiteWriteString('INSERT INTO version (version) VALUES ("5")');
+            end else begin
+              SQLiteWriteString('INSERT INTO version (version) VALUES ("4")');
+            end;
+           SQLiteWriteString('INSERT INTO version (version) VALUES ("0")');
+          end;
+          SQLiteWriteString('BEGIN TRANSACTION');
+          try
+            for i := 0 to Length(FZooms) - 1 do begin
+              VZoom := FZooms[i];
+              VTileIterator := VTileIterators[i];
+              while VTileIterator.Next(VTile) do begin
+                if CancelNotifier.IsOperationCanceled(OperationID) then begin
+                  exit;
+                end;
+                for j := 0 to Length(FMapTypeArr) - 1 do begin
+                  if FMapTypeArr[j] <> nil then begin
+                    if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, VZoom, VGeoConvert, False, true, true) then begin
+                      if (j = 2) and (FMapTypeArr[0] <> nil) then begin
+                        VBitmaps[0].Draw(0, 0, VBitmaps[j]);
+                        VBitmaps[j].Draw(0, 0, VBitmaps[0]);
+                      end;
+                      for xi := 0 to hxyi - 1 do begin
+                        for yi := 0 to hxyi - 1 do begin
+                          Vbmp32crop.Clear;
+                          Vbmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), VBitmaps[j]);
+                          VTileStream.Clear;
+                          VSavers[j].SaveToStream(Vbmp32crop, VTileStream);
+                          WriteTileToSQLite3(
+                            Point(VTile.X * hxyi + xi, VTile.Y * hxyi + yi),
+                            VZoom + 1,
+                            VTileStream,
+                            VFlags[j]
+                          );
+                        end;
+                      end;
+                    end;
+                    inc(FTilesProcessed);
+                    if ((FTilesToProcess < 100) and (FTilesProcessed mod 5 = 0)) or
+                      ((FTilesToProcess >= 100) and (FTilesProcessed mod 50 = 0)) then begin
+                      ProgressFormUpdateOnProgress;
+                    end;
+                    if (FTilesProcessed mod 500 = 0) then begin
+                      SQLiteWriteString('COMMIT TRANSACTION');
+                      SQLiteWriteString('BEGIN TRANSACTION');
                     end;
                   end;
                 end;
-                inc(FTilesProcessed);
-                if ((FTilesToProcess < 100) and (FTilesProcessed mod 5 = 0)) or
-                  ((FTilesToProcess >= 100) and (FTilesProcessed mod 50 = 0)) then begin
-                  ProgressFormUpdateOnProgress;
-                end;
-                if (FTilesProcessed mod 500 = 0) then begin
-                  FSQLite3Db.Execute('COMMIT');
-                  FSQLite3Db.Execute('BEGIN TRANSACTION');
-                end;
               end;
             end;
+          finally
+            SQLiteWriteString('COMMIT TRANSACTION');
           end;
+          ProgressFormUpdateOnProgress;
+        finally
+          FSQLite3Lib.sqlite3_close(FSqlite3);
+          FSqlite3 := nil;
+          FSQLite3Lib.Unload;
         end;
-        FSQLite3Db.Execute('COMMIT');
-        ProgressFormUpdateOnProgress;
       finally
-        sqlite3_shutdown;
-        FSQLite3Db.Free;
+        FreeAndNil(FSQLite3Lib);
       end;
     finally
       for i := 0 to Length(VTileIterators) - 1 do begin
@@ -306,6 +398,21 @@ begin
     for i := 0 to Length(VBitmaps) - 1 do
       VBitmaps[i].Free;
     Vbmp32crop.Free;
+  end;
+end;
+
+procedure TThreadExportIPhone.CheckSQLiteAPIError(AError: Boolean);
+begin
+  if AError then begin
+    if Assigned(FSqlite3) then begin
+      raise Exception.Create(
+              FSQLite3Lib.sqlite3_errmsg(Fsqlite3) +
+              ' ( error code: ' +
+              IntToStr(FSQLite3Lib.sqlite3_errcode(Fsqlite3)) + ')'
+            );
+    end else begin
+      raise Exception.Create('Sqlite3 error');
+    end;
   end;
 end;
 
