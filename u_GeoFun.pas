@@ -54,6 +54,7 @@ type
   function PtInPolygon(const Pt: TPoint; const APoints: PPointArray; ACount: Integer): Boolean;
   function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
+  function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
   function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
   function ConveryPolyline2Polygon(APoints: PDoublePointArray; ACount: Integer; ARadius: Double; Aconverter: ICoordConverter; AZoom: byte): TArrayOfDoublePoint;
@@ -646,6 +647,23 @@ begin
       25000: begin Result.X:=0.25; Result.Y:=0.25; end;
       10000: begin Result.X:=0.125; Result.Y:=0.125; end;
     else begin Result.X:=360; Result.Y:=180; end;
+  end;
+end;
+
+function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;
+begin
+  Result := ARect1;
+  if Result.Left > ARect2.Left then begin
+    Result.Left := ARect2.Left;
+  end;
+  if Result.Right < ARect2.Right then begin
+    Result.Right := ARect2.Right;
+  end;
+  if Result.Top < ARect2.Top then begin
+    Result.Top := ARect2.Top;
+  end;
+  if Result.Bottom > ARect2.Bottom then begin
+    Result.Bottom := ARect2.Bottom;
   end;
 end;
 
