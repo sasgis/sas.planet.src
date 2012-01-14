@@ -39,6 +39,9 @@ type
     ['{0E85CB46-D324-4052-BDE3-63F1C4A2665A}']
     function GetEnum: IEnumLonLatPoint;
 
+    function GetBounds: TDoubleRect;
+    property Bounds: TDoubleRect read GetBounds;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
@@ -49,6 +52,9 @@ type
   ILonLatPolygon = interface
     ['{04CEBFBE-8FC1-4AB0-8B39-3C283287BF46}']
     function GetEnum: IEnumLonLatPoint;
+
+    function GetBounds: TDoubleRect;
+    property Bounds: TDoubleRect read GetBounds;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;

@@ -12,10 +12,13 @@ type
   TLonLatLineSet = class(TInterfacedObject)
   private
     FList: IInterfaceList;
+    FBounds: TDoubleRect;
   private
     function GetCount: Integer;
+    function GetBounds: TDoubleRect;
   public
     constructor Create(
+      const ABounds: TDoubleRect;
       AList: IInterfaceList
     );
   end;
@@ -38,6 +41,7 @@ type
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
+    function GetBounds: TDoubleRect;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   public
     constructor Create(
@@ -51,6 +55,7 @@ type
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
+    function GetBounds: TDoubleRect;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
     constructor Create(
@@ -66,9 +71,18 @@ uses
 
 { TLonLatLineSet }
 
-constructor TLonLatLineSet.Create(AList: IInterfaceList);
+constructor TLonLatLineSet.Create(
+  const ABounds: TDoubleRect;
+  AList: IInterfaceList
+);
 begin
+  FBounds := ABounds;
   FList := AList;
+end;
+
+function TLonLatLineSet.GetBounds: TDoubleRect;
+begin
+  Result := FBounds;
 end;
 
 function TLonLatLineSet.GetCount: Integer;
@@ -111,6 +125,11 @@ begin
   FLine := ALine;
 end;
 
+function TLonLatPathOneLine.GetBounds: TDoubleRect;
+begin
+  Result := FLine.Bounds;
+end;
+
 function TLonLatPathOneLine.GetCount: Integer;
 begin
   Result := 1;
@@ -135,6 +154,11 @@ end;
 constructor TLonLatPolygonOneLine.Create(ALine: ILonLatPolygonLine);
 begin
   FLine := ALine;
+end;
+
+function TLonLatPolygonOneLine.GetBounds: TDoubleRect;
+begin
+  Result := FLine.Bounds;
 end;
 
 function TLonLatPolygonOneLine.GetCount: Integer;

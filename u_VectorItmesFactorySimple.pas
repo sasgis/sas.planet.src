@@ -189,6 +189,7 @@ end;
 type
   TLineSetEmpty = class(TInterfacedObject, ILonLatPath, ILonLatPolygon, IProjectedPath, IProjectedPolygon, ILocalPath, ILocalPolygon)
   private
+    FBounds: TDoubleRect;
     FEnumLonLat: IEnumLonLatPoint;
     FEnumProjected: IEnumProjectedPoint;
     FEnumLocal: IEnumLocalPoint;
@@ -206,6 +207,7 @@ type
   private
     function GetProjection: IProjectionInfo;
     function GetLocalConverter: ILocalCoordConverter;
+    function GetBounds: TDoubleRect;
     function GetCount: Integer;
 
     function ILonLatPath.GetEnum = GetEnumLonLat;
@@ -233,6 +235,13 @@ begin
   FEnumLonLat := VEnum;
   FEnumProjected := VEnum;
   FEnumLocal := VEnum;
+  FBounds.TopLeft := CEmptyDoublePoint;
+  FBounds.BottomRight := CEmptyDoublePoint;
+end;
+
+function TLineSetEmpty.GetBounds: TDoubleRect;
+begin
+  Result := FBounds;
 end;
 
 function TLineSetEmpty.GetCount: Integer;
@@ -552,6 +561,7 @@ var
   VLineCount: Integer;
   VList: IInterfaceList;
   VPoint: TDoublePoint;
+  VBounds: TDoubleRect;
 begin
   VLineCount := 0;
   VStart := APoints;
@@ -568,6 +578,11 @@ begin
           VLine := nil;
         end;
         VLine := TLonLatPathLine.Create(VStart, VLineLen);
+        if VLineCount > 0 then begin
+          VBounds := UnionLonLatRects(VBounds, VLine.Bounds);
+        end else begin
+          VBounds := VLine.Bounds;
+        end;
         Inc(VLineCount);
         VLineLen := 0;
       end;
@@ -587,6 +602,11 @@ begin
       VLine := nil;
     end;
     VLine := TLonLatPathLine.Create(VStart, VLineLen);
+    if VLineCount > 0 then begin
+      VBounds := UnionLonLatRects(VBounds, VLine.Bounds);
+    end else begin
+      VBounds := VLine.Bounds;
+    end;
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
@@ -595,7 +615,7 @@ begin
     Result := TLonLatPathOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TLonLatPath.Create(VList);
+    Result := TLonLatPath.Create(VBounds, VList);
   end;
 end;
 
@@ -609,6 +629,7 @@ var
   VLineCount: Integer;
   VList: IInterfaceList;
   VPoint: TDoublePoint;
+  VBounds: TDoubleRect;
 begin
   VLineCount := 0;
   VStart := APoints;
@@ -625,6 +646,11 @@ begin
           VLine := nil;
         end;
         VLine := TLonLatPolygonLine.Create(VStart, VLineLen);
+        if VLineCount > 0 then begin
+          VBounds := UnionLonLatRects(VBounds, VLine.Bounds);
+        end else begin
+          VBounds := VLine.Bounds;
+        end;
         Inc(VLineCount);
         VLineLen := 0;
       end;
@@ -644,6 +670,11 @@ begin
       VLine := nil;
     end;
     VLine := TLonLatPolygonLine.Create(VStart, VLineLen);
+    if VLineCount > 0 then begin
+      VBounds := UnionLonLatRects(VBounds, VLine.Bounds);
+    end else begin
+      VBounds := VLine.Bounds;
+    end;
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
@@ -652,7 +683,7 @@ begin
     Result := TLonLatPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TLonLatPolygon.Create(VList);
+    Result := TLonLatPolygon.Create(VBounds, VList);
   end;
 end;
 
