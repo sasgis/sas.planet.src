@@ -31,6 +31,8 @@ uses
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_ContentTypeManager,
+  i_TTLCheckNotifier,
+  i_TTLCheckListener,
   u_BerkeleyDB,
   u_BerkeleyDBPool,
   u_GlobalCahceConfig,
@@ -61,10 +63,14 @@ type
     FCacheConfig: TMapTypeCacheConfigBerkeleyDB;
     FMainContentType: IContentTypeInfoBasic;
     FTileNotExistsTileInfo: ITileInfoBasic;
+    FGCList: ITTLCheckNotifier;
+    FTTLListener: ITTLCheckListener;
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByBDBData(ABDBData: PBDBData): ITileInfoBasic;
+    procedure Sync(Sender: TObject);
   public
     constructor Create(
+      AGCList: ITTLCheckNotifier;
       AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       AContentTypeManager: IContentTypeManager
@@ -138,6 +144,7 @@ uses
   t_CommonTypes,
   u_ContentTypeInfo,
   u_MapVersionInfo,
+  u_TTLCheckListener,
   u_TileFileNameBDB,
   u_TileStorageTypeAbilities,
   u_TileInfoBasic;
@@ -213,12 +220,17 @@ end;
 { TTileStorageBerkeleyDB }
 
 constructor TTileStorageBerkeleyDB.Create(
+  AGCList: ITTLCheckNotifier;
   AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   AContentTypeManager: IContentTypeManager
 );
+const
+  CBDBSync = 300000; // 5 min
+  CBDBSyncCheckInterval = 60000; // 60 sec
 begin
   inherited Create(TTileStorageTypeAbilitiesBerkeleyDB.Create, AConfig);
+  FGCList := AGCList;
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FCacheConfig := TMapTypeCacheConfigBerkeleyDB.Create(
     AConfig,
@@ -227,13 +239,23 @@ begin
   );
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
   FBDBPool := TBerkeleyDBPool.Create;
+  FTTLListener := TTTLCheckListener.Create(Self.Sync, CBDBSync, CBDBSyncCheckInterval);
+  FGCList.Add(FTTLListener);
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
 begin
+  FGCList.Remove(FTTLListener);
+  FTTLListener := nil;
+  FGCList := nil;
   FreeAndNil(FCacheConfig);
   FreeAndNil(FBDBPool);
   inherited;
+end;
+
+procedure TTileStorageBerkeleyDB.Sync(Sender: TObject);
+begin
+  FBDBPool.Sync;
 end;
 
 procedure TTileStorageBerkeleyDB.CreateDirIfNotExists(APath: string);
@@ -340,7 +362,7 @@ function TTileStorageBerkeleyDB.GetTileFileName(
 ): string;
 begin
   Result := FCacheConfig.GetTileFileName(AXY, Azoom) + PathDelim +
-    'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y) + FMainContentType.GetDefaultExt;
+    'x' + IntToStr(AXY.X) + PathDelim + 'y' + IntToStr(AXY.Y) + FMainContentType.GetDefaultExt;
 end;
 
 function TTileStorageBerkeleyDB.GetTileInfo(

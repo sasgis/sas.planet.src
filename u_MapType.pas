@@ -288,7 +288,7 @@ begin
   end;
 
   if FStorageConfig.CacheTypeCode = 6 then begin
-    FStorage := TTileStorageBerkeleyDB.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
+    FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else if FStorageConfig.CacheTypeCode = 5  then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin

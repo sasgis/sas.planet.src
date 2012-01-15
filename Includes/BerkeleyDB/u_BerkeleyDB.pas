@@ -22,8 +22,6 @@ unit u_BerkeleyDB;
 
 interface
 
-{.$DEFINE DB_THREAD}  //Open DB handle as free-threaded
-
 uses
   SysUtils,
   SyncObjs,
@@ -45,6 +43,7 @@ type
     FDB: PDB;
     FFileName: string;
     FDBEnabled: Boolean;
+    FSyncAllow: Boolean;
     FCS: TCriticalSection;
   public
     constructor Create;
@@ -89,6 +88,8 @@ type
       AFlags: Cardinal = 0
     ): Boolean;
 
+    function Sync(): Boolean;
+
     property FileName: string read FFileName write FFileName;
   end;
 
@@ -106,6 +107,7 @@ begin
   FFileName := '';
   FDB := nil;
   FDBEnabled := False;
+  FSyncAllow := False;
   LibInitCS.Acquire;
   try
     InitBerkeleyDB;
@@ -149,9 +151,6 @@ begin
       if AMemCacheSize <> Cardinal(BDB_DEF_CACHE_SIZE) then begin
         CheckBDB(FDB.set_cachesize(FDB, 0, AMemCacheSize, 0));
       end;
-      {$IFDEF DB_THREAD}
-      AFlags := AFlags or DB_THREAD;
-      {$ENDIF}
       CheckBDB(FDB.open(FDB, nil, PAnsiChar(AFileName), '', ADBType, AFlags, 0));
       FDBEnabled := True;
       Result := FDBEnabled;
@@ -183,10 +182,8 @@ function TBerkeleyDB.Read(
 var
   dbtKey, dbtData: DBT;
 begin
-  {$IFNDEF DB_THREAD}
   FCS.Acquire;
   try
-  {$ENDIF}
     Result := False;
     if FDBEnabled then begin
       FillChar(dbtKey, Sizeof(DBT), 0);
@@ -203,11 +200,9 @@ begin
         Move(dbtData.data^, AData^, dbtData.size);
       end;
     end;
-  {$IFNDEF DB_THREAD}
   finally
     FCS.Release;
   end;
-  {$ENDIF}
 end;
 
 function TBerkeleyDB.Write(
@@ -220,12 +215,11 @@ function TBerkeleyDB.Write(
 var
   dbtKey, dbtData: DBT;
 begin
-  {$IFNDEF DB_THREAD}
   FCS.Acquire;
   try
-  {$ENDIF}
     Result := False;
     if FDBEnabled then begin
+      FSyncAllow := True;
       FillChar(dbtKey, Sizeof(DBT), 0);
       FillChar(dbtData, Sizeof(DBT), 0);
       dbtKey.data := AKey;
@@ -234,11 +228,9 @@ begin
       dbtData.size := ADataSize;
       Result := CheckAndNotExistsBDB(FDB.put(FDB, nil, @dbtKey, @dbtData, AFlags));
     end;
-  {$IFNDEF DB_THREAD}
   finally
     FCS.Release;
   end;
-  {$ENDIF}
 end;
 
 function TBerkeleyDB.Exists(
@@ -249,10 +241,8 @@ function TBerkeleyDB.Exists(
 var
   dbtKey: DBT;
 begin
-  {$IFNDEF DB_THREAD}
   FCS.Acquire;
   try
-  {$ENDIF}
     Result := False;
     if FDBEnabled then begin
       FillChar(dbtKey, Sizeof(DBT), 0);
@@ -260,11 +250,9 @@ begin
       dbtKey.size := AKeySize;
       Result := CheckAndFoundBDB(FDB.exists(FDB, nil, @dbtKey, AFlags));
     end;
-  {$IFNDEF DB_THREAD}
   finally
     FCS.Release;
   end;
-  {$ENDIF}
 end;
 
 function TBerkeleyDB.Del(
@@ -275,10 +263,8 @@ function TBerkeleyDB.Del(
 var
   dbtKey: DBT;
 begin
-  {$IFNDEF DB_THREAD}
   FCS.Acquire;
   try
-  {$ENDIF}
     Result := False;
     if FDBEnabled then begin
       FillChar(dbtKey, Sizeof(DBT), 0);
@@ -286,11 +272,24 @@ begin
       dbtKey.size := AKeySize;
       Result := CheckAndFoundBDB(FDB.del(FDB, nil, @dbtKey, AFlags));
     end;
-  {$IFNDEF DB_THREAD}
   finally
     FCS.Release;
   end;
-  {$ENDIF}
+end;
+
+function TBerkeleyDB.Sync(): Boolean;
+begin
+  FCS.Acquire;
+  try
+    Result := False;
+    if FDBEnabled and FSyncAllow then begin
+      FSyncAllow := False;
+      CheckBDB(FDB.sync(FDB, 0));
+      Result := True; 
+    end;
+  finally
+    FCS.Release;
+  end;
 end;
 
 initialization
