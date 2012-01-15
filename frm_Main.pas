@@ -409,6 +409,7 @@ type
     NDegValue: TTBXEditItem;
     TBSeparatorItem2: TTBSeparatorItem;
     NDegScaleAuto: TTBXItem;
+    nokiamapcreator1: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -546,6 +547,7 @@ type
     procedure NDegScale0Click(Sender: TObject);
     procedure NDegValueAcceptText(Sender: TObject; var NewText: string;
       var Accept: Boolean);
+    procedure nokiamapcreator1Click(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4386,6 +4388,23 @@ begin
   if Supports(VMark, IMarkPoly, VMarkPoly) then begin
     FMarkDBGUI.ShowMarkSq(VMarkPoly, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
+end;
+
+procedure TfrmMain.nokiamapcreator1Click(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat:TDoublePoint;
+begin
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  CopyStringToClipboard('http://maps.nokia.com/mapcreator/?ns=true#|'+R2StrPoint(VLonLat.y)+'|'+R2StrPoint(VLonLat.x)+'|'+IntToStr(VZoom)+'|0|0|');
 end;
 
 procedure TfrmMain.NMarksCalcsPerClick(Sender: TObject);

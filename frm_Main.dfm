@@ -3331,6 +3331,11 @@ object frmMain: TfrmMain
         Caption = 'URL to osm.org'
         Hint = ''
       end
+      object nokiamapcreator1: TTBXItem
+        OnClick = nokiamapcreator1Click
+        Caption = 'URL to Nokia Map Creator'
+        Hint = ''
+      end
       object N51: TTBXSeparatorItem
         Caption = ''
         Hint = ''
