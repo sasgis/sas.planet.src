@@ -53,7 +53,8 @@ type
                                    AParams: PSingleSatFixibilityData;
                                    ASky: PSingleSatSkyData = nil): Boolean; stdcall;
 
-    function GetPreferredTalkerID: String; stdcall;
+    function EnumerateTalkerID(var ATalkerID: String): Boolean; stdcall;
+    function GetCountForAllTalkerIDs(const AOnlyForFixed: Boolean): Byte; stdcall;
   public
     constructor Create(
       const AItemsCountGP: Integer;
@@ -89,6 +90,45 @@ begin
   inherited;
 end;
 
+function TGPSSatellitesInView.EnumerateTalkerID(var ATalkerID: String): Boolean;
+begin
+  if (0=Length(ATalkerID)) then begin
+    // get first talker_id
+    
+    // check gps
+    if (nil<>FItemsGP) and (0<FItemsGP.Count) then begin
+      // GPS
+      ATalkerID:=nmea_ti_GPS;
+      Result:=TRUE;
+      Exit;
+    end;
+
+    // check glonass
+    if (nil<>FItemsGL) and (0<FItemsGL.Count) then begin
+      // GPS
+      ATalkerID:=nmea_ti_GLONASS;
+      Result:=TRUE;
+      Exit;
+    end;
+  end else begin
+    // get next talker_id
+
+    // check glonass after gps (the only)
+    if SameText(ATalkerID, nmea_ti_GPS) then begin
+      // check for glonass
+      if (nil<>FItemsGL) and (0<FItemsGL.Count) then begin
+        // GPS
+        ATalkerID:=nmea_ti_GLONASS;
+        Result:=TRUE;
+        Exit;
+      end;
+    end;
+  end;
+
+  // nothing
+  Result:=FALSE;
+end;
+
 function TGPSSatellitesInView.GetCount(const ATalkerID: String): Byte;
 begin
   if SameText(ATalkerID, nmea_ti_GLONASS) then begin
@@ -105,6 +145,21 @@ begin
     end else begin
       Result := 0;
     end;
+  end;
+end;
+
+function TGPSSatellitesInView.GetCountForAllTalkerIDs(const AOnlyForFixed: Boolean): Byte;
+begin
+  if AOnlyForFixed then begin
+    // all fixed satellites
+    Result:=Get_PVSAGPS_FIX_SATS_FixCount(@(FFixSatsALL.gp))+Get_PVSAGPS_FIX_SATS_FixCount(@(FFixSatsALL.gl));
+  end else begin
+    // all satelites
+    Result:=0;
+    if (nil<>FItemsGP) then
+      Inc(Result,FItemsGP.Count);
+    if (nil<>FItemsGL) then
+      Inc(Result,FItemsGL.Count);
   end;
 end;
 
@@ -129,13 +184,14 @@ function TGPSSatellitesInView.GetAllSatelliteParams(const AIndex: Byte;
 var
   VItem: IGPSSatelliteInfo;
   VSat: TVSAGPS_FIX_SAT;
+  Vresult_index: ShortInt;
 begin
   Result:=FALSE;
   VItem:=GetItem(ATalkerID, AIndex);
   if Assigned(VItem) then begin
     VItem.GetBaseSatelliteParams(AParams);
     VSat:=AParams.sat_info;
-    AFixed:=(GetSatNumberIndex(@FFixSatsALL, @(VSat))>=0);
+    AFixed:=GetSatNumberIndexEx(Select_PVSAGPS_FIX_SATS_from_ALL(@FFixSatsALL,ATalkerID), @(VSat), Vresult_index);
     if (nil<>ASky) then
       VItem.GetSkySatelliteParams(ASky);
     Result:=TRUE;
@@ -159,14 +215,6 @@ begin
       Result := nil;
     end;
   end;
-end;
-
-function TGPSSatellitesInView.GetPreferredTalkerID: String;
-begin
-  if FFixSatsALL.gl.fix_count>FFixSatsALL.gp.fix_count then
-    Result:=nmea_ti_GLONASS
-  else
-    Result:=nmea_ti_GPS;
 end;
 
 procedure TGPSSatellitesInView.InternalCreateItems(

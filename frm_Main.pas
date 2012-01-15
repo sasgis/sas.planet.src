@@ -2403,8 +2403,8 @@ end;
 
 procedure TfrmMain.UpdateGPSSatellites(APosition: IGPSPosition);
 var
-  i,bar_width,bar_height,bar_x1,bar_dy:integer;
-  VFixCount,VALLCount: Integer;
+  bar_width,bar_height,bar_x1,bar_dy:integer;
+  VTalkerID_FixCount,VTalkerID_ALLCount,VCountForAllTalkerIDsFixed,i: Byte;
   VSatFixed: Boolean;
   VSatFixibility: TSingleSatFixibilityData;
   VTalkerID: String;
@@ -2412,39 +2412,43 @@ var
 begin
   TBXSignalStrengthBar.Repaint;
 
-  // show satelites only for one talker_id (TODO: show both satellites)
   VGPSSatellitesInView:=APosition.Satellites;
-  if Assigned(VGPSSatellitesInView) then begin
-    VTalkerID := VGPSSatellitesInView.GetPreferredTalkerID;
-    VFixCount := VGPSSatellitesInView.FixCount[VTalkerID];
-    VALLCount := VGPSSatellitesInView.Count[VTalkerID];
-  end else begin
-    VTalkerID := '';
-    VFixCount := 0;
-    VALLCount := 0;
-  end;
 
-  if (0<VFixCount) then begin
-    with TBXSignalStrengthBar do begin
-       Canvas.Lock;
-       try
-         Canvas.Pen.Color:=clBlack;
-         Canvas.Brush.Color:=clGreen;
-         bar_x1:=0;
-         bar_dy:=8;
-         bar_width:=((Width-15) div VFixCount);
+  if (not Assigned(VGPSSatellitesInView)) then
+    Exit;
 
-         if (0<VALLCount) then
-         for i := 0 to VALLCount-1 do
-         if VGPSSatellitesInView.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility) then
-         if VSatFixed then begin
-           bar_height:=trunc(14*((VSatFixibility.snr)/100));
-           Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
-           inc(bar_x1,bar_width);
-         end;
-       finally
-         Canvas.Unlock;
-       end;
+  // total count of satellites (all constellations)
+  VCountForAllTalkerIDsFixed:=VGPSSatellitesInView.GetCountForAllTalkerIDs(TRUE);
+
+  if (0<VCountForAllTalkerIDsFixed) then
+  with TBXSignalStrengthBar do begin
+    Canvas.Lock;
+    try
+      Canvas.Pen.Color:=clBlack;
+      Canvas.Brush.Color:=clGreen;
+      bar_x1:=0;
+      bar_dy:=8;
+      bar_width:=((Width-15) div VCountForAllTalkerIDsFixed);
+
+      // main loop
+      VTalkerID:='';
+      while VGPSSatellitesInView.EnumerateTalkerID(VTalkerID) do begin
+        // counts
+        VTalkerID_FixCount := VGPSSatellitesInView.FixCount[VTalkerID];
+        VTalkerID_ALLCount := VGPSSatellitesInView.Count[VTalkerID];
+
+        // subloop
+        if (0<VTalkerID_FixCount) then
+        for i := 0 to VTalkerID_ALLCount-1 do
+        if VGPSSatellitesInView.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility) then
+        if VSatFixed then begin
+          bar_height:=trunc(14*((VSatFixibility.snr)/100));
+          Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
+          inc(bar_x1,bar_width);
+        end;
+      end;
+    finally
+     Canvas.Unlock;
     end;
   end;
 end;
