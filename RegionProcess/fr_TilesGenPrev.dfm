@@ -230,7 +230,7 @@ object frTilesGenPrev: TfrTilesGenPrev
           Width = 310
           Height = 17
           Align = alTop
-          Caption = 'Use tiles from current level if upper tiles not exist'
+          Caption = 'Use tile from lower zoom if tile not available'
           Enabled = False
           TabOrder = 0
         end
