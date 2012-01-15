@@ -207,6 +207,7 @@
     <DCCReference Include="i_GSMGeoCodeConfig.pas" />
     <DCCReference Include="i_GUIDListStatic.pas" />
     <DCCReference Include="i_HtmlToHintTextConverter.pas" />
+    <DCCReference Include="i_IdCacheSimple.pas" />
     <DCCReference Include="i_ImageResamplerConfig.pas" />
     <DCCReference Include="i_ImageResamplerFactory.pas" />
     <DCCReference Include="i_ImportConfig.pas" />
@@ -600,6 +601,7 @@
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="u_GUIDListStatic.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
+    <DCCReference Include="u_IdCacheSimpleThreadSafe.pas" />
     <DCCReference Include="u_IeEmbeddedProtocol.pas" />
     <DCCReference Include="u_IeEmbeddedProtocolFactory.pas" />
     <DCCReference Include="u_IeEmbeddedProtocolRegistration.pas" />
