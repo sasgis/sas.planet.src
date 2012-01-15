@@ -372,6 +372,7 @@ var
  XYRect:TRect;
  ViLat, ViLon : integer;
  VcoordError: boolean;
+ temp_string :string;
 begin
 result :=true;
 vCounter:=0;
@@ -642,21 +643,23 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
 
        VcoordError := false;
        VDLon := 1;
-
+       temp_string := '';
        if PosEx('--', V2Search, 1)>0 then  V2Search := copy(V2Search,PosEx('--', V2Search, 1)+2,length(V2Search)-PosEx('--', V2Search, 1));
-       if copy(V2Search,length(V2Search)-3,1)='.' then V2Search := copy(V2Search,1,length(V2Search)-4); // убираем расширение
+       if copy(V2Search,length(V2Search)-3,1)='.' then V2Search := copy(V2Search,1,length(V2Search)-4); // убираем расширение и 3 последние бкувы
+       V2Search := ReplaceStr(V2Search,'_','-');
 
-       slon := copy(V2Search,1,1); // ПЕРВОЕ ПОЛЕ
-       if slon[1]='X' then begin
-          slon := copy(V2Search,2,1);
+       temp_string := copy(V2Search,1,1); // ПЕРВОЕ ПОЛЕ
+       if temp_string[1]='X' then begin
+          temp_string := copy(V2Search,2,1);
           VDLon := -1;
           V2Search := copy(V2Search,2,length(V2Search)-1);
+          sname := temp_string;
           end;
+       sname := sname + temp_string;
        V2Search := copy(V2Search,2,length(V2Search)-1); // убрали первую букву (или две)
-       if (slon[1]>='A') and (slon[1]<='U') then
-            VDlon := VDlon*(ord(slon[1])-64)*4 -2 else VcoordError := true;
+       if (temp_string[1]>='A') and (temp_string[1]<='U') then
+            VDlon := VDlon*(ord(temp_string[1])-64)*4 -2 else VcoordError := true;
        if copy(V2Search,1,1)='-' then  V2Search := copy(V2Search,2,length(V2Search)-1); // убрали "-" если он был между разделителми
-
 
        if VcoordError=false then begin // ВТОРОЕ ПОЛЕ
          i := PosEx('-', V2Search, 1);
@@ -664,63 +667,170 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
          if length(v2search)>3 then VcoordError := true else begin
             i:=length(v2search)+1;
             end;
+
          if VcoordError=false then begin
            slat := copy(V2Search,1,i-1);
            VDLat := strtoint(slat)*6 - 180 -3;
-         end
-       end;
-       V2Search := copy(V2Search,i,length(V2Search)-i);
+           sname := sname + '-' + slat;
+         end;
+       V2Search := copy(V2Search,i,length(V2Search)-i+1);
        if length(V2Search)>0 then
          if copy(V2Search,1,1)='-' then  V2Search := copy(V2Search,2,length(V2Search)-1);
+       end; // ВТОРОЕ ПОЛЕ
 
 
-//       if VcoordError=false then // ТРЕТЬЕ ПОЛЕ
-//       if length(V2Search)>0 then begin
-//
-//        V2Search := ReplaceStr(V2Search,'А','A');
-//        V2Search := ReplaceStr(V2Search,'Б','B');
-//        V2Search := ReplaceStr(V2Search,'В','C');
-//        V2Search := ReplaceStr(V2Search,'Г','D');
-//
-//        if (PosEx('X', V2Search, 1)>0)or(PosEx('I', V2Search, 1)>0)or(PosEx('V', V2Search, 1)>0) then begin // 2 km
-//         i := PosEx('-', V2Search, 1);
-//
-//        end;
-//
-//
-//       end;
-// k-37-abcd\абвг (5км)
-// k-37-XVI (2км)
-// k-37-69
-// vdlat := RomanToDig('xxxV');
+       if VcoordError=false then // ТРЕТЬЕ ПОЛЕ
+       if length(V2Search)>0 then begin
+        V2Search := ReplaceStr(V2Search,'А','A');
+        V2Search := ReplaceStr(V2Search,'Б','B');
+        V2Search := ReplaceStr(V2Search,'В','C');
+        V2Search := ReplaceStr(V2Search,'Г','D');
+         i := PosEx('-', V2Search, 1);
+         if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
+         temp_string := copy(V2Search,1,i-1);
+
+        if (temp_string[1]>='A') and (temp_string[1]<='D') then begin // 5 km
+        case temp_string[1] of
+         'A' : begin VDLat := VDLat -1.5; VDLon := VDLon +1 end;
+         'B' : begin VDLat := VDLat +1.5; VDLon := VDLon +1 end;
+         'C' : begin VDLat := VDLat -1.5; VDLon := VDLon -1 end;
+         'D' : begin VDLat := VDLat +1.5; VDLon := VDLon -1 end;
+        end;
+        sname := sname +'-'+ temp_string;
+        temp_string := '';
+        V2Search := ''; // по идее всё - дальше не учитываем стираем остатки.
+        end;
+
+        if V2Search<>'' then
+        if VcoordError = false then
+         if (PosEx('X', temp_string, 1)>0)or(PosEx('I', temp_string, 1)>0)or(PosEx('V', temp_string, 1)>0) then begin // 2 km
+          j := RomanToDig(temp_string);
+          if j<=36 then begin
+           VDLon := VDLon + ((((3-((j-1) div 6)-1)*2)+1)/6)*2;  //Y
+           VDLat := VDLat - ((((3-((j-1) mod 6)-1)*2)+1)/6)*3;  //X
+           V2Search := ''; // по идее всё - дальше не учитываем стираем остатки.
+           sname := sname +'-'+ temp_string;
+          end else VcoordError := true;
+         end;
+
+        if V2Search<>'' then
+        if VcoordError = false then
+         if ''= RegExprReplaceMatchSubStr(temp_string,'[0-9]','') then// 1 km
+         begin
+         j := strtoint(temp_string);
+          if j<=144 then begin
+           VDLon := VDLon + ((((6-((j-1) div 12)-1)*2)+1)/12)*2;  //Y
+           VDLat := VDLat - ((((6-((j-1) mod 12)-1)*2)+1)/12)*3;  //X
+           sname := sname +'-'+ temp_string;
+          end else VcoordError := true;
+         end;
+
+       V2Search := copy(V2Search,i,length(V2Search)-i+1);
+       if length(V2Search)>0 then
+         if copy(V2Search,1,1)='-' then  V2Search := copy(V2Search,2,length(V2Search)-1);
+       end;// ТРЕТЬЕ ПОЛЕ
+
+       // L-37-143-А.jpg
+       if V2Search<>'' then
+       if VcoordError=false then // ЧЕТВЕРТОЕ ПОЛЕ
+        if length(V2Search)>0 then begin
+         i := PosEx('-', V2Search, 1);
+         if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
+         V2Search := ReplaceStr(V2Search,'А','A');
+         V2Search := ReplaceStr(V2Search,'Б','B');
+         V2Search := ReplaceStr(V2Search,'В','C');
+         V2Search := ReplaceStr(V2Search,'Г','D');
+         temp_string := copy(V2Search,1,i-1);
+
+        if (temp_string[1]>='A') and (temp_string[1]<='D') then begin
+        case temp_string[1] of
+         'A' : begin VDLat := VDLat -1/8; VDLon := VDLon +1/12 end;
+         'B' : begin VDLat := VDLat +1/8; VDLon := VDLon +1/12 end;
+         'C' : begin VDLat := VDLat -1/8; VDLon := VDLon -1/12 end;
+         'D' : begin VDLat := VDLat +1/8; VDLon := VDLon -1/12 end;
+         end;
+        end;
+
+        sname := sname +'-'+ temp_string;
+        V2Search := copy(V2Search,i,length(V2Search)-i+1);
+        if length(V2Search)>0 then
+         if copy(V2Search,1,1)='-' then  V2Search := copy(V2Search,2,length(V2Search)-1);
+       end; // ЧЕТВЕРТОЕ ПОЛЕ
+
+       // L-37-143-А-б.jpg
+       if V2Search<>'' then
+       if VcoordError=false then // ПЯТОЕ ПОЛЕ
+        if length(V2Search)>0 then begin
+         i := PosEx('-', V2Search, 1);
+         if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
+         V2Search := ReplaceStr(V2Search,'А','A');
+         V2Search := ReplaceStr(V2Search,'Б','B');
+         V2Search := ReplaceStr(V2Search,'В','C');
+         V2Search := ReplaceStr(V2Search,'Г','D');
+         temp_string := copy(V2Search,1,i-1);
+
+        if (temp_string[1]>='A') and (temp_string[1]<='D') then begin
+        case temp_string[1] of
+         'A' : begin VDLat := VDLat -1/16; VDLon := VDLon +1/24 end;
+         'B' : begin VDLat := VDLat +1/16; VDLon := VDLon +1/24 end;
+         'C' : begin VDLat := VDLat -1/16; VDLon := VDLon -1/24 end;
+         'D' : begin VDLat := VDLat +1/16; VDLon := VDLon -1/24 end;
+         end;
+        end;
+
+        sname := sname +'-'+ temp_string;
+        V2Search := copy(V2Search,i,length(V2Search)-i+1);
+        if length(V2Search)>0 then
+         if copy(V2Search,1,1)='-' then  V2Search := copy(V2Search,2,length(V2Search)-1);
+       end; // ПЯТОЕ ПОЛЕ
 
 
+       // L-37-143-А-б-1.jpg
+       if V2Search<>'' then
+       if VcoordError=false then // ШЕСТОЕ ПОЛЕ
+        if length(V2Search)>0 then begin
+         i := PosEx('-', V2Search, 1);
+         if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
+         V2Search := ReplaceStr(V2Search,'1','A');
+         V2Search := ReplaceStr(V2Search,'2','B');
+         V2Search := ReplaceStr(V2Search,'3','C');
+         V2Search := ReplaceStr(V2Search,'4','D');
+         V2Search := ReplaceStr(V2Search,'А','A');
+         V2Search := ReplaceStr(V2Search,'Б','B');
+         V2Search := ReplaceStr(V2Search,'В','C');
+         V2Search := ReplaceStr(V2Search,'Г','D');
+         temp_string := copy(V2Search,1,i-1);
 
-  if VcoordError=false then begin
+        if (temp_string[1]>='A') and (temp_string[1]<='D') then begin
+        case temp_string[1] of
+         'A' : begin VDLat := VDLat -1/32; VDLon := VDLon +1/48 end;
+         'B' : begin VDLat := VDLat +1/32; VDLon := VDLon +1/48 end;
+         'C' : begin VDLat := VDLat -1/32; VDLon := VDLon -1/48 end;
+         'D' : begin VDLat := VDLat +1/32; VDLon := VDLon -1/48 end;
+         end;
+        end;
 
-      VPoint.Y:=VDLon;
-      VPoint.X:=VDLat;
-      if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
-      sname := '';
-      if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
-        sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-        sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
-      VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-      AList.Add(VPlace);
-      end;
-  end;
+        sname := sname +'-'+ temp_string;
+        V2Search := copy(V2Search,i,length(V2Search)-i+1);
+        if length(V2Search)>0 then
+         if copy(V2Search,1,1)='-' then  V2Search := copy(V2Search,2,length(V2Search)-1);
+       end; // ШЕСТОЕ ПОЛЕ
 
+       if VcoordError=false then begin // добавляем таки точку если всё ок
+         VPoint.Y:=VDLon;
+         VPoint.X:=VDLat;
+         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+            sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+            sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          AList.Add(VPlace);
+          end;
+         end;
 
-
-
-
-
-
-
-       
-
-      end;
-     end else
+      end //0 пробелов  и не диск\сеть  и не Генштаб
+  end
+   else
      if i=2 then begin // 2 пробела
 
      end;
@@ -926,7 +1036,7 @@ begin
   sfulldesc := ASearch;
  end else
  if (PosEx('maps.yandex.ru/-/', Vlink, 1) > 0 )or
-    (PosEx('maps.yandex.ru/?oid=', Vlink, 1) > 0 ) then begin 
+    (PosEx('maps.yandex.ru/?oid=', Vlink, 1) > 0 ) then begin
   Vlink := ReplaceStr(astr,'''','');
   sname := 'yandex';
   i := PosEx('{ll:', Vlink, 1);
