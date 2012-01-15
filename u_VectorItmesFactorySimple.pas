@@ -209,6 +209,8 @@ type
     function GetLocalConverter: ILocalCoordConverter;
     function GetBounds: TDoubleRect;
     function GetCount: Integer;
+    function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
 
     function ILonLatPath.GetEnum = GetEnumLonLat;
     function ILonLatPolygon.GetEnum = GetEnumLonLat;
@@ -306,6 +308,17 @@ end;
 function TLineSetEmpty.GetProjection: IProjectionInfo;
 begin
   Result := nil;
+end;
+
+function TLineSetEmpty.IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+begin
+  Result := False;
+end;
+
+function TLineSetEmpty.IsPointOnPath(APoint: TDoublePoint;
+  ADist: Double): Boolean;
+begin
+  Result := False;
 end;
 
 { TVectorItmesFactorySimple }

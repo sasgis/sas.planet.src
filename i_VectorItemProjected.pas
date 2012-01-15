@@ -15,6 +15,8 @@ type
     function GetProjection: IProjectionInfo;
     property Projection: IProjectionInfo read GetProjection;
 
+    function IsPointOnPath(const APoint: TDoublePoint; ADist: Double): Boolean;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
@@ -28,6 +30,8 @@ type
 
     function GetProjection: IProjectionInfo;
     property Projection: IProjectionInfo read GetProjection;
+
+    function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -43,6 +47,8 @@ type
     function GetProjection: IProjectionInfo;
     property Projection: IProjectionInfo read GetProjection;
 
+    function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
@@ -56,6 +62,8 @@ type
 
     function GetProjection: IProjectionInfo;
     property Projection: IProjectionInfo read GetProjection;
+
+    function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;

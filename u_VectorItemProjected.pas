@@ -27,12 +27,14 @@ type
   TProjectedPath = class(TProjectedLineSet, IProjectedPath)
   private
     function GetEnum: IEnumProjectedPoint;
+    function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
     function GetItem(AIndex: Integer): IProjectedPathLine;
   end;
 
   TProjectedPolygon = class(TProjectedLineSet, IProjectedPolygon)
   private
     function GetEnum: IEnumProjectedPoint;
+    function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   end;
 
@@ -43,6 +45,7 @@ type
     function GetProjection: IProjectionInfo;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
+    function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
     function GetItem(AIndex: Integer): IProjectedPathLine;
   public
     constructor Create(
@@ -57,6 +60,7 @@ type
     function GetProjection: IProjectionInfo;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
+    function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   public
     constructor Create(
@@ -103,6 +107,22 @@ begin
   end;
 end;
 
+function TProjectedPath.IsPointOnPath(APoint: TDoublePoint;
+  ADist: Double): Boolean;
+var
+  i: Integer;
+  VLine: IProjectedPathLine;
+begin
+  Result := False;
+  for i := 0 to FList.Count - 1 do begin
+    VLine := GetItem(i);
+    if VLine.IsPointOnPath(APoint, ADist) then begin
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
 { TProjectedPolygon }
 
 function TProjectedPolygon.GetEnum: IEnumProjectedPoint;
@@ -114,6 +134,22 @@ function TProjectedPolygon.GetItem(AIndex: Integer): IProjectedPolygonLine;
 begin
   if not Supports(FList[AIndex], IProjectedPolygonLine, Result) then begin
     Result := nil;
+  end;
+end;
+
+function TProjectedPolygon.IsPointInPolygon(
+  const APoint: TDoublePoint): Boolean;
+var
+  i: Integer;
+  VLine: IProjectedPolygonLine;
+begin
+  Result := False;
+  for i := 0 to FList.Count - 1 do begin
+    VLine := GetItem(i);
+    if VLine.IsPointInPolygon(APoint) then begin
+      Result := True;
+      Break;
+    end;
   end;
 end;
 
@@ -148,6 +184,12 @@ begin
   Result := FLine.Projection;
 end;
 
+function TProjectedPathOneLine.IsPointOnPath(APoint: TDoublePoint;
+  ADist: Double): Boolean;
+begin
+  Result := FLine.IsPointOnPath(APoint, ADist);
+end;
+
 { TProjectedPolygonOneLine }
 
 constructor TProjectedPolygonOneLine.Create(ALine: IProjectedPolygonLine);
@@ -178,6 +220,12 @@ end;
 function TProjectedPolygonOneLine.GetProjection: IProjectionInfo;
 begin
   Result := FLine.Projection;
+end;
+
+function TProjectedPolygonOneLine.IsPointInPolygon(
+  const APoint: TDoublePoint): Boolean;
+begin
+  Result := FLine.IsPointInPolygon(APoint);
 end;
 
 end.

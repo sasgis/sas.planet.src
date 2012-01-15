@@ -30,6 +30,7 @@ type
   TProjectedPathLine = class(TProjectedLineBase, IProjectedPathLine)
   private
     function GetEnum: IEnumProjectedPoint;
+    function IsPointOnPath(const APoint: TDoublePoint; ADist: Double): Boolean;
   public
     constructor Create(
       AProjection: IProjectionInfo;
@@ -41,6 +42,7 @@ type
   TProjectedPolygonLine = class(TProjectedLineBase, IProjectedPolygonLine)
   private
     function GetEnum: IEnumProjectedPoint;
+    function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
   public
     constructor Create(
       AProjection: IProjectionInfo;
@@ -103,6 +105,50 @@ begin
   Result := TEnumDoublePointBySingleProjectedLine.Create(Self, False, @FPoints[0], FCount);
 end;
 
+function TProjectedPathLine.IsPointOnPath(
+  const APoint: TDoublePoint;
+  ADist: Double
+): Boolean;
+var
+  i: Integer;
+  VCurrPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VVectorW: TDoublePoint;
+  VVectorV: TDoublePoint;
+  C1: Double;
+  C2: Double;
+  B: Double;
+  VVectorDist: TDoublePoint;
+  VDistSQR: Double;
+begin
+  Result := False;
+  if FCount > 1 then begin
+    VDistSQR := ADist * ADist;
+    VCurrPoint := FPoints[0];
+    for i := 1 to FCount - 1 do begin
+      VPrevPoint := VCurrPoint;
+      VCurrPoint := FPoints[i];
+      VVectorW.X := APoint.X - VPrevPoint.X;
+      VVectorW.Y := APoint.Y - VPrevPoint.Y;
+      VVectorV.X := VCurrPoint.X - VPrevPoint.X;
+      VVectorV.Y := VCurrPoint.Y - VPrevPoint.Y;
+      C1 := VVectorW.X * VVectorV.X + VVectorW.Y * VVectorV.Y;
+      if C1 > 0 then begin
+        C2 := VVectorV.X * VVectorV.X + VVectorV.Y * VVectorV.Y;
+        if C2 > C1 then begin
+          B := C1 / C2;
+          VVectorDist.X := VVectorW.X - B * VVectorV.X;
+          VVectorDist.Y := VVectorW.Y - B * VVectorV.Y;
+          if (VVectorDist.X * VVectorDist.X + VVectorDist.Y * VVectorDist.Y) < VDistSQR then begin
+            Result := True;
+            Break;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
 { TProjectedPolygonLine }
 
 constructor TProjectedPolygonLine.Create(AProjection: IProjectionInfo;
@@ -114,6 +160,29 @@ end;
 function TProjectedPolygonLine.GetEnum: IEnumProjectedPoint;
 begin
   Result := TEnumDoublePointBySingleProjectedLine.Create(Self, True, @FPoints[0], FCount);
+end;
+
+function TProjectedPolygonLine.IsPointInPolygon(
+  const APoint: TDoublePoint): Boolean;
+var
+  VEnum: IEnumDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VCurrPoint: TDoublePoint;
+begin
+  result:=false;
+  VEnum := GetEnum;
+  if VEnum.Next(VPrevPoint) then begin
+    while VEnum.Next(VCurrPoint) do begin
+      if
+        (((VCurrPoint.y<=APoint.y)and(APoint.y<VPrevPoint.y))or
+        ((VPrevPoint.y<=APoint.y)and(APoint.y<VCurrPoint.y)))and
+        (APoint.x>(VPrevPoint.x-VCurrPoint.x)*(APoint.y-VCurrPoint.y)/(VPrevPoint.y-VCurrPoint.y)+VCurrPoint.x)
+      then begin
+        result:=not(result);
+      end;
+      VPrevPoint := VCurrPoint;
+    end;
+  end;
 end;
 
 end.
