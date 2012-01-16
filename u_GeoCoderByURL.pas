@@ -589,10 +589,10 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
        vZoom := strtoint(slat);
        if  PosEx('.SDB', V2Search, 1)>0 then begin   // G:\GoogleMV\cache_db\Nokia.Map.Creator.sat\z15\9\5\38.23.sdb\x9961y5888.jpg
          i := PosEx('\X', V2Search, j); // X значение
-         j := PosEx('Y', V2Search, i+1);
+         j := PosEx('\', V2Search, i+1);
          slon := Copy(V2Search, i + 2, j - (i + 2));
          Vilon := strtoint(slon);
-         i := j;
+         i := j+1;
          j := PosEx('.', V2Search, i+1);
          slat := Copy(V2Search, i + 1, j - (i + 1));
          Vilat :=  strtoint(slat);
@@ -627,7 +627,7 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
        XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
        VPoint := VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
-        inc(Vcounter);sname := inttostr(vcounter)+'.) '+astr;
+        sname := astr;
         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
           sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
