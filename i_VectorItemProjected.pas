@@ -32,6 +32,7 @@ type
     property Projection: IProjectionInfo read GetProjection;
 
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
     function CalcArea: Double;
 
     function GetCount: Integer;
@@ -65,6 +66,7 @@ type
     property Projection: IProjectionInfo read GetProjection;
 
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
     function CalcArea: Double;
 
     function GetCount: Integer;

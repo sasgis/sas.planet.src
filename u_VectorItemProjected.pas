@@ -35,6 +35,7 @@ type
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   end;
@@ -62,6 +63,7 @@ type
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   public
@@ -167,6 +169,22 @@ begin
   end;
 end;
 
+function TProjectedPolygon.IsPointOnBorder(APoint: TDoublePoint;
+  ADist: Double): Boolean;
+var
+  i: Integer;
+  VLine: IProjectedPolygonLine;
+begin
+  Result := False;
+  for i := 0 to FList.Count - 1 do begin
+    VLine := GetItem(i);
+    if VLine.IsPointOnBorder(APoint, ADist) then begin
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
 { TProjectedPathOneLine }
 
 constructor TProjectedPathOneLine.Create(ALine: IProjectedPathLine);
@@ -245,6 +263,12 @@ function TProjectedPolygonOneLine.IsPointInPolygon(
   const APoint: TDoublePoint): Boolean;
 begin
   Result := FLine.IsPointInPolygon(APoint);
+end;
+
+function TProjectedPolygonOneLine.IsPointOnBorder(APoint: TDoublePoint;
+  ADist: Double): Boolean;
+begin
+  Result := FLine.IsPointOnBorder(APoint, ADist);
 end;
 
 end.

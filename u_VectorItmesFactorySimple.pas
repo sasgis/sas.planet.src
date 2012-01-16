@@ -68,6 +68,11 @@ type
       ARect: TDoubleRect
     ): IProjectedPolygon;
 
+    function CreateLonLatPolygonByLonLatPathAndFilter(
+      ASource: ILonLatPath;
+      AFilter: ILonLatPointFilter
+    ): ILonLatPolygon;
+
     function CreateProjectedPathByEnum(
       AProjection: IProjectionInfo;
       AEnum: IEnumProjectedPoint;
@@ -168,186 +173,10 @@ uses
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterFirstSegment,
   u_EnumDoublePointFilterEqual,
+  u_VectorItemEmpty,
   u_VectorItemLonLat,
   u_VectorItemProjected,
   u_VectorItemLocal;
-
-{ TEnumDoublePointEmpty }
-
-type
-  TEnumDoublePointEmpty = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint, IEnumProjectedPoint, IEnumLocalPoint)
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
-  end;
-
-function TEnumDoublePointEmpty.Next(out APoint: TDoublePoint): Boolean;
-begin
-  APoint := CEmptyDoublePoint;
-  Result := False;
-end;
-
-{ TLineSetEmpty }
-type
-  TLineSetEmpty = class(TInterfacedObject, ILonLatPath, ILonLatPolygon, IProjectedPath, IProjectedPolygon, ILocalPath, ILocalPolygon)
-  private
-    FBounds: TDoubleRect;
-    FEnumLonLat: IEnumLonLatPoint;
-    FEnumProjected: IEnumProjectedPoint;
-    FEnumLocal: IEnumLocalPoint;
-  private
-    function GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;
-    function GetItemLonLatPolygonLine(AIndex: Integer): ILonLatPolygonLine;
-    function GetItemProjectedPathLine(AIndex: Integer): IProjectedPathLine;
-    function GetItemProjectedPolygonLine(AIndex: Integer): IProjectedPolygonLine;
-    function GetItemLocalPathLine(AIndex: Integer): ILocalPathLine;
-    function GetItemLocalPolygonLine(AIndex: Integer): ILocalPolygonLine;
-
-    function GetEnumLonLat: IEnumLonLatPoint;
-    function GetEnumProjected: IEnumProjectedPoint;
-    function GetEnumLocal: IEnumLocalPoint;
-    function CalcAreaLonLat(ADatum: IDatum): Double;
-    function CalcAreaProjected: Double;
-  private
-    function GetProjection: IProjectionInfo;
-    function GetLocalConverter: ILocalCoordConverter;
-    function GetBounds: TDoubleRect;
-    function GetCount: Integer;
-    function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
-    function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
-    function CalcLength(ADatum: IDatum): Double;
-    function CalcPerimeter(ADatum: IDatum): Double;
-
-    function ILonLatPolygon.CalcArea = CalcAreaLonLat;
-    function IProjectedPolygon.CalcArea = CalcAreaProjected;
-
-    function ILonLatPath.GetEnum = GetEnumLonLat;
-    function ILonLatPolygon.GetEnum = GetEnumLonLat;
-    function IProjectedPath.GetEnum = GetEnumProjected;
-    function IProjectedPolygon.GetEnum = GetEnumProjected;
-    function ILocalPath.GetEnum = GetEnumLocal;
-    function ILocalPolygon.GetEnum = GetEnumLocal;
-
-    function ILonLatPath.GetItem = GetItemLonLatPathLine;
-    function ILonLatPolygon.GetItem = GetItemLonLatPolygonLine;
-    function IProjectedPath.GetItem = GetItemProjectedPathLine;
-    function IProjectedPolygon.GetItem = GetItemProjectedPolygonLine;
-    function ILocalPath.GetItem = GetItemLocalPathLine;
-    function ILocalPolygon.GetItem = GetItemLocalPolygonLine;
-  public
-    constructor Create();
-  end;
-
-constructor TLineSetEmpty.Create;
-var
-  VEnum: TEnumDoublePointEmpty;
-begin
-  VEnum := TEnumDoublePointEmpty.Create;
-  FEnumLonLat := VEnum;
-  FEnumProjected := VEnum;
-  FEnumLocal := VEnum;
-  FBounds.TopLeft := CEmptyDoublePoint;
-  FBounds.BottomRight := CEmptyDoublePoint;
-end;
-
-function TLineSetEmpty.CalcAreaLonLat(ADatum: IDatum): Double;
-begin
-  Result := 0;
-end;
-
-function TLineSetEmpty.CalcAreaProjected: Double;
-begin
-  Result := 0;
-end;
-
-function TLineSetEmpty.CalcLength(ADatum: IDatum): Double;
-begin
-  Result := 0;
-end;
-
-function TLineSetEmpty.CalcPerimeter(ADatum: IDatum): Double;
-begin
-  Result := 0;
-end;
-
-function TLineSetEmpty.GetBounds: TDoubleRect;
-begin
-  Result := FBounds;
-end;
-
-function TLineSetEmpty.GetCount: Integer;
-begin
-  Result := 0;
-end;
-
-function TLineSetEmpty.GetEnumLocal: IEnumLocalPoint;
-begin
-  Result := FEnumLocal;
-end;
-
-function TLineSetEmpty.GetEnumLonLat: IEnumLonLatPoint;
-begin
-  Result := FEnumLonLat;
-end;
-
-function TLineSetEmpty.GetEnumProjected: IEnumProjectedPoint;
-begin
-  Result := FEnumProjected;
-end;
-
-function TLineSetEmpty.GetItemLocalPathLine(AIndex: Integer): ILocalPathLine;
-begin
-  Result := nil;
-end;
-
-function TLineSetEmpty.GetItemLocalPolygonLine(
-  AIndex: Integer): ILocalPolygonLine;
-begin
-  Result := nil;
-end;
-
-function TLineSetEmpty.GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;
-begin
-  Result := nil;
-end;
-
-function TLineSetEmpty.GetItemLonLatPolygonLine(
-  AIndex: Integer): ILonLatPolygonLine;
-begin
-  Result := nil;
-end;
-
-function TLineSetEmpty.GetItemProjectedPathLine(
-  AIndex: Integer): IProjectedPathLine;
-begin
-  Result := nil;
-end;
-
-function TLineSetEmpty.GetItemProjectedPolygonLine(
-  AIndex: Integer): IProjectedPolygonLine;
-begin
-  Result := nil;
-end;
-
-function TLineSetEmpty.GetLocalConverter: ILocalCoordConverter;
-begin
-  Result := nil;
-end;
-
-function TLineSetEmpty.GetProjection: IProjectionInfo;
-begin
-  Result := nil;
-end;
-
-function TLineSetEmpty.IsPointInPolygon(const APoint: TDoublePoint): Boolean;
-begin
-  Result := False;
-end;
-
-function TLineSetEmpty.IsPointOnPath(APoint: TDoublePoint;
-  ADist: Double): Boolean;
-begin
-  Result := False;
-end;
 
 { TVectorItmesFactorySimple }
 
@@ -717,6 +546,55 @@ begin
       VBounds := VLine.Bounds;
     end;
     Inc(VLineCount);
+  end;
+  if VLineCount = 0 then begin
+    Result := FEmptyLonLatPolygon;
+  end else if VLineCount = 1 then begin
+    Result := TLonLatPolygonOneLine.Create(VLine);
+  end else begin
+    VList.Add(VLine);
+    Result := TLonLatPolygon.Create(VBounds, VList);
+  end;
+end;
+
+function TVectorItmesFactorySimple.CreateLonLatPolygonByLonLatPathAndFilter(
+  ASource: ILonLatPath;
+  AFilter: ILonLatPointFilter
+): ILonLatPolygon;
+var
+  i: Integer;
+  VLine: ILonLatPolygonLine;
+  VEnum: IEnumLonLatPoint;
+  VTemp: IDoublePointsAggregator;
+  VPoint: TDoublePoint;
+  VLineCount: Integer;
+  VList: IInterfaceList;
+  VBounds: TDoubleRect;
+begin
+  VLineCount := 0;
+  VTemp := TDoublePointsAggregator.Create;
+  for i := 0 to ASource.Count - 1 do begin
+    VEnum := AFilter.CreateFilteredEnum(ASource.Item[i].GetEnum);
+    while VEnum.Next(VPoint) do begin
+      VTemp.Add(VPoint);
+    end;
+    if VTemp.Count > 0 then begin
+      if VLineCount > 0 then begin
+        if VLineCount = 1 then begin
+          VList := TInterfaceList.Create;
+        end;
+        VList.Add(VLine);
+        VLine := nil;
+      end;
+      VLine := TLonLatPolygonLine.Create(VTemp.Points, VTemp.Count);
+      if VLineCount > 0 then begin
+        VBounds := UnionLonLatRects(VBounds, VLine.Bounds);
+      end else begin
+        VBounds := VLine.Bounds;
+      end;
+      Inc(VLineCount);
+      VTemp.Clear;
+    end;
   end;
   if VLineCount = 0 then begin
     Result := FEmptyLonLatPolygon;

@@ -55,6 +55,11 @@ type
       ARect: TDoubleRect
     ): IProjectedPolygon;
 
+    function CreateLonLatPolygonByLonLatPathAndFilter(
+      ASource: ILonLatPath;
+      AFilter: ILonLatPointFilter
+    ): ILonLatPolygon;
+
     function CreateProjectedPathByEnum(
       AProjection: IProjectionInfo;
       AEnum: IEnumProjectedPoint;

@@ -159,6 +159,7 @@ uses
   u_EnumDoublePointByLineSet in 'u_EnumDoublePointByLineSet.pas',
   u_LonLatSingleLine in 'u_LonLatSingleLine.pas',
   u_ProjectedSingleLine in 'u_ProjectedSingleLine.pas',
+  u_VectorItemEmpty in 'u_VectorItemEmpty.pas',
   u_VectorItemLonLat in 'u_VectorItemLonLat.pas',
   u_VectorItemProjected in 'u_VectorItemProjected.pas',
   u_VectorItmesFactorySimple in 'u_VectorItmesFactorySimple.pas',
