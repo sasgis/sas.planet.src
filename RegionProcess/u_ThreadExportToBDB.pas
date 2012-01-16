@@ -138,7 +138,7 @@ begin
   CreateDirIfNotExists(VPath);
   VBDB := FBDBPool.Acquire(VPath);
   try
-    if Assigned(VBDB) and VBDB.Open(VPath, CPageSize, CCacheSize) then begin
+    if Assigned(VBDB) and VBDB.Open(nil, VPath, CPageSize, CCacheSize) then begin //TODO: DB_ENV
       VKey.TileX := AXY.X;
       VKey.TileY := AXY.Y;
       VExists := VBDB.Exists(@VKey, SizeOf(TBDBKey));

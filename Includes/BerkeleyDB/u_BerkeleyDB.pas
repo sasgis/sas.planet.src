@@ -25,7 +25,8 @@ interface
 uses
   SysUtils,
   SyncObjs,
-  db_h;
+  db_h,
+  u_BerkeleyDBEnv;
 
 const
   BDB_MIN_PAGE_SIZE : Cardinal  = $200;  //512 b
@@ -51,6 +52,7 @@ type
     destructor Destroy; override;
 
     function Open(
+      AEnv: TBerkeleyDBEnv;
       const AFileName: string;
       APageSize: Cardinal = BDB_DEF_PAGE_SIZE;
       AMemCacheSize: Cardinal = BDB_DEF_CACHE_SIZE;
@@ -95,25 +97,17 @@ type
 
 implementation
 
-var
-  LibInitCS: TCriticalSection = nil;
-
 { TBerkeleyDB }
 
 constructor TBerkeleyDB.Create;
 begin
   inherited Create;
+  InitBerkeleyDB;
   FCS := TCriticalSection.Create;
   FFileName := '';
   FDB := nil;
   FDBEnabled := False;
   FSyncAllow := False;
-  LibInitCS.Acquire;
-  try
-    InitBerkeleyDB;
-  finally
-    LibInitCS.Release;
-  end;
 end;
 
 destructor TBerkeleyDB.Destroy;
@@ -124,12 +118,16 @@ begin
 end;
 
 function TBerkeleyDB.Open(
+  AEnv: TBerkeleyDBEnv;
   const AFileName: string;
   APageSize: Cardinal = BDB_DEF_PAGE_SIZE;
   AMemCacheSize: Cardinal = BDB_DEF_CACHE_SIZE;
   ADBType: DBTYPE = DB_BTREE;
   AFlags: Cardinal = DB_CREATE_
 ): Boolean;
+var
+  VRelativePath: string;
+  VEnv: PDB_ENV;
 begin
   FCS.Acquire;
   try
@@ -141,8 +139,14 @@ begin
       end;
     end else begin
       FDBEnabled := False;
-      CheckBDB(db_create(FDB, nil, 0));
-      CheckBDB(FDB.set_alloc(FDB, @GetMemory, @ReallocMemory, @FreeMemory));
+      VEnv := AEnv.EnvPtr;
+      CheckBDB(db_create(FDB, VEnv, 0));
+      if VEnv <> nil then begin
+        VRelativePath := StringReplace(AFileName, AEnv.EnvRootPath, '', [rfIgnoreCase]);
+      end else begin
+        VRelativePath := AFileName;
+        CheckBDB(FDB.set_alloc(FDB, @GetMemory, @ReallocMemory, @FreeMemory));
+      end;
       if not FileExists(FFileName) and
          (APageSize <> Cardinal(BDB_DEF_PAGE_SIZE)) then
       begin
@@ -151,7 +155,18 @@ begin
       if AMemCacheSize <> Cardinal(BDB_DEF_CACHE_SIZE) then begin
         CheckBDB(FDB.set_cachesize(FDB, 0, AMemCacheSize, 0));
       end;
-      CheckBDB(FDB.open(FDB, nil, PAnsiChar(AFileName), '', ADBType, AFlags, 0));
+      FDB.set_errpfx(FDB, 'BerkeleyDB');
+      CheckBDB(
+        FDB.open(
+          FDB,
+          nil,
+          PAnsiChar(VRelativePath),
+          '',
+          ADBType,
+          AFlags or DB_AUTO_COMMIT,
+          0
+         )
+      );
       FDBEnabled := True;
       Result := FDBEnabled;
     end;
@@ -291,12 +306,6 @@ begin
     FCS.Release;
   end;
 end;
-
-initialization
-  LibInitCS := TCriticalSection.Create;
-
-finalization
-  LibInitCS.Free;
 
 end.
 
