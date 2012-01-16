@@ -38,6 +38,7 @@ type
   public
     constructor Create(const AEnvRootPath: string);
     destructor Destroy; override;
+    procedure RemoveUnUsedLogs;
     property EnvPtr: PDB_ENV read GetEnv;
     property EnvRootPath: string read FEnvRootPath;
   end;
@@ -116,6 +117,21 @@ begin
     FActive := True;
   end;
   Result := FActive;
+end;
+
+procedure TBerkeleyDBEnv.RemoveUnUsedLogs;
+begin
+  FCS.Acquire;
+  try  
+    if FActive then begin
+      // Удаляя таким образом логи, мы автоматически лишаемся 
+      // возможности catastrophic restore.
+      // По хорошему, логи нужно складывать в бэкап архив.
+      CheckBDB(FEnv.log_archive(FEnv, nil, DB_ARCH_REMOVE));
+    end;
+  finally
+    FCS.Release;
+  end;
 end;
 
 function TBerkeleyDBEnv.GetEnv: PDB_ENV;

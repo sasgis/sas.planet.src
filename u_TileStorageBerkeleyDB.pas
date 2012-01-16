@@ -266,6 +266,7 @@ end;
 procedure TTileStorageBerkeleyDB.Sync(Sender: TObject);
 begin
   FBDBPool.Sync;
+  FBDBEnv.RemoveUnUsedLogs;
 end;
 
 procedure TTileStorageBerkeleyDB.CreateDirIfNotExists(APath: string);
