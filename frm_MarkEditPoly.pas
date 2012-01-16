@@ -148,7 +148,7 @@ begin
         chkVisible.Checked,
         frMarkCategory.GetCategory,
         frMarkDescription.Description,
-        AMark.Points,
+        AMark.Line,
         SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
         SetAlpha(Color32(clrbxFillColor.Selected),round(((100-seFillTransp.Value)/100)*256)),
         seLineWidth.Value

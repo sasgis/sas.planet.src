@@ -5,6 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
+  i_Datum,
   i_VectorItemLonLat;
 
 type
@@ -34,6 +35,7 @@ type
   TLonLatPathLine = class(TLonLatLineBase, ILonLatPathLine)
   private
     function GetEnum: IEnumLonLatPoint;
+    function CalcLength(ADatum: IDatum): Double;
   public
     constructor Create(
       APoints: PDoublePointArray;
@@ -44,6 +46,8 @@ type
   TLonLatPolygonLine = class(TLonLatLineBase, ILonLatPolygonLine)
   private
     function GetEnum: IEnumLonLatPoint;
+    function CalcPerimeter(ADatum: IDatum): Double;
+    function CalcArea(ADatum: IDatum): Double;
   public
     constructor Create(
       APoints: PDoublePointArray;
@@ -123,6 +127,22 @@ end;
 
 { TLonLatPathLine }
 
+function TLonLatPathLine.CalcLength(ADatum: IDatum): Double;
+var
+  VEnum: IEnumLonLatPoint;
+  VPrevPoint: TDoublePoint;
+  VCurrPoint: TDoublePoint;
+begin
+  Result := 0;
+  VEnum := GetEnum;
+  if VEnum.Next(VPrevPoint) then begin
+    while VEnum.Next(VCurrPoint) do begin
+      Result := Result + ADatum.CalcDist(VPrevPoint, VCurrPoint);
+      VPrevPoint := VCurrPoint;
+    end;
+  end;
+end;
+
 constructor TLonLatPathLine.Create(APoints: PDoublePointArray; ACount: Integer);
 begin
   inherited Create(False, APoints, ACount);
@@ -134,6 +154,31 @@ begin
 end;
 
 { TLonLatPolygonLine }
+
+function TLonLatPolygonLine.CalcArea(ADatum: IDatum): Double;
+begin
+  if FCount < 3 then begin
+    Result := 0;
+  end else begin
+    Result := ADatum.CalcPoligonArea(@FPoints[0], FCount);
+  end;
+end;
+
+function TLonLatPolygonLine.CalcPerimeter(ADatum: IDatum): Double;
+var
+  VEnum: IEnumLonLatPoint;
+  VPrevPoint: TDoublePoint;
+  VCurrPoint: TDoublePoint;
+begin
+  Result := 0;
+  VEnum := GetEnum;
+  if VEnum.Next(VPrevPoint) then begin
+    while VEnum.Next(VCurrPoint) do begin
+      Result := Result + ADatum.CalcDist(VPrevPoint, VCurrPoint);
+      VPrevPoint := VCurrPoint;
+    end;
+  end;
+end;
 
 constructor TLonLatPolygonLine.Create(APoints: PDoublePointArray;
   ACount: Integer);

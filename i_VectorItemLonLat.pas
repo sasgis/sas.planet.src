@@ -4,7 +4,8 @@ interface
 
 uses
   t_GeoTypes,
-  i_EnumDoublePoint;
+  i_EnumDoublePoint,
+  i_Datum;
 
 type
   ILonLatPathLine = interface
@@ -13,6 +14,8 @@ type
 
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
+
+    function CalcLength(ADatum: IDatum): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -28,6 +31,9 @@ type
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
 
+    function CalcPerimeter(ADatum: IDatum): Double;
+    function CalcArea(ADatum: IDatum): Double;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
@@ -42,6 +48,8 @@ type
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
 
+    function CalcLength(ADatum: IDatum): Double;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
@@ -55,6 +63,9 @@ type
 
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
+
+    function CalcPerimeter(ADatum: IDatum): Double;
+    function CalcArea(ADatum: IDatum): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;

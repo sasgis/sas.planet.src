@@ -35,6 +35,7 @@ type
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   end;
 
@@ -61,6 +62,7 @@ type
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   public
     constructor Create(
@@ -124,6 +126,18 @@ begin
 end;
 
 { TProjectedPolygon }
+
+function TProjectedPolygon.CalcArea: Double;
+var
+  i: Integer;
+  VLine: IProjectedPolygonLine;
+begin
+  Result := 0;
+  for i := 0 to FList.Count - 1 do begin
+    VLine := GetItem(i);
+    Result := Result + VLine.CalcArea;
+  end;
+end;
 
 function TProjectedPolygon.GetEnum: IEnumProjectedPoint;
 begin
@@ -195,6 +209,11 @@ end;
 constructor TProjectedPolygonOneLine.Create(ALine: IProjectedPolygonLine);
 begin
   FLine := ALine;
+end;
+
+function TProjectedPolygonOneLine.CalcArea: Double;
+begin
+  Result := FLine.CalcArea;
 end;
 
 function TProjectedPolygonOneLine.GetCount: Integer;

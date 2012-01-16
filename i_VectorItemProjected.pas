@@ -32,6 +32,7 @@ type
     property Projection: IProjectionInfo read GetProjection;
 
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function CalcArea: Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -64,6 +65,7 @@ type
     property Projection: IProjectionInfo read GetProjection;
 
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function CalcArea: Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;

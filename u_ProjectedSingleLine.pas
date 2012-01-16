@@ -43,6 +43,7 @@ type
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function CalcArea: Double;
   public
     constructor Create(
       AProjection: IProjectionInfo;
@@ -150,6 +151,24 @@ begin
 end;
 
 { TProjectedPolygonLine }
+
+function TProjectedPolygonLine.CalcArea: Double;
+var
+  I, J, HP: Integer;
+  VEnum: IEnumProjectedPoint;
+  VPrevPoint: TDoublePoint;
+  VCurrPoint: TDoublePoint;
+begin
+  Result := 0;
+  VEnum := GetEnum;
+  if VEnum.Next(VPrevPoint) then begin
+    while VEnum.Next(VCurrPoint) do begin
+      Result := Result + (VPrevPoint.X + VCurrPoint.X) * (VPrevPoint.Y - VCurrPoint.Y);
+      VPrevPoint := VCurrPoint;
+    end;
+    Result := Abs(Result) / 2;
+  end;
+end;
 
 constructor TProjectedPolygonLine.Create(AProjection: IProjectionInfo;
   APoints: PDoublePointArray; ACount: Integer);

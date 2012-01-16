@@ -6,6 +6,7 @@ uses
   Classes,
   t_GeoTypes,
   i_EnumDoublePoint,
+  i_Datum,
   i_VectorItemLonLat;
 
 type
@@ -26,12 +27,15 @@ type
   TLonLatPath = class(TLonLatLineSet, ILonLatPath)
   private
     function GetEnum: IEnumLonLatPoint;
+    function CalcLength(ADatum: IDatum): Double;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   end;
 
   TLonLatPolygon = class(TLonLatLineSet, ILonLatPolygon)
   private
     function GetEnum: IEnumLonLatPoint;
+    function CalcPerimeter(ADatum: IDatum): Double;
+    function CalcArea(ADatum: IDatum): Double;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   end;
 
@@ -41,6 +45,7 @@ type
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
+    function CalcLength(ADatum: IDatum): Double;
     function GetBounds: TDoubleRect;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   public
@@ -55,6 +60,8 @@ type
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
+    function CalcPerimeter(ADatum: IDatum): Double;
+    function CalcArea(ADatum: IDatum): Double;
     function GetBounds: TDoubleRect;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
@@ -92,6 +99,16 @@ end;
 
 { TLonLatPath }
 
+function TLonLatPath.CalcLength(ADatum: IDatum): Double;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i:= 0 to  FList.Count - 1 do begin
+    Result := Result + GetItem(i).CalcLength(ADatum);
+  end;
+end;
+
 function TLonLatPath.GetEnum: IEnumLonLatPoint;
 begin
   Result := TEnumLonLatPointByPath.Create(Self);
@@ -106,6 +123,26 @@ end;
 
 { TLonLatPolygon }
 
+function TLonLatPolygon.CalcArea(ADatum: IDatum): Double;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i:= 0 to  FList.Count - 1 do begin
+    Result := Result + GetItem(i).CalcArea(ADatum);
+  end;
+end;
+
+function TLonLatPolygon.CalcPerimeter(ADatum: IDatum): Double;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i:= 0 to  FList.Count - 1 do begin
+    Result := Result + GetItem(i).CalcPerimeter(ADatum);
+  end;
+end;
+
 function TLonLatPolygon.GetEnum: IEnumLonLatPoint;
 begin
   Result := TEnumLonLatPointByPolygon.Create(Self);
@@ -119,6 +156,11 @@ begin
 end;
 
 { TLonLatPathOneLine }
+
+function TLonLatPathOneLine.CalcLength(ADatum: IDatum): Double;
+begin
+  Result := FLine.CalcLength(ADatum);
+end;
 
 constructor TLonLatPathOneLine.Create(ALine: ILonLatPathLine);
 begin
@@ -150,6 +192,16 @@ begin
 end;
 
 { TLonLatPolygonOneLine }
+
+function TLonLatPolygonOneLine.CalcArea(ADatum: IDatum): Double;
+begin
+  Result := FLine.CalcArea(ADatum);
+end;
+
+function TLonLatPolygonOneLine.CalcPerimeter(ADatum: IDatum): Double;
+begin
+  Result := FLine.CalcPerimeter(ADatum);
+end;
 
 constructor TLonLatPolygonOneLine.Create(ALine: ILonLatPolygonLine);
 begin

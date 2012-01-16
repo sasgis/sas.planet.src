@@ -157,6 +157,7 @@ implementation
 
 uses
   Classes,
+  i_Datum,
   u_GeoFun,
   u_DoublePointsAggregator,
   u_LonLatSingleLine,
@@ -204,6 +205,8 @@ type
     function GetEnumLonLat: IEnumLonLatPoint;
     function GetEnumProjected: IEnumProjectedPoint;
     function GetEnumLocal: IEnumLocalPoint;
+    function CalcAreaLonLat(ADatum: IDatum): Double;
+    function CalcAreaProjected: Double;
   private
     function GetProjection: IProjectionInfo;
     function GetLocalConverter: ILocalCoordConverter;
@@ -211,6 +214,11 @@ type
     function GetCount: Integer;
     function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function CalcLength(ADatum: IDatum): Double;
+    function CalcPerimeter(ADatum: IDatum): Double;
+
+    function ILonLatPolygon.CalcArea = CalcAreaLonLat;
+    function IProjectedPolygon.CalcArea = CalcAreaProjected;
 
     function ILonLatPath.GetEnum = GetEnumLonLat;
     function ILonLatPolygon.GetEnum = GetEnumLonLat;
@@ -239,6 +247,26 @@ begin
   FEnumLocal := VEnum;
   FBounds.TopLeft := CEmptyDoublePoint;
   FBounds.BottomRight := CEmptyDoublePoint;
+end;
+
+function TLineSetEmpty.CalcAreaLonLat(ADatum: IDatum): Double;
+begin
+  Result := 0;
+end;
+
+function TLineSetEmpty.CalcAreaProjected: Double;
+begin
+  Result := 0;
+end;
+
+function TLineSetEmpty.CalcLength(ADatum: IDatum): Double;
+begin
+  Result := 0;
+end;
+
+function TLineSetEmpty.CalcPerimeter(ADatum: IDatum): Double;
+begin
+  Result := 0;
 end;
 
 function TLineSetEmpty.GetBounds: TDoubleRect;
