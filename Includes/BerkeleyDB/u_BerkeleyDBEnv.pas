@@ -32,6 +32,7 @@ type
     FEnv: PDB_ENV;
     FActive: Boolean;
     FLastRemoveLogTime: Cardinal;
+    FLastCheckPointTime: Cardinal;
     FEnvRootPath: string;
     FCS: TCriticalSection;
     function Open: Boolean;
@@ -67,6 +68,7 @@ begin
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
+  FLastCheckPointTime := 0;
   FEnvRootPath := AEnvRootPath;
   InitBerkeleyDB;
 end;
@@ -90,6 +92,7 @@ begin
   if not FActive then begin
     CheckBDB(db_env_create(FEnv, 0));
     CheckBDB(FEnv.set_alloc(FEnv, @GetMemory, @ReallocMemory, @FreeMemory));
+    CheckBDB(FEnv.set_cache_max(FEnv, 0, 8*1024*1024));
     if CEnvSubDir <> '' then begin
       VPath := FEnvRootPath + CEnvSubDir + PathDelim;
       I := LastDelimiter(PathDelim, VPath);
@@ -108,6 +111,7 @@ begin
     FEnv.set_errpfx(FEnv, 'BerkeleyDB (Env)');
     FEnv.set_errcall(FEnv,ErrCall);
     {$ENDIF}
+
     CheckBDB(
       FEnv.open(
         FEnv,
@@ -144,7 +148,10 @@ procedure TBerkeleyDBEnv.CheckPoint;
 begin
   FCS.Acquire;
   try
-    CheckBDB(FEnv.txn_checkpoint(FEnv, 0, 0, DB_FORCE));
+    if FActive and (GetTickCount - FLastCheckPointTime > 30000) then begin
+      FLastCheckPointTime := GetTickCount;
+      CheckBDB(FEnv.txn_checkpoint(FEnv, 0, 0, DB_FORCE));
+    end;
   finally
     FCS.Release;
   end;

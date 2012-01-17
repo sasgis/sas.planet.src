@@ -43,6 +43,7 @@ type
   private
     FDB: PDB;
     FEnv: PDB_ENV;
+    FBDBEnv: TBerkeleyDBEnv;
     FFileName: string;
     FDBEnabled: Boolean;
     FSyncAllow: Boolean;
@@ -108,6 +109,7 @@ begin
   FFileName := '';
   FDB := nil;
   FEnv := nil;
+  FBDBEnv := nil;
   FDBEnabled := False;
   FSyncAllow := False;
 end;
@@ -140,14 +142,13 @@ begin
       FDBEnabled := False;
       if Assigned(AEnv) then begin
         FEnv := AEnv.EnvPtr;
+        FBDBEnv := AEnv;
       end;
       CheckBDB(db_create(FDB, FEnv, 0));
       if FEnv = nil then begin
         CheckBDB(FDB.set_alloc(FDB, @GetMemory, @ReallocMemory, @FreeMemory));
       end else begin
         AFlags := AFlags or DB_AUTO_COMMIT or DB_THREAD;
-        AEnv.CheckPoint;
-        AEnv.RemoveUnUsedLogs;
       end;
       if not FileExists(FFileName) and
          (APageSize <> Cardinal(BDB_DEF_PAGE_SIZE)) then
@@ -265,6 +266,9 @@ begin
       end;
       if pdbTxn <> nil then begin
         CheckBDB(pdbTxn.commit(pdbTxn, 0));
+      end;
+      if Assigned(FBDBEnv) then begin
+        FBDBEnv.CheckPoint;
       end;
     end;
   finally

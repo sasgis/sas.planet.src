@@ -267,7 +267,6 @@ procedure TTileStorageBerkeleyDB.Sync(Sender: TObject);
 begin
   FBDBPool.Sync;
   if Assigned(FBDBEnv) then begin
-    FBDBEnv.CheckPoint;
     FBDBEnv.RemoveUnUsedLogs;
   end;
 end;
