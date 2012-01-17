@@ -671,6 +671,7 @@ V2Search := ReplaceStr(V2Search,'-',' '); // разделители
 
        VcoordError := false;
        VDLon := 1;
+       VDlat := 0;
        temp_string := '';
        if PosEx('--', V2Search, 1)>0 then  V2Search := copy(V2Search,PosEx('--', V2Search, 1)+2,length(V2Search)-PosEx('--', V2Search, 1));
        if copy(V2Search,length(V2Search)-3,1)='.' then V2Search := copy(V2Search,1,length(V2Search)-4); // убираем расширение и 3 последние бкувы
