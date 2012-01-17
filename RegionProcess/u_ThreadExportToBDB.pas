@@ -31,13 +31,13 @@ uses
   u_ResStrings,
   t_GeoTypes,
   u_BerkeleyDB,
+  u_BerkeleyDBEnv,
   u_BerkeleyDBPool,
   u_ThreadExportAbstract;
 
 type
   TThreadExportToBDB = class(TThreadExportAbstract)
   private
-    FBDBPool: TBerkeleyDBPool;
     FMapTypeArr: array of TMapType;
     FTileNameGen: ITileFileNameGenerator;
     FStream: TMemoryStream;
@@ -45,6 +45,8 @@ type
     FIsReplace: boolean;
     FPathExport: string;
     function TileExportToRemoteBDB(
+      ABDBPool: TBerkeleyDBPool;
+      ABDBEnv: TBerkeleyDBEnv;
       AMapType: TMapType;
       AXY: TPoint;
       AZoom: Byte;
@@ -95,13 +97,11 @@ begin
   for i := 0 to length(Atypemaparr) - 1 do begin
     FMapTypeArr[i] := Atypemaparr[i];
   end;
-  FBDBPool := TBerkeleyDBPool.Create;
   FStream := TMemoryStream.Create;
 end;
 
 destructor TThreadExportToBDB.Destroy;
 begin
-  FreeAndNil(FBDBPool);
   FreeAndNil(FStream);
   inherited Destroy;
 end;
@@ -118,6 +118,8 @@ begin
 end;
 
 function TThreadExportToBDB.TileExportToRemoteBDB(
+  ABDBPool: TBerkeleyDBPool;
+  ABDBEnv: TBerkeleyDBEnv;
   AMapType: TMapType;
   AXY: TPoint;
   AZoom: Byte;
@@ -136,19 +138,23 @@ begin
   VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) +
     AMapType.GetShortFolderName) + FTileNameGen.GetTileFileName(AXY, AZoom) + '.sdb';
   CreateDirIfNotExists(VPath);
-  VBDB := FBDBPool.Acquire(VPath);
+  VBDB := ABDBPool.Acquire(VPath);
   try
-    if Assigned(VBDB) and VBDB.Open(nil, VPath, CPageSize, CCacheSize) then begin //TODO: DB_ENV
+    if Assigned(VBDB) and VBDB.Open(ABDBEnv, VPath, CPageSize, CCacheSize) then begin
       VKey.TileX := AXY.X;
       VKey.TileY := AXY.Y;
-      VExists := VBDB.Exists(@VKey, SizeOf(TBDBKey));
+      if FileExists(VPath) then begin
+        VExists := VBDB.Exists(@VKey, SizeOf(TBDBKey));
+      end else begin
+        VExists := False;
+      end;
       if not VExists or (VExists and FIsReplace) then begin
         FStream.Clear;
         VTileInfo := nil;
         if AMapType.TileStorage.LoadTile(AXY, AZoom, nil, FStream, VTileInfo) then begin
 
           FillChar(VData, Sizeof(TBDBData), 0);
-          
+
           VData.BDBRecVer := CBDBRecVerCur;
           VData.TileSize := FStream.Size;
 
@@ -180,7 +186,7 @@ begin
       end;
     end;
   finally
-    FBDBPool.Release(VBDB);
+    ABDBPool.Release(VBDB);
   end;
 end;
 
@@ -194,16 +200,18 @@ var
   VGeoConvert: ICoordConverter;
   VTileIterators: array of array of ITileIterator;
   VTileIterator: ITileIterator;
+  VBDBEnv: TBerkeleyDBEnv;
+  VBDBPool: TBerkeleyDBPool;
 begin
   inherited;
   SetLength(VTileIterators, length(FMapTypeArr), Length(FZooms));
   FTilesToProcess := 0;
-  for j := 0 to length(FMapTypeArr) - 1 do begin
-    for i := 0 to Length(FZooms) - 1 do begin
-      VZoom := FZooms[i];
-      VGeoConvert := FMapTypeArr[j].GeoConvert;
-      VTileIterators[j, i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
-      FTilesToProcess := FTilesToProcess + VTileIterators[j, i].TilesTotal;
+  for i := 0 to length(FMapTypeArr) - 1 do begin
+    for j := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[j];
+      VGeoConvert := FMapTypeArr[i].GeoConvert;
+      VTileIterators[i, j] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+      FTilesToProcess := FTilesToProcess + VTileIterators[i, j].TilesTotal;
     end;
   end;
   try
@@ -213,35 +221,42 @@ begin
       );
     FTilesProcessed := 0;
     ProgressFormUpdateOnProgress;
-    for i := 0 to Length(FZooms) - 1 do begin
-      VZoom := FZooms[i];
-      for j := 0 to length(FMapTypeArr) - 1 do begin
-        VMapType := FMapTypeArr[j];
-        VGeoConvert := VMapType.GeoConvert;
-        VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
-        VTileIterator := VTileIterators[j, i];
-        while VTileIterator.Next(VTile) do begin
-          if CancelNotifier.IsOperationCanceled(OperationID) then begin
-            exit;
-          end;
-          if VMapType.TileExists(VTile, VZoom) then begin
-            if TileExportToRemoteBDB(VMapType, VTile, VZoom, VPath) then begin
-              if FIsMove then begin
-                VMapType.DeleteTile(VTile, VZoom);
+    for i := 0 to length(FMapTypeArr) - 1 do begin
+      VMapType := FMapTypeArr[i];
+      VGeoConvert := VMapType.GeoConvert;
+      VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
+      VBDBPool := TBerkeleyDBPool.Create;
+      VBDBEnv := TBerkeleyDBEnv.Create(VPath);
+      try
+        for j := 0 to Length(FZooms) - 1 do begin
+          VZoom := FZooms[j];
+          VTileIterator := VTileIterators[i, j];
+          while VTileIterator.Next(VTile) do begin
+            if CancelNotifier.IsOperationCanceled(OperationID) then begin
+              exit;
+            end;
+            if VMapType.TileExists(VTile, VZoom) then begin
+              if TileExportToRemoteBDB(VBDBPool, VBDBEnv, VMapType, VTile, VZoom, VPath) then begin
+                if FIsMove then begin
+                  VMapType.DeleteTile(VTile, VZoom);
+                end;
               end;
             end;
-          end;
-          inc(FTilesProcessed);
-          if FTilesProcessed mod 100 = 0 then begin
-            ProgressFormUpdateOnProgress;
+            inc(FTilesProcessed);
+            if FTilesProcessed mod 100 = 0 then begin
+              ProgressFormUpdateOnProgress;
+            end;
           end;
         end;
+      finally
+        FreeAndNil(VBDBPool);
+        FreeAndNil(VBDBEnv);
       end;
     end;
   finally
-    for j := 0 to length(FMapTypeArr) - 1 do begin
-      for i := 0 to Length(FZooms) - 1 do begin
-        VTileIterators[j, i] := nil;
+    for i := 0 to length(FMapTypeArr) - 1 do begin
+      for j := 0 to Length(FZooms) - 1 do begin
+        VTileIterators[i, j] := nil;
       end;
     end;
     VTileIterators := nil;

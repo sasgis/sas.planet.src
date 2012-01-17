@@ -31,6 +31,7 @@ type
   private
     FEnv: PDB_ENV;
     FActive: Boolean;
+    FLastRemoveLogTime: Cardinal;
     FEnvRootPath: string;
     FCS: TCriticalSection;
     function Open: Boolean;
@@ -39,6 +40,7 @@ type
     constructor Create(const AEnvRootPath: string);
     destructor Destroy; override;
     procedure RemoveUnUsedLogs;
+    procedure CheckPoint;
     property EnvPtr: PDB_ENV read GetEnv;
     property EnvRootPath: string read FEnvRootPath;
   end;
@@ -46,6 +48,7 @@ type
 implementation
 
 uses
+  Windows,
   SysUtils;
 
 const
@@ -63,6 +66,7 @@ begin
   inherited Create;
   FCS := TCriticalSection.Create;
   FActive := False;
+  FLastRemoveLogTime := 0;
   FEnvRootPath := AEnvRootPath;
   InitBerkeleyDB;
 end;
@@ -70,6 +74,8 @@ end;
 destructor TBerkeleyDBEnv.Destroy;
 begin
   if FEnv <> nil then begin
+    CheckPoint;
+    RemoveUnUsedLogs;
     CheckBDBandNil(FEnv.close(FEnv, 0), FEnv);
   end;
   FCS.Free;
@@ -95,6 +101,7 @@ begin
     if not DirectoryExists(VPath) then begin
       ForceDirectories(VPath);
     end;
+    //CheckBDB(FEnv.set_lg_max(FEnv, 4*1024*1024)); // 4Мб
     CheckBDB(FEnv.log_set_config(FEnv, DB_LOG_AUTO_REMOVE, 1));
     {$IFDEF DEBUG}
     CheckBDB(FEnv.set_verbose(FEnv, DB_VERB_RECOVERY, 1));
@@ -110,7 +117,8 @@ begin
         DB_INIT_LOCK or
         DB_INIT_LOG or
         DB_INIT_MPOOL or
-        DB_INIT_TXN,
+        DB_INIT_TXN or
+        DB_THREAD,
         0
       )
     );
@@ -122,13 +130,21 @@ end;
 procedure TBerkeleyDBEnv.RemoveUnUsedLogs;
 begin
   FCS.Acquire;
-  try  
-    if FActive then begin
-      // Удаляя таким образом логи, мы автоматически лишаемся 
-      // возможности catastrophic restore.
-      // По хорошему, логи нужно складывать в бэкап архив.
+  try
+    if FActive and (GetTickCount - FLastRemoveLogTime > 30000) then begin
+      FLastRemoveLogTime := GetTickCount;
       CheckBDB(FEnv.log_archive(FEnv, nil, DB_ARCH_REMOVE));
     end;
+  finally
+    FCS.Release;
+  end;
+end;
+
+procedure TBerkeleyDBEnv.CheckPoint;
+begin
+  FCS.Acquire;
+  try
+    CheckBDB(FEnv.txn_checkpoint(FEnv, 0, 0, DB_FORCE));
   finally
     FCS.Release;
   end;

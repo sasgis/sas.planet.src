@@ -258,7 +258,7 @@ begin
   FTTLListener := nil;
   FGCList := nil;
   FreeAndNil(FCacheConfig);
-  FreeAndNil(FBDBPool);
+  FreeAndNil(FBDBPool); // important: free pool first, then free enventory
   FreeAndNil(FBDBEnv);
   inherited;
 end;
@@ -266,7 +266,10 @@ end;
 procedure TTileStorageBerkeleyDB.Sync(Sender: TObject);
 begin
   FBDBPool.Sync;
-  FBDBEnv.RemoveUnUsedLogs;
+  if Assigned(FBDBEnv) then begin
+    FBDBEnv.CheckPoint;
+    FBDBEnv.RemoveUnUsedLogs;
+  end;
 end;
 
 procedure TTileStorageBerkeleyDB.CreateDirIfNotExists(APath: string);
