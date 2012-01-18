@@ -129,6 +129,7 @@ begin
               );
 
               VMemStream.Position := 0;
+              VStringStream.Size := 0;
               VStringStream.CopyFrom(VMemStream, 0);
 
               VWriter.WriteTile(
