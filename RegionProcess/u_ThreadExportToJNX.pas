@@ -112,20 +112,20 @@ begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
-            VMemStream.Position := 0;
             VBmp.Clear;
             if FMapType.LoadTileUni(VBmp, VTile, VZoom, VGeoConvert, False, False, True) then begin
-
+              VMemStream.Clear;
+              VMemStream.Position := 0;
               VSaver.SaveToStream(VBmp, VMemStream);
 
               VTopLeft := VGeoConvert.TilePos2LonLat(VTile, VZoom);
               VBottomRight := VGeoConvert.TilePos2LonLat( Point(VTile.X + 1, VTile.Y - 1), VZoom);
 
               VTileBounds := JNXRect(
-                WGS84CoordToJNX(VTopLeft.Y),
-                WGS84CoordToJNX(VTopLeft.X),
                 WGS84CoordToJNX(VBottomRight.Y),
-                WGS84CoordToJNX(VBottomRight.X)
+                WGS84CoordToJNX(VBottomRight.X),
+                WGS84CoordToJNX(VTopLeft.Y),
+                WGS84CoordToJNX(VTopLeft.X)
               );
 
               VMemStream.Position := 0;
