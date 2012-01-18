@@ -23,10 +23,9 @@ unit u_ECWWrite;
 interface
 
 uses
-  ECWwriter,
-  ECWreader,
+  SysUtils,
+  LibECW,
   t_GeoTypes,
-  i_EcwDll,
   i_OperationNotifier;
 
 type
@@ -38,13 +37,12 @@ type
 type
   TECWWrite = class
   private
-    FEcwDll: IEcwDll;
     FEcwData: PNCSEcwCompressClient;
     FReadDelegate: TEcwRead;
     FOperationID: Integer;
     FCancelNotifier: IOperationNotifier;
   public
-    constructor Create(AEcwDll: IEcwDll);
+    constructor Create;
     function Encode(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
@@ -61,10 +59,13 @@ type
 
 implementation
 
-constructor TECWWrite.Create(AEcwDll: IEcwDll);
+constructor TECWWrite.Create;
 begin
-  FEcwDll := AEcwDll;
-  FEcwData := FEcwDll.CompressAllocClient;
+  if InitLibEcw then begin
+    FEcwData := NCSEcwCompressAllocClient;
+  end else begin
+    raise Exception.Create('InitLibEcw error!');
+  end;
 end;
 
 function ReadCallbackFunc(pClient:PNCSEcwCompressClient;nNextLine:cardinal;InputArray:Pointer):boolean; cdecl;
@@ -131,12 +132,12 @@ begin
   FEcwData^.pReadCallback := ReadCallbackFunc;
   FEcwData^.pStatusCallback:=nil;
   FEcwData^.pCancelCallback:=cancel;
-  VNCSError:= FEcwDll.CompressOpen(FEcwData, false);
+  VNCSError:= NCSEcwCompressOpen(FEcwData, false);
   if VNCSError = NCS_SUCCESS then begin
-    VNCSError:=FEcwDll.Compress(FEcwData);
-    FEcwDll.CompressClose(FEcwData);
+    VNCSError := NCSEcwCompress(FEcwData);
+    NCSEcwCompressClose(FEcwData);
   end;
-  FEcwDll.CompressFreeClient(FEcwData);
+  NCSEcwCompressFreeClient(FEcwData);
 
   result:=integer(VNCSError);
 end;

@@ -770,7 +770,6 @@ begin
       GState.MarksDB,
       GState.LocalConverterFactory,
       GState.BitmapPostProcessingConfig,
-      GState.EcwDll,
       GState.MapCalibrationList,
       GState.DownloadConfig,
       GState.DownloadInfo,

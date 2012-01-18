@@ -31,8 +31,6 @@ uses
   u_ResStrings in 'u_ResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
   u_TBXSubmenuItemWithIndicator in 'u_TBXSubmenuItemWithIndicator.pas',
-  i_EcwDll in 'i_EcwDll.pas',
-  u_EcwDllSimple in 'u_EcwDllSimple.pas',
   i_TileRectUpdateNotifier in 'i_TileRectUpdateNotifier.pas',
   u_TileRectUpdateNotifier in 'u_TileRectUpdateNotifier.pas',
   i_Changeable in 'i_Changeable.pas',

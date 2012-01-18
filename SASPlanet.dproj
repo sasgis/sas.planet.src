@@ -184,7 +184,6 @@
     <DCCReference Include="i_DownloadResultFactory.pas" />
     <DCCReference Include="i_DownloadResultTextProvider.pas" />
     <DCCReference Include="i_DownloadUIConfig.pas" />
-    <DCCReference Include="i_EcwDll.pas" />
     <DCCReference Include="i_EnumDoublePoint.pas" />
     <DCCReference Include="i_FillingMapColorer.pas" />
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
@@ -547,7 +546,6 @@
     <DCCReference Include="u_DownloadResultFactory.pas" />
     <DCCReference Include="u_DownloadResultTextProvider.pas" />
     <DCCReference Include="u_DownloadUIConfig.pas" />
-    <DCCReference Include="u_EcwDllSimple.pas" />
     <DCCReference Include="u_ECWWrite.pas" />
     <DCCReference Include="u_EnumDoublePointByLineSet.pas" />
     <DCCReference Include="u_EnumDoublePointBySingleLine.pas" />

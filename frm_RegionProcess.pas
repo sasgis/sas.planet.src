@@ -50,7 +50,6 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapCalibration,
-  i_EcwDll,
   i_TileFileNameGeneratorsList,
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
@@ -123,7 +122,6 @@ type
       AMarksDB: TMarksSystem;
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-      AEcwDll: IEcwDll;
       AMapCalibrationList: IMapCalibrationList;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
@@ -172,7 +170,6 @@ constructor TfrmRegionProcess.Create(
   AMarksDB: TMarksSystem;
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-  AEcwDll: IEcwDll;
   AMapCalibrationList: IMapCalibrationList;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
@@ -243,7 +240,6 @@ begin
       AMarksDB,
       ALocalConverterFactory,
       ABitmapPostProcessingConfig,
-      AEcwDll,
       AMapCalibrationList
     );
 end;

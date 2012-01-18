@@ -33,7 +33,6 @@ uses
   SysUtils,
   i_JclNotify,
   i_GPSPositionFactory,
-  i_EcwDll,
   i_LanguageManager,
   i_InetConfig,
   i_ConfigDataWriteProvider,
@@ -131,7 +130,6 @@ type
     FProtocol: TIeEmbeddedProtocolRegistration;
     FPathDetalizeList: IPathDetalizeProviderList;
     FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-    FEcwDll: IEcwDll;
     FInvisibleBrowser: IInvisibleBrowser;
     FInternalBrowser: IInternalBrowser;
     FDebugInfoWindow: IDebugInfoWindow;
@@ -191,7 +189,6 @@ type
     property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property ClearStrategyFactory: ILayerBitmapClearStrategyFactory read FClearStrategyFactory;
-    property EcwDll: IEcwDll read FEcwDll;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
@@ -218,7 +215,6 @@ uses
   {$ENDIF}
   u_JclNotify,
   u_SASMainConfigProvider,
-  u_EcwDllSimple,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   i_TTLCheckNotifier,
@@ -290,7 +286,6 @@ var
 begin
   FProgramPath := ExtractFilePath(ParamStr(0));
   FAppClosingNotifier := TJclBaseNotifier.Create;
-  FEcwDll := TEcwDllSimple.Create(FProgramPath);
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FGUISyncronizedTimer := TTimer.Create(nil);
