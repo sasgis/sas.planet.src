@@ -122,10 +122,10 @@ begin
               VBottomRight := VGeoConvert.TilePos2LonLat( Point(VTile.X + 1, VTile.Y - 1), VZoom);
 
               VTileBounds := JNXRect(
-                WGS84CoordToJNX(VTopLeft.X),
                 WGS84CoordToJNX(VTopLeft.Y),
-                WGS84CoordToJNX(VBottomRight.X),
-                WGS84CoordToJNX(VBottomRight.Y)
+                WGS84CoordToJNX(VTopLeft.X),
+                WGS84CoordToJNX(VBottomRight.Y),
+                WGS84CoordToJNX(VBottomRight.X)
               );
 
               VMemStream.Position := 0;

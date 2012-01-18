@@ -872,6 +872,7 @@ begin
         VTile.Y := i;
         for j := VTileRectInSource.Left to VTileRectInSource.Right - 1 do begin
           VTile.X := j;
+          VSpr.Clear;
           VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, IgnoreError, AUsePre, ACache);
           if VLoadResult then begin
             VPixelRectCurTileInSource := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
