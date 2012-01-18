@@ -146,6 +146,7 @@ uses
   u_ExportProviderAUX,
   u_ExportProviderZip,
   u_ExportProviderTar,
+  u_ExportProviderJNX,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
@@ -441,6 +442,17 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       ATileNameGenerator
+    );
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+
+  VExportProvider :=
+    TExportProviderJNX.Create(
+      pnlExport,
+      ALanguageManager,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 

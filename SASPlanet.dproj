@@ -402,6 +402,10 @@
       <Form>frExportToFileCont</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="RegionProcess\fr_ExportToJNX.pas">
+      <Form>frExportToJNX</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportYaMobileV3.pas">
       <Form>frExportYaMobileV3</Form>
       <DesignClass>TFrame</DesignClass>
@@ -434,6 +438,7 @@
     <DCCReference Include="RegionProcess\u_ExportProviderAUX.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderGEKml.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderIPhone.pas" />
+    <DCCReference Include="RegionProcess\u_ExportProviderJNX.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderTar.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderYaMobileV3.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderYaMobileV4.pas" />
@@ -451,6 +456,7 @@
     <DCCReference Include="RegionProcess\u_ThreadExportToAUX.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToBDB.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToFileSystem.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportToJNX.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToTar.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToZip.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV3.pas" />
@@ -529,6 +535,7 @@
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="u_Datum.pas" />
     <DCCReference Include="u_DebugInfoWindow.pas" />
+    <DCCReference Include="u_DegreeGridConfig.pas" />
     <DCCReference Include="u_DoublePointsAggregator.pas" />
     <DCCReference Include="u_DownloadCheckerStuped.pas" />
     <DCCReference Include="u_DownloaderFaked.pas" />
