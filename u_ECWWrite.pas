@@ -37,7 +37,6 @@ type
 type
   TECWWrite = class
   private
-    FEcwData: PNCSEcwCompressClient;
     FReadDelegate: TEcwRead;
     FOperationID: Integer;
     FCancelNotifier: IOperationNotifier;
@@ -55,36 +54,46 @@ type
       SizeUnits:TCellSizeUnits;
       CellIncrementX,CellIncrementY,OriginX,OriginY:double
     ):integer;
+    property ReadDelegate: TEcwRead read FReadDelegate;
+    property OperationID: Integer read FOperationID;
+    property CancelNotifier: IOperationNotifier read FCancelNotifier;
   end;
 
 implementation
 
 constructor TECWWrite.Create;
 begin
-  if InitLibEcw then begin
-    FEcwData := NCSEcwCompressAllocClient;
-  end else begin
+  if not InitLibEcw then begin
     raise Exception.Create('InitLibEcw error!');
   end;
 end;
 
-function ReadCallbackFunc(pClient:PNCSEcwCompressClient;nNextLine:cardinal;InputArray:Pointer):boolean; cdecl;
+function ReadCallbackFunc(
+  pClient: PNCSEcwCompressClient;
+  nNextLine: Cardinal;
+  InputArray: Pointer
+): Boolean; cdecl;
 type
-  Tptr = array [0..2] of pointer;
-  Pptr=^Tptr;
+  TPtr = array [0..2] of Pointer;
+  PPtr = ^TPtr;
 var
   VECWWrite: TECWWrite;
 begin
   VECWWrite := TECWWrite(pClient.pClientData);
-  result := VECWWrite.FReadDelegate(nNextLine,PlineRGB(PPtr(InputArray)[0]),PlineRGB(PPtr(InputArray)[1]),PlineRGB(PPtr(InputArray)[2]));
+  Result := VECWWrite.ReadDelegate(
+    nNextLine,
+    PlineRGB(PPtr(InputArray)[0]),
+    PlineRGB(PPtr(InputArray)[1]),
+    PlineRGB(PPtr(InputArray)[2])
+  );
 end;
 
-function cancel(pClient:PNCSEcwCompressClient):boolean; cdecl;
+function CancelCallbackFunc(pClient: PNCSEcwCompressClient): Boolean; cdecl;
 var
   VECWWrite: TECWWrite;
 begin
   VECWWrite := TECWWrite(pClient.pClientData);
-  result:= VECWWrite.FCancelNotifier.IsOperationCanceled(VECWWrite.FOperationID);
+  Result := VECWWrite.CancelNotifier.IsOperationCanceled(VECWWrite.OperationID);
 end;
 
 function TECWWrite.Encode(
@@ -98,48 +107,62 @@ function TECWWrite.Encode(
   Datum,Projection:string;
   SizeUnits: TCellSizeUnits;
   CellIncrementX,CellIncrementY,OriginX,OriginY:double
-):integer;
+): Integer;
 var
-  i:integer;
-  VNCSError:NCSError;
+  VNCSError: NCSError;
+  VEcwData: PNCSEcwCompressClient;
 begin
+  Result := integer(NCS_MAX_ERROR_NUMBER);
   FReadDelegate := AReadDelegate;
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
-  FEcwData^.pClientData := Self;
-  FEcwData^.nInputBands:=3;
-  FEcwData^.nInOutSizeX:=Width;
-  FEcwData^.nInOutSizeY:=Height;
-  FEcwData^.eCompressFormat := COMPRESS_RGB;
-  FEcwData^.eCompressHint := Hint;
-  FEcwData^.fTargetCompression:=CompressRatio;
-  FEcwData^.eCellSizeUnits:= CellSizeUnits(SizeUnits);
-  FEcwData^.fCellIncrementX:=CellIncrementX;
-  FEcwData^.fCellIncrementY:=CellIncrementY;
-  FEcwData^.fOriginX:=OriginX;
-  FEcwData^.fOriginY:=OriginY;
+  VEcwData := NCSEcwCompressAllocClient();
+  try
+    FillChar(VEcwData^, SizeOf(NCSEcwCompressClient), 0);
 
-  for i:=0 to 15 do FEcwData^.szDatum[i]:=#0;
-  for i:=0 to 15 do FEcwData^.szProjection[i]:=#0;
-  for i:=1 to 16 do begin
-    FEcwData^.szDatum[i-1]:=Datum[i];
-    FEcwData^.szProjection[i-1]:=Projection[i];
-  end;
+    VEcwData.pClientData := Self;
+    VEcwData.nInputBands := 3;
+    VEcwData.nInOutSizeX := Width;
+    VEcwData.nInOutSizeY := Height;
+    VEcwData.eCompressFormat := COMPRESS_RGB;
+    VEcwData.eCompressHint := Hint;
+    VEcwData.fTargetCompression := CompressRatio;
+    VEcwData.eCellSizeUnits := CellSizeUnits(SizeUnits);
+    VEcwData.fCellIncrementX := CellIncrementX;
+    VEcwData.fCellIncrementY := CellIncrementY;
+    VEcwData.fOriginX := OriginX;
+    VEcwData.fOriginY := OriginY;
+    VEcwData.pReadCallback := ReadCallbackFunc;
+    VEcwData.pStatusCallback := nil;
+    VEcwData.pCancelCallback := CancelCallbackFunc;
 
-  for i:=1 to length(filename) do
-   FEcwData^.szOutputFilename[i-1]:=FileName[i];
+    if Length(Datum) < Length(VEcwData.szDatum) then begin
+      Move(Datum[1], VEcwData.szDatum[0], Length(Datum));
+    end else begin
+      raise Exception.Create('ECW Encode: Datum string is too long!');
+    end;
+    if Length(Projection) < Length(VEcwData.szProjection) then begin
+      Move(Projection[1], VEcwData.szProjection[0], Length(Projection));
+    end else begin
+      raise Exception.Create('ECW Encode: Projection string is too long!');
+    end;
+    if Length(FileName) < Length(VEcwData.szOutputFilename) then begin
+      Move(FileName[1], VEcwData.szOutputFilename[0], Length(FileName));
+    end else begin
+      raise Exception.Create('ECW Encode: FileName string is too long!');
+    end;
 
-  FEcwData^.pReadCallback := ReadCallbackFunc;
-  FEcwData^.pStatusCallback:=nil;
-  FEcwData^.pCancelCallback:=cancel;
-  VNCSError:= NCSEcwCompressOpen(FEcwData, false);
-  if VNCSError = NCS_SUCCESS then begin
-    VNCSError := NCSEcwCompress(FEcwData);
-    NCSEcwCompressClose(FEcwData);
-  end;
-  NCSEcwCompressFreeClient(FEcwData);
-
-  result:=integer(VNCSError);
+    VNCSError:= NCSEcwCompressOpen(VEcwData, False);
+    if VNCSError = NCS_SUCCESS then begin
+      VNCSError := NCSEcwCompress(VEcwData);
+      if VNCSError = NCS_SUCCESS then begin
+        VNCSError := NCSEcwCompressClose(VEcwData);
+      end;
+    end;
+    Result := Integer(VNCSError);
+  finally
+    NCSEcwCompressFreeClient(VEcwData);
+  end; 
 end;
 
 end.

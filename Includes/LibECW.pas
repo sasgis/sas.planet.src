@@ -336,11 +336,11 @@ interface
   NCScbmReadViewLineRGB = function (NCSFileView:pointer; pRGB:pointer):NCSEcwReadStatus; stdcall;
 
 var
-  NCSEcwCompressAllocClient: function (): Pointer; stdcall;
-  NCSEcwCompressOpen: function (pInfo:pointer; bCalculateSizesOnly:boolean): NCSError; stdcall;
-  NCSEcwCompress: function (pInfo:Pointer): NCSError; stdcall;
-  NCSEcwCompressClose: function (pInfo:Pointer):NCSError; stdcall;
-  NCSEcwCompressFreeClient: function (pInfo:Pointer):NCSError; stdcall;
+  NCSEcwCompressAllocClient: function (): Pointer; cdecl;
+  NCSEcwCompressOpen: function (pInfo: Pointer; bCalculateSizesOnly: Boolean): NCSError; cdecl;
+  NCSEcwCompress: function (pInfo: Pointer): NCSError; cdecl;
+  NCSEcwCompressClose: function (pInfo: Pointer): NCSError; cdecl;
+  NCSEcwCompressFreeClient: function (pInfo: Pointer): NCSError; cdecl;
 
 const
   LIB_ECW_NAME = 'NCSEcwC.dll';
