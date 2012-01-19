@@ -594,7 +594,6 @@ V2Search := ReplaceStr(V2Search,'#8243;','"'); // разделители
 V2Search := ReplaceStr(V2Search,'#8242;',''''); // разделители
 V2Search := ReplaceStr(V2Search,'&',''); // разделители
 V2Search := ReplaceStr(V2Search,';',' '); // разделители
-V2Search := ReplaceStr(V2Search,'-',' '); // разделители
 
   while PosEx('  ',V2Search, 1)>1 do V2Search := ReplaceStr(V2Search,'  ',' ');// убираем двойные пробелы
 
