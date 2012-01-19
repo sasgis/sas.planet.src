@@ -672,6 +672,13 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
        VDLon := 1;
        VDlat := 0;
        temp_string := '';
+       V2Search := ReplaceStr(V2Search,'А','A');
+       V2Search := ReplaceStr(V2Search,'Б','B');
+       V2Search := ReplaceStr(V2Search,'В','C');
+       V2Search := ReplaceStr(V2Search,'Г','D');
+       V2Search := ReplaceStr(V2Search,'V','C');
+       V2Search := ReplaceStr(V2Search,'G','D');
+
        if PosEx('--', V2Search, 1)>0 then  V2Search := copy(V2Search,PosEx('--', V2Search, 1)+2,length(V2Search)-PosEx('--', V2Search, 1));
        if copy(V2Search,length(V2Search)-3,1)='.' then V2Search := copy(V2Search,1,length(V2Search)-4); // убираем расширение и 3 последние бкувы
        V2Search := ReplaceStr(V2Search,'_','-');
@@ -709,10 +716,6 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
 
        if VcoordError=false then // ТРЕТЬЕ ПОЛЕ
        if length(V2Search)>0 then begin
-        V2Search := ReplaceStr(V2Search,'А','A');
-        V2Search := ReplaceStr(V2Search,'Б','B');
-        V2Search := ReplaceStr(V2Search,'В','C');
-        V2Search := ReplaceStr(V2Search,'Г','D');
          i := PosEx('-', V2Search, 1);
          if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
          temp_string := copy(V2Search,1,i-1);
@@ -764,10 +767,6 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
         if length(V2Search)>0 then begin
          i := PosEx('-', V2Search, 1);
          if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
-         V2Search := ReplaceStr(V2Search,'А','A');
-         V2Search := ReplaceStr(V2Search,'Б','B');
-         V2Search := ReplaceStr(V2Search,'В','C');
-         V2Search := ReplaceStr(V2Search,'Г','D');
          temp_string := copy(V2Search,1,i-1);
 
         if (temp_string[1]>='A') and (temp_string[1]<='D') then begin
@@ -791,10 +790,6 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
         if length(V2Search)>0 then begin
          i := PosEx('-', V2Search, 1);
          if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
-         V2Search := ReplaceStr(V2Search,'А','A');
-         V2Search := ReplaceStr(V2Search,'Б','B');
-         V2Search := ReplaceStr(V2Search,'В','C');
-         V2Search := ReplaceStr(V2Search,'Г','D');
          temp_string := copy(V2Search,1,i-1);
 
         if (temp_string[1]>='A') and (temp_string[1]<='D') then begin
@@ -823,10 +818,6 @@ V2Search := ReplaceStr(V2Search,';',' '); // разделители
          V2Search := ReplaceStr(V2Search,'2','B');
          V2Search := ReplaceStr(V2Search,'3','C');
          V2Search := ReplaceStr(V2Search,'4','D');
-         V2Search := ReplaceStr(V2Search,'А','A');
-         V2Search := ReplaceStr(V2Search,'Б','B');
-         V2Search := ReplaceStr(V2Search,'В','C');
-         V2Search := ReplaceStr(V2Search,'Г','D');
          temp_string := copy(V2Search,1,i-1);
 
         if (temp_string[1]>='A') and (temp_string[1]<='D') then begin
