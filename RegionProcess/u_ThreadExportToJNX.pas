@@ -118,8 +118,8 @@ begin
               VMemStream.Position := 0;
               VSaver.SaveToStream(VBmp, VMemStream);
 
-              VTopLeft := VGeoConvert.TilePos2LonLat(VTile, VZoom);
-              VBottomRight := VGeoConvert.TilePos2LonLat( Point(VTile.X + 1, VTile.Y - 1), VZoom);
+              VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X , VTile.Y + 1), VZoom);
+              VBottomRight := VGeoConvert.TilePos2LonLat( Point(VTile.X+1 , VTile.Y), VZoom);
 
               VTileBounds := JNXRect(
                 WGS84CoordToJNX(VBottomRight.Y),
