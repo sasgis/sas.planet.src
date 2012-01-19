@@ -23,6 +23,7 @@ unit u_ContentTypeManagerSimple;
 interface
 
 uses
+  i_VectorItmesFactory,
   i_ContentTypeInfo,
   i_ContentConverter,
   i_InternalPerformanceCounter,
@@ -41,11 +42,13 @@ type
     function FindConverterWithSynonyms(ASourceType, ATargetType: string): IContentConverter;
     procedure UpdateConverterMatrix;
     procedure InitLists(
+      AFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
   public
     constructor Create(
+      AFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
@@ -69,18 +72,21 @@ uses
 { TContentTypeManagerSimple }
 
 constructor TContentTypeManagerSimple.Create(
+  AFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
   InitLists(
+    AFactory,
     AHintConverter,
     APerfCounterList.CreateAndAddNewSubList('TileLoad')
   );
 end;
 
 procedure TContentTypeManagerSimple.InitLists(
+  AFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
   APerfCounterList: IInternalPerformanceCounterList
 );
@@ -144,6 +150,7 @@ begin
     'application/vnd.google-earth.kml+xml',
     '.kml',
     TKmlInfoSimpleParser.Create(
+      AFactory,
       AHintConverter,
       APerfCounterList
     )
@@ -155,6 +162,7 @@ begin
     'application/vnd.google-earth.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
+      AFactory,
       AHintConverter,
       APerfCounterList
     )

@@ -28,8 +28,10 @@ uses
   t_GeoTypes,
   i_LanguageManager,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_VectorItmesFactory,
   i_ValueToStringConverter,
+  i_VectorItemLonLat,
   i_ViewPortState,
   i_MarksSimple,
   i_MarkCategory,
@@ -61,7 +63,7 @@ type
 
     function DeleteMarkModal(AMarkID: IMarkID; handle:THandle):boolean;
     function DeleteMarksModal(AMarkIDList: IInterfaceList; handle:THandle):boolean;
-    function OperationMark(AMark: IMark; AZoom: Byte; AConverter: ICoordConverter):boolean;
+    function OperationMark(AMark: IMark; AProjection: IProjectionInfo):boolean;
     function AddKategory(name:string): IMarkCategory;
     procedure ShowMarkLength(AMark: IMarkLine; AConverter: ICoordConverter; AHandle: THandle); overload;
     procedure ShowMarkLength(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle); overload;
@@ -69,8 +71,8 @@ type
     function EditMarkModal(AMark: IMark): IMark;
     function EditCategoryModal(ACategory: IMarkCategory): IMarkCategory;
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
-    function SavePolyModal(AMark: IMarkPoly; ANewArrLL: TArrayOfDoublePoint): Boolean;
-    function SaveLineModal(AMark: IMarkLine; ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
+    function SavePolyModal(AMark: IMarkPoly; ALine: ILonLatPolygon): Boolean;
+    function SaveLineModal(AMark: IMarkLine; ALine: ILonLatPath; ADescription: string): Boolean;
     function EditModalImportConfig: IImportConfig;
     function MarksMultiEditModal(ACategory:ICategory): IImportConfig;
 
@@ -93,8 +95,8 @@ uses
   SysUtils,
   Dialogs,
   i_Datum,
-  i_VectorItemLonLat,
   u_ResStrings,
+  u_EnumDoublePointLine2Poly,
   u_GeoFun,
   u_GeoToStr;
 
@@ -266,47 +268,27 @@ end;
 
 procedure TMarksDbGUIHelper.ShowMarkLength(AMark: IMarkLine; AConverter: ICoordConverter; AHandle: THandle);
 var
-  i:integer;
-  VPointCount: Integer;
   VLen: Double;
   VMessage: string;
-  VDatum: IDatum;
 begin
   if AMark <> nil then begin
-    VPointCount := Length(AMark.Points);
-    if (VPointCount > 1) then begin
-      VLen:=0;
-      VDatum := AConverter.Datum;
-      for i:=0 to VPointCount-2 do begin
-        VLen:=VLen+ VDatum.CalcDist(AMark.Points[i], AMark.Points[i+1]);
-      end;
-      VMessage := SAS_STR_L+' - '+
-        FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
-      MessageBox(AHandle, pchar(VMessage), pchar(AMark.name),0);
-    end;
+    VLen := AMark.Line.CalcLength(AConverter.Datum);
+    VMessage := SAS_STR_L+' - '+
+      FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
+    MessageBox(AHandle, pchar(VMessage), pchar(AMark.name),0);
   end;
 end;
 
 procedure TMarksDbGUIHelper.ShowMarkLength(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle);
 var
-  i:integer;
-  VPointCount: Integer;
   VLen: Double;
   VMessage: string;
-  VDatum: IDatum;
 begin
   if AMark <> nil then begin
-    VPointCount := Length(AMark.Points);
-    if (VPointCount > 1) then begin
-      VLen:=0;
-      VDatum := AConverter.Datum;
-      for i:=0 to VPointCount-2 do begin
-        VLen:=VLen+ VDatum.CalcDist(AMark.Points[i], AMark.Points[i+1]);
-      end;
-      VMessage := SAS_STR_P+' - '+
-        FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
-      MessageBox(AHandle, pchar(VMessage), pchar(AMark.name),0);
-    end;
+    VLen := AMark.Line.CalcPerimeter(AConverter.Datum);
+    VMessage := SAS_STR_P+' - '+
+      FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
+    MessageBox(AHandle, pchar(VMessage), pchar(AMark.name),0);
   end;
 end;
 
@@ -314,32 +296,25 @@ procedure TMarksDbGUIHelper.ShowMarkSq(AMark: IMarkPoly; AConverter: ICoordConve
 var
   VArea: Double;
   VMessage: string;
-  VCount: Integer;
 begin
   if AMark <> nil then begin
-    VCount := Length(AMark.Points);
-    if (VCount > 1) then begin
-      VArea:= AConverter.Datum.CalcPoligonArea(@(AMark.Points[0]), VCount);
-      VMessage := SAS_STR_S+' - '+FValueToStringConverterConfig.GetStatic.AreaConvert(VArea);
-      MessageBox(AHandle,pchar(VMessage),pchar(AMark.name),0);
-    end;
+    VArea:= AMark.Line.CalcArea(AConverter.Datum);
+    VMessage := SAS_STR_S+' - '+FValueToStringConverterConfig.GetStatic.AreaConvert(VArea);
+    MessageBox(AHandle,pchar(VMessage),pchar(AMark.name),0);
   end;
 end;
 
-function TMarksDbGUIHelper.OperationMark(AMark: IMark; AZoom: Byte; AConverter: ICoordConverter): boolean;
+function TMarksDbGUIHelper.OperationMark(AMark: IMark; AProjection: IProjectionInfo): boolean;
 var
   VMarkPoly: IMarkPoly;
   VMarkLine: IMarkLine;
-  VPoints: TArrayOfDoublePoint;
   VRadius: double;
   VDefRadius: String;
   VPolygon: ILonLatPolygon;
 begin
   Result:=false;
   if Supports(AMark, IMarkPoly, VMarkPoly) then begin
-    VPoints := VMarkPoly.Points;
-    VPolygon := FVectorItmesFactory.CreateLonLatPolygon(@VPoints[0], Length(VPoints));
-    FFormRegionProcess.Show_(AZoom, VPolygon);
+    FFormRegionProcess.Show_(AProjection.Zoom, VMarkPoly.Line);
     Result:=true;
   end else begin
     if Supports(AMark, IMarkLine, VMarkLine) then begin
@@ -351,9 +326,12 @@ begin
           ShowMessage(SAS_ERR_ParamsInput);
           Exit;
         end;
-        VPoints:=ConveryPolyline2Polygon(@VMarkLine.Points[0], Length(VMarkLine.Points), VRadius, AConverter, AZoom);
-        VPolygon := FVectorItmesFactory.CreateLonLatPolygon(@VPoints[0], Length(VPoints));
-        FFormRegionProcess.Show_(AZoom, VPolygon);
+        VPolygon :=
+          FVectorItmesFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+            VMarkLine.Line,
+            TLonLatPointFilterLine2Poly.Create(VRadius, AProjection)
+          );
+        FFormRegionProcess.Show_(AProjection.Zoom, VPolygon);
         Result:=true;
       end;
     end else begin
@@ -362,16 +340,19 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.SaveLineModal(AMark: IMarkLine;
-  ANewArrLL: TArrayOfDoublePoint; ADescription: string): Boolean;
+function TMarksDbGUIHelper.SaveLineModal(
+  AMark: IMarkLine;
+  ALine: ILonLatPath;
+  ADescription: string
+): Boolean;
 var
   VMark: IMarkLine;
 begin
   Result := False;
   if AMark <> nil then begin
-    VMark := FMarksDB.MarksDb.Factory.SimpleModifyLine(AMark, ANewArrLL, ADescription);
+    VMark := FMarksDB.MarksDb.Factory.SimpleModifyLine(AMark, ALine, ADescription);
   end else begin
-    VMark := FMarksDB.MarksDb.Factory.CreateNewLine(ANewArrLL, '', ADescription);
+    VMark := FMarksDB.MarksDb.Factory.CreateNewLine(ALine, '', ADescription);
   end;
   if VMark <> nil then begin
     VMark := FfrmMarkEditPath.EditMark(VMark);
@@ -384,16 +365,16 @@ end;
 
 function TMarksDbGUIHelper.SavePolyModal(
   AMark: IMarkPoly;
-  ANewArrLL: TArrayOfDoublePoint
+  ALine: ILonLatPolygon
 ): Boolean;
 var
   VMark: IMarkPoly;
 begin
   Result := False;
   if AMark <> nil then begin
-    VMark := FMarksDB.MarksDb.Factory.SimpleModifyPoly(AMark, ANewArrLL);
+    VMark := FMarksDB.MarksDb.Factory.SimpleModifyPoly(AMark, ALine);
   end else begin
-    VMark := FMarksDB.MarksDb.Factory.CreateNewPoly(ANewArrLL, '', '');
+    VMark := FMarksDB.MarksDb.Factory.CreateNewPoly(ALine, '', '');
   end;
   if VMark <> nil then begin
     VMark := FfrmMarkEditPoly.EditMark(VMark);

@@ -25,23 +25,27 @@ interface
 uses
   t_GeoTypes,
   i_LanguageManager,
+  i_VectorItemLonLat,
+  i_VectorItmesFactory,
   i_ProxySettings,
   u_PathDetalizeProviderListEntity;
 
 type
   TPathDetalizeProviderMailRu = class(TPathDetalizeProviderListEntity)
   private
+    FFactory: IVectorItmesFactory;
     FBaseUrl: string;
     FProxyConfig: IProxyConfig;
 
     function SecondToTime(const Seconds: Cardinal): Double;
   protected { IPathDetalizeProvider }
-    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
+    function GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
   public
     constructor Create(
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory;
       ABaseUrl: string
     );
   end;
@@ -55,7 +59,8 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory
     );
   end;
 
@@ -68,7 +73,8 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory
     );
   end;
 
@@ -81,7 +87,8 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory
     );
   end;
 
@@ -94,6 +101,7 @@ uses
   DateUtils,
   gnugettext,
   c_PathDetalizeProvidersGUID,
+  i_EnumDoublePoint,
   u_GeoToStr,
   u_ResStrings,
   u_InetFunc;
@@ -104,25 +112,33 @@ constructor TPathDetalizeProviderMailRu.Create(
   AGUID: TGUID;
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory;
   ABaseUrl: string
 );
 begin
   inherited Create(AGUID, ALanguageManager);
   FBaseUrl := ABaseUrl;
   FProxyConfig := AProxyConfig;
+  FFactory := AFactory;
 end;
 
-function TPathDetalizeProviderMailRu.GetPath(ASource: TArrayOfDoublePoint;
-  var AComment: string): TArrayOfDoublePoint;
-var ms:TMemoryStream;
-    pathstr,timeT1:string;
-    url:string;
-    i,posit,posit2,endpos,dd,seconds,meters:integer;
-    dateT1:TDateTime;
+function TPathDetalizeProviderMailRu.GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath;
+var
+  ms:TMemoryStream;
+  pathstr,timeT1:string;
+  url:string;
+  i,posit,posit2,endpos,dd,seconds,meters:integer;
+  dateT1:TDateTime;
+  VPoint: TDoublePoint;
+  VEnum: IEnumLonLatPoint;
+  VResult: TArrayOfDoublePoint;
 begin
   url := FBaseUrl;
-  for i:=0 to length(ASource)-1 do begin
-    url:=url+'&x'+inttostr(i)+'='+R2StrPoint(ASource[i].x)+'&y'+inttostr(i)+'='+R2StrPoint(ASource[i].y);
+  VEnum := ASource.GetEnum;
+  i := 0;
+  while VEnum.Next(VPoint) do begin
+    url:=url+'&x'+inttostr(i)+'='+R2StrPoint(VPoint.x)+'&y'+inttostr(i)+'='+R2StrPoint(VPoint.y);
+    Inc(i);
   end;
   ms:=TMemoryStream.Create;
   try
@@ -130,7 +146,7 @@ begin
       ms.Position:=0;
       SetLength(pathstr, ms.Size);
       ms.ReadBuffer(pathstr[1], ms.Size);
-      SetLength(Result,0);
+      SetLength(VResult,0);
       meters:=0;
       seconds:=0;
 
@@ -149,22 +165,22 @@ begin
           endpos:=PosEx(']',pathstr,posit);
           while (posit>0)and(posit<endpos) do begin
             try
-              SetLength(Result,length(Result)+1);
+              SetLength(VResult,length(VResult)+1);
               posit:=PosEx('"x" : "',pathstr,posit);
               posit2:=PosEx('", "y" : "',pathstr,posit);
-              Result[length(Result)-1].X:=str2r(copy(pathstr,posit+7,posit2-(posit+7)));
+              VResult[length(VResult)-1].X:=str2r(copy(pathstr,posit+7,posit2-(posit+7)));
               posit:=PosEx('"',pathstr,posit2+10);
-              Result[length(Result)-1].y:=str2r(copy(pathstr,posit2+10,posit-(posit2+10)));
+              VResult[length(VResult)-1].y:=str2r(copy(pathstr,posit2+10,posit-(posit2+10)));
               posit:=PosEx('{',pathstr,posit);
             except
-              SetLength(Result,length(Result)-1);
+              SetLength(VResult,length(VResult)-1);
             end;
           end;
           posit:=PosEx('"totalLength"',pathstr,posit);
         end;
       except
       end;
-
+      Result := FFactory.CreateLonLatPath(@VResult[0], Length(VResult));
       if meters>1000 then begin
         AComment:=SAS_STR_MarshLen+RoundEx(meters/1000,2)+' '+SAS_UNITS_km;
       end else begin
@@ -205,13 +221,15 @@ end;
 
 constructor TPathDetalizeProviderMailRuShortest.Create(
   ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
     CPathDetalizeProviderMailRuShortest,
     ALanguageManager,
     AProxyConfig,
+    AFactory,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
   );
 end;
@@ -235,13 +253,15 @@ end;
 
 constructor TPathDetalizeProviderMailRuFastest.Create(
   ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
     CPathDetalizeProviderMailRuFastest,
     ALanguageManager,
     AProxyConfig,
+    AFactory,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
   );
 end;
@@ -265,13 +285,15 @@ end;
 
 constructor TPathDetalizeProviderMailRuFastestWithTraffic.Create(
   ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
     CPathDetalizeProviderMailRuFastestWithTraffic,
     ALanguageManager,
     AProxyConfig,
+    AFactory,
     'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
   );
 end;

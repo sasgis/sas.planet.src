@@ -28,20 +28,6 @@ uses
   i_ConfigDataElement;
 
 type
-  ILineOnMapEdit = interface(IConfigDataElement)
-  ['{76049798-151B-4E06-9EF9-3BE14451BCFF}']
-    function GetCount: Integer;
-    function GetActiveIndex: Integer;
-    function GetPoints: TArrayOfDoublePoint;
-    function GetPointIndexInLonLatRect(ARect: TDoubleRect): Integer;
-    procedure Empty;
-    procedure SetActiveIndex(AValue: Integer);
-    procedure DeleteActivePoint;
-    procedure InsertPoint(APoint: TDoublePoint);
-    procedure MoveActivePoint(APoint: TDoublePoint);
-    procedure SetPoints(AValue: TArrayOfDoublePoint);
-  end;
-
   ILonLatPathWithSelected = interface(ILonLatPath)
     ['{3ED6ABA4-D618-4A82-A428-EFF74D482161}']
     function GetSelectedPoint: TDoublePoint;
@@ -56,20 +42,22 @@ type
     function GetSelectedPointIndex: Integer;
   end;
 
-  ILineOnMapEditNew = interface(IConfigDataElement)
+  ILineOnMapEdit = interface(IConfigDataElement)
     ['{BD78781E-F5E0-406B-AE16-E5015BA87743}']
     procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
     procedure SetSelectedNextPoint;
     procedure SetSelectedPrevPoint;
     function SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
 
+    function IsEmpty: Boolean;
+    function IsReady: Boolean;
     procedure Clear;
     procedure DeleteActivePoint;
     procedure InsertPoint(APoint: TDoublePoint);
     procedure MoveActivePoint(APoint: TDoublePoint);
   end;
 
-  IPathOnMapEdit = interface(ILineOnMapEditNew)
+  IPathOnMapEdit = interface(ILineOnMapEdit)
     ['{A374154F-48FF-4597-8FD1-599FFE6B4345}']
     function GetPath: ILonLatPathWithSelected;
     property Path: ILonLatPathWithSelected read GetPath;
@@ -78,7 +66,7 @@ type
     procedure SetPath(AValue: ILonLatPath); overload;
   end;
 
-  IPolygonOnMapEdit = interface(ILineOnMapEditNew)
+  IPolygonOnMapEdit = interface(ILineOnMapEdit)
     ['{6566E834-169F-4988-99FE-F5489BC985EA}']
     function GetPolygon: ILonLatPolygonWithSelected;
     property Polygon: ILonLatPolygonWithSelected read GetPolygon;

@@ -30,15 +30,10 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TPolyLineLayerConfig = class(TConfigDataElementBase, IPolyLineLayerConfig)
+  TLineLayerConfig = class(TConfigDataElementBase, ILineLayerConfig)
   private
     FLineColor: TColor32;
     FLineWidth: integer;
-    FPointFillColor: TColor32;
-    FPointRectColor: TColor32;
-    FPointFirstColor: TColor32;
-    FPointActiveColor: TColor32;
-    FPointSize: integer;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -48,7 +43,22 @@ type
 
     function GetLineWidth: integer;
     procedure SetLineWidth(AValue: integer);
+  public
+    constructor Create;
+  end;
 
+
+  TPointsSetLayerConfig = class(TConfigDataElementBase, IPointsSetLayerConfig)
+  private
+    FPointFillColor: TColor32;
+    FPointRectColor: TColor32;
+    FPointFirstColor: TColor32;
+    FPointActiveColor: TColor32;
+    FPointSize: integer;
+  protected
+    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+  protected
     function GetPointFillColor: TColor32;
     procedure SetPointFillColor(AValue: TColor32);
 
@@ -74,12 +84,9 @@ uses
 
 { TPolyLineLayerConfig }
 
-constructor TPolyLineLayerConfig.Create;
+constructor TPointsSetLayerConfig.Create;
 begin
   inherited;
-  FLineColor := SetAlpha(ClRed32, 150);
-  FLineWidth := 3;
-
   FPointFillColor := SetAlpha(clYellow32, 150);
   FPointRectColor := SetAlpha(ClRed32, 150);
   FPointFirstColor := SetAlpha(ClGreen32, 255);
@@ -87,13 +94,10 @@ begin
   FPointSize := 8;
 end;
 
-procedure TPolyLineLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TPointsSetLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FLineColor := ReadColor32(AConfigData, 'LineColor', FLineColor);
-    FLineWidth := AConfigData.ReadInteger('LineWidth', FLineWidth);
-
     FPointFillColor := ReadColor32(AConfigData, 'PointFillColor', FPointFillColor);
     FPointRectColor := ReadColor32(AConfigData, 'PointRectColor', FPointRectColor);
     FPointFirstColor := ReadColor32(AConfigData, 'PointFirstColor', FPointFirstColor);
@@ -104,13 +108,10 @@ begin
   end;
 end;
 
-procedure TPolyLineLayerConfig.DoWriteConfig(
+procedure TPointsSetLayerConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  WriteColor32(AConfigData, 'LineColor', FLineColor);
-  AConfigData.WriteInteger('LineWidth', FLineWidth);
-
   WriteColor32(AConfigData, 'PointFillColor', FPointFillColor);
   WriteColor32(AConfigData, 'PointRectColor', FPointRectColor);
   WriteColor32(AConfigData, 'PointFirstColor', FPointFirstColor);
@@ -118,27 +119,7 @@ begin
   AConfigData.WriteInteger('PointSize', FPointSize);
 end;
 
-function TPolyLineLayerConfig.GetLineColor: TColor32;
-begin
-  LockRead;
-  try
-    Result := FLineColor;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TPolyLineLayerConfig.GetLineWidth: integer;
-begin
-  LockRead;
-  try
-    Result := FLineWidth;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TPolyLineLayerConfig.GetPointActiveColor: TColor32;
+function TPointsSetLayerConfig.GetPointActiveColor: TColor32;
 begin
   LockRead;
   try
@@ -148,7 +129,7 @@ begin
   end;
 end;
 
-function TPolyLineLayerConfig.GetPointFillColor: TColor32;
+function TPointsSetLayerConfig.GetPointFillColor: TColor32;
 begin
   LockRead;
   try
@@ -158,7 +139,7 @@ begin
   end;
 end;
 
-function TPolyLineLayerConfig.GetPointFirstColor: TColor32;
+function TPointsSetLayerConfig.GetPointFirstColor: TColor32;
 begin
   LockRead;
   try
@@ -168,7 +149,7 @@ begin
   end;
 end;
 
-function TPolyLineLayerConfig.GetPointRectColor: TColor32;
+function TPointsSetLayerConfig.GetPointRectColor: TColor32;
 begin
   LockRead;
   try
@@ -178,7 +159,7 @@ begin
   end;
 end;
 
-function TPolyLineLayerConfig.GetPointSize: integer;
+function TPointsSetLayerConfig.GetPointSize: integer;
 begin
   LockRead;
   try
@@ -188,33 +169,7 @@ begin
   end;
 end;
 
-procedure TPolyLineLayerConfig.SetLineColor(AValue: TColor32);
-begin
-  LockWrite;
-  try
-    if FLineColor <> AValue then begin
-      FLineColor := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TPolyLineLayerConfig.SetLineWidth(AValue: integer);
-begin
-  LockWrite;
-  try
-    if FLineWidth <> AValue then begin
-      FLineWidth := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TPolyLineLayerConfig.SetPointActiveColor(AValue: TColor32);
+procedure TPointsSetLayerConfig.SetPointActiveColor(AValue: TColor32);
 begin
   LockWrite;
   try
@@ -227,7 +182,7 @@ begin
   end;
 end;
 
-procedure TPolyLineLayerConfig.SetPointFillColor(AValue: TColor32);
+procedure TPointsSetLayerConfig.SetPointFillColor(AValue: TColor32);
 begin
   LockWrite;
   try
@@ -240,7 +195,7 @@ begin
   end;
 end;
 
-procedure TPolyLineLayerConfig.SetPointFirstColor(AValue: TColor32);
+procedure TPointsSetLayerConfig.SetPointFirstColor(AValue: TColor32);
 begin
   LockWrite;
   try
@@ -253,7 +208,7 @@ begin
   end;
 end;
 
-procedure TPolyLineLayerConfig.SetPointRectColor(AValue: TColor32);
+procedure TPointsSetLayerConfig.SetPointRectColor(AValue: TColor32);
 begin
   LockWrite;
   try
@@ -266,12 +221,85 @@ begin
   end;
 end;
 
-procedure TPolyLineLayerConfig.SetPointSize(AValue: integer);
+procedure TPointsSetLayerConfig.SetPointSize(AValue: integer);
 begin
   LockWrite;
   try
     if FPointSize <> AValue then begin
       FPointSize := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+{ TLineLayerConfig }
+
+constructor TLineLayerConfig.Create;
+begin
+  inherited;
+  FLineColor := SetAlpha(ClRed32, 150);
+  FLineWidth := 3;
+end;
+
+procedure TLineLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+begin
+  inherited;
+  if AConfigData <> nil then begin
+    FLineColor := ReadColor32(AConfigData, 'LineColor', FLineColor);
+    FLineWidth := AConfigData.ReadInteger('LineWidth', FLineWidth);
+
+    SetChanged;
+  end;
+end;
+
+procedure TLineLayerConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+begin
+  inherited;
+  WriteColor32(AConfigData, 'LineColor', FLineColor);
+  AConfigData.WriteInteger('LineWidth', FLineWidth);
+end;
+
+function TLineLayerConfig.GetLineColor: TColor32;
+begin
+  LockRead;
+  try
+    Result := FLineColor;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TLineLayerConfig.GetLineWidth: integer;
+begin
+  LockRead;
+  try
+    Result := FLineWidth;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TLineLayerConfig.SetLineColor(AValue: TColor32);
+begin
+  LockWrite;
+  try
+    if FLineColor <> AValue then begin
+      FLineColor := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TLineLayerConfig.SetLineWidth(AValue: integer);
+begin
+  LockWrite;
+  try
+    if FLineWidth <> AValue then begin
+      FLineWidth := AValue;
       SetChanged;
     end;
   finally

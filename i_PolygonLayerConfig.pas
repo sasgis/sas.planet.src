@@ -27,8 +27,8 @@ uses
   i_PolyLineLayerConfig;
 
 type
-  IPolygonLayerConfig = interface(IPolyLineLayerConfig)
-    ['{3A63D380-CEE4-4A55-8706-4B38F379A2B9}']
+  IPolygonLayerConfig = interface(ILineLayerConfig)
+    ['{976A2558-D0A3-4072-9458-BAEBD2FF96FC}']
     function GetFillColor: TColor32;
     procedure SetFillColor(AValue: TColor32);
     property FillColor: TColor32 read GetFillColor write SetFillColor;

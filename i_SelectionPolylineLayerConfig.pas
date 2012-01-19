@@ -24,16 +24,28 @@ interface
 
 uses
   GR32,
+  i_ConfigDataElement,
+  i_PolygonLayerConfig,
   i_PolylineLayerConfig;
 
 type
-  ISelectionPolylineLayerConfig = interface(IPolylineLayerConfig)
-    ['{9E4CE106-9322-4A88-915B-CE5AECED03D2}']
+  ISelectionPolylineShadowLayerConfig = interface(IPolygonLayerConfig)
+    ['{B53ED0E4-99FA-46F0-B651-47FA443F2849}']
     function GetRadius: Double;
     procedure SetRadius(AValue: Double);
+    property Radius: Double read GetRadius write SetRadius;
+  end;
 
-    function GetShadowPolygonColor: TColor32;
-    procedure SetShadowPolygonColor(AValue: TColor32);
+  ISelectionPolylineLayerConfig = interface(IConfigDataElement)
+    ['{9E4CE106-9322-4A88-915B-CE5AECED03D2}']
+    function GetLineConfig: ILineLayerConfig;
+    property LineConfig: ILineLayerConfig read GetLineConfig;
+
+    function GetShadowConfig: ISelectionPolylineShadowLayerConfig;
+    property ShadowConfig: ISelectionPolylineShadowLayerConfig read GetShadowConfig;
+
+    function GetPointsConfig: IPointsSetLayerConfig;
+    property PointsConfig: IPointsSetLayerConfig read GetPointsConfig;
  end;
 
 implementation

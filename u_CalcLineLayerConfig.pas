@@ -26,12 +26,13 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_PolyLineLayerConfig,
   i_CalcLineLayerConfig,
   u_ConfigDataElementBase,
-  u_PolyLineLayerConfig;
+  u_ConfigDataElementComplexBase;
 
 type
-  TCalcLineLayerConfig = class(TPolyLineLayerConfig, ICalcLineLayerConfig)
+  TCalcLineLayerCaptionsConfig = class(TConfigDataElementBase, ICalcLineLayerCaptionsConfig)
   private
     FLenShow: Boolean;
     FTextColor: TColor32;
@@ -52,27 +53,34 @@ type
     constructor Create;
   end;
 
+  TCalcLineLayerConfig = class(TConfigDataElementComplexBase, ICalcLineLayerConfig)
+  private
+    FLineConfig: ILineLayerConfig;
+    FPointsConfig: IPointsSetLayerConfig;
+    FCaptionConfig: ICalcLineLayerCaptionsConfig;
+  protected
+    function GetLineConfig: ILineLayerConfig;
+    function GetPointsConfig: IPointsSetLayerConfig;
+    function GetCaptionConfig: ICalcLineLayerCaptionsConfig;
+  public
+    constructor Create;
+  end;
+
+
 implementation
 
 uses
-  u_ConfigProviderHelpers;
+  u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_ConfigProviderHelpers,
+  u_PolyLineLayerConfig;
 
 { TCalcLineLayerConfig }
 
-constructor TCalcLineLayerConfig.Create;
+constructor TCalcLineLayerCaptionsConfig.Create;
 begin
   inherited;
   LockWrite;
   try
-    SetLineColor(SetAlpha(ClRed32, 150));
-    SetLineWidth(3);
-
-    SetPointFillColor(SetAlpha(ClWhite32, 150));
-    SetPointRectColor(SetAlpha(ClRed32, 150));
-    SetPointFirstColor(SetAlpha(ClGreen32, 255));
-    SetPointActiveColor(SetAlpha(ClRed32, 255));
-    SetPointSize(6);
-
     SetLenShow(True);
 
     SetTextColor(clBlack32);
@@ -82,7 +90,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TCalcLineLayerCaptionsConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -95,7 +103,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayerConfig.DoWriteConfig(
+procedure TCalcLineLayerCaptionsConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
@@ -105,7 +113,7 @@ begin
   WriteColor32(AConfigData, 'TextBGColor', FTextBGColor);
 end;
 
-function TCalcLineLayerConfig.GetLenShow: Boolean;
+function TCalcLineLayerCaptionsConfig.GetLenShow: Boolean;
 begin
   LockRead;
   try
@@ -115,7 +123,7 @@ begin
   end;
 end;
 
-function TCalcLineLayerConfig.GetTextBGColor: TColor32;
+function TCalcLineLayerCaptionsConfig.GetTextBGColor: TColor32;
 begin
   LockRead;
   try
@@ -125,7 +133,7 @@ begin
   end;
 end;
 
-function TCalcLineLayerConfig.GetTextColor: TColor32;
+function TCalcLineLayerCaptionsConfig.GetTextColor: TColor32;
 begin
   LockRead;
   try
@@ -135,7 +143,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayerConfig.SetLenShow(const AValue: Boolean);
+procedure TCalcLineLayerCaptionsConfig.SetLenShow(const AValue: Boolean);
 begin
   LockWrite;
   try
@@ -148,7 +156,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayerConfig.SetTextBGColor(const AValue: TColor32);
+procedure TCalcLineLayerCaptionsConfig.SetTextBGColor(const AValue: TColor32);
 begin
   LockWrite;
   try
@@ -161,7 +169,7 @@ begin
   end;
 end;
 
-procedure TCalcLineLayerConfig.SetTextColor(const AValue: TColor32);
+procedure TCalcLineLayerCaptionsConfig.SetTextColor(const AValue: TColor32);
 begin
   LockWrite;
   try
@@ -172,6 +180,44 @@ begin
   finally
     UnlockWrite;
   end;
+end;
+
+{ TCalcLineLayerConfig }
+
+constructor TCalcLineLayerConfig.Create;
+begin
+  inherited;
+
+  FLineConfig := TLineLayerConfig.Create;
+  FLineConfig.LineColor := SetAlpha(ClRed32, 150);
+  FLineConfig.LineWidth := 3;
+  Add(FLineConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+
+  FPointsConfig := TPointsSetLayerConfig.Create;
+  FPointsConfig.PointFillColor := SetAlpha(ClWhite32, 150);
+  FPointsConfig.PointRectColor := SetAlpha(ClRed32, 150);
+  FPointsConfig.PointFirstColor := SetAlpha(ClGreen32, 255);
+  FPointsConfig.PointActiveColor := SetAlpha(ClRed32, 255);
+  FPointsConfig.PointSize := 6;
+  Add(FPointsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+
+  FCaptionConfig := TCalcLineLayerCaptionsConfig.Create;
+  Add(FCaptionConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+end;
+
+function TCalcLineLayerConfig.GetCaptionConfig: ICalcLineLayerCaptionsConfig;
+begin
+  Result := FCaptionConfig;
+end;
+
+function TCalcLineLayerConfig.GetLineConfig: ILineLayerConfig;
+begin
+  Result := FLineConfig;
+end;
+
+function TCalcLineLayerConfig.GetPointsConfig: IPointsSetLayerConfig;
+begin
+  Result := FPointsConfig;
 end;
 
 end.

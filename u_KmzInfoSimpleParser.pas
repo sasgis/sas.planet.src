@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   i_VectorDataItemSimple,
+  i_VectorItmesFactory,
   i_InternalPerformanceCounter,
   i_HtmlToHintTextConverter,
   u_KmlInfoSimpleParser;
@@ -37,6 +38,7 @@ type
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); override;
   public
     constructor Create(
+      AFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
@@ -51,13 +53,14 @@ uses
 { TKmzInfoSimpleParser }
 
 constructor TKmzInfoSimpleParser.Create(
+  AFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
   APerfCounterList: IInternalPerformanceCounterList);
 var
   VPerfCounterList: IInternalPerformanceCounterList;
 begin
   VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('KmzLoader');
-  inherited Create(AHintConverter, VPerfCounterList);
+  inherited Create(AFactory, AHintConverter, VPerfCounterList);
   FLoadKmzStreamCounter := VPerfCounterList.CreateAndAddNewCounter('LoadKmzStream');
 end;
 

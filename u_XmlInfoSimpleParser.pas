@@ -28,6 +28,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_HtmlToHintTextConverter,
+  i_VectorItmesFactory,
   i_VectorDataItemSimple,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,
@@ -39,6 +40,7 @@ uses
 type
   TXmlInfoSimpleParser = class(TInterfacedObject, IVectorDataLoader)
   private
+    FFactory: IVectorItmesFactory;
     FLoadXmlStreamCounter: IInternalPerformanceCounter;
     FHintConverter: IHtmlToHintTextConverter;
     FFormat: TFormatSettings;
@@ -51,6 +53,7 @@ type
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
   public
     constructor Create(
+      AFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
@@ -99,10 +102,12 @@ end;
 { TXmlInfoSimpleParser }
 
 constructor TXmlInfoSimpleParser.Create(
+  AFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  FFactory := AFactory;
   FHintConverter := AHintConverter;
   FLoadXmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadXmlStream');
   VSAGPS_PrepareFormatSettings(FFormat);
@@ -195,10 +200,24 @@ var
         trk_obj:=TVectorDataItemPoint.Create(FHintConverter, VWSName, VWSDesc, array_points[0]);
       end else if DoublePointsEqual(array_points[0], array_points[array_count-1]) then begin
         // polygon
-        trk_obj:=TVectorDataItemPoly.Create(FHintConverter, VWSName, VWSDesc, array_points, array_rect)
+        trk_obj :=
+          TVectorDataItemPoly.Create(
+            FHintConverter,
+            VWSName,
+            VWSDesc,
+            FFactory.CreateLonLatPolygon(@array_points[0], array_count),
+            array_rect
+          );
       end else begin
         // polyline
-        trk_obj:=TVectorDataItemPath.Create(FHintConverter, VWSName, VWSDesc, array_points, array_rect);
+        trk_obj :=
+          TVectorDataItemPath.Create(
+            FHintConverter,
+            VWSName,
+            VWSDesc,
+            FFactory.CreateLonLatPath(@array_points[0], array_count),
+            array_rect
+          );
       end;
       list.Add(trk_obj);
     end;

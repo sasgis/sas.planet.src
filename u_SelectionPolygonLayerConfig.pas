@@ -23,11 +23,19 @@ unit u_SelectionPolygonLayerConfig;
 interface
 
 uses
+  i_PolyLineLayerConfig,
+  i_PolygonLayerConfig,
   i_SelectionPolygonLayerConfig,
-  u_PolygonLayerConfig;
+  u_ConfigDataElementComplexBase;
 
 type
-  TSelectionPolygonLayerConfig = class(TPolygonLayerConfig, ISelectionPolygonLayerConfig)
+  TSelectionPolygonLayerConfig = class(TConfigDataElementComplexBase, ISelectionPolygonLayerConfig)
+  private
+    FLineConfig: IPolygonLayerConfig;
+    FPointsConfig: IPointsSetLayerConfig;
+  protected
+    function GetLineConfig: IPolygonLayerConfig;
+    function GetPointsConfig: IPointsSetLayerConfig;
   public
     constructor Create;
   end;
@@ -35,26 +43,37 @@ type
 implementation
 
 uses
-  GR32;
+  GR32,
+  u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_PolyLineLayerConfig,
+  u_PolygonLayerConfig;
 
 { TSelectionPolygonLayerConfig }
 
 constructor TSelectionPolygonLayerConfig.Create;
 begin
   inherited;
-  LockWrite;
-  try
-    SetLineColor(SetAlpha(clBlue32, 180));
+  FLineConfig := TPolygonLayerConfig.Create;
+  FLineConfig.LineColor := SetAlpha(clBlue32, 180);
+  FLineConfig.FillColor := SetAlpha(clWhite32, 40);
+  Add(FLineConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
-    SetPointFillColor(SetAlpha(clYellow32, 150));
-    SetPointRectColor(SetAlpha(ClRed32, 150));
-    SetPointFirstColor(SetAlpha(ClGreen32, 255));
-    SetPointActiveColor(SetAlpha(ClRed32, 255));
+  FPointsConfig := TPointsSetLayerConfig.Create;
+  FPointsConfig.PointFillColor := SetAlpha(clYellow32, 150);
+  FPointsConfig.PointRectColor := SetAlpha(ClRed32, 150);
+  FPointsConfig.PointFirstColor := SetAlpha(ClGreen32, 255);
+  FPointsConfig.PointActiveColor := SetAlpha(ClRed32, 255);
+  Add(FPointsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+end;
 
-    SetFillColor(SetAlpha(clWhite32, 40));
-  finally
-    UnlockWrite;
-  end;
+function TSelectionPolygonLayerConfig.GetLineConfig: IPolygonLayerConfig;
+begin
+  Result := FLineConfig;
+end;
+
+function TSelectionPolygonLayerConfig.GetPointsConfig: IPointsSetLayerConfig;
+begin
+  Result := FPointsConfig;
 end;
 
 end.

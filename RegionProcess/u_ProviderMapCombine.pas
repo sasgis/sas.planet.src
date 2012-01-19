@@ -76,6 +76,7 @@ uses
   i_ProjectionInfo,
   u_ProjectionInfo,
   u_GeoFun,
+  u_IdCacheSimpleThreadSafe,
   u_MapMarksBitmapLayerProviderByMarksSubset,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
@@ -191,6 +192,7 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VPolygonLine: IProjectedPolygonLine;
   VMapRect: TDoubleRect;
+  VLineClipRect: TDoubleRect;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
@@ -258,12 +260,17 @@ begin
   end;
   VMarksImageProvider := nil;
   if VMarksSubset <> nil then begin
+    VLineClipRect.Left := VMapRect.Left - 10;
+    VLineClipRect.Top := VMapRect.Top - 10;
+    VLineClipRect.Right := VMapRect.Right + 10;
+    VLineClipRect.Bottom := VMapRect.Bottom + 10;
     VMarksImageProvider :=
       TMapMarksBitmapLayerProviderByMarksSubset.Create(
         FMarksDrawConfig.GetStatic,
         FVectorItmesFactory,
         VProjection,
-        VMapRect,
+        TIdCacheSimpleThreadSafe.Create,
+        VLineClipRect,
         VMarksSubset
       );
   end;

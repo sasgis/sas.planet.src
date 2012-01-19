@@ -461,7 +461,7 @@ begin
                   FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
                   VImportConfig.TemplateNewLine.Category,
                   VMarkLine.Desc,
-                  VMarkLine.Points,
+                  VMarkLine.Line,
                   VImportConfig.TemplateNewLine.LineColor,
                   VImportConfig.TemplateNewLine.LineWidth
                 );
@@ -474,7 +474,7 @@ begin
                   FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
                   VImportConfig.TemplateNewPoly.Category,
                   VMarkPoly.Desc,
-                  VMarkPoly.Points,
+                  VMarkPoly.Line,
                   VImportConfig.TemplateNewPoly.BorderColor,
                   VImportConfig.TemplateNewPoly.FillColor,
                   VImportConfig.TemplateNewPoly.LineWidth
@@ -541,7 +541,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    if FMarkDBGUI.OperationMark(VMark, FViewPortState.GetCurrentZoom, FViewPortState.GetCurrentCoordConverter) then begin
+    if FMarkDBGUI.OperationMark(VMark, FViewPortState.GetVisualCoordConverter.ProjectionInfo) then begin
       ModalResult := mrOk;
     end;
   end;

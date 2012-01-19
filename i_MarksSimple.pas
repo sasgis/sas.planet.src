@@ -26,6 +26,7 @@ uses
   ActiveX,
   GR32,
   t_GeoTypes,
+  i_VectorItemLonLat,
   i_MarkCategory,
   i_MarkPicture;
 
@@ -76,8 +77,8 @@ type
 
   IMarkLine = interface(IMark)
     ['{3C400B96-90E1-4ADD-9AA2-56199AC1910F}']
-    function GetPoints: TArrayOfDoublePoint;
-    property Points: TArrayOfDoublePoint read GetPoints;
+    function GetLine: ILonLatPath;
+    property Line: ILonLatPath read GetLine;
 
     function GetLineColor: TColor32;
     property LineColor: TColor32 read GetLineColor;
@@ -88,8 +89,8 @@ type
 
   IMarkPoly = interface(IMark)
     ['{5C66FCE6-F235-4E34-B32A-AB1DD5F0C5B1}']
-    function GetPoints: TArrayOfDoublePoint;
-    property Points: TArrayOfDoublePoint read GetPoints;
+    function GetLine: ILonLatPolygon;
+    property Line: ILonLatPolygon read GetLine;
 
     function GetBorderColor: TColor32;
     property BorderColor: TColor32 read GetBorderColor;

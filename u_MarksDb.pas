@@ -29,6 +29,7 @@ uses
   Classes,
   t_GeoTypes,
   i_IDList,
+  i_VectorItmesFactory,
   i_MarksFactoryConfig,
   i_HtmlToHintTextConverter,
   i_MarkCategoryDBSmlInternal,
@@ -96,6 +97,7 @@ type
     constructor Create(
       ABasePath: string;
       ACategoryDB: IMarkCategoryDBSmlInternal;
+      AVectorItmesFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
       AFactoryConfig: IMarksFactoryConfig
     );
@@ -108,8 +110,11 @@ uses
   DB,
   GR32,
   i_EnumID,
+  i_EnumDoublePoint,
   u_IDInterfaceList,
+  i_VectorItemLonLat,
   u_MarkFactory,
+  u_GeoFun,
   u_MarksSubset;
 
 type
@@ -143,20 +148,100 @@ begin
   end;
 end;
 
-procedure BlobFromExtArr(AArr: PDoublePointArray; APointsCount: Integer; Blobfield: Tfield);
+procedure BlobFromPoint(
+  APoint: TDoublePoint;
+  Blobfield: Tfield
+);
 var
   VField: TBlobfield;
   VStream: TStream;
-  i: Integer;
   VPoint: TExtendedPoint;
 begin
   VField := TBlobfield(BlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
   try
-    for i := 0 to APointsCount - 1 do begin
-      VPoint.X := AArr[i].X;
-      VPoint.Y := AArr[i].Y;
+    VPoint.X := APoint.X;
+    VPoint.Y := APoint.Y;
+    VStream.Write(VPoint, SizeOf(VPoint));
+  finally
+    VStream.Free;
+  end;
+end;
+
+procedure BlobFromPath(
+  APath: ILonLatPath;
+  Blobfield: Tfield
+);
+var
+  VField: TBlobfield;
+  VStream: TStream;
+  i: Integer;
+  VPoint: TExtendedPoint;
+  VEnum: IEnumDoublePoint;
+  VFirstPoint: TDoublePoint;
+  VCurrPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+begin
+  VField := TBlobfield(BlobField);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
+  try
+    VEnum := APath.GetEnum;
+    i := 0;
+    if VEnum.Next(VFirstPoint) then begin
+      VCurrPoint := VFirstPoint;
+      VPrevPoint := VCurrPoint;
+      VPoint.X := VCurrPoint.X;
+      VPoint.Y := VCurrPoint.Y;
       VStream.Write(VPoint, SizeOf(VPoint));
+      Inc(i);
+      while VEnum.Next(VCurrPoint) do begin
+        VPoint.X := VCurrPoint.X;
+        VPoint.Y := VCurrPoint.Y;
+        VStream.Write(VPoint, SizeOf(VPoint));
+        VPrevPoint := VCurrPoint;
+        Inc(i);
+      end;
+    end;
+    if (i = 1) or ((i > 1) and DoublePointsEqual(VFirstPoint, VPrevPoint)) then begin
+      VPoint.X := CEmptyDoublePoint.X;
+      VPoint.Y := CEmptyDoublePoint.Y;
+      VStream.Write(VPoint, SizeOf(VPoint));
+    end;
+  finally
+    VStream.Free;
+  end;
+end;
+
+procedure BlobFromPolygon(
+  APolygon: ILonLatPolygon;
+  Blobfield: Tfield
+);
+var
+  VField: TBlobfield;
+  VStream: TStream;
+  VPoint: TExtendedPoint;
+  VEnum: IEnumDoublePoint;
+  VCurrPoint: TDoublePoint;
+  VLine: ILonLatPolygonLine;
+begin
+  VField := TBlobfield(BlobField);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
+  try
+    if APolygon.Count > 0 then begin
+      VLine := APolygon.Item[0];
+      if VLine.Count = 1 then begin
+        VPoint.X := VLine.Points[0].X;
+        VPoint.Y := VLine.Points[0].Y;
+        VStream.Write(VPoint, SizeOf(VPoint));
+        VStream.Write(VPoint, SizeOf(VPoint));
+      end else begin
+        VEnum := VLine.GetEnum;
+        while VEnum.Next(VCurrPoint) do begin
+          VPoint.X := VCurrPoint.X;
+          VPoint.Y := VCurrPoint.Y;
+          VStream.Write(VPoint, SizeOf(VPoint));
+        end;
+      end;
     end;
   finally
     VStream.Free;
@@ -166,6 +251,7 @@ end;
 constructor TMarksDb.Create(
   ABasePath: string;
   ACategoryDB: IMarkCategoryDBSmlInternal;
+  AVectorItmesFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
   AFactoryConfig: IMarksFactoryConfig
 );
@@ -178,6 +264,7 @@ begin
     TMarkFactory.Create(
       GetDbCode,
       AFactoryConfig,
+      AVectorItmesFactory,
       AHintConverter,
       ACategoryDB
     );
@@ -501,21 +588,21 @@ begin
     end;
     FCdsMarks.FieldByName('PicName').AsString := VPicName;
     VPoint := VMarkPoint.Point;
-    BlobFromExtArr(@VPoint, 1, FCdsMarks.FieldByName('LonLatArr'));
+    BlobFromPoint(VPoint, FCdsMarks.FieldByName('LonLatArr'));
     FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoint.TextColor;
     FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoint.TextBgColor;
     FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoint.FontSize;
     FCdsMarks.FieldByName('Scale2').AsInteger := VMarkPoint.MarkerSize;
   end else if Supports(AMark, IMarkLine, VMarkLine) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
-    BlobFromExtArr(@VMarkLine.Points[0], Length(VMarkLine.Points), FCdsMarks.FieldByName('LonLatArr'));
+    BlobFromPath(VMarkLine.Line, FCdsMarks.FieldByName('LonLatArr'));
     FCdsMarks.FieldByName('Color1').AsInteger := VMarkLine.LineColor;
     FCdsMarks.FieldByName('Color2').AsInteger := 0;
     FCdsMarks.FieldByName('Scale1').AsInteger := VMarkLine.LineWidth;
     FCdsMarks.FieldByName('Scale2').AsInteger := 0;
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
-    BlobFromExtArr(@VMarkPoly.Points[0], Length(VMarkPoly.Points), FCdsMarks.FieldByName('LonLatArr'));
+    BlobFromPolygon(VMarkPoly.Line, FCdsMarks.FieldByName('LonLatArr'));
     FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoly.BorderColor;
     FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoly.FillColor;
     FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoly.LineWidth;

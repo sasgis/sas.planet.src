@@ -26,67 +26,130 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_PolygonLayerConfig,
+  i_PolylineLayerConfig,
   i_SelectionPolylineLayerConfig,
-  u_PolylineLayerConfig;
+  u_PolylineLayerConfig,
+  u_ConfigDataElementBase,
+  u_ConfigDataElementComplexBase;
 
 type
-  TSelectionPolylineLayerConfig = class(TPolylineLayerConfig, ISelectionPolylineLayerConfig)
+  TSelectionPolylineShadowLayerConfig = class(TLineLayerConfig, ISelectionPolylineShadowLayerConfig)
   private
-    FShadowPolygonColor: TColor32;
     FPolygoneRadius: Double;
+    FFillColor: TColor32;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
+    function GetFillColor: TColor32;
+    procedure SetFillColor(AValue: TColor32);
+
     function GetRadius: Double;
     procedure SetRadius(AValue: Double);
-    function GetShadowPolygonColor: TColor32;
-    procedure SetShadowPolygonColor(AValue: TColor32);
+  public
+    constructor Create;
+  end;
+
+  TSelectionPolylineLayerConfig = class(TConfigDataElementComplexBase, ISelectionPolylineLayerConfig)
+  private
+    FLineConfig: ILineLayerConfig;
+    FPointsConfig: IPointsSetLayerConfig;
+    FShadowConfig: ISelectionPolylineShadowLayerConfig;
+  protected
+    function GetLineConfig: ILineLayerConfig;
+    function GetPointsConfig: IPointsSetLayerConfig;
+    function GetShadowConfig: ISelectionPolylineShadowLayerConfig;
   public
     constructor Create;
   end;
 
 implementation
 
+uses
+  u_ConfigProviderHelpers,
+  u_PolygonLayerConfig,
+  u_ConfigSaveLoadStrategyBasicProviderSubItem;
+
 { TSelectionPolylineLayerConfig }
 
 constructor TSelectionPolylineLayerConfig.Create;
 begin
   inherited;
-  LockWrite;
-  try
-    SetLineColor(SetAlpha(clBlue32, 180));
+  FLineConfig := TLineLayerConfig.Create;
+  FLineConfig.LineColor := SetAlpha(clBlue32, 180);
 
-    SetPointFillColor(SetAlpha(clYellow32, 150));
-    SetPointRectColor(SetAlpha(ClRed32, 150));
-    SetPointFirstColor(SetAlpha(ClGreen32, 255));
-    SetPointActiveColor(SetAlpha(ClRed32, 255));
+  Add(
+    FLineConfig,
+    TConfigSaveLoadStrategyBasicProviderSubItem.Create('Line')
+  );
 
-    SetShadowPolygonColor(SetAlpha(clBlack32,150));
+  FShadowConfig := TSelectionPolylineShadowLayerConfig.Create;
+  Add(
+    FShadowConfig,
+    TConfigSaveLoadStrategyBasicProviderSubItem.Create('Shadow')
+  );
 
-    FPolygoneRadius:=100;
-  finally
-    UnlockWrite;
-  end;
+  FPointsConfig := TPointsSetLayerConfig.Create;
+  Add(
+    FPointsConfig,
+    TConfigSaveLoadStrategyBasicProviderSubItem.Create('Line')
+  );
 end;
 
-procedure TSelectionPolylineLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+function TSelectionPolylineLayerConfig.GetLineConfig: ILineLayerConfig;
+begin
+  Result := FLineConfig;
+end;
+
+function TSelectionPolylineLayerConfig.GetPointsConfig: IPointsSetLayerConfig;
+begin
+  Result := FPointsConfig;
+end;
+
+function TSelectionPolylineLayerConfig.GetShadowConfig: ISelectionPolylineShadowLayerConfig;
+begin
+  Result := FShadowConfig;
+end;
+
+{ TLineLayerConfig }
+
+constructor TSelectionPolylineShadowLayerConfig.Create;
+begin
+  inherited;
+  FPolygoneRadius := 100;
+  FFillColor := SetAlpha(clBlack32,150);
+  SetLineWidth(1);
+end;
+
+procedure TSelectionPolylineShadowLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
     FPolygoneRadius := AConfigData.ReadFloat('PolygoneRadius', FPolygoneRadius);
+    FFillColor := ReadColor32(AConfigData, 'FillColor', FFillColor);
     SetChanged;
   end;
 end;
 
-procedure TSelectionPolylineLayerConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+procedure TSelectionPolylineShadowLayerConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteFloat('PolygoneRadius', FPolygoneRadius);
+  WriteColor32(AConfigData, 'FillColor', FFillColor);
 end;
 
-function TSelectionPolylineLayerConfig.GetRadius: Double;
+function TSelectionPolylineShadowLayerConfig.GetFillColor: TColor32;
+begin
+  LockRead;
+  try
+    Result := FFillColor;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TSelectionPolylineShadowLayerConfig.GetRadius: Double;
 begin
   LockRead;
   try
@@ -96,22 +159,12 @@ begin
   end;
 end;
 
-function TSelectionPolylineLayerConfig.GetShadowPolygonColor: TColor32;
-begin
-  LockRead;
-  try
-    Result := FShadowPolygonColor;
-  finally
-    UnlockRead;
-  end;
-end;
-
-procedure TSelectionPolylineLayerConfig.SetRadius(AValue: Double);
+procedure TSelectionPolylineShadowLayerConfig.SetFillColor(AValue: TColor32);
 begin
   LockWrite;
   try
-    if FPolygoneRadius <> AValue then begin
-      FPolygoneRadius := AValue;
+    if FFillColor <> AValue then begin
+      FFillColor := AValue;
       SetChanged;
     end;
   finally
@@ -119,18 +172,19 @@ begin
   end;
 end;
 
-procedure TSelectionPolylineLayerConfig.SetShadowPolygonColor(AValue: TColor32);
+procedure TSelectionPolylineShadowLayerConfig.SetRadius(AValue: Double);
 begin
-  LockWrite;
-  try
-    if FShadowPolygonColor <> AValue then begin
-      FShadowPolygonColor := AValue;
-      SetChanged;
+  if AValue > 0 then begin
+    LockWrite;
+    try
+      if FPolygoneRadius <> AValue then begin
+        FPolygoneRadius := AValue;
+        SetChanged;
+      end;
+    finally
+      UnlockWrite;
     end;
-  finally
-    UnlockWrite;
   end;
 end;
-
 
 end.

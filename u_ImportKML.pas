@@ -82,7 +82,7 @@ begin
       end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
         if AConfig.TemplateNewPoly <> nil then begin
           VMark := AConfig.MarkDB.Factory.CreateNewPoly(
-            VItemPoly.Points,
+            VItemPoly.Line,
             VItemPoly.Name,
             VItemPoly.Desc,
             AConfig.TemplateNewPoly
@@ -91,7 +91,7 @@ begin
       end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
         if AConfig.TemplateNewLine <> nil then begin
           VMark := AConfig.MarkDB.Factory.CreateNewLine(
-            VItemLine.Points,
+            VItemLine.Line,
             VItemLine.Name,
             VItemLine.Desc,
             AConfig.TemplateNewLine

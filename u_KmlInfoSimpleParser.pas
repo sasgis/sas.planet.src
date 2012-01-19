@@ -27,6 +27,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_HtmlToHintTextConverter,
+  i_VectorItmesFactory,
   i_VectorDataItemSimple,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,
@@ -37,6 +38,7 @@ type
   private
     FLoadKmlStreamCounter: IInternalPerformanceCounter;
     FHintConverter: IHtmlToHintTextConverter;
+    FFactory: IVectorItmesFactory;
 
     FFormat: TFormatSettings;
     FBMSrchPlacemark: TSearchBM;
@@ -62,6 +64,7 @@ type
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
   public
     constructor Create(
+      AFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
@@ -93,19 +96,35 @@ begin
       Result := TVectorDataItemPoint.Create(FHintConverter, AName, ADesc, AData[0]);
     end else begin
       if DoublePointsEqual(Adata[0], Adata[VPointCount - 1]) then begin
-        Result := TVectorDataItemPoly.Create(FHintConverter, AName, ADesc, Adata, ARect);
+        Result :=
+          TVectorDataItemPoly.Create(
+            FHintConverter,
+            AName,
+            ADesc,
+            FFactory.CreateLonLatPolygon(@Adata[0], VPointCount),
+            ARect
+          );
       end else begin
-        Result := TVectorDataItemPath.Create(FHintConverter, AName, ADesc, Adata, ARect);
+        Result :=
+          TVectorDataItemPath.Create(
+            FHintConverter,
+            AName,
+            ADesc,
+            FFactory.CreateLonLatPath(@Adata[0], VPointCount),
+            ARect
+          );
       end;
     end;
   end;
 end;
 
 constructor TKmlInfoSimpleParser.Create(
+  AFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  FFactory := AFactory;
   FHintConverter := AHintConverter;
   FLoadKmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadKmlStream');
   FFormat.DecimalSeparator := '.';

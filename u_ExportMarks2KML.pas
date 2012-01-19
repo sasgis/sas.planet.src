@@ -81,6 +81,10 @@ type
 
 implementation
 
+uses
+  t_GeoTypes,
+  i_EnumDoublePoint;
+
 constructor TExportMarks2KML.Create;
 var child:iXMLNode;
 begin
@@ -290,14 +294,15 @@ end;
 
 procedure TExportMarks2KML.AddMark(Mark:IMark;inNode:iXMLNode);
 var
-  j,width:integer;
+  width:integer;
   currNode:IXMLNode;
   coordinates:string;
   VFileName: string;
-var
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
+  VEnum: IEnumLonLatPoint;
+  VLonLat: TDoublePoint;
 begin
   currNode:=inNode.AddChild('Placemark');
   currNode.ChildValues['name']:=Mark.name;
@@ -339,8 +344,9 @@ begin
     currNode:=currNode.AddChild('LineString');
     currNode.ChildValues['extrude']:=1;
     coordinates:='';
-    for j := 0 to length(VMarkLine.Points) - 1 do begin
-      coordinates:=coordinates+R2StrPoint(VMarkLine.Points[j].X)+','+R2StrPoint(VMarkLine.Points[j].Y)+',0 ';
+    VEnum := VMarkLine.Line.GetEnum;
+    while VEnum.Next(VLonLat) do begin
+      coordinates:=coordinates+R2StrPoint(VLonLat.X)+','+R2StrPoint(VLonLat.Y)+',0 ';
     end;
     currNode.ChildValues['coordinates']:=coordinates;
   end else if Supports(Mark, IMarkPoly, VMarkPoly) then begin
@@ -357,8 +363,9 @@ begin
     currNode:=currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
     currNode.ChildValues['extrude']:=1;
     coordinates:='';
-    for j := 0 to length(VMarkPoly.Points) - 1 do begin
-      coordinates:=coordinates+R2StrPoint(VMarkPoly.Points[j].X)+','+R2StrPoint(VMarkPoly.Points[j].Y)+',0 ';
+    VEnum := VMarkPoly.Line.GetEnum;
+    while VEnum.Next(VLonLat) do begin
+      coordinates:=coordinates+R2StrPoint(VLonLat.X)+','+R2StrPoint(VLonLat.Y)+',0 ';
     end;
     currNode.ChildValues['coordinates']:=coordinates;
   end;

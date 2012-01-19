@@ -23,10 +23,17 @@ unit u_MarkPolyLineLayerConfig;
 interface
 uses
   i_MarkPolyLineLayerConfig,
-  u_PolyLineLayerConfig;
+  i_PolyLineLayerConfig,
+  u_ConfigDataElementComplexBase;
 
 type
-  TMarkPolyLineLayerConfig = class(TPolyLineLayerConfig, IMarkPolyLineLayerConfig)
+  TMarkPolyLineLayerConfig = class(TConfigDataElementComplexBase, IMarkPolyLineLayerConfig)
+  private
+    FLineConfig: ILineLayerConfig;
+    FPointsConfig: IPointsSetLayerConfig;
+  protected
+    function GetLineConfig: ILineLayerConfig;
+    function GetPointsConfig: IPointsSetLayerConfig;
   public
     constructor Create;
   end;
@@ -34,26 +41,37 @@ type
 implementation
 
 uses
-  GR32;
+  GR32,
+  u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_PolyLineLayerConfig;
 
 { TMarkPolyLineLayerConfig }
 
 constructor TMarkPolyLineLayerConfig.Create;
 begin
   inherited;
-  LockWrite;
-  try
-    SetLineColor(SetAlpha(ClRed32, 150));
-    SetLineWidth(3);
+  FLineConfig := TLineLayerConfig.Create;
+  FLineConfig.LineColor := SetAlpha(ClRed32, 150);
+  FLineConfig.LineWidth := 3;
+  Add(FLineConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
-    SetPointFillColor(SetAlpha(clYellow32, 150));
-    SetPointRectColor(SetAlpha(ClRed32, 150));
-    SetPointFirstColor(SetAlpha(ClGreen32, 255));
-    SetPointActiveColor(SetAlpha(ClRed32, 255));
-    SetPointSize(8);
-  finally
-    UnlockWrite;
-  end;
+  FPointsConfig := TPointsSetLayerConfig.Create;
+  FPointsConfig.PointFillColor := SetAlpha(clYellow32, 150);
+  FPointsConfig.PointRectColor := SetAlpha(ClRed32, 150);
+  FPointsConfig.PointFirstColor := SetAlpha(ClGreen32, 255);
+  FPointsConfig.PointActiveColor := SetAlpha(ClRed32, 255);
+  FPointsConfig.PointSize := 8;
+  Add(FPointsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+end;
+
+function TMarkPolyLineLayerConfig.GetLineConfig: ILineLayerConfig;
+begin
+  Result := FLineConfig;
+end;
+
+function TMarkPolyLineLayerConfig.GetPointsConfig: IPointsSetLayerConfig;
+begin
+  Result := FPointsConfig;
 end;
 
 end.

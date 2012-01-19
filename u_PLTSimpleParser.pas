@@ -26,6 +26,7 @@ uses
   Classes,
   SysUtils,
   t_GeoTypes,
+  i_VectorItmesFactory,
   i_VectorDataLoader,
   i_HtmlToHintTextConverter,
   i_InternalPerformanceCounter,
@@ -34,6 +35,7 @@ uses
 type
   TPLTSimpleParser = class(TInterfacedObject, IVectorDataLoader)
   private
+    FFactory: IVectorItmesFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;
     FHintConverter: IHtmlToHintTextConverter;
     procedure ParseStringList(AStringList: TStringList; out APoints: TArrayOfDoublePoint);
@@ -44,6 +46,7 @@ type
     procedure LoadFromFile(FileName:string; out AItems: IVectorDataItemList);
   public
     constructor Create(
+      AFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
@@ -57,9 +60,13 @@ uses
   u_GeoFun,
   u_GeoToStr;
 
-constructor TPLTSimpleParser.Create(AHintConverter: IHtmlToHintTextConverter;
-  APerfCounterList: IInternalPerformanceCounterList);
+constructor TPLTSimpleParser.Create(
+  AFactory: IVectorItmesFactory;
+  AHintConverter: IHtmlToHintTextConverter;
+  APerfCounterList: IInternalPerformanceCounterList
+);
 begin
+  FFactory := AFactory;
   FHintConverter := AHintConverter;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadPltStream');
 end;
@@ -86,7 +93,7 @@ begin
             FHintConverter,
             trackname,
             '',
-            VPoints,
+            FFactory.CreateLonLatPath(@VPoints[0], Length(VPoints)),
             GetRect(VPoints)
           );
         VList := TInterfaceList.Create;
@@ -164,7 +171,7 @@ begin
               FHintConverter,
               trackname,
               '',
-              VPoints,
+              FFactory.CreateLonLatPath(@VPoints[0], Length(VPoints)),
               GetRect(VPoints)
             );
           VList := TInterfaceList.Create;

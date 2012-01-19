@@ -149,7 +149,7 @@ var
   PList: Text;
   VLLCenter: TDoublePoint;
   VPolyg: TArrayOfPoint;
-  max, min: TPoint;
+  VRect: TRect;
   VZoom: Integer;
   VLen: Integer;
 begin
@@ -157,8 +157,8 @@ begin
   VLen := FPolygLL.Count;
   SetLength(VPolyg, VLen);
   AGeoConvert.LonLatArray2PixelArray(FPolygLL.Points, VLen, @VPolyg[0], VZoom);
-  GetMinMax(min, max, @VPolyg[0], Length(VPolyg), true);
-  VLLCenter := AGeoConvert.PixelPos2LonLat(Point(min.x + (max.X - min.X) div 2, min.y + (max.y - min.y) div 2), VZoom);
+  GetMinMax(VRect, @VPolyg[0], Length(VPolyg), true);
+  VLLCenter := AGeoConvert.PixelPos2LonLat(Point(VRect.Left + (VRect.Right - VRect.Left) div 2, VRect.Top + (VRect.Bottom - VRect.Top) div 2), VZoom);
   AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
   Rewrite(PList);
   Writeln(PList, '<plist>');

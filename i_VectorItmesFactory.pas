@@ -24,6 +24,14 @@ type
       APoints: PDoublePointArray;
       ACount: Integer
     ): ILonLatPolygon;
+    function CreateLonLatPathByEnum(
+      AEnum: IEnumLonLatPoint;
+      ATemp: IDoublePointsAggregator = nil
+    ): ILonLatPath;
+    function CreateLonLatPolygonByEnum(
+      AEnum: IEnumLonLatPoint;
+      ATemp: IDoublePointsAggregator = nil
+    ): ILonLatPolygon;
 
     function CreateProjectedPath(
       AProjection: IProjectionInfo;

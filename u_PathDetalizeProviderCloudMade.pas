@@ -29,6 +29,8 @@ uses
   t_GeoTypes,
   i_LanguageManager,
   i_ProxySettings,
+  i_VectorItemLonLat,
+  i_VectorItmesFactory,
   u_PathDetalizeProviderListEntity;
 
 type
@@ -38,6 +40,7 @@ type
 type
   TPathDetalizeProviderCloudMade = class(TPathDetalizeProviderListEntity)
   private
+    FFactory: IVectorItmesFactory;
     FBaseUrl: string;
     FVehicle: TRouteVehicle;
     FRouteCalcType: TRouteCalcType;
@@ -45,12 +48,13 @@ type
   protected
     function SecondToTime(const Seconds: Cardinal): Double;
   protected { IPathDetalizeProvider }
-    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
+    function GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
   public
     constructor Create(
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory;
       AVehicle: TRouteVehicle;
       ARouteCalcType: TRouteCalcType
     );
@@ -64,7 +68,8 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory
     );
   end;
 
@@ -76,7 +81,8 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory
     );
   end;
 
@@ -88,7 +94,8 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory
     );
   end;
 
@@ -100,7 +107,8 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory
     );
   end;
 
@@ -112,7 +120,8 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory
     );
   end;
 
@@ -124,7 +133,8 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory
     );
   end;
 
@@ -134,6 +144,7 @@ uses
   Classes,
   gnugettext,
   c_PathDetalizeProvidersGUID,
+  i_EnumDoublePoint,
   u_GeoToStr,
   u_ResStrings,
   u_InetFunc;
@@ -144,6 +155,7 @@ constructor TPathDetalizeProviderCloudMade.Create(
   AGUID: TGUID;
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory;
   AVehicle: TRouteVehicle;
   ARouteCalcType: TRouteCalcType
 );
@@ -153,14 +165,13 @@ begin
   FVehicle := AVehicle;
   FRouteCalcType := ARouteCalcType;
   FProxyConfig := AProxyConfig;
+  FFactory := AFactory;
 end;
 
-function TPathDetalizeProviderCloudMade.GetPath(ASource: TArrayOfDoublePoint;
-  var AComment: string): TArrayOfDoublePoint;
+function TPathDetalizeProviderCloudMade.GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath;
 var
   ms:TMemoryStream;
   url:string;
-  i:integer;
   s:integer;
   conerr:boolean;
   add_line_arr_b:TArrayOfDoublePoint;
@@ -168,7 +179,9 @@ var
   pathstr,timeT1:string;
   posit,posit2,dd,seconds,meters:integer;
   dateT1:TDateTime;
-
+  VCurrPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VEnum: IEnumLonLatPoint;
 begin
   AComment := '';
   meters:=0;
@@ -177,63 +190,67 @@ begin
   ms:=TMemoryStream.Create;
   try
     conerr:=false;
-    for i:= 0 to length(ASource)-2 do begin
-      if conerr then Continue;
-      url := FBaseUrl;
-      url:=url+R2StrPoint(ASource[i].y)+','+R2StrPoint(ASource[i].x)+
-          ','+R2StrPoint(ASource[i+1].y)+','+R2StrPoint(ASource[i+1].x);
-      case FVehicle of
-        car: url:=url+'/car';
-        foot: url:=url+'/foot';
-        bicycle: url:=url+'/bicycle';
-      end;
-      case FRouteCalcType of
-        fastest: url:=url+'.js?units=km&lang=en&callback=getRoute6&translation=common';
-        shortest: url:=url+'/shortest.js?units=km&lang=en&callback=getRoute6&translation=common';
-      end;
-      ms.Clear;
-      if GetStreamFromURL(ms, url, 'application/json;charset=UTF-8', FProxyConfig.GetStatic)>0 then begin
-        ms.Position:=0;
-        SetLength(pathstr, ms.Size);
-        ms.ReadBuffer(pathstr[1], ms.Size);
-        s:=length(add_line_arr_b);
-        try
-          posit:=PosEx('[',pathstr,1);
-          posit:=PosEx('[',pathstr,posit+1);
-          if posit>0 then  begin
-            While (posit>0) do begin
-              SetLength(add_line_arr_b,(s+1));
-              s:=length(add_line_arr_b);
-
-              posit2:=PosEx(',',pathstr,posit);
-              add_line_arr_b[s-1].Y:=str2r(copy(pathstr,posit+1,posit2-(posit+1)));
-              posit:=PosEx(']',pathstr,posit2);
-              add_line_arr_b[s-1].X:=str2r(copy(pathstr,posit2+1,posit-(posit2+1)));
-
-              if pathstr[posit+1]=']' then begin
-                posit:=-1;
-              end else begin
-                posit:=PosEx('[',pathstr,posit+1);
-              end;
-            end;
-            posit:=PosEx('"total_distance":',pathstr,1);
-            posit2:=PosEx(',',pathstr,posit);
-            meters:=meters+strtoint(copy(pathstr,posit+17,posit2-(posit+17)));
-            posit:=PosEx('"total_time":',pathstr,1);
-            posit2:=PosEx(',',pathstr,posit);
-            seconds:=seconds+strtoint(copy(pathstr,posit+13,posit2-(posit+13)));
-          end;
-        except
+    VEnum := ASource.GetEnum;
+    if VEnum.Next(VPrevPoint) then begin
+      while VEnum.Next(VCurrPoint) do begin
+        if conerr then Continue;
+        url := FBaseUrl;
+        url:=url+R2StrPoint(VPrevPoint.y)+','+R2StrPoint(VPrevPoint.x)+
+            ','+R2StrPoint(VCurrPoint.y)+','+R2StrPoint(VCurrPoint.x);
+        case FVehicle of
+          car: url:=url+'/car';
+          foot: url:=url+'/foot';
+          bicycle: url:=url+'/bicycle';
         end;
-      end else begin
-        conerr:=true;
+        case FRouteCalcType of
+          fastest: url:=url+'.js?units=km&lang=en&callback=getRoute6&translation=common';
+          shortest: url:=url+'/shortest.js?units=km&lang=en&callback=getRoute6&translation=common';
+        end;
+        ms.Clear;
+        if GetStreamFromURL(ms, url, 'application/json;charset=UTF-8', FProxyConfig.GetStatic)>0 then begin
+          ms.Position:=0;
+          SetLength(pathstr, ms.Size);
+          ms.ReadBuffer(pathstr[1], ms.Size);
+          s:=length(add_line_arr_b);
+          try
+            posit:=PosEx('[',pathstr,1);
+            posit:=PosEx('[',pathstr,posit+1);
+            if posit>0 then  begin
+              While (posit>0) do begin
+                SetLength(add_line_arr_b,(s+1));
+                s:=length(add_line_arr_b);
+
+                posit2:=PosEx(',',pathstr,posit);
+                add_line_arr_b[s-1].Y:=str2r(copy(pathstr,posit+1,posit2-(posit+1)));
+                posit:=PosEx(']',pathstr,posit2);
+                add_line_arr_b[s-1].X:=str2r(copy(pathstr,posit2+1,posit-(posit2+1)));
+
+                if pathstr[posit+1]=']' then begin
+                  posit:=-1;
+                end else begin
+                  posit:=PosEx('[',pathstr,posit+1);
+                end;
+              end;
+              posit:=PosEx('"total_distance":',pathstr,1);
+              posit2:=PosEx(',',pathstr,posit);
+              meters:=meters+strtoint(copy(pathstr,posit+17,posit2-(posit+17)));
+              posit:=PosEx('"total_time":',pathstr,1);
+              posit2:=PosEx(',',pathstr,posit);
+              seconds:=seconds+strtoint(copy(pathstr,posit+13,posit2-(posit+13)));
+            end;
+          except
+          end;
+        end else begin
+          conerr:=true;
+        end;
+        VPrevPoint := VCurrPoint;
       end;
     end;
   finally
     ms.Free;
   end;
   if not conerr then begin
-    Result := add_line_arr_b;
+    Result := FFactory.CreateLonLatPath(@add_line_arr_b[0], Length(add_line_arr_b));
     if meters>1000 then begin
       AComment:=SAS_STR_MarshLen+' '+RoundEx(meters/1000,2)+' '+SAS_UNITS_km;
     end else begin
@@ -270,10 +287,18 @@ end;
 
 constructor TPathDetalizeProviderCloudMadeFastestByCar.Create(
   ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory
 );
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeFastestByCar, ALanguageManager, AProxyConfig, car, fastest);
+  inherited Create(
+    CPathDetalizeProviderCloudMadeFastestByCar,
+    ALanguageManager,
+    AProxyConfig,
+    AFactory,
+    car,
+    fastest
+  );
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByCar.GetCaptionTranslated: string;
@@ -295,10 +320,18 @@ end;
 
 constructor TPathDetalizeProviderCloudMadeFastestByFoot.Create(
   ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory
 );
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeFastestByFoot, ALanguageManager, AProxyConfig, foot, fastest);
+  inherited Create(
+    CPathDetalizeProviderCloudMadeFastestByFoot,
+    ALanguageManager,
+    AProxyConfig,
+    AFactory,
+    foot,
+    fastest
+  );
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByFoot.GetCaptionTranslated: string;
@@ -320,10 +353,18 @@ end;
 
 constructor TPathDetalizeProviderCloudMadeFastestByBicycle.Create(
   ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory
 );
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeFastestByBicycle, ALanguageManager, AProxyConfig, bicycle, fastest);
+  inherited Create(
+    CPathDetalizeProviderCloudMadeFastestByBicycle,
+    ALanguageManager,
+    AProxyConfig,
+    AFactory,
+    bicycle,
+    fastest
+  );
 end;
 
 function TPathDetalizeProviderCloudMadeFastestByBicycle.GetCaptionTranslated: string;
@@ -345,10 +386,18 @@ end;
 
 constructor TPathDetalizeProviderCloudMadeShortestByCar.Create(
   ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory
 );
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeShortestByCar, ALanguageManager, AProxyConfig, car, shortest);
+  inherited Create(
+    CPathDetalizeProviderCloudMadeShortestByCar,
+    ALanguageManager,
+    AProxyConfig,
+    AFactory,
+    car,
+    shortest
+  );
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByCar.GetCaptionTranslated: string;
@@ -370,10 +419,18 @@ end;
 
 constructor TPathDetalizeProviderCloudMadeShortestByFoot.Create(
   ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory
 );
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeShortestByFoot, ALanguageManager, AProxyConfig, foot, shortest);
+  inherited Create(
+    CPathDetalizeProviderCloudMadeShortestByFoot,
+    ALanguageManager,
+    AProxyConfig,
+    AFactory,
+    foot,
+    shortest
+  );
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByFoot.GetCaptionTranslated: string;
@@ -395,10 +452,18 @@ end;
 
 constructor TPathDetalizeProviderCloudMadeShortestByBicycle.Create(
   ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory
 );
 begin
-  inherited Create(CPathDetalizeProviderCloudMadeShortestByBicycle, ALanguageManager, AProxyConfig, bicycle, shortest);
+  inherited Create(
+    CPathDetalizeProviderCloudMadeShortestByBicycle,
+    ALanguageManager,
+    AProxyConfig,
+    AFactory,
+    bicycle,
+    shortest
+  );
 end;
 
 function TPathDetalizeProviderCloudMadeShortestByBicycle.GetCaptionTranslated: string;

@@ -23,13 +23,20 @@ unit u_ImportHLG;
 interface
 
 uses
+  i_VectorItmesFactory,
   i_ImportFile,
   i_ImportConfig;
 
 type
   TImportHLG = class(TInterfacedObject, IImportFile)
+  private
+    FFactory: IVectorItmesFactory;
   protected
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+  public
+    constructor Create(
+      AFactory: IVectorItmesFactory
+    );
   end;
 
 implementation
@@ -42,6 +49,11 @@ uses
   u_GeoToStr;
 
 { TImportHLG }
+
+constructor TImportHLG.Create(AFactory: IVectorItmesFactory);
+begin
+  FFactory := AFactory;
+end;
 
 function TImportHLG.ProcessImport(AFileName: string;
   AConfig: IImportConfig): Boolean;
@@ -68,7 +80,7 @@ begin
     end;
     if Length(VPolygon) > 2 then begin
       VMark := AConfig.MarkDB.Factory.CreateNewPoly(
-        VPolygon,
+        FFactory.CreateLonLatPolygon(@VPolygon[0], Length(VPolygon)),
         ExtractFileName(AFileName),
         '',
         AConfig.TemplateNewPoly

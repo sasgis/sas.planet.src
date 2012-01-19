@@ -16,8 +16,12 @@ uses
   i_MarksSimple,
   u_GeoFun,
   i_ViewPortState,
+  i_ProjectionInfo,
   i_CoordConverter,
   i_VectorItmesFactory,
+  i_VectorItemProjected,
+  i_IdCacheSimple,
+  i_DoublePointsAggregator,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
@@ -35,6 +39,20 @@ type
     FMarksSubset: IMarksSubset;
     FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
+
+    FProjectedCache: IIdCacheSimple;
+    FPointsAgregator: IDoublePointsAggregator;
+    FLinesClipRect: TDoubleRect;
+
+    function GetProjectedPath(
+      AMarkPath: IMarkLine;
+      AProjectionInfo: IProjectionInfo
+    ): IProjectedPath;
+    function GetProjectedPolygon(
+      AMarkPoly: IMarkPoly;
+      AProjectionInfo: IProjectionInfo
+    ): IProjectedPolygon;
+
     procedure OnConfigChange;
     function GetMarksSubset(ALocalConverter: ILocalCoordConverter): IMarksSubset;
   protected
@@ -61,8 +79,18 @@ type
     procedure MouseOnReg(xy: TPoint; out AMark: IMark; out AMarkS: Double); overload;
     procedure MouseOnReg(xy: TPoint; out AMark: IMark); overload;
 
-    function GetIntersection(CurrLonLat: TDoublePoint; var IntersectionLonLat: TDoublePoint; VMarkPoly: IMarkPoly; AConverter: ICoordConverter; AZoom: byte):boolean; overload;
-    function GetIntersection(CurrLonLat: TDoublePoint; var IntersectionLonLat: TDoublePoint; VMarkLine: IMarkLine; AConverter: ICoordConverter; AZoom: byte):boolean; overload;
+    function GetIntersection(
+      const ACurrLonLat: TDoublePoint;
+      var AIntersectionLonLat: TDoublePoint;
+      AMarkPoly: IMarkPoly;
+      AProjection: IProjectionInfo
+    ):boolean; overload;
+    function GetIntersection(
+      const ACurrLonLat: TDoublePoint;
+      var AIntersectionLonLat: TDoublePoint;
+      AMarkLine: IMarkLine;
+      AProjection: IProjectionInfo
+    ):boolean; overload;
   end;
 
 implementation
@@ -74,7 +102,10 @@ uses
   SysUtils,
   Math,
   i_TileIterator,
+  i_EnumDoublePoint,
   i_BitmapLayerProvider,
+  u_IdCacheSimpleThreadSafe,
+  u_DoublePointsAggregator,
   u_MapMarksBitmapLayerProviderByMarksSubset,
   u_NotifyEventListener,
   u_TileIteratorSpiralByRect;
@@ -113,6 +144,9 @@ begin
   FConfig := AConfig;
   FMarkDB := AMarkDB;
 
+  FProjectedCache := TIdCacheSimpleThreadSafe.Create;
+  FPointsAgregator := TDoublePointsAggregator.Create;
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.MarksShowConfig.GetChangeNotifier
@@ -149,24 +183,32 @@ var
   VCurrTileOnBitmapRect: TRect;
   VProv: IBitmapLayerProvider;
   VMarksSubset: IMarksSubset;
+  VMapRect: TDoubleRect;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VCounterContext := FGetMarksCounter.StartOperation;
   VBitmapConverter := LayerCoordConverter;
   if VBitmapConverter <> nil then begin
+    VCounterContext := FGetMarksCounter.StartOperation;
     try
       VMarksSubset := GetMarksSubset(VBitmapConverter);
       FMarksSubset := VMarksSubset;
     finally
       FGetMarksCounter.FinishOperation(VCounterContext);
     end;
+    FProjectedCache.Clear;
     if (VMarksSubset <> nil) and (not VMarksSubset.IsEmpty) then begin
+      VMapRect := VBitmapConverter.GetRectInMapPixelFloat;
+      FLinesClipRect.Left := VMapRect.Left - 10;
+      FLinesClipRect.Top := VMapRect.Top - 10;
+      FLinesClipRect.Right := VMapRect.Right + 10;
+      FLinesClipRect.Bottom := VMapRect.Bottom + 10;
       VProv :=
         TMapMarksBitmapLayerProviderByMarksSubset.Create(
           FDrawConfigStatic,
           FVectorItmesFactory,
           VBitmapConverter.ProjectionInfo,
-          VBitmapConverter.GetRectInMapPixelFloat,
+          FProjectedCache,
+          FLinesClipRect,
           VMarksSubset
         );
       VGeoConvert := VBitmapConverter.GetGeoConverter;
@@ -234,8 +276,6 @@ end;
 
 procedure TMapMarksLayer.MouseOnReg(xy: TPoint; out AMark: IMark; out AMarkS: Double);
 var
-  VLonLatLine: TArrayOfDoublePoint;
-  VLineOnBitmap: TArrayOfDoublePoint;
   VLonLatRect: TDoubleRect;
   VRect: TRect;
   VConverter: ICoordConverter;
@@ -253,7 +293,8 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
-  VLen: Integer;
+  VProjectdPath: IProjectedPath;
+  VProjectdPolygon: IProjectedPolygon;
 begin
   VCounterContext := FMouseOnRegCounter.StartOperation;
   try
@@ -285,25 +326,19 @@ begin
               exit;
             end else begin
               if Supports(VMark, IMarkLine, VMarkLine) then begin
-                VLonLatLine := VMarkLine.Points;
-                VLen := Length(VLonLatLine);
-                SetLength(VLineOnBitmap, VLen);
-                VConverter.CheckAndCorrectLonLatArray(@VLonLatLine[0], VLen);
-                VConverter.LonLatArray2PixelArrayFloat(@VLonLatLine[0], VLen, @VLineOnBitmap[0], VZoom);
-                if PointOnPath(VPixelPos, @VLineOnBitmap[0], VLen, (VMarkLine.LineWidth / 2) + 3) then begin
+                VProjectdPath := GetProjectedPath(VMarkLine, VLocalConverter.ProjectionInfo);
+                if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
                   AMark := VMark;
                   AMarkS := 0;
                   exit;
                 end;
               end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-                VLonLatLine := VMarkPoly.Points;
-                VLen := Length(VLonLatLine);
-                SetLength(VLineOnBitmap, VLen);
-                VConverter.CheckAndCorrectLonLatArray(@VLonLatLine[0], VLen);
-                VConverter.LonLatArray2PixelArrayFloat(@VLonLatLine[0], VLen, @VLineOnBitmap[0], VZoom);
-                if (PtInRgn(@VLineOnBitmap[0], VLen, VPixelPos)) or
-                   (PointOnPath(VPixelPos, @VLineOnBitmap[0], VLen, (VMarkPoly.LineWidth / 2) + 3)) then begin
-                  VSquare := PolygonSquare(@VLineOnBitmap[0], VLen);
+                VProjectdPolygon := GetProjectedPolygon(VMarkPoly, VLocalConverter.ProjectionInfo);
+                if
+                  VProjectdPolygon.IsPointInPolygon(VPixelPos) or
+                  VProjectdPolygon.IsPointOnBorder(VPixelPos, (VMarkPoly.LineWidth / 2) + 3)
+                then begin
+                  VSquare := VProjectdPolygon.CalcArea;
                   if (AMark = nil) or (VSquare<AMarkS) then begin
                     AMark := VMark;
                     AMarkS := VSquare;
@@ -353,6 +388,40 @@ begin
   end;
 end;
 
+function TMapMarksLayer.GetProjectedPath(AMarkPath: IMarkLine;
+  AProjectionInfo: IProjectionInfo): IProjectedPath;
+var
+  VID: Integer;
+begin
+  VID := Integer(AMarkPath);
+  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
+    Result :=
+      FVectorItmesFactory.CreateProjectedPathWithClipByLonLatPath(
+        AProjectionInfo,
+        AMarkPath.Line,
+        FLinesClipRect,
+        FPointsAgregator
+      );
+  end;
+end;
+
+function TMapMarksLayer.GetProjectedPolygon(AMarkPoly: IMarkPoly;
+  AProjectionInfo: IProjectionInfo): IProjectedPolygon;
+var
+  VID: Integer;
+begin
+  VID := Integer(AMarkPoly);
+  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
+    Result :=
+      FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
+        AProjectionInfo,
+        AMarkPoly.Line,
+        FLinesClipRect,
+        FPointsAgregator
+      );
+  end;
+end;
+
 procedure TMapMarksLayer.MouseOnReg(xy: TPoint; out AMark: IMark);
 var
   VMarkS: Double;
@@ -360,102 +429,72 @@ begin
   MouseOnReg(xy, AMark, VMarkS);
 end;
 
-function TMapMarksLayer.GetIntersection(CurrLonLat: TDoublePoint; var IntersectionLonLat: TDoublePoint; VMarkPoly: IMarkPoly; AConverter: ICoordConverter; AZoom: byte):boolean;
-var i:integer;
-    LineXY21, LineXY22, ResultXY: TDoublePoint;
-    k,b,d,r: double;
-    CircXY1,CircXY2:TDoublePoint;
+function TMapMarksLayer.GetIntersection(
+  const ACurrLonLat: TDoublePoint;
+  var AIntersectionLonLat: TDoublePoint;
+  AMarkPoly: IMarkPoly;
+  AProjection: IProjectionInfo
+): boolean;
+var
+  r: double;
+  VConverter: ICoordConverter;
+  VZoom: byte;
+  VEnum: IEnumLonLatPoint;
+  VLonLatPoint: TDoublePoint;
+  VMapPoint: TDoublePoint;
+  VCurrPixel: TDoublePoint;
 begin
-  Result:=False;
-  r:=(VMarkPoly.LineWidth / 2) + 3;
-
-  for i:=0 to length(VMarkPoly.Points) - 1 do begin
-    LineXY21:=AConverter.LonLat2PixelPosFloat(VMarkPoly.Points[i],AZoom);
-    LineXY22:=AConverter.LonLat2PixelPosFloat(CurrLonLat,AZoom);
-    if (LineXY22.x>=LineXY21.X-r)and(LineXY22.x<=LineXY21.X+r)and
-       (LineXY22.y>=LineXY21.Y-r)and(LineXY22.y<=LineXY21.Y+r) then begin
-         IntersectionLonLat:=VMarkPoly.Points[i];
-         Result:=true;
-         exit;
-       end;
-  end;
-
-  CurrLonLat:=AConverter.LonLat2PixelPosFloat(CurrLonLat,AZoom);
-  for i:=0 to length(VMarkPoly.Points) - 2 do begin
-    LineXY21:=VMarkPoly.Points[i];
-    LineXY21:=AConverter.LonLat2PixelPosFloat(LineXY21,AZoom);
-    LineXY22:=VMarkPoly.Points[i+1];
-    LineXY22:=AConverter.LonLat2PixelPosFloat(LineXY22,AZoom);
-
-    k:=(LineXY21.y-LineXY22.y)/(LineXY21.x-LineXY22.x);
-    b:=LineXY21.y-k*LineXY21.x;
-    d:=sqr(2*k*b-2*CurrLonLat.x-2*CurrLonLat.y*k)-(4+4*sqr(k))*
-       (sqr(b)-sqr(r)+sqr(CurrLonLat.x)+sqr(CurrLonLat.y)-2*CurrLonLat.y*b);
-    if(d>=0) then begin
-      CircXY1.x:=((-(2*k*b-2*CurrLonLat.x-2*CurrLonLat.y*k)-sqrt(d))/(2+2*sqr(k)));
-      CircXY2.x:=((-(2*k*b-2*CurrLonLat.x-2*CurrLonLat.y*k)+sqrt(d))/(2+2*sqr(k)));
-      if (CircXY1.x=CircXY2.x) then begin
-        ResultXY:=DoublePoint(CircXY1.x,CircXY1.x);
-      end else begin
-        CircXY1.y:=k*CircXY1.x+b;
-        CircXY2.y:=k*CircXY2.x+b;
-        ResultXY:=DoublePoint((CircXY1.x+CircXY2.x)/2,(CircXY1.y+CircXY2.y)/2);
-      end;
-      if (ResultXY.x>min(LineXY21.x,LineXY22.x))and(ResultXY.x<max(LineXY21.x,LineXY22.x))and
-         (ResultXY.y>min(LineXY21.y,LineXY22.y))and(ResultXY.y<max(LineXY21.y,LineXY22.y))then begin
-        IntersectionLonLat:=AConverter.PixelPosFloat2LonLat(ResultXY,AZoom);
-        exit;
-      end;
+  VZoom := AProjection.Zoom;
+  VConverter := AProjection.GeoConverter;
+  Result := False;
+  r := (AMarkPoly.LineWidth / 2) + 3;
+  VCurrPixel := VConverter.LonLat2PixelPosFloat(ACurrLonLat, VZoom);
+  VEnum := AMarkPoly.Line.GetEnum;
+  while VEnum.Next(VLonLatPoint) do begin
+    VConverter.CheckLonLatPos(VLonLatPoint);
+    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    if
+      (VCurrPixel.x>=VMapPoint.X-r)and(VCurrPixel.x<=VMapPoint.X+r)and
+      (VCurrPixel.y>=VMapPoint.Y-r)and(VCurrPixel.y<=VMapPoint.Y+r)
+    then begin
+      AIntersectionLonLat := VLonLatPoint;
+      Result := true;
+      exit;
     end;
   end;
 end;
 
-function TMapMarksLayer.GetIntersection(CurrLonLat: TDoublePoint; var IntersectionLonLat: TDoublePoint; VMarkLine: IMarkLine; AConverter: ICoordConverter; AZoom: byte):boolean;
-var i:integer;
-    LineXY21, LineXY22, ResultXY: TDoublePoint;
-    k,b,d,r: double;
-    CircXY1,CircXY2:TDoublePoint;
+function TMapMarksLayer.GetIntersection(
+  const ACurrLonLat: TDoublePoint;
+  var AIntersectionLonLat: TDoublePoint;
+  AMarkLine: IMarkLine;
+  AProjection: IProjectionInfo
+): Boolean;
+var
+  r: double;
+  VConverter: ICoordConverter;
+  VZoom: byte;
+  VEnum: IEnumLonLatPoint;
+  VLonLatPoint: TDoublePoint;
+  VMapPoint: TDoublePoint;
+  VCurrPixel: TDoublePoint;
 begin
-  Result:=False;
-  r:=(VMarkLine.LineWidth / 2) + 3;
-
-  for i:=0 to length(VMarkLine.Points) - 1 do begin
-    LineXY21:=AConverter.LonLat2PixelPosFloat(VMarkLine.Points[i],AZoom);
-    LineXY22:=AConverter.LonLat2PixelPosFloat(CurrLonLat,AZoom);
-    if (LineXY22.x>=LineXY21.X-r)and(LineXY22.x<=LineXY21.X+r)and
-       (LineXY22.y>=LineXY21.Y-r)and(LineXY22.y<=LineXY21.Y+r) then begin
-         IntersectionLonLat:=VMarkLine.Points[i];
-         Result:=true;
-         exit;
-       end;
-  end;
-
-  CurrLonLat:=AConverter.LonLat2PixelPosFloat(CurrLonLat,AZoom);
-  for i:=0 to length(VMarkLine.Points) - 2 do begin
-    LineXY21:=VMarkLine.Points[i];
-    LineXY21:=AConverter.LonLat2PixelPosFloat(LineXY21,AZoom);
-    LineXY22:=VMarkLine.Points[i+1];
-    LineXY22:=AConverter.LonLat2PixelPosFloat(LineXY22,AZoom);
-
-    k:=(LineXY21.y-LineXY22.y)/(LineXY21.x-LineXY22.x);
-    b:=LineXY21.y-k*LineXY21.x;
-    d:=sqr(2*k*b-2*CurrLonLat.x-2*CurrLonLat.y*k)-(4+4*sqr(k))*
-       (sqr(b)-sqr(r)+sqr(CurrLonLat.x)+sqr(CurrLonLat.y)-2*CurrLonLat.y*b);
-    if(d>=0) then begin
-      CircXY1.x:=((-(2*k*b-2*CurrLonLat.x-2*CurrLonLat.y*k)-sqrt(d))/(2+2*sqr(k)));
-      CircXY2.x:=((-(2*k*b-2*CurrLonLat.x-2*CurrLonLat.y*k)+sqrt(d))/(2+2*sqr(k)));
-      if (CircXY1.x=CircXY2.x) then begin
-        ResultXY:=DoublePoint(CircXY1.x,CircXY1.x);
-      end else begin
-        CircXY1.y:=k*CircXY1.x+b;
-        CircXY2.y:=k*CircXY2.x+b;
-        ResultXY:=DoublePoint((CircXY1.x+CircXY2.x)/2,(CircXY1.y+CircXY2.y)/2);
-      end;
-      if (ResultXY.x>min(LineXY21.x,LineXY22.x))and(ResultXY.x<max(LineXY21.x,LineXY22.x))and
-         (ResultXY.y>min(LineXY21.y,LineXY22.y))and(ResultXY.y<max(LineXY21.y,LineXY22.y))then begin
-        IntersectionLonLat:=AConverter.PixelPosFloat2LonLat(ResultXY,AZoom);
-        exit;
-      end;
+  VZoom := AProjection.Zoom;
+  VConverter := AProjection.GeoConverter;
+  Result := False;
+  r := (AMarkLine.LineWidth / 2) + 3;
+  VCurrPixel := VConverter.LonLat2PixelPosFloat(ACurrLonLat, VZoom);
+  VEnum := AMarkLine.Line.GetEnum;
+  while VEnum.Next(VLonLatPoint) do begin
+    VConverter.CheckLonLatPos(VLonLatPoint);
+    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    if
+      (VCurrPixel.x>=VMapPoint.X-r)and(VCurrPixel.x<=VMapPoint.X+r)and
+      (VCurrPixel.y>=VMapPoint.Y-r)and(VCurrPixel.y<=VMapPoint.Y+r)
+    then begin
+      AIntersectionLonLat := VLonLatPoint;
+      Result := true;
+      exit;
     end;
   end;
 end;

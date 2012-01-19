@@ -23,11 +23,18 @@ unit i_SelectionPolygonLayerConfig;
 interface
 
 uses
+  i_ConfigDataElement,
+  i_PolyLineLayerConfig,
   i_PolygonLayerConfig;
 
 type
-  ISelectionPolygonLayerConfig = interface(IPolygonLayerConfig)
+  ISelectionPolygonLayerConfig = interface(IConfigDataElement)
     ['{67CED7FE-0059-4260-84D1-CAFCC510B924}']
+    function GetLineConfig: IPolygonLayerConfig;
+    property LineConfig: IPolygonLayerConfig read GetLineConfig;
+
+    function GetPointsConfig: IPointsSetLayerConfig;
+    property PointsConfig: IPointsSetLayerConfig read GetPointsConfig;
  end;
 
 implementation

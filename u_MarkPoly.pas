@@ -25,6 +25,7 @@ interface
 uses
   GR32,
   t_GeoTypes,
+  i_VectorItemLonLat,
   i_MarksSimple,
   i_MarkCategory,
   i_HtmlToHintTextConverter,
@@ -34,13 +35,13 @@ type
   TMarkPoly = class(TMarkFullBase, IMarkPoly)
   private
     FLLRect: TDoubleRect;
-    FPoints: TArrayOfDoublePoint;
+    FLine: ILonLatPolygon;
     FBorderColor: TColor32;
     FFillColor: TColor32;
     FLineWidth: Integer;
   protected
     function GetLLRect: TDoubleRect; override;
-    function GetPoints: TArrayOfDoublePoint;
+    function GetLine: ILonLatPolygon;
     function GetBorderColor: TColor32;
     function GetFillColor: TColor32;
     function GetLineWidth: Integer;
@@ -55,7 +56,7 @@ type
       ACategory: ICategory;
       ADesc: string;
       ALLRect: TDoubleRect;
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPolygon;
       ABorderColor: TColor32;
       AFillColor: TColor32;
       ALineWidth: Integer
@@ -75,14 +76,14 @@ constructor TMarkPoly.Create(
   ACategory: ICategory;
   ADesc: string;
   ALLRect: TDoubleRect;
-  APoints: TArrayOfDoublePoint;
+  ALine: ILonLatPolygon;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 );
 begin
   inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
   FLLRect := ALLRect;
-  FPoints := APoints;
+  FLine := ALine;
   FBorderColor := ABorderColor;
   FFillColor := AFillColor;
   FLineWidth := ALineWidth;
@@ -109,9 +110,9 @@ begin
   Result := FLLRect;
 end;
 
-function TMarkPoly.GetPoints: TArrayOfDoublePoint;
+function TMarkPoly.GetLine: ILonLatPolygon;
 begin
-  Result := FPoints;
+  Result := FLine;
 end;
 
 function TMarkPoly.GetLineWidth: Integer;

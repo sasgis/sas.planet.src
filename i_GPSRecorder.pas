@@ -25,6 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_GPS,
+  i_VectorItemLonLat,
   i_ConfigDataElement;
 
 type
@@ -33,9 +34,11 @@ type
     Speed: Double;
     Time: TDateTime;
   end;
+  PTrackPointArray = ^TTrackPointArray;
+  TTrackPointArray = array [0..0] of TGPSTrackPoint;
 
   TGPSTrackPointArray = array of TGPSTrackPoint;
-  
+
   IGPSRecorder = interface(IConfigDataElement)
     ['{E8525CFD-243B-4454-82AA-C66108A74B8F}']
     procedure AddPoint(APosition: IGPSPosition);
@@ -43,7 +46,7 @@ type
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function LastPoints(const AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
-    function GetAllPoints: TArrayOfDoublePoint;
+    function GetAllPoints: ILonLatPath;
     function GetAllTracPoints: TGPSTrackPointArray;
 
     function GetOdometer1: Double;

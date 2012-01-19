@@ -31,7 +31,7 @@ uses
   u_PolyLineLayerConfig;
 
 type
-  TPolygonLayerConfig = class(TPolyLineLayerConfig, IPolygonLayerConfig)
+  TPolygonLayerConfig = class(TLineLayerConfig, IPolygonLayerConfig)
   private
     FFillColor: TColor32;
   protected
@@ -58,13 +58,6 @@ begin
   try
     SetLineColor(SetAlpha(ClRed32, 150));
     SetLineWidth(3);
-
-    SetPointFillColor(SetAlpha(clYellow32, 150));
-    SetPointRectColor(SetAlpha(ClRed32, 150));
-    SetPointFirstColor(SetAlpha(ClGreen32, 255));
-    SetPointActiveColor(SetAlpha(ClRed32, 255));
-    SetPointSize(8);
-
     SetFillColor(SetAlpha(ClWhite32, 50));
   finally
     UnlockWrite;

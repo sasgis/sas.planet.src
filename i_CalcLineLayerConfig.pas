@@ -24,11 +24,12 @@ interface
 
 uses
   GR32,
+  i_ConfigDataElement,
   i_PolyLineLayerConfig;
 
 type
-  ICalcLineLayerConfig = interface(IPolyLineLayerConfig)
-    ['{6D7DFAAC-D654-4CB2-8073-5C33A0DBEE12}']
+  ICalcLineLayerCaptionsConfig = interface(IConfigDataElement)
+    ['{7B3B1D25-519A-43AE-9FFA-B27982DA37D7}']
     function GetLenShow: Boolean;
     procedure SetLenShow(const AValue: Boolean);
     property LenShow: Boolean read GetLenShow write SetLenShow;
@@ -40,6 +41,18 @@ type
     function GetTextBGColor: TColor32;
     procedure SetTextBGColor(const AValue: TColor32);
     property TextBGColor: TColor32 read GetTextBGColor write SetTextBGColor;
+  end;
+
+  ICalcLineLayerConfig = interface(IConfigDataElement)
+    ['{6D7DFAAC-D654-4CB2-8073-5C33A0DBEE12}']
+    function GetLineConfig: ILineLayerConfig;
+    property LineConfig: ILineLayerConfig read GetLineConfig;
+
+    function GetPointsConfig: IPointsSetLayerConfig;
+    property PointsConfig: IPointsSetLayerConfig read GetPointsConfig;
+
+    function GetCaptionConfig: ICalcLineLayerCaptionsConfig;
+    property CaptionConfig: ICalcLineLayerCaptionsConfig read GetCaptionConfig;
  end;
 
 implementation

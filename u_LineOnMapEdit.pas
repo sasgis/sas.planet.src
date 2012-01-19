@@ -34,25 +34,64 @@ uses
 type
   TLineOnMapEdit = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEdit)
   private
+    FFactory: IVectorItmesFactory;
     FPoints: TArrayOfDoublePoint;
-    FCount: Integer;
-    FActiveIndex: Integer;
-  protected
-    function GetCount: Integer;
-    function GetActiveIndex: Integer;
-    function GetPoints: TArrayOfDoublePoint;
-    function GetPointIndexInLonLatRect(ARect: TDoubleRect): Integer;
-    procedure Empty;
-    procedure SetActiveIndex(AValue: Integer);
+    FPointsCount: Integer;
+    FSelectedPointIndex: Integer;
+    procedure _GrowPoints(AAddCount: Integer);
+    procedure _UpdateLineObject; virtual; abstract;
+    procedure _UpdateLineWithSelected; virtual; abstract;
+  private
+    procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
+    procedure SetSelectedNextPoint;
+    procedure SetSelectedPrevPoint;
+    function SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
+
+    function IsEmpty: Boolean; virtual; abstract;
+    function IsReady: Boolean; virtual; abstract;
+    procedure Clear;
     procedure DeleteActivePoint;
     procedure InsertPoint(APoint: TDoublePoint);
     procedure MoveActivePoint(APoint: TDoublePoint);
-    procedure SetPoints(AValue: TArrayOfDoublePoint);
   public
-    constructor Create;
-    destructor Destroy; override;
+    constructor Create(AFactory: IVectorItmesFactory);
   end;
 
+  TPathOnMapEdit = class(TLineOnMapEdit, IPathOnMapEdit)
+  private
+    FLine: ILonLatPath;
+    FLineWithSelected: ILonLatPathWithSelected;
+    procedure _UpdateLineObject; override;
+    procedure _UpdateLineWithSelected; override;
+  private
+    function IsEmpty: Boolean; override;
+    function IsReady: Boolean; override;
+    function GetPath: ILonLatPathWithSelected;
+    procedure SetPath(AValue: ILonLatPathWithSelected); overload;
+    procedure SetPath(AValue: ILonLatPath); overload;
+  end;
+
+  TPolygonOnMapEdit = class(TLineOnMapEdit, IPolygonOnMapEdit)
+  private
+    FLine: ILonLatPolygon;
+    FLineWithSelected: ILonLatPolygonWithSelected;
+    procedure _UpdateLineObject; override;
+    procedure _UpdateLineWithSelected; override;
+  private
+    function IsEmpty: Boolean; override;
+    function IsReady: Boolean; override;
+    function GetPolygon: ILonLatPolygonWithSelected;
+    procedure SetPolygon(AValue: ILonLatPolygonWithSelected); overload;
+    procedure SetPolygon(AValue: ILonLatPolygon); overload;
+  end;
+
+implementation
+
+uses
+  i_Datum,
+  u_GeoFun;
+
+type
   TLonLatLineWithSelectedBase = class(TInterfacedObject)
   private
     FSelectedPoint: TDoublePoint;
@@ -75,6 +114,8 @@ type
     FLine: ILonLatPath;
   private
     function GetEnum: IEnumLonLatPoint;
+    function GetBounds: TDoubleRect;
+    function CalcLength(ADatum: IDatum): Double;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   public
@@ -89,6 +130,9 @@ type
     FLine: ILonLatPolygon;
   private
     function GetEnum: IEnumLonLatPoint;
+    function GetBounds: TDoubleRect;
+    function CalcPerimeter(ADatum: IDatum): Double;
+    function CalcArea(ADatum: IDatum): Double;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
@@ -98,257 +142,9 @@ type
     );
   end;
 
-
-
-
-  TLineOnMapEditNew = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEditNew)
-  private
-    FFactory: IVectorItmesFactory;
-    FPoints: TArrayOfDoublePoint;
-    FPointsCount: Integer;
-    FSelectedPointIndex: Integer;
-    procedure _GrowPoints(AAddCount: Integer);
-    procedure _UpdateLineObject; virtual; abstract;
-    procedure _UpdateLineWithSelected; virtual; abstract;
-  private
-    procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
-    procedure SetSelectedNextPoint;
-    procedure SetSelectedPrevPoint;
-    function SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
-
-    procedure Clear;
-    procedure DeleteActivePoint;
-    procedure InsertPoint(APoint: TDoublePoint);
-    procedure MoveActivePoint(APoint: TDoublePoint);
-  public
-    constructor Create(AFactory: IVectorItmesFactory);
-    destructor Destroy; override;
-  end;
-
-  TPathOnMapEdit = class(TLineOnMapEditNew, IPathOnMapEdit)
-  private
-    FLine: ILonLatPath;
-    FLineWithSelected: ILonLatPathWithSelected;
-    procedure _UpdateLineObject; override;
-    procedure _UpdateLineWithSelected; override;
-  private
-    function GetPath: ILonLatPathWithSelected;
-    procedure SetPath(AValue: ILonLatPathWithSelected); overload;
-    procedure SetPath(AValue: ILonLatPath); overload;
-  end;
-
-  TPolygonOnMapEdit = class(TLineOnMapEditNew, IPolygonOnMapEdit)
-  private
-    FLine: ILonLatPolygon;
-    FLineWithSelected: ILonLatPolygonWithSelected;
-    procedure _UpdateLineObject; override;
-    procedure _UpdateLineWithSelected; override;
-  private
-    function GetPolygon: ILonLatPolygonWithSelected;
-    procedure SetPolygon(AValue: ILonLatPolygonWithSelected); overload;
-    procedure SetPolygon(AValue: ILonLatPolygon); overload;
-  end;
-
-implementation
-
-uses
-  u_GeoFun;
-
 { TLineOnMapEdit }
 
-constructor TLineOnMapEdit.Create;
-begin
-  inherited;
-  SetLength(FPoints, 64);
-  FCount := 0;
-  FActiveIndex := -1;
-end;
-
-destructor TLineOnMapEdit.Destroy;
-begin
-  FPoints := nil;
-  inherited;
-end;
-
-procedure TLineOnMapEdit.DeleteActivePoint;
-begin
-  LockWrite;
-  try
-    if FCount > 0 then begin
-      if FActiveIndex >= FCount - 1 then begin
-        Dec(FCount);
-        FActiveIndex := FCount - 1;
-      end else begin
-        if FActiveIndex < 0 then begin
-          FActiveIndex := 0;
-        end;
-        Move(FPoints[FActiveIndex + 1], FPoints[FActiveIndex], (FCount - FActiveIndex - 1) * SizeOf(FPoints[0]));
-        Dec(FCount);
-        Dec(FActiveIndex);
-        if FActiveIndex < 0 then begin
-          FActiveIndex := 0;
-        end;
-      end;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TLineOnMapEdit.Empty;
-begin
-  LockWrite;
-  try
-    if FCount > 0 then begin
-      FCount := 0;
-      FActiveIndex := -1;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-function TLineOnMapEdit.GetActiveIndex: Integer;
-begin
-  LockRead;
-  try
-    Result := FActiveIndex;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TLineOnMapEdit.GetCount: Integer;
-begin
-  LockRead;
-  try
-    Result := FCount;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TLineOnMapEdit.GetPointIndexInLonLatRect(ARect: TDoubleRect): Integer;
-var
-  i: Integer;
-begin
-  Result := -1;
-  LockRead;
-  try
-    for i := FCount - 1 downto 0 do begin
-      if LonLatPointInRect(FPoints[i], ARect) then begin
-        Result := i;
-        Break;
-      end;
-    end;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TLineOnMapEdit.GetPoints: TArrayOfDoublePoint;
-begin
-  LockRead;
-  try
-    Result := Copy(FPoints, 0, FCount);
-  finally
-    UnlockRead;
-  end;
-end;
-
-procedure TLineOnMapEdit.InsertPoint(APoint: TDoublePoint);
-begin
-  LockWrite;
-  try
-    if Length(FPoints) <= FCount then begin
-      SetLength(FPoints, FCount * 2);
-    end;
-    if FActiveIndex >= FCount - 1 then begin
-      FPoints[FCount] := APoint;
-      FActiveIndex := FCount;
-      Inc(FCount);
-    end else begin
-      if FActiveIndex < 0 then begin
-        FActiveIndex := 0;
-      end;
-      Move(FPoints[FActiveIndex + 1], FPoints[FActiveIndex + 2], (FCount - FActiveIndex - 1) * SizeOf(FPoints[0]));
-      FPoints[FActiveIndex + 1] := APoint;
-      Inc(FActiveIndex);
-      Inc(FCount);
-    end;
-    SetChanged;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TLineOnMapEdit.MoveActivePoint(APoint: TDoublePoint);
-begin
-  LockWrite;
-  try
-    if (FCount > 0) then begin
-      if FActiveIndex < 0 then begin
-        FActiveIndex := 0;
-      end;
-      if FActiveIndex >= FCount then begin
-        FActiveIndex := FCount - 1;
-      end;
-      if not DoublePointsEqual(APoint, FPoints[FActiveIndex]) then begin
-        FPoints[FActiveIndex] := APoint;
-        SetChanged;
-      end;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TLineOnMapEdit.SetActiveIndex(AValue: Integer);
-begin
-  LockWrite;
-  try
-    if (AValue >= 0) and (AValue < FCount) then begin
-      if FActiveIndex <> AValue then begin
-        FActiveIndex := AValue;
-        SetChanged;
-      end;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TLineOnMapEdit.SetPoints(AValue: TArrayOfDoublePoint);
-var
-  VNewCount: Integer;
-begin
-  VNewCount := Length(AValue);
-  if VNewCount > 1 then begin
-    if DoublePointsEqual(AValue[0], AValue[VNewCount - 1]) then begin
-      Dec(VNewCount);
-    end;
-  end;
-  LockWrite;
-  try
-    if VNewCount > 0 then begin
-    if Length(FPoints) < VNewCount then begin
-        SetLength(FPoints, VNewCount);
-      end;
-      FCount := VNewCount;
-      FActiveIndex := FCount - 1;
-      Move(AValue[0], FPoints[0], FCount * SizeOf(FPoints[0]));
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-{ TLineOnMapEditNew }
-
-constructor TLineOnMapEditNew.Create(AFactory: IVectorItmesFactory);
+constructor TLineOnMapEdit.Create(AFactory: IVectorItmesFactory);
 begin
   inherited Create;
   FFactory := AFactory;
@@ -357,13 +153,7 @@ begin
   SetLength(FPoints, 0);
 end;
 
-destructor TLineOnMapEditNew.Destroy;
-begin
-
-  inherited;
-end;
-
-procedure TLineOnMapEditNew.Clear;
+procedure TLineOnMapEdit.Clear;
 begin
   LockWrite;
   try
@@ -377,7 +167,7 @@ begin
   end;
 end;
 
-procedure TLineOnMapEditNew.DeleteActivePoint;
+procedure TLineOnMapEdit.DeleteActivePoint;
 var
   VPrevPoint: TDoublePoint;
   VNextPoint: TDoublePoint;
@@ -419,7 +209,7 @@ begin
   end;
 end;
 
-procedure TLineOnMapEditNew.InsertPoint(APoint: TDoublePoint);
+procedure TLineOnMapEdit.InsertPoint(APoint: TDoublePoint);
 var
   VInsertCount: Integer;
   VCurrPoint: TDoublePoint;
@@ -457,15 +247,21 @@ begin
       end;
     end else begin
       if PointIsEmpty(VCurrPoint) then begin
-        VInsertCount := 2;
+        if FSelectedPointIndex < FPointsCount then begin
+          VInsertCount := 2;
+        end else begin
+          VInsertCount := 1;
+        end;
         _GrowPoints(VInsertCount);
         if FSelectedPointIndex < FPointsCount then begin
           Move(FPoints[FSelectedPointIndex], FPoints[FSelectedPointIndex + VInsertCount], (FPointsCount - FSelectedPointIndex) * SizeOf(TDoublePoint));
+          FPoints[FSelectedPointIndex + 1] := APoint;
+          FPoints[FSelectedPointIndex + 2] := CEmptyDoublePoint;
+          Inc(FSelectedPointIndex);
+        end else begin
+          FPoints[FSelectedPointIndex] := APoint;
         end;
-        FPoints[FSelectedPointIndex] := CEmptyDoublePoint;
-        FPoints[FSelectedPointIndex + 1] := APoint;
         Inc(FPointsCount, VInsertCount);
-        Inc(FSelectedPointIndex);
         _UpdateLineObject;
       end else begin
         VInsertCount := 1;
@@ -484,7 +280,7 @@ begin
   end;
 end;
 
-procedure TLineOnMapEditNew.MoveActivePoint(APoint: TDoublePoint);
+procedure TLineOnMapEdit.MoveActivePoint(APoint: TDoublePoint);
 var
   VCurrPoint: TDoublePoint;
 begin
@@ -506,23 +302,39 @@ begin
   end;
 end;
 
-function TLineOnMapEditNew.SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
+function TLineOnMapEdit.SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
 var
   VIndex: Integer;
+  VPoint: TDoublePoint;
   i: Integer;
 begin
   Result := False;
   LockWrite;
   try
     VIndex := -1;
-    for i := FPointsCount - 1 downto 0 do begin
-      if not PointIsEmpty(FPoints[i]) then begin
-        if LonLatPointInRect(FPoints[i], ARect) then begin
-          VIndex := i;
-          Break;
+    if FPointsCount > 0 then begin
+      if FSelectedPointIndex < FPointsCount then begin
+        VPoint := FPoints[FSelectedPointIndex];
+        if not PointIsEmpty(VPoint) then begin
+          if LonLatPointInRect(VPoint, ARect) then begin
+            VIndex := FSelectedPointIndex;
+          end;
         end;
       end;
     end;
+
+    if VIndex < 0 then begin
+      for i := FPointsCount - 1 downto 0 do begin
+        VPoint := FPoints[i];
+        if not PointIsEmpty(VPoint) then begin
+          if LonLatPointInRect(VPoint, ARect) then begin
+            VIndex := i;
+            Break;
+          end;
+        end;
+      end;
+    end;
+    
     if VIndex >= 0 then begin
       if FSelectedPointIndex <> VIndex then begin
         FSelectedPointIndex := VIndex;
@@ -535,7 +347,7 @@ begin
   end;
 end;
 
-procedure TLineOnMapEditNew.SetSelectedNextPoint;
+procedure TLineOnMapEdit.SetSelectedNextPoint;
 begin
   LockWrite;
   try
@@ -548,7 +360,7 @@ begin
   end;
 end;
 
-procedure TLineOnMapEditNew.SetSelectedPoint(ASegmentIndex,
+procedure TLineOnMapEdit.SetSelectedPoint(ASegmentIndex,
   APointIndex: Integer);
 var
   i: Integer;
@@ -586,7 +398,7 @@ begin
   end;
 end;
 
-procedure TLineOnMapEditNew.SetSelectedPrevPoint;
+procedure TLineOnMapEdit.SetSelectedPrevPoint;
 begin
   LockWrite;
   try
@@ -599,7 +411,7 @@ begin
   end;
 end;
 
-procedure TLineOnMapEditNew._GrowPoints(AAddCount: Integer);
+procedure TLineOnMapEdit._GrowPoints(AAddCount: Integer);
 var
   VSize: Integer;
 begin
@@ -660,6 +472,29 @@ begin
     end;
   finally
     UnlockWrite;
+  end;
+end;
+
+function TPathOnMapEdit.IsEmpty: Boolean;
+begin
+  LockRead;
+  try
+    Result := FLine.Count > 0;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TPathOnMapEdit.IsReady: Boolean;
+begin
+  LockRead;
+  try
+    Result := False;
+    if FLine.Count > 0 then begin
+      Result := FLine.Item[0].Count > 1;
+    end;
+  finally
+    UnlockRead;
   end;
 end;
 
@@ -744,6 +579,29 @@ begin
     end;
   finally
     UnlockWrite;
+  end;
+end;
+
+function TPolygonOnMapEdit.IsEmpty: Boolean;
+begin
+  LockRead;
+  try
+    Result := FLine.Count > 0;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TPolygonOnMapEdit.IsReady: Boolean;
+begin
+  LockRead;
+  try
+    Result := False;
+    if FLine.Count > 0 then begin
+      Result := FLine.Item[0].Count > 2;
+    end;
+  finally
+    UnlockRead;
   end;
 end;
 
@@ -842,12 +700,31 @@ begin
   end;
   if not VPointExists then begin
     VSelectedSegmentIndex := ALine.Count - 1;
-    VLine := ALine.Item[VSelectedSegmentIndex];
-    VSelectedPointIndex := VLine.Count - 1;
-    VSelectedPoint := VLine.Points[VSelectedPointIndex];
+    if VSelectedSegmentIndex >= 0 then begin
+      VLine := ALine.Item[VSelectedSegmentIndex];
+      VSelectedPointIndex := VLine.Count - 1;
+      if VSelectedPointIndex >= 0 then begin
+        VSelectedPoint := VLine.Points[VSelectedPointIndex];
+      end else begin
+        VSelectedPoint := CEmptyDoublePoint;
+      end;
+    end else begin
+      VSelectedPointIndex := -1;
+      VSelectedPoint := CEmptyDoublePoint;
+    end;
   end;
   inherited Create(VSelectedPoint, VSelectedSegmentIndex, VSelectedPointIndex);
   FLine := ALine;
+end;
+
+function TLonLatPathWithSelected.CalcLength(ADatum: IDatum): Double;
+begin
+  Result := FLine.CalcLength(ADatum);
+end;
+
+function TLonLatPathWithSelected.GetBounds: TDoubleRect;
+begin
+  Result := FLine.Bounds;
 end;
 
 function TLonLatPathWithSelected.GetCount: Integer;
@@ -898,12 +775,36 @@ begin
   end;
   if not VPointExists then begin
     VSelectedSegmentIndex := ALine.Count - 1;
-    VLine := ALine.Item[VSelectedSegmentIndex];
-    VSelectedPointIndex := VLine.Count - 1;
-    VSelectedPoint := VLine.Points[VSelectedPointIndex];
+    if VSelectedSegmentIndex >= 0 then begin
+      VLine := ALine.Item[VSelectedSegmentIndex];
+      VSelectedPointIndex := VLine.Count - 1;
+      if VSelectedPointIndex >= 0 then begin
+        VSelectedPoint := VLine.Points[VSelectedPointIndex];
+      end else begin
+        VSelectedPoint := CEmptyDoublePoint;
+      end;
+    end else begin
+      VSelectedPointIndex := -1;
+      VSelectedPoint := CEmptyDoublePoint;
+    end;
   end;
   inherited Create(VSelectedPoint, VSelectedSegmentIndex, VSelectedPointIndex);
   FLine := ALine;
+end;
+
+function TLonLatPolygonWithSelected.CalcArea(ADatum: IDatum): Double;
+begin
+  Result := FLine.CalcArea(ADatum);
+end;
+
+function TLonLatPolygonWithSelected.CalcPerimeter(ADatum: IDatum): Double;
+begin
+  Result := FLine.CalcPerimeter(ADatum);
+end;
+
+function TLonLatPolygonWithSelected.GetBounds: TDoubleRect;
+begin
+  Result := FLine.Bounds;
 end;
 
 function TLonLatPolygonWithSelected.GetCount: Integer;

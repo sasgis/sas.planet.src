@@ -25,6 +25,7 @@ interface
 uses
   i_LanguageManager,
   i_ProxySettings,
+  i_VectorItmesFactory,
   i_VectorDataLoader,
   u_PathDetalizeProviderListBase;
 
@@ -34,6 +35,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader
     );
   end;
@@ -51,37 +53,38 @@ uses
 constructor TPathDetalizeProviderListSimple.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader
 );
 var
   VEntity: IPathDetalizeProviderListEntity;
 begin
   inherited Create;
-  VEntity := TPathDetalizeProviderMailRuShortest.Create(ALanguageManager, AProxyConfig);
+  VEntity := TPathDetalizeProviderMailRuShortest.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderMailRuFastest.Create(ALanguageManager, AProxyConfig);
+  VEntity := TPathDetalizeProviderMailRuFastest.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderMailRuFastestWithTraffic.Create(ALanguageManager, AProxyConfig);
+  VEntity := TPathDetalizeProviderMailRuFastestWithTraffic.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationFastestByCar.Create(ALanguageManager, AProxyConfig, AKmlLoader);
+  VEntity := TPathDetalizeProviderYourNavigationFastestByCar.Create(ALanguageManager, AProxyConfig, AFactory, AKmlLoader);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationShortestByCar.Create(ALanguageManager, AProxyConfig, AKmlLoader);
+  VEntity := TPathDetalizeProviderYourNavigationShortestByCar.Create(ALanguageManager, AProxyConfig, AFactory, AKmlLoader);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationFastestByBicycle.Create(ALanguageManager, AProxyConfig, AKmlLoader);
+  VEntity := TPathDetalizeProviderYourNavigationFastestByBicycle.Create(ALanguageManager, AProxyConfig, AFactory, AKmlLoader);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationShortestByBicycle.Create(ALanguageManager, AProxyConfig, AKmlLoader);
+  VEntity := TPathDetalizeProviderYourNavigationShortestByBicycle.Create(ALanguageManager, AProxyConfig, AFactory, AKmlLoader);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeFastestByCar.Create(ALanguageManager, AProxyConfig);
+  VEntity := TPathDetalizeProviderCloudMadeFastestByCar.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeFastestByFoot.Create(ALanguageManager, AProxyConfig);
+  VEntity := TPathDetalizeProviderCloudMadeFastestByFoot.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeFastestByBicycle.Create(ALanguageManager, AProxyConfig);
+  VEntity := TPathDetalizeProviderCloudMadeFastestByBicycle.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeShortestByCar.Create(ALanguageManager, AProxyConfig);
+  VEntity := TPathDetalizeProviderCloudMadeShortestByCar.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeShortestByFoot.Create(ALanguageManager, AProxyConfig);
+  VEntity := TPathDetalizeProviderCloudMadeShortestByFoot.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeShortestByBicycle.Create(ALanguageManager, AProxyConfig);
+  VEntity := TPathDetalizeProviderCloudMadeShortestByBicycle.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);
 end;
 

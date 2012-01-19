@@ -24,15 +24,21 @@ interface
 
 uses
   t_GeoTypes,
+  i_VectorItmesFactory,
   i_ImportFile,
   i_ImportConfig;
 
 type
   TImportMpSimple = class(TInterfacedObject, IImportFile)
   private
+    FFactory: IVectorItmesFactory;
     function ParseCoordinates(AData: string): TArrayOfDoublePoint;
   protected
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+  public
+    constructor Create(
+      AFactory: IVectorItmesFactory
+    );
   end;
 
 implementation
@@ -49,6 +55,11 @@ const
   CDataHeader = 'Data0=';
 
 { TImportMpSimple }
+
+constructor TImportMpSimple.Create(AFactory: IVectorItmesFactory);
+begin
+  FFactory := AFactory;
+end;
 
 function TImportMpSimple.ParseCoordinates(AData: string): TArrayOfDoublePoint;
 var
@@ -141,7 +152,7 @@ begin
     end;
     if Length(VPolygon) > 2 then begin
       VMark := AConfig.MarkDB.Factory.CreateNewPoly(
-        VPolygon,
+        FFactory.CreateLonLatPolygon(@VPolygon[0], Length(VPolygon)),
         ExtractFileName(AFileName),
         '',
         AConfig.TemplateNewPoly

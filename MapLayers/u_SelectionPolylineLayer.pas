@@ -10,6 +10,10 @@ uses
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
   i_ViewPortState,
+  i_VectorItemProjected,
+  i_VectorItemLocal,
+  i_VectorItemLonLat,
+  i_VectorItmesFactory,
   i_LineOnMapEdit,
   i_SelectionPolylineLayerConfig,
   u_PolyLineLayerBase,
@@ -17,31 +21,26 @@ uses
   u_MapLayerBasic;
 
 type
-  TSelectionPolylineLayer = class(TPolyLineLayerBase)
+  TSelectionPolylineShadowLayer = class(TPolygonLayerBase)
   private
-    FConfig: ISelectionPolylineLayerConfig;
-    FPolygonFill: TPolygon32;
-    FShadowPointsOnBitmap: TArrayOfDoublePoint;
-    FShadowPolygon: TPolygon32;
-    FShadowLinePolygon: TPolygon32;
+    FLineOnMapEdit: IPathOnMapEdit;
+    FConfig: ISelectionPolylineShadowLayerConfig;
+    FRadius: Double;
+    FLine: ILonLatPathWithSelected;
+    procedure OnLineChange;
   protected
-    procedure SetSourcePolygon(const Value: TArrayOfDoublePoint); override;
+    function GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
+  protected
     procedure DoConfigChange; override;
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
-    function LonLatArrayToVisualFloatArray(
-      const APolygon: TArrayOfDoublePoint;
-      ALocalConverter: ILocalCoordConverter
-    ): TArrayOfDoublePoint;
-    procedure PrepareShadowPolygon(ALocalConverter: ILocalCoordConverter);
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
-      ALineOnMapEdit: ILineOnMapEdit;
-      AConfig: ISelectionPolylineLayerConfig
+      AFactory: IVectorItmesFactory;
+      ALineOnMapEdit: IPathOnMapEdit;
+      AConfig: ISelectionPolylineShadowLayerConfig
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -49,184 +48,84 @@ implementation
 uses
   SysUtils,
   i_CoordConverter,
+  i_EnumDoublePoint,
+  u_EnumDoublePointLine2Poly,
+  u_EnumDoublePointsByArray,
+  u_EnumDoublePointLonLatToMapPixel,
+  u_EnumDoublePointMapPixelToLocalPixel,
+  u_EnumDoublePointWithClip,
+  u_EnumDoublePointFilterFirstSegment,
+  u_EnumDoublePointFilterEqual,
   u_NotifyEventListener,
   u_GeoFun;
 
-{ TMarkPolyLineLayer }
+{ TSelectionPolylineShadowLayer }
 
-constructor TSelectionPolylineLayer.Create(
+constructor TSelectionPolylineShadowLayer.Create(
   APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
-  ALineOnMapEdit: ILineOnMapEdit;
-  AConfig: ISelectionPolylineLayerConfig
+  AFactory: IVectorItmesFactory;
+  ALineOnMapEdit: IPathOnMapEdit;
+  AConfig: ISelectionPolylineShadowLayerConfig
 );
 begin
-  FPolygonFill := TPolygon32.Create;
-  FPolygonFill.Closed := false;
-  FPolygonFill.Antialiased := true;
-  FPolygonFill.AntialiasMode := am4times;
-
-  FShadowPolygon := TPolygon32.Create;
-  FShadowPolygon.Closed := True;
-  FShadowPolygon.Antialiased := true;
-  FShadowPolygon.AntialiasMode := am4times;
-
-  FShadowLinePolygon := TPolygon32.Create;
-
   inherited Create(
     APerfList,
     AParentMap,
     AViewPortState,
-    ALineOnMapEdit,
-    AConfig, FPolygonFill,
-    false
+    AFactory,
+    AConfig
   );
   FConfig := AConfig;
+  FLineOnMapEdit := ALineOnMapEdit;
 
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    TNotifyNoMmgEventListener.Create(Self.OnLineChange),
+    FLineOnMapEdit.GetChangeNotifier
   );
 end;
 
-destructor TSelectionPolylineLayer.Destroy;
+procedure TSelectionPolylineShadowLayer.DoConfigChange;
 begin
-  FreeAndNil(FShadowPolygon);
-  FreeAndNil(FShadowLinePolygon);
   inherited;
+  FRadius := FConfig.Radius;
 end;
 
-procedure TSelectionPolylineLayer.DoConfigChange;
+function TSelectionPolylineShadowLayer.GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPolygon;
+var
+  VLine: ILonLatPathWithSelected;
 begin
-  inherited;
+  VLine := FLine;
+  if VLine <> nil then begin
+    Result :=
+      Factory.CreateLonLatPolygonByLonLatPathAndFilter(
+        VLine,
+        TLonLatPointFilterLine2Poly.Create(
+          FRadius,
+          ALocalConverter.ProjectionInfo
+        )
+      );
+  end;
+end;
+
+procedure TSelectionPolylineShadowLayer.OnLineChange;
+begin
   ViewUpdateLock;
   try
-    SetNeedRedraw;
-    SetNeedUpdateLocation;
+    FLine := FLineOnMapEdit.Path;
+    if FLine.Count > 0 then begin
+      SetNeedRedraw;
+      Show;
+    end else begin
+      Hide;
+    end;
+    ChangedSource;
   finally
     ViewUpdateUnlock;
   end;
   ViewUpdate;
 end;
 
-procedure TSelectionPolylineLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
-var
-  VPointsCount: Integer;
-begin
-  inherited;
-  PrepareShadowPolygon(ALocalConverter);
-  VPointsCount := Length(FShadowPointsOnBitmap);
-  if VPointsCount > 0 then begin
-    if FShadowLinePolygon <> nil then begin
-      FShadowLinePolygon.DrawFill(ABuffer, FConfig.GetShadowPolygonColor);
-    end;
-  end;
-end;
-
-function TSelectionPolylineLayer.LonLatArrayToVisualFloatArray(
-  const APolygon: TArrayOfDoublePoint;
-  ALocalConverter: ILocalCoordConverter): TArrayOfDoublePoint;
-var
-  i: Integer;
-  VPointsCount: Integer;
-  VLonLat: TDoublePoint;
-  VGeoConvert: ICoordConverter;
-begin
-  VPointsCount := Length(APolygon);
-  SetLength(Result, VPointsCount);
-
-  VGeoConvert := ALocalConverter.GetGeoConverter;
-  for i := 0 to VPointsCount - 1 do begin
-    VLonLat := APolygon[i];
-    if PointIsEmpty(VLonLat) then begin
-      Result[i] := VLonLat;
-    end else begin
-      VGeoConvert.CheckLonLatPos(VLonLat);
-      Result[i] := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
-    end;
-  end;
-end;
-
-procedure TSelectionPolylineLayer.PrepareShadowPolygon(ALocalConverter: ILocalCoordConverter);
-var
-  VPointsCount: Integer;
-  VPolygonOutline: TPolygon32;
-  VPolygonGrow: TPolygon32;
-  i: Integer;
-  VPathFixedPoints: TArrayOfFixedPoint;
-  VBitmapClip: IPolygonClip;
-  VPointsProcessedCount: Integer;
-  VPointsOnBitmapPrepared: TArrayOfDoublePoint;
-  VIndex: Integer;
-  VLocalRect: TRect;
-  VSourcePolygon: TArrayOfDoublePoint;
-begin
-  VSourcePolygon := u_GeoFun.ConveryPolyline2Polygon(@SourcePolygon[0], Length(SourcePolygon), FConfig.GetRadius, ALocalConverter.GetGeoConverter, ALocalConverter.GetZoom);
-  VPointsCount := Length(VSourcePolygon);
-  if VPointsCount > 0 then begin
-    VLocalRect := ALocalConverter.GetLocalRect;
-    Dec(VLocalRect.Left, 10);
-    Dec(VLocalRect.Top, 10);
-    Inc(VLocalRect.Right, 10);
-    Inc(VLocalRect.Bottom, 10);
-    VBitmapClip := TPolygonClipByRect.Create(VLocalRect);
-    FShadowPointsOnBitmap := LonLatArrayToVisualFloatArray(VSourcePolygon, ALocalConverter);
-
-    VPointsProcessedCount := VBitmapClip.Clip(FShadowPointsOnBitmap[0], VPointsCount, VPointsOnBitmapPrepared);
-    if VPointsProcessedCount > 0 then begin
-      SetLength(VPathFixedPoints, VPointsProcessedCount);
-      VIndex := 0;
-      FShadowPolygon.Clear;
-      for i := 0 to VPointsProcessedCount - 1 do begin
-        if PointIsEmpty(VPointsOnBitmapPrepared[i]) then begin
-          FShadowPolygon.AddPoints(VPathFixedPoints[0], VIndex);
-          FShadowPolygon.NewLine;
-          VIndex := 0;
-        end else begin
-          VPathFixedPoints[VIndex] := FixedPoint(VPointsOnBitmapPrepared[i].X, VPointsOnBitmapPrepared[i].Y);
-          Inc(VIndex);
-        end;
-      end;
-      FShadowPolygon.AddPoints(VPathFixedPoints[0], VIndex);
-
-      VPolygonOutline := FShadowPolygon.Outline;
-      try
-        VPolygonGrow := VPolygonOutline.Grow(Fixed(1 / 2), 0.5);
-        try
-          FShadowLinePolygon.Assign(VPolygonGrow);
-        finally
-          VPolygonGrow.Free;
-        end;
-      finally
-        VPolygonOutline.Free;
-      end;
-    end;
-  end;
-end;
-
-procedure TSelectionPolylineLayer.SetSourcePolygon(
-  const Value: TArrayOfDoublePoint);
-var
-  VPathLonLat: TArrayOfDoublePoint;
-  VPointsCount: Integer;
-  i: Integer;
-begin
-  VPointsCount := Length(Value);
-  if VPointsCount > 2 then begin
-    if DoublePointsEqual(Value[0], Value[VPointsCount - 1]) then begin
-      VPathLonLat := Value;
-    end else begin
-      SetLength(VPathLonLat, VPointsCount + 1);
-      for i := 0 to VPointsCount - 1 do begin
-        VPathLonLat[i] := Value[i];
-      end;
-      VPathLonLat[VPointsCount] := VPathLonLat[0];
-    end;
-  end else begin
-    VPathLonLat := Value;
-  end;
-  inherited SetSourcePolygon(VPathLonLat);
-end;
 
 end.

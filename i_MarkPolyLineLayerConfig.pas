@@ -23,11 +23,17 @@ unit i_MarkPolyLineLayerConfig;
 interface
 
 uses
+  i_ConfigDataElement,
   i_PolyLineLayerConfig;
 
 type
-  IMarkPolyLineLayerConfig = interface(IPolyLineLayerConfig)
+  IMarkPolyLineLayerConfig = interface(IConfigDataElement)
     ['{2517BC10-BE31-4EC7-B37C-7CBCEA33D2D3}']
+    function GetLineConfig: ILineLayerConfig;
+    property LineConfig: ILineLayerConfig read GetLineConfig;
+
+    function GetPointsConfig: IPointsSetLayerConfig;
+    property PointsConfig: IPointsSetLayerConfig read GetPointsConfig;
  end;
 
 implementation

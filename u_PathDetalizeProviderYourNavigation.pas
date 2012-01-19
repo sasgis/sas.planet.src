@@ -25,6 +25,8 @@ interface
 uses
   t_GeoTypes,
   i_VectorDataLoader,
+  i_VectorItemLonLat,
+  i_VectorItmesFactory,
   i_LanguageManager,
   i_ProxySettings,
   u_PathDetalizeProviderListEntity;
@@ -32,16 +34,18 @@ uses
 type
   TPathDetalizeProviderYourNavigation = class(TPathDetalizeProviderListEntity)
   private
+    FFactory: IVectorItmesFactory;
     FBaseUrl: string;
     FProxyConfig: IProxyConfig;
     FKmlLoader: IVectorDataLoader;
   protected { IPathDetalizeProvider }
-    function GetPath(ASource: TArrayOfDoublePoint; var AComment: string): TArrayOfDoublePoint; override;
+    function GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
   public
     constructor Create(
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader;
       ABaseUrl: string
     );
@@ -57,6 +61,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader
     );
   end;
@@ -71,6 +76,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader
     );
   end;
@@ -85,6 +91,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader
     );
   end;
@@ -99,6 +106,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader
     );
   end;
@@ -110,6 +118,7 @@ uses
   SysUtils,
   gnugettext,
   c_PathDetalizeProvidersGUID,
+  i_EnumDoublePoint,
   u_GeoToStr,
   i_VectorDataItemSimple,
   u_InetFunc;
@@ -120,6 +129,7 @@ constructor TPathDetalizeProviderYourNavigation.Create(
   AGUID: TGUID;
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader;
   ABaseUrl: string
 );
@@ -127,56 +137,65 @@ begin
   inherited Create(AGUID, ALanguageManager);
   FBaseUrl := ABaseUrl;
   FProxyConfig := AProxyConfig;
+  FFactory := AFactory;
   FKmlLoader := AKmlLoader;
 end;
 
-function TPathDetalizeProviderYourNavigation.GetPath(ASource: TArrayOfDoublePoint;
-  var AComment: string): TArrayOfDoublePoint;
+function TPathDetalizeProviderYourNavigation.GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath;
 var
   ms:TMemoryStream;
   url:string;
-  i:integer;
   kml:IVectorDataItemList;
   s,VPointsCount:integer;
   conerr:boolean;
   add_line_arr_b:TArrayOfDoublePoint;
   VItem: IVectorDataItemLine;
   VPoints: TArrayOfDoublePoint;
+  VCurrPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VEnum: IEnumLonLatPoint;
+  VLine: ILonLatPathLine;
 begin
   AComment := '';
   ms:=TMemoryStream.Create;
   try
     url := FBaseUrl;
     conerr:=false;
-    for i:= 0 to length(ASource)-2 do begin
-      if conerr then Continue;
-      url:=url+'&flat='+R2StrPoint(ASource[i].y)+'&flon='+R2StrPoint(ASource[i].x)+
-          '&tlat='+R2StrPoint(ASource[i+1].y)+'&tlon='+R2StrPoint(ASource[i+1].x);
-      if GetStreamFromURL(ms, url, 'text/xml', FProxyConfig.GetStatic)>0 then begin
-        FKmlLoader.LoadFromStream(ms, kml);
-        if kml <> nil then begin
-          ms.SetSize(0);
-          if kml.Count > 0 then begin
-            if Supports(kml.GetItem(0), IVectorDataItemLine, VItem) then begin
-              VPoints := VItem.Points;
-              VPointsCount := Length(VPoints);
-              if VPointsCount > 0 then begin
-                s := Length(add_line_arr_b);
-                SetLength(add_line_arr_b, (s + VPointsCount));
-                Move(VPoints[0], add_line_arr_b[s], VPointsCount * sizeof(TDoublePoint));
+    VEnum := ASource.GetEnum;
+    if VEnum.Next(VPrevPoint) then begin
+      while VEnum.Next(VCurrPoint) do begin
+        if conerr then Continue;
+        url:=url+'&flat='+R2StrPoint(VPrevPoint.y)+'&flon='+R2StrPoint(VPrevPoint.x)+
+            '&tlat='+R2StrPoint(VCurrPoint.y)+'&tlon='+R2StrPoint(VCurrPoint.x);
+        if GetStreamFromURL(ms, url, 'text/xml', FProxyConfig.GetStatic)>0 then begin
+          FKmlLoader.LoadFromStream(ms, kml);
+          if kml <> nil then begin
+            ms.SetSize(0);
+            if kml.Count > 0 then begin
+              if Supports(kml.GetItem(0), IVectorDataItemLine, VItem) then begin
+                if VItem.Line.Count > 0 then begin
+                  VLine := VItem.Line.Item[0];
+                  VPointsCount := Length(VPoints);
+                  if VPointsCount > 0 then begin
+                    s := Length(add_line_arr_b);
+                    SetLength(add_line_arr_b, (s + VLine.Count));
+                    Move(VLine.Points^, add_line_arr_b[s], VLine.Count * sizeof(TDoublePoint));
+                  end;
+                end;
               end;
             end;
           end;
+        end else begin
+          conerr:=true;
         end;
-      end else begin
-        conerr:=true;
+        VPrevPoint := VCurrPoint;
       end;
     end;
   finally
     ms.Free;
   end;
   if not conerr then begin
-    Result := add_line_arr_b;
+    Result := FFactory.CreateLonLatPath(@add_line_arr_b[0], Length(add_line_arr_b));
   end;
 end;
 
@@ -185,6 +204,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationFastestByCar.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader
 );
 begin
@@ -192,6 +212,7 @@ begin
     CPathDetalizeProviderYourNavigationFastestByCar,
     ALanguageManager,
     AProxyConfig,
+    AFactory,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik'
   );
@@ -217,6 +238,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationShortestByCar.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader
 );
 begin
@@ -224,6 +246,7 @@ begin
     CPathDetalizeProviderYourNavigationShortestByCar,
     ALanguageManager,
     AProxyConfig,
+    AFactory,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik'
   );
@@ -249,6 +272,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationFastestByBicycle.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader
 );
 begin
@@ -256,6 +280,7 @@ begin
     CPathDetalizeProviderYourNavigationFastestByBicycle,
     ALanguageManager,
     AProxyConfig,
+    AFactory,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik'
   );
@@ -281,6 +306,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationShortestByBicycle.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader
 );
 begin
@@ -288,6 +314,7 @@ begin
     CPathDetalizeProviderYourNavigationShortestByBicycle,
     ALanguageManager,
     AProxyConfig,
+    AFactory,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'
   );

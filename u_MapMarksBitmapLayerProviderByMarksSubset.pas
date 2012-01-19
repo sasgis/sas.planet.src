@@ -30,6 +30,7 @@ uses
   i_IDList,
   i_CoordConverter,
   i_ProjectionInfo,
+  i_IdCacheSimple,
   i_LocalCoordConverter,
   i_OperationNotifier,
   i_MarksDrawConfig,
@@ -47,10 +48,9 @@ type
     FVectorItmesFactory: IVectorItmesFactory;
     FMarksSubset: IMarksSubset;
     FProjectionInfo: IProjectionInfo;
-    FMapPixelRect: TDoubleRect;
-
+    FProjectedCache: IIdCacheSimple;
     FLinesClipRect: TDoubleRect;
-    FProjectedLines: IIDInterfaceList;
+
     FTempBmp: TCustomBitmap32;
     FBitmapWithText: TBitmap32;
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
@@ -98,7 +98,8 @@ type
       AConfig: IMarksDrawConfigStatic;
       AVectorItmesFactory: IVectorItmesFactory;
       AProjectionInfo: IProjectionInfo;
-      AMapPixelRect: TDoubleRect;
+      AProjectedCache: IIdCacheSimple;
+      ALinesClipRect: TDoubleRect;
       AMarksSubset: IMarksSubset
     );
     destructor Destroy; override;
@@ -134,17 +135,17 @@ constructor TMapMarksBitmapLayerProviderByMarksSubset.Create(
   AConfig: IMarksDrawConfigStatic;
   AVectorItmesFactory: IVectorItmesFactory;
   AProjectionInfo: IProjectionInfo;
-  AMapPixelRect: TDoubleRect;
+  AProjectedCache: IIdCacheSimple;
+  ALinesClipRect: TDoubleRect;
   AMarksSubset: IMarksSubset
 );
 begin
   FConfig := AConfig;
   FVectorItmesFactory := AVectorItmesFactory;
   FProjectionInfo := AProjectionInfo;
-  FMapPixelRect := AMapPixelRect;
   FMarksSubset := AMarksSubset;
-
-  FProjectedLines := TIDInterfaceList.Create(False);
+  FProjectedCache := AProjectedCache;
+  FLinesClipRect := ALinesClipRect;
 
   FTempBmp := TCustomBitmap32.Create;
   FTempBmp.DrawMode := dmBlend;
@@ -160,11 +161,6 @@ begin
   FBitmapWithText.Resampler := TLinearResampler.Create;
 
   FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
-
-  FLinesClipRect.Left := FMapPixelRect.Left - 10;
-  FLinesClipRect.Top := FMapPixelRect.Top - 10;
-  FLinesClipRect.Right := FMapPixelRect.Right + 10;
-  FLinesClipRect.Bottom := FMapPixelRect.Bottom + 10;
 end;
 
 destructor TMapMarksBitmapLayerProviderByMarksSubset.Destroy;
@@ -525,19 +521,15 @@ var
   VID: Integer;
 begin
   VID := Integer(AMarkPath);
-  Result := IProjectedPath(FProjectedLines.GetByID(VID));
-  if Result = nil then begin
+  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
     Result :=
-      FVectorItmesFactory.CreateProjectedPathWithClipByLonLatEnum(
+      FVectorItmesFactory.CreateProjectedPathWithClipByLonLatPath(
         AProjectionInfo,
-        TEnumLonLatPointsByArray.Create(
-          @(AMarkPath.Points[0]),
-          Length(AMarkPath.Points)
-        ),
+        AMarkPath.Line,
         FLinesClipRect,
         FPreparedPointsAggreagtor
       );
-    FProjectedLines.Add(VID, Result);
+    FProjectedCache.Add(VID, Result);
   end;
 end;
 
@@ -549,19 +541,15 @@ var
   VID: Integer;
 begin
   VID := Integer(AMarkPoly);
-  Result := IProjectedPolygon(FProjectedLines.GetByID(VID));
-  if Result = nil then begin
+  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
     Result :=
-      FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatEnum(
+      FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
         AProjectionInfo,
-        TEnumLonLatPointsByArray.Create(
-          @(AMarkPoly.Points[0]),
-          Length(AMarkPoly.Points)
-        ),
+        AMarkPoly.Line,
         FLinesClipRect,
         FPreparedPointsAggreagtor
       );
-    FProjectedLines.Add(VID, Result);
+    FProjectedCache.Add(VID, Result);
   end;
 end;
 

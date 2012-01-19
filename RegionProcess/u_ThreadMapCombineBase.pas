@@ -255,7 +255,7 @@ begin
     FPoly[i] := Point(Trunc(FPolyProjected.Points[i].X), Trunc(FPolyProjected.Points[i].Y));
   end;
 
-  VProcessTiles := GetDwnlNum(FMapRect.TopLeft, FMapRect.BottomRight, @FPoly[0], VLen, true);
+  VProcessTiles := GetDwnlNum(FMapRect, @FPoly[0], VLen, true);
   GetMinMax(FMapRect, @FPoly[0], VLen, false);
 
   FMapSize.X := FMapRect.Right - FMapRect.Left;

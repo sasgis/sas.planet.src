@@ -23,11 +23,18 @@ unit i_MarkPolygonLayerConfig;
 interface
 
 uses
+  i_ConfigDataElement,
+  i_PolyLineLayerConfig,
   i_PolygonLayerConfig;
 
 type
-  IMarkPolygonLayerConfig = interface(IPolygonLayerConfig)
+  IMarkPolygonLayerConfig = interface(IConfigDataElement)
     ['{B6E75FAB-86BB-4CE9-B2FD-F3A014FA0B12}']
+    function GetLineConfig: IPolygonLayerConfig;
+    property LineConfig: IPolygonLayerConfig read GetLineConfig;
+
+    function GetPointsConfig: IPointsSetLayerConfig;
+    property PointsConfig: IPointsSetLayerConfig read GetPointsConfig;
  end;
 
 implementation

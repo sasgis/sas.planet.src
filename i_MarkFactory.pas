@@ -25,6 +25,7 @@ interface
 uses
   GR32,
   t_GeoTypes,
+  i_VectorItemLonLat,
   i_MarkCategory,
   i_MarkPicture,
   i_MarksFactoryConfig,
@@ -41,13 +42,13 @@ type
       ATemplate: IMarkTemplatePoint = nil
     ): IMarkPoint;
     function CreateNewLine(
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPath;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplateLine = nil
     ): IMarkLine;
     function CreateNewPoly(
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPolygon;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplatePoly = nil
@@ -72,7 +73,7 @@ type
       AVisible: Boolean;
       ACategory: ICategory;
       ADesc: string;
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPath;
       ALineColor: TColor32;
       ALineWidth: Integer
     ): IMarkLine;
@@ -82,7 +83,7 @@ type
       AVisible: Boolean;
       ACategory: ICategory;
       ADesc: string;
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPolygon;
       ABorderColor: TColor32;
       AFillColor: TColor32;
       ALineWidth: Integer
@@ -90,12 +91,12 @@ type
 
     function SimpleModifyLine(
       ASource: IMarkLine;
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPath;
       ADesc: string
     ): IMarkLine;
     function SimpleModifyPoly(
       ASource: IMarkPoly;
-      APoints: TArrayOfDoublePoint
+      ALine: ILonLatPolygon
     ): IMarkPoly;
 
     function GetMarkPictureList: IMarkPictureList;

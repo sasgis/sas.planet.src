@@ -25,6 +25,8 @@ interface
 uses
   GR32,
   t_GeoTypes,
+  i_VectorItemLonLat,
+  i_VectorItmesFactory,
   i_MarkPicture,
   i_MarksFactoryConfig,
   i_MarkCategory,
@@ -40,14 +42,12 @@ type
   TMarkFactory =  class(TInterfacedObject, IMarkFactory, IMarkFactorySmlInternal)
   private
     FConfig: IMarksFactoryConfig;
+    FFactory: IVectorItmesFactory;
     FDbCode: Integer;
     FCategoryDB: IMarkCategoryDBSmlInternal;
     FHintConverter: IHtmlToHintTextConverter;
 
     FMarkPictureList: IMarkPictureList;
-    function GetLLRectFromPoints(APoints: TArrayOfDoublePoint): TDoubleRect;
-    procedure PreparePolyPoints(var APoints: TArrayOfDoublePoint);
-    procedure PreparePathPoints(var APoints: TArrayOfDoublePoint);
 
     function CreatePoint(
       AID: Integer;
@@ -70,7 +70,7 @@ type
       ACategory: ICategory;
       ADesc: string;
       ARect: TDoubleRect;
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPath;
       ALineColor: TColor32;
       ALineWidth: Integer
     ): IMarkLine;
@@ -82,7 +82,7 @@ type
       ACategory: ICategory;
       ADesc: string;
       ARect: TDoubleRect;
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPolygon;
       ABorderColor, AFillColor: TColor32;
       ALineWidth: Integer
     ): IMarkPoly;
@@ -94,13 +94,13 @@ type
       ATemplate: IMarkTemplatePoint = nil
     ): IMarkPoint;
     function CreateNewLine(
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPath;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplateLine = nil
     ): IMarkLine;
     function CreateNewPoly(
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPolygon;
       AName: string;
       ADesc: string;
       ATemplate: IMarkTemplatePoly = nil
@@ -125,7 +125,7 @@ type
       AVisible: Boolean;
       ACategory: ICategory;
       ADesc: string;
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPath;
       ALineColor: TColor32;
       ALineWidth: Integer
     ): IMarkLine;
@@ -135,7 +135,7 @@ type
       AVisible: Boolean;
       ACategory: ICategory;
       ADesc: string;
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPolygon;
       ABorderColor: TColor32;
       AFillColor: TColor32;
       ALineWidth: Integer
@@ -143,12 +143,12 @@ type
 
     function SimpleModifyLine(
       ASource: IMarkLine;
-      APoints: TArrayOfDoublePoint;
+      ALine: ILonLatPath;
       ADesc: string
     ): IMarkLine;
     function SimpleModifyPoly(
       ASource: IMarkPoly;
-      APoints: TArrayOfDoublePoint
+      ALine: ILonLatPolygon
     ): IMarkPoly;
 
     function GetMarkPictureList: IMarkPictureList;
@@ -178,6 +178,7 @@ type
     constructor Create(
       ADbCode: Integer;
       AConfig: IMarksFactoryConfig;
+      AFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
       ACategoryDB: IMarkCategoryDBSmlInternal
     );
@@ -199,26 +200,30 @@ uses
 constructor TMarkFactory.Create(
   ADbCode: Integer;
   AConfig: IMarksFactoryConfig;
+  AFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
   ACategoryDB: IMarkCategoryDBSmlInternal
 );
 begin
   FDbCode := ADbCode;
   FConfig := AConfig;
+  FFactory := AFactory;
   FHintConverter := AHintConverter;
   FCategoryDB := ACategoryDB;
   FMarkPictureList := FConfig.PointTemplateConfig.MarkPictureList;
 end;
 
-function TMarkFactory.CreateNewLine(APoints: TArrayOfDoublePoint; AName,
-  ADesc: string; ATemplate: IMarkTemplateLine): IMarkLine;
+function TMarkFactory.CreateNewLine(
+  ALine: ILonLatPath;
+  AName, ADesc: string;
+  ATemplate: IMarkTemplateLine
+): IMarkLine;
 var
   VTemplate: IMarkTemplateLine;
   VTemplateSML: IMarkTemplateSMLInternal;
   VCategory: ICategory;
   VCategoryID: Integer;
   VName: string;
-  VPoints: TArrayOfDoublePoint;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -235,9 +240,6 @@ begin
     VCategoryID := VTemplateSML.CategoryId;
   end;
 
-  VPoints := Copy(APoints);
-  PreparePathPoints(VPoints);
-
   Result := CreateLine(
     -1,
     VName,
@@ -245,8 +247,8 @@ begin
     VCategoryId,
     VCategory,
     ADesc,
-    GetLLRectFromPoints(VPoints),
-    VPoints,
+    ALine.Bounds,
+    ALine,
     VTemplate.LineColor,
     VTemplate.LineWidth
   );
@@ -293,13 +295,15 @@ begin
   );
 end;
 
-function TMarkFactory.CreateNewPoly(APoints: TArrayOfDoublePoint; AName,
-  ADesc: string; ATemplate: IMarkTemplatePoly): IMarkPoly;
+function TMarkFactory.CreateNewPoly(
+  ALine: ILonLatPolygon;
+  AName, ADesc: string;
+  ATemplate: IMarkTemplatePoly
+): IMarkPoly;
 var
   VTemplate: IMarkTemplatePoly;
   VTemplateSML: IMarkTemplateSMLInternal;
   VName: string;
-  VPoints: TArrayOfDoublePoint;
   VCategory: ICategory;
   VCategoryID: Integer;
 begin
@@ -313,9 +317,6 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
-  VPoints := Copy(APoints);
-  PreparePolyPoints(VPoints);
-
   VCategoryID := -1;
   if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
     VCategoryID := VTemplateSML.CategoryId;
@@ -328,8 +329,8 @@ begin
     VCategoryId,
     VCategory,
     ADesc,
-    GetLLRectFromPoints(APoints),
-    VPoints,
+    ALine.Bounds,
+    ALine,
     VTemplate.BorderColor,
     VTemplate.FillColor,
     VTemplate.LineWidth
@@ -399,7 +400,7 @@ function TMarkFactory.CreateLine(
   ACategory: ICategory;
   ADesc: string;
   ARect: TDoubleRect;
-  APoints: TArrayOfDoublePoint;
+  ALine: ILonLatPath;
   ALineColor: TColor32;
   ALineWidth: Integer
 ): IMarkLine;
@@ -420,19 +421,21 @@ begin
     VCategory,
     ADesc,
     ARect,
-    APoints,
+    ALine,
     ALineColor,
     ALineWidth
   );
 end;
 
 function TMarkFactory.CreatePoly(
-  AID: Integer; AName: string; AVisible: Boolean;
+  AID: Integer;
+  AName: string;
+  AVisible: Boolean;
   ACategoryId: Integer;
   ACategory: ICategory;
   ADesc: string;
   ARect: TDoubleRect;
-  APoints: TArrayOfDoublePoint;
+  ALine: ILonLatPolygon;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 ): IMarkPoly;
@@ -453,7 +456,7 @@ begin
     VCategory,
     ADesc,
     ARect,
-    APoints,
+    ALine,
     ABorderColor,
     AFillColor,
     ALineWidth
@@ -474,6 +477,8 @@ function TMarkFactory.CreateMark(
 ): IMark;
 var
   VPointCount: Integer;
+  VPolygon: ILonLatPolygon;
+  VPath: ILonLatPath;
 begin
   VPointCount := Length(APoints);
   if VPointCount > 0 then begin
@@ -481,9 +486,11 @@ begin
       Result := CreatePoint(AId, AName, AVisible, APicName, nil, ACategoryId, nil, ADesc, APoints[0], AColor1, AColor2, AScale1, AScale2)
     end else begin
       if DoublePointsEqual(APoints[0], APoints[VPointCount - 1]) then begin
-        Result := CreatePoly(AId, AName, AVisible, ACategoryId, nil, ADesc, ARect, APoints, AColor1, AColor2, AScale1);
+        VPolygon := FFactory.CreateLonLatPolygon(@APoints[0], VPointCount);
+        Result := CreatePoly(AId, AName, AVisible, ACategoryId, nil, ADesc, VPolygon.Bounds, VPolygon, AColor1, AColor2, AScale1);
       end else begin
-        Result := CreateLine(AId, AName, AVisible, ACategoryId, nil, ADesc, ARect, APoints, AColor1, AScale1);
+        VPath := FFactory.CreateLonLatPath(@APoints[0], VPointCount);
+        Result := CreateLine(AId, AName, AVisible, ACategoryId, nil, ADesc, VPath.Bounds, VPath, AColor1, AScale1);
       end;
     end;
   end;
@@ -504,7 +511,7 @@ end;
 
 function TMarkFactory.SimpleModifyLine(
   ASource: IMarkLine;
-  APoints: TArrayOfDoublePoint;
+  ALine: ILonLatPath;
   ADesc: string
 ): IMarkLine;
 var
@@ -513,7 +520,6 @@ var
   VDesc: string;
   VVisible: Boolean;
   VMarkInternal: IMarkSMLInternal;
-  VPoints: TArrayOfDoublePoint;
 begin
   VVisible := True;
   VId := -1;
@@ -528,9 +534,6 @@ begin
     VDesc := ASource.Desc;
   end;
 
-  VPoints := Copy(APoints);
-  PreparePathPoints(VPoints);
-
   Result := CreateLine(
     VId,
     ASource.Name,
@@ -538,8 +541,8 @@ begin
     VCategoryId,
     ASource.Category,
     VDesc,
-    GetLLRectFromPoints(VPoints),
-    VPoints,
+    ALine.Bounds,
+    ALine,
     ASource.LineColor,
     ASource.LineWidth
   );
@@ -547,14 +550,13 @@ end;
 
 function TMarkFactory.SimpleModifyPoly(
   ASource: IMarkPoly;
-  APoints: TArrayOfDoublePoint
+  ALine: ILonLatPolygon
 ): IMarkPoly;
 var
   VVisible: Boolean;
   VId: Integer;
   VCategoryId: Integer;
   VMarkInternal: IMarkSMLInternal;
-  VPoints: TArrayOfDoublePoint;
 begin
   VVisible := True;
   VId := -1;
@@ -565,9 +567,6 @@ begin
     VCategoryId := VMarkInternal.CategoryId;
   end;
 
-  VPoints := Copy(APoints);
-  PreparePathPoints(VPoints);
-
   Result := CreatePoly(
     VId,
     ASource.Name,
@@ -575,8 +574,8 @@ begin
     VCategoryId,
     ASource.Category,
     ASource.Desc,
-    GetLLRectFromPoints(VPoints),
-    VPoints,
+    ALine.Bounds,
+    ALine,
     ASource.BorderColor,
     ASource.FillColor,
     ASource.LineWidth
@@ -643,14 +642,13 @@ function TMarkFactory.ModifyLine(
   AVisible: Boolean;
   ACategory: ICategory;
   ADesc: string;
-  APoints: TArrayOfDoublePoint;
+  ALine: ILonLatPath;
   ALineColor: TColor32;
   ALineWidth: Integer
 ): IMarkLine;
 var
   VID: Integer;
   VCategoryId: Integer;
-  VPoints: TArrayOfDoublePoint;
   VCategoryInternal: IMarkCategorySMLInternal;
   VMarkInternal: IMarkSMLInternal;
 begin
@@ -667,8 +665,6 @@ begin
     end;
   end;
 
-  VPoints := Copy(APoints);
-  PreparePathPoints(VPoints);
   Result := CreateLine(
     VId,
     AName,
@@ -676,8 +672,8 @@ begin
     VCategoryId,
     ACategory,
     ADesc,
-    GetLLRectFromPoints(VPoints),
-    VPoints,
+    ALine.Bounds,
+    ALine,
     ALineColor,
     ALineWidth
   );
@@ -689,7 +685,7 @@ function TMarkFactory.ModifyPoly(
   AVisible: Boolean;
   ACategory: ICategory;
   ADesc: string;
-  APoints: TArrayOfDoublePoint;
+  ALine: ILonLatPolygon;
   ABorderColor: TColor32;
   AFillColor: TColor32;
   ALineWidth: Integer
@@ -697,7 +693,6 @@ function TMarkFactory.ModifyPoly(
 var
   VID: Integer;
   VCategoryId: Integer;
-  VPoints: TArrayOfDoublePoint;
   VCategoryInternal: IMarkCategorySMLInternal;
   VMarkInternal: IMarkSMLInternal;
 begin
@@ -714,8 +709,6 @@ begin
     end;
   end;
 
-  VPoints := Copy(APoints);
-  PreparePolyPoints(VPoints);
   Result := CreatePoly(
     VID,
     AName,
@@ -723,8 +716,8 @@ begin
     VCategoryId,
     ACategory,
     ADesc,
-    GetLLRectFromPoints(VPoints),
-    VPoints,
+    ALine.Bounds,
+    ALine,
     ABorderColor,
     AFillColor,
     ALineWidth
@@ -736,69 +729,9 @@ begin
   Result := FConfig;
 end;
 
-function TMarkFactory.GetLLRectFromPoints(
-  APoints: TArrayOfDoublePoint): TDoubleRect;
-var
-  VCount: Integer;
-  i: Integer;
-begin
-  VCount := Length(APoints);
-  if VCount > 0 then begin
-    Result.TopLeft := APoints[0];
-    Result.BottomRight := APoints[0];
-    for i := 1 to VCount - 1 do begin
-      if not PointIsEmpty(APoints[i]) then begin
-        if Result.Left > APoints[i].X then begin
-          Result.Left := APoints[i].X;
-        end;
-        if Result.Top < APoints[i].Y then begin
-          Result.Top := APoints[i].Y;
-        end;
-        if Result.Right < APoints[i].X then begin
-          Result.Right := APoints[i].X;
-        end;
-        if Result.Bottom > APoints[i].Y then begin
-          Result.Bottom := APoints[i].Y;
-        end;
-      end;
-    end;
-  end else begin
-    Result.Left := 0;
-    Result.Top := 0;
-    Result.Right := 0;
-    Result.Bottom := 0;
-  end;
-end;
-
 function TMarkFactory.GetMarkPictureList: IMarkPictureList;
 begin
   Result := FMarkPictureList;
-end;
-
-procedure TMarkFactory.PreparePathPoints(var APoints: TArrayOfDoublePoint);
-var
-  VCount: Integer;
-begin
-  VCount := Length(APoints);
-  while (VCount > 0) and PointIsEmpty(APoints[VCount - 1]) do begin
-    Dec(VCount);
-  end;
-  SetLength(APoints, VCount);
-  Assert(VCount > 1, 'В пути должно быть хотя бы 2 точки');
-end;
-
-procedure TMarkFactory.PreparePolyPoints(var APoints: TArrayOfDoublePoint);
-var
-  VCount: Integer;
-begin
-  VCount := Length(APoints);
-  Assert(VCount > 1, 'В полигоне должно быть хотя бы 2 точки');
-  if VCount > 0 then begin
-    if not DoublePointsEqual(APoints[0], APoints[VCount - 1]) then begin
-      SetLength(APoints, VCount + 1);
-      APoints[VCount] := APoints[0];
-    end;
-  end;
 end;
 
 end.

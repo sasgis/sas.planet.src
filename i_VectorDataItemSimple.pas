@@ -23,7 +23,8 @@ unit i_VectorDataItemSimple;
 interface
 
 uses
-  t_GeoTypes;
+  t_GeoTypes,
+  i_VectorItemLonLat;
 
 type
   IVectorDataItemSimple =  interface
@@ -51,14 +52,14 @@ type
 
   IVectorDataItemLine = interface(IVectorDataItemSimple)
     ['{6EF44536-9F01-4053-AF77-B83F7574773E}']
-    function GetPoints: TArrayOfDoublePoint;
-    property Points: TArrayOfDoublePoint read GetPoints;
+    function GetLine: ILonLatPath;
+    property Line: ILonLatPath read GetLine;
   end;
 
   IVectorDataItemPoly = interface(IVectorDataItemSimple)
     ['{8693C9BF-C424-4223-AAD2-8DDEAD2344A1}']
-    function GetPoints: TArrayOfDoublePoint;
-    property Points: TArrayOfDoublePoint read GetPoints;
+    function GetLine: ILonLatPolygon;
+    property Line: ILonLatPolygon read GetLine;
   end;
 
   IVectorDataItemList = interface

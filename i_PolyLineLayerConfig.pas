@@ -27,8 +27,8 @@ uses
   i_ConfigDataElement;
 
 type
-  IPolyLineLayerConfig = interface(IConfigDataElement)
-    ['{5B334D74-C1B7-4C5D-96C2-9EA4D02698EF}']
+  ILineLayerConfig = interface(IConfigDataElement)
+    ['{738384AD-8BD0-42E0-B037-5A24895D64B6}']
     function GetLineColor: TColor32;
     procedure SetLineColor(AValue: TColor32);
     property LineColor: TColor32 read GetLineColor write SetLineColor;
@@ -36,7 +36,11 @@ type
     function GetLineWidth: integer;
     procedure SetLineWidth(AValue: integer);
     property LineWidth: integer read GetLineWidth write SetLineWidth;
+  end;
 
+
+  IPointsSetLayerConfig = interface(IConfigDataElement)
+    ['{5B334D74-C1B7-4C5D-96C2-9EA4D02698EF}']
     function GetPointFillColor: TColor32;
     procedure SetPointFillColor(AValue: TColor32);
     property PointFillColor: TColor32 read GetPointFillColor write SetPointFillColor;

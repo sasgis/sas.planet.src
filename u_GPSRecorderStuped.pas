@@ -27,6 +27,8 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_Datum,
+  i_VectorItemLonLat,
+  i_VectorItmesFactory,
   i_GPS,
   i_GPSPositionFactory,
   i_GPSRecorder,
@@ -39,6 +41,7 @@ type
   TGPSRecorderStuped = class(TConfigDataElementBase, IGPSRecorder)
   private
     FGPSPositionFactory: IGPSPositionFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
     FDatum: IDatum;
     FTrack: TGPSTrackPointArray;
     FPointsCount: Integer;
@@ -79,7 +82,7 @@ type
     
     function LastPoints(const AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
 
-    function GetAllPoints: TArrayOfDoublePoint;
+    function GetAllPoints: ILonLatPath;
     function GetAllTracPoints: TGPSTrackPointArray;
 
     function GetOdometer1: Double;
@@ -105,7 +108,11 @@ type
 
     function GetGPSUnitInfo: String;
   public
-    constructor Create(ADatum: IDatum; AGPSPositionFactory: IGPSPositionFactory);
+    constructor Create(
+      AVectorItmesFactory: IVectorItmesFactory;
+      ADatum: IDatum;
+      AGPSPositionFactory: IGPSPositionFactory
+    );
     destructor Destroy; override;
   end;
 
@@ -113,13 +120,19 @@ implementation
 
 uses
   Math,
+  i_EnumDoublePoint,
   u_GeoFun;
 
 { TGPSRecorderStuped }
 
-constructor TGPSRecorderStuped.Create(ADatum: IDatum; AGPSPositionFactory: IGPSPositionFactory);
+constructor TGPSRecorderStuped.Create(
+  AVectorItmesFactory: IVectorItmesFactory;
+  ADatum: IDatum;
+  AGPSPositionFactory: IGPSPositionFactory
+);
 begin
   inherited Create;
+  FVectorItmesFactory := AVectorItmesFactory;
   FGPSUnitInfo := '';
   FGPSPositionFactory := AGPSPositionFactory;
   FDatum := ADatum;
@@ -313,16 +326,52 @@ begin
     Result:='';
 end;
 
-function TGPSRecorderStuped.GetAllPoints: TArrayOfDoublePoint;
-var
-  i: Integer;
+{ TEnumDoublePointsByArray }
+
+type
+  TEnumDoublePointsByArray = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
+  private
+    FPoints: PTrackPointArray;
+    FCount: Integer;
+    FIndex: Integer;
+  private
+    function Next(out APoint: TDoublePoint): Boolean;
+  public
+    constructor Create(
+      APoints: PTrackPointArray;
+      ACount: Integer
+    );
+  end;
+
+constructor TEnumDoublePointsByArray.Create(APoints: PTrackPointArray;
+  ACount: Integer);
+begin
+  FPoints := APoints;
+  FCount := ACount;
+  FIndex := 0;
+end;
+
+function TEnumDoublePointsByArray.Next(out APoint: TDoublePoint): Boolean;
+begin
+  if FIndex < FCount then begin
+    APoint := FPoints[FIndex].Point;
+    Inc(FIndex);
+    Result := True;
+  end else begin
+    APoint := CEmptyDoublePoint;
+    Result := False;
+  end;
+end;
+
+
+function TGPSRecorderStuped.GetAllPoints: ILonLatPath;
 begin
   LockRead;
   try
-    SetLength(Result, FPointsCount);
-    for i := 0 to FPointsCount - 1 do begin
-      Result[i] := FTrack[i].Point;
-    end;
+    Result :=
+      FVectorItmesFactory.CreateLonLatPathByEnum(
+        TEnumDoublePointsByArray.Create(@FTrack[0], FPointsCount)
+      );
   finally
     UnlockRead;
   end;

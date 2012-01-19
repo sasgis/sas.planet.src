@@ -24,10 +24,18 @@ interface
 
 uses
   i_MarkPolygonLayerConfig,
-  u_PolygonLayerConfig;
+  i_PolyLineLayerConfig,
+  i_PolygonLayerConfig,
+  u_ConfigDataElementComplexBase;
 
 type
-  TMarkPolygonLayerConfig = class(TPolygonLayerConfig, IMarkPolygonLayerConfig)
+  TMarkPolygonLayerConfig = class(TConfigDataElementComplexBase, IMarkPolygonLayerConfig)
+  private
+    FLineConfig: IPolygonLayerConfig;
+    FPointsConfig: IPointsSetLayerConfig;
+  protected
+    function GetLineConfig: IPolygonLayerConfig;
+    function GetPointsConfig: IPointsSetLayerConfig;
   public
     constructor Create;
   end;
@@ -35,28 +43,38 @@ type
 implementation
 
 uses
-  GR32;
+  GR32,
+  u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_PolyLineLayerConfig,
+  u_PolygonLayerConfig;
 
 { TMarkPolygonLayerConfig }
 
 constructor TMarkPolygonLayerConfig.Create;
 begin
   inherited;
-  LockWrite;
-  try
-    SetLineColor(SetAlpha(ClRed32, 150));
-    SetLineWidth(3);
+  FLineConfig := TPolygonLayerConfig.Create;
+  FLineConfig.LineColor := SetAlpha(ClRed32, 150);
+  FLineConfig.LineWidth := 3;
+  FLineConfig.FillColor := SetAlpha(ClWhite32, 50);
+  Add(FLineConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
-    SetPointFillColor(SetAlpha(clYellow32, 150));
-    SetPointRectColor(SetAlpha(ClRed32, 150));
-    SetPointFirstColor(SetAlpha(ClGreen32, 255));
-    SetPointActiveColor(SetAlpha(ClRed32, 255));
-    SetPointSize(8);
+  FPointsConfig := TPointsSetLayerConfig.Create;
+  FPointsConfig.PointFillColor := SetAlpha(clYellow32, 150);
+  FPointsConfig.PointRectColor := SetAlpha(ClRed32, 150);
+  FPointsConfig.PointFirstColor := SetAlpha(ClGreen32, 255);
+  FPointsConfig.PointActiveColor := SetAlpha(ClRed32, 255);
+  Add(FPointsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+end;
 
-    SetFillColor(SetAlpha(ClWhite32, 50));
-  finally
-    UnlockWrite;
-  end;
+function TMarkPolygonLayerConfig.GetLineConfig: IPolygonLayerConfig;
+begin
+  Result := FLineConfig;
+end;
+
+function TMarkPolygonLayerConfig.GetPointsConfig: IPointsSetLayerConfig;
+begin
+  Result := FPointsConfig;
 end;
 
 end.

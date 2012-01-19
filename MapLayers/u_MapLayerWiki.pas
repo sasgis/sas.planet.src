@@ -17,6 +17,11 @@ uses
   i_MapTypes,
   i_OperationNotifier,
   i_ActiveMapsConfig,
+  i_ProjectionInfo,
+  i_VectorItemProjected,
+  i_VectorItmesFactory,
+  i_IdCacheSimple,
+  i_DoublePointsAggregator,
   i_KmlLayerConfig,
   i_ImageResamplerConfig,
   i_LocalCoordConverter,
@@ -31,18 +36,35 @@ type
   TWikiLayer = class(TMapLayerTiledWithThreadDraw)
   private
     FConfig: IKmlLayerConfig;
+    FVectorItmesFactory: IVectorItmesFactory;
     FLayersSet: IActiveMapsSet;
 
     FVectorMapsSet: IMapTypeSet;
     FElments: IInterfaceList;
+    FLinesClipRect: TDoubleRect;
 
-    FFixedPointArray: TArrayOfFixedPoint;
     FPolygon: TPolygon32;
+
+    FProjectedCache: IIdCacheSimple;
+    FPointsAgregatorThread: IDoublePointsAggregator;
+    FPointsAgregatorGUI: IDoublePointsAggregator;
+    FFixedPointArray: TArrayOfFixedPoint;
 
     FTileUpdateCounter: Integer;
     FTileChangeListener: IJclListener;
     procedure OnTileChange;
     procedure OnTimer;
+
+    function GetProjectedPath(
+      AData: IVectorDataItemLine;
+      AProjectionInfo: IProjectionInfo;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPath;
+    function GetProjectedPolygon(
+      AData: IVectorDataItemPoly;
+      AProjectionInfo: IProjectionInfo;
+      ATemp: IDoublePointsAggregator = nil
+    ): IProjectedPolygon;
 
     procedure ElementsClear;
     procedure DrawPoint(
@@ -123,6 +145,7 @@ type
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
       AViewPortState: IViewPortState;
+      AVectorItmesFactory: IVectorItmesFactory;
       AResamplerConfig: IImageResamplerConfig;
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
@@ -143,10 +166,14 @@ uses
   ActiveX,
   SysUtils,
   i_CoordConverter,
+  i_VectorItemLonLat,
   i_TileIterator,
+  i_EnumDoublePoint,
   i_TileRectUpdateNotifier,
   u_NotifyEventListener,
   u_TileIteratorByRect,
+  u_DoublePointsAggregator,
+  u_IdCacheSimpleThreadSafe,
   u_TileIteratorSpiralByRect;
 
 { TWikiLayer }
@@ -156,6 +183,7 @@ constructor TWikiLayer.Create(
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
   AViewPortState: IViewPortState;
+  AVectorItmesFactory: IVectorItmesFactory;
   AResamplerConfig: IImageResamplerConfig;
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
@@ -177,6 +205,11 @@ begin
   );
   FConfig := AConfig;
   FLayersSet := ALayersSet;
+  FVectorItmesFactory := AVectorItmesFactory;
+
+  FProjectedCache := TIdCacheSimpleThreadSafe.Create;
+  FPointsAgregatorThread := TDoublePointsAggregator.Create;
+  FPointsAgregatorGUI := TDoublePointsAggregator.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -195,7 +228,6 @@ begin
   FTileUpdateCounter := 0;
 
   FElments := TInterfaceList.Create;
-  SetLength(FFixedPointArray, 256);
 
   FPolygon := TPolygon32.Create;
   FPolygon.Antialiased := true;
@@ -205,7 +237,6 @@ end;
 destructor TWikiLayer.Destroy;
 begin
   FElments := nil;
-  FFixedPointArray := nil;
   FreeAndNil(FPolygon);
   inherited;
 end;
@@ -596,11 +627,18 @@ var
   VLocalConverter: ILocalCoordConverter;
   i: Integer;
   VList: IInterfaceList;
+  VMapPixelRect: TDoubleRect;
 begin
   inherited;
   VLocalConverter := LayerCoordConverter;
   if VLocalConverter <> nil then begin
+    VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
+    FLinesClipRect.Left := VMapPixelRect.Left - 10;
+    FLinesClipRect.Top := VMapPixelRect.Top - 10;
+    FLinesClipRect.Right := VMapPixelRect.Right + 10;
+    FLinesClipRect.Bottom := VMapPixelRect.Bottom + 10;
     ElementsClear;
+    FProjectedCache.Clear;
     PrepareWikiElements(AOperationID, ACancelNotifier, FElments, VLocalConverter);
     VList := TInterfaceList.Create;
     FElments.Lock;
@@ -666,6 +704,48 @@ begin
   end;
 end;
 
+function TWikiLayer.GetProjectedPath(
+  AData: IVectorDataItemLine;
+  AProjectionInfo: IProjectionInfo;
+  ATemp: IDoublePointsAggregator = nil
+): IProjectedPath;
+var
+  VID: Integer;
+begin
+  VID := Integer(AData);
+  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
+    Result :=
+      FVectorItmesFactory.CreateProjectedPathWithClipByLonLatPath(
+        AProjectionInfo,
+        AData.Line,
+        FLinesClipRect,
+        ATemp
+      );
+    FProjectedCache.Add(VID, Result);
+  end;
+end;
+
+function TWikiLayer.GetProjectedPolygon(
+  AData: IVectorDataItemPoly;
+  AProjectionInfo: IProjectionInfo;
+  ATemp: IDoublePointsAggregator = nil
+): IProjectedPolygon;
+var
+  VID: Integer;
+begin
+  VID := Integer(AData);
+  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
+    Result :=
+      FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
+        AProjectionInfo,
+        AData.Line,
+        FLinesClipRect,
+        ATemp
+      );
+    FProjectedCache.Add(VID, Result);
+  end;
+end;
+
 procedure TWikiLayer.DrawPoint(
   ATargetBmp: TCustomBitmap32;
   APointColor: TColor32;
@@ -701,26 +781,41 @@ procedure TWikiLayer.DrawPoly(ATargetBmp: TCustomBitmap32; AColorMain,
 var
   VLen: integer;
   i: integer;
-  VPointLL: TDoublePoint;
+  VPoint: TDoublePoint;
   VConverter: ICoordConverter;
   VPointOnBitmap: TDoublePoint;
+  VProjectdPolygon: IProjectedPolygon;
+  VLine: IProjectedPolygonLine;
+  VEnum: IEnumProjectedPoint;
 begin
-  VConverter := ALocalConverter.GetGeoConverter;
-  VLen := Length(AData.Points);
-  if Length(FFixedPointArray) < VLen then begin
-    SetLength(FFixedPointArray, VLen);
+  if AData.Line.Count > 0 then begin
+    VProjectdPolygon := GetProjectedPolygon(AData, ALocalConverter.ProjectionInfo, FPointsAgregatorThread);
+    if VProjectdPolygon.Count > 0 then begin
+      VLine := VProjectdPolygon.Item[0];
+      if VLine.Count > 1 then begin
+        VConverter := ALocalConverter.GetGeoConverter;
+
+        VLen := VLine.Count + 1;
+        if Length(FFixedPointArray) < VLen then begin
+          SetLength(FFixedPointArray, VLen);
+        end;
+        VEnum := VLine.GetEnum;
+
+        i := 0;
+        while VEnum.Next(VPoint) do begin
+          VPointOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPoint);
+          FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
+          Inc(i);
+        end;
+
+        FPolygon.Clear;
+        FPolygon.AddPoints(FFixedPointArray[0], VLen);
+        FPolygon.DrawEdge(ATargetBmp, AColorBG);
+        FPolygon.Offset(Fixed(0.9), Fixed(0.9));
+        FPolygon.DrawEdge(ATargetBmp, AColorMain);
+      end;
+    end;
   end;
-  for i := 0 to VLen - 1 do begin
-    VPointLL := AData.Points[i];
-    VConverter.CheckLonLatPos(VPointLL);
-    VPointOnBitmap := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
-    FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
-  end;
-  FPolygon.Clear;
-  FPolygon.AddPoints(FFixedPointArray[0], VLen);
-  FPolygon.DrawEdge(ATargetBmp, AColorBG);
-  FPolygon.Offset(Fixed(0.9), Fixed(0.9));
-  FPolygon.DrawEdge(ATargetBmp, AColorMain);
 end;
 
 procedure TWikiLayer.DrawLine(
@@ -732,26 +827,45 @@ procedure TWikiLayer.DrawLine(
 var
   VLen: integer;
   i: integer;
-  VPointLL: TDoublePoint;
+  VPoint: TDoublePoint;
   VConverter: ICoordConverter;
   VPointOnBitmap: TDoublePoint;
+  VLineIndex: Integer;
+  VProjectdPath: IProjectedPath;
+  VLine: IProjectedPathLine;
+  VEnum: IEnumProjectedPoint;
 begin
-  VConverter := ALocalConverter.GetGeoConverter;
-  VLen := Length(AData.Points);
-  if Length(FFixedPointArray) < VLen then begin
-    SetLength(FFixedPointArray, VLen);
+  if AData.Line.Count > 0 then begin
+    VProjectdPath := GetProjectedPath(AData, ALocalConverter.ProjectionInfo, FPointsAgregatorThread);
+    if VProjectdPath.Count > 0 then begin
+      FPolygon.Clear;
+      for VLineIndex := 0 to AData.Line.Count - 1 do begin
+        VLine := VProjectdPath.Item[VLineIndex];
+        if VLine.Count > 1 then begin
+          VConverter := ALocalConverter.GetGeoConverter;
+
+          VLen := VLine.Count + 1;
+          if Length(FFixedPointArray) < VLen then begin
+            SetLength(FFixedPointArray, VLen);
+          end;
+          VEnum := VLine.GetEnum;
+
+          i := 0;
+          while VEnum.Next(VPoint) do begin
+            VPointOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPoint);
+            FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
+            Inc(i);
+          end;
+
+          FPolygon.AddPoints(FFixedPointArray[0], VLen);
+          FPolygon.NewLine;
+        end;
+      end;
+      FPolygon.DrawEdge(ATargetBmp, AColorBG);
+      FPolygon.Offset(Fixed(0.9), Fixed(0.9));
+      FPolygon.DrawEdge(ATargetBmp, AColorMain);
+    end;
   end;
-  for i := 0 to VLen - 1 do begin
-    VPointLL := AData.Points[i];
-    VConverter.CheckLonLatPos(VPointLL);
-    VPointOnBitmap := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
-    FFixedPointArray[i] := FixedPoint(VPointOnBitmap.X, VPointOnBitmap.Y);
-  end;
-  FPolygon.Clear;
-  FPolygon.AddPoints(FFixedPointArray[0], VLen);
-  FPolygon.DrawEdge(ATargetBmp, AColorBG);
-  FPolygon.Offset(Fixed(0.9), Fixed(0.9));
-  FPolygon.DrawEdge(ATargetBmp, AColorMain);
 end;
 
 procedure TWikiLayer.DrawWikiElement(
@@ -784,8 +898,6 @@ end;
 procedure TWikiLayer.MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple;
   out AItemS: Double);
 var
-  VLonLatLine: TArrayOfDoublePoint;
-  VLineOnBitmap: TArrayOfDoublePoint;
   VLonLatRect: TDoubleRect;
   VRect: TRect;
   VConverter: ICoordConverter;
@@ -801,7 +913,8 @@ var
   VItem: IVectorDataItemSimple;
   VItemLine: IVectorDataItemLine;
   VItemPoly: IVectorDataItemPoly;
-  VLen: Integer;
+  VProjectdPath: IProjectedPath;
+  VProjectdPolygon: IProjectedPolygon;
 begin
   AItem := nil;
   AItemS := 0;
@@ -837,24 +950,16 @@ begin
           AItemS := 0;
           exit;
         end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
-          VLonLatLine := VItemPoly.Points;
-          VLen := Length(VLonLatLine);
-          SetLength(VLineOnBitmap, VLen);
-          VConverter.CheckAndCorrectLonLatArray(@VLonLatLine[0], VLen);
-          VConverter.LonLatArray2PixelArrayFloat(@VLonLatLine[0], VLen, @VLineOnBitmap[0], VZoom);
-          if PointOnPath(VPixelPos, @VLineOnBitmap[0], VLen, 2) then begin
+          VProjectdPath := GetProjectedPath(VItemLine, VLocalConverter.ProjectionInfo, FPointsAgregatorGUI);
+          if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
             AItem := VItem;
             AItemS := 0;
             exit;
           end;
         end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
-          VLonLatLine := VItemPoly.Points;
-          VLen := Length(VLonLatLine);
-          SetLength(VLineOnBitmap, VLen);
-          VConverter.CheckAndCorrectLonLatArray(@VLonLatLine[0], VLen);
-          VConverter.LonLatArray2PixelArrayFloat(@VLonLatLine[0], VLen, @VLineOnBitmap[0], VZoom);
-          if (PtInRgn(@VLineOnBitmap[0], VLen, VPixelPos)) then begin
-            VSquare := PolygonSquare(@VLineOnBitmap[0], VLen);
+          VProjectdPolygon := GetProjectedPolygon(VItemPoly, VLocalConverter.ProjectionInfo, FPointsAgregatorGUI);
+          if VProjectdPolygon.IsPointInPolygon(VPixelPos) then begin
+            VSquare := VProjectdPolygon.CalcArea;
             if (AItem = nil) or (VSquare<AItemS) then begin
               AItem := VItem;
               AItemS := VSquare;

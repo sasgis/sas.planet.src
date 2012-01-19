@@ -32,6 +32,15 @@ type
       APoints: PDoublePointArray;
       ACount: Integer
     ): ILonLatPolygon;
+    function CreateLonLatPathByEnum(
+      AEnum: IEnumLonLatPoint;
+      ATemp: IDoublePointsAggregator = nil
+    ): ILonLatPath;
+    function CreateLonLatPolygonByEnum(
+      AEnum: IEnumLonLatPoint;
+      ATemp: IDoublePointsAggregator = nil
+    ): ILonLatPolygon;
+
     function CreateProjectedPath(
       AProjection: IProjectionInfo;
       APoints: PDoublePointArray;
@@ -421,8 +430,10 @@ begin
   end;
 end;
 
-function TVectorItmesFactorySimple.CreateLonLatPath(APoints: PDoublePointArray;
-  ACount: Integer): ILonLatPath;
+function TVectorItmesFactorySimple.CreateLonLatPath(
+  APoints: PDoublePointArray;
+  ACount: Integer
+): ILonLatPath;
 var
   VLine: ILonLatPathLine;
   i: Integer;
@@ -478,6 +489,74 @@ begin
       VBounds := VLine.Bounds;
     end;
     Inc(VLineCount);
+  end;
+  if VLineCount = 0 then begin
+    Result := FEmptyLonLatPath;
+  end else if VLineCount = 1 then begin
+    Result := TLonLatPathOneLine.Create(VLine);
+  end else begin
+    VList.Add(VLine);
+    Result := TLonLatPath.Create(VBounds, VList);
+  end;
+end;
+
+function TVectorItmesFactorySimple.CreateLonLatPathByEnum(
+  AEnum: IEnumLonLatPoint;
+  ATemp: IDoublePointsAggregator
+): ILonLatPath;
+var
+  VPoint: TDoublePoint;
+  VLine: ILonLatPathLine;
+  VList: IInterfaceList;
+  VLineCount: Integer;
+  VTemp: IDoublePointsAggregator;
+  VBounds: TDoubleRect;
+begin
+  VTemp := ATemp;
+  if VTemp = nil then begin
+    VTemp := TDoublePointsAggregator.Create;
+  end;
+  VTemp.Clear;
+  VLineCount := 0;
+  while AEnum.Next(VPoint) do begin
+    if PointIsEmpty(VPoint) then begin
+      if VTemp.Count > 0 then begin
+        if VLineCount > 0 then begin
+          if VLineCount = 1 then begin
+            VList := TInterfaceList.Create;
+          end;
+          VList.Add(VLine);
+          VLine := nil;
+        end;
+        VLine := TLonLatPathLine.Create(VTemp.Points, VTemp.Count);
+        if VLineCount > 0 then begin
+          VBounds := UnionLonLatRects(VBounds, VLine.Bounds);
+        end else begin
+          VBounds := VLine.Bounds;
+        end;
+        Inc(VLineCount);
+        VTemp.Clear
+      end;
+    end else begin
+      VTemp.Add(VPoint);
+    end;
+  end;
+  if VTemp.Count > 0 then begin
+    if VLineCount > 0 then begin
+      if VLineCount = 1 then begin
+        VList := TInterfaceList.Create;
+      end;
+      VList.Add(VLine);
+      VLine := nil;
+    end;
+    VLine := TLonLatPathLine.Create(VTemp.Points, VTemp.Count);
+    if VLineCount > 0 then begin
+      VBounds := UnionLonLatRects(VBounds, VLine.Bounds);
+    end else begin
+      VBounds := VLine.Bounds;
+    end;
+    Inc(VLineCount);
+    VTemp.Clear
   end;
   if VLineCount = 0 then begin
     Result := FEmptyLonLatPath;
@@ -546,6 +625,72 @@ begin
       VBounds := VLine.Bounds;
     end;
     Inc(VLineCount);
+  end;
+  if VLineCount = 0 then begin
+    Result := FEmptyLonLatPolygon;
+  end else if VLineCount = 1 then begin
+    Result := TLonLatPolygonOneLine.Create(VLine);
+  end else begin
+    VList.Add(VLine);
+    Result := TLonLatPolygon.Create(VBounds, VList);
+  end;
+end;
+
+function TVectorItmesFactorySimple.CreateLonLatPolygonByEnum(
+  AEnum: IEnumLonLatPoint; ATemp: IDoublePointsAggregator): ILonLatPolygon;
+var
+  VPoint: TDoublePoint;
+  VLine: ILonLatPolygonLine;
+  VList: IInterfaceList;
+  VLineCount: Integer;
+  VTemp: IDoublePointsAggregator;
+  VBounds: TDoubleRect;
+begin
+  VTemp := ATemp;
+  if VTemp = nil then begin
+    VTemp := TDoublePointsAggregator.Create;
+  end;
+  VTemp.Clear;
+  VLineCount := 0;
+  while AEnum.Next(VPoint) do begin
+    if PointIsEmpty(VPoint) then begin
+      if VTemp.Count > 0 then begin
+        if VLineCount > 0 then begin
+          if VLineCount = 1 then begin
+            VList := TInterfaceList.Create;
+          end;
+          VList.Add(VLine);
+          VLine := nil;
+        end;
+        VLine := TLonLatPolygonLine.Create(VTemp.Points, VTemp.Count);
+        if VLineCount > 0 then begin
+          VBounds := UnionLonLatRects(VBounds, VLine.Bounds);
+        end else begin
+          VBounds := VLine.Bounds;
+        end;
+        Inc(VLineCount);
+        VTemp.Clear
+      end;
+    end else begin
+      VTemp.Add(VPoint);
+    end;
+  end;
+  if VTemp.Count > 0 then begin
+    if VLineCount > 0 then begin
+      if VLineCount = 1 then begin
+        VList := TInterfaceList.Create;
+      end;
+      VList.Add(VLine);
+      VLine := nil;
+    end;
+    VLine := TLonLatPolygonLine.Create(VTemp.Points, VTemp.Count);
+    if VLineCount > 0 then begin
+      VBounds := UnionLonLatRects(VBounds, VLine.Bounds);
+    end else begin
+      VBounds := VLine.Bounds;
+    end;
+    Inc(VLineCount);
+    VTemp.Clear
   end;
   if VLineCount = 0 then begin
     Result := FEmptyLonLatPolygon;

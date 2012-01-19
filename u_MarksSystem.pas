@@ -28,6 +28,7 @@ uses
   i_LanguageManager,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_VectorItmesFactory,
   i_MarksSimple,
   i_MarkPicture,
   i_HtmlToHintTextConverter,
@@ -57,6 +58,7 @@ type
       ALanguageManager: ILanguageManager;
       ABasePath: string;
       AMarkPictureList: IMarkPictureList;
+      AVectorItmesFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
       ACategoryFactoryConfig: IMarkCategoryFactoryConfig
     );
@@ -171,6 +173,7 @@ constructor TMarksSystem.Create(
   ALanguageManager: ILanguageManager;
   ABasePath: string;
   AMarkPictureList: IMarkPictureList;
+  AVectorItmesFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
   ACategoryFactoryConfig: IMarkCategoryFactoryConfig
 );
@@ -192,6 +195,7 @@ begin
     TMarksDb.Create(
       ABasePath,
       FCategoryDBInternal,
+      AVectorItmesFactory,
       AHintConverter,
       FMarksFactoryConfig
     );

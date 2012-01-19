@@ -332,6 +332,7 @@ begin
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorder :=
     TGPSRecorderStuped.Create(
+      FVectorItmesFactory,
       TDatum.Create(3395, 6378137, 6356752),
       FGPSPositionFactory
     );
@@ -343,6 +344,7 @@ begin
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create(FCacheConfig);
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
+      FVectorItmesFactory,
       THtmlToHintTextConverterStuped.Create,
       FPerfCounterList
     );
@@ -356,23 +358,28 @@ begin
   // xml loaders
   VXmlLoader :=
     TXmlInfoSimpleParser.Create(
+      FVectorItmesFactory,
       THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     );
   VKmlLoader :=
     TKmlInfoSimpleParser.Create(
+      FVectorItmesFactory,
       THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     );
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
+      FVectorItmesFactory,
       THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     );
 
   FImportFileByExt := TImportByFileExt.Create(
+    FVectorItmesFactory,
     VXmlLoader,
     TPLTSimpleParser.Create(
+      FVectorItmesFactory,
       THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     ),
@@ -400,6 +407,7 @@ begin
       FLanguageManager,
       FProgramPath,
       FMarkPictureList,
+      FVectorItmesFactory,
       THtmlToHintTextConverterStuped.Create,
       FMarksCategoryFactoryConfig
     );
@@ -417,7 +425,7 @@ begin
   FMainMapsList := TMapTypesMainList.Create(FZmpInfoSet);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
-  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, VKmlLoader);
+  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, FVectorItmesFactory, VKmlLoader);
   VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
   VInternalDomainInfoProviderList.Add(
     'ZmpInfo',
