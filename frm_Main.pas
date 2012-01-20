@@ -688,12 +688,9 @@ uses
   c_SasVersion,
   u_JclListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
-  u_LogForTaskThread,
   u_NotifyEventListener,
   i_MapTypes,
   i_GeoCoderList,
-  i_LogSimple,
-  i_LogForTaskThread,
   i_CoordConverter,
   i_VectorItemLonLat,
   i_LocalCoordConverter,
@@ -724,7 +721,6 @@ uses
   u_BitmapMarkerProviderSimpleCross,
   u_BitmapMarkerProviderChangeableFaked,
   u_BitmapMarkerProviderStaticFromDataProvider,
-  u_ThreadDownloadTiles,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
   u_TreeByPathDetalizeProviderList,
@@ -735,7 +731,6 @@ uses
   vsagps_public_base,
   vsagps_public_position,
   vsagps_public_time,
-  frm_ProgressDownload,
   frm_StartLogo,
   StrUtils;
 

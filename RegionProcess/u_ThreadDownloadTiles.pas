@@ -151,7 +151,6 @@ implementation
 
 uses
   SysUtils,
-  IniFiles,
   Types,
   i_DownloadResult,
   i_EnumDoublePoint,
