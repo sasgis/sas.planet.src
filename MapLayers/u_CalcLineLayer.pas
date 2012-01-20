@@ -296,21 +296,6 @@ begin
       FTextColor
     );
   end;
-//  VPointsCount := Length(FDistArray);
-//  if VPointsCount > 0 then begin
-//    if FLenShow then begin
-//      for VIndex := 1 to VPointsCount - 2 do begin
-//        VPosOnBitmap := PointsOnBitmap[VIndex];
-//        text := FValueConverter.DistConvert(FDistArray[VIndex] - FDistArray[VIndex - 1]);
-//        DrawPointText(ABuffer, BitmapSize, text, VPosOnBitmap, 7, FTextBGColor, FTextColor);
-//      end;
-//    end;
-//
-//    if VPointsCount > 1 then begin
-//      text := SAS_STR_Whole + ': ' + FValueConverter.DistConvert(FDistArray[VPointsCount - 1]);
-//      DrawPointText(ABuffer, BitmapSize, text, PointsOnBitmap[VPointsCount - 1], 9, FTextBGColor, FTextColor);
-//    end;
-//  end;
 end;
 
 procedure TCalcLineLayer.PreparePoints(
@@ -407,23 +392,5 @@ begin
   inherited;
   OnConfigChange;
 end;
-
-//procedure TCalcLineLayer.PreparePolygon(ALocalConverter: ILocalCoordConverter);
-//var
-//  VPointsCount: Integer;
-//  i: Integer;
-//  VDatum: IDatum;
-//begin
-//  inherited;
-//  VPointsCount := Length(SourcePolygon);
-//  if VPointsCount > 0 then begin
-//    VDatum := ALocalConverter.GetGeoConverter.Datum;
-//    SetLength(FDistArray, VPointsCount);
-//    FDistArray[0] := 0;
-//    for i := 1 to VPointsCount - 1 do begin
-//      FDistArray[i] := FDistArray[i - 1] + VDatum.CalcDist(SourcePolygon[i - 1], SourcePolygon[i]);
-//    end;
-//  end;
-//end;
 
 end.
