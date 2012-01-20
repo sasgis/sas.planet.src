@@ -38,7 +38,8 @@ type
       ACategoryId: Integer;
       ADesc: string;
       ARect: TDoubleRect;
-      APoints: TArrayOfDoublePoint;
+      APoints: PDoublePointArray;
+      APointCount: Integer;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;

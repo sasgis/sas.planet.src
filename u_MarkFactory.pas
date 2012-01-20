@@ -162,7 +162,8 @@ type
       ACategoryId: Integer;
       ADesc: string;
       ARect: TDoubleRect;
-      APoints: TArrayOfDoublePoint;
+      APoints: PDoublePointArray;
+      APointCount: Integer;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
@@ -471,25 +472,24 @@ function TMarkFactory.CreateMark(
   ACategoryId: Integer;
   ADesc: string;
   ARect: TDoubleRect;
-  APoints: TArrayOfDoublePoint;
+  APoints: PDoublePointArray;
+  APointCount: Integer;
   AColor1, AColor2: TColor32;
   AScale1, AScale2: Integer
 ): IMark;
 var
-  VPointCount: Integer;
   VPolygon: ILonLatPolygon;
   VPath: ILonLatPath;
 begin
-  VPointCount := Length(APoints);
-  if VPointCount > 0 then begin
-    if VPointCount = 1 then begin
+  if APointCount > 0 then begin
+    if APointCount = 1 then begin
       Result := CreatePoint(AId, AName, AVisible, APicName, nil, ACategoryId, nil, ADesc, APoints[0], AColor1, AColor2, AScale1, AScale2)
     end else begin
-      if DoublePointsEqual(APoints[0], APoints[VPointCount - 1]) then begin
-        VPolygon := FFactory.CreateLonLatPolygon(@APoints[0], VPointCount);
+      if DoublePointsEqual(APoints[0], APoints[APointCount - 1]) then begin
+        VPolygon := FFactory.CreateLonLatPolygon(APoints, APointCount);
         Result := CreatePoly(AId, AName, AVisible, ACategoryId, nil, ADesc, VPolygon.Bounds, VPolygon, AColor1, AColor2, AScale1);
       end else begin
-        VPath := FFactory.CreateLonLatPath(@APoints[0], VPointCount);
+        VPath := FFactory.CreateLonLatPath(APoints, APointCount);
         Result := CreateLine(AId, AName, AVisible, ACategoryId, nil, ADesc, VPath.Bounds, VPath, AColor1, AScale1);
       end;
     end;

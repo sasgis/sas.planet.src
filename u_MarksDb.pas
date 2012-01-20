@@ -544,7 +544,22 @@ begin
   VScale1 := FCdsMarks.FieldByName('Scale1').AsInteger;
   VScale2 := FCdsMarks.FieldByName('Scale2').AsInteger;
 
-  Result := FFactoryDbInternal.CreateMark(VId, VName, VVisible, VPicName, VCategoryId, VDesc, VLLRect, VPoints, VColor1, VColor2, VScale1, VScale2);
+  Result :=
+    FFactoryDbInternal.CreateMark(
+      VId,
+      VName,
+      VVisible,
+      VPicName,
+      VCategoryId,
+      VDesc,
+      VLLRect,
+      @VPoints[0],
+      Length(VPoints),
+      VColor1,
+      VColor2,
+      VScale1,
+      VScale2
+    );
 end;
 
 procedure TMarksDb.WriteCurrentMarkId(AMark: IMarkId);
