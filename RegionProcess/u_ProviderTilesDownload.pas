@@ -7,6 +7,7 @@ uses
   i_JclNotify,
   i_MapTypes,
   i_VectorItemLonLat,
+  i_VectorItmesFactory,
   i_LanguageManager,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -25,6 +26,7 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
+    FVectorItmesFactory: IVectorItmesFactory;
   public
     constructor Create(
       AParent: TWinControl;
@@ -34,6 +36,7 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      AVectorItmesFactory: IVectorItmesFactory;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple
     );
@@ -44,6 +47,7 @@ type
     procedure Hide; override;
     procedure RefreshTranslation; override;
     procedure StartProcess(APolygon: ILonLatPolygon); override;
+    procedure StartBySLS(AFileName: string);
   end;
 
 
@@ -68,6 +72,7 @@ constructor TProviderTilesDownload.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  AVectorItmesFactory: IVectorItmesFactory;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple
 );
@@ -75,6 +80,7 @@ begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FAppClosingNotifier := AAppClosingNotifier;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FVectorItmesFactory := AVectorItmesFactory;
   FDownloadConfig := ADownloadConfig;
   FDownloadInfo := ADownloadInfo;
 end;
@@ -131,6 +137,34 @@ begin
       FFrame.Show;
     end;
   end;
+end;
+
+procedure TProviderTilesDownload.StartBySLS(AFileName: string);
+var
+  VLog: TLogForTaskThread;
+  VSimpleLog: ILogSimple;
+  VThreadLog:ILogForTaskThread;
+  VThread: TThreadDownloadTiles;
+begin
+  VLog := TLogForTaskThread.Create(5000, 0);
+  VSimpleLog := VLog;
+  VThreadLog := VLog;
+  VThread :=
+    TThreadDownloadTiles.CreateFromSls(
+      FAppClosingNotifier,
+      FVectorItmesFactory,
+      VSimpleLog,
+      FullMapsSet,
+      AFileName,
+      FDownloadConfig,
+      FDownloadInfo
+    );
+  TfrmProgressDownload.Create(
+    LanguageManager,
+    FValueToStringConverterConfig,
+    VThread,
+    VThreadLog
+  );
 end;
 
 procedure TProviderTilesDownload.StartProcess(APolygon: ILonLatPolygon);

@@ -56,6 +56,7 @@ uses
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
+  u_ProviderTilesDownload,
   t_GeoTypes,
   u_MarksSystem,
   u_GeoTostr;
@@ -92,7 +93,7 @@ type
     FProviderTilesDelte: TExportProviderAbstract;
     FProviderTilesGenPrev: TExportProviderAbstract;
     FProviderTilesCopy: TExportProviderAbstract;
-    FProviderTilesDownload: TExportProviderAbstract;
+    FProviderTilesDownload: TProviderTilesDownload;
     FProviderMapCombine: TExportProviderAbstract;
     procedure LoadRegion(APolyLL: ILonLatPolygon);
     procedure DelRegion(APolyLL: ILonLatPolygon);
@@ -133,6 +134,7 @@ type
     ); reintroduce;
     destructor Destroy; override;
     procedure LoadSelFromFile(FileName:string);
+    procedure StartSlsFromFile(AFileName:string);
     procedure Show_(Azoom:byte; APolygon: ILonLatPolygon);
     procedure RefreshTranslation; override;
   end;
@@ -153,7 +155,6 @@ uses
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
-  u_ProviderTilesDownload,
   u_ProviderMapCombine;
 
 {$R *.dfm}
@@ -230,6 +231,7 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AVectorItmesFactory,
       ADownloadConfig,
       ADownloadInfo
     );
@@ -558,6 +560,11 @@ begin
       ini.Free;
     end;
   end;
+end;
+
+procedure TfrmRegionProcess.StartSlsFromFile(AFileName: string);
+begin
+  FProviderTilesDownload.StartBySLS(AFileName);
 end;
 
 procedure TfrmRegionProcess.CBFormatChange(Sender: TObject);

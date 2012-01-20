@@ -4701,10 +4701,6 @@ end;
 
 procedure TfrmMain.TBXItem6Click(Sender: TObject);
 var
-  VLog: TLogForTaskThread;
-  VSimpleLog: ILogSimple;
-  VThreadLog:ILogForTaskThread;
-  VThread: TThreadDownloadTiles;
   VFileName: string;
   VImportConfig: IImportConfig;
 begin
@@ -4712,26 +4708,7 @@ begin
     VFileName := OpenSessionDialog.FileName;
     if FileExists(VFileName) then begin
       if ExtractFileExt(VFileName)='.sls' then begin
-        VLog := TLogForTaskThread.Create(5000, 0);
-        VSimpleLog := VLog;
-        VThreadLog := VLog;
-        VThread :=
-          TThreadDownloadTiles.CreateFromSls(
-            GState.AppClosingNotifier,
-            GState.VectorItmesFactory,
-            VSimpleLog,
-            GState.MapType.FullMapsSet,
-            VFileName,
-            GState.DownloadConfig,
-            GState.DownloadInfo,
-            FConfig.ViewPortState.GetCurrentZoom
-          );
-        TfrmProgressDownload.Create(
-          GState.LanguageManager,
-          GState.ValueToStringConverterConfig,
-          VThread,
-          VThreadLog
-        );
+        FFormRegionProcess.StartSlsFromFile(VFileName);
       end else if ExtractFileExt(VFileName)='.hlg' then begin
         setalloperationfalse(ao_movemap);
         FFormRegionProcess.LoadSelFromFile(VFileName);
