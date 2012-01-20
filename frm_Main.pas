@@ -2316,10 +2316,10 @@ begin
   if VIsFullScreen then begin
     Self.WindowState := wsMaximized;
     SetBounds(
-      Left-ClientOrigin.X,
-      Top-ClientOrigin.Y,
-      GetDeviceCaps(Canvas.handle, HORZRES) + (Width - ClientWidth),
-      GetDeviceCaps(Canvas.handle, VERTRES) + (Height - ClientHeight)
+      Monitor.Left + Left - ClientOrigin.X,
+      Monitor.Top + Top - ClientOrigin.Y,
+      Monitor.Width + (Width - ClientWidth),
+      Monitor.Height + (Height - ClientHeight)
     );
   end else begin
     if VIsMaximized then begin
@@ -2330,10 +2330,10 @@ begin
       end;
       Self.WindowState := wsMaximized;
       SetBounds(
-        0,
-        0,
-        GetDeviceCaps(Canvas.handle, HORZRES),
-        GetDeviceCaps(Canvas.handle, VERTRES)
+        Monitor.Left,
+        Monitor.Top,
+        Monitor.Width,
+        Monitor.Height
       );
     end else begin
       Self.WindowState := wsNormal;
