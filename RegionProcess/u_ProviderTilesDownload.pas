@@ -4,7 +4,6 @@ interface
 
 uses
   Controls,
-  t_GeoTypes,
   i_JclNotify,
   i_MapTypes,
   i_VectorItemLonLat,

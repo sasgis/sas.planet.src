@@ -26,7 +26,6 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_PolygonLayerConfig,
   i_PolylineLayerConfig,
   i_SelectionPolylineLayerConfig,
   u_PolylineLayerConfig,
@@ -68,7 +67,6 @@ implementation
 
 uses
   u_ConfigProviderHelpers,
-  u_PolygonLayerConfig,
   u_ConfigSaveLoadStrategyBasicProviderSubItem;
 
 { TSelectionPolylineLayerConfig }

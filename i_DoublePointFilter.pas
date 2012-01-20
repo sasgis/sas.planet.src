@@ -3,7 +3,6 @@ unit i_DoublePointFilter;
 interface
 
 uses
-  t_GeoTypes,
   i_EnumDoublePoint;
 
 type

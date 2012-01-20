@@ -64,11 +64,8 @@ uses
   i_ProjectionInfo,
   u_GeoFun,
   u_DoublePointsAggregator,
-  u_EnumDoublePointsByArray,
-  u_EnumDoublePointLonLatToMapPixel,
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
-  u_EnumDoublePointFilterFirstSegment,
   u_EnumDoublePointFilterEqual;
 
 { TSelectionLayer }

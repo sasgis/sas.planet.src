@@ -6,7 +6,6 @@ uses
   Types,
   Classes,
   GR32,
-  GR32_Polygons,
   GR32_Image,
   t_GeoTypes,
   i_ViewPortState,
@@ -15,10 +14,8 @@ uses
   i_LineOnMapEdit,
   i_ProjectionInfo,
   i_DoublePointsAggregator,
-  i_VectorItmesFactory,
   i_ValueToStringConverter,
   i_CalcLineLayerConfig,
-  u_PolyLineLayerBase,
   u_MapLayerBasic;
 
 type
@@ -83,7 +80,6 @@ implementation
 
 uses
   SysUtils,
-  StrUtils,
   i_Datum,
   i_CoordConverter,
   i_EnumDoublePoint,

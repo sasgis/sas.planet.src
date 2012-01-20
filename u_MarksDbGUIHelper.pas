@@ -94,10 +94,8 @@ implementation
 uses
   SysUtils,
   Dialogs,
-  i_Datum,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
-  u_GeoFun,
   u_GeoToStr;
 
 { TMarksDbGUIHelper }

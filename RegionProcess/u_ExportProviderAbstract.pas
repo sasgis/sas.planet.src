@@ -8,8 +8,7 @@ uses
   i_VectorItemLonLat,
   i_MapTypes,
   i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
-  t_GeoTypes;
+  i_MapTypeGUIConfigList;
 
 type
   TExportProviderAbstract = class

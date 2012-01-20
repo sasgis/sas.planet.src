@@ -11,7 +11,6 @@ uses
   i_VectorItemLonLat,
   u_MapType,
   u_ResStrings,
-  t_GeoTypes,
   u_ThreadExportAbstract;
 
 type

@@ -155,8 +155,7 @@ uses
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
   u_ProviderTilesDownload,
-  u_ProviderMapCombine,
-  u_GeoFun;
+  u_ProviderMapCombine;
 
 {$R *.dfm}
 

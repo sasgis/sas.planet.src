@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  t_GeoTypes,
   i_VectorItemLonLat,
   u_ThreadRegionProcessAbstract,
   u_ResStrings;

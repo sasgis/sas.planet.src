@@ -171,14 +171,12 @@ implementation
 
 uses
   Classes,
-  i_Datum,
   u_GeoFun,
   u_DoublePointsAggregator,
   u_LonLatSingleLine,
   u_ProjectedSingleLine,
   u_LocalSingleLine,
   u_EnumDoublePointLonLatToMapPixel,
-  u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterFirstSegment,
   u_EnumDoublePointFilterEqual,

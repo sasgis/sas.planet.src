@@ -9,7 +9,6 @@ uses
   GR32,
   u_MapType,
   u_ResStrings,
-  t_GeoTypes,
   i_CoordConverterFactory,
   i_VectorItemLonLat,
   u_ThreadExportAbstract;

@@ -4,7 +4,6 @@ interface
 
 uses
   Windows,
-  t_GeoTypes,
   i_VectorItemLonLat,
   u_ExportProviderAbstract,
   fr_TilesDelete;

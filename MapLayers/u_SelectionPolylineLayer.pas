@@ -3,21 +3,15 @@ unit u_SelectionPolylineLayer;
 interface
 
 uses
-  GR32,
-  GR32_Polygons,
   GR32_Image,
-  t_GeoTypes,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
   i_ViewPortState,
-  i_VectorItemProjected,
-  i_VectorItemLocal,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_LineOnMapEdit,
   i_SelectionPolylineLayerConfig,
   u_PolyLineLayerBase,
-  u_ClipPolygonByRect,
   u_MapLayerBasic;
 
 type
@@ -46,18 +40,8 @@ type
 implementation
 
 uses
-  SysUtils,
-  i_CoordConverter,
-  i_EnumDoublePoint,
   u_EnumDoublePointLine2Poly,
-  u_EnumDoublePointsByArray,
-  u_EnumDoublePointLonLatToMapPixel,
-  u_EnumDoublePointMapPixelToLocalPixel,
-  u_EnumDoublePointWithClip,
-  u_EnumDoublePointFilterFirstSegment,
-  u_EnumDoublePointFilterEqual,
-  u_NotifyEventListener,
-  u_GeoFun;
+  u_NotifyEventListener;
 
 { TSelectionPolylineShadowLayer }
 

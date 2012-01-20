@@ -4,9 +4,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_EnumDoublePoint,
-  i_VectorItemLonLat,
-  i_VectorItemProjected;
+  i_EnumDoublePoint;
 
 type
   TEnumDoublePointBySingleLineBase = class(TInterfacedObject, IEnumDoublePoint)

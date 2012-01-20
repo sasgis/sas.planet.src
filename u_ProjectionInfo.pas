@@ -3,7 +3,6 @@ unit u_ProjectionInfo;
 interface
 
 uses
-  t_GeoTypes,
   i_CoordConverter,
   i_ProjectionInfo;
 

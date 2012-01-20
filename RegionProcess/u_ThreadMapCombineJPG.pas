@@ -13,7 +13,6 @@ uses
   i_VectorItemProjected,
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
-  t_GeoTypes,
   i_BitmapPostProcessingConfig,
   u_ResStrings,
   u_ThreadMapCombineBase,

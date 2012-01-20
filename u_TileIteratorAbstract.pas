@@ -24,7 +24,6 @@ interface
 
 uses
   Types,
-  t_GeoTypes,
   i_CoordConverter,
   i_VectorItemLonLat,
   i_TileIterator;
@@ -57,8 +56,6 @@ type
   end;
 
 implementation
-
-
 
 { TTileIteratorByPolygonAbstract }
 

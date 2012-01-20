@@ -27,7 +27,6 @@ uses
   Graphics,
   WinTypes,
   t_GeoTypes,
-  i_IDList,
   i_CoordConverter,
   i_ProjectionInfo,
   i_IdCacheSimple,
@@ -114,15 +113,11 @@ uses
   GR32_Resamplers,
   GR32_Polygons,
   i_BitmapMarker,
-  u_IDInterfaceList,
   i_EnumDoublePoint,
   u_DoublePointsAggregator,
-  u_EnumDoublePointsByArray,
   u_EnumDoublePointClosePoly,
-  u_EnumDoublePointLonLatToMapPixel,
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
-  u_EnumDoublePointFilterFirstSegment,
   u_EnumDoublePointFilterEqual,
   u_GeoFun;
 

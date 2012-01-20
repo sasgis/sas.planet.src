@@ -9,7 +9,6 @@ uses
   Classes,
   GR32,
   YaMobileCache,
-  t_GeoTypes,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
   u_MapType,

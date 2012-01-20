@@ -23,7 +23,6 @@ unit i_SelectionPolylineLayerConfig;
 interface
 
 uses
-  GR32,
   i_ConfigDataElement,
   i_PolygonLayerConfig,
   i_PolylineLayerConfig;

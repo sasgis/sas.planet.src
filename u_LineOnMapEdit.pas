@@ -23,7 +23,6 @@ unit u_LineOnMapEdit;
 interface
 
 uses
-  Classes,
   t_GeoTypes,
   i_VectorItemLonLat,
   i_VectorItmesFactory,

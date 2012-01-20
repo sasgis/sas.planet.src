@@ -227,7 +227,6 @@ type
 implementation
 
 uses
-  SysUtils,
   i_CoordConverter,
   i_EnumDoublePoint,
   u_DoublePointsAggregator,

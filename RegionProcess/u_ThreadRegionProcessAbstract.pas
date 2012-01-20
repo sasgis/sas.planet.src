@@ -5,7 +5,6 @@ interface
 uses
   Classes,
   Forms,
-  t_GeoTypes,
   i_VectorItemLonLat,
   i_OperationNotifier,
   u_OperationNotifier,

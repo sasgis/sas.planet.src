@@ -6,7 +6,6 @@ uses
   Windows,
   SysUtils,
   u_MapType,
-  t_GeoTypes,
   i_VectorItemLonLat,
   u_ThreadRegionProcessAbstract;
 

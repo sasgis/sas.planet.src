@@ -23,7 +23,6 @@ unit u_PathDetalizeProviderListEntity;
 interface
 
 uses
-  t_GeoTypes,
   i_PathDetalizeProvider,
   i_VectorItemLonLat,
   u_UserInterfaceItemBase,
