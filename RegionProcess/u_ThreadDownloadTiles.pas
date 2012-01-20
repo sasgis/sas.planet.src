@@ -355,7 +355,7 @@ begin
       VProcessed := Ini.ReadInteger('Session', 'obrab', VProcessed);
       VSecondLoadTNE:=Ini.ReadBool('Session', 'SecondLoadTNE', VSecondLoadTNE);
       VElapsedTime := Ini.ReadFloat('Session', 'ElapsedTime', VProcessed);
-      if FDownloadConfig.IsUseSessionLastSuccess then begin
+      if ADownloadConfig.IsUseSessionLastSuccess then begin
         VLastProcessedPoint.X:=Ini.ReadInteger('Session','LastSuccessfulStartX',-1);
         VLastProcessedPoint.Y:=Ini.ReadInteger('Session','LastSuccessfulStartY',-1);
       end else begin
