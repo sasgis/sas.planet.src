@@ -72,29 +72,160 @@ object frExportToJNX: TfrExportToJNX
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
+      ExplicitLeft = 3
+      DesignSize = (
+        376
+        277)
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 370
+        Width = 20
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
-        Align = alTop
+        Align = alCustom
         Caption = 'Map'
-        ExplicitWidth = 20
+      end
+      object LProductID: TLabel
+        Left = 3
+        Top = 46
+        Width = 51
+        Height = 13
+        Align = alCustom
+        Caption = 'Product ID'
+      end
+      object LProductName: TLabel
+        Left = 3
+        Top = 74
+        Width = 67
+        Height = 13
+        Caption = 'Product Name'
+      end
+      object LMapName: TLabel
+        Left = 3
+        Top = 102
+        Width = 50
+        Height = 13
+        Caption = 'Map Name'
+      end
+      object LZOrder: TLabel
+        Left = 3
+        Top = 154
+        Width = 42
+        Height = 13
+        Caption = 'Z-Order:'
+      end
+      object LVersion: TLabel
+        Left = 3
+        Top = 128
+        Width = 60
+        Height = 13
+        Caption = 'JNX version:'
+      end
+      object lblCompress: TLabel
+        Left = 305
+        Top = 3
+        Width = 65
+        Height = 13
+        Anchors = [akTop, akRight]
+        Caption = 'Compression:'
       end
       object cbbMap: TComboBox
         Left = 3
         Top = 19
-        Width = 370
+        Width = 296
         Height = 21
-        Align = alTop
+        Align = alCustom
         Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
+        OnChange = cbbMapChange
+      end
+      object EProductName: TEdit
+        Left = 87
+        Top = 74
+        Width = 283
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 1
+        Text = 'SAS Palnet'
+      end
+      object EMapName: TEdit
+        Left = 87
+        Top = 101
+        Width = 283
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 2
+      end
+      object v3: TRadioButton
+        Tag = 3
+        Left = 87
+        Top = 128
+        Width = 50
+        Height = 17
+        Caption = 'v3'
+        Checked = True
+        TabOrder = 3
+        TabStop = True
+        OnClick = versionselect
+      end
+      object v4: TRadioButton
+        Tag = 4
+        Left = 143
+        Top = 128
+        Width = 38
+        Height = 17
+        Caption = 'v4'
+        TabOrder = 4
+        OnClick = versionselect
+      end
+      object EZorder: TSpinEdit
+        Left = 87
+        Top = 151
+        Width = 94
+        Height = 22
+        MaxValue = 100
+        MinValue = 0
+        TabOrder = 5
+        Value = 1
+      end
+      object EJpgQuality: TSpinEdit
+        Left = 305
+        Top = 19
+        Width = 65
+        Height = 22
+        Anchors = [akTop, akRight]
+        Enabled = False
+        MaxValue = 100
+        MinValue = 10
+        TabOrder = 6
+        Value = 95
+      end
+      object EProductID: TComboBox
+        Left = 87
+        Top = 46
+        Width = 283
+        Height = 21
+        AutoDropDown = True
+        Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
+        ItemHeight = 13
+        TabOrder = 7
+        Items.Strings = (
+          '0 - BirdsEye'
+          '2 - BirdsEye Select EIRE'
+          '3 - BirdsEye Select Deutschland'
+          '4 - BirdsEye Select Great Britain'
+          '5 - BirdsEye Select France'
+          '6 - BirdsEye Select Kompass - Switzerland'
+          '7 - BirdsEye Select Kompass - Austria + East Alps'
+          '8 - USGS Quads (BirdsEye TOPO, U.S. and Canada)'
+          '9 - NRC TopoRama (BirdsEye TOPO, U.S. and Canada)')
       end
     end
   end
@@ -120,7 +251,6 @@ object frExportToJNX: TfrExportToJNX
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitLeft = 48
       ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
@@ -146,7 +276,7 @@ object frExportToJNX: TfrExportToJNX
     DefaultExt = 'zip'
     Filter = 'Zip |*.zip'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 40
-    Top = 128
+    Left = 336
+    Top = 272
   end
 end

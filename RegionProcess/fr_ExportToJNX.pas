@@ -14,7 +14,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  u_CommonFormAndFrameParents;
+  u_CommonFormAndFrameParents, Spin;
 
 type
   TfrExportToJNX = class(TFrame)
@@ -23,7 +23,6 @@ type
     lblZooms: TLabel;
     chkAllZooms: TCheckBox;
     chklstZooms: TCheckListBox;
-    pnlMain: TPanel;
     lblMap: TLabel;
     cbbMap: TComboBox;
     pnlTop: TPanel;
@@ -31,8 +30,23 @@ type
     edtTargetFile: TEdit;
     btnSelectTargetFile: TButton;
     dlgSaveTargetFile: TSaveDialog;
+    LProductID: TLabel;
+    LProductName: TLabel;
+    EProductName: TEdit;
+    LMapName: TLabel;
+    EMapName: TEdit;
+    v3: TRadioButton;
+    v4: TRadioButton;
+    EZorder: TSpinEdit;
+    LZOrder: TLabel;
+    LVersion: TLabel;
+    EJpgQuality: TSpinEdit;
+    lblCompress: TLabel;
+    EProductID: TComboBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
+    procedure versionselect(Sender: TObject);
+    procedure cbbMapChange(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -63,6 +77,11 @@ begin
   if dlgSaveTargetFile.Execute then begin
     edtTargetFile.Text := dlgSaveTargetFile.FileName;
   end;
+end;
+
+procedure TfrExportToJNX.cbbMapChange(Sender: TObject);
+begin
+  EMapName.text := cbbMap.text;
 end;
 
 procedure TfrExportToJNX.chkAllZoomsClick(Sender: TObject);
@@ -121,11 +140,21 @@ begin
   if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
     cbbMap.ItemIndex := 0;
   end;
+  EMapName.text := cbbMap.text;
+  if v4.checked then EZorder.enabled := true else EZorder.Enabled := false;
+  EProductID.ItemIndex :=0;
 end;
 
 procedure TfrExportToJNX.RefreshTranslation;
 begin
   inherited;
+end;
+
+
+
+procedure TfrExportToJNX.versionselect(Sender: TObject);
+begin
+  if v4.checked then EZorder.enabled := true else EZorder.Enabled := false;
 end;
 
 end.

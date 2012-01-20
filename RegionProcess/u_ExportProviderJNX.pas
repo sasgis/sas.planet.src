@@ -121,6 +121,11 @@ var
   path:string;
   Zoomarr:array [0..23] of boolean;
   VMapType: TMapType;
+  VProductName : string;
+  VMapName : string;
+  VJNXVersion : integer;
+  VZorder : integer;
+  VProductID : integer;
 begin
   inherited;
   for i:=0 to 23 do begin
@@ -128,12 +133,32 @@ begin
   end;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   path:=FFrame.edtTargetFile.Text;
+  VProductName := FFrame.EProductName.Text;
+  VMapName := FFrame.EmapName.Text;
+  if FFrame.v3.checked then begin
+      VJNXVersion := 3;
+      VZorder := 30;
+  end else begin
+      VJNXVersion := 4;
+      VZorder := FFrame.EZorder.Value;
+  end;
+  VProductID := FFrame.EProductID.ItemIndex + 1;
+  if VProductID = 1 then VProductID := 0;
+
+
+
+
   TThreadExportToJNX.Create(
     FCoordConverterFactory,
     path,
     APolygon.Item[0],
     Zoomarr,
-    VMapType
+    VMapType,
+    VProductName,
+    VMapName,
+    VJNXVersion,
+    VZorder,
+    VProductID
   );
 end;
 
