@@ -65,6 +65,7 @@ constructor TLocalLineBase.Create(
 );
 begin
   FLocalConverter := ALocalConverter;
+  Assert(FLocalConverter <> nil);
   FCount := ACount;
   Assert(FCount > 0, 'Empty line');
   if AClosed and (FCount > 1) and DoublePointsEqual(APoints[0], APoints[ACount - 1]) then begin

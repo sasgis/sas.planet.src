@@ -33,6 +33,7 @@ type
     FTextBGColor: TColor32;
     FValueConverter: IValueToStringConverter;
     FTempBitmap: TBitmap32;
+    FTempLastPointBitmap: TBitmap32;
 
     FLine: ILonLatPathWithSelected;
     FNeedUpdatePoints: Boolean;
@@ -125,12 +126,15 @@ begin
   );
   FTempBitmap := TBitmap32.Create;
   FTempBitmap.Font.Size := 7;
+  FTempLastPointBitmap := TBitmap32.Create;
+  FTempLastPointBitmap.Font.Size := 9;
 end;
 
 destructor TCalcLineLayer.Destroy;
 begin
   FreeAndNil(FDistStrings);
   FreeAndNil(FTempBitmap);
+  FreeAndNil(FTempLastPointBitmap);
   inherited;
 end;
 
@@ -366,7 +370,6 @@ begin
             if Length(ATextSizeArray) < AProjectedPoints.Count then begin
               SetLength(ATextSizeArray, AProjectedPoints.Count);
             end;
-            FTempBitmap.Font.Size := 7;
             VTextSize := FTempBitmap.TextExtent(VText);
             ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
             ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
@@ -379,8 +382,7 @@ begin
     if AProjectedPoints.Count > 0 then begin
       VText := SAS_STR_Whole + ': ' + FValueConverter.DistConvert(VTotalDist);
       ADistStrings[AProjectedPoints.Count - 1] := VText;
-      FTempBitmap.Font.Size := 9;
-      VTextSize := FTempBitmap.TextExtent(VText);
+      VTextSize := FTempLastPointBitmap.TextExtent(VText);
       ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
       ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
     end;

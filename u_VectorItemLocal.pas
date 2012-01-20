@@ -76,7 +76,9 @@ constructor TLocalLineSet.Create(ALocalConverter: ILocalCoordConverter;
   AList: IInterfaceList);
 begin
   FList := AList;
+  Assert(FList <> nil);
   FLocalConverter := ALocalConverter;
+  Assert(FLocalConverter <> nil);
 end;
 
 function TLocalLineSet.GetCount: Integer;

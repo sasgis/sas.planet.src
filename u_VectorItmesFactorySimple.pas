@@ -270,6 +270,7 @@ var
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
 begin
+  Assert(ALocalConverter <> nil);
   VTemp := ATemp;
   if VTemp = nil then begin
     VTemp := TDoublePointsAggregator.Create;

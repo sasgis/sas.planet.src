@@ -344,7 +344,7 @@ begin
     Exit;
   end;
   if VProjectedLine <> nil then begin
-    if not VProjectedLine.Projection.GetIsSameProjectionInfo(ALocalConverter.ProjectionInfo) then begin
+    if (VLocalLine.Count > 0) and not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjectedLine.Projection) then begin
       VProjectedLine := nil;
     end;
   end;
@@ -360,7 +360,7 @@ begin
   end;
 
   if VLocalLine <> nil then begin
-    if not VLocalLine.LocalConverter.GetIsSameConverter(ALocalConverter) then begin
+    if (VLocalLine.Count > 0) and not ALocalConverter.GetIsSameConverter(VLocalLine.LocalConverter) then begin
       VLocalLine := nil;
     end;
   end;
@@ -502,7 +502,7 @@ begin
   end;
 
   if VProjectedLine <> nil then begin
-    if not VProjectedLine.Projection.GetIsSameProjectionInfo(ALocalConverter.ProjectionInfo) then begin
+    if (VProjectedLine.Count > 0) and not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjectedLine.Projection) then begin
       VProjectedLine := nil;
     end;
   end;
@@ -518,7 +518,7 @@ begin
   end;
 
   if VLocalLine <> nil then begin
-    if not VLocalLine.LocalConverter.GetIsSameConverter(ALocalConverter) then begin
+    if (VLocalLine.Count > 0) and not ALocalConverter.GetIsSameConverter(VLocalLine.LocalConverter) then begin
       VLocalLine := nil;
     end;
   end;
@@ -785,6 +785,7 @@ var
   i: Integer;
 begin
   inherited;
+
   VProjection := FProjection;
   VPoints := FProjectedPoints;
   VActiveIndex := FActivePointIndex;
@@ -793,7 +794,7 @@ begin
     if (VProjection = nil) or (VPoints = nil) then begin
       VNeedUpdatePoints := True;
     end else begin
-      if not VProjection.GetIsSameProjectionInfo(ALocalConverter.ProjectionInfo) then begin
+      if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjection) then begin
         VNeedUpdatePoints := True;
       end;
     end;

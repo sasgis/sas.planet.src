@@ -145,6 +145,8 @@ begin
   VSelf := Self;
   if VSelf = AConverter then begin
     Result := True;
+  end else if AConverter = nil then begin
+    Result := False;
   end else begin
     Result := False;
     if FZoom = AConverter.GetZoom then begin
@@ -168,6 +170,8 @@ begin
   VSelf := Self;
   if VSelf = AProjection then begin
     Result := True;
+  end else if AProjection = nil then begin
+    Result := False;
   end else begin
     Result := False;
     if FZoom = AProjection.Zoom then begin
