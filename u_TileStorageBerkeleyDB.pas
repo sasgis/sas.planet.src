@@ -240,7 +240,7 @@ begin
     AGlobalCacheConfig
   );
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
-  FBDBEnv := TBerkeleyDBEnv.Create(
+  FBDBEnv := GlobalAllocateEnventory(
     IncludeTrailingPathDelimiter(
       AGlobalCacheConfig.CacheGlobalPath +
       AGlobalCacheConfig.BDBCachepath +
@@ -258,17 +258,13 @@ begin
   FTTLListener := nil;
   FGCList := nil;
   FreeAndNil(FCacheConfig);
-  FreeAndNil(FBDBPool); // important: free pool first, then free enventory
-  FreeAndNil(FBDBEnv);
+  FreeAndNil(FBDBPool);
   inherited;
 end;
 
 procedure TTileStorageBerkeleyDB.Sync(Sender: TObject);
 begin
   FBDBPool.Sync;
-  if Assigned(FBDBEnv) then begin
-    FBDBEnv.RemoveUnUsedLogs;
-  end;
 end;
 
 procedure TTileStorageBerkeleyDB.CreateDirIfNotExists(APath: string);

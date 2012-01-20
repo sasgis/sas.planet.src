@@ -189,7 +189,6 @@ function TBerkeleyDB.Read(
 ): Boolean;
 var
   dbtKey, dbtData: DBT;
-  pdbTxn: PDB_TXN;
 begin
   FCS.Acquire;
   try
@@ -202,27 +201,12 @@ begin
       if (FDB.open_flags and DB_THREAD = DB_THREAD) then begin
         dbtData.flags := DB_DBT_MALLOC;
       end;
-      //if FEnv <> nil then begin
-      //  CheckBDB(FEnv.txn_begin(FEnv, nil, @pdbTxn, DB_TXN_NOSYNC));
-      //end else begin
-        pdbTxn := nil;
-      //end;
-      //try
-        Result := CheckAndFoundBDB(FDB.get(FDB, pdbTxn, @dbtKey, @dbtData, AFlags));
-        if Result and (dbtData.data <> nil) and (dbtData.size > 0) then begin
-          ADataSize := dbtData.size;
-          GetMem(AData, ADataSize);
-          Move(dbtData.data^, AData^, dbtData.size);
-        end;
-      //except
-      //  if pdbTxn <> nil then begin
-      //    pdbTxn.abort(pdbTxn);
-      //  end;
-      //  raise;
-      //end;
-      //if pdbTxn <> nil then begin
-      //  CheckBDB(pdbTxn.commit(pdbTxn, 0));
-      //end;
+      Result := CheckAndFoundBDB(FDB.get(FDB, nil, @dbtKey, @dbtData, AFlags));
+      if Result and (dbtData.data <> nil) and (dbtData.size > 0) then begin
+        ADataSize := dbtData.size;
+        GetMem(AData, ADataSize);
+        Move(dbtData.data^, AData^, dbtData.size);
+      end;
     end;
   finally
     FCS.Release;
@@ -252,7 +236,7 @@ begin
       dbtData.data := AData;
       dbtData.size := ADataSize;
       if FEnv <> nil then begin
-        CheckBDB(FEnv.txn_begin(FEnv, nil, @pdbTxn, DB_TXN_NOSYNC));
+        CheckBDB(FEnv.txn_begin(FEnv, nil, @pdbTxn, 0));
       end else begin
         pdbTxn := nil;
       end;
@@ -265,7 +249,7 @@ begin
         raise;
       end;
       if pdbTxn <> nil then begin
-        CheckBDB(pdbTxn.commit(pdbTxn, 0));
+          CheckBDB(pdbTxn.commit(pdbTxn, 0));
       end;
       if Assigned(FBDBEnv) then begin
         FBDBEnv.CheckPoint;
@@ -283,7 +267,6 @@ function TBerkeleyDB.Exists(
 ): Boolean;
 var
   dbtKey: DBT;
-  pdbTxn: PDB_TXN;
 begin
   FCS.Acquire;
   try
@@ -292,22 +275,7 @@ begin
       FillChar(dbtKey, Sizeof(DBT), 0);
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
-      //if FEnv <> nil then begin
-      //  CheckBDB(FEnv.txn_begin(FEnv, nil, @pdbTxn, DB_TXN_NOSYNC));
-      //end else begin
-        pdbTxn := nil;
-      //end;
-      //try
-        Result := CheckAndFoundBDB(FDB.exists(FDB, pdbTxn, @dbtKey, AFlags));
-      //except
-      //  if pdbTxn <> nil then begin
-      //    pdbTxn.abort(pdbTxn);
-      //  end;
-      //  raise;
-      //end;
-      //if pdbTxn <> nil then begin
-      //  CheckBDB(pdbTxn.commit(pdbTxn, 0));
-      //end;
+      Result := CheckAndFoundBDB(FDB.exists(FDB, nil, @dbtKey, AFlags));
     end;
   finally
     FCS.Release;
@@ -331,7 +299,7 @@ begin
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
       if FEnv <> nil then begin
-        CheckBDB(FEnv.txn_begin(FEnv, nil, @pdbTxn, DB_TXN_NOSYNC));
+        CheckBDB(FEnv.txn_begin(FEnv, nil, @pdbTxn, 0));
       end else begin
         pdbTxn := nil;
       end;
@@ -345,6 +313,9 @@ begin
       end;
       if pdbTxn <> nil then begin
         CheckBDB(pdbTxn.commit(pdbTxn, 0));
+      end;
+      if Assigned(FBDBEnv) then begin
+        FBDBEnv.CheckPoint;
       end;
     end;
   finally
