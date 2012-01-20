@@ -42,6 +42,7 @@ implementation
 uses
   SysUtils,
   u_ThreadExportToFileSystem,
+  u_ThreadExportToBDB,
   u_ResStrings,
   u_MapType;
 
@@ -134,15 +135,26 @@ begin
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
   Replace:=FFrame.chkReplaseTarget.Checked;
 
-  TThreadExportToFileSystem.Create(
-    path,
-    APolygon.Item[0],
-    ZoomArr,
-    typemaparr,
-    FFrame.chkDeleteSource.Checked,
-    Replace,
-    FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1)
-  )
+  if FFrame.cbbNamesType.ItemIndex = 4 then begin
+    TThreadExportToBDB.Create(
+      path,
+      APolygon,
+      ZoomArr,
+      typemaparr,
+      FFrame.chkDeleteSource.Checked,
+      Replace
+    )
+  end else begin
+    TThreadExportToFileSystem.Create(
+      path,
+      APolygon.Item[0],
+      ZoomArr,
+      typemaparr,
+      FFrame.chkDeleteSource.Checked,
+      Replace,
+      FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1)
+    )
+  end;
 end;
 
 end.

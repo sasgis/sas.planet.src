@@ -288,7 +288,7 @@ begin
   end;
 
   if FStorageConfig.CacheTypeCode = 6 then begin
-    FStorage := TTileStorageBerkeleyDB.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
+    FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else if FStorageConfig.CacheTypeCode = 5  then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin
@@ -872,6 +872,7 @@ begin
         VTile.Y := i;
         for j := VTileRectInSource.Left to VTileRectInSource.Right - 1 do begin
           VTile.X := j;
+          VSpr.Clear;
           VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, IgnoreError, AUsePre, ACache);
           if VLoadResult then begin
             VPixelRectCurTileInSource := FCoordConverter.TilePos2PixelRect(VTile, Azoom);

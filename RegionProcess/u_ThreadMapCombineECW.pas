@@ -7,7 +7,6 @@ uses
   SysUtils,
   Classes,
   GR32,
-  i_EcwDll,
   i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_VectorItemLonLat,
@@ -30,11 +29,9 @@ type
 
   TThreadMapCombineECW = class(TThreadMapCombineBase)
   private
-    FEcwDll: IEcwDll;
     Rarr: P256rgb;
     Garr: P256rgb;
     Barr: P256rgb;
-    FECWWriter: TECWWrite;
     FQuality: Integer;
 
     function ReadLine(ALine: cardinal; var LineR, LineG, LineB: PLineRGB): Boolean; reintroduce;
@@ -55,7 +52,6 @@ type
       AHtypemap: TMapType;
       AusedReColor: Boolean;
       ARecolorConfig: IBitmapPostProcessingConfigStatic;
-      AEcwDll: IEcwDll;
       AQuality: Integer
     );
   end;
@@ -63,7 +59,7 @@ type
 implementation
 
 uses
-  ECWWriter,
+  LibECW,
   i_CoordConverter,
   i_LocalCoordConverter;
 
@@ -80,7 +76,6 @@ constructor TThreadMapCombineECW.Create(
   Atypemap, AHtypemap: TMapType;
   AusedReColor: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic;
-  AEcwDll: IEcwDll;
   AQuality: Integer
 );
 begin
@@ -99,7 +94,6 @@ begin
     AusedReColor,
     ARecolorConfig
   );
-  FEcwDll := AEcwDll;
   FQuality := AQuality;
 end;
 
@@ -180,12 +174,13 @@ var
   CellIncrementX, CellIncrementY, OriginX, OriginY: Double;
   errecw: integer;
   Path: string;
+  VECWWriter: TECWWrite;
 begin
   sx := (FCurrentPieceRect.Left mod 256);
   sy := (FCurrentPieceRect.Top mod 256);
   ex := (FCurrentPieceRect.Right mod 256);
   ey := (FCurrentPieceRect.Bottom mod 256);
-  FECWWriter := TECWWrite.Create(FEcwDll);
+  VECWWriter := TECWWrite.Create;
   try
     btmm := TCustomBitmap32.Create;
     try
@@ -214,7 +209,7 @@ begin
           CellIncrementX, CellIncrementY, OriginX, OriginY
           );
         errecw :=
-          FECWWriter.Encode(
+          VECWWriter.Encode(
             OperationID,
             CancelNotifier,
             FCurrentFileName,
@@ -253,7 +248,7 @@ begin
       btmm.Free;
     end;
   finally
-    FreeAndNil(FECWWriter);
+    FreeAndNil(VECWWriter);
   end;
 end;
 

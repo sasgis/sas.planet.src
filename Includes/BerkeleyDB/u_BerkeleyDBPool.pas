@@ -33,8 +33,8 @@ type
   PBDBPoolRec = ^TBDBPoolRec;
   TBDBPoolRec = record
     Obj: TBerkeleyDB;
-    AcquireTime: TDateTime;
-    ReleaseTime: TDateTime;
+    AcquireTime: Cardinal;
+    ReleaseTime: Cardinal;
     ActiveCount: Integer;
   end;
 
@@ -50,8 +50,9 @@ type
     procedure SetPoolSize(AValue: Integer);
     procedure Abort;
   public
-    constructor Create;
+    constructor Create(const APoolSize: Cardinal = 12);
     destructor Destroy; override;
+    procedure Sync;
     function Acquire(const AFileName: string): TBerkeleyDB;
     procedure Release(AObj: TBerkeleyDB);
     property Size: Integer read GetPoolSize write SetPoolSize;
@@ -61,12 +62,12 @@ implementation
 
 { TBerkeleyDBPool }
 
-constructor TBerkeleyDBPool.Create;
+constructor TBerkeleyDBPool.Create(const APoolSize: Cardinal = 12);
 begin
   FCS := TCriticalSection.Create;
   FObjList := TList.Create;
   FFinishEvent := TEvent.Create;
-  FPoolSize := 12;
+  FPoolSize := APoolSize;
   FUsageCount := 0;
   FActive := True;
 end;
@@ -86,17 +87,20 @@ var
   PRec: PBDBPoolRec;
   VFound: Boolean;
 begin
+  Assert(Assigned(AObj), 'Warning [BerkeleyDB]: Object to release is not assigned!');
   FCS.Acquire;
   try
     VFound := False;
     for I := 0 to FObjList.Count - 1 do begin
       PRec := FObjList.Items[I];
-      VFound := (PRec.Obj = AObj);
-      if VFound then begin
-        Dec(FUsageCount);
-        PRec.ReleaseTime := Now;
-        Dec(PRec.ActiveCount);
-        Break;
+      if PRec <> nil then begin
+        VFound := (PRec.Obj = AObj);
+        if VFound then begin
+          Dec(FUsageCount);
+          PRec.ReleaseTime := GetTickCount;
+          Dec(PRec.ActiveCount);
+          Break;
+        end;
       end;
     end;
     if not VFound then begin
@@ -116,29 +120,31 @@ var
   PRec: PBDBPoolRec;
   VFound: Boolean;
   VRecIndexOldest: Integer;
-  VReleaseOldest: TDateTime;
+  VReleaseOldest: Cardinal;
 begin
   Result := nil;
   FCS.Acquire;
   try
     if FActive then begin
       VRecIndexOldest := -1;
-      VReleaseOldest := MaxDateTime;
+      VReleaseOldest := $FFFFFFFF;
       VFound := False;
       // Ищем среди открытых
       for I := 0 to FObjList.Count - 1 do begin
         PRec := FObjList.Items[I];
-        VFound := (PRec.Obj.FileName = AFileName);
-        if VFound then begin
-          PRec.AcquireTime := Now;
-          Inc(PRec.ActiveCount);
-          Result := PRec.Obj;
-          Break;
-        end else if PRec.ActiveCount <= 0 then begin
-          // попутно находим наистарейшую неиспользующуюся БД
-          if PRec.ReleaseTime < VReleaseOldest then begin
-            VReleaseOldest := PRec.ReleaseTime;
-            VRecIndexOldest := I;
+        if PRec <> nil then begin
+          VFound := (PRec.Obj.FileName = AFileName);
+          if VFound then begin
+            PRec.AcquireTime := GetTickCount;
+            Inc(PRec.ActiveCount);
+            Result := PRec.Obj;
+            Break;
+          end else if PRec.ActiveCount <= 0 then begin
+            // попутно находим наистарейшую неиспользующуюся БД
+            if PRec.ReleaseTime < VReleaseOldest then begin
+              VReleaseOldest := PRec.ReleaseTime;
+              VRecIndexOldest := I;
+            end;
           end;
         end;
       end;
@@ -151,11 +157,11 @@ begin
             PRec.Obj := TBerkeleyDB.Create;
           except
             Dispose(PRec);
-            Exit; // видимо, ошибка загрузки dll -> молча уходим
+            raise;
           end;
           PRec.Obj.FileName := AFileName;
-          PRec.AcquireTime := Now;
-          PRec.ReleaseTime := MinDateTime;
+          PRec.AcquireTime := GetTickCount;
+          PRec.ReleaseTime := 0;
           PRec.ActiveCount := 1;
           FObjList.Add(PRec);
           Result := PRec.Obj;
@@ -164,10 +170,16 @@ begin
           PRec := FObjList.Items[VRecIndexOldest];
           if (PRec <> nil) and (PRec.ActiveCount <= 0) then begin
             FreeAndNil(PRec.Obj);
-            PRec.Obj := TBerkeleyDB.Create;
+            try
+              PRec.Obj := TBerkeleyDB.Create;
+            except
+              Dispose(PRec);
+              FObjList.Delete(VRecIndexOldest);
+              raise;
+            end;
             PRec.Obj.FileName := AFileName;
-            PRec.AcquireTime := Now;
-            PRec.ReleaseTime := MinDateTime;
+            PRec.AcquireTime := GetTickCount;
+            PRec.ReleaseTime := 0;
             PRec.ActiveCount := 1;
             Result := PRec.Obj;
           end;
@@ -177,6 +189,8 @@ begin
       end;
       if Result <> nil then begin
         Inc(FUsageCount);
+      end else begin
+        raise Exception.Create('Error [BerkeleyDB]: Can''t acquire db: ' + AFileName);
       end;
     end;
   finally
@@ -213,6 +227,38 @@ begin
       end;
     end;
     FObjList.Clear;
+  finally
+    FCS.Release;
+  end;
+end;
+
+procedure TBerkeleyDBPool.Sync;
+const
+  CMaxReleaseTimeToCloseByTTL = 30000; // 30 sec
+var
+  I: Integer;
+  PRec: PBDBPoolRec;
+begin
+  FCS.Acquire;
+  try
+    try
+      for I := 0 to FObjList.Count - 1 do begin
+        PRec := FObjList.Items[i];
+        if (PRec <> nil) and Assigned(PRec.Obj) then begin
+          if (PRec.ActiveCount <= 0) then begin
+            if GetTickCount - PRec.ReleaseTime > CMaxReleaseTimeToCloseByTTL then begin
+              FreeAndNil(PRec.Obj);
+              Dispose(PRec);
+              FObjList.Items[i] := nil;
+            end else begin
+              PRec.Obj.Sync;
+            end;
+          end;
+        end;
+      end;
+    finally
+      FObjList.Pack;
+    end;
   finally
     FCS.Release;
   end;

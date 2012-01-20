@@ -401,6 +401,12 @@ type
     NDegScale500000: TTBXItem;
     NDegScale1000000: TTBXItem;
     NDegScale0: TTBXItem;
+    TBXSeparatorItem22: TTBXSeparatorItem;
+    NDegScaleUser: TTBXItem;
+    NDegValue: TTBXEditItem;
+    TBSeparatorItem2: TTBSeparatorItem;
+    NDegScaleAuto: TTBXItem;
+    nokiamapcreator1: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -536,6 +542,9 @@ type
     procedure DateTimePicker1Change(Sender: TObject);
     procedure DateTimePicker2Change(Sender: TObject);
     procedure NDegScale0Click(Sender: TObject);
+    procedure NDegValueAcceptText(Sender: TObject; var NewText: string;
+      var Accept: Boolean);
+    procedure nokiamapcreator1Click(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -658,6 +667,8 @@ type
     procedure OnMinimize(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
     procedure LayerMapMarksRedraw(Sender: TObject);
+    function ConvLatLon2Scale( Astr:string):Double;
+    function Deg2Strvalue( aDeg:Double):string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -725,7 +736,8 @@ uses
   vsagps_public_position,
   vsagps_public_time,
   frm_ProgressDownload,
-  frm_StartLogo;
+  frm_StartLogo,
+  StrUtils;
 
 {$R *.dfm}
 
@@ -759,7 +771,6 @@ begin
       GState.LocalConverterFactory,
       GState.BitmapPostProcessingConfig,
       GState.VectorItmesFactory,
-      GState.EcwDll,
       GState.MapCalibrationList,
       GState.DownloadConfig,
       GState.DownloadInfo,
@@ -924,6 +935,80 @@ procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   FSensorViewList := nil;
 end;
+        
+function TfrmMain.ConvLatLon2Scale( Astr:string):Double;
+var rest: boolean;
+  res: Double;
+  i,delitel:integer;
+  gms:double;
+  text:string;
+begin
+
+  text := Astr;
+  rest := true;
+  i:=1;
+  while i<=length(text) do begin
+    if (not(text[i] in ['0'..'9','-','+','.',',',' '])) then begin
+      text[i]:=' ';
+      dec(i);
+    end;
+     if ((i=1)and(text[i]=' '))or
+       ((i=length(text))and(text[i]=' '))or
+       ((i<length(text)-1)and(text[i]=' ')and(text[i+1]=' '))or
+       ((i>1) and (text[i]=' ') and (not(text[i-1] in ['0'..'9'])))or
+       ((i<length(text)-1)and(text[i]=',')and(text[i+1]=' ')) then begin
+      Delete(text,i,1);
+      dec(i);
+    end;
+    inc(i);
+  end;
+
+  try
+    res:=0;
+    delitel:=1;
+    repeat
+     i:=posEx(' ',text,1);
+     if i=0 then begin
+       gms:=str2r(text);
+     end else begin
+       gms:=str2r(copy(text,1,i-1));
+       Delete(text,1,i);
+     end;
+     if ((delitel>1)and(abs(gms)>60))or
+        ((delitel=1)and(abs(gms)>180)) then begin
+       Rest:=false;
+     end;
+     if res<0 then begin
+       res:=res-gms/delitel;
+     end else begin
+       res:=res+gms/delitel;
+     end;
+     delitel:=delitel*60;
+    until (i=0)or(delitel>3600)or(rest=false);
+  except
+    res := 0;
+  end;
+  result := res;
+end;
+
+function TfrmMain.deg2strvalue( aDeg:Double):string;
+var
+  Vmin :integer;
+  VDegScale : Double;
+begin
+   // convert to  ° ' "
+   VDegScale := abs(aDeg/100000000);
+   result := IntToStr(Trunc(VDegScale)) + '°';
+   VDegScale := Frac(VDegScale) * 60;
+   Vmin := Trunc(VDegScale);
+   if Vmin < 10 then begin
+     result := result + '0' + IntToStr(Vmin) + '''';
+   end else begin
+     result := result + IntToStr(Vmin) + '''';
+   end;
+   VDegScale := Frac(VDegScale) * 60;
+   result := result + FormatFloat('00.00', VDegScale) + '"';
+end;
 
 procedure TfrmMain.FormActivate(Sender: TObject);
 var
@@ -934,7 +1019,7 @@ var
   VMainFormMainConfigChangeListener: IJclListener;
   VGPSReceiverStateChangeListener: IJclListener;
   VScale: Integer;
-  VDegScale: Integer;
+  VDegScale: Double;
   VZoom: Byte;
 begin
   if not ProgramStart then exit;
@@ -1340,16 +1425,20 @@ begin
     end else
     NGShScale0.Checked := True;
 
+
     VDegScale := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale;
     if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible = True then begin
-    NDegScale10000.Checked := VDegScale = 10000;
-    NDegScale25000.Checked := VDegScale = 25000;
-    NDegScale50000.Checked := VDegScale = 50000;
-    NDegScale100000.Checked := VDegScale = 100000;
-    NDegScale200000.Checked := VDegScale = 200000;
-    NDegScale500000.Checked := VDegScale = 500000;
-    NDegScale1000000.Checked := VDegScale = 1000000;
-    NDegScale0.Checked := VDegScale = 0;
+     if VDegScale = 12500000 then NDegScale10000.Checked := true else
+     if VDegScale = 25000000 then NDegScale25000.Checked := true else
+     if VDegScale = 50000000 then NDegScale50000.Checked := true else
+     if VDegScale = 100000000 then NDegScale100000.Checked := true else
+     if VDegScale = 200000000 then NDegScale200000.Checked := true else
+     if VDegScale = 500000000 then NDegScale500000.Checked := true else
+     if VDegScale = 1000000000 then NDegScale1000000.Checked := true else
+     if VDegScale = 0 then NDegScale0.Checked := true else
+     if VDegScale < 0 then NDegScaleAuto.Checked := true else
+                           NDegScaleUser.Checked := true ;
+     NDegValue.text := deg2strvalue(VDegScale);
     end else
     NDegScale0.Checked := True;
 
@@ -2413,8 +2502,8 @@ end;
 
 procedure TfrmMain.UpdateGPSSatellites(APosition: IGPSPosition);
 var
-  i,bar_width,bar_height,bar_x1,bar_dy:integer;
-  VFixCount,VALLCount: Integer;
+  bar_width,bar_height,bar_x1,bar_dy:integer;
+  VTalkerID_FixCount,VTalkerID_ALLCount,VCountForAllTalkerIDsFixed,i: Byte;
   VSatFixed: Boolean;
   VSatFixibility: TSingleSatFixibilityData;
   VTalkerID: String;
@@ -2422,39 +2511,43 @@ var
 begin
   TBXSignalStrengthBar.Repaint;
 
-  // show satelites only for one talker_id (TODO: show both satellites)
   VGPSSatellitesInView:=APosition.Satellites;
-  if Assigned(VGPSSatellitesInView) then begin
-    VTalkerID := VGPSSatellitesInView.GetPreferredTalkerID;
-    VFixCount := VGPSSatellitesInView.FixCount[VTalkerID];
-    VALLCount := VGPSSatellitesInView.Count[VTalkerID];
-  end else begin
-    VTalkerID := '';
-    VFixCount := 0;
-    VALLCount := 0;
-  end;
 
-  if (0<VFixCount) then begin
-    with TBXSignalStrengthBar do begin
-       Canvas.Lock;
-       try
-         Canvas.Pen.Color:=clBlack;
-         Canvas.Brush.Color:=clGreen;
-         bar_x1:=0;
-         bar_dy:=8;
-         bar_width:=((Width-15) div VFixCount);
+  if (not Assigned(VGPSSatellitesInView)) then
+    Exit;
 
-         if (0<VALLCount) then
-         for i := 0 to VALLCount-1 do
-         if VGPSSatellitesInView.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility) then
-         if VSatFixed then begin
-           bar_height:=trunc(14*((VSatFixibility.snr)/100));
-           Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
-           inc(bar_x1,bar_width);
-         end;
-       finally
-         Canvas.Unlock;
-       end;
+  // total count of satellites (all constellations)
+  VCountForAllTalkerIDsFixed:=VGPSSatellitesInView.GetCountForAllTalkerIDs(TRUE);
+
+  if (0<VCountForAllTalkerIDsFixed) then
+  with TBXSignalStrengthBar do begin
+    Canvas.Lock;
+    try
+      Canvas.Pen.Color:=clBlack;
+      Canvas.Brush.Color:=clGreen;
+      bar_x1:=0;
+      bar_dy:=8;
+      bar_width:=((Width-15) div VCountForAllTalkerIDsFixed);
+
+      // main loop
+      VTalkerID:='';
+      while VGPSSatellitesInView.EnumerateTalkerID(VTalkerID) do begin
+        // counts
+        VTalkerID_FixCount := VGPSSatellitesInView.FixCount[VTalkerID];
+        VTalkerID_ALLCount := VGPSSatellitesInView.Count[VTalkerID];
+
+        // subloop
+        if (0<VTalkerID_FixCount) then
+        for i := 0 to VTalkerID_ALLCount-1 do
+        if VGPSSatellitesInView.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility) then
+        if VSatFixed then begin
+          bar_height:=trunc(14*((VSatFixibility.snr)/100));
+          Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
+          inc(bar_x1,bar_width);
+        end;
+      end;
+    finally
+     Canvas.Unlock;
     end;
   end;
 end;
@@ -2933,11 +3026,15 @@ begin
 end;
 
 procedure TfrmMain.NDegScale0Click(Sender: TObject);
-var    
-  VTag: Integer;
+var
+  VTag: Double;
 begin
   TTBXItem(sender).checked := True;
-  VTag := TTBXItem(sender).Tag;
+  if NDegScaleUser.Checked = true then
+    VTag := (ConvLatLon2Scale(NDegValue.text)*100000000)
+  else
+    VTag := TTBXItem(sender).Tag;
+  NDegValue.text := deg2strvalue(VTag);
   FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
   try
     if VTag = 0 then begin
@@ -2950,6 +3047,30 @@ begin
   finally
     FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.UnlockWrite;
   end;
+end;
+
+procedure TfrmMain.NDegValueAcceptText(Sender: TObject; var NewText: string;
+  var Accept: Boolean);
+var
+  VTag: Double;
+begin
+  NDegScaleUser.checked := True;
+  VTag := (ConvLatLon2Scale(NewText)*100000000);
+  NewText := deg2strvalue(VTag);
+//  NDegScaleUser.tag := VTag;
+  FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
+  try
+    if VTag = 0 then begin
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := False;
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
+    end else begin
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible := True;
+      FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale := VTag;
+    end;
+  finally
+    FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.UnlockWrite;
+  end;
+
 end;
 
 procedure TfrmMain.NDelClick(Sender: TObject);
@@ -4382,6 +4503,23 @@ begin
   if Supports(VMark, IMarkPoly, VMarkPoly) then begin
     FMarkDBGUI.ShowMarkSq(VMarkPoly, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
+end;
+
+procedure TfrmMain.nokiamapcreator1Click(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat:TDoublePoint;
+begin
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  CopyStringToClipboard('http://maps.nokia.com/mapcreator/?ns=true#|'+R2StrPoint(VLonLat.y)+'|'+R2StrPoint(VLonLat.x)+'|'+IntToStr(VZoom)+'|0|0|');
 end;
 
 procedure TfrmMain.NMarksCalcsPerClick(Sender: TObject);

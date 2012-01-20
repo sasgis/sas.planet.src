@@ -157,6 +157,7 @@ implementation
 uses
   DateUtils,
   Math,
+  Classes,
   u_ResStrings,
   t_GeoTypes;
 
@@ -420,8 +421,8 @@ end;
 
 procedure TGPSModuleByVSAGPS.Connect(const AConfig: IGPSModuleByCOMPortSettings;
                                      const ALogConfig: IGPSConfig);
-//const
-  //FlyOnTrackCFG='vsagps_fly-on-track.cfg';
+const
+  FlyOnTrackCFG='vsagps_fly-on-track.cfg';
 var
   FGPSPortName: String;
 {$if defined(VSAGPS_AS_DLL)}
@@ -437,9 +438,8 @@ var
   end;
 
   procedure _LoadFlyOnTrackSource;
-  //var sl: TStringList;
+  var sl: TStringList;
   begin
-    {
     if FileExists(FlyOnTrackCFG) then begin
       sl:=TStringList.Create;
       try
@@ -449,7 +449,6 @@ var
         sl.Free;
       end;
     end;
-    }
   end;
 
 begin
@@ -749,7 +748,7 @@ end;
 
 procedure TGPSModuleByVSAGPS.GPSRecv_NMEA_GSV(const AUnitIndex: Byte; const pGSV: PNMEA_GSV);
 var
-  VFixIndex: SmallInt;
+  VFixIndex: ShortInt;
   VStatus: Byte;
   VTalkerID: String;
 begin
@@ -765,7 +764,8 @@ begin
     
     if (0<pGSV^.sats_in_view) then begin
       VStatus:=cSat_Status_Unavailable;
-      VFixIndex:=GetSatNumberIndex(@FFixSatsALL, @(pGSV^.info.sat_info));
+      if (not GetSatNumberIndexEx(Select_PVSAGPS_FIX_SATS_from_ALL(@FFixSatsALL,VTalkerID), @(pGSV^.info.sat_info), VFixIndex)) then
+        VFixIndex:=-1;
 
       if (pGSV^.info.sat_info.svid>0) and (pGSV^.info.snr>0) then begin
         Inc(VStatus); // really 1 or 2 - i.e. >0
@@ -1193,7 +1193,6 @@ var
   i:Byte;
   VSatCount: Byte;
   Vsnr: SInt16;
-  VSatNumber: SInt8;
   VStatus: Byte;
   VFixedStatus: Byte;
   VFixedSats: TVSAGPS_FIX_SATS;
@@ -1206,11 +1205,10 @@ begin
     for i:=0 to cpo_all_sat_data_count-1 do begin
       // params for sat
       VStatus:=(pData^.sv[i].status and cGarmin_Flag_Fixed_Mask);
-      VSatNumber:=NormalizeSatelliteID(pData^.sv[i].svid, VFixedSats.sats[i].normalized_flag);
 
       VFixedStatus:=cSat_Status_Unavailable;
 
-      if (0<VSatNumber) and (0<>VStatus) then begin // sat number ok, with some bits
+      if (0<pData^.sv[i].svid) and (0<>VStatus) then begin // sat number ok, with some bits
         // 001 (1) - returns 1 = cSat_Status_Visible
         // 100 (4) - returns 2 = cSat_Status_InSolution
         // 101 (5) - returns 3 = cSat_Status_FixWithEphe
@@ -1222,12 +1220,12 @@ begin
 
       Vsnr:=pData^.sv[i].snr div snr_to_procents_divider;
 
-      if SatAvailableForShow(VSatNumber, Vsnr, VFixedStatus) then
+      if SatAvailableForShow(pData^.sv[i].svid, Vsnr, VFixedStatus) then
         Inc(VSatCount);
 
       _UpdateSattelite(nmea_ti_GPS,
                        i,
-                       Make_TVSAGPS_FIX_SAT(VSatNumber, VFixedSats.sats[i].normalized_flag),
+                       Make_TVSAGPS_FIX_SAT(pData^.sv[i].svid, 0),
                        pData^.sv[i].elev,
                        pData^.sv[i].azmth,
                        Vsnr,
@@ -1235,9 +1233,12 @@ begin
                        pData^.sv[i].status);
 
       if (VFixedStatus>=cSat_Status_Fixed) then
-        VFixedSats.sats[i].svid:=VSatNumber
+        VFixedSats.sats[i].svid:=pData^.sv[i].svid
       else
         VFixedSats.sats[i].svid:=cGPS_Invalid_SatNumber;
+        
+      // no constellation_flag for garmin
+      VFixedSats.sats[i].constellation_flag:=0;
     end;
     
     _UpdateSatsInView(nmea_ti_GPS, VSatCount);
@@ -1387,23 +1388,24 @@ end;
 
 procedure TGPSModuleByVSAGPS.GPSRecv_NMEA_GSA(const AUnitIndex: Byte; const pGSA: PNMEA_GSA);
 var
-  VTalkerID: String;
+  VSourceTalkerID: String;
 begin
   if (nil=pGSA) or (sizeof(pGSA^)<>pGSA^.dwSize) then
     Exit;
   LockGPSData;
   try
-    // if 'GN' - check 'GL' or 'GP' and substitute
-    VTalkerID:=NMEA_TalkerID_to_String(@(pGSA^.chTalkerID));
-    if SameText(VTalkerID, nmea_ti_GPS_GLONASS) then begin
-      // glonass+gps
-      if SatList_Has_Normalized(@(pGSA^.sat_fix), cGPS_SatID_Normalized_GLONASS) then
-        VTalkerID:=nmea_ti_GLONASS
-      else
-        VTalkerID:=nmea_ti_GPS;
-    end;
+    VSourceTalkerID:=NMEA_TalkerID_to_String(@(pGSA^.chCorrectedTalkerID));
+
+    // if QZSS - skip (no data)
+    if SameText(VSourceTalkerID, nmea_ti_QZSS) then
+      Exit;
+
+    // if no corrected talker_id - skip data
+    if (0=Length(VSourceTalkerID)) then
+      Exit;
+
     _UpdateDOP(pGSA^.hdop, pGSA^.vdop, pGSA^.pdop);
-    _UpdateFixedSats(VTalkerID, @(pGSA^.sat_fix));
+    _UpdateFixedSats(VSourceTalkerID, @(pGSA^.sat_fix));
     // Dimentions
     _UpdateDimentions(pGSA^.fix_mode); // 0 - 1 - 2 - 3
     // and fixstatus

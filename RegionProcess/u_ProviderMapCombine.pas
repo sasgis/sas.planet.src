@@ -17,7 +17,6 @@ uses
   i_MarksDrawConfig,
   i_MapCalibration,
   i_VectorItmesFactory,
-  i_EcwDll,
   i_GlobalViewMainConfig,
   u_ExportProviderAbstract,
   u_MarksSystem,
@@ -34,7 +33,6 @@ type
     FMarksDrawConfig: IMarksDrawConfig;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-    FEcwDll: IEcwDll;
     FMapCalibrationList: IMapCalibrationList;
   public
     constructor Create(
@@ -50,7 +48,6 @@ type
       AMarksDB: TMarksSystem;
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-      AEcwDll: IEcwDll;
       AMapCalibrationList: IMapCalibrationList
     );
     destructor Destroy; override;
@@ -101,7 +98,6 @@ constructor TProviderMapCombine.Create(
   AMarksDB: TMarksSystem;
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-  AEcwDll: IEcwDll;
   AMapCalibrationList: IMapCalibrationList
 );
 begin
@@ -113,7 +109,6 @@ begin
   FMarksDB := AMarksDB;
   FLocalConverterFactory := ALocalConverterFactory;
   FBitmapPostProcessingConfig := ABitmapPostProcessingConfig;
-  FEcwDll := AEcwDll;
   FVectorItmesFactory := AVectorItmesFactory;
 end;
 
@@ -288,7 +283,6 @@ begin
       Amt,Hmt,
       FFrame.chkUseRecolor.Checked,
       FBitmapPostProcessingConfig.GetStatic,
-      FEcwDll,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt='.BMP') then begin

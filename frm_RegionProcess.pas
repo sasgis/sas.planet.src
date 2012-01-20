@@ -52,7 +52,6 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapCalibration,
-  i_EcwDll,
   i_TileFileNameGeneratorsList,
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
@@ -127,7 +126,6 @@ type
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       AVectorItmesFactory: IVectorItmesFactory;
-      AEcwDll: IEcwDll;
       AMapCalibrationList: IMapCalibrationList;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
@@ -151,6 +149,7 @@ uses
   u_ExportProviderAUX,
   u_ExportProviderZip,
   u_ExportProviderTar,
+  u_ExportProviderJNX,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
@@ -176,7 +175,6 @@ constructor TfrmRegionProcess.Create(
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
   AVectorItmesFactory: IVectorItmesFactory;
-  AEcwDll: IEcwDll;
   AMapCalibrationList: IMapCalibrationList;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
@@ -249,7 +247,6 @@ begin
       AMarksDB,
       ALocalConverterFactory,
       ABitmapPostProcessingConfig,
-      AEcwDll,
       AMapCalibrationList
     );
 end;
@@ -448,6 +445,17 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       ATileNameGenerator
+    );
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+
+  VExportProvider :=
+    TExportProviderJNX.Create(
+      pnlExport,
+      ALanguageManager,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 

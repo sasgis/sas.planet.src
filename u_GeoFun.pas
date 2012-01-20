@@ -65,7 +65,7 @@ type
   function RgnAndRect(APoints: PPointArray; ACount: Integer; ARect: TRect):boolean;
   function RgnAndRgn(APoints: PPointArray; ACount: Integer; x, y: integer; prefalse: boolean):boolean; // Переделать использующий ее код в ближайшее время
   function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
-  function GetDegBordersStepByScale(AScale: Integer): TDoublePoint;
+  function GetDegBordersStepByScale(AScale: Double; AZoom: Byte): TDoublePoint;
   function PointIsEmpty(APoint: TDoublePoint): Boolean;
 
 const
@@ -324,18 +324,37 @@ begin
   end;
 end;
 
-function GetDegBordersStepByScale(AScale: Integer): TDoublePoint;
+function GetDegBordersStepByScale(AScale: Double; AZoom: Byte): TDoublePoint;
 begin
-  case AScale of
-    1000000: begin Result.X:=10; Result.Y:=10; end;
-     500000: begin Result.X:=5; Result.Y:=5; end;
-     200000: begin Result.X:=2; Result.Y:=2; end;
-     100000: begin Result.X:=1; Result.Y:=1; end;
-      50000: begin Result.X:=0.5; Result.Y:=0.5; end;
-      25000: begin Result.X:=0.25; Result.Y:=0.25; end;
-      10000: begin Result.X:=0.125; Result.Y:=0.125; end;
-    else begin Result.X:=360; Result.Y:=180; end;
+
+if AScale > 1000000000 then begin Result.X:=10; Result.Y:=10; end;
+ Result.X := abs(AScale/100000000);
+
+ if AScale <0 then
+  if AZoom <>0 then begin
+   case AZoom of
+    1..6:  Result.X := 10;
+    7 : Result.X := 5;
+    8 : Result.X := 2;
+    9 : Result.X := 1;
+    10 : Result.X := 30/60;
+    11 : Result.X := 20/60;
+    12 : Result.X := 10/60;
+    13 : Result.X := 5/60;
+    14 : Result.X := 2/60;
+    15 : Result.X := 1/60;
+    16 : Result.X := 30/3600;
+    17 : Result.X := 20/3600;
+    18 : Result.X := 10/3600;
+    19 : Result.X := 5/3600;
+    20 : Result.X := 2/3600;
+    21 : Result.X := 1/3600;
+    22 : Result.X := 30/216000;
+    23 : Result.X := 20/216000;
+    else Result.X := 0;
+   end;
   end;
+ Result.Y := Result.X;
 end;
 
 function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;

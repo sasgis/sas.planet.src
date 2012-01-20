@@ -25,21 +25,28 @@ interface
 uses
   SysUtils,
   SyncObjs,
-  db_h;
+  db_h,
+  u_BerkeleyDBEnv;
 
 const
-  BDB_MIN_PAGE_SIZE = $200; // 512 b
-  BDB_MAX_PAGE_SIZE = $10000; // 64 Kb
+  BDB_MIN_PAGE_SIZE : Cardinal  = $200;  //512 b
+  BDB_MAX_PAGE_SIZE : Cardinal  = $10000;  //64 Kb
 
-  BDB_MEM_CACHE_SIZE = $100000; // 1 Mb
+  BDB_MIN_CACHE_SIZE : Cardinal = $5000;  //20k
+  BDB_MAX_CACHE_SIZE : Cardinal = $FFFFFFFF;  //4G for 32-bit OS
 
+  BDB_DEF_CACHE_SIZE = $40000; //256k
+  BDB_DEF_PAGE_SIZE  = 0;      //auto-selected based on the underlying
+                               //filesystem I/O block size (512b - 16k)
 type
   TBerkeleyDB = class(TObject)
   private
     FDB: PDB;
+    FEnv: PDB_ENV;
+    FBDBEnv: TBerkeleyDBEnv;
     FFileName: string;
     FDBEnabled: Boolean;
-    FLastErrorStr: string;
+    FSyncAllow: Boolean;
     FCS: TCriticalSection;
   public
     constructor Create;
@@ -47,11 +54,12 @@ type
     destructor Destroy; override;
 
     function Open(
+      AEnv: TBerkeleyDBEnv;
       const AFileName: string;
+      APageSize: Cardinal = BDB_DEF_PAGE_SIZE;
+      AMemCacheSize: Cardinal = BDB_DEF_CACHE_SIZE;
       ADBType: DBTYPE = DB_BTREE;
-      AFlags: Cardinal = DB_CREATE_;
-      APageSize: Cardinal = BDB_MAX_PAGE_SIZE;
-      AMemCacheSize: Cardinal = BDB_MEM_CACHE_SIZE
+      AFlags: Cardinal = DB_CREATE_
     ): Boolean;
 
     procedure Close;
@@ -84,49 +92,26 @@ type
       AFlags: Cardinal = 0
     ): Boolean;
 
+    function Sync(): Boolean;
+
     property FileName: string read FFileName write FFileName;
   end;
 
 implementation
-
-var
-  BDBLibInitError: Boolean = False;
-  BDBLibInitErrorStr: string = '';
-  LibInitCS: TCriticalSection = nil;
-
-function BDBInitLib(out AErrorStr: string): Boolean;
-begin
-  LibInitCS.Acquire;
-  try
-    Result := False;
-    if not BDBLibInitError then begin
-      try
-        InitBerkeleyDB;
-        Result := True;
-      except
-        on E: Exception do begin
-          BDBLibInitError := True;
-          BDBLibInitErrorStr := E.ClassName + ':' + E.Message;
-        end;
-      end;
-    end;
-    AErrorStr := BDBLibInitErrorStr;
-  finally
-    LibInitCS.Release;
-  end;
-end;
 
 { TBerkeleyDB }
 
 constructor TBerkeleyDB.Create;
 begin
   inherited Create;
+  InitBerkeleyDB;
   FCS := TCriticalSection.Create;
   FFileName := '';
   FDB := nil;
-  if not BDBInitLib(FLastErrorStr) then begin
-    raise Exception.Create(FLastErrorStr);
-  end;
+  FEnv := nil;
+  FBDBEnv := nil;
+  FDBEnabled := False;
+  FSyncAllow := False;
 end;
 
 destructor TBerkeleyDB.Destroy;
@@ -137,11 +122,12 @@ begin
 end;
 
 function TBerkeleyDB.Open(
+  AEnv: TBerkeleyDBEnv;
   const AFileName: string;
+  APageSize: Cardinal = BDB_DEF_PAGE_SIZE;
+  AMemCacheSize: Cardinal = BDB_DEF_CACHE_SIZE;
   ADBType: DBTYPE = DB_BTREE;
-  AFlags: Cardinal = DB_CREATE_;
-  APageSize: Cardinal = BDB_MAX_PAGE_SIZE;
-  AMemCacheSize: Cardinal = BDB_MEM_CACHE_SIZE
+  AFlags: Cardinal = DB_CREATE_
 ): Boolean;
 begin
   FCS.Acquire;
@@ -153,21 +139,28 @@ begin
         Result := False;
       end;
     end else begin
-      try
-        CheckBDB(db_create(FDB, nil, 0));
-        CheckBDB(FDB.set_alloc(FDB, @GetMemory, @ReallocMemory, @FreeMemory));
-        if not FileExists(FFileName) then begin
-          CheckBDB(FDB.set_pagesize(FDB, APageSize));
-        end;
-        CheckBDB(FDB.set_cachesize(FDB, 0, AMemCacheSize, 0));
-        CheckBDB(FDB.open(FDB, nil, PAnsiChar(AFileName), '', ADBType, AFlags, 0));
-        FDBEnabled := True;
-      except
-        on E: Exception do begin
-          FDBEnabled := False;
-          FLastErrorStr := E.Message;
-        end;
+      FDBEnabled := False;
+      if Assigned(AEnv) then begin
+        FEnv := AEnv.EnvPtr;
+        FBDBEnv := AEnv;
       end;
+      CheckBDB(db_create(FDB, FEnv, 0));
+      if FEnv = nil then begin
+        CheckBDB(FDB.set_alloc(FDB, @GetMemory, @ReallocMemory, @FreeMemory));
+      end else begin
+        AFlags := AFlags or DB_AUTO_COMMIT or DB_THREAD;
+      end;
+      if not FileExists(FFileName) and
+         (APageSize <> Cardinal(BDB_DEF_PAGE_SIZE)) then
+      begin
+        CheckBDB(FDB.set_pagesize(FDB, APageSize));
+      end;
+      if AMemCacheSize <> Cardinal(BDB_DEF_CACHE_SIZE) then begin
+        CheckBDB(FDB.set_cachesize(FDB, 0, AMemCacheSize, 0));
+      end;
+      FDB.set_errpfx(FDB, 'BerkeleyDB');
+      CheckBDB(FDB.open(FDB, nil, PAnsiChar(AFileName), '', ADBType, AFlags, 0));
+      FDBEnabled := True;
       Result := FDBEnabled;
     end;
   finally
@@ -196,6 +189,7 @@ function TBerkeleyDB.Read(
 ): Boolean;
 var
   dbtKey, dbtData: DBT;
+  pdbTxn: PDB_TXN;
 begin
   FCS.Acquire;
   try
@@ -205,11 +199,30 @@ begin
       FillChar(dbtData, Sizeof(DBT), 0);
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
-      Result := CheckAndFoundBDB(FDB.get(FDB, nil, @dbtKey, @dbtData, AFlags));
-      if Result then begin
-        AData := dbtData.data;
-        ADataSize := dbtData.size;
+      if (FDB.open_flags and DB_THREAD = DB_THREAD) then begin
+        dbtData.flags := DB_DBT_MALLOC;
       end;
+      //if FEnv <> nil then begin
+      //  CheckBDB(FEnv.txn_begin(FEnv, nil, @pdbTxn, DB_TXN_NOSYNC));
+      //end else begin
+        pdbTxn := nil;
+      //end;
+      //try
+        Result := CheckAndFoundBDB(FDB.get(FDB, pdbTxn, @dbtKey, @dbtData, AFlags));
+        if Result and (dbtData.data <> nil) and (dbtData.size > 0) then begin
+          ADataSize := dbtData.size;
+          GetMem(AData, ADataSize);
+          Move(dbtData.data^, AData^, dbtData.size);
+        end;
+      //except
+      //  if pdbTxn <> nil then begin
+      //    pdbTxn.abort(pdbTxn);
+      //  end;
+      //  raise;
+      //end;
+      //if pdbTxn <> nil then begin
+      //  CheckBDB(pdbTxn.commit(pdbTxn, 0));
+      //end;
     end;
   finally
     FCS.Release;
@@ -225,18 +238,38 @@ function TBerkeleyDB.Write(
 ): Boolean;
 var
   dbtKey, dbtData: DBT;
+  pdbTxn: PDB_TXN;
 begin
   FCS.Acquire;
   try
     Result := False;
     if FDBEnabled then begin
+      FSyncAllow := True;
       FillChar(dbtKey, Sizeof(DBT), 0);
       FillChar(dbtData, Sizeof(DBT), 0);
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
       dbtData.data := AData;
       dbtData.size := ADataSize;
-      Result := CheckAndNotExistsBDB(FDB.put(FDB, nil, @dbtKey, @dbtData, AFlags));
+      if FEnv <> nil then begin
+        CheckBDB(FEnv.txn_begin(FEnv, nil, @pdbTxn, DB_TXN_NOSYNC));
+      end else begin
+        pdbTxn := nil;
+      end;
+      try
+        Result := CheckAndNotExistsBDB(FDB.put(FDB, pdbTxn, @dbtKey, @dbtData, AFlags));
+      except
+        if pdbTxn <> nil then begin
+          pdbTxn.abort(pdbTxn);
+        end;
+        raise;
+      end;
+      if pdbTxn <> nil then begin
+        CheckBDB(pdbTxn.commit(pdbTxn, 0));
+      end;
+      if Assigned(FBDBEnv) then begin
+        FBDBEnv.CheckPoint;
+      end;
     end;
   finally
     FCS.Release;
@@ -250,17 +283,31 @@ function TBerkeleyDB.Exists(
 ): Boolean;
 var
   dbtKey: DBT;
+  pdbTxn: PDB_TXN;
 begin
   FCS.Acquire;
   try
     Result := False;
     if FDBEnabled then begin
       FillChar(dbtKey, Sizeof(DBT), 0);
-
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
-
-      Result := CheckAndFoundBDB(FDB.exists(FDB, nil, @dbtKey, AFlags));
+      //if FEnv <> nil then begin
+      //  CheckBDB(FEnv.txn_begin(FEnv, nil, @pdbTxn, DB_TXN_NOSYNC));
+      //end else begin
+        pdbTxn := nil;
+      //end;
+      //try
+        Result := CheckAndFoundBDB(FDB.exists(FDB, pdbTxn, @dbtKey, AFlags));
+      //except
+      //  if pdbTxn <> nil then begin
+      //    pdbTxn.abort(pdbTxn);
+      //  end;
+      //  raise;
+      //end;
+      //if pdbTxn <> nil then begin
+      //  CheckBDB(pdbTxn.commit(pdbTxn, 0));
+      //end;
     end;
   finally
     FCS.Release;
@@ -274,28 +321,51 @@ function TBerkeleyDB.Del(
 ): Boolean;
 var
   dbtKey: DBT;
+  pdbTxn: PDB_TXN;
 begin
   FCS.Acquire;
   try
     Result := False;
     if FDBEnabled then begin
       FillChar(dbtKey, Sizeof(DBT), 0);
-
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
-
-      Result := CheckAndFoundBDB(FDB.del(FDB, nil, @dbtKey, AFlags));
+      if FEnv <> nil then begin
+        CheckBDB(FEnv.txn_begin(FEnv, nil, @pdbTxn, DB_TXN_NOSYNC));
+      end else begin
+        pdbTxn := nil;
+      end;
+      try
+        Result := CheckAndFoundBDB(FDB.del(FDB, pdbTxn, @dbtKey, AFlags));
+      except
+        if pdbTxn <> nil then begin
+          pdbTxn.abort(pdbTxn);
+        end;
+        raise;
+      end;
+      if pdbTxn <> nil then begin
+        CheckBDB(pdbTxn.commit(pdbTxn, 0));
+      end;
     end;
   finally
     FCS.Release;
   end;
 end;
 
-initialization
-  LibInitCS := TCriticalSection.Create;
-
-finalization
-  LibInitCS.Free;
+function TBerkeleyDB.Sync(): Boolean;
+begin
+  FCS.Acquire;
+  try
+    Result := False;
+    if FDBEnabled and FSyncAllow then begin
+      FSyncAllow := False;
+      CheckBDB(FDB.sync(FDB, 0));
+      Result := True; 
+    end;
+  finally
+    FCS.Release;
+  end;
+end;
 
 end.
 

@@ -49,7 +49,8 @@ uses
   i_CoordConverter,
   u_GeoFun,
   u_NotifyEventListener,
-  u_GeoToStr;
+  u_GeoToStr,
+  StrUtils;
 
 
 const
@@ -135,7 +136,7 @@ var
   VCanShowText: Boolean;
   VLocalConverter: ILocalCoordConverter;
   VGeoConvert: ICoordConverter;
-  VScale: Integer;
+  VScale: Double;
   VShowText: Boolean;
   VColor: TColor32;
 
@@ -145,7 +146,7 @@ var
   vTempX,vTempY: integer;
   VDeltaxDegree,VDeltayDegree: integer;
   VValueConverter: IValueToStringConverter;
-
+  ss:string;
 begin
   VValueConverter := FValueToStringConverterConfig.GetStatic;
   FConfig.DegreeGrid.LockRead;
@@ -163,10 +164,10 @@ begin
   vTempy := 0;
   VDeltaxDegree := 0;
   VDeltayDegree := 0;
-  z := GetDegBordersStepByScale(VScale);
   VLocalConverter := LayerCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
+  z := GetDegBordersStepByScale(VScale,VZoom);
   VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
   VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
   VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
@@ -229,9 +230,15 @@ begin
       );
       if VCanShowText then begin
        ListName := VValueConverter.LatConvert(vVDrawLonLatRect.Top);
+       ss:=copy(ListName,length(ListName)-5,6);
+       if copy(ListName,length(ListName)-5,6)='00.00"' then ListName := ReplaceStr(ListName,'00.00"','');
+       if copy(ListName,length(ListName)-5,6)='00,00"' then ListName := ReplaceStr(ListName,'00,00"','');
+       if copy(ListName,length(ListName)-3,4)=',00"' then ListName := ReplaceStr(ListName,',00"','"');
+       if copy(ListName,length(ListName)-3,4)='.00"' then ListName := ReplaceStr(ListName,'.00"','"');
+       if copy(ListName,length(ListName)-2,3)='00''' then ListName := ReplaceStr(ListName,'00''','');
        twidth  := Layer.bitmap.TextWidth(ListName);
        if twidth > VDeltaXDegree then  begin
-         ListName := floattostr(vVDrawLonLatRect.Top);
+         ListName := '';
          twidth  := Layer.bitmap.TextWidth(ListName);
        end;
        Layer.bitmap.RenderTextW(
@@ -240,10 +247,15 @@ begin
          ListName, 0, VColor
        );
        ListName := VValueConverter.LonConvert(VDrawLonLatRect.Left);
+       if copy(ListName,length(ListName)-5,6)='00.00"' then ListName := ReplaceStr(ListName,'00.00"','');
+       if copy(ListName,length(ListName)-5,6)='00,00"' then ListName := ReplaceStr(ListName,'00,00"','');
+       if copy(ListName,length(ListName)-3,4)=',00"' then ListName := ReplaceStr(ListName,',00"','"');
+       if copy(ListName,length(ListName)-3,4)='.00"' then ListName := ReplaceStr(ListName,'.00"','"');
+       if copy(ListName,length(ListName)-2,3)='00''' then ListName := ReplaceStr(ListName,'00''','');
        twidth  := Layer.bitmap.TextWidth(ListName);
        theight := Layer.bitmap.TextHeight(ListName);
        if twidth > VDeltaXDegree then begin
-         ListName := floattostr(VDrawLonLatRect.Left);
+         ListName := '';
          theight := Layer.bitmap.TextHeight(ListName);
        end;
        Layer.bitmap.RenderTextW(
@@ -507,7 +519,7 @@ begin
         end;
       end;
       if FConfig.DegreeGrid.Visible then begin
-        if FConfig.DegreeGrid.Scale > 0 then begin
+        if FConfig.DegreeGrid.Scale <> 0 then begin
           Result := True;
         end;
       end;

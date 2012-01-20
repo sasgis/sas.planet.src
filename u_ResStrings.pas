@@ -177,6 +177,7 @@ ResourceString
   SAS_STR_ExportAUXGeoServerCaption = 'AUX for LizardTech GeoExpress Server';
   SAS_STR_ExportZipPackCaption = 'Compressing to ZIP';
   SAS_STR_ExportTarPackCaption = 'Compressing to TAR';
+  SAS_STR_ExportJNXPackCaption = 'JNX raster map for Garmin';
   SAS_STR_OperationDeleteCaption = 'Deleting';
   SAS_STR_OperationGenPrevCaption = 'Generating upper zooms';
   SAS_STR_OperationTilesCopyCaption = 'Copying';

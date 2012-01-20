@@ -1,4 +1,4 @@
-object frTilesCopy: TfrTilesCopy
+object frExportToJNX: TfrExportToJNX
   Left = 0
   Top = 0
   Width = 451
@@ -7,11 +7,12 @@ object frTilesCopy: TfrTilesCopy
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
+  Visible = False
   object pnlCenter: TPanel
     Left = 0
-    Top = 49
+    Top = 27
     Width = 451
-    Height = 255
+    Height = 277
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -19,7 +20,7 @@ object frTilesCopy: TfrTilesCopy
       Left = 376
       Top = 0
       Width = 75
-      Height = 255
+      Height = 277
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -29,18 +30,18 @@ object frTilesCopy: TfrTilesCopy
         Left = 3
         Top = 3
         Width = 69
-        Height = 14
+        Height = 13
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        AutoSize = False
         Caption = 'Zooms:'
+        ExplicitWidth = 35
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 235
+        Top = 257
         Width = 69
         Height = 17
         Margins.Left = 0
@@ -53,137 +54,84 @@ object frTilesCopy: TfrTilesCopy
       end
       object chklstZooms: TCheckListBox
         Left = 3
-        Top = 20
+        Top = 19
         Width = 69
-        Height = 212
+        Height = 235
         Align = alClient
         ItemHeight = 13
         TabOrder = 1
-        OnDblClick = chklstZoomsDblClick
       end
     end
     object pnlMain: TPanel
       Left = 0
       Top = 0
       Width = 376
-      Height = 255
+      Height = 277
       Align = alClient
+      AutoSize = True
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      object lblNamesType: TLabel
+      object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 370
-        Height = 14
+        Height = 13
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
-        AutoSize = False
-        Caption = 'Output format'
+        Caption = 'Map'
+        ExplicitWidth = 20
       end
-      object cbbNamesType: TComboBox
+      object cbbMap: TComboBox
         Left = 3
-        Top = 20
+        Top = 19
         Width = 370
         Height = 21
         Align = alTop
         Style = csDropDownList
+        DropDownCount = 16
         ItemHeight = 13
-        ItemIndex = 1
         TabOrder = 0
-        Text = 'SAS.Planet'
-        Items.Strings = (
-          'GoogleMV'
-          'SAS.Planet'
-          'ES1.95'
-          'GMT (GlobalMapper >=10.02)'
-          'BerkeleyDB')
-      end
-      object chkDeleteSource: TCheckBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 44
-        Width = 370
-        Height = 17
-        Margins.Left = 0
-        Margins.Right = 0
-        Margins.Bottom = 0
-        Align = alTop
-        Caption = 'Move'
-        TabOrder = 1
-      end
-      object chkReplaseTarget: TCheckBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 61
-        Width = 370
-        Height = 17
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = 'Overwrite if equal'
-        TabOrder = 2
-      end
-      object chkAllMaps: TCheckBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 235
-        Width = 370
-        Height = 17
-        Margins.Left = 0
-        Margins.Right = 0
-        Margins.Bottom = 0
-        Align = alBottom
-        Caption = 'All'
-        TabOrder = 3
-        OnClick = chkAllMapsClick
-      end
-      object chklstMaps: TCheckListBox
-        Left = 3
-        Top = 81
-        Width = 370
-        Height = 151
-        Align = alClient
-        ItemHeight = 13
-        TabOrder = 4
       end
     end
   end
   object pnlTop: TPanel
     Left = 0
-    Top = 22
+    Top = 0
     Width = 451
     Height = 27
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
-    object lblTargetPath: TLabel
+    object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 86
-      Height = 13
+      Width = 41
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
+      Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitLeft = 48
+      ExplicitHeight = 13
     end
-    object edtTargetPath: TEdit
-      Left = 92
+    object edtTargetFile: TEdit
+      Left = 47
       Top = 3
-      Width = 335
+      Width = 380
       Height = 21
       Align = alClient
       TabOrder = 0
     end
-    object btnSelectTargetPath: TButton
+    object btnSelectTargetFile: TButton
       Left = 427
       Top = 3
       Width = 21
@@ -191,21 +139,14 @@ object frTilesCopy: TfrTilesCopy
       Align = alRight
       Caption = '...'
       TabOrder = 1
-      OnClick = btnSelectTargetPathClick
+      OnClick = btnSelectTargetFileClick
     end
   end
-  object Panel1: TPanel
-    Left = 0
-    Top = 0
-    Width = 451
-    Height = 22
-    Align = alTop
-    Alignment = taLeftJustify
-    BevelEdges = [beBottom]
-    BevelKind = bkTile
-    BevelOuter = bvNone
-    BorderWidth = 3
-    Caption = 'Save selection to file'
-    TabOrder = 2
+  object dlgSaveTargetFile: TSaveDialog
+    DefaultExt = 'zip'
+    Filter = 'Zip |*.zip'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    Left = 40
+    Top = 128
   end
 end

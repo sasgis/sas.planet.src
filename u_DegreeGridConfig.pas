@@ -33,13 +33,13 @@ uses
 type
   TDegreeGridConfig = class(TBaseGridConfig, IDegreeGridConfig)
   private
-    FScale: Integer;
+    FScale: Double;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetScale: Integer;
-    procedure SetScale(AValue: Integer);
+    function GetScale: Double;
+    procedure SetScale(AValue: Double);
     function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
   public
     constructor Create;
@@ -65,7 +65,7 @@ procedure TDegreeGridConfig.DoReadConfig(AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    SetScale(AConfigData.ReadInteger('Scale', FScale));
+    SetScale(AConfigData.ReadFloat('Scale', FScale));
   end;
 end;
 
@@ -73,13 +73,13 @@ procedure TDegreeGridConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteInteger('Scale', FScale);
+  AConfigData.WriteFloat('Scale', FScale);
 end;
 
 function TDegreeGridConfig.GetRectStickToGrid(
   ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
 var
-  VScale: Integer;
+  VScale: Double;
   VVisible: Boolean;
   z: TDoublePoint;
 begin
@@ -91,8 +91,8 @@ begin
     UnlockRead;
   end;
   Result := ASourceRect;
-  if VVisible and (VScale > 0)  then begin
-    z := GetDegBordersStepByScale(VScale);
+  if VVisible then begin
+    z := GetDegBordersStepByScale(VScale,ALocalConverter.Getzoom);
     Result.Left := Result.Left-(round(Result.Left*GSHprec) mod round(z.X*GSHprec))/GSHprec;
     if Result.Left < 0 then Result.Left := Result.Left-z.X;
 
@@ -107,7 +107,7 @@ begin
   end;
 end;
 
-function TDegreeGridConfig.GetScale: Integer;
+function TDegreeGridConfig.GetScale: Double;
 begin
   LockRead;
   try
@@ -117,31 +117,18 @@ begin
   end;
 end;
 
-procedure TDegreeGridConfig.SetScale(AValue: Integer);
+procedure TDegreeGridConfig.SetScale(AValue: Double);
 var
-  VScale: Integer;
+  VScale: Double;
 begin
   VScale := AValue;
-  if VScale >= 1000000 then begin
-    VScale := 1000000;
-  end else if VScale >= 500000 then begin
-    VScale := 500000;
-  end else if VScale >= 200000 then begin
-    VScale := 200000;
-  end else if VScale >= 100000 then begin
-    VScale := 100000;
-  end else if VScale >= 50000 then begin
-    VScale := 50000;
-  end else if VScale >= 25000 then begin
-    VScale := 25000;
-  end else if VScale >= 10000 then begin
-    VScale := 10000;
-  end else begin
-    VScale := 0;
+  if VScale >= 1000000000 then begin
+    VScale := 1000000000;
   end;
+
   LockWrite;
   try
-    if FScale <> VScale then begin
+    if( FScale <> VScale )then begin
       FScale := VScale;
       if FScale = 0 then begin
         SetVisible(False);

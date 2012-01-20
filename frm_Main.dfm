@@ -747,7 +747,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale1000000: TTBXItem
-            Tag = 1000000
+            Tag = 1000000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -756,7 +756,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale500000: TTBXItem
-            Tag = 500000
+            Tag = 500000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -765,7 +765,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale200000: TTBXItem
-            Tag = 200000
+            Tag = 200000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -774,7 +774,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale100000: TTBXItem
-            Tag = 100000
+            Tag = 100000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -783,7 +783,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale50000: TTBXItem
-            Tag = 50000
+            Tag = 50000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -792,7 +792,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale25000: TTBXItem
-            Tag = 25000
+            Tag = 25000000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -801,12 +801,42 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object NDegScale10000: TTBXItem
-            Tag = 10000
+            Tag = 12500000
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
             OnClick = NDegScale0Click
             Caption = '0.125'#176
+            Hint = ''
+          end
+          object TBXSeparatorItem22: TTBXSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          object NDegScaleUser: TTBXItem
+            Tag = 1
+            GroupIndex = 1
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = 'User defined'
+            Hint = ''
+          end
+          object NDegValue: TTBXEditItem
+            OnAcceptText = NDegValueAcceptText
+            Caption = ''
+            Hint = ''
+          end
+          object TBSeparatorItem2: TTBSeparatorItem
+            Caption = ''
+            Hint = ''
+          end
+          object NDegScaleAuto: TTBXItem
+            Tag = -100000000
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NDegScale0Click
+            Caption = 'Auto'
             Hint = ''
           end
         end
@@ -1568,10 +1598,11 @@ object frmMain: TfrmMain
   object OpenSessionDialog: TOpenDialog
     DefaultExt = '*.sls'
     Filter = 
-      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg)|*.kml;*.p' +
-      'lt;*.kmz;*.sls;*.hlg|Google KML files (*.kml)|*.kml|OziExplorer ' +
-      'Track Point File Version 2.1 (*.plt)|*.plt|Google KMZ files (*.k' +
-      'mz)|*.kmz|Download session (*.sls)|*.sls|Selection (*.hlg)|*.hlg'
+      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg,*.gpx)|*.k' +
+      'ml;*.plt;*.kmz;*.sls;*.hlg;*.gpx|Google KML files (*.kml)|*.kml|' +
+      'OziExplorer Track Point File Version 2.1 (*.plt)|*.plt|Google KM' +
+      'Z files (*.kmz)|*.kmz|Download session (*.sls)|*.sls|Selection (' +
+      '*.hlg)|*.hlg|GPS Exchange files (*.gpx)|*.gpx'
     Left = 208
     Top = 208
   end
@@ -3298,6 +3329,11 @@ object frmMain: TfrmMain
       object osmorg1: TTBXItem
         OnClick = osmorg1Click
         Caption = 'URL to osm.org'
+        Hint = ''
+      end
+      object nokiamapcreator1: TTBXItem
+        OnClick = nokiamapcreator1Click
+        Caption = 'URL to Nokia Map Creator'
         Hint = ''
       end
       object N51: TTBXSeparatorItem

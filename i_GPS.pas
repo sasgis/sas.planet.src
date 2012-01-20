@@ -48,7 +48,8 @@ type
                                    AParams: PSingleSatFixibilityData;
                                    ASky: PSingleSatSkyData = nil): Boolean; stdcall;
 
-    function GetPreferredTalkerID: String; stdcall;
+    function EnumerateTalkerID(var ATalkerID: String): Boolean; stdcall;
+    function GetCountForAllTalkerIDs(const AOnlyForFixed: Boolean): Byte; stdcall;
 
     property Count[const ATalkerID: String]: Byte read GetCount;
     property FixCount[const ATalkerID: String]: Byte read GetFixCount;
