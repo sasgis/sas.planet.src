@@ -1,8 +1,8 @@
 unit JNXLib;
 { Unit:    JNXLib
   Author:  Alex Whiter
-  Version: 1.0
-  Date:    2012.01.12
+  Version: 1.2
+  Date:    2012.01.20
 
   Description: This unit provides the necessary classes and routines to read
     and write JNX raster maps files.
@@ -52,7 +52,7 @@ type
 
   TJNXRect = packed record
     case Boolean of
-      False: (lat1, lon1, lat2, lon2: integer);
+      False: (northern_lat, eastern_lon, southern_lat, western_lon: integer);
       True:  (NorthEast, SouthWest: TJNXPoint);
   end;
 
@@ -183,6 +183,7 @@ type
     FFileHeadersAllocated: boolean;
     FFirstTileInfoOffset: longword;
     FNextPictureOffset: longword;
+    FFirstTile: boolean;
 
     procedure OpenFile(const Path: String); override;
     procedure CloseFile; override;
@@ -226,7 +227,7 @@ function WGS84CoordToJNX(c: double): integer;
 
 function CreateGUID: String;
 
-function JNXRect(lat1, lon1, lat2, lon2: integer): TJNXRect;
+function JNXRect(northern_lat, eastern_lon, southern_lat, western_lon: integer): TJNXRect;
 
 function DigitalGlobeZoomToScale(z: integer): integer;
 function MetersPerPixelToScale(d: double): integer;
@@ -266,7 +267,7 @@ end;
 
 function WGS84CoordToJNX(c: double): integer;
 begin
-  Result := trunc(c * $7fffffff / 180);
+  Result := round(c * $7fffffff / 180);
 end;
 
 procedure Seek64(var f: File; Pos: longword);
@@ -295,19 +296,19 @@ function GetMaxBounds(const b1, b2: TJNXRect): TJNXRect;
 begin
   with Result do
   begin
-    lat1 := Max(b1.lat1, b2.lat1);
-    lon1 := Max(b1.lon1, b2.lon1);
-    lat2 := Min(b1.lat2, b2.lat2);
-    lon2 := Min(b1.lon2, b2.lon2);
+    northern_lat := Max(b1.northern_lat, b2.southern_lat);
+    eastern_lon  := Max(b1.eastern_lon,  b2.western_lon );
+    southern_lat := Min(b1.northern_lat, b2.southern_lat);
+    western_lon  := Min(b1.eastern_lon,  b2.western_lon );
   end;
 end;
 
-function JNXRect(lat1, lon1, lat2, lon2: integer): TJNXRect;
+function JNXRect(northern_lat, eastern_lon, southern_lat, western_lon: integer): TJNXRect;
 begin
-  Result.lat1 := lat1;
-  Result.lon1 := lon1;
-  Result.lat2 := lat2;
-  Result.lon2 := lon2;
+  Result.northern_lat := Max(northern_lat, southern_lat);
+  Result.eastern_lon  := Max(eastern_lon,  western_lon );
+  Result.southern_lat := Min(northern_lat, southern_lat);
+  Result.western_lon  := Min(eastern_lon,  western_lon );
 end;
 
 function DigitalGlobeZoomToScale(z: integer): integer;
@@ -586,6 +587,8 @@ begin
   Rewrite(FFile, 1);
 
   InitHeader;
+
+  FFirstTile := True;
 end;
 
 procedure TJNXWriter.SetLevelCount(Value: integer);
@@ -735,8 +738,11 @@ begin
   FTiles[Level, TileIndex].TileBounds := Bounds;
   if AdjustMapBounds then
   begin
-    if (Level = 0) and (TileIndex = 0) then
-      FHeader.MapBounds := Bounds
+    if FFirstTile then
+    begin
+      FHeader.MapBounds := Bounds;
+      FFirstTile := False;
+    end
     else
       FHeader.MapBounds := GetMaxBounds(FHeader.MapBounds, Bounds);
   end;
