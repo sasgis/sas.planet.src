@@ -101,7 +101,10 @@ implementation
 
 uses
   SysUtils,
-  Graphics;
+  Graphics,
+  IniFiles,
+  i_ConfigDataWriteProvider,
+  u_ConfigDataWriteProviderByIniFile;
 
 {$R *.dfm}
 
@@ -289,9 +292,21 @@ begin
 end;
 
 procedure TfrmProgressDownload.ButtonSaveClick(Sender: TObject);
+var
+  VFileName: string;
+  VIni: TMemIniFile;
+  VSLSData: IConfigDataWriteProvider;
+  VSessionSection: IConfigDataWriteProvider;
 begin
-  if (SaveSessionDialog.Execute)and(SaveSessionDialog.FileName<>'') then begin
-    FDownloadThread.SaveToFile(SaveSessionDialog.FileName);
+  if SaveSessionDialog.Execute then begin
+    VFileName := SaveSessionDialog.FileName;
+    if VFileName <> '' then begin
+      VIni := TMemIniFile.Create(VFileName);
+      VSLSData := TConfigDataWriteProviderByIniFile.Create(VIni);
+      VSessionSection := VSLSData.GetOrCreateSubItem('Session');
+      FDownloadThread.SaveToFile(VSessionSection);
+      VIni.UpdateFile;
+    end;
   end;
 end;
 

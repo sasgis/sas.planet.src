@@ -55,8 +55,11 @@ implementation
 
 uses
   SysUtils,
+  IniFiles,
   i_LogSimple,
   i_LogForTaskThread,
+  i_ConfigDataProvider,
+  u_ConfigDataProviderByIniFile,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
   frm_ProgressDownload,
@@ -141,11 +144,17 @@ end;
 
 procedure TProviderTilesDownload.StartBySLS(AFileName: string);
 var
+  VIni: TMemIniFile;
+  VSLSData: IConfigDataProvider;
+  VSessionSection: IConfigDataProvider;
   VLog: TLogForTaskThread;
   VSimpleLog: ILogSimple;
   VThreadLog:ILogForTaskThread;
   VThread: TThreadDownloadTiles;
 begin
+  VIni := TMemIniFile.Create(AFileName);
+  VSLSData := TConfigDataProviderByIniFile.Create(VIni);
+  VSessionSection := VSLSData.GetSubItem('Session');
   VLog := TLogForTaskThread.Create(5000, 0);
   VSimpleLog := VLog;
   VThreadLog := VLog;
@@ -155,7 +164,7 @@ begin
       FVectorItmesFactory,
       VSimpleLog,
       FullMapsSet,
-      AFileName,
+      VSessionSection,
       FDownloadConfig,
       FDownloadInfo
     );
