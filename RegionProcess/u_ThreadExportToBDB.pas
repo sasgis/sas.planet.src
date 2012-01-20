@@ -26,10 +26,10 @@ uses
   Windows,
   SysUtils,
   Classes,
+  i_VectorItemLonLat,
   i_TileFileNameGenerator,
   u_MapType,
   u_ResStrings,
-  t_GeoTypes,
   u_BerkeleyDB,
   u_BerkeleyDBEnv,
   u_BerkeleyDBPool,
@@ -58,7 +58,7 @@ type
   public
     constructor Create(
       APath: string;
-      APolygon: TArrayOfDoublePoint;
+      APolygon: ILonLatPolygonLine;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
       Amove: boolean;
@@ -80,7 +80,7 @@ uses
 
 constructor TThreadExportToBDB.Create(
   APath: string;
-  APolygon: TArrayOfDoublePoint;
+  APolygon: ILonLatPolygonLine;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   Amove, Areplace: boolean

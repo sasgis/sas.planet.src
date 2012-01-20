@@ -8,6 +8,7 @@ uses
   JNXlib,
   GR32,
   t_GeoTypes,
+  i_VectorItemLonLat,
   i_CoordConverterFactory,
   u_MapType,
   u_ResStrings,
@@ -25,7 +26,7 @@ type
     constructor Create(
       ACoordConverterFactory: ICoordConverterFactory;
       ATargetFile: string;
-      APolygon: TArrayOfDoublePoint;
+      APolygon: ILonLatPolygonLine;
       Azoomarr: array of boolean;
       AMapType: TMapType
     );
@@ -45,7 +46,7 @@ uses
 constructor TThreadExportToJnx.Create(
   ACoordConverterFactory: ICoordConverterFactory;
   ATargetFile: string;
-  APolygon: TArrayOfDoublePoint;
+  APolygon: ILonLatPolygonLine;
   Azoomarr: array of boolean;
   AMapType: TMapType
 );

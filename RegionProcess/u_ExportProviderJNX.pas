@@ -5,6 +5,7 @@ interface
 uses
   Controls,
   t_GeoTypes,
+  i_VectorItemLonLat,
   i_CoordConverterFactory,
   i_LanguageManager,
   i_MapTypes,
@@ -29,11 +30,11 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint); override;
+    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: TArrayOfDoublePoint); override;
+    procedure StartProcess(APolygon: ILonLatPolygon); override;
   end;
 
 implementation
@@ -70,7 +71,7 @@ begin
   Result := SAS_STR_ExportJNXPackCaption;
 end;
 
-procedure TExportProviderJNX.InitFrame(Azoom: byte; APolygon: TArrayOfDoublePoint);
+procedure TExportProviderJNX.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportToJNX.CreateForFileType(
@@ -115,7 +116,7 @@ begin
   end;
 end;
 
-procedure TExportProviderJNX.StartProcess(APolygon: TArrayOfDoublePoint);
+procedure TExportProviderJNX.StartProcess(APolygon: ILonLatPolygon);
 var
   i:integer;
   path:string;
@@ -128,7 +129,13 @@ begin
   end;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   path:=FFrame.edtTargetFile.Text;
-  TThreadExportToJNX.Create(FCoordConverterFactory, path, APolygon, Zoomarr, VMapType);
+  TThreadExportToJNX.Create(
+    FCoordConverterFactory,
+    path,
+    APolygon.Item[0],
+    Zoomarr,
+    VMapType
+  );
 end;
 
 end.

@@ -138,7 +138,7 @@ begin
   if FFrame.cbbNamesType.ItemIndex = 4 then begin
     TThreadExportToBDB.Create(
       path,
-      APolygon,
+      APolygon.Item[0],
       ZoomArr,
       typemaparr,
       FFrame.chkDeleteSource.Checked,
