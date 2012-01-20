@@ -240,7 +240,7 @@ begin
     AGlobalCacheConfig
   );
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
-  FBDBEnv := GlobalAllocateEnventory(
+  FBDBEnv := GlobalAllocateEnvironment(
     IncludeTrailingPathDelimiter(
       AGlobalCacheConfig.CacheGlobalPath +
       AGlobalCacheConfig.BDBCachepath +

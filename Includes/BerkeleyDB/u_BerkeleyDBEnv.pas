@@ -46,7 +46,7 @@ type
     property EnvRootPath: string read FEnvRootPath;
   end;
 
-function GlobalAllocateEnventory(const AEnvRootPath: string): TBerkeleyDBEnv;
+function GlobalAllocateEnvironment(const AEnvRootPath: string): TBerkeleyDBEnv;
 
 implementation
 
@@ -62,7 +62,7 @@ var
   GEnvList: TObjectList = nil;
   GCS: TCriticalSection = nil;
 
-function GlobalAllocateEnventory(const AEnvRootPath: string): TBerkeleyDBEnv;
+function GlobalAllocateEnvironment(const AEnvRootPath: string): TBerkeleyDBEnv;
 var
   I: Integer;
   VEnv: TBerkeleyDBEnv;
