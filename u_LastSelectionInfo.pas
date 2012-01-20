@@ -55,7 +55,9 @@ implementation
 
 uses
   SysUtils,
-  i_EnumDoublePoint;
+  i_DoublePointsAggregator,
+  i_EnumDoublePoint,
+  u_DoublePointsAggregator;
 
 { TLastSelectionInfo }
 
@@ -72,25 +74,25 @@ var
   i: Integer;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
-  VPolygon: TArrayOfDoublePoint;
+  VPolygon: IDoublePointsAggregator;
   VZoom: Byte;
 begin
   inherited;
   if AConfigData <> nil then begin
+    VPolygon := TDoublePointsAggregator.Create;
     i:=1;
     repeat
       VPoint.X := AConfigData.ReadFloat('PointX_'+inttostr(i), 1000000);
       VPoint.Y := AConfigData.ReadFloat('PointY_'+inttostr(i), 1000000);
       VValidPoint := (Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360);
       if VValidPoint then begin
-        SetLength(VPolygon, i);
-        VPolygon[i - 1] := VPoint;
+        VPolygon.Add(VPoint);
         inc(i);
       end;
     until not VValidPoint;
-    if length(VPolygon)>0 then begin
+    if VPolygon.Count > 0 then begin
       VZoom := AConfigData.Readinteger('Zoom', FZoom);
-      SetPolygon(@VPolygon[0], length(VPolygon), VZoom);
+      SetPolygon(VPolygon.Points, VPolygon.Count, VZoom);
     end;
   end;
 end;

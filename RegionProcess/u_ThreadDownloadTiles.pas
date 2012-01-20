@@ -154,11 +154,13 @@ uses
   Types,
   i_DownloadResult,
   i_EnumDoublePoint,
+  i_DoublePointsAggregator,
   i_TileRequest,
   i_TileIterator,
   i_TileDownloaderState,
   u_DownloadInfoSimple,
   u_TileIteratorStuped,
+  u_DoublePointsAggregator,
   u_NotifyEventListener,
   u_ResStrings;
 
@@ -297,9 +299,11 @@ var
   VProcessed: Int64;
   VSecondLoadTNE: Boolean;
   VLastProcessedPoint: TPoint;
-  VPolygLL: TArrayOfDoublePoint;
+  VPolygon: IDoublePointsAggregator;
   VElapsedTime: TDateTime;
   VMapType: TMapType;
+  VPoint: TDoublePoint;
+  VValidPoint: Boolean;
 begin
   Ini:=TiniFile.Create(FileName);
   try
@@ -322,13 +326,18 @@ begin
       VLastProcessedPoint.X:=Ini.ReadInteger('Session','StartX',-1);
       VLastProcessedPoint.Y:=Ini.ReadInteger('Session','StartY',-1);
     end;
+    VPolygon := TDoublePointsAggregator.Create;
     i:=1;
-    while Ini.ReadFloat('Session','LLPointX_'+inttostr(i),-10000)>-10000 do begin
-      setlength(VPolygLL, i);
-      VPolygLL[i-1].x := Ini.ReadFloat('Session','LLPointX_'+inttostr(i),-10000);
-      VPolygLL[i-1].y := Ini.ReadFloat('Session','LLPointY_'+inttostr(i),-10000);
-      inc(i);
-    end;
+    repeat
+      VPoint.X := Ini.ReadFloat('Session','LLPointX_'+inttostr(i),-10000);
+      VPoint.Y := Ini.ReadFloat('Session','LLPointY_'+inttostr(i),-10000);
+      VValidPoint := (Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360);
+      if VValidPoint then begin
+        VPolygon.Add(VPoint);
+        inc(i);
+      end;
+    until not VValidPoint;
+
     VElapsedTime := Ini.ReadFloat('Session', 'ElapsedTime', 0);
   finally
     ini.Free;
@@ -346,7 +355,7 @@ begin
     ALog,
     VMapType,
     VZoom,
-    AVectorItmesFactory.CreateLonLatPolygon(@VPolygLL[0], Length(VPolygLL)).Item[0],
+    AVectorItmesFactory.CreateLonLatPolygon(VPolygon.Points, VPolygon.Count).Item[0],
     ADownloadConfig,
     TDownloadInfoSimple.Create(ADownloadInfo, VProcessedTileCount, VProcessedSize),
     VReplaceExistTiles,
