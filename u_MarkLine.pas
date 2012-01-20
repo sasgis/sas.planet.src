@@ -36,7 +36,6 @@ type
   private
     FLLRect: TDoubleRect;
     FLine: ILonLatPath;
-    FPoints: TArrayOfDoublePoint;
     FLineColor: TColor32;
     FLineWidth: Integer;
   protected
@@ -93,7 +92,7 @@ end;
 
 function TMarkLine.GetGoToLonLat: TDoublePoint;
 begin
-  Result := FPoints[0];
+  FLine.GetEnum.Next(Result);
 end;
 
 function TMarkLine.GetLLRect: TDoubleRect;
