@@ -561,7 +561,6 @@ type
     FWikiLayer: TWikiLayer;
     FLayerMapMarks: TMapMarksLayer;
     FLayerSearchResults: TSearchResultsLayer;
-//    FUIDownLoader: TTileDownloaderUI;
     FUIDownload: IInterface;
 
     ProgramStart: Boolean;
@@ -5129,14 +5128,14 @@ Procedure TfrmMain.TrayControl(var Msg: TMessage);
 begin
   if (Msg.WParam = SC_MINIMIZE) and GState.GlobalAppConfig.IsShowIconInTray then begin
     TrayIcon.Visible := True;
-    ShowWindow(frmMain.Handle, SW_HIDE);
+    ShowWindow(Self.Handle, SW_HIDE);
     ShowWindow(Application.Handle, SW_HIDE);
   end else inherited;
 end;
 
 procedure TfrmMain.OnMinimize(Sender: TObject);
 begin
-  PostMessage(frmMain.Handle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+  PostMessage(Self.Handle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 end;
 
 procedure TfrmMain.OnPathProvidesChange;
@@ -5166,7 +5165,7 @@ end;
 procedure TfrmMain.TrayItemRestoreClick(Sender: TObject);
 begin
   ShowWindow(Application.Handle, SW_SHOW);
-  ShowWindow(frmMain.Handle, SW_SHOW);
+  ShowWindow(Self.Handle, SW_SHOW);
   TrayIcon.Visible := False;
 end;
 
