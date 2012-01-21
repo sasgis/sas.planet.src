@@ -1,8 +1,8 @@
 unit JNXLib;
 { Unit:    JNXLib
   Author:  Alex Whiter
-  Version: 1.2
-  Date:    2012.01.20
+  Version: 1.3
+  Date:    2012.01.21
 
   Description: This unit provides the necessary classes and routines to read
     and write JNX raster maps files.
@@ -115,6 +115,7 @@ type
 
     function GetLevelInfo(l: integer): PJNXLevelInfo; virtual;
     function GetTileInfo(l, t: integer): PJNXTileInfo; virtual;
+    function GetMetaInfo: PJNXMapMeta; virtual;
 
     procedure SetLevelCount(Value: integer); virtual;
     function GetLevelScale(l: integer): integer; virtual;
@@ -140,7 +141,7 @@ type
     property Header: TJNXHeader read FHeader;
     property LevelInfo[l: integer]: PJNXLevelInfo read GetLevelInfo;
     property TileInfo[l, t: integer]: PJNXTileInfo read GetTileInfo;
-    property MetaInfo: TJNXMapMeta read FMeta;
+    property MetaInfo: PJNXMapMeta read GetMetaInfo;
 
     // High-level access to the commonly used fields
     // Global map info
@@ -216,7 +217,7 @@ type
     property LevelZoom[l: integer]: integer read GetLevelZoom write SetLevelZoom;
     property TileCount[l: integer]: integer read GetTileCount write SetTileCount;
 
-    procedure WriteTile(Level, TileIndex, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: String; AdjustMapBounds: boolean = True);
+    procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: String; AdjustMapBounds: boolean = True);
   end;
 
 function ReadUTFString(var f: File): WideString;
@@ -296,10 +297,10 @@ function GetMaxBounds(const b1, b2: TJNXRect): TJNXRect;
 begin
   with Result do
   begin
-    northern_lat := Max(b1.northern_lat, b2.southern_lat);
-    eastern_lon  := Max(b1.eastern_lon,  b2.western_lon );
-    southern_lat := Min(b1.northern_lat, b2.southern_lat);
-    western_lon  := Min(b1.eastern_lon,  b2.western_lon );
+    northern_lat := Max(b1.northern_lat, b2.northern_lat);
+    eastern_lon  := Max(b1.eastern_lon,  b2.eastern_lon );
+    southern_lat := Min(b1.southern_lat, b2.southern_lat);
+    western_lon  := Min(b1.western_lon,  b2.western_lon );
   end;
 end;
 
@@ -432,7 +433,10 @@ end;
 
 procedure TJNXMapFile.SetLevelZoom(l: integer; const Value: integer);
 begin
-  FMeta.LevelMetas[l].Zoom := Value;
+  if Value <> 0 then
+    FMeta.LevelMetas[l].Zoom := Value
+  else
+    FMeta.LevelMetas[l].Zoom := l + 1;
 end;
 
 procedure TJNXMapFile.SetTileCount(l: integer; const Value: integer);
@@ -441,6 +445,11 @@ begin
     Raise EJNXException.Create('Too many tiles on level ' + IntToStr(l));
 
   SetLength(FTiles[l], Value);
+end;
+
+function TJNXMapFile.GetMetaInfo: PJNXMapMeta;
+begin
+  Result := @FMeta;
 end;
 
 { TJNXReader }
@@ -592,11 +601,16 @@ begin
 end;
 
 procedure TJNXWriter.SetLevelCount(Value: integer);
+var
+  i: integer;
 begin
   if FFileHeadersAllocated then
     raise EJNXException.Create('Cannot change the count of levels after WriteTile');
 
   inherited;
+
+  for i:=0 to Levels - 1 do
+    FMeta.LevelMetas[i].Zoom := i + 1;
 end;
 
 procedure TJNXWriter.SetTileCount(l: integer; const Value: integer);
@@ -728,12 +742,15 @@ begin
   end;
 end;
 
-procedure TJNXWriter.WriteTile(Level, TileIndex, PicWidth, PicHeight: integer;
+procedure TJNXWriter.WriteTile(Level, PicWidth, PicHeight: integer;
   const Bounds: TJNXRect; const JpegString: String; AdjustMapBounds: boolean = True);
 var
   Len: integer;
+  TileIndex: integer;
 begin
   WriteFileHeaders(True);
+
+  TileIndex := FLevels[Level].TileCount;
 
   FTiles[Level, TileIndex].TileBounds := Bounds;
   if AdjustMapBounds then

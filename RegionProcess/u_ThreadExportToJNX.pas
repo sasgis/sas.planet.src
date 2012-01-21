@@ -90,7 +90,6 @@ var
   VMemStream: TMemoryStream;
   VGeoConvert: ICoordConverter;
   VStringStream: TStringStream;
-  VTileIndexPerZoom: Integer;
   VWriter: TJNXWriter;
   VTileBounds: TJNXRect;
   VTopLeft: TDoublePoint;
@@ -136,7 +135,6 @@ begin
         ProgressFormUpdateOnProgress;
         for i := 0 to Length(FZooms) - 1 do begin
           VZoom := FZooms[i];
-          VTileIndexPerZoom := 0;
           VTileIterator := VTileIterators[i];
           while VTileIterator.Next(VTile) do begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
@@ -164,7 +162,6 @@ begin
 
               VWriter.WriteTile(
                 I,
-                VTileIndexPerZoom,
                 256,
                 256,
                 VTileBounds,
@@ -172,7 +169,6 @@ begin
               );
 
             end;
-            Inc(VTileIndexPerZoom);
             inc(FTilesProcessed);
             if FTilesProcessed mod 100 = 0 then begin
               ProgressFormUpdateOnProgress;
