@@ -128,8 +128,8 @@ begin
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
-  //http://wikimapia.org/sys/search4/?q=%D0%9A%D1%80%D0%B0%D1%81%D0%BD%D0%BE%D0%B4%D0%B0%D1%80
-  Result := 'http://wikimapia.org/sys/search4/?q='+URLEncode(AnsiToUtf8(VSearch));
+  //http://wikimapia.org/search/?q=%D0%9A%D1%80%D0%B0%D1%81%D0%BD%D0%BE%D0%B4%D0%B0%D1%80
+  Result := 'http://wikimapia.org/search/?q='+URLEncode(AnsiToUtf8(VSearch));
 end;
 
 end.
