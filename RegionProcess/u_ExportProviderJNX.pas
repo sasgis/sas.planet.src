@@ -137,7 +137,7 @@ begin
   VMapName := FFrame.EmapName.Text;
   if FFrame.v3.checked then begin
       VJNXVersion := 3;
-      VZorder := 30;
+      VZorder := 0;
   end else begin
       VJNXVersion := 4;
       VZorder := FFrame.EZorder.Value;
