@@ -228,7 +228,8 @@ end;
 
 function Str2Degree(AStr:string; var llat,llon:boolean; Var res:Double):Boolean;
 var
-i,delitel : integer;
+  i : integer;
+ delitel : single;
   gms : double;
   text : string;
 begin
@@ -316,7 +317,9 @@ begin
      if ((delitel>1)and(abs(gms)>60))or
         ((delitel=1)and(llat)and(abs(gms)>90))or
         ((delitel=1)and(not llat)and(abs(gms)>180)) then begin
-       Result:=false;
+      if (delitel=60) and (GMS>60) then begin //  37 6298475265502
+         delitel := Power(10,length(text));
+      end else Result:=false;
      end;
      if res<0 then begin
        res:=res-gms/delitel;
@@ -592,8 +595,10 @@ V2Search := ReplaceStr(V2Search,' .',' '); // разделители
 V2Search := ReplaceStr(V2Search,'%2C',' '); // разделители
 V2Search := ReplaceStr(V2Search,'#8243;','"'); // разделители
 V2Search := ReplaceStr(V2Search,'#8242;',''''); // разделители
-V2Search := ReplaceStr(V2Search,'&',''); // разделители
+V2Search := ReplaceStr(V2Search,'&',' '); // разделители
 V2Search := ReplaceStr(V2Search,';',' '); // разделители
+V2Search := ReplaceStr(V2Search,'#',' '); // разделители
+if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); // 11.22,33.44
 
   while PosEx('  ',V2Search, 1)>1 do V2Search := ReplaceStr(V2Search,'  ',' ');// убираем двойные пробелы
 
