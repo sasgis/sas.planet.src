@@ -138,7 +138,7 @@ const
   CCacheSize = BDB_DEF_CACHE_SIZE;
 
 function PBDBDataToMemStream(AData: PBDBData; out AStream: TMemoryStream): Boolean;
-function RawDataToPBDBData(ARawData: Pointer; AData: PBDBData): Boolean;
+function RawDataToPBDBData(ARawData: PByte; AData: PBDBData): Boolean;
 
 implementation
 
@@ -181,36 +181,38 @@ begin
   end;
 end;
 
-function RawDataToPBDBData(ARawData: Pointer; AData: PBDBData): Boolean;
+function RawDataToPBDBData(ARawData: PByte; AData: PBDBData): Boolean;
 var
-  VOffset: Integer;
+  PRawData: PByte;
 begin
   Result := False;
   if (AData <> nil) and (ARawData <> nil) then begin
     FillChar(AData^, SizeOf(TBDBData), 0);
 
-    AData.BDBRecVer := PByte(ARawData)^;
-    VOffset := SizeOf(AData.BDBRecVer);
+    PRawData := ARawData;
+
+    AData.BDBRecVer := PRawData^;
+    Inc(PRawData, SizeOf(AData.BDBRecVer));
 
     if AData.BDBRecVer = CBDBRecVerCur then begin
 
-      AData.TileSize := PCardinal(Integer(ARawData) + VOffset)^;
-      Inc(VOffset, SizeOf(AData.TileSize));
+      AData.TileSize := PCardinal(PRawData)^;
+      Inc(PRawData, SizeOf(AData.TileSize));
 
-      AData.TileDate := PDateTime(Integer(ARawData) + VOffset)^;
-      Inc( VOffset, SizeOf(AData.TileDate) );
+      AData.TileDate := PDateTime(PRawData)^;
+      Inc(PRawData, SizeOf(AData.TileDate));
 
-      AData.TileVer := PWideChar(Integer(ARawData) + VOffset);
-      Inc( VOffset, (Length(AData.TileVer) + 1) * SizeOf(WideChar) );
+      AData.TileVer := PWideChar(PRawData);
+      Inc(PRawData, (Length(AData.TileVer) + 1) * SizeOf(WideChar));
 
-      AData.TileMIME := PWideChar(Integer(ARawData) + VOffset);
-      Inc( VOffset, (Length(AData.TileMIME) + 1) * SizeOf(WideChar) );
+      AData.TileMIME := PWideChar(PRawData);
+      Inc(PRawData, (Length(AData.TileMIME) + 1) * SizeOf(WideChar));
 
-      AData.TileDefExt := PWideChar(Integer(ARawData) + VOffset);
-      Inc( VOffset, (Length(AData.TileDefExt) + 1) * SizeOf(WideChar) );
+      AData.TileDefExt := PWideChar(PRawData);
+      Inc(PRawData, (Length(AData.TileDefExt) + 1) * SizeOf(WideChar));
 
       if AData.TileSize > 0 then begin
-        AData.TileBody := Pointer(Integer(ARawData) + VOffset);
+        AData.TileBody := PRawData;
       end;
 
       Result := True;
