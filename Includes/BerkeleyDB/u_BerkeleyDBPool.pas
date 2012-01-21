@@ -23,7 +23,7 @@ unit u_BerkeleyDBPool;
 interface
 
 uses
-  Windows, // for INFINITE constant only
+  Windows,
   Classes,
   SysUtils,
   SyncObjs,
@@ -38,6 +38,8 @@ type
     ActiveCount: Integer;
   end;
 
+  TOnObjCreate = function(const AFileName: string): TBerkeleyDB of object;
+
   TBerkeleyDBPool = class(TObject)
   private
     FCS: TCriticalSection;
@@ -46,6 +48,8 @@ type
     FActive: Boolean;
     FUsageCount: Integer;
     FFinishEvent: TEvent;
+    FOnObjCreate: TOnObjCreate;
+    FCrashList: TStringList;
     function GetPoolSize: Integer;
     procedure SetPoolSize(AValue: Integer);
     procedure Abort;
@@ -56,6 +60,7 @@ type
     function Acquire(const AFileName: string): TBerkeleyDB;
     procedure Release(AObj: TBerkeleyDB);
     property Size: Integer read GetPoolSize write SetPoolSize;
+    property OnObjCreate: TOnObjCreate read FOnObjCreate write FOnObjCreate;
   end;
 
 implementation
@@ -66,9 +71,12 @@ constructor TBerkeleyDBPool.Create(const APoolSize: Cardinal = 12);
 begin
   FCS := TCriticalSection.Create;
   FObjList := TList.Create;
+  FCrashList := TStringList.Create;
+  FCrashList.CaseSensitive := False;
   FFinishEvent := TEvent.Create;
   FPoolSize := APoolSize;
   FUsageCount := 0;
+  FOnObjCreate := nil;
   FActive := True;
 end;
 
@@ -76,6 +84,7 @@ destructor TBerkeleyDBPool.Destroy;
 begin
   Abort;
   FObjList.Free;
+  FCrashList.Free;
   FCS.Free;
   FreeAndNil(FFinishEvent);
   inherited;
@@ -115,6 +124,30 @@ begin
 end;
 
 function TBerkeleyDBPool.Acquire(const AFileName: string): TBerkeleyDB;
+
+  function CreateNewObj(): TBerkeleyDB;
+  var
+    PRec: PBDBPoolRec;
+    VObj: TBerkeleyDB;
+  begin
+    Result := nil;
+    if Addr(FOnObjCreate) <> nil then begin
+      VObj := FOnObjCreate(AFileName);
+    end else begin
+      VObj := TBerkeleyDB.Create;
+    end;
+    if Assigned(VObj) then begin
+      New(PRec);
+      PRec.Obj := VObj;
+      PRec.Obj.FileName := AFileName;
+      PRec.AcquireTime := GetTickCount;
+      PRec.ReleaseTime := 0;
+      PRec.ActiveCount := 1;
+      FObjList.Add(PRec);
+      Result := VObj;
+    end;
+  end;
+
 var
   I: Integer;
   PRec: PBDBPoolRec;
@@ -126,71 +159,57 @@ begin
   FCS.Acquire;
   try
     if FActive then begin
-      VRecIndexOldest := -1;
-      VReleaseOldest := $FFFFFFFF;
-      VFound := False;
-      // Ищем среди открытых
-      for I := 0 to FObjList.Count - 1 do begin
-        PRec := FObjList.Items[I];
-        if PRec <> nil then begin
-          VFound := (PRec.Obj.FileName = AFileName);
-          if VFound then begin
-            PRec.AcquireTime := GetTickCount;
-            Inc(PRec.ActiveCount);
-            Result := PRec.Obj;
-            Break;
-          end else if PRec.ActiveCount <= 0 then begin
-            // попутно находим наистарейшую неиспользующуюся БД
-            if PRec.ReleaseTime < VReleaseOldest then begin
-              VReleaseOldest := PRec.ReleaseTime;
-              VRecIndexOldest := I;
+      if not FCrashList.Find(AFileName, I) then
+      try
+        VRecIndexOldest := -1;
+        VReleaseOldest := $FFFFFFFF;
+        VFound := False;
+        // Ищем среди открытых
+        for I := 0 to FObjList.Count - 1 do begin
+          PRec := FObjList.Items[I];
+          if PRec <> nil then begin
+            VFound := (PRec.Obj.FileName = AFileName);
+            if VFound then begin
+              PRec.AcquireTime := GetTickCount;
+              Inc(PRec.ActiveCount);
+              Result := PRec.Obj;
+              Break;
+            end else if PRec.ActiveCount <= 0 then begin
+              // попутно находим наистарейшую неиспользующуюся БД
+              if PRec.ReleaseTime < VReleaseOldest then begin
+                VReleaseOldest := PRec.ReleaseTime;
+                VRecIndexOldest := I;
+              end;
             end;
           end;
         end;
-      end;
-      // Среди открытых не нашли
-      if not VFound then begin
-        if FObjList.Count < FPoolSize then begin
-          // если не достигли пределов пула, создаём новый объект
-          New(PRec);
-          try
-            PRec.Obj := TBerkeleyDB.Create;
-          except
-            Dispose(PRec);
-            raise;
-          end;
-          PRec.Obj.FileName := AFileName;
-          PRec.AcquireTime := GetTickCount;
-          PRec.ReleaseTime := 0;
-          PRec.ActiveCount := 1;
-          FObjList.Add(PRec);
-          Result := PRec.Obj;
-        end else if VRecIndexOldest <> -1 then begin
-          // иначе, пытаемся закрыть старую неиспользующуюся БД
-          PRec := FObjList.Items[VRecIndexOldest];
-          if (PRec <> nil) and (PRec.ActiveCount <= 0) then begin
-            FreeAndNil(PRec.Obj);
-            try
-              PRec.Obj := TBerkeleyDB.Create;
-            except
+        // Среди открытых не нашли
+        if not VFound then begin
+          if FObjList.Count < FPoolSize then begin
+            // если не достигли пределов пула, создаём новый объект
+            Result := CreateNewObj();
+          end else if VRecIndexOldest <> -1 then begin
+            // иначе, пытаемся закрыть старую неиспользующуюся БД
+            PRec := FObjList.Items[VRecIndexOldest];
+            if (PRec <> nil) and (PRec.ActiveCount <= 0) then begin
+              FreeAndNil(PRec.Obj);
               Dispose(PRec);
               FObjList.Delete(VRecIndexOldest);
-              raise;
+              FObjList.Pack;
+              Result := CreateNewObj();
             end;
-            PRec.Obj.FileName := AFileName;
-            PRec.AcquireTime := GetTickCount;
-            PRec.ReleaseTime := 0;
-            PRec.ActiveCount := 1;
-            Result := PRec.Obj;
+          end else begin
+            raise Exception.Create('Error [BerkeleyDB]: There are no available objects in the pool!');
           end;
-        end else begin
-          raise Exception.Create('Error [BerkeleyDB]: There are no available objects in the pool!');
         end;
-      end;
-      if Result <> nil then begin
-        Inc(FUsageCount);
-      end else begin
-        raise Exception.Create('Error [BerkeleyDB]: Can''t acquire db: ' + AFileName);
+        if Result <> nil then begin
+          Inc(FUsageCount);
+        end else begin
+          raise Exception.Create('Error [BerkeleyDB]: Can''t acquire db: ' + AFileName);
+        end;
+      except
+        FCrashList.Add(AFileName);
+        raise;
       end;
     end;
   finally

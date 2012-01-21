@@ -70,6 +70,7 @@ type
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByBDBData(ABDBData: PBDBData): ITileInfoBasic;
     procedure Sync(Sender: TObject);
+    function OnBDBCreate(const AFileName: string): TBerkeleyDB;
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
@@ -248,6 +249,7 @@ begin
     )
   );
   FBDBPool := TBerkeleyDBPool.Create;
+  FBDBPool.OnObjCreate := Self.OnBDBCreate;
   FTTLListener := TTTLCheckListener.Create(Self.Sync, CBDBSync, CBDBSyncCheckInterval);
   FGCList.Add(FTTLListener);
 end;
@@ -260,6 +262,23 @@ begin
   FreeAndNil(FCacheConfig);
   FreeAndNil(FBDBPool);
   inherited;
+end;
+
+function TTileStorageBerkeleyDB.OnBDBCreate(const AFileName: string): TBerkeleyDB;
+var
+  VBDB: TBerkeleyDB;
+begin
+  try
+    VBDB := TBerkeleyDB.Create;
+    if VBDB.Open(FBDBEnv, AFileName, CPageSize, CCacheSize) then begin
+      Result := VBDB;
+    end else begin
+      raise Exception.Create('BerkeleyDB: Can''t open file: ' + AFileName);
+    end;
+  except
+    FreeAndNil(VBDB);
+    raise;
+  end;
 end;
 
 procedure TTileStorageBerkeleyDB.Sync(Sender: TObject);
@@ -295,7 +314,7 @@ begin
       if FileExists(VPath) then begin
         VBDB := FBDBPool.Acquire(VPath);
         try
-          if Assigned(VBDB) and VBDB.Open(FBDBEnv, VPath, CPageSize, CCacheSize) then begin
+          if Assigned(VBDB) then begin
             VKey.TileX := AXY.X;
             VKey.TileY := AXY.Y;
             Result := VBDB.Del(@VKey, SizeOf(TBDBKey));
@@ -334,7 +353,7 @@ begin
       if FileExists(VPath) then begin
         VBDB := FBDBPool.Acquire(VPath);
         try
-          if Assigned(VBDB) and VBDB.Open(FBDBEnv, VPath, CPageSize, CCacheSize) then begin
+          if Assigned(VBDB) then begin
             VKey.TileX := AXY.X;
             VKey.TileY := AXY.Y;
             Result := VBDB.Del(@VKey, SizeOf(TBDBKey));
@@ -395,7 +414,7 @@ begin
     end else begin
       VBDB := FBDBPool.Acquire(VPath);
       try
-        if Assigned(VBDB) and VBDB.Open(FBDBEnv, VPath, CPageSize, CCacheSize) then begin
+        if Assigned(VBDB) then begin
           VKey.TileX := AXY.X;
           VKey.TileY := AXY.Y;
           if VBDB.Exists(@VKey, SizeOf(TBDBKey)) then begin
@@ -464,7 +483,7 @@ begin
     if FileExists(VPath) then begin
       VBDB := FBDBPool.Acquire(VPath);
       try
-        if Assigned(VBDB) and VBDB.Open(FBDBEnv, VPath, CPageSize, CCacheSize) then begin
+        if Assigned(VBDB) then begin
           VKey.TileX := AXY.X;
           VKey.TileY := AXY.Y;
           VRawData := nil;
@@ -510,7 +529,7 @@ begin
     CreateDirIfNotExists(VPath);
     VBDB := FBDBPool.Acquire(VPath);
     try
-      if Assigned(VBDB) and VBDB.Open(FBDBEnv, VPath, CPageSize, CCacheSize) then begin
+      if Assigned(VBDB) then begin
         VKey.TileX := AXY.X;
         VKey.TileY := AXY.Y;
         VMemStream := TMemoryStream.Create;
@@ -566,7 +585,7 @@ begin
     CreateDirIfNotExists(VPath);
     VBDB := FBDBPool.Acquire(VPath);
     try
-      if Assigned(VBDB) and VBDB.Open(FBDBEnv, VPath, CPageSize, CCacheSize) then begin
+      if Assigned(VBDB) then begin
         VKey.TileX := AXY.X;
         VKey.TileY := AXY.Y;
         VMemStream := TMemoryStream.Create;
