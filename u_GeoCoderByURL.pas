@@ -598,6 +598,9 @@ V2Search := ReplaceStr(V2Search,'#8242;',''''); // разделители
 V2Search := ReplaceStr(V2Search,'&',' '); // разделители
 V2Search := ReplaceStr(V2Search,';',' '); // разделители
 V2Search := ReplaceStr(V2Search,'#',' '); // разделители
+V2Search := RegExprReplaceMatchSubStr(V2Search,'ШИРОТ(А|Ы)','N ');
+V2Search := RegExprReplaceMatchSubStr(V2Search,'ДОЛГОТ(А|Ы)','E ');
+
 if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); // 11.22,33.44
 
   while PosEx('  ',V2Search, 1)>1 do V2Search := ReplaceStr(V2Search,'  ',' ');// убираем двойные пробелы
