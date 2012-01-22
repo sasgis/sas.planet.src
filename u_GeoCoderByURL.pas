@@ -615,6 +615,10 @@ var
 begin
 result :=true;
 //vCounter:=0;
+Vilon := 0;
+ViLat := 0;
+VZoom := 0;
+VcoordError := false;
 V2Search := Trim(AnsiUpperCase(astr));
 V2Search := ReplaceStr(V2Search,', ',' '); // разделители
 V2Search := ReplaceStr(V2Search,' .',' '); // разделители
@@ -647,7 +651,11 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
        i := PosEx('\Z', V2Search, 1);
        j := PosEx('\', V2Search, i+1);
        slat := Copy(V2Search, i + 2, j - (i + 2));
-       vZoom := strtoint(slat);
+       try
+         vZoom := strtoint(slat);
+       except
+         VcoordError := true;
+       end;
        if  PosEx('.SDB', V2Search, 1)>0 then begin   // G:\GoogleMV\cache_db\Nokia.Map.Creator.sat\z15\9\5\38.23.sdb\x9961y5888.jpg
          i := PosEx('\X', V2Search, j); // X значение
          j := PosEx('\', V2Search, i+1);
@@ -657,6 +665,7 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
          j := PosEx('.', V2Search, i+1);
          slat := Copy(V2Search, i + 1, j - (i + 1));
          Vilat :=  strtoint(slat);
+         VcoordError := false;
          end else
        if PosEx('\X', V2Search, 1)>0 then begin   //G:\GoogleMV\cache\yamapng\z13\2\x2491\1\y1473.png
          i := PosEx('\X', V2Search, j); // X значение
@@ -667,8 +676,9 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
          j := PosEx('.', V2Search, i+1);
          slat := Copy(V2Search, i + 2, j - (i + 2));
          Vilat := strtoint(slat);
+         VcoordError := false;
          end else
-       begin // C:\sas\sas_garl\.bin\cache_gmt\genshtab250m\z9\184\319.jpg
+       if PosEx('\Z', V2Search, 1)>0 then begin // C:\sas\sas_garl\.bin\cache_gmt\genshtab250m\z9\184\319.jpg
          i := PosEx('\', V2Search, j); // X значение
          j := PosEx('\', V2Search, i+1);
          slon := Copy(V2Search, i + 1, j - (i + 1));
@@ -678,22 +688,52 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
          slat := Copy(V2Search, i + 1, j - (i + 1));
          Vilon := strtoint(slat);
          inc(VZoom); // в GMT зум отличается на 1
+         VcoordError := false;
        end;
-       // ещё бы учитывать qrst ссылку...но это уже на закуску...
-       VLocalConverter := GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
-       XYPoint.X:=ViLon;
-       XYPoint.Y:=ViLat;
-       sdesc := 'z='+inttostr(vzoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#10#13;
-       XYRect := VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
-       XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
-       VPoint := VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
-       if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
-        sname := astr;
-        if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-          sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-        AList.Add(VPlace);
+
+       if VcoordError then begin // C:\.bin\cache_old\sat\13\trtqsstrrqqtq.jpg
+         ViLat := 0;
+         ViLon := 0;
+         vzoom := 1;
+         vcoorderror := false;
+         V2Search := ReplaceStr(V2Search,'0','Q');
+         V2Search := ReplaceStr(V2Search,'1','R');
+         V2Search := ReplaceStr(V2Search,'2','S');
+         V2Search := ReplaceStr(V2Search,'3','T');
+         i:=SubstrCount('\',V2Search,j);// последний \ перед qrst
+         j:=PosEx('\T', V2Search, j)+2;
+         while (V2Search[j]<>'.') and (not VcoordError )do begin
+            ViLon := ViLon *2;
+            ViLat := ViLat *2;
+            case V2Search[j] of
+               'Q' : begin ViLon := ViLon + 0 ; ViLat := ViLat + 0 end;
+               'R' : begin ViLon := ViLon + 1 ; ViLat := ViLat + 0 end;
+               'S' : begin ViLon := ViLon + 1 ; ViLat := ViLat + 1 end;
+               'T' : begin ViLon := ViLon + 0 ; ViLat := ViLat + 1 end;
+               else
+               VcoordError := true;
+            end;
+            inc(j);
+            inc(Vzoom);
+         end;
+       end;
+
+       if VcoordError = false then begin
+        VLocalConverter := GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+        XYPoint.X:=ViLon;
+        XYPoint.Y:=ViLat;
+        sdesc := 'z='+inttostr(vzoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#10#13;
+        XYRect := VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
+        XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
+        VPoint := VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
+        if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
+         sname := astr;
+         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+           sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+           sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         AList.Add(VPlace);
+         end;
         end;
       end else
       begin      //0 пробелов  и не диск\сеть  ==  Генштаб???
