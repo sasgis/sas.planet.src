@@ -28,8 +28,6 @@ ResourceString
   SAS_MSG_coution = 'Attention!';
   SAS_MSG_youasure = 'Are you sure?';
   SAS_MSG_youasurerefrsensor = 'Are you sure?';
-  SAS_MSG_SelectArea = 'The selection is partially outside the map.'#13#10 +
-    'The selection will be reduced to map boundaries.';
   SAS_MSG_FileExists = 'Tile %0:s is available in cache.'#13#10 +
     'Replace?';
   SAS_MSG_NeedHL = 'Please select at least one region';
@@ -43,19 +41,13 @@ ResourceString
     'navigation device split the image using'#13#10 +
     '"Manage Selection - Stitch" window'#13#10 +
     'and use resulting KMZ files separately';
-  SAS_MSG_NotDelWhereHasChildren = 'Category is not empty. Please delete child categories first';
   SAS_MSG_HotKeyExists = 'Hotkey in use. Please select another one';
   SAS_MSG_CantGetTileFileName = 'This is not simple file storage. Tile''s file name does not exist.';
 
   SAS_ERR_Nopoints = 'Required pointset is not found!';
-  SAS_ERR_ProxyStrFormat = 'Proxy configuration string is not correct';
-  SAS_ERR_Write = 'Disk write error. The task will be aborted!';
   SAS_ERR_Save = 'Error while saving!';
   SAS_ERR_code = 'Error code:';
-  SAS_ERR_Read = 'Error reading file!';
-  SAS_ERR_SelectArea = 'Selection is out of the map!';
   SAS_ERR_NoMaps = 'Unable to load map(s)! Aborting...';
-  SAS_ERR_BadFile = 'The tile is corrupt!';
   SAS_ERR_FileNotFound = 'File not found!';
   SAS_ERR_PortOpen = 'Error opening port!';
   SAS_ERR_Communication = 'Error communicating with device';
@@ -65,14 +57,11 @@ ResourceString
     'longitude of lower right corner';
   SAS_ERR_LonLat2 = 'Latitude of upper left corner must be less than '#13#10 +
     'latitude of lower right corner';
-  SAS_ERR_CreateArh = 'Error creating archive!';
-  SAS_ERR_NotLoads = 'The map is unable to load';
   SAS_ERR_Authorization = 'Proxy authorization error';
   SAS_ERR_WaitTime = 'Wait %0:d secons...';
   SAS_ERR_Ban = 'Most likely you''ve been banned by the server!';
   SAS_ERR_TileNotExists = 'Tile is not found!';
   SAS_ERR_Noconnectionstointernet = 'Error connecting to server';
-  SAS_ERR_RepeatProcess = 'Retrying operation';
   SAS_ERR_FileExistsShort = 'The tile already exists';
   SAS_ERR_Memory = 'Not enough memory to complete the task';
   SAS_ERR_UseADifferentFormat = 'Please choose another format (ECW, BMP, JP2) while stitching large images';
@@ -83,8 +72,6 @@ ResourceString
   SAS_ERR_MapGUIDError = 'There is an error %1:s in map %0:s';
   SAS_ERR_MapGUIDDuplicate = 'Files %0:s and %1:s have the same GUID';
   SAS_ERR_MainMapNotExists = 'You need at least one MAP among your ZMP files';
-  SAS_ERR_CategoryNameDoubling = 'Category name already exists';
-  SAS_ERR_UrlScriptError = 'Map script error %0:s (%2:s):'#13#10'%1:s';
   SAS_ERR_UrlScriptUnexpectedError = 'Map script error %0:s (%2:s):'#13#10'Unexpected error';
   SAS_ERR_UrlScriptCompileError = 'Compilation error in script '#13#10'%0:s';
   SAS_ERR_UrlScriptByteCodeLoad = 'Error at script bytecode loading';
@@ -96,8 +83,6 @@ ResourceString
 
   SAS_ERR_EmptyZMPFileName = 'Empty ZMP file name';
   SAS_ERR_FileNotFoundFmt = 'File %0:s not found';
-  SAS_ERR_UnknownImageExt = 'Image type unknown';
-  SAS_ERR_UnknownImageMIMEType = 'Image MIME type unknown';
   SAS_ERR_CantLoadBitmapFromSourceType = 'Can''t load bitmap from source type';
   SAS_ERR_CantSaveBitmapToTargetType = 'Can''t save bitmap to target type';
   SAS_ERR_EmptyServerResponse = 'Empty server response';
@@ -109,18 +94,10 @@ ResourceString
 
   SAS_STR_MarshLen = 'Distance:';
   SAS_STR_Marshtime = 'Time to reach:';
-  SAS_STR_coordinates = 'Coordinates';
-  SAS_STR_time = 'Time';
   SAS_STR_load = 'Downloaded';
-  SAS_STR_Scale = 'Zoom';
-  SAS_STR_Speed = 'Speed';
-  SAS_STR_LenPath = 'Distance';
-  SAS_STR_LenToMark = 'Distance to placemark';
   SAS_STR_filesnum = 'Number of tiles';
   SAS_STR_activescale = 'Current zoom';
   SAS_STR_for = 'For';
-  SAS_STR_savetreck = 'Saving track...';
-  SAS_STR_loadhl = 'Loading selection...';
   SAS_STR_notfound = 'Nothing found on current map.';
   SAS_STR_foundplace = 'Found';
   SAS_STR_Process = 'Processing...';
@@ -154,7 +131,6 @@ ResourceString
   SAS_STR_Stop1 = 'Paused';
   SAS_STR_Continue = 'Resume';
   SAS_STR_ExportTiles = 'Export';
-  SAS_STR_DivideInto = 'Split to';
   SAS_STR_Resolution = 'size:';
   SAS_STR_UserStop = 'Paused by user...';
   SAS_STR_LoadProcess = 'Downloading';
@@ -239,7 +215,7 @@ ResourceString
   SAS_STR_SensorGPSRecorderVDOPCaption = 'VDOP:';
   SAS_STR_SensorGPSRecorderVDOPDescription = 'Shows VDOP';
   SAS_STR_SensorGPSRecorderVDOPMenuItemName = 'VDOP'; // Vertical Dilution of Precision
-  
+
   SAS_STR_SensorGPSRecorderUTCTimeCaption = 'UTC time:';
   SAS_STR_SensorGPSRecorderUTCTimeDescription = 'Shows UTC time';
   SAS_STR_SensorGPSRecorderUTCTimeMenuItemName = 'UTC time'; // UTC time
@@ -269,7 +245,7 @@ ResourceString
   SAS_UNITS_m2 = 'm2';
   SAS_UNITS_km2 = 'km2';
   SAS_UNITS_Secund = 'sec.';
-  SAS_UNITS_Min = 'min.';
+
 implementation
 
 end.
