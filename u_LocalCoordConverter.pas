@@ -30,17 +30,17 @@ uses
   i_LocalCoordConverter;
 
 type
-  TLocalCoordConverterBase = class(TInterfacedObject, ILocalCoordConverter, IProjectionInfo)
+  TLocalCoordConverterBase = class(TInterfacedObject, ILocalCoordConverter)
   private
     FLocalRect: TRect;
     FLocalSize: TPoint;
     FLocalCenter: TDoublePoint;
+    FProjection: IProjectionInfo;
     FZoom: Byte;
     FGeoConverter: ICoordConverter;
     FLocalTopLeftAtMap: TDoublePoint;
   protected
     function GetIsSameConverter(AConverter: ILocalCoordConverter): Boolean;
-    function GetIsSameProjectionInfo(AProjection: IProjectionInfo): Boolean;
 
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
@@ -74,8 +74,7 @@ type
   public
     constructor Create(
       ALocalRect: TRect;
-      AZoom: Byte;
-      AGeoConverter: ICoordConverter;
+      AProjection: IProjectionInfo;
       ALocalTopLeftAtMap: TDoublePoint
     );
   end;
@@ -90,8 +89,7 @@ type
   public
     constructor Create(
       ALocalRect: TRect;
-      AZoom: Byte;
-      AGeoConverter: ICoordConverter;
+      AProjection: IProjectionInfo;
       AMapScale: TDoublePoint;
       ALocalTopLeftAtMap: TDoublePoint
     );
@@ -105,16 +103,20 @@ type
 
 implementation
 
-constructor TLocalCoordConverterBase.Create(ALocalRect: TRect; AZoom: Byte;
-  AGeoConverter: ICoordConverter; ALocalTopLeftAtMap: TDoublePoint);
+constructor TLocalCoordConverterBase.Create(
+  ALocalRect: TRect;
+  AProjection: IProjectionInfo;
+  ALocalTopLeftAtMap: TDoublePoint
+);
 begin
   FLocalRect := ALocalRect;
   FLocalSize.X := FLocalRect.Right - FLocalRect.Left;
   FLocalSize.Y := FLocalRect.Bottom - FLocalRect.Top;
   FLocalCenter.X := FLocalRect.Left + FLocalSize.X / 2;
   FLocalCenter.Y := FLocalRect.Left + FLocalSize.Y / 2;
-  FZoom := AZoom;
-  FGeoConverter := AGeoConverter;
+  FProjection := AProjection;
+  FZoom := FProjection.Zoom;
+  FGeoConverter := FProjection.GeoConverter;
   FLocalTopLeftAtMap := ALocalTopLeftAtMap;
 end;
 
@@ -161,27 +163,6 @@ begin
   end;
 end;
 
-function TLocalCoordConverterBase.GetIsSameProjectionInfo(
-  AProjection: IProjectionInfo
-): Boolean;
-var
-  VSelf: IProjectionInfo;
-begin
-  VSelf := Self;
-  if VSelf = AProjection then begin
-    Result := True;
-  end else if AProjection = nil then begin
-    Result := False;
-  end else begin
-    Result := False;
-    if FZoom = AProjection.Zoom then begin
-      if FGeoConverter.IsSameConverter(AProjection.GeoConverter) then begin
-        Result := True;
-      end;
-    end;
-  end;
-end;
-
 function TLocalCoordConverterBase.GetLocalRect: TRect;
 begin
   Result := FLocalRect;
@@ -194,7 +175,7 @@ end;
 
 function TLocalCoordConverterBase.GetProjectionInfo: IProjectionInfo;
 begin
-  Result := Self;
+  Result := FProjection;
 end;
 
 function TLocalCoordConverterBase.GetRectInMapPixel: TRect;
@@ -319,11 +300,10 @@ end;
 
 constructor TLocalCoordConverter.Create(
   ALocalRect: TRect;
-  AZoom: Byte;
-  AGeoConverter: ICoordConverter;
+  AProjection: IProjectionInfo;
   AMapScale, ALocalTopLeftAtMap: TDoublePoint);
 begin
-  inherited Create(ALocalRect, AZoom, AGeoConverter, ALocalTopLeftAtMap);
+  inherited Create(ALocalRect, AProjection, ALocalTopLeftAtMap);
   FMapScale := AMapScale;
 end;
 

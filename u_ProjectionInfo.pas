@@ -45,6 +45,8 @@ begin
   VSelf := Self;
   if VSelf = AProjection then begin
     Result := True;
+  end else if AProjection = nil then begin
+    Result := False;
   end else begin
     Result := False;
     if FZoom = AProjection.Zoom then begin
