@@ -335,6 +335,10 @@ var
   VIndex: Integer;
   VPoint: TDoublePoint;
 begin
+  if (AlphaComponent(FLineColor) = 0) or (FLineWidth < 1)  then begin
+    Exit;
+  end;
+
   VLonLatLine := FLine;
   VProjectedLine := FProjectedLine;
   VLocalLine := FLocalLine;
@@ -417,17 +421,20 @@ begin
           VPolygon.AddPoints(VPathFixedPoints[0], VIndex);
           VPolygon.NewLine;
         end;
-
-        VPolygonOutline := VPolygon.Outline;
-        try
-          VPolygonGrow := VPolygonOutline.Grow(Fixed(FLineWidth / 2), 0.5);
+        if FLineWidth = 1 then begin
+          VDrawablePolygon := TDrawablePolygon32.CreateFromSource(VPolygon);
+        end else begin
+          VPolygonOutline := VPolygon.Outline;
           try
-            VDrawablePolygon := TDrawablePolygon32.CreateFromSource(VPolygonGrow);
+            VPolygonGrow := VPolygonOutline.Grow(Fixed(FLineWidth / 2), 0.5);
+            try
+              VDrawablePolygon := TDrawablePolygon32.CreateFromSource(VPolygonGrow);
+            finally
+              VPolygonGrow.Free;
+            end;
           finally
-            VPolygonGrow.Free;
+            VPolygonOutline.Free;
           end;
-        finally
-          VPolygonOutline.Free;
         end;
       end;
     finally
