@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  t_GeoTypes,
   i_EnumDoublePoint,
   i_LocalCoordConverter,
   i_VectorItemLocal;
@@ -63,10 +64,36 @@ type
     );
   end;
 
+  TLocalLineSetEmpty = class(TInterfacedObject, IEnumDoublePoint, IEnumLocalPoint)
+  private
+    FLocalConverter: ILocalCoordConverter;
+  private
+    function GetLocalConverter: ILocalCoordConverter;
+    function GetCount: Integer;
+    function GetEnum: IEnumLocalPoint;
+  private
+    function Next(out APoint: TDoublePoint): Boolean;
+  public
+    constructor Create(
+      ALocalConverter: ILocalCoordConverter
+    );
+  end;
+
+  TLocalPathEmpty = class(TLocalLineSetEmpty, ILocalPath)
+  private
+    function GetItem(AIndex: Integer): ILocalPathLine;
+  end;
+
+  TLocalPolygonEmpty = class(TLocalLineSetEmpty, ILocalPolygon)
+  private
+    function GetItem(AIndex: Integer): ILocalPolygonLine;
+  end;
+
 implementation
 
 uses
   SysUtils,
+  u_GeoFun,
   u_EnumDoublePointByLineSet;
 
 { TLocalLineSet }
@@ -179,6 +206,48 @@ end;
 function TLocalPolygonOneLine.GetLocalConverter: ILocalCoordConverter;
 begin
   Result := FLine.LocalConverter;
+end;
+
+{ TLocalLineSetEmpty }
+
+constructor TLocalLineSetEmpty.Create(ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
+end;
+
+function TLocalLineSetEmpty.GetCount: Integer;
+begin
+  Result := 0;
+end;
+
+function TLocalLineSetEmpty.GetEnum: IEnumLocalPoint;
+begin
+  Result := Self;
+end;
+
+function TLocalLineSetEmpty.GetLocalConverter: ILocalCoordConverter;
+begin
+  Result := FLocalConverter;
+end;
+
+function TLocalLineSetEmpty.Next(out APoint: TDoublePoint): Boolean;
+begin
+  APoint := CEmptyDoublePoint;
+  Result := False;
+end;
+
+{ TLocalPathEmpty }
+
+function TLocalPathEmpty.GetItem(AIndex: Integer): ILocalPathLine;
+begin
+  Result := nil;
+end;
+
+{ TLocalPolygonEmpty }
+
+function TLocalPolygonEmpty.GetItem(AIndex: Integer): ILocalPolygonLine;
+begin
+  Result := nil;
 end;
 
 end.

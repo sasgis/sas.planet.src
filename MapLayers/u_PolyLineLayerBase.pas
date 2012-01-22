@@ -354,7 +354,7 @@ begin
     Exit;
   end;
   if VProjectedLine <> nil then begin
-    if (VLocalLine.Count > 0) and not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjectedLine.Projection) then begin
+    if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjectedLine.Projection) then begin
       VProjectedLine := nil;
     end;
   end;
@@ -370,7 +370,7 @@ begin
   end;
 
   if VLocalLine <> nil then begin
-    if (VLocalLine.Count > 0) and not ALocalConverter.GetIsSameConverter(VLocalLine.LocalConverter) then begin
+    if not ALocalConverter.GetIsSameConverter(VLocalLine.LocalConverter) then begin
       VLocalLine := nil;
     end;
   end;
@@ -520,7 +520,7 @@ begin
   end;
 
   if VProjectedLine <> nil then begin
-    if (VProjectedLine.Count > 0) and not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjectedLine.Projection) then begin
+    if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjectedLine.Projection) then begin
       VProjectedLine := nil;
     end;
   end;
@@ -536,7 +536,7 @@ begin
   end;
 
   if VLocalLine <> nil then begin
-    if (VLocalLine.Count > 0) and not ALocalConverter.GetIsSameConverter(VLocalLine.LocalConverter) then begin
+    if not ALocalConverter.GetIsSameConverter(VLocalLine.LocalConverter) then begin
       VLocalLine := nil;
     end;
   end;

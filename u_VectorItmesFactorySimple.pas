@@ -19,10 +19,6 @@ type
   private
     FEmptyLonLatPath: ILonLatPath;
     FEmptyLonLatPolygon: ILonLatPolygon;
-    FEmptyProjectedPath: IProjectedPath;
-    FEmptyProjectedPolygon: IProjectedPolygon;
-    FEmptyLocalPath: ILocalPath;
-    FEmptyLocalPolygon: ILocalPolygon;
   private
     function CreateLonLatPath(
       APoints: PDoublePointArray;
@@ -194,10 +190,6 @@ begin
   VEmpty := TLineSetEmpty.Create;
   FEmptyLonLatPath := VEmpty;
   FEmptyLonLatPolygon := VEmpty;
-  FEmptyProjectedPath := VEmpty;
-  FEmptyProjectedPolygon := VEmpty;
-  FEmptyLocalPath := VEmpty;
-  FEmptyLocalPolygon := VEmpty;
 end;
 
 function TVectorItmesFactorySimple.CreateLocalPath(
@@ -249,7 +241,7 @@ begin
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
-    Result := FEmptyLocalPath;
+    Result := TLocalPathEmpty.Create(ALocalConverter);
   end else if VLineCount = 1 then begin
     Result := TLocalPathOneLine.Create(VLine);
   end else begin
@@ -306,7 +298,7 @@ begin
     VTemp.Clear
   end;
   if VLineCount = 0 then begin
-    Result := FEmptyLocalPath;
+    Result := TLocalPathEmpty.Create(ALocalConverter);
   end else if VLineCount = 1 then begin
     Result := TLocalPathOneLine.Create(VLine);
   end else begin
@@ -364,7 +356,7 @@ begin
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
-    Result := FEmptyLocalPolygon;
+    Result := TLocalPolygonEmpty.Create(ALocalConverter);
   end else if VLineCount = 1 then begin
     Result := TLocalPolygonOneLine.Create(VLine);
   end else begin
@@ -420,7 +412,7 @@ begin
     VTemp.Clear
   end;
   if VLineCount = 0 then begin
-    Result := FEmptyLocalPolygon;
+    Result := TLocalPolygonEmpty.Create(ALocalConverter);
   end else if VLineCount = 1 then begin
     Result := TLocalPolygonOneLine.Create(VLine);
   end else begin
@@ -829,7 +821,7 @@ begin
     VTemp.Clear
   end;
   if VLineCount = 0 then begin
-    Result := FEmptyProjectedPolygon;
+    Result := TProjectedPolygonEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
     Result := TProjectedPolygonOneLine.Create(VLine);
   end else begin
@@ -887,7 +879,7 @@ begin
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
-    Result := FEmptyProjectedPath;
+    Result := TProjectedPathEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
     Result := TProjectedPathOneLine.Create(VLine);
   end else begin
@@ -945,7 +937,7 @@ begin
     VTemp.Clear
   end;
   if VLineCount = 0 then begin
-    Result := FEmptyProjectedPath;
+    Result := TProjectedPathEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
     Result := TProjectedPathOneLine.Create(VLine);
   end else begin
@@ -1043,7 +1035,7 @@ begin
     VTemp.Clear
   end;
   if VLineCount = 0 then begin
-    Result := FEmptyProjectedPath;
+    Result := TProjectedPathEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
     Result := TProjectedPathOneLine.Create(VLine);
   end else begin
@@ -1140,7 +1132,7 @@ begin
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
-    Result := FEmptyProjectedPolygon;
+    Result := TProjectedPolygonEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
     Result := TProjectedPolygonOneLine.Create(VLine);
   end else begin
@@ -1198,7 +1190,7 @@ begin
     VTemp.Clear
   end;
   if VLineCount = 0 then begin
-    Result := FEmptyProjectedPolygon;
+    Result := TProjectedPolygonEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
     Result := TProjectedPolygonOneLine.Create(VLine);
   end else begin

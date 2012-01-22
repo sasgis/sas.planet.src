@@ -72,10 +72,40 @@ type
     );
   end;
 
+  TProjectedLineSetEmpty = class(TInterfacedObject, IEnumDoublePoint, IEnumProjectedPoint)
+  private
+    FProjection: IProjectionInfo;
+  private
+    function GetProjection: IProjectionInfo;
+    function GetCount: Integer;
+    function GetEnum: IEnumProjectedPoint;
+  private
+    function Next(out APoint: TDoublePoint): Boolean;
+  public
+    constructor Create(
+      AProjection: IProjectionInfo
+    );
+  end;
+
+  TProjectedPathEmpty = class(TProjectedLineSetEmpty, IProjectedPath)
+  private
+    function GetItem(AIndex: Integer): IProjectedPathLine;
+    function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
+  end;
+
+  TProjectedPolygonEmpty = class(TProjectedLineSetEmpty, IProjectedPolygon)
+  private
+    function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
+    function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
+    function CalcArea: Double;
+    function GetItem(AIndex: Integer): IProjectedPolygonLine;
+  end;
+
 implementation
 
 uses
   SysUtils,
+  u_GeoFun,
   u_EnumDoublePointByLineSet;
 
 { TProjectedLineSet }
@@ -269,6 +299,71 @@ function TProjectedPolygonOneLine.IsPointOnBorder(APoint: TDoublePoint;
   ADist: Double): Boolean;
 begin
   Result := FLine.IsPointOnBorder(APoint, ADist);
+end;
+
+{ TProjectedLineSetEmpty }
+
+constructor TProjectedLineSetEmpty.Create(AProjection: IProjectionInfo);
+begin
+  FProjection := AProjection;
+end;
+
+function TProjectedLineSetEmpty.GetCount: Integer;
+begin
+  Result := 0;
+end;
+
+function TProjectedLineSetEmpty.GetEnum: IEnumProjectedPoint;
+begin
+  Result := Self;
+end;
+
+function TProjectedLineSetEmpty.GetProjection: IProjectionInfo;
+begin
+  Result := FProjection;
+end;
+
+function TProjectedLineSetEmpty.Next(out APoint: TDoublePoint): Boolean;
+begin
+  APoint := CEmptyDoublePoint;
+  Result := False;
+end;
+
+{ TLocalPathEmpty }
+
+function TProjectedPathEmpty.GetItem(AIndex: Integer): IProjectedPathLine;
+begin
+  Result := nil;
+end;
+
+function TProjectedPathEmpty.IsPointOnPath(APoint: TDoublePoint;
+  ADist: Double): Boolean;
+begin
+  Result := False;
+end;
+
+{ TLocalPolygonEmpty }
+
+function TProjectedPolygonEmpty.CalcArea: Double;
+begin
+  Result := 0;
+end;
+
+function TProjectedPolygonEmpty.GetItem(AIndex: Integer): IProjectedPolygonLine;
+begin
+  Result := nil;
+end;
+
+function TProjectedPolygonEmpty.IsPointInPolygon(
+  const APoint: TDoublePoint): Boolean;
+begin
+  Result := False;
+end;
+
+function TProjectedPolygonEmpty.IsPointOnBorder(APoint: TDoublePoint;
+  ADist: Double): Boolean;
+begin
+  Result := False;
 end;
 
 end.
