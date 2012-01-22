@@ -24,14 +24,27 @@ interface
 
 uses
   i_CoordConverter,
+  i_ProjectionInfo,
   i_ConfigDataProvider,
   i_CoordConverterFactory;
 
 type
-  TCoordConverterFactorySimple = class(TInterfacedObject, ICoordConverterFactory)
-  protected
+  TCoordConverterFactorySimple = class(TInterfacedObject, ICoordConverterFactory, IProjectionInfoFactory)
+  private
+    FGoogle: ICoordConverter;
+    FYandex: ICoordConverter;
+    FLonLat: ICoordConverter;
+    FEPSG53004: ICoordConverter;
+  private
     function GetCoordConverterByConfig(AConfig: IConfigDataProvider): ICoordConverter;
     function GetCoordConverterByCode(AProjectionEPSG: Integer; ATileSplitCode: Integer): ICoordConverter;
+  private
+    function GetByConverterAndZoom(
+      AGeoConverter: ICoordConverter;
+      AZoom: Byte
+    ): IProjectionInfo;
+  public
+    constructor Create();
   end;
 
 implementation
@@ -42,35 +55,55 @@ uses
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat,
+  u_ProjectionInfo,
   u_ResStrings;
 
 { TCoordConverterFactorySimple }
 
-function TCoordConverterFactorySimple.GetCoordConverterByCode(AProjectionEPSG,
-  ATileSplitCode: Integer): ICoordConverter;
+constructor TCoordConverterFactorySimple.Create;
 var
   VRadiusA: Double;
   VRadiusB: Double;
 begin
+  VRadiusA := 6378137;
+  FGoogle := TCoordConverterMercatorOnSphere.Create(VRadiusA);
+
+  VRadiusA := 6371000;
+  FEPSG53004 := TCoordConverterMercatorOnSphere.Create(VRadiusA);
+
+  VRadiusA := 6378137;
+  VRadiusB := 6356752;
+  FYandex := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
+
+  VRadiusA := 6378137;
+  VRadiusB := 6356752;
+  FLonLat := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
+end;
+
+function TCoordConverterFactorySimple.GetByConverterAndZoom(
+  AGeoConverter: ICoordConverter; AZoom: Byte): IProjectionInfo;
+begin
+  Result := TProjectionInfo.Create(AGeoConverter, AZoom);
+end;
+
+function TCoordConverterFactorySimple.GetCoordConverterByCode(
+  AProjectionEPSG,
+  ATileSplitCode: Integer
+): ICoordConverter;
+begin
   if ATileSplitCode = CTileSplitQuadrate256x256 then begin
     case AProjectionEPSG of
       CGoogleProjectionEPSG: begin
-        VRadiusA := 6378137;
-        Result := TCoordConverterMercatorOnSphere.Create(VRadiusA);
+        Result := FGoogle;
       end;
       53004: begin
-        VRadiusA := 6371000;
-        Result := TCoordConverterMercatorOnSphere.Create(VRadiusA);
+        Result := FEPSG53004;
       end;
       CYandexProjectionEPSG: begin
-        VRadiusA := 6378137;
-        VRadiusB := 6356752;
-        Result := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
+        Result := FYandex
       end;
       CGELonLatProjectionEPSG: begin
-        VRadiusA := 6378137;
-        VRadiusB := 6356752;
-        Result := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
+        Result := FLonLat;
       end;
       else
         raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(AProjectionEPSG)]);
@@ -100,6 +133,31 @@ begin
     VRadiusA := AConfig.ReadFloat('sradiusa', VRadiusA);
     VRadiusB := AConfig.ReadFloat('sradiusb', VRadiusA);
   end;
+
+  if VEPSG = 0 then begin
+    case VProjection of
+      1: begin
+        if Abs(VRadiusA - 6378137) < 1 then begin
+          VEPSG := CGoogleProjectionEPSG;
+        end else if Abs(VRadiusA - 6371000) < 1 then begin
+          VEPSG := 53004
+        end;
+      end;
+      2: begin
+        if (Abs(VRadiusA - 6378137) < 1) and (Abs(VRadiusB - 6356752) < 1) then begin
+          VEPSG := CYandexProjectionEPSG;
+        end;
+      end;
+      3: begin
+        if (Abs(VRadiusA - 6378137) < 1) and (Abs(VRadiusB - 6356752) < 1) then begin
+          VEPSG := CGELonLatProjectionEPSG;
+        end;
+      end
+      else
+        raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);
+    end;
+  end;
+
   if VEPSG <> 0 then begin
     try
       Result := GetCoordConverterByCode(VEPSG, VTileSplitCode);
@@ -107,6 +165,7 @@ begin
       Result := nil;
     end;
   end;
+
   if Result = nil then begin
     case VProjection of
       1: Result := TCoordConverterMercatorOnSphere.Create(VRadiusA);

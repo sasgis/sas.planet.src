@@ -24,6 +24,7 @@ interface
 
 uses
   i_CoordConverter,
+  i_ProjectionInfo,
   i_ConfigDataProvider;
 
 type
@@ -32,6 +33,15 @@ type
     function GetCoordConverterByConfig(AConfig: IConfigDataProvider): ICoordConverter;
     function GetCoordConverterByCode(AProjectionEPSG: Integer; ATileSplitCode: Integer): ICoordConverter;
   end;
+
+  IProjectionInfoFactory = interface
+    ['{81B33FFE-DD06-4817-8371-E3FC2F5BCAF2}']
+    function GetByConverterAndZoom(
+      AGeoConverter: ICoordConverter;
+      AZoom: Byte
+    ): IProjectionInfo;
+  end;
+
 implementation
 
 end.
