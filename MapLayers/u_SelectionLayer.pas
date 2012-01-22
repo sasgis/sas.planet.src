@@ -86,17 +86,20 @@ begin
 end;
 
 procedure TSelectionLayer.DoConfigChange;
-var
-  VVisible: Boolean;
 begin
   inherited;
-  SetVisible(FConfig.Visible);
+  FVisible := FConfig.Visible;
+  SetVisible(FVisible);
 end;
 
 function TSelectionLayer.GetLine(
   ALocalConverter: ILocalCoordConverter): ILonLatPolygon;
 begin
-  Result := FLine;
+  if FVisible then begin
+    Result := FLine;
+  end else begin
+    Result := nil;
+  end;
 end;
 
 procedure TSelectionLayer.OnChangeSelection;
