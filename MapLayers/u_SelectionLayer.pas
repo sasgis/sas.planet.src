@@ -34,6 +34,8 @@ type
     function GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
     procedure DoConfigChange; override;
   public
+    procedure StartThreads; override;
+  public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
@@ -118,6 +120,12 @@ begin
     ViewUpdateUnlock;
   end;
   ViewUpdate;
+end;
+
+procedure TSelectionLayer.StartThreads;
+begin
+  inherited;
+  OnChangeSelection;
 end;
 
 end.
