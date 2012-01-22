@@ -178,7 +178,9 @@ begin
       if FSelectedPointIndex < FPointsCount then begin
         if FSelectedPointIndex = FPointsCount - 1 then begin
           Dec(FPointsCount);
-          Dec(FSelectedPointIndex);
+          if FPointsCount > 0 then begin
+            Dec(FSelectedPointIndex);
+          end;
         end else begin
           VNextPoint := FPoints[FSelectedPointIndex + 1];
           if FSelectedPointIndex = 0 then begin
@@ -199,8 +201,10 @@ begin
         end;
         _UpdateLineObject;
       end else begin
-        FSelectedPointIndex := FPointsCount - 1;
-        _UpdateLineWithSelected;
+        if FPointsCount > 0 then begin
+          FSelectedPointIndex := FPointsCount - 1;
+          _UpdateLineWithSelected;
+        end;
       end;
     end;
   finally
@@ -216,7 +220,7 @@ var
 begin
   LockWrite;
   try
-    if FSelectedPointIndex >= FPointsCount then begin
+    if (FPointsCount <= 0) or (FSelectedPointIndex >= FPointsCount) then begin
       VCurrPoint := CEmptyDoublePoint;
       VNextPoint := CEmptyDoublePoint;
     end else begin
@@ -286,12 +290,14 @@ begin
   if not PointIsEmpty(APoint) then begin
     LockWrite;
     try
-      if FSelectedPointIndex < FPointsCount then begin
-        VCurrPoint := FPoints[FSelectedPointIndex];
-        if not PointIsEmpty(VCurrPoint) then begin
-          if not DoublePointsEqual(APoint, VCurrPoint) then begin
-            FPoints[FSelectedPointIndex] := APoint;
-            _UpdateLineObject;
+      if FPointsCount > 0 then begin
+        if FSelectedPointIndex < FPointsCount then begin
+          VCurrPoint := FPoints[FSelectedPointIndex];
+          if not PointIsEmpty(VCurrPoint) then begin
+            if not DoublePointsEqual(APoint, VCurrPoint) then begin
+              FPoints[FSelectedPointIndex] := APoint;
+              _UpdateLineObject;
+            end;
           end;
         end;
       end;
@@ -333,7 +339,7 @@ begin
         end;
       end;
     end;
-    
+
     if VIndex >= 0 then begin
       if FSelectedPointIndex <> VIndex then begin
         FSelectedPointIndex := VIndex;
@@ -350,9 +356,11 @@ procedure TLineOnMapEdit.SetSelectedNextPoint;
 begin
   LockWrite;
   try
-    if FSelectedPointIndex < FPointsCount then begin
-      Inc(FSelectedPointIndex);
-      _UpdateLineWithSelected;
+    if FPointsCount > 0 then begin
+      if FSelectedPointIndex < FPointsCount then begin
+        Inc(FSelectedPointIndex);
+        _UpdateLineWithSelected;
+      end;
     end;
   finally
     UnlockWrite;
@@ -401,9 +409,11 @@ procedure TLineOnMapEdit.SetSelectedPrevPoint;
 begin
   LockWrite;
   try
-    if FSelectedPointIndex > 0 then begin
-      Dec(FSelectedPointIndex);
-      _UpdateLineWithSelected;
+    if FPointsCount > 0 then begin
+      if FSelectedPointIndex > 0 then begin
+        Dec(FSelectedPointIndex);
+        _UpdateLineWithSelected;
+      end;
     end;
   finally
     UnlockWrite;
@@ -416,12 +426,14 @@ var
 begin
   VSize := Length(FPoints);
   if FPointsCount + AAddCount > VSize then begin
-    if VSize < 64 then begin
-      VSize := 64;
-    end else if VSize < 1024 then begin
-      VSize := VSize * 2;
-    end else begin
-      VSize := VSize + 1024;
+    while FPointsCount + AAddCount > VSize do begin
+      if VSize < 64 then begin
+        VSize := 64;
+      end else if VSize < 1024 then begin
+        VSize := VSize * 2;
+      end else begin
+        VSize := VSize + 1024;
+      end;
     end;
     SetLength(FPoints, VSize);
   end;
@@ -467,7 +479,11 @@ begin
       Dec(FPointsCount);
     end;
     if FSelectedPointIndex < 0 then begin
-      FSelectedPointIndex := FPointsCount - 1;
+      if FPointsCount > 0 then begin
+        FSelectedPointIndex := FPointsCount - 1;
+      end else begin
+        FSelectedPointIndex := 0;
+      end;
     end;
     _UpdateLineObject;
   finally
@@ -517,7 +533,12 @@ begin
     if FPointsCount > 0 then begin
       Dec(FPointsCount);
     end;
-    FSelectedPointIndex := FPointsCount - 1;
+
+    if FPointsCount > 0 then begin
+      FSelectedPointIndex := FPointsCount - 1;
+    end else begin
+      FSelectedPointIndex := 0;
+    end;
     _UpdateLineObject;
   finally
     UnlockWrite;
@@ -576,7 +597,11 @@ begin
       Dec(FPointsCount);
     end;
     if FSelectedPointIndex < 0 then begin
-      FSelectedPointIndex := FPointsCount - 1;
+      if FPointsCount > 0 then begin
+        FSelectedPointIndex := FPointsCount - 1;
+      end else begin
+        FSelectedPointIndex := 0;
+      end;
     end;
     _UpdateLineObject;
   finally
@@ -626,7 +651,11 @@ begin
     if FPointsCount > 0 then begin
       Dec(FPointsCount);
     end;
-    FSelectedPointIndex := FPointsCount - 1;
+    if FPointsCount > 0 then begin
+      FSelectedPointIndex := FPointsCount - 1;
+    end else begin
+      FSelectedPointIndex := 0;
+    end;
     _UpdateLineObject;
   finally
     UnlockWrite;
