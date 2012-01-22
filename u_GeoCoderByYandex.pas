@@ -63,6 +63,7 @@ var
   CurChar:string; // текущий символ
   err:boolean;// признак окончания поиска когда уже всё нашли...
   ParseErr:boolean; // признак ошибки разбора строки
+  Vstr2Find :string;
 begin
   Buffer := '';
   BrLevel := 0;
@@ -72,19 +73,19 @@ begin
   end;
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
-
-  CurPos:=PosEx('{"GeoObjectCollection":', AStr)-1;
-
-  while (CurPos<length(AStr)) and (not err)do begin
+  Vstr2Find := AStr;
+  Vstr2Find := ReplaceStr(Vstr2Find,'\/','/'); // разделители
+  Vstr2Find := ReplaceStr(Vstr2Find,'\"','"'); // разделители
+  CurPos:=PosEx('"features":[', AStr,1)-1;
+  while (CurPos<length(Vstr2Find)) and (not err)do begin
    inc (CurPos);
-   CurChar:=copy(AStr,CurPos,1);
-
+   CurChar:=copy(Vstr2Find,CurPos,1);
    Buffer:=Buffer+CurChar;
 
    if CurChar='{' then inc(BrLevel);
    if CurChar='}' then begin
     dec(BrLevel);
-    if BrLevel=2 then  begin
+    if BrLevel=0 then  begin
    // подстрока готова. теперь будем её парсит и дёргатьнужные нам значения
      sdesc:='';
      sname:='';
@@ -101,6 +102,11 @@ begin
       end;
      end
     else
+    if PosEx('"Address":{"locality":"', Buffer, 1)>1 then begin
+     i := PosEx('"Address":{"locality":"', Buffer, 1);
+     j := PosEx('",', Buffer, i + 23);
+     sdesc:=Utf8ToAnsi(Copy(Buffer, i + 23, j - (i + 23)));
+    end else
     // у НЯК всё совсем по другому. проверяем няковские поля
     if PosEx('PSearchMetaData', Buffer, 1)>1 then begin
      i:=PosEx('"PSearchMetaData":{"id":"', Buffer, 1);
@@ -183,7 +189,7 @@ begin
     end;
     Buffer:='';
    end;
-   if BrLevel=1 then err:=true;//  Хватит. Довольно. Выходим.
+   if (BrLevel=1) and (curpos>= length(Vstr2Find)) then err:=true;//  Хватит. Довольно. Выходим.
    end;
   end;
   Result := VList;
@@ -213,3 +219,5 @@ end.
 // examples
 //  http://maps.yandex.ru/?text=%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D1%8F%2C%20%D0%A2%D1%8E%D0%BC%D0%B5%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%20%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C%2C%20%D0%A2%D1%8E%D0%BC%D0%B5%D0%BD%D1%8C&sll=65.558412%2C57.182627&ll=38.975277%2C45.035407&spn=0.469666%2C0.261446&z=11&l=map
 //  http://maps.yandex.ru/?text=%D0%B1%D0%B0%D0%BB%D0%BE%D1%87%D0%BA%D0%B0&sll=38.975276999999984%2C45.03540700001939&sspn=0.469666%2C0.261446&z=11&source=form&output=json
+
+// http://maps.yandex.ru/?text=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0&sll=37.4969343220393,55.7374581159436&sspn=0.211658477783203,0.0711842917507042&z=13&source=form&output=json
