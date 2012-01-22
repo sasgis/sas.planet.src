@@ -26,12 +26,15 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
+  i_CoordConverterFactory,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe;
 
 type
   TLocalCoordConverterFactorySimpe = class(TInterfacedObject, ILocalCoordConverterFactorySimpe)
-  protected
+  private
+    FProjectionFactory: IProjectionInfoFactory;
+  private
     function CreateConverter(
       ALocalRect: TRect;
       AZoom: Byte;
@@ -51,6 +54,10 @@ type
       ASource: ILocalCoordConverter;
       AGeoConverter: ICoordConverter
     ): ILocalCoordConverter;
+  public
+    constructor Create(
+      AProjectionFactory: IProjectionInfoFactory
+    );
   end;
 
 
@@ -58,10 +65,15 @@ implementation
 
 uses
   u_GeoFun,
-  u_ProjectionInfo,
   u_LocalCoordConverter;
 
 { TLocalCoordConverterFactorySimpe }
+
+constructor TLocalCoordConverterFactorySimpe.Create(
+  AProjectionFactory: IProjectionInfoFactory);
+begin
+  FProjectionFactory := AProjectionFactory;
+end;
 
 function TLocalCoordConverterFactorySimpe.CreateBySourceWithStableTileRect(
   ASource: ILocalCoordConverter
@@ -158,7 +170,7 @@ begin
 
   Result := TLocalCoordConverterNoScale.Create(
     Rect(0, 0, VResultPixelRect.Right - VResultPixelRect.Left, VResultPixelRect.Bottom - VResultPixelRect.Top),
-    TProjectionInfo.Create(AGeoConverter, VZoom),
+    FProjectionFactory.GetByConverterAndZoom(AGeoConverter, VZoom),
     DoublePoint(VResultPixelRect.TopLeft)
   );
 end;
@@ -171,7 +183,13 @@ function TLocalCoordConverterFactorySimpe.CreateConverter(
   ALocalTopLeftAtMap: TDoublePoint
 ): ILocalCoordConverter;
 begin
-  Result := TLocalCoordConverter.Create(ALocalRect, TProjectionInfo.Create(AGeoConverter, AZoom), AMapScale, ALocalTopLeftAtMap);
+  Result :=
+    TLocalCoordConverter.Create(
+      ALocalRect,
+      FProjectionFactory.GetByConverterAndZoom(AGeoConverter, AZoom),
+      AMapScale,
+      ALocalTopLeftAtMap
+    );
 end;
 
 function TLocalCoordConverterFactorySimpe.CreateForTile(ATile: TPoint;
@@ -187,7 +205,7 @@ begin
   VBitmapTileRect.Bottom := VPixelRect.Bottom - VPixelRect.Top;
   Result := TLocalCoordConverterNoScale.Create(
     VBitmapTileRect,
-    TProjectionInfo.Create(AGeoConverter, AZoom),
+    FProjectionFactory.GetByConverterAndZoom(AGeoConverter, AZoom),
     DoublePoint(VPixelRect.TopLeft)
   );
 end;

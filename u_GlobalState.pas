@@ -287,6 +287,7 @@ var
   VKmzLoader: IVectorDataLoader;
   VFilesIteratorFactory: IFileNameIteratorFactory;
   VFilesIterator: IFileNameIterator;
+  VCoordConverterFactorySimple: TCoordConverterFactorySimple;
 begin
   FProgramPath := ExtractFilePath(ParamStr(0));
   FAppClosingNotifier := TJclBaseNotifier.Create;
@@ -304,7 +305,9 @@ begin
 
   FGlobalAppConfig := TGlobalAppConfig.Create;
 
-  FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create;
+  VCoordConverterFactorySimple := TCoordConverterFactorySimple.Create;
+  FCoordConverterFactory := VCoordConverterFactorySimple;
+  FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(VCoordConverterFactorySimple);
 
   FTimeZoneDiffByLonLat := TTimeZoneDiffByLonLatStuped.Create;
 
@@ -334,7 +337,6 @@ begin
       FGPSPositionFactory
     );
   FGSMpar := TGSMGeoCodeConfig.Create;
-  FCoordConverterFactory := TCoordConverterFactorySimple.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
   FViewConfig := TGlobalViewMainConfig.Create;
 
