@@ -66,7 +66,7 @@ constructor TThreadExportToJnx.Create(
   AJNXVersion : integer;
   AZorder : integer;
   AProductID : integer;
-  AJpgQuality : byte;
+  AJpgQuality : byte
 );
 begin
   inherited Create(APolygon, Azoomarr);
