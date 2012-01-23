@@ -65,6 +65,7 @@ implementation
 
 uses
   SysUtils,
+  StrUtils,
   i_CoordConverter,
   u_NotifyEventListener,
   u_ResStrings,
@@ -142,7 +143,7 @@ begin
     try
       FLayer.Bitmap.Font.Name := FConfig.FontName;
       FLayer.Bitmap.Font.Size := FConfig.FontSize;
-      FCoordsMaxWidth := FLayer.Bitmap.TextWidth('N 99" 99" 99.99" W 99" 99" 99.99"') + 10;
+      FCoordsMaxWidth := FLayer.Bitmap.TextWidth('N99"99"99.99" W99"99"99.99"') + 10;
 
       FMinUpdate := FConfig.MinUpdateTickCount;
       FBgColor := FConfig.BgColor;
@@ -197,6 +198,9 @@ var
   VVisualCoordConverter: ILocalCoordConverter;
   VValueConverter: IValueToStringConverter;
   VOffset: TPoint;
+  VTileName: string;
+  VTileNameWidth: Integer;
+  VTileNameWidthAviable: Integer;
 begin
   inherited;
   VCurrentTick := GetTickCount;
@@ -238,14 +242,30 @@ begin
     VString := ' | ' + TimeToStr(VTimeTZ);
     FLayer.Bitmap.RenderText(VOffset.X, VOffset.Y, VString, FAALevel, FTextColor);
     VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 10;
-    VString := VMap.GetTileShowName(VTile, VZoomCurr);
-    FLayer.Bitmap.RenderText(
-      VOffset.X, VOffset.Y,
-      ' | ' + SAS_STR_load + ' ' +
+    VTileName := VMap.GetTileShowName(VTile, VZoomCurr);
+
+    VString := ' | ' + SAS_STR_load + ' ' +
       inttostr(FDownloadInfo.TileCount) + ' (' +
       VValueConverter.DataSizeConvert(FDownloadInfo.Size/1024) +
-      ') | ' + SAS_STR_file + ' ' + VString,
-       FAALevel, FTextColor
+      ') | ' + SAS_STR_file + ' ';
+
+    VTileNameWidthAviable := FLayer.Bitmap.Width - VOffset.X - FLayer.Bitmap.TextWidth(VString);
+    if Length(VTileName) > 0 then begin
+      if VTileNameWidthAviable > 30 then begin
+        VTileNameWidth := FLayer.Bitmap.TextWidth(VTileName);
+        if VTileNameWidthAviable < VTileNameWidth then begin
+          VTileName := '...' +
+            RightStr(
+              VTileName,
+                Trunc((Length(VTileName)/VTileNameWidth)* (VTileNameWidthAviable - 10))
+              );
+        end;
+      end;
+    end;
+    FLayer.Bitmap.RenderText(
+      VOffset.X, VOffset.Y,
+      VString + VTileName,
+      FAALevel, FTextColor
     );
     FLastUpdateTick := GetTickCount;
   end;
