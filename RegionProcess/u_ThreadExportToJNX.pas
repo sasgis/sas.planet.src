@@ -119,6 +119,7 @@ begin
       VWriter.LevelCopyright[i] := '(c) '+FMapName+' ['+inttostr(i)+']';
       VWriter.LevelDescription[i] :='Level ['+ inttostr(i)+']';
       VWriter.LevelName[i] := 'Name ['+inttostr(i)+']';
+      VWriter.LevelZoom[i] := FZooms[i];
       VWriter.ProductID := FProductID;
     end;
 

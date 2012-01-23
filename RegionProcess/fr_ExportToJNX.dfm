@@ -192,7 +192,7 @@ object frExportToJNX: TfrExportToJNX
         MaxValue = 100
         MinValue = 0
         TabOrder = 5
-        Value = 1
+        Value = 30
       end
       object EJpgQuality: TSpinEdit
         Left = 305
