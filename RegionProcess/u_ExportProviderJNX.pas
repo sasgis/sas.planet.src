@@ -126,6 +126,7 @@ var
   VJNXVersion : integer;
   VZorder : integer;
   VProductID : integer;
+  VJpgQuality : byte;
 begin
   inherited;
   for i:=0 to 23 do begin
@@ -135,6 +136,7 @@ begin
   path:=FFrame.edtTargetFile.Text;
   VProductName := FFrame.EProductName.Text;
   VMapName := FFrame.EmapName.Text;
+  VJpgQuality := FFrame.EJpgQuality.Value;
   if FFrame.v3.checked then begin
       VJNXVersion := 3;
       VZorder := 0;
@@ -158,7 +160,8 @@ begin
     VMapName,
     VJNXVersion,
     VZorder,
-    VProductID
+    VProductID,
+    VJpgQuality
   );
 end;
 

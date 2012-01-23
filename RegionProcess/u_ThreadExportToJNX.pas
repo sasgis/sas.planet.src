@@ -25,7 +25,7 @@ type
     FJNXversion : byte;  // 3..4
     FZorder : integer;   // для 4 версии
     FProductID : integer; // 0,2,3,4,5,6,7,8,9
-//    FJpegQuality : byte ; // 10..100 TODO
+    FJpgQuality : byte ; // 10..100 TODO
   protected
     procedure ProcessRegion; override;
   public
@@ -39,7 +39,8 @@ type
       AMapName : string;
       AJNXVersion : integer;
       AZorder : integer;
-      AProductID : integer
+      AProductID : integer;
+      AJpgQuality : byte
     );
   end;
 
@@ -64,7 +65,8 @@ constructor TThreadExportToJnx.Create(
   AMapName : string;
   AJNXVersion : integer;
   AZorder : integer;
-  AProductID : integer
+  AProductID : integer;
+  AJpgQuality : byte;
 );
 begin
   inherited Create(APolygon, Azoomarr);
@@ -76,6 +78,7 @@ begin
   FJNXVersion := AJNXVersion;
   FZorder := AZorder;
   FProductID := AProductID;
+  FJpgQuality := AJpgQuality;
 end;
 
 procedure TThreadExportToJnx.ProcessRegion;
@@ -97,7 +100,7 @@ var
 begin
   inherited;
   FTilesToProcess := 0;
-  VSaver := TVampyreBasicBitmapTileSaverJPG.Create(95);
+  VSaver := TVampyreBasicBitmapTileSaverJPG.Create(FJpgQuality);
   VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
