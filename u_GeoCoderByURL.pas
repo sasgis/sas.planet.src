@@ -232,6 +232,7 @@ var
  delitel : single;
   gms : double;
   text : string;
+  minus:boolean;
 begin
     result:=true;
     res:=0;
@@ -271,6 +272,9 @@ begin
     text := StringReplace(text,'Ç','-',[rfReplaceAll]);
     text := StringReplace(text,'Â','+',[rfReplaceAll]);
     text := StringReplace(text,'Ñ','+',[rfReplaceAll]);
+    minus:= false;
+    if posEx('-',text,1)>0 then minus := true;
+
     if (copy(text,length(text),1)='.') then text := copy(text,1,length(text)-1);
     if (copy(text,length(text),1)=',') then text := copy(text,1,length(text)-1);
     if (copy(text,length(text),1)='+') or (copy(text,length(text),1)='-') then text:=copy(text,length(text),1)+copy(text,0,length(text)-1);
@@ -324,6 +328,7 @@ begin
          delitel := Power(10,length(text));
       end else Result:=false;
      end;
+     if minus and (res>0) then res:=-res;
      if res<0 then begin
        res:=res-gms/delitel;
      end else begin

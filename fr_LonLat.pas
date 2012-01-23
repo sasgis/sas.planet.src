@@ -116,6 +116,7 @@ function TfrLonLat.Edit2Digit(Atext:string; lat:boolean; var res:Double): boolea
 var i,delitel:integer;
     gms:double;
     text:string;
+    minus: boolean;
 begin
   result:=true;
   res:=0;
@@ -129,6 +130,8 @@ begin
   text:=StringReplace(text,'Ç','-',[rfReplaceAll]);
   text:=StringReplace(text,'Â','+',[rfReplaceAll]);
   text:=StringReplace(text,'Ñ','+',[rfReplaceAll]);
+  minus:= false;
+  if posEx('-',text,1)>0 then minus := true;
 
   i:=1;
   while i<=length(text) do begin
@@ -164,6 +167,8 @@ begin
         ((delitel=1)and(not lat)and(abs(gms)>180)) then begin
        Result:=false;
      end;
+     if minus and (res>0) then res:=-res;
+
      if res<0 then begin
        res:=res-gms/delitel;
      end else begin
