@@ -843,12 +843,12 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
          if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
          temp_string := copy(V2Search,1,i-1);
 
-        if (temp_string[1]>='A') and (temp_string[1]<='D') then begin
+        if ((temp_string[1]>='A') and (temp_string[1]<='D'))or((temp_string[1]>='1') and (temp_string[1]<='3')) then begin
         case temp_string[1] of
-         'A' : begin VDLat := VDLat -1/8; VDLon := VDLon +1/12 end;
-         'B' : begin VDLat := VDLat +1/8; VDLon := VDLon +1/12 end;
-         'C' : begin VDLat := VDLat -1/8; VDLon := VDLon -1/12 end;
-         'D' : begin VDLat := VDLat +1/8; VDLon := VDLon -1/12 end;
+         'A','1' : begin VDLat := VDLat -1/8; VDLon := VDLon +1/12 end;
+         'B','2' : begin VDLat := VDLat +1/8; VDLon := VDLon +1/12 end;
+         'C','3' : begin VDLat := VDLat -1/8; VDLon := VDLon -1/12 end;
+         'D','4' : begin VDLat := VDLat +1/8; VDLon := VDLon -1/12 end;
          end;
         end;
 
