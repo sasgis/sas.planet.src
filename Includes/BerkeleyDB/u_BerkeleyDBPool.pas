@@ -113,7 +113,9 @@ begin
       end;
     end;
     if not VFound then begin
-      raise Exception.Create('Error [BerkeleyDB]: Can''t release an object that is not in the pool!');
+      raise EBerkeleyDBExeption.Create(
+        'Error [BerkeleyDB]: Can''t release an object that is not in the pool!'
+      );
     end;
     if not FActive and (FUsageCount <= 0) then begin
       FFinishEvent.SetEvent;
@@ -139,7 +141,6 @@ function TBerkeleyDBPool.Acquire(const AFileName: string): TBerkeleyDB;
     if Assigned(VObj) then begin
       New(PRec);
       PRec.Obj := VObj;
-      PRec.Obj.FileName := AFileName;
       PRec.AcquireTime := GetTickCount;
       PRec.ReleaseTime := 0;
       PRec.ActiveCount := 1;
@@ -199,13 +200,17 @@ begin
               Result := CreateNewObj();
             end;
           end else begin
-            raise Exception.Create('Error [BerkeleyDB]: There are no available objects in the pool!');
+            raise EBerkeleyDBExeption.Create(
+              'Error [BerkeleyDB]: There are no available objects in the pool!'
+            );
           end;
         end;
         if Result <> nil then begin
           Inc(FUsageCount);
         end else begin
-          raise Exception.Create('Error [BerkeleyDB]: Can''t acquire db: ' + AFileName);
+          raise EBerkeleyDBExeption.Create(
+            'Error [BerkeleyDB]: Can''t acquire db: ' + AFileName
+          );
         end;
       except
         FCrashList.Add(AFileName);
@@ -300,7 +305,9 @@ begin
     if AValue > FPoolSize then begin
       FPoolSize := AValue;
     end else begin
-      raise Exception.Create('Error [BerkeleyDB]: Can''t decrease pool size!');
+      raise EBerkeleyDBExeption.Create(
+        'Error [BerkeleyDB]: Can''t decrease pool size!'
+      );
     end;
   finally
     FCS.Release;

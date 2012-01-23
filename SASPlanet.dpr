@@ -423,6 +423,7 @@ uses
   u_TileStorageGE in 'u_TileStorageGE.pas',
   u_TileStorageFileSystem in 'u_TileStorageFileSystem.pas',
   u_TileStorageBerkeleyDB in 'u_TileStorageBerkeleyDB.pas',
+  u_TileStorageBerkeleyDBHelper in 'u_TileStorageBerkeleyDBHelper.pas',
   u_TileFileNameGeneratorsSimpleList in 'u_TileFileNameGeneratorsSimpleList.pas',
   u_GarbageCollectorThread in 'u_GarbageCollectorThread.pas',
   u_TTLCheckNotifier in 'u_TTLCheckNotifier.pas',
