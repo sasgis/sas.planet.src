@@ -328,12 +328,12 @@ begin
          delitel := Power(10,length(text));
       end else Result:=false;
      end;
-     if minus and (res>0) then res:=-res;
      if res<0 then begin
        res:=res-gms/delitel;
      end else begin
        res:=res+gms/delitel;
      end;
+     if minus and (res>0) then res:=-res;
      delitel:=delitel*60;
     until (i=0)or(delitel>3600)or(result=false);
   except
