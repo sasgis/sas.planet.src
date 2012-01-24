@@ -6,11 +6,7 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_VectorItemLonLat,
-  i_VectorItemProjected,
-  i_VectorItemLocal,
-  i_Datum,
-  i_ProjectionInfo,
-  i_LocalCoordConverter;
+  i_Datum;
 
 type
   TLineSetEmpty = class(TInterfacedObject, ILonLatPath, ILonLatPolygon)

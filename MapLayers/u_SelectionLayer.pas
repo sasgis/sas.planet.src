@@ -3,20 +3,13 @@ unit u_SelectionLayer;
 interface
 
 uses
-  Windows,
-  GR32,
-  GR32_Polygons,
   GR32_Image,
-  i_JclNotify,
-  t_GeoTypes,
   i_ViewPortState,
   i_LocalCoordConverter,
-  i_DoublePointsAggregator,
   i_InternalPerformanceCounter,
   i_LastSelectionLayerConfig,
   i_LastSelectionInfo,
   i_VectorItemLonLat,
-  i_VectorItemProjected,
   i_VectorItmesFactory,
   u_PolyLineLayerBase;
 
@@ -50,15 +43,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  u_NotifyEventListener,
-  i_EnumDoublePoint,
-  i_ProjectionInfo,
-  u_GeoFun,
-  u_DoublePointsAggregator,
-  u_EnumDoublePointMapPixelToLocalPixel,
-  u_EnumDoublePointWithClip,
-  u_EnumDoublePointFilterEqual;
+  u_NotifyEventListener;
 
 { TSelectionLayer }
 

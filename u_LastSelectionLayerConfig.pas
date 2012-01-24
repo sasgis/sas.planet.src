@@ -46,9 +46,6 @@ type
 
 implementation
 
-uses
-  u_ConfigProviderHelpers;
-
 { TLastSelectionLayerConfig }
 
 constructor TLastSelectionLayerConfig.Create;
