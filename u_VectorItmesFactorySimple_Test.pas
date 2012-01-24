@@ -221,7 +221,7 @@ begin
   CheckFalse(VEnum.Next(VPoint));
   VLine := VResult.Item[0];
   CheckNotNull(VLine);
-  CheckEquals(4, VLine.Count);
+  CheckEquals(3, VLine.Count);
   VEnum := VLine.GetEnum;
   CheckNotNull(VEnum);
   CheckTrue(VEnum.Next(VPoint));
@@ -273,7 +273,7 @@ begin
   CheckFalse(VEnum.Next(VPoint));
   VLine := VResult.Item[1];
   CheckNotNull(VLine);
-  CheckEquals(3, VLine.Count);
+  CheckEquals(2, VLine.Count);
   VEnum := VLine.GetEnum;
   CheckNotNull(VEnum);
   CheckTrue(VEnum.Next(VPoint));
@@ -451,7 +451,7 @@ begin
   CheckFalse(VEnum.Next(VPoint));
   VLine := VResult.Item[0];
   CheckNotNull(VLine);
-  CheckEquals(4, VLine.Count);
+  CheckEquals(3, VLine.Count);
   VEnum := VLine.GetEnum;
   CheckNotNull(VEnum);
   CheckTrue(VEnum.Next(VPoint));
@@ -503,7 +503,7 @@ begin
   CheckFalse(VEnum.Next(VPoint));
   VLine := VResult.Item[1];
   CheckNotNull(VLine);
-  CheckEquals(3, VLine.Count);
+  CheckEquals(2, VLine.Count);
   VEnum := VLine.GetEnum;
   CheckNotNull(VEnum);
   CheckTrue(VEnum.Next(VPoint));

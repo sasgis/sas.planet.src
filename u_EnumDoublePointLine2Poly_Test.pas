@@ -17,7 +17,7 @@ type
     FZoom: Byte;
     FProjection: IProjectionInfo;
     FRadius: Double;
-    function PrepareEnumByArray(AData: TArrayOfDoublePoint): IEnumDoublePoint;
+    function PrepareEnumByArray(AData: TArrayOfDoublePoint): IEnumLonLatPoint;
   protected
     procedure SetUp; override;
   published
@@ -39,11 +39,11 @@ uses
 { TestTEnumDoublePointLine2Poly }
 
 function TestTEnumDoublePointLine2Poly.PrepareEnumByArray(
-  AData: TArrayOfDoublePoint): IEnumDoublePoint;
+  AData: TArrayOfDoublePoint): IEnumLonLatPoint;
 var
-  VDataEnum: IEnumDoublePoint;
+  VDataEnum: IEnumLonLatPoint;
 begin
-  VDataEnum := TEnumDoublePointsByArray.Create(@AData[0], Length(AData));
+  VDataEnum := TEnumLonLatPointsByArray.Create(@AData[0], Length(AData));
   Result := TEnumDoublePointLine2Poly.Create(VDataEnum, FRadius, FProjection);
 end;
 
