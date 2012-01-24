@@ -72,7 +72,6 @@ object frExportToJNX: TfrExportToJNX
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      ExplicitLeft = 3
       DesignSize = (
         376
         277)
@@ -200,7 +199,6 @@ object frExportToJNX: TfrExportToJNX
         Width = 65
         Height = 22
         Anchors = [akTop, akRight]
-        Enabled = False
         MaxValue = 100
         MinValue = 10
         TabOrder = 6
