@@ -32,8 +32,8 @@ uses
 type
   PBDBKey = ^TBDBKey;
   TBDBKey = packed record
-    TileY : Cardinal;
     TileX : Cardinal;
+    TileY : Cardinal;
   end;
 
   PBDBData = ^TBDBData;
@@ -123,17 +123,17 @@ begin
     VSetY := ((APoint.Y shr I) and 1) = 1;
     if I <= 15 then begin
       if VSetX then begin
-        SetBit(Result.TileX, I*2);
+        SetBit(Result.TileY, I*2);
       end;
       if VSetY then begin
-        SetBit(Result.TileX, I*2+1);
+        SetBit(Result.TileY, I*2+1);
       end;
     end else begin
       if VSetX then begin
-        SetBit(Result.TileY, (I-16)*2);
+        SetBit(Result.TileX, (I-16)*2);
       end;
       if VSetY then begin
-        SetBit(Result.TileY, (I-16)*2+1);
+        SetBit(Result.TileX, (I-16)*2+1);
       end;
     end;
   end;
