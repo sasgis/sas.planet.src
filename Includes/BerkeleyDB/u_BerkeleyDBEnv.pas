@@ -24,12 +24,14 @@ interface
 
 uses
   SyncObjs,
-  db_h;
+  db_h,
+  u_BerkeleyDBPool;
 
 type
   TBerkeleyDBEnv = class(TObject)
   private
     FEnv: PDB_ENV;
+    FPool: TBerkeleyDBPool;
     FActive: Boolean;
     FLastRemoveLogTime: Cardinal;
     FLastCheckPointTime: Cardinal;
@@ -41,9 +43,10 @@ type
     constructor Create(const AEnvRootPath: string);
     destructor Destroy; override;
     procedure RemoveUnUsedLogs;
-    procedure CheckPoint;
+    procedure CheckPoint(Sender: TObject);
     property EnvPtr: PDB_ENV read GetEnv;
     property EnvRootPath: string read FEnvRootPath;
+    property Pool: TBerkeleyDBPool read FPool;
   end;
 
 function GlobalAllocateEnvironment(const AEnvRootPath: string): TBerkeleyDBEnv;
@@ -53,7 +56,8 @@ implementation
 uses
   Windows,
   Contnrs,
-  SysUtils;
+  SysUtils,
+  u_BerkeleyDB;
 
 const
   CEnvSubDir = 'env';
@@ -91,7 +95,7 @@ end;
 
 procedure ErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 begin
-  raise Exception.Create(errpfx + ': ' + msg);
+  raise EBerkeleyDBExeption.Create(errpfx + ': ' + msg);
 end;
 
 { TBerkeleyDBEnv }
@@ -104,13 +108,15 @@ begin
   FLastRemoveLogTime := 0;
   FLastCheckPointTime := 0;
   FEnvRootPath := AEnvRootPath;
+  FPool := TBerkeleyDBPool.Create;
   InitBerkeleyDB;
 end;
 
 destructor TBerkeleyDBEnv.Destroy;
 begin
+  FPool.Free;
   if FEnv <> nil then begin
-    CheckPoint;
+    CheckPoint(Self);
     RemoveUnUsedLogs;
     CheckBDBandNil(FEnv.close(FEnv, 0), FEnv);
   end;
@@ -126,7 +132,6 @@ begin
   if not FActive then begin
     CheckBDB(db_env_create(FEnv, 0));
     CheckBDB(FEnv.set_alloc(FEnv, @GetMemory, @ReallocMemory, @FreeMemory));
-    CheckBDB(FEnv.set_cache_max(FEnv, 0, 8*1024*1024));
     CheckBDB(FEnv.set_flags(FEnv, DB_TXN_NOSYNC, 1));
     CheckBDB(FEnv.set_flags(FEnv, DB_TXN_WRITE_NOSYNC, 1));
     if CEnvSubDir <> '' then begin
@@ -178,7 +183,7 @@ begin
   end;
 end;
 
-procedure TBerkeleyDBEnv.CheckPoint;
+procedure TBerkeleyDBEnv.CheckPoint(Sender: TObject);
 begin
   FCS.Acquire;
   try

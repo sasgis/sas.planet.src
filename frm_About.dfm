@@ -111,7 +111,7 @@ object frmAbout: TfrmAbout
     Height = 13
     Align = alTop
     Alignment = taCenter
-    Caption = 'Copyright (C) 2007-2011, SAS.Planet development team'
+    Caption = 'Copyright (C) 2007-2012, SAS.Planet development team'
     ExplicitWidth = 272
   end
   object pnlBottom: TPanel

@@ -46,7 +46,6 @@ type
     FPathExport: string;
     function TileExportToRemoteBDB(
       ABDBPool: TBerkeleyDBPool;
-      ABDBEnv: TBerkeleyDBEnv;
       AMapType: TMapType;
       AXY: TPoint;
       AZoom: Byte;
@@ -75,7 +74,7 @@ uses
   i_TileIterator,
   i_TileInfoBasic,
   u_TileFileNameBDB,
-  u_TileStorageBerkeleyDB,
+  u_TileStorageBerkeleyDBHelper,
   u_TileIteratorStuped;
 
 constructor TThreadExportToBDB.Create(
@@ -119,7 +118,6 @@ end;
 
 function TThreadExportToBDB.TileExportToRemoteBDB(
   ABDBPool: TBerkeleyDBPool;
-  ABDBEnv: TBerkeleyDBEnv;
   AMapType: TMapType;
   AXY: TPoint;
   AZoom: Byte;
@@ -140,9 +138,8 @@ begin
   CreateDirIfNotExists(VPath);
   VBDB := ABDBPool.Acquire(VPath);
   try
-    if Assigned(VBDB) and VBDB.Open(ABDBEnv, VPath, CPageSize, CCacheSize) then begin
-      VKey.TileX := AXY.X;
-      VKey.TileY := AXY.Y;
+    if Assigned(VBDB) then begin
+      VKey := PointToKey(AXY);
       if FileExists(VPath) then begin
         VExists := VBDB.Exists(@VKey, SizeOf(TBDBKey));
       end else begin
@@ -155,7 +152,6 @@ begin
 
           FillChar(VData, Sizeof(TBDBData), 0);
 
-          VData.BDBRecVer := CBDBRecVerCur;
           VData.TileSize := FStream.Size;
 
           if VData.TileSize > 0 then begin
@@ -170,7 +166,6 @@ begin
             end;
             if VTileInfo.ContentType <> nil then begin
               VData.TileMIME := PWideChar(VTileInfo.ContentType.GetContentType);
-              VData.TileDefExt := PWideChar(VTileInfo.ContentType.GetDefaultExt);
             end;
           end;
 
@@ -200,8 +195,8 @@ var
   VGeoConvert: ICoordConverter;
   VTileIterators: array of array of ITileIterator;
   VTileIterator: ITileIterator;
-  VBDBEnv: TBerkeleyDBEnv;
-  VBDBPool: TBerkeleyDBPool;
+  VBDBHelper: TTileStorageBerkeleyDBHelper;
+  VPool: TBerkeleyDBPool;
 begin
   inherited;
   SetLength(VTileIterators, length(FMapTypeArr), Length(FZooms));
@@ -225,9 +220,9 @@ begin
       VMapType := FMapTypeArr[i];
       VGeoConvert := VMapType.GeoConvert;
       VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
-      VBDBPool := TBerkeleyDBPool.Create;
-      VBDBEnv := TBerkeleyDBEnv.Create(VPath);
+      VBDBHelper := TTileStorageBerkeleyDBHelper.Create(VPath, VMapType.GeoConvert.Datum.EPSG);
       try
+        VPool := VBDBHelper.Pool;
         for j := 0 to Length(FZooms) - 1 do begin
           VZoom := FZooms[j];
           VTileIterator := VTileIterators[i, j];
@@ -236,7 +231,7 @@ begin
               exit;
             end;
             if VMapType.TileExists(VTile, VZoom) then begin
-              if TileExportToRemoteBDB(VBDBPool, VBDBEnv, VMapType, VTile, VZoom, VPath) then begin
+              if TileExportToRemoteBDB(VPool, VMapType, VTile, VZoom, VPath) then begin
                 if FIsMove then begin
                   VMapType.DeleteTile(VTile, VZoom);
                 end;
@@ -249,8 +244,7 @@ begin
           end;
         end;
       finally
-        FreeAndNil(VBDBPool);
-        FreeAndNil(VBDBEnv);
+        FreeAndNil(VBDBHelper);
       end;
     end;
   finally
