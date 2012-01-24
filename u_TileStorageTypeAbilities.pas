@@ -50,6 +50,14 @@ type
     function GetAllowReplace: boolean;
   end;
 
+  TTileStorageTypeAbilitiesDBMS = class(TInterfacedObject, IStorageTypeAbilities)
+  protected
+    function GetIsReadOnly: boolean;
+    function GetAllowAdd: Boolean;
+    function GetAllowDelete: boolean;
+    function GetAllowReplace: boolean;
+  end;
+  
 implementation
 
 
@@ -115,6 +123,28 @@ begin
 end;
 
 function TTileStorageTypeAbilitiesBerkeleyDB.GetIsReadOnly: boolean;
+begin
+  Result := False;
+end;
+
+{ TTileStorageTypeAbilitiesDBMS }
+
+function TTileStorageTypeAbilitiesDBMS.GetAllowAdd: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageTypeAbilitiesDBMS.GetAllowDelete: boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageTypeAbilitiesDBMS.GetAllowReplace: boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageTypeAbilitiesDBMS.GetIsReadOnly: boolean;
 begin
   Result := False;
 end;

@@ -42,12 +42,14 @@ type
     FGMTilespath: string;
     FGECachepath: string;
     FBDBCachepath: string;
+    FDBMSCachepath: string;
 
     FCacheChangeNotifier: IJclNotifier;
     procedure SetDefCache(const Value: byte);
     procedure SetESCpath(const Value: string);
     procedure SetGECachepath(const Value: string);
     procedure SetBDBCachepath(const Value: string);
+    procedure SetDBMSCachepath(const Value: string);
     procedure SetGMTilespath(const Value: string);
     procedure SetNewCPath(const Value: string);
     procedure SetOldCPath(const Value: string);
@@ -70,6 +72,7 @@ type
     property GMTilespath: string read FGMTilespath write SetGMTilespath;
     property GECachepath: string read FGECachepath write SetGECachepath;
     property BDBCachepath: string read FBDBCachepath write SetBDBCachepath;
+    property DBMSCachepath: string read FDBMSCachepath write SetDBMSCachepath;
 
     property  CacheGlobalPath: string read FCacheGlobalPath;
     property CacheChangeNotifier: IJclNotifier read FCacheChangeNotifier;
@@ -96,6 +99,7 @@ begin
   FGMTilesPath := 'cache_gmt' + PathDelim;
   FGECachePath := 'cache_GE' + PathDelim;
   FBDBCachePath := 'cache_db' + PathDelim;
+  FDBMSCachepath := 'cache_sasgis' + PathDelim + 'cache_sasgis'; // it is global DBMS identifier: SERVER\DATABASE
 end;
 
 destructor TGlobalCahceConfig.Destroy;
@@ -122,6 +126,7 @@ begin
     GMTilesPath := VPathConfig.ReadString('GMTiles', GMTilesPath);
     GECachePath := VPathConfig.ReadString('GECache', GECachePath);
     BDBCachePath := VPathConfig.ReadString('BDBCache', BDBCachePath);
+    DBMSCachePath := VPathConfig.ReadString('DBMSCache', DBMSCachePath);
   end;
 end;
 
@@ -141,11 +146,20 @@ begin
   VPathConfig.WriteString('GMTiles', GMTilesPath);
   VPathConfig.WriteString('GECache', GECachePath);
   VPathConfig.WriteString('BDBCache', BDBCachePath);
+  VPathConfig.WriteString('DBMSCache', DBMSCachePath);
+end;
+
+procedure TGlobalCahceConfig.SetDBMSCachepath(const Value: string);
+begin
+  if FDBMSCachepath <> Value then begin
+    FDBMSCachepath := Value;
+    FCacheChangeNotifier.Notify(nil);
+  end;
 end;
 
 procedure TGlobalCahceConfig.SetDefCache(const Value: byte);
 begin
-  if Value in [1, 2, 3, 4, 41, 6] then begin
+  if Value in [1, 2, 3, 4, 41, 6, 7] then begin
     if FDefCache <> Value then begin
       FDefCache := Value;
       FCacheChangeNotifier.Notify(nil);

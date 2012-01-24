@@ -28,6 +28,7 @@ uses
   i_SimpleTileStorageConfig,
   i_TileFileNameGeneratorsList,
   u_GlobalCahceConfig,
+  u_ETS_Path,
   i_TileFileNameGenerator;
 
 type
@@ -91,6 +92,17 @@ type
     );
     function GetTileFileName(AXY: TPoint; Azoom: byte): string; reintroduce;
   end;
+
+  TMapTypeCacheConfigDBMS = class(TMapTypeCacheConfigAbstract)
+  protected
+    FGlobalStorageIdentifier: String;
+    FServiceName: String;
+    procedure OnSettingsEdit; override;
+  public
+    property ServiceName: String read FServiceName;
+    property GlobalStorageIdentifier: String read FGlobalStorageIdentifier;
+  end;
+
 
 implementation
 
@@ -156,6 +168,13 @@ begin
   end;
   FEffectiveCacheType := VCacheType;
   FFileNameGenerator := FTileNameGeneratorList.GetGenerator(FEffectiveCacheType);
+
+  if (7=FEffectiveCacheType) then begin
+    // very special
+    FBasePath:=ETS_TilePath_Single(FGlobalCacheConfig.DBMSCachepath, VConfig.NameInCache);
+    Exit;
+  end;
+
 
   VBasePath := VConfig.NameInCache;
   //TODO: — этим бардаком нужно что-то будет сделать
@@ -257,6 +276,15 @@ end;
 function TMapTypeCacheConfigBerkeleyDB.GetTileFileName(AXY: TPoint; AZoom: Byte): string;
 begin
   Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + '.sdb';
+end;
+
+{ TMapTypeCacheConfigDBMS }
+
+procedure TMapTypeCacheConfigDBMS.OnSettingsEdit;
+begin
+  FGlobalStorageIdentifier := FGlobalCacheConfig.DBMSCachepath;
+  FServiceName := FConfig.GetStatic.NameInCache;
+  FBasePath := ETS_TilePath_Single(FGlobalStorageIdentifier, FServiceName);
 end;
 
 end.
