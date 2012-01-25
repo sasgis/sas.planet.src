@@ -344,6 +344,22 @@ begin
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
     );
 
+if (z.x<6)and( VDrawLonLatRect.Left = round(VDrawLonLatRect.Left/6)*6) then begin
+    Layer.bitmap.LineAS(
+      VDrawScreenRect.Left+1, VDrawScreenRect.Top,
+      VDrawScreenRect.Right+1, VDrawScreenRect.Bottom, VColor
+    );
+    Layer.bitmap.LineAS(
+      VDrawScreenRect.Left-1, VDrawScreenRect.Top,
+      VDrawScreenRect.Right-1, VDrawScreenRect.Bottom, VColor
+    );
+    end;
+if (z.x<3)and( VDrawLonLatRect.Left = round(VDrawLonLatRect.Left/3)*3) then
+    Layer.bitmap.LineAS(
+      VDrawScreenRect.Left+1, VDrawScreenRect.Top,
+      VDrawScreenRect.Right+1, VDrawScreenRect.Bottom, {(((VColor and $FF000000) or $88000000) or VColor)} Vcolor
+    );
+
     VDrawLonLatRect.Left := VDrawLonLatRect.Left + z.X;
     VDrawLonLatRect.Right := VDrawLonLatRect.Left;
   end;
@@ -362,6 +378,21 @@ begin
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
     );
 
+if (z.Y<4)and(round((VDrawLonLatRect.Top+0.000000001)*100) = trunc((VDrawLonLatRect.Top+0.01)/4)*4*100 )then begin
+    Layer.bitmap.LineAS(
+      VDrawScreenRect.Left, VDrawScreenRect.Top+1,
+      VDrawScreenRect.Right, VDrawScreenRect.Bottom+1, VColor
+    );
+    Layer.bitmap.LineAS(
+      VDrawScreenRect.Left, VDrawScreenRect.Top-1,
+      VDrawScreenRect.Right, VDrawScreenRect.Bottom-1, VColor
+    );
+    end;
+if (z.Y<2)and(round((VDrawLonLatRect.Top+0.000000001)*100) = trunc((VDrawLonLatRect.Top+0.01)/2)*2*100 )then
+    Layer.bitmap.LineAS(
+      VDrawScreenRect.Left, VDrawScreenRect.Top+1,
+      VDrawScreenRect.Right, VDrawScreenRect.Bottom+1, {((VColor and $FF000000) or $88000000) or VColor}Vcolor
+    );
 
     VDrawLonLatRect.Top := VDrawLonLatRect.Top - z.Y;
     VDrawLonLatRect.Bottom := VDrawLonLatRect.Top;
