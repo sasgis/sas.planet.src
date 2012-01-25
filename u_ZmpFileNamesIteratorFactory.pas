@@ -23,7 +23,7 @@ unit u_ZmpFileNamesIteratorFactory;
 interface
 
 uses
-  u_WideStrings,
+  WideStrings,
   i_FileNameIterator;
 
 type

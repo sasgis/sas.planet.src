@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   SysUtils,
-  u_WideStrings,
+  WideStrings,
   i_FileNameIterator;
 
 type

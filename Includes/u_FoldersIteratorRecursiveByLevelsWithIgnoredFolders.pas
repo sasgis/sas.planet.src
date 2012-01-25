@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  u_WideStrings,
+  WideStrings,
   i_FileNameIterator,
   u_FoldersIteratorRecursiveByLevels;
 

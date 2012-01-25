@@ -24,7 +24,7 @@ interface
 
 uses
   SyncObjs,
-  u_WideStrings,
+  WideStrings,
   i_LogSimple,
   i_LogForTaskThread;
 

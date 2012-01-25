@@ -22,7 +22,7 @@ implementation
 
 uses
   cUnicode,
-  u_WideStrings;
+  WideStrings;
 
 procedure TestTWideStringList.TestAdd;
 var
