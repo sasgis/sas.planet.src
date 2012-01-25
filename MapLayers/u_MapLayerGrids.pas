@@ -143,10 +143,11 @@ var
   VVDrawLonLatRect: TDoubleRect;
   VVDrawRectFloat: TDoubleRect;
   VVDrawScreenRect:  TRect;
-  vTempX,vTempY: integer;
-  VDeltaxDegree,VDeltayDegree: integer;
   VValueConverter: IValueToStringConverter;
   ss:string;
+  VTextXPos : TDoublePoint;
+  VTextYPos : TDoublePoint;
+  VTextPos2 : TRect;
 begin
   VValueConverter := FValueToStringConverterConfig.GetStatic;
   FConfig.DegreeGrid.LockRead;
@@ -160,10 +161,6 @@ begin
   if VScale = 0 then begin
     exit;
   end;
-  vTempx := 0;
-  vTempy := 0;
-  VDeltaxDegree := 0;
-  VDeltayDegree := 0;
   VLocalConverter := LayerCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
@@ -179,9 +176,6 @@ begin
   VGridLonLatRect.Right := VLoadedLonLatRect.Right + z.X;
   VGridLonLatRect.Bottom := VLoadedLonLatRect.Bottom - z.Y;
   VGeoConvert.CheckLonLatRect(VGridLonLatRect);
-  VGridLonLatRect.Left := VGridLonLatRect.Left;
-  VGridLonLatRect.Top := VGridLonLatRect.Top;
-  VGridLonLatRect.Bottom := VGridLonLatRect.Bottom;
   VGridRect := VGeoConvert.LonLatRect2PixelRect(VGridLonLatRect, VZoom);
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
   VDrawLonLatRect.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Bottom);
@@ -199,18 +193,16 @@ begin
 
   // вертикаль
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-  VDrawLonLatRect.Right := VGridLonLatRect.Left;
+  VDrawLonLatRect.Right := VGridLonLatRect.Right;//
   VDrawLonLatRect.Bottom := VGridLonLatRect.Bottom;
   VDrawLonLatRect.Left := trunc(VDrawLonLatRect.Left/z.x)*z.x;
   while VDrawLonLatRect.Left <= VGridLonLatRect.Right do begin
-   if (VDeltaXDegree = 0) and (vtempX <> 0 )then VDeltaXDegree := VDrawScreenRect.Left - vtempX;
-   vtempX:=VDrawScreenRect.Left;
    VDrawRectFloat := VGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoom);
-   VDrawScreenRect.TopLeft := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.TopLeft));
+   VDrawScreenRect.TopLeft     := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.TopLeft));
    VDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.BottomRight));
    Layer.bitmap.LineAS(
       VDrawScreenRect.Left, VDrawScreenRect.Top,
-      VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
+      VDrawScreenRect.left, VDrawScreenRect.Bottom, VColor
     );
     VVDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
     VVDrawLonLatRect.Right   := VGridLonLatRect.Right;
@@ -218,17 +210,21 @@ begin
     VVDrawLonLatRect.Top := trunc(VGridLonLatRect.Top/z.y)*z.y;
 
     while VVDrawLonLatRect.Top>VGridLonLatRect.Bottom  do begin
-      if (VDeltayDegree = 0) and (vtempy <> 0) then VDeltayDegree := vVDrawScreenRect.Top - vtempy;
-      vtempy := vVDrawScreenRect.Top;
       vVDrawRectFloat := VGeoConvert.LonLatRect2PixelRectFloat(VVDrawLonLatRect, VZoom);
       vVDrawScreenRect.TopLeft     := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(vVDrawRectFloat.TopLeft));
       vVDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(vVDrawRectFloat.BottomRight));
-
       Layer.bitmap.LineAS(
        vVDrawScreenRect.Left, vVDrawScreenRect.Top,
        vVDrawScreenRect.Right, vVDrawScreenRect.top, VColor
       );
-      if VCanShowText then begin
+
+      if VCanShowText then
+       if VDrawLonLatRect.Left+z.X/2<180 then begin
+       VTextYPos :=  VGeoConvert.LonLat2PixelPosFloat(doublepoint(VDrawLonLatRect.Left+z.X/2, VVDrawLonLatRect.Top),Vzoom);
+       VTextXPos :=  VGeoConvert.LonLat2PixelPosFloat(doublepoint(VDrawLonLatRect.Left, VVDrawLonLatRect.Top+z.Y/2),Vzoom);
+       VTextPos2.TopLeft  := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VTextYPos));
+       VTextPos2.BottomRight  := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VTextXPos));
+// X
        ListName := VValueConverter.LatConvert(vVDrawLonLatRect.Top);
        ss:=copy(ListName,length(ListName)-5,6);
        if copy(ListName,length(ListName)-5,6)='00.00"' then ListName := ReplaceStr(ListName,'00.00"','');
@@ -237,33 +233,24 @@ begin
        if copy(ListName,length(ListName)-3,4)='.00"' then ListName := ReplaceStr(ListName,'.00"','"');
        if copy(ListName,length(ListName)-2,3)='00''' then ListName := ReplaceStr(ListName,'00''','');
        twidth  := Layer.bitmap.TextWidth(ListName);
-       if twidth > VDeltaXDegree then  begin
-         ListName := '';
-         twidth  := Layer.bitmap.TextWidth(ListName);
-       end;
-       Layer.bitmap.RenderTextW(
-         VDrawScreenRect.Left + VDeltaXDegree div 2 - twidth  div 2,
-         vVDrawScreenRect.Top,
-         ListName, 0, VColor
-       );
+        Layer.bitmap.RenderTextW(
+          VTextPos2.Left  - twidth  div 2,
+          VTextPos2.Top,
+          ListName, 0, VColor);
+// Y
        ListName := VValueConverter.LonConvert(VDrawLonLatRect.Left);
        if copy(ListName,length(ListName)-5,6)='00.00"' then ListName := ReplaceStr(ListName,'00.00"','');
        if copy(ListName,length(ListName)-5,6)='00,00"' then ListName := ReplaceStr(ListName,'00,00"','');
        if copy(ListName,length(ListName)-3,4)=',00"' then ListName := ReplaceStr(ListName,',00"','"');
        if copy(ListName,length(ListName)-3,4)='.00"' then ListName := ReplaceStr(ListName,'.00"','"');
        if copy(ListName,length(ListName)-2,3)='00''' then ListName := ReplaceStr(ListName,'00''','');
-       twidth  := Layer.bitmap.TextWidth(ListName);
        theight := Layer.bitmap.TextHeight(ListName);
-       if twidth > VDeltaXDegree then begin
-         ListName := '';
-         theight := Layer.bitmap.TextHeight(ListName);
-       end;
        Layer.bitmap.RenderTextW(
-         VDrawScreenRect.Left +2,
-         vVDrawScreenRect.Top + VDeltaYDegree div 2 - theight div 2,
-         ListName, 0, VColor
-       );
+         VTextPos2.Right +2,
+         VTextPos2.Bottom  - theight div 2,
+         ListName, 0, VColor);
       end;
+
       VVDrawLonLatRect.Top := VVDrawLonLatRect.Top - z.Y;
    end;
   VDrawLonLatRect.Left := VDrawLonLatRect.Left + z.X;
