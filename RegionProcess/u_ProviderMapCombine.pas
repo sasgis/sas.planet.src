@@ -207,7 +207,7 @@ begin
 
   VGeoConverter := VMainMapType.GeoConvert;
 
-  VZoom := FFrame.cbbZoom.ItemIndex+1;
+  VZoom := FFrame.cbbZoom.ItemIndex;
   VGeoConverter.CheckZoom(VZoom);
 
   VProjection := TProjectionInfo.Create(VGeoConverter, VZoom);

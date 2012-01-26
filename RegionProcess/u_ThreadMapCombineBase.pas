@@ -148,7 +148,7 @@ constructor TThreadMapCombineBase.Create(
 );
 begin
   inherited Create(APolygon);
-  FZoom := Azoom - 1;
+  FZoom := Azoom;
   FSplitCount := ASplitCount;
   FFilePath := ExtractFilePath(AFileName);
   FFileExt := ExtractFileExt(AFileName);
