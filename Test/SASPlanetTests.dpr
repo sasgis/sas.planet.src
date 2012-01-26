@@ -28,7 +28,8 @@ uses
   u_EnumDoublePointLine2Poly_Test in '..\u_EnumDoublePointLine2Poly_Test.pas',
   u_EnumDoublePointFilterEqual_Test in '..\u_EnumDoublePointFilterEqual_Test.pas',
   u_EnumDoublePointWithClip_Test in '..\u_EnumDoublePointWithClip_Test.pas',
-  u_EnumDoublePointClosePoly_Test in '..\u_EnumDoublePointClosePoly_Test.pas';
+  u_EnumDoublePointClosePoly_Test in '..\u_EnumDoublePointClosePoly_Test.pas',
+  u_HashCacheWithQueuesAbstract_Test in '..\u_HashCacheWithQueuesAbstract_Test.pas';
 
 {$R *.RES}
 

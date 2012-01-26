@@ -606,6 +606,7 @@
     <DCCReference Include="u_GPSState.pas" />
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="u_GUIDListStatic.pas" />
+    <DCCReference Include="u_HashCacheWithQueuesAbstract.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
     <DCCReference Include="u_IdCacheSimpleThreadSafe.pas" />
     <DCCReference Include="u_IeEmbeddedProtocol.pas" />

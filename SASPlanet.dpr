@@ -22,6 +22,7 @@ uses
   t_FillingMapModes in 't_FillingMapModes.pas',
   i_GUIDListStatic in 'i_GUIDListStatic.pas',
   u_GUIDListStatic in 'u_GUIDListStatic.pas',
+  u_HashCacheWithQueuesAbstract in 'u_HashCacheWithQueuesAbstract.pas',
   i_Datum in 'i_Datum.pas',
   u_Datum in 'u_Datum.pas',
   i_TimeZoneList in 'i_TimeZoneList.pas',
