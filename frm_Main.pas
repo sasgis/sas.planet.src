@@ -993,7 +993,7 @@ begin
    // convert to  ° ' "
    VDegScale := abs(aDeg/100000000);
    result := IntToStr(Trunc(VDegScale)) + '°';
-   VDegScale := Frac(VDegScale) * 60;
+   VDegScale := Frac(VDegScale+0.0000000001) * 60;
    Vmin := Trunc(VDegScale);
    if Vmin < 10 then begin
      result := result + '0' + IntToStr(Vmin) + '''';

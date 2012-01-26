@@ -131,7 +131,7 @@ begin
   case FDegrShowFormat of
     dshCharDegrMinSec, dshSignDegrMinSec: begin
       result := IntToStr(Trunc(VDegr)) + '°';
-      VDegr := Frac(VDegr) * 60;
+      VDegr := Frac(VDegr+0.0000000001) * 60;
       VMinute := Trunc(VDegr);
       if VMinute < 10 then begin
         result := result + '0' + IntToStr(VMinute) + '''';
