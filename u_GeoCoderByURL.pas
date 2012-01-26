@@ -1032,13 +1032,14 @@ begin
   sfulldesc := Vlink;
  end  else
 // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
- if PosEx('openstreetmap.org', Vlink, 1) > 0 then begin
+ if PosEx('openstreetmap.', Vlink, 1) > 0 then begin
   sname := 'OpenStreetMap';
   i := PosEx('lat=', Vlink, 1);
   j := PosEx('&', Vlink, i);
   slat := Copy(Vlink, i + 4, j - (i + 4));
   i := PosEx('lon=', Vlink, j);
   j := PosEx('&', Vlink, i);
+  if j = 0 then j := length(Vlink) +1;
   slon := Copy(Vlink, i + 4, j - (i + 4));
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := Vlink;
