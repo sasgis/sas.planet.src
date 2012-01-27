@@ -28,6 +28,7 @@ uses
   t_GeoTypes,
   i_VectorItmesFactory,
   i_VectorDataLoader,
+  i_DoublePointsAggregator,
   i_HtmlToHintTextConverter,
   i_InternalPerformanceCounter,
   i_VectorDataItemSimple;
@@ -38,12 +39,10 @@ type
     FFactory: IVectorItmesFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;
     FHintConverter: IHtmlToHintTextConverter;
-    procedure ParseStringList(AStringList: TStringList; out APoints: TArrayOfDoublePoint);
+    procedure ParseStringList(AStringList: TStringList; APointsAggregator: IDoublePointsAggregator);
     function GetWord(Str, Smb: string; WordNmbr: Byte): string;
-    function GetRect(APoints: TArrayOfDoublePoint): TDoubleRect;
   protected
-    procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
-    procedure LoadFromFile(FileName:string; out AItems: IVectorDataItemList);
+    procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList);
   public
     constructor Create(
       AFactory: IVectorItmesFactory;
@@ -57,6 +56,7 @@ implementation
 uses
   u_VectorDataItemList,
   u_VectorDataItemPolygon,
+  u_DoublePointsAggregator,
   u_GeoFun,
   u_GeoToStr;
 
@@ -79,13 +79,15 @@ var
   VList: IInterfaceList;
   VPoints: TArrayOfDoublePoint;
   VItem: IVectorDataItemSimple;
+  VPointsAggregator: IDoublePointsAggregator;
 begin
   AItems := nil;
   pltstr:=TStringList.Create;
   try
     pltstr.LoadFromStream(AStream);
     if pltstr.Count > 7 then begin
-      ParseStringList(pltstr, VPoints);
+      VPointsAggregator := TDoublePointsAggregator.Create;
+      ParseStringList(pltstr, VPointsAggregator);
       if Length(VPoints) > 0 then begin
         trackname:=GetWord(pltstr[4], ',', 4);
         VItem :=
@@ -93,8 +95,7 @@ begin
             FHintConverter,
             trackname,
             '',
-            FFactory.CreateLonLatPath(@VPoints[0], Length(VPoints)),
-            GetRect(VPoints)
+            FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count)
           );
         VList := TInterfaceList.Create;
         VList.Add(VItem);
@@ -108,7 +109,7 @@ end;
 
 procedure TPLTSimpleParser.ParseStringList(
   AStringList: TStringList;
-  out APoints: TArrayOfDoublePoint
+  APointsAggregator: IDoublePointsAggregator
 );
 var
   i,j:integer;
@@ -116,7 +117,6 @@ var
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
 begin
-  APoints := nil;
   for i:=6 to AStringList.Count-1 do begin
     try
       j:=1;
@@ -130,8 +130,7 @@ begin
       end;
       if (GetWord(AStringList[i], ',', 3)='1') and (i>6) then begin
         VPoint := CEmptyDoublePoint;
-        SetLength(APoints,length(APoints)+1);
-        APoints[length(APoints)-1] := VPoint;
+        APointsAggregator.Add(VPoint);
       end;
       VValidPoint := True;
       try
@@ -141,68 +140,9 @@ begin
         VValidPoint := False;
       end;
       if VValidPoint then begin
-        SetLength(APoints,length(APoints)+1);
-        APoints[length(APoints)-1] := VPoint;
+        APointsAggregator.Add(VPoint);
       end;
     except
-    end;
-  end;
-end;
-
-procedure TPLTSimpleParser.LoadFromFile(FileName:string; out AItems: IVectorDataItemList);
-var
-  pltstr: TStringList;
-  trackname: string;
-  VList: IInterfaceList;
-  VPoints: TArrayOfDoublePoint;
-  VItem: IVectorDataItemSimple;
-begin
-  AItems := nil;
-  if FileExists(FileName) then begin
-    pltstr:=TStringList.Create;
-    try
-      pltstr.LoadFromFile(FileName);
-      if pltstr.Count > 7 then begin
-        ParseStringList(pltstr, VPoints);
-        if Length(VPoints) > 0 then begin
-          trackname:=ChangeFileExt(ExtractFileName(FileName), '');
-          VItem :=
-            TVectorDataItemPath.Create(
-              FHintConverter,
-              trackname,
-              '',
-              FFactory.CreateLonLatPath(@VPoints[0], Length(VPoints)),
-              GetRect(VPoints)
-            );
-          VList := TInterfaceList.Create;
-          VList.Add(VItem);
-          AItems := TVectorDataItemList.Create(VList);
-        end;
-      end;
-    finally
-      pltstr.Free;
-    end;
-  end;
-end;
-
-function TPLTSimpleParser.GetRect(APoints: TArrayOfDoublePoint): TDoubleRect;
-var
-  i: Integer;
-begin
-  Result.TopLeft := APoints[0];
-  Result.BottomRight := APoints[0];
-  for i := 0 to length(APoints) - 1 do begin
-    if Result.Left > APoints[i].X then begin
-      Result.Left := APoints[i].X;
-    end;
-    if Result.Right < APoints[i].X then begin
-      Result.Right := APoints[i].X;
-    end;
-    if Result.Top < APoints[i].y then begin
-      Result.Top := APoints[i].y;
-    end;
-    if Result.Bottom > APoints[i].y then begin
-      Result.Bottom := APoints[i].y;
     end;
   end;
 end;

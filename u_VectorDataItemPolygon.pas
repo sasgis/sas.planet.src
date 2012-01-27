@@ -54,8 +54,7 @@ type
       AHintConverter: IHtmlToHintTextConverter;
       AName: string;
       ADesc: string;
-      ALine: ILonLatPath;
-      ALLRect: TDoubleRect
+      ALine: ILonLatPath
     );
   end;
 
@@ -69,8 +68,7 @@ type
       AHintConverter: IHtmlToHintTextConverter;
       AName: string;
       ADesc: string;
-      ALine: ILonLatPolygon;
-      ALLRect: TDoubleRect
+      ALine: ILonLatPolygon
     );
   end;
 
@@ -97,9 +95,9 @@ end;
 { TVectorDataItemPath }
 
 constructor TVectorDataItemPath.Create(AHintConverter: IHtmlToHintTextConverter;
-  AName, ADesc: string; ALine: ILonLatPath; ALLRect: TDoubleRect);
+  AName, ADesc: string; ALine: ILonLatPath);
 begin
-  inherited Create(AHintConverter, AName, ADesc, ALLRect);
+  inherited Create(AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;
 end;
 
@@ -111,9 +109,9 @@ end;
 { TVectorDataItemPoly }
 
 constructor TVectorDataItemPoly.Create(AHintConverter: IHtmlToHintTextConverter;
-  AName, ADesc: string; ALine: ILonLatPolygon; ALLRect: TDoubleRect);
+  AName, ADesc: string; ALine: ILonLatPolygon);
 begin
-  inherited Create(AHintConverter, AName, ADesc, ALLRect);
+  inherited Create(AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;
 end;
 

@@ -62,9 +62,12 @@ var
   VItemLine: IVectorDataItemLine;
   VItemPoly: IVectorDataItemPoly;
   i: Integer;
+  VStream: TFileStream;
 begin
   Result := TInterfaceList.Create;
-    FKmlLoader.LoadFromFile(AFileName, KML);
+  VStream := TFileStream.Create(AFileName, fmOpenRead);
+  try
+    FKmlLoader.LoadFromStream(VStream, KML);
     if Assigned(KML) then
     if (0<KML.Count) then
     for i:=0 to KML.Count-1 do begin
@@ -102,6 +105,9 @@ begin
         Result.Add(VMark);
       end;
     end;
+  finally
+    VStream.Free;
+  end;
 end;
 
 end.

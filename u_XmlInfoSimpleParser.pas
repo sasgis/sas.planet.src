@@ -49,7 +49,6 @@ type
                                          const pPX_Result: Pvsagps_XML_ParserResult;
                                          const pPX_State: Pvsagps_XML_ParserState);
   protected
-    procedure LoadFromFile(AFileName: string; out AItems: IVectorDataItemList); virtual;
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
   public
     constructor Create(
@@ -205,8 +204,7 @@ var
             FHintConverter,
             VWSName,
             VWSDesc,
-            FFactory.CreateLonLatPolygon(@array_points[0], array_count),
-            array_rect
+            FFactory.CreateLonLatPolygon(@array_points[0], array_count)
           );
       end else begin
         // polyline
@@ -215,8 +213,7 @@ var
             FHintConverter,
             VWSName,
             VWSDesc,
-            FFactory.CreateLonLatPath(@array_points[0], array_count),
-            array_rect
+            FFactory.CreateLonLatPath(@array_points[0], array_count)
           );
       end;
       list.Add(trk_obj);
@@ -344,18 +341,6 @@ begin
           _AddWptToList;
       end;
     end;
-  end;
-end;
-
-procedure TXmlInfoSimpleParser.LoadFromFile(AFileName: string; out AItems: IVectorDataItemList);
-var
-  VFileStream: TFileStream;
-begin
-  VFileStream := TFileStream.Create(AFileName, fmOpenRead);
-  try
-    LoadFromStream(VFileStream, AItems);
-  finally
-    VFileStream.Free;
   end;
 end;
 

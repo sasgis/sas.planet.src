@@ -58,9 +58,8 @@ type
     function parseCoordinates(AText: PAnsiChar; ALen: integer; var Adata: TArrayOfDoublePoint; var ARect: TDoubleRect): boolean;
     procedure parseName(var Name: AnsiString);
     procedure parseDescription(var Description: AnsiString);
-    function BuildItem(AName, ADesc: string; Adata: TArrayOfDoublePoint; ARect: TDoubleRect): IVectorDataItemSimple;
+    function BuildItem(AName, ADesc: string; Adata: TArrayOfDoublePoint): IVectorDataItemSimple;
   protected
-    procedure LoadFromFile(AFileName: string; out AItems: IVectorDataItemList); virtual;
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
   public
     constructor Create(
@@ -85,7 +84,7 @@ uses
 { TKmlInfoSimpleParser }
 
 function TKmlInfoSimpleParser.BuildItem(AName, ADesc: string;
-  Adata: TArrayOfDoublePoint; ARect: TDoubleRect): IVectorDataItemSimple;
+  Adata: TArrayOfDoublePoint): IVectorDataItemSimple;
 var
   VPointCount: Integer;
 begin
@@ -101,8 +100,7 @@ begin
             FHintConverter,
             AName,
             ADesc,
-            FFactory.CreateLonLatPolygon(@Adata[0], VPointCount),
-            ARect
+            FFactory.CreateLonLatPolygon(@Adata[0], VPointCount)
           );
       end else begin
         Result :=
@@ -110,8 +108,7 @@ begin
             FHintConverter,
             AName,
             ADesc,
-            FFactory.CreateLonLatPath(@Adata[0], VPointCount),
-            ARect
+            FFactory.CreateLonLatPath(@Adata[0], VPointCount)
           );
       end;
     end;
@@ -153,19 +150,6 @@ begin
   FreeAndNil(FBMSrchCoord);
   FreeAndNil(FBMSrchCoordE);
   inherited;
-end;
-
-procedure TKmlInfoSimpleParser.LoadFromFile(AFileName: string;
-  out AItems: IVectorDataItemList);
-var
-  VFileStream: TFileStream;
-begin
-  VFileStream := TFileStream.Create(AFileName, fmOpenRead);
-  try
-    LoadFromStream(VFileStream, AItems);
-  finally
-    VFileStream.Free;
-  end;
 end;
 
 procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
@@ -326,7 +310,7 @@ begin
               result := false;
             end;
           end;
-          VItem := BuildItem(VName, VDescription, VPoints, VRect);
+          VItem := BuildItem(VName, VDescription, VPoints);
           if VItem <> nil then begin
             AList.Add(VItem);
           end;
