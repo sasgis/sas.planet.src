@@ -36,8 +36,7 @@ type
     function GetPolygon: ILonLatPolygon;
     property Polygon: ILonLatPolygon read GetPolygon;
 
-    procedure SetPolygon(ALonLatPolygon: ILonLatPolygon; AZoom: Byte); overload;
-    procedure SetPolygon(APoints: PDoublePointArray; ACount: Integer; AZoom: Byte); overload;
+    procedure SetPolygon(ALonLatPolygon: ILonLatPolygon; AZoom: Byte);
   end;
 
 implementation

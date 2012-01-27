@@ -42,11 +42,10 @@ type
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetZoom: Byte;
     function GetPolygon: ILonLatPolygon;
-    procedure SetPolygon(ALonLatPolygon: ILonLatPolygon; AZoom: Byte); overload;
-    procedure SetPolygon(APoints: PDoublePointArray; ACount: Integer; AZoom: Byte); overload;
+    procedure SetPolygon(ALonLatPolygon: ILonLatPolygon; AZoom: Byte);
   public
     constructor Create(AVectorItmesFactory: IVectorItmesFactory);
   end;
@@ -92,7 +91,7 @@ begin
     until not VValidPoint;
     if VPolygon.Count > 0 then begin
       VZoom := AConfigData.Readinteger('Zoom', FZoom);
-      SetPolygon(VPolygon.Points, VPolygon.Count, VZoom);
+      SetPolygon(FVectorItmesFactory.CreateLonLatPolygon(VPolygon.Points, VPolygon.Count), VZoom);
     end;
   end;
 end;
@@ -135,19 +134,6 @@ begin
     Result := FZoom;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TLastSelectionInfo.SetPolygon(APoints: PDoublePointArray;
-  ACount: Integer; AZoom: Byte);
-begin
-  LockWrite;
-  try
-    FPolygon := FVectorItmesFactory.CreateLonLatPolygon(APoints, ACount);
-    FZoom := AZoom;
-    SetChanged;
-  finally
-    UnlockWrite;
   end;
 end;
 
