@@ -53,7 +53,11 @@ type
   function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;
   function UnionProjectedRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
+  function IsLonLatRectEmpty(const Rect: TDoubleRect): Boolean;
+  function IsProjectedRectEmpty(const Rect: TDoubleRect): Boolean;
   function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
+  function IntersecLonLatRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
+  function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 
   function DoublePointsEqual(p1,p2: TDoublePoint): Boolean;
   function DoubleRectsEqual(ARect1, ARect2: TDoubleRect): Boolean;
@@ -456,6 +460,16 @@ begin
   Result := (Rect.Right <= Rect.Left) or (Rect.Bottom <= Rect.Top);
 end;
 
+function IsLonLatRectEmpty(const Rect: TDoubleRect): Boolean;
+begin
+  Result := (Rect.Right <= Rect.Left) or (Rect.Bottom >= Rect.Top);
+end;
+
+function IsProjectedRectEmpty(const Rect: TDoubleRect): Boolean;
+begin
+  Result := (Rect.Right <= Rect.Left) or (Rect.Bottom <= Rect.Top);
+end;
+
 function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 begin
   Rect := R1;
@@ -464,6 +478,28 @@ begin
   if R2.Right < R1.Right then Rect.Right := R2.Right;
   if R2.Bottom < R1.Bottom then Rect.Bottom := R2.Bottom;
   Result := not IsDoubleRectEmpty(Rect);
+  if not Result then FillChar(Rect, SizeOf(Rect), 0);
+end;
+
+function IntersecLonLatRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
+begin
+  Rect := R1;
+  if R2.Left > R1.Left then Rect.Left := R2.Left;
+  if R2.Top < R1.Top then Rect.Top := R2.Top;
+  if R2.Right < R1.Right then Rect.Right := R2.Right;
+  if R2.Bottom > R1.Bottom then Rect.Bottom := R2.Bottom;
+  Result := not IsLonLatRectEmpty(Rect);
+  if not Result then FillChar(Rect, SizeOf(Rect), 0);
+end;
+
+function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
+begin
+  Rect := R1;
+  if R2.Left > R1.Left then Rect.Left := R2.Left;
+  if R2.Top > R1.Top then Rect.Top := R2.Top;
+  if R2.Right < R1.Right then Rect.Right := R2.Right;
+  if R2.Bottom < R1.Bottom then Rect.Bottom := R2.Bottom;
+  Result := not IsProjectedRectEmpty(Rect);
   if not Result then FillChar(Rect, SizeOf(Rect), 0);
 end;
 

@@ -38,7 +38,8 @@ type
     property Bounds: TDoubleRect read GetBounds;
 
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
-    function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsPointOnBorder(const APoint: TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
 
     function GetCount: Integer;

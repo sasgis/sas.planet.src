@@ -52,7 +52,8 @@ type
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
-    function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsPointOnBorder(const APoint: TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
   public
     constructor Create(
@@ -66,6 +67,7 @@ implementation
 
 uses
   u_GeoFun,
+  u_EnumDoublePointWithClip,
   u_EnumDoublePointBySingleLine;
 
 { TProjectedLineBase }
@@ -248,8 +250,10 @@ begin
   end;
 end;
 
-function TProjectedPolygonLine.IsPointOnBorder(APoint: TDoublePoint;
-  ADist: Double): Boolean;
+function TProjectedPolygonLine.IsPointOnBorder(
+  const APoint: TDoublePoint;
+  ADist: Double
+): Boolean;
 var
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
@@ -285,6 +289,26 @@ begin
         end;
       end;
       VPrevPoint := VCurrPoint;
+    end;
+  end;
+end;
+
+function TProjectedPolygonLine.IsRectIntersectPolygon(
+  const ARect: TDoubleRect
+): Boolean;
+var
+  VIntersectRect: TDoubleRect;
+  VEnum: IEnumProjectedPoint;
+  VPoint: TDoublePoint;
+begin
+  if not IntersecProjectedRect(VIntersectRect, FBounds, ARect) then begin
+    Result := False;
+  end else begin
+    if PixelPointInRect(FPoints[0], ARect) then begin
+      Result := True;
+    end else begin
+      VEnum := TEnumProjectedPointClipByRect.Create(True, ARect, GetEnum);
+      Result :=  VEnum.Next(VPoint);
     end;
   end;
 end;
