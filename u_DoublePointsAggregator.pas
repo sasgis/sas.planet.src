@@ -14,6 +14,7 @@ type
     FCapacity: Integer;
   private
     procedure Add(const APoint: TDoublePoint);
+    procedure AddPoints(APoints: PDoublePointArray; ACount: Integer);
     procedure Clear;
 
     function GetCount: Integer;
@@ -57,6 +58,33 @@ begin
   end;
   FPoints[FCount] := APoint;
   Inc(FCount);
+end;
+
+procedure TDoublePointsAggregator.AddPoints(APoints: PDoublePointArray;
+  ACount: Integer);
+var
+  VNewCount: Integer;
+  VSize: Integer;
+begin
+  if ACount > 0 then begin
+    VNewCount := FCount + ACount;
+    if VNewCount > FCapacity then begin
+      VSize := FCapacity;
+      while VNewCount > VSize do begin
+        if VSize < 256 then begin
+          VSize := 256;
+        end else if VSize < 4*1024 then begin
+          VSize := VSize * 2;
+        end else begin
+          VSize := VSize + 4*1024;
+        end;
+      end;
+      SetLength(FPoints, VSize);
+      FCapacity := VSize;
+    end;
+    Move(APoints[0], FPoints[FCount], ACount * SizeOf(TDoublePoint));
+    FCount := VNewCount;
+  end;
 end;
 
 procedure TDoublePointsAggregator.Clear;
