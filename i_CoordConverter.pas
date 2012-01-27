@@ -173,12 +173,6 @@ type
       const AResultPoints: PPointArray;
       const AZoom: byte
     ); stdcall;
-    procedure LonLatArray2PixelArrayFloat(
-      const ASourcePoints: PDoublePointArray;
-      const ACount: Integer;
-      const AResultPoints: PDoublePointArray;
-      const AZoom: byte
-    ); stdcall;
 
     function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; stdcall;
     function PixelPos2OtherMap(const XY: TPoint; const Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; stdcall;
@@ -200,14 +194,6 @@ type
 
     function CheckLonLatPos(var XY: TDoublePoint): boolean; stdcall;
     function CheckLonLatRect(var XY: TDoubleRect): boolean; stdcall;
-    function CheckLonLatArray(
-      const ASourcePoints: PDoublePointArray;
-      const ACount: Integer
-    ): boolean; stdcall;
-    function CheckAndCorrectLonLatArray(
-      const ASourcePoints: PDoublePointArray;
-      const ACount: Integer
-    ): boolean; stdcall;
 
     // Возвращает код EPSG для этой проекции. Для нестандартных проекций и сфероидов будет возвращать 0
     function GetProjectionEPSG: Integer; stdcall;
