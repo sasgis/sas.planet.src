@@ -119,6 +119,8 @@ uses
   gnugettext,
   c_PathDetalizeProvidersGUID,
   i_EnumDoublePoint,
+  i_DoublePointsAggregator,
+  u_DoublePointsAggregator,
   u_GeoToStr,
   i_VectorDataItemSimple,
   u_InetFunc;
@@ -148,7 +150,7 @@ var
   kml:IVectorDataItemList;
   s:integer;
   conerr:boolean;
-  add_line_arr_b:TArrayOfDoublePoint;
+  VPointsAggregator: IDoublePointsAggregator;
   VItem: IVectorDataItemLine;
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
@@ -160,6 +162,7 @@ begin
   try
     url := FBaseUrl;
     conerr:=false;
+    VPointsAggregator := TDoublePointsAggregator.Create;
     VEnum := ASource.GetEnum;
     if VEnum.Next(VPrevPoint) then begin
       while VEnum.Next(VCurrPoint) do begin
@@ -175,9 +178,7 @@ begin
                 if VItem.Line.Count > 0 then begin
                   VLine := VItem.Line.Item[0];
                   if VLine.Count > 0 then begin
-                    s := Length(add_line_arr_b);
-                    SetLength(add_line_arr_b, (s + VLine.Count));
-                    Move(VLine.Points^, add_line_arr_b[s], VLine.Count * sizeof(TDoublePoint));
+                    VPointsAggregator.AddPoints(VLine.Points, VLine.Count);
                   end;
                 end;
               end;
@@ -193,7 +194,7 @@ begin
     ms.Free;
   end;
   if not conerr then begin
-    Result := FFactory.CreateLonLatPath(@add_line_arr_b[0], Length(add_line_arr_b));
+    Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
   end;
 end;
 
