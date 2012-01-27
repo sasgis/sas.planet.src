@@ -365,7 +365,6 @@ uses
   u_MarksDbGUIHelper in 'u_MarksDbGUIHelper.pas',
   i_BitmapLayerProvider in 'i_BitmapLayerProvider.pas',
   u_MapMarksBitmapLayerProviderByMarksSubset in 'u_MapMarksBitmapLayerProviderByMarksSubset.pas',
-  u_ClipPolygonByRect in 'u_ClipPolygonByRect.pas',
   u_WindowLayerBasic in 'MapLayers\u_WindowLayerBasic.pas',
   u_WindowLayerWithPos in 'MapLayers\u_WindowLayerWithPos.pas',
   u_WindowLayerBasicList in 'u_WindowLayerBasicList.pas',
