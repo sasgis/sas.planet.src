@@ -144,6 +144,8 @@ implementation
 uses
   gnugettext,
   i_EnumDoublePoint,
+  i_DoublePointsAggregator,
+  u_DoublePointsAggregator,
   u_ExportProviderYaMobileV3,
   u_ExportProviderYaMobileV4,
   u_ExportProviderGEKml,
@@ -273,25 +275,27 @@ procedure TfrmRegionProcess.LoadSelFromFile(FileName:string);
 var
   i:integer;
   VIni:TMemIniFile;
-  VPolygon: TArrayOfDoublePoint;
+  VPointsAggregator: IDoublePointsAggregator;
+  VPoint: TDoublePoint;
   VZoom: Byte;
 begin
   if FileExists(FileName) then
   begin
     VIni := TMemIniFile.Create(FileName);
     try
+      VPointsAggregator := TDoublePointsAggregator.Create;
       i := 1;
       while str2r( VIni.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647') ) <> 2147483647 do
       begin
-        setlength(VPolygon,i);
-        VPolygon[i-1].x := str2r(VIni.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
-        VPolygon[i-1].y := str2r(VIni.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
+        VPoint.x := str2r(VIni.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
+        VPoint.y := str2r(VIni.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
+        VPointsAggregator.Add(VPoint);
         inc(i);
       end;
-      if length(VPolygon)>0 then
+      if VPointsAggregator.Count > 0 then
       begin
         VZoom := VIni.Readinteger('HIGHLIGHTING','zoom',1) - 1;
-        Self.Show_(VZoom, FVectorItmesFactory.CreateLonLatPolygon(@VPolygon[0], length(VPolygon)));
+        Self.Show_(VZoom, FVectorItmesFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count));
       end;
     finally
       VIni.Free;
