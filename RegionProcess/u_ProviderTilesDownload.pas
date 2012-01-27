@@ -8,6 +8,7 @@ uses
   i_MapTypes,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
+  i_CoordConverterFactory,
   i_LanguageManager,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -26,6 +27,7 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
+    FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
   public
     constructor Create(
@@ -36,6 +38,7 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple
@@ -75,6 +78,7 @@ constructor TProviderTilesDownload.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple
@@ -83,6 +87,7 @@ begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FAppClosingNotifier := AAppClosingNotifier;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FDownloadConfig := ADownloadConfig;
   FDownloadInfo := ADownloadInfo;
@@ -104,6 +109,8 @@ begin
   if FFrame = nil then begin
     FFrame := TfrTilesDownload.Create(
       nil,
+      FProjectionFactory,
+      FVectorItmesFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList

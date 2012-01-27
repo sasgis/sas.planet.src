@@ -13,7 +13,9 @@ uses
   ComCtrls,
   t_GeoTypes,
   i_MapTypes,
+  i_CoordConverterFactory,
   i_VectorItemLonLat,
+  i_VectorItmesFactory,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   u_CommonFormAndFrameParents;
@@ -42,6 +44,8 @@ type
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
   private
+    FVectorFactory: IVectorItmesFactory;
+    FProjectionFactory: IProjectionInfoFactory;
     FPolygLL: ILonLatPolygon;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -49,6 +53,8 @@ type
   public
     constructor Create(
       AOwner : TComponent;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorFactory: IVectorItmesFactory;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList
@@ -60,6 +66,7 @@ implementation
 
 uses
   i_GUIDListStatic,
+  i_VectorItemProjected,
   u_GeoFun,
   u_ResStrings,
   u_MapType;
@@ -68,28 +75,49 @@ uses
 
 procedure TfrTilesDownload.cbbZoomChange(Sender: TObject);
 var
-  polyg:TArrayOfPoint;
-  VRect: TRect;
   numd:int64 ;
   Vmt: TMapType;
   VZoom: byte;
   VPolyLL: ILonLatPolygon;
-  VLen: Integer;
+  VProjected: IProjectedPolygon;
+  VLine: IProjectedPolygonLine;
+  VBounds: TDoubleRect;
+  VPixelRect: TRect;
+  VTileRect: TRect;
 begin
   if cbbMap.ItemIndex >= 0 then begin
     Vmt := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end else begin
+    Vmt := nil;
+  end;
+
+  if Vmt <> nil then begin
     VZoom := cbbZoom.ItemIndex;
-    VPolyLL := FPolygLL;
-    VLen := VPolyLL.Item[0].Count;
     Vmt.GeoConvert.CheckZoom(VZoom);
-    SetLength(Polyg, VLen);
-    Vmt.GeoConvert.LonLatArray2PixelArray(VPolyLL.Item[0].Points, VLen, @Polyg[0], VZoom);
-    numd:=GetDwnlNum(VRect, @Polyg[0], VLen,true);
-    lblStat.Caption:=SAS_STR_filesnum+': '+inttostr((VRect.Right-VRect.Left)div 256+1)+'x'
-                    +inttostr((VRect.Bottom-VRect.Top)div 256+1)+'('+inttostr(numd)+')';
-    GetMinMax(VRect, @Polyg[0], VLen,false);
-    lblStat.Caption:=lblStat.Caption+', '+SAS_STR_Resolution+' '+inttostr(VRect.Right-VRect.Left)+'x'
-                  +inttostr(VRect.Bottom-VRect.Top);
+    VPolyLL := FPolygLL;
+    if VPolyLL <> nil then begin
+      VProjected :=
+        FVectorFactory.CreateProjectedPolygonByLonLatPolygon(
+          FProjectionFactory.GetByConverterAndZoom(Vmt.GeoConvert, VZoom),
+          VPolyLL
+        );
+      if VProjected.Count > 0 then begin
+        VLine := VProjected.Item[0];
+        VBounds := VLine.Bounds;
+        VPixelRect := Vmt.GeoConvert.PixelRectFloat2PixelRect(VBounds, VZoom);
+        VTileRect := Vmt.GeoConvert.PixelRect2TileRect(VPixelRect, VZoom);
+        numd := (VTileRect.Right - VTileRect.Left);
+        numd := numd * (VTileRect.Bottom - VTileRect.Top);
+        lblStat.Caption :=
+          SAS_STR_filesnum+': '+
+          inttostr(VTileRect.Right - VTileRect.Left)+'x'+
+          inttostr(VTileRect.Bottom - VTileRect.Top)+
+          '('+inttostr(numd)+')' +
+          ', '+SAS_STR_Resolution + ' ' +
+          inttostr(VPixelRect.Right - VPixelRect.Left)+'x'+
+          inttostr(VPixelRect.Bottom - VPixelRect.Top);
+      end;
+    end;
   end;
 end;
 
@@ -108,11 +136,18 @@ begin
   dtpReplaceOlderDate.Enabled := chkReplaceOlder.Enabled and chkReplaceOlder.Checked;
 end;
 
-constructor TfrTilesDownload.Create(AOwner: TComponent;
-  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList);
+constructor TfrTilesDownload.Create(
+  AOwner: TComponent;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorFactory: IVectorItmesFactory;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList
+);
 begin
   inherited Create(AOwner);
+  FProjectionFactory := AProjectionFactory;
+  FVectorFactory := AVectorFactory;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;

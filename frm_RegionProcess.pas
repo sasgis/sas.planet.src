@@ -235,6 +235,7 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AProjectionFactory,
       AVectorItmesFactory,
       ADownloadConfig,
       ADownloadInfo
