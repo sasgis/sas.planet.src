@@ -145,6 +145,8 @@ uses
   gnugettext,
   c_PathDetalizeProvidersGUID,
   i_EnumDoublePoint,
+  i_DoublePointsAggregator,
+  u_DoublePointsAggregator,
   u_GeoToStr,
   u_ResStrings,
   u_InetFunc;
@@ -172,10 +174,9 @@ function TPathDetalizeProviderCloudMade.GetPath(ASource: ILonLatPath; var AComme
 var
   ms:TMemoryStream;
   url:string;
-  s:integer;
   conerr:boolean;
-  add_line_arr_b:TArrayOfDoublePoint;
-
+  VPointsAggregator: IDoublePointsAggregator;
+  VPoint: TDoublePoint;
   pathstr,timeT1:string;
   posit,posit2,dd,seconds,meters:integer;
   dateT1:TDateTime;
@@ -186,7 +187,7 @@ begin
   AComment := '';
   meters:=0;
   seconds:=0;
-  SetLength(add_line_arr_b,0);
+  VPointsAggregator := TDoublePointsAggregator.Create;
   ms:=TMemoryStream.Create;
   try
     conerr:=false;
@@ -211,20 +212,17 @@ begin
           ms.Position:=0;
           SetLength(pathstr, ms.Size);
           ms.ReadBuffer(pathstr[1], ms.Size);
-          s:=length(add_line_arr_b);
           try
             posit:=PosEx('[',pathstr,1);
             posit:=PosEx('[',pathstr,posit+1);
             if posit>0 then  begin
               While (posit>0) do begin
-                SetLength(add_line_arr_b,(s+1));
-                s:=length(add_line_arr_b);
-
                 posit2:=PosEx(',',pathstr,posit);
-                add_line_arr_b[s-1].Y:=str2r(copy(pathstr,posit+1,posit2-(posit+1)));
+                VPoint.Y := str2r(copy(pathstr,posit+1,posit2-(posit+1)));
                 posit:=PosEx(']',pathstr,posit2);
-                add_line_arr_b[s-1].X:=str2r(copy(pathstr,posit2+1,posit-(posit2+1)));
+                VPoint.X := str2r(copy(pathstr,posit2+1,posit-(posit2+1)));
 
+                VPointsAggregator.Add(VPoint);
                 if pathstr[posit+1]=']' then begin
                   posit:=-1;
                 end else begin
@@ -250,7 +248,7 @@ begin
     ms.Free;
   end;
   if not conerr then begin
-    Result := FFactory.CreateLonLatPath(@add_line_arr_b[0], Length(add_line_arr_b));
+    Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
     if meters>1000 then begin
       AComment:=SAS_STR_MarshLen+' '+RoundEx(meters/1000,2)+' '+SAS_UNITS_km;
     end else begin
