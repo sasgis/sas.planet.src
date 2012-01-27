@@ -102,6 +102,9 @@ uses
   gnugettext,
   c_PathDetalizeProvidersGUID,
   i_EnumDoublePoint,
+  i_DoublePointsAggregator,
+  u_DoublePointsAggregator,
+  u_GeoFun,
   u_GeoToStr,
   u_ResStrings,
   u_InetFunc;
@@ -131,10 +134,14 @@ var
   dateT1:TDateTime;
   VPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
-  VResult: TArrayOfDoublePoint;
+  VPointsAggregator: IDoublePointsAggregator;
 begin
   url := FBaseUrl;
-  VEnum := ASource.GetEnum;
+  if ASource.Count > 0 then begin
+    VEnum := ASource.Item[0].GetEnum;
+  end else begin
+    VEnum := ASource.GetEnum;
+  end;
   i := 0;
   while VEnum.Next(VPoint) do begin
     url:=url+'&x'+inttostr(i)+'='+R2StrPoint(VPoint.x)+'&y'+inttostr(i)+'='+R2StrPoint(VPoint.y);
@@ -146,7 +153,7 @@ begin
       ms.Position:=0;
       SetLength(pathstr, ms.Size);
       ms.ReadBuffer(pathstr[1], ms.Size);
-      SetLength(VResult,0);
+      VPointsAggregator := TDoublePointsAggregator.Create;
       meters:=0;
       seconds:=0;
 
@@ -165,22 +172,24 @@ begin
           endpos:=PosEx(']',pathstr,posit);
           while (posit>0)and(posit<endpos) do begin
             try
-              SetLength(VResult,length(VResult)+1);
               posit:=PosEx('"x" : "',pathstr,posit);
               posit2:=PosEx('", "y" : "',pathstr,posit);
-              VResult[length(VResult)-1].X:=str2r(copy(pathstr,posit+7,posit2-(posit+7)));
+              VPoint.X:=str2r(copy(pathstr,posit+7,posit2-(posit+7)));
               posit:=PosEx('"',pathstr,posit2+10);
-              VResult[length(VResult)-1].y:=str2r(copy(pathstr,posit2+10,posit-(posit2+10)));
+              VPoint.y:=str2r(copy(pathstr,posit2+10,posit-(posit2+10)));
               posit:=PosEx('{',pathstr,posit);
             except
-              SetLength(VResult,length(VResult)-1);
+              VPoint := CEmptyDoublePoint;
+            end;
+            if not PointIsEmpty(VPoint) then begin
+              VPointsAggregator.Add(VPoint);
             end;
           end;
           posit:=PosEx('"totalLength"',pathstr,posit);
         end;
       except
       end;
-      Result := FFactory.CreateLonLatPath(@VResult[0], Length(VResult));
+      Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
       if meters>1000 then begin
         AComment:=SAS_STR_MarshLen+RoundEx(meters/1000,2)+' '+SAS_UNITS_km;
       end else begin
