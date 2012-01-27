@@ -88,7 +88,7 @@ begin
     if pltstr.Count > 7 then begin
       VPointsAggregator := TDoublePointsAggregator.Create;
       ParseStringList(pltstr, VPointsAggregator);
-      if Length(VPoints) > 0 then begin
+      if VPointsAggregator.Count > 0 then begin
         trackname:=GetWord(pltstr[4], ',', 4);
         VItem :=
           TVectorDataItemPath.Create(

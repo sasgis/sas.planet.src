@@ -253,7 +253,6 @@ var
   position, PosStartPlace, PosTag1, PosTag2,PosTag3, PosEndPlace, sLen, sStart: integer;
   VName: string;
   VDescription: string;
-  VPoints: TArrayOfDoublePoint;
   VItem: IVectorDataItemSimple;
   VPointsAggregator: IDoublePointsAggregator;
 begin
@@ -295,7 +294,6 @@ begin
                 end;
               end;
             end;
-            VPoints := nil;
             PosTag1 := integer(FBMSrchCoord.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
             if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
               PosTag2 := integer(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
