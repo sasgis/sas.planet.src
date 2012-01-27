@@ -92,7 +92,18 @@ const
   ETSR_UNDERLAYING_INVALID_STRUCTURE = $00000014;
 
   // cannot connect to underlaying storage because of any other critical errors
-  ETSR_UNDERLAYING_CRITICAL_ERROR = $00000016;
+  ETSR_UNDERLAYING_CRITICAL_ERROR = $00000015;
+
+  // error creating environment object
+  ETSR_ERROR_CREATING_ENVIRONMENT = $00000016;
+  
+  // error creating connection object
+  ETSR_ERROR_CREATING_CONNECTION = $00000017;
+
+
+  
+  // to be implemented
+  ETSR_NOT_IMPLEMENTED  = $10000000;
   
 (*
   ETSR_PENDING

@@ -35,8 +35,10 @@ type
   // open provider
   // {in}  AHostProvPtr - host-defined specific pointer (helper object)
   // {out} APtrProvHandle^ - Provider Handle (opaque)
+  // {in}  AProvOptions - Provider options (reserved - use 0)
   TETS_Provider_Open = function(const AHostProvPtr: Pointer;
-                                const APtrProvHandle: PETS_Provider_Handle): LongInt; stdcall;
+                                const APtrProvHandle: PETS_Provider_Handle;
+                                const AProvOptions: LongWord): LongInt; stdcall;
 
   // close provider
   // {in}  AProvHandle - Provider Handle (opaque)
@@ -234,9 +236,9 @@ const
   // values for ALinkQueryInfoClass
   ETS_LQIC_TILE_ROUTINES_W = $00000001; // get routines to work with tiles (unicode version)
   ETS_LQIC_TILE_ROUTINES_A = $00000002; // get routines to work with tiles (ansi version)
-  ETS_LQIC_CONTENT_TYPE_W  = $00000003; // get content_type and other params from storage (unicode version)
-  ETS_LQIC_CONTENT_TYPE_A  = $00000004; // get content_type and other params from storage (ansi version)
-  ETS_LQIC_TILE_ID_FORMAT  = $00000005; // gt tile_id format, that really used in underlaying storage
+  ETS_LQIC_CONTENT_TYPE_W  = $00000003; // get content_type and other params from underlaying storage (unicode version)
+  ETS_LQIC_CONTENT_TYPE_A  = $00000004; // get content_type and other params from underlaying storage (ansi version)
+  ETS_LQIC_TILE_ID_FORMAT  = $00000005; // get tile_id format, that really used in underlaying storage (PLongWord)
 
   ETS_CONTENT_TYPE_MIXED = $00000001; // storage allows tiles with 2 or more different ContentTypes (see ETS_LQIC_CONTENT_TYPE_*)
 

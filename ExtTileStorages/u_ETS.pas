@@ -24,7 +24,7 @@ interface
 
 uses
 {$IFDEF MSWINDOWS}
-Windows,
+  Windows,
 {$ENDIF}
   SysUtils,
   Classes,
@@ -32,6 +32,7 @@ Windows,
   t_ETS_AuthFunc,
   t_ETS_Provider,
   t_ETS_Tiles,
+  t_ETS_List,
   t_ETS_Result,
   u_ETS_Tiles,
   i_MapVersionInfo,
@@ -146,7 +147,7 @@ type
     FExtTileStorage_Func: TETS_Provider_Query_Info;
     FAuthFunc: TExtStorageAuthFunc;
     FProviderHandle: TETS_Provider_Handle;
-    FLinks: array of TETS_Host_Link;
+    FLinks: T_ETS_ObjectList;
     FGlobalStorageIdentifier: String;
     FProviderInternalName: WideString;
     FCS: TRTLCriticalSection;
@@ -162,8 +163,6 @@ type
     function Internal_Uninitialize_ETS: LongInt;
     procedure Internal_Initialize_Zero;
     function Internal_Initialize_ETS: LongInt;
-    procedure Internal_Destroy_Links;
-    procedure InternalAddLinkToList(const ALinkObj: TETS_Host_Link);
     procedure InternalDelLinkFromList(const ALinkObj: TETS_Host_Link);
   protected
     procedure EnterCS;
@@ -431,7 +430,7 @@ begin
   FProviderHandle:=nil;
   FExtTileStorage_Func:=nil;
   FAuthFunc:=nil;
-  SetLength(FLinks,0);
+  FLinks.SetZero;
   InitializeCriticalSection(FCS);
   Internal_Initialize_Zero;
 end;
@@ -452,8 +451,8 @@ begin
     // create link in several steps
     Result:=TETS_Host_Link.Create;
     Result.FHostProvider:=Self;
-    Self.InternalAddLinkToList(Result);
-    // initialize base parameters
+    FLinks.AddItem(Result);
+    // initialize basic parameters
     Result.Internal_Initialize_ETS;
     // initialize connection parameters (after this step storage provider can connect to storage)
     Result.Internal_Connect_ETS(AServiceName, AConnectionInfo);
@@ -476,46 +475,13 @@ begin
   EnterCriticalSection(FCS);
 end;
 
-procedure TETS_Host_Provider_Basic.InternalAddLinkToList(const ALinkObj: TETS_Host_Link);
-var L: Integer;
-begin
-  L:=Length(FLinks);
-  SetLength(FLinks,(L+1));
-  FLinks[L+1]:=ALinkObj;
-end;
-
 procedure TETS_Host_Provider_Basic.InternalDelLinkFromList(const ALinkObj: TETS_Host_Link);
-var i,L: Integer;
 begin
   EnterCS;
   try
-    L:=Length(FLinks);
-    if (0<L) then
-    for i := L-1 downto 0 do begin
-      // if
-    end;
+    FLinks.DelItem(ALinkObj);
   finally
     LeaveCS;
-  end;
-end;
-
-procedure TETS_Host_Provider_Basic.Internal_Destroy_Links;
-var
-  i,L: Integer;
-  obj: TETS_Host_Link;
-begin
-  L:=Length(FLinks);
-  if (0<L) then begin
-    // free items
-    for i:=0 to L-1 do begin
-      obj:=FLinks[i];
-      if (nil<>obj) then begin
-        obj.Free;
-        FLinks[i]:=nil;
-      end;
-    end;
-    // shrink
-    SetLength(FLinks,0);
   end;
 end;
 
@@ -540,7 +506,7 @@ begin
   end;
 
   // open provider
-  Result := FETS_PQI_PROV_FUNC.p_Provider_Open(Pointer(Self), @FProviderHandle);
+  Result := FETS_PQI_PROV_FUNC.p_Provider_Open(Pointer(Self), @FProviderHandle, 0);
   if (ETSR_OK<>Result) then
     Exit;
 
@@ -603,25 +569,6 @@ begin
   Result:=FETS_PQI_PROV_FUNC.p_Provider_Set_Info(FProviderHandle, ETS_PSIC_CONVERSION, 0, @ETS_TileId_Conversion_Routine);
   if (ETSR_OK<>Result) then
     Exit;
-
-
-(*
-    // get functions (basic)
-    Result:=ATile_Storage_Func(TSIC_GET_FUNCTIONS_B, sizeof(FTSI_FUNCTIONS_B), @FTSI_FUNCTIONS_B, @FTile_Storage_Prov_Data);
-    if (TSR_OK<>Result) then
-      Exit;
-
-
-    // get functions (ansi/unicode versions)
-
-    // no mandatory functions in FTSI_FUNCTIONS_A/W except Set_Connect_Info
-    if (not Assigned(FTSI_FUNCTIONS_A.p_Set_Connect_InfoA)) and (not Assigned(FTSI_FUNCTIONS_W.p_Set_Connect_InfoW)) then begin
-      Result:=TSR_NO_MANDATORY_FUNCTIONS;
-      Exit;
-    end;
-
-
-*)
 end;
 
 procedure TETS_Host_Provider_Basic.Internal_Initialize_Zero;
@@ -700,16 +647,18 @@ begin
   try
     FInitialized:=FALSE;
     Result:=ETSR_OK;
-    if Assigned(FExtTileStorage_Func) then begin
-      Internal_Destroy_Links;
-      if (nil<>FProviderHandle) then begin
-        if Assigned(FETS_PQI_PROV_FUNC.p_Provider_Close) then
-          Result:=FETS_PQI_PROV_FUNC.p_Provider_Close(FProviderHandle);
-        FProviderHandle:=nil;
-      end;
-      ZeroMemory(@FETS_PQI_PROV_FUNC, sizeof(FETS_PQI_PROV_FUNC));
-      FExtTileStorage_Func:=nil;
+
+    FLinks.FreeALL;
+
+    if (nil<>FProviderHandle) then begin
+      if Assigned(FETS_PQI_PROV_FUNC.p_Provider_Close) then
+        Result:=FETS_PQI_PROV_FUNC.p_Provider_Close(FProviderHandle);
+      FProviderHandle:=nil;
     end;
+
+    ZeroMemory(@FETS_PQI_PROV_FUNC, sizeof(FETS_PQI_PROV_FUNC));
+
+    FExtTileStorage_Func:=nil;
   finally
     LeaveCS;
   end;
