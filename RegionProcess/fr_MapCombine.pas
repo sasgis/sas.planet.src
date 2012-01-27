@@ -151,7 +151,6 @@ begin
   end;
 
   if Vmt <> nil then begin
-    Vmt := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
     VZoom := cbbZoom.ItemIndex;
     Vmt.GeoConvert.CheckZoom(VZoom);
     VPolyLL := FPolygLL;
