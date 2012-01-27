@@ -1110,6 +1110,19 @@ begin
   slon := Copy(Vlink, i + 4, j - (i + 4));
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := Vlink;
+ end  else
+//http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance
+ if PosEx('maps.2gis.ru', Vlink, 1) > 0 then begin
+  sname := '2Gis';
+  i := PosEx('center/', Vlink, 1);
+  j := PosEx(',', Vlink, i);
+  slon := Copy(Vlink, i + 7, j - (i + 7));
+  i:=j;
+  j := PosEx('/', Vlink, i);
+  if j = 0 then j := length(Vlink) +1;
+  slat := Copy(Vlink, i + 1, j - (i + 1));
+  sdesc := '[ '+slon+' , '+slat+' ]';
+  sfulldesc := Vlink;
  end
  else  // short link
  if PosEx('http://g.co/', Vlink, 1) > 0then begin
@@ -1216,7 +1229,7 @@ begin
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
  end else
- if PosEx('2gis.ru', Vlink, 1) > 0then begin
+ if PosEx('go.2gis.ru', Vlink, 1) > 0then begin
   sdesc := vlink;
   VHeader := 'Cookie: 2gisAPI=c2de06c2dd3109de8ca09a59ee197a4210495664eeae8d4075848.943590';
   Vlink := '';
@@ -1305,6 +1318,7 @@ end.
 // http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day
 // http://maps.nokia.com/mapcreator/?ns=true#|55.32530472503459|37.811186150077816|18|0|0|
 // http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
+// http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance
 
 // Короткие
 // http://g.co/maps/7anbg
