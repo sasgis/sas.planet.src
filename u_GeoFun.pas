@@ -51,6 +51,7 @@ type
   function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function PixelPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
   function UnionLonLatRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;
+  function UnionProjectedRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;
   function IsDoubleRectEmpty(const Rect: TDoubleRect): Boolean;
   function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 
@@ -370,6 +371,23 @@ begin
     Result.Top := ARect2.Top;
   end;
   if Result.Bottom > ARect2.Bottom then begin
+    Result.Bottom := ARect2.Bottom;
+  end;
+end;
+
+function UnionProjectedRects(const ARect1, ARect2: TDoubleRect): TDoubleRect;
+begin
+  Result := ARect1;
+  if Result.Left > ARect2.Left then begin
+    Result.Left := ARect2.Left;
+  end;
+  if Result.Right < ARect2.Right then begin
+    Result.Right := ARect2.Right;
+  end;
+  if Result.Top > ARect2.Top then begin
+    Result.Top := ARect2.Top;
+  end;
+  if Result.Bottom < ARect2.Bottom then begin
     Result.Bottom := ARect2.Bottom;
   end;
 end;

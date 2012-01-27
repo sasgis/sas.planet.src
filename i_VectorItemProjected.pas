@@ -15,6 +15,9 @@ type
     function GetProjection: IProjectionInfo;
     property Projection: IProjectionInfo read GetProjection;
 
+    function GetBounds: TDoubleRect;
+    property Bounds: TDoubleRect read GetBounds;
+
     function IsPointOnPath(const APoint: TDoublePoint; ADist: Double): Boolean;
 
     function GetCount: Integer;
@@ -30,6 +33,9 @@ type
 
     function GetProjection: IProjectionInfo;
     property Projection: IProjectionInfo read GetProjection;
+
+    function GetBounds: TDoubleRect;
+    property Bounds: TDoubleRect read GetBounds;
 
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
@@ -49,6 +55,9 @@ type
     function GetProjection: IProjectionInfo;
     property Projection: IProjectionInfo read GetProjection;
 
+    function GetBounds: TDoubleRect;
+    property Bounds: TDoubleRect read GetBounds;
+
     function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
 
     function GetCount: Integer;
@@ -64,6 +73,9 @@ type
 
     function GetProjection: IProjectionInfo;
     property Projection: IProjectionInfo read GetProjection;
+
+    function GetBounds: TDoubleRect;
+    property Bounds: TDoubleRect read GetBounds;
 
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;

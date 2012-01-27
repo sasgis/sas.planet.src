@@ -101,6 +101,7 @@ type
     FLastSelectionInfo: ILastSelectionInfo;
     FMarksDB: TMarksSystem;
     FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionFactory: IProjectionInfoFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
     FInetConfig: IInetConfig;
@@ -159,6 +160,7 @@ type
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
+    property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
     property AppClosingNotifier: IJclNotifier read FAppClosingNotifier;
@@ -307,7 +309,8 @@ begin
 
   VCoordConverterFactorySimple := TCoordConverterFactorySimple.Create;
   FCoordConverterFactory := VCoordConverterFactorySimple;
-  FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(VCoordConverterFactorySimple);
+  FProjectionFactory := VCoordConverterFactorySimple;
+  FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FProjectionFactory);
 
   FTimeZoneDiffByLonLat := TTimeZoneDiffByLonLatStuped.Create;
 

@@ -14,12 +14,15 @@ type
   private
     FList: IInterfaceList;
     FProjection: IProjectionInfo;
+    FBounds: TDoubleRect;
   private
     function GetCount: Integer;
     function GetProjection: IProjectionInfo;
+    function GetBounds: TDoubleRect;
   public
     constructor Create(
       AProjection: IProjectionInfo;
+      const ABounds: TDoubleRect;
       AList: IInterfaceList
     );
   end;
@@ -48,6 +51,7 @@ type
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
     function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
+    function GetBounds: TDoubleRect;
     function GetItem(AIndex: Integer): IProjectedPathLine;
   public
     constructor Create(
@@ -62,6 +66,7 @@ type
     function GetProjection: IProjectionInfo;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
+    function GetBounds: TDoubleRect;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
     function CalcArea: Double;
@@ -79,6 +84,7 @@ type
     function GetProjection: IProjectionInfo;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
+    function GetBounds: TDoubleRect;
   private
     function Next(out APoint: TDoublePoint): Boolean;
   public
@@ -110,11 +116,20 @@ uses
 
 { TProjectedLineSet }
 
-constructor TProjectedLineSet.Create(AProjection: IProjectionInfo;
-  AList: IInterfaceList);
+constructor TProjectedLineSet.Create(
+  AProjection: IProjectionInfo;
+  const ABounds: TDoubleRect;
+  AList: IInterfaceList
+);
 begin
   FList := AList;
+  FBounds := ABounds;
   FProjection := AProjection;
+end;
+
+function TProjectedLineSet.GetBounds: TDoubleRect;
+begin
+  Result := FBounds;
 end;
 
 function TProjectedLineSet.GetCount: Integer;
@@ -222,6 +237,11 @@ begin
   FLine := ALine;
 end;
 
+function TProjectedPathOneLine.GetBounds: TDoubleRect;
+begin
+  Result := FLine.Bounds;
+end;
+
 function TProjectedPathOneLine.GetCount: Integer;
 begin
   Result := 1;
@@ -262,6 +282,11 @@ end;
 function TProjectedPolygonOneLine.CalcArea: Double;
 begin
   Result := FLine.CalcArea;
+end;
+
+function TProjectedPolygonOneLine.GetBounds: TDoubleRect;
+begin
+  Result := FLine.Bounds;
 end;
 
 function TProjectedPolygonOneLine.GetCount: Integer;
@@ -306,6 +331,11 @@ end;
 constructor TProjectedLineSetEmpty.Create(AProjection: IProjectionInfo);
 begin
   FProjection := AProjection;
+end;
+
+function TProjectedLineSetEmpty.GetBounds: TDoubleRect;
+begin
+  Result := DoubleRect(CEmptyDoublePoint, CEmptyDoublePoint);
 end;
 
 function TProjectedLineSetEmpty.GetCount: Integer;

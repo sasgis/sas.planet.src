@@ -12,19 +12,28 @@ type
   TProjectedLineBase = class(TInterfacedObject)
   private
     FCount: Integer;
+    FBounds: TDoubleRect;
     FPoints: TArrayOfDoublePoint;
     FProjection: IProjectionInfo;
   private
     function GetProjection: IProjectionInfo;
+    function GetBounds: TDoubleRect;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
   public
     constructor Create(
       AClosed: Boolean;
+      const ABounds: TDoubleRect;
       AProjection: IProjectionInfo;
       APoints: PDoublePointArray;
       ACount: Integer
-    );
+    ); overload;
+    constructor Create(
+      AClosed: Boolean;
+      AProjection: IProjectionInfo;
+      APoints: PDoublePointArray;
+      ACount: Integer
+    ); overload;
   end;
 
   TProjectedPathLine = class(TProjectedLineBase, IProjectedPathLine)
@@ -67,7 +76,38 @@ constructor TProjectedLineBase.Create(
   APoints: PDoublePointArray;
   ACount: Integer
 );
+var
+  VBounds: TDoubleRect;
+  i: Integer;
 begin
+  VBounds.TopLeft := APoints[0];
+  VBounds.BottomRight := APoints[0];
+  for i := 1 to ACount - 1 do begin
+    if VBounds.Left > APoints[i].X then begin
+      VBounds.Left := APoints[i].X;
+    end;
+    if VBounds.Top > APoints[i].Y then begin
+      VBounds.Top := APoints[i].Y;
+    end;
+    if VBounds.Right < APoints[i].X then begin
+      VBounds.Right := APoints[i].X;
+    end;
+    if VBounds.Bottom < APoints[i].Y then begin
+      VBounds.Bottom := APoints[i].Y;
+    end;
+  end;
+  Create(AClosed, VBounds, AProjection, APoints, ACount);
+end;
+
+constructor TProjectedLineBase.Create(
+  AClosed: Boolean;
+  const ABounds: TDoubleRect;
+  AProjection: IProjectionInfo;
+  APoints: PDoublePointArray;
+  ACount: Integer
+);
+begin
+  FBounds := ABounds;
   FProjection := AProjection;
   FCount := ACount;
   Assert(FCount > 0, 'Empty line');
@@ -77,6 +117,11 @@ begin
 
   SetLength(FPoints, FCount);
   Move(APoints^, FPoints[0], FCount * SizeOf(TDoublePoint));
+end;
+
+function TProjectedLineBase.GetBounds: TDoubleRect;
+begin
+  Result := FBounds;
 end;
 
 function TProjectedLineBase.GetCount: Integer;
