@@ -148,7 +148,6 @@ var
   ms:TMemoryStream;
   url:string;
   kml:IVectorDataItemList;
-  s:integer;
   conerr:boolean;
   VPointsAggregator: IDoublePointsAggregator;
   VItem: IVectorDataItemLine;
