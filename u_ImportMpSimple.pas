@@ -25,6 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_VectorItmesFactory,
+  i_DoublePointsAggregator,
   i_ImportFile,
   i_ImportConfig;
 
@@ -32,7 +33,7 @@ type
   TImportMpSimple = class(TInterfacedObject, IImportFile)
   private
     FFactory: IVectorItmesFactory;
-    function ParseCoordinates(AData: string): TArrayOfDoublePoint;
+    procedure ParseCoordinates(AData: string; APointsAggregator: IDoublePointsAggregator);
   protected
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
   public
@@ -48,6 +49,7 @@ uses
   SysUtils,
   StrUtils,
   i_MarksSimple,
+  u_DoublePointsAggregator,
   u_GeoFun;
 
 const
@@ -61,7 +63,7 @@ begin
   FFactory := AFactory;
 end;
 
-function TImportMpSimple.ParseCoordinates(AData: string): TArrayOfDoublePoint;
+procedure TImportMpSimple.ParseCoordinates(AData: string; APointsAggregator: IDoublePointsAggregator);
 var
   VCoordList: TStringList;
   VString: string;
@@ -71,9 +73,7 @@ var
   VYStr: string;
   VPoint: TDoublePoint;
   VFormatSettings : TFormatSettings;
-  VPointsCount: Integer;
 begin
-  VPointsCount := 0;
   VCoordList := TStringList.Create;
   try
     VFormatSettings.DecimalSeparator := '.';
@@ -95,9 +95,7 @@ begin
           VPoint.Y := StrToFloatDef(VYStr, VPoint.Y, VFormatSettings);
         end;
         if not PointIsEmpty(VPoint) then begin
-          SetLength(Result, VPointsCount + 1);
-          Result[VPointsCount] := VPoint;
-          Inc(VPointsCount);
+          APointsAggregator.Add(VPoint);
         end;
       end;
     end;
@@ -111,15 +109,15 @@ function TImportMpSimple.ProcessImport(AFileName: string;
 var
   VFile: TStringList;
   i:integer;
-  VPolygon: TArrayOfDoublePoint;
+  VPointsAggregator: IDoublePointsAggregator;
   VMark: IMark;
   VString: string;
   VPoligonLine: Integer;
   VDataLine: Integer;
 begin
   Result := False;
-  VPolygon := nil;
   if AConfig.TemplateNewPoly <> nil then begin
+    VPointsAggregator := TDoublePointsAggregator.Create;
     VFile:=TStringList.Create;
     try
       VFile.LoadFromFile(AFileName);
@@ -143,16 +141,16 @@ begin
         if VDataLine >= 0 then begin
           VString := MidStr(VString, Length(CDataHeader) + 1, Length(VString));
           if VString <> '' then begin
-            VPolygon := ParseCoordinates(VString);
+            ParseCoordinates(VString, VPointsAggregator);
           end;
         end;
       end;
     finally
       FreeAndNil(VFile);
     end;
-    if Length(VPolygon) > 2 then begin
+    if VPointsAggregator.Count > 2 then begin
       VMark := AConfig.MarkDB.Factory.CreateNewPoly(
-        FFactory.CreateLonLatPolygon(@VPolygon[0], Length(VPolygon)),
+        FFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count),
         ExtractFileName(AFileName),
         '',
         AConfig.TemplateNewPoly

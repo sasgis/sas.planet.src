@@ -46,6 +46,8 @@ uses
   SysUtils,
   t_GeoTypes,
   i_MarksSimple,
+  i_DoublePointsAggregator,
+  u_DoublePointsAggregator,
   u_GeoToStr;
 
 { TImportHLG }
@@ -60,27 +62,28 @@ function TImportHLG.ProcessImport(AFileName: string;
 var
   ini:TMemIniFile;
   i:integer;
-  VPolygon: TArrayOfDoublePoint;
+  VPointsAggregator: IDoublePointsAggregator;
   VMark: IMark;
+  VPoint: TDoublePoint;
 begin
   Result := False;
-  VPolygon := nil;
+  VPointsAggregator := TDoublePointsAggregator.Create;
   if AConfig.TemplateNewPoly <> nil then begin
     ini:=TMemIniFile.Create(AFileName);
     try
       i:=1;
       while str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+IntToStr(i),'2147483647'))<>2147483647 do begin
-        setlength(VPolygon,i);
-        VPolygon[i-1].x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+IntToStr(i),'2147483647'));
-        VPolygon[i-1].y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+IntToStr(i),'2147483647'));
+        VPoint.x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+IntToStr(i),'2147483647'));
+        VPoint.y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+IntToStr(i),'2147483647'));
+        VPointsAggregator.Add(VPoint);
         inc(i);
       end;
     finally
       FreeAndNil(ini);
     end;
-    if Length(VPolygon) > 2 then begin
+    if VPointsAggregator.Count > 2 then begin
       VMark := AConfig.MarkDB.Factory.CreateNewPoly(
-        FFactory.CreateLonLatPolygon(@VPolygon[0], Length(VPolygon)),
+        FFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count),
         ExtractFileName(AFileName),
         '',
         AConfig.TemplateNewPoly

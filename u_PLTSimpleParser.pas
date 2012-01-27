@@ -77,7 +77,6 @@ var
   pltstr: TStringList;
   trackname: string;
   VList: IInterfaceList;
-  VPoints: TArrayOfDoublePoint;
   VItem: IVectorDataItemSimple;
   VPointsAggregator: IDoublePointsAggregator;
 begin
