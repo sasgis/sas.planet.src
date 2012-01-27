@@ -146,11 +146,10 @@ var
   ms:TMemoryStream;
   url:string;
   kml:IVectorDataItemList;
-  s,VPointsCount:integer;
+  s:integer;
   conerr:boolean;
   add_line_arr_b:TArrayOfDoublePoint;
   VItem: IVectorDataItemLine;
-  VPoints: TArrayOfDoublePoint;
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
@@ -175,8 +174,7 @@ begin
               if Supports(kml.GetItem(0), IVectorDataItemLine, VItem) then begin
                 if VItem.Line.Count > 0 then begin
                   VLine := VItem.Line.Item[0];
-                  VPointsCount := Length(VPoints);
-                  if VPointsCount > 0 then begin
+                  if VLine.Count > 0 then begin
                     s := Length(add_line_arr_b);
                     SetLength(add_line_arr_b, (s + VLine.Count));
                     Move(VLine.Points^, add_line_arr_b[s], VLine.Count * sizeof(TDoublePoint));
