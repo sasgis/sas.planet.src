@@ -764,6 +764,7 @@ begin
       GState.MarksDB,
       GState.LocalConverterFactory,
       GState.BitmapPostProcessingConfig,
+      GState.ProjectionFactory,
       GState.VectorItmesFactory,
       GState.MapCalibrationList,
       GState.DownloadConfig,

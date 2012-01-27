@@ -7,6 +7,7 @@ uses
   Controls,
   t_GeoTypes,
   i_LanguageManager,
+  i_CoordConverterFactory,
   i_VectorItemLonLat,
   i_MapTypes,
   i_ActiveMapsConfig,
@@ -27,6 +28,7 @@ type
   private
     FFrame: TfrMapCombine;
     FViewConfig: IGlobalViewMainConfig;
+    FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FMarksDB: TMarksSystem;
     FMarksShowConfig: IUsedMarksConfig;
@@ -42,6 +44,7 @@ type
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
       AViewConfig: IGlobalViewMainConfig;
+      AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
       AMarksShowConfig: IUsedMarksConfig;
       AMarksDrawConfig: IMarksDrawConfig;
@@ -92,6 +95,7 @@ constructor TProviderMapCombine.Create(
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
   AViewConfig: IGlobalViewMainConfig;
+  AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
   AMarksShowConfig: IUsedMarksConfig;
   AMarksDrawConfig: IMarksDrawConfig;
@@ -109,6 +113,7 @@ begin
   FMarksDB := AMarksDB;
   FLocalConverterFactory := ALocalConverterFactory;
   FBitmapPostProcessingConfig := ABitmapPostProcessingConfig;
+  FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
 end;
 
@@ -128,6 +133,8 @@ begin
   if FFrame = nil then begin
     FFrame := TfrMapCombine.Create(
       nil,
+      FProjectionFactory,
+      FVectorItmesFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,

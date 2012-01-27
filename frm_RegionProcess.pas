@@ -126,6 +126,7 @@ type
       AMarksDB: TMarksSystem;
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+      AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
       AMapCalibrationList: IMapCalibrationList;
       ADownloadConfig: IGlobalDownloadConfig;
@@ -177,6 +178,7 @@ constructor TfrmRegionProcess.Create(
   AMarksDB: TMarksSystem;
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+  AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
   AMapCalibrationList: IMapCalibrationList;
   ADownloadConfig: IGlobalDownloadConfig;
@@ -245,6 +247,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AViewConfig,
+      AProjectionFactory,
       AVectorItmesFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
