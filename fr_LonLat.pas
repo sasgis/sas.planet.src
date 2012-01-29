@@ -80,6 +80,7 @@ type
 implementation
 
 uses
+  u_GeoFun,
   u_GeoToStr,
   u_ResStrings;
 
@@ -181,9 +182,11 @@ begin
 end;
 
 function TfrLonLat.GetLonLat: TDoublePoint;
-var  VLocalConverter: ILocalCoordConverter;
-     XYPoint:TPoint;
-     XYRect:TRect;
+var
+  VLocalConverter: ILocalCoordConverter;
+  VTile: TPoint;
+  XYPoint: TDoublePoint;
+  VZoom: Byte;
 begin
   case cbbCoordType.ItemIndex of
    0: begin
@@ -194,29 +197,33 @@ begin
       end;
    1: begin
         try
-          XYPoint.X:=strtoint(edtX.Text);
-          XYPoint.Y:=strtoint(edtY.Text);
+          XYPoint.X := strtoint(edtX.Text);
+          XYPoint.Y := strtoint(edtY.Text);
         except
           ShowMessage(SAS_ERR_CoordinatesInput);
         end;
         VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
-        Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,cbbZoom.ItemIndex);
+        VZoom := cbbZoom.ItemIndex;
+        VLocalConverter.GeoConverter.CheckPixelPosFloat(XYPoint, VZoom, True);
+        Result := VLocalConverter.GetGeoConverter.PixelPosFloat2LonLat(XYPoint, VZoom);
       end;
    2: begin
         try
-          XYPoint.X:=strtoint(edtX.Text);
-          XYPoint.Y:=strtoint(edtY.Text);
+          VTile.X := strtoint(edtX.Text);
+          VTile.Y := strtoint(edtY.Text);
         except
           ShowMessage(SAS_ERR_CoordinatesInput);
         end;
         VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
-        XYRect:=VLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,cbbZoom.ItemIndex);
+        VZoom := cbbZoom.ItemIndex;
+        VLocalConverter.GeoConverter.CheckTilePos(VTile, VZoom, True);
+
         case FTileSelectStyle of
-          tssCenter: XYPoint:=Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
-          tssTopLeft: XYPoint:=XYRect.TopLeft;
-          tssBottomRight: XYPoint:=XYRect.BottomRight;
+          tssCenter: XYPoint := DoublePoint(VTile.X + 0.5, VTile.Y + 0.5);
+          tssTopLeft: XYPoint := DoublePoint(VTile);
+          tssBottomRight: XYPoint := DoublePoint(VTile.X + 1, VTile.Y + 1);
         end;
-        Result:=VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,cbbZoom.ItemIndex);
+        Result := VLocalConverter.GeoConverter.TilePosFloat2LonLat(XYPoint, VZoom);
       end;
   end;
 end;
