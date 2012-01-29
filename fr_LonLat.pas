@@ -204,7 +204,7 @@ begin
         end;
         VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
         VZoom := cbbZoom.ItemIndex;
-        VLocalConverter.GeoConverter.CheckPixelPosFloat(XYPoint, VZoom, True);
+        VLocalConverter.GeoConverter.CheckPixelPosFloat(XYPoint, VZoom, False);
         Result := VLocalConverter.GetGeoConverter.PixelPosFloat2LonLat(XYPoint, VZoom);
       end;
    2: begin
@@ -216,13 +216,14 @@ begin
         end;
         VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
         VZoom := cbbZoom.ItemIndex;
-        VLocalConverter.GeoConverter.CheckTilePos(VTile, VZoom, True);
 
         case FTileSelectStyle of
           tssCenter: XYPoint := DoublePoint(VTile.X + 0.5, VTile.Y + 0.5);
           tssTopLeft: XYPoint := DoublePoint(VTile);
           tssBottomRight: XYPoint := DoublePoint(VTile.X + 1, VTile.Y + 1);
         end;
+
+        VLocalConverter.GeoConverter.CheckTilePos(VTile, VZoom, False);
         Result := VLocalConverter.GeoConverter.TilePosFloat2LonLat(XYPoint, VZoom);
       end;
   end;
