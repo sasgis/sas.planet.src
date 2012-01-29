@@ -148,6 +148,7 @@ var
   VGeoConvert: ICoordConverter;
   VTileIterator: ITileIterator;
   VConfig: IFillingMapLayerConfigStatic;
+  VLonLatRect: TDoubleRect;
 begin
   inherited;
 
@@ -199,8 +200,13 @@ begin
             VCurrTilePixelRectSource.Bottom := VPixelSourceRect.Bottom;
           end;
 
-          VCurrTilePixelRect.TopLeft := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.TopLeft, VZoom, VGeoConvert);
-          VCurrTilePixelRect.BottomRight := VSourceGeoConvert.PixelPos2OtherMap(VCurrTilePixelRectSource.BottomRight, VZoom, VGeoConvert);
+          if VSourceGeoConvert.IsSameConverter(VGeoConvert) then begin
+            VCurrTilePixelRect := VCurrTilePixelRectSource;
+          end else begin
+            VLonLatRect := VSourceGeoConvert.PixelRect2LonLatRect(VCurrTilePixelRectSource, VZoom);
+            VGeoConvert.CheckLonLatRect(VLonLatRect);
+            VCurrTilePixelRect := VGeoConvert.LonLatRect2PixelRect(VLonLatRect, VZoom);
+          end;
 
           VCurrTilePixelRectAtBitmap.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
           VCurrTilePixelRectAtBitmap.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
