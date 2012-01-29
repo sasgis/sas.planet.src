@@ -66,11 +66,7 @@ type
     // Возвращает прямоугольник пикселов допустимый в заданном зуме
     function PixelRectAtZoom(const AZoom: byte): TRect; stdcall;
 
-    // Возвращает количество тайлов в заданном зуме
-    function TilesAtZoom(const AZoom: byte): Longint; stdcall;
-    function TilesAtZoomFloat(const AZoom: byte): Double; stdcall;
     // Возвращает общее количество пикселей на заданном зуме
-    function PixelsAtZoom(const AZoom: byte): Longint; stdcall;
     function PixelsAtZoomFloat(const AZoom: byte): Double; stdcall;
 
     // Преобразует координаты пиксела в  координаты тайда cодержащего пиксель
@@ -175,7 +171,6 @@ type
     ); stdcall;
 
     function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; stdcall;
-    function PixelPos2OtherMap(const XY: TPoint; const Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; stdcall;
 
     function CheckZoom(var AZoom: Byte): boolean; stdcall;
     function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; stdcall;
