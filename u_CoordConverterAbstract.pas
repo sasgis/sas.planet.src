@@ -30,11 +30,11 @@ uses
 
 type
   TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)
-  protected
+  private
     FDatum: IDatum;
     FProjEPSG: integer;
     FCellSizeUnits: TCellSizeUnits;
-
+  protected
     procedure CheckZoomInternal(var AZoom: Byte); virtual; stdcall; abstract;
 
     procedure CheckPixelPosInternal(var XY: TPoint; var Azoom: byte); virtual; stdcall; abstract;
@@ -136,6 +136,10 @@ type
     function LonLatRect2TileRectInternal(const XY: TDoubleRect; Azoom: byte): TRect; virtual; stdcall; abstract;
     function LonLatRect2TileRectFloatInternal(const XY: TDoubleRect; Azoom: byte): TDoubleRect; virtual; stdcall; abstract;
   protected
+    property Datum: IDatum read FDatum;
+    function TilesAtZoom(const AZoom: byte): Longint; stdcall;
+    function PixelsAtZoom(const AZoom: byte): Longint; stdcall;
+  protected
     function GetDatum: IDatum; stdcall;
 
     function GetMinZoom: Byte; stdcall;
@@ -144,27 +148,25 @@ type
     function TileRectAtZoom(const AZoom: byte): TRect; stdcall;
     function PixelRectAtZoom(const AZoom: byte): TRect; stdcall;
 
-    function TilesAtZoom(const AZoom: byte): Longint; stdcall;
     function TilesAtZoomFloat(const AZoom: byte): Double; stdcall;
-    function PixelsAtZoom(const AZoom: byte): Longint; stdcall;
     function PixelsAtZoomFloat(const AZoom: byte): Double; stdcall;
 
 
-    function PixelPos2LonLat(const AXY: TPoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function PixelPos2TilePos(const AXY: TPoint; const Azoom: byte): TPoint; virtual; stdcall;
-    function PixelPos2Relative(const AXY: TPoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function PixelPos2TilePosFloat(const XY: TPoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
+    function PixelPos2LonLat(const AXY: TPoint; const Azoom: byte): TDoublePoint; stdcall;
+    function PixelPos2TilePos(const AXY: TPoint; const Azoom: byte): TPoint;  stdcall;
+    function PixelPos2Relative(const AXY: TPoint; const Azoom: byte): TDoublePoint; stdcall;
+    function PixelPos2TilePosFloat(const XY: TPoint; const Azoom: byte): TDoublePoint; stdcall;
 
-    function PixelPosFloat2PixelPos(const XY: TDoublePoint; const Azoom: byte): TPoint; virtual; stdcall;
-    function PixelPosFloat2TilePos(const XY: TDoublePoint; const Azoom: byte): TPoint; virtual; stdcall;
-    function PixelPosFloat2TilePosFloat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function PixelPosFloat2Relative(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function PixelPosFloat2LonLat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
+    function PixelPosFloat2PixelPos(const XY: TDoublePoint; const Azoom: byte): TPoint; stdcall;
+    function PixelPosFloat2TilePos(const XY: TDoublePoint; const Azoom: byte): TPoint; stdcall;
+    function PixelPosFloat2TilePosFloat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
+    function PixelPosFloat2Relative(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
+    function PixelPosFloat2LonLat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
 
-    function PixelRect2TileRect(const AXY: TRect; const AZoom: byte): TRect; virtual; stdcall;
-    function PixelRect2RelativeRect(const AXY: TRect; const AZoom: byte): TDoubleRect; virtual; stdcall;
-    function PixelRect2LonLatRect(const AXY: TRect; const AZoom: byte): TDoubleRect; virtual; stdcall;
-    function PixelRect2TileRectFloat(const XY: TRect; const AZoom: byte): TDoubleRect; virtual; stdcall;
+    function PixelRect2TileRect(const AXY: TRect; const AZoom: byte): TRect; stdcall;
+    function PixelRect2RelativeRect(const AXY: TRect; const AZoom: byte): TDoubleRect; stdcall;
+    function PixelRect2LonLatRect(const AXY: TRect; const AZoom: byte): TDoubleRect; stdcall;
+    function PixelRect2TileRectFloat(const XY: TRect; const AZoom: byte): TDoubleRect; stdcall;
 
     function PixelRectFloat2PixelRect(const XY: TDoubleRect; const AZoom: byte): TRect; virtual; stdcall;
     function PixelRectFloat2TileRect(const XY: TDoubleRect; const AZoom: byte): TRect; virtual; stdcall;
@@ -232,8 +234,9 @@ type
       const AZoom: byte
     ); virtual; stdcall;
 
-    function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; virtual; stdcall; abstract;
     function PixelPos2OtherMap(const AXY: TPoint; const Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; virtual; stdcall;
+  protected
+    function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; virtual; stdcall; abstract;
 
     function CheckZoom(var AZoom: Byte): boolean; virtual; stdcall; abstract;
     function CheckTilePos(var XY: TPoint; var Azoom: byte; ACicleMap: Boolean): boolean; virtual; stdcall; abstract;
@@ -252,23 +255,19 @@ type
 
     function CheckLonLatPos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
     function CheckLonLatRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
-    function CheckLonLatArray(
-      const ASourcePoints: PDoublePointArray;
-      const ACount: Integer
-    ): boolean; virtual; stdcall;
-    function CheckAndCorrectLonLatArray(
-      const ASourcePoints: PDoublePointArray;
-      const ACount: Integer
-    ): boolean;  virtual; stdcall;
-
+    function GetTileSplitCode: Integer; virtual; stdcall; abstract;
+    function LonLat2Metr(const AXY: TDoublePoint): TDoublePoint; virtual; stdcall;
+  private
     function GetProjectionEPSG: Integer; virtual; stdcall;
     function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
-    function GetTileSplitCode: Integer; virtual; stdcall; abstract;
     function IsSameConverter(AOtherMapCoordConv: ICoordConverter): Boolean; virtual; stdcall;
 
-    function LonLat2Metr(const AXY: TDoublePoint): TDoublePoint; virtual; stdcall;
   public
-    constructor Create(ADatum: IDatum);
+    constructor Create(
+      ADatum: IDatum;
+      AProjEPSG: integer;
+      ACellSizeUnits: TCellSizeUnits
+    );
   end;
 
 implementation
@@ -1121,47 +1120,15 @@ begin
   Result := FProjEPSG;
 end;
 
-function TCoordConverterAbstract.CheckAndCorrectLonLatArray(
-  const ASourcePoints: PDoublePointArray; const ACount: Integer): boolean;
-var
-  i: integer;
-  VPoint: TDoublePoint;
-begin
-  Result := True;
-  for i := 0 to ACount - 1 do begin
-    VPoint := ASourcePoints[i];
-    if not PointIsEmpty(VPoint) then begin
-      if not CheckLonLatPos(VPoint) then begin
-        ASourcePoints[i] := VPoint;
-        Result := False;
-      end;
-    end;
-  end;
-end;
-
-function TCoordConverterAbstract.CheckLonLatArray(
-  const ASourcePoints: PDoublePointArray;
-  const ACount: Integer
-): boolean;
-var
-  i: integer;
-  VPoint: TDoublePoint;
-begin
-  Result := True;
-  for i := 0 to ACount - 1 do begin
-    VPoint := ASourcePoints[i];
-    if not PointIsEmpty(VPoint) then begin
-      if not CheckLonLatPos(VPoint) then begin
-        Result := False;
-        Exit;
-      end;
-    end;
-  end;
-end;
-
-constructor TCoordConverterAbstract.Create(ADatum: IDatum);
+constructor TCoordConverterAbstract.Create(
+  ADatum: IDatum;
+  AProjEPSG: integer;
+  ACellSizeUnits: TCellSizeUnits
+);
 begin
   FDatum := ADatum;
+  FProjEPSG := AProjEPSG;
+  FCellSizeUnits := ACellSizeUnits;
 end;
 
 function TCoordConverterAbstract.GetCellSizeUnits: TCellSizeUnits;

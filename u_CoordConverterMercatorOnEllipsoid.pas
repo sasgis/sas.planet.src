@@ -52,13 +52,9 @@ constructor TCoordConverterMercatorOnEllipsoid.Create(ARadiusA, Aradiusb: Double
 begin
   FExct := sqrt(ARadiusA * ARadiusA - ARadiusB * ARadiusB) / ARadiusA;
   if (Abs(ARadiusA - 6378137) < 1) and (Abs(ARadiusB - 6356752) < 1) then begin
-    inherited Create(TDatum.Create(3395, Aradiusa, Aradiusb));
-    FProjEPSG := 3395;
-    FCellSizeUnits := CELL_UNITS_METERS;
+    inherited Create(TDatum.Create(3395, Aradiusa, Aradiusb), 3395, CELL_UNITS_METERS);
   end else begin
-    inherited Create(TDatum.Create(0, Aradiusa, Aradiusb));
-    FProjEPSG := 0;
-    FCellSizeUnits := CELL_UNITS_UNKNOWN;
+    inherited Create(TDatum.Create(0, Aradiusa, Aradiusb), 0, CELL_UNITS_UNKNOWN);
   end;
 
 end;
@@ -71,11 +67,11 @@ begin
   VLL := ALL;
   Vll.x := Vll.x * (Pi / 180);
   Vll.y := Vll.y * (Pi / 180);
-  result.x := FDatum.GetSpheroidRadiusA * Vll.x;
+  result.x := Datum.GetSpheroidRadiusA * Vll.x;
 
   bs := FExct * sin(VLl.y);
   b := Tan((Vll.y + PI / 2) / 2) * power((1 - bs) / (1 + bs), (FExct / 2));
-  result.y := FDatum.GetSpheroidRadiusA * Ln(b);
+  result.y := Datum.GetSpheroidRadiusA * Ln(b);
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2RelativeInternal(

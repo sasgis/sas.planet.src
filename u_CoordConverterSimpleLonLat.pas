@@ -49,13 +49,9 @@ constructor TCoordConverterSimpleLonLat.Create(Aradiusa, Aradiusb: Double);
 begin
   FExct := sqrt(ARadiusa * ARadiusa - ARadiusb * ARadiusb) / ARadiusa;
   if (Abs(ARadiusa - 6378137) < 1) and (Abs(ARadiusb - 6356752) < 1) then begin
-    inherited Create(TDatum.Create(4326, Aradiusa, Aradiusb));
-    FProjEPSG := 4326;
-    FCellSizeUnits := CELL_UNITS_DEGREES;
+    inherited Create(TDatum.Create(4326, Aradiusa, Aradiusb), 4326, CELL_UNITS_DEGREES);
   end else begin
-    inherited Create(TDatum.Create(0, Aradiusa, Aradiusb));
-    FProjEPSG := 0;
-    FCellSizeUnits := CELL_UNITS_UNKNOWN;
+    inherited Create(TDatum.Create(0, Aradiusa, Aradiusb), 0, CELL_UNITS_UNKNOWN);
   end;
 end;
 
@@ -67,14 +63,14 @@ begin
   VLL := ALL;
   Vll.x := Vll.x * (Pi / 180);
   Vll.y := Vll.y * (Pi / 180);
-  result.x := FDatum.GetSpheroidRadiusA * Vll.x;
+  result.x := Datum.GetSpheroidRadiusA * Vll.x;
 
   bs := FExct * sin(VLl.y);
   b := Tan((Vll.y + PI / 2) / 2) * power((1 - bs) / (1 + bs), (FExct / 2));
   if b <= 0 then begin
     b := 0.00000000000001;
   end;
-  result.y := FDatum.GetSpheroidRadiusA * Ln(b);
+  result.y := Datum.GetSpheroidRadiusA * Ln(b);
 end;
 
 function TCoordConverterSimpleLonLat.LonLat2RelativeInternal(

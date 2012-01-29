@@ -48,17 +48,11 @@ constructor TCoordConverterMercatorOnSphere.Create(Aradiusa: Double);
 begin
   ARadiusa := Aradiusa;
   if Abs(ARadiusa - 6378137) < 1 then begin
-    inherited Create(TDatum.Create(7059, Aradiusa));
-    FProjEPSG := 3785;
-    FCellSizeUnits := CELL_UNITS_METERS;
+    inherited Create(TDatum.Create(7059, Aradiusa), 3785, CELL_UNITS_METERS);
   end else if Abs(ARadiusa - 6371000) < 1 then begin
-    inherited Create(TDatum.Create(53004, Aradiusa));
-    FProjEPSG := 53004;
-    FCellSizeUnits := CELL_UNITS_METERS;
+    inherited Create(TDatum.Create(53004, Aradiusa), 53004, CELL_UNITS_METERS);
   end else begin
-    inherited Create(TDatum.Create(0, Aradiusa));
-    FProjEPSG := 0;
-    FCellSizeUnits := CELL_UNITS_UNKNOWN;
+    inherited Create(TDatum.Create(0, Aradiusa), 0, CELL_UNITS_UNKNOWN);
   end;
 
 end;
@@ -70,8 +64,8 @@ begin
   VLl := ALl;
   Vll.x := Vll.x * (Pi / 180);
   Vll.y := Vll.y * (Pi / 180);
-  result.x := FDatum.GetSpheroidRadiusA * Vll.x;
-  result.y := FDatum.GetSpheroidRadiusA * Ln(Tan(PI / 4 + Vll.y / 2));
+  result.x := Datum.GetSpheroidRadiusA * Vll.x;
+  result.y := Datum.GetSpheroidRadiusA * Ln(Tan(PI / 4 + Vll.y / 2));
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint;
