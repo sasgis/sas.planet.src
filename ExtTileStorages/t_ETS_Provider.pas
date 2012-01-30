@@ -114,7 +114,7 @@ type
 
   // prototype for ETS_LSIC_AUTH_FUNC and ETS_LSIC_AUTH_FREE callbacks
   TETS_Link_Auth_Func = function(const ALinkHandle: TETS_Link_Handle;
-                                 const AAuthPtrValue: Pointer; // host-defined callback pointer
+                                 const AAuthPtrValue: Pointer; // host-defined callback pointer ETS_LSIC_CALLBACK_POINTER
                                  const AAuthKind: LongWord; // ETS_AK_* and ETS_AF_* constants
                                  const APtrAuthType: PLongWord; // ETS_AT_* and ETS_RF_* constants
                                  const APtrAuthSize: PLongWord; // size of AAuthData buffer in bytes
@@ -188,6 +188,17 @@ type
                             const AServiceName: PAnsiChar;
                             const APtrTileID: PTILE_ID_XYZ;
                             const APtrVersionA: PETS_TILE_VERSION_A): LongInt; stdcall;
+
+  // exec DDL commands for storage
+  TETS_DDL_Exec_W = function(const ALinkHandle: TETS_Link_Handle;
+                             const AServiceName: PWideChar;
+                             const APtrTileID: PTILE_ID_XYZ;
+                             const APtrVersionW: PETS_TILE_VERSION_W): LongInt; stdcall;
+
+  TETS_DDL_Exec_A = function(const ALinkHandle: TETS_Link_Handle;
+                             const AServiceName: PAnsiChar;
+                             const APtrTileID: PTILE_ID_XYZ;
+                             const APtrVersionA: PETS_TILE_VERSION_A): LongInt; stdcall;
 
   // free pointer in tile buffer (use after SELECT)
   TETS_Tile_Free = function(const ALinkHandle: TETS_Link_Handle;
@@ -299,6 +310,7 @@ type
     p_Link_Commit: TETS_Link_SetTran;
     p_Link_Rollback: TETS_Link_SetTran;
     p_Link_TranCount: TETS_Link_GetTran;
+    p_Link_TranOptions: TETS_Link_GetTran;
     // set and query info
     p_Link_Set_Info: TETS_Link_Set_Info;
     p_Link_Query_Info: TETS_Link_Query_Info;
@@ -312,6 +324,7 @@ type
     p_Tile_Delete_W: TETS_Tile_Del_W;
     p_Tile_Insert_W: TETS_Tile_Put_W;
     p_Tne_Create_W: TETS_TNE_Put_W;
+    p_Ddl_Exec_W: TETS_DDL_Exec_W;
     p_Ver_Free_W: TETS_Version_Free_W;
     p_Tile_Free: TETS_Tile_Free;
   end;
@@ -324,6 +337,7 @@ type
     p_Tile_Delete_A: TETS_Tile_Del_A;
     p_Tile_Insert_A: TETS_Tile_Put_A;
     p_Tne_Create_A: TETS_TNE_Put_A;
+    p_Ddl_Exec_A: TETS_DDL_Exec_A;
     p_Ver_Free_A: TETS_Version_Free_A;
     p_Tile_Free: TETS_Tile_Free;
   end;

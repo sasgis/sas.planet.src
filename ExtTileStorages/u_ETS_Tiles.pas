@@ -31,8 +31,8 @@ type
   ETileIdFormatError = class(Exception);
 
 function Convert_XYZ_to_0123(const pXYZ: PTILE_ID_XYZ): AnsiString;
-function Convert_0123_to_ABC4(const str_0123: AnsiString): AnsiString;
-function Convert_ABC4_to_0123(const str_ABC4: AnsiString): AnsiString;
+function Convert_0123_to_AHP1(const str_0123: AnsiString): AnsiString;
+function Convert_AHP1_to_0123(const str_AHP1: AnsiString): AnsiString;
 
 function ETS_TileId_Conversion_Routine(const ASrcFormat: LongWord;
                                        const ASrcData: Pointer;
@@ -109,10 +109,10 @@ begin
   Convert_XYZ_to_0123_Ex(pXYZ, @Result, nil);
 end;
 
-procedure Convert_0123_to_ABC4_Ex(const pSTR_0123_SRC: PAnsiString;
+procedure Convert_0123_to_AHP1_Ex(const pSTR_0123_SRC: PAnsiString;
                                   const p0123_SRC: PTILE_ID_0123;
-                                  const pSTR_ABC4_DST: PAnsiString;
-                                  const pABC4_DST: PTILE_ID_ABC4);
+                                  const pSTR_AHP1_DST: PAnsiString;
+                                  const pAHP1_DST: PTILE_ID_AHP1);
 
   procedure _CheckByte(const bt: Byte);
   var s: String;
@@ -136,12 +136,12 @@ var
 
   procedure _AddChar(const AChr: AnsiChar);
   begin
-    if (nil<>pSTR_ABC4_DST) then
-      pSTR_ABC4_DST^:=pSTR_ABC4_DST^+AChr;
-    if (nil<>pABC4_DST) then begin
-      pABC4_DST^.idABC4[cur]:=AChr;
+    if (nil<>pSTR_AHP1_DST) then
+      pSTR_AHP1_DST^:=pSTR_AHP1_DST^+AChr;
+    if (nil<>pAHP1_DST) then begin
+      pAHP1_DST^.idAHP1[cur]:=AChr;
       Inc(cur);
-      pABC4_DST^.idABC4[cur]:=#0;
+      pAHP1_DST^.idAHP1[cur]:=#0;
     end;
   end;
   
@@ -149,10 +149,10 @@ begin
   cur:=0;
 
   // reset results
-  if (nil<>pSTR_ABC4_DST) then
-    pSTR_ABC4_DST^:='';
-  if (nil<>pABC4_DST) then
-    pABC4_DST^.idABC4[cur]:=#0;
+  if (nil<>pSTR_AHP1_DST) then
+    pSTR_AHP1_DST^:='';
+  if (nil<>pAHP1_DST) then
+    pAHP1_DST^.idAHP1[cur]:=#0;
 
   // no source id
   if (nil<>pSTR_0123_SRC) then
@@ -215,24 +215,24 @@ begin
   until FALSE;
 end;
 
-function Convert_0123_to_ABC4(const str_0123: AnsiString): AnsiString;
+function Convert_0123_to_AHP1(const str_0123: AnsiString): AnsiString;
 begin
-  Convert_0123_to_ABC4_Ex(@str_0123, nil, @Result, nil);
+  Convert_0123_to_AHP1_Ex(@str_0123, nil, @Result, nil);
 end;
 
-procedure Convert_ABC4_to_0123_Ex(const pSTR_ABC4_SRC: PAnsiString;
-                                  const pABC4_SRC: PTILE_ID_ABC4;
+procedure Convert_AHP1_to_0123_Ex(const pSTR_AHP1_SRC: PAnsiString;
+                                  const pAHP1_SRC: PTILE_ID_AHP1;
                                   const pSTR_0123_DST: PAnsiString;
                                   const p0123_DST: PTILE_ID_0123);
 
   function _get_src_id: String;
   begin
-    if (nil<>pABC4_SRC) then begin
+    if (nil<>pAHP1_SRC) then begin
       // from buffer
-      Result:=PAnsiChar(@(pABC4_SRC^.idABC4[0]));
+      Result:=PAnsiChar(@(pAHP1_SRC^.idAHP1[0]));
     end else begin
       // from string
-      Result:=pSTR_ABC4_SRC^;
+      Result:=pSTR_AHP1_SRC^;
     end;
   end;
   
@@ -261,28 +261,28 @@ begin
     p0123_DST^.id0123[cur]:=#0;
 
   // no source id
-  if (nil<>pSTR_ABC4_SRC) then
-    if (0=Length(pSTR_ABC4_SRC^)) then
+  if (nil<>pSTR_AHP1_SRC) then
+    if (0=Length(pSTR_AHP1_SRC^)) then
       Exit;
-  if (nil<>pABC4_SRC) then
-    if (#0=pABC4_SRC^.idABC4[0]) then
+  if (nil<>pAHP1_SRC) then
+    if (#0=pAHP1_SRC^.idAHP1[0]) then
       Exit;
 
   // loop (index by array - for string use +1)
   i:=0;
   repeat
     // get char (if no char - exit)
-    if (nil<>pABC4_SRC) then begin
+    if (nil<>pAHP1_SRC) then begin
       // from buffer
-      if (#0=pABC4_SRC^.idABC4[i]) then
+      if (#0=pAHP1_SRC^.idAHP1[i]) then
         Exit;
-      c1:=pABC4_SRC^.idABC4[i];
+      c1:=pAHP1_SRC^.idAHP1[i];
       Inc(i);
     end else begin
       // from string
-      if ((i+1)>Length(pSTR_ABC4_SRC^)) then
+      if ((i+1)>Length(pSTR_AHP1_SRC^)) then
         Exit;
-      c1:=pSTR_ABC4_SRC^[i+1];
+      c1:=pSTR_AHP1_SRC^[i+1];
       Inc(i);
     end;
 
@@ -318,9 +318,9 @@ begin
   until FALSE;
 end;
 
-function Convert_ABC4_to_0123(const str_ABC4: AnsiString): AnsiString;
+function Convert_AHP1_to_0123(const str_AHP1: AnsiString): AnsiString;
 begin
-  Convert_ABC4_to_0123_Ex(@str_ABC4, nil, @Result, nil);
+  Convert_AHP1_to_0123_Ex(@str_AHP1, nil, @Result, nil);
 end;
 
 function ETS_TileId_Conversion_Routine(const ASrcFormat: LongWord;
@@ -335,18 +335,18 @@ begin
       // xyz -> 0123
       Convert_XYZ_to_0123_Ex(ASrcData, nil, ADstData);
       Result:=ETSR_OK;
-    end else if (TILE_ID_FORMAT_XYZ=ASrcFormat) and (TILE_ID_FORMAT_ABC4=ADstFormat) then begin
-      // xyz -> 0123 -> ABC4
+    end else if (TILE_ID_FORMAT_XYZ=ASrcFormat) and (TILE_ID_FORMAT_AHP1=ADstFormat) then begin
+      // xyz -> 0123 -> AHP1
       Convert_XYZ_to_0123_Ex(ASrcData, nil, @V0123);
-      Convert_0123_to_ABC4_Ex(nil, @V0123, nil, ADstData);
+      Convert_0123_to_AHP1_Ex(nil, @V0123, nil, ADstData);
       Result:=ETSR_OK;
-    end else if (TILE_ID_FORMAT_0123=ASrcFormat) and (TILE_ID_FORMAT_ABC4=ADstFormat) then begin
-      // 0123 -> ABC4
-      Convert_0123_to_ABC4_Ex(nil, ASrcData, nil, ADstData);
+    end else if (TILE_ID_FORMAT_0123=ASrcFormat) and (TILE_ID_FORMAT_AHP1=ADstFormat) then begin
+      // 0123 -> AHP1
+      Convert_0123_to_AHP1_Ex(nil, ASrcData, nil, ADstData);
       Result:=ETSR_OK;
-    end else if (TILE_ID_FORMAT_ABC4=ASrcFormat) and (TILE_ID_FORMAT_0123=ADstFormat) then begin
-      // ABC4 -> 0123
-      Convert_ABC4_to_0123_Ex(nil, ASrcData, nil, ADstData);
+    end else if (TILE_ID_FORMAT_AHP1=ASrcFormat) and (TILE_ID_FORMAT_0123=ADstFormat) then begin
+      // AHP1 -> 0123
+      Convert_AHP1_to_0123_Ex(nil, ASrcData, nil, ADstData);
       Result:=ETSR_OK;
     end else begin
       // not implemented yet or not supported

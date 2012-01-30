@@ -425,6 +425,7 @@ uses
   u_TileStorageBerkeleyDB in 'u_TileStorageBerkeleyDB.pas',
   u_TileStorageBerkeleyDBHelper in 'u_TileStorageBerkeleyDBHelper.pas',
   u_TileFileNameGeneratorsSimpleList in 'u_TileFileNameGeneratorsSimpleList.pas',
+  t_ODBC in 'ExtTileStorages\t_ODBC.pas',
   t_ETS_List in 'ExtTileStorages\t_ETS_List.pas',
   t_ETS_AuthKind in 'ExtTileStorages\t_ETS_AuthKind.pas',
   t_ETS_AuthFunc in 'ExtTileStorages\t_ETS_AuthFunc.pas',

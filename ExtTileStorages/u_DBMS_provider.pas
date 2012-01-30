@@ -227,6 +227,24 @@ begin
   end;
 end;
 
+function r_Link_TranOptions(const ALinkHandle: TETS_Link_Handle;
+                            const APtrValue: PLongWord): LongInt; stdcall;
+begin
+  try
+    if (nil=ALinkHandle) then begin
+      // no pointer
+      Result:=ETSR_INVALID_OBJECT_POINTER
+    end else begin
+      // just call object
+      Result:=TDBMS_Link_Basic(ALinkHandle).Tran_Options(APtrValue);
+    end;
+  except
+    Result:=ETSR_STORAGE_EXCEPTION;
+  end;
+end;
+
+
+
 function r_Link_Set_Info(const ALinkHandle: TETS_Link_Handle;
                          const ALinkSetInfoClass: LongWord;
                          const ALinkSetInfoSize: LongWord;
@@ -335,6 +353,7 @@ begin
           p_Link_Commit:=r_Link_Commit;
           p_Link_Rollback:=r_Link_Rollback;
           p_Link_TranCount:=r_Link_TranCount;
+          p_Link_TranOptions:=r_Link_TranOptions;
           // set and query info
           p_Link_Set_Info:=r_Link_Set_Info;
           p_Link_Query_Info:=r_Link_Query_Info;

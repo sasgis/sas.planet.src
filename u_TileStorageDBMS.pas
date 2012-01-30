@@ -52,6 +52,7 @@ type
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: ITTLCheckNotifier;
     FTTLListener: ITTLCheckListener;
+    FAutoExecDDL: Boolean;
     procedure Sync(Sender: TObject);
     procedure InternalCreateStorageLink;
   public
@@ -140,6 +141,8 @@ const
 begin
   inherited Create(TTileStorageTypeAbilitiesDBMS.Create, AConfig);
 
+  FAutoExecDDL:=FALSE;
+  
   FGCList := AGCList;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
@@ -207,6 +210,7 @@ begin
         Vtid.z:=AZoom;
         // execute
         Result:=(ETSR_OK=FExtLink.Delete_Tile_TNE(@Vtid, AVersionInfo, (ETS_DELETE_TILE or ETS_DELETE_TNE)));
+        // if no table or other DDL errors - treat as no tile
       except
         Result := False;
       end;
@@ -237,6 +241,7 @@ begin
         Vtid.z:=AZoom;
         // execute
         Result:=(ETSR_OK=FExtLink.Delete_Tile_TNE(@Vtid, AVersionInfo, ETS_DELETE_TNE));
+        // if no table or other DDL errors - treat as no tile
       except
         Result := False;
       end;
@@ -296,6 +301,7 @@ begin
         Vtid.z:=AZoom;
         // execute
         VResult:=FExtLink.Query_Tile(@Vtid, AVersionInfo, Result);
+        // if no table or other DDL errors - treat as no tile
         if (ETSR_OK<>VResult) then
           SysUtils.Abort;
       except
@@ -338,7 +344,7 @@ begin
         // execute
         VResult:=FExtLink.Select_Tile(@Vtid, AVersionInfo, ATileInfo, AStream);
         if (ETSR_OK<>VResult) then
-          SysUtils.Abort
+          SysUtils.Abort // if no table or other DDL errors - treat as no tile
         else
           Result:=TRUE;
       except
@@ -361,6 +367,7 @@ var
   VTileBuffer: Pointer;
   VTileSize: LongWord;
   VMemStream: TMemoryStream;
+  VResult: LongInt;
 begin
   if Assigned(AStream) then
   if StorageStateStatic.WriteAccess <> asDisabled then begin
@@ -389,8 +396,23 @@ begin
 
         // execute
         // TODO: get date (UTC) from caller
-        FExtLink.Insert_Tile(@Vtid, AVersionInfo, VTileBuffer, VTileSize, nil);
-        // TODO: check result
+        VResult:=FExtLink.Insert_Tile(@Vtid, AVersionInfo, VTileBuffer, VTileSize, nil);
+        if ((ETSR_ERROR_NEED_DDL_MAPS=VResult) or (ETSR_ERROR_NEED_DDL_TILES=VResult)) and FAutoExecDDL then begin
+          // autorun DDL and then repeat
+          VResult:=FExtLink.Execute_DDL(@Vtid, AVersionInfo);
+          if (ETSR_OK=VResult) then begin
+            // DDL ok
+            {VResult:=}FExtLink.Insert_Tile(@Vtid, AVersionInfo, VTileBuffer, VTileSize, nil);
+            // TODO: check result
+          end else begin
+            // DDL failed
+            // TODO: check result
+          end;
+        end else begin
+          // general error or no autoexec DDL
+          // TODO: check result
+        end;
+        
       finally
         FreeAndNil(VMemStream);
       end;

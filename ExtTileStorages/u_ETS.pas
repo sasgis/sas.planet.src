@@ -50,6 +50,7 @@ type
   protected
     FHostProvider: TETS_Host_Provider_Basic;
     FLinkHandle: TETS_Link_Handle;
+    FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
     FETS_LQI_TILE_ROUTINES_W: TETS_LQI_TILE_ROUTINES_W;
     FETS_LQI_TILE_ROUTINES_A: TETS_LQI_TILE_ROUTINES_A;
     FServiceName: String;
@@ -139,6 +140,10 @@ type
     // insert tne into storage (and delete tile from storage)
     function Insert_TNE(const AXYZ: PTILE_ID_XYZ;
                         const AVersionInfo: IMapVersionInfo): LongInt;
+
+    // execute DDL commands (for tile, for version,...)
+    function Execute_DDL(const AXYZ: PTILE_ID_XYZ;
+                         const AVersionInfo: IMapVersionInfo): LongInt;
 
   end;
 
@@ -675,6 +680,7 @@ constructor TETS_Host_Link.Create;
 begin
   FHostProvider:=nil;
   FQueryTileOptions:=0;
+  FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;
   Internal_Initialize_Zero;
 end;
 
@@ -696,17 +702,22 @@ begin
       Exit;
   end;
 
-  if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Delete_W) then begin
-    // use unicode version
-    VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
-    Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Delete_W(FLinkHandle, nil, AXYZ, PWideChar(VVersionW), ADeleteOptions);
-  end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Delete_A) then begin
-    // use ansi version
-    VVersionA:=VarToStrDef(AVersionInfo.Version,'');
-    Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Delete_A(FLinkHandle, nil, AXYZ, PAnsiChar(VVersionA), ADeleteOptions);
-  end else begin
-    // not supported
-    Result:=ETSR_NOT_SUPPORTED;
+  FSynchronizer.BeginRead;
+  try
+    if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Delete_W) then begin
+      // use unicode version
+      VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+      Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Delete_W(FLinkHandle, nil, AXYZ, PWideChar(VVersionW), ADeleteOptions);
+    end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Delete_A) then begin
+      // use ansi version
+      VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+      Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Delete_A(FLinkHandle, nil, AXYZ, PAnsiChar(VVersionA), ADeleteOptions);
+    end else begin
+      // not supported
+      Result:=ETSR_NOT_SUPPORTED;
+    end;
+  finally
+    FSynchronizer.EndRead;
   end;
 end;
 
@@ -718,7 +729,51 @@ begin
     FHostProvider.InternalDelLinkFromList(Self);
   Internal_Uninitialize_ETS;
   FContentTypeBasic:=nil;
+  FreeAndNil(FSynchronizer);
   inherited;
+end;
+
+function TETS_Host_Link.Execute_DDL(const AXYZ: PTILE_ID_XYZ;
+                                    const AVersionInfo: IMapVersionInfo): LongInt;
+var
+  VVersionW: WideString;
+  VVersionA: AnsiString;
+  VVersionBufW: TETS_TILE_VERSION_W;
+  VVerPtr: Pointer;
+begin
+  if (not FConnected) then begin
+    Result:=ETSR_NOT_CONNECTED;
+    Exit;
+  end;
+
+  FSynchronizer.BeginWrite;
+  try
+    VVerPtr:=nil;
+    ZeroMemory(@VVersionBufW, sizeof(VVersionBufW));
+
+    if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Ddl_Exec_W) then begin
+      // use unicode version
+      if Assigned(AVersionInfo) then begin
+        VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+        VVersionBufW.szVersion:=PWideChar(VVersionW);
+        VVerPtr:=@VVersionBufW;
+      end;
+      Result:=FETS_LQI_TILE_ROUTINES_W.p_Ddl_Exec_W(FLinkHandle, nil, AXYZ, VVerPtr);
+    end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Ddl_Exec_A) then begin
+      // use ansi version
+      if Assigned(AVersionInfo) then begin
+        VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+        TETS_TILE_VERSION_A(VVersionBufW).szVersion:=PAnsiChar(VVersionA);
+        VVerPtr:=@VVersionBufW;
+      end;
+      Result:=FETS_LQI_TILE_ROUTINES_A.p_Ddl_Exec_A(FLinkHandle, nil, AXYZ, VVerPtr);
+    end else begin
+      // not supported
+      Result:=ETSR_NOT_SUPPORTED;
+    end;
+  finally
+    FSynchronizer.EndWrite;
+  end;
 end;
 
 function TETS_Host_Link.GetContentTypeMixed: Boolean;
@@ -831,33 +886,38 @@ begin
       Exit;
   end;
 
-  // common params
-  ZeroMemory(@VVersionBufW, sizeof(VVersionBufW));
-  ZeroMemory(@VTileBuf, sizeof(VTileBuf));
-  if (nil=APtrLoadedUTC) then
-    VTileBuf.dtLoadedUTC:=Now
-  else
-    VTileBuf.dtLoadedUTC:=APtrLoadedUTC^; // for exact copy of tile from one storage to another
-  VTileBuf.ptrTileBuffer:=ATileBuffer;
-  VTileBuf.dwTileSize:=ATileSize;
+  FSynchronizer.BeginRead;
+  try
+    // common params
+    ZeroMemory(@VVersionBufW, sizeof(VVersionBufW));
+    ZeroMemory(@VTileBuf, sizeof(VTileBuf));
+    if (nil=APtrLoadedUTC) then
+      VTileBuf.dtLoadedUTC:=Now
+    else
+      VTileBuf.dtLoadedUTC:=APtrLoadedUTC^; // for exact copy of tile from one storage to another
+    VTileBuf.ptrTileBuffer:=ATileBuffer;
+    VTileBuf.dwTileSize:=ATileSize;
 
-  if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Insert_W) then begin
-    // use unicode version
-    VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
-    VVersionBufW.szVersion:=PWideChar(VVersionW);
-    VContentTypeW:=FContentTypeBasic.GetContentType;
-    VVersionBufW.szContentType:=PWideChar(VContentTypeW);
-    Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Insert_W(FLinkHandle, nil, AXYZ, @VTileBuf, @VVersionBufW);
-  end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Insert_A) then begin
-    // use ansi version
-    VVersionA:=VarToStrDef(AVersionInfo.Version,'');
-    TETS_TILE_VERSION_A(VVersionBufW).szVersion:=PAnsiChar(VVersionA);
-    VContentTypeA:=FContentTypeBasic.GetContentType;
-    TETS_TILE_VERSION_A(VVersionBufW).szContentType:=PAnsiChar(VContentTypeA);
-    Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Insert_A(FLinkHandle, nil, AXYZ, @VTileBuf, PETS_TILE_VERSION_A(@VVersionBufW));
-  end else begin
-    // not supported
-    Result:=ETSR_NOT_SUPPORTED;
+    if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Insert_W) then begin
+      // use unicode version
+      VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+      VVersionBufW.szVersion:=PWideChar(VVersionW);
+      VContentTypeW:=FContentTypeBasic.GetContentType;
+      VVersionBufW.szContentType:=PWideChar(VContentTypeW);
+      Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Insert_W(FLinkHandle, nil, AXYZ, @VTileBuf, @VVersionBufW);
+    end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Insert_A) then begin
+      // use ansi version
+      VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+      TETS_TILE_VERSION_A(VVersionBufW).szVersion:=PAnsiChar(VVersionA);
+      VContentTypeA:=FContentTypeBasic.GetContentType;
+      TETS_TILE_VERSION_A(VVersionBufW).szContentType:=PAnsiChar(VContentTypeA);
+      Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Insert_A(FLinkHandle, nil, AXYZ, @VTileBuf, PETS_TILE_VERSION_A(@VVersionBufW));
+    end else begin
+      // not supported
+      Result:=ETSR_NOT_SUPPORTED;
+    end;
+  finally
+    FSynchronizer.EndRead;
   end;
 end;
 
@@ -879,21 +939,26 @@ begin
       Exit;
   end;
 
-  ZeroMemory(@VVersionBufW, sizeof(VVersionBufW));
+  FSynchronizer.BeginRead;
+  try
+    ZeroMemory(@VVersionBufW, sizeof(VVersionBufW));
 
-  if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tne_Create_W) then begin
-    // use unicode version
-    VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
-    VVersionBufW.szVersion:=PWideChar(VVersionW);
-    Result:=FETS_LQI_TILE_ROUTINES_W.p_Tne_Create_W(FLinkHandle, nil, AXYZ, @VVersionBufW);
-  end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tne_Create_A) then begin
-    // use ansi version
-    VVersionA:=VarToStrDef(AVersionInfo.Version,'');
-    TETS_TILE_VERSION_A(VVersionBufW).szVersion:=PAnsiChar(VVersionA);
-    Result:=FETS_LQI_TILE_ROUTINES_A.p_Tne_Create_A(FLinkHandle, nil, AXYZ, PETS_TILE_VERSION_A(@VVersionBufW));
-  end else begin
-    // not supported
-    Result:=ETSR_NOT_SUPPORTED;
+    if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tne_Create_W) then begin
+      // use unicode version
+      VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+      VVersionBufW.szVersion:=PWideChar(VVersionW);
+      Result:=FETS_LQI_TILE_ROUTINES_W.p_Tne_Create_W(FLinkHandle, nil, AXYZ, @VVersionBufW);
+    end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tne_Create_A) then begin
+      // use ansi version
+      VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+      TETS_TILE_VERSION_A(VVersionBufW).szVersion:=PAnsiChar(VVersionA);
+      Result:=FETS_LQI_TILE_ROUTINES_A.p_Tne_Create_A(FLinkHandle, nil, AXYZ, PETS_TILE_VERSION_A(@VVersionBufW));
+    end else begin
+      // not supported
+      Result:=ETSR_NOT_SUPPORTED;
+    end;
+  finally
+    FSynchronizer.EndRead;
   end;
 end;
 
@@ -902,63 +967,68 @@ var
   Vws: WideString;
   Vas: AnsiString;
 begin
-  // no storage
-  if (nil=FHostProvider) then begin
-    Result:=ETSR_NO_ROOT_FUNCTION;
-    Exit;
-  end;
+  FSynchronizer.BeginWrite;
+  try
+    // no storage
+    if (nil=FHostProvider) then begin
+      Result:=ETSR_NO_ROOT_FUNCTION;
+      Exit;
+    end;
 
-  // not initialized
-  if (not FInitialized) then begin
-    Result:=ETSR_NOT_INITIALIZED;
-    Exit;
-  end;
+    // not initialized
+    if (not FInitialized) then begin
+      Result:=ETSR_NOT_INITIALIZED;
+      Exit;
+    end;
 
-  // already connected
-  if FConnected then begin
-    Result:=ETSR_ALREADY_CONNECTED;
-    Exit;
-  end;  
+    // already connected
+    if FConnected then begin
+      Result:=ETSR_ALREADY_CONNECTED;
+      Exit;
+    end;  
 
-  // TODO: notify about changes in cache and storage params (AGlobalStorageIdentifier, AServiceName, AConnectionInfo)
-  // and (maybe) reconnect to another underlaying storage
-  // OR force kill current link to storage and create new one
+    // TODO: notify about changes in cache and storage params (AGlobalStorageIdentifier, AServiceName, AConnectionInfo)
+    // and (maybe) reconnect to another underlaying storage
+    // OR force kill current link to storage and create new one
   
-  // keep values
-  FServiceName:=AServiceName;
-  FConnectionInfo:=AConnectionInfo;
+    // keep values
+    FServiceName:=AServiceName;
+    FConnectionInfo:=AConnectionInfo;
 
-  // apply service name
-  if Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info) then begin
-    // unicode version
-    Vws:=AServiceName;
-    Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_SERVICENAME_W, 0, PWideChar(Vws));
-    if (ETSR_OK<>Result) then begin
-      // try ansi version
-      Vas:=AServiceName;
-      Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_SERVICENAME_A, 0, PAnsiChar(Vas));
-      if (ETSR_OK<>Result) then
-        Exit;
+    // apply service name
+    if Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info) then begin
+      // unicode version
+      Vws:=AServiceName;
+      Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_SERVICENAME_W, 0, PWideChar(Vws));
+      if (ETSR_OK<>Result) then begin
+        // try ansi version
+        Vas:=AServiceName;
+        Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_SERVICENAME_A, 0, PAnsiChar(Vas));
+        if (ETSR_OK<>Result) then
+          Exit;
+      end;
     end;
-  end;
 
-  // apply connection info
-  if Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info) then begin
-    // unicode version
-    Vws:=AConnectionInfo;
-    Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_CONNECTIONINFO_W, 0, PWideChar(Vws));
-    if (ETSR_OK<>Result) then begin
-      // try ansi version
-      Vas:=AConnectionInfo;
-      Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_CONNECTIONINFO_A, 0, PAnsiChar(Vas));
-      if (ETSR_OK<>Result) then
-        Exit;
+    // apply connection info
+    if Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info) then begin
+      // unicode version
+      Vws:=AConnectionInfo;
+      Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_CONNECTIONINFO_W, 0, PWideChar(Vws));
+      if (ETSR_OK<>Result) then begin
+        // try ansi version
+        Vas:=AConnectionInfo;
+        Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_CONNECTIONINFO_A, 0, PAnsiChar(Vas));
+        if (ETSR_OK<>Result) then
+          Exit;
+      end;
     end;
-  end;
 
-  // after ETS_LSIC_CONNECTIONINFO_* storage provider can connect to storage (and ask about authentication information)
-  FConnected:=TRUE;
-  Result:=ETSR_OK;
+    // after ETS_LSIC_CONNECTIONINFO_* storage provider can connect to storage (and ask about authentication information)
+    FConnected:=TRUE;
+    Result:=ETSR_OK;
+  finally
+    FSynchronizer.EndWrite;
+  end;
 end;
 
 function TETS_Host_Link.Internal_Create_TileInfo(const AAnsiVersion: Boolean;
@@ -1145,72 +1215,77 @@ var
   Vas: AnsiString;
   VctW: TETS_LQI_CONTENT_TYPE_W;
 begin
-  // no storage
-  if (nil=FHostProvider) then begin
-    Result:=ETSR_NO_ROOT_FUNCTION;
-    Exit;
-  end;
+  FSynchronizer.BeginWrite;
+  try
+    // no storage
+    if (nil=FHostProvider) then begin
+      Result:=ETSR_NO_ROOT_FUNCTION;
+      Exit;
+    end;
 
-  // not initialized
-  if (not FInitialized) then begin
-    Result:=ETSR_NOT_INITIALIZED;
-    Exit;
-  end;
+    // not initialized
+    if (not FInitialized) then begin
+      Result:=ETSR_NOT_INITIALIZED;
+      Exit;
+    end;
 
-  // not connected
-  if (not FConnected) then begin
-    Result:=ETSR_NOT_CONNECTED;
-    Exit;
-  end;
+    // not connected
+    if (not FConnected) then begin
+      Result:=ETSR_NOT_CONNECTED;
+      Exit;
+    end;
 
-  // query information about underlaying storage
-  if Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Query_Info) then begin
-    // unicode version
-    ZeroMemory(@VctW, sizeof(VctW));
-    Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Query_Info(FLinkHandle, ETS_LQIC_CONTENT_TYPE_W, sizeof(VctW), @VctW);
-    if (ETSR_OK<>Result) then begin
-      // check critical errors
-      if Internal_Critical_Underlaying_Errors(Result) then
-        Exit;
-      // try ansi version (into same struct)
+    // query information about underlaying storage
+    if Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Query_Info) then begin
+      // unicode version
       ZeroMemory(@VctW, sizeof(VctW));
-      Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Query_Info(FLinkHandle, ETS_LQIC_CONTENT_TYPE_A, sizeof(VctW), @VctW);
-      if (ETSR_OK<>Result) then
-        Exit
-      else begin
-        // ok - ansi version
-        Vas:=TETS_LQI_CONTENT_TYPE_A(VctW).szContentType;
-        FContentType:=Vas;
-        Vas:=TETS_LQI_CONTENT_TYPE_A(VctW).szDefaultExt;
-        FDefaultExt:=Vas;
+      Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Query_Info(FLinkHandle, ETS_LQIC_CONTENT_TYPE_W, sizeof(VctW), @VctW);
+      if (ETSR_OK<>Result) then begin
+        // check critical errors
+        if Internal_Critical_Underlaying_Errors(Result) then
+          Exit;
+        // try ansi version (into same struct)
+        ZeroMemory(@VctW, sizeof(VctW));
+        Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Query_Info(FLinkHandle, ETS_LQIC_CONTENT_TYPE_A, sizeof(VctW), @VctW);
+        if (ETSR_OK<>Result) then
+          Exit
+        else begin
+          // ok - ansi version
+          Vas:=TETS_LQI_CONTENT_TYPE_A(VctW).szContentType;
+          FContentType:=Vas;
+          Vas:=TETS_LQI_CONTENT_TYPE_A(VctW).szDefaultExt;
+          FDefaultExt:=Vas;
+          FContentTypeOptions:=VctW.dwOptions;
+          FContentTypeBasic:=TContentTypeInfoBase.Create(FContentType,FDefaultExt);
+        end;
+      end else begin
+        // ok - unicode version
+        FContentType:=VctW.szContentType;
+        FDefaultExt:=VctW.szDefaultExt;
         FContentTypeOptions:=VctW.dwOptions;
         FContentTypeBasic:=TContentTypeInfoBase.Create(FContentType,FDefaultExt);
       end;
-    end else begin
-      // ok - unicode version
-      FContentType:=VctW.szContentType;
-      FDefaultExt:=VctW.szDefaultExt;
-      FContentTypeOptions:=VctW.dwOptions;
-      FContentTypeBasic:=TContentTypeInfoBase.Create(FContentType,FDefaultExt);
     end;
-  end;
 
-  // get tile_id format, that really used by current underlaying storage
-  if Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Query_Info) then begin
-    FUnderlayingTileIdFormat:=0;
-    Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Query_Info(FLinkHandle, ETS_LQIC_TILE_ID_FORMAT, sizeof(FUnderlayingTileIdFormat), @FUnderlayingTileIdFormat);
-    if (ETSR_OK<>Result) then
-      Exit;
-  end;
+    // get tile_id format, that really used by current underlaying storage
+    if Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Query_Info) then begin
+      FUnderlayingTileIdFormat:=0;
+      Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Query_Info(FLinkHandle, ETS_LQIC_TILE_ID_FORMAT, sizeof(FUnderlayingTileIdFormat), @FUnderlayingTileIdFormat);
+      if (ETSR_OK<>Result) then
+        Exit;
+    end;
 
-  if (FConnLostStatus<>ets_cls_None) then begin
-    // reset lost connection flag
-    FConnLostStatus:=ets_cls_None;
-  end;
+    if (FConnLostStatus<>ets_cls_None) then begin
+      // reset lost connection flag
+      FConnLostStatus:=ets_cls_None;
+    end;
 
-  // done
-  FUnderlaying:=TRUE;
-  Result:=ETSR_OK;
+    // done
+    FUnderlaying:=TRUE;
+    Result:=ETSR_OK;
+  finally
+    FSynchronizer.EndWrite;
+  end;
 end;
 
 function TETS_Host_Link.Internal_Uninitialize_ETS: LongInt;
@@ -1276,41 +1351,46 @@ begin
       Exit;
   end;
 
-  // init
-  ZeroMemory(@VVersionBufW, sizeof(VVersionBufW));
-  ZeroMemory(@VTileBuf, sizeof(VTileBuf));
-  // use default options
-  VTileBuf.dwOptionsIn:=(FQueryTileOptions or ETS_TBI_QUERY_INFO);
+  FSynchronizer.BeginRead;
+  try
+    // init
+    ZeroMemory(@VVersionBufW, sizeof(VVersionBufW));
+    ZeroMemory(@VTileBuf, sizeof(VTileBuf));
+    // use default options
+    VTileBuf.dwOptionsIn:=(FQueryTileOptions or ETS_TBI_QUERY_INFO);
 
-  if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Query_W) then begin
-    // use unicode version
-    VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
-    Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Query_W(FLinkHandle, nil, AXYZ, PWideChar(VVersionW), @VTileBuf, @VVersionBufW);
-    try
-      if (ETSR_OK=Result) then begin
-        _MakeTileInfo(FALSE);
+    if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Query_W) then begin
+      // use unicode version
+      VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+      Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Query_W(FLinkHandle, nil, AXYZ, PWideChar(VVersionW), @VTileBuf, @VVersionBufW);
+      try
+        if (ETSR_OK=Result) then begin
+          _MakeTileInfo(FALSE);
+        end;
+      finally
+        // free created items in buffer
+        FETS_LQI_TILE_ROUTINES_W.p_Tile_Free(FLinkHandle, @VTileBuf);
+        FETS_LQI_TILE_ROUTINES_W.p_Ver_Free_W(FLinkHandle, @VVersionBufW);
       end;
-    finally
-      // free created items in buffer
-      FETS_LQI_TILE_ROUTINES_W.p_Tile_Free(FLinkHandle, @VTileBuf);
-      FETS_LQI_TILE_ROUTINES_W.p_Ver_Free_W(FLinkHandle, @VVersionBufW);
-    end;
-  end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Query_A) then begin
-    // use ansi version
-    VVersionA:=VarToStrDef(AVersionInfo.Version,'');
-    Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Query_A(FLinkHandle, nil, AXYZ, PAnsiChar(VVersionA), @VTileBuf, @VVersionBufW);
-    try
-      if (ETSR_OK=Result) then begin
-        _MakeTileInfo(TRUE);
+    end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Query_A) then begin
+      // use ansi version
+      VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+      Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Query_A(FLinkHandle, nil, AXYZ, PAnsiChar(VVersionA), @VTileBuf, @VVersionBufW);
+      try
+        if (ETSR_OK=Result) then begin
+          _MakeTileInfo(TRUE);
+        end;
+      finally
+        // free created items in buffer
+        FETS_LQI_TILE_ROUTINES_A.p_Tile_Free(FLinkHandle, @VTileBuf);
+        FETS_LQI_TILE_ROUTINES_A.p_Ver_Free_A(FLinkHandle, @VVersionBufW);
       end;
-    finally
-      // free created items in buffer
-      FETS_LQI_TILE_ROUTINES_A.p_Tile_Free(FLinkHandle, @VTileBuf);
-      FETS_LQI_TILE_ROUTINES_A.p_Ver_Free_A(FLinkHandle, @VVersionBufW);
+    end else begin
+      // not supported
+      Result:=ETSR_NOT_SUPPORTED;
     end;
-  end else begin
-    // not supported
-    Result:=ETSR_NOT_SUPPORTED;
+  finally
+    FSynchronizer.EndRead;
   end;
 end;
 
@@ -1349,53 +1429,63 @@ begin
       Exit;
   end;
 
-  // init
-  ZeroMemory(@VVersionBufW, sizeof(VVersionBufW));
-  ZeroMemory(@VTileBuf, sizeof(VTileBuf));
-  // use default options
-  VTileBuf.dwOptionsIn:=FQueryTileOptions;
+  FSynchronizer.BeginRead;
+  try
+    // init
+    ZeroMemory(@VVersionBufW, sizeof(VVersionBufW));
+    ZeroMemory(@VTileBuf, sizeof(VTileBuf));
+    // use default options
+    VTileBuf.dwOptionsIn:=FQueryTileOptions;
 
-  if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Select_W) then begin
-    // use unicode version
-    VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
-    Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Select_W(FLinkHandle, nil, AXYZ, PWideChar(VVersionW), @VTileBuf, @VVersionBufW);
-    try
-      if (ETSR_OK=Result) then begin
-        _MakeTileInfo(FALSE);
+    if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Select_W) then begin
+      // use unicode version
+      VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+      Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Select_W(FLinkHandle, nil, AXYZ, PWideChar(VVersionW), @VTileBuf, @VVersionBufW);
+      try
+        if (ETSR_OK=Result) then begin
+          _MakeTileInfo(FALSE);
+        end;
+      finally
+        // free created items in buffer
+        FETS_LQI_TILE_ROUTINES_W.p_Tile_Free(FLinkHandle, @VTileBuf);
+        FETS_LQI_TILE_ROUTINES_W.p_Ver_Free_W(FLinkHandle, @VVersionBufW);
       end;
-    finally
-      // free created items in buffer
-      FETS_LQI_TILE_ROUTINES_W.p_Tile_Free(FLinkHandle, @VTileBuf);
-      FETS_LQI_TILE_ROUTINES_W.p_Ver_Free_W(FLinkHandle, @VVersionBufW);
-    end;
-  end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Select_A) then begin
-    // use ansi version
-    VVersionA:=VarToStrDef(AVersionInfo.Version,'');
-    Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Select_A(FLinkHandle, nil, AXYZ, PAnsiChar(VVersionA), @VTileBuf, @VVersionBufW);
-    try
-      if (ETSR_OK=Result) then begin
-        _MakeTileInfo(TRUE);
+    end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Select_A) then begin
+      // use ansi version
+      VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+      Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Select_A(FLinkHandle, nil, AXYZ, PAnsiChar(VVersionA), @VTileBuf, @VVersionBufW);
+      try
+        if (ETSR_OK=Result) then begin
+          _MakeTileInfo(TRUE);
+        end;
+      finally
+        // free created items in buffer
+        FETS_LQI_TILE_ROUTINES_A.p_Tile_Free(FLinkHandle, @VTileBuf);
+        FETS_LQI_TILE_ROUTINES_A.p_Ver_Free_A(FLinkHandle, @VVersionBufW);
       end;
-    finally
-      // free created items in buffer
-      FETS_LQI_TILE_ROUTINES_A.p_Tile_Free(FLinkHandle, @VTileBuf);
-      FETS_LQI_TILE_ROUTINES_A.p_Ver_Free_A(FLinkHandle, @VVersionBufW);
+    end else begin
+      // not supported
+      Result:=ETSR_NOT_SUPPORTED;
     end;
-  end else begin
-    // not supported
-    Result:=ETSR_NOT_SUPPORTED;
+  finally
+    FSynchronizer.EndRead;
   end;
 end;
 
 function TETS_Host_Link.Sync(Sender: TObject): LongInt;
 begin
-  // catch sync event
-  if (nil<>FHostProvider) and Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Sync) then
-    Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Sync(FLinkHandle, nil)
-  else
-    Result:=ETSR_NOT_SUPPORTED;
+  FSynchronizer.BeginWrite;
+  try
+    // catch sync event
+    if (nil<>FHostProvider) and Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Sync) then
+      Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Sync(FLinkHandle, nil)
+    else
+      Result:=ETSR_NOT_SUPPORTED;
 
-  // TODO: try to reconnect (on lost connection)
+    // TODO: try to reconnect (on lost connection)
+  finally
+    FSynchronizer.EndWrite;
+  end;
 end;
 
 end.

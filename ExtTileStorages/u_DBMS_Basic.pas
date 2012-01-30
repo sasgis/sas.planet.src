@@ -28,19 +28,60 @@ uses
 {$ENDIF}
   SysUtils,
   t_ETS_Result,
+  t_ETS_AuthKind,
   t_ETS_Tiles,
   t_ETS_List,
-  t_ETS_Provider;
+  t_ETS_Provider,
+  u_ETS_Path;
 
 type
-  TDBMS_Environment_Basic = class(TObject)
-  
+  TDBMS_Initializable = class(TObject)
+  private
+    FInitialized: Boolean;
+  protected
+    function Internal_Initialize: LongInt; virtual; abstract;
+    procedure Internal_Uninitialize; virtual; abstract;
+    procedure Internal_Zero; virtual; abstract;
+  public
+    destructor Destroy; override;
+
+    function Initialize_Obj: LongInt;
+    procedure Uninitialize_Obj;
+
+    property Initialized: Boolean read FInitialized;
+  end;
+
+  TDBMS_Environment_Basic = class(TDBMS_Initializable)
+  public
+    constructor Create;
   end;
 
   TDBMS_Environment_Basic_Class = class of TDBMS_Environment_Basic;
 
-  TDBMS_Connection_Basic = class(TObject)
+  TDBMS_Connection_Basic = class(TDBMS_Initializable)
+  private
+    FConnected: Boolean;
+    FSavedAuthSuccessfullyUsed: Boolean;
+    FConnectResult: LongInt;
+    FDBMS_Environment: TDBMS_Environment_Basic;
+  protected
+    FServerNameToConnect: WideString;
+    FAuthType: LongWord; // resultant options
+    FAuthDomain: WideString;
+    FAuthLogin: WideString;
+    FAuthPassword: WideString;
+  protected
+    function Internal_Connect: LongInt; virtual; abstract;
+    procedure Internal_Disconnect; virtual; abstract;
+  public
+    constructor Create(const ADBMS_Environment: TDBMS_Environment_Basic);
+    destructor Destroy; override;
 
+    function Connect_Obj: LongInt;
+    procedure Disconnect_Obj;
+
+    property Connected: Boolean read FConnected;
+    property DBMS_Environment: TDBMS_Environment_Basic read FDBMS_Environment;
   end;
 
   TDBMS_Connection_Basic_Class = class of TDBMS_Connection_Basic;
@@ -50,12 +91,13 @@ type
   TDBMS_Link_Basic = class(TObject)
   protected
     FProvider: TDBMS_Provider_Basic;
-    FConnection: TDBMS_Connection_Basic;
+    FConnectionIfMultiple: TDBMS_Connection_Basic;
     FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
     FHostLinkPtr: Pointer;
     FCallbackPointer: Pointer;
     FServiceName: String;
     FConnectionInfo: String;
+    FDBMSPathDivided: TETS_Path_Divided;
     FUnderlayingContentType: WideString;
     FUnderlayingDefaultExt: WideString;
     FUnderlayingOptions: LongWord;
@@ -64,29 +106,23 @@ type
     FAuth_Free: TETS_Link_Auth_Func;
     FLostConn: TETS_Link_Reconn_Func;
     FRestConn: TETS_Link_Reconn_Func;
-    // all params defined and can connect to underlaying storage
-    FCanConnectToUnderlaying: Boolean;
-    // connected to underlaying storage
-    FConnectedToUnderlaying: Boolean;
     // cannot work because of destruction
     FTerminating: Boolean;
-    // result if cannot connect to underlaying storage
-    FCannotConnectResult: LongInt;
+    // all params defined and can connect to underlaying storage
+    FCanConnectToUnderlaying: Boolean;
+    // connected to underlaying storage, checked structure and got all params
+    FUnderlayingStructureOK: Boolean;
     // result of checking underlaying storage structure
     FUnderlayingStructureResult: LongInt;
   protected
+    function Internal_Get_WorkingConnection: TDBMS_Connection_Basic;
+    function Internal_Check_Auth: LongInt;
+    function Internal_Check_Underlaying: LongInt;
     function Internal_Initialize_Link: LongInt;
     function Internal_Uninitialize_Link: LongInt;
-    function Internal_Save_Connect_or_Exit(var AResult: LongInt): Boolean;
+    function Internal_Safe_Connect_or_Exit(var AResult: LongInt; const bForDDL: Boolean = FALSE): Boolean;
     function Internal_Create_Environment_Object(var AResult: LongInt): TDBMS_Environment_Basic;
     function Internal_Create_Connection_Object(var AResult: LongInt): TDBMS_Connection_Basic;
-  protected
-    // overridable threadsafe routines
-    procedure Internal_Underlaying_Disconnect; virtual;
-    function Internal_Underlaying_Connect: LongInt; virtual;
-    function Internal_Begin_Tran: LongInt; virtual;
-    function Internal_Commit_Tran: LongInt; virtual;
-    function Internal_Rollback_Tran: LongInt; virtual;
   public
     constructor Create(const AHostLinkPtr: Pointer); virtual;
     destructor Destroy; override;
@@ -99,6 +135,7 @@ type
     function Commit_Tran: LongInt;
     function Rollback_Tran: LongInt;
     function Tran_Count(const APtrValue: PLongWord): LongInt;
+    function Tran_Options(const APtrValue: PLongWord): LongInt;
 
     function Query_Info(const ALinkQueryInfoClass: LongWord;
                         const ALinkQueryInfoSize: LongWord;
@@ -107,6 +144,11 @@ type
     function Set_Info(const ALinkSetInfoClass: LongWord;
                       const ALinkSetInfoSize: LongWord;
                       const ALinkSetInfoData: Pointer): LongInt;
+
+    // DDL routines
+    function Ddl_Exec_A(const AServiceName: PAnsiChar;
+                        const APtrTileID: PTILE_ID_XYZ;
+                        const APtrVersionA: PETS_TILE_VERSION_A): LongInt;
 
     // tile routines
     function Tne_Create_A(const AServiceName: PAnsiChar;
@@ -142,10 +184,10 @@ type
   protected
     FHostProvPtr: Pointer;
     FEnvironment: TDBMS_Environment_Basic;
-    FConnection: TDBMS_Connection_Basic;
+    FConnectionIfSingle: TDBMS_Connection_Basic;
     FLinks: T_ETS_ObjectList;
     FInternalProviderName: WideString;
-    FGlobalStorageId: String;
+    FGlobalStorageId: WideString;
     FTileIdConverter: TETS_TileId_Conversion_Routine;
     FCSLink: TRTLCriticalSection;
     FDBMS_Environment_Basic_Class: TDBMS_Environment_Basic_Class;
@@ -281,6 +323,24 @@ begin
   end;
 end;
 
+function r_Ddl_Exec_A(const ALinkHandle: TETS_Link_Handle;
+                      const AServiceName: PAnsiChar;
+                      const APtrTileID: PTILE_ID_XYZ;
+                      const APtrVersionA: PETS_TILE_VERSION_A): LongInt; stdcall;
+begin
+  try
+    if (nil=ALinkHandle) then begin
+      // no pointer
+      Result:=ETSR_INVALID_OBJECT_POINTER
+    end else begin
+      // just call object
+      Result:=TDBMS_Link_Basic(ALinkHandle).Ddl_Exec_A(AServiceName,APtrTileID,APtrVersionA);
+    end;
+  except
+    Result:=ETSR_STORAGE_EXCEPTION;
+  end;
+end;
+
 function r_Ver_Free_A(const ALinkHandle: TETS_Link_Handle;
                       const APtrVersionA: PETS_TILE_VERSION_A): LongInt; stdcall;
 begin
@@ -335,7 +395,7 @@ begin
   FMultipleConnections:=FALSE; // TODO: get it from AProvOptions
   FGlobalStorageId:='';
   FEnvironment:=nil;
-  FConnection:=nil;
+  FConnectionIfSingle:=nil;
   FTileIdConverter:=nil;
   FInternalProviderName:='';
   FLinks.SetZero;
@@ -368,7 +428,7 @@ destructor TDBMS_Provider_Basic.Destroy;
 begin
   Internal_Uninitialize_Prov;
   DeleteCriticalSection(FCSLink);
-  FreeAndNil(FConnection);
+  FreeAndNil(FConnectionIfSingle);
   FreeAndNil(FEnvironment);
   inherited;
 end;
@@ -450,7 +510,6 @@ function TDBMS_Provider_Basic.Set_Info(const AProvSetInfoClass: LongWord;
                                        const AProvSetInfoSize: LongWord;
                                        const AProvSetInfoData: Pointer): LongInt;
 var
-  Vws: WideString;
   Vas: AnsiString;
 begin
   EnterLinkCS;
@@ -462,8 +521,7 @@ begin
       Result:=ETSR_SIZE_MISMATCH;
     end else if (ETS_PSIC_GLOBALID_W=AProvSetInfoClass) then begin
       // set unicode global storage id
-      Vws:=PWideChar(AProvSetInfoData);
-      FGlobalStorageId:=Vws;
+      FGlobalStorageId:=PWideChar(AProvSetInfoData);
       Result:=Internal_Initialize_Prov;
     end else if (ETS_PSIC_GLOBALID_A=AProvSetInfoClass) then begin
       // set ansi global storage id
@@ -498,7 +556,7 @@ function TDBMS_Link_Basic.Begin_Tran: LongInt;
 begin
   FSynchronizer.BeginWrite;
   try
-    Result:=Internal_Begin_Tran;
+    Result:=ETSR_NOT_SUPPORTED;
   finally
     FSynchronizer.EndWrite;
   end;
@@ -508,7 +566,7 @@ function TDBMS_Link_Basic.Commit_Tran: LongInt;
 begin
   FSynchronizer.BeginWrite;
   try
-    Result:=Internal_Commit_Tran;
+    Result:=ETSR_NOT_SUPPORTED;
   finally
     FSynchronizer.EndWrite;
   end;
@@ -518,10 +576,10 @@ constructor TDBMS_Link_Basic.Create(const AHostLinkPtr: Pointer);
 begin
   FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;
   FCanConnectToUnderlaying:=FALSE;
-  FConnectedToUnderlaying:=FALSE;
+  FUnderlayingStructureOK:=FALSE;
   FTerminating:=FALSE;
   FProvider:=nil;
-  FConnection:=nil;
+  FConnectionIfMultiple:=nil;
   FCallbackPointer:=nil;
   FAuth_Get:=nil;
   FAuth_Free:=nil;
@@ -529,13 +587,34 @@ begin
   FRestConn:=nil;
   FServiceName:='';
   FConnectionInfo:='';
+  Clear_TilePath_Divided(@FDBMSPathDivided);
   FUnderlayingContentType:='';
   FUnderlayingDefaultExt:='';
   FUnderlayingOptions:=0;
   FUnderlayingTileIdFormat:=0;
   FUnderlayingStructureResult:=ETSR_NOT_CONNECTED;
-  FCannotConnectResult:=ETSR_NOT_CONNECTED;
   FHostLinkPtr:=AHostLinkPtr;
+end;
+
+function TDBMS_Link_Basic.Ddl_Exec_A(const AServiceName: PAnsiChar;
+                                     const APtrTileID: PTILE_ID_XYZ;
+                                     const APtrVersionA: PETS_TILE_VERSION_A): LongInt;
+begin
+  if Internal_Safe_Connect_or_Exit(Result, TRUE) then
+    Exit;
+
+  FSynchronizer.BeginWrite;
+  try
+    if (nil=APtrTileID) then begin
+      // no tile_id
+      Result:=ETSR_NO_MANDATORY_PARAMETER;
+    end else begin
+      // make tne marker, delete tile if exists
+      // Result:=ETSR_OK;
+    end;
+  finally
+    FSynchronizer.EndWrite;
+  end;
 end;
 
 destructor TDBMS_Link_Basic.Destroy;
@@ -543,7 +622,7 @@ begin
   FTerminating:=TRUE;
   Internal_Uninitialize_Link;
   FreeAndNil(FSynchronizer);
-  FreeAndNil(FConnection);
+  FreeAndNil(FConnectionIfMultiple);
   inherited;
 end;
 
@@ -557,26 +636,108 @@ begin
   end;
 end;
 
-function TDBMS_Link_Basic.Internal_Begin_Tran: LongInt;
+function TDBMS_Link_Basic.Internal_Check_Auth: LongInt;
+var
+  VWorkingConnection: TDBMS_Connection_Basic;
+  VAuthSize: LongWord;
+  VAuthInfo: PETS_AUTH_INFO;
+
+  function CallAuth(const AFunc: TETS_Link_Auth_Func): LongInt;
+  begin
+    Result:=AFunc(TETS_Link_Handle(Pointer(Self)),
+                  FCallbackPointer,
+                  ETS_MASK_AK_ALL_DBMS, // ask UNICODE version!
+                  @(VWorkingConnection.FAuthType),
+                  @VAuthSize,
+                  @VAuthInfo);
+  end;
 begin
-  Result:=ETSR_NOT_SUPPORTED;
+  VWorkingConnection:=Internal_Get_WorkingConnection;
+
+  // if connected - nothing to do
+  if VWorkingConnection.Connected then begin
+    Result:=ETSR_OK;
+    Exit;
+  end;
+
+  // if saved and successfuly used auth info
+  if VWorkingConnection.FSavedAuthSuccessfullyUsed then begin
+    Result:=ETSR_OK;
+    Exit;
+  end;
+
+  // no saved auth info OR invalid auth info
+  if Assigned(FAuth_Get) and Assigned(FAuth_Free) then begin
+    VAuthSize:=0;
+    VAuthInfo:=nil;
+    try
+      // get auth info from host (for DBMS, allow integrated login, allow save)
+      Result:=CallAuth(FAuth_Get);
+      if (ETSR_OK=Result) then begin
+        // successfully get auth info
+        if (ETS_AT_LOGIN_PWD=(VWorkingConnection.FAuthType and ETS_AT_LOGIN_PWD))
+           OR
+           (ETS_AT_DOMAIN_LOGIN_PWD=(VWorkingConnection.FAuthType and ETS_AT_DOMAIN_LOGIN_PWD)) then begin
+          // use filled string values
+          with PETS_AUTH_LOGIN_PWD_W(VAuthInfo)^ do begin
+            VWorkingConnection.FAuthDomain:=szDomain;
+            VWorkingConnection.FAuthLogin:=szLogin;
+            VWorkingConnection.FAuthPassword:=szPassword;
+          end;
+        end else if (ETS_AT_INTEGRATED=(VWorkingConnection.FAuthType and ETS_AT_INTEGRATED)) then begin
+          // use integrated login
+          VWorkingConnection.FAuthDomain:='';
+          VWorkingConnection.FAuthLogin:='';
+          VWorkingConnection.FAuthPassword:='';
+        end else begin
+          // no login info
+          VWorkingConnection.FAuthDomain:='';
+          VWorkingConnection.FAuthLogin:='';
+          VWorkingConnection.FAuthPassword:='';
+        end;
+      end;
+    finally
+      // free buffers
+      CallAuth(FAuth_Free);
+    end;
+  end else begin
+    // cannot obtain auth info - try to get integrated login
+    VWorkingConnection.FAuthDomain:='';
+    VWorkingConnection.FAuthLogin:='';
+    VWorkingConnection.FAuthPassword:='';
+    VWorkingConnection.FAuthType:=ETS_AT_INTEGRATED;
+    Result:=ETSR_OK;
+  end;
 end;
 
-function TDBMS_Link_Basic.Internal_Commit_Tran: LongInt;
+function TDBMS_Link_Basic.Internal_Check_Underlaying: LongInt;
 begin
-  Result:=ETSR_NOT_SUPPORTED;
+  // check database exists (db_name = FDBMSPathDivided[1])
+  // check SERVICE table exists (table_name = FDBMSPathDivided[2], if no owner prefix - use dbo or sys)
+  // check OPTIONS table exists (table_name = )
+  Result:=ETSR_NOT_IMPLEMENTED;
 end;
 
 function TDBMS_Link_Basic.Internal_Create_Connection_Object(var AResult: Integer): TDBMS_Connection_Basic;
 begin
-  Result:=TDBMS_Connection_Basic.Create;
+  Result:=FProvider.FDBMS_Connection_Basic_Class.Create(FProvider.FEnvironment);
   AResult:=ETSR_OK;
 end;
 
 function TDBMS_Link_Basic.Internal_Create_Environment_Object(var AResult: Integer): TDBMS_Environment_Basic;
 begin
-  Result:=TDBMS_Environment_Basic.Create;
+  Result:=FProvider.FDBMS_Environment_Basic_Class.Create;
   AResult:=ETSR_OK;
+end;
+
+function TDBMS_Link_Basic.Internal_Get_WorkingConnection: TDBMS_Connection_Basic;
+begin
+  if (nil=FProvider) then
+    Result:=FConnectionIfMultiple // actually NIL
+  else if (FProvider.FMultipleConnections) then
+    Result:=FConnectionIfMultiple
+  else
+    Result:=FProvider.FConnectionIfSingle;
 end;
 
 function TDBMS_Link_Basic.Internal_Initialize_Link: LongInt;
@@ -598,82 +759,130 @@ begin
 
   if (FProvider.FMultipleConnections) then begin
     // create connection object on link basis
-    Self.FConnection:=Internal_Create_Connection_Object(Result);
+    Self.FConnectionIfMultiple:=Internal_Create_Connection_Object(Result);
     if (Result<>ETSR_OK) then
       Exit;
-    if (nil=Self.FConnection) then begin
+    if (nil=Self.FConnectionIfMultiple) then begin
       Result:=ETSR_ERROR_CREATING_CONNECTION;
       Exit;
     end;
-  end else if (nil=FProvider.FConnection) then begin
+  end else if (nil=FProvider.FConnectionIfSingle) then begin
     // create single connection on provider basis
     // provider object is completely initialized - allow to create connection
-    FProvider.FConnection:=Internal_Create_Connection_Object(Result);
+    FProvider.FConnectionIfSingle:=Internal_Create_Connection_Object(Result);
     if (Result<>ETSR_OK) then
       Exit;
-    if (nil=FProvider.FConnection) then begin
+    if (nil=FProvider.FConnectionIfSingle) then begin
       Result:=ETSR_ERROR_CREATING_CONNECTION;
       Exit;
     end;
+    // set server name
+    FProvider.FConnectionIfSingle.FServerNameToConnect:=FProvider.FGlobalStorageId;
   end else begin
     // already created on provider basis
     Result:=ETSR_OK;
   end;
 end;
 
-function TDBMS_Link_Basic.Internal_Rollback_Tran: LongInt;
-begin
-  Result:=ETSR_NOT_SUPPORTED;
-end;
-
-function TDBMS_Link_Basic.Internal_Save_Connect_or_Exit(var AResult: Integer): Boolean;
+function TDBMS_Link_Basic.Internal_Safe_Connect_or_Exit(var AResult: Integer; const bForDDL: Boolean): Boolean;
+var
+  VWorkingConnection: TDBMS_Connection_Basic;
 begin
   Result:=FALSE;
 
-  // cannot connect
-  if FTerminating or (not FCanConnectToUnderlaying) then begin
-    AResult:=FCannotConnectResult;
+  if (FUnderlayingStructureOK) then begin
+    // everything is ok
+    // AResult:=ETSR_OK;
+    Exit;
+  end;
+
+  // cannot connect because of destroying connection
+  if FTerminating then begin
+    AResult:=ETSR_NOT_CONNECTED;
     Result:=TRUE;
     Exit;
   end;
 
-  // can connect and not connected - try to connect
-  if (FCanConnectToUnderlaying) and (not FConnectedToUnderlaying) then begin
-    FSynchronizer.BeginWrite;
-    try
-      AResult:=Internal_Underlaying_Connect;
+  // not enough initialized to be connected
+  if (not FCanConnectToUnderlaying) then begin
+    AResult:=ETSR_NOT_INITIALIZED;
+    Result:=TRUE;
+    Exit;
+  end;
+
+  FSynchronizer.BeginWrite;
+  try
+    VWorkingConnection:=Internal_Get_WorkingConnection;
+
+    // can connect and not connected - try to connect
+    if (FCanConnectToUnderlaying) and (not VWorkingConnection.Connected) then begin
+      // if failed in connect - return the reason
+      if (ETSR_OK<>VWorkingConnection.FConnectResult) then begin
+        AResult:=VWorkingConnection.FConnectResult;
+        Result:=TRUE;
+        Exit;
+      end;
+
+      // check auth before connect
+      AResult:=Internal_Check_Auth;
       if (AResult<>ETSR_OK) then begin
         Result:=TRUE;
         Exit;
       end;
-    finally
-      FSynchronizer.EndWrite;
+
+      // if multiple connections - set server name here
+      FDBMSPathDivided:=ETS_TilePath_Divided(FProvider.FGlobalStorageId, FServiceName);
+      VWorkingConnection.FServerNameToConnect:=FDBMSPathDivided.Path_Items[0];
+
+      // connect
+      AResult:=VWorkingConnection.Connect_Obj;
+      if (AResult<>ETSR_OK) then begin
+        Result:=TRUE;
+        Exit;
+      end;
     end;
+
+    // if connected and not checking underlaying storage - do it here
+    if (VWorkingConnection.Connected) and (not FUnderlayingStructureOK) then begin
+      // if called to exec DDL - reset flags and skip
+      if bForDDL then begin
+        FUnderlayingStructureResult:=ETSR_OK;
+        Exit;
+      end;
+
+      // if had already failed
+      if (ETSR_OK<>FUnderlayingStructureResult) then begin
+        AResult:=FUnderlayingStructureResult;
+        Result:=TRUE;
+        Exit;
+      end;
+
+      // check underlaying storage
+      AResult:=Internal_Check_Underlaying;
+      FUnderlayingStructureResult:=AResult;
+      if (AResult<>ETSR_OK) then begin
+        Result:=TRUE;
+        Exit;
+      end;
+    end;
+  finally
+    FSynchronizer.EndWrite;
   end;
-end;
-
-function TDBMS_Link_Basic.Internal_Underlaying_Connect: LongInt;
-begin
-  Result:=ETSR_NOT_CONNECTED;
-end;
-
-procedure TDBMS_Link_Basic.Internal_Underlaying_Disconnect;
-begin
-  // override
 end;
 
 function TDBMS_Link_Basic.Internal_Uninitialize_Link: LongInt;
 begin
+  FUnderlayingStructureOK:=FALSE;
   FCanConnectToUnderlaying:=FALSE;
   FSynchronizer.BeginWrite;
   try
-    // disconnect from underlaying storage
-    if FConnectedToUnderlaying then begin
-      FCannotConnectResult:=ETSR_NOT_CONNECTED;
-      FUnderlayingStructureResult:=ETSR_NOT_CONNECTED;
-      Internal_Underlaying_Disconnect;
-      FConnectedToUnderlaying:=FALSE;
+    // disconnect from underlaying storage - only if own connection
+    if Assigned(FConnectionIfMultiple) then begin
+      FConnectionIfMultiple.Disconnect_Obj;
     end;
+
+    FUnderlayingStructureResult:=ETSR_NOT_CONNECTED;
+
     // done
     Result:=ETSR_OK;
   finally
@@ -699,6 +908,7 @@ begin
         p_Tile_Delete_A:=r_Tile_Delete_A;
         p_Tile_Insert_A:=r_Tile_Insert_A;
         p_Tne_Create_A:=r_Tne_Create_A;
+        p_Ddl_Exec_A:=r_Ddl_Exec_A;
         p_Ver_Free_A:=r_Ver_Free_A;
         p_Tile_Free:=r_Tile_Free;
       end;
@@ -711,7 +921,7 @@ begin
     // get content type and other params (unicode)
     if (ALinkQueryInfoSize>=sizeof(TETS_LQI_CONTENT_TYPE_W)) then begin
       // try to connect
-      if Internal_Save_Connect_or_Exit(Result) then
+      if Internal_Safe_Connect_or_Exit(Result) then
         Exit;
       // get info
       with PETS_LQI_CONTENT_TYPE_W(ALinkQueryInfoData)^ do begin
@@ -731,7 +941,7 @@ begin
     // get REALLY USED tile_id format from underlaying storage
     if (0=ALinkQueryInfoSize) then begin
       // try to connect
-      if Internal_Save_Connect_or_Exit(Result) then
+      if Internal_Safe_Connect_or_Exit(Result) then
         Exit;
       PLongWord(ALinkQueryInfoData)^:=FUnderlayingTileIdFormat;
       Result:=ETSR_NOT_SUPPORTED;
@@ -835,7 +1045,7 @@ function TDBMS_Link_Basic.Tile_Delete_A(const AServiceName: PAnsiChar;
                                         const AVersion: PAnsiChar;
                                         const AOptions: LongWord): LongInt;
 begin
-  if Internal_Save_Connect_or_Exit(Result) then
+  if Internal_Safe_Connect_or_Exit(Result) then
     Exit;
 
   FSynchronizer.BeginRead;
@@ -862,7 +1072,7 @@ function TDBMS_Link_Basic.Tile_Insert_A(const AServiceName: PAnsiChar;
                                         const APtrTileInfo: PETS_TILE_BUFFER;
                                         const APtrVersionA: PETS_TILE_VERSION_A): LongInt;
 begin
-  if Internal_Save_Connect_or_Exit(Result) then
+  if Internal_Safe_Connect_or_Exit(Result) then
     Exit;
 
   FSynchronizer.BeginRead;
@@ -885,7 +1095,7 @@ function TDBMS_Link_Basic.Tile_Query_A(const AServiceName: PAnsiChar;
                                        const APtrTileInfo: PETS_TILE_BUFFER;
                                        const APtrVersionA: PETS_TILE_VERSION_A): LongInt;
 begin
-  if Internal_Save_Connect_or_Exit(Result) then
+  if Internal_Safe_Connect_or_Exit(Result) then
     Exit;
 
   FSynchronizer.BeginRead;
@@ -908,7 +1118,7 @@ function TDBMS_Link_Basic.Tile_Select_A(const AServiceName: PAnsiChar;
                                         const APtrTileInfo: PETS_TILE_BUFFER;
                                         const APtrVersionA: PETS_TILE_VERSION_A): LongInt;
 begin
-  if Internal_Save_Connect_or_Exit(Result) then
+  if Internal_Safe_Connect_or_Exit(Result) then
     Exit;
 
   FSynchronizer.BeginRead;
@@ -929,7 +1139,7 @@ function TDBMS_Link_Basic.Tne_Create_A(const AServiceName: PAnsiChar;
                                        const APtrTileID: PTILE_ID_XYZ;
                                        const APtrVersionA: PETS_TILE_VERSION_A): LongInt;
 begin
-  if Internal_Save_Connect_or_Exit(Result) then
+  if Internal_Safe_Connect_or_Exit(Result) then
     Exit;
 
   FSynchronizer.BeginRead;
@@ -953,6 +1163,106 @@ begin
     Result:=ETSR_NOT_SUPPORTED;
   finally
     FSynchronizer.EndRead;
+  end;
+end;
+
+function TDBMS_Link_Basic.Tran_Options(const APtrValue: PLongWord): LongInt;
+begin
+  FSynchronizer.BeginRead;
+  try
+    Result:=ETSR_NOT_SUPPORTED;
+  finally
+    FSynchronizer.EndRead;
+  end;
+end;
+
+{ TDBMS_Initializable }
+
+destructor TDBMS_Initializable.Destroy;
+begin
+  Uninitialize_Obj;
+  inherited;
+end;
+
+function TDBMS_Initializable.Initialize_Obj: LongInt;
+begin
+  if FInitialized then
+    Result:=ETSR_OK
+  else begin
+    Result:=Internal_Initialize;
+    if (ETSR_OK=Result) then
+      FInitialized:=TRUE;
+  end;
+end;
+
+procedure TDBMS_Initializable.Uninitialize_Obj;
+begin
+  if FInitialized then begin
+    Internal_Uninitialize;
+    FInitialized:=FALSE;
+  end;
+end;
+
+{ TDBMS_Environment_Basic }
+
+constructor TDBMS_Environment_Basic.Create;
+begin
+  FInitialized:=FALSE;
+  Internal_Zero;
+end;
+
+{ TDBMS_Connection_Basic }
+
+function TDBMS_Connection_Basic.Connect_Obj: LongInt;
+begin
+  // initialize
+  Result:=Initialize_Obj;
+  if (ETSR_OK<>Result) then
+    Exit;
+  // connect
+  if FConnected then
+    Result:=ETSR_OK
+  else begin
+    Result:=Internal_Connect;
+    if (ETSR_OK=Result) then begin
+      // connected
+      FSavedAuthSuccessfullyUsed:=TRUE;
+      FConnected:=TRUE
+    end else begin
+      // failed
+      FSavedAuthSuccessfullyUsed:=FALSE;
+      FConnectResult:=Result;
+    end;
+  end;
+end;
+
+constructor TDBMS_Connection_Basic.Create(const ADBMS_Environment: TDBMS_Environment_Basic);
+begin
+  FInitialized:=FALSE;
+  FConnected:=FALSE;
+  FSavedAuthSuccessfullyUsed:=FALSE;
+  FDBMS_Environment:=ADBMS_Environment;
+  FConnectResult:=ETSR_OK;
+  FAuthType:=0;
+  FAuthDomain:='';
+  FAuthLogin:='';
+  FAuthPassword:='';
+  FServerNameToConnect:='';
+  Internal_Zero;
+end;
+
+destructor TDBMS_Connection_Basic.Destroy;
+begin
+  Disconnect_Obj;
+  inherited Destroy;
+end;
+
+procedure TDBMS_Connection_Basic.Disconnect_Obj;
+begin
+  if FConnected then begin
+    Internal_Disconnect;
+    FConnected:=FALSE;
+    FConnectResult:=ETSR_OK;
   end;
 end;
 

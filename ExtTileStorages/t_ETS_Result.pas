@@ -100,8 +100,24 @@ const
   // error creating connection object
   ETSR_ERROR_CREATING_CONNECTION = $00000017;
 
+  // no system library function
+  ETSR_NO_LIB_FUNCTION = $00000018;
 
+  // cannot initialize underlaying library
+  ETSR_ERROR_INITIALIZING_LIB = $00000019;
+
+  // cannot initialize special version for underlaying library
+  ETSR_ERROR_LIB_VERSION = $0000001A;
+
+  // cannot connect underlaying storage
+  ETSR_ERROR_CONNECTING_LIB = $0000001B;
   
+  // cannot execute tile operation (no table etc.), but should run corresponding DDL command
+  ETSR_ERROR_NEED_DDL_TILES = $0000001C;
+
+  // cannot execute maps operation (no such map etc.), but should run corresponding DDL command
+  ETSR_ERROR_NEED_DDL_MAPS = $0000001D;
+
   // to be implemented
   ETSR_NOT_IMPLEMENTED  = $10000000;
   
