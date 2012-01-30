@@ -84,6 +84,9 @@ begin
   VRect := DoubleRect(1, 1, 13, 8);
   CheckTrue(FPolygon.IsRectIntersectPolygon(VRect));
 
+  VRect := DoubleRect(2, 2, 3, 3);
+  CheckTrue(FPolygon.IsRectIntersectPolygon(VRect));
+
   VRect := DoubleRect(4, 0, 5, 1);
   CheckFalse(FPolygon.IsRectIntersectPolygon(VRect));
 

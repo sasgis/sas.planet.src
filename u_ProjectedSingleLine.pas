@@ -325,7 +325,7 @@ begin
               VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
               if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
                 Result := True;
-                Break;
+                Exit;
               end;
               if (ARect.Left > VIntersect) then begin
                 VRectIn := not VRectIn;
@@ -335,7 +335,7 @@ begin
               VIntersect := VDelta.X * (ARect.Bottom - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
               if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
                 Result := True;
-                Break;
+                Exit;
               end;
             end;
           end else if (VDelta.Y > 0)then begin
@@ -343,7 +343,7 @@ begin
               VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
               if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
                 Result := True;
-                Break;
+                Exit;
               end;
               if (ARect.Left > VIntersect) then begin
                 VRectIn := not VRectIn;
@@ -353,7 +353,7 @@ begin
               VIntersect := VDelta.X * (ARect.Bottom - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
               if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
                 Result := True;
-                Break;
+                Exit;
               end;
             end;
           end;
@@ -363,14 +363,14 @@ begin
               VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
               if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
                 Result := True;
-                Break;
+                Exit;
               end;
             end;
             if (VCurrPoint.X <= ARect.Right) and (ARect.Right < VPrevPoint.X) then begin
               VIntersect := VDelta.Y * (ARect.Right - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
               if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
                 Result := True;
-                Break;
+                Exit;
               end;
             end;
           end else if (VDelta.X > 0)then begin
@@ -378,14 +378,14 @@ begin
               VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
               if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
                 Result := True;
-                Break;
+                Exit;
               end;
             end;
             if (VCurrPoint.X > ARect.Right) and (ARect.Right >= VPrevPoint.X) then begin
               VIntersect := VDelta.Y * (ARect.Right - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
               if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
                 Result := True;
-                Break;
+                Exit;
               end;
             end;
           end;
