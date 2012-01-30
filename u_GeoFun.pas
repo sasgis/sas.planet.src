@@ -64,8 +64,6 @@ type
 
   procedure CalculateWFileParams(LL1,LL2:TDoublePoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:Double);
-  Procedure GetMinMax(var ARect:TRect; APoints: PPointArray; ACount: Integer;round_:boolean); overload;
-  Procedure GetMinMax(var ARect:TDoubleRect; APoints: PDoublePointArray; ACount: Integer); overload;
   function GetDwnlNum(var ARect: TRect; APoints: PPointArray; ACount: Integer; getNum:boolean):Int64; overload;
   function RgnAndRect(APoints: PPointArray; ACount: Integer; ARect: TRect):boolean;
   function RgnAndRgn(APoints: PPointArray; ACount: Integer; x, y: integer; prefalse: boolean):boolean; // Переделать использующий ее код в ближайшее время

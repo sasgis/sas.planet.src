@@ -222,21 +222,6 @@ type
     function RelativeRect2TileRectFloat(const AXY: TDoubleRect; const Azoom: byte): TDoubleRect; virtual; stdcall;
     function RelativeRect2PixelRect(const AXY: TDoubleRect; const Azoom: byte): TRect; virtual; stdcall;
     function RelativeRect2PixelRectFloat(const AXY: TDoubleRect; const Azoom: byte): TDoubleRect; virtual; stdcall;
-
-    procedure LonLatArray2PixelArray(
-      const ASourcePoints: PDoublePointArray;
-      const ACount: Integer;
-      const AResultPoints: PPointArray;
-      const AZoom: byte
-    ); virtual; stdcall;
-    procedure LonLatArray2PixelArrayFloat(
-      const ASourcePoints: PDoublePointArray;
-      const ACount: Integer;
-      const AResultPoints: PDoublePointArray;
-      const AZoom: byte
-    ); virtual; stdcall;
-
-    function PixelPos2OtherMap(const AXY: TPoint; const Azoom: byte; AOtherMapCoordConv: ICoordConverter): TPoint; virtual; stdcall;
   protected
     function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; virtual; stdcall; abstract;
 
@@ -278,77 +263,6 @@ uses
   u_GeoFun;
 
 { TCoordConverterAbstract }
-
-procedure TCoordConverterAbstract.LonLatArray2PixelArray(
-  const ASourcePoints: PDoublePointArray;
-  const ACount: Integer;
-  const AResultPoints: PPointArray;
-  const AZoom: byte
-);
-var
-  i: integer;
-  VPoint: TDoublePoint;
-begin
-  for i := 0 to ACount - 1 do begin
-    VPoint := ASourcePoints[i];
-    if PointIsEmpty(VPoint) then begin
-      AResultPoints[i] := Point(MaxInt, MaxInt);
-    end else begin
-      CheckLonLatPosInternal(VPoint);
-      AResultPoints[i] := LonLat2PixelPosInternal(VPoint, AZoom);
-    end;
-  end;
-end;
-
-procedure TCoordConverterAbstract.LonLatArray2PixelArrayFloat(
-  const ASourcePoints: PDoublePointArray;
-  const ACount: Integer;
-  const AResultPoints: PDoublePointArray;
-  const AZoom: byte
-);
-var
-  i: integer;
-  VPoint: TDoublePoint;
-begin
-  for i := 0 to ACount - 1 do begin
-    VPoint := ASourcePoints[i];
-    if PointIsEmpty(VPoint) then begin
-      AResultPoints[i] := VPoint;
-    end else begin
-      CheckLonLatPosInternal(VPoint);
-      AResultPoints[i] := LonLat2PixelPosFloatInternal(VPoint, AZoom);
-    end;
-  end;
-end;
-
-function TCoordConverterAbstract.PixelPos2OtherMap(
-  const AXY: TPoint;
-  const Azoom: byte;
-  AOtherMapCoordConv: ICoordConverter): TPoint;
-var
-  VLonLat: TDoublePoint;
-  VXY: TPoint;
-  VZoom: Byte;
-begin
-  if (Self = nil) or (AOtherMapCoordConv = nil) then begin
-    Result := AXY;
-  end else begin
-    if (AOtherMapCoordConv.GetTileSplitCode = Self.GetTileSplitCode) and
-      (AOtherMapCoordConv.GetProjectionEPSG <> 0) and
-      (Self.GetProjectionEPSG <> 0) and
-      (AOtherMapCoordConv.GetProjectionEPSG = Self.GetProjectionEPSG) then begin
-      Result := AXY;
-    end else begin
-      VXY := AXY;
-      VZoom := Azoom;
-      CheckPixelPosInternal(VXY, VZoom);
-      VLonLat := PixelPos2LonLatInternal(VXY, VZoom);
-      AOtherMapCoordConv.CheckLonLatPos(VLonLat);
-      Result := AOtherMapCoordConv.LonLat2PixelPos(VLonLat, VZoom);
-    end;
-  end;
-end;
-
 
 //------------------------------------------------------------------------------
 function TCoordConverterAbstract.TilePos2PixelRect(const AXY: TPoint;

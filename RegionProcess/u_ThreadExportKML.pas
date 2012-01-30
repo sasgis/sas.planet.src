@@ -131,7 +131,6 @@ procedure TThreadExportKML.ProcessRegion;
 var
   i: integer;
   VZoom: Byte;
-  polyg: TArrayOfPoint;
   ToFile: string;
   VLen: Integer;
   VProjectedPolygon: IProjectedPolygon;
@@ -142,7 +141,6 @@ begin
   inherited;
   FTilesToProcess := 0;
   VLen := FPolygLL.Count;
-  SetLength(polyg, VLen);
   if Length(FZooms) > 0 then begin
     VZoom := FZooms[0];
     VProjectedPolygon :=
