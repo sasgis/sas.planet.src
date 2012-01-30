@@ -83,6 +83,21 @@ begin
 
   VRect := DoubleRect(1, 1, 13, 8);
   CheckTrue(FPolygon.IsRectIntersectPolygon(VRect));
+
+  VRect := DoubleRect(4, 0, 5, 1);
+  CheckFalse(FPolygon.IsRectIntersectPolygon(VRect));
+
+  VRect := DoubleRect(4, 6, 5, 7);
+  CheckFalse(FPolygon.IsRectIntersectPolygon(VRect));
+
+  VRect := DoubleRect(3, 5, 4, 6);
+  CheckTrue(FPolygon.IsRectIntersectPolygon(VRect));
+
+  VRect := DoubleRect(9, 5, 10, 6);
+  CheckFalse(FPolygon.IsRectIntersectPolygon(VRect));
+
+  VRect := DoubleRect(4, 8, 5, 9);
+  FPolygon.IsRectIntersectPolygon(VRect); // Этот сулчай пока игнорим
 end;
 
 initialization
