@@ -27,12 +27,17 @@ const
   TILE_ID_FORMAT_NONE = $00000000; // undefined format
   TILE_ID_FORMAT_XYZ  = $00000001; // simple xyz fields = int,int,byte
   TILE_ID_FORMAT_0123 = $00000002; // divide single tile into 0-1-2-3-numbered parts at every zoom = char(24)
-  TILE_ID_FORMAT_ABC4 = $00000004; // combine 0123 by 2 symbols, calc (4i+j) and map by ABCD...XYZ array = char(12)
-  TILE_ID_FORMAT_MASK = (TILE_ID_FORMAT_XYZ or TILE_ID_FORMAT_0123 or TILE_ID_FORMAT_ABC4); // mask
+  TILE_ID_FORMAT_AHP1 = $00000004; // combine 0123 by 2 symbols, calc (4i+j) and map by ABCD...XYZ array = char(12)
+  TILE_ID_FORMAT_MASK = (TILE_ID_FORMAT_XYZ or TILE_ID_FORMAT_0123 or TILE_ID_FORMAT_AHP1); // mask
 
   // size in chars
   TILE_ID_FORMAT_0123_SIZE = 24;
-  TILE_ID_FORMAT_ABC4_SIZE = 12;
+  TILE_ID_FORMAT_AHP1_SIZE = 12;
+
+  // types of tile_id in underlaying storage
+  TILE_ID_TYPE_XYZ_2BYTE = '0'; // z and hiword(x) and hiword(y) go to tablename, loword(x) and loword(y) go to tile_id
+  TILE_ID_TYPE_0123_16CH = 'Q'; // up to 16 right chars go to file_id, left chars (<=8) go to tablename
+  TILE_ID_TYPE_AHP1_8CHR = 'H'; // up to 8 right chars go to file_id, left chars (<=4) go to tablename
 
 type
   // only numeric xyz
@@ -49,10 +54,10 @@ type
   end;
   PTILE_ID_0123 = ^TTILE_ID_0123;
 
-  TTILE_ID_ABC4 = packed record
-    idABC4: packed array [0..TILE_ID_FORMAT_ABC4_SIZE] of AnsiChar; // +1 char for zero, only '0'-'3' and 'A'-'P' allowed
+  TTILE_ID_AHP1 = packed record
+    idAHP1: packed array [0..TILE_ID_FORMAT_AHP1_SIZE] of AnsiChar; // +1 char for zero, only '0'-'3' and 'A'-'P' allowed
   end;
-  PTILE_ID_ABC4 = ^TTILE_ID_ABC4;
+  PTILE_ID_AHP1 = ^TTILE_ID_AHP1;
 
   // routine (from EXE)
   TETS_TileId_Conversion_Routine = function(const ASrcFormat: LongWord;
@@ -72,9 +77,10 @@ const
   ETS_TBI_NO_VERSION   = $00000008; // allow [get tile without version] if [request with version] and [no tile with versions found]
 
   // output options
-  ETS_TBO_TILE_EXISTS = $00000001; // tile found
-  ETS_TBO_TNE_EXISTS  = $00000002; // TNE marker found
-  ETS_TBO_CRC32       = $00000004; // got CRC32 in corresponding field
+  ETS_TBO_TILE_EXISTS  = $00000001; // tile found
+  ETS_TBO_TNE_EXISTS   = $00000002; // TNE marker found
+  ETS_TBO_DDL_REQUIRED = $00000004; // DLL command required (such as "create table")
+  ETS_TBO_CRC32        = $00000008; // got CRC32 in corresponding field
 
 type
   // tile information buffer type

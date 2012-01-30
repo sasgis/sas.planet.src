@@ -32,12 +32,15 @@ type
     // 1 - DatabaseName: String;
     // 2 - TableName: String;
   end;
+  PETS_Path_Divided = ^TETS_Path_Divided;
 
 function ETS_TilePath_Divided(const AGlobalStorageIdentifier: String;
                               const AServiceName: String): TETS_Path_Divided;
 
 function ETS_TilePath_Single(const AGlobalStorageIdentifier: String;
                              const AServiceName: String): String;
+
+procedure Clear_TilePath_Divided(pRec: PETS_Path_Divided);
 
 implementation
 
@@ -51,6 +54,13 @@ type
     count_found: Byte;
   end;
   PETS_Path_DelimPos = ^TETS_Path_DelimPos;
+
+procedure Clear_TilePath_Divided(pRec: PETS_Path_Divided);
+var i: Byte;
+begin
+  for i := 0 to c_ETS_Path_Items_Count-1 do
+    pRec^.Path_Items[i]:='';
+end;
 
 procedure InternalGet3Parts(const ASrc: String;
                             const p3items: PETS_Path_DelimPos;
@@ -115,8 +125,7 @@ begin
   // b) get up to 3 items from AServiceName (from end to begin)
   // c) if got less then 3 items - get remains from AGlobalStorageIdentifier (from start)
   result_items_defined:=0;
-  for i := 0 to c_ETS_Path_Items_Count-1 do
-    Result.Path_Items[i]:='';
+  Clear_TilePath_Divided(@Result);
 
   // parse AServiceName
   if (0<Length(AServiceName)) then begin
