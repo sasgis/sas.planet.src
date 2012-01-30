@@ -299,7 +299,11 @@ function TProjectedPolygonLine.IsRectIntersectPolygon(
 var
   VIntersectRect: TDoubleRect;
   VEnum: IEnumProjectedPoint;
-  VPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VCurrPoint: TDoublePoint;
+  VIntersect: Double;
+  VDelta: TDoublePoint;
+  VRectIn: Boolean;
 begin
   if not IntersecProjectedRect(VIntersectRect, FBounds, ARect) then begin
     Result := False;
@@ -307,8 +311,89 @@ begin
     if PixelPointInRect(FPoints[0], ARect) then begin
       Result := True;
     end else begin
-      VEnum := TEnumProjectedPointClipByRect.Create(True, ARect, GetEnum);
-      Result :=  VEnum.Next(VPoint);
+      VRectIn := False;
+      Result := False;
+      VEnum := GetEnum;
+      // »щем есть ли пересечени€ пр€моугольника с полигоном,
+      // и заодно провер€ем попадает ли левый верхний угол в полигон
+      if VEnum.Next(VPrevPoint) then begin
+        while VEnum.Next(VCurrPoint) do begin
+          VDelta.X := VCurrPoint.X - VPrevPoint.X;
+          VDelta.Y := VCurrPoint.Y - VPrevPoint.Y;
+          if (VDelta.Y < 0)then begin
+            if (VCurrPoint.Y <= ARect.Top) and (ARect.Top < VPrevPoint.Y) then begin
+              VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+              if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+                Result := True;
+                Break;
+              end;
+              if (ARect.Left > VIntersect) then begin
+                VRectIn := not VRectIn;
+              end;
+            end;
+            if (VCurrPoint.Y <= ARect.Bottom) and (ARect.Bottom < VPrevPoint.Y) then begin
+              VIntersect := VDelta.X * (ARect.Bottom - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+              if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+                Result := True;
+                Break;
+              end;
+            end;
+          end else if (VDelta.Y > 0)then begin
+            if (VCurrPoint.Y > ARect.Top) and (ARect.Top >= VPrevPoint.Y) then begin
+              VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+              if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+                Result := True;
+                Break;
+              end;
+              if (ARect.Left > VIntersect) then begin
+                VRectIn := not VRectIn;
+              end;
+            end;
+            if (VCurrPoint.Y > ARect.Bottom) and (ARect.Bottom >= VPrevPoint.Y) then begin
+              VIntersect := VDelta.X * (ARect.Bottom - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+              if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+                Result := True;
+                Break;
+              end;
+            end;
+          end;
+
+          if (VDelta.X < 0)then begin
+            if (VCurrPoint.X <= ARect.Left) and (ARect.Left < VPrevPoint.X) then begin
+              VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+              if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+                Result := True;
+                Break;
+              end;
+            end;
+            if (VCurrPoint.X <= ARect.Right) and (ARect.Right < VPrevPoint.X) then begin
+              VIntersect := VDelta.Y * (ARect.Right - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+              if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+                Result := True;
+                Break;
+              end;
+            end;
+          end else if (VDelta.X > 0)then begin
+            if (VCurrPoint.X > ARect.Left) and (ARect.Left >= VPrevPoint.X) then begin
+              VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+              if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+                Result := True;
+                Break;
+              end;
+            end;
+            if (VCurrPoint.X > ARect.Right) and (ARect.Right >= VPrevPoint.X) then begin
+              VIntersect := VDelta.Y * (ARect.Right - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+              if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+                Result := True;
+                Break;
+              end;
+            end;
+          end;
+
+          VPrevPoint := VCurrPoint;
+        end;
+        Result := VRectIn;
+      end;
     end;
   end;
 end;
