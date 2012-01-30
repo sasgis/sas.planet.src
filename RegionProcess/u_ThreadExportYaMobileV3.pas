@@ -58,7 +58,7 @@ uses
   i_CoordConverter,
   i_VectorItemProjected,
   i_TileIterator,
-  u_TileIteratorStuped,
+  u_TileIteratorByPolygon,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
   u_ARGBToPaletteConverter;
@@ -270,7 +270,7 @@ begin
             FPolygLL
           );
 
-        VTileIterators[i] := TTileIteratorStuped.Create(VProjectedPolygon);
+        VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
         for j := 0 to 2 do begin
           if (FMapTypeArr[j] <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
             FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;

@@ -811,9 +811,9 @@
     <DCCReference Include="u_TileGridConfig.pas" />
     <DCCReference Include="u_TileInfoBasic.pas" />
     <DCCReference Include="u_TileIteratorAbstract.pas" />
+    <DCCReference Include="u_TileIteratorByPolygon.pas" />
     <DCCReference Include="u_TileIteratorByRect.pas" />
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
-    <DCCReference Include="u_TileIteratorStuped.pas" />
     <DCCReference Include="u_TilePostDownloadCropConfigStatic.pas" />
     <DCCReference Include="u_TileRectUpdateNotifier.pas" />
     <DCCReference Include="u_TileRequest.pas" />

@@ -46,7 +46,7 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
-  u_TileIteratorStuped,
+  u_TileIteratorByPolygon,
   u_TileStorageAbstract;
 
 constructor TThreadExportToTar.Create(
@@ -101,7 +101,7 @@ begin
         ),
         FPolygLL
       );
-    VTileIterators[i] := TTileIteratorStuped.Create(VProjectedPolygon);
+    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
     FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
   end;
   try

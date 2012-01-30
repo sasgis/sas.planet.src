@@ -36,7 +36,7 @@ uses
   i_CoordConverter,
   u_ResStrings,
   i_TileIterator,
-  u_TileIteratorStuped;
+  u_TileIteratorByPolygon;
 
 { TThreadExportToAUX }
 
@@ -69,7 +69,7 @@ var
 begin
   inherited;
   VGeoConvert := FMapType.GeoConvert;
-  VTileIterator := TTileIteratorStuped.Create(FPolyProjected);
+  VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
   try
     FTilesToProcess := VTileIterator.TilesTotal;
     ProgressFormUpdateCaption(

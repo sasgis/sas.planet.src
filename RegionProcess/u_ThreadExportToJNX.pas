@@ -59,7 +59,7 @@ uses
   i_VectorItemProjected,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
-  u_TileIteratorStuped;
+  u_TileIteratorByPolygon;
 
 constructor TThreadExportToJnx.Create(
   ACoordConverterFactory: ICoordConverterFactory;
@@ -124,7 +124,7 @@ begin
         ),
         FPolygLL
       );
-    VTileIterators[i] := TTileIteratorStuped.Create(VProjectedPolygon);
+    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
     FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
   end;
 

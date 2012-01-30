@@ -47,7 +47,7 @@ uses
   i_VectorItemProjected,
   i_CoordConverter,
   i_TileIterator,
-  u_TileIteratorStuped;
+  u_TileIteratorByPolygon;
 
 constructor TThreadExportToFileSystem.Create(
   APath: string;
@@ -104,7 +104,7 @@ begin
           ),
           FPolygLL
         );
-      VTileIterators[j, i] := TTileIteratorStuped.Create(VProjectedPolygon);
+      VTileIterators[j, i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
       FTilesToProcess := FTilesToProcess + VTileIterators[j, i].TilesTotal;
     end;
   end;

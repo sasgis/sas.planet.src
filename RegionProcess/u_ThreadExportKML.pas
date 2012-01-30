@@ -48,7 +48,7 @@ uses
   Math,
   u_GeoToStr,
   i_TileIterator,
-  u_TileIteratorStuped,
+  u_TileIteratorByPolygon,
   i_VectorItemProjected,
   i_CoordConverter;
 
@@ -153,7 +153,7 @@ begin
         ),
         FPolygLL
       );
-    VIterator := TTileIteratorStuped.Create(VProjectedPolygon);
+    VIterator := TTileIteratorByPolygon.Create(VProjectedPolygon);
     FTilesToProcess := FTilesToProcess + VIterator.TilesTotal;
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
@@ -165,7 +165,7 @@ begin
           ),
           FPolygLL
         );
-      VTempIterator := TTileIteratorStuped.Create(VProjectedPolygon);
+      VTempIterator := TTileIteratorByPolygon.Create(VProjectedPolygon);
       FTilesToProcess := FTilesToProcess + VTempIterator.TilesTotal;
     end;
   end;

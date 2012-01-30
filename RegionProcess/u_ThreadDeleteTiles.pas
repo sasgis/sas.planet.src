@@ -39,7 +39,7 @@ implementation
 
 uses
   i_TileIterator,
-  u_TileIteratorStuped;
+  u_TileIteratorByPolygon;
 
 constructor TThreadDeleteTiles.Create(
   APolyLL: ILonLatPolygon;
@@ -65,7 +65,7 @@ var
   VTileIterator: ITileIterator;
 begin
   inherited;
-  VTileIterator := TTileIteratorStuped.Create(FPolyProjected);
+  VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
   try
     FTilesToProcess := VTileIterator.TilesTotal;
     ProgressFormUpdateCaption(

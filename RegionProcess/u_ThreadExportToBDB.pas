@@ -82,7 +82,7 @@ uses
   i_TileInfoBasic,
   u_TileFileNameBDB,
   u_TileStorageBerkeleyDBHelper,
-  u_TileIteratorStuped;
+  u_TileIteratorByPolygon;
 
 constructor TThreadExportToBDB.Create(
   APath: string;
@@ -225,7 +225,7 @@ begin
           ),
           FPolygLL
         );
-      VTileIterators[i, j] := TTileIteratorStuped.Create(VProjectedPolygon);
+      VTileIterators[i, j] := TTileIteratorByPolygon.Create(VProjectedPolygon);
       FTilesToProcess := FTilesToProcess + VTileIterators[i, j].TilesTotal;
     end;
   end;

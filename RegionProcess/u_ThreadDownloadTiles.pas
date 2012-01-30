@@ -165,7 +165,7 @@ uses
   i_TileIterator,
   i_TileDownloaderState,
   u_DownloadInfoSimple,
-  u_TileIteratorStuped,
+  u_TileIteratorByPolygon,
   u_DoublePointsAggregator,
   u_NotifyEventListener,
   u_ResStrings;
@@ -528,13 +528,14 @@ var
 begin
   Randomize;
   FStartTime := Now;
-  if (FMapType.TileDownloaderConfig.IteratorSubRectSize.X=1)and
-     (FMapType.TileDownloaderConfig.IteratorSubRectSize.Y=1) then begin
-    VTileIterator := TTileIteratorStuped.Create(FPolyProjected);
-  end else begin
-    VTileIterator := TTileIteratorBySubRect.Create(FPolyProjected,
-                      FMapType.TileDownloaderConfig.IteratorSubRectSize);
-  end;
+  VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
+//  if (FMapType.TileDownloaderConfig.IteratorSubRectSize.X=1)and
+//     (FMapType.TileDownloaderConfig.IteratorSubRectSize.Y=1) then begin
+//    VTileIterator := TTileIteratorStuped.Create(FPolyProjected);
+//  end else begin
+//    VTileIterator := TTileIteratorBySubRect.Create(FPolyProjected,
+//                      FMapType.TileDownloaderConfig.IteratorSubRectSize);
+//  end;
   try
     FTotalInRegion := VTileIterator.TilesTotal;
     FLastSuccessfulPoint := Point(-1,-1);

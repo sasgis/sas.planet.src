@@ -69,7 +69,7 @@ uses
   u_ResStrings,
   i_VectorItemProjected,
   i_TileIterator,
-  u_TileIteratorStuped,
+  u_TileIteratorByPolygon,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver;
 
@@ -268,7 +268,7 @@ begin
           ),
           FPolygLL
         );
-      VTileIterators[i] := TTileIteratorStuped.Create(VProjectedPolygon);
+      VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
       FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
     end;
     try

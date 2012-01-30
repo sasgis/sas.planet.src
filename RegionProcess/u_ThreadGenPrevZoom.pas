@@ -57,7 +57,7 @@ uses
   i_CoordConverter,
   i_VectorItemProjected,
   i_TileIterator,
-  u_TileIteratorStuped,
+  u_TileIteratorByPolygon,
   u_TileIteratorByRect;
 
 constructor TThreadGenPrevZoom.Create(
@@ -128,7 +128,7 @@ begin
         ),
         FPolygLL
       );
-    VTileIterators[i] := TTileIteratorStuped.Create(VProjectedPolygon);
+    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
     if (not FGenFormPrevZoom) or (i = 0) then begin
       VZoomDelta := FSourceZoom - FZooms[i];
     end else begin
