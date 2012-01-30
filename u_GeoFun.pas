@@ -286,7 +286,7 @@ begin
     (ARect1.Bottom = ARect2.Bottom);
 end;
 
-Procedure GetMinMax(var ARect:TDoubleRect; APoints: PDoublePointArray; ACount: Integer); overload;
+{Procedure GetMinMax(var ARect:TDoubleRect; APoints: PDoublePointArray; ACount: Integer); overload;
 var
   i: Integer;
 begin
@@ -311,7 +311,7 @@ begin
     ARect.TopLeft := DoublePoint(0, 0);
     ARect.BottomRight := DoublePoint(0, 0);
   end;
-end;
+end;}
 
 function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
 begin
