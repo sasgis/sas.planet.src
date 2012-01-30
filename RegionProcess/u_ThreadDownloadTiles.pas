@@ -210,6 +210,7 @@ begin
   FCheckExistTileDate := ACheckExistTileDate;
   FSecondLoadTNE := ASecondLoadTNE;
   FPolygLL := APolygon;
+  FPolyProjected := APolyProjected;
   FProcessed := AProcessed;
   FElapsedTime := AElapsedTime;
   FLastProcessedPoint := ALastProcessedPoint;
@@ -241,7 +242,20 @@ begin
     FFinished := true;
     Exit;
   end;
-  if FPolygLL.Count < 3 then begin
+  if FPolygLL.Count < 1 then begin
+    ALog.WriteText('Empty Polygon', 10);
+    Terminate;
+    FFinished := true;
+    Exit;
+  end;
+
+  if FPolyProjected = nil then begin
+    ALog.WriteText('Polygon does not exist', 10);
+    Terminate;
+    FFinished := true;
+    Exit;
+  end;
+  if FPolyProjected.Count < 1 then begin
     ALog.WriteText('Empty Polygon', 10);
     Terminate;
     FFinished := true;
