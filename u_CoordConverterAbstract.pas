@@ -90,6 +90,7 @@ type
 
     function TilePos2PixelPosInternal(const XY: TPoint; Azoom: byte): TPoint; virtual; stdcall; abstract;
     function TilePos2PixelRectInternal(const XY: TPoint; Azoom: byte): TRect; virtual; stdcall; abstract;
+    function TilePos2PixelRectFloatInternal(const XY: TPoint; Azoom: byte): TDoubleRect; virtual; stdcall; abstract;
     function TilePos2LonLatRectInternal(const XY: TPoint; Azoom: byte): TDoubleRect; virtual; stdcall; abstract;
     function TilePos2LonLatInternal(const XY: TPoint; Azoom: byte): TDoublePoint; virtual; stdcall; abstract;
     function TilePos2RelativeInternal(const XY: TPoint; Azoom: byte): TDoublePoint; virtual; stdcall; abstract;
@@ -176,6 +177,7 @@ type
 
     function TilePos2PixelPos(const AXY: TPoint; const Azoom: byte): TPoint; virtual; stdcall;
     function TilePos2PixelRect(const AXY: TPoint; const Azoom: byte): TRect; virtual; stdcall;
+    function TilePos2PixelRectFloat(const AXY: TPoint; const Azoom: byte): TDoubleRect; virtual; stdcall;
     function TilePos2LonLatRect(const AXY: TPoint; const Azoom: byte): TDoubleRect; virtual; stdcall;
     function TilePos2LonLat(const AXY: TPoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
     function TilePos2Relative(const AXY: TPoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
@@ -359,6 +361,18 @@ begin
   VZoom := AZoom;
   CheckTilePosStrictInternal(VXY, VZoom);
   Result := TilePos2PixelRectInternal(VXY, Vzoom);
+end;
+
+function TCoordConverterAbstract.TilePos2PixelRectFloat(const AXY: TPoint;
+  const Azoom: byte): TDoubleRect;
+var
+  VXY: TPoint;
+  VZoom: Byte;
+begin
+  VXY := AXY;
+  VZoom := AZoom;
+  CheckTilePosStrictInternal(VXY, VZoom);
+  Result := TilePos2PixelRectFloatInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.TilePos2LonLatRect(const AXY: TPoint;

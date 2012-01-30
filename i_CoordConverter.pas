@@ -101,6 +101,7 @@ type
     function TilePos2PixelPos(const XY: TPoint; const Azoom: byte): TPoint; stdcall;
     // ѕреобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме
     function TilePos2PixelRect(const XY: TPoint; const Azoom: byte): TRect; stdcall;
+    function TilePos2PixelRectFloat(const XY: TPoint; const Azoom: byte): TDoubleRect; stdcall;
     // ѕреобразует координаты тайла в относительные координаты на карте (x/PixelsAtZoom)
     function TilePos2Relative(const XY: TPoint; const Azoom: byte): TDoublePoint; stdcall;
     // ѕреобразует позицию тайла заданного зума в номера пикселов его углов на заданном зуме

@@ -87,6 +87,7 @@ type
 
     function TilePos2PixelPosInternal(const XY: TPoint; Azoom: byte): TPoint; override;
     function TilePos2PixelRectInternal(const XY: TPoint; Azoom: byte): TRect; override;
+    function TilePos2PixelRectFloatInternal(const XY: TPoint; Azoom: byte): TDoubleRect; override;
     function TilePos2LonLatRectInternal(const XY: TPoint; Azoom: byte): TDoubleRect; override;
     function TilePos2LonLatInternal(const XY: TPoint; Azoom: byte): TDoublePoint; override;
     function TilePos2RelativeInternal(const XY: TPoint; Azoom: byte): TDoublePoint; override;
@@ -963,6 +964,15 @@ end;
 
 function TCoordConverterBasic.TilePos2PixelRectInternal(const XY: TPoint;
   Azoom: byte): TRect;
+begin
+  Result.Left := XY.X shl 8;
+  Result.Top := XY.Y shl 8;
+  Result.Right := Result.Left + (1 shl 8);
+  Result.Bottom := Result.Top + (1 shl 8);
+end;
+
+function TCoordConverterBasic.TilePos2PixelRectFloatInternal(const XY: TPoint;
+  Azoom: byte): TDoubleRect;
 begin
   Result.Left := XY.X shl 8;
   Result.Top := XY.Y shl 8;
