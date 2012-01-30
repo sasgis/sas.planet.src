@@ -12,9 +12,11 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_OperationNotifier,
+  i_CoordConverterFactory,
   i_GlobalDownloadConfig,
   i_TileRequestResult,
   i_VectorItemLonLat,
+  i_VectorItemProjected,
   i_VectorItmesFactory,
   i_DownloadInfoSimple,
   i_MapTypes,
@@ -27,7 +29,8 @@ type
     FAppClosingNotifier: IJclNotifier;
     FMapType: TMapType;
     FDownloadInfo: IDownloadInfoSimple;
-    FPolygLL: ILonLatPolygonLine;
+    FPolygLL: ILonLatPolygon;
+    FPolyProjected: IProjectedPolygon;
     FSecondLoadTNE:boolean;
     FReplaceExistTiles: boolean;
     FCheckExistTileSize: boolean;
@@ -93,7 +96,8 @@ type
       ALog: ILogSimple;
       AMapType: TMapType;
       AZoom: byte;
-      APolygon: ILonLatPolygonLine;
+      APolygon: ILonLatPolygon;
+      APolyProjected: IProjectedPolygon;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
       AReplaceExistTiles: Boolean;
@@ -111,7 +115,8 @@ type
     constructor Create(
       AAppClosingNotifier: IJclNotifier;
       ALog: ILogSimple;
-      APolygon: ILonLatPolygonLine;
+      APolygon: ILonLatPolygon;
+      APolyProjected: IProjectedPolygon;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple;
       Azamena: boolean;
@@ -127,6 +132,7 @@ type
       AVectorItmesFactory: IVectorItmesFactory;
       ALog: ILogSimple;
       AFullMapsSet: IMapTypeSet;
+      AProjectionFactory: IProjectionInfoFactory;
       ASLSSection: IConfigDataProvider;
       ADownloadConfig: IGlobalDownloadConfig;
       ADownloadInfo: IDownloadInfoSimple
@@ -169,7 +175,8 @@ constructor TThreadDownloadTiles.CreateInternal(
   ALog: ILogSimple;
   AMapType: TMapType;
   AZoom: byte;
-  APolygon: ILonLatPolygonLine;
+  APolygon: ILonLatPolygon;
+  APolyProjected: IProjectedPolygon;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
   AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
@@ -256,7 +263,8 @@ end;
 constructor TThreadDownloadTiles.Create(
   AAppClosingNotifier: IJclNotifier;
   ALog: ILogSimple;
-  APolygon: ILonLatPolygonLine;
+  APolygon: ILonLatPolygon;
+  APolyProjected: IProjectedPolygon;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple;
   Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
@@ -271,6 +279,7 @@ begin
     Atypemap,
     AZoom,
     APolygon,
+    APolyProjected,
     ADownloadConfig,
     TDownloadInfoSimple.Create(ADownloadInfo),
     Azamena,
@@ -289,6 +298,7 @@ constructor TThreadDownloadTiles.CreateFromSls(
   AVectorItmesFactory: IVectorItmesFactory;
   ALog: ILogSimple;
   AFullMapsSet: IMapTypeSet;
+  AProjectionFactory: IProjectionInfoFactory;
   ASLSSection: IConfigDataProvider;
   ADownloadConfig: IGlobalDownloadConfig;
   ADownloadInfo: IDownloadInfoSimple
@@ -308,12 +318,13 @@ var
   VProcessed: Int64;
   VSecondLoadTNE: Boolean;
   VLastProcessedPoint: TPoint;
-  VPolygon: IDoublePointsAggregator;
+  VPointsAggregator: IDoublePointsAggregator;
   VElapsedTime: TDateTime;
   VMapType: TMapType;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
-  VPolygonLine: ILonLatPolygonLine;
+  VPolygon: ILonLatPolygon;
+  VProjectedPolygon: IProjectedPolygon;
 begin
   VMapType := nil;
   VReplaceExistTiles := False;
@@ -366,20 +377,21 @@ begin
       VLastProcessedPoint.X:=ASLSSection.ReadInteger('StartX',-1);
       VLastProcessedPoint.Y:=ASLSSection.ReadInteger('StartY',-1);
     end;
-    VPolygon := TDoublePointsAggregator.Create;
+    VPointsAggregator := TDoublePointsAggregator.Create;
     i:=1;
     repeat
       VPoint.X := ASLSSection.ReadFloat('LLPointX_'+inttostr(i),-10000);
       VPoint.Y := ASLSSection.ReadFloat('LLPointY_'+inttostr(i),-10000);
       VValidPoint := (Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360);
       if VValidPoint then begin
-        VPolygon.Add(VPoint);
+        VPointsAggregator.Add(VPoint);
         inc(i);
       end;
     until not VValidPoint;
-    if VPolygon.Count > 0 then begin
-      VPolygonLine := AVectorItmesFactory.CreateLonLatPolygon(VPolygon.Points, VPolygon.Count).Item[0];
+    if VPointsAggregator.Count > 0 then begin
+      VPolygon := AVectorItmesFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
     end;
+
     VMap := AFullMapsSet.GetMapTypeByGUID(VGuid);
     if VMap = nil then begin
       ALog.WriteText(Format('Map with GUID = %s not found', [VGuids]), 10);
@@ -392,13 +404,25 @@ begin
         Exit;
       end;
     end;
+
+    if VPolygon.Count > 0 then begin
+      VProjectedPolygon :=
+        AVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+          AProjectionFactory.GetByConverterAndZoom(
+            VMapType.GeoConvert,
+            VZoom
+          ),
+          VPolygon
+        );
+    end;
   finally
     CreateInternal(
       AAppClosingNotifier,
       ALog,
       VMapType,
       VZoom,
-      VPolygonLine,
+      VPolygon,
+      VProjectedPolygon,
       ADownloadConfig,
       TDownloadInfoSimple.Create(ADownloadInfo, VProcessedTileCount, VProcessedSize),
       VReplaceExistTiles,
@@ -492,9 +516,9 @@ begin
   FStartTime := Now;
   if (FMapType.TileDownloaderConfig.IteratorSubRectSize.X=1)and
      (FMapType.TileDownloaderConfig.IteratorSubRectSize.Y=1) then begin
-    VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, FMapType.GeoConvert);
+    VTileIterator := TTileIteratorStuped.Create(FPolyProjected);
   end else begin
-    VTileIterator := TTileIteratorBySubRect.Create(FZoom, FPolygLL, FMapType.GeoConvert,
+    VTileIterator := TTileIteratorBySubRect.Create(FPolyProjected,
                       FMapType.TileDownloaderConfig.IteratorSubRectSize);
   end;
   try

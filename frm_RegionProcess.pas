@@ -107,6 +107,8 @@ type
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
       ACoordConverterFactory: ICoordConverterFactory;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       ATileNameGenerator: ITileFileNameGeneratorsList
     );
   public
@@ -196,6 +198,8 @@ begin
     AFullMapsSet,
     AGUIConfigList,
     ACoordConverterFactory,
+    AProjectionFactory,
+    AVectorItmesFactory,
     ATileNameGenerator
   );
 
@@ -205,7 +209,9 @@ begin
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
-      AGUIConfigList
+      AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory
     );
   FProviderTilesGenPrev :=
     TProviderTilesGenPrev.Create(
@@ -215,6 +221,8 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AViewConfig,
+      AProjectionFactory,
+      AVectorItmesFactory,
       AImageResamplerConfig
     );
   FProviderTilesCopy :=
@@ -224,6 +232,8 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory,
       ATileNameGenerator
     );
   FProviderTilesDownload :=
@@ -365,6 +375,8 @@ procedure TfrmRegionProcess.InitExportsList(
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
   ACoordConverterFactory: ICoordConverterFactory;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   ATileNameGenerator: ITileFileNameGeneratorsList
 );
 var
@@ -378,6 +390,8 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       ACoordConverterFactory,
+      AProjectionFactory,
+      AVectorItmesFactory,
       True
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -390,6 +404,8 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       ACoordConverterFactory,
+      AProjectionFactory,
+      AVectorItmesFactory,
       False
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -400,7 +416,9 @@ begin
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
-      AGUIConfigList
+      AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
@@ -411,6 +429,8 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory,
       ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -422,6 +442,8 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory,
       ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -432,7 +454,9 @@ begin
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
-      AGUIConfigList
+      AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
@@ -443,6 +467,8 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory,
       ATileNameGenerator
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -454,6 +480,8 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory,
       ATileNameGenerator
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -465,6 +493,8 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory,
       ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);

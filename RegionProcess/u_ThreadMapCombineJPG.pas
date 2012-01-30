@@ -31,8 +31,8 @@ type
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: ILonLatPolygonLine;
-      AProjectedPolygon: IProjectedPolygonLine;
+      APolygon: ILonLatPolygon;
+      AProjectedPolygon: IProjectedPolygon;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -70,8 +70,8 @@ constructor TThreadMapCombineJPG.Create(
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
-  APolygon: ILonLatPolygonLine;
-  AProjectedPolygon: IProjectedPolygonLine;
+  APolygon: ILonLatPolygon;
+  AProjectedPolygon: IProjectedPolygon;
   ASplitCount: TPoint;
   Azoom: byte;
   Atypemap, AHtypemap: TMapType;

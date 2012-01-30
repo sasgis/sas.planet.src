@@ -16,7 +16,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      APolygon: ILonLatPolygonLine;
+      APolygon: ILonLatPolygon;
       Azoomarr: array of boolean
     );
     destructor Destroy; override;
@@ -27,8 +27,10 @@ implementation
 uses
   SysUtils;
 
-constructor TThreadExportAbstract.Create(APolygon: ILonLatPolygonLine;
-  Azoomarr: array of boolean);
+constructor TThreadExportAbstract.Create(
+  APolygon: ILonLatPolygon;
+  Azoomarr: array of boolean
+);
 var
   i: Integer;
   VZoomCount: Integer;

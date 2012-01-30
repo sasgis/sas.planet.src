@@ -9,6 +9,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_VectorItemLonLat,
   u_ExportProviderAbstract,
   fr_ExportYaMobileV3;
@@ -18,6 +19,8 @@ type
   private
     FFrame: TfrExportYaMobileV3;
     FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
   public
     constructor Create(
       AParent: TWinControl;
@@ -25,6 +28,8 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       ACoordConverterFactory: ICoordConverterFactory
     );
     destructor Destroy; override;
@@ -53,6 +58,8 @@ constructor TExportProviderYaMobileV3.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   ACoordConverterFactory: ICoordConverterFactory
 );
 begin
@@ -63,6 +70,8 @@ begin
     AFullMapsSet,
     AGUIConfigList
   );
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FCoordConverterFactory := ACoordConverterFactory;
 end;
 
@@ -143,8 +152,10 @@ begin
   Assert(APolygon.Count = 1);
   TThreadExportYaMobileV3.Create(
     FCoordConverterFactory,
+    FProjectionFactory,
+    FVectorItmesFactory,
     path,
-    APolygon.Item[0],
+    APolygon,
     ZoomArr,
     typemaparr,
     Replace,

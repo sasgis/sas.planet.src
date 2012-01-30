@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
+  i_VectorItmesFactory,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;
@@ -20,6 +21,8 @@ type
     FMapType: TMapType;
     FTargetFile: string;
     FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
     FProductName: string; // копирайт
     FMapName : string;  // имя карты
     FJNXversion : byte;  // 3..4
@@ -31,8 +34,10 @@ type
   public
     constructor Create(
       ACoordConverterFactory: ICoordConverterFactory;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       ATargetFile: string;
-      APolygon: ILonLatPolygonLine;
+      APolygon: ILonLatPolygon;
       Azoomarr: array of boolean;
       AMapType: TMapType;
       AProductName : string;
@@ -51,14 +56,17 @@ uses
   c_CoordConverter,
   i_CoordConverter,
   i_TileIterator,
+  i_VectorItemProjected,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
   u_TileIteratorStuped;
 
 constructor TThreadExportToJnx.Create(
   ACoordConverterFactory: ICoordConverterFactory;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   ATargetFile: string;
-  APolygon: ILonLatPolygonLine;
+  APolygon: ILonLatPolygon;
   Azoomarr: array of boolean;
   AMapType: TMapType;
   AProductName : string;
@@ -73,6 +81,8 @@ begin
   FTargetFile := ATargetFile;
   FMapType := AMapType;
   FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FProductName := AProductName;
   FMapName := AMapName;
   FJNXVersion := AJNXVersion;
@@ -97,6 +107,7 @@ var
   VTileBounds: TJNXRect;
   VTopLeft: TDoublePoint;
   VBottomRight: TDoublePoint;
+  VProjectedPolygon: IProjectedPolygon;
 begin
   inherited;
   FTilesToProcess := 0;
@@ -105,7 +116,15 @@ begin
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
-    VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+    VProjectedPolygon :=
+      FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+        FProjectionFactory.GetByConverterAndZoom(
+          VGeoConvert,
+          VZoom
+        ),
+        FPolygLL
+      );
+    VTileIterators[i] := TTileIteratorStuped.Create(VProjectedPolygon);
     FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
   end;
 

@@ -26,6 +26,7 @@ uses
   Types,
   i_CoordConverter,
   i_VectorItemLonLat,
+  i_VectorItemProjected,
   i_TileIterator;
 
 type
@@ -41,17 +42,15 @@ type
   end;
 
   TTileIteratorByPolygonAbstract = class(TTileIteratorAbstract)
+  private
+    FProjected: IProjectedPolygon;
   protected
-    FPolygLL: ILonLatPolygonLine;
-    FZoom: byte;
-    FGeoConvert: ICoordConverter;
     FCurrent: TPoint;
+    property Projected: IProjectedPolygon read FProjected;
   public
     constructor Create(
-      AZoom: byte;
-      APolygLL: ILonLatPolygonLine;
-      AGeoConvert: ICoordConverter
-    ); virtual;
+      AProjected: IProjectedPolygon
+    );
     destructor Destroy; override;
   end;
 
@@ -60,20 +59,15 @@ implementation
 { TTileIteratorByPolygonAbstract }
 
 constructor TTileIteratorByPolygonAbstract.Create(
-  AZoom: byte;
-  APolygLL: ILonLatPolygonLine;
-  AGeoConvert: ICoordConverter
+  AProjected: IProjectedPolygon
 );
 begin
-  FZoom := AZoom;
-  FPolygLL := APolygLL;
-  FGeoConvert := AGeoConvert;
+  FProjected := AProjected;
 end;
 
 destructor TTileIteratorByPolygonAbstract.Destroy;
 begin
-  FPolygLL := nil;
-  FGeoConvert := nil;
+  FProjected := nil;
   inherited;
 end;
 

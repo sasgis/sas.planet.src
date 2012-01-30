@@ -9,6 +9,8 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_TileFileNameGeneratorsList,
   u_ExportProviderAbstract,
   fr_TilesCopy;
@@ -17,6 +19,8 @@ type
   TProviderTilesCopy = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesCopy;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
   public
     constructor Create(
@@ -25,6 +29,8 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       ATileNameGenerator: ITileFileNameGeneratorsList
     );
     destructor Destroy; override;
@@ -54,10 +60,14 @@ constructor TProviderTilesCopy.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FTileNameGenerator := ATileNameGenerator;
 end;
 
@@ -138,7 +148,9 @@ begin
   if FFrame.cbbNamesType.ItemIndex = 4 then begin
     TThreadExportToBDB.Create(
       path,
-      APolygon.Item[0],
+      FProjectionFactory,
+      FVectorItmesFactory,
+      APolygon,
       ZoomArr,
       typemaparr,
       FFrame.chkDeleteSource.Checked,
@@ -147,7 +159,9 @@ begin
   end else begin
     TThreadExportToFileSystem.Create(
       path,
-      APolygon.Item[0],
+      FProjectionFactory,
+      FVectorItmesFactory,
+      APolygon,
       ZoomArr,
       typemaparr,
       FFrame.chkDeleteSource.Checked,

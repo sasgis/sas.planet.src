@@ -27,6 +27,8 @@ uses
   SysUtils,
   Classes,
   i_VectorItemLonLat,
+  i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_TileFileNameGenerator,
   u_MapType,
   u_ResStrings,
@@ -39,6 +41,8 @@ type
   TThreadExportToBDB = class(TThreadExportAbstract)
   private
     FMapTypeArr: array of TMapType;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
     FTileNameGen: ITileFileNameGenerator;
     FStream: TMemoryStream;
     FIsMove: boolean;
@@ -57,7 +61,9 @@ type
   public
     constructor Create(
       APath: string;
-      APolygon: ILonLatPolygonLine;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
+      APolygon: ILonLatPolygon;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
       Amove: boolean;
@@ -71,6 +77,7 @@ implementation
 uses
   Variants,
   i_CoordConverter,
+  i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
   u_TileFileNameBDB,
@@ -79,7 +86,9 @@ uses
 
 constructor TThreadExportToBDB.Create(
   APath: string;
-  APolygon: ILonLatPolygonLine;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
+  APolygon: ILonLatPolygon;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   Amove, Areplace: boolean
@@ -88,6 +97,8 @@ var
   i: integer;
 begin
   inherited Create(APolygon, Azoomarr);
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FPathExport := APath;
   FIsMove := AMove;
   FTileNameGen := TTileFileNameBDB.Create;
@@ -197,6 +208,7 @@ var
   VTileIterator: ITileIterator;
   VBDBHelper: TTileStorageBerkeleyDBHelper;
   VPool: TBerkeleyDBPool;
+  VProjectedPolygon: IProjectedPolygon;
 begin
   inherited;
   SetLength(VTileIterators, length(FMapTypeArr), Length(FZooms));
@@ -205,7 +217,15 @@ begin
     for j := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[j];
       VGeoConvert := FMapTypeArr[i].GeoConvert;
-      VTileIterators[i, j] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+      VProjectedPolygon :=
+        FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+          FProjectionFactory.GetByConverterAndZoom(
+            VGeoConvert,
+            VZoom
+          ),
+          FPolygLL
+        );
+      VTileIterators[i, j] := TTileIteratorStuped.Create(VProjectedPolygon);
       FTilesToProcess := FTilesToProcess + VTileIterators[i, j].TilesTotal;
     end;
   end;

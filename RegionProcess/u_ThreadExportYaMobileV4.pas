@@ -11,6 +11,7 @@ uses
   YaMobileCache,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
+  i_VectorItmesFactory,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;
@@ -23,6 +24,8 @@ type
     FExportPath: string;
     cSat, cMap: Byte;
     FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
     FCacheFile: array [0..7] of TYaMobileCacheFile;
     FCacheCount: Byte;
     procedure GenUserXml(const AMapID, AMapName: string);
@@ -42,8 +45,10 @@ type
   public
     constructor Create(
       ACoordConverterFactory: ICoordConverterFactory;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       APath: string;
-      APolygon: ILonLatPolygonLine;
+      APolygon: ILonLatPolygon;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
       Areplace: boolean;
@@ -57,6 +62,7 @@ implementation
 uses
   c_CoordConverter,
   i_CoordConverter,
+  i_VectorItemProjected,
   i_BitmapTileSaveLoad,
   i_TileIterator,
   u_TileIteratorStuped,
@@ -67,8 +73,10 @@ uses
 
 constructor TThreadExportYaMobileV4.Create(
   ACoordConverterFactory: ICoordConverterFactory;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   APath: string;
-  APolygon: ILonLatPolygonLine;
+  APolygon: ILonLatPolygon;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   Areplace: boolean;
@@ -79,6 +87,8 @@ var
 begin
   inherited Create(APolygon, Azoomarr);
   FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   cSat := Acsat;
   cMap := Acmap;
   FExportPath := APath;
@@ -218,6 +228,7 @@ var
   VSaver: IBitmapTileSaver;
   VTileIterators: array of ITileIterator;
   VMapID: Integer;
+  VProjectedPolygon: IProjectedPolygon;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -244,7 +255,15 @@ begin
 
         for i := 0 to Length(FZooms) - 1 do begin
           VZoom := FZooms[i];
-          VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+          VProjectedPolygon :=
+            FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+              FProjectionFactory.GetByConverterAndZoom(
+                VGeoConvert,
+                VZoom
+              ),
+              FPolygLL
+            );
+          VTileIterators[i] := TTileIteratorStuped.Create(VProjectedPolygon);
           for j := 0 to 2 do begin
             if (FMapTypeArr[j] <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
               FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;

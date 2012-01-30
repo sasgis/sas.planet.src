@@ -56,7 +56,7 @@ type
     FHTypeMap: TMapType;
     FZoom: byte;
     FPoly: TArrayOfPoint;
-    FPolyProjected: IProjectedPolygonLine;
+    FPolyProjected: IProjectedPolygon;
     FMapCalibrationList: IInterfaceList;
     FSplitCount: TPoint;
 
@@ -108,8 +108,8 @@ type
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: ILonLatPolygonLine;
-      AProjectedPolygon: IProjectedPolygonLine;
+      APolygon: ILonLatPolygon;
+      AProjectedPolygon: IProjectedPolygon;
       ASplitCount: TPoint;
       Azoom: byte;
       Atypemap: TMapType;
@@ -125,6 +125,7 @@ implementation
 uses
   SysUtils,
   gnugettext,
+  i_EnumDoublePoint,
   i_MapCalibration,
   u_ResStrings,
   u_GeoFun;
@@ -137,8 +138,8 @@ constructor TThreadMapCombineBase.Create(
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
-  APolygon: ILonLatPolygonLine;
-  AProjectedPolygon: IProjectedPolygonLine;
+  APolygon: ILonLatPolygon;
+  AProjectedPolygon: IProjectedPolygon;
   ASplitCount: TPoint;
   Azoom: byte;
   Atypemap: TMapType;
@@ -247,16 +248,23 @@ var
   i, j, pti: integer;
   VProcessTiles: Int64;
   VLen: Integer;
+  VLine: IProjectedPolygonLine;
+  VEnum: IEnumProjectedPoint;
+  VPoint: TDoublePoint;
 begin
   inherited;
-  VLen := FPolyProjected.Count;
+  VLine := FPolyProjected.Item[0];
+  VLen := VLine.Count + 1;
   SetLength(FPoly, VLen);
-  for i := 0 to VLen - 1 do begin
-    FPoly[i] := Point(Trunc(FPolyProjected.Points[i].X), Trunc(FPolyProjected.Points[i].Y));
+  VEnum := VLine.GetEnum;
+  i := 0;
+  while VEnum.Next(VPoint) do begin
+    FPoly[i] := Point(Trunc(VPoint.X), Trunc(VPoint.Y));
+    Inc(i);
   end;
 
   VProcessTiles := GetDwnlNum(FMapRect, @FPoly[0], VLen, true);
-  GetMinMax(FMapRect, @FPoly[0], VLen, false);
+  FMapRect := VLine.Projection.GeoConverter.PixelRectFloat2PixelRect(VLine.Bounds, VLine.Projection.Zoom);
 
   FMapSize.X := FMapRect.Right - FMapRect.Left;
   FMapSize.Y := FMapRect.Bottom - FMapRect.Top;

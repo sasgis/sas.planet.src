@@ -10,6 +10,8 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_ImageResamplerConfig,
+  i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_GlobalViewMainConfig,
   u_ExportProviderAbstract,
   fr_TilesGenPrev;
@@ -18,6 +20,8 @@ type
   TProviderTilesGenPrev = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesGenPrev;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
     FImageResamplerConfig: IImageResamplerConfig;
     FViewConfig: IGlobalViewMainConfig;
   public
@@ -28,6 +32,8 @@ type
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
       AViewConfig: IGlobalViewMainConfig;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       AImageResamplerConfig: IImageResamplerConfig
     );
     destructor Destroy; override;
@@ -59,10 +65,14 @@ constructor TProviderTilesGenPrev.Create(
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
   AViewConfig: IGlobalViewMainConfig;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   AImageResamplerConfig: IImageResamplerConfig
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FViewConfig := AViewConfig;
   FImageResamplerConfig := AImageResamplerConfig;
 end;
@@ -155,14 +165,16 @@ begin
   end;
 
   TThreadGenPrevZoom.Create(
+    FProjectionFactory,
+    FVectorItmesFactory,
     VFromZoom,
     VInZooms,
-    APolygon.Item[0],
+    APolygon,
     VMapType,
     FFrame.chkReplace.Checked,
     FFrame.chkSaveFullOnly.Checked,
     FFrame.chkFromPrevZoom.Checked,
-    FFrame.chkUsePrevTiles.Checked,    
+    FFrame.chkUsePrevTiles.Checked,
     Color32(FViewConfig.BackGroundColor),
     VResampler
   );

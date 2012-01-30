@@ -7,12 +7,14 @@ uses
   SysUtils,
   u_MapType,
   i_VectorItemLonLat,
+  i_VectorItemProjected,
   u_ThreadRegionProcessAbstract;
 
 type
   TThreadExportToAUX = class(TThreadRegionProcessAbstract)
   private
     FMapType: TMapType;
+    FPolyProjected: IProjectedPolygon;
     FFileName: string;
     FZoom: Byte;
   protected
@@ -20,7 +22,8 @@ type
     procedure ProgressFormUpdateOnProgress; virtual;
   public
     constructor Create(
-      APolygon: ILonLatPolygonLine;
+      APolygon: ILonLatPolygon;
+      AProjectedPolygon: IProjectedPolygon;
       AZoom: Byte;
       AMapType: TMapType;
       AFileName: string
@@ -38,13 +41,15 @@ uses
 { TThreadExportToAUX }
 
 constructor TThreadExportToAUX.Create(
-  APolygon: ILonLatPolygonLine;
+  APolygon: ILonLatPolygon;
+  AProjectedPolygon: IProjectedPolygon;
   AZoom: Byte;
   AMapType: TMapType;
   AFileName: string
 );
 begin
   inherited Create(APolygon);
+  FPolyProjected := AProjectedPolygon;
   FZoom := AZoom;
   FMapType := AMapType;
   FFileName := AFileName;
@@ -64,7 +69,7 @@ var
 begin
   inherited;
   VGeoConvert := FMapType.GeoConvert;
-  VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, VGeoConvert);
+  VTileIterator := TTileIteratorStuped.Create(FPolyProjected);
   try
     FTilesToProcess := VTileIterator.TilesTotal;
     ProgressFormUpdateCaption(

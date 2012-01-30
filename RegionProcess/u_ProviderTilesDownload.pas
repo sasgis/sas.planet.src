@@ -61,6 +61,7 @@ uses
   IniFiles,
   i_LogSimple,
   i_LogForTaskThread,
+  i_VectorItemProjected,
   i_ConfigDataProvider,
   u_ConfigDataProviderByIniFile,
   u_LogForTaskThread,
@@ -171,6 +172,7 @@ begin
       FVectorItmesFactory,
       VSimpleLog,
       FullMapsSet,
+      FProjectionFactory,
       VSessionSection,
       FDownloadConfig,
       FDownloadInfo
@@ -185,22 +187,33 @@ end;
 
 procedure TProviderTilesDownload.StartProcess(APolygon: ILonLatPolygon);
 var
-  smb:TMapType;
+  VMapType: TMapType;
   VZoom: byte;
   VLog: TLogForTaskThread;
   VSimpleLog: ILogSimple;
-  VThreadLog:ILogForTaskThread;
+  VThreadLog: ILogForTaskThread;
   VThread: TThreadDownloadTiles;
+  VProjectedPolygon: IProjectedPolygon;
 begin
-  smb:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   VZoom := FFrame.cbbZoom.ItemIndex;
+
+  VProjectedPolygon :=
+    FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+      FProjectionFactory.GetByConverterAndZoom(
+        VMapType.GeoConvert,
+        VZoom
+      ),
+      APolygon
+    );
   VLog := TLogForTaskThread.Create(5000, 0);
   VSimpleLog := VLog;
   VThreadLog := VLog;
   VThread := TThreadDownloadTiles.Create(
     FAppClosingNotifier,
     VSimpleLog,
-    APolygon.Item[0],
+    APolygon,
+    VProjectedPolygon,
     FDownloadConfig,
     FDownloadInfo,
     FFrame.chkReplace.Checked,
@@ -208,7 +221,7 @@ begin
     FFrame.chkReplaceOlder.Checked,
     FFrame.chkTryLoadIfTNE.Checked,
     VZoom,
-    smb,
+    VMapType,
     FFrame.dtpReplaceOlderDate.DateTime
   );
   TfrmProgressDownload.Create(

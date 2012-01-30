@@ -27,6 +27,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_VectorItemLonLat,
+  i_VectorItemProjected,
   u_TileIteratorAbstract;
 
 type
@@ -43,10 +44,8 @@ type
     function GetTilesRect: TRect; override;
   public
     constructor Create(
-      AZoom: byte;
-      APolygLL: ILonLatPolygonLine;
-      AGeoConvert: ICoordConverter
-    ); override;
+      AProjected: IProjectedPolygon
+    );
     destructor Destroy; override;
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset; override;
@@ -59,11 +58,9 @@ type
     FSubRectHeight: integer;
   public
     constructor Create(
-      AZoom: byte;
-      APolygLL: ILonLatPolygonLine;
-      AGeoConvert: ICoordConverter;
+      AProjected: IProjectedPolygon;
       ASubRectSize: TPoint
-    ); reintroduce;
+    );
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset; override;
   end;
@@ -71,25 +68,36 @@ type
 implementation
 
 uses
+  i_EnumDoublePoint,
   u_GeoFun;
 
 { TTileIteratorStuped }
 
 constructor TTileIteratorStuped.Create(
-  AZoom: byte;
-  APolygLL: ILonLatPolygonLine;
-  AGeoConvert: ICoordConverter
+  AProjected: IProjectedPolygon
 );
 var
   VLen: Integer;
+  VEnum: IEnumProjectedPoint;
+  VPoint: TDoublePoint;
+  i: Integer;
+  VLine: IProjectedPolygonLine;
 begin
   inherited;
-  VLen := FPolygLL.Count;
-  SetLength(FPolyg, VLen);
-  FGeoConvert.LonLatArray2PixelArray(FPolygLL.Points, VLen, @FPolyg[0], FZoom);
-  FTilesTotal := GetDwnlNum(FPixelRect, @FPolyg[0], VLen, true);
-  FTilesRect := FGeoConvert.PixelRect2TileRect(FPixelRect, FZoom);
-  Reset;
+  if Projected.Count > 0 then begin
+    VLine := Projected.Item[0];
+    VLen := VLine.Count;
+    SetLength(FPolyg, VLen + 1);
+    i := 0;
+    VEnum := VLine.GetEnum;
+    while VEnum.Next(VPoint) do begin
+      FPolyg[i] := Point(Trunc(VPoint.X), Trunc(VPoint.Y));
+      Inc(i);
+    end;
+    FTilesTotal := GetDwnlNum(FPixelRect, @FPolyg[0], VLen, true);
+    FTilesRect := Projected.Projection.GeoConverter.PixelRect2TileRect(FPixelRect, Projected.Projection.Zoom);
+    Reset;
+  end;
 end;
 
 destructor TTileIteratorStuped.Destroy;
@@ -144,13 +152,11 @@ end;
 { TTileIteratorBySubRect }
 
 constructor TTileIteratorBySubRect.Create(
-  AZoom: byte;
-  APolygLL: ILonLatPolygonLine;
-  AGeoConvert: ICoordConverter;
+  AProjected: IProjectedPolygon;
   ASubRectSize: TPoint
 );
 begin
-  inherited Create(AZoom, APolygLL, AGeoConvert);
+  inherited Create(AProjected);
   FSubRectWidth:=ASubRectSize.x;
   FSubRectHeight:=ASubRectSize.y;
   Reset;

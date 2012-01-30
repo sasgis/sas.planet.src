@@ -7,6 +7,7 @@ uses
   SysUtils,
   Classes,
   i_VectorItemLonLat,
+  i_VectorItemProjected,
   u_MapType,
   u_ThreadRegionProcessAbstract,
   u_ResStrings;
@@ -16,6 +17,7 @@ type
   private
     FZoom: byte;
     FMapType: TMapType;
+    FPolyProjected: IProjectedPolygon;
     FDeletedCount: integer;
     DelBytes: boolean;
     DelBytesNum: integer;
@@ -24,7 +26,8 @@ type
     procedure ProgressFormUpdateOnProgress;
   public
     constructor Create(
-      APolyLL: ILonLatPolygonLine;
+      APolyLL: ILonLatPolygon;
+      AProjectedPolygon: IProjectedPolygon;
       Azoom: byte;
       Atypemap: TMapType;
       ADelByte: boolean;
@@ -39,7 +42,8 @@ uses
   u_TileIteratorStuped;
 
 constructor TThreadDeleteTiles.Create(
-  APolyLL: ILonLatPolygonLine;
+  APolyLL: ILonLatPolygon;
+  AProjectedPolygon: IProjectedPolygon;
   Azoom: byte;
   Atypemap: TMapType;
   ADelByte: boolean;
@@ -47,6 +51,7 @@ constructor TThreadDeleteTiles.Create(
 );
 begin
   inherited Create(APolyLL);
+  FPolyProjected := AProjectedPolygon;
   FDeletedCount := 0;
   FZoom := Azoom;
   FMapType := Atypemap;
@@ -60,7 +65,7 @@ var
   VTileIterator: ITileIterator;
 begin
   inherited;
-  VTileIterator := TTileIteratorStuped.Create(FZoom, FPolygLL, FMapType.GeoConvert);
+  VTileIterator := TTileIteratorStuped.Create(FPolyProjected);
   try
     FTilesToProcess := VTileIterator.TilesTotal;
     ProgressFormUpdateCaption(

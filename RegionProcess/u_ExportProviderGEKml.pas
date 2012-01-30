@@ -3,7 +3,14 @@ unit u_ExportProviderGEKml;
 interface
 
 uses
+  Controls,
   i_VectorItemLonLat,
+  i_VectorItmesFactory,
+  i_LanguageManager,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
+  i_CoordConverterFactory,
   u_ExportProviderAbstract,
   fr_ExportGEKml;
 
@@ -11,7 +18,18 @@ type
   TExportProviderGEKml = class(TExportProviderAbstract)
   private
     FFrame: TfrExportGEKml;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
   public
+    constructor Create(
+      AParent: TWinControl;
+      ALanguageManager: ILanguageManager;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
@@ -31,6 +49,21 @@ uses
   u_MapType;
 
 { TExportProviderKml }
+
+constructor TExportProviderGEKml.Create(
+  AParent: TWinControl;
+  ALanguageManager: ILanguageManager;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory
+);
+begin
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
+end;
 
 destructor TExportProviderGEKml.Destroy;
 begin
@@ -103,7 +136,9 @@ begin
   NotSaveNotExists:=FFrame.chkNotSaveNotExists.Checked;
   TThreadExportKML.Create(
     path,
-    APolygon.Item[0],
+    FProjectionFactory,
+    FVectorItmesFactory,
+    APolygon,
     ZoomArr,
     VMapType,
     NotSaveNotExists,

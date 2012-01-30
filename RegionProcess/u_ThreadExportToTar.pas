@@ -8,6 +8,8 @@ uses
   LibTar,
   GR32,
   i_TileFileNameGenerator,
+  i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_VectorItemLonLat,
   u_MapType,
   u_ResStrings,
@@ -18,6 +20,8 @@ type
   private
     FMapType: TMapType;
     FTileNameGen: ITileFileNameGenerator;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
 
     FTargetFile: string;
     FTar: TTarWriter;
@@ -26,7 +30,9 @@ type
   public
     constructor Create(
       ATargetFile: string;
-      APolygon: ILonLatPolygonLine;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
+      APolygon: ILonLatPolygon;
       Azoomarr: array of boolean;
       AMapType: TMapType;
       ATileNameGen: ITileFileNameGenerator
@@ -37,6 +43,7 @@ type
 implementation
 
 uses
+  i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
   u_TileIteratorStuped,
@@ -44,13 +51,17 @@ uses
 
 constructor TThreadExportToTar.Create(
   ATargetFile: string;
-  APolygon: ILonLatPolygonLine;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
+  APolygon: ILonLatPolygon;
   Azoomarr: array of boolean;
   AMapType: TMapType;
   ATileNameGen: ITileFileNameGenerator);
 begin
   inherited Create(APolygon, Azoomarr);
   FTargetFile := ATargetFile;
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FTileNameGen := ATileNameGen;
   FMapType := AMapType;
   FTar := TTarWriter.Create(FTargetFile);
@@ -75,13 +86,22 @@ var
   VMemStream: TMemoryStream;
   VFileTime: TDateTime;
   VTileInfo: ITileInfoBasic;
+  VProjectedPolygon: IProjectedPolygon;
 begin
   inherited;
   FTilesToProcess := 0;
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
-    VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, FMapType.GeoConvert);
+    VProjectedPolygon :=
+      FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+        FProjectionFactory.GetByConverterAndZoom(
+          FMapType.GeoConvert,
+          VZoom
+        ),
+        FPolygLL
+      );
+    VTileIterators[i] := TTileIteratorStuped.Create(VProjectedPolygon);
     FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
   end;
   try

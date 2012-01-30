@@ -7,6 +7,8 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_VectorItemLonLat,
   u_MapType,
   u_GeoFun,
@@ -18,17 +20,21 @@ type
   TThreadExportKML = class(TThreadExportAbstract)
   private
     FMapType: TMapType;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
     FNotSaveNotExists: boolean;
     FPathExport: string;
     RelativePath: boolean;
     KMLFile: TextFile;
-    procedure KmlFileWrite(x, y: integer; AZoom, level: byte);
+    procedure KmlFileWrite(ATile: TPoint; AZoom, level: byte);
   protected
     procedure ProcessRegion; override;
   public
     constructor Create(
       APath: string;
-      APolygon: ILonLatPolygonLine;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
+      APolygon: ILonLatPolygon;
       Azoomarr: array of boolean;
       Atypemap: TMapType;
       ANotSaveNotExists: boolean;
@@ -41,11 +47,16 @@ implementation
 uses
   Math,
   u_GeoToStr,
+  i_TileIterator,
+  u_TileIteratorStuped,
+  i_VectorItemProjected,
   i_CoordConverter;
 
 constructor TThreadExportKML.Create(
   APath: string;
-  APolygon: ILonLatPolygonLine;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
+  APolygon: ILonLatPolygon;
   Azoomarr: array of boolean;
   Atypemap: TMapType;
   ANotSaveNotExists: boolean;
@@ -53,35 +64,32 @@ constructor TThreadExportKML.Create(
 );
 begin
   inherited Create(APolygon, Azoomarr);
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FPathExport := APath;
   FNotSaveNotExists := ANotSaveNotExists;
   RelativePath := ARelativePath;
   FMapType := Atypemap;
 end;
 
-procedure TThreadExportKML.KmlFileWrite(x, y: integer; AZoom, level: byte);
+procedure TThreadExportKML.KmlFileWrite(ATile: TPoint; AZoom, level: byte);
 var
-  xym256lt, xym256rb: TPoint;
   VZoom: Byte;
-  nxy, xi, yi: integer;
+  xi, yi: integer;
   savepath, north, south, east, west: string;
   ToFile: string;
+  VTileRect: TRect;
   VExtRect: TDoubleRect;
-  VTile: TPoint;
 begin
-  VTile := Point(x shr 8, y shr 8);
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
-  savepath := FMapType.GetTileFileName(VTile, AZoom);
-  if (FNotSaveNotExists) and (not (FMapType.TileExists(VTile, AZoom))) then begin
+  savepath := FMapType.GetTileFileName(ATile, AZoom);
+  if (FNotSaveNotExists) and (not (FMapType.TileExists(ATile, AZoom))) then begin
     exit;
   end;
   if RelativePath then begin
     savepath := ExtractRelativePath(ExtractFilePath(FPathExport), savepath);
   end;
-  xym256lt := Point(x - (x mod 256), y - (y mod 256));
-  xym256rb := Point(256 + x - (x mod 256), 256 + y - (y mod 256));
-  VExtRect.TopLeft := FMapType.GeoConvert.PixelPos2LonLat(xym256lt, (AZoom));
-  VExtRect.BottomRight := FMapType.GeoConvert.PixelPos2LonLat(xym256rb, (AZoom));
+  VExtRect := FMapType.GeoConvert.TilePos2LonLatRect(ATile, AZoom);
 
   north := R2StrPoint(VExtRect.Top);
   south := R2StrPoint(VExtRect.Bottom);
@@ -108,10 +116,10 @@ begin
   end;
   if level < Length(FZooms) then begin
     VZoom := FZooms[level];
-    nxy := round(intpower(2, VZoom - AZoom));
-    for xi := 1 to nxy do begin
-      for yi := 1 to nxy do begin
-        KmlFileWrite(xym256lt.x * nxy + (256 * (xi - 1)), xym256lt.y * nxy + (256 * (yi - 1)), VZoom, level + 1);
+    VTileRect := FMapType.GeoConvert.LonLatRect2TileRect(VExtRect, VZoom);
+    for xi := VTileRect.Left to VTileRect.Right - 1 do begin
+      for yi := VTileRect.Top to VTileRect.Bottom - 1 do begin
+        KmlFileWrite(Point(xi, yi), VZoom, level + 1);
       end;
     end;
   end;
@@ -121,21 +129,45 @@ end;
 
 procedure TThreadExportKML.ProcessRegion;
 var
-  p_x, p_y, i: integer;
+  i: integer;
   VZoom: Byte;
   polyg: TArrayOfPoint;
   ToFile: string;
-  VBounds: TRect;
   VLen: Integer;
+  VProjectedPolygon: IProjectedPolygon;
+  VTempIterator: ITileIterator;
+  VIterator: ITileIterator;
+  VTile: TPoint;
 begin
   inherited;
   FTilesToProcess := 0;
   VLen := FPolygLL.Count;
   SetLength(polyg, VLen);
-  for i := 0 to Length(FZooms) - 1 do begin
-    VZoom := FZooms[i];
-    FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL.Points, VLen, @Polyg[0], VZoom);
-    FTilesToProcess := FTilesToProcess + GetDwnlNum(VBounds, @Polyg[0], VLen, true);
+  if Length(FZooms) > 0 then begin
+    VZoom := FZooms[0];
+    VProjectedPolygon :=
+      FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+        FProjectionFactory.GetByConverterAndZoom(
+          FMapType.GeoConvert,
+          VZoom
+        ),
+        FPolygLL
+      );
+    VIterator := TTileIteratorStuped.Create(VProjectedPolygon);
+    FTilesToProcess := FTilesToProcess + VIterator.TilesTotal;
+    for i := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[i];
+      VProjectedPolygon :=
+        FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+          FProjectionFactory.GetByConverterAndZoom(
+            FMapType.GeoConvert,
+            VZoom
+          ),
+          FPolygLL
+        );
+      VTempIterator := TTileIteratorStuped.Create(VProjectedPolygon);
+      FTilesToProcess := FTilesToProcess + VTempIterator.TilesTotal;
+    end;
   end;
   FTilesProcessed := 0;
   ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files);
@@ -148,20 +180,10 @@ begin
     Write(KMLFile, ToFile);
 
     VZoom := FZooms[0];
-    FMapType.GeoConvert.LonLatArray2PixelArray(FPolygLL.Points, VLen, @Polyg[0], VZoom);
-    GetDwnlNum(VBounds, @Polyg[0], VLen, false);
-    p_x := VBounds.Left;
-    while p_x < VBounds.Right do begin
-      p_y := VBounds.Top;
-      while p_y < VBounds.Bottom do begin
-        if not CancelNotifier.IsOperationCanceled(OperationID) then begin
-          if (RgnAndRgn(@Polyg[0], VLen, p_x, p_y, false)) then begin
-            KmlFileWrite(p_x, p_y, VZoom, 1);
-          end;
-        end;
-        inc(p_y, 256);
+    while VIterator.Next(VTile) do begin
+      if not CancelNotifier.IsOperationCanceled(OperationID) then begin
+        KmlFileWrite(VTile, VZoom, 1);
       end;
-      inc(p_x, 256);
     end;
     ToFile := AnsiToUtf8(#13#10 + '</Document>' + #13#10 + '</kml>');
     Write(KMLFile, ToFile);

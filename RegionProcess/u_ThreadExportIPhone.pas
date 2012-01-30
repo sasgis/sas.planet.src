@@ -10,6 +10,7 @@ uses
   AlSqlite3Wrapper,
   GR32,
   i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_CoordConverter,
   i_VectorItemLonLat,
   u_MapType,
@@ -30,6 +31,8 @@ type
     FSqlite3: PSQLite3;
     csat, cmap, chib: byte;
     FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
     procedure CheckSQLiteAPIError(AError: Boolean);
     procedure WritePListFile(AGeoConvert: ICoordConverter);
     procedure WriteTileToSQLite3(
@@ -43,8 +46,10 @@ type
   public
     constructor Create(
       ACoordConverterFactory: ICoordConverterFactory;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       APath: string;
-      APolygon: ILonLatPolygonLine;
+      APolygon: ILonLatPolygon;
       Azoomarr: array of boolean;
       Atypemaparr: array of TMapType;
       AActiveMapIndex: Integer;
@@ -62,6 +67,7 @@ uses
   c_CoordConverter,
   u_GeoToStr,
   u_ResStrings,
+  i_VectorItemProjected,
   i_TileIterator,
   u_TileIteratorStuped,
   i_BitmapTileSaveLoad,
@@ -69,8 +75,10 @@ uses
 
 constructor TThreadExportIPhone.Create(
   ACoordConverterFactory: ICoordConverterFactory;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   APath: string;
-  APolygon: ILonLatPolygonLine;
+  APolygon: ILonLatPolygon;
   Azoomarr: array of boolean;
   Atypemaparr: array of TMapType;
   AActiveMapIndex: Integer;
@@ -82,6 +90,8 @@ var
 begin
   inherited Create(APolygon, Azoomarr);
   FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   cSat := Acsat;
   cMap := Acmap;
   cHib := Achib;
@@ -148,17 +158,10 @@ procedure TThreadExportIPhone.WritePListFile(AGeoConvert: ICoordConverter);
 var
   PList: Text;
   VLLCenter: TDoublePoint;
-  VPolyg: TArrayOfPoint;
-  VRect: TRect;
   VZoom: Integer;
-  VLen: Integer;
 begin
   VZoom := FZooms[0];
-  VLen := FPolygLL.Count;
-  SetLength(VPolyg, VLen);
-  AGeoConvert.LonLatArray2PixelArray(FPolygLL.Points, VLen, @VPolyg[0], VZoom);
-  GetMinMax(VRect, @VPolyg[0], Length(VPolyg), true);
-  VLLCenter := AGeoConvert.PixelPos2LonLat(Point(VRect.Left + (VRect.Right - VRect.Left) div 2, VRect.Top + (VRect.Bottom - VRect.Top) div 2), VZoom);
+  VLLCenter := AGeoConvert.PixelPosFloat2LonLat(RectCenter(AGeoConvert.LonLatRect2PixelRectFloat(FPolygLL.Bounds, VZoom)), VZoom);
   AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
   Rewrite(PList);
   Writeln(PList, '<plist>');
@@ -213,6 +216,7 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VDatabaseName: string;
+  VProjectedPolygon: IProjectedPolygon;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -256,8 +260,16 @@ begin
     SetLength(VTileIterators, Length(FZooms));
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
-      VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
-      FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;         
+      VProjectedPolygon :=
+        FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+          FProjectionFactory.GetByConverterAndZoom(
+            VGeoConvert,
+            VZoom
+          ),
+          FPolygLL
+        );
+      VTileIterators[i] := TTileIteratorStuped.Create(VProjectedPolygon);
+      FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
     end;
     try
       ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);

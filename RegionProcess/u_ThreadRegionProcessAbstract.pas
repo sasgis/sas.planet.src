@@ -32,7 +32,7 @@ type
     procedure UpdateProgressFormClose;
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction); virtual;
   protected
-    FPolygLL: ILonLatPolygonLine;
+    FPolygLL: ILonLatPolygon;
 
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
@@ -50,7 +50,7 @@ type
     property OperationID: Integer read FOperationID;
   public
     constructor Create(
-      APolygon: ILonLatPolygonLine
+      APolygon: ILonLatPolygon
     );
     destructor Destroy; override;
   end;
@@ -67,7 +67,7 @@ begin
   Terminate;
 end;
 
-constructor TThreadRegionProcessAbstract.Create(APolygon: ILonLatPolygonLine);
+constructor TThreadRegionProcessAbstract.Create(APolygon: ILonLatPolygon);
 var
   VOperationNotifier: TOperationNotifier;
 begin

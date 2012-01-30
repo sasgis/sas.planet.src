@@ -192,7 +192,6 @@ var
   VGeoConverter: ICoordConverter;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IProjectedPolygon;
-  VPolygonLine: IProjectedPolygonLine;
   VMapRect: TDoubleRect;
   VLineClipRect: TDoubleRect;
 begin
@@ -227,8 +226,7 @@ begin
       VProjection,
       APolygon
     );
-  VPolygonLine := VProjectedPolygon.Item[0];
-  GetMinMax(VMapRect, VPolygonLine.Points, VPolygonLine.Count);
+  VMapRect := VProjectedPolygon.Bounds;
 
   VPrTypes := TInterfaceList.Create;
   for i:=0 to FFrame.chklstPrTypes.Items.Count-1 do begin
@@ -283,8 +281,8 @@ begin
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon.Item[0],
-      VPolygonLine,
+      APolygon,
+      VProjectedPolygon,
       VSplitCount,
       VZoom,
       Amt,Hmt,
@@ -299,8 +297,8 @@ begin
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon.Item[0],
-      VPolygonLine,
+      APolygon,
+      VProjectedPolygon,
       VSplitCount,
       VZoom,
       Amt,Hmt,
@@ -314,8 +312,8 @@ begin
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon.Item[0],
-      VPolygonLine,
+      APolygon,
+      VProjectedPolygon,
       VSplitCount,
       VZoom,
       Amt,Hmt,
@@ -330,8 +328,8 @@ begin
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon.Item[0],
-      VPolygonLine,
+      APolygon,
+      VProjectedPolygon,
       VSplitCount,
       VZoom,
       Amt,Hmt,
@@ -346,8 +344,8 @@ begin
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon.Item[0],
-      VPolygonLine,
+      APolygon,
+      VProjectedPolygon,
       VSplitCount,
       VZoom,
       Amt,Hmt,

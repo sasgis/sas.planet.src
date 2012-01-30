@@ -4,6 +4,13 @@ interface
 
 uses
   Windows,
+  Controls,
+  i_LanguageManager,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_MapTypeGUIConfigList,
+  i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_VectorItemLonLat,
   u_ExportProviderAbstract,
   fr_TilesDelete;
@@ -12,7 +19,18 @@ type
   TProviderTilesDelete = class(TExportProviderAbstract)
   private
     FFrame: TfrTilesDelete;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
   public
+    constructor Create(
+      AParent: TWinControl;
+      ALanguageManager: ILanguageManager;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
@@ -27,11 +45,23 @@ implementation
 
 uses
   SysUtils,
+  i_VectorItemProjected,
   u_ThreadDeleteTiles,
   u_ResStrings,
   u_MapType;
 
 { TProviderTilesDelete }
+
+constructor TProviderTilesDelete.Create(AParent: TWinControl;
+  ALanguageManager: ILanguageManager; AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet; AGUIConfigList: IMapTypeGUIConfigList;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory);
+begin
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
+end;
 
 destructor TProviderTilesDelete.Destroy;
 begin
@@ -92,6 +122,8 @@ var
   VMapType: TMapType;
   VDelBySize: Boolean;
   VDelSize: Cardinal;
+  VZoom: byte;
+  VProjectedPolygon: IProjectedPolygon;
 begin
   inherited;
   if (MessageBox(FFrame.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES) then begin
@@ -104,8 +136,19 @@ begin
     if VDelBySize then begin
       VDelSize := FFrame.seDelSize.Value;
     end;
+    VZoom := FFrame.cbbZoom.ItemIndex;
+
+    VProjectedPolygon :=
+      FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+        FProjectionFactory.GetByConverterAndZoom(
+          VMapType.GeoConvert,
+          VZoom
+        ),
+        APolygon
+      );
     TThreadDeleteTiles.Create(
-      APolygon.Item[0],
+      APolygon,
+      VProjectedPolygon,
       FFrame.cbbZoom.ItemIndex,
       VMapType,
       VDelBySize,

@@ -6,6 +6,7 @@ uses
   Controls,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
@@ -18,6 +19,8 @@ type
   private
     FFrame: TfrExportToJNX;
     FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
   public
     constructor Create(
       AParent: TWinControl;
@@ -25,6 +28,8 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       ACoordConverterFactory: ICoordConverterFactory
     );
     destructor Destroy; override;
@@ -52,10 +57,14 @@ constructor TExportProviderJNX.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   ACoordConverterFactory: ICoordConverterFactory
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FCoordConverterFactory := ACoordConverterFactory;
 end;
 
@@ -152,8 +161,10 @@ begin
 
   TThreadExportToJNX.Create(
     FCoordConverterFactory,
+    FProjectionFactory,
+    FVectorItmesFactory,
     path,
-    APolygon.Item[0],
+    APolygon,
     Zoomarr,
     VMapType,
     VProductName,

@@ -3,6 +3,13 @@ unit u_ExportProviderAUX;
 interface
 
 uses
+  Controls,
+  i_LanguageManager,
+  i_MapTypes,
+  i_ActiveMapsConfig,
+  i_CoordConverterFactory,
+  i_VectorItmesFactory,
+  i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
   u_ExportProviderAbstract,
   fr_ExportAUX;
@@ -11,7 +18,18 @@ type
   TExportProviderAUX = class(TExportProviderAbstract)
   private
     FFrame: TfrExportAUX;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
   public
+    constructor Create(
+      AParent: TWinControl;
+      ALanguageManager: ILanguageManager;
+      AMainMapsConfig: IMainMapsConfig;
+      AFullMapsSet: IMapTypeSet;
+      AGUIConfigList: IMapTypeGUIConfigList;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory
+    );
     destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
@@ -26,11 +44,23 @@ implementation
 
 uses
   SysUtils,
+  i_VectorItemProjected,
   u_ThreadExportToAUX,
   u_ResStrings,
   u_MapType;
 
 { TExportProviderKml }
+
+constructor TExportProviderAUX.Create(AParent: TWinControl;
+  ALanguageManager: ILanguageManager; AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet; AGUIConfigList: IMapTypeGUIConfigList;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory);
+begin
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
+end;
 
 destructor TExportProviderAUX.Destroy;
 begin
@@ -90,6 +120,8 @@ procedure TExportProviderAUX.StartProcess(APolygon: ILonLatPolygon);
 var
   path:string;
   VMapType: TMapType;
+  VZoom: byte;
+  VProjectedPolygon: IProjectedPolygon;
 begin
   inherited;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
@@ -97,9 +129,20 @@ begin
   if FFrame.cbbZoom.ItemIndex < 0 then begin
     FFrame.cbbZoom.ItemIndex := 0;
   end;
+  VZoom := FFrame.cbbZoom.ItemIndex;
+
+  VProjectedPolygon :=
+    FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+      FProjectionFactory.GetByConverterAndZoom(
+        VMapType.GeoConvert,
+        VZoom
+      ),
+      APolygon
+    );
   TThreadExportToAUX.Create(
-    APolygon.Item[0],
-    FFrame.cbbZoom.ItemIndex,
+    APolygon,
+    VProjectedPolygon,
+    VZoom,
     VMapType,
     path
   )

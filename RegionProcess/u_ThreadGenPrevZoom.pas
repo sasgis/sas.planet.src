@@ -6,6 +6,8 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_VectorItemLonLat,
   u_MapType,
   u_ThreadRegionProcessAbstract,
@@ -24,6 +26,8 @@ type
     FZooms: TArrayOfByte;
     FMapType: TMapType;
     FResamplerFactory: IImageResamplerFactory;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
 
     FTileInProc: integer;
     FBackGroundColor: TColor32;
@@ -32,9 +36,11 @@ type
     procedure ProgressFormUpdateOnProgress;
   public
     constructor Create(
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       Azoom: byte;
       AInZooms: TArrayOfByte;
-      APolygLL: ILonLatPolygonLine;
+      APolygLL: ILonLatPolygon;
       Atypemap: TMapType;
       AReplace: boolean;
       Asavefull: boolean;
@@ -49,24 +55,29 @@ implementation
 
 uses
   i_CoordConverter,
+  i_VectorItemProjected,
   i_TileIterator,
   u_TileIteratorStuped,
   u_TileIteratorByRect;
 
 constructor TThreadGenPrevZoom.Create(
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   Azoom: byte;
   AInZooms: TArrayOfByte;
-  APolygLL: ILonLatPolygonLine;
+  APolygLL: ILonLatPolygon;
   Atypemap: TMapType;
   AReplace: boolean;
   Asavefull: boolean;
   AGenFormPrev: boolean;
-  AUsePrevTiles: boolean;  
+  AUsePrevTiles: boolean;
   ABackGroundColor: TColor32;
   AResamplerFactory: IImageResamplerFactory
 );
 begin
   inherited Create(APolygLL);
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FIsReplace := AReplace;
   FIsSaveFullOnly := Asavefull;
   FGenFormPrevZoom := AGenFormPrev;
@@ -100,6 +111,7 @@ var
   VSubTileBounds: TRect;
   VSubTileInTargetBounds: TRect;
   VSubTileIterator: ITileIterator;
+  VProjectedPolygon: IProjectedPolygon;
 begin
   inherited;
   FTilesToProcess := 0;
@@ -107,7 +119,16 @@ begin
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
-    VTileIterators[i] := TTileIteratorStuped.Create(VZoom, FPolygLL, VGeoConvert);
+
+    VProjectedPolygon :=
+      FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+        FProjectionFactory.GetByConverterAndZoom(
+          VGeoConvert,
+          VZoom
+        ),
+        FPolygLL
+      );
+    VTileIterators[i] := TTileIteratorStuped.Create(VProjectedPolygon);
     if (not FGenFormPrevZoom) or (i = 0) then begin
       VZoomDelta := FSourceZoom - FZooms[i];
     end else begin

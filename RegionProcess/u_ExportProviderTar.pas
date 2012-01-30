@@ -9,6 +9,8 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_TileFileNameGeneratorsList,
   u_ExportProviderAbstract,
   fr_ExportToFileCont;
@@ -17,6 +19,8 @@ type
   TExportProviderTar = class(TExportProviderAbstract)
   private
     FFrame: TfrExportToFileCont;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
   public
     constructor Create(
@@ -25,6 +29,8 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       ATileNameGenerator: ITileFileNameGeneratorsList
     );
     destructor Destroy; override;
@@ -53,10 +59,14 @@ constructor TExportProviderTar.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FTileNameGenerator := ATileNameGenerator;
 end;
 
@@ -133,7 +143,9 @@ begin
   VNameGenerator := FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1);
   TThreadExportToTar.Create(
     path,
-    APolygon.Item[0],
+    FProjectionFactory,
+    FVectorItmesFactory,
+    APolygon,
     Zoomarr,
     VMapType,
     VNameGenerator

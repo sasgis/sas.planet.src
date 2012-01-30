@@ -9,6 +9,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_VectorItmesFactory,
   i_CoordConverterFactory,
   u_ExportProviderAbstract,
   fr_ExportYaMobileV4;
@@ -18,6 +19,8 @@ type
   private
     FFrame: TfrExportYaMobileV4;
     FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
   public
     constructor Create(
       AParent: TWinControl;
@@ -25,6 +28,8 @@ type
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       ACoordConverterFactory: ICoordConverterFactory
     );
     destructor Destroy; override;
@@ -53,11 +58,15 @@ constructor TExportProviderYaMobileV4.Create(
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   ACoordConverterFactory: ICoordConverterFactory
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
 end;
 
 destructor TExportProviderYaMobileV4.Destroy;
@@ -133,8 +142,10 @@ begin
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
   TThreadExportYaMobileV4.Create(
     FCoordConverterFactory,
+    FProjectionFactory,
+    FVectorItmesFactory,
     path,
-    APolygon.Item[0],
+    APolygon,
     ZoomArr,
     typemaparr,
     FFrame.chkReplaseTiles.Checked,

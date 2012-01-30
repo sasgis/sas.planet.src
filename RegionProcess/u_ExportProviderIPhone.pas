@@ -9,6 +9,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
+  i_VectorItmesFactory,
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   fr_ExportIPhone;
@@ -18,6 +19,8 @@ type
   private
     FFrame: TfrExportIPhone;
     FCoordConverterFactory: ICoordConverterFactory;
+    FProjectionFactory: IProjectionInfoFactory;
+    FVectorItmesFactory: IVectorItmesFactory;
     FNewFormat: Boolean;
   public
     constructor Create(
@@ -27,6 +30,8 @@ type
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
       ACoordConverterFactory: ICoordConverterFactory;
+      AProjectionFactory: IProjectionInfoFactory;
+      AVectorItmesFactory: IVectorItmesFactory;
       ANewFormat: Boolean
     );
     destructor Destroy; override;
@@ -56,11 +61,15 @@ constructor TExportProviderIPhone.Create(
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
   ACoordConverterFactory: ICoordConverterFactory;
+  AProjectionFactory: IProjectionInfoFactory;
+  AVectorItmesFactory: IVectorItmesFactory;
   ANewFormat: Boolean
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
   FCoordConverterFactory := ACoordConverterFactory;
+  FProjectionFactory := AProjectionFactory;
+  FVectorItmesFactory := AVectorItmesFactory;
   FNewFormat := ANewFormat;
 end;
 
@@ -161,8 +170,10 @@ begin
   Replace:=FFrame.chkAppendTilse.Checked;
   TThreadExportIPhone.Create(
     FCoordConverterFactory,
+    FProjectionFactory,
+    FVectorItmesFactory,
     path,
-    APolygon.Item[0],
+    APolygon,
     ZoomArr,
     typemaparr,
     VActiveMapIndex,
