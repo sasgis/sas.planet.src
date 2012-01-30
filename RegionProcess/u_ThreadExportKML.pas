@@ -132,7 +132,6 @@ var
   i: integer;
   VZoom: Byte;
   ToFile: string;
-  VLen: Integer;
   VProjectedPolygon: IProjectedPolygon;
   VTempIterator: ITileIterator;
   VIterator: ITileIterator;
@@ -140,7 +139,6 @@ var
 begin
   inherited;
   FTilesToProcess := 0;
-  VLen := FPolygLL.Count;
   if Length(FZooms) > 0 then begin
     VZoom := FZooms[0];
     VProjectedPolygon :=

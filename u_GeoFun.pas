@@ -286,33 +286,6 @@ begin
     (ARect1.Bottom = ARect2.Bottom);
 end;
 
-Procedure GetMinMax(var ARect:TDoubleRect; APoints: PDoublePointArray; ACount: Integer); overload;
-var
-  i: Integer;
-begin
-  if ACount > 0 then begin
-    ARect.TopLeft := APoints[0];
-    ARect.BottomRight := APoints[0];
-    for i := 1 to ACount - 1 do begin
-      if ARect.Left > APoints[i].X then begin
-        ARect.Left := APoints[i].X
-      end;
-      if ARect.Top < APoints[i].Y then begin
-        ARect.Top := APoints[i].Y
-      end;
-      if ARect.Right < APoints[i].X then begin
-        ARect.Right := APoints[i].X
-      end;
-      if ARect.Bottom > APoints[i].Y then begin
-        ARect.Bottom := APoints[i].Y
-      end;
-    end;
-  end else begin
-    ARect.TopLeft := DoublePoint(0, 0);
-    ARect.BottomRight := DoublePoint(0, 0);
-  end;
-end;
-
 function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
 begin
   case AScale of
