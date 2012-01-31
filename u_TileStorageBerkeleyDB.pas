@@ -33,9 +33,6 @@ uses
   i_ContentTypeManager,
   i_TTLCheckNotifier,
   i_TTLCheckListener,
-  u_BerkeleyDB,
-  u_BerkeleyDBEnv,
-  u_BerkeleyDBPool,
   u_TileStorageBerkeleyDBHelper,
   u_GlobalCahceConfig,
   u_MapTypeCacheConfig,
@@ -44,17 +41,13 @@ uses
 type
   TTileStorageBerkeleyDB = class(TTileStorageAbstract)
   private
-    FBDBPool: TBerkeleyDBPool;
-    FBDBHelper: TTileStorageBerkeleyDBHelper;
+    FHelper: TTileStorageBerkeleyDBHelper;
     FCacheConfig: TMapTypeCacheConfigBerkeleyDB;
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: ITTLCheckNotifier;
     FTTLListener: ITTLCheckListener;
-    procedure CreateDirIfNotExists(APath: string);
-    function GetTileInfoByBDBData(ABDBData: PBDBData): ITileInfoBasic;
-    procedure Sync(Sender: TObject);
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
@@ -121,10 +114,10 @@ implementation
 uses
   Variants,
   t_CommonTypes,
-  u_ContentTypeInfo,
   u_MapVersionInfo,
   u_TTLCheckListener,
   u_TileFileNameBDB,
+  u_TileStorageBerkeleyDBRecParser,
   u_TileStorageTypeAbilities,
   u_TileInfoBasic;
 
@@ -150,7 +143,7 @@ begin
   );
   FContentTypeManager := AContentTypeManager;
   FMainContentType := FContentTypeManager.GetInfoByExt(Config.TileFileExt);
-  FBDBHelper := TTileStorageBerkeleyDBHelper.Create(
+  FHelper := TTileStorageBerkeleyDBHelper.Create(
     IncludeTrailingPathDelimiter(
       AGlobalCacheConfig.CacheGlobalPath +
       AGlobalCacheConfig.BDBCachepath +
@@ -158,9 +151,8 @@ begin
     ),
     AConfig.CoordConverter.Datum.EPSG
   );
-  FBDBPool := FBDBHelper.Pool;
   FTTLListener := TTTLCheckListener.Create(
-    Self.Sync,
+    FHelper.Sync,
     CBDBSync,
     CBDBSyncCheckInterval
   );
@@ -171,101 +163,13 @@ destructor TTileStorageBerkeleyDB.Destroy;
 begin
   FGCList.Remove(FTTLListener);
   FTTLListener := nil;
-  FBDBPool := nil;
-  FreeAndNil(FBDBHelper);
+  FreeAndNil(FHelper);
   FMainContentType := nil;
   FContentTypeManager := nil;
   FreeAndNil(FCacheConfig);
   FTileNotExistsTileInfo := nil;
   FGCList := nil;
   inherited;
-end;
-
-procedure TTileStorageBerkeleyDB.Sync(Sender: TObject);
-begin
-  if Assigned(FBDBPool) then begin
-    FBDBPool.Sync;
-  end;
-end;
-
-procedure TTileStorageBerkeleyDB.CreateDirIfNotExists(APath: string);
-var
-  i: integer;
-begin
-  i := LastDelimiter(PathDelim, Apath);
-  Apath := copy(Apath, 1, i);
-  if not(DirectoryExists(Apath)) then begin
-    ForceDirectories(Apath);
-  end;
-end;
-
-function TTileStorageBerkeleyDB.DeleteTile(
-  AXY: TPoint;
-  AZoom: Byte;
-  AVersionInfo: IMapVersionInfo
-): Boolean;
-var
-  VPath: string;
-  VBDB: TBerkeleyDB;
-  VKey: TBDBKey;
-begin
-  Result := False;
-  if StorageStateStatic.DeleteAccess <> asDisabled then begin
-    try
-      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
-      if FileExists(VPath) then begin
-        VBDB := FBDBPool.Acquire(VPath);
-        try
-          if Assigned(VBDB) then begin
-            VKey := PointToKey(AXY);
-            Result := VBDB.Del(@VKey, SizeOf(TBDBKey));
-          end;
-        finally
-          FBDBPool.Release(VBDB);
-        end;
-      end;
-      if not Result then begin
-        Result := DeleteTNE(AXY, Azoom, AVersionInfo);
-      end;
-    except
-      Result := False;
-    end;
-    if Result then begin
-      NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
-    end;
-  end;
-end;
-
-function TTileStorageBerkeleyDB.DeleteTNE(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
-): Boolean;
-var
-  VPath: string;
-  VBDB: TBerkeleyDB;
-  VKey: TBDBKey;
-begin
-  Result := False;
-  if StorageStateStatic.DeleteAccess <> asDisabled then begin
-    try
-      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
-      VPath := ChangeFileExt(VPath, '.tne');
-      if FileExists(VPath) then begin
-        VBDB := FBDBPool.Acquire(VPath);
-        try
-          if Assigned(VBDB) then begin
-            VKey := PointToKey(AXY);
-            Result := VBDB.Del(@VKey, SizeOf(TBDBKey));
-          end;
-        finally
-          FBDBPool.Release(VBDB);
-        end;
-      end;
-    except
-      Result := False;
-    end;
-  end;
 end;
 
 function TTileStorageBerkeleyDB.GetAllowDifferentContentTypes: Boolean;
@@ -296,62 +200,74 @@ end;
 
 function TTileStorageBerkeleyDB.GetTileInfo(
   AXY: TPoint;
-  Azoom: byte;
+  AZoom: byte;
   AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
   VPath: string;
-  VBDB: TBerkeleyDB;
-  VKey: TBDBKey;
+  VResult: Boolean;
   VData: TBDBData;
-  VRawData: Pointer;
-  VRawDataSize: Cardinal;
+  VStream: TMemoryStream;
+  VVersionStr: PWideChar;
 begin
   Result := FTileNotExistsTileInfo;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    if not FileExists(VPath) then begin
-      Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
+
+    VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
+
+    if AVersionInfo <> nil then begin
+      VVersionStr := PWideChar(VarToWideStrDef(AVersionInfo.Version, ''));
     end else begin
-      VBDB := FBDBPool.Acquire(VPath);
+      VVersionStr := '';
+    end;
+
+    VResult := False;
+
+    if FileExists(VPath) then begin
+      VStream := TMemoryStream.Create;
       try
-        if Assigned(VBDB) then begin
-          VKey := PointToKey(AXY);
-          if VBDB.Exists(@VKey, SizeOf(TBDBKey)) then begin
-            VRawData := nil;
-            VRawDataSize := 0;
-            if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
-              if (VRawData <> nil) and (VRawDataSize > 0) then
-              try
-                if PRawDataToPBDBData(VRawData, VRawDataSize, @VData) then begin
-                  Result := GetTileInfoByBDBData(@VData);
-                end;
-              finally
-                FreeMem(VRawData, VRawDataSize);
-              end;
-            end;
-          end else begin
-            Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
-          end;
+        VResult := FHelper.LoadTile(
+          VPath,
+          AXY,
+          AZoom,
+          VVersionStr,
+          VStream,
+          VData
+        );
+        if VResult then begin
+          VStream.Position := 0;
+          Result := TTileInfoBasicExistsWithTile.Create(
+            VData.TileDate,
+            VStream.Memory,
+            VData.TileSize,
+            TMapVersionInfo.Create(WideString(VData.TileVer)),
+            FContentTypeManager.GetInfo(WideString(VData.TileMIME))
+          );
         end;
       finally
-        FBDBPool.Release(VBDB);
+        VStream.Free;
       end;
     end;
-  end;
-end;
 
-function TTileStorageBerkeleyDB.GetTileInfoByBDBData(ABDBData: PBDBData): ITileInfoBasic;
-begin
-  if ABDBData <> nil then begin
-    Result := TTileInfoBasicExists.Create(
-      ABDBData.TileDate,
-      ABDBData.TileSize,
-      TMapVersionInfo.Create(WideString(ABDBData.TileVer)),
-      FContentTypeManager.GetInfo(WideString(ABDBData.TileMIME))
-    );
-  end else begin
-    Result := TTileInfoBasicNotExists.Create(0, nil);
+    if not VResult then begin
+      VPath := ChangeFileExt(VPath, '.tne');
+      if FileExists(VPath) then begin
+        VResult := FHelper.IsTNEFound(
+          VPath,
+          AXY,
+          AZoom,
+          VVersionStr,
+          VData
+        );
+        if VResult then begin
+          Result := TTileInfoBasicTNE.Create(VData.TileDate, AVersionInfo);
+        end;
+      end;
+    end;
+
+    if not VResult then begin
+      Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
+    end;
   end;
 end;
 
@@ -363,41 +279,21 @@ function TTileStorageBerkeleyDB.LoadTile(
   out ATileInfo: ITileInfoBasic
 ): Boolean;
 var
-  VPath: String;
-  VBDB: TBerkeleyDB;
-  VKey: TBDBKey;
-  VData: TBDBData;
-  VRawData: Pointer;
-  VRawDataSize: Cardinal;
+  VTile: Pointer;
+  VSize: Integer;
 begin
   Result := False;
-  ATileInfo := nil;
+  ATileInfo := FTileNotExistsTileInfo;
   AStream.Size := 0;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
-    VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
-    if FileExists(VPath) then begin
-      VBDB := FBDBPool.Acquire(VPath);
-      try
-        if Assigned(VBDB) then begin
-          VKey := PointToKey(AXY);
-          if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
-            if (VRawData <> nil) and (VRawDataSize > 0) then
-            try
-              if PRawDataToPBDBData(VRawData, VRawDataSize, @VData) then begin
-                ATileInfo := GetTileInfoByBDBData(@VData);
-                if ATileInfo.GetIsExists then begin
-                  AStream.Position := 0;
-                  Result := AStream.Write(VData.TileBody^, VData.TileSize) = Integer(VData.TileSize);
-                  AStream.Position := 0;
-                end;
-              end;
-            finally
-              FreeMem(VRawData);
-            end;
-          end;
-        end;
-      finally
-        FBDBPool.Release(VBDB);
+    ATileInfo := GetTileInfo(AXY, AZoom, AVersionInfo);
+    if ATileInfo.IsExists then begin
+      VTile := ATileInfo.Tile;
+      VSize := ATileInfo.Size;
+      if (VTile <> nil) and (VSize > 0) then begin
+        AStream.Position := 0;
+        Result := AStream.Write(VTile^, VSize) = VSize;
+        AStream.Position := 0;
       end;
     end;
   end;
@@ -405,93 +301,117 @@ end;
 
 procedure TTileStorageBerkeleyDB.SaveTile(
   AXY: TPoint;
-  Azoom: byte;
+  AZoom: byte;
   AVersionInfo: IMapVersionInfo;
   AStream: TStream
 );
 var
-  VPath: String;
-  VMemStream: TMemoryStream;
-  VBDB: TBerkeleyDB;
-  VKey: TBDBKey;
-  VData: TBDBData;
+  VPath: string;
+  VResult: Boolean;
 begin
   if StorageStateStatic.WriteAccess <> asDisabled then begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    CreateDirIfNotExists(VPath);
-    VBDB := FBDBPool.Acquire(VPath);
-    try
-      if Assigned(VBDB) then begin
-        VKey := PointToKey(AXY);
-        VMemStream := TMemoryStream.Create;
-        try
-          VData.TileSize := AStream.Size;
-          VData.TileDate := Now;
-          VData.TileVer := PWideChar(VarToWideStrDef(AVersionInfo.Version, ''));
-          VData.TileMIME := PWideChar(FMainContentType.GetContentType);
-
-          AStream.Position := 0;
-          if AStream is TMemoryStream then begin
-            VData.TileBody := TMemoryStream(AStream).Memory;
-            PBDBDataToMemStream(@VData, VMemStream);
-          end else begin
-            GetMem(VData.TileBody, VData.TileSize);
-            try
-              AStream.Read(VData.TileBody^, VData.TileSize);
-              PBDBDataToMemStream(@VData, VMemStream);
-            finally
-              FreeMem(VData.TileBody);
-            end;
-          end;
-          VMemStream.Position := 0;
-          VBDB.Write(@VKey, SizeOf(TBDBKey), VMemStream.Memory, VMemStream.Size);
-        finally
-          VMemStream.Free;
-        end;
+    VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
+    if FHelper.CreateDirIfNotExists(VPath) then begin
+      VResult := FHelper.SaveTile(
+        VPath,
+        AXY,
+        AZoom,
+        Now,
+        PWideChar(VarToWideStrDef(AVersionInfo.Version, '')),
+        PWideChar(FMainContentType.GetContentType),
+        AStream
+      );
+      if VResult then begin
+        NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
       end;
-    finally
-      FBDBPool.Release(VBDB);
     end;
-    NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
   end;
 end;
 
 procedure TTileStorageBerkeleyDB.SaveTNE(
   AXY: TPoint;
-  Azoom: byte;
+  AZoom: Byte;
   AVersionInfo: IMapVersionInfo
 );
 var
   VPath: String;
-  VMemStream: TMemoryStream;
-  VBDB: TBerkeleyDB;
-  VKey: TBDBKey;
-  VData: TBDBData;
+  VResult: Boolean;
 begin
   if StorageStateStatic.WriteAccess <> asDisabled then begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+    VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
     VPath := ChangeFileExt(VPath, '.tne');
-    CreateDirIfNotExists(VPath);
-    VBDB := FBDBPool.Acquire(VPath);
-    try
-      if Assigned(VBDB) then begin
-        VKey := PointToKey(AXY);
-        VMemStream := TMemoryStream.Create;
-        try
-          VData.TileSize := 0;
-          VData.TileDate := Now;
-          VData.TileVer := PWideChar(VarToWideStrDef(AVersionInfo.Version, ''));
-          VData.TileMIME := PWideChar(FMainContentType.GetContentType);
-          VData.TileBody := nil;
-          PBDBDataToMemStream(@VData, VMemStream);
-          VMemStream.Position := 0;
-          VBDB.Write(@VKey, SizeOf(TBDBKey), VMemStream.Memory, VMemStream.Size);
-        finally
-          VMemStream.Free;
-        end;
+    if FHelper.CreateDirIfNotExists(VPath) then begin
+      VResult := FHelper.SaveTile(
+        VPath,
+        AXY,
+        AZoom,
+        Now,
+        PWideChar(VarToWideStrDef(AVersionInfo.Version, '')),
+        PWideChar(FMainContentType.GetContentType),
+        nil
+      );
+      if VResult then begin
+        NotifierByZoomInternal[AZoom].TileUpdateNotify(AXY);
       end;
-    finally
-      FBDBPool.Release(VBDB);
+    end;
+  end;
+end;
+
+function TTileStorageBerkeleyDB.DeleteTile(
+  AXY: TPoint;
+  AZoom: Byte;
+  AVersionInfo: IMapVersionInfo
+): Boolean;
+var
+  VPath: string;
+begin
+  Result := False;
+  if StorageStateStatic.DeleteAccess <> asDisabled then begin
+    try
+      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
+      if FileExists(VPath) then begin
+        Result := FHelper.DeleteTile(
+          VPath,
+          AXY,
+          AZoom,
+          PWideChar(VarToWideStrDef(AVersionInfo.Version, ''))
+        );
+      end;
+      if not Result then begin
+        Result := DeleteTNE(AXY, AZoom, AVersionInfo);
+      end;
+    except
+      Result := False;
+    end;
+    if Result then begin
+      NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
+    end;
+  end;
+end;
+
+function TTileStorageBerkeleyDB.DeleteTNE(
+  AXY: TPoint;
+  Azoom: byte;
+  AVersionInfo: IMapVersionInfo
+): Boolean;
+var
+  VPath: string;
+begin
+  Result := False;
+  if StorageStateStatic.DeleteAccess <> asDisabled then begin
+    try
+      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
+      VPath := ChangeFileExt(VPath, '.tne');
+      if FileExists(VPath) then begin
+        Result := FHelper.DeleteTile(
+          VPath,
+          AXY,
+          AZoom,
+          PWideChar(VarToWideStrDef(AVersionInfo.Version, ''))
+        );
+      end;
+    except
+      Result := False;
     end;
   end;
 end;

@@ -32,9 +32,7 @@ uses
   i_TileFileNameGenerator,
   u_MapType,
   u_ResStrings,
-  u_BerkeleyDB,
-  u_BerkeleyDBEnv,
-  u_BerkeleyDBPool,
+  u_TileStorageBerkeleyDBHelper,
   u_ThreadExportAbstract;
 
 type
@@ -49,13 +47,12 @@ type
     FIsReplace: boolean;
     FPathExport: string;
     function TileExportToRemoteBDB(
-      ABDBPool: TBerkeleyDBPool;
+      AHelper: TTileStorageBerkeleyDBHelper;
       AMapType: TMapType;
       AXY: TPoint;
       AZoom: Byte;
       ARemotePath: string
     ): Boolean;
-    procedure CreateDirIfNotExists(APath: string);
   protected
     procedure ProcessRegion; override;
   public
@@ -80,8 +77,8 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
+  i_MapVersionInfo,
   u_TileFileNameBDB,
-  u_TileStorageBerkeleyDBHelper,
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToBDB.Create(
@@ -116,83 +113,50 @@ begin
   inherited Destroy;
 end;
 
-procedure TThreadExportToBDB.CreateDirIfNotExists(APath: string);
-var
-  i: integer;
-begin
-  i := LastDelimiter(PathDelim, Apath);
-  Apath := copy(Apath, 1, i);
-  if not(DirectoryExists(Apath)) then begin
-    ForceDirectories(Apath);
-  end;
-end;
-
 function TThreadExportToBDB.TileExportToRemoteBDB(
-  ABDBPool: TBerkeleyDBPool;
+  AHelper: TTileStorageBerkeleyDBHelper;
   AMapType: TMapType;
   AXY: TPoint;
   AZoom: Byte;
   ARemotePath: string
 ): Boolean;
 var
-  VBDB: TBerkeleyDB;
-  VPath: string;
+  VExportSDBFile: string;
   VTileInfo: ITileInfoBasic;
-  VKey: TBDBKey;
-  VData: TBDBData;
-  VMemStream: TMemoryStream;
-  VExists: Boolean;
+  VVersionInfo: IMapVersionInfo;
+  VTileExists: Boolean;
+  VSDBFileExists: Boolean;
 begin
   Result := False;
-  VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) +
-    AMapType.GetShortFolderName) + FTileNameGen.GetTileFileName(AXY, AZoom) + '.sdb';
-  CreateDirIfNotExists(VPath);
-  VBDB := ABDBPool.Acquire(VPath);
-  try
-    if Assigned(VBDB) then begin
-      VKey := PointToKey(AXY);
-      if FileExists(VPath) then begin
-        VExists := VBDB.Exists(@VKey, SizeOf(TBDBKey));
-      end else begin
-        VExists := False;
-      end;
-      if not VExists or (VExists and FIsReplace) then begin
-        FStream.Clear;
-        VTileInfo := nil;
-        if AMapType.TileStorage.LoadTile(AXY, AZoom, nil, FStream, VTileInfo) then begin
-
-          FillChar(VData, Sizeof(TBDBData), 0);
-
-          VData.TileSize := FStream.Size;
-
-          if VData.TileSize > 0 then begin
-            FStream.Position := 0;
-            VData.TileBody := FStream.Memory;
-          end;
-
-          if VTileInfo <> nil then begin
-            VData.TileDate := VTileInfo.LoadDate;
-            if VTileInfo.VersionInfo <> nil then begin
-              VData.TileVer := PWideChar(VarToWideStrDef(VTileInfo.VersionInfo.Version, ''));
-            end;
-            if VTileInfo.ContentType <> nil then begin
-              VData.TileMIME := PWideChar(VTileInfo.ContentType.GetContentType);
-            end;
-          end;
-
-          VMemStream := TMemoryStream.Create;
-          try
-            PBDBDataToMemStream(@VData, VMemStream);
-            VMemStream.Position := 0;
-            Result := VBDB.Write(@VKey, SizeOf(TBDBKey), VMemStream.Memory, VMemStream.Size);
-          finally
-            VMemStream.Free;
-          end;
-        end;
+  VExportSDBFile :=
+    IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) +
+    AMapType.GetShortFolderName) +
+    FTileNameGen.GetTileFileName(AXY, AZoom) +
+    '.sdb';
+  VSDBFileExists := FileExists(VExportSDBFile);
+  if VSDBFileExists then begin
+    VTileExists := AHelper.TileExists(VExportSDBFile, AXY, AZoom, '');
+  end else begin
+    VTileExists := False;
+  end;
+  if not VTileExists or (VTileExists and FIsReplace) then begin
+    FStream.Clear;
+    VTileInfo := nil;
+    VVersionInfo := nil; // TODO: ??
+    if AMapType.TileStorage.LoadTile(AXY, AZoom, VVersionInfo, FStream, VTileInfo) then begin
+      if VSDBFileExists or AHelper.CreateDirIfNotExists(VExportSDBFile) then begin
+        FStream.Position := 0;
+        Result := AHelper.SaveTile(
+          VExportSDBFile,
+          AXY,
+          AZoom,
+          VTileInfo.LoadDate,
+          PWideChar(VarToWideStrDef(VTileInfo.VersionInfo.Version, '')),
+          PWideChar(VTileInfo.ContentType.GetContentType),
+          FStream
+        );
       end;
     end;
-  finally
-    ABDBPool.Release(VBDB);
   end;
 end;
 
@@ -206,8 +170,7 @@ var
   VGeoConvert: ICoordConverter;
   VTileIterators: array of array of ITileIterator;
   VTileIterator: ITileIterator;
-  VBDBHelper: TTileStorageBerkeleyDBHelper;
-  VPool: TBerkeleyDBPool;
+  VHelper: TTileStorageBerkeleyDBHelper;
   VProjectedPolygon: IProjectedPolygon;
 begin
   inherited;
@@ -240,9 +203,8 @@ begin
       VMapType := FMapTypeArr[i];
       VGeoConvert := VMapType.GeoConvert;
       VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
-      VBDBHelper := TTileStorageBerkeleyDBHelper.Create(VPath, VMapType.GeoConvert.Datum.EPSG);
+      VHelper := TTileStorageBerkeleyDBHelper.Create(VPath, VMapType.GeoConvert.Datum.EPSG);
       try
-        VPool := VBDBHelper.Pool;
         for j := 0 to Length(FZooms) - 1 do begin
           VZoom := FZooms[j];
           VTileIterator := VTileIterators[i, j];
@@ -250,11 +212,9 @@ begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
-            if VMapType.TileExists(VTile, VZoom) then begin
-              if TileExportToRemoteBDB(VPool, VMapType, VTile, VZoom, VPath) then begin
-                if FIsMove then begin
-                  VMapType.DeleteTile(VTile, VZoom);
-                end;
+            if TileExportToRemoteBDB(VHelper, VMapType, VTile, VZoom, VPath) then begin
+              if FIsMove then begin
+                VMapType.DeleteTile(VTile, VZoom);
               end;
             end;
             inc(FTilesProcessed);
@@ -264,7 +224,7 @@ begin
           end;
         end;
       finally
-        FreeAndNil(VBDBHelper);
+        FreeAndNil(VHelper);
       end;
     end;
   finally

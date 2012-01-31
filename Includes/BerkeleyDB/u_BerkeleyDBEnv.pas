@@ -37,19 +37,25 @@ type
     FLastCheckPointTime: Cardinal;
     FEnvRootPath: string;
     FCS: TCriticalSection;
+    FClientsCount: Integer;
+    FSingleMode: Boolean;
+
     function Open: Boolean;
     function GetEnv: PDB_ENV;
   public
-    constructor Create(const AEnvRootPath: string);
+    constructor Create(const AEnvRootPath: string; ASingleMode: Boolean);
     destructor Destroy; override;
     procedure RemoveUnUsedLogs;
     procedure CheckPoint(Sender: TObject);
+    class function LsnReset(const AFileName: string): Boolean;
+
     property EnvPtr: PDB_ENV read GetEnv;
     property EnvRootPath: string read FEnvRootPath;
     property Pool: TBerkeleyDBPool read FPool;
+    property ClientsCount: Integer read FClientsCount write FClientsCount;
   end;
 
-function GlobalAllocateEnvironment(const AEnvRootPath: string): TBerkeleyDBEnv;
+function GlobalAllocateEnvironment(const AEnvRootPath: string; ASingleMode: Boolean): TBerkeleyDBEnv;
 
 implementation
 
@@ -61,12 +67,16 @@ uses
 
 const
   CEnvSubDir = 'env';
+  CBerkeleyDBEnvErrPfx = 'BerkeleyDB (Env)';
 
 var
   GEnvList: TObjectList = nil;
   GCS: TCriticalSection = nil;
 
-function GlobalAllocateEnvironment(const AEnvRootPath: string): TBerkeleyDBEnv;
+function GlobalAllocateEnvironment(
+  const AEnvRootPath: string;
+  ASingleMode: Boolean
+): TBerkeleyDBEnv;
 var
   I: Integer;
   VEnv: TBerkeleyDBEnv;
@@ -78,13 +88,14 @@ begin
       VEnv := TBerkeleyDBEnv(GEnvList.Items[I]);
       if Assigned(VEnv) then begin
         if VEnv.EnvRootPath = AEnvRootPath then begin
+          VEnv.ClientsCount := VEnv.ClientsCount + 1;
           Result := VEnv;
           Break;
         end;
       end;
     end;
     if not Assigned(Result) then begin
-      VEnv := TBerkeleyDBEnv.Create(AEnvRootPath);
+      VEnv := TBerkeleyDBEnv.Create(AEnvRootPath, ASingleMode);
       GEnvList.Add(VEnv);
       Result := VEnv;
     end;
@@ -100,7 +111,10 @@ end;
 
 { TBerkeleyDBEnv }
 
-constructor TBerkeleyDBEnv.Create(const AEnvRootPath: string);
+constructor TBerkeleyDBEnv.Create(
+  const AEnvRootPath: string;
+  ASingleMode: Boolean
+);
 begin
   inherited Create;
   FCS := TCriticalSection.Create;
@@ -108,6 +122,8 @@ begin
   FLastRemoveLogTime := 0;
   FLastCheckPointTime := 0;
   FEnvRootPath := AEnvRootPath;
+  FSingleMode := ASingleMode;
+  FClientsCount := 1;
   FPool := TBerkeleyDBPool.Create;
   InitBerkeleyDB;
 end;
@@ -128,27 +144,36 @@ function TBerkeleyDBEnv.Open: Boolean;
 var
   I: Integer;
   VPath: string;
+  VSingleModFlag: Cardinal;
 begin
   if not FActive then begin
     CheckBDB(db_env_create(FEnv, 0));
+    FEnv.set_errpfx(FEnv, CBerkeleyDBEnvErrPfx);
+    FEnv.set_errcall(FEnv,ErrCall);
     CheckBDB(FEnv.set_alloc(FEnv, @GetMemory, @ReallocMemory, @FreeMemory));
     CheckBDB(FEnv.set_flags(FEnv, DB_TXN_NOSYNC, 1));
     CheckBDB(FEnv.set_flags(FEnv, DB_TXN_WRITE_NOSYNC, 1));
-    if CEnvSubDir <> '' then begin
-      VPath := FEnvRootPath + CEnvSubDir + PathDelim;
-      I := LastDelimiter(PathDelim, VPath);
-      VPath := copy(VPath, 1, I);
-      CheckBDB(FEnv.set_data_dir(FEnv, '..'));
-    end else begin
-      VPath := FEnvRootPath;
-    end;
-    if not DirectoryExists(VPath) then begin
-      ForceDirectories(VPath);
-    end;
-    CheckBDB(FEnv.log_set_config(FEnv, DB_LOG_AUTO_REMOVE, 1));
     CheckBDB(FEnv.set_verbose(FEnv, DB_VERB_RECOVERY, 1));
-    FEnv.set_errpfx(FEnv, 'BerkeleyDB (Env)');
-    FEnv.set_errcall(FEnv,ErrCall);
+    if FSingleMode then begin
+      VPath := '';
+      VSingleModFlag := DB_PRIVATE or DB_SYSTEM_MEM;
+      CheckBDB(FEnv.log_set_config(FEnv, DB_LOG_IN_MEMORY, 1));
+      CheckBDB(FEnv.set_lg_bsize(FEnv, 10*1024*1024));
+    end else begin
+      if CEnvSubDir <> '' then begin
+        VPath := FEnvRootPath + CEnvSubDir + PathDelim;
+        I := LastDelimiter(PathDelim, VPath);
+        VPath := copy(VPath, 1, I);
+        CheckBDB(FEnv.set_data_dir(FEnv, '..'));
+      end else begin
+        VPath := FEnvRootPath;
+      end;
+      if not DirectoryExists(VPath) then begin
+        ForceDirectories(VPath);
+      end;
+      VSingleModFlag := DB_REGISTER;
+      CheckBDB(FEnv.log_set_config(FEnv, DB_LOG_AUTO_REMOVE, 1));
+    end;
 
     CheckBDB(
       FEnv.open(
@@ -160,7 +185,7 @@ begin
         DB_INIT_LOG or
         DB_INIT_MPOOL or
         DB_INIT_TXN or
-        DB_REGISTER or
+        VSingleModFlag or
         DB_THREAD,
         0
       )
@@ -207,6 +232,27 @@ begin
     end;
   finally
     FCS.Release;
+  end;
+end;
+
+class function TBerkeleyDBEnv.LsnReset(const AFileName: string): Boolean;
+var
+  env: PDB_ENV;
+begin
+  Result := False;
+  if (AFileName <> '') and FileExists(AFileName) then begin
+    CheckBDB(db_env_create(env, 0));
+    try
+      CheckBDB(env.open(env, '', DB_CREATE_ or DB_PRIVATE or DB_INIT_MPOOL, 0));
+      CheckBDB(env.lsn_reset(env, PAnsiChar(AFileName), 0));
+    finally
+      if env <> nil then begin
+        CheckBDB(env.close(env, 0));
+      end;
+    end;
+    Result := True;
+  end else begin
+    Assert(False, 'Warning [BerkeleyDB]: LsnReset - invalid arguments!');
   end;
 end;
 

@@ -38,6 +38,9 @@ type
     function GetLoadDate: TDateTime;
     property LoadDate: TDateTime read GetLoadDate;
 
+    function GetTile: Pointer;
+    property Tile: Pointer read GetTile;
+
     function GetSize: Cardinal;
     property Size: Cardinal read GetSize;
 

@@ -36,6 +36,7 @@ type
     function GetIsExists: Boolean; virtual; abstract;
     function GetIsExistsTNE: Boolean; virtual; abstract;
     function GetLoadDate: TDateTime; virtual;
+    function GetTile: Pointer; virtual;
     function GetSize: Cardinal; virtual; abstract;
     function GetVersionInfo: IMapVersionInfo; virtual;
     function GetContentType: IContentTypeInfoBasic; virtual; abstract;
@@ -80,6 +81,22 @@ type
     );
   end;
 
+  TTileInfoBasicExistsWithTile = class(TTileInfoBasicExists)
+  private
+    FTile: Pointer;
+  protected
+    function GetTile: Pointer; override;
+  public
+    constructor Create(
+      ADate: TDateTime;
+      ATile: Pointer;
+      ASize: Cardinal;
+      AVersionInfo: IMapVersionInfo;
+      AContentType: IContentTypeInfoBasic
+    );
+    destructor Destroy; override;
+  end;
+
 implementation
 
 { TTileInfoBasicBase }
@@ -101,6 +118,11 @@ end;
 function TTileInfoBasicBase.GetVersionInfo: IMapVersionInfo;
 begin
   Result := FVersionInfo;
+end;
+
+function TTileInfoBasicBase.GetTile: Pointer;
+begin
+  Result := nil;
 end;
 
 { TTileInfoBasicTNE }
@@ -157,6 +179,38 @@ end;
 function TTileInfoBasicExists.GetSize: Cardinal;
 begin
   Result := FSize;
+end;
+
+{ TTileInfoBasicExistsWithTile }
+
+constructor TTileInfoBasicExistsWithTile.Create(
+  ADate: TDateTime;
+  ATile: Pointer;
+  ASize: Cardinal;
+  AVersionInfo: IMapVersionInfo;
+  AContentType: IContentTypeInfoBasic
+);
+begin
+  inherited Create(ADate, ASize, AVersionInfo, AContentType);
+  if (ASize > 0) and (ATile <> nil) then begin
+    GetMem(FTile, ASize);
+    Move(ATile^, FTile^, ASize);
+  end else begin
+    FTile := nil;
+  end;
+end;
+
+destructor TTileInfoBasicExistsWithTile.Destroy;
+begin
+  if FTile <> nil then begin
+    FreeMem(FTile);
+  end;
+  inherited Destroy;
+end;
+
+function TTileInfoBasicExistsWithTile.GetTile: Pointer;
+begin
+  Result := FTile;
 end;
 
 { TTileInfoBasicNotExists }

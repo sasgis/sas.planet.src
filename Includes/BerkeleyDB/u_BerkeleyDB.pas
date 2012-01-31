@@ -37,6 +37,9 @@ const
   BDB_DEF_CACHE_SIZE = $40000; //256k
   BDB_DEF_PAGE_SIZE  = 0;      //auto-selected based on the underlying
                                //filesystem I/O block size (512b - 16k)
+
+  CBerkeleyDBErrPfx = 'BerkeleyDB';
+
 type
   EBerkeleyDBExeption = class(Exception);
 
@@ -140,10 +143,41 @@ function TBerkeleyDB.Open(
   AMemCacheSize: Cardinal = BDB_DEF_CACHE_SIZE;
   ADBType: DBTYPE = DB_BTREE
 ): Boolean;
+
+  function TryOpen(AFileExists: Boolean): Boolean;
+  var
+    VFlags: Cardinal;
+  begin
+    if FENV = nil then begin
+      raise EBerkeleyDBExeption.Create(
+        'Aborted [BerkeleyDB]: Environment not assigned.'
+      );
+    end;
+
+    CheckBDB(db_create(FDB, FENV, 0));
+    try
+      VFlags := DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD;
+
+      FDB.set_errpfx(FDB, CBerkeleyDBErrPfx);
+
+      if not AFileExists then begin
+        CheckBDB(FDB.set_pagesize(FDB, APageSize));
+      end;
+
+      CheckBDB(FDB.open(FDB, nil, PAnsiChar(FFileName), '', ADBType, VFlags, 0));
+
+      Result := True;
+    except
+      FDB.close(FDB, 0);
+      FDB := nil;
+      raise;
+    end;             
+  end;
+
 var
   VOnCreateAllow: Boolean;
   VOnOpenAllow: Boolean;
-  VFlags: Cardinal;
+  VFileExists: Boolean;
 begin
   Result := False;
   VOnCreateAllow := False;
@@ -155,30 +189,15 @@ begin
         Result := FDBEnabled;
       end;
     end else begin
+      FDB := nil;
       FENV := AENV;
       FFileName := AFileName;
       FDBEnabled := False;
-      VFlags := DB_CREATE_;
-      CheckBDB(db_create(FDB, FENV, 0));
-      if FENV = nil then begin
-        CheckBDB(FDB.set_alloc(FDB, @GetMemory, @ReallocMemory, @FreeMemory));
-      end else begin
-        VFlags := VFlags or DB_AUTO_COMMIT or DB_THREAD;
-      end;                              
-      if not FileExists(FFileName) then begin
-        VOnCreateAllow := True;
-        if APageSize <> Cardinal(BDB_DEF_PAGE_SIZE) then begin
-          CheckBDB(FDB.set_pagesize(FDB, APageSize));
-        end;
-      end;
-      if AMemCacheSize <> Cardinal(BDB_DEF_CACHE_SIZE) then begin
-        CheckBDB(FDB.set_cachesize(FDB, 0, AMemCacheSize, 0));
-      end;
-      FDB.set_errpfx(FDB, 'BerkeleyDB');
-      CheckBDB(FDB.open(FDB, nil, PAnsiChar(AFileName), '', ADBType, VFlags, 0));
-      FDBEnabled := True;
-      VOnOpenAllow := True;
-      Result := True;      
+      VFileExists := FileExists(FFileName);
+      Result := TryOpen(VFileExists);
+      FDBEnabled := Result;
+      VOnCreateAllow := not VFileExists;
+      VOnOpenAllow := Result;
     end;
   finally
     FCS.Release;
@@ -227,15 +246,11 @@ begin
       FillChar(dbtData, Sizeof(DBT), 0);
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
-      if (FDB.open_flags and DB_THREAD = DB_THREAD) then begin
-        dbtData.flags := DB_DBT_MALLOC;
-      end;
+      dbtData.flags := DB_DBT_MALLOC;
       Result := CheckAndFoundBDB(FDB.get(FDB, nil, @dbtKey, @dbtData, 0));
       if Result and (dbtData.data <> nil) and (dbtData.size > 0) then begin
+        AData := dbtData.data;
         ADataSize := dbtData.size;
-        GetMem(AData, ADataSize);
-        Move(dbtData.data^, AData^, dbtData.size);
-        FreeMem(dbtData.data);
         dbtData.data := nil;
         dbtData.size := 0;
       end;
@@ -253,7 +268,6 @@ function TBerkeleyDB.Write(
 ): Boolean;
 var
   dbtKey, dbtData: DBT;
-  pdbTxn: PDB_TXN;
   VOnCheckPointAllow: Boolean;
 begin
   VOnCheckPointAllow := False;
@@ -268,23 +282,8 @@ begin
       dbtKey.size := AKeySize;
       dbtData.data := AData;
       dbtData.size := ADataSize;
-      if FENV <> nil then begin
-        CheckBDB(FENV.txn_begin(FENV, nil, @pdbTxn, 0));
-      end else begin
-        pdbTxn := nil;
-      end;
-      try
-        Result := CheckAndNotExistsBDB(FDB.put(FDB, pdbTxn, @dbtKey, @dbtData, 0));
-        VOnCheckPointAllow := Result;
-      except
-        if pdbTxn <> nil then begin
-          pdbTxn.abort(pdbTxn);
-        end;
-        raise;
-      end;
-      if pdbTxn <> nil then begin
-        CheckBDB(pdbTxn.commit(pdbTxn, 0));
-      end;
+      Result := CheckAndNotExistsBDB(FDB.put(FDB, nil, @dbtKey, @dbtData, 0));
+      VOnCheckPointAllow := Result;
     end;
   finally
     FCS.Release;
@@ -321,7 +320,6 @@ function TBerkeleyDB.Del(
 ): Boolean;
 var
   dbtKey: DBT;
-  pdbTxn: PDB_TXN;
   VOnCheckPointAllow: Boolean;
 begin
   VOnCheckPointAllow := False;
@@ -332,23 +330,8 @@ begin
       FillChar(dbtKey, Sizeof(DBT), 0);
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
-      if FENV <> nil then begin
-        CheckBDB(FENV.txn_begin(FENV, nil, @pdbTxn, 0));
-      end else begin
-        pdbTxn := nil;
-      end;
-      try
-        Result := CheckAndFoundBDB(FDB.del(FDB, pdbTxn, @dbtKey, 0));
-        VOnCheckPointAllow := Result;
-      except
-        if pdbTxn <> nil then begin
-          pdbTxn.abort(pdbTxn);
-        end;
-        raise;
-      end;
-      if pdbTxn <> nil then begin
-        CheckBDB(pdbTxn.commit(pdbTxn, 0));
-      end;
+      Result := CheckAndFoundBDB(FDB.del(FDB, nil, @dbtKey, 0));
+      VOnCheckPointAllow := Result;
     end;
   finally
     FCS.Release;
