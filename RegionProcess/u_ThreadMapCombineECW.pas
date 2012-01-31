@@ -112,8 +112,8 @@ begin
   if (starttile = 0) or (line = 0) then begin
     FTilesProcessed := Line;
     ProgressFormUpdateOnProgress;
-    p_y := (FCurrentPieceRect.Top + line) - ((FCurrentPieceRect.Top + line) mod 256);
-    p_x := FCurrentPieceRect.Left - (FCurrentPieceRect.Left mod 256);
+    p_y := (CurrentPieceRect.Top + line) - ((CurrentPieceRect.Top + line) mod 256);
+    p_x := CurrentPieceRect.Left - (CurrentPieceRect.Left mod 256);
     lrarri := 0;
     rarri := 0;
     if line > (255 - sy) then begin
@@ -121,14 +121,14 @@ begin
     end else begin
       Asy := sy;
     end;
-    if (p_y div 256) = (FCurrentPieceRect.Bottom div 256) then begin
+    if (p_y div 256) = (CurrentPieceRect.Bottom div 256) then begin
       Aey := ey;
     end else begin
       Aey := 255;
     end;
     Asx := sx;
     Aex := 255;
-    while p_x <= FCurrentPieceRect.Right do begin
+    while p_x <= CurrentPieceRect.Right do begin
       // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
       FLastTile := Point(p_x shr 8, p_y shr 8);
       if not (RgnAndRgn(@FPoly[0], Length(FPoly), p_x + 128, p_y + 128, false)) then begin
@@ -138,7 +138,7 @@ begin
         VConverter := CreateConverterForTileImage(FLastTile);
         PrepareTileBitmap(btmm, VConverter);
       end;
-      if (p_x + 256) > FCurrentPieceRect.Right then begin
+      if (p_x + 256) > CurrentPieceRect.Right then begin
         Aex := ex;
       end;
       for j := Asy to Aey do begin
@@ -156,7 +156,7 @@ begin
       inc(p_x, 256);
     end;
   end;
-  for i := 0 to (FCurrentPieceRect.Right - FCurrentPieceRect.Left) - 1 do begin
+  for i := 0 to (CurrentPieceRect.Right - CurrentPieceRect.Left) - 1 do begin
     LineR^[i] := Rarr^[starttile]^[i];
     LineG^[i] := Garr^[starttile]^[i];
     LineB^[i] := Barr^[starttile]^[i];
@@ -172,10 +172,10 @@ var
   errecw: integer;
   VECWWriter: TECWWrite;
 begin
-  sx := (FCurrentPieceRect.Left mod 256);
-  sy := (FCurrentPieceRect.Top mod 256);
-  ex := (FCurrentPieceRect.Right mod 256);
-  ey := (FCurrentPieceRect.Bottom mod 256);
+  sx := (CurrentPieceRect.Left mod 256);
+  sy := (CurrentPieceRect.Top mod 256);
+  ex := (CurrentPieceRect.Right mod 256);
+  ey := (CurrentPieceRect.Bottom mod 256);
   VECWWriter := TECWWrite.Create;
   try
     btmm := TCustomBitmap32.Create;
@@ -184,33 +184,33 @@ begin
       btmm.Height := 256;
       getmem(Rarr, 256 * sizeof(PRow));
       for k := 0 to 255 do begin
-        getmem(Rarr[k], (FMapPieceSize.X + 1) * sizeof(byte));
+        getmem(Rarr[k], (MapPieceSize.X + 1) * sizeof(byte));
       end;
       getmem(Garr, 256 * sizeof(PRow));
       for k := 0 to 255 do begin
-        getmem(Garr[k], (FMapPieceSize.X + 1) * sizeof(byte));
+        getmem(Garr[k], (MapPieceSize.X + 1) * sizeof(byte));
       end;
       getmem(Barr, 256 * sizeof(PRow));
       for k := 0 to 255 do begin
-        getmem(Barr[k], (FMapPieceSize.X + 1) * sizeof(byte));
+        getmem(Barr[k], (MapPieceSize.X + 1) * sizeof(byte));
       end;
       try
         Datum := 'EPSG:' + IntToStr(MainGeoConverter.Datum.EPSG);
         Proj := 'EPSG:' + IntToStr(MainGeoConverter.GetProjectionEPSG);
         Units := MainGeoConverter.GetCellSizeUnits;
         CalculateWFileParams(
-          MainGeoConverter.PixelPos2LonLat(FCurrentPieceRect.TopLeft, Zoom),
-          MainGeoConverter.PixelPos2LonLat(FCurrentPieceRect.BottomRight, Zoom),
-          FMapPieceSize.X, FMapPieceSize.Y, MainGeoConverter,
+          MainGeoConverter.PixelPos2LonLat(CurrentPieceRect.TopLeft, Zoom),
+          MainGeoConverter.PixelPos2LonLat(CurrentPieceRect.BottomRight, Zoom),
+          MapPieceSize.X, MapPieceSize.Y, MainGeoConverter,
           CellIncrementX, CellIncrementY, OriginX, OriginY
           );
         errecw :=
           VECWWriter.Encode(
             OperationID,
             CancelNotifier,
-            FCurrentFileName,
-            FMapPieceSize.X,
-            FMapPieceSize.Y,
+            CurrentFileName,
+            MapPieceSize.X,
+            MapPieceSize.Y,
             101 - FQuality,
             COMPRESS_HINT_BEST,
             ReadLine,

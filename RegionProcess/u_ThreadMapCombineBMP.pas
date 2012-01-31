@@ -31,19 +31,19 @@ var
   VBMP: TBitmapFile;
   VLineBGR: PArrayBGR;
 begin
-  sx := (FCurrentPieceRect.Left mod 256);
-  sy := (FCurrentPieceRect.Top mod 256);
-  ex := (FCurrentPieceRect.Right mod 256);
-  ey := (FCurrentPieceRect.Bottom mod 256);
+  sx := (CurrentPieceRect.Left mod 256);
+  sy := (CurrentPieceRect.Top mod 256);
+  ex := (CurrentPieceRect.Right mod 256);
+  ey := (CurrentPieceRect.Bottom mod 256);
 
-  iWidth := FMapPieceSize.X;
-  iHeight := FMapPieceSize.y;
+  iWidth := MapPieceSize.X;
+  iHeight := MapPieceSize.y;
 
   if (iWidth >= BMP_MAX_WIDTH) or (iHeight >= BMP_MAX_HEIGHT) then begin
     raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['BMP', iWidth, BMP_MAX_WIDTH, iHeight, BMP_MAX_HEIGHT, 'BMP']);
   end;
 
-  VBMP := TBitmapFile.Create(FCurrentFileName, iWidth, iHeight);
+  VBMP := TBitmapFile.Create(CurrentFileName, iWidth, iHeight);
   try
     GetMem(VLineBGR, iWidth * 3);
 

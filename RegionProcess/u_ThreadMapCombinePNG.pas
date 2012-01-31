@@ -181,13 +181,13 @@ begin
     VPngColorType := PNG_COLOR_TYPE_RGB;
   end;
 
-  sx := (FCurrentPieceRect.Left mod 256);
-  sy := (FCurrentPieceRect.Top mod 256);
-  ex := (FCurrentPieceRect.Right mod 256);
-  ey := (FCurrentPieceRect.Bottom mod 256);
+  sx := (CurrentPieceRect.Left mod 256);
+  sy := (CurrentPieceRect.Top mod 256);
+  ex := (CurrentPieceRect.Right mod 256);
+  ey := (CurrentPieceRect.Bottom mod 256);
 
-  iWidth := FMapPieceSize.X;
-  iHeight := FMapPieceSize.y;
+  iWidth := MapPieceSize.X;
+  iHeight := MapPieceSize.y;
 
   if (iWidth >= PNG_MAX_WIDTH) or (iHeight >= PNG_MAX_HEIGHT) then begin
     raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['PNG', iWidth, PNG_MAX_WIDTH, iHeight, PNG_MAX_HEIGHT, 'PNG']);
@@ -197,7 +197,7 @@ begin
     raise Exception.Create( _('Initialization of LibPNG failed.') );
   end;
 
-  rw_io.DestStream := TFileStream.Create(FCurrentFileName, fmCreate);
+  rw_io.DestStream := TFileStream.Create(CurrentFileName, fmCreate);
   rw_io.DestBufferSize := 64*1024; // 64k
   GetMem(rw_io.DestBuffer, rw_io.DestBufferSize);
   rw_io.BufferedDataSize := 0;

@@ -87,8 +87,8 @@ begin
     ARecolorConfig
   );
   FQuality := AQuality;
-  nim.X := ((FMapPieceSize.X-1) div 1024) + 1;
-  nim.Y := ((FMapPieceSize.Y-1) div 1024) + 1;
+  nim.X := ((MapPieceSize.X-1) div 1024) + 1;
+  nim.Y := ((MapPieceSize.Y-1) div 1024) + 1;
   if ((nim.X * nim.Y) > 100) then begin
     ShowMessageSync(SAS_MSG_GarminMax1Mp);
   end;
@@ -115,20 +115,20 @@ var
   JPGSaver: IBitmapTileSaver;
   VKmzFileNameOnly: string;
 begin
-  nim.X := ((FMapPieceSize.X-1) div 1024) + 1;
-  nim.Y := ((FMapPieceSize.Y-1) div 1024) + 1;
+  nim.X := ((MapPieceSize.X-1) div 1024) + 1;
+  nim.Y := ((MapPieceSize.Y-1) div 1024) + 1;
   FTilesProcessed := 0;
   FTilesToProcess := nim.X * nim.Y;
-  iWidth := FMapPieceSize.X div (nim.X);
-  iHeight := FMapPieceSize.y div (nim.Y);
+  iWidth := MapPieceSize.X div (nim.X);
+  iHeight := MapPieceSize.y div (nim.Y);
 
   JPGSaver := TVampyreBasicBitmapTileSaverJPG.create(FQuality);
 
-  VKmzFileNameOnly := ExtractFileName(FCurrentFileName);
+  VKmzFileNameOnly := ExtractFileName(CurrentFileName);
   Zip := TKaZip.Create(nil);
   try
-    Zip.FileName := FCurrentFileName;
-    Zip.CreateZip(FCurrentFileName);
+    Zip.FileName := CurrentFileName;
+    Zip.CreateZip(CurrentFileName);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
 
@@ -149,10 +149,10 @@ begin
               if CancelNotifier.IsOperationCanceled(OperationID) then begin
                 break;
               end;
-              VPixelRect.Left := FCurrentPieceRect.Left + iWidth * (i - 1);
-              VPixelRect.Right := FCurrentPieceRect.Left + iWidth * i;
-              VPixelRect.Top := FCurrentPieceRect.Top + iHeight * (j - 1);
-              VPixelRect.Bottom := FCurrentPieceRect.Top + iHeight * j;
+              VPixelRect.Left := CurrentPieceRect.Left + iWidth * (i - 1);
+              VPixelRect.Right := CurrentPieceRect.Left + iWidth * i;
+              VPixelRect.Top := CurrentPieceRect.Top + iHeight * (j - 1);
+              VPixelRect.Bottom := CurrentPieceRect.Top + iHeight * j;
               if Line.IsRectIntersectPolygon(DoubleRect(VPixelRect)) then begin
                 VLocalConverter := ConverterFactory.CreateConverter(VLocalRect, Zoom, MainGeoConverter, DoublePoint(1, 1), DoublePoint(VPixelRect.TopLeft));
 

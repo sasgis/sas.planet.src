@@ -68,20 +68,21 @@ type
     FUsePrevZoomAtLayer: Boolean;
     FBackGroundColor: TColor32;
     FZoom: byte;
-  protected
-    FPoly: TArrayOfPoint;
-
     FCurrentFileName: string;
     FMapPieceSize: TPoint;
     FCurrentPieceRect: TRect;
+  protected
+    FPoly: TArrayOfPoint;
     FLastTile: TPoint;
-
 
     FArray256BGR: P256ArrayBGR;
     FArray256ABGR: P256ArrayABGR;
     sx, ex, sy, ey: integer;
     btmm: TCustomBitmap32;
 
+    property CurrentPieceRect: TRect read FCurrentPieceRect;
+    property MapPieceSize: TPoint read FMapPieceSize;
+    property CurrentFileName: string read FCurrentFileName;
     property Zoom: byte read FZoom;
     property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
     property MainGeoConverter: ICoordConverter read FMainGeoConverter;
@@ -121,6 +122,10 @@ type
       ARecolorConfig: IBitmapPostProcessingConfigStatic
     );
     destructor Destroy; override;
+  end;
+
+  TThreadMapCombineBaseWithByLyne = class(TThreadMapCombineBase)
+
   end;
 
 implementation
