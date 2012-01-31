@@ -243,6 +243,9 @@ const
   ETS_LSIC_AUTH_FREE        = $00000007; // set authentication callback function (to free buffers)
   ETS_LSIC_LOST_CONNECT     = $00000008; // set callback to call when loose connection
   ETS_LSIC_RESTORE_CONNECT  = $00000009; // set callback to call when restore connection (only after loose)
+  ETS_LSIC_CONTENTTYPE_W    = $0000000A; // set content type for service in storage (unicode version) - use PChar as buffer pointer
+  ETS_LSIC_CONTENTTYPE_A    = $0000000B; // set content type for service in storage (ansi version) - use PChar as buffer pointer
+  ETS_LSIC_SRC_STORAGE_OPT  = $0000000C; // set storage options for service in storage - use TETS_SOURCE_STORAGE_OPTIONS as buffer
 
   // values for ALinkQueryInfoClass
   ETS_LQIC_TILE_ROUTINES_W = $00000001; // get routines to work with tiles (unicode version)

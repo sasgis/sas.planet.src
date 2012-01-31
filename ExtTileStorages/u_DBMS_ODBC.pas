@@ -28,6 +28,7 @@ uses
 {$ENDIF}
   t_ODBC,
   t_ETS_Result,
+  t_ETS_Tiles,
   t_ETS_AuthKind,
   u_DBMS_Basic;
 
@@ -87,7 +88,10 @@ type
   end;
 
   TDBMS_Link_ODBC = class(TDBMS_Link_Basic)
-
+  protected
+    function Internal_Execute_DDL_A(const AServiceName: PAnsiChar;
+                                    const APtrTileID: PTILE_ID_XYZ;
+                                    const APtrVersionA: PETS_TILE_VERSION_A): LongInt; override;
   end;
 
 implementation
@@ -324,6 +328,18 @@ procedure TDBMS_Connection_ODBC.Internal_Zero;
 begin
   hdbc:=nil;
   pFunctions:=@(TDBMS_Environment_ODBC(DBMS_Environment).FODBC_Functions);
+end;
+
+{ TDBMS_Link_ODBC }
+
+function TDBMS_Link_ODBC.Internal_Execute_DDL_A(const AServiceName: PAnsiChar;
+                                                const APtrTileID: PTILE_ID_XYZ;
+                                                const APtrVersionA: PETS_TILE_VERSION_A): LongInt;
+begin
+  // check base tables exist (sas_*)
+  // check map table exists
+  // check map record in table exists
+  Result:=ETSR_NOT_IMPLEMENTED;
 end;
 
 end.
