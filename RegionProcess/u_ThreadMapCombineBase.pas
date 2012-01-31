@@ -82,6 +82,8 @@ type
     sx, ex, sy, ey: integer;
     btmm: TCustomBitmap32;
 
+    property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
+    property MainGeoConverter: ICoordConverter read FMainGeoConverter;
     function CreateConverterForTileImage(ATile: TPoint): ILocalCoordConverter;
     procedure PrepareTileBitmap(
       ATargetBitmap: TCustomBitmap32;
