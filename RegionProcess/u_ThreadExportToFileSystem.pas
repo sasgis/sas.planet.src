@@ -102,7 +102,7 @@ begin
             VGeoConvert,
             VZoom
           ),
-          FPolygLL
+          PolygLL
         );
       VTileIterators[j, i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
       FTilesToProcess := FTilesToProcess + VTileIterators[j, i].TilesTotal;

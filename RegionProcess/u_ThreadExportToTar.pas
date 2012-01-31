@@ -99,7 +99,7 @@ begin
           FMapType.GeoConvert,
           VZoom
         ),
-        FPolygLL
+        PolygLL
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
     FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;

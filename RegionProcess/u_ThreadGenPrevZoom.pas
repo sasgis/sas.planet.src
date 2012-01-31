@@ -83,7 +83,6 @@ begin
   FGenFormPrevZoom := AGenFormPrev;
   FUsePrevTiles:=AUsePrevTiles;
   FZooms := AInZooms;
-  FPolygLL := APolygLL;
   FTileInProc := 0;
   FSourceZoom := Azoom;
   FMapType := Atypemap;
@@ -126,7 +125,7 @@ begin
           VGeoConvert,
           VZoom
         ),
-        FPolygLL
+        PolygLL
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
     if (not FGenFormPrevZoom) or (i = 0) then begin

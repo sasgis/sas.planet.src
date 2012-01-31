@@ -22,6 +22,7 @@ type
     FShowOnFormLine0: string;
     FShowOnFormLine1: string;
     FProgressOnForm: integer;
+    FPolygLL: ILonLatPolygon;
 
     procedure UpdateProgressFormBar;
     procedure UpdateProgressFormCaption;
@@ -32,8 +33,6 @@ type
     procedure UpdateProgressFormClose;
     procedure CloseFProgress(Sender: TObject; var Action: TCloseAction); virtual;
   protected
-    FPolygLL: ILonLatPolygon;
-
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
     procedure ProgressFormUpdateProgressAndLine1(AProgress: Integer; ALine1: string);
@@ -46,6 +45,7 @@ type
     procedure Execute; override;
     procedure Terminate; reintroduce; virtual;
 
+    property PolygLL: ILonLatPolygon read FPolygLL;
     property CancelNotifier: IOperationNotifier read FCancelNotifier;
     property OperationID: Integer read FOperationID;
   public

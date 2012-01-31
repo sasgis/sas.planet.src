@@ -161,7 +161,7 @@ var
   VZoom: Integer;
 begin
   VZoom := FZooms[0];
-  VLLCenter := AGeoConvert.PixelPosFloat2LonLat(RectCenter(AGeoConvert.LonLatRect2PixelRectFloat(FPolygLL.Bounds, VZoom)), VZoom);
+  VLLCenter := AGeoConvert.PixelPosFloat2LonLat(RectCenter(AGeoConvert.LonLatRect2PixelRectFloat(PolygLL.Bounds, VZoom)), VZoom);
   AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
   Rewrite(PList);
   Writeln(PList, '<plist>');
@@ -266,7 +266,7 @@ begin
             VGeoConvert,
             VZoom
           ),
-          FPolygLL
+          PolygLL
         );
       VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
       FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
