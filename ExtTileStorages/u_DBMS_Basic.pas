@@ -123,6 +123,11 @@ type
     function Internal_Safe_Connect_or_Exit(var AResult: LongInt; const bForDDL: Boolean = FALSE): Boolean;
     function Internal_Create_Environment_Object(var AResult: LongInt): TDBMS_Environment_Basic;
     function Internal_Create_Connection_Object(var AResult: LongInt): TDBMS_Connection_Basic;
+  protected
+    // overridable routines
+    function Internal_Execute_DDL_A(const AServiceName: PAnsiChar;
+                                    const APtrTileID: PTILE_ID_XYZ;
+                                    const APtrVersionA: PETS_TILE_VERSION_A): LongInt; virtual; abstract;
   public
     constructor Create(const AHostLinkPtr: Pointer); virtual;
     destructor Destroy; override;
@@ -605,13 +610,8 @@ begin
 
   FSynchronizer.BeginWrite;
   try
-    if (nil=APtrTileID) then begin
-      // no tile_id
-      Result:=ETSR_NO_MANDATORY_PARAMETER;
-    end else begin
-      // make tne marker, delete tile if exists
-      // Result:=ETSR_OK;
-    end;
+    // execute DDL
+    Result:=Internal_Execute_DDL_A(AServiceName, APtrTileID, APtrVersionA);
   finally
     FSynchronizer.EndWrite;
   end;
@@ -847,6 +847,7 @@ begin
       // if called to exec DDL - reset flags and skip
       if bForDDL then begin
         FUnderlayingStructureResult:=ETSR_OK;
+        Result:=FALSE; // allow to execute DDL
         Exit;
       end;
 

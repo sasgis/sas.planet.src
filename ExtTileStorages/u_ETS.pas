@@ -70,6 +70,8 @@ type
     procedure Internal_Initialize_Zero;
     function Internal_Initialize_ETS: LongInt;
     function Internal_Connect_ETS(const AServiceName, AConnectionInfo: String): LongInt;
+    function Internal_Apply_Source_Params(const ABaseContentType: String;
+                                          const AServiceOptions: PETS_SOURCE_STORAGE_OPTIONS): LongInt;
     function Internal_Underlaying: LongInt;
   protected
     // helpers
@@ -177,7 +179,10 @@ type
     destructor Destroy; override;
 
     // create new link for storage provider
-    function CreateNewLink(const AServiceName, AConnectionInfo: String): TETS_Host_Link;
+    function CreateNewLink(const AServiceName: String;
+                           const AConnectionInfo: String;
+                           const ABaseContentType: String;
+                           const AServiceOptions: PETS_SOURCE_STORAGE_OPTIONS): TETS_Host_Link;
 
     property ProviderInternalName: WideString read FProviderInternalName;
 
@@ -440,7 +445,10 @@ begin
   Internal_Initialize_Zero;
 end;
 
-function TETS_Host_Provider_Basic.CreateNewLink(const AServiceName, AConnectionInfo: String): TETS_Host_Link;
+function TETS_Host_Provider_Basic.CreateNewLink(const AServiceName: String;
+                                                const AConnectionInfo: String;
+                                                const ABaseContentType: String;
+                                                const AServiceOptions: PETS_SOURCE_STORAGE_OPTIONS): TETS_Host_Link;
 begin
   Result:=nil;
   EnterCS;
@@ -461,6 +469,8 @@ begin
     Result.Internal_Initialize_ETS;
     // initialize connection parameters (after this step storage provider can connect to storage)
     Result.Internal_Connect_ETS(AServiceName, AConnectionInfo);
+    // apply source params to storage
+    Result.Internal_Apply_Source_Params(ABaseContentType, AServiceOptions);
     // and finally get parameters from underlaying storage
     Result.Internal_Underlaying;
   finally
@@ -959,6 +969,56 @@ begin
     end;
   finally
     FSynchronizer.EndRead;
+  end;
+end;
+
+function TETS_Host_Link.Internal_Apply_Source_Params(const ABaseContentType: String;
+                                                     const AServiceOptions: PETS_SOURCE_STORAGE_OPTIONS): LongInt;
+var
+  Vws: WideString;
+  Vas: AnsiString;
+begin
+  FSynchronizer.BeginWrite;
+  try
+    // no storage
+    if (nil=FHostProvider) then begin
+      Result:=ETSR_NO_ROOT_FUNCTION;
+      Exit;
+    end;
+
+    // not initialized
+    if (not FInitialized) then begin
+      Result:=ETSR_NOT_INITIALIZED;
+      Exit;
+    end;
+
+    // already connected
+    if FConnected then begin
+      Result:=ETSR_ALREADY_CONNECTED;
+      Exit;
+    end;
+
+    // apply base content type
+    if Assigned(FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info) then begin
+      // unicode version
+      Vws:=ABaseContentType;
+      Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_CONTENTTYPE_W, 0, PWideChar(Vws));
+      if (ETSR_OK<>Result) then begin
+        // try ansi version
+        Vas:=ABaseContentType;
+        Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_CONTENTTYPE_A, 0, PAnsiChar(Vas));
+        if (ETSR_OK<>Result) then
+          Exit;
+      end;
+
+      // apply service options
+      Result:=FHostProvider.FETS_PQI_LINK_FUNC.p_Link_Set_Info(FLinkHandle, ETS_LSIC_SRC_STORAGE_OPT, sizeof(AServiceOptions^), AServiceOptions);
+    end else begin
+      // not supported
+      Result:=ETSR_NOT_SUPPORTED;
+    end;
+  finally
+    FSynchronizer.EndWrite;
   end;
 end;
 

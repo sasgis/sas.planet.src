@@ -39,6 +39,11 @@ const
   TILE_ID_TYPE_0123_16CH = 'Q'; // up to 16 right chars go to file_id, left chars (<=8) go to tablename
   TILE_ID_TYPE_AHP1_8CHR = 'H'; // up to 8 right chars go to file_id, left chars (<=4) go to tablename
 
+  TILE_VERSION_COMPARE_NONE = '0'; // tile version non-comparable
+  TILE_VERSION_COMPARE_NAME = 'A'; // compare using version name (string)
+  TILE_VERSION_COMPARE_DATE = 'D'; // compare using version date and time
+  TILE_VERSION_COMPARE_INT1 = '1'; // compare using int1 field
+
 type
   // only numeric xyz
   TTILE_ID_XYZ = packed record
@@ -108,7 +113,22 @@ type
   end;
   PETS_TILE_VERSION_A = ^TETS_TILE_VERSION_A;
 
+  // buffer to set source options to storage
+  TETS_SOURCE_STORAGE_OPTIONS = packed record
+    tileid_type: AnsiChar; // type of tile_id generator
+    ver_comp: AnsiChar; // type of version numbers comparator
+  end;
+  PETS_SOURCE_STORAGE_OPTIONS = ^TETS_SOURCE_STORAGE_OPTIONS;
+
+procedure Init_TETS_SOURCE_STORAGE_OPTIONS(p: PETS_SOURCE_STORAGE_OPTIONS);
 
 implementation
+
+procedure Init_TETS_SOURCE_STORAGE_OPTIONS(p: PETS_SOURCE_STORAGE_OPTIONS);
+begin
+  FillChar(p^, sizeof(p^), 0);
+  p^.tileid_type:=TILE_ID_TYPE_XYZ_2BYTE;
+  p^.ver_comp:=TILE_VERSION_COMPARE_NONE;
+end;
 
 end.

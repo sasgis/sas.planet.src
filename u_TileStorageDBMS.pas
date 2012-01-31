@@ -312,9 +312,11 @@ begin
 end;
 
 procedure TTileStorageDBMS.InternalCreateStorageLink;
+var t: TETS_SOURCE_STORAGE_OPTIONS;
 begin
   if (nil=FExtLink) then begin
-    FExtLink:=FExtStorage.CreateNewLink(FCacheConfig.ServiceName, '');
+    Init_TETS_SOURCE_STORAGE_OPTIONS(@t);
+    FExtLink:=FExtStorage.CreateNewLink(FCacheConfig.ServiceName, '', '', @t);
   end;
 end;
 
